@@ -5595,7 +5595,8 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 							if(pFreeUnit->IsGreatGeneral())
 							{
 								owningPlayer.incrementGreatGeneralsCreated();
-								pFreeUnit->jumpToNearestValidPlot();
+								if (!pFreeUnit->jumpToNearestValidPlot())
+									pFreeUnit->kill(false);	// Could not find a valid spot!
 							}
 							else if(pFreeUnit->IsGreatAdmiral())
 							{
@@ -5609,7 +5610,8 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 							else if (pFreeUnit->IsGreatPerson())
 							{
 								owningPlayer.incrementGreatPeopleCreated();
-								pFreeUnit->jumpToNearestValidPlot();
+								if (!pFreeUnit->jumpToNearestValidPlot())
+									pFreeUnit->kill(false);	// Could not find a valid spot!
 							}
 						}
 					}
@@ -8042,7 +8044,7 @@ bool CvCity::DoRazingTurn()
 		ChangeRazingTurns(-1);
 
 		// Counter has reached 0, disband the City
-		if(GetRazingTurns() <= 0)
+		if(GetRazingTurns() <= 0 || getPopulation() <= 1)
 		{
 			CvPlot* pkPlot = plot();
 			kPlayer.disband(this);
@@ -13928,16 +13930,16 @@ int CvCity::GetAirStrikeDefenseDamage(const CvUnit* pAttacker, bool bIncludeRand
 	double fStrengthRatio = (double(iDefenderStrength) / iAttackerStrength);
 
 	// In case our strength is less than the other guy's, we'll do things in reverse then make the ratio 1 over the result
-	if(iDefenderStrength > iAttackerStrength)
+	if (iAttackerStrength > iDefenderStrength)
 	{
-		fStrengthRatio = (double(iDefenderStrength) / iAttackerStrength);
+		fStrengthRatio = (double(iAttackerStrength) / iDefenderStrength);
 	}
 
 	fStrengthRatio = (fStrengthRatio + 3) / 4;
 	fStrengthRatio = pow(fStrengthRatio, 4.0);
 	fStrengthRatio = (fStrengthRatio + 1) / 2;
 
-	if(iDefenderStrength > iAttackerStrength)
+	if (iAttackerStrength > iDefenderStrength)
 	{
 		fStrengthRatio = 1 / fStrengthRatio;
 	}

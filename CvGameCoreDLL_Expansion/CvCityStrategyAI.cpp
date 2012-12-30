@@ -875,7 +875,43 @@ void CvCityStrategyAI::ChooseProduction(bool bUseAsyncRandom, BuildingTypes eIgn
 			// Don't build the UN if you aren't going for the diplo victory
 			if(pkBuildingInfo->IsDiplomaticVoting())
 			{
-				if(!pDiploAI  || (!pDiploAI->IsGoingForDiploVictory() && kPlayer.GetTreasury()->GetGold() < 12000))
+				int iVotesNeededToWin = GC.getGame().GetVotesNeededForDiploVictory();
+				int iSecuredVotes = 0;
+				TeamTypes myTeamID = kPlayer.getTeam();
+				PlayerTypes myPlayerID = kPlayer.GetID();
+
+				// Loop through Players to see if they'll vote for this player
+				PlayerTypes eLoopPlayer;
+				TeamTypes eLoopTeam;
+				for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+				{
+					eLoopPlayer = (PlayerTypes) iPlayerLoop;
+
+					if(GET_PLAYER(eLoopPlayer).isAlive())
+					{
+						eLoopTeam = GET_PLAYER(eLoopPlayer).getTeam();
+
+						// Liberated?
+						if(GET_TEAM(eLoopTeam).GetLiberatedByTeam() == myTeamID)
+						{
+							iSecuredVotes++;
+						}
+
+						// Minor civ?
+						else if(GET_PLAYER(eLoopPlayer).isMinorCiv())
+						{
+							// Best Relations?
+							if(GET_PLAYER(eLoopPlayer).GetMinorCivAI()->GetAlly() == myPlayerID)
+							{
+								iSecuredVotes++;
+							}
+						}
+					}
+				}
+
+				int iNumberOfPlayersWeNeedToBuyOff = MAX(0, iVotesNeededToWin - iSecuredVotes);
+
+				if(!pDiploAI  || !pDiploAI->IsGoingForDiploVictory() || kPlayer.GetTreasury()->GetGold() < iNumberOfPlayersWeNeedToBuyOff * 500)
 				{
 					iTempWeight = 0;
 				}

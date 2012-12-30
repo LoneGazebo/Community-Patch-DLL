@@ -1708,42 +1708,49 @@ void CvGame::updateTurnTimer()
 	{
 		CvDLLInterfaceIFaceBase* iface = gDLL->getInterfaceIFace();
 		CvPlayer& activePlayer = GET_PLAYER(getActivePlayer());
-		if(getElapsedGameTurns() > 0)
+		if(!gDLL->HasSentTurnComplete())
 		{
-			if(!gDLL->allAIProcessedThisTurn() || !allUnitAIProcessed())
+			if(getElapsedGameTurns() > 0)
 			{
-				resetTurnTimer();
-			}
-			else
-			{
-				// Has the turn expired?
-				float gameTurnEnd = static_cast<float>(getMaxTurnLen());
-				CvPreGame::setEndTurnTimerLength(gameTurnEnd);
-				float timer = m_gameTurnTimer.Peek() + m_fGameTurnTimerPauseDelta;
-
-				if(activePlayer.isAlive())
+				if(!gDLL->allAIProcessedThisTurn() || !allUnitAIProcessed())
 				{
-					if(timer > gameTurnEnd)
+					resetTurnTimer();
+				}
+				else
+				{
+					// Has the turn expired?
+					float gameTurnEnd = static_cast<float>(getMaxTurnLen());
+					CvPreGame::setEndTurnTimerLength(gameTurnEnd);
+					float timer = m_gameTurnTimer.Peek() + m_fGameTurnTimerPauseDelta;
+
+					if(activePlayer.isAlive())
 					{
-						if(s_unitMoveTurnSlice == 0)
+						if(timer > gameTurnEnd)
 						{
-							gameTurnTimerExpired = true;
+							if(s_unitMoveTurnSlice == 0)
+							{
+								gameTurnTimerExpired = true;
+							}
+							else if(s_unitMoveTurnSlice + 10 < getTurnSlice())
+							{
+								gameTurnTimerExpired = true;
+							}
 						}
-						else if(s_unitMoveTurnSlice + 10 < getTurnSlice())
+						else
 						{
-							gameTurnTimerExpired = true;
+							iface->updateEndTurnTimer(timer / gameTurnEnd);
 						}
 					}
 					else
 					{
-						iface->updateEndTurnTimer(timer / gameTurnEnd);
+						gameTurnTimerExpired = true;
 					}
 				}
-				else
-				{
-					gameTurnTimerExpired = true;
-				}
 			}
+		}
+		else
+		{
+			iface->updateEndTurnTimer(0.0f);
 		}
 	}
 
@@ -7884,7 +7891,8 @@ void CvGame::updateMoves()
 								}
 								if(bMoveMe)
 								{
-									pLoopUnit->jumpToNearestValidPlotWithinRange(1);
+									if (!pLoopUnit->jumpToNearestValidPlotWithinRange(1))
+										pLoopUnit->kill(false);
 									break;
 								}
 								pLoopUnit->doDelayedDeath();
@@ -10659,7 +10667,7 @@ CombatPredictionTypes CvGame::GetCombatPrediction(const CvUnit* pAttackingUnit, 
 	{
 		ePrediction = COMBAT_PREDICTION_TOTAL_VICTORY;
 	}
-	else if(iAttackingDamageInflicted - iDefenderDamageInflicted > 3)
+	else if(iAttackingDamageInflicted - iDefenderDamageInflicted > 30)
 	{
 		ePrediction = COMBAT_PREDICTION_MAJOR_VICTORY;
 	}
@@ -10667,7 +10675,7 @@ CombatPredictionTypes CvGame::GetCombatPrediction(const CvUnit* pAttackingUnit, 
 	{
 		ePrediction = COMBAT_PREDICTION_SMALL_VICTORY;
 	}
-	else if(iDefenderDamageInflicted - iAttackingDamageInflicted > 3)
+	else if(iDefenderDamageInflicted - iAttackingDamageInflicted > 30)
 	{
 		ePrediction = COMBAT_PREDICTION_MAJOR_DEFEAT;
 	}

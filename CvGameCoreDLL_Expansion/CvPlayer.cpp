@@ -1498,7 +1498,12 @@ CvPlot* CvPlayer::addFreeUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 		// Don't stack any units
 		if(pBestPlot->getNumUnits() > 1)
 		{
-			pNewUnit->jumpToNearestValidPlot();
+			if (!pNewUnit->jumpToNearestValidPlot())
+			{
+				// Could not find a spot for the unit
+				pNewUnit->kill(false);		
+				return NULL;
+			}
 		}
 		pReturnValuePlot = pNewUnit->plot();
 	}
@@ -1600,6 +1605,12 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 			// Notify Diplo AI that damage has been done
 			int iValue = iDefaultCityValue;
 			iValue += pOldCity->getPopulation() * /*100*/ GC.getWAR_DAMAGE_LEVEL_INVOLVED_CITY_POP_MULTIPLIER();
+			if (pOldCity->IsOriginalCapital())
+			{
+				iValue *= 3;
+				iValue /= 2;
+			}
+
 			// My viewpoint
 			GetDiplomacyAI()->ChangeOtherPlayerWarValueLost(pOldCity->getOwner(), GetID(), iValue);
 			// Bad guy's viewpoint
@@ -2267,9 +2278,27 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 	{
 		bDisbanded = true;
 		disband(pNewCity);
+		// disband will delete the city
+		pNewCity = NULL;
+
+		// Set the plots to no owner
+		for(uint ui = 0; ui < aiPurchasedPlotX.size(); ui++)
+		{
+			CvPlot* pPlot = GC.getMap().plot(aiPurchasedPlotX[ui], aiPurchasedPlotY[ui]);
+			pPlot->setOwner(NO_PLAYER, -1, /*bCheckUnits*/ true, /*bUpdateResources*/ true);
+		}
+
 	}
 	else //if (bConquest)
 	{
+		// Set the plots to the new owner, now, we may be flipping it to a liberated player and we need to pass on the information.
+		for(uint ui = 0; ui < aiPurchasedPlotX.size(); ui++)
+		{
+			CvPlot* pPlot = GC.getMap().plot(aiPurchasedPlotX[ui], aiPurchasedPlotY[ui]);
+			if(pPlot->getOwner() != pNewCity->getOwner())
+				pPlot->setOwner(pNewCity->getOwner(), /*iAcquireCityID*/ pNewCity->GetID(), /*bCheckUnits*/ true, /*bUpdateResources*/ true);
+		}
+
 		// Is this City being Occupied?
 		if(pNewCity->getOriginalOwner() != GetID())
 		{
@@ -2298,6 +2327,13 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 			if(!isHuman())
 			{
 				AI_conquerCity(pNewCity, eOldOwner); // could delete the pointer...
+				// So we will check to see if the plot still contains the city.
+				CvCity* pkCurrentCity = pCityPlot->getPlotCity();
+				if (pkCurrentCity == NULL || pNewCity != pkCurrentCity || pkCurrentCity->getOwner() != GetID())
+				{
+					// The city is gone or is not ours anymore (we gave it away)
+					pNewCity = NULL;
+				}
 			}
 
 			// Human decides what to do with a City
@@ -2339,6 +2375,8 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 		}
 	}
 
+	// Be careful below here, pNewCity can be NULL.
+
 	// Cache whether the player is human or not.  If the player is killed, the CvPreGame::slotStatus is changed to SS_CLOSED
 	// but the slot status is used to determine if the player is human or not, so it looks like it is an AI!
 	// This should be fixed, but might have unforeseen ramifications so...
@@ -2361,21 +2399,6 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 		}
 	}
 
-	// grant the new owner any of the plots that were purchased by the prior owner
-	for(uint ui = 0; ui < aiPurchasedPlotX.size(); ui++)
-	{
-		CvPlot* pPlot = GC.getMap().plot(aiPurchasedPlotX[ui], aiPurchasedPlotY[ui]);
-		if(!bDisbanded)
-		{
-			if(pPlot->getOwner() != pNewCity->getOwner())
-				pPlot->setOwner(pNewCity->getOwner(), /*iAcquireCityID*/ pNewCity->GetID(), /*bCheckUnits*/ true, /*bUpdateResources*/ true);
-		}
-		else
-		{
-			pPlot->setOwner(NO_PLAYER, -1, /*bCheckUnits*/ true, /*bUpdateResources*/ true);
-		}
-	}
-
 	if(GC.getGame().getActiveTeam() == GET_PLAYER(eOldOwner).getTeam())
 	{
 		CvMap& theMap = GC.getMap();
@@ -2383,7 +2406,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 	}
 
 	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
-	if(pkScriptSystem)
+	if(pkScriptSystem && pNewCity != NULL)
 	{
 		CvLuaArgsHandle args;
 		args->Push(eOldOwner);
@@ -2829,16 +2852,20 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID)
 	// Move Units from player that don't belong here
 	if(pPlot->getNumUnits() > 0)
 	{
-		CvUnit* pLoopUnit;
-
-		for(int iUnitIndexLoop = 0; iUnitIndexLoop < pPlot->getNumUnits(); iUnitIndexLoop++)
+		// Get the current list of units because we will possibly be moving them out of the plot's list
+		IDInfoVector currentUnits;
+		if (pPlot->getUnits(&currentUnits) > 0)
 		{
-			pLoopUnit = pPlot->getUnitByIndex(iUnitIndexLoop);
-
-			if(pLoopUnit->getOwner() == eOldOwner)
+			for(IDInfoVector::const_iterator itr = currentUnits.begin(); itr != currentUnits.end(); ++itr)
 			{
-				pLoopUnit->finishMoves();
-				pLoopUnit->jumpToNearestValidPlot();
+				CvUnit* pLoopUnit = (CvUnit*)GetPlayerUnit(*itr);
+
+				if(pLoopUnit && pLoopUnit->getOwner() == eOldOwner)
+				{
+					pLoopUnit->finishMoves();
+					if (!pLoopUnit->jumpToNearestValidPlot())
+						pLoopUnit->kill(false);
+				}
 			}
 		}
 	}
@@ -4081,7 +4108,8 @@ void CvPlayer::RespositionInvalidUnits()
 
 		if(pPlot->getNumFriendlyUnitsOfType(pLoopUnit) > GC.getPLOT_UNIT_LIMIT())
 		{
-			pLoopUnit->jumpToNearestValidPlot();
+			if (!pLoopUnit->jumpToNearestValidPlot())
+				pLoopUnit->kill(false);	// Could not find a valid location!
 		}
 	}
 }
@@ -4863,15 +4891,18 @@ void CvPlayer::disband(CvCity* pCity)
 
 	if(pPlot)
 	{
-		IDInfo* pUnitNode = pPlot->headUnitNode();
-		while(pUnitNode != NULL)
+		IDInfoVector currentUnits;
+		if (pPlot->getUnits(&currentUnits) > 0)
 		{
-			CvUnit* pUnit = ::getUnit(*pUnitNode);
-			pUnitNode = pPlot->nextUnitNode(pUnitNode);
-
-			if(!pPlot->isValidDomainForLocation(*pUnit))
+			for (IDInfoVector::const_iterator itr = currentUnits.begin(); itr != currentUnits.end(); ++itr)
 			{
-				pUnit->jumpToNearestValidPlot();
+				CvUnit* pUnit = ::getUnit(*itr);
+
+				if(pUnit && !pPlot->isValidDomainForLocation(*pUnit))
+				{
+					if (!pUnit->jumpToNearestValidPlot())
+						pUnit->kill(false);
+				}
 			}
 		}
 	}
@@ -8128,7 +8159,7 @@ int CvPlayer::specialistYield(SpecialistTypes eSpecialist, YieldTypes eYield) co
 		return 0;
 	}
 
-	int iRtnValue = pkSpecialistInfo->getYieldChange(eYield) + getSpecialistExtraYield(eSpecialist, eYield);
+	int iRtnValue = pkSpecialistInfo->getYieldChange(eYield) + getSpecialistExtraYield(eSpecialist, eYield) + GetPlayerTraits()->GetSpecialistYieldChange(eSpecialist, eYield);
 
 	if (eSpecialist != GC.getDEFAULT_SPECIALIST())
 	{
@@ -9413,7 +9444,8 @@ void CvPlayer::DoRevolt()
 
 				// Init unit
 				CvUnit* pUnit = GET_PLAYER(BARBARIAN_PLAYER).initUnit(eUnit, pPlot->getX(), pPlot->getY());
-				pUnit->jumpToNearestValidPlotWithinRange(5);
+				if (!pUnit->jumpToNearestValidPlotWithinRange(5))
+					pUnit->kill(false);		// Could not find a spot!
 			}
 			while(iNumRebels > 0);
 		}
@@ -11623,7 +11655,8 @@ void CvPlayer::DoSpawnGreatPerson(PlayerTypes eMinor)
 		}
 		else
 		{
-			pNewGreatPeople->jumpToNearestValidPlot();
+			if (!pNewGreatPeople->jumpToNearestValidPlot())
+				pNewGreatPeople->kill(false);	// Could not find a spot!
 		}
 
 		CvNotifications* pNotifications = GetNotifications();
@@ -13023,7 +13056,12 @@ int CvPlayer::calculateMilitaryMight() const
 	for(pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
 	{
 		// Current combat strength or bombard strength, whichever is higher
-		rtnValue += pLoopUnit->GetPower();
+		int iPower =  pLoopUnit->GetPower();
+		if (pLoopUnit->getDomainType() == DOMAIN_SEA)
+		{
+			iPower /= 2;
+		}
+		rtnValue += iPower;
 	}
 
 	//Simplistic increase based on player's gold
@@ -14859,7 +14897,7 @@ void CvPlayer::DoUpdateProximityToPlayer(PlayerTypes ePlayer)
 		}
 
 		// If we've already set ourselves as Neighbors, no need to undo what we just did
-		if(eProximity == NO_PLAYER_PROXIMITY)
+		if(eProximity != PLAYER_PROXIMITY_NEIGHBORS)
 		{
 			int iMapFactor = (GC.getMap().getGridWidth() + GC.getMap().getGridHeight()) / 2;
 
@@ -14889,7 +14927,7 @@ void CvPlayer::DoUpdateProximityToPlayer(PlayerTypes ePlayer)
 			}
 
 			// Close
-			if(iAverageDistanceBetweenCities <= iCloseDistance)
+			if(eProximity == PLAYER_PROXIMITY_CLOSE && iAverageDistanceBetweenCities <= iCloseDistance)
 			{
 				eProximity = PLAYER_PROXIMITY_CLOSE;
 			}
@@ -15032,7 +15070,8 @@ void CvPlayer::DoCivilianReturnLogic(bool bReturn, PlayerTypes eToPlayer, int iU
 	{
 		pUnit->kill(true);
 		CvUnit* pNewUnit = GET_PLAYER(eToPlayer).initUnit(eNewUnitType, iX, iY);
-		pNewUnit->jumpToNearestValidPlot();
+		if (!pNewUnit->jumpToNearestValidPlot())
+			pNewUnit->kill(false);	// Could not find a spot!
 
 		// Returned to a city-state
 		if(GET_PLAYER(eToPlayer).isMinorCiv())
@@ -15081,7 +15120,8 @@ void CvPlayer::DoIncomingUnits()
 					CvUnit* pNewUnit = initUnit(GetIncomingUnitType(iLoop), pCapital->getX(), pCapital->getY());
 					if(pNewUnit->getDomainType() != DOMAIN_AIR)
 					{
-						pNewUnit->jumpToNearestValidPlot();
+						if (!pNewUnit->jumpToNearestValidPlot())
+							pNewUnit->kill(false);
 					}
 				}
 
@@ -18958,7 +18998,8 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 								if(pNewUnit->IsGreatGeneral())
 								{
 									incrementGreatGeneralsCreated();
-									pNewUnit->jumpToNearestValidPlot();
+									if (!pNewUnit->jumpToNearestValidPlot())
+										pNewUnit->kill(false);
 								}
 								else if(pNewUnit->IsGreatAdmiral())
 								{
@@ -18972,7 +19013,8 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 								else if(pNewUnit->IsGreatPerson())
 								{
 									incrementGreatPeopleCreated();
-									pNewUnit->jumpToNearestValidPlot();
+									if (!pNewUnit->jumpToNearestValidPlot())
+										pNewUnit->kill(false);
 								}
 							}
 						}

@@ -6020,7 +6020,6 @@ int CvLuaPlayer::lGetRecommendedFoundCityPlots(lua_State* L)
 	if(pFoundingUnit == NULL)
 		return 0;
 
-	int iReturnSize = 2;
 	int aiX[2];
 	int aiY[2];
 	int aiValues[2];
@@ -6116,21 +6115,35 @@ int CvLuaPlayer::lGetRecommendedFoundCityPlots(lua_State* L)
 		}
 	}
 
-	lua_createtable(L, iReturnSize, 0);
-	int iPositionIndex = lua_gettop(L);
-	int i = 1;
+	int iReturnSize = 0;
 	for(uint ui = 0; ui < 2; ui++)
 	{
-		CvPlot* pPlot = NULL;
 		if(aiValues[ui] >= 0)
 		{
-			pPlot = kMap.plotCheckInvalid(aiX[ui], aiY[ui]);
+			if (kMap.plotCheckInvalid(aiX[ui], aiY[ui]))
+				++iReturnSize;
 		}
+	}
 
-		CvAssertMsg(pPlot, "plot is null, whut??");
-		CvLuaPlot::Push(L, pPlot);
-		lua_rawseti(L, iPositionIndex, i);
-		i++;
+	lua_createtable(L, iReturnSize, 0);
+	if (iReturnSize > 0)
+	{
+		int iPositionIndex = lua_gettop(L);
+		int i = 1;
+		for(uint ui = 0; ui < 2; ui++)
+		{
+			CvPlot* pPlot = NULL;
+			if(aiValues[ui] >= 0)
+			{
+				pPlot = kMap.plotCheckInvalid(aiX[ui], aiY[ui]);
+				if (pPlot)
+				{
+					CvLuaPlot::Push(L, pPlot);
+					lua_rawseti(L, iPositionIndex, i);
+					i++;
+				}
+			}
+		}
 	}
 
 	return 1;

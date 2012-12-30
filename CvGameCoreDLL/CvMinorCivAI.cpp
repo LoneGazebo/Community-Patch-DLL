@@ -4413,17 +4413,20 @@ void CvMinorCivAI::DoSpawnUnit(PlayerTypes ePlayer)
 				pNewUnit->changeExperience(GC.getMAX_EXPERIENCE_PER_COMBAT());
 			}
 
-			pNewUnit->jumpToNearestValidPlot();
+			if (!pNewUnit->jumpToNearestValidPlot())
+				pNewUnit->kill(false);
+			else
+			{
+				if (GetPlayer()->getCapitalCity())
+					GetPlayer()->getCapitalCity()->addProductionExperience(pNewUnit);
 
-			if (GetPlayer()->getCapitalCity())
-				GetPlayer()->getCapitalCity()->addProductionExperience(pNewUnit);
+				Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_UNIT_SPAWN");
+				strMessage << GetPlayer()->getNameKey();
+				Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_STATE_UNIT_SPAWN");
+				strSummary << GetPlayer()->getNameKey();
 
-			Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_UNIT_SPAWN");
-			strMessage << GetPlayer()->getNameKey();
-			Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_STATE_UNIT_SPAWN");
-			strSummary << GetPlayer()->getNameKey();
-
-			AddNotification(strMessage, strSummary, ePlayer, pNewUnit->getX(), pNewUnit->getY());
+				AddNotification(strMessage, strSummary, ePlayer, pNewUnit->getX(), pNewUnit->getY());
+			}
 		}
 	}
 

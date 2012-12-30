@@ -11,6 +11,8 @@
 #include "CvGameCoreUtils.h"
 #include "CvInternalGameCoreUtils.h"
 #include "CvCitySpecializationAI.h"
+#include "CvMinorCivAI.h"
+#include "CvDiplomacyAI.h"
 // include this after all other headers
 #include "LintFree.h"
 
@@ -270,6 +272,51 @@ BuildingTypes CvWonderProductionAI::ChooseWonder(bool bUseAsyncRandom, bool bAdj
 				bool bAlreadyStarted = pWonderCity->GetCityBuildings()->GetBuildingProduction(eBuilding) > 0;
 				int iTempWeight = bAlreadyStarted ? m_WonderAIWeights.GetWeight(iBldgLoop) * 25 : m_WonderAIWeights.GetWeight(iBldgLoop);
 
+				// Don't build the UN if you aren't going for the diplo victory
+				if(pkBuildingInfo->IsDiplomaticVoting())
+				{
+					int iVotesNeededToWin = GC.getGame().GetVotesNeededForDiploVictory();
+					int iSecuredVotes = 0;
+					TeamTypes myTeamID = m_pPlayer->getTeam();
+					PlayerTypes myPlayerID = m_pPlayer->GetID();
+
+					// Loop through Players to see if they'll vote for this player
+					PlayerTypes eLoopPlayer;
+					TeamTypes eLoopTeam;
+					for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+					{
+						eLoopPlayer = (PlayerTypes) iPlayerLoop;
+
+						if(GET_PLAYER(eLoopPlayer).isAlive())
+						{
+							eLoopTeam = GET_PLAYER(eLoopPlayer).getTeam();
+
+							// Liberated?
+							if(GET_TEAM(eLoopTeam).GetLiberatedByTeam() == myTeamID)
+							{
+								iSecuredVotes++;
+							}
+
+							// Minor civ?
+							else if(GET_PLAYER(eLoopPlayer).isMinorCiv())
+							{
+								// Best Relations?
+								if(GET_PLAYER(eLoopPlayer).GetMinorCivAI()->GetAlly() == myPlayerID)
+								{
+									iSecuredVotes++;
+								}
+							}
+						}
+					}
+
+					int iNumberOfPlayersWeNeedToBuyOff = MAX(0, iVotesNeededToWin - iSecuredVotes);
+
+					if(!m_pPlayer->GetDiplomacyAI() || !m_pPlayer->GetDiplomacyAI()->IsGoingForDiploVictory() || m_pPlayer->GetTreasury()->GetGold() < iNumberOfPlayersWeNeedToBuyOff * 500 )
+					{
+						iTempWeight = 0;
+					}
+				}
+
 				iWeight = CityStrategyAIHelpers::ReweightByTurnsLeft(iTempWeight, iTurnsRequired);
 
 				if(bAdjustForOtherPlayers && ::isWorldWonderClass(kBuildingClassInfo))
@@ -369,6 +416,50 @@ BuildingTypes CvWonderProductionAI::ChooseWonderForGreatEngineer(bool bUseAsyncR
 			if (IsWonder(kBuilding) && HaveCityToBuild((BuildingTypes)iBldgLoop))
 			{
 				iWeight = m_WonderAIWeights.GetWeight((UnitTypes)iBldgLoop); // use raw weight since this wonder is essentially free
+				// Don't build the UN if you aren't going for the diplo victory and have a chance of winning it
+				if(pkBuildingInfo->IsDiplomaticVoting())
+				{
+					int iVotesNeededToWin = GC.getGame().GetVotesNeededForDiploVictory();
+					int iSecuredVotes = 0;
+					TeamTypes myTeamID = m_pPlayer->getTeam();
+					PlayerTypes myPlayerID = m_pPlayer->GetID();
+
+					// Loop through Players to see if they'll vote for this player
+					PlayerTypes eLoopPlayer;
+					TeamTypes eLoopTeam;
+					for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+					{
+						eLoopPlayer = (PlayerTypes) iPlayerLoop;
+
+						if(GET_PLAYER(eLoopPlayer).isAlive())
+						{
+							eLoopTeam = GET_PLAYER(eLoopPlayer).getTeam();
+
+							// Liberated?
+							if(GET_TEAM(eLoopTeam).GetLiberatedByTeam() == myTeamID)
+							{
+								iSecuredVotes++;
+							}
+
+							// Minor civ?
+							else if(GET_PLAYER(eLoopPlayer).isMinorCiv())
+							{
+								// Best Relations?
+								if(GET_PLAYER(eLoopPlayer).GetMinorCivAI()->GetAlly() == myPlayerID)
+								{
+									iSecuredVotes++;
+								}
+							}
+						}
+					}
+
+					int iNumberOfPlayersWeNeedToBuyOff = MAX(0, iVotesNeededToWin - iSecuredVotes);
+
+					if(!m_pPlayer->GetDiplomacyAI() || !m_pPlayer->GetDiplomacyAI()->IsGoingForDiploVictory() || m_pPlayer->GetTreasury()->GetGold() < iNumberOfPlayersWeNeedToBuyOff * 500 )
+					{
+						iWeight = 0;
+					}
+				}
 				// ??? do we want to weight it more for more expensive wonders?
 				m_Buildables.push_back(iBldgLoop, iWeight);
 			}

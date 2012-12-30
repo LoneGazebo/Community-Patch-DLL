@@ -42,6 +42,8 @@ typedef bool (*PlotUnitFunc)(CvUnit* pUnit, int iData1, int iData2);
 // please don't change this
 #define NUM_INVISIBLE_TYPES 1
 
+typedef FFastVector<IDInfo, true, c_eCiv5GameplayDLL, 0> IDInfoVector;
+
 class CvPlot
 {
 
@@ -123,8 +125,8 @@ public:
 	int getUnitPower(PlayerTypes eOwner = NO_PLAYER) const;
 
 	int defenseModifier(TeamTypes eDefender, bool bIgnoreBuilding, bool bHelp = false) const;
-	int movementCost(const CvUnit* pUnit, const CvPlot* pFromPlot) const;
-	int MovementCostNoZOC(const CvUnit* pUnit, const CvPlot* pFromPlot) const;
+	int movementCost(const CvUnit* pUnit, const CvPlot* pFromPlot, int iMovesRemaining = 0) const;
+	int MovementCostNoZOC(const CvUnit* pUnit, const CvPlot* pFromPlot, int iMovesRemaining = 0) const;
 	bool ConsumesAllMoves(const CvUnit* pUnit, const CvPlot* pFromPlot) const;
 	bool CostsOnlyOne(const CvUnit* pUnit, const CvPlot* pFromPlot) const;
 	void GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot, int& iRegularCost, int& iRouteCost, int& iRouteFlatCost) const;
@@ -617,6 +619,7 @@ public:
 	IDInfo* headUnitNode();
 	const IDInfo* tailUnitNode() const;
 	IDInfo* tailUnitNode();
+	uint getUnits(IDInfoVector* pkInfoVector) const;
 
 	// Script data needs to be a narrow string for pickling in Python
 	CvString getScriptData() const;

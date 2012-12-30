@@ -1355,19 +1355,25 @@ CvUnit* CvUnit::createCaptureUnit(const CvUnitCaptureDefinition& kCaptureDef)
 						auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(pkCapturedUnit));
 						gDLL->GameplayUnitEmbark(pDllUnit.get(), true);
 						pkCapturedUnit->setEmbarked(true);
-						pkCapturedUnit->jumpToNearestValidPlot();
+						if (!pkCapturedUnit->jumpToNearestValidPlot())
+						{
+							pkCapturedUnit->kill(false);
+							pkCapturedUnit = NULL;
+						}
 					}
 
-					pkCapturedUnit->finishMoves();
-
 					bool bDisbanded = false;
-
-					//// Minor civs can't capture settlers, ever!
-					if (!bDisbanded && GET_PLAYER(pkCapturedUnit->getOwner()).isMinorCiv() && (pkCapturedUnit->isFound() || pkCapturedUnit->IsFoundAbroad()))
+					if (pkCapturedUnit != NULL)
 					{
-						bDisbanded = true;
-						pkCapturedUnit->kill(false);
-						pkCapturedUnit = NULL;
+						pkCapturedUnit->finishMoves();
+
+						//// Minor civs can't capture settlers, ever!
+						if (!bDisbanded && GET_PLAYER(pkCapturedUnit->getOwner()).isMinorCiv() && (pkCapturedUnit->isFound() || pkCapturedUnit->IsFoundAbroad()))
+						{
+							bDisbanded = true;
+							pkCapturedUnit->kill(false);
+							pkCapturedUnit = NULL;
+						}
 					}
 
 					bool bShowingHumanPopup = true;
@@ -1396,14 +1402,14 @@ CvUnit* CvUnit::createCaptureUnit(const CvUnitCaptureDefinition& kCaptureDef)
 						bShowingHumanPopup = false;
 
 					// Show the popup
-					if (bShowingHumanPopup && bShowingActivePlayerPopup)
+					if (bShowingHumanPopup && bShowingActivePlayerPopup && pkCapturedUnit != NULL)
 					{
 						CvPopupInfo kPopupInfo(BUTTONPOPUP_RETURN_CIVILIAN, kCaptureDef.eCapturingPlayer, kCaptureDef.eOriginalOwner, pkCapturedUnit->GetID());
 						DLLUI->AddPopup(kPopupInfo);
 					}
 
 					// Take it automatically!
-					else if (!bShowingHumanPopup && !bDisbanded && !pkCapturedUnit->isBarbarian())	// Don't process if the AI decided to disband the unit, or the barbs captured something
+					else if (!bShowingHumanPopup && !bDisbanded && pkCapturedUnit && !pkCapturedUnit->isBarbarian())	// Don't process if the AI decided to disband the unit, or the barbs captured something
 					{
 						// If the unit originally belonged to us, we've already done what we needed to do
 						if (kCaptureDef.eCapturingPlayer != kCaptureDef.eOriginalOwner)
@@ -2692,7 +2698,7 @@ void CvUnit::move(CvPlot & targetPlot, bool bShow)
 
 
 //	--------------------------------------------------------------------------------
-void CvUnit::jumpToNearestValidPlot()
+bool CvUnit::jumpToNearestValidPlot()
 {
 	VALIDATE_OBJECT
 	CvCity* pNearestCity;
@@ -2778,13 +2784,15 @@ void CvUnit::jumpToNearestValidPlot()
 	}
 	else
 	{
-		kill(false);
+		return false;
 	}
+
+	return true;
 }
 
 
 //	--------------------------------------------------------------------------------
-void CvUnit::jumpToNearestValidPlotWithinRange(int iRange)
+bool CvUnit::jumpToNearestValidPlotWithinRange(int iRange)
 {
 	VALIDATE_OBJECT
 	CvPlot* pLoopPlot;
@@ -2859,11 +2867,12 @@ void CvUnit::jumpToNearestValidPlotWithinRange(int iRange)
 		if (GC.getLogging() && GC.getAILogging())
 		{
 			CvString strLogString;
-			strLogString.Format("Can't find a valid plot within range. %s deleted, X: %d, Y: %d", getName().GetCString(), getX(), getY());
+			strLogString.Format("Can't find a valid plot within range. for %s, X: %d, Y: %d", getName().GetCString(), getX(), getY());
 			GET_PLAYER(m_eOwner).GetHomelandAI()->LogHomelandMessage(strLogString);
 		}
-		kill(false);
+		return false;
 	}
+	return true;
 }
 
 
@@ -2996,19 +3005,15 @@ int CvUnit::GetScrapGold() const
 	iNumGold *= /*10*/ GC.getDISBAND_UNIT_REFUND_PERCENT();
 	iNumGold /= 100;
 
-	if (plot()->isOwned())
-	{
-		if (plot()->getOwner() == getOwner())
-		{
-			// Modify amount based on current health
-			iNumGold *= 100 * (GC.getMAX_HIT_POINTS() - getDamage()) / GC.getMAX_HIT_POINTS();
-			iNumGold /= 100;
+	// Modify amount based on current health
+	iNumGold *= 100 * (GC.getMAX_HIT_POINTS() - getDamage()) / GC.getMAX_HIT_POINTS();
+	iNumGold /= 100;
 
-			// Modify for game speed
-			iNumGold *= GC.getGame().getGameSpeedInfo().getTrainPercent();;
-			iNumGold /= 100;
-		}
-	}
+
+	// slewis - moved this out of the plot check because the game speed should effect all scrap gold calculations, not just the ones that are in the owner's plot
+	// Modify for game speed
+	iNumGold *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+	iNumGold /= 100;
 
 	// Check to see if we are transporting other units and add in their scrap value as well.
 	CvPlot *pPlot = plot();
@@ -8494,10 +8499,6 @@ int CvUnit::GetInterceptionDamage(const CvUnit* pAttacker, bool bIncludeRand) co
 {
 	int iAttackerStrength = pAttacker->GetMaxRangedCombatStrength(this, /*pCity*/ NULL, true, /*bForRangedAttack*/ false);
 
-	// Mod to interception strength
-	iAttackerStrength *= (100 + GetInterceptionCombatModifier());
-	iAttackerStrength /= 100;
-
 	int iInterceptorStrength = 0;
 
 	// Use Ranged combat value for Interceptor, UNLESS it's a boat
@@ -8509,6 +8510,10 @@ int CvUnit::GetInterceptionDamage(const CvUnit* pAttacker, bool bIncludeRand) co
 	{
 		iInterceptorStrength = GetMaxDefenseStrength(plot(), pAttacker);
 	}
+
+	// Mod to interception strength
+	iInterceptorStrength *= (100 + GetInterceptionCombatModifier());
+	iInterceptorStrength /= 100;
 
 	// The roll will vary damage between 2 and 3 (out of 10) for two units of identical strength
 
@@ -8552,7 +8557,7 @@ int CvUnit::GetInterceptionDamage(const CvUnit* pAttacker, bool bIncludeRand) co
 	iInterceptorDamage = int(iInterceptorDamage * fStrengthRatio);
 
 	// Mod to interception damage
-	iInterceptorDamage *= (100 + GetInterceptionDefenseDamageModifier());
+	iInterceptorDamage *= (100 + pAttacker->GetInterceptionDefenseDamageModifier());
 	iInterceptorDamage /= 100;
 
 	// Bring it back out of hundreds
@@ -10001,7 +10006,8 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 								{
 									if (!pNewPlot->isCity())
 									{
-										pLoopUnit->jumpToNearestValidPlot();
+										if (!pLoopUnit->jumpToNearestValidPlot())
+											pLoopUnit->kill(false, getOwner());
 									}
 									else
 									{
@@ -15104,7 +15110,7 @@ bool CvUnit::UnitAttack(int iX, int iY, int iFlags, int iSteps)
 	if (kPathNodeArray.size() == 0 || getDomainType() == DOMAIN_AIR)
 	{
 		// Manually check for adjacency
-		if ((getDomainType() == DOMAIN_AIR) || (plotDistance(getX(), getY(), pDestPlot->getX(), pDestPlot->getY()) == 1))
+		if ((getDomainType() == DOMAIN_AIR) || (plotDistance(getX(), getY(), iX, iY) == 1))
 		{
 			if ((iFlags & MISSION_MODIFIER_DIRECT_ATTACK) || (getDomainType() == DOMAIN_AIR) || (GeneratePath(pDestPlot, iFlags) && (GetPathFirstPlot() == pDestPlot)))
 			{
@@ -15122,7 +15128,12 @@ bool CvUnit::UnitAttack(int iX, int iY, int iFlags, int iSteps)
 			const CvPathNode& kNode = kPathNodeArray[1];
 			if (kNode.m_iX == getX() && kNode.m_iY == getY())
 			{
-				bAdjacent = true;
+				// The path may not be all the way to the destination, it may be only to the unit's turn limit, so check against the final destination
+				const CvPathNode& kDestNode = kPathNodeArray[0];
+				if (kDestNode.m_iX == iX && kDestNode.m_iY == iY)
+				{
+					bAdjacent = true;
+				}
 			}
 		}
 	}
@@ -15140,7 +15151,7 @@ bool CvUnit::UnitAttack(int iX, int iY, int iFlags, int iSteps)
 			// Air mission
 			if (getDomainType() == DOMAIN_AIR && GetBaseCombatStrength() == 0)
 			{
-				if (canRangeStrikeAt(pDestPlot->getX(), pDestPlot->getY()))
+				if (canRangeStrikeAt(iX, iY))
 				{
 					CvUnitCombat::AttackAir(*this, *pDestPlot, (iFlags &  MISSION_MODIFIER_NO_DEFENSIVE_SUPPORT)?CvUnitCombat::ATTACK_OPTION_NO_DEFENSIVE_SUPPORT:CvUnitCombat::ATTACK_OPTION_NONE);
 					bAttack = true;

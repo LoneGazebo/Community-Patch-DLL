@@ -1740,12 +1740,15 @@ void CvHomelandAI::ExecuteExplorerMoves()
 #if defined(PATH_PLAN_LAST)
 		aBestPlotList.clear();
 #endif
+		TeamTypes eTeam = pUnit->getTeam();
+		int iBaseSightRange = pUnit->getUnitInfo().GetBaseSightRange();
+
 		int iMovementRange = pUnit->movesLeft() / GC.getMOVE_DENOMINATOR();
 		for (int iX = -iMovementRange; iX <= iMovementRange; iX++)
 		{
 			for (int iY = -iMovementRange; iY <= iMovementRange; iY++)
 			{
-				CvPlot* pEvalPlot = plotXYWithRangeCheck(pUnit->getX(), pUnit->getY(), iX, iY, iMovementRange);
+				CvPlot* pEvalPlot = plotXYWithRangeCheck(iUnitX, iUnitY, iX, iY, iMovementRange);
 				if (!pEvalPlot)
 				{
 					continue;
@@ -1772,7 +1775,7 @@ void CvHomelandAI::ExecuteExplorerMoves()
 #endif
 
 				DomainTypes eDomain = pUnit->getDomainType();
-				int iScore = CvEconomicAI::ScoreExplorePlot(pEvalPlot, pUnit->getTeam(), pUnit->getUnitInfo().GetBaseSightRange(), eDomain);
+				int iScore = CvEconomicAI::ScoreExplorePlot(pEvalPlot, eTeam, iBaseSightRange, eDomain);
 				if (iScore > 0)
 				{
 					if (eDomain == DOMAIN_LAND && pEvalPlot->isHills())
@@ -2122,13 +2125,21 @@ void CvHomelandAI::ExecuteWorkerMoves()
 					pLog->Msg(strLog);
 				}
 
-				pUnit->finishMoves();
+				pUnit->PushMission(CvTypes::getMISSION_SKIP());
+				if (!m_pPlayer->isHuman())
+				{
+					pUnit->finishMoves();
+				}
 				UnitProcessed(pUnit->GetID());
 				continue;
 			}
 
+			// slewis - this was removed because a unit would eat all its moves. So if it didn't do anything this turn, it wouldn't be able to work 
 			pUnit->PushMission(CvTypes::getMISSION_SKIP());
-			pUnit->finishMoves();
+			if (!m_pPlayer->isHuman())
+			{
+				pUnit->finishMoves();
+			}
 			UnitProcessed(pUnit->GetID());
 		}
 	}
@@ -3132,8 +3143,32 @@ bool CvHomelandAI::MoveCivilianToSafety (CvUnit *pUnit, bool bIgnoreUnits)
 				LogHomelandMessage(strLogString);
 			}
 
-			pUnit->PushMission(CvTypes::getMISSION_SKIP());
-			return true;
+			if (pUnit->canHold(pBestPlot))
+			{
+				if(GC.getLogging() && GC.getAILogging())
+				{
+					CvString strLogString;
+					CvString strTemp;
+					strTemp = GC.getUnitInfo(pUnit->getUnitType())->GetDescription();
+					strLogString.Format("%s (%d) tried to move to safety but is at the best spot, X: %d, Y: %d", strTemp.GetCString(), pUnit->GetID(), pBestPlot->getX(), pBestPlot->getY());
+					LogHomelandMessage(strLogString);
+				}
+
+				pUnit->PushMission(CvTypes::getMISSION_SKIP());
+				return true;
+			}
+			else
+			{
+				if(GC.getLogging() && GC.getAILogging())
+				{
+					CvString strLogString;
+					CvString strTemp;
+					strTemp = GC.getUnitInfo(pUnit->getUnitType())->GetDescription();
+					strLogString.Format("%s (%d) tried to move to safety but cannot hold in current location, X: %d, Y: %d", strTemp.GetCString(), pUnit->GetID(), pBestPlot->getX(), pBestPlot->getY());
+					LogHomelandMessage(strLogString);
+				}
+				pUnit->SetAutomateType(NO_AUTOMATE);
+			}
 		}
 		else
 		{

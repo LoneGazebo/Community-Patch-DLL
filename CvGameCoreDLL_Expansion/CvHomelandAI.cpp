@@ -1890,12 +1890,15 @@ void CvHomelandAI::ExecuteExplorerMoves()
 #if defined(PATH_PLAN_LAST)
 		aBestPlotList.clear();
 #endif
+		TeamTypes eTeam = pUnit->getTeam();
+		int iBaseSightRange = pUnit->getUnitInfo().GetBaseSightRange();
+
 		int iMovementRange = pUnit->movesLeft() / GC.getMOVE_DENOMINATOR();
 		for(int iX = -iMovementRange; iX <= iMovementRange; iX++)
 		{
 			for(int iY = -iMovementRange; iY <= iMovementRange; iY++)
 			{
-				CvPlot* pEvalPlot = plotXYWithRangeCheck(pUnit->getX(), pUnit->getY(), iX, iY, iMovementRange);
+				CvPlot* pEvalPlot = plotXYWithRangeCheck(iUnitX, iUnitY, iX, iY, iMovementRange);
 				if(!pEvalPlot)
 				{
 					continue;
@@ -1922,7 +1925,7 @@ void CvHomelandAI::ExecuteExplorerMoves()
 #endif
 
 				DomainTypes eDomain = pUnit->getDomainType();
-				int iScore = CvEconomicAI::ScoreExplorePlot(pEvalPlot, pUnit->getTeam(), pUnit->getUnitInfo().GetBaseSightRange(), eDomain);
+				int iScore = CvEconomicAI::ScoreExplorePlot(pEvalPlot, eTeam, iBaseSightRange, eDomain);
 				if(iScore > 0)
 				{
 					if (eDomain == DOMAIN_LAND)
@@ -2982,6 +2985,9 @@ void CvHomelandAI::ExecuteProphetMoves()
 					}
 					else
 					{
+						
+						m_CurrentBestMoveHighPriorityUnit = NULL;
+						m_CurrentBestMoveUnit = m_pPlayer->getUnit(it->GetID());
 						ExecuteMoveToTarget(pTarget);
 
 						if(GC.getLogging() && GC.getAILogging())
@@ -3390,6 +3396,8 @@ void CvHomelandAI::ExecuteMissionaryMoves()
 			}
 			else
 			{
+				m_CurrentBestMoveHighPriorityUnit = NULL;
+				m_CurrentBestMoveUnit = m_pPlayer->getUnit(it->GetID());
 				ExecuteMoveToTarget(pTarget);
 
 				if(GC.getLogging() && GC.getAILogging())
@@ -3452,6 +3460,8 @@ void CvHomelandAI::ExecuteInquisitorMoves()
 			}
 			else
 			{
+				m_CurrentBestMoveHighPriorityUnit = NULL;
+				m_CurrentBestMoveUnit = m_pPlayer->getUnit(it->GetID());
 				ExecuteMoveToTarget(pTarget);
 
 				if(GC.getLogging() && GC.getAILogging())

@@ -5146,7 +5146,8 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 						// Get the right unit of this class for this civ
 						const UnitTypes eFreeUnitType = (UnitTypes)thisCiv.getCivilizationUnits((UnitClassTypes)pkUnitInfo->GetUnitClassType());
 						pFreeUnit = owningPlayer.initUnit(eFreeUnitType, getX(), getY());
-						pFreeUnit->jumpToNearestValidPlot();
+						if (!pFreeUnit->jumpToNearestValidPlot())
+							pFreeUnit->kill(false);		// Can't find a valid spot.
 					}
 				}
 			}

@@ -1331,9 +1331,12 @@ bool CvUnit::getCaptureDefinition(CvUnitCaptureDefinition* pkCaptureDef, PlayerT
 	kCaptureDef.eCapturingPlayer = (eCapturingPlayer != NO_PLAYER)?eCapturingPlayer:getCapturingPlayer();
 	kCaptureDef.bEmbarked = m_bEmbarked;
 	kCaptureDef.eCaptureUnitType = NO_UNIT;
-	kCaptureDef.eReligion = GetReligionData()->GetReligion();
-	kCaptureDef.iReligiousStrength = GetReligionData()->GetReligiousStrength();
-	kCaptureDef.iSpreadsLeft = GetReligionData()->GetSpreadsLeft();
+	if (GetReligionData())
+	{
+		kCaptureDef.eReligion = GetReligionData()->GetReligion();
+		kCaptureDef.iReligiousStrength = GetReligionData()->GetReligiousStrength();
+		kCaptureDef.iSpreadsLeft = GetReligionData()->GetSpreadsLeft();
+	}
 
 	// Captured as is?
 	if(IsCapturedAsIs())
@@ -1418,18 +1421,25 @@ bool CvUnit::getCaptureDefinition(CvUnitCaptureDefinition* pkCaptureDef, PlayerT
 						auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(pkCapturedUnit));
 						gDLL->GameplayUnitEmbark(pDllUnit.get(), true);
 						pkCapturedUnit->setEmbarked(true);
-						pkCapturedUnit->jumpToNearestValidPlot();
+						if (!pkCapturedUnit->jumpToNearestValidPlot())
+						{
+							pkCapturedUnit->kill(true);
+							pkCapturedUnit = NULL;
+						}
 					}
 
-					pkCapturedUnit->finishMoves();
-
-					// Minor civs can't capture settlers, ever!
 					bool bDisbanded = false;
-					if(!bDisbanded && GET_PLAYER(pkCapturedUnit->getOwner()).isMinorCiv() && (pkCapturedUnit->isFound() || pkCapturedUnit->IsFoundAbroad()))
+					if (pkCapturedUnit != NULL)
 					{
-						bDisbanded = true;
-						pkCapturedUnit->kill(false);
-						pkCapturedUnit = NULL;
+						pkCapturedUnit->finishMoves();
+
+						// Minor civs can't capture settlers, ever!
+						if(!bDisbanded && GET_PLAYER(pkCapturedUnit->getOwner()).isMinorCiv() && (pkCapturedUnit->isFound() || pkCapturedUnit->IsFoundAbroad()))
+						{
+							bDisbanded = true;
+							pkCapturedUnit->kill(false);
+							pkCapturedUnit = NULL;
+						}
 					}
 
 					// Captured civilian who could be returned?
@@ -1461,14 +1471,14 @@ bool CvUnit::getCaptureDefinition(CvUnitCaptureDefinition* pkCaptureDef, PlayerT
 							bShowingHumanPopup = false;
 
 						// Show the popup
-						if(bShowingHumanPopup && bShowingActivePlayerPopup)
+						if(bShowingHumanPopup && bShowingActivePlayerPopup && pkCapturedUnit)
 						{
 							CvPopupInfo kPopupInfo(BUTTONPOPUP_RETURN_CIVILIAN, kCaptureDef.eCapturingPlayer, kCaptureDef.eOriginalOwner, pkCapturedUnit->GetID());
 							DLLUI->AddPopup(kPopupInfo);
 						}
 
 						// Take it automatically!
-						else if(!bShowingHumanPopup && !bDisbanded && !pkCapturedUnit->isBarbarian())	// Don't process if the AI decided to disband the unit, or the barbs captured something
+						else if(!bShowingHumanPopup && !bDisbanded && pkCapturedUnit != NULL && !pkCapturedUnit->isBarbarian())	// Don't process if the AI decided to disband the unit, or the barbs captured something
 						{
 							// If the unit originally belonged to us, we've already done what we needed to do
 							if(kCaptureDef.eCapturingPlayer != kCaptureDef.eOriginalOwner)
@@ -1478,8 +1488,11 @@ bool CvUnit::getCaptureDefinition(CvUnitCaptureDefinition* pkCaptureDef, PlayerT
 					else
 					{
 						// restore combat units at some percentage of their original health
-						int iCapturedHealth = (pkCapturedUnit->GetMaxHitPoints() * GC.getCOMBAT_CAPTURE_HEALTH()) / 100;
-						pkCapturedUnit->setDamage(iCapturedHealth);
+						if (pkCapturedUnit != NULL)
+						{
+							int iCapturedHealth = (pkCapturedUnit->GetMaxHitPoints() * GC.getCOMBAT_CAPTURE_HEALTH()) / 100;
+							pkCapturedUnit->setDamage(iCapturedHealth);
+						}
 					}
 
 					if(kCaptureDef.eCapturingPlayer == GC.getGame().getActivePlayer())
@@ -2784,7 +2797,7 @@ void CvUnit::move(CvPlot& targetPlot, bool bShow)
 
 
 //	--------------------------------------------------------------------------------
-void CvUnit::jumpToNearestValidPlot()
+bool CvUnit::jumpToNearestValidPlot()
 {
 	VALIDATE_OBJECT
 	CvCity* pNearestCity;
@@ -2873,13 +2886,15 @@ void CvUnit::jumpToNearestValidPlot()
 	}
 	else
 	{
-		kill(false);
+		return false;
 	}
+
+	return true;
 }
 
 
 //	--------------------------------------------------------------------------------
-void CvUnit::jumpToNearestValidPlotWithinRange(int iRange)
+bool CvUnit::jumpToNearestValidPlotWithinRange(int iRange)
 {
 	VALIDATE_OBJECT
 	CvPlot* pLoopPlot;
@@ -2954,11 +2969,13 @@ void CvUnit::jumpToNearestValidPlotWithinRange(int iRange)
 		if(GC.getLogging() && GC.getAILogging())
 		{
 			CvString strLogString;
-			strLogString.Format("Can't find a valid plot within range. %s deleted, X: %d, Y: %d", getName().GetCString(), getX(), getY());
+			strLogString.Format("Can't find a valid plot within range for %s, X: %d, Y: %d", getName().GetCString(), getX(), getY());
 			GET_PLAYER(m_eOwner).GetHomelandAI()->LogHomelandMessage(strLogString);
 		}
-		kill(false);
+		return false;
 	}
+
+	return true;
 }
 
 
@@ -3091,19 +3108,16 @@ int CvUnit::GetScrapGold() const
 	iNumGold *= /*10*/ GC.getDISBAND_UNIT_REFUND_PERCENT();
 	iNumGold /= 100;
 
-	if(plot()->isOwned())
-	{
-		if(plot()->getOwner() == getOwner())
-		{
-			// Modify amount based on current health
-			iNumGold *= 100 * (GC.getMAX_HIT_POINTS() - getDamage()) / GC.getMAX_HIT_POINTS();
-			iNumGold /= 100;
+	// Modify amount based on current health
+	iNumGold *= 100 * (GC.getMAX_HIT_POINTS() - getDamage()) / GC.getMAX_HIT_POINTS();
+	iNumGold /= 100;
 
-			// Modify for game speed
-			iNumGold *= GC.getGame().getGameSpeedInfo().getTrainPercent();;
-			iNumGold /= 100;
-		}
-	}
+
+	// slewis - moved this out of the plot check because the game speed should effect all scrap gold calculations, not just the ones that are in the owner's plot
+	// Modify for game speed
+	iNumGold *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+	iNumGold /= 100;
+
 
 	// Check to see if we are transporting other units and add in their scrap value as well.
 	CvPlot* pPlot = plot();
@@ -3760,7 +3774,7 @@ int CvUnit::GetCaptureChance(CvUnit *pEnemy)
 {
 	int iRtnValue = 0;
 
-	if (m_iCaptureDefeatedEnemyCount > 0)
+	if (m_iCaptureDefeatedEnemyCount > 0 && AreUnitsOfSameType(*pEnemy))
 	{
 		// Look at ratio of intrinsic combat strengths
 		CvUnitEntry *pkEnemyInfo = GC.getUnitInfo(pEnemy->getUnitType());
@@ -5256,6 +5270,9 @@ bool CvUnit::rebase(int iX, int iY)
 
 	finishMoves();
 
+	// Loses sight bonus for this turn
+	setReconPlot(NULL);
+
 	setXY(pTargetPlot->getX(), pTargetPlot->getY(), false, true, false);
 
 	if(plot()->isVisibleToWatchingHuman() || pTargetPlot->isVisibleToWatchingHuman())
@@ -5270,9 +5287,6 @@ bool CvUnit::rebase(int iX, int iY)
 			gDLL->GameplayUnitRebased(pDllUnit.get(), pDllOldPlot.get(), pDllTargetPlot.get());
 		}
 	}
-
-	// Loses sight bonus for this turn
-	setReconPlot(NULL);
 
 	return true;
 }
@@ -9594,16 +9608,16 @@ int CvUnit::GetAirStrikeDefenseDamage(const CvUnit* pAttacker, bool bIncludeRand
 	double fStrengthRatio = (double(iDefenderStrength) / iAttackerStrength);
 
 	// In case our strength is less than the other guy's, we'll do things in reverse then make the ratio 1 over the result
-	if(iDefenderStrength > iAttackerStrength)
+	if(iAttackerStrength > iDefenderStrength)
 	{
-		fStrengthRatio = (double(iDefenderStrength) / iAttackerStrength);
+		fStrengthRatio = (double(iAttackerStrength) / iDefenderStrength);
 	}
 
 	fStrengthRatio = (fStrengthRatio + 3) / 4;
 	fStrengthRatio = pow(fStrengthRatio, 4.0);
 	fStrengthRatio = (fStrengthRatio + 1) / 2;
 
-	if(iDefenderStrength > iAttackerStrength)
+	if(iAttackerStrength > iDefenderStrength)
 	{
 		fStrengthRatio = 1 / fStrengthRatio;
 	}
@@ -9727,7 +9741,7 @@ int CvUnit::GetInterceptionDamage(const CvUnit* pAttacker, bool bIncludeRand) co
 	// In case our strength is less than the other guy's, we'll do things in reverse then make the ratio 1 over the result
 	if(iAttackerStrength > iInterceptorStrength)
 	{
-		fStrengthRatio = (double(iInterceptorStrength) / iAttackerStrength);
+		fStrengthRatio = (double(iAttackerStrength) / iInterceptorStrength);
 	}
 
 	fStrengthRatio = (fStrengthRatio + 3) / 4;
@@ -11240,7 +11254,8 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 								{
 									if(!pNewPlot->isCity())
 									{
-										pLoopUnit->jumpToNearestValidPlot();
+										if (!pLoopUnit->jumpToNearestValidPlot())
+											pLoopUnit->kill(false, getOwner());
 									}
 									else
 									{
@@ -11338,7 +11353,7 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 			auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 			gDLL->GameplayUnitVisibility(pDllUnit.get(), pNewPlot != NULL && !this->isInvisible(activeTeam, false));
 
-			if (GetBaseCombatStrength(true/*bIgnoreEmbarked*/) > 0)
+			if (GetBaseCombatStrength(true/*bIgnoreEmbarked*/) > 0 && getDomainType() == DOMAIN_LAND)
 			{
 				pOldPlot->getPlotCity()->ChangeJONSCulturePerTurnFromPolicies(-(GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CULTURE_FROM_GARRISON)));
 			}
@@ -11391,7 +11406,7 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 			auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 			gDLL->GameplayUnitVisibility(pDllUnit.get(), false /*bVisible*/);
 			
-			if (GetBaseCombatStrength(true/*bIgnoreEmbarked*/) > 0)
+			if (GetBaseCombatStrength(true/*bIgnoreEmbarked*/) > 0 && getDomainType() == DOMAIN_LAND)
 			{
 				pNewPlot->getPlotCity()->ChangeJONSCulturePerTurnFromPolicies((GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CULTURE_FROM_GARRISON)));
 			}
@@ -15800,8 +15815,8 @@ void CvUnit::write(FDataStream& kStream) const
 
 	kStream << m_iGreatGeneralReceivesMovementCount;
 	kStream << m_iGreatGeneralCombatModifier;
-	kStream << m_iIgnoreGreatGeneralBenefit;
 	kStream << m_iCityAttackOnlyCount;
+	kStream << m_iIgnoreGreatGeneralBenefit;
 	kStream << m_iCaptureDefeatedEnemyCount;
 	kStream << m_iGreatAdmiralCount;
 
@@ -16815,7 +16830,7 @@ bool CvUnit::UnitAttack(int iX, int iY, int iFlags, int iSteps)
 	if(kPathNodeArray.size() == 0 || getDomainType() == DOMAIN_AIR)
 	{
 		// Manually check for adjacency
-		if((getDomainType() == DOMAIN_AIR) || (plotDistance(getX(), getY(), pDestPlot->getX(), pDestPlot->getY()) == 1))
+		if((getDomainType() == DOMAIN_AIR) || (plotDistance(getX(), getY(), iX, iY) == 1))
 		{
 			if((iFlags & MISSION_MODIFIER_DIRECT_ATTACK) || (getDomainType() == DOMAIN_AIR) || (GeneratePath(pDestPlot, iFlags) && (GetPathFirstPlot() == pDestPlot)))
 			{
@@ -16833,7 +16848,12 @@ bool CvUnit::UnitAttack(int iX, int iY, int iFlags, int iSteps)
 			const CvPathNode& kNode = kPathNodeArray[1];
 			if(kNode.m_iX == getX() && kNode.m_iY == getY())
 			{
-				bAdjacent = true;
+				// The path may not be all the way to the destination, it may be only to the unit's turn limit, so check against the final destination
+				const CvPathNode& kDestNode = kPathNodeArray[0];
+				if (kDestNode.m_iX == iX && kDestNode.m_iY == iY)
+				{
+					bAdjacent = true;
+				}
 			}
 		}
 	}
@@ -16851,7 +16871,7 @@ bool CvUnit::UnitAttack(int iX, int iY, int iFlags, int iSteps)
 			// Air mission
 			if(getDomainType() == DOMAIN_AIR && GetBaseCombatStrength() == 0)
 			{
-				if(canRangeStrikeAt(pDestPlot->getX(), pDestPlot->getY()))
+				if(canRangeStrikeAt(iX, iY))
 				{
 					CvUnitCombat::AttackAir(*this, *pDestPlot, (iFlags &  MISSION_MODIFIER_NO_DEFENSIVE_SUPPORT)?CvUnitCombat::ATTACK_OPTION_NO_DEFENSIVE_SUPPORT:CvUnitCombat::ATTACK_OPTION_NONE);
 					bAttack = true;

@@ -1325,6 +1325,9 @@ bool CvNotifications::IsNotificationExpired(int iIndex)
 	{
 		CvGame& kGame(GC.getGame());
 		CvGameReligions* pkReligions(kGame.GetGameReligions());
+		if (pkReligions->GetNumReligionsStillToFound() <= 0)
+			return true;	// None left, dismiss the notification
+
 		return pkReligions->HasCreatedReligion(m_ePlayer);
 	}
 	break;
@@ -1333,6 +1336,11 @@ bool CvNotifications::IsNotificationExpired(int iIndex)
 	{
 		CvGame& kGame(GC.getGame());
 		CvGameReligions* pkReligions(kGame.GetGameReligions());
+		if (pkReligions->GetAvailableEnhancerBeliefs().size() == 0)
+			return true;	// None left, dismiss the notification.
+		if (pkReligions->GetAvailableFollowerBeliefs().size() == 0)
+			return true;	// None left, dismiss the notification.		
+
 		ReligionTypes eReligion = pkReligions->GetReligionCreatedByPlayer(m_ePlayer);
 		const CvReligion* pReligion = pkReligions->GetReligion(eReligion, m_ePlayer);
 		return (NULL != pReligion && pReligion->m_bEnhanced);

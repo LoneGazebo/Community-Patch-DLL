@@ -7645,17 +7645,20 @@ void CvMinorCivAI::DoSpawnUnit(PlayerTypes eMajor)
 				pNewUnit->changeExperience(GC.getMAX_EXPERIENCE_PER_COMBAT());
 			}
 
-			pNewUnit->jumpToNearestValidPlot();
+			if (pNewUnit->jumpToNearestValidPlot())
+			{
+				if(GetPlayer()->getCapitalCity())
+					GetPlayer()->getCapitalCity()->addProductionExperience(pNewUnit);
 
-			if(GetPlayer()->getCapitalCity())
-				GetPlayer()->getCapitalCity()->addProductionExperience(pNewUnit);
+				Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_UNIT_SPAWN");
+				strMessage << GetPlayer()->getNameKey();
+				Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_STATE_UNIT_SPAWN");
+				strSummary << GetPlayer()->getNameKey();
 
-			Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_UNIT_SPAWN");
-			strMessage << GetPlayer()->getNameKey();
-			Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_STATE_UNIT_SPAWN");
-			strSummary << GetPlayer()->getNameKey();
-
-			AddNotification(strMessage.toUTF8(), strSummary.toUTF8(), eMajor, pNewUnit->getX(), pNewUnit->getY());
+				AddNotification(strMessage.toUTF8(), strSummary.toUTF8(), eMajor, pNewUnit->getX(), pNewUnit->getY());
+			}
+			else
+				pNewUnit->kill(false);	// Could not find a spot!
 		}
 	}
 
@@ -8281,13 +8284,17 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 		int iY = pCapital->getY();
 
 		CvUnit* pNewUnit = GET_PLAYER(eBully).initUnit(eUnitType, iX, iY);
-		pNewUnit->jumpToNearestValidPlot();
-		pNewUnit->finishMoves(); // The given unit cannot move this turn
+		if (pNewUnit->jumpToNearestValidPlot())
+		{
+			pNewUnit->finishMoves(); // The given unit cannot move this turn
 
-		if(GetPlayer()->getCapitalCity())
-			GetPlayer()->getCapitalCity()->addProductionExperience(pNewUnit);
+			if(GetPlayer()->getCapitalCity())
+				GetPlayer()->getCapitalCity()->addProductionExperience(pNewUnit);
 
-		DoBulliedByMajorReaction(eBully, GC.getMINOR_FRIENDSHIP_DROP_BULLY_WORKER_SUCCESS());
+			DoBulliedByMajorReaction(eBully, GC.getMINOR_FRIENDSHIP_DROP_BULLY_WORKER_SUCCESS());
+		}
+		else
+			pNewUnit->kill(false);	// Could not find a spot for the unit!
 	}
 
 	// Logging

@@ -528,7 +528,7 @@ void CvUnitCombat::GenerateRangedCombatInfo(CvUnit& kAttacker, CvUnit *pkDefende
 	pkCombatInfo->setExperience( BATTLE_UNIT_DEFENDER, iExperience );
 	pkCombatInfo->setMaxExperienceAllowed( BATTLE_UNIT_DEFENDER, kAttacker.maxXPValue() );
 	pkCombatInfo->setInBorders( BATTLE_UNIT_DEFENDER, plot.getOwner() == kAttacker.getOwner() );
-	pkCombatInfo->setUpdateGlobal( BATTLE_UNIT_DEFENDER, !bBarbarian );
+	pkCombatInfo->setUpdateGlobal( BATTLE_UNIT_DEFENDER, !bBarbarian && !kAttacker.isBarbarian());
 
 	pkCombatInfo->setAttackIsRanged(true);
 	// Defender doesn't retaliate.  We'll keep this separate from the ranged attack flag in case something changes to allow
@@ -606,7 +606,7 @@ void CvUnitCombat::GenerateRangedCombatInfo(CvCity& kAttacker, CvUnit *pkDefende
 	pkCombatInfo->setExperience( BATTLE_UNIT_DEFENDER, iExperience );
 	pkCombatInfo->setMaxExperienceAllowed( BATTLE_UNIT_DEFENDER, MAX_INT );
 	pkCombatInfo->setInBorders( BATTLE_UNIT_DEFENDER, plot.getOwner() == kAttacker.getOwner() );
-	pkCombatInfo->setUpdateGlobal( BATTLE_UNIT_DEFENDER, !bBarbarian );
+	pkCombatInfo->setUpdateGlobal( BATTLE_UNIT_DEFENDER, !bBarbarian && !kAttacker.isBarbarian());
 
 	pkCombatInfo->setAttackIsRanged(true);
 	// Defender doesn't retaliate.  We'll keep this separate from the ranged attack flag in case something changes to allow

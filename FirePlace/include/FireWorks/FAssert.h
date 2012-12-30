@@ -136,6 +136,18 @@ void SetAssertLogCallback( FASSERT_LOG_CALLBACK pfnAssertLogCallback );
 		} \
 	}
 
+    #define FAssertMsg6( expr, _fmt, _p0, _p1, _p2, _p3, _p4, _p5 ) \
+    { \
+    static bool bIgnoreAlways = false; \
+    if( !bIgnoreAlways && !(expr) ) \
+    { \
+    char szAssertMsgBuffer[2048]; \
+    sprintf( szAssertMsgBuffer, _fmt, _p0, _p1, _p2, _p3, _p4, _p5 ); \
+    if( FAssertDlg( #expr, szAssertMsgBuffer, __FILE__, __LINE__, bIgnoreAlways ) ) \
+    { FASSERT_BREAKPOINT; } \
+    } \
+    }
+
 #else
 	// FASSERT_ENABLE not defined
 	#define FAssert( expr )
@@ -145,6 +157,7 @@ void SetAssertLogCallback( FASSERT_LOG_CALLBACK pfnAssertLogCallback );
 	#define FAssertMsg2( expr, _fmt, _p0, _p1 )
 	#define FAssertMsg3( expr, _fmt, _p0, _p1, _p2 )
 	#define FAssertMsg4( expr, _fmt, _p0, _p1, _p2, _p3 )
+	#define FAssertMsg6( expr, _fmt, _p0, _p1, _p2, _p3, _p4, _p5 )
 
 #endif
 

@@ -163,8 +163,8 @@ public:
 	int getCombatDamage(int iStrength, int iOpponentStrength, int iCurrentDamage, bool bIncludeRand, bool bAttackerIsCity, bool bDefenderIsCity) const;
 	void fightInterceptor(const CvPlot& pPlot);
 	void move(CvPlot& pPlot, bool bShow);
-	void jumpToNearestValidPlot();
-	void jumpToNearestValidPlotWithinRange(int iRange);
+	bool jumpToNearestValidPlot();
+	bool jumpToNearestValidPlotWithinRange(int iRange);
 
 	bool canScrap(bool bTestVisible = false) const;
 	void scrap();

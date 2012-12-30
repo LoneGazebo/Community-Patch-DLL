@@ -1046,7 +1046,12 @@ CvPlot* CvAIOperation::ComputeCenterOfMassForTurn(CvArmyAI* pArmy, CvPlot **ppCl
 			{
 				// Push center of mass forward a number of hexes equal to average movement
 				GC.getStepFinder().SetData(&m_eEnemy);
-				if (GC.getStepFinder().GeneratePath(pCenterOfMass->getX(), pCenterOfMass->getY(), pGoalPlot->getX(), pGoalPlot->getY(), m_eOwner, false))
+				GC.getStepFinder().SetDestValidFunc(NULL); // remove the area check
+				GC.getStepFinder().SetValidFunc(StepValidAnyArea); // remove the area check
+				bool bFound = GC.getStepFinder().GeneratePath(pCenterOfMass->getX(), pCenterOfMass->getY(), pGoalPlot->getX(), pGoalPlot->getY(), m_eOwner, false);
+				GC.getStepFinder().SetValidFunc(StepValid); // remove the area check
+				GC.getStepFinder().SetDestValidFunc(StepDestValid); // restore the area check
+				if (bFound)
 				{
 					pNode1 = GC.getStepFinder().GetLastNode();
 
@@ -1979,6 +1984,7 @@ CvPlot* CvAIEnemyTerritoryOperation::SelectInitialMusterPoint(CvArmyAI* pThisArm
 			// Different areas?  If so, just muster at start city
 			if (pStartCityPlot->getArea() != pThisArmy->GetGoalPlot()->getArea())
 			{
+				SetMusterPlot(pStartCityPlot);
 				return pStartCityPlot;
 			}
 

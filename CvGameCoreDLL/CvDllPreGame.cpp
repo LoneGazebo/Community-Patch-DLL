@@ -33,8 +33,7 @@ void* CvDllPreGame::QueryInterface(GUID guidInterface)
 //------------------------------------------------------------------------------
 void CvDllPreGame::Destroy()
 {
-	// Do nothing.
-	// This is a static class whose instance is managed externally.
+	delete this;
 }
 //------------------------------------------------------------------------------
 void CvDllPreGame::operator delete(void* p)

@@ -908,16 +908,28 @@ int PathCost(CvAStarNode* parent, CvAStarNode* node, int data, const void* point
 		iMax = pUnit->baseMoves(bToPlotIsWater?DOMAIN_SEA:DOMAIN_LAND) * GC.getMOVE_DENOMINATOR();
 	}
 
-	int iCost = pToPlot->movementCost(pUnit, pFromPlot);
+	// Get the cost of moving to the new plot, passing in our max moves or the moves we have left, in case the movementCost 
+	// method wants to burn all our remaining moves.  This is needed because our remaining moves for this segment of the path
+	// may be larger or smaller than the baseMoves if some moves have already been used or if the starting domain (LAND/SEA)
+	// of the path segment is different from the destination plot.
+	int iCost = pToPlot->movementCost(pUnit, pFromPlot, iMax);
 
 	TeamTypes eUnitTeam = pUnit->getTeam();
 
-	int iMovesLeft = std::max(0, (iMax - iCost));
+	int iMovesLeft = iMax - iCost;
+	// Is the cost greater than our max?
+	if (iMovesLeft < 0)
+	{
+		// Yes, we will still let the move happen, but that is the end of the turn.
+		iCost = iMax;
+		iMovesLeft = 0;
+	}
+
 	if(iMovesLeft == 0)
 	{
 		iCost = (PATH_MOVEMENT_WEIGHT * iCost);
 
-		if(eUnitDomain == DOMAIN_LAND && !pFromPlot->isWater() && bToPlotIsWater && !pUnit->canEmbarkOnto(*pFromPlot, *pToPlot))
+		if(eUnitDomain == DOMAIN_LAND && !pFromPlot->isWater() && bToPlotIsWater && !pUnit->canEmbarkOnto(*pFromPlot, *pToPlot, true))
 		{
 			iCost += PATH_INCORRECT_EMBARKING_WEIGHT;
 		}
@@ -1061,7 +1073,6 @@ int PathCost(CvAStarNode* parent, CvAStarNode* node, int data, const void* point
 
 	return iCost;
 }
-
 
 //	---------------------------------------------------------------------------
 /// Standard path finder - check validity of a coordinate
@@ -1244,7 +1255,7 @@ int PathValid(CvAStarNode* parent, CvAStarNode* node, int data, const void* poin
 	// slewis - moved this up so units can't move directly into the water. Not 100% sure this is the right solution.
 	if(unit_domain_type == DOMAIN_LAND)
 	{
-		if(!kFromNodeCacheData.bIsWater && kToNodeCacheData.bIsWater && kToNodeCacheData.bIsRevealedToTeam && !pUnit->canEmbarkOnto(*pFromPlot, *pToPlot))
+		if(!kFromNodeCacheData.bIsWater && kToNodeCacheData.bIsWater && kToNodeCacheData.bIsRevealedToTeam && !pUnit->canEmbarkOnto(*pFromPlot, *pToPlot, true))
 		{
 			if(!pUnit->IsHoveringUnit() && !pUnit->canMoveAllTerrain())
 			{
@@ -1380,6 +1391,7 @@ int PathAdd(CvAStarNode* parent, CvAStarNode* node, int data, const void* pointe
 		if(iStartMoves == 0)
 		{
 			iTurns++;
+			iStartMoves = pUnit->baseMoves(pToPlot->isWater()?DOMAIN_SEA:DOMAIN_LAND) * GC.getMOVE_DENOMINATOR();
 		}
 
 		// We can't use maxMoves, because that checks where the unit is currently, and we're plotting a path so we have to see
@@ -1390,8 +1402,7 @@ int PathAdd(CvAStarNode* parent, CvAStarNode* node, int data, const void* pointe
 		}
 		else
 		{
-			int iMaxMovesAtLocation = pUnit->baseMoves(pToPlot->isWater()?DOMAIN_SEA:DOMAIN_LAND) * GC.getMOVE_DENOMINATOR();
-			iMoves = std::min(iMoves, std::max(0, ((iStartMoves > 0) ? iStartMoves : iMaxMovesAtLocation) - pToPlot->movementCost(pUnit, pFromPlot)));
+			iMoves = std::min(iMoves, std::max(0, iStartMoves - pToPlot->movementCost(pUnit, pFromPlot, iStartMoves)));
 		}
 	}
 
@@ -1411,10 +1422,8 @@ int PathNodeAdd(CvAStarNode* parent, CvAStarNode* node, int data, const void* po
 
 	if(data == ASNL_ADDOPEN || data == ASNL_STARTOPEN)
 	{
-		CvPlot* pToPlot = GC.getMap().plotUnchecked(node->m_iX, node->m_iY);
-
 		// Are there movement points left and we're worried about stacking or mountains?
-		if(node->m_iData1 > 0 && (!(finder->GetInfo() & MOVE_IGNORE_STACKING) || pToPlot->isMountain()))
+		if(node->m_iData1 > 0 && !finder->IsPathDest(node->m_iX, node->m_iY) && (!(finder->GetInfo() & MOVE_IGNORE_STACKING) || GC.getMap().plotUnchecked(node->m_iX, node->m_iY)->isMountain()))
 		{
 			// Retrieve another node
 			CvTwoLayerPathFinder* twoLayerFinder = static_cast<CvTwoLayerPathFinder*>(finder);
@@ -1422,7 +1431,7 @@ int PathNodeAdd(CvAStarNode* parent, CvAStarNode* node, int data, const void* po
 			pNode->m_iData1 = 0;   // Zero out movement
 			pNode->m_iData2 = node->m_iData2;
 			pNode->m_iHeuristicCost = node->m_iHeuristicCost;
-			pNode->m_iKnownCost = node->m_iKnownCost + (PATH_PARTIAL_MOVE_WEIGHT * node->m_iData1);
+			pNode->m_iKnownCost = node->m_iKnownCost + (PATH_MOVEMENT_WEIGHT * node->m_iData1);
 			pNode->m_iTotalCost = node->m_iTotalCost;
 			pNode->m_iX = node->m_iX;
 			pNode->m_iY = node->m_iY;
@@ -1513,15 +1522,17 @@ int IgnoreUnitsDestValid(int iToX, int iToY, const void* pointer, CvAStar* finde
 int IgnoreUnitsCost(CvAStarNode* parent, CvAStarNode* node, int data, const void* pointer, CvAStar* finder)
 {
 	CvUnit* pUnit;
-	CvPlot* pFromPlot;
-	CvPlot* pToPlot;
 	int iCost;
-	int iMovesLeft;
 	int iMax;
 
 	CvMap& kMap = GC.getMap();
-	pFromPlot = kMap.plotUnchecked(parent->m_iX, parent->m_iY);
-	pToPlot = kMap.plotUnchecked(node->m_iX, node->m_iY);
+	int iFromPlotX = parent->m_iX;
+	int iFromPlotY = parent->m_iY;
+	CvPlot* pFromPlot = kMap.plotUnchecked(iFromPlotX, iFromPlotY);
+
+	int iToPlotX = node->m_iX;
+	int iToPlotY = node->m_iY;
+	CvPlot* pToPlot = kMap.plotUnchecked(iToPlotX, iToPlotY);
 
 	pUnit = ((CvUnit*)pointer);
 
@@ -1536,16 +1547,28 @@ int IgnoreUnitsCost(CvAStarNode* parent, CvAStarNode* node, int data, const void
 		iMax = pUnit->baseMoves(pToPlot->isWater()?DOMAIN_SEA:DOMAIN_LAND) * GC.getMOVE_DENOMINATOR();
 	}
 
-	iCost = pToPlot->MovementCostNoZOC(pUnit, pFromPlot);
+	// Get the cost of moving to the new plot, passing in our max moves or the moves we have left, in case the movementCost 
+	// method wants to burn all our remaining moves.  This is needed because our remaining moves for this segment of the path
+	// may be larger or smaller than the baseMoves if some moves have already been used or if the starting domain (LAND/SEA)
+	// of the path segment is different from the destination plot.
+	iCost = pToPlot->MovementCostNoZOC(pUnit, pFromPlot, iMax);
 
 	TeamTypes eUnitTeam = pUnit->getTeam();
 
-	iMovesLeft = std::max(0, (iMax - iCost));
+	int iMovesLeft = iMax - iCost;
+	// Is the cost greater than our max?
+	if (iMovesLeft < 0)
+	{
+		// Yes, we will still let the move happen, but that is the end of the turn.
+		iCost = iMax;
+		iMovesLeft = 0;
+	}
+
 	if(iMovesLeft == 0)
 	{
 		iCost = (PATH_MOVEMENT_WEIGHT * iCost);
 
-		if(!pFromPlot->isWater() && pToPlot->isWater() && !pUnit->canEmbarkOnto(*pFromPlot, *pToPlot))
+		if(!pFromPlot->isWater() && pToPlot->isWater() && !pUnit->canEmbarkOnto(*pFromPlot, *pToPlot, true))
 		{
 			iCost += PATH_INCORRECT_EMBARKING_WEIGHT;
 		}
@@ -1682,7 +1705,7 @@ int IgnoreUnitsValid(CvAStarNode* parent, CvAStarNode* node, int data, const voi
 	// slewis - moved this up so units can't move directly into the water. Not 100% sure this is the right solution.
 	if(pUnit->getDomainType() == DOMAIN_LAND)
 	{
-		if(!pFromPlot->isWater() && pToPlot->isWater() && pToPlot->isRevealed(eUnitTeam) && !pUnit->canEmbarkOnto(*pFromPlot, *pToPlot))
+		if(!pFromPlot->isWater() && pToPlot->isWater() && pToPlot->isRevealed(eUnitTeam) && !pUnit->canEmbarkOnto(*pFromPlot, *pToPlot, true))
 		{
 			return FALSE;
 		}
@@ -1759,12 +1782,12 @@ int IgnoreUnitsPathAdd(CvAStarNode* parent, CvAStarNode* node, int data, const v
 		if(iStartMoves == 0)
 		{
 			iTurns++;
+			iStartMoves = pUnit->baseMoves(pToPlot->isWater()?DOMAIN_SEA:DOMAIN_LAND) * GC.getMOVE_DENOMINATOR();
 		}
 
 		// We can't use maxMoves, because that checks where the unit is currently, and we're plotting a path so we have to see
 		// what the max moves would be like if the unit was already at the desired location.
-		int iMaxMovesAtLocation = pUnit->baseMoves(pToPlot->isWater()?DOMAIN_SEA:DOMAIN_LAND) * GC.getMOVE_DENOMINATOR();
-		iMoves = std::min(iMoves, std::max(0, ((iStartMoves > 0) ? iStartMoves : iMaxMovesAtLocation) - pToPlot->MovementCostNoZOC(pUnit, pFromPlot)));
+		iMoves = std::min(iMoves, std::max(0, iStartMoves - pToPlot->MovementCostNoZOC(pUnit, pFromPlot)));
 	}
 
 	FAssertMsg(iMoves >= 0, "iMoves is expected to be non-negative (invalid Index)");
@@ -1835,6 +1858,66 @@ int StepValid(CvAStarNode* parent, CvAStarNode* node, int data, const void* poin
 	{
 		return FALSE;
 	}
+
+	if(pNewPlot->isImpassable())
+	{
+		return FALSE;
+	}
+
+	// Ocean hex and team can't navigate on oceans?
+	if (!GET_TEAM(thisPlayer.getTeam()).getEmbarkedAllWaterPassage())
+	{
+		if (pNewPlot->getTerrainType() == TERRAIN_OCEAN)
+		{
+			return FALSE;
+		}
+	}
+
+	PlayerTypes ePlotOwnerPlayer = pNewPlot->getOwner();
+	if (ePlotOwnerPlayer != NO_PLAYER && ePlotOwnerPlayer != eEnemy && !pNewPlot->IsFriendlyTerritory(ePlayer))
+	{
+		CvPlayer& plotOwnerPlayer = GET_PLAYER(ePlotOwnerPlayer);
+		bool bPlotOwnerIsMinor = plotOwnerPlayer.isMinorCiv();
+
+		if(!bPlotOwnerIsMinor)
+		{
+			TeamTypes eMyTeam = thisPlayer.getTeam();
+			TeamTypes ePlotOwnerTeam = plotOwnerPlayer.getTeam();
+
+			if(!atWar(eMyTeam, ePlotOwnerTeam))
+			{
+				return FALSE;
+			}
+		}
+	}
+
+	return TRUE;
+}
+
+
+//	--------------------------------------------------------------------------------
+/// Step path finder - check validity of a coordinate (special case that allows any area)
+int StepValidAnyArea(CvAStarNode* parent, CvAStarNode* node, int data, const void* pointer, CvAStar* finder)
+{
+	if(parent == NULL)
+	{
+		return TRUE;
+	}
+
+	int iFlags = finder->GetInfo();
+	PlayerTypes ePlayer = (PlayerTypes)(iFlags & 0xFF);
+
+	PlayerTypes eEnemy = *(PlayerTypes*)pointer;
+
+	CvPlayer& thisPlayer = GET_PLAYER(ePlayer);
+
+	CvMap& kMap = GC.getMap();
+	CvPlot* pNewPlot = kMap.plotUnchecked(node->m_iX, node->m_iY);
+
+	//if(kMap.plotUnchecked(parent->m_iX, parent->m_iY)->getArea() != pNewPlot->getArea())
+	//{
+	//	return FALSE;
+	//}
 
 	if(pNewPlot->isImpassable())
 	{
@@ -3252,8 +3335,7 @@ int TacticalAnalysisMapPathValid(CvAStarNode* parent, CvAStarNode* node, int dat
 	// slewis - moved this up so units can't move directly into the water. Not 100% sure this is the right solution.
 	if(unit_domain_type == DOMAIN_LAND)
 	{
-		//if (!pFromPlot->isWater() && pToPlot->isWater() && pToPlot->isRevealed(eUnitTeam, false) && !pUnit->canEmbarkOnto(*pFromPlot, *pToPlot))
-		if(!kFromNodeCacheData.bIsWater && kToNodeCacheData.bIsWater && kToNodeCacheData.bIsRevealedToTeam && !pUnit->canEmbarkOnto(*pFromPlot, *pToPlot))
+		if(!kFromNodeCacheData.bIsWater && kToNodeCacheData.bIsWater && kToNodeCacheData.bIsRevealedToTeam && !pUnit->canEmbarkOnto(*pFromPlot, *pToPlot, true))
 		{
 			if(!pUnit->IsHoveringUnit() && !pUnit->canMoveAllTerrain())
 			{

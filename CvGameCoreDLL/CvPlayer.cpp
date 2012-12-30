@@ -1416,7 +1416,11 @@ CvPlot *CvPlayer::addFreeUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 		// Don't stack any units
 		if (pBestPlot->getNumUnits() > 1)
 		{
-			pNewUnit->jumpToNearestValidPlot();
+			if (!pNewUnit->jumpToNearestValidPlot())
+			{
+				pNewUnit->kill(false);		// Failed, kill it and return NULL.
+				return NULL;
+			}
 		}
 		pReturnValuePlot = pNewUnit->plot();
 	}
@@ -2257,16 +2261,20 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID)
 	// Move Units from player that don't belong here
 	if (pPlot->getNumUnits() > 0)
 	{
-		CvUnit* pLoopUnit;
-
-		for (int iUnitIndexLoop = 0; iUnitIndexLoop < pPlot->getNumUnits(); iUnitIndexLoop++)
+		// Get the current list of units because we will possibly be moving them out of the plot's list
+		IDInfoVector currentUnits;
+		if (pPlot->getUnits(&currentUnits) > 0)
 		{
-			pLoopUnit = pPlot->getUnitByIndex(iUnitIndexLoop);
-
-			if (pLoopUnit->getOwner() == eOldOwner)
+			for(IDInfoVector::const_iterator itr = currentUnits.begin(); itr != currentUnits.end(); ++itr)
 			{
-				pLoopUnit->finishMoves();
-				pLoopUnit->jumpToNearestValidPlot();
+				CvUnit* pLoopUnit = (CvUnit*)GetPlayerUnit(*itr);
+
+				if(pLoopUnit && pLoopUnit->getOwner() == eOldOwner)
+				{
+					pLoopUnit->finishMoves();
+					if (!pLoopUnit->jumpToNearestValidPlot())
+						pLoopUnit->kill(false);
+				}
 			}
 		}
 	}
@@ -3356,7 +3364,8 @@ void CvPlayer::RespositionInvalidUnits()
 
 		if (pPlot->getNumFriendlyUnitsOfType(pLoopUnit) > GC.getPLOT_UNIT_LIMIT())
 		{
-			pLoopUnit->jumpToNearestValidPlot();
+			if (!pLoopUnit->jumpToNearestValidPlot())
+				pLoopUnit->kill(false);
 		}
 	}
 }
@@ -8093,7 +8102,8 @@ void CvPlayer::DoRevolt()
 
 				// Init unit
 				CvUnit* pUnit = GET_PLAYER(BARBARIAN_PLAYER).initUnit(eUnit, pPlot->getX(), pPlot->getY());
-				pUnit->jumpToNearestValidPlotWithinRange(5);
+				if (!pUnit->jumpToNearestValidPlotWithinRange(5))
+					pUnit->kill(false);
 			}
 			while (iNumRebels > 0);
 		}
@@ -10021,16 +10031,19 @@ void CvPlayer::DoSpawnGreatPerson(PlayerTypes eMinor)
 	{
 		CvUnit* pNewGreatPeople = initUnit(eBestUnit, iX, iY);
 
-		pNewGreatPeople->jumpToNearestValidPlot();
-
-		CvNotifications* pNotifications = GetNotifications();
-		if (pNotifications)
+		if (!pNewGreatPeople->jumpToNearestValidPlot())
+			pNewGreatPeople->kill(false);
+		else
 		{
-			Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_UNIT_SPAWN");
-			strMessage << GET_PLAYER(eMinor).getNameKey();
-			Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_STATE_UNIT_SPAWN");
-			strSummary << GET_PLAYER(eMinor).getNameKey();
-			pNotifications->Add(NOTIFICATION_MINOR, strMessage.toUTF8(), strSummary.toUTF8(), iX, iY, eMinor);
+			CvNotifications* pNotifications = GetNotifications();
+			if (pNotifications)
+			{
+				Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_UNIT_SPAWN");
+				strMessage << GET_PLAYER(eMinor).getNameKey();
+				Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_STATE_UNIT_SPAWN");
+				strSummary << GET_PLAYER(eMinor).getNameKey();
+				pNotifications->Add(NOTIFICATION_MINOR, strMessage.toUTF8(), strSummary.toUTF8(), iX, iY, eMinor);
+			}
 		}
 	}
 }
@@ -13161,7 +13174,8 @@ void CvPlayer::DoCivilianReturnLogic(bool bReturn, PlayerTypes eToPlayer, int iU
 	{
 		pUnit->kill(true);
 		CvUnit* pNewUnit = GET_PLAYER(eToPlayer).initUnit(eNewUnitType, iX, iY);
-		pNewUnit->jumpToNearestValidPlot();
+		if (!pNewUnit->jumpToNearestValidPlot())
+			pNewUnit->kill(false);
 
 		// Returned to a city-state
 		if (GET_PLAYER(eToPlayer).isMinorCiv())
@@ -13210,7 +13224,8 @@ void CvPlayer::DoIncomingUnits()
 					CvUnit* pNewUnit = initUnit(GetIncomingUnitType(iLoop), pCapital->getX(), pCapital->getY());
 					if (pNewUnit->getDomainType() != DOMAIN_AIR)
 					{
-						pNewUnit->jumpToNearestValidPlot();
+						if (!pNewUnit->jumpToNearestValidPlot())
+							pNewUnit->kill(false);
 					}
 				}
 
@@ -17006,7 +17021,8 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 								CvUnit* pNewUnit = initUnit(eUnit, iX, iY);
 
 								// Make sure the new Unit is in an appropriate place
-								pNewUnit->jumpToNearestValidPlot();
+								if (!pNewUnit->jumpToNearestValidPlot())
+									pNewUnit->kill(false);
 							}
 						}
 					}

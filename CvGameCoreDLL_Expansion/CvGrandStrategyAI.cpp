@@ -563,7 +563,7 @@ int CvGrandStrategyAI::GetUnitedNationsPriority()
 	PlayerTypes ePlayer = m_pPlayer->GetID();
 
 	int iVotesNeededToWin = GC.getGame().GetVotesNeededForDiploVictory();
-	int iSecuredVotes = 1;
+	int iSecuredVotes = 0;
 	// if we own the UN for some reason
 	if(GET_TEAM(eTeam).IsHomeOfUnitedNations())
 	{

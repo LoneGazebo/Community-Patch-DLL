@@ -907,13 +907,16 @@ int CvEconomicAI::ScoreExplorePlot(CvPlot* pPlot, TeamTypes eTeam, int iRange, D
 	int iReallyGoodScore = 200;
 	//int iGoodyHutScore = 100000;
 
+	int iPlotX = pPlot->getX();
+	int iPlotY = pPlot->getY();
+
 	FAssertMsg(pPlot->isRevealed(eTeam), "Plot isn't revealed. This isn't good.");
 	CvPlot* pEvalPlot = NULL;
 	for(int iX = -iRange; iX <= iRange; iX++)
 	{
 		for(int iY = -iRange; iY <= iRange; iY++)
 		{
-			pEvalPlot = plotXYWithRangeCheck(pPlot->getX(), pPlot->getY(), iX, iY, iRange);
+			pEvalPlot = plotXYWithRangeCheck(iPlotX, iPlotY, iX, iY, iRange);
 			if(!pEvalPlot)
 			{
 				continue;
@@ -931,7 +934,7 @@ int CvEconomicAI::ScoreExplorePlot(CvPlot* pPlot, TeamTypes eTeam, int iRange, D
 
 			if(pEvalPlot->isAdjacentRevealed(eTeam))
 			{
-				if(plotDistance(pPlot->getX(), pPlot->getY(), pEvalPlot->getX(), pEvalPlot->getY()) > 1)
+				if(plotDistance(iPlotX, iPlotY, pEvalPlot->getX(), pEvalPlot->getY()) > 1)
 				{
 					CvPlot* pAdjacentPlot;
 					bool bViewBlocked = true;
@@ -942,7 +945,7 @@ int CvEconomicAI::ScoreExplorePlot(CvPlot* pPlot, TeamTypes eTeam, int iRange, D
 						{
 							if(pAdjacentPlot->isRevealed(eTeam))
 							{
-								int iDistance = plotDistance(pPlot->getX(), pPlot->getY(), pAdjacentPlot->getX(), pAdjacentPlot->getY());
+								int iDistance = plotDistance(iPlotX, iPlotY, pAdjacentPlot->getX(), pAdjacentPlot->getY());
 								if(iDistance > iRange)
 								{
 									continue;
@@ -1010,7 +1013,7 @@ int CvEconomicAI::ScoreExplorePlot(CvPlot* pPlot, TeamTypes eTeam, int iRange, D
 				iResultValue += iGoodScore;
 			}
 
-			int iDistance = plotDistance(pPlot->getX(), pPlot->getY(), pEvalPlot->getX(), pEvalPlot->getY());
+			int iDistance = plotDistance(iPlotX, iPlotY, pEvalPlot->getX(), pEvalPlot->getY());
 			iResultValue += (iRange - iDistance) * iAdjacencyBonus;
 		}
 	}

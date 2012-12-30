@@ -1691,15 +1691,19 @@ bool CvPlayerTraits::ConvertBarbarianCamp(CvPlot *pPlot)
 		// Convert the barbarian into our unit
 		FAssertMsg(m_eCampGuardType < GC.getNumUnitInfos(), "Illegal camp guard unit type");
 		pGiftUnit = m_pPlayer->initUnit(m_eCampGuardType, pPlot->getX(), pPlot->getY(), NO_UNITAI, NO_DIRECTION, true /*bNoMove*/);
-		pGiftUnit->jumpToNearestValidPlot();
-		pGiftUnit->finishMoves();
+		if (!pGiftUnit->jumpToNearestValidPlot())
+			pGiftUnit->kill(false);
+		else
+			pGiftUnit->finishMoves();
 
 		// Convert any extra units
 		for (int iI = 0; iI < m_iLandBarbarianConversionExtraUnits; iI++)
 		{
 			pGiftUnit = m_pPlayer->initUnit(m_eCampGuardType, pPlot->getX(), pPlot->getY(), NO_UNITAI, NO_DIRECTION, true /*bNoMove*/);
-			pGiftUnit->jumpToNearestValidPlot();
-			pGiftUnit->finishMoves();
+			if (!pGiftUnit->jumpToNearestValidPlot())
+				pGiftUnit->kill(false);
+			else
+				pGiftUnit->finishMoves();
 		}
 
 		if (GC.getLogging() && GC.getAILogging())
