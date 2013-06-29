@@ -48,8 +48,10 @@ private:
 	EraTypes m_eEra;
 	CalendarTypes m_eCalendar;
 	int m_iGameTurn;
+	bool m_bGameStarted;
 	GameSpeedTypes m_eGameSpeed;
-	TurnTimerTypes m_eTurnTimer;
+	TurnTimerTypes m_eTurnTimerEnabled;
+	int m_iTurnTimerTime;		//turn timer time. 0 = use game core's automatically determined time.
 
 	//	Game Name, and other MP settings
 	CvString m_szGameName;

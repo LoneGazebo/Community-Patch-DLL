@@ -19,6 +19,8 @@
 class CvWorldBuilderMapTypeDesc
 {
 public:
+	CvWorldBuilderMapTypeDesc();
+
 	// This special string type ensures that all strings used in
 	// CvWorldBuilderMapTypeDesc come from the same string palette.
 	// This makes for fast string compares and better memory usage.
@@ -40,142 +42,84 @@ public:
 		const char *m_sz;
 	};
 
-	template<uint TSize>
 	class TypeMap
 	{
+		typedef std::vector<String> TypeArray;
+		TypeArray asTypes;
+
 	public:
-		TypeMap() : uiSize(0) {}
+		TypeMap(uint uiReserve = 0) { if (uiReserve > 0) asTypes.reserve(uiReserve); };
 
-		static const uint MaxTypes = TSize;
-		uint uiSize;
-		Firaxis::Array<String, TSize> asTypes;
+		bool FindType(const char *szType, uint &uiTypeOut) const;
+		const size_t GetSerializedSize() const;
 
-		bool FindType(const char *szType, uint &uiTypeOut)
-		{
-			// Get the string from the string table
-			CvWorldBuilderMapTypeDesc::String sType(szType);
-			for( uint i = 0; i < uiSize; ++i )
-			{
-				// I know this looks like a string compare but since they're tabled
-				// strings it's just a pointer comparison which is pretty fast.
-				if( asTypes[i] == sType )
-				{
-					uiTypeOut = i;
-					return true;
-				}
-			}
-
-			return false;
-		}
-
-		const size_t GetSerializedSize() const
-		{
-			const uint uiTypeCount = (TSize < uiSize)? TSize : uiSize;
-
-			size_t stSerializedSize = 0;
-			for( uint i = 0; i < uiTypeCount; ++i )
-				stSerializedSize += FString::SafeStrlen(asTypes[i]) + 1;
-
-			return stSerializedSize;
-		}
+		uint Size() const { return asTypes.size(); };
+		void Clear() { asTypes.clear(); };
+		const String& Get(uint uiIndex) const;
+		uint Add(const char* szType);
+		uint Add(const String &szType);
 
 		// Obviously, the calling code is responsible for ensuring the buffer
 		// is large enough.  GetSerializedSize() should be sufficient for this.
-		void Serialize(void *pvBuffer) const
-		{
-			const uint uiTypeCount = (TSize < uiSize)? TSize : uiSize;
+		void Serialize(void *pvBuffer) const;
 
-			char *szWriteTo = (char*)pvBuffer;
-			for( uint i = 0; i < uiTypeCount; ++i )
-			{
-				const char *szReadFrom = asTypes[i];
-				if( szReadFrom )
-				{
-					while( *szReadFrom != '\0' )
-					{
-						*szWriteTo = *szReadFrom;
-						++szReadFrom;
-						++szWriteTo;
-					}
-				}
-
-				*szWriteTo = '\0';
-				++szWriteTo;
-			}
-		}
-
-		void Deserialize(void *pvBuffer, size_t stSize)
-		{
-			uiSize = 0;
-			FAssert(pvBuffer != NULL && stSize > 0);
-			if( pvBuffer != NULL && stSize > 0 )
-			{
-				// Always ensure NULL termination
-				((char*)pvBuffer)[stSize - 1] = '\0';
-
-				const char *szReadFrom = (const char*)pvBuffer;
-				while( szReadFrom < ((char*)pvBuffer + stSize) && uiSize < TSize )
-				{
-					asTypes[uiSize] = szReadFrom;
-					szReadFrom += FString::SafeStrlen(szReadFrom) + 1;
-					++uiSize;
-				}
-			}
-		}
+		void Deserialize(void *pvBuffer, size_t stSize);
 	};
 
-	typedef TypeMap<32> TerrainTypeMap;
+	typedef TypeMap TerrainTypeMap;
 	TerrainTypeMap m_kTerrainTypes;
 
-	typedef TypeMap<128> FeatureTypeMap;
+	typedef TypeMap FeatureTypeMap;
 	FeatureTypeMap m_kFeatures;
 
-	typedef TypeMap<128> NaturalWonderTypeMap;
+	typedef TypeMap NaturalWonderTypeMap;
 	NaturalWonderTypeMap m_kNaturalWonders;
 
-	typedef TypeMap<64> ResourceTypeMap;
+	typedef TypeMap ResourceTypeMap;
 	ResourceTypeMap m_kResources;
 
-	typedef TypeMap<64> ImprovementTypeMap;
+	typedef TypeMap ImprovementTypeMap;
 	ImprovementTypeMap m_kImprovements;
 
-	typedef TypeMap<256> UnitTypeMap;
+	typedef TypeMap UnitTypeMap;
 	UnitTypeMap m_kUnits;
 
-	typedef TypeMap<256> BuildingTypeMap;
+	typedef TypeMap BuildingTypeMap;
 	BuildingTypeMap m_kBuildingTypes;
 
-	typedef TypeMap<256> TechTypeMap;
+	typedef TypeMap TechTypeMap;
 	TechTypeMap m_kTechs;
 
-	typedef TypeMap<256> PolicyTypeMap;
+	typedef TypeMap PolicyTypeMap;
 	PolicyTypeMap m_kPolicies;
 
-	typedef TypeMap<256> UnitPromotionTypeMap;
+	typedef TypeMap UnitPromotionTypeMap;
 	UnitPromotionTypeMap m_kUnitPromotions;
 
-	template<class TTypeMap>
-	static bool BuildLookupTable(const TTypeMap &kFrom, const TTypeMap &kTo, uint auiLookupTable[TTypeMap::MaxTypes])
+	typedef std::vector<uint> LookupTable;
+	static bool BuildLookupTable(const TypeMap &kFrom, const TypeMap &kTo, LookupTable& auiLookupTable)
 	{
 		// Initialize the lookup table
-		for( uint i = 0; i < TTypeMap::MaxTypes; ++i )
+		uint uiMaxSize = MAX(kFrom.Size(), kTo.Size());
+		auiLookupTable.resize(uiMaxSize);
+		for( uint i = 0; i < uiMaxSize; ++i )
 			auiLookupTable[i] = uint(-1);
 
-		bool bDifferencesFound = kFrom.uiSize != kTo.uiSize;
-		for( uint uiFrom = 0; uiFrom < kFrom.uiSize; ++uiFrom )
+		bool bDifferencesFound = kFrom.Size() != kTo.Size();
+		for( uint uiFrom = 0; uiFrom < kFrom.Size(); ++uiFrom )
 		{
 			// I know this looks like a string copy but it's just a string pointer copy
-			const String sFrom = kFrom.asTypes[uiFrom];
+			const String sFrom = kFrom.Get(uiFrom);
 
 			// Note: NULL and empty strings are considered to represent invalid types and are never allowed to have a match.
 			const char *szFrom = sFrom;
 			if( szFrom && *szFrom )
 			{
-				for( uint uiTo = 0; uiTo < kTo.uiSize; ++uiTo )
+				for( uint uiTo = 0; uiTo < kTo.Size(); ++uiTo )
 				{
 					// I know this looks like a string compare but since they're tabled
 					// strings it's just a pointer comparison which is pretty fast.
-					if( sFrom == kTo.asTypes[uiTo] )
+					if( sFrom == kTo.Get(uiTo) )
 					{
 						auiLookupTable[uiFrom] = uiTo;
 						if( uiFrom != uiTo ) bDifferencesFound = true;
@@ -186,7 +130,7 @@ public:
 			else
 			{
 				// If from was NULL or empty but to is not then a difference has been found.
-				const char *szTo = kTo.asTypes[uiFrom];
+				const char *szTo = kTo.Get(uiFrom);
 				if( szTo && *szTo )
 					bDifferencesFound = true;
 			}

@@ -26,6 +26,8 @@ typedef int(*CvAHeuristic)(int, int, int, int);
 typedef int(*CvAStarFunc)(CvAStarNode*, CvAStarNode*, int, const void*, CvAStar*);
 typedef int(*CvANumExtraChildren)(CvAStarNode*, CvAStar*);
 typedef int(*CvAGetExtraChild)(CvAStarNode*, int, int&, int&, CvAStar*);
+typedef void(*CvABegin)(const void*, CvAStar*);
+typedef void(*CvAEnd)(const void*, CvAStar*);
 
 // PATHFINDER FLAGS
 // WARNING: Some of these flags are passed into the unit mission and stored in the missions iFlags member.
@@ -64,6 +66,10 @@ class CvAStar
 
 	//--------------------------------------- PUBLIC METHODS -------------------------------------------
 public:
+	enum RANGES
+	{
+		SCRATCH_BUFFER_SIZE = 512
+	};
 	// Constructor
 	CvAStar();
 
@@ -71,7 +77,7 @@ public:
 	~CvAStar();
 
 	// Initializes the CvAStar class. iSize = Dimensions of Pathing Grid(ie. [iSize][iSize]
-	void Initialize(int iColumns, int iRows, bool bWrapX, bool bWrapY, CvAPointFunc IsPathDestFunc, CvAPointFunc DestValidFunc, CvAHeuristic HeuristicFunc, CvAStarFunc CostFunc, CvAStarFunc ValidFunc, CvAStarFunc NotifyChildFunc, CvAStarFunc NotifyListFunc, CvANumExtraChildren NumExtraChildrenFunc, CvAGetExtraChild GetExtraChildFunc, const void *pData);
+	void Initialize(int iColumns, int iRows, bool bWrapX, bool bWrapY, CvAPointFunc IsPathDestFunc, CvAPointFunc DestValidFunc, CvAHeuristic HeuristicFunc, CvAStarFunc CostFunc, CvAStarFunc ValidFunc, CvAStarFunc NotifyChildFunc, CvAStarFunc NotifyListFunc, CvANumExtraChildren NumExtraChildrenFunc, CvAGetExtraChild GetExtraChildFunc, CvABegin InitializeFunc, CvAEnd UninitializeFunc, const void* pData);
 
 	void DeInit();		// free memory
 
@@ -261,6 +267,12 @@ public:
 	// It is ok to pass in NULL, the resulting array will contain zero elements
 	static void CopyPath(const CvAStarNode* pkEndNode, CvPathNodeArray& kPathArray);
 
+	void* GetScratchPointer1() { return m_pScratchPtr1; }
+	void  SetScratchPointer1(void* pPtr) { m_pScratchPtr1 = pPtr; }
+	void* GetScratchPointer2() { return m_pScratchPtr2; }
+	void  SetScratchPointer2(void* pPtr) { m_pScratchPtr1 = pPtr; }
+
+	void* GetScratchBuffer() { return &m_ScratchBuffer[0]; }
 	//--------------------------------------- PROTECTED FUNCTIONS -------------------------------------------
 protected:
 
@@ -294,6 +306,8 @@ protected:
 	CvAStarFunc udNotifyList;				    // Called when node is added to Open/Closed list
 	CvANumExtraChildren udNumExtraChildrenFunc; // Determines if CreateChildren should consider any additional nodes
 	CvAGetExtraChild udGetExtraChildFunc;	    // Get the extra children nodes
+	CvABegin udInitializeFunc;					// Called at the start, to initialize any run specific data
+	CvAEnd udUninitializeFunc;					// Called at the end to uninitialize any run specific data
 
 	const void* m_pData;			// Data passed back to functions
 
@@ -318,6 +332,10 @@ protected:
 	CvAStarNode* m_pStackHead;		// The Push/Pop stack head
 
 	CvAStarNode** m_ppaaNodes;
+	void* m_pScratchPtr1;						// Will be cleared to NULL before each GeneratePath call
+	void* m_pScratchPtr2;						// Will be cleared to NULL before each GeneratePath call
+
+	char  m_ScratchBuffer[SCRATCH_BUFFER_SIZE];	// Will NOT be modified directly by CvAStar
 };
 
 
@@ -434,6 +452,8 @@ int FindValidDestinationDest (int iToX, int iToY, const void* pointer, CvAStar* 
 int FindValidDestinationPathValid(CvAStarNode* parent, CvAStarNode* node, int data, const void* pointer, CvAStar* finder);
 int TurnsToReachTarget(UnitHandle pUnit, CvPlot *pTarget, bool bReusePaths=false, bool bIgnoreUnits=false, bool bIgnoreStacking=false);
 bool CanReachInXTurns(UnitHandle pUnit, CvPlot* pTarget, int iTurns, bool bIgnoreUnits=false, int* piTurns = NULL);
+void UnitPathInitialize(const void* pointer, CvAStar* finder);
+void UnitPathUninitialize(const void* pointer, CvAStar* finder);
 
 // Derived classes (for more convenient access to pathfinding)
 class CvTwoLayerPathFinder: public CvAStar
@@ -441,7 +461,7 @@ class CvTwoLayerPathFinder: public CvAStar
 public:
 	CvTwoLayerPathFinder();
 	~CvTwoLayerPathFinder();
-	void Initialize(int iColumns, int iRows, bool bWrapX, bool bWrapY, CvAPointFunc IsPathDestFunc, CvAPointFunc DestValidFunc, CvAHeuristic HeuristicFunc, CvAStarFunc CostFunc, CvAStarFunc ValidFunc, CvAStarFunc NotifyChildFunc, CvAStarFunc NotifyListFunc, const void *pData);
+	void Initialize(int iColumns, int iRows, bool bWrapX, bool bWrapY, CvAPointFunc IsPathDestFunc, CvAPointFunc DestValidFunc, CvAHeuristic HeuristicFunc, CvAStarFunc CostFunc, CvAStarFunc ValidFunc, CvAStarFunc NotifyChildFunc, CvAStarFunc NotifyListFunc, CvABegin InitializeFunc, CvAEnd UninitializeFunc, const void* pData);
 	void DeInit();
 	CvAStarNode *GetPartialMoveNode(int iCol, int iRow);
 	CvPlot* GetPathEndTurnPlot() const;

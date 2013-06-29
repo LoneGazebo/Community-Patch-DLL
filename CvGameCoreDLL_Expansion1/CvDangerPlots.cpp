@@ -243,6 +243,12 @@ int CvDangerPlots::GetDanger(const CvPlot& pPlot) const
 	return m_DangerPlots[idx];
 }
 
+/// Returns if the unit is in immediate danger
+bool CvDangerPlots::IsUnderImmediateThreat(const CvPlot& pPlot) const
+{
+	return GetDanger(pPlot) & 0x1;
+}
+
 /// Sums the danger values of the plots around the city to determine the danger value of the city
 int CvDangerPlots::GetCityDanger(CvCity* pCity)
 {
@@ -605,6 +611,15 @@ void CvDangerPlots::AssignUnitDangerValue(CvUnit* pUnit, CvPlot* pPlot)
 
 			int iUnitCombatValue = iBaseUnitCombatValue / iTurnsAway;
 			iUnitCombatValue = ModifyDangerByRelationship(pUnit->getOwner(), pPlot, iUnitCombatValue);
+			if (iTurnsAway <= 1)
+			{
+				iUnitCombatValue |= 0x1;
+			}
+			else
+			{
+				iUnitCombatValue &= ~0x1;
+			}
+
 			AddDanger(iPlotX, iPlotY, iUnitCombatValue);
 		}
 	}

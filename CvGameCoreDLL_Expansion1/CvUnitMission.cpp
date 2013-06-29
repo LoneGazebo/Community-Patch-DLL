@@ -53,7 +53,7 @@ void CvUnitMission::AutoMission(UnitHandle hUnit)
 				}
 			}
 
-			if(!bEscortedBuilder && !hUnit->IsIgnoringDangerWakeup() && !hUnit->IsCombatUnit() && GET_PLAYER(hUnit->getOwner()).GetPlotDanger(*(hUnit->plot())) > 0)
+			if(!bEscortedBuilder && !hUnit->IsIgnoringDangerWakeup() && !hUnit->IsCombatUnit() && GET_PLAYER(hUnit->getOwner()).IsPlotUnderImmediateThreat(*(hUnit->plot())))
 			{
 				hUnit->ClearMissionQueue();
 				hUnit->SetIgnoreDangerWakeup(true);
@@ -110,7 +110,7 @@ void CvUnitMission::PushMission(UnitHandle hUnit, MissionTypes eMission, int iDa
 			CvBuildInfo* pkBuildInfo = GC.getBuildInfo(eBuild);
 			if(pkBuildInfo)
 			{
-				if(GET_PLAYER(hUnit->getOwner()).GetPlotDanger(*(hUnit->plot())) > 0)
+				if (GET_PLAYER(hUnit->getOwner()).IsPlotUnderImmediateThreat(*(hUnit->plot())))
 				{
 					if(hUnit->plot()->getNumDefenders(hUnit->getOwner()) <= 0)
 					{
@@ -238,7 +238,7 @@ void CvUnitMission::PushMission(UnitHandle hUnit, MissionTypes eMission, int iDa
 				hUnit->PlayActionSound();
 			}
 
-			gDLL->getInterfaceIFace()->setHasMovedUnit(true);
+			GC.GetEngineUserInterface()->setHasMovedUnit(true);
 		}
 
 		////gDLL->getEventReporterIFace()->selectionGroupPushMission(this, eMission);
@@ -343,9 +343,9 @@ void CvUnitMission::WaitFor(UnitHandle hUnit, UnitHandle hWaitForUnit)
 
 	if((hUnit->getOwner() == GC.getGame().getActivePlayer()) && hUnit->IsSelected())
 	{
-		gDLL->getInterfaceIFace()->setDirty(Waypoints_DIRTY_BIT, true);
-		gDLL->getInterfaceIFace()->setDirty(SelectionButtons_DIRTY_BIT, true);
-		gDLL->getInterfaceIFace()->setDirty(UnitInfo_DIRTY_BIT, true);
+		GC.GetEngineUserInterface()->setDirty(Waypoints_DIRTY_BIT, true);
+		GC.GetEngineUserInterface()->setDirty(SelectionButtons_DIRTY_BIT, true);
+		GC.GetEngineUserInterface()->setDirty(UnitInfo_DIRTY_BIT, true);
 	}
 }
 
@@ -369,9 +369,9 @@ void CvUnitMission::UpdateMission(UnitHandle& hUnit)
 			{
 				if(hUnit->getOwner() == GC.getGame().getActivePlayer())
 				{
-					//if (gDLL->getInterfaceIFace()->GetHeadSelectedUnit() == NULL)
+					//if (GC.GetEngineUserInterface()->GetHeadSelectedUnit() == NULL)
 					{
-						gDLL->getInterfaceIFace()->changeCycleSelectionCounter(1);
+						GC.GetEngineUserInterface()->changeCycleSelectionCounter(1);
 					}
 				}
 			}
@@ -446,7 +446,7 @@ void CvUnitMission::ContinueMission(UnitHandle hUnit, int iSteps, int iETA)
 							{
 								if(bCityAttackInterrupt)
 								{
-									gDLL->getInterfaceIFace()->SetDontShowPopups(false);
+									GC.GetEngineUserInterface()->SetDontShowPopups(false);
 
 									if(!GC.getGame().isOption(GAMEOPTION_NO_TUTORIAL))
 									{
@@ -457,7 +457,7 @@ void CvUnitMission::ContinueMission(UnitHandle hUnit, int iSteps, int iETA)
 										kPopup.iData3 = hUnit->plot()->GetPlotIndex();
 										strcpy_s(kPopup.szText, "TXT_KEY_ADVISOR_CITY_ATTACK_BODY");
 										kPopup.bOption1 = true;
-										gDLL->getInterfaceIFace()->AddPopup(kPopup);
+										GC.GetEngineUserInterface()->AddPopup(kPopup);
 										goto ContinueMissionExit;
 									}
 								}
@@ -472,14 +472,14 @@ void CvUnitMission::ContinueMission(UnitHandle hUnit, int iSteps, int iETA)
 									{
 										if(!GC.getGame().isOption(GAMEOPTION_NO_TUTORIAL))
 										{
-											gDLL->getInterfaceIFace()->SetDontShowPopups(false);
+											GC.GetEngineUserInterface()->SetDontShowPopups(false);
 											CvPopupInfo kPopup(BUTTONPOPUP_ADVISOR_MODAL);
 											kPopup.iData1 = ADVISOR_MILITARY;
 											kPopup.iData2 = pPlot->GetPlotIndex();
 											kPopup.iData3 = hUnit->plot()->GetPlotIndex();
 											strcpy_s(kPopup.szText, "TXT_KEY_ADVISOR_BAD_ATTACK_BODY");
 											kPopup.bOption1 = false;
-											gDLL->getInterfaceIFace()->AddPopup(kPopup);
+											GC.GetEngineUserInterface()->AddPopup(kPopup);
 											goto ContinueMissionExit;
 										}
 
@@ -758,7 +758,7 @@ void CvUnitMission::ContinueMission(UnitHandle hUnit, int iSteps, int iETA)
 				if(hUnit->ShowMoves() && GC.getGame().getActivePlayer() != NO_PLAYER && hUnit->getOwner() != GC.getGame().getActivePlayer() && hUnit->plot()->isActiveVisible(false))
 				{
 					auto_ptr<ICvPlot1> pDllPlot = GC.WrapPlotPointer(hUnit->plot());
-					gDLL->getInterfaceIFace()->lookAt(pDllPlot.get(), CAMERALOOKAT_NORMAL);
+					GC.GetEngineUserInterface()->lookAt(pDllPlot.get(), CAMERALOOKAT_NORMAL);
 				}
 			}
 
@@ -788,7 +788,7 @@ void CvUnitMission::ContinueMission(UnitHandle hUnit, int iSteps, int iETA)
 								iCameraTime = 1;
 							}
 							// If our move revealed a Plot, camera jumps slower
-							else if(gDLL->getInterfaceIFace()->IsSelectedUnitRevealingNewPlots())
+							else if(GC.GetEngineUserInterface()->IsSelectedUnitRevealingNewPlots())
 							{
 								iCameraTime = 10;
 							}
@@ -798,7 +798,7 @@ void CvUnitMission::ContinueMission(UnitHandle hUnit, int iSteps, int iETA)
 								iCameraTime = 5;
 							}
 
-							gDLL->getInterfaceIFace()->changeCycleSelectionCounter(iCameraTime);
+							GC.GetEngineUserInterface()->changeCycleSelectionCounter(iCameraTime);
 						}
 					}
 
@@ -820,7 +820,7 @@ void CvUnitMission::ContinueMission(UnitHandle hUnit, int iSteps, int iETA)
 				}
 				else if(!hUnit->IsBusy() && hUnit->getOwner() == GC.getGame().getActivePlayer() && hUnit->IsSelected())
 				{
-					gDLL->getInterfaceIFace()->changeCycleSelectionCounter(1);
+					GC.GetEngineUserInterface()->changeCycleSelectionCounter(1);
 				}
 			}
 		}
@@ -1126,7 +1126,7 @@ void CvUnitMission::StartMission(UnitHandle hUnit)
 	CvPlayerAI& kUnitOwner = GET_PLAYER(hUnit->getOwner());
 
 
-	if(!GC.getGame().isMPOption(MPOPTION_SIMULTANEOUS_TURNS))
+	if(!kUnitOwner.isSimultaneousTurns())
 	{
 		if(!kUnitOwner.isTurnActive())
 		{
@@ -1134,7 +1134,7 @@ void CvUnitMission::StartMission(UnitHandle hUnit)
 			{
 				if(hUnit->IsSelected())
 				{
-					gDLL->getInterfaceIFace()->changeCycleSelectionCounter(1);
+					GC.GetEngineUserInterface()->changeCycleSelectionCounter(1);
 				}
 			}
 
@@ -1477,7 +1477,7 @@ void CvUnitMission::StartMission(UnitHandle hUnit)
 				{
 					if(hUnit->IsSelected())
 					{
-						gDLL->getInterfaceIFace()->changeCycleSelectionCounter(kUnitOwner.isOption(PLAYEROPTION_QUICK_MOVES)? 1 : 2);
+						GC.GetEngineUserInterface()->changeCycleSelectionCounter(kUnitOwner.isOption(PLAYEROPTION_QUICK_MOVES)? 1 : 2);
 					}
 				}
 
@@ -1639,9 +1639,9 @@ void CvUnitMission::InsertAtEndMissionQueue(UnitHandle hUnit, MissionData missio
 
 	if((hUnit->getOwner() == GC.getGame().getActivePlayer()) && hUnit->IsSelected())
 	{
-		gDLL->getInterfaceIFace()->setDirty(Waypoints_DIRTY_BIT, true);
-		gDLL->getInterfaceIFace()->setDirty(SelectionButtons_DIRTY_BIT, true);
-		gDLL->getInterfaceIFace()->setDirty(UnitInfo_DIRTY_BIT, true);
+		GC.GetEngineUserInterface()->setDirty(Waypoints_DIRTY_BIT, true);
+		GC.GetEngineUserInterface()->setDirty(SelectionButtons_DIRTY_BIT, true);
+		GC.GetEngineUserInterface()->setDirty(UnitInfo_DIRTY_BIT, true);
 	}
 }
 
@@ -1672,9 +1672,9 @@ MissionData* CvUnitMission::DeleteMissionQueueNode(UnitHandle hUnit, MissionData
 
 	if((hUnit->getOwner() == GC.getGame().getActivePlayer()) && hUnit->IsSelected())
 	{
-		gDLL->getInterfaceIFace()->setDirty(Waypoints_DIRTY_BIT, true);
-		gDLL->getInterfaceIFace()->setDirty(SelectionButtons_DIRTY_BIT, true);
-		gDLL->getInterfaceIFace()->setDirty(UnitInfo_DIRTY_BIT, true);
+		GC.GetEngineUserInterface()->setDirty(Waypoints_DIRTY_BIT, true);
+		GC.GetEngineUserInterface()->setDirty(SelectionButtons_DIRTY_BIT, true);
+		GC.GetEngineUserInterface()->setDirty(UnitInfo_DIRTY_BIT, true);
 	}
 
 	return pNextMissionNode;
@@ -1699,9 +1699,9 @@ void CvUnitMission::ClearMissionQueue(UnitHandle hUnit, int iUnitCycleTimerOverr
 
 	if((hUnit->getOwner() == GC.getGame().getActivePlayer()) && hUnit->IsSelected())
 	{
-		gDLL->getInterfaceIFace()->setDirty(Waypoints_DIRTY_BIT, true);
-		gDLL->getInterfaceIFace()->setDirty(SelectionButtons_DIRTY_BIT, true);
-		gDLL->getInterfaceIFace()->setDirty(UnitInfo_DIRTY_BIT, true);
+		GC.GetEngineUserInterface()->setDirty(Waypoints_DIRTY_BIT, true);
+		GC.GetEngineUserInterface()->setDirty(SelectionButtons_DIRTY_BIT, true);
+		GC.GetEngineUserInterface()->setDirty(UnitInfo_DIRTY_BIT, true);
 	}
 }
 
@@ -1743,7 +1743,7 @@ void CvUnitMission::DeactivateHeadMission(UnitHandle hUnit, int iUnitCycleTimer)
 				if(GET_PLAYER(hUnit->getOwner()).isOption(PLAYEROPTION_QUICK_MOVES))
 					iUnitCycleTimer = min(1, iUnitCycleTimer);
 
-				gDLL->getInterfaceIFace()->changeCycleSelectionCounter(iUnitCycleTimer);
+				GC.GetEngineUserInterface()->changeCycleSelectionCounter(iUnitCycleTimer);
 			}
 		}
 	}

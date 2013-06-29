@@ -1848,6 +1848,13 @@ void CvGameDeals::AddProposedDeal(CvDeal kDeal)
 {
 	// Store Deal away
 	m_ProposedDeals.push_back(kDeal);
+
+	// Update UI if we were involved in the deal
+	PlayerTypes eActivePlayer = GC.getGame().getActivePlayer();
+	if(kDeal.m_eFromPlayer == eActivePlayer || kDeal.m_eToPlayer == eActivePlayer)
+	{
+		GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
+	}
 }
 
 
@@ -2008,10 +2015,10 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 
 							if(GC.getResourceInfo(eResource)->getResourceUsage() == RESOURCEUSAGE_LUXURY)
 							{
-								OutputDebugString("\nStep0");
+								// OutputDebugString("\nStep0");
 								if(((CvString)GET_PLAYER(eAcceptedFromPlayer).getLeaderTypeKey() == "LEADER_HARUN_AL_RASHID"))
 								{
-									OutputDebugString("\nStep1");
+									// OutputDebugString("\nStep1");
 									int iJ;
 									for(iJ = 0; iJ < GC.getNumBuildingInfos(); iJ++)
 									{
@@ -2020,7 +2027,7 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 										{
 											if((CvString)pkBuildingEntry->GetType() == "BUILDING_BAZAAR")
 											{
-												OutputDebugString("\nStep2");
+												// OutputDebugString("\nStep2");
 												if(GET_PLAYER(eAcceptedFromPlayer).getBuildingClassCount((BuildingClassTypes)pkBuildingEntry->GetBuildingClassType()) >= 1)
 												{
 													gDLL->UnlockAchievement(ACHIEVEMENT_SPECIAL_TRADER);
@@ -2120,7 +2127,7 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 	PlayerTypes eActivePlayer = GC.getGame().getActivePlayer();
 	if(eFromPlayer == eActivePlayer || eToPlayer == eActivePlayer)
 	{
-		gDLL->getInterfaceIFace()->setDirty(GameData_DIRTY_BIT, true);
+		GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
 	}
 
 	// Send out a condensed notification if peace was made with third party minor civs in this deal
@@ -2299,7 +2306,7 @@ void CvGameDeals::DoTurn()
 			PlayerTypes eActivePlayer = GC.getGame().getActivePlayer();
 			if(eFromPlayer == eActivePlayer || eToPlayer == eActivePlayer)
 			{
-				gDLL->getInterfaceIFace()->setDirty(GameData_DIRTY_BIT, true);
+				GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
 			}
 		}
 
@@ -2474,7 +2481,7 @@ void CvGameDeals::DoCancelDealsBetweenPlayers(PlayerTypes eFromPlayer, PlayerTyp
 			PlayerTypes eActivePlayer = GC.getGame().getActivePlayer();
 			if(eFromPlayer == eActivePlayer || eToPlayer == eActivePlayer)
 			{
-				gDLL->getInterfaceIFace()->setDirty(GameData_DIRTY_BIT, true);
+				GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
 			}
 		}
 	}

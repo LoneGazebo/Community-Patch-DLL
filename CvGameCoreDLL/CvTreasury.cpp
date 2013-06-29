@@ -157,9 +157,9 @@ void CvTreasury::SetGoldTimes100(int iNewValue)
 			//	}
 			//}
 
-			gDLL->getInterfaceIFace()->setDirty(MiscButtons_DIRTY_BIT, true);
-			gDLL->getInterfaceIFace()->setDirty(SelectionButtons_DIRTY_BIT, true);
-			gDLL->getInterfaceIFace()->setDirty(GameData_DIRTY_BIT, true);
+			GC.GetEngineUserInterface()->setDirty(MiscButtons_DIRTY_BIT, true);
+			GC.GetEngineUserInterface()->setDirty(SelectionButtons_DIRTY_BIT, true);
+			GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
 		}
 	}
 }
@@ -214,7 +214,7 @@ void CvTreasury::ChangeGoldPerTurnFromDiplomacy(int iChange)
 int CvTreasury::GetRouteGoldTimes100(CvCity* pNonCapitalCity) const
 {
 	CvCity* pCapitalCity = m_pPlayer->getCapitalCity();
-	if (!pNonCapitalCity || pNonCapitalCity == pCapitalCity)
+	if (!pNonCapitalCity || pNonCapitalCity == pCapitalCity || pCapitalCity == NULL)
 	{
 		return 0;
 	}
@@ -730,7 +730,7 @@ void CvTreasury::SetBaseImprovementGoldMaintenance(int iValue)
 			m_iBaseImprovementGoldMaintenance = 0;
 
 		if (m_pPlayer->GetID() == GC.getGame().getActivePlayer())
-			gDLL->getInterfaceIFace()->setDirty(GameData_DIRTY_BIT, true);
+			GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
 	}
 }
 

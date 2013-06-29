@@ -12,6 +12,11 @@
 
 class CvPlayer;
 
+//////////////////////////////////////////////////////////////////////////
+// GameCore DLL Specific Notification Type Definitions
+//////////////////////////////////////////////////////////////////////////
+#define NOTIFICATION_PLAYER_KICKED (NotificationTypes)0xABD3C7BA 
+
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  CLASS:      CvNotifications
 //!  \brief		Maintains the gameplay notifications for a player
@@ -34,6 +39,7 @@ public:
 	void Update (void);
 	void EndOfTurnCleanup (void); // removing notifications at the end turns
 
+	int  AddByName(const char* szNotificationName, const char* strMessage, const char* strSummary, int iX, int iY, int iGameDataIndex, int iExtraGameData=-1);
 	int  Add (NotificationTypes eNotificationType, const char* strMessage, const char* strSummary, int iX, int iY, int iGameDataIndex, int iExtraGameData=-1);
 	void Activate (int iLookupIndex);
 	void Dismiss (int iLookupIndex, bool bUserInvoked);

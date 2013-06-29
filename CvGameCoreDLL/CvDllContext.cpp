@@ -47,14 +47,6 @@
 #include "CvDllVictoryInfo.h"
 #include "CvDllWorldBuilderMapLoader.h"
 
-// WARNING! This must be unique for each DLL!
-// If you are a modder and you are creating your own DLL from the original source, this must be changed to a unique GUID.
-// Use the Visual Studio Create GUID option in the Tools menu to create a new GUID.
-// {478F7A6E-9126-4a1c-8ECD-7B971E99A2B1}
-static const GUID CIV5_CORE_RELEASE_DLL_GUID =
-{ 0x478f7a6e, 0x9126, 0x4a1c, { 0x8e, 0xcd, 0x7b, 0x97, 0x1e, 0x99, 0xa2, 0xb1 } };
-
-static const char *CIV5_CORE_RELEASE_DLL_VERSION = "1.0.0";
 
 CvDllGameContext* CvDllGameContext::s_pSingleton = NULL;
 HANDLE CvDllGameContext::s_hHeap = INVALID_HANDLE_VALUE;
@@ -108,7 +100,8 @@ CvDllGameContext::~CvDllGameContext()
 void* CvDllGameContext::QueryInterface(GUID guidInterface)
 {
 	if(	guidInterface == ICvUnknown::GetInterfaceId() ||
-		guidInterface == ICvGameContext1::GetInterfaceId())
+		guidInterface == ICvGameContext1::GetInterfaceId() ||
+		guidInterface == ICvGameContext2::GetInterfaceId())
 	{
 		return this;
 	}
@@ -841,9 +834,17 @@ void CvDllGameContext::SetGameDatabase(Database::Connection* pGameDatabase)
 	GC.SetGameDatabase(pGameDatabase);
 }
 //------------------------------------------------------------------------------
-bool CvDllGameContext::SetDLLIFace(ICvEngineUtility1* pDllInterface)
+bool CvDllGameContext::SetDLLIFace(ICvEngineUtility1* pDll)
 {
-	GC.setDLLIFace(pDllInterface); //GC will claim ownership of this pointer.
+	//Since we're using QueryInterface to allocate a new instance, we need to explicitly clean up the old reference.
+	ICvEngineUtility3* pOldDll = GC.getDLLIFace();
+	if(pOldDll != NULL)
+	{
+		delete pOldDll;
+	}
+
+	ICvEngineUtility3* pDllInterface = (pDll != NULL)? pDll->QueryInterface<ICvEngineUtility3>() : NULL;
+	GC.setDLLIFace(pDllInterface);
 	return pDllInterface != NULL;
 }
 //------------------------------------------------------------------------------
@@ -1308,5 +1309,10 @@ ICvEnumerator* CvDllGameContext::TEMPCalculatePathFinderUpdates(ICvUnit1* pHeadS
 void CvDllGameContext::ResetPathFinder()
 {
 	GC.getInterfacePathFinder().ForceReset();
+}
+//------------------------------------------------------------------------------
+void CvDllGameContext::SetEngineUserInterface(ICvUserInterface2* pUI)
+{
+	GC.SetEngineUserInterface(pUI);
 }
 //------------------------------------------------------------------------------

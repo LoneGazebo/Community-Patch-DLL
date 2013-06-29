@@ -2288,7 +2288,7 @@ bool CvCity::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool b
 					CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(ePrereqBuilding);
 					if(pkBuildingInfo)
 					{
-						GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_UNIT_REQUIRES_BUILDING", pkBuildingInfo->GetDescription());
+						GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_UNIT_REQUIRES_BUILDING", pkBuildingInfo->GetDescriptionKey());
 						if(toolTipSink == NULL)
 							return false;
 					}
@@ -3075,13 +3075,14 @@ void CvCity::DoPickResourceDemanded(bool bCurrentResourceInvalid)
 		eResource = (ResourceTypes) iResourceLoop;
 
 		// Is this a Luxury Resource?
-		if(GC.getResourceInfo(eResource)->getResourceUsage() == RESOURCEUSAGE_LUXURY)
+		const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
+		if(pkResourceInfo != NULL && pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_LUXURY)
 		{
 			// Is the Resource actually on the map?
 			if(GC.getMap().getNumResources(eResource) > 0)
 			{
 				// Can't be a minor civ only resource!
-				if(!GC.getResourceInfo(eResource)->isOnlyMinorCivs())
+				if(!pkResourceInfo->isOnlyMinorCivs())
 				{
 					// We must not have this already
 					if(GET_PLAYER(getOwner()).getNumResourceAvailable(eResource) == 0)
@@ -7125,6 +7126,22 @@ void CvCity::DoJONSCultureLevelIncrease()
 	// maybe the player owns ALL of the plots or there are none avaialable?
 	if(pPlotToAcquire)
 	{
+		if(GC.getLogging() && GC.getAILogging())
+		{
+			CvPlayerAI& kOwner = GET_PLAYER(getOwner());
+			CvString playerName;
+			FILogFile* pLog;
+			CvString strBaseString;
+			CvString strOutBuf;
+			playerName = kOwner.getCivilizationShortDescription();
+			pLog = LOGFILEMGR.GetLog(kOwner.GetCitySpecializationAI()->GetLogFileName(playerName), FILogFile::kDontTimeStamp);
+			strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+			strBaseString += playerName + ", ";
+			strOutBuf.Format("%s, City Culture Leveled Up. Level: %d Border Expanded, X: %d, Y: %d", getName().GetCString(), 
+												GetJONSCultureLevel(), pPlotToAcquire->getX(), pPlotToAcquire->getY());
+			strBaseString += strOutBuf;
+			pLog->Msg(strBaseString);
+		}
 		DoAcquirePlot(pPlotToAcquire->getX(), pPlotToAcquire->getY());
 	}
 }
@@ -10573,6 +10590,21 @@ void CvCity::BuyPlot(int iPlotX, int iPlotY)
 		}
 	}
 
+	if(GC.getLogging() && GC.getAILogging())
+	{
+		CvPlayerAI& kOwner = GET_PLAYER(getOwner());
+		CvString playerName;
+		FILogFile* pLog;
+		CvString strBaseString;
+		CvString strOutBuf;
+		playerName = kOwner.getCivilizationShortDescription();
+		pLog = LOGFILEMGR.GetLog(kOwner.GetCitySpecializationAI()->GetLogFileName(playerName), FILogFile::kDontTimeStamp);
+		strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+		strBaseString += playerName + ", ";
+		strOutBuf.Format("%s, City Plot Purchased, X: %d, Y: %d", getName().GetCString(), iPlotX, iPlotY);
+		strBaseString += strOutBuf;
+		pLog->Msg(strBaseString);
+	}
 	DoAcquirePlot(iPlotX, iPlotY);
 
 	//Achievement test for purchasing 1000 tiles
@@ -11933,8 +11965,11 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 		{
 			int iResult = CreateUnit(eUnitType);
 			CvAssertMsg(iResult != FFreeList::INVALID_INDEX, "Unable to create unit");
-			CvUnit* pUnit = kPlayer.getUnit(iResult);
-			pUnit->setMoves(0);
+			if (iResult != FFreeList::INVALID_INDEX)
+			{
+				CvUnit* pUnit = kPlayer.getUnit(iResult);
+				pUnit->setMoves(0);
+			}
 		}
 		else if(eBuildingType >= 0)
 		{
@@ -11968,6 +12003,9 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 		{
 			int iResult = CreateUnit(eUnitType);
 			CvAssertMsg(iResult != FFreeList::INVALID_INDEX, "Unable to create unit");
+			if (iResult == FFreeList::INVALID_INDEX)
+				return;	// Can't create the unit, most likely we have no place for it.  We have not deducted the cost yet so just exit.
+
 			CvUnit* pUnit = kPlayer.getUnit(iResult);
 			pUnit->setMoves(0);
 
@@ -12828,13 +12866,9 @@ void CvCity::read(FDataStream& kStream)
 
 	if(uiVersion >= 14)
 	{
-		std::vector<int> aTemp;
-		CvInfosSerializationHelper::ReadHashedDataArray(kStream, aTemp);
-		m_paiNoResource = aTemp;
-		CvInfosSerializationHelper::ReadHashedDataArray(kStream, aTemp);
-		m_paiFreeResource = aTemp;
-		CvInfosSerializationHelper::ReadHashedDataArray(kStream, aTemp);
-		m_paiNumResourcesLocal = aTemp;
+		CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_paiNoResource.dirtyGet());
+		CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_paiFreeResource.dirtyGet());
+		CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_paiNumResourcesLocal.dirtyGet());
 	}
 	else
 	{
@@ -13111,6 +13145,33 @@ void CvCity::read(FDataStream& kStream)
 	{
 		kStream >> *m_pCityEspionage;
 	}
+
+	if(uiVersion >= 27)
+	{
+		kStream >> m_iExtraHitPoints;
+	}
+	else
+	{
+		// Recalculate
+		int iTotalExtraHitPoints = 0;
+		for(int eBuildingType = 0; eBuildingType < GC.getNumBuildingInfos(); eBuildingType++)
+		{
+			const BuildingTypes eBuilding = static_cast<BuildingTypes>(eBuildingType);
+			CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+
+			if (pkBuildingInfo)
+			{
+				int iCount = m_pCityBuildings->GetNumBuilding(eBuilding);
+				if(iCount > 0)
+				{
+					iTotalExtraHitPoints += (pkBuildingInfo->GetExtraCityHitPoints() * iCount);
+				}
+			}
+		}
+
+		// Change all at once, rather than one by one, else the clamping might adjust the current damage.
+		ChangeExtraHitPoints(iTotalExtraHitPoints);
+	}
 }
 
 //	--------------------------------------------------------------------------------
@@ -13119,7 +13180,7 @@ void CvCity::write(FDataStream& kStream) const
 	VALIDATE_OBJECT
 
 	// Current version number
-	uint uiVersion = 26;
+	uint uiVersion = 27;
 	kStream << uiVersion;
 
 	kStream << m_iID;
@@ -13332,6 +13393,8 @@ void CvCity::write(FDataStream& kStream) const
 	kStream << *m_pCityReligions;
 	m_pEmphases->Write(kStream);
 	kStream << *m_pCityEspionage;
+
+	kStream << m_iExtraHitPoints;
 }
 
 
@@ -14576,7 +14639,18 @@ int CvCity::GetExtraHitPoints() const
 //	--------------------------------------------------------------------------------
 void CvCity::ChangeExtraHitPoints(int iValue)
 {
-	m_iExtraHitPoints += iValue;
+	if (iValue != 0)
+	{
+		m_iExtraHitPoints += iValue;
+		FAssertMsg(m_iExtraHitPoints >= 0, "Trying to set ExtraHitPoints to a negative value");
+		if (m_iExtraHitPoints < 0)
+			m_iExtraHitPoints = 0;
+
+		int iCurrentDamage = getDamage();
+		FAssertMsg(iCurrentDamage <= GetMaxHitPoints(), "Loss of extra hit points will bring the city's damage to maximum");
+		if (iCurrentDamage > GetMaxHitPoints())
+			setDamage(iCurrentDamage);		// Call setDamage, it will clamp the value.
+	}
 }
 
 //	--------------------------------------------------------------------------------

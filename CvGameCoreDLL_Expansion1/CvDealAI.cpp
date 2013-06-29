@@ -123,7 +123,7 @@ DealOfferResponseTypes CvDealAI::DoHumanOfferDealToThisAI(CvDeal* pDeal)
 		// If it's from a human, send it through the network
 		if(GET_PLAYER(eFromPlayer).isHuman())
 		{
-			gDLL->getInterfaceIFace()->SetDealInTransit(true);
+			GC.GetEngineUserInterface()->SetDealInTransit(true);
 			auto_ptr<ICvDeal1> pDllDeal = GC.WrapDealPointer(&kDeal);
 			gDLL->sendNetDealAccepted(eFromPlayer, GetPlayer()->GetID(), pDllDeal.get(), iDealValueToMe, iValueImOffering, iValueTheyreOffering);
 		}
@@ -164,7 +164,7 @@ DealOfferResponseTypes CvDealAI::DoHumanOfferDealToThisAI(CvDeal* pDeal)
 		// Modify response if the player's offered a deal lot
 		if(eResponse >= DEAL_RESPONSE_UNACCEPTABLE)
 		{
-			int iTimesDealOffered = gDLL->getInterfaceIFace()->GetOfferTradeRepeatCount();
+			int iTimesDealOffered = GC.GetEngineUserInterface()->GetOfferTradeRepeatCount();
 			if(iTimesDealOffered > 4)
 			{
 				szText = GetPlayer()->GetDiplomacyAI()->GetDiploStringForMessage(DIPLO_MESSAGE_REPEAT_TRADE_TOO_MUCH);
@@ -174,7 +174,7 @@ DealOfferResponseTypes CvDealAI::DoHumanOfferDealToThisAI(CvDeal* pDeal)
 				szText = GetPlayer()->GetDiplomacyAI()->GetDiploStringForMessage(DIPLO_MESSAGE_REPEAT_TRADE);
 			}
 
-			gDLL->getInterfaceIFace()->ChangeOfferTradeRepeatCount(1);
+			GC.GetEngineUserInterface()->ChangeOfferTradeRepeatCount(1);
 			gDLL->GameplayDiplomacyAILeaderMessage(GetPlayer()->GetID(), eUIState, szText, eAnimation);
 		}
 	}
@@ -258,7 +258,7 @@ void CvDealAI::DoAcceptedDeal(PlayerTypes eFromPlayer, const CvDeal& kDeal, int 
 		}
 
 		if(GC.getGame().getActivePlayer() == eFromPlayer)
-			gDLL->getInterfaceIFace()->SetOfferTradeRepeatCount(0);
+			GC.GetEngineUserInterface()->SetOfferTradeRepeatCount(0);
 
 		// If this was a peace deal then use that animation instead
 		if(kDeal.GetPeaceTreatyType() != NO_PEACE_TREATY_TYPE)
@@ -273,7 +273,7 @@ void CvDealAI::DoAcceptedDeal(PlayerTypes eFromPlayer, const CvDeal& kDeal, int 
 
 	if(GC.getGame().getActivePlayer() == eFromPlayer || GC.getGame().getActivePlayer() == GetPlayer()->GetID())
 	{
-		gDLL->getInterfaceIFace()->makeInterfaceDirty();
+		GC.GetEngineUserInterface()->makeInterfaceDirty();
 	}
 }
 
@@ -471,7 +471,7 @@ DemandResponseTypes CvDealAI::DoHumanDemand(CvDeal* pDeal)
 	{
 		CvDeal kDeal = *pDeal;
 		//gDLL->sendNetDealAccepted(eFromPlayer, GetPlayer()->GetID(), kDeal, -1, -1, -1);
-		gDLL->getInterfaceIFace()->SetDealInTransit(true);
+		GC.GetEngineUserInterface()->SetDealInTransit(true);
 
 		auto_ptr<ICvDeal1> pDllDeal = GC.WrapDealPointer(&kDeal);
 		gDLL->sendNetDemandAccepted(eFromPlayer, GetPlayer()->GetID(), pDllDeal.get());
@@ -492,7 +492,7 @@ void CvDealAI::DoAcceptedDemand(PlayerTypes eFromPlayer, const CvDeal& kDeal)
 	pGameDeals->FinalizeDeal(eFromPlayer, ePlayer, true);
 	if(eActivePlayer == eFromPlayer || eActivePlayer == ePlayer)
 	{
-		gDLL->getInterfaceIFace()->makeInterfaceDirty();
+		GC.GetEngineUserInterface()->makeInterfaceDirty();
 	}
 }
 
@@ -2110,7 +2110,8 @@ void CvDealAI::DoAddResourceToThem(CvDeal* pDeal, PlayerTypes eThem, bool bDontC
 			{
 				eResource = (ResourceTypes) iResourceLoop;
 
-				if(GC.getResourceInfo(eResource)->getResourceUsage() != RESOURCEUSAGE_LUXURY)
+				const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
+				if(pkResourceInfo == NULL || pkResourceInfo->getResourceUsage() != RESOURCEUSAGE_LUXURY)
 					continue;
 
 				iResourceQuantity = GET_PLAYER(eThem).getNumResourceAvailable(eResource, false);
@@ -2145,7 +2146,8 @@ void CvDealAI::DoAddResourceToThem(CvDeal* pDeal, PlayerTypes eThem, bool bDontC
 			{
 				eResource = (ResourceTypes) iResourceLoop;
 
-				if(GC.getResourceInfo(eResource)->getResourceUsage() == RESOURCEUSAGE_LUXURY)
+				const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
+				if(pkResourceInfo == NULL || pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_LUXURY)
 					continue;
 
 				iResourceQuantity = GET_PLAYER(eThem).getNumResourceAvailable(eResource, false);
@@ -2206,8 +2208,11 @@ void CvDealAI::DoAddResourceToUs(CvDeal* pDeal, PlayerTypes eThem, bool bDontCha
 					continue;
 				}
 
+				const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
+				if (pkResourceInfo == NULL)
+					continue;
 				// Quantity is always 1 if it's a Luxury, 5 if Strategic
-				if(GC.getResourceInfo(eResource)->getResourceUsage() == RESOURCEUSAGE_LUXURY)
+				if(pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_LUXURY)
 				{
 					iResourceQuantity = 1;
 				}
@@ -3048,7 +3053,11 @@ void CvDealAI::DoAddItemsToDealForPeaceTreaty(PlayerTypes eOtherPlayer, CvDeal* 
 	{
 		eResource = (ResourceTypes) iResourceLoop;
 
-		eUsage = GC.getResourceInfo(eResource)->getResourceUsage();
+		const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
+		if (pkResourceInfo == NULL)
+			continue;
+
+		eUsage = pkResourceInfo->getResourceUsage();
 
 		// Can't trade bonus Resources
 		if(eUsage == RESOURCEUSAGE_BONUS)
@@ -3311,7 +3320,8 @@ bool CvDealAI::IsMakeOfferForLuxuryResource(PlayerTypes eOtherPlayer, CvDeal* pD
 		eResource = (ResourceTypes) iResourceLoop;
 
 		// Only look at Luxuries
-		if(GC.getResourceInfo(eResource)->getResourceUsage() != RESOURCEUSAGE_LUXURY)
+		const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
+		if(pkResourceInfo == NULL || pkResourceInfo->getResourceUsage() != RESOURCEUSAGE_LUXURY)
 		{
 			continue;
 		}
@@ -3500,7 +3510,7 @@ void CvDealAI::DoTradeScreenOpened()
 		if(ePeaceTreatyImWillingToOffer >= PEACE_TREATY_WHITE_PEACE && ePeaceTreatyImWillingToAccept >= PEACE_TREATY_WHITE_PEACE)
 		{
 			// Clear out UI deal first, we're going to add a couple things to it
-			auto_ptr<ICvDeal1> pUIDeal(gDLL->getInterfaceIFace()->GetScratchDeal());
+			auto_ptr<ICvDeal1> pUIDeal(GC.GetEngineUserInterface()->GetScratchDeal());
 			CvDeal* pkUIDeal = GC.UnwrapDealPointer(pUIDeal.get());
 			pkUIDeal->ClearItems();
 
@@ -3561,8 +3571,8 @@ void CvDealAI::DoTradeScreenClosed(bool bAIWasMakingOffer)
 	// Reset cached values each time screen closed
 	SetCachedValueOfPeaceWithHuman(0);
 
-	gDLL->getInterfaceIFace()->SetAIRequestingConcessions(false);
-	gDLL->getInterfaceIFace()->SetHumanMakingDemand(false);
+	GC.GetEngineUserInterface()->SetAIRequestingConcessions(false);
+	GC.GetEngineUserInterface()->SetHumanMakingDemand(false);
 
 	GetPlayer()->GetDiplomacyAI()->ClearDealToRenew();
 

@@ -1841,7 +1841,7 @@ int CvTeam::GetProjectedVotesFromMinorAllies() const
 				if (GET_TEAM(eTeamLoop).GetTeamVotingForInDiplo() == GetID())
 				{
 					// Liberated minors are handled elsewhere				
-					if (GetLiberatedByTeam() != GetID())
+					if (GET_TEAM(eTeamLoop).GetLiberatedByTeam() != GetID())
 					{
 						iVotes++;
 					}
@@ -1870,7 +1870,7 @@ int CvTeam::GetProjectedVotesFromLiberatedMinors() const
 				if (GET_TEAM(eTeamLoop).GetTeamVotingForInDiplo() == GetID())
 				{
 					// Liberated by us?
-					if (GetLiberatedByTeam() == GetID())
+					if (GET_TEAM(eTeamLoop).GetLiberatedByTeam() == GetID())
 					{
 						iVotes++;
 					}
@@ -2237,6 +2237,19 @@ bool CvTeam::isHuman() const
 		}
 	}
 
+	return false;
+}
+
+//	--------------------------------------------------------------------------------
+bool CvTeam::isObserver() const
+{
+	int iI;
+	for(iI = 0; iI < MAX_PLAYERS; iI++){
+		CvPlayer &player = GET_PLAYER((PlayerTypes)iI);
+		if(player.getTeam() == GetID() && player.isObserver()){
+			return true;
+		}
+	}
 	return false;
 }
 
@@ -4262,22 +4275,42 @@ void CvTeam::changeProjectCount(ProjectTypes eIndex, int iChange)
 
 			if(GC.getGame().isFinalInitialized())
 			{
-				strBuffer = GetLocalizedText("TXT_KEY_MISC_COMPLETES_PROJECT", getName().GetCString(), pkProject->GetTextKey());
-				GC.getGame().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, getLeaderID(), strBuffer/*, -1, -1, (ColorTypes)GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT")*/);
+				CvString strSomeoneCompletesProject = GetLocalizedText("TXT_KEY_MISC_COMPLETES_PROJECT", getName().GetCString(), pkProject->GetTextKey());
+				CvString strSomeoneCompletedProject = GetLocalizedText("TXT_KEY_MISC_SOMEONE_HAS_COMPLETED", getName().GetCString(), pkProject->GetTextKey());
+				CvString strUnknownCompletesProject = GetLocalizedText("TXT_KEY_MISC_WONDER_COMPLETED_UNKNOWN", pkProject->GetTextKey());
 
-				strBuffer = GetLocalizedText("TXT_KEY_MISC_SOMEONE_HAS_COMPLETED", getName().GetCString(), pkProject->GetTextKey());
-				CvPlayer& playerWhoLeadsTeam = GET_PLAYER((PlayerTypes)getLeaderID());
+				const PlayerTypes eTeamLeader = getLeaderID();
+				GC.getGame().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, eTeamLeader, strSomeoneCompletesProject);
+
+				CvPlayerAI& playerWhoLeadsTeam = GET_PLAYER(eTeamLeader);
 				CvCity* pLeadersCapital = playerWhoLeadsTeam.getCapitalCity();
+
+
 				for(iI = 0; iI < MAX_MAJOR_CIVS; iI++)
 				{
-					if(GET_PLAYER((PlayerTypes)iI).isAlive())
+					const PlayerTypes ePlayer = static_cast<PlayerTypes>(iI);
+					CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
+
+					if(kPlayer.isAlive())
 					{
-						if(iI == GC.getGame().getActivePlayer())
+						if(isHasMet(kPlayer.getTeam()))
 						{
-							DLLUI->AddCityMessage(0, pLeadersCapital->GetIDInfo(), ((PlayerTypes)iI), false, GC.getEVENT_MESSAGE_TIME(), strBuffer);//, "AS2D_PROJECT_COMPLETED", MESSAGE_TYPE_MAJOR_EVENT, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT"));
+							if(ePlayer == GC.getGame().getActivePlayer())
+							{
+								DLLUI->AddCityMessage(0, pLeadersCapital->GetIDInfo(), ePlayer, false, GC.getEVENT_MESSAGE_TIME(), strSomeoneCompletedProject);
+							}
+							CvNotifications* pNotifications = kPlayer.GetNotifications();
+							pNotifications->Add(NOTIFICATION_PROJECT_COMPLETED, strSomeoneCompletedProject, strSomeoneCompletedProject, pLeadersCapital->getX(), pLeadersCapital->getY(), eIndex, playerWhoLeadsTeam.GetID());
 						}
-						CvNotifications* pNotifications = GET_PLAYER((PlayerTypes)iI).GetNotifications();
-						pNotifications->Add(NOTIFICATION_PROJECT_COMPLETED, strBuffer, strBuffer, pLeadersCapital->getX(), pLeadersCapital->getY(), eIndex, playerWhoLeadsTeam.GetID());
+						else
+						{
+							if(ePlayer == GC.getGame().getActivePlayer())
+							{
+								DLLUI->AddCityMessage(0, pLeadersCapital->GetIDInfo(), ePlayer, false, GC.getEVENT_MESSAGE_TIME(), strUnknownCompletesProject);
+							}
+							CvNotifications* pNotifications = kPlayer.GetNotifications();
+							pNotifications->Add(NOTIFICATION_PROJECT_COMPLETED, strUnknownCompletesProject, strUnknownCompletesProject, -1, -1, eIndex, NO_PLAYER);
+						}
 					}
 				}
 			}
@@ -6037,6 +6070,36 @@ bool CvTeam::isFriendlyTerritory(TeamTypes eTeam) const
 }
 
 //	--------------------------------------------------------------------------------
+bool CvTeam::isAtWarWithHumans() const
+{//are we currently fighting a war with a human controlled civ?
+	for(int oppTeamIdx = 0; oppTeamIdx < MAX_TEAMS; ++oppTeamIdx)
+	{
+		CvTeam& oppTeam = GET_TEAM((TeamTypes)oppTeamIdx);
+		if(oppTeam.isAlive() && isAtWar((TeamTypes)oppTeamIdx) && oppTeam.isHuman())
+		{//we're at war with a human team
+			return true;
+		}
+	}
+	return false;
+}
+
+//	--------------------------------------------------------------------------------
+bool CvTeam::isSimultaneousTurns() const
+{//determine if this team is running simultaneous turns or not.
+	for(int iPlayer = 0; iPlayer < MAX_PLAYERS; ++iPlayer)
+	{
+		CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)iPlayer);
+		if(kPlayer.isAlive() && kPlayer.getTeam() == GetID())
+		{
+			//just use the status of the first player we find for this team.
+			return kPlayer.isSimultaneousTurns();
+		}
+	}
+
+	return false;
+}
+
+//	--------------------------------------------------------------------------------
 void CvTeam::setForceRevealedResource(ResourceTypes eResource, bool bRevealed)
 {
 	if(isForceRevealedResource(eResource) == bRevealed)
@@ -6432,6 +6495,19 @@ bool CvTeam::isTurnActive() const
 	}
 
 	return false;
+}
+
+//	--------------------------------------------------------------------------------
+void CvTeam::setDynamicTurnsSimultMode(bool simultaneousTurns)
+{//set DynamicTurnsSimultMode for every player on this team.
+	for(int iPlayer = 0; iPlayer < MAX_PLAYERS; ++iPlayer)
+	{
+		CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)iPlayer);
+		if(kPlayer.isAlive() && kPlayer.getTeam() == GetID())
+		{
+			kPlayer.setDynamicTurnsSimultMode(simultaneousTurns);
+		}
+	}
 }
 
 

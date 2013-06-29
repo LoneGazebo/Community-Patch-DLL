@@ -1875,6 +1875,7 @@ void CvPlayerTraits::ChooseMayaBoost()
 		if(pCity)
 		{
 			pCity->GetCityCitizens()->DoSpawnGreatPerson(eDesiredGreatPerson, true, false);
+			SetUnitBaktun(eDesiredGreatPerson);
 		}
 		m_pPlayer->ChangeNumMayaBoosts(-1);
 	}

@@ -32,6 +32,7 @@
 
 #include "CvDllPlot.h"
 #include "CvDllUnit.h"
+#include "CvUnitMovement.h"
 
 // Include this after all other headers.
 #include "LintFree.h"
@@ -178,6 +179,7 @@ void CvPlot::reset(int iX, int iY, bool bConstructorCall)
 	m_bRoughFeature = false;
 	m_bResourceLinkedCityActive = false;
 	m_bImprovedByGiftFromMajor = false;
+	m_bIsImpassable = false;
 
 	m_eOwner = NO_PLAYER;
 	m_ePlotType = PLOT_OCEAN;
@@ -393,7 +395,7 @@ void CvPlot::doImprovement()
 			for(iI = 0; iI < iNumResourceInfos; ++iI)
 			{
 				CvResourceInfo* thisResourceInfo = GC.getResourceInfo((ResourceTypes) iI);
-				if(thisTeam.GetTeamTechs()->HasTech((TechTypes)(thisResourceInfo->getTechReveal())))
+				if(thisResourceInfo != NULL && thisTeam.GetTeamTechs()->HasTech((TechTypes)(thisResourceInfo->getTechReveal())))
 				{
 					if(thisImprovementInfo->GetImprovementResourceDiscoverRand(iI) > 0)
 					{
@@ -407,7 +409,7 @@ void CvPlot::doImprovement()
 								if(pCity != NULL)
 								{
 									strBuffer = GetLocalizedText("TXT_KEY_MISC_DISCOVERED_NEW_RESOURCE", thisResourceInfo->GetTextKey(), pCity->getNameKey());
-									gDLL->getInterfaceIFace()->AddCityMessage(0, pCity->GetIDInfo(), getOwner(), false, GC.getEVENT_MESSAGE_TIME(), strBuffer/*, "AS2D_DISCOVERRESOURCE", MESSAGE_TYPE_MINOR_EVENT, thisResourceInfo.GetButton(), (ColorTypes)GC.getInfoTypeForString("COLOR_WHITE"), getX(), getY(), true, true*/);
+									GC.GetEngineUserInterface()->AddCityMessage(0, pCity->GetIDInfo(), getOwner(), false, GC.getEVENT_MESSAGE_TIME(), strBuffer/*, "AS2D_DISCOVERRESOURCE", MESSAGE_TYPE_MINOR_EVENT, thisResourceInfo.GetButton(), (ColorTypes)GC.getInfoTypeForString("COLOR_WHITE"), getX(), getY(), true, true*/);
 								}
 							}
 
@@ -519,7 +521,7 @@ void CvPlot::updateVisibility()
 				{
 					// This unit has visibility rules, send a message that it needs to update itself.
 					auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(pLoopUnit));
-					gDLL->GameplayUnitVisibility(pDllUnit.get(), isInvisibleVisible(eActiveTeam, eInvisibleType), true, 0.01f);
+					gDLL->GameplayUnitVisibility(pDllUnit.get(), (pLoopUnit->getTeam() == eActiveTeam)?true:isInvisibleVisible(eActiveTeam, eInvisibleType), true, 0.01f);
 				}
 			}
 		}
@@ -2709,361 +2711,13 @@ int CvPlot::defenseModifier(TeamTypes eDefender, bool, bool bHelp) const
 //	---------------------------------------------------------------------------
 int CvPlot::movementCost(const CvUnit* pUnit, const CvPlot* pFromPlot, int iMovesRemaining /*= 0*/) const
 {
-	int iRegularCost;
-	int iRouteCost;
-	int iRouteFlatCost;
-
-	CvAssertMsg(getTerrainType() != NO_TERRAIN, "TerrainType is not assigned a valid value");
-
-	if(ConsumesAllMoves(pUnit, pFromPlot))
-	{
-		if (iMovesRemaining > 0)
-			return iMovesRemaining;
-		else
-			return pUnit->maxMoves();
-	}
-	else if(CostsOnlyOne(pUnit, pFromPlot))
-	{
-		return GC.getMOVE_DENOMINATOR();
-	}
-	else if(IsSlowedByZOC(pUnit, pFromPlot))
-	{
-		if (iMovesRemaining > 0)
-			return iMovesRemaining;
-		else
-			return pUnit->maxMoves();
-	}
-
-	GetCostsForMove(pUnit, pFromPlot, iRegularCost, iRouteCost, iRouteFlatCost);
-
-	return std::max(1, std::min(iRegularCost, std::min(iRouteCost, iRouteFlatCost)));
+	return CvUnitMovement::MovementCost(pUnit, pFromPlot, this, pUnit->baseMoves(isWater()?DOMAIN_SEA:NO_DOMAIN), pUnit->maxMoves(), iMovesRemaining);
 }
 
 //	---------------------------------------------------------------------------
 int CvPlot::MovementCostNoZOC(const CvUnit* pUnit, const CvPlot* pFromPlot, int iMovesRemaining /*= 0*/) const
 {
-	int iRegularCost;
-	int iRouteCost;
-	int iRouteFlatCost;
-
-	CvAssertMsg(getTerrainType() != NO_TERRAIN, "TerrainType is not assigned a valid value");
-
-	if(ConsumesAllMoves(pUnit, pFromPlot))
-	{
-		if (iMovesRemaining > 0)
-			return iMovesRemaining;
-		else
-			return pUnit->maxMoves();
-	}
-	else if(CostsOnlyOne(pUnit, pFromPlot))
-	{
-		return GC.getMOVE_DENOMINATOR();
-	}
-
-	GetCostsForMove(pUnit, pFromPlot, iRegularCost, iRouteCost, iRouteFlatCost);
-
-	return std::max(1, std::min(iRegularCost, std::min(iRouteCost, iRouteFlatCost)));
-}
-
-//	---------------------------------------------------------------------------
-bool CvPlot::ConsumesAllMoves(const CvUnit* pUnit, const CvPlot* pFromPlot) const
-{
-	if(!isRevealed(pUnit->getTeam()) && pUnit->isHuman())
-	{
-		return true;
-	}
-
-	if(!pFromPlot->isValidDomainForLocation(*pUnit))
-	{
-		// If we are a land unit that can embark, then do further tests.
-		if(pUnit->getDomainType() != DOMAIN_LAND || pUnit->IsHoveringUnit() || pUnit->canMoveAllTerrain() || !pUnit->CanEverEmbark())
-			return true;
-	}
-
-	// if the unit can embark and we are transitioning from land to water or vice versa
-	if(isWater() != pFromPlot->isWater() && pUnit->CanEverEmbark())
-	{
-		// Is the unit from a civ that can disembark for just 1 MP?
-		if(!isWater() && pFromPlot->isWater() && pUnit->isEmbarked() && GET_PLAYER(pUnit->getOwner()).GetPlayerTraits()->IsEmbarkedToLandFlatCost())
-		{
-			return false;	// Then no, it does not.
-		}
-
-		if(!pUnit->canMoveAllTerrain())
-		{
-			return true;
-		}
-	}
-
-	return false;
-}
-
-//	---------------------------------------------------------------------------
-bool CvPlot::CostsOnlyOne(const CvUnit* pUnit, const CvPlot* pFromPlot) const
-{
-	if(!isValidDomainForAction(*pUnit))
-	{
-		// If we are a land unit that can embark, then do further tests.
-		if(pUnit->getDomainType() != DOMAIN_LAND || pUnit->IsHoveringUnit() || pUnit->canMoveAllTerrain() || !pUnit->CanEverEmbark())
-			return true;
-	}
-
-	CvAssert(!pUnit->IsImmobile());
-
-	if(pUnit->flatMovementCost() || pUnit->getDomainType() == DOMAIN_AIR)
-	{
-		return true;
-	}
-
-	// Is the unit from a civ that can disembark for just 1 MP?
-	if(!isWater() && pFromPlot->isWater() && pUnit->isEmbarked() && GET_PLAYER(pUnit->getOwner()).GetPlayerTraits()->IsEmbarkedToLandFlatCost())
-	{
-		return true;
-	}
-
-	return false;
-}
-
-//	---------------------------------------------------------------------------
-void CvPlot::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot, int& iRegularCost, int& iRouteCost, int& iRouteFlatCost) const
-{
-	CvPlayerAI& kPlayer = GET_PLAYER(pUnit->getOwner());
-	CvPlayerTraits* pTraits = kPlayer.GetPlayerTraits();
-	bool bFasterAlongRiver = pTraits->IsFasterAlongRiver();
-	bool bFasterInHills = pTraits->IsFasterInHills();
-	bool bIgnoreTerrainCost = pUnit->ignoreTerrainCost();
-	int iBaseMoves = pUnit->baseMoves(isWater()?DOMAIN_SEA:NO_DOMAIN);
-	TeamTypes eUnitTeam = pUnit->getTeam();
-	CvTeam& kUnitTeam = GET_TEAM(eUnitTeam);
-	int iMoveDenominator = GC.getMOVE_DENOMINATOR();
-	bool bRiverCrossing = pFromPlot->isRiverCrossing(directionXY(pFromPlot, this));
-
-	if(bIgnoreTerrainCost ||
-	        (bFasterAlongRiver && isRiver()) ||
-	        (bFasterInHills && isHills()))
-	{
-		iRegularCost = 1;
-	}
-	else
-	{
-		iRegularCost = ((getFeatureType() == NO_FEATURE) ? GC.getTerrainInfo(getTerrainType())->getMovementCost() : GC.getFeatureInfo(getFeatureType())->getMovementCost());
-
-		// Hill cost, except for when a City is present here, then it just counts as flat land
-		if((PlotTypes)m_ePlotType == PLOT_HILLS && !isCity())
-		{
-			iRegularCost += GC.getHILLS_EXTRA_MOVEMENT();
-		}
-
-		if(iRegularCost > 0)
-		{
-			iRegularCost = std::max(1, (iRegularCost - pUnit->getExtraMoveDiscount()));
-		}
-	}
-
-	// Is a unit's movement consumed for entering rough terrain?
-	if(pUnit->IsRoughTerrainEndsTurn() && isRoughGround())
-	{
-		iRegularCost = INT_MAX;
-	}
-
-	else
-	{
-		if(!(bIgnoreTerrainCost || bFasterAlongRiver) && bRiverCrossing)
-		{
-			iRegularCost += GC.getRIVER_EXTRA_MOVEMENT();
-		}
-
-		iRegularCost *= iMoveDenominator;
-
-		if(isHills() && pUnit->isHillsDoubleMove())
-		{
-			iRegularCost /= 2;
-		}
-
-		else if((getFeatureType() == NO_FEATURE) ? pUnit->isTerrainDoubleMove(getTerrainType()) : pUnit->isFeatureDoubleMove(getFeatureType()))
-		{
-			iRegularCost /= 2;
-		}
-	}
-
-	iRegularCost = std::min(iRegularCost, (iBaseMoves * iMoveDenominator));
-
-	if(pFromPlot->isValidRoute(pUnit) && isValidRoute(pUnit) && ((kUnitTeam.isBridgeBuilding() || !(pFromPlot->isRiverCrossing(directionXY(pFromPlot, this))))))
-	{
-		CvRouteInfo* pFromRouteInfo = GC.getRouteInfo(pFromPlot->getRouteType());
-		CvAssert(pFromRouteInfo != NULL);
-
-		int iFromMovementCost = (pFromRouteInfo != NULL)? pFromRouteInfo->getMovementCost() : 0;
-		int iFromFlatMovementCost = (pFromRouteInfo != NULL)? pFromRouteInfo->getFlatMovementCost() : 0;
-
-		CvRouteInfo* pRouteInfo = GC.getRouteInfo(getRouteType());
-		CvAssert(pRouteInfo != NULL);
-
-		int iMovementCost = (pRouteInfo != NULL)? pRouteInfo->getMovementCost() : 0;
-		int iFlatMovementCost = (pRouteInfo != NULL)? pRouteInfo->getFlatMovementCost() : 0;
-
-		iRouteCost = std::max(iFromMovementCost + kUnitTeam.getRouteChange(pFromPlot->getRouteType()), iMovementCost + kUnitTeam.getRouteChange(getRouteType()));
-		iRouteFlatCost = std::max(iFromFlatMovementCost * iBaseMoves, iFlatMovementCost * iBaseMoves);
-	}
-	else if(pUnit->getOwner() == getOwner() && (getFeatureType() == FEATURE_FOREST || getFeatureType() == FEATURE_JUNGLE) && pTraits->IsMoveFriendlyWoodsAsRoad())
-	{
-		CvRouteInfo* pRoadInfo = GC.getRouteInfo(ROUTE_ROAD);
-		iRouteCost = pRoadInfo->getMovementCost();
-		iRouteFlatCost = pRoadInfo->getFlatMovementCost() * iBaseMoves;
-	}
-	else
-	{
-		iRouteCost = INT_MAX;
-		iRouteFlatCost = INT_MAX;
-	}
-
-	if(getTeam() != NO_TEAM)
-	{
-		CvTeam* pPlotTeam = &GET_TEAM(getTeam());
-		CvPlayer* pPlotPlayer = &GET_PLAYER(getOwner());
-
-		// Great Wall increases movement cost by 1
-		if(pPlotTeam->isBorderObstacle() || pPlotPlayer->isBorderObstacle())
-		{
-			if(!isWater() && pUnit->getDomainType() == DOMAIN_LAND)
-			{
-				// Don't apply penalty to OUR team or teams we've given open borders to
-				if(eUnitTeam != getTeam() && !pPlotTeam->IsAllowsOpenBordersToTeam(eUnitTeam))
-				{
-					iRegularCost += iMoveDenominator;
-				}
-			}
-		}
-	}
-}
-
-//	--------------------------------------------------------------------------------
-bool CvPlot::IsSlowedByZOC(const CvUnit* pUnit, const CvPlot* pFromPlot) const
-{
-	// Zone of Control
-	if(GC.getZONE_OF_CONTROL_ENABLED() > 0)
-	{
-		IDInfo* pAdjUnitNode;
-		CvUnit* pLoopUnit;
-
-		int iRange = 1;
-		int iFromPlotX = pFromPlot->getX();
-		int iFromPlotY = pFromPlot->getY();
-		TeamTypes unit_team_type     = pUnit->getTeam();
-		DomainTypes unit_domain_type = pUnit->getDomainType();
-		bool bIsVisibleEnemyUnit     = isVisibleEnemyUnit(pUnit);
-		CvTeam& kUnitTeam = GET_TEAM(unit_team_type);
-
-		for(int iXAdjLoop = -iRange; iXAdjLoop <= iRange; ++iXAdjLoop)
-		{
-			for(int iYAdjLoop = -iRange; iYAdjLoop <= iRange; ++iYAdjLoop)
-			{
-				CvPlot* pAdjPlot = ::plotXYWithRangeCheck(iFromPlotX, iFromPlotY, iXAdjLoop, iYAdjLoop, iRange);
-				if(NULL != pAdjPlot)
-				{
-					// Don't check origin plot
-					if(pAdjPlot->getX() != iFromPlotX || pAdjPlot->getY() != iFromPlotY)
-					{
-						// check city zone of control
-						if(pAdjPlot->isEnemyCity(*pUnit))
-						{
-							// Loop through plots adjacent to the enemy city and see if it's the same as our unit's Destination Plot
-							for(int iDirection = 0; iDirection < NUM_DIRECTION_TYPES; iDirection++)
-							{
-								CvPlot* pEnemyAdjPlot = plotDirection(pAdjPlot->getX(), pAdjPlot->getY(), ((DirectionTypes)iDirection));
-								if(NULL != pEnemyAdjPlot)
-								{
-									// Destination adjacent to enemy city?
-									if(pEnemyAdjPlot->getX() == getX() && pEnemyAdjPlot->getY() == getY())
-									{
-										return true;
-									}
-								}
-							}
-						}
-
-						pAdjUnitNode = pAdjPlot->headUnitNode();
-						// Loop through all units to see if there's an enemy unit here
-						while(pAdjUnitNode != NULL)
-						{
-							if((pAdjUnitNode->eOwner >= 0) && pAdjUnitNode->eOwner < MAX_PLAYERS)
-							{
-								pLoopUnit = (GET_PLAYER(pAdjUnitNode->eOwner).getUnit(pAdjUnitNode->iID));
-							}
-							else
-							{
-								pLoopUnit = NULL;
-							}
-
-							pAdjUnitNode = pAdjPlot->nextUnitNode(pAdjUnitNode);
-
-							if(!pLoopUnit) continue;
-
-							TeamTypes unit_loop_team_type = pLoopUnit->getTeam();
-
-							if(pLoopUnit->isInvisible(unit_team_type,false)) continue;
-
-							// At war with this unit's team?
-							if(unit_loop_team_type == BARBARIAN_TEAM || kUnitTeam.isAtWar(unit_loop_team_type))
-							{
-								// Same Domain?
-
-								DomainTypes loop_unit_domain_type = pLoopUnit->getDomainType();
-								if(loop_unit_domain_type != unit_domain_type)
-								{
-									// this is valid
-									if(loop_unit_domain_type == DOMAIN_SEA && unit_domain_type)
-									{
-										// continue on
-									}
-									else
-									{
-										continue;
-									}
-								}
-
-								// Combat unit?
-								if(!pLoopUnit->IsCombatUnit())
-								{
-									continue;
-								}
-
-								// Embarked?
-								if(unit_domain_type == DOMAIN_LAND && pLoopUnit->isEmbarked())
-								{
-									continue;
-								}
-
-								// Loop through plots adjacent to the enemy unit and see if it's the same as our unit's Destination Plot
-								for(int iXEnemyLoop = -iRange; iXEnemyLoop <= iRange; ++iXEnemyLoop)
-								{
-									for(int iYEnemyLoop = -iRange; iYEnemyLoop <= iRange; ++iYEnemyLoop)
-									{
-										CvPlot* pEnemyAdjPlot = ::plotXYWithRangeCheck(pAdjPlot->getX(), pAdjPlot->getY(), iXEnemyLoop, iYEnemyLoop, iRange);
-										if(!pEnemyAdjPlot)
-										{
-											continue;
-										}
-
-										// Don't check Enemy Unit's plot
-										if(!bIsVisibleEnemyUnit)
-										{
-											// Destination adjacent to enemy unit?
-											if(pEnemyAdjPlot->getX() == getX() && pEnemyAdjPlot->getY() == getY())
-											{
-												return true;
-											}
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-	return false;
+	return CvUnitMovement::MovementCostNoZOC(pUnit, pFromPlot, this, pUnit->baseMoves(isWater()?DOMAIN_SEA:NO_DOMAIN), pUnit->maxMoves(), iMovesRemaining);
 }
 
 //	--------------------------------------------------------------------------------
@@ -3463,14 +3117,11 @@ bool CvPlot::isVisibleToWatchingHuman() const
 	for(iI = 0; iI < MAX_CIV_PLAYERS; ++iI)
 	{
 		CvPlayerAI& thisPlayer = GET_PLAYER((PlayerTypes)iI);
-		if(thisPlayer.isAlive())
+		if( (thisPlayer.isAlive() && thisPlayer.isHuman()) || ( CvPreGame::slotStatus((PlayerTypes)iI) == SS_OBSERVER && CvPreGame::slotClaim((PlayerTypes)iI) == SLOTCLAIM_ASSIGNED) )
 		{
-			if(thisPlayer.isHuman())
+			if(isVisible(thisPlayer.getTeam()))
 			{
-				if(isVisible(thisPlayer.getTeam()))
-				{
-					return true;
-				}
+				return true;
 			}
 		}
 	}
@@ -5268,14 +4919,14 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 					if(bestHighWaterMark > newPlayer.GetCityDistanceHighwaterMark())
 					{
 						newPlayer.SetCityDistanceHighwaterMark(bestHighWaterMark);
-						if(gDLL->getInterfaceIFace()->isCityScreenUp())
+						if(GC.GetEngineUserInterface()->isCityScreenUp())
 						{
-							auto_ptr<ICvCity1> pHeadSelectedCity(gDLL->getInterfaceIFace()->getHeadSelectedCity());
+							auto_ptr<ICvCity1> pHeadSelectedCity(GC.GetEngineUserInterface()->getHeadSelectedCity());
 							if(pHeadSelectedCity.get())
 							{
 								CvCity* pkHeadSelectedCity = GC.UnwrapCityPointer(pHeadSelectedCity.get());
 								auto_ptr<ICvPlot1> pDllPlot = GC.WrapPlotPointer(pkHeadSelectedCity->plot());
-								gDLL->getInterfaceIFace()->lookAt(pDllPlot.get(), CAMERALOOKAT_CITY_ZOOM_IN);
+								GC.GetEngineUserInterface()->lookAt(pDllPlot.get(), CAMERALOOKAT_CITY_ZOOM_IN);
 							}
 						}
 					}
@@ -5332,13 +4983,13 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 			if(GC.getGame().isDebugMode())
 			{
 				auto_ptr<ICvPlot1> pDllPlot = GC.WrapPlotPointer(this);
-				gDLL->getInterfaceIFace()->UpdateCountryBorder(pDllPlot.get());
+				GC.GetEngineUserInterface()->UpdateCountryBorder(pDllPlot.get());
 			}
 		}
 
 		auto_ptr<ICvPlot1> pDllPlot = GC.WrapPlotPointer(this);
-		gDLL->getInterfaceIFace()->UpdateCountryBorder(pDllPlot.get());
-		gDLL->getInterfaceIFace()->setDirty(NationalBorders_DIRTY_BIT, true);
+		GC.GetEngineUserInterface()->UpdateCountryBorder(pDllPlot.get());
+		GC.GetEngineUserInterface()->setDirty(NationalBorders_DIRTY_BIT, true);
 		updateSymbols();
 	}
 }
@@ -5681,6 +5332,7 @@ void CvPlot::setTerrainType(TerrainTypes eNewValue, bool bRecalculate, bool bReb
 		m_eTerrainType = eNewValue;
 
 		updateYield();
+		updateImpassable();
 
 		if(bUpdateSight)
 		{
@@ -5729,6 +5381,7 @@ void CvPlot::setFeatureType(FeatureTypes eNewValue, int iVariety)
 		m_eFeatureType = eNewValue;
 
 		updateYield();
+		updateImpassable();
 
 		if(bUpdateSight)
 		{
@@ -6897,7 +6550,7 @@ void CvPlot::updateWorkingCity()
 
 		updateYield();
 
-		gDLL->getInterfaceIFace()->setDirty(ColoredPlots_DIRTY_BIT, true);
+		GC.GetEngineUserInterface()->setDirty(ColoredPlots_DIRTY_BIT, true);
 	}
 }
 
@@ -8101,7 +7754,7 @@ bool CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, bool bTerrainOnly, Tea
 
 	CvCity* pCity = getPlotCity();
 	TeamTypes eActiveTeam = GC.getGame().getActiveTeam();
-	CvDLLInterfaceIFaceBase* pInterface =  gDLL->getInterfaceIFace();
+	ICvUserInterface2* pInterface =  GC.GetEngineUserInterface();
 
 	bool bVisbilityUpdated = false;
 	if(isRevealed(eTeam) != bNewValue)
@@ -8169,7 +7822,7 @@ bool CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, bool bTerrainOnly, Tea
 					int iFinderGold = 0;
 					bool bFirstFinder = false;
 					CvTeam& kTeam = GET_TEAM(eTeam);
-					if(!kTeam.isMinorCiv() && !kTeam.isBarbarian())
+					if(!kTeam.isMinorCiv() && !kTeam.isBarbarian() && !kTeam.isObserver())
 					{
 						if(getNumMajorCivsRevealed() == 0)
 						{
@@ -8250,7 +7903,7 @@ bool CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, bool bTerrainOnly, Tea
 									float fDelay = GC.getPOST_COMBAT_TEXT_DELAY() * 3;
 									text[0] = NULL;
 									sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR]", iFinderGold);
-									gDLL->getInterfaceIFace()->AddPopupText(getX(), getY(), text, fDelay);
+									GC.GetEngineUserInterface()->AddPopupText(getX(), getY(), text, fDelay);
 								}
 							}
 						}
@@ -8259,13 +7912,19 @@ bool CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, bool bTerrainOnly, Tea
 					// If it's the active team then tell them they found something
 					if(eTeam == eActiveTeam)
 					{
-						bool bDontShowRewardPopup = gDLL->getInterfaceIFace()->IsOptionNoRewardPopups();
+						bool bDontShowRewardPopup = GC.GetEngineUserInterface()->IsOptionNoRewardPopups();
 
 						// Popup (no MP)
-						if(!GC.getGame().isNetworkMultiPlayer() && !bDontShowRewardPopup)	// KWG: candidate for !GC.getGame().isMPOption(MPOPTION_SIMULTANEOUS_TURNS)
+						if(!GC.getGame().isNetworkMultiPlayer() && !bDontShowRewardPopup)	// KWG: candidate for !GC.getGame().isOption(GAMEOPTION_SIMULTANEOUS_TURNS)
 						{
 							CvPopupInfo kPopupInfo(BUTTONPOPUP_NATURAL_WONDER_REWARD, getX(), getY(), iFinderGold, 0 /*iFlags */, bFirstFinder);
 							pInterface->AddPopup(kPopupInfo);
+							CvPlayer& kActivePlayer = GET_PLAYER(GC.getGame().getActivePlayer());
+							if (kActivePlayer.getTeam() == eActiveTeam)
+							{
+								// We are adding a popup that the player must make a choice in, make sure they are not in the end-turn phase.
+								CancelActivePlayerEndTurn();
+							}
 
 							//Add Stat and check for Achievement
 							if(bEligibleForAchievement && !GC.getGame().isGameMultiPlayer())
@@ -8739,7 +8398,7 @@ bool CvPlot::changeBuildProgress(BuildTypes eBuild, int iChange, PlayerTypes ePl
 						if(pCity->getOwner() == GC.getGame().getActivePlayer())
 						{
 							strBuffer = GetLocalizedText("TXT_KEY_MISC_CLEARING_FEATURE_RESOURCE", GC.getFeatureInfo(getFeatureType())->GetTextKey(), iProduction, pCity->getNameKey());
-							gDLL->getInterfaceIFace()->AddCityMessage(0, pCity->GetIDInfo(), pCity->getOwner(), false, GC.getEVENT_MESSAGE_TIME(), strBuffer);
+							GC.GetEngineUserInterface()->AddCityMessage(0, pCity->GetIDInfo(), pCity->getOwner(), false, GC.getEVENT_MESSAGE_TIME(), strBuffer);
 						}
 					}
 
@@ -9413,7 +9072,7 @@ void CvPlot::read(FDataStream& kStream)
 	kStream >> iCount;
 	if(iCount > 0)
 	{
-		m_paiBuildProgress = FNEW(short[iCount], c_eCiv5GameplayDLL, 0);
+		m_paiBuildProgress = FNEW(short[GC.getNumBuildInfos()], c_eCiv5GameplayDLL, 0);
 
 		if(uiVersion >= 7)
 		{
@@ -9481,6 +9140,7 @@ void CvPlot::read(FDataStream& kStream)
 		int dummy;
 		kStream >> dummy;
 	}
+	updateImpassable();
 }
 
 //	--------------------------------------------------------------------------------
@@ -9633,7 +9293,7 @@ void CvPlot::setLayoutDirty(bool bDirty)
 {
 	if(bDirty == true)
 	{
-		gDLL->getInterfaceIFace()->setDirty(PlotData_DIRTY_BIT,true);
+		GC.GetEngineUserInterface()->setDirty(PlotData_DIRTY_BIT,true);
 	}
 	m_bPlotLayoutDirty = bDirty;
 }
@@ -9873,6 +9533,7 @@ int CvPlot::getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUp
 	int iYield;
 
 	const CvYieldInfo& kYield = *GC.getYieldInfo(eYield);
+	TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
 
 	if(getTerrainType() == NO_TERRAIN)
 		return 0;
@@ -9973,7 +9634,7 @@ int CvPlot::getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUp
 		// City plot yield
 		if(pCity != NULL)
 		{
-			if(pCity->isRevealed(GC.getGame().getActiveTeam(), false))
+			if(pCity->isRevealed(eTeam, false))
 			{
 				iYield += kYield.getCityChange();
 
@@ -9996,7 +9657,7 @@ int CvPlot::getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUp
 
 				if(pWorkingCity != NULL)
 				{
-					if(pWorkingCity->isRevealed(GC.getGame().getActiveTeam(), false))
+					if(pWorkingCity->isRevealed(eTeam, false))
 					{
 						int iCityYield;
 
@@ -10016,7 +9677,7 @@ int CvPlot::getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUp
 				{
 					if(pWorkingCity != NULL)
 					{
-						if(pWorkingCity->isRevealed(GC.getGame().getActiveTeam(), false))
+						if(pWorkingCity->isRevealed(eTeam, false))
 							iYield += pWorkingCity->getSeaResourceYield(eYield);
 					}
 				}
@@ -10031,7 +9692,7 @@ int CvPlot::getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUp
 			{
 				if(NULL != pWorkingCity)
 				{
-					if(pWorkingCity->isRevealed(GC.getGame().getActiveTeam(), false))
+					if(pWorkingCity->isRevealed(eTeam, false))
 					{
 						iYield += pWorkingCity->getRiverPlotYield(eYield);
 					}
@@ -10059,7 +9720,6 @@ int CvPlot::getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUp
 		ResourceTypes eResource = getResourceType(GET_PLAYER(ePlayer).getTeam());
 		if(eResource != NO_RESOURCE)
 		{
-			TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
 			if(eTeam != NO_TEAM && GET_TEAM(eTeam).GetTeamTechs()->HasTech((TechTypes) GC.getResourceInfo(eResource)->getTechReveal()))
 			{
 				// Extra yield from resources
@@ -10393,4 +10053,29 @@ bool CvPlot::MustPayMaintenanceHere(PlayerTypes ePlayer) const
 	}
 
 	return true;
+}
+
+//	---------------------------------------------------------------------------
+void CvPlot::updateImpassable()
+{
+	const TerrainTypes eTerrain = getTerrainType();
+	const FeatureTypes eFeature = getFeatureType();
+
+	m_bIsImpassable = false;
+
+	if(eTerrain != NO_TERRAIN)
+	{
+		if(eFeature == NO_FEATURE)
+		{
+			CvTerrainInfo* pkTerrainInfo = GC.getTerrainInfo(eTerrain);
+			if(pkTerrainInfo)
+				m_bIsImpassable = pkTerrainInfo->isImpassable();
+		}
+		else
+		{
+			CvFeatureInfo* pkFeatureInfo = GC.getFeatureInfo(eFeature);
+			if(pkFeatureInfo)
+				m_bIsImpassable = pkFeatureInfo->isImpassable();
+		}
+	}
 }

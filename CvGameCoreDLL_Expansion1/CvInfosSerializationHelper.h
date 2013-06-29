@@ -371,6 +371,9 @@ void ReadDataArray(FDataStream& kStream, std::vector<TData>& aiArray)
 		int iType = Read(kStream, &bValid);
 		if(iType != -1)
 		{
+			if (iType >= (int)aiArray.size())
+				aiArray.resize(iType+1);
+
 			kStream >> aiArray[iType];
 		}
 		else if(!bValid)
@@ -398,6 +401,9 @@ void ReadHashedDataArray(FDataStream& kStream, std::vector<TData>& aiArray)
 		int iType = ReadHashed(kStream, &bValid);
 		if(iType != -1)
 		{
+			if (iType >= (int)aiArray.size())
+				aiArray.resize(iType+1);
+
 			kStream >> aiArray[iType];
 		}
 		else if(!bValid)

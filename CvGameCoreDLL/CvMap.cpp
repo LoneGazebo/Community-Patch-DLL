@@ -496,19 +496,19 @@ void CvMap::reset(CvMapInitData* pInitInfo)
 // Initializes all data that is not serialized but needs to be initialized after loading.
 void CvMap::setup()
 {
-	GC.getPathFinder().Initialize(getGridWidth(), getGridHeight(), isWrapX(), isWrapY(), PathDest, PathDestValid, PathHeuristic, PathCost, PathValid, PathAdd, PathNodeAdd, NULL);
+	GC.getPathFinder().Initialize(getGridWidth(), getGridHeight(), isWrapX(), isWrapY(), PathDest, PathDestValid, PathHeuristic, PathCost, PathValid, PathAdd, PathNodeAdd, UnitPathInitialize, UnitPathUninitialize, NULL);
 	GC.getPathFinder().SetDataChangeInvalidatesCache(true);
-	GC.getInterfacePathFinder().Initialize(getGridWidth(), getGridHeight(), isWrapX(), isWrapY(), PathDest, PathDestValid, PathHeuristic, PathCost, PathValid, PathAdd, PathNodeAdd, NULL);
+	GC.getInterfacePathFinder().Initialize(getGridWidth(), getGridHeight(), isWrapX(), isWrapY(), PathDest, PathDestValid, PathHeuristic, PathCost, PathValid, PathAdd, PathNodeAdd, UnitPathInitialize, UnitPathUninitialize, NULL);
 	GC.getInterfacePathFinder().SetDataChangeInvalidatesCache(true);
-	GC.getIgnoreUnitsPathFinder().Initialize(getGridWidth(), getGridHeight(), isWrapX(), isWrapY(), PathDest,  IgnoreUnitsDestValid, PathHeuristic, IgnoreUnitsCost, IgnoreUnitsValid, IgnoreUnitsPathAdd, NULL, NULL, NULL, NULL);
+	GC.getIgnoreUnitsPathFinder().Initialize(getGridWidth(), getGridHeight(), isWrapX(), isWrapY(), PathDest,  IgnoreUnitsDestValid, PathHeuristic, IgnoreUnitsCost, IgnoreUnitsValid, IgnoreUnitsPathAdd, NULL, NULL, NULL, UnitPathInitialize, UnitPathUninitialize, NULL);
 	GC.getIgnoreUnitsPathFinder().SetDataChangeInvalidatesCache(true);
-	GC.getStepFinder().Initialize(getGridWidth(), getGridHeight(), isWrapX(), isWrapY(), PathDest, StepDestValid, StepHeuristic, StepCost, StepValid, StepAdd, NULL, NULL, NULL, NULL);
-	GC.getRouteFinder().Initialize(getGridWidth(), getGridHeight(), isWrapX(), isWrapY(), PathDest, NULL, NULL, NULL, RouteValid, NULL, NULL, RouteGetNumExtraChildren, RouteGetExtraChild, NULL);
-	GC.GetWaterRouteFinder().Initialize(getGridWidth(), getGridHeight(), isWrapX(), isWrapY(), PathDest, NULL, NULL, NULL, WaterRouteValid, NULL, NULL, NULL, NULL, NULL);
-	GC.getAreaFinder().Initialize(getGridWidth(), getGridHeight(), isWrapX(), isWrapY(), PathDest, NULL, NULL, NULL, AreaValid, NULL, JoinArea, NULL, NULL, NULL);
-	GC.getInfluenceFinder().Initialize(getGridWidth(), getGridHeight(), isWrapX(), isWrapY(), PathDest, InfluenceDestValid, InfluenceHeuristic, InfluenceCost, InfluenceValid, InfluenceAdd, NULL, NULL, NULL, NULL);
-	GC.GetBuildRouteFinder().Initialize(getGridWidth(), getGridHeight(), isWrapX(), isWrapY(), PathDest, NULL, NULL, BuildRouteCost, BuildRouteValid, NULL, NULL, NULL, NULL, NULL);
-	GC.GetTacticalAnalysisMapFinder().Initialize(getGridWidth(), getGridHeight(), isWrapX(), isWrapY(), PathDest, PathDestValid, PathHeuristic, PathCost, TacticalAnalysisMapPathValid, PathAdd, PathNodeAdd, NULL);
+	GC.getStepFinder().Initialize(getGridWidth(), getGridHeight(), isWrapX(), isWrapY(), PathDest, StepDestValid, StepHeuristic, StepCost, StepValid, StepAdd, NULL, NULL, NULL, NULL, NULL, NULL);
+	GC.getRouteFinder().Initialize(getGridWidth(), getGridHeight(), isWrapX(), isWrapY(), PathDest, NULL, NULL, NULL, RouteValid, NULL, NULL, RouteGetNumExtraChildren, RouteGetExtraChild, NULL, NULL, NULL);
+	GC.GetWaterRouteFinder().Initialize(getGridWidth(), getGridHeight(), isWrapX(), isWrapY(), PathDest, NULL, NULL, NULL, WaterRouteValid, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+	GC.getAreaFinder().Initialize(getGridWidth(), getGridHeight(), isWrapX(), isWrapY(), PathDest, NULL, NULL, NULL, AreaValid, NULL, JoinArea, NULL, NULL, NULL, NULL, NULL);
+	GC.getInfluenceFinder().Initialize(getGridWidth(), getGridHeight(), isWrapX(), isWrapY(), PathDest, InfluenceDestValid, InfluenceHeuristic, InfluenceCost, InfluenceValid, InfluenceAdd, NULL, NULL, NULL, NULL, NULL, NULL);
+	GC.GetBuildRouteFinder().Initialize(getGridWidth(), getGridHeight(), isWrapX(), isWrapY(), PathDest, NULL, NULL, BuildRouteCost, BuildRouteValid, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+	GC.GetTacticalAnalysisMapFinder().Initialize(getGridWidth(), getGridHeight(), isWrapX(), isWrapY(), PathDest, PathDestValid, PathHeuristic, PathCost, TacticalAnalysisMapPathValid, PathAdd, PathNodeAdd, UnitPathInitialize, UnitPathUninitialize, NULL);
 	GC.GetTacticalAnalysisMapFinder().SetDataChangeInvalidatesCache(true);
 }
 

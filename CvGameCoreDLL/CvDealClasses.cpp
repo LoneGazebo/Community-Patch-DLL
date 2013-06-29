@@ -1495,6 +1495,13 @@ void CvGameDeals::AddProposedDeal(CvDeal kDeal)
 {
 	// Store Deal away
 	m_ProposedDeals.push_back(kDeal);
+
+	// Update UI if we were involved in the deal
+	PlayerTypes eActivePlayer = GC.getGame().getActivePlayer();
+	if(kDeal.m_eFromPlayer == eActivePlayer || kDeal.m_eToPlayer == eActivePlayer)
+	{
+		GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
+	}
 }
 
 
@@ -1744,7 +1751,7 @@ bool CvGameDeals::FinalizeDeal( PlayerTypes eFromPlayer, PlayerTypes eToPlayer, 
 	PlayerTypes eActivePlayer = GC.getGame().getActivePlayer();
 	if (eFromPlayer == eActivePlayer || eToPlayer == eActivePlayer)
 	{
-		gDLL->getInterfaceIFace()->setDirty(GameData_DIRTY_BIT, true);
+		GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
 	}
 
 	return bFoundIt && bValid;
@@ -1867,7 +1874,7 @@ void CvGameDeals::DoTurn()
 			PlayerTypes eActivePlayer = GC.getGame().getActivePlayer();
 			if (eFromPlayer == eActivePlayer || eToPlayer == eActivePlayer)
 			{
-				gDLL->getInterfaceIFace()->setDirty(GameData_DIRTY_BIT, true);
+				GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
 			}
 		}
 
@@ -2042,7 +2049,7 @@ void CvGameDeals::DoCancelDealsBetweenPlayers(PlayerTypes eFromPlayer, PlayerTyp
 			PlayerTypes eActivePlayer = GC.getGame().getActivePlayer();
 			if (eFromPlayer == eActivePlayer || eToPlayer == eActivePlayer)
 			{
-				gDLL->getInterfaceIFace()->setDirty(GameData_DIRTY_BIT, true);
+				GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
 			}
 		}
 	}

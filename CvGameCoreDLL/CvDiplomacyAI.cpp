@@ -8724,7 +8724,7 @@ void CvDiplomacyAI::DoFirstContact(PlayerTypes ePlayer)
 		//SetPlayerTargetValue(ePlayer, TARGET_VALUE_AVERAGE);
 
 		// Humans don't say hi to one another through the shadow diplo AI and, uh, don't show up in MP please
-		if (!GC.getGame().isNetworkMultiPlayer())	// KWG: Candidate for !GC.getGame().isMPOption(MPOPTION_SIMULTANEOUS_TURNS)
+		if(!GC.getGame().isNetworkMultiPlayer())	// KWG: Candidate for !GC.getGame().IsOption(GAMEOPTION_SIMULTANEOUS_TURNS)
 		{
 			if (!GetPlayer()->isHuman())
 			{
@@ -13913,7 +13913,7 @@ const char* CvDiplomacyAI::GetGreetHumanMessage(LeaderheadAnimationTypes &eAnima
 	// Repeated Greetings
 	////////////////////////////////////////////
 
-	int iTimesScreenOpened = gDLL->getInterfaceIFace()->GetStartDiploRepeatCount();
+	int iTimesScreenOpened = GC.GetEngineUserInterface()->GetStartDiploRepeatCount();
 
 	if (iTimesScreenOpened > 4)
 		return GetDiploStringForMessage(DIPLO_MESSAGE_GREETING_REPEAT_TOO_MUCH);
@@ -16551,11 +16551,11 @@ void CvDiplomacyAI::ChangeNumCiviliansReturnedToMe(PlayerTypes ePlayer, int iCha
 		// Message for human
 		if (iChange > 0)
 		{
-			if (!GC.getGame().isNetworkMultiPlayer())	// KWG: Candidate for !GC.getGame().isMPOption(MPOPTION_SIMULTANEOUS_TURNS)
+			if(!GC.getGame().isNetworkMultiPlayer())	// KWG: Candidate for !GC.getGame().IsOption(GAMEOPTION_SIMULTANEOUS_TURNS)
 			{
 				if (GC.getGame().getActivePlayer() == ePlayer)
 				{
-					gDLL->getInterfaceIFace()->SetForceDiscussionModeQuitOnBack(true);		// Set force quit so that when discuss mode pops up the Back button won't go to leader root
+					GC.GetEngineUserInterface()->SetForceDiscussionModeQuitOnBack(true);		// Set force quit so that when discuss mode pops up the Back button won't go to leader root
 					const char* strText = GetDiploStringForMessage(DIPLO_MESSAGE_RETURNED_CIVILIAN);
 					gDLL->GameplayDiplomacyAILeaderMessage(GetPlayer()->GetID(), DIPLO_UI_STATE_BLANK_DISCUSSION, strText, LEADERHEAD_ANIM_POSITIVE);
 				}

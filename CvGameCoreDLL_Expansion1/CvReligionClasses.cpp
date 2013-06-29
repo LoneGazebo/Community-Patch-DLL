@@ -715,7 +715,7 @@ void CvGameReligions::FoundPantheon(PlayerTypes ePlayer, BeliefTypes eBelief)
 		}
 	}
 
-	gDLL->getInterfaceIFace()->setDirty(CityInfo_DIRTY_BIT, true);
+	GC.GetEngineUserInterface()->setDirty(CityInfo_DIRTY_BIT, true);
 }
 
 /// Create a new religion
@@ -828,7 +828,7 @@ void CvGameReligions::FoundReligion(PlayerTypes ePlayer, ReligionTypes eReligion
 			gDLL->UnlockAchievement(ACHIEVEMENT_XP1_11);
 		}
 	}
-	gDLL->getInterfaceIFace()->setDirty(CityInfo_DIRTY_BIT, true);
+	GC.GetEngineUserInterface()->setDirty(CityInfo_DIRTY_BIT, true);
 }
 
 /// Can the supplied religion be created?
@@ -968,7 +968,7 @@ void CvGameReligions::EnhanceReligion(PlayerTypes ePlayer, ReligionTypes eReligi
 			LogReligionMessage(strLogMsg);
 		}
 	}
-	gDLL->getInterfaceIFace()->setDirty(CityInfo_DIRTY_BIT, true);
+	GC.GetEngineUserInterface()->setDirty(CityInfo_DIRTY_BIT, true);
 }
 
 /// Can the new beliefs be added to the religion?
@@ -1745,7 +1745,7 @@ bool CvGameReligions::CheckSpawnGreatProphet(CvPlayer& kPlayer)
 /// Log a message with status information
 void CvGameReligions::LogReligionMessage(CvString& strMsg)
 {
-	if(GC.getLogging())
+	if(GC.getLogging() && GC.getAILogging())
 	{
 		CvString strOutBuf;
 		CvString strBaseString;
@@ -2981,7 +2981,7 @@ void CvCityReligions::RecomputeFollowers(CvReligiousFollowChangeReason eReason, 
 	if(eMajority != eOldMajorityReligion || iFollowers != iOldFollowers)
 	{
 		CityConvertsReligion(eMajority, eOldMajorityReligion, eResponsibleParty);
-		gDLL->getInterfaceIFace()->setDirty(CityInfo_DIRTY_BIT, true);
+		GC.GetEngineUserInterface()->setDirty(CityInfo_DIRTY_BIT, true);
 		LogFollowersChange(eReason);
 	}
 }
@@ -3086,7 +3086,7 @@ void CvCityReligions::CityConvertsReligion(ReligionTypes eMajority, ReligionType
 				{
 					char text[256] = {0};
 					sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR]", iGoldBonus);
-					gDLL->getInterfaceIFace()->AddPopupText(m_pCity->getX(), m_pCity->getY(), text, 0.5f);
+					GC.GetEngineUserInterface()->AddPopupText(m_pCity->getX(), m_pCity->getY(), text, 0.5f);
 				}
 			}
 		}
@@ -3252,7 +3252,7 @@ void CvCityReligions::CityConvertsReligion(ReligionTypes eMajority, ReligionType
 /// Log a message with status information
 void CvCityReligions::LogFollowersChange(CvReligiousFollowChangeReason eReason)
 {
-	if(GC.getLogging())
+	if(GC.getLogging() && GC.getAILogging())
 	{
 		CvString strOutBuf;
 		CvString strReasonString;

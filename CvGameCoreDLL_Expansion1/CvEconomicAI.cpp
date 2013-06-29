@@ -1257,7 +1257,7 @@ void CvEconomicAI::LogMonitor(void)
 			AppendToLog(strHeader, strLog, "Production", m_pPlayer->calculateTotalYield((YieldTypes)ui));
 			break;
 		case YIELD_GOLD:
-			AppendToLog(strHeader, strLog, "Gold", m_pPlayer->calculateTotalYield((YieldTypes)ui));
+			AppendToLog(strHeader, strLog, "City Gold", m_pPlayer->calculateTotalYield((YieldTypes)ui));
 			break;
 		case YIELD_SCIENCE:
 			AppendToLog(strHeader, strLog, "Science", m_pPlayer->calculateTotalYield((YieldTypes)ui));
@@ -1467,7 +1467,7 @@ void CvEconomicAI::LogCityMonitor()
 				AppendToLog(strHeader, strLog, "science", aiCityYields[ui]);
 				break;
 			case YIELD_GOLD:
-				AppendToLog(strHeader, strLog, "gold", aiCityYields[ui]);
+				AppendToLog(strHeader, strLog, "city gold", aiCityYields[ui]);
 				break;
 			case YIELD_CULTURE:
 				AppendToLog(strHeader, strLog, "culture", aiCityYields[ui]);

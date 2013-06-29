@@ -101,6 +101,9 @@ public:
 	CvCombatMemberEntry() : m_ePlayer(NO_PLAYER), m_iID(-1), m_bfFlags(0), m_iDamage(0), m_iFinalDamage(0), m_iMaxHitPoints(0), m_eCombatType(NO_UNITCOMBAT), m_eEra(NO_ERA), m_iX(0), m_iY(0), m_uiWeaponType(0), m_fWeaponOption(0.f) {}
 };
 
+#define POPUP_PARAM_INT_ARRAY(x)	sizeof(x)/sizeof(int), &x[0]
+#define POPUP_PARAM_BOOL_ARRAY(x)	sizeof(x)/sizeof(bool), &x[0]
+
 //------------------------------------------------------------------------------
 struct CvPopupInfo
 {
@@ -115,6 +118,7 @@ public:
 		, eButtonPopupType(buttonPopupType)
 	{
 		//Nothing
+		szText[0] = 0;
 	}
 	
 	int iData1;

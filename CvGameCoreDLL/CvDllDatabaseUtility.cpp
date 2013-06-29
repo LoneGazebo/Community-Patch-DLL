@@ -518,21 +518,18 @@ bool CvDllDatabaseUtility::ValidateGameDatabase()
 		}
 	}
 
-	LogMsg("Validating UnitGameplay");
+	LogMsg("Validating UnitGameplay2DScripts");
 	{
-		if(DB.Count("UnitGameplay2DScripts") != DB.Count("Units"))
+		cvStopWatch watch("Validating UnitGameplay2DScripts");
+		Database::Results kResults;
+		if(DB.Execute(kResults, "Select Type from Units where not exists (select 1 from UnitGameplay2DScripts where UnitType = Units.Type limit 1)"))
 		{
-			LogMsg("Number of selection sounds doesn't match number of units.");
-			bError = true;
-		}
-	}
-
-	LogMsg("Validating Notifications");
-	{
-		if (DB.Count("Notifications") != NUM_NOTIFICATION_TYPES)
-		{
-			LogMsg("Number of notification xml entries does not match enum size");
-			bError = true;
+			while(kResults.Step())
+			{
+				const char* szUnitType = kResults.GetText(0);
+				LogMsg("Missing Entry for %s", szUnitType);
+				bError = true;
+			}
 		}
 	}
 

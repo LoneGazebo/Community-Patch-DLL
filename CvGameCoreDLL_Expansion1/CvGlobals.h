@@ -118,6 +118,7 @@ class CvDLLInterfaceIFaceBase;
 class ICvDLLDatabaseUtility1;
 class ICvEngineUtility1;
 class ICvEngineUtility2;
+class ICvEngineUtility3;
 class ICvScriptSystemUtility1;
 class ICvCity1;
 class ICvDeal1;
@@ -6905,10 +6906,24 @@ public:
 
 	////////////// END DEFINES //////////////////
 
-	void setDLLIFace(ICvEngineUtility2* pDll);
-	ICvEngineUtility2* getDLLIFace()
+	void setDLLIFace(ICvEngineUtility3* pDll)
 	{
-		return m_pDLL;    // inlined for perf reasons, do not use outside of dll
+		m_pDLL = pDll;
+	}
+
+	ICvEngineUtility3* getDLLIFace()
+	{
+		return m_pDLL;
+	}
+
+	void SetEngineUserInterface(ICvUserInterface2* pUI)
+	{
+		m_pEngineUI = pUI;
+	}
+
+	ICvUserInterface2* GetEngineUserInterface()
+	{
+		return m_pEngineUI;
 	}
 
 	bool IsGraphicsInitialized() const;
@@ -8705,7 +8720,10 @@ protected:
 	int m_iPROMOTION_UNWELCOME_EVANGELIST;
 
 	// DLL interface
-	ICvEngineUtility2* m_pDLL;
+	ICvEngineUtility3* m_pDLL;
+
+	// Engine UI interface
+	ICvUserInterface2* m_pEngineUI;
 };
 
 //extern CvGlobals gGlobals;	// for debugging
@@ -8720,7 +8738,7 @@ extern CvGlobals gGlobals;
 #define GC gGlobals
 #define gDLL GC.getDLLIFace()
 #define DB (*GC.GetGameDatabase())
-#define DLLUI (gDLL->getInterfaceIFace())
+#define DLLUI (GC.GetEngineUserInterface())
 #define DLLUIClass CvDLLInterfaceIFaceBase
 
 inline Database::Connection* CvGlobals::GetGameDatabase()

@@ -225,7 +225,7 @@ void CvUnitCombat::GenerateMeleeCombatInfo(CvUnit &kAttacker, CvUnit *pkDefender
 		pkCombatInfo->setDefenderRetaliates(true);
 	}
 
-	gDLL->getInterfaceIFace()->setDirty(UnitInfo_DIRTY_BIT, true);
+	GC.GetEngineUserInterface()->setDirty(UnitInfo_DIRTY_BIT, true);
 }
 
 //	---------------------------------------------------------------------------
@@ -293,12 +293,12 @@ void CvUnitCombat::ResolveMeleeCombat(const CvCombatInfo &kCombatInfo, uint uiPa
 			if (iActivePlayerID == pkAttacker->getOwner())
 			{
 				strBuffer = GetLocalizedText("TXT_KEY_MISC_YOU_UNIT_DIED_ATTACKING", pkAttacker->getNameKey(), pkDefender->getNameKey(), iAttackerDamageInflicted, iAttackerFearDamageInflicted);
-				gDLL->getInterfaceIFace()->AddMessage(uiParentEventID, pkAttacker->getOwner(), true, GC.getEVENT_MESSAGE_TIME(), strBuffer/*, GC.getEraInfo(GC.getGame().getCurrentEra())->getAudioUnitDefeatScript(), MESSAGE_TYPE_INFO, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_RED"), pkTargetPlot->getX(), pkTargetPlot->getY()*/);
+				GC.GetEngineUserInterface()->AddMessage(uiParentEventID, pkAttacker->getOwner(), true, GC.getEVENT_MESSAGE_TIME(), strBuffer/*, GC.getEraInfo(GC.getGame().getCurrentEra())->getAudioUnitDefeatScript(), MESSAGE_TYPE_INFO, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_RED"), pkTargetPlot->getX(), pkTargetPlot->getY()*/);
 			}
 			if (iActivePlayerID == pkDefender->getOwner())
 			{
 				strBuffer = GetLocalizedText("TXT_KEY_MISC_YOU_KILLED_ENEMY_UNIT", pkDefender->getNameKey(), iAttackerDamageInflicted, iAttackerFearDamageInflicted, pkAttacker->getNameKey(), pkAttacker->getVisualCivAdjective(pkDefender->getTeam()));
-				gDLL->getInterfaceIFace()->AddMessage(uiParentEventID, pkDefender->getOwner(), true, GC.getEVENT_MESSAGE_TIME(), strBuffer/*, GC.getEraInfo(GC.getGame().getCurrentEra())->getAudioUnitVictoryScript(), MESSAGE_TYPE_INFO, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_GREEN"), pkTargetPlot->getX(), pkTargetPlot->getY()*/);
+				GC.GetEngineUserInterface()->AddMessage(uiParentEventID, pkDefender->getOwner(), true, GC.getEVENT_MESSAGE_TIME(), strBuffer/*, GC.getEraInfo(GC.getGame().getCurrentEra())->getAudioUnitVictoryScript(), MESSAGE_TYPE_INFO, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_GREEN"), pkTargetPlot->getX(), pkTargetPlot->getY()*/);
 			}
 			pkDefender->testPromotionReady();
 
@@ -314,7 +314,7 @@ void CvUnitCombat::ResolveMeleeCombat(const CvCombatInfo &kCombatInfo, uint uiPa
 			if (iActivePlayerID == pkAttacker->getOwner())
 			{
 				strBuffer = GetLocalizedText("TXT_KEY_MISC_YOU_UNIT_DESTROYED_ENEMY", pkAttacker->getNameKey(), iDefenderDamageInflicted, pkDefender->getNameKey());
-				gDLL->getInterfaceIFace()->AddMessage(uiParentEventID, pkAttacker->getOwner(), true, GC.getEVENT_MESSAGE_TIME(), strBuffer/*, GC.getEraInfo(GC.getGame().getCurrentEra())->getAudioUnitVictoryScript(), MESSAGE_TYPE_INFO, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_GREEN"), pkTargetPlot->getX(), pkTargetPlot->getY()*/);
+				GC.GetEngineUserInterface()->AddMessage(uiParentEventID, pkAttacker->getOwner(), true, GC.getEVENT_MESSAGE_TIME(), strBuffer/*, GC.getEraInfo(GC.getGame().getCurrentEra())->getAudioUnitVictoryScript(), MESSAGE_TYPE_INFO, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_GREEN"), pkTargetPlot->getX(), pkTargetPlot->getY()*/);
 			}
 
 			if (pkAttacker->getVisualOwner(pkDefender->getTeam()) != pkAttacker->getOwner())
@@ -327,7 +327,7 @@ void CvUnitCombat::ResolveMeleeCombat(const CvCombatInfo &kCombatInfo, uint uiPa
 			}
 			if (iActivePlayerID == pkDefender->getOwner())
 			{
-				gDLL->getInterfaceIFace()->AddMessage(uiParentEventID, pkDefender->getOwner(), true, GC.getEVENT_MESSAGE_TIME(), strBuffer/*,GC.getEraInfo(GC.getGame().getCurrentEra())->getAudioUnitDefeatScript(), MESSAGE_TYPE_INFO, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_RED"), pkTargetPlot->getX(), pkTargetPlot->getY()*/);
+				GC.GetEngineUserInterface()->AddMessage(uiParentEventID, pkDefender->getOwner(), true, GC.getEVENT_MESSAGE_TIME(), strBuffer/*,GC.getEraInfo(GC.getGame().getCurrentEra())->getAudioUnitDefeatScript(), MESSAGE_TYPE_INFO, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_RED"), pkTargetPlot->getX(), pkTargetPlot->getY()*/);
 			}
 			CvNotifications* pNotification = GET_PLAYER(pkDefender->getOwner()).GetNotifications();
 			if (pNotification)
@@ -346,12 +346,12 @@ void CvUnitCombat::ResolveMeleeCombat(const CvCombatInfo &kCombatInfo, uint uiPa
 			if (iActivePlayerID == pkAttacker->getOwner())
 			{
 				strBuffer = GetLocalizedText("TXT_KEY_MISC_YOU_UNIT_WITHDRAW", pkAttacker->getNameKey(), iDefenderDamageInflicted, pkDefender->getNameKey(), iAttackerDamageInflicted);
-				gDLL->getInterfaceIFace()->AddMessage(uiParentEventID, pkAttacker->getOwner(), true, GC.getEVENT_MESSAGE_TIME(), strBuffer/*, "AS2D_OUR_WITHDRAWL", MESSAGE_TYPE_INFO, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_GREEN"), pkTargetPlot->getX(), pkTargetPlot->getY()*/);
+				GC.GetEngineUserInterface()->AddMessage(uiParentEventID, pkAttacker->getOwner(), true, GC.getEVENT_MESSAGE_TIME(), strBuffer/*, "AS2D_OUR_WITHDRAWL", MESSAGE_TYPE_INFO, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_GREEN"), pkTargetPlot->getX(), pkTargetPlot->getY()*/);
 			}
 			if (iActivePlayerID == pkDefender->getOwner())
 			{
 				strBuffer = GetLocalizedText("TXT_KEY_MISC_ENEMY_UNIT_WITHDRAW", pkAttacker->getNameKey(), iDefenderDamageInflicted, pkDefender->getNameKey(), iAttackerDamageInflicted);
-				gDLL->getInterfaceIFace()->AddMessage(uiParentEventID, pkDefender->getOwner(), true, GC.getEVENT_MESSAGE_TIME(), strBuffer/*, "AS2D_THEIR_WITHDRAWL", MESSAGE_TYPE_INFO, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_RED"), pkTargetPlot->getX(), pkTargetPlot->getY()*/);
+				GC.GetEngineUserInterface()->AddMessage(uiParentEventID, pkDefender->getOwner(), true, GC.getEVENT_MESSAGE_TIME(), strBuffer/*, "AS2D_THEIR_WITHDRAWL", MESSAGE_TYPE_INFO, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_RED"), pkTargetPlot->getX(), pkTargetPlot->getY()*/);
 			}
 
 			pkDefender->testPromotionReady();
@@ -412,10 +412,10 @@ void CvUnitCombat::ResolveMeleeCombat(const CvCombatInfo &kCombatInfo, uint uiPa
 					{
 						if (pkAttacker->IsSelected())
 						{
-							if (gDLL->getInterfaceIFace()->GetLengthSelectionList() > 1)
+							if (GC.GetEngineUserInterface()->GetLengthSelectionList() > 1)
 							{
 								auto_ptr<ICvUnit1> pDllAttacker = GC.WrapUnitPointer(pkAttacker);
-								gDLL->getInterfaceIFace()->RemoveFromSelectionList(pDllAttacker.get());
+								GC.GetEngineUserInterface()->RemoveFromSelectionList(pDllAttacker.get());
 							}
 						}
 					}
@@ -428,7 +428,7 @@ void CvUnitCombat::ResolveMeleeCombat(const CvCombatInfo &kCombatInfo, uint uiPa
 			if (!pkAttacker->canMoveAfterAttacking())
 			{
 				pkAttacker->finishMoves();
-				gDLL->getInterfaceIFace()->changeCycleSelectionCounter(1);
+				GC.GetEngineUserInterface()->changeCycleSelectionCounter(1);
 			}
 		}
 
@@ -535,7 +535,7 @@ void CvUnitCombat::GenerateRangedCombatInfo(CvUnit& kAttacker, CvUnit *pkDefende
 	// some units to retaliate on a ranged attack (Archer vs. Archers maybe?)
 	pkCombatInfo->setDefenderRetaliates(false);
 
-	gDLL->getInterfaceIFace()->setDirty(UnitInfo_DIRTY_BIT, true);
+	GC.GetEngineUserInterface()->setDirty(UnitInfo_DIRTY_BIT, true);
 }
 
 //	---------------------------------------------------------------------------
@@ -613,7 +613,7 @@ void CvUnitCombat::GenerateRangedCombatInfo(CvCity& kAttacker, CvUnit *pkDefende
 	// some units to retaliate on a ranged attack (Archer vs. Archers maybe?)
 	pkCombatInfo->setDefenderRetaliates(false);
 
-	gDLL->getInterfaceIFace()->setDirty(UnitInfo_DIRTY_BIT, true);
+	GC.GetEngineUserInterface()->setDirty(UnitInfo_DIRTY_BIT, true);
 }
 
 //	---------------------------------------------------------------------------
@@ -635,7 +635,7 @@ void CvUnitCombat::ResolveRangedUnitVsCombat(const CvCombatInfo &kCombatInfo, ui
 	CvPlot* pkTargetPlot = kCombatInfo.getPlot();
 	CvAssert_Debug(pkTargetPlot);
 
-	CvDLLInterfaceIFaceBase *pkDLLInterface = gDLL->getInterfaceIFace();
+	ICvUserInterface2* pkDLLInterface = GC.GetEngineUserInterface();
 	CvString strBuffer;
 
 	if (pkTargetPlot)
@@ -792,7 +792,7 @@ void CvUnitCombat::ResolveRangedCityVsUnitCombat(const CvCombatInfo &kCombatInfo
 	CvPlot* pkTargetPlot = kCombatInfo.getPlot();
 	CvAssert_Debug(pkTargetPlot);
 
-	CvDLLInterfaceIFaceBase *pkDLLInterface = gDLL->getInterfaceIFace();
+	ICvUserInterface2* pkDLLInterface = GC.GetEngineUserInterface();
 	int iActivePlayerID = GC.getGame().getActivePlayer();
 
 	if (pkTargetPlot)
@@ -950,7 +950,7 @@ void CvUnitCombat::ResolveCityMeleeCombat(const CvCombatInfo& kCombatInfo, uint 
 			if (pkDefender->getOwner() == iActivePlayerID)
 			{
 				strBuffer = GetLocalizedText("TXT_KEY_MISC_YOU_CITY_RANSOMED_BY_BARBARIANS", pkDefender->getNameKey(), iNumGoldStolen);
-				gDLL->getInterfaceIFace()->AddMessage(uiParentEventID, pkDefender->getOwner(), true, GC.getEVENT_MESSAGE_TIME(), strBuffer/*,GC.getEraInfo(GC.getGame().getCurrentEra())->getAudioUnitDefeatScript(), MESSAGE_TYPE_INFO, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_RED"), pkPlot->getX(), pkPlot->getY()*/);
+				GC.GetEngineUserInterface()->AddMessage(uiParentEventID, pkDefender->getOwner(), true, GC.getEVENT_MESSAGE_TIME(), strBuffer/*,GC.getEraInfo(GC.getGame().getCurrentEra())->getAudioUnitDefeatScript(), MESSAGE_TYPE_INFO, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_RED"), pkPlot->getX(), pkPlot->getY()*/);
 			}
 
 			if( pkDefender->GetPlayer()->GetID() == GC.getGame().getActivePlayer() && pkDefender->isHuman() && !GC.getGame().isGameMultiPlayer() )
@@ -972,12 +972,12 @@ void CvUnitCombat::ResolveCityMeleeCombat(const CvCombatInfo& kCombatInfo, uint 
 			if (pkAttacker->getOwner() == iActivePlayerID)
 			{
 				strBuffer = GetLocalizedText("TXT_KEY_MISC_YOU_UNIT_DIED_ATTACKING_CITY", pkAttacker->getNameKey(), pkDefender->getNameKey(), iAttackerDamageInflicted);
-				gDLL->getInterfaceIFace()->AddMessage(uiParentEventID, pkAttacker->getOwner(), true, GC.getEVENT_MESSAGE_TIME(), strBuffer/*, GC.getEraInfo(GC.getGame().getCurrentEra())->getAudioUnitDefeatScript(), MESSAGE_TYPE_INFO, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_RED"), pkPlot->getX(), pkPlot->getY()*/);
+				GC.GetEngineUserInterface()->AddMessage(uiParentEventID, pkAttacker->getOwner(), true, GC.getEVENT_MESSAGE_TIME(), strBuffer/*, GC.getEraInfo(GC.getGame().getCurrentEra())->getAudioUnitDefeatScript(), MESSAGE_TYPE_INFO, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_RED"), pkPlot->getX(), pkPlot->getY()*/);
 			}
 			if (pkDefender->getOwner() == iActivePlayerID)
 			{
 				strBuffer = GetLocalizedText("TXT_KEY_MISC_YOU_KILLED_ENEMY_UNIT_CITY", pkDefender->getNameKey(), iAttackerDamageInflicted, pkAttacker->getNameKey(), pkAttacker->getVisualCivAdjective(pkDefender->getTeam()));
-				gDLL->getInterfaceIFace()->AddMessage(uiParentEventID, pkDefender->getOwner(), true, GC.getEVENT_MESSAGE_TIME(), strBuffer/*, GC.getEraInfo(GC.getGame().getCurrentEra())->getAudioUnitVictoryScript(), MESSAGE_TYPE_INFO, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_GREEN"), pkPlot->getX(), pkPlot->getY()*/);
+				GC.GetEngineUserInterface()->AddMessage(uiParentEventID, pkDefender->getOwner(), true, GC.getEVENT_MESSAGE_TIME(), strBuffer/*, GC.getEraInfo(GC.getGame().getCurrentEra())->getAudioUnitVictoryScript(), MESSAGE_TYPE_INFO, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_GREEN"), pkPlot->getX(), pkPlot->getY()*/);
 			}
 		}
 		// City conquest
@@ -988,12 +988,12 @@ void CvUnitCombat::ResolveCityMeleeCombat(const CvCombatInfo& kCombatInfo, uint 
 				if (pkAttacker->getOwner() == iActivePlayerID)
 				{
 					strBuffer = GetLocalizedText("TXT_KEY_MISC_YOU_UNIT_CAPTURED_ENEMY_CITY", pkAttacker->getNameKey(), iDefenderDamageInflicted, pkDefender->getNameKey());
-					gDLL->getInterfaceIFace()->AddMessage(uiParentEventID, pkAttacker->getOwner(), true, GC.getEVENT_MESSAGE_TIME(), strBuffer/*, GC.getEraInfo(GC.getGame().getCurrentEra())->getAudioUnitVictoryScript(), MESSAGE_TYPE_INFO, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_GREEN"), pkPlot->getX(), pkPlot->getY()*/);
+					GC.GetEngineUserInterface()->AddMessage(uiParentEventID, pkAttacker->getOwner(), true, GC.getEVENT_MESSAGE_TIME(), strBuffer/*, GC.getEraInfo(GC.getGame().getCurrentEra())->getAudioUnitVictoryScript(), MESSAGE_TYPE_INFO, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_GREEN"), pkPlot->getX(), pkPlot->getY()*/);
 				}
 				if (pkDefender->getOwner() == iActivePlayerID)
 				{
 					strBuffer = GetLocalizedText("TXT_KEY_MISC_YOU_CITY_WAS_CAPTURED", pkDefender->getNameKey(), pkAttacker->getNameKey(), pkAttacker->getVisualCivAdjective(pkDefender->getTeam()), iDefenderDamageInflicted);
-					gDLL->getInterfaceIFace()->AddMessage(uiParentEventID, pkDefender->getOwner(), true, GC.getEVENT_MESSAGE_TIME(), strBuffer/*,GC.getEraInfo(GC.getGame().getCurrentEra())->getAudioUnitDefeatScript(), MESSAGE_TYPE_INFO, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_RED"), pkPlot->getX(), pkPlot->getY()*/);
+					GC.GetEngineUserInterface()->AddMessage(uiParentEventID, pkDefender->getOwner(), true, GC.getEVENT_MESSAGE_TIME(), strBuffer/*,GC.getEraInfo(GC.getGame().getCurrentEra())->getAudioUnitDefeatScript(), MESSAGE_TYPE_INFO, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_RED"), pkPlot->getX(), pkPlot->getY()*/);
 				}
 
 				pkAttacker->UnitMove(pkPlot, true, pkAttacker);
@@ -1007,12 +1007,12 @@ void CvUnitCombat::ResolveCityMeleeCombat(const CvCombatInfo& kCombatInfo, uint 
 			if (pkAttacker->getOwner() == iActivePlayerID)
 			{
 				strBuffer = GetLocalizedText("TXT_KEY_MISC_YOU_UNIT_WITHDRAW_CITY", pkAttacker->getNameKey(), iDefenderDamageInflicted, pkDefender->getNameKey(), iAttackerDamageInflicted);
-				gDLL->getInterfaceIFace()->AddMessage(uiParentEventID, pkAttacker->getOwner(), true, GC.getEVENT_MESSAGE_TIME(), strBuffer/*, "AS2D_OUR_WITHDRAWL", MESSAGE_TYPE_INFO, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_GREEN"), pkPlot->getX(), pkPlot->getY()*/);
+				GC.GetEngineUserInterface()->AddMessage(uiParentEventID, pkAttacker->getOwner(), true, GC.getEVENT_MESSAGE_TIME(), strBuffer/*, "AS2D_OUR_WITHDRAWL", MESSAGE_TYPE_INFO, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_GREEN"), pkPlot->getX(), pkPlot->getY()*/);
 			}
 			if (pkDefender->getOwner() == iActivePlayerID)
 			{
 				strBuffer = GetLocalizedText("TXT_KEY_MISC_ENEMY_UNIT_WITHDRAW_CITY", pkAttacker->getNameKey(), iDefenderDamageInflicted, pkDefender->getNameKey(), iAttackerDamageInflicted);
-				gDLL->getInterfaceIFace()->AddMessage(uiParentEventID, pkDefender->getOwner(), true, GC.getEVENT_MESSAGE_TIME(), strBuffer/*, "AS2D_THEIR_WITHDRAWL", MESSAGE_TYPE_INFO, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_RED"), pkPlot->getX(), pkPlot->getY()*/);
+				GC.GetEngineUserInterface()->AddMessage(uiParentEventID, pkDefender->getOwner(), true, GC.getEVENT_MESSAGE_TIME(), strBuffer/*, "AS2D_THEIR_WITHDRAWL", MESSAGE_TYPE_INFO, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_RED"), pkPlot->getX(), pkPlot->getY()*/);
 			}
 			pkAttacker->changeMoves(-GC.getMOVE_DENOMINATOR());
 		}
@@ -1025,7 +1025,7 @@ void CvUnitCombat::ResolveCityMeleeCombat(const CvCombatInfo& kCombatInfo, uint 
 		if (!pkAttacker->canMoveAfterAttacking())
 		{
 			pkAttacker->finishMoves();
-			gDLL->getInterfaceIFace()->changeCycleSelectionCounter(1);
+			GC.GetEngineUserInterface()->changeCycleSelectionCounter(1);
 		}
 
 		// Report that combat is over in case we want to queue another attack
@@ -1190,7 +1190,7 @@ void CvUnitCombat::GenerateAirCombatInfo(CvUnit& kAttacker, CvUnit *pkDefender, 
 	pkCombatInfo->setAttackIsBombingMission(true);
 	pkCombatInfo->setDefenderRetaliates(true);
 
-	gDLL->getInterfaceIFace()->setDirty(UnitInfo_DIRTY_BIT, true);
+	GC.GetEngineUserInterface()->setDirty(UnitInfo_DIRTY_BIT, true);
 }
 
 //	ResolveAirUnitVsCombat
@@ -1225,7 +1225,7 @@ void CvUnitCombat::ResolveAirUnitVsCombat(const CvCombatInfo &kCombatInfo, uint 
 	CvPlot* pkTargetPlot = kCombatInfo.getPlot();
 	CvAssert_Debug(pkTargetPlot);
 
-	CvDLLInterfaceIFaceBase *pkDLLInterface = gDLL->getInterfaceIFace();
+	ICvUserInterface2* pkDLLInterface = GC.GetEngineUserInterface();
 	int iActivePlayerID = GC.getGame().getActivePlayer();
 	CvString strBuffer;
 
@@ -1529,7 +1529,7 @@ void CvUnitCombat::GenerateAirSweepCombatInfo(CvUnit &kAttacker, CvUnit *pkDefen
 	pkCombatInfo->setAttackerAdvances(false);
 	pkCombatInfo->setDefenderRetaliates(true);
 
-	gDLL->getInterfaceIFace()->setDirty(UnitInfo_DIRTY_BIT, true);
+	GC.GetEngineUserInterface()->setDirty(UnitInfo_DIRTY_BIT, true);
 }
 
 //	---------------------------------------------------------------------------
@@ -1602,12 +1602,12 @@ void CvUnitCombat::ResolveAirSweep(const CvCombatInfo &kCombatInfo, uint uiParen
 					if (iActivePlayerID == pkAttacker->getOwner())
 					{
 						strBuffer = GetLocalizedText("TXT_KEY_MISC_YOU_UNIT_DIED_ATTACKING", pkAttacker->getNameKey(), pkDefender->getNameKey(), iAttackerDamageInflicted, 0);
-						gDLL->getInterfaceIFace()->AddMessage(uiParentEventID, pkAttacker->getOwner(), true, GC.getEVENT_MESSAGE_TIME(), strBuffer/*, GC.getEraInfo(GC.getGame().getCurrentEra())->getAudioUnitDefeatScript(), MESSAGE_TYPE_INFO, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_RED"), pkTargetPlot->getX(), pkTargetPlot->getY()*/);
+						GC.GetEngineUserInterface()->AddMessage(uiParentEventID, pkAttacker->getOwner(), true, GC.getEVENT_MESSAGE_TIME(), strBuffer/*, GC.getEraInfo(GC.getGame().getCurrentEra())->getAudioUnitDefeatScript(), MESSAGE_TYPE_INFO, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_RED"), pkTargetPlot->getX(), pkTargetPlot->getY()*/);
 					}
 					if (iActivePlayerID == pkDefender->getOwner())
 					{
 						strBuffer = GetLocalizedText("TXT_KEY_MISC_YOU_KILLED_ENEMY_UNIT", pkDefender->getNameKey(), iAttackerDamageInflicted, 0, pkAttacker->getNameKey(), pkAttacker->getVisualCivAdjective(pkDefender->getTeam()));
-						gDLL->getInterfaceIFace()->AddMessage(uiParentEventID, pkDefender->getOwner(), true, GC.getEVENT_MESSAGE_TIME(), strBuffer/*, GC.getEraInfo(GC.getGame().getCurrentEra())->getAudioUnitVictoryScript(), MESSAGE_TYPE_INFO, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_GREEN"), pkTargetPlot->getX(), pkTargetPlot->getY()*/);
+						GC.GetEngineUserInterface()->AddMessage(uiParentEventID, pkDefender->getOwner(), true, GC.getEVENT_MESSAGE_TIME(), strBuffer/*, GC.getEraInfo(GC.getGame().getCurrentEra())->getAudioUnitVictoryScript(), MESSAGE_TYPE_INFO, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_GREEN"), pkTargetPlot->getX(), pkTargetPlot->getY()*/);
 					}
 					pkDefender->testPromotionReady();
 				}
@@ -1624,12 +1624,12 @@ void CvUnitCombat::ResolveAirSweep(const CvCombatInfo &kCombatInfo, uint uiParen
 					if (iActivePlayerID == pkAttacker->getOwner())
 					{
 						strBuffer = GetLocalizedText("TXT_KEY_MISC_YOU_UNIT_DIED_ATTACKING", pkAttacker->getNameKey(), pkDefender->getNameKey(), iAttackerDamageInflicted, 0);
-						gDLL->getInterfaceIFace()->AddMessage(uiParentEventID, pkAttacker->getOwner(), true, GC.getEVENT_MESSAGE_TIME(), strBuffer/*, GC.getEraInfo(GC.getGame().getCurrentEra())->getAudioUnitDefeatScript(), MESSAGE_TYPE_INFO, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_RED"), pkTargetPlot->getX(), pkTargetPlot->getY()*/);
+						GC.GetEngineUserInterface()->AddMessage(uiParentEventID, pkAttacker->getOwner(), true, GC.getEVENT_MESSAGE_TIME(), strBuffer/*, GC.getEraInfo(GC.getGame().getCurrentEra())->getAudioUnitDefeatScript(), MESSAGE_TYPE_INFO, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_RED"), pkTargetPlot->getX(), pkTargetPlot->getY()*/);
 					}
 					if (iActivePlayerID == pkDefender->getOwner())
 					{
 						strBuffer = GetLocalizedText("TXT_KEY_MISC_YOU_KILLED_ENEMY_UNIT", pkDefender->getNameKey(), iAttackerDamageInflicted, 0, pkAttacker->getNameKey(), pkAttacker->getVisualCivAdjective(pkDefender->getTeam()));
-						gDLL->getInterfaceIFace()->AddMessage(uiParentEventID, pkDefender->getOwner(), true, GC.getEVENT_MESSAGE_TIME(), strBuffer/*, GC.getEraInfo(GC.getGame().getCurrentEra())->getAudioUnitVictoryScript(), MESSAGE_TYPE_INFO, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_GREEN"), pkTargetPlot->getX(), pkTargetPlot->getY()*/);
+						GC.GetEngineUserInterface()->AddMessage(uiParentEventID, pkDefender->getOwner(), true, GC.getEVENT_MESSAGE_TIME(), strBuffer/*, GC.getEraInfo(GC.getGame().getCurrentEra())->getAudioUnitVictoryScript(), MESSAGE_TYPE_INFO, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_GREEN"), pkTargetPlot->getX(), pkTargetPlot->getY()*/);
 					}
 
 					pkDefender->testPromotionReady();
@@ -1645,7 +1645,7 @@ void CvUnitCombat::ResolveAirSweep(const CvCombatInfo &kCombatInfo, uint uiParen
 					if (iActivePlayerID == pkAttacker->getOwner())
 					{
 						strBuffer = GetLocalizedText("TXT_KEY_MISC_YOU_UNIT_DESTROYED_ENEMY", pkAttacker->getNameKey(), iDefenderDamageInflicted, pkDefender->getNameKey());
-						gDLL->getInterfaceIFace()->AddMessage(uiParentEventID, pkAttacker->getOwner(), true, GC.getEVENT_MESSAGE_TIME(), strBuffer/*, GC.getEraInfo(GC.getGame().getCurrentEra())->getAudioUnitVictoryScript(), MESSAGE_TYPE_INFO, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_GREEN"), pkTargetPlot->getX(), pkTargetPlot->getY()*/);
+						GC.GetEngineUserInterface()->AddMessage(uiParentEventID, pkAttacker->getOwner(), true, GC.getEVENT_MESSAGE_TIME(), strBuffer/*, GC.getEraInfo(GC.getGame().getCurrentEra())->getAudioUnitVictoryScript(), MESSAGE_TYPE_INFO, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_GREEN"), pkTargetPlot->getX(), pkTargetPlot->getY()*/);
 					}
 					if (iActivePlayerID == pkDefender->getOwner())
 					{
@@ -1657,7 +1657,7 @@ void CvUnitCombat::ResolveAirSweep(const CvCombatInfo &kCombatInfo, uint uiParen
 						{
 							strBuffer = GetLocalizedText("TXT_KEY_MISC_YOU_UNIT_WAS_DESTROYED", pkDefender->getNameKey(), pkAttacker->getNameKey(), pkAttacker->getVisualCivAdjective(pkDefender->getTeam()), iDefenderDamageInflicted);
 						}
-						gDLL->getInterfaceIFace()->AddMessage(uiParentEventID, pkDefender->getOwner(), true, GC.getEVENT_MESSAGE_TIME(), strBuffer/*,GC.getEraInfo(GC.getGame().getCurrentEra())->getAudioUnitDefeatScript(), MESSAGE_TYPE_INFO, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_RED"), pkTargetPlot->getX(), pkTargetPlot->getY()*/);
+						GC.GetEngineUserInterface()->AddMessage(uiParentEventID, pkDefender->getOwner(), true, GC.getEVENT_MESSAGE_TIME(), strBuffer/*,GC.getEraInfo(GC.getGame().getCurrentEra())->getAudioUnitDefeatScript(), MESSAGE_TYPE_INFO, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_RED"), pkTargetPlot->getX(), pkTargetPlot->getY()*/);
 					}
 
 					CvNotifications* pNotification = GET_PLAYER(pkDefender->getOwner()).GetNotifications();
@@ -1685,12 +1685,12 @@ void CvUnitCombat::ResolveAirSweep(const CvCombatInfo &kCombatInfo, uint uiParen
 					if (iActivePlayerID == pkAttacker->getOwner())
 					{
 						strBuffer = GetLocalizedText("TXT_KEY_MISC_YOU_UNIT_WITHDRAW", pkAttacker->getNameKey(), iDefenderDamageInflicted, pkDefender->getNameKey(), iAttackerDamageInflicted);
-						gDLL->getInterfaceIFace()->AddMessage(uiParentEventID, pkAttacker->getOwner(), true, GC.getEVENT_MESSAGE_TIME(), strBuffer/*, "AS2D_OUR_WITHDRAWL", MESSAGE_TYPE_INFO, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_GREEN"), pkTargetPlot->getX(), pkTargetPlot->getY()*/);
+						GC.GetEngineUserInterface()->AddMessage(uiParentEventID, pkAttacker->getOwner(), true, GC.getEVENT_MESSAGE_TIME(), strBuffer/*, "AS2D_OUR_WITHDRAWL", MESSAGE_TYPE_INFO, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_GREEN"), pkTargetPlot->getX(), pkTargetPlot->getY()*/);
 					}
 					if (iActivePlayerID == pkDefender->getOwner())
 					{
 						strBuffer = GetLocalizedText("TXT_KEY_MISC_ENEMY_UNIT_WITHDRAW", pkAttacker->getNameKey(), iDefenderDamageInflicted, pkDefender->getNameKey(), iAttackerDamageInflicted);
-						gDLL->getInterfaceIFace()->AddMessage(uiParentEventID, pkDefender->getOwner(), true, GC.getEVENT_MESSAGE_TIME(), strBuffer/*, "AS2D_THEIR_WITHDRAWL", MESSAGE_TYPE_INFO, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_RED"), pkTargetPlot->getX(), pkTargetPlot->getY()*/);
+						GC.GetEngineUserInterface()->AddMessage(uiParentEventID, pkDefender->getOwner(), true, GC.getEVENT_MESSAGE_TIME(), strBuffer/*, "AS2D_THEIR_WITHDRAWL", MESSAGE_TYPE_INFO, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_RED"), pkTargetPlot->getX(), pkTargetPlot->getY()*/);
 					}
 
 					pkDefender->testPromotionReady();
@@ -1795,7 +1795,7 @@ void CvUnitCombat::GenerateNuclearCombatInfo(CvUnit& kAttacker, CvPlot &plot, Cv
 	GenerateNuclearExplosionDamage(&plot, kAttacker.GetNukeDamageLevel(), &kAttacker, pkCombatInfo->getDamageMembers(), &iDamageMembers, pkCombatInfo->getMaxDamageMemberCount());
 	pkCombatInfo->setDamageMemberCount(iDamageMembers);
 
-	gDLL->getInterfaceIFace()->setDirty(UnitInfo_DIRTY_BIT, true);
+	GC.GetEngineUserInterface()->setDirty(UnitInfo_DIRTY_BIT, true);
 }
 
 //	-------------------------------------------------------------------------------------
@@ -2220,7 +2220,7 @@ void CvUnitCombat::ResolveCombat( const CvCombatInfo& kInfo, uint uiParentEventI
 	// Clear popup blocking after combat resolves
 	if (eAttackingPlayer == GC.getGame().getActivePlayer())
 	{
-		gDLL->getInterfaceIFace()->SetDontShowPopups(false);
+		GC.GetEngineUserInterface()->SetDontShowPopups(false);
 	}
 }
 
@@ -2278,12 +2278,12 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::Attack(CvUnit& kAttacker, CvPlot & tar
 		if (kAttacker.getOwner() == GC.getGame().getActivePlayer())
 		{
 			strBuffer = GetLocalizedText("TXT_KEY_MISC_ENEMY_UNIT_WITHDREW", pDefender->getNameKey());
-			gDLL->getInterfaceIFace()->AddMessage(0, kAttacker.getOwner(), true, GC.getEVENT_MESSAGE_TIME(), strBuffer);
+			GC.GetEngineUserInterface()->AddMessage(0, kAttacker.getOwner(), true, GC.getEVENT_MESSAGE_TIME(), strBuffer);
 		}
 		else if (pDefender->getOwner() == GC.getGame().getActivePlayer())
 		{
 			strBuffer = GetLocalizedText("TXT_KEY_MISC_FRIENDLY_UNIT_WITHDREW", pDefender->getNameKey());
-			gDLL->getInterfaceIFace()->AddMessage(0, pDefender->getOwner(), true, GC.getEVENT_MESSAGE_TIME(), strBuffer);
+			GC.GetEngineUserInterface()->AddMessage(0, pDefender->getOwner(), true, GC.getEVENT_MESSAGE_TIME(), strBuffer);
 		}
 
 		// Move forward
@@ -2404,7 +2404,7 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::Attack(CvUnit& kAttacker, CvPlot & tar
 				if (isTargetVisibleToActivePlayer)
 				{
 					auto_ptr<ICvPlot1> pDefenderPlot = GC.WrapPlotPointer(pDefender->plot());
-					gDLL->getInterfaceIFace()->lookAt(pDefenderPlot.get(), CAMERALOOKAT_NORMAL);
+					GC.GetEngineUserInterface()->lookAt(pDefenderPlot.get(), CAMERALOOKAT_NORMAL);
 				}
 				kCombatInfo.setVisualizeCombat( isTargetVisibleToActivePlayer );
 
@@ -2462,7 +2462,7 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackRanged(CvUnit& kAttacker, int iX
 	if (!kAttacker.canMoveAfterAttacking())
 	{
 		kAttacker.finishMoves();
-		gDLL->getInterfaceIFace()->changeCycleSelectionCounter(1);
+		GC.GetEngineUserInterface()->changeCycleSelectionCounter(1);
 	}
 
 	kAttacker.SetAutomateType(NO_AUTOMATE);
@@ -2489,7 +2489,7 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackRanged(CvUnit& kAttacker, int iX
 			if (isTargetVisibleToActivePlayer)
 			{
 				auto_ptr<ICvPlot1> pDllPlot = GC.WrapPlotPointer(pPlot);
-				gDLL->getInterfaceIFace()->lookAt(pDllPlot.get(), CAMERALOOKAT_NORMAL);
+				GC.GetEngineUserInterface()->lookAt(pDllPlot.get(), CAMERALOOKAT_NORMAL);
 			}
 			kCombatInfo.setVisualizeCombat(isTargetVisibleToActivePlayer);
 
@@ -2521,7 +2521,7 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackRanged(CvUnit& kAttacker, int iX
 			if (isTargetVisibleToActivePlayer)
 			{
 				auto_ptr<ICvPlot1> pDllPlot = GC.WrapPlotPointer(pPlot);
-				gDLL->getInterfaceIFace()->lookAt(pDllPlot.get(), CAMERALOOKAT_NORMAL);
+				GC.GetEngineUserInterface()->lookAt(pDllPlot.get(), CAMERALOOKAT_NORMAL);
 			}
 
 			kCombatInfo.setVisualizeCombat(isTargetVisibleToActivePlayer);
@@ -2583,7 +2583,7 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackAir(CvUnit& kAttacker, CvPlot & 
 			if (isTargetVisibleToActivePlayer)
 			{
 				auto_ptr<ICvPlot1> pDllTargetPlot = GC.WrapPlotPointer(&targetPlot);
-				gDLL->getInterfaceIFace()->lookAt(pDllTargetPlot.get(), CAMERALOOKAT_NORMAL);
+				GC.GetEngineUserInterface()->lookAt(pDllTargetPlot.get(), CAMERALOOKAT_NORMAL);
 			}
 			kCombatInfo.setVisualizeCombat(isTargetVisibleToActivePlayer);
 
@@ -2619,7 +2619,7 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackAir(CvUnit& kAttacker, CvPlot & 
 			if (isTargetVisibleToActivePlayer)
 			{
 				auto_ptr<ICvPlot1> pDllTargetPlot = GC.WrapPlotPointer(&targetPlot);
-				gDLL->getInterfaceIFace()->lookAt(pDllTargetPlot.get(), CAMERALOOKAT_NORMAL);
+				GC.GetEngineUserInterface()->lookAt(pDllTargetPlot.get(), CAMERALOOKAT_NORMAL);
 			}
 
 			kCombatInfo.setVisualizeCombat(isTargetVisibleToActivePlayer);
@@ -2680,7 +2680,7 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackAirSweep(CvUnit& kAttacker, CvPl
 			if (isTargetVisibleToActivePlayer)
 			{
 				auto_ptr<ICvPlot1> pDllTargetPlot = GC.WrapPlotPointer(&targetPlot);
-				gDLL->getInterfaceIFace()->lookAt(pDllTargetPlot.get(), CAMERALOOKAT_NORMAL);
+				GC.GetEngineUserInterface()->lookAt(pDllTargetPlot.get(), CAMERALOOKAT_NORMAL);
 			}
 			kCombatInfo.setVisualizeCombat(isTargetVisibleToActivePlayer);
 
@@ -2705,7 +2705,7 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackAirSweep(CvUnit& kAttacker, CvPl
 		{
 			Localization::String localizedText = Localization::Lookup("TXT_KEY_AIR_PATROL_FOUND_NOTHING");
 			localizedText << kAttacker.getUnitInfo().GetTextKey();
-			gDLL->getInterfaceIFace()->AddMessage(0, kAttacker.getOwner(), false, GC.getEVENT_MESSAGE_TIME(), localizedText.toUTF8());
+			GC.GetEngineUserInterface()->AddMessage(0, kAttacker.getOwner(), false, GC.getEVENT_MESSAGE_TIME(), localizedText.toUTF8());
 		}
 
 		// Spend a move for this attack
@@ -2781,7 +2781,7 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackCity(CvUnit &kAttacker, CvPlot &
 			if (isTargetVisibleToActivePlayer)
 			{
 				auto_ptr<ICvPlot1> pDllPlot = GC.WrapPlotPointer(&plot);
-				gDLL->getInterfaceIFace()->lookAt(pDllPlot.get(), CAMERALOOKAT_NORMAL);
+				GC.GetEngineUserInterface()->lookAt(pDllPlot.get(), CAMERALOOKAT_NORMAL);
 			}
 			kCombatInfo.setVisualizeCombat(isTargetVisibleToActivePlayer);
 
@@ -2884,7 +2884,7 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackNuclear(CvUnit& kAttacker, int i
 		if (isTargetVisibleToActivePlayer)
 		{
 			auto_ptr<ICvPlot1> pDllPlot = GC.WrapPlotPointer(pPlot);
-			gDLL->getInterfaceIFace()->lookAt(pDllPlot.get(), CAMERALOOKAT_NORMAL);
+			GC.GetEngineUserInterface()->lookAt(pDllPlot.get(), CAMERALOOKAT_NORMAL);
 		}
 		kCombatInfo.setVisualizeCombat(isTargetVisibleToActivePlayer);
 

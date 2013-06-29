@@ -2153,7 +2153,7 @@ bool CvCity::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool b
 					CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(ePrereqBuilding);
 					if(pkBuildingInfo)
 					{
-						GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_UNIT_REQUIRES_BUILDING", pkBuildingInfo->GetDescription());
+						GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_UNIT_REQUIRES_BUILDING", pkBuildingInfo->GetDescriptionKey());
 						if (toolTipSink == NULL)
 							return false;
 					}
@@ -2877,7 +2877,8 @@ void CvCity::DoPickResourceDemanded(bool bCurrentResourceInvalid)
 		eResource = (ResourceTypes) iResourceLoop;
 
 		// Is this a Luxury Resource?
-		if (GC.getResourceInfo(eResource)->getResourceUsage() == RESOURCEUSAGE_LUXURY)
+		const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
+		if (pkResourceInfo != NULL && pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_LUXURY)
 		{
 			// Is the Resource actually on the map?
 			if (GC.getMap().getNumResources(eResource) > 0)
@@ -6483,6 +6484,22 @@ void CvCity::DoJONSCultureLevelIncrease()
 	// maybe the player owns ALL of the plots or there are none avaialable?
 	if (pPlotToAcquire)
 	{
+		if(GC.getLogging() && GC.getAILogging())
+		{
+			CvPlayerAI& kOwner = GET_PLAYER(getOwner());
+			CvString playerName;
+			FILogFile* pLog;
+			CvString strBaseString;
+			CvString strOutBuf;
+			playerName = kOwner.getCivilizationShortDescription();
+			pLog = LOGFILEMGR.GetLog(kOwner.GetCitySpecializationAI()->GetLogFileName(playerName), FILogFile::kDontTimeStamp);
+			strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+			strBaseString += playerName + ", ";
+			strOutBuf.Format("%s, City Culture Leveled Up. Level: %d Border Expanded, X: %d, Y: %d", getName().GetCString(), 
+												GetJONSCultureLevel(), pPlotToAcquire->getX(), pPlotToAcquire->getY());
+			strBaseString += strOutBuf;
+			pLog->Msg(strBaseString);
+		}
 		DoAcquirePlot(pPlotToAcquire->getX(), pPlotToAcquire->getY());
 	}
 }
@@ -9470,6 +9487,21 @@ void CvCity::BuyPlot(int iPlotX, int iPlotY)
 		}
 	}
 
+	if(GC.getLogging() && GC.getAILogging())
+	{
+		CvPlayerAI& kOwner = GET_PLAYER(getOwner());
+		CvString playerName;
+		FILogFile* pLog;
+		CvString strBaseString;
+		CvString strOutBuf;
+		playerName = kOwner.getCivilizationShortDescription();
+		pLog = LOGFILEMGR.GetLog(kOwner.GetCitySpecializationAI()->GetLogFileName(playerName), FILogFile::kDontTimeStamp);
+		strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+		strBaseString += playerName + ", ";
+		strOutBuf.Format("%s, City Plot Purchased, X: %d, Y: %d", getName().GetCString(), iPlotX, iPlotY);
+		strBaseString += strOutBuf;
+		pLog->Msg(strBaseString);
+	}
 	DoAcquirePlot(iPlotX, iPlotY);
 
 	//Achievement test for purchasing 1000 tiles
@@ -10714,8 +10746,11 @@ void CvCity::Purchase (UnitTypes eUnitType, BuildingTypes eBuildingType, Project
 	{
 		int iResult = CreateUnit(eUnitType);
 		CvAssertMsg(iResult != FFreeList::INVALID_INDEX, "Unable to create unit");
-		CvUnit* pUnit = GET_PLAYER(getOwner()).getUnit(iResult);
-		pUnit->setMoves(0);
+		if (iResult != FFreeList::INVALID_INDEX)
+		{
+			CvUnit* pUnit = GET_PLAYER(getOwner()).getUnit(iResult);
+			pUnit->setMoves(0);
+		}
 	}
 	else if (eBuildingType >= 0)
 	{
@@ -11411,10 +11446,9 @@ void CvCity::read(FDataStream& kStream)
 
 	if (uiVersion >= 14)
 	{
-		std::vector<int> aTemp;
-		CvInfosSerializationHelper::ReadHashedDataArray(kStream, aTemp); m_paiNoResource = aTemp;
-		CvInfosSerializationHelper::ReadHashedDataArray(kStream, aTemp); m_paiFreeResource = aTemp;
-		CvInfosSerializationHelper::ReadHashedDataArray(kStream, aTemp); m_paiNumResourcesLocal = aTemp;
+		CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_paiNoResource.dirtyGet());
+		CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_paiFreeResource.dirtyGet());
+		CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_paiNumResourcesLocal.dirtyGet());
 	}
 	else
 	{

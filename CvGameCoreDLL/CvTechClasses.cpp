@@ -952,8 +952,12 @@ void CvPlayerTechs::SetLocalePriorities()
 						{
 							// Find the tech associated with this build and increment its multiplier
 							int iTech = GC.getBuildInfo(eCorrectBuild)->getTechPrereq();
-							m_piLocaleTechPriority[iTech]++;
-							m_peLocaleTechResources[iTech] = eResource;
+							CvAssert(iTech < m_pTechs->GetNumTechs());		// Just assert on a value off the top end, a -1 is ok to just skip silently
+							if (iTech >= 0 && iTech < m_pTechs->GetNumTechs())
+							{
+								m_piLocaleTechPriority[iTech]++;
+								m_peLocaleTechResources[iTech] = eResource;
+							}
 						}
 					}
 				}
@@ -1749,8 +1753,8 @@ void CvTeamTechs::SetResearchProgressTimes100(TechTypes eIndex, int iNewValue, P
 
 		if (m_pTeam->GetID() == GC.getGame().getActiveTeam())
 		{
-			gDLL->getInterfaceIFace()->setDirty(GameData_DIRTY_BIT, true);
-			gDLL->getInterfaceIFace()->setDirty(Score_DIRTY_BIT, true);
+			GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
+			GC.GetEngineUserInterface()->setDirty(Score_DIRTY_BIT, true);
 		}
 
 		int iResearchProgress = GetResearchProgressTimes100(eIndex);
@@ -1762,10 +1766,7 @@ void CvTeamTechs::SetResearchProgressTimes100(TechTypes eIndex, int iNewValue, P
 		{
 			GET_PLAYER(ePlayer).changeOverflowResearchTimes100(iOverflow);
 			m_pTeam->setHasTech(eIndex, true, ePlayer, true, true);
-			if (!GC.getGame().isMPOption(MPOPTION_SIMULTANEOUS_TURNS))
-			{
-				SetNoTradeTech(eIndex, true);
-			}
+			SetNoTradeTech(eIndex, true);
 
 			// Mark city specialization dirty
 			GET_PLAYER(ePlayer).GetCitySpecializationAI()->SetSpecializationsDirty(SPECIALIZATION_UPDATE_RESEARCH_COMPLETE);

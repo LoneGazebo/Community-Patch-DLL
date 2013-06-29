@@ -104,6 +104,7 @@ public:
 	void SetDangerPlotsDirty();
 
 	bool isHuman() const;
+	bool isObserver() const;
 	bool isBarbarian() const;
 	void doBarbarianRansom(int iOption, int iUnitID);
 
@@ -746,10 +747,10 @@ public:
 	bool isBorderObstacle() const;
 	void changeBorderObstacleCount(int iChange);
 
-	bool isConnected() const;
 	int getNetID() const;
 	void setNetID(int iNetID);
-	void sendReminder();
+	bool isConnected() const;
+	void sendTurnReminder();
 
 	uint getStartTime() const;
 	void setStartTime(uint uiStartTime);
@@ -774,6 +775,8 @@ public:
 
 	bool isTurnActive() const;
 	void setTurnActive(bool bNewValue, bool bDoTurn = true);
+	bool isSimultaneousTurns() const;
+	void setDynamicTurnsSimultMode(bool simultaneousTurns);
 
 	bool isAutoMoves() const;
 	void setAutoMoves(bool bNewValue);
@@ -1270,6 +1273,8 @@ public:
 	std::string debugDump(const FAutoVariableBase &) const;
 	std::string stackTraceRemark(const FAutoVariableBase &) const;
 
+	bool hasTurnTimerExpired();
+
 protected:
 	class ConqueredByBoolField
 	{
@@ -1501,6 +1506,7 @@ protected:
 	FAutoVariable<bool, CvPlayer> m_bAutoMoves;					// Signal that we can process the auto moves when ready.
 	bool						  m_bProcessedAutoMoves;		// Signal that we have processed the auto moves
 	FAutoVariable<bool, CvPlayer> m_bEndTurn;					// Signal that the player has completed their turn.  The turn will still be active until the auto-moves have been processed.
+	bool						  m_bDynamicTurnsSimultMode;
 	FAutoVariable<bool, CvPlayer> m_bPbemNewTurn;
 	FAutoVariable<bool, CvPlayer> m_bExtendedGame;
 	FAutoVariable<bool, CvPlayer> m_bFoundedFirstCity;
@@ -1525,7 +1531,9 @@ protected:
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiIncomingUnitTypes;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiIncomingUnitCountdowns;
 
-	FAutoVariable<std::vector<bool>, CvPlayer> m_abOptions;
+	typedef std::pair<uint, int> PlayerOptionEntry;
+	typedef std::vector< PlayerOptionEntry > PlayerOptionsVector;
+	FAutoVariable<PlayerOptionsVector, CvPlayer> m_aOptions;
 
 	FAutoVariable<CvString, CvPlayer> m_strReligionKey;
 	FAutoVariable<CvString, CvPlayer> m_strScriptData;
@@ -1666,6 +1674,8 @@ protected:
 	friend CvUnit* GetPlayerUnit(IDInfo & unit);
 	friend const CvUnit* GetPlayerUnit(const IDInfo & unit);
 };
+
+extern bool CancelActivePlayerEndTurn();
 
 namespace FSerialization
 {

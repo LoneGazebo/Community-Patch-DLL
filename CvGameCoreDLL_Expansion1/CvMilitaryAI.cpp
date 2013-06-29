@@ -1050,7 +1050,7 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTarget(AIOperationTypes eAIOperatio
 		RandomNumberDelegate fcn;
 		fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
 		int iNumChoices = max (1, (weightedTargetList.size() * 35/ 100));
-		chosenTarget = weightedTargetList.ChooseFromTopChoices(iNumChoices, &fcn, "Choosing attack target from top 35% of choices");
+		chosenTarget = weightedTargetList.ChooseFromTopChoices(iNumChoices, &fcn, "Choosing attack target from top 35%% of choices");
 		// if we need the winning score
 		if (piWinningScore)
 		{

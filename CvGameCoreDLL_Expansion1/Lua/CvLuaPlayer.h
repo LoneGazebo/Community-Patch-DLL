@@ -80,6 +80,7 @@ protected:
 	static int lIsCapitalConnectedToCity(lua_State* L);
 
 	static int lIsTurnActive(lua_State* L);
+	static int lIsSimultaneousTurns(lua_State* L);
 
 	static int lFindNewCapital(lua_State* L);
 	static int lCanRaze(lua_State* L);
@@ -841,6 +842,13 @@ protected:
 	static int lGetRecentIntrigueInfo(lua_State* L);
 	static int lGetCoupChanceOfSuccess(lua_State* L);
 	// end Espionage Methods
+
+	static int lIsConnected(lua_State* L);
+	static int lIsObserver(lua_State* L);
+
+	static int lHasTurnTimerExpired(lua_State* L);
+
+	static int lHasUnitOfClassType(lua_State* L);
 
 };
 

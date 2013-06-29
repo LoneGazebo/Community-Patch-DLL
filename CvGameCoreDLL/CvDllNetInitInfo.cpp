@@ -26,8 +26,10 @@ CvDllNetInitInfo::CvDllNetInitInfo()
 	m_eEra = CvPreGame::era();
 	m_eCalendar = CvPreGame::calendar();
 	m_iGameTurn = CvPreGame::gameTurn();
+	m_bGameStarted = CvPreGame::gameStarted();
 	m_eGameSpeed = CvPreGame::gameSpeed();
-	m_eTurnTimer = CvPreGame::turnTimer();
+	m_eTurnTimerEnabled = CvPreGame::turnTimer();
+	m_iTurnTimerTime = CvPreGame::pitBossTurnTime();
 	m_szGameName = CvPreGame::gameName();
 	m_uiSyncRandSeed = CvPreGame::syncRandomSeed();
 	m_uiMapRandSeed = CvPreGame::mapRandomSeed();
@@ -114,6 +116,7 @@ const char* CvDllNetInitInfo::GetDebugString()
 		"m_eEra=%d "\
 		"m_eCalendar=%d "\
 		"m_iGameTurn=%d "\
+		"m_bGameStarted=%i "\
 		"m_eGameSpeed=%d "\
 		"m_eTurnTimer=%d "\
 		"m_szGameName=\"%s\" "\
@@ -128,6 +131,7 @@ const char* CvDllNetInitInfo::GetDebugString()
 		, static_cast<int>(CvPreGame::era())
 		, static_cast<int>(CvPreGame::calendar())
 		, CvPreGame::gameTurn()
+		, CvPreGame::gameStarted()
 		, static_cast<int>(CvPreGame::gameSpeed())
 		, static_cast<int>(CvPreGame::turnTimer())
 		, CvPreGame::gameName().c_str()
@@ -153,8 +157,10 @@ bool CvDllNetInitInfo::Read(FDataStream& kStream)
 	kStream >> m_eEra;
 	kStream >> m_eCalendar;
 	kStream >> m_iGameTurn;
+	kStream >> m_bGameStarted;
 	kStream >> m_eGameSpeed;
-	kStream >> m_eTurnTimer;
+	kStream >> m_eTurnTimerEnabled;
+	kStream >> m_iTurnTimerTime;
 	kStream >> m_szGameName;
 	kStream >> m_uiSyncRandSeed;
 	kStream >> m_uiMapRandSeed;
@@ -191,8 +197,10 @@ bool CvDllNetInitInfo::Write(FDataStream& kStream)
 	kStream << m_eEra;
 	kStream << m_eCalendar;
 	kStream << m_iGameTurn;
+	kStream << m_bGameStarted;
 	kStream << m_eGameSpeed;
-	kStream << m_eTurnTimer;
+	kStream << m_eTurnTimerEnabled;
+	kStream << m_iTurnTimerTime;
 	kStream << m_szGameName;
 	kStream << m_uiSyncRandSeed;
 	kStream << m_uiMapRandSeed;
@@ -228,8 +236,10 @@ bool CvDllNetInitInfo::Commit()
 	CvPreGame::setEra(m_eEra);
 	CvPreGame::setCalendar(m_eCalendar);
 	CvPreGame::setGameTurn(m_iGameTurn);
+	CvPreGame::setGameStarted(m_bGameStarted);
 	CvPreGame::setGameSpeed(m_eGameSpeed);
-	CvPreGame::setTurnTimer(m_eTurnTimer);
+	CvPreGame::setTurnTimer(m_eTurnTimerEnabled);
+	CvPreGame::setPitBossTurnTime(m_iTurnTimerTime);
 	CvPreGame::setGameName(m_szGameName);
 	CvPreGame::setSyncRandomSeed(m_uiSyncRandSeed);
 	CvPreGame::setMapRandomSeed(m_uiMapRandSeed);

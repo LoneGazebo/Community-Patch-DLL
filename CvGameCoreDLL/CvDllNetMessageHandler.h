@@ -24,6 +24,7 @@ public:
 	void DLLCALL ResponseAutoMission(PlayerTypes ePlayer, int iUnitID);
 	void DLLCALL ResponseBarbarianRansom(PlayerTypes ePlayer, int iOptionChosen, int iUnitID);
 	void DLLCALL ResponseChangeWar(PlayerTypes ePlayer, TeamTypes eRivalTeam, bool bWar);
+	void DLLCALL ResponseIgnoreWarning(PlayerTypes ePlayer, TeamTypes eRivalTeam);
 	void DLLCALL ResponseCityBuyPlot(PlayerTypes ePlayer, int iCityID, int iX, int iY);
 	void DLLCALL ResponseCityDoTask(PlayerTypes ePlayer, int iCityID, TaskTypes eTask, int iData1, int iData2, bool bOption, bool bAlt, bool bShift, bool bCtrl);
 	void DLLCALL ResponseCityPopOrder(PlayerTypes ePlayer, int iCityID, int iNum);

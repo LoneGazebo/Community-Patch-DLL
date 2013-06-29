@@ -8,7 +8,7 @@
 #pragma once
 #include "CvDllInterfaces.h"
 
-class CvDllGame : public ICvGame1
+class CvDllGame : public ICvGame2
 {
 public:
 	CvDllGame(CvGame* pGame);
@@ -64,6 +64,9 @@ public:
 	int DLLCALL GetWinningTurn() const;
 	void DLLCALL HandleAction(int iAction);
 	bool DLLCALL HasTurnTimerExpired();
+	bool DLLCALL HasTurnTimerExpired(PlayerTypes playerID);
+	void DLLCALL TurnTimerSync(float fCurTurnTime, float fTurnStartTime);
+	void DLLCALL GetTurnTimerData(float& fCurTurnTime, float& fTurnStartTime);
 	void DLLCALL Init(HandicapTypes eHandicap);
 	bool DLLCALL Init2();
 	void DLLCALL InitScoreCalculation();
@@ -109,6 +112,11 @@ public:
 	void DLLCALL WriteReplay(FDataStream& kStream) const;
 
 	bool DLLCALL CanMoveUnitTo(ICvUnit1* pUnit, ICvPlot1* pPlot) const;
+
+	void DLLCALL NetMessageStaticsReset();
+	void DLLCALL SetLastTurnAICivsProcessed();
+
+	bool DLLCALL GetGreatWorkAudio(int GreatWorkIndex, char* strSound, int length);
 
 private:
 	void DLLCALL Destroy();

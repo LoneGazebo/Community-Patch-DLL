@@ -8,7 +8,7 @@
 #pragma once
 #include "CvDllInterfaces.h"
 
-class CvDllPlayer : public ICvPlayer1
+class CvDllPlayer : public ICvPlayer2
 {
 public:
 	CvDllPlayer(_In_ CvPlayerAI* pPlayer);
@@ -47,6 +47,7 @@ public:
 	bool DLLCALL IsEverAlive() const;
 	bool DLLCALL IsTurnActive() const;
 	void DLLCALL SetTurnActive(bool bNewValue, bool bDoTurn = true);
+	bool DLLCALL IsSimultaneousTurns() const;
 	PlayerTypes DLLCALL GetID() const;
 	HandicapTypes DLLCALL GetHandicapType() const;
 	CivilizationTypes DLLCALL GetCivilizationType() const;
@@ -95,6 +96,11 @@ public:
 	void DLLCALL RebroadcastNotifications(void);
 
 	virtual bool DLLCALL GetCurrentResearchTech(TechTypes* pkTech, int *pkTurnsLeft) const;
+
+	bool DLLCALL HasTurnTimerExpired();
+
+	bool DLLCALL IsOptionKey(PlayerOptionTypes eOptionID) const;
+
 private:
 	void DLLCALL Destroy();
 

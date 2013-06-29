@@ -226,7 +226,7 @@ void CvDiplomacyRequests::SendRequest(PlayerTypes eFromPlayer, PlayerTypes eToPl
 	CvDiplomacyRequests* pkDiploRequests = kPlayer.GetDiplomacyRequests();
 	if (pkDiploRequests)
 	{
-		if (GC.getGame().getActivePlayer() == eToPlayer)
+		if(!CvPreGame::isNetworkMultiplayerGame() && GC.getGame().getActivePlayer() == eToPlayer)
 		{
 			// Target is the active player, just send it right now
 			pkDiploRequests->Send(eFromPlayer, eDiploType, pszMessage, eAnimationType, iExtraGameData);
@@ -245,7 +245,7 @@ void CvDiplomacyRequests::SendDealRequest(PlayerTypes eFromPlayer, PlayerTypes e
 	if (GC.getGame().getActivePlayer() == eToPlayer)
 	{
 		auto_ptr<ICvDeal1> pDeal = GC.WrapDealPointer(pkDeal);
-		gDLL->getInterfaceIFace()->SetScratchDeal(pDeal.get());
+		GC.GetEngineUserInterface()->SetScratchDeal(pDeal.get());
 		SendRequest(eFromPlayer, eToPlayer, eDiploType, pszMessage, eAnimationType, -1);
 	}
 }
@@ -258,7 +258,7 @@ void CvDiplomacyRequests::DoAIDiplomacy(PlayerTypes eTargetPlayer)
 {
 	if (eTargetPlayer != NO_PLAYER)
 	{
-		CvDLLInterfaceIFaceBase* pkIFace = gDLL->getInterfaceIFace();
+		ICvUserInterface2* pkIFace = GC.GetEngineUserInterface();
 		// WARNING: Processing depends on the state of the interface!
 		CvAssert(!CvPreGame::isNetworkMultiplayerGame());
 

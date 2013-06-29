@@ -34,6 +34,10 @@ static const GUID guidICvEngineUtility1 =
 static const GUID guidICvEngineUtility2 = 
 { 0xb4f5594d, 0xbba4, 0x4a4c, { 0x9b, 0xbd, 0xce, 0xdf, 0x4c, 0xd1, 0xf, 0x2d } };
 
+// {F95CB893-6D19-4584-A741-6F64B855C7E9}
+static const GUID guidICvEngineUtility3 = 
+{ 0xf95cb893, 0x6d19, 0x4584, { 0xa7, 0x41, 0x6f, 0x64, 0xb8, 0x55, 0xc7, 0xe9 } };
+
 
 typedef FFastVector<int, true, c_eMPoolTypeGame> CvPlotIndexVector;
 
@@ -42,7 +46,10 @@ class ICvEngineUtility1 : public ICvUnknown
 public:
 	static GUID DLLCALL GetInterfaceId() { return guidICvEngineUtility1; }
 
-	virtual CvDLLInterfaceIFaceBase* getInterfaceIFace() = 0;
+	//This method has been deprecated due to the interface not being versioned.
+	//You should use GC.GetEngineUserInterface() instead to obtain a pointer to ICvUserInterface.
+	virtual DECLSPEC_DEPRECATED CvDLLInterfaceIFaceBase* getInterfaceIFace() = 0;
+
 	virtual ICvEngineScriptSystem1* GetScriptSystem() = 0;
 	
 	virtual void reset() = 0;
@@ -50,6 +57,7 @@ public:
 
 	virtual void DoTurn() = 0;
 	virtual bool IsHost() const = 0;
+	virtual bool IsPlayerConnected(PlayerTypes playerId) = 0;
 
 	virtual Database::Connection* GetModsDatabase() = 0;
 	virtual bool IsModActivated(_In_z_ const char* szModID) = 0;
@@ -73,7 +81,7 @@ public:
 	virtual void SendFoundPantheon(PlayerTypes ePlayer, BeliefTypes eBelief) = 0;
 	virtual void SendFoundReligion(PlayerTypes ePlayer, ReligionTypes eReligion, const char* szCustomName, BeliefTypes eBelief1, BeliefTypes eBelief2, BeliefTypes eBelief3, BeliefTypes eBelief4, int iCityX, int iCityY) = 0;
 	virtual void SendEnhanceReligion(PlayerTypes ePlayer, ReligionTypes eReligion, const char* szCustomName, BeliefTypes eBelief1, BeliefTypes eBelief2, int iCityX, int iCityY) = 0;
-	virtual void SendMoveSpy(PlayerTypes ePlayer, int iSpyIndex, int iTargetPlayer, int iTargetCity) = 0;
+	virtual void SendMoveSpy(PlayerTypes ePlayer, int iSpyIndex, int iTargetPlayer, int iTargetCity, bool bAsDiplomat) = 0;
 	virtual void SendStageCoup(PlayerTypes eSpyPlayer, int iSpyIndex) = 0;
 	virtual void SendFaithPurchase(PlayerTypes ePlayer, FaithPurchaseTypes eFaithPurchaseType, int iFaithPurchaseIndex) = 0;
 	virtual void sendAutoMoves() = 0;
@@ -97,6 +105,7 @@ public:
 	virtual void sendPing(int iX, int iY) = 0;
 	virtual void sendPause(int iPauseID = -1) = 0;
 	virtual void sendChangeWar(TeamTypes iRivalTeam, bool bWar) = 0;
+	virtual void sendIgnoreWarning(TeamTypes iRivalTeam) = 0;
 	virtual void SendPledgeMinorProtection(PlayerTypes eMinor, bool bValue) = 0; //antonjs: DEPRECATED, use CvLuaGame::lDoMinorPledgeProtection instead
 	virtual void SendMinorNoUnitSpawning(PlayerTypes eMinor, bool bValue) = 0;
 	virtual void SendLiberateMinor(PlayerTypes eMinor, int iCityID) = 0;
@@ -137,6 +146,12 @@ public:
 	virtual void sendFromUIDiploEvent(PlayerTypes eOtherPlayer, FromUIDiploEventTypes eEvent, int iArg1, int iArg2) = 0;
 	virtual void sendNetDealAccepted(PlayerTypes fromPlayer, PlayerTypes toPlayer, ICvDeal1* pDeal, int iDealValueToMe, int iValueImOffering, int iValueTheyreOffering) const = 0;
 	virtual void sendNetDemandAccepted(PlayerTypes fromPlayer, PlayerTypes toPlayer, ICvDeal1* pDeal) const = 0;
+	virtual void sendTurnReminder(PlayerTypes toPlayer) = 0;
+	virtual void sendGoodyChoice(PlayerTypes ePlayerID, int iPlotX, int iPlotY, GoodyTypes eGoody, int iUnitID) = 0;
+	virtual void sendSetSwappableGreatWork(PlayerTypes ePlayer, int iWorkClass, int iWorkIndex) = 0;
+	virtual void sendSwapGreatWorks(PlayerTypes ePlayer1, int iWork1, PlayerTypes ePlayer2, int iWork2) = 0;
+	virtual void sendMoveGreatWorks(PlayerTypes ePlayer, int iCity1, int iBuildingClass1, int iWorkIndex1, 
+																											 int iCity2, int iBuildingClass2, int iWorkIndex2) = 0;
 	virtual void netDisconnect() = 0;
 	virtual void sendPlayerInitialAIProcessed() const = 0;
 	virtual void hotJoinComplete() const = 0;
@@ -285,6 +300,7 @@ public:
 	virtual	void GameplayActivePlayerChanged(PlayerTypes eNewPlayer) = 0;
 
 	virtual void PublishActivePlayer(PlayerTypes ePlayer, PlayerTypes eOldPlayer) = 0;
+	virtual void PublishNewGameTurn(int gameTurn) = 0;
 
 	virtual void UnlockAchievement(EAchievement eAchievement) = 0;
 	virtual bool IsAchievementUnlocked(EAchievement eAchievement) const = 0;
@@ -307,6 +323,7 @@ public:
 	virtual void SendGameDoTurnProcessed() const = 0;
 
 	virtual bool RecordVictoryInformation(int score) = 0;
+	virtual bool RecordLeaderboardScore(int score) = 0;
 
 	virtual bool TunerConnected() = 0;
 
@@ -330,8 +347,48 @@ public:
 class ICvEngineUtility2 : public ICvEngineUtility1
 {
 public:
+	using ICvEngineUtility1::sendPurchase;
 	static GUID DLLCALL GetInterfaceId() { return guidICvEngineUtility2; }
 	virtual void sendPurchase(int iCity, UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectTypes eProjectType, int ePurchaseYield) = 0;
+	virtual bool ReseatConnectedPlayer(PlayerTypes p) const = 0;
+};
+
+class ICvEngineUtility3 : public ICvEngineUtility2
+{
+public:
+	static GUID DLLCALL GetInterfaceId() { return guidICvEngineUtility3; }
+	virtual void SendLeagueVoteEnact(LeagueTypes eLeague, int iResolutionID, PlayerTypes eVoter, int iNumVotes, int iChoice) = 0;
+	virtual void SendLeagueVoteRepeal(LeagueTypes eLeague, int iResolutionID, PlayerTypes eVoter, int iNumVotes, int iChoice) = 0;
+	virtual void SendLeagueVoteAbstain(LeagueTypes eLeague, PlayerTypes eVoter, int iNumVotes) = 0;
+	virtual void SendLeagueProposeEnact(LeagueTypes eLeague, ResolutionTypes eResolution, PlayerTypes eProposer, int iChoice) = 0;
+	virtual void SendLeagueProposeRepeal(LeagueTypes eLeague, int iResolutionID, PlayerTypes eProposer) = 0;
+	virtual void SendLeagueEditName(LeagueTypes eLeague, PlayerTypes ePlayer, const char* szCustomName) = 0;
+
+	virtual void sendChangeIdeology() = 0;
+
+	virtual void TradeVisuals_NewRoute(int iRoute, int iPlayer, TradeConnectionType type, int nPlots, int x[], int y[]) = 0;
+	virtual void TradeVisuals_UpdateRouteDirection(int iRoute, bool bForwards) = 0;
+	virtual void TradeVisuals_DestroyRoute(int iRoute, int iPlayer) = 0;
+	virtual void TradeVisuals_ActivatePopupRoute(int iRoute) = 0;
+	virtual void TradeVisuals_DeactivatePopupRoute() = 0;
+	
+	virtual void FlushTurnReminders() = 0;
+
+	virtual void BeginSendBundle() = 0;
+	virtual void EndSendBundle() = 0;
+
+	virtual bool IsPlayerKicked(int iPlayerID) = 0;
+	virtual bool IsPlayerHotJoining(int iPlayerID) = 0;
+
+	virtual bool allAICivsProcessedThisTurn() const = 0;
+	virtual void SendAICivsProcessed() const = 0;
+
+	virtual bool HasReceivedAICivsProcessed(PlayerTypes ePlayer) const = 0;
+	virtual int	 GetNumAICivsProcessed() const = 0;
+
+	virtual void VerifyPlayerSlot(PlayerTypes ePlayer) const = 0;
+
+	virtual bool ShouldValidateGameDatabase() const = 0;
 };
 
 #endif	// ICvDLLUtility_h

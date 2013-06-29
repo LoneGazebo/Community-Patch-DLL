@@ -34,6 +34,12 @@
 	* It's the implementer's responsibility that interface instances are cleaned up properly via Destroy().
 */
 
+//////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+	Please note that the interfaces in the file should be considered FROZEN.
+	These interfaces have been made public and any mods will be depending on these not changing.
+*/
+//////////////////////////////////////////////////////////////////////////////////////////////////
 
 //------------------------------------------------------------------------------
 // GUIDs
@@ -1021,7 +1027,7 @@ public:
 	virtual bool DLLCALL IsDebugMode() const = 0;
 	virtual bool DLLCALL IsFinalInitialized() const = 0;																		
 	virtual bool DLLCALL IsGameMultiPlayer() const = 0;																			
-	virtual bool DLLCALL IsHotSeat() const = 0;																							
+	virtual bool DLLCALL IsHotSeat() const = 0;		
 	virtual bool IsMPOption(MultiplayerOptionTypes eIndex) const = 0;												
 	virtual bool DLLCALL IsNetworkMultiPlayer() const = 0;																	
 	virtual bool IsOption(GameOptionTypes eIndex) const = 0;																
@@ -1216,7 +1222,7 @@ public:
 	virtual void DLLCALL ResponseEnhanceReligion(PlayerTypes ePlayer, ReligionTypes eReligion, const char* szCustomName, BeliefTypes eBelief1, BeliefTypes eBelief2, int iCityX, int iCityY) = 0;
 	virtual void DLLCALL ResponseMayaBonusChoice(PlayerTypes ePlayer, UnitTypes eGreatPersonUnit) = 0;
 	virtual void DLLCALL ResponseFaithGreatPersonChoice(PlayerTypes ePlayer, UnitTypes eGreatPersonUnit) = 0;
-	virtual void DLLCALL ResponseMoveSpy(PlayerTypes ePlayer, int iSpyIndex, int iTargetPlayer, int iTargetCity) = 0;
+	virtual void DLLCALL ResponseMoveSpy(PlayerTypes ePlayer, int iSpyIndex, int iTargetPlayer, int iTargetCity, bool bAsDiplomat) = 0;
 	virtual void DLLCALL ResponseStageCoup(PlayerTypes eSpyPlayer, int iSpyIndex) = 0;
 	virtual void DLLCALL ResponseFaithPurchase(PlayerTypes ePlayer, FaithPurchaseTypes eFaithPurchaseType, int iFaithPurchaseIndex) = 0;
 	virtual void DLLCALL ResponseMinorCivBullyGold(PlayerTypes ePlayer, PlayerTypes eMinor, int iGold) = 0;
@@ -1865,3 +1871,7 @@ public:
 private:
 	std::auto_ptr<ICvEnumerator> m_Enumerator;
 };
+
+// Include any newer interfaces
+
+#include "CvDllInterfaces2.h"

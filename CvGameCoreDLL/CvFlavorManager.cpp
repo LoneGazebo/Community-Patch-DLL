@@ -28,7 +28,9 @@ CvFlavorRecipient::~CvFlavorRecipient()
 /// Initialize data
 void CvFlavorRecipient::Init()
 {
-	m_piLatestFlavorValues = FNEW(int[GC.getNumFlavorTypes()], c_eCiv5GameplayDLL, 0);
+	int iNumFlavors = GC.getNumFlavorTypes();
+	m_piLatestFlavorValues = FNEW(int[iNumFlavors], c_eCiv5GameplayDLL, 0);
+	memset(m_piLatestFlavorValues, 0, iNumFlavors * sizeof(int));
 }
 
 /// Deallocate memory created in initialize
@@ -365,6 +367,7 @@ void CvFlavorManager::AdjustWeightsForMap()
 
 	if (iNumPlayers > 0)
 	{
+		int iNumFlavorTypes = GC.getNumFlavorTypes();
 		// Find tiles per player
 		iTilesPerPlayer = (double)iTotalLandTiles / (double)iNumPlayers;
 
@@ -384,17 +387,25 @@ void CvFlavorManager::AdjustWeightsForMap()
 		int iGrowthIndex = GC.getInfoTypeForString("FLAVOR_GROWTH");
 
 		// Boost expansion
-		m_piPersonalityFlavor[iExpansionIndex] += iAdjust;
-		if (m_piPersonalityFlavor[iExpansionIndex] > iFlavorMaxValue)
+		CvAssert(iExpansionIndex >= 0 && iExpansionIndex < iNumFlavorTypes);
+		if (iExpansionIndex >= 0 && iExpansionIndex < iNumFlavorTypes)
 		{
-			m_piPersonalityFlavor[iExpansionIndex] = iFlavorMaxValue;
+			m_piPersonalityFlavor[iExpansionIndex] += iAdjust;
+			if(m_piPersonalityFlavor[iExpansionIndex] > iFlavorMaxValue)
+			{
+				m_piPersonalityFlavor[iExpansionIndex] = iFlavorMaxValue;
+			}
 		}
 
 		// Reduce growth
-		m_piPersonalityFlavor[iGrowthIndex] -= iAdjust;
-		if (m_piPersonalityFlavor[iGrowthIndex] < iFlavorMinValue)
+		CvAssert(iGrowthIndex >= 0 && iGrowthIndex < iNumFlavorTypes);
+		if (iGrowthIndex >= 0 && iGrowthIndex < iNumFlavorTypes)
 		{
-			m_piPersonalityFlavor[iGrowthIndex] = iFlavorMinValue;
+			m_piPersonalityFlavor[iGrowthIndex] -= iAdjust;
+			if(m_piPersonalityFlavor[iGrowthIndex] < iFlavorMinValue)
+			{
+				m_piPersonalityFlavor[iGrowthIndex] = iFlavorMinValue;
+			}
 		}
 
 		// Save these off as our core personality and broadcast updates
@@ -405,6 +416,7 @@ void CvFlavorManager::AdjustWeightsForMap()
 /// Retrieve the current value of one flavor
 int CvFlavorManager::GetIndividualFlavor (FlavorTypes eType)
 {
+	CvAssert((int)eType >= 0 && (int)eType < GC.getNumFlavorTypes());
 	return m_piActiveFlavor[eType];
 }
 
@@ -417,6 +429,7 @@ int *CvFlavorManager::GetAllFlavors()
 /// Retrieve the value of one Personality flavor
 int CvFlavorManager::GetPersonalityIndividualFlavor (FlavorTypes eType)
 {
+	CvAssert((int)eType >= 0 && (int)eType < GC.getNumFlavorTypes());
 	return m_piPersonalityFlavor[eType];
 }
 

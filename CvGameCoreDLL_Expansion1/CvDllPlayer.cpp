@@ -34,8 +34,9 @@ CvDllPlayer::~CvDllPlayer()
 //------------------------------------------------------------------------------
 void* CvDllPlayer::QueryInterface(GUID guidInterface)
 {
-	if(guidInterface == ICvUnknown::GetInterfaceId() ||
-	        guidInterface == ICvPlayer1::GetInterfaceId())
+	if(	guidInterface == ICvUnknown::GetInterfaceId() ||
+		guidInterface == ICvPlayer1::GetInterfaceId() ||
+		guidInterface == ICvPlayer2::GetInterfaceId())
 	{
 		IncrementReference();
 		return this;
@@ -203,6 +204,11 @@ void CvDllPlayer::SetTurnActive(bool bNewValue, bool bDoTurn)
 	m_pPlayer->setTurnActive(bNewValue, bDoTurn);
 }
 //------------------------------------------------------------------------------
+bool CvDllPlayer::IsSimultaneousTurns() const
+{
+	return m_pPlayer->isSimultaneousTurns();
+}
+//------------------------------------------------------------------------------
 PlayerTypes CvDllPlayer::GetID() const
 {
 	return m_pPlayer->GetID();
@@ -246,6 +252,11 @@ PlayerColorTypes CvDllPlayer::GetPlayerColor() const
 bool CvDllPlayer::IsOption(PlayerOptionTypes eIndex) const
 {
 	return m_pPlayer->isOption(eIndex);
+}
+//------------------------------------------------------------------------------
+bool CvDllPlayer::IsOptionKey(PlayerOptionTypes eOptionID) const
+{
+	return m_pPlayer->isOption(eOptionID);		// Firaxis DLLs have been updated to handle an ID, rather than an index
 }
 //------------------------------------------------------------------------------
 ICvCity1* CvDllPlayer::FirstCity(int* pIterIdx, bool bRev)
@@ -432,6 +443,12 @@ bool CvDllPlayer::GetCurrentResearchTech(TechTypes* pkTech, int *pkTurnsLeft) co
 		return true;
 	}
 	return false;
+}
+
+//------------------------------------------------------------------------------
+bool CvDllPlayer::HasTurnTimerExpired()
+{
+	return m_pPlayer->hasTurnTimerExpired();
 }
 
 //------------------------------------------------------------------------------

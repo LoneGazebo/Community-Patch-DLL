@@ -42,6 +42,8 @@ void CvBuilderTaskingAI::Init (CvPlayer* pPlayer)
 
 	m_aiNonTerritoryPlots.clear();
 	m_bLogging = GC.getLogging() && GC.getAILogging() && GC.GetBuilderAILogging();
+	m_iNumCities = -1;
+	m_pTargetPlot = NULL;
 }
 
 /// Uninit
@@ -50,6 +52,8 @@ void CvBuilderTaskingAI::Uninit (void)
 	m_eRepairBuild = NO_BUILD;
 	m_pPlayer = NULL;
 	m_bLogging = false;
+	m_iNumCities = -1;
+	m_pTargetPlot = NULL;
 }
 
 /// Serialization read
@@ -71,6 +75,8 @@ void CvBuilderTaskingAI::Read (FDataStream& kStream)
 	{
 		kStream >> m_aiNonTerritoryPlots[ui];
 	}
+	m_iNumCities = -1; //Force everyone to do an CvBuilderTaskingAI::Update() after loading
+	m_pTargetPlot = NULL;		//Force everyone to recalculate current yields after loading.
 }
 
 /// Serialization write
@@ -740,7 +746,7 @@ void CvBuilderTaskingAI::AddImprovingResourcesDirectives (CvUnit* pUnit, CvPlot*
 	}
 
 	CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
-	if (pkResource->getResourceUsage() == RESOURCEUSAGE_BONUS)
+	if (pkResource == NULL || pkResource->getResourceUsage() == RESOURCEUSAGE_BONUS)
 	{
 		// evaluate bonus resources as normal improvements
 		return;

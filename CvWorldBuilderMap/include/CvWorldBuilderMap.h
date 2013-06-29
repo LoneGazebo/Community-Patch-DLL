@@ -28,7 +28,7 @@ class CvWorldBuilderMapTypeDesc;
 class CvWorldBuilderMap : FUncopyable
 {
 public:
-	static const uint FileVersion = 11;
+	static const uint FileVersion = 12;
 	static const uint MaxMapSize = 32768;
 	static const uint MaxPlayers = 32;
 	static const uint MaxCityStates = 64;
@@ -170,10 +170,10 @@ public:
 		UnitName() { m_szText[0] = 0; }
 	};
 
-	struct Unit
+	struct UnitV2
 	{
 		static const byte InvalidUnitType = byte(-1);
-		typedef CvWorldBuilderMapElementAllocator<Unit, 16> Map;
+		typedef CvWorldBuilderMapElementAllocator<UnitV2, 16> Map;
 		typedef Map::Handle Handle;
 
 		static const uint MaxPromotionTypes = 256;
@@ -181,8 +181,7 @@ public:
 
 		static const uint MaxHealth = 100000;
 
-		Unit();
-		explicit Unit(const OldUnit &kOldUnit); // For conversion
+		UnitV2();
 
 		enum DirectionTypes
 		{
@@ -207,6 +206,52 @@ public:
 		uint m_uiExperience;
 		uint m_uiHealth;
 		byte m_byUnitType;
+		byte m_byOwner;
+		byte m_byDirection;
+		byte m_byFlags;
+
+		PromotionBitset m_kPromotions;
+	};
+
+	struct Unit
+	{
+		static const uint InvalidUnitType = uint(-1);
+		typedef CvWorldBuilderMapElementAllocator<Unit, 16> Map;
+		typedef Map::Handle Handle;
+
+		static const uint MaxPromotionTypes = 512;
+		typedef std::bitset<MaxPromotionTypes> PromotionBitset;
+
+		static const uint MaxHealth = 100000;
+
+		Unit();
+		explicit Unit(const OldUnit &kOldUnit); // For conversion
+		explicit Unit(const UnitV2 &kOldUnit); // For conversion
+
+		enum DirectionTypes
+		{
+			DIRECTION_RANDOM,
+			DIRECTION_NORTHEAST,
+			DIRECTION_EAST,
+			DIRECTION_SOUTHEAST,
+			DIRECTION_SOUTHWEST,
+			DIRECTION_WEST,
+			DIRECTION_NORTHWEST,
+		};
+
+		enum Flags
+		{
+			UNIT_FORTIFIED  = 0x01,
+			UNIT_EMBARKED   = 0x02,
+			UNIT_GARRISONED = 0x04
+		};
+
+		typedef uint UnitType;
+		Handle m_hStackedUnit;
+		UnitName::Handle m_hCustomName;
+		uint m_uiExperience;
+		uint m_uiHealth;
+		UnitType m_byUnitType;
 		byte m_byOwner;
 		byte m_byDirection;
 		byte m_byFlags;
@@ -246,9 +291,9 @@ public:
 		BuildingBitset m_kBuildings;
 	};
 
-	struct City
+	struct CityV2
 	{
-		typedef CvWorldBuilderMapElementAllocator<City, 8> Map;
+		typedef CvWorldBuilderMapElementAllocator<CityV2, 8> Map;
 		typedef Map::Handle Handle;
 
 		static const uint MaxBuildingTypes = 256;
@@ -265,8 +310,38 @@ public:
 			CITY_OCCUPIED       = 0x04
 		};
 
+		CityV2();
+
+		char m_szName[MaxNameLength];
+		byte m_byOwner;
+		byte m_byFlags;
+		word m_wPopulation;
+		uint m_uiHealth;
+		BuildingBitset m_kBuildings;
+	};
+
+	struct City
+	{
+		typedef CvWorldBuilderMapElementAllocator<City, 8> Map;
+		typedef Map::Handle Handle;
+
+		static const uint MaxBuildingTypes = 512;
+		typedef std::bitset<MaxBuildingTypes> BuildingBitset;
+
+		static const uint MaxNameLength = 64;
+
+		static const uint MaxHealth = 100000;
+
+		enum Flags
+		{
+			CITY_LOCALIZED_NAME = 0x01,
+			CITY_PUPPET_STATE   = 0x02,
+			CITY_OCCUPIED       = 0x04
+		};
+
 		City();
 		explicit City(const OldCity &kOldCity); // For conversion
+		explicit City(const CityV2 &kOldCity); // For conversion
 
 		char m_szName[MaxNameLength];
 		byte m_byOwner;
@@ -672,7 +747,7 @@ private:
 	bool Load8(FIFile &kFile, const CvWorldBuilderMapTypeDesc &kTypeDesc, bool bScenario);
 	bool Load9(FIFile &kFile, const CvWorldBuilderMapTypeDesc &kTypeDesc, bool bScenario);
 	bool Load10(FIFile &kFile, const CvWorldBuilderMapTypeDesc &kTypeDesc, bool bScenario);
-	bool Load11(FIFile &kFile, const CvWorldBuilderMapTypeDesc &kTypeDesc, bool bScenario);
+	bool Load11Plus(FIFile &kFile, const CvWorldBuilderMapTypeDesc &kTypeDesc, bool bScenario, byte byFileVersion);
 
 
 	struct MapDescription

@@ -204,7 +204,7 @@ bool CvDllDatabaseUtility::PerformDatabasePostProcessing()
 
 	//Build insertion statement
 	Database::Results kInsert;
-	db->Execute(kInsert, "INSERT INTO Defines(Name, Value) VALUES(?, ?)");
+	db->Execute(kInsert, "INSERT OR REPLACE INTO Defines(Name, Value) VALUES(?, ?)");
 
 	db->SelectAll(kPostDefines, "PostDefines");
 	while(kPostDefines.Step())
@@ -395,6 +395,13 @@ bool CvDllDatabaseUtility::ValidateGameDatabase()
 {
 	//This function contains a suite of useful game database unit tests that will
 	//ensure the database conforms to certain unique rules of Civ5.
+	if(!gDLL->ShouldValidateGameDatabase())
+	{
+		LogMsg("*** SKIPPING Game Database Validation. ****");
+		LogMsg("You can enable it by setting 'ValidateGameDatabase = 1' in config.ini");
+		return true;
+	}
+	
 	cvStopWatch kPerfTest("Validating Game Database", "xml-perf.log");
 	bool bError = false;
 
@@ -522,21 +529,18 @@ bool CvDllDatabaseUtility::ValidateGameDatabase()
 		}
 	}
 
-	LogMsg("Validating UnitGameplay");
+	LogMsg("Validating UnitGameplay2DScripts");
 	{
-		if(DB.Count("UnitGameplay2DScripts") != DB.Count("Units"))
+		cvStopWatch watch("Validating UnitGameplay2DScripts");
+		Database::Results kResults;
+		if(DB.Execute(kResults, "Select Type from Units where not exists (select 1 from UnitGameplay2DScripts where UnitType = Units.Type limit 1)"))
 		{
-			LogMsg("Number of selection sounds doesn't match number of units.");
-			bError = true;
-		}
-	}
-
-	LogMsg("Validating Notifications");
-	{
-		if(DB.Count("Notifications") != NUM_NOTIFICATION_TYPES)
-		{
-			LogMsg("Number of notification xml entries does not match enum size");
-			bError = true;
+			while(kResults.Step())
+			{
+				const char* szUnitType = kResults.GetText(0);
+				LogMsg("Missing Entry for %s", szUnitType);
+				bError = true;
+			}
 		}
 	}
 

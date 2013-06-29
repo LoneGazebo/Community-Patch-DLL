@@ -32,6 +32,7 @@ CvMinorCivQuest::CvMinorCivQuest()
 	m_iStartTurn = NO_TURN; /* -1 */
 	m_iData1 = NO_QUEST_DATA; /* -1 */
 	m_iData2 = NO_QUEST_DATA; /* -1 */
+	m_bHandled = false;
 }
 
 // Constructor
@@ -43,6 +44,7 @@ CvMinorCivQuest::CvMinorCivQuest(PlayerTypes eMinor, PlayerTypes eAssignedPlayer
 	m_iStartTurn = NO_TURN; /* -1 */
 	m_iData1 = NO_QUEST_DATA; /* -1 */
 	m_iData2 = NO_QUEST_DATA; /* -1 */
+	m_bHandled = false;
 }
 
 CvMinorCivQuest::~CvMinorCivQuest()
@@ -766,6 +768,17 @@ bool CvMinorCivQuest::IsObsolete()
 	return (IsRevoked() || IsExpired());
 }
 
+// The end of this quest has been handled, no effects should happen, and it is marked to be deleted
+bool CvMinorCivQuest::IsHandled()
+{
+	return m_bHandled;
+}
+
+void CvMinorCivQuest::SetHandled(bool bValue)
+{
+	m_bHandled = bValue;
+}
+
 // Initializes data to track quest progress and sends notification to player.
 // NOTE: Some types initialize data using randomness here. So two otherwise equivalent quests may be initialized with different data.
 // NOTE: Should only be called once.
@@ -1156,12 +1169,15 @@ void CvMinorCivQuest::DoStartQuestUsingExistingData(CvMinorCivQuest* pExistingQu
 
 // Awards influence and sends notification to player.
 // Should only be called once.
-void CvMinorCivQuest::DoFinishQuest()
+bool CvMinorCivQuest::DoFinishQuest()
 {
-	if(!IsComplete())
-		return;
+	if (!IsComplete())
+		return false;
 
-	//antonjs: consider: add another bool here to prevent same quest from being "finished" multiple times, in case client did not delete this after it was finished
+	if (IsHandled())
+		return false;
+
+	SetHandled(true); // We are handling the end of the quest, and this should only happen once
 
 	CvPlayer* pMinor = &GET_PLAYER(m_eMinor);
 
@@ -1374,7 +1390,7 @@ void CvMinorCivQuest::DoFinishQuest()
 	// Update the UI with the changed data, in case it is open
 	if(m_eAssignedPlayer == GC.getGame().getActivePlayer())
 	{
-		gDLL->getInterfaceIFace()->setDirty(GameData_DIRTY_BIT, true);
+		GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
 	}
 
 	strMessage << pMinor->getNameKey();
@@ -1398,11 +1414,18 @@ void CvMinorCivQuest::DoFinishQuest()
 	}
 
 	pMinor->GetMinorCivAI()->AddQuestNotification(sMessage, sSummary, m_eAssignedPlayer);
+
+	return true;
 }
 
 // Do any cleanup and notifications for when a quest is cancelled (ex. becomes obsolete)
-void CvMinorCivQuest::DoCancelQuest()
+bool CvMinorCivQuest::DoCancelQuest()
 {
+	if (IsHandled())
+		return false;
+
+	SetHandled(true); // We are handling the end of the quest, and this should only happen once
+
 	CvPlayer* pMinor = &GET_PLAYER(m_eMinor);
 
 	// Why is the quest cancelled?  Will affect which notification message we send
@@ -1432,7 +1455,8 @@ void CvMinorCivQuest::DoCancelQuest()
 			BuildingTypes eWonder = (BuildingTypes) GetPrimaryData();
 			CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eWonder);
 			CvAssertMsg(pkBuildingInfo, "Building info not expected to be FALSE! Please send Anton your save file and version.");
-			if(!pkBuildingInfo) return;
+			if(!pkBuildingInfo) 
+				return false;
 
 			const char* strBuildingName = pkBuildingInfo->GetDescriptionKey();
 
@@ -1500,6 +1524,8 @@ void CvMinorCivQuest::DoCancelQuest()
 
 		pMinor->GetMinorCivAI()->AddQuestNotification(sMessage, sSummary, m_eAssignedPlayer);
 	}
+
+	return true;
 }
 
 /// Serialization read
@@ -1512,6 +1538,14 @@ FDataStream& operator>>(FDataStream& loadFrom, CvMinorCivQuest& writeTo)
 	loadFrom >> writeTo.m_iStartTurn;
 	loadFrom >> writeTo.m_iData1;
 	loadFrom >> writeTo.m_iData2;
+	if (uiVersion >= 2)
+	{
+		loadFrom >> writeTo.m_bHandled;
+	}
+	else
+	{
+		writeTo.m_bHandled = false;
+	}
 
 	return loadFrom;
 }
@@ -1519,13 +1553,14 @@ FDataStream& operator>>(FDataStream& loadFrom, CvMinorCivQuest& writeTo)
 /// Serialization write
 FDataStream& operator<<(FDataStream& saveTo, const CvMinorCivQuest& readFrom)
 {
-	uint uiVersion = 1;
+	uint uiVersion = 2;
 	saveTo << uiVersion;
 
 	saveTo << readFrom.m_eType;
 	saveTo << readFrom.m_iStartTurn;
 	saveTo << readFrom.m_iData1;
 	saveTo << readFrom.m_iData2;
+	saveTo << readFrom.m_bHandled;
 
 	return saveTo;
 }
@@ -2221,7 +2256,8 @@ void CvMinorCivAI::DoFirstContactWithMajor(TeamTypes eTeam, bool bSuppressMessag
 					if(!GC.getGame().isNetworkMultiPlayer())	// KWG: Should this be !GC.getGame().isMPOption(MPOPTION_SIMULTANEOUS_TURNS)
 					{
 						CvPopupInfo kPopupInfo(BUTTONPOPUP_CITY_STATE_GREETING, GetPlayer()->GetID(), iGoldGift, iFaithGift, 0, bFirstMajorCiv);
-						gDLL->getInterfaceIFace()->AddPopup(kPopupInfo);
+						GC.GetEngineUserInterface()->AddPopup(kPopupInfo);
+						CancelActivePlayerEndTurn();
 					}
 
 					// update the mouseover text for the city-state's city banners
@@ -2232,7 +2268,7 @@ void CvMinorCivAI::DoFirstContactWithMajor(TeamTypes eTeam, bool bSuppressMessag
 						if(pLoopCity->plot()->isRevealed(eTeam))
 						{
 							auto_ptr<ICvCity1> pDllLoopCity = GC.WrapCityPointer(pLoopCity);
-							gDLL->getInterfaceIFace()->SetSpecificCityInfoDirty(pDllLoopCity.get(), CITY_UPDATE_TYPE_BANNER);
+							GC.GetEngineUserInterface()->SetSpecificCityInfoDirty(pDllLoopCity.get(), CITY_UPDATE_TYPE_BANNER);
 						}
 					}
 				}
@@ -3056,6 +3092,7 @@ void CvMinorCivAI::DoTurnQuests()
 	// Check Current Quests
 	// ********************
 	DoTestActiveQuests(/*bTestComplete*/ true, /*bTestObsolete*/ true);
+	DoQuestsCleanup();
 
 	// ********************
 	// Give Global Quests
@@ -3361,8 +3398,6 @@ void CvMinorCivAI::DoTestActiveQuests(bool bTestComplete, bool bTestObsolete)
 	
 	if (bTestObsolete)
 		DoObsoleteQuests();
-	
-	DoQuestsCleanup(bTestComplete, bTestObsolete);
 }
 
 // Check all active quests for ePlayer, processing and deleting ones that are complete or obsolete.
@@ -3374,8 +3409,6 @@ void CvMinorCivAI::DoTestActiveQuestsForPlayer(PlayerTypes ePlayer, bool bTestCo
 	
 	if (bTestObsolete)
 		DoObsoleteQuestsForPlayer(ePlayer, eQuest);
-
-	DoQuestsCleanupForPlayer(ePlayer, bTestComplete, bTestObsolete, eQuest);
 }
 
 // Check for quests that have been completed, process them beginning with the player with highest resulting influence.
@@ -3439,11 +3472,13 @@ void CvMinorCivAI::DoCompletedQuestsForPlayer(PlayerTypes ePlayer, MinorCivQuest
 			if (itr_quest->IsComplete())
 			{
 				int iOldFriendshipTimes100 = GetEffectiveFriendshipWithMajorTimes100(ePlayer);
-				itr_quest->DoFinishQuest();
+				bool bCompleted = itr_quest->DoFinishQuest();
 				int iNewFriendshipTimes100 = GetEffectiveFriendshipWithMajorTimes100(ePlayer);
-
-				MinorCivQuestTypes eType = itr_quest->GetType();
-				GET_PLAYER(ePlayer).GetDiplomacyAI()->LogMinorCivQuestFinished(GetPlayer()->GetID(), iOldFriendshipTimes100, iNewFriendshipTimes100, eType);
+				
+				if (bCompleted)
+				{
+					GET_PLAYER(ePlayer).GetDiplomacyAI()->LogMinorCivQuestFinished(GetPlayer()->GetID(), iOldFriendshipTimes100, iNewFriendshipTimes100, itr_quest->GetType());
+				}
 			}
 		}
 	}
@@ -3480,15 +3515,17 @@ void CvMinorCivAI::DoObsoleteQuestsForPlayer(PlayerTypes ePlayer, MinorCivQuestT
 		{
 			if(itr_quest->IsObsolete())
 			{
-				if(itr_quest->IsRevoked())
-					bQuestRevokedFromBullying = true;
-
 				int iOldFriendshipTimes100 = GetEffectiveFriendshipWithMajorTimes100(ePlayer);
-				itr_quest->DoCancelQuest();
+				bool bCancelled = itr_quest->DoCancelQuest();
 				int iNewFriendshipTimes100 = GetEffectiveFriendshipWithMajorTimes100(ePlayer);
+				
+				if (bCancelled)
+				{
+					if(itr_quest->IsRevoked())
+						bQuestRevokedFromBullying = true;
 
-				MinorCivQuestTypes eType = itr_quest->GetType();
-				GET_PLAYER(ePlayer).GetDiplomacyAI()->LogMinorCivQuestCancelled(GetPlayer()->GetID(), iOldFriendshipTimes100, iNewFriendshipTimes100, eType);
+					GET_PLAYER(ePlayer).GetDiplomacyAI()->LogMinorCivQuestCancelled(GetPlayer()->GetID(), iOldFriendshipTimes100, iNewFriendshipTimes100, itr_quest->GetType());
+				}
 			}
 		}
 	}
@@ -3504,26 +3541,21 @@ void CvMinorCivAI::DoObsoleteQuestsForPlayer(PlayerTypes ePlayer, MinorCivQuestT
 	}
 }
 
-void CvMinorCivAI::DoQuestsCleanup(bool bCompletedQuests, bool bObsoleteQuests)
+void CvMinorCivAI::DoQuestsCleanup()
 {
 	for (int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
 	{
 		PlayerTypes eMajorLoop = (PlayerTypes) iMajorLoop;
-		DoQuestsCleanupForPlayer(eMajorLoop, bCompletedQuests, bObsoleteQuests);
+		DoQuestsCleanupForPlayer(eMajorLoop);
 	}
 }
 
 // Deletes active completed and/or obsolete quests from memory, and resets the countdown timer if needed.
-// If no quest type is specified, will check all quest types.
-void CvMinorCivAI::DoQuestsCleanupForPlayer(PlayerTypes ePlayer, bool bCompletedQuests, bool bObsoleteQuests, MinorCivQuestTypes eSpecifyQuestType)
+void CvMinorCivAI::DoQuestsCleanupForPlayer(PlayerTypes ePlayer)
 {
 	CvAssertMsg(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "ePlayer is expected to be within maximum bounds (invalid Index)");
 	if(ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
-
-	bool bCheckAllQuests = true;
-	if (eSpecifyQuestType > NO_MINOR_CIV_QUEST_TYPE && eSpecifyQuestType < NUM_MINOR_CIV_QUEST_TYPES)
-		bCheckAllQuests = false;
 
 	bool bPersonalQuestDone = false;
 	bool bGlobalQuestDone = false;
@@ -3531,19 +3563,16 @@ void CvMinorCivAI::DoQuestsCleanupForPlayer(PlayerTypes ePlayer, bool bCompleted
 	QuestListForPlayer::iterator itr_quest;
 	for (itr_quest = m_QuestsGiven[ePlayer].begin(); itr_quest != m_QuestsGiven[ePlayer].end(); itr_quest++)
 	{
-		if (bCheckAllQuests || itr_quest->GetType() == eSpecifyQuestType)
+		if (itr_quest->IsHandled())
 		{
-			if ( (bCompletedQuests && itr_quest->IsComplete()) || (bObsoleteQuests && itr_quest->IsObsolete()) )
-			{
-				MinorCivQuestTypes eQuestType = itr_quest->GetType();
-				if (IsPersonalQuest(eQuestType))
-					bPersonalQuestDone = true;
-				if (IsGlobalQuest(eQuestType))
-					bGlobalQuestDone = true;
+			MinorCivQuestTypes eQuestType = itr_quest->GetType();
+			if (IsPersonalQuest(eQuestType))
+				bPersonalQuestDone = true;
+			if (IsGlobalQuest(eQuestType))
+				bGlobalQuestDone = true;
 
-				m_QuestsGiven[ePlayer].erase(itr_quest);
-				itr_quest--;
-			}
+			m_QuestsGiven[ePlayer].erase(itr_quest);
+			itr_quest--;
 		}
 	}
 
@@ -4852,7 +4881,8 @@ ResourceTypes CvMinorCivAI::GetNearbyResourceForQuest(PlayerTypes ePlayer)
 			eResource = (ResourceTypes) iResourceLoop;
 
 			// Must not be a plain ol' bonus resource
-			if(GC.getResourceInfo(eResource)->getResourceUsage() == RESOURCEUSAGE_BONUS)
+			const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
+			if(pkResourceInfo == NULL || pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_BONUS)
 			{
 				continue;
 			}
@@ -5552,8 +5582,8 @@ void CvMinorCivAI::SetFriendshipWithMajorTimes100(PlayerTypes ePlayer, int iNum,
 	// Update City banners and game info if this is the active player
 	if(ePlayer == GC.getGame().getActivePlayer())
 	{
-		gDLL->getInterfaceIFace()->setDirty(GameData_DIRTY_BIT, true);
-		gDLL->getInterfaceIFace()->setDirty(CityInfo_DIRTY_BIT, true);
+		GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
+		GC.GetEngineUserInterface()->setDirty(CityInfo_DIRTY_BIT, true);
 	}
 }
 
@@ -5710,7 +5740,11 @@ void CvMinorCivAI::DoUpdateAlliesResourceBonus(PlayerTypes eNewAlly, PlayerTypes
 	{
 		eResource = (ResourceTypes) iResourceLoop;
 
-		eUsage = GC.getResourceInfo(eResource)->getResourceUsage();
+		const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
+		if (pkResourceInfo == NULL)
+			continue;
+
+		eUsage = pkResourceInfo->getResourceUsage();
 
 		if(eUsage == RESOURCEUSAGE_STRATEGIC || eUsage == RESOURCEUSAGE_LUXURY)
 		{
@@ -6147,7 +6181,7 @@ void CvMinorCivAI::DoSetBonus(PlayerTypes ePlayer, bool bAdd, bool bFriends, boo
 
 	if(ePlayer == GC.getGame().getActivePlayer())
 	{
-		gDLL->getInterfaceIFace()->setDirty(GameData_DIRTY_BIT, true);
+		GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
 	}
 
 	CvString strDetailedInfo = GetStatusChangeDetails(ePlayer, bAdd, bFriends, bAllies);
@@ -6531,7 +6565,7 @@ void CvMinorCivAI::DoChangeProtectionFromMajor(PlayerTypes eMajor, bool bProtect
 	// In case we had a Pledge to Protect quest active, complete it now
 	DoTestActiveQuestsForPlayer(eMajor, /*bTestComplete*/ true, /*bTestObsolete*/ false, MINOR_CIV_QUEST_PLEDGE_TO_PROTECT);
 
-	gDLL->getInterfaceIFace()->setDirty(GameData_DIRTY_BIT, true);
+	GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
 }
 
 bool CvMinorCivAI::CanMajorProtect(PlayerTypes eMajor)
@@ -7074,7 +7108,8 @@ int CvMinorCivAI::GetHappinessPerLuxuryFriendshipBonus(PlayerTypes ePlayer, EraT
 
 		if(GET_PLAYER(ePlayer).getNumResourceAvailable(eResource) > 0)
 		{
-			if(GC.getResourceInfo(eResource)->getResourceUsage() == RESOURCEUSAGE_LUXURY)
+			const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
+			if(pkResourceInfo != NULL && pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_LUXURY)
 			{
 				iNumLuxuries++;
 			}
@@ -7113,7 +7148,8 @@ int CvMinorCivAI::GetHappinessPerLuxuryAlliesBonus(PlayerTypes ePlayer, EraTypes
 
 		if(GET_PLAYER(ePlayer).getNumResourceAvailable(eResource) > 0)
 		{
-			if(GC.getResourceInfo(eResource)->getResourceUsage() == RESOURCEUSAGE_LUXURY)
+			const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
+			if(pkResourceInfo != NULL && pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_LUXURY)
 			{
 				iNumLuxuries++;
 			}
@@ -7883,7 +7919,7 @@ void CvMinorCivAI::DoBuyout(PlayerTypes eMajor)
 	CvPlayerAI& kMajorPlayer = GET_PLAYER(eMajor);
 	kMajorPlayer.GetPlayerAchievements().BoughtCityState(iNumUnits);
 
-	gDLL->getInterfaceIFace()->setDirty(GameData_DIRTY_BIT, true);
+	GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
 }
 
 
@@ -8251,7 +8287,7 @@ void CvMinorCivAI::DoMajorBullyGold(PlayerTypes eBully, int iGold)
 	// Logging
 	GET_PLAYER(eBully).GetDiplomacyAI()->LogMinorCivBullyGold(GetPlayer()->GetID(), iOldFriendshipTimes100, GetEffectiveFriendshipWithMajorTimes100(eBully), iGold, bSuccess, iBullyMetric);
 
-	gDLL->getInterfaceIFace()->setDirty(GameData_DIRTY_BIT, true);
+	GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
 }
 
 void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
@@ -8300,7 +8336,7 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 	// Logging
 	GET_PLAYER(eBully).GetDiplomacyAI()->LogMinorCivBullyUnit(GetPlayer()->GetID(), iOldFriendshipTimes100, GetEffectiveFriendshipWithMajorTimes100(eBully), eUnitType, bSuccess, iBullyMetric);
 
-	gDLL->getInterfaceIFace()->setDirty(GameData_DIRTY_BIT, true);
+	GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
 }
 
 // We were just bullied, how do we react?
@@ -8639,7 +8675,7 @@ void CvMinorCivAI::DoGoldGiftFromMajor(PlayerTypes ePlayer, int iGold)
 		DoTestActiveQuestsForPlayer(ePlayer, /*bTestComplete*/ true, /*bTestObsolete*/ false, MINOR_CIV_QUEST_GIVE_GOLD);
 	}
 
-	gDLL->getInterfaceIFace()->setDirty(GameData_DIRTY_BIT, true);
+	GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
 }
 
 /// How many friendship points gained from a gift of Gold
@@ -8873,7 +8909,7 @@ void CvMinorCivAI::DoNowAtWarWithTeam(TeamTypes eTeam)
 		}
 	}
 
-	gDLL->getInterfaceIFace()->setDirty(GameData_DIRTY_BIT, true);
+	GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
 }
 
 /// Now at peace with eTeam
@@ -8897,7 +8933,7 @@ void CvMinorCivAI::DoNowPeaceWithTeam(TeamTypes eTeam)
 		}
 	}
 
-	gDLL->getInterfaceIFace()->setDirty(GameData_DIRTY_BIT, true);
+	GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
 }
 
 /// Will this AI allow peace with ePlayer?
@@ -9108,7 +9144,7 @@ void CvMinorCivAI::DoTeamDeclaredWarOnMe(TeamTypes eEnemyTeam)
 		}
 	}
 
-	gDLL->getInterfaceIFace()->setDirty(GameData_DIRTY_BIT, true);
+	GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
 }
 
 /// Permanent War with eTeam?
@@ -9187,8 +9223,9 @@ int CvMinorCivAI::GetNumResourcesMajorLacks(PlayerTypes eMajor)
 	{
 		eResource = (ResourceTypes) iResourceLoop;
 
+		const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
 		// Must not be a Bonus resource
-		if(GC.getResourceInfo(eResource)->getResourceUsage() == RESOURCEUSAGE_BONUS)
+		if(pkResourceInfo == NULL || pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_BONUS)
 			continue;
 
 		// We must have it
@@ -9510,7 +9547,11 @@ pair<CvString, CvString> CvMinorCivAI::GetStatusChangeNotificationStrings(Player
 
 				if(iResourceQuantity > 0)
 				{
-					eUsage = GC.getResourceInfo(eResource)->getResourceUsage();
+					const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
+					if (pkResourceInfo == NULL)
+						continue;
+
+					eUsage = pkResourceInfo->getResourceUsage();
 
 					if(eUsage == RESOURCEUSAGE_STRATEGIC || eUsage == RESOURCEUSAGE_LUXURY)
 					{

@@ -447,7 +447,9 @@ void CvMinorCivAI::DoFirstContactWithMajor(TeamTypes eTeam)
 					if (!GC.getGame().isNetworkMultiPlayer())	// KWG: Should this be !GC.getGame().isMPOption(MPOPTION_SIMULTANEOUS_TURNS)
 					{
 						CvPopupInfo kPopupInfo(BUTTONPOPUP_CITY_STATE_GREETING, GetPlayer()->GetID(), iGoldGift, -1, 0, bFirstMajorCiv);
-						gDLL->getInterfaceIFace()->AddPopup(kPopupInfo);
+						GC.GetEngineUserInterface()->AddPopup(kPopupInfo);
+						// We are adding a popup that the player must make a choice in, make sure they are not in the end-turn phase.
+						CancelActivePlayerEndTurn();
 					}
 
 					// update the mouseover text for the city-state's city banners
@@ -458,7 +460,7 @@ void CvMinorCivAI::DoFirstContactWithMajor(TeamTypes eTeam)
 						if (pLoopCity->plot()->isRevealed(eTeam))
 						{
 							auto_ptr<ICvCity1> pDllLoopCity = GC.WrapCityPointer(pLoopCity);
-							gDLL->getInterfaceIFace()->SetSpecificCityInfoDirty(pDllLoopCity.get(), CITY_UPDATE_TYPE_BANNER);
+							GC.GetEngineUserInterface()->SetSpecificCityInfoDirty(pDllLoopCity.get(), CITY_UPDATE_TYPE_BANNER);
 						}
 					}
 				}
@@ -2160,8 +2162,9 @@ ResourceTypes CvMinorCivAI::GetNearbyResourceForQuest(PlayerTypes ePlayer)
 		{
 			eResource = (ResourceTypes) iResourceLoop;
 
+			const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
 			// Must not be a plain ol' bonus resource
-			if (GC.getResourceInfo(eResource)->getResourceUsage() == RESOURCEUSAGE_BONUS)
+			if (pkResourceInfo == NULL || GC.getResourceInfo(eResource)->getResourceUsage() == RESOURCEUSAGE_BONUS)
 			{
 				continue;
 			}
@@ -2768,7 +2771,7 @@ void CvMinorCivAI::SetFriendshipWithMajorTimes100(PlayerTypes ePlayer, int iNum)
 	// Update City banners if this is the active player
 	if (ePlayer == GC.getGame().getActivePlayer())
 	{
-		gDLL->getInterfaceIFace()->setDirty(CityInfo_DIRTY_BIT, true);
+		GC.GetEngineUserInterface()->setDirty(CityInfo_DIRTY_BIT, true);
 	}
 }
 
@@ -2854,7 +2857,11 @@ void CvMinorCivAI::DoUpdateAlliesResourceBonus(PlayerTypes eNewAlly, PlayerTypes
 	{
 		eResource = (ResourceTypes) iResourceLoop;
 
-		eUsage = GC.getResourceInfo(eResource)->getResourceUsage();
+		const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
+		if (pkResourceInfo == NULL)
+			continue;
+
+		eUsage = pkResourceInfo->getResourceUsage();
 
 		if (eUsage == RESOURCEUSAGE_STRATEGIC || eUsage == RESOURCEUSAGE_LUXURY)
 		{
@@ -3559,12 +3566,16 @@ void CvMinorCivAI::DoSetBonus(PlayerTypes ePlayer, bool bAdd, bool bFriends, boo
 
 				if (iResourceQuantity > 0)
 				{
-					eUsage = GC.getResourceInfo(eResource)->getResourceUsage();
-
-					if (eUsage == RESOURCEUSAGE_STRATEGIC || eUsage == RESOURCEUSAGE_LUXURY)
+					const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
+					if (pkResourceInfo)
 					{
-						veResources.push_back(eResource);
-						iNumResourceTypes++;
+						eUsage = GC.getResourceInfo(eResource)->getResourceUsage();
+
+						if (eUsage == RESOURCEUSAGE_STRATEGIC || eUsage == RESOURCEUSAGE_LUXURY)
+						{
+							veResources.push_back(eResource);
+							iNumResourceTypes++;
+						}
 					}
 				}
 			}
@@ -4806,8 +4817,9 @@ int CvMinorCivAI::GetNumResourcesMajorLacks(PlayerTypes eMajor)
 	{
 		eResource = (ResourceTypes) iResourceLoop;
 
+		const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
 		// Must not be a Bonus resource
-		if (GC.getResourceInfo(eResource)->getResourceUsage() == RESOURCEUSAGE_BONUS)
+		if (pkResourceInfo == NULL || pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_BONUS)
 			continue;
 
 		// We must have it

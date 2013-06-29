@@ -98,7 +98,9 @@ public:
         __declspec( align(16)) volatile LONG m_uiLock;
     };
 
-    uint GetCapacity() { return m_uiCapacity; };
+    uint GetCapacity() const { return m_uiCapacity; };
+	// Be careful, this is not thread-safe, so you can get an erroneous number back if allocations are happening when you query.
+	uint GetAvailable() const { return m_uiCapacity - m_uiCurrentOffset; };
 
     void AssertIfNotCompletelyReleased() const
     {

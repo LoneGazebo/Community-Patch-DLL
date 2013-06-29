@@ -92,6 +92,7 @@ void CvLuaGame::RegisterMembers(lua_State* L)
 	Method(ReviveActivePlayer);
 
 	Method(GetNumHumanPlayers);
+	Method(GetNumSequentialHumans);
 	Method(GetGameTurn);
 	Method(SetGameTurn);
 	Method(GetTurnYear);
@@ -609,6 +610,12 @@ int CvLuaGame::lReviveActivePlayer(lua_State* L)
 int CvLuaGame::lGetNumHumanPlayers(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvGame::getNumHumanPlayers);
+}
+//------------------------------------------------------------------------------
+//int getNumSequentialHumans();
+int CvLuaGame::lGetNumSequentialHumans(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvGame::getNumSequentialHumans);
 }
 //------------------------------------------------------------------------------
 //int getGameTurn();
@@ -1650,9 +1657,15 @@ int CvLuaGame::lGameplayDiplomacyAILeaderMessage(lua_State* L)
 int CvLuaGame::lGetResourceUsageType(lua_State* L)
 {
 	const ResourceTypes eResource = (ResourceTypes) lua_tointeger(L, 1);
-	ResourceUsageTypes eUsage = GC.getResourceInfo(eResource)->getResourceUsage();
+	const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
+	if (pkResourceInfo)
+	{
+		ResourceUsageTypes eUsage = GC.getResourceInfo(eResource)->getResourceUsage();
+		lua_pushinteger(L, eUsage);
+	}
+	else
+		lua_pushinteger(L, -1);		// NO_USAGE
 
-	lua_pushinteger(L, eUsage);
 	return 1;
 }
 //------------------------------------------------------------------------------

@@ -101,6 +101,7 @@ CvGlobals::CvGlobals() :
 	m_buildRouteFinder(NULL),
 	m_tacticalAnalysisMapFinder(NULL),
 	m_pDLL(NULL),
+	m_pEngineUI(NULL),
 
 // -- ints --
 	m_iAI_ATTEMPT_RUSH_OVER_X_TURNS_TO_BUILD(15),
@@ -2656,7 +2657,6 @@ std::vector<CvPlayerOptionInfo*>& CvGlobals::getPlayerOptionInfo()
 CvPlayerOptionInfo* CvGlobals::getPlayerOptionInfo(PlayerOptionTypes ePlayerOptionNum)
 {
 	CvAssert(ePlayerOptionNum >= 0);
-	CvAssert(ePlayerOptionNum < NUM_PLAYEROPTION_TYPES);
 	if(ePlayerOptionNum > -1 && ePlayerOptionNum < (int)m_paPlayerOptionInfos.size())
 		return m_paPlayerOptionInfos[ePlayerOptionNum];
 	else
@@ -5303,11 +5303,6 @@ bool CvGlobals::getDefineValue(const char* szName, CvString& strValue, bool bRep
 	return bSuccess;
 }
 
-void CvGlobals::setDLLIFace(ICvEngineUtility2* pDll)
-{
-	m_pDLL = pDll;
-}
-
 int CvGlobals::getNUM_YIELD_TYPES() const
 {
 	return NUM_YIELD_TYPES;
@@ -5478,7 +5473,7 @@ int CvGlobals::getNumControlInfos() const
 }
 int CvGlobals::getNumPlayerOptionInfos() const
 {
-	return NUM_PLAYEROPTION_TYPES;
+	return m_paPlayerOptionInfos.size();
 }
 
 

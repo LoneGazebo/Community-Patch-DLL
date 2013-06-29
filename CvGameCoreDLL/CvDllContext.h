@@ -7,6 +7,7 @@
 	------------------------------------------------------------------------------------------------------- */
 #pragma once
 #include "CvDllInterfaces.h"
+#include "CvDllVersion.h"
 
 class CvDllNetworkSyncronization;
 class CvDllNetInitInfo;
@@ -15,7 +16,7 @@ class CvDllNetMessageHandler;
 class CvDllScriptSystemUtility;
 class CvDllWorldBuilderMapLoader;
 
-class CvDllGameContext : public ICvGameContext1
+class CvDllGameContext : public ICvGameContext2
 {
 public:
 	~CvDllGameContext();
@@ -195,6 +196,8 @@ public:
 	void DLLCALL TEMPOnHexUnitChangedAttack(ICvUnit1* pUnit);
 	ICvEnumerator* DLLCALL TEMPCalculatePathFinderUpdates(ICvUnit1* pHeadSelectedUnit, int iMouseMapX, int iMouseMapY);
 	void DLLCALL ResetPathFinder();
+
+	void DLLCALL SetEngineUserInterface(ICvUserInterface2* pUI);
 
 protected:
 	void DLLCALL Destroy();

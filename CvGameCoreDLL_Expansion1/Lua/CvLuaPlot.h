@@ -146,6 +146,7 @@ protected:
 	static int lGetX(lua_State* L);
 	static int lGetY(lua_State* L);
 	static int lAt(lua_State* L);
+	static int lGetPlotIndex(lua_State* L);
 	static int lGetLatitude(lua_State* L);
 	static int lArea(lua_State* L);
 	static int lWaterArea(lua_State* L);

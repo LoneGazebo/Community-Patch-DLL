@@ -20,6 +20,7 @@
 #include "../CvMinorCivAI.h"
 
 #define RegisterEnum(e) pRegisterEnum(L, #e, e)
+#define RegisterEnumUInt(e) pRegisterEnumUInt(L, #e, e)
 
 void CvLuaEnums::Register(lua_State* L)
 {
@@ -170,7 +171,6 @@ int CvLuaEnums::pRegister(lua_State* L)
 	RegisterEnum(BUTTONPOPUP_MODDER_10);
 	RegisterEnum(BUTTONPOPUP_MODDER_11);
 
-	RegisterEnum(NUM_BUTTONPOPUP_TYPES);
 	EnumEnd(L);
 
 	//YieldTypes
@@ -304,74 +304,16 @@ int CvLuaEnums::pRegister(lua_State* L)
 	EnumEnd(L);
 
 	EnumStart(L, "NotificationTypes");
-	RegisterEnum(NOTIFICATION_GENERIC);
-	RegisterEnum(NOTIFICATION_TECH);
-	RegisterEnum(NOTIFICATION_FREE_TECH);
-	RegisterEnum(NOTIFICATION_POLICY);
-	RegisterEnum(NOTIFICATION_PRODUCTION);
-	RegisterEnum(NOTIFICATION_MET_MINOR);
-	RegisterEnum(NOTIFICATION_MINOR);
-	RegisterEnum(NOTIFICATION_MINOR_QUEST);
-	RegisterEnum(NOTIFICATION_ENEMY_IN_TERRITORY);
-	RegisterEnum(NOTIFICATION_REBELS);
-	RegisterEnum(NOTIFICATION_CITY_RANGE_ATTACK);
-	RegisterEnum(NOTIFICATION_BARBARIAN);
-	RegisterEnum(NOTIFICATION_GOODY);
-	RegisterEnum(NOTIFICATION_BUY_TILE);
-	RegisterEnum(NOTIFICATION_CITY_GROWTH);
-	RegisterEnum(NOTIFICATION_CITY_TILE);
-	RegisterEnum(NOTIFICATION_DEMAND_RESOURCE);
-	RegisterEnum(NOTIFICATION_UNIT_PROMOTION);
-//	RegisterEnum(NOTIFICATION_WONDER_STARTED);
-	RegisterEnum(NOTIFICATION_WONDER_COMPLETED_ACTIVE_PLAYER);
-	RegisterEnum(NOTIFICATION_WONDER_COMPLETED);
-	RegisterEnum(NOTIFICATION_WONDER_BEATEN);
-	RegisterEnum(NOTIFICATION_GOLDEN_AGE_BEGUN_ACTIVE_PLAYER);
-//	RegisterEnum(NOTIFICATION_GOLDEN_AGE_BEGUN);
-	RegisterEnum(NOTIFICATION_GOLDEN_AGE_ENDED_ACTIVE_PLAYER);
-//	RegisterEnum(NOTIFICATION_GOLDEN_AGE_ENDED);
-	RegisterEnum(NOTIFICATION_GREAT_PERSON_ACTIVE_PLAYER);
-//	RegisterEnum(NOTIFICATION_GREAT_PERSON);
-	RegisterEnum(NOTIFICATION_STARVING);
-	RegisterEnum(NOTIFICATION_WAR_ACTIVE_PLAYER);
-	RegisterEnum(NOTIFICATION_WAR);
-	RegisterEnum(NOTIFICATION_PEACE_ACTIVE_PLAYER);
-	RegisterEnum(NOTIFICATION_PEACE);
-	RegisterEnum(NOTIFICATION_VICTORY);
-	RegisterEnum(NOTIFICATION_UNIT_DIED);
-	RegisterEnum(NOTIFICATION_CITY_LOST);
-	RegisterEnum(NOTIFICATION_CAPITAL_LOST_ACTIVE_PLAYER);
-	RegisterEnum(NOTIFICATION_CAPITAL_LOST);
-	RegisterEnum(NOTIFICATION_CAPITAL_RECOVERED);
-	RegisterEnum(NOTIFICATION_PLAYER_KILLED);
-	RegisterEnum(NOTIFICATION_DISCOVERED_LUXURY_RESOURCE);
-	RegisterEnum(NOTIFICATION_DISCOVERED_STRATEGIC_RESOURCE);
-	RegisterEnum(NOTIFICATION_DISCOVERED_BONUS_RESOURCE);
-//	RegisterEnum(NOTIFICATION_POLICY_ADOPTION);
-	RegisterEnum(NOTIFICATION_DIPLO_VOTE);
-	RegisterEnum(NOTIFICATION_RELIGION_RACE);
-	RegisterEnum(NOTIFICATION_EXPLORATION_RACE);
-	RegisterEnum(NOTIFICATION_DIPLOMACY_DECLARATION);
-	RegisterEnum(NOTIFICATION_DEAL_EXPIRED_GPT);
-	RegisterEnum(NOTIFICATION_DEAL_EXPIRED_RESOURCE);
-	RegisterEnum(NOTIFICATION_DEAL_EXPIRED_OPEN_BORDERS);
-	RegisterEnum(NOTIFICATION_DEAL_EXPIRED_DEFENSIVE_PACT);
-	RegisterEnum(NOTIFICATION_DEAL_EXPIRED_RESEARCH_AGREEMENT);
-	RegisterEnum(NOTIFICATION_DEAL_EXPIRED_TRADE_AGREEMENT);
-	RegisterEnum(NOTIFICATION_TECH_AWARD);
-	RegisterEnum(NOTIFICATION_PLAYER_DEAL);
-	RegisterEnum(NOTIFICATION_PLAYER_DEAL_RECEIVED);
-	RegisterEnum(NOTIFICATION_PLAYER_DEAL_RESOLVED);
-	RegisterEnum(NOTIFICATION_PROJECT_COMPLETED);
-	RegisterEnum(NOTIFICATION_REBELS);
-	RegisterEnum(NOTIFICATION_FREE_POLICY);
-	RegisterEnum(NOTIFICATION_FREE_GREAT_PERSON);
-	RegisterEnum(NOTIFICATION_DENUNCIATION_EXPIRED);
-	RegisterEnum(NOTIFICATION_FRIENDSHIP_EXPIRED);
-	RegisterEnum(NOTIFICATION_REQUEST_RESOURCE);
-	RegisterEnum(NOTIFICATION_LIBERATED_MAJOR_CITY);
-	RegisterEnum(NOTIFICATION_RESURRECTED_MAJOR_CIV);
-	RegisterEnum(NUM_NOTIFICATION_TYPES);
+	CvNotificationXMLEntries* pkNotifications = GC.GetNotificationEntries();
+	if (pkNotifications)
+	{
+		for (int i = 0; i < pkNotifications->GetNumNotifications(); ++i)
+		{
+			CvNotificationEntry* pkEntry = pkNotifications->GetEntry(i);		
+			if (pkEntry)
+				pRegisterEnum(L, pkEntry->GetTypeName(), FString::Hash(pkEntry->GetTypeName()));
+		}
+	}
 	EnumEnd(L);
 
 	// ActivityTypes
@@ -486,7 +428,6 @@ int CvLuaEnums::pRegister(lua_State* L)
 	RegisterEnum(GAMEMESSAGE_CLEAR_TABLE);
 	RegisterEnum(GAMEMESSAGE_POPUP_PROCESSED);
 	RegisterEnum(GAMEMESSAGE_DIPLOMACY_FROM_UI);
-	RegisterEnum(GAMEMESSAGE_HOT_JOIN_NOTICE);
 	RegisterEnum(GAMEMESSAGE_HOT_DROP_NOTICE);
 	RegisterEnum(GAMEMESSAGE_POPUP);
 	RegisterEnum(GAMEMESSAGE_EVENT_TRIGGERED);
@@ -952,6 +893,12 @@ int CvLuaEnums::pRegister(lua_State* L)
 void CvLuaEnums::pRegisterEnum(lua_State* L, const char* enumName, const int enumVal)
 {
 	lua_pushinteger(L, enumVal);
+	lua_setfield(L, -2, enumName);
+}
+//------------------------------------------------------------------------------
+void CvLuaEnums::pRegisterEnumUInt(lua_State* L, const char* enumName, const uint enumVal)
+{
+	lua_pushnumber(L, enumVal);
 	lua_setfield(L, -2, enumName);
 }
 //------------------------------------------------------------------------------

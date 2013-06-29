@@ -130,6 +130,7 @@ void CvLuaPlot::PushMethods(lua_State *L, int t)
 	Method(GetX);
 	Method(GetY);
 	Method(At);
+	Method(GetPlotIndex);
 	Method(GetLatitude);
 	Method(Area);
 	Method(WaterArea);
@@ -916,6 +917,12 @@ int CvLuaPlot::lGetY(lua_State* L)
 int CvLuaPlot::lAt(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvPlot::at);
+}
+//------------------------------------------------------------------------------
+//bool GetIndex();
+int CvLuaPlot::lGetPlotIndex(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlot::GetPlotIndex);
 }
 //------------------------------------------------------------------------------
 //int getLatitude();

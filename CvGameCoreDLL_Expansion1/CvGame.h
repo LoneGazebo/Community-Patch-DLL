@@ -109,6 +109,7 @@ public:
 	int countCivTeamsEverAlive() const;
 	int countHumanPlayersAlive() const;
 	int countHumanPlayersEverAlive() const;
+	int countSeqHumanTurnsUntilPlayerTurn(PlayerTypes playerID) const;
 
 	int countMajorCivsAlive() const;
 	int countMajorCivsEverAlive() const;
@@ -138,6 +139,8 @@ public:
 
 	int getNumHumanPlayers();
 	int GetNumMinorCivsEver();
+	int getNumHumansInHumanWars(PlayerTypes ignorePlayer = NO_PLAYER);
+	int getNumSequentialHumans(PlayerTypes ignorePlayer = NO_PLAYER);
 
 	int getGameTurn();
 	void setGameTurn(int iNewValue);
@@ -177,7 +180,7 @@ public:
 	void setTurnSlice(int iNewValue);
 	void changeTurnSlice(int iChange);
 
-	void resetTurnTimer();
+	void resetTurnTimer(bool resetGameTurnStart = true);
 	int getMaxTurnLen();
 
 	bool IsStaticTutorialActive() const;
@@ -553,12 +556,17 @@ public:
 	bool allUnitAIProcessed() const;
 
 	void updateTurnTimer();
-	bool hasTurnTimerExpired();
+	bool hasTurnTimerExpired(PlayerTypes playerID, bool gameLoopUpdate=false);
+	void TurnTimerSync(float fCurTurnTime, float fTurnStartTime);
+	void GetTurnTimerData(float& fCurTurnTime, float& fTurnStartTime);
 
 	int GetDealDuration();
 	int GetPeaceDuration();
 
 	CombatPredictionTypes GetCombatPrediction(const CvUnit* pAttackingUnit, const CvUnit* pDefendingUnit);
+
+	void NetMessageStaticsReset();
+	void SetLastTurnAICivsProcessed();
 
 public:
 
@@ -620,6 +628,7 @@ protected:
 	bool m_bNukesValid;
 	bool m_bEndGameTechResearched;
 	bool m_bTunerEverConnected;
+	bool m_bDynamicTurnsSimultMode;		//if playing dynamic turn mode, are we currently running simultaneous turns?
 	PlayerTypes m_eWaitDiploPlayer;
 
 	bool m_bFOW;
@@ -714,11 +723,12 @@ protected:
 
 	FTimer  m_endTurnTimer;
 	int     m_endTurnTimerSemaphore;
-	int     m_lastGameTurnProcessed;
-	FTimer  m_gameTurnTimer;
-	float	m_fGameTurnTimerPauseDelta;
+	int     m_lastTurnAICivsProcessed;
+	FTimer  m_curTurnTimer;
+	FTimer  m_timeSinceGameTurnStart;		//time since game turn started for human players
+	float	m_fCurrentTurnTimerPauseDelta;	//
 	bool    m_sentAutoMoves;
-	bool m_bForceEndingTurn;
+	bool	m_bForceEndingTurn;
 
 	void initDiplomacy();
 	void initFreeState(CvGameInitialItemsOverrides& kOverrides);

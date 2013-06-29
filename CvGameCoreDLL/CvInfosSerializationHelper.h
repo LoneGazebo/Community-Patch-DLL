@@ -373,6 +373,9 @@ namespace CvInfosSerializationHelper
 			int iType = Read(kStream, &bValid);
 			if (iType != -1)
 			{
+				if (iType >= (int)aiArray.size())
+					aiArray.resize(iType+1);
+
 				kStream >> aiArray[iType];
 			}
 			else
@@ -401,6 +404,9 @@ namespace CvInfosSerializationHelper
 			int iType = ReadHashed(kStream, &bValid);
 			if (iType != -1)
 			{
+				if (iType >= (int)aiArray.size())
+					aiArray.resize(iType+1);
+
 				kStream >> aiArray[iType];
 			}
 			else

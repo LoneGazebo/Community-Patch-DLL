@@ -271,6 +271,10 @@ PREGAMEVAR(WorldSizeTypes,                     s_worldSize,              NO_WORL
 PREGAMEVARDEFAULT(std::vector<CustomOption>,			s_GameOptions);
 PREGAMEVARDEFAULT(std::vector<CustomOption>,			s_MapOptions);
 PREGAMEVARDEFAULT(std::string,                        s_versionString);
+PREGAMEVAR(std::vector<bool>,                  s_turnNotifySteamInvite,        MAX_PLAYERS);
+PREGAMEVAR(std::vector<bool>,                  s_turnNotifyEmail,							MAX_PLAYERS);
+PREGAMEVAR(std::vector<CvString>,              s_turnNotifyEmailAddress,    MAX_PLAYERS);
+
 
 typedef std::map<uint, uint> HashToOptionMap;
 
@@ -279,7 +283,7 @@ HashToOptionMap s_MapOptionsHash;
 
 bool s_multiplayerAIEnabled = true; // default for RTM, change to true on street patch
 
-static bool s_fixingLoadedPlayers;
+
 std::map<PlayerTypes, CvString> s_displayNicknames; // JAR - workaround duplicate IDs vs display names
 
 const std::vector<TeamTypes>& sr_TeamTypes = s_teamTypes;
@@ -393,6 +397,61 @@ bool bindCivilizationKeys(PlayerTypes p)
 	return bFailed;
 }
 
+void writeCivilizations(FDataStream& saveTo)
+{
+	if(s_gameStarted || !isNetworkMultiplayerGame()){
+		//full save, preserve everything.
+		saveTo << s_civilizations;
+	}
+	else{
+		//game cfg save only.  Scrub player specific data from our save output.
+		//reset all non-AI players to random civ.
+		int i = 0;
+		std::vector<CivilizationTypes> civsTemp = s_civilizations;
+		for(std::vector<CivilizationTypes>::iterator civIter = civsTemp.begin(); civIter != civsTemp.end(); ++civIter, ++i){
+			if(slotStatus((PlayerTypes)i) != SS_COMPUTER){
+				*civIter = NO_CIVILIZATION;
+			}
+		}
+		saveTo << civsTemp;
+	}
+}
+
+void writeNicknames(FDataStream& saveTo)
+{
+	if(s_gameStarted || !isNetworkMultiplayerGame()){
+		//full save, preserve everything.
+		saveTo << s_nicknames;
+	}
+	else{
+		//game cfg save only.  Scrub player specific data from our save output.
+		std::vector<CvString> nicksTemp = s_nicknames;
+		for(std::vector<CvString>::iterator nickIter = nicksTemp.begin(); nickIter != nicksTemp.end(); ++nickIter){
+			*nickIter = "";
+		}
+		saveTo << nicksTemp;
+	}
+}
+
+void writeSlotStatus(FDataStream& saveTo)
+{
+	if(s_gameStarted || !isNetworkMultiplayerGame()){
+		//full save, preserve everything.
+		saveTo << s_slotStatus;
+	}
+	else{
+		//game cfg save only.  Scrub player specific data from our save output.
+		//Revert human occupied slots to open.
+		std::vector<SlotStatus> slotTemp = s_slotStatus;
+		for(std::vector<SlotStatus>::iterator slotIter = slotTemp.begin(); slotIter != slotTemp.end(); ++slotIter){
+			if(*slotIter == SS_TAKEN){
+				*slotIter = SS_OPEN;
+			}
+		}
+		saveTo << slotTemp;
+	}
+}
+
 //	-----------------------------------------------------------------------
 void saveSlotHints(FDataStream& saveTo)
 {
@@ -402,10 +461,10 @@ void saveSlotHints(FDataStream& saveTo)
 	saveTo << s_worldSize;
 	saveTo << s_mapScriptName;
 
-	saveTo << s_civilizations;
+	writeCivilizations(saveTo);
+	writeNicknames(saveTo);
+	writeSlotStatus(saveTo);
 
-	saveTo << s_nicknames;
-	saveTo << s_slotStatus;
 	saveTo << s_slotClaims;
 	saveTo << s_teamTypes;
 	saveTo << s_handicaps;
@@ -413,32 +472,17 @@ void saveSlotHints(FDataStream& saveTo)
 	saveTo << s_leaderKeys;
 }
 
-void fixSlotsForLaunch()
-{
-	if(isNetworkMultiplayerGame())
-	{
+void ReseatConnectedPlayers()
+{//This function realigns network connected players into the correct slots for the current pregame data. (Typically after loading in saved data)
+	//A network player's pregame data can and will be totally wrong until this function is run and the resulting net messages are processed.
+	if(isNetworkMultiplayerGame()){
 		int i = 0;
-		for(i = 0; i < MAX_PLAYERS; ++i)
-		{
-			bool bShouldCloseSlotStatus = false;
-			PlayerTypes p = static_cast<PlayerTypes>(i);
-			if(gDLL->IsNetPlayer(p))
-			{
-				if(i == 0 && slotStatus(p) == SS_CLOSED)
-				{
-					bShouldCloseSlotStatus = true;
-				}
-				setSlotStatus(p, SS_TAKEN);
-				setSlotClaim(p, SLOTCLAIM_ASSIGNED);
+		for(i = 0; i < MAX_PLAYERS; ++i){
+			// reseat the network connected player in this slot.
+			if(gDLL->ReseatConnectedPlayer((PlayerTypes)i)){
+				//a player needs to be reseated.  We need to wait for the net message to come from the host.  We will rerun ReseatConnectedPlayers then.
+				return;
 			}
-
-			if(isHuman(p))
-			{
-				setReady(p, false);
-			}
-
-			// reseat any connected players
-			gDLL->ReseatPlayer(p, bShouldCloseSlotStatus);
 		}
 	}
 }
@@ -590,7 +634,7 @@ void loadSlotHints(FDataStream& loadFrom, bool bReadVersion)
 		setNickname(p, s_nicknames[i]); // fix display names
 	}
 
-	fixSlotsForLaunch();
+	ReseatConnectedPlayers();
 }
 
 PlayerTypes activePlayer()
@@ -767,18 +811,13 @@ void closeInactiveSlots()
 
 	// Open inactive slots mean different things to different game modes and types...
 	// Let's figure out what they mean for us
-
+	gDLL->BeginSendBundle();
 	for(int i = 0; i < MAX_CIV_PLAYERS; i++)
 	{
 		PlayerTypes eID = (PlayerTypes)i;
 		if(slotStatus(eID) == SS_OPEN)
 		{
-			if(isPitBoss() || isHotSeat() || isPlayByEmail())
-			{
-				// Pitboss & hotseat - all "open" slots are non-present human players
-				setSlotStatus(eID, SS_TAKEN);
-			}
-			else if(gameType() == GAME_NETWORK_MULTIPLAYER && gameMapType() == GAME_SCENARIO)
+			if(gameType() == GAME_NETWORK_MULTIPLAYER && gameMapType() == GAME_SCENARIO)
 			{
 				// Multiplayer scenario - all "open" slots should be filled with an AI player
 				setSlotStatus(eID, SS_COMPUTER);
@@ -793,6 +832,7 @@ void closeInactiveSlots()
 			gDLL->sendPlayerInfo(eID);
 		}
 	}
+	gDLL->EndSendBundle();
 }
 
 const CvString& emailAddress(PlayerTypes p)
@@ -1085,6 +1125,10 @@ bool isHuman(PlayerTypes p)
 	{
 		return (isHotSeat() || isPitBoss() || isPlayByEmail());
 	}
+	else if(s == SS_OBSERVER)
+	{
+		return slotClaim(p) == SLOTCLAIM_ASSIGNED;
+	}
 	else
 	{
 		return false;
@@ -1112,7 +1156,10 @@ bool isNetworkMultiplayerGame()
 
 bool isPitBoss()
 {
-	return (gameMode() == GAMEMODE_PITBOSS);
+	int iValue;
+	if(GetGameOption(GAMEOPTION_PITBOSS, iValue))
+		return iValue != 0;
+	return false;
 }
 
 bool g_bPersistSettings = false;
@@ -1208,6 +1255,31 @@ bool isWhiteFlag(PlayerTypes p)
 	if(p >= 0 && p < MAX_PLAYERS)
 		return s_whiteFlags[p];
 	return false;
+}
+
+bool isTurnNotifySteamInvite(PlayerTypes p)
+{
+	if(p >= 0 && p < MAX_PLAYERS)
+		return s_turnNotifySteamInvite[p];
+	return false;
+}
+
+bool isTurnNotifyEmail(PlayerTypes p)
+{
+	if(p >= 0 && p < MAX_PLAYERS)
+		return s_turnNotifyEmail[p];
+	return false;
+}
+
+const CvString& getTurnNotifyEmailAddress(PlayerTypes p)
+{
+	if(p >= 0 && p < MAX_PLAYERS)
+	{
+		return s_turnNotifyEmailAddress[p];
+	}
+
+	static const CvString empty = "";
+	return empty;
 }
 
 LeaderHeadTypes leaderHead(PlayerTypes p)
@@ -1799,6 +1871,14 @@ void readArchive(FDataStream& loadFrom, bool bReadVersion)
 	loadFrom >> s_MapOptions;
 	loadFrom >> s_versionString;
 
+	if (uiVersion >= 4)
+		loadFrom >> s_turnNotifySteamInvite;
+
+	if (uiVersion >= 5){
+		loadFrom >> s_turnNotifyEmail;
+		loadFrom >> s_turnNotifyEmailAddress;
+	}
+
 	// Rebuild the hash lookup to the options
 	s_GameOptionsHash.clear();
 	for(size_t i = 0; i < s_GameOptions.size(); i++)
@@ -1819,7 +1899,7 @@ void read(FDataStream& loadFrom, bool bReadVersion)
 		bindLeaderKeys((PlayerTypes)i);
 		bindCivilizationKeys((PlayerTypes)i);
 	}
-	fixSlotsForLaunch();
+	ReseatConnectedPlayers();
 }
 
 void resetGame()
@@ -1867,7 +1947,7 @@ void resetGame()
 	// Game turn mgmt
 	s_gameTurn = 0;
 	s_maxTurns = 0;
-	//s_pitbossTurnTime = 0;
+	s_pitBossTurnTime = 0;
 	s_targetScore = 0;
 
 	// City Elimination
@@ -2038,9 +2118,9 @@ void resetSlots()
 			else
 			{
 				resetPlayer(p);
-				// setup an observer slot
-				if(p == suggestedPlayerCount)
-					setSlotStatus(static_cast<PlayerTypes>(suggestedPlayerCount), SS_OBSERVER);
+				// setup a observer slots
+				if(p >= suggestedPlayerCount && p < MAX_MAJOR_CIVS)
+					setSlotStatus(p, SS_OBSERVER);
 			}
 		}
 		else
@@ -2050,9 +2130,9 @@ void resetSlots()
 			if(s != SS_TAKEN && slotsAssigned >= suggestedPlayerCount)
 			{
 				resetPlayer(p);
-				// setup an observer slot
-				if(p == suggestedPlayerCount)
-					setSlotStatus(static_cast<PlayerTypes>(suggestedPlayerCount), SS_OBSERVER);
+				// setup a observer slots
+				if(p >= suggestedPlayerCount && p < MAX_MAJOR_CIVS)
+					setSlotStatus(p, SS_OBSERVER);
 			}
 			else
 			{
@@ -2063,7 +2143,7 @@ void resetSlots()
 						// the player may have already assigned
 						// a civ for this computer slot, don't
 						// overwrite those settings.
-						setSlotStatus(p, SS_CLOSED);
+						setSlotStatus(p, SS_OPEN);
 						setSlotClaim(p, SLOTCLAIM_ASSIGNED);
 						setCivilization(p, NO_CIVILIZATION); // defaults to random civ
 					}
@@ -2894,6 +2974,40 @@ void setWhiteFlag(PlayerTypes p, bool flag)
 		s_whiteFlags.setAt(p, flag);
 }
 
+void setTurnNotifySteamInvite(PlayerTypes p, bool flag)
+{
+	if(p >= 0 && p < MAX_PLAYERS)
+		s_turnNotifySteamInvite.setAt(p, flag);
+}
+
+void setTurnNotifyEmail(PlayerTypes p, bool flag)
+{
+	if(p >= 0 && p < MAX_PLAYERS)
+		s_turnNotifyEmail.setAt(p, flag);
+}
+
+void setTurnNotifyEmailAddress(PlayerTypes p, const CvString& emailAddress)
+{
+	if(p >= 0 && p < MAX_PLAYERS)
+		s_turnNotifyEmailAddress.setAt(p, emailAddress);
+}
+
+void VerifyHandicap(PlayerTypes p)
+{//Verifies that the current handicap is valid for the current player.
+	//non-ai players can't use the default ai handicap and ai players MUST use it.
+	if(slotStatus(p) == SS_COMPUTER){
+		setHandicap(p, (HandicapTypes)GC.getAI_HANDICAP());
+	}
+	else if(handicap(p) == GC.getAI_HANDICAP()){
+		if(GC.getGame().isNetworkMultiPlayer()){
+			setHandicap(p, (HandicapTypes)GC.getMULTIPLAYER_HANDICAP());
+		}
+		else{
+			setHandicap(p, (HandicapTypes)GC.getSTANDARD_HANDICAP());
+		}
+	}
+}
+
 void setWorldSize(WorldSizeTypes w, bool bResetSlots)
 {
 	CvAssert(!gameStarted() || isNetworkMultiplayerGame() || isHotSeatGame());
@@ -3025,7 +3139,7 @@ WorldSizeTypes worldSize()
 
 void writeArchive(FDataStream& saveTo)
 {
-	uint uiVersion = 3;
+	uint uiVersion = 5;
 	saveTo << uiVersion;
 
 	saveTo << s_activePlayer;
@@ -3077,7 +3191,7 @@ void writeArchive(FDataStream& saveTo)
 	saveTo << s_dummyvalue;
 	saveTo << s_multiplayerOptions;
 	saveTo << s_netIDs;
-	saveTo << s_nicknames;
+	writeNicknames(saveTo);
 	saveTo << s_numVictoryInfos;
 	saveTo << s_pitBossTurnTime;
 	saveTo << s_playableCivs;
@@ -3094,7 +3208,7 @@ void writeArchive(FDataStream& saveTo)
 	saveTo << s_seaLevelInfo;
 	saveTo << s_dummyvalue2;
 	saveTo << s_slotClaims;
-	saveTo << s_slotStatus;
+	writeSlotStatus(saveTo);
 	saveTo << s_smtpHost;
 	saveTo << s_syncRandomSeed;
 	saveTo << s_targetScore;
@@ -3110,6 +3224,9 @@ void writeArchive(FDataStream& saveTo)
 	saveTo << s_GameOptions;
 	saveTo << s_MapOptions;
 	saveTo << s_versionString;
+	saveTo << s_turnNotifySteamInvite;
+	saveTo << s_turnNotifyEmail;
+	saveTo << s_turnNotifyEmailAddress;
 }
 
 void write(FDataStream& saveTo)

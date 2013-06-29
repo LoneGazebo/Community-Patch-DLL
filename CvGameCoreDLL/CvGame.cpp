@@ -63,8 +63,8 @@
 
 //------------------------------------------------------------------------------
 // CvGame Version History
-// Version 10
-//   * Changed how adviser message history was being stored.
+// Version 11
+//	 * Gods & Kings released version (as of expansion 2 development start).
 // Version 9
 //   * Updated replay message data.
 // Version 8
@@ -89,13 +89,14 @@ CvGame::CvGame() :
 m_jonRand(false)
 , m_endTurnTimer()
 , m_endTurnTimerSemaphore(0)
-, m_gameTurnTimer()
-, m_fGameTurnTimerPauseDelta(0.f)
+, m_curTurnTimer()
+, m_timeSinceGameTurnStart()
+, m_fCurrentTurnTimerPauseDelta(0.f)
 , m_sentAutoMoves(false)
 , m_bForceEndingTurn(false)
 , m_pDiploResponseQuery(NULL)
 , m_bFOW(true)
-, m_lastGameTurnProcessed(-1)
+, m_lastTurnAICivsProcessed(-1)
 {
 	m_aiEndTurnMessagesReceived = FNEW(int[MAX_PLAYERS], c_eCiv5GameplayDLL, 0);
 	m_aiRankPlayer = FNEW(int[MAX_PLAYERS], c_eCiv5GameplayDLL, 0);        // Ordered by rank...
@@ -176,6 +177,20 @@ void CvGame::init(HandicapTypes eHandicap)
 	m_jonRand.init(CvPreGame::syncRandomSeed() % 52319761);
 
 	//--------------------------------
+	// Verify pregame data
+
+	//Validate game era. If we lack the era info for the current era, work backwards until we find a valid one.
+	if(!GC.getEraInfo(getStartEra())){
+		for(int eraIdx = ((int)CvPreGame::era())-1; eraIdx >= 0; --eraIdx){
+			CvEraInfo* curEraInfo = GC.getEraInfo((EraTypes)eraIdx);
+			if(curEraInfo){
+				CvPreGame::setEra((EraTypes)eraIdx);
+				break;
+			}
+		}
+	}
+
+	//--------------------------------
 	// Init non-saved data
 
 	//--------------------------------
@@ -189,12 +204,18 @@ void CvGame::init(HandicapTypes eHandicap)
 		{
 			setMPOption((MultiplayerOptionTypes)iI, false);
 		}
+
+		setOption(GAMEOPTION_SIMULTANEOUS_TURNS, false);
+		setOption(GAMEOPTION_DYNAMIC_TURNS, false);
+		setOption(GAMEOPTION_PITBOSS, false);
 	}
 
 	// If this is a hot seat game, simultaneous turns is always off
 	if (isHotSeat() || isPbem())
 	{
-		setMPOption(MPOPTION_SIMULTANEOUS_TURNS, false);
+		setOption(GAMEOPTION_SIMULTANEOUS_TURNS, false);
+		setOption(GAMEOPTION_DYNAMIC_TURNS, false);
+		setOption(GAMEOPTION_PITBOSS, false);
 	}
 
 	if (isMPOption(MPOPTION_SHUFFLE_TEAMS))
@@ -246,7 +267,7 @@ void CvGame::init(HandicapTypes eHandicap)
 			char szRandomPassword[iPasswordSize];
 			for (int i = 0; i < iPasswordSize-1; i++)
 			{
-				szRandomPassword[i] = getJonRandNum(128, NULL);
+				szRandomPassword[i] = getJonRandNum(128, "Random Keyword");
 			}
 			szRandomPassword[iPasswordSize-1] = 0;
 
@@ -459,6 +480,34 @@ bool CvGame::InitMap(CvGameInitialItemsOverrides& kGameInitialItemsOverrides)
 	// load regardless of where that map came from.  (The map scripts are mod-able after all!!!)
 	CvWorldBuilderMapLoader::ValidateCoast();
 
+	// Set all the observer teams to be able to see all the plots
+	for(int iI = 0; iI < MAX_PLAYERS; iI++)
+	{
+		if (CvPreGame::slotStatus((PlayerTypes)iI) == SS_OBSERVER)
+		{
+			CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)iI);
+			TeamTypes eTeam = kPlayer.getTeam();
+
+			if (eTeam != NO_TEAM)
+			{
+				const int iNumInvisibleInfos = NUM_INVISIBLE_TYPES;
+				for(iI = 0; iI < GC.getMap().numPlots(); iI++)
+				{
+					CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(iI);
+
+					pLoopPlot->changeVisibilityCount(eTeam, pLoopPlot->getVisibilityCount(eTeam) + 1, NO_INVISIBLE, true, false);
+
+					for(int iJ = 0; iJ < iNumInvisibleInfos; iJ++)
+					{
+						pLoopPlot->changeInvisibleVisibilityCount(eTeam, ((InvisibleTypes)iJ), pLoopPlot->getInvisibleVisibilityCount(eTeam, ((InvisibleTypes)iJ)) + 1);
+					}
+
+					pLoopPlot->setRevealed(eTeam, true, false);
+				}
+			}
+		}
+	}
+
 	return true;
 }
 //------------------------------------------------------------------------------
@@ -573,6 +622,10 @@ void CvGame::InitPlayers()
 			if (CvPreGame::slotStatus((PlayerTypes)iI) == SS_COMPUTER)
 			{
 				CvPreGame::setHandicap((PlayerTypes)iI, (HandicapTypes)GC.getAI_HANDICAP());
+			}
+			else if(CvPreGame::slotStatus((PlayerTypes)iI) == SS_OBSERVER)
+			{//make all observers be on the observer team.
+				CvPreGame::setTeamType((PlayerTypes)iI, OBSERVER_TEAM);
 			}
 		}
 		// Minor civs
@@ -745,9 +798,9 @@ void CvGame::regenerateMap()
 	setFinalInitialized(true);
 
 	GC.getMap().setupGraphical();
-	gDLL->getInterfaceIFace()->setDirty(ColoredPlots_DIRTY_BIT, true);
+	GC.GetEngineUserInterface()->setDirty(ColoredPlots_DIRTY_BIT, true);
 
-	gDLL->getInterfaceIFace()->setCycleSelectionCounter(1);
+	GC.GetEngineUserInterface()->setCycleSelectionCounter(1);
 
 	gDLL->AutoSave(true);
 }
@@ -849,7 +902,7 @@ void CvGame::uninit()
 
 	m_bForceEndingTurn = false;
 
-	m_lastGameTurnProcessed = -1;
+	m_lastTurnAICivsProcessed = -1;
 	m_iEndTurnMessagesSent = 0;
 	m_iElapsedGameTurns = 0;
 	m_iStartTurn = 0;
@@ -944,7 +997,7 @@ void CvGame::reset(HandicapTypes eHandicap, bool bConstructorCall)
 	// Uninit class
 	uninit();
 
-	m_fGameTurnTimerPauseDelta = 0.f;
+	m_fCurrentTurnTimerPauseDelta = 0.f;
 
 	CvString strUTF8DatabasePath = gDLL->GetCacheFolderPath();
 	strUTF8DatabasePath += "Civ5SavedGameDatabase.db";
@@ -1265,7 +1318,7 @@ void CvGame::update()
 {
 	if (IsWaitingForBlockingInput())
 	{
-		if (!gDLL->getInterfaceIFace()->isDiploActive())
+		if (!GC.GetEngineUserInterface()->isDiploActive())
 		{
 			GET_PLAYER(m_eWaitDiploPlayer).doTurnPostDiplomacy();
 			SetWaitingForBlockingInput(NO_PLAYER);
@@ -1340,7 +1393,7 @@ void CvGame::update()
 
 					if ((getAIAutoPlay() == 0) && !(gDLL->GetAutorun()) && GAMESTATE_EXTENDED != getGameState())
 					{
-						if(!GET_PLAYER(getActivePlayer()).isAlive())
+						if(CvPreGame::slotStatus(getActivePlayer()) != SS_OBSERVER && !GET_PLAYER(getActivePlayer()).isAlive())
 						{
 							setGameState(GAMESTATE_OVER);
 						}
@@ -1349,14 +1402,16 @@ void CvGame::update()
 					CheckPlayerTurnDeactivate();
 
 					changeTurnSlice(1);
+
+					gDLL->FlushTurnReminders();
 				}
 			}
 
 			PlayerTypes activePlayerID = getActivePlayer();
 			const CvPlayer & activePlayer = GET_PLAYER(activePlayerID);
-			if (NO_PLAYER != activePlayerID && activePlayer.getAdvancedStartPoints() >= 0 && !gDLL->getInterfaceIFace()->isInAdvancedStart())
+			if (NO_PLAYER != activePlayerID && activePlayer.getAdvancedStartPoints() >= 0 && !GC.GetEngineUserInterface()->isInAdvancedStart())
 			{
-				gDLL->getInterfaceIFace()->setInAdvancedStart(true);
+				GC.GetEngineUserInterface()->setInAdvancedStart(true);
 			}
 		}
 	}
@@ -1394,7 +1449,7 @@ void CvGame::CheckPlayerTurnDeactivate()
 					{
 						bAutoMovesComplete = true;
 
-						NET_MESSAGE_DEBUG_OSTR( "CheckPlayerTurnDeactivate() : auto-moves complete for " << kPlayer.getName());
+						NET_MESSAGE_DEBUG_OSTR_ALWAYS( "CheckPlayerTurnDeactivate() : auto-moves complete for " << kPlayer.getName());
 					}
 					else
 						if ( gDLL->HasReceivedTurnComplete( kPlayer.GetID() ) )
@@ -1411,7 +1466,7 @@ void CvGame::CheckPlayerTurnDeactivate()
 						// In that case, the local human is (should be) the player we just deactivated the turn for
 						// and the AI players will be activated all at once in CvGame::doTurn, once we have received
 						// all the moves from the other human players
-						if (!isMPOption(MPOPTION_SIMULTANEOUS_TURNS))
+						if(!kPlayer.isSimultaneousTurns())
 						{
 							if ((isPbem() || isHotSeat()) && kPlayer.isHuman() && countHumanPlayersAlive() > 1)
 							{
@@ -1425,9 +1480,10 @@ void CvGame::CheckPlayerTurnDeactivate()
 									for (int iJ = (kPlayer.getTeam() + 1); iJ < MAX_TEAMS; iJ++)
 									{
 										CvTeam& kTeam = GET_TEAM((TeamTypes)iJ);
-										if (kTeam.isAlive())
-										{
+										if(kTeam.isAlive() && !kTeam.isSimultaneousTurns())
+										{//this team is alive and also running sequential turns.  They're up next!
 											kTeam.setTurnActive(true);
+											resetTurnTimer(false);
 											break;
 										}
 									}
@@ -1435,15 +1491,15 @@ void CvGame::CheckPlayerTurnDeactivate()
 							}
 							else
 							{
-								if (!gDLL->getInterfaceIFace()->isDiploActive())
+								if (!GC.GetEngineUserInterface()->isDiploActive())
 								{
 									if (!isHotSeat() || kPlayer.isAlive() || !kPlayer.isHuman())		// If it is a hotseat game and the player is human and is dead, don't advance the player, we want them to get the defeat screen
 									{
 										for (int iJ = (kPlayer.GetID() + 1); iJ < MAX_PLAYERS; iJ++)
 										{
 											CvPlayer& kNextPlayer = GET_PLAYER((PlayerTypes)iJ);
-											if (kNextPlayer.isAlive())
-											{
+											if(kNextPlayer.isAlive() && !kPlayer.isSimultaneousTurns())
+											{//the player is alive and also running sequential turns.  they're up!
 												if (isPbem() && kNextPlayer.isHuman())
 												{
 													if (!getPbemTurnSent())
@@ -1454,6 +1510,7 @@ void CvGame::CheckPlayerTurnDeactivate()
 												else
 												{
 													kNextPlayer.setTurnActive(true);
+													resetTurnTimer(false);
 												}
 												break;
 											}
@@ -1628,12 +1685,12 @@ void CvGame::updateCitySight(bool bIncrement)
 //	--------------------------------------------------------------------------------
 void CvGame::updateSelectionList()
 {
-	if( !gDLL->getInterfaceIFace()->DoAutoUnitCycle() )
+	if( !GC.GetEngineUserInterface()->DoAutoUnitCycle() )
 	{
 		return;
 	}
 
-	auto_ptr<ICvUnit1> pDllHeadSelectedUnit(gDLL->getInterfaceIFace()->GetHeadSelectedUnit());
+	auto_ptr<ICvUnit1> pDllHeadSelectedUnit(GC.GetEngineUserInterface()->GetHeadSelectedUnit());
 	CvUnit* pkHeadSelectedUnit = GC.UnwrapUnitPointer(pDllHeadSelectedUnit.get());
 
 	if ((pkHeadSelectedUnit == NULL) || !(pkHeadSelectedUnit->ReadyToSelect()))
@@ -1644,17 +1701,17 @@ void CvGame::updateSelectionList()
 		}
 	}
 
-	pDllHeadSelectedUnit.reset(gDLL->getInterfaceIFace()->GetHeadSelectedUnit());
+	pDllHeadSelectedUnit.reset(GC.GetEngineUserInterface()->GetHeadSelectedUnit());
 	pkHeadSelectedUnit = GC.UnwrapUnitPointer(pDllHeadSelectedUnit.get());
 
 	if ((pkHeadSelectedUnit == NULL) || !(pkHeadSelectedUnit->ReadyToSelect()))
 	{
-		int iOriginalPlotIndex = gDLL->getInterfaceIFace()->getOriginalPlotIndex();
+		int iOriginalPlotIndex = GC.GetEngineUserInterface()->getOriginalPlotIndex();
 		CvPlot* pkOriginalPlot = (iOriginalPlotIndex != -1)? GC.getMap().plotByIndex(iOriginalPlotIndex) : NULL;
 
-		if ((pkOriginalPlot == NULL) || !(cyclePlotUnits(pkOriginalPlot, true, true, gDLL->getInterfaceIFace()->getOriginalPlotCount())))
+		if ((pkOriginalPlot == NULL) || !(cyclePlotUnits(pkOriginalPlot, true, true, GC.GetEngineUserInterface()->getOriginalPlotCount())))
 		{
-			auto_ptr<ICvPlot1> pSelectionPlot(gDLL->getInterfaceIFace()->getSelectionPlot());
+			auto_ptr<ICvPlot1> pSelectionPlot(GC.GetEngineUserInterface()->getSelectionPlot());
 			CvPlot* pkSelectionPlot = GC.UnwrapPlotPointer(pSelectionPlot.get());
 			if ((pkSelectionPlot == NULL) || !(cyclePlotUnits(pkSelectionPlot, true, true)))
 			{
@@ -1662,14 +1719,14 @@ void CvGame::updateSelectionList()
 			}
 		}
 
-		pDllHeadSelectedUnit.reset(gDLL->getInterfaceIFace()->GetHeadSelectedUnit());
+		pDllHeadSelectedUnit.reset(GC.GetEngineUserInterface()->GetHeadSelectedUnit());
 		pkHeadSelectedUnit = GC.UnwrapUnitPointer(pDllHeadSelectedUnit.get());
 
 		if (pkHeadSelectedUnit != NULL)
 		{
 			if (!(pkHeadSelectedUnit->ReadyToSelect()))
 			{
-				gDLL->getInterfaceIFace()->ClearSelectionList();
+				GC.GetEngineUserInterface()->ClearSelectionList();
 			}
 		}
 	}
@@ -1680,28 +1737,49 @@ int s_unitMoveTurnSlice = 0;
 
 void CvGame::updateTurnTimer()
 {
-	bool gameTurnTimerExpired = false;
-	if (isOption(GAMEOPTION_END_TURN_TIMER_ENABLED) && !isPaused())
-	{
-		CvDLLInterfaceIFaceBase * iface = gDLL->getInterfaceIFace();
-		CvPlayer & activePlayer = GET_PLAYER(getActivePlayer());
-		if (!gDLL->HasSentTurnComplete())
-		{
-			if (getElapsedGameTurns() > 0)
-			{
-				if(!gDLL->allAIProcessedThisTurn() || !allUnitAIProcessed())
-				{
-					resetTurnTimer();
-				}
-				else
-				{// Has the turn expired?
-					float gameTurnEnd = static_cast<float>(getMaxTurnLen());
-					CvPreGame::setEndTurnTimerLength(gameTurnEnd);
-					float timer = m_gameTurnTimer.Peek() + m_fGameTurnTimerPauseDelta;
+	//check the turn timer for the active player
+	hasTurnTimerExpired(getActivePlayer(), true);
+}
 
-					if(activePlayer.isAlive())
-					{
-						if(timer > gameTurnEnd)
+bool CvGame::hasTurnTimerExpired(PlayerTypes playerID, bool gameLoopUpdate)
+{//gameLoopUpdate - Indicates that we're updating the turn timer for the game loop update.  
+ //					This forces the active player's turn to finish if her turn time has elapsed.
+ //					We also reset the turn timer when ai processing is occurring.
+ //					If false, we're simply querying the game for a player's turn timer status.
+	bool gameTurnTimerExpired = false;
+	if(isOption(GAMEOPTION_END_TURN_TIMER_ENABLED) && !isPaused() && GC.getGame().getGameState() == GAMESTATE_ON)
+	{
+		ICvUserInterface2* iface = GC.GetEngineUserInterface();
+		if(getElapsedGameTurns() > 0)
+		{
+			if(gameLoopUpdate && (!gDLL->allAICivsProcessedThisTurn() || !allUnitAIProcessed()))
+			{//the turn timer doesn't doesn't start until all ai processing has been completed for this game turn.
+				resetTurnTimer(true);
+			}
+			else
+			{//turn timer is actively ticking.
+				if(playerID == NO_PLAYER)
+				{//can't do a turn timer check for an invalid player.
+					return false;
+				}
+				CvPlayer& curPlayer = GET_PLAYER(playerID);
+
+				// Has the turn expired?
+				float gameTurnEnd = static_cast<float>(getMaxTurnLen());
+
+				//NOTE:  These times exclude the time used for AI processing.
+				//Time since the current player's turn started.  Used for measuring time for players in sequential turn mode.
+				float timeSinceCurrentTurnStart = m_curTurnTimer.Peek() + m_fCurrentTurnTimerPauseDelta; 
+				//Time since the game (year) turn started.  Used for measuring time for players in simultaneous turn mode.
+				float timeSinceGameTurnStart = m_timeSinceGameTurnStart.Peek() + m_fCurrentTurnTimerPauseDelta; 
+				
+				float timeElapsed = (curPlayer.isSimultaneousTurns() ? timeSinceGameTurnStart : timeSinceCurrentTurnStart);
+
+				if(curPlayer.isAlive())
+				{
+					if(curPlayer.isTurnActive())
+					{//The timer is ticking for our turn
+						if(timeElapsed > gameTurnEnd)
 						{
 							if(s_unitMoveTurnSlice == 0)
 							{
@@ -1712,72 +1790,82 @@ void CvGame::updateTurnTimer()
 								gameTurnTimerExpired = true;
 							}
 						}
+					}
+
+					if((!curPlayer.isTurnActive() || gDLL->HasReceivedTurnComplete(curPlayer.GetID())) //Active player has finished their turn.
+						&& getNumSequentialHumans() > 1)	//or sequential turn mode
+					{//It's not our turn and there are sequential turn human players in the game.
+
+						//In this case, the turn timer shows progress in terms of the max possible time until our next turn.
+						//As such, timeElapsed has to be adjusted to be a value in terms of the max possible time.
+
+						//The max turn length is multiplied by the number of other human players in the sequential turn sequence.
+						gameTurnEnd *= getNumSequentialHumans(playerID);
+
+						//determine number of players in the sequential turn sequence, not counting the active player.
+						int playersInSeq = getNumSequentialHumans(curPlayer.GetID());
+
+						float timePerPlayer = gameTurnEnd / playersInSeq; //time limit per human
+						//count how many human players are left until us in the sequence.
+						int humanTurnsUntilMe = countSeqHumanTurnsUntilPlayerTurn(playerID);
+						int humanTurnsCompleted = playersInSeq - humanTurnsUntilMe;
+
+						if(humanTurnsUntilMe)
+						{//We're waiting on other sequential players
+							timeElapsed =  timeSinceCurrentTurnStart + humanTurnsCompleted*timePerPlayer;
+						}
 						else
-						{
-							iface->updateEndTurnTimer(timer / gameTurnEnd);
+						{//All the other sequential players have finished.
+						 //Either we're waiting on turn processing or on players who are playing simultaneous turns.
+
+							//scale time to be that of the remaining possible time for the simultaneous players.
+							//From the player's perspective, the timer will simply creep down for the remaining simultaneous turn time
+							//rather than skipping straight to zero like it would by just tracking the sequential players' turn time.
+							timeElapsed = timeSinceGameTurnStart + (humanTurnsCompleted-1)*timePerPlayer;
 						}
 					}
-					else
-					{
-						gameTurnTimerExpired = true;
-					}
-				}
-			}
-		}
-		else
-		{
-			iface->updateEndTurnTimer(0.0f);
-		}
-	}
 
-	if(gameTurnTimerExpired == true)
-	{
-		if(!gDLL->HasSentTurnComplete() && gDLL->allAIProcessedThisTurn() && allUnitAIProcessed())
-		{
-			gDLL->sendTurnComplete();
-			CvAchievementUnlocker::EndTurn();
-		}
-	}
-}
-
-//	-----------------------------------------------------------------------------------------------
-bool CvGame::hasTurnTimerExpired()
-{
-	if (isOption(GAMEOPTION_END_TURN_TIMER_ENABLED) && !isPaused())
-	{
-		if (getElapsedGameTurns() > 0)
-		{
-			if (gDLL->allAIProcessedThisTurn() && allUnitAIProcessed())
-			{
-				// Has the turn expired?
-				float gameTurnEnd = static_cast<float>(getMaxTurnLen());
-				// CvPreGame::setEndTurnTimerLength(gameTurnEnd);
-				float timer = m_gameTurnTimer.Peek() + m_fGameTurnTimerPauseDelta;
-
-				CvPlayer& kActivePlayer = GET_PLAYER(getActivePlayer());
-				if (kActivePlayer.isAlive())
-				{
-					if (timer > gameTurnEnd)
-					{
-						if (s_unitMoveTurnSlice == 0)
-						{
-							return true;
-						}
-						else if(s_unitMoveTurnSlice + 10 < getTurnSlice())
-						{
-							return true;
-						}
+					if(gameLoopUpdate)
+					{//update the local end turn timer.
+						CvPreGame::setEndTurnTimerLength(gameTurnEnd);
+						iface->updateEndTurnTimer(timeElapsed / gameTurnEnd);
 					}
 				}
 				else
 				{
-					return true;
+					gameTurnTimerExpired = true;
+				}
+
+				//if this is the game loop update and the player's turn timer has elapsed, force them to end their turn.
+				if(gameLoopUpdate && gameTurnTimerExpired)
+				{
+					if(!gDLL->HasSentTurnComplete() && gDLL->allAICivsProcessedThisTurn() && allUnitAIProcessed())
+					{
+						CvAssertMsg(playerID == getActivePlayer(), "Tried to force end the turn of a player who isn't the active player.");
+
+						gDLL->sendTurnComplete();
+						CvAchievementUnlocker::EndTurn();
+					}
 				}
 			}
 		}
 	}
 
-	return false;
+	return gameTurnTimerExpired;
+}
+
+//	-----------------------------------------------------------------------------------------------
+void CvGame::TurnTimerSync(float fCurTurnTime, float fTurnStartTime)
+{
+	m_curTurnTimer.StartWithOffset(fCurTurnTime);
+	m_timeSinceGameTurnStart.StartWithOffset(fTurnStartTime);
+}
+
+//	-----------------------------------------------------------------------------------------------
+void CvGame::GetTurnTimerData(float& fCurTurnTime, float& fTurnStartTime)
+{
+	fCurTurnTime = m_curTurnTimer.Peek();
+	fTurnStartTime = m_timeSinceGameTurnStart.Peek();
 }
 
 //	-----------------------------------------------------------------------------------------------
@@ -1786,7 +1874,7 @@ void CvGame::updateTestEndTurn()
 	PlayerTypes activePlayerID = getActivePlayer();
 	CvPlayer & activePlayer = GET_PLAYER(activePlayerID);
 
-	CvDLLInterfaceIFaceBase* pkIface = gDLL->getInterfaceIFace();
+	ICvUserInterface2* pkIface = GC.GetEngineUserInterface();
 	if(pkIface != NULL)
 	{
 		bool automaticallyEndTurns = (isGameMultiPlayer())? pkIface->IsMPAutoEndTurnEnabled() : pkIface->IsSPAutoEndTurnEnabled();
@@ -1807,7 +1895,7 @@ void CvGame::updateTestEndTurn()
 			{
 				if(m_endTurnTimerSemaphore < 1)
 				{
-					if(pkIface->canEndTurn() && gDLL->allAIProcessedThisTurn() && allUnitAIProcessed() && !gDLL->HasSentTurnComplete())
+					if(pkIface->canEndTurn() && gDLL->allAICivsProcessedThisTurn() && allUnitAIProcessed() && !gDLL->HasSentTurnComplete())
 					{
 						gDLL->sendTurnComplete();
 						CvAchievementUnlocker::EndTurn();
@@ -1855,19 +1943,6 @@ void CvGame::updateTestEndTurn()
 						}
 					}
 				}
-				else
-				{
-					auto_ptr<ICvCity1> pCity(gDLL->getInterfaceIFace()->getHeadSelectedCity());
-					if(pCity.get() != NULL)
-					{
-						CvCity* pkCity = GC.UnwrapCityPointer(pCity.get());
-						if(pkCity->CanRangeStrikeNow())
-						{
-							eEndTurnBlockingType = ENDTURN_BLOCKING_CITY_RANGE_ATTACK;
-						}
-					}
-
-				}
 		}
 
 		if (eEndTurnBlockingType == NO_ENDTURN_BLOCKING_TYPE)
@@ -1879,9 +1954,9 @@ void CvGame::updateTestEndTurn()
 				// they are implemented again.
 				if(!isGameMultiPlayer())
 				{
-					if ((activePlayer.isOption(PLAYEROPTION_WAIT_END_TURN) && !isGameMultiPlayer()) || !(gDLL->getInterfaceIFace()->isHasMovedUnit()) || isHotSeat() || isPbem())
+					if ((activePlayer.isOption(PLAYEROPTION_WAIT_END_TURN) && !isGameMultiPlayer()) || !(GC.GetEngineUserInterface()->isHasMovedUnit()) || isHotSeat() || isPbem())
 					{
-						gDLL->getInterfaceIFace()->setCanEndTurn(true);
+						GC.GetEngineUserInterface()->setCanEndTurn(true);
 					}
 				}
 				else
@@ -1896,28 +1971,28 @@ void CvGame::updateTestEndTurn()
 					}
 					else
 					{
-						if ((activePlayer.isOption(PLAYEROPTION_WAIT_END_TURN) && !isGameMultiPlayer()) || !(gDLL->getInterfaceIFace()->isHasMovedUnit()) || isHotSeat() || isPbem())
+						if ((activePlayer.isOption(PLAYEROPTION_WAIT_END_TURN) && !isGameMultiPlayer()) || !(GC.GetEngineUserInterface()->isHasMovedUnit()) || isHotSeat() || isPbem())
 						{
-							gDLL->getInterfaceIFace()->setCanEndTurn(true);
+							GC.GetEngineUserInterface()->setCanEndTurn(true);
 						}
 						else
 						{
-							if (gDLL->getInterfaceIFace()->getEndTurnCounter() > 0)
+							if (GC.GetEngineUserInterface()->getEndTurnCounter() > 0)
 							{
-								gDLL->getInterfaceIFace()->changeEndTurnCounter(-1);
+								GC.GetEngineUserInterface()->changeEndTurnCounter(-1);
 							}
 							else
 							{
-								if(!gDLL->HasSentTurnComplete() && gDLL->allAIProcessedThisTurn() && allUnitAIProcessed() && pkIface && pkIface->IsMPAutoEndTurnEnabled())
+								if(!gDLL->HasSentTurnComplete() && gDLL->allAICivsProcessedThisTurn() && allUnitAIProcessed() && pkIface && pkIface->IsMPAutoEndTurnEnabled())
 								{
 									gDLL->sendTurnComplete();
 									CvAchievementUnlocker::EndTurn();
 								}
 
-								gDLL->getInterfaceIFace()->setEndTurnCounter(3); // XXX
+								GC.GetEngineUserInterface()->setEndTurnCounter(3); // XXX
 								if(isGameMultiPlayer())
 								{
-									gDLL->getInterfaceIFace()->setCanEndTurn(true);
+									GC.GetEngineUserInterface()->setCanEndTurn(true);
 									m_endTurnTimer.Start();
 								}
 							}
@@ -2101,7 +2176,7 @@ void CvGame::cycleCities(bool bForward, bool bAdd)
 
 	pSelectCity = NULL;
 
-	auto_ptr<ICvCity1> pHeadSelectedCity(gDLL->getInterfaceIFace()->getHeadSelectedCity());
+	auto_ptr<ICvCity1> pHeadSelectedCity(GC.GetEngineUserInterface()->getHeadSelectedCity());
 
 	CvCity* pkHeadSelectedCity = GC.UnwrapCityPointer(pHeadSelectedCity.get());
 
@@ -2138,12 +2213,12 @@ void CvGame::cycleCities(bool bForward, bool bAdd)
 		auto_ptr<ICvCity1> pDllSelectedCity = GC.WrapCityPointer(pSelectCity);
 		if (bAdd)
 		{
-			gDLL->getInterfaceIFace()->clearSelectedCities();
-			gDLL->getInterfaceIFace()->addSelectedCity(pDllSelectedCity.get());
+			GC.GetEngineUserInterface()->clearSelectedCities();
+			GC.GetEngineUserInterface()->addSelectedCity(pDllSelectedCity.get());
 		}
 		else
 		{
-			gDLL->getInterfaceIFace()->selectCity(pDllSelectedCity.get());
+			GC.GetEngineUserInterface()->selectCity(pDllSelectedCity.get());
 		}
 	}
 }
@@ -2156,7 +2231,7 @@ void CvGame::cycleUnits(bool bClear, bool bForward, bool bWorkers)
 	bool bWrap = false;
 	bool bProcessed = false;
 	PlayerTypes eActivePlayer = getActivePlayer();
-	CvDLLInterfaceIFaceBase* pUI = gDLL->getInterfaceIFace();
+	ICvUserInterface2* pUI = GC.GetEngineUserInterface();
 	CvPlayerAI& theActivePlayer = GET_PLAYER(eActivePlayer);
 
 	auto_ptr<ICvUnit1> pDllSelectedUnit(pUI->GetHeadSelectedUnit());
@@ -2315,7 +2390,7 @@ bool CvGame::cyclePlotUnits(CvPlot* pPlot, bool bForward, bool bAuto, int iCount
 				else
 				{
 					auto_ptr<ICvUnit1> pDllLoopUnit = GC.WrapUnitPointer(pLoopUnit);
-					gDLL->getInterfaceIFace()->InsertIntoSelectionList(pDllLoopUnit.get(), true, false);
+					GC.GetEngineUserInterface()->InsertIntoSelectionList(pDllLoopUnit.get(), true, false);
 					return true;
 				}
 			}
@@ -2339,7 +2414,7 @@ void CvGame::selectionListMove(CvPlot* pPlot, bool bShift)
 		return;
 	}
 
-	auto_ptr<ICvUnit1> pSelectedUnit(gDLL->getInterfaceIFace()->GetHeadSelectedUnit());
+	auto_ptr<ICvUnit1> pSelectedUnit(GC.GetEngineUserInterface()->GetHeadSelectedUnit());
 	CvUnit* pkSelectedUnit = GC.UnwrapUnitPointer(pSelectedUnit.get());
 
 	if ((pkSelectedUnit == NULL) || (pkSelectedUnit->getOwner() != getActivePlayer()))
@@ -2364,7 +2439,7 @@ void CvGame::selectionListMove(CvPlot* pPlot, bool bShift)
 //	--------------------------------------------------------------------------------
 void CvGame::selectionListGameNetMessage(int eMessage, int iData2, int iData3, int iData4, int iFlags, bool bAlt, bool bShift)
 {
-	auto_ptr<ICvUnit1> pSelectedUnit(gDLL->getInterfaceIFace()->GetHeadSelectedUnit());
+	auto_ptr<ICvUnit1> pSelectedUnit(GC.GetEngineUserInterface()->GetHeadSelectedUnit());
 	CvUnit* pkSelectedUnit = GC.UnwrapUnitPointer(pSelectedUnit.get());
 
 	if (pkSelectedUnit != NULL)
@@ -2414,12 +2489,12 @@ void CvGame::selectedCitiesGameNetMessage(int eMessage, int iData2, int iData3, 
 	const IDInfo* pSelectedCityNode;
 	CvCity* pSelectedCity;
 
-	pSelectedCityNode = gDLL->getInterfaceIFace()->headSelectedCitiesNode();
+	pSelectedCityNode = GC.GetEngineUserInterface()->headSelectedCitiesNode();
 
 	while (pSelectedCityNode != NULL)
 	{
 		pSelectedCity = ::getCity(*pSelectedCityNode);
-		pSelectedCityNode = gDLL->getInterfaceIFace()->nextSelectedCitiesNode(pSelectedCityNode);
+		pSelectedCityNode = GC.GetEngineUserInterface()->nextSelectedCitiesNode(pSelectedCityNode);
 		CvAssert(pSelectedCity);
 
 		if (pSelectedCity != NULL)
@@ -2490,26 +2565,26 @@ void CvGame::CityPurchase(CvCity* pCity, UnitTypes eUnitType, BuildingTypes eBui
 //	--------------------------------------------------------------------------------
 void CvGame::selectUnit(CvUnit* pUnit, bool bClear, bool bToggle, bool bSound)
 {
-	auto_ptr<ICvUnit1> pOldSelectedUnit(gDLL->getInterfaceIFace()->GetHeadSelectedUnit());
+	auto_ptr<ICvUnit1> pOldSelectedUnit(GC.GetEngineUserInterface()->GetHeadSelectedUnit());
 	CvUnit* pkOldSelectedUnit = GC.UnwrapUnitPointer(pOldSelectedUnit.get());
 
-	gDLL->getInterfaceIFace()->clearSelectedCities();
+	GC.GetEngineUserInterface()->clearSelectedCities();
 
 	bool bGroup = true;
 	if (bClear)
 	{
-		gDLL->getInterfaceIFace()->ClearSelectionList();
+		GC.GetEngineUserInterface()->ClearSelectionList();
 		bGroup = false;
 	}
 
 	pUnit->IncrementFirstTimeSelected();
 
 	auto_ptr<ICvUnit1> pDllUnit = GC.WrapUnitPointer(pUnit);
-	gDLL->getInterfaceIFace()->InsertIntoSelectionList(pDllUnit.get(), true, bToggle, bGroup, bSound);
+	GC.GetEngineUserInterface()->InsertIntoSelectionList(pDllUnit.get(), true, bToggle, bGroup, bSound);
 
 	gDLL->GameplayMinimapUnitSelect(pUnit->getX(), pUnit->getY());
 
-	gDLL->getInterfaceIFace()->makeSelectionListDirty();
+	GC.GetEngineUserInterface()->makeSelectionListDirty();
 
 	if (GC.getGame().getActivePlayer() == pUnit->getOwner())
 	{
@@ -2535,11 +2610,11 @@ void CvGame::selectGroup(CvUnit* pUnit, bool bShift, bool bCtrl, bool bAlt)
 
 	if (bAlt || bCtrl)
 	{
-		gDLL->getInterfaceIFace()->clearSelectedCities();
+		GC.GetEngineUserInterface()->clearSelectedCities();
 
 		if (!bShift)
 		{
-			gDLL->getInterfaceIFace()->ClearSelectionList();
+			GC.GetEngineUserInterface()->ClearSelectionList();
 			bGroup = true;
 		}
 		else
@@ -2562,12 +2637,13 @@ void CvGame::selectGroup(CvUnit* pUnit, bool bShift, bool bCtrl, bool bAlt)
 			{
 				if (pLoopUnit->canMove())
 				{
-					if (!isMPOption(MPOPTION_SIMULTANEOUS_TURNS) || getTurnSlice() - pLoopUnit->getLastMoveTurn() > GC.getMIN_TIMER_UNIT_DOUBLE_MOVES())
+					CvPlayerAI* pOwnerPlayer = &(GET_PLAYER(pLoopUnit->getOwner()));
+					if( !pOwnerPlayer->isSimultaneousTurns() || getTurnSlice() - pLoopUnit->getLastMoveTurn() > GC.getMIN_TIMER_UNIT_DOUBLE_MOVES())
 					{
 						if (bAlt || (pLoopUnit->getUnitType() == pUnit->getUnitType()))
 						{
 							auto_ptr<ICvUnit1> pDllLoopUnit = GC.WrapUnitPointer(pLoopUnit);
-							gDLL->getInterfaceIFace()->InsertIntoSelectionList(pDllLoopUnit.get(), true, false, bGroup, false, true);
+							GC.GetEngineUserInterface()->InsertIntoSelectionList(pDllLoopUnit.get(), true, false, bGroup, false, true);
 						}
 					}
 				}
@@ -2577,7 +2653,7 @@ void CvGame::selectGroup(CvUnit* pUnit, bool bShift, bool bCtrl, bool bAlt)
 	else
 	{
 		auto_ptr<ICvUnit1> pDllUnit = GC.WrapUnitPointer(pUnit);
-		gDLL->getInterfaceIFace()->selectUnit(pDllUnit.get(), !bShift, bShift, true);
+		GC.GetEngineUserInterface()->selectUnit(pDllUnit.get(), !bShift, bShift, true);
 	}
 }
 
@@ -2600,7 +2676,7 @@ void CvGame::selectAll(CvPlot* pPlot)
 	if (pSelectUnit != NULL)
 	{
 		auto_ptr<ICvUnit1> pDllSelectUnit = GC.WrapUnitPointer(pSelectUnit);
-		gDLL->getInterfaceIFace()->selectGroup(pDllSelectUnit.get(), false, false, true);
+		GC.GetEngineUserInterface()->selectGroup(pDllSelectUnit.get(), false, false, true);
 	}
 }
 
@@ -2633,7 +2709,7 @@ bool CvGame::selectionListIgnoreBuildingDefense()
 {
 	bool bIgnoreBuilding = false;
 	bool bAttackLandUnit = false;
-	auto_ptr<ICvUnit1> pSelectedUnit(gDLL->getInterfaceIFace()->GetHeadSelectedUnit());
+	auto_ptr<ICvUnit1> pSelectedUnit(GC.GetEngineUserInterface()->GetHeadSelectedUnit());
 	CvUnit* pkSelectedUnit = GC.UnwrapUnitPointer(pSelectedUnit.get());
 
 	if (pkSelectedUnit != NULL)
@@ -2684,19 +2760,19 @@ bool CvGame::canHandleAction(int iAction, CvPlot* pPlot, bool bTestVisible)
 		}
 	}
 
-	if (gDLL->getInterfaceIFace()->isCitySelection())
+	if (GC.GetEngineUserInterface()->isCitySelection())
 	{
 		return false; // XXX hack!
 	}
 
-	auto_ptr<ICvUnit1> pHeadSelectedUnit(gDLL->getInterfaceIFace()->GetHeadSelectedUnit());
+	auto_ptr<ICvUnit1> pHeadSelectedUnit(GC.GetEngineUserInterface()->GetHeadSelectedUnit());
 	CvUnit* pkHeadSelectedUnit = GC.UnwrapUnitPointer(pHeadSelectedUnit.get());
 
 	if (pkHeadSelectedUnit != NULL)
 	{
 		if (pkHeadSelectedUnit->getOwner() == getActivePlayer())
 		{
-			if (isMPOption(MPOPTION_SIMULTANEOUS_TURNS) || GET_PLAYER(pkHeadSelectedUnit->getOwner()).isTurnActive())
+			if(GET_PLAYER(pkHeadSelectedUnit->getOwner()).isSimultaneousTurns() || GET_PLAYER(pkHeadSelectedUnit->getOwner()).isTurnActive())
 			{
 				if (GC.getActionInfo(iAction)->getMissionType() != NO_MISSION)
 				{
@@ -2732,7 +2808,7 @@ bool CvGame::canHandleAction(int iAction, CvPlot* pPlot, bool bTestVisible)
 					}
 				}
 
-				if (gDLL->getInterfaceIFace()->CanDoInterfaceMode((InterfaceModeTypes)pActionInfo->getInterfaceModeType(), bTestVisible))
+				if (GC.GetEngineUserInterface()->CanDoInterfaceMode((InterfaceModeTypes)pActionInfo->getInterfaceModeType(), bTestVisible))
 				{
 					return true;
 				}
@@ -2753,7 +2829,7 @@ void CvGame::handleAction(int iAction)
 	bAlt = gDLL->altKey();
 	bShift = false;//gDLL->shiftKey();
 
-	auto_ptr<ICvUnit1> pHeadSelectedUnit(gDLL->getInterfaceIFace()->GetHeadSelectedUnit());
+	auto_ptr<ICvUnit1> pHeadSelectedUnit(GC.GetEngineUserInterface()->GetHeadSelectedUnit());
 
 	if (!(canHandleAction(iAction)))
 	{
@@ -2767,21 +2843,21 @@ void CvGame::handleAction(int iAction)
 	}
 
 	// Interface Mode
-	if (gDLL->getInterfaceIFace()->CanDoInterfaceMode((InterfaceModeTypes)GC.getActionInfo(iAction)->getInterfaceModeType()))
+	if (GC.GetEngineUserInterface()->CanDoInterfaceMode((InterfaceModeTypes)GC.getActionInfo(iAction)->getInterfaceModeType()))
 	{
 		if (pHeadSelectedUnit.get() != NULL)
 		{
 			if (GC.getInterfaceModeInfo((InterfaceModeTypes)GC.getActionInfo(iAction)->getInterfaceModeType())->getSelectAll())
 			{
-				gDLL->getInterfaceIFace()->selectGroup(pHeadSelectedUnit.get(), false, false, true);
+				GC.GetEngineUserInterface()->selectGroup(pHeadSelectedUnit.get(), false, false, true);
 			}
 			else if (GC.getInterfaceModeInfo((InterfaceModeTypes)GC.getActionInfo(iAction)->getInterfaceModeType())->getSelectType())
 			{
-				gDLL->getInterfaceIFace()->selectGroup(pHeadSelectedUnit.get(), false, true, false);
+				GC.GetEngineUserInterface()->selectGroup(pHeadSelectedUnit.get(), false, true, false);
 			}
 		}
 
-		gDLL->getInterfaceIFace()->setInterfaceMode((InterfaceModeTypes)GC.getActionInfo(iAction)->getInterfaceModeType());
+		GC.GetEngineUserInterface()->setInterfaceMode((InterfaceModeTypes)GC.getActionInfo(iAction)->getInterfaceModeType());
 	}
 
 	// Mission
@@ -2820,12 +2896,12 @@ void CvGame::handleAction(int iAction)
 			int iBuild = GC.getActionInfo(iAction)->getMissionData();
 			CvPopupInfo kPopupInfo(BUTTONPOPUP_CONFIRM_IMPROVEMENT_REBUILD, iAction, iBuild);
 			kPopupInfo.bOption1 = bAlt;
-			gDLL->getInterfaceIFace()->AddPopup(kPopupInfo);
+			GC.GetEngineUserInterface()->AddPopup(kPopupInfo);
 		}
 		else
 		{
 			selectionListGameNetMessage(GAMEMESSAGE_PUSH_MISSION, GC.getActionInfo(iAction)->getMissionType(), GC.getActionInfo(iAction)->getMissionData(), -1, 0, false, bShift);
-			gDLL->getInterfaceIFace()->setInterfaceMode(INTERFACEMODE_SELECTION);
+			GC.GetEngineUserInterface()->setInterfaceMode(INTERFACEMODE_SELECTION);
 		}
 	}
 
@@ -2840,7 +2916,7 @@ void CvGame::handleAction(int iAction)
 			{
 				CvPopupInfo kPopupInfo(BUTTONPOPUP_CONFIRMCOMMAND, iAction);
 				kPopupInfo.bOption1 = bAlt;
-				gDLL->getInterfaceIFace()->AddPopup(kPopupInfo);
+				GC.GetEngineUserInterface()->AddPopup(kPopupInfo);
 			}
 			else
 			{
@@ -2873,7 +2949,7 @@ bool CvGame::canDoControl(ControlTypes eControl)
 	case CONTROL_QUICK_SAVE:
 	case CONTROL_QUICK_LOAD:
 	case CONTROL_TURN_LOG:
-		if (!gDLL->getInterfaceIFace()->isFocused())
+		if (!GC.GetEngineUserInterface()->isFocused())
 		{
 			return true;
 		}
@@ -2909,7 +2985,7 @@ bool CvGame::canDoControl(ControlTypes eControl)
 
 	case CONTROL_CENTERONSELECTION:
 		{
-			auto_ptr<ICvPlot1> pSelectionPlot(gDLL->getInterfaceIFace()->getSelectionPlot());
+			auto_ptr<ICvPlot1> pSelectionPlot(GC.GetEngineUserInterface()->getSelectionPlot());
 			if (pSelectionPlot.get() != NULL)
 			{
 				return true;
@@ -2946,14 +3022,14 @@ bool CvGame::canDoControl(ControlTypes eControl)
 
 	case CONTROL_ENDTURN:
 	case CONTROL_ENDTURN_ALT:
-		if (gDLL->getInterfaceIFace()->canEndTurn() && !gDLL->getInterfaceIFace()->isFocused())
+		if (GC.GetEngineUserInterface()->canEndTurn() && !GC.GetEngineUserInterface()->isFocused())
 		{
 			return true;
 		}
 		break;
 
 	case CONTROL_TOGGLE_STRATEGIC_VIEW:
-		gDLL->getInterfaceIFace()->ToggleStrategicView();
+		GC.GetEngineUserInterface()->ToggleStrategicView();
 		break;
 
 	case CONTROL_RESTART_GAME:
@@ -2985,34 +3061,34 @@ void CvGame::doControl(ControlTypes eControl)
 	switch (eControl)
 	{
 	case CONTROL_CENTERONSELECTION:
-		gDLL->getInterfaceIFace()->lookAtSelectionPlot();
+		GC.GetEngineUserInterface()->lookAtSelectionPlot();
 		break;
 
 	case CONTROL_SELECTYUNITTYPE:
 		{
-			auto_ptr<ICvUnit1> pHeadSelectedUnit(gDLL->getInterfaceIFace()->GetHeadSelectedUnit());
+			auto_ptr<ICvUnit1> pHeadSelectedUnit(GC.GetEngineUserInterface()->GetHeadSelectedUnit());
 			if (pHeadSelectedUnit.get() != NULL)
 			{
-				gDLL->getInterfaceIFace()->selectGroup(pHeadSelectedUnit.get(), false, true, false);
+				GC.GetEngineUserInterface()->selectGroup(pHeadSelectedUnit.get(), false, true, false);
 			}
 		}
 		break;
 
 	case CONTROL_SELECTYUNITALL:
 		{
-			auto_ptr<ICvUnit1> pHeadSelectedUnit(gDLL->getInterfaceIFace()->GetHeadSelectedUnit());
+			auto_ptr<ICvUnit1> pHeadSelectedUnit(GC.GetEngineUserInterface()->GetHeadSelectedUnit());
 			if (pHeadSelectedUnit.get() != NULL)
 			{
-				gDLL->getInterfaceIFace()->selectGroup(pHeadSelectedUnit.get(), false, false, true);
+				GC.GetEngineUserInterface()->selectGroup(pHeadSelectedUnit.get(), false, false, true);
 			}
 		}
 		break;
 
 	case CONTROL_SELECT_HEALTHY:
 		{
-			auto_ptr<ICvUnit1> pHeadSelectedUnit(gDLL->getInterfaceIFace()->GetHeadSelectedUnit());
+			auto_ptr<ICvUnit1> pHeadSelectedUnit(GC.GetEngineUserInterface()->GetHeadSelectedUnit());
 			CvUnit* pkHeadSelectedUnit = GC.UnwrapUnitPointer(pHeadSelectedUnit.get());
-			gDLL->getInterfaceIFace()->ClearSelectionList();
+			GC.GetEngineUserInterface()->ClearSelectionList();
 			if (pkHeadSelectedUnit != NULL)
 			{
 				CvPlot* pHeadPlot = pkHeadSelectedUnit->plot();
@@ -3022,14 +3098,14 @@ void CvGame::doControl(ControlTypes eControl)
 				{
 					CvUnit* pUnit = plotUnits[iI];
 
-					if (pUnit->getOwner() == getActivePlayer())
+					if(pUnit->getOwner() == getActivePlayer())
 					{
-						if (!isMPOption(MPOPTION_SIMULTANEOUS_TURNS) || getTurnSlice() - pUnit->getLastMoveTurn() > GC.getMIN_TIMER_UNIT_DOUBLE_MOVES())
+						if(!GET_PLAYER(pUnit->getOwner()).isSimultaneousTurns() || getTurnSlice() - pUnit->getLastMoveTurn() > GC.getMIN_TIMER_UNIT_DOUBLE_MOVES())
 						{
 							if (pUnit->IsHurt())
 							{
 								auto_ptr<ICvUnit1> pDllUnit = GC.WrapUnitPointer(pUnit);
-								gDLL->getInterfaceIFace()->InsertIntoSelectionList(pDllUnit.get(), true, false, true, true, true);
+								GC.GetEngineUserInterface()->InsertIntoSelectionList(pDllUnit.get(), true, false, true, true, true);
 							}
 						}
 					}
@@ -3039,15 +3115,15 @@ void CvGame::doControl(ControlTypes eControl)
 		break;
 
 	case CONTROL_SELECTCITY:
-		if (gDLL->getInterfaceIFace()->isCityScreenUp())
+		if (GC.GetEngineUserInterface()->isCityScreenUp())
 		{
 			cycleCities();
 		}
 		else
 		{
-			gDLL->getInterfaceIFace()->selectLookAtCity();
+			GC.GetEngineUserInterface()->selectLookAtCity();
 		}
-		gDLL->getInterfaceIFace()->lookAtSelectionPlot();
+		GC.GetEngineUserInterface()->lookAtSelectionPlot();
 		break;
 
 	case CONTROL_SELECTCAPITAL:
@@ -3056,39 +3132,39 @@ void CvGame::doControl(ControlTypes eControl)
 			if (pCapitalCity != NULL)
 			{
 				auto_ptr<ICvCity1> pDllCapitalCity = GC.WrapCityPointer(pCapitalCity);
-				gDLL->getInterfaceIFace()->selectCity(pDllCapitalCity.get());
+				GC.GetEngineUserInterface()->selectCity(pDllCapitalCity.get());
 			}
-			gDLL->getInterfaceIFace()->lookAtSelectionPlot();
+			GC.GetEngineUserInterface()->lookAtSelectionPlot();
 		}
 		break;
 
 	case CONTROL_NEXTCITY:
-		if (gDLL->getInterfaceIFace()->isCitySelection())
+		if (GC.GetEngineUserInterface()->isCitySelection())
 		{
-			cycleCities(true, !(gDLL->getInterfaceIFace()->isCityScreenUp()));
+			cycleCities(true, !(GC.GetEngineUserInterface()->isCityScreenUp()));
 		}
 		else
 		{
-			gDLL->getInterfaceIFace()->selectLookAtCity(true);
+			GC.GetEngineUserInterface()->selectLookAtCity(true);
 		}
-		gDLL->getInterfaceIFace()->lookAtSelectionPlot();
+		GC.GetEngineUserInterface()->lookAtSelectionPlot();
 		break;
 
 	case CONTROL_PREVCITY:
-		if (gDLL->getInterfaceIFace()->isCitySelection())
+		if (GC.GetEngineUserInterface()->isCitySelection())
 		{
-			cycleCities(false, !(gDLL->getInterfaceIFace()->isCityScreenUp()));
+			cycleCities(false, !(GC.GetEngineUserInterface()->isCityScreenUp()));
 		}
 		else
 		{
-			gDLL->getInterfaceIFace()->selectLookAtCity(true);
+			GC.GetEngineUserInterface()->selectLookAtCity(true);
 		}
-		gDLL->getInterfaceIFace()->lookAtSelectionPlot();
+		GC.GetEngineUserInterface()->lookAtSelectionPlot();
 		break;
 
 	case CONTROL_NEXTUNIT:
 		{
-			auto_ptr<ICvPlot1> pSelectionPlot(gDLL->getInterfaceIFace()->getSelectionPlot());
+			auto_ptr<ICvPlot1> pSelectionPlot(GC.GetEngineUserInterface()->getSelectionPlot());
 			CvPlot* pkSelectionPlot = GC.UnwrapPlotPointer(pSelectionPlot.get());
 			if (pkSelectionPlot != NULL)
 			{
@@ -3099,7 +3175,7 @@ void CvGame::doControl(ControlTypes eControl)
 
 	case CONTROL_PREVUNIT:
 		{
-			auto_ptr<ICvPlot1> pSelectionPlot(gDLL->getInterfaceIFace()->getSelectionPlot());
+			auto_ptr<ICvPlot1> pSelectionPlot(GC.GetEngineUserInterface()->getSelectionPlot());
 			CvPlot* pkSelectionPlot = GC.UnwrapPlotPointer(pSelectionPlot.get());
 			if (pkSelectionPlot != NULL)
 			{
@@ -3119,7 +3195,7 @@ void CvGame::doControl(ControlTypes eControl)
 
 	case CONTROL_LASTUNIT:
 		{
-			CvDLLInterfaceIFaceBase* UI = gDLL->getInterfaceIFace();
+			ICvUserInterface2* UI = GC.GetEngineUserInterface();
 			auto_ptr<ICvUnit1> pUnit(UI->getLastSelectedUnit());
 
 			if (pUnit.get() != NULL)
@@ -3138,23 +3214,23 @@ void CvGame::doControl(ControlTypes eControl)
 
 	case CONTROL_ENDTURN:
 	case CONTROL_ENDTURN_ALT:
-		if (gDLL->getInterfaceIFace()->canEndTurn() && gDLL->allAIProcessedThisTurn() && allUnitAIProcessed())
+		if(GC.GetEngineUserInterface()->canEndTurn() && gDLL->allAICivsProcessedThisTurn() && allUnitAIProcessed())
 		{
 			gDLL->sendTurnComplete();
 			CvAchievementUnlocker::EndTurn();
-			gDLL->getInterfaceIFace()->setInterfaceMode(INTERFACEMODE_SELECTION);
+			GC.GetEngineUserInterface()->setInterfaceMode(INTERFACEMODE_SELECTION);
 		}
 		break;
 
 	case CONTROL_FORCEENDTURN:
 		{
 			EndTurnBlockingTypes eBlock = GET_PLAYER(getActivePlayer()).GetEndTurnBlockingType();
-			if(gDLL->allAIProcessedThisTurn() && allUnitAIProcessed() && (eBlock == NO_ENDTURN_BLOCKING_TYPE || eBlock == ENDTURN_BLOCKING_UNITS))
+			if(gDLL->allAICivsProcessedThisTurn() && allUnitAIProcessed() && (eBlock == NO_ENDTURN_BLOCKING_TYPE || eBlock == ENDTURN_BLOCKING_UNITS))
 			{
 				gDLL->sendTurnComplete();
 				CvAchievementUnlocker::EndTurn();
 				SetForceEndingTurn(true);
-				gDLL->getInterfaceIFace()->setInterfaceMode(INTERFACEMODE_SELECTION);
+				GC.GetEngineUserInterface()->setInterfaceMode(INTERFACEMODE_SELECTION);
 			}
 			break;
 		}
@@ -3164,15 +3240,15 @@ void CvGame::doControl(ControlTypes eControl)
 		break;
 
 	case CONTROL_PING:
-		gDLL->getInterfaceIFace()->setInterfaceMode(INTERFACEMODE_PING);
+		GC.GetEngineUserInterface()->setInterfaceMode(INTERFACEMODE_PING);
 		break;
 
 	case CONTROL_YIELDS:
-		gDLL->getInterfaceIFace()->toggleYieldVisibleMode();
+		GC.GetEngineUserInterface()->toggleYieldVisibleMode();
 		break;
 
 	case CONTROL_RESOURCE_ALL:
-		gDLL->getInterfaceIFace()->toggleResourceVisibleMode();
+		GC.GetEngineUserInterface()->toggleResourceVisibleMode();
 		break;
 
 	case CONTROL_UNIT_ICONS:
@@ -3193,13 +3269,13 @@ void CvGame::doControl(ControlTypes eControl)
 		if (!isGameMultiPlayer() || countHumanPlayersAlive() == 1)
 		{
 			setGameState(GAMESTATE_OVER);
-			gDLL->getInterfaceIFace()->setDirty(Soundtrack_DIRTY_BIT, true);
+			GC.GetEngineUserInterface()->setDirty(Soundtrack_DIRTY_BIT, true);
 		}
 		else
 		{
 			if (isNetworkMultiPlayer())
 			{
-				gDLL->getInterfaceIFace()->exitingToMainMenu();
+				GC.GetEngineUserInterface()->exitingToMainMenu();
 			}
 		}
 		break;
@@ -3234,7 +3310,7 @@ void CvGame::doControl(ControlTypes eControl)
 		{
 			CvPopupInfo kPopup(BUTTONPOPUP_CHOOSEPOLICY, getActivePlayer());
 			kPopup.iData1 = 1;
-			gDLL->getInterfaceIFace()->AddPopup(kPopup);
+			GC.GetEngineUserInterface()->AddPopup(kPopup);
 		}
 		break;
 
@@ -3242,7 +3318,7 @@ void CvGame::doControl(ControlTypes eControl)
 		{
 			CvPopupInfo kPopup( BUTTONPOPUP_DIPLOMATIC_OVERVIEW, getActivePlayer() );
 			kPopup.iData1 = 1;
-			gDLL->getInterfaceIFace()->AddPopup( kPopup );
+			GC.GetEngineUserInterface()->AddPopup( kPopup );
 		}
 		break;
 
@@ -3250,7 +3326,7 @@ void CvGame::doControl(ControlTypes eControl)
         {
             CvPopupInfo kPopup( BUTTONPOPUP_MILITARY_OVERVIEW, getActivePlayer() );
 			kPopup.iData1 = 1;
-            gDLL->getInterfaceIFace()->AddPopup(kPopup);
+            GC.GetEngineUserInterface()->AddPopup(kPopup);
         }
 		break;
 
@@ -3259,10 +3335,10 @@ void CvGame::doControl(ControlTypes eControl)
     		CvPopupInfo kPopup( BUTTONPOPUP_TECH_TREE, getActivePlayer() );
 
 			// If the popup queue is empty, just show the tech tree, don't queue it up - otherwise, if we, say, go into the Pedia from here, it'll end up BEHIND the tech tree
-			if (!gDLL->getInterfaceIFace()->IsPopupQueueEmpty())
+			if (!GC.GetEngineUserInterface()->IsPopupQueueEmpty())
 				kPopup.iData1 = 1;
 
-    		gDLL->getInterfaceIFace()->AddPopup(kPopup);
+    		GC.GetEngineUserInterface()->AddPopup(kPopup);
         }
 		break;
 
@@ -3270,7 +3346,7 @@ void CvGame::doControl(ControlTypes eControl)
 		{
 			CvPopupInfo kPopup( BUTTONPOPUP_NOTIFICATION_LOG, getActivePlayer() );
 			kPopup.iData1 = 1;
-			gDLL->getInterfaceIFace()->AddPopup(kPopup);
+			GC.GetEngineUserInterface()->AddPopup(kPopup);
 		}
 		break;
 
@@ -3278,7 +3354,7 @@ void CvGame::doControl(ControlTypes eControl)
 		{
 			CvPopupInfo kPopup(BUTTONPOPUP_ECONOMIC_OVERVIEW, getActivePlayer());
 			kPopup.iData1 = 1;
-			gDLL->getInterfaceIFace()->AddPopup(kPopup);
+			GC.GetEngineUserInterface()->AddPopup(kPopup);
 		}
 		break;
 
@@ -3286,7 +3362,7 @@ void CvGame::doControl(ControlTypes eControl)
 		{
 			CvPopupInfo kPopup( BUTTONPOPUP_VICTORY_INFO, getActivePlayer() );
 			kPopup.iData1 = 1;;
-			gDLL->getInterfaceIFace()->AddPopup( kPopup );
+			GC.GetEngineUserInterface()->AddPopup( kPopup );
 		}
 		break;
 
@@ -3294,7 +3370,7 @@ void CvGame::doControl(ControlTypes eControl)
 		{
 			CvPopupInfo kPopup( BUTTONPOPUP_DEMOGRAPHICS, getActivePlayer() );
 			kPopup.iData1 = 1;
-			gDLL->getInterfaceIFace()->AddPopup( kPopup );
+			GC.GetEngineUserInterface()->AddPopup( kPopup );
 		}
 		break;
 
@@ -3302,7 +3378,7 @@ void CvGame::doControl(ControlTypes eControl)
 		{
 			CvPopupInfo kPopup( BUTTONPOPUP_ADVISOR_COUNSEL );
 			kPopup.iData1 = 1;
-			gDLL->getInterfaceIFace()->AddPopup( kPopup );
+			GC.GetEngineUserInterface()->AddPopup( kPopup );
 		}
 		break;
 
@@ -3535,6 +3611,69 @@ int CvGame::countHumanPlayersEverAlive() const
 	}
 
 	return iCount;
+}
+
+//	--------------------------------------------------------------------------------
+int CvGame::countSeqHumanTurnsUntilPlayerTurn( PlayerTypes playerID ) const
+{//This function counts the number of sequential human player turns that remain before this player's turn.
+	int humanTurnsUntilMe = 0;
+	bool startCountingPlayers = false;
+	CvPlayer& targetPlayer = GET_PLAYER(playerID);
+	if(targetPlayer.isSimultaneousTurns())
+	{//target player is playing simultaneous turns and is not actually in the sequential turn sequence.
+		//Count every human player in sequential turn mode who is taking or hasn't taken their turn.
+		for(int i = 0; i < MAX_PLAYERS; ++i)
+		{
+			CvPlayer& kCurrentPlayer = GET_PLAYER((PlayerTypes)i);
+			if(kCurrentPlayer.isHuman() 
+				&& kCurrentPlayer.isAlive() 
+				&& !kCurrentPlayer.isSimultaneousTurns())
+			{//another human player who is playing sequential turns.
+				if(kCurrentPlayer.isTurnActive())
+				{//This player is currently playing their turn. Start counting human players after this point.
+					startCountingPlayers = true;
+					humanTurnsUntilMe++;
+				}
+				else if(startCountingPlayers)
+				{//This is a human player who's before us in line.
+					humanTurnsUntilMe++;
+				}
+			}
+		}	
+	}
+	else
+	{//target player is playing sequential turns.  
+		//Our next turn will begin after every sequential player has finished this turn 
+		//AND everyone ahead of us in the sequence has finished their turn for the NEXT turn.
+
+		//Starting after us, count every player who's playing sequential turns.
+		startCountingPlayers = false;
+		int curPlayerIdx = (targetPlayer.GetID()+1)%MAX_PLAYERS;
+		for(int i = 0; i < MAX_PLAYERS; curPlayerIdx = ++curPlayerIdx%MAX_PLAYERS, ++i)
+		{
+			CvPlayer& kCurrentPlayer = GET_PLAYER((PlayerTypes)curPlayerIdx);
+			if(kCurrentPlayer.GetID() == targetPlayer.GetID())
+			{//This is us.  We've looped back to ourself.  We're done.
+				break;
+			}
+			else if(kCurrentPlayer.isHuman() 
+				&& kCurrentPlayer.isAlive() 
+				&& !kCurrentPlayer.isSimultaneousTurns())
+			{//another human player who is playing sequential turns.
+				if(kCurrentPlayer.isTurnActive())
+				{//This player is currently playing their turn. Start counting human players after this point.
+					startCountingPlayers = true;
+					humanTurnsUntilMe++;
+				}
+				else if(startCountingPlayers)
+				{//This is a human player who's before us in line.
+					humanTurnsUntilMe++;
+				}
+			}
+		}	
+	}
+
+	return humanTurnsUntilMe;
 }
 
 //	--------------------------------------------------------------------------------
@@ -3837,16 +3976,15 @@ void CvGame::ReviveActivePlayer()
 		// If no player specified, returning as an observer
 		if (m_eAIAutoPlayReturnPlayer == NO_PLAYER)
 		{
-			// Create a settler at (0,0) for the active player (so they can observe the game). it's a sub because subs can be under the ice and water, and they won't get insta-killed by clever logic
-			GET_PLAYER(getActivePlayer()).initUnit(((UnitTypes)0), 0, 0);
-			GET_PLAYER(getActivePlayer()).InitDangerPlots();
-			CvPreGame::setSlotStatus(getActivePlayer(), SS_TAKEN);
+			CvPreGame::setSlotClaim(getActivePlayer(), SLOTCLAIM_ASSIGNED);
+			CvPreGame::setSlotStatus(getActivePlayer(), SS_OBSERVER);
 		}
 
 		// Want to return as a specific player
 		else
 		{
 			// Reset observer slot
+			CvPreGame::setSlotClaim(getActivePlayer(), SLOTCLAIM_UNASSIGNED);
 			CvPreGame::setSlotStatus(getActivePlayer(), SS_OBSERVER);
 
 			// Move the active player to the desired slot
@@ -3872,7 +4010,7 @@ bool CvGame::CanMoveActivePlayerToObserver()
 	for (int iI = 0; iI < MAX_MAJOR_CIVS; iI++)
 	{
 		// Found an observer slot
-		if (CvPreGame::slotStatus((PlayerTypes)iI) == SS_OBSERVER)
+		if(CvPreGame::slotStatus((PlayerTypes)iI) == SS_OBSERVER && (CvPreGame::slotClaim((PlayerTypes)iI) == SLOTCLAIM_UNASSIGNED || CvPreGame::slotClaim((PlayerTypes)iI) == SLOTCLAIM_RESERVED))
 		{
 			iObserver = iI;
 			break;
@@ -3889,15 +4027,14 @@ void CvGame::ActivateObserverSlot()
 {
 	for (int iI = 0; iI < MAX_MAJOR_CIVS; iI++)
 	{
-		if (CvPreGame::slotStatus((PlayerTypes)iI) == SS_OBSERVER)
+		if(CvPreGame::slotStatus((PlayerTypes)iI) == SS_OBSERVER && (CvPreGame::slotClaim((PlayerTypes)iI) == SLOTCLAIM_UNASSIGNED || CvPreGame::slotClaim((PlayerTypes)iI) == SLOTCLAIM_RESERVED))
 		{
 			// Set current active player to a computer player
 			CvPreGame::setSlotStatus(CvPreGame::activePlayer(), SS_COMPUTER);
 
 			// Move the active player to the observer slot
-			CvPreGame::setActivePlayer((PlayerTypes)iI);
-
-			CvPreGame::setSlotStatus(getActivePlayer(), SS_TAKEN);
+			CvPreGame::setSlotClaim((PlayerTypes)iI, SLOTCLAIM_ASSIGNED);
+			setActivePlayer((PlayerTypes)iI, false /*bForceHotSeat*/, true /*bAutoplaySwitch*/);
 
 			break;
 		}
@@ -3927,6 +4064,42 @@ int CvGame::GetNumMinorCivsEver()
 	return iNumCivs;
 }
 
+//	--------------------------------------------------------------------------------
+int CvGame::getNumHumansInHumanWars(PlayerTypes ignorePlayer)
+{//returns the number of human players who are currently at war with other human players.
+	int humansWarringHumans = 0;
+	for(int i = 0; i < MAX_CIV_PLAYERS; ++i)
+	{
+		const CvPlayer& curPlayer = GET_PLAYER((PlayerTypes)i);
+		if(curPlayer.isAlive() 
+			&& curPlayer.isHuman() 
+			&& (ignorePlayer == NO_PLAYER || curPlayer.GetID() != ignorePlayer)  //ignore the ignore player
+			&& GET_TEAM(curPlayer.getTeam()).isAtWarWithHumans())
+		{
+			++humansWarringHumans;
+		}
+	}
+	return humansWarringHumans;
+}
+
+//	--------------------------------------------------------------------------------
+int CvGame::getNumSequentialHumans(PlayerTypes ignorePlayer)
+{//returns the number of human players who are playing sequential turns.
+	int seqHumans = 0;
+	for(int i = 0; i < MAX_CIV_PLAYERS; ++i)
+	{
+		const CvPlayer& curPlayer = GET_PLAYER((PlayerTypes)i);
+		if(curPlayer.isAlive() 
+			&& curPlayer.isHuman() 
+			&& !curPlayer.isSimultaneousTurns()
+			&& (ignorePlayer == NO_PLAYER || curPlayer.GetID() != ignorePlayer))  //ignore the ignore player
+		{
+			++seqHumans;
+		}
+	}
+	return seqHumans;
+}
+
 //	------------------------------------------------------------------------------------------------
 int CvGame::getGameTurn()
 {
@@ -3946,8 +4119,8 @@ void CvGame::setGameTurn(int iNewValue)
 
 		setScoreDirty(true);
 
-		gDLL->getInterfaceIFace()->setDirty(TurnTimer_DIRTY_BIT, true);
-		gDLL->getInterfaceIFace()->setDirty(GameData_DIRTY_BIT, true);
+		GC.GetEngineUserInterface()->setDirty(TurnTimer_DIRTY_BIT, true);
+		GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
 		m_sentAutoMoves = false;
 		gDLL->GameplayTurnChanged(iNewValue);
 		endTurnTimerReset();
@@ -4134,20 +4307,29 @@ void CvGame::changeTurnSlice(int iChange)
 }
 
 //	-----------------------------------------------------------------------------------------------
-void CvGame::resetTurnTimer()
+void CvGame::resetTurnTimer(bool resetGameTurnStart)
 {
-	m_gameTurnTimer.Start();
-	m_fGameTurnTimerPauseDelta = 0;
+	m_curTurnTimer.Start();
+	m_fCurrentTurnTimerPauseDelta = 0;
+	if(resetGameTurnStart)
+	{
+		m_timeSinceGameTurnStart.Start();
+	}
 }
 
 //	-----------------------------------------------------------------------------------------------
 int CvGame::getMaxTurnLen()
-{
-	if (isPitboss())
-	{
-		// Use the user provided input
-		// Turn time is in hours
-		return ( getPitbossTurnTime() * 3600 * 4);
+{//returns the amount of time players are being given for this turn.
+	if(getPitbossTurnTime() != 0)
+	{//manually set turn time.
+		if(isPitboss())
+		{// Turn time is in hours
+			return (getPitbossTurnTime() * 3600);
+		}
+		else
+		{
+			return getPitbossTurnTime();
+		}
 	}
 	else
 	{
@@ -4173,9 +4355,11 @@ int CvGame::getMaxTurnLen()
 
 		// Now return turn len based on base len and unit and city resources
 		const CvTurnTimerInfo& kTurnTimer = CvPreGame::turnTimerInfo();
-		return ( kTurnTimer.getBaseTime() +
-			    (kTurnTimer.getCityResource() * iMaxCities) +
-				(kTurnTimer.getUnitResource() * iMaxUnits) );
+		int baseTurnTime = (kTurnTimer.getBaseTime() +
+		        (kTurnTimer.getCityResource() * iMaxCities) +
+		        (kTurnTimer.getUnitResource() * iMaxUnits));
+		
+		return baseTurnTime;
 	}
 }
 
@@ -4935,7 +5119,7 @@ void CvGame::DoResolveVictoryVote()
 
 	// Results Popup
 	CvPopupInfo kPopup(BUTTONPOPUP_VOTE_RESULTS);
-	gDLL->getInterfaceIFace()->AddPopup(kPopup);
+	GC.GetEngineUserInterface()->AddPopup(kPopup);
 
 	if (!bWinner)
 	{
@@ -5038,11 +5222,11 @@ void CvGame::toggleDebugMode()
 
 	GC.getMap().updateVisibility();
 
-	gDLL->getInterfaceIFace()->setDirty(GameData_DIRTY_BIT, true);
-	gDLL->getInterfaceIFace()->setDirty(Score_DIRTY_BIT, true);
-	gDLL->getInterfaceIFace()->setDirty(MinimapSection_DIRTY_BIT, true);
-	gDLL->getInterfaceIFace()->setDirty(UnitInfo_DIRTY_BIT, true);
-	gDLL->getInterfaceIFace()->setDirty(CityInfo_DIRTY_BIT, true);
+	GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
+	GC.GetEngineUserInterface()->setDirty(Score_DIRTY_BIT, true);
+	GC.GetEngineUserInterface()->setDirty(MinimapSection_DIRTY_BIT, true);
+	GC.GetEngineUserInterface()->setDirty(UnitInfo_DIRTY_BIT, true);
+	GC.GetEngineUserInterface()->setDirty(CityInfo_DIRTY_BIT, true);
 }
 
 //	--------------------------------------------------------------------------------
@@ -5086,14 +5270,16 @@ bool CvGame::isPitboss() const
 
 //	--------------------------------------------------------------------------------
 bool CvGame::isSimultaneousTeamTurns() const
-{
+{//When players are taking sequential turns, do they take them simultaneous with every member of their team?
+ //WARNING:  This function doesn't indicate if a player is taking sequential turns or not.
+	//		 Use CvPlayer::isSimultaneousTurns() to determine that.
 	if (!isNetworkMultiPlayer())
 	{
 		return false;
 	}
 
-	if (isMPOption(MPOPTION_SIMULTANEOUS_TURNS))
-	{
+	if(!isOption(GAMEOPTION_DYNAMIC_TURNS) && isOption(GAMEOPTION_SIMULTANEOUS_TURNS))
+	{//truely simultaneous turn mode doesn't do this.
 		return false;
 	}
 
@@ -5164,11 +5350,18 @@ void CvGame::sendPlayerOptions(bool bForce)
 	{
 		m_bPlayerOptionsSent = true;
 
-		for (int iI = 0; iI < NUM_PLAYEROPTION_TYPES; iI++)
+		gDLL->BeginSendBundle();
+		for(int iI = 0; iI < GC.getNumPlayerOptionInfos(); iI++)
 		{
 			const PlayerOptionTypes eOption = static_cast<PlayerOptionTypes>(iI);
-			gDLL->sendPlayerOption(eOption, gDLL->getPlayerOption(eOption));
+			CvPlayerOptionInfo* pkInfo = GC.getPlayerOptionInfo(eOption);
+			if (pkInfo)
+			{
+				uint uiID = FString::Hash( pkInfo->GetType() );
+				gDLL->sendPlayerOption(static_cast<PlayerOptionTypes>(uiID), gDLL->getPlayerOption(static_cast<PlayerOptionTypes>(uiID)));
+			}
 		}
+		gDLL->EndSendBundle();
 	}
 }
 
@@ -5192,8 +5385,8 @@ void CvGame::setActivePlayer(PlayerTypes eNewValue, bool bForceHotSeat, bool bAu
 		{
 			if (isHotSeat())
 			{
-				gDLL->getInterfaceIFace()->setDirty(TurnTimer_DIRTY_BIT, true);
-				gDLL->getInterfaceIFace()->setDirty(GameData_DIRTY_BIT, true);
+				GC.GetEngineUserInterface()->setDirty(TurnTimer_DIRTY_BIT, true);
+				GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
 				m_sentAutoMoves = false;
 				resetTurnTimer();
 				endTurnTimerReset();
@@ -5232,7 +5425,7 @@ void CvGame::setActivePlayer(PlayerTypes eNewValue, bool bForceHotSeat, bool bAu
 			theMap.updateFog();
 			theMap.updateVisibility();
 
-			CvDLLInterfaceIFaceBase* theUI = gDLL->getInterfaceIFace();
+			ICvUserInterface2* theUI = GC.GetEngineUserInterface();
 			theUI->setCanEndTurn(false);
 
 			theUI->clearSelectedCities();
@@ -5300,10 +5493,15 @@ void CvGame::setPausePlayer(PlayerTypes eNewValue)
 		if (isOption(GAMEOPTION_END_TURN_TIMER_ENABLED))
 		{
 			if (eNewValue != NO_PLAYER && m_ePausePlayer == NO_PLAYER)
-				m_fGameTurnTimerPauseDelta += m_gameTurnTimer.Stop();
-			else
-				if (eNewValue == NO_PLAYER && m_ePausePlayer != NO_PLAYER)
-					m_gameTurnTimer.Start();
+			{
+				m_fCurrentTurnTimerPauseDelta += m_curTurnTimer.Stop();
+				m_timeSinceGameTurnStart.Stop();
+			}
+			else if(eNewValue == NO_PLAYER && m_ePausePlayer != NO_PLAYER)
+			{
+				m_timeSinceGameTurnStart.Start();
+				m_curTurnTimer.Start();
+			}
 		}
 	}
 
@@ -5338,7 +5536,7 @@ void CvGame::setBestLandUnit(UnitTypes eNewValue)
 	{
 		m_eBestLandUnit = eNewValue;
 
-		gDLL->getInterfaceIFace()->setDirty(UnitInfo_DIRTY_BIT, true);
+		GC.GetEngineUserInterface()->setDirty(UnitInfo_DIRTY_BIT, true);
 	}
 }
 
@@ -5410,362 +5608,369 @@ void CvGame::setWinner(TeamTypes eNewWinner, VictoryTypes eNewVictory)
 					bool bUsingDLC5Scenario = gDLL->IsModActivated(CIV5_DLC_05_SCENARIO_MODID);
 					bool bUsingDLC6Scenario = gDLL->IsModActivated(CIV5_DLC_06_SCENARIO_MODID);
 
-					//Games Won Stat
-					gDLL->IncrementSteamStat( ESTEAMSTAT_TOTAL_WINS );
+					bool bCanUnlockAchievements = 
+						(getMaxTurns() == 0 || 
+						bUsingDLC1Scenario || bUsingDLC2Scenario || bUsingDLC3Scenario || bUsingDLC4Scenario ||
+						bUsingDLC5Scenario || bUsingDLC6Scenario);
 
-					//Victory on Map Sizes
-					WorldSizeTypes	winnerMapSize = GC.getMap().getWorldSize();
-					switch (winnerMapSize)
+					if(bCanUnlockAchievements)
 					{
-					case WORLDSIZE_DUEL:
-						gDLL->UnlockAchievement(ACHIEVEMENT_MAPSIZE_DUEL);
-						break;
-					case WORLDSIZE_TINY:
-						gDLL->UnlockAchievement(ACHIEVEMENT_MAPSIZE_TINY);
-						break;
-					case WORLDSIZE_SMALL:
-						gDLL->UnlockAchievement(ACHIEVEMENT_MAPSIZE_SMALL);
-						break;
-					case WORLDSIZE_STANDARD:
-						gDLL->UnlockAchievement(ACHIEVEMENT_MAPSIZE_STANDARD);
-						break;
-					case WORLDSIZE_LARGE:
-						gDLL->UnlockAchievement(ACHIEVEMENT_MAPSIZE_LARGE);
-						break;
-					case WORLDSIZE_HUGE:
-						gDLL->UnlockAchievement(ACHIEVEMENT_MAPSIZE_HUGE);
-						break;
-					default:
-						OutputDebugString("Playing on some other kind of world size.");
-					}
+						//Games Won Stat
+						gDLL->IncrementSteamStat( ESTEAMSTAT_TOTAL_WINS );
 
-					//Victory on Map Types
-					CvString winnerMapName = CvPreGame::mapScriptName();
-
-					if(winnerMapName == "Assets\\Maps\\Continents.lua" )
-						gDLL->UnlockAchievement( ACHIEVEMENT_MAPTYPE_CONTINENTS );
-					else if(winnerMapName == "Assets\\Maps\\Pangaea.lua" )
-						gDLL->UnlockAchievement( ACHIEVEMENT_MAPTYPE_PANGAEA);
-					else if(winnerMapName == "Assets\\Maps\\Archipelago.lua" )
-						gDLL->UnlockAchievement( ACHIEVEMENT_MAPTYPE_ARCHIPELAGO );
-					else if(winnerMapName == "Assets\\Maps\\Earth_Duel.Civ5Map" || winnerMapName == "Assets\\Maps\\Earth_Huge.Civ5Map"
-						|| winnerMapName == "Assets\\Maps\\Earth_Large.Civ5Map" || winnerMapName == "Assets\\Maps\\Earth_Small.Civ5Map"
-						|| winnerMapName == "Assets\\Maps\\Earth_Standard.Civ5Map" || winnerMapName == "Assets\\Maps\\Earth_Tiny.Civ5Map")
-						gDLL->UnlockAchievement( ACHIEVEMENT_MAPTYPE_EARTH );
-					else
-						OutputDebugString("\n Playing some other map. \n\n");
-
-
-					//Victory on Difficulty Levels
-					HandicapTypes winnerHandicapType = getHandicapType();
-					switch(winnerHandicapType)
-					{
-					case 0:
-						gDLL->UnlockAchievement( ACHIEVEMENT_DIFLEVEL_SETTLER );
-						break;
-					case 1:
-						gDLL->UnlockAchievement( ACHIEVEMENT_DIFLEVEL_CHIEFTAIN );
-						break;
-					case 2:
-						gDLL->UnlockAchievement( ACHIEVEMENT_DIFLEVEL_WARLORD );
-						break;
-					case 3:
-						gDLL->UnlockAchievement( ACHIEVEMENT_DIFLEVEL_PRINCE );
-						break;
-					case 4:
-						gDLL->UnlockAchievement( ACHIEVEMENT_DIFLEVEL_KING );
-						break;
-					case 5:
-						gDLL->UnlockAchievement( ACHIEVEMENT_DIFLEVEL_EMPEROR );
-						break;
-					case 6:
-						gDLL->UnlockAchievement( ACHIEVEMENT_DIFLEVEL_IMMORTAL );
-						break;
-					case 7:
-						gDLL->UnlockAchievement( ACHIEVEMENT_DIFLEVEL_DEITY );
-						break;
-					default:
-						OutputDebugString("Playing on some non-existant dif level.");
-					}
-					//Different Victory Win Types
-					switch(eNewVictory)
-					{
-					case 0:
-						OutputDebugString("No current Achievement for a time victory");
-						break;
-					case 1:
-						gDLL->UnlockAchievement( ACHIEVEMENT_VICTORY_SPACE );
-						break;
-					case 2:
-						gDLL->UnlockAchievement( ACHIEVEMENT_VICTORY_DOMINATION );
-						break;
-					case 3:
-						gDLL->UnlockAchievement( ACHIEVEMENT_VICTORY_CULTURE );
-						break;
-					case 4:
-						gDLL->UnlockAchievement( ACHIEVEMENT_VICTORY_DIPLO );
-						break;
-					default:
-						OutputDebugString("Your l33t victory skills allowed you to win in some other way.");
-					}
-
-					//Victory with Specific Leaders
-					CvString pLeader =  kWinningTeamLeader.getLeaderTypeKey();
-
-					if(!bUsingDLC6Scenario && pLeader == "LEADER_ALEXANDER")
-						gDLL->UnlockAchievement( ACHIEVEMENT_WIN_ALEXANDER );
-					else if(pLeader == "LEADER_WASHINGTON")
-						gDLL->UnlockAchievement( ACHIEVEMENT_WIN_WASHINGTON );
-					else if(!bUsingDLC4Scenario && pLeader == "LEADER_ELIZABETH")
-						gDLL->UnlockAchievement( ACHIEVEMENT_WIN_ELIZABETH );
-					else if(!bUsingDLC4Scenario && pLeader == "LEADER_NAPOLEON")
-						gDLL->UnlockAchievement( ACHIEVEMENT_WIN_NAPOLEON );
-					else if(!bUsingDLC4Scenario && pLeader == "LEADER_BISMARCK")
-						gDLL->UnlockAchievement( ACHIEVEMENT_WIN_BISMARCK );
-					else if(pLeader == "LEADER_CATHERINE")
-						gDLL->UnlockAchievement( ACHIEVEMENT_WIN_CATHERINE );
-					else if(pLeader == "LEADER_AUGUSTUS")
-						gDLL->UnlockAchievement( ACHIEVEMENT_WIN_CAESAR );
-					else if(!bUsingDLC6Scenario && pLeader == "LEADER_RAMESSES")
-						gDLL->UnlockAchievement( ACHIEVEMENT_WIN_RAMESSES );
-					else if(pLeader == "LEADER_ASKIA")
-						gDLL->UnlockAchievement( ACHIEVEMENT_WIN_ASKIA );
-					else if(!bUsingDLC6Scenario && pLeader == "LEADER_HARUN_AL_RASHID")
-						gDLL->UnlockAchievement( ACHIEVEMENT_WIN_HARUN );
-					else if(!bUsingDLC6Scenario && pLeader == "LEADER_DARIUS")
-						gDLL->UnlockAchievement( ACHIEVEMENT_WIN_DARIUS );
-					else if(!bUsingDLC3Scenario && pLeader == "LEADER_GANDHI")
-					{
-						gDLL->UnlockAchievement( ACHIEVEMENT_WIN_GANDHI );
-						if(eNewVictory == 3 && kWinningTeamLeader.getNumCities() <= 3) //Bollywood
-							gDLL->UnlockAchievement( ACHIEVEMENT_SPECIAL_BOLLYWOOD );
-					}
-					else if(pLeader == "LEADER_RAMKHAMHAENG")
-						gDLL->UnlockAchievement( ACHIEVEMENT_WIN_RAMKHAMHAENG );
-					else if(!bUsingDLC5Scenario && pLeader == "LEADER_WU_ZETIAN")
-						gDLL->UnlockAchievement( ACHIEVEMENT_WIN_WU );
-					else if(!bUsingDLC5Scenario && pLeader == "LEADER_ODA_NOBUNAGA")
-						gDLL->UnlockAchievement( ACHIEVEMENT_WIN_ODA );
-					else if(!bUsingDLC3Scenario && pLeader == "LEADER_HIAWATHA")
-						gDLL->UnlockAchievement( ACHIEVEMENT_WIN_HIAWATHA);
-					else if(!bUsingDLC3Scenario && pLeader == "LEADER_MONTEZUMA")
-						gDLL->UnlockAchievement( ACHIEVEMENT_WIN_MONTEZUMA);
-					else if(!bUsingDLC6Scenario && pLeader == "LEADER_SULEIMAN")
-						gDLL->UnlockAchievement( ACHIEVEMENT_WIN_SULEIMAN );
-					else if(pLeader == "LEADER_NEBUCHADNEZZAR")
-						gDLL->UnlockAchievement( ACHIEVEMENT_WIN_NEBUCHADNEZZAR );
-					else if(!bUsingDLC5Scenario && pLeader == "LEADER_GENGHIS_KHAN")
-					{
-						gDLL->UnlockAchievement( ACHIEVEMENT_WIN_GENGHIS );
-					}
-					else if(pLeader == "LEADER_ISABELLA")
-						gDLL->UnlockAchievement( ACHIEVEMENT_WIN_ISABELLA );
-					else if(pLeader == "LEADER_PACHACUTI")
-						gDLL->UnlockAchievement( ACHIEVEMENT_WIN_PACHACUTI );
-					else if(!bUsingDLC3Scenario && pLeader == "LEADER_KAMEHAMEHA")
-						gDLL->UnlockAchievement( ACHIEVEMENT_WIN_KAMEHAMEHA);
-					else if(pLeader == "LEADER_HARALD")
-						gDLL->UnlockAchievement( ACHIEVEMENT_WIN_BLUETOOTH);
-					else if(!bUsingDLC5Scenario && pLeader == "LEADER_SEJONG")
-						gDLL->UnlockAchievement( ACHIEVEMENT_WIN_SEJONG);
-					else
-						OutputDebugString("\nPlaying with a non-standard leader.\n");
-
-					//One City
-					if( kWinningTeamLeader.getNumCities() == 1 )
-					{
-						gDLL->UnlockAchievement( ACHIEVEMENT_ONECITY );
-					}
-
-					//Uber Achievements for unlocking other achievements
-					if( gDLL->IsAchievementUnlocked(ACHIEVEMENT_MAPSIZE_DUEL) &&  gDLL->IsAchievementUnlocked(ACHIEVEMENT_MAPSIZE_TINY) &&  gDLL->IsAchievementUnlocked(ACHIEVEMENT_MAPSIZE_SMALL) &&  gDLL->IsAchievementUnlocked(ACHIEVEMENT_MAPSIZE_STANDARD) &&  gDLL->IsAchievementUnlocked(ACHIEVEMENT_MAPSIZE_LARGE) &&  gDLL->IsAchievementUnlocked(ACHIEVEMENT_MAPSIZE_HUGE) &&  gDLL->IsAchievementUnlocked(ACHIEVEMENT_MAPTYPE_ARCHIPELAGO) &&  gDLL->IsAchievementUnlocked(ACHIEVEMENT_MAPTYPE_CONTINENTS) &&  gDLL->IsAchievementUnlocked(ACHIEVEMENT_MAPTYPE_EARTH) &&  gDLL->IsAchievementUnlocked(ACHIEVEMENT_MAPTYPE_PANGAEA))
-					{
-						gDLL->UnlockAchievement( ACHIEVEMENT_MAPS_ALL );
-					}
-					if( gDLL->IsAchievementUnlocked(ACHIEVEMENT_VICTORY_CULTURE) && gDLL->IsAchievementUnlocked(ACHIEVEMENT_VICTORY_SPACE) && gDLL->IsAchievementUnlocked(ACHIEVEMENT_VICTORY_DIPLO) && gDLL->IsAchievementUnlocked(ACHIEVEMENT_VICTORY_DOMINATION) )
-					{
-						gDLL->UnlockAchievement( ACHIEVEMENT_VICTORY_ALL );
-					}
-					if( gDLL->IsAchievementUnlocked(ACHIEVEMENT_WIN_WASHINGTON) && gDLL->IsAchievementUnlocked(ACHIEVEMENT_WIN_ELIZABETH) && gDLL->IsAchievementUnlocked(ACHIEVEMENT_WIN_NAPOLEON)&& gDLL->IsAchievementUnlocked(ACHIEVEMENT_WIN_BISMARCK)&& gDLL->IsAchievementUnlocked(ACHIEVEMENT_WIN_CATHERINE)&& gDLL->IsAchievementUnlocked(ACHIEVEMENT_WIN_CAESAR)&& gDLL->IsAchievementUnlocked(ACHIEVEMENT_WIN_ALEXANDER)&& gDLL->IsAchievementUnlocked(ACHIEVEMENT_WIN_RAMESSES)&& gDLL->IsAchievementUnlocked(ACHIEVEMENT_WIN_ASKIA)&& gDLL->IsAchievementUnlocked(ACHIEVEMENT_WIN_HARUN)&& gDLL->IsAchievementUnlocked(ACHIEVEMENT_WIN_DARIUS)&& gDLL->IsAchievementUnlocked(ACHIEVEMENT_WIN_GANDHI)&& gDLL->IsAchievementUnlocked(ACHIEVEMENT_WIN_RAMKHAMHAENG)&& gDLL->IsAchievementUnlocked(ACHIEVEMENT_WIN_WU)&& gDLL->IsAchievementUnlocked(ACHIEVEMENT_WIN_ODA)&& gDLL->IsAchievementUnlocked(ACHIEVEMENT_WIN_HIAWATHA)&& gDLL->IsAchievementUnlocked(ACHIEVEMENT_WIN_MONTEZUMA)&& gDLL->IsAchievementUnlocked(ACHIEVEMENT_WIN_SULEIMAN))
-					{
-						gDLL->UnlockAchievement( ACHIEVEMENT_WIN_ALLBASELEADERS );
-					}
-
-					//Check for PSG
-					CvAchievementUnlocker::Check_PSG();
-
-					//DLC1 Scenario Win Achievements
-					if(bUsingDLC1Scenario)
-					{
-						if(eNewVictory == 2)	//Only win by domination victory
+						//Victory on Map Sizes
+						WorldSizeTypes	winnerMapSize = GC.getMap().getWorldSize();
+						switch (winnerMapSize)
 						{
-							CvString strHandicapType = this->getHandicapInfo().GetType();
-
-							//All easier difficulty level achievements are unlocked when you beat it on a harder difficulty level.
-							bool bBeatOnHarderDifficulty = false;
-
-							if(strHandicapType == "HANDICAP_DEITY")
-							{
-								gDLL->UnlockAchievement( ACHIEVEMENT_WIN_SCENARIO_01_DEITY );
-								bBeatOnHarderDifficulty = true;
-							}
-
-							if(bBeatOnHarderDifficulty || strHandicapType == "HANDICAP_IMMORTAL")
-							{
-								gDLL->UnlockAchievement( ACHIEVEMENT_WIN_SCENARIO_01_IMMORTAL );
-								bBeatOnHarderDifficulty = true;
-							}
-
-							if(bBeatOnHarderDifficulty || strHandicapType == "HANDICAP_EMPEROR")
-							{
-								gDLL->UnlockAchievement( ACHIEVEMENT_WIN_SCENARIO_01_EMPEROR );
-								bBeatOnHarderDifficulty = true;
-							}
-
-							if(bBeatOnHarderDifficulty || strHandicapType == "HANDICAP_KING")
-							{
-								gDLL->UnlockAchievement( ACHIEVEMENT_WIN_SCENARIO_01_KING );
-								bBeatOnHarderDifficulty = true;
-							}
-
-							//Despite it's name, this achievement is for any difficulty.
-							gDLL->UnlockAchievement( ACHIEVEMENT_WIN_SCENARIO_01_PRINCE_OR_BELOW );
+						case WORLDSIZE_DUEL:
+							gDLL->UnlockAchievement(ACHIEVEMENT_MAPSIZE_DUEL);
+							break;
+						case WORLDSIZE_TINY:
+							gDLL->UnlockAchievement(ACHIEVEMENT_MAPSIZE_TINY);
+							break;
+						case WORLDSIZE_SMALL:
+							gDLL->UnlockAchievement(ACHIEVEMENT_MAPSIZE_SMALL);
+							break;
+						case WORLDSIZE_STANDARD:
+							gDLL->UnlockAchievement(ACHIEVEMENT_MAPSIZE_STANDARD);
+							break;
+						case WORLDSIZE_LARGE:
+							gDLL->UnlockAchievement(ACHIEVEMENT_MAPSIZE_LARGE);
+							break;
+						case WORLDSIZE_HUGE:
+							gDLL->UnlockAchievement(ACHIEVEMENT_MAPSIZE_HUGE);
+							break;
+						default:
+							OutputDebugString("Playing on some other kind of world size.");
 						}
-					}
 
-					//DLC2 Scenario Win Achievements
-					if(bUsingDLC2Scenario)
-					{
-						CvString strCivType = kWinningTeamLeader.getCivilizationInfo().GetType();
-						if(strCivType == "CIVILIZATION_SPAIN")
-							gDLL->UnlockAchievement(ACHIEVEMENT_SCENARIO_02_WIN_SPAIN);
-						else if(strCivType == "CIVILIZATION_FRANCE")
-							gDLL->UnlockAchievement(ACHIEVEMENT_SCENARIO_02_WIN_FRANCE);
-						else if(strCivType == "CIVILIZATION_ENGLAND")
-							gDLL->UnlockAchievement(ACHIEVEMENT_SCENARIO_02_WIN_ENGLAND);
-						else if(strCivType == "CIVILIZATION_INCA")
-							gDLL->UnlockAchievement(ACHIEVEMENT_SCENARIO_02_WIN_INCA);
-						else if(strCivType == "CIVILIZATION_AZTEC")
-							gDLL->UnlockAchievement(ACHIEVEMENT_SCENARIO_02_WIN_AZTECS);
-						else if(strCivType == "CIVILIZATION_IROQUOIS")
-							gDLL->UnlockAchievement(ACHIEVEMENT_SCENARIO_02_WIN_IROQUOIS);
-					}
+						//Victory on Map Types
+						CvString winnerMapName = CvPreGame::mapScriptName();
 
-					//DLC3 Scenario Win Achievements
-					if(bUsingDLC3Scenario)
-					{
-						CvString strCivType = kWinningTeamLeader.getCivilizationInfo().GetType();
-						if(strCivType == "CIVILIZATION_POLYNESIA")
-							gDLL->UnlockAchievement(ACHIEVEMENT_SCENARIO_03_WIN_HIVA);
-						else if(strCivType == "CIVILIZATION_IROQUOIS")
-							gDLL->UnlockAchievement(ACHIEVEMENT_SCENARIO_03_WIN_TAHITI);
-						else if(strCivType == "CIVILIZATION_INDIA")
-							gDLL->UnlockAchievement(ACHIEVEMENT_SCENARIO_03_WIN_SAMOA);
-						else if(strCivType == "CIVILIZATION_AZTEC")
-							gDLL->UnlockAchievement(ACHIEVEMENT_SCENARIO_03_WIN_TONGA);
-					}
+						if(winnerMapName == "Assets\\Maps\\Continents.lua" )
+							gDLL->UnlockAchievement( ACHIEVEMENT_MAPTYPE_CONTINENTS );
+						else if(winnerMapName == "Assets\\Maps\\Pangaea.lua" )
+							gDLL->UnlockAchievement( ACHIEVEMENT_MAPTYPE_PANGAEA);
+						else if(winnerMapName == "Assets\\Maps\\Archipelago.lua" )
+							gDLL->UnlockAchievement( ACHIEVEMENT_MAPTYPE_ARCHIPELAGO );
+						else if(winnerMapName == "Assets\\Maps\\Earth_Duel.Civ5Map" || winnerMapName == "Assets\\Maps\\Earth_Huge.Civ5Map"
+							|| winnerMapName == "Assets\\Maps\\Earth_Large.Civ5Map" || winnerMapName == "Assets\\Maps\\Earth_Small.Civ5Map"
+							|| winnerMapName == "Assets\\Maps\\Earth_Standard.Civ5Map" || winnerMapName == "Assets\\Maps\\Earth_Tiny.Civ5Map")
+							gDLL->UnlockAchievement( ACHIEVEMENT_MAPTYPE_EARTH );
+						else
+							OutputDebugString("\n Playing some other map. \n\n");
 
-					//DLC4 Scenario Win Achievements
-					if(bUsingDLC4Scenario)
-					{
-						CvString strCivType = kWinningTeamLeader.getCivilizationInfo().GetType();
-						if(strCivType == "CIVILIZATION_DENMARK")
-							gDLL->UnlockAchievement( ACHIEVEMENT_SCENARIO_04_WIN_DENMARK );
-						else if(strCivType == "CIVILIZATION_ENGLAND")
-							gDLL->UnlockAchievement( ACHIEVEMENT_SCENARIO_04_WIN_ENGLAND );
-						else if(strCivType == "CIVILIZATION_GERMANY")
-							gDLL->UnlockAchievement( ACHIEVEMENT_SCENARIO_04_WIN_NORWAY );
-						else if(strCivType == "CIVILIZATION_FRANCE")
-							gDLL->UnlockAchievement( ACHIEVEMENT_SCENARIO_04_NORMANDY );
 
+						//Victory on Difficulty Levels
+						HandicapTypes winnerHandicapType = getHandicapType();
 						switch(winnerHandicapType)
 						{
-						case 5:	//	Win scenario on Emperor (any civ)  YOU! The Conqueror
-							gDLL->UnlockAchievement( ACHIEVEMENT_SCENARIO_04_WIN_EMPEROR );
+						case 0:
+							gDLL->UnlockAchievement( ACHIEVEMENT_DIFLEVEL_SETTLER );
 							break;
-						case 6:	//	Win scenario on Immortal (any civ)  Surviving Domesday
-							gDLL->UnlockAchievement( ACHIEVEMENT_SCENARIO_04_WIN_IMMORTAL );
+						case 1:
+							gDLL->UnlockAchievement( ACHIEVEMENT_DIFLEVEL_CHIEFTAIN );
 							break;
-						case 7:	//	Win scenario on Deity (any civ)  Surviving Ragnarok
-							gDLL->UnlockAchievement( ACHIEVEMENT_SCENARIO_04_WIN_DEITY );
+						case 2:
+							gDLL->UnlockAchievement( ACHIEVEMENT_DIFLEVEL_WARLORD );
 							break;
+						case 3:
+							gDLL->UnlockAchievement( ACHIEVEMENT_DIFLEVEL_PRINCE );
+							break;
+						case 4:
+							gDLL->UnlockAchievement( ACHIEVEMENT_DIFLEVEL_KING );
+							break;
+						case 5:
+							gDLL->UnlockAchievement( ACHIEVEMENT_DIFLEVEL_EMPEROR );
+							break;
+						case 6:
+							gDLL->UnlockAchievement( ACHIEVEMENT_DIFLEVEL_IMMORTAL );
+							break;
+						case 7:
+							gDLL->UnlockAchievement( ACHIEVEMENT_DIFLEVEL_DEITY );
+							break;
+						default:
+							OutputDebugString("Playing on some non-existant dif level.");
+						}
+						//Different Victory Win Types
+						switch(eNewVictory)
+						{
+						case 0:
+							OutputDebugString("No current Achievement for a time victory");
+							break;
+						case 1:
+							gDLL->UnlockAchievement( ACHIEVEMENT_VICTORY_SPACE );
+							break;
+						case 2:
+							gDLL->UnlockAchievement( ACHIEVEMENT_VICTORY_DOMINATION );
+							break;
+						case 3:
+							gDLL->UnlockAchievement( ACHIEVEMENT_VICTORY_CULTURE );
+							break;
+						case 4:
+							gDLL->UnlockAchievement( ACHIEVEMENT_VICTORY_DIPLO );
+							break;
+						default:
+							OutputDebugString("Your l33t victory skills allowed you to win in some other way.");
+						}
+
+						//Victory with Specific Leaders
+						CvString pLeader =  kWinningTeamLeader.getLeaderTypeKey();
+
+						if(!bUsingDLC6Scenario && pLeader == "LEADER_ALEXANDER")
+							gDLL->UnlockAchievement( ACHIEVEMENT_WIN_ALEXANDER );
+						else if(pLeader == "LEADER_WASHINGTON")
+							gDLL->UnlockAchievement( ACHIEVEMENT_WIN_WASHINGTON );
+						else if(!bUsingDLC4Scenario && pLeader == "LEADER_ELIZABETH")
+							gDLL->UnlockAchievement( ACHIEVEMENT_WIN_ELIZABETH );
+						else if(!bUsingDLC4Scenario && pLeader == "LEADER_NAPOLEON")
+							gDLL->UnlockAchievement( ACHIEVEMENT_WIN_NAPOLEON );
+						else if(!bUsingDLC4Scenario && pLeader == "LEADER_BISMARCK")
+							gDLL->UnlockAchievement( ACHIEVEMENT_WIN_BISMARCK );
+						else if(pLeader == "LEADER_CATHERINE")
+							gDLL->UnlockAchievement( ACHIEVEMENT_WIN_CATHERINE );
+						else if(pLeader == "LEADER_AUGUSTUS")
+							gDLL->UnlockAchievement( ACHIEVEMENT_WIN_CAESAR );
+						else if(!bUsingDLC6Scenario && pLeader == "LEADER_RAMESSES")
+							gDLL->UnlockAchievement( ACHIEVEMENT_WIN_RAMESSES );
+						else if(pLeader == "LEADER_ASKIA")
+							gDLL->UnlockAchievement( ACHIEVEMENT_WIN_ASKIA );
+						else if(!bUsingDLC6Scenario && pLeader == "LEADER_HARUN_AL_RASHID")
+							gDLL->UnlockAchievement( ACHIEVEMENT_WIN_HARUN );
+						else if(!bUsingDLC6Scenario && pLeader == "LEADER_DARIUS")
+							gDLL->UnlockAchievement( ACHIEVEMENT_WIN_DARIUS );
+						else if(!bUsingDLC3Scenario && pLeader == "LEADER_GANDHI")
+						{
+							gDLL->UnlockAchievement( ACHIEVEMENT_WIN_GANDHI );
+							if(eNewVictory == 3 && kWinningTeamLeader.getNumCities() <= 3) //Bollywood
+								gDLL->UnlockAchievement( ACHIEVEMENT_SPECIAL_BOLLYWOOD );
+						}
+						else if(pLeader == "LEADER_RAMKHAMHAENG")
+							gDLL->UnlockAchievement( ACHIEVEMENT_WIN_RAMKHAMHAENG );
+						else if(!bUsingDLC5Scenario && pLeader == "LEADER_WU_ZETIAN")
+							gDLL->UnlockAchievement( ACHIEVEMENT_WIN_WU );
+						else if(!bUsingDLC5Scenario && pLeader == "LEADER_ODA_NOBUNAGA")
+							gDLL->UnlockAchievement( ACHIEVEMENT_WIN_ODA );
+						else if(!bUsingDLC3Scenario && pLeader == "LEADER_HIAWATHA")
+							gDLL->UnlockAchievement( ACHIEVEMENT_WIN_HIAWATHA);
+						else if(!bUsingDLC3Scenario && pLeader == "LEADER_MONTEZUMA")
+							gDLL->UnlockAchievement( ACHIEVEMENT_WIN_MONTEZUMA);
+						else if(!bUsingDLC6Scenario && pLeader == "LEADER_SULEIMAN")
+							gDLL->UnlockAchievement( ACHIEVEMENT_WIN_SULEIMAN );
+						else if(pLeader == "LEADER_NEBUCHADNEZZAR")
+							gDLL->UnlockAchievement( ACHIEVEMENT_WIN_NEBUCHADNEZZAR );
+						else if(!bUsingDLC5Scenario && pLeader == "LEADER_GENGHIS_KHAN")
+						{
+							gDLL->UnlockAchievement( ACHIEVEMENT_WIN_GENGHIS );
+						}
+						else if(pLeader == "LEADER_ISABELLA")
+							gDLL->UnlockAchievement( ACHIEVEMENT_WIN_ISABELLA );
+						else if(pLeader == "LEADER_PACHACUTI")
+							gDLL->UnlockAchievement( ACHIEVEMENT_WIN_PACHACUTI );
+						else if(!bUsingDLC3Scenario && pLeader == "LEADER_KAMEHAMEHA")
+							gDLL->UnlockAchievement( ACHIEVEMENT_WIN_KAMEHAMEHA);
+						else if(pLeader == "LEADER_HARALD")
+							gDLL->UnlockAchievement( ACHIEVEMENT_WIN_BLUETOOTH);
+						else if(!bUsingDLC5Scenario && pLeader == "LEADER_SEJONG")
+							gDLL->UnlockAchievement( ACHIEVEMENT_WIN_SEJONG);
+						else
+							OutputDebugString("\nPlaying with a non-standard leader.\n");
+
+						//One City
+						if( kWinningTeamLeader.getNumCities() == 1 )
+						{
+							gDLL->UnlockAchievement( ACHIEVEMENT_ONECITY );
+						}
+
+						//Uber Achievements for unlocking other achievements
+						if( gDLL->IsAchievementUnlocked(ACHIEVEMENT_MAPSIZE_DUEL) &&  gDLL->IsAchievementUnlocked(ACHIEVEMENT_MAPSIZE_TINY) &&  gDLL->IsAchievementUnlocked(ACHIEVEMENT_MAPSIZE_SMALL) &&  gDLL->IsAchievementUnlocked(ACHIEVEMENT_MAPSIZE_STANDARD) &&  gDLL->IsAchievementUnlocked(ACHIEVEMENT_MAPSIZE_LARGE) &&  gDLL->IsAchievementUnlocked(ACHIEVEMENT_MAPSIZE_HUGE) &&  gDLL->IsAchievementUnlocked(ACHIEVEMENT_MAPTYPE_ARCHIPELAGO) &&  gDLL->IsAchievementUnlocked(ACHIEVEMENT_MAPTYPE_CONTINENTS) &&  gDLL->IsAchievementUnlocked(ACHIEVEMENT_MAPTYPE_EARTH) &&  gDLL->IsAchievementUnlocked(ACHIEVEMENT_MAPTYPE_PANGAEA))
+						{
+							gDLL->UnlockAchievement( ACHIEVEMENT_MAPS_ALL );
+						}
+						if( gDLL->IsAchievementUnlocked(ACHIEVEMENT_VICTORY_CULTURE) && gDLL->IsAchievementUnlocked(ACHIEVEMENT_VICTORY_SPACE) && gDLL->IsAchievementUnlocked(ACHIEVEMENT_VICTORY_DIPLO) && gDLL->IsAchievementUnlocked(ACHIEVEMENT_VICTORY_DOMINATION) )
+						{
+							gDLL->UnlockAchievement( ACHIEVEMENT_VICTORY_ALL );
+						}
+						if( gDLL->IsAchievementUnlocked(ACHIEVEMENT_WIN_WASHINGTON) && gDLL->IsAchievementUnlocked(ACHIEVEMENT_WIN_ELIZABETH) && gDLL->IsAchievementUnlocked(ACHIEVEMENT_WIN_NAPOLEON)&& gDLL->IsAchievementUnlocked(ACHIEVEMENT_WIN_BISMARCK)&& gDLL->IsAchievementUnlocked(ACHIEVEMENT_WIN_CATHERINE)&& gDLL->IsAchievementUnlocked(ACHIEVEMENT_WIN_CAESAR)&& gDLL->IsAchievementUnlocked(ACHIEVEMENT_WIN_ALEXANDER)&& gDLL->IsAchievementUnlocked(ACHIEVEMENT_WIN_RAMESSES)&& gDLL->IsAchievementUnlocked(ACHIEVEMENT_WIN_ASKIA)&& gDLL->IsAchievementUnlocked(ACHIEVEMENT_WIN_HARUN)&& gDLL->IsAchievementUnlocked(ACHIEVEMENT_WIN_DARIUS)&& gDLL->IsAchievementUnlocked(ACHIEVEMENT_WIN_GANDHI)&& gDLL->IsAchievementUnlocked(ACHIEVEMENT_WIN_RAMKHAMHAENG)&& gDLL->IsAchievementUnlocked(ACHIEVEMENT_WIN_WU)&& gDLL->IsAchievementUnlocked(ACHIEVEMENT_WIN_ODA)&& gDLL->IsAchievementUnlocked(ACHIEVEMENT_WIN_HIAWATHA)&& gDLL->IsAchievementUnlocked(ACHIEVEMENT_WIN_MONTEZUMA)&& gDLL->IsAchievementUnlocked(ACHIEVEMENT_WIN_SULEIMAN))
+						{
+							gDLL->UnlockAchievement( ACHIEVEMENT_WIN_ALLBASELEADERS );
+						}
+
+						//Check for PSG
+						CvAchievementUnlocker::Check_PSG();
+
+						//DLC1 Scenario Win Achievements
+						if(bUsingDLC1Scenario)
+						{
+							if(eNewVictory == 2)	//Only win by domination victory
+							{
+								CvString strHandicapType = this->getHandicapInfo().GetType();
+
+								//All easier difficulty level achievements are unlocked when you beat it on a harder difficulty level.
+								bool bBeatOnHarderDifficulty = false;
+
+								if(strHandicapType == "HANDICAP_DEITY")
+								{
+									gDLL->UnlockAchievement( ACHIEVEMENT_WIN_SCENARIO_01_DEITY );
+									bBeatOnHarderDifficulty = true;
+								}
+
+								if(bBeatOnHarderDifficulty || strHandicapType == "HANDICAP_IMMORTAL")
+								{
+									gDLL->UnlockAchievement( ACHIEVEMENT_WIN_SCENARIO_01_IMMORTAL );
+									bBeatOnHarderDifficulty = true;
+								}
+
+								if(bBeatOnHarderDifficulty || strHandicapType == "HANDICAP_EMPEROR")
+								{
+									gDLL->UnlockAchievement( ACHIEVEMENT_WIN_SCENARIO_01_EMPEROR );
+									bBeatOnHarderDifficulty = true;
+								}
+
+								if(bBeatOnHarderDifficulty || strHandicapType == "HANDICAP_KING")
+								{
+									gDLL->UnlockAchievement( ACHIEVEMENT_WIN_SCENARIO_01_KING );
+									bBeatOnHarderDifficulty = true;
+								}
+
+								//Despite it's name, this achievement is for any difficulty.
+								gDLL->UnlockAchievement( ACHIEVEMENT_WIN_SCENARIO_01_PRINCE_OR_BELOW );
+							}
+						}
+
+						//DLC2 Scenario Win Achievements
+						if(bUsingDLC2Scenario)
+						{
+							CvString strCivType = kWinningTeamLeader.getCivilizationInfo().GetType();
+							if(strCivType == "CIVILIZATION_SPAIN")
+								gDLL->UnlockAchievement(ACHIEVEMENT_SCENARIO_02_WIN_SPAIN);
+							else if(strCivType == "CIVILIZATION_FRANCE")
+								gDLL->UnlockAchievement(ACHIEVEMENT_SCENARIO_02_WIN_FRANCE);
+							else if(strCivType == "CIVILIZATION_ENGLAND")
+								gDLL->UnlockAchievement(ACHIEVEMENT_SCENARIO_02_WIN_ENGLAND);
+							else if(strCivType == "CIVILIZATION_INCA")
+								gDLL->UnlockAchievement(ACHIEVEMENT_SCENARIO_02_WIN_INCA);
+							else if(strCivType == "CIVILIZATION_AZTEC")
+								gDLL->UnlockAchievement(ACHIEVEMENT_SCENARIO_02_WIN_AZTECS);
+							else if(strCivType == "CIVILIZATION_IROQUOIS")
+								gDLL->UnlockAchievement(ACHIEVEMENT_SCENARIO_02_WIN_IROQUOIS);
+						}
+
+						//DLC3 Scenario Win Achievements
+						if(bUsingDLC3Scenario)
+						{
+							CvString strCivType = kWinningTeamLeader.getCivilizationInfo().GetType();
+							if(strCivType == "CIVILIZATION_POLYNESIA")
+								gDLL->UnlockAchievement(ACHIEVEMENT_SCENARIO_03_WIN_HIVA);
+							else if(strCivType == "CIVILIZATION_IROQUOIS")
+								gDLL->UnlockAchievement(ACHIEVEMENT_SCENARIO_03_WIN_TAHITI);
+							else if(strCivType == "CIVILIZATION_INDIA")
+								gDLL->UnlockAchievement(ACHIEVEMENT_SCENARIO_03_WIN_SAMOA);
+							else if(strCivType == "CIVILIZATION_AZTEC")
+								gDLL->UnlockAchievement(ACHIEVEMENT_SCENARIO_03_WIN_TONGA);
+						}
+
+						//DLC4 Scenario Win Achievements
+						if(bUsingDLC4Scenario)
+						{
+							CvString strCivType = kWinningTeamLeader.getCivilizationInfo().GetType();
+							if(strCivType == "CIVILIZATION_DENMARK")
+								gDLL->UnlockAchievement( ACHIEVEMENT_SCENARIO_04_WIN_DENMARK );
+							else if(strCivType == "CIVILIZATION_ENGLAND")
+								gDLL->UnlockAchievement( ACHIEVEMENT_SCENARIO_04_WIN_ENGLAND );
+							else if(strCivType == "CIVILIZATION_GERMANY")
+								gDLL->UnlockAchievement( ACHIEVEMENT_SCENARIO_04_WIN_NORWAY );
+							else if(strCivType == "CIVILIZATION_FRANCE")
+								gDLL->UnlockAchievement( ACHIEVEMENT_SCENARIO_04_NORMANDY );
+
+							switch(winnerHandicapType)
+							{
+							case 5:	//	Win scenario on Emperor (any civ)  YOU! The Conqueror
+								gDLL->UnlockAchievement( ACHIEVEMENT_SCENARIO_04_WIN_EMPEROR );
+								break;
+							case 6:	//	Win scenario on Immortal (any civ)  Surviving Domesday
+								gDLL->UnlockAchievement( ACHIEVEMENT_SCENARIO_04_WIN_IMMORTAL );
+								break;
+							case 7:	//	Win scenario on Deity (any civ)  Surviving Ragnarok
+								gDLL->UnlockAchievement( ACHIEVEMENT_SCENARIO_04_WIN_DEITY );
+								break;
+							}
+						}
+
+						//DLC5 Scenario Win Achievements
+						if(bUsingDLC5Scenario)
+						{
+							// Civilization
+							CvString strCivType = kWinningTeamLeader.getCivilizationInfo().GetType();
+							if(strCivType == "CIVILIZATION_JAPAN")
+								gDLL->UnlockAchievement( ACHIEVEMENT_SCENARIO_05_WIN_JAPAN );
+							else if(strCivType == "CIVILIZATION_KOREA")
+								gDLL->UnlockAchievement( ACHIEVEMENT_SCENARIO_05_WIN_KOREA );
+							else if(strCivType == "CIVILIZATION_CHINA")
+								gDLL->UnlockAchievement( ACHIEVEMENT_SCENARIO_05_WIN_CHINA );
+							else if(strCivType == "CIVILIZATION_MONGOL")
+								gDLL->UnlockAchievement( ACHIEVEMENT_SCENARIO_05_WIN_MANCHU );
+
+							// Difficulty
+							switch(winnerHandicapType)
+							{
+							case 5: // Emperor
+								gDLL->UnlockAchievement( ACHIEVEMENT_SCENARIO_05_WIN_EMPEROR );
+								break;
+							case 6: // Immortal
+								gDLL->UnlockAchievement( ACHIEVEMENT_SCENARIO_05_WIN_IMMORTAL );
+								break;
+							case 7: // Deity
+								gDLL->UnlockAchievement( ACHIEVEMENT_SCENARIO_05_WIN_DEITY );
+								break;
+							}
+
+							// Win in less than 100 turns
+							if (getGameTurn() >= 0 && getGameTurn() < 100)
+							{
+								gDLL->UnlockAchievement( ACHIEVEMENT_SCENARIO_05_WIN_100TURNS );
+							}
+
+						}
+
+						//DLC6 Scenario Win Achievements
+						if(bUsingDLC6Scenario)
+						{
+							// Civilization
+							CvString strCivType = kWinningTeamLeader.getCivilizationInfo().GetType();
+							if(strCivType == "CIVILIZATION_OTTOMAN")
+								gDLL->UnlockAchievement( ACHIEVEMENT_SCENARIO_06_WIN_HITTITES );
+							else if(strCivType == "CIVILIZATION_GREECE")
+								gDLL->UnlockAchievement( ACHIEVEMENT_SCENARIO_06_WIN_GREECE );
+							else if(strCivType == "CIVILIZATION_ARABIA")
+								gDLL->UnlockAchievement( ACHIEVEMENT_SCENARIO_06_WIN_SUMER );
+							else if(strCivType == "CIVILIZATION_EGYPT")
+								gDLL->UnlockAchievement( ACHIEVEMENT_SCENARIO_06_WIN_EGYPT );
+							else if(strCivType == "CIVILIZATION_PERSIA")
+								gDLL->UnlockAchievement( ACHIEVEMENT_SCENARIO_06_WIN_PERSIA );
+
+							// Difficulty
+							switch(winnerHandicapType)
+							{
+							case 3: // Prince
+								gDLL->UnlockAchievement( ACHIEVEMENT_SCENARIO_06_WIN_PRINCE );
+								break;
+							case 4: // King
+								gDLL->UnlockAchievement( ACHIEVEMENT_SCENARIO_06_WIN_KING );
+								break;
+							case 5:	// Emperor
+								gDLL->UnlockAchievement( ACHIEVEMENT_SCENARIO_06_WIN_EMPEROR );
+								break;
+							case 6:	// Immortal
+								gDLL->UnlockAchievement( ACHIEVEMENT_SCENARIO_06_WIN_IMMORTAL );
+								break;
+							case 7:	// Deity
+								gDLL->UnlockAchievement( ACHIEVEMENT_SCENARIO_06_WIN_DEITY );
+								break;
+							}
+
 						}
 					}
-
-					//DLC5 Scenario Win Achievements
-					if(bUsingDLC5Scenario)
-					{
-						// Civilization
-						CvString strCivType = kWinningTeamLeader.getCivilizationInfo().GetType();
-						if(strCivType == "CIVILIZATION_JAPAN")
-							gDLL->UnlockAchievement( ACHIEVEMENT_SCENARIO_05_WIN_JAPAN );
-						else if(strCivType == "CIVILIZATION_KOREA")
-							gDLL->UnlockAchievement( ACHIEVEMENT_SCENARIO_05_WIN_KOREA );
-						else if(strCivType == "CIVILIZATION_CHINA")
-							gDLL->UnlockAchievement( ACHIEVEMENT_SCENARIO_05_WIN_CHINA );
-						else if(strCivType == "CIVILIZATION_MONGOL")
-							gDLL->UnlockAchievement( ACHIEVEMENT_SCENARIO_05_WIN_MANCHU );
-
-						// Difficulty
-						switch(winnerHandicapType)
-						{
-						case 5: // Emperor
-							gDLL->UnlockAchievement( ACHIEVEMENT_SCENARIO_05_WIN_EMPEROR );
-							break;
-						case 6: // Immortal
-							gDLL->UnlockAchievement( ACHIEVEMENT_SCENARIO_05_WIN_IMMORTAL );
-							break;
-						case 7: // Deity
-							gDLL->UnlockAchievement( ACHIEVEMENT_SCENARIO_05_WIN_DEITY );
-							break;
-						}
-
-						// Win in less than 100 turns
-						if (getGameTurn() >= 0 && getGameTurn() < 100)
-						{
-							gDLL->UnlockAchievement( ACHIEVEMENT_SCENARIO_05_WIN_100TURNS );
-						}
-
-					}
-
-					//DLC6 Scenario Win Achievements
-					if(bUsingDLC6Scenario)
-					{
-						// Civilization
-						CvString strCivType = kWinningTeamLeader.getCivilizationInfo().GetType();
-						if(strCivType == "CIVILIZATION_OTTOMAN")
-							gDLL->UnlockAchievement( ACHIEVEMENT_SCENARIO_06_WIN_HITTITES );
-						else if(strCivType == "CIVILIZATION_GREECE")
-							gDLL->UnlockAchievement( ACHIEVEMENT_SCENARIO_06_WIN_GREECE );
-						else if(strCivType == "CIVILIZATION_ARABIA")
-							gDLL->UnlockAchievement( ACHIEVEMENT_SCENARIO_06_WIN_SUMER );
-						else if(strCivType == "CIVILIZATION_EGYPT")
-							gDLL->UnlockAchievement( ACHIEVEMENT_SCENARIO_06_WIN_EGYPT );
-						else if(strCivType == "CIVILIZATION_PERSIA")
-							gDLL->UnlockAchievement( ACHIEVEMENT_SCENARIO_06_WIN_PERSIA );
-
-						// Difficulty
-						switch(winnerHandicapType)
-						{
-						case 3: // Prince
-							gDLL->UnlockAchievement( ACHIEVEMENT_SCENARIO_06_WIN_PRINCE );
-							break;
-						case 4: // King
-							gDLL->UnlockAchievement( ACHIEVEMENT_SCENARIO_06_WIN_KING );
-							break;
-						case 5:	// Emperor
-							gDLL->UnlockAchievement( ACHIEVEMENT_SCENARIO_06_WIN_EMPEROR );
-							break;
-						case 6:	// Immortal
-							gDLL->UnlockAchievement( ACHIEVEMENT_SCENARIO_06_WIN_IMMORTAL );
-							break;
-						case 7:	// Deity
-							gDLL->UnlockAchievement( ACHIEVEMENT_SCENARIO_06_WIN_DEITY );
-							break;
-						}
-
-					}
-
 				}
 				//Win any multiplayer game
 				if(GC.getGame().isGameMultiPlayer() && kWinningTeamLeader.isHuman() && (GET_PLAYER(GC.getGame().getActivePlayer()).GetID() == kWinningTeamLeader.GetID() ) )
@@ -5785,9 +5990,9 @@ void CvGame::setWinner(TeamTypes eNewWinner, VictoryTypes eNewVictory)
 			}
 		}
 
-		gDLL->getInterfaceIFace()->setDirty(Center_DIRTY_BIT, true);
+		GC.GetEngineUserInterface()->setDirty(Center_DIRTY_BIT, true);
 
-		gDLL->getInterfaceIFace()->setDirty(Soundtrack_DIRTY_BIT, true);
+		GC.GetEngineUserInterface()->setDirty(Soundtrack_DIRTY_BIT, true);
 	}
 }
 
@@ -6144,8 +6349,8 @@ void CvGame::setGameState(GameStateTypes eNewValue)
 			showEndGameSequence();
 		}
 
-		gDLL->getInterfaceIFace()->setDirty(Cursor_DIRTY_BIT, true);
-		gDLL->getInterfaceIFace()->setDirty(GameData_DIRTY_BIT, true);
+		GC.GetEngineUserInterface()->setDirty(Cursor_DIRTY_BIT, true);
+		GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
 	}
 }
 
@@ -6281,7 +6486,7 @@ void CvGame::setPlayerScore(PlayerTypes ePlayer, int iScore)
 		m_aiPlayerScore[ePlayer] = iScore;
 		CvAssert(getPlayerScore(ePlayer) >= 0);
 
-		gDLL->getInterfaceIFace()->setDirty(Score_DIRTY_BIT, true);
+		GC.GetEngineUserInterface()->setDirty(Score_DIRTY_BIT, true);
 	}
 }
 
@@ -6689,7 +6894,7 @@ void CvGame::doTurn()
 	// END OF TURN
 
 	// If player unit cycling has been canceled for this turn, set it back to normal for the next
-	gDLL->getInterfaceIFace()->setNoSelectionListCycle(false);
+	GC.GetEngineUserInterface()->setNoSelectionListCycle(false);
 
 	gDLL->DoTurn();
 
@@ -6713,14 +6918,14 @@ void CvGame::doTurn()
 
 	GC.getMap().doTurn();
 
-	gDLL->getInterfaceIFace()->doTurn();
+	GC.GetEngineUserInterface()->doTurn();
 
 	CvBarbarians::DoCamps();
 
 	CvBarbarians::DoUnits();
 
-	gDLL->getInterfaceIFace()->setCanEndTurn(false);
-	gDLL->getInterfaceIFace()->setHasMovedUnit(false);
+	GC.GetEngineUserInterface()->setCanEndTurn(false);
+	GC.GetEngineUserInterface()->setHasMovedUnit(false);
 
 	if (getAIAutoPlay() > 0)
 	{
@@ -6735,12 +6940,20 @@ void CvGame::doTurn()
 	incrementGameTurn();
 	incrementElapsedGameTurns();
 
-	// Reset the player's with 'active' turns
-	if (isMPOption(MPOPTION_SIMULTANEOUS_TURNS))
-	{
-		// In multi-player with simultaneous turns, we activate all of the AI players
-		// at the same time.  The human player will be activated in updateMoves after all
-		// the AI players are processed.
+	if(isOption(GAMEOPTION_DYNAMIC_TURNS))
+	{// update turn mode for dynamic turn mode.
+		for(int teamIdx = 0; teamIdx < MAX_TEAMS; ++teamIdx)
+		{
+			CvTeam& curTeam = GET_TEAM((TeamTypes)teamIdx);
+			curTeam.setDynamicTurnsSimultMode(!curTeam.isHuman() || !curTeam.isAtWarWithHumans());
+		}
+	}
+
+	// Configure turn active status for the beginning of the new turn.
+	if(isOption(GAMEOPTION_DYNAMIC_TURNS) || isOption(GAMEOPTION_SIMULTANEOUS_TURNS))
+	{// In multi-player with simultaneous turns, we activate all of the AI players
+	 // at the same time.  The human players who are playing simultaneous turns will be activated in updateMoves after all
+	 // the AI players are processed.
 		shuffleArray(aiShuffle, MAX_PLAYERS, getJonRand());
 
 		for (iI = 0; iI < MAX_PLAYERS; iI++)
@@ -6755,28 +6968,26 @@ void CvGame::doTurn()
 			}
 		}
 	}
-	else if (isSimultaneousTeamTurns())
-	{
-		// Activate all the players on the first team.
+
+	if(isSimultaneousTeamTurns())
+	{//We're doing simultaneous team turns, activate the first team in sequence.
 		for (iI = 0; iI < MAX_TEAMS; iI++)
 		{
 			CvTeam& kTeam = GET_TEAM((TeamTypes)iI);
-			if (kTeam.isAlive())
+			if(kTeam.isAlive() && !kTeam.isSimultaneousTurns()) 
 			{
 				kTeam.setTurnActive(true);
-				CvAssert(getNumGameTurnActive() == kTeam.getAliveCount());
-				// We only want one team at a time to be activated, once all the players
-				// on that team are done, the next team will be activated
 				break;
 			}
 		}
 	}
-	else
-	{
-		// Sequential turns.  Activate the first player we find from the start, human or AI
+	else if(!isOption(GAMEOPTION_SIMULTANEOUS_TURNS))
+	{// player sequential turns.
+		// Sequential turns.  Activate the first player we find from the start, human or AI, who wants a sequential turn.
 		for (iI = 0; iI < MAX_PLAYERS; iI++)
 		{
-			if (GET_PLAYER((PlayerTypes)iI).isAlive())
+			if(GET_PLAYER((PlayerTypes)iI).isAlive() 
+				&& !GET_PLAYER((PlayerTypes)iI).isSimultaneousTurns()) //we don't want to be a person who's doing a simultaneous turn for dynamic turn mode.
 			{
 				if (isPbem() && GET_PLAYER((PlayerTypes)iI).isHuman())
 				{
@@ -6823,12 +7034,19 @@ void CvGame::doTurn()
 			{
 				// This popup his the sync rand, so beware
 				CvPopupInfo kPopupInfo(BUTTONPOPUP_WHOS_WINNING);
-				gDLL->getInterfaceIFace()->AddPopup(kPopupInfo);
+				GC.GetEngineUserInterface()->AddPopup(kPopupInfo);
 			}
 		}
 	}
 
 	LogGameState();
+
+	if(isNetworkMultiPlayer())
+	{//autosave after doing a turn
+		gDLL->AutoSave(false);
+	}
+
+	gDLL->PublishNewGameTurn(getGameTurn());
 }
 
 //	--------------------------------------------------------------------------------
@@ -6994,7 +7212,7 @@ void CvGame::updateMoves()
 	for (iI = 0; iI < MAX_PLAYERS; iI++)
 	{
 		CvPlayer& player = GET_PLAYER((PlayerTypes)iI);
-		if(player.isTurnActive() && !player.isHuman())
+		if(player.isAlive() && player.isTurnActive() && !player.isHuman())
 		{
 			playersToProcess.push_back(static_cast<PlayerTypes>(iI));
 			processPlayerAutoMoves = false;
@@ -7005,27 +7223,32 @@ void CvGame::updateMoves()
 
 
 	int currentTurn = getGameTurn();
-	bool activatePlayers = m_lastGameTurnProcessed != currentTurn;
+	bool activatePlayers = m_lastTurnAICivsProcessed != currentTurn;
 	// If no AI with an active turn, check humans.
 	if(playersToProcess.empty())
 	{
-		if(m_lastGameTurnProcessed != getGameTurn())
-		{
-			gDLL->SendGameDoTurnProcessed();
-			m_lastGameTurnProcessed = getGameTurn();
-		}
-		if(gDLL->allAIProcessedThisTurn())
-		{
+		SetLastTurnAICivsProcessed();
+		if(gDLL->allAICivsProcessedThisTurn())
+		{//everyone is finished processing the AI civs.
+			PlayerTypes eActivePlayer = getActivePlayer();
+			if(eActivePlayer != NO_PLAYER && CvPreGame::slotStatus(eActivePlayer) == SS_OBSERVER)
+			{//if the active player is an observer, send a turn complete so we don't hold up the game.
+				//We wait until allAICivsProcessedThisTurn to prevent a race condition where an observer could send turn complete,
+				//before all clients have cleared the netbarrier locally.
+				gDLL->sendTurnComplete();
+				CvAchievementUnlocker::EndTurn();
+			}
+
 			if(!processPlayerAutoMoves)
 			{
-				if (GC.getGame().isMPOption(MPOPTION_SIMULTANEOUS_TURNS))
-				{
+				if(!GC.getGame().isOption(GAMEOPTION_DYNAMIC_TURNS) && GC.getGame().isOption(GAMEOPTION_SIMULTANEOUS_TURNS))
+				{//fully simultaneous turns.
 					// All humans must be ready for auto moves
 					bool readyForAutoMoves = true;
 					for (iI = 0; iI < MAX_PLAYERS; iI++)
 					{
 						CvPlayer& player = GET_PLAYER((PlayerTypes)iI);
-						if(player.isHuman() && !player.isAutoMoves())
+						if(player.isHuman() && !player.isObserver() && !player.isAutoMoves())
 							readyForAutoMoves = false;
 					}
 					processPlayerAutoMoves = readyForAutoMoves;
@@ -7066,7 +7289,7 @@ void CvGame::updateMoves()
 					{
 						player.AI_unitUpdate();
 
-						NET_MESSAGE_DEBUG_OSTR("UpdateMoves() : player.AI_unitUpdate() called for " << player.getName());
+						NET_MESSAGE_DEBUG_OSTR_ALWAYS("UpdateMoves() : player.AI_unitUpdate() called for player " << player.GetID() << " " << player.getName()); 
 					}
 
 					int iReadyUnitsNow = player.GetCountReadyUnits();
@@ -7082,7 +7305,7 @@ void CvGame::updateMoves()
 						if (iReadyUnitsNow == 0)
 						{
 							player.setAutoMoves(true);
-							NET_MESSAGE_DEBUG_OSTR( "UpdateMoves() : player.setAutoMoves(true) called for " << player.getName() );
+							NET_MESSAGE_DEBUG_OSTR_ALWAYS("UpdateMoves() : player.setAutoMoves(true) called for player " << player.GetID() << " " << player.getName()); 
 						}
 						else
 						{
@@ -7102,9 +7325,10 @@ void CvGame::updateMoves()
 										CvString strTemp = entry->GetDescription();
 										CvString szAssertMessage;
 										szAssertMessage.Format(
-											"GAME HANG - Please show Ed and send save. Stuck units will have their turn ended so game can advance. [DETAILS: Player %s. First stuck unit is %s at (%d, %d)]",
-											player.getCivilizationShortDescription(), strTemp.GetCString(), pReadyUnit->getX(), pReadyUnit->getY());
+										    "GAME HANG - Please show Ed and send save. Stuck units will have their turn ended so game can advance. [DETAILS: Player %i %s. First stuck unit is %s at (%d, %d)]",
+										    player.GetID(), player.getName(), strTemp.GetCString(), pReadyUnit->getX(), pReadyUnit->getY());
 										CvAssertMsg(false, szAssertMessage);
+										NET_MESSAGE_DEBUG_OSTR_ALWAYS(szAssertMessage);
 									}
 									player.EndTurnsForReadyUnits();
 								}
@@ -7122,7 +7346,11 @@ void CvGame::updateMoves()
 					do {
 						for(pLoopUnit = player.firstUnit(&iLoop); pLoopUnit; pLoopUnit = player.nextUnit(&iLoop))
 						{
-							NET_MESSAGE_DEBUG_OSTR(std::string("UpdateMoves() : player ") << player.getName() << " running AutoMission on " << pLoopUnit->getName() << " id=" << pLoopUnit->GetID());
+							CvString tempString;
+							getMissionAIString(tempString, pLoopUnit->GetMissionAIType());
+							NET_MESSAGE_DEBUG_OSTR_ALWAYS("UpdateMoves() : player " << player.GetID() << " " << player.getName()
+																							<< " running AutoMission (" << tempString << ") on " 
+																							<< pLoopUnit->getName() << " id=" << pLoopUnit->GetID());
 
 							pLoopUnit->AutoMission();
 
@@ -7132,7 +7360,9 @@ void CvGame::updateMoves()
 								if (player.isEndTurn())
 								{
 									bRepeatAutomoves = true;	// Do another pass.
-									NET_MESSAGE_DEBUG_OSTR(std::string("UpdateMoves() : player ") << player.getName() << " AutoMission did not use up all movement points for " << pLoopUnit->getName() << " id=" << pLoopUnit->GetID());
+									NET_MESSAGE_DEBUG_OSTR_ALWAYS("UpdateMoves() : player " << player.GetID() << " " << player.getName()
+																									<< " AutoMission did not use up all movement points for " 
+																									<< pLoopUnit->getName() << " id=" << pLoopUnit->GetID());
 
 									if (player.isLocalPlayer() && gDLL->sendTurnUnready())
 										player.setEndTurn(false);
@@ -7232,13 +7462,16 @@ void CvGame::updateMoves()
 					if(!player.hasBusyUnitOrCity())
 					{
 						player.setEndTurn(true);
-						NET_MESSAGE_DEBUG_OSTR(std::string("UpdateMoves() : player.setEndTurn(true) called for ") << player.getName());
+						if(player.isEndTurn())
+						{//If the player's turn ended, indicate it in the log.  We only do so when the end turn state has changed to prevent useless log spamming in multiplayer. 
+							NET_MESSAGE_DEBUG_OSTR_ALWAYS("UpdateMoves() : player.setEndTurn(true) called for player " << player.GetID() << " " << player.getName());
+						}
 					}
 					else
 					{
 						if(!player.hasBusyUnitUpdatesRemaining())
 						{
-							NET_MESSAGE_DEBUG_OSTR(std::string("Received turn complete for ") + player.getName() + std::string(" but there is a busy unit. Forcing the turn to advance"));
+							NET_MESSAGE_DEBUG_OSTR_ALWAYS("Received turn complete for player "  << player.GetID() << " " << player.getName() << " but there is a busy unit. Forcing the turn to advance");
 							player.setEndTurn(true);
 						}
 					}
@@ -7247,18 +7480,20 @@ void CvGame::updateMoves()
 		}
 	}
 
-	// KWG: This code should go into CheckPlayerTurnDeactivate
-	if(getNumGameTurnActive() == 0 && activatePlayers)
+	if(activatePlayers)
 	{
-		for (iI = 0; iI < MAX_PLAYERS; iI++)
-		{
-			CvPlayer& player = GET_PLAYER((PlayerTypes)iI);
-			if(!player.isTurnActive() && player.isHuman() && player.isAlive())
+		if (isOption(GAMEOPTION_DYNAMIC_TURNS) || isOption(GAMEOPTION_SIMULTANEOUS_TURNS))
+		{//Activate human players who are playing simultaneous turns now that we've finished moves for the AI.
+			// KWG: This code should go into CheckPlayerTurnDeactivate
+			for(iI = 0; iI < MAX_PLAYERS; iI++)
 			{
-				player.setTurnActive(true);
+				CvPlayer& player = GET_PLAYER((PlayerTypes)iI);
+				if(!player.isTurnActive() && player.isHuman() && player.isAlive() && player.isSimultaneousTurns())
+				{
+					player.setTurnActive(true);
+				}
 			}
 		}
-		resetTurnTimer();
 	}
 }
 
@@ -8374,6 +8609,10 @@ void CvGame::Read(FDataStream& kStream)
 			}
 		}
 	}
+
+	//when loading from file, we need to reset m_lastTurnAICivsProcessed 
+	//so that updateMoves() can turn active players after loading an autosave in simultaneous turns multiplayer.
+	m_lastTurnAICivsProcessed = -1;
 }
 
 //	---------------------------------------------------------------------------
@@ -8608,12 +8847,15 @@ void CvGame::saveReplay()
 	int score = activePlayer.GetScore(true, playerTeamWon);
 
 	if (!isHotSeat())
+	{
 		gDLL->RecordVictoryInformation(score);
+		gDLL->RecordLeaderboardScore(score);
+	}
 }
 //	-----------------------------------------------------------------------------------------------
 void CvGame::showEndGameSequence()
 {
-	gDLL->getInterfaceIFace()->OpenEndGameMenu();
+	GC.GetEngineUserInterface()->OpenEndGameMenu();
 }
 
 //	--------------------------------------------------------------------------------
@@ -9475,7 +9717,7 @@ void CvGame::BuildCannotPerformActionHelpText(CvString* toolTipSink, const char*
 //	--------------------------------------------------------------------------------
 void CvGame::LogGameState(bool bLogHeaders)
 {
-	if (GC.getLogging())
+	if (GC.getLogging() && GC.getAILogging())
 	{
 		CvString strOutput;
 
@@ -9885,4 +10127,18 @@ unsigned int CvGame::GetVariableCitySizeFromPopulation( unsigned int nPopulation
 //------------------------------------------------------------
 //------------------------------------------------------------
 //------------------------------------------------------------
+
+//	--------------------------------------------------------------------------------
+void CvGame::NetMessageStaticsReset()
+{//The net message system reset its static variables.  
+}
+
+//	--------------------------------------------------------------------------------
+void CvGame::SetLastTurnAICivsProcessed()
+{
+	if(m_lastTurnAICivsProcessed != getGameTurn()){
+		gDLL->SendAICivsProcessed();
+		m_lastTurnAICivsProcessed = getGameTurn();
+	}
+}
 

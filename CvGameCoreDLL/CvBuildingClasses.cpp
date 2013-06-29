@@ -1900,12 +1900,12 @@ void CvCityBuildings::SetBuildingProductionTimes100(BuildingTypes eIndex, int iN
 
 		if ((m_pCity->getOwner() == GC.getGame().getActivePlayer()) && m_pCity->isCitySelected())
 		{
-			gDLL->getInterfaceIFace()->setDirty(CityScreen_DIRTY_BIT, true);
+			GC.GetEngineUserInterface()->setDirty(CityScreen_DIRTY_BIT, true);
 		}
 
 		auto_ptr<ICvCity1> pCity = GC.WrapCityPointer(m_pCity);
 
-		gDLL->getInterfaceIFace()->SetSpecificCityInfoDirty(pCity.get(), CITY_UPDATE_TYPE_BANNER);
+		GC.GetEngineUserInterface()->SetSpecificCityInfoDirty(pCity.get(), CITY_UPDATE_TYPE_BANNER);
 	}
 }
 
@@ -2056,21 +2056,21 @@ void CvCityBuildings::SetNumRealBuildingTimed(BuildingTypes eIndex, int iNewValu
 				{
 					if (GetBuildingProduction(eIndex))
 					{
-						gDLL->getInterfaceIFace()->AddDeferredWonderCommand(WONDER_EDITED, pDllCity.get(), eIndex, 1);
+						GC.GetEngineUserInterface()->AddDeferredWonderCommand(WONDER_EDITED, pDllCity.get(), eIndex, 1);
 					}
 					else
 					{
-						gDLL->getInterfaceIFace()->AddDeferredWonderCommand(WONDER_CREATED, pDllCity.get(), eIndex, 1);
+						GC.GetEngineUserInterface()->AddDeferredWonderCommand(WONDER_CREATED, pDllCity.get(), eIndex, 1);
 					}
 				}
 				else
 				{
-					gDLL->getInterfaceIFace()->AddDeferredWonderCommand(WONDER_CREATED, pDllCity.get(), eIndex, 1);
+					GC.GetEngineUserInterface()->AddDeferredWonderCommand(WONDER_CREATED, pDllCity.get(), eIndex, 1);
 				}
 			}
 			else
 			{
-				gDLL->getInterfaceIFace()->AddDeferredWonderCommand(WONDER_REMOVED, pDllCity.get(), eIndex, 0);
+				GC.GetEngineUserInterface()->AddDeferredWonderCommand(WONDER_REMOVED, pDllCity.get(), eIndex, 0);
 			}
 		}
 
@@ -2128,10 +2128,10 @@ void CvCityBuildings::SetNumRealBuildingTimed(BuildingTypes eIndex, int iNewValu
 						localizedText << pPlayer->getNameKey() << buildingEntry->GetTextKey();
 						GC.getGame().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, m_pCity->getOwner(), localizedText.toUTF8(), m_pCity->getX(), m_pCity->getY());
 
-						bool bDontShowRewardPopup = gDLL->getInterfaceIFace()->IsOptionNoRewardPopups();
+						bool bDontShowRewardPopup = GC.GetEngineUserInterface()->IsOptionNoRewardPopups();
 
 						// Notification in MP games
-						if (bDontShowRewardPopup || GC.getGame().isNetworkMultiPlayer())	// KWG: Candidate for !GC.getGame().isMPOption(MPOPTION_SIMULTANEOUS_TURNS)
+						if(bDontShowRewardPopup || GC.getGame().isNetworkMultiPlayer())	// KWG: Candidate for !GC.getGame().IsOption(GAMEOPTION_SIMULTANEOUS_TURNS)
 						{
 							CvNotifications* pNotifications = GET_PLAYER(m_pCity->getOwner()).GetNotifications();
 							if (pNotifications)
@@ -2147,7 +2147,7 @@ void CvCityBuildings::SetNumRealBuildingTimed(BuildingTypes eIndex, int iNewValu
 							if (m_pCity->getOwner() == GC.getGame().getActivePlayer())
 							{
 								CvPopupInfo kPopup(BUTTONPOPUP_WONDER_COMPLETED_ACTIVE_PLAYER, eIndex);
-								gDLL->getInterfaceIFace()->AddPopup(kPopup);
+								GC.GetEngineUserInterface()->AddPopup(kPopup);
 
 								if(GET_PLAYER(GC.getGame().getActivePlayer()).isHuman())
 								{
@@ -2205,7 +2205,7 @@ void CvCityBuildings::SetNumRealBuildingTimed(BuildingTypes eIndex, int iNewValu
 
 		// Building might affect City Banner stats
 		auto_ptr<ICvCity1> pCity = GC.WrapCityPointer(m_pCity);
-		gDLL->getInterfaceIFace()->SetSpecificCityInfoDirty(pCity.get(), CITY_UPDATE_TYPE_BANNER);
+		GC.GetEngineUserInterface()->SetSpecificCityInfoDirty(pCity.get(), CITY_UPDATE_TYPE_BANNER);
 	}
 }
 

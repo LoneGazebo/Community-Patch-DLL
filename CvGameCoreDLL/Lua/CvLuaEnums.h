@@ -29,6 +29,7 @@ protected:
 
 	//! Registers a single enum (Must be called between EnumStart and EnumEnd).
 	static void pRegisterEnum(lua_State* L, const char* enumName, const int enumVal);
+	static void pRegisterEnumUInt(lua_State* L, const char* enumName, const uint enumVal);
 
 	//! Registers 'dynamic' enumerations created by game info database.
 	static void RegisterDynamicEnums(lua_State* L, _In_z_ const char* szTableName,

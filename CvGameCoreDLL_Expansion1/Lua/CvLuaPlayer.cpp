@@ -85,6 +85,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(IsCapitalConnectedToCity);
 
 	Method(IsTurnActive);
+	Method(IsSimultaneousTurns);
 
 	Method(FindNewCapital);
 	Method(CanRaze);
@@ -835,6 +836,13 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(HasRecentIntrigueAbout);
 	Method(GetRecentIntrigueInfo);
 	Method(GetCoupChanceOfSuccess);
+
+	Method(IsConnected);
+	Method(IsObserver);
+
+	Method(HasTurnTimerExpired);
+
+	Method(HasUnitOfClassType);
 }
 //------------------------------------------------------------------------------
 void CvLuaPlayer::HandleMissingInstance(lua_State* L)
@@ -1183,6 +1191,13 @@ int CvLuaPlayer::lIsCapitalConnectedToCity(lua_State* L)
 int CvLuaPlayer::lIsTurnActive(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvPlayerAI::isTurnActive);
+}
+
+//------------------------------------------------------------------------------
+//bool IsSimultaneousTurns( void );
+int CvLuaPlayer::lIsSimultaneousTurns(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlayerAI::isSimultaneousTurns);
 }
 
 //------------------------------------------------------------------------------
@@ -2736,7 +2751,24 @@ int CvLuaPlayer::lGetNextPolicyCost(lua_State* L)
 //bool canAdoptPolicy(PolicyTypes  iIndex);
 int CvLuaPlayer::lCanAdoptPolicy(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlayerAI::canAdoptPolicy);
+	const PolicyTypes ePolicy = static_cast<PolicyTypes>(luaL_checkinteger(L, 2));
+	bool bIgnoreCost = luaL_optbool(L, 3, false);
+
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	CvAssert(pkPlayer != NULL);
+	if(pkPlayer != NULL)
+	{
+		CvPlayerPolicies* pkPolicies = pkPlayer->GetPlayerPolicies();
+		CvAssert(pkPolicies != NULL);
+		if(pkPolicies != NULL)
+		{
+			bool bResult = pkPolicies->CanAdoptPolicy(ePolicy, bIgnoreCost);
+			lua_pushboolean(L, bResult);
+			return 1;
+		}
+	}
+	
+	return 0;
 }
 //------------------------------------------------------------------------------
 //void doAdoptPolicy(PolicyTypes  eIndex);
@@ -5924,7 +5956,7 @@ int CvLuaPlayer::lGetRecommendedWorkerPlots(lua_State* L)
 	CvUnit* pWorkerUnit = NULL;
 
 	//Get first selected worker.
-	CvEnumerator<ICvUnit1> selectedUnits(gDLL->getInterfaceIFace()->GetSelectedUnits());
+	CvEnumerator<ICvUnit1> selectedUnits(GC.GetEngineUserInterface()->GetSelectedUnits());
 	while(selectedUnits.MoveNext())
 	{
 		auto_ptr<ICvUnit1> pUnit(selectedUnits.GetCurrent());
@@ -5994,6 +6026,8 @@ int CvLuaPlayer::lGetRecommendedWorkerPlots(lua_State* L)
 	return 1;
 }
 
+typedef CvWeightedVector<CvPlot*, 800, true> WeightedPlotVector;
+
 //------------------------------------------------------------------------------
 int CvLuaPlayer::lGetRecommendedFoundCityPlots(lua_State* L)
 {
@@ -6002,7 +6036,7 @@ int CvLuaPlayer::lGetRecommendedFoundCityPlots(lua_State* L)
 	CvUnit* pFoundingUnit = NULL;
 
 	//Get first selected unit that can found cities.
-	CvEnumerator<ICvUnit1> selectedUnits(gDLL->getInterfaceIFace()->GetSelectedUnits());
+	CvEnumerator<ICvUnit1> selectedUnits(GC.GetEngineUserInterface()->GetSelectedUnits());
 	while(selectedUnits.MoveNext())
 	{
 		auto_ptr<ICvUnit1> pUnit(selectedUnits.GetCurrent());
@@ -6019,14 +6053,6 @@ int CvLuaPlayer::lGetRecommendedFoundCityPlots(lua_State* L)
 
 	if(pFoundingUnit == NULL)
 		return 0;
-
-	int aiX[2];
-	int aiY[2];
-	int aiValues[2];
-	aiValues[0] = -1;
-	aiValues[1] = -1;
-
-	// slewis - duplicated from CvAIOperationFoundCity::FindBestTarget
 
 	int iSettlerDistance;
 	int iDistanceDropoff;
@@ -6057,6 +6083,9 @@ int CvLuaPlayer::lGetRecommendedFoundCityPlots(lua_State* L)
 		iCapArea = pCapital->getArea();
 	}
 
+	WeightedPlotVector aBestPlots;
+	aBestPlots.reserve((iEvalDistance+1) * 2);
+
 	for(int iPlotX = iBeginSearchX; iPlotX != iEndSearchX; iPlotX++)
 	{
 		for(int iPlotY = iBeginSearchY; iPlotY != iEndSearchY; iPlotY++)
@@ -6086,7 +6115,7 @@ int CvLuaPlayer::lGetRecommendedFoundCityPlots(lua_State* L)
 			//}
 
 			// Do we have to check if this is a safe place to go?
-			if((!pPlot->isVisibleEnemyUnit(pkPlayer->GetID()) && pFoundingUnit->GeneratePath(pPlot, MOVE_TERRITORY_NO_UNEXPLORED, true, &iPathTurns)))
+			if(!pPlot->isVisibleEnemyUnit(pkPlayer->GetID()))
 			{
 				iSettlerDistance = plotDistance(iPlotX, iPlotY, iSettlerX, iSettlerY);
 
@@ -6100,28 +6129,37 @@ int CvLuaPlayer::lGetRecommendedFoundCityPlots(lua_State* L)
 				{
 					iValue = ((1000 - iDanger) * iValue) / 1000;
 
-					for(uint ui = 0; ui < 2; ui++)
-					{
-						if(iValue > aiValues[ui])
-						{
-							aiX[ui] = iPlotX;
-							aiY[ui] = iPlotY;
-							aiValues[ui] = iValue;
-							break;
-						}
-					}
+					aBestPlots.push_back(pPlot, iValue);
 				}
 			}
 		}
 	}
 
 	int iReturnSize = 0;
-	for(uint ui = 0; ui < 2; ui++)
+	int iFailLimit = 20;		// Paths can be really slow to create, bail if we fail too many times.
+#define MAX_RECCOMEND_RETURN 3
+	CvPlot* aPlots[MAX_RECCOMEND_RETURN];
+
+	uint uiListSize;
+	if ((uiListSize = aBestPlots.size()) > 0)
 	{
-		if(aiValues[ui] >= 0)
+		aBestPlots.SortItems();	// highest score will be first.
+		for (uint i = 0; i < uiListSize; ++i )	
 		{
-			if (kMap.plotCheckInvalid(aiX[ui], aiY[ui]))
+			CvPlot* pPlot = aBestPlots.GetElement(i);
+			bool bCanFindPath = pFoundingUnit->GeneratePath(pPlot, MOVE_TERRITORY_NO_UNEXPLORED, true, &iPathTurns);
+			if(bCanFindPath)
+			{
+				aPlots[iReturnSize] = pPlot;
 				++iReturnSize;
+				if (iReturnSize == MAX_RECCOMEND_RETURN)
+					break;
+			}
+			else
+			{
+				if (iFailLimit-- == 0)
+					break;
+			}
 		}
 	}
 
@@ -6129,20 +6167,10 @@ int CvLuaPlayer::lGetRecommendedFoundCityPlots(lua_State* L)
 	if (iReturnSize > 0)
 	{
 		int iPositionIndex = lua_gettop(L);
-		int i = 1;
-		for(uint ui = 0; ui < 2; ui++)
+		for(int i = 0; i < iReturnSize; i++)
 		{
-			CvPlot* pPlot = NULL;
-			if(aiValues[ui] >= 0)
-			{
-				pPlot = kMap.plotCheckInvalid(aiX[ui], aiY[ui]);
-				if (pPlot)
-				{
-					CvLuaPlot::Push(L, pPlot);
-					lua_rawseti(L, iPositionIndex, i);
-					i++;
-				}
-			}
+			CvLuaPlot::Push(L, aPlots[i]);
+			lua_rawseti(L, iPositionIndex, i + 1);
 		}
 	}
 
@@ -8176,5 +8204,47 @@ int CvLuaPlayer::lGetCoupChanceOfSuccess(lua_State* L)
 	}
 
 	lua_pushinteger(L, pkPlayerEspionage->GetCoupChanceOfSuccess(iSpyIndex));
+	return 1;
+}
+
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lIsConnected(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlayerAI::isConnected);
+}
+
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lIsObserver(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlayerAI::isObserver);
+}
+
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lHasTurnTimerExpired(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlayerAI::hasTurnTimerExpired);
+}
+
+//-------------------------------------------------------------------------
+int CvLuaPlayer::lHasUnitOfClassType(lua_State* L)
+{
+	CvPlayerAI* pkThisPlayer = GetInstance(L);
+
+	UnitClassTypes eUnitClass = static_cast<UnitClassTypes>(luaL_checkint(L, 2));
+
+	bool bResult = false;
+	int iUnitLoop;
+	CvUnit* pLoopUnit;
+
+	for(pLoopUnit = pkThisPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = pkThisPlayer->nextUnit(&iUnitLoop))
+	{
+		if(pLoopUnit != NULL && pLoopUnit->getUnitClassType() == eUnitClass)
+		{
+			bResult = true;
+			break;
+		}
+	}
+
+	lua_pushboolean(L, bResult);
 	return 1;
 }

@@ -72,6 +72,7 @@ public:
 	void  Grow( uint uiMinAdditionalSizeRequired = 0 );
 	char* GetBuf();
 	const char* GetBuf() const;
+	void Init(int size, const void* data, bool bRealloc, bool bReallocMin);
 
 	FMemoryStream & operator=(const FMemoryStream &);
 
@@ -79,8 +80,9 @@ protected:
 	// Members:
 	//--------
 	char*	m_pStart;
-	char*	m_pData;
-	char*	m_pStop;
+	char*	m_pData;		//!< Current read/write position
+	char*	m_pStop;		//!< End of the file (used contents of the memory buffer)
+	char*	m_pEndOfBuffer;	//!< True end of the memory buffer
 	bool    m_bRealloc;		//!< Will the memory stream grow if you write too much?
 	bool	m_bReallocMin;	//!< Will the memory stream only allocate the minimum extra requested space (or double)?
 

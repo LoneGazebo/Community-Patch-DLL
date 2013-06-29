@@ -108,6 +108,12 @@ void CvDllNetMessageHandler::ResponseChangeWar(PlayerTypes ePlayer, TeamTypes eR
 	}
 }
 //------------------------------------------------------------------------------
+void CvDllNetMessageHandler::ResponseIgnoreWarning(PlayerTypes ePlayer, TeamTypes eRivalTeam)
+{
+
+}
+
+//------------------------------------------------------------------------------
 void CvDllNetMessageHandler::ResponseCityBuyPlot(PlayerTypes ePlayer, int iCityID, int iX, int iY)
 {
 	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
@@ -131,9 +137,9 @@ void CvDllNetMessageHandler::ResponseCityBuyPlot(PlayerTypes ePlayer, int iCityI
 			if(pkCity->CanBuyPlot(pkPlot->getX(), pkPlot->getY()))
 			{
 				pkCity->BuyPlot(pkPlot->getX(), pkPlot->getY());
-				if(ePlayer == GC.getGame().getActivePlayer() && gDLL->getInterfaceIFace()->isCityScreenUp())
+				if(ePlayer == GC.getGame().getActivePlayer() && GC.GetEngineUserInterface()->isCityScreenUp())
 				{
-					gDLL->getInterfaceIFace()->setDirty(CityScreen_DIRTY_BIT, true);
+					GC.GetEngineUserInterface()->setDirty(CityScreen_DIRTY_BIT, true);
 				}
 			}
 		}
@@ -346,7 +352,7 @@ void CvDllNetMessageHandler::ResponseEnhanceReligion(PlayerTypes ePlayer, Religi
 	}
 }
 //------------------------------------------------------------------------------
-void CvDllNetMessageHandler::ResponseMoveSpy(PlayerTypes ePlayer, int iSpyIndex, int iTargetPlayer, int iTargetCity)
+void CvDllNetMessageHandler::ResponseMoveSpy(PlayerTypes ePlayer, int iSpyIndex, int iTargetPlayer, int iTargetCity, bool bAsDiplomat)
 {
 	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
 	CvPlayerEspionage* pPlayerEspionage = kPlayer.GetEspionage();
@@ -356,7 +362,7 @@ void CvDllNetMessageHandler::ResponseMoveSpy(PlayerTypes ePlayer, int iSpyIndex,
 		if(iTargetCity == -1)
 		{
 			pPlayerEspionage->ExtractSpyFromCity(iSpyIndex);
-			gDLL->getInterfaceIFace()->setDirty(EspionageScreen_DIRTY_BIT, true);
+			GC.GetEngineUserInterface()->setDirty(EspionageScreen_DIRTY_BIT, true);
 		}
 		else
 		{
@@ -369,7 +375,7 @@ void CvDllNetMessageHandler::ResponseMoveSpy(PlayerTypes ePlayer, int iSpyIndex,
 				if(pCity)
 				{
 					pPlayerEspionage->MoveSpyTo(pCity, iSpyIndex);
-					gDLL->getInterfaceIFace()->setDirty(EspionageScreen_DIRTY_BIT, true);
+					GC.GetEngineUserInterface()->setDirty(EspionageScreen_DIRTY_BIT, true);
 				}
 			}
 		}
@@ -483,7 +489,7 @@ void CvDllNetMessageHandler::ResponsePlayerDealFinalized(PlayerTypes eFromPlayer
 			strMessage << kFromPlayer.getNickName();
 			kToPlayer.GetNotifications()->Add(NOTIFICATION_PLAYER_DEAL_RESOLVED, strMessage.toUTF8(), strSummary.toUTF8(), eFromPlayer, -1, -1);
 		}
-		else
+		else if(eFromPlayer == eActivePlayer || eToPlayer	== eActivePlayer)
 		{
 			if(eFromPlayer == eActivePlayer)
 				strMessage = Localization::Lookup("TXT_KEY_DEAL_EXPIRED_FROM_YOU");

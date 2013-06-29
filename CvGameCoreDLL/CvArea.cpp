@@ -582,7 +582,7 @@ void CvArea::changeYieldRateModifier(PlayerTypes eIndex1, YieldTypes eIndex2, in
 
 		if (thisPlayer.getTeam() == GC.getGame().getActiveTeam())
 		{
-			gDLL->getInterfaceIFace()->setDirty(CityInfo_DIRTY_BIT, true);
+			GC.GetEngineUserInterface()->setDirty(CityInfo_DIRTY_BIT, true);
 		}
 	}
 }

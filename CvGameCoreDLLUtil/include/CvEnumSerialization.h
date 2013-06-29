@@ -228,4 +228,23 @@ FDataStream & operator>>(FDataStream &, BeliefTypes &);
 FDataStream & operator<<(FDataStream&, const StorageLocation&);
 FDataStream & operator>>(FDataStream&, StorageLocation&);
 
+FDataStream & operator<<(FDataStream&, const LeagueTypes&);
+FDataStream & operator>>(FDataStream&, LeagueTypes&);
+
+FDataStream & operator<<(FDataStream&, const LeagueSpecialSessionTypes&);
+FDataStream & operator>>(FDataStream&, LeagueSpecialSessionTypes&);
+
+FDataStream & operator<<(FDataStream&, const LeagueNameTypes&);
+FDataStream & operator>>(FDataStream&, LeagueNameTypes&);
+
+FDataStream & operator<<(FDataStream&, const LeagueProjectTypes&);
+FDataStream & operator>>(FDataStream&, LeagueProjectTypes&);
+
+FDataStream & operator<<(FDataStream&, const ResolutionTypes&);
+FDataStream & operator>>(FDataStream&, ResolutionTypes&);
+
+FDataStream & operator<<(FDataStream&, const ResolutionDecisionTypes&);
+FDataStream & operator>>(FDataStream&, ResolutionDecisionTypes&);
+
+
 #endif//INCLUDED_CvEnumSerialization_H

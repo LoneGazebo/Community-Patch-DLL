@@ -1982,7 +1982,7 @@ void CvPlayerPolicies::SetPolicy(PolicyTypes eIndex, bool bNewValue)
 			DoNewPolicyPickedForHistory(eIndex);
 
 			if(m_pPlayer->GetID() == GC.getGame().getActivePlayer())
-				gDLL->getInterfaceIFace()->SetPolicyNotificationSeen(false);
+				GC.GetEngineUserInterface()->SetPolicyNotificationSeen(false);
 		}
 
 		PolicyBranchTypes eThisBranch = (PolicyBranchTypes) pkPolicyInfo->GetPolicyBranchType();
@@ -2423,7 +2423,7 @@ bool CvPlayerPolicies::CanAdoptPolicy(PolicyTypes eIndex, bool bIgnoreCost) cons
 	}
 
 	// Has enough culture to spend?
-	if(bIgnoreCost || m_pPlayer->getNextPolicyCost() > 0)
+	if((!bIgnoreCost) && m_pPlayer->getNextPolicyCost() > 0)
 	{
 		if(m_pPlayer->getJONSCulture() < m_pPlayer->getNextPolicyCost())
 		{
@@ -2618,12 +2618,12 @@ void CvPlayerPolicies::DoUnlockPolicyBranch(PolicyBranchTypes eBranchType)
 	// Update cost if trying to buy another policy this turn
 	GetPlayer()->DoUpdateNextPolicyCost();
 
-	gDLL->getInterfaceIFace()->setDirty(GameData_DIRTY_BIT, true);
+	GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
 
 	// This Dirty bit must only be set when changing something for the active player
 	if(GC.getGame().getActivePlayer() == GetPlayer()->GetID())
 	{
-		gDLL->getInterfaceIFace()->setDirty(Policies_DIRTY_BIT, true);
+		GC.GetEngineUserInterface()->setDirty(Policies_DIRTY_BIT, true);
 	}
 
 	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
@@ -2874,7 +2874,7 @@ void CvPlayerPolicies::DoSwitchToPolicyBranch(PolicyBranchTypes eBranchType)
 	// This Dirty bit must only be set when changing something for the active player
 	if(GC.getGame().getActivePlayer() == GetPlayer()->GetID())
 	{
-		gDLL->getInterfaceIFace()->setDirty(Policies_DIRTY_BIT, true);
+		GC.GetEngineUserInterface()->setDirty(Policies_DIRTY_BIT, true);
 	}
 }
 

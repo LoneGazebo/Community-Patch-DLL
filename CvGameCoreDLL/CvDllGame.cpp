@@ -34,8 +34,9 @@ CvDllGame::~CvDllGame()
 //------------------------------------------------------------------------------
 void* CvDllGame::QueryInterface(GUID guidInterface)
 {
-	if(	guidInterface == ICvUnknown::GetInterfaceId() ||
-		guidInterface == ICvGame1::GetInterfaceId())
+	if(guidInterface == ICvUnknown::GetInterfaceId() ||
+		guidInterface == ICvGame1::GetInterfaceId()	 ||
+		guidInterface == ICvGame2::GetInterfaceId())
 	{
 		IncrementReference();
 		return this;
@@ -275,7 +276,23 @@ void CvDllGame::HandleAction(int iAction)
 //------------------------------------------------------------------------------
 bool CvDllGame::HasTurnTimerExpired()
 {
-	return m_pGame->hasTurnTimerExpired();
+	CvAssertMsg(0, "Obsolete");
+	return false;
+}
+//------------------------------------------------------------------------------
+bool CvDllGame::HasTurnTimerExpired(PlayerTypes playerID)
+{
+	return m_pGame->hasTurnTimerExpired(playerID);
+}
+//------------------------------------------------------------------------------
+void CvDllGame::TurnTimerSync(float fCurTurnTime, float fTurnStartTime)
+{
+	return m_pGame->TurnTimerSync(fCurTurnTime, fTurnStartTime);
+}
+//------------------------------------------------------------------------------
+void CvDllGame::GetTurnTimerData(float& fCurTurnTime, float& fTurnStartTime)
+{
+	return m_pGame->GetTurnTimerData(fCurTurnTime, fTurnStartTime);
 }
 //------------------------------------------------------------------------------
 void CvDllGame::Init(HandicapTypes eHandicap)
@@ -537,4 +554,20 @@ bool CvDllGame::CanMoveUnitTo(ICvUnit1* pUnit, ICvPlot1* pPlot) const
 	}
 
 	return true;
+}
+
+//------------------------------------------------------------------------------
+void CvDllGame::NetMessageStaticsReset()
+{
+	m_pGame->NetMessageStaticsReset();
+}
+//------------------------------------------------------------------------------
+bool CvDllGame::GetGreatWorkAudio(int GreatWorkIndex, char* strSound, int length)
+{
+	return false;
+}
+//------------------------------------------------------------------------------
+void CvDllGame::SetLastTurnAICivsProcessed()
+{
+	m_pGame->SetLastTurnAICivsProcessed();
 }

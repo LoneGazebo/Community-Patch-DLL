@@ -17,6 +17,151 @@
 #include "LintFree.h"
 
 #define MAX_NOTIFICATIONS 100
+static uint V1_IndexToHash[] = 
+{
+	NOTIFICATION_GENERIC,
+	NOTIFICATION_TECH,
+	NOTIFICATION_FREE_TECH,
+	NOTIFICATION_POLICY,
+	NOTIFICATION_PRODUCTION,
+	NOTIFICATION_MET_MINOR,
+	NOTIFICATION_MINOR,
+	NOTIFICATION_MINOR_QUEST,
+	NOTIFICATION_ENEMY_IN_TERRITORY,
+	NOTIFICATION_CITY_RANGE_ATTACK,
+	NOTIFICATION_BARBARIAN,
+	NOTIFICATION_GOODY,
+	NOTIFICATION_BUY_TILE,
+	NOTIFICATION_CITY_GROWTH,
+	NOTIFICATION_CITY_TILE,
+	NOTIFICATION_DEMAND_RESOURCE,
+	NOTIFICATION_UNIT_PROMOTION,
+	NOTIFICATION_WONDER_COMPLETED_ACTIVE_PLAYER,
+	NOTIFICATION_WONDER_COMPLETED,
+	NOTIFICATION_WONDER_BEATEN,
+	NOTIFICATION_GOLDEN_AGE_BEGUN_ACTIVE_PLAYER,
+	NOTIFICATION_GOLDEN_AGE_ENDED_ACTIVE_PLAYER,
+	NOTIFICATION_GREAT_PERSON_ACTIVE_PLAYER,
+	NOTIFICATION_STARVING,
+	NOTIFICATION_WAR_ACTIVE_PLAYER,
+	NOTIFICATION_WAR,
+	NOTIFICATION_PEACE_ACTIVE_PLAYER,
+	NOTIFICATION_PEACE,
+	NOTIFICATION_VICTORY,
+	NOTIFICATION_UNIT_DIED,
+	NOTIFICATION_CITY_LOST,
+	NOTIFICATION_CAPITAL_LOST_ACTIVE_PLAYER,
+	NOTIFICATION_CAPITAL_LOST,
+	NOTIFICATION_CAPITAL_RECOVERED,
+	NOTIFICATION_PLAYER_KILLED,
+	NOTIFICATION_DISCOVERED_LUXURY_RESOURCE,
+	NOTIFICATION_DISCOVERED_STRATEGIC_RESOURCE,
+	NOTIFICATION_DISCOVERED_BONUS_RESOURCE,
+	NOTIFICATION_DIPLO_VOTE,
+	NOTIFICATION_RELIGION_RACE,
+	NOTIFICATION_EXPLORATION_RACE,
+	NOTIFICATION_DIPLOMACY_DECLARATION,
+	NOTIFICATION_DEAL_EXPIRED_GPT,
+	NOTIFICATION_DEAL_EXPIRED_RESOURCE,
+	NOTIFICATION_DEAL_EXPIRED_OPEN_BORDERS,
+	NOTIFICATION_DEAL_EXPIRED_DEFENSIVE_PACT,
+	NOTIFICATION_DEAL_EXPIRED_RESEARCH_AGREEMENT,
+	NOTIFICATION_DEAL_EXPIRED_TRADE_AGREEMENT,
+	NOTIFICATION_TECH_AWARD,
+	NOTIFICATION_PLAYER_DEAL,
+	NOTIFICATION_PLAYER_DEAL_RECEIVED,
+	NOTIFICATION_PLAYER_DEAL_RESOLVED,
+	NOTIFICATION_PROJECT_COMPLETED,
+	NOTIFICATION_REBELS,
+	NOTIFICATION_FREE_POLICY,
+	NOTIFICATION_FREE_GREAT_PERSON,
+	NOTIFICATION_DENUNCIATION_EXPIRED,
+	NOTIFICATION_FRIENDSHIP_EXPIRED,
+	NOTIFICATION_RELIGION_FOUNDED_ACTIVE_PLAYER,
+	NOTIFICATION_RELIGION_FOUNDED,
+	NOTIFICATION_PANTHEON_FOUNDED_ACTIVE_PLAYER,
+	NOTIFICATION_PANTHEON_FOUNDED,
+	NOTIFICATION_FOUND_PANTHEON,
+	NOTIFICATION_FOUND_RELIGION,
+	NOTIFICATION_ENHANCE_RELIGION,
+	NOTIFICATION_RELIGION_ENHANCED_ACTIVE_PLAYER,
+	NOTIFICATION_RELIGION_ENHANCED,
+	NOTIFICATION_SPY_CREATED_ACTIVE_PLAYER,
+	NOTIFICATION_SPY_STOLE_TECH,
+	NOTIFICATION_SPY_CANT_STEAL_TECH,
+	NOTIFICATION_CAN_BUILD_MISSIONARY,
+	NOTIFICATION_OTHER_PLAYER_NEW_ERA,
+	NOTIFICATION_SPY_EVICTED,
+	NOTIFICATION_RELIGION_SPREAD,
+	NOTIFICATION_TECH_STOLEN_SPY_DETECTED,
+	NOTIFICATION_TECH_STOLEN_SPY_IDENTIFIED,
+	NOTIFICATION_SPY_WAS_KILLED,
+	NOTIFICATION_SPY_KILLED_A_SPY,
+	NOTIFICATION_SPY_REPLACEMENT,
+	NOTIFICATION_MAYA_LONG_COUNT,
+	NOTIFICATION_FAITH_GREAT_PERSON,
+	NOTIFICATION_SPY_PROMOTION,
+	NOTIFICATION_INTRIGUE_DECEPTION,
+	NOTIFICATION_SPY_RIG_ELECTION_SUCCESS,
+	NOTIFICATION_SPY_RIG_ELECTION_FAILURE,
+	NOTIFICATION_SPY_RIG_ELECTION_ALERT,
+	NOTIFICATION_SPY_YOU_STAGE_COUP_SUCCESS,
+	NOTIFICATION_SPY_YOU_STAGE_COUP_FAILURE,
+	NOTIFICATION_SPY_STAGE_COUP_SUCCESS,
+	NOTIFICATION_SPY_STAGE_COUP_FAILURE,
+	NOTIFICATION_INTRIGUE_BUILDING_SNEAK_ATTACK_ARMY,
+	NOTIFICATION_INTRIGUE_BUILDING_SNEAK_ATTACK_AMPHIBIOUS,
+	NOTIFICATION_INTRIGUE_SNEAK_ATTACK_ARMY_AGAINST_KNOWN_CITY_UNKNOWN,
+	NOTIFICATION_INTRIGUE_SNEAK_ATTACK_ARMY_AGAINST_KNOWN_CITY_KNOWN,
+	NOTIFICATION_INTRIGUE_SNEAK_ATTACK_ARMY_AGAINST_YOU_CITY_UNKNOWN,
+	NOTIFICATION_INTRIGUE_SNEAK_ATTACK_ARMY_AGAINST_YOU_CITY_KNOWN,
+	NOTIFICATION_INTRIGUE_SNEAK_ATTACK_ARMY_AGAINST_UNKNOWN,
+	NOTIFICATION_INTRIGUE_SNEAK_ATTACK_AMPHIB_AGAINST_KNOWN_CITY_UNKNOWN,
+	NOTIFICATION_INTRIGUE_SNEAK_ATTACK_AMPHIB_AGAINST_KNOWN_CITY_KNOWN,
+	NOTIFICATION_INTRIGUE_SNEAK_ATTACK_AMPHIB_AGAINST_YOU_CITY_UNKNOWN,
+	NOTIFICATION_INTRIGUE_SNEAK_ATTACK_AMPHIB_AGAINST_YOU_CITY_KNOWN,
+	NOTIFICATION_INTRIGUE_SNEAK_ATTACK_AMPHIB_AGAINST_UNKNOWN,
+	NOTIFICATION_RELIGION_ERROR,
+	NOTIFICATION_AUTOMATIC_FAITH_PURCHASE_STOPPED,
+	NOTIFICATION_EXPANSION_PROMISE_EXPIRED,
+	NOTIFICATION_BORDER_PROMISE_EXPIRED,
+	NOTIFICATION_TRADE_ROUTE,
+	NOTIFICATION_TRADE_ROUTE_BROKEN,
+	NOTIFICATION_RELIGION_SPREAD_NATURAL,
+	NOTIFICATION_INTRIGUE_CONSTRUCTING_WONDER,
+	NOTIFICATION_MINOR_BUYOUT,
+	NOTIFICATION_REQUEST_RESOURCE,
+	NOTIFICATION_LIBERATED_MAJOR_CITY,
+	NOTIFICATION_RESURRECTED_MAJOR_CIV,
+	NOTIFICATION_ADD_REFORMATION_BELIEF,
+	NOTIFICATION_LEAGUE_CALL_FOR_PROPOSALS,
+	NOTIFICATION_CHOOSE_ARCHAEOLOGY,
+	NOTIFICATION_LEAGUE_CALL_FOR_VOTES,
+	NOTIFICATION_CHOOSE_IDEOLOGY,
+	NOTIFICATION_IDEOLOGY_CHOSEN,
+	NOTIFICATION_DIPLOMAT_EJECTED,
+	NOTIFICATION_INTERNATIONAL_TRADE_UNIT_PLUNDERED_TRADER,
+	NOTIFICATION_INTERNATIONAL_TRADE_UNIT_PLUNDERED_TRADEE,
+	NOTIFICATION_REFORMATION_BELIEF_ADDED_ACTIVE_PLAYER,
+	NOTIFICATION_REFORMATION_BELIEF_ADDED,
+	NOTIFICATION_GREAT_WORK_COMPLETED_ACTIVE_PLAYER,
+	NOTIFICATION_LEAGUE_VOTING_DONE,
+	NOTIFICATION_LEAGUE_VOTING_SOON,
+	NOTIFICATION_CULTURE_VICTORY_SOMEONE_INFLUENTIAL,
+	NOTIFICATION_CULTURE_VICTORY_WITHIN_TWO,
+	NOTIFICATION_CULTURE_VICTORY_WITHIN_TWO_ACTIVE_PLAYER,
+	NOTIFICATION_CULTURE_VICTORY_WITHIN_ONE,
+	NOTIFICATION_CULTURE_VICTORY_WITHIN_ONE_ACTIVE_PLAYER,
+	NOTIFICATION_CULTURE_VICTORY_NO_LONGER_INFLUENTIAL,
+	NOTIFICATION_PLAYER_RECONNECTED,
+	NOTIFICATION_PLAYER_DISCONNECTED,
+	NOTIFICATION_TURN_MODE_SEQUENTIAL,
+	NOTIFICATION_TURN_MODE_SIMULTANEOUS,
+	NOTIFICATION_HOST_MIGRATION,
+	NOTIFICATION_PLAYER_CONNECTING,
+	NOTIFICATION_CITY_REVOLT_POSSIBLE,
+	NOTIFICATION_CITY_REVOLT
+};
 
 /// Serialization read
 FDataStream & operator>>(FDataStream & loadFrom, CvNotifications::Notification & writeTo)
@@ -126,6 +271,13 @@ void CvNotifications::Read (FDataStream& kStream)
 	for (uint ui = 0; ui < MAX_NOTIFICATIONS; ui++)
 	{
 		kStream >> m_aNotifications[ui];
+		if (uiVersion <= 1)
+		{
+			// Translate the old index the hash ID.
+			int iIndex = (int)(m_aNotifications[ui].m_eNotificationType);
+			if (iIndex >= 0 && iIndex < sizeof(V1_IndexToHash)/sizeof(uint))
+				m_aNotifications[ui].m_eNotificationType = (NotificationTypes)V1_IndexToHash[iIndex];
+		}
 	}
 }
 
@@ -133,7 +285,7 @@ void CvNotifications::Read (FDataStream& kStream)
 void CvNotifications::Write(FDataStream& kStream) const
 {
 	// Current version number
-	uint uiVersion = 1;
+	uint uiVersion = 2;
 	kStream << uiVersion;
 
 	// need to serialize notification list
@@ -161,7 +313,7 @@ void CvNotifications::Update (void)
 			if (IsNotificationExpired(iIndex))
 			{
 				Dismiss(kNotification.m_iLookupIndex, /*bUserInvoked*/ false);
-				//gDLL->getInterfaceIFace()->RemoveNotification(kNotification.m_iLookupIndex);
+				//GC.GetEngineUserInterface()->RemoveNotification(kNotification.m_iLookupIndex);
 				//kNotification.m_bDismissed = true;
 			}
 			else
@@ -172,7 +324,7 @@ void CvNotifications::Update (void)
 					// The 'active' player is only set to a human and during the AI turn, the 'active' player is the last human to do their turn.
 					if(kNotification.m_ePlayerID == GC.getGame().getActivePlayer() && (!CvPreGame::isHotSeatGame() || GET_PLAYER(GC.getGame().getActivePlayer()).isTurnActive()) )
 					{
-						gDLL->getInterfaceIFace()->AddNotification(kNotification.m_iLookupIndex, kNotification.m_eNotificationType, kNotification.m_strMessage.c_str(), kNotification.m_strSummary.c_str(), kNotification.m_iGameDataIndex, kNotification.m_iExtraGameData, m_ePlayer, kNotification.m_iX, kNotification.m_iY);
+						GC.GetEngineUserInterface()->AddNotification(kNotification.m_iLookupIndex, kNotification.m_eNotificationType, kNotification.m_strMessage.c_str(), kNotification.m_strSummary.c_str(), kNotification.m_iGameDataIndex, kNotification.m_iExtraGameData, m_ePlayer, kNotification.m_iX, kNotification.m_iY);
 						kNotification.m_bNeedsBroadcast = false;
 					}
 				}
@@ -209,6 +361,16 @@ void CvNotifications::EndOfTurnCleanup (void)
 			iIndex = 0;
 		}
 	}
+}
+
+/// Adds a new notification to the list
+int CvNotifications::AddByName(const char* pszNotificationName, const char* strMessage, const char* strSummary, int iX, int iY, int iGameDataIndex, int iExtraGameData)
+{
+	if (pszNotificationName && pszNotificationName[0] != 0)
+	{
+		return Add((NotificationTypes) FString::Hash(pszNotificationName), strMessage, strSummary, iX, iY, iGameDataIndex, iExtraGameData);
+	}
+	return -1;
 }
 
 /// Adds a new notification to the list
@@ -258,7 +420,7 @@ int CvNotifications::Add(NotificationTypes eNotificationType, const char* strMes
 		// The 'active' player is only set to a human and during the AI turn, the 'active' player is the last human to do their turn.
 		if(newNotification.m_ePlayerID == GC.getGame().getActivePlayer() && (!CvPreGame::isHotSeatGame() || GET_PLAYER(GC.getGame().getActivePlayer()).isTurnActive()) )
 		{
-			gDLL->getInterfaceIFace()->AddNotification(newNotification.m_iLookupIndex, newNotification.m_eNotificationType, newNotification.m_strMessage.c_str(), newNotification.m_strSummary.c_str(), newNotification.m_iGameDataIndex, newNotification.m_iExtraGameData, m_ePlayer, iX, iY);
+			GC.GetEngineUserInterface()->AddNotification(newNotification.m_iLookupIndex, newNotification.m_eNotificationType, newNotification.m_strMessage.c_str(), newNotification.m_strSummary.c_str(), newNotification.m_iGameDataIndex, newNotification.m_iExtraGameData, m_ePlayer, iX, iY);
 
 			// Don't show effect with production notification
 			if (eNotificationType != NOTIFICATION_PRODUCTION)
@@ -327,7 +489,7 @@ void CvNotifications::Dismiss (int iLookupIndex, bool bUserInvoked)
 		if (m_aNotifications[iIndex].m_iLookupIndex == iLookupIndex)
 		{
 			m_aNotifications[iIndex].m_bDismissed = true;
-			gDLL->getInterfaceIFace()->RemoveNotification(m_aNotifications[iIndex].m_iLookupIndex, m_ePlayer);
+			GC.GetEngineUserInterface()->RemoveNotification(m_aNotifications[iIndex].m_iLookupIndex, m_ePlayer);
 
 			switch (m_aNotifications[iIndex].m_eNotificationType)
 			{
@@ -335,7 +497,7 @@ void CvNotifications::Dismiss (int iLookupIndex, bool bUserInvoked)
 				{
 					if (m_ePlayer == GC.getGame().getActivePlayer() && bUserInvoked)
 					{
-						gDLL->getInterfaceIFace()->SetPolicyNotificationSeen(true);
+						GC.GetEngineUserInterface()->SetPolicyNotificationSeen(true);
 					}
 				}
 			case NOTIFICATION_UNIT_PROMOTION:
@@ -434,6 +596,18 @@ bool CvNotifications::GetEndTurnBlockedType (EndTurnBlockingTypes& eBlockingType
 		{
 			switch (m_aNotifications[iIndex].m_eNotificationType)
 			{
+			case NOTIFICATION_CITY_RANGE_ATTACK:
+			{
+				bool automaticallyEndTurns = GC.getGame().isGameMultiPlayer() ? GC.GetEngineUserInterface()->IsMPAutoEndTurnEnabled() : GC.GetEngineUserInterface()->IsSPAutoEndTurnEnabled();
+				if(automaticallyEndTurns)
+				{//City range attacks only block turns if the player is using auto end turn.
+					eBlockingType = ENDTURN_BLOCKING_CITY_RANGE_ATTACK;
+					iNotificationIndex = m_aNotifications[iIndex].m_iLookupIndex;
+					return true;
+				}
+				break;
+			}
+
 			case NOTIFICATION_DIPLO_VOTE:
 				eBlockingType = ENDTURN_BLOCKING_DIPLO_VOTE;
 				iNotificationIndex = m_aNotifications[iIndex].m_iLookupIndex;
@@ -547,7 +721,7 @@ bool CvNotifications::IsNotificationDismissed (int iZeroBasedIndex)
 
 void CvNotifications::Activate (Notification& notification)
 {
-	gDLL->getInterfaceIFace()->ActivateNotification(notification.m_iLookupIndex, notification.m_eNotificationType, notification.m_strMessage, notification.m_iX, notification.m_iY, notification.m_iGameDataIndex, notification.m_iExtraGameData, m_ePlayer);
+	GC.GetEngineUserInterface()->ActivateNotification(notification.m_iLookupIndex, notification.m_eNotificationType, notification.m_strMessage, notification.m_iX, notification.m_iY, notification.m_iGameDataIndex, notification.m_iExtraGameData, m_ePlayer);
 
 	gDLL->GameplayMinimapNotification(notification.m_iX, notification.m_iY, notification.m_iLookupIndex+1);	// The index is used to uniquely identify each flashing dot on the minimap. We're adding 1 since the selected unit is always 0. It ain't pretty, but it'll work
 
@@ -556,7 +730,7 @@ void CvNotifications::Activate (Notification& notification)
 	case NOTIFICATION_WONDER_COMPLETED_ACTIVE_PLAYER:
 		{
 			CvPopupInfo kPopup( BUTTONPOPUP_WONDER_COMPLETED_ACTIVE_PLAYER, notification.m_iGameDataIndex, notification.m_iExtraGameData, notification.m_iX, notification.m_iY );
-			gDLL->getInterfaceIFace()->AddPopup( kPopup );
+			GC.GetEngineUserInterface()->AddPopup( kPopup );
         }
         break;
 	case NOTIFICATION_BUY_TILE:
@@ -566,7 +740,7 @@ void CvNotifications::Activate (Notification& notification)
 			if (pCity)
 			{
 				auto_ptr<ICvPlot1> pDllPlot = GC.WrapPlotPointer(pCity->plot());
-				gDLL->getInterfaceIFace()->lookAt(pDllPlot.get(), CAMERALOOKAT_NORMAL);
+				GC.GetEngineUserInterface()->lookAt(pDllPlot.get(), CAMERALOOKAT_NORMAL);
 			}
 		}
 		break;
@@ -575,7 +749,7 @@ void CvNotifications::Activate (Notification& notification)
 		{
 			CvPopupInfo kPopup(BUTTONPOPUP_CHOOSETECH, m_ePlayer, notification.m_iGameDataIndex, notification.m_iExtraGameData);
 			strcpy_s(kPopup.szText, notification.m_strMessage);
-			gDLL->getInterfaceIFace()->AddPopup(kPopup);
+			GC.GetEngineUserInterface()->AddPopup(kPopup);
 		}
 		break;
 	case NOTIFICATION_TECH_AWARD:
@@ -584,7 +758,7 @@ void CvNotifications::Activate (Notification& notification)
 			{
 				CvPopupInfo kPopup(BUTTONPOPUP_TECH_AWARD, m_ePlayer, notification.m_iGameDataIndex, notification.m_iExtraGameData);
 				strcpy_s(kPopup.szText, notification.m_strMessage);
-				gDLL->getInterfaceIFace()->AddPopup(kPopup);
+				GC.GetEngineUserInterface()->AddPopup(kPopup);
 			}
 		}
 		break;
@@ -592,13 +766,13 @@ void CvNotifications::Activate (Notification& notification)
 	case NOTIFICATION_FREE_POLICY:
 		{
 			CvPopupInfo kPopup(BUTTONPOPUP_CHOOSEPOLICY, m_ePlayer);
-			gDLL->getInterfaceIFace()->AddPopup(kPopup);
+			GC.GetEngineUserInterface()->AddPopup(kPopup);
 		}
 		break;
 	case NOTIFICATION_DIPLO_VOTE:
 		{
 			CvPopupInfo kPopup(BUTTONPOPUP_DIPLO_VOTE, m_ePlayer);
-			gDLL->getInterfaceIFace()->AddPopup(kPopup);
+			GC.GetEngineUserInterface()->AddPopup(kPopup);
 		}
 		break;
 	case NOTIFICATION_MINOR_QUEST:
@@ -607,13 +781,13 @@ void CvNotifications::Activate (Notification& notification)
 
 			auto_ptr<ICvPlot1> pDllPlot = GC.WrapPlotPointer(pPlot);
 
-			gDLL->getInterfaceIFace()->lookAt(pDllPlot.get(), CAMERALOOKAT_NORMAL);
+			GC.GetEngineUserInterface()->lookAt(pDllPlot.get(), CAMERALOOKAT_NORMAL);
 			gDLL->GameplayDoFX(pDllPlot.get());
 
-			gDLL->getInterfaceIFace()->SetTempString(notification.m_strMessage);
+			GC.GetEngineUserInterface()->SetTempString(notification.m_strMessage);
 
 			CvPopupInfo kPopup(BUTTONPOPUP_CITY_STATE_MESSAGE, notification.m_iGameDataIndex);
-			gDLL->getInterfaceIFace()->AddPopup(kPopup);
+			GC.GetEngineUserInterface()->AddPopup(kPopup);
 
 			notification.m_iExtraGameData = 1; // hack to allow this to be dismissed
 
@@ -642,7 +816,7 @@ void CvNotifications::Activate (Notification& notification)
 			kPopupInfo.iData2 = eOrder;
 			kPopupInfo.iData3 = iItemID;
 
-			gDLL->getInterfaceIFace()->AddPopup(kPopupInfo);
+			GC.GetEngineUserInterface()->AddPopup(kPopupInfo);
 		}
 		break;
 	case NOTIFICATION_UNIT_PROMOTION:
@@ -656,8 +830,8 @@ void CvNotifications::Activate (Notification& notification)
 					auto_ptr<ICvPlot1> pDllPlot = GC.WrapPlotPointer(pPlot);
 					auto_ptr<ICvUnit1> pDllUnit = GC.WrapUnitPointer(pUnit.pointer());
 
-					gDLL->getInterfaceIFace()->lookAt(pDllPlot.get(), CAMERALOOKAT_NORMAL);
-					gDLL->getInterfaceIFace()->selectUnit(pDllUnit.get(), false);
+					GC.GetEngineUserInterface()->lookAt(pDllPlot.get(), CAMERALOOKAT_NORMAL);
+					GC.GetEngineUserInterface()->selectUnit(pDllUnit.get(), false);
 					gDLL->GameplayDoFX(pDllPlot.get());
 				}
 			}
@@ -665,12 +839,12 @@ void CvNotifications::Activate (Notification& notification)
 		break;
 	case NOTIFICATION_PLAYER_DEAL:
         {
-            gDLL->getInterfaceIFace()->OpenPlayerDealScreen( (PlayerTypes) notification.m_iX );
+            GC.GetEngineUserInterface()->OpenPlayerDealScreen( (PlayerTypes) notification.m_iX );
         }
         break;
 	case NOTIFICATION_PLAYER_DEAL_RECEIVED:
 		{
-			gDLL->getInterfaceIFace()->OpenPlayerDealScreen( (PlayerTypes) notification.m_iX );
+			GC.GetEngineUserInterface()->OpenPlayerDealScreen( (PlayerTypes) notification.m_iX );
 		}
 		break;
 	case NOTIFICATION_FREE_GREAT_PERSON:
@@ -678,7 +852,7 @@ void CvNotifications::Activate (Notification& notification)
 			if(GET_PLAYER(m_ePlayer).GetNumFreeGreatPeople() > 0)
 			{
 				CvPopupInfo kPopup(BUTTONPOPUP_CHOOSE_FREE_GREAT_PERSON, m_ePlayer, notification.m_iGameDataIndex, notification.m_iExtraGameData);
-				gDLL->getInterfaceIFace()->AddPopup(kPopup);
+				GC.GetEngineUserInterface()->AddPopup(kPopup);
 			}
 		}
 		break;
@@ -689,7 +863,7 @@ void CvNotifications::Activate (Notification& notification)
 			{
 				auto_ptr<ICvPlot1> pDllPlot = GC.WrapPlotPointer(pPlot);
 
-				gDLL->getInterfaceIFace()->lookAt(pDllPlot.get(), CAMERALOOKAT_NORMAL);
+				GC.GetEngineUserInterface()->lookAt(pDllPlot.get(), CAMERALOOKAT_NORMAL);
 				gDLL->GameplayDoFX(pDllPlot.get());
 			}
 		}
@@ -958,7 +1132,7 @@ bool CvNotifications::IsNotificationExpired (int iIndex)
 			if (pCity == NULL)
 				return true;
 
-			else if (!pCity->canRangeStrike())
+			else if(!pCity->CanRangeStrikeNow())
 				return true;
 		}
 		break;
@@ -1138,6 +1312,15 @@ bool CvNotifications::IsNotificationExpired (int iIndex)
 		}
 		break;
 
+	case NOTIFICATION_PLAYER_CONNECTING:
+	{
+		if(!gDLL->IsPlayerHotJoining(m_aNotifications[iIndex].m_iGameDataIndex)){
+			//Player has finished hot joining.  Remove this notification, we'll add a NOTIFICATION_PLAYER_RECONNECTED in NetProxy::OnHotJoinComplete().
+			return true;
+		}
+	}
+	break;
+
 	default:	// don't expire
 		{
 			return false;
@@ -1161,6 +1344,13 @@ bool CvNotifications::IsNotificationEndOfTurnExpired (int iIndex)
     case NOTIFICATION_PLAYER_DEAL:
 	case NOTIFICATION_PLAYER_DEAL_RECEIVED:
 	case NOTIFICATION_FREE_GREAT_PERSON:
+	case NOTIFICATION_PLAYER_RECONNECTED:
+	case NOTIFICATION_PLAYER_DISCONNECTED:
+	case NOTIFICATION_TURN_MODE_SEQUENTIAL:
+	case NOTIFICATION_TURN_MODE_SIMULTANEOUS:
+	case NOTIFICATION_HOST_MIGRATION:
+	case NOTIFICATION_PLAYER_CONNECTING:
+	case NOTIFICATION_PLAYER_KICKED:
 		return false;
 		break;
 

@@ -140,6 +140,11 @@ public:
 		std::sort(m_pItems.begin(), m_pItems.end());
 	}
 
+	void StableSortItems()
+	{
+		std::stable_sort(m_pItems.begin(), m_pItems.end());
+	}
+
 	/// Return a random entry by weight, but avoid unlikely candidates (by only looking at candidates with a certain percentage chance)
 	T ChooseAbovePercentThreshold(int iPercent, RandomNumberDelegate *rndFcn, const char *szRollName)
 	{

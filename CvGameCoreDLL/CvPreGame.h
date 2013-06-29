@@ -80,7 +80,7 @@ namespace CvPreGame
 	float                                      endTurnTimerLength               (); // setupdata
 	EraTypes                                   era                              ();
 	PlayerTypes                                findPlayerByNickname             (const char * const name);
-	void                                       fixSlotsForLaunch                ();
+	void                                       ReseatConnectedPlayers           ();
 	GameMode                                   gameMode                         ();
 	const CvString &                           gameName                         ();
 	bool                                       gameStarted                      ();
@@ -119,6 +119,9 @@ namespace CvPreGame
 	bool                                       isVictory                        (VictoryTypes v);
 	bool                                       isWBMapScript                    ();
 	bool                                       isWhiteFlag                      (PlayerTypes p);
+	bool									   									 isTurnNotifySteamInvite					(PlayerTypes p); 
+	bool																			 isTurnNotifyEmail								(PlayerTypes p);
+	const CvString&														 getTurnNotifyEmailAddress				(PlayerTypes p);             
 	LeaderHeadTypes                            leaderHead                       (PlayerTypes p);
 	const CvString &                           leaderName                       (PlayerTypes p);
 	const CvString &                           leaderNameKey                    (PlayerTypes p);
@@ -266,6 +269,10 @@ namespace CvPreGame
 	void                                       setVictory                       (VictoryTypes v, bool isValid);
 	void                                       setVictories                     (const std::vector<bool> & v);
 	void                                       setWhiteFlag                     (PlayerTypes p, bool flag);
+	void									   									 setTurnNotifySteamInvite					(PlayerTypes p, bool flag);
+	void																		 	 setTurnNotifyEmail								(PlayerTypes p, bool flag);
+	void																		 	 setTurnNotifyEmailAddress				(PlayerTypes p, const CvString& emailAddress);
+	void									   									 VerifyHandicap										(PlayerTypes p);
 	void                                       setWorldSize                     (WorldSizeTypes w, bool bResetSlots=true);
 	void                                       setWorldSize                     (const CvString & w);
 	SlotClaim                                  slotClaim                        (PlayerTypes p);

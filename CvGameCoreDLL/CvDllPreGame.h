@@ -9,7 +9,7 @@
 
 #include "CvDllInterfaces.h"
 
-class CvDllPreGame : public ICvPreGame1
+class CvDllPreGame : public ICvPreGame2
 {
 public:
 	CvDllPreGame();
@@ -19,6 +19,10 @@ public:
 
 	static void operator delete(void* p);
 	static void* operator new (size_t bytes);
+
+	/************************************************************************/
+	/* ICvPreGame1 Interface Methods                                        */
+	/************************************************************************/
 
 	PlayerTypes DLLCALL activePlayer();
 	int DLLCALL advancedStartPoints();
@@ -228,6 +232,24 @@ public:
 	ICvEnumerator* DLLCALL GetDLCAllowed();
 	ICvEnumerator* DLLCALL GetDLCAvailable(PlayerTypes p);
 	void DLLCALL SetDLCAvailable(PlayerTypes p, ICvEnumerator* pList);
+
+	/************************************************************************/
+	/* ICvPreGame2 Interface Methods                                        */
+	/************************************************************************/
+	int DLLCALL pitBossTurnTime();
+	void DLLCALL setPitBossTurnTime(int turnTime);
+
+	bool DLLCALL isTurnNotifySteamInvite(PlayerTypes p) const;
+	void DLLCALL setTurnNotifySteamInvite(PlayerTypes p, bool wantsSteamInvite);
+
+	bool DLLCALL isTurnNotifyEmail(PlayerTypes p) const;
+	void DLLCALL setTurnNotifyEmail(PlayerTypes p, bool wantsEmail);
+
+	const CvString& DLLCALL getTurnNotifyEmailAddress(PlayerTypes p) const;
+	void DLLCALL setTurnNotifyEmailAddress(PlayerTypes p, const CvString& emailAddress);
+
+	void DLLCALL VerifyHandicap(PlayerTypes p);
+	void DLLCALL ReseatConnectedPlayers();
 
 private:
 	void DLLCALL Destroy();

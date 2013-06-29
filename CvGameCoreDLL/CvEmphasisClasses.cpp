@@ -230,7 +230,7 @@ void CvCityEmphases::SetEmphasize(EmphasizeTypes eIndex, bool bNewValue)
 
 		if ((m_pCity->getOwner() == GC.getGame().getActivePlayer()) && m_pCity->isCitySelected())
 		{
-			gDLL->getInterfaceIFace()->setDirty(SelectionButtons_DIRTY_BIT, true);
+			GC.GetEngineUserInterface()->setDirty(SelectionButtons_DIRTY_BIT, true);
 		}
 	}
 }

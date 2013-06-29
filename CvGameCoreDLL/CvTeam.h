@@ -89,6 +89,7 @@ public:
 	int countEnemyDangerByArea(CvArea* pArea) const;
 
 	bool isHuman() const;
+	bool isObserver() const;
 	bool isBarbarian() const;
 	bool isMinorCiv() const;
 
@@ -324,6 +325,8 @@ public:
 	void changeImprovementFreshWaterYieldChange(ImprovementTypes eIndex1, YieldTypes eIndex2, int iChange);
 
 	bool isFriendlyTerritory(TeamTypes eTeam) const;
+	bool isAtWarWithHumans() const;
+	bool isSimultaneousTurns() const;
 
 	bool IsHomeOfUnitedNations() const;
 	void SetHomeOfUnitedNations(bool bValue);
@@ -361,6 +364,8 @@ public:
 	int countNumHumanGameTurnActive() const;
 	void setTurnActive(bool bNewValue, bool bTurn = true);
 	bool isTurnActive() const;
+
+	void setDynamicTurnsSimultMode(bool simultaneousTurns);
 
 	// Wrapper for giving Players on this Team a notification message
 	void AddNotification(NotificationTypes eNotificationType, CvString& strMessage, CvString& strSummary, int iX = -1, int iY = -1, int iGameDataIndex = -1);

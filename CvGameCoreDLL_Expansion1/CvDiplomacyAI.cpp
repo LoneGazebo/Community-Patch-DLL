@@ -9880,7 +9880,7 @@ void CvDiplomacyAI::DoFirstContact(PlayerTypes ePlayer)
 		//SetPlayerTargetValue(ePlayer, TARGET_VALUE_AVERAGE);
 
 		// Humans don't say hi to one another through the shadow diplo AI and, uh, don't show up in MP please
-		if(!GC.getGame().isNetworkMultiPlayer())	// KWG: Candidate for !GC.getGame().isMPOption(MPOPTION_SIMULTANEOUS_TURNS)
+		if(!GC.getGame().isNetworkMultiPlayer())	// KWG: Candidate for !GC.getGame().IsOption(GAMEOPTION_SIMULTANEOUS_TURNS)
 		{
 			if(!GetPlayer()->isHuman())
 			{
@@ -16756,8 +16756,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 		else if(iArg1 == 2)
 		{
 			SetPlayerMadeNoConvertPromise(eFromPlayer, true);
-			int iAdjustmentToJustBelowThreshold = (GC.getRELIGION_DIPLO_HIT_THRESHOLD() / GC.getEraInfo(GC.getGame().getCurrentEra())->getDiploEmphasisReligion())
-			                                      - (GetNegativeReligiousConversionPoints(eFromPlayer) / GC.getEraInfo(GC.getGame().getCurrentEra())->getDiploEmphasisReligion()) - 1;
+			int iAdjustmentToJustBelowThreshold = GC.getRELIGION_DIPLO_HIT_THRESHOLD() - GetNegativeReligiousConversionPoints(eFromPlayer) - 1;
 			ChangeNegativeReligiousConversionPoints(eFromPlayer, iAdjustmentToJustBelowThreshold);
 			if(bActivePlayer)
 			{
@@ -16842,7 +16841,7 @@ const char* CvDiplomacyAI::GetGreetHumanMessage(LeaderheadAnimationTypes& eAnima
 	// Repeated Greetings
 	////////////////////////////////////////////
 
-	int iTimesScreenOpened = gDLL->getInterfaceIFace()->GetStartDiploRepeatCount();
+	int iTimesScreenOpened = GC.GetEngineUserInterface()->GetStartDiploRepeatCount();
 
 	if(iTimesScreenOpened > 4)
 		return GetDiploStringForMessage(DIPLO_MESSAGE_GREETING_REPEAT_TOO_MUCH);
@@ -19952,11 +19951,11 @@ void CvDiplomacyAI::ChangeNumCiviliansReturnedToMe(PlayerTypes ePlayer, int iCha
 		// Message for human
 		if(iChange > 0)
 		{
-			if(!GC.getGame().isNetworkMultiPlayer())	// KWG: Candidate for !GC.getGame().isMPOption(MPOPTION_SIMULTANEOUS_TURNS)
+			if(!GC.getGame().isNetworkMultiPlayer())	// KWG: Candidate for !GC.getGame().IsOption(GAMEOPTION_SIMULTANEOUS_TURNS)
 			{
 				if(GC.getGame().getActivePlayer() == ePlayer)
 				{
-					gDLL->getInterfaceIFace()->SetForceDiscussionModeQuitOnBack(true);		// Set force quit so that when discuss mode pops up the Back button won't go to leader root
+					GC.GetEngineUserInterface()->SetForceDiscussionModeQuitOnBack(true);		// Set force quit so that when discuss mode pops up the Back button won't go to leader root
 					const char* strText = GetDiploStringForMessage(DIPLO_MESSAGE_RETURNED_CIVILIAN);
 					gDLL->GameplayDiplomacyAILeaderMessage(GetPlayer()->GetID(), DIPLO_UI_STATE_BLANK_DISCUSSION, strText, LEADERHEAD_ANIM_POSITIVE);
 				}
@@ -20023,9 +20022,7 @@ int CvDiplomacyAI::GetNegativeReligiousConversionPoints(PlayerTypes ePlayer) con
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
-	int iEraMultiplier = GC.getEraInfo(GC.getGame().getCurrentEra())->getDiploEmphasisReligion();
-	int iRtnValue = iEraMultiplier * m_paiNegativeReligiousConversionPoints[ePlayer];
-	return iRtnValue;
+	return m_paiNegativeReligiousConversionPoints[ePlayer];
 }
 
 /// Converted religion of my cities?
@@ -20276,7 +20273,7 @@ int CvDiplomacyAI::GetReligiousConversionPointsScore(PlayerTypes ePlayer)
 	int iOpinionWeight = 0;
 	if(GetNegativeReligiousConversionPoints(ePlayer) > 0)
 	{
-		iOpinionWeight += (GetNegativeReligiousConversionPoints(ePlayer) * /*2*/ GC.getOPINION_WEIGHT_PER_NEGATIVE_CONVERSION());
+		iOpinionWeight += (GetNegativeReligiousConversionPoints(ePlayer) * GC.getEraInfo(GC.getGame().getCurrentEra())->getDiploEmphasisReligion() * /*2*/ GC.getOPINION_WEIGHT_PER_NEGATIVE_CONVERSION());
 	}
 	return iOpinionWeight;
 }

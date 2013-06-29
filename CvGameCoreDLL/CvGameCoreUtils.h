@@ -533,4 +533,6 @@ inline CvString GetLocalizedText(const char* szString, const T1& arg1, const T2&
 #define NET_MESSAGE_DEBUG_OSTR(x)	((void)0)
 #endif
 
+#define NET_MESSAGE_DEBUG_OSTR_ALWAYS(x)	{ std::ostringstream str; str << x; gDLL->netMessageDebugLog(str.str()); }
+
 #endif

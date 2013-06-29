@@ -1881,7 +1881,8 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 	for(int i = 0; i < GC.getNumResourceInfos(); i++)
 	{
 		ResourceTypes eResource = (ResourceTypes)i;
-		if(GC.getResourceInfo(eResource)->getResourceUsage() != RESOURCEUSAGE_LUXURY && GC.getResourceInfo(eResource)->getResourceUsage() != RESOURCEUSAGE_STRATEGIC)
+		const CvResourceInfo *pkResourceInfo = GC.getResourceInfo(eResource);
+		if(pkResourceInfo == NULL || (pkResourceInfo->getResourceUsage() != RESOURCEUSAGE_LUXURY && pkResourceInfo->getResourceUsage() != RESOURCEUSAGE_STRATEGIC))
 		{
 			continue;
 		}
@@ -1916,7 +1917,8 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 			for(int k = 0; k < GC.getNumResourceInfos(); k++)
 			{
 				ResourceTypes eTradebackResource = (ResourceTypes)k;
-				if(GC.getResourceInfo(eTradebackResource)->getResourceUsage() != RESOURCEUSAGE_LUXURY && GC.getResourceInfo(eTradebackResource)->getResourceUsage() != RESOURCEUSAGE_STRATEGIC)
+				const CvResourceInfo *pkTradebackResourceInfo = GC.getResourceInfo(eTradebackResource);
+				if(pkTradebackResourceInfo == NULL || (pkTradebackResourceInfo->getResourceUsage() != RESOURCEUSAGE_LUXURY && pkTradebackResourceInfo->getResourceUsage() != RESOURCEUSAGE_STRATEGIC))
 				{
 					continue;
 				}

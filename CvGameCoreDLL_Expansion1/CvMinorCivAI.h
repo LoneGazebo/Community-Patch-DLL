@@ -122,12 +122,14 @@ public:
 	bool IsRevoked();
 	bool IsExpired();
 	bool IsObsolete();
+	bool IsHandled();
+	void SetHandled(bool bValue);
 
 	// Starting and finishing
 	void DoStartQuest(int iStartTurn);
 	void DoStartQuestUsingExistingData(CvMinorCivQuest* pExistingQuest);
-	void DoFinishQuest();
-	void DoCancelQuest();
+	bool DoFinishQuest();
+	bool DoCancelQuest();
 
 	// Public data
 	PlayerTypes m_eMinor;
@@ -136,6 +138,7 @@ public:
 	int m_iStartTurn;
 	int m_iData1;
 	int m_iData2;
+	bool m_bHandled;
 };
 FDataStream& operator>>(FDataStream&, CvMinorCivQuest&);
 FDataStream& operator<<(FDataStream&, const CvMinorCivQuest&);
@@ -268,8 +271,8 @@ public:
 	void DoCompletedQuestsForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes eSpecifyQuestType = NO_MINOR_CIV_QUEST_TYPE);
 	void DoObsoleteQuests();
 	void DoObsoleteQuestsForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes eSpecifyQuestType = NO_MINOR_CIV_QUEST_TYPE);
-	void DoQuestsCleanup(bool bCompletedQuests, bool bObsoleteQuests);
-	void DoQuestsCleanupForPlayer(PlayerTypes ePlayer, bool bCompletedQuests, bool bObsoleteQuests, MinorCivQuestTypes eSpecifyQuestType = NO_MINOR_CIV_QUEST_TYPE);
+	void DoQuestsCleanup();
+	void DoQuestsCleanupForPlayer(PlayerTypes ePlayer);
 
 	bool IsEnabledQuest(MinorCivQuestTypes eQuest);
 	bool IsValidQuestForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes eQuest);

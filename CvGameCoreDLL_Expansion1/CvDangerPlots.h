@@ -32,6 +32,7 @@ public:
 	void UpdateDanger(bool bPretendWarWithAllCivs = false, bool bIgnoreVisibility = false);
 	void AddDanger(int iPlotX, int iPlotY, int iValue);
 	int GetDanger(const CvPlot& pPlot) const;
+	bool IsUnderImmediateThreat(const CvPlot& pPlot) const;
 	int GetCityDanger(CvCity* pCity);  // sums the plots around the city to determine it's danger value
 
 	int ModifyDangerByRelationship(PlayerTypes ePlayer, CvPlot* pPlot, int iDanger);

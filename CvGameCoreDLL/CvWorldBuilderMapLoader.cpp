@@ -31,160 +31,141 @@ void InitTypeDesc()
 	//static bool bFirst = true;
 	//if( bFirst ) // Do this every time as mod data may have changed.
 	{
-		sg_kMapTypeDesc.m_kTerrainTypes.uiSize = 0;
+		sg_kMapTypeDesc.m_kTerrainTypes.Clear();
 		const int iTerrainTypeCount = GC.getNumTerrainInfos();
 		for( int i = 0; i < iTerrainTypeCount; ++i )
 		{
 			const CvTerrainInfo *pkTerrainInfo = GC.getTerrainInfo((TerrainTypes)i);
 			if( pkTerrainInfo != NULL )
 			{
-				sg_kMapTypeDesc.m_kTerrainTypes.asTypes[sg_kMapTypeDesc.m_kTerrainTypes.uiSize] = pkTerrainInfo->GetType();
+				sg_kMapTypeDesc.m_kTerrainTypes.Add( pkTerrainInfo->GetType() );
 			}
 			else
 			{
-				sg_kMapTypeDesc.m_kTerrainTypes.asTypes[sg_kMapTypeDesc.m_kTerrainTypes.uiSize] = NULL;
+				sg_kMapTypeDesc.m_kTerrainTypes.Add( NULL );
 			}
-
-			++sg_kMapTypeDesc.m_kTerrainTypes.uiSize;
 		}
 
-		sg_kMapTypeDesc.m_kFeatures.uiSize = 0;
+		sg_kMapTypeDesc.m_kFeatures.Clear();
 		const int iFeatureCount = GC.getNumFeatureInfos();
 		for( int i = 0; i < iFeatureCount; ++i )
 		{
 			const CvFeatureInfo *pkFeatureInfo = GC.getFeatureInfo((FeatureTypes)i);
 			if( pkFeatureInfo != NULL )
 			{
-				sg_kMapTypeDesc.m_kFeatures.asTypes[sg_kMapTypeDesc.m_kFeatures.uiSize] = pkFeatureInfo->GetType();
-				sg_kMapTypeDesc.m_kNaturalWonders.asTypes[sg_kMapTypeDesc.m_kNaturalWonders.uiSize] = pkFeatureInfo->GetType();
+				sg_kMapTypeDesc.m_kFeatures.Add( pkFeatureInfo->GetType() );
+				sg_kMapTypeDesc.m_kNaturalWonders.Add( pkFeatureInfo->GetType() );
 			}
 			else
 			{
-				sg_kMapTypeDesc.m_kFeatures.asTypes[sg_kMapTypeDesc.m_kFeatures.uiSize] = NULL;
-				sg_kMapTypeDesc.m_kNaturalWonders.asTypes[sg_kMapTypeDesc.m_kNaturalWonders.uiSize] = NULL;
+				sg_kMapTypeDesc.m_kFeatures.Add( NULL );
+				sg_kMapTypeDesc.m_kNaturalWonders.Add( NULL );
 			}
-
-			++sg_kMapTypeDesc.m_kFeatures.uiSize;
-			++sg_kMapTypeDesc.m_kNaturalWonders.uiSize;
 		}
 
-		sg_kMapTypeDesc.m_kResources.uiSize = 0;
+		sg_kMapTypeDesc.m_kResources.Clear();
 		const int iResourceCount = GC.getNumResourceInfos();
 		for( int i = 0; i < iResourceCount; ++i )
 		{
 			const CvResourceInfo *pkResourceInfo = GC.getResourceInfo((ResourceTypes)i);
 			if( pkResourceInfo != NULL )
 			{
-				sg_kMapTypeDesc.m_kResources.asTypes[sg_kMapTypeDesc.m_kResources.uiSize] = pkResourceInfo->GetType();
+				sg_kMapTypeDesc.m_kResources.Add( pkResourceInfo->GetType() );
 			}
 			else
 			{
-				sg_kMapTypeDesc.m_kResources.asTypes[sg_kMapTypeDesc.m_kResources.uiSize] = NULL;
+				sg_kMapTypeDesc.m_kResources.Add( NULL );
 			}
-
-			++sg_kMapTypeDesc.m_kResources.uiSize;
 		}
 
-		sg_kMapTypeDesc.m_kImprovements.uiSize = 0;
+		sg_kMapTypeDesc.m_kImprovements.Clear();
 		const int iImprovementCount = GC.getNumImprovementInfos();
 		for( int i = 0; i < iImprovementCount; ++i )
 		{
 			const CvImprovementEntry *pkImprovementInfo = GC.getImprovementInfo((ImprovementTypes)i);
 			if( pkImprovementInfo != NULL )
 			{
-				sg_kMapTypeDesc.m_kImprovements.asTypes[sg_kMapTypeDesc.m_kImprovements.uiSize] = pkImprovementInfo->GetType();
+				sg_kMapTypeDesc.m_kImprovements.Add( pkImprovementInfo->GetType() );
 			}
 			else
 			{
-				sg_kMapTypeDesc.m_kImprovements.asTypes[sg_kMapTypeDesc.m_kImprovements.uiSize] = NULL;
+				sg_kMapTypeDesc.m_kImprovements.Add( NULL );
 			}
-
-			++sg_kMapTypeDesc.m_kImprovements.uiSize;
 		}
 
-		sg_kMapTypeDesc.m_kUnits.uiSize = 0;
+		sg_kMapTypeDesc.m_kUnits.Clear();
 		const int iUnitCount = GC.getNumUnitInfos();
 		for( int i = 0; i < iUnitCount; ++i )
 		{
 			const CvUnitEntry *pkUnitInfo = GC.getUnitInfo((UnitTypes)i);
 			if( pkUnitInfo != NULL )
 			{
-				sg_kMapTypeDesc.m_kUnits.asTypes[sg_kMapTypeDesc.m_kUnits.uiSize] = pkUnitInfo->GetType();
+				sg_kMapTypeDesc.m_kUnits.Add( pkUnitInfo->GetType() );
 			}
 			else
 			{
-				sg_kMapTypeDesc.m_kUnits.asTypes[sg_kMapTypeDesc.m_kUnits.uiSize] = NULL;
+				sg_kMapTypeDesc.m_kUnits.Add( NULL );
 			}
-
-			++sg_kMapTypeDesc.m_kUnits.uiSize;
 		}
 
-		sg_kMapTypeDesc.m_kTechs.uiSize = 0;
+		sg_kMapTypeDesc.m_kTechs.Clear();
 		const int iTechCount = GC.getNumTechInfos();
 		for( int i = 0; i < iTechCount; ++i )
 		{
 			const CvTechEntry *pkTechInfo = GC.getTechInfo((TechTypes)i);
 			if( pkTechInfo != NULL )
 			{
-				sg_kMapTypeDesc.m_kTechs.asTypes[sg_kMapTypeDesc.m_kTechs.uiSize] = pkTechInfo->GetType();
+				sg_kMapTypeDesc.m_kTechs.Add( pkTechInfo->GetType() );
 			}
 			else
 			{
-				sg_kMapTypeDesc.m_kTechs.asTypes[sg_kMapTypeDesc.m_kTechs.uiSize] = NULL;
+				sg_kMapTypeDesc.m_kTechs.Add( NULL );
 			}
-
-			++sg_kMapTypeDesc.m_kTechs.uiSize;
 		}
 
-		sg_kMapTypeDesc.m_kPolicies.uiSize = 0;
+		sg_kMapTypeDesc.m_kPolicies.Clear();
 		const int iPolicyCount = GC.getNumPolicyInfos();
 		for( int i = 0; i < iPolicyCount; ++i )
 		{
 			const CvPolicyEntry *pkPolicyInfo = GC.getPolicyInfo((PolicyTypes)i);
 			if( pkPolicyInfo != NULL )
 			{
-				sg_kMapTypeDesc.m_kPolicies.asTypes[sg_kMapTypeDesc.m_kPolicies.uiSize] = pkPolicyInfo->GetType();
+				sg_kMapTypeDesc.m_kPolicies.Add( pkPolicyInfo->GetType() );
 			}
 			else
 			{
-				sg_kMapTypeDesc.m_kPolicies.asTypes[sg_kMapTypeDesc.m_kPolicies.uiSize] = NULL;
+				sg_kMapTypeDesc.m_kPolicies.Add( NULL );
 			}
-
-			++sg_kMapTypeDesc.m_kPolicies.uiSize;
 		}
 
-		sg_kMapTypeDesc.m_kBuildingTypes.uiSize = 0;
+		sg_kMapTypeDesc.m_kBuildingTypes.Clear();
 		const int iBuildingCount = GC.getNumBuildingInfos();
 		for( int i = 0; i < iBuildingCount; ++i )
 		{
 			const CvBuildingEntry *pkBuildingInfo = GC.getBuildingInfo((BuildingTypes)i);
 			if( pkBuildingInfo != NULL )
 			{
-				sg_kMapTypeDesc.m_kBuildingTypes.asTypes[sg_kMapTypeDesc.m_kBuildingTypes.uiSize] = pkBuildingInfo->GetType();
+				sg_kMapTypeDesc.m_kBuildingTypes.Add( pkBuildingInfo->GetType() );
 			}
 			else
 			{
-				sg_kMapTypeDesc.m_kBuildingTypes.asTypes[sg_kMapTypeDesc.m_kBuildingTypes.uiSize] = NULL;
+				sg_kMapTypeDesc.m_kBuildingTypes.Add( NULL );
 			}
-
-			++sg_kMapTypeDesc.m_kBuildingTypes.uiSize;
 		}
 
-		sg_kMapTypeDesc.m_kUnitPromotions.uiSize = 0;
+		sg_kMapTypeDesc.m_kUnitPromotions.Clear();
 		const int iPromotionCount = GC.getNumPromotionInfos();
 		for( int i = 0; i < iPromotionCount; ++i )
 		{
 			const CvPromotionEntry *pkPromotionInfo = GC.getPromotionInfo((PromotionTypes)i);
 			if( pkPromotionInfo != NULL )
 			{
-				sg_kMapTypeDesc.m_kUnitPromotions.asTypes[sg_kMapTypeDesc.m_kUnitPromotions.uiSize] = pkPromotionInfo->GetType();
+				sg_kMapTypeDesc.m_kUnitPromotions.Add( pkPromotionInfo->GetType() );
 			}
 			else
 			{
-				sg_kMapTypeDesc.m_kUnitPromotions.asTypes[sg_kMapTypeDesc.m_kUnitPromotions.uiSize] = NULL;
+				sg_kMapTypeDesc.m_kUnitPromotions.Add( NULL );
 			}
-
-			++sg_kMapTypeDesc.m_kUnitPromotions.uiSize;
 		}
 
 		//bFirst = false;
@@ -392,7 +373,7 @@ void CvWorldBuilderMapLoader::SetupPlayers()
 			const PlayerTypes ePlayer = (PlayerTypes)i;
 			const SlotStatus eStatus = CvPreGame::slotStatus(ePlayer);
 			if( eStatus == SS_COMPUTER )
-				CvPreGame::setSlotStatus(ePlayer, SS_CLOSED);
+				CvPreGame::resetPlayer(ePlayer);	// Do a full reset, which will also close the slot.  A reset is better so that the player data does not get initialized later.
 		}
 	}
 

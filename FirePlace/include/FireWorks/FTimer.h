@@ -52,7 +52,17 @@ struct FTimer
         QueryPerformanceCounter( (LARGE_INTEGER*)&m_qStart );
 #endif	//	_PS3
         return (m_fTimer = 0);
-    }
+	}
+
+	float StartWithOffset(float offset)
+	{//positive offset offsets the start time into the past.
+		Start();
+		Peek(); //peek to make sure that m_fFreq is initialized.
+	
+		__int64 offset64 = (__int64)(offset / m_fFreq);
+		m_qStart -= offset64;
+		return (m_fTimer = 0);	
+	}
 
 	float Peek() const	 { return  ReadF(  m_qStart ); }
 	float Stop()	 { return (m_fTimer = Peek()); }

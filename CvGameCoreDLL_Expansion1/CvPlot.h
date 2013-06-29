@@ -127,10 +127,6 @@ public:
 	int defenseModifier(TeamTypes eDefender, bool bIgnoreBuilding, bool bHelp = false) const;
 	int movementCost(const CvUnit* pUnit, const CvPlot* pFromPlot, int iMovesRemaining = 0) const;
 	int MovementCostNoZOC(const CvUnit* pUnit, const CvPlot* pFromPlot, int iMovesRemaining = 0) const;
-	bool ConsumesAllMoves(const CvUnit* pUnit, const CvPlot* pFromPlot) const;
-	bool CostsOnlyOne(const CvUnit* pUnit, const CvPlot* pFromPlot) const;
-	void GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot, int& iRegularCost, int& iRouteCost, int& iRouteFlatCost) const;
-	bool IsSlowedByZOC(const CvUnit* pUnit, const CvPlot* pFromPlot) const;
 
 	int getExtraMovePathCost() const;
 	void changeExtraMovePathCost(int iChange);
@@ -384,27 +380,7 @@ public:
 	}
 	bool isImpassable()     const
 	{
-		const PlotTypes ePlot = getPlotType();
-		const TerrainTypes eTerrain = getTerrainType();
-		const FeatureTypes eFeature = getFeatureType();
-
-		if(eTerrain == NO_TERRAIN)
-			return false;
-
-		if(eFeature == NO_FEATURE)
-		{
-			CvTerrainInfo* pkTerrainInfo = GC.getTerrainInfo(eTerrain);
-			if(pkTerrainInfo)
-				return pkTerrainInfo->isImpassable();
-		}
-		else
-		{
-			CvFeatureInfo* pkFeatureInfo = GC.getFeatureInfo(eFeature);
-			if(pkFeatureInfo)
-				return pkFeatureInfo->isImpassable();
-		}
-
-		return false;
+		return m_bIsImpassable;
 	}
 
 	bool isRoughGround() const
@@ -811,9 +787,11 @@ protected:
 	bool m_bRoughFeature:1;
 	bool m_bResourceLinkedCityActive:1;
 	bool m_bImprovedByGiftFromMajor:1;
+	bool m_bIsImpassable:1;					// Cached value, do not serialize
 
 	void processArea(CvArea* pArea, int iChange);
 	void doImprovementUpgrade();
+	void updateImpassable();
 
 
 	// added so under cheat mode we can access protected stuff

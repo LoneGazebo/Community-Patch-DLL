@@ -36,7 +36,7 @@ bool CvAssertDlg(const char* expr, const char* szFile, unsigned int uiLine, bool
 #define CvAssertMsg(expr, msg)																\
 {																							\
 	static bool bIgnoreAlways = false;														\
-	if( !(expr) )								                							\
+	if( !bIgnoreAlways && !(expr) )								                							\
 	{																						\
 		if(CvAssertDlg(#expr, __FILE__, __LINE__, bIgnoreAlways, msg))						\
 			{ CVASSERT_BREAKPOINT; }														\

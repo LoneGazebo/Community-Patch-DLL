@@ -1163,7 +1163,7 @@ void CvEconomicAI::LogMonitor (void)
 			AppendToLog(strHeader, strLog, "Production", m_pPlayer->calculateTotalYield((YieldTypes)ui));
 			break;
 		case YIELD_GOLD:
-			AppendToLog(strHeader, strLog, "Gold", m_pPlayer->calculateTotalYield((YieldTypes)ui));
+			AppendToLog(strHeader, strLog, "City Gold", m_pPlayer->calculateTotalYield((YieldTypes)ui));
 			break;
 		case YIELD_SCIENCE:
 			AppendToLog(strHeader, strLog, "Science", m_pPlayer->calculateTotalYield((YieldTypes)ui));
@@ -1203,8 +1203,9 @@ void CvEconomicAI::LogMonitor (void)
 		}
 	}
 	AppendToLog(strHeader, strLog, "# Workers", iWorkerCount);
-	AppendToLog(strHeader, strLog, "Happiness",  m_pPlayer->GetHappiness());
-	AppendToLog(strHeader, strLog, "Happiness Used", m_pPlayer->GetUnhappiness());
+	AppendToLog(strHeader, strLog, "Positive Happiness",  m_pPlayer->GetHappiness());
+	AppendToLog(strHeader, strLog, "Negative Happiness", m_pPlayer->GetUnhappiness());
+	AppendToLog(strHeader, strLog, "Net Happiness", m_pPlayer->GetExcessHappiness());
 
 	// # of each improvement constructed
 	FFastVector<int, true> m_aiNumImprovements;
@@ -1364,7 +1365,7 @@ void CvEconomicAI::LogCityMonitor()
 				AppendToLog(strHeader, strLog, "science", aiCityYields[ui]);
 				break;
 			case YIELD_GOLD:
-				AppendToLog(strHeader, strLog, "gold", aiCityYields[ui]);
+				AppendToLog(strHeader, strLog, "city gold", aiCityYields[ui]);
 				break;
 			}
 		}

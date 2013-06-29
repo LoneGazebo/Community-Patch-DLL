@@ -302,6 +302,7 @@ void CvCityStrategyAI::Reset()
 
 	m_eSpecialization = NO_CITY_SPECIALIZATION;
 	m_eDefaultSpecialization = NO_CITY_SPECIALIZATION;
+	m_eFocusYield = (YieldTypes)NO_YIELD;
 
 	// Reset sub AI objects
 	m_pBuildingProductionAI->Reset();
@@ -359,6 +360,7 @@ void CvCityStrategyAI::Read(FDataStream& kStream)
 
 	kStream >> m_eSpecialization;
 	kStream >> m_eDefaultSpecialization;
+	m_eFocusYield = (YieldTypes)NO_YIELD;	//force yield to default since we don't serialize it.
 
 	m_pBuildingProductionAI->Read(kStream);
 	m_pUnitProductionAI->Read(kStream);

@@ -29,6 +29,7 @@
 #define MAX_TEAMS											(MAX_PLAYERS)
 #define BARBARIAN_PLAYER									((PlayerTypes)MAX_CIV_PLAYERS)
 #define BARBARIAN_TEAM										((TeamTypes)MAX_CIV_TEAMS)
+#define OBSERVER_TEAM											((TeamTypes)(MAX_MAJOR_CIVS-1))		//This only works because observer mode is multiplayer/debug only																																		//and multiplayer only supports 12 max players 																																	//(due to map player restrictions)
 
 #define MAX_DAMAGE_MEMBER_COUNT								32
 #define CVHEADER_VERSIONING_STARTED							7		/// The version of CvSavedGameHeader where we added versions to CvPreGame data.
@@ -50,3 +51,6 @@ const char* const CIV5_XP1_SCENARIO2_MODID = "76d702e9-8b28-429b-a97d-f84388f548
 const char* const CIV5_XP1_SCENARIO3_MODID = "b103d2e0-3aab-40d7-a2f3-375d2eabfcaf";	//Empires of the Smoky Skies
 
 const char* const CIV5_DLC_06_PACKAGEID = "BBB0D085-A0B1-4475-B007-3E549CF3ADC3";
+
+const char* const CIV5_XP2_SCENARIO1_MODID = "55fd836a-72e5-4aba-bbcf-3395b05a0e70";	//American Civil War
+const char* const CIV5_XP2_SCENARIO2_MODID = "f2eb1642-3334-4d2c-8db1-08e6aede3532";	//Scramble for Africa

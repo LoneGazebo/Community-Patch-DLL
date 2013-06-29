@@ -231,8 +231,7 @@ void CvCityCitizens::DoFoundCity()
 	CvPlot* pHomePlot = GetCityPlotFromIndex(CITY_HOME_PLOT);
 	if(pHomePlot != NULL)
 	{
-		bool bWorkPlot = IsCanWork(pHomePlot);
-		SetWorkingPlot(pHomePlot, bWorkPlot, /*bUseUnassignedPool*/ false);
+		SetWorkingPlot(pHomePlot, true, /*bUseUnassignedPool*/ false);
 	}
 }
 
@@ -1520,13 +1519,13 @@ void CvCityCitizens::SetWorkingPlot(CvPlot* pPlot, bool bNewValue, bool bUseUnas
 
 		if(GetCity()->isCitySelected())
 		{
-			gDLL->getInterfaceIFace()->setDirty(CityInfo_DIRTY_BIT, true);
-			//gDLL->getInterfaceIFace()->setDirty(InfoPane_DIRTY_BIT, true );
-			gDLL->getInterfaceIFace()->setDirty(CityScreen_DIRTY_BIT, true);
-			gDLL->getInterfaceIFace()->setDirty(ColoredPlots_DIRTY_BIT, true);
+			GC.GetEngineUserInterface()->setDirty(CityInfo_DIRTY_BIT, true);
+			//GC.GetEngineUserInterface()->setDirty(InfoPane_DIRTY_BIT, true );
+			GC.GetEngineUserInterface()->setDirty(CityScreen_DIRTY_BIT, true);
+			GC.GetEngineUserInterface()->setDirty(ColoredPlots_DIRTY_BIT, true);
 		}
 
-		gDLL->getInterfaceIFace()->setDirty(CityInfo_DIRTY_BIT, true);
+		GC.GetEngineUserInterface()->setDirty(CityInfo_DIRTY_BIT, true);
 	}
 }
 
@@ -2064,7 +2063,7 @@ void CvCityCitizens::DoAddSpecialistToBuilding(BuildingTypes eBuilding, bool bFo
 
 		ChangeNumUnassignedCitizens(-1);
 
-		CvDLLInterfaceIFaceBase* pkIFace = gDLL->getInterfaceIFace();
+		ICvUserInterface2* pkIFace = GC.GetEngineUserInterface();
 		pkIFace->setDirty(GameData_DIRTY_BIT, true);
 		pkIFace->setDirty(CityInfo_DIRTY_BIT, true);
 		//pkIFace->setDirty(InfoPane_DIRTY_BIT, true );
@@ -2119,15 +2118,15 @@ void CvCityCitizens::DoRemoveSpecialistFromBuilding(BuildingTypes eBuilding, boo
 			ChangeNumUnassignedCitizens(1);
 		}
 
-		gDLL->getInterfaceIFace()->setDirty(GameData_DIRTY_BIT, true);
-		gDLL->getInterfaceIFace()->setDirty(CityInfo_DIRTY_BIT, true);
-		//gDLL->getInterfaceIFace()->setDirty(InfoPane_DIRTY_BIT, true );
-		gDLL->getInterfaceIFace()->setDirty(CityScreen_DIRTY_BIT, true);
-		gDLL->getInterfaceIFace()->setDirty(ColoredPlots_DIRTY_BIT, true);
+		GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
+		GC.GetEngineUserInterface()->setDirty(CityInfo_DIRTY_BIT, true);
+		//GC.GetEngineUserInterface()->setDirty(InfoPane_DIRTY_BIT, true );
+		GC.GetEngineUserInterface()->setDirty(CityScreen_DIRTY_BIT, true);
+		GC.GetEngineUserInterface()->setDirty(ColoredPlots_DIRTY_BIT, true);
 
 		auto_ptr<ICvCity1> pCity = GC.WrapCityPointer(GetCity());
 
-		gDLL->getInterfaceIFace()->SetSpecificCityInfoDirty(pCity.get(), CITY_UPDATE_TYPE_SPECIALISTS);
+		GC.GetEngineUserInterface()->SetSpecificCityInfoDirty(pCity.get(), CITY_UPDATE_TYPE_SPECIALISTS);
 	}
 }
 
@@ -2169,13 +2168,13 @@ void CvCityCitizens::DoRemoveAllSpecialistsFromBuilding(BuildingTypes eBuilding,
 			ChangeNumUnassignedCitizens(1);
 		}
 
-		gDLL->getInterfaceIFace()->setDirty(CityInfo_DIRTY_BIT, true);
-		//gDLL->getInterfaceIFace()->setDirty(InfoPane_DIRTY_BIT, true );
-		gDLL->getInterfaceIFace()->setDirty(CityScreen_DIRTY_BIT, true);
-		gDLL->getInterfaceIFace()->setDirty(ColoredPlots_DIRTY_BIT, true);
+		GC.GetEngineUserInterface()->setDirty(CityInfo_DIRTY_BIT, true);
+		//GC.GetEngineUserInterface()->setDirty(InfoPane_DIRTY_BIT, true );
+		GC.GetEngineUserInterface()->setDirty(CityScreen_DIRTY_BIT, true);
+		GC.GetEngineUserInterface()->setDirty(ColoredPlots_DIRTY_BIT, true);
 
 		auto_ptr<ICvCity1> pCity = GC.WrapCityPointer(GetCity());
-		gDLL->getInterfaceIFace()->SetSpecificCityInfoDirty(pCity.get(), CITY_UPDATE_TYPE_SPECIALISTS);
+		GC.GetEngineUserInterface()->SetSpecificCityInfoDirty(pCity.get(), CITY_UPDATE_TYPE_SPECIALISTS);
 	}
 }
 
@@ -2397,7 +2396,7 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 		if(!GC.getGame().isNetworkMultiPlayer())	// KWG: Candidate for !GC.getGame().isMPOption(MPOPTION_SIMULTANEOUS_TURNS)
 		{
 			CvPopupInfo kPopupInfo(BUTTONPOPUP_GREAT_PERSON_REWARD, eUnit, GetCity()->GetID());
-			gDLL->getInterfaceIFace()->AddPopup(kPopupInfo);
+			GC.GetEngineUserInterface()->AddPopup(kPopupInfo);
 		}
 	}
 
