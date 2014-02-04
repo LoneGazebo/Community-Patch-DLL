@@ -552,6 +552,11 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits)
 	}
 
 	AI_init();
+
+	if (GC.getGame().getGameTurn() == 0)
+	{
+		chooseProduction();
+	}
 }
 
 
@@ -1803,35 +1808,32 @@ CityTaskResult CvCity::doTask(TaskTypes eTask, int iData1, int iData2, bool bOpt
 void CvCity::chooseProduction(UnitTypes eTrainUnit, BuildingTypes eConstructBuilding, ProjectTypes eCreateProject, bool /*bFinish*/, bool /*bFront*/)
 {
 	VALIDATE_OBJECT
-	if(getOwner() == GC.getGame().getActivePlayer())
+	CvString strTooltip = GetLocalizedText("TXT_KEY_NOTIFICATION_NEW_CONSTRUCTION", getNameKey());
+
+	CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
+	if(pNotifications)
 	{
-		CvString strTooltip = GetLocalizedText("TXT_KEY_NOTIFICATION_NEW_CONSTRUCTION", getNameKey());
+		// Figure out what we just finished so we can package it into something the lua will understand
+		OrderTypes eOrder = NO_ORDER;
+		int iItemID = -1;
 
-		CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
-		if(pNotifications)
+		if(eTrainUnit != NO_UNIT)
 		{
-			// Figure out what we just finished so we can package it into something the lua will understand
-			OrderTypes eOrder = NO_ORDER;
-			int iItemID = -1;
-
-			if(eTrainUnit != NO_UNIT)
-			{
-				eOrder = ORDER_TRAIN;
-				iItemID = eTrainUnit;
-			}
-			else if(eConstructBuilding != NO_BUILDING)
-			{
-				eOrder = ORDER_CONSTRUCT;
-				iItemID = eConstructBuilding;
-			}
-			else if(eCreateProject != NO_PROJECT)
-			{
-				eOrder = ORDER_CREATE;
-				iItemID = eCreateProject;
-			}
-
-			pNotifications->Add(NOTIFICATION_PRODUCTION, strTooltip, strTooltip, getX(), getY(), eOrder, iItemID);
+			eOrder = ORDER_TRAIN;
+			iItemID = eTrainUnit;
 		}
+		else if(eConstructBuilding != NO_BUILDING)
+		{
+			eOrder = ORDER_CONSTRUCT;
+			iItemID = eConstructBuilding;
+		}
+		else if(eCreateProject != NO_PROJECT)
+		{
+			eOrder = ORDER_CREATE;
+			iItemID = eCreateProject;
+		}
+
+		pNotifications->Add(NOTIFICATION_PRODUCTION, strTooltip, strTooltip, getX(), getY(), eOrder, iItemID);
 	}
 }
 
@@ -5625,8 +5627,11 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			{
 				BuildingTypes eFreeBuildingThisCity = (BuildingTypes)(thisCiv.getCivilizationBuildings(eFreeBuildingClassThisCity));
 
-				m_pCityBuildings->SetNumRealBuilding(eFreeBuildingThisCity, 0);
-				m_pCityBuildings->SetNumFreeBuilding(eFreeBuildingThisCity, 1);
+				if (eFreeBuildingThisCity != NO_BUILDING)
+				{
+					m_pCityBuildings->SetNumRealBuilding(eFreeBuildingThisCity, 0);
+					m_pCityBuildings->SetNumFreeBuilding(eFreeBuildingThisCity, 1);
+				}
 			}
 
 			// Tech boost for science buildings in capital

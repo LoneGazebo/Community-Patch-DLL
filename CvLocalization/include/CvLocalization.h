@@ -172,7 +172,6 @@ namespace Localization
 	CvLocalizationAPI Localization::String ConvertUTCDatetoLocalTZDate(SYSTEMTIME& stUniversalTime, _In_opt_z_ const char* szDTFormat);
 	CvLocalizationAPI Localization::String ConvertUTCTimetoLocalTZTime(SYSTEMTIME& stUniversalTime, _In_opt_z_ const char* szTimeFormat);
 	CvLocalizationAPI Localization::String ConvertUTCDateTimetoLocalTZDateTime(SYSTEMTIME& stUniversalTime, _In_opt_z_ const char* szDateFormat, _In_opt_z_ const char* szTimeFormat);
-	CvLocalizationAPI Localization::String GetHotKeyDescription(const char *szHotKey, bool bCtrl = false, bool bAlt = false, bool bShift = false);
 
 
 	/*
@@ -328,9 +327,7 @@ namespace Localization
 
 
 		// ARGUMENT METHODS
-		//! Removes all arguments from the string.
-		CvLocalizationAPI void ClearArguments();
-
+	
 		//! Obtain the number of currently pushed arguments.
 		CvLocalizationAPI size_t GetArgumentCount() const;
 

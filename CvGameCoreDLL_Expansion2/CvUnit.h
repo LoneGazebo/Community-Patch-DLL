@@ -273,6 +273,10 @@ public:
 	bool canChangeTradeUnitHomeCityAt(const CvPlot* pPlot, int iX, int iY) const;
 	bool changeTradeUnitHomeCity(int iX, int iY);
 
+	bool canChangeAdmiralPort(const CvPlot* pPlot) const;
+	bool canChangeAdmiralPortAt(const CvPlot* pPlot, int iX, int iY) const;
+	bool changeAdmiralPort(int iX, int iY);
+
 	bool canPlunderTradeRoute(const CvPlot* pPlot, bool bOnlyTestVisibility = false) const;
 	bool plunderTradeRoute();
 
@@ -471,7 +475,8 @@ public:
 
 	int GetAirStrikeDefenseDamage(const CvUnit* pAttacker, bool bIncludeRand = true) const;
 
-	CvUnit* GetBestInterceptor(const CvPlot& pPlot, CvUnit* pkDefender = NULL) const;
+	CvUnit* GetBestInterceptor(const CvPlot& pPlot, CvUnit* pkDefender = NULL, bool bLandInterceptorsOnly=false, bool bVisibleInterceptorsOnly=false) const;
+	int GetInterceptorCount(const CvPlot& pPlot, CvUnit* pkDefender = NULL, bool bLandInterceptorsOnly=false, bool bVisibleInterceptorsOnly=false) const;
 	int GetInterceptionDamage(const CvUnit* pAttacker, bool bIncludeRand = true) const;
 
 	int GetCombatLimit() const;

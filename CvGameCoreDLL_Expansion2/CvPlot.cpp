@@ -33,6 +33,8 @@
 #include "CvDllPlot.h"
 #include "CvDllUnit.h"
 #include "CvUnitMovement.h"
+#include "CvTargeting.h"
+#include "CvTypes.h"
 
 // Include this after all other headers.
 #include "LintFree.h"
@@ -110,6 +112,15 @@ FDataStream& operator>>(FDataStream& loadFrom, CvArchaeologyData& writeTo)
 	loadFrom >> writeTo.m_eEra;
 	loadFrom >> writeTo.m_ePlayer1;
 	loadFrom >> writeTo.m_ePlayer2;
+	if (uiVersion >= 2)
+	{
+		loadFrom >> iTemp;
+		writeTo.m_eWork = (GreatWorkType)iTemp;
+	}
+	else
+	{
+		writeTo.m_eWork = NO_GREAT_WORK;
+	}
 
 	return loadFrom;
 }
@@ -117,13 +128,14 @@ FDataStream& operator>>(FDataStream& loadFrom, CvArchaeologyData& writeTo)
 /// Serialization write
 FDataStream& operator<<(FDataStream& saveTo, const CvArchaeologyData& readFrom)
 {
-	uint uiVersion = 1;
+	uint uiVersion = 2;
 	saveTo << uiVersion;
 
 	saveTo << readFrom.m_eArtifactType;
 	saveTo << readFrom.m_eEra;
 	saveTo << readFrom.m_ePlayer1;
 	saveTo << readFrom.m_ePlayer2;
+	saveTo << readFrom.m_eWork;
 
 	return saveTo;
 }
@@ -978,6 +990,37 @@ bool CvPlot::isCoastalLand(int iMinWaterSize) const
 	return false;
 }
 
+//	--------------------------------------------------------------------------------
+int CvPlot::GetSizeLargestAdjacentWater() const
+{
+	CvPlot* pAdjacentPlot;
+	int iI;
+	int iRtnValue = 0;
+
+	if(isWater())
+	{
+		return iRtnValue;
+	}
+
+	for(iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
+	{
+		pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
+
+		if(pAdjacentPlot != NULL)
+		{
+			if(pAdjacentPlot->isWater())
+			{
+				CvLandmass* pAdjacentBodyOfWater = GC.getMap().getLandmass(pAdjacentPlot->getLandmass());
+				if (pAdjacentBodyOfWater && pAdjacentBodyOfWater->getNumTiles() >= iRtnValue)
+				{
+					iRtnValue = pAdjacentBodyOfWater->getNumTiles();
+				}
+			}
+		}
+	}
+
+	return iRtnValue;
+}
 
 //	--------------------------------------------------------------------------------
 bool CvPlot::isVisibleWorked() const
@@ -1613,21 +1656,26 @@ bool CvPlot::canSeePlot(const CvPlot* pPlot, TeamTypes eTeam, int iRange, Direct
 		return true;
 	}
 
-	//find displacement
-	int dy = pPlot->getY() - getY();
+	int startX = getX();
+	int startY = getY();
+	int destX = pPlot->getX();
+	int destY = pPlot->getY();
 
-	int iX1 = xToHexspaceX(pPlot->getX(), pPlot->getY());
-	int iX2 = xToHexspaceX(getX(), getY());
-
-	int dx = iX1 - iX2;
-
-	dx = dxWrap(dx); //world wrap
-	dy = dyWrap(dy);
-
-	int iDistance = plotDistance(getX(),getY(), pPlot->getX(),  pPlot->getY());
+	int iDistance = plotDistance(startX, startY, destX,  destY);
 
 	if(iDistance <= iRange)
 	{
+		//find displacement
+		int dy = destY - startY;
+
+		int iX1 = xToHexspaceX(destX,  destY);
+		int iX2 = xToHexspaceX(startX, startY);
+		 
+		int dx = iX1 - iX2;
+
+		dx = dxWrap(dx); //world wrap
+		dy = dyWrap(dy);
+
 		//check if in facing direction
 		if(shouldProcessDisplacementPlot(dx, dy, iRange - 1, eFacingDirection))
 		{
@@ -1636,15 +1684,8 @@ bool CvPlot::canSeePlot(const CvPlot* pPlot, TeamTypes eTeam, int iRange, Direct
 				return true;
 			}
 
-			bool outerRing = false;
-
-			if(iDistance == iRange)
-			{
-				outerRing = true;
-			}
-
 			//check if anything blocking the plot
-			if(canSeeDisplacementPlot(eTeam, dx, dy, dx, dy, true, outerRing))
+			if (CvTargeting::CanSeeDisplacementPlot(startX, startY, dx, dy, seeFromLevel(eTeam)))
 			{
 				return true;
 			}
@@ -1652,170 +1693,6 @@ bool CvPlot::canSeePlot(const CvPlot* pPlot, TeamTypes eTeam, int iRange, Direct
 	}
 
 	return false;
-}
-
-//	--------------------------------------------------------------------------------
-bool CvPlot::canSeeDisplacementPlot(TeamTypes eTeam, int dx, int dy, int originalDX, int originalDY, bool, bool) const
-{
-	CvPlot* pPlot = plotXY(getX(), getY(), dx, dy);
-	if(pPlot != NULL)
-	{
-		int iHexDistanceBetweenPlots = hexDistance(originalDX, originalDY);
-		double fHexDistanceBetweenPlots = (double) iHexDistanceBetweenPlots;
-
-		// assume that we can always see our plot and the plot next door
-		if(iHexDistanceBetweenPlots == 0 || iHexDistanceBetweenPlots == 1)
-		{
-			return true;
-		}
-
-		int fromLevel = seeFromLevel(eTeam);
-
-		// do a modified Bresenham's along the line in hex space
-		double fDeltaXPerStep = dx / fHexDistanceBetweenPlots;
-		double fDeltaYPerStep = dy / fHexDistanceBetweenPlots;
-
-		const double epsilon = 0.001;
-
-		double absDeltaXPerStep = abs(fDeltaXPerStep);
-		double absDeltaYPerStep = abs(fDeltaYPerStep);
-
-		bool bSpecialCaseX = (absDeltaXPerStep > (0.5 - epsilon) && absDeltaXPerStep < (0.5 + epsilon)) ? true : false;
-		bool bSpecialCaseY = (absDeltaYPerStep > (0.5 - epsilon) && absDeltaYPerStep < (0.5 + epsilon)) ? true : false;
-
-		double fThisStepX = 0;
-		double fThisStepY = 0;
-
-		for(int iThisStep=1; iThisStep<iHexDistanceBetweenPlots; iThisStep++)
-		{
-			fThisStepX += fDeltaXPerStep;
-			fThisStepY += fDeltaYPerStep;
-
-			int iNextDX = (int) fThisStepX;
-			int iNextDY = (int) fThisStepY;
-
-			bool bBlocked = false;
-
-			// figure out if we can see through this plot
-
-			// extra-special special case
-			if(bSpecialCaseX && bSpecialCaseY && (iThisStep & 1))
-			{
-				CvPlot* passThroughPlot = plotXY(getX(), getY(), (int)(fThisStepX + fDeltaXPerStep), iNextDY);
-				if(passThroughPlot)
-				{
-					int passThroughLevel = passThroughPlot->seeThroughLevel();
-					if(fromLevel < passThroughLevel)
-					{
-						bBlocked = true;
-					}
-					if(bBlocked)
-					{
-						bBlocked = false;
-						CvPlot* otherPassThroughPlot = plotXY(getX(), getY(), iNextDX, (int)(fThisStepY + fDeltaYPerStep));
-						if(otherPassThroughPlot)
-						{
-							int otherPassThroughLevel = otherPassThroughPlot->seeThroughLevel();
-							if(fromLevel < otherPassThroughLevel)
-							{
-								bBlocked = true;
-							}
-						}
-					}
-				}
-				else
-				{
-					bBlocked = true;
-				}
-			}
-			else
-			{
-
-				// if we aren't on the last step - return false - change of plans - never do the last step as it is always true
-				{
-					CvPlot* passThroughPlot = plotXY(getX(), getY(), iNextDX, iNextDY);
-					if(passThroughPlot)
-					{
-						int passThroughLevel = passThroughPlot->seeThroughLevel();
-
-						if(fromLevel < passThroughLevel)
-						{
-							bBlocked = true;
-						}
-					}
-					else
-					{
-						bBlocked = true;
-					}
-				}
-
-				// special case if either (or both) fDeltaXPerStep or fDeltaYPerStep == 0.5f or -0.5f
-				// in these cases we will need to try the +0 and +1 cases
-				// this is so that an obstruction on one plot only doesn't obscure the sight line
-				//
-				//         Target
-				//
-				//   Mountain  Plain
-				//
-				//		   Origin
-				//
-				// I'll be generous in the case where there are obstructions on alternating sides
-				// and pretend you can see the target
-				//
-				//         Target
-				//
-				//   Mountain  Plain
-				//
-				//         Plain
-				//
-				//     Plain   Mountain
-				//
-				//         Origin
-
-				if(bBlocked && (iThisStep & 1))  // the special case only needs to trigger on odd rows
-				{
-					if(bSpecialCaseX)
-					{
-						bBlocked = false;
-						iNextDX = (int)(fThisStepX + fDeltaXPerStep);
-					}
-					if(bSpecialCaseY)
-					{
-						bBlocked = false;
-						iNextDY = (int)(fThisStepY + fDeltaYPerStep);
-					}
-					if(!bBlocked)
-					{
-						{
-							CvPlot* passThroughPlot = plotXY(getX(), getY(), iNextDX, iNextDY);
-							if(passThroughPlot)
-							{
-								int passThroughLevel = passThroughPlot->seeThroughLevel();
-								if(fromLevel < passThroughLevel)
-								{
-									bBlocked = true;
-								}
-							}
-							else
-							{
-								bBlocked = true;
-							}
-
-						}
-					}
-				}
-			}
-
-
-			if(bBlocked)
-			{
-				return false;
-			}
-		}
-	}
-
-	return true;
-
 }
 
 //	--------------------------------------------------------------------------------
@@ -3149,6 +3026,26 @@ int CvPlot::GetNumAdjacentDifferentTeam(TeamTypes eTeam, bool bIgnoreWater) cons
 	return iRtnValue;
 }
 
+int CvPlot::GetNumAdjacentMountains() const
+{
+	CvPlot* pAdjacentPlot;
+	int iI;
+	int iNumMountains = 0;
+
+	for (iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
+	{
+		pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
+
+		if(pAdjacentPlot != NULL)
+		{
+			if (pAdjacentPlot->isMountain())
+			{
+				iNumMountains++;
+			}
+		}
+	}
+	return iNumMountains;
+}
 
 //	--------------------------------------------------------------------------------
 void CvPlot::plotAction(PlotUnitFunc func, int iData1, int iData2, PlayerTypes eOwner, TeamTypes eTeam)
@@ -8782,46 +8679,43 @@ bool CvPlot::changeBuildProgress(BuildTypes eBuild, int iChange, PlayerTypes ePl
 
 					if(kPlayer.isHuman())
 					{
-						if(kPlayer.isLocalPlayer())
+						CvNotifications* pNotifications;
+						Localization::String locString;
+						Localization::String locSummary;
+						pNotifications = kPlayer.GetNotifications();
+						if(pNotifications)
 						{
-							CvNotifications* pNotifications;
-							Localization::String locString;
-							Localization::String locSummary;
-							pNotifications = kPlayer.GetNotifications();
-							if(pNotifications)
-							{
-								strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_CHOOSE_ARCHAEOLOGY");
-								CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_CHOOSE_ARCHAEOLOGY");
-								pNotifications->Add(NOTIFICATION_CHOOSE_ARCHAEOLOGY, strBuffer, strSummary, getX(), getY(), kPlayer.GetID());
-								CancelActivePlayerEndTurn();
-							}
+							strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_CHOOSE_ARCHAEOLOGY");
+							CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_CHOOSE_ARCHAEOLOGY");
+							pNotifications->Add(NOTIFICATION_CHOOSE_ARCHAEOLOGY, strBuffer, strSummary, getX(), getY(), kPlayer.GetID());
+							CancelActivePlayerEndTurn();
+						}
 
-							// Raiders of the Lost Ark achievement
-							const char* szCivKey = kPlayer.getCivilizationTypeKey();
-							if(!GC.getGame().isNetworkMultiPlayer() && strcmp(szCivKey, "CIVILIZATION_AMERICA") == 0)
+						// Raiders of the Lost Ark achievement
+						const char* szCivKey = kPlayer.getCivilizationTypeKey();
+						if(getOwner() != NO_PLAYER && !GC.getGame().isNetworkMultiPlayer() && strcmp(szCivKey, "CIVILIZATION_AMERICA") == 0)
+						{
+							CvPlayer &kPlotOwner = GET_PLAYER(getOwner());
+							szCivKey = kPlotOwner.getCivilizationTypeKey();
+							if(strcmp(szCivKey, "CIVILIZATION_EGYPT") == 0)
 							{
-								CvPlayer &kPlotOwner = GET_PLAYER(getOwner());
-								szCivKey = kPlotOwner.getCivilizationTypeKey();
-								if(strcmp(szCivKey, "CIVILIZATION_EGYPT") == 0)
+								for (int i = 0; i < MAX_MAJOR_CIVS; i++)
 								{
-									for (int i = 0; i < MAX_MAJOR_CIVS; i++)
+									CvPlayer &kLoopPlayer = GET_PLAYER((PlayerTypes)i);
+									if (kLoopPlayer.GetID() != NO_PLAYER && kLoopPlayer.isAlive())
 									{
-										CvPlayer &kLoopPlayer = GET_PLAYER((PlayerTypes)i);
-										if (kLoopPlayer.GetID() != NO_PLAYER && kLoopPlayer.isAlive())
+										szCivKey = kLoopPlayer.getCivilizationTypeKey();
+										if (strcmp(szCivKey, "CIVILIZATION_GERMANY"))
 										{
-											szCivKey = kLoopPlayer.getCivilizationTypeKey();
-											if (strcmp(szCivKey, "CIVILIZATION_GERMANY"))
+											CvUnit *pLoopUnit;
+											int iUnitLoop;
+											for(pLoopUnit = kLoopPlayer.firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = kLoopPlayer.nextUnit(&iUnitLoop))
 											{
-												CvUnit *pLoopUnit;
-												int iUnitLoop;
-												for(pLoopUnit = kLoopPlayer.firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = kLoopPlayer.nextUnit(&iUnitLoop))
+												if(strcmp(pLoopUnit->getUnitInfo().GetType(), "UNIT_ARCHAEOLOGIST") == 0)
 												{
-													if(strcmp(pLoopUnit->getUnitInfo().GetType(), "UNIT_ARCHAEOLOGIST") == 0)
+													if (plotDistance(pLoopUnit->getX(), pLoopUnit->getY(), getX(), getY()) <= 2)
 													{
-														if (plotDistance(pLoopUnit->getX(), pLoopUnit->getY(), getX(), getY()) <= 2)
-														{
-															gDLL->UnlockAchievement(ACHIEVEMENT_XP2_33);
-														}
+														gDLL->UnlockAchievement(ACHIEVEMENT_XP2_33);
 													}
 												}
 											}
@@ -9625,8 +9519,10 @@ void CvPlot::read(FDataStream& kStream)
 	kStream >> iCount;
 	if(iCount > 0)
 	{
-		m_paiBuildProgress = FNEW(short[GC.getNumBuildInfos()], c_eCiv5GameplayDLL, 0);
-
+		const int iNumBuildInfos = GC.getNumBuildInfos();
+		m_paiBuildProgress = FNEW(short[iNumBuildInfos], c_eCiv5GameplayDLL, 0);
+		ZeroMemory(m_paiBuildProgress, sizeof(short) * iNumBuildInfos);
+		
 		BuildArrayHelpers::Read(kStream, m_paiBuildProgress);
 	}
 
@@ -10627,6 +10523,30 @@ void CvPlot::ClearArchaeologicalRecord()
 CvArchaeologyData CvPlot::GetArchaeologicalRecord() const
 {
 	return m_kArchaeologyData; // return a copy of the record
+}
+
+//	---------------------------------------------------------------------------
+void CvPlot::SetArtifactType(GreatWorkArtifactClass eType)
+{
+	m_kArchaeologyData.m_eArtifactType = eType;
+}
+
+//	---------------------------------------------------------------------------
+void CvPlot::SetArtifactGreatWork(GreatWorkType eWork)
+{
+	m_kArchaeologyData.m_eWork = eWork;
+}
+
+//	---------------------------------------------------------------------------
+bool CvPlot::HasWrittenArtifact() const
+{
+	bool bRtnValue = false;
+	GreatWorkArtifactClass eArtifactClass = m_kArchaeologyData.m_eArtifactType;
+	if (eArtifactClass == CvTypes::getARTIFACT_WRITING())
+	{
+		bRtnValue = true;
+	}
+	return bRtnValue;
 }
 
 //	---------------------------------------------------------------------------

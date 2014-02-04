@@ -726,6 +726,11 @@ enum TacticalAIInfoTypes
 	eTACTICAL_PLUNDER_TRADE_UNIT,
 	eTACTICAL_PARK_ON_TRADE_ROUTE,
 	eTACTICAL_DEFENSIVE_AIRLIFT,
+	eTACTICAL_PILLAGE_CITADEL,
+	eTACTICAL_PILLAGE_RESOURCE,
+	eTACTICAL_PILLAGE_CITADEL_NEXT_TURN,
+	eTACTICAL_PILLAGE_RESOURCE_NEXT_TURN,
+	eTACTICAL_PILLAGE_NEXT_TURN,
 	eMUPOSITION_CIVILIAN_SUPPORT,
 	eMUPOSITION_NAVAL_ESCORT,
 	eMUPOSITION_BOMBARD,
@@ -803,7 +808,8 @@ private:
 	void PlotMovesToSafety(bool bCombatUnits);
 	void PlotRepositionMoves();
 	void PlotOperationalArmyMoves();
-	void PlotPillageMoves();
+	void PlotPillageMoves(AITacticalTargetType eTarget, bool bFirstPass);
+	void PlotCitadelMoves();
 	void PlotPlunderTradeUnitMoves(DomainTypes eDomain);
 	void PlotPlunderTradePlotMoves(DomainTypes eDomain); // squat on trade plots to try to scoop up trade units
 	void PlotBlockadeImprovementMoves();
@@ -893,7 +899,7 @@ private:
 	// Internal low-level utility routines
 	void TurnOffMove(TacticalAIMoveTypes eType);
 	bool FindUnitsForThisMove(TacticalAIMoveTypes eMove, CvPlot* pTargetPlot, int iNumTurnsAway=0, bool bRangedOnly=false);
-	bool FindUnitsWithinStrikingDistance(CvPlot *pTargetPlot, int iNumTurnsAway, bool bNoRangedUnits=false, bool bNavalOnly=false, bool bMustMoveThrough=false, bool bIncludeBlockedUnits=false, bool bWillPillage=false, bool bTargetUndefended=false);
+	bool FindUnitsWithinStrikingDistance(CvPlot *pTargetPlot, int iNumTurnsAway, int iPreferredDamageLevel, bool bNoRangedUnits=false, bool bNavalOnly=false, bool bMustMoveThrough=false, bool bIncludeBlockedUnits=false, bool bWillPillage=false, bool bTargetUndefended=false);
 	bool FindParatroopersWithinStrikingDistance(CvPlot *pTargetPlot);
 	bool FindCitiesWithinStrikingDistance(CvPlot* pTargetPlot);
 	bool FindClosestUnit(CvPlot* pTargetPlot, int iNumTurnsAway, bool bMustHaveHalfHP, bool bMustBeRangedUnit=false, int iRangeRequired=2, bool bNeedsIgnoreLOS=false, bool bMustBeMeleeUnit=false, bool bIgnoreUnits=false, CvPlot* pRangedAttackTarget=NULL);

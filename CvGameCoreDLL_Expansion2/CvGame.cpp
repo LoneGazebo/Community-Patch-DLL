@@ -58,6 +58,7 @@
 #include "FFileSystem.h"
 
 #include "CvInfosSerializationHelper.h"
+#include "CvCityManager.h"
 
 // Public Functions...
 // must be included after all other headers
@@ -442,6 +443,8 @@ bool CvGame::InitMap(CvGameInitialItemsOverrides& kGameInitialItemsOverrides)
 			kMapInitData.m_iGridH = kWBMapInfo.uiHeight;
 			kMap.init(&kMapInitData);
 
+			CvBarbarians::MapInit(kMap.numPlots());
+
 			CvWorldBuilderMapLoader::InitMap();
 			CvWorldBuilderMapLoader::ValidateTerrain();
 
@@ -472,6 +475,8 @@ bool CvGame::InitMap(CvGameInitialItemsOverrides& kGameInitialItemsOverrides)
 			kMapInitData.m_iGridH = 1;
 			kMap.init(&kMapInitData);
 
+			CvBarbarians::MapInit(kMap.numPlots());
+
 			CvWorldBuilderMapLoader::ValidateTerrain();
 		}
 	}
@@ -486,6 +491,8 @@ bool CvGame::InitMap(CvGameInitialItemsOverrides& kGameInitialItemsOverrides)
 			kMap.init(&kData);
 		else
 			kMap.init();
+
+		CvBarbarians::MapInit(kMap.numPlots());
 
 		pGenerator->GenerateRandomMap();
 		pGenerator->GetGameInitialItemsOverrides(kGameInitialItemsOverrides);
@@ -1045,6 +1052,8 @@ void CvGame::uninit()
 	}
 
 	m_iLastMouseoverUnitID = 0;
+
+	CvCityManager::Shutdown();
 }
 
 //	--------------------------------------------------------------------------------
@@ -1257,6 +1266,8 @@ void CvGame::reset(HandicapTypes eHandicap, bool bConstructorCall)
 	m_iNumSessions = 1;
 
 	m_AdvisorMessagesViewed.clear();
+
+	CvCityManager::Reset();
 }
 
 //	--------------------------------------------------------------------------------
@@ -1474,8 +1485,6 @@ void CvGame::update()
 				{
 					updateTimers();
 
-					updateTurnTimer();
-
 					UpdatePlayers(); // slewis added!
 
 					testAlive();
@@ -1575,6 +1584,12 @@ void CvGame::CheckPlayerTurnDeactivate()
 											break;
 										}
 									}
+								}
+								else
+								{
+									CvString logOutput;
+									logOutput.Format("CheckPlayerTurnDeactivate(): Next sequential player not set TurnActive due to player(%i)'s team(%i) being TurnActive.", kPlayer.GetID(), kPlayer.getTeam());
+									gDLL->netMessageDebugLog(logOutput);
 								}
 							}
 							else
@@ -1823,26 +1838,25 @@ void CvGame::updateSelectionList()
 //	-----------------------------------------------------------------------------------------------
 int s_unitMoveTurnSlice = 0;
 
-void CvGame::updateTurnTimer()
-{
-	//check the turn timer for the active player
-	hasTurnTimerExpired(getActivePlayer(), true);
-}
-
-bool CvGame::hasTurnTimerExpired(PlayerTypes playerID, bool gameLoopUpdate)
+bool CvGame::hasTurnTimerExpired(PlayerTypes playerID)
 {//gameLoopUpdate - Indicates that we're updating the turn timer for the game loop update.  
  //					This forces the active player's turn to finish if her turn time has elapsed.
  //					We also reset the turn timer when ai processing is occurring.
  //					If false, we're simply querying the game for a player's turn timer status.
 	bool gameTurnTimerExpired = false;
+	bool isLocalPlayer = getActivePlayer() == playerID;
 	if(isOption(GAMEOPTION_END_TURN_TIMER_ENABLED) && !isPaused() && GC.getGame().getGameState() == GAMESTATE_ON)
 	{
 		ICvUserInterface2* iface = GC.GetEngineUserInterface();
 		if(getElapsedGameTurns() > 0)
 		{
-			if(gameLoopUpdate && (!gDLL->allAICivsProcessedThisTurn() || !allUnitAIProcessed()))
+			if(isLocalPlayer && (!gDLL->allAICivsProcessedThisTurn() || !allUnitAIProcessed()))
 			{//the turn timer doesn't doesn't start until all ai processing has been completed for this game turn.
 				resetTurnTimer(true);
+
+				//hold the turn timer at 0 seconds with 0% completion
+				CvPreGame::setEndTurnTimerLength(0.0f);
+				iface->updateEndTurnTimer(0.0f);
 			}
 			else
 			{//turn timer is actively ticking.
@@ -1862,80 +1876,65 @@ bool CvGame::hasTurnTimerExpired(PlayerTypes playerID, bool gameLoopUpdate)
 				float timeSinceGameTurnStart = m_timeSinceGameTurnStart.Peek() + m_fCurrentTurnTimerPauseDelta; 
 				
 				float timeElapsed = (curPlayer.isSimultaneousTurns() ? timeSinceGameTurnStart : timeSinceCurrentTurnStart);
-				if(curPlayer.isAlive())
-				{
-					if(curPlayer.isTurnActive())
-					{//The timer is ticking for our turn
-						if(timeElapsed > gameTurnEnd)
-						{
-							if(s_unitMoveTurnSlice == 0)
-							{
-								gameTurnTimerExpired = true;
-							}
-							else if(s_unitMoveTurnSlice + 10 < getTurnSlice())
-							{
-								gameTurnTimerExpired = true;
-							}
-						}
-					}
-
-					if((!curPlayer.isTurnActive() || gDLL->HasReceivedTurnComplete(curPlayer.GetID())) //Active player has finished their turn.
-						&& getNumSequentialHumans() > 1)	//or sequential turn mode
-					{//It's not our turn and there are sequential turn human players in the game.
-
-						//In this case, the turn timer shows progress in terms of the max possible time until our next turn.
-						//As such, timeElapsed has to be adjusted to be a value in terms of the max possible time.
-
-						//The max turn length is multiplied by the number of other human players in the sequential turn sequence.
-						gameTurnEnd *= getNumSequentialHumans(playerID);
-
-						//determine number of players in the sequential turn sequence, not counting the active player.
-						int playersInSeq = getNumSequentialHumans(curPlayer.GetID());
-
-						float timePerPlayer = gameTurnEnd / playersInSeq; //time limit per human
-						//count how many human players are left until us in the sequence.
-						int humanTurnsUntilMe = countSeqHumanTurnsUntilPlayerTurn(playerID);
-						int humanTurnsCompleted = playersInSeq - humanTurnsUntilMe;
-
-						if(humanTurnsUntilMe)
-						{//We're waiting on other sequential players
-							timeElapsed =  timeSinceCurrentTurnStart + humanTurnsCompleted*timePerPlayer;
-						}
-						else
-						{//All the other sequential players have finished.
-						 //Either we're waiting on turn processing or on players who are playing simultaneous turns.
-
-							//scale time to be that of the remaining possible time for the simultaneous players.
-							//From the player's perspective, the timer will simply creep down for the remaining simultaneous turn time
-							//rather than skipping straight to zero like it would by just tracking the sequential players' turn time.
-							timeElapsed = timeSinceGameTurnStart + (humanTurnsCompleted-1)*timePerPlayer;
-						}
-					}
-
-					if(gameLoopUpdate)
-					{//update the local end turn timer.
-						CvPreGame::setEndTurnTimerLength(gameTurnEnd);
-						iface->updateEndTurnTimer(timeElapsed / gameTurnEnd);
-					}
-				}
-				else
-				{
-					gameTurnTimerExpired = true;
-				}
-
-				//if this is the game loop update and the player's turn timer has elapsed, force them to end their turn.
-				if(gameLoopUpdate && gameTurnTimerExpired)
-				{
-					if(!gDLL->HasSentTurnComplete() && gDLL->allAICivsProcessedThisTurn() && allUnitAIProcessed())
+				if(curPlayer.isTurnActive())
+				{//The timer is ticking for our turn
+					if(timeElapsed > gameTurnEnd)
 					{
-						CvAssertMsg(playerID == getActivePlayer(), "Tried to force end the turn of a player who isn't the active player.");
-						curPlayer.GetPlayerAchievements().EndTurn();
-
-						gDLL->sendTurnComplete();
-						CvAchievementUnlocker::EndTurn();
+						if(s_unitMoveTurnSlice == 0)
+						{
+							gameTurnTimerExpired = true;
+						}
+						else if(s_unitMoveTurnSlice + 10 < getTurnSlice())
+						{
+							gameTurnTimerExpired = true;
+						}
 					}
+				}
+
+				if((!curPlayer.isTurnActive() || gDLL->HasReceivedTurnComplete(playerID)) //Active player has finished their turn.
+					&& getNumSequentialHumans() > 1)	//or sequential turn mode
+				{//It's not our turn and there are sequential turn human players in the game.
+
+					//In this case, the turn timer shows progress in terms of the max possible time until our next turn.
+					//As such, timeElapsed has to be adjusted to be a value in terms of the max possible time.
+
+					//determine number of players in the sequential turn sequence, not counting the active player.
+					int playersInSeq = getNumSequentialHumans(playerID);
+
+					//The max turn length is multiplied by the number of other human players in the sequential turn sequence.
+					gameTurnEnd *= playersInSeq;
+
+					float timePerPlayer = gameTurnEnd / playersInSeq; //time limit per human
+					//count how many human players are left until us in the sequence.
+					int humanTurnsUntilMe = countSeqHumanTurnsUntilPlayerTurn(playerID);
+					int humanTurnsCompleted = playersInSeq - humanTurnsUntilMe;
+
+					if(humanTurnsUntilMe)
+					{//We're waiting on other sequential players
+						timeElapsed =  timeSinceCurrentTurnStart + humanTurnsCompleted*timePerPlayer;
+					}
+					else
+					{//All the other sequential players have finished.
+					 //Either we're waiting on turn processing or on players who are playing simultaneous turns.
+
+						//scale time to be that of the remaining possible time for the simultaneous players.
+						//From the player's perspective, the timer will simply creep down for the remaining simultaneous turn time
+						//rather than skipping straight to zero like it would by just tracking the sequential players' turn time.
+						timeElapsed = timeSinceGameTurnStart + (humanTurnsCompleted-1)*timePerPlayer;
+					}
+				}
+
+				if(isLocalPlayer)
+				{//update the local end turn timer.
+					CvPreGame::setEndTurnTimerLength(gameTurnEnd);
+					iface->updateEndTurnTimer(timeElapsed / gameTurnEnd);
 				}
 			}
+		}
+		else if(isLocalPlayer){
+			//hold the turn timer at 0 seconds with 0% completion
+			CvPreGame::setEndTurnTimerLength(0.0f);
+			iface->updateEndTurnTimer(0.0f);
 		}
 	}
 
@@ -3082,6 +3081,20 @@ void CvGame::handleAction(int iAction)
 				if (pkHeadSelectedUnit)
 				{
 					CvPopupInfo kPopup(BUTTONPOPUP_CHOOSE_TRADE_UNIT_NEW_HOME);
+					kPopup.iData1 = pkHeadSelectedUnit->getIndex();
+					GC.GetEngineUserInterface()->AddPopup(kPopup);
+				}
+			}
+			bSkipMissionAdd = true;	// Skip no matter what, if there is no unit, there is no mission
+		}
+		if (iMissionType == CvTypes::getMISSION_CHANGE_ADMIRAL_PORT())
+		{
+			if(pHeadSelectedUnit.get() != NULL)
+			{
+				CvUnit* pkHeadSelectedUnit = GC.UnwrapUnitPointer(pHeadSelectedUnit.get());
+				if (pkHeadSelectedUnit)
+				{
+					CvPopupInfo kPopup(BUTTONPOPUP_CHOOSE_ADMIRAL_PORT);
 					kPopup.iData1 = pkHeadSelectedUnit->getIndex();
 					GC.GetEngineUserInterface()->AddPopup(kPopup);
 				}
@@ -5086,14 +5099,13 @@ void CvGame::DoUpdateDiploVictory()
 
 	// Number of delegates needed to win increases the more civs and city-states there are in the game,
 	// but these two scale differently since civs' delegates are harder to secure. These functions 
-	// are based on a logarithmic regression, with a standard map (8 civs, 16 CS) requiring half of 
-	// the base delegates plus one.
-	float fCivVotesPortion = (0.798f * (float)log(fCivsToCount)) + 5.447f;
+	// are based on a logarithmic regression.
+	float fCivVotesPortion = (GC.getDIPLO_VICTORY_CIV_DELEGATES_COEFFICIENT() * (float)log(fCivsToCount)) + GC.getDIPLO_VICTORY_CIV_DELEGATES_CONSTANT();
 	if (fCivVotesPortion < 0.0f)
 	{
 		fCivVotesPortion = 0.0f;
 	}
-	float fCityStateVotesPortion = (12.984f * (float)log(fCityStatesToCount)) - 10.0f;
+	float fCityStateVotesPortion = (GC.getDIPLO_VICTORY_CS_DELEGATES_COEFFICIENT() * (float)log(fCityStatesToCount)) + GC.getDIPLO_VICTORY_CS_DELEGATES_CONSTANT();
 	if (fCityStateVotesPortion < 0.0f)
 	{
 		fCityStateVotesPortion = 0.0f;
@@ -5101,6 +5113,7 @@ void CvGame::DoUpdateDiploVictory()
 
 	int iVotesToWin = (int)floor(fCivVotesPortion + fCityStateVotesPortion);
 	iVotesToWin = MAX(iVotesForHost + iVotesPerCiv + 1, iVotesToWin);
+	iVotesToWin = MIN(iVotesForHost + (iVotesPerCiv * (int)fCivsToCount) + (iVotesPerCityState * (int)fCityStatesToCount), iVotesToWin);
 
 	SetVotesNeededForDiploVictory(iVotesToWin);
 	GC.GetEngineUserInterface()->setDirty(LeagueScreen_DIRTY_BIT, true);
@@ -5775,16 +5788,20 @@ void CvGame::setWinner(TeamTypes eNewWinner, VictoryTypes eNewVictory)
 				localizedText << GET_TEAM(getWinner()).getName().GetCString() << szVictoryTextKey;
 				addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, winningTeamLeaderID, localizedText.toUTF8(), -1, -1);
 
-				CvNotifications* pNotifications = GET_PLAYER(GC.getGame().getActivePlayer()).GetNotifications();
-				if(pNotifications)
-				{
-					localizedText = Localization::Lookup("TXT_KEY_NOTIFICATION_VICTORY_WINNER");
-					localizedText << szWinningTeamLeaderNameKey << szVictoryTextKey;
+				//Notify everyone of the victory
+				localizedText = Localization::Lookup("TXT_KEY_NOTIFICATION_VICTORY_WINNER");
+				localizedText << szWinningTeamLeaderNameKey << szVictoryTextKey;
 
-					Localization::String localizedSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_VICTORY_WINNER");
-					localizedSummary << szWinningTeamLeaderNameKey;
+				Localization::String localizedSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_VICTORY_WINNER");
+				localizedSummary << szWinningTeamLeaderNameKey;
 
-					pNotifications->Add(NOTIFICATION_VICTORY, localizedText.toUTF8(), localizedSummary.toUTF8(), -1, -1, -1);
+				for(int iNotifyLoop = 0; iNotifyLoop < MAX_MAJOR_CIVS; ++iNotifyLoop){
+					PlayerTypes eNotifyPlayer = (PlayerTypes) iNotifyLoop;
+					CvPlayerAI& kCurNotifyPlayer = GET_PLAYER(eNotifyPlayer);
+					CvNotifications* pNotifications = kCurNotifyPlayer.GetNotifications();
+					if(pNotifications){
+						pNotifications->Add(NOTIFICATION_VICTORY, localizedText.toUTF8(), localizedSummary.toUTF8(), -1, -1, -1);
+					}
 				}
 
 				//--Start Achievements
@@ -6591,40 +6608,51 @@ void CvGame::DoPlaceTeamInVictoryCompetition(VictoryTypes eNewVictory, TeamTypes
 				kTeam.changeVictoryPoints(iNumPoints);
 				kTeam.setVictoryAchieved(eNewVictory, true);
 
-				CvNotifications* pNotification = GET_PLAYER(GC.getGame().getActivePlayer()).GetNotifications();
-				if(pNotification)
-				{
-					Localization::String localizedText;
-					Localization::String localizedSummary;
+				Localization::String youWonInfo = Localization::Lookup("TXT_KEY_NOTIFICATION_VICTORY_RACE_WON_YOU");
+				Localization::String youWonSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_VICTORY_RACE_WON_YOU");
+				Localization::String someoneWonInfo = Localization::Lookup("TXT_KEY_NOTIFICATION_VICTORY_RACE_WON_SOMEBODY");
+				Localization::String someoneWonSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_VICTORY_RACE_WON_SOMEBODY");
+				Localization::String unmetWonInfo = Localization::Lookup("TXT_KEY_NOTIFICATION_VICTORY_RACE_WON_UNMET");
+				Localization::String unmetWonSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_VICTORY_RACE_WON_UNMET");
 
-					const char* szVictoryTextKey = pkVictoryInfo->GetTextKey();
-					// Active Team
-					if(eTeam == GC.getGame().getActiveTeam())
+				for(int iNotifyLoop = 0; iNotifyLoop < MAX_MAJOR_CIVS; ++iNotifyLoop){
+					PlayerTypes eNotifyPlayer = (PlayerTypes) iNotifyLoop;
+					CvPlayerAI& kCurNotifyPlayer = GET_PLAYER(eNotifyPlayer);
+					CvNotifications* pNotification = kCurNotifyPlayer.GetNotifications();
+					if(pNotification)
 					{
-						localizedText = Localization::Lookup("TXT_KEY_NOTIFICATION_VICTORY_RACE_WON_YOU");
-						localizedText << iSlotLoop+1 << szVictoryTextKey << iNumPoints;
-						localizedSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_VICTORY_RACE_WON_YOU");
-						localizedSummary << iSlotLoop+1 << szVictoryTextKey;
-					}
-					// Met Team
-					else if(GET_TEAM(GC.getGame().getActiveTeam()).isHasMet(eTeam))
-					{
-						const char* szTeamLeaderNameKey = GET_PLAYER(kTeam.getLeaderID()).getNameKey();
+						Localization::String localizedText;
+						Localization::String localizedSummary;
 
-						localizedText = Localization::Lookup("TXT_KEY_NOTIFICATION_VICTORY_RACE_WON_SOMEBODY");
-						localizedText << szTeamLeaderNameKey << iSlotLoop+1 << szVictoryTextKey << iNumPoints;
-						localizedSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_VICTORY_RACE_WON_SOMEBODY");
-						localizedSummary << szTeamLeaderNameKey << iSlotLoop+1 << szVictoryTextKey;
+						const char* szVictoryTextKey = pkVictoryInfo->GetTextKey();
+						// Active Team
+						if(eTeam == kCurNotifyPlayer.getTeam())
+						{
+							localizedText = youWonInfo;
+							localizedText << iSlotLoop+1 << szVictoryTextKey << iNumPoints;
+							localizedSummary = youWonSummary;
+							localizedSummary << iSlotLoop+1 << szVictoryTextKey;
+						}
+						// Met Team
+						else if(GET_TEAM(kCurNotifyPlayer.getTeam()).isHasMet(eTeam))
+						{
+							const char* szTeamLeaderNameKey = GET_PLAYER(kTeam.getLeaderID()).getNameKey();
+
+							localizedText = someoneWonInfo;
+							localizedText << szTeamLeaderNameKey << iSlotLoop+1 << szVictoryTextKey << iNumPoints;
+							localizedSummary = someoneWonSummary;
+							localizedSummary << szTeamLeaderNameKey << iSlotLoop+1 << szVictoryTextKey;
+						}
+						// Unmet Team
+						else
+						{
+							localizedText = unmetWonInfo;
+							localizedText << iSlotLoop+1 << szVictoryTextKey << iNumPoints;
+							localizedSummary = unmetWonSummary;
+							localizedSummary << iSlotLoop+1 << szVictoryTextKey;
+						}
+						pNotification->Add(NOTIFICATION_VICTORY, localizedText.toUTF8(), localizedSummary.toUTF8(), -1, -1, -1);
 					}
-					// Unmet Team
-					else
-					{
-						localizedText = Localization::Lookup("TXT_KEY_NOTIFICATION_VICTORY_RACE_WON_UNMET");
-						localizedText << iSlotLoop+1 << szVictoryTextKey << iNumPoints;
-						localizedSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_VICTORY_RACE_WON_UNMET");
-						localizedSummary << iSlotLoop+1 << szVictoryTextKey;
-					}
-					pNotification->Add(NOTIFICATION_VICTORY, localizedText.toUTF8(), localizedSummary.toUTF8(), -1, -1, -1);
 				}
 
 				break;
@@ -7454,6 +7482,10 @@ void CvGame::doTurn()
 	}
 
 	// END OF TURN
+
+	//We reset the turn timer now so that we know that the turn timer has been reset at least once for
+	//this turn.  CvGameController::Update() will continue to reset the timer if there is prolonged ai processing.
+	resetTurnTimer(true);
 
 	// If player unit cycling has been canceled for this turn, set it back to normal for the next
 	GC.GetEngineUserInterface()->setNoSelectionListCycle(false);
@@ -10230,33 +10262,37 @@ void CvGame::DoMinorBuyout(PlayerTypes eMajor, PlayerTypes eMinor)
 
 
 //	--------------------------------------------------------------------------------
-/// Notification letting the active player know that two teams made a Research Agreement.  This is in CvGame because we only want it called once, and if it were in CvDealClasses it would be called twice, or have to be special-cased, so we'll special-case it here instead
+/// Notification letting all non-party players know that two teams made a Research Agreement.  This is in CvGame because we only want it called once, and if it were in CvDealClasses it would be called twice, or have to be special-cased, so we'll special-case it here instead
 void CvGame::DoResearchAgreementNotification(TeamTypes eTeam1, TeamTypes eTeam2)
 {
-	// Notification for active player
-	TeamTypes eActiveTeam = GC.getGame().getActiveTeam();
+	// Notify all non-parties that these civs made a research agreement.
+	for(int iNotifyLoop = 0; iNotifyLoop < MAX_MAJOR_CIVS; ++iNotifyLoop){
+		PlayerTypes eNotifyPlayer = (PlayerTypes) iNotifyLoop;
+		CvPlayerAI& kCurNotifyPlayer = GET_PLAYER(eNotifyPlayer);
+		TeamTypes eCurNotifyTeam = kCurNotifyPlayer.getTeam();
 
-	// Don't show notification if WE'RE the ones in the deal
-	if(eActiveTeam != eTeam1 && eActiveTeam != eTeam2)
-	{
-		CvTeam* pActiveTeam = &GET_TEAM(eActiveTeam);
-
-		if(pActiveTeam->isHasMet(eTeam1) && pActiveTeam->isHasMet(eTeam2))
+		// Don't show notification if WE'RE the ones in the deal
+		if(eCurNotifyTeam != eTeam1 && eCurNotifyTeam != eTeam2)
 		{
-			CvNotifications* pNotifications = GET_PLAYER(GC.getGame().getActivePlayer()).GetNotifications();
-			if(pNotifications)
+			CvTeam* pCurTeam = &GET_TEAM(eCurNotifyTeam);
+
+			if(pCurTeam->isHasMet(eTeam1) && pCurTeam->isHasMet(eTeam2))
 			{
-				const char* strLeaderName = GET_PLAYER(GET_TEAM(eTeam1).getLeaderID()).getCivilizationShortDescriptionKey();
-				const char* strOtherLeaderName = GET_PLAYER(GET_TEAM(eTeam2).getLeaderID()).getCivilizationShortDescriptionKey();
+				CvNotifications* pNotifications = kCurNotifyPlayer.GetNotifications();
+				if(pNotifications)
+				{
+					const char* strLeaderName = GET_PLAYER(GET_TEAM(eTeam1).getLeaderID()).getCivilizationShortDescriptionKey();
+					const char* strOtherLeaderName = GET_PLAYER(GET_TEAM(eTeam2).getLeaderID()).getCivilizationShortDescriptionKey();
 
-				Localization::String strText;
-				strText = Localization::Lookup("TXT_KEY_NOTIFICATION_RESEARCH_AGREEMENT");
-				strText << strLeaderName << strOtherLeaderName;
+					Localization::String strText;
+					strText = Localization::Lookup("TXT_KEY_NOTIFICATION_RESEARCH_AGREEMENT");
+					strText << strLeaderName << strOtherLeaderName;
 
-				Localization::String strSummary;
-				strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_RESEARCH_AGREEMENT");
+					Localization::String strSummary;
+					strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_RESEARCH_AGREEMENT");
 
-				pNotifications->Add(NOTIFICATION_DIPLOMACY_DECLARATION, strText.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
+					pNotifications->Add(NOTIFICATION_DIPLOMACY_DECLARATION, strText.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
+				}
 			}
 		}
 	}
@@ -10389,32 +10425,39 @@ void CvGame::SetBestWondersPlayer(PlayerTypes ePlayer, int iWonderCount)
 	{
 		GET_TEAM(GET_PLAYER(ePlayer).getTeam()).changeVictoryPoints(iVictoryPointChange);
 
-		CvNotifications* pNotifications = GET_PLAYER(GC.getGame().getActivePlayer()).GetNotifications();
-		if(pNotifications)
-		{
-			CvString strBuffer;
-			CvString strSummary;
+		// Notify everyone of this change.
+		for(int iNotifyLoop = 0; iNotifyLoop < MAX_MAJOR_CIVS; ++iNotifyLoop){
+			PlayerTypes eNotifyPlayer = (PlayerTypes) iNotifyLoop;
+			CvPlayerAI& kCurNotifyPlayer = GET_PLAYER(eNotifyPlayer);
+			TeamTypes eCurNotifyTeam = kCurNotifyPlayer.getTeam();
 
-			// Active Player now has the most Wonders
-			if(GC.getGame().getActivePlayer() == ePlayer)
+			CvNotifications* pNotifications = kCurNotifyPlayer.GetNotifications();
+			if(pNotifications)
 			{
-				strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_BEST_IN_WONDERS_YOU", iVictoryPointChange, iWonderCount+1);
-				strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_BEST_IN_WONDERS_YOU", iVictoryPointChange, iWonderCount+1);
-			}
-			// Unmet player
-			else if(!GET_TEAM(GC.getGame().getActiveTeam()).isHasMet(GET_PLAYER(ePlayer).getTeam()))
-			{
-				strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_BEST_IN_WONDERS_UNMET", iVictoryPointChange, iWonderCount+1);
-				strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_BEST_IN_WONDERS_UNMET", iVictoryPointChange, iWonderCount+1);
-			}
-			// Player we've met
-			else
-			{
-				strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_BEST_IN_WONDERS_ANOTHER", GET_PLAYER(ePlayer).getCivilizationShortDescriptionKey(), iVictoryPointChange, iWonderCount+1);
-				strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_BEST_IN_WONDERS_ANOTHER", GET_PLAYER(ePlayer).getCivilizationShortDescriptionKey());
-			}
+				CvString strBuffer;
+				CvString strSummary;
 
-			pNotifications->Add(NOTIFICATION_VICTORY, strBuffer, strSummary, -1, -1, -1);
+				// current player now has the most Wonders
+				if(kCurNotifyPlayer.GetID() == ePlayer)
+				{
+					strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_BEST_IN_WONDERS_YOU", iVictoryPointChange, iWonderCount+1);
+					strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_BEST_IN_WONDERS_YOU", iVictoryPointChange, iWonderCount+1);
+				}
+				// Unmet player
+				else if(!GET_TEAM(eCurNotifyTeam).isHasMet(GET_PLAYER(ePlayer).getTeam()))
+				{
+					strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_BEST_IN_WONDERS_UNMET", iVictoryPointChange, iWonderCount+1);
+					strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_BEST_IN_WONDERS_UNMET", iVictoryPointChange, iWonderCount+1);
+				}
+				// Player we've met
+				else
+				{
+					strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_BEST_IN_WONDERS_ANOTHER", GET_PLAYER(ePlayer).getCivilizationShortDescriptionKey(), iVictoryPointChange, iWonderCount+1);
+					strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_BEST_IN_WONDERS_ANOTHER", GET_PLAYER(ePlayer).getCivilizationShortDescriptionKey());
+				}
+
+				pNotifications->Add(NOTIFICATION_VICTORY, strBuffer, strSummary, -1, -1, -1);
+			}
 		}
 	}
 }
@@ -10447,29 +10490,36 @@ void CvGame::SetBestPoliciesPlayer(PlayerTypes ePlayer, int iPolicyCount)
 
 		GET_TEAM(GET_PLAYER(ePlayer).getTeam()).changeVictoryPoints(iVictoryPointChange);
 
-		// Active Player now has the most Policies
-		if(GC.getGame().getActivePlayer() == ePlayer)
-		{
-			strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_BEST_IN_POLICIES_YOU", iVictoryPointChange, iPolicyCount+1);
-			strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_BEST_IN_POLICIES_YOU", iVictoryPointChange, iPolicyCount+1);
-		}
-		// Unmet player
-		else if(!GET_TEAM(GC.getGame().getActiveTeam()).isHasMet(GET_PLAYER(ePlayer).getTeam()))
-		{
-			strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_BEST_IN_POLICIES_UNMET", iVictoryPointChange, iPolicyCount+1);
-			strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_BEST_IN_POLICIES_UNMET", iVictoryPointChange, iPolicyCount+1);
-		}
-		// Player we've met
-		else
-		{
-			strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_BEST_IN_POLICIES_ANOTHER", GET_PLAYER(ePlayer).getCivilizationShortDescriptionKey(), iVictoryPointChange, iPolicyCount+1);
-			strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_BEST_IN_POLICIES_ANOTHER", GET_PLAYER(ePlayer).getCivilizationShortDescriptionKey(), iVictoryPointChange, iPolicyCount+1);
-		}
+		//Notify everyone
+		for(int iNotifyLoop = 0; iNotifyLoop < MAX_MAJOR_CIVS; ++iNotifyLoop){
+			PlayerTypes eNotifyPlayer = (PlayerTypes) iNotifyLoop;
+			CvPlayerAI& kCurNotifyPlayer = GET_PLAYER(eNotifyPlayer);
+			TeamTypes eCurNotifyTeam = kCurNotifyPlayer.getTeam();
 
-		CvNotifications* pNotifications = GET_PLAYER(GC.getGame().getActivePlayer()).GetNotifications();
-		if(pNotifications)
-		{
-			pNotifications->Add(NOTIFICATION_VICTORY, strBuffer, strSummary, -1, -1, -1);
+			// This player has the most Policies
+			if(eNotifyPlayer == ePlayer)
+			{
+				strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_BEST_IN_POLICIES_YOU", iVictoryPointChange, iPolicyCount+1);
+				strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_BEST_IN_POLICIES_YOU", iVictoryPointChange, iPolicyCount+1);
+			}
+			// Unmet player
+			else if(!GET_TEAM(eCurNotifyTeam).isHasMet(GET_PLAYER(ePlayer).getTeam()))
+			{
+				strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_BEST_IN_POLICIES_UNMET", iVictoryPointChange, iPolicyCount+1);
+				strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_BEST_IN_POLICIES_UNMET", iVictoryPointChange, iPolicyCount+1);
+			}
+			// player met
+			else
+			{
+				strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_BEST_IN_POLICIES_ANOTHER", GET_PLAYER(ePlayer).getCivilizationShortDescriptionKey(), iVictoryPointChange, iPolicyCount+1);
+				strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_BEST_IN_POLICIES_ANOTHER", GET_PLAYER(ePlayer).getCivilizationShortDescriptionKey(), iVictoryPointChange, iPolicyCount+1);
+			}
+
+			CvNotifications* pNotifications = kCurNotifyPlayer.GetNotifications();
+			if(pNotifications)
+			{
+				pNotifications->Add(NOTIFICATION_VICTORY, strBuffer, strSummary, -1, -1, -1);
+			}
 		}
 	}
 }
@@ -10499,32 +10549,38 @@ void CvGame::SetBestGreatPeoplePlayer(PlayerTypes ePlayer, int iGreatPeopleCount
 	{
 		GET_TEAM(GET_PLAYER(ePlayer).getTeam()).changeVictoryPoints(iVictoryPointChange);
 
-		CvNotifications* pNotifications = GET_PLAYER(GC.getGame().getActivePlayer()).GetNotifications();
-		if(pNotifications)
-		{
-			CvString strBuffer;
-			CvString strSummary;
+		for(int iNotifyLoop = 0; iNotifyLoop < MAX_MAJOR_CIVS; ++iNotifyLoop){
+			PlayerTypes eNotifyPlayer = (PlayerTypes) iNotifyLoop;
+			CvPlayerAI& kCurNotifyPlayer = GET_PLAYER(eNotifyPlayer);
+			TeamTypes eCurNotifyTeam = kCurNotifyPlayer.getTeam();
 
-			// Active Player now has the most GreatPeople
-			if(GC.getGame().getActivePlayer() == ePlayer)
+			CvNotifications* pNotifications =kCurNotifyPlayer.GetNotifications();
+			if(pNotifications)
 			{
-				strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_BEST_IN_GREAT_PEOPLE_YOU", iVictoryPointChange, iGreatPeopleCount+1);
-				strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_BEST_IN_GREAT_PEOPLE_YOU", iVictoryPointChange, iGreatPeopleCount+1);
-			}
-			// Unmet player
-			else if(!GET_TEAM(GC.getGame().getActiveTeam()).isHasMet(GET_PLAYER(ePlayer).getTeam()))
-			{
-				strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_BEST_IN_GREAT_PEOPLE_UNMET", iVictoryPointChange, iGreatPeopleCount+1);
-				strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_BEST_IN_GREAT_PEOPLE_UNMET", iVictoryPointChange, iGreatPeopleCount+1);
-			}
-			// Player we've met
-			else
-			{
-				strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_BEST_IN_GREAT_PEOPLE_ANOTHER", GET_PLAYER(ePlayer).getCivilizationShortDescriptionKey(), iVictoryPointChange, iGreatPeopleCount+1);
-				strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_BEST_IN_GREAT_PEOPLE_ANOTHER", GET_PLAYER(ePlayer).getCivilizationShortDescriptionKey(), iVictoryPointChange, iGreatPeopleCount+1);
-			}
+				CvString strBuffer;
+				CvString strSummary;
 
-			pNotifications->Add(NOTIFICATION_VICTORY, strBuffer, strSummary, -1, -1, -1);
+				// Active Player now has the most GreatPeople
+				if(eNotifyPlayer == ePlayer)
+				{
+					strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_BEST_IN_GREAT_PEOPLE_YOU", iVictoryPointChange, iGreatPeopleCount+1);
+					strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_BEST_IN_GREAT_PEOPLE_YOU", iVictoryPointChange, iGreatPeopleCount+1);
+				}
+				// Unmet player
+				else if(!GET_TEAM(eCurNotifyTeam).isHasMet(GET_PLAYER(ePlayer).getTeam()))
+				{
+					strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_BEST_IN_GREAT_PEOPLE_UNMET", iVictoryPointChange, iGreatPeopleCount+1);
+					strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_BEST_IN_GREAT_PEOPLE_UNMET", iVictoryPointChange, iGreatPeopleCount+1);
+				}
+				// Player we've met
+				else
+				{
+					strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_BEST_IN_GREAT_PEOPLE_ANOTHER", GET_PLAYER(ePlayer).getCivilizationShortDescriptionKey(), iVictoryPointChange, iGreatPeopleCount+1);
+					strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_BEST_IN_GREAT_PEOPLE_ANOTHER", GET_PLAYER(ePlayer).getCivilizationShortDescriptionKey(), iVictoryPointChange, iGreatPeopleCount+1);
+				}
+
+				pNotifications->Add(NOTIFICATION_VICTORY, strBuffer, strSummary, -1, -1, -1);
+			}
 		}
 	}
 }
@@ -11169,60 +11225,87 @@ PlayerTypes GetRandomPlayer()
 }
 
 
+void CvGame::PopulateDigSite(CvPlot& kPlot, EraTypes eEra, GreatWorkArtifactClass eArtifact)
+{
+	CvMap& theMap = GC.getMap();
+	CvArchaeologyData digSite;
+
+	const int iPlotX = kPlot.getX();
+	const int iPlotY = kPlot.getY();
+
+	eEra = eEra > static_cast<EraTypes>(0) ? eEra : static_cast<EraTypes>(0);
+	digSite.m_eArtifactType = eArtifact;
+	digSite.m_eEra = eEra;
+
+	// find nearest city (preferably on same area)
+	CvCity* pNearestCity = theMap.findCity(iPlotX, iPlotY, NO_PLAYER, NO_TEAM, true /* bSameArea */);
+	pNearestCity = pNearestCity ? pNearestCity : theMap.findCity(iPlotX, iPlotY, NO_PLAYER, NO_TEAM, false /* bSameArea */); // expand search if we need to
+	if (pNearestCity)
+	{
+		digSite.m_ePlayer1 = pNearestCity->getOriginalOwner();
+	}
+	else //  we can't find a nearby city (likely a late era start)
+	{
+		// look for nearby units
+		CvUnit* pUnit = theMap.findUnit(iPlotX, iPlotY);
+		if (pUnit)
+		{
+			digSite.m_ePlayer1 = pUnit->GetOriginalOwner();
+		}
+		else
+		{
+			// look for the start location if it exists
+			PlayerTypes thisPlayer;
+			if (theMap.findNearestStartPlot(iPlotX, iPlotY, thisPlayer))
+			{
+				digSite.m_ePlayer1 = thisPlayer;
+			}
+			else // just make something up
+			{
+				digSite.m_ePlayer1 = GetRandomMajorPlayer();
+			}
+		}
+	}
+
+	if (eArtifact == CvTypes::getARTIFACT_BATTLE_MELEE() || eArtifact == CvTypes::getARTIFACT_BATTLE_RANGED() || eArtifact == CvTypes::getARTIFACT_RAZED_CITY())
+	{
+		PlayerTypes ePlayer2 = NO_PLAYER;
+		do 
+		{
+			ePlayer2 = GetRandomPlayer();
+		} while (ePlayer2 == digSite.m_ePlayer1);
+		digSite.m_ePlayer2 = ePlayer2;
+	}
+
+	kPlot.AddArchaeologicalRecord(digSite.m_eArtifactType, digSite.m_eEra, digSite.m_ePlayer1, digSite.m_ePlayer2);
+}
 //	--------------------------------------------------------------------------------
 void CvGame::SpawnArchaeologySitesHistorically()
 {
 	CvMap& theMap = GC.getMap();
-	int iGridWidth = theMap.getGridWidth();
+	const int iGridWidth = theMap.getGridWidth();
+
+	// we should now have a map of the dig sites
+	// turn this map into set of RESOURCE_ARTIFACTS
+	const ResourceTypes eArtifactResourceType = static_cast<ResourceTypes>(GC.getARTIFACT_RESOURCE());
+	const ResourceTypes eHiddenArtifactResourceType = static_cast<ResourceTypes>(GC.getHIDDEN_ARTIFACT_RESOURCE());
+
+	const size_t aRandomArtifactsCount = 7;
+	GreatWorkArtifactClass aRandomArtifacts[aRandomArtifactsCount] = { 
+		CvTypes::getARTIFACT_ANCIENT_RUIN(), 
+		CvTypes::getARTIFACT_ANCIENT_RUIN(), 
+		CvTypes::getARTIFACT_RAZED_CITY(), 
+		CvTypes::getARTIFACT_BARBARIAN_CAMP(), 
+		CvTypes::getARTIFACT_BARBARIAN_CAMP(), 
+		CvTypes::getARTIFACT_BATTLE_MELEE(), 
+		CvTypes::getARTIFACT_BATTLE_RANGED() 
+	};
 
 	// find how many dig sites we need to create
-	int iNumMajorCivs = countMajorCivsEverAlive();
-	int iMinDigSites = GC.getMIN_DIG_SITES_PER_MAJOR_CIV() * iNumMajorCivs; //todo: parameterize this
-	int iMaxDigSites = GC.getMAX_DIG_SITES_PER_MAJOR_CIV() * iNumMajorCivs; //todo: parameterize this
-	int iIdealNumDigSites = iMinDigSites + getJonRandNum((iMaxDigSites - iMinDigSites) / 2, "Num dig sites") + getJonRandNum((iMaxDigSites - iMinDigSites) / 2, "Num dig sites");
-
-	// fill the historical buffer with the archaeological data
-	FFastVector<CvArchaeologyData, true, c_eCiv5GameplayDLL, 0> historicalDigSites;
-	FFastVector<CvArchaeologyData, true, c_eCiv5GameplayDLL, 0> scratchDigSites;
-	int iGridSize = theMap.numPlots();
-	CvAssertMsg(iGridSize > 0, "iGridSize is zero");
-	historicalDigSites.resize(iGridSize);
-	scratchDigSites.resize(iGridSize);
-	for (int i = 0; i < iGridSize; i++)
-	{
-		CvPlot* pPlot = theMap.plotByIndexUnchecked(i);
-		if (pPlot->isWater() || pPlot->isImpassable())
-		{
-			historicalDigSites[i].m_eArtifactType = NO_GREAT_WORK_ARTIFACT_CLASS;
-			historicalDigSites[i].m_eEra = NO_ERA;
-			historicalDigSites[i].m_ePlayer1 = NO_PLAYER;
-			historicalDigSites[i].m_ePlayer2 = NO_PLAYER;
-		}
-		else
-		{
-			historicalDigSites[i] = pPlot->GetArchaeologicalRecord();
-		}
-		scratchDigSites[i].m_eArtifactType = NO_GREAT_WORK_ARTIFACT_CLASS;
-		scratchDigSites[i].m_eEra = NO_ERA;
-		scratchDigSites[i].m_ePlayer1 = NO_PLAYER;
-		scratchDigSites[i].m_ePlayer2 = NO_PLAYER;
-	}
-
-	// calculate initial weights
-	FFastVector<int, true, c_eCiv5GameplayDLL, 0> digSiteWeights;
-	digSiteWeights.resize(iGridSize);
-	for (int i = 0; i < iGridSize; i++)
-	{
-		digSiteWeights[i] = 0;
-	}
-	CalculateDigSiteWeights(iGridSize, historicalDigSites, scratchDigSites, digSiteWeights);
-
-	// find out how many dig sites we have now
-	int iHowManyChosenDigSites = 0;
-
-	// build a weight vector
-	static CvWeightedVector<int, 128*80, true> aDigSiteWeights; // size of a HUGE world
-	aDigSiteWeights.resize(iGridSize);
+	const int iNumMajorCivs = countMajorCivsEverAlive();
+	const int iMinDigSites = GC.getMIN_DIG_SITES_PER_MAJOR_CIV() * iNumMajorCivs; //todo: parameterize this
+	const int iMaxDigSites = GC.getMAX_DIG_SITES_PER_MAJOR_CIV() * iNumMajorCivs; //todo: parameterize this
+	const int iIdealNumDigSites = iMinDigSites + getJonRandNum((iMaxDigSites - iMinDigSites) / 2, "Num dig sites") + getJonRandNum((iMaxDigSites - iMinDigSites) / 2, "Num dig sites");
 
 	// find the highest era any player has gotten to
 	EraTypes eHighestEra = NO_ERA;
@@ -11254,15 +11337,97 @@ void CvGame::SpawnArchaeologySitesHistorically()
 	RandomNumberDelegate fcn;
 	fcn = MakeDelegate(this, &CvGame::getJonRandNum);
 
-	GreatWorkArtifactClass aRandomArtifacts[7] = { 
-		CvTypes::getARTIFACT_ANCIENT_RUIN(), 
-		CvTypes::getARTIFACT_ANCIENT_RUIN(), 
-		CvTypes::getARTIFACT_RAZED_CITY(), 
-		CvTypes::getARTIFACT_BARBARIAN_CAMP(), 
-		CvTypes::getARTIFACT_BARBARIAN_CAMP(), 
-		CvTypes::getARTIFACT_BATTLE_MELEE(), 
-		CvTypes::getARTIFACT_BATTLE_RANGED() 
-	};
+	// find out how many dig sites we have now
+	int iHowManyChosenDigSites = 0;
+
+	// fill the historical buffer with the archaeological data
+	FFastVector<CvArchaeologyData, true, c_eCiv5GameplayDLL, 0> historicalDigSites;
+	FFastVector<CvArchaeologyData, true, c_eCiv5GameplayDLL, 0> scratchDigSites;
+	int iGridSize = theMap.numPlots();
+	CvAssertMsg(iGridSize > 0, "iGridSize is zero");
+	historicalDigSites.resize(iGridSize);
+	scratchDigSites.resize(iGridSize);
+	for (int i = 0; i < iGridSize; i++)
+	{
+		scratchDigSites[i].m_eArtifactType = NO_GREAT_WORK_ARTIFACT_CLASS;
+		scratchDigSites[i].m_eEra = NO_ERA;
+		scratchDigSites[i].m_ePlayer1 = NO_PLAYER;
+		scratchDigSites[i].m_ePlayer2 = NO_PLAYER;
+
+		CvPlot* pPlot = theMap.plotByIndexUnchecked(i);
+		const ResourceTypes eResource = pPlot->getResourceType();
+
+		if (pPlot->isWater() || pPlot->isImpassable())
+		{
+			historicalDigSites[i].m_eArtifactType = NO_GREAT_WORK_ARTIFACT_CLASS;
+			historicalDigSites[i].m_eEra = NO_ERA;
+			historicalDigSites[i].m_ePlayer1 = NO_PLAYER;
+			historicalDigSites[i].m_ePlayer2 = NO_PLAYER;
+
+			//Cannot be an antiquity site if we cannot generate an artifact.
+			if(eResource == eArtifactResourceType || eResource == eHiddenArtifactResourceType)
+			{
+				pPlot->setResourceType(NO_RESOURCE, 0, true);
+			}
+		}
+		else
+		{
+			//If this plot is already marked as an antiquity site, ensure it's populated.
+			if(eResource == eArtifactResourceType || eResource == eHiddenArtifactResourceType)
+			{
+				if(pPlot->GetArchaeologicalRecord().m_eArtifactType == NO_GREAT_WORK_ARTIFACT_CLASS)
+				{
+					// pick an era before this one			
+					EraTypes eEra = static_cast<EraTypes>(eEraWeights.ChooseByWeight(&fcn, "Choosing an era by weight"));
+					eEra = eEra > static_cast<EraTypes>(0) ? eEra : static_cast<EraTypes>(0);
+
+					// pick a type of artifact
+					GreatWorkArtifactClass eArtifact = aRandomArtifacts[getJonRandNum(aRandomArtifactsCount, "Artifact type for non-historical dig site")];
+
+					PopulateDigSite(*pPlot, eEra, eArtifact);
+
+					//Record in scratch space for weights.
+					scratchDigSites[i] = pPlot->GetArchaeologicalRecord();
+				}
+
+				iHowManyChosenDigSites++;
+			}
+
+			historicalDigSites[i] = pPlot->GetArchaeologicalRecord();
+		}
+	}
+
+	// calculate initial weights
+	FFastVector<int, true, c_eCiv5GameplayDLL, 0> digSiteWeights;
+	digSiteWeights.resize(iGridSize);
+	for (int i = 0; i < iGridSize; i++)
+	{
+		digSiteWeights[i] = 0;
+	}
+	CalculateDigSiteWeights(iGridSize, historicalDigSites, scratchDigSites, digSiteWeights);
+
+	// build a weight vector
+	static CvWeightedVector<int, 128*80, true> aDigSiteWeights; // size of a HUGE world
+	aDigSiteWeights.resize(iGridSize);
+
+	vector<GreatWorkType> aWorksWriting;
+	Database::Connection* db = GC.GetGameDatabase();
+	if(db != NULL)
+	{
+		Database::Results kQuery;
+		if(db->Execute(kQuery, "SELECT ID from GreatWorks WHERE ArchaeologyOnly = '1'"))
+		{
+			while(kQuery.Step())
+			{
+				const GreatWorkType eWork = static_cast<GreatWorkType>(kQuery.GetInt(0));
+				aWorksWriting.push_back(eWork);
+			}
+		}
+	}
+
+	int iApproxNumHiddenSites = iIdealNumDigSites * GC.getPERCENT_SITES_HIDDEN() / 100;
+	int iNumDesiredWritingSites = iApproxNumHiddenSites * GC.getPERCENT_HIDDEN_SITES_WRITING() / 100;
+	int iNumWritingSites = min((int)aWorksWriting.size(), iNumDesiredWritingSites);
 
 	// while we are not in the proper range of number of dig sites
 	while (iHowManyChosenDigSites < iIdealNumDigSites)
@@ -11283,64 +11448,55 @@ void CvGame::SpawnArchaeologySitesHistorically()
 		// add the best dig site
 		int iBestSite = aDigSiteWeights.GetElement(0);
 		CvPlot* pPlot = theMap.plotByIndexUnchecked(iBestSite);
-		scratchDigSites[iBestSite] = pPlot->GetArchaeologicalRecord();
+
+		// Hidden site?
+		bool bHiddenSite = GC.getGame().getJonRandNum(100, "Hidden antiquity site roll") < GC.getPERCENT_SITES_HIDDEN();
+		if (bHiddenSite)
+		{
+			pPlot->setResourceType(eHiddenArtifactResourceType, 1);
+		}
+		else
+		{
+			pPlot->setResourceType(eArtifactResourceType, 1);
+		}
+
 		// if this is not a historical dig site
 		if (scratchDigSites[iBestSite].m_eArtifactType == NO_GREAT_WORK_ARTIFACT_CLASS)
 		{
 			// fake the historical data
-
 			// pick an era before this one			
 			EraTypes eEra = static_cast<EraTypes>(eEraWeights.ChooseByWeight(&fcn, "Choosing an era by weight"));
 			eEra = eEra > static_cast<EraTypes>(0) ? eEra : static_cast<EraTypes>(0);
 
 			// pick a type of artifact
-			GreatWorkArtifactClass eArtifact = aRandomArtifacts[getJonRandNum(7, "Artifact type for non-historical dig site")];
+			GreatWorkArtifactClass eArtifact;
+			eArtifact = aRandomArtifacts[getJonRandNum(aRandomArtifactsCount, "Artifact type for non-historical dig site")];
 
-			scratchDigSites[iBestSite].m_eArtifactType = eArtifact;
-			scratchDigSites[iBestSite].m_eEra = eEra;
-
-			// find nearest city (preferably on same area)
-			CvCity* pNearestCity = theMap.findCity(pPlot->getX(), pPlot->getY(), NO_PLAYER, NO_TEAM, true /* bSameArea */);
-			pNearestCity = pNearestCity ? pNearestCity : theMap.findCity(pPlot->getX(), pPlot->getY(), NO_PLAYER, NO_TEAM, false /* bSameArea */); // expand search if we need to
-			if (pNearestCity)
-			{
-				scratchDigSites[iBestSite].m_ePlayer1 = pNearestCity->getOriginalOwner();
-			}
-			else //  we can't find a nearby city (likely a late era start)
-			{
-				// look for nearby units
-				CvUnit* pUnit = theMap.findUnit(pPlot->getX(), pPlot->getY());
-				if (pUnit)
-				{
-					scratchDigSites[iBestSite].m_ePlayer1 = pUnit->GetOriginalOwner();
-				}
-				else
-				{
-					// look for the start location if it exists
-					PlayerTypes thisPlayer;
-					if (theMap.findNearestStartPlot(pPlot->getX(), pPlot->getY(), thisPlayer))
-					{
-						scratchDigSites[iBestSite].m_ePlayer1 = thisPlayer;
-					}
-					else // just make something up
-					{
-						scratchDigSites[iBestSite].m_ePlayer1 = GetRandomMajorPlayer();
-					}
-				}
-			}
-
-			if (eArtifact == CvTypes::getARTIFACT_BATTLE_MELEE() || eArtifact == CvTypes::getARTIFACT_BATTLE_RANGED() || eArtifact == CvTypes::getARTIFACT_RAZED_CITY())
-			{
-				PlayerTypes ePlayer2 = NO_PLAYER;
-				do 
-				{
-					ePlayer2 = GetRandomPlayer();
-				} while (ePlayer2 == scratchDigSites[iBestSite].m_ePlayer1);
-				scratchDigSites[iBestSite].m_ePlayer2 = ePlayer2;
-			}
-
-			pPlot->AddArchaeologicalRecord(scratchDigSites[iBestSite].m_eArtifactType, scratchDigSites[iBestSite].m_eEra, scratchDigSites[iBestSite].m_ePlayer1, scratchDigSites[iBestSite].m_ePlayer2);
+			PopulateDigSite(*pPlot, eEra, eArtifact);
 		}
+
+		// If this is a hidden slot getting a writing, override a few things
+		if (bHiddenSite && iNumWritingSites > 0)
+		{
+			// First change the type
+			pPlot->SetArtifactType(CvTypes::getARTIFACT_WRITING());
+
+			// Then get a writing and set it
+			int iIndex = getJonRandNum(aWorksWriting.size(), "");
+			GreatWorkType eWrittenGreatWork = aWorksWriting[iIndex];
+			pPlot->SetArtifactGreatWork((GreatWorkType)eWrittenGreatWork);
+
+			// Erase that writing from future consideration
+			vector<GreatWorkType>::const_iterator it;
+			it = std::find (aWorksWriting.begin(), aWorksWriting.end(), eWrittenGreatWork);
+			aWorksWriting.erase(it);
+
+			// One less writing to give out
+			iNumWritingSites--;
+		}
+
+		scratchDigSites[iBestSite] = pPlot->GetArchaeologicalRecord();
+
 		iHowManyChosenDigSites++;
 
 		// recalculate weights near the chosen dig site (the rest of the world should still be fine)
@@ -11357,27 +11513,6 @@ void CvGame::SpawnArchaeologySitesHistorically()
 					int iIndex = pLoopPlot->GetPlotIndex();
 					digSiteWeights[iIndex] = CalculateDigSiteWeight(iIndex, historicalDigSites, scratchDigSites);				
 				}
-			}
-		}
-	}
-
-	// we should now have a map of the dig sites
-	// turn this map into set of RESOURCE_ARTIFACTS
-	ResourceTypes eArtifactResourceType = static_cast<ResourceTypes>(GC.getARTIFACT_RESOURCE());
-	ResourceTypes eHiddenArtifactResourceType = static_cast<ResourceTypes>(GC.getHIDDEN_ARTIFACT_RESOURCE());
-	for (int i = 0; i < iGridSize; i++)
-	{
-		if (scratchDigSites[i].m_eArtifactType != NO_GREAT_WORK_ARTIFACT_CLASS)
-		{
-			CvPlot* pPlot = theMap.plotByIndexUnchecked(i);
-
-			if (GC.getGame().getJonRandNum(100, "Hidden antiquity site roll") < GC.getPERCENT_SITES_HIDDEN())
-			{
-				pPlot->setResourceType(eHiddenArtifactResourceType, 1);
-			}
-			else
-			{
-				pPlot->setResourceType(eArtifactResourceType, 1);
 			}
 		}
 	}

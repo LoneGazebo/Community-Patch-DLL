@@ -156,14 +156,22 @@ bool CvDllMap::IsWrapY() const
 //------------------------------------------------------------------------------
 ICvPlot1* CvDllMap::GetPlotByIndex(int iIndex) const
 {
-	CvPlot* pkPlot = m_pMap->plotByIndex(iIndex);
-	return (NULL != pkPlot)? new CvDllPlot(pkPlot) : NULL;
+	if (m_pMap->numPlots() != 0)
+	{
+		CvPlot* pkPlot = m_pMap->plotByIndex(iIndex);
+		return (NULL != pkPlot)? new CvDllPlot(pkPlot) : NULL;
+	}
+	return NULL;
 }
 //------------------------------------------------------------------------------
 ICvPlot1* CvDllMap::GetPlot(int iX, int iY) const
 {
-	CvPlot* pkPlot = m_pMap->plot(iX, iY);
-	return (NULL != pkPlot)? new CvDllPlot(pkPlot) : NULL;
+	if (m_pMap->numPlots() != 0)
+	{
+		CvPlot* pkPlot = m_pMap->plot(iX, iY);
+		return (NULL != pkPlot)? new CvDllPlot(pkPlot) : NULL;
+	}
+	return NULL;
 }
 //------------------------------------------------------------------------------
 void CvDllMap::RecalculateLandmasses()

@@ -39,6 +39,9 @@
 #include "CvGameQueries.h"
 
 #include "CvInfosSerializationHelper.h"
+#include "cvStopWatch.h"
+#include "CvCityManager.h"
+
 // include after all other headers
 #include "LintFree.h"
 
@@ -153,8 +156,8 @@ CvCity::CvCity() :
 	, m_iSpaceProductionModifier("CvCity::m_iSpaceProductionModifier", m_syncArchive)
 	, m_iFreeExperience("CvCity::m_iFreeExperience", m_syncArchive)
 	, m_iCurrAirlift("CvCity::m_iCurrAirlift", m_syncArchive) // unused
-	, m_iMaxAirlift("CvCity::m_iMaxAirlift", m_syncArchive) // unused
-	, m_iAirModifier("CvCity::m_iAirModifier", m_syncArchive)
+	, m_iMaxAirUnits("CvCity::m_iMaxAirUnits", m_syncArchive)
+	, m_iAirModifier("CvCity::m_iAirModifier", m_syncArchive) // unused
 	, m_iNukeModifier("CvCity::m_iNukeModifier", m_syncArchive)
 	, m_iCultureUpdateTimer("CvCity::m_iCultureUpdateTimer", m_syncArchive)	// unused
 	, m_iCitySizeBoost("CvCity::m_iCitySizeBoost", m_syncArchive)
@@ -259,6 +262,7 @@ CvCity::CvCity() :
 //	--------------------------------------------------------------------------------
 CvCity::~CvCity()
 {
+	CvCityManager::OnCityDestroyed(this);
 	FSerialization::citiesToCheck.erase(this);
 
 	uninit();
@@ -276,7 +280,7 @@ CvCity::~CvCity()
 
 
 //	--------------------------------------------------------------------------------
-void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits)
+void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, bool bInitialFounding)
 {
 	VALIDATE_OBJECT
 	//CvPlot* pAdjacentPlot;
@@ -389,6 +393,8 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits)
 	GET_TEAM(getTeam()).changeNumCities(1);
 
 	GC.getGame().changeNumCities(1);
+	// Tell the city manager now as well.
+	CvCityManager::OnCityCreated(this);
 
 	int iGameTurn = GC.getGame().getGameTurn();
 	setGameTurnFounded(iGameTurn);
@@ -406,29 +412,33 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits)
 	// Free food from things (e.g. Policies)
 	int iFreeFood = growthThreshold() * GET_PLAYER(getOwner()).GetFreeFoodBox();
 	changeFoodTimes100(iFreeFood);
-
-	owningPlayer.setFoundedFirstCity(true);
-	owningPlayer.ChangeNumCitiesFounded(1);
-
-	// Free resources under city?
-	for(int i = 0; i < GC.getNumResourceInfos(); i++)
+	
+	if (bInitialFounding)
 	{
-		ResourceTypes eResource = (ResourceTypes)i;
-		FreeResourceXCities freeResource = owningPlayer.GetPlayerTraits()->GetFreeResourceXCities(eResource);
+		owningPlayer.setFoundedFirstCity(true);
+		owningPlayer.ChangeNumCitiesFounded(1);
 
-		if(freeResource.m_iResourceQuantity > 0)
+		// Free resources under city?
+		for(int i = 0; i < GC.getNumResourceInfos(); i++)
 		{
-			if(owningPlayer.GetNumCitiesFounded() <= freeResource.m_iNumCities)
+			ResourceTypes eResource = (ResourceTypes)i;
+			FreeResourceXCities freeResource = owningPlayer.GetPlayerTraits()->GetFreeResourceXCities(eResource);
+
+			if(freeResource.m_iResourceQuantity > 0)
 			{
-				plot()->setResourceType(NO_RESOURCE, 0);
-				plot()->setResourceType(eResource, freeResource.m_iResourceQuantity);
+				if(owningPlayer.GetNumCitiesFounded() <= freeResource.m_iNumCities)
+				{
+					plot()->setResourceType(NO_RESOURCE, 0);
+					plot()->setResourceType(eResource, freeResource.m_iResourceQuantity);
+				}
 			}
 		}
-	}
-	owningPlayer.GetPlayerTraits()->AddUniqueLuxuries(this);
-	if(owningPlayer.isMinorCiv())
-	{
-		owningPlayer.GetMinorCivAI()->DoAddStartingResources(plot());
+
+		owningPlayer.GetPlayerTraits()->AddUniqueLuxuries(this);
+		if(owningPlayer.isMinorCiv())
+		{
+			owningPlayer.GetMinorCivAI()->DoAddStartingResources(plot());
+		}
 	}
 
 	// make sure that all the team members get the city connection update
@@ -566,8 +576,12 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits)
 	}
 
 	AI_init();
-}
 
+	if (GC.getGame().getGameTurn() == 0)
+	{
+		chooseProduction();
+	}
+}
 
 //	--------------------------------------------------------------------------------
 void CvCity::uninit()
@@ -677,8 +691,8 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_iSpaceProductionModifier = 0;
 	m_iFreeExperience = 0;
 	m_iCurrAirlift = 0; // unused
-	m_iMaxAirlift = 0; // unused
-	m_iAirModifier = 0;
+	m_iMaxAirUnits = GC.getBASE_CITY_AIR_STACKING();
+	m_iAirModifier = 0; // unused
 	m_iNukeModifier = 0;
 	m_iTradeRouteRecipientBonus = 0;
 	m_iTradeRouteTargetBonus = 0;
@@ -1187,6 +1201,8 @@ void CvCity::PreKill()
 
 	CvPlot* pPlot = plot();
 
+	GC.getGame().GetGameTrade()->ClearAllCityTradeRoutes(pPlot);
+
 	// Update resources linked to this city
 	for(int iI = 0; iI < NUM_CITY_PLOTS; iI++)
 	{
@@ -1216,11 +1232,11 @@ void CvCity::PreKill()
 	}
 
 	// If this city was built on a Resource, remove its Quantity from total
-	if(plot()->getResourceType() != NO_RESOURCE)
+	if(pPlot->getResourceType() != NO_RESOURCE)
 	{
-		if(GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes) GC.getResourceInfo(plot()->getResourceType())->getTechCityTrade()))
+		if(GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes) GC.getResourceInfo(pPlot->getResourceType())->getTechCityTrade()))
 		{
-			GET_PLAYER(getOwner()).changeNumResourceTotal(plot()->getResourceType(), -plot()->getNumResourceForPlayer(getOwner()));
+			GET_PLAYER(getOwner()).changeNumResourceTotal(pPlot->getResourceType(), -pPlot->getNumResourceForPlayer(getOwner()));
 		}
 	}
 
@@ -1249,9 +1265,9 @@ void CvCity::PreKill()
 
 	// Could also be non-garrisoned units here that we need to show
 	CvUnit* pLoopUnit;
-	for(int iUnitLoop = 0; iUnitLoop < plot()->getNumUnits(); iUnitLoop++)
+	for(int iUnitLoop = 0; iUnitLoop < pPlot->getNumUnits(); iUnitLoop++)
 	{
-		pLoopUnit = plot()->getUnitByIndex(iUnitLoop);
+		pLoopUnit = pPlot->getUnitByIndex(iUnitLoop);
 
 		// Only show units that belong to this city's owner - that way we don't show units on EVERY city capture (since the old city is deleted in this case)
 		if(getOwner() == pLoopUnit->getOwner())
@@ -1402,6 +1418,11 @@ void CvCity::kill()
 	}
 
 	// Delete the city's information here!!!
+	CvGameTrade* pkGameTrade = GC.getGame().GetGameTrade();
+	if(pkGameTrade)
+	{
+		pkGameTrade->ClearAllCityTradeRoutes(plot());
+	}
 	GET_PLAYER(getOwner()).deleteCity(m_iID);
 	GET_PLAYER(eOwner).GetCityConnections()->Update();
 
@@ -1419,6 +1440,8 @@ CvPlayer* CvCity::GetPlayer()
 //	--------------------------------------------------------------------------------
 void CvCity::doTurn()
 {
+	AI_PERF_FORMAT("City-AI-perf.csv", ("CvCity::doTurn, Turn %03d, %s, %s,", GC.getGame().getElapsedGameTurns(), GetPlayer()->getCivilizationShortDescription(), getName().c_str()) );
+
 	VALIDATE_OBJECT
 	CvPlot* pLoopPlot;
 	int iI;
@@ -1473,17 +1496,20 @@ void CvCity::doTurn()
 
 		doMeltdown();
 
-		for(iI = 0; iI < NUM_CITY_PLOTS; iI++)
 		{
-			pLoopPlot = GetCityCitizens()->GetCityPlotFromIndex(iI);
-
-			if(pLoopPlot != NULL)
+			AI_PERF_FORMAT_NESTED("City-AI-perf.csv", ("doImprovement, Turn %03d, %s, %s", GC.getGame().getElapsedGameTurns(), GetPlayer()->getCivilizationShortDescription(), getName().c_str()) );
+			for(iI = 0; iI < NUM_CITY_PLOTS; iI++)
 			{
-				if(pLoopPlot->getWorkingCity() == this)
+				pLoopPlot = GetCityCitizens()->GetCityPlotFromIndex(iI);
+
+				if(pLoopPlot != NULL)
 				{
-					if(pLoopPlot->isBeingWorked())
+					if(pLoopPlot->getWorkingCity() == this)
 					{
-						pLoopPlot->doImprovement();
+						if(pLoopPlot->isBeingWorked())
+						{
+							pLoopPlot->doImprovement();
+						}
 					}
 				}
 			}
@@ -1691,6 +1717,7 @@ void CvCity::SetIndustrialRouteToCapital(bool bValue)
 /// Connected to capital with industrial route? (Railroads)
 void CvCity::DoUpdateIndustrialRouteToCapital()
 {
+	AI_PERF_FORMAT("City-AI-perf.csv", ("CvCity::DoUpdateIndustrialRouteToCapital, Turn %03d, %s, %s", GC.getGame().getElapsedGameTurns(), GetPlayer()->getCivilizationShortDescription(), getName().c_str()) );
 	// Capital - what do we want to do about this?
 	if(isCapital())
 	{
@@ -1857,35 +1884,32 @@ CityTaskResult CvCity::doTask(TaskTypes eTask, int iData1, int iData2, bool bOpt
 void CvCity::chooseProduction(UnitTypes eTrainUnit, BuildingTypes eConstructBuilding, ProjectTypes eCreateProject, bool /*bFinish*/, bool /*bFront*/)
 {
 	VALIDATE_OBJECT
-	if(getOwner() == GC.getGame().getActivePlayer())
+	CvString strTooltip = GetLocalizedText("TXT_KEY_NOTIFICATION_NEW_CONSTRUCTION", getNameKey());
+
+	CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
+	if(pNotifications)
 	{
-		CvString strTooltip = GetLocalizedText("TXT_KEY_NOTIFICATION_NEW_CONSTRUCTION", getNameKey());
+		// Figure out what we just finished so we can package it into something the lua will understand
+		OrderTypes eOrder = NO_ORDER;
+		int iItemID = -1;
 
-		CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
-		if(pNotifications)
+		if(eTrainUnit != NO_UNIT)
 		{
-			// Figure out what we just finished so we can package it into something the lua will understand
-			OrderTypes eOrder = NO_ORDER;
-			int iItemID = -1;
-
-			if(eTrainUnit != NO_UNIT)
-			{
-				eOrder = ORDER_TRAIN;
-				iItemID = eTrainUnit;
-			}
-			else if(eConstructBuilding != NO_BUILDING)
-			{
-				eOrder = ORDER_CONSTRUCT;
-				iItemID = eConstructBuilding;
-			}
-			else if(eCreateProject != NO_PROJECT)
-			{
-				eOrder = ORDER_CREATE;
-				iItemID = eCreateProject;
-			}
-
-			pNotifications->Add(NOTIFICATION_PRODUCTION, strTooltip, strTooltip, getX(), getY(), eOrder, iItemID);
+			eOrder = ORDER_TRAIN;
+			iItemID = eTrainUnit;
 		}
+		else if(eConstructBuilding != NO_BUILDING)
+		{
+			eOrder = ORDER_CONSTRUCT;
+			iItemID = eConstructBuilding;
+		}
+		else if(eCreateProject != NO_PROJECT)
+		{
+			eOrder = ORDER_CREATE;
+			iItemID = eCreateProject;
+		}
+
+		pNotifications->Add(NOTIFICATION_PRODUCTION, strTooltip, strTooltip, getX(), getY(), eOrder, iItemID);
 	}
 }
 
@@ -2286,7 +2310,7 @@ bool CvCity::isBuildingsMaxed() const
 
 
 //	--------------------------------------------------------------------------------
-bool CvCity::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool bIgnoreCost, bool /*bIgnoreUpgrades*/, CvString* toolTipSink) const
+bool CvCity::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool bIgnoreCost, bool bWillPurchase, CvString* toolTipSink) const
 {
 	VALIDATE_OBJECT
 	if(eUnit == NO_UNIT)
@@ -2301,6 +2325,11 @@ bool CvCity::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool b
 	}
 
 	if(!(GET_PLAYER(getOwner()).canTrain(eUnit, bContinue, bTestVisible, bIgnoreCost, false, toolTipSink)))
+	{
+		return false;
+	}
+
+	if (!bWillPurchase && pkUnitEntry->IsPurchaseOnly())
 	{
 		return false;
 	}
@@ -2347,6 +2376,18 @@ bool CvCity::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool b
 							return false;
 					}
 				}
+			}
+		}
+
+		// Air units can't be built above capacity
+		if (pkUnitEntry->GetDomainType() == DOMAIN_AIR)
+		{
+			int iNumAirUnits = plot()->countNumAirUnits(getTeam());
+			if (iNumAirUnits >= GetMaxAirUnits())
+			{
+				GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_CITY_AT_AIR_CAPACITY");
+				if(toolTipSink == NULL)
+					return false;
 			}
 		}
 	}
@@ -2725,6 +2766,7 @@ void CvCity::SetFeatureSurrounded(bool bValue)
 // Are there a lot of clearable features around this city?
 void CvCity::DoUpdateFeatureSurrounded()
 {
+	AI_PERF_FORMAT("City-AI-perf.csv", ("CvCity::DoUpdateFeatureSurrounded, Turn %03d, %s, %s", GC.getGame().getElapsedGameTurns(), GetPlayer()->getCivilizationShortDescription(), getName().c_str()) );
 	int iTotalPlots = 0;
 	int iFeaturedPlots = 0;
 
@@ -3068,6 +3110,7 @@ void CvCity::SetResourceDemanded(ResourceTypes eResource)
 void CvCity::DoPickResourceDemanded(bool bCurrentResourceInvalid)
 {
 	VALIDATE_OBJECT
+	AI_PERF_FORMAT("City-AI-perf.csv", ("CvCity::DoPickResourceDemanded, Turn %03d, %s, %s", GC.getGame().getElapsedGameTurns(), GetPlayer()->getCivilizationShortDescription(), getName().c_str()) );
 	// Create the list of invalid Luxury Resources
 	FStaticVector<ResourceTypes, 64, true, c_eCiv5GameplayDLL, 0> veInvalidLuxuryResources;
 	CvPlot* pLoopPlot;
@@ -5763,8 +5806,11 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			{
 				BuildingTypes eFreeBuildingThisCity = (BuildingTypes)(thisCiv.getCivilizationBuildings(eFreeBuildingClassThisCity));
 
-				m_pCityBuildings->SetNumRealBuilding(eFreeBuildingThisCity, 0);
-				m_pCityBuildings->SetNumFreeBuilding(eFreeBuildingThisCity, 1);
+				if (eFreeBuildingThisCity != NO_BUILDING)
+				{
+					m_pCityBuildings->SetNumRealBuilding(eFreeBuildingThisCity, 0);
+					m_pCityBuildings->SetNumFreeBuilding(eFreeBuildingThisCity, 1);
+				}
 			}
 
 			// Free Great Work
@@ -5852,7 +5898,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 
 		changeGreatPeopleRateModifier(pBuildingInfo->GetGreatPeopleRateModifier() * iChange);
 		changeFreeExperience(pBuildingInfo->GetFreeExperience() * iChange);
-		changeAirModifier(pBuildingInfo->GetAirModifier() * iChange);
+		ChangeMaxAirUnits(pBuildingInfo->GetAirModifier() * iChange);
 		changeNukeModifier(pBuildingInfo->GetNukeModifier() * iChange);
 		changeHealRate(pBuildingInfo->GetHealRateChange() * iChange);
 		ChangeExtraHitPoints(pBuildingInfo->GetExtraCityHitPoints() * iChange);
@@ -8216,17 +8262,17 @@ bool CvCity::CanAirlift() const
 }
 
 //	--------------------------------------------------------------------------------
-int CvCity::getAirModifier() const
+int CvCity::GetMaxAirUnits() const
 {
 	VALIDATE_OBJECT
-	return m_iAirModifier;
+	return m_iMaxAirUnits;
 }
 
 //	--------------------------------------------------------------------------------
-void CvCity::changeAirModifier(int iChange)
+void CvCity::ChangeMaxAirUnits(int iChange)
 {
 	VALIDATE_OBJECT
-	m_iAirModifier += iChange;
+	m_iMaxAirUnits += iChange;
 }
 
 //	--------------------------------------------------------------------------------
@@ -8341,6 +8387,7 @@ bool CvCity::DoRazingTurn()
 {
 	VALIDATE_OBJECT
 
+	AI_PERF_FORMAT("City-AI-perf.csv", ("CvCity::DoRazingTurn, Turn %03d, %s, %s", GC.getGame().getElapsedGameTurns(), GetPlayer()->getCivilizationShortDescription(), getName().c_str()) );
 	if(IsRazing())
 	{
 		CvPlayer& kPlayer = GET_PLAYER(getOwner());
@@ -9207,6 +9254,16 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 			iModifier += iTempMod;
 			if(toolTipSink)
 				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_YIELD_BELIEF", iTempMod);
+		}
+	}
+
+	// Production Yield Rate Modifier from City States
+	if(eIndex == YIELD_PRODUCTION && GetCityBuildings()->GetCityStateTradeRouteProductionModifier() > 0 )
+	{	
+		iTempMod = GetCityBuildings()->GetCityStateTradeRouteProductionModifier();
+		iModifier += iTempMod;
+		if(toolTipSink){
+			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_YIELD_HANSE", iTempMod);
 		}
 	}
 
@@ -10274,6 +10331,7 @@ void CvCity::changeSpecialistFreeExperience(int iChange)
 void CvCity::updateStrengthValue()
 {
 	VALIDATE_OBJECT
+	AI_PERF_FORMAT("City-AI-perf.csv", ("CvCity::updateStrengthValue, Turn %03d, %s, %s", GC.getGame().getElapsedGameTurns(), GetPlayer()->getCivilizationShortDescription(), getName().c_str()) );
 	// Default Strength
 	int iStrengthValue = /*600*/ GC.getCITY_STRENGTH_DEFAULT();
 
@@ -10908,8 +10966,8 @@ void CvCity::BuyPlot(int iPlotX, int iPlotY)
 
 	int iCost = GetBuyPlotCost(iPlotX, iPlotY);
 	CvPlayer& thisPlayer = GET_PLAYER(getOwner());
-	thisPlayer.GetTreasury()->ChangeGold(-iCost);
 	thisPlayer.GetTreasury()->LogExpenditure("", iCost, 1);
+	thisPlayer.GetTreasury()->ChangeGold(-iCost);
 	thisPlayer.ChangeNumPlotsBought(1);
 
 	// See if there's anyone else nearby that could get upset by this action
@@ -12190,7 +12248,7 @@ bool CvCity::IsCanPurchase(bool bTestPurchaseCost, bool bTestTrainable, UnitType
 		// Unit
 		if(eUnitType != NO_UNIT)
 		{
-			if(!canTrain(eUnitType, false, !bTestTrainable))
+			if(!canTrain(eUnitType, false, !bTestTrainable, false /*bIgnoreCost*/, true /*bWillPurchase*/))
 				return false;
 
 			iGoldCost = GetPurchaseCost(eUnitType);
@@ -12276,7 +12334,7 @@ bool CvCity::IsCanPurchase(bool bTestPurchaseCost, bool bTestTrainable, UnitType
 						{
 							return false;
 						}
-						if(!canTrain(eUnitType, false, !bTestTrainable))
+						if(!canTrain(eUnitType, false, !bTestTrainable, false /*bIgnoreCost*/, true /*bWillPurchase*/))
 						{
 							return false;
 						}
@@ -12295,7 +12353,7 @@ bool CvCity::IsCanPurchase(bool bTestPurchaseCost, bool bTestTrainable, UnitType
 							{
 								return false;
 							}
-							if(!canTrain(eUnitType, false, !bTestTrainable))
+							if(!canTrain(eUnitType, false, !bTestTrainable, false /*bIgnoreCost*/, true /*bWillPurchase*/))
 							{
 								return false;
 							}
@@ -12308,7 +12366,7 @@ bool CvCity::IsCanPurchase(bool bTestPurchaseCost, bool bTestTrainable, UnitType
 		else if(eBuildingType != NO_BUILDING)
 		{
 			CvBuildingEntry* pkBuildingInfo = GC.GetGameBuildings()->GetEntry(eBuildingType);
-
+ 
 			// Religion-enabled building
 			if(pkBuildingInfo && pkBuildingInfo->IsUnlockedByBelief())
 			{
@@ -12323,16 +12381,24 @@ bool CvCity::IsCanPurchase(bool bTestPurchaseCost, bool bTestTrainable, UnitType
 					return false;
 				}
 
+				if(!canConstruct(eBuildingType, false, !bTestTrainable, true /*bIgnoreCost*/))
+				{
+					return false;
+				}
+
 				if(GetCityBuildings()->GetNumBuilding(eBuildingType) > 0)
 				{
 					return false;
 				}
 
 				TechTypes ePrereqTech = (TechTypes)pkBuildingInfo->GetPrereqAndTech();
-				CvTechEntry *pkTechInfo = GC.GetGameTechs()->GetEntry(ePrereqTech);
-				if (pkTechInfo && !GET_TEAM(GET_PLAYER(getOwner()).getTeam()).GetTeamTechs()->HasTech(ePrereqTech))
+				if(ePrereqTech != NO_TECH)
 				{
-					return false;
+					CvTechEntry *pkTechInfo = GC.GetGameTechs()->GetEntry(ePrereqTech);
+					if (pkTechInfo && !GET_TEAM(GET_PLAYER(getOwner()).getTeam()).GetTeamTechs()->HasTech(ePrereqTech))
+					{
+						return false;
+					}
 				}
 
 				// Does this city have prereq buildings?
@@ -12348,7 +12414,7 @@ bool CvCity::IsCanPurchase(bool bTestPurchaseCost, bool bTestTrainable, UnitType
 
 					if(pkBuildingInfo->IsBuildingClassNeededInCity(iI))
 					{
-						CvCivilizationInfo& thisCivInfo = getCivilizationInfo();
+						CvCivilizationInfo& thisCivInfo = *GC.getCivilizationInfo(getCivilizationType());
 						ePrereqBuilding = ((BuildingTypes)(thisCivInfo.getCivilizationBuildings(iI)));
 
 						if(ePrereqBuilding != NO_BUILDING)
@@ -12436,7 +12502,10 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 			if (iResult != FFreeList::INVALID_INDEX)
 			{
 				CvUnit* pUnit = kPlayer.getUnit(iResult);
-				pUnit->setMoves(0);
+				if (!pUnit->getUnitInfo().CanMoveAfterPurchase())
+				{
+					pUnit->setMoves(0);
+				}
 			}
 		}
 		else if(eBuildingType >= 0)
@@ -12616,6 +12685,7 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 void CvCity::doGrowth()
 {
 	VALIDATE_OBJECT
+	AI_PERF_FORMAT("City-AI-perf.csv", ("CvCity::doGrowth, Turn %03d, %s, %s", GC.getGame().getElapsedGameTurns(), GetPlayer()->getCivilizationShortDescription(), getName().c_str()) );
 	// here would be a good place to override this in Lua
 
 	// No growth or starvation if being razed
@@ -12685,6 +12755,7 @@ void CvCity::doGrowth()
 //	--------------------------------------------------------------------------------
 bool CvCity::doCheckProduction()
 {
+	AI_PERF_FORMAT("City-AI-perf.csv", ("CvCity::doCheckProduction, Turn %03d, %s, %s", GC.getGame().getElapsedGameTurns(), GetPlayer()->getCivilizationShortDescription(), getName().c_str()) );
 	VALIDATE_OBJECT
 	OrderData* pOrderNode;
 	UnitTypes eUpgradeUnit;
@@ -12700,18 +12771,85 @@ bool CvCity::doCheckProduction()
 	CvPlayerAI& thisPlayer = GET_PLAYER(getOwner());
 
 	int iNumUnitInfos = GC.getNumUnitInfos();
-	for(iI = 0; iI < iNumUnitInfos; iI++)
 	{
-		const UnitTypes eUnit = static_cast<UnitTypes>(iI);
-		CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
-		if(pkUnitInfo)
+		AI_PERF_FORMAT_NESTED("City-AI-perf.csv", ("CvCity::doCheckProduction_Unit, Turn %03d, %s, %s", GC.getGame().getElapsedGameTurns(), GetPlayer()->getCivilizationShortDescription(), getName().c_str()) );
+		for(iI = 0; iI < iNumUnitInfos; iI++)
 		{
-			int iUnitProduction = getUnitProduction(eUnit);
-			if(iUnitProduction > 0)
+			const UnitTypes eUnit = static_cast<UnitTypes>(iI);
+			CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
+			if(pkUnitInfo)
 			{
-				if(thisPlayer.isProductionMaxedUnitClass((UnitClassTypes)(pkUnitInfo)->GetUnitClassType()))
+				int iUnitProduction = getUnitProduction(eUnit);
+				if(iUnitProduction > 0)
 				{
-					iProductionGold = ((iUnitProduction * iMaxedUnitGoldPercent) / 100);
+					if(thisPlayer.isProductionMaxedUnitClass((UnitClassTypes)(pkUnitInfo)->GetUnitClassType()))
+					{
+						iProductionGold = ((iUnitProduction * iMaxedUnitGoldPercent) / 100);
+
+						if(iProductionGold > 0)
+						{
+							thisPlayer.GetTreasury()->ChangeGold(iProductionGold);
+
+							if(getOwner() == GC.getGame().getActivePlayer())
+							{
+								Localization::String localizedText = Localization::Lookup("TXT_KEY_MISC_LOST_WONDER_PROD_CONVERTED");
+								localizedText << getNameKey() << GC.getUnitInfo((UnitTypes)iI)->GetTextKey() << iProductionGold;
+								DLLUI->AddCityMessage(0, GetIDInfo(), getOwner(), false, GC.getEVENT_MESSAGE_TIME(), localizedText.toUTF8());
+							}
+						}
+
+						setUnitProduction(((UnitTypes)iI), 0);
+					}
+				}
+			}
+		}
+	}
+
+	int iNumBuildingInfos = GC.getNumBuildingInfos();
+	{
+		AI_PERF_FORMAT_NESTED("City-AI-perf.csv", ("CvCity::doCheckProduction_Building, Turn %03d, %s, %s", GC.getGame().getElapsedGameTurns(), GetPlayer()->getCivilizationShortDescription(), getName().c_str()) );
+
+		int iPlayerLoop;
+		PlayerTypes eLoopPlayer;
+
+		for(iI = 0; iI < iNumBuildingInfos; iI++)
+		{
+			const BuildingTypes eExpiredBuilding = static_cast<BuildingTypes>(iI);
+			CvBuildingEntry* pkExpiredBuildingInfo = GC.getBuildingInfo(eExpiredBuilding);
+
+			//skip if null
+			if(pkExpiredBuildingInfo == NULL)
+				continue;
+
+			int iBuildingProduction = m_pCityBuildings->GetBuildingProduction(eExpiredBuilding);
+			if(iBuildingProduction > 0)
+			{
+				const BuildingClassTypes eExpiredBuildingClass = (BuildingClassTypes)(pkExpiredBuildingInfo->GetBuildingClassType());
+
+				if(thisPlayer.isProductionMaxedBuildingClass(eExpiredBuildingClass))
+				{
+					// Beaten to a world wonder by someone?
+					if(isWorldWonderClass(pkExpiredBuildingInfo->GetBuildingClassInfo()))
+					{
+						for(iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+						{
+							eLoopPlayer = (PlayerTypes) iPlayerLoop;
+
+							// Found the culprit
+							if(GET_PLAYER(eLoopPlayer).getBuildingClassCount(eExpiredBuildingClass) > 0)
+							{
+								GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeNumWondersBeatenTo(eLoopPlayer, 1);
+								break;
+							}
+						}
+
+						auto_ptr<ICvCity1> pDllCity(new CvDllCity(this));
+						DLLUI->AddDeferredWonderCommand(WONDER_REMOVED, pDllCity.get(), (BuildingTypes) eExpiredBuilding, 0);
+						//Add "achievement" for sucking it up
+						gDLL->IncrementSteamStatAndUnlock(ESTEAMSTAT_BEATWONDERS, 10, ACHIEVEMENT_SUCK_AT_WONDERS);
+					}
+
+					iProductionGold = ((iBuildingProduction * iMaxedBuildingGoldPercent) / 100);
 
 					if(iProductionGold > 0)
 					{
@@ -12720,198 +12858,146 @@ bool CvCity::doCheckProduction()
 						if(getOwner() == GC.getGame().getActivePlayer())
 						{
 							Localization::String localizedText = Localization::Lookup("TXT_KEY_MISC_LOST_WONDER_PROD_CONVERTED");
-							localizedText << getNameKey() << GC.getUnitInfo((UnitTypes)iI)->GetTextKey() << iProductionGold;
+							localizedText << getNameKey() << pkExpiredBuildingInfo->GetTextKey() << iProductionGold;
 							DLLUI->AddCityMessage(0, GetIDInfo(), getOwner(), false, GC.getEVENT_MESSAGE_TIME(), localizedText.toUTF8());
 						}
 					}
 
-					setUnitProduction(((UnitTypes)iI), 0);
+					m_pCityBuildings->SetBuildingProduction(eExpiredBuilding, 0);
 				}
 			}
 		}
 	}
 
-	int iNumBuildingInfos = GC.getNumBuildingInfos();
-
-	int iPlayerLoop;
-	PlayerTypes eLoopPlayer;
-
-	for(iI = 0; iI < iNumBuildingInfos; iI++)
 	{
-		const BuildingTypes eExpiredBuilding = static_cast<BuildingTypes>(iI);
-		CvBuildingEntry* pkExpiredBuildingInfo = GC.getBuildingInfo(eExpiredBuilding);
-
-		//skip if null
-		if(pkExpiredBuildingInfo == NULL)
-			continue;
-
-		int iBuildingProduction = m_pCityBuildings->GetBuildingProduction(eExpiredBuilding);
-		if(iBuildingProduction > 0)
+		AI_PERF_FORMAT_NESTED("City-AI-perf.csv", ("CvCity::doCheckProduction_Project, Turn %03d, %s, %s", GC.getGame().getElapsedGameTurns(), GetPlayer()->getCivilizationShortDescription(), getName().c_str()) );
+		int iNumProjectInfos = GC.getNumProjectInfos();
+		for(iI = 0; iI < iNumProjectInfos; iI++)
 		{
-			const BuildingClassTypes eExpiredBuildingClass = (BuildingClassTypes)(pkExpiredBuildingInfo->GetBuildingClassType());
-
-			if(thisPlayer.isProductionMaxedBuildingClass(eExpiredBuildingClass))
+			int iProjectProduction = getProjectProduction((ProjectTypes)iI);
+			if(iProjectProduction > 0)
 			{
-				// Beaten to a world wonder by someone?
-				if(isWorldWonderClass(pkExpiredBuildingInfo->GetBuildingClassInfo()))
+				if(thisPlayer.isProductionMaxedProject((ProjectTypes)iI))
 				{
-					for(iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-					{
-						eLoopPlayer = (PlayerTypes) iPlayerLoop;
+					iProductionGold = ((iProjectProduction * iMaxedProjectGoldPercent) / 100);
 
-						// Found the culprit
-						if(GET_PLAYER(eLoopPlayer).getBuildingClassCount(eExpiredBuildingClass) > 0)
+					if(iProductionGold > 0)
+					{
+						thisPlayer.GetTreasury()->ChangeGold(iProductionGold);
+
+						if(getOwner() == GC.getGame().getActivePlayer())
 						{
-							GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeNumWondersBeatenTo(eLoopPlayer, 1);
-							break;
+							Localization::String localizedText = Localization::Lookup("TXT_KEY_MISC_LOST_WONDER_PROD_CONVERTED");
+							localizedText << getNameKey() << GC.getProjectInfo((ProjectTypes)iI)->GetTextKey() << iProductionGold;
+							DLLUI->AddCityMessage(0, GetIDInfo(), getOwner(), false, GC.getEVENT_MESSAGE_TIME(), localizedText.toUTF8());
 						}
 					}
 
-					auto_ptr<ICvCity1> pDllCity(new CvDllCity(this));
-					DLLUI->AddDeferredWonderCommand(WONDER_REMOVED, pDllCity.get(), (BuildingTypes) eExpiredBuilding, 0);
-					//Add "achievement" for sucking it up
-					gDLL->IncrementSteamStatAndUnlock(ESTEAMSTAT_BEATWONDERS, 10, ACHIEVEMENT_SUCK_AT_WONDERS);
+					setProjectProduction(((ProjectTypes)iI), 0);
 				}
-
-				iProductionGold = ((iBuildingProduction * iMaxedBuildingGoldPercent) / 100);
-
-				if(iProductionGold > 0)
-				{
-					thisPlayer.GetTreasury()->ChangeGold(iProductionGold);
-
-					if(getOwner() == GC.getGame().getActivePlayer())
-					{
-						Localization::String localizedText = Localization::Lookup("TXT_KEY_MISC_LOST_WONDER_PROD_CONVERTED");
-						localizedText << getNameKey() << pkExpiredBuildingInfo->GetTextKey() << iProductionGold;
-						DLLUI->AddCityMessage(0, GetIDInfo(), getOwner(), false, GC.getEVENT_MESSAGE_TIME(), localizedText.toUTF8());
-					}
-				}
-
-				m_pCityBuildings->SetBuildingProduction(eExpiredBuilding, 0);
 			}
 		}
 	}
 
-	int iNumProjectInfos = GC.getNumProjectInfos();
-	for(iI = 0; iI < iNumProjectInfos; iI++)
-	{
-		int iProjectProduction = getProjectProduction((ProjectTypes)iI);
-		if(iProjectProduction > 0)
-		{
-			if(thisPlayer.isProductionMaxedProject((ProjectTypes)iI))
-			{
-				iProductionGold = ((iProjectProduction * iMaxedProjectGoldPercent) / 100);
-
-				if(iProductionGold > 0)
-				{
-					thisPlayer.GetTreasury()->ChangeGold(iProductionGold);
-
-					if(getOwner() == GC.getGame().getActivePlayer())
-					{
-						Localization::String localizedText = Localization::Lookup("TXT_KEY_MISC_LOST_WONDER_PROD_CONVERTED");
-						localizedText << getNameKey() << GC.getProjectInfo((ProjectTypes)iI)->GetTextKey() << iProductionGold;
-						DLLUI->AddCityMessage(0, GetIDInfo(), getOwner(), false, GC.getEVENT_MESSAGE_TIME(), localizedText.toUTF8());
-					}
-				}
-
-				setProjectProduction(((ProjectTypes)iI), 0);
-			}
-		}
-	}
-
-	if(!isProduction() && isHuman() && !isProductionAutomated())
+	if(!isProduction() && isHuman() && !isProductionAutomated() && !IsIgnoreCityForHappiness())
 	{
 		chooseProduction();
 		return bOK;
 	}
 
-	// Can now construct an Upgraded version of this Unit
-	for(iI = 0; iI < iNumUnitInfos; iI++)
 	{
-		if(getFirstUnitOrder((UnitTypes)iI) != -1)
+		AI_PERF_FORMAT_NESTED("City-AI-perf.csv", ("CvCity::doCheckProduction_UpgradeUnit, Turn %03d, %s, %s", GC.getGame().getElapsedGameTurns(), GetPlayer()->getCivilizationShortDescription(), getName().c_str()) );
+		// Can now construct an Upgraded version of this Unit
+		for(iI = 0; iI < iNumUnitInfos; iI++)
 		{
-			// If we can still actually train this Unit type then don't auto-upgrade it yet
-			if(canTrain((UnitTypes)iI, true))
+			if(getFirstUnitOrder((UnitTypes)iI) != -1)
 			{
-				continue;
-			}
-
-			eUpgradeUnit = allUpgradesAvailable((UnitTypes)iI);
-
-			if(eUpgradeUnit != NO_UNIT)
-			{
-				CvAssertMsg(eUpgradeUnit != iI, "Trying to upgrade a Unit to itself");
-				iUpgradeProduction = getUnitProduction((UnitTypes)iI);
-				setUnitProduction(((UnitTypes)iI), 0);
-				setUnitProduction(eUpgradeUnit, iUpgradeProduction);
-
-				pOrderNode = headOrderQueueNode();
-
-				while(pOrderNode != NULL)
+				// If we can still actually train this Unit type then don't auto-upgrade it yet
+				if(canTrain((UnitTypes)iI, true))
 				{
-					if(pOrderNode->eOrderType == ORDER_TRAIN)
-					{
-						if(pOrderNode->iData1 == iI)
-						{
-							thisPlayer.changeUnitClassMaking(((UnitClassTypes)(GC.getUnitInfo((UnitTypes)(pOrderNode->iData1))->GetUnitClassType())), -1);
-							pOrderNode->iData1 = eUpgradeUnit;
-							thisPlayer.changeUnitClassMaking(((UnitClassTypes)(GC.getUnitInfo((UnitTypes)(pOrderNode->iData1))->GetUnitClassType())), 1);
-						}
-					}
+					continue;
+				}
 
-					pOrderNode = nextOrderQueueNode(pOrderNode);
+				eUpgradeUnit = allUpgradesAvailable((UnitTypes)iI);
+
+				if(eUpgradeUnit != NO_UNIT)
+				{
+					CvAssertMsg(eUpgradeUnit != iI, "Trying to upgrade a Unit to itself");
+					iUpgradeProduction = getUnitProduction((UnitTypes)iI);
+					setUnitProduction(((UnitTypes)iI), 0);
+					setUnitProduction(eUpgradeUnit, iUpgradeProduction);
+
+					pOrderNode = headOrderQueueNode();
+
+					while(pOrderNode != NULL)
+					{
+						if(pOrderNode->eOrderType == ORDER_TRAIN)
+						{
+							if(pOrderNode->iData1 == iI)
+							{
+								thisPlayer.changeUnitClassMaking(((UnitClassTypes)(GC.getUnitInfo((UnitTypes)(pOrderNode->iData1))->GetUnitClassType())), -1);
+								pOrderNode->iData1 = eUpgradeUnit;
+								thisPlayer.changeUnitClassMaking(((UnitClassTypes)(GC.getUnitInfo((UnitTypes)(pOrderNode->iData1))->GetUnitClassType())), 1);
+							}
+						}
+
+						pOrderNode = nextOrderQueueNode(pOrderNode);
+					}
 				}
 			}
 		}
 	}
 
-	// Can now construct an Upgraded version of this Building
-	for(iI = 0; iI < iNumBuildingInfos; iI++)
 	{
-		const BuildingTypes eBuilding = static_cast<BuildingTypes>(iI);
-		CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
-		if(pkBuildingInfo)
+		AI_PERF_FORMAT_NESTED("City-AI-perf.csv", ("CvCity::doCheckProduction_UpgradeBuilding, Turn %03d, %s, %s", GC.getGame().getElapsedGameTurns(), GetPlayer()->getCivilizationShortDescription(), getName().c_str()) );
+		// Can now construct an Upgraded version of this Building
+		for(iI = 0; iI < iNumBuildingInfos; iI++)
 		{
-			if(getFirstBuildingOrder(eBuilding) != -1)
+			const BuildingTypes eBuilding = static_cast<BuildingTypes>(iI);
+			CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+			if(pkBuildingInfo)
 			{
-				BuildingClassTypes eBuildingClass = (BuildingClassTypes) pkBuildingInfo->GetReplacementBuildingClass();
-
-				if(eBuildingClass != NO_BUILDINGCLASS)
+				if(getFirstBuildingOrder(eBuilding) != -1)
 				{
-					BuildingTypes eUpgradeBuilding = ((BuildingTypes)(thisPlayer.getCivilizationInfo().getCivilizationBuildings(eBuildingClass)));
+					BuildingClassTypes eBuildingClass = (BuildingClassTypes) pkBuildingInfo->GetReplacementBuildingClass();
 
-					if(canConstruct(eUpgradeBuilding))
+					if(eBuildingClass != NO_BUILDINGCLASS)
 					{
-						CvAssertMsg(eUpgradeBuilding != iI, "Trying to upgrade a Building to itself");
-						iUpgradeProduction = m_pCityBuildings->GetBuildingProduction(eBuilding);
-						m_pCityBuildings->SetBuildingProduction((eBuilding), 0);
-						m_pCityBuildings->SetBuildingProduction(eUpgradeBuilding, iUpgradeProduction);
+						BuildingTypes eUpgradeBuilding = ((BuildingTypes)(thisPlayer.getCivilizationInfo().getCivilizationBuildings(eBuildingClass)));
 
-						pOrderNode = headOrderQueueNode();
-
-						while(pOrderNode != NULL)
+						if(canConstruct(eUpgradeBuilding))
 						{
-							if(pOrderNode->eOrderType == ORDER_CONSTRUCT)
+							CvAssertMsg(eUpgradeBuilding != iI, "Trying to upgrade a Building to itself");
+							iUpgradeProduction = m_pCityBuildings->GetBuildingProduction(eBuilding);
+							m_pCityBuildings->SetBuildingProduction((eBuilding), 0);
+							m_pCityBuildings->SetBuildingProduction(eUpgradeBuilding, iUpgradeProduction);
+
+							pOrderNode = headOrderQueueNode();
+
+							while(pOrderNode != NULL)
 							{
-								if(pOrderNode->iData1 == iI)
+								if(pOrderNode->eOrderType == ORDER_CONSTRUCT)
 								{
-									CvBuildingEntry* pkOrderBuildingInfo = GC.getBuildingInfo((BuildingTypes)pOrderNode->iData1);
-									CvBuildingEntry* pkUpgradeBuildingInfo = GC.getBuildingInfo(eUpgradeBuilding);
-
-									if(NULL != pkOrderBuildingInfo && NULL != pkUpgradeBuildingInfo)
+									if(pOrderNode->iData1 == iI)
 									{
-										const BuildingClassTypes eOrderBuildingClass = (BuildingClassTypes)pkOrderBuildingInfo->GetBuildingClassType();
-										const BuildingClassTypes eUpgradeBuildingClass = (BuildingClassTypes)pkUpgradeBuildingInfo->GetBuildingClassType();
+										CvBuildingEntry* pkOrderBuildingInfo = GC.getBuildingInfo((BuildingTypes)pOrderNode->iData1);
+										CvBuildingEntry* pkUpgradeBuildingInfo = GC.getBuildingInfo(eUpgradeBuilding);
 
-										thisPlayer.changeBuildingClassMaking(eOrderBuildingClass, -1);
-										pOrderNode->iData1 = eUpgradeBuilding;
-										thisPlayer.changeBuildingClassMaking(eUpgradeBuildingClass, 1);
+										if(NULL != pkOrderBuildingInfo && NULL != pkUpgradeBuildingInfo)
+										{
+											const BuildingClassTypes eOrderBuildingClass = (BuildingClassTypes)pkOrderBuildingInfo->GetBuildingClassType();
+											const BuildingClassTypes eUpgradeBuildingClass = (BuildingClassTypes)pkUpgradeBuildingInfo->GetBuildingClassType();
 
+											thisPlayer.changeBuildingClassMaking(eOrderBuildingClass, -1);
+											pOrderNode->iData1 = eUpgradeBuilding;
+											thisPlayer.changeBuildingClassMaking(eUpgradeBuildingClass, 1);
+
+										}
 									}
 								}
-							}
 
-							pOrderNode = nextOrderQueueNode(pOrderNode);
+								pOrderNode = nextOrderQueueNode(pOrderNode);
+							}
 						}
 					}
 				}
@@ -12919,7 +13005,10 @@ bool CvCity::doCheckProduction()
 		}
 	}
 
-	bOK = CleanUpQueue();
+	{
+		AI_PERF_FORMAT_NESTED("City-AI-perf.csv", ("CvCity::doCheckProduction_CleanupQueue, Turn %03d, %s, %s", GC.getGame().getElapsedGameTurns(), GetPlayer()->getCivilizationShortDescription(), getName().c_str()) );
+		bOK = CleanUpQueue();
+	}
 
 	return bOK;
 }
@@ -12929,6 +13018,7 @@ bool CvCity::doCheckProduction()
 void CvCity::doProduction(bool bAllowNoProduction)
 {
 	VALIDATE_OBJECT
+	AI_PERF_FORMAT("City-AI-perf.csv", ("CvCity::doProduction, Turn %03d, %s, %s", GC.getGame().getElapsedGameTurns(), GetPlayer()->getCivilizationShortDescription(), getName().c_str()) );
 
 	if(!isHuman() || isProductionAutomated())
 	{
@@ -13014,6 +13104,7 @@ void CvCity::doProcess()
 void CvCity::doDecay()
 {
 	VALIDATE_OBJECT
+	AI_PERF_FORMAT("City-AI-perf.csv", ("CvCity::doDecay, Turn %03d, %s, %s", GC.getGame().getElapsedGameTurns(), GetPlayer()->getCivilizationShortDescription(), getName().c_str()) );
 	int iI;
 
 	int iBuildingProductionDecayTime = GC.getBUILDING_PRODUCTION_DECAY_TIME();
@@ -13080,6 +13171,7 @@ void CvCity::doDecay()
 void CvCity::doMeltdown()
 {
 	VALIDATE_OBJECT
+	AI_PERF_FORMAT("City-AI-perf.csv", ("CvCity::doMeltdown, Turn %03d, %s, %s", GC.getGame().getElapsedGameTurns(), GetPlayer()->getCivilizationShortDescription(), getName().c_str()) );
 
 	int iNumBuildingInfos = GC.getNumBuildingInfos();
 	for(int iI = 0; iI < iNumBuildingInfos; iI++)
@@ -13214,8 +13306,21 @@ void CvCity::read(FDataStream& kStream)
 	kStream >> m_iSpaceProductionModifier;
 	kStream >> m_iFreeExperience;
 	kStream >> m_iCurrAirlift; // unused
-	kStream >> m_iMaxAirlift; // unused
-	kStream >> m_iAirModifier;
+
+	if (uiVersion >= 6)
+	{
+		kStream >> m_iMaxAirUnits; 
+	}
+	else
+	{
+		kStream >> m_iMaxAirUnits;
+
+		// Forcibly override this since we didn't track this number before
+		m_iMaxAirUnits = GC.getBASE_CITY_AIR_STACKING();
+
+		// Note that this can get boosted further below once we know which buildings we have
+	}
+	kStream >> m_iAirModifier; // unused
 	kStream >> m_iNukeModifier;
 
 	if (uiVersion >= 2)
@@ -13308,6 +13413,27 @@ void CvCity::read(FDataStream& kStream)
 	kStream >> m_paiProjectProduction;
 
 	m_pCityBuildings->Read(kStream);
+
+	if (uiVersion < 6)
+	{
+		CvCivilizationInfo& thisCivInfo = *GC.getCivilizationInfo(getCivilizationType());
+		for (int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
+		{
+			BuildingClassTypes eBuildingClass = (BuildingClassTypes)iI;
+			BuildingTypes eBuilding = (BuildingTypes)(thisCivInfo.getCivilizationBuildings(eBuildingClass));
+			if (eBuilding != NO_BUILDING)
+			{
+				CvBuildingEntry *pkEntry = GC.getBuildingInfo(eBuilding);
+				if (pkEntry)
+				{
+					if (pkEntry->GetAirModifier() > 0 && m_pCityBuildings->GetNumBuilding(eBuilding) > 0)
+					{
+						m_iMaxAirUnits += pkEntry->GetAirModifier();
+					}
+				}
+			}
+		}
+	}
 
 	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_paiUnitProduction.dirtyGet());
 	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_paiUnitProductionTime.dirtyGet());
@@ -13471,6 +13597,8 @@ void CvCity::read(FDataStream& kStream)
 		// Change all at once, rather than one by one, else the clamping might adjust the current damage.
 		ChangeExtraHitPoints(iTotalExtraHitPoints);
 	}
+
+	CvCityManager::OnCityCreated(this);
 }
 
 //	--------------------------------------------------------------------------------
@@ -13479,7 +13607,7 @@ void CvCity::write(FDataStream& kStream) const
 	VALIDATE_OBJECT
 
 	// Current version number
-	uint uiVersion = 5;
+	uint uiVersion = 6;
 	kStream << uiVersion;
 
 	kStream << m_iID;
@@ -13524,8 +13652,8 @@ void CvCity::write(FDataStream& kStream) const
 	kStream << m_iSpaceProductionModifier;
 	kStream << m_iFreeExperience;
 	kStream << m_iCurrAirlift; // unused
-	kStream << m_iMaxAirlift; // unused
-	kStream << m_iAirModifier;
+	kStream << m_iMaxAirUnits;
+	kStream << m_iAirModifier; // unused
 	kStream << m_iNukeModifier;
 	kStream << m_iTradeRouteTargetBonus;
 	kStream << m_iTradeRouteRecipientBonus;
@@ -14310,6 +14438,7 @@ int CvCity::GetAirStrikeDefenseDamage(const CvUnit* pAttacker, bool bIncludeRand
 //	--------------------------------------------------------------------------------
 void CvCity::DoNearbyEnemy()
 {
+	AI_PERF_FORMAT("City-AI-perf.csv", ("CvCity::DoNearbyEnemy, Turn %03d, %s, %s", GC.getGame().getElapsedGameTurns(), GetPlayer()->getCivilizationShortDescription(), getName().c_str()) );
 	// Can't actually range strike
 	if(!canRangeStrike())
 		return;

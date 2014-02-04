@@ -203,6 +203,8 @@ public:
 	CvPlot *GetNextDigCompletePlot() const;
 	CvUnit *GetNextDigCompleteArchaeologist(CvPlot **ppPlot) const;
 	bool HasDigCompleteHere(CvPlot *pPlot) const;
+	int GetWrittenArtifactCulture() const;
+
 	void DoArchaeologyChoice (ArchaeologyChoiceType eChoice);
 	//    AI support routine - move elsewhere later?
 	ArchaeologyChoiceType GetArchaeologyChoice(CvPlot *pPlot);
@@ -221,9 +223,18 @@ public:
 	int GetNumCivsInfluentialOn() const;
 	int GetNumCivsToBeInfluentialOn() const;
 	PlayerTypes GetCivLowestInfluence(bool bCheckOpenBorders) const;
+	int GetInfluenceTradeRouteScienceBonus(PlayerTypes ePlayer) const;
+	int GetInfluenceCityConquestReduction(PlayerTypes ePlayer) const;
+	int GetInfluenceSurveillanceTime(PlayerTypes ePlayer) const;
+	int GetInfluenceCityStateSpyRankBonus(PlayerTypes eCityStatePlayer) const;
+	int GetInfluenceMajorCivSpyRankBonus(PlayerTypes ePlayer) const;
+	CvString GetInfluenceSpyRankTooltip (CvString szName, CvString iRank, PlayerTypes ePlayer);
 	int GetTourism();
 	int GetTourismModifierWith(PlayerTypes ePlayer) const;
 	CvString GetTourismModifierWithTooltip(PlayerTypes ePlayer) const;
+	int GetTourismModifierSharedReligion() const;
+	int GetTourismModifierTradeRoute() const;
+	int GetTourismModifierOpenBorders() const;
 	PublicOpinionTypes GetPublicOpinionType() const;
 	PolicyBranchTypes GetPublicOpinionPreferredIdeology() const;
 	CvString GetPublicOpinionTooltip() const;
@@ -236,7 +247,8 @@ public:
 	void AddTourismAllKnownCivs(int iTourism);
 	void DoPublicOpinion();
 	int ComputeHypotheticalPublicOpinionUnhappiness(PolicyBranchTypes eBranch);
-	bool WantsDiplomatDoingPropaganda(PlayerTypes ePlayer);
+	bool WantsDiplomatDoingPropaganda(PlayerTypes ePlayer) const;
+	int GetMaxPropagandaDiplomatsWanted() const;
 
 	// Bonus stats
 	int GetTotalThemingBonuses() const;

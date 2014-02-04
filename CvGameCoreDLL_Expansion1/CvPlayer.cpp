@@ -1503,6 +1503,9 @@ CvPlot* CvPlayer::addFreeUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 		}
 
 		CvUnit* pNewUnit = initUnit(eUnit, pBestPlot->getX(), pBestPlot->getY(), eUnitAI);
+		CvAssert(pNewUnit != NULL);
+		if (pNewUnit == NULL)
+			return NULL;
 
 		// Don't stack any units
 		if(pBestPlot->getNumUnits() > 1)
@@ -1824,7 +1827,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 					if(bConquest)
 					{
 						strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SPY_EVICTED_CONQUEST_S");
-						if(GC.getGame().getActivePlayer() == GetID())
+						if(((PlayerTypes)i) == GetID())
 						{
 							strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_EVICTED_CONQUEST_YOU");
 							strNotification << pEspionage->GetSpyRankName(pSpy->m_eRank);
@@ -1843,7 +1846,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 					else
 					{
 						strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SPY_EVICTED_TRADE_S");
-						if(GC.getGame().getActivePlayer() == GetID())
+						if(((PlayerTypes)i) == GetID())
 						{
 							strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_EVICTED_TRADE_YOU");
 							strNotification << pEspionage->GetSpyRankName(pSpy->m_eRank);
@@ -2688,6 +2691,10 @@ bool CvPlayer::isCityNameValid(CvString& szName, bool bTestDestroyed) const
 void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID)
 {
 	CvCity* pCity = getCity(iOldCityID);
+	CvAssert(pCity);
+	if (!pCity)
+		return;
+
 	PlayerTypes eOldOwner = pCity->getOwner();
 	CvPlot* pPlot = pCity->plot();
 
@@ -3828,7 +3835,7 @@ void CvPlayer::doTurnPostDiplomacy()
 	DoUpdateNextPolicyCost();
 
 	// if this is the human player, have the popup come up so that he can choose a new policy
-	if(isAlive() && kGame.getActivePlayer() == m_eID && isHuman() && getNumCities() > 0)
+	if(isAlive() && isHuman() && getNumCities() > 0)
 	{
 		if(!GC.GetEngineUserInterface()->IsPolicyNotificationSeen())
 		{
@@ -4422,34 +4429,30 @@ void CvPlayer::chooseTech(int iDiscover, const char* strText, TechTypes iTechJus
 		SetNumFreeTechs(GetNumFreeTechs()+iDiscover);
 	}
 
-	// only display notifications for the local player
-	if(isLocalPlayer())
+	if(iDiscover > 0)
 	{
-		if(iDiscover > 0)
+		CvNotifications* pNotifications = GetNotifications();
+		if(pNotifications)
 		{
-			CvNotifications* pNotifications = GetNotifications();
-			if(pNotifications)
-			{
-				pNotifications->Add(NOTIFICATION_FREE_TECH, strText, strText, -1, -1, iDiscover, iTechJustDiscovered);
-			}
+			pNotifications->Add(NOTIFICATION_FREE_TECH, strText, strText, -1, -1, iDiscover, iTechJustDiscovered);
 		}
-		else if(strText == 0 || strText[0] == 0)
+	}
+	else if(strText == 0 || strText[0] == 0)
+	{
+		CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_NEW_RESEARCH");
+		CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_NEW_RESEARCH");
+		CvNotifications* pNotifications = GetNotifications();
+		if(pNotifications)
 		{
-			CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_NEW_RESEARCH");
-			CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_NEW_RESEARCH");
-			CvNotifications* pNotifications = GetNotifications();
-			if(pNotifications)
-			{
-				pNotifications->Add(NOTIFICATION_TECH, strBuffer, strSummary, -1, -1, iDiscover, iTechJustDiscovered);
-			}
+			pNotifications->Add(NOTIFICATION_TECH, strBuffer, strSummary, -1, -1, iDiscover, iTechJustDiscovered);
 		}
-		else
+	}
+	else
+	{
+		CvNotifications* pNotifications = GetNotifications();
+		if(pNotifications)
 		{
-			CvNotifications* pNotifications = GetNotifications();
-			if(pNotifications)
-			{
-				pNotifications->Add(NOTIFICATION_TECH, strText, strText, -1, -1, iDiscover, iTechJustDiscovered);
-			}
+			pNotifications->Add(NOTIFICATION_TECH, strText, strText, -1, -1, iDiscover, iTechJustDiscovered);
 		}
 	}
 }
@@ -4779,6 +4782,12 @@ bool CvPlayer::canRaze(CvCity* pCity, bool bIgnoreCapitals) const
 	                        pCity->getY() == pOriginalOwner->GetOriginalCapitalY();
 
 	if(!bIgnoreCapitals && pCity->IsEverCapital() && bOriginalCapital)
+	{
+		return false;
+	}
+
+	// No razing of Holy Cities
+	if (pCity->GetCityReligions()->IsHolyCityAnyReligion())
 	{
 		return false;
 	}
@@ -5623,8 +5632,14 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 			CvUnit* pNewUnit = initUnit(eUpgradeUnit, pPlot->getX(), pPlot->getY(), newAIDefault, NO_DIRECTION, false, false);
 			pUnit->finishMoves();
 			pUnit->SetBeenPromotedFromGoody(true);
-			pNewUnit->convert(pUnit);
-			pNewUnit->setupGraphical();
+			CvAssert(pNewUnit != NULL)
+			if (pNewUnit != NULL)
+			{
+				pNewUnit->convert(pUnit);
+				pNewUnit->setupGraphical();
+			}
+			else
+				pUnit->kill(false);
 
 			// Since the old unit died, it will block the goody reward popup unless we call this
 			GC.GetEngineUserInterface()->SetDontShowPopups(false);
@@ -9479,8 +9494,12 @@ void CvPlayer::DoRevolt()
 
 				// Init unit
 				CvUnit* pUnit = GET_PLAYER(BARBARIAN_PLAYER).initUnit(eUnit, pPlot->getX(), pPlot->getY());
-				if (!pUnit->jumpToNearestValidPlotWithinRange(5))
-					pUnit->kill(false);		// Could not find a spot!
+				CvAssert(pUnit);
+				if (pUnit)
+				{
+					if (!pUnit->jumpToNearestValidPlotWithinRange(5))
+						pUnit->kill(false);		// Could not find a spot!
+				}
 			}
 			while(iNumRebels > 0);
 		}
@@ -11665,43 +11684,46 @@ void CvPlayer::DoSpawnGreatPerson(PlayerTypes eMinor)
 	if(eBestUnit != NO_UNIT)
 	{
 		CvUnit* pNewGreatPeople = initUnit(eBestUnit, iX, iY);
-
-		// Bump up the count
-		if(pNewGreatPeople->IsGreatGeneral())
+		CvAssert(pNewGreatPeople);
+		if (pNewGreatPeople)
 		{
-			incrementGreatGeneralsCreated();
-		}
-		else if(pNewGreatPeople->IsGreatAdmiral())
-		{
-			incrementGreatAdmiralsCreated();
-		}
-		else
-		{
-			incrementGreatPeopleCreated();
-		}
-
-		if (pNewGreatPeople->IsGreatAdmiral())
-		{
-			CvPlot* pSpawnPlot = GetGreatAdmiralSpawnPlot(pNewGreatPeople);
-			if (pNewGreatPeople->plot() != pSpawnPlot && pSpawnPlot != NULL)
+			// Bump up the count
+			if(pNewGreatPeople->IsGreatGeneral())
 			{
-				pNewGreatPeople->setXY(pSpawnPlot->getX(), pSpawnPlot->getY());
+				incrementGreatGeneralsCreated();
 			}
-		}
-		else
-		{
-			if (!pNewGreatPeople->jumpToNearestValidPlot())
-				pNewGreatPeople->kill(false);	// Could not find a spot!
-		}
+			else if(pNewGreatPeople->IsGreatAdmiral())
+			{
+				incrementGreatAdmiralsCreated();
+			}
+			else
+			{
+				incrementGreatPeopleCreated();
+			}
 
-		CvNotifications* pNotifications = GetNotifications();
-		if(pNotifications)
-		{
-			Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_UNIT_SPAWN");
-			strMessage << GET_PLAYER(eMinor).getNameKey();
-			Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_STATE_UNIT_SPAWN");
-			strSummary << GET_PLAYER(eMinor).getNameKey();
-			pNotifications->Add(NOTIFICATION_MINOR, strMessage.toUTF8(), strSummary.toUTF8(), iX, iY, eMinor);
+			if (pNewGreatPeople->IsGreatAdmiral())
+			{
+				CvPlot* pSpawnPlot = GetGreatAdmiralSpawnPlot(pNewGreatPeople);
+				if (pNewGreatPeople->plot() != pSpawnPlot && pSpawnPlot != NULL)
+				{
+					pNewGreatPeople->setXY(pSpawnPlot->getX(), pSpawnPlot->getY());
+				}
+			}
+			else
+			{
+				if (!pNewGreatPeople->jumpToNearestValidPlot())
+					pNewGreatPeople->kill(false);	// Could not find a spot!
+			}
+
+			CvNotifications* pNotifications = GetNotifications();
+			if(pNotifications)
+			{
+				Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_UNIT_SPAWN");
+				strMessage << GET_PLAYER(eMinor).getNameKey();
+				Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_STATE_UNIT_SPAWN");
+				strSummary << GET_PLAYER(eMinor).getNameKey();
+				pNotifications->Add(NOTIFICATION_MINOR, strMessage.toUTF8(), strSummary.toUTF8(), iX, iY, eMinor);
+			}
 		}
 	}
 }
@@ -12903,70 +12925,84 @@ void CvPlayer::SetHasLostCapital(bool bValue, PlayerTypes eConqueror)
 		// Don't really care if a City State lost its capital
 		if(!isMinorCiv())
 		{
-			int iMostOriginalCapitals = 0;
-			TeamTypes eLoopTeam;
-			PlayerTypes eLoopPlayer;
-
-			TeamTypes eWinningTeam = NO_TEAM;
-			int iWinningTeamSize = 0;
-
-			for (int iTeamLoop = 0; iTeamLoop < MAX_TEAMS; iTeamLoop++)
-			{
-				int iNumOriginalCapitals = 0;
-				int iTeamSize = 0;
-				eLoopTeam = (TeamTypes)iTeamLoop;
-				for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-				{
-					eLoopPlayer = (PlayerTypes)iPlayerLoop;
-					if (GET_PLAYER(eLoopPlayer).isAlive() && !GET_PLAYER(eLoopPlayer).isMinorCiv())
-					{
-						iTeamSize++;
-						int iCityLoop;
-						CvCity* pLoopCity = NULL;
-						for(pLoopCity = firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = nextCity(&iCityLoop))
-						{
-							if (pLoopCity->IsOriginalCapital())
-							{
-								iNumOriginalCapitals++;
-							}
-						}
-					}
-				}
-
-				if (iNumOriginalCapitals - iTeamSize > iMostOriginalCapitals - iWinningTeamSize)
-				{
-					eWinningTeam = eLoopTeam;
-					iMostOriginalCapitals = iNumOriginalCapitals;
-					iWinningTeamSize = iTeamSize;
-				}
-			}
-
-			PlayerTypes eWinningPlayer = NO_PLAYER;
-			if (iWinningTeamSize == 1)
-			{
-				for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-				{
-					eLoopPlayer = (PlayerTypes)iPlayerLoop;
-					if (GET_PLAYER(eLoopPlayer).isAlive() && !GET_PLAYER(eLoopPlayer).isMinorCiv())
-					{
-						if (GET_PLAYER(eLoopPlayer).getTeam() == eWinningTeam)
-						{
-							eWinningPlayer = eLoopPlayer;
-							break;
-						}
-					}
-				}
-			}
-
 			// Someone just lost their capital, test to see if someone wins
 			if(bValue)
 			{
 				GC.getGame().DoTestConquestVictory();
 
-				Localization::String localizedBuffer;
-				Localization::String localizedSummary;
-				NotificationTypes eNotificationType = NOTIFICATION_CAPITAL_LOST;
+				int iNumPlayersWithCapitals = 0;
 
+				PlayerTypes eLoopPlayer;
+				for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+				{
+					eLoopPlayer = (PlayerTypes) iPlayerLoop;
+					if(GET_PLAYER(eLoopPlayer).isAlive())
+					{
+						if(!GET_PLAYER(eLoopPlayer).isMinorCiv())
+						{
+							if(!GET_PLAYER(eLoopPlayer).IsHasLostCapital())
+							{
+								iNumPlayersWithCapitals++;
+							}
+						}
+					}
+				}
+
+				if(iNumPlayersWithCapitals > 1)
+				{
+					Localization::String localizedBuffer;
+					Localization::String localizedSummary;
+					NotificationTypes eNotificationType = NOTIFICATION_CAPITAL_LOST;
+
+					for(uint ui = 0; ui < MAX_MAJOR_CIVS; ui++)
+					{
+						PlayerTypes ePlayer = (PlayerTypes)ui;
+						CvNotifications* pNotifications = GET_PLAYER(ePlayer).GetNotifications();
+						if(!pNotifications)
+						{
+							continue;
+						}
+
+						// Active Player lost their capital
+						if(ePlayer == GetID())
+						{
+							eNotificationType = NOTIFICATION_CAPITAL_LOST_ACTIVE_PLAYER;
+							localizedBuffer = Localization::Lookup("TXT_KEY_NOTIFICATION_YOU_LOST_CAPITAL");
+							localizedBuffer << iNumPlayersWithCapitals;
+							localizedSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_YOU_LOST_CAPITAL");
+						}
+						// Unmet player
+						else if(!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isHasMet(getTeam()))
+						{
+							localizedBuffer = Localization::Lookup("TXT_KEY_NOTIFICATION_SOMEONE_LOST_CAPITAL");
+							localizedBuffer << iNumPlayersWithCapitals;
+							localizedSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_SOMEONE_LOST_CAPITAL");
+						}
+						// Player we've met
+						else
+						{
+							localizedBuffer = Localization::Lookup("TXT_KEY_NOTIFICATION_PLAYER_LOST_CAPITAL");
+							localizedBuffer << getCivilizationShortDescriptionKey() << iNumPlayersWithCapitals;
+							localizedSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_PLAYER_LOST_CAPITAL");
+							localizedSummary << getCivilizationShortDescriptionKey();
+						}
+
+						pNotifications->Add(NOTIFICATION_CAPITAL_LOST, localizedBuffer.toUTF8(), localizedSummary.toUTF8(), -1, -1, -1);
+					}
+
+					//replay message
+					{
+						Localization::String message = Localization::Lookup("TXT_KEY_NOTIFICATION_PLAYER_LOST_CAPITAL");
+						message << getCivilizationShortDescriptionKey() << iNumPlayersWithCapitals;
+						CvString translatedMessage = message.toUTF8();
+						GC.getGame().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, GetID(), translatedMessage, GetOriginalCapitalX(), GetOriginalCapitalY());
+					}
+
+				}
+			}
+			// Player recovered capital!
+			else
+			{
 				for(uint ui = 0; ui < MAX_MAJOR_CIVS; ui++)
 				{
 					PlayerTypes ePlayer = (PlayerTypes)ui;
@@ -12976,479 +13012,39 @@ void CvPlayer::SetHasLostCapital(bool bValue, PlayerTypes eConqueror)
 						continue;
 					}
 
+					CvString strBuffer;
+					CvString strSummary;
+
 					// Active Player lost their capital
 					if(ePlayer == GetID())
 					{
-						eNotificationType = NOTIFICATION_CAPITAL_LOST_ACTIVE_PLAYER;
-						localizedSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_YOU_LOST_CAPITAL");
-						if (eWinningPlayer == ePlayer)
-						{
-							localizedBuffer = Localization::Lookup("TXT_KEY_NOTIFICATION_YOU_LOST_CAPITAL_YOU_WINNING");
-							localizedBuffer << iMostOriginalCapitals;
-						}
-						else if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isHasMet(eWinningTeam))
-						{
-							if (eWinningPlayer != NO_PLAYER) // there is a winning player
-							{
-								localizedBuffer = Localization::Lookup("TXT_KEY_NOTIFICATION_YOU_LOST_CAPITAL_OTHER_PLAYER_WINNING");
-								if(GC.getGame().isGameMultiPlayer() && GET_PLAYER(eWinningPlayer).isHuman())
-								{
-									localizedBuffer << GET_PLAYER(eWinningPlayer).getNickName();
-								}
-								else
-								{
-									localizedBuffer << GET_PLAYER(eWinningPlayer).getNameKey();
-								}
-								localizedBuffer << iMostOriginalCapitals;
-							}
-							else
-							{
-								localizedBuffer = Localization::Lookup("TXT_KEY_NOTIFICATION_YOU_LOST_CAPITAL_TEAM_WINNING");
-								localizedBuffer << (int)eWinningTeam;
-								localizedBuffer << iMostOriginalCapitals;
-							}
-						}
-						else if (eWinningTeam != NO_TEAM) // if someone is winning
-						{
-							localizedBuffer = Localization::Lookup("TXT_KEY_NOTIFICATION_YOU_LOST_CAPITAL_UNMET_WINNING");
-							localizedBuffer << iMostOriginalCapitals;
-						}
-						else // if no one is winning
-						{
-							localizedBuffer = Localization::Lookup("TXT_KEY_NOTIFICATION_YOU_LOST_CAPITAL");
-						}
+						strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_YOU_RECOVERED_CAPITAL");
+						strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_YOU_RECOVERED_CAPITAL");
 					}
-					// Known player
-					else if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isHasMet(getTeam()))
+					// Unmet player
+					else if(!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isHasMet(getTeam()))
 					{
-						eNotificationType = NOTIFICATION_CAPITAL_LOST;
-						localizedSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_PLAYER_LOST_CAPITAL");
-						localizedSummary << getCivilizationShortDescriptionKey();
-
-						if (eWinningTeam != NO_TEAM)
-						{
-							if (GET_TEAM(eWinningTeam).isHasMet(getTeam()))
-							{
-								if (eWinningPlayer == GetID())
-								{
-									localizedBuffer = Localization::Lookup("TXT_KEY_NOTIFICATION_OTHER_LOST_CAPITAL_YOU_WINNING");
-									if (GC.getGame().isGameMultiPlayer() && isHuman())
-									{
-										localizedBuffer << getNickName();
-									}
-									else
-									{
-										localizedBuffer << getNameKey();
-									}
-									localizedBuffer << iMostOriginalCapitals;
-								}
-								else if (eWinningPlayer != NO_PLAYER)
-								{
-									localizedBuffer = Localization::Lookup("TXT_KEY_NOTIFICATION_OTHER_LOST_CAPITAL_OTHER_WINNING");
-									if (GC.getGame().isGameMultiPlayer() && isHuman())
-									{
-										localizedBuffer << getNickName();
-									}
-									else
-									{
-										localizedBuffer << getNameKey();
-									}
-
-									if(GC.getGame().isGameMultiPlayer() && GET_PLAYER(eWinningPlayer).isHuman())
-									{
-										localizedBuffer << GET_PLAYER(eWinningPlayer).getNickName();
-									}
-									else
-									{
-										localizedBuffer << GET_PLAYER(eWinningPlayer).getNameKey();
-									}
-									localizedBuffer << iMostOriginalCapitals;
-								}
-								else // if (eWinningTeam != NO_TEAM)
-								{
-									localizedBuffer = Localization::Lookup("TXT_KEY_NOTIFICATION_OTHER_LOST_CAPITAL_TEAM_WINNING");
-									if (GC.getGame().isGameMultiPlayer() && isHuman())
-									{
-										localizedBuffer << getNickName();
-									}
-									else
-									{
-										localizedBuffer << getNameKey();
-									}
-
-									localizedBuffer << (int)eWinningTeam;
-									localizedBuffer << iMostOriginalCapitals;
-								}
-							}
-							else
-							{
-								localizedBuffer = Localization::Lookup("TXT_KEY_NOTIFICATION_OTHER_LOST_CAPITAL_UNMET_WINNING");
-								if (GC.getGame().isGameMultiPlayer() && isHuman())
-								{
-									localizedBuffer << getNickName();
-								}
-								else
-								{
-									localizedBuffer << getNameKey();
-								}
-								localizedBuffer << iMostOriginalCapitals;
-							}
-						}
-						else
-						{
-							localizedBuffer = Localization::Lookup("TXT_KEY_NOTIFICATION_OTHER_LOST_CAPITAL");
-							if (GC.getGame().isGameMultiPlayer() && isHuman())
-							{
-								localizedBuffer << getNickName();
-							}
-							else
-							{
-								localizedBuffer << getNameKey();
-							}
-						}
+						strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_SOMEONE_RECOVERED_CAPITAL");
+						strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_SOMEONE_RECOVERED_CAPITAL");
 					}
-					else // unmet player
+					// Player we've met
+					else
 					{
-						eNotificationType = NOTIFICATION_CAPITAL_LOST;
-						localizedSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_SOMEONE_LOST_CAPITAL");
-
-						if (eWinningTeam != NO_TEAM)
-						{
-							if (GET_TEAM(eWinningTeam).isHasMet(getTeam()))
-							{
-								if (eWinningPlayer == GetID())
-								{
-									localizedBuffer = Localization::Lookup("TXT_KEY_NOTIFICATION_UNMET_LOST_CAPITAL_YOU_WINNING");
-									localizedBuffer << iMostOriginalCapitals;
-								}
-								else if (eWinningPlayer != NO_PLAYER)
-								{
-									localizedBuffer = Localization::Lookup("TXT_KEY_NOTIFICATION_UNMET_LOST_CAPITAL_OTHER_WINNING");
-									if(GC.getGame().isGameMultiPlayer() && GET_PLAYER(eWinningPlayer).isHuman())
-									{
-										localizedBuffer << GET_PLAYER(eWinningPlayer).getNickName();
-									}
-									else
-									{
-										localizedBuffer << GET_PLAYER(eWinningPlayer).getNameKey();
-									}
-									localizedBuffer << iMostOriginalCapitals;
-								}
-								else // if (eWinningTeam != NO_TEAM)
-								{
-									localizedBuffer = Localization::Lookup("TXT_KEY_NOTIFICATION_UNMET_LOST_CAPITAL_TEAM_WINNING");
-									localizedBuffer << (int)eWinningTeam;
-									localizedBuffer << iMostOriginalCapitals;
-								}
-							}
-							else
-							{
-								localizedBuffer = Localization::Lookup("TXT_KEY_NOTIFICATION_UNMET_LOST_CAPITAL_UNMET_WINNING");
-								localizedBuffer << iMostOriginalCapitals;
-							}
-						}
-						else
-						{
-							localizedBuffer = Localization::Lookup("TXT_KEY_NOTIFICATION_UNMET_LOST_CAPITAL");
-						}
+						strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_PLAYER_RECOVERED_CAPITAL", getCivilizationShortDescriptionKey());
+						strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_PLAYER_RECOVERED_CAPITAL", getCivilizationShortDescriptionKey());
 					}
 
-					pNotifications->Add(eNotificationType, localizedBuffer.toUTF8(), localizedSummary.toUTF8(), -1, -1, -1);
+					pNotifications->Add(NOTIFICATION_CAPITAL_RECOVERED, strBuffer, strSummary, -1, -1, -1);
 				}
 
 				//replay message
 				{
-					Localization::String message;
-					if (eWinningPlayer != NO_PLAYER)
-					{
-						message = Localization::Lookup("TXT_KEY_NOTIFICATION_OTHER_LOST_CAPITAL_OTHER_WINNING");
-						if (GC.getGame().isGameMultiPlayer() && isHuman())
-						{
-							localizedBuffer << getNickName();
-						}
-						else
-						{
-							localizedBuffer << getNameKey();
-						}
-
-						if(GC.getGame().isGameMultiPlayer() && GET_PLAYER(eWinningPlayer).isHuman())
-						{
-							localizedBuffer << GET_PLAYER(eWinningPlayer).getNickName();
-						}
-						else
-						{
-							localizedBuffer << GET_PLAYER(eWinningPlayer).getNameKey();
-						}
-
-						localizedBuffer << iMostOriginalCapitals;
-					}
-					else if (eWinningTeam != NO_TEAM)
-					{
-						message = Localization::Lookup("TXT_KEY_NOTIFICATION_OTHER_LOST_CAPITAL_TEAM_WINNING");
-						if (GC.getGame().isGameMultiPlayer() && isHuman())
-						{
-							localizedBuffer << getNickName();
-						}
-						else
-						{
-							localizedBuffer << getNameKey();
-						}
-
-						localizedBuffer << (int)eWinningTeam;
-						localizedBuffer << iMostOriginalCapitals;
-					}
-					else
-					{
-						message = Localization::Lookup("TXT_KEY_NOTIFICATION_OTHER_LOST_CAPITAL");
-						if (GC.getGame().isGameMultiPlayer() && isHuman())
-						{
-							localizedBuffer << getNickName();
-						}
-						else
-						{
-							localizedBuffer << getNameKey();
-						}
-					}
-
+					Localization::String message = Localization::Lookup("TXT_KEY_NOTIFICATION_PLAYER_RECOVERED_CAPITAL");
+					message << getCivilizationShortDescriptionKey();
 					CvString translatedMessage = message.toUTF8();
-					GC.getGame().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, GetID(), translatedMessage, GetOriginalCapitalX(), GetOriginalCapitalY());
-				}					
-			}
-			// Player recovered capital!
-			else
-			{
-				Localization::String localizedBuffer;
-				Localization::String localizedSummary;
-
-				// Active Player lost their capital
-				if(GC.getGame().getActivePlayer() == GetID())
-				{
-					localizedSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_YOU_RECOVERED_CAPITAL");
-					if (eWinningPlayer == GC.getGame().getActivePlayer())
-					{
-						localizedBuffer = Localization::Lookup("TXT_KEY_NOTIFICATION_YOU_REGAINED_CAPITAL_YOU_WINNING");
-						localizedBuffer << iMostOriginalCapitals;
-					}
-					else if (GET_TEAM(getTeam()).isHasMet(eWinningTeam))
-					{
-						if (eWinningPlayer != NO_PLAYER) // there is a winning player
-						{
-							localizedBuffer = Localization::Lookup("TXT_KEY_NOTIFICATION_YOU_REGAINED_CAPITAL_OTHER_PLAYER_WINNING");
-							if(GC.getGame().isGameMultiPlayer() && GET_PLAYER(eWinningPlayer).isHuman())
-							{
-								localizedBuffer << GET_PLAYER(eWinningPlayer).getNickName();
-							}
-							else
-							{
-								localizedBuffer << GET_PLAYER(eWinningPlayer).getNameKey();
-							}
-							localizedBuffer << iMostOriginalCapitals;
-						}
-						else
-						{
-							localizedBuffer = Localization::Lookup("TXT_KEY_NOTIFICATION_YOU_REGAINED_CAPITAL_TEAM_WINNING");
-							localizedBuffer << (int)eWinningTeam;
-							localizedBuffer << iMostOriginalCapitals;
-						}
-					}
-					else if (eWinningTeam != NO_TEAM) // if someone is winning
-					{
-						localizedBuffer = Localization::Lookup("TXT_KEY_NOTIFICATION_YOU_REGAINED_CAPITAL_UNMET_WINNING");
-						localizedBuffer << iMostOriginalCapitals;
-					}
-					else // if no one is winning
-					{
-						localizedBuffer = Localization::Lookup("TXT_KEY_NOTIFICATION_YOU_RECOVERED_CAPITAL");
-					}
+					CvCity* pCity = getCapitalCity();
+					GC.getGame().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, GetID(), translatedMessage, pCity->getX(), pCity->getY());
 				}
-				// Known player
-				else if (GET_TEAM(GET_PLAYER(GC.getGame().getActivePlayer()).getTeam()).isHasMet(getTeam()))
-				{
-					localizedSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_PLAYER_RECOVERED_CAPITAL");
-					localizedSummary << getCivilizationShortDescriptionKey();
-
-					if (eWinningTeam != NO_TEAM)
-					{
-						if (GET_TEAM(eWinningTeam).isHasMet(getTeam()))
-						{
-							if (eWinningPlayer == GC.getGame().getActivePlayer())
-							{
-								localizedBuffer = Localization::Lookup("TXT_KEY_NOTIFICATION_OTHER_REGAINED_CAPITAL_YOU_WINNING");
-								localizedBuffer << iMostOriginalCapitals;
-							}
-							else if (eWinningPlayer != NO_PLAYER)
-							{
-								localizedBuffer = Localization::Lookup("TXT_KEY_NOTIFICATION_OTHER_REGAINED_CAPITAL_OTHER_WINNING");
-								if (GC.getGame().isGameMultiPlayer() && isHuman())
-								{
-									localizedBuffer << getNickName();
-								}
-								else
-								{
-									localizedBuffer << getNameKey();
-								}
-
-								if(GC.getGame().isGameMultiPlayer() && GET_PLAYER(eWinningPlayer).isHuman())
-								{
-									localizedBuffer << GET_PLAYER(eWinningPlayer).getNickName();
-								}
-								else
-								{
-									localizedBuffer << GET_PLAYER(eWinningPlayer).getNameKey();
-								}
-								localizedBuffer << iMostOriginalCapitals;
-							}
-							else // if (eWinningTeam != NO_TEAM)
-							{
-								localizedBuffer = Localization::Lookup("TXT_KEY_NOTIFICATION_OTHER_REGAINED_CAPITAL_TEAM_WINNING");
-								if (GC.getGame().isGameMultiPlayer() && isHuman())
-								{
-									localizedBuffer << getNickName();
-								}
-								else
-								{
-									localizedBuffer << getNameKey();
-								}
-
-								localizedBuffer << (int)eWinningTeam;
-								localizedBuffer << iMostOriginalCapitals;
-							}
-						}
-						else
-						{
-							localizedBuffer = Localization::Lookup("TXT_KEY_NOTIFICATION_OTHER_REGAINED_CAPITAL_UNMET_WINNING");
-							if (GC.getGame().isGameMultiPlayer() && isHuman())
-							{
-								localizedBuffer << getNickName();
-							}
-							else
-							{
-								localizedBuffer << getNameKey();
-							}
-							localizedBuffer << iMostOriginalCapitals;
-						}
-					}
-					else
-					{
-						localizedBuffer = Localization::Lookup("TXT_KEY_NOTIFICATION_OTHER_REGAINED_CAPITAL");
-						if (GC.getGame().isGameMultiPlayer() && isHuman())
-						{
-							localizedBuffer << getNickName();
-						}
-						else
-						{
-							localizedBuffer << getNameKey();
-						}
-					}
-				}
-				else // unmet player
-				{
-					localizedSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_SOMEONE_RECOVERED_CAPITAL");
-
-					if (eWinningTeam != NO_TEAM)
-					{
-						if (GET_TEAM(eWinningTeam).isHasMet(getTeam()))
-						{
-							if (eWinningPlayer == GC.getGame().getActivePlayer())
-							{
-								localizedBuffer = Localization::Lookup("TXT_KEY_NOTIFICATION_UNMET_REGAINED_CAPITAL_YOU_WINNING");
-								localizedBuffer << iMostOriginalCapitals;
-							}
-							else if (eWinningPlayer != NO_PLAYER)
-							{
-								localizedBuffer = Localization::Lookup("TXT_KEY_NOTIFICATION_UNMET_REGAINED_CAPITAL_OTHER_WINNING");
-								if(GC.getGame().isGameMultiPlayer() && GET_PLAYER(eWinningPlayer).isHuman())
-								{
-									localizedBuffer << GET_PLAYER(eWinningPlayer).getNickName();
-								}
-								else
-								{
-									localizedBuffer << GET_PLAYER(eWinningPlayer).getNameKey();
-								}
-								localizedBuffer << iMostOriginalCapitals;
-							}
-							else // if (eWinningTeam != NO_TEAM)
-							{
-								localizedBuffer = Localization::Lookup("TXT_KEY_NOTIFICATION_UNMET_REGAINED_CAPITAL_TEAM_WINNING");
-								localizedBuffer << (int)eWinningTeam;
-								localizedBuffer << iMostOriginalCapitals;
-							}
-						}
-						else
-						{
-							localizedBuffer = Localization::Lookup("TXT_KEY_NOTIFICATION_UNMET_REGAINED_CAPITAL_UNMET_WINNING");
-							localizedBuffer << iMostOriginalCapitals;
-						}
-					}
-					else
-					{
-						localizedBuffer = Localization::Lookup("TXT_KEY_NOTIFICATION_UNMET_REGAINED_CAPITAL");
-					}
-				}
-
-				CvNotifications* pNotifications = GET_PLAYER(GC.getGame().getActivePlayer()).GetNotifications();
-				if (pNotifications)
-				{
-					pNotifications->Add(NOTIFICATION_CAPITAL_RECOVERED, localizedBuffer.toUTF8(), localizedSummary.toUTF8(), -1, -1, -1);
-				}
-
-				//replay message
-				{
-					Localization::String message;
-					if (eWinningPlayer != NO_PLAYER)
-					{
-						message = Localization::Lookup("TXT_KEY_NOTIFICATION_OTHER_REGAINED_CAPITAL_OTHER_WINNING");
-						if (GC.getGame().isGameMultiPlayer() && isHuman())
-						{
-							localizedBuffer << getNickName();
-						}
-						else
-						{
-							localizedBuffer << getNameKey();
-						}
-
-						if(GC.getGame().isGameMultiPlayer() && GET_PLAYER(eWinningPlayer).isHuman())
-						{
-							localizedBuffer << GET_PLAYER(eWinningPlayer).getNickName();
-						}
-						else
-						{
-							localizedBuffer << GET_PLAYER(eWinningPlayer).getNameKey();
-						}
-
-						localizedBuffer << iMostOriginalCapitals;
-					}
-					else if (eWinningTeam != NO_TEAM)
-					{
-						message = Localization::Lookup("TXT_KEY_NOTIFICATION_OTHER_REGAINED_CAPITAL_TEAM_WINNING");
-						if (GC.getGame().isGameMultiPlayer() && isHuman())
-						{
-							localizedBuffer << getNickName();
-						}
-						else
-						{
-							localizedBuffer << getNameKey();
-						}
-
-						localizedBuffer << (int)eWinningTeam;
-						localizedBuffer << iMostOriginalCapitals;
-					}
-					else
-					{
-						message = Localization::Lookup("TXT_KEY_NOTIFICATION_OTHER_REGAINED_CAPITAL");
-						if (GC.getGame().isGameMultiPlayer() && isHuman())
-						{
-							localizedBuffer << getNickName();
-						}
-						else
-						{
-							localizedBuffer << getNameKey();
-						}
-					}
-
-					CvString translatedMessage = message.toUTF8();
-					GC.getGame().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, GetID(), translatedMessage, GetOriginalCapitalX(), GetOriginalCapitalY());
-				}					
 			}
 		}
 	}
@@ -15603,8 +15199,12 @@ void CvPlayer::DoCivilianReturnLogic(bool bReturn, PlayerTypes eToPlayer, int iU
 	{
 		pUnit->kill(true);
 		CvUnit* pNewUnit = GET_PLAYER(eToPlayer).initUnit(eNewUnitType, iX, iY);
-		if (!pNewUnit->jumpToNearestValidPlot())
-			pNewUnit->kill(false);	// Could not find a spot!
+		CvAssert(pNewUnit != NULL);
+		if (pNewUnit)
+		{
+			if (!pNewUnit->jumpToNearestValidPlot())
+				pNewUnit->kill(false);	// Could not find a spot!
+		}
 
 		// Returned to a city-state
 		if(GET_PLAYER(eToPlayer).isMinorCiv())
@@ -15626,7 +15226,9 @@ void CvPlayer::DoCivilianReturnLogic(bool bReturn, PlayerTypes eToPlayer, int iU
 		{
 			pUnit->kill(true);
 			CvUnit* pNewUnit = initUnit(eNewUnitType, iX, iY);
-			pNewUnit->finishMoves();
+			CvAssert(pNewUnit != NULL);
+			if (pNewUnit)
+				pNewUnit->finishMoves();
 		}
 	}
 }
@@ -15651,10 +15253,14 @@ void CvPlayer::DoIncomingUnits()
 				if(pCapital)
 				{
 					CvUnit* pNewUnit = initUnit(GetIncomingUnitType(iLoop), pCapital->getX(), pCapital->getY());
-					if(pNewUnit->getDomainType() != DOMAIN_AIR)
+					CvAssert(pNewUnit);
+					if (pNewUnit)
 					{
-						if (!pNewUnit->jumpToNearestValidPlot())
-							pNewUnit->kill(false);
+						if(pNewUnit->getDomainType() != DOMAIN_AIR)
+						{
+							if (!pNewUnit->jumpToNearestValidPlot())
+								pNewUnit->kill(false);
+						}
 					}
 				}
 
@@ -15751,7 +15357,9 @@ void CvPlayer::AddIncomingUnit(PlayerTypes eFromPlayer, CvUnit* pUnit)
 		if(eType != NO_UNIT)
 		{
 			CvUnit* pNewUnit = initUnit(eType, iX, iY);
-			pNewUnit->finishMoves();
+			CvAssert(pNewUnit);
+			if (pNewUnit)
+				pNewUnit->finishMoves();
 		}
 	}
 	else
@@ -19544,27 +19152,30 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 							for(int iUnitLoop = 0; iUnitLoop < iNumFreeUnits; iUnitLoop++)
 							{
 								CvUnit* pNewUnit = initUnit(eUnit, iX, iY);
-
-								if(pNewUnit->IsGreatGeneral())
+								CvAssert(pNewUnit);
+								if (pNewUnit)
 								{
-									incrementGreatGeneralsCreated();
-									if (!pNewUnit->jumpToNearestValidPlot())
-										pNewUnit->kill(false);
-								}
-								else if(pNewUnit->IsGreatAdmiral())
-								{
-									incrementGreatAdmiralsCreated();
-									CvPlot *pSpawnPlot = GetGreatAdmiralSpawnPlot(pNewUnit);
-									if (pNewUnit->plot() != pSpawnPlot)
+									if(pNewUnit->IsGreatGeneral())
 									{
-										pNewUnit->setXY(pSpawnPlot->getX(), pSpawnPlot->getY());
+										incrementGreatGeneralsCreated();
+										if (!pNewUnit->jumpToNearestValidPlot())
+											pNewUnit->kill(false);
 									}
-								}
-								else if(pNewUnit->IsGreatPerson())
-								{
-									incrementGreatPeopleCreated();
-									if (!pNewUnit->jumpToNearestValidPlot())
-										pNewUnit->kill(false);
+									else if(pNewUnit->IsGreatAdmiral())
+									{
+										incrementGreatAdmiralsCreated();
+										CvPlot *pSpawnPlot = GetGreatAdmiralSpawnPlot(pNewUnit);
+										if (pNewUnit->plot() != pSpawnPlot)
+										{
+											pNewUnit->setXY(pSpawnPlot->getX(), pSpawnPlot->getY());
+										}
+									}
+									else if(pNewUnit->IsGreatPerson())
+									{
+										incrementGreatPeopleCreated();
+										if (!pNewUnit->jumpToNearestValidPlot())
+											pNewUnit->kill(false);
+									}
 								}
 							}
 						}
@@ -22658,15 +22269,12 @@ void CvPlayer::ChangeNumFreeGreatPeople(int iChange)
 	{
 		if(isHuman())
 		{
-			if(isLocalPlayer())
+			CvNotifications* pNotifications = GetNotifications();
+			if(pNotifications)
 			{
-				CvNotifications* pNotifications = GetNotifications();
-				if(pNotifications)
-				{
-					CvString strBuffer = GetLocalizedText("TXT_KEY_CHOOSE_FREE_GREAT_PERSON");
-					CvString strSummary = GetLocalizedText("TXT_KEY_CHOOSE_FREE_GREAT_PERSON_TT");
-					pNotifications->Add(NOTIFICATION_FREE_GREAT_PERSON, strSummary.c_str(), strBuffer.c_str(), -1, -1, -1);
-				}
+				CvString strBuffer = GetLocalizedText("TXT_KEY_CHOOSE_FREE_GREAT_PERSON");
+				CvString strSummary = GetLocalizedText("TXT_KEY_CHOOSE_FREE_GREAT_PERSON_TT");
+				pNotifications->Add(NOTIFICATION_FREE_GREAT_PERSON, strSummary.c_str(), strBuffer.c_str(), -1, -1, -1);
 			}
 		}
 		else
@@ -22699,15 +22307,12 @@ void CvPlayer::ChangeNumMayaBoosts(int iChange)
 	{
 		if(isHuman())
 		{
-			if(isLocalPlayer())
+			CvNotifications* pNotifications = GetNotifications();
+			if(pNotifications)
 			{
-				CvNotifications* pNotifications = GetNotifications();
-				if(pNotifications)
-				{
-					CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_MAYA_LONG_COUNT");
-					CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_MAYA_LONG_COUNT_TT");
-					pNotifications->Add(NOTIFICATION_MAYA_LONG_COUNT, strSummary.c_str(), strBuffer.c_str(), -1, -1, -1);
-				}
+				CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_MAYA_LONG_COUNT");
+				CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_MAYA_LONG_COUNT_TT");
+				pNotifications->Add(NOTIFICATION_MAYA_LONG_COUNT, strSummary.c_str(), strBuffer.c_str(), -1, -1, -1);
 			}
 		}
 		else
@@ -22740,15 +22345,12 @@ void CvPlayer::ChangeNumFaithGreatPeople(int iChange)
 	{
 		if(isHuman())
 		{
-			if(isLocalPlayer())
+			CvNotifications* pNotifications = GetNotifications();
+			if(pNotifications)
 			{
-				CvNotifications* pNotifications = GetNotifications();
-				if(pNotifications)
-				{
-					CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_FAITH_GREAT_PERSON");
-					CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_FAITH_GREAT_PERSON_TT");
-					pNotifications->Add(NOTIFICATION_FAITH_GREAT_PERSON, strSummary.c_str(), strBuffer.c_str(), -1, -1, -1);
-				}
+				CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_FAITH_GREAT_PERSON");
+				CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_FAITH_GREAT_PERSON_TT");
+				pNotifications->Add(NOTIFICATION_FAITH_GREAT_PERSON, strSummary.c_str(), strBuffer.c_str(), -1, -1, -1);
 			}
 		}
 		else

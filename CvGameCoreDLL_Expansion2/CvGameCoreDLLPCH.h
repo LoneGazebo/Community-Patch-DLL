@@ -73,11 +73,13 @@ typedef wchar_t          wchar;
 
 #if !defined(FINAL_RELEASE)
 #define AI_PERF_LOGGING
-#define AI_PERF(perfFileName, baseStringName) cvStopWatch kPerfTimer(baseStringName, perfFileName, FILogFile::kDontTimeStamp, !GC.getAIPerfLogging())
-#define AI_PERF_FORMAT(perfFileName, FormatValue) CvString szPerfString; szPerfString.Format##FormatValue; cvStopWatch kPerfTimer(szPerfString, perfFileName, FILogFile::kDontTimeStamp, !GC.getAIPerfLogging())
+#define AI_PERF(perfFileName, baseStringName) cvStopWatch kPerfTimer(baseStringName, perfFileName, FILogFile::kDontTimeStamp, !GC.getAIPerfLogging(), true)
+#define AI_PERF_FORMAT(perfFileName, FormatValue) CvString szPerfString; szPerfString.Format##FormatValue; cvStopWatch kPerfTimer(szPerfString, perfFileName, FILogFile::kDontTimeStamp, !GC.getAIPerfLogging(), true)
+#define AI_PERF_FORMAT_NESTED(perfFileName, FormatValue) CvString szPerfString2; szPerfString2.Format##FormatValue; cvStopWatch kPerfTimer2(szPerfString2, perfFileName, FILogFile::kDontTimeStamp, !GC.getAIPerfLogging(), true)
 #else
 #define AI_PERF(perfFileName, baseStringName) ((void)0)
 #define AI_PERF_FORMAT(perfFileName, FormatValue) ((void)0)
+#define AI_PERF_FORMAT_NESTED(perfFileName, FormatValue) ((void)0)
 #endif
 
 #include <FireWorks/FDefNew.h>

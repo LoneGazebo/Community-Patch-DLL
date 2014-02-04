@@ -14,6 +14,7 @@
 #include "CvDiplomacyAI.h"
 #include "CvMinorCivAI.h"
 #include "CvDllInterfaces.h"
+#include "CvGrandStrategyAI.h"
 
 // must be included after all other headers
 #include "LintFree.h"
@@ -590,6 +591,11 @@ bool CvDealAI::DoEqualizeDealWithHuman(CvDeal* pDeal, PlayerTypes eOtherPlayer, 
 		int iTotalValueToMe, iValueImOffering, iValueTheyreOffering, iAmountOverWeWillRequest, iAmountUnderWeWillOffer;
 		bMakeOffer = IsDealWithHumanAcceptable(pDeal, GC.getGame().getActivePlayer(), /*Passed by reference*/ iTotalValueToMe, iValueImOffering, iValueTheyreOffering, iAmountOverWeWillRequest, iAmountUnderWeWillOffer, bCantMatchOffer);
 
+		if (iTotalValueToMe < 0 && bDontChangeTheirExistingItems)
+		{
+			return false;
+		}
+
 		if(bMakeOffer)
 		{
 			bDealGoodToBeginWith = true;
@@ -1041,13 +1047,13 @@ int CvDealAI::GetGPTforForValueExchange(int iGPTorValue, bool bNumGPTFromValue, 
 		// See whether we should multiply or divide
 		if(!bNumGPTFromValue)
 		{
-			iReturnValue *= 140;
+			iReturnValue *= 130;
 			iReturnValue /= 100;
 		}
 		else
 		{
 			iReturnValue *= 100;
-			iReturnValue /= 140;
+			iReturnValue /= 130;
 		}
 
 		int iModifier;
@@ -1448,7 +1454,15 @@ int CvDealAI::GetEmbassyValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUseE
 {
 	CvAssertMsg(GetPlayer()->GetID() != eOtherPlayer, "DEAL_AI: Trying to check value of a Embassy with oneself.  Please send slewis this with your last 5 autosaves and what changelist # you're playing.");
 
-	int iItemValue = 25;
+	int iItemValue = 35;
+
+	// Scale up or down by deal duration at this game speed
+	CvGameSpeedInfo *pkStdSpeedInfo = GC.getGameSpeedInfo((GameSpeedTypes)GC.getSTANDARD_GAMESPEED());
+	if (pkStdSpeedInfo)
+	{
+		iItemValue *= GC.getGame().getGameSpeedInfo().GetDealDuration();
+		iItemValue /= pkStdSpeedInfo->GetDealDuration();
+	}
 
 	if(bFromMe)  // giving the other player an embassy in my capital
 	{
@@ -1536,7 +1550,7 @@ int CvDealAI::GetOpenBordersValue(bool bFromMe, PlayerTypes eOtherPlayer, bool b
 			iItemValue = 0;
 			break;
 		case MAJOR_CIV_OPINION_FRIEND:
-			iItemValue *= 10;
+			iItemValue *= 35;
 			iItemValue /= 100;
 			break;
 		case MAJOR_CIV_OPINION_FAVORABLE:
@@ -1573,6 +1587,20 @@ int CvDealAI::GetOpenBordersValue(bool bFromMe, PlayerTypes eOtherPlayer, bool b
 			iItemValue *= 25;
 			iItemValue /= 100;
 		}
+
+		// Do we think he's going for culture victory?
+		AIGrandStrategyTypes eCultureStrategy = (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_CULTURE");
+		if (eCultureStrategy != NO_AIGRANDSTRATEGY && GetPlayer()->GetGrandStrategyAI()->GetGuessOtherPlayerActiveGrandStrategy(eOtherPlayer) == eCultureStrategy)
+		{
+			CvPlayer &kOtherPlayer = GET_PLAYER(eOtherPlayer);
+
+			// If he has tourism and he's not influential on us yet, resist!
+			if (kOtherPlayer.GetCulture()->GetTourism() > 0 && kOtherPlayer.GetCulture()->GetInfluenceOn(GetPlayer()->GetID()) < INFLUENCE_LEVEL_INFLUENTIAL)
+			{
+				iItemValue *= 500;
+				iItemValue /= 100;
+			}
+		}
 	}
 	// Other guy giving me Open Borders
 	else
@@ -1581,24 +1609,16 @@ int CvDealAI::GetOpenBordersValue(bool bFromMe, PlayerTypes eOtherPlayer, bool b
 		switch(GetPlayer()->GetProximityToPlayer(eOtherPlayer))
 		{
 		case PLAYER_PROXIMITY_DISTANT:
-			iItemValue = 0;
+			iItemValue = 5;
 			break;
 		case PLAYER_PROXIMITY_FAR:
-			iItemValue = 0;
+			iItemValue = 10;
 			break;
 		case PLAYER_PROXIMITY_CLOSE:
-			iItemValue = 10;
+			iItemValue = 15;
 			break;
 		case PLAYER_PROXIMITY_NEIGHBORS:
 			iItemValue = 30;
-
-			// If we're cramped then we want OB more with our neighbors
-			if(GetPlayer()->IsCramped())
-			{
-				iItemValue *= 300;
-				iItemValue /= 100;
-			}
-
 			break;
 		default:
 			CvAssertMsg(false, "DEAL_AI: AI player has no valid Proximity for Open Borders valuation.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.")
@@ -1611,6 +1631,39 @@ int CvDealAI::GetOpenBordersValue(bool bFromMe, PlayerTypes eOtherPlayer, bool b
 		{
 			iItemValue *= 50;
 			iItemValue /= 100;
+		}
+
+		// Boost value greatly if we are going for a culture win
+		// If going for culture win always want open borders against civs we need influence on
+		AIGrandStrategyTypes eCultureStrategy = (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_CULTURE");
+		if (eCultureStrategy != NO_AIGRANDSTRATEGY && GetPlayer()->GetGrandStrategyAI()->GetActiveGrandStrategy() == eCultureStrategy && GetPlayer()->GetCulture()->GetTourism() > 0 )
+		{
+			// The civ we need influence on the most should ALWAYS be included
+			if (GetPlayer()->GetCulture()->GetCivLowestInfluence(false /*bCheckOpenBorders*/) == eOtherPlayer)
+			{
+				iItemValue *= 1000;
+				iItemValue /= 100;
+			}
+
+			// If have influence over half the civs, want OB with the other half
+			else if (GetPlayer()->GetCulture()->GetNumCivsToBeInfluentialOn() <= GetPlayer()->GetCulture()->GetNumCivsInfluentialOn())
+			{
+				if (GetPlayer()->GetCulture()->GetInfluenceLevel(eOtherPlayer) < INFLUENCE_LEVEL_INFLUENTIAL)
+				{
+					iItemValue *= 500;
+					iItemValue /= 100;
+				}
+			}
+
+			else if (GetPlayer()->GetProximityToPlayer(eOtherPlayer) == PLAYER_PROXIMITY_NEIGHBORS)
+			{
+				// If we're cramped then we want OB more with our neighbors
+				if(GetPlayer()->IsCramped())
+				{
+					iItemValue *= 300;
+					iItemValue /= 100;
+				}
+			}
 		}
 	}
 
@@ -3660,7 +3713,7 @@ bool CvDealAI::IsMakeOfferForLuxuryResource(PlayerTypes eOtherPlayer, CvDeal* pD
 		{
 			bool bUselessReferenceVariable;
 			bool bCantMatchOffer;
-			bDealAcceptable = DoEqualizeDealWithHuman(pDeal, eOtherPlayer, /*bDontChangeMyExistingItems*/ true, /*bDontChangeTheirExistingItems*/ false, bUselessReferenceVariable, bCantMatchOffer);	// Change the deal as necessary to make it work
+			bDealAcceptable = DoEqualizeDealWithHuman(pDeal, eOtherPlayer, /*bDontChangeMyExistingItems*/ false, /*bDontChangeTheirExistingItems*/ true, bUselessReferenceVariable, bCantMatchOffer);	// Change the deal as necessary to make it work
 		}
 
 		return bDealAcceptable;
@@ -3752,7 +3805,7 @@ bool CvDealAI::IsMakeOfferForOpenBorders(PlayerTypes eOtherPlayer, CvDeal* pDeal
 		{
 			bool bUselessReferenceVariable;
 			bool bCantMatchOffer;
-			bDealAcceptable = DoEqualizeDealWithHuman(pDeal, eOtherPlayer, true, false, bUselessReferenceVariable, bCantMatchOffer);	// Change the deal as necessary to make it work
+			bDealAcceptable = DoEqualizeDealWithHuman(pDeal, eOtherPlayer, false, true, bUselessReferenceVariable, bCantMatchOffer);	// Change the deal as necessary to make it work
 		}
 
 		return bDealAcceptable;

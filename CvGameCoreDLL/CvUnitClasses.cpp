@@ -298,7 +298,7 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 			Database::Results* pResults = kUtility.GetResults(strKey);
 			if(pResults == NULL)
 			{
-				pResults = kUtility.PrepareResults(strKey, "select UniqueName from Unit_UniqueNames where UnitType = ?");
+				pResults = kUtility.PrepareResults(strKey, "select UniqueName from Unit_UniqueNames where UnitType = ? ORDER BY rowid");
 			}
 
 			pResults->Bind(1, szUnitType, -1, false);

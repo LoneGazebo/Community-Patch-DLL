@@ -2202,11 +2202,11 @@ void CvHomelandAI::ExecuteMovesToSafestPlot()
 {
 	int iDanger;
 
-	WeightedPlotVector aBestPlotList;
-	aBestPlotList.reserve(100);
-
 	for(unsigned int iI = 0; iI < m_CurrentMoveUnits.size(); iI++)
 	{
+		WeightedPlotVector aBestPlotList;
+		aBestPlotList.reserve(100);
+
 		UnitHandle pUnit = m_pPlayer->getUnit(m_CurrentMoveUnits[iI].GetID());
 		if(pUnit)
 		{
@@ -2221,6 +2221,11 @@ void CvHomelandAI::ExecuteMovesToSafestPlot()
 				{
 					CvPlot* pPlot = GC.getMap().plot(pUnit->getX() + iX, pUnit->getY() + iY);
 					if(pPlot == NULL)
+					{
+						continue;
+					}
+
+					if (plotDistance(pPlot->getX(), pPlot->getY(), pUnit->getX(), pUnit->getY()) > iRange)
 					{
 						continue;
 					}

@@ -1906,12 +1906,12 @@ public:
 
 	////////////// END DEFINES //////////////////
 
-	void setDLLIFace(ICvEngineUtility3* pDll)
+	void setDLLIFace(ICvEngineUtility4* pDll)
 	{
 		m_pDLL = pDll;
 	}
 	
-	ICvEngineUtility3* getDLLIFace()
+	ICvEngineUtility4* getDLLIFace()
 	{ 
 		return m_pDLL;
 	}					
@@ -3520,7 +3520,7 @@ protected:
 	int m_iPROMOTION_ONLY_DEFENSIVE;
 
 	// DLL interface
-	ICvEngineUtility3* m_pDLL;
+	ICvEngineUtility4* m_pDLL;
 
 	// Engine UI interface
 	ICvUserInterface2* m_pEngineUI;

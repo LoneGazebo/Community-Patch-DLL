@@ -13,6 +13,7 @@
 #include "CvGrandStrategyAI.h"
 #include "CvDllInterfaces.h"
 #include "CvInfosSerializationHelper.h"
+#include "cvStopWatch.h"
 
 // must be included after all other headers
 #include "LintFree.h"
@@ -227,6 +228,7 @@ void CvCityCitizens::DoFoundCity()
 /// Processed every turn
 void CvCityCitizens::DoTurn()
 {
+	AI_PERF_FORMAT("City-AI-perf.csv", ("CvCityCitizens::DoTurn, Turn %03d, %s, %s", GC.getGame().getElapsedGameTurns(), m_pCity->GetPlayer()->getCivilizationShortDescription(), m_pCity->getName().c_str()) );
 	DoVerifyWorkingPlots();
 
 	CvPlayerAI& thisPlayer = GET_PLAYER(GetOwner());

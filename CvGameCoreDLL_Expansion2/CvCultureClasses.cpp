@@ -13,6 +13,7 @@
 #include "CvGameTextMgr.h"
 #include "CvEconomicAI.h"
 #include "CvDiplomacyAI.h"
+#include "CvGrandStrategyAI.h"
 #include "CvTypes.h"
 
 #include "LintFree.h"
@@ -1679,7 +1680,6 @@ bool CvPlayerCulture::FillBuilding(vector<CvGreatWorkBuildingInMyEmpire>::const_
 		}
 		works2 = tempWorks;
 	}
-
 	return true;
 }
 
@@ -1837,23 +1837,60 @@ bool CvPlayerCulture::HasDigCompleteHere(CvPlot *pPlot) const
 	return false;
 }
 
+/// How much culture can we receive from cashing in a written artifact?
+int CvPlayerCulture::GetWrittenArtifactCulture() const
+{
+	// Culture boost based on 8 previous turns; same as GREAT_WRITER; move to XML?
+	int iValue = m_pPlayer->GetCultureYieldFromPreviousTurns(GC.getGame().getGameTurn(), 8 /*iPreviousTurnsToCount */);
+
+	// Modify based on game speed
+	iValue *= GC.getGame().getGameSpeedInfo().getCulturePercent();
+	iValue /= 100;
+
+	return iValue;
+}
+
 /// AI routine - choose what to do with a completed dig site
 ArchaeologyChoiceType CvPlayerCulture::GetArchaeologyChoice(CvPlot *pPlot)
 {
 	ArchaeologyChoiceType eRtnValue = ARCHAEOLOGY_DO_NOTHING;
 
 	GreatWorkSlotType eArtArtifactSlot = CvTypes::getGREAT_WORK_SLOT_ART_ARTIFACT();
+
+	if (pPlot->HasWrittenArtifact())
+	{
+		eRtnValue = ARCHAEOLOGY_ARTIFACT_WRITING;
+	}
 	
-	// No slots? Definitely go for Landmark
+	// No slots? Definitely go for Landmark or Cultural Renaissance
 	if (!HasAvailableGreatWorkSlot(eArtArtifactSlot))
 	{
-		eRtnValue = ARCHAEOLOGY_LANDMARK;
+		if (pPlot->HasWrittenArtifact())
+		{
+			eRtnValue = ARCHAEOLOGY_CULTURE_BOOST;
+		}
+		else
+		{
+			eRtnValue = ARCHAEOLOGY_LANDMARK;
+		}
 	}
 
-	// Outside territory? Go for artifact
+	// Outside territory? Go for artifact ...
 	else if (pPlot->getOwner() != m_pPlayer->GetID())
 	{
 		eRtnValue = ARCHAEOLOGY_ARTIFACT_PLAYER1;
+
+		// ... unless this is a city state we want to influence to help with diplo victory
+		if (pPlot->getOwner() != NO_PLAYER && GET_PLAYER(pPlot->getOwner()).isMinorCiv())
+		{
+			if (m_pPlayer->GetGrandStrategyAI()->GetActiveGrandStrategy() == (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_UNITED_NATIONS"))
+			{
+				if (m_pPlayer->GetDiplomacyAI()->GetMinorCivApproach(pPlot->getOwner()) != MINOR_CIV_APPROACH_CONQUEST)
+				{
+					eRtnValue = ARCHAEOLOGY_LANDMARK;
+				}
+			}
+		}
 	}
 
 	// Not a tile a city can work?  Go for artifact
@@ -1877,7 +1914,14 @@ ArchaeologyChoiceType CvPlayerCulture::GetArchaeologyChoice(CvPlot *pPlot)
 
 		if (iNumGreatWorkSlots <= iLimitingFactor)
 		{
-			eRtnValue = ARCHAEOLOGY_LANDMARK;
+			if (pPlot->HasWrittenArtifact())
+			{
+				eRtnValue = ARCHAEOLOGY_CULTURE_BOOST;
+			}
+			else
+			{
+				eRtnValue = ARCHAEOLOGY_LANDMARK;
+			}
 		}
 		else
 		{
@@ -1910,6 +1954,7 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 	if (pUnit)
 	{
 		GreatWorkSlotType eArtArtifactSlot = CvTypes::getGREAT_WORK_SLOT_ART_ARTIFACT();
+		GreatWorkSlotType eWritingSlot = CvTypes::getGREAT_WORK_SLOT_LITERATURE();
 		GreatWorkType eGreatArtifact = CultureHelpers::GetArtifact(pPlot);
 		GreatWorkClass eClass = (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_ARTIFACT");
 
@@ -1924,6 +1969,24 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 				{
 					pPlot->setImprovementType(eLandmarkImprovement, m_pPlayer->GetID());
 					pUnit->kill(true);
+
+					if (pPlot->getOwner() != NO_PLAYER)
+					{
+						CvPlayer &kOwner = GET_PLAYER(pPlot->getOwner());
+
+						// City-state owned territory?
+						if (kOwner.isMinorCiv())
+						{
+							int iFriendship = GC.getLANDMARK_MINOR_FRIENDSHIP_CHANGE();
+							kOwner.GetMinorCivAI()->ChangeFriendshipWithMajor(m_pPlayer->GetID(), iFriendship);
+						}
+
+						// AI major civ owned territory?
+						else if (!kOwner.isHuman())
+						{
+							kOwner.GetDiplomacyAI()->ChangeNumLandmarksBuiltForMe(m_pPlayer->GetID(), 1);
+						}
+					}
 				}
 			}
 			break;
@@ -1949,6 +2012,41 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 				pHousingCity = m_pPlayer->GetCulture()->GetClosestAvailableGreatWorkSlot(pUnit->getX(),pUnit->getY(), eArtArtifactSlot, &eBuildingToHouse, &iSlot);
 				int iGWindex = 	pCulture->CreateGreatWork(eGreatArtifact, eClass, pPlot->GetArchaeologicalRecord().m_ePlayer2, pPlot->GetArchaeologicalRecord().m_eEra, "");
 				pHousingCity->GetCityBuildings()->SetBuildingGreatWork(eBuildingToHouse, iSlot, iGWindex);
+				pPlot->setImprovementType(NO_IMPROVEMENT);
+				pUnit->kill(true);
+			}
+			break;
+
+		case ARCHAEOLOGY_ARTIFACT_WRITING:
+			{
+				if (pPlot->getOwner() != pUnit->getOwner() && pPlot->getOwner() != NO_PLAYER)
+				{
+					GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->ChangeNegativeArchaeologyPoints(pUnit->getOwner(), 10);
+				}
+				pHousingCity = m_pPlayer->GetCulture()->GetClosestAvailableGreatWorkSlot(pUnit->getX(),pUnit->getY(), eWritingSlot, &eBuildingToHouse, &iSlot);
+				int iGWindex = 	pCulture->CreateGreatWork(eGreatArtifact, (GreatWorkClass)GC.getInfoTypeForString("GREAT_WORK_LITERATURE"), pPlot->GetArchaeologicalRecord().m_ePlayer1, pPlot->GetArchaeologicalRecord().m_eEra, "");
+				pHousingCity->GetCityBuildings()->SetBuildingGreatWork(eBuildingToHouse, iSlot, iGWindex);
+				pPlot->setImprovementType(NO_IMPROVEMENT);
+				pUnit->kill(true);
+			}
+			break;
+
+		case ARCHAEOLOGY_CULTURE_BOOST:
+			{
+				if (pPlot->getOwner() != pUnit->getOwner() && pPlot->getOwner() != NO_PLAYER)
+				{
+					GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->ChangeNegativeArchaeologyPoints(pUnit->getOwner(), 10);
+				}
+
+				// Culture boost based on 8 previous turns; same as GREAT_WRITER; move to XML?
+				int iValue = m_pPlayer->GetCultureYieldFromPreviousTurns(GC.getGame().getGameTurn(), 8 /*iPreviousTurnsToCount */);
+
+				// Modify based on game speed
+				iValue *= GC.getGame().getGameSpeedInfo().getCulturePercent();
+				iValue /= 100;
+
+				m_pPlayer->changeJONSCulture(iValue);
+
 				pPlot->setImprovementType(NO_IMPROVEMENT);
 				pUnit->kill(true);
 			}
@@ -1985,104 +2083,134 @@ void CvPlayerCulture::DoTurn()
 
 	CvString strSummary;
 	CvString strInfo;
-	PlayerTypes eActivePlayer = GC.getGame().getActivePlayer();
-	CvNotifications* pNotifications = GET_PLAYER(eActivePlayer).GetNotifications();
-	if (pNotifications)
+	CvNotifications* pTargetNotifications = m_pPlayer->GetNotifications();
+	int iThisTurnInfluentialCivs = GetNumCivsInfluentialOn();
+
+	VictoryTypes eVictory = (VictoryTypes) GC.getInfoTypeForString("VICTORY_CULTURAL", true);
+	const bool bCultureVictoryValid = (eVictory == NO_VICTORY || GC.getGame().isVictoryValid(eVictory));
+
+	if (iThisTurnInfluentialCivs > 0 && !GC.getGame().GetGameCulture()->GetReportedSomeoneInfluential())
 	{
-		int iThisTurnInfluentialCivs = GetNumCivsInfluentialOn();
+		if(bCultureVictoryValid)
+		{//This civilization is the first civ to be influential over another civs.  Notify the masses!
+			strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_CULTURE_VICTORY_SOMEONE_INFLUENTIAL");
+			CvString							targFirstInfluentialInfo = GetLocalizedText("TXT_KEY_NOTIFICATION_CULTURE_VICTORY_SOMEONE_INFLUENTIAL_ACTIVE_PLAYER_TT");
+			Localization::String	someoneFirstInfluentialInfo = Localization::Lookup("TXT_KEY_NOTIFICATION_CULTURE_VICTORY_SOMEONE_INFLUENTIAL_TT");
+			CvString							unmetFirstInfluentialInfo = GetLocalizedText("TXT_KEY_NOTIFICATION_CULTURE_VICTORY_UNMET_INFLUENTIAL_TT");
 
-		VictoryTypes eVictory = (VictoryTypes) GC.getInfoTypeForString("VICTORY_CULTURAL", true);
-		const bool bCultureVictoryValid = (eVictory == NO_VICTORY || GC.getGame().isVictoryValid(eVictory));
+			for(int iNotifyPlayerID = 0; iNotifyPlayerID < MAX_MAJOR_CIVS; ++iNotifyPlayerID){
+				PlayerTypes eNotifyPlayer = (PlayerTypes) iNotifyPlayerID;
+				CvPlayerAI& kNotifyPlayer = GET_PLAYER(eNotifyPlayer);
 
-		if (iThisTurnInfluentialCivs > 0 && !GC.getGame().GetGameCulture()->GetReportedSomeoneInfluential())
-		{
-			if(bCultureVictoryValid)
-			{			
-				strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_CULTURE_VICTORY_SOMEONE_INFLUENTIAL");
-				if (eActivePlayer == m_pPlayer->GetID())
-				{	
-					strInfo = GetLocalizedText("TXT_KEY_NOTIFICATION_CULTURE_VICTORY_SOMEONE_INFLUENTIAL_ACTIVE_PLAYER_TT");
+				if (m_pPlayer->GetID() == eNotifyPlayer){	
+					strInfo = targFirstInfluentialInfo;
 				}
 				else
 				{
-					CvPlayerAI& kActivePlayer = GET_PLAYER(eActivePlayer);
-					CvTeam& kActiveTeam = GET_TEAM(kActivePlayer.getTeam());
-
-					if(kActiveTeam.isHasMet(m_pPlayer->getTeam()))
-					{
-						Localization::String strTemp = Localization::Lookup("TXT_KEY_NOTIFICATION_CULTURE_VICTORY_SOMEONE_INFLUENTIAL_TT");
+					CvTeam& kCurTeam = GET_TEAM(kNotifyPlayer.getTeam());
+					if(kCurTeam.isHasMet(m_pPlayer->getTeam())){
+						Localization::String strTemp = someoneFirstInfluentialInfo;
 						strTemp << m_pPlayer->getCivilizationShortDescriptionKey();
 						strInfo = strTemp.toUTF8();
 					}
 					else
 					{
-						Localization::String strTemp = Localization::Lookup("TXT_KEY_NOTIFICATION_CULTURE_VICTORY_UNMET_INFLUENTIAL_TT");
-						strInfo = strTemp.toUTF8();
+						strInfo = unmetFirstInfluentialInfo;
 					}					
 				}
-				pNotifications->Add(NOTIFICATION_CULTURE_VICTORY_SOMEONE_INFLUENTIAL, strInfo, strSummary, -1, -1, m_pPlayer->GetID());
+				kNotifyPlayer.GetNotifications()->Add(NOTIFICATION_CULTURE_VICTORY_SOMEONE_INFLUENTIAL, strInfo, strSummary, -1, -1, m_pPlayer->GetID());
 			}
-
-			GC.getGame().GetGameCulture()->SetReportedSomeoneInfluential(true);
 		}
 
-		if (eActivePlayer == m_pPlayer->GetID() && iThisTurnInfluentialCivs < iLastTurnInfluentialCivs && bCultureVictoryValid)
-		{
-			Localization::String strTemp;
-			strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_CULTURE_VICTORY_NO_LONGER_INFLUENTIAL");
-			strInfo = GetLocalizedText("TXT_KEY_NOTIFICATION_CULTURE_VICTORY_NO_LONGER_INFLUENTIAL_TT");
-			pNotifications->Add(NOTIFICATION_CULTURE_VICTORY_NO_LONGER_INFLUENTIAL, strInfo, strSummary, -1, -1, m_pPlayer->GetID());
-		}
+		GC.getGame().GetGameCulture()->SetReportedSomeoneInfluential(true);
+	}
 
-		if (!m_bReportedTwoCivsAway && iThisTurnInfluentialCivs == iInfluentialCivsForWin - 2 && GC.getGame().countMajorCivsEverAlive() >= 4)
-		{
-			if(bCultureVictoryValid)
-			{
-				if (eActivePlayer == m_pPlayer->GetID())
-				{
-					strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_CULTURE_VICTORY_WITHIN_TWO_ACTIVE_PLAYER");
-					Localization::String strTemp = Localization::Lookup("TXT_KEY_NOTIFICATION_CULTURE_VICTORY_WITHIN_TWO_ACTIVE_PLAYER_TT");
+	if (iThisTurnInfluentialCivs < iLastTurnInfluentialCivs && bCultureVictoryValid)
+	{
+		Localization::String strTemp;
+		strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_CULTURE_VICTORY_NO_LONGER_INFLUENTIAL");
+		strInfo = GetLocalizedText("TXT_KEY_NOTIFICATION_CULTURE_VICTORY_NO_LONGER_INFLUENTIAL_TT");
+		pTargetNotifications->Add(NOTIFICATION_CULTURE_VICTORY_NO_LONGER_INFLUENTIAL, strInfo, strSummary, -1, -1, m_pPlayer->GetID());
+	}
+
+	if (!m_bReportedTwoCivsAway && iThisTurnInfluentialCivs > 0 && iThisTurnInfluentialCivs == iInfluentialCivsForWin - 2 && GC.getGame().countMajorCivsEverAlive() >= 4)
+	{
+		if(bCultureVictoryValid)
+		{//This civilization is the first civ to be two civilizations away from getting a cultural victory.  Notify the masses!
+			CvString							targCloseTwoSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_CULTURE_VICTORY_WITHIN_TWO_ACTIVE_PLAYER");
+			Localization::String	targCloseTwoInfo = Localization::Lookup("TXT_KEY_NOTIFICATION_CULTURE_VICTORY_WITHIN_TWO_ACTIVE_PLAYER_TT");
+			CvString							someoneCloseTwoSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_CULTURE_VICTORY_WITHIN_TWO");
+			Localization::String	someoneCloseTwoInfo = Localization::Lookup("TXT_KEY_NOTIFICATION_CULTURE_VICTORY_WITHIN_TWO_TT");
+			CvString							unmetCloseTwoInfo = GetLocalizedText("TXT_KEY_NOTIFICATION_CULTURE_VICTORY_WITHIN_TWO_UNMET_TT");
+			for(int iNotifyLoop = 0; iNotifyLoop < MAX_MAJOR_CIVS; ++iNotifyLoop){
+				PlayerTypes eCurPlayer = (PlayerTypes) iNotifyLoop;
+				CvPlayerAI& kCurPlayer = GET_PLAYER(eCurPlayer);
+
+				if (eCurPlayer == m_pPlayer->GetID()){	
+					strSummary = targCloseTwoSummary;
+					Localization::String strTemp = targCloseTwoInfo;
 					strTemp << m_pPlayer->getCivilizationShortDescriptionKey();
 					strInfo = strTemp.toUTF8();
-					pNotifications->Add(NOTIFICATION_CULTURE_VICTORY_WITHIN_TWO_ACTIVE_PLAYER, strInfo, strSummary, -1, -1, m_pPlayer->GetID());
+					kCurPlayer.GetNotifications()->Add(NOTIFICATION_CULTURE_VICTORY_WITHIN_TWO_ACTIVE_PLAYER, strInfo, strSummary, -1, -1, m_pPlayer->GetID());
+				}
+				else{
+					strSummary = someoneCloseTwoSummary;
+					CvTeam& kCurTeam = GET_TEAM(kCurPlayer.getTeam());
+					if(kCurTeam.isHasMet(m_pPlayer->getTeam())){
+						Localization::String strTemp = someoneCloseTwoInfo;
+						strTemp << m_pPlayer->getCivilizationShortDescriptionKey();
+						strInfo = strTemp.toUTF8();
+					}
+					else{
+						strInfo = unmetCloseTwoInfo;
+					}
+
+					kCurPlayer.GetNotifications()->Add(NOTIFICATION_CULTURE_VICTORY_WITHIN_TWO, strInfo, strSummary, -1, -1, m_pPlayer->GetID());
+				}
+			}
+		}
+
+		m_bReportedTwoCivsAway = true;
+	}
+
+	if (!m_bReportedOneCivAway && iThisTurnInfluentialCivs == iInfluentialCivsForWin - 1 && GC.getGame().countMajorCivsEverAlive() >= 3)
+	{
+		if(bCultureVictoryValid)
+		{//This civilization is the first civ to be one civilizations away from getting a cultural victory.  Notify the masses!
+			CvString							targCloseOneSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_CULTURE_VICTORY_WITHIN_ONE_ACTIVE_PLAYER");
+			Localization::String	targCloseOneInfo = Localization::Lookup("TXT_KEY_NOTIFICATION_CULTURE_VICTORY_WITHIN_ONE_ACTIVE_PLAYER_TT");
+			CvString							someoneCloseOneSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_CULTURE_VICTORY_WITHIN_ONE");
+			Localization::String	someoneCloseOneInfo = Localization::Lookup("TXT_KEY_NOTIFICATION_CULTURE_VICTORY_WITHIN_ONE_TT");
+			CvString							unmetCloseOneInfo = GetLocalizedText("TXT_KEY_NOTIFICATION_CULTURE_VICTORY_WITHIN_ONE_UNMET_TT");
+			for(int iNotifyLoop = 0; iNotifyLoop < MAX_MAJOR_CIVS; ++iNotifyLoop){
+				PlayerTypes eCurPlayer = (PlayerTypes) iNotifyLoop;
+				CvPlayerAI& kCurPlayer = GET_PLAYER(eCurPlayer);
+
+				if (eCurPlayer == m_pPlayer->GetID()){	
+					strSummary = targCloseOneSummary;
+					Localization::String strTemp = targCloseOneInfo;
+					strTemp << m_pPlayer->getCivilizationShortDescriptionKey();
+					strInfo = strTemp.toUTF8();
+					kCurPlayer.GetNotifications()->Add(NOTIFICATION_CULTURE_VICTORY_WITHIN_ONE_ACTIVE_PLAYER, strInfo, strSummary, -1, -1, m_pPlayer->GetID());
 				}
 				else
 				{
-					strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_CULTURE_VICTORY_WITHIN_TWO");
-					Localization::String strTemp = Localization::Lookup("TXT_KEY_NOTIFICATION_CULTURE_VICTORY_WITHIN_TWO_TT");
-					strTemp << m_pPlayer->getCivilizationShortDescriptionKey();
-					strInfo = strTemp.toUTF8();
-					pNotifications->Add(NOTIFICATION_CULTURE_VICTORY_WITHIN_TWO, strInfo, strSummary, -1, -1, m_pPlayer->GetID());
+					strSummary = someoneCloseOneSummary;
+					CvTeam& kCurTeam = GET_TEAM(kCurPlayer.getTeam());
+					if(kCurTeam.isHasMet(m_pPlayer->getTeam())){
+						Localization::String strTemp = someoneCloseOneInfo;
+						strTemp << m_pPlayer->getCivilizationShortDescriptionKey();
+						strInfo = strTemp.toUTF8();
+					}
+					else{
+						strInfo = unmetCloseOneInfo;
+					}
+					kCurPlayer.GetNotifications()->Add(NOTIFICATION_CULTURE_VICTORY_WITHIN_ONE, strInfo, strSummary, -1, -1, m_pPlayer->GetID());
 				}
 			}
-
-			m_bReportedTwoCivsAway = true;
 		}
 
-		if (!m_bReportedOneCivAway && iThisTurnInfluentialCivs == iInfluentialCivsForWin - 1 && GC.getGame().countMajorCivsEverAlive() >= 3)
-		{
-			if(bCultureVictoryValid)
-			{
-				if (eActivePlayer == m_pPlayer->GetID())
-				{
-					strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_CULTURE_VICTORY_WITHIN_ONE_ACTIVE_PLAYER");
-					Localization::String strTemp = Localization::Lookup("TXT_KEY_NOTIFICATION_CULTURE_VICTORY_WITHIN_ONE_ACTIVE_PLAYER_TT");
-					strTemp << m_pPlayer->getCivilizationShortDescriptionKey();
-					strInfo = strTemp.toUTF8();
-					pNotifications->Add(NOTIFICATION_CULTURE_VICTORY_WITHIN_ONE_ACTIVE_PLAYER, strInfo, strSummary, -1, -1, m_pPlayer->GetID());
-				}
-				else
-				{
-					strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_CULTURE_VICTORY_WITHIN_ONE");
-					Localization::String strTemp = Localization::Lookup("TXT_KEY_NOTIFICATION_CULTURE_VICTORY_WITHIN_ONE_TT");
-					strTemp << m_pPlayer->getCivilizationShortDescriptionKey();
-					strInfo = strTemp.toUTF8();
-					pNotifications->Add(NOTIFICATION_CULTURE_VICTORY_WITHIN_ONE, strInfo, strSummary, -1, -1, m_pPlayer->GetID());
-				}
-			}
-
-			m_bReportedOneCivAway = true;
-		}
+		m_bReportedOneCivAway = true;
 	}
 
 	if (m_pPlayer->isHuman() && !GC.getGame().isGameMultiPlayer())
@@ -2505,6 +2633,182 @@ PlayerTypes CvPlayerCulture::GetCivLowestInfluence(bool bCheckOpenBorders) const
 	return eRtnValue;
 }
 
+// NON-CULTURE TOURISM BONUSES
+
+/// Get extra science from trade routes based on current influence level
+int CvPlayerCulture::GetInfluenceTradeRouteScienceBonus(PlayerTypes ePlayer) const
+{
+	int iRtnValue = 0;
+
+	if (ePlayer < MAX_MAJOR_CIVS)
+	{
+		InfluenceLevelTypes eLevel = GetInfluenceLevel(ePlayer);
+		switch (eLevel)
+		{
+		case INFLUENCE_LEVEL_FAMILIAR:
+			iRtnValue = 1;
+			break;
+		case INFLUENCE_LEVEL_POPULAR:
+			iRtnValue = 2;
+			break;
+		case INFLUENCE_LEVEL_INFLUENTIAL:
+			iRtnValue = 3;
+			break;
+		case INFLUENCE_LEVEL_DOMINANT:
+			iRtnValue = 4;
+			break;
+		}
+	}
+
+	return iRtnValue;
+}
+
+/// Get reduction in conquest times and population loss based on current influence level
+int CvPlayerCulture::GetInfluenceCityConquestReduction(PlayerTypes ePlayer) const
+{
+	int iRtnValue = 0;
+
+	if (ePlayer < MAX_MAJOR_CIVS)
+	{
+		InfluenceLevelTypes eLevel = GetInfluenceLevel(ePlayer);
+		switch (eLevel)
+		{
+		case INFLUENCE_LEVEL_FAMILIAR:
+			iRtnValue = 25;
+			break;
+		case INFLUENCE_LEVEL_POPULAR:
+			iRtnValue = 50;
+			break;
+		case INFLUENCE_LEVEL_INFLUENTIAL:
+			iRtnValue = 75;
+			break;
+		case INFLUENCE_LEVEL_DOMINANT:
+			iRtnValue = 100;
+			break;
+		}
+	}
+	
+	return iRtnValue;
+}
+
+/// Get spy time to establish surveillance based on current influence level
+int CvPlayerCulture::GetInfluenceSurveillanceTime(PlayerTypes ePlayer) const
+{
+	int iRtnValue = 3;
+
+	if (ePlayer < MAX_MAJOR_CIVS)
+	{
+		InfluenceLevelTypes eLevel = GetInfluenceLevel(ePlayer);
+
+		if (eLevel >= INFLUENCE_LEVEL_FAMILIAR)
+		{
+			iRtnValue = 1;
+		}
+	}
+	else
+	{
+		// Have a major power ally?
+		CvPlayer &kCityState = GET_PLAYER(ePlayer);
+		if (kCityState.isMinorCiv())
+		{
+			PlayerTypes eAlly = kCityState.GetMinorCivAI()->GetAlly();
+			if (eAlly != NO_PLAYER)
+			{
+				InfluenceLevelTypes eLevel = GetInfluenceLevel(eAlly);
+				if (eLevel >= INFLUENCE_LEVEL_FAMILIAR)
+				{
+					iRtnValue = 1;
+				}
+			}
+		}
+	}
+
+	return iRtnValue;
+}
+
+/// Get extra spy rank in city state allies based on current influence level
+int CvPlayerCulture::GetInfluenceCityStateSpyRankBonus(PlayerTypes eCityStatePlayer) const
+{
+	int iRtnValue = 0;
+
+	// Have a major power ally?
+	CvPlayer &kCityState = GET_PLAYER(eCityStatePlayer);
+	if (kCityState.isMinorCiv())
+	{
+		PlayerTypes eAlly = kCityState.GetMinorCivAI()->GetAlly();
+		if (eAlly != NO_PLAYER)
+		{
+			InfluenceLevelTypes eLevel = GetInfluenceLevel(eAlly);
+			switch (eLevel)
+			{
+			case INFLUENCE_LEVEL_POPULAR:
+				iRtnValue = 1;
+				break;
+			case INFLUENCE_LEVEL_INFLUENTIAL:
+				iRtnValue = 1;
+				break;
+			case INFLUENCE_LEVEL_DOMINANT:
+				iRtnValue = 2;
+				break;
+			}
+		}
+	}
+
+	return iRtnValue;
+}
+
+/// Get extra spy rank in major civ cities based on current influence level
+int CvPlayerCulture::GetInfluenceMajorCivSpyRankBonus(PlayerTypes ePlayer) const
+{
+	int iRtnValue = 0;
+
+	InfluenceLevelTypes eLevel = GetInfluenceLevel(ePlayer);
+	switch (eLevel)
+	{
+	case INFLUENCE_LEVEL_INFLUENTIAL:
+		iRtnValue = 1;
+		break;
+	case INFLUENCE_LEVEL_DOMINANT:
+		iRtnValue = 2;
+		break;
+	}
+
+	return iRtnValue;
+}
+
+/// Get spy rank tooltip associated with bonus from cultural influence
+CvString CvPlayerCulture::GetInfluenceSpyRankTooltip(CvString szName, CvString szRank, PlayerTypes ePlayer)
+{
+	CvString szRtnValue = GetLocalizedText("TXT_KEY_EO_SPY_RANK_TT", szName, szRank);
+
+	if (ePlayer != NO_PLAYER)
+	{
+		CvPlayer &kOtherPlayer = GET_PLAYER(ePlayer);
+
+		int iRankBonus = 0;
+		if (kOtherPlayer.isMinorCiv())
+		{
+			iRankBonus = GetInfluenceCityStateSpyRankBonus(ePlayer);
+
+			if (iRankBonus > 0)
+			{
+				szRtnValue += GetLocalizedText("TXT_KEY_SPY_BONUS_CITY_STATE", iRankBonus);
+			}
+		}
+		else
+		{
+			iRankBonus = GetInfluenceMajorCivSpyRankBonus(ePlayer);
+
+			if (iRankBonus > 0)
+			{
+				szRtnValue += GetLocalizedText("TXT_KEY_SPY_BONUS_MAJOR_CIV", iRankBonus);
+			}
+		}
+	}
+
+	return szRtnValue;
+}
+
 /// What is my total tourism per turn (before modifiers)
 int CvPlayerCulture::GetTourism()
 {
@@ -2532,13 +2836,13 @@ int CvPlayerCulture::GetTourismModifierWith(PlayerTypes ePlayer) const
 	// Open borders with this player
 	if (kTeam.IsAllowsOpenBordersToTeam(m_pPlayer->getTeam()))
 	{
-		iMultiplier += GC.getTOURISM_MODIFIER_OPEN_BORDERS();
+		iMultiplier += GetTourismModifierOpenBorders();
 	}
 
 	// Trade route to one of this player's cities from here
 	if (GC.getGame().GetGameTrade()->IsPlayerConnectedToPlayer(m_pPlayer->GetID(), ePlayer))
 	{
-		iMultiplier += GC.getTOURISM_MODIFIER_TRADE_ROUTE();
+		iMultiplier += GetTourismModifierTradeRoute();
 	}
 
 	if (eMyIdeology != NO_POLICY_BRANCH_TYPE && eTheirIdeology != NO_POLICY_BRANCH_TYPE && eMyIdeology != eTheirIdeology)
@@ -2594,7 +2898,7 @@ int CvPlayerCulture::GetTourismModifierWith(PlayerTypes ePlayer) const
 	ReligionTypes ePlayerReligion = m_pPlayer->GetReligions()->GetReligionInMostCities();
 	if (ePlayerReligion != NO_RELIGION && kPlayer.GetReligions()->HasReligionInMostCities(ePlayerReligion))
 	{
-		iMultiplier += GC.getTOURISM_MODIFIER_SHARED_RELIGION();
+		iMultiplier += GetTourismModifierSharedReligion();
 	}
 
 	return iMultiplier;
@@ -2614,19 +2918,19 @@ CvString CvPlayerCulture::GetTourismModifierWithTooltip(PlayerTypes ePlayer) con
 	// Open borders with this player
 	if (kTeam.IsAllowsOpenBordersToTeam(m_pPlayer->getTeam()))
 	{
-		szRtnValue += "[COLOR_POSITIVE_TEXT]" + GetLocalizedText("TXT_KEY_CO_PLAYER_TOURISM_OPEN_BORDERS", GC.getTOURISM_MODIFIER_OPEN_BORDERS()) + "[ENDCOLOR]";
+		szRtnValue += "[COLOR_POSITIVE_TEXT]" + GetLocalizedText("TXT_KEY_CO_PLAYER_TOURISM_OPEN_BORDERS", GetTourismModifierOpenBorders()) + "[ENDCOLOR]";
 	}
 
 	// Trade route to one of this player's cities from here
 	if (GC.getGame().GetGameTrade()->IsPlayerConnectedToPlayer(m_pPlayer->GetID(), ePlayer))
 	{
-		szRtnValue += "[COLOR_POSITIVE_TEXT]" + GetLocalizedText("TXT_KEY_CO_PLAYER_TOURISM_TRADE_ROUTE", GC.getTOURISM_MODIFIER_TRADE_ROUTE()) + "[ENDCOLOR]";
+		szRtnValue += "[COLOR_POSITIVE_TEXT]" + GetLocalizedText("TXT_KEY_CO_PLAYER_TOURISM_TRADE_ROUTE", GetTourismModifierTradeRoute()) + "[ENDCOLOR]";
 	}
 
 	ReligionTypes ePlayerReligion = m_pPlayer->GetReligions()->GetReligionInMostCities();
 	if (ePlayerReligion != NO_RELIGION && kPlayer.GetReligions()->HasReligionInMostCities(ePlayerReligion))
 	{
-		szRtnValue += "[COLOR_POSITIVE_TEXT]" + GetLocalizedText("TXT_KEY_CO_PLAYER_TOURISM_RELIGION_NOTE", GC.getTOURISM_MODIFIER_SHARED_RELIGION()) + "[ENDCOLOR]";
+		szRtnValue += "[COLOR_POSITIVE_TEXT]" + GetLocalizedText("TXT_KEY_CO_PLAYER_TOURISM_RELIGION_NOTE", GetTourismModifierSharedReligion()) + "[ENDCOLOR]";
 	}
 
 	if (eMyIdeology != NO_POLICY_BRANCH_TYPE && eTheirIdeology != NO_POLICY_BRANCH_TYPE && eMyIdeology != eTheirIdeology)
@@ -2709,6 +3013,24 @@ CvString CvPlayerCulture::GetTourismModifierWithTooltip(PlayerTypes ePlayer) con
 	return szRtnValue;
 }
 
+/// Tourism modifier (base plus policy boost) - shared religion
+int CvPlayerCulture::GetTourismModifierSharedReligion() const
+{
+	return GC.getTOURISM_MODIFIER_SHARED_RELIGION() + m_pPlayer->GetPlayerPolicies()->GetNumericModifier(POLICYMOD_SHARED_RELIGION_TOURISM_MODIFIER);
+}
+
+/// Tourism modifier (base plus policy boost) - trade route
+int CvPlayerCulture::GetTourismModifierTradeRoute() const
+{
+	return GC.getTOURISM_MODIFIER_SHARED_RELIGION() + m_pPlayer->GetPlayerPolicies()->GetNumericModifier(POLICYMOD_TRADE_ROUTE_TOURISM_MODIFIER);
+}
+
+/// Tourism modifier (base plus policy boost) - open borders
+int CvPlayerCulture::GetTourismModifierOpenBorders() const
+{
+	return GC.getTOURISM_MODIFIER_SHARED_RELIGION() + m_pPlayer->GetPlayerPolicies()->GetNumericModifier(POLICYMOD_OPEN_BORDERS_TOURISM_MODIFIER);
+}
+
 /// Is the populace satisfied?
 PublicOpinionTypes CvPlayerCulture::GetPublicOpinionType() const
 {
@@ -2758,7 +3080,13 @@ void CvPlayerCulture::SetTurnIdeologySwitch(int iValue)
 /// How strong will a concert tour be right now?
 int CvPlayerCulture::GetTourismBlastStrength(int iMultiplier)
 {
-	return max(iMultiplier * GetTourism(), GC.getMINIUMUM_TOURISM_BLAST_STRENGTH());
+	int iStrength = iMultiplier * GetTourism();
+	
+	// Scale by game speed
+	iStrength *= GC.getGame().getGameSpeedInfo().getCulturePercent();
+	iStrength /= 100;
+
+	return max(iStrength, GC.getMINIUMUM_TOURISM_BLAST_STRENGTH());
 }
 
 /// Add tourism with all known civs
@@ -3186,7 +3514,7 @@ int CvPlayerCulture::ComputeHypotheticalPublicOpinionUnhappiness(PolicyBranchTyp
 	}
 }
 
-bool CvPlayerCulture::WantsDiplomatDoingPropaganda(PlayerTypes eTargetPlayer)
+bool CvPlayerCulture::WantsDiplomatDoingPropaganda(PlayerTypes eTargetPlayer) const
 {
 	// only return the top two
 	int iFirstValue = NO_INFLUENCE_LEVEL;
@@ -3228,6 +3556,30 @@ bool CvPlayerCulture::WantsDiplomatDoingPropaganda(PlayerTypes eTargetPlayer)
 	}
 
 	return (eFirstPlayer == eTargetPlayer || eSecondPlayer == eTargetPlayer);
+}
+
+/// How many diplomats could I possibly want now?
+int CvPlayerCulture::GetMaxPropagandaDiplomatsWanted() const
+{
+	int iRtnValue = 0;
+
+	// determine which civs have run out of techs to steal
+	for(uint ui = 0; ui < MAX_MAJOR_CIVS; ui++)
+	{
+		PlayerTypes eOtherPlayer = (PlayerTypes)ui;
+
+		if (m_pPlayer->GetID() == eOtherPlayer)
+		{
+			continue;
+		}
+		
+		if (WantsDiplomatDoingPropaganda(eOtherPlayer))
+		{
+			iRtnValue++;
+		}
+	}
+
+	return iRtnValue;
 }
 
 /// Summary of all culture/tourism coming from theming bonuses
@@ -3865,7 +4217,7 @@ int CvCityCulture::GetTourismMultiplier(PlayerTypes ePlayer, bool bIgnoreReligio
 		ReligionTypes ePlayerReligion = kCityPlayer.GetReligions()->GetReligionInMostCities();
 		if (ePlayerReligion != NO_RELIGION && kPlayer.GetReligions()->HasReligionInMostCities(ePlayerReligion))
 		{
-			iMultiplier += GC.getTOURISM_MODIFIER_SHARED_RELIGION();
+			iMultiplier += kCityPlayer.GetCulture()->GetTourismModifierSharedReligion();
 		}
 	}
 
@@ -3874,7 +4226,7 @@ int CvCityCulture::GetTourismMultiplier(PlayerTypes ePlayer, bool bIgnoreReligio
 		// Open borders with this player
 		if (kTeam.IsAllowsOpenBordersToTeam(kCityPlayer.getTeam()))
 		{
-			iMultiplier += GC.getTOURISM_MODIFIER_OPEN_BORDERS();
+			iMultiplier += kCityPlayer.GetCulture()->GetTourismModifierOpenBorders();
 		}
 	}
 
@@ -3883,7 +4235,7 @@ int CvCityCulture::GetTourismMultiplier(PlayerTypes ePlayer, bool bIgnoreReligio
 		// Trade route to one of this player's cities from here
 		if (GC.getGame().GetGameTrade()->IsPlayerConnectedToPlayer(m_pCity->getOwner(), ePlayer))
 		{
-			iMultiplier += GC.getTOURISM_MODIFIER_TRADE_ROUTE();
+			iMultiplier += kCityPlayer.GetCulture()->GetTourismModifierTradeRoute();
 		}
 	}
 
@@ -4200,7 +4552,7 @@ CvString CvCityCulture::GetTourismTooltip()
 			{
 				szRtnValue += "[NEWLINE][NEWLINE]";
 			}
-			szTemp = GetLocalizedText("TXT_KEY_CO_CITY_TOURISM_RELIGION_BONUS", GC.getTOURISM_MODIFIER_SHARED_RELIGION());
+			szTemp = GetLocalizedText("TXT_KEY_CO_CITY_TOURISM_RELIGION_BONUS", kCityPlayer.GetCulture()->GetTourismModifierSharedReligion());
 			szRtnValue += szTemp + sharedReligionCivs;
 		}
 		if (openBordersCivs.length() > 0)
@@ -4209,7 +4561,7 @@ CvString CvCityCulture::GetTourismTooltip()
 			{
 				szRtnValue += "[NEWLINE][NEWLINE]";
 			}
-			szTemp = GetLocalizedText("TXT_KEY_CO_CITY_TOURISM_OPEN_BORDERS_BONUS", GC.getTOURISM_MODIFIER_OPEN_BORDERS());
+			szTemp = GetLocalizedText("TXT_KEY_CO_CITY_TOURISM_OPEN_BORDERS_BONUS", kCityPlayer.GetCulture()->GetTourismModifierOpenBorders());
 			szRtnValue += szTemp + openBordersCivs;
 		}
 		if (tradeRouteCivs.length() > 0)
@@ -4218,7 +4570,7 @@ CvString CvCityCulture::GetTourismTooltip()
 			{
 				szRtnValue += "[NEWLINE][NEWLINE]";
 			}
-			szTemp = GetLocalizedText("TXT_KEY_CO_CITY_TOURISM_TRADE_ROUTE_BONUS", GC.getTOURISM_MODIFIER_TRADE_ROUTE());
+			szTemp = GetLocalizedText("TXT_KEY_CO_CITY_TOURISM_TRADE_ROUTE_BONUS", kCityPlayer.GetCulture()->GetTourismModifierTradeRoute());
 			szRtnValue += szTemp + tradeRouteCivs;
 		}
 		if (lessHappyCivs.length() > 0)
@@ -4636,9 +4988,16 @@ int CvCityCulture::GetThemingBonusIndex(BuildingClassTypes eBuildingClass) const
 /// Build a name for this artifact
 GreatWorkType CultureHelpers::GetArtifact(CvPlot *pPlot)
 {
-	GreatWorkType eGreatWork = NO_GREAT_WORK;
-
 	CvArchaeologyData archData = pPlot->GetArchaeologicalRecord();
+
+	// Writing?  If so we already know which one it is
+	if (archData.m_eArtifactType == CvTypes::getARTIFACT_WRITING())
+	{
+		return archData.m_eWork;
+	}
+
+	// Otherwise normal retrieval of Great Work
+	GreatWorkType eGreatWork = NO_GREAT_WORK;
 
 	//Developer Note:
 	//This could probably be shrunk down into a single SQL query but for now I'll leave it as 2.
@@ -5009,28 +5368,25 @@ void CultureHelpers::SendArtSwapNotification(GreatWorkSlotType eType, bool bArt,
 	CvGameCulture *pkGameCulture = GC.getGame().GetGameCulture();
 	CvPlayer &kOriginator = GET_PLAYER(eOriginator);
 
-	if (eReceipient == GC.getGame().getActivePlayer())
+	CvString strBuffer;
+	CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_GREAT_WORK_SWAP");
+	if (eType == CvTypes::getGREAT_WORK_SLOT_ART_ARTIFACT())
 	{
-		CvString strBuffer;
-		CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_GREAT_WORK_SWAP");
-		if (eType == CvTypes::getGREAT_WORK_SLOT_ART_ARTIFACT())
+		if (bArt)
 		{
-			if (bArt)
-			{
-				strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_GREAT_WORK_ART_SWAP", kOriginator.getLeaderInfo().GetDescription(),
-					pkGameCulture->GetGreatWorkName(iWorkFromRecipient), pkGameCulture->GetGreatWorkName(iWorkFromOriginator));
-			}
-			else
-			{
-				strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_ARTIFACT_SWAP", kOriginator.getLeaderInfo().GetDescription(),
-					pkGameCulture->GetGreatWorkName(iWorkFromRecipient), pkGameCulture->GetGreatWorkName(iWorkFromOriginator));
-			}
+			strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_GREAT_WORK_ART_SWAP", kOriginator.getLeaderInfo().GetDescription(),
+				pkGameCulture->GetGreatWorkName(iWorkFromRecipient), pkGameCulture->GetGreatWorkName(iWorkFromOriginator));
 		}
 		else
 		{
-			strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_GREAT_WORK_WRITING_SWAP", kOriginator.getLeaderInfo().GetDescription(),
+			strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_ARTIFACT_SWAP", kOriginator.getLeaderInfo().GetDescription(),
 				pkGameCulture->GetGreatWorkName(iWorkFromRecipient), pkGameCulture->GetGreatWorkName(iWorkFromOriginator));
 		}
-		GET_PLAYER(eReceipient).GetNotifications()->Add(NOTIFICATION_GREAT_WORK_COMPLETED_ACTIVE_PLAYER, strBuffer, strSummary, -1, -1, iWorkFromOriginator, kOriginator.GetID());
 	}
+	else
+	{
+		strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_GREAT_WORK_WRITING_SWAP", kOriginator.getLeaderInfo().GetDescription(),
+			pkGameCulture->GetGreatWorkName(iWorkFromRecipient), pkGameCulture->GetGreatWorkName(iWorkFromOriginator));
+	}
+	GET_PLAYER(eReceipient).GetNotifications()->Add(NOTIFICATION_GREAT_WORK_COMPLETED_ACTIVE_PLAYER, strBuffer, strSummary, -1, -1, iWorkFromOriginator, kOriginator.GetID());
 }

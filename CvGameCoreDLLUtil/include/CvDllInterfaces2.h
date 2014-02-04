@@ -56,9 +56,18 @@ static const GUID guidICvPreGame2 =
 static const GUID guidICvGameContext2 = 
 { 0xcf7820cd, 0xe960, 0x41ef, { 0x9c, 0x5a, 0x9d, 0x3, 0xc, 0x3b, 0xc3, 0xb } };
 
+// {8921E7A6-A1FD-4301-94B9-D583CC102A11}
+static const GUID guidICvGameContext3 = 
+{ 0x8921e7a6, 0xa1fd, 0x4301, { 0x94, 0xb9, 0xd5, 0x83, 0xcc, 0x10, 0x2a, 0x11 } };
+
 // {03C93CEC-650A-43de-9E1B-FE15D75EBA92}
 static const GUID guidICvUnit2 = 
 { 0x3c93cec, 0x650a, 0x43de, { 0x9e, 0x1b, 0xfe, 0x15, 0xd7, 0x5e, 0xba, 0x92 } };
+
+// {6F009D2A-247E-4818-AC1C-5197A8A79559}
+static const GUID guidICvWorldBuilderMapLoader2 = 
+{ 0x6f009d2a, 0x247e, 0x4818, { 0xac, 0x1c, 0x51, 0x97, 0xa8, 0xa7, 0x95, 0x59 } };
+
 
 
 //------------------------------------------------------------------------------
@@ -147,11 +156,26 @@ public:
 	virtual void DLLCALL SetEngineUserInterface(ICvUserInterface2* pUI) = 0;
 };
 
+class ICvGameContext3 : public ICvGameContext2
+{
+public:
+	static GUID DLLCALL GetInterfaceId() {return guidICvGameContext3; }
+
+	virtual HANDLE DLLCALL Debug_GetHeap() const = 0;
+};
+
 class ICvUnit2 : public ICvUnit1
 {
 public:
 	static GUID DLLCALL GetInterfaceId() { return guidICvUnit2; }
 
 	virtual bool DLLCALL IsTrade() const = 0;
+};
 
+class ICvWorldBuilderMapLoader2 : public ICvWorldBuilderMapLoader1
+{
+public:
+	static GUID DLLCALL GetInterfaceId() {return guidICvWorldBuilderMapLoader2; }
+
+	virtual WorldSizeTypes DLLCALL GetWorldSizeType() const = 0;
 };

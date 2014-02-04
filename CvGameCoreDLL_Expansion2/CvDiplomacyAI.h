@@ -901,6 +901,9 @@ public:
 	int GetNumCiviliansReturnedToMe(PlayerTypes ePlayer) const;
 	void ChangeNumCiviliansReturnedToMe(PlayerTypes ePlayer, int iChange);
 
+	int GetNumLandmarksBuiltForMe(PlayerTypes ePlayer) const;
+	void ChangeNumLandmarksBuiltForMe(PlayerTypes ePlayer, int iChange);
+
 	bool WasResurrectedBy(PlayerTypes ePlayer) const;
 	bool WasResurrectedThisTurnBy(PlayerTypes ePlayer) const;
 	void SetResurrectedBy(PlayerTypes ePlayer, bool bValue);
@@ -931,6 +934,7 @@ public:
 	int GetMinorCivDisputeLevelScore(PlayerTypes ePlayer);
 	int GetWarmongerThreatScore(PlayerTypes ePlayer);
 	int GetCiviliansReturnedToMeScore(PlayerTypes ePlayer);
+	int GetLandmarksBuiltForMeScore(PlayerTypes ePlayer);
 	int GetResurrectedScore(PlayerTypes ePlayer);
 	int GetLiberatedCitiesScore(PlayerTypes ePlayer);
 	int GetEmbassyScore(PlayerTypes ePlayer);
@@ -1193,6 +1197,7 @@ private:
 		short m_aiNumRequestsRefused[MAX_MAJOR_CIVS];
 
 		short m_aiNumCiviliansReturnedToMe[MAX_MAJOR_CIVS];
+		short m_aiNumLandmarksBuiltForMe[MAX_MAJOR_CIVS];
 		short m_aiResurrectedOnTurn[MAX_MAJOR_CIVS];
 		short m_aiNumTimesCultureBombed[MAX_MAJOR_CIVS];
 
@@ -1406,6 +1411,7 @@ private:
 	short* m_paiNumRequestsRefused;
 
 	short* m_paiNumCiviliansReturnedToMe;
+	short* m_paiNumLandmarksBuiltForMe;
 	short* m_paiResurrectedOnTurn; // slewis - the "resurrected by" player liberated the city of an otherwise dead player and brought them back into the game on the given turn
 	short* m_paiNumTimesCultureBombed;
 	short* m_paiNegativeReligiousConversionPoints;
@@ -1542,5 +1548,13 @@ private:
 	DiploStatementTypes m_eTestStatement;
 	int					m_iTestStatementArg1;
 };
+
+namespace CvDiplomacyAIHelpers
+{
+	int GetWarmongerOffset(int iNumCitiesRemaining);
+	CvString GetWarmongerPreviewString(PlayerTypes eCurrentOwner);
+	CvString GetLiberationPreviewString(PlayerTypes eOriginalOwner);
+	void ApplyWarmongerPenalties(PlayerTypes eConqueror, PlayerTypes eConquered);
+}
 
 #endif //CIV5_AI_DIPLOMACY_H

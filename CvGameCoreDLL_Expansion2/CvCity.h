@@ -44,7 +44,7 @@ public:
 	CvCity();
 	virtual ~CvCity();
 
-	void init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits = true);
+	void init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits = true, bool bInitialFounding = true);
 	void uninit();
 	void reset(int iID = 0, PlayerTypes eOwner = NO_PLAYER, int iX = 0, int iY = 0, bool bConstructorCall = false);
 	void setupGraphical();
@@ -97,7 +97,7 @@ public:
 	bool isNationalWondersMaxed() const;
 	bool isBuildingsMaxed() const;
 
-	bool canTrain(UnitTypes eUnit, bool bContinue = false, bool bTestVisible = false, bool bIgnoreCost = false, bool bIgnoreUpgrades = false, CvString* toolTipSink = NULL) const;
+	bool canTrain(UnitTypes eUnit, bool bContinue = false, bool bTestVisible = false, bool bIgnoreCost = false, bool bWillPurchase = false, CvString* toolTipSink = NULL) const;
 	bool canTrain(UnitCombatTypes eUnitCombat) const;
 	bool canConstruct(BuildingTypes eBuilding, bool bContinue = false, bool bTestVisible = false, bool bIgnoreCost = false, CvString* toolTipSink = NULL) const;
 	bool canCreate(ProjectTypes eProject, bool bContinue = false, bool bTestVisible = false) const;
@@ -451,8 +451,8 @@ public:
 
 	bool CanAirlift() const;
 
-	int getAirModifier() const;
-	void changeAirModifier(int iChange);
+	int GetMaxAirUnits() const;
+	void ChangeMaxAirUnits(int iChange);
 
 	int getNukeModifier() const;
 	void changeNukeModifier(int iChange);
@@ -852,8 +852,8 @@ protected:
 	FAutoVariable<int, CvCity> m_iSpaceProductionModifier;
 	FAutoVariable<int, CvCity> m_iFreeExperience;
 	FAutoVariable<int, CvCity> m_iCurrAirlift; // unused
-	FAutoVariable<int, CvCity> m_iMaxAirlift; // unused
-	FAutoVariable<int, CvCity> m_iAirModifier;
+	FAutoVariable<int, CvCity> m_iMaxAirUnits;
+	FAutoVariable<int, CvCity> m_iAirModifier; // unused
 	FAutoVariable<int, CvCity> m_iNukeModifier;
 	int m_iTradeRouteTargetBonus;
 	int m_iTradeRouteRecipientBonus;

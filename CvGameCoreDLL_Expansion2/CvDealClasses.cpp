@@ -753,7 +753,6 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 		//antonjs: todo: verify iChoice is valid as well:
 		//int iChoice = iData2;
 		int iNumVotes = iData3;
-		DBG_UNREFERENCED_LOCAL_VARIABLE(iNumVotes);
 		bool bRepeal = bFlag1;
 
 		if(GC.getGame().GetGameLeagues()->GetNumActiveLeagues() == 0)
@@ -2200,9 +2199,8 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 				// Research Agreement
 				else if(it->m_eItemType == TRADE_ITEM_RESEARCH_AGREEMENT)
 				{
-					GET_PLAYER(eAcceptedFromPlayer).GetTreasury()->LogExpenditure(GET_PLAYER(eAcceptedToPlayer).getCivilizationShortDescription(), iCost, 9);
-
 					GET_TEAM(eFromTeam).SetHasResearchAgreement(eToTeam, true);
+					GET_PLAYER(eAcceptedFromPlayer).GetTreasury()->LogExpenditure(GET_PLAYER(eAcceptedToPlayer).getCivilizationShortDescription(), iCost, 9);
 
 					if(!bSentResearchAgreementNotification)
 					{
@@ -2773,8 +2771,8 @@ void CvGameDeals::DoEndTradedItem(CvTradedItem* pItem, PlayerTypes eToPlayer, bo
 			// Beaker boost = ((sum of both players' beakers over term of RA) / 2) / 3) * (median tech percentage rate)
 			CvTeam& kTeam = GET_TEAM(toPlayer.getTeam());
 			int iToPlayerBeakers = toPlayer.GetResearchAgreementCounter(eFromPlayer);
-			int iFromPlayerBeakers = min(fromPlayer.GetResearchAgreementCounter(eToPlayer), iToPlayerBeakers); // Cap other player's contribution by the value of our contribution
-			int iBeakersBonus = (iToPlayerBeakers + iFromPlayerBeakers) / /*6*/GC.getRESEARCH_AGREEMENT_BOOST_DIVISOR();
+			int iFromPlayerBeakers = fromPlayer.GetResearchAgreementCounter(eToPlayer);
+			int iBeakersBonus = min(iToPlayerBeakers, iFromPlayerBeakers) / GC.getRESEARCH_AGREEMENT_BOOST_DIVISOR(); //one (third) of minimum contribution
 			iBeakersBonus = (iBeakersBonus * toPlayer.GetMedianTechPercentage()) / 100;
 
 			TechTypes eCurrentTech = toPlayer.GetPlayerTechs()->GetCurrentResearch();

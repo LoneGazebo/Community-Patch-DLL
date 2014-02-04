@@ -371,13 +371,19 @@ bool CvDllDatabaseUtility::PrefetchGameData()
 		//GC.getNumFlavorTypes() = iNumFlavors;
 		GC.setNumFlavorTypes(iNumFlavors);
 		paFlavors = FNEW(CvString[iNumFlavors], c_eCiv5GameplayDLL, 0);
-		Database::Results kResults("Type");
-		if(DB.SelectAll(kResults, "Flavors"))
+
+		Database::Results kResults;
+		if(DB.SelectWhere(kResults, "Flavors", "ID > -1"))
 		{
-			int i = 0;
 			while(kResults.Step())
 			{
-				paFlavors[i++] = kResults.GetText(0);
+				const int iFlavor = kResults.GetInt("ID");
+				CvAssert(iFlavor >= 0 && iFlavor < iNumFlavors);
+				if(iFlavor >= 0 && iFlavor < iNumFlavors)
+				{
+					paFlavors[iFlavor] = kResults.GetText("Type");
+
+				}
 			}
 		}
 		else
@@ -632,7 +638,7 @@ bool CvDllDatabaseUtility::ValidatePrefetchProcess()
 	ValidateVectorSize(getNumVictoryInfos);
 
 	// The domains are a special case in that the contents must match a populated enum exactly.
-#define ValidateDomain(domain) { CvDomainInfo* pkDomainInfo; if (GC.getNumUnitDomainInfos() < (int)domain || (pkDomainInfo = GC.getUnitDomainInfo(domain)) == NULL || strcmp(pkDomainInfo->GetType(), #domain) != 0) bError = true; }
+#define ValidateDomain(domain) { CvDomainInfo* pkDomainInfo; if (GC.getNumUnitDomainInfos() <= (int)domain || (pkDomainInfo = GC.getUnitDomainInfo(domain)) == NULL || strcmp(pkDomainInfo->GetType(), #domain) != 0) bError = true; }
 
 	ValidateDomain(DOMAIN_SEA);
 	ValidateDomain(DOMAIN_AIR);

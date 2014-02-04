@@ -15,6 +15,7 @@
 #include "CvDiplomacyAI.h"
 #include "CvDllInterfaces.h"
 #include "CvDllPlot.h"
+#include "cvStopWatch.h"
 
 // must be included after all other headers
 #include "LintFree.h"
@@ -1984,6 +1985,7 @@ void CvMinorCivAI::DoPickUniqueUnit()
 /// Processed every turn
 void CvMinorCivAI::DoTurn()
 {
+	AI_PERF_FORMAT("AI-perf.csv", ("CvMinorCivAI::DoTurn, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), GetPlayer()->getCivilizationShortDescription()) );
 	if(GetPlayer()->isMinorCiv())
 	{
 		DoTurnStatus();
@@ -2006,72 +2008,82 @@ void CvMinorCivAI::DoTurn()
 /// Minor is now dead or alive (haha, get it?)
 void CvMinorCivAI::DoChangeAliveStatus(bool bAlive)
 {
-	bool bFriends;
-	bool bAllies;
-
-	int iBestFriendship = 0;
-	PlayerTypes eBestPlayer = NO_PLAYER;
-
-	// If we're about to die, finish up any outstanding quests
 	if (!bAlive)
+	{
+		// Final check for quests
 		DoTestActiveQuests(/*bTestComplete*/ true, /*bTestObsolete*/ true);
 
-	// Loop through all major civs to change friendship and quests
-	PlayerTypes ePlayer;
+		std::vector<int> vNewInfluence;
+		for (int i = 0; i < MAX_MAJOR_CIVS; ++i)
+		{
+			PlayerTypes e = (PlayerTypes)i;
+
+			// Cancel quests and PtPs
+			DoChangeProtectionFromMajor(e, false);
+			EndAllActiveQuestsForPlayer(e);
+
+			// Calculate new influence levels (don't set here, since that could create a false temporary ally)
+			int iOldInfluence = GetBaseFriendshipWithMajor(e);
+			int iNewInfluence = iOldInfluence;
+			if (IsFriendshipAboveAlliesThreshold(iOldInfluence))
+			{
+				iNewInfluence = GC.getFRIENDSHIP_ALLIES_ON_DEATH();
+			}
+			else if (IsFriendshipAboveFriendsThreshold(iOldInfluence))
+			{
+				iNewInfluence = GC.getFRIENDSHIP_FRIENDS_ON_DEATH();
+			}
+			else if (iOldInfluence > GC.getFRIENDSHIP_THRESHOLD_NEUTRAL())
+			{
+				iNewInfluence = GC.getFRIENDSHIP_NEUTRAL_ON_DEATH();
+			}
+			vNewInfluence.push_back(iNewInfluence);
+		}
+
+		// Set new influence values
+		SetDisableNotifications(true);
+		for (unsigned int i = 0; i < vNewInfluence.size(); ++i)
+		{
+			PlayerTypes e = (PlayerTypes)i;
+			// special workaround to allow status changes despite minor already being dead
+			DoFriendshipChangeEffects(e, GetEffectiveFriendshipWithMajor(e), vNewInfluence.at(i), /*bFromQuest*/false, /*bIgnoreMinorDeath*/true);
+			SetFriendshipWithMajor(e, vNewInfluence.at(i));
+		}
+		SetDisableNotifications(false);
+	}
+
+	// Apply or Remove any active bonuses
 	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
-		ePlayer = (PlayerTypes) iPlayerLoop;
+		PlayerTypes ePlayer = (PlayerTypes) iPlayerLoop;
 
-		bFriends = false;
-		bAllies = false;
-
-		// Update whether this player is friends (if player is dead it's okay, in case they are liberated)
+		bool bFriends = false;
+		bool bAllies = false;
 		if(IsFriendshipAboveFriendsThreshold(GetEffectiveFriendshipWithMajor(ePlayer)))
-			bFriends = true;
-
-		if(GetEffectiveFriendshipWithMajor(ePlayer) > iBestFriendship)
 		{
-			iBestFriendship = GetEffectiveFriendshipWithMajor(ePlayer);
-			eBestPlayer = ePlayer;
+			bFriends = true;
 		}
-
 		if(GetAlly() == ePlayer)
 		{
+			CvAssertMsg(bAlive, "A Minor about to die still has an Ally, when it should have none.");
 			bAllies = true;
-			eBestPlayer = ePlayer;
 		}
-
-		// Add or remove bonuses depending on minor's bAlive status
 		if(bFriends || bAllies)
+		{
 			DoSetBonus(ePlayer, bAlive, bFriends, bAllies);
-
-		// If this minor is now Dead, cancel active quests and PtPs for ePlayer
-		if(!bAlive)
-		{
-			DoChangeProtectionFromMajor(ePlayer, false);
-			EndAllActiveQuestsForPlayer(ePlayer);
 		}
 	}
 
-	// This minor is now Alive
-	if(bAlive)
+	// Death - Reset the cached ally and barbarian threat counter
+	if (!bAlive)
 	{
-		if(GetAlly() == NO_PLAYER)
-		{
-			if(eBestPlayer != NO_PLAYER && iBestFriendship > GetAlliesThreshold())
-			{
-				DoSetBonus(eBestPlayer, bAlive, /*bFriends*/ false, /*bAllies*/ true);
-				SetAlly(eBestPlayer);
-			}
-		}
-	}
-	// This minor is now Dead
-	else
-	{
-		if(GetAlly() != NO_PLAYER)
+		bool bHasAlly = GetAlly() != NO_PLAYER;
+		CvAssertMsg(!bHasAlly, "A Minor about to die still has an Ally, when it should have none.");
+		if(bHasAlly)
 		{
 			SetAlly(NO_PLAYER);
 		}
+
 		SetTurnsSinceThreatenedAnnouncement(-1);
 	}
 }
@@ -2404,12 +2416,16 @@ void CvMinorCivAI::DoAddStartingResources(CvPlot* pCityPlot)
 					}
 				}
 			}
-			int iRoll = GC.getGame().getJonRandNum(veUniqueLuxuries.size(), "Rolling for Mercantile city-state special luxury"); // range = [0, size - 1]
-			int iQuantity = GC.getMINOR_CIV_MERCANTILE_RESOURCES_QUANTITY();
-			ResourceTypes eSpecialLuxury = veUniqueLuxuries[iRoll];
 
 			pCityPlot->setResourceType(NO_RESOURCE, 0, true);
-			pCityPlot->setResourceType(eSpecialLuxury, iQuantity, true);
+			if (veUniqueLuxuries.size() > 0)
+			{
+				int iRoll = GC.getGame().getJonRandNum(veUniqueLuxuries.size(), "Rolling for Mercantile city-state special luxury"); // range = [0, size - 1]
+				int iQuantity = GC.getMINOR_CIV_MERCANTILE_RESOURCES_QUANTITY();
+				ResourceTypes eSpecialLuxury = veUniqueLuxuries[iRoll];
+
+				pCityPlot->setResourceType(eSpecialLuxury, iQuantity, true);
+			}
 		}
 	}
 }
@@ -2688,37 +2704,39 @@ void CvMinorCivAI::DoThreateningBarbKilled(PlayerTypes eKillingPlayer, int iX, i
 /// Time to send out a "Help us with Units" notification?
 void CvMinorCivAI::DoTestProxyWarAnnouncement()
 {
-	// Only announce to active player
-	PlayerTypes eActivePlayer = GC.getGame().getActivePlayer();
-	CvTeam* pActiveTeam = &GET_TEAM(GC.getGame().getActiveTeam());
-	if (!pActiveTeam->isHasMet(GetPlayer()->getTeam()))
-	{
-		return;
-	}
-
-	for (int i = 0; i < MAX_MAJOR_CIVS; i++)
-	{
-		PlayerTypes eOtherMajor = (PlayerTypes) i;
-		if (IsProxyWarActiveForMajor(eActivePlayer, eOtherMajor))
+	for(int iNotifyLoop = 0; iNotifyLoop < MAX_MAJOR_CIVS; ++iNotifyLoop){
+		PlayerTypes eNotifyPlayer = (PlayerTypes) iNotifyLoop;
+		CvPlayerAI& kCurNotifyPlayer = GET_PLAYER(eNotifyPlayer);
+		CvTeam* pNotifyTeam = &GET_TEAM(kCurNotifyPlayer.getTeam());
+		if (!pNotifyTeam->isHasMet(GetPlayer()->getTeam()))
 		{
-			CvPlayer* pOtherMajor = &GET_PLAYER(eOtherMajor);
-			CvAssertMsg(pOtherMajor, "Error sending out proxy war notification from a city-state. Please send Anton your save file and version.");
-			if (pOtherMajor)
+			continue;
+		}
+
+		for (int i = 0; i < MAX_MAJOR_CIVS; i++)
+		{
+			PlayerTypes eOtherMajor = (PlayerTypes) i;
+			if (IsProxyWarActiveForMajor(eNotifyPlayer, eOtherMajor))
 			{
-				TeamTypes eEnemyTeam = pOtherMajor->getTeam();
-				PlayerTypes eEnemyTeamLeader = GET_TEAM(eEnemyTeam).getLeaderID();
-				CvPlayer* pEnemyTeamLeader = &GET_PLAYER(eEnemyTeamLeader);
-				CvAssert(pEnemyTeamLeader);
-				if (pEnemyTeamLeader && GET_TEAM(GetPlayer()->getTeam()).GetNumTurnsAtWar(eEnemyTeam) == 1)
+				CvPlayer* pOtherMajor = &GET_PLAYER(eOtherMajor);
+				CvAssertMsg(pOtherMajor, "Error sending out proxy war notification from a city-state. Please send Anton your save file and version.");
+				if (pOtherMajor)
 				{
-					Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_WAR_UNIT_HELP");
-					strMessage << GetPlayer()->getCivilizationShortDescriptionKey() << pEnemyTeamLeader->getCivilizationShortDescriptionKey();
-					Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_MINOR_WAR_UNIT_HELP");
-					strSummary << GetPlayer()->getCivilizationShortDescriptionKey();
+					TeamTypes eEnemyTeam = pOtherMajor->getTeam();
+					PlayerTypes eEnemyTeamLeader = GET_TEAM(eEnemyTeam).getLeaderID();
+					CvPlayer* pEnemyTeamLeader = &GET_PLAYER(eEnemyTeamLeader);
+					CvAssert(pEnemyTeamLeader);
+					if (pEnemyTeamLeader && GET_TEAM(GetPlayer()->getTeam()).GetNumTurnsAtWar(eEnemyTeam) == 1)
+					{
+						Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_WAR_UNIT_HELP");
+						strMessage << GetPlayer()->getCivilizationShortDescriptionKey() << pEnemyTeamLeader->getCivilizationShortDescriptionKey();
+						Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_MINOR_WAR_UNIT_HELP");
+						strSummary << GetPlayer()->getCivilizationShortDescriptionKey();
 
-					AddQuestNotification(strMessage.toUTF8(), strSummary.toUTF8(), eActivePlayer);
+						AddQuestNotification(strMessage.toUTF8(), strSummary.toUTF8(), eNotifyPlayer);
 
-					break;
+						break;
+					}
 				}
 			}
 		}
@@ -2727,12 +2745,6 @@ void CvMinorCivAI::DoTestProxyWarAnnouncement()
 
 void CvMinorCivAI::DoTestProxyWarAnnouncementOnFirstContact(PlayerTypes eMajor)
 {
-	// Only announce to active player
-	if (eMajor != GC.getGame().getActivePlayer())
-	{
-		return;
-	}
-
 	for (int i = 0; i < MAX_MAJOR_CIVS; i++)
 	{
 		PlayerTypes eOtherMajor = (PlayerTypes) i;
@@ -2753,7 +2765,7 @@ void CvMinorCivAI::DoTestProxyWarAnnouncementOnFirstContact(PlayerTypes eMajor)
 					Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_MINOR_WAR_UNIT_HELP");
 					strSummary << GetPlayer()->getCivilizationShortDescriptionKey();
 
-					AddQuestNotification(strMessage.toUTF8(), strSummary.toUTF8(), GC.getGame().getActivePlayer());
+					AddQuestNotification(strMessage.toUTF8(), strSummary.toUTF8(), eMajor);
 
 					break;
 				}
@@ -5484,7 +5496,7 @@ void CvMinorCivAI::ResetFriendshipWithMajor(PlayerTypes ePlayer)
 	// If ePlayer isn't a major civ then there is no influence value to reset, so just return
 	if(ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return; // as defined during Reset()
 
-	int iOldFriendship = GetBaseFriendshipWithMajor(ePlayer);
+	int iOldFriendship = GetEffectiveFriendshipWithMajor(ePlayer);
 	const int iResetFriendship = 0;
 	if(GetPlayer()->isAlive())
 	{
@@ -6024,96 +6036,100 @@ void CvMinorCivAI::DoSetBonus(PlayerTypes ePlayer, bool bAdd, bool bFriends, boo
 	if(bPassedBySomeone)
 		ePlayer = eNewAlly;
 
-	CvTeam* pActiveTeam = &GET_TEAM(GC.getGame().getActiveTeam());
-	TeamTypes eNewAllyTeam = GET_PLAYER(ePlayer).getTeam();
-	const char* strNewBestPlayersNameKey;
+	for(int iNotifyLoop = 0; iNotifyLoop < MAX_MAJOR_CIVS; ++iNotifyLoop){
+		PlayerTypes eNotifyPlayer = (PlayerTypes) iNotifyLoop;
+		CvPlayerAI& kCurNotifyPlayer = GET_PLAYER(eNotifyPlayer);
+		CvTeam* pNotifyTeam = &GET_TEAM(kCurNotifyPlayer.getTeam());
+		TeamTypes eNewAllyTeam = GET_PLAYER(ePlayer).getTeam();
+		const char* strNewBestPlayersNameKey;
 
-	// Active player has met the new Ally
-	if(pActiveTeam->isHasMet(eNewAllyTeam))
-		strNewBestPlayersNameKey = GET_PLAYER(ePlayer).getCivilizationShortDescriptionKey();
-	// Active player has NOT met the new Ally
-	else
-		strNewBestPlayersNameKey = "TXT_KEY_UNMET_PLAYER";
-
-	const char* strOldBestPlayersNameKey = "";
-
-	// Someone got passed up
-	if(eOldAlly != NO_PLAYER)
-	{
-		// Active player has met the old Ally
-		if(pActiveTeam->isHasMet(eOldAllyTeam))
-			strOldBestPlayersNameKey = GET_PLAYER(eOldAlly).getCivilizationShortDescriptionKey();
-		// Active player has NOT met the old Ally
+		// Notify player has met the new Ally
+		if(pNotifyTeam->isHasMet(eNewAllyTeam))
+			strNewBestPlayersNameKey = GET_PLAYER(ePlayer).getCivilizationShortDescriptionKey();
+		// Notify player has NOT met the new Ally
 		else
-			strOldBestPlayersNameKey = "TXT_KEY_UNMET_PLAYER";
-	}
+			strNewBestPlayersNameKey = "TXT_KEY_UNMET_PLAYER";
 
-	const char* strMinorsNameKey = GetPlayer()->getNameKey();
-	TeamTypes eMinorTeam = GetPlayer()->getTeam();
+		const char* strOldBestPlayersNameKey = "";
 
-	// Adding/Increasing bonus
-	if(bAdd)
-	{
-		// Jumped up to Allies (either from Neutral or from Friends, or passing another player)
-		if(bAllies)
+		// Someone got passed up
+		if(eOldAlly != NO_PLAYER)
 		{
-			if(ePlayer != GC.getGame().getActivePlayer())
-			{
-				// Has the active player met this minor
-				if(pActiveTeam->isHasMet(eMinorTeam))
-				{
-					// Someone got passed up
-					if(eOldAlly != NO_PLAYER && eOldAlly != ePlayer)
-					{
-						strMessageOthers = Localization::Lookup("TXT_KEY_NTFN_MINOR_NEW_BEST_RELATIONS_ALL");
-						strMessageOthers << strNewBestPlayersNameKey << strOldBestPlayersNameKey << strMinorsNameKey;
-						strSummaryOthers = Localization::Lookup("TXT_KEY_NTFN_SMMRY_MINOR_BEST_RELATIONS_ALL");
-						strSummaryOthers << strMinorsNameKey;
-					}
-					// No one previously had the bonus
-					else
-					{
-						strMessageOthers = Localization::Lookup("TXT_KEY_NTFN_MINOR_NOW_BEST_RELATIONS_ALL");
-						strMessageOthers << strNewBestPlayersNameKey << strMinorsNameKey;
-						strSummaryOthers = Localization::Lookup("TXT_KEY_NTFN_SMMRY_MINOR_NOW_ALLIES_ALL");
-						strSummaryOthers << strMinorsNameKey << strNewBestPlayersNameKey;
-					}
+			// Notify player has met the old Ally
+			if(pNotifyTeam->isHasMet(eOldAllyTeam))
+				strOldBestPlayersNameKey = GET_PLAYER(eOldAlly).getCivilizationShortDescriptionKey();
+			// Notify player has NOT met the old Ally
+			else
+				strOldBestPlayersNameKey = "TXT_KEY_UNMET_PLAYER";
+		}
 
-					// If we're being passed by someone, then don't display this message... we'll roll it into a later one
-					if(eOldAlly != GC.getGame().getActivePlayer())
-						AddNotification(strMessageOthers.toUTF8(), strSummaryOthers.toUTF8(), GC.getGame().getActivePlayer());
+		const char* strMinorsNameKey = GetPlayer()->getNameKey();
+		TeamTypes eMinorTeam = GetPlayer()->getTeam();
+
+		// Adding/Increasing bonus
+		if(bAdd)
+		{
+			// Jumped up to Allies (either from Neutral or from Friends, or passing another player)
+			if(bAllies)
+			{
+				if(ePlayer != eNotifyPlayer)
+				{
+					// Has the notify player met this minor
+					if(pNotifyTeam->isHasMet(eMinorTeam))
+					{
+						// Someone got passed up
+						if(eOldAlly != NO_PLAYER && eOldAlly != ePlayer)
+						{
+							strMessageOthers = Localization::Lookup("TXT_KEY_NTFN_MINOR_NEW_BEST_RELATIONS_ALL");
+							strMessageOthers << strNewBestPlayersNameKey << strOldBestPlayersNameKey << strMinorsNameKey;
+							strSummaryOthers = Localization::Lookup("TXT_KEY_NTFN_SMMRY_MINOR_BEST_RELATIONS_ALL");
+							strSummaryOthers << strMinorsNameKey;
+						}
+						// No one previously had the bonus
+						else
+						{
+							strMessageOthers = Localization::Lookup("TXT_KEY_NTFN_MINOR_NOW_BEST_RELATIONS_ALL");
+							strMessageOthers << strNewBestPlayersNameKey << strMinorsNameKey;
+							strSummaryOthers = Localization::Lookup("TXT_KEY_NTFN_SMMRY_MINOR_NOW_ALLIES_ALL");
+							strSummaryOthers << strMinorsNameKey << strNewBestPlayersNameKey;
+						}
+
+						// If we're being passed by someone, then don't display this message... we'll roll it into a later one
+						if(eOldAlly != eNotifyPlayer)
+							AddNotification(strMessageOthers.toUTF8(), strSummaryOthers.toUTF8(), eNotifyPlayer);
+					}
 				}
 			}
 		}
-	}
-	// Removing/Reducing bonus
-	else
-	{
-		// Dropped from Allies
-		if(bAllies)
+		// Removing/Reducing bonus
+		else
 		{
-			if(ePlayer != GC.getGame().getActivePlayer())
+			// Dropped from Allies
+			if(bAllies)
 			{
-				if(pActiveTeam->isHasMet(eMinorTeam))
+				if(ePlayer != eNotifyPlayer)
 				{
-					// Only show this message for normal friendship decay
-					if(!bPassedBySomeone)
+					if(pNotifyTeam->isHasMet(eMinorTeam))
 					{
-						const char* strOldAllyNameKey;
+						// Only show this message for normal friendship decay
+						if(!bPassedBySomeone)
+						{
+							const char* strOldAllyNameKey;
 
-						// Active player has met the old Ally
-						if(pActiveTeam->isHasMet(eOldAllyTeam))
-							strOldAllyNameKey = GET_PLAYER(eOldAlly).getCivilizationShortDescriptionKey();
-						// Active player has NOT met the old Ally
-						else
-							strOldAllyNameKey = "TXT_KEY_UNMET_PLAYER";
+							// Notify player has met the old Ally
+							if(pNotifyTeam->isHasMet(eOldAllyTeam))
+								strOldAllyNameKey = GET_PLAYER(eOldAlly).getCivilizationShortDescriptionKey();
+							// Notify player has NOT met the old Ally
+							else
+								strOldAllyNameKey = "TXT_KEY_UNMET_PLAYER";
 
-						strMessageOthers = Localization::Lookup("TXT_KEY_NTFN_MINOR_BEST_RELATIONS_LOST_ALL");
-						strMessageOthers << strOldAllyNameKey << strMinorsNameKey;
-						strSummaryOthers = Localization::Lookup("TXT_KEY_NTFN_SMMRY_MINOR_BEST_RELATIONS_LOST_ALL");
-						strSummaryOthers << strMinorsNameKey << strOldAllyNameKey;
+							strMessageOthers = Localization::Lookup("TXT_KEY_NTFN_MINOR_BEST_RELATIONS_LOST_ALL");
+							strMessageOthers << strOldAllyNameKey << strMinorsNameKey;
+							strSummaryOthers = Localization::Lookup("TXT_KEY_NTFN_SMMRY_MINOR_BEST_RELATIONS_LOST_ALL");
+							strSummaryOthers << strMinorsNameKey << strOldAllyNameKey;
 
-						AddNotification(strMessageOthers.toUTF8(), strSummaryOthers.toUTF8(), GC.getGame().getActivePlayer());
+							AddNotification(strMessageOthers.toUTF8(), strSummaryOthers.toUTF8(), eNotifyPlayer);
+						}
 					}
 				}
 			}
@@ -7676,8 +7692,8 @@ void CvMinorCivAI::DoBuyout(PlayerTypes eMajor)
 
 	// Pay the cost
 	const int iBuyoutCost = GetBuyoutCost(eMajor);
-	GET_PLAYER(eMajor).GetTreasury()->ChangeGold(-iBuyoutCost);
 	GET_PLAYER(eMajor).GetTreasury()->LogExpenditure(GetPlayer()->GetMinorCivAI()->GetNamesListAsString(0), iBuyoutCost,6);
+	GET_PLAYER(eMajor).GetTreasury()->ChangeGold(-iBuyoutCost);
 
 	int iNumUnits = 0;
 	int iCapitalX = 0;
@@ -7796,61 +7812,27 @@ int CvMinorCivAI::GetBullyGoldAmount(PlayerTypes /*eBullyPlayer*/)
 int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, CvString* sTooltipSink)
 {
 	CvString sFactors = "";
-	Localization::String sTemp;
 
-	const int iDefaultScore = -110;
+	int iScore = 0;
 	const int iFailScore = -300;
 
 	CvAssertMsg(GetPlayer()->GetID() != eBullyPlayer, "Minor civ and bully civ not expected to have the same ID!");
-	if(GetPlayer()->GetID() == eBullyPlayer) return iFailScore;
+	if(GetPlayer()->GetID() == eBullyPlayer)
+		return iFailScore;
 
 	CvAssertMsg(eBullyPlayer >= 0, "eBullyPlayer is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eBullyPlayer < MAX_MAJOR_CIVS, "eBullyPlayer is expected to be within maximum bounds (invalid Index)");
-	if(eBullyPlayer < 0 || eBullyPlayer >= MAX_MAJOR_CIVS) return iFailScore;
+	if(eBullyPlayer < 0 || eBullyPlayer >= MAX_MAJOR_CIVS)
+		return iFailScore;
 
 	// Can't bully the dead
 	if(!GetPlayer()->isAlive())
 		return iFailScore;
 
-	// The score beings negative, and has to be bumped up to positive by the below factors in order for the bullying to be successful
-	int iScore = iDefaultScore;
-	sTemp = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_FACTOR_NEGATIVE");
-	sTemp << iDefaultScore;
-	sTemp << "TXT_KEY_POP_CSTATE_BULLY_FACTOR_BASE_RELUCTANCE";
-	sFactors += sTemp.toUTF8();
-
-	if (bForUnit)
-	{
-		int iUnitScore = -30;
-		iScore += iUnitScore;
-		sTemp = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_FACTOR_NEGATIVE");
-		sTemp << iUnitScore;
-		sTemp << "TXT_KEY_POP_CSTATE_BULLY_FACTOR_UNIT_RELUCTANCE";
-		sFactors += sTemp.toUTF8();
-	}
-
-	// **************************
-	// City-State population
-	//
-	// -300 ~ -0
-	// **************************
-	if (bForUnit)
-	{
-		if (GetPlayer()->getCapitalCity() == NULL || GetPlayer()->getCapitalCity()->getPopulation() < 4)
-		{
-			int iPopulationScore = iFailScore;
-			iScore += iPopulationScore;
-			sTemp = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_FACTOR_NEGATIVE");
-			sTemp << iPopulationScore;
-			sTemp << "TXT_KEY_POP_CSTATE_BULLY_FACTOR_LOW_POPULATION";
-			sFactors += sTemp.toUTF8();
-		}
-	}
-	
 	// **************************
 	// Global military power ranking of major
 	//
-	// +0 ~ +100
+	// +0 ~ +75
 	// **************************
 	CvWeightedVector<PlayerTypes, MAX_MAJOR_CIVS, true> veMilitaryRankings;
 	PlayerTypes eMajorLoop;
@@ -7870,25 +7852,24 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 		if(veMilitaryRankings.GetElement(iRanking) == eBullyPlayer)
 		{
 			float fRankRatio = (float)(veMilitaryRankings.size() - iRanking) / (float)(veMilitaryRankings.size());
-			iGlobalMilitaryScore = (int)(fRankRatio * 100); // A score between 100*(1 / num majors alive) and 100, with the highest rank major getting 100
+			iGlobalMilitaryScore = (int)(fRankRatio * 75); // A score between 75*(1 / num majors alive) and 75, with the highest rank major getting 75
 			iScore += iGlobalMilitaryScore;
 			break;
 		}
 	}
-	sTemp = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_FACTOR_POSITIVE");
-	sTemp << iGlobalMilitaryScore;
-	sTemp << "TXT_KEY_POP_CSTATE_BULLY_FACTOR_GLOBAL_MILITARY";
-	sFactors += sTemp.toUTF8();
-
-	// **************************
-	// General military power comparison
-	// **************************
-
+	
+	if (sTooltipSink)
+	{
+		Localization::String strPositiveFactor = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_FACTOR_POSITIVE");
+		strPositiveFactor << iGlobalMilitaryScore;
+		strPositiveFactor << "TXT_KEY_POP_CSTATE_BULLY_FACTOR_GLOBAL_MILITARY";
+		sFactors += strPositiveFactor.toUTF8();
+	}
 
 	// **************************
 	// Local military power comparison
 	//
-	// +0 ~ +100
+	// +0 ~ +125
 	// **************************
 	int iComparisonRadius = std::max(GC.getMap().getGridWidth() / 10, 5);
 	CvCity* pMinorCapital = GetPlayer()->getCapitalCity();
@@ -7948,42 +7929,92 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 	int iLocalPowerScore = 0;
 	if(fLocalPowerRatio >= 3.0)
 	{
-		iLocalPowerScore += 100;
+		iLocalPowerScore += 125;
 	}
 	else if(fLocalPowerRatio >= 2.0)
 	{
-		iLocalPowerScore += 80;
+		iLocalPowerScore += 100;
 	}
 	else if(fLocalPowerRatio >= 1.5)
 	{
-		iLocalPowerScore += 60;
+		iLocalPowerScore += 75;
 	}
 	else if(fLocalPowerRatio >= 1.0)
 	{
-		iLocalPowerScore += 40;
+		iLocalPowerScore += 50;
 	}
 	else if(fLocalPowerRatio >= 0.5)
 	{
-		iLocalPowerScore += 20;
+		iLocalPowerScore += 25;
 	}
 	iScore += iLocalPowerScore;
-	sTemp = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_FACTOR_POSITIVE");
-	sTemp << iLocalPowerScore;
-	sTemp << "TXT_KEY_POP_CSTATE_BULLY_FACTOR_MILITARY_PRESENCE";
-	sFactors += sTemp.toUTF8();
+	
+	if (sTooltipSink)
+	{
+		Localization::String strPositiveFactor = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_FACTOR_POSITIVE");
+		strPositiveFactor << iLocalPowerScore;
+		strPositiveFactor << "TXT_KEY_POP_CSTATE_BULLY_FACTOR_MILITARY_PRESENCE";
+		sFactors += strPositiveFactor.toUTF8();
+	}
 
 	// **************************
-	// Local military threat from major
+	// Social Policies
+	//
+	// Modifier to positive scores
 	// **************************
-	//antonjs: consider: count the number of threatening units (similar to counting threatening barbarians), and/or their power
+	int iPoliciesScore = 0;
+	int iPoliciesMod = GET_PLAYER(eBullyPlayer).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_MINOR_BULLY_SCORE_MODIFIER);
+	if (iPoliciesMod != 0)
+	{
+		iPoliciesScore += iGlobalMilitaryScore;
+		iPoliciesScore += iLocalPowerScore;
 
-
+		iPoliciesScore *= iPoliciesMod;
+		iPoliciesScore /= 100;
+	}
+	if (sTooltipSink && iPoliciesScore != 0)
+	{
+		Localization::String strPositiveFactor = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_FACTOR_POSITIVE");
+		strPositiveFactor << iPoliciesScore;
+		strPositiveFactor << "TXT_KEY_POP_CSTATE_BULLY_FACTOR_GUNBOAT_DIPLOMACY";
+		sFactors += strPositiveFactor.toUTF8();
+	}
+	iScore += iPoliciesScore;
 
 	// **************************
-	// Proximity to major
+	// Base Reluctance
+	//
+	// -110
 	// **************************
+	const int iBaseReluctanceScore = -110;
+	
+	if (sTooltipSink)
+	{
+		Localization::String strNegativeFactor = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_FACTOR_NEGATIVE");
+		strNegativeFactor << iBaseReluctanceScore;
+		strNegativeFactor << "TXT_KEY_POP_CSTATE_BULLY_FACTOR_BASE_RELUCTANCE";
+		sFactors += strNegativeFactor.toUTF8();
+	}
 
+	iScore += iBaseReluctanceScore;
 
+	// **************************
+	// Current influence of major
+	//
+	// -999 ~ -0
+	// **************************
+	if(GetEffectiveFriendshipWithMajor(eBullyPlayer) < GC.getFRIENDSHIP_THRESHOLD_CAN_BULLY())
+	{
+		int iInfluenceScore = iFailScore;
+		iScore += iInfluenceScore;
+		if (sTooltipSink)
+		{
+			Localization::String strNegativeFactor = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_FACTOR_NEGATIVE");
+			strNegativeFactor << iInfluenceScore;
+			strNegativeFactor << "TXT_KEY_POP_CSTATE_BULLY_FACTOR_LOW_INFLUENCE";
+			sFactors += strNegativeFactor.toUTF8();
+		}
+	}
 
 	// **************************
 	// Previous bully attempts
@@ -7997,49 +8028,66 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 		{
 			int iBulliedVeryRecentlyScore = iFailScore;
 			iScore += iBulliedVeryRecentlyScore;
-			sTemp = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_FACTOR_NEGATIVE");
-			sTemp << iBulliedVeryRecentlyScore;
-			sTemp << "TXT_KEY_POP_CSTATE_BULLY_FACTOR_BULLIED_VERY_RECENTLY";
-			sFactors += sTemp.toUTF8();
+			if (sTooltipSink)
+			{
+				Localization::String strNegativeFactor = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_FACTOR_NEGATIVE");
+				strNegativeFactor << iBulliedVeryRecentlyScore;
+				strNegativeFactor << "TXT_KEY_POP_CSTATE_BULLY_FACTOR_BULLIED_VERY_RECENTLY";
+				sFactors += strNegativeFactor.toUTF8();
+			}
 		}
 		else if(iLastBullyTurn + 20 >= GC.getGame().getGameTurn())
 		{
 			int iBulliedRecentlyScore = -40;
 			iScore += iBulliedRecentlyScore;
-			sTemp = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_FACTOR_NEGATIVE");
-			sTemp << iBulliedRecentlyScore;
-			sTemp << "TXT_KEY_POP_CSTATE_BULLY_FACTOR_BULLIED_RECENTLY";
-			sFactors += sTemp.toUTF8();
+			if (sTooltipSink)
+			{
+				Localization::String strNegativeFactor = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_FACTOR_NEGATIVE");
+				strNegativeFactor << iBulliedRecentlyScore;
+				strNegativeFactor << "TXT_KEY_POP_CSTATE_BULLY_FACTOR_BULLIED_RECENTLY";
+				sFactors += strNegativeFactor.toUTF8();
+			}
 		}
 	}
 
 	// **************************
-	// Current influence of major
+	// Tribute type
 	//
-	// -999 ~ -0
+	// -30 ~ -0
 	// **************************
-	if(GetEffectiveFriendshipWithMajor(eBullyPlayer) < GC.getFRIENDSHIP_THRESHOLD_CAN_BULLY())
+	if (bForUnit)
 	{
-		int iInfluenceScore = iFailScore;
-		iScore += iInfluenceScore;
-		sTemp = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_FACTOR_NEGATIVE");
-		sTemp << iInfluenceScore;
-		sTemp << "TXT_KEY_POP_CSTATE_BULLY_FACTOR_LOW_INFLUENCE";
-		sFactors += sTemp.toUTF8();
+		int iUnitScore = -30;
+		iScore += iUnitScore;
+		if (sTooltipSink)
+		{
+			Localization::String strNegativeFactor = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_FACTOR_NEGATIVE");
+			strNegativeFactor << iUnitScore;
+			strNegativeFactor << "TXT_KEY_POP_CSTATE_BULLY_FACTOR_UNIT_RELUCTANCE";
+			sFactors += strNegativeFactor.toUTF8();
+		}
 	}
-	/*antonjs: consider: scale based on how low the influence is, like:
-	float iNegativeInfluenceMultiplier = 1.2f;
-	if (GetFriendshipWithMajor(eBullyPlayer) < 0)
-	{
-		iScore += (int) (iNegativeInfluenceMultiplier * GetFriendshipWithMajor(eBullyPlayer));
-		//antonjs: consider: exponent, like influence^1.1
-	}
-	*/
 
 	// **************************
-	// Diplomatic reputation of major
+	// City-State population
+	//
+	// -300 ~ -0
 	// **************************
-
+	if (bForUnit)
+	{
+		if (GetPlayer()->getCapitalCity() == NULL || GetPlayer()->getCapitalCity()->getPopulation() < 4)
+		{
+			int iPopulationScore = iFailScore;
+			iScore += iPopulationScore;
+			if (sTooltipSink)
+			{
+				Localization::String strNegativeFactor = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_FACTOR_NEGATIVE");
+				strNegativeFactor << iPopulationScore;
+				strNegativeFactor << "TXT_KEY_POP_CSTATE_BULLY_FACTOR_LOW_POPULATION";
+				sFactors += strNegativeFactor.toUTF8();
+			}
+		}
+	}
 
 	// **************************
 	// Passive Support from other majors
@@ -8050,21 +8098,20 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 	{
 		int iAllyScore = -10;
 		iScore += iAllyScore;
-		sTemp = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_FACTOR_NEGATIVE");
-		sTemp << iAllyScore;
-		sTemp << "TXT_KEY_POP_CSTATE_BULLY_FACTOR_ALLIES";
-		sFactors += sTemp.toUTF8();
+		if (sTooltipSink)
+		{
+			Localization::String strNegativeFactor = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_FACTOR_NEGATIVE");
+			strNegativeFactor << iAllyScore;
+			strNegativeFactor << "TXT_KEY_POP_CSTATE_BULLY_FACTOR_ALLIES";
+			sFactors += strNegativeFactor.toUTF8();
+		}
 	}
-	//antonjs: todo: fulfilled support quests, esp. gold gift
-	//antonjs: todo: friendly support units
-
 
 	// **************************
 	// Pledges of Protection from other majors
 	//
 	// -20 ~ -0
 	// **************************
-	//antonjs: consider: don't have PtP be a factor here, only have it factor in major civ diplo reaction
 	for(int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
 	{
 		int iProtectionScore = 0;
@@ -8073,19 +8120,16 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 		{
 			iProtectionScore += -20;
 			iScore += iProtectionScore;
-			sTemp = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_FACTOR_NEGATIVE");
-			sTemp << iProtectionScore;
-			sTemp << "TXT_KEY_POP_CSTATE_BULLY_FACTOR_PLEDGES_TO_PROTECT";
-			sFactors += sTemp.toUTF8();
+			if (sTooltipSink)
+			{
+				Localization::String strNegativeFactor = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_FACTOR_NEGATIVE");
+				strNegativeFactor << iProtectionScore;
+				strNegativeFactor << "TXT_KEY_POP_CSTATE_BULLY_FACTOR_PLEDGES_TO_PROTECT";
+				sFactors += strNegativeFactor.toUTF8();
+			}
 			break;
 		}
 	}
-
-	// **************************
-	// Major Civ UA, policies
-	// **************************
-
-
 
 	// **************************
 	// Minor Civ Type
@@ -8096,19 +8140,25 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 	{
 		int iHostileScore = -10;
 		iScore += iHostileScore;
-		sTemp = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_FACTOR_NEGATIVE");
-		sTemp << iHostileScore;
-		sTemp << "TXT_KEY_POP_CSTATE_BULLY_FACTOR_HOSTILE";
-		sFactors += sTemp.toUTF8();
+		if (sTooltipSink)
+		{
+			Localization::String strNegativeFactor = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_FACTOR_NEGATIVE");
+			strNegativeFactor << iHostileScore;
+			strNegativeFactor << "TXT_KEY_POP_CSTATE_BULLY_FACTOR_HOSTILE";
+			sFactors += strNegativeFactor.toUTF8();
+		}
 	}
 	if(GetTrait() == MINOR_CIV_TRAIT_MILITARISTIC)
 	{
 		int iMilitaristicScore = -10;
 		iScore += iMilitaristicScore;
-		sTemp = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_FACTOR_NEGATIVE");
-		sTemp << iMilitaristicScore;
-		sTemp << "TXT_KEY_POP_CSTATE_BULLY_FACTOR_MILITARISTIC";
-		sFactors += sTemp.toUTF8();
+		if (sTooltipSink)
+		{
+			Localization::String strNegativeFactor = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_FACTOR_NEGATIVE");
+			strNegativeFactor << iMilitaristicScore;
+			strNegativeFactor << "TXT_KEY_POP_CSTATE_BULLY_FACTOR_MILITARISTIC";
+			sFactors += strNegativeFactor.toUTF8();
+		}
 	}
 
 	if (sTooltipSink != NULL)
@@ -8700,14 +8750,14 @@ void CvMinorCivAI::DoGoldGiftFromMajor(PlayerTypes ePlayer, int iGold)
 {
 	if(GET_PLAYER(ePlayer).GetTreasury()->GetGold() >= iGold)
 	{
-		GET_PLAYER(ePlayer).GetTreasury()->ChangeGold(-iGold);
-		
-		ChangeNumGoldGifted(ePlayer, iGold);
-
 		int iFriendshipChange = GetFriendshipFromGoldGift(ePlayer, iGold);
 		if(iFriendshipChange > 0)
 			GET_PLAYER(ePlayer).GetTreasury()->LogExpenditure(GetPlayer()->GetMinorCivAI()->GetNamesListAsString(0), iGold,4);
 
+		GET_PLAYER(ePlayer).GetTreasury()->ChangeGold(-iGold);
+		
+		ChangeNumGoldGifted(ePlayer, iGold);
+		
 		ChangeFriendshipWithMajor(ePlayer, iFriendshipChange);
 
 		// In case we had a Gold Gift quest active, complete it now
@@ -8904,9 +8954,8 @@ void CvMinorCivAI::DoTileImprovementGiftFromMajor(PlayerTypes eMajor, int iPlotX
 	gDLL->GameplayDoFX(pDllPlot.get());
 
 	const int iCost = GetGiftTileImprovementCost(eMajor);
-	pPlayer->GetTreasury()->ChangeGold(-iCost);
-
 	GET_PLAYER(eMajor).GetTreasury()->LogExpenditure(GetPlayer()->GetMinorCivAI()->GetNamesListAsString(0), iCost,5);
+	pPlayer->GetTreasury()->ChangeGold(-iCost);
 }
 
 /// Now at war with eTeam

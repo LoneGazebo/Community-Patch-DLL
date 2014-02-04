@@ -2169,6 +2169,44 @@ void CvMap::calculateLandmasses()
 //	---------------------------------------------------------------------------
 int CvMap::Validate()
 {
+	//SS: Patch Trade Connections.
+	//Just after the BNW Launch trade connection data could be corrupted due to razing cities.
+	//This function is used because it's called immediately after serialization.
+	//Iterate through all trade connections.
+	//Clear the connection if the source or dest city does not exist.
+	CvGameTrade* pGameTrade = GC.getGame().GetGameTrade();
+	if(pGameTrade)
+	{
+		for (uint ui = 0; ui < pGameTrade->m_aTradeConnections.size(); ui++)
+		{
+			TradeConnection& connection = pGameTrade->m_aTradeConnections[ui];
+			if(connection.m_iID > -1)
+			{
+				CvPlot* pOriginPlot = plot(connection.m_iOriginX, connection.m_iOriginY);
+				if(pOriginPlot)
+				{
+					if(pOriginPlot->getPlotCity() == NULL)
+					{
+						pGameTrade->ClearAllCityTradeRoutes(pOriginPlot);
+						continue;
+					}
+				}
+
+				CvPlot* pDestPlot = plot(connection.m_iDestX, connection.m_iDestY);
+				if(pDestPlot)
+				{
+					if(pDestPlot->getPlotCity() == NULL)
+					{
+						pGameTrade->ClearAllCityTradeRoutes(pDestPlot);
+						continue;
+					}
+				}
+			}
+		}
+	}
+
+
+
 	int iErrors = 0;
 	for(int iI = 0; iI < numPlots(); iI++)
 	{

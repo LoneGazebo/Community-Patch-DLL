@@ -136,6 +136,7 @@ protected:
 	BuildTypes m_eFalloutRemove;
 
 	bool m_bKeepMarshes;
+	bool m_bKeepJungle;
 };
 
 #endif //CIV5_BUILDER_TASKING_AI_H

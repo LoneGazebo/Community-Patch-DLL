@@ -1594,12 +1594,6 @@ bool CvNotifications::IsNotificationExpired(int iIndex)
 			return true;
 		}
 
-		// if the city doesn't belong to the active player
-		if(pCity->getOwner() != GC.getGame().getActivePlayer())
-		{
-			return true;
-		}
-
 		// City has chosen something
 		if(pCity->getOrderQueueLength() > 0)
 		{

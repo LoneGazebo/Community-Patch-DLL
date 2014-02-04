@@ -9,7 +9,7 @@
 
 #include "CvDllInterfaces.h"
 
-class CvDllWorldBuilderMapLoader : public ICvWorldBuilderMapLoader1
+class CvDllWorldBuilderMapLoader : public ICvWorldBuilderMapLoader2
 {
 public:
 	CvDllWorldBuilderMapLoader();
@@ -56,8 +56,9 @@ public:
 	PlayerTypes DLLCALL GetMapPlayerSlot(uint uiPlayer);
 	int DLLCALL GetMapPlayerCount();
 
-
 	void DLLCALL GenerateRandomMap(const char* szMapScript);
+
+	WorldSizeTypes DLLCALL GetWorldSizeType() const;
 
 private:
 	void DLLCALL Destroy();

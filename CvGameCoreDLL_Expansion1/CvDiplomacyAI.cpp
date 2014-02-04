@@ -2301,25 +2301,23 @@ void CvDiplomacyAI::DoCounters()
 					GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetDoFCounter(GetPlayer()->GetID(), -1);
 					GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetFriendDenouncedUs(GetPlayer()->GetID(), false);
 
-					// We may even do co-op wars in the future
-					for(iThirdPlayerLoop = 0; iThirdPlayerLoop < MAX_MAJOR_CIVS; iThirdPlayerLoop++)
-					{
+					for(iThirdPlayerLoop = 0; iThirdPlayerLoop < MAX_MAJOR_CIVS; iThirdPlayerLoop++){
 						eThirdPlayer = (PlayerTypes) iThirdPlayerLoop;
+
+						// We may even do co-op wars in the future
 						if(GetCoopWarCounter(eLoopPlayer, eThirdPlayer) < -1)
 							SetCoopWarCounter(eLoopPlayer, eThirdPlayer, -1);
 						GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetCoopWarCounter(GetPlayer()->GetID(), eThirdPlayer, -1);
 					}
 
-					PlayerTypes eActivePlayer = GC.getGame().getActivePlayer();
-					if(eLoopPlayer == eActivePlayer)
-					{
-						CvNotifications* pNotifications = GET_PLAYER(eActivePlayer).GetNotifications();
-						if(pNotifications)
-						{
-							CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_THEIR_DENUNCIATION_EXPIRED", GET_PLAYER(GetPlayer()->GetID()).getCivilizationShortDescriptionKey());
-							CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_THEIR_DENUNCIATION_EXPIRED_S");
-							pNotifications->Add(NOTIFICATION_DENUNCIATION_EXPIRED, strBuffer, strSummary, -1, -1, GetPlayer()->GetID(), eLoopPlayer);
-						}
+					//Notify the target of the denouncement that it has expired.
+					CvNotifications* pNotifications = GET_PLAYER(eLoopPlayer).GetNotifications();
+					if(pNotifications){
+						CvString							strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_THEIR_DENUNCIATION_EXPIRED_S");
+						Localization::String	strInfo = Localization::Lookup("TXT_KEY_NOTIFICATION_THEIR_DENUNCIATION_EXPIRED");
+						Localization::String strTemp = strInfo;
+						strTemp << GET_PLAYER(GetPlayer()->GetID()).getCivilizationShortDescriptionKey();
+						pNotifications->Add(NOTIFICATION_DENUNCIATION_EXPIRED, strTemp.toUTF8(), strSummary, -1, -1, GetPlayer()->GetID(), eLoopPlayer);
 					}
 				}
 
@@ -2332,25 +2330,19 @@ void CvDiplomacyAI::DoCounters()
 					GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetDoFCounter(GetPlayer()->GetID(), -1);
 					GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetDoFAccepted(GetPlayer()->GetID(), false);
 
-					PlayerTypes eActivePlayer = GC.getGame().getActivePlayer();
-					if(GetPlayer()->GetID() == eActivePlayer || eLoopPlayer == eActivePlayer)
-					{
-						CvNotifications* pNotifications = GET_PLAYER(eActivePlayer).GetNotifications();
-						if(pNotifications)
-						{
-							PlayerTypes eOtherPlayer;
-							if(eLoopPlayer == eActivePlayer)
-							{
-								eOtherPlayer = GetPlayer()->GetID();
-							}
-							else
-							{
-								eOtherPlayer = eLoopPlayer;
-							}
-							CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_FRIENDSHIP_EXPIRED", GET_PLAYER(eOtherPlayer).getCivilizationShortDescriptionKey());
-							CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_FRIENDSHIP_EXPIRED_S");
-							pNotifications->Add(NOTIFICATION_FRIENDSHIP_EXPIRED, strBuffer, strSummary, -1, -1, GetPlayer()->GetID(), eLoopPlayer);
-						}
+					//Notify both parties that our friendship has expired.
+					CvNotifications* pNotifications = GET_PLAYER(eLoopPlayer).GetNotifications();
+					if (pNotifications){
+						CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_FRIENDSHIP_EXPIRED", GET_PLAYER(GetPlayer()->GetID()).getCivilizationShortDescriptionKey());
+						CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_FRIENDSHIP_EXPIRED_S");
+						pNotifications->Add(NOTIFICATION_FRIENDSHIP_EXPIRED, strBuffer, strSummary, -1, -1, GetPlayer()->GetID(), eLoopPlayer);				
+					}
+
+					pNotifications = GET_PLAYER(GetPlayer()->GetID()).GetNotifications();
+					if (pNotifications){
+						CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_FRIENDSHIP_EXPIRED", GET_PLAYER(eLoopPlayer).getCivilizationShortDescriptionKey());
+						CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_FRIENDSHIP_EXPIRED_S");
+						pNotifications->Add(NOTIFICATION_FRIENDSHIP_EXPIRED, strBuffer, strSummary, -1, -1, eLoopPlayer, GetPlayer()->GetID());				
 					}
 				}
 
@@ -8566,6 +8558,41 @@ void CvDiplomacyAI::DoUpdateWarDamageLevel()
 	CvUnit* pLoopUnit;
 	int iValueLoop;
 
+	// Calculate the value of what we have currently
+	// This is invariant so we will just do it once
+	iCurrentValue = 0;
+
+	int iTypicalPower = m_pPlayer->GetMilitaryAI()->GetPowerOfStrongestBuildableUnit(DOMAIN_LAND);
+	// City value
+	for(pLoopCity = GetPlayer()->firstCity(&iValueLoop); pLoopCity != NULL; pLoopCity = GetPlayer()->nextCity(&iValueLoop))
+	{
+		iCurrentValue += (pLoopCity->getPopulation() * /*150*/ GC.getWAR_DAMAGE_LEVEL_INVOLVED_CITY_POP_MULTIPLIER());
+		if (pLoopCity->IsOriginalCapital()) // anybody's
+		{
+			iCurrentValue *= 3;
+			iCurrentValue /= 2;
+		}
+	}
+
+	// Unit value
+	for(pLoopUnit = GetPlayer()->firstUnit(&iValueLoop); pLoopUnit != NULL; pLoopUnit = GetPlayer()->nextUnit(&iValueLoop))
+	{
+		CvUnitEntry* pkUnitInfo = GC.getUnitInfo(pLoopUnit->getUnitType());
+		if(pkUnitInfo)
+		{
+			int iUnitValue = pkUnitInfo->GetPower();
+			if(iTypicalPower > 0)
+			{
+				iUnitValue = iUnitValue* /*100*/ GC.getDEFAULT_WAR_VALUE_FOR_UNIT() / iTypicalPower;
+			}
+			else
+			{
+				iUnitValue = /*100*/ GC.getDEFAULT_WAR_VALUE_FOR_UNIT();
+			}
+			iCurrentValue += iUnitValue;
+		}
+	}
+
 	// Loop through all (known) Players
 	for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 	{
@@ -8579,40 +8606,6 @@ void CvDiplomacyAI::DoUpdateWarDamageLevel()
 
 			if(iValueLost > 0)
 			{
-				// Calculate the value of what we have currently
-				iCurrentValue = 0;
-
-				// City value
-				for(pLoopCity = GetPlayer()->firstCity(&iValueLoop); pLoopCity != NULL; pLoopCity = GetPlayer()->nextCity(&iValueLoop))
-				{
-					iCurrentValue += (pLoopCity->getPopulation() * /*150*/ GC.getWAR_DAMAGE_LEVEL_INVOLVED_CITY_POP_MULTIPLIER());
-					if (pLoopCity->IsOriginalCapital()) // anybody's
-					{
-						iCurrentValue *= 3;
-						iCurrentValue /= 2;
-					}
-				}
-
-				// Unit value
-				for(pLoopUnit = GetPlayer()->firstUnit(&iValueLoop); pLoopUnit != NULL; pLoopUnit = GetPlayer()->nextUnit(&iValueLoop))
-				{
-					CvUnitEntry* pkUnitInfo = GC.getUnitInfo(pLoopUnit->getUnitType());
-					if(pkUnitInfo)
-					{
-						int iUnitValue = pkUnitInfo->GetPower();
-						int iTypicalPower = m_pPlayer->GetMilitaryAI()->GetPowerOfStrongestBuildableUnit(DOMAIN_LAND);
-						if(iTypicalPower > 0)
-						{
-							iUnitValue = iUnitValue* /*100*/ GC.getDEFAULT_WAR_VALUE_FOR_UNIT() / iTypicalPower;
-						}
-						else
-						{
-							iUnitValue = /*100*/ GC.getDEFAULT_WAR_VALUE_FOR_UNIT();
-						}
-						iCurrentValue += iUnitValue;
-					}
-				}
-
 				// Total original value is the current value plus the amount lost, so compute the percentage on that
 				if(iCurrentValue > 0)
 					iValueLostRatio = iValueLost * 100 / (iCurrentValue + iValueLost);
@@ -11112,26 +11105,33 @@ void CvDiplomacyAI::DoMakePublicDeclaration(PublicDeclarationTypes eDeclaration,
 	if(eForSpecificPlayer == NO_PLAYER)
 	{
 		DoAddNewDeclarationToLog(eDeclaration, iData1, iData2, eMustHaveMetPlayer, bActive);
-	}
 
-	// Notification for active human player
-	PlayerTypes eActivePlayer = GC.getGame().getActivePlayer();
-	if(IsPlayerValid(eActivePlayer))
-	{
-		if(eForSpecificPlayer == NO_PLAYER || eForSpecificPlayer == eActivePlayer)
-		{
-			// Active Player may have to know someone to hear this
-			if(eMustHaveMetPlayer == NO_PLAYER || GET_TEAM(GC.getGame().getActiveTeam()).isHasMet(GET_PLAYER(eMustHaveMetPlayer).getTeam()))
-			{
-				//gDLL->GameplayDiplomacyAILeaderMessage(GetPlayer()->GetID(), eDiploState, strText, eAnimation);
-
-				CvNotifications* pNotifications = GET_PLAYER(eActivePlayer).GetNotifications();
-				if(pNotifications)
-				{
+		//Send notification to everyone that can get it.
+		for(int iCurPlayer = 0; iCurPlayer < MAX_MAJOR_CIVS; ++iCurPlayer){
+			PlayerTypes eCurPlayer = (PlayerTypes) iCurPlayer;
+			CvPlayerAI& kCurPlayer = GET_PLAYER(eCurPlayer);
+			if(IsPlayerValid(eCurPlayer) 
+				&& (eMustHaveMetPlayer == NO_PLAYER || GET_TEAM(kCurPlayer.getTeam()).isHasMet(GET_PLAYER(eMustHaveMetPlayer).getTeam()))){
+				CvNotifications* pNotifications = GET_PLAYER(eCurPlayer).GetNotifications();
+				if(pNotifications){
 					Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_DIPLOMACY_DECLARATION");
 					strSummary << GetPlayer()->getCivilizationShortDescriptionKey();
 					pNotifications->Add(NOTIFICATION_DIPLOMACY_DECLARATION, strText, strSummary.toUTF8(), -1, -1, -1);
 				}
+			}
+		}
+	}
+	else
+	{
+		//send notification to the specific player.
+		CvPlayerAI& kSpecificPlayer = GET_PLAYER(eForSpecificPlayer);
+		if(IsPlayerValid(eForSpecificPlayer) 
+			&& (eMustHaveMetPlayer == NO_PLAYER || GET_TEAM(kSpecificPlayer.getTeam()).isHasMet(GET_PLAYER(eMustHaveMetPlayer).getTeam()))){	
+			CvNotifications* pNotifications = kSpecificPlayer.GetNotifications();
+			if(pNotifications){
+				Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_DIPLOMACY_DECLARATION");
+				strSummary << GetPlayer()->getCivilizationShortDescriptionKey();
+				pNotifications->Add(NOTIFICATION_DIPLOMACY_DECLARATION, strText, strSummary.toUTF8(), -1, -1, -1);
 			}
 		}
 	}
@@ -16714,23 +16714,27 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 	{
 		PlayerTypes ePlottingPlayer = (PlayerTypes)iArg1;
 		CvIntrigueType eIntrigueType = (CvIntrigueType)iArg2;
-		ChangeNumTimesIntrigueSharedBy(eFromPlayer, 1);
-		GET_PLAYER(eFromPlayer).GetEspionage()->MarkRecentIntrigueAsShared(eMyPlayer, ePlottingPlayer, eIntrigueType);
-		if (bActivePlayer)
+		CvAssert(CvPlayerAI::IsValid(ePlottingPlayer));
+		if (CvPlayerAI::IsValid(ePlottingPlayer))
 		{
-			if(GET_PLAYER(eFromPlayer).GetEspionage()->HasSharedIntrigueAboutMe(eMyPlayer))
+			ChangeNumTimesIntrigueSharedBy(eFromPlayer, 1);
+			GET_PLAYER(eFromPlayer).GetEspionage()->MarkRecentIntrigueAsShared(eMyPlayer, ePlottingPlayer, eIntrigueType);
+			if (bActivePlayer)
 			{
-				gDLL->UnlockAchievement(ACHIEVEMENT_XP1_37);
-			}
+				if(GET_PLAYER(eFromPlayer).GetEspionage()->HasSharedIntrigueAboutMe(eMyPlayer))
+				{
+					gDLL->UnlockAchievement(ACHIEVEMENT_XP1_37);
+				}
 
-			bool bUsingXP1Scenario3 = gDLL->IsModActivated(CIV5_XP1_SCENARIO3_MODID);
-			if(bUsingXP1Scenario3)
-			{
-				gDLL->UnlockAchievement(ACHIEVEMENT_XP1_45);
-			}
+				bool bUsingXP1Scenario3 = gDLL->IsModActivated(CIV5_XP1_SCENARIO3_MODID);
+				if(bUsingXP1Scenario3)
+				{
+					gDLL->UnlockAchievement(ACHIEVEMENT_XP1_45);
+				}
 
-			strText = GetDiploStringForMessage(DIPLO_MESSAGE_WARNED_ABOUT_INTRIGUE, NO_PLAYER, GET_PLAYER(ePlottingPlayer).getCivilizationAdjectiveKey());
-			gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_DISCUSS_HUMAN_INVOKED, strText, LEADERHEAD_ANIM_POSITIVE);
+				strText = GetDiploStringForMessage(DIPLO_MESSAGE_WARNED_ABOUT_INTRIGUE, NO_PLAYER, GET_PLAYER(ePlottingPlayer).getCivilizationAdjectiveKey());
+				gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_DISCUSS_HUMAN_INVOKED, strText, LEADERHEAD_ANIM_POSITIVE);
+			}
 		}
 		break;
 	}
@@ -18266,40 +18270,41 @@ void CvDiplomacyAI::SetDoFAccepted(PlayerTypes ePlayer, bool bValue)
 
 		m_pPlayer->recomputeGreatPeopleModifiers();
 
-		PlayerTypes eActivePlayer = GC.getGame().getActivePlayer();
+		if(bValue){
+			// Someone made a DoF, send out notifications to everyone
+			Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_DOF");
+			Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_DOF_S");
+			for(int iCurPlayer = 0; iCurPlayer < MAX_MAJOR_CIVS; ++iCurPlayer){
+				PlayerTypes eCurPlayer = (PlayerTypes) iCurPlayer;
+				CvPlayerAI& kCurPlayer = GET_PLAYER(eCurPlayer);
+				CvNotifications* pNotifications = GET_PLAYER(eCurPlayer).GetNotifications();
+				if(iCurPlayer != ePlayer && iCurPlayer !=GetPlayer()->GetID() && pNotifications){
+					const char* strThisPlayerName;
+					const char* strOtherPlayerName;
 
-		// Someone made a DoF, send out notification
-		if(bValue && GetPlayer()->GetID() != eActivePlayer && ePlayer != eActivePlayer)
-		{
-			CvNotifications* pNotifications = GET_PLAYER(eActivePlayer).GetNotifications();
-			if(pNotifications)
-			{
-				const char* strThisPlayerName;
-				const char* strOtherPlayerName;
+					CvTeam* pCurTeam = &GET_TEAM(kCurPlayer.getTeam());
 
-				CvTeam* pActiveTeam = &GET_TEAM(GC.getGame().getActiveTeam());
+					// Have we met these guys yet?
+					bool bHasMetThisTeam = pCurTeam->isHasMet(GetPlayer()->getTeam());
+					if(bHasMetThisTeam)
+						strThisPlayerName = GetPlayer()->getCivilizationShortDescriptionKey();
+					else
+						strThisPlayerName = "TXT_KEY_UNMET_PLAYER";
 
-				// Have we met these guys yet?
-				bool bHasMetThisTeam = pActiveTeam->isHasMet(GetPlayer()->getTeam());
-				if(bHasMetThisTeam)
-					strThisPlayerName = GetPlayer()->getCivilizationShortDescriptionKey();
-				else
-					strThisPlayerName = "TXT_KEY_UNMET_PLAYER";
+					bool bHasMetOtherTeam = pCurTeam->isHasMet(GET_PLAYER(ePlayer).getTeam());
+					if(bHasMetOtherTeam)
+						strOtherPlayerName = GET_PLAYER(ePlayer).getCivilizationShortDescriptionKey();
+					else
+						strOtherPlayerName = "TXT_KEY_UNMET_PLAYER";
 
-				bool bHasMetOtherTeam = pActiveTeam->isHasMet(GET_PLAYER(ePlayer).getTeam());
-				if(bHasMetOtherTeam)
-					strOtherPlayerName = GET_PLAYER(ePlayer).getCivilizationShortDescriptionKey();
-				else
-					strOtherPlayerName = "TXT_KEY_UNMET_PLAYER";
-
-				//Only display notification if we've met one of the players.
-				if(bHasMetThisTeam || bHasMetOtherTeam)
-				{
-					Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_DOF");
-					strText << strThisPlayerName << strOtherPlayerName;
-					Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_DOF_S");
-					strSummary << strThisPlayerName << strOtherPlayerName;
-					pNotifications->Add(NOTIFICATION_DIPLOMACY_DECLARATION, strText.toUTF8(), strSummary.toUTF8(), -1, -1, GetPlayer()->GetID(), ePlayer);
+					//Only display notification if we've met one of the players.
+					if(bHasMetThisTeam || bHasMetOtherTeam){
+						Localization::String tempInfoStr = strText;
+						tempInfoStr << strThisPlayerName << strOtherPlayerName;
+						Localization::String tempSummaryStr = strSummary;
+						tempSummaryStr << strThisPlayerName << strOtherPlayerName;
+						pNotifications->Add(NOTIFICATION_DIPLOMACY_DECLARATION, tempInfoStr.toUTF8(), tempSummaryStr.toUTF8(), -1, -1, GetPlayer()->GetID(), ePlayer);
+					}
 				}
 			}
 		}
@@ -18483,26 +18488,30 @@ void CvDiplomacyAI::DoDenouncePlayer(PlayerTypes ePlayer)
 		}
 	}
 
-	PlayerTypes eActivePlayer = GC.getGame().getActivePlayer();
-
-	// Notification
-	//if (GetPlayer()->GetID() != eActivePlayer && ePlayer != eActivePlayer)
-	{
-		CvNotifications* pNotifications = GET_PLAYER(eActivePlayer).GetNotifications();
+	Localization::String someoneDenounceInfo = Localization::Lookup("TXT_KEY_NOTIFICATION_DENOUNCE");
+	Localization::String someoneDenounceSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_DENOUNCE_S");
+	Localization::String youDenounceInfo = Localization::Lookup("TXT_KEY_NOTIFICATION_YOU_DENOUNCE");
+	Localization::String youDenounceSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_YOU_DENOUNCE_S");
+	Localization::String denounceYouInfo = Localization::Lookup("TXT_KEY_NOTIFICATION_DENOUNCE_YOU");
+	Localization::String denounceYouSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_DENOUNCED_YOU_S");
+	for(int iCurPlayer = 0; iCurPlayer < MAX_MAJOR_CIVS; ++iCurPlayer){
+		PlayerTypes eCurPlayer = (PlayerTypes) iCurPlayer;
+		CvPlayerAI& kCurPlayer = GET_PLAYER(eCurPlayer);
+		CvNotifications* pNotifications = GET_PLAYER(eCurPlayer).GetNotifications();
 		if(pNotifications)
 		{
 			const char* strThisPlayerName;
 			const char* strOtherPlayerName;
 
-			CvTeam* pActiveTeam = &GET_TEAM(GC.getGame().getActiveTeam());
+			CvTeam* pNotifyTeam = &GET_TEAM(kCurPlayer.getTeam());
 
-			bool bFromMe = GetPlayer()->getTeam() == GC.getGame().getActiveTeam();
-			bool bAtMe = GET_PLAYER(ePlayer).getTeam() == GC.getGame().getActiveTeam();
+			bool bFromMe = GetPlayer()->getTeam() == kCurPlayer.getTeam();
+			bool bAtMe = GET_PLAYER(ePlayer).getTeam() == kCurPlayer.getTeam();
 
 			// Have we met these guys yet?
 			if(!bFromMe)
 			{
-				if(pActiveTeam->isHasMet(GetPlayer()->getTeam()))
+				if(pNotifyTeam->isHasMet(GetPlayer()->getTeam()))
 					strThisPlayerName = GetPlayer()->getCivilizationShortDescriptionKey();
 				else
 					strThisPlayerName = "TXT_KEY_UNMET_PLAYER";
@@ -18510,7 +18519,7 @@ void CvDiplomacyAI::DoDenouncePlayer(PlayerTypes ePlayer)
 
 			if(!bAtMe)
 			{
-				if(pActiveTeam->isHasMet(GET_PLAYER(ePlayer).getTeam()))
+				if(pNotifyTeam->isHasMet(GET_PLAYER(ePlayer).getTeam()))
 					strOtherPlayerName = GET_PLAYER(ePlayer).getCivilizationShortDescriptionKey();
 				else
 					strOtherPlayerName = "TXT_KEY_UNMET_PLAYER";
@@ -18521,34 +18530,34 @@ void CvDiplomacyAI::DoDenouncePlayer(PlayerTypes ePlayer)
 
 			if(bFromMe)
 			{
-				strText = Localization::Lookup("TXT_KEY_NOTIFICATION_YOU_DENOUNCE");
+				strText = youDenounceInfo;
 				strText << strOtherPlayerName;
-				strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_YOU_DENOUNCE_S");
+				strSummary = youDenounceSummary;
 				strSummary << strOtherPlayerName;
 			}
 			else if(bAtMe)
 			{
-				strText = Localization::Lookup("TXT_KEY_NOTIFICATION_DENOUNCE_YOU");
+				strText = denounceYouInfo;
 				strText << strThisPlayerName;
-				strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_DENOUNCED_YOU_S");
+				strSummary = denounceYouSummary;
 				strSummary << strThisPlayerName;
 			}
 			else
 			{
-				bool bHasMetThisTeam = pActiveTeam->isHasMet(GetPlayer()->getTeam());
-				bool bHasMetOtherTeam = pActiveTeam->isHasMet(GET_PLAYER(ePlayer).getTeam());
+				bool bHasMetThisTeam = pNotifyTeam->isHasMet(GetPlayer()->getTeam());
+				bool bHasMetOtherTeam = pNotifyTeam->isHasMet(GET_PLAYER(ePlayer).getTeam());
 
 				//Only display notification if we've met either team.
 				if(bHasMetThisTeam || bHasMetOtherTeam)
 				{
-					strText = Localization::Lookup("TXT_KEY_NOTIFICATION_DENOUNCE");
+					strText = someoneDenounceInfo;
 					strText << strThisPlayerName << strOtherPlayerName;
-					strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_DENOUNCE_S");
+					strSummary = someoneDenounceSummary;
 					strSummary << strThisPlayerName << strOtherPlayerName;
 				}
 				else
 				{
-					return;
+					continue;
 				}
 			}
 

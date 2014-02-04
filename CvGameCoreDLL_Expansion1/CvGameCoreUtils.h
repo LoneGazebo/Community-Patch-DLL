@@ -203,6 +203,12 @@ inline CvPlot* plotXY(int iX, int iY, int iDX, int iDY)
 	return GC.getMap().plot(iPlotHexX , iPlotY);
 }
 
+inline CvPlot* PlotFromHex(CvMap& kMap, int iHexX, int iHexY)
+{
+	// NOTE: Y is the same in both hex space and grid space.
+	return kMap.plot( hexspaceXToX(iHexX, iHexY), iHexY );	
+}
+
 inline CvPlot* plotXYWithRangeCheck(int iX, int iY, int iDX, int iDY, int iRange)
 {
 	int hexRange;

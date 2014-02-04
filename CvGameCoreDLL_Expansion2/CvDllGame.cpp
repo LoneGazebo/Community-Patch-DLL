@@ -564,6 +564,11 @@ void CvDllGame::NetMessageStaticsReset()
 //------------------------------------------------------------------------------
 bool CvDllGame::GetGreatWorkAudio(int GreatWorkIndex, char* strSound, int length)
 {
+	if (GreatWorkIndex == -1)
+	{
+		return false;
+	}
+
 	const GreatWorkType eType = m_pGame->GetGameCulture()->GetGreatWorkType(GreatWorkIndex);
 	if(eType != NO_GREAT_WORK)
 	{

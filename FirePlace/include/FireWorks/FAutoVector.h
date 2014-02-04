@@ -269,52 +269,7 @@ void FAutoVariable<std::vector<ElementType>, ClassContainer>::save(FDataStream &
 template<typename ElementType, typename ClassContainer>
 void FAutoVariable<std::vector<ElementType>, ClassContainer>::loadDelta(FDataStream & loadFrom)
 {
-	loadFrom >> m_commands;
-
-	COMMAND_VEC_TYPE::const_iterator i;
-	for(i = m_commands.begin(); i != m_commands.end(); ++i)
-	{
-		const AutoVectorCommand<ElementType> & c = *i;
-		switch(c.command)
-		{
-		case AutoVectorCommand<ElementType>::PUSH_BACK:
-			{
-				m_value.push_back(c.value);
-			}
-			break;
-		case AutoVectorCommand<ElementType>::SET:
-			{
-				m_value[c.index] = c.value;
-			}
-			break;
-		case AutoVectorCommand<ElementType>::INSERT:
-			{
-				
-				m_value.insert(m_value.begin() + c.index, c.value);
-			}
-			break;
-		case AutoVectorCommand<ElementType>::CLEAR:
-			{
-				m_value.clear();
-			}
-			break;
-		case AutoVectorCommand<ElementType>::RESIZE_WITH_VALUE:
-			{
-				m_value.resize(c.index, c.value);
-			}
-			break;
-		case AutoVectorCommand<ElementType>::RESIZE:
-			{
-				m_value.resize(c.index);
-			}
-			break;
-		case AutoVectorCommand<ElementType>::ERASE:
-			{
-				m_value.erase(m_value.begin() + c.index);
-			}
-			break;
-		}
-	}
+	loadFrom >> m_value;
 }
 
 //---------------------------------------------------------------------------------------
@@ -322,7 +277,7 @@ void FAutoVariable<std::vector<ElementType>, ClassContainer>::loadDelta(FDataStr
 template<typename ElementType, typename ClassContainer>
 void FAutoVariable<std::vector<ElementType>, ClassContainer>::saveDelta(FDataStream & saveTo) const
 {
-	saveTo << m_commands;
+	save(saveTo);
 }
 
 //---------------------------------------------------------------------------------------
@@ -346,9 +301,9 @@ size_t FAutoVariable<std::vector<ElementType>, ClassContainer>::size() const
 template<typename ElementType, typename ClassContainer>
 bool FAutoVariable<std::vector<ElementType>, ClassContainer>::compare(FDataStream & otherValue) const
 {
-	COMMAND_VEC_TYPE otherCommands;
-	otherValue >> otherCommands;
-	bool result = m_commands == otherCommands;
+	std::vector< ElementType > otherValueVec;
+	otherValue >> otherValueVec;
+	bool result = m_value == otherValueVec;
 	m_commands.clear();
 	return result;
 }

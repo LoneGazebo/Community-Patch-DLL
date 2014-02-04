@@ -280,6 +280,10 @@ protected:
 	static int lGetArchaeologyArtifactEra(lua_State* L);
 	static int lGetArchaeologyArtifactPlayer1(lua_State* L);
 	static int lGetArchaeologyArtifactPlayer2(lua_State* L);
-};
+	static int lGetArchaeologyArtifactWork(lua_State* L);
+	static int lHasWrittenArtifact(lua_State* L);
 
+	static int lGetCityPurchaseID(lua_State* L);
+	static int lSetCityPurchaseID(lua_State* L);
+};
 #endif

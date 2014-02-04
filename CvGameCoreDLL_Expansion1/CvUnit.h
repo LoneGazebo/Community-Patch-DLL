@@ -426,7 +426,8 @@ public:
 
 	int GetAirStrikeDefenseDamage(const CvUnit* pAttacker, bool bIncludeRand = true) const;
 
-	CvUnit* GetBestInterceptor(const CvPlot& pPlot, CvUnit* pkDefender = NULL) const;
+	CvUnit* GetBestInterceptor(const CvPlot& pPlot, CvUnit* pkDefender = NULL, bool bLandInterceptorsOnly=false, bool bVisibleInterceptorsOnly=false) const;
+	int GetInterceptorCount(const CvPlot& pPlot, CvUnit* pkDefender = NULL, bool bLandInterceptorsOnly=false, bool bVisibleInterceptorsOnly=false) const;
 	int GetInterceptionDamage(const CvUnit* pAttacker, bool bIncludeRand = true) const;
 
 	int GetCombatLimit() const;

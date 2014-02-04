@@ -16,7 +16,7 @@ class CvDllNetMessageHandler;
 class CvDllScriptSystemUtility;
 class CvDllWorldBuilderMapLoader;
 
-class CvDllGameContext : public ICvGameContext2
+class CvDllGameContext : public ICvGameContext3
 {
 public:
 	~CvDllGameContext();
@@ -34,6 +34,7 @@ public:
 	static void Free(_In_ void* p);
 
 	HANDLE GetHeap();
+	HANDLE DLLCALL Debug_GetHeap() const;
 
 	GUID DLLCALL GetDLLGUID();
 	const char * DLLCALL GetDLLVersion();

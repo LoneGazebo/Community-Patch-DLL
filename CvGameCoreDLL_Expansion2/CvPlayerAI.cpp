@@ -85,6 +85,7 @@ void CvPlayerAI::AI_reset()
 
 void CvPlayerAI::AI_doTurnPre()
 {
+	AI_PERF_FORMAT("AI-perf.csv", ("CvPlayerAI::AI_doTurnPre, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), getCivilizationShortDescription()) );
 	CvAssertMsg(getPersonalityType() != NO_LEADER, "getPersonalityType() is not expected to be equal with NO_LEADER");
 	CvAssertMsg(getLeaderType() != NO_LEADER, "getLeaderType() is not expected to be equal with NO_LEADER");
 	CvAssertMsg(getCivilizationType() != NO_CIVILIZATION, "getCivilizationType() is not expected to be equal with NO_CIVILIZATION");
@@ -103,6 +104,7 @@ void CvPlayerAI::AI_doTurnPre()
 
 void CvPlayerAI::AI_doTurnPost()
 {
+	AI_PERF_FORMAT("AI-perf.csv", ("CvPlayerAI::AI_doTurnPost, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), getCivilizationShortDescription()) );
 	if(isHuman())
 	{
 		return;
@@ -1457,6 +1459,20 @@ CvPlot* CvPlayerAI::FindBestArtistTargetPlot(CvUnit* pGreatArtist, int& iResultS
 		if (eFeature != NO_FEATURE && GC.getFeatureInfo(eFeature)->isNoImprovement())
 		{
 			continue;
+		}
+
+		// Improvement already here?
+		ImprovementTypes eImprovement = (ImprovementTypes)pPlot->getImprovementType();
+		if (eImprovement != NO_IMPROVEMENT)
+		{
+			CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
+			if(pkImprovementInfo)
+			{
+				if (pkImprovementInfo->GetCultureBombRadius() > 0)
+				{
+					continue;
+				}
+			}
 		}
 
 		int iScore = 0;

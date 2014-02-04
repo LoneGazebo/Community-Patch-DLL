@@ -74,6 +74,8 @@ enum AITacticalTargetType
 	AI_TACTICAL_TARGET_TRADE_UNIT_LAND,
 	AI_TACTICAL_TARGET_TRADE_UNIT_SEA_PLOT, // Used for idle unit moves to plunder trade routes that go through our territory
 	AI_TACTICAL_TARGET_TRADE_UNIT_LAND_PLOT, 
+	AI_TACTICAL_TARGET_CITADEL,
+	AI_TACTICAL_TARGET_IMPROVEMENT_RESOURCE,
 };
 
 class CvTacticalAnalysisCell
@@ -497,6 +499,14 @@ public:
 	{
 		m_iEnemyRangedUnitCount += iUnitCount;
 	};
+	inline int GetEnemyNavalUnitCount() const
+	{
+		return m_iEnemyNavalUnitCount;
+	};
+	inline void AddEnemyNavalUnitCount(int iUnitCount)
+	{
+		m_iEnemyNavalUnitCount += iUnitCount;
+	};
 	inline int GetDominanceZoneValue() const
 	{
 		return m_iZoneValue;
@@ -546,6 +556,7 @@ private:
 	int m_iEnemyUnitCount;
 	int m_iFriendlyRangedUnitCount;
 	int m_iEnemyRangedUnitCount;
+	int m_iEnemyNavalUnitCount;
 	int m_iZoneValue;
 	int m_iRangeClosestEnemyUnit;
 	bool m_bIsWater;

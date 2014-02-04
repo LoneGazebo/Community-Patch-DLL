@@ -2109,6 +2109,10 @@ bool CvUnit::canEnterTerritory(TeamTypes eTeam, bool bIgnoreRightOfPassage, bool
 				return false;
 			}
 
+			// The remaining checks are only for AI major vs. AI Minor, humans can always enter a minor's territory.
+			if (isHuman())
+				return true;
+
 			CvMinorCivAI* pMinorAI = GET_PLAYER(kTheirTeam.getLeaderID()).GetMinorCivAI();
 
 			// Is this an excluded unit that doesn't cause anger?
@@ -3437,6 +3441,9 @@ void CvUnit::gift(bool bTestTransport)
 bool CvUnit::CanDistanceGift(PlayerTypes eToPlayer) const
 {
 	VALIDATE_OBJECT
+
+	if (eToPlayer == NO_PLAYER)
+		return false;
 
 	// Minors
 	if(GET_PLAYER(eToPlayer).isMinorCiv())
@@ -5580,25 +5587,6 @@ bool CvUnit::canChangeTradeUnitHomeCityAt(const CvPlot* pPlot, int iX, int iY) c
 		}
 	}
 
-	// slewis, 2013.4.19 - Removed constraints on how trade units can move from city to city.
-	//if (getDomainType() == DOMAIN_LAND)
-	//{
-	//	// land unit can't get to another plot
-	//	if (pPlot->getArea() != pToPlot->getArea())
-	//	{
-	//		return false;
-	//	}
-	//}
-	//else if (getDomainType() == DOMAIN_SEA)
-	//{
-	//	/// cray-zee slow!!
-	//	if (!GC.GetInternationalTradeRouteWaterFinder().GeneratePath(getX(), getY(), iX, iY, getOwner(), false))
-	//	{
-	//		return false;
-	//	}
-	//	/// end cray-zee slow!!!
-	//}
-
 	return true;
 }
 
@@ -5606,6 +5594,109 @@ bool CvUnit::canChangeTradeUnitHomeCityAt(const CvPlot* pPlot, int iX, int iY) c
 bool CvUnit::changeTradeUnitHomeCity(int iX, int iY)
 {
 	if (!canChangeTradeUnitHomeCityAt(plot(), iX, iY))
+	{
+		return false;
+	}
+
+	setXY(iX, iY);
+	setMoves(0);
+	return true;
+}
+
+//	--------------------------------------------------------------------------------
+bool CvUnit::canChangeAdmiralPort(const CvPlot* pPlot) const
+{
+	if (!IsGreatAdmiral())
+	{
+		return false;
+	}
+
+	if (pPlot == NULL)
+	{
+		return false;
+	}
+
+	CvCity* pCity = pPlot->getPlotCity();
+	if (pCity == NULL)
+	{
+		return false;
+	}
+
+	if (pCity->getOwner() != getOwner())
+	{
+		return false;
+	}
+
+	if (!pCity->isCoastal())
+	{
+		return false;
+	}
+
+	return true;
+}
+
+//	--------------------------------------------------------------------------------
+bool CvUnit::canChangeAdmiralPortAt(const CvPlot* pPlot, int iX, int iY) const
+{
+	if (!canChangeAdmiralPort(pPlot))
+	{
+		return false;
+	}
+
+	if (pPlot == NULL)
+	{
+		return false;
+	}
+
+	CvCity* pFromCity = pPlot->getPlotCity();
+	if (pFromCity == NULL)
+	{
+		return false;
+	}
+
+	if (pFromCity->getOwner() != getOwner())
+	{
+		return false;
+	}
+
+	CvPlot* pToPlot = GC.getMap().plot(iX, iY);
+
+	// Null plot...
+	if(pToPlot == NULL)
+	{
+		return false;
+	}
+
+	// Same plot...
+	if(pToPlot == pPlot)
+	{
+		return false;
+	}
+
+	CvCity* pToCity = pToPlot->getPlotCity();
+	if (pToCity == NULL)
+	{
+		return false;
+	}
+
+	// can't change cities with a city you don't own
+	if (pToCity->getOwner() != getOwner())
+	{
+		return false;
+	}
+
+	if (!pToCity->isCoastal())
+	{
+		return false;
+	}
+
+	return true;
+}
+
+//	--------------------------------------------------------------------------------
+bool CvUnit::changeAdmiralPort(int iX, int iY)
+{
+	if (!canChangeAdmiralPortAt(plot(), iX, iY))
 	{
 		return false;
 	}
@@ -6017,6 +6108,12 @@ bool CvUnit::canRebaseAt(const CvPlot* pPlot, int iX, int iY) const
 		if(pToPlot->getPlotCity()->getOwner() == getOwner())
 		{
 			bCityToRebase = true;
+		}
+
+		int iUnitsThere = pToPlot->countNumAirUnits(getTeam());
+		if (iUnitsThere >= pToPlot->getPlotCity()->GetMaxAirUnits())
+		{
+			return false;
 		}
 	}
 
@@ -6564,17 +6661,14 @@ bool CvUnit::DoFoundReligion()
 			CvPlayerAI& kOwner = GET_PLAYER(getOwner());
 			if(kOwner.isHuman())
 			{
-				if(kOwner.isLocalPlayer())
-				{
-					CvAssertMsg(pkCity != NULL, "No City??");
+				CvAssertMsg(pkCity != NULL, "No City??");
 
-					CvNotifications* pNotifications = kOwner.GetNotifications();
-					if(pNotifications)
-					{
-						CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_FOUND_RELIGION");
-						CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_FOUND_RELIGION");
-						pNotifications->Add(NOTIFICATION_FOUND_RELIGION, strBuffer, strSummary, pkPlot->getX(), pkPlot->getY(), -1, pkCity->GetID());
-					}
+				CvNotifications* pNotifications = kOwner.GetNotifications();
+				if(pNotifications)
+				{
+					CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_FOUND_RELIGION");
+					CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_FOUND_RELIGION");
+					pNotifications->Add(NOTIFICATION_FOUND_RELIGION, strBuffer, strSummary, pkPlot->getX(), pkPlot->getY(), -1, pkCity->GetID());
 				}
 				kOwner.GetReligions()->SetFoundingReligion(true);
 				kOwner.DoGreatPersonExpended(getUnitType());
@@ -6703,17 +6797,14 @@ bool CvUnit::DoEnhanceReligion()
 			CvPlayerAI& kOwner = GET_PLAYER(getOwner());
 			if(kOwner.isHuman())
 			{
-				if(kOwner.isLocalPlayer())
-				{
-					CvAssertMsg(pkCity != NULL, "No City??");
+				CvAssertMsg(pkCity != NULL, "No City??");
 
-					CvNotifications* pNotifications = kOwner.GetNotifications();
-					if(pNotifications)
-					{
-						CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_ENHANCE_RELIGION");
-						CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_ENHANCE_RELIGION");
-						pNotifications->Add(NOTIFICATION_ENHANCE_RELIGION, strBuffer, strSummary, pkPlot->getX(), pkPlot->getY(), -1, pkCity->GetID());
-					}
+				CvNotifications* pNotifications = kOwner.GetNotifications();
+				if(pNotifications)
+				{
+					CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_ENHANCE_RELIGION");
+					CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_ENHANCE_RELIGION");
+					pNotifications->Add(NOTIFICATION_ENHANCE_RELIGION, strBuffer, strSummary, pkPlot->getX(), pkPlot->getY(), -1, pkCity->GetID());
 				}
 				kOwner.DoGreatPersonExpended(getUnitType());
 				kill(true);
@@ -7123,6 +7214,10 @@ int CvUnit::getDiscoverAmount()
 				iValue += (iValue * pPlayer->GetGreatScientistBeakerMod()) / 100;
 				iValue = MAX(iValue, 0); // Cannot be negative
 			}
+
+			// Modify based on game speed
+			iValue *= GC.getGame().getGameSpeedInfo().getResearchPercent();
+			iValue /= 100;
 		}
 	}
 	return iValue;
@@ -7900,9 +7995,6 @@ void CvUnit::PerformCultureBomb(int iRadius)
 	// Change ownership of nearby plots
 	int iBombRange = iRadius;
 	CvPlot* pLoopPlot;
-	bool bNotifyActivePlayer = false;
-	int iNotifyPlotX = -1;
-	int iNotifyPlotY = -1;
 	for(int i = -iBombRange; i <= iBombRange; ++i)
 	{
 		for(int j = -iBombRange; j <= iBombRange; ++j)
@@ -7920,18 +8012,17 @@ void CvUnit::PerformCultureBomb(int iRadius)
 			if(pLoopPlot->isCity())
 				continue;
 
-			if(pLoopPlot->getOwner() != NO_PLAYER)
-				vePlayersBombed[pLoopPlot->getOwner()] = true;
-
-			// see if we should notify active player
-			if(!bNotifyActivePlayer && pLoopPlot->getOwner() != NO_PLAYER && pLoopPlot->getOwner() != getOwner())
-			{
-				if(pLoopPlot->getOwner() == GC.getGame().getActivePlayer())
-				{
-					bNotifyActivePlayer = true;
-					iNotifyPlotX = pLoopPlot->getX();
-					iNotifyPlotY = pLoopPlot->getY();
+			if(pLoopPlot->getOwner() != NO_PLAYER){
+				// Notify plot owner
+				if(pLoopPlot->getOwner() != getOwner() && !vePlayersBombed[pLoopPlot->getOwner()]){
+					CvNotifications* pNotifications = GET_PLAYER(pLoopPlot->getOwner()).GetNotifications();
+					if(pNotifications){
+						CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_GREAT_ARTIST_STOLE_PLOT", GET_PLAYER(getOwner()).getNameKey());
+						CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_GREAT_ARTIST_STOLE_PLOT", GET_PLAYER(getOwner()).getNameKey());
+						pNotifications->Add(NOTIFICATION_GENERIC, strBuffer, strSummary, pLoopPlot->getX(), pLoopPlot->getY(), -1);
+					}
 				}
+				vePlayersBombed[pLoopPlot->getOwner()] = true;
 			}
 
 			// Have to set owner after we do the above stuff
@@ -7975,18 +8066,6 @@ void CvUnit::PerformCultureBomb(int iRadius)
 					gDLL->GameplayDiplomacyAILeaderMessage(pPlayer->GetID(), DIPLO_UI_STATE_BLANK_DISCUSSION, strText, LEADERHEAD_ANIM_HATE_NEGATIVE);
 				}
 			}
-		}
-	}
-
-	if(bNotifyActivePlayer)
-	{
-		CvNotifications* pNotifications = GET_PLAYER(GC.getGame().getActivePlayer()).GetNotifications();
-
-		if(pNotifications)
-		{
-			CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_GREAT_ARTIST_STOLE_PLOT", GET_PLAYER(getOwner()).getNameKey());
-			CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_GREAT_ARTIST_STOLE_PLOT", GET_PLAYER(getOwner()).getNameKey());
-			pNotifications->Add(NOTIFICATION_GENERIC, strBuffer, strSummary, iNotifyPlotX, iNotifyPlotY, -1);
 		}
 	}
 }
@@ -8127,6 +8206,10 @@ int CvUnit::getGivePoliciesCulture()
 			// Calculate boost
 			iValue = kPlayer.GetCultureYieldFromPreviousTurns(GC.getGame().getGameTurn(), iPreviousTurnsToCount);
 		}
+
+		// Modify based on game speed
+		iValue *= GC.getGame().getGameSpeedInfo().getCulturePercent();
+		iValue /= 100;
 	}
 	return iValue;
 }
@@ -8353,7 +8436,7 @@ bool CvUnit::canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestVisible,
 
  	if (pPlot->isWater())
  	{
-		if (isEmbarked() && !pkBuildInfo->IsCanBeEmbarked())
+		if ((isEmbarked() && !pkBuildInfo->IsCanBeEmbarked())  && (strcmp("UNIT_JAPANESE_SAMURAI", getUnitInfo().GetType()) != 0))
 		{
  			return false;
 		}
@@ -9032,8 +9115,8 @@ CvUnit* CvUnit::DoUpgrade()
 	// Gold Cost
 	int iUpgradeCost = upgradePrice(eUnitType);
 	CvPlayerAI& thisPlayer = GET_PLAYER(getOwner());
-	thisPlayer.GetTreasury()->ChangeGold(-iUpgradeCost);
 	thisPlayer.GetTreasury()->LogExpenditure(getUnitInfo().GetText(), iUpgradeCost, 3);
+	thisPlayer.GetTreasury()->ChangeGold(-iUpgradeCost);
 
 	// Add newly upgraded Unit & kill the old one
 	CvUnit* pNewUnit = thisPlayer.initUnit(eUnitType, getX(), getY(), NO_UNITAI, NO_DIRECTION, false, false);
@@ -9335,15 +9418,6 @@ int CvUnit::movesLeft() const
 bool CvUnit::canMove() const
 {
 	VALIDATE_OBJECT
-
-	// Special rules to prevent exploits in turn timer MP games
-	if(GC.getGame().isOption(GAMEOPTION_END_TURN_TIMER_ENABLED))
-	{
-		// If we have to pick a promotion, this unit can't move until he does so (unless it's a city, where we don't want the unit to get stuck stacked with others)
-		if(isPromotionReady() && !plot()->isCity())
-			return false;
-	}
-
 	return (getMoves() > 0);
 }
 
@@ -10940,10 +11014,10 @@ int CvUnit::GetAirStrikeDefenseDamage(const CvUnit* pAttacker, bool bIncludeRand
 }
 
 //	--------------------------------------------------------------------------------
-CvUnit* CvUnit::GetBestInterceptor(const CvPlot& interceptPlot, CvUnit* pkDefender /* = NULL */) const
+CvUnit* CvUnit::GetBestInterceptor(const CvPlot& interceptPlot, CvUnit* pkDefender /* = NULL */, bool bLandInterceptorsOnly /*false*/, bool bVisibleInterceptorsOnly /*false*/) const
 {
 	VALIDATE_OBJECT
-	CvUnit* pLoopUnit;
+		CvUnit* pLoopUnit;
 	CvUnit* pBestUnit;
 	int iValue;
 	int iBestValue;
@@ -10976,15 +11050,22 @@ CvUnit* CvUnit::GetBestInterceptor(const CvPlot& interceptPlot, CvUnit* pkDefend
 								// Must either be a non-air Unit or an air Unit on intercept
 								if((pLoopUnit->getDomainType() != DOMAIN_AIR) || (pLoopUnit->GetActivityType() == ACTIVITY_INTERCEPT))
 								{
-									// Test range
-									if(plotDistance(pLoopUnit->getX(), pLoopUnit->getY(), interceptPlot.getX(), interceptPlot.getY()) <= pLoopUnit->getUnitInfo().GetAirInterceptRange())
+									// Check input booleans
+									if (!bLandInterceptorsOnly || pLoopUnit->getDomainType() == DOMAIN_LAND)
 									{
-										iValue = pLoopUnit->currInterceptionProbability();
-
-										if(iValue > iBestValue)
+										if (!bVisibleInterceptorsOnly || pLoopUnit->plot()->isVisible(getTeam()))
 										{
-											iBestValue = iValue;
-											pBestUnit = pLoopUnit;
+											// Test range
+											if(plotDistance(pLoopUnit->getX(), pLoopUnit->getY(), interceptPlot.getX(), interceptPlot.getY()) <= pLoopUnit->getUnitInfo().GetAirInterceptRange())
+											{
+												iValue = pLoopUnit->currInterceptionProbability();
+
+												if(iValue > iBestValue)
+												{
+													iBestValue = iValue;
+													pBestUnit = pLoopUnit;
+												}
+											}
 										}
 									}
 								}
@@ -10997,6 +11078,68 @@ CvUnit* CvUnit::GetBestInterceptor(const CvPlot& interceptPlot, CvUnit* pkDefend
 	}
 
 	return pBestUnit;
+}
+
+//	--------------------------------------------------------------------------------
+int CvUnit::GetInterceptorCount(const CvPlot& interceptPlot, CvUnit* pkDefender /* = NULL */, bool bLandInterceptorsOnly /*false*/, bool bVisibleInterceptorsOnly /*false*/) const
+{
+	VALIDATE_OBJECT
+	
+	CvUnit* pLoopUnit;
+	int iReturnValue;
+	int iLoop;
+	int iI;
+
+	iReturnValue = 0;
+
+	// Loop through all players' Units (that we're at war with) to see if they can intercept
+	for(iI = 0; iI < MAX_PLAYERS; iI++)
+	{
+		CvPlayerAI& kLoopPlayer = GET_PLAYER((PlayerTypes)iI);
+		if(kLoopPlayer.isAlive())
+		{
+			TeamTypes eLoopTeam = kLoopPlayer.getTeam();
+			if(isEnemy(eLoopTeam) && !isInvisible(eLoopTeam, false, false))
+			{
+				for(pLoopUnit = kLoopPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = kLoopPlayer.nextUnit(&iLoop))
+				{
+					// Must be able to intercept
+					if(pLoopUnit != pkDefender && !pLoopUnit->isDelayedDeath() && pLoopUnit->canAirDefend() && !pLoopUnit->isInCombat())
+					{
+						// Must not have already intercepted this turn
+						if(!pLoopUnit->isOutOfInterceptions())
+						{
+							// Must either be a non-air Unit, or an air Unit that hasn't moved this turn
+							if((pLoopUnit->getDomainType() != DOMAIN_AIR) || !(pLoopUnit->hasMoved()))
+							{
+								// Must either be a non-air Unit or an air Unit on intercept
+								if((pLoopUnit->getDomainType() != DOMAIN_AIR) || (pLoopUnit->GetActivityType() == ACTIVITY_INTERCEPT))
+								{
+									// Check input booleans
+									if (!bLandInterceptorsOnly || pLoopUnit->getDomainType() == DOMAIN_LAND)
+									{
+										if (!bVisibleInterceptorsOnly || pLoopUnit->plot()->isVisible(getTeam()))
+										{
+											// Test range
+											if(plotDistance(pLoopUnit->getX(), pLoopUnit->getY(), interceptPlot.getX(), interceptPlot.getY()) <= pLoopUnit->getUnitInfo().GetAirInterceptRange())
+											{
+												if (pLoopUnit->currInterceptionProbability() > 0)
+												{
+													iReturnValue++;
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return iReturnValue;
 }
 
 //	--------------------------------------------------------------------------------
@@ -13299,7 +13442,7 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 	{
 		if(strcmp(getCivilizationInfo().GetType(), "CIVILIZATION_BRAZIL") == 0){
 			UnitTypes eExplorer = (UnitTypes) GC.getInfoTypeForString("UNIT_EXPLORER", true /*bHideAssert*/); 
-			if(getUnitType() == eExplorer && strcmp(getNameNoDesc(), GetLocalizedText("TXT_KEY_EXPLORER_STANLEY")) == 0 ){
+			if(getUnitType() == eExplorer && strcmp(getNameNoDesc(), "TXT_KEY_EXPLORER_STANLEY") == 0 ){
 				CvPlot* pAdjacentPlot;
 				for(iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
 				{
@@ -13307,7 +13450,7 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 
 					if(pAdjacentPlot != NULL && pAdjacentPlot->getNumUnits() != NULL){
 						for(int iJ = 0; iJ < pAdjacentPlot->getNumUnits(); iJ++){
-							if(pAdjacentPlot->getUnitByIndex(iJ)->getUnitType() ==  eExplorer && strcmp(pAdjacentPlot->getUnitByIndex(iJ)->getNameNoDesc(), GetLocalizedText("TXT_KEY_EXPLORER_LIVINGSTON")) == 0){
+							if(pAdjacentPlot->getUnitByIndex(iJ)->getUnitType() ==  eExplorer && strcmp(pAdjacentPlot->getUnitByIndex(iJ)->getNameNoDesc(), "TXT_KEY_EXPLORER_LIVINGSTON") == 0){
 								gDLL->UnlockAchievement(ACHIEVEMENT_XP2_52);
 							}
 						}
@@ -15866,19 +16009,15 @@ void CvUnit::setPromotionReady(bool bNewValue)
 
 		if(bNewValue)
 		{
-			if(getOwner() == GC.getGame().getActivePlayer())
+			CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
+			if(pNotifications)
 			{
-				CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
-				if(pNotifications)
+				CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_UNIT_CAN_GET_PROMOTION");
+				CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_UNIT_CAN_GET_PROMOTION");
+				pNotifications->Add(NOTIFICATION_UNIT_PROMOTION, strBuffer, strSummary, -1, -1, getUnitType(), GetID());
+				if(isHuman() && !GC.getGame().isGameMultiPlayer() && GET_PLAYER(GC.getGame().getActivePlayer()).isLocalPlayer())
 				{
-					CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_UNIT_CAN_GET_PROMOTION");
-					CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_UNIT_CAN_GET_PROMOTION");
-					pNotifications->Add(NOTIFICATION_UNIT_PROMOTION, strBuffer, strSummary, -1, -1, getUnitType(), GetID());
-					if(isHuman() && !GC.getGame().isGameMultiPlayer() && GET_PLAYER(GC.getGame().getActivePlayer()).isLocalPlayer())
-					{
-						gDLL->UnlockAchievement(ACHIEVEMENT_UNIT_PROMOTE);
-					}
-
+					gDLL->UnlockAchievement(ACHIEVEMENT_UNIT_PROMOTE);
 				}
 			}
 		}
@@ -18514,6 +18653,12 @@ bool CvUnit::UnitAttack(int iX, int iY, int iFlags, int iSteps)
 	VALIDATE_OBJECT
 	CvMap& kMap = GC.getMap();
 	CvPlot* pDestPlot = kMap.plot(iX, iY);
+
+	CvAssertMsg(pDestPlot != NULL, "DestPlot is not assigned a valid value");
+	if(!pDestPlot)
+	{
+		return false;
+	}
 
 	if(isHuman() && getOwner() == GC.getGame().getActivePlayer())
 	{

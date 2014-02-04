@@ -306,7 +306,6 @@ protected:
 	static int lGetSpaceProductionModifier(lua_State* L);
 	static int lGetBuildingDefense(lua_State* L);
 	static int lGetFreeExperience(lua_State* L);
-	static int lGetAirModifier(lua_State* L);
 	static int lGetNukeModifier(lua_State* L);
 	//static int lGetFreeSpecialist(lua_State* L);
 
@@ -440,6 +439,7 @@ protected:
 	static int lHasPerformedRangedStrikeThisTurn(lua_State* L);
 	static int lRangeCombatUnitDefense(lua_State* L);
 	static int lRangeCombatDamage(lua_State* L);
+	static int lGetAirStrikeDefenseDamage(lua_State* L);
 
 	static int lIsWorkingPlot(lua_State* L);
 	static int lAlterWorkingPlot(lua_State* L);

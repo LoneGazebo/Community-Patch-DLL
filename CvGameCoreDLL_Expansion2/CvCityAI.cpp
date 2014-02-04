@@ -21,6 +21,7 @@
 #include "CvCitySpecializationAI.h"
 #include "CvWonderProductionAI.h"
 #include "CvGrandStrategyAI.h"
+#include "cvStopWatch.h"
 
 // must be included after all other headers
 #include "LintFree.h"
@@ -71,6 +72,7 @@ void CvCityAI::AI_reset()
 
 void CvCityAI::AI_doTurn()
 {
+	AI_PERF_FORMAT("City-AI-perf.csv", ("CvCityAI::AI_doTurn, Turn %03d, %s, %s", GC.getGame().getElapsedGameTurns(), GetPlayer()->getCivilizationShortDescription(), getName().c_str()) );
 	VALIDATE_OBJECT
 	if(!isHuman())
 	{

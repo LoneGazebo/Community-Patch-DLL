@@ -2492,12 +2492,16 @@ void CvMinorCivAI::DoAddStartingResources(CvPlot* pCityPlot)
 					}
 				}
 			}
-			int iRoll = GC.getGame().getJonRandNum(veUniqueLuxuries.size(), "Rolling for Mercantile city-state special luxury"); // range = [0, size - 1]
-			int iQuantity = GC.getMINOR_CIV_MERCANTILE_RESOURCES_QUANTITY();
-			ResourceTypes eSpecialLuxury = veUniqueLuxuries[iRoll];
 
 			pCityPlot->setResourceType(NO_RESOURCE, 0, true);
-			pCityPlot->setResourceType(eSpecialLuxury, iQuantity, true);
+			if (veUniqueLuxuries.size() > 0)
+			{
+				int iRoll = GC.getGame().getJonRandNum(veUniqueLuxuries.size(), "Rolling for Mercantile city-state special luxury"); // range = [0, size - 1]
+				int iQuantity = GC.getMINOR_CIV_MERCANTILE_RESOURCES_QUANTITY();
+				ResourceTypes eSpecialLuxury = veUniqueLuxuries[iRoll];
+
+				pCityPlot->setResourceType(eSpecialLuxury, iQuantity, true);
+			}
 		}
 	}
 }
@@ -2819,49 +2823,54 @@ void CvMinorCivAI::DoTestWarWithMajorQuest()
 /// Time to send out a "Help us with Units" notification?
 void CvMinorCivAI::DoTestProxyWarNotification()
 {
-	CvTeam* pActiveTeam = &GET_TEAM(GC.getGame().getActiveTeam());
+	for(int iNotifyLoop = 0; iNotifyLoop < MAX_MAJOR_CIVS; ++iNotifyLoop){
+		PlayerTypes eNotifyPlayer = (PlayerTypes) iNotifyLoop;
+		CvPlayerAI& kCurNotifyPlayer = GET_PLAYER(eNotifyPlayer);
+		CvTeam* pNotifyTeam = &GET_TEAM(kCurNotifyPlayer.getTeam());
 
-	Localization::String strMessage;
-	Localization::String strSummary;
+		Localization::String strMessage;
+		Localization::String strSummary;
 
-	if(pActiveTeam->isHasMet(GetPlayer()->getTeam()))
-	{
-		PlayerTypes eEnemyLeader;
-		TeamTypes eEnemyTeam;
-		for(int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
+		if(pNotifyTeam->isHasMet(GetPlayer()->getTeam()))
 		{
-			PlayerTypes eMajorLoop = (PlayerTypes) iMajorLoop;
-			CvPlayer* pMajorLoop = &GET_PLAYER(eMajorLoop);
-			CvAssertMsg(pMajorLoop, "Error sending out proxy war notification from a city-state. Please send Anton your save file and version.");
-			if (pMajorLoop)
+			PlayerTypes eEnemyLeader;
+			TeamTypes eEnemyTeam;
+			for(int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
 			{
-				eEnemyTeam = pMajorLoop->getTeam();
-
-				// Minor is at war
-				if(GET_TEAM(GetPlayer()->getTeam()).isAtWar(eEnemyTeam))
+				PlayerTypes eMajorLoop = (PlayerTypes) iMajorLoop;
+				CvPlayer* pMajorLoop = &GET_PLAYER(eMajorLoop);
+				CvAssertMsg(pMajorLoop, "Error sending out proxy war notification from a city-state. Please send Anton your save file and version.");
+				if (pMajorLoop)
 				{
-					// Active player must NOT be at war with either the major or the minor
-					if(!pActiveTeam->isAtWar(eEnemyTeam) && !pActiveTeam->isAtWar(GetPlayer()->getTeam()))
+					eEnemyTeam = pMajorLoop->getTeam();
+
+					// Minor is at war
+					if(GET_TEAM(GetPlayer()->getTeam()).isAtWar(eEnemyTeam))
 					{
-						// Don't send out notification here for Warmonger - we centralize this elsewhere (so that players don't get spammed with 10 Notifications)
-						if(!IsPeaceBlocked(eEnemyTeam))
+						// Notify player must NOT be at war with either the major or the minor
+						if(!pNotifyTeam->isAtWar(eEnemyTeam) && !pNotifyTeam->isAtWar(GetPlayer()->getTeam()))
 						{
-							if(GET_TEAM(GetPlayer()->getTeam()).GetNumTurnsAtWar(eEnemyTeam) == /*2*/ GC.getTXT_KEY_MINOR_GIFT_UNITS_REMINDER())  //antonjs: consider: this text key is hacked to act like a value, fix it for clarity
+							// Don't send out notification here for Warmonger - we centralize this elsewhere (so that players don't get spammed with 10 Notifications)
+							if(!IsPeaceBlocked(eEnemyTeam))
 							{
-								eEnemyLeader = GET_TEAM(eEnemyTeam).getLeaderID();
-								CvPlayer* pEnemyLeader = &GET_PLAYER(eEnemyLeader);
-
-								// Do some additional checks to safeguard against weird scenario cases (ex. major and minor on same team, major is dead)
-								if (pEnemyLeader)
+								if(GET_TEAM(GetPlayer()->getTeam()).GetNumTurnsAtWar(eEnemyTeam) == /*2*/ GC.getTXT_KEY_MINOR_GIFT_UNITS_REMINDER())  //antonjs: consider: this text key is hacked to act like a value, fix it for clarity
 								{
-									if (!pEnemyLeader->isMinorCiv() && pEnemyLeader->isAlive())
-									{
-										strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_WAR_UNIT_HELP");
-										strMessage << GetPlayer()->getCivilizationShortDescriptionKey() << pEnemyLeader->getCivilizationShortDescriptionKey();
-										strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_MINOR_WAR_UNIT_HELP");
-										strSummary << GetPlayer()->getCivilizationShortDescriptionKey();
+									eEnemyLeader = GET_TEAM(eEnemyTeam).getLeaderID();
+									CvPlayer* pEnemyLeader = &GET_PLAYER(eEnemyLeader);
 
-										AddQuestNotification(strMessage.toUTF8(), strSummary.toUTF8(), GC.getGame().getActivePlayer());
+									// Do some additional checks to safeguard against weird scenario cases (ex. major and minor on same team, major is dead)
+									if (pEnemyLeader)
+									{
+										if (!pEnemyLeader->isMinorCiv() && pEnemyLeader->isAlive())
+										{
+											strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_WAR_UNIT_HELP");
+											strMessage << GetPlayer()->getCivilizationShortDescriptionKey() << pEnemyLeader->getCivilizationShortDescriptionKey();
+											strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_MINOR_WAR_UNIT_HELP");
+											strSummary << GetPlayer()->getCivilizationShortDescriptionKey();
+
+											AddQuestNotification(strMessage.toUTF8(), strSummary.toUTF8(), eNotifyPlayer);
+											break;
+										}
 									}
 								}
 							}
@@ -2873,25 +2882,23 @@ void CvMinorCivAI::DoTestProxyWarNotification()
 	}
 }
 
+
+
 /// Quest to help defend from war with Major
 void CvMinorCivAI::DoLaunchWarWithMajorQuest(TeamTypes eAttackingTeam)
 {
 	int iQuestPlayerLoop;
 	PlayerTypes eQuestPlayer;
-
 	PlayerTypes eEnemy;
 	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
 		eEnemy = (PlayerTypes) iPlayerLoop;
-
 		if(GET_PLAYER(eEnemy).isAlive() && GET_PLAYER(eEnemy).getTeam() == eAttackingTeam)
 		{
 			SetWarQuestWithMajorActive(eEnemy, true);
-
 			// Number of Units that must be killed to fulfill this quest
 			int iNumUnitsToKill;
 			int iTotalMilitaryUnits = 0;
-
 			int iLoop;
 			for(CvUnit* pLoopUnit = GET_PLAYER(eEnemy).firstUnit(&iLoop); NULL != pLoopUnit; pLoopUnit = GET_PLAYER(eEnemy).nextUnit(&iLoop))
 			{
@@ -2900,21 +2907,17 @@ void CvMinorCivAI::DoLaunchWarWithMajorQuest(TeamTypes eAttackingTeam)
 					iTotalMilitaryUnits++;
 				}
 			}
-
 			iNumUnitsToKill = iTotalMilitaryUnits / /*4*/ GC.getWAR_QUEST_UNITS_TO_KILL_DIVISOR();
-
 			int iMinUnitsToKill = /*3*/ GC.getWAR_QUEST_MIN_UNITS_TO_KILL();
 			if(iNumUnitsToKill < iMinUnitsToKill)
 			{
 				iNumUnitsToKill = iMinUnitsToKill;
 			}
-
 			for(iQuestPlayerLoop = 0; iQuestPlayerLoop < MAX_MAJOR_CIVS; iQuestPlayerLoop++)
 			{
 				eQuestPlayer = (PlayerTypes) iQuestPlayerLoop;
 				SetNumEnemyUnitsLeftToKillByMajor(eQuestPlayer, eEnemy, iNumUnitsToKill);
 			}
-
 			if(GET_TEAM(GetPlayer()->getTeam()).isHasMet(GC.getGame().getActiveTeam()))
 			{
 				DoLaunchWarQuestForPlayerNotification(GC.getGame().getActivePlayer(), eEnemy);
@@ -2930,13 +2933,11 @@ bool CvMinorCivAI::IsWarQuestWithAnyoneActive() const
 	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
 		ePlayer = (PlayerTypes) iPlayerLoop;
-
 		if(IsWarQuestWithMajorActive(ePlayer))
 		{
 			return true;
 		}
 	}
-
 	return false;
 }
 
@@ -3002,15 +3003,12 @@ void CvMinorCivAI::DoUnitDeathWarQuestImplications(PlayerTypes eLosingPlayer, Pl
 					int iFriendshipChange = /*100*/ GC.getWAR_QUEST_COMPLETE_FRIENDSHIP();
 					ChangeFriendshipWithMajor(eKillingPlayer, iFriendshipChange, /*bFromQuest*/ true);
 
-					if(eKillingPlayer == GC.getGame().getActivePlayer())
-					{
-						Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_WAR_QUEST_COMPLETED");
-						strMessage << GetPlayer()->getNameKey() << GET_PLAYER(eLosingPlayer).getNameKey();
-						Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_MINOR_WAR_QUEST_COMPLETED");
-						strSummary << GetPlayer()->getNameKey();
+					Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_WAR_QUEST_COMPLETED");
+					strMessage << GetPlayer()->getNameKey() << GET_PLAYER(eLosingPlayer).getNameKey();
+					Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_MINOR_WAR_QUEST_COMPLETED");
+					strSummary << GetPlayer()->getNameKey();
 
-						AddQuestNotification(strMessage.toUTF8(), strSummary.toUTF8(), eKillingPlayer);
-					}
+					AddQuestNotification(strMessage.toUTF8(), strSummary.toUTF8(), eKillingPlayer);
 				}
 			}
 		}
@@ -3062,19 +3060,16 @@ void CvMinorCivAI::ChangeNumEnemyUnitsLeftToKillByMajor(PlayerTypes eMajor, Play
 /// Launch War Quest
 void CvMinorCivAI::DoLaunchWarQuestForPlayerNotification(PlayerTypes ePlayer, PlayerTypes eEnemy)
 {
-	if(ePlayer == GC.getGame().getActivePlayer())
+	if(!IsAtWarWithPlayersTeam(ePlayer))
 	{
-		if(!IsAtWarWithPlayersTeam(ePlayer))
-		{
-			int iNumUnitsToKill = GetNumEnemyUnitsLeftToKillByMajor(ePlayer, eEnemy);
+		int iNumUnitsToKill = GetNumEnemyUnitsLeftToKillByMajor(ePlayer, eEnemy);
 
-			Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_WAR_QUEST");
-			strMessage << GetPlayer()->getNameKey() << GET_PLAYER(eEnemy).getCivilizationShortDescriptionKey() << iNumUnitsToKill;
-			Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_MINOR_WAR_QUEST");
-			strSummary << GetPlayer()->getNameKey() << GET_PLAYER(eEnemy).getCivilizationShortDescriptionKey();
+		Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_WAR_QUEST");
+		strMessage << GetPlayer()->getNameKey() << GET_PLAYER(eEnemy).getCivilizationShortDescriptionKey() << iNumUnitsToKill;
+		Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_MINOR_WAR_QUEST");
+		strSummary << GetPlayer()->getNameKey() << GET_PLAYER(eEnemy).getCivilizationShortDescriptionKey();
 
-			AddQuestNotification(strMessage.toUTF8(), strSummary.toUTF8(), ePlayer);
-		}
+		AddQuestNotification(strMessage.toUTF8(), strSummary.toUTF8(), ePlayer);
 	}
 }
 
@@ -6223,96 +6218,100 @@ void CvMinorCivAI::DoSetBonus(PlayerTypes ePlayer, bool bAdd, bool bFriends, boo
 	if(bPassedBySomeone)
 		ePlayer = eNewAlly;
 
-	CvTeam* pActiveTeam = &GET_TEAM(GC.getGame().getActiveTeam());
-	TeamTypes eNewAllyTeam = GET_PLAYER(ePlayer).getTeam();
-	const char* strNewBestPlayersNameKey;
+	for(int iNotifyLoop = 0; iNotifyLoop < MAX_MAJOR_CIVS; ++iNotifyLoop){
+		PlayerTypes eNotifyPlayer = (PlayerTypes) iNotifyLoop;
+		CvPlayerAI& kCurNotifyPlayer = GET_PLAYER(eNotifyPlayer);
+		CvTeam* pNotifyTeam = &GET_TEAM(kCurNotifyPlayer.getTeam());
+		TeamTypes eNewAllyTeam = GET_PLAYER(ePlayer).getTeam();
+		const char* strNewBestPlayersNameKey;
 
-	// Active player has met the new Ally
-	if(pActiveTeam->isHasMet(eNewAllyTeam))
-		strNewBestPlayersNameKey = GET_PLAYER(ePlayer).getCivilizationShortDescriptionKey();
-	// Active player has NOT met the new Ally
-	else
-		strNewBestPlayersNameKey = "TXT_KEY_UNMET_PLAYER";
-
-	const char* strOldBestPlayersNameKey = "";
-
-	// Someone got passed up
-	if(eOldAlly != NO_PLAYER)
-	{
-		// Active player has met the old Ally
-		if(pActiveTeam->isHasMet(eOldAllyTeam))
-			strOldBestPlayersNameKey = GET_PLAYER(eOldAlly).getCivilizationShortDescriptionKey();
-		// Active player has NOT met the old Ally
+		// Notify player has met the new Ally
+		if(pNotifyTeam->isHasMet(eNewAllyTeam))
+			strNewBestPlayersNameKey = GET_PLAYER(ePlayer).getCivilizationShortDescriptionKey();
+		// Notify player has NOT met the new Ally
 		else
-			strOldBestPlayersNameKey = "TXT_KEY_UNMET_PLAYER";
-	}
+			strNewBestPlayersNameKey = "TXT_KEY_UNMET_PLAYER";
 
-	const char* strMinorsNameKey = GetPlayer()->getNameKey();
-	TeamTypes eMinorTeam = GetPlayer()->getTeam();
+		const char* strOldBestPlayersNameKey = "";
 
-	// Adding/Increasing bonus
-	if(bAdd)
-	{
-		// Jumped up to Allies (either from Neutral or from Friends, or passing another player)
-		if(bAllies)
+		// Someone got passed up
+		if(eOldAlly != NO_PLAYER)
 		{
-			if(ePlayer != GC.getGame().getActivePlayer())
-			{
-				// Has the active player met this minor
-				if(pActiveTeam->isHasMet(eMinorTeam))
-				{
-					// Someone got passed up
-					if(eOldAlly != NO_PLAYER && eOldAlly != ePlayer)
-					{
-						strMessageOthers = Localization::Lookup("TXT_KEY_NTFN_MINOR_NEW_BEST_RELATIONS_ALL");
-						strMessageOthers << strNewBestPlayersNameKey << strOldBestPlayersNameKey << strMinorsNameKey;
-						strSummaryOthers = Localization::Lookup("TXT_KEY_NTFN_SMMRY_MINOR_BEST_RELATIONS_ALL");
-						strSummaryOthers << strMinorsNameKey;
-					}
-					// No one previously had the bonus
-					else
-					{
-						strMessageOthers = Localization::Lookup("TXT_KEY_NTFN_MINOR_NOW_BEST_RELATIONS_ALL");
-						strMessageOthers << strNewBestPlayersNameKey << strMinorsNameKey;
-						strSummaryOthers = Localization::Lookup("TXT_KEY_NTFN_SMMRY_MINOR_NOW_ALLIES_ALL");
-						strSummaryOthers << strMinorsNameKey << strNewBestPlayersNameKey;
-					}
+			// Notify player has met the old Ally
+			if(pNotifyTeam->isHasMet(eOldAllyTeam))
+				strOldBestPlayersNameKey = GET_PLAYER(eOldAlly).getCivilizationShortDescriptionKey();
+			// Notify player has NOT met the old Ally
+			else
+				strOldBestPlayersNameKey = "TXT_KEY_UNMET_PLAYER";
+		}
 
-					// If we're being passed by someone, then don't display this message... we'll roll it into a later one
-					if(eOldAlly != GC.getGame().getActivePlayer())
-						AddNotification(strMessageOthers.toUTF8(), strSummaryOthers.toUTF8(), GC.getGame().getActivePlayer());
+		const char* strMinorsNameKey = GetPlayer()->getNameKey();
+		TeamTypes eMinorTeam = GetPlayer()->getTeam();
+
+		// Adding/Increasing bonus
+		if(bAdd)
+		{
+			// Jumped up to Allies (either from Neutral or from Friends, or passing another player)
+			if(bAllies)
+			{
+				if(ePlayer != eNotifyPlayer)
+				{
+					// Has the notify player met this minor
+					if(pNotifyTeam->isHasMet(eMinorTeam))
+					{
+						// Someone got passed up
+						if(eOldAlly != NO_PLAYER && eOldAlly != ePlayer)
+						{
+							strMessageOthers = Localization::Lookup("TXT_KEY_NTFN_MINOR_NEW_BEST_RELATIONS_ALL");
+							strMessageOthers << strNewBestPlayersNameKey << strOldBestPlayersNameKey << strMinorsNameKey;
+							strSummaryOthers = Localization::Lookup("TXT_KEY_NTFN_SMMRY_MINOR_BEST_RELATIONS_ALL");
+							strSummaryOthers << strMinorsNameKey;
+						}
+						// No one previously had the bonus
+						else
+						{
+							strMessageOthers = Localization::Lookup("TXT_KEY_NTFN_MINOR_NOW_BEST_RELATIONS_ALL");
+							strMessageOthers << strNewBestPlayersNameKey << strMinorsNameKey;
+							strSummaryOthers = Localization::Lookup("TXT_KEY_NTFN_SMMRY_MINOR_NOW_ALLIES_ALL");
+							strSummaryOthers << strMinorsNameKey << strNewBestPlayersNameKey;
+						}
+
+						// If we're being passed by someone, then don't display this message... we'll roll it into a later one
+						if(eOldAlly != eNotifyPlayer)
+							AddNotification(strMessageOthers.toUTF8(), strSummaryOthers.toUTF8(), eNotifyPlayer);
+					}
 				}
 			}
 		}
-	}
-	// Removing/Reducing bonus
-	else
-	{
-		// Dropped from Allies
-		if(bAllies)
+		// Removing/Reducing bonus
+		else
 		{
-			if(ePlayer != GC.getGame().getActivePlayer())
+			// Dropped from Allies
+			if(bAllies)
 			{
-				if(pActiveTeam->isHasMet(eMinorTeam))
+				if(ePlayer != eNotifyPlayer)
 				{
-					// Only show this message for normal friendship decay
-					if(!bPassedBySomeone)
+					if(pNotifyTeam->isHasMet(eMinorTeam))
 					{
-						const char* strOldAllyNameKey;
+						// Only show this message for normal friendship decay
+						if(!bPassedBySomeone)
+						{
+							const char* strOldAllyNameKey;
 
-						// Active player has met the old Ally
-						if(pActiveTeam->isHasMet(eOldAllyTeam))
-							strOldAllyNameKey = GET_PLAYER(eOldAlly).getCivilizationShortDescriptionKey();
-						// Active player has NOT met the old Ally
-						else
-							strOldAllyNameKey = "TXT_KEY_UNMET_PLAYER";
+							// Notify player has met the old Ally
+							if(pNotifyTeam->isHasMet(eOldAllyTeam))
+								strOldAllyNameKey = GET_PLAYER(eOldAlly).getCivilizationShortDescriptionKey();
+							// Notify player has NOT met the old Ally
+							else
+								strOldAllyNameKey = "TXT_KEY_UNMET_PLAYER";
 
-						strMessageOthers = Localization::Lookup("TXT_KEY_NTFN_MINOR_BEST_RELATIONS_LOST_ALL");
-						strMessageOthers << strOldAllyNameKey << strMinorsNameKey;
-						strSummaryOthers = Localization::Lookup("TXT_KEY_NTFN_SMMRY_MINOR_BEST_RELATIONS_LOST_ALL");
-						strSummaryOthers << strMinorsNameKey << strOldAllyNameKey;
+							strMessageOthers = Localization::Lookup("TXT_KEY_NTFN_MINOR_BEST_RELATIONS_LOST_ALL");
+							strMessageOthers << strOldAllyNameKey << strMinorsNameKey;
+							strSummaryOthers = Localization::Lookup("TXT_KEY_NTFN_SMMRY_MINOR_BEST_RELATIONS_LOST_ALL");
+							strSummaryOthers << strMinorsNameKey << strOldAllyNameKey;
 
-						AddNotification(strMessageOthers.toUTF8(), strSummaryOthers.toUTF8(), GC.getGame().getActivePlayer());
+							AddNotification(strMessageOthers.toUTF8(), strSummaryOthers.toUTF8(), eNotifyPlayer);
+						}
 					}
 				}
 			}

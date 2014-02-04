@@ -10,6 +10,8 @@
 #ifndef CIV5_WORLD_BUILDER_MAP_LOADER_H
 #define CIV5_WORLD_BUILDER_MAP_LOADER_H
 
+class CvWorldBuilderMap;
+
 class CvWorldBuilderMapLoader
 {
 public:
@@ -37,6 +39,9 @@ public:
 	static void ClearResources();
 	static void ClearGoodies();
 
+	static WorldSizeTypes GetCurrentWorldSizeType();
+	static WorldSizeTypes GetWorldSizeType(const CvWorldBuilderMap& kMap);
+	
 	// Player slot mapping utilities
 	static void ResetPlayerSlots();
 	static void MapPlayerToSlot(uint uiPlayer, PlayerTypes ePlayerSlot);
@@ -52,6 +57,7 @@ public:
 	static int AddRandomItems(lua_State* L);
 	static int ScatterResources(lua_State* L);
 	static int ScatterGoodies(lua_State* L);
+
 };
 
 #endif // CIV5_WORLD_BUILDER_MAP_LOADER_H

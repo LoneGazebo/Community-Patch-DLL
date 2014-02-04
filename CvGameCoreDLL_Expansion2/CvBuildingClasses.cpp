@@ -21,6 +21,7 @@
 
 /// Constructor
 CvBuildingEntry::CvBuildingEntry(void):
+
 	m_iBuildingClassType(NO_BUILDINGCLASS),
 	m_pkBuildingClassInfo(NULL),
 	m_iNearbyTerrainRequired(NO_VICTORY),
@@ -112,6 +113,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_iTradeRouteSeaGoldBonus(0),
 	m_iTradeRouteLandDistanceModifier(0),
 	m_iTradeRouteLandGoldBonus(0),
+	m_iCityStateTradeRouteProductionModifier(0),
 	m_iInstantSpyRankChange(0),
 	m_iLandmarksTourismPercent(0),
 	m_iInstantMilitaryIncrease(0),
@@ -347,6 +349,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_iTradeRouteSeaGoldBonus = kResults.GetInt("TradeRouteSeaGoldBonus");
 	m_iTradeRouteLandDistanceModifier = kResults.GetInt("TradeRouteLandDistanceModifier");
 	m_iTradeRouteLandGoldBonus = kResults.GetInt("TradeRouteLandGoldBonus");
+	m_iCityStateTradeRouteProductionModifier = kResults.GetInt("CityStateTradeRouteProductionModifier");
 	m_iInstantSpyRankChange = kResults.GetInt("InstantSpyRankChange");
 	m_iLandmarksTourismPercent = kResults.GetInt("LandmarksTourismPercent");
 	m_iInstantMilitaryIncrease = kResults.GetInt("InstantMilitaryIncrease");
@@ -1258,6 +1261,11 @@ int CvBuildingEntry::GetTradeRouteLandDistanceModifier() const
 int CvBuildingEntry::GetTradeRouteLandGoldBonus() const
 {
 	return m_iTradeRouteLandGoldBonus;
+}
+
+int CvBuildingEntry::GetCityStateTradeRouteProductionModifier() const
+{
+	return m_iCityStateTradeRouteProductionModifier;
 }
 
 int CvBuildingEntry::GetGreatScientistBeakerModifier() const
@@ -2741,20 +2749,25 @@ void CvCityBuildings::SetNumFreeBuilding(BuildingTypes eIndex, int iNewValue)
 	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
 	CvAssertMsg(eIndex < m_pBuildings->GetNumBuildings(), "eIndex expected to be < m_pBuildings->GetNumBuildings()");
 
-	if(GetNumFreeBuilding(eIndex) != iNewValue)
+	if (GetNumFreeBuilding(eIndex) != iNewValue)
 	{
 		int iOldNumBuilding = GetNumBuilding(eIndex);
 
 		if (iOldNumBuilding > 0 && iNewValue > 0)
 		{
 			DoSellBuilding(eIndex);
+			m_paiNumFreeBuilding[eIndex] = iNewValue;
+			m_pCity->processBuilding(eIndex, iNewValue, true);			
 		}
-
-		m_paiNumFreeBuilding[eIndex] = iNewValue;
-
-		if(iOldNumBuilding != GetNumBuilding(eIndex))
+		
+		else
 		{
-			m_pCity->processBuilding(eIndex, iNewValue - iOldNumBuilding, true);
+			m_paiNumFreeBuilding[eIndex] = iNewValue;
+
+			if (iOldNumBuilding != GetNumBuilding(eIndex))
+			{
+				m_pCity->processBuilding(eIndex, iNewValue - iOldNumBuilding, true);
+			}
 		}
 	}
 }
@@ -3199,6 +3212,41 @@ int CvCityBuildings::GetNumBuildingsFromFaith() const
 
 	return iRtnValue;
 }
+
+/// Accessor: What is the production modifier for each city state trade route?
+int CvCityBuildings::GetCityStateTradeRouteProductionModifier() const
+{
+	int iRtnValue = 0;
+
+	for(int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
+	{
+		BuildingClassTypes eLoopBuildingClass = (BuildingClassTypes) iI;
+		CvCivilizationInfo *pkCivInfo = GC.getCivilizationInfo(m_pCity->getCivilizationType());
+		if (pkCivInfo)
+		{
+			BuildingTypes eBuilding = (BuildingTypes)pkCivInfo->getCivilizationBuildings(eLoopBuildingClass);
+			if (NO_BUILDING != eBuilding)
+			{
+				if (GetNumBuilding(eBuilding) > 0)
+				{
+					CvBuildingEntry *pkEntry = GC.getBuildingInfo(eBuilding);
+					if (pkEntry)
+					{
+						int iProductionModifier = pkEntry->GetCityStateTradeRouteProductionModifier();
+						int iCityStates = GET_PLAYER(m_pCity->getOwner()).GetTrade()->GetNumberOfCityStateTradeRoutes();
+						if (iProductionModifier > 0  && iCityStates > 0)
+						{
+							iRtnValue = iProductionModifier * iCityStates;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return iRtnValue;
+}
+
 
 /// Accessor: Get current production modifier from buildings
 int CvCityBuildings::GetBuildingProductionModifier() const

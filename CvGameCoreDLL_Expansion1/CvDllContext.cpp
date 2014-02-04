@@ -100,7 +100,8 @@ void* CvDllGameContext::QueryInterface(GUID guidInterface)
 {
 	if(	guidInterface == ICvUnknown::GetInterfaceId() ||
 		guidInterface == ICvGameContext1::GetInterfaceId() ||
-		guidInterface == ICvGameContext2::GetInterfaceId())
+		guidInterface == ICvGameContext2::GetInterfaceId() ||
+		guidInterface == ICvGameContext3::GetInterfaceId())
 	{
 		return this;
 	}
@@ -160,6 +161,11 @@ CvDllGameContext* CvDllGameContext::GetSingleton()
 }
 //------------------------------------------------------------------------------
 HANDLE CvDllGameContext::GetHeap()
+{
+	return s_hHeap;
+}
+//------------------------------------------------------------------------------
+HANDLE CvDllGameContext::Debug_GetHeap() const
 {
 	return s_hHeap;
 }
@@ -835,13 +841,13 @@ void CvDllGameContext::SetGameDatabase(Database::Connection* pGameDatabase)
 bool CvDllGameContext::SetDLLIFace(ICvEngineUtility1* pDll)
 {
 	//Since we're using QueryInterface to allocate a new instance, we need to explicitly clean up the old reference.
-	ICvEngineUtility3* pOldDll = GC.getDLLIFace();
+	ICvEngineUtility4* pOldDll = GC.getDLLIFace();
 	if(pOldDll != NULL)
 	{
 		delete pOldDll;
 	}
 
-	ICvEngineUtility3* pDllInterface = (pDll != NULL)? pDll->QueryInterface<ICvEngineUtility3>() : NULL;
+	ICvEngineUtility4* pDllInterface = (pDll != NULL)? pDll->QueryInterface<ICvEngineUtility4>() : NULL;
 	GC.setDLLIFace(pDllInterface);
 
 	return pDllInterface != NULL;

@@ -29,6 +29,12 @@ public:
 		CvAssertMsg(ePlayer < MAX_PLAYERS, "Player is not assigned a valid value");
 		return m_aPlayers[ePlayer];
 	}
+
+	static bool IsValid(PlayerTypes ePlayer)
+	{
+		return ((int)ePlayer >= 0 && (int)ePlayer < MAX_PLAYERS);
+	}
+
 	static void initStatics();
 	static void freeStatics();
 

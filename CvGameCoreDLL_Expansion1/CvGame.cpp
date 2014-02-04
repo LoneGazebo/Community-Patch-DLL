@@ -417,6 +417,11 @@ int WorldBuilderMapLoaderLoadModData(lua_State* L)
 	return CvWorldBuilderMapLoader::LoadModData(L);
 }
 //------------------------------------------------------------------------------
+int WorldBuilderMapLoaderRunPostProcessScript(lua_State* L)
+{
+	return CvWorldBuilderMapLoader::RunPostProcessScript(L);
+}
+//------------------------------------------------------------------------------
 bool CvGame::InitMap(CvGameInitialItemsOverrides& kGameInitialItemsOverrides)
 {
 	CvMap& kMap = GC.getMap();
@@ -435,6 +440,8 @@ bool CvGame::InitMap(CvGameInitialItemsOverrides& kGameInitialItemsOverrides)
 			kMapInitData.m_iGridH = kWBMapInfo.uiHeight;
 			kMap.init(&kMapInitData);
 
+			CvBarbarians::MapInit(kMap.numPlots());
+
 			CvWorldBuilderMapLoader::InitMap();
 			CvWorldBuilderMapLoader::ValidateTerrain();
 
@@ -446,6 +453,8 @@ bool CvGame::InitMap(CvGameInitialItemsOverrides& kGameInitialItemsOverrides)
 				{
 					lua_cpcall(L, &WorldBuilderMapLoaderAddRandomItems, 0);
 					lua_cpcall(L, &WorldBuilderMapLoaderLoadModData, 0);
+					lua_cpcall(L, &WorldBuilderMapLoaderRunPostProcessScript, 0);
+
 
 					pkScriptSystem->FreeLuaThread(L);
 				}
@@ -464,6 +473,8 @@ bool CvGame::InitMap(CvGameInitialItemsOverrides& kGameInitialItemsOverrides)
 			kMapInitData.m_iGridH = 1;
 			kMap.init(&kMapInitData);
 
+			CvBarbarians::MapInit(kMap.numPlots());
+
 			CvWorldBuilderMapLoader::ValidateTerrain();
 		}
 	}
@@ -479,13 +490,13 @@ bool CvGame::InitMap(CvGameInitialItemsOverrides& kGameInitialItemsOverrides)
 		else
 			kMap.init();
 
+		CvBarbarians::MapInit(kMap.numPlots());
+
 		pGenerator->GenerateRandomMap();
 		pGenerator->GetGameInitialItemsOverrides(kGameInitialItemsOverrides);
 
 		delete pGenerator;
 	}
-
-	CvBarbarians::MapInit(GC.getMap().numPlots());
 
 	// Run this for all maps because a map should never crash the game on
 	// load regardless of where that map came from.  (The map scripts are mod-able after all!!!)
@@ -1410,8 +1421,6 @@ void CvGame::update()
 				{
 					updateTimers();
 
-					updateTurnTimer();
-
 					UpdatePlayers(); // slewis added!
 
 					testAlive();
@@ -1759,26 +1768,25 @@ void CvGame::updateSelectionList()
 //	-----------------------------------------------------------------------------------------------
 int s_unitMoveTurnSlice = 0;
 
-void CvGame::updateTurnTimer()
-{
-	//check the turn timer for the active player
-	hasTurnTimerExpired(getActivePlayer(), true);
-}
-
-bool CvGame::hasTurnTimerExpired(PlayerTypes playerID, bool gameLoopUpdate)
+bool CvGame::hasTurnTimerExpired(PlayerTypes playerID)
 {//gameLoopUpdate - Indicates that we're updating the turn timer for the game loop update.  
  //					This forces the active player's turn to finish if her turn time has elapsed.
  //					We also reset the turn timer when ai processing is occurring.
  //					If false, we're simply querying the game for a player's turn timer status.
 	bool gameTurnTimerExpired = false;
+	bool isLocalPlayer = getActivePlayer() == playerID;
 	if(isOption(GAMEOPTION_END_TURN_TIMER_ENABLED) && !isPaused() && GC.getGame().getGameState() == GAMESTATE_ON)
 	{
 		ICvUserInterface2* iface = GC.GetEngineUserInterface();
 		if(getElapsedGameTurns() > 0)
 		{
-			if(gameLoopUpdate && (!gDLL->allAICivsProcessedThisTurn() || !allUnitAIProcessed()))
+			if(isLocalPlayer && (!gDLL->allAICivsProcessedThisTurn() || !allUnitAIProcessed()))
 			{//the turn timer doesn't doesn't start until all ai processing has been completed for this game turn.
 				resetTurnTimer(true);
+
+				//hold the turn timer at 0 seconds with 0% completion
+				CvPreGame::setEndTurnTimerLength(0.0f);
+				iface->updateEndTurnTimer(0.0f);
 			}
 			else
 			{//turn timer is actively ticking.
@@ -1797,80 +1805,65 @@ bool CvGame::hasTurnTimerExpired(PlayerTypes playerID, bool gameLoopUpdate)
 				float timeSinceGameTurnStart = m_timeSinceGameTurnStart.Peek() + m_fCurrentTurnTimerPauseDelta; 
 				
 				float timeElapsed = (curPlayer.isSimultaneousTurns() ? timeSinceGameTurnStart : timeSinceCurrentTurnStart);
-				if(curPlayer.isAlive())
-				{
-					if(curPlayer.isTurnActive())
-					{//The timer is ticking for our turn
-						if(timeElapsed > gameTurnEnd)
-						{
-							if(s_unitMoveTurnSlice == 0)
-							{
-								gameTurnTimerExpired = true;
-							}
-							else if(s_unitMoveTurnSlice + 10 < getTurnSlice())
-							{
-								gameTurnTimerExpired = true;
-							}
-						}
-					}
-
-					if((!curPlayer.isTurnActive() || gDLL->HasReceivedTurnComplete(curPlayer.GetID())) //Active player has finished their turn.
-						&& getNumSequentialHumans() > 1)	//or sequential turn mode
-					{//It's not our turn and there are sequential turn human players in the game.
-
-						//In this case, the turn timer shows progress in terms of the max possible time until our next turn.
-						//As such, timeElapsed has to be adjusted to be a value in terms of the max possible time.
-
-						//The max turn length is multiplied by the number of other human players in the sequential turn sequence.
-						gameTurnEnd *= getNumSequentialHumans(playerID);
-
-						//determine number of players in the sequential turn sequence, not counting the active player.
-						int playersInSeq = getNumSequentialHumans(curPlayer.GetID());
-
-						float timePerPlayer = gameTurnEnd / playersInSeq; //time limit per human
-						//count how many human players are left until us in the sequence.
-						int humanTurnsUntilMe = countSeqHumanTurnsUntilPlayerTurn(playerID);
-						int humanTurnsCompleted = playersInSeq - humanTurnsUntilMe;
-
-						if(humanTurnsUntilMe)
-						{//We're waiting on other sequential players
-							timeElapsed =  timeSinceCurrentTurnStart + humanTurnsCompleted*timePerPlayer;
-						}
-						else
-						{//All the other sequential players have finished.
-						 //Either we're waiting on turn processing or on players who are playing simultaneous turns.
-
-							//scale time to be that of the remaining possible time for the simultaneous players.
-							//From the player's perspective, the timer will simply creep down for the remaining simultaneous turn time
-							//rather than skipping straight to zero like it would by just tracking the sequential players' turn time.
-							timeElapsed = timeSinceGameTurnStart + (humanTurnsCompleted-1)*timePerPlayer;
-						}
-					}
-
-					if(gameLoopUpdate)
-					{//update the local end turn timer.
-						CvPreGame::setEndTurnTimerLength(gameTurnEnd);
-						iface->updateEndTurnTimer(timeElapsed / gameTurnEnd);
-					}
-				}
-				else
-				{
-					gameTurnTimerExpired = true;
-				}
-
-				//if this is the game loop update and the player's turn timer has elapsed, force them to end their turn.
-				if(gameLoopUpdate && gameTurnTimerExpired)
-				{
-					if(!gDLL->HasSentTurnComplete() && gDLL->allAICivsProcessedThisTurn() && allUnitAIProcessed())
+				if(curPlayer.isTurnActive())
+				{//The timer is ticking for our turn
+					if(timeElapsed > gameTurnEnd)
 					{
-						CvAssertMsg(playerID == getActivePlayer(), "Tried to force end the turn of a player who isn't the active player.");
-						curPlayer.GetPlayerAchievements().EndTurn();
-
-						gDLL->sendTurnComplete();
-						CvAchievementUnlocker::EndTurn();
+						if(s_unitMoveTurnSlice == 0)
+						{
+							gameTurnTimerExpired = true;
+						}
+						else if(s_unitMoveTurnSlice + 10 < getTurnSlice())
+						{
+							gameTurnTimerExpired = true;
+						}
 					}
+				}
+
+				if((!curPlayer.isTurnActive() || gDLL->HasReceivedTurnComplete(playerID)) //Active player has finished their turn.
+					&& getNumSequentialHumans() > 1)	//or sequential turn mode
+				{//It's not our turn and there are sequential turn human players in the game.
+
+					//In this case, the turn timer shows progress in terms of the max possible time until our next turn.
+					//As such, timeElapsed has to be adjusted to be a value in terms of the max possible time.
+
+					//determine number of players in the sequential turn sequence, not counting the active player.
+					int playersInSeq = getNumSequentialHumans(playerID);
+
+					//The max turn length is multiplied by the number of other human players in the sequential turn sequence.
+					gameTurnEnd *= playersInSeq;
+
+					float timePerPlayer = gameTurnEnd / playersInSeq; //time limit per human
+					//count how many human players are left until us in the sequence.
+					int humanTurnsUntilMe = countSeqHumanTurnsUntilPlayerTurn(playerID);
+					int humanTurnsCompleted = playersInSeq - humanTurnsUntilMe;
+
+					if(humanTurnsUntilMe)
+					{//We're waiting on other sequential players
+						timeElapsed =  timeSinceCurrentTurnStart + humanTurnsCompleted*timePerPlayer;
+					}
+					else
+					{//All the other sequential players have finished.
+					 //Either we're waiting on turn processing or on players who are playing simultaneous turns.
+
+						//scale time to be that of the remaining possible time for the simultaneous players.
+						//From the player's perspective, the timer will simply creep down for the remaining simultaneous turn time
+						//rather than skipping straight to zero like it would by just tracking the sequential players' turn time.
+						timeElapsed = timeSinceGameTurnStart + (humanTurnsCompleted-1)*timePerPlayer;
+					}
+				}
+
+				if(isLocalPlayer)
+				{//update the local end turn timer.
+					CvPreGame::setEndTurnTimerLength(gameTurnEnd);
+					iface->updateEndTurnTimer(timeElapsed / gameTurnEnd);
 				}
 			}
+		}
+		else if(isLocalPlayer){
+			//hold the turn timer at 0 seconds with 0% completion
+			CvPreGame::setEndTurnTimerLength(0.0f);
+			iface->updateEndTurnTimer(0.0f);
 		}
 	}
 
@@ -5809,16 +5802,20 @@ void CvGame::setWinner(TeamTypes eNewWinner, VictoryTypes eNewVictory)
 				localizedText << GET_TEAM(getWinner()).getName().GetCString() << szVictoryTextKey;
 				addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, winningTeamLeaderID, localizedText.toUTF8(), -1, -1);
 
-				CvNotifications* pNotifications = GET_PLAYER(GC.getGame().getActivePlayer()).GetNotifications();
-				if(pNotifications)
-				{
-					localizedText = Localization::Lookup("TXT_KEY_NOTIFICATION_VICTORY_WINNER");
-					localizedText << szWinningTeamLeaderNameKey << szVictoryTextKey;
+				//Notify everyone of the victory
+				localizedText = Localization::Lookup("TXT_KEY_NOTIFICATION_VICTORY_WINNER");
+				localizedText << szWinningTeamLeaderNameKey << szVictoryTextKey;
 
-					Localization::String localizedSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_VICTORY_WINNER");
-					localizedSummary << szWinningTeamLeaderNameKey;
+				Localization::String localizedSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_VICTORY_WINNER");
+				localizedSummary << szWinningTeamLeaderNameKey;
 
-					pNotifications->Add(NOTIFICATION_VICTORY, localizedText.toUTF8(), localizedSummary.toUTF8(), -1, -1, -1);
+				for(int iNotifyLoop = 0; iNotifyLoop < MAX_MAJOR_CIVS; ++iNotifyLoop){
+					PlayerTypes eNotifyPlayer = (PlayerTypes) iNotifyLoop;
+					CvPlayerAI& kCurNotifyPlayer = GET_PLAYER(eNotifyPlayer);
+					CvNotifications* pNotifications = kCurNotifyPlayer.GetNotifications();
+					if(pNotifications){
+						pNotifications->Add(NOTIFICATION_VICTORY, localizedText.toUTF8(), localizedSummary.toUTF8(), -1, -1, -1);
+					}
 				}
 
 				//--Start Achievements
@@ -5836,560 +5833,550 @@ void CvGame::setWinner(TeamTypes eNewWinner, VictoryTypes eNewVictory)
 					bool bUsingXP1Scenario2 = gDLL->IsModActivated(CIV5_XP1_SCENARIO2_MODID);
 					bool bUsingXP1Scenario3 = gDLL->IsModActivated(CIV5_XP1_SCENARIO3_MODID);
 
-					bool bCanUnlockAchievements = 
-						(getMaxTurns() == 0 || 
-						bUsingDLC1Scenario || bUsingDLC2Scenario || bUsingDLC3Scenario || bUsingDLC4Scenario ||
-						bUsingDLC5Scenario || bUsingDLC6Scenario || bUsingXP1Scenario1 ||bUsingXP1Scenario2 ||
-						bUsingXP1Scenario3);
+					//Games Won Stat
+					gDLL->IncrementSteamStat(ESTEAMSTAT_TOTAL_WINS);
 
-
-					if(bCanUnlockAchievements)
+					//Victory on Map Sizes
+					WorldSizeTypes	winnerMapSize = GC.getMap().getWorldSize();
+					switch(winnerMapSize)
 					{
-						//Games Won Stat
-						gDLL->IncrementSteamStat(ESTEAMSTAT_TOTAL_WINS);
+					case WORLDSIZE_DUEL:
+						gDLL->UnlockAchievement(ACHIEVEMENT_MAPSIZE_DUEL);
+						break;
+					case WORLDSIZE_TINY:
+						gDLL->UnlockAchievement(ACHIEVEMENT_MAPSIZE_TINY);
+						break;
+					case WORLDSIZE_SMALL:
+						gDLL->UnlockAchievement(ACHIEVEMENT_MAPSIZE_SMALL);
+						break;
+					case WORLDSIZE_STANDARD:
+						gDLL->UnlockAchievement(ACHIEVEMENT_MAPSIZE_STANDARD);
+						break;
+					case WORLDSIZE_LARGE:
+						gDLL->UnlockAchievement(ACHIEVEMENT_MAPSIZE_LARGE);
+						break;
+					case WORLDSIZE_HUGE:
+						gDLL->UnlockAchievement(ACHIEVEMENT_MAPSIZE_HUGE);
+						break;
+					default:
+						OutputDebugString("Playing on some other kind of world size.");
+					}
 
-						//Victory on Map Sizes
-						WorldSizeTypes	winnerMapSize = GC.getMap().getWorldSize();
-						switch(winnerMapSize)
+					//Victory on Map Types
+					CvString winnerMapName = CvPreGame::mapScriptName();
+					//OutputDebugString(winnerMapName);
+					//OutputDebugString("\n");
+
+					if(winnerMapName == "Assets\\Maps\\Continents.lua")
+						gDLL->UnlockAchievement(ACHIEVEMENT_MAPTYPE_CONTINENTS);
+					else if(winnerMapName == "Assets\\Maps\\Pangaea.lua")
+						gDLL->UnlockAchievement(ACHIEVEMENT_MAPTYPE_PANGAEA);
+					else if(winnerMapName == "Assets\\Maps\\Archipelago.lua")
+						gDLL->UnlockAchievement(ACHIEVEMENT_MAPTYPE_ARCHIPELAGO);
+					else if(winnerMapName == "Assets\\Maps\\Earth_Duel.Civ5Map" || winnerMapName == "Assets\\Maps\\Earth_Huge.Civ5Map"
+						|| winnerMapName == "Assets\\Maps\\Earth_Large.Civ5Map" || winnerMapName == "Assets\\Maps\\Earth_Small.Civ5Map"
+						|| winnerMapName == "Assets\\Maps\\Earth_Standard.Civ5Map" || winnerMapName == "Assets\\Maps\\Earth_Tiny.Civ5Map")
+						gDLL->UnlockAchievement(ACHIEVEMENT_MAPTYPE_EARTH);
+					else
+						OutputDebugString("\n Playing some other map. \n\n");
+
+
+					//Victory on Difficulty Levels
+					HandicapTypes winnerHandicapType = getHandicapType();
+					switch(winnerHandicapType)
+					{
+					case 0:
+						gDLL->UnlockAchievement(ACHIEVEMENT_DIFLEVEL_SETTLER);
+						break;
+					case 1:
+						gDLL->UnlockAchievement(ACHIEVEMENT_DIFLEVEL_CHIEFTAIN);
+						break;
+					case 2:
+						gDLL->UnlockAchievement(ACHIEVEMENT_DIFLEVEL_WARLORD);
+						break;
+					case 3:
+						gDLL->UnlockAchievement(ACHIEVEMENT_DIFLEVEL_PRINCE);
+						break;
+					case 4:
+						gDLL->UnlockAchievement(ACHIEVEMENT_DIFLEVEL_KING);
+						break;
+					case 5:
+						gDLL->UnlockAchievement(ACHIEVEMENT_DIFLEVEL_EMPEROR);
+						break;
+					case 6:
+						gDLL->UnlockAchievement(ACHIEVEMENT_DIFLEVEL_IMMORTAL);
+						break;
+					case 7:
+						gDLL->UnlockAchievement(ACHIEVEMENT_DIFLEVEL_DEITY);
+						break;
+					default:
+						OutputDebugString("Playing on some non-existant dif level.");
+					}
+					//Different Victory Win Types
+					switch(eNewVictory)
+					{
+					case 0:
+						OutputDebugString("No current Achievement for a time victory");
+						break;
+					case 1:
+						gDLL->UnlockAchievement(ACHIEVEMENT_VICTORY_SPACE);
+						break;
+					case 2:
 						{
-						case WORLDSIZE_DUEL:
-							gDLL->UnlockAchievement(ACHIEVEMENT_MAPSIZE_DUEL);
-							break;
-						case WORLDSIZE_TINY:
-							gDLL->UnlockAchievement(ACHIEVEMENT_MAPSIZE_TINY);
-							break;
-						case WORLDSIZE_SMALL:
-							gDLL->UnlockAchievement(ACHIEVEMENT_MAPSIZE_SMALL);
-							break;
-						case WORLDSIZE_STANDARD:
-							gDLL->UnlockAchievement(ACHIEVEMENT_MAPSIZE_STANDARD);
-							break;
-						case WORLDSIZE_LARGE:
-							gDLL->UnlockAchievement(ACHIEVEMENT_MAPSIZE_LARGE);
-							break;
-						case WORLDSIZE_HUGE:
-							gDLL->UnlockAchievement(ACHIEVEMENT_MAPSIZE_HUGE);
-							break;
-						default:
-							OutputDebugString("Playing on some other kind of world size.");
+							if(!bUsingXP1Scenario1)
+							{
+								gDLL->UnlockAchievement(ACHIEVEMENT_VICTORY_DOMINATION);
+							}
 						}
+						break;
+					case 3:
+						gDLL->UnlockAchievement(ACHIEVEMENT_VICTORY_CULTURE);
+						break;
+					case 4:
+						gDLL->UnlockAchievement(ACHIEVEMENT_VICTORY_DIPLO);
+						break;
+					default:
+						OutputDebugString("Your l33t victory skills allowed you to win in some other way.");
+					}
 
-						//Victory on Map Types
-						CvString winnerMapName = CvPreGame::mapScriptName();
-						//OutputDebugString(winnerMapName);
-						//OutputDebugString("\n");
+					//Victory with Specific Leaders
+					CvString pLeader =  kWinningTeamLeader.getLeaderTypeKey();
 
-						if(winnerMapName == "Assets\\Maps\\Continents.lua")
-							gDLL->UnlockAchievement(ACHIEVEMENT_MAPTYPE_CONTINENTS);
-						else if(winnerMapName == "Assets\\Maps\\Pangaea.lua")
-							gDLL->UnlockAchievement(ACHIEVEMENT_MAPTYPE_PANGAEA);
-						else if(winnerMapName == "Assets\\Maps\\Archipelago.lua")
-							gDLL->UnlockAchievement(ACHIEVEMENT_MAPTYPE_ARCHIPELAGO);
-						else if(winnerMapName == "Assets\\Maps\\Earth_Duel.Civ5Map" || winnerMapName == "Assets\\Maps\\Earth_Huge.Civ5Map"
-							|| winnerMapName == "Assets\\Maps\\Earth_Large.Civ5Map" || winnerMapName == "Assets\\Maps\\Earth_Small.Civ5Map"
-							|| winnerMapName == "Assets\\Maps\\Earth_Standard.Civ5Map" || winnerMapName == "Assets\\Maps\\Earth_Tiny.Civ5Map")
-							gDLL->UnlockAchievement(ACHIEVEMENT_MAPTYPE_EARTH);
-						else
-							OutputDebugString("\n Playing some other map. \n\n");
+					if(!bUsingDLC6Scenario && pLeader == "LEADER_ALEXANDER")
+						gDLL->UnlockAchievement(ACHIEVEMENT_WIN_ALEXANDER);
+					else if(pLeader == "LEADER_WASHINGTON")
+						gDLL->UnlockAchievement(ACHIEVEMENT_WIN_WASHINGTON);
+					else if(!bUsingXP1Scenario3 && !bUsingDLC4Scenario && pLeader == "LEADER_ELIZABETH")
+						gDLL->UnlockAchievement(ACHIEVEMENT_WIN_ELIZABETH);
+					else if(!bUsingXP1Scenario2 && !bUsingXP1Scenario3 && !bUsingDLC4Scenario && pLeader == "LEADER_NAPOLEON")
+						gDLL->UnlockAchievement(ACHIEVEMENT_WIN_NAPOLEON);
+					else if(!bUsingXP1Scenario2 && !bUsingXP1Scenario3 && !bUsingDLC4Scenario && pLeader == "LEADER_BISMARCK")
+						gDLL->UnlockAchievement(ACHIEVEMENT_WIN_BISMARCK);
+					else if(!bUsingXP1Scenario3 && pLeader == "LEADER_CATHERINE")
+					{
+						gDLL->UnlockAchievement(ACHIEVEMENT_WIN_CATHERINE);
 
+						if(bUsingXP1Scenario1 && winnerHandicapType >= 5)
+						{
+							gDLL->UnlockAchievement(ACHIEVEMENT_XP1_42);
+						}
+					}
+					else if(!bUsingXP1Scenario2 && pLeader == "LEADER_AUGUSTUS")
+						gDLL->UnlockAchievement(ACHIEVEMENT_WIN_CAESAR);
+					else if(!bUsingDLC6Scenario && pLeader == "LEADER_RAMESSES")
+						gDLL->UnlockAchievement(ACHIEVEMENT_WIN_RAMESSES);
+					else if(!bUsingXP1Scenario2 && !bUsingXP1Scenario1 && pLeader == "LEADER_ASKIA")
+						gDLL->UnlockAchievement(ACHIEVEMENT_WIN_ASKIA);
+					else if(!bUsingXP1Scenario1 && !bUsingDLC6Scenario && pLeader == "LEADER_HARUN_AL_RASHID")
+						gDLL->UnlockAchievement(ACHIEVEMENT_WIN_HARUN);
+					else if(!bUsingDLC6Scenario && pLeader == "LEADER_DARIUS")
+						gDLL->UnlockAchievement(ACHIEVEMENT_WIN_DARIUS);
+					else if(!bUsingDLC3Scenario && pLeader == "LEADER_GANDHI")
+					{
+						gDLL->UnlockAchievement(ACHIEVEMENT_WIN_GANDHI);
+						if(eNewVictory == 3 && kWinningTeamLeader.getNumCities() <= 3) //Bollywood
+							gDLL->UnlockAchievement(ACHIEVEMENT_SPECIAL_BOLLYWOOD);
+					}
+					else if(pLeader == "LEADER_RAMKHAMHAENG")
+						gDLL->UnlockAchievement(ACHIEVEMENT_WIN_RAMKHAMHAENG);
+					else if(!bUsingDLC5Scenario && pLeader == "LEADER_WU_ZETIAN")
+						gDLL->UnlockAchievement(ACHIEVEMENT_WIN_WU);
+					else if(!bUsingDLC5Scenario && pLeader == "LEADER_ODA_NOBUNAGA")
+						gDLL->UnlockAchievement(ACHIEVEMENT_WIN_ODA);
+					else if(!bUsingDLC3Scenario && pLeader == "LEADER_HIAWATHA")
+						gDLL->UnlockAchievement(ACHIEVEMENT_WIN_HIAWATHA);
+					else if(!bUsingDLC3Scenario && pLeader == "LEADER_MONTEZUMA")
+						gDLL->UnlockAchievement(ACHIEVEMENT_WIN_MONTEZUMA);
+					else if(!bUsingXP1Scenario1 && !bUsingDLC6Scenario && pLeader == "LEADER_SULEIMAN")
+						gDLL->UnlockAchievement(ACHIEVEMENT_WIN_SULEIMAN);
+					else if(pLeader == "LEADER_NEBUCHADNEZZAR")
+						gDLL->UnlockAchievement(ACHIEVEMENT_WIN_NEBUCHADNEZZAR);
+					else if(!bUsingDLC5Scenario && pLeader == "LEADER_GENGHIS_KHAN")
+					{
+						gDLL->UnlockAchievement(ACHIEVEMENT_WIN_GENGHIS);
+					}
+					else if(pLeader == "LEADER_ISABELLA")
+						gDLL->UnlockAchievement(ACHIEVEMENT_WIN_ISABELLA);
+					else if(pLeader == "LEADER_PACHACUTI")
+						gDLL->UnlockAchievement(ACHIEVEMENT_WIN_PACHACUTI);
+					else if(!bUsingDLC3Scenario && pLeader == "LEADER_KAMEHAMEHA")
+						gDLL->UnlockAchievement(ACHIEVEMENT_WIN_KAMEHAMEHA);
+					else if(pLeader == "LEADER_HARALD")
+						gDLL->UnlockAchievement(ACHIEVEMENT_WIN_BLUETOOTH);
+					else if(!bUsingDLC5Scenario && pLeader == "LEADER_SEJONG")
+						gDLL->UnlockAchievement(ACHIEVEMENT_WIN_SEJONG);
+					else if(pLeader == "LEADER_MARIA")
+						gDLL->UnlockAchievement(ACHIEVEMENT_XP1_01);
+					else if(!bUsingXP1Scenario2 && pLeader == "LEADER_THEODORA")
+						gDLL->UnlockAchievement(ACHIEVEMENT_XP1_02);
+					else if(pLeader == "LEADER_DIDO")
+						gDLL->UnlockAchievement(ACHIEVEMENT_XP1_03);
+					else if(pLeader == "LEADER_BOUDICCA")
+					{
+						gDLL->UnlockAchievement(ACHIEVEMENT_XP1_04);
 
-						//Victory on Difficulty Levels
-						HandicapTypes winnerHandicapType = getHandicapType();
+						if(bUsingXP1Scenario1 && winnerHandicapType >= 5)
+						{
+							gDLL->UnlockAchievement(ACHIEVEMENT_XP1_41);
+						}
+					}
+					else if(pLeader == "LEADER_SELASSIE")
+						gDLL->UnlockAchievement(ACHIEVEMENT_XP1_05);
+					else if(pLeader == "LEADER_ATTILA")
+						gDLL->UnlockAchievement(ACHIEVEMENT_XP1_06);
+					else if(pLeader == "LEADER_PACAL")
+						gDLL->UnlockAchievement(ACHIEVEMENT_XP1_07);
+					else if(pLeader == "LEADER_WILLIAM")
+						gDLL->UnlockAchievement(ACHIEVEMENT_XP1_08);
+					else if(!bUsingXP1Scenario3 && pLeader == "LEADER_GUSTAVUS_ADOLPHUS")
+						gDLL->UnlockAchievement(ACHIEVEMENT_XP1_09);
+					else
+						OutputDebugString("\nPlaying with a non-standard leader.\n");
+
+					//One City
+					if(kWinningTeamLeader.getNumCities() == 1)
+					{
+						gDLL->UnlockAchievement(ACHIEVEMENT_ONECITY);
+					}
+
+					//Uber Achievements for unlocking other achievements
+					if(gDLL->IsAchievementUnlocked(ACHIEVEMENT_MAPSIZE_DUEL) &&  gDLL->IsAchievementUnlocked(ACHIEVEMENT_MAPSIZE_TINY) &&  gDLL->IsAchievementUnlocked(ACHIEVEMENT_MAPSIZE_SMALL) &&  gDLL->IsAchievementUnlocked(ACHIEVEMENT_MAPSIZE_STANDARD) &&  gDLL->IsAchievementUnlocked(ACHIEVEMENT_MAPSIZE_LARGE) &&  gDLL->IsAchievementUnlocked(ACHIEVEMENT_MAPSIZE_HUGE) &&  gDLL->IsAchievementUnlocked(ACHIEVEMENT_MAPTYPE_ARCHIPELAGO) &&  gDLL->IsAchievementUnlocked(ACHIEVEMENT_MAPTYPE_CONTINENTS) &&  gDLL->IsAchievementUnlocked(ACHIEVEMENT_MAPTYPE_EARTH) &&  gDLL->IsAchievementUnlocked(ACHIEVEMENT_MAPTYPE_PANGAEA))
+					{
+						gDLL->UnlockAchievement(ACHIEVEMENT_MAPS_ALL);
+					}
+					if(gDLL->IsAchievementUnlocked(ACHIEVEMENT_VICTORY_CULTURE) && gDLL->IsAchievementUnlocked(ACHIEVEMENT_VICTORY_SPACE) && gDLL->IsAchievementUnlocked(ACHIEVEMENT_VICTORY_DIPLO) && gDLL->IsAchievementUnlocked(ACHIEVEMENT_VICTORY_DOMINATION))
+					{
+						gDLL->UnlockAchievement(ACHIEVEMENT_VICTORY_ALL);
+					}
+					if(gDLL->IsAchievementUnlocked(ACHIEVEMENT_WIN_WASHINGTON) && gDLL->IsAchievementUnlocked(ACHIEVEMENT_WIN_ELIZABETH) && gDLL->IsAchievementUnlocked(ACHIEVEMENT_WIN_NAPOLEON)&& gDLL->IsAchievementUnlocked(ACHIEVEMENT_WIN_BISMARCK)&& gDLL->IsAchievementUnlocked(ACHIEVEMENT_WIN_CATHERINE)&& gDLL->IsAchievementUnlocked(ACHIEVEMENT_WIN_CAESAR)&& gDLL->IsAchievementUnlocked(ACHIEVEMENT_WIN_ALEXANDER)&& gDLL->IsAchievementUnlocked(ACHIEVEMENT_WIN_RAMESSES)&& gDLL->IsAchievementUnlocked(ACHIEVEMENT_WIN_ASKIA)&& gDLL->IsAchievementUnlocked(ACHIEVEMENT_WIN_HARUN)&& gDLL->IsAchievementUnlocked(ACHIEVEMENT_WIN_DARIUS)&& gDLL->IsAchievementUnlocked(ACHIEVEMENT_WIN_GANDHI)&& gDLL->IsAchievementUnlocked(ACHIEVEMENT_WIN_RAMKHAMHAENG)&& gDLL->IsAchievementUnlocked(ACHIEVEMENT_WIN_WU)&& gDLL->IsAchievementUnlocked(ACHIEVEMENT_WIN_ODA)&& gDLL->IsAchievementUnlocked(ACHIEVEMENT_WIN_HIAWATHA)&& gDLL->IsAchievementUnlocked(ACHIEVEMENT_WIN_MONTEZUMA)&& gDLL->IsAchievementUnlocked(ACHIEVEMENT_WIN_SULEIMAN))
+					{
+						gDLL->UnlockAchievement(ACHIEVEMENT_WIN_ALLBASELEADERS);
+					}
+
+					//Check for PSG
+					CvAchievementUnlocker::Check_PSG();
+
+					//DLC1 Scenario Win Achievements
+					if(bUsingDLC1Scenario)
+					{
+						if(eNewVictory == 2)	//Only win by domination victory
+						{
+							CvString strHandicapType = this->getHandicapInfo().GetType();
+
+							//All easier difficulty level achievements are unlocked when you beat it on a harder difficulty level.
+							bool bBeatOnHarderDifficulty = false;
+
+							if(strHandicapType == "HANDICAP_DEITY")
+							{
+								gDLL->UnlockAchievement(ACHIEVEMENT_WIN_SCENARIO_01_DEITY);
+								bBeatOnHarderDifficulty = true;
+							}
+
+							if(bBeatOnHarderDifficulty || strHandicapType == "HANDICAP_IMMORTAL")
+							{
+								gDLL->UnlockAchievement(ACHIEVEMENT_WIN_SCENARIO_01_IMMORTAL);
+								bBeatOnHarderDifficulty = true;
+							}
+
+							if(bBeatOnHarderDifficulty || strHandicapType == "HANDICAP_EMPEROR")
+							{
+								gDLL->UnlockAchievement(ACHIEVEMENT_WIN_SCENARIO_01_EMPEROR);
+								bBeatOnHarderDifficulty = true;
+							}
+
+							if(bBeatOnHarderDifficulty || strHandicapType == "HANDICAP_KING")
+							{
+								gDLL->UnlockAchievement(ACHIEVEMENT_WIN_SCENARIO_01_KING);
+								bBeatOnHarderDifficulty = true;
+							}
+
+							//Despite it's name, this achievement is for any difficulty.
+							gDLL->UnlockAchievement(ACHIEVEMENT_WIN_SCENARIO_01_PRINCE_OR_BELOW);
+						}
+					}
+
+					//DLC2 Scenario Win Achievements
+					if(bUsingDLC2Scenario)
+					{
+						CvString strCivType = kWinningTeamLeader.getCivilizationInfo().GetType();
+						if(strCivType == "CIVILIZATION_SPAIN")
+							gDLL->UnlockAchievement(ACHIEVEMENT_SCENARIO_02_WIN_SPAIN);
+						else if(strCivType == "CIVILIZATION_FRANCE")
+							gDLL->UnlockAchievement(ACHIEVEMENT_SCENARIO_02_WIN_FRANCE);
+						else if(strCivType == "CIVILIZATION_ENGLAND")
+							gDLL->UnlockAchievement(ACHIEVEMENT_SCENARIO_02_WIN_ENGLAND);
+						else if(strCivType == "CIVILIZATION_INCA")
+							gDLL->UnlockAchievement(ACHIEVEMENT_SCENARIO_02_WIN_INCA);
+						else if(strCivType == "CIVILIZATION_AZTEC")
+							gDLL->UnlockAchievement(ACHIEVEMENT_SCENARIO_02_WIN_AZTECS);
+						else if(strCivType == "CIVILIZATION_IROQUOIS")
+							gDLL->UnlockAchievement(ACHIEVEMENT_SCENARIO_02_WIN_IROQUOIS);
+					}
+
+					//DLC3 Scenario Win Achievements
+					if(bUsingDLC3Scenario)
+					{
+						CvString strCivType = kWinningTeamLeader.getCivilizationInfo().GetType();
+						if(strCivType == "CIVILIZATION_POLYNESIA")
+							gDLL->UnlockAchievement(ACHIEVEMENT_SCENARIO_03_WIN_HIVA);
+						else if(strCivType == "CIVILIZATION_IROQUOIS")
+							gDLL->UnlockAchievement(ACHIEVEMENT_SCENARIO_03_WIN_TAHITI);
+						else if(strCivType == "CIVILIZATION_INDIA")
+							gDLL->UnlockAchievement(ACHIEVEMENT_SCENARIO_03_WIN_SAMOA);
+						else if(strCivType == "CIVILIZATION_AZTEC")
+							gDLL->UnlockAchievement(ACHIEVEMENT_SCENARIO_03_WIN_TONGA);
+					}
+
+					//DLC4 Scenario Win Achievements
+					if(bUsingDLC4Scenario)
+					{
+						CvString strCivType = kWinningTeamLeader.getCivilizationInfo().GetType();
+						if(strCivType == "CIVILIZATION_DENMARK")
+							gDLL->UnlockAchievement(ACHIEVEMENT_SCENARIO_04_WIN_DENMARK);
+						else if(strCivType == "CIVILIZATION_ENGLAND")
+							gDLL->UnlockAchievement(ACHIEVEMENT_SCENARIO_04_WIN_ENGLAND);
+						else if(strCivType == "CIVILIZATION_GERMANY")
+							gDLL->UnlockAchievement(ACHIEVEMENT_SCENARIO_04_WIN_NORWAY);
+						else if(strCivType == "CIVILIZATION_FRANCE")
+							gDLL->UnlockAchievement(ACHIEVEMENT_SCENARIO_04_NORMANDY);
+
 						switch(winnerHandicapType)
 						{
-						case 0:
-							gDLL->UnlockAchievement(ACHIEVEMENT_DIFLEVEL_SETTLER);
+						case 5:	//	Win scenario on Emperor (any civ)  YOU! The Conqueror
+							gDLL->UnlockAchievement(ACHIEVEMENT_SCENARIO_04_WIN_EMPEROR);
 							break;
-						case 1:
-							gDLL->UnlockAchievement(ACHIEVEMENT_DIFLEVEL_CHIEFTAIN);
+						case 6:	//	Win scenario on Immortal (any civ)  Surviving Domesday
+							gDLL->UnlockAchievement(ACHIEVEMENT_SCENARIO_04_WIN_IMMORTAL);
 							break;
-						case 2:
-							gDLL->UnlockAchievement(ACHIEVEMENT_DIFLEVEL_WARLORD);
+						case 7:	//	Win scenario on Deity (any civ)  Surviving Ragnarok
+							gDLL->UnlockAchievement(ACHIEVEMENT_SCENARIO_04_WIN_DEITY);
 							break;
-						case 3:
-							gDLL->UnlockAchievement(ACHIEVEMENT_DIFLEVEL_PRINCE);
-							break;
-						case 4:
-							gDLL->UnlockAchievement(ACHIEVEMENT_DIFLEVEL_KING);
-							break;
-						case 5:
-							gDLL->UnlockAchievement(ACHIEVEMENT_DIFLEVEL_EMPEROR);
-							break;
-						case 6:
-							gDLL->UnlockAchievement(ACHIEVEMENT_DIFLEVEL_IMMORTAL);
-							break;
-						case 7:
-							gDLL->UnlockAchievement(ACHIEVEMENT_DIFLEVEL_DEITY);
-							break;
-						default:
-							OutputDebugString("Playing on some non-existant dif level.");
 						}
-						//Different Victory Win Types
-						switch(eNewVictory)
+					}
+
+					//DLC5 Scenario Win Achievements
+					if(bUsingDLC5Scenario)
+					{
+						// Civilization
+						CvString strCivType = kWinningTeamLeader.getCivilizationInfo().GetType();
+						if(strCivType == "CIVILIZATION_JAPAN")
+							gDLL->UnlockAchievement(ACHIEVEMENT_SCENARIO_05_WIN_JAPAN);
+						else if(strCivType == "CIVILIZATION_KOREA")
+							gDLL->UnlockAchievement(ACHIEVEMENT_SCENARIO_05_WIN_KOREA);
+						else if(strCivType == "CIVILIZATION_CHINA")
+							gDLL->UnlockAchievement(ACHIEVEMENT_SCENARIO_05_WIN_CHINA);
+						else if(strCivType == "CIVILIZATION_MONGOL")
+							gDLL->UnlockAchievement(ACHIEVEMENT_SCENARIO_05_WIN_MANCHU);
+
+						// Difficulty
+						switch(winnerHandicapType)
 						{
-						case 0:
-							OutputDebugString("No current Achievement for a time victory");
+						case 5: // Emperor
+							gDLL->UnlockAchievement(ACHIEVEMENT_SCENARIO_05_WIN_EMPEROR);
 							break;
-						case 1:
-							gDLL->UnlockAchievement(ACHIEVEMENT_VICTORY_SPACE);
+						case 6: // Immortal
+							gDLL->UnlockAchievement(ACHIEVEMENT_SCENARIO_05_WIN_IMMORTAL);
 							break;
-						case 2:
+						case 7: // Deity
+							gDLL->UnlockAchievement(ACHIEVEMENT_SCENARIO_05_WIN_DEITY);
+							break;
+						}
+
+						// Win in less than 100 turns
+						if(getGameTurn() >= 0 && getGameTurn() < 100)
+						{
+							gDLL->UnlockAchievement(ACHIEVEMENT_SCENARIO_05_WIN_100TURNS);
+						}
+
+					}
+
+					//DLC6 Scenario Win Achievements
+					if(bUsingDLC6Scenario)
+					{
+						// Civilization
+						CvString strCivType = kWinningTeamLeader.getCivilizationInfo().GetType();
+						if(strCivType == "CIVILIZATION_OTTOMAN")
+							gDLL->UnlockAchievement(ACHIEVEMENT_SCENARIO_06_WIN_HITTITES);
+						else if(strCivType == "CIVILIZATION_GREECE")
+							gDLL->UnlockAchievement(ACHIEVEMENT_SCENARIO_06_WIN_GREECE);
+						else if(strCivType == "CIVILIZATION_ARABIA")
+							gDLL->UnlockAchievement(ACHIEVEMENT_SCENARIO_06_WIN_SUMER);
+						else if(strCivType == "CIVILIZATION_EGYPT")
+							gDLL->UnlockAchievement(ACHIEVEMENT_SCENARIO_06_WIN_EGYPT);
+						else if(strCivType == "CIVILIZATION_PERSIA")
+							gDLL->UnlockAchievement(ACHIEVEMENT_SCENARIO_06_WIN_PERSIA);
+
+						// Difficulty
+						switch(winnerHandicapType)
+						{
+						case 3: // Prince
+							gDLL->UnlockAchievement(ACHIEVEMENT_SCENARIO_06_WIN_PRINCE);
+							break;
+						case 4: // King
+							gDLL->UnlockAchievement(ACHIEVEMENT_SCENARIO_06_WIN_KING);
+							break;
+						case 5:	// Emperor
+							gDLL->UnlockAchievement(ACHIEVEMENT_SCENARIO_06_WIN_EMPEROR);
+							break;
+						case 6:	// Immortal
+							gDLL->UnlockAchievement(ACHIEVEMENT_SCENARIO_06_WIN_IMMORTAL);
+							break;
+						case 7:	// Deity
+							gDLL->UnlockAchievement(ACHIEVEMENT_SCENARIO_06_WIN_DEITY);
+							break;
+						}
+
+					}
+
+					if(bUsingXP1Scenario1)
+					{
+						gDLL->UnlockAchievement(ACHIEVEMENT_XP1_21);
+
+						if(pLeader == "LEADER_HARUN_AL_RASHID" && winnerHandicapType >= 5)
+						{
+							gDLL->UnlockAchievement(ACHIEVEMENT_XP1_43);
+						}
+					}
+
+					if(bUsingXP1Scenario2)
+					{
+						gDLL->UnlockAchievement(ACHIEVEMENT_XP1_22);
+
+						if(winnerHandicapType >= 7) //Diety or higher
+						{
+							if(pLeader == "LEADER_THEODORA")
 							{
-								if(!bUsingXP1Scenario1)
+								typedef std::pair<int,int> Location;
+								typedef std::tr1::array<Location, 27> OriginalCitiesArray;
+								OriginalCitiesArray OriginalCities = {
+									Location(65,6), // Alexandria
+									Location(48,7), // Cyrene
+									Location(71,9),  // Caesarea
+									Location(79,13), // Palmyra
+									Location(74,14), // Damascus
+									Location(49,18), // Mistra
+									Location(68,20), // Seleucia
+									Location(73,20), // Antioch
+									Location(63,21), // Attalia
+									Location(76,21), // Edessa
+									Location(51,22), // Athens
+									Location(47,23), // Nicopolis
+									Location(57,23), // Ephesus
+									Location(67,24), // Iconium
+									Location(75,26), // Melitene
+									Location(63,27), // Dorylaeum
+									Location(50,28), // Thessalonica
+									Location(58,29), // Constantinople
+									Location(45,30), // Dyrrachium
+									Location(71,30), // Amasia
+									Location(54,31), // Adrianople
+									Location(64,32), // Amastris
+									Location(78,32), // Theodosiopolis
+									Location(49,34), // Naissus
+									Location(69,34), // Sinope
+									Location(75,34), // Trebizond
+									Location(45,35), // Sirmium	
+
+								};					
+
+								CvMap& kMap = GC.getMap();
+								const PlayerTypes eActivePlayer = GC.getGame().getActivePlayer();
+								bool bHasAllCities = true;
+
+								//Test if we still own each city.
+								for(OriginalCitiesArray::iterator it = OriginalCities.begin(); it != OriginalCities.end(); ++it)
 								{
-									gDLL->UnlockAchievement(ACHIEVEMENT_VICTORY_DOMINATION);
-								}
-							}
-							break;
-						case 3:
-							gDLL->UnlockAchievement(ACHIEVEMENT_VICTORY_CULTURE);
-							break;
-						case 4:
-							gDLL->UnlockAchievement(ACHIEVEMENT_VICTORY_DIPLO);
-							break;
-						default:
-							OutputDebugString("Your l33t victory skills allowed you to win in some other way.");
-						}
-
-						//Victory with Specific Leaders
-						CvString pLeader =  kWinningTeamLeader.getLeaderTypeKey();
-
-						if(!bUsingDLC6Scenario && pLeader == "LEADER_ALEXANDER")
-							gDLL->UnlockAchievement(ACHIEVEMENT_WIN_ALEXANDER);
-						else if(pLeader == "LEADER_WASHINGTON")
-							gDLL->UnlockAchievement(ACHIEVEMENT_WIN_WASHINGTON);
-						else if(!bUsingXP1Scenario3 && !bUsingDLC4Scenario && pLeader == "LEADER_ELIZABETH")
-							gDLL->UnlockAchievement(ACHIEVEMENT_WIN_ELIZABETH);
-						else if(!bUsingXP1Scenario2 && !bUsingXP1Scenario3 && !bUsingDLC4Scenario && pLeader == "LEADER_NAPOLEON")
-							gDLL->UnlockAchievement(ACHIEVEMENT_WIN_NAPOLEON);
-						else if(!bUsingXP1Scenario2 && !bUsingXP1Scenario3 && !bUsingDLC4Scenario && pLeader == "LEADER_BISMARCK")
-							gDLL->UnlockAchievement(ACHIEVEMENT_WIN_BISMARCK);
-						else if(!bUsingXP1Scenario3 && pLeader == "LEADER_CATHERINE")
-						{
-							gDLL->UnlockAchievement(ACHIEVEMENT_WIN_CATHERINE);
-
-							if(bUsingXP1Scenario1 && winnerHandicapType >= 5)
-							{
-								gDLL->UnlockAchievement(ACHIEVEMENT_XP1_42);
-							}
-						}
-						else if(!bUsingXP1Scenario2 && pLeader == "LEADER_AUGUSTUS")
-							gDLL->UnlockAchievement(ACHIEVEMENT_WIN_CAESAR);
-						else if(!bUsingDLC6Scenario && pLeader == "LEADER_RAMESSES")
-							gDLL->UnlockAchievement(ACHIEVEMENT_WIN_RAMESSES);
-						else if(!bUsingXP1Scenario2 && !bUsingXP1Scenario1 && pLeader == "LEADER_ASKIA")
-							gDLL->UnlockAchievement(ACHIEVEMENT_WIN_ASKIA);
-						else if(!bUsingXP1Scenario1 && !bUsingDLC6Scenario && pLeader == "LEADER_HARUN_AL_RASHID")
-							gDLL->UnlockAchievement(ACHIEVEMENT_WIN_HARUN);
-						else if(!bUsingDLC6Scenario && pLeader == "LEADER_DARIUS")
-							gDLL->UnlockAchievement(ACHIEVEMENT_WIN_DARIUS);
-						else if(!bUsingDLC3Scenario && pLeader == "LEADER_GANDHI")
-						{
-							gDLL->UnlockAchievement(ACHIEVEMENT_WIN_GANDHI);
-							if(eNewVictory == 3 && kWinningTeamLeader.getNumCities() <= 3) //Bollywood
-								gDLL->UnlockAchievement(ACHIEVEMENT_SPECIAL_BOLLYWOOD);
-						}
-						else if(pLeader == "LEADER_RAMKHAMHAENG")
-							gDLL->UnlockAchievement(ACHIEVEMENT_WIN_RAMKHAMHAENG);
-						else if(!bUsingDLC5Scenario && pLeader == "LEADER_WU_ZETIAN")
-							gDLL->UnlockAchievement(ACHIEVEMENT_WIN_WU);
-						else if(!bUsingDLC5Scenario && pLeader == "LEADER_ODA_NOBUNAGA")
-							gDLL->UnlockAchievement(ACHIEVEMENT_WIN_ODA);
-						else if(!bUsingDLC3Scenario && pLeader == "LEADER_HIAWATHA")
-							gDLL->UnlockAchievement(ACHIEVEMENT_WIN_HIAWATHA);
-						else if(!bUsingDLC3Scenario && pLeader == "LEADER_MONTEZUMA")
-							gDLL->UnlockAchievement(ACHIEVEMENT_WIN_MONTEZUMA);
-						else if(!bUsingXP1Scenario1 && !bUsingDLC6Scenario && pLeader == "LEADER_SULEIMAN")
-							gDLL->UnlockAchievement(ACHIEVEMENT_WIN_SULEIMAN);
-						else if(pLeader == "LEADER_NEBUCHADNEZZAR")
-							gDLL->UnlockAchievement(ACHIEVEMENT_WIN_NEBUCHADNEZZAR);
-						else if(!bUsingDLC5Scenario && pLeader == "LEADER_GENGHIS_KHAN")
-						{
-							gDLL->UnlockAchievement(ACHIEVEMENT_WIN_GENGHIS);
-						}
-						else if(pLeader == "LEADER_ISABELLA")
-							gDLL->UnlockAchievement(ACHIEVEMENT_WIN_ISABELLA);
-						else if(pLeader == "LEADER_PACHACUTI")
-							gDLL->UnlockAchievement(ACHIEVEMENT_WIN_PACHACUTI);
-						else if(!bUsingDLC3Scenario && pLeader == "LEADER_KAMEHAMEHA")
-							gDLL->UnlockAchievement(ACHIEVEMENT_WIN_KAMEHAMEHA);
-						else if(pLeader == "LEADER_HARALD")
-							gDLL->UnlockAchievement(ACHIEVEMENT_WIN_BLUETOOTH);
-						else if(!bUsingDLC5Scenario && pLeader == "LEADER_SEJONG")
-							gDLL->UnlockAchievement(ACHIEVEMENT_WIN_SEJONG);
-						else if(pLeader == "LEADER_MARIA")
-							gDLL->UnlockAchievement(ACHIEVEMENT_XP1_01);
-						else if(!bUsingXP1Scenario2 && pLeader == "LEADER_THEODORA")
-							gDLL->UnlockAchievement(ACHIEVEMENT_XP1_02);
-						else if(pLeader == "LEADER_DIDO")
-							gDLL->UnlockAchievement(ACHIEVEMENT_XP1_03);
-						else if(pLeader == "LEADER_BOUDICCA")
-						{
-							gDLL->UnlockAchievement(ACHIEVEMENT_XP1_04);
-
-							if(bUsingXP1Scenario1 && winnerHandicapType >= 5)
-							{
-								gDLL->UnlockAchievement(ACHIEVEMENT_XP1_41);
-							}
-						}
-						else if(pLeader == "LEADER_SELASSIE")
-							gDLL->UnlockAchievement(ACHIEVEMENT_XP1_05);
-						else if(pLeader == "LEADER_ATTILA")
-							gDLL->UnlockAchievement(ACHIEVEMENT_XP1_06);
-						else if(pLeader == "LEADER_PACAL")
-							gDLL->UnlockAchievement(ACHIEVEMENT_XP1_07);
-						else if(pLeader == "LEADER_WILLIAM")
-							gDLL->UnlockAchievement(ACHIEVEMENT_XP1_08);
-						else if(!bUsingXP1Scenario3 && pLeader == "LEADER_GUSTAVUS_ADOLPHUS")
-							gDLL->UnlockAchievement(ACHIEVEMENT_XP1_09);
-						else
-							OutputDebugString("\nPlaying with a non-standard leader.\n");
-
-						//One City
-						if(kWinningTeamLeader.getNumCities() == 1)
-						{
-							gDLL->UnlockAchievement(ACHIEVEMENT_ONECITY);
-						}
-
-						//Uber Achievements for unlocking other achievements
-						if(gDLL->IsAchievementUnlocked(ACHIEVEMENT_MAPSIZE_DUEL) &&  gDLL->IsAchievementUnlocked(ACHIEVEMENT_MAPSIZE_TINY) &&  gDLL->IsAchievementUnlocked(ACHIEVEMENT_MAPSIZE_SMALL) &&  gDLL->IsAchievementUnlocked(ACHIEVEMENT_MAPSIZE_STANDARD) &&  gDLL->IsAchievementUnlocked(ACHIEVEMENT_MAPSIZE_LARGE) &&  gDLL->IsAchievementUnlocked(ACHIEVEMENT_MAPSIZE_HUGE) &&  gDLL->IsAchievementUnlocked(ACHIEVEMENT_MAPTYPE_ARCHIPELAGO) &&  gDLL->IsAchievementUnlocked(ACHIEVEMENT_MAPTYPE_CONTINENTS) &&  gDLL->IsAchievementUnlocked(ACHIEVEMENT_MAPTYPE_EARTH) &&  gDLL->IsAchievementUnlocked(ACHIEVEMENT_MAPTYPE_PANGAEA))
-						{
-							gDLL->UnlockAchievement(ACHIEVEMENT_MAPS_ALL);
-						}
-						if(gDLL->IsAchievementUnlocked(ACHIEVEMENT_VICTORY_CULTURE) && gDLL->IsAchievementUnlocked(ACHIEVEMENT_VICTORY_SPACE) && gDLL->IsAchievementUnlocked(ACHIEVEMENT_VICTORY_DIPLO) && gDLL->IsAchievementUnlocked(ACHIEVEMENT_VICTORY_DOMINATION))
-						{
-							gDLL->UnlockAchievement(ACHIEVEMENT_VICTORY_ALL);
-						}
-						if(gDLL->IsAchievementUnlocked(ACHIEVEMENT_WIN_WASHINGTON) && gDLL->IsAchievementUnlocked(ACHIEVEMENT_WIN_ELIZABETH) && gDLL->IsAchievementUnlocked(ACHIEVEMENT_WIN_NAPOLEON)&& gDLL->IsAchievementUnlocked(ACHIEVEMENT_WIN_BISMARCK)&& gDLL->IsAchievementUnlocked(ACHIEVEMENT_WIN_CATHERINE)&& gDLL->IsAchievementUnlocked(ACHIEVEMENT_WIN_CAESAR)&& gDLL->IsAchievementUnlocked(ACHIEVEMENT_WIN_ALEXANDER)&& gDLL->IsAchievementUnlocked(ACHIEVEMENT_WIN_RAMESSES)&& gDLL->IsAchievementUnlocked(ACHIEVEMENT_WIN_ASKIA)&& gDLL->IsAchievementUnlocked(ACHIEVEMENT_WIN_HARUN)&& gDLL->IsAchievementUnlocked(ACHIEVEMENT_WIN_DARIUS)&& gDLL->IsAchievementUnlocked(ACHIEVEMENT_WIN_GANDHI)&& gDLL->IsAchievementUnlocked(ACHIEVEMENT_WIN_RAMKHAMHAENG)&& gDLL->IsAchievementUnlocked(ACHIEVEMENT_WIN_WU)&& gDLL->IsAchievementUnlocked(ACHIEVEMENT_WIN_ODA)&& gDLL->IsAchievementUnlocked(ACHIEVEMENT_WIN_HIAWATHA)&& gDLL->IsAchievementUnlocked(ACHIEVEMENT_WIN_MONTEZUMA)&& gDLL->IsAchievementUnlocked(ACHIEVEMENT_WIN_SULEIMAN))
-						{
-							gDLL->UnlockAchievement(ACHIEVEMENT_WIN_ALLBASELEADERS);
-						}
-
-						//Check for PSG
-						CvAchievementUnlocker::Check_PSG();
-
-						//DLC1 Scenario Win Achievements
-						if(bUsingDLC1Scenario)
-						{
-							if(eNewVictory == 2)	//Only win by domination victory
-							{
-								CvString strHandicapType = this->getHandicapInfo().GetType();
-
-								//All easier difficulty level achievements are unlocked when you beat it on a harder difficulty level.
-								bool bBeatOnHarderDifficulty = false;
-
-								if(strHandicapType == "HANDICAP_DEITY")
-								{
-									gDLL->UnlockAchievement(ACHIEVEMENT_WIN_SCENARIO_01_DEITY);
-									bBeatOnHarderDifficulty = true;
-								}
-
-								if(bBeatOnHarderDifficulty || strHandicapType == "HANDICAP_IMMORTAL")
-								{
-									gDLL->UnlockAchievement(ACHIEVEMENT_WIN_SCENARIO_01_IMMORTAL);
-									bBeatOnHarderDifficulty = true;
-								}
-
-								if(bBeatOnHarderDifficulty || strHandicapType == "HANDICAP_EMPEROR")
-								{
-									gDLL->UnlockAchievement(ACHIEVEMENT_WIN_SCENARIO_01_EMPEROR);
-									bBeatOnHarderDifficulty = true;
-								}
-
-								if(bBeatOnHarderDifficulty || strHandicapType == "HANDICAP_KING")
-								{
-									gDLL->UnlockAchievement(ACHIEVEMENT_WIN_SCENARIO_01_KING);
-									bBeatOnHarderDifficulty = true;
-								}
-
-								//Despite it's name, this achievement is for any difficulty.
-								gDLL->UnlockAchievement(ACHIEVEMENT_WIN_SCENARIO_01_PRINCE_OR_BELOW);
-							}
-						}
-
-						//DLC2 Scenario Win Achievements
-						if(bUsingDLC2Scenario)
-						{
-							CvString strCivType = kWinningTeamLeader.getCivilizationInfo().GetType();
-							if(strCivType == "CIVILIZATION_SPAIN")
-								gDLL->UnlockAchievement(ACHIEVEMENT_SCENARIO_02_WIN_SPAIN);
-							else if(strCivType == "CIVILIZATION_FRANCE")
-								gDLL->UnlockAchievement(ACHIEVEMENT_SCENARIO_02_WIN_FRANCE);
-							else if(strCivType == "CIVILIZATION_ENGLAND")
-								gDLL->UnlockAchievement(ACHIEVEMENT_SCENARIO_02_WIN_ENGLAND);
-							else if(strCivType == "CIVILIZATION_INCA")
-								gDLL->UnlockAchievement(ACHIEVEMENT_SCENARIO_02_WIN_INCA);
-							else if(strCivType == "CIVILIZATION_AZTEC")
-								gDLL->UnlockAchievement(ACHIEVEMENT_SCENARIO_02_WIN_AZTECS);
-							else if(strCivType == "CIVILIZATION_IROQUOIS")
-								gDLL->UnlockAchievement(ACHIEVEMENT_SCENARIO_02_WIN_IROQUOIS);
-						}
-
-						//DLC3 Scenario Win Achievements
-						if(bUsingDLC3Scenario)
-						{
-							CvString strCivType = kWinningTeamLeader.getCivilizationInfo().GetType();
-							if(strCivType == "CIVILIZATION_POLYNESIA")
-								gDLL->UnlockAchievement(ACHIEVEMENT_SCENARIO_03_WIN_HIVA);
-							else if(strCivType == "CIVILIZATION_IROQUOIS")
-								gDLL->UnlockAchievement(ACHIEVEMENT_SCENARIO_03_WIN_TAHITI);
-							else if(strCivType == "CIVILIZATION_INDIA")
-								gDLL->UnlockAchievement(ACHIEVEMENT_SCENARIO_03_WIN_SAMOA);
-							else if(strCivType == "CIVILIZATION_AZTEC")
-								gDLL->UnlockAchievement(ACHIEVEMENT_SCENARIO_03_WIN_TONGA);
-						}
-
-						//DLC4 Scenario Win Achievements
-						if(bUsingDLC4Scenario)
-						{
-							CvString strCivType = kWinningTeamLeader.getCivilizationInfo().GetType();
-							if(strCivType == "CIVILIZATION_DENMARK")
-								gDLL->UnlockAchievement(ACHIEVEMENT_SCENARIO_04_WIN_DENMARK);
-							else if(strCivType == "CIVILIZATION_ENGLAND")
-								gDLL->UnlockAchievement(ACHIEVEMENT_SCENARIO_04_WIN_ENGLAND);
-							else if(strCivType == "CIVILIZATION_GERMANY")
-								gDLL->UnlockAchievement(ACHIEVEMENT_SCENARIO_04_WIN_NORWAY);
-							else if(strCivType == "CIVILIZATION_FRANCE")
-								gDLL->UnlockAchievement(ACHIEVEMENT_SCENARIO_04_NORMANDY);
-
-							switch(winnerHandicapType)
-							{
-							case 5:	//	Win scenario on Emperor (any civ)  YOU! The Conqueror
-								gDLL->UnlockAchievement(ACHIEVEMENT_SCENARIO_04_WIN_EMPEROR);
-								break;
-							case 6:	//	Win scenario on Immortal (any civ)  Surviving Domesday
-								gDLL->UnlockAchievement(ACHIEVEMENT_SCENARIO_04_WIN_IMMORTAL);
-								break;
-							case 7:	//	Win scenario on Deity (any civ)  Surviving Ragnarok
-								gDLL->UnlockAchievement(ACHIEVEMENT_SCENARIO_04_WIN_DEITY);
-								break;
-							}
-						}
-
-						//DLC5 Scenario Win Achievements
-						if(bUsingDLC5Scenario)
-						{
-							// Civilization
-							CvString strCivType = kWinningTeamLeader.getCivilizationInfo().GetType();
-							if(strCivType == "CIVILIZATION_JAPAN")
-								gDLL->UnlockAchievement(ACHIEVEMENT_SCENARIO_05_WIN_JAPAN);
-							else if(strCivType == "CIVILIZATION_KOREA")
-								gDLL->UnlockAchievement(ACHIEVEMENT_SCENARIO_05_WIN_KOREA);
-							else if(strCivType == "CIVILIZATION_CHINA")
-								gDLL->UnlockAchievement(ACHIEVEMENT_SCENARIO_05_WIN_CHINA);
-							else if(strCivType == "CIVILIZATION_MONGOL")
-								gDLL->UnlockAchievement(ACHIEVEMENT_SCENARIO_05_WIN_MANCHU);
-
-							// Difficulty
-							switch(winnerHandicapType)
-							{
-							case 5: // Emperor
-								gDLL->UnlockAchievement(ACHIEVEMENT_SCENARIO_05_WIN_EMPEROR);
-								break;
-							case 6: // Immortal
-								gDLL->UnlockAchievement(ACHIEVEMENT_SCENARIO_05_WIN_IMMORTAL);
-								break;
-							case 7: // Deity
-								gDLL->UnlockAchievement(ACHIEVEMENT_SCENARIO_05_WIN_DEITY);
-								break;
-							}
-
-							// Win in less than 100 turns
-							if(getGameTurn() >= 0 && getGameTurn() < 100)
-							{
-								gDLL->UnlockAchievement(ACHIEVEMENT_SCENARIO_05_WIN_100TURNS);
-							}
-
-						}
-
-						//DLC6 Scenario Win Achievements
-						if(bUsingDLC6Scenario)
-						{
-							// Civilization
-							CvString strCivType = kWinningTeamLeader.getCivilizationInfo().GetType();
-							if(strCivType == "CIVILIZATION_OTTOMAN")
-								gDLL->UnlockAchievement(ACHIEVEMENT_SCENARIO_06_WIN_HITTITES);
-							else if(strCivType == "CIVILIZATION_GREECE")
-								gDLL->UnlockAchievement(ACHIEVEMENT_SCENARIO_06_WIN_GREECE);
-							else if(strCivType == "CIVILIZATION_ARABIA")
-								gDLL->UnlockAchievement(ACHIEVEMENT_SCENARIO_06_WIN_SUMER);
-							else if(strCivType == "CIVILIZATION_EGYPT")
-								gDLL->UnlockAchievement(ACHIEVEMENT_SCENARIO_06_WIN_EGYPT);
-							else if(strCivType == "CIVILIZATION_PERSIA")
-								gDLL->UnlockAchievement(ACHIEVEMENT_SCENARIO_06_WIN_PERSIA);
-
-							// Difficulty
-							switch(winnerHandicapType)
-							{
-							case 3: // Prince
-								gDLL->UnlockAchievement(ACHIEVEMENT_SCENARIO_06_WIN_PRINCE);
-								break;
-							case 4: // King
-								gDLL->UnlockAchievement(ACHIEVEMENT_SCENARIO_06_WIN_KING);
-								break;
-							case 5:	// Emperor
-								gDLL->UnlockAchievement(ACHIEVEMENT_SCENARIO_06_WIN_EMPEROR);
-								break;
-							case 6:	// Immortal
-								gDLL->UnlockAchievement(ACHIEVEMENT_SCENARIO_06_WIN_IMMORTAL);
-								break;
-							case 7:	// Deity
-								gDLL->UnlockAchievement(ACHIEVEMENT_SCENARIO_06_WIN_DEITY);
-								break;
-							}
-
-						}
-
-						if(bUsingXP1Scenario1)
-						{
-							gDLL->UnlockAchievement(ACHIEVEMENT_XP1_21);
-
-							if(pLeader == "LEADER_HARUN_AL_RASHID" && winnerHandicapType >= 5)
-							{
-								gDLL->UnlockAchievement(ACHIEVEMENT_XP1_43);
-							}
-						}
-
-						if(bUsingXP1Scenario2)
-						{
-							gDLL->UnlockAchievement(ACHIEVEMENT_XP1_22);
-
-							if(winnerHandicapType >= 7) //Diety or higher
-							{
-								if(pLeader == "LEADER_THEODORA")
-								{
-									typedef std::pair<int,int> Location;
-									typedef std::tr1::array<Location, 27> OriginalCitiesArray;
-									OriginalCitiesArray OriginalCities = {
-										Location(65,6), // Alexandria
-										Location(48,7), // Cyrene
-										Location(71,9),  // Caesarea
-										Location(79,13), // Palmyra
-										Location(74,14), // Damascus
-										Location(49,18), // Mistra
-										Location(68,20), // Seleucia
-										Location(73,20), // Antioch
-										Location(63,21), // Attalia
-										Location(76,21), // Edessa
-										Location(51,22), // Athens
-										Location(47,23), // Nicopolis
-										Location(57,23), // Ephesus
-										Location(67,24), // Iconium
-										Location(75,26), // Melitene
-										Location(63,27), // Dorylaeum
-										Location(50,28), // Thessalonica
-										Location(58,29), // Constantinople
-										Location(45,30), // Dyrrachium
-										Location(71,30), // Amasia
-										Location(54,31), // Adrianople
-										Location(64,32), // Amastris
-										Location(78,32), // Theodosiopolis
-										Location(49,34), // Naissus
-										Location(69,34), // Sinope
-										Location(75,34), // Trebizond
-										Location(45,35), // Sirmium	
-
-									};					
-
-									CvMap& kMap = GC.getMap();
-									const PlayerTypes eActivePlayer = GC.getGame().getActivePlayer();
-									bool bHasAllCities = true;
-
-									//Test if we still own each city.
-									for(OriginalCitiesArray::iterator it = OriginalCities.begin(); it != OriginalCities.end(); ++it)
+									CvPlot* pkPlot = kMap.plot(it->first, it->second);
+									if(pkPlot != NULL)
 									{
-										CvPlot* pkPlot = kMap.plot(it->first, it->second);
-										if(pkPlot != NULL)
+										CvCity* pkCity = pkPlot->getPlotCity();
+										if(pkCity != NULL)
 										{
-											CvCity* pkCity = pkPlot->getPlotCity();
-											if(pkCity != NULL)
+											if(pkCity->getOwner() == eActivePlayer)
 											{
-												if(pkCity->getOwner() == eActivePlayer)
-												{
-													continue;
-												}
+												continue;
 											}
 										}
-
-										bHasAllCities = false;
 									}
 
-									if(bHasAllCities)
-									{
-										gDLL->UnlockAchievement(ACHIEVEMENT_XP1_50);
-									}
+									bHasAllCities = false;
 								}
-								else if(pLeader == "LEADER_AUGUSTUS")
+
+								if(bHasAllCities)
 								{
-									typedef std::pair<int,int> Location;
-									typedef std::tr1::array<Location, 29> OriginalCitiesArray;
-									OriginalCitiesArray OriginalCities = {
-										Location(10,16), // Russadir
-										Location(15,18), // Iol Caesarea
-										Location(30,18), // Carthage
-										Location(37,19), // Syracuse
-										Location(4,23),  // Gades
-										Location(13,25), // Carthago Nova
-										Location(37,27), // Neapoli
-										Location(41,27), // Brundisium
-										Location(1,29),  // Olisipo
-										Location(6,29),  // Emerita Augusta
-										Location(15,30), // Tarraco
-										Location(33,31), // Rome
-										Location(14,34), // Caesaraugusta
-										Location(20,36), // Narbo
-										Location(24,36), // Massilia
-										Location(40,36), // Salonae
-										Location(28,37), // Genua
-										Location(34,37), // Ravenna
-										Location(3,39),  // Brigantium
-										Location(30,40), // Milan
-										Location(16,42), // Mediolanum
-										Location(22,42), // Lundunum
-										Location(32,45), // Casta Regina
-										Location(41,45), // Carnutum
-										Location(14,47), // Portus Namnetum
-										Location(21,48), // Lutetia
-										Location(26,49), // Trier
-										Location(17,52), // Coriallum
-										Location(22,53)  // Gesoriacum
-									};
+									gDLL->UnlockAchievement(ACHIEVEMENT_XP1_50);
+								}
+							}
+							else if(pLeader == "LEADER_AUGUSTUS")
+							{
+								typedef std::pair<int,int> Location;
+								typedef std::tr1::array<Location, 29> OriginalCitiesArray;
+								OriginalCitiesArray OriginalCities = {
+									Location(10,16), // Russadir
+									Location(15,18), // Iol Caesarea
+									Location(30,18), // Carthage
+									Location(37,19), // Syracuse
+									Location(4,23),  // Gades
+									Location(13,25), // Carthago Nova
+									Location(37,27), // Neapoli
+									Location(41,27), // Brundisium
+									Location(1,29),  // Olisipo
+									Location(6,29),  // Emerita Augusta
+									Location(15,30), // Tarraco
+									Location(33,31), // Rome
+									Location(14,34), // Caesaraugusta
+									Location(20,36), // Narbo
+									Location(24,36), // Massilia
+									Location(40,36), // Salonae
+									Location(28,37), // Genua
+									Location(34,37), // Ravenna
+									Location(3,39),  // Brigantium
+									Location(30,40), // Milan
+									Location(16,42), // Mediolanum
+									Location(22,42), // Lundunum
+									Location(32,45), // Casta Regina
+									Location(41,45), // Carnutum
+									Location(14,47), // Portus Namnetum
+									Location(21,48), // Lutetia
+									Location(26,49), // Trier
+									Location(17,52), // Coriallum
+									Location(22,53)  // Gesoriacum
+								};
 
-									CvMap& kMap = GC.getMap();
-									const PlayerTypes eActivePlayer = GC.getGame().getActivePlayer();
-									bool bHasAllCities = true;
+								CvMap& kMap = GC.getMap();
+								const PlayerTypes eActivePlayer = GC.getGame().getActivePlayer();
+								bool bHasAllCities = true;
 
-									//Test if we still own each city.
-									for(OriginalCitiesArray::iterator it = OriginalCities.begin(); it != OriginalCities.end(); ++it)
+								//Test if we still own each city.
+								for(OriginalCitiesArray::iterator it = OriginalCities.begin(); it != OriginalCities.end(); ++it)
+								{
+									CvPlot* pkPlot = kMap.plot(it->first, it->second);
+									if(pkPlot != NULL)
 									{
-										CvPlot* pkPlot = kMap.plot(it->first, it->second);
-										if(pkPlot != NULL)
+										CvCity* pkCity = pkPlot->getPlotCity();
+										if(pkCity != NULL)
 										{
-											CvCity* pkCity = pkPlot->getPlotCity();
-											if(pkCity != NULL)
+											if(pkCity->getOwner() == eActivePlayer)
 											{
-												if(pkCity->getOwner() == eActivePlayer)
-												{
-													continue;
-												}
+												continue;
 											}
 										}
-
-										bHasAllCities = false;
 									}
 
-									if(bHasAllCities)
-									{
-										gDLL->UnlockAchievement(ACHIEVEMENT_XP1_50);
-									}
+									bHasAllCities = false;
+								}
+
+								if(bHasAllCities)
+								{
+									gDLL->UnlockAchievement(ACHIEVEMENT_XP1_50);
 								}
 							}
 						}
+					}
 
-						if(bUsingXP1Scenario3)
-						{
-							gDLL->UnlockAchievement(ACHIEVEMENT_XP1_23);
-						}
+					if(bUsingXP1Scenario3)
+					{
+						gDLL->UnlockAchievement(ACHIEVEMENT_XP1_23);
 					}
 				}
 				//Win any multiplayer game
@@ -6466,40 +6453,51 @@ void CvGame::DoPlaceTeamInVictoryCompetition(VictoryTypes eNewVictory, TeamTypes
 				kTeam.changeVictoryPoints(iNumPoints);
 				kTeam.setVictoryAchieved(eNewVictory, true);
 
-				CvNotifications* pNotification = GET_PLAYER(GC.getGame().getActivePlayer()).GetNotifications();
-				if(pNotification)
-				{
-					Localization::String localizedText;
-					Localization::String localizedSummary;
+				Localization::String youWonInfo = Localization::Lookup("TXT_KEY_NOTIFICATION_VICTORY_RACE_WON_YOU");
+				Localization::String youWonSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_VICTORY_RACE_WON_YOU");
+				Localization::String someoneWonInfo = Localization::Lookup("TXT_KEY_NOTIFICATION_VICTORY_RACE_WON_SOMEBODY");
+				Localization::String someoneWonSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_VICTORY_RACE_WON_SOMEBODY");
+				Localization::String unmetWonInfo = Localization::Lookup("TXT_KEY_NOTIFICATION_VICTORY_RACE_WON_UNMET");
+				Localization::String unmetWonSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_VICTORY_RACE_WON_UNMET");
 
-					const char* szVictoryTextKey = pkVictoryInfo->GetTextKey();
-					// Active Team
-					if(eTeam == GC.getGame().getActiveTeam())
+				for(int iNotifyLoop = 0; iNotifyLoop < MAX_MAJOR_CIVS; ++iNotifyLoop){
+					PlayerTypes eNotifyPlayer = (PlayerTypes) iNotifyLoop;
+					CvPlayerAI& kCurNotifyPlayer = GET_PLAYER(eNotifyPlayer);
+					CvNotifications* pNotification = kCurNotifyPlayer.GetNotifications();
+					if(pNotification)
 					{
-						localizedText = Localization::Lookup("TXT_KEY_NOTIFICATION_VICTORY_RACE_WON_YOU");
-						localizedText << iSlotLoop+1 << szVictoryTextKey << iNumPoints;
-						localizedSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_VICTORY_RACE_WON_YOU");
-						localizedSummary << iSlotLoop+1 << szVictoryTextKey;
-					}
-					// Met Team
-					else if(GET_TEAM(GC.getGame().getActiveTeam()).isHasMet(eTeam))
-					{
-						const char* szTeamLeaderNameKey = GET_PLAYER(kTeam.getLeaderID()).getNameKey();
+						Localization::String localizedText;
+						Localization::String localizedSummary;
 
-						localizedText = Localization::Lookup("TXT_KEY_NOTIFICATION_VICTORY_RACE_WON_SOMEBODY");
-						localizedText << szTeamLeaderNameKey << iSlotLoop+1 << szVictoryTextKey << iNumPoints;
-						localizedSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_VICTORY_RACE_WON_SOMEBODY");
-						localizedSummary << szTeamLeaderNameKey << iSlotLoop+1 << szVictoryTextKey;
+						const char* szVictoryTextKey = pkVictoryInfo->GetTextKey();
+						// Active Team
+						if(eTeam == kCurNotifyPlayer.getTeam())
+						{
+							localizedText = youWonInfo;
+							localizedText << iSlotLoop+1 << szVictoryTextKey << iNumPoints;
+							localizedSummary = youWonSummary;
+							localizedSummary << iSlotLoop+1 << szVictoryTextKey;
+						}
+						// Met Team
+						else if(GET_TEAM(kCurNotifyPlayer.getTeam()).isHasMet(eTeam))
+						{
+							const char* szTeamLeaderNameKey = GET_PLAYER(kTeam.getLeaderID()).getNameKey();
+
+							localizedText = someoneWonInfo;
+							localizedText << szTeamLeaderNameKey << iSlotLoop+1 << szVictoryTextKey << iNumPoints;
+							localizedSummary = someoneWonSummary;
+							localizedSummary << szTeamLeaderNameKey << iSlotLoop+1 << szVictoryTextKey;
+						}
+						// Unmet Team
+						else
+						{
+							localizedText = unmetWonInfo;
+							localizedText << iSlotLoop+1 << szVictoryTextKey << iNumPoints;
+							localizedSummary = unmetWonSummary;
+							localizedSummary << iSlotLoop+1 << szVictoryTextKey;
+						}
+						pNotification->Add(NOTIFICATION_VICTORY, localizedText.toUTF8(), localizedSummary.toUTF8(), -1, -1, -1);
 					}
-					// Unmet Team
-					else
-					{
-						localizedText = Localization::Lookup("TXT_KEY_NOTIFICATION_VICTORY_RACE_WON_UNMET");
-						localizedText << iSlotLoop+1 << szVictoryTextKey << iNumPoints;
-						localizedSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_VICTORY_RACE_WON_UNMET");
-						localizedSummary << iSlotLoop+1 << szVictoryTextKey;
-					}
-					pNotification->Add(NOTIFICATION_VICTORY, localizedText.toUTF8(), localizedSummary.toUTF8(), -1, -1, -1);
 				}
 
 				break;
@@ -7311,6 +7309,10 @@ void CvGame::doTurn()
 	}
 
 	// END OF TURN
+
+	//We reset the turn timer now so that we know that the turn timer has been reset at least once for
+	//this turn.  CvGameController::Update() will continue to reset the timer if there is prolonged ai processing.
+	resetTurnTimer(true);
 
 	// If player unit cycling has been canceled for this turn, set it back to normal for the next
 	GC.GetEngineUserInterface()->setNoSelectionListCycle(false);
@@ -10151,33 +10153,37 @@ void CvGame::DoMinorBuyout(PlayerTypes eMajor, PlayerTypes eMinor)
 
 
 //	--------------------------------------------------------------------------------
-/// Notification letting the active player know that two teams made a Research Agreement.  This is in CvGame because we only want it called once, and if it were in CvDealClasses it would be called twice, or have to be special-cased, so we'll special-case it here instead
+/// Notification letting all non-party players know that two teams made a Research Agreement.  This is in CvGame because we only want it called once, and if it were in CvDealClasses it would be called twice, or have to be special-cased, so we'll special-case it here instead
 void CvGame::DoResearchAgreementNotification(TeamTypes eTeam1, TeamTypes eTeam2)
 {
-	// Notification for active player
-	TeamTypes eActiveTeam = GC.getGame().getActiveTeam();
+	// Notify all non-parties that these civs made a research agreement.
+	for(int iNotifyLoop = 0; iNotifyLoop < MAX_MAJOR_CIVS; ++iNotifyLoop){
+		PlayerTypes eNotifyPlayer = (PlayerTypes) iNotifyLoop;
+		CvPlayerAI& kCurNotifyPlayer = GET_PLAYER(eNotifyPlayer);
+		TeamTypes eCurNotifyTeam = kCurNotifyPlayer.getTeam();
 
-	// Don't show notification if WE'RE the ones in the deal
-	if(eActiveTeam != eTeam1 && eActiveTeam != eTeam2)
-	{
-		CvTeam* pActiveTeam = &GET_TEAM(eActiveTeam);
-
-		if(pActiveTeam->isHasMet(eTeam1) && pActiveTeam->isHasMet(eTeam2))
+		// Don't show notification if WE'RE the ones in the deal
+		if(eCurNotifyTeam != eTeam1 && eCurNotifyTeam != eTeam2)
 		{
-			CvNotifications* pNotifications = GET_PLAYER(GC.getGame().getActivePlayer()).GetNotifications();
-			if(pNotifications)
+			CvTeam* pCurTeam = &GET_TEAM(eCurNotifyTeam);
+
+			if(pCurTeam->isHasMet(eTeam1) && pCurTeam->isHasMet(eTeam2))
 			{
-				const char* strLeaderName = GET_PLAYER(GET_TEAM(eTeam1).getLeaderID()).getCivilizationShortDescriptionKey();
-				const char* strOtherLeaderName = GET_PLAYER(GET_TEAM(eTeam2).getLeaderID()).getCivilizationShortDescriptionKey();
+				CvNotifications* pNotifications = kCurNotifyPlayer.GetNotifications();
+				if(pNotifications)
+				{
+					const char* strLeaderName = GET_PLAYER(GET_TEAM(eTeam1).getLeaderID()).getCivilizationShortDescriptionKey();
+					const char* strOtherLeaderName = GET_PLAYER(GET_TEAM(eTeam2).getLeaderID()).getCivilizationShortDescriptionKey();
 
-				Localization::String strText;
-				strText = Localization::Lookup("TXT_KEY_NOTIFICATION_RESEARCH_AGREEMENT");
-				strText << strLeaderName << strOtherLeaderName;
+					Localization::String strText;
+					strText = Localization::Lookup("TXT_KEY_NOTIFICATION_RESEARCH_AGREEMENT");
+					strText << strLeaderName << strOtherLeaderName;
 
-				Localization::String strSummary;
-				strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_RESEARCH_AGREEMENT");
+					Localization::String strSummary;
+					strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_RESEARCH_AGREEMENT");
 
-				pNotifications->Add(NOTIFICATION_DIPLOMACY_DECLARATION, strText.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
+					pNotifications->Add(NOTIFICATION_DIPLOMACY_DECLARATION, strText.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
+				}
 			}
 		}
 	}
@@ -10280,32 +10286,39 @@ void CvGame::SetBestWondersPlayer(PlayerTypes ePlayer, int iWonderCount)
 	{
 		GET_TEAM(GET_PLAYER(ePlayer).getTeam()).changeVictoryPoints(iVictoryPointChange);
 
-		CvNotifications* pNotifications = GET_PLAYER(GC.getGame().getActivePlayer()).GetNotifications();
-		if(pNotifications)
-		{
-			CvString strBuffer;
-			CvString strSummary;
+		// Notify everyone of this change.
+		for(int iNotifyLoop = 0; iNotifyLoop < MAX_MAJOR_CIVS; ++iNotifyLoop){
+			PlayerTypes eNotifyPlayer = (PlayerTypes) iNotifyLoop;
+			CvPlayerAI& kCurNotifyPlayer = GET_PLAYER(eNotifyPlayer);
+			TeamTypes eCurNotifyTeam = kCurNotifyPlayer.getTeam();
 
-			// Active Player now has the most Wonders
-			if(GC.getGame().getActivePlayer() == ePlayer)
+			CvNotifications* pNotifications = kCurNotifyPlayer.GetNotifications();
+			if(pNotifications)
 			{
-				strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_BEST_IN_WONDERS_YOU", iVictoryPointChange, iWonderCount+1);
-				strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_BEST_IN_WONDERS_YOU", iVictoryPointChange, iWonderCount+1);
-			}
-			// Unmet player
-			else if(!GET_TEAM(GC.getGame().getActiveTeam()).isHasMet(GET_PLAYER(ePlayer).getTeam()))
-			{
-				strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_BEST_IN_WONDERS_UNMET", iVictoryPointChange, iWonderCount+1);
-				strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_BEST_IN_WONDERS_UNMET", iVictoryPointChange, iWonderCount+1);
-			}
-			// Player we've met
-			else
-			{
-				strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_BEST_IN_WONDERS_ANOTHER", GET_PLAYER(ePlayer).getCivilizationShortDescriptionKey(), iVictoryPointChange, iWonderCount+1);
-				strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_BEST_IN_WONDERS_ANOTHER", GET_PLAYER(ePlayer).getCivilizationShortDescriptionKey());
-			}
+				CvString strBuffer;
+				CvString strSummary;
 
-			pNotifications->Add(NOTIFICATION_VICTORY, strBuffer, strSummary, -1, -1, -1);
+				// current player now has the most Wonders
+				if(kCurNotifyPlayer.GetID() == ePlayer)
+				{
+					strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_BEST_IN_WONDERS_YOU", iVictoryPointChange, iWonderCount+1);
+					strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_BEST_IN_WONDERS_YOU", iVictoryPointChange, iWonderCount+1);
+				}
+				// Unmet player
+				else if(!GET_TEAM(eCurNotifyTeam).isHasMet(GET_PLAYER(ePlayer).getTeam()))
+				{
+					strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_BEST_IN_WONDERS_UNMET", iVictoryPointChange, iWonderCount+1);
+					strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_BEST_IN_WONDERS_UNMET", iVictoryPointChange, iWonderCount+1);
+				}
+				// Player we've met
+				else
+				{
+					strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_BEST_IN_WONDERS_ANOTHER", GET_PLAYER(ePlayer).getCivilizationShortDescriptionKey(), iVictoryPointChange, iWonderCount+1);
+					strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_BEST_IN_WONDERS_ANOTHER", GET_PLAYER(ePlayer).getCivilizationShortDescriptionKey());
+				}
+
+				pNotifications->Add(NOTIFICATION_VICTORY, strBuffer, strSummary, -1, -1, -1);
+			}
 		}
 	}
 }
@@ -10338,29 +10351,36 @@ void CvGame::SetBestPoliciesPlayer(PlayerTypes ePlayer, int iPolicyCount)
 
 		GET_TEAM(GET_PLAYER(ePlayer).getTeam()).changeVictoryPoints(iVictoryPointChange);
 
-		// Active Player now has the most Policies
-		if(GC.getGame().getActivePlayer() == ePlayer)
-		{
-			strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_BEST_IN_POLICIES_YOU", iVictoryPointChange, iPolicyCount+1);
-			strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_BEST_IN_POLICIES_YOU", iVictoryPointChange, iPolicyCount+1);
-		}
-		// Unmet player
-		else if(!GET_TEAM(GC.getGame().getActiveTeam()).isHasMet(GET_PLAYER(ePlayer).getTeam()))
-		{
-			strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_BEST_IN_POLICIES_UNMET", iVictoryPointChange, iPolicyCount+1);
-			strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_BEST_IN_POLICIES_UNMET", iVictoryPointChange, iPolicyCount+1);
-		}
-		// Player we've met
-		else
-		{
-			strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_BEST_IN_POLICIES_ANOTHER", GET_PLAYER(ePlayer).getCivilizationShortDescriptionKey(), iVictoryPointChange, iPolicyCount+1);
-			strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_BEST_IN_POLICIES_ANOTHER", GET_PLAYER(ePlayer).getCivilizationShortDescriptionKey(), iVictoryPointChange, iPolicyCount+1);
-		}
+		//Notify everyone
+		for(int iNotifyLoop = 0; iNotifyLoop < MAX_MAJOR_CIVS; ++iNotifyLoop){
+			PlayerTypes eNotifyPlayer = (PlayerTypes) iNotifyLoop;
+			CvPlayerAI& kCurNotifyPlayer = GET_PLAYER(eNotifyPlayer);
+			TeamTypes eCurNotifyTeam = kCurNotifyPlayer.getTeam();
 
-		CvNotifications* pNotifications = GET_PLAYER(GC.getGame().getActivePlayer()).GetNotifications();
-		if(pNotifications)
-		{
-			pNotifications->Add(NOTIFICATION_VICTORY, strBuffer, strSummary, -1, -1, -1);
+			// This player has the most Policies
+			if(eNotifyPlayer == ePlayer)
+			{
+				strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_BEST_IN_POLICIES_YOU", iVictoryPointChange, iPolicyCount+1);
+				strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_BEST_IN_POLICIES_YOU", iVictoryPointChange, iPolicyCount+1);
+			}
+			// Unmet player
+			else if(!GET_TEAM(eCurNotifyTeam).isHasMet(GET_PLAYER(ePlayer).getTeam()))
+			{
+				strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_BEST_IN_POLICIES_UNMET", iVictoryPointChange, iPolicyCount+1);
+				strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_BEST_IN_POLICIES_UNMET", iVictoryPointChange, iPolicyCount+1);
+			}
+			// player met
+			else
+			{
+				strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_BEST_IN_POLICIES_ANOTHER", GET_PLAYER(ePlayer).getCivilizationShortDescriptionKey(), iVictoryPointChange, iPolicyCount+1);
+				strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_BEST_IN_POLICIES_ANOTHER", GET_PLAYER(ePlayer).getCivilizationShortDescriptionKey(), iVictoryPointChange, iPolicyCount+1);
+			}
+
+			CvNotifications* pNotifications = kCurNotifyPlayer.GetNotifications();
+			if(pNotifications)
+			{
+				pNotifications->Add(NOTIFICATION_VICTORY, strBuffer, strSummary, -1, -1, -1);
+			}
 		}
 	}
 }
@@ -10390,32 +10410,38 @@ void CvGame::SetBestGreatPeoplePlayer(PlayerTypes ePlayer, int iGreatPeopleCount
 	{
 		GET_TEAM(GET_PLAYER(ePlayer).getTeam()).changeVictoryPoints(iVictoryPointChange);
 
-		CvNotifications* pNotifications = GET_PLAYER(GC.getGame().getActivePlayer()).GetNotifications();
-		if(pNotifications)
-		{
-			CvString strBuffer;
-			CvString strSummary;
+		for(int iNotifyLoop = 0; iNotifyLoop < MAX_MAJOR_CIVS; ++iNotifyLoop){
+			PlayerTypes eNotifyPlayer = (PlayerTypes) iNotifyLoop;
+			CvPlayerAI& kCurNotifyPlayer = GET_PLAYER(eNotifyPlayer);
+			TeamTypes eCurNotifyTeam = kCurNotifyPlayer.getTeam();
 
-			// Active Player now has the most GreatPeople
-			if(GC.getGame().getActivePlayer() == ePlayer)
+			CvNotifications* pNotifications =kCurNotifyPlayer.GetNotifications();
+			if(pNotifications)
 			{
-				strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_BEST_IN_GREAT_PEOPLE_YOU", iVictoryPointChange, iGreatPeopleCount+1);
-				strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_BEST_IN_GREAT_PEOPLE_YOU", iVictoryPointChange, iGreatPeopleCount+1);
-			}
-			// Unmet player
-			else if(!GET_TEAM(GC.getGame().getActiveTeam()).isHasMet(GET_PLAYER(ePlayer).getTeam()))
-			{
-				strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_BEST_IN_GREAT_PEOPLE_UNMET", iVictoryPointChange, iGreatPeopleCount+1);
-				strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_BEST_IN_GREAT_PEOPLE_UNMET", iVictoryPointChange, iGreatPeopleCount+1);
-			}
-			// Player we've met
-			else
-			{
-				strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_BEST_IN_GREAT_PEOPLE_ANOTHER", GET_PLAYER(ePlayer).getCivilizationShortDescriptionKey(), iVictoryPointChange, iGreatPeopleCount+1);
-				strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_BEST_IN_GREAT_PEOPLE_ANOTHER", GET_PLAYER(ePlayer).getCivilizationShortDescriptionKey(), iVictoryPointChange, iGreatPeopleCount+1);
-			}
+				CvString strBuffer;
+				CvString strSummary;
 
-			pNotifications->Add(NOTIFICATION_VICTORY, strBuffer, strSummary, -1, -1, -1);
+				// Active Player now has the most GreatPeople
+				if(eNotifyPlayer == ePlayer)
+				{
+					strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_BEST_IN_GREAT_PEOPLE_YOU", iVictoryPointChange, iGreatPeopleCount+1);
+					strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_BEST_IN_GREAT_PEOPLE_YOU", iVictoryPointChange, iGreatPeopleCount+1);
+				}
+				// Unmet player
+				else if(!GET_TEAM(eCurNotifyTeam).isHasMet(GET_PLAYER(ePlayer).getTeam()))
+				{
+					strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_BEST_IN_GREAT_PEOPLE_UNMET", iVictoryPointChange, iGreatPeopleCount+1);
+					strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_BEST_IN_GREAT_PEOPLE_UNMET", iVictoryPointChange, iGreatPeopleCount+1);
+				}
+				// Player we've met
+				else
+				{
+					strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_BEST_IN_GREAT_PEOPLE_ANOTHER", GET_PLAYER(ePlayer).getCivilizationShortDescriptionKey(), iVictoryPointChange, iGreatPeopleCount+1);
+					strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_BEST_IN_GREAT_PEOPLE_ANOTHER", GET_PLAYER(ePlayer).getCivilizationShortDescriptionKey(), iVictoryPointChange, iGreatPeopleCount+1);
+				}
+
+				pNotifications->Add(NOTIFICATION_VICTORY, strBuffer, strSummary, -1, -1, -1);
+			}
 		}
 	}
 }

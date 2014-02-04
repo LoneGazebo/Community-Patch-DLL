@@ -223,16 +223,13 @@ void CvPlayerEspionage::CreateSpy()
 
 	m_aSpyList.push_back(kNewSpy);
 
-	if(m_pPlayer->GetID() == GC.getGame().getActivePlayer())
+	CvNotifications* pNotifications = m_pPlayer->GetNotifications();
+	if(pNotifications)
 	{
-		CvNotifications* pNotifications = m_pPlayer->GetNotifications();
-		if(pNotifications)
-		{
-			const char* szSpyName = m_pPlayer->getCivilizationInfo().getSpyNames(kNewSpy.m_iName);
-			CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_SPY_CREATED", szSpyName);
-			CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_SPY_CREATED", szSpyName);
-			pNotifications->Add(NOTIFICATION_SPY_CREATED_ACTIVE_PLAYER, strBuffer, strSummary, -1, -1, 0);
-		}
+		const char* szSpyName = m_pPlayer->getCivilizationInfo().getSpyNames(kNewSpy.m_iName);
+		CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_SPY_CREATED", szSpyName);
+		CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_SPY_CREATED", szSpyName);
+		pNotifications->Add(NOTIFICATION_SPY_CREATED_ACTIVE_PLAYER, strBuffer, strSummary, -1, -1, 0);
 	}
 
 	if(GC.getLogging())
@@ -343,19 +340,16 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 					// if this is the first time they crossed the threshold
 					if(!bLastQualified)
 					{
-						if(GC.getGame().getActivePlayer() == ePlayer)
+						CvNotifications* pNotifications = m_pPlayer->GetNotifications();
+						if(pNotifications)
 						{
-							CvNotifications* pNotifications = m_pPlayer->GetNotifications();
-							if(pNotifications)
-							{
-								Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_CANT_STEAL_TECH_S");
-								strSummary << GET_PLAYER(eCityOwner).getCivilizationInfo().getShortDescriptionKey();
-								Localization::String strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_CANT_STEAL_TECH");
-								strNotification << GetSpyRankName(pSpy->m_eRank);;
-								strNotification << m_pPlayer->getCivilizationInfo().getSpyNames(pSpy->m_iName);
-								strNotification << GET_PLAYER(eCityOwner).getCivilizationInfo().getShortDescriptionKey();
-								pNotifications->Add(NOTIFICATION_SPY_CANT_STEAL_TECH, strNotification.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
-							}
+							Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_CANT_STEAL_TECH_S");
+							strSummary << GET_PLAYER(eCityOwner).getCivilizationInfo().getShortDescriptionKey();
+							Localization::String strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_CANT_STEAL_TECH");
+							strNotification << GetSpyRankName(pSpy->m_eRank);;
+							strNotification << m_pPlayer->getCivilizationInfo().getSpyNames(pSpy->m_iName);
+							strNotification << GET_PLAYER(eCityOwner).getCivilizationInfo().getShortDescriptionKey();
+							pNotifications->Add(NOTIFICATION_SPY_CANT_STEAL_TECH, strNotification.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
 						}
 					}
 					int iRate = CalcPerTurn(SPY_STATE_SURVEILLANCE, pCity, uiSpyIndex);
@@ -422,19 +416,16 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 			// can't steal any techs from this civ
 			m_aiNumTechsToStealList[eCityOwner] = 0;
 
-			if(GC.getGame().getActivePlayer() == ePlayer)
+			CvNotifications* pNotifications = m_pPlayer->GetNotifications();
+			if(pNotifications)
 			{
-				CvNotifications* pNotifications = m_pPlayer->GetNotifications();
-				if(pNotifications)
-				{
-					Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_CANT_STEAL_TECH_S");
-					strSummary << GET_PLAYER(eCityOwner).getCivilizationInfo().getShortDescriptionKey();
-					Localization::String strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_CANT_STEAL_TECH");
-					strNotification << GetSpyRankName(pSpy->m_eRank);;
-					strNotification << m_pPlayer->getCivilizationInfo().getSpyNames(pSpy->m_iName);
-					strNotification << GET_PLAYER(eCityOwner).getCivilizationInfo().getShortDescriptionKey();
-					pNotifications->Add(NOTIFICATION_SPY_CANT_STEAL_TECH, strNotification.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
-				}
+				Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_CANT_STEAL_TECH_S");
+				strSummary << GET_PLAYER(eCityOwner).getCivilizationInfo().getShortDescriptionKey();
+				Localization::String strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_CANT_STEAL_TECH");
+				strNotification << GetSpyRankName(pSpy->m_eRank);;
+				strNotification << m_pPlayer->getCivilizationInfo().getSpyNames(pSpy->m_iName);
+				strNotification << GET_PLAYER(eCityOwner).getCivilizationInfo().getShortDescriptionKey();
+				pNotifications->Add(NOTIFICATION_SPY_CANT_STEAL_TECH, strNotification.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
 			}
 		}
 		else if(pCityEspionage->HasReachedGoal(ePlayer))

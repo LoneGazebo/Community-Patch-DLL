@@ -1095,12 +1095,14 @@ void CvTeam::DoDeclareWar(TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyP
 		}
 	}
 
-	// Cancel Trade Deals
+	// Cancel Trade Deals, RAs, diplomats
 	if(!isBarbarian())
 	{
 		GC.getGame().GetGameDeals()->DoCancelDealsBetweenTeams(GetID(), eTeam);
 		CloseEmbassyAtTeam(eTeam);
 		GET_TEAM(eTeam).CloseEmbassyAtTeam(m_eID);
+		CancelResearchAgreement(eTeam);
+		GET_TEAM(eTeam).CancelResearchAgreement(m_eID);
 		EvacuateDiplomatsAtTeam(eTeam);
 		GET_TEAM(eTeam).EvacuateDiplomatsAtTeam(m_eID);
 	}
@@ -3457,7 +3459,7 @@ void CvTeam::makeHasMet(TeamTypes eIndex, bool bSuppressMessages)
 			if(!isAtWar(eIndex))
 			{
 				// Notify the Team that they met someone
-				if(!bSuppressMessages && GetID() == GC.getGame().getActiveTeam())
+				if(!bSuppressMessages)
 				{
 					CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_MET_MINOR_CIV", GET_PLAYER(GET_TEAM(eIndex).getLeaderID()).getNameKey());
 					CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_MET_MINOR_CIV", GET_PLAYER(GET_TEAM(eIndex).getLeaderID()).getNameKey());
@@ -3720,8 +3722,9 @@ void CvTeam::CloseEmbassyAtTeam(TeamTypes eIndex)
 	SetAllowsOpenBordersToTeam(m_eID, false);
 	SetHasDefensivePact(m_eID, false);
 	GET_TEAM(eIndex).SetHasDefensivePact(m_eID, false);
-	SetHasResearchAgreement(m_eID, false);
-	GET_TEAM(eIndex).SetHasResearchAgreement(m_eID, false);
+
+	//SetHasResearchAgreement(m_eID, false);
+	//GET_TEAM(eIndex).SetHasResearchAgreement(m_eID, false);
 }
 
 //	--------------------------------------------------------------------------------
@@ -3799,7 +3802,8 @@ void CvTeam::SetHasEmbassyAtTeam(TeamTypes eIndex, bool bNewValue)
 				for (uint uiOtherPlayer = 0; uiOtherPlayer < MAX_MAJOR_CIVS; uiOtherPlayer++)
 				{
 					PlayerTypes eOtherPlayer = (PlayerTypes)uiOtherPlayer;
-					if (GET_PLAYER(eOtherPlayer).getTeam() == eIndex)
+					CvPlayer& kOtherPlayer = GET_PLAYER(eOtherPlayer);
+					if (kOtherPlayer.getTeam() == eIndex && kOtherPlayer.isAlive())
 					{
 						if (bNewValue)
 						{
@@ -3838,21 +3842,18 @@ void CvTeam::EvacuateDiplomatsAtTeam(TeamTypes eIndex)
 					int iSpyIndex = GET_PLAYER(ePlayer1).GetEspionage()->GetSpyIndexInCity(pCapitalCity);
 					if (iSpyIndex != -1)
 					{
-						if(ePlayer1 == GC.getGame().getActivePlayer())
+						CvNotifications* pNotifications = GET_PLAYER(ePlayer1).GetNotifications();
+						if(pNotifications)
 						{
-							CvNotifications* pNotifications = GET_PLAYER(ePlayer1).GetNotifications();
-							if(pNotifications)
-							{
-								CvPlayerEspionage* pEspionage = GET_PLAYER(ePlayer1).GetEspionage();
-								int iSpyName = pEspionage->m_aSpyList[iSpyIndex].m_iName;
-								CvSpyRank eSpyRank = pEspionage->m_aSpyList[iSpyIndex].m_eRank;
-								Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_DIPLOMAT_EJECTED");
-								Localization::String strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_DIPLOMAT_EJECTED_TT");
-								strNotification << pEspionage->GetSpyRankName(eSpyRank);
-								strNotification << GET_PLAYER(ePlayer1).getCivilizationInfo().getSpyNames(iSpyName);
-								strNotification << pCapitalCity->getNameKey();
-								pNotifications->Add(NOTIFICATION_SPY_CANT_STEAL_TECH, strNotification.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
-							}
+							CvPlayerEspionage* pEspionage = GET_PLAYER(ePlayer1).GetEspionage();
+							int iSpyName = pEspionage->m_aSpyList[iSpyIndex].m_iName;
+							CvSpyRank eSpyRank = pEspionage->m_aSpyList[iSpyIndex].m_eRank;
+							Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_DIPLOMAT_EJECTED");
+							Localization::String strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_DIPLOMAT_EJECTED_TT");
+							strNotification << pEspionage->GetSpyRankName(eSpyRank);
+							strNotification << GET_PLAYER(ePlayer1).getCivilizationInfo().getSpyNames(iSpyName);
+							strNotification << pCapitalCity->getNameKey();
+							pNotifications->Add(NOTIFICATION_SPY_CANT_STEAL_TECH, strNotification.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
 						}
 						GET_PLAYER(ePlayer1).GetEspionage()->MoveSpyTo(NULL, iSpyIndex, false);
 					}
@@ -3995,6 +3996,14 @@ bool CvTeam::IsHasTradeAgreement(TeamTypes eIndex) const
 	return m_abTradeAgreement[eIndex];
 }
 
+//	--------------------------------------------------------------------------------
+void CvTeam::CancelResearchAgreement(TeamTypes eIndex)
+{
+	if (IsHasResearchAgreement(eIndex))
+	{
+		m_abResearchAgreement[eIndex] = false;
+	}
+}
 
 //	--------------------------------------------------------------------------------
 void CvTeam::SetHasTradeAgreement(TeamTypes eIndex, bool bNewValue)
@@ -5000,12 +5009,10 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 {
 	CvCity* pCapitalCity;
 	CvCity* pCity;
-	CvPlot* pLoopPlot;
 	CvString strBuffer;
 	UnitTypes eFreeUnit;
 	bool bFirstResource;
-	int iI;
-
+	
 	if(eIndex == NO_TECH)
 	{
 		return;
@@ -5027,6 +5034,11 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 	CvAssertMsg(ePlayer >= 0, "eIndex is expected to be non-negative (invalid Index)");
 	CvAssertMsg(ePlayer < MAX_PLAYERS, "ePlayer is expected to be within maximum bounds (invalid Index)");
 
+	if(ePlayer == NO_PLAYER)
+	{
+		return;
+	}
+
 	if(GetTeamTechs()->HasTech(eIndex) != bNewValue)
 	{
 		CvPlayerAI& kResearchingPlayer = GET_PLAYER(ePlayer);
@@ -5047,11 +5059,13 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 
 			// Repeating techs are good for score!
 			int iScoreChange = /*10*/ GC.getSCORE_FUTURE_TECH_MULTIPLIER();
-			for(iI = 0; iI < MAX_PLAYERS; iI++)
+			for(int iI = 0; iI < MAX_PLAYERS; iI++)
 			{
-				if(GET_PLAYER((PlayerTypes)iI).isAlive() && GET_PLAYER((PlayerTypes)iI).getTeam() == GetID())
+				const PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iI);
+				CvPlayerAI& kLoopPlayer = GET_PLAYER(eLoopPlayer);
+				if(kLoopPlayer.isAlive() && kLoopPlayer.getTeam() == GetID())
 				{
-					GET_PLAYER((PlayerTypes)iI).ChangeScoreFromFutureTech(iScoreChange);
+					kLoopPlayer.ChangeScoreFromFutureTech(iScoreChange);
 				}
 			}
 
@@ -5077,30 +5091,38 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 			CvCity* pLoopCity;
 			int iLoop;
 
-			for(iI = 0; iI < MAX_PLAYERS; iI++)
+			for(int iI = 0; iI < MAX_PLAYERS; iI++)
 			{
-				if(GET_PLAYER((PlayerTypes)iI).isAlive() && GET_PLAYER((PlayerTypes)iI).getTeam() == GetID())
+				const PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iI);
+				CvPlayerAI& kLoopPlayer = GET_PLAYER(eLoopPlayer);
+				if(kLoopPlayer.isAlive() && kLoopPlayer.getTeam() == GetID())
 				{
-					for(pLoopCity = GET_PLAYER((PlayerTypes)iI).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER((PlayerTypes)iI).nextCity(&iLoop))
+					for(pLoopCity = kLoopPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kLoopPlayer.nextCity(&iLoop))
 					{
 						pLoopCity->updateStrengthValue();
 					}
 				}
 			}
 
-			ResourceTypes eResource = NO_RESOURCE;
 			NotificationTypes eNotificationType = NO_NOTIFICATION_TYPE;
 
-			for(int iPlotLoop = 0; iPlotLoop < GC.getMap().numPlots(); iPlotLoop++)
+			const bool bIsActiveTeam = (GetID() == GC.getGame().getActiveTeam());
+			const int iNumPlots = GC.getMap().numPlots();
+			for(int iPlotLoop = 0; iPlotLoop < iNumPlots; iPlotLoop++)
 			{
-				pLoopPlot = GC.getMap().plotByIndexUnchecked(iPlotLoop);
+				CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(iPlotLoop);
 
-				if(pLoopPlot->getResourceType() != NO_RESOURCE)
+				const ResourceTypes eResource = pLoopPlot->getResourceType();
+				if(eResource != NO_RESOURCE)
 				{
+					CvResourceInfo* pResourceInfo = GC.getResourceInfo(eResource);
+					CvAssert(pResourceInfo);
+
 					if(bNewValue)
 					{
+						const TechTypes eTechReveal = static_cast<TechTypes>(pResourceInfo->getTechReveal());
 						// Resource Reveal
-						if(GC.getResourceInfo(pLoopPlot->getResourceType())->getTechReveal() == eIndex)
+						if(eTechReveal == eIndex)
 						{
 							// update the resources
 							if(pLoopPlot->isRevealed(m_eID))
@@ -5112,7 +5134,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 										pLoopPlot->DoFindCityToLinkResourceTo();
 
 									// Only update for active team
-									if(GetID() == GC.getGame().getActiveTeam())
+									if(bIsActiveTeam)
 									{
 										// If we've force revealed the resource for this team, then don't send another event
 										if(!pLoopPlot->IsResourceForceReveal(GetID()))
@@ -5125,25 +5147,11 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 										{
 											if(!CvPreGame::loadWBScenario() || GC.getGame().getGameTurn() > 0)
 											{
-												eResource = pLoopPlot->getResourceType();
-												CvResourceInfo* pResource = GC.getResourceInfo(eResource);
-												if(strcmp(pResource->GetType(), "RESOURCE_ARTIFACTS") == 0)
-												{
-													strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_FOUND_ARTIFACTS");
-												}
-												else if( strcmp(pResource->GetType(), "RESOURCE_HIDDEN_ARTIFACTS") == 0)
-												{
-													strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_FOUND_HIDDEN_ARTIFACTS");
-												}
-												else
-												{
-													strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_FOUND_RESOURCE", pResource->GetTextKey());
-												}
+												strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_FOUND_RESOURCE", pResourceInfo->GetTextKey());
+									
+												CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_FOUND_RESOURCE", pResourceInfo->GetTextKey());
 
-
-												CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_FOUND_RESOURCE", pResource->GetTextKey());
-
-												switch(GC.getResourceInfo(eResource)->getResourceUsage())
+												switch(pResourceInfo->getResourceUsage())
 												{
 												case RESOURCEUSAGE_LUXURY:
 													eNotificationType = NOTIFICATION_DISCOVERED_LUXURY_RESOURCE;
@@ -5171,24 +5179,26 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 					// Resource Connection
 					if(pLoopPlot->getTeam() == GetID())
 					{
-						if(GC.getResourceInfo(pLoopPlot->getResourceType())->getTechCityTrade() == eIndex)
+						if(pResourceInfo->getTechCityTrade() == eIndex)
 						{
 							if(pLoopPlot->isCity() || pLoopPlot->getImprovementType() != NO_IMPROVEMENT)
 							{
 								// Appropriate Improvement on this Plot?
-								if(pLoopPlot->isCity() || GC.getImprovementInfo(pLoopPlot->getImprovementType())->IsImprovementResourceTrade(pLoopPlot->getResourceType()))
+								if(pLoopPlot->isCity() || GC.getImprovementInfo(pLoopPlot->getImprovementType())->IsImprovementResourceTrade(eResource))
 								{
-									for(iI = 0; iI < MAX_PLAYERS; iI++)
+									for(int iI = 0; iI < MAX_PLAYERS; iI++)
 									{
-										if(GET_PLAYER((PlayerTypes)iI).isAlive() && GET_PLAYER((PlayerTypes)iI).getTeam() == GetID() && pLoopPlot->getOwner() == (PlayerTypes)iI)
+										const PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iI);
+										CvPlayerAI& kLoopPlayer = GET_PLAYER(eLoopPlayer);
+										if(kLoopPlayer.isAlive() && kLoopPlayer.getTeam() == GetID() && pLoopPlot->getOwner() == eLoopPlayer)
 										{
 											// We now have a new Tech
 											if(bNewValue)
 											{
 												// slewis - added in so resources wouldn't be double counted when the minor civ researches the technology
-												if (!(GET_PLAYER((PlayerTypes)iI).isMinorCiv() && pLoopPlot->IsImprovedByGiftFromMajor()))
+												if (!(kLoopPlayer.isMinorCiv() && pLoopPlot->IsImprovedByGiftFromMajor()))
 												{
-													GET_PLAYER((PlayerTypes)iI).changeNumResourceTotal(pLoopPlot->getResourceType(), pLoopPlot->getNumResourceForPlayer((PlayerTypes)iI));
+													kLoopPlayer.changeNumResourceTotal(eResource, pLoopPlot->getNumResourceForPlayer(eLoopPlayer));
 												}
 
 												// Reconnect resource link
@@ -5205,7 +5215,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 											// Removing Tech
 											else
 											{
-												GET_PLAYER((PlayerTypes)iI).changeNumResourceTotal(pLoopPlot->getResourceType(), -pLoopPlot->getNumResourceForPlayer((PlayerTypes)iI));
+												kLoopPlayer.changeNumResourceTotal(eResource, -pLoopPlot->getNumResourceForPlayer(eLoopPlayer));
 
 												// Disconnect resource link
 												if(pLoopPlot->GetResourceLinkedCity() != NULL)
@@ -5222,6 +5232,86 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 		}
 
 		processTech(eIndex, ((bNewValue) ? 1 : -1));
+
+		//Antiquity site notifications.
+		//Notifications for Artifacts and Hidden Artifacts have to come AFTER processTech because they may not have been spawned yet.
+		if(!CvPreGame::loadWBScenario() || GC.getGame().getGameTurn() > 0)
+		{
+			bool bTechRevealsArtifacts = false;
+			bool bTechRevealsHiddenArtifacts = false;
+
+			ResourceTypes eArtifactResource = (ResourceTypes)GC.getInfoTypeForString("RESOURCE_ARTIFACTS", true);
+			CvResourceInfo* pArtifactResource = NULL;
+			if(eArtifactResource != NO_RESOURCE)
+			{
+				pArtifactResource = GC.getResourceInfo(eArtifactResource);
+				bTechRevealsArtifacts = pArtifactResource->getTechReveal() == eIndex;			
+			}
+
+			ResourceTypes eHiddenArtifactResource = (ResourceTypes)GC.getInfoTypeForString("RESOURCE_HIDDEN_ARTIFACTS", true);;
+			CvResourceInfo* pHiddenArtifactResource = NULL;
+			if(eHiddenArtifactResource != NO_RESOURCE)
+			{
+				pHiddenArtifactResource = GC.getResourceInfo(eHiddenArtifactResource);
+				bTechRevealsHiddenArtifacts = pHiddenArtifactResource->getTechReveal() == eIndex;
+			}
+
+			if(bTechRevealsArtifacts | bTechRevealsHiddenArtifacts)
+			{
+				const PlayerTypes eActivePlayer = GC.getGame().getActivePlayer();
+				const int iNumPlots = GC.getMap().numPlots();
+				for(int iPlotLoop = 0; iPlotLoop < iNumPlots; iPlotLoop++)
+				{
+					CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(iPlotLoop);
+
+					if(pLoopPlot->getOwner() == eActivePlayer && pLoopPlot->getTeam() == m_eID && pLoopPlot->isRevealed(m_eID))
+					{
+						const ResourceTypes ePlotResource = pLoopPlot->getResourceType(m_eID);
+						if( (bTechRevealsArtifacts && ePlotResource == eArtifactResource) || 
+							(bTechRevealsHiddenArtifacts && ePlotResource == eHiddenArtifactResource))
+						{
+							CvString strSummary;
+					//		CvString strBuffer;
+							ResourceUsageTypes eResourceUsage = RESOURCEUSAGE_LUXURY;
+							NotificationTypes eNotificationType = NO_NOTIFICATION_TYPE;
+
+							if(ePlotResource == eArtifactResource)
+							{
+								strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_FOUND_ARTIFACTS");
+								strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_FOUND_RESOURCE", pArtifactResource->GetTextKey());
+								eResourceUsage = pArtifactResource->getResourceUsage();
+							}
+							else if(ePlotResource == eHiddenArtifactResource)
+							{
+								strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_FOUND_HIDDEN_ARTIFACTS");
+								strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_FOUND_RESOURCE", pHiddenArtifactResource->GetTextKey());
+								eResourceUsage = pHiddenArtifactResource->getResourceUsage();
+							}
+
+							switch(eResourceUsage)
+							{
+							case RESOURCEUSAGE_LUXURY:
+								eNotificationType = NOTIFICATION_DISCOVERED_LUXURY_RESOURCE;
+								break;
+							case RESOURCEUSAGE_STRATEGIC:
+								eNotificationType = NOTIFICATION_DISCOVERED_STRATEGIC_RESOURCE;
+								break;
+							case RESOURCEUSAGE_BONUS:
+								eNotificationType = NOTIFICATION_DISCOVERED_BONUS_RESOURCE;
+								break;
+							}
+
+							CvNotifications* pNotifications = GET_PLAYER(pLoopPlot->getOwner()).GetNotifications();
+							if(pNotifications)
+							{
+								pNotifications->Add(eNotificationType, strBuffer, strSummary, pLoopPlot->getX(), pLoopPlot->getY(), ePlotResource);
+							}
+						}
+					}
+				}
+			}
+
+		}
 
 		if(GetTeamTechs()->HasTech(eIndex))
 		{
@@ -5295,19 +5385,21 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 
 			bFirstResource = false;
 
-			for(iI = 0; iI < MAX_PLAYERS; iI++)
+			for(int iI = 0; iI < MAX_PLAYERS; iI++)
 			{
-				if(GET_PLAYER((PlayerTypes)iI).isAlive() && GET_PLAYER((PlayerTypes)iI).getTeam() == GetID())
+				const PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iI);
+				CvPlayerAI& kPlayer = GET_PLAYER(eLoopPlayer);
+				if(kPlayer.isAlive() && kPlayer.getTeam() == GetID())
 				{
-					if(GET_PLAYER((PlayerTypes)iI).GetPlayerTechs()->IsResearchingTech(eIndex))
+					if(kPlayer.GetPlayerTechs()->IsResearchingTech(eIndex))
 					{
-						GET_PLAYER((PlayerTypes)iI).popResearch(eIndex);
+						kPlayer.popResearch(eIndex);
 					}
 
 					// notify the player they now have the tech, if they want to make immediate changes
 					//GET_PLAYER((PlayerTypes)iI).AI_nowHasTech(eIndex);
 
-					GET_PLAYER((PlayerTypes)iI).invalidateYieldRankCache();
+					kPlayer.invalidateYieldRankCache();
 				}
 			}
 
@@ -5338,7 +5430,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 
 						if(!isHuman())
 						{
-							for(iI = 0; iI < pkTechInfo->GetFirstFreeTechs(); iI++)
+							for(int iI = 0; iI < pkTechInfo->GetFirstFreeTechs(); iI++)
 							{
 								GET_PLAYER(ePlayer).AI_chooseFreeTech();
 							}
@@ -5349,11 +5441,13 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 							GET_PLAYER(ePlayer).chooseTech(GC.getTechInfo(eIndex)->GetFirstFreeTechs(), strBuffer.GetCString());
 						}
 
-						for(iI = 0; iI < MAX_PLAYERS; iI++)
+						for(int iI = 0; iI < MAX_PLAYERS; iI++)
 						{
-							if(GET_PLAYER((PlayerTypes)iI).isAlive() && GC.getGame().getActivePlayer())
+							const PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iI);
+							CvPlayerAI& kLoopPLayer = GET_PLAYER(eLoopPlayer);
+							if(kLoopPLayer.isAlive() && GC.getGame().getActivePlayer())
 							{
-								if(isHasMet(GET_PLAYER((PlayerTypes)iI).getTeam()))
+								if(isHasMet(kLoopPLayer.getTeam()))
 								{
 									strBuffer = GetLocalizedText("TXT_KEY_MISC_SOMEONE_FIRST_TO_TECH", GET_PLAYER(ePlayer).getNameKey(), pkTechInfo->GetTextKey());
 								}
@@ -5361,7 +5455,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 								{
 									strBuffer = GetLocalizedText("TXT_KEY_MISC_UNKNOWN_FIRST_TO_TECH", GC.getTechInfo(eIndex)->GetTextKey());
 								}
-								DLLUI->AddMessage(0, ((PlayerTypes)iI), false, GC.getEVENT_MESSAGE_TIME(), strBuffer/*, "AS2D_FIRSTTOTECH", MESSAGE_TYPE_MAJOR_EVENT, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT")*/);
+								DLLUI->AddMessage(0, eLoopPlayer, false, GC.getEVENT_MESSAGE_TIME(), strBuffer/*, "AS2D_FIRSTTOTECH", MESSAGE_TYPE_MAJOR_EVENT, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_HIGHLIGHT_TEXT")*/);
 							}
 						}
 
@@ -5371,9 +5465,10 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 
 					if(bFirstResource)
 					{
-						for(iI = 0; iI < MAX_PLAYERS; iI++)
+						for(int iI = 0; iI < MAX_PLAYERS; iI++)
 						{
-							CvPlayerAI& kPlayer = GET_PLAYER((PlayerTypes)iI);
+							const PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iI);
+							CvPlayerAI& kPlayer = GET_PLAYER(eLoopPlayer);
 							if(kPlayer.isAlive())
 							{
 								if(!(kPlayer.isHuman()))
@@ -5396,9 +5491,9 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 					announceTechToPlayers(eIndex);
 
 					// Resources discovered in a player's territory
-					for(iI = 0; iI < GC.getMap().numPlots(); iI++)
+					for(int iI = 0; iI < GC.getMap().numPlots(); iI++)
 					{
-						pLoopPlot = GC.getMap().plotByIndexUnchecked(iI);
+						CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(iI);
 
 						if(pLoopPlot->getTeam() == GetID() && pLoopPlot->getOwner() == GC.getGame().getActivePlayer())
 						{
@@ -5467,13 +5562,15 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 				}
 			}
 
-			for(iI = 0; iI < MAX_TEAMS; iI++)
+			for(int iI = 0; iI < MAX_TEAMS; iI++)
 			{
-				if(GET_TEAM((TeamTypes)iI).isAlive())
+				const TeamTypes eLoopTeam = static_cast<TeamTypes>(iI);
+				CvTeam& kLoopTeam = GET_TEAM(eLoopTeam);
+				if(kLoopTeam.isAlive())
 				{
-					if(iI != GetID())
+					if(eLoopTeam != GetID())
 					{
-						GET_TEAM((TeamTypes)iI).updateTechShare(eIndex);
+						kLoopTeam.updateTechShare(eIndex);
 					}
 				}
 			}
@@ -5561,28 +5658,25 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 				DLLUI->setDirty(MiscButtons_DIRTY_BIT, true);
 				DLLUI->setDirty(SelectionButtons_DIRTY_BIT, true);
 				DLLUI->setDirty(ResearchButtons_DIRTY_BIT, true);
-				if(eIndex != NO_TECH && bNewValue)
-				{
-					bool bDontShowRewardPopup = DLLUI->IsOptionNoRewardPopups();
+			}
 
-					// Notification in MP games
-					if(bDontShowRewardPopup || GC.getGame().isNetworkMultiPlayer())	// KWG: Candidate for !GC.getGame().isOption(GAMEOPTION_SIMULTANEOUS_TURNS)
-					{
-						CvNotifications* pNotifications = GET_PLAYER(GC.getGame().getActivePlayer()).GetNotifications();
-						if(pNotifications)
-						{
-							Localization::String localizedText = Localization::Lookup("TXT_KEY_MISC_YOU_DISCOVERED_TECH");
-							localizedText << pkTechInfo->GetTextKey();
-							pNotifications->Add(NOTIFICATION_TECH_AWARD, localizedText.toUTF8(), localizedText.toUTF8(), -1, -1, 0, (int) eIndex);
-						}
-					}
-					// Popup in SP games
-					else
-					{
-						CvPopupInfo kPopup(BUTTONPOPUP_TECH_AWARD, GC.getGame().getActivePlayer(), 0, eIndex);
-						//kPopup.setText(localizedText.toUTF8());
-						DLLUI->AddPopup(kPopup);
-					}
+			if(eIndex != NO_TECH && bNewValue)
+			{
+				bool bDontShowRewardPopup = DLLUI->IsOptionNoRewardPopups();
+
+				// Notification in MP games
+				if(bDontShowRewardPopup || GC.getGame().isNetworkMultiPlayer())
+				{
+					Localization::String localizedText = Localization::Lookup("TXT_KEY_MISC_YOU_DISCOVERED_TECH");
+					localizedText << pkTechInfo->GetTextKey();
+					AddNotification(NOTIFICATION_TECH_AWARD, localizedText.toUTF8(), localizedText.toUTF8(), -1, -1, 0, (int) eIndex);
+				}
+				// Popup in SP games
+				else if(GetID() == GC.getGame().getActiveTeam())
+				{
+					CvPopupInfo kPopup(BUTTONPOPUP_TECH_AWARD, GC.getGame().getActivePlayer(), 0, eIndex);
+					//kPopup.setText(localizedText.toUTF8());
+					DLLUI->AddPopup(kPopup);
 				}
 			}
 		}
@@ -6327,39 +6421,46 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 				Localization::String strMessage;
 				Localization::String strSummary;
 
-				PlayerTypes eActivePlayer = GC.getGame().getActivePlayer();
+				
+				if(!isBarbarian() && (eNewValue != GC.getGame().getStartEra())){
+					//Era Popup
+					if (!GC.getGame().isNetworkMultiPlayer() && isHuman() && GetID() == GC.getGame().getActiveTeam()){
+						CvPopupInfo kPopupInfo(BUTTONPOPUP_NEW_ERA, eNewValue);
+						DLLUI->AddPopup(kPopupInfo);
+					}
 
-				// Notification for other players entering an era
-				if(GC.getGame().getActiveTeam() != GetID() &&
-				        !isMinorCiv() &&
-				        !isBarbarian() &&
-				        GET_PLAYER(eActivePlayer).isAlive())
-				{
-					if(GET_PLAYER(eActivePlayer).GetNotifications())
-					{
-						strMessage = Localization::Lookup("TXT_KEY_NTFN_PLAYER_ERA");
+					//Notify Everyone
+					for(int iNotifyLoop = 0; iNotifyLoop < MAX_MAJOR_CIVS; ++iNotifyLoop){
+						PlayerTypes eNotifyPlayer = (PlayerTypes) iNotifyLoop;
+						CvPlayerAI& kCurNotifyPlayer = GET_PLAYER(eNotifyPlayer);
+						CvNotifications* pNotifications = kCurNotifyPlayer.GetNotifications();
+						if(pNotifications && 
+							(kCurNotifyPlayer.getTeam() != GetID() || GC.getGame().isNetworkMultiPlayer()) &&
+							kCurNotifyPlayer.isAlive()){
+							strMessage = Localization::Lookup("TXT_KEY_NTFN_PLAYER_ERA");
 
-						CvEraInfo* pkEraInfo = GC.getEraInfo(eNewValue);
-						const char* szEraTextKey = pkEraInfo->GetTextKey();
+							CvEraInfo* pkEraInfo = GC.getEraInfo(eNewValue);
+							const char* szEraTextKey = pkEraInfo->GetTextKey();
 
-						// Active team has met this team
-						if(GET_TEAM(GC.getGame().getActiveTeam()).isHasMet(GetID()))
-						{
-							CvPlayerAI& player = GET_PLAYER(getLeaderID());
-							if(GC.getGame().isGameMultiPlayer() && player.isHuman())
-								strMessage << player.getNickName() << szEraTextKey;
+							// Notify player has met this team
+							if(GET_TEAM(kCurNotifyPlayer.getTeam()).isHasMet(GetID()))
+							{
+								CvPlayerAI& player = GET_PLAYER(getLeaderID());
+								if(GC.getGame().isGameMultiPlayer() && player.isHuman())
+									strMessage << player.getNickName() << szEraTextKey;
+								else
+									strMessage << player.getName() << szEraTextKey;
+							}
+
+							// Has not met this team
 							else
-								strMessage << player.getName() << szEraTextKey;
-						}
+							{
+								Localization::String unmetPlayer = Localization::Lookup("TXT_KEY_UNMET_PLAYER");
+								strMessage << unmetPlayer << szEraTextKey;
+							}
 
-						// Has not met this team
-						else
-						{
-							Localization::String unmetPlayer = Localization::Lookup("TXT_KEY_UNMET_PLAYER");
-							strMessage << unmetPlayer << szEraTextKey;
+							pNotifications->Add(NOTIFICATION_OTHER_PLAYER_NEW_ERA, strMessage.toUTF8(), strMessage.toUTF8(), -1, -1, -1);
 						}
-
-						GET_PLAYER(eActivePlayer).GetNotifications()->Add(NOTIFICATION_OTHER_PLAYER_NEW_ERA, strMessage.toUTF8(), strMessage.toUTF8(), -1, -1, -1);
 					}
 				}
 
@@ -6542,37 +6643,6 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 		if(GetID() == GC.getGame().getActiveTeam())
 		{
 			DLLUI->setDirty(Soundtrack_DIRTY_BIT, true);
-		}
-
-		if(isHuman() && (GetCurrentEra() != GC.getGame().getStartEra()))
-		{
-			if(GC.getGame().isFinalInitialized())
-			{
-				if (GC.getGame().isNetworkMultiPlayer())
-				{
-					PlayerTypes eActivePlayer = GC.getGame().getActivePlayer();
-					if(GC.getGame().getActiveTeam() == GetID() && !isMinorCiv() && !isBarbarian() && GET_PLAYER(eActivePlayer).isAlive())
-					{
-						if(GET_PLAYER(eActivePlayer).GetNotifications())
-						{
-							Localization::String strMessage;
-							strMessage = Localization::Lookup("TXT_KEY_NTFN_PLAYER_ERA");
-
-							CvEraInfo* pkEraInfo = GC.getEraInfo(eNewValue);
-							const char* szEraTextKey = pkEraInfo->GetTextKey();
-
-							strMessage << GET_PLAYER(eActivePlayer).getNickName() << szEraTextKey;
-
-							GET_PLAYER(eActivePlayer).GetNotifications()->Add(NOTIFICATION_OTHER_PLAYER_NEW_ERA, strMessage.toUTF8(), strMessage.toUTF8(), -1, -1, -1);
-						}
-					}
-				}
-				else
-				{
-					CvPopupInfo kPopupInfo(BUTTONPOPUP_NEW_ERA, eNewValue);
-					DLLUI->AddPopup(kPopupInfo);
-				}
-			}
 		}
 	}
 }
@@ -6978,7 +7048,7 @@ void CvTeam::Write(FDataStream& kStream) const
 
 //	--------------------------------------------------------------------------------
 /// Wrapper for giving Players on this Team a notification message
-void CvTeam::AddNotification(NotificationTypes eNotificationType, CvString& strMessage, CvString& strSummary, int iX, int iY, int iGameDataIndex)
+void CvTeam::AddNotification(NotificationTypes eNotificationType, const char* strMessage, const char* strSummary, int iX, int iY, int iGameDataIndex, int iExtraGameData)
 {
 	PlayerTypes eLoopPlayer;
 
@@ -6996,6 +7066,6 @@ void CvTeam::AddNotification(NotificationTypes eNotificationType, CvString& strM
 		if(!loopPlayer.GetNotifications())
 			continue;
 
-		loopPlayer.GetNotifications()->Add(eNotificationType, strMessage, strSummary, iX, iY, iGameDataIndex);
+		loopPlayer.GetNotifications()->Add(eNotificationType, strMessage, strSummary, iX, iY, iGameDataIndex, iExtraGameData);
 	}
 }

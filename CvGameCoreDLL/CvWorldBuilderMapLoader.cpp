@@ -1614,6 +1614,66 @@ int CvWorldBuilderMapLoader::LoadModData(lua_State *L)
 	return 0;
 }
 
+int CvWorldBuilderMapLoader::RunPostProcessScript(lua_State* L)
+{
+	if(L == NULL)
+	{
+		FAssertMsg(L, "Seriously, you really need a lua state for this.");
+		return 0;
+	}
+
+	const int iTop = lua_gettop(L);
+
+	ModType& kGlobalsDataType = sg_kSave.m_kModData.m_kMapModData;
+	const uint uiGlobalsCount = kGlobalsDataType.GetFieldCount();
+	if(uiGlobalsCount > 0)
+	{
+		ModDataEntry kEntry = sg_kSave.m_kModData.GetMapDataEntry();
+		for(uint uiField = 0; uiField < uiGlobalsCount; ++uiField)
+		{
+			const char* szFieldName = kGlobalsDataType.GetFieldName(uiField);
+			if(szFieldName != NULL && strcmp(szFieldName, "PostProcessMapScript") == 0)
+			{
+				if(kGlobalsDataType.GetFieldType(uiField) == ModType::TYPE_STRING)
+				{
+					const char* szLua = kEntry.GetFieldAsString(uiField);
+					if(szLua == NULL || strlen(szLua) == 0)
+					{
+						szLua = kGlobalsDataType.GetFieldDefaultAsString(uiField);
+					}
+
+					ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+					if(pkScriptSystem != NULL)
+					{
+						//1040 == _MAX_PATH * 4
+						char szMapScriptPath[1040] = {0};
+						const bool bResult = gDLL->GetEvaluatedMapScriptPath(szLua, szMapScriptPath, 1040);
+						if(!bResult)
+						{
+							FAssertMsg(0, "Failed to find \"PostProcessMap\" in Post Process Map Script.");
+						}
+
+						const bool bLoadedMapGenerator = pkScriptSystem->LoadFile(L, szMapScriptPath);
+						FAssertMsg(bLoadedMapGenerator, "Failed to load Post Process Map Script.");
+						if(bLoadedMapGenerator)
+						{
+							lua_getglobal(L, "PostProcessMap");
+							if(lua_isfunction(L, -1))
+								pkScriptSystem->CallFunction(L, 0, 0);
+							else
+								FAssertMsg(0, "Failed to find \"PostProcessMap\" in Post Process Map Script.");
+						}
+					}
+				}
+			}
+		}
+	}
+
+	lua_settop(L, iTop);
+
+	return 0;
+}
+
 void CvWorldBuilderMapLoader::ValidateTerrain()
 {
 	CvMap &kMap = GC.getMap();
@@ -1714,6 +1774,53 @@ void CvWorldBuilderMapLoader::ClearGoodies()
 		}
 	}
 }
+
+WorldSizeTypes CvWorldBuilderMapLoader::GetCurrentWorldSizeType()
+{
+	return GetWorldSizeType(sg_kSave);
+}
+
+WorldSizeTypes CvWorldBuilderMapLoader::GetWorldSizeType(const CvWorldBuilderMap& kMap)
+{
+	WorldSizeTypes eWorldSize = NO_WORLDSIZE;
+	const char* szWorldType = kMap.GetWorldType();
+	if(szWorldType != NULL)
+	{
+		Database::Results kWorldSize;
+		DB.Execute(kWorldSize, "Select ID from Worlds where Type = ? LIMIT 1");
+
+		kWorldSize.Bind(1, szWorldType);
+		if(kWorldSize.Step())
+		{
+			eWorldSize = (WorldSizeTypes)kWorldSize.GetInt(0);
+		}
+	}
+
+	if(eWorldSize == NO_WORLDSIZE)
+	{
+		const int iArea = (int)(kMap.GetWidth() * kMap.GetHeight());
+		int iSmallestAreaDifference = 64000; // Arbitrarily large at start
+
+		Database::Results kWorldSizes;
+		DB.SelectAll(kWorldSizes, "Worlds");
+		while(kWorldSizes.Step())
+		{
+			CvWorldInfo kInfo;
+			kInfo.CacheResult(kWorldSizes);
+
+			int iSizeTypeArea = kInfo.getGridWidth() * kInfo.getGridHeight();
+			int iAreaDifference = abs(iArea - iSizeTypeArea);
+			if(iAreaDifference < iSmallestAreaDifference)
+			{
+				iSmallestAreaDifference = iAreaDifference;
+				eWorldSize = (WorldSizeTypes)kInfo.GetID();
+			}
+		}
+	}
+
+	return eWorldSize;
+}
+
 
 void CvWorldBuilderMapLoader::ResetPlayerSlots()
 {

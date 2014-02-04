@@ -102,9 +102,9 @@ namespace CvPreGame
 	GameStartTypes                             gameStartType                    ();
 	int                                        gameUpdateTime                   (); // setupdata
 	HandicapTypes                              handicap                         (PlayerTypes p);
+	HandicapTypes                              lastHumanHandicap				(PlayerTypes p);
 	bool										 isDLCAllowed					  (const GUID& kDLCID);
 	bool										 isDLCAvailable				      (PlayerTypes p, const GUID& kDLCID);
-	bool										 isEarthMap						  ();
 	bool                                       isHotSeat                        ();
 	bool                                       isHotSeatGame                    ();
 	bool                                       isHuman                          (PlayerTypes p);
@@ -193,7 +193,6 @@ namespace CvPreGame
 	void                                       setClimate                       (const CvString & c);
 	void                                       setCustomWorldSize               (int iWidth, int iHeight, int iPlayers = 0, int iMinorCivs = 0);
 	void										 setDLCAllowed					  (const GUID& kDLCID, bool bState);
-	void										 setEarthMap					  (bool bIsEarthMap);
 	void                                       setEmailAddress                  (PlayerTypes p, const CvString & a);
 	void                                       setEmailAddress                  (const CvString & a); // setupdata
 	void                                       setEndTurnTimerLength            (float f); // setupdata
@@ -215,6 +214,7 @@ namespace CvPreGame
 	void                                       setGameStartType                 (GameStartTypes g);
 	void                                       setGameUpdateTime                (int updateTime); // setupdata
 	void                                       setHandicap                      (PlayerTypes p, HandicapTypes h);
+	void									   setLastHumanHandicap				(PlayerTypes p, HandicapTypes h);
 	void                                       setInternetGame                  (bool isInternetGame);
 	void                                       setLeaderHead                    (PlayerTypes p, LeaderHeadTypes l);
 	void                                       setLeaderName                    (PlayerTypes p, const CvString & n);

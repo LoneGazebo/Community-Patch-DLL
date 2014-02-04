@@ -82,8 +82,9 @@ bool CvDatabaseUtility::Initialize2DArray(int**& ppArray, const char* szTable1Na
 	const int iCount1 = MaxRows(szTable1Name);
 	const int iCount2 = MaxRows(szTable2Name);
 
-	if(iCount1 == -1 || iCount2 == -1)
+	if(iCount1 <= 0 || iCount2 <= 0)
 	{
+		ppArray = NULL;
 		CvAssertMsg(false, "Cannot initialize array to 0 size.");
 		return false;
 	}
@@ -110,7 +111,7 @@ bool CvDatabaseUtility::Initialize2DArray(int**& ppArray, const char* szTable1Na
 //------------------------------------------------------------------------------
 void CvDatabaseUtility::Initialize2DArray(int**& ppArray, const size_t iCount1, const size_t iCount2, int iDefault /*= 0*/)
 {
-	if(iCount1 == -1 || iCount2 == -1)
+	if(iCount1 <= 0 || iCount2 <= 0)
 	{
 		CvAssertMsg(false, "Cannot initialize array to 0 size.");
 		return;

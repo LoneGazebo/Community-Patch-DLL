@@ -70,6 +70,7 @@ const MissionTypes getMISSION_CHANGE_TRADE_UNIT_HOME_CITY();
 const MissionTypes getMISSION_SELL_EXOTIC_GOODS();
 const MissionTypes getMISSION_GIVE_POLICIES();
 const MissionTypes getMISSION_ONE_SHOT_TOURISM();
+const MissionTypes getMISSION_CHANGE_ADMIRAL_PORT();
 const unsigned int getNUM_MISSION_TYPES();
 
 const GreatWorkArtifactClass getARTIFACT_ANCIENT_RUIN();
@@ -77,6 +78,7 @@ const GreatWorkArtifactClass getARTIFACT_BARBARIAN_CAMP();
 const GreatWorkArtifactClass getARTIFACT_BATTLE_RANGED();
 const GreatWorkArtifactClass getARTIFACT_BATTLE_MELEE(); 
 const GreatWorkArtifactClass getARTIFACT_RAZED_CITY();
+const GreatWorkArtifactClass getARTIFACT_WRITING();
 
 const GreatWorkSlotType getGREAT_WORK_SLOT_ART_ARTIFACT();
 const GreatWorkSlotType getGREAT_WORK_SLOT_LITERATURE();

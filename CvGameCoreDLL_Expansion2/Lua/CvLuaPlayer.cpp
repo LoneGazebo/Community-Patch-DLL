@@ -239,6 +239,10 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetTurnsToInfluential);
 	Method(GetNumCivsInfluentialOn);
 	Method(GetNumCivsToBeInfluentialOn);
+	Method(GetInfluenceTradeRouteScienceBonus);
+	Method(GetInfluenceCityStateSpyRankBonus);
+	Method(GetInfluenceMajorCivSpyRankBonus);
+	Method(GetInfluenceSpyRankTooltip);
 	Method(GetTourism);
 	Method(GetTourismModifierWith);
 	Method(GetTourismModifierWithTooltip);
@@ -252,6 +256,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetCityOfClosestGreatWorkSlot);
 	Method(GetBuildingOfClosestGreatWorkSlot);
 	Method(GetNextDigCompletePlot);
+	Method(GetWrittenArtifactCulture);
 	Method(GetNumGreatWorks);
 	Method(GetNumGreatWorkSlots);
 
@@ -754,6 +759,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(IsAskedToStopDigging);
 	Method(IsDoFMessageTooSoon);
 	Method(IsDoF);
+	Method(GetDoFCounter);
 	Method(IsPlayerDoFwithAnyFriend);
 	Method(IsPlayerDoFwithAnyEnemy);
 	Method(IsPlayerDenouncedFriend);
@@ -777,6 +783,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(IsPlayerStopSpyingRequestEverAsked);
 	Method(IsDemandEverMade);
 	Method(GetNumCiviliansReturnedToMe);
+	Method(GetNumLandmarksBuiltForMe);
 	Method(GetNumTimesCultureBombed);
 	Method(GetNegativeReligiousConversionPoints);
 	Method(GetNegativeArchaeologyPoints);
@@ -804,6 +811,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetTurnsSincePlayerBulliedProtectedMinor);
 	Method(IsHasPlayerBulliedProtectedMinor);
 	Method(IsDenouncedPlayer);
+	Method(GetDenouncedPlayerCounter);
 	Method(IsDenouncingPlayer);
 	Method(IsPlayerRecklessExpander);
 	Method(GetRecentTradeValue);
@@ -945,6 +953,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetInternationalTradeRouteTotal);
 	Method(GetInternationalTradeRouteScience);
 	Method(GetPotentialTradeUnitNewHomeCity);
+	Method(GetPotentialAdmiralNewPort);
 	Method(GetNumAvailableTradeUnits);
 	Method(GetTradeUnitType);
 	Method(GetTradeYourRoutesTTString);
@@ -971,6 +980,10 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(HasTurnTimerExpired);
 
 	Method(HasUnitOfClassType);
+
+	Method(GetWarmongerPreviewString);
+	Method(GetLiberationPreviewString);
+
 }
 //------------------------------------------------------------------------------
 void CvLuaPlayer::HandleMissingInstance(lua_State* L)
@@ -1016,8 +1029,9 @@ int CvLuaPlayer::lInitCity(lua_State* L)
 	const int x = lua_tointeger(L, 2);
 	const int y = lua_tointeger(L, 3);
 	const bool bBumpUnits = luaL_optint(L, 4, 1);
+	const bool bInitialFounding = luaL_optint(L, 5, 1);
 
-	CvCity* pkCity = pkPlayer->initCity(x, y, bBumpUnits);
+	CvCity* pkCity = pkPlayer->initCity(x, y, bBumpUnits, bInitialFounding);
 	pkPlayer->DoUpdateNextPolicyCost();
 	CvLuaCity::Push(L, pkCity);
 	return 1;
@@ -2363,6 +2377,48 @@ int CvLuaPlayer::lGetNumCivsToBeInfluentialOn(lua_State* L)
 	return 1;
 }
 //------------------------------------------------------------------------------
+//int GetInfluenceTradeRouteScienceBonus();
+int CvLuaPlayer::lGetInfluenceTradeRouteScienceBonus(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	PlayerTypes eOtherPlayer = (PlayerTypes)lua_tointeger(L, 2);
+	const int iResult = pkPlayer->GetCulture()->GetInfluenceTradeRouteScienceBonus(eOtherPlayer);
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
+//int GetInfluenceCityStateSpyRankBonus();
+int CvLuaPlayer::lGetInfluenceCityStateSpyRankBonus(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	PlayerTypes eCityStatePlayer = (PlayerTypes)lua_tointeger(L, 2);
+	const int iResult = pkPlayer->GetCulture()->GetInfluenceCityStateSpyRankBonus(eCityStatePlayer);
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
+//int GetInfluenceMajorCivSpyRankBonus();
+int CvLuaPlayer::lGetInfluenceMajorCivSpyRankBonus(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	PlayerTypes eOtherPlayer = (PlayerTypes)lua_tointeger(L, 2);
+	const int iResult = pkPlayer->GetCulture()->GetInfluenceMajorCivSpyRankBonus(eOtherPlayer);
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
+//int GetInfluenceSpyRankTooltip();
+int CvLuaPlayer::lGetInfluenceSpyRankTooltip(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	CvString szSpyName = lua_tostring(L, 2);
+	CvString szRank = lua_tostring(L, 3);
+	PlayerTypes eOtherPlayer = (PlayerTypes)lua_tointeger(L, 4);
+	const CvString szResult = pkPlayer->GetCulture()->GetInfluenceSpyRankTooltip(szSpyName, szRank, eOtherPlayer);
+	lua_pushstring(L, szResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
 //int GetTourism();
 int CvLuaPlayer::lGetTourism(lua_State* L)
 {
@@ -2491,6 +2547,14 @@ int CvLuaPlayer::lGetNextDigCompletePlot(lua_State* L)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	CvPlot* pkPlot = pkPlayer->GetCulture()->GetNextDigCompletePlot();
 	CvLuaPlot::Push(L, pkPlot);
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lGetWrittenArtifactCulture(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	int iCulture = pkPlayer->GetCulture()->GetWrittenArtifactCulture();
+	lua_pushinteger(L, iCulture);
 	return 1;
 }
 //------------------------------------------------------------------------------
@@ -3549,6 +3613,47 @@ int CvLuaPlayer::lGetPotentialTradeUnitNewHomeCity(lua_State* L)
 }
 
 //------------------------------------------------------------------------------
+int CvLuaPlayer::lGetPotentialAdmiralNewPort(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	CvUnit* pkUnit = CvLuaUnit::GetInstance(L, 2, false);
+	CvPlot* pkUnitPlot = pkUnit->plot();
+
+	lua_createtable(L, 0, 0);
+	int index = 1;
+
+	if (pkUnit->canChangeAdmiralPort(pkUnitPlot))
+	{
+		int iCityLoop;
+		CvCity* pLoopCity = NULL;
+		for(pLoopCity = pkPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = pkPlayer->nextCity(&iCityLoop))
+		{
+			int iLoopCityX = pLoopCity->getX();
+			int iLoopCityY = pLoopCity->getY();
+
+			// can't change to its own home city
+			if (pLoopCity->plot() == pkUnitPlot)
+			{
+				continue;
+			}
+
+			if (pkUnit->canChangeAdmiralPortAt(pkUnitPlot, iLoopCityX, iLoopCityY))
+			{
+				lua_createtable(L, 0, 0);
+				const int t = lua_gettop(L);
+				lua_pushinteger(L, pLoopCity->getX());
+				lua_setfield(L, t, "X");
+				lua_pushinteger(L, pLoopCity->getY());
+				lua_setfield(L, t, "Y");
+				lua_rawseti(L, -2, index++);
+			}
+		}
+	}
+
+	return 1;
+}
+
+//------------------------------------------------------------------------------
 int CvLuaPlayer::lGetNumAvailableTradeUnits(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
@@ -3599,8 +3704,21 @@ int CvLuaPlayer::lGetTradeYourRoutesTTString(lua_State* L)
 		pConnection = &(pTrade->m_aTradeConnections[ui]);
 		if (pConnection->m_eOriginOwner == pkPlayer->GetID())
 		{
-			CvCity* pOriginCity = GC.getMap().plot(pConnection->m_iOriginX, pConnection->m_iOriginY)->getPlotCity();
-			CvCity* pDestCity = GC.getMap().plot(pConnection->m_iDestX, pConnection->m_iDestY)->getPlotCity();
+			CvPlot* pOriginPlot = GC.getMap().plot(pConnection->m_iOriginX, pConnection->m_iOriginY);
+			CvPlot* pDestPlot = GC.getMap().plot(pConnection->m_iDestX, pConnection->m_iDestY);
+			if (pOriginPlot == NULL || pDestPlot == NULL)
+			{
+				continue;
+			}
+
+			CvCity* pOriginCity = pOriginPlot->getPlotCity();
+			CvCity* pDestCity = pDestPlot->getPlotCity();
+
+			if (pOriginCity == NULL || pDestCity == NULL)
+			{
+				continue;
+			}
+
 
 			CvString strOriginYieldsStr = "";
 			for (uint uiYield = 0; uiYield < NUM_YIELD_TYPES; uiYield++)
@@ -3768,8 +3886,20 @@ int CvLuaPlayer::lGetTradeToYouRoutesTTString(lua_State* L)
 
 		if (pConnection->m_eDestOwner == pkPlayer->GetID())
 		{
-			CvCity* pOriginCity = GC.getMap().plot(pConnection->m_iOriginX, pConnection->m_iOriginY)->getPlotCity();
-			CvCity* pDestCity = GC.getMap().plot(pConnection->m_iDestX, pConnection->m_iDestY)->getPlotCity();
+			CvPlot* pOriginPlot = GC.getMap().plot(pConnection->m_iOriginX, pConnection->m_iOriginY);
+			CvPlot* pDestPlot = GC.getMap().plot(pConnection->m_iDestX, pConnection->m_iDestY);
+			if (pOriginPlot == NULL || pDestPlot == NULL)
+			{
+				continue;
+			}
+
+			CvCity* pOriginCity = pOriginPlot->getPlotCity();
+			CvCity* pDestCity = pDestPlot->getPlotCity();
+
+			if (pOriginCity == NULL || pDestCity == NULL)
+			{
+				continue;
+			}
 
 			CvString strOriginYieldsStr = "";
 			//for (uint uiYield = 0; uiYield < NUM_YIELD_TYPES; uiYield++)
@@ -7440,6 +7570,17 @@ int CvLuaPlayer::lIsDoF(lua_State* L)
 	return 1;
 }
 //------------------------------------------------------------------------------
+int CvLuaPlayer::lGetDoFCounter(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	PlayerTypes eWithPlayer = (PlayerTypes) lua_tointeger(L, 2);
+
+	const int iTurnsLeft = pkPlayer->GetDiplomacyAI()->GetDoFCounter(eWithPlayer);
+
+	lua_pushinteger(L, iTurnsLeft);
+	return 1;
+}
+//------------------------------------------------------------------------------
 int CvLuaPlayer::lIsPlayerDoFwithAnyFriend(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
@@ -7677,6 +7818,17 @@ int CvLuaPlayer::lGetNumCiviliansReturnedToMe(lua_State* L)
 	PlayerTypes eOtherPlayer = (PlayerTypes) lua_tointeger(L, 2);
 
 	const int iValue = pkPlayer->GetDiplomacyAI()->GetNumCiviliansReturnedToMe(eOtherPlayer);
+
+	lua_pushinteger(L, iValue);
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lGetNumLandmarksBuiltForMe(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	PlayerTypes eOtherPlayer = (PlayerTypes) lua_tointeger(L, 2);
+
+	const int iValue = pkPlayer->GetDiplomacyAI()->GetNumLandmarksBuiltForMe(eOtherPlayer);
 
 	lua_pushinteger(L, iValue);
 	return 1;
@@ -7979,6 +8131,17 @@ int CvLuaPlayer::lIsDenouncedPlayer(lua_State* L)
 	const bool bValue = pkPlayer->GetDiplomacyAI()->IsDenouncedPlayer(eOtherPlayer);
 
 	lua_pushboolean(L, bValue);
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lGetDenouncedPlayerCounter(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	PlayerTypes eOtherPlayer = (PlayerTypes) lua_tointeger(L, 2);
+
+	const int iValue = pkPlayer->GetDiplomacyAI()->GetDenouncedPlayerCounter(eOtherPlayer);
+
+	lua_pushinteger(L, iValue);
 	return 1;
 }
 //------------------------------------------------------------------------------
@@ -9454,7 +9617,25 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		{
 			Opinion kOpinion;
 			kOpinion.m_iValue = iValue;
-			CvString str = Localization::Lookup("TXT_KEY_DIPLO_WARMONGER_THREAT").toUTF8();
+			CvString str;
+			
+			if (pDiploAI->GetWarmongerThreat(eWithPlayer) == THREAT_CRITICAL)
+			{
+				str = Localization::Lookup("TXT_KEY_DIPLO_WARMONGER_THREAT_CRITICAL").toUTF8();
+			}
+			else if (pDiploAI->GetWarmongerThreat(eWithPlayer) == THREAT_SEVERE)
+			{
+				str = Localization::Lookup("TXT_KEY_DIPLO_WARMONGER_THREAT_SEVERE").toUTF8();
+			}
+			else if (pDiploAI->GetWarmongerThreat(eWithPlayer) == THREAT_MAJOR)
+			{
+				str = Localization::Lookup("TXT_KEY_DIPLO_WARMONGER_THREAT_MAJOR").toUTF8();
+			}
+			else 
+			{
+				str = Localization::Lookup("TXT_KEY_DIPLO_WARMONGER_THREAT_MINOR").toUTF8();
+			}
+
 			if (pDiploAI->GetWarmongerHate() >= 7)
 			{
 				str += " ";
@@ -9494,6 +9675,15 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		aOpinions.push_back(kOpinion);
 	}
 	
+	iValue = pDiploAI->GetLandmarksBuiltForMeScore(eWithPlayer);
+	if (iValue != 0)
+	{
+		Opinion kOpinion;
+		kOpinion.m_iValue = iValue;
+		kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_LANDMARKS_BUILT");
+		aOpinions.push_back(kOpinion);
+	}
+
 	iValue = pDiploAI->GetResurrectedScore(eWithPlayer);
 	if (iValue != 0)
 	{
@@ -10763,3 +10953,16 @@ int CvLuaPlayer::lHasUnitOfClassType(lua_State* L)
 }
 
 //-------------------------------------------------------------------------
+int CvLuaPlayer::lGetWarmongerPreviewString(lua_State* L)
+{
+	const PlayerTypes eOwner = (PlayerTypes) lua_tointeger(L, 2);
+	lua_pushstring(L, CvDiplomacyAIHelpers::GetWarmongerPreviewString(eOwner));
+	return 1;
+}
+
+int CvLuaPlayer::lGetLiberationPreviewString(lua_State* L)
+{
+	const PlayerTypes eOriginalOwner = (PlayerTypes) lua_tointeger(L, 2);
+	lua_pushstring(L, CvDiplomacyAIHelpers::GetLiberationPreviewString(eOriginalOwner));
+	return 1;
+}

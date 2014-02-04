@@ -84,7 +84,7 @@ public:
 	void addFreeUnitAI(UnitAITypes eUnitAI, int iCount);
 	CvPlot* addFreeUnit(UnitTypes eUnit, UnitAITypes eUnitAI = NO_UNITAI);
 
-	CvCity* initCity(int iX, int iY, bool bBumpUnits = true);
+	CvCity* initCity(int iX, int iY, bool bBumpUnits = true, bool bInitialFounding = true);
 	void acquireCity(CvCity* pCity, bool bConquest, bool bGift);
 	void killCities();
 	CvString getNewCityName() const;

@@ -708,9 +708,9 @@ void CvUnitMission::ContinueMission(UnitHandle hUnit, int iSteps, int iETA)
 			else if(kMissionData.eMissionType == CvTypes::getMISSION_SET_UP_FOR_RANGED_ATTACK() ||
 			        kMissionData.eMissionType == CvTypes::getMISSION_AIRLIFT() ||
 			        kMissionData.eMissionType == CvTypes::getMISSION_NUKE() ||
-			        kMissionData.eMissionType == CvTypes::getMISSION_PARADROP() ||
+					kMissionData.eMissionType == CvTypes::getMISSION_PARADROP() ||
 			        kMissionData.eMissionType == CvTypes::getMISSION_AIR_SWEEP() ||
-			        kMissionData.eMissionType == CvTypes::getMISSION_REBASE() ||
+					kMissionData.eMissionType == CvTypes::getMISSION_REBASE() ||
 			        kMissionData.eMissionType == CvTypes::getMISSION_RANGE_ATTACK() ||
 			        kMissionData.eMissionType == CvTypes::getMISSION_PILLAGE() ||
 			        kMissionData.eMissionType == CvTypes::getMISSION_FOUND() ||
@@ -864,11 +864,17 @@ bool CvUnitMission::CanStartMission(UnitHandle hUnit, int iMission, int iData1, 
 	else if(iMission == CvTypes::getMISSION_MOVE_TO_UNIT())
 	{
 		CvAssertMsg(iData1 != NO_PLAYER, "iData1 should be a valid Player");
-		pTargetUnit = GET_PLAYER((PlayerTypes)iData1).getUnit(iData2);
-		if((pTargetUnit) && !(pTargetUnit->atPlot(*pPlot)))
+		CvAssertMsg(iData2 != NO_UNIT, "iData2 should be a valid Unit ID");
+		if (iData1 != NO_PLAYER && iData2 != NO_UNIT)
 		{
-			return true;
+			pTargetUnit = GET_PLAYER((PlayerTypes)iData1).getUnit(iData2);
+			if((pTargetUnit) && !(pTargetUnit->atPlot(*pPlot)))
+			{
+				return true;
+			}
 		}
+		else
+			return false;
 	}
 	else if(iMission == CvTypes::getMISSION_SKIP())
 	{
@@ -1267,6 +1273,12 @@ void CvUnitMission::StartMission(UnitHandle hUnit)
 				if(hUnit->paradrop(pkQueueData->iData1, pkQueueData->iData2))
 				{
 					bAction = true;
+					// The Paradrop needs to have GameplayUnitMissionEnd, so if no mission timer will be started, do it now.
+					if (hUnit->plot()->isActiveVisible() && (!hUnit->isHuman() || !hUnit->plot()->isVisibleToWatchingHuman() || CalculateMissionTimer(hUnit) == 0))
+					{
+						auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(hUnit.pointer()));
+						gDLL->GameplayUnitMissionEnd(pDllUnit.get());
+					}
 				}
 			}
 
@@ -1283,6 +1295,12 @@ void CvUnitMission::StartMission(UnitHandle hUnit)
 				if(hUnit->rebase(pkQueueData->iData1, pkQueueData->iData2))
 				{
 					bAction = true;
+					// The Rebase needs to have GameplayUnitMissionEnd, so if no mission timer will be started, do it now.
+					if (hUnit->plot()->isActiveVisible() && (!hUnit->isHuman() || !hUnit->plot()->isVisibleToWatchingHuman() || CalculateMissionTimer(hUnit) == 0))
+					{
+						auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(hUnit.pointer()));
+						gDLL->GameplayUnitMissionEnd(pDllUnit.get());
+					}
 				}
 			}
 
@@ -1531,7 +1549,7 @@ CvPlot* CvUnitMission::LastMissionPlot(UnitHandle hUnit)
 //		 still used to keep the units sequencing their missions with each other.
 //		 i.e. each unit will get a chance to complete a mission segment, rather than a unit
 //		 exhausting its mission queue all in one go.
-void CvUnitMission::UpdateMissionTimer(UnitHandle hUnit, int iSteps)
+int CvUnitMission::CalculateMissionTimer(UnitHandle hUnit, int iSteps)
 {
 	UnitHandle pTargetUnit;
 	CvPlot* pTargetPlot;
@@ -1545,11 +1563,6 @@ void CvUnitMission::UpdateMissionTimer(UnitHandle hUnit, int iSteps)
 	else if((pkMissionNode = HeadMissionQueueNode(hUnit->m_missionQueue)) != NULL)
 	{
 		MissionData& kMissionData = *pkMissionNode;
-//		CvMissionInfo* pkMissionInfo = GC.getMissionInfo((MissionTypes)kMissionData.eMissionType);
-//		if(pkMissionInfo)
-//		{
-//			iTime = pkMissionInfo->getTime();
-//		}
 
 		iTime = 1;
 
@@ -1594,7 +1607,13 @@ void CvUnitMission::UpdateMissionTimer(UnitHandle hUnit, int iSteps)
 		iTime = 0;
 	}
 
-	hUnit->SetMissionTimer(iTime);
+	return iTime;
+}
+
+//	---------------------------------------------------------------------------
+void CvUnitMission::UpdateMissionTimer(UnitHandle hUnit, int iSteps)
+{
+	hUnit->SetMissionTimer(CalculateMissionTimer(hUnit, iSteps));
 }
 
 //	---------------------------------------------------------------------------

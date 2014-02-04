@@ -139,7 +139,12 @@ public:
 	int GetMilitaryUnitGiftExtraInfluence() const;
 	int GetProtectedMinorPerTurnInfluence() const;
 	int GetAfraidMinorPerTurnInfluence() const;
+	int GetMinorBullyScoreModifier() const;
 	int GetThemingBonusMultiplier() const;
+	int GetInternalTradeRouteYieldModifier() const;
+	int GetSharedReligionTourismModifier() const;
+	int GetTradeRouteTourismModifier() const;
+	int GetOpenBordersTourismModifier() const;
 	int GetCityStateTradeChange() const;
 	bool IsMinorGreatPeopleAllies() const;
 	bool IsMinorScienceAllies() const;
@@ -323,7 +328,12 @@ private:
 	int m_iMilitaryUnitGiftExtraInfluence;
 	int m_iProtectedMinorPerTurnInfluence;
 	int m_iAfraidMinorPerTurnInfluence;
+	int m_iMinorBullyScoreModifier;
 	int m_iThemingBonusMultiplier;
+	int m_iInternalTradeRouteYieldModifier;
+	int m_iSharedReligionTourismModifier;
+	int m_iTradeRouteTourismModifier;
+	int m_iOpenBordersTourismModifier;
 	int m_iCityStateTradeChange;
 	bool m_bMinorGreatPeopleAllies;
 	bool m_bMinorScienceAllies;
@@ -519,9 +529,14 @@ enum PolicyModifierType
 	POLICYMOD_MILITARY_UNIT_GIFT_INFLUENCE,
 	POLICYMOD_PROTECTED_MINOR_INFLUENCE,
 	POLICYMOD_AFRAID_INFLUENCE,
+	POLICYMOD_MINOR_BULLY_SCORE_MODIFIER,
 	POLICYMOD_STEAL_TECH_FASTER_MODIFIER,
 	POLICYMOD_THEMING_BONUS,
 	POLICYMOD_CITY_STATE_TRADE_CHANGE,
+	POLICYMOD_INTERNAL_TRADE_MODIFIER,
+    POLICYMOD_SHARED_RELIGION_TOURISM_MODIFIER,
+    POLICYMOD_TRADE_ROUTE_TOURISM_MODIFIER,
+	POLICYMOD_OPEN_BORDERS_TOURISM_MODIFIER,
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

@@ -2159,6 +2159,11 @@ void CvAIOperationBasicCityAttack::Write(FDataStream& kStream) const
 	kStream << uiVersion;
 }
 
+MultiunitFormationTypes CvAIOperationBasicCityAttack::GetFormation() const
+{
+	return (GC.getGame().getHandicapInfo().GetID() > 4 && !(GC.getMap().GetAIMapHint() & 1)) ? MUFORMATION_BIGGER_CITY_ATTACK_FORCE : MUFORMATION_BASIC_CITY_ATTACK_FORCE;
+}
+
 /// Same as default version except if just gathered forces, check to see if a better target has presented itself
 bool CvAIOperationBasicCityAttack::ArmyInPosition(CvArmyAI* pArmy)
 {
@@ -2252,6 +2257,10 @@ CvPlot* CvAIOperationBasicCityAttack::FindBestTarget()
 CvAIOperationSneakCityAttack::CvAIOperationSneakCityAttack()
 {
 }
+MultiunitFormationTypes CvAIOperationSneakCityAttack::GetFormation() const
+{
+	return (GC.getGame().getHandicapInfo().GetID() > 4 && !(GC.getMap().GetAIMapHint() & 1)) ? MUFORMATION_BIGGER_CITY_ATTACK_FORCE : MUFORMATION_BASIC_CITY_ATTACK_FORCE;
+}
 
 CvAIOperationQuickSneakCityAttack::CvAIOperationQuickSneakCityAttack()
 {
@@ -2273,6 +2282,10 @@ CvAIOperationSmallCityAttack::CvAIOperationSmallCityAttack()
 /// Constructor
 CvAIOperationCityStateAttack::CvAIOperationCityStateAttack()
 {
+}
+MultiunitFormationTypes CvAIOperationCityStateAttack::GetFormation() const
+{
+	return (GC.getGame().getHandicapInfo().GetID() > 4 && !(GC.getMap().GetAIMapHint() & 1)) ? MUFORMATION_BIGGER_CITY_ATTACK_FORCE : MUFORMATION_CITY_STATE_ATTACK_FORCE;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -3177,11 +3190,21 @@ bool CvAIOperationFoundCity::ArmyInPosition(CvArmyAI* pArmy)
 			// If the settler made it, we don't care about the entire army
 			else if(pSettler->plot() == GetTargetPlot() && pSettler->canMove() && pSettler->canFound(pSettler->plot()))
 			{
+				CvPlot* pCityPlot = pSettler->plot();
+				int iPlotValue = GC.getGame().GetSettlerSiteEvaluator()->PlotFoundValue(pCityPlot, &GET_PLAYER(m_eOwner), NO_YIELD, false);
+
 				pSettler->PushMission(CvTypes::getMISSION_FOUND());
+
 				if(GC.getLogging() && GC.getAILogging())
 				{
-					strMsg.Format("City founded, At X=%d, At Y=%d", pSettler->plot()->getX(), pSettler->plot()->getY());
-					LogOperationSpecialMessage(strMsg);
+					CvArea* pArea = pCityPlot->area();
+					CvCity* pCity = pCityPlot->getPlotCity();
+
+					if (pCity != NULL)
+					{
+						strMsg.Format("City founded, At X=%d, At Y=%d, %s, %d, %d", pCityPlot->getX(), pCityPlot->getY(), pCity->getName().GetCString(), iPlotValue, pArea->getTotalFoundValue());
+						LogOperationSpecialMessage(strMsg);
+					}
 				}
 				m_eCurrentState = AI_OPERATION_STATE_SUCCESSFUL_FINISH;
 			}
@@ -4265,14 +4288,77 @@ bool CvAIOperationNavalSuperiority::ArmyInPosition(CvArmyAI* pArmy)
 	return bStateChanged;
 }
 
+typedef CvWeightedVector<CvPlot*, 1, true> WeightedPlotVector;
+
+//	---------------------------------------------------------------------------
+//	Return the first reachable plot in the weighted plot list.
+//	It is assumed that the list has yet to be sorted and will do so.
+static CvPlot* GetReachablePlot(UnitHandle pUnit, WeightedPlotVector& aPlots, int *iTurns)
+{
+	CvPlot *pFoundPlot = NULL;
+	int iFoundWeight = 0;
+	int iFoundTurns = 0;
+	uint uiListSize;	
+	if ((uiListSize = aPlots.size()) > 0)
+	{
+		aPlots.SortItems();
+
+		// This will check all the plots that have the same weight.  It will mean a few more path-finds, but it will
+		// be more accurate.
+		for (uint i = uiListSize; i--; )		// Go backward, the CvWeightedVector sorts highest to lowest
+		{
+			CvPlot* pPlot = aPlots.GetElement(i);
+			int iWeight = aPlots.GetWeight(i);
+
+			if (pFoundPlot)
+			{
+				if (iWeight > iFoundWeight)
+					break;		// Already found one of a lower weight
+			
+				int iTurnsCalculated = TurnsToReachTarget(pUnit, pPlot, true /*bReusePaths*/, false);
+				if (iTurnsCalculated != MAX_INT)
+				{
+					if (iTurnsCalculated < iFoundTurns)
+					{
+						iFoundWeight = iWeight;
+						pFoundPlot = pPlot;
+						iFoundTurns = iTurnsCalculated;
+						if (iFoundTurns == 1)
+							break;		// Not getting better than this
+					}
+				}
+			}
+			else
+			{
+				int iTurnsCalculated = TurnsToReachTarget(pUnit, pPlot, true /*bReusePaths*/, false);
+				if (iTurnsCalculated != MAX_INT)
+				{
+					iFoundWeight = iWeight;
+					pFoundPlot = pPlot;
+					iFoundTurns = iTurnsCalculated;
+					if (iFoundTurns == 1)
+						break;		// Not getting better than this
+				}
+			}
+		}
+	}
+
+	if (pFoundPlot)
+	{
+		if (iTurns)
+			*iTurns = iFoundTurns;
+		return pFoundPlot;
+	}
+
+	return NULL;
+}
+
 /// Find the nearest enemy naval unit to eliminate
 CvPlot* CvAIOperationNavalSuperiority::FindBestTarget()
 {
 	int iPlotLoop, iUnitLoop;
 	CvPlot* pPlot;
 	CvPlot* pBestPlot = NULL;
-	int iBestTurns = MAX_INT;
-	int iCurrentTurns;
 	CvUnit* pInitialUnit;
 	CvCity* pCity;
 	CvCity* pEnemyCoastalCity = NULL;
@@ -4302,6 +4388,13 @@ CvPlot* CvAIOperationNavalSuperiority::FindBestTarget()
 
 	if(pInitialUnit != NULL)
 	{
+		WeightedPlotVector aPlotList;
+		aPlotList.reserve(64);
+
+		int iUnitX = pInitialUnit->getX();
+		int iUnitY = pInitialUnit->getY();
+		int iBaseMoves = pInitialUnit->baseMoves();
+
 		// Look at map for enemy naval units
 		for(iPlotLoop = 0; iPlotLoop < GC.getMap().numPlots(); iPlotLoop++)
 		{
@@ -4313,29 +4406,24 @@ CvPlot* CvAIOperationNavalSuperiority::FindBestTarget()
 				{
 					if(pPlot->getNumUnits() > 0)
 					{
+						int iPlotDistance = plotDistance(iUnitX, iUnitY, pPlot->getX(), pPlot->getY());
 						for(iUnitLoop = 0; iUnitLoop < pPlot->getNumUnits(); iUnitLoop++)
 						{
 							CvUnit* pLoopUnit = pPlot->getUnitByIndex(iUnitLoop);
 							{
 								if(pLoopUnit->isEnemy(owningPlayer.getTeam()))
 								{
-									if(pInitialUnit->GeneratePath(pLoopUnit->plot(), 0, false, &iCurrentTurns))
+									int iScore = iBaseMoves * iPlotDistance;
+									if (pLoopUnit->isTrade()) // we want to plunder trade routes of possible
 									{
-										if (pLoopUnit->isTrade()) // we want to plunder trade routes of possible
-										{
-											iCurrentTurns /= 3;
-										}
-										if (pLoopUnit->isEmbarked()) // we want to take out embarked units more than ships
-										{
-											iCurrentTurns *= 2;
-											iCurrentTurns /= 3;
-										}
-										if(iCurrentTurns < iBestTurns)
-										{
-											iBestTurns = iCurrentTurns;
-											pBestPlot = pLoopUnit->plot();
-										}
+										iScore /= 3;
 									}
+									if (pLoopUnit->isEmbarked()) // we want to take out embarked units more than ships
+									{
+										iScore = (iScore * 2) / 3;
+									}
+
+									aPlotList.push_back(pPlot, iScore);
 								}
 							}
 						}
@@ -4371,6 +4459,9 @@ CvPlot* CvAIOperationNavalSuperiority::FindBestTarget()
 				}
 			}
 		}
+
+		int iBestTurns;
+		pBestPlot = GetReachablePlot(pInitialUnit, aPlotList, &iBestTurns);
 
 		// None found, patrol over near closest enemy coastal city, or if not that a water tile adjacent to a camp
 		if(pBestPlot == NULL)

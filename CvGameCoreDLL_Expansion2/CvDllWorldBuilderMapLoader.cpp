@@ -23,8 +23,9 @@ CvDllWorldBuilderMapLoader::~CvDllWorldBuilderMapLoader()
 //------------------------------------------------------------------------------
 void* CvDllWorldBuilderMapLoader::QueryInterface(GUID guidInterface)
 {
-	if(guidInterface == ICvUnknown::GetInterfaceId() ||
-	        guidInterface == ICvWorldBuilderMapLoader1::GetInterfaceId())
+	if(	guidInterface == ICvUnknown::GetInterfaceId() ||
+	    guidInterface == ICvWorldBuilderMapLoader1::GetInterfaceId() || 
+		guidInterface == ICvWorldBuilderMapLoader2::GetInterfaceId())
 	{
 		return this;
 	}
@@ -164,3 +165,7 @@ void CvDllWorldBuilderMapLoader::GenerateRandomMap(const char* szMapScript)
 	kGenerator.GenerateRandomMap();
 }
 //------------------------------------------------------------------------------
+WorldSizeTypes CvDllWorldBuilderMapLoader::GetWorldSizeType() const
+{
+	return CvWorldBuilderMapLoader::GetCurrentWorldSizeType();
+}

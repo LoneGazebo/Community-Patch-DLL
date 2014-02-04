@@ -59,12 +59,14 @@ struct CvArchaeologyData
 	EraTypes m_eEra;
 	PlayerTypes m_ePlayer1;
 	PlayerTypes m_ePlayer2;
+	GreatWorkType m_eWork;
 
 	CvArchaeologyData():
 		m_eArtifactType(NO_GREAT_WORK_ARTIFACT_CLASS),
 		m_eEra(NO_ERA),
 		m_ePlayer1(NO_PLAYER),
-		m_ePlayer2(NO_PLAYER)
+		m_ePlayer2(NO_PLAYER),
+		m_eWork(NO_GREAT_WORK)
 	{}
 
 	void Reset()
@@ -73,6 +75,7 @@ struct CvArchaeologyData
 		m_eEra = NO_ERA;
 		m_ePlayer1 = NO_PLAYER;
 		m_ePlayer2 = NO_PLAYER;
+		m_eWork = NO_GREAT_WORK;
 	}
 };
 FDataStream& operator>>(FDataStream&, CvArchaeologyData&);
@@ -118,6 +121,7 @@ public:
 	bool isShallowWater() const;
 	bool isAdjacentToShallowWater() const;
 	bool isCoastalLand(int iMinWaterSize = -1) const;
+	int GetSizeLargestAdjacentWater() const;
 
 	bool isVisibleWorked() const;
 	bool isWithinTeamCityRadius(TeamTypes eTeam, PlayerTypes eIgnorePlayer = NO_PLAYER) const;
@@ -139,7 +143,6 @@ public:
 	void changeSeeFromSight(TeamTypes eTeam, DirectionTypes eDirection, int iFromLevel, bool bIncrement, InvisibleTypes eSeeInvisible);
 	void changeAdjacentSight(TeamTypes eTeam, int iRange, bool bIncrement, InvisibleTypes eSeeInvisible, DirectionTypes eFacingDirection, bool bBasedOnUnit=true);
 	bool canSeePlot(const CvPlot* plot, TeamTypes eTeam, int iRange, DirectionTypes eFacingDirection) const;
-	bool canSeeDisplacementPlot(TeamTypes eTeam, int dx, int dy, int originalDX, int originalDY, bool firstPlot, bool outerRing) const;
 	bool shouldProcessDisplacementPlot(int dx, int dy, int range, DirectionTypes eFacingDirection) const;
 	void updateSight(bool bIncrement);
 	void updateSeeFromSight(bool bIncrement);
@@ -173,6 +176,7 @@ public:
 	CvCity* GetAdjacentFriendlyCity(TeamTypes eTeam, bool bLandOnly = false) const;
 	CvCity* GetAdjacentCity(bool bLandOnly = false) const;
 	int GetNumAdjacentDifferentTeam(TeamTypes eTeam, bool bIgnoreWater) const;
+	int GetNumAdjacentMountains() const;
 
 	void plotAction(PlotUnitFunc func, int iData1 = -1, int iData2 = -1, PlayerTypes eOwner = NO_PLAYER, TeamTypes eTeam = NO_TEAM);
 	int plotCount(ConstPlotUnitFunc funcA, int iData1A = -1, int iData2A = -1, PlayerTypes eOwner = NO_PLAYER, TeamTypes eTeam = NO_TEAM, ConstPlotUnitFunc funcB = NULL, int iData1B = -1, int iData2B = -1) const;
@@ -688,6 +692,9 @@ public:
 	void AddArchaeologicalRecord(GreatWorkArtifactClass eType, EraTypes eEra, PlayerTypes ePlayer1, PlayerTypes ePlayer2);
 	void ClearArchaeologicalRecord();
 	CvArchaeologyData GetArchaeologicalRecord() const;
+	void SetArtifactType(GreatWorkArtifactClass eType);
+	void SetArtifactGreatWork(GreatWorkType eWork);
+	bool HasWrittenArtifact() const;
 
 protected:
 	class PlotBoolField

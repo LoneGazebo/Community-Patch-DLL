@@ -10,6 +10,8 @@
 #ifndef CIV5_WORLD_BUILDER_MAP_LOADER_H
 #define CIV5_WORLD_BUILDER_MAP_LOADER_H
 
+class CvWorldBuilderMap;
+
 class CvWorldBuilderMapLoader
 {
 public:
@@ -31,10 +33,14 @@ public:
 
 	// Post-Load Utilities
 	static int LoadModData(lua_State *L);
+	static int RunPostProcessScript(lua_State* L);
 	static void ValidateTerrain();
 	static void ValidateCoast();
 	static void ClearResources();
 	static void ClearGoodies();
+
+	static WorldSizeTypes GetCurrentWorldSizeType();
+	static WorldSizeTypes GetWorldSizeType(const CvWorldBuilderMap& kMap);
 
 	// Player slot mapping utilities
 	static void ResetPlayerSlots();

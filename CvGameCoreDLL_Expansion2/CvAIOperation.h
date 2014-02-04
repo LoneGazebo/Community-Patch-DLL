@@ -342,10 +342,7 @@ public:
 	{
 		return false;
 	}
-	virtual MultiunitFormationTypes GetFormation() const
-	{
-		return (GC.getGame().getHandicapInfo().GetID() > 4) ? MUFORMATION_BIGGER_CITY_ATTACK_FORCE : MUFORMATION_BASIC_CITY_ATTACK_FORCE;
-	}
+	virtual MultiunitFormationTypes GetFormation() const;
 
 	virtual bool ShouldAbort();
 	virtual bool ArmyInPosition(CvArmyAI* pArmy);
@@ -371,10 +368,7 @@ public:
 	{
 		return CvString("AI_OPERATION_SNEAK_CITY_ATTACK");
 	}
-	virtual MultiunitFormationTypes GetFormation() const
-	{
-		return (GC.getGame().getHandicapInfo().GetID() > 4) ? MUFORMATION_BIGGER_CITY_ATTACK_FORCE : MUFORMATION_BASIC_CITY_ATTACK_FORCE;
-	}
+	virtual MultiunitFormationTypes GetFormation() const;
 };
 
 class CvAIOperationQuickSneakCityAttack : public CvAIOperationSneakCityAttack
@@ -427,10 +421,7 @@ public:
 	{
 		return CvString("AI_OPERATION_CITY_STATE_ATTACK");
 	}
-	virtual MultiunitFormationTypes GetFormation() const
-	{
-		return (GC.getGame().getHandicapInfo().GetID() > 4) ? MUFORMATION_BIGGER_CITY_ATTACK_FORCE : MUFORMATION_CITY_STATE_ATTACK_FORCE;
-	}
+	virtual MultiunitFormationTypes GetFormation() const;
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

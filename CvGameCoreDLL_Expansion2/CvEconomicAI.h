@@ -229,11 +229,13 @@ private:
 	void DoReconState();
 	void DoAntiquitySites();
 	void DisbandExtraWorkers();
+	void DisbandExtraArchaeologists();
 
 	// Low-level utility functions
 	void AssignExplorersToHuts();
 	void AssignHutsToExplorers();
 	CvUnit* FindWorkerToScrap();
+	CvUnit* FindArchaeologistToScrap();
 
 	// Logging functions
 	void LogStrategy(EconomicAIStrategyTypes eStrategy, bool bValue);
@@ -316,6 +318,7 @@ bool IsTestStrategy_NeedArchaeologists(CvPlayer* pPlayer);
 bool IsTestStrategy_EnoughArchaeologists(CvPlayer* pPlayer);
 bool IsTestStrategy_NeedMuseums(CvPlayer* pPlayer);
 bool IsTestStrategy_NeedGuilds(CvPlayer* pPlayer);
+bool IsTestStrategy_StartedPiety(CvPlayer* pPlayer);
 
 // these make a few players' behaviors a bit more extreme
 bool IsTestStrategy_ExpandLikeCrazy(EconomicAIStrategyTypes eStrategy, CvPlayer* pPlayer);

@@ -300,7 +300,8 @@ bool CvDllPreGame::isDLCAvailable(PlayerTypes p, const GUID& kDLCID)
 //------------------------------------------------------------------------------
 bool CvDllPreGame::isEarthMap()
 {
-	return CvPreGame::isEarthMap();
+	//This function is no longer used, it only exists for interface compatibility.
+	return false;
 }
 //------------------------------------------------------------------------------
 bool CvDllPreGame::isHotSeat()
@@ -675,7 +676,7 @@ void CvDllPreGame::setDLCAllowed(const GUID& kDLCID, bool bState)
 //------------------------------------------------------------------------------
 void CvDllPreGame::setEarthMap(bool bIsEarthMap)
 {
-	CvPreGame::setEarthMap(bIsEarthMap);
+	//This function is no longer used, it only exists for interface compatibility.
 }
 //------------------------------------------------------------------------------
 void CvDllPreGame::setEmailAddress(PlayerTypes p, const CvString & a)

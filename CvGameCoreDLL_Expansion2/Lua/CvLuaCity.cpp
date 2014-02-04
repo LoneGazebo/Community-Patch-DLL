@@ -306,7 +306,6 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(GetSpaceProductionModifier);
 	Method(GetBuildingDefense);
 	Method(GetFreeExperience);
-	Method(GetAirModifier);
 	Method(GetNukeModifier);
 	//Method(GetFreeSpecialist);
 
@@ -437,6 +436,7 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(HasPerformedRangedStrikeThisTurn);
 	Method(RangeCombatUnitDefense);
 	Method(RangeCombatDamage);
+	Method(GetAirStrikeDefenseDamage);
 
 	Method(IsWorkingPlot);
 	Method(AlterWorkingPlot);
@@ -717,7 +717,7 @@ int CvLuaCity::lCanTrainTooltip(lua_State* L)
 	return 1;
 }
 //------------------------------------------------------------------------------
-//bool canTrain( int iUnit, bool bContinue, bool bTestVisible, bool bIgnoreCost, bool bIgnoreUpgrades);
+//bool canTrain( int iUnit, bool bContinue, bool bTestVisible, bool bIgnoreCost, bool bWillPurchase);
 int CvLuaCity::lCanTrain(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
@@ -725,8 +725,8 @@ int CvLuaCity::lCanTrain(lua_State* L)
 	const bool bContinue = luaL_optint(L, 3, 0);
 	const bool bTestVisible = luaL_optint(L, 4, 0);
 	const bool bIgnoreCost = luaL_optint(L, 5, 0);
-	const bool bIgnoreUpgrades = luaL_optint(L, 6, 0);
-	const bool bResult = pkCity->canTrain((UnitTypes)iUnit, bContinue, bTestVisible, bIgnoreCost, bIgnoreUpgrades);
+	const bool bWillPurchase = luaL_optint(L, 6, 0);
+	const bool bResult = pkCity->canTrain((UnitTypes)iUnit, bContinue, bTestVisible, bIgnoreCost, bWillPurchase);
 
 	lua_pushboolean(L, bResult);
 	return 1;
@@ -2632,16 +2632,6 @@ int CvLuaCity::lGetFreeExperience(lua_State* L)
 	return 1;
 }
 //------------------------------------------------------------------------------
-//int getAirModifier();
-int CvLuaCity::lGetAirModifier(lua_State* L)
-{
-	CvCity* pkCity = GetInstance(L);
-	const int iResult = pkCity->getAirModifier();
-
-	lua_pushinteger(L, iResult);
-	return 1;
-}
-//------------------------------------------------------------------------------
 //int getNukeModifier();
 int CvLuaCity::lGetNukeModifier(lua_State* L)
 {
@@ -3544,6 +3534,17 @@ int CvLuaCity::lRangeCombatDamage(lua_State* L)
 	bool bIncludeRand = luaL_optbool(L, 4, false);
 
 	const int iRangedDamage = pkCity->rangeCombatDamage(pkDefendingUnit, pkDefendingCity, bIncludeRand);
+	lua_pushinteger(L, iRangedDamage);
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaCity::lGetAirStrikeDefenseDamage(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	CvUnit* pkAttackingUnit = CvLuaUnit::GetInstance(L, 2, false);
+	bool bIncludeRand = luaL_optbool(L, 3, false);
+
+	const int iRangedDamage = pkCity->GetAirStrikeDefenseDamage(pkAttackingUnit, bIncludeRand);
 	lua_pushinteger(L, iRangedDamage);
 	return 1;
 }

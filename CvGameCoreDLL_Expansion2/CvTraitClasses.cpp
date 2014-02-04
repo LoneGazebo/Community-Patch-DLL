@@ -41,6 +41,7 @@ CvTraitEntry::CvTraitEntry() :
 	m_iPlotBuyCostModifier(0),
 	m_iPlotCultureCostModifier(0),
 	m_iCultureFromKills(0),
+	m_iFaithFromKills(0),
 	m_iCityCultureBonus(0),
 	m_iCapitalThemingBonusModifier(0),
 	m_iPolicyCostModifier(0),
@@ -247,10 +248,16 @@ int CvTraitEntry::GetPlotCultureCostModifier() const
 	return m_iPlotCultureCostModifier;
 }
 
-/// Accessor:: increased rate of culture border expansion
+/// Accessor:: culture for kills
 int CvTraitEntry::GetCultureFromKills() const
 {
 	return m_iCultureFromKills;
+}
+
+/// Accessor:: faith for kills
+int CvTraitEntry::GetFaithFromKills() const
+{
+	return m_iFaithFromKills;
 }
 
 /// Accessor:: extra culture from buildings that provide culture
@@ -867,6 +874,7 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	m_iPlotBuyCostModifier					= kResults.GetInt("PlotBuyCostModifier");
 	m_iPlotCultureCostModifier              = kResults.GetInt("PlotCultureCostModifier");
 	m_iCultureFromKills						= kResults.GetInt("CultureFromKills");
+	m_iFaithFromKills						= kResults.GetInt("FaithFromKills");
 	m_iCityCultureBonus						= kResults.GetInt("CityCultureBonus");
 	m_iCapitalThemingBonusModifier          = kResults.GetInt("CapitalThemingBonusModifier");
 	m_iPolicyCostModifier					= kResults.GetInt("PolicyCostModifier");
@@ -1329,6 +1337,7 @@ void CvPlayerTraits::InitPlayerTraits()
 			m_iPlotBuyCostModifier += trait->GetPlotBuyCostModifier();
 			m_iPlotCultureCostModifier += trait->GetPlotCultureCostModifier();
 			m_iCultureFromKills += trait->GetCultureFromKills();
+			m_iFaithFromKills += trait->GetFaithFromKills();
 			m_iCityCultureBonus += trait->GetCityCultureBonus();
 			m_iCapitalThemingBonusModifier += trait->GetCapitalThemingBonusModifier();
 			m_iPolicyCostModifier += trait->GetPolicyCostModifier();
@@ -1582,6 +1591,7 @@ void CvPlayerTraits::Reset()
 	m_iPlotBuyCostModifier = 0;
 	m_iPlotCultureCostModifier = 0;
 	m_iCultureFromKills = 0;
+	m_iFaithFromKills = 0;
 	m_iCityCultureBonus = 0;
 	m_iCapitalThemingBonusModifier = 0;
 	m_iPolicyCostModifier = 0;
@@ -1742,6 +1752,61 @@ bool CvPlayerTraits::HasTrait(TraitTypes eTrait) const
 	{
 		return false;
 	}
+}
+
+/// Will settling a city in this new area unlock a unique luxury?
+bool CvPlayerTraits::WillGetUniqueLuxury(CvArea *pArea) const
+{
+	// Still have more of these cities to award?
+	if (m_iUniqueLuxuryCities > m_iUniqueLuxuryCitiesPlaced)
+	{
+		int iArea = pArea->GetID();
+
+		// If we have to be in a new area, check to see if this area is okay
+		if (m_bUniqueLuxuryRequiresNewArea)
+		{
+			// Can't be the capital itself
+			if (m_pPlayer->GetNumCitiesFounded() == 0)
+			{
+				return false;
+			}
+
+			CvPlot *pOriginalCapitalPlot = GC.getMap().plot(m_pPlayer->GetOriginalCapitalX(), m_pPlayer->GetOriginalCapitalY());
+			if (pOriginalCapitalPlot)
+			{
+				if (pOriginalCapitalPlot->getArea() == iArea)
+				{
+					return false;
+				}
+			}
+
+			// Already in the list?
+			if (std::find (m_aUniqueLuxuryAreas.begin(), m_aUniqueLuxuryAreas.end(), iArea) != m_aUniqueLuxuryAreas.end())
+			{
+				return false;
+			}
+		}
+
+		int iNumUniqueResourcesGiven = m_aUniqueLuxuryAreas.size();
+
+		// Loop through all resources and see if we can find one more
+		int iNumUniquesFound = 0;
+		for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+		{
+			ResourceTypes eResource = (ResourceTypes) iResourceLoop;
+			CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
+			if (pkResource != NULL && pkResource->GetRequiredCivilization() == m_pPlayer->getCivilizationType())
+			{
+				iNumUniquesFound++;
+				if (iNumUniquesFound > iNumUniqueResourcesGiven)
+				{
+					return true;
+				}
+			}
+		}
+	}
+
+	return false;
 }
 
 /// Bonus movement for this combat class
@@ -2432,6 +2497,14 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	kStream >> m_iPlotBuyCostModifier;
 	kStream >> m_iPlotCultureCostModifier;
 	kStream >> m_iCultureFromKills;
+	if (uiVersion >= 19)
+	{
+		kStream >> m_iFaithFromKills;
+	}
+	else
+	{
+		m_iFaithFromKills = 0;
+	}
 	kStream >> m_iCityCultureBonus;
 
 	if (uiVersion >= 17)
@@ -2780,7 +2853,7 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 void CvPlayerTraits::Write(FDataStream& kStream)
 {
 	// Current version number
-	uint uiVersion = 18;
+	uint uiVersion = 19;
 	kStream << uiVersion;
 
 	kStream << m_iGreatPeopleRateModifier;
@@ -2804,6 +2877,7 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	kStream << m_iPlotBuyCostModifier;
 	kStream << m_iPlotCultureCostModifier;
 	kStream << m_iCultureFromKills;
+	kStream << m_iFaithFromKills;
 	kStream << m_iCityCultureBonus;
 	kStream << m_iCapitalThemingBonusModifier;
 	kStream << m_iPolicyCostModifier;

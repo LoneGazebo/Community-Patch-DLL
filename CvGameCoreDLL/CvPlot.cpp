@@ -1,4 +1,4 @@
-/*	-------------------------------------------------------------------------------------------------------
+ /*	-------------------------------------------------------------------------------------------------------
 	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
@@ -33,6 +33,7 @@
 #include "CvDllPlot.h"
 #include "CvDllUnit.h"
 #include "CvUnitMovement.h"
+#include "CvTargeting.h"
 
 // Include this after all other headers.
 #include "LintFree.h"
@@ -1519,48 +1520,46 @@ bool CvPlot::canSeePlot(const CvPlot *pPlot, TeamTypes eTeam, int iRange, Direct
 {
 	iRange++;
 
-	if (pPlot == NULL)
+	if(pPlot == NULL)
 	{
 		return false;
 	}
 
-	if (pPlot == this)
+	if(pPlot == this)
 	{
 		return true;
 	}
 
-	//find displacement
-	int dy = pPlot->getY() - getY();
+	int startX = getX();
+	int startY = getY();
+	int destX = pPlot->getX();
+	int destY = pPlot->getY();
 
-	int iX1 = xToHexspaceX(pPlot->getX(), pPlot->getY());
-	int iX2 = xToHexspaceX(getX(), getY());
+	int iDistance = plotDistance(startX, startY, destX,  destY);
 
-	int dx = iX1 - iX2;
-
-	dx = dxWrap(dx); //world wrap
-	dy = dyWrap(dy);
-
-	int iDistance = plotDistance(getX(),getY(), pPlot->getX(),  pPlot->getY());
-
-	if (iDistance <= iRange)
+	if(iDistance <= iRange)
 	{
+		//find displacement
+		int dy = destY - startY;
+
+		int iX1 = xToHexspaceX(destX,  destY);
+		int iX2 = xToHexspaceX(startX, startY);
+
+		int dx = iX1 - iX2;
+
+		dx = dxWrap(dx); //world wrap
+		dy = dyWrap(dy);
+
 		//check if in facing direction
-		if (shouldProcessDisplacementPlot(dx, dy, iRange - 1, eFacingDirection))
+		if(shouldProcessDisplacementPlot(dx, dy, iRange - 1, eFacingDirection))
 		{
-			if (iDistance == 1)
+			if(iDistance == 1)
 			{
 				return true;
 			}
 
-			bool outerRing = false;
-
-			if (iDistance == iRange)
-			{
-				outerRing = true;
-			}
-
 			//check if anything blocking the plot
-			if (canSeeDisplacementPlot(eTeam, dx, dy, dx, dy, true, outerRing))
+			if (CvTargeting::CanSeeDisplacementPlot(startX, startY, dx, dy, seeFromLevel(eTeam)))
 			{
 				return true;
 			}
@@ -1568,170 +1567,6 @@ bool CvPlot::canSeePlot(const CvPlot *pPlot, TeamTypes eTeam, int iRange, Direct
 	}
 
 	return false;
-}
-
-//	--------------------------------------------------------------------------------
-bool CvPlot::canSeeDisplacementPlot(TeamTypes eTeam, int dx, int dy, int originalDX, int originalDY, bool, bool) const
-{
-	CvPlot *pPlot = plotXY(getX(), getY(), dx, dy);
-	if (pPlot != NULL)
-	{
-		int iHexDistanceBetweenPlots = hexDistance(originalDX, originalDY);
-		double fHexDistanceBetweenPlots = (double) iHexDistanceBetweenPlots;
-
-		// assume that we can always see our plot and the plot next door
-		if(iHexDistanceBetweenPlots == 0 || iHexDistanceBetweenPlots == 1)
-		{
-			return true;
-		}
-
-		int fromLevel = seeFromLevel(eTeam);
-
-		// do a modified Bresenham's along the line in hex space
-		double fDeltaXPerStep = dx / fHexDistanceBetweenPlots;
-		double fDeltaYPerStep = dy / fHexDistanceBetweenPlots;
-
-		const double epsilon = 0.001;
-
-		double absDeltaXPerStep = abs(fDeltaXPerStep);
-		double absDeltaYPerStep = abs(fDeltaYPerStep);
-
-		bool bSpecialCaseX = (absDeltaXPerStep > (0.5 - epsilon) && absDeltaXPerStep < (0.5 + epsilon)) ? true : false;
-		bool bSpecialCaseY = (absDeltaYPerStep > (0.5 - epsilon) && absDeltaYPerStep < (0.5 + epsilon)) ? true : false;
-
-		double fThisStepX = 0;
-		double fThisStepY = 0;
-
-		for (int iThisStep=1; iThisStep<iHexDistanceBetweenPlots; iThisStep++)
-		{
-			fThisStepX += fDeltaXPerStep;
-			fThisStepY += fDeltaYPerStep;
-
-			int iNextDX = (int) fThisStepX;
-			int iNextDY = (int) fThisStepY;
-
-			bool bBlocked = false;
-
-			// figure out if we can see through this plot
-
-			// extra-special special case
-			if (bSpecialCaseX && bSpecialCaseY && (iThisStep & 1))
-			{
-				CvPlot *passThroughPlot = plotXY(getX(), getY(), (int) (fThisStepX + fDeltaXPerStep), iNextDY);
-				if (passThroughPlot)
-				{
-					int passThroughLevel = passThroughPlot->seeThroughLevel();
-					if (fromLevel < passThroughLevel)
-					{
-						bBlocked = true;
-					}
-					if (bBlocked)
-					{
-						bBlocked = false;
-						CvPlot *otherPassThroughPlot = plotXY(getX(), getY(), iNextDX, (int) (fThisStepY + fDeltaYPerStep));
-						if (otherPassThroughPlot)
-						{
-							int otherPassThroughLevel = otherPassThroughPlot->seeThroughLevel();
-							if (fromLevel < otherPassThroughLevel)
-							{
-								bBlocked = true;
-							}
-						}
-					}
-				}
-				else
-				{
-					bBlocked = true;
-				}
-			}
-			else
-			{
-
-				// if we aren't on the last step - return false - change of plans - never do the last step as it is always true
-				{
-					CvPlot *passThroughPlot = plotXY(getX(), getY(), iNextDX, iNextDY);
-					if (passThroughPlot)
-					{
-						int passThroughLevel = passThroughPlot->seeThroughLevel();
-
-						if (fromLevel < passThroughLevel)
-						{
-							bBlocked = true;
-						}
-					}
-					else
-					{
-						bBlocked = true;
-					}
-				}
-
-				// special case if either (or both) fDeltaXPerStep or fDeltaYPerStep == 0.5f or -0.5f
-				// in these cases we will need to try the +0 and +1 cases
-				// this is so that an obstruction on one plot only doesn't obscure the sight line
-				//
-				//         Target
-				//
-				//   Mountain  Plain
-				//
-				//		   Origin
-				//
-				// I'll be generous in the case where there are obstructions on alternating sides
-				// and pretend you can see the target
-				//
-				//         Target
-				//
-				//   Mountain  Plain
-				//
-				//         Plain
-				//
-				//     Plain   Mountain
-				//
-				//         Origin
-
-				if (bBlocked && (iThisStep & 1)) // the special case only needs to trigger on odd rows
-				{
-					if (bSpecialCaseX)
-					{
-						bBlocked = false;
-						iNextDX = (int) (fThisStepX + fDeltaXPerStep);
-					}
-					if (bSpecialCaseY)
-					{
-						bBlocked = false;
-						iNextDY = (int) (fThisStepY + fDeltaYPerStep);
-					}
-					if (!bBlocked) // (bSpecialCaseX || bSpecialCaseY)
-					{
-						{
-							CvPlot *passThroughPlot = plotXY(getX(), getY(), iNextDX, iNextDY);
-							if (passThroughPlot)
-							{
-								int passThroughLevel = passThroughPlot->seeThroughLevel();
-								if (fromLevel < passThroughLevel)
-								{
-									bBlocked = true;
-								}
-							}
-							else
-							{
-								bBlocked = true;
-							}
-
-						}
-					}
-				}
-			}
-
-
-			if (bBlocked)
-			{
-				return false;
-			}
-		}
-	}
-
-	return true;
-
 }
 
 //	--------------------------------------------------------------------------------

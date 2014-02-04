@@ -89,6 +89,7 @@ CvTacticalDominanceZone::CvTacticalDominanceZone(void)
 	m_iEnemyUnitCount = 0;
 	m_iFriendlyRangedUnitCount = 0;
 	m_iEnemyRangedUnitCount = 0;
+	m_iEnemyNavalUnitCount = 0;
 	m_iZoneValue = 0;
 	m_iRangeClosestEnemyUnit = MAX_INT;
 	m_bIsWater = false;
@@ -731,6 +732,10 @@ void CvTacticalAnalysisMap::AddToDominanceZones(int iIndex, CvTacticalAnalysisCe
 				{
 					pZone->AddEnemyRangedUnitCount(1);
 				}
+				if (pEnemyUnit->getDomainType() == DOMAIN_SEA)
+				{
+					pZone->AddEnemyNavalUnitCount(1);
+				}
 			}
 		}
 	}
@@ -877,6 +882,10 @@ void CvTacticalAnalysisMap::CalculateMilitaryStrengths()
 													if(pLoopUnit->isRanged())
 													{
 														pZone->AddEnemyRangedUnitCount(1);
+													}
+													if(pLoopUnit->getDomainType() == DOMAIN_SEA)
+													{
+														pZone->AddEnemyNavalUnitCount(1);
 													}
 												}
 											}

@@ -1421,6 +1421,9 @@ CvPlot *CvPlayer::addFreeUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 		}
 
 		CvUnit* pNewUnit = initUnit(eUnit, pBestPlot->getX(), pBestPlot->getY(), eUnitAI);
+		CvAssert(pNewUnit);
+		if (pNewUnit == NULL)
+			return NULL;
 
 		// Don't stack any units
 		if (pBestPlot->getNumUnits() > 1)
@@ -2244,6 +2247,10 @@ bool CvPlayer::isCityNameValid(CvString& szName, bool bTestDestroyed) const
 void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID)
 {
 	CvCity* pCity = getCity(iOldCityID);
+	CvAssert(pCity);
+	if (!pCity)
+		return;
+
 	PlayerTypes eOldOwner = pCity->getOwner();
 	CvPlot* pPlot = pCity->plot();
 
@@ -3098,7 +3105,7 @@ void CvPlayer::doTurnPostDiplomacy()
 	DoUpdateNextPolicyCost();
 
 	// if this is the human player, have the popup come up so that he can choose a new policy
-	if (isAlive() && kGame.getActivePlayer() == m_eID && isHuman() && getNumCities() > 0)
+	if(isAlive() && isHuman() && getNumCities() > 0)
 	{
 		if (!GC.GetEngineUserInterface()->IsPolicyNotificationSeen())
 		{
@@ -3672,34 +3679,30 @@ void CvPlayer::chooseTech(int iDiscover, const char* strText, TechTypes iTechJus
 		SetNumFreeTechs(GetNumFreeTechs()+iDiscover);
 	}
 
-	// only display notifications for the local player
-	if(isLocalPlayer())
+	if(iDiscover > 0)
 	{
-		if (iDiscover > 0)
+		CvNotifications* pNotifications = GetNotifications();
+		if(pNotifications)
 		{
-			CvNotifications* pNotifications = GetNotifications();
-			if (pNotifications)
-			{
-				pNotifications->Add(NOTIFICATION_FREE_TECH, strText, strText, -1, -1, iDiscover, iTechJustDiscovered);
-			}
+			pNotifications->Add(NOTIFICATION_FREE_TECH, strText, strText, -1, -1, iDiscover, iTechJustDiscovered);
 		}
-		else if (strText == 0 || strText[0] == 0)
+	}
+	else if(strText == 0 || strText[0] == 0)
+	{
+		CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_NEW_RESEARCH");
+		CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_NEW_RESEARCH");
+		CvNotifications* pNotifications = GetNotifications();
+		if(pNotifications)
 		{
-			CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_NEW_RESEARCH");
-			CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_NEW_RESEARCH");
-			CvNotifications* pNotifications = GetNotifications();
-			if (pNotifications)
-			{
-				pNotifications->Add(NOTIFICATION_TECH, strBuffer, strSummary, -1, -1, iDiscover, iTechJustDiscovered);
-			}
+			pNotifications->Add(NOTIFICATION_TECH, strBuffer, strSummary, -1, -1, iDiscover, iTechJustDiscovered);
 		}
-		else
+	}
+	else
+	{
+		CvNotifications* pNotifications = GetNotifications();
+		if(pNotifications)
 		{
-			CvNotifications* pNotifications = GetNotifications();
-			if (pNotifications)
-			{
-				pNotifications->Add(NOTIFICATION_TECH, strText, strText, -1, -1, iDiscover, iTechJustDiscovered);
-			}
+			pNotifications->Add(NOTIFICATION_TECH, strText, strText, -1, -1, iDiscover, iTechJustDiscovered);
 		}
 	}
 }
@@ -4770,8 +4773,13 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 			CvUnit* pNewUnit = initUnit(eUpgradeUnit, pPlot->getX(), pPlot->getY(), pUnit->AI_getUnitAIType(), NO_DIRECTION, false, false);
 			pUnit->finishMoves();
 			pUnit->SetBeenPromotedFromGoody(true);
-			pNewUnit->convert(pUnit);
-			pNewUnit->setupGraphical();
+			if (pNewUnit != NULL)
+			{
+				pNewUnit->convert(pUnit);
+				pNewUnit->setupGraphical();
+			}
+			else
+				pUnit->kill(false);
 
 			// Since the old unit died, it will block the goody reward popup unless we call this
 			GC.GetEngineUserInterface()->SetDontShowPopups(false);
@@ -8137,8 +8145,12 @@ void CvPlayer::DoRevolt()
 
 				// Init unit
 				CvUnit* pUnit = GET_PLAYER(BARBARIAN_PLAYER).initUnit(eUnit, pPlot->getX(), pPlot->getY());
-				if (!pUnit->jumpToNearestValidPlotWithinRange(5))
-					pUnit->kill(false);
+				CvAssert(pUnit);
+				if (pUnit)
+				{
+					if (!pUnit->jumpToNearestValidPlotWithinRange(5))
+						pUnit->kill(false);
+				}
 			}
 			while (iNumRebels > 0);
 		}
@@ -10069,19 +10081,22 @@ void CvPlayer::DoSpawnGreatPerson(PlayerTypes eMinor)
 	if (eBestUnit != NO_UNIT)
 	{
 		CvUnit* pNewGreatPeople = initUnit(eBestUnit, iX, iY);
-
-		if (!pNewGreatPeople->jumpToNearestValidPlot())
-			pNewGreatPeople->kill(false);
-		else
+		CvAssert(pNewGreatPeople != NULL);
+		if (pNewGreatPeople)
 		{
-			CvNotifications* pNotifications = GetNotifications();
-			if (pNotifications)
+			if (!pNewGreatPeople->jumpToNearestValidPlot())
+				pNewGreatPeople->kill(false);
+			else
 			{
-				Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_UNIT_SPAWN");
-				strMessage << GET_PLAYER(eMinor).getNameKey();
-				Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_STATE_UNIT_SPAWN");
-				strSummary << GET_PLAYER(eMinor).getNameKey();
-				pNotifications->Add(NOTIFICATION_MINOR, strMessage.toUTF8(), strSummary.toUTF8(), iX, iY, eMinor);
+				CvNotifications* pNotifications = GetNotifications();
+				if (pNotifications)
+				{
+					Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_UNIT_SPAWN");
+					strMessage << GET_PLAYER(eMinor).getNameKey();
+					Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_STATE_UNIT_SPAWN");
+					strSummary << GET_PLAYER(eMinor).getNameKey();
+					pNotifications->Add(NOTIFICATION_MINOR, strMessage.toUTF8(), strSummary.toUTF8(), iX, iY, eMinor);
+				}
 			}
 		}
 	}
@@ -11193,30 +11208,30 @@ bool CvPlayer::IsHasLostCapital() const
 /// Sets us to having lost our capital in war
 void CvPlayer::SetHasLostCapital(bool bValue, PlayerTypes eConqueror)
 {
-	if (bValue != m_bLostCapital)
+	if(bValue != m_bLostCapital)
 	{
 		m_bLostCapital = bValue;
 		m_eConqueror = eConqueror;
 
 		// Don't really care if a City State lost its capital
-		if (!isMinorCiv())
+		if(!isMinorCiv())
 		{
 			// Someone just lost their capital, test to see if someone wins
-			if (bValue)
+			if(bValue)
 			{
 				GC.getGame().DoTestConquestVictory();
 
 				int iNumPlayersWithCapitals = 0;
 
 				PlayerTypes eLoopPlayer;
-				for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+				for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 				{
 					eLoopPlayer = (PlayerTypes) iPlayerLoop;
-					if (GET_PLAYER(eLoopPlayer).isAlive())
+					if(GET_PLAYER(eLoopPlayer).isAlive())
 					{
-						if (!GET_PLAYER(eLoopPlayer).isMinorCiv())
+						if(!GET_PLAYER(eLoopPlayer).isMinorCiv())
 						{
-							if (!GET_PLAYER(eLoopPlayer).IsHasLostCapital())
+							if(!GET_PLAYER(eLoopPlayer).IsHasLostCapital())
 							{
 								iNumPlayersWithCapitals++;
 							}
@@ -11224,23 +11239,23 @@ void CvPlayer::SetHasLostCapital(bool bValue, PlayerTypes eConqueror)
 					}
 				}
 
-				if (iNumPlayersWithCapitals > 1)
+				if(iNumPlayersWithCapitals > 1)
 				{
 					Localization::String localizedBuffer;
 					Localization::String localizedSummary;
 					NotificationTypes eNotificationType = NOTIFICATION_CAPITAL_LOST;
 
-					for (uint ui = 0; ui < MAX_MAJOR_CIVS; ui++)
+					for(uint ui = 0; ui < MAX_MAJOR_CIVS; ui++)
 					{
 						PlayerTypes ePlayer = (PlayerTypes)ui;
 						CvNotifications* pNotifications = GET_PLAYER(ePlayer).GetNotifications();
-						if (!pNotifications)
+						if(!pNotifications)
 						{
 							continue;
 						}
 
 						// Active Player lost their capital
-						if (ePlayer == GetID())
+						if(ePlayer == GetID())
 						{
 							eNotificationType = NOTIFICATION_CAPITAL_LOST_ACTIVE_PLAYER;
 							localizedBuffer = Localization::Lookup("TXT_KEY_NOTIFICATION_YOU_LOST_CAPITAL");
@@ -11248,7 +11263,7 @@ void CvPlayer::SetHasLostCapital(bool bValue, PlayerTypes eConqueror)
 							localizedSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_YOU_LOST_CAPITAL");
 						}
 						// Unmet player
-						else if (!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isHasMet(getTeam()))
+						else if(!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isHasMet(getTeam()))
 						{
 							localizedBuffer = Localization::Lookup("TXT_KEY_NOTIFICATION_SOMEONE_LOST_CAPITAL");
 							localizedBuffer << iNumPlayersWithCapitals;
@@ -11273,25 +11288,32 @@ void CvPlayer::SetHasLostCapital(bool bValue, PlayerTypes eConqueror)
 						CvString translatedMessage = message.toUTF8();
 						GC.getGame().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, GetID(), translatedMessage, GetOriginalCapitalX(), GetOriginalCapitalY());
 					}
+
 				}
 			}
 			// Player recovered capital!
 			else
 			{
-				CvNotifications* pNotifications = GET_PLAYER(GC.getGame().getActivePlayer()).GetNotifications();
-				if (pNotifications)
+				for(uint ui = 0; ui < MAX_MAJOR_CIVS; ui++)
 				{
+					PlayerTypes ePlayer = (PlayerTypes)ui;
+					CvNotifications* pNotifications = GET_PLAYER(ePlayer).GetNotifications();
+					if(!pNotifications)
+					{
+						continue;
+					}
+
 					CvString strBuffer;
 					CvString strSummary;
 
 					// Active Player lost their capital
-					if (GC.getGame().getActivePlayer() == GetID())
+					if(ePlayer == GetID())
 					{
 						strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_YOU_RECOVERED_CAPITAL");
 						strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_YOU_RECOVERED_CAPITAL");
 					}
 					// Unmet player
-					else if (!GET_TEAM(GC.getGame().getActiveTeam()).isHasMet(getTeam()))
+					else if(!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isHasMet(getTeam()))
 					{
 						strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_SOMEONE_RECOVERED_CAPITAL");
 						strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_SOMEONE_RECOVERED_CAPITAL");
@@ -11304,15 +11326,15 @@ void CvPlayer::SetHasLostCapital(bool bValue, PlayerTypes eConqueror)
 					}
 
 					pNotifications->Add(NOTIFICATION_CAPITAL_RECOVERED, strBuffer, strSummary, -1, -1, -1);
+				}
 
-					//replay message
-					{
-						Localization::String message = Localization::Lookup("TXT_KEY_NOTIFICATION_PLAYER_RECOVERED_CAPITAL");
-						message << getCivilizationShortDescriptionKey();
-						CvString translatedMessage = message.toUTF8();
-						CvCity* pCity = getCapitalCity();
-						GC.getGame().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, GetID(), translatedMessage, pCity->getX(), pCity->getY());
-					}
+				//replay message
+				{
+					Localization::String message = Localization::Lookup("TXT_KEY_NOTIFICATION_PLAYER_RECOVERED_CAPITAL");
+					message << getCivilizationShortDescriptionKey();
+					CvString translatedMessage = message.toUTF8();
+					CvCity* pCity = getCapitalCity();
+					GC.getGame().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, GetID(), translatedMessage, pCity->getX(), pCity->getY());
 				}
 			}
 		}
@@ -13277,8 +13299,12 @@ void CvPlayer::DoCivilianReturnLogic(bool bReturn, PlayerTypes eToPlayer, int iU
 	{
 		pUnit->kill(true);
 		CvUnit* pNewUnit = GET_PLAYER(eToPlayer).initUnit(eNewUnitType, iX, iY);
-		if (!pNewUnit->jumpToNearestValidPlot())
-			pNewUnit->kill(false);
+		CvAssert(pNewUnit != NULL);
+		if (pNewUnit)
+		{
+			if (!pNewUnit->jumpToNearestValidPlot())
+				pNewUnit->kill(false);
+		}
 
 		// Returned to a city-state
 		if (GET_PLAYER(eToPlayer).isMinorCiv())
@@ -13300,7 +13326,9 @@ void CvPlayer::DoCivilianReturnLogic(bool bReturn, PlayerTypes eToPlayer, int iU
 		{
 			pUnit->kill(true);
 			CvUnit* pNewUnit = initUnit(eNewUnitType, iX, iY);
-			pNewUnit->finishMoves();
+			CvAssert(pNewUnit != NULL);
+			if (pNewUnit)
+				pNewUnit->finishMoves();
 		}
 	}
 }
@@ -13325,10 +13353,14 @@ void CvPlayer::DoIncomingUnits()
 				if (pCapital)
 				{
 					CvUnit* pNewUnit = initUnit(GetIncomingUnitType(iLoop), pCapital->getX(), pCapital->getY());
-					if (pNewUnit->getDomainType() != DOMAIN_AIR)
+					CvAssert(pNewUnit);
+					if (pNewUnit)
 					{
-						if (!pNewUnit->jumpToNearestValidPlot())
-							pNewUnit->kill(false);
+						if (pNewUnit->getDomainType() != DOMAIN_AIR)
+						{
+							if (!pNewUnit->jumpToNearestValidPlot())
+								pNewUnit->kill(false);
+						}
 					}
 				}
 
@@ -17139,10 +17171,13 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 							for (int iUnitLoop = 0; iUnitLoop < iNumFreeUnits; iUnitLoop++)
 							{
 								CvUnit* pNewUnit = initUnit(eUnit, iX, iY);
-
-								// Make sure the new Unit is in an appropriate place
-								if (!pNewUnit->jumpToNearestValidPlot())
-									pNewUnit->kill(false);
+								CvAssert(pNewUnit);
+								if (pNewUnit)
+								{
+									// Make sure the new Unit is in an appropriate place
+									if (!pNewUnit->jumpToNearestValidPlot())
+										pNewUnit->kill(false);
+								}
 							}
 						}
 					}
@@ -19840,15 +19875,12 @@ void CvPlayer::ChangeNumFreeGreatPeople(int iChange)
 	{
 		if(isHuman())
 		{
-			if(isLocalPlayer())
+			CvNotifications* pNotifications = GetNotifications();
+			if(pNotifications)
 			{
-				CvNotifications* pNotifications = GetNotifications();
-				if (pNotifications)
-				{
-					CvString strBuffer = GetLocalizedText("TXT_KEY_CHOOSE_FREE_GREAT_PERSON");
-					CvString strSummary = GetLocalizedText("TXT_KEY_CHOOSE_FREE_GREAT_PERSON_TT");
-					pNotifications->Add(NOTIFICATION_FREE_GREAT_PERSON, strSummary.c_str(), strBuffer.c_str(), -1, -1, -1);
-				}
+				CvString strBuffer = GetLocalizedText("TXT_KEY_CHOOSE_FREE_GREAT_PERSON");
+				CvString strSummary = GetLocalizedText("TXT_KEY_CHOOSE_FREE_GREAT_PERSON_TT");
+				pNotifications->Add(NOTIFICATION_FREE_GREAT_PERSON, strSummary.c_str(), strBuffer.c_str(), -1, -1, -1);
 			}
 		}
 		else

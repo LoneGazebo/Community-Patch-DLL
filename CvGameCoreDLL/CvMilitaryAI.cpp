@@ -2838,11 +2838,12 @@ int CvMilitaryAI::GetPowerOfStrongestBuildableUnit(DomainTypes eDomain)
 		CvUnitEntry* pkUnitEntry = GC.getUnitInfo(eUnit);
 		if (pkUnitEntry != NULL && pkUnitEntry->GetDomainType() == eDomain)
 		{
-			if (m_pPlayer->canTrain(eUnit, false /*bContinue*/, false /*bTestVisible*/, true /*bIgnoreCost*/))
+			int iThisPower = pkUnitEntry->GetPower();		// Test the power first, it is much less costly than testing canTrain
+			if(iThisPower > iRtnValue)
 			{
-				if (pkUnitEntry->GetPower() > iRtnValue)
+				if(m_pPlayer->canTrain(eUnit, false /*bContinue*/, false /*bTestVisible*/, true /*bIgnoreCost*/))
 				{
-					iRtnValue = pkUnitEntry->GetPower();
+					iRtnValue = iThisPower;
 				}
 			}
 		}

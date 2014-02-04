@@ -17,20 +17,25 @@
 
 bool cvStopWatch::ms_bPerfInit = false;
 LARGE_INTEGER cvStopWatch::ms_ticksPerSecond;
+static int ms_nesting = 0;
 //------------------------------------------------------------------------------
-cvStopWatch::cvStopWatch(const char* szName, const char* szLogFile /* = NULL */, uint logFlags /* = 0 */, bool bDisable /* = false */):
+cvStopWatch::cvStopWatch(const char* szName, const char* szLogFile /* = NULL */, uint logFlags /* = 0 */, bool bDisable /* = false */, bool bShowNesting /* = false */):
 	m_szName(szName),
 	m_szLogFile(szLogFile),
 	m_dtseconds(0.0),
 	m_logFlags(logFlags),
-	m_bDisable(bDisable)
+	m_bDisable(bDisable),
+	m_bShowNesting(bShowNesting)
 {
+	m_nesting = ms_nesting;
+	++ms_nesting;
 	StartPerfTest();
 }
 //------------------------------------------------------------------------------
 cvStopWatch::~cvStopWatch()
 {
 	EndPerfTest();
+	--ms_nesting;
 }
 //------------------------------------------------------------------------------
 void cvStopWatch::InitPerfTest()
@@ -75,6 +80,18 @@ void cvStopWatch::PerfLog(const char* szName, double dtSeconds)
 	if (!m_bDisable)
 	{
 		const char* szLogFile = (m_szLogFile == NULL)? "stopwatch.log" : m_szLogFile;
-		LOGFILEMGR.GetLog(szLogFile, m_logFlags)->Msg(", %s, %f", szName, dtSeconds);
+		if (m_bShowNesting)
+		{
+			if (m_nesting == 0)
+				LOGFILEMGR.GetLog(szLogFile, m_logFlags)->Msg(", %d, %s, %f", m_nesting, szName, dtSeconds);
+			else
+			{
+				const int MAX_NESTING = 20;
+				static const char ms_nestingOffset[] = ",,,,,,,,,,,,,,,,,,,,";
+				LOGFILEMGR.GetLog(szLogFile, m_logFlags)->Msg(", %d, %s,%s %f", m_nesting, szName, ((m_nesting < MAX_NESTING)?(&ms_nestingOffset[MAX_NESTING - m_nesting]):(&ms_nestingOffset[0])), dtSeconds);
+			}
+		}
+		else
+			LOGFILEMGR.GetLog(szLogFile, m_logFlags)->Msg(", %s, %f", szName, dtSeconds);
 	}
 }

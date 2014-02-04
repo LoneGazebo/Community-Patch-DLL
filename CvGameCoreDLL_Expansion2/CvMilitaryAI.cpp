@@ -483,6 +483,7 @@ void CvMilitaryAI::DoTurn()
 	{
 		UpdateOperations();
 		MakeEmergencyPurchases();
+		MakeOffensivePurchases();
 		RequestImprovements();
 		DisbandObsoleteUnits();
 	}
@@ -533,7 +534,7 @@ bool CvMilitaryAI::RequestSneakAttack(PlayerTypes eEnemy)
 		}
 		else
 		{
-			if(IsAttackReady((GC.getGame().getHandicapInfo().GetID() > 4) ? MUFORMATION_BIGGER_CITY_ATTACK_FORCE : MUFORMATION_BASIC_CITY_ATTACK_FORCE, AI_OPERATION_SNEAK_CITY_ATTACK))
+			if(IsAttackReady((GC.getGame().getHandicapInfo().GetID() > 4 && !(GC.getMap().GetAIMapHint() & 1)) ? MUFORMATION_BIGGER_CITY_ATTACK_FORCE : MUFORMATION_BASIC_CITY_ATTACK_FORCE, AI_OPERATION_SNEAK_CITY_ATTACK))
 			{
 				pOperation = m_pPlayer->addAIOperation(AI_OPERATION_SNEAK_CITY_ATTACK, eEnemy, target.m_pTargetCity->getArea(), target.m_pTargetCity, target.m_pMusterCity);
 				if(pOperation != NULL && !pOperation->ShouldAbort())
@@ -718,7 +719,7 @@ bool CvMilitaryAI::RequestSpecificAttack(CvMilitaryTarget kTarget, int iNumUnits
 		}
 		else
 		{
-			iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(m_pPlayer,(GC.getGame().getHandicapInfo().GetID() > 4) ? MUFORMATION_BIGGER_CITY_ATTACK_FORCE : MUFORMATION_BASIC_CITY_ATTACK_FORCE, false, &iNumRequiredSlots, &iLandReservesUsed);
+			iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(m_pPlayer,(GC.getGame().getHandicapInfo().GetID() > 4 && !(GC.getMap().GetAIMapHint() & 1)) ? MUFORMATION_BIGGER_CITY_ATTACK_FORCE : MUFORMATION_BASIC_CITY_ATTACK_FORCE, false, &iNumRequiredSlots, &iLandReservesUsed);
 			if((iNumRequiredSlots - iFilledSlots) <= iNumUnitsWillingToBuild && iLandReservesUsed <= GetLandReservesAvailable())
 			{
 				pOperation = m_pPlayer->addAIOperation(AI_OPERATION_BASIC_CITY_ATTACK, kTarget.m_pTargetCity->getOwner(), kTarget.m_pTargetCity->getArea(), kTarget.m_pTargetCity, kTarget.m_pMusterCity);
@@ -874,10 +875,9 @@ CvUnit* CvMilitaryAI::BuyEmergencyUnit(UnitAITypes eUnitType, CvCity* pCity)
 
 					if (iResult != FFreeList::INVALID_INDEX)
 					{
-						m_pPlayer->GetTreasury()->ChangeGold(-iGoldCost);
 						CvUnit* pUnit = m_pPlayer->getUnit(iResult);
-						
 						m_pPlayer->GetTreasury()->LogExpenditure((CvString)pUnit->getUnitInfo().GetText(), iGoldCost, 7);
+						m_pPlayer->GetTreasury()->ChangeGold(-iGoldCost);
 
 						pUnit->setMoves(0);
 
@@ -943,9 +943,9 @@ bool CvMilitaryAI::BuyEmergencyBuilding(CvCity* pCity)
 					int iPriority = GC.getAI_GOLD_PRIORITY_DEFENSIVE_BUILDING();
 					if(m_pPlayer->GetEconomicAI()->CanWithdrawMoneyForPurchase(PURCHASE_TYPE_BUILDING, iGoldCost, iPriority))
 					{
+						m_pPlayer->GetTreasury()->LogExpenditure((CvString)pkBuildingInfo->GetText(), iGoldCost, 8);
 						m_pPlayer->GetTreasury()->ChangeGold(-iGoldCost);
 						int iResult = pCity->CreateBuilding(eBldg);
-						m_pPlayer->GetTreasury()->LogExpenditure((CvString)pkBuildingInfo->GetText(), iGoldCost, 8);
 
 						DEBUG_VARIABLE(iResult);
 						CvAssertMsg(iResult != FFreeList::INVALID_INDEX, "Unable to create building");
@@ -1558,7 +1558,7 @@ int CvMilitaryAI::GetBarbarianThreatTotal()
 
 	ScanForBarbarians();
 
-	// Minor threat for each camp seen
+	// Major threat for each camp seen
 	iRtnValue += GC.getAI_MILITARY_THREAT_WEIGHT_MAJOR() * m_iBarbarianCampCount;
 
 	// One minor threat for every X barbarians
@@ -2268,10 +2268,30 @@ void CvMilitaryAI::ScanForBarbarians()
 			{
 				m_iBarbarianCampCount++;
 
-				// Count it as 5 camps if sitting inside our territory, that is annoying!
+				// Count it as 10 camps if sitting inside our territory, that is annoying!
 				if(pPlot->getOwner() == m_pPlayer->GetID())
 				{
-					m_iBarbarianCampCount += 4;
+					m_iBarbarianCampCount += 9;
+				}
+
+				// See how close it is to each of our cities, if less than 10 tiles, treat it as 5 camps
+				else
+				{
+					int iTolerableDistance = 10;
+					int iCityLoop;
+					CvCity *pLoopCity;
+					for(pLoopCity = m_pPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iCityLoop))
+					{
+						if (pLoopCity)
+						{
+							int iDist = plotDistance(pLoopCity->getX(), pLoopCity->getY(), pPlot->getX(), pPlot->getY());
+							if (iDist < iTolerableDistance)
+							{
+								m_iBarbarianCampCount += 4;
+								break;
+							}
+						}
+					}
 				}
 			}
 		}
@@ -3013,7 +3033,7 @@ void CvMilitaryAI::UpdateOperations()
 					}
 					else
 					{
-						iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(m_pPlayer, (GC.getGame().getHandicapInfo().GetID() > 4) ? MUFORMATION_BIGGER_CITY_ATTACK_FORCE : MUFORMATION_BASIC_CITY_ATTACK_FORCE, false, &iNumRequiredSlots, &iLandReservesUsed);
+						iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(m_pPlayer, (GC.getGame().getHandicapInfo().GetID() > 4 && !(GC.getMap().GetAIMapHint() & 1)) ? MUFORMATION_BIGGER_CITY_ATTACK_FORCE : MUFORMATION_BASIC_CITY_ATTACK_FORCE, false, &iNumRequiredSlots, &iLandReservesUsed);
 						if((iNumRequiredSlots - iFilledSlots) > iNumUnitsWillingBuild || iLandReservesUsed > GetLandReservesAvailable())
 						{
 							continue;
@@ -3234,7 +3254,7 @@ void CvMilitaryAI::UpdateOperations()
 }
 
 /// Spend money on units/buildings for military contingencies
-//  NOTE: The defensive side of this is done in dominance zone processing in the Tactical AI; this is spending to speed offensive operations
+//  NOTE: The defensive side of this is done in dominance zone processing in the Tactical AI; this is spending to speed operations
 void CvMilitaryAI::MakeEmergencyPurchases()
 {
 	AI_PERF_FORMAT("Military-AI-perf.csv", ("MakeEmergencyPurchases, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), m_pPlayer->getCivilizationShortDescription()) );
@@ -3258,6 +3278,92 @@ void CvMilitaryAI::MakeEmergencyPurchases()
 				}
 			}
 			nextOp = m_pPlayer->getNextAIOperation();
+		}
+	}
+}
+
+/// Spend money on units/buildings to supply units that can fuel future military operations
+void CvMilitaryAI::MakeOffensivePurchases()
+{
+	AI_PERF_FORMAT("Military-AI-perf.csv", ("MakeOffensivePurchases, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), m_pPlayer->getCivilizationShortDescription()) );
+
+	CvUnit *pUnit;
+
+	if (m_pPlayer->isMinorCiv())
+	{
+		return;
+	}
+
+	// Are we winning all the wars we are in?
+	MilitaryAIStrategyTypes eStrategyAtWar = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_AT_WAR");
+	if(!IsUsingStrategy(eStrategyAtWar) || m_pPlayer->GetDiplomacyAI()->GetStateAllWars() == STATE_ALL_WARS_WINNING)
+	{
+		// Do we have a high offensive personality flavor and our military could be larger?
+		if (m_pPlayer->GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_OFFENSE")) >= 7 &&
+			(GetPercentOfRecommendedMilitarySize() < 100 || m_eNavalDefenseState > DEFENSE_STATE_ENOUGH))
+		{
+			// Do we have operations running (if so let them recruit the units)?
+			if (GetArmyBeingBuilt() == NO_ARMY_TYPE)
+			{
+				CvCity *pCity = m_pPlayer->getCapitalCity();
+				if (pCity == NULL)
+				{
+					return;
+				}
+
+				// Do we need naval units most?
+				bool bNeedNaval = m_eNavalDefenseState > m_eLandDefenseState;
+				if (bNeedNaval)
+				{
+					// Get a different city if capital is not coastal
+					if (!pCity->isCoastal())
+					{
+						CvCity* pLoopCity;
+						int iCityLoop;
+						bNeedNaval = false;
+						for(pLoopCity = m_pPlayer->firstCity(&iCityLoop); pLoopCity != NULL && !bNeedNaval; pLoopCity = m_pPlayer->nextCity(&iCityLoop))
+						{
+							if(pLoopCity->isCoastal())
+							{
+								bNeedNaval = true;
+								pCity = pLoopCity;
+							}
+						}
+					}
+				}
+
+				if (bNeedNaval)
+				{
+					pUnit = BuyEmergencyUnit(UNITAI_ASSAULT_SEA, pCity);
+					if (!pUnit)
+					{
+						pUnit = BuyEmergencyUnit(UNITAI_ATTACK_SEA, pCity);
+					}
+				}
+				else
+				{
+					if (m_iNumMeleeLandUnits <= m_iNumRangedLandUnits)
+					{
+						pUnit = BuyEmergencyUnit(UNITAI_FAST_ATTACK, pCity);
+						if (!pUnit)
+						{
+							pUnit = BuyEmergencyUnit(UNITAI_ATTACK, pCity);
+							if (!pUnit)
+							{
+								pUnit = BuyEmergencyUnit(UNITAI_DEFENSE, pCity);
+							}
+						}
+					}
+					else
+					{
+						pUnit = BuyEmergencyUnit(UNITAI_CITY_BOMBARD, pCity);
+						if (!pUnit)
+						{
+							pUnit = BuyEmergencyUnit(UNITAI_RANGED, pCity);
+						}
+					}
+				}
+			}
 		}
 	}
 }
@@ -3511,7 +3617,7 @@ UnitTypes CvMilitaryAI::GetUnitForArmy(CvCity* pCity) const
 	}
 	else
 	{
-		eFormation = (GC.getGame().getHandicapInfo().GetID() > 4) ? MUFORMATION_BIGGER_CITY_ATTACK_FORCE : MUFORMATION_BASIC_CITY_ATTACK_FORCE;
+		eFormation = (GC.getGame().getHandicapInfo().GetID() > 4 && !(GC.getMap().GetAIMapHint() & 1)) ? MUFORMATION_BIGGER_CITY_ATTACK_FORCE : MUFORMATION_BASIC_CITY_ATTACK_FORCE;
 	}
 	UnitAITypes eUnitAIType = MilitaryAIHelpers::FirstSlotCityCanFill(m_pPlayer, eFormation, (m_eArmyTypeBeingBuilt == ARMY_TYPE_NAVAL_INVASION), pCity->isCoastal(), false /*bSecondaryUnit*/);
 	UnitTypes eType = pCity->GetCityStrategyAI()->GetUnitProductionAI()->RecommendUnit(eUnitAIType);
@@ -3566,13 +3672,18 @@ bool CvMilitaryAI::WillAirUnitRebase(CvUnit* pUnit) const
 		return false;
 	}
 
-	// first look for open carrier slots
+	// first look for open carrier slots in carriers within operations
 	int iLoopUnit = 0;
 	for(CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iLoopUnit); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iLoopUnit))
 	{
 		CvPlot* pLoopUnitPlot = pLoopUnit->plot();
 
 		if(pLoopUnit->getDamage() > (GC.getMAX_HIT_POINTS() / 5))  // this might not be a good place to land
+		{
+			continue;
+		}
+
+		if (pLoopUnit->getArmyID() == FFreeList::INVALID_INDEX)
 		{
 			continue;
 		}
@@ -3587,6 +3698,35 @@ bool CvMilitaryAI::WillAirUnitRebase(CvUnit* pUnit) const
 			continue;
 		}
 		
+		// Found somewhere to rebase to
+		return true;
+	}
+
+	// then look for open carrier slots in carriers NOT in operations
+	for(CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iLoopUnit); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iLoopUnit))
+	{
+		CvPlot* pLoopUnitPlot = pLoopUnit->plot();
+
+		if(pLoopUnit->getDamage() > (GC.getMAX_HIT_POINTS() / 5))  // this might not be a good place to land
+		{
+			continue;
+		}
+
+		if (pLoopUnit->getArmyID() != FFreeList::INVALID_INDEX)
+		{
+			continue;
+		}
+
+		if(pBestPlot != pUnitPlot && !pUnit->canRebaseAt(pUnitPlot, pLoopUnitPlot->getX(),pLoopUnitPlot->getY()))
+		{
+			continue;
+		}
+
+		if(!pUnit->canLoadUnit(*pLoopUnit, *pLoopUnitPlot))
+		{
+			continue;
+		}
+
 		// Found somewhere to rebase to
 		return true;
 	}
@@ -3747,11 +3887,12 @@ int CvMilitaryAI::GetPowerOfStrongestBuildableUnit(DomainTypes eDomain)
 		CvUnitEntry* pkUnitEntry = GC.getUnitInfo(eUnit);
 		if(pkUnitEntry != NULL && pkUnitEntry->GetDomainType() == eDomain)
 		{
-			if(m_pPlayer->canTrain(eUnit, false /*bContinue*/, false /*bTestVisible*/, true /*bIgnoreCost*/))
+			int iThisPower = pkUnitEntry->GetPower();		// Test the power first, it is much less costly than testing canTrain
+			if(iThisPower > iRtnValue)
 			{
-				if(pkUnitEntry->GetPower() > iRtnValue)
+				if(m_pPlayer->canTrain(eUnit, false /*bContinue*/, false /*bTestVisible*/, true /*bIgnoreCost*/))
 				{
-					iRtnValue = pkUnitEntry->GetPower();
+					iRtnValue = iThisPower;
 				}
 			}
 		}
@@ -4344,7 +4485,7 @@ bool MilitaryAIHelpers::IsTestStrategy_EradicateBarbarians(MilitaryAIStrategyTyp
 	int iStrategyWeight;
 	PlayerTypes eOtherPlayer;
 
-	// If we're at war don't bother with this Strategy (unless iti s clear we are already winning)
+	// If we're at war don't bother with this Strategy (unless it is clear we are already winning)
 	MilitaryAIStrategyTypes eStrategyAtWar = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_AT_WAR");
 	if(eStrategyAtWar != NO_MILITARYAISTRATEGY)
 	{

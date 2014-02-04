@@ -38,6 +38,10 @@ static const GUID guidICvEngineUtility2 =
 static const GUID guidICvEngineUtility3 = 
 { 0xf95cb893, 0x6d19, 0x4584, { 0xa7, 0x41, 0x6f, 0x64, 0xb8, 0x55, 0xc7, 0xe9 } };
 
+// {DD8A29A2-E752-4bf7-9EE0-42B8155F175F}
+static const GUID guidICvEngineUtility4 = 
+{ 0xdd8a29a2, 0xe752, 0x4bf7, { 0x9e, 0xe0, 0x42, 0xb8, 0x15, 0x5f, 0x17, 0x5f } };
+
 
 typedef FFastVector<int, true, c_eMPoolTypeGame> CvPlotIndexVector;
 
@@ -389,6 +393,14 @@ public:
 	virtual void VerifyPlayerSlot(PlayerTypes ePlayer) const = 0;
 
 	virtual bool ShouldValidateGameDatabase() const = 0;
+};
+
+class ICvEngineUtility4 : public ICvEngineUtility3
+{
+public:
+	static GUID DLLCALL GetInterfaceId() { return guidICvEngineUtility4; }
+
+	virtual bool DLLCALL GetEvaluatedMapScriptPath(_In_z_ const char* szPath, _Inout_z_cap_(szEvaluatedPathSize) char* szEvaluatedPath, unsigned int szEvaluatedPathSize) const = 0;
 };
 
 #endif	// ICvDLLUtility_h

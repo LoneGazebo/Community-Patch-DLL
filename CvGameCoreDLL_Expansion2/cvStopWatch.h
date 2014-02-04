@@ -17,7 +17,7 @@
 class cvStopWatch
 {
 public:
-	cvStopWatch(const char* Name, const char* LogFile = NULL, uint logFlags = 0, bool bDisable = false);
+	cvStopWatch(const char* Name, const char* LogFile = NULL, uint logFlags = 0, bool bDisable = false, bool bShowNesting = false);
 	~cvStopWatch();
 
 	static void InitPerfTest();
@@ -39,8 +39,10 @@ private:
 	const char* m_szLogFile;
 	double m_dtseconds;
 	uint m_logFlags;
+	int m_nesting;
 	bool m_bStarted;
 	bool m_bDisable;
+	bool m_bShowNesting;
 	LARGE_INTEGER m_oldTimerVal;
 };
 

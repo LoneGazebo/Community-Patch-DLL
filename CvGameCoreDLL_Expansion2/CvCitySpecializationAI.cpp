@@ -15,6 +15,7 @@
 #include "CvMilitaryAI.h"
 #include "CvEnumSerialization.h"
 #include "CvWonderProductionAI.h"
+#include "cvStopWatch.h"
 
 // must be included after all other headers
 #include "LintFree.h"
@@ -270,13 +271,23 @@ void CvCitySpecializationAI::Read(FDataStream& kStream)
 	kStream >> (int&)m_eNextWonderDesired;
 	kStream >> m_iWonderCityID;
 	kStream >> m_iNextWonderWeight;
+
+	if (uiVersion >= 2)
+	{
+		kStream >> m_iLastTurnEvaluated;
+	}
+	else
+	{
+		m_iLastTurnEvaluated = 0;
+		m_bSpecializationsDirty = true;
+	}
 }
 
 /// Serialization write
 void CvCitySpecializationAI::Write(FDataStream& kStream) const
 {
 	// Current version number
-	uint uiVersion = 1;
+	uint uiVersion = 2;
 	kStream << uiVersion;
 
 	kStream << m_bSpecializationsDirty;
@@ -285,6 +296,7 @@ void CvCitySpecializationAI::Write(FDataStream& kStream) const
 	kStream << m_eNextWonderDesired;
 	kStream << m_iWonderCityID;
 	kStream << m_iNextWonderWeight;
+	kStream << m_iLastTurnEvaluated;
 }
 
 /// Returns the Player object the Strategies are associated with
@@ -302,6 +314,8 @@ CvCitySpecializationXMLEntries* CvCitySpecializationAI::GetCitySpecializations()
 /// Called every turn to see what Strategies this player should using (or not)
 void CvCitySpecializationAI::DoTurn()
 {
+	AI_PERF_FORMAT("AI-perf.csv", ("CvCitySpecializationAI::DoTurn, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), GetPlayer()->getCivilizationShortDescription()) );
+
 	int iCityLoop = 0;
 
 	// No city specializations for humans!

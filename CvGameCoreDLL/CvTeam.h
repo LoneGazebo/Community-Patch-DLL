@@ -368,7 +368,7 @@ public:
 	void setDynamicTurnsSimultMode(bool simultaneousTurns);
 
 	// Wrapper for giving Players on this Team a notification message
-	void AddNotification(NotificationTypes eNotificationType, CvString& strMessage, CvString& strSummary, int iX = -1, int iY = -1, int iGameDataIndex = -1);
+	void AddNotification(NotificationTypes eNotificationType, const char* strMessage, const char* strSummary, int iX = -1, int iY = -1, int iGameDataIndex = -1, int iExtraGameData = -1);
 
 	virtual void Read(FDataStream& kStream);
 	virtual void Write(FDataStream& kStream) const;

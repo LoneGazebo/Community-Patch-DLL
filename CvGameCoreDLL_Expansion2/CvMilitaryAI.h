@@ -296,6 +296,7 @@ private:
 	void UpdateMilitaryStrategies();
 	void UpdateOperations();
 	void MakeEmergencyPurchases();
+	void MakeOffensivePurchases();
 	void RequestImprovements();
 	void DisbandObsoleteUnits();
 	bool IsAttackReady(MultiunitFormationTypes eFormation, AIOperationTypes eOperationType) const;

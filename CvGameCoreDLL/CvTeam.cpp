@@ -3216,13 +3216,10 @@ void CvTeam::makeHasMet(TeamTypes eIndex)
 				}
 
 				// Notify the Team that they met someone
-				if (GetID() == GC.getGame().getActiveTeam())
-				{
-					CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_MET_MINOR_CIV", GET_PLAYER(GET_TEAM(eIndex).getLeaderID()).getNameKey());
-					CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_MET_MINOR_CIV", GET_PLAYER(GET_TEAM(eIndex).getLeaderID()).getNameKey());
+				CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_MET_MINOR_CIV", GET_PLAYER(GET_TEAM(eIndex).getLeaderID()).getNameKey());
+				CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_MET_MINOR_CIV", GET_PLAYER(GET_TEAM(eIndex).getLeaderID()).getNameKey());
 
-					AddNotification(NOTIFICATION_MET_MINOR, strBuffer, strSummary, iCapitalX, iCapitalY, iCapitalID);
-				}
+				AddNotification(NOTIFICATION_MET_MINOR, strBuffer, strSummary, iCapitalX, iCapitalY, iCapitalID);
 			}
 		}
 
@@ -4602,6 +4599,11 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 	CvAssertMsg(ePlayer >= 0, "eIndex is expected to be non-negative (invalid Index)");
 	CvAssertMsg(ePlayer < MAX_PLAYERS, "ePlayer is expected to be within maximum bounds (invalid Index)");
 
+	if(ePlayer == NO_PLAYER)
+	{
+		return;
+	}
+
 	if (GetTeamTechs()->HasTech(eIndex) != bNewValue)
 	{
 		if (pkTechInfo->IsRepeat())
@@ -5029,28 +5031,25 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 				DLLUI->setDirty(MiscButtons_DIRTY_BIT, true);
 				DLLUI->setDirty(SelectionButtons_DIRTY_BIT, true);
 				DLLUI->setDirty(ResearchButtons_DIRTY_BIT, true);
-				if (eIndex != NO_TECH && bNewValue)
-				{
-					bool bDontShowRewardPopup = DLLUI->IsOptionNoRewardPopups();
+			}
 
-					// Notification in MP games
-					if (bDontShowRewardPopup || GC.getGame().isNetworkMultiPlayer())	// KWG: Candidate for !GC.getGame().isOption(GAMEOPTION_SIMULTANEOUS_TURNS)
-					{
-						CvNotifications* pNotifications = GET_PLAYER(GC.getGame().getActivePlayer()).GetNotifications();
-						if (pNotifications)
-						{
-							Localization::String localizedText = Localization::Lookup("TXT_KEY_MISC_YOU_DISCOVERED_TECH");
-							localizedText << pkTechInfo->GetTextKey();
-							pNotifications->Add(NOTIFICATION_TECH_AWARD, localizedText.toUTF8(), localizedText.toUTF8(), -1, -1, 0, (int) eIndex);
-						}
-					}
-					// Popup in SP games
-					else
-					{
-						CvPopupInfo kPopup(BUTTONPOPUP_TECH_AWARD, GC.getGame().getActivePlayer(), 0, eIndex);
-						//kPopup.setText(localizedText.toUTF8());
-						DLLUI->AddPopup(kPopup);
-					}
+			if(eIndex != NO_TECH && bNewValue)
+			{
+				bool bDontShowRewardPopup = DLLUI->IsOptionNoRewardPopups();
+
+				// Notification in MP games
+				if(bDontShowRewardPopup || GC.getGame().isNetworkMultiPlayer())
+				{
+					Localization::String localizedText = Localization::Lookup("TXT_KEY_MISC_YOU_DISCOVERED_TECH");
+					localizedText << pkTechInfo->GetTextKey();
+					AddNotification(NOTIFICATION_TECH_AWARD, localizedText.toUTF8(), localizedText.toUTF8(), -1, -1, 0, (int) eIndex);
+				}
+				// Popup in SP games
+				else if(GetID() == GC.getGame().getActiveTeam())
+				{
+					CvPopupInfo kPopup(BUTTONPOPUP_TECH_AWARD, GC.getGame().getActivePlayer(), 0, eIndex);
+					//kPopup.setText(localizedText.toUTF8());
+					DLLUI->AddPopup(kPopup);
 				}
 			}
 		}
@@ -5749,39 +5748,46 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 				Localization::String strMessage;
 				Localization::String strSummary;
 
-				PlayerTypes eActivePlayer = GC.getGame().getActivePlayer();
+				
+				if(!isBarbarian() && (eNewValue != GC.getGame().getStartEra())){
+					//Era Popup
+					if (!GC.getGame().isNetworkMultiPlayer() && isHuman() && GetID() == GC.getGame().getActiveTeam()){
+						CvPopupInfo kPopupInfo(BUTTONPOPUP_NEW_ERA, eNewValue);
+						DLLUI->AddPopup(kPopupInfo);
+					}
 
-				// Notification for other players entering an era
-				if (		GC.getGame().getActiveTeam() != GetID() &&
-						!isMinorCiv() &&
-						!isBarbarian() &&
-						GET_PLAYER(eActivePlayer).isAlive())
-				{
-					if (GET_PLAYER(eActivePlayer).GetNotifications())
-					{
-						strMessage = Localization::Lookup("TXT_KEY_NTFN_PLAYER_ERA");
+					//Notify Everyone
+					for(int iNotifyLoop = 0; iNotifyLoop < MAX_MAJOR_CIVS; ++iNotifyLoop){
+						PlayerTypes eNotifyPlayer = (PlayerTypes) iNotifyLoop;
+						CvPlayerAI& kCurNotifyPlayer = GET_PLAYER(eNotifyPlayer);
+						CvNotifications* pNotifications = kCurNotifyPlayer.GetNotifications();
+						if(pNotifications && 
+							(kCurNotifyPlayer.getTeam() != GetID() || GC.getGame().isNetworkMultiPlayer()) &&
+							kCurNotifyPlayer.isAlive()){
+							strMessage = Localization::Lookup("TXT_KEY_NTFN_PLAYER_ERA");
 
-						CvEraInfo* pkEraInfo = GC.getEraInfo(eNewValue);
-						const char* szEraTextKey = pkEraInfo->GetTextKey();
+							CvEraInfo* pkEraInfo = GC.getEraInfo(eNewValue);
+							const char* szEraTextKey = pkEraInfo->GetTextKey();
 
-						// Active team has met this team
-						if (GET_TEAM(GC.getGame().getActiveTeam()).isHasMet(GetID()))
-						{
-							CvPlayerAI& player = GET_PLAYER(getLeaderID());
-							if (GC.getGame().isGameMultiPlayer() && player.isHuman())
-								strMessage << player.getNickName() << szEraTextKey;
+							// Notify player has met this team
+							if(GET_TEAM(kCurNotifyPlayer.getTeam()).isHasMet(GetID()))
+							{
+								CvPlayerAI& player = GET_PLAYER(getLeaderID());
+								if(GC.getGame().isGameMultiPlayer() && player.isHuman())
+									strMessage << player.getNickName() << szEraTextKey;
+								else
+									strMessage << player.getName() << szEraTextKey;
+							}
+
+							// Has not met this team
 							else
-								strMessage << player.getName() << szEraTextKey;
-						}
+							{
+								Localization::String unmetPlayer = Localization::Lookup("TXT_KEY_UNMET_PLAYER");
+								strMessage << unmetPlayer << szEraTextKey;
+							}
 
-						// Has not met this team
-						else
-						{
-							Localization::String unmetPlayer = Localization::Lookup("TXT_KEY_UNMET_PLAYER");
-							strMessage << unmetPlayer << szEraTextKey;
+							pNotifications->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strMessage.toUTF8(), -1, -1, -1);
 						}
-
-						GET_PLAYER(eActivePlayer).GetNotifications()->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strMessage.toUTF8(), -1, -1, -1);
 					}
 				}
 
@@ -5873,15 +5879,6 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 		if (GetID() == GC.getGame().getActiveTeam())
 		{
 			DLLUI->setDirty(Soundtrack_DIRTY_BIT, true);
-		}
-
-		if (isHuman() && (GetCurrentEra() != GC.getGame().getStartEra()) && !GC.getGame().isNetworkMultiPlayer())
-		{
-			if (GC.getGame().isFinalInitialized())
-			{
-				CvPopupInfo kPopupInfo(BUTTONPOPUP_NEW_ERA, eNewValue);
-				DLLUI->AddPopup(kPopupInfo);
-			}
 		}
 	}
 }
@@ -6312,7 +6309,7 @@ void CvTeam::Write(FDataStream& kStream) const
 
 //	--------------------------------------------------------------------------------
 /// Wrapper for giving Players on this Team a notification message
-void CvTeam::AddNotification(NotificationTypes eNotificationType, CvString& strMessage, CvString& strSummary, int iX, int iY, int iGameDataIndex)
+void CvTeam::AddNotification(NotificationTypes eNotificationType, const char* strMessage, const char* strSummary, int iX, int iY, int iGameDataIndex, int iExtraGameData)
 {
 	PlayerTypes eLoopPlayer;
 
@@ -6330,6 +6327,6 @@ void CvTeam::AddNotification(NotificationTypes eNotificationType, CvString& strM
 		if (!loopPlayer.GetNotifications())
 			continue;
 
-		loopPlayer.GetNotifications()->Add(eNotificationType, strMessage, strSummary, iX, iY, iGameDataIndex);
+		loopPlayer.GetNotifications()->Add(eNotificationType, strMessage, strSummary, iX, iY, iGameDataIndex, iExtraGameData);
 	}
 }

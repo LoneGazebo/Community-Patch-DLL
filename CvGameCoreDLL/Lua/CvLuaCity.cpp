@@ -399,6 +399,7 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(HasPerformedRangedStrikeThisTurn);
 	Method(RangeCombatUnitDefense);
 	Method(RangeCombatDamage);
+	Method(GetAirStrikeDefenseDamage);
 
 	Method(IsWorkingPlot);
 	Method(AlterWorkingPlot);
@@ -3122,6 +3123,17 @@ int CvLuaCity::lRangeCombatDamage(lua_State* L)
 	bool bIncludeRand = luaL_optbool(L, 4, false);
 
 	const int iRangedDamage = pkCity->rangeCombatDamage(pkDefendingUnit, pkDefendingCity, bIncludeRand);
+	lua_pushinteger(L, iRangedDamage);
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaCity::lGetAirStrikeDefenseDamage(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	CvUnit* pkAttackingUnit = CvLuaUnit::GetInstance(L, 2, false);
+	bool bIncludeRand = luaL_optbool(L, 3, false);
+
+	const int iRangedDamage = pkCity->GetAirStrikeDefenseDamage(pkAttackingUnit, bIncludeRand);
 	lua_pushinteger(L, iRangedDamage);
 	return 1;
 }

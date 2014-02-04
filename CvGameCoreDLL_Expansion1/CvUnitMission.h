@@ -28,6 +28,7 @@ public:
 	static void PushMission(UnitHandle hUnit, MissionTypes eMission, int iData1 = -1, int iData2 = -1, int iFlags = 0, bool bAppend = false, bool bManual = false, MissionAITypes eMissionAI = NO_MISSIONAI, CvPlot* pMissionAIPlot = NULL, CvUnit* pMissionAIUnit = NULL);
 	static void PopMission(UnitHandle hUnit);
 	static void ClearMissionQueue(UnitHandle hUnit, int iUnitCycleTimerOverride);
+	static int  CalculateMissionTimer(UnitHandle hUnit, int iSteps = 0);
 	static void UpdateMissionTimer(UnitHandle hUnit, int iSteps = 0);
 	static const MissionData* IsHeadMission(UnitHandle hUnit, int iMission);
 	static const MissionData* GetHeadMissionData(UnitHandle hUnit);

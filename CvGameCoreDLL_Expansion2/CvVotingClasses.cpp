@@ -15,6 +15,7 @@
 #include "CvGrandStrategyAI.h"
 #include "CvEconomicAI.h"
 #include "CvTechAI.h"
+#include "cvStopWatch.h"
 
 #include "LintFree.h"
 
@@ -307,7 +308,7 @@ void CvResolutionEffects::AddOngoingEffects(const CvResolutionEffects* pOtherEff
 	if (!pOtherEffects->HasOngoingEffects())
 		return;
 
-	iGoldPerTurn							+= pOtherEffects->iOneTimeGold;
+	iGoldPerTurn							+= pOtherEffects->iGoldPerTurn;
 	iResourceQuantity						+= pOtherEffects->iResourceQuantity; // target resource
 	bEmbargoCityStates						|= pOtherEffects->bEmbargoCityStates;
 	bEmbargoPlayer							|= pOtherEffects->bEmbargoPlayer; // target player
@@ -5258,13 +5259,16 @@ void CvLeague::CheckStartSpecialSession(LeagueSpecialSessionTypes eSpecialSessio
 		CvAssert(pInfo);
 		if (pInfo != NULL)
 		{
-			if(!GC.getGame().isNetworkMultiPlayer()){
+			CvGame& kGame = GC.getGame();
+			CvPlayer& kActivePlayer = GET_PLAYER(kGame.getActivePlayer());
+
+			if(!kGame.isNetworkMultiPlayer() && !kActivePlayer.isObserver()){
 				// Show splash screen
 				CvPopupInfo kPopup(BUTTONPOPUP_LEAGUE_SPLASH, GetID(), GetHostMember(), eSpecialSession, 0, /*bJustFounded*/ false);
 				GC.GetEngineUserInterface()->AddPopup(kPopup);
 			}
 
-			DLLUI->AddMessage(0, GC.getGame().getActivePlayer(), false, GC.getEVENT_MESSAGE_TIME(), 
+			DLLUI->AddMessage(0, kGame.getActivePlayer(), false, GC.getEVENT_MESSAGE_TIME(), 
 				GetLocalizedText(pInfo->GetDescriptionKey()).GetCString());
 
 			// Becomes United Nations?
@@ -5860,14 +5864,11 @@ void CvLeague::NotifyProposalResult(CvEnactProposal* pProposal)
 		PlayerTypes eMember = it->ePlayer;
 		if (GET_PLAYER(eMember).isHuman())
 		{
-			if (GET_PLAYER(eMember).isLocalPlayer())
+			CvNotifications* pNotifications = GET_PLAYER(eMember).GetNotifications();
+			if (pNotifications)
 			{
-				CvNotifications* pNotifications = GET_PLAYER(eMember).GetNotifications();
-				if (pNotifications)
-				{
-					pNotifications->Add(NOTIFICATION_LEAGUE_VOTING_DONE, sMessage, sSummary, -1, -1, GetID());
-				}
-			}					
+				pNotifications->Add(NOTIFICATION_LEAGUE_VOTING_DONE, sMessage, sSummary, -1, -1, GetID());
+			}				
 		}
 	}
 }
@@ -5897,14 +5898,11 @@ void CvLeague::NotifyProposalResult(CvRepealProposal* pProposal)
 		PlayerTypes eMember = it->ePlayer;
 		if (GET_PLAYER(eMember).isHuman())
 		{
-			if (GET_PLAYER(eMember).isLocalPlayer())
+			CvNotifications* pNotifications = GET_PLAYER(eMember).GetNotifications();
+			if (pNotifications)
 			{
-				CvNotifications* pNotifications = GET_PLAYER(eMember).GetNotifications();
-				if (pNotifications)
-				{
-					pNotifications->Add(NOTIFICATION_LEAGUE_VOTING_DONE, sMessage, sSummary, -1, -1, GetID());
-				}
-			}					
+				pNotifications->Add(NOTIFICATION_LEAGUE_VOTING_DONE, sMessage, sSummary, -1, -1, GetID());
+			}				
 		}
 	}
 }
@@ -5916,30 +5914,27 @@ void CvLeague::NotifySessionSoon(int iTurnsLeft)
 		PlayerTypes eMember = it->ePlayer;
 		if (GET_PLAYER(eMember).isHuman())
 		{
-			if (GET_PLAYER(eMember).isLocalPlayer())
+			CvNotifications* pNotifications = GET_PLAYER(eMember).GetNotifications();
+			if (pNotifications)
 			{
-				CvNotifications* pNotifications = GET_PLAYER(eMember).GetNotifications();
-				if (pNotifications)
+				CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_LEAGUE_VOTING_SOON");
+
+				Localization::String strTemp = Localization::Lookup("TXT_KEY_NOTIFICATION_LEAGUE_VOTING_SOON_TT");
+				strTemp << GetName() << iTurnsLeft;
+				CvString strInfo = strTemp.toUTF8();
+
+				for (EnactProposalList::iterator itProposal = m_vEnactProposals.begin(); itProposal != m_vEnactProposals.end(); ++itProposal)
 				{
-					CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_LEAGUE_VOTING_SOON");
-
-					Localization::String strTemp = Localization::Lookup("TXT_KEY_NOTIFICATION_LEAGUE_VOTING_SOON_TT");
-					strTemp << GetName() << iTurnsLeft;
-					CvString strInfo = strTemp.toUTF8();
-
-					for (EnactProposalList::iterator itProposal = m_vEnactProposals.begin(); itProposal != m_vEnactProposals.end(); ++itProposal)
-					{
-						strInfo += "[NEWLINE][ICON_BULLET]";
-						strInfo += GetResolutionName(itProposal->GetType(), itProposal->GetID(), itProposal->GetProposerDecision()->GetDecision(), /*bIncludePrefix*/ true);
-					}
-					for (RepealProposalList::iterator itProposal = m_vRepealProposals.begin(); itProposal != m_vRepealProposals.end(); ++itProposal)
-					{
-						strInfo += "[NEWLINE][ICON_BULLET]";
-						strInfo += GetResolutionName(itProposal->GetType(), itProposal->GetID(), itProposal->GetProposerDecision()->GetDecision(), /*bIncludePrefix*/ true);
-					}
-
-					pNotifications->Add(NOTIFICATION_LEAGUE_VOTING_SOON, strInfo, strSummary, -1, -1, GetID());
+					strInfo += "[NEWLINE][ICON_BULLET]";
+					strInfo += GetResolutionName(itProposal->GetType(), itProposal->GetID(), itProposal->GetProposerDecision()->GetDecision(), /*bIncludePrefix*/ true);
 				}
+				for (RepealProposalList::iterator itProposal = m_vRepealProposals.begin(); itProposal != m_vRepealProposals.end(); ++itProposal)
+				{
+					strInfo += "[NEWLINE][ICON_BULLET]";
+					strInfo += GetResolutionName(itProposal->GetType(), itProposal->GetID(), itProposal->GetProposerDecision()->GetDecision(), /*bIncludePrefix*/ true);
+				}
+
+				pNotifications->Add(NOTIFICATION_LEAGUE_VOTING_SOON, strInfo, strSummary, -1, -1, GetID());
 			}
 		}
 	}
@@ -5954,11 +5949,12 @@ void CvLeague::NotifyProjectComplete(LeagueProjectTypes eProject)
 		for (MemberList::iterator it = m_vMembers.begin(); it != m_vMembers.end(); ++it)
 		{
 			PlayerTypes eMember = it->ePlayer;
-			if (GET_PLAYER(eMember).isHuman())
+			CvPlayer& kPlayer = GET_PLAYER(eMember);
+			if (kPlayer.isHuman())
 			{
-				if (GET_PLAYER(eMember).isLocalPlayer())
+				if (kPlayer.isLocalPlayer() && !kPlayer.isObserver())
 				{
-					CvNotifications* pNotifications = GET_PLAYER(eMember).GetNotifications();
+					CvNotifications* pNotifications = kPlayer.GetNotifications();
 					if (pNotifications)
 					{
 						Localization::String sSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_LEAGUE_PROJECT_COMPLETE");
@@ -5984,11 +5980,12 @@ void CvLeague::NotifyProjectProgress(LeagueProjectTypes eProject)
 		for (MemberList::iterator it = m_vMembers.begin(); it != m_vMembers.end(); ++it)
 		{
 			PlayerTypes eMember = it->ePlayer;
-			if (GET_PLAYER(eMember).isHuman())
+			CvPlayer& kPlayer = GET_PLAYER(eMember);
+			if (kPlayer.isHuman())
 			{
-				if (GET_PLAYER(eMember).isLocalPlayer())
+				if (kPlayer.isLocalPlayer() && !kPlayer.isObserver())
 				{
-					CvNotifications* pNotifications = GET_PLAYER(eMember).GetNotifications();
+					CvNotifications* pNotifications = kPlayer.GetNotifications();
 					if (pNotifications)
 					{
 						int iPercentCompleted = (int) (((float)GetProjectProgress(eProject) / (float)GetProjectCost(eProject)) * 100);
@@ -6044,8 +6041,15 @@ void CvLeague::CheckProjectsProgress()
 						DoProjectRewards(it->eType);
 						NotifyProjectComplete(it->eType);
 						it->bComplete = true;
-						CvPopupInfo kPopup(BUTTONPOPUP_LEAGUE_PROJECT_COMPLETED, GetID(), it->eType);
-						GC.GetEngineUserInterface()->AddPopup(kPopup);
+
+						CvGame& kGame = GC.getGame();
+						CvPlayer& kActivePlayer = GET_PLAYER(kGame.getActivePlayer());
+
+						if(!kGame.isNetworkMultiPlayer() && !kActivePlayer.isObserver())
+						{
+							CvPopupInfo kPopup(BUTTONPOPUP_LEAGUE_PROJECT_COMPLETED, GetID(), it->eType);
+							GC.GetEngineUserInterface()->AddPopup(kPopup);
+						}
 						CheckProjectAchievements();
 					}
 				}
@@ -6757,6 +6761,7 @@ void CvGameLeagues::DoPlayerTurn(CvPlayer& kPlayer)
 {
 	if (!GC.getGame().isOption(GAMEOPTION_NO_LEAGUES))
 	{
+		AI_PERF_FORMAT("AI-perf.csv", ("CvGameLeagues::DoPlayerTurn, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), kPlayer.getCivilizationShortDescription()) );
 		for (LeagueList::iterator it = m_vActiveLeagues.begin(); it != m_vActiveLeagues.end(); it++)
 		{
 			if (it->IsMember(kPlayer.GetID()))
@@ -6766,20 +6771,17 @@ void CvGameLeagues::DoPlayerTurn(CvPlayer& kPlayer)
 				{
 					if (kPlayer.isHuman())
 					{
-						if (kPlayer.isLocalPlayer())
+						CvNotifications* pNotifications = kPlayer.GetNotifications();
+						if (pNotifications)
 						{
-							CvNotifications* pNotifications = kPlayer.GetNotifications();
-							if (pNotifications)
-							{
-								CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_LEAGUE_PROPOSALS_NEEDED");
+							CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_LEAGUE_PROPOSALS_NEEDED");
 
-								Localization::String strTemp = Localization::Lookup("TXT_KEY_NOTIFICATION_LEAGUE_PROPOSALS_NEEDED_TT");
-								strTemp << it->GetName();
-								CvString strInfo = strTemp.toUTF8();
+							Localization::String strTemp = Localization::Lookup("TXT_KEY_NOTIFICATION_LEAGUE_PROPOSALS_NEEDED_TT");
+							strTemp << it->GetName();
+							CvString strInfo = strTemp.toUTF8();
 
-								pNotifications->Add(NOTIFICATION_LEAGUE_CALL_FOR_PROPOSALS, strInfo, strSummary, -1, -1, it->GetID());
-							}
-						}					
+							pNotifications->Add(NOTIFICATION_LEAGUE_CALL_FOR_PROPOSALS, strInfo, strSummary, -1, -1, it->GetID());
+						}				
 					}
 					else
 					{
@@ -6799,19 +6801,16 @@ void CvGameLeagues::DoPlayerTurn(CvPlayer& kPlayer)
 						{
 							if (kPlayer.isHuman())
 							{
-								if (kPlayer.isLocalPlayer())
+								CvNotifications* pNotifications = kPlayer.GetNotifications();
+								if (pNotifications)
 								{
-									CvNotifications* pNotifications = kPlayer.GetNotifications();
-									if (pNotifications)
-									{
-										CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_LEAGUE_VOTES_NEEDED");
+									CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_LEAGUE_VOTES_NEEDED");
 
-										Localization::String strTemp = Localization::Lookup("TXT_KEY_NOTIFICATION_LEAGUE_VOTES_NEEDED_TT");
-										strTemp << it->GetName();
-										CvString strInfo = strTemp.toUTF8();
+									Localization::String strTemp = Localization::Lookup("TXT_KEY_NOTIFICATION_LEAGUE_VOTES_NEEDED_TT");
+									strTemp << it->GetName();
+									CvString strInfo = strTemp.toUTF8();
 
-										pNotifications->Add(NOTIFICATION_LEAGUE_CALL_FOR_VOTES, strInfo, strSummary, -1, -1, it->GetID());
-									}
+									pNotifications->Add(NOTIFICATION_LEAGUE_CALL_FOR_VOTES, strInfo, strSummary, -1, -1, it->GetID());
 								}
 							}
 							else
@@ -6899,7 +6898,10 @@ void CvGameLeagues::FoundLeague(PlayerTypes eFounder)
 			league.Init(eGoverningSpecialSession);
 			SetLastEraTrigger(eGoverningEraTrigger);
 
-			if(!GC.getGame().isNetworkMultiPlayer()){
+			CvGame& kGame = GC.getGame();
+			CvPlayer& kActivePlayer = GET_PLAYER(kGame.getActivePlayer());
+
+			if(!kGame.isNetworkMultiPlayer() && !kActivePlayer.isObserver()){
 				// Show splash screen
 				CvPopupInfo kPopup(BUTTONPOPUP_LEAGUE_SPLASH, league.GetID(), league.GetHostMember(), eGoverningSpecialSession, 0, /*bJustFounded*/ true);
 				GC.GetEngineUserInterface()->AddPopup(kPopup);
@@ -7446,6 +7448,8 @@ void CvLeagueAI::DoTurn()
 
 void CvLeagueAI::DoVotes(CvLeague* pLeague)
 {
+	AI_PERF_FORMAT("AI-perf.csv", ("CvLeagueAI::DoVotes, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), GetPlayer()->getCivilizationShortDescription()) );
+
 	int iAttempts = 0;
 	while (pLeague->CanVote(GetPlayer()->GetID()))
 	{
@@ -7546,7 +7550,7 @@ CvLeagueAI::VoteCommitmentList CvLeagueAI::GetDesiredVoteCommitments(PlayerTypes
 					int iDesiredChoice = LeagueHelpers::CHOICE_NONE;
 
 					// Normal Proposals
-					if (it->GetVoterDecision()->GetType() == RESOLUTION_DECISION_REPEAL)
+					if (it->GetRepealDecision()->GetType() == RESOLUTION_DECISION_REPEAL)
 					{
 						if (it->GetProposalPlayer() == GetPlayer()->GetID())
 						{
@@ -7814,8 +7818,6 @@ void CvLeagueAI::DoVoteCommitments(CvLeague* pLeague)
 // How much do we like this vote commitment (either from us to someone else, or from someone else to us)?
 CvLeagueAI::DesireLevels CvLeagueAI::EvaluateVoteForTrade(int iResolutionID, int iVoteChoice, int iNumVotes, bool bRepeal)
 {
-	DBG_UNREFERENCED_PARAMETER(iNumVotes);
-
 	DesireLevels eValue = DESIRE_NEVER;
 	
 	if (GC.getGame().GetGameLeagues()->GetNumActiveLeagues() > 0)
@@ -8451,24 +8453,58 @@ CvLeagueAI::DesireLevels CvLeagueAI::EvaluateDesire(int iRawScore)
 void CvLeagueAI::AllocateVotes(CvLeague* pLeague)
 {
 	CvAssert(pLeague != NULL);
-	if (!(pLeague != NULL)) return;
+	if (!(pLeague != NULL)) 
+		return;
+
 	int iVotes = pLeague->GetRemainingVotesForMember(GetPlayer()->GetID());
 	VoteConsiderationList vConsiderations;
+	int iFocusResolutionID = -1;
 
 	EnactProposalList vEnactProposals = pLeague->GetEnactProposals();
 	for (EnactProposalList::iterator it = vEnactProposals.begin(); it != vEnactProposals.end(); ++it)
 	{
+		// Special case - If an embargo on us is proposed, use all our Delegates towards its outcome
+		if (it->GetEffects()->bEmbargoPlayer && it->GetProposerDecision()->GetDecision() == GetPlayer()->GetID())
+		{
+			iFocusResolutionID = it->GetID();
+		}
+
 		FindBestVoteChoices(it, vConsiderations);
 	}
 	RepealProposalList vRepealProposals = pLeague->GetRepealProposals();
 	for (RepealProposalList::iterator it = vRepealProposals.begin(); it != vRepealProposals.end(); ++it)
 	{
+		// Special case - If an embargo on us is proposed, use all our Delegates towards its outcome
+		if (it->GetEffects()->bEmbargoPlayer && it->GetProposerDecision()->GetDecision() == GetPlayer()->GetID())
+		{
+			iFocusResolutionID = it->GetID();
+		}
+
 		FindBestVoteChoices(it, vConsiderations);
 	}
 
 	if (vConsiderations.size() > 0)
 	{
 		vConsiderations.SortItems();
+
+		// If we want to focus on one resolution, zero out all other considerations
+		if (iFocusResolutionID != -1)
+		{
+			bool bFound = false;
+			for (int i = 0; i < vConsiderations.size(); ++i)
+			{
+				if (vConsiderations.GetElement(i).iID != iFocusResolutionID)
+				{
+					vConsiderations.SetWeight(i, 0);
+				}
+				else
+				{
+					bFound = true;
+				}
+			}
+			CvAssertMsg(bFound, "Could not find the intended proposal when focusing all Delegates on one proposal.");
+			CvAssertMsg(vConsiderations.GetTotalWeight() > 0, "Focusing all Delegates on one proposal, but it has no weight value.");
+		}
 
 		// Even if we don't like anything, make sure we have something to choose from
 		if (vConsiderations.GetTotalWeight() <= 0)
@@ -9160,7 +9196,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 		int iTempScore = -50;
 		if (iNumWonders > 0)
 		{
-			int iFactor = bSeekingCultureVictory ? 15 : 20;
+			int iFactor = bSeekingCultureVictory ? 20 : 15;
 			iTempScore += iNumWonders * iFactor;
 		}
 		iScore += iTempScore;
@@ -9173,7 +9209,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 		int iTempScore = -35;
 		if (iNumNaturalWonders > 0)
 		{
-			int iFactor = bSeekingCultureVictory ? 15 : 20;
+			int iFactor = bSeekingCultureVictory ? 20 : 15;
 			iTempScore += iNumNaturalWonders * iFactor;
 		}
 		iScore += iTempScore;
@@ -9360,9 +9396,9 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 		int iTempScore = -50;
 		if (iNumGPImprovements > 0 || iNumLandmarks > 0)
 		{
-			int iGPImprovementFactor = bSeekingCultureVictory ? 15 : 20;
+			int iGPImprovementFactor = bSeekingCultureVictory ? 20 : 15;
 			iTempScore += iNumGPImprovements * iGPImprovementFactor;
-			int iLandmarkFactor = bSeekingCultureVictory ? 15 : 20;
+			int iLandmarkFactor = bSeekingCultureVictory ? 20 : 15;
 			iTempScore += iNumLandmarks * iLandmarkFactor;
 			iScore += MIN(70, iTempScore);
 		}

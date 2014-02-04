@@ -457,15 +457,14 @@ bool CvDangerPlots::IsDangerByRelationshipZero(PlayerTypes ePlayer, CvPlot* pPlo
 
 
 /// Should this player be ignored when creating the danger plots?
-bool CvDangerPlots::ShouldIgnorePlayer (PlayerTypes ePlayer)
+bool CvDangerPlots::ShouldIgnorePlayer(PlayerTypes ePlayer)
 {
-	// if the player is a minor and they're dealing with a major
-	if (GET_PLAYER(m_ePlayer).isMinorCiv() != GET_PLAYER(ePlayer).isMinorCiv() && !GET_PLAYER(ePlayer).isBarbarian() && !GET_PLAYER(m_ePlayer).isBarbarian())
+	if(GET_PLAYER(m_ePlayer).isMinorCiv() != GET_PLAYER(ePlayer).isMinorCiv() && !GET_PLAYER(ePlayer).isBarbarian() && !GET_PLAYER(m_ePlayer).isBarbarian())
 	{
 		CvPlayer* pMinor = NULL;
 		CvPlayer* pMajor;
 
-		if (GET_PLAYER(m_ePlayer).isMinorCiv())
+		if(GET_PLAYER(m_ePlayer).isMinorCiv())
 		{
 			pMinor = &GET_PLAYER(m_ePlayer);
 			pMajor = &GET_PLAYER(ePlayer);
@@ -476,7 +475,7 @@ bool CvDangerPlots::ShouldIgnorePlayer (PlayerTypes ePlayer)
 			pMajor = &GET_PLAYER(m_ePlayer);
 		}
 
-		if (pMinor->GetMinorCivAI()->IsFriends(pMajor->GetID()) || pMajor->GetDiplomacyAI()->GetMinorCivApproach(pMinor->GetID()) == MINOR_CIV_APPROACH_PROTECTIVE)
+		if(pMinor->GetMinorCivAI()->IsFriends(pMajor->GetID()))
 		{
 			return true;
 		}
@@ -486,7 +485,7 @@ bool CvDangerPlots::ShouldIgnorePlayer (PlayerTypes ePlayer)
 		{
 			TeamTypes eMajorTeam = pMajor->getTeam();
 			TeamTypes eMinorTeam = pMinor->getTeam();
-			if (GET_TEAM(eMajorTeam).isAtWar(eMinorTeam))
+			if (!GET_TEAM(eMajorTeam).isAtWar(eMinorTeam))
 			{
 				return true;
 			}

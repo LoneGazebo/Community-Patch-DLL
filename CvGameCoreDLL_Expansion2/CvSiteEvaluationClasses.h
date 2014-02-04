@@ -58,6 +58,12 @@ protected:
 	int m_iExpansionIndex;
 	int m_iGrowthIndex;
 	int m_iNavalIndex;
+
+	int m_iBrazilMultiplier;
+	int m_iSpainMultiplier;
+	int m_iMorrocoMultiplier;
+	int m_iNetherlandsMultiplier;
+	int m_iIncaMultiplier;
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

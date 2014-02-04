@@ -210,6 +210,7 @@ FDataStream & operator<<(FDataStream & stream, const CustomOption & option)
 	PREGAMEVAR         (GameMapTypes,                       s_gameMapType,            GAME_USER_PARAMETERS);
 	PREGAMEVAR         (int,                                s_gameUpdateTime,         0);
 	PREGAMEVAR         (std::vector<HandicapTypes>,         s_handicaps,              MAX_PLAYERS);
+  PREGAMEVAR				 (std::vector<HandicapTypes>,         s_lastHumanHandicaps,     MAX_PLAYERS);
 	PREGAMEVAR		   (bool,								s_isEarthMap,			  false);
 	PREGAMEVAR         (bool,                               s_isInternetGame,         false);
 	PREGAMEVAR         (std::vector<LeaderHeadTypes>,       s_leaderHeads,            MAX_PLAYERS);
@@ -487,7 +488,7 @@ void ReseatConnectedPlayers()
 			SlotStatus eStatus = slotStatus[i];
 			SlotClaim eClaim = slotClaims[i];
 
-			if ((eStatus == SS_TAKEN || eStatus == SS_COMPUTER) && eClaim == SLOTCLAIM_ASSIGNED)
+			if ((eStatus == SS_TAKEN || eStatus == SS_COMPUTER || eStatus == SS_OBSERVER) && eClaim == SLOTCLAIM_ASSIGNED)
 				++iCount;
 		}
 
@@ -1088,10 +1089,12 @@ void ReseatConnectedPlayers()
 		return NO_HANDICAP;
 	}
 
-	bool isEarthMap()
-	{
-		return s_isEarthMap;
-	}
+HandicapTypes lastHumanHandicap(PlayerTypes p)
+{
+	if(p >= 0 && p < MAX_PLAYERS)
+		return s_lastHumanHandicaps[p];
+	return NO_HANDICAP;
+}
 
 	bool isHotSeat()
 	{
@@ -1783,6 +1786,9 @@ void ReseatConnectedPlayers()
 		}
 		loadFrom >> s_gameUpdateTime;
 		loadFrom >> s_handicaps;
+		if(uiVersion >= 5){
+			loadFrom >> s_lastHumanHandicaps;
+		}
 		loadFrom >> s_isEarthMap;
 		loadFrom >> s_isInternetGame;
 		if (uiVersion == 0)
@@ -2030,6 +2036,7 @@ void ReseatConnectedPlayers()
 			else
 				setHandicap(p, (HandicapTypes)GC.getSTANDARD_HANDICAP());
 
+			setLastHumanHandicap(p, NO_HANDICAP);
 			setPlayerColor(p, NO_PLAYERCOLOR);
 			setArtStyle(p, NO_ARTSTYLE);
 
@@ -2390,15 +2397,6 @@ void ReseatConnectedPlayers()
 			s_worldInfo = CvWorldInfo::CreateCustomWorldSize(kClosestSizeType, iWidth, iHeight);
 	}
 
-	void setEarthMap(bool bIsEarthMap)
-	{
-		s_isEarthMap = bIsEarthMap;
-		if(bIsEarthMap)
-		{
-			setRandomMapScript(false);
-		}
-	}
-
 	void setEmailAddress(PlayerTypes p, const CvString & address)
 	{
 		if(p >= 0 && p < MAX_PLAYERS)
@@ -2547,16 +2545,31 @@ void ReseatConnectedPlayers()
 		s_gameStartType = eStartType;
 	}
 
+
 	void setGameUpdateTime(int updateTime)
 	{
 		s_gameUpdateTime = updateTime;
 	}
 
-	void setHandicap(PlayerTypes p, HandicapTypes h)
-	{
-		if(p >= 0 && p < MAX_PLAYERS)
-			s_handicaps.setAt(p, h);
+void setHandicap(PlayerTypes p, HandicapTypes h)
+{
+	if(p >= 0 && p < MAX_PLAYERS){
+		s_handicaps.setAt(p, h);
+
+		if(slotStatus(p) == SS_TAKEN){
+			//Cache the handicap of human players.  
+			//We do this so we can recall the human handicap setting if the human player happens to disconnect and get replaced by an ai.
+			setLastHumanHandicap(p, h);
+		}
 	}
+}
+
+void setLastHumanHandicap(PlayerTypes p, HandicapTypes h)
+{
+	if(p >= 0 && p < MAX_PLAYERS){
+		s_lastHumanHandicaps.setAt(p, h);
+	}
+}
 
 	void setInternetGame(bool bIsInternetGame)
 	{
@@ -2844,9 +2857,6 @@ void ReseatConnectedPlayers()
 			s_randomMapScript = isRandomMapScript;
 			ResetMapOptions();
 		}
-
-		if(isRandomMapScript)
-			setEarthMap(false);
 	}
 
 	void setReady(PlayerTypes p, bool bIsReady)
@@ -2987,7 +2997,10 @@ void VerifyHandicap(PlayerTypes p)
 		setHandicap(p, (HandicapTypes)GC.getAI_HANDICAP());
 	}
 	else if(handicap(p) == GC.getAI_HANDICAP()){
-		if(GC.getGame().isNetworkMultiPlayer()){
+		if(lastHumanHandicap(p) != NO_HANDICAP){
+			setHandicap(p, lastHumanHandicap(p));
+		}
+		else if(GC.getGame().isNetworkMultiPlayer()){
 			setHandicap(p, (HandicapTypes)GC.getMULTIPLAYER_HANDICAP());
 		}
 		else{
@@ -3127,7 +3140,7 @@ void VerifyHandicap(PlayerTypes p)
 
 	void writeArchive(FDataStream& saveTo)
 	{
-		uint uiVersion = 4;
+		uint uiVersion = 5;
 		saveTo << uiVersion;
 
 		saveTo << s_activePlayer;
@@ -3161,6 +3174,7 @@ void VerifyHandicap(PlayerTypes p)
 		saveTo << s_gameMapType;
 		saveTo << s_gameUpdateTime;
 		saveTo << s_handicaps;
+		saveTo << s_lastHumanHandicaps;
 		saveTo << s_isEarthMap;
 		saveTo << s_isInternetGame;
 		saveTo << s_leaderNames;
