@@ -179,6 +179,11 @@ bool CvDllDatabaseUtility::CacheGameDatabaseData()
 
 	if(bSuccess)
 		m_bGameDatabaseNeedsCaching = false;
+		
+#if defined(CUSTOM_MODS_H)
+	// Load up the CustomModOptions configuration
+	gCustomMods.preloadCache();
+#endif
 
 	return bSuccess;
 }
@@ -260,10 +265,21 @@ bool CvDllDatabaseUtility::PerformDatabasePostProcessing()
 		InsertGameDefine(kInsertDefine, "BARBARIAN_PLAYER", BARBARIAN_PLAYER);
 		InsertGameDefine(kInsertDefine, "BARBARIAN_TEAM", BARBARIAN_TEAM);
 
+#if defined(MOD_GLOBAL_CITY_WORKING)
+		InsertGameDefine(kInsertDefine, "NUM_CITY_PLOTS", AVG_CITY_PLOTS);
+		InsertGameDefine(kInsertDefine, "MIN_CITY_RADIUS", MIN_CITY_RADIUS);
+		InsertGameDefine(kInsertDefine, "MAX_CITY_RADIUS", MAX_CITY_RADIUS);
+#else
 		InsertGameDefine(kInsertDefine, "NUM_CITY_PLOTS", NUM_CITY_PLOTS);
+#endif
 		InsertGameDefine(kInsertDefine, "CITY_HOME_PLOT", CITY_HOME_PLOT);
+#if defined(MOD_GLOBAL_CITY_WORKING)
+		InsertGameDefine(kInsertDefine, "MAX_CITY_RADIUS", MAX_CITY_RADIUS);
+		InsertGameDefine(kInsertDefine, "MAX_CITY_DIAMETER", (2*MAX_CITY_RADIUS+1));
+#else
 		InsertGameDefine(kInsertDefine, "CITY_PLOTS_RADIUS", CITY_PLOTS_RADIUS);
 		InsertGameDefine(kInsertDefine, "CITY_PLOTS_DIAMETER", CITY_PLOTS_DIAMETER);
+#endif
 	}
 
 	db->EndTransaction();
@@ -340,6 +356,11 @@ bool CvDllDatabaseUtility::PrefetchGameData()
 	PrefetchCollection(GC.getImprovementInfo(), "Improvements");
 	PrefetchCollection(GC.getResourceClassInfo(), "ResourceClasses");
 	PrefetchCollection(GC.getResourceInfo(), "Resources");
+#if defined(MOD_API_PLOT_YIELDS)
+	if (MOD_API_PLOT_YIELDS) {
+		PrefetchCollection(GC.getPlotInfo(), "Plots");
+	}
+#endif
 	PrefetchCollection(GC.getTerrainInfo(), "Terrains");
 	PrefetchCollection(GC.getYieldInfo(), "Yields");
 
@@ -367,6 +388,10 @@ bool CvDllDatabaseUtility::PrefetchGameData()
 	PrefetchCollection(GC.getLeagueProjectInfo(), "LeagueProjects");
 	PrefetchCollection(GC.getLeagueProjectRewardInfo(), "LeagueProjectRewards");
 	PrefetchCollection(GC.getResolutionInfo(), "Resolutions");
+
+#if defined(MOD_API_ACHIEVEMENTS) || defined(ACHIEVEMENT_HACKS)
+	PrefetchCollection(GC.getAchievementInfo(), "Achievements");
+#endif
 
 	//Copy flavors into string array
 	{
@@ -591,6 +616,11 @@ bool CvDllDatabaseUtility::ValidatePrefetchProcess()
 	ValidateVectorSize(GetNumPlayerColorInfos);
 	ValidateVectorSize(getNumEntityEventInfos);
 	ValidateVectorSize(getNumMultiUnitFormationInfos);
+#if defined(MOD_API_PLOT_YIELDS)
+	if (MOD_API_PLOT_YIELDS) {
+		ValidateVectorSize(getNumPlotInfos);
+	}
+#endif
 	ValidateVectorSize(getNumTerrainInfos);
 	ValidateVectorSize(getNumResourceClassInfos);
 	ValidateVectorSize(getNumResourceInfos);

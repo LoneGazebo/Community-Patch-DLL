@@ -247,6 +247,7 @@ void CvFlavorManager::Read(FDataStream& kStream)
 	// Version number to maintain backwards compatibility
 	uint uiVersion;
 	kStream >> uiVersion;
+	MOD_SERIALIZE_INIT_READ(kStream);
 
 	CvAssertMsg(GC.getNumFlavorTypes() > 0, "Number of flavors to serialize is expected to greater than 0)");
 
@@ -266,6 +267,7 @@ void CvFlavorManager::Write(FDataStream& kStream)
 	// Current version number
 	uint uiVersion = 1;
 	kStream << uiVersion;
+	MOD_SERIALIZE_INIT_WRITE(kStream);
 
 	CvAssertMsg(GC.getNumFlavorTypes() > 0, "Number of flavors to serialize is expected to greater than 0)");
 	kStream << GC.getNumFlavorTypes();

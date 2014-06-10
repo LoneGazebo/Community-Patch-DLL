@@ -126,6 +126,26 @@ public:
 	void DoTradeScreenOpened();
 	void DoTradeScreenClosed(bool bAIWasMakingOffer);
 
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	DemandResponseTypes GetRequestForHelpResponse(CvDeal* pDeal);
+
+	// How much is item worth to AI?
+	int GetMapValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUseEvenValue);
+	int GetTechValue(TechTypes eTech, bool bFromMe, PlayerTypes eOtherPlayer);
+	int GetVassalageValue(bool bFromMe, PlayerTypes eOtherPlayer,  bool bUseEvenValue);
+
+	// Does AI want to make offer for X?
+	bool IsMakeOfferForMaps(PlayerTypes eOtherPlayer, CvDeal* pDeal);
+	bool IsMakeOfferForTech(PlayerTypes eOtherPlayer, CvDeal* pDeal);
+	bool IsMakeOfferForVassalage(PlayerTypes eOtherPlayer, CvDeal* pDeal);
+
+	// Will adding item to deal even it out?
+	void DoAddTechToThem(CvDeal* pDeal, PlayerTypes eThem, bool bDontChangeTheirExistingItems, int& iTotalValue, int& iValueImOffering, int& iValueTheyreOffering, int iAmountOverWeWillRequest, bool bUseEvenValue);
+	void DoAddTechToUs(CvDeal* pDeal, PlayerTypes eThem, bool bDontChangeMyExistingItems, int& iTotalValue, int& iValueImOffering, int& iValueTheyreOffering, int iAmountUnderWeWillOffer, bool bUseEvenValue);
+	void DoAddMapsToThem(CvDeal* pDeal, PlayerTypes eThem, bool bDontChangeTheirExistingItems, int& iTotalValue, int& iValueImOffering, int& iValueTheyreOffering, int iAmountOverWeWillRequest, bool bUseEvenValue);
+	void DoAddMapsToUs(CvDeal* pDeal, PlayerTypes eThem, bool bDontChangeMyExistingItems, int& iTotalValue, int& iValueImOffering, int& iValueTheyreOffering, int iAmountUnderWeWillOffer, bool bUseEvenValue);
+#endif
+
 private:
 	CvPlayer* m_pPlayer;
 

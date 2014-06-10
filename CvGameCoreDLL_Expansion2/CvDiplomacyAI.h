@@ -738,6 +738,9 @@ public:
 	void ChangeDoFCounter(PlayerTypes ePlayer, int iChange);
 
 	int GetNumDoF();
+#if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
+	int GetNumRA();
+#endif
 
 	bool IsDenounceFriendAcceptable(PlayerTypes ePlayer);
 
@@ -779,6 +782,97 @@ public:
 	void SetFriendDeclaredWarOnUs(PlayerTypes ePlayer, bool bValue);
 	int GetWeDeclaredWarOnFriendCount();
 
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	// Contact Statements
+	void DoMapsOffer(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
+	void DoTechOffer(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
+	void DoGenerousOffer(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
+
+	// Requests
+	bool IsTechRequest(PlayerTypes ePlayer, CvDeal* pDeal, int& iWeightBias);
+
+	bool WantsMapsFromPlayer(PlayerTypes ePlayer);
+
+	// Offers
+	bool IsMakeGenerousOffer(PlayerTypes ePlayer, CvDeal* pDeal, bool& bRandPassed);
+	bool IsGoldGenerousOffer(PlayerTypes ePlayer, CvDeal* pDeal);
+	bool IsLuxuryGenerousOffer(PlayerTypes ePlayer, CvDeal* pDeal);
+	bool IsTechGenerousOffer(PlayerTypes ePlayer, CvDeal* pDeal);
+
+	// Sharing Opinion
+	bool IsShareOpinionAcceptable(PlayerTypes ePlayer);
+	bool IsTooEarlyForShareOpinion(PlayerTypes ePlayer);
+	bool IsShareOpinionTooSoon(PlayerTypes ePlayer) const;
+	
+	bool IsShareOpinionAccepted(PlayerTypes ePlayer) const;
+	void SetShareOpinionAccepted(PlayerTypes ePlayer, bool bValue);
+
+	short GetShareOpinionCounter(PlayerTypes ePlayer) const;
+	void SetShareOpinionCounter(PlayerTypes ePlayer, int iValue);
+	void ChangeShareOpinionCounter(PlayerTypes ePlayer, int iChange);
+
+	// Help Request
+	void DoHelpRequestMade(PlayerTypes ePlayer);
+	bool IsHelpRequestTooSoon(PlayerTypes ePlayer) const;
+	short GetHelpRequestTooSoonNumTurns(PlayerTypes ePlayer) const;
+
+	bool IsHelpRequestEverMade(PlayerTypes ePlayer) const;
+
+	short GetHelpRequestCounter(PlayerTypes ePlayer) const;
+	void SetHelpRequestCounter(PlayerTypes ePlayer, int iValue);
+	void ChangeHelpRequestCounter(PlayerTypes ePlayer, int iChange);
+
+	// Vassals
+	int GetVassalScore(PlayerTypes ePlayer);
+	int GetMasterScore(PlayerTypes ePlayer);
+
+	int GetVassalProtectScore(PlayerTypes ePlayer);
+	int GetHappyAboutVassalagePeacefullyRevokedScore(PlayerTypes ePlayer);
+	int GetAngryAboutVassalageForcefullyRevokedScore(PlayerTypes ePlayer);
+	int GetVassalProtectValue(PlayerTypes ePlayer);
+	void ChangeVassalProtectValue(PlayerTypes ePlayer, int iChange);
+
+	int GetTooManyVassalsScore(PlayerTypes ePlayer);
+
+	int GetBrokenVassalAgreementScore(PlayerTypes ePlayer);
+	void SetBrokenVassalAgreement(PlayerTypes ePlayer, bool bValue);
+	bool IsPlayerBrokenVassalAgreement(PlayerTypes ePlayer);
+	
+	int GetVassalFailedProtectScore(PlayerTypes ePlayer);
+	int GetVassalFailedProtectValue(PlayerTypes ePlayer);
+	void ChangeVassalFailedProtectValue(PlayerTypes ePlayer, int iChange);
+
+	bool IsVassalageAcceptable(PlayerTypes ePlayer);
+	bool IsEndVassalageAcceptable(PlayerTypes ePlayer);
+	bool IsHumanEndVassalageAcceptable(PlayerTypes eHuman);
+	void DoMakeVassalageStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
+	void DoEndVassalageStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
+
+	int GetTurnsSinceVassalagePeacefullyRevoked(PlayerTypes ePlayer) const;
+	void SetTurnsSinceVassalagePeacefullyRevoked(PlayerTypes ePlayer, int iValue);
+	void ChangeTurnsSinceVassalagePeacefullyRevoked(PlayerTypes ePlayer, int iChange);
+
+	int GetTurnsSinceVassalageForcefullyRevoked(PlayerTypes ePlayer) const;
+	void SetTurnsSinceVassalageForcefullyRevoked(PlayerTypes ePlayer, int iValue);
+	void ChangeTurnsSinceVassalageForcefullyRevoked(PlayerTypes ePlayer, int iChange);
+
+	bool IsHappyAboutPlayerVassalagePeacefullyRevoked(PlayerTypes ePlayer);
+	bool IsAngryAboutPlayerVassalageForcefullyRevoked(PlayerTypes ePlayer);
+
+	int GetNumTimesDemandedWhileVassal(PlayerTypes ePlayer) const;
+	void SetNumTimesDemandedWhileVassal(PlayerTypes ePlayer, int iValue);
+	void ChangeNumTimesDemandedWhileVassal(PlayerTypes ePlayer, int iChange);
+
+	void DoWeMadeVassalageWithSomeone(PlayerTypes ePlayer, TeamTypes eTeam);
+	void DoWeEndedVassalageWithSomeone(TeamTypes eTeam);
+
+	GlobalStateTypes GetGlobalState(PlayerTypes ePlayer) const;
+	void SetGlobalState(PlayerTypes ePlayer, GlobalStateTypes eGlobalState);
+
+	void DoUpdateGlobalStates();
+	void DoUpdateGlobalStateForOnePlayer(PlayerTypes ePlayer);
+#endif
+
 	// Working Against Player
 	//bool DoTestWorkingAgainstPlayersDesire(PlayerTypes ePlayer, PlayerTypes &eChosenAgainstPlayer);
 
@@ -799,6 +893,19 @@ public:
 	//bool IsContinueWorkingAgainstPlayer(PlayerTypes ePlayer, PlayerTypes eAgainstPlayer);
 
 	//bool IsWorkingAgainstPlayer(PlayerTypes ePlayer);
+
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	int IsMoveTroopsRequestAcceptable(PlayerTypes ePlayer, bool bJustChecking = false);
+	
+	bool IsPlayerMoveTroopsRequestAccepted(PlayerTypes ePlayer) const;
+	void SetPlayerMoveTroopsRequestAccepted(PlayerTypes ePlayer, bool bValue);
+
+	int GetPlayerMoveTroopsRequestCounter(PlayerTypes ePlayer) const;
+	void SetPlayerMoveTroopsRequestCounter(PlayerTypes ePlayer, int iValue);
+	void ChangePlayerMoveTroopsRequestCounter(PlayerTypes ePlayer, int iChange);
+
+	bool IsTooSoonForMoveTroopsRequest(PlayerTypes ePlayer) const;
+#endif
 
 	/////////////////////////////////////////////////////////
 	// A Player's adherence to statements made to this AI
@@ -1123,6 +1230,13 @@ private:
 
 	CvPlayer* m_pPlayer;
 
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	bool IsVassal(PlayerTypes eOtherPlayer);
+	int GetNumVassals(PlayerTypes eOtherPlayer);
+	
+	void LogGlobalState(CvString& strString, PlayerTypes ePlayer);
+#endif
+
 	// Need a string member so that it doesn't go out of scope after translation
 	Localization::String m_strDiploText;
 
@@ -1324,8 +1438,55 @@ private:
 
 		char m_aacCoopWarAcceptedState[MAX_MAJOR_CIVS* MAX_MAJOR_CIVS];
 		short m_aaiCoopWarCounter[MAX_MAJOR_CIVS* MAX_MAJOR_CIVS];
+
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+		bool m_abShareOpinionAccepted[MAX_MAJOR_CIVS];
+		short m_aiShareOpinionCounter[MAX_MAJOR_CIVS];
+
+		short m_aiHelpRequestCounter[MAX_MAJOR_CIVS];
+		short m_aiHelpRequestTooSoonNumTurns[MAX_MAJOR_CIVS];
+
+		short m_aiNumTimesDemandedWhenVassal[MAX_MAJOR_CIVS];
+		bool m_abPlayerBrokenVassalAgreement[MAX_MAJOR_CIVS];
+
+		short m_aiPlayerVassalageFailedProtectValue[MAX_MAJOR_CIVS];
+		short m_aiPlayerVassalageProtectValue[MAX_MAJOR_CIVS];
+		bool m_abPlayerVassalagePeacefullyRevokedVassal[MAX_MAJOR_CIVS];
+		bool m_abPlayerVassalageForcefullyRevokedVassal[MAX_MAJOR_CIVS];
+		short m_aiPlayerVassalageTurnsSincePeacefullyRevokedVassalage[MAX_MAJOR_CIVS];
+		short m_aiPlayerVassalageTurnsSinceForcefullyRevokedVassalage[MAX_MAJOR_CIVS];
+
+		char m_aeGlobalState[MAX_MAJOR_CIVS];
+
+		bool m_abMoveTroopsRequestAccepted[MAX_MAJOR_CIVS];
+		short m_aiMoveTroopsRequestCounter[MAX_MAJOR_CIVS];
+#endif
 	};
 	DiplomacyAIData* m_pDiploData;
+
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	bool* m_pabShareOpinionAccepted;
+	short* m_paiShareOpinionCounter;
+
+	short* m_paiHelpRequestCounter;
+	short* m_paiHelpRequestTooSoonNumTurns;
+
+	short* m_paiPlayerVassalageFailedProtectValue;
+	short* m_paiPlayerVassalageProtectValue;
+
+	bool* m_pabPlayerVassalagePeacefullyRevokedVassal;
+	bool* m_pabPlayerVassalageForcefullyRevokedVassal;
+
+	short* m_paiPlayerVassalageTurnsSincePeacefullyRevokedVassalage;
+	short* m_paiPlayerVassalageTurnsSinceForcefullyRevokedVassalage;
+
+	short* m_paiNumTimesDemandedWhenVassal;
+	bool* m_pabPlayerBrokenVassalAgreement;
+	char* m_paeGlobalState;
+
+	bool* m_pabMoveTroopsRequestAccepted;
+	short* m_paiMoveTroopsRequestCounter;
+#endif
 
 	// Scratch pad to keep track of Diplo Messages we've sent out in the past
 	short* m_paDiploLogStatementTurnCountScratchPad;
@@ -1551,7 +1712,11 @@ private:
 
 namespace CvDiplomacyAIHelpers
 {
+#if defined(MOD_CONFIG_AI_IN_XML)
+	int GetWarmongerOffset(PlayerTypes eOriginalOwner);
+#else
 	int GetWarmongerOffset(int iNumCitiesRemaining);
+#endif
 	CvString GetWarmongerPreviewString(PlayerTypes eCurrentOwner);
 	CvString GetLiberationPreviewString(PlayerTypes eOriginalOwner);
 	void ApplyWarmongerPenalties(PlayerTypes eConqueror, PlayerTypes eConquered);

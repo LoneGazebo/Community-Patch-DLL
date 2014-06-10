@@ -152,6 +152,10 @@ public:
 	BuildingTypes m_eBuilding;
 	bool m_bThemed;
 	bool m_bEndangered;
+#if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
+	bool m_bPuppet;
+	YieldTypes m_eYieldType;
+#endif
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -181,10 +185,18 @@ public:
 	bool ControlsGreatWork (int iIndex);
 	bool GetGreatWorkLocation(int iGreatWorkIndex, int &iCityID, BuildingTypes &eBuilding, int &iSlot);
 
+#if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
+	void DoSwapGreatWorks(YieldTypes eFocusYield);
+	void MoveWorks (GreatWorkSlotType eType, vector<CvGreatWorkBuildingInMyEmpire> &buildings, vector<CvGreatWorkInMyEmpire> &works1, vector<CvGreatWorkInMyEmpire> &works2, YieldTypes eFocusYield);
+#else
 	void DoSwapGreatWorks();
 	void MoveWorks (GreatWorkSlotType eType, vector<CvGreatWorkBuildingInMyEmpire> &buildings, vector<CvGreatWorkInMyEmpire> &works1, vector<CvGreatWorkInMyEmpire> &works2);
+#endif
 	bool ThemeBuilding(vector<CvGreatWorkBuildingInMyEmpire>::const_iterator it, vector<CvGreatWorkInMyEmpire> &works1, vector<CvGreatWorkInMyEmpire> &works2, bool bConsiderOtherPlayers);
 	bool ThemeEqualArtArtifact(CvGreatWorkBuildingInMyEmpire kBldg, int iThemingBonusIndex, int iNumSlots, vector<CvGreatWorkInMyEmpire> &works1, vector<CvGreatWorkInMyEmpire> &works2, bool bConsiderOtherPlayers);
+#if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
+	void MoveSingleWorks(vector<CvGreatWorkBuildingInMyEmpire> &buildings, vector<CvGreatWorkInMyEmpire> &works1, vector<CvGreatWorkInMyEmpire> &works2, YieldTypes eFocusYield);
+#endif
 	bool FillBuilding(vector<CvGreatWorkBuildingInMyEmpire>::const_iterator it, vector<CvGreatWorkInMyEmpire> &works1, vector<CvGreatWorkInMyEmpire> &works2);
 	void MoveWorkIntoSlot (CvGreatWorkInMyEmpire kWork, int iCityID, BuildingTypes eBuilding, int iSlot);
 	int GetSwappableWritingIndex() const;
@@ -308,7 +320,11 @@ public:
 
 	void Init(CvCity* m_pCity);
 
+#if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
+	int GetNumGreatWorks(bool bIgnoreYield = true) const;
+#else
 	int GetNumGreatWorks() const;
+#endif
 	int GetNumGreatWorkSlots() const;
 	int GetNumAvailableGreatWorkSlots(GreatWorkSlotType eSlotType) const;
 	void ClearGreatWorks();

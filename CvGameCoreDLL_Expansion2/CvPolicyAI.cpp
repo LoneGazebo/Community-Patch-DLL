@@ -55,6 +55,7 @@ void CvPolicyAI::Read(FDataStream& kStream)
 	// Version number to maintain backwards compatibility
 	uint uiVersion;
 	kStream >> uiVersion;
+	MOD_SERIALIZE_INIT_READ(kStream);
 
 	int iWeight;
 
@@ -89,6 +90,7 @@ void CvPolicyAI::Write(FDataStream& kStream)
 	// Current version number
 	uint uiVersion = 1;
 	kStream << uiVersion;
+	MOD_SERIALIZE_INIT_WRITE(kStream);
 
 	CvAssertMsg(m_pCurrentPolicies->GetPolicies() != NULL, "Policy AI serialization failure: no policy data");
 	CvAssertMsg(m_pCurrentPolicies->GetPolicies()->GetNumPolicies() > 0, "Policy AI serialization failure: number of policies not greater than 0");
@@ -231,6 +233,18 @@ int CvPolicyAI::ChooseNextPolicy(CvPlayer* pPlayer)
 
 						iBranchWeight *= (100 - m_iPolicyWeightPercentDropNewBranch);
 						iBranchWeight /= 100;
+						
+#if defined(MOD_AI_SMART_POLICY_CHOICE)
+						if (MOD_AI_SMART_POLICY_CHOICE) {
+							// Rate a bit lower all starting branches as they have policies only useful at the beginning.
+							if (!pPlayer->GetPlayerPolicies()->IsEraPrereqBranch(ePolicyBranch))
+							{
+								iBranchWeight *= 80;
+								iBranchWeight /= 100;
+							}
+						}
+#endif
+
 						if(eCurrentGrandStrategy == eCultureGrandStrategy)
 						{
 							iBranchWeight /= 3;
@@ -344,27 +358,50 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 	int iDiploPriority = max(0, pPlayer->GetGrandStrategyAI()->GetUnitedNationsPriority());
 	int iTechPriority = max(0, pPlayer->GetGrandStrategyAI()->GetSpaceshipPriority());
 	int iCulturePriority = max(0, pPlayer->GetGrandStrategyAI()->GetCulturePriority());
+	
+#if defined(MOD_EVENTS_IDEOLOGIES)
+	if (MOD_EVENTS_IDEOLOGIES) {
+		CvPlayerPolicies* pPolicies = pPlayer->GetPlayerPolicies();
 
-	// Rule out one ideology if we are clearly (at least 25% more priority) going for the victory this ideology doesn't support
-	int iClearPrefPercent = GC.getIDEOLOGY_PERCENT_CLEAR_VICTORY_PREF();
-	if (iConquestPriority > (iDiploPriority   * (100 + iClearPrefPercent) / 100) &&
-		iConquestPriority > (iTechPriority    * (100 + iClearPrefPercent) / 100) &&
-		iConquestPriority > (iCulturePriority * (100 + iClearPrefPercent) / 100))
-	{
-		iFreedomMultiplier = 0;
+		// Just jump on the band-wagon and hard code for three ideologies!!!
+		if (!pPolicies->CanAdoptIdeology(eFreedomBranch)) {
+			iFreedomMultiplier = 0;
+		}
+		if (!pPolicies->CanAdoptIdeology(eAutocracyBranch)) {
+			iAutocracyMultiplier = 0;
+		}
+		if (!pPolicies->CanAdoptIdeology(eOrderBranch)) {
+			iOrderMultiplier = 0;
+		}
 	}
-	else if (iDiploPriority > (iConquestPriority * (100 + iClearPrefPercent) / 100) &&
-		iDiploPriority > (iTechPriority     * (100 + iClearPrefPercent) / 100) &&
-		iDiploPriority > (iCulturePriority  * (100 + iClearPrefPercent) / 100))
-	{
-		iOrderMultiplier = 0;
+#endif
+
+#if defined(MOD_EVENTS_IDEOLOGIES)
+	if (iFreedomMultiplier != 0 && iAutocracyMultiplier != 0 && iOrderMultiplier != 0) {
+#endif
+		// Rule out one ideology if we are clearly (at least 25% more priority) going for the victory this ideology doesn't support
+		int iClearPrefPercent = GC.getIDEOLOGY_PERCENT_CLEAR_VICTORY_PREF();
+		if (iConquestPriority > (iDiploPriority   * (100 + iClearPrefPercent) / 100) &&
+			iConquestPriority > (iTechPriority    * (100 + iClearPrefPercent) / 100) &&
+			iConquestPriority > (iCulturePriority * (100 + iClearPrefPercent) / 100))
+		{
+			iFreedomMultiplier = 0;
+		}
+		else if (iDiploPriority > (iConquestPriority * (100 + iClearPrefPercent) / 100) &&
+				 iDiploPriority > (iTechPriority     * (100 + iClearPrefPercent) / 100) &&
+				 iDiploPriority > (iCulturePriority  * (100 + iClearPrefPercent) / 100))
+		{
+			iOrderMultiplier = 0;
+		}
+		else if (iTechPriority > (iConquestPriority * (100 + iClearPrefPercent) / 100) &&
+				 iTechPriority > (iDiploPriority    * (100 + iClearPrefPercent) / 100) &&
+				 iTechPriority > (iCulturePriority  * (100 + iClearPrefPercent) / 100))
+		{
+			iAutocracyMultiplier = 0;
+		}
+#if defined(MOD_EVENTS_IDEOLOGIES)
 	}
-	else if (iTechPriority > (iConquestPriority * (100 + iClearPrefPercent) / 100) &&
-		iTechPriority > (iDiploPriority    * (100 + iClearPrefPercent) / 100) &&
-		iTechPriority > (iCulturePriority  * (100 + iClearPrefPercent) / 100))
-	{
-		iAutocracyMultiplier = 0;
-	}
+#endif
 
 	int iFreedomTotal = iDiploPriority + iTechPriority + iCulturePriority;
 	int iAutocracyTotal = iDiploPriority + iConquestPriority + iCulturePriority;
@@ -546,6 +583,22 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 	}
 	pPlayer->GetPlayerPolicies()->SetPolicyBranchUnlocked(eChosenBranch, true, false);
 	LogBranchChoice(eChosenBranch);
+
+#if defined(MOD_BUGFIX_MISSING_POLICY_EVENTS)
+	if (MOD_BUGFIX_MISSING_POLICY_EVENTS)
+	{
+		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+		if(pkScriptSystem)
+		{
+			CvLuaArgsHandle args;
+			args->Push(pPlayer->GetID());
+			args->Push(eChosenBranch);
+
+			bool bResult = false;
+			LuaSupport::CallHook(pkScriptSystem, "PlayerAdoptPolicyBranch", args.get(), bResult);
+		}
+	}
+#endif
 }
 
 /// Should the AI look at switching ideology branches?
@@ -556,7 +609,9 @@ void CvPolicyAI::DoConsiderIdeologySwitch(CvPlayer* pPlayer)
 	int iPublicOpinionUnhappiness = pPlayer->GetCulture()->GetPublicOpinionUnhappiness();
 	PolicyBranchTypes ePreferredIdeology = pPlayer->GetCulture()->GetPublicOpinionPreferredIdeology();
 	PolicyBranchTypes eCurrentIdeology = pPlayer->GetPlayerPolicies()->GetLateGamePolicyTree();
+#if !defined(NO_ACHIEVEMENTS)
 	PlayerTypes eMostPressure = pPlayer->GetCulture()->GetPublicOpinionBiggestInfluence();
+#endif
 	
 	// Possible enough that we need to look at this in detail?
 	if (iCurrentHappiness <= GC.getSUPER_UNHAPPY_THRESHOLD() && iPublicOpinionUnhappiness >= 10)
@@ -613,6 +668,7 @@ void CvPolicyAI::DoConsiderIdeologySwitch(CvPlayer* pPlayer)
 			pPlayer->SetAnarchyNumTurns(GC.getSWITCH_POLICY_BRANCHES_ANARCHY_TURNS());
 			pPlayer->GetPlayerPolicies()->DoSwitchIdeologies(ePreferredIdeology);	
 
+#if !defined(NO_ACHIEVEMENTS)
 			if (ePreferredIdeology == GC.getPOLICY_BRANCH_FREEDOM() && eCurrentIdeology == GC.getPOLICY_BRANCH_ORDER())
 			{
 				if (GET_PLAYER(eMostPressure).GetID() == GC.getGame().getActivePlayer())
@@ -620,6 +676,7 @@ void CvPolicyAI::DoConsiderIdeologySwitch(CvPlayer* pPlayer)
 					gDLL->UnlockAchievement(ACHIEVEMENT_XP2_39);
 				}
 			}
+#endif
 		}
 	}
 }

@@ -35,6 +35,10 @@ enum TradeableItems
     TRADE_ITEM_ALLOW_EMBASSY,
 	TRADE_ITEM_DECLARATION_OF_FRIENDSHIP,	// Only "traded" between human players
 	TRADE_ITEM_VOTE_COMMITMENT,
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	TRADE_ITEM_TECHS,
+	TRADE_ITEM_VASSALAGE,
+#endif
     NUM_TRADEABLE_ITEMS,
 };
 FDataStream& operator>>(FDataStream&, TradeableItems&);
@@ -107,6 +111,9 @@ public:
 	PlayerTypes m_eSurrenderingPlayer;
 	PlayerTypes m_eDemandingPlayer;
 	PlayerTypes m_eRequestingPlayer;
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	PlayerTypes m_eOfferingPlayer;
+#endif
 
 	bool m_bConsideringForRenewal; // is currently considering renewing this deal
 	bool m_bCheckedForRenewal; // this deal has been discussed with the player for renewal
@@ -157,6 +164,12 @@ public:
 	PlayerTypes GetRequestingPlayer() const;
 	void SetRequestingPlayer(PlayerTypes ePlayer);
 
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	// Is this deal a generous offer from someone?
+	PlayerTypes GetOfferingPlayer() const;
+	void SetOfferingPlayer(PlayerTypes ePlayer);
+#endif
+
 	// Misc important functions
 
 	int GetGoldAvailable(PlayerTypes ePlayer, TradeableItems eItemToBeChanged);
@@ -185,6 +198,16 @@ public:
 	void AddThirdPartyEmbargo(PlayerTypes eFrom, PlayerTypes eThirdParty, int iDuration);
 	void AddDeclarationOfFriendship(PlayerTypes eFrom);
 	void AddVoteCommitment(PlayerTypes eFrom, int iResolutionID, int iVoteChoice, int iNumVotes, bool bRepeal);
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	void AddTechTrade(PlayerTypes eFrom, TechTypes eTech);
+	void AddVassalageTrade(PlayerTypes eFrom);
+
+	void RemoveTechTrade(TechTypes eTech);
+
+	bool IsMapTrade(PlayerTypes eFrom);
+	bool IsTechTrade(PlayerTypes eFrom, TechTypes eTech);
+	bool IsVassalageTrade(PlayerTypes eFrom);
+#endif
 
 	int GetGoldTrade(PlayerTypes eFrom);
 	bool ChangeGoldTrade(PlayerTypes eFrom, int iNewAmount);

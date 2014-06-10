@@ -74,11 +74,18 @@ public:
 	bool IsResearchAgreementTradingAllowed() const;
 	bool IsTradeAgreementTradingAllowed() const;
 	bool IsPermanentAllianceTrading() const;
+#if defined(MOD_TECHS_CITY_WORKING)
+	int GetCityWorkingChange() const;
+#endif
 	bool IsBridgeBuilding() const;
 	bool IsWaterWork() const;
 	int IsFreePromotion(int i) const;
 	bool IsTriggersArchaeologicalSites() const;
 	bool IsAllowsWorldCongress() const;
+
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	bool IsVassalageTradingAllowed() const;
+#endif
 
 	std::string pyGetQuote()
 	{
@@ -139,6 +146,9 @@ private:
 	bool m_bResearchAgreementTradingAllowed;
 	bool m_bTradeAgreementTradingAllowed;
 	bool m_bPermanentAllianceTrading;
+#if defined(MOD_TECHS_CITY_WORKING)
+	int m_iCityWorkingChange;
+#endif
 	bool m_bBridgeBuilding;
 	bool m_bWaterWork;
 	bool m_bTriggersArchaeologicalSites;
@@ -156,6 +166,10 @@ private:
 	int* m_piPrereqOrTechs;
 	int* m_piPrereqAndTechs;
 	bool* m_pabFreePromotion;
+
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	bool m_bVassalageTradingAllowed;
+#endif
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

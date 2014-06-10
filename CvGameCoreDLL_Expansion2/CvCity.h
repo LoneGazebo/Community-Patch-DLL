@@ -44,7 +44,11 @@ public:
 	CvCity();
 	virtual ~CvCity();
 
+#if defined(MOD_API_EXTENSIONS)
+	void init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits = true, bool bInitialFounding = true, ReligionTypes eInitialReligion = NO_RELIGION, const char* szName = NULL);
+#else
 	void init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits = true, bool bInitialFounding = true);
+#endif
 	void uninit();
 	void reset(int iID = 0, PlayerTypes eOwner = NO_PLAYER, int iX = 0, int iY = 0, bool bConstructorCall = false);
 	void setupGraphical();
@@ -53,8 +57,13 @@ public:
 	void setupSpaceshipGraphics();
 
 
+#if defined(MOD_GLOBAL_VENICE_KEEPS_RESOURCES)
+	void kill(bool bVenice = false);
+	void PreKill(bool bVenice = false);
+#else
 	void kill();
 	void PreKill();
+#endif
 	void PostKill(bool bCapital, CvPlot* pPlot, PlayerTypes eOwner);
 
 	CvPlayer* GetPlayer();
@@ -80,6 +89,12 @@ public:
 	CityTaskResult doTask(TaskTypes eTask, int iData1 = -1, int iData2 = -1, bool bOption = false, bool bAlt = false, bool bShift = false, bool bCtrl = false);
 
 	void chooseProduction(UnitTypes eTrainUnit = NO_UNIT, BuildingTypes eConstructBuilding = NO_BUILDING, ProjectTypes eCreateProject = NO_PROJECT, bool bFinish = false, bool bFront = false);
+
+#if defined(MOD_GLOBAL_CITY_WORKING)
+	int getBuyPlotDistance() const;
+	int getWorkPlotDistance() const;
+	int GetNumWorkablePlots() const;
+#endif
 
 	void clearWorkingOverride(int iIndex);
 	int countNumImprovedPlots(ImprovementTypes eImprovement = NO_IMPROVEMENT, bool bPotential = false) const;
@@ -119,6 +134,9 @@ public:
 	void ChangeTerrainExtraYield(TerrainTypes eTerrain, YieldTypes eYield, int iChange);
 
 	bool IsHasResourceLocal(ResourceTypes eResource, bool bTestVisible) const;
+#if defined(MOD_API_EXTENSIONS) || defined(MOD_TRADE_WONDER_RESOURCE_ROUTES)
+	int GetNumResourceLocal(ResourceTypes eResource);
+#endif
 	void ChangeNumResourceLocal(ResourceTypes eResource, int iChange);
 
 	bool IsBuildingLocalResourceValid(BuildingTypes eBuilding, bool bTestVisible, CvString* toolTipSink = NULL) const;
@@ -180,6 +198,10 @@ public:
 	int getProductionTurnsLeft(BuildingTypes eBuilding, int iNum) const;
 	int getProductionTurnsLeft(ProjectTypes eProject, int iNum) const;
 	int getProductionTurnsLeft(SpecialistTypes eSpecialist, int iNum) const;
+#if defined(MOD_PROCESS_STOCKPILE)
+	int getProductionNeeded(ProcessTypes eProcess) const;
+	int getProductionTurnsLeft(ProcessTypes eProcess, int iNum) const;
+#endif
 	int GetPurchaseCost(UnitTypes eUnit);
 	int GetFaithPurchaseCost(UnitTypes eUnit, bool bIncludeBeliefDiscounts);
 	int GetPurchaseCost(BuildingTypes eBuilding);
@@ -255,6 +277,9 @@ public:
 	void SetEverCapital(bool bValue);
 
 	bool isCoastal(int iMinWaterSize = -1) const;
+#if defined(MOD_API_EXTENSIONS)
+	bool isAddsFreshWater() const;
+#endif
 
 	int foodConsumption(bool bNoAngry = false, int iExtra = 0) const;
 	int foodDifference(bool bBottom = true) const;
@@ -370,6 +395,11 @@ public:
 
 	// END Culture
 
+#if defined(MOD_API_EXTENSIONS)
+	int getTourismRateModifier() const;
+	void changeTourismRateModifier(int iChange);
+#endif
+
 	int GetFaithPerTurn() const;
 	int GetFaithPerTurnFromBuildings() const;
 	void ChangeFaithPerTurnFromBuildings(int iChange);
@@ -404,12 +434,21 @@ public:
 
 	int getPlotBuyCostModifier() const;
 	void changePlotBuyCostModifier(int iChange);
+#if defined(MOD_BUILDINGS_CITY_WORKING)
+	int GetCityWorkingChange() const;
+	void changeCityWorkingChange(int iChange);
+#endif
 
 	int getHealRate() const;
 	void changeHealRate(int iChange);
 
 	int GetEspionageModifier() const;
 	void ChangeEspionageModifier(int iChange);
+
+#if defined(MOD_RELIGION_CONVERSION_MODIFIERS)
+	int GetConversionModifier() const;
+	void ChangeConversionModifier(int iChange);
+#endif
 
 	bool IsNoOccupiedUnhappiness() const;
 	int GetNoOccupiedUnhappinessCount() const;
@@ -508,6 +547,11 @@ public:
 	bool IsOwedCultureBuilding() const;
 	void SetOwedCultureBuilding(bool bNewValue);
 
+#if defined(MOD_BUGFIX_FREE_FOOD_BUILDING)
+	bool IsOwedFoodBuilding() const;
+	void SetOwedFoodBuilding(bool bNewValue);
+#endif
+
 	bool IsBlockaded() const;
 
 	int GetWeLoveTheKingDayCounter() const;
@@ -558,9 +602,20 @@ public:
 	int getBaseYieldRateModifier(YieldTypes eIndex, int iExtra = 0, CvString* toolTipSink = NULL) const;
 	int getYieldRate(YieldTypes eIndex, bool bIgnoreTrade) const;
 	int getYieldRateTimes100(YieldTypes eIndex, bool bIgnoreTrade) const;
+#if defined(MOD_PROCESS_STOCKPILE)
+	int getBasicYieldRateTimes100(YieldTypes eIndex, bool bIgnoreTrade) const;
+#endif
 
 	// Base Yield
 	int getBaseYieldRate(YieldTypes eIndex) const;
+
+#if defined(MOD_DIPLOMACY_CITYSTATES)
+	int GetBaseScienceFromArt() const;
+#endif
+
+#if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
+	int GetBaseYieldRateFromGreatWorks(YieldTypes eIndex) const;
+#endif
 
 	int GetBaseYieldRateFromTerrain(YieldTypes eIndex) const;
 	void ChangeBaseYieldRateFromTerrain(YieldTypes eIndex, int iChange);
@@ -573,6 +628,26 @@ public:
 
 	int GetBaseYieldRateFromMisc(YieldTypes eIndex) const;
 	void ChangeBaseYieldRateFromMisc(YieldTypes eIndex, int iChange);
+
+#if defined(MOD_DIPLOMACY_CITYSTATES)
+	int GetBaseYieldRateFromLeague(YieldTypes eIndex) const;
+	void ChangeBaseYieldRateFromLeague(YieldTypes eIndex, int iChange);
+
+	void ChangeTotalArtsyAid(int iChange);
+	int GetTotalArtsyAid() const;
+	void SetTotalArtsyAid(int iValue);
+
+	void ChangeTotalScienceyAid(int iChange);
+	int GetTotalScienceyAid() const;
+	void SetTotalScienceyAid(int iValue);
+
+	void ChangeTotalGreatWorkAid(int iChange);
+	int GetTotalGreatWorkAid() const;
+	void SetTotalGreatWorkAid(int iValue);
+
+	int GetGrowthExtraYield() const;
+	void ChangeGrowthExtraYield(int iChange);
+#endif
 
 	int GetBaseYieldRateFromReligion(YieldTypes eIndex) const;
 	void ChangeBaseYieldRateFromReligion(YieldTypes eIndex, int iChange);
@@ -646,6 +721,11 @@ public:
 	void setSpecialistProductionTimes100(SpecialistTypes eIndex, int iNewValue);
 	void changeSpecialistProductionTimes100(SpecialistTypes eIndex, int iChange);
 
+#if defined(MOD_PROCESS_STOCKPILE)
+	int getProcessProduction(ProcessTypes eIndex) const;
+	int getProcessProductionTimes100(ProcessTypes eIndex) const;
+#endif
+
 	int getUnitProduction(UnitTypes eIndex) const;
 	void setUnitProduction(UnitTypes eIndex, int iNewValue);
 	void changeUnitProduction(UnitTypes eIndex, int iChange);
@@ -680,6 +760,11 @@ public:
 
 	bool isMadeAttack() const;
 	void setMadeAttack(bool bNewValue);
+
+#if defined(MOD_EVENTS_CITY_BOMBARD)
+	int getBombardRange(bool& bIndirectFireAllowed) const;
+	int getBombardRange() const;
+#endif
 
 	bool canRangeStrike() const;
 	bool CanRangeStrikeNow() const;
@@ -800,6 +885,54 @@ public:
 	void			clearCombat();
 	bool			isFighting() const;
 
+#if defined(MOD_API_EXTENSIONS)
+	bool HasBelief(BeliefTypes iBeliefType) const;
+	bool HasBuilding(BuildingTypes iBuildingType) const;
+	bool HasBuildingClass(BuildingClassTypes iBuildingClassType) const;
+	bool HasAnyWonder() const;
+	bool HasWonder(BuildingTypes iBuildingType) const;
+	bool IsCivilization(CivilizationTypes iCivilizationType) const;
+	bool HasFeature(FeatureTypes iFeatureType) const;
+	bool HasWorkedFeature(FeatureTypes iFeatureType) const;
+	bool HasAnyNaturalWonder() const;
+	bool HasNaturalWonder(FeatureTypes iFeatureType) const;
+	bool HasImprovement(ImprovementTypes iImprovementType) const;
+	bool HasWorkedImprovement(ImprovementTypes iImprovementType) const;
+	bool HasPlotType(PlotTypes iPlotType) const;
+	bool HasWorkedPlotType(PlotTypes iPlotType) const;
+	bool HasAnyReligion() const;
+	bool HasReligion(ReligionTypes iReligionType) const;
+	bool HasResource(ResourceTypes iResourceType) const;
+	bool HasWorkedResource(ResourceTypes iResourceType) const;
+	bool IsConnectedToCapital() const;
+	bool IsConnectedTo(CvCity* pCity) const;
+	bool HasSpecialistSlot(SpecialistTypes iSpecialistType) const;
+	bool HasSpecialist(SpecialistTypes iSpecialistType) const;
+	bool HasTerrain(TerrainTypes iTerrainType) const;
+	bool HasWorkedTerrain(TerrainTypes iTerrainType) const;
+	bool HasAnyDomesticTradeRoute() const;
+	bool HasAnyInternationalTradeRoute() const;
+	bool HasTradeRouteToAnyCity() const;
+	bool HasTradeRouteTo(CvCity* pCity) const;
+	bool HasTradeRouteFromAnyCity() const;
+	bool HasTradeRouteFrom(CvCity* pCity) const;
+	bool IsOnFeature(FeatureTypes iFeatureType) const;
+	bool IsAdjacentToFeature(FeatureTypes iFeatureType) const;
+	bool IsWithinDistanceOfFeature(FeatureTypes iFeatureType, int iDistance) const;
+	bool IsOnImprovement(ImprovementTypes iImprovementType) const;
+	bool IsAdjacentToImprovement(ImprovementTypes iImprovementType) const;
+	bool IsWithinDistanceOfImprovement(ImprovementTypes iImprovementType, int iDistance) const;
+	bool IsOnPlotType(PlotTypes iPlotType) const;
+	bool IsAdjacentToPlotType(PlotTypes iPlotType) const;
+	bool IsWithinDistanceOfPlotType(PlotTypes iPlotType, int iDistance) const;
+	bool IsOnResource(ResourceTypes iResourceType) const;
+	bool IsAdjacentToResource(ResourceTypes iResourceType) const;
+	bool IsWithinDistanceOfResource(ResourceTypes iResourceType, int iDistance) const;
+	bool IsOnTerrain(TerrainTypes iTerrainType) const;
+	bool IsAdjacentToTerrain(TerrainTypes iTerrainType) const;
+	bool IsWithinDistanceOfTerrain(TerrainTypes iTerrainType, int iDistance) const;
+#endif
+
 	int iScratch; // know the scope of your validity
 
 protected:
@@ -840,6 +973,9 @@ protected:
 	FAutoVariable<int, CvCity> m_iCapturePlunderModifier;
 	FAutoVariable<int, CvCity> m_iPlotCultureCostModifier;
 	int m_iPlotBuyCostModifier;
+#if defined(MOD_BUILDINGS_CITY_WORKING)
+	int m_iCityWorkingChange;
+#endif
 	FAutoVariable<int, CvCity> m_iMaintenance;
 	FAutoVariable<int, CvCity> m_iHealRate;
 	FAutoVariable<int, CvCity> m_iNoOccupiedUnhappinessCount;
@@ -874,6 +1010,9 @@ protected:
 	FAutoVariable<int, CvCity> m_iCountExtraLuxuries;
 	FAutoVariable<int, CvCity> m_iCheapestPlotInfluence;
 	int m_iEspionageModifier;
+#if defined(MOD_RELIGION_CONVERSION_MODIFIERS)
+	int m_iConversionModifier;
+#endif
 
 	OperationSlot m_unitBeingBuiltForOperation;
 
@@ -902,6 +1041,13 @@ protected:
 	FAutoVariable<std::vector<int>, CvCity> m_aiBaseYieldRateFromBuildings;
 	FAutoVariable<std::vector<int>, CvCity> m_aiBaseYieldRateFromSpecialists;
 	FAutoVariable<std::vector<int>, CvCity> m_aiBaseYieldRateFromMisc;
+#if defined(MOD_DIPLOMACY_CITYSTATES)
+	FAutoVariable<std::vector<int>, CvCity> m_aiBaseYieldRateFromLeague;
+	int m_iTotalScienceyAid;
+	int m_iTotalArtsyAid;
+	int m_iTotalGreatWorkAid;
+	int m_iChangeGrowthExtraYield;
+#endif
 	std::vector<int> m_aiBaseYieldRateFromReligion;
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldRateModifier;
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldPerPop;
@@ -942,6 +1088,10 @@ protected:
 	CvString m_strName;
 
 	bool m_bOwedCultureBuilding;
+
+#if defined(MOD_BUGFIX_FREE_FOOD_BUILDING)
+	bool m_bOwedFoodBuilding;
+#endif
 
 	mutable FFastSmallFixedList< OrderData, 25, true, c_eCiv5GameplayDLL > m_orderQueue;
 

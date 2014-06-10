@@ -331,7 +331,13 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner)
 	{
 		// Burn the city if the empire is unhappy - keeping the city will only make things worse or if map hint dictates
 		// Huns will burn down everything possible once they have a core of a few cities (was 3, but this put Attila out of the running long term as a conqueror)
+#if defined(MOD_GLOBAL_CS_RAZE_RARELY)
+		CUSTOMLOG("AI_conquerCity: City=%s, Player=%d, ExcessHappiness=%d", pCity->getName().GetCString(), GetID(), GetExcessHappiness());
+		bool bUnhappy = isMinorCiv() ? IsEmpireVeryUnhappy() : IsEmpireUnhappy();
+		if (bUnhappy || (GC.getMap().GetAIMapHint() & 2) || (GetPlayerTraits()->GetRazeSpeedModifier() > 0 && getNumCities() >= 3 + (GC.getGame().getGameTurn() / 100)) )
+#else
 		if (IsEmpireUnhappy() || (GC.getMap().GetAIMapHint() & 2) || (GetPlayerTraits()->GetRazeSpeedModifier() > 0 && getNumCities() >= 3 + (GC.getGame().getGameTurn() / 100)) )
+#endif
 		{
 			pCity->doTask(TASK_RAZE);
 			return;
@@ -417,7 +423,11 @@ void CvPlayerAI::AI_chooseFreeGreatPerson()
 		// Highly wonder competitive and still early in game?
 		if(GetDiplomacyAI()->GetWonderCompetitiveness() >= 8 && GC.getGame().getGameTurn() <= (GC.getGame().getEstimateEndTurn() / 2))
 		{
+#if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
+			eDesiredGreatPerson = GetSpecificUnitType("UNITCLASS_ENGINEER");
+#else
 			eDesiredGreatPerson = (UnitTypes)GC.getInfoTypeForString("UNIT_ENGINEER");
+#endif
 		}
 		else
 		{
@@ -425,19 +435,44 @@ void CvPlayerAI::AI_chooseFreeGreatPerson()
 			AIGrandStrategyTypes eVictoryStrategy = GetGrandStrategyAI()->GetActiveGrandStrategy();
 			if(eVictoryStrategy == (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_CONQUEST"))
 			{
+#if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
+				eDesiredGreatPerson = GetSpecificUnitType("UNITCLASS_GREAT_GENERAL");
+#else
 				eDesiredGreatPerson = (UnitTypes)GC.getInfoTypeForString("UNIT_GREAT_GENERAL");
+#endif
 			}
 			else if(eVictoryStrategy == (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_CULTURE"))
 			{
+#if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
+				eDesiredGreatPerson = GetSpecificUnitType("UNITCLASS_ARTIST");
+#else
 				eDesiredGreatPerson = (UnitTypes)GC.getInfoTypeForString("UNIT_ARTIST");
+#endif
 			}
 			else if(eVictoryStrategy == (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_UNITED_NATIONS"))
 			{
-				eDesiredGreatPerson = (UnitTypes)GC.getInfoTypeForString("UNIT_MERCHANT");
+#if defined(MOD_DIPLOMACY_CITYSTATES)
+				if (MOD_DIPLOMACY_CITYSTATES)
+#if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
+					eDesiredGreatPerson = GetSpecificUnitType("UNITCLASS_GREAT_DIPLOMAT");
+#else
+					eDesiredGreatPerson = (UnitTypes)GC.getInfoTypeForString("UNIT_GREAT_DIPLOMAT");
+#endif
+				else
+#endif
+#if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
+					eDesiredGreatPerson = GetSpecificUnitType("UNITCLASS_MERCHANT");
+#else
+					eDesiredGreatPerson = (UnitTypes)GC.getInfoTypeForString("UNIT_MERCHANT");
+#endif
 			}
 			else if(eVictoryStrategy == (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_SPACESHIP"))
 			{
+#if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
+				eDesiredGreatPerson = GetSpecificUnitType("UNITCLASS_SCIENTIST");
+#else
 				eDesiredGreatPerson = (UnitTypes)GC.getInfoTypeForString("UNIT_SCIENTIST");
+#endif
 			}
 		}
 
@@ -460,10 +495,27 @@ void CvPlayerAI::AI_chooseFreeGreatPerson()
 void CvPlayerAI::AI_chooseFreeTech()
 {
 	TechTypes eBestTech = NO_TECH;
+	
+#if defined(MOD_BUGFIX_MINOR)
+	if(GC.getGame().isOption(GAMEOPTION_NO_SCIENCE))
+		return;
+#endif
 
 	clearResearchQueue();
 
+#if defined(MOD_EVENTS_AI_OVERRIDE_TECH)
+	if (MOD_EVENTS_AI_OVERRIDE_TECH && eBestTech == NO_TECH) {
+		int iValue = 0;
+		if (GAMEEVENTINVOKE_VALUE(iValue, GAMEEVENT_AiOverrideChooseNextTech, GetID(), true) == GAMEEVENTRETURN_VALUE) {
+			// Defend against modder stupidity!
+			if (iValue >= 0 && iValue < GC.getNumTechInfos() && !GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes) iValue)) {
+				eBestTech = (TechTypes)iValue;
+			}
+		}
+	}
+#else
 	// TODO: script override
+#endif
 
 	if(eBestTech == NO_TECH)
 	{
@@ -508,7 +560,19 @@ void CvPlayerAI::AI_chooseResearch()
 
 	if(GetPlayerTechs()->GetCurrentResearch() == NO_TECH)
 	{
+#if defined(MOD_EVENTS_AI_OVERRIDE_TECH)
+		if (MOD_EVENTS_AI_OVERRIDE_TECH && eBestTech == NO_TECH) {
+			int iValue = 0;
+			if (GAMEEVENTINVOKE_VALUE(iValue, GAMEEVENT_AiOverrideChooseNextTech, GetID(), false) == GAMEEVENTRETURN_VALUE) {
+				// Defend against modder stupidity!
+				if (iValue >= 0 && iValue < GC.getNumTechInfos() && !GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes) iValue)) {
+					eBestTech = (TechTypes)iValue;
+				}
+			}
+		}
+#else
 		//todo: script override
+#endif
 
 		if(eBestTech == NO_TECH)
 		{
@@ -689,6 +753,7 @@ void CvPlayerAI::Read(FDataStream& kStream)
 	// Version number to maintain backwards compatibility
 	uint uiVersion;
 	kStream >> uiVersion;
+	MOD_SERIALIZE_INIT_READ(kStream);
 }
 
 
@@ -703,6 +768,7 @@ void CvPlayerAI::Write(FDataStream& kStream) const
 	// Current version number
 	uint uiVersion = 1;
 	kStream << uiVersion;
+	MOD_SERIALIZE_INIT_WRITE(kStream);
 }
 
 void CvPlayerAI::AI_launch(VictoryTypes eVictory)
@@ -851,6 +917,11 @@ void CvPlayerAI::ProcessGreatPeople(void)
 		case UNITAI_ADMIRAL:
 			eDirective = GetDirectiveAdmiral(pLoopUnit);
 			break;
+#if defined(MOD_DIPLOMACY_CITYSTATES)
+		case UNITAI_DIPLOMAT:
+			eDirective = GetDirectiveDiplomat(pLoopUnit);
+			break;
+#endif
 		}
 
 		pLoopUnit->SetGreatPeopleDirective(eDirective);
@@ -933,10 +1004,22 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveWriter(CvUnit* pGreatWriter)
 	{
 		eDirective = GREAT_PEOPLE_DIRECTIVE_USE_POWER;
 	}
+#if defined(MOD_AI_SMART_GREAT_PEOPLE)
+	else if (!MOD_AI_SMART_GREAT_PEOPLE || (GC.getGame().getGameTurn() - pGreatWriter->getGameTurnCreated()) >= GC.getAI_HOMELAND_GREAT_PERSON_TURNS_TO_WAIT())
+#else
 	else
+#endif
 	{
 		eDirective = GREAT_PEOPLE_DIRECTIVE_CULTURE_BLAST;
 	}
+
+#if defined(MOD_AI_SMART_GREAT_PEOPLE)
+	// If still no directive, defaults at building great work.
+	if (MOD_AI_SMART_GREAT_PEOPLE && eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE)
+	{
+		eDirective = GREAT_PEOPLE_DIRECTIVE_USE_POWER;
+	}
+#endif
 
 	return eDirective;
 }
@@ -970,7 +1053,12 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveArtist(CvUnit* pGreatArtist)
 	}
 
 	// If Brazil and we're closing in on Culture Victory
+#if defined(MOD_AI_SMART_GREAT_PEOPLE)
+	int iInfluentialOn = MOD_AI_SMART_GREAT_PEOPLE ? (GC.getGame().GetGameCulture()->GetNumCivsInfluentialForWin() / 4) : 0;
+	if (eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE && GetPlayerTraits()->GetGoldenAgeTourismModifier() > 0 && GetCulture()->GetNumCivsInfluentialOn() > iInfluentialOn)
+#else
 	if (eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE && GetPlayerTraits()->GetGoldenAgeTourismModifier() > 0 && GetCulture()->GetNumCivsInfluentialOn() > 0)
+#endif
 	{
 		eDirective = GREAT_PEOPLE_DIRECTIVE_GOLDEN_AGE;
 	}
@@ -982,10 +1070,22 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveArtist(CvUnit* pGreatArtist)
 		eDirective = GREAT_PEOPLE_DIRECTIVE_USE_POWER;
 	}
 
+#if defined(MOD_AI_SMART_GREAT_PEOPLE)
+	if (eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE && !isGoldenAge() && (!MOD_AI_SMART_GREAT_PEOPLE || (GC.getGame().getGameTurn() - pGreatArtist->getGameTurnCreated()) >= GC.getAI_HOMELAND_GREAT_PERSON_TURNS_TO_WAIT()))
+#else
 	if (eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE && !isGoldenAge())
+#endif
 	{
 		eDirective = GREAT_PEOPLE_DIRECTIVE_GOLDEN_AGE;
 	}
+
+#if defined(MOD_AI_SMART_GREAT_PEOPLE)
+	// If still no directive, defaults at building great work.
+	if (MOD_AI_SMART_GREAT_PEOPLE && eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE)
+	{
+		eDirective = GREAT_PEOPLE_DIRECTIVE_USE_POWER;
+	}
+#endif
 
 	return eDirective;
 }
@@ -1016,7 +1116,11 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveMusician(CvUnit* pGreatMusicia
 	{
 		eDirective = GREAT_PEOPLE_DIRECTIVE_USE_POWER;
 	}
+#if defined(MOD_AI_SMART_GREAT_PEOPLE)
+	else if (!MOD_AI_SMART_GREAT_PEOPLE || (GC.getGame().getGameTurn() - pGreatMusician->getGameTurnCreated()) >= GC.getAI_HOMELAND_GREAT_PERSON_TURNS_TO_WAIT())
+#else
 	else
+#endif
 	{
 		CvPlot* pTarget = FindBestMusicianTargetPlot(pGreatMusician, true);
 		if(pTarget)
@@ -1024,6 +1128,14 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveMusician(CvUnit* pGreatMusicia
 			eDirective = GREAT_PEOPLE_DIRECTIVE_TOURISM_BLAST;
 		}
 	}
+
+#if defined(MOD_AI_SMART_GREAT_PEOPLE)
+	// If still no directive, defaults at building great work.
+	if (MOD_AI_SMART_GREAT_PEOPLE && eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE)
+	{
+		eDirective = GREAT_PEOPLE_DIRECTIVE_USE_POWER;
+	}
+#endif
 
 	return eDirective;
 }
@@ -1077,11 +1189,28 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveMerchant(CvUnit* pGreatMerchan
 
 	if (eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE && GC.getGame().getGameTurn() <= ((GC.getGame().getEstimateEndTurn() * 2) / 4))
 	{
+#if defined(MOD_DIPLOMACY_CITYSTATES)
+		bool bConstructImprovement = !bTheVeniceException;
+		if (!MOD_DIPLOMACY_CITYSTATES) bConstructImprovement = bConstructImprovement && GetDiplomacyAI()->IsGoingForDiploVictory();
+
+		if (bConstructImprovement)
+#else
 		if (GetDiplomacyAI()->IsGoingForDiploVictory() && !bTheVeniceException)
+#endif
 		{
 			eDirective = GREAT_PEOPLE_DIRECTIVE_CONSTRUCT_IMPROVEMENT;
 		}
 	}
+
+#if defined(MOD_AI_SMART_GREAT_PEOPLE)
+	if (MOD_AI_SMART_GREAT_PEOPLE && eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE && GC.getGame().getGameTurn() <= ((GC.getGame().getEstimateEndTurn() * 1) / 4))
+	{
+		if (!bTheVeniceException)
+		{
+			eDirective = GREAT_PEOPLE_DIRECTIVE_CONSTRUCT_IMPROVEMENT;
+		}	
+	}
+#endif
 
 	// Attempt a run to a minor civ
 	if(eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE && IsSafe(this))
@@ -1111,12 +1240,27 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveScientist(CvUnit* /*pGreatScie
 		eDirective = GREAT_PEOPLE_DIRECTIVE_USE_POWER;
 	}
 
+#if defined(MOD_AI_SMART_GREAT_PEOPLE)
+	int iDivisor = MOD_AI_SMART_GREAT_PEOPLE ? 3 : 4;
+	if(eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE && GC.getGame().getGameTurn() <= ((GC.getGame().getEstimateEndTurn() * 1) / iDivisor))
+#else
 	if(eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE && GC.getGame().getGameTurn() <= ((GC.getGame().getEstimateEndTurn() * 1) / 4))
+#endif
 	{
 		if(GetDiplomacyAI()->IsGoingForSpaceshipVictory())
 		{
 			eDirective = GREAT_PEOPLE_DIRECTIVE_CONSTRUCT_IMPROVEMENT;
 		}
+#if defined(MOD_AI_SMART_GREAT_PEOPLE)
+		else if (MOD_AI_SMART_GREAT_PEOPLE)
+		{
+			// Even if not going spaceship right now, build academy 66% of times.
+			if ((GC.getGame().getGameTurn()) % 3 != 0)
+			{
+				eDirective = GREAT_PEOPLE_DIRECTIVE_CONSTRUCT_IMPROVEMENT;
+			}
+		}
+#endif
 	}
 
 	if (eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE)
@@ -1169,8 +1313,25 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveProphet(CvUnit*)
 	// CASE 1: I have an enhanced religion
 	if (pMyReligion && pMyReligion->m_bEnhanced)
 	{
+#if defined(MOD_AI_SMART_GREAT_PEOPLE)
+		bool bSpreadReligion = GetReligionAI()->ChooseProphetConversionCity(false/*bOnlyBetterThanEnhancingReligion*/);
+		
+		// If gets a phophet very early in the game progress, holy site is a great option.
+		if(MOD_AI_SMART_GREAT_PEOPLE && GC.getGame().getGameTurn() <= ((GC.getGame().getEstimateEndTurn() * 1) / 5))
+		{
+			if ((GC.getGame().getGameTurn()) % 3 != 0)
+			{
+				bSpreadReligion = false;
+			}
+		}
+#endif
+
 		// Spread religion if there is any city that needs it
+#if defined(MOD_AI_SMART_GREAT_PEOPLE)
+		if (bSpreadReligion)
+#else
 		if (GetReligionAI()->ChooseProphetConversionCity(false/*bOnlyBetterThanEnhancingReligion*/))
+#endif
 		{
 			eDirective = GREAT_PEOPLE_DIRECTIVE_SPREAD_RELIGION;
 		}
@@ -1220,6 +1381,69 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveAdmiral(CvUnit* /*pGreatAdmira
 
 	return eDirective;
 }
+
+#if defined(MOD_DIPLOMACY_CITYSTATES)
+GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveDiplomat(CvUnit* pGreatDiplomat)
+{
+	GreatPeopleDirectiveTypes eDirective = NO_GREAT_PEOPLE_DIRECTIVE_TYPE;
+
+	CvCity* pCity = FindBestDiplomatTargetCity(pGreatDiplomat);
+	bool bTheVeniceException = false;
+	if (GetPlayerTraits()->IsNoAnnexing())
+	{
+		bTheVeniceException = true;
+	}
+
+	bool bTheAustriaException = false;
+	if (GetPlayerTraits()->IsAbleToAnnexCityStates())
+	{
+		bTheAustriaException = true;
+	}
+
+	PlayerTypes eID = GetDiplomacyAI()->GetPlayer()->GetID();
+	
+	int iFlavorDiplo =  GET_PLAYER(eID).GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DIPLOMACY"));
+	int iDesiredEmb = (iFlavorDiplo - 4);
+	int iEmbassies = GET_PLAYER(eID).GetImprovementLeagueVotes();
+
+	//Embassy numbers should be based on Diplomacy Flavor. More flavor, more embassies!
+	if (eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE)
+	{
+		if(pCity)
+		{
+			if (!bTheAustriaException && !bTheVeniceException && GC.getGame().getGameTurn() < ((GC.getGame().getEstimateEndTurn() * 1) / 2))
+			{
+				if((iEmbassies < iDesiredEmb) || GetDiplomacyAI()->IsGoingForDiploVictory())
+				{
+					eDirective = GREAT_PEOPLE_DIRECTIVE_CONSTRUCT_IMPROVEMENT;
+				}
+			}
+			if (GC.getGame().getGameTurn() >= ((GC.getGame().getEstimateEndTurn() * 1) / 2))
+			{
+				if((iEmbassies < iDesiredEmb) || GetDiplomacyAI()->IsGoingForDiploVictory())
+				{
+					eDirective = GREAT_PEOPLE_DIRECTIVE_CONSTRUCT_IMPROVEMENT;
+				}
+			}
+		}
+	}
+
+	if (eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE)
+	{
+		if(!pCity || (iEmbassies >= iDesiredEmb) || bTheAustriaException || bTheVeniceException)
+		{
+			eDirective = GREAT_PEOPLE_DIRECTIVE_USE_POWER;
+		}
+	}
+
+	if(eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE && (GC.getGame().getGameTurn() - pGreatDiplomat->getGameTurnCreated()) >= GC.getAI_HOMELAND_GREAT_PERSON_TURNS_TO_WAIT())
+	{
+		eDirective = GREAT_PEOPLE_DIRECTIVE_USE_POWER;
+	}
+
+	return eDirective;
+}
+#endif
 
 bool CvPlayerAI::GreatMerchantWantsCash()
 {
@@ -1325,6 +1549,631 @@ CvPlot* CvPlayerAI::FindBestMerchantTargetPlot(CvUnit* pGreatMerchant, bool bOnl
 	return pBestTargetPlot;
 }
 
+#if defined(MOD_DIPLOMACY_CITYSTATES)
+CvCity* CvPlayerAI::FindBestDiplomatTargetCity(UnitHandle pUnit)
+{
+	CvCity* pBestCity = NULL;
+	int iBestScore = 0;
+
+	// Loop through each city state
+	for(int iI = 0; iI < MAX_PLAYERS; iI++)
+	{
+		CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)iI);
+		if(kPlayer.isAlive())
+		{
+		//Loop through each city
+			int iLoop;
+			CvCity* pLoopCity;
+			for(pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
+			{
+				if(pLoopCity && (GET_PLAYER(pLoopCity->getOwner()).isMinorCiv()))
+				{
+					int iScore = ScoreCityForDiplomat(pLoopCity, pUnit);
+					if(iScore > iBestScore)
+					{
+						iBestScore = iScore;
+						pBestCity = pLoopCity;
+					}
+				}
+			}
+		}
+	}
+	return pBestCity;
+}
+
+CvCity* CvPlayerAI::FindBestMessengerTargetCity(UnitHandle pUnit)
+{
+	CvCity* pBestCity = NULL;
+	int iBestScore = 0;
+
+	// Loop through each city state
+	for(int iI = 0; iI < MAX_PLAYERS; iI++)
+	{
+		CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)iI);
+		if(kPlayer.isAlive())
+		{
+		//Loop through each city
+			int iLoop;
+			CvCity* pLoopCity;
+			for(pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
+			{
+				if(pLoopCity && (GET_PLAYER(pLoopCity->getOwner()).isMinorCiv()))
+				{
+					int iScore = ScoreCityForMessenger(pLoopCity, pUnit);
+					if(iScore > iBestScore)
+					{
+						iBestScore = iScore;
+						pBestCity = pLoopCity;
+					}
+				}
+			}
+		}
+	}
+	return pBestCity;
+}	
+
+int CvPlayerAI::ScoreCityForDiplomat(CvCity* pCity, UnitHandle pUnit)
+{
+	int iScore = 0;
+	int iI;
+	CvPlayer& kCityPlayer = GET_PLAYER(pCity->getOwner());
+
+	// Skip if not revealed
+	if(!pCity->plot()->isRevealed(getTeam()))
+	{
+		return iScore;
+	}
+
+	// Return score if at war
+	if(atWar(getTeam(), kCityPlayer.getTeam()))
+	{
+		return iScore;
+	}
+
+	// Do we already have an embassy here?
+	// To iterate all plots owned by a CS, wrap this is a loop that iterates all cities owned by the CS
+	// Iterate all plots owned by a city
+#if defined(MOD_GLOBAL_CITY_WORKING)
+	for(iI = 0; iI < pCity->GetNumWorkablePlots(); iI++)
+#else
+	for(iI = 0; iI < NUM_CITY_PLOTS; iI++)
+#endif
+	{
+		CvPlot* pCityPlot = pCity->GetCityCitizens()->GetCityPlotFromIndex(iI);
+
+		if(pCityPlot != NULL)
+		{
+			ImprovementTypes eEmbassy = (ImprovementTypes)GC.getEMBASSY_IMPROVEMENT();
+			ImprovementTypes CSImprovement = pCityPlot->getImprovementType();
+			if(CSImprovement == eEmbassy)
+			{
+				return iScore;
+			}
+		}
+	}
+
+	//Are we planning on conquering them?
+	if(GetDiplomacyAI()->GetMinorCivApproach(kCityPlayer.GetID()) == MINOR_CIV_APPROACH_CONQUEST)
+	{
+		return iScore;
+	}
+
+	iScore = 100;
+
+	// Then subtract distance
+	iScore -= (plotDistance(pUnit->getX(), pUnit->getY(), pCity->getX(), pCity->getY()) * GC.getINFLUENCE_TARGET_DISTANCE_WEIGHT_VALUE());
+
+	return iScore;
+}
+	
+int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, UnitHandle pUnit)
+{
+	//Initializations...
+	
+	EconomicAIStrategyTypes eDevelopingReligion = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_DEVELOPING_RELIGION");
+	EconomicAIStrategyTypes eNeedHappinessCritical = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_HAPPINESS_CRITICAL");
+	EconomicAIStrategyTypes eNeedHappiness = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_HAPPINESS");
+	EconomicAIStrategyTypes eFoundCity = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_FOUND_CITY");
+	EconomicAIStrategyTypes eExpandLikeCrazy = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_EXPAND_LIKE_CRAZY");
+	EconomicAIStrategyTypes eExpandToOtherContinents = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_EXPAND_TO_OTHER_CONTINENTS");
+	bool bDevelopingReligion = (eFoundCity != NO_ECONOMICAISTRATEGY) ? GetDiplomacyAI()->GetPlayer()->GetEconomicAI()->IsUsingStrategy(eDevelopingReligion) : false;
+	bool bNeedHappinessCritical = (eFoundCity != NO_ECONOMICAISTRATEGY) ? GetDiplomacyAI()->GetPlayer()->GetEconomicAI()->IsUsingStrategy(eNeedHappinessCritical) : false;
+	bool bNeedHappiness = (eFoundCity != NO_ECONOMICAISTRATEGY) ? GetDiplomacyAI()->GetPlayer()->GetEconomicAI()->IsUsingStrategy(eNeedHappiness) : false;
+	bool bFoundCity = (eFoundCity != NO_ECONOMICAISTRATEGY) ? GetDiplomacyAI()->GetPlayer()->GetEconomicAI()->IsUsingStrategy(eFoundCity) : false;
+	bool bExpandLikeCrazy = (eExpandLikeCrazy != NO_ECONOMICAISTRATEGY) ? GetDiplomacyAI()->GetPlayer()->GetEconomicAI()->IsUsingStrategy(eExpandLikeCrazy) : false;
+	bool bExpandToOtherContinents = (eExpandToOtherContinents != NO_ECONOMICAISTRATEGY) ? GetDiplomacyAI()->GetPlayer()->GetEconomicAI()->IsUsingStrategy(eExpandToOtherContinents) : false;
+	int iScore = 0;
+	PlayerTypes eID = GetDiplomacyAI()->GetPlayer()->GetID();
+	CvPlot* pPlot = pCity->plot();
+	int iFriendship = pUnit->getTradeInfluence(pPlot);
+
+	CvMinorCivAI* pMinorCivAI;
+
+	
+	CvPlayer& eMinor= GET_PLAYER(pCity->getOwner());
+	PlayerTypes pMinor = eMinor.GetID();
+	pMinorCivAI = eMinor.GetMinorCivAI();
+
+	int iOtherMajorLoop;
+	PlayerTypes eOtherMajor;
+	int iFriendshipWithMinor;
+	int iOtherPlayerFriendshipWithMinor;
+
+
+	MinorCivApproachTypes eApproach;
+
+	//And now for the exclusions!
+
+	// Skip if not revealed.
+	if(!pCity->plot()->isRevealed(getTeam()))
+	{
+		return iScore;
+	}
+
+	//If we are at war with target minor, let's not send diplomatic lambs to slaughter.
+	if(eMinor.GetMinorCivAI()->IsAtWarWithPlayersTeam(eID))
+	{
+		return iScore;
+	}
+
+	bool bWantsToBuyout = false;
+	if(GetDiplomacyAI()->GetPlayer()->IsAbleToAnnexCityStates())
+	{
+		if(bFoundCity || bExpandLikeCrazy || bExpandToOtherContinents ||
+		        GetDiplomacyAI()->GetStateAllWars() == STATE_ALL_WARS_LOSING ||
+		        GetDiplomacyAI()->IsGoingForWorldConquest())
+		{
+			bWantsToBuyout = true;
+			return iScore;
+		}
+	}
+	
+	// **************************
+	// Approaches
+	// **************************
+
+	iScore = 100;
+	eApproach = GetDiplomacyAI()->GetMinorCivApproach(pMinor);
+
+	// Do we want to change our protection of this minor?
+	GetDiplomacyAI()->DoUpdateMinorCivProtection(pMinor, eApproach);
+
+	if (eApproach == MINOR_CIV_APPROACH_IGNORE)
+	{
+		iScore *= 2;
+	}
+
+	else if (eApproach == MINOR_CIV_APPROACH_FRIENDLY)
+	{
+		iScore *= 3;
+	}
+
+	else if(eApproach == MINOR_CIV_APPROACH_PROTECTIVE)
+	{
+		iScore  *= 4;
+	}
+
+	// **************************
+	// Benefits to Us!
+	// **************************
+
+	//DIPLOMACY - We want all of them the same!
+	if(GetDiplomacyAI()->IsGoingForDiploVictory())
+	{
+		if(pMinorCivAI->GetTrait() == MINOR_CIV_TRAIT_CULTURED)
+		{
+			iScore *= 2;
+		}
+		if(pMinorCivAI->GetTrait() == MINOR_CIV_TRAIT_MILITARISTIC)
+		{
+			iScore *= 2;
+		}
+		if(pMinorCivAI->GetTrait() == MINOR_CIV_TRAIT_MARITIME)
+		{
+			iScore *= 2;
+		}
+		if(pMinorCivAI->GetTrait() == MINOR_CIV_TRAIT_MERCANTILE)
+		{
+			iScore *= 2;
+		}
+		if(pMinorCivAI->GetTrait() == MINOR_CIV_TRAIT_RELIGIOUS)
+		{
+			iScore *= 2;
+		}
+	}
+
+	//MILITARY - We want units and happiness!!
+	else if(GetDiplomacyAI()->IsGoingForWorldConquest())
+	{
+		if(pMinorCivAI->GetTrait() == MINOR_CIV_TRAIT_CULTURED)
+		{
+			iScore *= 2;
+		}
+		if(pMinorCivAI->GetTrait() == MINOR_CIV_TRAIT_MILITARISTIC)
+		{
+			iScore *= 4;
+		}
+		if(pMinorCivAI->GetTrait() == MINOR_CIV_TRAIT_MARITIME)
+		{
+			iScore *= 2;
+		}
+		if(pMinorCivAI->GetTrait() == MINOR_CIV_TRAIT_MERCANTILE)
+		{
+			iScore *= 3;
+		}
+		if(pMinorCivAI->GetTrait() == MINOR_CIV_TRAIT_RELIGIOUS)
+		{
+			iScore *= 2;
+		}
+	}
+
+	//SCIENCE - We want happiness and growth!!
+	else if(GetDiplomacyAI()->IsGoingForSpaceshipVictory())
+	{
+		if(pMinorCivAI->GetTrait() == MINOR_CIV_TRAIT_CULTURED)
+		{
+			iScore *= 2;
+		}
+		if(pMinorCivAI->GetTrait() == MINOR_CIV_TRAIT_MILITARISTIC)
+		{
+			iScore *= 2;
+		}
+		if(pMinorCivAI->GetTrait() == MINOR_CIV_TRAIT_MARITIME)
+		{
+			iScore *= 3;
+		}
+		if(pMinorCivAI->GetTrait() == MINOR_CIV_TRAIT_MERCANTILE)
+		{
+			iScore *= 4;
+		}
+		if(pMinorCivAI->GetTrait() == MINOR_CIV_TRAIT_RELIGIOUS)
+		{
+			iScore *= 2;
+		}
+	}
+
+	//CULTURE - We want culture and religion!!
+	else if(GetDiplomacyAI()->IsGoingForCultureVictory())
+	{
+		if(pMinorCivAI->GetTrait() == MINOR_CIV_TRAIT_CULTURED)
+		{
+			iScore *= 4;
+		}
+		if(pMinorCivAI->GetTrait() == MINOR_CIV_TRAIT_MILITARISTIC)
+		{
+			iScore *= 2;
+		}
+		if(pMinorCivAI->GetTrait() == MINOR_CIV_TRAIT_MARITIME)
+		{
+			iScore *= 2;
+		}
+		if(pMinorCivAI->GetTrait() == MINOR_CIV_TRAIT_MERCANTILE)
+		{
+			iScore *= 2;
+		}
+		if(pMinorCivAI->GetTrait() == MINOR_CIV_TRAIT_RELIGIOUS)
+		{
+			iScore *= 3;
+		}
+	}
+
+	if(bDevelopingReligion)
+	{
+		if(pMinorCivAI->GetTrait() == MINOR_CIV_TRAIT_RELIGIOUS)
+		{
+			iScore *= 3;
+		}
+	}
+
+
+
+	// Is Our Influence worth more here? Definitely take advantage of this.
+	if(pMinorCivAI->IsActiveQuestForPlayer(eID, MINOR_CIV_QUEST_INFLUENCE))
+	{
+		iScore *= 4;
+	}
+	
+	// Do they have a resource we lack?
+	int iResourcesWeLack = pMinorCivAI->GetNumResourcesMajorLacks(eID);
+	if(iResourcesWeLack > 0)
+	{
+		if(bNeedHappiness)
+		{
+			iScore *= 3;
+		}
+		else if(bNeedHappinessCritical)
+		{
+			iScore *= 5;
+		}
+		else
+		{
+			iScore *= 2;
+		}
+	}
+
+	//Nobody likes hostile city-states.
+	if(pMinorCivAI->GetPersonality() == MINOR_CIV_PERSONALITY_HOSTILE)
+	{
+		iScore /= 2;
+	}
+
+	// **************************
+	// Other Relationships!
+	// **************************
+
+	PlayerTypes eAlliedPlayer = NO_PLAYER;
+	iFriendshipWithMinor = pMinorCivAI->GetEffectiveFriendshipWithMajor(eID);
+	eAlliedPlayer = pMinorCivAI->GetAlly();
+	
+	if(eAlliedPlayer != NO_PLAYER)
+	{
+		// Loop through other players to see if we can pass them in influence
+		for(iOtherMajorLoop = 0; iOtherMajorLoop < MAX_MAJOR_CIVS; iOtherMajorLoop++)
+		{
+			eOtherMajor = (PlayerTypes) iOtherMajorLoop;
+
+			iOtherPlayerFriendshipWithMinor = pMinorCivAI->GetEffectiveFriendshipWithMajor(eOtherMajor);
+
+			// If another player is allied, let's evaluate that.
+
+			//Are they not on our team?
+			if(GET_PLAYER(eOtherMajor).getTeam() != getTeam())
+			{
+				// Only care if they are allies
+				if(pMinorCivAI->IsAllies(eOtherMajor))
+				{
+					//If their influence is way higher than ours, let's tune this down...
+					if(iOtherPlayerFriendshipWithMinor >= (60 + iFriendship + iFriendshipWithMinor))
+					{
+						iScore /= 3;
+					}
+					//If we can pass them, ramp it up!
+					else if(iOtherPlayerFriendshipWithMinor < (iFriendship + iFriendshipWithMinor)) 
+					{
+						iScore *= 3;
+					}
+				}
+			}
+			// If a teammate is allied, let's discourage going there.
+			else if(GET_PLAYER(eOtherMajor).getTeam() == getTeam())
+			{
+				// Only care if they are allies
+				if(pMinorCivAI->IsAllies(eOtherMajor))
+				{
+					iScore /= 3;
+				}
+			}
+			// Are we allied? Yay! But let's be careful.
+			if(pMinorCivAI->IsAllies(eID))
+			{
+				// Are WE allies by a wide margin (over 100)? If so, let's find someone new to love.
+				if(iFriendshipWithMinor >= (60 + iOtherPlayerFriendshipWithMinor)) 
+				{
+					iScore /= 4;
+				}
+				// Is another player really close to us? If so, let's keep an eye on things.
+				if(iOtherPlayerFriendshipWithMinor >= (iFriendshipWithMinor - 30))
+				{
+					iScore *= 2;
+				}
+					// Are we close to losing our status? If so, obsess away!
+				if(pMinorCivAI->IsCloseToNotBeingAllies(eID))
+				{
+					iScore *= 5;
+				}
+			}
+			MajorCivApproachTypes eApproachType = GetDiplomacyAI()->GetMajorCivApproach(eOtherMajor, false);
+			MajorCivOpinionTypes eOpinion = GetDiplomacyAI()->GetMajorCivOpinion(eOtherMajor);
+			// If a friendly player is allied, let's discourage going there.
+			if(eApproachType == MAJOR_CIV_APPROACH_FRIENDLY)
+			{
+				// Only care if they are allies
+				if(pMinorCivAI->IsAllies(eOtherMajor))
+				{
+					iScore /= 2;
+				}
+			}
+			// If an enemy is allied, let's take their stuff!
+			else if(eApproachType == MAJOR_CIV_APPROACH_HOSTILE)
+			{
+				// Only care if they are allies
+				if(pMinorCivAI->IsAllies(eOtherMajor))
+				{
+					iScore *= 2;
+				}
+			}
+			// If an ally is allied, let's leave it alone!
+			if(eOpinion == MAJOR_CIV_OPINION_ALLY)
+			{
+				// Only care if they are allies
+				if(pMinorCivAI->IsAllies(eOtherMajor))
+				{
+					iScore /= 2;
+				}
+			}
+			// If an competitor is allied, let's fight for it!
+			else if(eOpinion == MAJOR_CIV_OPINION_COMPETITOR)
+			{
+				// Only care if they are allies
+				if(pMinorCivAI->IsAllies(eOtherMajor))
+				{
+					iScore *= 2;
+				}
+			}
+		}
+	}
+	// Are we close to becoming an normal (60) ally and no one else ? If so, obsess away!
+	if((iFriendshipWithMinor + iFriendship) >= pMinorCivAI->GetAlliesThreshold())
+	{
+			iScore *= 6;
+	}
+
+	// Are we already Friends? If so, let's stay the course.
+	if(pMinorCivAI->IsFriends(eID))
+	{
+		iScore *= 2;
+	}
+
+	// Did we bully you recently?  If so, being friendly now would be very odd.
+	if(pMinorCivAI->IsRecentlyBulliedByMajor(eID))
+	{
+		iScore /= 6;
+	}
+
+	// **************************
+	// Distance
+	// **************************
+
+	
+	CvMap& theMap = GC.getMap();
+	CvArea* pArea = theMap.getArea(pCity->getArea());
+
+	// Subtract distance (XML value important here!)
+	iScore -= ((plotDistance(pUnit->getX(), pUnit->getY(), pCity->getX(), pCity->getY())) * GC.getINFLUENCE_TARGET_DISTANCE_WEIGHT_VALUE());
+
+	// Multiplier by how safe it is
+	if(!atWar(getTeam(), eMinor.getTeam()))
+	{
+		iScore *= 2;
+	}
+
+	//If our friendship is under 0, we've probably done something bad to this City-State. Let's not look at them!
+	if(eMinor.GetMinorCivAI()->GetEffectiveFriendshipWithMajor(eID) < 0)
+	{
+		iScore /= 2;
+	}
+
+	//Are there barbarians near the city-state? If so, abort!
+	if(eMinor.GetMinorCivAI()->IsThreateningBarbariansEventActiveForPlayer(eID))
+	{
+		iScore /= 4;
+	}
+
+	//Let's downplay minors we can't walk to if we don't have embarkation.
+	if((pCity->getArea() != pUnit->getArea()) && !GET_TEAM(GET_PLAYER(eID).getTeam()).canEmbark())
+	{
+		iScore /= 3;
+	}
+
+	//Let's downplay far/distant minors without full embarkation.
+	else if((pCity->getArea() != pUnit->getArea()) && !GET_TEAM(GET_PLAYER(eID).getTeam()).canEmbarkAllWaterPassage())
+	{
+		iScore /= 2;
+	}
+
+	//If we can travel across oceans, let's emphasize island CSs to get them alliances.
+	else if((pArea->getNumTiles() <= 15) && GET_TEAM(GET_PLAYER(eID).getTeam()).canEmbarkAllWaterPassage())
+	{
+		iScore *= 2;
+	}
+
+	return iScore;
+}
+
+CvPlot* CvPlayerAI::ChooseDiplomatTargetPlot(UnitHandle pUnit, int* piTurns)
+{
+	CvCity* pCity = FindBestDiplomatTargetCity(pUnit);
+	int iBestNumTurns = MAX_INT;
+	int iTurns;
+	int iBestDistance = MAX_INT;
+	int iDistance;
+	CvPlot* pBestTarget = NULL;
+
+	if(pCity == NULL)
+	{
+		return NULL;
+	}
+	// Find adjacent plot with no units (that aren't our own)
+	CvPlot* pLoopPlot;
+	for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+	{
+		pLoopPlot = plotDirection(pCity->getX(), pCity->getY(), ((DirectionTypes)iI));
+
+		if(pLoopPlot != NULL)
+		{
+			CvUnit* pFirstUnit = pLoopPlot->getUnitByIndex(0);
+			if(pFirstUnit && pFirstUnit->getOwner() != GetID())
+			{
+				continue;
+			}
+			iTurns = TurnsToReachTarget(pUnit, pLoopPlot, false /* bReusePaths */);
+			if(iTurns < MAX_INT)
+			{
+				iDistance = plotDistance(pUnit->getX(), pUnit->getY(), pLoopPlot->getX(), pLoopPlot->getY());
+
+				if(pLoopPlot->isWater())
+				{
+					continue;
+				}
+
+				if(iTurns < iBestNumTurns || (iTurns == iBestNumTurns && iDistance < iBestDistance))
+				{
+					iBestNumTurns = iTurns;
+					iBestDistance = iDistance;
+					pBestTarget = pLoopPlot;
+				}
+			}
+		}
+	}
+
+	if(piTurns)
+		*piTurns = iBestNumTurns;
+	return pBestTarget;
+}
+
+CvPlot* CvPlayerAI::ChooseMessengerTargetPlot(UnitHandle pUnit, int* piTurns)
+{
+	CvCity* pCity = FindBestMessengerTargetCity(pUnit);
+	int iBestNumTurns = MAX_INT;
+	int iTurns;
+	int iBestDistance = MAX_INT;
+	int iDistance;
+	CvPlot* pBestTarget = NULL;
+
+	if(pCity == NULL)
+	{
+		return NULL;
+	}
+	// Find adjacent plot with no units (that aren't our own)
+	CvPlot* pLoopPlot;
+	for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+	{
+		pLoopPlot = plotDirection(pCity->getX(), pCity->getY(), ((DirectionTypes)iI));
+
+		if(pLoopPlot != NULL)
+		{
+			CvUnit* pFirstUnit = pLoopPlot->getUnitByIndex(0);
+			if(pFirstUnit && pFirstUnit->getOwner() != GetID())
+			{
+				continue;
+			}
+			iTurns = TurnsToReachTarget(pUnit, pLoopPlot, false /* bReusePaths */);
+			if(iTurns < MAX_INT)
+			{
+				iDistance = plotDistance(pUnit->getX(), pUnit->getY(), pLoopPlot->getX(), pLoopPlot->getY());
+
+				// Consider it to be twice as far if a water plot (those are dangerous!)
+				if(pLoopPlot->isWater())
+				{
+					iDistance *= 2;
+				}
+
+				if(iTurns < iBestNumTurns || (iTurns == iBestNumTurns && iDistance < iBestDistance))
+				{
+					iBestNumTurns = iTurns;
+					iBestDistance = iDistance;
+					pBestTarget = pLoopPlot;
+				}
+			}
+		}
+	}
+
+	if(piTurns)
+		*piTurns = iBestNumTurns;
+	return pBestTarget;
+}
+#endif
+
 CvPlot* CvPlayerAI::FindBestMusicianTargetPlot(CvUnit* pGreatMusician, bool bOnlySafePaths)
 {
 	CvAssertMsg(pGreatMusician, "pGreatMusician is null");
@@ -1380,7 +2229,11 @@ CvPlot* CvPlayerAI::FindBestMusicianTargetPlot(CvUnit* pGreatMusician, bool bOnl
 	{
 		iBestTurnsToReach = MAX_INT;
 		CvPlot *pLoopPlot;
+#if defined(MOD_GLOBAL_CITY_WORKING)
+		for(int iJ = 0; iJ < pBestTargetCity->GetNumWorkablePlots(); iJ++)
+#else
 		for(int iJ = 0; iJ < NUM_CITY_PLOTS; iJ++)
+#endif
 		{
 			pLoopPlot = plotCity(pBestTargetCity->getX(), pBestTargetCity->getY(), iJ);
 			if(pLoopPlot != NULL)

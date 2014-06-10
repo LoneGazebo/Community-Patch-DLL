@@ -241,6 +241,11 @@ bool CvGameQueries::AreUnitsSameType(UnitTypes eFirstUnitType, UnitTypes eSecond
 			bUnit1Combat = true;
 		}
 
+#if defined(MOD_GLOBAL_BREAK_CIVILIAN_1UPT)
+		if(MOD_GLOBAL_BREAK_CIVILIAN_1UPT && !bUnit1Combat)
+			return false;
+#endif
+
 		// Unit 2 is a combat unit?
 		if(pkSecondUnitInfo->GetCombat() > 0 || pkSecondUnitInfo->GetRange() > 0)
 		{

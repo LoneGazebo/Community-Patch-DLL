@@ -120,6 +120,9 @@ public:
 	bool isAdjacentToLand_Cached() const { return m_bIsAdjacentToLand; }
 	bool isShallowWater() const;
 	bool isAdjacentToShallowWater() const;
+#if defined(MOD_PROMOTIONS_CROSS_ICE)
+	bool isAdjacentToIce() const;
+#endif
 	bool isCoastalLand(int iMinWaterSize = -1) const;
 	int GetSizeLargestAdjacentWater() const;
 
@@ -147,7 +150,11 @@ public:
 	void updateSight(bool bIncrement);
 	void updateSeeFromSight(bool bIncrement);
 
+#if defined(MOD_API_EXTENSIONS)
+	bool canHaveResource(ResourceTypes eResource, bool bIgnoreLatitude = false, bool bIgnoreCiv = false) const;
+#else
 	bool canHaveResource(ResourceTypes eResource, bool bIgnoreLatitude = false) const;
+#endif
 	bool canHaveImprovement(ImprovementTypes eImprovement, TeamTypes eTeam = NO_TEAM, bool bOnlyTestVisible = false) const;
 
 	bool canBuild(BuildTypes eBuild, PlayerTypes ePlayer = NO_PLAYER, bool bTestVisible = false, bool bTestPlotOwner = true) const;
@@ -165,6 +172,12 @@ public:
 	int defenseModifier(TeamTypes eDefender, bool bIgnoreBuilding, bool bHelp = false) const;
 	int movementCost(const CvUnit* pUnit, const CvPlot* pFromPlot, int iMovesRemaining = 0) const;
 	int MovementCostNoZOC(const CvUnit* pUnit, const CvPlot* pFromPlot, int iMovesRemaining = 0) const;
+#if defined(MOD_GLOBAL_STACKING_RULES)
+	inline int getUnitLimit() const 
+	{
+		return isCity() ? GC.getCITY_UNIT_LIMIT() : (GC.getPLOT_UNIT_LIMIT() + getAdditionalUnitsFromImprovement());
+	}
+#endif
 
 	int getExtraMovePathCost() const;
 	void changeExtraMovePathCost(int iChange);
@@ -188,6 +201,10 @@ public:
 	bool isRevealedBarbarian() const;
 
 	bool HasBarbarianCamp();
+
+#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
+	bool HasDig();
+#endif	
 
 	bool isVisible(TeamTypes eTeam, bool bDebug) const
 	{
@@ -255,6 +272,9 @@ public:
 	}
 
 	bool isFriendlyCity(const CvUnit& kUnit, bool bCheckImprovement) const;
+#if defined(MOD_GLOBAL_PASSABLE_FORTS)
+	bool isFriendlyCityOrPassableImprovement(const CvUnit& kUnit, bool bCheckImprovement) const;
+#endif
 	bool IsFriendlyTerritory(PlayerTypes ePlayer) const;
 
 	bool isBeingWorked() const;
@@ -269,7 +289,14 @@ public:
 	bool isVisibleEnemyUnit(const CvUnit* pUnit) const;
 	bool isVisibleOtherUnit(PlayerTypes ePlayer) const;
 
+#if defined(MOD_GLOBAL_SHORT_EMBARKED_BLOCKADES)
+	bool IsActualEnemyUnit(PlayerTypes ePlayer, bool bCombatUnitsOnly = true, bool bNavalUnitsOnly=false) const;
+#else
 	bool IsActualEnemyUnit(PlayerTypes ePlayer, bool bCombatUnitsOnly = true) const;
+#endif
+#if defined(MOD_GLOBAL_ALLIES_BLOCK_BLOCKADES)
+	bool IsActualAlliedUnit(PlayerTypes ePlayer, bool bCombatUnitsOnly = true) const;
+#endif
 
 	int getNumFriendlyUnitsOfType(const CvUnit* pUnit, bool bBreakOnUnitLimit = true) const;
 
@@ -337,6 +364,11 @@ public:
 
 	int ComputeCultureFromAdjacentImprovement(CvImprovementEntry& kImprovement, ImprovementTypes eValue) const;
 
+#if defined(MOD_GLOBAL_STACKING_RULES)
+	int getAdditionalUnitsFromImprovement() const;
+	void calculateAdditionalUnitsFromImprovement();
+#endif
+
 	int getNumMajorCivsRevealed() const;
 	void setNumMajorCivsRevealed(int iNewValue);
 	void changeNumMajorCivsRevealed(int iChange);
@@ -394,6 +426,32 @@ public:
 	{
 		return (PlotTypes)m_ePlotType == PLOT_HILLS;
 	};
+#if defined(MOD_PROMOTIONS_CROSS_ICE)
+	bool isIce()            const
+	{
+		return getFeatureType() == FEATURE_ICE;
+	};
+#endif
+#if defined(MOD_PATHFINDER_TERRAFIRMA)
+	bool isTerraFirma(const CvUnit* pUnit)     const
+	{
+		bool bTerraFirma = !isWater();
+		
+		if (pUnit->getDomainType() == DOMAIN_LAND) {
+#if defined(MOD_PROMOTIONS_CROSS_ICE)
+			bTerraFirma = bTerraFirma || (pUnit->canCrossIce() && isIce());
+#endif
+#if defined(MOD_PROMOTIONS_DEEP_WATER_EMBARKATION)
+			bTerraFirma = bTerraFirma || (pUnit->IsHoveringUnit() && isShallowWater());
+#endif
+#if defined(MOD_BUGFIX_HOVERING_PATHFINDER)
+			bTerraFirma = bTerraFirma || (pUnit->IsHoveringUnit() && (isShallowWater() || getFeatureType() == FEATURE_ICE));
+#endif
+		}
+		
+		return bTerraFirma;
+	};
+#endif
 	bool isOpenGround()     const
 	{
 		if((PlotTypes)m_ePlotType == PLOT_HILLS || (PlotTypes)m_ePlotType == PLOT_MOUNTAIN || m_bRoughFeature) return false;
@@ -408,6 +466,10 @@ public:
 		return m_iRiverCrossingCount > 0;
 	}
 
+#if defined(MOD_GLOBAL_ADJACENT_BLOCKADES)
+	bool isBlockaded(PlayerTypes ePlayer);
+#endif
+
 	TerrainTypes getTerrainType() const
 	{
 		return (TerrainTypes)m_eTerrainType;
@@ -417,6 +479,54 @@ public:
 		char f = m_eFeatureType;
 		return (FeatureTypes)f;
 	}
+#if defined(MOD_API_PLOT_BASED_DAMAGE)
+	int getTurnDamage(bool bIgnoreTerrainDamage, bool bIgnoreFeatureDamage, bool bExtraTerrainDamage, bool bExtraFeatureDamage) const
+	{
+		int damage = 0;
+
+		if (MOD_API_PLOT_BASED_DAMAGE) {
+			const TerrainTypes eTerrain = isMountain() ? TERRAIN_MOUNTAIN : getTerrainType();
+			const FeatureTypes eFeature = getFeatureType();
+			
+			// Make an exception for the volcano
+			if (eFeature != NO_FEATURE) {
+				CvFeatureInfo* pkFeatureInfo = GC.getFeatureInfo(eFeature);
+				if (pkFeatureInfo && pkFeatureInfo->GetType() == "FEATURE_VOLCANO") {
+					bIgnoreTerrainDamage = false;
+					bIgnoreFeatureDamage = false;
+				}
+			}
+
+			if (eTerrain != NO_TERRAIN) {
+				CvTerrainInfo* pkTerrainInfo = GC.getTerrainInfo(eTerrain);
+				if (pkTerrainInfo) {
+					if (!bIgnoreTerrainDamage) {
+						damage += pkTerrainInfo->getTurnDamage();
+					}
+					
+					if (bExtraTerrainDamage) {
+						damage += pkTerrainInfo->getExtraTurnDamage();
+					}
+				}
+			}
+
+			if (eFeature != NO_FEATURE) {
+				CvFeatureInfo* pkFeatureInfo = GC.getFeatureInfo(eFeature);
+				if (pkFeatureInfo) {
+					if (!bIgnoreFeatureDamage) {
+						damage += pkFeatureInfo->getTurnDamage();
+					}
+					
+					if (bExtraFeatureDamage) {
+						damage += pkFeatureInfo->getExtraTurnDamage();
+					}
+				}
+			}
+		}
+		
+		return damage;
+	}
+#endif
 	bool isImpassable()     const
 	{
 		return m_bIsImpassable;
@@ -457,13 +567,23 @@ public:
 	void setNumResource(int iNum);
 	void changeNumResource(int iChange);
 	int getNumResourceForPlayer(PlayerTypes ePlayer) const;
+#if defined(MOD_GLOBAL_VENICE_KEEPS_RESOURCES)
+	void removeMinorResources(bool bVenice = false);
+#endif
 
 	ImprovementTypes getImprovementType() const;
 	ImprovementTypes getImprovementTypeNeededToImproveResource(PlayerTypes ePlayer = NO_PLAYER, bool bTestPlotOwner = true);
 	void setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder = NO_PLAYER);
-
+#if defined(MOD_DIPLOMACY_CITYSTATES)
+	bool IsImprovementEmbassy() const;
+	void SetImprovementEmbassy(bool bEmbassy);
+#endif
 	bool IsImprovementPillaged() const;
+#if defined(MOD_EVENTS_TILE_IMPROVEMENTS)
+	void SetImprovementPillaged(bool bPillaged, bool bEvents = true);
+#else
 	void SetImprovementPillaged(bool bPillaged);
+#endif
 
 	// Someone gifted an improvement in an owned plot? (major civ gift to city-state)
 	bool IsImprovedByGiftFromMajor() const;
@@ -493,10 +613,19 @@ public:
 	void updateCityRoute();
 
 	bool IsRoutePillaged() const;
+#if defined(MOD_EVENTS_TILE_IMPROVEMENTS)
+	void SetRoutePillaged(bool bPillaged, bool bEvents = true);
+#else
 	void SetRoutePillaged(bool bPillaged);
+#endif
 
 	PlayerTypes GetPlayerThatClearedBarbCampHere() const;
 	void SetPlayerThatClearedBarbCampHere(PlayerTypes eNewValue);
+
+#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
+	PlayerTypes GetPlayerThatClearedDigHere() const;
+	void SetPlayerThatClearedDigHere(PlayerTypes eNewValue);
+#endif
 
 	CvCity* GetResourceLinkedCity() const;
 	void SetResourceLinkedCity(const CvCity* pNewValue);
@@ -626,6 +755,11 @@ public:
 	bool isInvisibleVisible(TeamTypes eTeam, InvisibleTypes eInvisible) const;
 	void changeInvisibleVisibilityCount(TeamTypes eTeam, InvisibleTypes eInvisible, int iChange);
 
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	bool IsAvoidMovement(PlayerTypes ePlayer) const;
+	void SetAvoidMovement(PlayerTypes ePlayer, bool bNewValue);
+#endif
+
 	int getNumUnits() const;
 	int GetNumCombatUnits();
 	CvUnit* getUnitByIndex(int iIndex) const;
@@ -695,6 +829,57 @@ public:
 	void SetArtifactType(GreatWorkArtifactClass eType);
 	void SetArtifactGreatWork(GreatWorkType eWork);
 	bool HasWrittenArtifact() const;
+
+#if defined(MOD_API_EXTENSIONS)
+	bool IsCivilization(CivilizationTypes iCivilizationType) const;
+	bool HasFeature(FeatureTypes iFeatureType) const;
+	bool HasAnyNaturalWonder() const;
+	bool HasNaturalWonder(FeatureTypes iFeatureType) const;
+	LUAAPIINLINE(IsFeatureIce, HasFeature, FEATURE_ICE)
+	LUAAPIINLINE(IsFeatureJungle, HasFeature, FEATURE_JUNGLE)
+	LUAAPIINLINE(IsFeatureMarsh, HasFeature, FEATURE_MARSH)
+	LUAAPIINLINE(IsFeatureOasis, HasFeature, FEATURE_OASIS)
+	LUAAPIINLINE(IsFeatureFloodPlains, HasFeature, FEATURE_FLOOD_PLAINS)
+	LUAAPIINLINE(IsFeatureForest, HasFeature, FEATURE_FOREST)
+	LUAAPIINLINE(IsFeatureFallout, HasFeature, FEATURE_FALLOUT)
+	LUAAPIINLINE(IsFeatureAtoll, HasFeature, ((FeatureTypes)GC.getInfoTypeForString("FEATURE_ATOLL")))
+	bool IsFeatureLake() const;
+	bool IsFeatureRiver() const;
+	bool HasImprovement(ImprovementTypes iImprovementType) const;
+	bool HasPlotType(PlotTypes iPlotType) const;
+	LUAAPIINLINE(IsPlotMountain, HasPlotType, PLOT_MOUNTAIN)
+	LUAAPIINLINE(IsPlotMountains, HasPlotType, PLOT_MOUNTAIN)
+	LUAAPIINLINE(IsPlotHill, HasPlotType, PLOT_HILLS)
+	LUAAPIINLINE(IsPlotHills, HasPlotType, PLOT_HILLS)
+	LUAAPIINLINE(IsPlotLand, HasPlotType, PLOT_LAND)
+	LUAAPIINLINE(IsPlotOcean, HasPlotType, PLOT_OCEAN)
+	bool HasResource(ResourceTypes iResourceType) const;
+	bool HasRoute(RouteTypes iRouteType) const;
+	LUAAPIINLINE(IsRouteRoad, HasRoute, ROUTE_ROAD)
+	LUAAPIINLINE(IsRouteRailroad, HasRoute, ROUTE_RAILROAD)
+	bool HasTerrain(TerrainTypes iTerrainType) const;
+	LUAAPIINLINE(IsTerrainGrass, HasTerrain, TERRAIN_GRASS)
+	LUAAPIINLINE(IsTerrainPlains, HasTerrain, TERRAIN_PLAINS)
+	LUAAPIINLINE(IsTerrainDesert, HasTerrain, TERRAIN_DESERT)
+	LUAAPIINLINE(IsTerrainTundra, HasTerrain, TERRAIN_TUNDRA)
+	LUAAPIINLINE(IsTerrainSnow, HasTerrain, TERRAIN_SNOW)
+	LUAAPIINLINE(IsTerrainCoast, HasTerrain, TERRAIN_COAST)
+	LUAAPIINLINE(IsTerrainOcean, HasTerrain, TERRAIN_OCEAN)
+	LUAAPIINLINE(IsTerrainMountain, HasTerrain, TERRAIN_MOUNTAIN)
+	LUAAPIINLINE(IsTerrainMountains, HasTerrain, TERRAIN_MOUNTAIN)
+	LUAAPIINLINE(IsTerrainHill, HasTerrain, TERRAIN_HILL)
+	LUAAPIINLINE(IsTerrainHills, HasTerrain, TERRAIN_HILL)
+	bool IsAdjacentToFeature(FeatureTypes iFeatureType) const;
+	bool IsWithinDistanceOfFeature(FeatureTypes iFeatureType, int iDistance) const;
+	bool IsAdjacentToImprovement(ImprovementTypes iImprovementType) const;
+	bool IsWithinDistanceOfImprovement(ImprovementTypes iImprovementType, int iDistance) const;
+	bool IsAdjacentToPlotType(PlotTypes iPlotType) const;
+	bool IsWithinDistanceOfPlotType(PlotTypes iPlotType, int iDistance) const;
+	bool IsAdjacentToResource(ResourceTypes iResourceType) const;
+	bool IsWithinDistanceOfResource(ResourceTypes iResourceType, int iDistance) const;
+	bool IsAdjacentToTerrain(TerrainTypes iTerrainType) const;
+	bool IsWithinDistanceOfTerrain(TerrainTypes iTerrainType, int iDistance) const;
+#endif
 
 protected:
 	class PlotBoolField
@@ -774,6 +959,10 @@ protected:
 	short /*RouteTypes*/ *m_aeRevealedRouteType;
 	bool* m_abNoSettling;
 
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	bool* m_abAvoidMovement;
+#endif
+
 	bool* m_abResourceForceReveal;
 
 
@@ -814,7 +1003,13 @@ protected:
 	char /*PlayerTypes*/ m_ePlayerResponsibleForImprovement;
 	char /*PlayerTypes*/ m_ePlayerResponsibleForRoute;
 	char /*PlayerTypes*/ m_ePlayerThatClearedBarbCampHere;
+#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
+	char /*PlayerTypes*/ m_ePlayerThatClearedDigHere;
+#endif
 	char /*RouteTypes*/ m_eRouteType;
+#if defined(MOD_GLOBAL_STACKING_RULES)
+	short m_eUnitIncrement;
+#endif
 	char /*GenericWorldAnchorTypes*/ m_eWorldAnchor;
 	char /*int*/ m_cWorldAnchorData;
 	char /*FlowDirectionTypes*/ m_eRiverEFlowDirection; // flow direction on the E edge (isWofRiver)
@@ -829,6 +1024,9 @@ protected:
 	char m_cContinentType;
 	char m_cRiverCrossing;	// bit field
 
+#if defined(MOD_DIPLOMACY_CITYSTATES)
+	bool m_bImprovementEmbassy:1;
+#endif
 	bool m_bImprovementPillaged:1;
 	bool m_bRoutePillaged:1;
 	bool m_bStartingPlot:1;

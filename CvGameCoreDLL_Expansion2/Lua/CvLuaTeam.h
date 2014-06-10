@@ -132,6 +132,11 @@ protected:
 	static int lGetPermanentAllianceTradingCount(lua_State* L);
 	static int lIsPermanentAllianceTrading(lua_State* L);
 	static int lChangePermanentAllianceTradingCount(lua_State* L);
+#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_TECHS_CITY_WORKING)
+	LUAAPIEXTN(GetCityWorkingChange, int);
+	LUAAPIEXTN(IsCityWorkingChange, bool);
+	LUAAPIEXTN(ChangeCityWorkingChange, void, iChange);
+#endif
 	static int lGetBridgeBuildingCount(lua_State* L);
 	static int lIsBridgeBuilding(lua_State* L);
 	static int lChangeBridgeBuildingCount(lua_State* L);
@@ -167,6 +172,9 @@ protected:
 	static int lGetKilledByTeam(lua_State* L);
 
 	static int lHasEmbassyAtTeam(lua_State* L);
+#if defined(MOD_API_LUA_EXTENSIONS)
+	LUAAPIEXTN(HasSpyAtTeam, bool, iTeam);
+#endif
 	static int lIsAllowsOpenBordersToTeam(lua_State* L);
 	static int lIsForcePeace(lua_State* L);
 	static int lIsDefensivePact(lua_State* L);
@@ -212,6 +220,22 @@ protected:
 	static int lSetCurrentEra(lua_State* L);
 
 	static int lUpdateEmbarkGraphics(lua_State* L);
+
+#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	LUAAPIEXTN(IsVassal, bool, iteam);
+	LUAAPIEXTN(CanBecomeVassal, bool, iTeam);
+	LUAAPIEXTN(canEndVassal, bool, iTeam);
+	LUAAPIEXTN(IsVassalageTradingAllowed, bool);
+	LUAAPIEXTN(GetNumTurnsIsVassal, int, iTeam);
+	LUAAPIEXTN(GetNumTurnsSinceVassalEnded, int, iTeam);
+	LUAAPIEXTN(IsTooSoonForVassal, bool, iTeam);
+	LUAAPIEXTN(IsVassalOfSomeone, bool);
+	LUAAPIEXTN(IsVassalLockedIntoWar, bool, iTeam);
+	LUAAPIEXTN(GetMaster, int);
+	LUAAPIEXTN(IsVoluntaryVassal, bool, iTeam);
+	LUAAPIEXTN(DoBecomeVassal, void, iTeam, bVoluntary);
+	LUAAPIEXTN(DoEndVassal, void, iTeam, bPeaceful, bSuppressNotification);
+#endif
 };
 
 #endif //CVLUATEAM_H

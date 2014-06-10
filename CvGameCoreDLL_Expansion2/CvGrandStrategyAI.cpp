@@ -189,6 +189,7 @@ void CvGrandStrategyAI::Read(FDataStream& kStream)
 	// Version number to maintain backwards compatibility
 	uint uiVersion;
 	kStream >> uiVersion;
+	MOD_SERIALIZE_INIT_READ(kStream);
 
 	kStream >> m_iNumTurnsSinceActiveSet;
 	kStream >> (int&)m_eActiveGrandStrategy;
@@ -222,6 +223,7 @@ void CvGrandStrategyAI::Write(FDataStream& kStream)
 	// Current version number
 	uint uiVersion = 1;
 	kStream << uiVersion;
+	MOD_SERIALIZE_INIT_WRITE(kStream);
 
 	kStream << m_iNumTurnsSinceActiveSet;
 	kStream << m_eActiveGrandStrategy;
@@ -549,7 +551,12 @@ int CvGrandStrategyAI::GetCulturePriority()
 
 	// Before tourism kicks in, add weight based on flavor
 	int iFlavorCulture =  m_pPlayer->GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_CULTURE"));
+#if defined(MOD_AI_SMART_GRAND_STRATEGY)
+	int iEra = MOD_AI_SMART_GRAND_STRATEGY ? 9 : 10;
+	iPriority += (iEra - m_pPlayer->GetCurrentEra()) * iFlavorCulture * 200 / 100;
+#else
 	iPriority += (10 - m_pPlayer->GetCurrentEra()) * iFlavorCulture * 200 / 100;
+#endif
 
 	// Loop through Players to see how we are doing on Tourism and Culture
 	PlayerTypes eLoopPlayer;
@@ -725,7 +732,12 @@ int CvGrandStrategyAI::GetSpaceshipPriority()
 	int iFlavorScience =  m_pPlayer->GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SCIENCE"));
 
 	// the later the game the greater the chance
+#if defined(MOD_AI_SMART_GRAND_STRATEGY)
+	int iEraBias = MOD_AI_SMART_GRAND_STRATEGY ? 4 : 0;
+	iPriority += (iEraBias + m_pPlayer->GetCurrentEra()) * iFlavorScience * 150 / 100;
+#else
 	iPriority += m_pPlayer->GetCurrentEra() * iFlavorScience * 150 / 100;
+#endif
 
 	// if I already built the Apollo Program I am very likely to follow through
 	ProjectTypes eApolloProgram = (ProjectTypes) GC.getInfoTypeForString("PROJECT_APOLLO_PROGRAM", true);

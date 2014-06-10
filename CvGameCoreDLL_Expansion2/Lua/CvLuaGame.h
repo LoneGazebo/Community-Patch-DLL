@@ -317,6 +317,9 @@ protected:
 	static int lGetMinimumFaithNextPantheon(lua_State* L);
 	static int lSetMinimumFaithNextPantheon(lua_State* L);
 
+#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_API_RELIGION)
+	LUAAPIEXTN(IsInSomeReligion, bool, iBelief, iPlayer);
+#endif
 	static int lGetAvailablePantheonBeliefs(lua_State* L);
 	static int lGetAvailableFounderBeliefs(lua_State* L);
 	static int lGetAvailableFollowerBeliefs(lua_State* L);
@@ -335,6 +338,9 @@ protected:
 	static int lGetFounderBenefitsReligion(lua_State* L);
 
 	static int lFoundPantheon(lua_State* L);
+#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_API_RELIGION)
+	LUAAPIEXTN(EnhancePantheon, void, iPlayer, iBelief);
+#endif
 	static int lFoundReligion(lua_State* L);
 	static int lEnhanceReligion(lua_State* L);
 	static int lSetHolyCity(lua_State* L);
@@ -343,6 +349,11 @@ protected:
 
 	static int lGetTurnsBetweenMinorCivElections(lua_State* L);
 	static int lGetTurnsUntilMinorCivElection(lua_State* L);
+	
+#if defined(MOD_API_LUA_EXTENSIONS)
+	LUAAPIEXTN(IsAchievementUnlocked, bool, iAchievement);
+	LUAAPIEXTN(GetSteamStat, int, iSteamStat);
+#endif
 
 	static int lGetNumActiveLeagues(lua_State* L);
 	static int lGetNumLeaguesEverFounded(lua_State* L);
@@ -351,6 +362,9 @@ protected:
 	
 	static int lIsProcessingMessages(lua_State* L);
 
+#if defined(MOD_API_LUA_EXTENSIONS)
+	LUAAPIEXTN(CreateGreatWork, int, iGreatWorkType, iOwningPlayer, iEra, sCreator);
+#endif
 	static int lGetGreatWorkTooltip(lua_State* L);
 	static int lGetGreatWorkName(lua_State* L);
 	static int lGetGreatWorkType(lua_State* L);
@@ -368,6 +382,9 @@ protected:
 
 	static int lGetLongestCityConnectionPlots(lua_State* L);
 
+#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_API_TRADEROUTES)
+	LUAAPIEXTN(GetTradeRoute, table, iRouteIndex);
+#endif
 	static int lSelectedUnit_SpeculativePopupTradeRoute_Display(lua_State* L);
 	static int lSelectedUnit_SpeculativePopupTradeRoute_Hide(lua_State* L);
 
@@ -375,6 +392,43 @@ protected:
 
 	static int lGetNumArchaeologySites(lua_State *L);
 	static int lGetNumHiddenArchaeologySites(lua_State *L);
+
+#if defined(MOD_API_LUA_EXTENSIONS)
+	LUAAPIEXTN(ReloadGameDataDefines, void);
+	LUAAPIEXTN(ReloadCustomModOptions, void);
+	LUAAPIEXTN(SpewTestEvents, int, iLimit); // returns iSeconds, iMilliSeconds
+#endif
+
+#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	LUAAPIEXTN(GetMinimumVoluntaryVassalTurns, int);
+	LUAAPIEXTN(GetMinimumVassalTurns, int);
+	LUAAPIEXTN(GetNumTurnsBetweenVassals, int);
+#endif
+
+#if defined(MOD_API_LUA_EXTENSIONS)
+	LUAAPIEXTN(AnyoneHasBelief, bool, iBeliefType);
+	LUAAPIEXTN(AnyoneHasBuilding, bool, iBuildingType);
+	LUAAPIEXTN(AnyoneHasBuildingClass, bool, iBuildingClassType);
+	LUAAPIEXTN(AnyoneHasAnyWonder, bool);
+	LUAAPIEXTN(AnyoneHasWonder, bool, iBuildingType);
+	LUAAPIEXTN(GetCivilizationPlayer, int, iCivilizationType);
+	LUAAPIEXTN(AnyoneIsInEra, bool, iEraType);
+	LUAAPIEXTN(AnyoneHasReachedEra, bool, iEraType);
+	LUAAPIEXTN(AnyoneHasAnyNaturalWonder, bool);
+	LUAAPIEXTN(AnyoneHasNaturalWonder, bool, iFeatureType);
+	LUAAPIEXTN(AnyoneHasPolicy, bool, iPolicyType);
+	LUAAPIEXTN(AnyoneHasTenet, bool, iPolicyType);
+	LUAAPIEXTN(AnyoneHasPolicyBranch, bool, iPolicyBranchType);
+	LUAAPIEXTN(AnyoneHasIdeology, bool, iPolicyBranchType);
+	LUAAPIEXTN(AnyoneHasProject, bool, iProjectType);
+	LUAAPIEXTN(AnyoneHasPantheon, bool);
+	LUAAPIEXTN(AnyoneHasAnyReligion, bool);
+	LUAAPIEXTN(AnyoneHasReligion, bool, iReligionType);
+	LUAAPIEXTN(IsResolutionPassed, bool, iResolutionType, iChoice);
+	LUAAPIEXTN(AnyoneHasTech, bool, iTechType);
+	LUAAPIEXTN(AnyoneHasUnit, bool, iUnitType);
+	LUAAPIEXTN(AnyoneHasUnitClass, bool, iUnitClassType);
+#endif
 };
 
 #endif //CVLUAGAME_H

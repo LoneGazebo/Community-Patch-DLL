@@ -7,6 +7,8 @@
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #pragma once
 
+#include "CustomModsGlobal.h"
+
 #define RANDPLOT_LAND										(0x00000001)
 #define RANDPLOT_UNOWNED									(0x00000002)
 #define RANDPLOT_ADJACENT_UNOWNED							(0x00000004)
@@ -22,7 +24,12 @@
 #define MAX_CIV_PLAYERS										(63)
 #define MAX_CIV_TEAMS										(MAX_CIV_PLAYERS)
 
+#if defined(MOD_GLOBAL_MAX_MAJOR_CIVS)
+#define MAX_PREGAME_MAJOR_CIVS                              (22)
+#define MAX_MAJOR_CIVS										MOD_GLOBAL_MAX_MAJOR_CIVS
+#else
 #define MAX_MAJOR_CIVS										(22)
+#endif
 #define MAX_MINOR_CIVS										(MAX_CIV_PLAYERS - MAX_MAJOR_CIVS)
 
 #define MAX_PLAYERS											(MAX_CIV_PLAYERS + 1)

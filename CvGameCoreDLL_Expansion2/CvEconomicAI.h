@@ -230,6 +230,9 @@ private:
 	void DoAntiquitySites();
 	void DisbandExtraWorkers();
 	void DisbandExtraArchaeologists();
+#if defined(MOD_AI_SMART_DISBAND)
+	void DisbandLongObsoleteUnits();
+#endif
 
 	// Low-level utility functions
 	void AssignExplorersToHuts();
@@ -300,6 +303,9 @@ bool IsTestStrategy_CitiesNeedNavalGrowth(EconomicAIStrategyTypes eStrategy, CvP
 bool IsTestStrategy_CitiesNeedNavalTileImprovement(EconomicAIStrategyTypes eStrategy, CvPlayer* pPlayer);
 bool IsTestStrategy_FoundCity(EconomicAIStrategyTypes eStrategy, CvPlayer* pPlayer);
 bool IsTestStrategy_TradeWithCityState(EconomicAIStrategyTypes eStrategy, CvPlayer* pPlayer);
+#if defined(MOD_DIPLOMACY_CITYSTATES)
+bool IsTestStrategy_InfluenceCityState(EconomicAIStrategyTypes eStrategy, CvPlayer* pPlayer);
+#endif
 bool IsTestStrategy_ConcertTour(EconomicAIStrategyTypes eStrategy, CvPlayer* pPlayer);
 bool IsTestStrategy_NeedImprovement(CvPlayer* pPlayer, YieldTypes eYield);
 bool IsTestStrategy_OneOrFewerCoastalCities(CvPlayer* pPlayer);
@@ -316,6 +322,11 @@ bool IsTestStrategy_DevelopingReligion(CvPlayer* pPlayer);
 bool IsTestStrategy_TechLeader(CvPlayer* pPlayer);
 bool IsTestStrategy_NeedArchaeologists(CvPlayer* pPlayer);
 bool IsTestStrategy_EnoughArchaeologists(CvPlayer* pPlayer);
+#if defined(MOD_DIPLOMACY_CITYSTATES)
+int IsTestStrategy_ScoreDiplomats(CvPlayer* pPlayer);
+bool IsTestStrategy_NeedDiplomats(CvPlayer* pPlayer);
+bool IsTestStrategy_NeedDiplomatsCritical(CvPlayer* pPlayer);
+#endif
 bool IsTestStrategy_NeedMuseums(CvPlayer* pPlayer);
 bool IsTestStrategy_NeedGuilds(CvPlayer* pPlayer);
 bool IsTestStrategy_StartedPiety(CvPlayer* pPlayer);

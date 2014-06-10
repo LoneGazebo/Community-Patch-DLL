@@ -10,7 +10,9 @@
 #ifndef CIV5_SITE_EVALUATION_CLASSES_H
 #define CIV5_SITE_EVALUATION_CLASSES_H
 
+#if !defined(MOD_GLOBAL_CITY_WORKING)
 #define NUM_CITY_RINGS 3
+#endif
 
 enum SiteEvaluationFactors
 {
@@ -53,7 +55,11 @@ protected:
 	virtual int ComputeStrategicValue(CvPlot* pPlot, CvPlayer* pPlayer, int iPlotsFromCity);
 
 	int m_iFlavorMultiplier[NUM_SITE_EVALUATION_FACTORS];  // Extra for tradeable resources and strategic value
+#if defined(MOD_GLOBAL_CITY_WORKING)
+	int m_iRingModifier[MAX_CITY_RADIUS+MAX_CITY_RADIUS+2];
+#else
 	int m_iRingModifier[NUM_CITY_RINGS+NUM_CITY_RINGS+2];
+#endif
 
 	int m_iExpansionIndex;
 	int m_iGrowthIndex;

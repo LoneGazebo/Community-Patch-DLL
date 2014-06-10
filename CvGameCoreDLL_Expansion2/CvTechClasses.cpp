@@ -57,6 +57,9 @@ CvTechEntry::CvTechEntry(void):
 	m_bResearchAgreementTradingAllowed(false),
 	m_bTradeAgreementTradingAllowed(false),
 	m_bPermanentAllianceTrading(false),
+#if defined(MOD_TECHS_CITY_WORKING)
+	m_iCityWorkingChange(0),
+#endif
 	m_bBridgeBuilding(false),
 	m_bWaterWork(false),
 	m_bTriggersArchaeologicalSites(false),
@@ -66,6 +69,9 @@ CvTechEntry::CvTechEntry(void):
 	m_piFlavorValue(NULL),
 	m_piPrereqOrTechs(NULL),
 	m_piPrereqAndTechs(NULL),
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	m_bVassalageTradingAllowed(false),
+#endif
 	m_pabFreePromotion(NULL)
 {
 }
@@ -123,10 +129,18 @@ bool CvTechEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	m_bResearchAgreementTradingAllowed = kResults.GetBool("ResearchAgreementTradingAllowed");
 	m_bTradeAgreementTradingAllowed = kResults.GetBool("TradeAgreementTradingAllowed");
 	m_bPermanentAllianceTrading = kResults.GetBool("PermanentAllianceTradingAllowed");
+#if defined(MOD_TECHS_CITY_WORKING)
+	m_iCityWorkingChange = kResults.GetInt("CityWorkingChange");
+#endif
 	m_bBridgeBuilding = kResults.GetBool("BridgeBuilding");
 	m_bWaterWork = kResults.GetBool("WaterWork");
 	m_iGridX = kResults.GetInt("GridX");
 	m_iGridY = kResults.GetInt("GridY");
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	if (MOD_DIPLOMACY_CIV4_FEATURES) {
+		m_bVassalageTradingAllowed = kResults.GetBool("VassalageTradingAllowed");
+	}
+#endif
 
 	//References
 	const char* szTextVal = NULL;
@@ -443,6 +457,14 @@ bool CvTechEntry::IsPermanentAllianceTrading() const
 {
 	return m_bPermanentAllianceTrading;
 }
+
+#if defined(MOD_TECHS_CITY_WORKING)
+/// Change in number of rings a city can work
+int CvTechEntry::GetCityWorkingChange() const
+{
+	return m_iCityWorkingChange;
+}
+#endif
 
 /// Are river crossings treated as bridges?
 bool CvTechEntry::IsBridgeBuilding() const
@@ -791,6 +813,7 @@ void CvPlayerTechs::Read(FDataStream& kStream)
 	// Version number to maintain backwards compatibility
 	uint uiVersion;
 	kStream >> uiVersion;
+	MOD_SERIALIZE_INIT_READ(kStream);
 
 	// TODO: If m_pTechs is NULL then the stream will not be advanced causing errors to occur.
 	CvAssertMsg(m_pTechs != NULL && m_pTechs->GetNumTechs() > 0, "Number of techs to serialize is expected to greater than 0");
@@ -825,6 +848,7 @@ void CvPlayerTechs::Write(FDataStream& kStream)
 	// Current version number
 	uint uiVersion = 1;
 	kStream << uiVersion;
+	MOD_SERIALIZE_INIT_WRITE(kStream);
 
 	// TODO: If m_pTechs is NULL then the stream will not advance
 	CvAssertMsg(m_pTechs != NULL && m_pTechs->GetNumTechs() > 0, "Number of techs to serialize is expected to greater than 0");
@@ -971,7 +995,11 @@ void CvPlayerTechs::SetLocalePriorities()
 	for(pCity = m_pPlayer->firstCity(&iLoop); pCity != NULL; pCity = m_pPlayer->nextCity(&iLoop))
 	{
 		// Look at all Tiles this City could potentially work to see if there are any non-water resources that could be improved
+#if defined(MOD_GLOBAL_CITY_WORKING)
+		for(int iPlotLoop = 0; iPlotLoop < pCity->GetNumWorkablePlots(); iPlotLoop++)
+#else
 		for(int iPlotLoop = 0; iPlotLoop < NUM_CITY_PLOTS; iPlotLoop++)
+#endif
 		{
 			CvPlot* pLoopPlot = plotCity(pCity->getX(), pCity->getY(), iPlotLoop);
 
@@ -1263,6 +1291,7 @@ bool CvPlayerTechs::IsNoResearchAvailable() const
 ///Check for Achievement
 void CvPlayerTechs::CheckForTechAchievement() const
 {
+#if !defined(NO_ACHIEVEMENTS)
 	if(m_pPlayer->isHuman() && !GC.getGame().isGameMultiPlayer())
 	{
 		//Check for Catherine Achievement
@@ -1324,6 +1353,7 @@ void CvPlayerTechs::CheckForTechAchievement() const
 			gDLL->UnlockAchievement(ACHIEVEMENT_ALL_TECHS);
 		}
 	}
+#endif
 }
 
 /// Accessor: How many turns of research left?
@@ -1745,6 +1775,7 @@ void CvTeamTechs::Read(FDataStream& kStream)
 	// Version number to maintain backwards compatibility
 	uint uiVersion;
 	kStream >> uiVersion;
+	MOD_SERIALIZE_INIT_READ(kStream);
 
 	kStream >> m_eLastTechAcquired;
 
@@ -1777,6 +1808,7 @@ void CvTeamTechs::Write(FDataStream& kStream)
 	// Current version number
 	uint uiVersion = 1;
 	kStream << uiVersion;
+	MOD_SERIALIZE_INIT_WRITE(kStream);
 
 	kStream << m_eLastTechAcquired;
 
@@ -2100,3 +2132,11 @@ int CvTeamTechs::ChangeResearchProgressPercent(TechTypes eIndex, int iPercent, P
 
 	return iBeakers;
 }
+
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+/// Can you permit vassalage to be traded?
+bool CvTechEntry::IsVassalageTradingAllowed() const
+{
+	return m_bVassalageTradingAllowed;
+}
+#endif

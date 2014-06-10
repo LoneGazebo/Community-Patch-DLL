@@ -52,9 +52,15 @@ public:
 	void updateYield();
 
 	bool canChangeWarPeace(TeamTypes eTeam) const;
+#if defined(MOD_EVENTS_WAR_AND_PEACE)
+	bool canDeclareWar(TeamTypes eTeam, PlayerTypes eOriginatingPlayer = NO_PLAYER) const;
+	void declareWar(TeamTypes eTeam, bool bDefensivePact = false, PlayerTypes eOriginatingPlayer = NO_PLAYER);
+	void makePeace(TeamTypes eTeam, bool bBumpUnits = true, bool bSuppressNotification = false, PlayerTypes eOriginatingPlayer = NO_PLAYER);
+#else
 	bool canDeclareWar(TeamTypes eTeam) const;
 	void declareWar(TeamTypes eTeam, bool bDefensivePact = false);
 	void makePeace(TeamTypes eTeam, bool bBumpUnits = true, bool bSuppressNotification = false);
+#endif
 
 	int GetTurnMadePeaceTreatyWithTeam(TeamTypes eTeam) const;
 	void SetTurnMadePeaceTreatyWithTeam(TeamTypes eTeam, int iNewValue);
@@ -195,6 +201,12 @@ public:
 	bool isPermanentAllianceTrading() const;
 	void changePermanentAllianceTradingCount(int iChange);
 
+#if defined(MOD_TECHS_CITY_WORKING)
+	int GetCityWorkingChange() const;
+	bool isCityWorkingChange() const;
+	void changeCityWorkingChange(int iChange);
+#endif
+
 	int getBridgeBuildingCount() const;
 	bool isBridgeBuilding() const;
 	void changeBridgeBuildingCount(int iChange);
@@ -272,6 +284,10 @@ public:
 	void CloseEmbassyAtTeam(TeamTypes eIndex);
 	bool HasEmbassyAtTeam(TeamTypes eIndex) const;
 	void SetHasEmbassyAtTeam(TeamTypes eIndex, bool bNewValue);
+
+#if defined(MOD_API_EXTENSIONS)
+	bool HasSpyAtTeam(TeamTypes eIndex) const;
+#endif
 
 	void EvacuateDiplomatsAtTeam(TeamTypes eIndex);
 
@@ -397,6 +413,51 @@ public:
 
 	void setDynamicTurnsSimultMode(bool simultaneousTurns);
 
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	bool IsVoluntaryVassal(TeamTypes eIndex) const;
+	void setVoluntaryVassal(TeamTypes eIndex, bool bNewValue);
+	bool IsVassal(TeamTypes eIndex) const;
+	void setVassal(TeamTypes eIndex, bool bNewValue);
+
+	TeamTypes GetMaster() const;
+
+	bool IsVassalOfSomeone() const;
+
+	bool canBecomeVassal(TeamTypes eTeam) const;
+	void DoBecomeVassal(TeamTypes eTeam, bool bVoluntary = false);
+	bool canEndVassal(TeamTypes eTeam) const;
+	void DoEndVassal(TeamTypes eTeam, bool bPeaceful, bool bSuppressNotification);
+
+	void DoUpdateVassalWarPeaceRelationships();
+
+	int getNumCitiesWhenVassalMade(TeamTypes eTeam) const;
+	void setNumCitiesWhenVassalMade(TeamTypes eTeam, int iValue);
+	int getTotalPopulationWhenVassalMade(TeamTypes eTeam) const;
+	void setTotalPopulationWhenVassalMade(TeamTypes eTeam, int iValue);
+
+	int GetNumTurnsIsVassal(TeamTypes eTeam) const;
+	void SetNumTurnsIsVassal(TeamTypes eTeam, int iValue);
+	void ChangeNumTurnsIsVassal(TeamTypes eTeam, int iChange);
+
+	int GetNumTurnsSinceVassalEnded(TeamTypes eTeam) const;
+	void SetNumTurnsSinceVassalEnded(TeamTypes eTeam, int iValue);
+	void ChangeNumTurnsSinceVassalEnded(TeamTypes eTeam, int iChange);
+	bool IsTooSoonForVassal(TeamTypes eTeam) const;
+
+	bool IsVassalLockedIntoWar(TeamTypes eOtherTeam) const;
+
+	int getVassalageTradingAllowedCount() const;
+	bool IsVassalageTradingAllowed() const;
+	void changeVassalageTradingAllowedCount(int iChange);
+
+	int GetNumVassals();
+
+	bool IsTradeTech(TechTypes eTech) const;
+	void SetTradeTech(TechTypes eTech, bool bValue);
+
+	void AcquireMap(TeamTypes eIndex, bool bTerritoryOnly = false);
+#endif
+
 	// Wrapper for giving Players on this Team a notification message
 	void AddNotification(NotificationTypes eNotificationType, const char* strMessage, const char* strSummary, int iX = -1, int iY = -1, int iGameDataIndex = -1, int iExtraGameData = -1);
 
@@ -426,6 +487,9 @@ protected:
 	int m_iResearchAgreementTradingAllowedCount;
 	int m_iTradeAgreementTradingAllowedCount;
 	int m_iPermanentAllianceTradingCount;
+#if defined(MOD_TECHS_CITY_WORKING)
+	int m_iCityWorkingChange;
+#endif
 	int m_iBridgeBuildingCount;
 	int m_iWaterWorkCount;
 	int m_iRiverTradeCount;
@@ -478,6 +542,9 @@ protected:
 	                 FAllocArrayType< bool,
 	                 FAllocArrayType< bool,
 	                 FAllocArrayType< bool,
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+					 FAllocArrayType< bool,
+#endif
 	                 FAllocArrayType< int,
 	                 FAllocArrayType< int,
 	                 FAllocArrayType< int,
@@ -491,10 +558,26 @@ protected:
 	                 FAllocArray2DType< int,
 	                 FAllocArray2DType< int,
 	                 FAllocArray2DType< int,
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	                 FAllocBase< 0, 0 > > > > > > > > > > > > > > > > > > > CvTeamData;
+#else
 	                 FAllocBase< 0, 0 > > > > > > > > > > > > > > > > > > CvTeamData;
+#endif
 	CvTeamData m_BatchData;
 
 	int* m_aiForceTeamVoteEligibilityCount;
+
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	int m_iVassalageTradingAllowedCount;
+	bool* m_pabTradeTech;
+
+	Firaxis::Array< int, REALLY_MAX_TEAMS > m_aiNumTurnsIsVassal;
+	Firaxis::Array< int, REALLY_MAX_TEAMS > m_aiNumCitiesWhenVassalMade;
+	Firaxis::Array< int, REALLY_MAX_TEAMS > m_aiTotalPopulationWhenVassalMade;
+	Firaxis::Array< int, REALLY_MAX_TEAMS > m_aiNumTurnsSinceVassalEnded;
+	Firaxis::Array< bool, REALLY_MAX_TEAMS > m_abIsVassal;
+	Firaxis::Array< bool, REALLY_MAX_TEAMS > m_abIsVoluntaryVassal;
+#endif
 
 	bool* m_abCanLaunch;
 	bool* m_abVictoryAchieved;
@@ -533,8 +616,24 @@ protected:
 	void announceTechToPlayers(TechTypes eIndex, bool bPartial = false);
 
 	void DoNowAtWarOrPeace(TeamTypes eTeam, bool bWar);
+#if defined(MOD_EVENTS_WAR_AND_PEACE)
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	void DoDeclareWar(PlayerTypes eOriginatingPlayer, TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyPact = false, bool bVassal = false);
+#else
+	void DoDeclareWar(PlayerTypes eOriginatingPlayer, TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyPact = false);
+#endif
+#else
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	void DoDeclareWar(TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyPact = false, bool bVassal = false);
+#else
 	void DoDeclareWar(TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyPact = false);
+#endif
+#endif
+#if defined(MOD_EVENTS_WAR_AND_PEACE)
+	void DoMakePeace(PlayerTypes eOriginatingPlayer, TeamTypes eTeam, bool bBumpUnits, bool bSuppressNotification = false);
+#else
 	void DoMakePeace(TeamTypes eTeam, bool bBumpUnits, bool bSuppressNotification = false);
+#endif
 };
 
 // helper for accessing static functions
