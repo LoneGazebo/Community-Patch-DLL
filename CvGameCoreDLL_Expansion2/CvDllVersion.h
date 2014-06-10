@@ -1,5 +1,5 @@
 /*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	ï¿½ 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -16,7 +16,7 @@
 // {C3B2B6B3-439C-480b-8536-1CF39FCFC682}
 // {83F34FF0-3D60-43e7-AEDB-82C79867EE3F}
 static const GUID CIV5_XP2_DLL_GUID = 
-{ 0x83f34ff0, 0x3d60, 0x43e7, { 0xae, 0xdb, 0x82, 0xc7, 0x98, 0x67, 0xee, 0x3f } };
+{ 0x84f36cc, 0x8d73, 0x4cc2, { 0x87, 0x28, 0xb9, 0x8b, 0x1d, 0x88, 0x7a, 0xb2 } };
 #else
 static const GUID CIV5_XP2_DLL_GUID = MOD_DLL_GUID;
 #endif
