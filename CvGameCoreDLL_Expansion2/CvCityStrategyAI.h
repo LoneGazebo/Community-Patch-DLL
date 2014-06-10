@@ -185,6 +185,9 @@ public:
 
 	// City AI methods
 	void ChooseProduction(bool bUseAsyncRandom, BuildingTypes eIgnoreBldg = NO_BUILDING, UnitTypes eIgnoreUnit = NO_UNIT);
+#if defined(MOD_DIPLOMACY_CITYSTATES)
+	CvCityBuildable ChooseHurry();
+#endif
 	void DoTurn();
 
 	// these functions must be called together. Reset clears the internal arrays, update evalutes the city, and GetBestYieldAverage... returns the value that the builder AI uses.
@@ -226,7 +229,11 @@ private:
 
 	CvWeightedVector<CvCityBuildable, (SAFE_ESTIMATE_NUM_BUILDINGS + SAFE_ESTIMATE_NUM_UNITS), true> m_Buildables;
 
+#if defined(MOD_GLOBAL_CITY_WORKING)
+	static unsigned char  m_acBestYields[NUM_YIELD_TYPES][MAX_CITY_PLOTS - 1];
+#else
 	static unsigned char  m_acBestYields[NUM_YIELD_TYPES][NUM_CITY_PLOTS - 1];
+#endif
 	unsigned short m_asBestYieldAverageTimes100[NUM_YIELD_TYPES];
 	short m_asYieldDeltaTimes100[NUM_YIELD_TYPES];
 	YieldTypes m_eFocusYield;
@@ -280,6 +287,10 @@ bool IsTestCityStrategy_IsInternationalTradeOrigin(CvCity* pCity);
 bool IsTestCityStrategy_NeedCultureBuilding(CvCity* pCity);
 bool IsTestCityStrategy_NeedTourismBuilding(CvCity *pCity);
 bool IsTestCityStrategy_GoodAirliftCity(CvCity *pCity);
+#if defined(MOD_DIPLOMACY_CITYSTATES)
+bool IsTestCityStrategy_NeedDiplomats(CvCity *pCity);
+bool IsTestCityStrategy_NeedDiplomatsCritical(CvCity *pCity);
+#endif
 }
 
 #endif // CIV5_CITY_STRATEGY_AI_H

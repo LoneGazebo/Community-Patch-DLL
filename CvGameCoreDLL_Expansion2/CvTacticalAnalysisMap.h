@@ -37,6 +37,9 @@ enum eTacticalAnalysisFlags
     TACTICAL_FLAG_ENEMY_CITY                 = 0x00000200, // Enemy city here?
     TACTICAL_FLAG_NEUTRAL_CITY				 = 0x00000400, // Neutral city here?
     TACTICAL_FLAG_WATER						 = 0x00000800, // Water?
+#if defined(MOD_PATHFINDER_TERRAFIRMA)
+    TACTICAL_FLAG_TERRAFIRMA				 = 0x00100000, // Terra Firma?  NOTE THE OUT OF SEQUENCE BIT PATTERN
+#endif
     TACTICAL_FLAG_OCEAN						 = 0x00001000, // Ocean?
     TACTICAL_FLAG_OWN_TERRITORY				 = 0x00002000, // Territory owned by the active player
     TACTICAL_FLAG_FRIENDLY_TERRITORY		 = 0x00004000, // Territory owned by allies
@@ -45,8 +48,11 @@ enum eTacticalAnalysisFlags
 
     // DYNAMIC FLAGS - updated for each zone or target
     TACTICAL_FLAG_WITHIN_RANGE_OF_TARGET	 = 0x00020000,	// Is this a plot we can use to bombard the target?
-    TACTICAL_FLAG_CAN_USE_TO_FLANK			 = 0x00040000,        // Does this plot help provide a flanking bonus on target?
-    TACTICAL_FLAG_SAFE_DEPLOYMENT			 = 0x00080000,         // Should be a safe spot to deploy ranged units
+    TACTICAL_FLAG_CAN_USE_TO_FLANK			 = 0x00040000,  // Does this plot help provide a flanking bonus on target?
+    TACTICAL_FLAG_SAFE_DEPLOYMENT			 = 0x00080000,  // Should be a safe spot to deploy ranged units
+#if defined(MOD_PATHFINDER_TERRAFIRMA)
+    // TACTICAL_FLAG_TERRAFIRMA				 = 0x00100000, // Terra Firma?  THIS BIT PATTERN IS USED ABOVE
+#endif
 };
 
 enum AITacticalTargetType
@@ -187,6 +193,16 @@ public:
 	{
 		SetBit(TACTICAL_FLAG_WATER, bNewValue);
 	};
+#if defined(MOD_PATHFINDER_TERRAFIRMA)
+	bool IsTerraFirma()
+	{
+		return GetBit(TACTICAL_FLAG_TERRAFIRMA);
+	};
+	void SetTerraFirma(bool bNewValue)
+	{
+		SetBit(TACTICAL_FLAG_TERRAFIRMA, bNewValue);
+	};
+#endif
 	bool IsOcean()
 	{
 		return GetBit(TACTICAL_FLAG_OCEAN);

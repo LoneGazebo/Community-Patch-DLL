@@ -313,9 +313,47 @@ enum DemandResponseTypes
     DEMAND_RESPONSE_REFUSE_HOSTILE,
     DEMAND_RESPONSE_REFUSE_TOO_MUCH,
     DEMAND_RESPONSE_REFUSE_TOO_SOON,
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	DEMAND_RESPONSE_GIFT_ACCEPT,
+	DEMAND_RESPONSE_GIFT_REFUSE_TOO_MUCH,
+	DEMAND_RESPONSE_GIFT_REFUSE_TOO_SOON,
+#endif
 
     NUM_DEMAND_RESPONSES,
 };
+
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+enum GlobalStateTypes
+{
+	NO_GLOBAL_STATE = -1,
+	
+	GLOBAL_STATE_ANNIHILATED,
+	GLOBAL_STATE_VERY_BAD,
+	GLOBAL_STATE_BAD,
+	GLOBAL_STATE_AVERAGE,
+	GLOBAL_STATE_UNKNOWN,
+	GLOBAL_STATE_GOOD,
+	GLOBAL_STATE_VERY_GOOD,
+	GLOBAL_STATE_NEAR_VICTORY,
+
+	NUM_GLOBAL_STATES,
+};
+
+inline FDataStream& operator<<(FDataStream& saveTo, const GlobalStateTypes& readFrom)
+{
+	saveTo << static_cast<int>(readFrom);
+	return saveTo;
+}
+inline FDataStream& operator>>(FDataStream& loadFrom, GlobalStateTypes& writeTo)
+{
+	int v;
+	loadFrom >> v;
+	writeTo = static_cast<GlobalStateTypes>(v);
+	return loadFrom;
+}
+//----------------------
+#endif
+
 
 enum PublicDeclarationTypes
 {

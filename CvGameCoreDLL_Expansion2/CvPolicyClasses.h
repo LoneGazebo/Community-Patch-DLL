@@ -64,6 +64,9 @@ public:
 	int GetGreatMusicianRateModifier() const;
 	int GetGreatMerchantRateModifier() const;
 	int GetGreatScientistRateModifier() const;
+#if defined(MOD_DIPLOMACY_CITYSTATES)
+	int GetGreatDiplomatRateModifier() const;
+#endif
 	int GetDomesticGreatGeneralRateModifier() const;
 	int GetExtraHappiness() const;
 	int GetExtraHappinessPerCity() const;
@@ -91,6 +94,9 @@ public:
 	int GetUnhappinessFromUnitsMod() const;
 	int GetNumExtraBuilders() const;
 	int GetPlotGoldCostMod() const;
+#if defined(MOD_POLICIES_CITY_WORKING)
+	int GetCityWorkingChange() const;
+#endif
 	int GetPlotCultureCostModifier() const;
 	int GetPlotCultureExponentModifier() const;
 	int GetNumCitiesPolicyCostDiscount() const;
@@ -104,6 +110,9 @@ public:
 	int GetStealTechSlowerModifier() const;
 	int GetStealTechFasterModifier() const;
 	int GetCatchSpiesModifier() const;
+#if defined(MOD_RELIGION_CONVERSION_MODIFIERS)
+	int GetConversionModifier() const;
+#endif
 	int GetGoldPerUnit() const;
 	int GetGoldPerMilitaryUnit() const;
 	int GetCityStrengthMod() const;
@@ -256,6 +265,9 @@ private:
 	int m_iGreatMusicianRateModifier;
 	int m_iGreatMerchantRateModifier;
 	int m_iGreatScientistRateModifier;
+#if defined(MOD_DIPLOMACY_CITYSTATES)
+	int m_iGreatDiplomatRateModifier;
+#endif
 	int m_iDomesticGreatGeneralRateModifier;
 	int m_iExtraHappiness;
 	int m_iExtraHappinessPerCity;
@@ -283,6 +295,9 @@ private:
 	int m_iUnhappinessFromUnitsMod;
 	int m_iNumExtraBuilders;
 	int m_iPlotGoldCostMod;
+#if defined(MOD_POLICIES_CITY_WORKING)
+	int m_iCityWorkingChange;
+#endif
 	int m_iPlotCultureCostModifier;
 	int m_iPlotCultureExponentModifier;
 	int m_iNumCitiesPolicyCostDiscount;
@@ -296,6 +311,9 @@ private:
 	int m_iStealTechSlowerModifier;
 	int m_iStealTechFasterModifier;
 	int m_iCatchSpiesModifier;
+#if defined(MOD_RELIGION_CONVERSION_MODIFIERS)
+	int m_iConversionModifier;
+#endif
 	int m_iGoldPerUnit;
 	int m_iGoldPerMilitaryUnit;
 	int m_iCityStrengthMod;
@@ -517,6 +535,9 @@ enum PolicyModifierType
 	POLICYMOD_GREAT_ARTIST_RATE,
 	POLICYMOD_GREAT_MUSICIAN_RATE,
 	POLICYMOD_GREAT_MERCHANT_RATE,
+#if defined(MOD_DIPLOMACY_CITYSTATES)
+	POLICYMOD_GREAT_DIPLOMAT_RATE,
+#endif
 	POLICYMOD_GREAT_SCIENTIST_RATE,
 	POLICYMOD_TOURISM_MOD_COMMON_FOE,
 	POLICYMOD_TOURISM_MOD_LESS_HAPPY,
@@ -537,6 +558,9 @@ enum PolicyModifierType
     POLICYMOD_SHARED_RELIGION_TOURISM_MODIFIER,
     POLICYMOD_TRADE_ROUTE_TOURISM_MODIFIER,
 	POLICYMOD_OPEN_BORDERS_TOURISM_MODIFIER,
+#if defined(MOD_RELIGION_CONVERSION_MODIFIERS)
+    POLICYMOD_CONVERSION_MODIFIER,
+#endif
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -593,6 +617,9 @@ public:
 	// Policy Branch Stuff
 	void DoUnlockPolicyBranch(PolicyBranchTypes eBranchType);
 	bool CanUnlockPolicyBranch(PolicyBranchTypes eBranchType);
+#if defined(MOD_AI_SMART_POLICY_CHOICE)
+	bool IsEraPrereqBranch(PolicyBranchTypes eBranchType);
+#endif
 
 	bool IsPolicyBranchUnlocked(PolicyBranchTypes eBranchType) const;
 	void SetPolicyBranchUnlocked(PolicyBranchTypes eBranchType, bool bNewValue, bool bRevolution);
@@ -603,6 +630,11 @@ public:
 	void SetPolicyBranchBlocked(PolicyBranchTypes eBranchType, bool bValue);
 	bool IsPolicyBranchBlocked(PolicyBranchTypes eBranchType) const;
 	bool IsPolicyBlocked(PolicyTypes eType) const;
+
+#if defined(MOD_API_EXTENSIONS)
+	bool CanAdoptIdeology(PolicyBranchTypes eIdeology) const;
+	bool HasAdoptedIdeology(PolicyBranchTypes eIdeology) const;
+#endif
 
 	// Ideology change
 	void DoSwitchIdeologies(PolicyBranchTypes eBranchType);

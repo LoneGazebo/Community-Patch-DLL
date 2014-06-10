@@ -83,6 +83,9 @@ CvBeliefEntry::CvBeliefEntry() :
 	m_ppaiFeatureYieldChange(NULL),
 	m_ppaiResourceYieldChange(NULL),
 	m_ppaiTerrainYieldChange(NULL),
+#if defined(MOD_RELIGION_PLOT_YIELDS)
+	m_ppaiPlotYieldChange(NULL),
+#endif
 	m_piResourceHappiness(NULL),
 	m_piYieldChangeAnySpecialist(NULL),
 	m_piYieldChangeTradeRoute(NULL),
@@ -103,6 +106,11 @@ CvBeliefEntry::~CvBeliefEntry()
 	CvDatabaseUtility::SafeDelete2DArray(m_ppaiFeatureYieldChange);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppaiResourceYieldChange);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppaiTerrainYieldChange);
+#if defined(MOD_RELIGION_PLOT_YIELDS)
+	if (MOD_RELIGION_PLOT_YIELDS) {
+		CvDatabaseUtility::SafeDelete2DArray(m_ppaiPlotYieldChange);
+	}
+#endif
 }
 
 /// Accessor:: Minimum population in this city for belief to be active (0 = no such requirement)
@@ -509,6 +517,18 @@ int CvBeliefEntry::GetTerrainYieldChange(int i, int j) const
 	return m_ppaiTerrainYieldChange ? m_ppaiTerrainYieldChange[i][j] : -1;
 }
 
+#if defined(MOD_RELIGION_PLOT_YIELDS)
+/// Change to yield by plot
+int CvBeliefEntry::GetPlotYieldChange(int i, int j) const
+{
+	CvAssertMsg(i < GC.getNumPlotInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	CvAssertMsg(j < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(j > -1, "Index out of bounds");
+	return m_ppaiPlotYieldChange ? m_ppaiPlotYieldChange[i][j] : -1;
+}
+#endif
+
 /// Happiness from a resource
 int CvBeliefEntry::GetResourceHappiness(int i) const
 {
@@ -780,6 +800,32 @@ bool CvBeliefEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 			m_ppaiTerrainYieldChange[TerrainID][YieldID] = yield;
 		}
 	}
+	
+#if defined(MOD_RELIGION_PLOT_YIELDS)
+	if (MOD_RELIGION_PLOT_YIELDS)
+	//PlotYieldChanges
+	{
+		kUtility.Initialize2DArray(m_ppaiPlotYieldChange, "Plots", "Yields");
+
+		std::string strKey("Belief_PlotYieldChanges");
+		Database::Results* pResults = kUtility.GetResults(strKey);
+		if(pResults == NULL)
+		{
+			pResults = kUtility.PrepareResults(strKey, "select Plots.ID as PlotID, Yields.ID as YieldID, Yield from Belief_PlotYieldChanges inner join Plots on Plots.Type = PlotType inner join Yields on Yields.Type = YieldType where BeliefType = ?");
+		}
+
+		pResults->Bind(1, szBeliefType);
+
+		while(pResults->Step())
+		{
+			const int PlotID = pResults->GetInt(0);
+			const int YieldID = pResults->GetInt(1);
+			const int yield = pResults->GetInt(2);
+
+			m_ppaiPlotYieldChange[PlotID][YieldID] = yield;
+		}
+	}
+#endif
 
 	return true;
 }
@@ -1451,6 +1497,27 @@ int CvReligionBeliefs::GetTerrainYieldChange(TerrainTypes eTerrain, YieldTypes e
 	return rtnValue;
 }
 
+#if defined(MOD_RELIGION_PLOT_YIELDS)
+/// Get yield change from beliefs for a specific plot
+int CvReligionBeliefs::GetPlotYieldChange(PlotTypes ePlot, YieldTypes eYieldType) const
+{
+	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
+	int rtnValue = 0;
+
+	if (MOD_RELIGION_PLOT_YIELDS) {
+		for(int i = 0; i < pBeliefs->GetNumBeliefs(); i++)
+		{
+			if(HasBelief((BeliefTypes)i))
+			{
+				rtnValue += pBeliefs->GetEntry(i)->GetPlotYieldChange(ePlot, eYieldType);
+			}
+		}
+	}
+
+	return rtnValue;
+}
+#endif
+
 // Get happiness boost from a resource
 int CvReligionBeliefs::GetResourceHappiness(ResourceTypes eResource) const
 {
@@ -1639,6 +1706,7 @@ void CvReligionBeliefs::Read(FDataStream& kStream)
 	// Version number to maintain backwards compatibility
 	uint uiVersion;
 	kStream >> uiVersion;
+	MOD_SERIALIZE_INIT_READ(kStream);
 
 	kStream >> m_iFaithFromDyingUnits;
 	kStream >> m_iRiverHappiness;
@@ -1693,6 +1761,7 @@ void CvReligionBeliefs::Write(FDataStream& kStream) const
 	// Current version number
 	uint uiVersion = 2;
 	kStream << uiVersion;
+	MOD_SERIALIZE_INIT_WRITE(kStream);
 
 	kStream << m_iFaithFromDyingUnits;
 	kStream << m_iRiverHappiness;

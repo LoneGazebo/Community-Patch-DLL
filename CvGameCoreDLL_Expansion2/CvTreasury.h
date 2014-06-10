@@ -60,7 +60,11 @@ public:
 	void ChangeCityConnectionTradeRouteGoldModifier(int iChange);
 	int GetCityConnectionTradeRouteGoldChange() const;
 	void ChangeCityConnectionTradeRouteGoldChange(int iChange);
+#if defined(MOD_EVENTS_CITY_CONNECTIONS)
+	bool HasCityConnectionRouteBetweenCities(CvCity* pFirstCity, CvCity* pSecondCity) const;
+#else
 	bool HasCityConnectionRouteBetweenCities(CvCity* pFirstCity, CvCity* pSecondCity, bool bBestRoute = false) const;
+#endif
 
 	// Gold from international trade routes
 	int GetGoldPerTurnFromTradeRoutes() const;
@@ -104,6 +108,10 @@ public:
 	// Methods to query financial history
 	double AverageIncome(int iTurns);
 	void CvTreasury::LogExpenditure(CvString strExpenditure, int iAmount, int iColumn);
+
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	int GetVassalGoldMaintenance() const;
+#endif
 
 protected:
 	CvPlayer* m_pPlayer;

@@ -85,6 +85,7 @@ FDataStream& operator>>(FDataStream& loadFrom, CvTradedItem& writeTo)
 {
 	uint uiVersion;
 	loadFrom >> uiVersion;
+	MOD_SERIALIZE_INIT_READ(loadFrom);
 	loadFrom >> writeTo.m_eItemType;
 	loadFrom >> writeTo.m_iDuration;
 	loadFrom >> writeTo.m_iFinalTurn;
@@ -111,6 +112,7 @@ FDataStream& operator<<(FDataStream& saveTo, const CvTradedItem& readFrom)
 {
 	uint uiVersion = 2;
 	saveTo << uiVersion;
+	MOD_SERIALIZE_INIT_WRITE(saveTo);
 	saveTo << readFrom.m_eItemType;
 	saveTo << readFrom.m_iDuration;
 	saveTo << readFrom.m_iFinalTurn;
@@ -142,6 +144,9 @@ CvDeal::CvDeal()
 	m_bConsideringForRenewal = false;
 	m_bCheckedForRenewal = false;
 	m_bDealCancelled = false;
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	m_eOfferingPlayer = NO_PLAYER;
+#endif
 }
 
 /// Constructor with typical parameters
@@ -176,6 +181,9 @@ CvDeal::CvDeal(const CvDeal& source)
 	{
 		m_TradedItems.push_back(*it);
 	}
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	m_eOfferingPlayer = source.m_eOfferingPlayer;
+#endif
 }
 
 /// Destructor
@@ -204,6 +212,9 @@ CvDeal& CvDeal::operator=(const CvDeal& source)
 	{
 		m_TradedItems.push_back(*it);
 	}
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	m_eOfferingPlayer = source.m_eOfferingPlayer;
+#endif
 
 	return (*this);
 }
@@ -224,6 +235,9 @@ void CvDeal::ClearItems()
 	SetSurrenderingPlayer(NO_PLAYER);
 	SetDemandingPlayer(NO_PLAYER);
 	SetRequestingPlayer(NO_PLAYER);
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	SetOfferingPlayer(NO_PLAYER);
+#endif
 }
 
 /// How many trade items are in this deal?
@@ -359,7 +373,11 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 		//	return false;
 	}
 	// Map
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	else if(!MOD_DIPLOMACY_CIV4_FEATURES && eItem == TRADE_ITEM_MAPS)
+#else
 	else if(eItem == TRADE_ITEM_MAPS)
+#endif
 	{
 		return false;
 	}
@@ -555,6 +573,12 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 		if(GC.getGame().isOption(GAMEOPTION_NO_SCIENCE))
 			return false;
 
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+		// Research agreements aren't enabled
+		if(MOD_DIPLOMACY_CIV4_FEATURES && !GC.getGame().isOption(GAMEOPTION_RESEARCH_AGREEMENTS))
+			return false;
+#endif
+
 		// Neither of us yet has the Tech for RA
 		if(!pFromTeam->IsResearchAgreementTradingAllowed() && !pToTeam->IsResearchAgreementTradingAllowed())
 			return false;
@@ -618,6 +642,18 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 
 		if(!pToTeam->isAtWar(eFromTeam))
 			return false;
+			
+#if defined(MOD_EVENTS_WAR_AND_PEACE)
+		if (MOD_EVENTS_WAR_AND_PEACE) {
+			if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_IsAbleToMakePeace, ePlayer, eToTeam) == GAMEEVENTRETURN_FALSE) {
+				return false;
+			}
+
+			if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_PlayerCanMakePeace, ePlayer, eToTeam) == GAMEEVENTRETURN_FALSE) {
+				return false;
+			}
+		}
+#endif
 	}
 	// Third Party Peace
 	else if(eItem == TRADE_ITEM_THIRD_PARTY_PEACE)
@@ -712,7 +748,11 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			return false;
 
 		// Can this player actually declare war?
+#if defined(MOD_EVENTS_WAR_AND_PEACE)
+		if(!pFromTeam->canDeclareWar(eThirdTeam, ePlayer))
+#else
 		if(!pFromTeam->canDeclareWar(eThirdTeam))
+#endif
 			return false;
 
 		// Can't already have this in the deal
@@ -752,7 +792,9 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 		int iID = iData1;
 		//antonjs: todo: verify iChoice is valid as well:
 		//int iChoice = iData2;
+#if !defined(MOD_BUGFIX_MINOR)
 		int iNumVotes = iData3;
+#endif
 		bool bRepeal = bFlag1;
 
 		if(GC.getGame().GetGameLeagues()->GetNumActiveLeagues() == 0)
@@ -777,6 +819,79 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 		if(!pFromPlayer->GetLeagueAI()->CanCommitVote(eToPlayer))
 			return false;
 	}
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	// Maps
+	else if(MOD_DIPLOMACY_CIV4_FEATURES && eItem == TRADE_ITEM_MAPS)
+	{
+		// We don't have the tech for Map Trading yet
+		if(!pFromTeam->isMapTrading())
+			return false;
+		// We don't have an embassy established
+		if(!pFromTeam->HasEmbassyAtTeam(eToTeam))
+			return false;
+		// Same team
+		if(eFromTeam == eToTeam)
+			return false;
+	}
+	// Techs
+	else if(MOD_DIPLOMACY_CIV4_FEATURES && eItem == TRADE_ITEM_TECHS)
+	{
+		// Do we have no science enabled?
+		if(GC.getGame().isOption(GAMEOPTION_NO_SCIENCE))
+			return false;
+
+		// Can't trade techs if they're disabled
+		if(GC.getGame().isOption(GAMEOPTION_NO_TECH_TRADING))
+			return false;
+
+		// Same team
+		if(eFromTeam == eToTeam)
+			return false;
+
+		// We don't have the tech for Technology Trading yet
+		if(!pFromTeam->isTechTrading())
+			return false;
+
+		// We don't have an embassy established
+		if(!pFromTeam->HasEmbassyAtTeam(eToTeam))
+			return false;
+
+		// We don't own this tech
+		if(!pFromTeam->GetTeamTechs()->HasTech((TechTypes) iData1))
+			return false;
+
+		// They can't research this tech yet
+		if(!GET_PLAYER(eToPlayer).GetPlayerTechs()->CanResearch((TechTypes) iData1, false))
+			return false;
+
+		// This tech is repeatable, we can't sell it.
+		CvTechEntry* pkTechInfo = GC.getTechInfo((TechTypes) iData1);
+		if(pkTechInfo->IsRepeat())
+			return false;
+
+		// Tech Brokering is enabled, and we didn't research that tech
+		if(GC.getGame().isOption(GAMEOPTION_NO_TECH_BROKERING) && !pFromTeam->IsTradeTech((TechTypes) iData1))
+			return false;
+	}
+	else if(MOD_DIPLOMACY_CIV4_FEATURES && eItem == TRADE_ITEM_VASSALAGE)
+	{
+		// Vassalage is disabled...
+		if(GC.getGame().isOption(GAMEOPTION_NO_VASSALAGE))
+			return false;
+
+		// Same Team
+		if(eFromTeam == eToTeam)
+			return false;
+
+		// This prevents AI teammates selling capitulation in peace deals
+		if(!pFromPlayer->isHuman() && pFromPlayer->IsAITeammateOfHuman())
+			return false;
+
+		// Can we become the vassal of eToTeam?
+		if(!pToTeam->canBecomeVassal(eFromTeam))
+			return false;
+	}
+#endif
 
 	return true;
 }
@@ -1587,6 +1702,9 @@ CvDeal::DealRenewStatus CvDeal::GetItemTradeableState(TradeableItems eTradeItem)
 	case TRADE_ITEM_THIRD_PARTY_PEACE:
 	case TRADE_ITEM_THIRD_PARTY_WAR:
 	case TRADE_ITEM_VOTE_COMMITMENT:
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	case TRADE_ITEM_VASSALAGE:
+#endif
 		return DEAL_NONRENEWABLE;
 		break;
 
@@ -1603,6 +1721,9 @@ CvDeal::DealRenewStatus CvDeal::GetItemTradeableState(TradeableItems eTradeItem)
 	case TRADE_ITEM_TRADE_AGREEMENT:
 	case TRADE_ITEM_GOLD:
 	case TRADE_ITEM_MAPS:
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	case TRADE_ITEM_TECHS:
+#endif
 	case TRADE_ITEM_RESEARCH_AGREEMENT:
 		return DEAL_SUPPLEMENTAL;
 		break;
@@ -1614,6 +1735,11 @@ CvDeal::DealRenewStatus CvDeal::GetItemTradeableState(TradeableItems eTradeItem)
 
 bool CvDeal::IsPotentiallyRenewable()
 {
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	if(MOD_DIPLOMACY_CIV4_FEATURES && m_eOfferingPlayer != NO_PLAYER)
+		return false;
+#endif
+
 	TradedItemList::iterator it;
 	bool bHasValidTradeItem = false;
 	for(it = m_TradedItems.begin(); it != m_TradedItems.end(); ++it)
@@ -1866,6 +1992,7 @@ FDataStream& operator>>(FDataStream& loadFrom, CvDeal& writeTo)
 	CvTradedItem tempItem;
 
 	loadFrom >> uiVersion;
+	MOD_SERIALIZE_INIT_READ(loadFrom);
 	loadFrom >> writeTo.m_eFromPlayer;
 	loadFrom >> writeTo.m_eToPlayer;
 	loadFrom >> writeTo.m_iFinalTurn;
@@ -1885,6 +2012,9 @@ FDataStream& operator>>(FDataStream& loadFrom, CvDeal& writeTo)
 	loadFrom >> writeTo.m_eSurrenderingPlayer;
 	loadFrom >> writeTo.m_eDemandingPlayer;
 	loadFrom >> writeTo.m_eRequestingPlayer;
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	MOD_SERIALIZE_READ(36, loadFrom, writeTo.m_eOfferingPlayer, NO_PLAYER);
+#endif
 	loadFrom >> iEntriesToRead;
 
 	writeTo.m_TradedItems.clear();
@@ -1909,6 +2039,7 @@ FDataStream& operator<<(FDataStream& saveTo, const CvDeal& readFrom)
 	// Current version number
 	uint uiVersion = 3;
 	saveTo << uiVersion;
+	MOD_SERIALIZE_INIT_WRITE(saveTo);
 	saveTo << readFrom.m_eFromPlayer;
 	saveTo << readFrom.m_eToPlayer;
 	saveTo << readFrom.m_iFinalTurn;
@@ -1921,6 +2052,9 @@ FDataStream& operator<<(FDataStream& saveTo, const CvDeal& readFrom)
 	saveTo << readFrom.m_eSurrenderingPlayer;
 	saveTo << readFrom.m_eDemandingPlayer;
 	saveTo << readFrom.m_eRequestingPlayer;
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	MOD_SERIALIZE_WRITE(saveTo, readFrom.m_eOfferingPlayer);
+#endif
 	saveTo << readFrom.m_TradedItems.size();
 	TradedItemList::const_iterator it;
 	for(it = readFrom.m_TradedItems.begin(); it != readFrom.m_TradedItems.end(); ++it)
@@ -1930,6 +2064,119 @@ FDataStream& operator<<(FDataStream& saveTo, const CvDeal& readFrom)
 
 	return saveTo;
 }
+
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+/// Insert a tech trade
+void CvDeal::AddTechTrade(PlayerTypes eFrom, TechTypes eTech)
+{
+	CvAssertMsg(eFrom == m_eFromPlayer || eFrom == m_eToPlayer, "DEAL: Adding deal item for a player that's not actually in this deal!  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+
+	if(IsPossibleToTradeItem(eFrom, GetOtherPlayer(eFrom), TRADE_ITEM_TECHS, eTech))
+	{
+		CvTradedItem item;
+		item.m_eItemType = TRADE_ITEM_TECHS;
+		item.m_iDuration = 0;
+		item.m_iFinalTurn = -1;
+		item.m_iData1 = (int)eTech;
+		item.m_eFromPlayer = eFrom;
+		m_TradedItems.push_back(item);
+	}
+	else
+	{
+		CvAssertMsg(false, "DEAL: Trying to add an invalid Tech item to a deal");
+	}
+}
+
+/// Insert Vassalage Trade
+void CvDeal::AddVassalageTrade(PlayerTypes eFrom)
+{
+	CvAssertMsg(eFrom == m_eFromPlayer || eFrom == m_eToPlayer, "DEAL: Adding deal item for a player that's not actually in this deal!  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+
+	if(IsPossibleToTradeItem(eFrom, GetOtherPlayer(eFrom), TRADE_ITEM_VASSALAGE))
+	{
+		CvTradedItem item;
+		item.m_eItemType = TRADE_ITEM_VASSALAGE;
+		item.m_eFromPlayer = eFrom;
+		m_TradedItems.push_back(item);
+	}
+	else
+	{
+		CvAssertMsg(false, "DEAL: Trying to add an invalid Vassalage item to a deal");
+	}
+}
+
+bool CvDeal::IsMapTrade(PlayerTypes eFrom)
+{
+	TradedItemList::iterator it;
+	for(it = m_TradedItems.begin(); it != m_TradedItems.end(); ++it)
+	{
+		if(it->m_eItemType	== TRADE_ITEM_MAPS &&
+			it->m_eFromPlayer == eFrom)
+		{
+			return true;
+		}
+
+	}
+	return 0;
+}
+
+bool CvDeal::IsTechTrade(PlayerTypes eFrom, TechTypes eTech)
+{
+	TradedItemList::iterator it;
+	for(it = m_TradedItems.begin(); it != m_TradedItems.end(); ++it)
+	{
+		if(it->m_eItemType	== TRADE_ITEM_TECHS &&
+			it->m_eFromPlayer == eFrom &&
+			(TechTypes)it->m_iData1 == eTech)
+		{
+			return true;
+		}
+
+	}
+	return 0;
+}
+
+bool CvDeal::IsVassalageTrade(PlayerTypes eFrom)
+{
+	TradedItemList::iterator it;
+	for(it = m_TradedItems.begin(); it != m_TradedItems.end(); ++it)
+	{
+		if(it->m_eItemType == TRADE_ITEM_VASSALAGE && it->m_eFromPlayer == eFrom)
+		{
+			return true;
+		}
+	}
+	return 0;
+}
+
+/// Delete a tech trade
+void CvDeal::RemoveTechTrade(TechTypes eTech)
+{
+	TradedItemList::iterator it;
+	for(it = m_TradedItems.begin(); it != m_TradedItems.end(); ++it)
+	{
+		if(it->m_eItemType == TRADE_ITEM_TECHS &&
+		        (TechTypes)it->m_iData1 == eTech)
+		{
+			m_TradedItems.erase(it);
+			break;
+		}
+	}
+}
+
+PlayerTypes CvDeal::GetOfferingPlayer() const
+{
+	return m_eOfferingPlayer;
+}
+
+void CvDeal::SetOfferingPlayer(PlayerTypes ePlayer)
+{
+	CvAssertMsg(ePlayer >= NO_PLAYER, "DEAL: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");	// NO_PLAYER is valid because we could be clearing the deal out for other uses
+	CvAssertMsg(ePlayer < MAX_CIV_PLAYERS, "DEAL: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+
+	m_eOfferingPlayer = ePlayer;
+}
+#endif
 
 //=====================================
 // CvGameDeals
@@ -2126,6 +2373,7 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 					GET_PLAYER(eAcceptedFromPlayer).changeResourceExport(eResource, iResourceQuantity);
 					GET_PLAYER(eAcceptedToPlayer).changeResourceImport(eResource, iResourceQuantity);
 
+#if !defined(NO_ACHIEVEMENTS)
 					//Resource Trading Achievements
 					if(!GC.getGame().isGameMultiPlayer())
 					{
@@ -2160,6 +2408,7 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 							}
 						}
 					}
+#endif
 				}
 				// City
 				else if(it->m_eItemType == TRADE_ITEM_CITIES)
@@ -2218,7 +2467,11 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 				{
 					TeamTypes eTargetTeam = (TeamTypes) it->m_iData1;
 					bool bTargetTeamIsMinor = GET_TEAM(eTargetTeam).isMinorCiv();
+#if defined(MOD_EVENTS_WAR_AND_PEACE)
+					GET_TEAM(eFromTeam).makePeace(eTargetTeam, /*bBumpUnits*/ true, /*bSuppressNotification*/ bTargetTeamIsMinor, eFromPlayer);
+#else
 					GET_TEAM(eFromTeam).makePeace(eTargetTeam, /*bBumpUnits*/ true, /*bSuppressNotification*/ bTargetTeamIsMinor);
+#endif
 					GET_TEAM(eFromTeam).setForcePeace(eTargetTeam, true);
 					GET_TEAM(eTargetTeam).setForcePeace(eFromTeam, true);
 
@@ -2229,15 +2482,56 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 				else if(it->m_eItemType == TRADE_ITEM_THIRD_PARTY_WAR)
 				{
 					TeamTypes eTargetTeam = (TeamTypes) it->m_iData1;
+#if defined(MOD_EVENTS_WAR_AND_PEACE)
+					GET_TEAM(eFromTeam).declareWar(eTargetTeam, false, eFromPlayer);
+#else
 					GET_TEAM(eFromTeam).declareWar(eTargetTeam);
+#endif
 
 					int iLockedTurns = /*15*/ GC.getCOOP_WAR_LOCKED_LENGTH();
 					GET_TEAM(eFromTeam).ChangeNumTurnsLockedIntoWar(eTargetTeam, iLockedTurns);
 				}
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+				// Maps
+				else if (MOD_DIPLOMACY_CIV4_FEATURES && it->m_eItemType == TRADE_ITEM_MAPS)
+				{
+					GET_TEAM(eToTeam).AcquireMap(eFromTeam);
+				}
+				// Techs
+				else if(MOD_DIPLOMACY_CIV4_FEATURES && it->m_eItemType == TRADE_ITEM_TECHS)
+				{
+					TechTypes eTech = (TechTypes) it->m_iData1;
+
+					GET_TEAM(eToTeam).setHasTech(eTech, true, NO_PLAYER, true, false);
+					
+					// If No Tech Brokering is enabled then don't let the player trade this tech
+					if(GC.getGame().isOption(GAMEOPTION_NO_TECH_BROKERING))
+					{
+						GET_TEAM(eToTeam).SetTradeTech(eTech, false);
+					}
+				}
+				// Vassalage
+				else if(MOD_DIPLOMACY_CIV4_FEATURES && it->m_eItemType == TRADE_ITEM_VASSALAGE)
+				{
+					bool bCapitulation = false;
+
+					// If this isn't a peace treaty deal
+					if(kDeal.GetPeaceTreatyType() != NO_PEACE_TREATY_TYPE)
+					{
+						bCapitulation = true;
+					}
+
+					GET_TEAM(eFromTeam).DoBecomeVassal(eToTeam, !bCapitulation);
+				}
+#endif
 				// **** Peace Treaty **** this should always be the last item processed!!!
 				else if(it->m_eItemType == TRADE_ITEM_PEACE_TREATY)
 				{
+#if defined(MOD_EVENTS_WAR_AND_PEACE)
+					GET_TEAM(eFromTeam).makePeace(eToTeam, true, false, eFromPlayer);
+#else
 					GET_TEAM(eFromTeam).makePeace(eToTeam);
+#endif
 					GET_TEAM(eFromTeam).setForcePeace(eToTeam, true);
 				}
 				//////////////////////////////////////////////////////////////////////
@@ -3163,6 +3457,17 @@ void CvGameDeals::LogDealComplete(CvDeal* pDeal)
 			case TRADE_ITEM_VOTE_COMMITMENT:
 				strTemp.Format("***** Vote Commitment: ID %d, Choice %d *****", itemIter->m_iData1, itemIter->m_iData2);
 				break;
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+			case TRADE_ITEM_MAPS:
+				strTemp.Format("***** Map Trade *****");
+				break;
+			case TRADE_ITEM_TECHS:
+				strTemp.Format("***** Tech Trade *****", itemIter->m_iData1);
+				break;
+			case TRADE_ITEM_VASSALAGE:
+				strTemp.Format("***** Vassalage Trade *****");
+				break;
+#endif
 			default:
 				strTemp.Format("***** UNKNOWN TRADE!!! *****");
 				break;
@@ -3343,6 +3648,7 @@ FDataStream& operator>>(FDataStream& loadFrom, CvGameDeals& writeTo)
 	CvDeal tempItem;
 
 	loadFrom >> uiVersion;
+	MOD_SERIALIZE_INIT_READ(loadFrom);
 
 	writeTo.m_ProposedDeals.clear();
 	loadFrom >> iEntriesToRead;
@@ -3377,6 +3683,7 @@ FDataStream& operator<<(FDataStream& saveTo, const CvGameDeals& readFrom)
 	uint uiVersion = 1;
 	DealList::const_iterator it;
 	saveTo << uiVersion;
+	MOD_SERIALIZE_INIT_WRITE(saveTo);
 
 	saveTo << readFrom.m_ProposedDeals.size();
 	for(it = readFrom.m_ProposedDeals.begin(); it != readFrom.m_ProposedDeals.end(); ++it)

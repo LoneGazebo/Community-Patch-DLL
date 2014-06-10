@@ -16,8 +16,17 @@ CvUnitEntry::CvUnitEntry(void) :
 	m_iProductionCost(0),
 	m_iFaithCost(0),
 	m_bRequiresFaithPurchaseEnabled(false),
+#if defined(MOD_GLOBAL_EXCLUDE_FROM_GIFTS)
+	m_bNoMinorGifts(false),
+#endif
 	m_bPurchaseOnly(false),
 	m_bMoveAfterPurchase(false),
+#if defined(MOD_GLOBAL_MOVE_AFTER_UPGRADE)
+	m_bMoveAfterUpgrade(false),
+#endif
+#if defined(MOD_GLOBAL_CANNOT_EMBARK)
+	m_bCannotEmbark(false),
+#endif
 	m_iHurryCostModifier(0),
 	m_iAdvancedStartCost(0),
 	m_iMinAreaSize(0),
@@ -37,6 +46,9 @@ CvUnitEntry::CvUnitEntry(void) :
 	m_bRushBuilding(false),
 	m_iBaseGold(0),
 	m_iNumGoldPerEra(0),
+#if defined(MOD_DIPLOMACY_CITYSTATES)
+	m_iNumInfPerEra(0),
+#endif
 	m_bSpreadReligion(false),
 	m_bRemoveHeresy(false),
 	m_iReligionSpreads(0),
@@ -61,6 +73,12 @@ CvUnitEntry::CvUnitEntry(void) :
 	m_iSpecialUnitType(NO_SPECIALUNIT),
 	m_iUnitCaptureClassType(NO_UNITCLASS),
 	m_iUnitCombatType(NO_UNITCOMBAT),
+#if defined(MOD_GLOBAL_PROMOTION_CLASSES)
+	m_iUnitPromotionType(NO_UNITCOMBAT),
+#endif
+#if defined(MOD_EVENTS_CAN_MOVE_INTO)
+	m_bSendCanMoveIntoEvent(false),
+#endif
 	m_iDomainType(NO_DOMAIN),
 	m_iCivilianAttackPriority(NO_CIVILIAN_ATTACK_PRIORITY),
 	m_iDefaultUnitAIType(NO_UNITAI),
@@ -83,6 +101,10 @@ CvUnitEntry::CvUnitEntry(void) :
 	m_bPillage(false),
 	m_bFound(false),
 	m_bFoundAbroad(false),
+#if defined(MOD_DIPLOMACY_CITYSTATES)
+	m_bFoundMid(false),
+	m_bFoundLate(false),
+#endif
 	m_iCultureBombRadius(0),
 	m_iGoldenAgeTurns(0),
 	m_iFreePolicies(0),
@@ -103,6 +125,9 @@ CvUnitEntry::CvUnitEntry(void) :
 	m_pbGreatPeoples(NULL),
 	m_pbBuildings(NULL),
 	m_pbBuildingClassRequireds(NULL),
+#if defined(MOD_DIPLOMACY_CITYSTATES)
+	m_pbBuildOnFound(NULL),
+#endif
 	m_piPrereqAndTechs(NULL),
 	m_piResourceQuantityRequirements(NULL),
 	m_piProductionTraits(NULL),
@@ -131,6 +156,9 @@ CvUnitEntry::~CvUnitEntry(void)
 	SAFE_DELETE_ARRAY(m_pbGreatPeoples);
 	SAFE_DELETE_ARRAY(m_pbBuildings);
 	SAFE_DELETE_ARRAY(m_pbBuildingClassRequireds);
+#if defined(MOD_DIPLOMACY_CITYSTATES)
+	SAFE_DELETE_ARRAY(m_pbBuildOnFound);
+#endif
 	SAFE_DELETE_ARRAY(m_piPrereqAndTechs);
 	SAFE_DELETE_ARRAY(m_piResourceQuantityRequirements);
 	SAFE_DELETE_ARRAY(m_piProductionTraits);
@@ -154,8 +182,23 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	m_iProductionCost = kResults.GetInt("Cost");
 	m_iFaithCost = kResults.GetInt("FaithCost");
 	m_bRequiresFaithPurchaseEnabled = kResults.GetBool("RequiresFaithPurchaseEnabled");
+#if defined(MOD_GLOBAL_EXCLUDE_FROM_GIFTS)
+	if (MOD_GLOBAL_EXCLUDE_FROM_GIFTS) {
+		m_bNoMinorGifts = kResults.GetBool("NoMinorGifts");
+	}
+#endif
 	m_bPurchaseOnly = kResults.GetBool("PurchaseOnly");
 	m_bMoveAfterPurchase = kResults.GetBool("MoveAfterPurchase");
+#if defined(MOD_GLOBAL_MOVE_AFTER_UPGRADE)
+	if (MOD_GLOBAL_MOVE_AFTER_UPGRADE) {
+		m_bMoveAfterUpgrade = kResults.GetBool("MoveAfterUpgrade");
+	}
+#endif
+#if defined(MOD_GLOBAL_CANNOT_EMBARK)
+	if (MOD_GLOBAL_CANNOT_EMBARK) {
+		m_bCannotEmbark = kResults.GetBool("CannotEmbark");
+	}
+#endif
 	m_iHurryCostModifier = kResults.GetInt("HurryCostModifier");
 	m_iAdvancedStartCost = kResults.GetInt("AdvancedStartCost");
 	m_iMinAreaSize = kResults.GetInt("MinAreaSize");
@@ -175,6 +218,11 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	m_bRushBuilding= kResults.GetInt("RushBuilding");
 	m_iBaseGold = kResults.GetInt("BaseGold");
 	m_iNumGoldPerEra = kResults.GetInt("NumGoldPerEra");
+#if defined(MOD_DIPLOMACY_CITYSTATES)
+	if (MOD_DIPLOMACY_CITYSTATES) {
+		m_iNumInfPerEra = kResults.GetInt("NumInfPerEra");
+	}
+#endif
 	m_bSpreadReligion = kResults.GetBool("SpreadReligion");
 	m_bRemoveHeresy = kResults.GetBool("RemoveHeresy");
 	m_iReligionSpreads = kResults.GetInt("ReligionSpreads");
@@ -204,6 +252,12 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	m_bPillage = kResults.GetBool("Pillage");
 	m_bFound = kResults.GetBool("Found");
 	m_bFoundAbroad = kResults.GetBool("FoundAbroad");
+#if defined(MOD_DIPLOMACY_CITYSTATES)
+	if (MOD_DIPLOMACY_CITYSTATES) {
+		m_bFoundMid = kResults.GetBool("FoundMid");
+		m_bFoundLate = kResults.GetBool("FoundLate");
+	}
+#endif
 	m_iCultureBombRadius = kResults.GetInt("CultureBombRadius");
 	m_iGoldenAgeTurns = kResults.GetInt("GoldenAgeTurns");
 	m_iFreePolicies = kResults.GetInt("FreePolicies");
@@ -235,6 +289,19 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 
 	szTextVal = kResults.GetText("CombatClass");
 	m_iUnitCombatType = GC.getInfoTypeForString(szTextVal, true);
+
+#if defined(MOD_GLOBAL_PROMOTION_CLASSES)
+	szTextVal = kResults.GetText("PromotionClass");
+	m_iUnitPromotionType = GC.getInfoTypeForString(szTextVal, true);
+
+	if (m_iUnitPromotionType == NO_UNITCOMBAT || !MOD_GLOBAL_PROMOTION_CLASSES) {
+		m_iUnitPromotionType = m_iUnitCombatType;
+	}
+#endif
+
+#if defined(MOD_EVENTS_CAN_MOVE_INTO)
+	m_bSendCanMoveIntoEvent = kResults.GetBool("SendCanMoveIntoEvent");
+#endif
 
 	szTextVal = kResults.GetText("Domain");
 	m_iDomainType = GC.getInfoTypeForString(szTextVal, true);
@@ -296,7 +363,11 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	kUtility.PopulateArrayByExistence(m_pbGreatPeoples, "Specialists", "Unit_GreatPersons", "GreatPersonType", "UnitType", szUnitType);
 	kUtility.PopulateArrayByExistence(m_pbBuildings, "Buildings", "Unit_Buildings", "BuildingType", "UnitType", szUnitType);
 	kUtility.PopulateArrayByExistence(m_pbBuildingClassRequireds, "BuildingClasses", "Unit_BuildingClassRequireds", "BuildingClassType", "UnitType", szUnitType);
-
+#if defined(MOD_DIPLOMACY_CITYSTATES)
+	if (MOD_DIPLOMACY_CITYSTATES) {
+		kUtility.PopulateArrayByExistence(m_pbBuildOnFound, "BuildingClasses", "Unit_BuildOnFound", "BuildingClassType", "UnitType", szUnitType);
+	}
+#endif
 	//TechTypes
 	{
 		//Initialize array to NO_TECH
@@ -435,6 +506,14 @@ bool CvUnitEntry::IsRequiresFaithPurchaseEnabled() const
 	return m_bRequiresFaithPurchaseEnabled;
 }
 
+#if defined(MOD_GLOBAL_EXCLUDE_FROM_GIFTS)
+/// Can City States gift this unit?
+bool CvUnitEntry::IsNoMinorGifts() const
+{
+	return m_bNoMinorGifts;
+}
+#endif
+
 /// Do we need to purchase this unit (i.e. can't be built)?
 bool CvUnitEntry::IsPurchaseOnly() const
 {
@@ -446,6 +525,22 @@ bool CvUnitEntry::CanMoveAfterPurchase() const
 {
 	return m_bMoveAfterPurchase;
 }
+
+#if defined(MOD_GLOBAL_MOVE_AFTER_UPGRADE)
+/// Can this unit move after being upgraded?
+bool CvUnitEntry::CanMoveAfterUpgrade() const
+{
+	return m_bMoveAfterUpgrade;
+}
+#endif
+
+#if defined(MOD_GLOBAL_CANNOT_EMBARK)
+/// Can this unit embark?
+bool CvUnitEntry::CannotEmbark() const
+{
+	return m_bCannotEmbark;
+}
+#endif
 
 /// Does it cost extra to hurry this init?
 int CvUnitEntry::GetHurryCostModifier() const
@@ -560,6 +655,14 @@ int CvUnitEntry::GetNumGoldPerEra() const
 {
 	return m_iNumGoldPerEra;
 }
+
+#if defined(MOD_DIPLOMACY_CITYSTATES)
+/// Era boost to influence (for great people)
+int CvUnitEntry::GetNumInfPerEra() const
+{
+	return m_iNumInfPerEra;
+}
+#endif
 
 /// Can this Unit Spread Religion to a City?
 bool CvUnitEntry::IsSpreadReligion() const
@@ -711,6 +814,22 @@ int CvUnitEntry::GetUnitCombatType() const
 	return m_iUnitCombatType;
 }
 
+#if defined(MOD_GLOBAL_PROMOTION_CLASSES)
+/// Combat type for promotions - this permits subs and anti-air units to receive more meaningful promotion trees
+int CvUnitEntry::GetUnitPromotionType() const
+{
+	return m_iUnitPromotionType;
+}
+#endif
+
+#if defined(MOD_EVENTS_CAN_MOVE_INTO)
+/// Send CanMoveInto events for this unit type?
+bool CvUnitEntry::IsSendCanMoveIntoEvent() const
+{
+	return m_bSendCanMoveIntoEvent;
+}
+#endif
+
 /// What domain does this unit operate in (land, air or sea)
 int CvUnitEntry::GetDomainType() const
 {
@@ -836,6 +955,19 @@ bool CvUnitEntry::IsFoundAbroad() const
 {
 	return m_bFoundAbroad;
 }
+
+#if defined(MOD_DIPLOMACY_CITYSTATES)
+/// Can it start a city in the mid game?
+bool CvUnitEntry::IsFoundMid() const
+{
+	return m_bFoundMid;
+}
+/// Can it start a city in the late game?
+bool CvUnitEntry::IsFoundLate() const
+{
+	return m_bFoundLate;
+}
+#endif
 
 /// Distance this unit steals
 int CvUnitEntry::GetCultureBombRadius() const
@@ -1040,6 +1172,16 @@ bool CvUnitEntry::GetBuildingClassRequireds(int i) const
 	return m_pbBuildingClassRequireds ? m_pbBuildingClassRequireds[i] : false;
 }
 
+#if defined(MOD_DIPLOMACY_CITYSTATES)
+/// Does this Unit create something when it founds a city?
+bool CvUnitEntry::GetBuildOnFound(int i) const
+{
+	CvAssertMsg(i < GC.getNumBuildingClassInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_pbBuildOnFound? m_pbBuildOnFound[i] : false;
+}
+#endif
+
 /// Initial set of promotions for this unit
 bool CvUnitEntry::GetFreePromotions(int i) const
 {
@@ -1170,9 +1312,31 @@ void CvUnitEntry::DoUpdatePower()
 	// Naval ranged attacks are less useful
 	if(GetDomainType() == DOMAIN_SEA)
 	{
-		iRangedStrength *= 3;
-		iRangedStrength /= 4;
+#if defined(MOD_BUGFIX_UNIT_POWER_CALC)
+		if (!MOD_BUGFIX_UNIT_POWER_CALC) {
+#if defined(MOD_BUGFIX_UNIT_POWER_NAVAL_CONSISTENCY)
+			if (!MOD_BUGFIX_UNIT_POWER_NAVAL_CONSISTENCY) {
+				// We can either ignore this or divide naval melee attacks by two, but if we leave this alone Destroyers are more than twice as powerful as Battleships!!!
+#endif
+#endif
+				iRangedStrength *= 3;
+				iRangedStrength /= 4;
+#if defined(MOD_BUGFIX_UNIT_POWER_CALC)
+#if defined(MOD_BUGFIX_UNIT_POWER_NAVAL_CONSISTENCY)
+			}
+#endif
+		}
+#endif
 	}
+
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	if(MOD_DIPLOMACY_CIV4_FEATURES && GetDomainType() == DOMAIN_AIR)
+	{
+		int iTemp = iPower * 30;
+		iTemp /= 100;
+		iPower += iTemp;
+	}
+#endif
 
 	if(iRangedStrength > iPower)
 	{
@@ -1181,6 +1345,12 @@ void CvUnitEntry::DoUpdatePower()
 
 	// We want Movement rate to be important, but not a dominating factor; a Unit with double the moves of a similarly-strengthed Unit should be ~1.5x as Powerful
 	iPower = int((float) iPower * pow(min(1.0,(double) GetMoves()), 0.3));
+#if defined(MOD_BUGFIX_UNIT_POWER_CALC)
+	if (IsImmobile()) {
+		// A unit that can't move should be worth half of one that can
+		iPower /= 2;
+	}
+#endif
 
 // ***************
 // Other modifiers
@@ -1204,6 +1374,204 @@ void CvUnitEntry::DoUpdatePower()
 
 	int iTemp;
 	int iLoop;
+
+#if defined(MOD_BUGFIX_UNIT_POWER_CALC)
+	if (MOD_BUGFIX_UNIT_POWER_CALC) {
+		int iBasePower = iPower;
+		int iBonusPower = 0;
+
+	for(int iPromotionLoop = 0; iPromotionLoop < GC.getNumPromotionInfos(); iPromotionLoop++)
+	{
+		CvPromotionEntry* kPromotion = GC.getPromotionInfo((PromotionTypes)iPromotionLoop);
+		if(kPromotion == NULL)
+			continue;
+
+		if(GetFreePromotions(iPromotionLoop))
+		{
+			// City Attack - add half of the bonus
+			if(kPromotion->GetCityAttackPercent() > 0)
+			{
+				iTemp = (iBasePower * kPromotion->GetCityAttackPercent() / 2);
+				iTemp /= 100;
+				iBonusPower += iTemp;
+			}
+
+			// Attack - add half of the bonus
+			if(kPromotion->GetAttackMod() > 0)
+			{
+				iTemp = (iBasePower * kPromotion->GetAttackMod() / 2);
+				iTemp /= 100;
+				iBonusPower += iTemp;
+			}
+
+			// Defense - add half of the bonus
+			if(kPromotion->GetDefenseMod() > 0)
+			{
+				iTemp = (iBasePower * kPromotion->GetDefenseMod() / 2);
+				iTemp /= 100;
+				iBonusPower += iTemp;
+			}
+
+			// Paradrop - add 25%
+			if(kPromotion->GetDropRange() > 0)
+			{
+				iTemp = iBasePower;
+				iTemp /= 4;
+				iBonusPower += iTemp;
+			}
+
+			// Blitz - add 20%
+			if(kPromotion->IsBlitz())
+			{
+				iTemp = iBasePower;
+				iTemp /= 5;
+				iBonusPower += iTemp;
+			}
+
+			// Set Up For Ranged Attack - reduce by 20%
+			if(kPromotion->IsMustSetUpToRangedAttack())
+			{
+				iTemp = iBasePower;
+				iTemp /= 5;
+				iBonusPower -= iTemp;
+			}
+
+			// Only Defensive - reduce  by 25%, but only if the Unit has no ranged capability
+			if(kPromotion->IsOnlyDefensive() && GetRangedCombat() == 0)
+			{
+				iTemp = iBasePower;
+				iTemp /= 4;
+				iBonusPower -= iTemp;
+			}
+
+			for(iLoop = 0; iLoop < GC.getNumTerrainInfos(); iLoop++)
+			{
+				// Terrain Attack - add one quarter of the bonus
+				if(kPromotion->GetTerrainAttackPercent(iLoop) > 0)
+				{
+					iTemp = (iBasePower * kPromotion->GetTerrainAttackPercent(iLoop) / 4);
+					iTemp /= 100;
+					iBonusPower += iTemp;
+				}
+				// Terrain Defense - add one quarter of the bonus
+				if(kPromotion->GetTerrainDefensePercent(iLoop) > 0)
+				{
+					iTemp = (iBasePower * kPromotion->GetTerrainDefensePercent(iLoop) / 4);
+					iTemp /= 100;
+					iBonusPower += iTemp;
+				}
+			}
+
+			for(iLoop = 0; iLoop < GC.getNumFeatureInfos(); iLoop++)
+			{
+				// Feature Attack - add one quarter of the bonus
+				if(kPromotion->GetFeatureAttackPercent(iLoop) > 0)
+				{
+					iTemp = (iBasePower * kPromotion->GetFeatureAttackPercent(iLoop) / 4);
+					iTemp /= 100;
+					iBonusPower += iTemp;
+				}
+				// Feature Defense - add one quarter of the bonus
+				if(kPromotion->GetFeatureDefensePercent(iLoop) > 0)
+				{
+					iTemp = (iBasePower * kPromotion->GetFeatureDefensePercent(iLoop) / 4);
+					iTemp /= 100;
+					iBonusPower += iTemp;
+				}
+			}
+
+#if defined(MOD_BUGFIX_UNITCOMBAT_BONUS_VS_DOMAIN_ONLY)
+			if (MOD_BUGFIX_UNITCOMBAT_BONUS_VS_DOMAIN_ONLY) {
+				// Only add UNITCOMBAT bonuses against the same domain, so we need to know the domain of combat classes
+				//   DOMAIN_SEA is UNITCOMBAT_NAVALRANGED and UNITCOMBAT_NAVALMELEE
+				//   DOMAIN_AIR is UNITCOMBAT_HELICOPTER, UNITCOMBAT_FIGHTER and UNITCOMBAT_BOMBER
+				//   DOMAIN_LAND is everything else
+				int iMyDomain = GetDomainType();
+				for(iLoop = 0; iLoop < GC.getNumUnitCombatClassInfos(); iLoop++)
+				{
+					int iTheirDomain = NO_DOMAIN;
+					CvBaseInfo* pkUnitCombatInfo = GC.getUnitCombatClassInfo((UnitCombatTypes)iLoop);
+					if (pkUnitCombatInfo) {
+						int iTheirUnitCombat = pkUnitCombatInfo->GetID();
+					
+						if (iTheirUnitCombat == GC.getInfoTypeForString("UNITCOMBAT_NAVALRANGED", true) || iTheirUnitCombat == GC.getInfoTypeForString("UNITCOMBAT_NAVALMELEE", true)) {
+							iTheirDomain = DOMAIN_SEA;
+						} else if (iTheirUnitCombat == GC.getInfoTypeForString("UNITCOMBAT_HELICOPTER", true) || iTheirUnitCombat == GC.getInfoTypeForString("UNITCOMBAT_FIGHTER", true) || iTheirUnitCombat == GC.getInfoTypeForString("UNITCOMBAT_BOMBER", true)) {
+							iTheirDomain = DOMAIN_AIR;
+						} else {
+							iTheirDomain = DOMAIN_LAND;
+						}
+					}
+
+					if (iMyDomain == iTheirDomain) {
+						// Unit Combat Class (e.g. Pikemen) - add one quarter of the bonus
+						if(kPromotion->GetUnitCombatModifierPercent(iLoop) > 0)
+						{
+							iTemp = (iBasePower * kPromotion->GetUnitCombatModifierPercent(iLoop) / 4);
+							iTemp /= 100;
+							iBonusPower += iTemp;
+						}
+					}
+				}
+			} else {
+#endif
+				for(iLoop = 0; iLoop < GC.getNumUnitCombatClassInfos(); iLoop++)
+				{
+					// Unit Combat Class (e.g. Pikemen) - add one quarter of the bonus
+					if(kPromotion->GetUnitCombatModifierPercent(iLoop) > 0)
+					{
+						iTemp = (iBasePower * kPromotion->GetUnitCombatModifierPercent(iLoop) / 4);
+						iTemp /= 100;
+						iBonusPower += iTemp;
+					}
+				}
+#if defined(MOD_BUGFIX_UNITCOMBAT_BONUS_VS_DOMAIN_ONLY)
+			}
+#endif
+
+			for(iLoop = 0; iLoop < GC.getNumUnitClassInfos(); iLoop++)
+			{
+				// Unit Class (e.g. bonus ONLY against Galleys) - add one eighth of the bonus
+				// We're assuming here that the bonus against the other Unit is at least going to be somewhat useful - trust the XML! :o
+				if(kPromotion->GetUnitClassModifierPercent(iLoop) > 0)
+				{
+					iTemp = (iBasePower * kPromotion->GetUnitClassModifierPercent(iLoop) / 8);
+					iTemp /= 100;
+					iBonusPower += iTemp;
+				}
+				// Unit Class Attack - one tenth of the bonus
+				if(kPromotion->GetUnitClassAttackModifier(iLoop) > 0)
+				{
+					iTemp = (iBasePower * kPromotion->GetUnitClassAttackModifier(iLoop) / 10);
+					iTemp /= 100;
+					iBonusPower += iTemp;
+				}
+				// Unit Class Defense - one tenth of the bonus
+				if(kPromotion->GetUnitClassDefenseModifier(iLoop) > 0)
+				{
+					iTemp = (iBasePower * kPromotion->GetUnitClassDefenseModifier(iLoop) / 10);
+					iTemp /= 100;
+					iBonusPower += iTemp;
+				}
+			}
+
+			for(iLoop = 0; iLoop < NUM_DOMAIN_TYPES; iLoop++)
+			{
+				// Domain - add one quarter of the bonus
+				if(kPromotion->GetDomainModifierPercent(iLoop) > 0)
+				{
+					iTemp = (iBasePower * kPromotion->GetDomainModifierPercent(iLoop) / 4);
+					iTemp /= 100;
+					iBonusPower += iTemp;
+				}
+			}
+		}
+	}
+
+	iPower = iBasePower + iBonusPower;
+
+	} else {
+#endif
 
 	for(int iPromotionLoop = 0; iPromotionLoop < GC.getNumPromotionInfos(); iPromotionLoop++)
 	{
@@ -1354,6 +1722,12 @@ void CvUnitEntry::DoUpdatePower()
 			}
 		}
 	}
+
+#if defined(MOD_BUGFIX_UNIT_POWER_CALC)
+	}
+
+	// CUSTOMLOG("UnitClass::Power\t%s\t%i", GetDescription(), iPower);
+#endif
 
 	// Debug output
 	//char temp[256];

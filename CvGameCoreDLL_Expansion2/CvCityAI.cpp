@@ -175,7 +175,11 @@ void CvCityAI::AI_stealPlots()
 	CvPlot* pLoopPlot = 0;
 	int iI = 0;
 
+#if defined(MOD_GLOBAL_CITY_WORKING)
+	for(iI = 0; iI < GetNumWorkablePlots(); iI++)
+#else
 	for(iI = 0; iI < NUM_CITY_PLOTS; iI++)
+#endif
 	{
 		pLoopPlot = plotCity(getX(),getY(),iI);
 
@@ -224,6 +228,7 @@ void CvCityAI::read(FDataStream& kStream)
 	// Version number to maintain backwards compatibility
 	uint uiVersion;
 	kStream >> uiVersion;
+	MOD_SERIALIZE_INIT_READ(kStream);
 
 	kStream >> m_bChooseProductionDirty;
 	kStream >> m_iCachePlayerClosenessTurn;
@@ -243,6 +248,7 @@ void CvCityAI::write(FDataStream& kStream) const
 	// Current version number
 	uint uiVersion = 1;
 	kStream << uiVersion;
+	MOD_SERIALIZE_INIT_WRITE(kStream);
 
 	kStream << m_bChooseProductionDirty;
 	kStream << m_iCachePlayerClosenessTurn;

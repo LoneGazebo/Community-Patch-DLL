@@ -520,6 +520,7 @@ bool CvReplayInfo::read(FDataStream& kStream)
 
 	int iVersion;
 	kStream >> iVersion;
+	MOD_SERIALIZE_INIT_READ(kStream);
 
 	kStream >> m_iActivePlayer;
 	kStream >> m_strMapScriptName;
@@ -569,6 +570,7 @@ bool CvReplayInfo::read(FDataStream& kStream)
 void CvReplayInfo::write(FDataStream& kStream) const
 {
 	kStream << REPLAY_VERSION;
+	MOD_SERIALIZE_INIT_WRITE(kStream);
 	kStream << m_iActivePlayer;
 	kStream << m_strMapScriptName;
 	kStream << m_eWorldSize;

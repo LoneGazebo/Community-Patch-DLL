@@ -67,6 +67,13 @@ void CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlo
 		{
 			iRegularCost /= 2;
 		}
+
+#if defined(MOD_PROMOTIONS_HALF_MOVE)
+		else if((pToPlot->getFeatureType() == NO_FEATURE) ? pUnit->isTerrainHalfMove(pToPlot->getTerrainType()) : pUnit->isFeatureHalfMove(pToPlot->getFeatureType()))
+		{
+			iRegularCost *= 2;
+		}
+#endif
 	}
 
 	iRegularCost = std::min(iRegularCost, (iBaseMoves * iMoveDenominator));
@@ -196,15 +203,46 @@ bool CvUnitMovement::ConsumesAllMoves(const CvUnit* pUnit, const CvPlot* pFromPl
 	if(!pFromPlot->isValidDomainForLocation(*pUnit))
 	{
 		// If we are a land unit that can embark, then do further tests.
+#if defined(MOD_PATHFINDER_DEEP_WATER_EMBARKATION)
+		if(pUnit->getDomainType() != DOMAIN_LAND || pUnit->canMoveAllTerrain())
+			return true;
+			
+		if(pUnit->IsHoveringUnit()) {
+			if (!pUnit->IsEmbarkDeepWater()) {
+				return true;
+			}
+		} else {
+			if (!pUnit->CanEverEmbark()) {
+				return true;
+			}
+		}
+#else
 		if(pUnit->getDomainType() != DOMAIN_LAND || pUnit->IsHoveringUnit() || pUnit->canMoveAllTerrain() || !pUnit->CanEverEmbark())
 			return true;
+#endif
 	}
 
 	// if the unit can embark and we are transitioning from land to water or vice versa
+#if defined(MOD_PATHFINDER_TERRAFIRMA)
+	bool bFromWater = !pFromPlot->isTerraFirma(pUnit);
+	bool bToWater = !pToPlot->isTerraFirma(pUnit);
+	bool bCanEmbark = pUnit->CanEverEmbark();
+#if defined(MOD_PATHFINDER_DEEP_WATER_EMBARKATION)
+	if (pUnit->IsHoveringUnit() && pUnit->IsEmbarkDeepWater()) {
+		bCanEmbark = true;
+	}
+#endif
+	if(bToWater != bFromWater && bCanEmbark)
+#else
 	if(pToPlot->isWater() != pFromPlot->isWater() && pUnit->CanEverEmbark())
+#endif
 	{
 		// Is the unit from a civ that can disembark for just 1 MP?
+#if defined(MOD_PATHFINDER_TERRAFIRMA)
+		if(!bToWater && bFromWater && pUnit->isEmbarked() && GET_PLAYER(pUnit->getOwner()).GetPlayerTraits()->IsEmbarkedToLandFlatCost())
+#else
 		if(!pToPlot->isWater() && pFromPlot->isWater() && pUnit->isEmbarked() && GET_PLAYER(pUnit->getOwner()).GetPlayerTraits()->IsEmbarkedToLandFlatCost())
+#endif
 		{
 			return false;	// Then no, it does not.
 		}
@@ -331,6 +369,12 @@ bool CvUnitMovement::IsSlowedByZOC(const CvUnit* pUnit, const CvPlot* pFromPlot,
 							{
 								// continue on
 							}
+#if defined(MOD_BUGFIX_HOVERING_PATHFINDER)
+							// hovering units always exert a ZOC
+							else if (pLoopUnit->IsHoveringUnit()) {
+								// continue on
+							}
+#endif
 							else
 							{
 								continue;

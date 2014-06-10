@@ -26,12 +26,16 @@ static std::vector<int> ms_lastTargetingPath;
  #define TRACK_LAST_TARGET_PATH_ENTRY(x)	if (x) ms_lastTargetingPath.push_back(x->GetPlotIndex())
  #define CLEAR_TARGET_PATH_DEBUG	ms_lastTargetingPath.clear()
 #else
- #define TRACK_LAST_TARGET_PATH_ENTRY ((void)0)
- #define CLEAR_TARGET_PATH_DEBUG	((void)0)
+ #define TRACK_LAST_TARGET_PATH_ENTRY __noop
+ #define CLEAR_TARGET_PATH_DEBUG	__noop
 #endif
 
 // Access the last cached targeting path.  Debug only please!
+#if defined(MOD_BUGFIX_MINOR)
+int GetLastTargetingPathIndex(int)
+#else
 int GetLastTargetingPathIndex(int plotIndex)
+#endif
 {
 #if defined(TARGETING_DEBUG)
 	int iIndex = 0;

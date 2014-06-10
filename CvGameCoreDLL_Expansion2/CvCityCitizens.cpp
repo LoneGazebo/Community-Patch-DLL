@@ -77,8 +77,13 @@ void CvCityCitizens::Reset()
 
 	int iI;
 
+#if defined(MOD_GLOBAL_CITY_WORKING)
+	CvAssertMsg((0 < MAX_CITY_PLOTS),  "MAX_CITY_PLOTS is not greater than zero but an array is being allocated in CvCityCitizens::reset");
+	for(iI = 0; iI < MAX_CITY_PLOTS; iI++)
+#else
 	CvAssertMsg((0 < NUM_CITY_PLOTS),  "NUM_CITY_PLOTS is not greater than zero but an array is being allocated in CvCityCitizens::reset");
 	for(iI = 0; iI < NUM_CITY_PLOTS; iI++)
+#endif
 	{
 		m_pabWorkingPlot[iI] = false;
 		m_pabForcedWorkingPlot[iI] = false;
@@ -131,6 +136,7 @@ void CvCityCitizens::Read(FDataStream& kStream)
 	// Version number to maintain backwards compatibility
 	uint uiVersion;
 	kStream >> uiVersion;
+	MOD_SERIALIZE_INIT_READ(kStream);
 
 	kStream >> m_bAutomated;
 	kStream >> m_bNoAutoAssignSpecialists;
@@ -163,6 +169,7 @@ void CvCityCitizens::Write(FDataStream& kStream)
 	// Current version number
 	uint uiVersion = 1;
 	kStream << uiVersion;
+	MOD_SERIALIZE_INIT_WRITE(kStream);
 
 	kStream << m_bAutomated;
 	kStream << m_bNoAutoAssignSpecialists;
@@ -235,16 +242,23 @@ void CvCityCitizens::DoTurn()
 
 	if(m_pCity->IsPuppet())
 	{
-		SetFocusType(CITY_AI_FOCUS_TYPE_GOLD);
-		SetNoAutoAssignSpecialists(false);
-		SetForcedAvoidGrowth(false);
-		int iExcessFoodTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - (m_pCity->foodConsumption() * 100);
-		if(iExcessFoodTimes100 < 0)
+#if defined(MOD_UI_CITY_PRODUCTION)
+		if(!(MOD_UI_CITY_PRODUCTION && thisPlayer.isHuman()))
 		{
-			SetFocusType(NO_CITY_AI_FOCUS_TYPE);
-			//SetNoAutoAssignSpecialists(true);
+#endif
+			SetFocusType(CITY_AI_FOCUS_TYPE_GOLD);
+			SetNoAutoAssignSpecialists(false);
 			SetForcedAvoidGrowth(false);
+			int iExcessFoodTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - (m_pCity->foodConsumption() * 100);
+			if(iExcessFoodTimes100 < 0)
+			{
+				SetFocusType(NO_CITY_AI_FOCUS_TYPE);
+				//SetNoAutoAssignSpecialists(true);
+				SetForcedAvoidGrowth(false);
+			}
+#if defined(MOD_UI_CITY_PRODUCTION)
 		}
+#endif
 	}
 	else if(!thisPlayer.isHuman())
 	{
@@ -1303,7 +1317,11 @@ CvPlot* CvCityCitizens::GetBestCityPlotWithValue(int& iValue, bool bWantBest, bo
 	CvPlot* pLoopPlot;
 
 	// Look at all workable Plots
+#if defined(MOD_GLOBAL_CITY_WORKING)
+	for(int iPlotLoop = 0; iPlotLoop < GetCity()->GetNumWorkablePlots(); iPlotLoop++)
+#else
 	for(int iPlotLoop = 0; iPlotLoop < NUM_CITY_PLOTS; iPlotLoop++)
+#endif
 	{
 		if(iPlotLoop != CITY_HOME_PLOT)
 		{
@@ -1445,9 +1463,15 @@ void CvCityCitizens::SetWorkingPlot(CvPlot* pPlot, bool bNewValue, bool bUseUnas
 	int iIndex = GetCityIndexFromPlot(pPlot);
 
 	CvAssertMsg(iIndex >= 0, "iIndex expected to be >= 0");
+#if defined(MOD_GLOBAL_CITY_WORKING)
+	CvAssertMsg(iIndex < GetCity()->GetNumWorkablePlots(), "iIndex expected to be < NUM_CITY_PLOTS");
+
+	if(IsWorkingPlot(pPlot) != bNewValue && iIndex >= 0 && iIndex < GetCity()->GetNumWorkablePlots())
+#else
 	CvAssertMsg(iIndex < NUM_CITY_PLOTS, "iIndex expected to be < NUM_CITY_PLOTS");
 
 	if(IsWorkingPlot(pPlot) != bNewValue && iIndex >= 0 && iIndex < NUM_CITY_PLOTS)
+#endif
 	{
 		m_pabWorkingPlot[iIndex] = bNewValue;
 
@@ -1524,7 +1548,11 @@ void CvCityCitizens::SetWorkingPlot(CvPlot* pPlot, bool bNewValue, bool bUseUnas
 void CvCityCitizens::DoAlterWorkingPlot(int iIndex)
 {
 	CvAssertMsg(iIndex >= 0, "iIndex expected to be >= 0");
+#if defined(MOD_GLOBAL_CITY_WORKING)
+	CvAssertMsg(iIndex < GetCity()->GetNumWorkablePlots(), "iIndex expected to be < NUM_CITY_PLOTS");
+#else
 	CvAssertMsg(iIndex < NUM_CITY_PLOTS, "iIndex expected to be < NUM_CITY_PLOTS");
+#endif
 
 	// Clicking ON the city "resets" it to default setup
 	if(iIndex == CITY_HOME_PLOT)
@@ -1532,7 +1560,11 @@ void CvCityCitizens::DoAlterWorkingPlot(int iIndex)
 		CvPlot* pLoopPlot;
 
 		// If we've forced any plots to be worked, reset them to the normal state
+#if defined(MOD_GLOBAL_CITY_WORKING)
+		for(int iPlotLoop = 0; iPlotLoop < GetCity()->GetNumWorkablePlots(); iPlotLoop++)
+#else
 		for(int iPlotLoop = 0; iPlotLoop < NUM_CITY_PLOTS; iPlotLoop++)
+#endif
 		{
 			if(iPlotLoop != CITY_HOME_PLOT)
 			{
@@ -1648,9 +1680,15 @@ void CvCityCitizens::SetForcedWorkingPlot(CvPlot* pPlot, bool bNewValue)
 	int iIndex = GetCityIndexFromPlot(pPlot);
 
 	CvAssertMsg(iIndex >= 0, "iIndex expected to be >= 0");
+#if defined(MOD_GLOBAL_CITY_WORKING)
+	CvAssertMsg(iIndex < GetCity()->GetNumWorkablePlots(), "iIndex expected to be < NUM_CITY_PLOTS");
+
+	if(IsForcedWorkingPlot(pPlot) != bNewValue && iIndex >= 0 && iIndex < GetCity()->GetNumWorkablePlots())
+#else
 	CvAssertMsg(iIndex < NUM_CITY_PLOTS, "iIndex expected to be < NUM_CITY_PLOTS");
 
 	if(IsForcedWorkingPlot(pPlot) != bNewValue && iIndex >= 0 && iIndex < NUM_CITY_PLOTS)
+#endif
 	{
 		m_pabForcedWorkingPlot[iIndex] = bNewValue;
 
@@ -1697,7 +1735,11 @@ void CvCityCitizens::DoDemoteWorstForcedWorkingPlot()
 	CvPlot* pLoopPlot;
 
 	// Look at all workable Plots
+#if defined(MOD_GLOBAL_CITY_WORKING)
+	for(int iPlotLoop = 0; iPlotLoop < GetCity()->GetNumWorkablePlots(); iPlotLoop++)
+#else
 	for(int iPlotLoop = 0; iPlotLoop < NUM_CITY_PLOTS; iPlotLoop++)
+#endif
 	{
 		if(iPlotLoop != CITY_HOME_PLOT)
 		{
@@ -1801,11 +1843,44 @@ bool CvCityCitizens::IsPlotBlockaded(CvPlot* pPlot) const
 				// Must be water in the same Area
 				if(pNearbyPlot->isWater() && pNearbyPlot->getArea() == pPlot->getArea())
 				{
+#if defined(MOD_GLOBAL_ALLIES_BLOCK_BLOCKADES)
+					int iPlotDistance = plotDistance(pNearbyPlot->getX(), pNearbyPlot->getY(), pPlot->getX(), pPlot->getY());
+					if(iPlotDistance <= iBlockadeDistance)
+#else
 					if(plotDistance(pNearbyPlot->getX(), pNearbyPlot->getY(), pPlot->getX(), pPlot->getY()) <= iBlockadeDistance)
+#endif
 					{
 						// Enemy boat within range to blockade our plot?
+#if defined(MOD_GLOBAL_SHORT_EMBARKED_BLOCKADES)
+						if(pNearbyPlot->IsActualEnemyUnit(ePlayer, true, true))
+#else
 						if(pNearbyPlot->IsActualEnemyUnit(ePlayer))
+#endif
 						{
+#if defined(MOD_GLOBAL_ALLIES_BLOCK_BLOCKADES)
+							if (MOD_GLOBAL_ALLIES_BLOCK_BLOCKADES && iPlotDistance > 1) {
+								// Is there an allied ship in the plot?
+								if (pPlot->IsActualAlliedUnit(ePlayer)) {
+									return false;
+								}
+
+								// We have an enemy ship 2 (or more) plots away,
+								// so check if we have an immediately adjacent allied ship to keep this plot open (ships in port do not count!)
+								for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++) {
+									CvPlot* pAdjacentPlot = plotDirection(pPlot->getX(), pPlot->getY(), ((DirectionTypes)iI));
+
+									if (pAdjacentPlot != NULL) {
+										// Must be water in the same Area
+										if (pAdjacentPlot->isWater() && pAdjacentPlot->getArea() == pPlot->getArea()) {
+											// If there is an allied ship here the blockade from 2 (or more) tiles away is itself blocked!
+											if (pAdjacentPlot->IsActualAlliedUnit(ePlayer)) {
+												return false;
+											}
+										}
+									}
+								}
+							}
+#endif
 							return true;
 						}
 					}
@@ -1823,7 +1898,11 @@ bool CvCityCitizens::IsAnyPlotBlockaded() const
 	CvPlot* pLoopPlot;
 
 	// Look at all workable Plots
+#if defined(MOD_GLOBAL_CITY_WORKING)
+	for(int iPlotLoop = 0; iPlotLoop < m_pCity->GetNumWorkablePlots(); iPlotLoop++)
+#else
 	for(int iPlotLoop = 0; iPlotLoop < NUM_CITY_PLOTS; iPlotLoop++)
+#endif
 	{
 		if(iPlotLoop != CITY_HOME_PLOT)
 		{
@@ -1864,7 +1943,11 @@ void CvCityCitizens::DoVerifyWorkingPlots()
 	int iI;
 	CvPlot* pPlot;
 
+#if defined(MOD_GLOBAL_CITY_WORKING)
+	for(iI = 0; iI < GetCity()->GetNumWorkablePlots(); iI++)
+#else
 	for(iI = 0; iI < NUM_CITY_PLOTS; iI++)
+#endif
 	{
 		pPlot = GetCityPlotFromIndex(iI);
 
@@ -1976,6 +2059,12 @@ void CvCityCitizens::DoSpecialists()
 					{
 						iMod += GetPlayer()->getGreatEngineerRateModifier();
 					}
+#if defined(MOD_DIPLOMACY_CITYSTATES)
+					else if(MOD_DIPLOMACY_CITYSTATES && (UnitClassTypes)pkSpecialistInfo->getGreatPeopleUnitClass() == GC.getInfoTypeForString("UNITCLASS_GREAT_DIPLOMAT"))
+					{
+						iMod += GetPlayer()->getGreatDiplomatRateModifier();
+					}
+#endif
 
 					// Apply mod
 					iGPPChange *= (100 + iMod);
@@ -2403,6 +2492,12 @@ int CvCityCitizens::GetSpecialistUpgradeThreshold(UnitClassTypes eUnitClass)
 	{
 		iNumCreated = GET_PLAYER(GetCity()->getOwner()).getGreatMusiciansCreated();
 	}
+#if defined(MOD_DIPLOMACY_CITYSTATES)
+	else if (MOD_DIPLOMACY_CITYSTATES && eUnitClass == GC.getInfoTypeForString("UNITCLASS_GREAT_DIPLOMAT", true))
+	{
+		iNumCreated = GET_PLAYER(GetCity()->getOwner()).getGreatDiplomatsCreated();
+	}
+#endif
 	else
 	{
 		iNumCreated = GET_PLAYER(GetCity()->getOwner()).getGreatPeopleCreated();
@@ -2472,6 +2567,12 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 		{
 			kPlayer.incrementGreatMusiciansCreated();
 		}		
+#if defined(MOD_DIPLOMACY_CITYSTATES)
+		else if (MOD_DIPLOMACY_CITYSTATES && newUnit->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_GREAT_DIPLOMAT"))
+		{
+			kPlayer.incrementGreatDiplomatsCreated();
+		}
+#endif
 		else
 		{
 			kPlayer.incrementGreatPeopleCreated();
@@ -2479,6 +2580,9 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 	}
 	if(bCountAsProphet || newUnit->getUnitInfo().IsFoundReligion())
 	{
+#if defined(MOD_BUGFIX_MINOR)
+		if (bIncrementCount)
+#endif
 		kPlayer.GetReligions()->ChangeNumProphetsSpawned(1);
 	}
 

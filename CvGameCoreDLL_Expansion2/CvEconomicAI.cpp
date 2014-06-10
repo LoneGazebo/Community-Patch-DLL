@@ -347,6 +347,7 @@ void CvEconomicAI::Read(FDataStream& kStream)
 	// Version number to maintain backwards compatibility
 	uint uiVersion;
 	kStream >> uiVersion;
+	MOD_SERIALIZE_INIT_READ(kStream);
 
 	int iEntriesToRead;
 
@@ -441,6 +442,7 @@ void CvEconomicAI::Write(FDataStream& kStream)
 	// Current version number
 	uint uiVersion = 1;
 	kStream << uiVersion;
+	MOD_SERIALIZE_INIT_WRITE(kStream);
 
 	FAssertMsg(GC.getNumEconomicAIStrategyInfos() > 0, "Number of AIStrategies to serialize is expected to greater than 0");
 	kStream << m_pAIStrategies->GetNumEconomicAIStrategies();
@@ -657,6 +659,10 @@ void CvEconomicAI::DoTurn()
 					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_FoundCity(eStrategy, m_pPlayer);
 				else if(strStrategyName == "ECONOMICAISTRATEGY_TRADE_WITH_CITY_STATE")
 					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_TradeWithCityState(eStrategy, m_pPlayer);
+#if defined(MOD_DIPLOMACY_CITYSTATES)
+				else if(MOD_DIPLOMACY_CITYSTATES && strStrategyName == "ECONOMICAISTRATEGY_INFLUENCE_CITY_STATE")
+					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_InfluenceCityState(eStrategy, m_pPlayer);
+#endif
 				else if(strStrategyName == "ECONOMICAISTRATEGY_NEED_IMPROVEMENT_FOOD")
 					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_NeedImprovement(m_pPlayer, YIELD_FOOD);
 				else if(strStrategyName == "ECONOMICAISTRATEGY_NEED_IMPROVEMENT_PRODUCTION")
@@ -703,6 +709,12 @@ void CvEconomicAI::DoTurn()
 					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_NeedArchaeologists(m_pPlayer);
 				else if(strStrategyName == "ECONOMICAISTRATEGY_ENOUGH_ARCHAEOLOGISTS")
 					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_EnoughArchaeologists(m_pPlayer);
+#if defined(MOD_DIPLOMACY_CITYSTATES)
+				else if(MOD_DIPLOMACY_CITYSTATES && strStrategyName == "ECONOMICAISTRATEGY_NEED_DIPLOMATS")
+					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_NeedDiplomats(m_pPlayer);
+				else if(MOD_DIPLOMACY_CITYSTATES && strStrategyName == "ECONOMICAISTRATEGY_NEED_DIPLOMATS_CRITICAL")
+					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_NeedDiplomatsCritical(m_pPlayer);	
+#endif
 				else if(strStrategyName == "ECONOMICAISTRATEGY_NEED_MUSEUMS")
 					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_NeedMuseums(m_pPlayer);
 				else if(strStrategyName == "ECONOMICAISTRATEGY_NEED_GUILDS")
@@ -821,7 +833,27 @@ void CvEconomicAI::DoTurn()
 		DoPlotPurchases();
 		DisbandExtraWorkers();
 		DisbandExtraArchaeologists();
+#if defined(MOD_AI_SMART_DISBAND)
+		if (MOD_AI_SMART_DISBAND)
+			DisbandLongObsoleteUnits();
+#endif
+
+#if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
+		YieldTypes eFocusYield = NO_YIELD;
+		if (EconomicAIHelpers::IsTestStrategy_GS_Spaceship(m_pPlayer)) {
+			eFocusYield = YIELD_SCIENCE;
+		} else if (EconomicAIHelpers::IsTestStrategy_DevelopingReligion(m_pPlayer)) {
+			eFocusYield = YIELD_FAITH;
+		} else if (EconomicAIHelpers::IsTestStrategy_LosingMoney((EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_LOSING_MONEY", true), m_pPlayer)) {
+			eFocusYield = YIELD_GOLD;
+		} else {
+			eFocusYield = YIELD_CULTURE;
+		}
+		
+		m_pPlayer->GetCulture()->DoSwapGreatWorks(eFocusYield);
+#else
 		m_pPlayer->GetCulture()->DoSwapGreatWorks();
+#endif
 	}
 }
 
@@ -1711,10 +1743,216 @@ void CvEconomicAI::LogCityMonitor()
 void CvEconomicAI::DoHurry()
 {
 	int iLoop = 0;
+
+#if defined(MOD_DIPLOMACY_CITYSTATES_HURRY)
+  if (MOD_DIPLOMACY_CITYSTATES_HURRY) {
+	//Let's give the AI a treasury cushion ...
+	int iTreasuryBuffer = /*500*/ GC.getAI_GOLD_TREASURY_BUFFER();
+	// ... modified by gamespeed
+	iTreasuryBuffer *= GC.getGame().getGameSpeedInfo().getGoldPercent();
+	iTreasuryBuffer /= 100;
+	
+	//Let's check our average income over five-turn periods
+	int iInterval = 5;
+
+	CvTreasury* pTreasury = m_pPlayer->GetTreasury();
+
+	//Are we in debt? Doesn't matter if we are super rich!
+	if((pTreasury->GetGold() > iTreasuryBuffer && pTreasury->AverageIncome(iInterval) >= 1) || (pTreasury->GetGold() > iTreasuryBuffer + 2000))
+	{
+
+		// Look at each of our cities
+		for(CvCity* pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
+		{
+			// Are we out of cash?
+			if (pTreasury->GetGold() < iTreasuryBuffer) 
+			{
+				return;
+			}
+
+			//Is the city threatened? Always be able to hurry things in the capital.
+			if(pLoopCity != m_pPlayer->GetMilitaryAI()->GetMostThreatenedCity() || pLoopCity->isCapital())
+			{
+				if(!pLoopCity->IsPuppet() || m_pPlayer->GetPlayerTraits()->IsNoAnnexing())
+				{
+					CvCityBuildable selection = (pLoopCity->GetCityStrategyAI()->ChooseHurry());
+						//BUILDINGS
+					switch(selection.m_eBuildableType)
+					{
+					case CITY_BUILDABLE_UNIT:
+					case CITY_BUILDABLE_UNIT_FOR_ARMY:
+					{
+						int iPaidUnits = m_pPlayer->GetNumUnitsOutOfSupply();
+							if(iPaidUnits <= 0)
+							{
+								UnitTypes eUnitType = (UnitTypes) selection.m_iIndex;
+								CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnitType);
+								if(pkUnitInfo)
+								{
+									if(pLoopCity->IsCanPurchase(/*bTestPurchaseCost*/ true, /*bTestTrainable*/ true, eUnitType, NO_BUILDING, NO_PROJECT, YIELD_GOLD))
+									{
+										if(pLoopCity->isProductionUnit())
+										{
+											CvUnitEntry* pkUnitEntry = GC.getUnitInfo(pLoopCity->getProductionUnit());
+											CvUnitEntry* pkUnitInfo = GC.GetGameUnits()->GetEntry(eUnitType);
+
+											if(pkUnitEntry->GetUnitClassType() != pkUnitInfo->GetUnitClassType())
+											{
+												int iGoldCost = pLoopCity->GetPurchaseCost(eUnitType);
+												if(m_pPlayer->GetEconomicAI()->CanWithdrawMoneyForPurchase(PURCHASE_TYPE_UNIT, iGoldCost))
+												{	
+													//Log it
+													CvString strLogString;
+													strLogString.Format("CSD - Buying unit: %s in %s. Cost: %d, Balance (before buy): %d",
+														pkUnitInfo->GetDescription(), pLoopCity->getName().c_str(), iGoldCost, m_pPlayer->GetTreasury()->GetGold());
+													m_pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
+
+													//take the money...
+													m_pPlayer->GetTreasury()->ChangeGold(-iGoldCost);
+
+													//and train it!
+													UnitAITypes eUnitAI = (UnitAITypes) pkUnitInfo->GetDefaultUnitAIType();
+													int iResult = pLoopCity->CreateUnit(eUnitType, eUnitAI, false);
+													CvAssertMsg(iResult != FFreeList::INVALID_INDEX, "Unable to create unit");
+													if (iResult != FFreeList::INVALID_INDEX)
+													{
+														CvUnit* pUnit = m_pPlayer->getUnit(iResult);
+														if (!pUnit->getUnitInfo().CanMoveAfterPurchase())
+														{
+															pUnit->setMoves(0);
+														}
+
+#if defined(MOD_EVENTS_CITY)
+														if (MOD_EVENTS_CITY) {
+															GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityTrained, pLoopCity->getOwner(), pLoopCity->GetID(), pUnit->GetID(), true, false);
+														}
+#endif
+													}
+
+													pLoopCity->CleanUpQueue();
+												}
+											}
+										}
+									}
+								}
+							}
+					}
+					break;
+
+					case CITY_BUILDABLE_BUILDING:
+					{
+						BuildingTypes eBuildingType = (BuildingTypes) selection.m_iIndex;
+						if(pLoopCity->IsCanPurchase(/*bTestPurchaseCost*/ true, /*bTestTrainable*/ true, NO_UNIT, eBuildingType, NO_PROJECT, YIELD_GOLD))
+						{
+							if(pLoopCity->isProductionBuilding())
+							{
+								CvBuildingEntry* pkBuildingEntry = GC.getBuildingInfo(pLoopCity->getProductionBuilding());
+								CvBuildingEntry* pkBuildingInfo = GC.GetGameBuildings()->GetEntry(eBuildingType);
+
+								if(pkBuildingEntry->GetBuildingClassType() != pkBuildingInfo->GetBuildingClassType())
+								{
+									int iGoldCost = pLoopCity->GetPurchaseCost(eBuildingType);
+									if(m_pPlayer->GetEconomicAI()->CanWithdrawMoneyForPurchase(PURCHASE_TYPE_BUILDING, iGoldCost))
+									{
+										//Log it
+										CvString strLogString;
+										strLogString.Format("CSD - Buying building: %s in %s. Cost: %d, Balance (before buy): %d",
+										pkBuildingInfo->GetDescription(), pLoopCity->getName().c_str(), iGoldCost, m_pPlayer->GetTreasury()->GetGold());
+										m_pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
+					
+										//take the money...
+										m_pPlayer->GetTreasury()->ChangeGold(-iGoldCost);
+				
+										//and build it!
+										pLoopCity->CreateBuilding(eBuildingType);
+										
+#if defined(MOD_EVENTS_CITY)
+										if (MOD_EVENTS_CITY) {
+											GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityConstructed, pLoopCity->getOwner(), pLoopCity->GetID(), eBuildingType, true, false);
+										}
+#endif
+
+										pLoopCity->CleanUpQueue();
+									}
+								}
+							}
+						}
+					}
+					break;
+
+					case CITY_BUILDABLE_UNIT_FOR_OPERATION:
+					{
+						int iPaidUnits = m_pPlayer->GetNumUnitsOutOfSupply();
+							if(iPaidUnits <= 0)
+							{
+								UnitTypes eUnitType = (UnitTypes) selection.m_iIndex;
+								CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnitType);
+								if(pkUnitInfo)
+								{
+									if(pLoopCity->IsCanPurchase(/*bTestPurchaseCost*/ true, /*bTestTrainable*/ true, eUnitType, NO_BUILDING, NO_PROJECT, YIELD_GOLD))
+									{
+										if(pLoopCity->isProductionUnit())
+										{
+											CvUnitEntry* pkUnitEntry = GC.getUnitInfo(pLoopCity->getProductionUnit());
+											CvUnitEntry* pkUnitInfo = GC.GetGameUnits()->GetEntry(eUnitType);
+
+											if(pkUnitEntry->GetUnitClassType() != pkUnitInfo->GetUnitClassType())
+											{
+												int iGoldCost = pLoopCity->GetPurchaseCost(eUnitType);
+												if(m_pPlayer->GetEconomicAI()->CanWithdrawMoneyForPurchase(PURCHASE_TYPE_UNIT, iGoldCost))
+												{	
+													//Log it
+													CvString strLogString;
+													strLogString.Format("CSD - Buying unit %s for operation in %s. Cost: %d, Balance (before buy): %d",
+													pkUnitInfo->GetDescription(), pLoopCity->getName().c_str(), iGoldCost, m_pPlayer->GetTreasury()->GetGold());
+													m_pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
+
+													//take the money...
+													m_pPlayer->GetTreasury()->ChangeGold(-iGoldCost);
+
+													//and train it!
+													UnitAITypes eUnitAI = (UnitAITypes) pkUnitInfo->GetDefaultUnitAIType();
+													int iResult = pLoopCity->CreateUnit(eUnitType, eUnitAI, true);
+													CvAssertMsg(iResult != FFreeList::INVALID_INDEX, "Unable to create unit");
+													if (iResult != FFreeList::INVALID_INDEX)
+													{
+														CvUnit* pUnit = m_pPlayer->getUnit(iResult);
+														if (!pUnit->getUnitInfo().CanMoveAfterPurchase())
+														{
+															pUnit->setMoves(0);
+														}
+
+#if defined(MOD_EVENTS_CITY)
+														if (MOD_EVENTS_CITY) {
+															GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityTrained, pLoopCity->getOwner(), pLoopCity->GetID(), pUnit->GetID(), true, false);
+														}
+#endif
+													}
+
+													m_pPlayer->GetMilitaryAI()->ResetNumberOfTimesOpsBuildSkippedOver();
+													pLoopCity->CleanUpQueue();
+												}
+											}
+										}
+									}
+								}
+							}
+					}
+					break;
+					}
+				}
+			}
+		}
+	}
+  }
+  else
+  {
+#endif
 	OrderData* pOrder = 0;
 
 	CvCity* pLoopCity = 0;
 	int iTurnsSaved = 0;
+
 	int iHurryAmount = 0;
 	int iHurryAmountAvailable = 0;
 	int iI = 0;
@@ -1782,6 +2020,9 @@ void CvEconomicAI::DoHurry()
 		pBestHurryCity->hurry(eBestHurryType);
 		pBestHurryCity->GetCityStrategyAI()->LogHurry(eBestHurryType, iBestHurryAmount, iBestHurryAmountAvailable, iBestHurryTurnsSaved);
 	}
+#if defined(MOD_DIPLOMACY_CITYSTATES_HURRY)
+  }
+#endif
 }
 
 /// Spend money buying plots
@@ -2120,7 +2361,12 @@ void CvEconomicAI::DisbandExtraWorkers()
 	int iGoldSpentOnUnits = m_pPlayer->GetTreasury()->GetExpensePerTurnUnitMaintenance();
 	int iAverageGoldPerUnit = iGoldSpentOnUnits / (max(1,m_pPlayer->getNumUnits()));
 
+#if defined(MOD_AI_SMART_DISBAND)
+	int iAverageGold = MOD_AI_SMART_DISBAND ? 3 : 4;
+	if(!bInDeficit && iAverageGoldPerUnit <= iAverageGold)
+#else
 	if(!bInDeficit && iAverageGoldPerUnit <= 4)
+#endif
 	{
 		return;
 	}
@@ -2240,7 +2486,11 @@ void CvEconomicAI::DisbandExtraArchaeologists(){
 	}
 	
 	CvUnit* pUnit;
+#if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
+	UnitTypes eArch = m_pPlayer->GetSpecificUnitType("UNITCLASS_ARCHAEOLOGIST", true);
+#else
 	UnitTypes eArch = (UnitTypes) GC.getInfoTypeForString("UNIT_ARCHAEOLOGIST", true /*bHideAssert*/);
+#endif
 	if(eArch == NO_UNIT){
 		return;
 	}
@@ -2256,6 +2506,83 @@ void CvEconomicAI::DisbandExtraArchaeologists(){
 		LogScrapUnit(pUnit, iNumArchaeologists, iNumSites, 0, 0);
 	}
 }
+
+#if defined(MOD_AI_SMART_DISBAND)
+// Check for very long obsolete units that didn't get an upgrade (usual suspects are triremes and warriors)
+void CvEconomicAI::DisbandLongObsoleteUnits()
+{
+	CvUnit* pUnit;
+	int iLoop;
+	int unitEra;
+	int ArmyId;
+	int playerCurrentEra;
+	bool movingArmy;
+	CvTechEntry* pkTechInfo;
+	CvArmyAI* pThisArmy;
+	playerCurrentEra = m_pPlayer->GetCurrentEra();
+	// Treat information era as atomic for this checking.
+	playerCurrentEra = min(6, playerCurrentEra);
+
+	// Loop through our units
+	for(pUnit = m_pPlayer->firstUnit(&iLoop); pUnit != NULL; pUnit = m_pPlayer->nextUnit(&iLoop))
+	{
+		if (pUnit)
+		{
+			movingArmy = false;
+			ArmyId = pUnit->getArmyID();
+
+			if (ArmyId != -1)
+			{
+				pThisArmy = m_pPlayer->getArmyAI(ArmyId);
+
+				if (pThisArmy)
+				{
+					movingArmy = ((pThisArmy->GetArmyAIState() == ARMYAISTATE_MOVING_TO_DESTINATION) || (pThisArmy->GetArmyAIState() == ARMYAISTATE_AT_DESTINATION));
+				}
+			}
+
+			if(!movingArmy)
+			{
+				// The unit must have an upgrade option, if not, then we don't care about this (includes workers, settlers, explorers)
+				UnitTypes eUpgradeUnitType = pUnit->GetUpgradeUnitType();
+
+				if(eUpgradeUnitType != NO_UNIT)
+				{
+					// Check out unit era based on the prerequirement tech, defaults at ancient era.
+					unitEra = 0;
+					UnitTypes currentUnitType = pUnit->getUnitType();
+					TechTypes ePrereqTech = (TechTypes)GC.getUnitInfo(currentUnitType)->GetPrereqAndTech();
+
+					if (ePrereqTech != NO_TECH)
+					{
+						pkTechInfo = GC.getTechInfo(ePrereqTech);
+
+						if (pkTechInfo)
+						{
+							unitEra = pkTechInfo->GetEra();
+						}
+					}
+
+					// Too much era difference for that unit, lets scrap it.
+					if ((playerCurrentEra - unitEra) > 3)
+					{
+						if(GC.getLogging() && GC.getAILogging())
+						{
+							CvString strLogString;
+							strLogString.Format("Disbanding long obsolete unit. %s, X: %d, Y: %d", pUnit->getName().GetCString(), pUnit->getX(), pUnit->getY());
+							m_pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
+						}
+
+						pUnit->scrap();
+						// Only one unit scrap per turn.
+						return;
+					}
+				}
+			}
+		}
+	}
+}
+#endif
 
 /// Go through the plots for the exploration automation to evaluate
 void CvEconomicAI::UpdatePlots()
@@ -2581,7 +2908,11 @@ CvUnit* CvEconomicAI::FindWorkerToScrap()
 		{
 			continue;
 		}
+#if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
+		UnitTypes eWorker = m_pPlayer->GetSpecificUnitType("UNITCLASS_WORKER");
+#else
 		UnitTypes eWorker = (UnitTypes) GC.getInfoTypeForString("UNIT_WORKER");
+#endif
 		if(pLoopUnit->getDomainType() == DOMAIN_LAND && pLoopUnit->getUnitType() == eWorker && !pLoopUnit->IsCombatUnit() && pLoopUnit->getSpecialUnitType() == NO_SPECIALUNIT)
 		{
 			return pLoopUnit;
@@ -2603,7 +2934,11 @@ CvUnit* CvEconomicAI::FindArchaeologistToScrap()
 		{
 			continue;
 		}
+#if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
+		UnitTypes eArch = m_pPlayer->GetSpecificUnitType("UNITCLASS_ARCHAEOLOGIST");
+#else
 		UnitTypes eArch = (UnitTypes) GC.getInfoTypeForString("UNIT_ARCHAEOLOGIST", true);
+#endif
 		if(pLoopUnit->getUnitType() == eArch)
 		{
 			return pLoopUnit;
@@ -3457,6 +3792,52 @@ bool EconomicAIHelpers::IsTestStrategy_TradeWithCityState(EconomicAIStrategyType
 	return false;
 }
 
+#if defined(MOD_DIPLOMACY_CITYSTATES)
+/// "Influence City State" Player Strategy: If there is a diplomat who isn't in an operation?  If so, find him a city state
+bool EconomicAIHelpers::IsTestStrategy_InfluenceCityState(EconomicAIStrategyTypes eStrategy, CvPlayer* pPlayer)
+{
+	int iUnitLoop;
+	CvUnit* pLoopUnit;
+	int iLooseDiplomat = 0;
+	int iStrategyWeight = 0;
+
+	// Never run this strategy for a human player
+	if(!pPlayer->isHuman())
+	{
+		// Look at map for loose diplomats
+		for(pLoopUnit = pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = pPlayer->nextUnit(&iUnitLoop))
+		{
+			if(pLoopUnit != NULL)
+			{
+				if((pLoopUnit->AI_getUnitAIType() == UNITAI_DIPLOMAT) && (pLoopUnit->GetGreatPeopleDirective() == GREAT_PEOPLE_DIRECTIVE_USE_POWER))
+				{
+					if(pLoopUnit->getArmyID() == FFreeList::INVALID_INDEX)
+					{
+						iLooseDiplomat++;
+					}
+				}
+			}
+		}
+
+		CvEconomicAIStrategyXMLEntry* pStrategy = pPlayer->GetEconomicAI()->GetEconomicAIStrategies()->GetEntry(eStrategy);
+		iStrategyWeight = iLooseDiplomat * 10;   // Just one diplomat will trigger this
+		int iWeightThresholdModifier = GetWeightThresholdModifier(eStrategy, pPlayer);
+		int iWeightThreshold = pStrategy->GetWeightThreshold() + iWeightThresholdModifier;
+
+		if(iStrategyWeight >= iWeightThreshold)
+		{
+			// Launch an operation.
+			pPlayer->addAIOperation(AI_OPERATION_DIPLOMAT_DELEGATION);
+
+			// Set this strategy active
+			return true;
+		}
+	}
+
+	return false;
+}
+#endif
+
 /// "Concert Tour" Player Strategy: If there is a musician who isn't in an operation?  If so, find him a major civ to target
 bool EconomicAIHelpers::IsTestStrategy_ConcertTour(EconomicAIStrategyTypes eStrategy, CvPlayer* pPlayer)
 {
@@ -4029,7 +4410,11 @@ bool EconomicAIHelpers::IsTestStrategy_NeedArchaeologists(CvPlayer* pPlayer)
 bool EconomicAIHelpers::IsTestStrategy_EnoughArchaeologists(CvPlayer* pPlayer)
 {
 	int iNumSites = GC.getGame().GetNumArchaeologySites();
+#if defined(MOD_AI_SMART_ARCHAEOLOGISTS)
+	double iMaxRatio = MOD_AI_SMART_ARCHAEOLOGISTS ? .25 : .5; //Ratio of archaeologists to sites
+#else
 	double iMaxRatio = .5; //Ratio of archaeologists to sites
+#endif
 	int iNumArchaeologists = pPlayer->GetNumUnitsWithUnitAI(UNITAI_ARCHAEOLOGIST, true);
 	PolicyTypes eExpFinisher = (PolicyTypes) GC.getInfoTypeForString("POLICY_EXPLORATION_FINISHER", true /*bHideAssert*/);
 	
@@ -4048,6 +4433,345 @@ bool EconomicAIHelpers::IsTestStrategy_EnoughArchaeologists(CvPlayer* pPlayer)
 
 	return false;
 }
+
+#if defined(MOD_DIPLOMACY_CITYSTATES)
+/// Do we need more Diplomatic Units? Let's score it and see.
+bool EconomicAIHelpers::IsTestStrategy_NeedDiplomats(CvPlayer* pPlayer)
+{
+	EconomicAIStrategyTypes eStrategyNeedDiplomatsCritical = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_DIPLOMATS_CRITICAL");
+
+	if(pPlayer->GetEconomicAI()->IsUsingStrategy(eStrategyNeedDiplomatsCritical))
+	{
+		return false;
+	}
+
+	int iScore = IsTestStrategy_ScoreDiplomats(pPlayer);
+
+	if((iScore > 0) && (iScore <= 15))
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+bool EconomicAIHelpers::IsTestStrategy_NeedDiplomatsCritical(CvPlayer* pPlayer)
+{
+	EconomicAIStrategyTypes eStrategyNeedDiplomats = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_DIPLOMATS");
+
+	if(pPlayer->GetEconomicAI()->IsUsingStrategy(eStrategyNeedDiplomats))
+	{
+		return false;
+	}
+
+	int iScore = IsTestStrategy_ScoreDiplomats(pPlayer);
+	if(iScore > 15)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+int EconomicAIHelpers::IsTestStrategy_ScoreDiplomats(CvPlayer* pPlayer)
+{
+
+	PlayerTypes ePlayer = pPlayer->GetID();
+	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
+
+	//The Base INTs
+	int iNumCities = 0;
+	int iNumAllies = 0;
+	int iNumFriends = 0;
+
+	// Loop through all minors and get the total number we've met.
+	for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+	{
+		PlayerTypes eMinor = (PlayerTypes) iPlayerLoop;
+
+		if (eMinor != ePlayer && GET_PLAYER(eMinor).isAlive() && GET_PLAYER(eMinor).isMinorCiv())
+		{
+			if(GET_PLAYER(eMinor).GetMinorCivAI()->IsHasMetPlayer(ePlayer))
+			{
+				iNumCities++;
+			}
+			if (GET_PLAYER(eMinor).GetMinorCivAI()->IsAllies(ePlayer))
+			{
+				iNumAllies++;
+			}
+			if (GET_PLAYER(eMinor).GetMinorCivAI()->IsFriends(ePlayer))
+			{
+				iNumFriends++;
+			}
+		}
+	}
+	if(iNumCities > 0)
+	{
+		int iNumApConq = 0;
+		int iNumApBully = 0;
+		int iNumCloseNotAllies = 0;
+		int iNumInfluenceQuest = 0;
+		int iMinorAllyEnemy = 0;
+		int iMinorAllyCompetitor = 0;
+		int iMinorAllyHostile = 0;
+		int iMinorAllyDispute = 0;
+		int iVictoryAllyDispute = 0;
+		int iLotsOfVotes = 0;
+		int iWinVotes = 0;
+		//The rest of the INTs
+	
+		int iFlavorDiplo =  pPlayer->GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DIPLOMACY"));
+
+		int iCSDesire = (((iFlavorDiplo + /*1*/ GC.getNEED_DIPLOMAT_DESIRE_MODIFIER()) * iNumCities) / 10); //Baseline Desire. Global modifier increases this.
+
+		int iCSDistaste = /*7*/ GC.getNEED_DIPLOMAT_DISTASTE_MODIFIER() - iFlavorDiplo; //Lack of desire. Lower is better for diplo. If negative, counts as zero.
+
+		int	iThreshold = iNumCities * /*125*/ GC.getNEED_DIPLOMAT_THRESHOLD_MODIFIER() / 100; //This is the baseline threshold: Number of city-states in-game increases baseline. Changing Global value decreases diplomatic competitiveness.
+
+		//The Minor/Major Loop Tests
+		// Loop through all minors and majors to get our relations with them.
+		for(int iMinorCivLoop = MAX_MAJOR_CIVS; iMinorCivLoop < MAX_CIV_PLAYERS; iMinorCivLoop++)
+		{
+			PlayerTypes eMinor = (PlayerTypes) iMinorCivLoop;
+			PlayerTypes eMinorAlly = NO_PLAYER;
+			eMinorAlly = GET_PLAYER(eMinor).GetMinorCivAI()->GetAlly();
+
+			if(eMinor)
+			{
+				//Are we aggressive towards city-states? If so, discourage building diplo units.
+				if(pPlayer->GetDiplomacyAI()->GetMinorCivApproach(eMinor) == MINOR_CIV_APPROACH_CONQUEST)
+				{
+					iNumApConq++;
+				}
+
+				//Are we planning on bullying them?
+				if(pPlayer->GetDiplomacyAI()->GetMinorCivApproach(eMinor) == MINOR_CIV_APPROACH_BULLY)
+				{
+					iNumApBully++;
+				}
+
+				//About to lose an ally? Build units!
+				if(GET_PLAYER(eMinor).GetMinorCivAI()->IsCloseToNotBeingAllies(ePlayer))
+				{
+					iNumCloseNotAllies++;
+				}
+
+				// Is there an active influence quest? Let's take advantage of that.
+				if(GET_PLAYER(eMinor).GetMinorCivAI()->IsActiveQuestForPlayer(ePlayer, MINOR_CIV_QUEST_INFLUENCE))
+				{
+					iNumInfluenceQuest++;
+				}
+
+				//MINOR ALLY TESTS - If other minors are allied, what's our opinion of the ally? 
+				if(eMinorAlly != NO_PLAYER)
+				{
+					MajorCivOpinionTypes eOpinion = pPlayer->GetDiplomacyAI()->GetMajorCivOpinion(eMinorAlly);
+					MajorCivApproachTypes eApproach = pPlayer->GetDiplomacyAI()->GetMajorCivApproach(eMinorAlly, /*bHideTrueFeelings*/ true);
+
+					if (eOpinion == MAJOR_CIV_OPINION_COMPETITOR)
+					{
+						iMinorAllyCompetitor++;
+					}
+					if (eOpinion == MAJOR_CIV_OPINION_ENEMY || eOpinion == MAJOR_CIV_OPINION_UNFORGIVABLE)
+					{
+						iMinorAllyEnemy++;
+					}
+					if (eApproach == MAJOR_CIV_APPROACH_HOSTILE || eApproach == MAJOR_CIV_APPROACH_WAR)
+					{
+						iMinorAllyHostile++;
+					}
+					if (pPlayer->GetDiplomacyAI()->GetMinorCivDisputeLevel(eMinorAlly) == DISPUTE_LEVEL_STRONG || pPlayer->GetDiplomacyAI()->GetMinorCivDisputeLevel(eMinorAlly) == DISPUTE_LEVEL_FIERCE)
+					{					
+						iMinorAllyDispute++;
+					}
+					if (pPlayer->GetDiplomacyAI()->GetVictoryDisputeLevel(eMinorAlly) == DISPUTE_LEVEL_STRONG || pPlayer->GetDiplomacyAI()->GetVictoryDisputeLevel(eMinorAlly) == DISPUTE_LEVEL_FIERCE)
+					{					
+						iVictoryAllyDispute++;
+					}
+				}
+			}
+		}
+
+		for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+		{
+			PlayerTypes eOtherMajor = (PlayerTypes) iPlayerLoop;
+
+			if (eOtherMajor != ePlayer && GET_PLAYER(eOtherMajor).isAlive() && !GET_PLAYER(eOtherMajor).isMinorCiv())
+			{	
+				//Does someone have more than half of the votes needed to win a diplomatic victory? Let's not like them at all!
+				if(pLeague != NULL)
+				{
+					if(pLeague->CalculateStartingVotesForMember(eOtherMajor) >= (GC.getGame().GetVotesNeededForDiploVictory() / 2))
+					{
+						iLotsOfVotes++;
+					}
+					//Does someone have more than 4/5? That's awful!
+					if(pLeague->CalculateStartingVotesForMember(eOtherMajor) >= ((GC.getGame().GetVotesNeededForDiploVictory() * 400) / 500))
+					{
+						iWinVotes++;
+					}
+				}
+			}
+		}
+
+//////////////////
+/////////////
+//Positive Tests
+////////////
+/////////////////
+
+		int iScore = 0;
+
+		//Do we have less alliances than we want?
+		if(iNumAllies < iCSDesire)
+		{
+			iScore += iCSDesire + (iNumCities - iNumAllies);
+		}
+		
+		// You have non-ally friends? Add points for this.
+		if((iNumFriends - iNumAllies) > 0)
+		{
+			iScore += (iNumFriends - iNumAllies);
+		}
+
+		//About to lose an ally? Is there an active influence quest? Build units!
+		if((iNumCloseNotAllies > 0) || (iNumInfluenceQuest > 0))
+		{
+			iScore += iCSDesire;
+		}
+
+		//Going for a Diplo Victory?
+		if(pPlayer->GetDiplomacyAI()->IsGoingForDiploVictory())
+		{
+			iScore += (iCSDesire * 5);
+		}
+
+		//APPROACH WEIGHTS - These will make the AI more competitive if they are fighting for minors.
+		//iCSDistaste used to show how sensitive a player is to alliances. The lower the distaste, the more sensitive they are (i.e. the higher their diplo flavor, the more they care).
+		//In order of importance...
+
+		//How many minors are allied to civs we are disputing over minors with?
+		if(iCSDistaste >= 0)
+		{
+			if((iMinorAllyDispute - iCSDistaste) > 0)
+			{
+				iScore += (iMinorAllyDispute - iCSDistaste);
+			}
+
+			//How many minors are allied to competitors?
+			if((iMinorAllyCompetitor - iCSDistaste) > 0)
+			{
+				iScore += (iMinorAllyCompetitor - iCSDistaste);
+			}
+
+			//How many minors are allied to enemies?
+			if((iMinorAllyEnemy - iCSDistaste) > 0)
+			{
+				iScore += (iMinorAllyEnemy - iCSDistaste);
+			}
+			//How many minors are allied to players we are hostile towards?
+			if((iMinorAllyHostile - iCSDistaste) > 0)
+			{
+				iScore += (iMinorAllyHostile - iCSDistaste);
+			}
+
+			//How many minors are allied to civs we are disputing over victory with?
+			if((iVictoryAllyDispute - iCSDistaste) > 0)
+			{
+				iScore += (iVictoryAllyDispute - iCSDistaste);
+			}
+		}
+		else if (iCSDistaste < 0)
+		{
+			if(iMinorAllyDispute > 0)
+			{
+				iScore += iMinorAllyDispute;
+			}
+
+			//How many minors are allied to competitors?
+			if(iMinorAllyCompetitor > 0)
+			{
+				iScore += iMinorAllyCompetitor;
+			}
+
+			//How many minors are allied to enemies?
+			if(iMinorAllyEnemy > 0)
+			{
+				iScore += iMinorAllyEnemy;
+			}
+			//How many minors are allied to players we are hostile towards?
+			if(iMinorAllyHostile > 0)
+			{
+				iScore += iMinorAllyHostile;
+			}
+
+			//How many minors are allied to civs we are disputing over victory with?
+			if(iVictoryAllyDispute > 0)
+			{
+				iScore += iVictoryAllyDispute;
+			}
+		}
+		//Does someone have a lot of votes? That's not cool!
+		if((iLotsOfVotes > 0))
+		{
+			iScore += (iCSDesire * 2);
+		}
+
+		//Is someone about to win? Oh no!
+		if((iWinVotes > 0))
+		{
+			iScore += (iCSDesire * 2);
+		}
+
+/////////////////////////
+///////////////////
+//NEGATIVE TESTS
+//////////////////
+////////////////////////
+
+		//Are we aggressive towards city-states? If so, discourage building diplo units.
+		if(iNumApConq > 0)
+		{
+			if (iCSDistaste > 0)
+			{
+				iScore -= iNumApConq + iCSDistaste;
+			}
+			else
+			{
+				iScore -= iNumApConq;
+			}
+		}
+
+		//Are we planning on bullying city-states?
+		if(iNumApBully > 0)
+		{
+			if (iCSDistaste > 0)
+			{
+				iScore -= iNumApBully + iCSDistaste;
+			}
+			else
+			{
+				iScore -= iNumApBully;
+			}
+		}
+
+		if(iScore > iThreshold)
+		{
+			iScore = (iScore - iThreshold);
+			return iScore;
+		}
+		else
+		{
+			return 0;
+		}
+	}
+	return 0;
+}
+#endif
 
 /// We see sites but don't have any art/artifact slots
 bool EconomicAIHelpers::IsTestStrategy_NeedMuseums(CvPlayer* pPlayer)
@@ -4069,9 +4793,16 @@ bool EconomicAIHelpers::IsTestStrategy_NeedGuilds(CvPlayer* pPlayer)
 {
 	CvTeam &kTeam = GET_TEAM(pPlayer->getTeam());
 
+#if defined(MOD_BUGFIX_BUILDINGCLASS_NOT_BUILDING)
+	CvCivilizationInfo& playerCivilizationInfo = pPlayer->getCivilizationInfo();
+	BuildingTypes eWritersGuild = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings((BuildingClassTypes)GC.getInfoTypeForString("BUILDINGCLASS_WRITERS_GUILD"));
+	BuildingTypes eArtistsGuild = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings((BuildingClassTypes)GC.getInfoTypeForString("BUILDINGCLASS_ARTISTS_GUILD"));
+	BuildingTypes eMusiciansGuild = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings((BuildingClassTypes)GC.getInfoTypeForString("BUILDINGCLASS_MUSICIANS_GUILD"));
+#else
 	BuildingTypes eWritersGuild = (BuildingTypes)GC.getInfoTypeForString("BUILDING_WRITERS_GUILD", true);
 	BuildingTypes eArtistsGuild = (BuildingTypes)GC.getInfoTypeForString("BUILDING_ARTISTS_GUILD", true);
 	BuildingTypes eMusiciansGuild = (BuildingTypes)GC.getInfoTypeForString("BUILDING_MUSICIANS_GUILD", true);
+#endif
 
 	CvBuildingEntry *pkBuilding;
 	pkBuilding = GC.getBuildingInfo(eWritersGuild);
