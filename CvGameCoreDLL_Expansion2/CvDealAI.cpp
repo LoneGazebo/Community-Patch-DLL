@@ -1287,6 +1287,85 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 				}
 			}
 		}
+#if defined(MOD_BALANCE_CORE_DEALS)
+	if (MOD_BALANCE_CORE_DEALS) 
+	{
+		//Let's consider how many resources each player has - if he has more than us, ours is worth more (and vice-versa).
+		//But only if this wouldn't push us into unhapppiness.
+		if(GetPlayer()->GetHappiness() > GetPlayer()->GetHappinessFromLuxury(eResource))
+		{
+			int iOtherHappiness = GET_PLAYER(eOtherPlayer).GetExtraHappinessPerLuxury();
+			int iOurHappiness = GetPlayer()->GetExtraHappinessPerLuxury();
+			//He's happier than us? Let's not be too liberal with our stuff.
+			if(iOtherHappiness > iOurHappiness)
+			{
+				//Let's help, IF we're friends.
+				switch(GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(eOtherPlayer))
+				{
+					case MAJOR_CIV_OPINION_ALLY:
+						iItemValue *= 8;
+						iItemValue /= 10;
+						break;
+					case MAJOR_CIV_OPINION_FRIEND:
+						iItemValue *= 9;
+						iItemValue /= 10;
+						break;
+					case MAJOR_CIV_OPINION_FAVORABLE:
+						iItemValue *= 11;
+						iItemValue /= 10;
+						break;
+					case MAJOR_CIV_OPINION_NEUTRAL:
+						iItemValue *= 15;
+						iItemValue /= 10;
+						break;
+					case MAJOR_CIV_OPINION_COMPETITOR:
+						iItemValue *= 3;
+						break;
+					case MAJOR_CIV_OPINION_ENEMY:
+						iItemValue *= 5;
+						break;
+					case MAJOR_CIV_OPINION_UNFORGIVABLE:
+						iItemValue *= 7;
+						break;
+				}
+			}
+			//He is less happy than we are? We can give away, but only at a slight discount.
+			else
+			{
+				//Let's help, IF we're friends.
+				switch(GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(eOtherPlayer))
+				{
+					case MAJOR_CIV_OPINION_ALLY:
+						iItemValue *= 7;
+						iItemValue /= 10;
+						break;
+					case MAJOR_CIV_OPINION_FRIEND:
+						iItemValue *= 8;
+						iItemValue /= 10;
+						break;
+					case MAJOR_CIV_OPINION_FAVORABLE:
+						iItemValue *= 9;
+						iItemValue /= 10;
+						break;
+					case MAJOR_CIV_OPINION_NEUTRAL:
+						iItemValue *= 11;
+						iItemValue /= 10;
+						break;
+					case MAJOR_CIV_OPINION_COMPETITOR:
+						iItemValue *= 18;
+						iItemValue /= 10;
+						break;
+					case MAJOR_CIV_OPINION_ENEMY:
+						iItemValue *= 4;
+						break;
+					case MAJOR_CIV_OPINION_UNFORGIVABLE:
+						iItemValue *= 6;
+						break;
+				}
+			}
+		}
+	}
+#endif
 	}
 	// Strategic Resource
 	else if(eUsage == RESOURCEUSAGE_STRATEGIC)
@@ -1318,6 +1397,23 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 			}
 #endif
 		}
+#if defined(MOD_BALANCE_CORE_DEALS)
+		if (MOD_BALANCE_CORE_DEALS) 
+		{
+			//If they're stronger than us, do not give away strategic resources easily.
+			if(GetPlayer()->GetMilitaryMight() < GET_PLAYER(eOtherPlayer).GetMilitaryMight())
+			{
+				iItemValue *= 18;
+				iItemValue /= 10;
+			}
+			//Are they close, or far away? We should always be a bit more reluctant to give war resources to neighbors.
+			if(GetPlayer()->GetProximityToPlayer(eOtherPlayer) >= PLAYER_PROXIMITY_CLOSE)
+			{
+				iItemValue *= 15;
+				iItemValue /= 10;
+			}
+		}
+#endif
 		else
 		{
 			iItemValue = 0;
@@ -1328,7 +1424,44 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 	if(bFromMe)
 	{
 		int iModifier = 0;
-
+#if defined(MOD_BALANCE_CORE_DEALS)
+		if (MOD_BALANCE_CORE_DEALS) 
+		{
+			//Lets use our DoF willingness to determine these values - introduce some variability.
+			iModifier = GetPlayer()->GetDiplomacyAI()->GetDoFWillingness();
+			iModifier *= -2;
+			
+			// Opinion also matters
+			switch(GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(eOtherPlayer))
+			{
+			case MAJOR_CIV_OPINION_ALLY:
+				iModifier += 95;
+				break;
+			case MAJOR_CIV_OPINION_FRIEND:
+				iModifier += 105;
+				break;
+			case MAJOR_CIV_OPINION_FAVORABLE:
+				iModifier += 115;
+				break;
+			case MAJOR_CIV_OPINION_NEUTRAL:
+				iModifier += 125;
+				break;
+			case MAJOR_CIV_OPINION_COMPETITOR:
+				iModifier = 175;
+				break;
+			case MAJOR_CIV_OPINION_ENEMY:
+				iModifier = 400;
+				break;
+			case MAJOR_CIV_OPINION_UNFORGIVABLE:
+				iModifier = 1000;
+				break;
+			default:
+				CvAssertMsg(false, "DEAL_AI: AI player has no valid Opinion for Resource valuation.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.")
+				iModifier = 100;
+				break;
+			}
+		}
+#else
 		// Opinion also matters
 		switch(GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(eOtherPlayer))
 		{
@@ -1358,7 +1491,7 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 			iModifier = 100;
 			break;
 		}
-
+#endif
 		// Approach is important
 		switch(GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(eOtherPlayer, /*bHideTrueFeelings*/ true))
 		{
@@ -1369,10 +1502,24 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 			iModifier += 150;
 			break;
 		case MAJOR_CIV_APPROACH_AFRAID:
+#if defined(MOD_BALANCE_CORE_DEALS)
+		if (MOD_BALANCE_CORE_DEALS) 
+		{
+			iModifier += 80;	// Not forced value
+		}
+#else
 			iModifier = 200;	// Forced value
+#endif
 			break;
 		case MAJOR_CIV_APPROACH_FRIENDLY:
+#if defined(MOD_BALANCE_CORE_DEALS)
+		if (MOD_BALANCE_CORE_DEALS) 
+		{
+			iModifier += 95;	// Not forced value
+		}
+#else
 			iModifier = 200;	// Forced value
+#endif
 			break;
 		case MAJOR_CIV_APPROACH_NEUTRAL:
 			iModifier += 100;

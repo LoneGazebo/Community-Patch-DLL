@@ -7768,17 +7768,6 @@ TeamTypes CvCity::getTeam() const
 	return GET_PLAYER(getOwner()).getTeam();
 }
 
-#if defined(MOD_BALANCE_GAZEBO_CORE_YIELD)
-/// Change to yield by plot
-int CvBuildingEntry::GetPlotYieldChange(int i, int j) const
-{
-	CvAssertMsg(i < GC.getNumPlotInfos(), "Index out of bounds");
-	CvAssertMsg(i > -1, "Index out of bounds");
-	CvAssertMsg(j < NUM_YIELD_TYPES, "Index out of bounds");
-	CvAssertMsg(j > -1, "Index out of bounds");
-	return m_ppaiBuildingPlotYieldChange ? m_ppaiBuildingPlotYieldChange[i][j] : -1;
-}
-#endif
 
 //	--------------------------------------------------------------------------------
 int CvCity::getSeaPlotYield(YieldTypes eIndex) const

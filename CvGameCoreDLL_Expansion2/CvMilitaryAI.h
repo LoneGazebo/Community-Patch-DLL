@@ -194,6 +194,10 @@ public:
 	};
 
 	// Requests for military operations
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	void SetEscortID(int iValue);
+	int GetEscortID();
+#endif
 	bool RequestSneakAttack(PlayerTypes eEnemy);
 	bool RequestShowOfForce(PlayerTypes eEnemy);
 	bool RequestBasicAttack(PlayerTypes eEnemy, int iNumUnitsWillingBuild);
@@ -242,6 +246,12 @@ public:
 	{
 		return (m_iNumLandUnits - m_iNumLandUnitsInArmies - GetMandatoryReserveSize());
 	};
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	int GetNavalReservesAvailable() const
+	{
+		return (m_iNumNavalUnits - m_iNumNavalUnitsInArmies - GetMandatoryReserveSize());
+	};
+#endif
 	CvCity* GetMostThreatenedCity(int iIndex = 0); // pass in 0 for the most threatened city, 1 for the second most threatened, 2 for the third, etc.
 	int GetPercentOfRecommendedMilitarySize() const;
 	int GetPowerOfStrongestBuildableUnit(DomainTypes eDomain);
@@ -302,6 +312,9 @@ private:
 	void MakeOffensivePurchases();
 	void RequestImprovements();
 	void DisbandObsoleteUnits();
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	void DisbandExcessUnits();
+#endif
 	bool IsAttackReady(MultiunitFormationTypes eFormation, AIOperationTypes eOperationType) const;
 
 	// Logging functions

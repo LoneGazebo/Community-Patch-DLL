@@ -1388,6 +1388,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveDiplomat(CvUnit* pGreatDiploma
 	GreatPeopleDirectiveTypes eDirective = NO_GREAT_PEOPLE_DIRECTIVE_TYPE;
 
 	CvCity* pCity = FindBestDiplomatTargetCity(pGreatDiplomat);
+
 	bool bTheVeniceException = false;
 	if (GetPlayerTraits()->IsNoAnnexing())
 	{
@@ -1403,34 +1404,29 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveDiplomat(CvUnit* pGreatDiploma
 	PlayerTypes eID = GetDiplomacyAI()->GetPlayer()->GetID();
 	
 	int iFlavorDiplo =  GET_PLAYER(eID).GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DIPLOMACY"));
-	int iDesiredEmb = (iFlavorDiplo - 4);
+	int iDesiredEmb = (iFlavorDiplo - 3);
 	int iEmbassies = GET_PLAYER(eID).GetImprovementLeagueVotes();
 
 	//Embassy numbers should be based on Diplomacy Flavor. More flavor, more embassies!
-	if (eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE)
+	if (eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE && pCity != NULL)
 	{
-		if(pCity)
+		if (!bTheAustriaException && !bTheVeniceException)
 		{
-			if (!bTheAustriaException && !bTheVeniceException && GC.getGame().getGameTurn() < ((GC.getGame().getEstimateEndTurn() * 1) / 2))
+			if((iEmbassies < iDesiredEmb) || GetDiplomacyAI()->IsGoingForDiploVictory())
 			{
-				if((iEmbassies < iDesiredEmb) || GetDiplomacyAI()->IsGoingForDiploVictory())
-				{
-					eDirective = GREAT_PEOPLE_DIRECTIVE_CONSTRUCT_IMPROVEMENT;
-				}
-			}
-			if (GC.getGame().getGameTurn() >= ((GC.getGame().getEstimateEndTurn() * 1) / 2))
-			{
-				if((iEmbassies < iDesiredEmb) || GetDiplomacyAI()->IsGoingForDiploVictory())
-				{
-					eDirective = GREAT_PEOPLE_DIRECTIVE_CONSTRUCT_IMPROVEMENT;
-				}
+				eDirective = GREAT_PEOPLE_DIRECTIVE_CONSTRUCT_IMPROVEMENT;
 			}
 		}
 	}
 
+	if(GREAT_PEOPLE_DIRECTIVE_CONSTRUCT_IMPROVEMENT && (GC.getGame().getGameTurn() - pGreatDiplomat->getGameTurnCreated()) >= GC.getAI_HOMELAND_GREAT_PERSON_TURNS_TO_WAIT())
+	{
+		eDirective = GREAT_PEOPLE_DIRECTIVE_USE_POWER;
+	}
+
 	if (eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE)
 	{
-		if(!pCity || (iEmbassies >= iDesiredEmb) || bTheAustriaException || bTheVeniceException)
+		if(pCity == NULL || (iEmbassies >= iDesiredEmb) || bTheAustriaException || bTheVeniceException)
 		{
 			eDirective = GREAT_PEOPLE_DIRECTIVE_USE_POWER;
 		}

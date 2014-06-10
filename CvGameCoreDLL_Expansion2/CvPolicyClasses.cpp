@@ -195,11 +195,13 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_ppiImprovementYieldChanges(NULL),
 	m_ppiBuildingClassYieldModifiers(NULL),
 	m_ppiBuildingClassYieldChanges(NULL),
+#if defined(MOD_BALANCE_CORE_YIELDS)
+	m_ppiPlotYieldChanges(NULL),
+#endif
 	m_piFlavorValue(NULL),
 	m_eFreeBuildingOnConquest(NO_BUILDING)
 {
 }
-
 /// Destructor
 CvPolicyEntry::~CvPolicyEntry(void)
 {
@@ -231,6 +233,9 @@ CvPolicyEntry::~CvPolicyEntry(void)
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiImprovementYieldChanges);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiBuildingClassYieldModifiers);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiBuildingClassYieldChanges);
+#if defined(MOD_BALANCE_CORE_YIELDS)
+	CvDatabaseUtility::SafeDelete2DArray(m_ppiPlotYieldChanges);
+#endif
 }
 
 /// Read from XML file (pass 1)
@@ -532,6 +537,33 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 
 		pResults->Reset();
 	}
+#if defined(MOD_BALANCE_CORE_YIELDS)
+	if(MOD_BALANCE_CORE_YIELDS)
+	{
+		//PlotYieldChanges
+		{
+			kUtility.Initialize2DArray(m_ppiPlotYieldChanges, "Plots", "Yields");
+
+			std::string strKey("Policy_PlotYieldChanges");
+			Database::Results* pResults = kUtility.GetResults(strKey);
+			if(pResults == NULL)
+			{
+				pResults = kUtility.PrepareResults(strKey, "select Plots.ID as PlotID, Yields.ID as YieldID, Yield from Policy_PlotYieldChanges inner join Plots on Plots.Type = PlotType inner join Yields on Yields.Type = YieldType where PolicyType = ?");
+			}
+
+			pResults->Bind(1, szPolicyType);
+
+			while(pResults->Step())
+			{
+				const int PlotsID = pResults->GetInt(0);
+				const int YieldID = pResults->GetInt(1);
+				const int yield = pResults->GetInt(2);
+
+				m_ppiPlotYieldChanges[PlotsID][YieldID] = yield;
+			}
+		}
+	}
+#endif
 
 	//AndPreReqs
 	{
@@ -1725,6 +1757,17 @@ int CvPolicyEntry::GetImprovementYieldChanges(int i, int j) const
 	CvAssertMsg(j > -1, "Index out of bounds");
 	return m_ppiImprovementYieldChanges[i][j];
 }
+#if defined(MOD_BALANCE_CORE_YIELDS)
+/// Yield modifier for a specific plot by yield type
+int CvPolicyEntry::GetPlotYieldChanges(int i, int j) const
+{
+	CvAssertMsg(i < GC.getNumPlotInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	CvAssertMsg(j < NUM_PLOT_TYPES, "Index out of bounds");
+	CvAssertMsg(j > -1, "Index out of bounds");
+	return m_ppiPlotYieldChanges[i][j];
+}
+#endif
 
 /// Yield modifier for a specific BuildingClass by yield type
 int CvPolicyEntry::GetBuildingClassYieldModifiers(int i, int j) const

@@ -190,6 +190,12 @@ public:
 	CvCity* GetAdjacentCity(bool bLandOnly = false) const;
 	int GetNumAdjacentDifferentTeam(TeamTypes eTeam, bool bIgnoreWater) const;
 	int GetNumAdjacentMountains() const;
+#if defined(MOD_BALANCE_CORE_SETTLER)
+	int GetNumAdjacentWater() const;
+	int GetNumAdjacentPlotType(PlotTypes iPlotType) const;
+	bool NoTwoPlotTypeTouch(PlotTypes iPlotType, bool bChokePoint = false);
+	bool IsChokePoint(bool bWater = false, bool bMountain = false, int iDistance = 0);
+#endif
 
 	void plotAction(PlotUnitFunc func, int iData1 = -1, int iData2 = -1, PlayerTypes eOwner = NO_PLAYER, TeamTypes eTeam = NO_TEAM);
 	int plotCount(ConstPlotUnitFunc funcA, int iData1A = -1, int iData2A = -1, PlayerTypes eOwner = NO_PLAYER, TeamTypes eTeam = NO_TEAM, ConstPlotUnitFunc funcB = NULL, int iData1B = -1, int iData2B = -1) const;

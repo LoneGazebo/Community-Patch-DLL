@@ -6877,11 +6877,24 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 								kPlayer.GetEspionage()->CreateSpy();
 							}
 						}
-
 						for(int i = 0; i < pEraInfo->getSpiesGrantedForPlayer(); i++)
 						{
 							kPlayer.GetEspionage()->CreateSpy();
 						}
+#if defined(MOD_BALANCE_CORE_SPIES)
+						if(MOD_BALANCE_CORE_SPIES){
+							//Optional: Spies scaled for the number of City-States in the game.
+							int iNumMinor = ((GC.getGame().GetNumMinorCivsEver() * /*15*/ GC.getBALANCE_SPY_TO_MINOR_RATIO()) / 100);
+							if((iNumMinor - 1) > 0)
+							{
+								iNumMinor = iNumMinor - 1;
+								for(int i = 0; i < iNumMinor; i++)
+								{
+									kPlayer.GetEspionage()->CreateSpy();
+								}
+							}			
+						}
+#endif
 					}
 				}
 			}
@@ -6935,6 +6948,21 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 								}
 							}
 							kPlayer.GetEspionage()->CreateSpy();
+#if defined(MOD_BALANCE_CORE_SPIES)
+							if(MOD_BALANCE_CORE_SPIES){
+								//Optional: Spies scaled for the number of City-States in the game.
+								int iNumMinor = ((GC.getGame().GetNumMinorCivsEver() * /*15*/ GC.getBALANCE_SPY_TO_MINOR_RATIO()) / 100);
+								if((iNumMinor - 1) > 0)
+								{
+									iNumMinor = iNumMinor - 1;
+									for(int i = 0; i < iNumMinor; i++)
+									{
+										kPlayer.GetEspionage()->CreateSpy();
+									}
+								}			
+							}
+#endif
+
 						}
 					}
 				}

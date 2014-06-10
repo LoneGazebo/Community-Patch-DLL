@@ -66,6 +66,10 @@ CvBeliefEntry::CvBeliefEntry() :
 	m_bRequiresPeace(false),
 	m_bConvertsBarbarians(false),
 	m_bFaithPurchaseAllGreatPeople(false),
+#if defined(MOD_BALANCE_CORE_YIELDS)
+	m_bRequiresImprovement(false),
+	m_bRequiresResource(false),
+#endif
 
 	m_eObsoleteEra(NO_ERA),
 	m_eResourceRevealed(NO_RESOURCE),
@@ -389,6 +393,19 @@ bool CvBeliefEntry::FaithPurchaseAllGreatPeople() const
 	return m_bFaithPurchaseAllGreatPeople;
 }
 
+#if defined(MOD_BALANCE_CORE_YIELDS)
+/// Accessor: is this a belief that grants faith only from improvements?
+bool CvBeliefEntry::RequiresImprovement() const
+{
+	return m_bRequiresImprovement;
+}
+/// Accessor: is this a belief that grants faith only from resources?
+bool CvBeliefEntry::RequiresResource() const
+{
+	return m_bRequiresResource;
+}
+#endif
+
 /// Accessor: era when wonder production modifier goes obsolete
 EraTypes CvBeliefEntry::GetObsoleteEra() const
 {
@@ -658,6 +675,10 @@ bool CvBeliefEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_bConvertsBarbarians			  = kResults.GetBool("ConvertsBarbarians");
 	m_bFaithPurchaseAllGreatPeople	  = kResults.GetBool("FaithPurchaseAllGreatPeople");
 
+#if defined(MOD_BALANCE_CORE_YIELDS)
+	m_bRequiresImprovement			  = kResults.GetBool("RequiresImprovement");
+	m_bRequiresResource				  = kResults.GetBool("RequiresResource");
+#endif
 	//References
 	const char* szTextVal;
 	szTextVal						  = kResults.GetText("ObsoleteEra");
@@ -669,6 +690,7 @@ bool CvBeliefEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 
 	//Arrays
 	const char* szBeliefType = GetType();
+
 	kUtility.SetYields(m_paiCityYieldChange, "Belief_CityYieldChanges", "BeliefType", szBeliefType);
 	kUtility.SetYields(m_paiHolyCityYieldChange, "Belief_HolyCityYieldChanges", "BeliefType", szBeliefType);
 	kUtility.SetYields(m_piYieldChangeAnySpecialist, "Belief_YieldChangeAnySpecialist", "BeliefType", szBeliefType);
@@ -1699,6 +1721,45 @@ bool CvReligionBeliefs::IsFaithPurchaseAllGreatPeople() const
 
 	return false;
 }
+
+#if defined(MOD_BALANCE_CORE_YIELDS)
+/// Is there a belief that requires improvements?
+bool CvReligionBeliefs::RequiresImprovement() const
+{
+	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
+
+	for(int i = 0; i < pBeliefs->GetNumBeliefs(); i++)
+	{
+		if(HasBelief((BeliefTypes)i))
+		{
+			if (pBeliefs->GetEntry(i)->RequiresImprovement())
+			{
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+/// Is there a belief that requires a resource?
+bool CvReligionBeliefs::RequiresResource() const
+{
+	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
+
+	for(int i = 0; i < pBeliefs->GetNumBeliefs(); i++)
+	{
+		if(HasBelief((BeliefTypes)i))
+		{
+			if (pBeliefs->GetEntry(i)->RequiresResource())
+			{
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+#endif
 
 /// Serialization read
 void CvReligionBeliefs::Read(FDataStream& kStream)

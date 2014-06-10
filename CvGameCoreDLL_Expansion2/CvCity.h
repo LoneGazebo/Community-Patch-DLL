@@ -280,7 +280,9 @@ public:
 #if defined(MOD_API_EXTENSIONS)
 	bool isAddsFreshWater() const;
 #endif
-
+#if defined(MOD_BALANCE_CORE)
+	bool IsNoWater() const;
+#endif
 	int foodConsumption(bool bNoAngry = false, int iExtra = 0) const;
 	int foodDifference(bool bBottom = true) const;
 	int foodDifferenceTimes100(bool bBottom = true, CvString* toolTipSink = NULL) const;

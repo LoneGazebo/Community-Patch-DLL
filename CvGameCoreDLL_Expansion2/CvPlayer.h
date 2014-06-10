@@ -139,6 +139,10 @@ public:
 	void InitDangerPlots();
 	void UpdateDangerPlots();
 	void SetDangerPlotsDirty();
+#if defined(MOD_BALANCE_CORE_MILITARY)
+void SetEscortID(int iValue);
+int GetEscortID();
+#endif
 
 	bool isHuman() const;
 	bool isObserver() const;
@@ -1799,6 +1803,9 @@ protected:
 	int m_iScienceRateFromLeague;
 	int m_iScienceRateFromLeagueAid;
 	FAutoVariable<int, CvPlayer> m_iLeagueCultureCityModifier;
+#endif
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	int m_iEscortID;
 #endif
 	FAutoVariable<int, CvPlayer> m_iAdvancedStartPoints;
 	FAutoVariable<int, CvPlayer> m_iAttackBonusTurns;

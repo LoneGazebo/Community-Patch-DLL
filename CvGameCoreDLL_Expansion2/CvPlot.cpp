@@ -3194,7 +3194,236 @@ int CvPlot::GetNumAdjacentMountains() const
 	}
 	return iNumMountains;
 }
+#if defined(MOD_BALANCE_CORE_SETTLER)
+int CvPlot::GetNumAdjacentWater() const
+{
+	CvPlot* pAdjacentPlot;
+	int iI;
+	int iNumWater = 0;
 
+	for (iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
+	{
+		pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
+
+		if(pAdjacentPlot != NULL)
+		{
+			if (pAdjacentPlot->isWater())
+			{
+				iNumWater++;
+			}
+		}
+	}
+	return iNumWater;
+}
+int CvPlot::GetNumAdjacentPlotType(PlotTypes iPlotType) const
+{
+	CvPlot* pAdjacentPlot;
+	int iI;
+	int iNumPlot = 0;
+
+	for (iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
+	{
+		pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
+
+		if(pAdjacentPlot != NULL)
+		{
+			if(iPlotType == PLOT_OCEAN)
+			{
+				if(pAdjacentPlot->isWater())
+				{
+					iNumPlot++;
+				}
+			}
+			else if (pAdjacentPlot->HasPlotType(iPlotType))
+			{
+				iNumPlot++;
+			}
+		}
+	}
+	return iNumPlot;
+}
+bool CvPlot::NoTwoPlotTypeTouch(PlotTypes iPlotType, bool bChokePoint)
+{
+	CvPlot* pAdjacentPlot;
+	int iI;
+	bool bNoAdjacent = false;
+	int iNumPlotType = 0;
+
+	for (iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
+	{
+		pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
+
+		if(pAdjacentPlot != NULL)
+		{
+			if(iPlotType == PLOT_OCEAN)
+			{
+				iNumPlotType++;
+				if(pAdjacentPlot->isWater())
+				{
+					if(pAdjacentPlot->GetNumAdjacentPlotType(iPlotType) <= 0)
+					{
+						bNoAdjacent = true;
+					}
+				}
+			}
+			else if(pAdjacentPlot->HasPlotType(iPlotType))
+			{
+				iNumPlotType++;
+				if(pAdjacentPlot->getPlotType() == getPlotType())
+				{
+					//1, because of Plots being the same PlotType
+					if(pAdjacentPlot->GetNumAdjacentPlotType(iPlotType) <= 1)
+					{
+						bNoAdjacent = true;
+					}
+				}
+				else
+				{
+					if(pAdjacentPlot->GetNumAdjacentPlotType(iPlotType) <= 0)
+					{
+						bNoAdjacent = true;
+					}
+				}
+			}
+		}
+	}
+	//Are the tests above valid, and is the player looking for a chokepoint?
+	if(bChokePoint && bNoAdjacent)
+	{
+		if(iNumPlotType > 1)
+		{
+			bNoAdjacent = true;
+		}
+		else
+		{
+			bNoAdjacent = false;
+		}
+	}
+
+	return bNoAdjacent;
+}
+bool CvPlot::IsChokePoint(bool bWater, bool bMountain, int iDistance)
+{
+	CvPlot* pAdjacentPlot;
+	CvPlot* pAdjacentLandPlot;
+	int iI;
+	int iNumGoodWater = 0;
+	int iLandPlots = 0;
+	int iWaterPlots = 0;
+	int iNumMountain = 0;
+	int iNumRange = 0;
+
+	if(bWater && isCoastalLand(GC.getMIN_WATER_SIZE_FOR_OCEAN()))
+	{
+		for (iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
+		{
+			pAdjacentLandPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
+
+			if(pAdjacentLandPlot != NULL)
+			{
+				//First, let's make sure we have a land bridge here.
+				if(!pAdjacentLandPlot->isWater() && !pAdjacentLandPlot->isImpassable() && !pAdjacentLandPlot->isMountain())
+				{
+					iLandPlots++;
+				}
+				else if(pAdjacentLandPlot->isWater())
+				{
+					iWaterPlots++;
+				}
+			}
+		}
+		//Are there 2-4 land plots? If so, next test.
+		if(iLandPlots > 1 && iLandPlots <= 4)
+		{
+			if(iWaterPlots > 1 && iWaterPlots <= 4)
+			{
+				//Let's look at the other plots.
+				for (iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
+				{
+					pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
+
+					if(pAdjacentPlot != NULL && pAdjacentPlot->isWater())
+					{				
+						//If less than one, is lake. If more than four, is peninsula.
+						if(pAdjacentPlot->GetNumAdjacentPlotType(PLOT_OCEAN) > 0 && (pAdjacentPlot->GetNumAdjacentPlotType(PLOT_OCEAN) <= 4))
+						{
+							iNumGoodWater++;	
+						}
+					}
+				}
+			}
+
+			//If two, let's check for continuity. We don't want that.
+			if(iNumGoodWater == 2)
+			{
+				if(NoTwoPlotTypeTouch(PLOT_OCEAN, true))
+				{
+					return true;
+				}
+			}
+			//If more than two, that means there is most likely water on both sides. Good!
+			if(iNumGoodWater > 2)
+			{
+				return true;
+			}
+		}
+	}
+	if(bMountain)
+	{
+		int iX = getX(); int iY = getY();
+		for (int i = -iDistance; i <= iDistance; ++i) 
+		{
+			for (int j = -iDistance; j <= iDistance; ++j) 
+			{
+				CvPlot* pLoopPlot = ::plotXYWithRangeCheck(iX, iY, i, j, iDistance);
+			
+				if (pLoopPlot != NULL && pLoopPlot->getFeatureType() != FEATURE_ICE)
+				{
+					if(pLoopPlot->isMountain() || pLoopPlot->isImpassable())
+					{
+						//Do two mountains not touch here?
+						if(pLoopPlot->NoTwoPlotTypeTouch(PLOT_MOUNTAIN, false))
+						{
+							iNumMountain++;
+						}
+						//More than one mountain clumped together. Range, possibly?
+						else
+						{
+							iNumRange++;
+						}
+					}
+				}
+			}
+		}
+		//Scaled numbers based on distance.
+		//More than one mountain within 1 ring?
+		if(iDistance == 1)
+		{
+			if(iNumMountain > 1 || ((iNumRange < 2) && (iNumRange > 0)))
+			{
+				return true;
+			}
+		}
+		//More than three mountains within two rings?
+		else if(iDistance == 2)
+		{
+			if(iNumMountain > 3 || ((iNumRange < 4) && (iNumRange > 0)))
+			{
+				return true;
+			}
+		}
+		//More than five mountains within three rings?
+		else if(iDistance == 3)
+		{
+			if(iNumMountain > 5 || ((iNumRange < 6) && (iNumRange > 0)))
+			{
+				return true;
+			}
+		}
+	}
+	return false;
+}
+#endif
 //	--------------------------------------------------------------------------------
 void CvPlot::plotAction(PlotUnitFunc func, int iData1, int iData2, PlayerTypes eOwner, TeamTypes eTeam)
 {
@@ -7576,10 +7805,72 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, TeamTypes eTeam, bool bIgnor
 		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, pWorkingCity->getOwner());
 		if(pReligion)
 		{
+#if defined(MOD_BALANCE_CORE_YIELDS)
+			//Change for improvement/resource
+			int iReligionChange = 0;
+			if(pReligion->m_Beliefs.RequiresResource() && pReligion->m_Beliefs.RequiresImprovement())
+			{
+				if(getResourceType() != NO_RESOURCE && getImprovementType() != NO_IMPROVEMENT)
+				{
+					iReligionChange = pReligion->m_Beliefs.GetTerrainYieldChange(getTerrainType(), eYield);
+				}
+			}
+			else if(pReligion->m_Beliefs.RequiresImprovement())
+			{
+				if(getImprovementType() != NO_IMPROVEMENT)
+				{
+					iReligionChange = pReligion->m_Beliefs.GetTerrainYieldChange(getTerrainType(), eYield);
+				}
+			}
+			else if(pReligion->m_Beliefs.RequiresResource())
+			{
+				if(getResourceType() != NO_RESOURCE)
+				{
+					iReligionChange = pReligion->m_Beliefs.GetTerrainYieldChange(getTerrainType(), eYield);
+				}
+			}
+			else
+			{
+#else
 			int iReligionChange = pReligion->m_Beliefs.GetTerrainYieldChange(getTerrainType(), eYield);
+#endif
+#if defined(MOD_BALANCE_CORE_YIELDS)
+			}
+#endif
 			if (eSecondaryPantheon != NO_BELIEF)
 			{
+#if defined(MOD_BALANCE_CORE_YIELDS)
+				//Change for improvement/resource
+				int iReligionChange = 0;
+				if(pReligion->m_Beliefs.RequiresResource() && pReligion->m_Beliefs.RequiresImprovement())
+				{
+					if(getResourceType() != NO_RESOURCE && getImprovementType() != NO_IMPROVEMENT)
+					{
+						iReligionChange = pReligion->m_Beliefs.GetTerrainYieldChange(getTerrainType(), eYield);
+					}
+				}
+				else if(pReligion->m_Beliefs.RequiresImprovement())
+				{
+					if(getImprovementType() != NO_IMPROVEMENT)
+					{
+						iReligionChange = pReligion->m_Beliefs.GetTerrainYieldChange(getTerrainType(), eYield);
+					}
+				}
+				else if(pReligion->m_Beliefs.RequiresResource())
+				{
+					if(getResourceType() != NO_RESOURCE)
+					{
+						iReligionChange = pReligion->m_Beliefs.GetTerrainYieldChange(getTerrainType(), eYield);
+					}
+				}
+				else
+				{
+#else
 				iReligionChange += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetTerrainYieldChange(getTerrainType(), eYield);
+#endif
+#if defined(MOD_BALANCE_CORE_YIELDS)
+				}
+#endif
 			}
 			
 #if defined(MOD_RELIGION_PLOT_YIELDS)
@@ -7728,7 +8019,54 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, TeamTypes eTeam, bool bIgnor
 	{
 		iYield += ((bIgnoreFeature || (getFeatureType() == NO_FEATURE)) ? GC.getTerrainInfo(getTerrainType())->getHillsYieldChange(eYield) : GC.getFeatureInfo(getFeatureType())->getHillsYieldChange(eYield));
 	}
-
+#if defined(MOD_BALANCE_CORE_YIELDS)
+	if(MOD_BALANCE_CORE_YIELDS)
+	{
+		if(getPlotType() != NO_PLOT && pWorkingCity != NULL && !isCity())
+		{
+			//PLOT_LAND should only apply to featureless, flat terrain (other modifiers exist for other types of features and plots)
+			if(getPlotType() == PLOT_LAND)
+			{
+				if(getFeatureType() == NO_FEATURE && !isHills() && !isMountain() && !isImpassable())
+				{
+					for(int iPolicyLoop = 0; iPolicyLoop < GC.getNumPolicyInfos(); iPolicyLoop++)
+					{
+						PolicyTypes ePolicy = (PolicyTypes)iPolicyLoop;
+						CvPolicyEntry* pkPolicyInfo = GC.getPolicyInfo(ePolicy);
+						if(pkPolicyInfo)
+						{
+							if(pkPolicyInfo->GetPlotYieldChanges(getPlotType(), eYield) > 0)
+							{
+								if(GET_PLAYER((PlayerTypes)m_eOwner).GetPlayerPolicies()->HasPolicy(ePolicy) && !GET_PLAYER((PlayerTypes)m_eOwner).GetPlayerPolicies()->IsPolicyBlocked(ePolicy))
+								{
+									iYield += GC.getPolicyInfo(ePolicy)->GetPlotYieldChanges(getPlotType(), eYield);
+								}
+							}
+						}
+					}
+				}
+			}
+			else
+			{
+				for(int iPolicyLoop = 0; iPolicyLoop < GC.getNumPolicyInfos(); iPolicyLoop++)
+				{
+					PolicyTypes ePolicy = (PolicyTypes)iPolicyLoop;
+					CvPolicyEntry* pkPolicyInfo = GC.getPolicyInfo(ePolicy);
+					if(pkPolicyInfo)
+					{
+						if(pkPolicyInfo->GetPlotYieldChanges(getPlotType(), eYield) > 0)
+						{
+							if(GET_PLAYER((PlayerTypes)m_eOwner).GetPlayerPolicies()->HasPolicy(ePolicy) && !GET_PLAYER((PlayerTypes)m_eOwner).GetPlayerPolicies()->IsPolicyBlocked(ePolicy))
+							{
+								iYield += GC.getPolicyInfo(ePolicy)->GetPlotYieldChanges(getPlotType(), eYield);
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+#endif
 	return std::max(0, iYield);
 }
 
@@ -8106,6 +8444,52 @@ int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay)
 				iYield += pWorkingCity->GetTerrainExtraYield(getTerrainType(), eYield);
 			}
 		}
+
+#if defined(MOD_BALANCE_CORE_YIELDS)
+		if(MOD_BALANCE_CORE_YIELDS)
+		{
+			if(getPlotType() != NO_PLOT && !isCity())
+			{
+				if(pWorkingCity != NULL)
+				{
+					//PLOT_LAND should only apply to featureless, flat terrain (other modifiers exist for other types of features and plots)
+					if(getPlotType() == PLOT_LAND)
+					{
+						if(getFeatureType() == NO_FEATURE && !isHills() && !isMountain() && !isImpassable())
+						{
+							for(int iI = 0; iI < GC.getNumBuildingInfos(); ++iI)
+							{
+								const BuildingTypes eBuilding = static_cast<BuildingTypes>(iI);
+								CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+								if(pkBuildingInfo)
+								{
+									if(pWorkingCity->GetCityBuildings()->GetNumActiveBuilding(eBuilding) > 0)
+									{
+										iYield += pkBuildingInfo->GetPlotYieldChange(getPlotType(), eYield);
+									}
+								}
+							}
+						}
+					}
+					else
+					{
+						for(int iI = 0; iI < GC.getNumBuildingInfos(); ++iI)
+						{
+							const BuildingTypes eBuilding = static_cast<BuildingTypes>(iI);
+							CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+							if(pkBuildingInfo)
+							{
+								if(pWorkingCity->GetCityBuildings()->GetNumActiveBuilding(eBuilding) > 0)
+								{
+									iYield += pkBuildingInfo->GetPlotYieldChange(getPlotType(), eYield);
+								}
+							}
+						}
+					}
+				}
+			}
+		}	
+#endif
 
 		ResourceTypes eResource = getResourceType(GET_PLAYER(ePlayer).getTeam());
 		if(eResource != NO_RESOURCE)

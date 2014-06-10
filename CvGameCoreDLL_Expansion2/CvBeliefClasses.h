@@ -77,6 +77,11 @@ public:
 	bool ConvertsBarbarians() const;
 	bool FaithPurchaseAllGreatPeople() const;
 
+#if defined(MOD_BALANCE_CORE_YIELDS)
+	bool RequiresImprovement() const;
+	bool RequiresResource() const;
+#endif
+
 	EraTypes GetObsoleteEra() const;
 	ResourceTypes GetResourceRevealed() const;
 	TechTypes GetSpreadModifierDoublingTech() const;
@@ -162,6 +167,10 @@ protected:
 	bool m_bRequiresPeace;
 	bool m_bConvertsBarbarians;
 	bool m_bFaithPurchaseAllGreatPeople;
+#if defined(MOD_BALANCE_CORE_YIELDS)
+	bool m_bRequiresImprovement;
+	bool m_bRequiresResource;
+#endif
 
 	EraTypes m_eObsoleteEra;
 	ResourceTypes m_eResourceRevealed;
@@ -398,6 +407,11 @@ public:
 	bool IsFaithBuyingEnabled(EraTypes eEra) const;
 	bool IsConvertsBarbarians() const;
 	bool IsFaithPurchaseAllGreatPeople() const;
+
+#if defined(MOD_BALANCE_CORE_YIELDS)
+	bool RequiresImprovement() const;
+	bool RequiresResource() const;
+#endif
 
 	// Serialization
 	void Read(FDataStream& kStream);
