@@ -6835,7 +6835,6 @@ bool CvUnit::canRebaseAt(const CvPlot* pPlot, int iX, int iY) const
 
 	return true;
 }
-
 //	--------------------------------------------------------------------------------
 bool CvUnit::rebase(int iX, int iY)
 {

@@ -298,6 +298,11 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, YieldT
 	int iNaturalWonderCount = 0;
 	int iDesertCount = 0;
 	int iWetlandsCount = 0;
+#if defined(MOD_BALANCE_CORE_SETTLER)
+	int iWaterPlot = 0;
+	int iBadPlot = 0;
+	int iLoopPlots = 0;
+#endif
 
 	int iTotalFoodValue = 0;
 	int iTotalHappinessValue = 0;
@@ -438,7 +443,15 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, YieldT
 							// lower value a lot if we already own this tile
 							if (iPlotValue > 0 && pLoopPlot->getOwner() == pPlayer->GetID())
 							{
+#if defined(MOD_BALANCE_CORE_SETTLER)
+								if (MOD_BALANCE_CORE_SETTLER) 
+								{
+									iPlotValue *= 2;
+									iPlotValue /= 3;
+								}
+#else
 								iPlotValue /= 4;
+#endif
 							}
 
 							// add this plot into the total
@@ -528,6 +541,19 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, YieldT
 									
 								}
 							}
+#if defined(MOD_BALANCE_CORE_SETTLER)
+							if (MOD_BALANCE_CORE_SETTLER) 
+							{
+								if(pLoopPlot->isWater() && pLoopPlot->HasResource(NO_RESOURCE))
+								{
+									iWaterPlot++;
+								}
+								if(pLoopPlot == NULL || pLoopPlot->isImpassable() || pLoopPlot->getTerrainType() == TERRAIN_SNOW || pLoopPlot->getFeatureType() == FEATURE_ICE)
+								{
+									iBadPlot++;
+								}
+							}
+#endif	
 						}
 					}
 					else // this tile is owned by someone else
@@ -543,6 +569,12 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, YieldT
 					}
 				}
 			}
+#if defined(MOD_BALANCE_CORE_SETTLER)
+			if (MOD_BALANCE_CORE_SETTLER) 
+			{
+				iLoopPlots++;
+			}
+#endif
 		}
 	}
 
@@ -641,6 +673,108 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, YieldT
 			rtnValue *= 2;
 		}
 	}
+#if defined(MOD_BALANCE_CORE_SETTLER)
+	if (MOD_BALANCE_CORE_SETTLER) 
+	{
+		//Is this a water chokepoint? (More than four would make this a peninsula, which is not what we are looking for.)
+		if(pPlot->IsChokePoint(true, false, 0))
+		{
+			rtnValue += (int)rtnValue * /*100*/ GC.getBALANCE_CHOKEPOINT_STRATEGIC_VALUE() / 100;
+		}
+		//Looking for mountains for chokepoints.
+		//If the adjacent plot is not touching another mountain, and there is more than one mountain around pPlot, we've found a potential chokepoint.
+		else if(pPlot->IsChokePoint(false, true, 1))
+		{
+			//Awesome, we found a mountain chokepoint within 1. Emphasize!
+			rtnValue += (int)rtnValue * /*100*/ GC.getBALANCE_CHOKEPOINT_STRATEGIC_VALUE() / 75;
+		}
+		else if(pPlot->IsChokePoint(false, true, 2))
+		{
+			//Awesome, we found a mountain chokepoint within 2. Emphasize!
+			rtnValue += (int)rtnValue * /*100*/ GC.getBALANCE_CHOKEPOINT_STRATEGIC_VALUE() / 100;
+		}
+		else if(pPlot->IsChokePoint(false, true, 3))
+		{
+			//Awesome, we found a mountain chokepoint within 3. Emphasize!
+			rtnValue += (int)rtnValue * /*100*/ GC.getBALANCE_CHOKEPOINT_STRATEGIC_VALUE() / 125;
+		}
+		//Too many bad plots?
+		if(iBadPlot > (iLoopPlots / 4))
+		{
+			rtnValue /= 5;
+		}
+		//Too much empty water?
+		if(iWaterPlot > (iLoopPlots / 2))
+		{
+			rtnValue *= 2;
+			rtnValue /= 3;
+		}
+	}
+	//Let's see what we can do. (Strategic site locator pulled from below - less loop cycles used this way, as all we care about is the city plot itself, not every plot in the city's loop.
+	if(pPlayer != NULL)
+	{
+		for(int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
+		{
+			PlayerTypes eOtherPlayer = (PlayerTypes) iMajorLoop;
+			PlayerProximityTypes eProximity = GET_PLAYER(eOtherPlayer).GetProximityToPlayer(pPlayer->GetID());
+			if(eOtherPlayer != pPlayer->GetID() && eOtherPlayer != NO_PLAYER && GET_PLAYER(eOtherPlayer).isAlive() && !GET_PLAYER(eOtherPlayer).isMinorCiv() && !GET_PLAYER(eOtherPlayer).isBarbarian())
+			{
+				if(eProximity >= PLAYER_PROXIMITY_CLOSE)
+				{
+					CvCity* pLoopTheirCity;
+					int iClosestDistance = 6;
+					int iDistance = 0;
+					int iLoop;
+					for(pLoopTheirCity = GET_PLAYER(eOtherPlayer).firstCity(&iLoop); pLoopTheirCity != NULL; pLoopTheirCity = GET_PLAYER(eOtherPlayer).nextCity(&iLoop))
+					{
+						if(pLoopTheirCity != NULL)
+						{
+							if(pPlot->getArea() == pLoopTheirCity->getArea())
+							{
+								iDistance = plotDistance(pPlot->getX(), pPlot->getY(), pLoopTheirCity->getX(), pLoopTheirCity->getY());
+								
+								if(iDistance <= iClosestDistance)
+								{
+									//There's at least 6 hexes between these plots, which means we can theoretically settle here.
+									int iNumPlots = 0;
+									int iNumBadPlots = 0;
+
+									for(int iDX = -iClosestDistance; iDX <= iClosestDistance; iDX++)
+									{
+										for(int iDY = -iClosestDistance; iDY <= iClosestDistance; iDY++)
+										{
+											CvPlot* pLoopPlot = plotXYWithRangeCheck(pPlot->getX(), pPlot->getY(), iDX, iDY, iClosestDistance);
+											if(pLoopPlot)
+											{
+												//Let's look for good, empty land.
+												if(pLoopPlot->isImpassable() || pLoopPlot->isWater() || pLoopPlot->getOwner() != NO_PLAYER) 
+												{
+													iNumBadPlots++;
+												}
+													iNumPlots++;
+											}
+										}
+									}
+									if(iNumBadPlots > 0)
+									{
+										iNumBadPlots = (iNumBadPlots * 130) / 100;
+									}
+									//Good space must be greater than bad plots by at least 30%
+									if(iNumPlots > iNumBadPlots)
+									{
+										//If there is significant empty land, and it is within the theoretical hex separation of the nearest two cities of two different players, there's a good chance it is border land. GET IT!
+										rtnValue += (int)rtnValue * /*50*/ GC.getBALANCE_EMPIRE_BORDERLAND_STRATEGIC_VALUE() / 100;
+										break;
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+#endif
 
 	// Nearby Cities?
 
@@ -721,6 +855,28 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, YieldT
 				rtnValue /= 2;
 			}
 		}
+#if defined(MOD_BALANCE_CORE_SETTLER)
+	if (MOD_BALANCE_CORE_SETTLER) 
+		{
+			//Let's judge just how well we can defend this city if we push out. If our neighbors are stronger than us, let's turtle a bit.
+			for(int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
+			{
+				PlayerTypes eOtherPlayer = (PlayerTypes) iMajorLoop;
+				if(eOtherPlayer != NO_PLAYER && GET_PLAYER(eOtherPlayer).isAlive() && !GET_PLAYER(eOtherPlayer).isMinorCiv() && !GET_PLAYER(eOtherPlayer).isBarbarian())
+				{
+					PlayerProximityTypes eProximity = GET_PLAYER(eOtherPlayer).GetProximityToPlayer(pPlayer->GetID());
+					if(eProximity == PLAYER_PROXIMITY_NEIGHBORS && (pPlayer->GetMilitaryMight() < GET_PLAYER(eOtherPlayer).GetMilitaryMight()))
+					{
+						//Is the plot we're looking at in the same area as our strong neighbor?
+						if (iClosestEnemyCity <= 6)
+						{
+							rtnValue /= 2;
+						}
+					}
+				}
+			}
+		}
+#endif
 	}
 
 	rtnValue = (rtnValue > 0) ? rtnValue : 0;
@@ -1044,6 +1200,27 @@ int CvCitySiteEvaluator::ComputeStrategicValue(CvPlot* pPlot, CvPlayer* pPlayer,
 	{
 		rtnValue += /*5*/ GC.getCHOKEPOINT_STRATEGIC_VALUE();
 	}
+#if defined(MOD_BALANCE_CORE_SETTLER)
+	if (MOD_BALANCE_CORE_SETTLER) 
+	{
+		//Some features and terrain types are useful strategically. (Or really bad)
+		if((pPlot->getOwner() == NO_PLAYER) || (pPlot->getOwner() != pPlayer->GetID()))
+		{
+			if(iPlotsFromCity <= 3 && (pPlot->getFeatureType() == FEATURE_ICE) || (pPlot->getTerrainType() == TERRAIN_SNOW))
+			{
+				rtnValue += /*-10*/ GC.getBALANCE_BAD_TILES_STRATEGIC_VALUE();
+			}
+			if(iPlotsFromCity <= 3 && pPlot->isFreshWater())
+			{
+				rtnValue += /*2*/ GC.getBALANCE_FRESH_WATER_STRATEGIC_VALUE();
+			}
+			if(iPlotsFromCity <= 3 && pPlot->isCoastalLand())
+			{
+				rtnValue += /*2*/ GC.getBALANCE_COAST_STRATEGIC_VALUE();
+			}
+		}
+	}
+#endif
 
 	// Hills in first ring are useful for defense and production
 	if(iPlotsFromCity == 1 && pPlot->isHills())

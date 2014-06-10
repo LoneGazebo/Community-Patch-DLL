@@ -178,6 +178,9 @@ CvPlayer::CvPlayer() :
 	, m_iScienceRateFromLeagueAid(0)
 	, m_iLeagueCultureCityModifier("CvPlayer::m_iLeagueCultureCityModifier", m_syncArchive)
 #endif
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	, m_iEscortID(0)
+#endif
 	, m_iSpecialPolicyBuildingHappiness("CvPlayer::m_iSpecialPolicyBuildingHappiness", m_syncArchive)
 	, m_iWoundedUnitDamageMod("CvPlayer::m_iWoundedUnitDamageMod", m_syncArchive)
 	, m_iUnitUpgradeCostMod("CvPlayer::m_iUnitUpgradeCostMod", m_syncArchive)
@@ -737,6 +740,7 @@ void CvPlayer::uninit()
 
 	m_ppaaiSpecialistExtraYield.clear();
 	m_ppaaiImprovementYieldChange.clear();
+
 	m_ppaaiBuildingClassYieldMod.clear();
 
 	m_UnitCycle.Clear();
@@ -812,6 +816,9 @@ void CvPlayer::uninit()
 	m_iScienceRateFromLeague = 0;
 	m_iScienceRateFromLeagueAid = 0;
 	m_iLeagueCultureCityModifier = 0;
+#endif
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	m_iEscortID = 0;
 #endif
 	m_iSpecialPolicyBuildingHappiness = 0;
 	m_iWoundedUnitDamageMod = 0;
@@ -4072,6 +4079,20 @@ void CvPlayer::SetDangerPlotsDirty()
 {
 	m_pDangerPlots->SetDirty();
 }
+
+#if defined(MOD_BALANCE_CORE_MILITARY)
+/// Find the army we want to follow
+void CvPlayer::SetEscortID(int iValue)
+{
+		if(GetEscortID() != iValue)
+		m_iEscortID = iValue;
+}
+/// Find the army we want to follow
+int CvPlayer::GetEscortID()
+{
+	return m_iEscortID;
+}
+#endif
 
 //	--------------------------------------------------------------------------------
 bool CvPlayer::isHuman() const
@@ -7486,7 +7507,11 @@ bool CvPlayer::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool
 	if(!bTestVisible)
 	{
 		// Settlers
-		if(pUnitInfo.IsFound() || pUnitInfo.IsFoundAbroad())
+		if(pUnitInfo.IsFound() || pUnitInfo.IsFoundAbroad()
+#if defined(MOD_DIPLOMACY_CITYSTATES)
+		|| pUnitInfo.IsFoundMid() || pUnitInfo.IsFoundLate()
+#endif
+			)
 		{
 			if(IsEmpireVeryUnhappy() && GC.getVERY_UNHAPPY_CANT_TRAIN_SETTLERS() == 1)
 			{
@@ -7495,7 +7520,6 @@ bool CvPlayer::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool
 					return false;
 			}
 		}
-
 		// Project required?
 		ProjectTypes ePrereqProject = (ProjectTypes) pUnitInfo.GetProjectPrereq();
 		if(ePrereqProject != NO_PROJECT)
@@ -10024,6 +10048,52 @@ int CvPlayer::GetTotalJONSCulturePerTurn() const
 	}
 #endif
 
+#if defined(MOD_BALANCE_CORE_YIELDS)
+	if(MOD_BALANCE_CORE_YIELDS)
+	{
+		//Mechanic to allow for varied effects of happiness/unhappiness.
+		if(GC.getBALANCE_HAPPINESS_EMPIRE_MOD() != -1)
+		{
+			int iHappiness = 0;
+			iHappiness += GetExcessHappiness();
+
+			//If Happiness is greater than or over threshold, calculate city bonus mod.
+			if(iHappiness >= GC.getBALANCE_HAPPINESS_THRESHOLD())
+			{
+				iHappiness = (iHappiness - GC.getBALANCE_HAPPINESS_THRESHOLD());
+				//Are there minimums/maximums for the bonus? Restrict this value.
+				if(iHappiness > GC.getBALANCE_HAPPINESS_BONUS_MAXIMUM())
+				{
+					iHappiness = GC.getBALANCE_HAPPINESS_BONUS_MAXIMUM();
+				}
+				else if(iHappiness < GC.getBALANCE_HAPPINESS_BONUS_MINIMUM())
+				{
+					iHappiness = GC.getBALANCE_HAPPINESS_BONUS_MINIMUM();
+				}
+			}
+			//If happiness is less than the threshold, calculate city penalty mod.
+			else if(iHappiness < GC.getBALANCE_HAPPINESS_THRESHOLD_MAIN())
+			{
+				iHappiness = (GC.getBALANCE_HAPPINESS_THRESHOLD() - iHappiness);
+				//Are there minimums/maximums for the penalty? Restrict this value.
+				if(iHappiness > GC.getBALANCE_HAPPINESS_PENALTY_MAXIMUM())
+				{
+					iHappiness = GC.getBALANCE_HAPPINESS_PENALTY_MAXIMUM();
+				}
+				else if(iHappiness < GC.getBALANCE_HAPPINESS_PENALTY_MINIMUM())
+				{
+					iHappiness = GC.getBALANCE_HAPPINESS_PENALTY_MINIMUM();
+				}
+			}
+			else
+			{
+				iHappiness = 0;
+			}
+			iCulturePerTurn += (GC.getBALANCE_HAPPINESS_CULTURE_MODIFIER() * iHappiness);
+		}
+	}
+#endif
+
 	// Golden Age bonus
 	if (isGoldenAge() && !IsGoldenAgeCultureBonusDisabled())
 	{
@@ -10786,6 +10856,53 @@ int CvPlayer::GetTotalFaithPerTurn() const
 	// Faith per turn from Religion (Founder beliefs)
 	iFaithPerTurn += GetFaithPerTurnFromReligion();
 
+#if defined(MOD_BALANCE_CORE_YIELDS)
+	if(MOD_BALANCE_CORE_YIELDS)
+	{
+		//Mechanic to allow for varied effects of happiness/unhappiness.
+		if(GC.getBALANCE_HAPPINESS_EMPIRE_MOD() != -1)
+		{
+			int iHappiness = 0;
+
+			iHappiness += GetExcessHappiness();
+
+			//If Happiness is greater than or over threshold, calculate city bonus mod.
+			if(iHappiness >= GC.getBALANCE_HAPPINESS_THRESHOLD())
+			{
+				iHappiness = (iHappiness - GC.getBALANCE_HAPPINESS_THRESHOLD());
+				//Are there minimums/maximums for the bonus? Restrict this value.
+				if(iHappiness > GC.getBALANCE_HAPPINESS_BONUS_MAXIMUM())
+				{
+					iHappiness = GC.getBALANCE_HAPPINESS_BONUS_MAXIMUM();
+				}
+				else if(iHappiness < GC.getBALANCE_HAPPINESS_BONUS_MINIMUM())
+				{
+					iHappiness = GC.getBALANCE_HAPPINESS_BONUS_MINIMUM();
+				}
+			}
+			//If happiness is less than the main threshold, calculate city penalty mod.
+			else if(iHappiness < GC.getBALANCE_HAPPINESS_THRESHOLD_MAIN())
+			{
+				iHappiness = (GC.getBALANCE_HAPPINESS_THRESHOLD() - iHappiness);
+				//Are there minimums/maximums for the penalty? Restrict this value.
+				if(iHappiness > GC.getBALANCE_HAPPINESS_PENALTY_MAXIMUM())
+				{
+					iHappiness = GC.getBALANCE_HAPPINESS_PENALTY_MAXIMUM();
+				}
+				else if(iHappiness < GC.getBALANCE_HAPPINESS_PENALTY_MINIMUM())
+				{
+					iHappiness = GC.getBALANCE_HAPPINESS_PENALTY_MINIMUM();
+				}
+			}
+			else
+			{
+				iHappiness = 0;
+			}
+			iFaithPerTurn += (GC.getBALANCE_HAPPINESS_FAITH_MODIFIER() * iHappiness);
+		}
+	}
+#endif
+
 	return iFaithPerTurn;
 }
 
@@ -11018,12 +11135,25 @@ bool CvPlayer::IsEmpireUnhappy() const
 	{
 		return false;
 	}
-
+#if defined(MOD_BALANCE_CORE_YIELDS)
+	if(MOD_BALANCE_CORE_YIELDS)
+	{
+		//Mechanic to allow for varied effects of happiness/unhappiness.
+		if(GC.getBALANCE_HAPPINESS_EMPIRE_MOD() != -1)
+		{
+			//Mechanic to allow for varied effects of happiness/unhappiness.
+			if(GetExcessHappiness() < GC.getBALANCE_HAPPINESS_THRESHOLD_MAIN())
+			{
+				return true;
+			}
+		}
+	}
+#else
 	if(GetExcessHappiness() < 0)
 	{
 		return true;
 	}
-
+#endif
 	return false;
 }
 
@@ -11035,12 +11165,25 @@ bool CvPlayer::IsEmpireVeryUnhappy() const
 	{
 		return false;
 	}
-
+#if defined(MOD_BALANCE_CORE_YIELDS)
+	if(MOD_BALANCE_CORE_YIELDS)
+	{
+		//Mechanic to allow for varied effects of happiness/unhappiness.
+		if(GC.getBALANCE_HAPPINESS_EMPIRE_MOD() != -1)
+		{
+			//Mechanic to allow for varied effects of happiness/unhappiness.
+			if(GetExcessHappiness() <= (/*-10*/ GC.getVERY_UNHAPPY_THRESHOLD() + GC.getBALANCE_HAPPINESS_THRESHOLD_MAIN()))
+			{
+				return true;
+			}
+		}
+	}
+#else
 	if(GetExcessHappiness() <= /*-10*/ GC.getVERY_UNHAPPY_THRESHOLD())
 	{
 		return true;
 	}
-
+#endif
 	return false;
 }
 
@@ -11052,12 +11195,25 @@ bool CvPlayer::IsEmpireSuperUnhappy() const
 	{
 		return false;
 	}
-
+#if defined(MOD_BALANCE_CORE_YIELDS)
+	if(MOD_BALANCE_CORE_YIELDS)
+	{
+		//Mechanic to allow for varied effects of happiness/unhappiness.
+		if(GC.getBALANCE_HAPPINESS_EMPIRE_MOD() != -1)
+		{
+			//Mechanic to allow for varied effects of happiness/unhappiness.
+			if(GetExcessHappiness() <= (/*-20*/ GC.getSUPER_UNHAPPY_THRESHOLD() + GC.getBALANCE_HAPPINESS_THRESHOLD_MAIN()))
+			{
+				return true;
+			}
+		}
+	}
+#else
 	if(GetExcessHappiness() <= /*-20*/ GC.getSUPER_UNHAPPY_THRESHOLD())
 	{
 		return true;
 	}
-
+#endif
 	return false;
 }
 
@@ -18335,6 +18491,7 @@ int CvPlayer::GetScienceTimes100() const
 	}
 #endif
 
+
 	return max(iValue, 0);
 }
 
@@ -18377,7 +18534,13 @@ int CvPlayer::GetScienceFromOtherPlayersTimes100() const
 			iScience += iScienceFromPlayer;
 		}
 	}
-
+#if defined(MOD_BALANCE_CORE_YIELDS)
+	if(MOD_BALANCE_CORE_YIELDS)
+	{
+		int iTradeScience = GetPlayerTraits()->GetYieldChangePerTradePartner(YIELD_SCIENCE) * GetTrade()->GetNumDifferentTradingPartners();
+		iScience += (iTradeScience * 100);
+	}
+#endif
 	return iScience;
 }
 
@@ -19357,11 +19520,23 @@ void CvPlayer::changeNumResourceUsed(ResourceTypes eIndex, int iChange)
 	}
 
 	if(iChange > 0)
+#if defined(MOD_DIPLOMACY_CITYSTATES)
+	if (MOD_DIPLOMACY_CITYSTATES) 
+	{
+		//Don't announce for paper.
+		ResourceTypes ePaperResource = (ResourceTypes)GC.getInfoTypeForString("RESOURCE_PAPER", true);
+		if(eIndex != ePaperResource)
+		{
+#endif
 		DoTestOverResourceNotification(eIndex);
 
 	GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
 
 	CvAssert(m_paiNumResourceUsed[eIndex] >= 0);
+#if defined(MOD_DIPLOMACY_CITYSTATES) 
+		}
+	}
+#endif
 }
 
 //	--------------------------------------------------------------------------------
@@ -23633,6 +23808,9 @@ void CvPlayer::Read(FDataStream& kStream)
 	MOD_SERIALIZE_READ(49, kStream, m_iScienceRateFromLeagueAid, 0);
 	MOD_SERIALIZE_READ(49, kStream, m_iLeagueCultureCityModifier, 0);
 #endif
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	MOD_SERIALIZE_READ(51, kStream, m_iEscortID, 0);
+#endif
 	kStream >> m_iSpecialPolicyBuildingHappiness;
 	kStream >> m_iWoundedUnitDamageMod;
 	kStream >> m_iUnitUpgradeCostMod;
@@ -24211,6 +24389,9 @@ void CvPlayer::Write(FDataStream& kStream) const
 	MOD_SERIALIZE_WRITE(kStream, m_iScienceRateFromLeague);
 	MOD_SERIALIZE_WRITE(kStream, m_iScienceRateFromLeagueAid);
 	MOD_SERIALIZE_WRITE(kStream, m_iLeagueCultureCityModifier);
+#endif
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	MOD_SERIALIZE_WRITE(kStream, m_iEscortID);
 #endif
 	kStream << m_iSpecialPolicyBuildingHappiness;
 	kStream << m_iWoundedUnitDamageMod;

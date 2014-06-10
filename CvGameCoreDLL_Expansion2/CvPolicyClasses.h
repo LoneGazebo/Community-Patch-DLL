@@ -221,6 +221,9 @@ public:
 	int GetHurryModifier(int i) const;
 	bool IsSpecialistValid(int i) const;
 	int GetImprovementYieldChanges(int i, int j) const;
+#if defined(MOD_BALANCE_CORE_YIELDS)
+	int GetPlotYieldChanges(int i, int j) const;
+#endif
 	int GetBuildingClassYieldModifiers(int i, int j) const;
 	int GetBuildingClassYieldChanges(int i, int j) const;
 	int GetFlavorValue(int i) const;
@@ -420,6 +423,9 @@ private:
 	int** m_ppiBuildingClassYieldModifiers;
 	int** m_ppiBuildingClassYieldChanges;
 	int* m_piFlavorValue;
+#if defined(MOD_BALANCE_CORE_YIELDS)
+	int** m_ppiPlotYieldChanges;
+#endif
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

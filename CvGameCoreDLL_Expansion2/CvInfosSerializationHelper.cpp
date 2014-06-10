@@ -251,6 +251,9 @@ IMPLEMENT_SERIALIZATION_INFO_TYPE_HELPER(RouteTypes, getRouteInfo, NO_ROUTE);
 IMPLEMENT_SERIALIZATION_INFO_TYPE_HELPER(BuildTypes, getBuildInfo, NO_BUILD);
 IMPLEMENT_SERIALIZATION_INFO_TYPE_HELPER(ProcessTypes, getProcessInfo, NO_PROCESS);
 IMPLEMENT_SERIALIZATION_INFO_TYPE_HELPER(ImprovementTypes, getImprovementInfo, NO_IMPROVEMENT);
+#if defined(MOD_BALANCE_CORE_YIELDS)
+IMPLEMENT_SERIALIZATION_INFO_TYPE_HELPER(PlotTypes, getPlotInfo, NO_PLOT);
+#endif
 // Can't use this because nothing ever respects the values.  They are all hard-coded in the enum
 //IMPLEMENT_SERIALIZATION_INFO_TYPE_HELPER(UnitAITypes, getUnitAIInfo, NO_UNITAI);
 

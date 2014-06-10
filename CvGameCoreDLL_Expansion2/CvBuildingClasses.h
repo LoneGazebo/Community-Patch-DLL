@@ -165,6 +165,9 @@ public:
 	int GetGlobalCityWorkingChange() const;
 	int GetCityWorkingChange() const;
 #endif
+#if defined(MOD_BALANCE_CORE)
+	bool IsNoWater() const;
+#endif
 	int GetMinAreaSize() const;
 	int GetConquestProbability() const;
 	int GetHealRateChange() const;
@@ -267,7 +270,6 @@ public:
 	CvString GetThemingBonusHelp() const;
 
 	// Accessor Functions (Arrays)
-
 	int GetYieldChange(int i) const;
 	int* GetYieldChangeArray() const;
 	int GetYieldChangePerPop(int i) const;
@@ -311,6 +313,11 @@ public:
 	int GetHurryModifier(int i) const;
 	bool IsBuildingClassNeededInCity(int i) const;
 	int GetNumFreeUnits(int i) const;
+
+#if defined(MOD_BALANCE_CORE_YIELDS)
+	int GetPlotYieldChange(int i, int j) const;
+	int* GetPlotYieldChangeArray(int i) const;
+#endif
 
 	int GetResourceYieldChange(int i, int j) const;
 	int* GetResourceYieldChangeArray(int i) const;
@@ -469,6 +476,9 @@ private:
 #if defined(MOD_API_EXTENSIONS)
 	bool m_bAddsFreshWater;
 #endif
+#if defined(MOD_BALANCE_CORE)
+	bool m_bIsNoWater;
+#endif
 	bool m_bMountain;
 	bool m_bHill;
 	bool m_bFlat;
@@ -543,6 +553,9 @@ private:
 	int** m_ppaiTerrainYieldChange;
 	int** m_ppiBuildingClassYieldChanges;
 	int* m_paiBuildingClassHappiness;
+#if defined(MOD_BALANCE_CORE_YIELDS)
+	int** m_ppaiBuildingPlotYieldChange;
+#endif
 
 	CvThemingBonusInfo* m_paThemingBonusInfo;
 	int m_iNumThemingBonuses;
@@ -663,7 +676,6 @@ public:
 	int GetNumGreatWorks() const;
 #endif
 	int GetNumGreatWorks(GreatWorkSlotType eGreatWorkSlot) const;
-
 	int GetLandmarksTourismPercent() const;
 	void ChangeLandmarksTourismPercent(int iChange);
 	int GetGreatWorksTourismModifier() const;

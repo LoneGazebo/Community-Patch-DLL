@@ -145,6 +145,9 @@ CvBuildingEntry::CvBuildingEntry(void):
 #if defined(MOD_API_EXTENSIONS)
 	m_bAddsFreshWater(false),
 #endif
+#if defined(MOD_BALANCE_CORE)
+	m_bIsNoWater(false),
+#endif
 	m_bMountain(false),
 	m_bHill(false),
 	m_bFlat(false),
@@ -210,6 +213,9 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_ppiBuildingClassYieldChanges(NULL),
 	m_paiBuildingClassHappiness(NULL),
 	m_paThemingBonusInfo(NULL),
+#if defined(MOD_BALANCE_CORE_YIELDS)
+	m_ppaiBuildingPlotYieldChange(NULL),
+#endif
 	m_iNumThemingBonuses(0)
 {
 }
@@ -256,6 +262,12 @@ CvBuildingEntry::~CvBuildingEntry(void)
 	CvDatabaseUtility::SafeDelete2DArray(m_ppaiResourceYieldModifier);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppaiTerrainYieldChange);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiBuildingClassYieldChanges);
+#if defined(MOD_BALANCE_CORE_YIELDS)
+	if(MOD_BALANCE_CORE_YIELDS)
+	{
+		CvDatabaseUtility::SafeDelete2DArray(m_ppaiBuildingPlotYieldChange);
+	}
+#endif
 }
 
 /// Read from XML file
@@ -274,6 +286,11 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 #if defined(MOD_API_EXTENSIONS)
 	if (MOD_API_EXTENSIONS) {
 		m_bAddsFreshWater = kResults.GetBool("AddsFreshWater");
+	}
+#endif
+#if defined(MOD_BALANCE_CORE)
+	if(MOD_BALANCE_CORE){
+	m_bIsNoWater = kResults.GetBool("IsNoWater");
 	}
 #endif
 	m_bMountain = kResults.GetBool("Mountain");
@@ -597,6 +614,31 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 			m_ppaiTerrainYieldChange[TerrainID][YieldID] = yield;
 		}
 	}
+#if defined(MOD_BALANCE_CORE_YIELDS)
+	if (MOD_BALANCE_CORE_YIELDS)
+	//PlotYieldChanges
+	{
+		kUtility.Initialize2DArray(m_ppaiBuildingPlotYieldChange, "Plots", "Yields");
+
+		std::string strKey("Building_PlotYieldChanges");
+		Database::Results* pResults = kUtility.GetResults(strKey);
+		if(pResults == NULL)
+		{
+			pResults = kUtility.PrepareResults(strKey, "select Plots.ID as PlotID, Yields.ID as YieldID, Yield from Building_PlotYieldChanges inner join Plots on Plots.Type = PlotType inner join Yields on Yields.Type = YieldType where BuildingType = ?");
+		}
+
+		pResults->Bind(1, szBuildingType);
+
+		while(pResults->Step())
+		{
+			const int PlotID = pResults->GetInt(0);
+			const int YieldID = pResults->GetInt(1);
+			const int yield = pResults->GetInt(2);
+
+			m_ppaiBuildingPlotYieldChange[PlotID][YieldID] = yield;
+		}
+	}
+#endif
 
 	//SpecialistYieldChanges
 	{
@@ -2105,6 +2147,33 @@ int CvBuildingEntry::GetBuildingClassHappiness(int i) const
 	CvAssertMsg(i > -1, "Index out of bounds");
 	return m_paiBuildingClassHappiness ? m_paiBuildingClassHappiness[i] : -1;
 }
+
+#if defined(MOD_BALANCE_CORE)
+/// Does a city need to lack fresh water?
+bool CvBuildingEntry::IsNoWater() const
+{
+	return m_bIsNoWater;
+}
+#endif
+
+#if defined(MOD_BALANCE_CORE_YIELDS)
+/// Change to yield by plot
+int CvBuildingEntry::GetPlotYieldChange(int i, int j) const
+{
+	CvAssertMsg(i < GC.getNumPlotInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	CvAssertMsg(j < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(j > -1, "Index out of bounds");
+	return m_ppaiBuildingPlotYieldChange ? m_ppaiBuildingPlotYieldChange[i][j] : -1;
+}
+/// Array of changes to Feature yield
+int* CvBuildingEntry::GetPlotYieldChangeArray(int i) const
+{
+	CvAssertMsg(i < GC.getNumPlotInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_ppaiBuildingPlotYieldChange[i];
+}
+#endif
 
 CvThemingBonusInfo *CvBuildingEntry::GetThemingBonusInfo(int i) const
 {

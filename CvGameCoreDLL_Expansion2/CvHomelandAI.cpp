@@ -1489,6 +1489,18 @@ void CvHomelandAI::PlotPatrolMoves()
 		UnitHandle pUnit = m_pPlayer->getUnit(*it);
 		if(pUnit && !pUnit->isHuman() && pUnit->getDomainType() != DOMAIN_AIR && !pUnit->isTrade())
 		{
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	if (MOD_BALANCE_CORE_MILITARY) 
+	{
+			//Patrolling is pointless.
+			if(pUnit->canFortify(pUnit->plot()) && !pUnit->isEmbarked())
+			{
+				pUnit->PushMission(CvTypes::getMISSION_FORTIFY());
+			}
+		}
+	}
+	}
+#else
 			CvPlot* pTarget = FindPatrolTarget(pUnit.pointer());
 			if(pTarget)
 			{
@@ -1508,7 +1520,7 @@ void CvHomelandAI::PlotPatrolMoves()
 			}
 		}
 	}
-
+#endif
 	if(m_CurrentMoveUnits.size() > 0)
 	{
 		ExecutePatrolMoves();
@@ -2409,6 +2421,186 @@ void CvHomelandAI::ExecuteFirstTurnSettlerMoves()
 		UnitHandle pUnit = m_pPlayer->getUnit(it->GetID());
 		if(pUnit)
 		{
+#if defined(MOD_BALANCE_CORE_SETTLER)
+			if (MOD_BALANCE_CORE_SETTLER) 
+			{
+				//Let's not try this too much. Two turns is enough.
+				if(GC.getGame().getGameTurn() <= 2)
+				{
+					int iInitialPlotValue = 0;
+					int iAdjacentValue = 0;
+					CvPlot* pBestAdjacentPlot = NULL;
+					//Let's check for a river, coast and mountains within one hex. If all there, break, you fool!
+					if(pUnit->plot()->isFreshWater() && pUnit->plot()->isCoastalLand() && (pUnit->plot()->GetNumAdjacentMountains() > 0))
+					{
+						pUnit->PushMission(CvTypes::getMISSION_FOUND());
+						UnitProcessed(pUnit->GetID());
+						if(GC.getLogging() && GC.getAILogging())
+						{
+							CvString strLogString;
+							strLogString.Format("Founded city at starting location as it is great, X: %d, Y: %d", pUnit->getX(), pUnit->getY());
+							LogHomelandMessage(strLogString);
+							break;
+						}
+					}
+					else if(!pUnit->plot()->isFreshWater() || !pUnit->plot()->isCoastalLand() || (pUnit->plot()->GetNumAdjacentMountains() <= 0))
+					{
+						iInitialPlotValue = GC.getGame().GetSettlerSiteEvaluator()->PlotFoundValue(pUnit->plot(), m_pPlayer, NO_YIELD, false);
+
+						for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+						{
+							CvPlot* pAdjacentPlot = plotDirection(pUnit->getX(), pUnit->getY(), ((DirectionTypes)iI));
+							if(pAdjacentPlot != NULL && pUnit->canFound(pAdjacentPlot))
+							{
+								iAdjacentValue = GC.getGame().GetSettlerSiteEvaluator()->PlotFoundValue(pAdjacentPlot, m_pPlayer, NO_YIELD, false);
+								if(iAdjacentValue > iInitialPlotValue)
+								{
+									iInitialPlotValue = iAdjacentValue;
+									pBestAdjacentPlot = pAdjacentPlot;
+								}
+							}
+						}
+						if(pBestAdjacentPlot != NULL)
+						{
+							pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestAdjacentPlot->getX(), pBestAdjacentPlot->getY());
+							if(pUnit->plot() == pBestAdjacentPlot && (pUnit->getMoves() > 0))
+							{
+								pUnit->PushMission(CvTypes::getMISSION_FOUND());
+								UnitProcessed(pUnit->GetID());
+								if(GC.getLogging() && GC.getAILogging())
+								{
+									CvString strLogString;
+									strLogString.Format("Founded city at adjacent site, as it is superior. X: %d, Y: %d", pUnit->getX(), pUnit->getY());
+									LogHomelandMessage(strLogString);
+									break;
+								}
+							}
+							//Couldn't get there and found in one move? That's okay - it is better to lose a turn or two early on than to be in a bad spot.
+							else
+							{
+								UnitProcessed(pUnit->GetID());
+								if(GC.getLogging() && GC.getAILogging())
+								{
+									CvString strLogString;
+									strLogString.Format("Moved to superior starting site. Wish me luck! X: %d, Y: %d", pUnit->getX(), pUnit->getY());
+									LogHomelandMessage(strLogString);
+									break;
+								}
+							}
+						}
+						else
+						{
+							pUnit->PushMission(CvTypes::getMISSION_FOUND());
+							UnitProcessed(pUnit->GetID());
+							if(GC.getLogging() && GC.getAILogging())
+							{
+								CvString strLogString;
+								strLogString.Format("Founded city at this location as it is the best we can do, X: %d, Y: %d", pUnit->getX(), pUnit->getY());
+								LogHomelandMessage(strLogString);
+								break;
+							}
+						}
+					}
+					else
+					{
+						pUnit->PushMission(CvTypes::getMISSION_FOUND());
+						UnitProcessed(pUnit->GetID());
+						if(GC.getLogging() && GC.getAILogging())
+						{
+							CvString strLogString;
+							strLogString.Format("Founded city at base spot as the adjacent test was invalid, X: %d, Y: %d", pUnit->getX(), pUnit->getY());
+							LogHomelandMessage(strLogString);
+						}
+					}
+				}
+				else
+				{
+					int iInitialPlotValue = 0;
+					int iAdjacentValue = 0;
+					CvPlot* pBestAdjacentPlot = NULL;
+					if(pUnit->canFound(pUnit->plot()))
+					{
+						pUnit->PushMission(CvTypes::getMISSION_FOUND());
+						UnitProcessed(pUnit->GetID());
+						if(GC.getLogging() && GC.getAILogging())
+						{
+							CvString strLogString;
+							strLogString.Format("Founded city because we are out of time, X: %d, Y: %d", pUnit->getX(), pUnit->getY());
+							LogHomelandMessage(strLogString);
+							break;
+						}
+					}
+					else
+					{
+						iInitialPlotValue = GC.getGame().GetSettlerSiteEvaluator()->PlotFoundValue(pUnit->plot(), m_pPlayer, NO_YIELD, false);
+
+						for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+						{
+							CvPlot* pAdjacentPlot = plotDirection(pUnit->getX(), pUnit->getY(), ((DirectionTypes)iI));
+							if(pAdjacentPlot != NULL)
+							{
+								iAdjacentValue = GC.getGame().GetSettlerSiteEvaluator()->PlotFoundValue(pAdjacentPlot, m_pPlayer, NO_YIELD, false);
+								if(iAdjacentValue > iInitialPlotValue)
+								{
+									iInitialPlotValue = iAdjacentValue;
+									pBestAdjacentPlot = pAdjacentPlot;
+								}
+							}
+						}
+						if(pBestAdjacentPlot != NULL)
+						{
+							pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestAdjacentPlot->getX(), pBestAdjacentPlot->getY());
+							if(pUnit->plot() == pBestAdjacentPlot && (pUnit->getMoves() > 0))
+							{
+								if(pUnit->canFound(pBestAdjacentPlot))
+								{
+									pUnit->PushMission(CvTypes::getMISSION_FOUND());
+									UnitProcessed(pUnit->GetID());
+									if(GC.getLogging() && GC.getAILogging())
+									{
+										CvString strLogString;
+										strLogString.Format("Founded city at adjacent site, as we are out of time. X: %d, Y: %d", pUnit->getX(), pUnit->getY());
+										LogHomelandMessage(strLogString);
+										break;
+									}
+								}
+								else
+								{
+									UnitProcessed(pUnit->GetID());
+									if(GC.getLogging() && GC.getAILogging())
+									{
+										CvString strLogString;
+										strLogString.Format("Moved to superior starting site. Trying to hurry! X: %d, Y: %d", pUnit->getX(), pUnit->getY());
+										LogHomelandMessage(strLogString);
+										break;
+									}
+								}
+							}
+						}
+						else
+						{
+							for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+							{
+								CvPlot* pAdjacentPlot = plotDirection(pUnit->getX(), pUnit->getY(), ((DirectionTypes)iI));
+								if(pAdjacentPlot != NULL && !pAdjacentPlot->isWater() && !pAdjacentPlot->isImpassable())
+								{
+									pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pAdjacentPlot->getX(), pAdjacentPlot->getY());
+									UnitProcessed(pUnit->GetID());
+									if(GC.getLogging() && GC.getAILogging())
+									{
+										CvString strLogString;
+										strLogString.Format("Things aren't looking good for us! Scramble! X: %d, Y: %d", pUnit->getX(), pUnit->getY());
+										LogHomelandMessage(strLogString);
+										break;
+									}
+									break;
+								}
+							}
+						}
+					}
+				}
+			}
+#else
 			pUnit->PushMission(CvTypes::getMISSION_FOUND());
 			UnitProcessed(pUnit->GetID());
 			if(GC.getLogging() && GC.getAILogging())
@@ -2417,6 +2609,7 @@ void CvHomelandAI::ExecuteFirstTurnSettlerMoves()
 				strLogString.Format("Founded city at, X: %d, Y: %d", pUnit->getX(), pUnit->getY());
 				LogHomelandMessage(strLogString);
 			}
+#endif
 		}
 	}
 }

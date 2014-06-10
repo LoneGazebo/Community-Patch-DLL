@@ -70,6 +70,7 @@ protected:
 	int m_iMorrocoMultiplier;
 	int m_iNetherlandsMultiplier;
 	int m_iIncaMultiplier;
+
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

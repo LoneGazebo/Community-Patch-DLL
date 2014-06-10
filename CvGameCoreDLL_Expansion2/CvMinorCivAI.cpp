@@ -2095,7 +2095,7 @@ bool CvMinorCivQuest::DoFinishQuest()
 		{
 			pMinor->GetMinorCivAI()->SetTurnsSinceRebellion(0);
 			pMinor->GetMinorCivAI()->SetHordeActive(false);
-			pMinor->GetMinorCivAI()->SetCooldownSpawn(50);
+			pMinor->GetMinorCivAI()->SetCooldownSpawn(30);
 		}
 
 		//Update Military AI
@@ -2116,7 +2116,7 @@ bool CvMinorCivQuest::DoFinishQuest()
 		{
 			pMinor->GetMinorCivAI()->SetTurnsSinceRebellion(0);
 			pMinor->GetMinorCivAI()->SetRebellionActive(false);
-			pMinor->GetMinorCivAI()->SetCooldownSpawn(50);
+			pMinor->GetMinorCivAI()->SetCooldownSpawn(30);
 		}
 	
 		//Update Military AI
@@ -2514,6 +2514,10 @@ void CvMinorCivAI::Reset()
 		m_bIsHordeActive = 0;
 		m_iCooldownSpawn = 0;
 #endif
+#if defined(MOD_BALANCE_CORE_MINORS)
+		m_abIsJerk[iI] = false;
+		m_aiJerk[iI] = 0;
+#endif
 	}
 
 	for(iI = 0; iI < REALLY_MAX_TEAMS; iI++)
@@ -2894,6 +2898,24 @@ void CvMinorCivAI::DoTurn()
 				}
 			}
 		}
+#endif
+#if defined(MOD_BALANCE_CORE_MINORS)
+	if (MOD_BALANCE_CORE_MINORS) 
+	{
+		TeamTypes eLoopTeam;
+		for(int iTeamLoop = 0; iTeamLoop < REALLY_MAX_TEAMS; iTeamLoop++)
+		{
+			eLoopTeam = (TeamTypes) iTeamLoop;
+			if(IsJerk(eLoopTeam))
+			{
+				ChangeJerk(eLoopTeam, -1);
+				if(GetJerk(eLoopTeam) <= 0)
+				{
+					SetIsJerk(eLoopTeam, false);
+				}
+			}
+		}
+	}
 #endif
 	}
 }
@@ -5187,11 +5209,10 @@ bool CvMinorCivAI::IsValidQuestForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes
 	// Rebellion!
 	else if(eQuest == MINOR_CIV_QUEST_REBELLION)
 	{
-		if(!GetPlayer()->GetMinorCivAI()->IsAllies(ePlayer))
+		if(GC.getGame().isOption(GAMEOPTION_NO_BARBARIANS))
 		{
 			return false;
 		}
-
 		if(SpawnRebels() == NO_PLAYER)
 		{
 			return false;
@@ -5734,12 +5755,6 @@ int CvMinorCivAI::GetPersonalityQuestBias(MinorCivQuestTypes eQuest)
 			iCount /= 100;
 		}
 	}
-	// Rebellion!
-	else if(eQuest == MINOR_CIV_QUEST_REBELLION)
-	{
-		iCount *= GC.getQUEST_REBELLION_FREQUENCY();
-		iCount /= 100;
-	}
 #endif
 
 	// ******************
@@ -5829,6 +5844,13 @@ int CvMinorCivAI::GetPersonalityQuestBias(MinorCivQuestTypes eQuest)
 	else if(eQuest == MINOR_CIV_QUEST_HORDE)
 	{
 		iCount *= GC.getBARBARIAN_HORDE_FREQUENCY();
+		iCount /= 100;
+	}
+
+	// Rebellion!
+	else if(eQuest == MINOR_CIV_QUEST_REBELLION)
+	{
+		iCount *= GC.getQUEST_REBELLION_FREQUENCY();
 		iCount /= 100;
 	}
 #endif
@@ -7931,6 +7953,20 @@ int CvMinorCivAI::GetFriendshipAnchorWithMajor(PlayerTypes eMajor)
 	{
 		iAnchor += GC.getMINOR_FRIENDSHIP_ANCHOR_MOD_WARY_OF();
 	}
+#if defined(MOD_BALANCE_CORE_MINORS)
+	if (MOD_BALANCE_CORE_MINORS) 
+	{
+		//Anchor reduced by 10 based on num minor civs attacked. Only counts for CSs not allied to or friends with.
+		int iAttacks = GET_TEAM(pMajor->getTeam()).GetNumMinorCivsAttacked();
+		if (iAttacks > 0)
+		{
+			if(!IsFriends(pMajor->GetID()) || !IsAllies(pMajor->GetID()))
+			{
+				iAnchor += (GC.getBALANCE_MINOR_ANCHOR_ATTACK() /*-10*/ * iAttacks);
+			}
+		}
+	}
+#endif
 
 	// Social Policies
 	iAnchor += pMajor->GetMinorFriendshipAnchorMod();
@@ -8316,8 +8352,22 @@ void CvMinorCivAI::DoFriendshipChangeEffects(PlayerTypes ePlayer, int iOldFriend
 
 	// If we are Friends now, mark that we've been Friends at least once this game
 	if(bNowAboveFriendsThreshold)
-		SetEverFriends(ePlayer, true);
+#if defined(MOD_BALANCE_CORE_MINORS)
+		if (MOD_BALANCE_CORE_MINORS) 
+		{
+			//Small Possibility of reducing # of minor civs attacked via friendship the first time we become friends with them.
+			if(!IsEverFriends(ePlayer) && (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetNumMinorCivsAttacked() > 0))
+			{
+				int iForgive = GC.getGame().getJonRandNum(100, "Rand turns for Minor forgiveness");
+				if(iForgive > GC.getBALANCE_CS_FORGIVENESS_CHANCE())
+				{
+					GET_TEAM(GET_PLAYER(ePlayer).getTeam()).ChangeNumMinorCivsAttacked(-1);
+				}
+			}
+		}
+#endif
 
+		SetEverFriends(ePlayer, true);
 	// Add Friends Bonus
 	if(!bWasAboveFriendsThreshold && bNowAboveFriendsThreshold)
 	{
@@ -11711,6 +11761,16 @@ bool CvMinorCivAI::IsPeaceBlocked(TeamTypes eTeam) const
 	if(IsPermanentWar(eTeam))
 		return true;
 
+#if defined(MOD_BALANCE_CORE_MINORS)
+	if (MOD_BALANCE_CORE_MINORS) 
+	{
+		if(IsJerk(eTeam))
+		{
+			return true;
+		}
+	}
+#endif
+
 	// Allies with someone at war with this guy?
 	PlayerTypes eMajor;
 	for(int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
@@ -11911,6 +11971,13 @@ void CvMinorCivAI::DoTeamDeclaredWarOnMe(TeamTypes eEnemyTeam)
 			AddNotification(strMessage, strSummary, eEnemyMajorLoop);
 		}
 	}
+#if defined(MOD_BALANCE_CORE_MINORS)
+	if(MOD_BALANCE_CORE_MINORS) 
+	{
+		SetIsJerk(eEnemyTeam, true);
+		SetJerk(eEnemyTeam, /*30*/ GC.getBALANCE_CS_WAR_COOLDOWN_RATE());
+	}
+#endif
 
 	GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
 }
@@ -11958,7 +12025,45 @@ void CvMinorCivAI::SetWaryOfTeam(TeamTypes eTeam, bool bValue)
 
 	m_abWaryOfTeam[eTeam] = bValue;
 }
+#if defined(MOD_BALANCE_CORE_MINORS)
+//Did you attack me FOR NO REASON? JERK!
+bool CvMinorCivAI::IsJerk(TeamTypes eTeam) const
+{
+	CvAssertMsg(eTeam >= 0, "ePlayer is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eTeam < REALLY_MAX_TEAMS, "ePlayer is expected to be within maximum bounds (invalid Index)");
+	if(eTeam < 0 || eTeam >= REALLY_MAX_TEAMS) return 0;  // as defined in Reset()
+	return m_abIsJerk[eTeam];
+}
 
+void CvMinorCivAI::SetIsJerk(TeamTypes eTeam, bool bValue)
+{
+	CvAssertMsg(eTeam >= 0, "ePlayer is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eTeam < REALLY_MAX_TEAMS, "ePlayer is expected to be within maximum bounds (invalid Index)");
+	if(m_abIsJerk[eTeam] != bValue)
+	{
+		m_abIsJerk[eTeam] = bValue;
+	}
+}
+
+//JERK COOLDOWN RATE
+
+void CvMinorCivAI::ChangeJerk(TeamTypes eTeam, int iChange)
+{
+	SetJerk(eTeam, GetJerk(eTeam) + iChange);
+}
+int CvMinorCivAI::GetJerk(TeamTypes eTeam) const
+{
+	CvAssertMsg(eTeam >= 0, "ePlayer is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eTeam < MAX_CIV_TEAMS, "ePlayer is expected to be within maximum bounds (invalid Index)");
+	if(eTeam < 0 || eTeam >= MAX_CIV_TEAMS) return 0;  // as defined in Reset()
+	return m_aiJerk[eTeam];
+}
+void CvMinorCivAI::SetJerk(TeamTypes eTeam, int iValue)
+{
+	if(GetJerk(eTeam) != iValue)
+		m_aiJerk[eTeam] = iValue;
+}
+#endif
 
 // ******************************
 // ***** Misc Helper Functions *****

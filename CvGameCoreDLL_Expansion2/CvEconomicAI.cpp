@@ -4167,6 +4167,16 @@ bool EconomicAIHelpers::IsTestStrategy_ExpandToOtherContinents(CvPlayer* pPlayer
 			return false;
 		}
 	}
+#if defined(MOD_BALANCE_CORE_SETTLER)
+	if (MOD_BALANCE_CORE_SETTLER) 
+	{
+		//Simple test - as the game goes along we should want to do this less and less.
+		if(GC.getGame().getCurrentEra() > (pPlayer->getNumCities() + 3))
+		{
+			return false;
+		}
+	}
+#endif
 
 	if(pPlayer->getCapitalCity() != NULL)
 	{
@@ -4225,7 +4235,16 @@ bool EconomicAIHelpers::IsTestStrategy_ReallyExpandToOtherContinents(CvPlayer* p
 			}
 		}
 	}
-
+#if defined(MOD_BALANCE_CORE_SETTLER)
+	if (MOD_BALANCE_CORE_SETTLER) 
+	{
+		//Simple test - as the game goes along we should want to do this less and less.
+		if(GC.getGame().getCurrentEra() > (pPlayer->getNumCities() + 2))
+		{
+			return false;
+		}
+	}
+#endif
 	int iFlavorGrowth = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GROWTH"));
 	int iFlavorExpansion = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_EXPANSION"));
 
@@ -4530,7 +4549,7 @@ int EconomicAIHelpers::IsTestStrategy_ScoreDiplomats(CvPlayer* pPlayer)
 
 		int iCSDistaste = /*7*/ GC.getNEED_DIPLOMAT_DISTASTE_MODIFIER() - iFlavorDiplo; //Lack of desire. Lower is better for diplo. If negative, counts as zero.
 
-		int	iThreshold = iNumCities * /*125*/ GC.getNEED_DIPLOMAT_THRESHOLD_MODIFIER() / 100; //This is the baseline threshold: Number of city-states in-game increases baseline. Changing Global value decreases diplomatic competitiveness.
+		int	iThreshold = iNumCities * /*135*/ GC.getNEED_DIPLOMAT_THRESHOLD_MODIFIER() / 100; //This is the baseline threshold: Number of city-states in-game increases baseline. Changing Global value decreases diplomatic competitiveness.
 
 		//The Minor/Major Loop Tests
 		// Loop through all minors and majors to get our relations with them.

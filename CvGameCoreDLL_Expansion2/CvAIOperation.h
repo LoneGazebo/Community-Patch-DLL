@@ -45,6 +45,9 @@ enum AIOperationTypes
 	AI_OPERATION_DIPLOMAT_DELEGATION,
 	AI_OPERATION_ALLY_DEFENSE,
 #endif
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	AI_OPERATION_NAVAL_INVASION_ESCORT,
+#endif
     NUM_AI_OPERATIONS,
 };
 
@@ -1012,6 +1015,57 @@ protected:
 	virtual CvPlot* FindBestTarget();
 };
 
+#if defined(MOD_BALANCE_CORE_MILITARY)
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//  CLASS:      CvAINavalEscortedInvasionOperation
+//!  \brief		Try to escort a naval invasion
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+class CvAINavalEscortedInvasionOperation : public CvAINavalEscortedOperation
+{
+public:
+
+	CvAINavalEscortedInvasionOperation();
+	virtual ~CvAINavalEscortedInvasionOperation();
+
+	virtual void Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, int iDefaultArea = -1, CvCity* pTarget = NULL, CvCity* pMuster = NULL);
+	virtual void Read(FDataStream& kStream);
+	virtual void Write(FDataStream& kStream) const;
+
+	virtual int GetOperationType() const
+	{
+		return AI_OPERATION_NAVAL_INVASION_ESCORT;
+	}
+
+	virtual CvString GetOperationName() const
+	{
+		return CvString("AI_OPERATION_NAVAL_INVASION_ESCORT");
+	}
+
+	virtual MultiunitFormationTypes GetFormation() const
+	{
+		return MUFORMATION_NAVAL_ESCORT;
+	}
+
+	virtual CvPlot* GetOperationStartPlot(CvUnit* pUnit);
+	virtual bool IsMixedLandNavalOperation() const
+	{
+		return false;
+	};
+
+	virtual bool ArmyInPosition(CvArmyAI* pArmy);
+	virtual CvUnit* FindBestArmyUnit();
+	virtual void SetBestArmy(int iValue);
+	virtual int GetBestArmy();
+	virtual bool RetargetEscort(CvArmyAI* pArmy);
+	
+
+protected:
+	CvPlot* FindBestTarget();
+	int m_iInitialAreaID;
+	int m_iBestArmyID;
+};
+#endif
+
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  CLASS:      CvAIOperationNavalSneakAttack
 //!  \brief		Same as basic naval attack except allowed when not at war
@@ -1103,7 +1157,6 @@ protected:
 
 	int m_iBestUnitID;
 };
-
 
 namespace OperationalAIHelpers
 {
