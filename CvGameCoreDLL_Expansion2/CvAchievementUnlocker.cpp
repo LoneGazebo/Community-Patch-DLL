@@ -31,6 +31,7 @@ int CvAchievementUnlocker::ms_iNumImprovementsPillagedPerTurn = 0;
 //	Test the conditions for the ACHIEVEMENT_PSG
 bool CvAchievementUnlocker::Check_PSG()
 {
+#if !defined(NO_ACHIEVEMENTS)
 	const int PSG_STAT_MATCH_VALUE = 100;
 
 	int32 iGeneralsStat = 0;
@@ -46,15 +47,18 @@ bool CvAchievementUnlocker::Check_PSG()
 			return true;
 		}
 	}
+#endif
 	return false;
 }
 //------------------------------------------------------------------------------
 void CvAchievementUnlocker::FarmImprovementPillaged()
 {
+#if !defined(NO_ACHIEVEMENTS)
 	ms_iNumImprovementsPillagedPerTurn++;
 
 	if(ms_iNumImprovementsPillagedPerTurn >= 9)
 		gDLL->UnlockAchievement(ACHIEVEMENT_SCENARIO_04_PILLAGE);
+#endif
 }
 //------------------------------------------------------------------------------
 void CvAchievementUnlocker::EndTurn()
@@ -66,6 +70,7 @@ void CvAchievementUnlocker::EndTurn()
 //------------------------------------------------------------------------------
 void CvAchievementUnlocker::AlexanderConquest(PlayerTypes ePlayer)
 {
+#if !defined(NO_ACHIEVEMENTS)
 	//Test For Alexander Conquest
 	CvGame& kGame = GC.getGame();
 	if (ePlayer == kGame.getActivePlayer())
@@ -96,7 +101,91 @@ void CvAchievementUnlocker::AlexanderConquest(PlayerTypes ePlayer)
 			}
 		}
 	}
+#endif
 }
+
+#if defined(ACHIEVEMENT_HACKS)
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+
+void CvAchievementUnlocker::UnlockFromDatabase()
+{
+	GUID guid;
+
+	ExtractGUID("7459BA32-5764-44ae-8E95-01AD0E0EFD48", guid);
+	bool bDLC_DX = gDLL->IsDLCValid(guid); if (bDLC_DX) CUSTOMLOG("Found DLC Deluxe");
+	ExtractGUID("293C1EE3-1176-44f6-AC1F-59663826DE74", guid);
+	bool bDLC_01 = gDLL->IsDLCValid(guid); if (bDLC_01) CUSTOMLOG("Found DLC 1");
+	ExtractGUID("B685D5DE-7CCA-4e75-81B4-2F60754E6330", guid);
+	bool bDLC_02 = gDLL->IsDLCValid(guid); if (bDLC_02) CUSTOMLOG("Found DLC 2");
+	ExtractGUID("ECF7C605-BA11-4CAC-8D80-D71306AAC471", guid);
+	bool bDLC_03 = gDLL->IsDLCValid(guid); if (bDLC_03) CUSTOMLOG("Found DLC 3");
+	ExtractGUID("B3030D39-C0D8-4bc7-91B1-7AD1CAF585AB", guid);
+	bool bDLC_04 = gDLL->IsDLCValid(guid); if (bDLC_04) CUSTOMLOG("Found DLC 4");
+	ExtractGUID("112C22B2-5308-42b6-B734-171CCAB3037B", guid);
+	bool bDLC_05 = gDLL->IsDLCValid(guid); if (bDLC_05) CUSTOMLOG("Found DLC 5");
+	ExtractGUID("BBB0D085-A0B1-4475-B007-3E549CF3ADC3", guid);
+	bool bDLC_06 = gDLL->IsDLCValid(guid); if (bDLC_06) CUSTOMLOG("Found DLC 6");
+	ExtractGUID("EA67AED5-5859-4875-BF3A-360FE9E55D1B", guid);
+	bool bDLC_07 = gDLL->IsDLCValid(guid); if (bDLC_07) CUSTOMLOG("Found DLC 7");
+	ExtractGUID("0E3751A1-F840-4e1b-9706-519BF484E59D", guid);
+	bool bEXP_01 = gDLL->IsDLCValid(guid); if (bEXP_01) CUSTOMLOG("Found G&K");
+	ExtractGUID("6DA07636-4123-4018-B643-6575B4EC336B", guid);
+	bool bEXP_02 = gDLL->IsDLCValid(guid); if (bEXP_02) CUSTOMLOG("Found BNW");
+
+	for (int iAchievement = 0; iAchievement < NUM_ACHIEVEMENTS; iAchievement++) {
+		EAchievement eAchievement = (EAchievement) iAchievement;
+
+		// Multiplayer achievements - can't have these!
+		if (eAchievement == ACHIEVEMENT_WIN_MULTIPLAYER)
+			continue;
+
+		// Broken achievements - can't have these!
+		if (   eAchievement == ACHIEVEMENT_HUNDRED_WAR
+		    || eAchievement == ACHIEVEMENT_CATFIGHT
+		    || eAchievement == ACHIEVEMENT_MANIFEST_DESTINY
+		    || eAchievement == ACHIEVEMENT_UNIT_20BATTLES
+		    || eAchievement == ACHIEVEMENT_ALL_WAR
+		    || eAchievement == ACHIEVEMENT_PEACEFULPLAY
+		    || eAchievement == ACHIEVEMENT_LOSE_MULTIPLAYER
+		    || eAchievement == ACHIEVEMENT_SIX_DEGREES
+		    || eAchievement == ACHIEVEMENT_DEFPACT
+		    || eAchievement == ACHIEVEMENT_RESEARCHPACT
+		    || eAchievement == ACHIEVEMENT_SPECIAL_ELEPHANTBATTLE
+		    || eAchievement == ACHIEVEMENT_CIVILOPEDIA
+		    || eAchievement == ACHIEVEMENT_SPECIAL_HWATCH_OUT
+		    || eAchievement == ACHIEVEMENT_SCENARIO_05_QING_TAKES_MING
+		    || eAchievement == ACHIEVEMENT_SPECIAL_ANCIENT_WONDERS
+		    || eAchievement == ACHIEVEMENT_XP1_49)
+			continue;
+
+		// DLC/Expansion achievements - can only have these if own the DLC/Expansion
+		if (   (eAchievement >= ACHIEVEMENT_WIN_NEBUCHADNEZZAR && eAchievement <= ACHIEVEMENT_WIN_NEBUCHADNEZZAR && !bDLC_DX)
+		    || (eAchievement >= ACHIEVEMENT_WIN_GENGHIS && eAchievement <= ACHIEVEMENT_LOSE_SCENARIO_01 && !bDLC_01)
+		    || (eAchievement >= ACHIEVEMENT_WIN_ISABELLA && eAchievement <= ACHIEVEMENT_SCENARIO_02_RETURN_TREASURE && !(bDLC_02 || bDLC_07))
+		    || (eAchievement >= ACHIEVEMENT_WIN_KAMEHAMEHA && eAchievement <= ACHIEVEMENT_SCENARIO_03_FIND_NEW_ZEALAND && !bDLC_03)
+		    || (eAchievement >= ACHIEVEMENT_WIN_BLUETOOTH && eAchievement <= ACHIEVEMENT_SCENARIO_04_WIN_DEITY && !bDLC_04)
+		    || (eAchievement >= ACHIEVEMENT_WIN_SEJONG && eAchievement <= ACHIEVEMENT_SCENARIO_05_QING_TAKES_MING && !bDLC_05)
+		    || (eAchievement >= ACHIEVEMENT_SPECIAL_ROME_GETS_ZEUS && eAchievement <= ACHIEVEMENT_SCENARIO_06_ORACLE_CONSULT && !bDLC_06)
+		    || (eAchievement >= ACHIEVEMENT_XP1_01 && eAchievement <= ACHIEVEMENT_XP1_52 && !bEXP_01)
+		    || (eAchievement >= ACHIEVEMENT_XP2_01 && eAchievement <= ACHIEVEMENT_XP2_60 && !bEXP_02))
+			continue;
+
+		CvAchievementInfo* achievementInfo = GC.getAchievementInfo(eAchievement);
+
+		if(achievementInfo == NULL)
+			continue;
+
+		if (achievementInfo->isAchieved()) {
+			if (!gDLL->IsAchievementUnlocked(eAchievement)) {
+				CUSTOMLOG("Unlocking: %i", eAchievement);
+				gDLL->UnlockAchievement(eAchievement);
+			}
+		}
+	}
+}
+#endif
+
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 CvPlayerAchievements::CvPlayerAchievements(const CvPlayer& kPlayer)
@@ -125,6 +214,7 @@ CvPlayerAchievements::CvPlayerAchievements(const CvPlayer& kPlayer)
 //------------------------------------------------------------------------------
 void CvPlayerAchievements::AlliedWithCityState(PlayerTypes eNewCityStateAlly)
 {
+#if !defined(NO_ACHIEVEMENTS)
 	if(m_kPlayer.GetID() != GC.getGame().getActivePlayer())
 		return;
 
@@ -166,10 +256,12 @@ void CvPlayerAchievements::AlliedWithCityState(PlayerTypes eNewCityStateAlly)
 			}
 		}
 	}
+#endif
 }
 //------------------------------------------------------------------------------
 void CvPlayerAchievements::AddUnit(CvUnit* pUnit)
 {
+#if !defined(NO_ACHIEVEMENTS)
 	if(m_kPlayer.GetID() != GC.getGame().getActivePlayer())
 		return;
 
@@ -196,10 +288,12 @@ void CvPlayerAchievements::AddUnit(CvUnit* pUnit)
 			}
 		}	
 	}
+#endif
 }
 //------------------------------------------------------------------------------
 void CvPlayerAchievements::AttackedUnitWithUnit(CvUnit* pAttackingUnit, CvUnit* pDefendingUnit)
 {
+#if !defined(NO_ACHIEVEMENTS)
 	if(m_kPlayer.GetID() != GC.getGame().getActivePlayer())
 		return;
 
@@ -228,18 +322,22 @@ void CvPlayerAchievements::AttackedUnitWithUnit(CvUnit* pAttackingUnit, CvUnit* 
 			gDLL->UnlockAchievement(ACHIEVEMENT_XP1_29);
 		}
 	}
+#endif
 }
 //------------------------------------------------------------------------------
 void CvPlayerAchievements::BoughtCityState(int iNumUnits)
 {
+#if !defined(NO_ACHIEVEMENTS)
 	if (iNumUnits >= 15)
 	{
 		gDLL->UnlockAchievement(ACHIEVEMENT_XP1_35);
 	}
+#endif
 }
 //------------------------------------------------------------------------------
 void CvPlayerAchievements::KilledUnitWithUnit(CvUnit* pKillingUnit, CvUnit* pKilledUnit)
 {
+#if !defined(NO_ACHIEVEMENTS)
 	if(m_kPlayer.GetID() != GC.getGame().getActivePlayer())
 		return;
 
@@ -302,10 +400,12 @@ void CvPlayerAchievements::KilledUnitWithUnit(CvUnit* pKillingUnit, CvUnit* pKil
 			}
 		}
 	}
+#endif
 }
 //------------------------------------------------------------------------------
 void CvPlayerAchievements::StartTurn()
 {
+#if !defined(NO_ACHIEVEMENTS)
 	if(m_kPlayer.GetID() != GC.getGame().getActivePlayer())
 		return;
 
@@ -352,6 +452,7 @@ void CvPlayerAchievements::StartTurn()
 		}
 		
 	}
+#endif
 }
 //------------------------------------------------------------------------------
 void CvPlayerAchievements::EndTurn()
@@ -360,6 +461,7 @@ void CvPlayerAchievements::EndTurn()
 //-------------------------------------------------------------------------
 void CvPlayerAchievements::FinishedBuilding(CvCity* pkCity, BuildingTypes eBuilding)
 {
+#if !defined(NO_ACHIEVEMENTS)
 	if(m_eCollossusType == UNDEFINED_TYPE)
 	{
 		m_eCollossusType = (BuildingTypes)GC.getInfoTypeForString("BUILDING_COLOSSUS", true);
@@ -394,12 +496,14 @@ void CvPlayerAchievements::FinishedBuilding(CvCity* pkCity, BuildingTypes eBuild
 			}
 		}
 	}
+#endif
 }
 //------------------------------------------------------------------------------
 void CvPlayerAchievements::Read(FDataStream& kStream)
 {
 	int iVersion = 0;
 	kStream >> iVersion;
+	MOD_SERIALIZE_INIT_READ(kStream);
 	kStream >> m_iAchievement_XP1_32_Progress;
 	kStream >> m_iAchievement_XP1_33_Progress;
 }
@@ -408,6 +512,7 @@ void CvPlayerAchievements::Write(FDataStream& kStream) const
 {
 	int iVersion = 1;
 	kStream << iVersion;
+	MOD_SERIALIZE_INIT_WRITE(kStream);
 	kStream << m_iAchievement_XP1_32_Progress;
 	kStream << m_iAchievement_XP1_33_Progress;
 }

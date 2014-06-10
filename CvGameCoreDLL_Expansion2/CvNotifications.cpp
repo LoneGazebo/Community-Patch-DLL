@@ -182,6 +182,8 @@ FDataStream& operator>>(FDataStream& loadFrom, CvNotifications::Notification& wr
 	writeTo.m_bNeedsBroadcast = true; // all loads should re-broadcast their events
 	// loadFrom >> writeTo.m_bBroadcast;
 
+	MOD_SERIALIZE_INIT_READ(loadFrom);
+
 	return loadFrom;
 }
 
@@ -201,6 +203,8 @@ FDataStream& operator<<(FDataStream& saveTo, const CvNotifications::Notification
 	saveTo << readFrom.m_ePlayerID;
 	// this is not saved because we want to re-broadcast on load
 	// saveTo << writeTo.m_bBroadcast;
+
+	MOD_SERIALIZE_INIT_WRITE(saveTo);
 
 	return saveTo;
 }
@@ -263,6 +267,7 @@ void CvNotifications::Read(FDataStream& kStream)
 	// Version number to maintain backwards compatibility
 	uint uiVersion;
 	kStream >> uiVersion;
+	MOD_SERIALIZE_INIT_READ(kStream);
 
 	kStream >> m_ePlayer;
 	kStream >> m_iCurrentLookupIndex;
@@ -288,6 +293,7 @@ void CvNotifications::Write(FDataStream& kStream) const
 	// Current version number
 	uint uiVersion = 2;
 	kStream << uiVersion;
+	MOD_SERIALIZE_INIT_WRITE(kStream);
 
 	// need to serialize notification list
 	kStream << m_ePlayer;
@@ -423,8 +429,13 @@ int CvNotifications::Add(NotificationTypes eNotificationType, const char* strMes
 		{
 			GC.GetEngineUserInterface()->AddNotification(newNotification.m_iLookupIndex, newNotification.m_eNotificationType, newNotification.m_strMessage.c_str(), newNotification.m_strSummary.c_str(), newNotification.m_iGameDataIndex, newNotification.m_iExtraGameData, m_ePlayer, iX, iY);
 
+#if defined(MOD_UI_CITY_EXPANSION)
+			// Don't show effect with production notification or city tile acquisition
+			if(eNotificationType != NOTIFICATION_PRODUCTION && eNotificationType != NOTIFICATION_CITY_TILE)
+#else
 			// Don't show effect with production notification
 			if(eNotificationType != NOTIFICATION_PRODUCTION)
+#endif
 			{
 				CvPlot* pPlot = GC.getMap().plot(iX, iY);
 				if(pPlot != NULL)
@@ -552,6 +563,13 @@ bool CvNotifications::MayUserDismiss(int iLookupIndex)
 				return false;
 				break;
 
+#if defined(MOD_UI_CITY_EXPANSION)
+			// We'll let the user right click the End Turn button to ignore this, as the notification will be sent again next turn 
+			case NOTIFICATION_CITY_TILE:
+				return true;
+				break;
+#endif
+
 			case NOTIFICATION_POLICY:
 				if(GC.getGame().isOption(GAMEOPTION_POLICY_SAVING))
 				{
@@ -634,6 +652,14 @@ bool CvNotifications::GetEndTurnBlockedType(EndTurnBlockingTypes& eBlockingType,
 				iNotificationIndex = m_aNotifications[iIndex].m_iLookupIndex;
 				return true;
 				break;
+
+#if defined(MOD_UI_CITY_EXPANSION)
+			case NOTIFICATION_CITY_TILE:
+				eBlockingType = ENDTURN_BLOCKING_CITY_TILE;
+				iNotificationIndex = m_aNotifications[iIndex].m_iLookupIndex;
+				return true;
+				break;
+#endif
 
 			case NOTIFICATION_POLICY:
 				eBlockingType = ENDTURN_BLOCKING_POLICY;
@@ -899,6 +925,33 @@ void CvNotifications::Activate(Notification& notification)
 		GC.GetEngineUserInterface()->AddPopup(kPopupInfo);
 	}
 	break;
+#if defined(MOD_UI_CITY_EXPANSION)
+	case NOTIFICATION_CITY_TILE:
+	{
+		CvCity* pCity = GC.getMap().plot(notification.m_iX, notification.m_iY)->getPlotCity();
+		if (!pCity) {
+			return;
+		}
+
+		// CUSTOMLOG("Activate NOTIFICATION_CITY_TILE for city %s at (%i, %i)", pCity->getName().c_str(), notification.m_iX, notification.m_iY)
+		// We want the C++ equivalent of UI.SetInterfaceMode(INTERFACEMODE_PURCHASE_PLOT) followed by
+		// UI.DoSelectCityAtPlot(pPlot) (which itself happens to be bugged!)
+		// The following is identical to the "Select Next City" then "Open City View" keyboard short-cuts code,
+		// but it always opens the capital's city view screen!
+		// DLLUI->selectCity(GC.WrapCityPointer(pCity).get());
+		// DLLUI->setInterfaceMode(INTERFACEMODE_PURCHASE_PLOT);
+		// DLLUI->selectLookAtCity();
+		// DLLUI->lookAtSelectionPlot();
+		
+		// As the City View screen isn't a pop-up, we'll have to call a pop-up to open that screen and then immediately dismiss itself
+		int iModderOffset = gCustomMods.getOption("UI_CITY_EXPANSION_BUTTONPOPUP_MODDER_OFFSET", 0);
+		CvPopupInfo kPopupInfoOpen((ButtonPopupTypes) (BUTTONPOPUP_MODDER_0 + iModderOffset));
+		kPopupInfoOpen.iData1 = pCity->GetID();
+		kPopupInfoOpen.iData2 = notification.m_iLookupIndex;
+		GC.GetEngineUserInterface()->AddPopup(kPopupInfoOpen);
+	}
+	break;
+#endif
 	case NOTIFICATION_UNIT_PROMOTION:
 	{
 		UnitHandle pUnit = GET_PLAYER(m_ePlayer).getUnit(notification.m_iExtraGameData);
@@ -1248,6 +1301,35 @@ bool CvNotifications::IsNotificationRedundant(Notification& notification)
 		return false;
 	}
 	break;
+
+#if defined(MOD_UI_CITY_EXPANSION)
+	case NOTIFICATION_CITY_TILE:
+	{
+		int iIndex = m_iNotificationsBeginIndex;
+		while(iIndex != m_iNotificationsEndIndex)
+		{
+			if(notification.m_eNotificationType == m_aNotifications[iIndex].m_eNotificationType &&
+			        notification.m_iX == m_aNotifications[iIndex].m_iX &&
+			        notification.m_iY == m_aNotifications[iIndex].m_iY)
+			{
+				if(!notification.m_bDismissed && !m_aNotifications[iIndex].m_bDismissed)
+				{
+					// we've already added a notification for this city to the notification system, so don't add another one
+					return true;
+				}
+			}
+
+			iIndex++;
+			if(iIndex >= (int)m_aNotifications.size())
+			{
+				iIndex = 0;
+			}
+		}
+
+		return false;
+	}
+	break;
+#endif
 
 	case NOTIFICATION_ENEMY_IN_TERRITORY:
 	{
@@ -1601,6 +1683,25 @@ bool CvNotifications::IsNotificationExpired(int iIndex)
 		}
 	}
 	break;
+#if defined(MOD_UI_CITY_EXPANSION)
+	case NOTIFICATION_CITY_TILE:
+	{
+		CvCity* pCity = GC.getMap().plot(m_aNotifications[iIndex].m_iX, m_aNotifications[iIndex].m_iY)->getPlotCity();
+
+		// if the city no longer exists, is a puppet, or doesn't belong to the active player
+		if (!pCity || pCity->IsPuppet() || (pCity->getOwner() != GC.getGame().getActivePlayer())) {
+			// we no longer need the notification
+			return true;
+		}
+
+		// if the city has choosen a tile (probably by cycling the cities after the first notification)
+		if (pCity->GetJONSCultureStored() < pCity->GetJONSCultureThreshold()) {
+			// we no longer need the notification
+			return true;
+		}
+	}
+	break;
+#endif
 	case NOTIFICATION_DIPLO_VOTE:
 	{
 		TeamTypes eTeam = GET_PLAYER(m_ePlayer).getTeam();
@@ -1693,12 +1794,20 @@ bool CvNotifications::IsNotificationExpired(int iIndex)
 	{
 		CvGame& kGame(GC.getGame());
 		CvGameReligions* pkReligions(kGame.GetGameReligions());
+#if defined (MOD_EVENTS_ACQUIRE_BELIEFS)
+		ReligionTypes eReligion = pkReligions->GetReligionCreatedByPlayer(m_ePlayer);
+		if (pkReligions->GetAvailableEnhancerBeliefs(m_ePlayer, eReligion).size() == 0)
+			return true;	// None left, dismiss the notification.
+		if (pkReligions->GetAvailableFollowerBeliefs(m_ePlayer, eReligion).size() == 0)
+			return true;	// None left, dismiss the notification.		
+#else
 		if (pkReligions->GetAvailableEnhancerBeliefs().size() == 0)
 			return true;	// None left, dismiss the notification.
 		if (pkReligions->GetAvailableFollowerBeliefs().size() == 0)
 			return true;	// None left, dismiss the notification.		
 
 		ReligionTypes eReligion = pkReligions->GetReligionCreatedByPlayer(m_ePlayer);
+#endif
 		const CvReligion* pReligion = pkReligions->GetReligion(eReligion, m_ePlayer);
 		return (NULL != pReligion && pReligion->m_bEnhanced);
 	}
@@ -1795,6 +1904,9 @@ bool CvNotifications::IsNotificationEndOfTurnExpired(int iIndex)
 	case NOTIFICATION_TECH:
 	case NOTIFICATION_FREE_TECH:
 	case NOTIFICATION_PRODUCTION:
+#if defined(MOD_UI_CITY_EXPANSION)
+	case NOTIFICATION_CITY_TILE:
+#endif
 	case NOTIFICATION_DIPLO_VOTE:
 	case NOTIFICATION_PLAYER_DEAL:
 	case NOTIFICATION_PLAYER_DEAL_RECEIVED:

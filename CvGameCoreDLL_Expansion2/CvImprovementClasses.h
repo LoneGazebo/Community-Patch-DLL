@@ -56,6 +56,10 @@ public:
 	int GetCultureBombRadius() const;
 	int GetCultureAdjacentSameType() const;
 
+#if defined(MOD_GLOBAL_STACKING_RULES)
+	int GetAdditionalUnits() const;
+#endif
+
 	int GetTilesPerGoody() const;
 	int GetGoodyUniqueRange() const;
 	int GetFeatureGrowthProbability() const;
@@ -69,16 +73,31 @@ public:
 	int GetPillageGold() const;
 	int GetResourceExtractionMod() const;
 	int GetLuxuryCopiesSiphonedFromMinor() const;
+#if defined(MOD_DIPLOMACY_CITYSTATES)
+	int GetCityStateExtraVote() const;
+#endif
 	int GetImprovementPillage() const;
 	void SetImprovementPillage(int i);
 	int GetImprovementUpgrade() const;
 	void SetImprovementUpgrade(int i);
 	int GetRequiresXAdjacentLand() const;
+#if defined(MOD_API_EXTENSIONS)
+	int GetRequiresXAdjacentWater() const;
+#endif
 
 	bool IsHillsMakesValid() const;
+#if defined(MOD_GLOBAL_ALPINE_PASSES)
+	bool IsMountainsMakesValid() const;
+#endif
+#if defined(MOD_GLOBAL_PASSABLE_FORTS)
+	bool IsMakesPassable() const;
+#endif
 	bool IsFreshWaterMakesValid() const;
 	bool IsRiverSideMakesValid() const;
 	bool IsNoFreshWater() const;
+#if defined(MOD_API_EXTENSIONS)
+	bool IsAddsFreshWater() const;
+#endif
 	bool IsRequiresFlatlands() const;
 	bool IsRequiresFlatlandsOrFreshWater() const;
 	bool IsRequiresFeature() const;
@@ -165,6 +184,10 @@ protected:
 	int m_iCultureBombRadius;
 	int m_iCultureAdjacentSameType;
 
+#if defined(MOD_GLOBAL_STACKING_RULES)
+	int m_iAdditionalUnits;
+#endif
+
 	int m_iTilesPerGoody;
 	int m_iGoodyUniqueRange;
 	int m_iFeatureGrowthProbability;
@@ -178,14 +201,29 @@ protected:
 	int m_iPillageGold;
 	int m_iResourceExtractionMod;
 	int m_iLuxuryCopiesSiphonedFromMinor;
+#if defined(MOD_DIPLOMACY_CITYSTATES)
+	int m_iImprovementLeagueVotes;
+#endif
 	int m_iImprovementPillage;
 	int m_iImprovementUpgrade;
 	int m_iRequiresXAdjacentLand;
+#if defined(MOD_API_EXTENSIONS)
+	int m_iRequiresXAdjacentWater;
+#endif
 
 	bool m_bHillsMakesValid;
+#if defined(MOD_GLOBAL_ALPINE_PASSES)
+	bool m_bMountainsMakesValid;
+#endif
+#if defined(MOD_GLOBAL_PASSABLE_FORTS)
+	bool m_bMakesPassable;
+#endif
 	bool m_bFreshWaterMakesValid;
 	bool m_bRiverSideMakesValid;
 	bool m_bNoFreshWater;
+#if defined(MOD_API_EXTENSIONS)
+	bool m_bAddsFreshWater;
+#endif
 	bool m_bRequiresFlatlands;
 	bool m_bRequiresFlatlandsOrFreshWater;
 	bool m_bRequiresFeature;

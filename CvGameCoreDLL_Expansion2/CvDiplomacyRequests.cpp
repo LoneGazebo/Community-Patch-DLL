@@ -92,6 +92,7 @@ void CvDiplomacyRequests::Read(FDataStream& kStream)
 	// Version number to maintain backwards compatibility
 	uint uiVersion;
 	kStream >> uiVersion;
+	MOD_SERIALIZE_INIT_READ(kStream);
 
 	kStream >> m_ePlayer;
 
@@ -114,6 +115,7 @@ void CvDiplomacyRequests::Write(FDataStream& kStream) const
 	// Current version number
 	uint uiVersion = 1;
 	kStream << uiVersion;
+	MOD_SERIALIZE_INIT_WRITE(kStream);
 
 	// need to serialize notification list
 	kStream << m_ePlayer;

@@ -996,6 +996,14 @@ public:
 	int getLeaguePercent() const;
 	int getNumTurnIncrements() const;
 
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	int getShareOpinionDuration() const;
+	int getTechCostPerTurnMultiplier() const;
+	int getMinimumVoluntaryVassalTurns() const;
+	int getMinimumVassalTurns() const;
+	int getNumTurnsBetweenVassals() const;
+#endif
+
 	GameTurnInfo& getGameTurnInfo(int iIndex) const;
 	void allocateGameTurnInfos(const int iSize);
 
@@ -1032,6 +1040,14 @@ protected:
 	int m_iPeaceDealDuration;
 	int m_iRelationshipDuration;
 	int m_iLeaguePercent;
+
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	int m_iShareOpinionDuration;
+	int m_iTechCostPerTurnMultiplier;
+	int m_iMinimumVoluntaryVassalTurns;
+	int m_iMinimumVassalTurns;
+	int m_iNumTurnsBetweenVassals;
+#endif
 
 	int m_iNumTurnIncrements;
 
@@ -1105,6 +1121,10 @@ public:
 	int getTechTimeChange(int i) const;
 
 	bool isFeatureRemove(int i) const;
+#if defined(MOD_BUGFIX_FEATURE_REMOVAL)
+	int getFeatureObsoleteTech(int i) const;
+	bool isFeatureRemoveOnly(int i) const;
+#endif
 
 	virtual bool CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility);
 
@@ -1131,6 +1151,10 @@ protected:
 	int* m_paiFeatureCost;
 	int* m_paiTechTimeChange;
 	bool* m_pabFeatureRemove;
+#if defined(MOD_BUGFIX_FEATURE_REMOVAL)
+	int* m_paiFeatureObsoleteTech;
+	bool* m_pabFeatureRemoveOnly;
+#endif
 
 private:
 	CvBuildInfo(const CvBuildInfo&);
@@ -1437,6 +1461,9 @@ public:
 	int getInfluenceCost() const;
 	int getAdvancedStartRemoveCost() const;
 	int getTurnDamage() const;
+#if defined(MOD_API_PLOT_BASED_DAMAGE)
+	int getExtraTurnDamage() const;
+#endif
 	int getFirstFinderGold() const;
 	int getInBorderHappiness() const;
 	int getOccurrenceFrequency() const;
@@ -1493,6 +1520,9 @@ protected:
 	int m_iInfluenceCost;
 	int m_iAdvancedStartRemoveCost;
 	int m_iTurnDamage;
+#if defined(MOD_API_PLOT_BASED_DAMAGE)
+	int m_iExtraTurnDamage;
+#endif
 	int m_iFirstFinderGold;
 	int m_iInBorderHappiness;
 	int m_iOccurrenceFrequency;
@@ -1591,6 +1621,10 @@ public:
 	int getBuildModifier() const;
 	int getDefenseModifier() const;
 	int getInfluenceCost() const;
+#if defined(MOD_API_PLOT_BASED_DAMAGE)
+	int getTurnDamage() const;
+	int getExtraTurnDamage() const;
+#endif
 
 	bool isWater() const;
 	bool isImpassable() const;
@@ -1620,6 +1654,10 @@ protected:
 	int m_iBuildModifier;
 	int m_iDefenseModifier;
 	int m_iInfluenceCost;
+#if defined(MOD_API_PLOT_BASED_DAMAGE)
+	int m_iTurnDamage;
+	int m_iExtraTurnDamage;
+#endif
 
 	bool m_bWater;
 	bool m_bImpassable;
@@ -2064,6 +2102,10 @@ public:
 	int getTradeRouteProductionBonusTimes100() const;
 	int getLeaguePercent() const;
 
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	bool getVassalageEnabled() const;
+#endif
+
 	const char* GetCityBombardEffectTag() const;
 	uint GetCityBombardEffectTagHash() const;
 
@@ -2117,6 +2159,10 @@ protected:
 	int m_iTradeRouteFoodBonusTimes100;
 	int m_iTradeRouteProductionBonusTimes100;
 	int m_iLeaguePercent;
+
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	bool m_bVassalageEnabled;
+#endif
 
 	CvString m_strCityBombardEffectTag;
 	CvString m_strAudioUnitVictoryScript;

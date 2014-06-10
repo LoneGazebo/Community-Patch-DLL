@@ -52,8 +52,12 @@ public:
 	typedef enum RouteState
 	{
 	    HAS_ANY_ROUTE   = 0x1,
+#if defined(MOD_EVENTS_CITY_CONNECTIONS)
+	    HAS_INDIRECT_ROUTE = 0x2,
+#else
 	    HAS_WATER_ROUTE = 0x2,
 	    HAS_BEST_ROUTE  = 0x4,
+#endif
 	};
 
 	struct RouteInfo

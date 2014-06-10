@@ -101,11 +101,19 @@ void CvDllNetMessageHandler::ResponseChangeWar(PlayerTypes ePlayer, TeamTypes eR
 
 	if(bWar)
 	{
+#if defined(MOD_EVENTS_WAR_AND_PEACE)
+		kTeam.declareWar(eRivalTeam, false, ePlayer);
+#else
 		kTeam.declareWar(eRivalTeam);
+#endif
 	}
 	else
 	{
+#if defined(MOD_EVENTS_WAR_AND_PEACE)
+		kTeam.makePeace(eRivalTeam, true, false, ePlayer);
+#else
 		kTeam.makePeace(eRivalTeam);
+#endif
 	}
 }
 //------------------------------------------------------------------------------
@@ -285,7 +293,11 @@ void CvDllNetMessageHandler::ResponseFoundPantheon(PlayerTypes ePlayer, BeliefTy
 			CvGameReligions::FOUNDING_RESULT eResult = pkGameReligions->CanCreatePantheon(ePlayer, true);
 			if(eResult == CvGameReligions::FOUNDING_OK)
 			{
+#if defined(MOD_TRAITS_ANY_BELIEF)
+				if(pkGameReligions->IsPantheonBeliefAvailable(eBelief, ePlayer))
+#else
 				if(pkGameReligions->IsPantheonBeliefAvailable(eBelief))
+#endif
 				{
 					pkGameReligions->FoundPantheon(ePlayer, eBelief);
 				}
@@ -335,7 +347,11 @@ void CvDllNetMessageHandler::ResponseFoundReligion(PlayerTypes ePlayer, Religion
 				{
 					CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_FOUND_RELIGION");
 					CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_FOUND_RELIGION");
+#if defined(MOD_API_EXTENSIONS)
+					pNotifications->Add(NOTIFICATION_FOUND_RELIGION, strBuffer, strSummary, iCityX, iCityY, eReligion, pkCity->GetID());
+#else
 					pNotifications->Add(NOTIFICATION_FOUND_RELIGION, strBuffer, strSummary, iCityX, iCityY, -1, pkCity->GetID());
+#endif
 				}
 				kPlayer.GetReligions()->SetFoundingReligion(true);
 			}
@@ -364,7 +380,11 @@ void CvDllNetMessageHandler::ResponseEnhanceReligion(PlayerTypes ePlayer, Religi
 			{
 				CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_ENHANCE_RELIGION");
 				CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_ENHANCE_RELIGION");
+#if defined(MOD_API_EXTENSIONS)
+				pNotifications->Add(NOTIFICATION_ENHANCE_RELIGION, strBuffer, strSummary, iCityX, iCityY, eReligion, pkCity->GetID());
+#else
 				pNotifications->Add(NOTIFICATION_ENHANCE_RELIGION, strBuffer, strSummary, iCityX, iCityY, -1, pkCity->GetID());
+#endif
 			}
 			kPlayer.GetReligions()->SetFoundingReligion(true);
 		}
@@ -868,6 +888,12 @@ void CvDllNetMessageHandler::ResponseSellBuilding(PlayerTypes ePlayer, int iCity
 	if(pCity)
 	{
 		pCity->GetCityBuildings()->DoSellBuilding(eBuilding);
+
+#if defined(MOD_EVENTS_CITY)
+		if (MOD_EVENTS_CITY) {
+			GAMEEVENTINVOKE_HOOK(GAMEEVENT_CitySoldBuilding, ePlayer, iCityID, eBuilding);
+		}
+#endif
 	}
 }
 //------------------------------------------------------------------------------

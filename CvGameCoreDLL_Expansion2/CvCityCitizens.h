@@ -146,8 +146,13 @@ private:
 	CityAIFocusTypes m_eCityAIFocusTypes;
 	bool m_bForceAvoidGrowth;
 
+#if defined(MOD_GLOBAL_CITY_WORKING)
+	bool m_pabWorkingPlot[MAX_CITY_PLOTS];
+	bool m_pabForcedWorkingPlot[MAX_CITY_PLOTS];
+#else
 	bool m_pabWorkingPlot[NUM_CITY_PLOTS];
 	bool m_pabForcedWorkingPlot[NUM_CITY_PLOTS];
+#endif
 
 	int m_iNumDefaultSpecialists;
 	int m_iNumForcedDefaultSpecialists;

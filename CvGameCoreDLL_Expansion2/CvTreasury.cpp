@@ -105,6 +105,7 @@ void CvTreasury::DoGold()
 		m_GoldChangeForTurnTimes100.push_back(iGoldChange);
 	}
 
+#if !defined(NO_ACHIEVEMENTS)
 	if (m_pPlayer->isHuman() && !GC.getGame().isGameMultiPlayer())
 	{
 		int iGoldDelta = (GetGoldFromCitiesTimes100(false) - GetGoldFromCitiesTimes100(true)) / 100;
@@ -113,6 +114,7 @@ void CvTreasury::DoGold()
 			gDLL->UnlockAchievement(ACHIEVEMENT_XP2_32);
 		}
 	}
+#endif
 }
 
 /// Returns current balance in treasury
@@ -325,7 +327,11 @@ void CvTreasury::ChangeCityConnectionTradeRouteGoldChange(int iChange)
 }
 
 /// Returns the route-type between two cities
+#if defined(MOD_EVENTS_CITY_CONNECTIONS)
+bool CvTreasury::HasCityConnectionRouteBetweenCities(CvCity* pFirstCity, CvCity* pSecondCity) const
+#else
 bool CvTreasury::HasCityConnectionRouteBetweenCities(CvCity* pFirstCity, CvCity* pSecondCity, bool bBestRoute) const
+#endif
 {
 	CvCityConnections* pCityConnections = m_pPlayer->GetCityConnections();
 	FASSERT(pCityConnections, "m_pCityConnections is null");
@@ -379,11 +385,13 @@ bool CvTreasury::HasCityConnectionRouteBetweenCities(CvCity* pFirstCity, CvCity*
 	CvCityConnections::RouteInfo* pRouteInfo = pCityConnections->GetRouteInfo(iFirstCityIndex, iSecondCityIndex);
 	if(pRouteInfo)
 	{
+#if !defined(MOD_EVENTS_CITY_CONNECTIONS)
 		if(bBestRoute)
 		{
 			return pRouteInfo->m_cRouteState & CvCityConnections::HAS_BEST_ROUTE;
 		}
 		else
+#endif
 		{
 			return pRouteInfo->m_cRouteState & CvCityConnections::HAS_ANY_ROUTE;
 		}
@@ -593,6 +601,21 @@ int CvTreasury::CalculateUnitCost(int& iFreeUnits, int& iPaidUnits, int& iBaseUn
 		dFinalCost /= 100;
 	}
 
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	if (MOD_DIPLOMACY_CIV4_FEATURES) {
+		// Vassal bonus for unit maintenance costs
+		for(int iI = 0; iI < MAX_TEAMS; iI++)
+		{
+			// Are we the vassal of team?
+			if(GET_TEAM(m_pPlayer->getTeam()).IsVassal((TeamTypes)iI))
+			{
+				dFinalCost *= (100 - /*40*/GC.getVASSALAGE_VASSAL_UNIT_MAINT_COST_PERCENT());
+				dFinalCost /= 100;
+			}
+		}
+	}
+#endif
+
 	//iFinalCost /= 100;
 
 	return std::max(0, int(dFinalCost));
@@ -665,6 +688,12 @@ int CvTreasury::CalculatePreInflatedCosts()
 	iTotalCosts += m_iExpensePerTurnUnitSupply;
 	iTotalCosts += GetBuildingGoldMaintenance();
 	iTotalCosts += GetImprovementGoldMaintenance();
+
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	if (MOD_DIPLOMACY_CIV4_FEATURES) {
+		iTotalCosts += GetVassalGoldMaintenance();
+	}
+#endif
 
 	return iTotalCosts;
 }
@@ -1005,6 +1034,7 @@ void CvTreasury::Read(FDataStream& kStream)
 	uint uiVersion;
 
 	kStream >> uiVersion;
+	MOD_SERIALIZE_INIT_READ(kStream);
 
 	kStream >> m_iGold;
 	kStream >> m_iGoldPerTurnFromDiplomacy;
@@ -1026,6 +1056,7 @@ void CvTreasury::Write(FDataStream& kStream)
 	// Current version number
 	uint uiVersion = 1;
 	kStream << uiVersion;
+	MOD_SERIALIZE_INIT_WRITE(kStream);
 
 	kStream << m_iGold;
 	kStream << m_iGoldPerTurnFromDiplomacy;
@@ -1066,3 +1097,39 @@ void TreasuryHelpers::AppendToLog(CvString& strHeader, CvString& strLog, CvStrin
 	str.Format("%.2f,", fValue);
 	strLog += str;
 }
+
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+// What are our gold maintenance costs because of Vassals?
+int CvTreasury::GetVassalGoldMaintenance() const
+{
+	int iRtnValue = 0;
+	// We have a vassal
+	for(int iI = 0; iI < MAX_MAJOR_CIVS; iI++)
+	{
+		if(!GET_PLAYER((PlayerTypes)iI).isMinorCiv()
+			&& !GET_PLAYER((PlayerTypes)iI).isBarbarian()
+			&& GET_PLAYER((PlayerTypes)iI).isAlive())
+		{
+			int iLoop, iCityPop;
+			// This player is our vassal
+			if(GET_TEAM(GET_PLAYER((PlayerTypes)iI).getTeam()).IsVassal(m_pPlayer->getTeam()))
+			{
+				// Loop through our vassal's cities
+				for(CvCity* pLoopCity = GET_PLAYER((PlayerTypes)iI).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER((PlayerTypes)iI).nextCity(&iLoop))
+				{
+					iCityPop = pLoopCity->getPopulation();
+					iRtnValue += std::max(0, (int)(pow((double)iCityPop, (double)/*0.6*/ GC.getVASSALAGE_VASSAL_CITY_POP_EXPONENT())));
+				}
+
+				iRtnValue += std::max(0, (GET_PLAYER((PlayerTypes)iI).GetTreasury()->GetExpensePerTurnUnitMaintenance() * /*40*/GC.getVASSALAGE_VASSAL_UNIT_MAINT_COST_PERCENT() / 100));
+			}
+		}
+	}
+
+	// Modifier for vassal maintenance?
+	iRtnValue *= (100 + m_pPlayer->GetVassalGoldMaintenanceMod());
+	iRtnValue /= 100;
+
+	return iRtnValue;
+}
+#endif

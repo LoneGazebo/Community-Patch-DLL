@@ -237,6 +237,21 @@ protected:
 	static int lRemoveVoteCommitment(lua_State* L); // Too many args for template, defined in cpp
 
 	static TradedItemList::iterator m_iterator;
+
+#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	static int lAddTechTrade(lua_State* L)
+	{
+		return BasicLuaMethod(L, &CvDeal::AddTechTrade);
+	};
+	static int lAddVassalageTrade(lua_State* L)
+	{
+		return BasicLuaMethod(L, &CvDeal::AddVassalageTrade);
+	};
+	static int lRemoveTechTrade(lua_State* L)
+	{
+		return BasicLuaMethod(L, &CvDeal::RemoveTechTrade);
+	};
+#endif
 };
 
 #endif //CVLUADEAL_H

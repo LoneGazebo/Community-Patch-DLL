@@ -31,8 +31,17 @@ public:
 	int GetProductionCost() const;
 	int GetFaithCost() const;
 	bool IsRequiresFaithPurchaseEnabled() const;
+#if defined(MOD_GLOBAL_EXCLUDE_FROM_GIFTS)
+	bool IsNoMinorGifts() const;
+#endif
 	bool IsPurchaseOnly() const;
 	bool CanMoveAfterPurchase() const;
+#if defined(MOD_GLOBAL_MOVE_AFTER_UPGRADE)
+	bool CanMoveAfterUpgrade() const;
+#endif
+#if defined(MOD_GLOBAL_CANNOT_EMBARK)
+	bool CannotEmbark() const;
+#endif
 	int GetHurryCostModifier() const;
 	int GetAdvancedStartCost() const;
 	int GetMinAreaSize() const;
@@ -52,6 +61,9 @@ public:
 	bool IsRushBuilding() const;
 	int GetBaseGold() const;
 	int GetNumGoldPerEra() const;
+#if defined(MOD_DIPLOMACY_CITYSTATES)
+	int GetNumInfPerEra() const;
+#endif
 	bool IsSpreadReligion() const;
 	int GetReligionSpreads() const;
 	int GetReligiousStrength() const;
@@ -78,6 +90,12 @@ public:
 	int GetSpecialUnitType() const;
 	int GetUnitCaptureClassType() const;
 	int GetUnitCombatType() const;
+#if defined(MOD_GLOBAL_PROMOTION_CLASSES)
+	int GetUnitPromotionType() const;
+#endif
+#if defined(MOD_EVENTS_CAN_MOVE_INTO)
+	bool IsSendCanMoveIntoEvent() const;
+#endif
 	int GetDomainType() const;
 	int GetCivilianAttackPriority() const;
 	int GetDefaultUnitAIType() const;
@@ -102,6 +120,10 @@ public:
 	bool IsPillage() const;
 	bool IsFound() const;
 	bool IsFoundAbroad() const;
+#if defined(MOD_DIPLOMACY_CITYSTATES)
+	bool IsFoundMid() const;
+	bool IsFoundLate() const;
+#endif
 	int GetCultureBombRadius() const;
 	int GetGoldenAgeTurns() const;
 	int GetFreePolicies() const;
@@ -149,6 +171,9 @@ public:
 	bool GetGreatPeoples(int i) const;
 	bool GetBuildings(int i) const;
 	bool GetBuildingClassRequireds(int i) const;
+#if defined(MOD_DIPLOMACY_CITYSTATES)
+	bool GetBuildOnFound(int i) const;
+#endif
 	bool GetFreePromotions(int i) const;
 
 	// Derived fields (not in XML)
@@ -163,8 +188,17 @@ private:
 	int m_iProductionCost;
 	int m_iFaithCost;
 	bool m_bRequiresFaithPurchaseEnabled;
+#if defined(MOD_GLOBAL_EXCLUDE_FROM_GIFTS)
+	bool m_bNoMinorGifts;
+#endif
 	bool m_bPurchaseOnly;
 	bool m_bMoveAfterPurchase;
+#if defined(MOD_GLOBAL_MOVE_AFTER_UPGRADE)
+	bool m_bMoveAfterUpgrade;
+#endif
+#if defined(MOD_GLOBAL_CANNOT_EMBARK)
+	bool m_bCannotEmbark;
+#endif
 	int m_iHurryCostModifier;
 	int m_iAdvancedStartCost;
 	int m_iMinAreaSize;
@@ -184,6 +218,9 @@ private:
 	bool m_bRushBuilding;
 	int m_iBaseGold;
 	int m_iNumGoldPerEra;
+#if defined(MOD_DIPLOMACY_CITYSTATES)
+	int m_iNumInfPerEra;
+#endif
 	bool m_bSpreadReligion;
 	int m_iReligionSpreads;
 	int m_iReligiousStrength;
@@ -209,6 +246,12 @@ private:
 	int m_iSpecialUnitType;
 	int m_iUnitCaptureClassType;
 	int m_iUnitCombatType;
+#if defined(MOD_GLOBAL_PROMOTION_CLASSES)
+	int m_iUnitPromotionType;
+#endif
+#if defined(MOD_EVENTS_CAN_MOVE_INTO)
+	bool m_bSendCanMoveIntoEvent;
+#endif
 	int m_iDomainType;
 	int m_iCivilianAttackPriority;
 	int m_iDefaultUnitAIType;
@@ -233,6 +276,10 @@ private:
 	bool m_bPillage;
 	bool m_bFound;
 	bool m_bFoundAbroad;
+#if defined(MOD_DIPLOMACY_CITYSTATES)
+	bool m_bFoundMid;
+	bool m_bFoundLate;
+#endif
 	int m_iCultureBombRadius;
 	int m_iGoldenAgeTurns;
 	int m_iFreePolicies;
@@ -278,6 +325,9 @@ private:
 	bool* m_pbGreatPeoples;
 	bool* m_pbBuildings;
 	bool* m_pbBuildingClassRequireds;
+#if defined(MOD_DIPLOMACY_CITYSTATES)
+	bool* m_pbBuildOnFound;
+#endif
 	bool* m_pbFreePromotions;
 
 	CvString* m_paszEarlyArtDefineTags;
