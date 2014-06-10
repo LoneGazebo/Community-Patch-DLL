@@ -76,9 +76,22 @@ public:
 	GreatPeopleDirectiveTypes GetDirectiveGeneral(CvUnit* pGreatGeneral);
 	GreatPeopleDirectiveTypes GetDirectiveProphet(CvUnit* pGreatProphet);
 	GreatPeopleDirectiveTypes GetDirectiveAdmiral(CvUnit* pGreatAdmiral);
+#if defined(MOD_DIPLOMACY_CITYSTATES)
+	GreatPeopleDirectiveTypes GetDirectiveDiplomat(CvUnit* pGreatDiplomat);
+#endif
 
 	bool GreatMerchantWantsCash();
 	CvPlot* FindBestMerchantTargetPlot(CvUnit* pGreatMerchant, bool bOnlySafePaths);
+#if defined(MOD_DIPLOMACY_CITYSTATES)
+	//For Great Diplomats
+	CvCity* FindBestDiplomatTargetCity(UnitHandle pUnit);
+	CvPlot* ChooseDiplomatTargetPlot(UnitHandle pUnit, int* piTurns = NULL);
+	int ScoreCityForDiplomat(CvCity* pCity, UnitHandle pUnit);
+	//And for messengers
+	CvCity* FindBestMessengerTargetCity(UnitHandle pUnit);
+	int ScoreCityForMessenger(CvCity* pCity, UnitHandle pUnit);
+	CvPlot* ChooseMessengerTargetPlot(UnitHandle pUnit, int* piTurns = NULL);
+#endif
 	CvPlot* FindBestArtistTargetPlot(CvUnit* pGreatArtist, int& iScore);
 	CvPlot* FindBestMusicianTargetPlot(CvUnit* pGreatMerchant, bool bOnlySafePaths);
 

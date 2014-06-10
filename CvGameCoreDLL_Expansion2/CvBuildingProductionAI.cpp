@@ -48,6 +48,7 @@ void CvBuildingProductionAI::Read(FDataStream& kStream)
 	// Version number to maintain backwards compatibility
 	uint uiVersion;
 	kStream >> uiVersion;
+	MOD_SERIALIZE_INIT_READ(kStream);
 
 	// Reset vector
 	m_BuildingAIWeights.clear();
@@ -102,6 +103,7 @@ void CvBuildingProductionAI::Write(FDataStream& kStream)
 	// Current version number
 	uint uiVersion = 1;
 	kStream << uiVersion;
+	MOD_SERIALIZE_INIT_WRITE(kStream);
 
 	if(m_pCityBuildings)
 	{

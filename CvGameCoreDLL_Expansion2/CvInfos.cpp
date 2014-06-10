@@ -3514,6 +3514,16 @@ bool CvGameSpeedInfo::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_iRelationshipDuration			= kResults.GetInt("RelationshipDuration");
 	m_iLeaguePercent				= kResults.GetInt("LeaguePercent");
 
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	if (MOD_DIPLOMACY_CIV4_FEATURES) {
+		m_iShareOpinionDuration			= kResults.GetInt("ShareOpinionDuration");
+		m_iTechCostPerTurnMultiplier	= kResults.GetInt("TechCostPerTurnMultiplier");
+		m_iMinimumVoluntaryVassalTurns	= kResults.GetInt("MinimumVoluntaryVassalTurns");
+		m_iMinimumVassalTurns			= kResults.GetInt("MinimumVassalTurns");
+		m_iNumTurnsBetweenVassals		= kResults.GetInt("NumTurnsBetweenVassals");
+	}
+#endif
+
 	//GameTurnInfos
 	{
 		const char* szGameSpeedInfoType = GetType();
@@ -3611,6 +3621,8 @@ void CvTurnTimerInfo::writeTo(FDataStream& saveTo) const
 	saveTo << m_iCityResource;
 	saveTo << m_iUnitResource;
 	saveTo << m_iFirstTurnMultiplier;
+
+	MOD_SERIALIZE_INIT_WRITE(saveTo);
 }
 
 void CvTurnTimerInfo::readFrom(FDataStream& loadFrom)
@@ -3620,6 +3632,8 @@ void CvTurnTimerInfo::readFrom(FDataStream& loadFrom)
 	loadFrom >> m_iCityResource;
 	loadFrom >> m_iUnitResource;
 	loadFrom >> m_iFirstTurnMultiplier;
+
+	MOD_SERIALIZE_INIT_READ(loadFrom);
 }
 
 FDataStream& operator<<(FDataStream& saveTo, const CvTurnTimerInfo& readFrom)
@@ -3656,6 +3670,10 @@ CvBuildInfo::CvBuildInfo() :
 	m_paiFeatureProduction(NULL),
 	m_paiFeatureCost(NULL),
 	m_paiTechTimeChange(NULL),
+#if defined(MOD_BUGFIX_FEATURE_REMOVAL)
+	m_paiFeatureObsoleteTech(NULL),
+	m_pabFeatureRemoveOnly(NULL),
+#endif
 	m_pabFeatureRemove(NULL)
 {
 }
@@ -3668,6 +3686,10 @@ CvBuildInfo::~CvBuildInfo()
 	SAFE_DELETE_ARRAY(m_paiFeatureCost);
 	SAFE_DELETE_ARRAY(m_paiTechTimeChange);
 	SAFE_DELETE_ARRAY(m_pabFeatureRemove);
+#if defined(MOD_BUGFIX_FEATURE_REMOVAL)
+	SAFE_DELETE_ARRAY(m_paiFeatureObsoleteTech);
+	SAFE_DELETE_ARRAY(m_pabFeatureRemoveOnly);
+#endif
 }
 //------------------------------------------------------------------------------
 int CvBuildInfo::getTime() const
@@ -3782,6 +3804,22 @@ bool CvBuildInfo::isFeatureRemove(int i) const
 	CvAssertMsg(i > -1, "Index out of bounds");
 	return m_pabFeatureRemove ? m_pabFeatureRemove[i] : false;
 }
+#if defined(MOD_BUGFIX_FEATURE_REMOVAL)
+//------------------------------------------------------------------------------
+int CvBuildInfo::getFeatureObsoleteTech(int i) const
+{
+	CvAssertMsg(i < GC.getNumFeatureInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_paiFeatureObsoleteTech ? m_paiFeatureObsoleteTech[i] : -1;
+}
+//------------------------------------------------------------------------------
+bool CvBuildInfo::isFeatureRemoveOnly(int i) const
+{
+	CvAssertMsg(i < GC.getNumFeatureInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_pabFeatureRemoveOnly ? m_pabFeatureRemoveOnly[i] : false;
+}
+#endif
 //------------------------------------------------------------------------------
 bool CvBuildInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility)
 {
@@ -3818,6 +3856,10 @@ bool CvBuildInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 		kUtility.InitializeArray(m_paiFeatureProduction, "Features");
 		kUtility.InitializeArray(m_paiFeatureCost, "Features");
 		kUtility.InitializeArray(m_pabFeatureRemove, "Features");
+#if defined(MOD_BUGFIX_FEATURE_REMOVAL)
+		kUtility.InitializeArray(m_paiFeatureObsoleteTech, "Features");
+		kUtility.InitializeArray(m_pabFeatureRemoveOnly, "Features");
+#endif
 
 		char szQuery[512];
 		const char* szFeatureQuery = "select * from BuildFeatures where BuildType = '%s'";
@@ -3839,6 +3881,10 @@ bool CvBuildInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 				m_paiFeatureProduction[iFeatureIdx] = kArrayResults.GetInt("Production");
 				m_paiFeatureCost[iFeatureIdx]		= kArrayResults.GetInt("Cost");
 				m_pabFeatureRemove[iFeatureIdx]		= kArrayResults.GetBool("Remove");
+#if defined(MOD_BUGFIX_FEATURE_REMOVAL)
+				m_paiFeatureObsoleteTech[iFeatureIdx]= GC.getInfoTypeForString(kArrayResults.GetText("ObsoleteTech"), true);
+				m_pabFeatureRemoveOnly[iFeatureIdx]	= kArrayResults.GetBool("RemoveOnly");
+#endif
 			}
 		}
 	}
@@ -4728,6 +4774,9 @@ CvFeatureInfo::CvFeatureInfo() :
 	m_iInfluenceCost(0),
 	m_iAdvancedStartRemoveCost(0),
 	m_iTurnDamage(0),
+#if defined(MOD_API_PLOT_BASED_DAMAGE)
+	m_iExtraTurnDamage(0),
+#endif
 	m_iFirstFinderGold(0),
 	m_iInBorderHappiness(0),
 	m_iOccurrenceFrequency(0),
@@ -4820,6 +4869,13 @@ int CvFeatureInfo::getTurnDamage() const
 {
 	return m_iTurnDamage;
 }
+#if defined(MOD_API_PLOT_BASED_DAMAGE)
+//------------------------------------------------------------------------------
+int CvFeatureInfo::getExtraTurnDamage() const
+{
+	return m_iExtraTurnDamage;
+}
+#endif
 //------------------------------------------------------------------------------
 int CvFeatureInfo::getFirstFinderGold() const
 {
@@ -5005,6 +5061,9 @@ bool CvFeatureInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iInfluenceCost = kResults.GetInt("InfluenceCost");
 	m_iAdvancedStartRemoveCost = kResults.GetInt("AdvancedStartRemoveCost");
 	m_iTurnDamage = kResults.GetInt("TurnDamage");
+#if defined(MOD_API_PLOT_BASED_DAMAGE)
+	m_iExtraTurnDamage = MOD_API_PLOT_BASED_DAMAGE ? kResults.GetInt("ExtraTurnDamage") : 0;
+#endif
 	m_iAppearanceProbability = kResults.GetInt("AppearanceProbability");
 	m_iDisappearanceProbability = kResults.GetInt("DisappearanceProbability");
 	m_iGrowthProbability = kResults.GetInt("Growth");
@@ -5170,6 +5229,10 @@ CvTerrainInfo::CvTerrainInfo() :
 	m_iBuildModifier(0),
 	m_iDefenseModifier(0),
 	m_iInfluenceCost(0),
+#if defined(MOD_API_PLOT_BASED_DAMAGE)
+	m_iTurnDamage(0),
+	m_iExtraTurnDamage(0),
+#endif
 	m_bWater(false),
 	m_bImpassable(false),
 	m_bFound(false),
@@ -5220,6 +5283,18 @@ int CvTerrainInfo::getInfluenceCost() const
 {
 	return m_iInfluenceCost;
 }
+#if defined(MOD_API_PLOT_BASED_DAMAGE)
+//------------------------------------------------------------------------------
+int CvTerrainInfo::getTurnDamage() const
+{
+	return m_iTurnDamage;
+}
+//------------------------------------------------------------------------------
+int CvTerrainInfo::getExtraTurnDamage() const
+{
+	return m_iExtraTurnDamage;
+}
+#endif
 //------------------------------------------------------------------------------
 bool CvTerrainInfo::isWater() const
 {
@@ -5313,6 +5388,10 @@ bool CvTerrainInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iBuildModifier = kResults.GetInt("BuildModifier");
 	m_iDefenseModifier = kResults.GetInt("Defense");
 	m_iInfluenceCost = kResults.GetInt("InfluenceCost");
+#if defined(MOD_API_PLOT_BASED_DAMAGE)
+	m_iTurnDamage = MOD_API_PLOT_BASED_DAMAGE ? kResults.GetInt("TurnDamage") : 0;
+	m_iExtraTurnDamage = MOD_API_PLOT_BASED_DAMAGE ? kResults.GetInt("ExtraTurnDamage") : 0;
+#endif
 
 	const char* szTextVal = kResults.GetText("WorldSoundscapeAudioScript");
 	if(szTextVal != NULL)
@@ -5788,6 +5867,7 @@ void CvWorldInfo::readFrom(FDataStream& loadFrom)
 {
 	int iVersion;
 	loadFrom >> iVersion;				// Make sure to update versioning if the members change!
+	MOD_SERIALIZE_INIT_READ(loadFrom);
 
 	CvBaseInfo::readFrom(loadFrom);
 
@@ -5847,6 +5927,7 @@ void CvWorldInfo::writeTo(FDataStream& saveTo) const
 {
 	int iVersion = 2;		// Make sure to update the versioning if the members change!
 	saveTo << iVersion;
+	MOD_SERIALIZE_INIT_WRITE(saveTo);
 
 	CvBaseInfo::writeTo(saveTo);
 
@@ -5937,6 +6018,8 @@ void CvClimateInfo::readFrom(FDataStream& loadFrom)
 	loadFrom >> m_fDesertTopLatitudeChange;
 	loadFrom >> m_fIceLatitude;
 	loadFrom >> m_fRandIceLatitude;
+
+	MOD_SERIALIZE_INIT_READ(loadFrom);
 }
 
 void CvClimateInfo::writeTo(FDataStream& saveTo) const
@@ -5954,6 +6037,8 @@ void CvClimateInfo::writeTo(FDataStream& saveTo) const
 	saveTo << m_fDesertTopLatitudeChange;
 	saveTo << m_fIceLatitude;
 	saveTo << m_fRandIceLatitude;
+
+	MOD_SERIALIZE_INIT_WRITE(saveTo);
 }
 
 FDataStream& operator<<(FDataStream& saveTo, const CvClimateInfo& readFrom)
@@ -5989,12 +6074,16 @@ void CvSeaLevelInfo::readFrom(FDataStream& loadFrom)
 {
 	CvBaseInfo::readFrom(loadFrom);
 	loadFrom >> m_iSeaLevelChange;
+
+	MOD_SERIALIZE_INIT_READ(loadFrom);
 }
 
 void CvSeaLevelInfo::writeTo(FDataStream& saveTo) const
 {
 	CvBaseInfo::writeTo(saveTo);
 	saveTo << m_iSeaLevelChange;
+
+	MOD_SERIALIZE_INIT_WRITE(saveTo);
 }
 
 FDataStream& operator<<(FDataStream& saveTo, const CvSeaLevelInfo& readFrom)
@@ -6542,6 +6631,11 @@ bool CvEraInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUt
 	m_iTradeRouteFoodBonusTimes100 = kResults.GetInt("TradeRouteFoodBonusTimes100");
 	m_iTradeRouteProductionBonusTimes100 = kResults.GetInt("TradeRouteProductionBonusTimes100");
 	m_iLeaguePercent			= kResults.GetInt("LeaguePercent");
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	if (MOD_DIPLOMACY_CIV4_FEATURES) {
+		m_bVassalageEnabled			= kResults.GetBool("VassalageEnabled");
+	}
+#endif
 
 	m_strCityBombardEffectTag	= kResults.GetText("CityBombardEffectTag");
 	m_uiCityBombardEffectTagHash = FString::Hash(m_strCityBombardEffectTag);
@@ -6794,3 +6888,36 @@ bool CvVoteSourceInfo::CacheResults(Database::Results& kResults, CvDatabaseUtili
 
 	return true;
 }
+
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+//------------------------------------------------------------------------------
+bool CvEraInfo::getVassalageEnabled() const
+{
+	return m_bVassalageEnabled;
+}
+//------------------------------------------------------------------------------
+int CvGameSpeedInfo::getShareOpinionDuration() const
+{
+	return m_iShareOpinionDuration;
+}
+//------------------------------------------------------------------------------
+int CvGameSpeedInfo::getTechCostPerTurnMultiplier() const
+{
+	return m_iTechCostPerTurnMultiplier;
+}
+//------------------------------------------------------------------------------
+int CvGameSpeedInfo::getMinimumVoluntaryVassalTurns() const
+{
+	return m_iMinimumVoluntaryVassalTurns;
+}
+//------------------------------------------------------------------------------
+int CvGameSpeedInfo::getMinimumVassalTurns() const
+{
+	return m_iMinimumVassalTurns;
+}
+//------------------------------------------------------------------------------
+int CvGameSpeedInfo::getNumTurnsBetweenVassals() const
+{
+	return m_iNumTurnsBetweenVassals;
+}
+#endif

@@ -475,7 +475,18 @@ public:
 	void SetBarbarianReleaseTurn(int iValue);
 
 	UnitTypes GetRandomSpawnUnitType(PlayerTypes ePlayer, bool bIncludeUUs, bool bIncludeRanged);
+#if defined(MOD_GLOBAL_CS_GIFT_SHIPS)
+	UnitTypes GetCompetitiveSpawnUnitType(PlayerTypes ePlayer, bool bIncludeUUs, bool bIncludeRanged, bool bIncludeShips);
+#else
 	UnitTypes GetCompetitiveSpawnUnitType(PlayerTypes ePlayer, bool bIncludeUUs, bool bIncludeRanged);
+#endif
+#if defined(MOD_GLOBAL_CS_GIFTS)
+#if defined(MOD_GLOBAL_CS_GIFT_SHIPS)
+	UnitTypes GetCsGiftSpawnUnitType(PlayerTypes ePlayer, bool bIncludeShips);
+#else
+	UnitTypes GetCsGiftSpawnUnitType(PlayerTypes ePlayer);
+#endif
+#endif
 	UnitTypes GetRandomUniqueUnitType(bool bIncludeCivsInGame, bool bIncludeStartEra, bool bIncludeOldEras, bool bIncludeRanged);
 
 	CvSiteEvaluatorForSettler* GetSettlerSiteEvaluator();
@@ -565,6 +576,36 @@ public:
 	int GetNumArchaeologySites() const;
 	int GetNumHiddenArchaeologySites() const;
 
+#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
+	TeamTypes GetTeamThatCircumnavigated() const;
+	void SetTeamThatCircumnavigated(TeamTypes eNewValue);
+#endif
+
+#if defined(MOD_API_EXTENSIONS)
+	bool AnyoneHasBelief(BeliefTypes iBeliefType) const;
+	bool AnyoneHasBuilding(BuildingTypes iBuildingType) const;
+	bool AnyoneHasBuildingClass(BuildingClassTypes iBuildingClassType) const;
+	bool AnyoneHasAnyWonder() const;
+	bool AnyoneHasWonder(BuildingTypes iBuildingType) const;
+	int GetCivilizationPlayer(CivilizationTypes iCivilizationType) const;
+	bool AnyoneIsInEra(EraTypes iEraType) const;
+	bool AnyoneHasReachedEra(EraTypes iEraType) const;
+	bool AnyoneHasAnyNaturalWonder() const;
+	bool AnyoneHasNaturalWonder(FeatureTypes iFeatureType) const;
+	bool AnyoneHasPolicy(PolicyTypes iPolicyType) const;
+	bool AnyoneHasTenet(PolicyTypes iPolicyType) const;
+	bool AnyoneHasPolicyBranch(PolicyBranchTypes iPolicyBranchType) const;
+	bool AnyoneHasIdeology(PolicyBranchTypes iPolicyBranchType) const;
+	bool AnyoneHasProject(ProjectTypes iProjectType) const;
+	bool AnyoneHasPantheon() const;
+	bool AnyoneHasAnyReligion() const;
+	bool AnyoneHasReligion(ReligionTypes iReligionType) const;
+	bool IsResolutionPassed(ResolutionTypes iResolutionType, int iChoice) const;
+	bool AnyoneHasTech(TechTypes iTechType) const;
+	bool AnyoneHasUnit(UnitTypes iUnitType) const;
+	bool AnyoneHasUnitClass(UnitClassTypes iUnitClassType) const;
+#endif
+
 public:
 
 	//Function to determine city size from city population
@@ -652,6 +693,10 @@ protected:
 	TechTypes m_eReligionTech;
 	RouteTypes m_eIndustrialRoute;
 	bool m_bArchaeologyTriggered;
+
+#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
+	char /*TeamTypes*/ m_eTeamThatCircumnavigated;
+#endif
 
 	CvString m_strScriptData;
 

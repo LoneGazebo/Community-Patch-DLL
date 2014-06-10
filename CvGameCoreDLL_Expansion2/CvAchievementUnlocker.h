@@ -23,6 +23,10 @@ public:
 	static void EndTurn();
 	static void AlexanderConquest(PlayerTypes ePlayer);
 
+#if defined(ACHIEVEMENT_HACKS)
+	static void UnlockFromDatabase();
+#endif
+
 private:
 	static int ms_iNumImprovementsPillagedPerTurn;
 	 

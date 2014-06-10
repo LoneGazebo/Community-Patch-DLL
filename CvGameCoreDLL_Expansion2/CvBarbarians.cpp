@@ -96,6 +96,13 @@ void CvBarbarians::DoCampActivationNotice(CvPlot* pPlot)
 	if (kGame.isOption(GAMEOPTION_RAGING_BARBARIANS))
 		iNumTurnsToSpawn /= 2;
 
+#if defined(MOD_BUGFIX_BARB_CAMP_SPAWNING)
+	if (m_aiPlotBarbCampNumUnitsSpawned == NULL) {
+		// Probably means we are being called as CvWorldBuilderMapLoaded is adding camps, MapInit() will follow soon and set everything up correctly
+		return;
+	}
+#endif
+		
 	// Num Units Spawned
 	int iNumUnitsSpawned = m_aiPlotBarbCampNumUnitsSpawned[pPlot->GetPlotIndex()];
 
@@ -232,6 +239,7 @@ void CvBarbarians::Read(FDataStream& kStream, uint uiParentVersion)
 	uint uiVersion = 0;
 
 	kStream >> uiVersion;	
+	MOD_SERIALIZE_INIT_READ(kStream);
 
 	int iWorldNumPlots = GC.getMap().numPlots();
 	MapInit(iWorldNumPlots);	// Map will have been initialized/unserialized by now so this is ok.
@@ -247,6 +255,7 @@ void CvBarbarians::Write(FDataStream& kStream)
 	// Current version number
 	uint uiVersion = 1;
 	kStream << uiVersion;
+	MOD_SERIALIZE_INIT_WRITE(kStream);
 
 	int iWorldNumPlots = GC.getMap().numPlots();
 	kStream << ArrayWrapper<short>(iWorldNumPlots, m_aiPlotBarbCampSpawnCounter);
@@ -365,6 +374,10 @@ void CvBarbarians::DoCamps()
 				{
 					if(!pLoopPlot->isImpassable() && !pLoopPlot->isMountain())
 					{
+#if defined(MOD_BUGFIX_BARB_CAMP_TERRAINS)
+						CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eCamp);
+						if(MOD_BUGFIX_BARB_CAMP_TERRAINS == false || pkImprovementInfo == NULL || (pkImprovementInfo->GetTerrainMakesValid(pLoopPlot->getTerrainType()) && pkImprovementInfo->GetFeatureMakesValid(pLoopPlot->getFeatureType()))) {
+#endif
 						if(!pLoopPlot->isOwned() && !pLoopPlot->isVisibleToCivTeam())
 						{
 							// JON: NO RESOURCES FOR NOW, MAY REPLACE WITH SOMETHING COOLER
@@ -445,7 +458,10 @@ void CvBarbarians::DoCamps()
 														continue;
 
 													pLoopPlot->setImprovementType(eCamp);
+#if !defined(MOD_BUGFIX_BARB_CAMP_SPAWNING)
+													// The notification has been moved into the CvPlot::setImprovementType() method
 													DoCampActivationNotice(pLoopPlot);
+#endif
 
 													eBestUnit = GetRandomBarbarianUnitType(kMap.getArea(pLoopPlot->getArea()), UNITAI_DEFENSE);
 
@@ -487,6 +503,9 @@ void CvBarbarians::DoCamps()
 								}
 							}
 						}
+#if defined(MOD_BUGFIX_BARB_CAMP_TERRAINS)
+						}
+#endif
 					}
 				}
 			}

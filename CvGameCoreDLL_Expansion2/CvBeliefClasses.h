@@ -97,6 +97,9 @@ public:
 	int GetFeatureYieldChange(int i, int j) const;
 	int GetResourceYieldChange(int i, int j) const;
 	int GetTerrainYieldChange(int i, int j) const;
+#if defined(MOD_RELIGION_PLOT_YIELDS)
+	int GetPlotYieldChange(int i, int j) const;
+#endif
 	int GetResourceHappiness(int i) const;
 	int GetYieldChangeAnySpecialist(int i) const;
 	int GetYieldChangeTradeRoute(int i) const;
@@ -179,6 +182,9 @@ protected:
 	int** m_ppaiFeatureYieldChange;
 	int** m_ppaiResourceYieldChange;
 	int** m_ppaiTerrainYieldChange;
+#if defined(MOD_RELIGION_PLOT_YIELDS)
+	int** m_ppaiPlotYieldChange;
+#endif
 	int* m_piResourceHappiness;
 	int* m_piYieldChangeAnySpecialist;
 	int* m_piYieldChangeTradeRoute;
@@ -377,6 +383,9 @@ public:
 	int GetFeatureYieldChange(FeatureTypes eFeature, YieldTypes eYieldType) const;
 	int GetResourceYieldChange(ResourceTypes eResource, YieldTypes eYieldType) const;
 	int GetTerrainYieldChange(TerrainTypes eTerrain, YieldTypes eYieldType) const;
+#if defined(MOD_RELIGION_PLOT_YIELDS)
+	int GetPlotYieldChange(PlotTypes ePlot, YieldTypes eYieldType) const;
+#endif
 	int GetResourceHappiness(ResourceTypes eResource) const;
 	int GetYieldChangeAnySpecialist(YieldTypes eYieldType) const;
 	int GetYieldChangeTradeRoute(YieldTypes eYieldType) const;

@@ -75,6 +75,10 @@ void CvLuaLeague::PushMethods(lua_State* L, int t)
 
 	Method(GetArtsyGreatPersonRateModifier);
 	Method(GetScienceyGreatPersonRateModifier);
+#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
+	Method(GetSpaceShipProductionMod);
+	Method(GetSpaceShipPurchaseMod);
+#endif
 	
 	Method(GetResolutionName);
 	Method(GetResolutionDetails);
@@ -632,6 +636,28 @@ int CvLuaLeague::lGetScienceyGreatPersonRateModifier(lua_State* L)
 	lua_pushinteger(L, iValue);
 	return 1;
 }
+#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
+//------------------------------------------------------------------------------
+//int GetSpaceShipProductionMod();
+int CvLuaLeague::lGetSpaceShipProductionMod(lua_State* L)
+{
+	CvLeague* pLeague = GetInstance(L);
+
+	int iValue = pLeague->GetSpaceShipProductionMod();
+	lua_pushinteger(L, iValue);
+	return 1;
+}
+//------------------------------------------------------------------------------
+//int GetSpaceShipPurchaseMod();
+int CvLuaLeague::lGetSpaceShipPurchaseMod(lua_State* L)
+{
+	CvLeague* pLeague = GetInstance(L);
+
+	int iValue = pLeague->GetSpaceShipPurchaseMod();
+	lua_pushinteger(L, iValue);
+	return 1;
+}
+#endif
 //------------------------------------------------------------------------------
 //string GetResolutionName(ResolutionTypes eResolution, int iResolutionID, int iProposerChoice, bool bIncludePrefix);
 int CvLuaLeague::lGetResolutionName(lua_State* L)

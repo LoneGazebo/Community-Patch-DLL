@@ -30,12 +30,20 @@ public:
 	
 	CvString GetIconString() const;
 
+#if defined(MOD_RELIGION_LOCAL_RELIGIONS)
+	bool IsLocalReligion() const;
+#endif
+
 protected:
 	CvString m_strIconString;
 
 private:
 	CvReligionEntry(const CvReligionEntry&);
 	CvReligionEntry& operator=(const CvReligionEntry&);
+
+#if defined(MOD_RELIGION_LOCAL_RELIGIONS)
+	int m_iLocalReligion;
+#endif
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -167,7 +175,11 @@ public:
 	ReligionTypes GetReligionToFound(PlayerTypes ePlayer);
 	void FoundPantheon(PlayerTypes ePlayer, BeliefTypes eBelief);
 	void FoundReligion(PlayerTypes ePlayer, ReligionTypes eReligion, const char* szCustomName, BeliefTypes eBelief1, BeliefTypes eBelief2, BeliefTypes eBelief3, BeliefTypes eBelief4, CvCity* pkHolyCity);
+#if defined(MOD_API_RELIGION)
+	void EnhanceReligion(PlayerTypes ePlayer, ReligionTypes eReligion, BeliefTypes eBelief1, BeliefTypes eBelief2=NO_BELIEF, bool bNotify=true);
+#else
 	void EnhanceReligion(PlayerTypes ePlayer, ReligionTypes eReligion, BeliefTypes eBelief1, BeliefTypes eBelief2);
+#endif
 	void AddReformationBelief(PlayerTypes ePlayer, ReligionTypes eReligion, BeliefTypes eBelief1);
 	void SetHolyCity(ReligionTypes eReligion, CvCity* pkHolyCity);
 	void SetFounder(ReligionTypes eReligion, PlayerTypes eFounder);
@@ -175,7 +187,11 @@ public:
 
 	// General religion information functions
 	const CvReligion* GetReligion(ReligionTypes eReligion, PlayerTypes ePlayer) const;
+#if defined(MOD_TRAITS_ANY_BELIEF)
+	bool IsInSomeReligion(BeliefTypes eBelief, PlayerTypes ePlayer=NO_PLAYER) const;
+#else
 	bool IsInSomeReligion(BeliefTypes eBelief) const;
+#endif
 
 	// Pantheon information functions
 	void SetMinimumFaithNextPantheon(int iMinFaith)
@@ -189,26 +205,54 @@ public:
 	BeliefTypes GetBeliefInPantheon(PlayerTypes ePlayer) const;
 	bool HasCreatedPantheon(PlayerTypes ePlayer) const;
 	int GetNumPantheonsCreated() const;
+#if defined (MOD_EVENTS_ACQUIRE_BELIEFS) || defined(MOD_TRAITS_ANY_BELIEF)
+	std::vector<BeliefTypes> GetAvailablePantheonBeliefs(PlayerTypes ePlayer=NO_PLAYER);
+#else
 	std::vector<BeliefTypes> GetAvailablePantheonBeliefs();
+#endif
+#if defined(MOD_TRAITS_ANY_BELIEF)
+	bool IsPantheonBeliefAvailable(BeliefTypes eBelief, PlayerTypes ePlayer=NO_PLAYER);
+#else
 	bool IsPantheonBeliefAvailable(BeliefTypes eBelief);
+#endif
 
 	// Main religion information functions
 	int GetNumFollowers(ReligionTypes eReligion) const;
 	int GetNumCitiesFollowing(ReligionTypes eReligion) const;
+#if defined(MOD_RELIGION_LOCAL_RELIGIONS)
+	bool HasCreatedReligion(PlayerTypes ePlayer, bool bIgnoreLocal = false) const;
+#else
 	bool HasCreatedReligion(PlayerTypes ePlayer) const;
+#endif
 	bool HasAddedReformationBelief(PlayerTypes ePlayer) const;
 	bool IsEligibleForFounderBenefits(ReligionTypes eReligion, PlayerTypes ePlayer) const;
 	bool IsCityStateFriendOfReligionFounder(ReligionTypes eReligion, PlayerTypes ePlayer);
 	ReligionTypes GetReligionCreatedByPlayer(PlayerTypes ePlayer) const;
 	ReligionTypes GetFounderBenefitsReligion(PlayerTypes ePlayer) const;
+#if defined(MOD_RELIGION_LOCAL_RELIGIONS)
+	int GetNumReligionsFounded(bool bIgnoreLocal = false) const;
+#else
 	int GetNumReligionsFounded() const;
+#endif
 	int GetNumReligionsEnhanced() const;
+#if defined(MOD_RELIGION_LOCAL_RELIGIONS)
+	int GetNumReligionsStillToFound(bool bIgnoreLocal = false) const;
+#else
 	int GetNumReligionsStillToFound() const;
+#endif
+#if defined (MOD_EVENTS_ACQUIRE_BELIEFS) || defined(MOD_TRAITS_ANY_BELIEF)
+	std::vector<BeliefTypes> GetAvailableFounderBeliefs(PlayerTypes ePlayer=NO_PLAYER, ReligionTypes eReligion=NO_RELIGION);
+	std::vector<BeliefTypes> GetAvailableFollowerBeliefs(PlayerTypes ePlayer=NO_PLAYER, ReligionTypes eReligion=NO_RELIGION);
+	std::vector<BeliefTypes> GetAvailableEnhancerBeliefs(PlayerTypes ePlayer=NO_PLAYER, ReligionTypes eReligion=NO_RELIGION);
+	std::vector<BeliefTypes> GetAvailableBonusBeliefs(PlayerTypes ePlayer=NO_PLAYER, ReligionTypes eReligion=NO_RELIGION);
+	std::vector<BeliefTypes> GetAvailableReformationBeliefs(PlayerTypes ePlayer=NO_PLAYER, ReligionTypes eReligion=NO_RELIGION);
+#else
 	std::vector<BeliefTypes> GetAvailableFounderBeliefs();
 	std::vector<BeliefTypes> GetAvailableFollowerBeliefs();
 	std::vector<BeliefTypes> GetAvailableEnhancerBeliefs();
 	std::vector<BeliefTypes> GetAvailableBonusBeliefs();
 	std::vector<BeliefTypes> GetAvailableReformationBeliefs();
+#endif
 
 	int GetAdjacentCityReligiousPressure (ReligionTypes eReligion, CvCity *pFromCity, CvCity *pToCity, int& iNumTradeRoutesInfluencing, bool bPretendTradeConnection);
 
@@ -254,6 +298,9 @@ enum CvReligiousFollowChangeReason
     FOLLOWER_CHANGE_REMOVE_HERESY,
 	FOLLOWER_CHANGE_SCRIPTED_CONVERSION,
 	FOLLOWER_CHANGE_SPY_PRESSURE,
+#if defined(MOD_GLOBAL_RELIGIOUS_SETTLERS)
+	FOLLOWER_CHANGE_ADOPT_FULLY,
+#endif
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -290,10 +337,20 @@ public:
 
 	// State information
 	bool HasCreatedPantheon() const;
+#if defined(MOD_RELIGION_LOCAL_RELIGIONS)
+	bool HasCreatedReligion(bool bIgnoreLocal = false) const;
+#else
 	bool HasCreatedReligion() const;
+#endif
 	bool HasAddedReformationBelief() const;
 	ReligionTypes GetReligionCreatedByPlayer() const;
+#if defined(MOD_RELIGION_RECURRING_PURCHASE_NOTIFIY)
+	bool CanAffordNextPurchase();
+	void SetFaithAtLastNotify(int iFaith);
+	bool CanAffordFaithPurchase(int iMinimumFaith) const;
+#else
 	bool CanAffordFaithPurchase() const;
+#endif
 	bool HasReligiousCity() const;
 	bool HasOthersReligionInMostCities(PlayerTypes eOtherPlayer) const;
 	bool HasReligionInMostCities(ReligionTypes eReligion) const;
@@ -309,6 +366,9 @@ private:
 
 	int m_iNumProphetsSpawned;
 	int m_bFoundingReligion;
+#if defined(MOD_RELIGION_RECURRING_PURCHASE_NOTIFIY)
+	int m_iFaithAtLastNotify;
+#endif
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -480,12 +540,21 @@ public:
 
 	void DoTurn();
 
+#if defined (MOD_EVENTS_ACQUIRE_BELIEFS)
+	BeliefTypes ChoosePantheonBelief(PlayerTypes ePlayer/*=NO_PLAYER*/);
+	BeliefTypes ChooseFounderBelief(PlayerTypes ePlayer/*=NO_PLAYER*/, ReligionTypes eReligion/*=NO_RELIGION*/);
+	BeliefTypes ChooseFollowerBelief(PlayerTypes ePlayer/*=NO_PLAYER*/, ReligionTypes eReligion/*=NO_RELIGION*/);
+	BeliefTypes ChooseEnhancerBelief(PlayerTypes ePlayer/*=NO_PLAYER*/, ReligionTypes eReligion/*=NO_RELIGION*/);
+	BeliefTypes ChooseBonusBelief(PlayerTypes ePlayer/*=NO_PLAYER*/, ReligionTypes eReligion/*=NO_RELIGION*/, int iExcludeBelief1, int iExcludeBelief2, int iExcludeBelief3);
+	BeliefTypes ChooseReformationBelief(PlayerTypes ePlayer/*=NO_PLAYER*/, ReligionTypes eReligion/*=NO_RELIGION*/);
+#else
 	BeliefTypes ChoosePantheonBelief();
 	BeliefTypes ChooseFounderBelief();
 	BeliefTypes ChooseFollowerBelief();
 	BeliefTypes ChooseEnhancerBelief();
 	BeliefTypes ChooseBonusBelief(int iExcludeBelief1, int iExcludeBelief2, int iExcludeBelief3);
 	BeliefTypes ChooseReformationBelief();
+#endif
 
 	CvCity* ChooseMissionaryTargetCity(UnitHandle pUnit);
 	CvPlot* ChooseMissionaryTargetPlot(UnitHandle pUnit, int* piTurns = NULL);

@@ -53,6 +53,9 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iGreatMusicianRateModifier(0),
 	m_iGreatMerchantRateModifier(0),
 	m_iGreatScientistRateModifier(0),
+#if defined(MOD_DIPLOMACY_CITYSTATES)
+	m_iGreatDiplomatRateModifier(0),
+#endif
 	m_iDomesticGreatGeneralRateModifier(0),
 	m_iExtraHappiness(0),
 	m_iExtraHappinessPerCity(0),
@@ -80,6 +83,9 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iUnhappinessFromUnitsMod(0),
 	m_iNumExtraBuilders(0),
 	m_iPlotGoldCostMod(0),
+#if defined(MOD_POLICIES_CITY_WORKING)
+	m_iCityWorkingChange(0),
+#endif
 	m_iPlotCultureCostModifier(0),
 	m_iPlotCultureExponentModifier(0),
 	m_iNumCitiesPolicyCostDiscount(0),
@@ -93,6 +99,9 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iStealTechSlowerModifier(0),
 	m_iStealTechFasterModifier(0),
 	m_iCatchSpiesModifier(0),
+#if defined(MOD_RELIGION_CONVERSION_MODIFIERS)
+	m_iConversionModifier(0),
+#endif
 	m_iGoldPerUnit(0),
 	m_iGoldPerMilitaryUnit(0),
 	m_iCityStrengthMod(0),
@@ -263,6 +272,11 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iGreatArtistRateModifier = kResults.GetInt("GreatArtistRateModifier");
 	m_iGreatMusicianRateModifier = kResults.GetInt("GreatMusicianRateModifier");
 	m_iGreatMerchantRateModifier = kResults.GetInt("GreatMerchantRateModifier");
+#if defined(MOD_DIPLOMACY_CITYSTATES)
+	if (MOD_DIPLOMACY_CITYSTATES) {
+		m_iGreatDiplomatRateModifier = kResults.GetInt("GreatDiplomatRateModifier");
+	}
+#endif
 	m_iGreatScientistRateModifier = kResults.GetInt("GreatScientistRateModifier");
 	m_iDomesticGreatGeneralRateModifier = kResults.GetInt("DomesticGreatGeneralRateModifier");
 	m_iExtraHappiness = kResults.GetInt("ExtraHappiness");
@@ -291,6 +305,9 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iUnhappinessFromUnitsMod = kResults.GetInt("UnhappinessFromUnitsMod");
 	m_iNumExtraBuilders = kResults.GetInt("NumExtraBuilders");
 	m_iPlotGoldCostMod = kResults.GetInt("PlotGoldCostMod");
+#if defined(MOD_POLICIES_CITY_WORKING)
+	m_iCityWorkingChange = kResults.GetInt("CityWorkingChange");
+#endif
 	m_iPlotCultureCostModifier = kResults.GetInt("PlotCultureCostModifier");
 	m_iPlotCultureExponentModifier = kResults.GetInt("PlotCultureExponentModifier");
 	m_iNumCitiesPolicyCostDiscount = kResults.GetInt("NumCitiesPolicyCostDiscount");
@@ -304,6 +321,9 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iStealTechSlowerModifier = kResults.GetInt("StealTechSlowerModifier");
 	m_iStealTechFasterModifier = kResults.GetInt("StealTechFasterModifier");
 	m_iCatchSpiesModifier = kResults.GetInt("CatchSpiesModifier");
+#if defined(MOD_RELIGION_CONVERSION_MODIFIERS)
+	m_iConversionModifier = kResults.GetInt("ConversionModifier");
+#endif
 	m_iGoldPerUnit = kResults.GetInt("GoldPerUnit");
 	m_iGoldPerMilitaryUnit = kResults.GetInt("GoldPerMilitaryUnit");
 	m_iCityStrengthMod = kResults.GetInt("CityStrengthMod");
@@ -781,6 +801,14 @@ int CvPolicyEntry::GetGreatMerchantRateModifier() const
 	return m_iGreatMerchantRateModifier;
 }
 
+#if defined(MOD_DIPLOMACY_CITYSTATES)
+///  Change in spawn rate for great diplomats
+int CvPolicyEntry::GetGreatDiplomatRateModifier() const
+{
+	return m_iGreatDiplomatRateModifier;
+}
+#endif
+
 ///  Change in spawn rate for great scientists
 int CvPolicyEntry::GetGreatScientistRateModifier() const
 {
@@ -949,6 +977,14 @@ int CvPolicyEntry::GetPlotGoldCostMod() const
 	return m_iPlotGoldCostMod;
 }
 
+#if defined(MOD_POLICIES_CITY_WORKING)
+/// How many more rings can we work
+int CvPolicyEntry::GetCityWorkingChange() const
+{
+	return m_iCityWorkingChange;
+}
+#endif
+
 /// How much Culture is needed for a City to acquire a new Plot?
 int CvPolicyEntry::GetPlotCultureCostModifier() const
 {
@@ -1025,6 +1061,14 @@ int CvPolicyEntry::GetCatchSpiesModifier() const
 {
 	return m_iCatchSpiesModifier;
 }
+
+#if defined(MOD_RELIGION_CONVERSION_MODIFIERS)
+/// How much unfriendly religion spread is slowed?
+int CvPolicyEntry::GetConversionModifier() const
+{
+	return m_iConversionModifier;
+}
+#endif
 
 /// Upkeep cost
 int CvPolicyEntry::GetGoldPerUnit() const
@@ -2131,6 +2175,7 @@ void CvPlayerPolicies::Read(FDataStream& kStream)
 	// Version number to maintain backwards compatibility
 	uint uiVersion;
 	kStream >> uiVersion;
+	MOD_SERIALIZE_INIT_READ(kStream);
 
 	CvAssertMsg(m_pPolicies != NULL && m_pPolicies->GetNumPolicies() > 0, "Number of policies to serialize is expected to greater than 0");
 
@@ -2181,6 +2226,7 @@ void CvPlayerPolicies::Write(FDataStream& kStream) const
 	// Current version number
 	uint uiVersion = 2;
 	kStream << uiVersion;
+	MOD_SERIALIZE_INIT_WRITE(kStream);
 
 	CvAssertMsg(m_pPolicies != NULL && GC.getNumPolicyInfos() > 0, "Number of policies to serialize is expected to greater than 0");
 
@@ -2430,6 +2476,13 @@ int CvPlayerPolicies::GetNumericModifier(PolicyModifierType eType)
 			case POLICYMOD_GREAT_MERCHANT_RATE:
 				rtnValue += m_pPolicies->GetPolicyEntry(i)->GetGreatMerchantRateModifier();
 				break;
+#if defined(MOD_DIPLOMACY_CITYSTATES)
+			case POLICYMOD_GREAT_DIPLOMAT_RATE:
+				if (MOD_DIPLOMACY_CITYSTATES) {
+					rtnValue += m_pPolicies->GetPolicyEntry(i)->GetGreatDiplomatRateModifier();
+				}
+				break;
+#endif
 			case POLICYMOD_GREAT_SCIENTIST_RATE:
 				rtnValue += m_pPolicies->GetPolicyEntry(i)->GetGreatScientistRateModifier();
 				break;
@@ -2540,6 +2593,11 @@ int CvPlayerPolicies::GetNumericModifier(PolicyModifierType eType)
 				break;
 			case POLICYMOD_OPEN_BORDERS_TOURISM_MODIFIER:
 				rtnValue += m_pPolicies->GetPolicyEntry(i)->GetOpenBordersTourismModifier();
+#if defined(MOD_RELIGION_CONVERSION_MODIFIERS)
+			case POLICYMOD_CONVERSION_MODIFIER:
+				rtnValue += m_pPolicies->GetPolicyEntry(i)->GetConversionModifier();
+				break;
+#endif
 			}
 		}
 	}
@@ -2985,6 +3043,14 @@ bool CvPlayerPolicies::CanAdoptPolicy(PolicyTypes eIndex, bool bIgnoreCost) cons
 			}
 		}
 	}
+	
+#if defined(MOD_EVENTS_IDEOLOGIES)
+	if (MOD_EVENTS_IDEOLOGIES && pkPolicyEntry->GetLevel() > 0) {
+		if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_PlayerCanAdoptTenet, m_pPlayer->GetID(), eIndex) == GAMEEVENTRETURN_FALSE) {
+			return false;
+		}
+	}
+#endif
 
 	return true;
 }
@@ -3113,6 +3179,16 @@ bool CvPlayerPolicies::CanUnlockPolicyBranch(PolicyBranchTypes eBranchType)
 
 	return true;
 }
+
+#if defined(MOD_AI_SMART_POLICY_CHOICE)
+/// can the player unlock eBranchType right now?
+bool CvPlayerPolicies::IsEraPrereqBranch(PolicyBranchTypes eBranchType)
+{
+	CvPolicyBranchEntry* pkBranchEntry = m_pPolicies->GetPolicyBranchEntry(eBranchType);
+
+	return (pkBranchEntry && pkBranchEntry->GetEraPrereq() > 0);
+}
+#endif
 
 /// Accessor: has a player unlocked eBranchType to pick Policies from?
 bool CvPlayerPolicies::IsPolicyBranchUnlocked(PolicyBranchTypes eBranchType) const
@@ -3388,6 +3464,26 @@ bool CvPlayerPolicies::IsPolicyBlocked(PolicyTypes eType) const
 	return IsPolicyBranchBlocked(eBranch);
 }
 
+#if defined(MOD_API_EXTENSIONS)
+bool CvPlayerPolicies::CanAdoptIdeology(PolicyBranchTypes eIdeology) const
+{
+#if defined(MOD_EVENTS_IDEOLOGIES)
+	if (MOD_EVENTS_IDEOLOGIES) {
+		if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_PlayerCanAdoptTenet, m_pPlayer->GetID(), eIdeology) == GAMEEVENTRETURN_FALSE) {
+			return false;
+		}
+	}
+#endif
+
+	return true;
+}
+
+bool CvPlayerPolicies::HasAdoptedIdeology(PolicyBranchTypes eIdeology) const
+{
+	return IsPolicyBranchUnlocked(eIdeology);
+}
+#endif
+
 /// Implement a switch of ideologies
 void CvPlayerPolicies::DoSwitchIdeologies(PolicyBranchTypes eNewBranchType)
 {
@@ -3405,6 +3501,22 @@ void CvPlayerPolicies::DoSwitchIdeologies(PolicyBranchTypes eNewBranchType)
 	m_pPlayer->GetCulture()->SetTurnIdeologySwitch(GC.getGame().getGameTurn());
 	m_pPlayer->setJONSCulture(0);
 	m_pPlayer->ChangeNumFreeTenets(iNewBranchTenets, false /*bCountAsFreePolicies*/);
+
+#if defined(MOD_BUGFIX_MISSING_POLICY_EVENTS)
+	if (MOD_BUGFIX_MISSING_POLICY_EVENTS)
+	{
+		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+		if(pkScriptSystem)
+		{
+			CvLuaArgsHandle args;
+			args->Push(m_pPlayer->GetID());
+			args->Push(eNewBranchType);
+
+			bool bResult = false;
+			LuaSupport::CallHook(pkScriptSystem, "PlayerAdoptPolicyBranch", args.get(), bResult);
+		}
+	}
+#endif
 
 	if (GC.getGame().getActivePlayer() == m_pPlayer->GetID())
 	{
@@ -3461,6 +3573,7 @@ void CvPlayerPolicies::SetPolicyBranchFinished(PolicyBranchTypes eBranchType, bo
 		m_pabPolicyBranchFinished[eBranchType] = bValue;
 
 
+#if !defined(NO_ACHIEVEMENTS)
 		bool bUsingXP1Scenario3 = gDLL->IsModActivated(CIV5_XP1_SCENARIO3_MODID);
 
 		//Achievements for fulfilling branches
@@ -3506,6 +3619,7 @@ void CvPlayerPolicies::SetPolicyBranchFinished(PolicyBranchTypes eBranchType, bo
 				gDLL->UnlockAchievement(ACHIEVEMENT_ALL_SOCIAL_POLICIES);
 			}
 		}
+#endif
 
 	}
 }
@@ -3905,6 +4019,12 @@ std::vector<PolicyTypes> CvPlayerPolicies::GetAvailableTenets(PolicyBranchTypes 
 		CvPolicyEntry* pEntry = pkPolicies->GetPolicyEntry(eTenet);
 		if (pEntry && pEntry->GetPolicyBranchType() == eBranch && pEntry->GetLevel() == iLevel && !HasPolicy(eTenet))
 		{
+#if defined(MOD_EVENTS_IDEOLOGIES)
+			if (MOD_EVENTS_IDEOLOGIES && !CanAdoptPolicy(eTenet)) {
+				continue;
+			}
+#endif
+
 			availableTenets.push_back(eTenet);
 		}
 	}
@@ -4038,6 +4158,15 @@ void CvPlayerPolicies::AddFlavorAsStrategies(int iPropagatePercent)
 
 //		NEW WAY: use PERSONALITY flavors (since policy choices are LONG-TERM)
 //		EVEN NEWER WAY: add in a modifier for the Grand Strategy we are running (since these are also long term)
+#if defined(MOD_AI_SMART_GRAND_STRATEGY)
+		// NEWER NEWER WAY: don't add grand strategy factor before medieval era, the AI still doesn't know if the Grand Strategy is solid.
+		EraTypes eMedieval = (EraTypes) GC.getInfoTypeForString("ERA_MEDIEVAL", true);
+		if (MOD_AI_SMART_GRAND_STRATEGY && m_pPlayer->GetCurrentEra() < eMedieval)
+		{
+			iFlavorValue = m_pPlayer->GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes) iFlavor);
+		}
+		else
+#endif
 		iFlavorValue = m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes) iFlavor);
 
 //		Boost flavor even further based on in-game conditions

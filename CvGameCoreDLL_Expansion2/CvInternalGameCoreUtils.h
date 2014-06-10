@@ -26,3 +26,7 @@ bool isLimitedWonderClass(const CvBuildingClassInfo& kBuildingClass);
 int limitedWonderClassLimit(const CvBuildingClassInfo& kBuildingClass);
 //------------------------------------------------------------------------------
 int getWorldSizeMaxConscript(const CvPolicyEntry& kPolicy);
+
+#if defined(MOD_TRADE_WONDER_RESOURCE_ROUTES)
+ResourceTypes getWonderResource();
+#endif

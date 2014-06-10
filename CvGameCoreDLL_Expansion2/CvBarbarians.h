@@ -34,7 +34,13 @@ private:
 	static bool CanBarbariansSpawn();
 	static bool IsPlotValidForBarbCamp(CvPlot* pPlot);
 	static UnitTypes GetRandomBarbarianUnitType(CvArea* pArea, UnitAITypes eUnitAI);
+#if defined(MOD_BUGFIX_BARB_CAMP_SPAWNING)
+public:
+#endif
 	static void DoCampActivationNotice(CvPlot* pPlot);
+#if defined(MOD_BUGFIX_BARB_CAMP_SPAWNING)
+private:
+#endif
 
 	static short* m_aiPlotBarbCampSpawnCounter;
 	static short* m_aiPlotBarbCampNumUnitsSpawned;

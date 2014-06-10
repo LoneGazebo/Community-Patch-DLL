@@ -897,6 +897,11 @@ private:
 	void ExecuteEscortEmbarkedMoves();
 
 	// Internal low-level utility routines
+#if defined(MOD_AI_SMART_RANGED_UNITS)
+	CvPlot* GetBestRepositionPlot(UnitHandle unitH, CvPlot* plotTarget);
+	void GetBestPlot(CvPlot*& outputPlot, vector<CvPlot*> plotsToCheck);
+	bool ContainsPlot(vector<CvPlot*> plotData, CvPlot* plotXy);
+#endif
 	void TurnOffMove(TacticalAIMoveTypes eType);
 	bool FindUnitsForThisMove(TacticalAIMoveTypes eMove, CvPlot* pTargetPlot, int iNumTurnsAway=0, bool bRangedOnly=false);
 	bool FindUnitsWithinStrikingDistance(CvPlot *pTargetPlot, int iNumTurnsAway, int iPreferredDamageLevel, bool bNoRangedUnits=false, bool bNavalOnly=false, bool bMustMoveThrough=false, bool bIncludeBlockedUnits=false, bool bWillPillage=false, bool bTargetUndefended=false);
@@ -905,6 +910,12 @@ private:
 	bool FindClosestUnit(CvPlot* pTargetPlot, int iNumTurnsAway, bool bMustHaveHalfHP, bool bMustBeRangedUnit=false, int iRangeRequired=2, bool bNeedsIgnoreLOS=false, bool bMustBeMeleeUnit=false, bool bIgnoreUnits=false, CvPlot* pRangedAttackTarget=NULL);
 	bool FindClosestOperationUnit(CvPlot* pTargetPlot, bool bSafeForRanged, bool bMustBeRangedUnit);
 	bool FindClosestNavalOperationUnit(CvPlot* pTargetPlot, bool bEscortedUnits);
+#if defined(MOD_AI_SMART_AIR_TACTICS)
+public:
+	int SamePlotFound(vector<CvPlot*> plotData, CvPlot* plotXy);
+private:
+	bool FindAirUnitsToAirSweep(CvPlot* pTarget);
+#endif
 	int ComputeTotalExpectedDamage(CvTacticalTarget* target, CvPlot* pTargetPlot);
 	int ComputeTotalExpectedBombardDamage(UnitHandle pTarget);
 	bool IsExpectedToDamageWithRangedAttack(UnitHandle pAttacker, CvPlot* pTarget);
@@ -949,6 +960,9 @@ private:
 	CvPlayer* m_pPlayer;
 	CvTacticalAnalysisMap* m_pMap;
 	list<int> m_CurrentTurnUnits;
+#if defined(MOD_AI_SMART_AIR_TACTICS)
+	std::vector<CvTacticalUnit> m_CurrentAirUnits;
+#endif
 	std::vector<CvTacticalUnit> m_CurrentMoveUnits;
 	std::vector<CvTacticalUnit> m_CurrentMoveHighPriorityUnits;
 	std::vector<CvTacticalCity> m_CurrentMoveCities;
@@ -963,7 +977,11 @@ private:
 	TacticalList m_AllTargets;
 	TacticalList m_ZoneTargets;
 	TacticalList m_NavalResourceBlockadePoints;
+#if defined(MOD_GLOBAL_CITY_WORKING)
+	FStaticVector<CvTacticalTarget, MAX_CITY_PLOTS, true, c_eCiv5GameplayDLL, 0> m_TempTargets;
+#else
 	FStaticVector<CvTacticalTarget, NUM_CITY_PLOTS, true, c_eCiv5GameplayDLL, 0> m_TempTargets;
+#endif
 
 	// Targeting ranges (pulled in from GlobalAIDefines.XML)
 	int m_iRecruitRange;
@@ -987,8 +1005,13 @@ private:
 	// Blocking (and flanking) position data
 	FStaticVector<CvBlockingUnit, SAFE_ESTIMATE_NUM_BLOCKING_UNITS, true, c_eCiv5GameplayDLL, 0> m_PotentialBlocks;
 	FStaticVector<CvBlockingUnit, SAFE_ESTIMATE_NUM_BLOCKING_UNITS, true, c_eCiv5GameplayDLL, 0> m_TemporaryBlocks;
+#if defined(MOD_GLOBAL_CITY_WORKING)
+	FStaticVector<CvBlockingUnit, MAX_CITY_PLOTS, true, c_eCiv5GameplayDLL, 0> m_ChosenBlocks;
+	FStaticVector<CvBlockingUnit, MAX_CITY_PLOTS, true, c_eCiv5GameplayDLL, 0> m_NewlyChosen;
+#else
 	FStaticVector<CvBlockingUnit, NUM_CITY_PLOTS, true, c_eCiv5GameplayDLL, 0> m_ChosenBlocks;
 	FStaticVector<CvBlockingUnit, NUM_CITY_PLOTS, true, c_eCiv5GameplayDLL, 0> m_NewlyChosen;
+#endif
 
 	// Operational AI support data
 	FStaticVector<CvOperationUnit, SAFE_ESTIMATE_NUM_MULTIUNITFORMATION_ENTRIES, true, c_eCiv5GameplayDLL, 0> m_OperationUnits;

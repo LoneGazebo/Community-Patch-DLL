@@ -35,6 +35,7 @@ void VoteSelectionData::read(FDataStream& kStream)
 	// Version number to maintain backwards compatibility
 	uint uiVersion;
 	kStream >> uiVersion;
+	MOD_SERIALIZE_INIT_READ(kStream);
 
 	kStream >> iId;
 	kStream >> eVoteSource;
@@ -63,6 +64,7 @@ void VoteSelectionData::write(FDataStream& kStream) const
 	// Current version number
 	uint uiVersion = 1;
 	kStream << uiVersion;
+	MOD_SERIALIZE_INIT_WRITE(kStream);
 
 	kStream << iId;
 	kStream << eVoteSource;
@@ -97,6 +99,7 @@ void VoteTriggeredData::read(FDataStream& kStream)
 	// Version number to maintain backwards compatibility
 	uint uiVersion;
 	kStream >> uiVersion;
+	MOD_SERIALIZE_INIT_READ(kStream);
 
 	kStream >> iId;
 	kStream >> eVoteSource;
@@ -117,6 +120,7 @@ void VoteTriggeredData::write(FDataStream& kStream) const
 	// Current version number
 	uint uiVersion = 1;
 	kStream << uiVersion;
+	MOD_SERIALIZE_INIT_WRITE(kStream);
 
 	kStream << iId;
 	kStream << eVoteSource;

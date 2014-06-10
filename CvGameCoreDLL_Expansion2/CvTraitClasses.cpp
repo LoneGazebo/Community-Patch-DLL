@@ -39,6 +39,9 @@ CvTraitEntry::CvTraitEntry() :
 	m_iSeaBarbarianConversionPercent(0),
 	m_iCapitalBuildingModifier(0),
 	m_iPlotBuyCostModifier(0),
+#if defined(MOD_TRAITS_CITY_WORKING)
+	m_iCityWorkingChange(0),
+#endif
 	m_iPlotCultureCostModifier(0),
 	m_iCultureFromKills(0),
 	m_iFaithFromKills(0),
@@ -97,9 +100,15 @@ CvTraitEntry::CvTraitEntry() :
 	m_bTechBoostFromCapitalScienceBuildings(false),
 	m_bStaysAliveZeroCities(false),
 	m_bFaithFromUnimprovedForest(false),
+#if defined(MOD_TRAITS_ANY_BELIEF)
+	m_bAnyBelief(false),
+#endif
 	m_bBonusReligiousBelief(false),
 	m_bAbleToAnnexCityStates(false),
 	m_bCrossesMountainsAfterGreatGeneral(false),
+#if defined(MOD_TRAITS_CROSSES_ICE)
+	m_bCrossesIce(false),
+#endif
 	m_bMayaCalendarBonuses(false),
 	m_bNoAnnexing(false),
 	m_bTechFromCityConquer(false),
@@ -241,6 +250,14 @@ int CvTraitEntry::GetPlotBuyCostModifier() const
 {
 	return m_iPlotBuyCostModifier;
 }
+
+#if defined(MOD_TRAITS_CITY_WORKING)
+/// Accessor:: greater border expansion
+int CvTraitEntry::GetCityWorkingChange() const
+{
+	return m_iCityWorkingChange;
+}
+#endif
 
 /// Accessor:: increased rate of culture border expansion
 int CvTraitEntry::GetPlotCultureCostModifier() const
@@ -592,6 +609,14 @@ bool CvTraitEntry::IsFaithFromUnimprovedForest() const
 	return m_bFaithFromUnimprovedForest;
 }
 
+#if defined(MOD_TRAITS_ANY_BELIEF)
+/// Accessor: can this civ have any belief?
+bool CvTraitEntry::IsAnyBelief() const
+{
+	return m_bAnyBelief;
+}
+#endif
+
 /// Accessor: does this civ get a bonus religious belief?
 bool CvTraitEntry::IsBonusReligiousBelief() const
 {
@@ -609,6 +634,14 @@ bool CvTraitEntry::IsCrossesMountainsAfterGreatGeneral() const
 {
 	return m_bCrossesMountainsAfterGreatGeneral;
 }
+
+#if defined(MOD_TRAITS_CROSSES_ICE)
+/// Accessor: do combat units have the ability to cross ice?
+bool CvTraitEntry::IsCrossesIce() const
+{
+	return m_bCrossesIce;
+}
+#endif
 
 /// Accessor: is this civ receiving bonuses based on the Maya calendar?
 bool CvTraitEntry::IsMayaCalendarBonuses() const
@@ -872,6 +905,9 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	m_iSeaBarbarianConversionPercent        = kResults.GetInt("SeaBarbarianConversionPercent");
 	m_iCapitalBuildingModifier				= kResults.GetInt("CapitalBuildingModifier");
 	m_iPlotBuyCostModifier					= kResults.GetInt("PlotBuyCostModifier");
+#if defined(MOD_TRAITS_CITY_WORKING)
+	m_iCityWorkingChange					= kResults.GetInt("CityWorkingChange");
+#endif
 	m_iPlotCultureCostModifier              = kResults.GetInt("PlotCultureCostModifier");
 	m_iCultureFromKills						= kResults.GetInt("CultureFromKills");
 	m_iFaithFromKills						= kResults.GetInt("FaithFromKills");
@@ -971,9 +1007,17 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	m_bTechBoostFromCapitalScienceBuildings = kResults.GetBool("TechBoostFromCapitalScienceBuildings");
 	m_bStaysAliveZeroCities = kResults.GetBool("StaysAliveZeroCities");
 	m_bFaithFromUnimprovedForest = kResults.GetBool("FaithFromUnimprovedForest");
+#if defined(MOD_TRAITS_ANY_BELIEF)
+	if (MOD_TRAITS_ANY_BELIEF) {
+		m_bAnyBelief = kResults.GetBool("AnyBelief");
+	}
+#endif
 	m_bBonusReligiousBelief = kResults.GetBool("BonusReligiousBelief");
 	m_bAbleToAnnexCityStates = kResults.GetBool("AbleToAnnexCityStates");
 	m_bCrossesMountainsAfterGreatGeneral = kResults.GetBool("CrossesMountainsAfterGreatGeneral");
+#if defined(MOD_TRAITS_CROSSES_ICE)
+	m_bCrossesIce = kResults.GetBool("CrossesIce");
+#endif
 	m_bMayaCalendarBonuses = kResults.GetBool("MayaCalendarBonuses");
 	m_bNoAnnexing = kResults.GetBool("NoAnnexing");
 	m_bTechFromCityConquer = kResults.GetBool("TechFromCityConquer");
@@ -1335,6 +1379,9 @@ void CvPlayerTraits::InitPlayerTraits()
 			m_iSeaBarbarianConversionPercent += trait->GetSeaBarbarianConversionPercent();
 			m_iCapitalBuildingModifier += trait->GetCapitalBuildingModifier();
 			m_iPlotBuyCostModifier += trait->GetPlotBuyCostModifier();
+#if defined(MOD_TRAITS_CITY_WORKING)
+			m_iCityWorkingChange += trait->GetCityWorkingChange();
+#endif
 			m_iPlotCultureCostModifier += trait->GetPlotCultureCostModifier();
 			m_iCultureFromKills += trait->GetCultureFromKills();
 			m_iFaithFromKills += trait->GetFaithFromKills();
@@ -1424,6 +1471,12 @@ void CvPlayerTraits::InitPlayerTraits()
 			{
 				m_bFaithFromUnimprovedForest = true;
 			}
+#if defined(MOD_TRAITS_ANY_BELIEF)
+			if(trait->IsAnyBelief())
+			{
+				m_bAnyBelief = true;
+			}
+#endif
 			if(trait->IsBonusReligiousBelief())
 			{
 				m_bBonusReligiousBelief = true;
@@ -1436,6 +1489,12 @@ void CvPlayerTraits::InitPlayerTraits()
 			{
 				m_bCrossesMountainsAfterGreatGeneral = true;
 			}
+#if defined(MOD_TRAITS_CROSSES_ICE)
+			if(trait->IsCrossesIce())
+			{
+				m_bCrossesIce = true;
+			}
+#endif
 			if(trait->IsMayaCalendarBonuses())
 			{
 				m_bMayaCalendarBonuses = true;
@@ -1589,6 +1648,9 @@ void CvPlayerTraits::Reset()
 	m_iSeaBarbarianConversionPercent = 0;
 	m_iCapitalBuildingModifier = 0;
 	m_iPlotBuyCostModifier = 0;
+#if defined(MOD_TRAITS_CITY_WORKING)
+	m_iCityWorkingChange = 0;
+#endif
 	m_iPlotCultureCostModifier = 0;
 	m_iCultureFromKills = 0;
 	m_iFaithFromKills = 0;
@@ -1645,9 +1707,15 @@ void CvPlayerTraits::Reset()
 	m_bTechBoostFromCapitalScienceBuildings = false;
 	m_bStaysAliveZeroCities = false;
 	m_bFaithFromUnimprovedForest = false;
+#if defined(MOD_TRAITS_ANY_BELIEF)
+	m_bAnyBelief = false;
+#endif
 	m_bBonusReligiousBelief = false;
 	m_bAbleToAnnexCityStates = false;
 	m_bCrossesMountainsAfterGreatGeneral = false;
+#if defined(MOD_TRAITS_CROSSES_ICE)
+	m_bCrossesIce = false;
+#endif
 	m_bMayaCalendarBonuses = false;
 	m_bNoAnnexing = false;
 	m_bTechFromCityConquer = false;
@@ -1975,6 +2043,14 @@ void CvPlayerTraits::AddUniqueLuxuries(CvCity *pCity)
 			{
 				return;
 			}
+			
+#if defined(MOD_EVENTS_AREA_RESOURCES)
+			if (MOD_EVENTS_AREA_RESOURCES) {
+				if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_AreaCanHaveAnyResource, m_pPlayer->GetID(), iArea) == GAMEEVENTRETURN_FALSE) {
+					return;
+				}
+			}
+#endif
 		}
 
 		m_aUniqueLuxuryAreas.push_back(iArea);  		// Store area
@@ -2001,8 +2077,16 @@ void CvPlayerTraits::AddUniqueLuxuries(CvCity *pCity)
 
 		if (eResourceToGive != NO_RESOURCE)
 		{
-			pCity->plot()->setResourceType(NO_RESOURCE, 0, true);
-			pCity->plot()->setResourceType(eResourceToGive, m_iUniqueLuxuryQuantity, true);
+#if defined(MOD_EVENTS_AREA_RESOURCES)
+			if (MOD_EVENTS_AREA_RESOURCES) {
+				GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlaceResource, m_pPlayer->GetID(), eResourceToGive, m_iUniqueLuxuryQuantity, pCity->getX(), pCity->getY());
+			} else {
+#endif
+				pCity->plot()->setResourceType(NO_RESOURCE, 0, true);
+				pCity->plot()->setResourceType(eResourceToGive, m_iUniqueLuxuryQuantity, true);
+#if defined(MOD_EVENTS_AREA_RESOURCES)
+			}
+#endif
 		}
 	}
 }
@@ -2114,6 +2198,14 @@ bool CvPlayerTraits::IsAbleToCrossMountains() const
 	return (m_bCrossesMountainsAfterGreatGeneral && m_pPlayer->getGreatGeneralsCreated() > 0);
 }
 
+#if defined(MOD_TRAITS_CROSSES_ICE)
+/// Is this civ currently able to cross ice with combat units?
+bool CvPlayerTraits::IsAbleToCrossIce() const
+{
+	return (m_bCrossesIce);
+}
+#endif
+
 bool CvPlayerTraits::NoTrain(UnitClassTypes eUnitClassType)
 {
 	if (eUnitClassType != NO_UNITCLASS)
@@ -2209,7 +2301,11 @@ void CvPlayerTraits::ChooseMayaBoost()
 	UnitTypes ePossibleGreatPerson;
 
 	// Go for a prophet?
+#if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
+	ePossibleGreatPerson = m_pPlayer->GetSpecificUnitType("UNITCLASS_PROPHET", true);
+#else
 	ePossibleGreatPerson = (UnitTypes)GC.getInfoTypeForString("UNIT_PROPHET", true);
+#endif
 	if(GetUnitBaktun(ePossibleGreatPerson) == 0)
 	{
 		CvGameReligions* pReligions = GC.getGame().GetGameReligions();
@@ -2238,7 +2334,11 @@ void CvPlayerTraits::ChooseMayaBoost()
 	// Highly wonder competitive and still early in game?
 	if(eDesiredGreatPerson == NO_UNIT)
 	{
+#if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
+		ePossibleGreatPerson = m_pPlayer->GetSpecificUnitType("UNITCLASS_ENGINEER");
+#else
 		ePossibleGreatPerson = (UnitTypes)GC.getInfoTypeForString("UNIT_ENGINEER");
+#endif
 		if(GetUnitBaktun(ePossibleGreatPerson) == 0)
 		{
 			if(m_pPlayer->GetDiplomacyAI()->GetWonderCompetitiveness() >= 8 && GC.getGame().getGameTurn() <= (GC.getGame().getEstimateEndTurn() / 2))
@@ -2252,7 +2352,11 @@ void CvPlayerTraits::ChooseMayaBoost()
 	AIGrandStrategyTypes eVictoryStrategy = m_pPlayer->GetGrandStrategyAI()->GetActiveGrandStrategy();
 	if(eDesiredGreatPerson == NO_UNIT)
 	{
+#if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
+		ePossibleGreatPerson = m_pPlayer->GetSpecificUnitType("UNITCLASS_SCIENTIST");
+#else
 		ePossibleGreatPerson = (UnitTypes)GC.getInfoTypeForString("UNIT_SCIENTIST");
+#endif
 		if(GetUnitBaktun(ePossibleGreatPerson) == 0)
 		{
 			if(eVictoryStrategy == (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_SPACESHIP"))
@@ -2263,7 +2367,11 @@ void CvPlayerTraits::ChooseMayaBoost()
 	}
 	if(eDesiredGreatPerson == NO_UNIT)
 	{
+#if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
+		ePossibleGreatPerson = m_pPlayer->GetSpecificUnitType("UNITCLASS_ARTIST");
+#else
 		ePossibleGreatPerson = (UnitTypes)GC.getInfoTypeForString("UNIT_ARTIST");
+#endif
 		if(GetUnitBaktun(ePossibleGreatPerson) == 0)
 		{
 			if(eVictoryStrategy == (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_CULTURE"))
@@ -2274,7 +2382,20 @@ void CvPlayerTraits::ChooseMayaBoost()
 	}
 	if(eDesiredGreatPerson == NO_UNIT)
 	{
-		ePossibleGreatPerson = (UnitTypes)GC.getInfoTypeForString("UNIT_MERCHANT");
+#if defined(MOD_DIPLOMACY_CITYSTATES)
+		if (MOD_DIPLOMACY_CITYSTATES)
+#if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
+			ePossibleGreatPerson = m_pPlayer->GetSpecificUnitType("UNITCLASS_GREAT_DIPLOMAT");
+#else
+			ePossibleGreatPerson = (UnitTypes)GC.getInfoTypeForString("UNIT_GREAT_DIPLOMAT");
+#endif
+		else
+#endif
+#if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
+			ePossibleGreatPerson = m_pPlayer->GetSpecificUnitType("UNITCLASS_MERCHANT");
+#else
+			ePossibleGreatPerson = (UnitTypes)GC.getInfoTypeForString("UNIT_MERCHANT");
+#endif
 		if(GetUnitBaktun(ePossibleGreatPerson) == 0)
 		{
 			if(eVictoryStrategy == (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_UNITED_NATIONS"))
@@ -2285,7 +2406,11 @@ void CvPlayerTraits::ChooseMayaBoost()
 	}
 	if(eDesiredGreatPerson == NO_UNIT)
 	{
+#if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
+		ePossibleGreatPerson = m_pPlayer->GetSpecificUnitType("UNITCLASS_GREAT_GENERAL");
+#else
 		ePossibleGreatPerson = (UnitTypes)GC.getInfoTypeForString("UNIT_GREAT_GENERAL");
+#endif
 		if(GetUnitBaktun(ePossibleGreatPerson) == 0)
 		{
 			if(eVictoryStrategy == (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_CONQUEST"))
@@ -2298,63 +2423,99 @@ void CvPlayerTraits::ChooseMayaBoost()
 	// No obvious strategic choice, just go for first one available in a reasonable order
 	if(eDesiredGreatPerson == NO_UNIT)
 	{
+#if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
+		ePossibleGreatPerson = m_pPlayer->GetSpecificUnitType("UNITCLASS_PROPHET", true);
+#else
 		ePossibleGreatPerson = (UnitTypes)GC.getInfoTypeForString("UNIT_PROPHET", true);
+#endif
 		if(GetUnitBaktun(ePossibleGreatPerson) == 0)
 		{
 			eDesiredGreatPerson = ePossibleGreatPerson;
 		}
 		else
 		{
+#if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
+			ePossibleGreatPerson = m_pPlayer->GetSpecificUnitType("UNITCLASS_ENGINEER");
+#else
 			ePossibleGreatPerson = (UnitTypes)GC.getInfoTypeForString("UNIT_ENGINEER");
+#endif
 			if(GetUnitBaktun(ePossibleGreatPerson) == 0)
 			{
 				eDesiredGreatPerson = ePossibleGreatPerson;
 			}
 			else
 			{
+#if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
+				ePossibleGreatPerson = m_pPlayer->GetSpecificUnitType("UNITCLASS_WRITER");
+#else
 				ePossibleGreatPerson = (UnitTypes)GC.getInfoTypeForString("UNIT_WRITER");
+#endif
 				if(GetUnitBaktun(ePossibleGreatPerson) == 0)
 				{
 					eDesiredGreatPerson = ePossibleGreatPerson;
 				}
 				else
 				{
+#if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
+					ePossibleGreatPerson = m_pPlayer->GetSpecificUnitType("UNITCLASS_MERCHANT");
+#else
 					ePossibleGreatPerson = (UnitTypes)GC.getInfoTypeForString("UNIT_MERCHANT");
+#endif
 					if(GetUnitBaktun(ePossibleGreatPerson) == 0)
 					{
 						eDesiredGreatPerson = ePossibleGreatPerson;
 					}
 					else
 					{
+#if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
+						ePossibleGreatPerson = m_pPlayer->GetSpecificUnitType("UNITCLASS_SCIENTIST");
+#else
 						ePossibleGreatPerson = (UnitTypes)GC.getInfoTypeForString("UNIT_SCIENTIST");
+#endif
 						if(GetUnitBaktun(ePossibleGreatPerson) == 0)
 						{
 							eDesiredGreatPerson = ePossibleGreatPerson;
 						}
 						else
 						{
+#if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
+							ePossibleGreatPerson = m_pPlayer->GetSpecificUnitType("UNITCLASS_ARTIST");
+#else
 							ePossibleGreatPerson = (UnitTypes)GC.getInfoTypeForString("UNIT_ARTIST");
+#endif
 							if(GetUnitBaktun(ePossibleGreatPerson) == 0)
 							{
 								eDesiredGreatPerson = ePossibleGreatPerson;
 							}
 							else
 							{
+#if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
+								ePossibleGreatPerson = m_pPlayer->GetSpecificUnitType("UNITCLASS_MUSICIAN");
+#else
 								ePossibleGreatPerson = (UnitTypes)GC.getInfoTypeForString("UNIT_MUSICIAN");
+#endif
 								if(GetUnitBaktun(ePossibleGreatPerson) == 0)
 								{
 									eDesiredGreatPerson = ePossibleGreatPerson;
 								}
 								else
 								{
+#if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
+									ePossibleGreatPerson = m_pPlayer->GetSpecificUnitType("UNITCLASS_GREAT_GENERAL");
+#else
 									ePossibleGreatPerson = (UnitTypes)GC.getInfoTypeForString("UNIT_GREAT_GENERAL");
+#endif
 									if(GetUnitBaktun(ePossibleGreatPerson) == 0)
 									{
 										eDesiredGreatPerson = ePossibleGreatPerson;
 									}
 									else
 									{
+#if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
+										ePossibleGreatPerson = m_pPlayer->GetSpecificUnitType("UNITCLASS_GREAT_ADMIRAL");
+#else
 										ePossibleGreatPerson = (UnitTypes)GC.getInfoTypeForString("UNIT_GREAT_ADMIRAL");
+#endif
 										if(GetUnitBaktun(ePossibleGreatPerson) == 0)
 										{
 											eDesiredGreatPerson = ePossibleGreatPerson;
@@ -2473,6 +2634,7 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	// Version number to maintain backwards compatibility
 	uint uiVersion;
 	kStream >> uiVersion;
+	MOD_SERIALIZE_INIT_READ(kStream);
 
 	kStream >> m_iGreatPeopleRateModifier;
 	kStream >> m_iGreatScientistRateModifier;
@@ -2495,6 +2657,9 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	kStream >> m_iSeaBarbarianConversionPercent;
 	kStream >> m_iCapitalBuildingModifier;
 	kStream >> m_iPlotBuyCostModifier;
+#if defined(MOD_TRAITS_CITY_WORKING)
+    MOD_SERIALIZE_READ(23, kStream, m_iCityWorkingChange, 0);
+#endif
 	kStream >> m_iPlotCultureCostModifier;
 	kStream >> m_iCultureFromKills;
 	if (uiVersion >= 19)
@@ -2685,11 +2850,17 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 
 	kStream >> m_bFaithFromUnimprovedForest;
 
+#if defined(MOD_TRAITS_ANY_BELIEF)
+	MOD_SERIALIZE_READ(46, kStream, m_bAnyBelief, false);
+#endif
 	kStream >> m_bBonusReligiousBelief;
 
 	kStream >> m_bAbleToAnnexCityStates;
 
 	kStream >> m_bCrossesMountainsAfterGreatGeneral;
+#if defined(MOD_TRAITS_CROSSES_ICE)
+	MOD_SERIALIZE_READ(23, kStream, m_bCrossesIce, false);
+#endif
 
 	kStream >> m_bMayaCalendarBonuses;
 	kStream >> m_iBaktunPreviousTurn;
@@ -2855,6 +3026,7 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	// Current version number
 	uint uiVersion = 19;
 	kStream << uiVersion;
+	MOD_SERIALIZE_INIT_WRITE(kStream);
 
 	kStream << m_iGreatPeopleRateModifier;
 	kStream << m_iGreatScientistRateModifier;
@@ -2875,6 +3047,9 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	kStream << m_iSeaBarbarianConversionPercent;
 	kStream << m_iCapitalBuildingModifier;
 	kStream << m_iPlotBuyCostModifier;
+#if defined(MOD_TRAITS_CITY_WORKING)
+    MOD_SERIALIZE_WRITE(kStream, m_iCityWorkingChange);
+#endif
 	kStream << m_iPlotCultureCostModifier;
 	kStream << m_iCultureFromKills;
 	kStream << m_iFaithFromKills;
@@ -2932,9 +3107,15 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	kStream << m_bTechBoostFromCapitalScienceBuildings;
 	kStream << m_bStaysAliveZeroCities;
 	kStream << m_bFaithFromUnimprovedForest;
+#if defined(MOD_TRAITS_ANY_BELIEF)
+	MOD_SERIALIZE_WRITE(kStream, m_bAnyBelief);
+#endif
 	kStream << m_bBonusReligiousBelief;
 	kStream << m_bAbleToAnnexCityStates;
 	kStream << m_bCrossesMountainsAfterGreatGeneral;
+#if defined(MOD_TRAITS_CROSSES_ICE)
+	MOD_SERIALIZE_WRITE(kStream, m_bCrossesIce);
+#endif
 	kStream << m_bMayaCalendarBonuses;
 
 	kStream << m_iBaktunPreviousTurn;
@@ -3054,11 +3235,13 @@ bool CvPlayerTraits::ConvertBarbarianCamp(CvPlot* pPlot)
 		CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_BARB_CAMP_CONVERTS");
 		CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_BARB_CAMP_CONVERTS");
 		m_pPlayer->GetNotifications()->Add(NOTIFICATION_GENERIC, strBuffer, strSummary, pPlot->getX(), pPlot->getY(), -1);
+#if !defined(NO_ACHIEVEMENTS)
 		//Increase Stat
 		if(m_pPlayer->isHuman() &&!GC.getGame().isGameMultiPlayer())
 		{
 			gDLL->IncrementSteamStatAndUnlock(ESTEAMSTAT_BARBSCONVERTED, 10, ACHIEVEMENT_SPECIAL_BARBARIANWARLORD);
 		}
+#endif
 	}
 
 	// Decided not to
@@ -3095,11 +3278,13 @@ bool CvPlayerTraits::ConvertBarbarianNavalUnit(UnitHandle pUnit)
 		pGiftUnit->setupGraphical();
 		pGiftUnit->finishMoves(); // No move first turn
 
+#if !defined(NO_ACHIEVEMENTS)
 		// Validate that the achievement is reached by a live human and active player at the same time
 		if(m_pPlayer->isHuman() && !GC.getGame().isGameMultiPlayer() && m_pPlayer->getLeaderInfo().GetType() && _stricmp(m_pPlayer->getLeaderInfo().GetType(), "LEADER_SULEIMAN") == 0)
 		{
 			gDLL->IncrementSteamStatAndUnlock(ESTEAMSTAT_BARBSNAVALCONVERTED, 10, ACHIEVEMENT_SPECIAL_BARBARYPIRATE);
 		}
+#endif
 
 		if(GC.getLogging() && GC.getAILogging())
 		{

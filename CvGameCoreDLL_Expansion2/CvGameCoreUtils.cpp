@@ -31,7 +31,11 @@ CvPlot* plotCity(int iX, int iY, int iIndex)
 {
 	int iDeltaHexX = 0;
 	int iDeltaHexY = 0;
+#if defined(MOD_GLOBAL_CITY_WORKING)
+	if(iIndex < MAX_CITY_PLOTS)
+#else
 	if(iIndex < NUM_CITY_PLOTS)
+#endif
 	{
 		iDeltaHexX = GC.getCityPlotX()[iIndex]; // getCityPlotX now uses hex-space coords
 		iDeltaHexY = GC.getCityPlotY()[iIndex];
@@ -111,13 +115,22 @@ int plotCityXY(const CvCity* pCity, const CvPlot* pPlot)
 
 	iDX = dxWrap(iPlotHexX - iCityHexX);
 
+#if defined(MOD_GLOBAL_CITY_WORKING)
+	if(hexDistance(iDX, iDY) > pCity->getWorkPlotDistance())
+#else
 	if(hexDistance(iDX, iDY) > CITY_PLOTS_RADIUS)
+#endif
 	{
 		return -1;
 	}
 	else
 	{
+#if defined(MOD_GLOBAL_CITY_WORKING)
+		// Regardless of the working radius, we need to offset into the array by the maximum radius
+		return GC.getXYCityPlot((iDX + MAX_CITY_RADIUS), (iDY + MAX_CITY_RADIUS));
+#else
 		return GC.getXYCityPlot((iDX + CITY_PLOTS_RADIUS), (iDY + CITY_PLOTS_RADIUS));
+#endif
 	}
 }
 
@@ -237,7 +250,11 @@ bool IsPromotionValidForUnitCombatType(PromotionTypes ePromotion, UnitTypes eUni
 	}
 
 	// Combat class not valid for this Promotion
+#if defined(MOD_GLOBAL_PROMOTION_CLASSES)
+	if(!(promotionInfo->GetUnitCombatClass(unitInfo->GetUnitPromotionType())))
+#else
 	if(!(promotionInfo->GetUnitCombatClass(unitInfo->GetUnitCombatType())))
+#endif
 	{
 		return false;
 	}
@@ -764,7 +781,11 @@ bool PUF_canDeclareWar(const CvUnit* pUnit, int iData1, int iData2)
 		return false;
 	}
 
+#if defined(MOD_EVENTS_WAR_AND_PEACE)
+	return (iData2 ? false : GET_TEAM(eOtherTeam).canDeclareWar(eOurTeam, (PlayerTypes)iData1));
+#else
 	return (iData2 ? false : GET_TEAM(eOtherTeam).canDeclareWar(eOurTeam));
+#endif
 }
 
 bool PUF_canDefend(const CvUnit* pUnit, int, int)
@@ -1200,6 +1221,14 @@ void getUnitAIString(CvString& strString, UnitAITypes eUnitAI)
 	case UNITAI_GENERAL:
 		strString = "general";
 		break;
+#if defined(MOD_DIPLOMACY_CITYSTATES)
+	case UNITAI_DIPLOMAT:
+		strString = "diplomat";
+		break;
+	case UNITAI_MESSENGER:
+		strString = "messenger";
+		break;
+#endif
 	case UNITAI_MERCHANT:
 		strString = "merchant";
 		break;

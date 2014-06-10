@@ -369,7 +369,11 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, YieldT
 							iResourceValue = 0;
 							iStrategicValue = 0;
 
+#if defined(MOD_GLOBAL_CITY_WORKING)
+							if (iDistance > 0 && iDistance <= pPlayer->getWorkPlotDistance())
+#else	
 							if (iDistance > 0 && iDistance <= NUM_CITY_RINGS)
+#endif
 							{
 								if (eYield == NO_YIELD || eYield == YIELD_FOOD)
 								{
@@ -421,7 +425,11 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, YieldT
 							iPlotValue += iStrategicValue;
 
 							// if this tile is a NW boost the value just so that we force the AI to claim them (if we can work it)
+#if defined(MOD_GLOBAL_CITY_WORKING)
+							if (pLoopPlot->IsNaturalWonder() && iDistance > 0 && iDistance <= pPlayer->getWorkPlotDistance())
+#else	
 							if (pLoopPlot->IsNaturalWonder() && iDistance > 0 && iDistance <= NUM_CITY_RINGS)
+#endif
 							{
 								//iPlotValue += iPlotValue * 2 + 10;
 								iPlotValue += iPlotValue * 2 + 500;
@@ -456,14 +464,22 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, YieldT
 							}
 							else if (ePlotFeature == FEATURE_JUNGLE)
 							{
+#if defined(MOD_GLOBAL_CITY_WORKING)
+								if (iDistance <= pPlayer->getWorkPlotDistance())
+#else	
 								if (iDistance <= NUM_CITY_RINGS)
+#endif
 								{
 									++iBrazilJungleCount;
 								}
 							}
 							else if (ePlotFeature == FEATURE_MARSH || ePlotFeature == FEATURE_FLOOD_PLAINS)
 							{
+#if defined(MOD_GLOBAL_CITY_WORKING)
+								if (iDistance <= pPlayer->getWorkPlotDistance())
+#else	
 								if (iDistance <= NUM_CITY_RINGS)
+#endif
 								{
 									++iWetlandsCount;
 								}
@@ -479,7 +495,11 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, YieldT
 
 							if (pLoopPlot->getTerrainType() == TERRAIN_DESERT)
 							{
+#if defined(MOD_GLOBAL_CITY_WORKING)
+								if (iDistance <= pPlayer->getWorkPlotDistance())
+#else	
 								if (iDistance <= NUM_CITY_RINGS)
+#endif
 								{
 									if (ePlotResource == NO_RESOURCE)
 									{
@@ -492,7 +512,11 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, YieldT
 							{
 								if (pLoopPlot->isHills())
 								{
-									if (iDistance <= NUM_CITY_RINGS)
+#if defined(MOD_GLOBAL_CITY_WORKING)
+								if (iDistance <= pPlayer->getWorkPlotDistance())
+#else	
+								if (iDistance <= NUM_CITY_RINGS)
+#endif
 									{
 										iAdjacentMountains = pLoopPlot->GetNumAdjacentMountains();
 										if (iAdjacentMountains > 0 && iAdjacentMountains < 6)
@@ -1131,6 +1155,13 @@ void CvSiteEvaluatorForStart::ComputeFlavorMultipliers(CvPlayer*)
 	}
 }
 
+#if defined(MOD_GLOBAL_CITY_WORKING)
+// *****
+// ***** WARNING!!!
+// *****
+// ***** This method gets called pre-game if using a WB map (.civ5map), in which case pPlayer is NULL
+// *****
+#endif
 /// Value of this site for a civ starting location
 int CvSiteEvaluatorForStart::PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, YieldTypes, bool)
 {
@@ -1156,7 +1187,12 @@ int CvSiteEvaluatorForStart::PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, Yi
 	}
 
 	// We have our own special method of scoring, so don't call the base class for that (like settler version does)
+#if defined(MOD_GLOBAL_CITY_WORKING)
+	int iLimit = (pPlayer != NULL) ? pPlayer->GetNumWorkablePlots() : AVG_CITY_PLOTS;
+	for(iI = 0; iI < iLimit; iI++)
+#else
 	for(iI = 0; iI < NUM_CITY_PLOTS; iI++)
+#endif
 	{
 		pLoopPlot = plotCity(pPlot->getX(), pPlot->getY(), iI);
 
@@ -1168,8 +1204,18 @@ int CvSiteEvaluatorForStart::PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, Yi
 		else
 		{
 			int iDistance = plotDistance(pPlot->getX(), pPlot->getY(), pLoopPlot->getX(), pLoopPlot->getY());
+#if defined(MOD_GLOBAL_CITY_WORKING)
+			if (pPlayer != NULL) {
+				CvAssert(iDistance <= pPlayer->getWorkPlotDistance());
+				if(iDistance > pPlayer->getWorkPlotDistance()) continue;
+			} else {
+				CvAssert(iDistance <= AVG_CITY_RADIUS);
+				if(iDistance > AVG_CITY_RADIUS) continue;
+			}
+#else	
 			CvAssert(iDistance <= NUM_CITY_RINGS);
 			if(iDistance > NUM_CITY_RINGS) continue;
+#endif
 			int iRingModifier = m_iRingModifier[iDistance];
 
 			// Skip the city plot itself for now
