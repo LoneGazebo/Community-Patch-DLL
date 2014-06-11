@@ -2927,120 +2927,123 @@ bool CvLeague::CanProposeEnact(ResolutionTypes eResolution, PlayerTypes ePropose
 		}
 	}
 #if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
-	//Resolutions Cancel Each Other Out?
-	if (MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS && pInfo->GetWorldWar() > 0)
-	{
-		for (ActiveResolutionList::iterator it = m_vActiveResolutions.begin(); it != m_vActiveResolutions.end(); it++)
+	if(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
+	{	
+		//Resolutions Cancel Each Other Out?
+		if (MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS && pInfo->GetWorldWar() > 0)
 		{
-			if (it->GetEffects()->iUnitMaintenanceGoldPercent > 0)
+			for (ActiveResolutionList::iterator it = m_vActiveResolutions.begin(); it != m_vActiveResolutions.end(); it++)
 			{
-				if (sTooltipSink != NULL)
+				if (it->GetEffects()->iUnitMaintenanceGoldPercent > 0)
 				{
-					(*sTooltipSink) += "[NEWLINE][NEWLINE][COLOR_WARNING_TEXT]";
-					(*sTooltipSink) += Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_INVALID_RESOLUTION_CONTRADICTION").toUTF8();
-					(*sTooltipSink) += "[ENDCOLOR]";
+					if (sTooltipSink != NULL)
+					{
+						(*sTooltipSink) += "[NEWLINE][NEWLINE][COLOR_WARNING_TEXT]";
+						(*sTooltipSink) += Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_INVALID_RESOLUTION_CONTRADICTION").toUTF8();
+						(*sTooltipSink) += "[ENDCOLOR]";
+					}
+				bValid = false;
 				}
-			bValid = false;
+			}
+			for (EnactProposalList::iterator it = m_vEnactProposals.begin(); it != m_vEnactProposals.end(); ++it)
+			{
+				if (it->GetEffects()->iUnitMaintenanceGoldPercent > 0)
+				{
+					if (sTooltipSink != NULL)
+					{
+						(*sTooltipSink) += "[NEWLINE][NEWLINE][COLOR_WARNING_TEXT]";
+						(*sTooltipSink) += Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_INVALID_RESOLUTION_CONTRADICTION").toUTF8();
+						(*sTooltipSink) += "[ENDCOLOR]";
+					}
+				bValid = false;
+				}
 			}
 		}
-		for (EnactProposalList::iterator it = m_vEnactProposals.begin(); it != m_vEnactProposals.end(); ++it)
+		if (MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS && pInfo->GetUnitMaintenanceGoldPercent() > 0)
 		{
-			if (it->GetEffects()->iUnitMaintenanceGoldPercent > 0)
+			for (ActiveResolutionList::iterator it = m_vActiveResolutions.begin(); it != m_vActiveResolutions.end(); it++)
 			{
-				if (sTooltipSink != NULL)
+				if (it->GetEffects()->iIsWorldWar > 0)
 				{
-					(*sTooltipSink) += "[NEWLINE][NEWLINE][COLOR_WARNING_TEXT]";
-					(*sTooltipSink) += Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_INVALID_RESOLUTION_CONTRADICTION").toUTF8();
-					(*sTooltipSink) += "[ENDCOLOR]";
+					if (sTooltipSink != NULL)
+					{
+						(*sTooltipSink) += "[NEWLINE][NEWLINE][COLOR_WARNING_TEXT]";
+						(*sTooltipSink) += Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_INVALID_RESOLUTION_CONTRADICTION").toUTF8();
+						(*sTooltipSink) += "[ENDCOLOR]";
+					}
+				bValid = false;
 				}
-			bValid = false;
+			}
+			for (EnactProposalList::iterator it = m_vEnactProposals.begin(); it != m_vEnactProposals.end(); ++it)
+			{
+				if (it->GetEffects()->iIsWorldWar > 0)
+				{
+					if (sTooltipSink != NULL)
+					{
+						(*sTooltipSink) += "[NEWLINE][NEWLINE][COLOR_WARNING_TEXT]";
+						(*sTooltipSink) += Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_INVALID_RESOLUTION_CONTRADICTION").toUTF8();
+						(*sTooltipSink) += "[ENDCOLOR]";
+					}
+				bValid = false;
+				}
 			}
 		}
-	}
-	if (MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS && pInfo->GetUnitMaintenanceGoldPercent() > 0)
-	{
-		for (ActiveResolutionList::iterator it = m_vActiveResolutions.begin(); it != m_vActiveResolutions.end(); it++)
+		if (MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS && pInfo->GetArtsyGreatPersonRateMod() > 0)
 		{
-			if (it->GetEffects()->iIsWorldWar > 0)
+			for (ActiveResolutionList::iterator it = m_vActiveResolutions.begin(); it != m_vActiveResolutions.end(); it++)
 			{
-				if (sTooltipSink != NULL)
+				if (it->GetEffects()->iScienceyGreatPersonRateMod > 0)
 				{
-					(*sTooltipSink) += "[NEWLINE][NEWLINE][COLOR_WARNING_TEXT]";
-					(*sTooltipSink) += Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_INVALID_RESOLUTION_CONTRADICTION").toUTF8();
-					(*sTooltipSink) += "[ENDCOLOR]";
+					if (sTooltipSink != NULL)
+					{
+						(*sTooltipSink) += "[NEWLINE][NEWLINE][COLOR_WARNING_TEXT]";
+						(*sTooltipSink) += Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_INVALID_RESOLUTION_CONTRADICTION").toUTF8();
+						(*sTooltipSink) += "[ENDCOLOR]";
+					}
+				bValid = false;
 				}
-			bValid = false;
+			}
+			for (EnactProposalList::iterator it = m_vEnactProposals.begin(); it != m_vEnactProposals.end(); ++it)
+			{
+				if (it->GetEffects()->iScienceyGreatPersonRateMod > 0)
+				{
+					if (sTooltipSink != NULL)
+					{
+						(*sTooltipSink) += "[NEWLINE][NEWLINE][COLOR_WARNING_TEXT]";
+						(*sTooltipSink) += Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_INVALID_RESOLUTION_CONTRADICTION").toUTF8();
+						(*sTooltipSink) += "[ENDCOLOR]";
+					}
+				bValid = false;
+				}
 			}
 		}
-		for (EnactProposalList::iterator it = m_vEnactProposals.begin(); it != m_vEnactProposals.end(); ++it)
+		if (MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS && pInfo->GetScienceyGreatPersonRateMod() > 0)
 		{
-			if (it->GetEffects()->iIsWorldWar > 0)
+			for (ActiveResolutionList::iterator it = m_vActiveResolutions.begin(); it != m_vActiveResolutions.end(); it++)
 			{
-				if (sTooltipSink != NULL)
+				if (it->GetEffects()->iArtsyGreatPersonRateMod > 0)
 				{
-					(*sTooltipSink) += "[NEWLINE][NEWLINE][COLOR_WARNING_TEXT]";
-					(*sTooltipSink) += Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_INVALID_RESOLUTION_CONTRADICTION").toUTF8();
-					(*sTooltipSink) += "[ENDCOLOR]";
+					if (sTooltipSink != NULL)
+					{
+						(*sTooltipSink) += "[NEWLINE][NEWLINE][COLOR_WARNING_TEXT]";
+						(*sTooltipSink) += Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_INVALID_RESOLUTION_CONTRADICTION").toUTF8();
+						(*sTooltipSink) += "[ENDCOLOR]";
+					}
+				bValid = false;
 				}
-			bValid = false;
 			}
-		}
-	}
-	if (MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS && pInfo->GetArtsyGreatPersonRateMod() > 0)
-	{
-		for (ActiveResolutionList::iterator it = m_vActiveResolutions.begin(); it != m_vActiveResolutions.end(); it++)
-		{
-			if (it->GetEffects()->iScienceyGreatPersonRateMod > 0)
+			for (EnactProposalList::iterator it = m_vEnactProposals.begin(); it != m_vEnactProposals.end(); ++it)
 			{
-				if (sTooltipSink != NULL)
+				if (it->GetEffects()->iArtsyGreatPersonRateMod > 0)
 				{
-					(*sTooltipSink) += "[NEWLINE][NEWLINE][COLOR_WARNING_TEXT]";
-					(*sTooltipSink) += Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_INVALID_RESOLUTION_CONTRADICTION").toUTF8();
-					(*sTooltipSink) += "[ENDCOLOR]";
+					if (sTooltipSink != NULL)
+					{
+						(*sTooltipSink) += "[NEWLINE][NEWLINE][COLOR_WARNING_TEXT]";
+						(*sTooltipSink) += Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_INVALID_RESOLUTION_CONTRADICTION").toUTF8();
+						(*sTooltipSink) += "[ENDCOLOR]";
+					}
+				bValid = false;
 				}
-			bValid = false;
-			}
-		}
-		for (EnactProposalList::iterator it = m_vEnactProposals.begin(); it != m_vEnactProposals.end(); ++it)
-		{
-			if (it->GetEffects()->iScienceyGreatPersonRateMod > 0)
-			{
-				if (sTooltipSink != NULL)
-				{
-					(*sTooltipSink) += "[NEWLINE][NEWLINE][COLOR_WARNING_TEXT]";
-					(*sTooltipSink) += Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_INVALID_RESOLUTION_CONTRADICTION").toUTF8();
-					(*sTooltipSink) += "[ENDCOLOR]";
-				}
-			bValid = false;
-			}
-		}
-	}
-	if (MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS && pInfo->GetScienceyGreatPersonRateMod() > 0)
-	{
-		for (ActiveResolutionList::iterator it = m_vActiveResolutions.begin(); it != m_vActiveResolutions.end(); it++)
-		{
-			if (it->GetEffects()->iArtsyGreatPersonRateMod > 0)
-			{
-				if (sTooltipSink != NULL)
-				{
-					(*sTooltipSink) += "[NEWLINE][NEWLINE][COLOR_WARNING_TEXT]";
-					(*sTooltipSink) += Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_INVALID_RESOLUTION_CONTRADICTION").toUTF8();
-					(*sTooltipSink) += "[ENDCOLOR]";
-				}
-			bValid = false;
-			}
-		}
-		for (EnactProposalList::iterator it = m_vEnactProposals.begin(); it != m_vEnactProposals.end(); ++it)
-		{
-			if (it->GetEffects()->iArtsyGreatPersonRateMod > 0)
-			{
-				if (sTooltipSink != NULL)
-				{
-					(*sTooltipSink) += "[NEWLINE][NEWLINE][COLOR_WARNING_TEXT]";
-					(*sTooltipSink) += Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_INVALID_RESOLUTION_CONTRADICTION").toUTF8();
-					(*sTooltipSink) += "[ENDCOLOR]";
-				}
-			bValid = false;
 			}
 		}
 	}
@@ -3527,7 +3530,20 @@ std::vector<int> CvLeague::GetChoicesForDecision(ResolutionDecisionTypes eDecisi
 		{
 			if (GET_PLAYER(m_vMembers[i].ePlayer).isMinorCiv())
 			{
-				vChoices.push_back(m_vMembers[i].ePlayer);
+				// Is this CS already being affected by a proposal?
+				PlayerTypes eTargetCityState = NO_PLAYER;
+				EnactProposalList vEnactProposals = GC.getGame().GetGameLeagues()->GetActiveLeague()->GetEnactProposals();
+				for (EnactProposalList::iterator it = vEnactProposals.begin(); it != vEnactProposals.end(); ++it)
+				{
+					if(it->GetEffects()->bRaiseCityStateInfluenceToAlly || it->GetEffects()->bRaiseCityStateInfluenceToNeutral || it->GetEffects()->bRaiseCityStateInfluenceToFriend)
+					{
+						eTargetCityState = (PlayerTypes) it->GetProposerDecision()->GetDecision();
+					}
+					if(eTargetCityState != m_vMembers[i].ePlayer)
+					{
+						vChoices.push_back(m_vMembers[i].ePlayer);
+					}
+				}
 			}
 		}
 		break;
@@ -10085,32 +10101,38 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 		{
 			if (bSeekingDiploVictory)
 			{
-				iScore += 100;
+				iScore += 200;
 			}
 
 			int iVotes = GC.getGame().GetGameLeagues()->GetActiveLeague()->CalculateStartingVotesForMember(GetPlayer()->GetID());
 			int iNeededVotes = GC.getGame().GetVotesNeededForDiploVictory();
 			int iVoteRatio = 0;
+			int iFlavorDiplo =  GetPlayer()->GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DIPLOMACY"));
 
+			//If FLAVOR_DIPLOMACY is 4+...
+			if(iFlavorDiplo - 3 > 0)
+			{
+				iScore += iFlavorDiplo * iVotes;
+			}
 			if(iNeededVotes > 0)
 			{
-				iVoteRatio = (iVotes * 100) / iNeededVotes;
+				iVoteRatio = (iVotes * 200) / iNeededVotes;
+				if(iVoteRatio < 50)
+				{
+					iScore += (iVotes * -4);
+				}
+				else if(iVoteRatio >= 50)
+				{
+					iScore += (iVotes * 5);
+				}
 			}
-
-			iScore += iVoteRatio; 
-			
-			if(iVoteRatio < 25)
+			else if(iNeededVotes <= 0)
 			{
-				iScore += -50;
+				iScore += iVotes * 4;
 			}
-
-			else if(iVoteRatio < 50)
+			else
 			{
-				iScore += -20;
-			}	
-			else if(iVoteRatio >= 50)
-			{
-				iScore += 50;
+				iScore += -10;
 			}
 		}
 #endif

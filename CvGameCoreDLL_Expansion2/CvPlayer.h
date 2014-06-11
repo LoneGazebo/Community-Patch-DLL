@@ -139,6 +139,10 @@ public:
 	void InitDangerPlots();
 	void UpdateDangerPlots();
 	void SetDangerPlotsDirty();
+#if defined(MOD_BALANCE_CORE_MILITARY)
+void SetEscortID(int iValue);
+int GetEscortID();
+#endif
 
 	bool isHuman() const;
 	bool isObserver() const;
@@ -416,6 +420,10 @@ public:
 	void ChangeNumCitiesFreeCultureBuilding(int iChange);
 	int GetNumCitiesFreeFoodBuilding() const;
 	void ChangeNumCitiesFreeFoodBuilding(int iChange);
+#if defined(MOD_BALANCE_CORE)
+	int GetNumCitiesFreeChosenBuilding(BuildingClassTypes eBuildingClass) const;
+	void ChangeNumCitiesFreeChosenBuilding(BuildingClassTypes eBuildingClass, int iChange);
+#endif
 
 	void DoYieldsFromKill(UnitTypes eAttackingUnitType, UnitTypes eKilledUnitType, int iX, int iY, bool bWasBarbarian, int iExistingDelay);
 	void DoYieldBonusFromKill(YieldTypes eYield, UnitTypes eAttackingUnitType, UnitTypes eKilledUnitType, int iX, int iY, bool bWasBarbarian, int &iNumBonuses);
@@ -1800,6 +1808,9 @@ protected:
 	int m_iScienceRateFromLeagueAid;
 	FAutoVariable<int, CvPlayer> m_iLeagueCultureCityModifier;
 #endif
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	int m_iEscortID;
+#endif
 	FAutoVariable<int, CvPlayer> m_iAdvancedStartPoints;
 	FAutoVariable<int, CvPlayer> m_iAttackBonusTurns;
 	int m_iCultureBonusTurns;
@@ -2050,6 +2061,9 @@ protected:
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	FAutoVariable<int, CvPlayer> m_iVassalGoldMaintenanceMod;
+#endif
+#if defined(MOD_BALANCE_CORE)
+	FAutoVariable<std::vector<int>, CvPlayer> m_paiNumCitiesFreeChosenBuilding;
 #endif
 
 	FAutoVariable<std::vector<bool>, CvPlayer> m_pabLoyalMember;

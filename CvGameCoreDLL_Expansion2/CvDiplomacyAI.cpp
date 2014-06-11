@@ -20564,6 +20564,50 @@ int CvDiplomacyAI::GetNumRA()
 	return iRtnValue;
 }
 #endif
+#if defined(MOD_BALANCE_CORE)
+int CvDiplomacyAI::GetNumDenouncements()
+{
+	//Let's get the total number of denouncements this player has made.
+	int iRtnValue = 0;
+
+	PlayerTypes eLoopPlayer;
+	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	{
+		eLoopPlayer = (PlayerTypes) iPlayerLoop;
+
+		if(IsPlayerValid(eLoopPlayer) && !GET_PLAYER(eLoopPlayer).isMinorCiv() && !GET_PLAYER(eLoopPlayer).isBarbarian() && m_pPlayer->GetID() != eLoopPlayer)
+		{
+			if(IsDenouncedPlayer(eLoopPlayer))
+			{
+				iRtnValue++;
+			}
+		}
+	}
+
+	return iRtnValue;
+}
+int CvDiplomacyAI::GetNumDenouncementsOfPlayer()
+{
+	//Let's get the total number of denouncements on this player.
+	int iRtnValue = 0;
+
+	PlayerTypes eLoopPlayer;
+	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	{
+		eLoopPlayer = (PlayerTypes) iPlayerLoop;
+
+		if(IsPlayerValid(eLoopPlayer) && !GET_PLAYER(eLoopPlayer).isMinorCiv() && !GET_PLAYER(eLoopPlayer).isBarbarian() && m_pPlayer->GetID() != eLoopPlayer)
+		{
+			if(GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsDenouncedPlayer(m_pPlayer->GetID()))
+			{
+				iRtnValue++;
+			}
+		}
+	}
+
+	return iRtnValue;
+}
+#endif
 
 /// Are we done with ePlayer, and now want to Denounce him?
 bool CvDiplomacyAI::IsDenounceFriendAcceptable(PlayerTypes ePlayer)

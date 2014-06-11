@@ -741,7 +741,10 @@ public:
 #if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
 	int GetNumRA();
 #endif
-
+#if defined(MOD_BALANCE_CORE)
+	int GetNumDenouncements();
+	int GetNumDenouncementsOfPlayer();
+#endif
 	bool IsDenounceFriendAcceptable(PlayerTypes ePlayer);
 
 	bool IsPlayerDoFwithAnyFriend(PlayerTypes ePlayer) const;

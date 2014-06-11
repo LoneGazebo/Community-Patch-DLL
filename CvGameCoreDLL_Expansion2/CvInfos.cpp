@@ -2813,6 +2813,9 @@ CvHandicapInfo::CvHandicapInfo() :
 	m_iBarbarianLandTargetRange(0),
 	m_iBarbarianSeaTargetRange(0),
 	m_iStartingDefenseUnits(0),
+#if defined(MOD_BALANCE_CORE)
+	m_iStartingMinorDefenseUnits(0),
+#endif
 	m_iStartingWorkerUnits(0),
 	m_iStartingExploreUnits(0),
 	m_iAIStartingUnitMultiplier(0),
@@ -3021,6 +3024,12 @@ int CvHandicapInfo::getStartingDefenseUnits() const
 {
 	return m_iStartingDefenseUnits;
 }
+#if defined(MOD_BALANCE_CORE)
+int CvHandicapInfo::getStartingMinorDefenseUnits() const
+{
+	return m_iStartingMinorDefenseUnits;
+}
+#endif
 //------------------------------------------------------------------------------
 int CvHandicapInfo::getStartingWorkerUnits() const
 {
@@ -3212,6 +3221,9 @@ bool CvHandicapInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 	m_iBarbarianLandTargetRange = kResults.GetInt("BarbarianLandTargetRange");
 	m_iBarbarianSeaTargetRange = kResults.GetInt("BarbarianSeaTargetRange");
 	m_iStartingDefenseUnits = kResults.GetInt("StartingDefenseUnits");
+#if defined(MOD_BALANCE_CORE)
+	m_iStartingMinorDefenseUnits = kResults.GetInt("StartingMinorDefenseUnits");
+#endif
 	m_iStartingWorkerUnits = kResults.GetInt("StartingWorkerUnits");
 	m_iStartingExploreUnits = kResults.GetInt("StartingExploreUnits");
 	m_iAIStartingUnitMultiplier = kResults.GetInt("AIStartingUnitMultiplier");
@@ -6340,6 +6352,9 @@ bool CvEntityEventInfo::getUpdateFormation() const
 CvEraInfo::CvEraInfo() :
 	m_iStartingUnitMultiplier(0),
 	m_iStartingDefenseUnits(0),
+#if defined(MOD_BALANCE_CORE)
+	m_iStartingMinorDefenseUnits(0),
+#endif
 	m_iStartingWorkerUnits(0),
 	m_iStartingExploreUnits(0),
 	m_iResearchAgreementCost(0),
@@ -6387,6 +6402,12 @@ int CvEraInfo::getStartingDefenseUnits() const
 {
 	return m_iStartingDefenseUnits;
 }
+#if defined(MOD_BALANCE_CORE)
+int CvEraInfo::getStartingMinorDefenseUnits() const
+{
+	return m_iStartingMinorDefenseUnits;
+}
+#endif
 //------------------------------------------------------------------------------
 int CvEraInfo::getStartingWorkerUnits() const
 {
@@ -6604,6 +6625,9 @@ bool CvEraInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUt
 	m_bNoReligion				= kResults.GetBool("NoReligion");
 	m_iStartingUnitMultiplier	= kResults.GetInt("StartingUnitMultiplier");
 	m_iStartingDefenseUnits		= kResults.GetInt("StartingDefenseUnits");
+#if defined(MOD_BALANCE_CORE)
+	m_iStartingMinorDefenseUnits = kResults.GetInt("StartingMinorDefenseUnits");
+#endif
 	m_iStartingWorkerUnits		= kResults.GetInt("StartingWorkerUnits");
 	m_iStartingExploreUnits		= kResults.GetInt("StartingExploreUnits");
 	m_iResearchAgreementCost	= kResults.GetInt("ResearchAgreementCost");

@@ -224,6 +224,9 @@ CvCity::CvCity() :
 	, m_aiDomainProductionModifier("CvCity::m_aiDomainProductionModifier", m_syncArchive)
 	, m_abEverOwned("CvCity::m_abEverOwned", m_syncArchive)
 	, m_abRevealed("CvCity::m_abRevealed", m_syncArchive, true)
+#if defined(MOD_BALANCE_CORE)
+	, m_abOwedChosenBuilding("CvCity::m_abOwedChosenBuilding", m_syncArchive)
+#endif
 	, m_strScriptData("CvCity::m_strScriptData", m_syncArchive)
 	, m_paiNoResource("CvCity::m_paiNoResource", m_syncArchive)
 	, m_paiFreeResource("CvCity::m_paiFreeResource", m_syncArchive)
@@ -464,6 +467,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	}
 #endif
 
+
 #if defined(MOD_API_EXTENSIONS)
 	// We do this here as changePopulation() sends a game event we may have caught to do funky renaming things
 	if (szName) {
@@ -490,7 +494,6 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 				}
 		}
 #endif
-
 		// Free resources under city?
 		for(int i = 0; i < GC.getNumResourceInfos(); i++)
 		{
@@ -616,6 +619,20 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 					}
 				}
 			}
+#if defined(MOD_BALANCE_CORE)
+			//Free building in Capital from Trait?
+			if(owningPlayer.GetPlayerTraits()->GetFreeCapitalBuilding() != NO_BUILDING)
+			{
+				if(owningPlayer.GetPlayerTraits()->GetCapitalFreeBuildingPrereqTech() == NO_TECH)
+				{
+					BuildingTypes eBuilding = owningPlayer.GetPlayerTraits()->GetFreeCapitalBuilding();
+					if(isValidBuildingLocation(eBuilding))
+					{
+						m_pCityBuildings->SetNumFreeBuilding(eBuilding, 1);
+					}
+				}
+			}
+#endif
 
 			if(!isHuman())
 			{
@@ -868,6 +885,9 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 #if defined(MOD_BUGFIX_FREE_FOOD_BUILDING)
 	m_bOwedFoodBuilding = false;
 #endif
+#if defined(MOD_BALANCE_CORE)
+	m_bOwedChosenBuilding = false;
+#endif
 
 	m_eOwner = eOwner;
 	m_ePreviousOwner = NO_PLAYER;
@@ -940,6 +960,13 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	{
 		m_abRevealed.setAt(iI, false);
 	}
+#if defined(MOD_BALANCE_CORE)
+	m_abOwedChosenBuilding.resize(REALLY_MAX_PLAYERS);
+	for(iI = 0; iI < REALLY_MAX_PLAYERS; iI++)
+	{
+		m_abEverOwned.setAt(iI, false);
+	}
+#endif
 
 	m_strName = "";
 	m_strNameIAmNotSupposedToBeUsedAnyMoreBecauseThisShouldNotBeCheckedAndWeNeedToPreserveSaveGameCompatibility = "";
@@ -6498,7 +6525,6 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			{
 				ChangeTerrainExtraYield(((TerrainTypes)iJ), eYield, (GC.getBuildingInfo(eBuilding)->GetTerrainYieldChange(iJ, eYield) * iChange));
 			}
-
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 			// Research agreements are not active, therefore this building now increases science yield by 25%
 			if(MOD_DIPLOMACY_CIV4_FEATURES && !GC.getGame().isOption(GAMEOPTION_RESEARCH_AGREEMENTS))
@@ -6976,6 +7002,23 @@ bool CvCity::isAddsFreshWater() const {
 }
 #endif
 
+#if defined(MOD_BALANCE_CORE)
+//	--------------------------------------------------------------------------------
+bool CvCity::IsNoWater() const {
+	VALIDATE_OBJECT
+
+	for (int iI = 0; iI < GC.getNumBuildingInfos(); iI++) {
+		if (m_pCityBuildings->GetNumBuilding((BuildingTypes)iI) > 0) {
+			if (GC.getBuildingInfo((BuildingTypes)iI)->IsNoWater()) {
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+#endif
+
 //	--------------------------------------------------------------------------------
 int CvCity::foodConsumption(bool /*bNoAngry*/, int iExtra) const
 {
@@ -7071,11 +7114,20 @@ int CvCity::foodDifferenceTimes100(bool bBottom, CvString* toolTipSink) const
 				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_RELIGION", iReligionGrowthMod);
 			}
 		}
-
 		// Cities stop growing when empire is very unhappy
 		if(GET_PLAYER(getOwner()).IsEmpireVeryUnhappy())
 		{
 			int iMod = /*-100*/ GC.getVERY_UNHAPPY_GROWTH_PENALTY();
+#if defined(MOD_BALANCE_CORE_YIELDS)
+			if(MOD_BALANCE_CORE_YIELDS)
+			{
+				//Mechanic to allow for varied effects of happiness/unhappiness.
+				if(GC.getBALANCE_HAPPINESS_EMPIRE_MOD() != -1)
+				{
+					iMod = 0;
+				}
+			}
+#endif
 			iTotalMod += iMod;
 			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_UNHAPPY", iMod);
 		}
@@ -7083,6 +7135,16 @@ int CvCity::foodDifferenceTimes100(bool bBottom, CvString* toolTipSink) const
 		else if(GET_PLAYER(getOwner()).IsEmpireUnhappy())
 		{
 			int iMod = /*-75*/ GC.getUNHAPPY_GROWTH_PENALTY();
+#if defined(MOD_BALANCE_CORE_YIELDS)
+			if(MOD_BALANCE_CORE_YIELDS)
+			{
+				//Mechanic to allow for varied effects of happiness/unhappiness.
+				if(GC.getBALANCE_HAPPINESS_EMPIRE_MOD() != -1)
+				{
+					iMod = 0;
+				}
+			}
+#endif
 			iTotalMod += iMod;
 			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_UNHAPPY", iMod);
 		}
@@ -8084,7 +8146,6 @@ int CvCity::getJONSCulturePerTurn() const
 		iModifier += GET_PLAYER(getOwner()).GetLeagueCultureCityModifier();
 	}
 #endif
-
 	iCulture *= iModifier;
 	iCulture /= 100;
 
@@ -9577,6 +9638,18 @@ void CvCity::SetOwedFoodBuilding(bool bNewValue)
 }
 #endif
 
+#if defined(MOD_BALANCE_CORE)
+//	--------------------------------------------------------------------------------
+bool CvCity::IsOwedChosenBuilding(BuildingClassTypes eBuildingClass) const
+{
+	return m_abOwedChosenBuilding[eBuildingClass];
+}
+//	--------------------------------------------------------------------------------
+void CvCity::SetOwedChosenBuilding(BuildingClassTypes eBuildingClass, bool bNewValue)
+{
+	m_abOwedChosenBuilding.setAt(eBuildingClass, bNewValue);
+}
+#endif
 //	--------------------------------------------------------------------------------
 bool CvCity::IsBlockaded() const
 {
@@ -9803,7 +9876,6 @@ TeamTypes CvCity::getTeam() const
 	return GET_PLAYER(getOwner()).getTeam();
 }
 
-
 //	--------------------------------------------------------------------------------
 int CvCity::getSeaPlotYield(YieldTypes eIndex) const
 {
@@ -10012,7 +10084,79 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_PUPPET", iTempMod);
 		}
 	}
+#if defined(MOD_BALANCE_CORE_YIELDS)
+	if(MOD_BALANCE_CORE_YIELDS)
+	{
+		//Mechanic to allow for varied effects of happiness/unhappiness.
+		if(GC.getBALANCE_HAPPINESS_EMPIRE_MOD() != -1)
+		{
+			int iHappiness = 0;
+			iHappiness += GET_PLAYER(getOwner()).GetExcessHappiness();
 
+			//If Happiness is greater than or over threshold, calculate city bonus mod.
+			if(iHappiness >= GC.getBALANCE_HAPPINESS_THRESHOLD())
+			{
+				iHappiness = (iHappiness - GC.getBALANCE_HAPPINESS_THRESHOLD());
+				//Are there minimums/maximums for the bonus? Restrict this value.
+				if(iHappiness > GC.getBALANCE_HAPPINESS_BONUS_MAXIMUM())
+				{
+					iHappiness = GC.getBALANCE_HAPPINESS_BONUS_MAXIMUM();
+				}
+				else if(iHappiness < GC.getBALANCE_HAPPINESS_BONUS_MINIMUM())
+				{
+					iHappiness = GC.getBALANCE_HAPPINESS_BONUS_MINIMUM();
+				}
+			}
+			//If happiness is less than the threshold, calculate city penalty mod.
+			else if(iHappiness < GC.getBALANCE_HAPPINESS_THRESHOLD_MAIN())
+			{
+				iHappiness = (GC.getBALANCE_HAPPINESS_THRESHOLD() - iHappiness);
+				//Are there minimums/maximums for the penalty? Restrict this value.
+				if(iHappiness > GC.getBALANCE_HAPPINESS_PENALTY_MAXIMUM())
+				{
+					iHappiness = GC.getBALANCE_HAPPINESS_PENALTY_MAXIMUM();
+				}
+				else if(iHappiness < GC.getBALANCE_HAPPINESS_PENALTY_MINIMUM())
+				{
+					iHappiness = GC.getBALANCE_HAPPINESS_PENALTY_MINIMUM();
+				}
+			}
+			else
+			{
+				iHappiness = 0;
+			}
+			//Let's do the yield mods.
+			if(eIndex == YIELD_SCIENCE)
+			{
+				iTempMod = (GC.getBALANCE_HAPPINESS_SCIENCE_MODIFIER() * iHappiness);
+				iModifier += iTempMod;
+				if(iTempMod != 0 && toolTipSink)
+				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_BALANCE_HAPPINESS_MOD", iTempMod);
+			}
+			else if(eIndex == YIELD_GOLD)
+			{
+				iTempMod = (GC.getBALANCE_HAPPINESS_GOLD_MODIFIER() * iHappiness);
+				iModifier += iTempMod;
+				if(iTempMod != 0 && toolTipSink)
+				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_BALANCE_HAPPINESS_MOD", iTempMod);
+			}			
+			else if(eIndex == YIELD_PRODUCTION)
+			{
+				iTempMod = (GC.getBALANCE_HAPPINESS_PRODUCTION_MODIFIER() * iHappiness);
+				iModifier += iTempMod;
+				if(iTempMod != 0 && toolTipSink)
+				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_BALANCE_HAPPINESS_MOD", iTempMod);
+			}
+			else if(eIndex == YIELD_FOOD)
+			{
+				iTempMod = (GC.getBALANCE_HAPPINESS_FOOD_MODIFIER() * iHappiness);
+				iModifier += iTempMod;
+				if(iTempMod != 0 && toolTipSink)
+					GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_BALANCE_HAPPINESS_MOD", iTempMod);
+			}
+		}
+	}
+#endif
 	iModifier += iExtra;
 
 	// note: player->invalidateYieldRankCache() must be called for anything that is checked here
@@ -10028,6 +10172,16 @@ int CvCity::getHappinessModifier(YieldTypes eIndex) const
 	int iModifier = 0;
 	CvPlayer &kPlayer = GET_PLAYER(getOwner());
 
+#if defined(MOD_BALANCE_CORE_YIELDS)
+	if(MOD_BALANCE_CORE_YIELDS)
+	{
+		//Mechanic to allow for varied effects of happiness/unhappiness.
+		if(GC.getBALANCE_HAPPINESS_EMPIRE_MOD() != -1)
+		{
+			return iModifier;
+		}
+	}
+#endif
 	if (kPlayer.IsEmpireUnhappy())
 	{
 		int iUnhappy = -1 * kPlayer.GetExcessHappiness();
@@ -14710,7 +14864,9 @@ void CvCity::read(FDataStream& kStream)
 #if defined(MOD_BUGFIX_FREE_FOOD_BUILDING)
 	MOD_SERIALIZE_READ(30, kStream, m_bOwedFoodBuilding, false);
 #endif
-
+#if defined(MOD_BALANCE_CORE)
+	kStream >> m_abOwedChosenBuilding;
+#endif
 	m_pCityStrategyAI->Read(kStream);
 	if(m_eOwner != NO_PLAYER)
 	{
@@ -14976,7 +15132,9 @@ void CvCity::write(FDataStream& kStream) const
 #if defined(MOD_BUGFIX_FREE_FOOD_BUILDING)
 	MOD_SERIALIZE_WRITE(kStream, m_bOwedFoodBuilding);
 #endif
-
+#if defined(MOD_BALANCE_CORE)
+	MOD_SERIALIZE_WRITE(kStream, m_bOwedChosenBuilding);
+#endif
 	m_pCityStrategyAI->Write(kStream);
 	m_pCityCitizens->Write(kStream);
 	kStream << *m_pCityReligions;
@@ -15016,7 +15174,17 @@ bool CvCity::isValidBuildingLocation(BuildingTypes eBuilding) const
 		if(!plot()->isFreshWater())
 			return false;
 	}
-
+#if defined(MOD_BALANCE_CORE)
+	//Requires no water
+	if(MOD_BALANCE_CORE)
+	{
+		if(pkBuildingInfo->IsNoWater())
+		{
+			if(plot()->isFreshWater())
+			return false;
+		}
+	}
+#endif
 	// Requires adjacent Mountain
 	if(pkBuildingInfo->IsMountain())
 	{

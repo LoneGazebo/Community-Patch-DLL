@@ -5901,6 +5901,48 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 							}
 						}
 #endif
+#if defined(MOD_BALANCE_CORE)
+						for(int iPolicyLoop = 0; iPolicyLoop < GC.getNumPolicyInfos(); iPolicyLoop++)
+						{
+							PolicyTypes pPolicy = (PolicyTypes)iPolicyLoop;
+							CvPolicyEntry* pkPolicyInfo = GC.getPolicyInfo(pPolicy);
+							if(pkPolicyInfo)
+							{
+								if(GET_PLAYER(eLoopPlayer).GetPlayerPolicies()->HasPolicy(pPolicy) && !GET_PLAYER(eLoopPlayer).GetPlayerPolicies()->IsPolicyBlocked(pPolicy))
+								{
+									const int iNumBuildingClassInfos = GC.getNumBuildingClassInfos();
+									CvCivilizationInfo& thisCivilization = GET_PLAYER(eLoopPlayer).getCivilizationInfo();
+									for(int iBuildingClassLoop = 0; iBuildingClassLoop < iNumBuildingClassInfos; iBuildingClassLoop++)
+									{
+										const BuildingClassTypes eBuildingClass = (BuildingClassTypes) iBuildingClassLoop;
+										CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
+										if(!pkBuildingClassInfo)
+										{
+											continue;
+										}
+										//How many cities get free buildings of our choice?
+										if(pLoopCity->IsOwedChosenBuilding(eBuildingClass))
+										{
+											if(pkPolicyInfo->GetFreeChosenBuilding(eBuildingClass) > 0)
+											{
+												const BuildingTypes eFreeBuilding = (BuildingTypes)(thisCivilization.getCivilizationBuildings(eBuildingClass));
+												if(GET_PLAYER(eLoopPlayer).canConstruct(eFreeBuilding) && pLoopCity->isValidBuildingLocation(eFreeBuilding))
+												{
+													pLoopCity->GetCityBuildings()->SetNumFreeBuilding(eFreeBuilding, 1);		
+													GET_PLAYER(eLoopPlayer).ChangeNumCitiesFreeChosenBuilding(eBuildingClass, 1);
+													if(GET_PLAYER(eLoopPlayer).GetNumCitiesFreeChosenBuilding(eBuildingClass) >= (pkPolicyInfo->GetFreeChosenBuilding(eBuildingClass)))
+													{
+														pkPolicyInfo->ChangeFreeChosenBuilding(eBuildingClass, ((GET_PLAYER(eLoopPlayer).GetNumCitiesFreeChosenBuilding(eBuildingClass) * -1)));
+													}
+													pLoopCity->SetOwedChosenBuilding(eBuildingClass, false);
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+#endif
 					}
 				}
 			}
@@ -6497,6 +6539,30 @@ void CvTeam::processTech(TechTypes eTech, int iChange)
 				// Another?
 				iUnitClass = kPlayer.GetPlayerTraits()->GetNextFreeUnit();
 			}
+#if defined(MOD_BALANCE_CORE)
+			//Free building unlocked via tech?
+			if(kPlayer.GetPlayerTraits()->GetFreeBuildingPrereqTech() == eTech)
+			{
+				BuildingTypes eFreeBuilding = kPlayer.GetPlayerTraits()->GetFreeBuilding();
+				if(eFreeBuilding != NO_BUILDING)
+				{
+					kPlayer.changeFreeBuildingCount(eFreeBuilding, 1);
+				}
+			}
+			//Free building in capital unlocked via tech?
+			if(kPlayer.GetPlayerTraits()->GetCapitalFreeBuildingPrereqTech() == eTech)
+			{
+				BuildingTypes eFreeCapitalBuilding = kPlayer.GetPlayerTraits()->GetFreeCapitalBuilding();
+				if(eFreeCapitalBuilding != NO_BUILDING)
+				{
+					if(kPlayer.getCapitalCity()->GetCityBuildings()->GetNumRealBuilding(eFreeCapitalBuilding) > 0)
+					{
+						kPlayer.getCapitalCity()->GetCityBuildings()->SetNumRealBuilding(eFreeCapitalBuilding, 0);
+					}
+					kPlayer.getCapitalCity()->GetCityBuildings()->SetNumFreeBuilding(eFreeCapitalBuilding, 1);
+				}
+			}
+#endif
 		}
 	}
 
@@ -6877,11 +6943,24 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 								kPlayer.GetEspionage()->CreateSpy();
 							}
 						}
-
 						for(int i = 0; i < pEraInfo->getSpiesGrantedForPlayer(); i++)
 						{
 							kPlayer.GetEspionage()->CreateSpy();
 						}
+#if defined(MOD_BALANCE_CORE_SPIES)
+						if(MOD_BALANCE_CORE_SPIES){
+							//Optional: Spies scaled for the number of City-States in the game.
+							int iNumMinor = ((GC.getGame().GetNumMinorCivsEver() * /*15*/ GC.getBALANCE_SPY_TO_MINOR_RATIO()) / 100);
+							if((iNumMinor - 1) > 0)
+							{
+								iNumMinor = iNumMinor - 1;
+								for(int i = 0; i < iNumMinor; i++)
+								{
+									kPlayer.GetEspionage()->CreateSpy();
+								}
+							}			
+						}
+#endif
 					}
 				}
 			}
@@ -6935,6 +7014,21 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 								}
 							}
 							kPlayer.GetEspionage()->CreateSpy();
+#if defined(MOD_BALANCE_CORE_SPIES)
+							if(MOD_BALANCE_CORE_SPIES){
+								//Optional: Spies scaled for the number of City-States in the game.
+								int iNumMinor = ((GC.getGame().GetNumMinorCivsEver() * /*15*/ GC.getBALANCE_SPY_TO_MINOR_RATIO()) / 100);
+								if((iNumMinor - 1) > 0)
+								{
+									iNumMinor = iNumMinor - 1;
+									for(int i = 0; i < iNumMinor; i++)
+									{
+										kPlayer.GetEspionage()->CreateSpy();
+									}
+								}			
+							}
+#endif
+
 						}
 					}
 				}

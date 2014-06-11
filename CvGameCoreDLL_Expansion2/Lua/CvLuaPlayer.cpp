@@ -647,6 +647,13 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetGiftTileImprovementCost);
 	Method(AddMinorCivQuestIfAble);
 	Method(GetFriendshipFromUnitGift);
+#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE_MINORS)
+	Method(GetJerk);
+#endif
+#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE)
+	Method(GetNumDenouncements);
+	Method(GetNumDenouncementsOfPlayer);
+#endif
 
 	Method(IsAlive);
 	Method(IsEverAlive);
@@ -783,7 +790,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetBuyPlotCost);
 	Method(GetPlotDanger);
 
-	#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_GLOBAL_CITY_WORKING)
+#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_GLOBAL_CITY_WORKING)
 	Method(GetBuyPlotDistance);
 	Method(GetWorkPlotDistance);
 #endif
@@ -6968,6 +6975,45 @@ int CvLuaPlayer::lGetFriendshipFromUnitGift(lua_State* L)
 	lua_pushinteger(L, iResult);
 	return 1;
 }
+
+#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE_MINORS)
+//------------------------------------------------------------------------------
+//int GetJerk(TeamTypes eTeam);
+int CvLuaPlayer::lGetJerk(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const TeamTypes eTeam = (TeamTypes) lua_tointeger(L, 2);
+
+	const int iResult = pkPlayer->GetMinorCivAI()->GetJerk(eTeam);
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+#endif
+
+#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE)
+//------------------------------------------------------------------------------
+//int GetNumDenouncements();
+int CvLuaPlayer::lGetNumDenouncements(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+
+	const int iResult = pkPlayer->GetDiplomacyAI()->GetNumDenouncements();
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
+//int GetNumDenouncementsOfPlayer();
+int CvLuaPlayer::lGetNumDenouncementsOfPlayer(lua_State* L)
+{
+	
+	CvPlayerAI* pkPlayer = GetInstance(L);
+
+	const int iResult = pkPlayer->GetDiplomacyAI()->GetNumDenouncementsOfPlayer();
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+#endif
+
 //------------------------------------------------------------------------------
 //bool isAlive();
 int CvLuaPlayer::lIsAlive(lua_State* L)

@@ -53,7 +53,7 @@ void CvAIOperation::Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, int iD
 	m_iDefaultArea = iDefaultArea;
 	m_bShouldReplaceLossesWithReinforcements = false;
 
-	SetStartCityPlot(pMuster->plot());
+ 	SetStartCityPlot(pMuster->plot());
 
 	// create the armies that are needed and set the state to ARMYAISTATE_WAITING_FOR_UNITS_TO_REINFORCE
 	BuildListOfUnitsWeStillNeedToBuild();
@@ -327,6 +327,10 @@ CvAIOperation* CvAIOperation::CreateOperation(AIOperationTypes eAIOperationType,
 		return FNEW(CvAIOperationNavalCityStateAttack(), c_eCiv5GameplayDLL, 0);
 	case AI_OPERATION_NUKE_ATTACK:
 		return FNEW(CvAIOperationNukeAttack(), c_eCiv5GameplayDLL, 0);
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	case AI_OPERATION_NAVAL_INVASION_ESCORT:
+		return FNEW(CvAINavalEscortedInvasionOperation(), c_eCiv5GameplayDLL, 0);
+#endif
 	}
 
 	return 0;
@@ -1263,6 +1267,9 @@ void CvAIOperation::LogOperationStart()
 		case AI_OPERATION_CITY_STATE_NAVAL_ATTACK:
 		case AI_OPERATION_NUKE_ATTACK:
 		case AI_OPERATION_PURE_NAVAL_CITY_ATTACK:
+#if defined(MOD_BALANCE_CORE_MILITARY)
+		case AI_OPERATION_NAVAL_INVASION_ESCORT:
+#endif
 			
 			strOutBuf = GetOperationName() + ", ";
 			strOutBuf += strTemp1 + strTemp2;
@@ -1504,6 +1511,9 @@ void CvAIOperation::LogOperationEnd()
 		case AI_OPERATION_CITY_STATE_NAVAL_ATTACK:
 		case AI_OPERATION_NUKE_ATTACK:
 		case AI_OPERATION_PURE_NAVAL_CITY_ATTACK:
+#if defined(MOD_BALANCE_CORE_MILITARY)
+		case AI_OPERATION_NAVAL_INVASION_ESCORT:
+#endif
 			strOutBuf = GetOperationName() + ", ";
 			strOutBuf += strTemp;
 			GET_PLAYER(m_eOwner).GetMilitaryAI()->LogMilitarySummaryMessage(strOutBuf);
@@ -6126,6 +6136,375 @@ bool CvAIOperationNukeAttack::FindBestFitReserveUnit(OperationSlot thisOperation
 	return true;
 }
 
+#if defined(MOD_BALANCE_CORE_MILITARY)
+////////////////////////////////////////////////////////////////////////////////
+// CvAINavalEscortedInvasionOperation
+////////////////////////////////////////////////////////////////////////////////
+
+/// Constructor
+CvAINavalEscortedInvasionOperation::CvAINavalEscortedInvasionOperation()
+{
+	m_iInitialAreaID = -1;
+	m_iBestArmyID = -1;
+}
+
+/// Destructor
+CvAINavalEscortedInvasionOperation::~CvAINavalEscortedInvasionOperation()
+{
+}
+
+/// Kick off this operation
+void CvAINavalEscortedInvasionOperation::Init(int iID, PlayerTypes eOwner, PlayerTypes /*eEnemy*/, int iDefaultArea, CvCity* /*pTarget*/, CvCity* /*pMuster*/)
+{
+	Reset();
+	m_eMoveType = AI_OPERATION_MOVETYPE_NAVAL_ESCORT;
+	m_iID = iID;
+	m_eOwner = eOwner;
+	SetDefaultArea(iDefaultArea);   // Area escort starts in
+
+	// Find the army's first unit
+	CvUnit* pUnit = FindBestArmyUnit();
+
+	if(pUnit != NULL)
+	{
+		CvPlot* pMusterPt = GetOperationStartPlot(pUnit);
+
+		if(pMusterPt != NULL)
+		{
+			// Find a destination
+			CvPlot* pTargetSite = FindBestTarget();
+
+			if(pTargetSite != NULL)
+			{
+				SetTargetPlot(pTargetSite);
+
+				// create the armies that are needed and set the state to ARMYAISTATE_WAITING_FOR_UNITS_TO_REINFORCE
+				CvArmyAI* pArmyAI = GET_PLAYER(m_eOwner).addArmyAI();
+				if(pArmyAI)
+				{
+					m_viArmyIDs.push_back(pArmyAI->GetID());
+					pArmyAI->Init(pArmyAI->GetID(),m_eOwner,m_iID);
+					pArmyAI->SetArmyAIState(ARMYAISTATE_WAITING_FOR_UNITS_TO_REINFORCE);
+					pArmyAI->SetFormationIndex(GetFormation());
+
+					pArmyAI->SetGoalPlot(pTargetSite);
+					
+					SetMusterPlot(pMusterPt);
+					pArmyAI->SetXY(pMusterPt->getX(), pMusterPt->getY());
+
+					BuildListOfUnitsWeStillNeedToBuild();
+
+					// Try to get as many units as possible from existing units that are waiting around
+					if(GrabUnitsFromTheReserves(GetMusterPlot(), GetTargetPlot()))
+					{
+						pArmyAI->SetArmyAIState(ARMYAISTATE_WAITING_FOR_UNITS_TO_CATCH_UP);
+						m_eCurrentState = AI_OPERATION_STATE_GATHERING_FORCES;
+					}
+					else
+					{
+						m_eCurrentState = AI_OPERATION_STATE_RECRUITING_UNITS;
+					}
+					LogOperationStart();
+				}
+				else
+				{
+					// Lost our target, abort
+					m_eCurrentState = AI_OPERATION_STATE_ABORTED;
+					m_eAbortReason = AI_ABORT_LOST_TARGET;
+					GET_PLAYER(m_eOwner).deleteArmyAI(pArmyAI->GetID());
+				}
+			}
+		}
+	}
+}
+
+/// Find the port our operation will leave from
+CvPlot* CvAINavalEscortedInvasionOperation::GetOperationStartPlot(CvUnit* pUnit)
+{
+	CvPlot* pPlot = NULL;
+	CvPlot* pAdjacentPlot = NULL;
+	CvArmyAI* eArmy = GET_PLAYER(m_eOwner).getArmyAI(GET_PLAYER(m_eOwner).GetEscortID());
+
+	if(pUnit != NULL)
+	{
+		pPlot = pUnit->plot();
+
+		if(pPlot != NULL && !pPlot->isWater())
+		{
+			CvCity* pLoopCity;
+			int iLoop;
+			int iBestDistance = MAX_INT;
+
+			for(pLoopCity = GET_PLAYER(m_eOwner).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(m_eOwner).nextCity(&iLoop))
+			{
+				if(pLoopCity != NULL && pLoopCity->isCoastal(GC.getMIN_WATER_SIZE_FOR_OCEAN()))
+				{
+					int iDistance = plotDistance(pLoopCity->getX(), pLoopCity->getY(), pPlot->getX(), pPlot->getY());
+					if(iDistance < iBestDistance)
+					{
+						iBestDistance = iDistance;
+						pPlot = pLoopCity->plot();
+					}
+				}
+			}
+			if(pPlot != NULL)
+			{
+				for(int iPlotLoop = 1; iPlotLoop < NUM_DIRECTION_TYPES; iPlotLoop++)
+				{
+					pAdjacentPlot = plotDirection(pPlot->getX(), pPlot->getY(), ((DirectionTypes)iPlotLoop));
+					if(pAdjacentPlot != NULL && pAdjacentPlot->isWater())
+					{
+						return pAdjacentPlot;
+					}
+				}
+			}
+			else
+			{
+				pPlot = eArmy->GetCenterOfMass(DOMAIN_SEA);
+				return pPlot;
+			}
+		}
+		else
+		{
+			pPlot = eArmy->GetCenterOfMass(DOMAIN_SEA);
+			return pPlot;
+		}
+	}
+
+	return NULL;
+}
+
+/// Read serialized data
+void CvAINavalEscortedInvasionOperation::Read(FDataStream& kStream)
+{
+	// read the base class' entries
+	CvAIOperation::Read(kStream);
+
+	// Version number to maintain backwards compatibility
+	uint uiVersion;
+	kStream >> uiVersion;
+	MOD_SERIALIZE_INIT_READ(kStream);
+}
+
+/// Write serialized data
+void CvAINavalEscortedInvasionOperation::Write(FDataStream& kStream) const
+{
+	// write the base class' entries
+	CvAIOperation::Write(kStream);
+
+	// Current version number
+	uint uiVersion = 1;
+	kStream << uiVersion;
+	MOD_SERIALIZE_INIT_WRITE(kStream);
+}
+/// Find the army we want to follow
+CvUnit* CvAINavalEscortedInvasionOperation::FindBestArmyUnit()
+{
+	CvUnit* pUnit = NULL;
+	CvArmyAI* pThisArmy = GET_PLAYER(m_eOwner).getArmyAI(GET_PLAYER(m_eOwner).GetEscortID());
+	if(pThisArmy != NULL)
+	{
+		int iUnitID = pThisArmy->GetFirstUnitID();
+		if(iUnitID != -1)
+		{
+			pUnit = GET_PLAYER(m_eOwner).getUnit(iUnitID);
+			if(pUnit != NULL)
+			{
+				SetBestArmy(GET_PLAYER(m_eOwner).GetEscortID());
+				return pUnit;
+			}
+		}
+	}
+	SetBestArmy(-1);
+	return NULL;
+}
+
+
+
+bool CvAINavalEscortedInvasionOperation::ArmyInPosition(CvArmyAI* pArmy)
+{
+	bool bStateChanged = false;
+	CvString strMsg;
+
+	CvUnit* pUnit = FindBestArmyUnit();
+
+	if(pUnit != NULL)
+	{
+		CvPlot* eUnitPlot = GetOperationStartPlot(pUnit);
+		CvPlot* eTargetPlot = GetTargetPlot();
+		CvArmyAI* pThisArmy = GET_PLAYER(m_eOwner).getArmyAI(GET_PLAYER(m_eOwner).GetEscortID());
+		CvPlot* pOurArmyPlot = NULL;
+		if(pThisArmy != NULL)
+		{
+			pOurArmyPlot = pThisArmy->GetCenterOfMass(DOMAIN_SEA);
+		}
+		switch(m_eCurrentState)
+		{
+		case AI_OPERATION_STATE_MOVING_TO_TARGET:
+			{
+				//Is our army we are escorting within two of their goal? Are we?
+				if(eUnitPlot != NULL && eTargetPlot != NULL && pOurArmyPlot != NULL)
+				{
+					if(plotDistance(eUnitPlot->getX(), eUnitPlot->getY(), eTargetPlot->getX(), eTargetPlot->getY()) > 2)
+					{
+						if(plotDistance(pOurArmyPlot->getX(), pOurArmyPlot->getY(), eTargetPlot->getX(), eTargetPlot->getY()) > 2)
+						{
+							RetargetEscort(pArmy);
+							CvPlot* pBetterTarget = GetTargetPlot();
+							if(pBetterTarget != eTargetPlot)
+							{
+								if(GC.getLogging() && GC.getAILogging())
+								{
+									strMsg.Format("Still escorting, but shifting goal. New target is (X=%d Y=%d)", pBetterTarget->getX(), pBetterTarget->getY());
+									LogOperationSpecialMessage(strMsg);
+								}
+							}
+						}
+						else
+						{
+							if(GC.getLogging() && GC.getAILogging())
+							{
+								strMsg.Format("Still escorting, to same goal. Target is (X=%d Y=%d)", eTargetPlot->getX(), eTargetPlot->getY());
+								LogOperationSpecialMessage(strMsg);
+							}
+						}
+					}
+					if(plotDistance(eUnitPlot->getX(), eUnitPlot->getY(), eTargetPlot->getX(), eTargetPlot->getY()) <= 2)
+					{
+						if(plotDistance(pOurArmyPlot->getX(), pOurArmyPlot->getY(), eTargetPlot->getX(), eTargetPlot->getY()) <= 2)
+						{
+							if(GC.getLogging() && GC.getAILogging())
+							{
+								strMsg.Format("We made it! Escort delivered to (X=%d Y=%d)", eTargetPlot->getX(), eTargetPlot->getY());
+								LogOperationSpecialMessage(strMsg);
+							}
+						}
+
+						// Notify tactical AI to focus on this area
+						CvTemporaryZone zone;
+						zone.SetX(GetTargetPlot()->getX());
+						zone.SetY(GetTargetPlot()->getY());
+						zone.SetTargetType(AI_TACTICAL_TARGET_CITY);
+						zone.SetLastTurn(GC.getGame().getGameTurn() + GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS());
+						zone.SetNavalInvasion(true);
+						GET_PLAYER(m_eOwner).GetTacticalAI()->AddTemporaryZone(zone);
+
+						m_eCurrentState = AI_OPERATION_STATE_SUCCESSFUL_FINISH;
+					}
+				}
+			}
+			break;
+
+			// In all other cases use base class version
+		// In all other cases use base class version
+		case AI_OPERATION_STATE_GATHERING_FORCES:
+		case AI_OPERATION_STATE_ABORTED:
+		case AI_OPERATION_STATE_RECRUITING_UNITS:
+		case AI_OPERATION_STATE_AT_TARGET:
+			return CvAIOperation::ArmyInPosition(pArmy);
+			break;
+		};
+	}
+
+	return bStateChanged;
+}
+/// Find the army we want to follow
+void CvAINavalEscortedInvasionOperation::SetBestArmy(int iValue)
+{
+		if(GetBestArmy() != iValue)
+		m_iBestArmyID = iValue;
+}
+/// Find the army we want to follow
+int CvAINavalEscortedInvasionOperation::GetBestArmy()
+{
+	return m_iBestArmyID;
+}
+
+/// Find our escort's center, and stick there.
+CvPlot* CvAINavalEscortedInvasionOperation::FindBestTarget()
+{
+	CvArmyAI* eArmy = GET_PLAYER(m_eOwner).getArmyAI(GET_PLAYER(m_eOwner).GetEscortID());
+
+	if(eArmy)
+	{			
+		CvPlot* pPlot = eArmy->GetGoalPlot();
+		CvPlot* pAdjacentPlot = NULL;
+		if(pPlot != NULL)
+		{
+			if (!pPlot->isWater())
+			{
+				PlayerTypes eEnemy = pPlot->getOwner();
+				CvCity* pLoopCity;
+				int iLoop;
+				int iBestDistance = MAX_INT;
+
+				for(pLoopCity = GET_PLAYER(eEnemy).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eEnemy).nextCity(&iLoop))
+				{
+					if(pLoopCity != NULL && pLoopCity->isCoastal() && pLoopCity->plot()->isRevealed(GET_PLAYER(m_eOwner).getTeam()))
+					{
+						int iDistance = plotDistance(pLoopCity->getX(), pLoopCity->getY(), pPlot->getX(), pPlot->getY());
+						if(iDistance < iBestDistance)
+						{
+							iBestDistance = iDistance;
+							pPlot = pLoopCity->plot();
+
+						}
+					}
+				}
+				if(pPlot != NULL)
+				{
+					for(int iPlotLoop = 1; iPlotLoop < NUM_DIRECTION_TYPES; iPlotLoop++)
+					{
+						pAdjacentPlot = plotDirection(pPlot->getX(), pPlot->getY(), ((DirectionTypes)iPlotLoop));
+						if(pAdjacentPlot != NULL && pAdjacentPlot->isWater())
+						{
+							return pAdjacentPlot;
+						}
+					}
+				}
+			}
+			else
+			{
+				return pPlot;
+			}
+		}
+		else
+		{
+			pPlot = eArmy->GetCenterOfMass(DOMAIN_SEA);
+			return pPlot;
+		}
+	}
+	return NULL;
+}
+/// Start the civilian off to a new target plot
+bool CvAINavalEscortedInvasionOperation::RetargetEscort(CvArmyAI* pArmy)
+{
+	CvPlot* pBetterTarget;
+
+	// Find best target
+	pBetterTarget = FindBestTarget();
+
+	// No targets at all!  Abort
+	if(pBetterTarget == NULL)
+	{
+		m_eCurrentState = AI_OPERATION_STATE_ABORTED;
+		m_eAbortReason = AI_ABORT_NO_TARGET;
+		return false;
+	}
+
+	// If this is a new target, switch to it
+	else if(pBetterTarget != GetTargetPlot())
+	{
+		SetTargetPlot(pBetterTarget);
+		pArmy->SetGoalPlot(pBetterTarget);
+	}
+
+	pArmy->SetArmyAIState(ARMYAISTATE_MOVING_TO_DESTINATION);
+	m_eCurrentState = AI_OPERATION_STATE_MOVING_TO_TARGET;
+
+	return true;
+}
+#endif
 
 FDataStream& operator<<(FDataStream& saveTo, const AIOperationState& readFrom)
 {

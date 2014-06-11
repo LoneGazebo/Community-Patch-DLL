@@ -121,10 +121,18 @@ public:
 	int GetLandTradeRouteRangeBonus() const;
 	int GetTradeReligionModifier() const;
 	int GetTradeBuildingModifier() const;
+#if defined(MOD_BALANCE_CORE)
+	int GetNumFreeBuildings() const;
+	TechTypes GetFreeBuildingPrereqTech() const;
+	TechTypes GetCapitalFreeBuildingPrereqTech() const;
+#endif
 
 	TechTypes GetFreeUnitPrereqTech() const;
 	ImprovementTypes GetCombatBonusImprovement() const;
 	BuildingTypes GetFreeBuilding() const;
+#if defined(MOD_BALANCE_CORE)
+	BuildingTypes GetFreeCapitalBuilding() const;
+#endif
 	BuildingTypes GetFreeBuildingOnConquest() const;
 
 	bool IsFightWellDamaged() const;
@@ -254,10 +262,18 @@ protected:
 	int m_iLandTradeRouteRangeBonus;
 	int m_iTradeReligionModifier;
 	int m_iTradeBuildingModifier;
+#if defined(MOD_BALANCE_CORE)
+	int m_iNumFreeBuildings;
+#endif
 
 	TechTypes m_eFreeUnitPrereqTech;
 	ImprovementTypes m_eCombatBonusImprovement;
 	BuildingTypes m_eFreeBuilding;
+#if defined(MOD_BALANCE_CORE)
+	BuildingTypes m_eFreeCapitalBuilding;
+	TechTypes m_eFreeBuildingPrereqTech;
+	TechTypes m_eCapitalFreeBuildingPrereqTech;
+#endif
 	BuildingTypes m_eFreeBuildingOnConquest;
 
 	bool m_bFightWellDamaged;
@@ -632,6 +648,12 @@ public:
 	{
 		return m_iTradeBuildingModifier;
 	}
+#if defined(MOD_BALANCE_CORE)
+	int GetNumFreeBuildings() const
+	{
+		return m_iNumFreeBuildings;
+	}
+#endif
 
 	bool IsFightWellDamaged() const
 	{
@@ -771,7 +793,14 @@ public:
 	void AddUniqueLuxuries(CvCity *pCity);
 	bool CheckForBarbarianConversion(CvPlot* pPlot);
 	int GetCapitalBuildingDiscount(BuildingTypes eBuilding);
+#if defined(MOD_BALANCE_CORE)
+	TechTypes GetFreeBuildingPrereqTech() const;
+	TechTypes GetCapitalFreeBuildingPrereqTech() const;
+#endif
 	BuildingTypes GetFreeBuilding() const;
+#if defined(MOD_BALANCE_CORE)
+	BuildingTypes GetFreeCapitalBuilding() const;
+#endif
 	BuildingTypes GetFreeBuildingOnConquest() const;
 	void SetDefeatedBarbarianCampGuardType(UnitTypes eType)
 	{
@@ -887,6 +916,9 @@ private:
 	int m_iLandTradeRouteRangeBonus;
 	int m_iTradeReligionModifier;
 	int m_iTradeBuildingModifier;
+#if defined(MOD_BALANCE_CORE)
+	int m_iNumFreeBuildings;
+#endif
 	// Saved
 
 	bool m_bFightWellDamaged;
@@ -920,6 +952,9 @@ private:
 	TechTypes m_eFreeUnitPrereqTech;
 	ImprovementTypes m_eCombatBonusImprovement;
 	BuildingTypes m_eFreeBuilding;
+#if defined(MOD_BALANCE_CORE)
+	BuildingTypes m_eFreeCapitalBuilding;
+#endif
 	BuildingTypes m_eFreeBuildingOnConquest;
 
 	int m_iExtraYieldThreshold[NUM_YIELD_TYPES];

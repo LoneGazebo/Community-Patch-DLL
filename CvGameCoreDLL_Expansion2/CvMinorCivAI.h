@@ -598,6 +598,14 @@ public:
 	bool IsWaryOfTeam(TeamTypes eTeam) const;
 	void SetWaryOfTeam(TeamTypes eTeam, bool bValue);
 
+#if defined(MOD_BALANCE_CORE_MINORS)
+	int GetJerk(TeamTypes eTeam) const;
+	void SetJerk(TeamTypes eTeam, int iValue);
+	void ChangeJerk(TeamTypes eTeam, int iChange);
+	bool IsJerk(TeamTypes eTeam) const;
+	void SetIsJerk(TeamTypes eTeam, bool bValue);
+#endif
+
 	// ******************************
 	// ***** Misc Helper Functions *****
 	// ******************************
@@ -643,6 +651,11 @@ private:
 	bool m_bIsRebellionActive;
 	bool m_bIsHordeActive;
 	int m_iCooldownSpawn;
+#endif
+
+#if defined(MOD_BALANCE_CORE_MINORS)
+	bool m_abIsJerk[REALLY_MAX_TEAMS];
+	int m_aiJerk[REALLY_MAX_TEAMS];
 #endif
 
 	PlayerTypes m_eAlly;
