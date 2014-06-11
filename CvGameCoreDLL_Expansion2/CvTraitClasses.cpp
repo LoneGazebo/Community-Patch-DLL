@@ -88,6 +88,11 @@ CvTraitEntry::CvTraitEntry() :
 
 	m_eFreeUnitPrereqTech(NO_TECH),
 	m_eFreeBuilding(NO_BUILDING),
+#if defined(MOD_BALANCE_CORE)
+	m_eFreeCapitalBuilding(NO_BUILDING),
+	m_eFreeBuildingPrereqTech(NO_TECH),
+	m_eCapitalFreeBuildingPrereqTech(NO_TECH),
+#endif
 	m_eFreeBuildingOnConquest(NO_BUILDING),
 
 	m_bFightWellDamaged(false),
@@ -524,6 +529,20 @@ int CvTraitEntry::GetTradeBuildingModifier() const
 {
 	return m_iTradeBuildingModifier;
 }
+#if defined(MOD_BALANCE_CORE)
+int CvTraitEntry::GetNumFreeBuildings() const
+{
+	return m_iNumFreeBuildings;
+}
+TechTypes CvTraitEntry::GetFreeBuildingPrereqTech() const
+{
+	return m_eFreeBuildingPrereqTech;
+}
+TechTypes CvTraitEntry::GetCapitalFreeBuildingPrereqTech() const
+{
+	return m_eCapitalFreeBuildingPrereqTech;
+}
+#endif
 
 /// Accessor: tech that triggers this free unit
 TechTypes CvTraitEntry::GetFreeUnitPrereqTech() const
@@ -542,7 +561,13 @@ BuildingTypes CvTraitEntry::GetFreeBuilding() const
 {
 	return m_eFreeBuilding;
 }
-
+#if defined(MOD_BALANCE_CORE)
+/// Does the capital get a free building?
+BuildingTypes CvTraitEntry::GetFreeCapitalBuilding() const
+{
+	return m_eFreeCapitalBuilding;
+}
+#endif
 /// Accessor: free building in each city conquered
 BuildingTypes CvTraitEntry::GetFreeBuildingOnConquest() const
 {
@@ -954,6 +979,9 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	m_iTradeReligionModifier				= kResults.GetInt("TradeReligionModifier");
 	m_iTradeBuildingModifier				= kResults.GetInt("TradeBuildingModifier");
 
+#if defined(MOD_BALANCE_CORE)
+	m_iNumFreeBuildings						= kResults.GetInt("NumFreeBuildings");
+#endif
 	const char* szTextVal = NULL;
 	szTextVal = kResults.GetText("FreeUnit");
 	if(szTextVal)
@@ -966,6 +994,19 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	{
 		m_eFreeUnitPrereqTech = (TechTypes)GC.getInfoTypeForString(szTextVal, true);
 	}
+
+#if defined(MOD_BALANCE_CORE)
+	szTextVal = kResults.GetText("FreeBuildingPrereqTech");
+	if(szTextVal)
+	{
+		m_eFreeBuildingPrereqTech = (TechTypes)GC.getInfoTypeForString(szTextVal, true);
+	}
+	szTextVal = kResults.GetText("CapitalFreeBuildingPrereqTech");
+	if(szTextVal)
+	{
+		m_eCapitalFreeBuildingPrereqTech = (TechTypes)GC.getInfoTypeForString(szTextVal, true);
+	}
+#endif
 
 	szTextVal = kResults.GetText("CombatBonusImprovement");
 	if(szTextVal)
@@ -990,13 +1031,19 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	{
 		m_eFreeBuilding = (BuildingTypes)GC.getInfoTypeForString(szTextVal, true);
 	}
+#if defined(MOD_BALANCE_CORE)
+	szTextVal = kResults.GetText("FreeCapitalBuilding");
+	if(szTextVal)
+	{
+		m_eFreeCapitalBuilding = (BuildingTypes)GC.getInfoTypeForString(szTextVal, true);
+	}
+#endif
 
 	szTextVal = kResults.GetText("FreeBuildingOnConquest");
 	if(szTextVal)
 	{
 		m_eFreeBuildingOnConquest = (BuildingTypes)GC.getInfoTypeForString(szTextVal, true);
 	}
-
 	m_bFightWellDamaged = kResults.GetBool("FightWellDamaged");
 	m_bMoveFriendlyWoodsAsRoad = kResults.GetBool("MoveFriendlyWoodsAsRoad");
 	m_bFasterAlongRiver = kResults.GetBool("FasterAlongRiver");
@@ -1427,6 +1474,9 @@ void CvPlayerTraits::InitPlayerTraits()
 			m_iLandTradeRouteRangeBonus += trait->GetLandTradeRouteRangeBonus();
 			m_iTradeReligionModifier += trait->GetTradeReligionModifier();
 			m_iTradeBuildingModifier += trait->GetTradeBuildingModifier();
+#if defined(MOD_BALANCE_CORE)
+			m_iNumFreeBuildings	+= trait->GetNumFreeBuildings();
+#endif
 
 			if(trait->IsFightWellDamaged())
 			{
@@ -1696,6 +1746,9 @@ void CvPlayerTraits::Reset()
 	m_iLandTradeRouteRangeBonus = 0;
 	m_iTradeReligionModifier = 0;
 	m_iTradeBuildingModifier = 0;
+#if defined(MOD_BALANCE_CORE)
+	m_iNumFreeBuildings = 0;
+#endif
 
 	m_bFightWellDamaged = false;
 	m_bMoveFriendlyWoodsAsRoad = false;
@@ -1989,6 +2042,29 @@ BuildingTypes CvPlayerTraits::GetFreeBuilding() const
 
 	return NO_BUILDING;
 }
+#if defined(MOD_BALANCE_CORE)
+/// Does the capital get a free building?
+BuildingTypes CvPlayerTraits::GetFreeCapitalBuilding() const
+{
+	for(int iI = 0; iI < GC.getNumTraitInfos(); iI++)
+	{
+		const TraitTypes eTrait = static_cast<TraitTypes>(iI);
+		CvTraitEntry* pkTraitInfo = GC.getTraitInfo(eTrait);
+		if(pkTraitInfo)
+		{
+			if(HasTrait(eTrait))
+			{
+				if(pkTraitInfo->GetFreeCapitalBuilding())
+				{
+					return pkTraitInfo->GetFreeCapitalBuilding();
+				}
+			}
+		}
+	}
+
+	return NO_BUILDING;
+}
+#endif
 
 /// Does each conquered city get a free building?
 BuildingTypes CvPlayerTraits::GetFreeBuildingOnConquest() const
@@ -2148,6 +2224,49 @@ int CvPlayerTraits::GetCapitalBuildingDiscount(BuildingTypes eBuilding)
 	}
 	return 0;
 }
+
+#if defined(MOD_BALANCE_CORE)
+TechTypes CvPlayerTraits::GetFreeBuildingPrereqTech() const
+{
+	for(int iI = 0; iI < GC.getNumTraitInfos(); iI++)
+	{
+		const TraitTypes eTrait = static_cast<TraitTypes>(iI);
+		CvTraitEntry* pkTraitInfo = GC.getTraitInfo(eTrait);
+		if(pkTraitInfo)
+		{
+			if(HasTrait(eTrait))
+			{
+				if(pkTraitInfo->GetFreeBuildingPrereqTech())
+				{
+					return pkTraitInfo->GetFreeBuildingPrereqTech();
+				}
+			}
+		}
+	}
+
+	return NO_TECH;
+}
+TechTypes CvPlayerTraits::GetCapitalFreeBuildingPrereqTech() const
+{
+	for(int iI = 0; iI < GC.getNumTraitInfos(); iI++)
+	{
+		const TraitTypes eTrait = static_cast<TraitTypes>(iI);
+		CvTraitEntry* pkTraitInfo = GC.getTraitInfo(eTrait);
+		if(pkTraitInfo)
+		{
+			if(HasTrait(eTrait))
+			{
+				if(pkTraitInfo->GetCapitalFreeBuildingPrereqTech())
+				{
+					return pkTraitInfo->GetCapitalFreeBuildingPrereqTech();
+				}
+			}
+		}
+	}
+
+	return NO_TECH;
+}
+#endif
 
 /// First free unit received through traits
 int CvPlayerTraits::GetFirstFreeUnit(TechTypes eTech)
@@ -2832,7 +2951,9 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	{
 		m_iTradeBuildingModifier = 0;
 	}
-
+#if defined(MOD_BALANCE_CORE)
+	MOD_SERIALIZE_READ(51, kStream, m_iNumFreeBuildings, 0);
+#endif
 	kStream >> m_bFightWellDamaged;
 	kStream >> m_bMoveFriendlyWoodsAsRoad;
 	kStream >> m_bFasterAlongRiver;
@@ -3096,6 +3217,9 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	kStream << m_iLandTradeRouteRangeBonus;
 	kStream << m_iTradeReligionModifier;
 	kStream << m_iTradeBuildingModifier;
+#if defined(MOD_BALANCE_CORE)
+	MOD_SERIALIZE_WRITE(kStream, m_iNumFreeBuildings);
+#endif
 
 	kStream << m_bFightWellDamaged;
 	kStream << m_bMoveFriendlyWoodsAsRoad;

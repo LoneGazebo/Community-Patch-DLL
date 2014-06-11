@@ -845,6 +845,9 @@ public:
 	int getBarbarianSeaTargetRange() const;
 
 	int getStartingDefenseUnits() const;
+#if defined(MOD_BALANCE_CORE)
+	int getStartingMinorDefenseUnits() const;
+#endif
 	int getStartingWorkerUnits() const;
 	int getStartingExploreUnits() const;
 	int getAIStartingUnitMultiplier() const;
@@ -915,6 +918,9 @@ protected:
 	int m_iBarbarianSeaTargetRange;
 
 	int m_iStartingDefenseUnits;
+#if defined(MOD_BALANCE_CORE)
+	int m_iStartingMinorDefenseUnits;
+#endif
 	int m_iStartingWorkerUnits;
 	int m_iStartingExploreUnits;
 	int m_iAIStartingUnitMultiplier;
@@ -2074,6 +2080,9 @@ public:
 
 	int getStartingUnitMultiplier() const;
 	int getStartingDefenseUnits() const;
+#if defined(MOD_BALANCE_CORE)
+	int getStartingMinorDefenseUnits() const;
+#endif
 	int getStartingWorkerUnits() const;
 	int getStartingExploreUnits() const;
 	int getResearchAgreementCost() const;
@@ -2132,6 +2141,9 @@ public:
 protected:
 	int m_iStartingUnitMultiplier;
 	int m_iStartingDefenseUnits;
+#if defined(MOD_BALANCE_CORE)
+	int m_iStartingMinorDefenseUnits;
+#endif
 	int m_iStartingWorkerUnits;
 	int m_iStartingExploreUnits;
 	int m_iResearchAgreementCost;

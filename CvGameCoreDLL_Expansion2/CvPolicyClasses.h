@@ -220,6 +220,10 @@ public:
 
 	int GetHurryModifier(int i) const;
 	bool IsSpecialistValid(int i) const;
+#if defined(MOD_BALANCE_CORE)
+	int GetFreeChosenBuilding(int i) const;
+	void ChangeFreeChosenBuilding(int i, int iChange);
+#endif
 	int GetImprovementYieldChanges(int i, int j) const;
 #if defined(MOD_BALANCE_CORE_YIELDS)
 	int GetPlotYieldChanges(int i, int j) const;
@@ -370,6 +374,9 @@ private:
 	int m_iHappinessToScience;
 	int m_iNumCitiesFreeCultureBuilding;
 	int m_iNumCitiesFreeFoodBuilding;
+#if defined(MOD_BALANCE_CORE)
+	int m_iFreeChosenBuilding;
+#endif
 
 	bool m_bHalfSpecialistUnhappiness;
 	bool m_bHalfSpecialistFood;
@@ -416,6 +423,9 @@ private:
 	int* m_paiBuildingClassHappiness;
 	int* m_paiFreeUnitClasses;
 	int* m_paiTourismOnUnitCreation;
+#if defined(MOD_BALANCE_CORE)
+	int* m_paiFreeChosenBuilding;
+#endif
 
 //	bool* m_pabHurry;
 	bool* m_pabSpecialistValid;

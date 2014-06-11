@@ -224,6 +224,9 @@ CvCity::CvCity() :
 	, m_aiDomainProductionModifier("CvCity::m_aiDomainProductionModifier", m_syncArchive)
 	, m_abEverOwned("CvCity::m_abEverOwned", m_syncArchive)
 	, m_abRevealed("CvCity::m_abRevealed", m_syncArchive, true)
+#if defined(MOD_BALANCE_CORE)
+	, m_abOwedChosenBuilding("CvCity::m_abOwedChosenBuilding", m_syncArchive)
+#endif
 	, m_strScriptData("CvCity::m_strScriptData", m_syncArchive)
 	, m_paiNoResource("CvCity::m_paiNoResource", m_syncArchive)
 	, m_paiFreeResource("CvCity::m_paiFreeResource", m_syncArchive)
@@ -616,6 +619,20 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 					}
 				}
 			}
+#if defined(MOD_BALANCE_CORE)
+			//Free building in Capital from Trait?
+			if(owningPlayer.GetPlayerTraits()->GetFreeCapitalBuilding() != NO_BUILDING)
+			{
+				if(owningPlayer.GetPlayerTraits()->GetCapitalFreeBuildingPrereqTech() == NO_TECH)
+				{
+					BuildingTypes eBuilding = owningPlayer.GetPlayerTraits()->GetFreeCapitalBuilding();
+					if(isValidBuildingLocation(eBuilding))
+					{
+						m_pCityBuildings->SetNumFreeBuilding(eBuilding, 1);
+					}
+				}
+			}
+#endif
 
 			if(!isHuman())
 			{
@@ -868,6 +885,9 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 #if defined(MOD_BUGFIX_FREE_FOOD_BUILDING)
 	m_bOwedFoodBuilding = false;
 #endif
+#if defined(MOD_BALANCE_CORE)
+	m_bOwedChosenBuilding = false;
+#endif
 
 	m_eOwner = eOwner;
 	m_ePreviousOwner = NO_PLAYER;
@@ -940,6 +960,13 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	{
 		m_abRevealed.setAt(iI, false);
 	}
+#if defined(MOD_BALANCE_CORE)
+	m_abOwedChosenBuilding.resize(REALLY_MAX_PLAYERS);
+	for(iI = 0; iI < REALLY_MAX_PLAYERS; iI++)
+	{
+		m_abEverOwned.setAt(iI, false);
+	}
+#endif
 
 	m_strName = "";
 	m_strNameIAmNotSupposedToBeUsedAnyMoreBecauseThisShouldNotBeCheckedAndWeNeedToPreserveSaveGameCompatibility = "";
@@ -9611,6 +9638,18 @@ void CvCity::SetOwedFoodBuilding(bool bNewValue)
 }
 #endif
 
+#if defined(MOD_BALANCE_CORE)
+//	--------------------------------------------------------------------------------
+bool CvCity::IsOwedChosenBuilding(BuildingClassTypes eBuildingClass) const
+{
+	return m_abOwedChosenBuilding[eBuildingClass];
+}
+//	--------------------------------------------------------------------------------
+void CvCity::SetOwedChosenBuilding(BuildingClassTypes eBuildingClass, bool bNewValue)
+{
+	m_abOwedChosenBuilding.setAt(eBuildingClass, bNewValue);
+}
+#endif
 //	--------------------------------------------------------------------------------
 bool CvCity::IsBlockaded() const
 {
@@ -14825,7 +14864,9 @@ void CvCity::read(FDataStream& kStream)
 #if defined(MOD_BUGFIX_FREE_FOOD_BUILDING)
 	MOD_SERIALIZE_READ(30, kStream, m_bOwedFoodBuilding, false);
 #endif
-
+#if defined(MOD_BALANCE_CORE)
+	kStream >> m_abOwedChosenBuilding;
+#endif
 	m_pCityStrategyAI->Read(kStream);
 	if(m_eOwner != NO_PLAYER)
 	{
@@ -15091,7 +15132,9 @@ void CvCity::write(FDataStream& kStream) const
 #if defined(MOD_BUGFIX_FREE_FOOD_BUILDING)
 	MOD_SERIALIZE_WRITE(kStream, m_bOwedFoodBuilding);
 #endif
-
+#if defined(MOD_BALANCE_CORE)
+	MOD_SERIALIZE_WRITE(kStream, m_bOwedChosenBuilding);
+#endif
 	m_pCityStrategyAI->Write(kStream);
 	m_pCityCitizens->Write(kStream);
 	kStream << *m_pCityReligions;
