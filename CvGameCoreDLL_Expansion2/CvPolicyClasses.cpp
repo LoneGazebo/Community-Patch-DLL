@@ -192,6 +192,9 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_paiTourismOnUnitCreation(NULL),
 	m_paiHurryModifier(NULL),
 	m_pabSpecialistValid(NULL),
+#if defined(MOD_BALANCE_CORE)
+	m_paiFreeChosenBuilding(NULL),
+#endif
 	m_ppiImprovementYieldChanges(NULL),
 	m_ppiBuildingClassYieldModifiers(NULL),
 	m_ppiBuildingClassYieldChanges(NULL),
@@ -229,6 +232,9 @@ CvPolicyEntry::~CvPolicyEntry(void)
 //	SAFE_DELETE_ARRAY(m_pabHurry);
 	SAFE_DELETE_ARRAY(m_paiHurryModifier);
 	SAFE_DELETE_ARRAY(m_pabSpecialistValid);
+#if defined(MOD_BALANCE_CORE)
+	SAFE_DELETE_ARRAY(m_paiFreeChosenBuilding);
+#endif
 
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiImprovementYieldChanges);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiBuildingClassYieldModifiers);
@@ -434,6 +440,12 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	kUtility.PopulateArrayByExistence(m_pabFreePromotion, "UnitPromotions", "Policy_FreePromotions", "PromotionType", "PolicyType", szPolicyType);
 	kUtility.PopulateArrayByValue(m_paiUnitCombatFreeExperiences, "UnitCombatInfos", "Policy_UnitCombatFreeExperiences", "UnitCombatType", "PolicyType", szPolicyType, "FreeExperience");
 	kUtility.PopulateArrayByValue(m_paiUnitCombatProductionModifiers, "UnitCombatInfos", "Policy_UnitCombatProductionModifiers", "UnitCombatType", "PolicyType", szPolicyType, "ProductionModifier");
+
+#if defined(MOD_BALANCE_CORE)
+	if (MOD_BALANCE_CORE) {
+		kUtility.PopulateArrayByValue(m_paiFreeChosenBuilding, "BuildingClasses", "Policy_FreeBuilding", "BuildingClassType", "PolicyType", szPolicyType, "Count");
+	}
+#endif
 
 	kUtility.PopulateArrayByValue(m_paiBuildingClassCultureChanges, "BuildingClasses", "Policy_BuildingClassCultureChanges", "BuildingClassType", "PolicyType", szPolicyType, "CultureChange");
 	kUtility.PopulateArrayByValue(m_paiBuildingClassProductionModifiers, "BuildingClasses", "Policy_BuildingClassProductionModifiers", "BuildingClassType", "PolicyType", szPolicyType, "ProductionModifier");
@@ -1747,6 +1759,21 @@ bool CvPolicyEntry::IsSpecialistValid(int i) const
 	CvAssertMsg(i > -1, "Index out of bounds");
 	return m_pabSpecialistValid ? m_pabSpecialistValid[i] : false;
 }
+
+#if defined(MOD_BALANCE_CORE)
+/// Does this Policy grant a free building?
+int CvPolicyEntry::GetFreeChosenBuilding(int i) const
+{
+	CvAssertMsg(i < GC.getNumBuildingClassInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_paiFreeChosenBuilding[i];
+}
+void CvPolicyEntry::ChangeFreeChosenBuilding(int i, int iChange)
+{
+	if(iChange != 0)
+		m_paiFreeChosenBuilding[i] += iChange;
+}
+#endif
 
 /// Yield modifier for a specific improvement by yield type
 int CvPolicyEntry::GetImprovementYieldChanges(int i, int j) const
