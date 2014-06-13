@@ -1626,6 +1626,15 @@ int CvPlayerAI::ScoreCityForDiplomat(CvCity* pCity, UnitHandle pUnit)
 		return iScore;
 	}
 
+	//Return score if we can't embark and they aren't on our landmass.
+	if(pCity->getArea() != pUnit->plot()->getArea())
+	{
+		if(!GET_TEAM(getTeam()).canEmbarkAllWaterPassage())
+		{
+			return iScore;
+		}
+	}
+
 	// Do we already have an embassy here?
 	// To iterate all plots owned by a CS, wrap this is a loop that iterates all cities owned by the CS
 	// Iterate all plots owned by a city

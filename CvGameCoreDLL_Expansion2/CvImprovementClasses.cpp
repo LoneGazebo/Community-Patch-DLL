@@ -123,6 +123,9 @@ CvImprovementEntry::CvImprovementEntry(void):
 	m_bInAdjacentFriendly(false),
 	m_bIgnoreOwnership(false),
 	m_bOnlyCityStateTerritory(false),
+#if defined(MOD_DIPLOMACY_CITYSTATES)
+	m_bIsEmbassy(false),
+#endif
 	m_bNoTwoAdjacent(false),
 	m_bAdjacentLuxury(false),
 	m_bAllowsWalkWater(false),
@@ -262,6 +265,11 @@ bool CvImprovementEntry::CacheResults(Database::Results& kResults, CvDatabaseUti
 	m_bInAdjacentFriendly = kResults.GetBool("InAdjacentFriendly");
 	m_bIgnoreOwnership = kResults.GetBool("IgnoreOwnership");
 	m_bOnlyCityStateTerritory = kResults.GetBool("OnlyCityStateTerritory");
+#if defined(MOD_DIPLOMACY_CITYSTATES)
+	if (MOD_DIPLOMACY_CITYSTATES) {
+	m_bIsEmbassy = kResults.GetBool("IsEmbassy");
+	}
+#endif
 	m_bNoTwoAdjacent = kResults.GetBool("NoTwoAdjacent");
 	m_bAdjacentLuxury = kResults.GetBool("AdjacentLuxury");
 	m_bAllowsWalkWater = kResults.GetBool("AllowsWalkWater");
@@ -813,7 +821,13 @@ bool CvImprovementEntry::IsOnlyCityStateTerritory() const
 {
 	return m_bOnlyCityStateTerritory;
 }
-
+#if defined(MOD_DIPLOMACY_CITYSTATES)
+/// Can only of this improvement be built in City-State lands?
+bool CvImprovementEntry::IsEmbassy() const
+{
+	return m_bIsEmbassy;
+}
+#endif
 /// Can this improvement not be built adjacent to another one of the same type?
 bool CvImprovementEntry::IsNoTwoAdjacent() const
 {

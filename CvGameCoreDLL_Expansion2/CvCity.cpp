@@ -224,9 +224,6 @@ CvCity::CvCity() :
 	, m_aiDomainProductionModifier("CvCity::m_aiDomainProductionModifier", m_syncArchive)
 	, m_abEverOwned("CvCity::m_abEverOwned", m_syncArchive)
 	, m_abRevealed("CvCity::m_abRevealed", m_syncArchive, true)
-#if defined(MOD_BALANCE_CORE)
-	, m_abOwedChosenBuilding("CvCity::m_abOwedChosenBuilding", m_syncArchive)
-#endif
 	, m_strScriptData("CvCity::m_strScriptData", m_syncArchive)
 	, m_paiNoResource("CvCity::m_paiNoResource", m_syncArchive)
 	, m_paiFreeResource("CvCity::m_paiFreeResource", m_syncArchive)
@@ -267,6 +264,10 @@ CvCity::CvCity() :
 	, m_abBaseYieldRankValid("CvCity::m_abBaseYieldRankValid", m_syncArchive)
 	, m_aiYieldRank("CvCity::m_aiYieldRank", m_syncArchive)
 	, m_abYieldRankValid("CvCity::m_abYieldRankValid", m_syncArchive)
+#if defined(MOD_BALANCE_CORE)
+	, m_abOwedChosenBuilding("CvCity::m_abOwedChosenBuilding", m_syncArchive)
+#endif
+
 	, m_bOwedCultureBuilding(false)
 #if defined(MOD_BUGFIX_FREE_FOOD_BUILDING)
 	, m_bOwedFoodBuilding(false)
@@ -885,9 +886,6 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 #if defined(MOD_BUGFIX_FREE_FOOD_BUILDING)
 	m_bOwedFoodBuilding = false;
 #endif
-#if defined(MOD_BALANCE_CORE)
-	m_bOwedChosenBuilding = false;
-#endif
 
 	m_eOwner = eOwner;
 	m_ePreviousOwner = NO_PLAYER;
@@ -960,13 +958,6 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	{
 		m_abRevealed.setAt(iI, false);
 	}
-#if defined(MOD_BALANCE_CORE)
-	m_abOwedChosenBuilding.resize(REALLY_MAX_PLAYERS);
-	for(iI = 0; iI < REALLY_MAX_PLAYERS; iI++)
-	{
-		m_abEverOwned.setAt(iI, false);
-	}
-#endif
 
 	m_strName = "";
 	m_strNameIAmNotSupposedToBeUsedAnyMoreBecauseThisShouldNotBeCheckedAndWeNeedToPreserveSaveGameCompatibility = "";
@@ -986,6 +977,13 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 		m_aiBaseYieldRank.setAt(iI, -1);
 		m_aiYieldRank.setAt(iI, -1);
 	}
+#if defined(MOD_BALANCE_CORE)
+	m_abOwedChosenBuilding.resize(GC.getNumBuildingClassInfos());
+	for(int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
+	{
+		m_abOwedChosenBuilding.setAt(iI, false);
+	}
+#endif
 
 	if(!bConstructorCall)
 	{
@@ -9642,11 +9640,17 @@ void CvCity::SetOwedFoodBuilding(bool bNewValue)
 //	--------------------------------------------------------------------------------
 bool CvCity::IsOwedChosenBuilding(BuildingClassTypes eBuildingClass) const
 {
+	FAssert(eBuildingClass >= 0);
+	FAssert(eBuildingClass < GC.getNumBuildingClassInfos());
+
 	return m_abOwedChosenBuilding[eBuildingClass];
 }
 //	--------------------------------------------------------------------------------
 void CvCity::SetOwedChosenBuilding(BuildingClassTypes eBuildingClass, bool bNewValue)
 {
+	FAssert(eBuildingClass >= 0);
+	FAssert(eBuildingClass < GC.getNumBuildingClassInfos());
+
 	m_abOwedChosenBuilding.setAt(eBuildingClass, bNewValue);
 }
 #endif
@@ -15133,7 +15137,7 @@ void CvCity::write(FDataStream& kStream) const
 	MOD_SERIALIZE_WRITE(kStream, m_bOwedFoodBuilding);
 #endif
 #if defined(MOD_BALANCE_CORE)
-	MOD_SERIALIZE_WRITE(kStream, m_bOwedChosenBuilding);
+	kStream << m_abOwedChosenBuilding;
 #endif
 	m_pCityStrategyAI->Write(kStream);
 	m_pCityCitizens->Write(kStream);
