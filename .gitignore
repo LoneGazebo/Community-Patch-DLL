@@ -1,6 +1,8 @@
-#ignore everything except h and cpp files
+#ignore everything except h, cpp, rc and vjproject files
 *
 !*/
 !*.h
 !*.cpp
-
+!*.rc
+!*.vcxproj
+!*.filters
