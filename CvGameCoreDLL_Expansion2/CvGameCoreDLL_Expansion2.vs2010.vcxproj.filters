@@ -20,6 +20,9 @@
     <ClCompile Include="_precompile.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="CustomMods.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="CvAchievementUnlocker.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -180,6 +183,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CvPlot.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CvPlotInfo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CvPlotManager.cpp">
@@ -505,6 +511,9 @@
     <ClInclude Include="banned.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="CustomMods.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="CvAchievementUnlocker.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -685,6 +694,9 @@
     <ClInclude Include="CvPlot.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClCompile Include="CvPlotInfo.h">
+      <Filter>Header Files</Filter>
+    </ClCompile>
     <ClInclude Include="CvPlotManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
