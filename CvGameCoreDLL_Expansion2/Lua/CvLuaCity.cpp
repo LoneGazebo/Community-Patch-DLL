@@ -3150,7 +3150,7 @@ int CvLuaCity::lChangeBaseYieldRateFromMisc(lua_State* L)
 	return BasicLuaMethod(L, &CvCity::ChangeBaseYieldRateFromMisc);
 }
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_DIPLOMACY_CITYSTATES)
-	// Base yield rate from League
+// Base yield rate from League
 int CvLuaCity::lGetBaseYieldRateFromLeague(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvCity::GetBaseYieldRateFromLeague);

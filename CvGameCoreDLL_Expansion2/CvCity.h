@@ -1066,9 +1066,6 @@ protected:
 
 	FAutoVariable<std::vector<bool>, CvCity> m_abEverOwned;
 	FAutoVariable<std::vector<bool>, CvCity> m_abRevealed;
-#if defined(MOD_BALANCE_CORE)
-	FAutoVariable<std::vector<bool>, CvCity> m_abOwedChosenBuilding;
-#endif
 
 	FAutoVariable<CvString, CvCity> m_strScriptData;
 
@@ -1100,9 +1097,6 @@ protected:
 #if defined(MOD_BUGFIX_FREE_FOOD_BUILDING)
 	bool m_bOwedFoodBuilding;
 #endif
-#if defined(MOD_BALANCE_CORE)
-	bool m_bOwedChosenBuilding;
-#endif
 
 	mutable FFastSmallFixedList< OrderData, 25, true, c_eCiv5GameplayDLL > m_orderQueue;
 
@@ -1128,6 +1122,9 @@ protected:
 	FAutoVariable<std::vector<bool>, CvCity> m_abBaseYieldRankValid;
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldRank;
 	FAutoVariable<std::vector<bool>, CvCity> m_abYieldRankValid;
+#if defined(MOD_BALANCE_CORE)
+	FAutoVariable<std::vector<bool>, CvCity> m_abOwedChosenBuilding;
+#endif
 
 	IDInfo m_combatUnit;		// The unit the city is in combat with
 

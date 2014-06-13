@@ -7734,9 +7734,15 @@ int CvMinorCivAI::GetFriendshipChangePerTurnTimes100(PlayerTypes ePlayer)
 		// Aggressor!
 #if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 		//Decay if capital is taking damage during war (CSs are fickle allies if they're on the recieving end of war).
-		if(MOD_DIPLOMACY_CITYSTATES_QUESTS && (GetPlayer()->getCapitalCity()->getDamage() > 0) && IsAllies(ePlayer))
+		if(MOD_DIPLOMACY_CITYSTATES_QUESTS && IsAllies(ePlayer))
 		{
-			iChangeThisTurn += /*-600*/ (GC.getMINOR_FRIENDSHIP_DROP_PER_TURN_AGGRESSOR() * 3);
+			if(GetPlayer()->getCapitalCity() != NULL)
+			{
+				if(GetPlayer()->getCapitalCity()->getDamage() > 0)
+				{
+					iChangeThisTurn += /*-600*/ (GC.getMINOR_FRIENDSHIP_DROP_PER_TURN_AGGRESSOR() * 3);
+				}
+			}
 		}
 #endif
 		else if(GET_TEAM(kPlayer.getTeam()).IsMinorCivAggressor())

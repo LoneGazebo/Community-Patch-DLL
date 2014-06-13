@@ -21,8 +21,8 @@
  *****                                                                  *****
  ****************************************************************************
  ****************************************************************************/
-#define MOD_DLL_GUID {0xcf7d28a8, 0x1684, 0x4420, { 0xaf, 0x45, 0x11, 0x7, 0xc, 0xb, 0x8c, 0x4a }} // {CF7D28A8-1684-4420-AF45-11070C0B8C4A}
-#define MOD_DLL_NAME "Pick'N'Mix BNW DLL"
+#define MOD_DLL_GUID {0xbf9bf7f0, 0xe078, 0x4d4e, { 0x8a, 0x3e, 0x84, 0x71, 0x2f, 0x85, 0xaa, 0x2b }} //{BF9BF7F0-E078-4d4e-8A3E-84712F85AA2B}
+#define MOD_DLL_NAME "Community Patch v1 (PNM v51+)"
 #define MOD_DLL_VERSION_NUMBER ((uint) 51)
 #define MOD_DLL_VERSION_STATUS ""			// a (alpha), b (beta) or blank (released)
 #define MOD_DLL_CUSTOM_BUILD_NAME ""

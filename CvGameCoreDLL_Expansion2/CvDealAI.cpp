@@ -115,7 +115,18 @@ DealOfferResponseTypes CvDealAI::DoHumanOfferDealToThisAI(CvDeal* pDeal)
 	{
 		if(!pDeal->IsPeaceTreatyTrade(eFromPlayer) && iValueTheyreOffering > iValueImOffering)
 		{
+#if defined(MOD_BALANCE_CORE_DEALS)
+			if (MOD_BALANCE_CORE_DEALS) 
+			{
+				//If there is a city in this deal...let's refuse. It is probably a trap.
+				if(!pDeal->ContainsItemType(TRADE_ITEM_CITIES, eFromPlayer))
+				{
+#endif
 			bDealAcceptable = true;
+#if defined(MOD_BALANCE_CORE_DEALS)
+				}
+			}
+#endif
 		}
 	}
 
@@ -551,7 +562,14 @@ bool CvDealAI::IsDealWithHumanAcceptable(CvDeal* pDeal, PlayerTypes eOtherPlayer
 		int iDiff = abs(iValueTheyreOffering - iValueImOffering);
 		if (iDiff < iOneGPT)
 		{
+#if defined(MOD_BALANCE_CORE_DEALS)
+			if(!pDeal->ContainsItemType(TRADE_ITEM_CITIES))
+			{
+#endif
 			return true;
+#if defined(MOD_BALANCE_CORE_DEALS)
+			}
+#endif
 		}
 	}
 
@@ -589,7 +607,19 @@ bool CvDealAI::IsDealWithHumanAcceptable(CvDeal* pDeal, PlayerTypes eOtherPlayer
 			return true;
 		}
 	}
-
+#if defined(MOD_BALANCE_CORE_DEALS)
+	//Does the offer contain a city and we're unhappy? Abort.
+	else if (pDeal->ContainsItemType(TRADE_ITEM_CITIES))
+	{
+		if(!pDeal->IsPeaceTreatyTrade(eOtherPlayer))
+		{
+			if(GetPlayer()->IsEmpireUnhappy() || GetPlayer()->GetExcessHappiness() < 10)
+			{
+				return false;
+			}
+		}
+	}
+#endif
 	// If we've gotten the deal to a point where we're happy, offer it up
 	else if(iTotalValueToMe <= iAmountOverWeWillRequest && iTotalValueToMe >= iAmountUnderWeWillOffer)
 	{
@@ -1299,68 +1329,143 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 			//He's happier than us? Let's not be too liberal with our stuff.
 			if(iOtherHappiness > iOurHappiness)
 			{
-				//Let's help, IF we're friends.
-				switch(GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(eOtherPlayer))
+				if(!bFromMe)
 				{
-					case MAJOR_CIV_OPINION_ALLY:
-						iItemValue *= 8;
-						iItemValue /= 10;
-						break;
-					case MAJOR_CIV_OPINION_FRIEND:
-						iItemValue *= 9;
-						iItemValue /= 10;
-						break;
-					case MAJOR_CIV_OPINION_FAVORABLE:
-						iItemValue *= 11;
-						iItemValue /= 10;
-						break;
-					case MAJOR_CIV_OPINION_NEUTRAL:
-						iItemValue *= 15;
-						iItemValue /= 10;
-						break;
-					case MAJOR_CIV_OPINION_COMPETITOR:
-						iItemValue *= 3;
-						break;
-					case MAJOR_CIV_OPINION_ENEMY:
-						iItemValue *= 5;
-						break;
-					case MAJOR_CIV_OPINION_UNFORGIVABLE:
-						iItemValue *= 7;
-						break;
+					//How much is their stuff worth?
+					switch(GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(eOtherPlayer))
+					{
+						case MAJOR_CIV_OPINION_ALLY:
+							iItemValue *= 13;
+							iItemValue /= 10;
+							break;
+						case MAJOR_CIV_OPINION_FRIEND:
+							iItemValue *= 12;
+							iItemValue /= 10;
+							break;
+						case MAJOR_CIV_OPINION_FAVORABLE:
+							iItemValue *= 11;
+							iItemValue /= 10;
+							break;
+						case MAJOR_CIV_OPINION_NEUTRAL:
+							iItemValue *= 10;
+							iItemValue /= 10;
+							break;
+						case MAJOR_CIV_OPINION_COMPETITOR:
+							iItemValue *= 6;
+							iItemValue /= 10;
+							break;
+						case MAJOR_CIV_OPINION_ENEMY:
+							iItemValue *= 4;
+							iItemValue /= 10;
+							break;
+						case MAJOR_CIV_OPINION_UNFORGIVABLE:
+							iItemValue *= 2;
+							iItemValue /= 10;
+							break;
+					}
+				}
+				else
+				{
+					//How much is OUR stuff worth?
+					switch(GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(eOtherPlayer))
+					{
+						case MAJOR_CIV_OPINION_ALLY:
+							iItemValue *= 7;
+							iItemValue /= 10;
+							break;
+						case MAJOR_CIV_OPINION_FRIEND:
+							iItemValue *= 8;
+							iItemValue /= 10;
+							break;
+						case MAJOR_CIV_OPINION_FAVORABLE:
+							iItemValue *= 9;
+							iItemValue /= 10;
+							break;
+						case MAJOR_CIV_OPINION_NEUTRAL:
+							iItemValue *= 10;
+							iItemValue /= 10;
+							break;
+						case MAJOR_CIV_OPINION_COMPETITOR:
+							iItemValue *= 3;
+							break;
+						case MAJOR_CIV_OPINION_ENEMY:
+							iItemValue *= 5;
+							break;
+						case MAJOR_CIV_OPINION_UNFORGIVABLE:
+							iItemValue *= 7;
+							break;
+					}
 				}
 			}
 			//He is less happy than we are? We can give away, but only at a slight discount.
 			else
 			{
-				//Let's help, IF we're friends.
-				switch(GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(eOtherPlayer))
+				if(!bFromMe)
 				{
-					case MAJOR_CIV_OPINION_ALLY:
-						iItemValue *= 7;
-						iItemValue /= 10;
-						break;
-					case MAJOR_CIV_OPINION_FRIEND:
-						iItemValue *= 8;
-						iItemValue /= 10;
-						break;
-					case MAJOR_CIV_OPINION_FAVORABLE:
-						iItemValue *= 9;
-						iItemValue /= 10;
-						break;
-					case MAJOR_CIV_OPINION_NEUTRAL:
-						iItemValue *= 11;
-						iItemValue /= 10;
-						break;
-					case MAJOR_CIV_OPINION_COMPETITOR:
-						iItemValue *= 18;
-						iItemValue /= 10;
-						break;
-					case MAJOR_CIV_OPINION_ENEMY:
-						iItemValue *= 4;
-						break;
-					case MAJOR_CIV_OPINION_UNFORGIVABLE:
-						iItemValue *= 6;
-						break;
+					//How much is their stuff worth?
+					switch(GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(eOtherPlayer))
+					{
+						case MAJOR_CIV_OPINION_ALLY:
+							iItemValue *= 12;
+							iItemValue /= 10;
+							break;
+						case MAJOR_CIV_OPINION_FRIEND:
+							iItemValue *= 11;
+							iItemValue /= 10;
+							break;
+						case MAJOR_CIV_OPINION_FAVORABLE:
+							iItemValue *= 10;
+							iItemValue /= 10;
+							break;
+						case MAJOR_CIV_OPINION_NEUTRAL:
+							iItemValue *= 9;
+							iItemValue /= 10;
+							break;
+						case MAJOR_CIV_OPINION_COMPETITOR:
+							iItemValue *= 7;
+							iItemValue /= 10;
+							break;
+						case MAJOR_CIV_OPINION_ENEMY:
+							iItemValue *= 5;
+							iItemValue /= 10;
+							break;
+						case MAJOR_CIV_OPINION_UNFORGIVABLE:
+							iItemValue *= 3;
+							iItemValue /= 10;
+							break;
+					}
+				}
+				else
+				{
+					//How much is OUR stuff worth?
+					switch(GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(eOtherPlayer))
+					{
+						case MAJOR_CIV_OPINION_ALLY:
+							iItemValue *= 8;
+							iItemValue /= 10;
+							break;
+						case MAJOR_CIV_OPINION_FRIEND:
+							iItemValue *= 9;
+							iItemValue /= 10;
+							break;
+						case MAJOR_CIV_OPINION_FAVORABLE:
+							iItemValue *= 10;
+							iItemValue /= 10;
+							break;
+						case MAJOR_CIV_OPINION_NEUTRAL:
+							iItemValue *= 11;
+							iItemValue /= 10;
+							break;
+						case MAJOR_CIV_OPINION_COMPETITOR:
+							iItemValue *= 2;
+							break;
+						case MAJOR_CIV_OPINION_ENEMY:
+							iItemValue *= 4;
+							break;
+						case MAJOR_CIV_OPINION_UNFORGIVABLE:
+							iItemValue *= 6;
+							break;
+					}
 				}
 			}
 		}
@@ -1708,6 +1813,33 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 		iItemValue /= 2;
 	}
 
+#if defined(MOD_BALANCE_CORE_DEALS)
+	if (MOD_BALANCE_CORE_DEALS) 
+	{
+		if(!bFromMe)
+		{
+			int iHappiness = GetPlayer()->GetExcessHappiness();
+			//Would this city cause us to become unhappy? It is worthless to us.
+			if(iHappiness < pCity->getPopulation())
+			{
+				iItemValue = -1;
+			}
+			if(GetPlayer()->IsEmpireUnhappy())
+			{
+				iItemValue = -1;
+			}
+		}
+		if(bFromMe)
+		{
+			//Are we trading away one of our core 4 cities? Bad idea.
+			int iNumCities = GetPlayer()->getNumCities();
+			if(iNumCities <= 4)
+			{
+				iItemValue *= 5;
+			}
+		}
+	}
+#endif
 	return iItemValue;
 }
 
@@ -3844,11 +3976,19 @@ void CvDealAI::DoAddItemsToDealForPeaceTreaty(PlayerTypes eOtherPlayer, CvDeal* 
 				// City is worth less than what is left to be added to the deal, so add it
 				if(iCityValue < iCityValueToSurrender)
 				{
+#if defined(MOD_BALANCE_CORE_DEALS)
+					if (MOD_BALANCE_CORE_DEALS && iCityValue != -1)
+					{
+#endif
 					if(pDeal->IsPossibleToTradeItem(eLosingPlayer, eWinningPlayer, TRADE_ITEM_CITIES, pLoopCity->getX(), pLoopCity->getY()))
 					{
 						pDeal->AddCityTrade(eLosingPlayer, iSortedCityID);
 						iCityValueToSurrender -= iCityValue;
 					}
+#if defined(MOD_BALANCE_CORE_DEALS)
+					}
+#endif
+
 				}
 			}
 		}

@@ -10112,27 +10112,31 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 			//If FLAVOR_DIPLOMACY is 4+...
 			if(iFlavorDiplo - 3 > 0)
 			{
-				iScore += iFlavorDiplo * iVotes;
+				iScore += (iFlavorDiplo - 3) * iVotes;
 			}
 			if(iNeededVotes > 0)
 			{
-				iVoteRatio = (iVotes * 200) / iNeededVotes;
+				iVoteRatio = (iVotes * 100) / iNeededVotes;
 				if(iVoteRatio < 50)
 				{
-					iScore += (iVotes * -4);
+					iScore += (iVotes * -5);
 				}
 				else if(iVoteRatio >= 50)
 				{
 					iScore += (iVotes * 5);
 				}
+				else
+				{
+					iScore += iVotes;
+				}
 			}
 			else if(iNeededVotes <= 0)
 			{
-				iScore += iVotes * 4;
+				iScore += iVotes * 5;
 			}
 			else
 			{
-				iScore += -10;
+				iScore += 10;
 			}
 		}
 #endif

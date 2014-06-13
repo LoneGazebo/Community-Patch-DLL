@@ -116,6 +116,9 @@ public:
 	bool IsInAdjacentFriendly() const;
 	bool IsIgnoreOwnership() const;
 	bool IsOnlyCityStateTerritory() const;
+#if defined(MOD_DIPLOMACY_CITYSTATES)
+	bool IsEmbassy() const;
+#endif
 	bool IsNoTwoAdjacent() const;
 	bool IsAdjacentLuxury() const;
 	bool IsAllowsWalkWater() const;
@@ -242,6 +245,9 @@ protected:
 	bool m_bInAdjacentFriendly;
 	bool m_bIgnoreOwnership;
 	bool m_bOnlyCityStateTerritory;
+#if defined(MOD_DIPLOMACY_CITYSTATES)
+	bool m_bIsEmbassy;
+#endif
 	bool m_bNoTwoAdjacent;
     bool m_bAdjacentLuxury;
 	bool m_bAllowsWalkWater;

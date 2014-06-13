@@ -2472,6 +2472,34 @@ bool CvPlot::canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible,
 							if (GET_PLAYER(getOwner()).isMinorCiv())
 							{
 								bCityStateTerritory = true;
+#if defined(MOD_DIPLOMACY_CITYSTATES)
+								//Let's check for Embassies.
+								if(GC.getImprovementInfo(eImprovement)->IsEmbassy())
+								{
+									CvCity* pCity = GET_PLAYER(getOwner()).getCapitalCity();
+									if(pCity != NULL)
+									{
+#if defined(MOD_GLOBAL_CITY_WORKING)
+										for(int iI = 0; iI < pCity->GetNumWorkablePlots(); iI++)
+#else
+										for(int iI = 0; iI < NUM_CITY_PLOTS; iI++)
+#endif
+										{
+											CvPlot* pCityPlot = pCity->GetCityCitizens()->GetCityPlotFromIndex(iI);
+
+											if(pCityPlot != NULL)
+											{
+												ImprovementTypes eEmbassy = (ImprovementTypes)GC.getEMBASSY_IMPROVEMENT();
+												ImprovementTypes CSImprovement = pCityPlot->getImprovementType();
+												if(CSImprovement == eEmbassy)
+												{
+													return false;
+												}
+											}
+										}
+									}
+								}
+#endif
 							}
 						}
 
