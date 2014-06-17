@@ -565,6 +565,143 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 
 		}
 	}
+#if defined(MOD_BALANCE_CORE)
+	// Feature that provides free promotion for spawn?
+	FeatureTypes eFeature = plot()->getFeatureType();
+	if(eFeature != NO_FEATURE)
+	{
+		PromotionTypes ePromotion = (PromotionTypes)GC.getFeatureInfo(eFeature)->getSpawnLocationUnitFreePromotion();
+		if(ePromotion != NO_PROMOTION)
+		{
+			if(GC.getFeatureInfo(eFeature)->isBarbarianOnly())
+			{
+				// Is this a valid Promotion for the UnitCombatType?
+				if(GET_PLAYER(getOwner()).isBarbarian())
+				{
+					if(m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT &&
+							(::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
+					{
+						setHasPromotion(ePromotion, true);
+					}
+				}
+			}
+			if(GC.getFeatureInfo(eFeature)->isCityStateOnly())
+			{
+				// Is this a valid Promotion for the UnitCombatType?
+				if(GET_PLAYER(getOwner()).isMinorCiv())
+				{
+					if(m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT &&
+							(::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
+					{
+						setHasPromotion(ePromotion, true);
+					}
+				}
+			}
+			else if(!GC.getFeatureInfo(eFeature)->isBarbarianOnly() && !GC.getFeatureInfo(eFeature)->isCityStateOnly())
+			{
+				// Is this a valid Promotion for the UnitCombatType?
+				if(m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT &&
+						(::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
+				{
+					setHasPromotion(ePromotion, true);
+				}
+			}
+		}
+	}
+	// Starting terrain that provides free promotions?
+	TerrainTypes eTerrain = plot()->getTerrainType();
+	if(eTerrain != NO_TERRAIN)
+	{
+		PromotionTypes ePromotion = (PromotionTypes)GC.getTerrainInfo(eTerrain)->getSpawnLocationUnitFreePromotion();
+		if(ePromotion != NO_PROMOTION)
+		{
+			if(GC.getTerrainInfo(eTerrain)->isBarbarianOnly())
+			{
+				// Is this a valid Promotion for the UnitCombatType?
+				if(GET_PLAYER(getOwner()).isBarbarian())
+				{
+					if(m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT &&
+							(::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
+					{
+						setHasPromotion(ePromotion, true);
+					}
+				}
+			}
+			if(GC.getTerrainInfo(eTerrain)->isCityStateOnly())
+			{
+				// Is this a valid Promotion for the UnitCombatType?
+				if(GET_PLAYER(getOwner()).isMinorCiv())
+				{
+					if(m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT &&
+							(::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
+					{
+						setHasPromotion(ePromotion, true);
+					}
+				}
+			}
+			else if(!GC.getTerrainInfo(eTerrain)->isBarbarianOnly() && !GC.getTerrainInfo(eTerrain)->isCityStateOnly())
+			{
+				// Is this a valid Promotion for the UnitCombatType?
+				if(m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT &&
+						(::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
+				{
+					setHasPromotion(ePromotion, true);
+				}
+			}
+		}
+	}
+	// Adjacent terrain that provides free promotions?
+	CvPlot* pAdjacentPlot;
+	for(iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
+	{
+		pAdjacentPlot = plotDirection(plot()->getX(), plot()->getY(), ((DirectionTypes)iI));
+
+		if(pAdjacentPlot != NULL)
+		{
+			FeatureTypes eFeature = pAdjacentPlot->getFeatureType();
+			if(eFeature != NO_FEATURE)
+			{
+				PromotionTypes ePromotion = (PromotionTypes)GC.getTerrainInfo(eTerrain)->getAdjacentUnitFreePromotion();
+				if(ePromotion != NO_PROMOTION)
+				{
+					if(GC.getTerrainInfo(eTerrain)->isBarbarianOnly())
+					{
+						// Is this a valid Promotion for the UnitCombatType?
+						if(GET_PLAYER(getOwner()).isBarbarian())
+						{
+							if(m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT &&
+									(::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
+							{
+								setHasPromotion(ePromotion, true);
+							}
+						}
+					}
+					if(GC.getTerrainInfo(eTerrain)->isCityStateOnly())
+					{
+						// Is this a valid Promotion for the UnitCombatType?
+						if(GET_PLAYER(getOwner()).isMinorCiv())
+						{
+							if(m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT &&
+									(::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
+							{
+								setHasPromotion(ePromotion, true);
+							}
+						}
+					}
+					else if(!GC.getTerrainInfo(eTerrain)->isBarbarianOnly() && !GC.getTerrainInfo(eTerrain)->isCityStateOnly())
+					{
+						// Is this a valid Promotion for the UnitCombatType?
+						if(m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT &&
+								(::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
+						{
+							setHasPromotion(ePromotion, true);
+						}
+					}
+				}
+			}
+		}
+	}
+#endif
 
 	// Give embark promotion for free?
 	if(GET_TEAM(getTeam()).canEmbark() || kPlayer.GetPlayerTraits()->IsEmbarkedAllWater())
@@ -5200,12 +5337,15 @@ int CvUnit::GetPower() const
 bool CvUnit::canHeal(const CvPlot* pPlot, bool bTestVisible) const
 {
 	VALIDATE_OBJECT
-
+#if defined(MOD_BALANCE_CORE)
+#else
 	// No barb healing
 	if(isBarbarian())
 	{
+
 		return false;
 	}
+#endif
 
 	if(!IsHurt())
 	{
@@ -5268,10 +5408,17 @@ bool CvUnit::canHeal(const CvPlot* pPlot, bool bTestVisible) const
 		// Boats can only heal in friendly territory (without promotion)
 		if(getDomainType() == DOMAIN_SEA)
 		{
+#if defined(MOD_BALANCE_CORE)
+			if(!GET_PLAYER(getOwner()).isBarbarian())
+			{
+#endif
 			if(!IsInFriendlyTerritory() && !isHealOutsideFriendly())
 			{
 				return false;
 			}
+#if defined(MOD_BALANCE_CORE)
+			}
+#endif
 		}
 	}
 
@@ -5321,7 +5468,41 @@ int CvUnit::healRate(const CvPlot* pPlot) const
 			return 0;
 		}
 	}
-	
+#if defined(MOD_BALANCE_CORE)
+	//Barbarians can only heal in camps (or adjacent if boats), and at a set (defined) rate.
+	if(GET_PLAYER(getOwner()).isBarbarian())
+	{
+		ImprovementTypes eCamp = (ImprovementTypes)GC.getBARBARIAN_CAMP_IMPROVEMENT();
+		if(getDomainType() == DOMAIN_LAND)
+		{
+			if(pPlot->getImprovementType() == eCamp)
+			{
+				return GC.getBALANCE_BARARIAN_HEAL_RATE();
+			}
+			else
+			{
+				return 0;
+			}
+		}
+		else if(getDomainType() == DOMAIN_SEA)
+		{
+			CvPlot* pLoopPlot;
+			for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+			{
+				pLoopPlot = plotDirection(pPlot->getX(), pPlot->getY(), ((DirectionTypes)iI));
+
+				if(pLoopPlot != NULL)
+				{
+					if(pPlot->getImprovementType() == eCamp)
+					{
+						return GC.getBALANCE_BARARIAN_HEAL_RATE();
+					}
+				}
+			}
+			return 0;
+		}
+	}
+#endif
 #if defined(MOD_UNITS_HOVERING_LAND_ONLY_HEAL)
 	if (MOD_UNITS_HOVERING_LAND_ONLY_HEAL) {
 		// Hovering units can only heal over land
@@ -14804,16 +14985,133 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 					PromotionTypes ePromotion = (PromotionTypes)GC.getFeatureInfo(eFeature)->getAdjacentUnitFreePromotion();
 					if(ePromotion != NO_PROMOTION)
 					{
+#if defined(MOD_BALANCE_CORE)
+						if(GC.getFeatureInfo(eFeature)->isBarbarianOnly())
+						{
+							// Is this a valid Promotion for the UnitCombatType?
+							if(GET_PLAYER(getOwner()).isBarbarian())
+							{
+								if(m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT &&
+										(::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
+								{
+									setHasPromotion(ePromotion, true);
+								}
+							}
+						}
+						if(GC.getFeatureInfo(eFeature)->isCityStateOnly())
+						{
+							// Is this a valid Promotion for the UnitCombatType?
+							if(GET_PLAYER(getOwner()).isMinorCiv())
+							{
+								if(m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT &&
+										(::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
+								{
+									setHasPromotion(ePromotion, true);
+								}
+							}
+						}
+						else if(!GC.getFeatureInfo(eFeature)->isBarbarianOnly() && !GC.getFeatureInfo(eFeature)->isCityStateOnly())
+						{
+#endif
 						// Is this a valid Promotion for the UnitCombatType?
 						if(m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT &&
 						        (::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
 						{
 							setHasPromotion(ePromotion, true);
 						}
+#if defined(MOD_BALANCE_CORE)
+						}
+#endif
 					}
 				}
 			}
 		}
+#if defined(MOD_BALANCE_CORE)
+		// Feature that provides free promotions?
+		FeatureTypes eFeature = pNewPlot->getFeatureType();
+		if(eFeature != NO_FEATURE)
+		{
+			PromotionTypes ePromotion = (PromotionTypes)GC.getFeatureInfo(eFeature)->getLocationUnitFreePromotion();
+			if(ePromotion != NO_PROMOTION)
+			{
+				if(GC.getFeatureInfo(eFeature)->isBarbarianOnly())
+				{
+					// Is this a valid Promotion for the UnitCombatType?
+					if(GET_PLAYER(getOwner()).isBarbarian())
+					{
+						if(m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT &&
+								(::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
+						{
+							setHasPromotion(ePromotion, true);
+						}
+					}
+				}
+				if(GC.getFeatureInfo(eFeature)->isCityStateOnly())
+				{
+					// Is this a valid Promotion for the UnitCombatType?
+					if(GET_PLAYER(getOwner()).isMinorCiv())
+					{
+						if(m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT &&
+								(::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
+						{
+							setHasPromotion(ePromotion, true);
+						}
+					}
+				}
+				else if(!GC.getFeatureInfo(eFeature)->isBarbarianOnly() && !GC.getFeatureInfo(eFeature)->isCityStateOnly())
+				{
+					// Is this a valid Promotion for the UnitCombatType?
+					if(m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT &&
+							(::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
+					{
+						setHasPromotion(ePromotion, true);
+					}
+				}
+			}
+		}
+		// Feature that provides free promotions?
+		TerrainTypes eTerrain = pNewPlot->getTerrainType();
+		if(eTerrain != NO_TERRAIN)
+		{
+			PromotionTypes ePromotion = (PromotionTypes)GC.getTerrainInfo(eTerrain)->getLocationUnitFreePromotion();
+			if(ePromotion != NO_PROMOTION)
+			{
+				if(GC.getTerrainInfo(eTerrain)->isBarbarianOnly())
+				{
+					// Is this a valid Promotion for the UnitCombatType?
+					if(GET_PLAYER(getOwner()).isBarbarian())
+					{
+						if(m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT &&
+								(::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
+						{
+							setHasPromotion(ePromotion, true);
+						}
+					}
+				}
+				if(GC.getTerrainInfo(eTerrain)->isCityStateOnly())
+				{
+					// Is this a valid Promotion for the UnitCombatType?
+					if(GET_PLAYER(getOwner()).isMinorCiv())
+					{
+						if(m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT &&
+								(::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
+						{
+							setHasPromotion(ePromotion, true);
+						}
+					}
+				}
+				else if(!GC.getTerrainInfo(eTerrain)->isBarbarianOnly() && !GC.getTerrainInfo(eTerrain)->isCityStateOnly())
+				{
+					// Is this a valid Promotion for the UnitCombatType?
+					if(m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT &&
+							(::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
+					{
+						setHasPromotion(ePromotion, true);
+					}
+				}
+			}
+		}
+#endif
 
 		if(pOldPlot != NULL && getDomainType() == DOMAIN_SEA)
 		{

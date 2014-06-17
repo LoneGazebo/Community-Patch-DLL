@@ -693,11 +693,19 @@ void CvBarbarians::DoSpawnBarbarianUnit(CvPlot* pPlot, bool bIgnoreMaxBarbarians
 	if (pPlot && pPlot->GetNumCombatUnits() == 0)
 	{
 		UnitTypes eUnit;
+#if defined(MOD_BALANCE_CORE_MILITARY)
+		eUnit = GetRandomBarbarianUnitType(GC.getMap().getArea(pPlot->getArea()), UNITAI_RANGED);
+#else
 		eUnit = GetRandomBarbarianUnitType(GC.getMap().getArea(pPlot->getArea()), UNITAI_FAST_ATTACK);
+#endif
 
 		if (eUnit != NO_UNIT)
 		{
+#if defined(MOD_BALANCE_CORE_MILITARY)
+			CvUnit* pUnit = GET_PLAYER(BARBARIAN_PLAYER).initUnit(eUnit, pPlot->getX(), pPlot->getY(), UNITAI_RANGED);
+#else
 			CvUnit* pUnit = GET_PLAYER(BARBARIAN_PLAYER).initUnit(eUnit, pPlot->getX(), pPlot->getY(), UNITAI_FAST_ATTACK);
+#endif
 			pUnit->finishMoves();
 			return;
 		}

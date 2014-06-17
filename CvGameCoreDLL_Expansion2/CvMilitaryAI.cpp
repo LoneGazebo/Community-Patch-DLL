@@ -1576,21 +1576,6 @@ void CvMilitaryAI::ShouldAttackBySea(PlayerTypes eEnemy, CvMilitaryTarget& targe
 				return;
 			}
 		}
-#if defined(MOD_BALANCE_CORE_MILITARY)
-		if(MOD_BALANCE_CORE_MILITARY)
-		{
-			//How strong is their navy?
-			if(GET_PLAYER(eEnemy).GetMilitaryAI()->GetNavalDefenseState() == DEFENSE_STATE_CRITICAL)
-			{
-				if(GetNavalDefenseState() < DEFENSE_STATE_CRITICAL)
-				{
-					target.m_bAttackBySea = true;
-					target.m_iPathLength = iPlotDistance;
-					return;
-				}
-			}
-		}
-#endif
 	}
 
 	// Can't embark yet
@@ -1867,7 +1852,7 @@ CityAttackApproaches CvMilitaryAI::EvaluateMilitaryApproaches(CvCity* pCity, boo
 		}
 		iNumPlots++;
 	}
-	iNumBlocked = (iNumTough / 2) + iNumBlocked;
+	iNumBlocked = (iNumTough / 5) + iNumBlocked;
 	iTotal = (iNumBlocked * 10) / iNumPlots;
 	iPlotDivisor = iTotal;
 	//We want a number between 0 and 10

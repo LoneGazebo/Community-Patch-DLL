@@ -5315,6 +5315,28 @@ int CvCity::getGeneralProductionModifiers(CvString* toolTipSink) const
 	int iMultiplier = 0;
 
 	// Railroad to capital?
+#if defined(MOD_BALANCE_CORE)
+	if(isCapital())
+	{
+		CvCity* pLoopCity;
+		int iLoop;
+		for(pLoopCity = GET_PLAYER(getOwner()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iLoop))
+		{
+			//If any city has an industrial route to capital, the capital should also get that bonus.
+			if(pLoopCity->IsIndustrialRouteToCapital())
+			{
+				const int iTempMod = GC.getINDUSTRIAL_ROUTE_PRODUCTION_MOD();
+				iMultiplier += iTempMod;
+				if(toolTipSink && iTempMod)
+				{
+					GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_RAILROAD_CONNECTION", iTempMod);
+				}
+				break;
+			}
+		}
+	}
+#endif
+
 	if(IsIndustrialRouteToCapital())
 	{
 		const int iTempMod = GC.getINDUSTRIAL_ROUTE_PRODUCTION_MOD();
@@ -15179,7 +15201,7 @@ bool CvCity::isValidBuildingLocation(BuildingTypes eBuilding) const
 			return false;
 	}
 #if defined(MOD_BALANCE_CORE)
-	//Requires no water
+	//Requires no fresh water
 	if(MOD_BALANCE_CORE)
 	{
 		if(pkBuildingInfo->IsNoWater())

@@ -658,6 +658,10 @@ int GetEscortID();
 #if defined(MOD_DIPLOMACY_CITYSTATES)
 	void DoProcessVotes();
 #endif
+#if defined(MOD_BALANCE_CORE_YIELDS)
+	void DoChangeGreatGeneralRate();
+	void DoChangeGreatAdmiralRate();
+#endif
 
 	void DoProcessGoldenAge();
 

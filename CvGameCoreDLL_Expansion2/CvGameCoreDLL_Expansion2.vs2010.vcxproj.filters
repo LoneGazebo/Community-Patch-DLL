@@ -26,6 +26,9 @@
     <ClCompile Include="CvAchievementUnlocker.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="CvAchievementInfo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="CvAdvisorCounsel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -515,6 +518,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CvAchievementUnlocker.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CvAchievementInfo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CvAdvisorCounsel.h">
