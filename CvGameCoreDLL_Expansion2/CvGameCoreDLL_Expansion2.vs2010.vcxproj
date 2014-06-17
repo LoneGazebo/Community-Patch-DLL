@@ -86,7 +86,7 @@
     </ClCompile>
     <ClCompile Include="CustomMods.cpp" />
     <ClCompile Include="CvAchievementUnlocker.cpp" />
-    <ClCompile Include="CvAchievementInfo.ccp" />
+    <ClCompile Include="CvAchievementInfo.cpp" />
     <ClCompile Include="CvAdvisorCounsel.cpp" />
     <ClCompile Include="CvAdvisorRecommender.cpp" />
     <ClCompile Include="CvAIOperation.cpp" />
