@@ -3033,10 +3033,60 @@ void CvTacticalAI::PlotCampDefenseMoves()
 	while(pTarget != NULL)
 	{
 		CvPlot* pPlot = GC.getMap().plot(pTarget->GetTargetX(), pTarget->GetTargetY());
+#if defined(MOD_BALANCE_CORE_MILITARY)
+		if(MOD_BALANCE_CORE_MILITARY && pPlot->getImprovementType() == GC.getBARBARIAN_CAMP_IMPROVEMENT())
+		{
+			bool bAttacked = false;
+			if(pPlot->getNumUnits() > 0)
+			{
+				CvUnit* pUnit = pPlot->getUnitByIndex(0);
+				if(pUnit->IsCanAttackRanged())
+				{
+					int iRange = pUnit->GetRange();
+					if(iRange > 0)
+					{
+						for(int iX = -iRange; iX <= iRange; iX++)
+						{
+							for(int iY = -iRange; iY <= iRange; iY++)
+							{
+								CvPlot* pConsiderPlot = plotXYWithRangeCheck(pUnit->getX(), pUnit->getY(), iX, iY, iRange);
+								if(pConsiderPlot != NULL)
+								{
+									if(pConsiderPlot->getNumUnits() > 0)
+									{
+										if(pConsiderPlot->getUnitByIndex(0)->getOwner() != pUnit->getOwner())
+										{
+											if(pUnit->canEverRangeStrikeAt(pConsiderPlot->getX(), pConsiderPlot->getY()))
+											{
+												pUnit->PushMission(CvTypes::getMISSION_RANGE_ATTACK(), pConsiderPlot->getX(), pConsiderPlot->getY());
+												UnitProcessed(pUnit->GetID());
+												bAttacked = true;
+												if(GC.getLogging() && GC.getAILogging())
+												{
+													CvString strLogString;
+													strLogString.Format("Ranged unit attacking nearby enemy to protect camp, X: %d, Y: %d", pTarget->GetTargetX(), pTarget->GetTargetY());
+													LogTacticalMessage(strLogString);
+												}
+												break;
+											}
+										}
+									}
+								}
+							}
+						}
+						if(!bAttacked)
+						{
+							pUnit->PushMission(CvTypes::getMISSION_FORTIFY(), pPlot->getX(), pPlot->getY());
+							UnitProcessed(pUnit->GetID());
+						}
+					}
+				}
+			}
+		}
+#endif
 		if(FindUnitsWithinStrikingDistance(pPlot, 1, 0, true /* bNoRangedUnits */, false /*bNavalOnly*/, false /*bMustMoveThrough*/))
 		{
 			ExecuteMoveToPlot(pPlot);
-
 			if(GC.getLogging() && GC.getAILogging())
 			{
 				CvString strLogString;

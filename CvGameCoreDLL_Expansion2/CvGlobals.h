@@ -7078,6 +7078,10 @@ public:
 	{
 		return m_iBALANCE_BAD_TILES_STRATEGIC_VALUE;
 	}
+	inline int getBALANCE_BARARIAN_HEAL_RATE()
+	{
+		return m_iBALANCE_BARARIAN_HEAL_RATE;
+	}
 #endif
 
 	// -- floats --
@@ -10109,6 +10113,7 @@ protected:
 	int m_iBALANCE_FRESH_WATER_STRATEGIC_VALUE;
 	int m_iBALANCE_CHOKEPOINT_STRATEGIC_VALUE;
 	int m_iBALANCE_BAD_TILES_STRATEGIC_VALUE;
+	int m_iBALANCE_BARARIAN_HEAL_RATE;
 #endif
 	// -- floats --
 

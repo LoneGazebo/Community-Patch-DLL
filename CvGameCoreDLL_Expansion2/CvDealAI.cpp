@@ -1312,7 +1312,14 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 					iItemValue *= 3;
 					if(GetPlayer()->GetPlayerTraits()->GetLuxuryHappinessRetention() > 0)
 					{
+#if defined(MOD_BALANCE_CORE_DEALS)
+						if (MOD_BALANCE_CORE_DEALS) 
+						{
+							iItemValue /= 4;
+						}
+#else
 						iItemValue /= 2;
+#endif
 					}
 				}
 			}
@@ -1321,151 +1328,153 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 	if (MOD_BALANCE_CORE_DEALS) 
 	{
 		//Let's consider how many resources each player has - if he has more than us, ours is worth more (and vice-versa).
-		//But only if this wouldn't push us into unhapppiness.
-		if(GetPlayer()->GetHappiness() > GetPlayer()->GetHappinessFromLuxury(eResource))
+		int iOtherHappiness = GET_PLAYER(eOtherPlayer).GetExtraHappinessPerLuxury();
+		int iOurHappiness = GetPlayer()->GetExtraHappinessPerLuxury();
+		//He's happier than us? Let's not be too liberal with our stuff.
+		if(iOtherHappiness > iOurHappiness)
 		{
-			int iOtherHappiness = GET_PLAYER(eOtherPlayer).GetExtraHappinessPerLuxury();
-			int iOurHappiness = GetPlayer()->GetExtraHappinessPerLuxury();
-			//He's happier than us? Let's not be too liberal with our stuff.
-			if(iOtherHappiness > iOurHappiness)
+			if(!bFromMe)
 			{
-				if(!bFromMe)
+				//How much is their stuff worth?
+				switch(GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(eOtherPlayer))
 				{
-					//How much is their stuff worth?
-					switch(GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(eOtherPlayer))
-					{
-						case MAJOR_CIV_OPINION_ALLY:
-							iItemValue *= 13;
-							iItemValue /= 10;
-							break;
-						case MAJOR_CIV_OPINION_FRIEND:
-							iItemValue *= 12;
-							iItemValue /= 10;
-							break;
-						case MAJOR_CIV_OPINION_FAVORABLE:
-							iItemValue *= 11;
-							iItemValue /= 10;
-							break;
-						case MAJOR_CIV_OPINION_NEUTRAL:
-							iItemValue *= 10;
-							iItemValue /= 10;
-							break;
-						case MAJOR_CIV_OPINION_COMPETITOR:
-							iItemValue *= 6;
-							iItemValue /= 10;
-							break;
-						case MAJOR_CIV_OPINION_ENEMY:
-							iItemValue *= 4;
-							iItemValue /= 10;
-							break;
-						case MAJOR_CIV_OPINION_UNFORGIVABLE:
-							iItemValue *= 2;
-							iItemValue /= 10;
-							break;
-					}
-				}
-				else
-				{
-					//How much is OUR stuff worth?
-					switch(GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(eOtherPlayer))
-					{
-						case MAJOR_CIV_OPINION_ALLY:
-							iItemValue *= 7;
-							iItemValue /= 10;
-							break;
-						case MAJOR_CIV_OPINION_FRIEND:
-							iItemValue *= 8;
-							iItemValue /= 10;
-							break;
-						case MAJOR_CIV_OPINION_FAVORABLE:
-							iItemValue *= 9;
-							iItemValue /= 10;
-							break;
-						case MAJOR_CIV_OPINION_NEUTRAL:
-							iItemValue *= 10;
-							iItemValue /= 10;
-							break;
-						case MAJOR_CIV_OPINION_COMPETITOR:
-							iItemValue *= 3;
-							break;
-						case MAJOR_CIV_OPINION_ENEMY:
-							iItemValue *= 5;
-							break;
-						case MAJOR_CIV_OPINION_UNFORGIVABLE:
-							iItemValue *= 7;
-							break;
-					}
+					case MAJOR_CIV_OPINION_ALLY:
+						iItemValue *= 115;
+						iItemValue /= 100;
+						break;
+					case MAJOR_CIV_OPINION_FRIEND:
+						iItemValue *= 110;
+						iItemValue /= 100;
+						break;
+					case MAJOR_CIV_OPINION_FAVORABLE:
+						iItemValue *= 105;
+						iItemValue /= 100;
+						break;
+					case MAJOR_CIV_OPINION_NEUTRAL:
+						iItemValue *= 100;
+						iItemValue /= 100;
+						break;
+					case MAJOR_CIV_OPINION_COMPETITOR:
+						iItemValue *= 85;
+						iItemValue /= 100;
+						break;
+					case MAJOR_CIV_OPINION_ENEMY:
+						iItemValue *= 65;
+						iItemValue /= 100;
+						break;
+					case MAJOR_CIV_OPINION_UNFORGIVABLE:
+						iItemValue *= 45;
+						iItemValue /= 100;
+						break;
 				}
 			}
-			//He is less happy than we are? We can give away, but only at a slight discount.
 			else
 			{
-				if(!bFromMe)
+				//How much is OUR stuff worth?
+				switch(GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(eOtherPlayer))
 				{
-					//How much is their stuff worth?
-					switch(GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(eOtherPlayer))
-					{
-						case MAJOR_CIV_OPINION_ALLY:
-							iItemValue *= 12;
-							iItemValue /= 10;
-							break;
-						case MAJOR_CIV_OPINION_FRIEND:
-							iItemValue *= 11;
-							iItemValue /= 10;
-							break;
-						case MAJOR_CIV_OPINION_FAVORABLE:
-							iItemValue *= 10;
-							iItemValue /= 10;
-							break;
-						case MAJOR_CIV_OPINION_NEUTRAL:
-							iItemValue *= 9;
-							iItemValue /= 10;
-							break;
-						case MAJOR_CIV_OPINION_COMPETITOR:
-							iItemValue *= 7;
-							iItemValue /= 10;
-							break;
-						case MAJOR_CIV_OPINION_ENEMY:
-							iItemValue *= 5;
-							iItemValue /= 10;
-							break;
-						case MAJOR_CIV_OPINION_UNFORGIVABLE:
-							iItemValue *= 3;
-							iItemValue /= 10;
-							break;
-					}
+					case MAJOR_CIV_OPINION_ALLY:
+						iItemValue *= 85;
+						iItemValue /= 100;
+						break;
+					case MAJOR_CIV_OPINION_FRIEND:
+						iItemValue *= 90;
+						iItemValue /= 100;
+						break;
+					case MAJOR_CIV_OPINION_FAVORABLE:
+						iItemValue *= 95;
+						iItemValue /= 100;
+						break;
+					case MAJOR_CIV_OPINION_NEUTRAL:
+						iItemValue *= 100;
+						iItemValue /= 100;
+						break;
+					case MAJOR_CIV_OPINION_COMPETITOR:
+						iItemValue *= 135;
+						iItemValue /= 100;
+						break;
+					case MAJOR_CIV_OPINION_ENEMY:
+						iItemValue *= 160;
+						iItemValue /= 100;
+						break;
+					case MAJOR_CIV_OPINION_UNFORGIVABLE:
+						iItemValue *= 200;
+						iItemValue /= 100;
+						break;
 				}
-				else
+			}
+		}
+		//He is less happy than we are? We can give away, but only at a slight discount.
+		else
+		{
+			if(!bFromMe)
+			{
+				//How much is their stuff worth?
+				switch(GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(eOtherPlayer))
 				{
-					//How much is OUR stuff worth?
-					switch(GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(eOtherPlayer))
-					{
-						case MAJOR_CIV_OPINION_ALLY:
-							iItemValue *= 8;
-							iItemValue /= 10;
-							break;
-						case MAJOR_CIV_OPINION_FRIEND:
-							iItemValue *= 9;
-							iItemValue /= 10;
-							break;
-						case MAJOR_CIV_OPINION_FAVORABLE:
-							iItemValue *= 10;
-							iItemValue /= 10;
-							break;
-						case MAJOR_CIV_OPINION_NEUTRAL:
-							iItemValue *= 11;
-							iItemValue /= 10;
-							break;
-						case MAJOR_CIV_OPINION_COMPETITOR:
-							iItemValue *= 2;
-							break;
-						case MAJOR_CIV_OPINION_ENEMY:
-							iItemValue *= 4;
-							break;
-						case MAJOR_CIV_OPINION_UNFORGIVABLE:
-							iItemValue *= 6;
-							break;
-					}
+					case MAJOR_CIV_OPINION_ALLY:
+						iItemValue *= 120;
+						iItemValue /= 100;
+						break;
+					case MAJOR_CIV_OPINION_FRIEND:
+						iItemValue *= 115;
+						iItemValue /= 100;
+						break;
+					case MAJOR_CIV_OPINION_FAVORABLE:
+						iItemValue *= 110;
+						iItemValue /= 100;
+						break;
+					case MAJOR_CIV_OPINION_NEUTRAL:
+						iItemValue *= 105;
+						iItemValue /= 100;
+						break;
+					case MAJOR_CIV_OPINION_COMPETITOR:
+						iItemValue *= 90;
+						iItemValue /= 100;
+						break;
+					case MAJOR_CIV_OPINION_ENEMY:
+						iItemValue *= 75;
+						iItemValue /= 100;
+						break;
+					case MAJOR_CIV_OPINION_UNFORGIVABLE:
+						iItemValue *= 65;
+						iItemValue /= 100;
+						break;
+				}
+			}
+			else
+			{
+				//How much is OUR stuff worth?
+				switch(GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(eOtherPlayer))
+				{
+					case MAJOR_CIV_OPINION_ALLY:
+						iItemValue *= 80;
+						iItemValue /= 100;
+						break;
+					case MAJOR_CIV_OPINION_FRIEND:
+						iItemValue *= 85;
+						iItemValue /= 100;
+						break;
+					case MAJOR_CIV_OPINION_FAVORABLE:
+						iItemValue *= 90;
+						iItemValue /= 100;
+						break;
+					case MAJOR_CIV_OPINION_NEUTRAL:
+						iItemValue *= 95;
+						iItemValue /= 100;
+						break;
+					case MAJOR_CIV_OPINION_COMPETITOR:
+						iItemValue *= 120;
+						iItemValue /= 100;
+						break;
+					case MAJOR_CIV_OPINION_ENEMY:
+						iItemValue *= 150;
+						iItemValue /= 100;
+						break;
+					case MAJOR_CIV_OPINION_UNFORGIVABLE:
+						iItemValue *= 180;
+						iItemValue /= 100;
+						break;
 				}
 			}
 		}
@@ -1508,7 +1517,7 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 			//If they're stronger than us, do not give away strategic resources easily.
 			if(GetPlayer()->GetMilitaryMight() < GET_PLAYER(eOtherPlayer).GetMilitaryMight())
 			{
-				iItemValue *= 18;
+				iItemValue *= 15;
 				iItemValue /= 10;
 			}
 			//Are they close, or far away? We should always be a bit more reluctant to give war resources to neighbors.
@@ -1534,31 +1543,31 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 		{
 			//Lets use our DoF willingness to determine these values - introduce some variability.
 			iModifier = GetPlayer()->GetDiplomacyAI()->GetDoFWillingness();
-			iModifier *= -2;
+			iModifier *= -3;
 			
 			// Opinion also matters
 			switch(GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(eOtherPlayer))
 			{
 			case MAJOR_CIV_OPINION_ALLY:
-				iModifier += 95;
+				iModifier += 90;
 				break;
 			case MAJOR_CIV_OPINION_FRIEND:
-				iModifier += 105;
+				iModifier += 95;
 				break;
 			case MAJOR_CIV_OPINION_FAVORABLE:
-				iModifier += 115;
+				iModifier += 98;
 				break;
 			case MAJOR_CIV_OPINION_NEUTRAL:
-				iModifier += 125;
+				iModifier += 100;
 				break;
 			case MAJOR_CIV_OPINION_COMPETITOR:
-				iModifier = 175;
+				iModifier = 130;
 				break;
 			case MAJOR_CIV_OPINION_ENEMY:
-				iModifier = 400;
+				iModifier = 170;
 				break;
 			case MAJOR_CIV_OPINION_UNFORGIVABLE:
-				iModifier = 1000;
+				iModifier = 300;
 				break;
 			default:
 				CvAssertMsg(false, "DEAL_AI: AI player has no valid Opinion for Resource valuation.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.")
@@ -1610,7 +1619,7 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 #if defined(MOD_BALANCE_CORE_DEALS)
 		if (MOD_BALANCE_CORE_DEALS) 
 		{
-			iModifier += 80;	// Not forced value
+			iModifier += 90;	// Not forced value
 		}
 #else
 			iModifier = 200;	// Forced value

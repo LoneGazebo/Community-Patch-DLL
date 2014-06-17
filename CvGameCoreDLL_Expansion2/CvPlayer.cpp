@@ -4571,6 +4571,13 @@ void CvPlayer::doTurnPostDiplomacy()
 		ProcessLeagueResolutions();
 	}
 #endif
+#if defined(MOD_BALANCE_CORE_YIELDS)
+	if(MOD_BALANCE_CORE_YIELDS)
+	{
+		DoChangeGreatGeneralRate();
+		DoChangeGreatAdmiralRate();
+	}
+#endif
 
 	// Golden Age
 	DoProcessGoldenAge();
@@ -13857,7 +13864,152 @@ void CvPlayer::DoProcessVotes()
 	}
 }
 #endif
-
+#if defined(MOD_BALANCE_CORE_YIELDS)
+void CvPlayer::DoChangeGreatGeneralRate()
+{
+	//Check for buildings and beliefs that add Great General points.
+	int iLoop;
+	int iGreatGeneralPoints = 0;
+	for(CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+	{
+		if(pLoopCity != NULL)
+		{
+			for(int iI = 0; iI < GC.getNumBuildingInfos(); iI++)
+			{
+				const BuildingTypes eBuilding = static_cast<BuildingTypes>(iI);
+				CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+				if(pkBuildingInfo)
+				{
+					if(pkBuildingInfo->GetYieldChange(YIELD_GREAT_GENERAL_POINTS) > 0)
+					{
+						if(pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
+						{
+							iGreatGeneralPoints += pkBuildingInfo->GetYieldChange(YIELD_GREAT_GENERAL_POINTS);
+						}
+					}
+				}
+			}
+			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(pLoopCity->GetCityReligions()->GetReligiousMajority(), pLoopCity->getOwner());
+			if(pReligion)
+			{
+				int iReligionYieldChange = pReligion->m_Beliefs.GetCityYieldChange(pLoopCity->getPopulation(), YIELD_GREAT_GENERAL_POINTS);
+				if(iReligionYieldChange > 0)
+				{
+					iGreatGeneralPoints += iReligionYieldChange;
+				}
+				BeliefTypes eSecondaryPantheon = pLoopCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
+				if (eSecondaryPantheon != NO_BELIEF && pLoopCity->getPopulation() >= GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetMinPopulation())
+				{
+					iReligionYieldChange = GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetCityYieldChange(YIELD_GREAT_GENERAL_POINTS);
+					if(iReligionYieldChange > 0)
+					{
+						iGreatGeneralPoints += iReligionYieldChange;
+					}
+				}
+			}
+		}
+	}
+	//Check for policies that add Great General points.
+	for(int iPolicyLoop = 0; iPolicyLoop < GC.getNumPolicyInfos(); iPolicyLoop++)
+	{
+		PolicyTypes pPolicy = (PolicyTypes)iPolicyLoop;
+		CvPolicyEntry* pkPolicyInfo = GC.getPolicyInfo(pPolicy);
+		if(pkPolicyInfo)
+		{
+			if(GetPlayerPolicies()->HasPolicy(pPolicy) && !GetPlayerPolicies()->IsPolicyBlocked(pPolicy))
+			{
+				if(pkPolicyInfo->GetCityYieldChange(YIELD_GREAT_GENERAL_POINTS) > 0)
+				{
+					for(CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+					{
+						if(pLoopCity != NULL)
+						{
+							iGreatGeneralPoints += pkPolicyInfo->GetCityYieldChange(YIELD_GREAT_GENERAL_POINTS);
+						}
+					}
+				}
+			}
+		}
+	}
+#if defined(MOD_GLOBAL_LOCAL_GENERALS)
+	changeCombatExperience(iGreatGeneralPoints);
+#else
+	changeCombatExperience(iGreatGeneralPoints);
+#endif
+}
+void CvPlayer::DoChangeGreatAdmiralRate()
+{
+	//Check for buildings and beliefs that add Great General points.
+	int iLoop;
+	int iGreatAdmiralPoints = 0;
+	for(CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+	{
+		if(pLoopCity != NULL)
+		{
+			for(int iI = 0; iI < GC.getNumBuildingInfos(); iI++)
+			{
+				const BuildingTypes eBuilding = static_cast<BuildingTypes>(iI);
+				CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+				if(pkBuildingInfo)
+				{
+					if(pkBuildingInfo->GetYieldChange(YIELD_GREAT_ADMIRAL_POINTS) > 0)
+					{
+						if(pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
+						{
+							iGreatAdmiralPoints += pkBuildingInfo->GetYieldChange(YIELD_GREAT_ADMIRAL_POINTS);
+						}
+					}
+				}
+			}
+			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(pLoopCity->GetCityReligions()->GetReligiousMajority(), pLoopCity->getOwner());
+			if(pReligion)
+			{
+				int iReligionYieldChange = pReligion->m_Beliefs.GetCityYieldChange(pLoopCity->getPopulation(), YIELD_GREAT_ADMIRAL_POINTS);
+				if(iReligionYieldChange > 0)
+				{
+					iGreatAdmiralPoints += iReligionYieldChange;
+				}
+				BeliefTypes eSecondaryPantheon = pLoopCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
+				if (eSecondaryPantheon != NO_BELIEF && pLoopCity->getPopulation() >= GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetMinPopulation())
+				{
+					iReligionYieldChange = GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetCityYieldChange(YIELD_GREAT_ADMIRAL_POINTS);
+					if(iReligionYieldChange > 0)
+					{
+						iGreatAdmiralPoints += iReligionYieldChange;
+					}
+				}
+			}
+		}
+	}
+	//Check for policies that add Great General points.
+	for(int iPolicyLoop = 0; iPolicyLoop < GC.getNumPolicyInfos(); iPolicyLoop++)
+	{
+		PolicyTypes pPolicy = (PolicyTypes)iPolicyLoop;
+		CvPolicyEntry* pkPolicyInfo = GC.getPolicyInfo(pPolicy);
+		if(pkPolicyInfo)
+		{
+			if(GetPlayerPolicies()->HasPolicy(pPolicy) && !GetPlayerPolicies()->IsPolicyBlocked(pPolicy))
+			{
+				if(pkPolicyInfo->GetCityYieldChange(YIELD_GREAT_GENERAL_POINTS) > 0)
+				{
+					for(CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+					{
+						if(pLoopCity != NULL)
+						{
+							iGreatAdmiralPoints += pkPolicyInfo->GetCityYieldChange(YIELD_GREAT_ADMIRAL_POINTS);
+						}
+					}
+				}
+			}
+		}
+	}
+#if defined(MOD_GLOBAL_LOCAL_GENERALS)
+	changeNavalCombatExperience(iGreatAdmiralPoints);
+#else
+	changeNavalCombatExperience(iGreatAdmiralPoints);
+#endif
+}
+#endif
 //	--------------------------------------------------------------------------------
 /// Update all Golden-Age related stuff
 void CvPlayer::DoProcessGoldenAge()
@@ -13884,6 +14036,73 @@ void CvPlayer::DoProcessGoldenAge()
 		{
 			// Note: This will actually REDUCE the GA meter if the player is running in the red
 			ChangeGoldenAgeProgressMeter(GetExcessHappiness());
+#if defined(MOD_BALANCE_CORE)
+			//Check for buildings and beliefs that add Golden Age points.
+			int iLoop;
+			int iGoldenAgePoints = 0;
+			for(CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+			{
+				if(pLoopCity != NULL)
+				{
+					for(int iI = 0; iI < GC.getNumBuildingInfos(); iI++)
+					{
+						const BuildingTypes eBuilding = static_cast<BuildingTypes>(iI);
+						CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+						if(pkBuildingInfo)
+						{
+							if(pkBuildingInfo->GetYieldChange(YIELD_GOLDEN_AGE_POINTS) > 0)
+							{
+								if(pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
+								{
+									iGoldenAgePoints += pkBuildingInfo->GetYieldChange(YIELD_GOLDEN_AGE_POINTS);
+								}
+							}
+						}
+					}
+					const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(pLoopCity->GetCityReligions()->GetReligiousMajority(), pLoopCity->getOwner());
+					if(pReligion)
+					{
+						int iReligionYieldChange = pReligion->m_Beliefs.GetCityYieldChange(pLoopCity->getPopulation(), YIELD_GOLDEN_AGE_POINTS);
+						if(iReligionYieldChange > 0)
+						{
+							iGoldenAgePoints += iReligionYieldChange;
+						}
+						BeliefTypes eSecondaryPantheon = pLoopCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
+						if (eSecondaryPantheon != NO_BELIEF && pLoopCity->getPopulation() >= GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetMinPopulation())
+						{
+							iReligionYieldChange = GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetCityYieldChange(YIELD_GOLDEN_AGE_POINTS);
+							if(iReligionYieldChange > 0)
+							{
+								iGoldenAgePoints += iReligionYieldChange;
+							}
+						}
+					}
+				}
+			}
+			//Check for policies that add Golden Age points.
+			for(int iPolicyLoop = 0; iPolicyLoop < GC.getNumPolicyInfos(); iPolicyLoop++)
+			{
+				PolicyTypes pPolicy = (PolicyTypes)iPolicyLoop;
+				CvPolicyEntry* pkPolicyInfo = GC.getPolicyInfo(pPolicy);
+				if(pkPolicyInfo)
+				{
+					if(GetPlayerPolicies()->HasPolicy(pPolicy) && !GetPlayerPolicies()->IsPolicyBlocked(pPolicy))
+					{
+						if(pkPolicyInfo->GetCityYieldChange(YIELD_GOLDEN_AGE_POINTS) > 0)
+						{
+							for(CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+							{
+								if(pLoopCity != NULL)
+								{
+									iGoldenAgePoints += pkPolicyInfo->GetCityYieldChange(YIELD_GOLDEN_AGE_POINTS);
+								}
+							}
+						}
+					}
+				}
+			}
+			ChangeGoldenAgeProgressMeter(iGoldenAgePoints);
+#endif
 
 			// Enough GA Progress to trigger new GA?
 			if(GetGoldenAgeProgressMeter() >= GetGoldenAgeProgressThreshold())

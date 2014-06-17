@@ -1474,6 +1474,12 @@ public:
 	int getInBorderHappiness() const;
 	int getOccurrenceFrequency() const;
 	int getAdjacentUnitFreePromotion() const;
+#if defined(MOD_BALANCE_CORE)
+	int getLocationUnitFreePromotion() const;
+	int getSpawnLocationUnitFreePromotion() const;
+	bool isBarbarianOnly() const;
+	bool isCityStateOnly() const;
+#endif
 
 	bool isYieldNotAdditive() const;
 	bool isNoCoast() const;
@@ -1533,6 +1539,12 @@ protected:
 	int m_iInBorderHappiness;
 	int m_iOccurrenceFrequency;
 	int m_iAdjacentUnitFreePromotion;
+#if defined(MOD_BALANCE_CORE)
+	int m_iLocationUnitFreePromotion;
+	int m_iSpawnLocationUnitFreePromotion;
+	bool m_bIsBarbarianOnly;
+	bool m_bIsCityStateOnly;
+#endif
 
 	bool m_bYieldNotAdditive;
 	bool m_bNoCoast;
@@ -1631,6 +1643,13 @@ public:
 	int getTurnDamage() const;
 	int getExtraTurnDamage() const;
 #endif
+#if defined(MOD_BALANCE_CORE)
+	int getLocationUnitFreePromotion() const;
+	int getSpawnLocationUnitFreePromotion() const;
+	bool isBarbarianOnly() const;
+	bool isCityStateOnly() const;
+	int getAdjacentUnitFreePromotion() const;
+#endif
 
 	bool isWater() const;
 	bool isImpassable() const;
@@ -1663,6 +1682,13 @@ protected:
 #if defined(MOD_API_PLOT_BASED_DAMAGE)
 	int m_iTurnDamage;
 	int m_iExtraTurnDamage;
+#endif
+#if defined(MOD_BALANCE_CORE)
+	int m_iLocationUnitFreePromotion;
+	int m_iSpawnLocationUnitFreePromotion;
+	bool m_bIsBarbarianOnly;
+	bool m_bIsCityStateOnly;
+	int m_iAdjacentUnitFreePromotion;
 #endif
 
 	bool m_bWater;
