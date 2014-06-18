@@ -212,7 +212,11 @@ public:
 	std::vector<int> GetEnemyTradePlotsAtPlot(const CvPlot* pPlot, bool bFailAtFirstFound); // returns the ID of trade connections that go through that plot
 	bool ContainsEnemyTradePlot(const CvPlot* pPlot);
 
+#if defined(MOD_API_EXTENSIONS)
+	bool PlunderTradeRoute(int iTradeConnectionID, CvUnit* pUnit);
+#else
 	bool PlunderTradeRoute(int iTradeConnectionID);
+#endif
 
 	int GetTradeRouteRange (DomainTypes eDomain, CvCity* pOriginCity);
 	int GetTradeRouteSpeed (DomainTypes eDomain);

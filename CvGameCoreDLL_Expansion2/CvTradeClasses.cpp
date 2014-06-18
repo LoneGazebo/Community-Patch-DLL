@@ -1136,7 +1136,11 @@ void CvGameTrade::DoAutoWarPlundering(TeamTypes eTeam1, TeamTypes eTeam2)
 							if (pLoopUnit->canPlunderTradeRoute(pPlot, true))
 							{
 								// cheating to get around war!
+#if defined(MOD_API_EXTENSIONS)
+								GET_PLAYER(pLoopUnit->getOwner()).GetTrade()->PlunderTradeRoute(m_aTradeConnections[uiTradeRoute].m_iID, pLoopUnit);
+#else
 								GET_PLAYER(pLoopUnit->getOwner()).GetTrade()->PlunderTradeRoute(m_aTradeConnections[uiTradeRoute].m_iID);
+#endif
 								break;
 							}
 						}
@@ -1483,7 +1487,11 @@ bool CvGameTrade::StepUnit (int iIndex)
 		{
 			if (pEnemyUnit->canPlunderTradeRoute(pPlot, false))
 			{
+#if defined(MOD_API_EXTENSIONS)
+				GET_PLAYER(pEnemyUnit->getOwner()).GetTrade()->PlunderTradeRoute(kTradeConnection.m_iID, pEnemyUnit);
+#else
 				GET_PLAYER(pEnemyUnit->getOwner()).GetTrade()->PlunderTradeRoute(kTradeConnection.m_iID);
+#endif
 				// done died!
 				return false;
 			}
@@ -3124,7 +3132,11 @@ bool CvPlayerTrade::ContainsEnemyTradePlot(const CvPlot* pPlot)
 }
 
 //	--------------------------------------------------------------------------------
+#if defined(MOD_API_EXTENSIONS)
+bool CvPlayerTrade::PlunderTradeRoute(int iTradeConnectionID, CvUnit* pUnit)
+#else
 bool CvPlayerTrade::PlunderTradeRoute(int iTradeConnectionID)
+#endif
 {
 	CvGameTrade* pTrade = GC.getGame().GetGameTrade();
 	int iTradeConnectionIndex = pTrade->GetIndexFromID(iTradeConnectionID);
@@ -3325,6 +3337,16 @@ bool CvPlayerTrade::PlunderTradeRoute(int iTradeConnectionID)
 	if (eDomain == DOMAIN_LAND && m_pPlayer->isHuman() && !GC.getGame().isGameMultiPlayer())
 	{
 		gDLL->UnlockAchievement(ACHIEVEMENT_XP2_28);
+	}
+#endif
+
+#if defined(MOD_EVENTS_TRADE_ROUTE_PLUNDERED)
+	if (MOD_EVENTS_TRADE_ROUTE_PLUNDERED) {
+		// If we ever get trade routes from/to arbitary plots (and not cities), we're stuffed!
+		CvCity* pFromCity = GC.getMap().plot(pTradeConnection->m_iOriginX, pTradeConnection->m_iOriginY)->getPlotCity();
+		CvCity* pToCity = GC.getMap().plot(pTradeConnection->m_iDestX, pTradeConnection->m_iDestY)->getPlotCity();
+
+		GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerPlunderedTradeRoute, pUnit->getOwner(), pUnit->GetID(), iPlunderGoldValue, pFromCity->getOwner(), pFromCity->GetID(), pToCity->getOwner(), pToCity->GetID(), pTradeConnection->m_eConnectionType, pTradeConnection->m_eDomain);
 	}
 #endif
 
