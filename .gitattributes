@@ -5,3 +5,5 @@
 *.bat       eol=crlf
 *.sln       eol=crlf
 *.ico       -text
+*.vcxproj 	eol=crlf
+*.filters	eol=crlf
