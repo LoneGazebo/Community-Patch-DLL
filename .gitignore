@@ -6,3 +6,4 @@
 !*.rc
 !*.vcxproj
 !*.filters
+!*.gitattributes
