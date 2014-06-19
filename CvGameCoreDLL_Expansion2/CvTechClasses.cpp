@@ -1964,7 +1964,11 @@ void CvTeamTechs::SetResearchProgress(TechTypes eIndex, int iNewValue, PlayerTyp
 }
 
 /// Accessor: set research done on one tech (in hundredths)
+#if defined(MOD_BUGFIX_RESEARCH_OVERFLOW)
+void CvTeamTechs::SetResearchProgressTimes100(TechTypes eIndex, int iNewValue, PlayerTypes ePlayer, int iPlayerOverflow, int iPlayerOverflowDivisorTimes100)
+#else
 void CvTeamTechs::SetResearchProgressTimes100(TechTypes eIndex, int iNewValue, PlayerTypes ePlayer)
+#endif
 {
 	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eIndex < GC.getNumTechInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
@@ -1996,6 +2000,18 @@ void CvTeamTechs::SetResearchProgressTimes100(TechTypes eIndex, int iNewValue, P
 
 		if(iOverflow >= 0)
 		{
+#if defined(MOD_BUGFIX_RESEARCH_OVERFLOW)
+			if (MOD_BUGFIX_RESEARCH_OVERFLOW) {
+				// iNewValue = iPlayerBeakersThisTurn + ((iPlayerOverflow * iPlayerOverflowDivisorTimes100) / 100)
+				if (iOverflow > iPlayerOverflow) {
+					// If we completed the tech using only iBeakersThisTurn, we need to hand back the remaining iPlayerBeakersThisTurn and the scaled down iPlayerOverflow
+					iOverflow = (iOverflow - iPlayerOverflow) + (iPlayerOverflow * 100 / iPlayerOverflowDivisorTimes100); 
+				} else {
+					// Otherwise we used all of iBeakersThisTurn and some of iPlayerOverflow, so we need to hand back the scaled down iOverflow
+					iOverflow = iOverflow * 100 / iPlayerOverflowDivisorTimes100;
+				}
+			}
+#endif
 			GET_PLAYER(ePlayer).changeOverflowResearchTimes100(iOverflow);
 			m_pTeam->setHasTech(eIndex, true, ePlayer, true, true);
 			SetNoTradeTech(eIndex, true);
@@ -2106,9 +2122,17 @@ void CvTeamTechs::ChangeResearchProgress(TechTypes eIndex, int iChange, PlayerTy
 }
 
 /// Add an increment of research to a tech (in hundredths)
+#if defined(MOD_BUGFIX_RESEARCH_OVERFLOW)
+void CvTeamTechs::ChangeResearchProgressTimes100(TechTypes eIndex, int iChange, PlayerTypes ePlayer, int iPlayerOverflow, int iPlayerOverflowDivisorTimes100)
+#else
 void CvTeamTechs::ChangeResearchProgressTimes100(TechTypes eIndex, int iChange, PlayerTypes ePlayer)
+#endif
 {
+#if defined(MOD_BUGFIX_RESEARCH_OVERFLOW)
+	SetResearchProgressTimes100(eIndex, (GetResearchProgressTimes100(eIndex) + iChange), ePlayer, iPlayerOverflow, iPlayerOverflowDivisorTimes100);
+#else
 	SetResearchProgressTimes100(eIndex, (GetResearchProgressTimes100(eIndex) + iChange), ePlayer);
+#endif
 }
 
 /// Add research for a tech to a specified percent complete

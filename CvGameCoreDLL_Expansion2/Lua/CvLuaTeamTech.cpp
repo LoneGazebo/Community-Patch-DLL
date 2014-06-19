@@ -137,7 +137,17 @@ int CvLuaTeamTech::lSetResearchProgress(lua_State* L)
 //void SetResearchProgressTimes100(TechTypes eIndex, int iNewValue, PlayerTypes ePlayer);
 int CvLuaTeamTech::lSetResearchProgressTimes100(lua_State* L)
 {
+#if defined(MOD_BUGFIX_RESEARCH_OVERFLOW)
+	CvTeamTechs* pkTeamTech = GetInstance(L);
+	const TechTypes eTech = (TechTypes)lua_tointeger(L, 2);
+	const int iNewValue = (TechTypes)lua_tointeger(L, 3);
+	const PlayerTypes ePlayer = (PlayerTypes)lua_tointeger(L, 4);
+
+	pkTeamTech->SetResearchProgressTimes100(eTech, iNewValue, ePlayer);
+	return 0;
+#else
 	return BasicLuaMethod(L, &CvTeamTechs::SetResearchProgressTimes100);
+#endif
 }
 
 //------------------------------------------------------------------------------
@@ -165,7 +175,17 @@ int CvLuaTeamTech::lChangeResearchProgress(lua_State* L)
 //void ChangeResearchProgressTimes100(TechTypes eIndex, int iChange, PlayerTypes ePlayer);
 int CvLuaTeamTech::lChangeResearchProgressTimes100(lua_State* L)
 {
+#if defined(MOD_BUGFIX_RESEARCH_OVERFLOW)
+	CvTeamTechs* pkTeamTech = GetInstance(L);
+	const TechTypes eTech = (TechTypes)lua_tointeger(L, 2);
+	const int iNewValue = (TechTypes)lua_tointeger(L, 3);
+	const PlayerTypes ePlayer = (PlayerTypes)lua_tointeger(L, 4);
+
+	pkTeamTech->ChangeResearchProgressTimes100(eTech, iNewValue, ePlayer);
+	return 0;
+#else
 	return BasicLuaMethod(L, &CvTeamTechs::ChangeResearchProgressTimes100);
+#endif
 }
 
 //------------------------------------------------------------------------------

@@ -497,6 +497,8 @@
 
 // Minor bug fixes (missing catch-all else clauses, etc) (v30 onwards)
 #define MOD_BUGFIX_MINOR 							(true)
+// Fixes the research overflow bug/exploit (v52)
+#define MOD_BUGFIX_RESEARCH_OVERFLOW                gCustomMods.isBUGFIX_RESEARCH_OVERFLOW()
 // Fixes the bug where a city doesn't work its centre tile (v45)
 #define MOD_BUGFIX_CITY_CENTRE_WORKING              (true)
 // Adds missing policy events when adopting an ideology (v33)
@@ -994,6 +996,7 @@ public:
 
 	MOD_OPT_DECL(CONFIG_AI_IN_XML);
 
+	MOD_OPT_DECL(BUGFIX_RESEARCH_OVERFLOW);
 	MOD_OPT_DECL(BUGFIX_LUA_CHANGE_VISIBILITY_COUNT);
 	MOD_OPT_DECL(BUGFIX_RELIGIOUS_SPY_PRESSURE);
 	MOD_OPT_DECL(BUGFIX_MOVE_AFTER_PURCHASE);

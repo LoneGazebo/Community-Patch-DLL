@@ -21894,7 +21894,11 @@ void CvPlayer::doResearch()
 			if(GET_TEAM(getTeam()).GetTeamTechs())
 			{
 				int iBeakersTowardsTechTimes100 = GetScienceTimes100() + iOverflowResearch;
+#if defined(MOD_BUGFIX_RESEARCH_OVERFLOW)
+				GET_TEAM(getTeam()).GetTeamTechs()->ChangeResearchProgressTimes100(eCurrentTech, iBeakersTowardsTechTimes100, GetID(), iOverflowResearch, calculateResearchModifier(eCurrentTech));
+#else
 				GET_TEAM(getTeam()).GetTeamTechs()->ChangeResearchProgressTimes100(eCurrentTech, iBeakersTowardsTechTimes100, GetID());
+#endif
 				UpdateResearchAgreements(GetScienceTimes100() / 100);
 			}
 		}
