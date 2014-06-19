@@ -520,6 +520,13 @@ int CvTraitEntry::GetLandTradeRouteRangeBonus() const
 	return m_iLandTradeRouteRangeBonus;
 }
 
+#if defined(MOD_TRAITS_TRADE_ROUTE_BONUSES)
+int CvTraitEntry::GetSeaTradeRouteRangeBonus() const
+{
+	return m_iSeaTradeRouteRangeBonus;
+}
+#endif
+
 int CvTraitEntry::GetTradeReligionModifier() const
 {
 	return m_iTradeReligionModifier;
@@ -976,6 +983,11 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	m_iWorkerSpeedModifier					= kResults.GetInt("WorkerSpeedModifier");
 	m_iAfraidMinorPerTurnInfluence			= kResults.GetInt("AfraidMinorPerTurnInfluence");
 	m_iLandTradeRouteRangeBonus				= kResults.GetInt("LandTradeRouteRangeBonus");
+#if defined(MOD_TRAITS_TRADE_ROUTE_BONUSES)
+	if (MOD_TRAITS_TRADE_ROUTE_BONUSES) {
+		m_iSeaTradeRouteRangeBonus			= kResults.GetInt("SeaTradeRouteRangeBonus");
+	}
+#endif
 	m_iTradeReligionModifier				= kResults.GetInt("TradeReligionModifier");
 	m_iTradeBuildingModifier				= kResults.GetInt("TradeBuildingModifier");
 
@@ -1472,6 +1484,9 @@ void CvPlayerTraits::InitPlayerTraits()
 			m_iWorkerSpeedModifier += trait->GetWorkerSpeedModifier();
 			m_iAfraidMinorPerTurnInfluence += trait->GetAfraidMinorPerTurnInfluence();
 			m_iLandTradeRouteRangeBonus += trait->GetLandTradeRouteRangeBonus();
+#if defined(MOD_TRAITS_TRADE_ROUTE_BONUSES)
+			m_iSeaTradeRouteRangeBonus += trait->GetSeaTradeRouteRangeBonus();
+#endif
 			m_iTradeReligionModifier += trait->GetTradeReligionModifier();
 			m_iTradeBuildingModifier += trait->GetTradeBuildingModifier();
 #if defined(MOD_BALANCE_CORE)
@@ -1744,6 +1759,9 @@ void CvPlayerTraits::Reset()
 	m_iWorkerSpeedModifier = 0;
 	m_iAfraidMinorPerTurnInfluence = 0;
 	m_iLandTradeRouteRangeBonus = 0;
+#if defined(MOD_TRAITS_TRADE_ROUTE_BONUSES)
+	m_iSeaTradeRouteRangeBonus = 0;
+#endif
 	m_iTradeReligionModifier = 0;
 	m_iTradeBuildingModifier = 0;
 #if defined(MOD_BALANCE_CORE)
@@ -2951,6 +2969,11 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	{
 		m_iTradeBuildingModifier = 0;
 	}
+
+#if defined(MOD_TRAITS_TRADE_ROUTE_BONUSES)
+	MOD_SERIALIZE_READ(52, kStream, m_iSeaTradeRouteRangeBonus, 0);
+#endif
+
 #if defined(MOD_BALANCE_CORE)
 	MOD_SERIALIZE_READ(51, kStream, m_iNumFreeBuildings, 0);
 #endif
@@ -3217,6 +3240,9 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	kStream << m_iLandTradeRouteRangeBonus;
 	kStream << m_iTradeReligionModifier;
 	kStream << m_iTradeBuildingModifier;
+#if defined(MOD_TRAITS_TRADE_ROUTE_BONUSES)
+	MOD_SERIALIZE_WRITE(kStream, m_iSeaTradeRouteRangeBonus);
+#endif
 #if defined(MOD_BALANCE_CORE)
 	MOD_SERIALIZE_WRITE(kStream, m_iNumFreeBuildings);
 #endif
