@@ -999,6 +999,9 @@ public:
 	int getSpyRatePercent() const;
 	int getPeaceDealDuration() const;
 	int getRelationshipDuration() const;
+#if defined(MOD_TRADE_ROUTE_SCALING)
+	int getTradeRouteSpeedMod() const;
+#endif
 	int getLeaguePercent() const;
 	int getNumTurnIncrements() const;
 
@@ -1045,6 +1048,9 @@ protected:
 	int m_iSpyRatePercent;
 	int m_iPeaceDealDuration;
 	int m_iRelationshipDuration;
+#if defined(MOD_TRADE_ROUTE_SCALING)
+	int m_iTradeRouteSpeedMod;
+#endif
 	int m_iLeaguePercent;
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
@@ -1839,6 +1845,9 @@ public:
 	int getNumCitiesUnhappinessPercent() const;
 	int GetNumCitiesPolicyCostMod() const;
 	int GetNumCitiesTechCostMod() const;
+#if defined(MOD_TRADE_ROUTE_SCALING)
+	int getTradeRouteDistanceMod() const;
+#endif
 	int GetEstimatedNumCities() const;
 
 	static CvWorldInfo CreateCustomWorldSize(const CvWorldInfo& kTemplate, int iWidth, int iHeight);
@@ -1877,6 +1886,9 @@ protected:
 	int m_iNumCitiesUnhappinessPercent;
 	int m_iNumCitiesPolicyCostMod;
 	int m_iNumCitiesTechCostMod;
+#if defined(MOD_TRADE_ROUTE_SCALING)
+	int m_iTradeRouteDistanceMod;
+#endif
 	int m_iEstimatedNumCities;
 };
 

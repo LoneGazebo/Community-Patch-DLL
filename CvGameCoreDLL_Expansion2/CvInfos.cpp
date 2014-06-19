@@ -3314,6 +3314,9 @@ CvGameSpeedInfo::CvGameSpeedInfo() :
 	m_iReligiousPressureAdjacentCity(0),
 	m_iVictoryDelayPercent(0),
 	m_iMinorCivElectionFreqMod(0),
+#if defined(MOD_TRADE_ROUTE_SCALING)
+	m_iTradeRouteSpeedMod(100),
+#endif
 	m_iLeaguePercent(0),
 	m_iNumTurnIncrements(0),
 	m_pGameTurnInfo(NULL)
@@ -3469,6 +3472,13 @@ int CvGameSpeedInfo::getRelationshipDuration() const
 {
 	return m_iRelationshipDuration;
 }
+#if defined(MOD_TRADE_ROUTE_SCALING)
+//------------------------------------------------------------------------------
+int CvGameSpeedInfo::getTradeRouteSpeedMod() const
+{
+	return m_iTradeRouteSpeedMod;
+}
+#endif
 //------------------------------------------------------------------------------
 int CvGameSpeedInfo::getLeaguePercent() const
 {
@@ -3524,6 +3534,11 @@ bool CvGameSpeedInfo::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_iSpyRatePercent				= kResults.GetInt("SpyRatePercent");
 	m_iPeaceDealDuration			= kResults.GetInt("PeaceDealDuration");
 	m_iRelationshipDuration			= kResults.GetInt("RelationshipDuration");
+#if defined(MOD_TRADE_ROUTE_SCALING)
+	if (MOD_TRADE_ROUTE_SCALING) {
+		m_iTradeRouteSpeedMod		= kResults.GetInt("TradeRouteSpeedMod");
+	}
+#endif
 	m_iLeaguePercent				= kResults.GetInt("LeaguePercent");
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
@@ -5769,6 +5784,9 @@ CvWorldInfo::CvWorldInfo() :
 	m_iNumCitiesUnhappinessPercent(100),
 	m_iNumCitiesPolicyCostMod(10),
 	m_iNumCitiesTechCostMod(5),
+#if defined(MOD_TRADE_ROUTE_SCALING)
+	m_iTradeRouteDistanceMod(100),
+#endif
 	m_iEstimatedNumCities(0)
 {
 }
@@ -5867,6 +5885,13 @@ int CvWorldInfo::GetNumCitiesTechCostMod() const
 {
 	return m_iNumCitiesTechCostMod;
 }
+#if defined(MOD_TRADE_ROUTE_SCALING)
+//------------------------------------------------------------------------------
+int CvWorldInfo::getTradeRouteDistanceMod() const
+{
+	return m_iTradeRouteDistanceMod;
+}
+#endif
 //------------------------------------------------------------------------------
 int CvWorldInfo::GetEstimatedNumCities() const
 {
@@ -5917,6 +5942,11 @@ bool CvWorldInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	m_iNumCitiesUnhappinessPercent	= kResults.GetInt("NumCitiesUnhappinessPercent");
 	m_iNumCitiesPolicyCostMod		= kResults.GetInt("NumCitiesPolicyCostMod");
 	m_iNumCitiesTechCostMod			= kResults.GetInt("NumCitiesTechCostMod");
+#if defined(MOD_TRADE_ROUTE_SCALING)
+	if (MOD_TRADE_ROUTE_SCALING) {
+		m_iTradeRouteDistanceMod	= kResults.GetInt("TradeRouteDistanceMod");
+	}
+#endif
 	m_iEstimatedNumCities			= kResults.GetInt("EstimatedNumCities");
 
 	return true;
@@ -5944,6 +5974,9 @@ bool CvWorldInfo::operator==(const CvWorldInfo& rhs) const
 	if(m_iAdvancedStartPointsMod != rhs.m_iAdvancedStartPointsMod) return false;
 	if(m_iNumCitiesUnhappinessPercent != rhs.m_iNumCitiesUnhappinessPercent) return false;
 	if(m_iNumCitiesPolicyCostMod != rhs.m_iNumCitiesPolicyCostMod) return false;
+#if defined(MOD_TRADE_ROUTE_SCALING)
+	if(m_iTradeRouteDistanceMod != rhs.m_iTradeRouteDistanceMod) return false;
+#endif
 	if(m_iNumCitiesTechCostMod != rhs.m_iNumCitiesTechCostMod) return false;
 	return true;
 }
@@ -5988,6 +6021,9 @@ void CvWorldInfo::readFrom(FDataStream& loadFrom)
 	{
 		m_iNumCitiesTechCostMod = 0;
 	}
+#if defined(MOD_TRADE_ROUTE_SCALING)
+	MOD_SERIALIZE_READ(52, loadFrom, m_iTradeRouteDistanceMod, 100);
+#endif
 }
 
 // A special reader for version 0 (pre-versioning)
@@ -6040,6 +6076,9 @@ void CvWorldInfo::writeTo(FDataStream& saveTo) const
 	saveTo << m_iNumCitiesUnhappinessPercent;
 	saveTo << m_iNumCitiesPolicyCostMod;
 	saveTo << m_iNumCitiesTechCostMod;
+#if defined(MOD_TRADE_ROUTE_SCALING)
+	MOD_SERIALIZE_WRITE(saveTo, m_iTradeRouteDistanceMod);
+#endif
 }
 
 FDataStream& operator<<(FDataStream& saveTo, const CvWorldInfo& readFrom)

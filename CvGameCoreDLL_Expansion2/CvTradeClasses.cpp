@@ -395,7 +395,12 @@ bool CvGameTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Domai
 		iTurnsPerCircuit = ((m_aTradeConnections[iNewTradeRouteIndex].m_aPlotList.size() - 1) * 2) / iRouteSpeed;
 	}
 	
+#if defined(MOD_TRADE_ROUTE_SCALING)
+	int iTargetTurns = GD_INT_GET(TRADE_ROUTE_BASE_TARGET_TURNS); // how many turns do we want the cycle to consume
+	iTargetTurns = iTargetTurns * GC.getGame().getGameSpeedInfo().getTradeRouteSpeedMod() / 100;
+#else
 	int iTargetTurns = 30; // how many turns do we want the cycle to consume
+#endif
 	int iCircuitsToComplete = 1; // how many circuits do we want this trade route to run to reach the target turns
 	if (iTurnsPerCircuit != 0)
 	{
@@ -649,11 +654,19 @@ int CvGameTrade::GetDomainModifierTimes100 (DomainTypes eDomain)
 {
 	if (eDomain == DOMAIN_SEA)
 	{
+#if defined(MOD_TRADE_ROUTE_SCALING)
+		return GD_INT_GET(TRADE_ROUTE_BASE_SEA_MODIFIER);
+#else
 		return 100;
+#endif
 	}
 	else
 	{
+#if defined(MOD_TRADE_ROUTE_SCALING)
+		return GD_INT_GET(TRADE_ROUTE_BASE_LAND_MODIFIER);
+#else
 		return 0;
+#endif
 	}
 }
 
@@ -1938,7 +1951,11 @@ int CvPlayerTrade::GetTradeConnectionBaseValueTimes100(const TradeConnection& kT
 				int iAdjustedTechDifference = 0;
 				if (iTechDifference > 0)
 				{
+#if defined(MOD_TRADE_ROUTE_SCALING)
+					int iCeilTechDifference = iTechDifference * 100 / GD_INT_GET(TRADE_ROUTE_SCIENCE_DIVISOR_TIMES100);
+#else
 					int iCeilTechDifference = (int)ceil(iTechDifference / 2.0f);
+#endif
 					iAdjustedTechDifference = max(iCeilTechDifference, 1);
 				}
 
@@ -1958,7 +1975,11 @@ int CvPlayerTrade::GetTradeConnectionBaseValueTimes100(const TradeConnection& kT
 			int iAdjustedTechDifference = 0;
 			if (iTechDifference > 0)
 			{
+#if defined(MOD_TRADE_ROUTE_SCALING)
+				int iCeilTechDifference = iTechDifference * 100 / GD_INT_GET(TRADE_ROUTE_SCIENCE_DIVISOR_TIMES100);
+#else
 				int iCeilTechDifference = (int)ceil(iTechDifference / 2.0f);
+#endif
 				iAdjustedTechDifference = max(iCeilTechDifference, 1);
 			}
 
@@ -2064,7 +2085,11 @@ int CvPlayerTrade::GetTradeConnectionResourceValueTimes100(const TradeConnection
 						{
 							if (pOriginCity->IsHasResourceLocal(eResource, false) != pDestCity->IsHasResourceLocal(eResource, false))
 							{
+#if defined(MOD_TRADE_ROUTE_SCALING)
+								iValue += GD_INT_GET(TRADE_ROUTE_DIFFERENT_RESOURCE_VALUE);
+#else
 								iValue += 50;
+#endif
 							}
 						}
 					}
@@ -2347,7 +2372,11 @@ int CvPlayerTrade::GetTradeConnectionRiverValueModifierTimes100(const TradeConne
 				CvPlot* pOriginCityPlot = pOriginCity->plot();
 				if (pOriginCityPlot->isRiver())
 				{
+#if defined(MOD_TRADE_ROUTE_SCALING)
+					iModifier = GD_INT_GET(TRADE_ROUTE_RIVER_CITY_MODIFIER);
+#else
 					iModifier = 25;
+#endif
 				}
 			}
 		}
@@ -2360,7 +2389,11 @@ int CvPlayerTrade::GetTradeConnectionRiverValueModifierTimes100(const TradeConne
 				CvPlot* pDestCityPlot = pDestCity->plot();
 				if (pDestCityPlot->isRiver())
 				{
+#if defined(MOD_TRADE_ROUTE_SCALING)
+					iModifier = GD_INT_GET(TRADE_ROUTE_RIVER_CITY_MODIFIER);
+#else
 					iModifier = 25;
+#endif
 				}
 			}
 		}
@@ -2481,7 +2514,11 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTrad
 			case TRADE_CONNECTION_FOOD:
 				if (eYield == YIELD_FOOD)
 				{
+#if defined(MOD_TRADE_ROUTE_SCALING)
+					iValue = GD_INT_GET(TRADE_ROUTE_BASE_FOOD_VALUE);
+#else
 					iValue = 300;
+#endif
 					iValue += GC.getEraInfo(GET_PLAYER(kTradeConnection.m_eDestOwner).GetCurrentEra())->getTradeRouteFoodBonusTimes100();
 					iValue *= GC.getEraInfo(GC.getGame().getStartEra())->getGrowthPercent();
 					iValue /= 100;
@@ -2497,7 +2534,11 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTrad
 			case TRADE_CONNECTION_PRODUCTION:
 				if (eYield == YIELD_PRODUCTION)
 				{
+#if defined(MOD_TRADE_ROUTE_SCALING)
+					iValue = GD_INT_GET(TRADE_ROUTE_BASE_PRODUCTION_VALUE);
+#else
 					iValue = 300;
+#endif
 					iValue += GC.getEraInfo(GET_PLAYER(kTradeConnection.m_eDestOwner).GetCurrentEra())->getTradeRouteProductionBonusTimes100();
 					iValue *= (GC.getEraInfo(GC.getGame().getStartEra())->getConstructPercent() + GC.getEraInfo(GC.getGame().getStartEra())->getTrainPercent()) / 2;
 					iValue /= 100;
@@ -3182,7 +3223,11 @@ bool CvPlayerTrade::PlunderTradeRoute(int iTradeConnectionID)
 		return false;
 	}
 
+#if defined(MOD_TRADE_ROUTE_SCALING)
+	int iPlunderGoldValue = GD_INT_GET(TRADE_ROUTE_BASE_PLUNDER_GOLD);
+#else
 	int iPlunderGoldValue = 100;
+#endif
 	iPlunderGoldValue *= 100 + iDomainModifier;
 	iPlunderGoldValue /= 100;
 	m_pPlayer->GetTreasury()->ChangeGold(iPlunderGoldValue);
@@ -3358,14 +3403,26 @@ int CvPlayerTrade::GetTradeRouteRange (DomainTypes eDomain, CvCity* pOriginCity)
 {
 	int iRange = 0;
 
+#if defined(MOD_TRADE_ROUTE_SCALING)
+	int iRouteModifier = GC.getMap().getWorldInfo().getTradeRouteDistanceMod();
+#endif
+
 	int iBaseRange = 0;
 	switch (eDomain)
 	{
 	case DOMAIN_SEA:
+#if defined(MOD_TRADE_ROUTE_SCALING)
+		iBaseRange = GD_INT_GET(TRADE_ROUTE_BASE_SEA_DISTANCE);
+#else
 		iBaseRange = 20;
+#endif
 		break;
 	case DOMAIN_LAND:
+#if defined(MOD_TRADE_ROUTE_SCALING)
+		iBaseRange = GD_INT_GET(TRADE_ROUTE_BASE_LAND_DISTANCE);
+#else
 		iBaseRange = 10;
+#endif
 		break;
 	default:
 		CvAssertMsg(false, "Undefined domain for trade route range");
@@ -3435,6 +3492,9 @@ int CvPlayerTrade::GetTradeRouteRange (DomainTypes eDomain, CvCity* pOriginCity)
 	iRange = iBaseRange;
 	iRange += iTraitRange;
 	iRange += iExtendedRange;
+#if defined(MOD_TRADE_ROUTE_SCALING)
+	iRange = (iRange * iRouteModifier) / 100;
+#endif
 	iRange = (iRange * (100 + iRangeModifier)) / 100;
 	return iRange;
 }
@@ -3442,6 +3502,18 @@ int CvPlayerTrade::GetTradeRouteRange (DomainTypes eDomain, CvCity* pOriginCity)
 //	--------------------------------------------------------------------------------
 int CvPlayerTrade::GetTradeRouteSpeed (DomainTypes eDomain)
 {
+#if defined(MOD_TRADE_ROUTE_SCALING)
+#if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
+	UnitTypes eUnitType = GetTradeUnit(eDomain, m_pPlayer);
+#else
+	UnitTypes eUnitType = GetTradeUnit(eDomain);
+#endif
+	CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnitType);
+
+	if (pkUnitInfo) {
+		return pkUnitInfo->GetMoves();
+	}
+#else
 	switch (eDomain)
 	{
 	case DOMAIN_SEA:
@@ -3451,6 +3523,7 @@ int CvPlayerTrade::GetTradeRouteSpeed (DomainTypes eDomain)
 		return 2;
 		break;
 	}
+#endif
 
 	CvAssertMsg(false, "Undefined domain for trade route speed");
 	return -1;
@@ -3611,7 +3684,12 @@ int CvPlayerTrade::GetNumDifferentTradingPartners (void)
 //	--------------------------------------------------------------------------------
 void CvPlayerTrade::UpdateTradeConnectionWasPlundered()
 {
+#if defined(MOD_TRADE_ROUTE_SCALING)
+	int iTurnsUntilForget = GD_INT_GET(TRADE_ROUTE_PLUNDER_TURNS_COUNTER);
+	iTurnsUntilForget = iTurnsUntilForget * GC.getGame().getGameSpeedInfo().getTradeRouteSpeedMod() / 100;
+#else
 	int iTurnsUntilForget = 30;
+#endif
 	for (uint ui = 0; ui < m_aTradeConnectionWasPlundered.size(); ui++)
 	{
 		if ((m_aTradeConnectionWasPlundered[ui].m_iTurnPlundered + iTurnsUntilForget) <= GC.getGame().getGameTurn())
