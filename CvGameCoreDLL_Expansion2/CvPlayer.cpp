@@ -203,6 +203,11 @@ CvPlayer::CvPlayer() :
 	, m_iGreatPeopleCreated("CvPlayer::m_iGreatPeopleCreated", m_syncArchive)
 	, m_iGreatGeneralsCreated("CvPlayer::m_iGreatGeneralsCreated", m_syncArchive)
 	, m_iGreatAdmiralsCreated(0)
+#if defined(MOD_GLOBAL_SEPARATE_GP_COUNTERS)
+	, m_iGreatMerchantsCreated(0)
+	, m_iGreatScientistsCreated(0)
+	, m_iGreatEngineersCreated(0)
+#endif
 	, m_iGreatWritersCreated(0)
 	, m_iGreatArtistsCreated(0)
 	, m_iGreatMusiciansCreated(0)
@@ -854,6 +859,11 @@ void CvPlayer::uninit()
 	m_iGreatPeopleCreated = 0;
 	m_iGreatGeneralsCreated = 0;
 	m_iGreatAdmiralsCreated = 0;
+#if defined(MOD_GLOBAL_SEPARATE_GP_COUNTERS)
+	m_iGreatMerchantsCreated = 0;
+	m_iGreatScientistsCreated = 0;
+	m_iGreatEngineersCreated = 0;
+#endif
 	m_iGreatWritersCreated = 0;
 	m_iGreatArtistsCreated = 0;
 	m_iGreatMusiciansCreated = 0;
@@ -14426,6 +14436,44 @@ void CvPlayer::incrementGreatAdmiralsCreated()
 	m_iGreatAdmiralsCreated++;
 }
 
+#if defined(MOD_GLOBAL_SEPARATE_GP_COUNTERS)
+//	--------------------------------------------------------------------------------
+int CvPlayer::getGreatMerchantsCreated() const
+{
+	return m_iGreatMerchantsCreated;
+}
+
+//	--------------------------------------------------------------------------------
+void CvPlayer::incrementGreatMerchantsCreated()
+{
+	m_iGreatMerchantsCreated++;
+}
+
+//	--------------------------------------------------------------------------------
+int CvPlayer::getGreatScientistsCreated() const
+{
+	return m_iGreatScientistsCreated;
+}
+
+//	--------------------------------------------------------------------------------
+void CvPlayer::incrementGreatScientistsCreated()
+{
+	m_iGreatScientistsCreated++;
+}
+
+//	--------------------------------------------------------------------------------
+int CvPlayer::getGreatEngineersCreated() const
+{
+	return m_iGreatEngineersCreated;
+}
+
+//	--------------------------------------------------------------------------------
+void CvPlayer::incrementGreatEngineersCreated()
+{
+	m_iGreatEngineersCreated++;
+}
+#endif
+
 //	--------------------------------------------------------------------------------
 int CvPlayer::getGreatWritersCreated() const
 {
@@ -15168,6 +15216,17 @@ void CvPlayer::DoSpawnGreatPerson(PlayerTypes eMinor)
 #endif
 			else
 			{
+#if defined(MOD_GLOBAL_SEPARATE_GP_COUNTERS)
+				if (MOD_GLOBAL_SEPARATE_GP_COUNTERS) {
+					if (pNewGreatPeople->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_MERCHANT")) {
+						incrementGreatMerchantsCreated();
+					} else if (pNewGreatPeople->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_SCIENTIST")) {
+						incrementGreatScientistsCreated();
+					} else {
+						incrementGreatEngineersCreated();
+					}
+				} else
+#endif
 				incrementGreatPeopleCreated();
 			}
 
@@ -23826,6 +23885,17 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 #endif
 									else if(pNewUnit->IsGreatPerson())
 									{
+#if defined(MOD_GLOBAL_SEPARATE_GP_COUNTERS)
+										if (MOD_GLOBAL_SEPARATE_GP_COUNTERS) {
+											if (pNewUnit->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_MERCHANT")) {
+												incrementGreatMerchantsCreated();
+											} else if (pNewUnit->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_SCIENTIST")) {
+												incrementGreatScientistsCreated();
+											} else {
+												incrementGreatEngineersCreated();
+											}
+										} else
+#endif
 										incrementGreatPeopleCreated();
 										pNewUnit->jumpToNearestValidPlot();
 									}
@@ -24241,6 +24311,11 @@ void CvPlayer::Read(FDataStream& kStream)
 	kStream >> m_iGreatPeopleCreated;
 	kStream >> m_iGreatGeneralsCreated;
 	kStream >> m_iGreatAdmiralsCreated;
+#if defined(MOD_GLOBAL_SEPARATE_GP_COUNTERS)
+	MOD_SERIALIZE_READ(52, kStream, m_iGreatMerchantsCreated, 0);
+	MOD_SERIALIZE_READ(52, kStream, m_iGreatScientistsCreated, 0);
+	MOD_SERIALIZE_READ(52, kStream, m_iGreatEngineersCreated, 0);
+#endif
 	kStream >> m_iGreatWritersCreated;
 	kStream >> m_iGreatArtistsCreated;
 	kStream >> m_iGreatMusiciansCreated;
@@ -24818,6 +24893,11 @@ void CvPlayer::Write(FDataStream& kStream) const
 	kStream << m_iGreatPeopleCreated;
 	kStream << m_iGreatGeneralsCreated;
 	kStream << m_iGreatAdmiralsCreated;
+#if defined(MOD_GLOBAL_SEPARATE_GP_COUNTERS)
+	MOD_SERIALIZE_WRITE(kStream, m_iGreatMerchantsCreated);
+	MOD_SERIALIZE_WRITE(kStream, m_iGreatScientistsCreated);
+	MOD_SERIALIZE_WRITE(kStream, m_iGreatEngineersCreated);
+#endif
 	kStream << m_iGreatWritersCreated;
 	kStream << m_iGreatArtistsCreated;
 	kStream << m_iGreatMusiciansCreated;

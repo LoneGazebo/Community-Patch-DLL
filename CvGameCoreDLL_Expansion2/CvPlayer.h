@@ -704,6 +704,14 @@ int GetEscortID();
 	void incrementGreatGeneralsCreated();
 	int getGreatAdmiralsCreated() const;
 	void incrementGreatAdmiralsCreated();
+#if defined(MOD_GLOBAL_SEPARATE_GP_COUNTERS)
+	int getGreatMerchantsCreated() const;
+	void incrementGreatMerchantsCreated();
+	int getGreatScientistsCreated() const;
+	void incrementGreatScientistsCreated();
+	int getGreatEngineersCreated() const;
+	void incrementGreatEngineersCreated();
+#endif
 	int getGreatWritersCreated() const;
 	void incrementGreatWritersCreated();
 	int getGreatArtistsCreated() const;
@@ -1829,6 +1837,11 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iGreatPeopleCreated;
 	FAutoVariable<int, CvPlayer> m_iGreatGeneralsCreated;
 	int m_iGreatAdmiralsCreated;
+#if defined(MOD_GLOBAL_SEPARATE_GP_COUNTERS)
+	int m_iGreatMerchantsCreated;
+	int m_iGreatScientistsCreated;
+	int m_iGreatEngineersCreated;
+#endif
 	int m_iGreatWritersCreated;
 	int m_iGreatArtistsCreated;
 	int m_iGreatMusiciansCreated;
