@@ -6624,7 +6624,11 @@ bool CvUnit::plunderTradeRoute()
 	}
 
 	// right now, plunder the first unit
+#if defined(MOD_API_EXTENSIONS)
+	pTrade->PlunderTradeRoute(aiTradeUnitsAtPlot[0], this);
+#else
 	pTrade->PlunderTradeRoute(aiTradeUnitsAtPlot[0]);
+#endif
 	return true;
 }
 

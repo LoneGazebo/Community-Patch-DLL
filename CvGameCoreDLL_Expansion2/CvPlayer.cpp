@@ -14282,10 +14282,22 @@ void CvPlayer::changeGoldenAgeTurns(int iChange)
 				GC.getGame().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, GetID(), locString.toUTF8(), -1, -1);
 
 				gDLL->GameplayGoldenAgeStarted();
+
+#if defined(MOD_EVENTS_GOLDEN_AGE)
+				if (MOD_EVENTS_GOLDEN_AGE) {
+					GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerGoldenAge, GetID(), true, iChange);
+				}
+#endif
 			}
 			else
 			{
 				gDLL->GameplayGoldenAgeEnded();
+
+#if defined(MOD_EVENTS_GOLDEN_AGE)
+				if (MOD_EVENTS_GOLDEN_AGE) {
+					GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerGoldenAge, GetID(), false, 0);
+				}
+#endif
 			}
 
 			CvNotifications* pNotifications = GetNotifications();

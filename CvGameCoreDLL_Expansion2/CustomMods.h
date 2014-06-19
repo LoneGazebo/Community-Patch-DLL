@@ -390,6 +390,10 @@
 //   GameEvents.CanMoveInto.Add(function(iPlayer, iUnit, iPlotX, iPlotY, bAttack, bDeclareWar) return true end)
 #define MOD_EVENTS_CAN_MOVE_INTO                    gCustomMods.isEVENTS_CAN_MOVE_INTO()
 
+// Event sent as a trade route is plundered (v52)
+//   GameEvents.PlayerPlunderedTradeRoute.Add(function(iPlayer, iUnit, iPlunderedGold, iFromPlayer, iFromCity, iToPlayer, iToCity, iRouteType, iRouteDomain) end)
+#define MOD_EVENTS_TRADE_ROUTE_PLUNDERED            gCustomMods.isEVENTS_TRADE_ROUTE_PLUNDERED()
+
 // Event sent when a nuke is fired
 //   GameEvents.NuclearDetonation.Add(function(iPlayer, iX, iY, bWar, bBystanders) end)
 #define MOD_EVENTS_NUCLEAR_DETONATION               gCustomMods.isEVENTS_NUCLEAR_DETONATION()
@@ -419,6 +423,10 @@
 //   GameEvents.PlayerBuilding.Add(function(iPlayer, iUnit, iX, iY, iBuild, bStarting) end) (v46)
 //   GameEvents.PlayerBuilt.Add(function(iPlayer, iUnit, iX, iY, iBuild) end) (v46)
 #define MOD_EVENTS_PLOT                             gCustomMods.isEVENTS_PLOT()
+
+// Events sent by golden ages (v52)
+//   GameEvents.PlayerGoldenAge.Add(function(iPlayer, bStart, iTurns) end)
+#define MOD_EVENTS_GOLDEN_AGE                       gCustomMods.isEVENTS_GOLDEN_AGE()
 
 // Events sent after a city produces/buys something
 //   GameEvents.CityTrained.Add(function(iPlayer, iCity, iUnit, bGold, bFaith) end)
@@ -707,6 +715,8 @@ enum TerraformingEventTypes {
 #define GAMEEVENT_PlayerCanRaze				"PlayerCanRaze",				"ii"
 #define GAMEEVENT_PlayerCanRemoveHeresy		"PlayerCanRemoveHeresy",		"iiii"
 #define GAMEEVENT_PlayerCanSpreadReligion	"PlayerCanSpreadReligion",		"iiii"
+#define GAMEEVENT_PlayerGoldenAge			"PlayerGoldenAge",				"ibi"
+#define GAMEEVENT_PlayerPlunderedTradeRoute	"PlayerPlunderedTradeRoute",	"iiiiiiiii"
 #define GAMEEVENT_PlotCanImprove			"PlotCanImprove",				"iii"
 #define GAMEEVENT_RebaseTo					"RebaseTo",						"iiii"
 #define GAMEEVENT_ReligionCanHaveBelief		"ReligionCanHaveBelief",		"iii"
@@ -943,6 +953,7 @@ public:
 	MOD_OPT_DECL(EVENTS_FOUND_RELIGION);
 	MOD_OPT_DECL(EVENTS_ACQUIRE_BELIEFS);
 	MOD_OPT_DECL(EVENTS_PLOT);
+	MOD_OPT_DECL(EVENTS_GOLDEN_AGE);
 	MOD_OPT_DECL(EVENTS_CITY);
 	MOD_OPT_DECL(EVENTS_CITY_BORDERS);
 	MOD_OPT_DECL(EVENTS_CITY_RAZING);
@@ -956,6 +967,7 @@ public:
 	MOD_OPT_DECL(EVENTS_CAN_MOVE_INTO);
 	MOD_OPT_DECL(EVENTS_UNIT_UPGRADES);
 	MOD_OPT_DECL(EVENTS_UNIT_DATA);
+	MOD_OPT_DECL(EVENTS_TRADE_ROUTE_PLUNDERED);
 	MOD_OPT_DECL(EVENTS_WAR_AND_PEACE);
 	MOD_OPT_DECL(EVENTS_RESOLUTIONS);
 	MOD_OPT_DECL(EVENTS_IDEOLOGIES);
