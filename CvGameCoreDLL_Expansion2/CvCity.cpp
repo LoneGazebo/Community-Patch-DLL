@@ -9710,12 +9710,6 @@ bool CvCity::IsBlockaded() const
 	
 #if defined(MOD_GLOBAL_ADJACENT_BLOCKADES)
 	if (MOD_GLOBAL_ADJACENT_BLOCKADES) {
-		// The standard logic says "if there is an enemy ship within two hexes of a port, it is blockaded"
-		// HOWEVER - this includes the situations where
-		//   a) an enemy ship on the other side of a two-wide strip of land can blockade a port (ie enemy-land-port-water blockades the port)
-		//   b) a port with two non-adjacent exits (ie on a one-wide strip of land) can be blockaded by a non-adjacent enemy (ie enemy-water-port-water blockades the port)
-		// What is needed is a check for every adjacent water plot to the port being blockaded, not a simple check of the port itself
-
 		for (int iPortLoop = 0; iPortLoop < NUM_DIRECTION_TYPES; ++iPortLoop) {
 			CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iPortLoop));
 			if (pAdjacentPlot && pAdjacentPlot->isWater() && !pAdjacentPlot->isBlockaded(getOwner())) {

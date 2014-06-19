@@ -120,8 +120,13 @@
 #define MOD_GLOBAL_NO_OCEAN_PLUNDERING              gCustomMods.isGLOBAL_NO_OCEAN_PLUNDERING()
 // Remove assembled spaceship parts from conquered capitals
 #define MOD_GLOBAL_NO_CONQUERED_SPACESHIPS          gCustomMods.isGLOBAL_NO_CONQUERED_SPACESHIPS()
-// TODO - WH - MOD_GLOBAL_ADJACENT_BLOCKADES
-// #define MOD_GLOBAL_ADJACENT_BLOCKADES               (true)
+// Modified blockade logic (v52)
+// The standard logic says "if there is an enemy ship within two hexes of a port, it is blockaded"
+// HOWEVER - this includes the situations where
+//   a) an enemy ship on the other side of a two-wide strip of land can blockade a port (ie enemy-land-port-water blockades the port)
+//   b) a port with two non-adjacent exits (ie on a one-wide strip of land) can be blockaded by a non-adjacent enemy (ie enemy-water-port-water blockades the port)
+// What is needed is a check for every adjacent water plot to the port being blockaded, not a simple check of the port itself
+#define MOD_GLOBAL_ADJACENT_BLOCKADES               gCustomMods.isGLOBAL_ADJACENT_BLOCKADES()
 // Adjacent allied ships block blockades by enemy ships 2 or more tiles away
 #define MOD_GLOBAL_ALLIES_BLOCK_BLOCKADES           gCustomMods.isGLOBAL_ALLIES_BLOCK_BLOCKADES()
 // Embarked combat units only blockade adjacent tiles
@@ -848,6 +853,7 @@ public:
 	MOD_OPT_DECL(GLOBAL_CAPTURE_AFTER_ATTACKING);
 	MOD_OPT_DECL(GLOBAL_NO_OCEAN_PLUNDERING);
 	MOD_OPT_DECL(GLOBAL_NO_CONQUERED_SPACESHIPS);
+	MOD_OPT_DECL(GLOBAL_ADJACENT_BLOCKADES);
 	MOD_OPT_DECL(GLOBAL_ALLIES_BLOCK_BLOCKADES);
 	MOD_OPT_DECL(GLOBAL_SHORT_EMBARKED_BLOCKADES);
 	MOD_OPT_DECL(GLOBAL_GRATEFUL_SETTLERS);
