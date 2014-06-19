@@ -148,6 +148,8 @@
 #define MOD_GLOBAL_MOVE_AFTER_UPGRADE               gCustomMods.isGLOBAL_MOVE_AFTER_UPGRADE()
 // Units of this type may never embark (v46)
 #define MOD_GLOBAL_CANNOT_EMBARK                    gCustomMods.isGLOBAL_CANNOT_EMBARK()
+// Separates the Engineer, Scientist and Merchant GP counters (v52)
+#define MOD_GLOBAL_SEPARATE_GP_COUNTERS             gCustomMods.isGLOBAL_SEPARATE_GP_COUNTERS()
 
 // Tech bonuses from other teams require an embassy or spy in their capital and not from just having met them (v30)
 #define MOD_DIPLOMACY_TECH_BONUSES                  gCustomMods.isDIPLOMACY_TECH_BONUSES()
@@ -861,6 +863,7 @@ public:
 	MOD_OPT_DECL(GLOBAL_EXCLUDE_FROM_GIFTS);
 	MOD_OPT_DECL(GLOBAL_MOVE_AFTER_UPGRADE);
 	MOD_OPT_DECL(GLOBAL_CANNOT_EMBARK);
+	MOD_OPT_DECL(GLOBAL_SEPARATE_GP_COUNTERS);
 	
 	MOD_OPT_DECL(DIPLOMACY_TECH_BONUSES);
 	MOD_OPT_DECL(DIPLOMACY_AUTO_DENOUNCE);

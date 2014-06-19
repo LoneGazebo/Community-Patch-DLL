@@ -2500,6 +2500,17 @@ int CvCityCitizens::GetSpecialistUpgradeThreshold(UnitClassTypes eUnitClass)
 #endif
 	else
 	{
+#if defined(MOD_GLOBAL_SEPARATE_GP_COUNTERS)
+		if (MOD_GLOBAL_SEPARATE_GP_COUNTERS) {
+			if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_MERCHANT", true)) {
+				iNumCreated = GET_PLAYER(GetCity()->getOwner()).getGreatMerchantsCreated();
+			} else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_SCIENTIST", true)) {
+				iNumCreated = GET_PLAYER(GetCity()->getOwner()).getGreatScientistsCreated();
+			} else {
+				iNumCreated = GET_PLAYER(GetCity()->getOwner()).getGreatEngineersCreated();
+			}
+		} else
+#endif
 		iNumCreated = GET_PLAYER(GetCity()->getOwner()).getGreatPeopleCreated();
 	}
 
@@ -2575,6 +2586,17 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 #endif
 		else
 		{
+#if defined(MOD_GLOBAL_SEPARATE_GP_COUNTERS)
+			if (MOD_GLOBAL_SEPARATE_GP_COUNTERS) {
+				if (newUnit->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_MERCHANT")) {
+					kPlayer.incrementGreatMerchantsCreated();
+				} else if (newUnit->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_SCIENTIST")) {
+					kPlayer.incrementGreatScientistsCreated();
+				} else {
+					kPlayer.incrementGreatEngineersCreated();
+				}
+			} else
+#endif
 			kPlayer.incrementGreatPeopleCreated();
 		}
 	}

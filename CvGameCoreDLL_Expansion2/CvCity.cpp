@@ -6214,6 +6214,17 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 #endif
 							else if (pFreeUnit->IsGreatPerson())
 							{
+#if defined(MOD_GLOBAL_SEPARATE_GP_COUNTERS)
+								if (MOD_GLOBAL_SEPARATE_GP_COUNTERS) {
+									if (pkUnitInfo->GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_MERCHANT")) {
+										owningPlayer.incrementGreatMerchantsCreated();
+									} else if (pkUnitInfo->GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_SCIENTIST")) {
+										owningPlayer.incrementGreatScientistsCreated();
+									} else {
+										owningPlayer.incrementGreatEngineersCreated();
+									}
+								} else
+#endif
 								owningPlayer.incrementGreatPeopleCreated();
 								if (!pFreeUnit->jumpToNearestValidPlot())
 									pFreeUnit->kill(false);	// Could not find a valid spot!
