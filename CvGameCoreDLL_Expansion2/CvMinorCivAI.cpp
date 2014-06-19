@@ -11674,6 +11674,15 @@ void CvMinorCivAI::DoTileImprovementGiftFromMajor(PlayerTypes eMajor, int iPlotX
 	}
 
 	pPlot->setImprovementType(eImprovement, eMajor);
+#if defined(MOD_BUGFIX_MINOR)
+	// Clear the pillage state on this plot (eg Minor builds a farm, barbs pillage it,
+	// minor discovers iron on the plot, player pays to build a mine, but the plot is still pillaged!)
+#if defined(MOD_EVENTS_TILE_IMPROVEMENTS)
+	pPlot->SetImprovementPillaged(false, false);
+#else
+	pPlot->SetImprovementPillaged(false);
+#endif
+#endif
 
 	// VFX
 	auto_ptr<ICvPlot1> pDllPlot(new CvDllPlot(pPlot));

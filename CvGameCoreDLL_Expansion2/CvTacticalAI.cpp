@@ -2064,8 +2064,8 @@ bool CvTacticalAI::PlotCaptureCityMoves()
 					iRequiredDamage = pCity->GetMaxHitPoints() - pCity->getDamage();
 					pTarget->SetAuxIntData(iRequiredDamage);
 					// If we have the city already down to minimum, don't use ranged... Only try to capture.
+					// This will never be true, as the city heals between turns!!!
 					bool bNoRangedUnits = (iRequiredDamage <= 1);
-					// TODO - WH - pretty sure that this will never be true, as the city heals between turns
 					if (bNoRangedUnits) CUSTOMLOG("City attack without ranged units");
 					if(FindUnitsWithinStrikingDistance(pPlot, 1, 0, bNoRangedUnits, false /*bNavalOnly*/, false /*bMustMoveThrough*/, true /*bIncludeBlockedUnits*/))
 					{
@@ -2177,8 +2177,8 @@ bool CvTacticalAI::PlotDamageCityMoves()
 					iRequiredDamage = pCity->GetMaxHitPoints() - pCity->getDamage();
 					pTarget->SetAuxIntData(iRequiredDamage);
 					// If we have the city already down to minimum, don't use ranged... Only try to capture.
+					// This will never be true, as the city heals between turns!!!
 					bool bNoRangedUnits = (iRequiredDamage <= 1);
-					// TODO - WH - pretty sure that this will never be true, as the city heals between turns
 					if (bNoRangedUnits) CUSTOMLOG("City attack without ranged units");
 					if(FindUnitsWithinStrikingDistance(pPlot, 1, 0, bNoRangedUnits, false /*bNavalOnly*/, false /*bMustMoveThrough*/, true /*bIncludeBlockedUnits*/))
 					{

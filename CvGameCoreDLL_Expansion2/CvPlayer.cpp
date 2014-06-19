@@ -16208,7 +16208,11 @@ void CvPlayer::changeConscriptCount(int iChange)
 //	--------------------------------------------------------------------------------
 int CvPlayer::getOverflowResearch() const
 {
+#if defined(MOD_BUGFIX_MINOR)
+	return getOverflowResearchTimes100() / 100;
+#else
 	return m_iOverflowResearch / 100;
+#endif
 }
 
 
@@ -25282,7 +25286,11 @@ void CvPlayer::createGreatGeneral(UnitTypes eGreatPersonUnit, int iX, int iY)
 	{
 		if(GET_PLAYER((PlayerTypes)iI).getTeam() == getTeam())
 		{
+#if defined(MOD_BUGFIX_MINOR)
+			GET_PLAYER((PlayerTypes)iI).changeGreatGeneralsThresholdModifier(/*50*/ GC.getGREAT_GENERALS_THRESHOLD_INCREASE_TEAM() * ((getGreatGeneralsCreated() / 10) + 1));
+#else
 			GET_PLAYER((PlayerTypes)iI).changeGreatGeneralsThresholdModifier(/*50*/ GC.getGREAT_GENERALS_THRESHOLD_INCREASE_TEAM() * ((getGreatPeopleCreated() / 10) + 1));
+#endif
 		}
 	}
 
@@ -25348,7 +25356,11 @@ void CvPlayer::createGreatAdmiral(UnitTypes eGreatPersonUnit, int iX, int iY)
 	{
 		if(GET_PLAYER((PlayerTypes)iI).getTeam() == getTeam())
 		{
+#if defined(MOD_BUGFIX_MINOR)
+			GET_PLAYER((PlayerTypes)iI).changeGreatAdmiralsThresholdModifier(/*50*/ GC.getGREAT_GENERALS_THRESHOLD_INCREASE_TEAM() * ((getGreatAdmiralsCreated() / 10) + 1));
+#else
 			GET_PLAYER((PlayerTypes)iI).changeGreatAdmiralsThresholdModifier(/*50*/ GC.getGREAT_GENERALS_THRESHOLD_INCREASE_TEAM() * ((getGreatPeopleCreated() / 10) + 1));
+#endif
 		}
 	}
 

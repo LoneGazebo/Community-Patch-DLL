@@ -3240,6 +3240,10 @@ bool CvPlayerTrade::PlunderTradeRoute(int iTradeConnectionID)
 		float fDelay = 0.0f;
 		DLLUI->AddPopupText(pPlunderPlot->getX(), pPlunderPlot->getY(), text, fDelay);
 		CvString strBuffer;
+
+#if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
+		strBuffer = GetLocalizedText("TXT_KEY_MISC_PLUNDERED_GOLD_FROM_IMP", iPlunderGoldValue, GC.getUnitInfo(GetTradeUnit(eDomain, m_pPlayer))->GetDescriptionKey());
+#else
 		if (eDomain == DOMAIN_LAND)
 		{
 			strBuffer = GetLocalizedText("TXT_KEY_MISC_PLUNDERED_GOLD_FROM_IMP", iPlunderGoldValue, "TXT_KEY_UNIT_CARAVAN");
@@ -3248,7 +3252,7 @@ bool CvPlayerTrade::PlunderTradeRoute(int iTradeConnectionID)
 		{
 			strBuffer = GetLocalizedText("TXT_KEY_MISC_PLUNDERED_GOLD_FROM_IMP", iPlunderGoldValue, "TXT_KEY_UNIT_CARGO_SHIP");
 		}
-
+#endif
 		
 		DLLUI->AddMessage(0, m_pPlayer->GetID(), true, GC.getEVENT_MESSAGE_TIME(), strBuffer);
 	}

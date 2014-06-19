@@ -412,10 +412,10 @@
 
 // Events sent about war and peace
 //   GameEvents.PlayerCanDeclareWar.Add(function(iPlayer, iAgainstTeam) return true end)
-//   GameEvents.IsAbleToDeclareWar.Add(function(iPlayer, iAgainstTeam) return true end)
+//   GameEvents.IsAbleToDeclareWar.Add(function(iPlayer, iAgainstTeam) return true end) - deprecated, use PlayerCanDeclareWar
 //   GameEvents.DeclareWar.Add(function(iPlayer, iAgainstTeam) end)
 //   GameEvents.PlayerCanMakePeace.Add(function(iPlayer, iAgainstTeam) return true end)
-//   GameEvents.IsAbleToMakePeace.Add(function(iPlayer, iAgainstTeam) return true end)
+//   GameEvents.IsAbleToMakePeace.Add(function(iPlayer, iAgainstTeam) return true end) - deprecated, use PlayerCanMakePeace
 //   GameEvents.MakePeace.Add(function(iPlayer, iAgainstTeam) end)
 #define MOD_EVENTS_WAR_AND_PEACE                    gCustomMods.isEVENTS_WAR_AND_PEACE()
 
@@ -426,7 +426,7 @@
 
 // Events sent about ideologies and tenets (v51)
 //   GameEvents.PlayerCanAdopyIdeology.Add(function(iPlayer, iIdeology) return true end)
-//   GameEvents.PlayerCanAdopyTenet.Add(function(iPlayer, iIdeology) return true end)
+//   GameEvents.PlayerCanAdopyTenet.Add(function(iPlayer, iTenet) return true end)
 #define MOD_EVENTS_IDEOLOGIES                       gCustomMods.isEVENTS_IDEOLOGIES()
 
 // Events sent by plots (v30)
@@ -654,6 +654,7 @@ enum TerraformingEventTypes {
 #define LUAAPIEXTN(method, type, ...) static int l##method(lua_State* L)
 #define LUAAPIIMPL(object, method) int CvLua##object::l##method(lua_State* L) { return BasicLuaMethod(L, &Cv##object::##method); }
 #define LUAAPIINLINE(method, hasMethod, type) inline bool method() const { return hasMethod(type); }
+
 
 // Game Event wrappers
 #include "Lua\CvLuaSupport.h"

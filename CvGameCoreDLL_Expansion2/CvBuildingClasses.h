@@ -233,6 +233,7 @@ public:
 	bool IsFreshWater() const;
 #if defined(MOD_API_EXTENSIONS)
 	bool IsAddsFreshWater() const;
+	bool IsPurchaseOnly() const;
 #endif
 	bool IsMountain() const;
 	bool IsHill() const;
@@ -475,6 +476,7 @@ private:
 	bool m_bFreshWater;
 #if defined(MOD_API_EXTENSIONS)
 	bool m_bAddsFreshWater;
+	bool m_bPurchaseOnly;
 #endif
 #if defined(MOD_BALANCE_CORE)
 	bool m_bIsNoWater;

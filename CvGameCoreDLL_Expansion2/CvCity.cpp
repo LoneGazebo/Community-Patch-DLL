@@ -343,6 +343,15 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	// remove the resource allocation from the current owner.  This would result in double resource points because
 	// the plot has already had setOwner called on it (above), giving the player the resource points.
 	pPlot->setImprovementType(NO_IMPROVEMENT);
+#if defined(MOD_BUGFIX_MINOR)
+#if defined(MOD_EVENTS_TILE_IMPROVEMENTS)
+	pPlot->SetImprovementPillaged(false, false);
+	pPlot->SetRoutePillaged(false, false);
+#else
+	pPlot->SetImprovementPillaged(false);
+	pPlot->SetRoutePillaged(false);
+#endif
+#endif
 	pPlot->setPlotCity(this);
 	pPlot->SetCityPurchaseID(m_iID);
 
@@ -468,7 +477,6 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	}
 #endif
 
-
 #if defined(MOD_API_EXTENSIONS)
 	// We do this here as changePopulation() sends a game event we may have caught to do funky renaming things
 	if (szName) {
@@ -495,6 +503,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 				}
 		}
 #endif
+
 		// Free resources under city?
 		for(int i = 0; i < GC.getNumResourceInfos(); i++)
 		{
@@ -2711,7 +2720,11 @@ bool CvCity::canTrain(UnitCombatTypes eUnitCombat) const
 
 
 //	--------------------------------------------------------------------------------
+#if defined(MOD_API_EXTENSIONS)
+bool CvCity::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestVisible, bool bIgnoreCost, bool bWillPurchase, CvString* toolTipSink) const
+#else
 bool CvCity::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestVisible, bool bIgnoreCost, CvString* toolTipSink) const
+#endif
 {
 	VALIDATE_OBJECT
 	BuildingTypes ePrereqBuilding;
@@ -2732,6 +2745,13 @@ bool CvCity::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestVis
 	{
 		return false;
 	}
+
+#if defined(MOD_API_EXTENSIONS)
+	if (!bWillPurchase && pkBuildingInfo->IsPurchaseOnly())
+	{
+		return false;
+	}
+#endif
 
 	if(m_pCityBuildings->GetNumBuilding(eBuilding) >= GC.getCITY_MAX_NUM_BUILDINGS())
 	{
@@ -6556,6 +6576,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			{
 				ChangeTerrainExtraYield(((TerrainTypes)iJ), eYield, (GC.getBuildingInfo(eBuilding)->GetTerrainYieldChange(iJ, eYield) * iChange));
 			}
+
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 			// Research agreements are not active, therefore this building now increases science yield by 25%
 			if(MOD_DIPLOMACY_CIV4_FEATURES && !GC.getGame().isOption(GAMEOPTION_RESEARCH_AGREEMENTS))
@@ -7145,6 +7166,7 @@ int CvCity::foodDifferenceTimes100(bool bBottom, CvString* toolTipSink) const
 				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_RELIGION", iReligionGrowthMod);
 			}
 		}
+
 		// Cities stop growing when empire is very unhappy
 		if(GET_PLAYER(getOwner()).IsEmpireVeryUnhappy())
 		{
@@ -8177,6 +8199,7 @@ int CvCity::getJONSCulturePerTurn() const
 		iModifier += GET_PLAYER(getOwner()).GetLeagueCultureCityModifier();
 	}
 #endif
+
 	iCulture *= iModifier;
 	iCulture /= 100;
 
@@ -9906,6 +9929,7 @@ TeamTypes CvCity::getTeam() const
 	VALIDATE_OBJECT
 	return GET_PLAYER(getOwner()).getTeam();
 }
+
 
 //	--------------------------------------------------------------------------------
 int CvCity::getSeaPlotYield(YieldTypes eIndex) const
@@ -13497,7 +13521,11 @@ bool CvCity::IsCanPurchase(bool bTestPurchaseCost, bool bTestTrainable, UnitType
 		// Building
 		else if(eBuildingType != NO_BUILDING)
 		{
+#if defined(MOD_API_EXTENSIONS)
+			if(!canConstruct(eBuildingType, false, !bTestTrainable, false /*bIgnoreCost*/, true /*bWillPurchase*/))
+#else
 			if(!canConstruct(eBuildingType, false, !bTestTrainable))
+#endif
 			{
 				bool bAlreadyUnderConstruction = canConstruct(eBuildingType, true, !bTestTrainable) && getFirstBuildingOrder(eBuildingType) != -1;
 				if(!bAlreadyUnderConstruction)
@@ -13632,8 +13660,15 @@ bool CvCity::IsCanPurchase(bool bTestPurchaseCost, bool bTestTrainable, UnitType
 				{
 					return false;
 				}
+#if defined(MOD_BUGFIX_MINOR)
+			}
+#endif
 
+#if defined(MOD_API_EXTENSIONS)
+				if(!canConstruct(eBuildingType, false, !bTestTrainable, true /*bIgnoreCost*/, true /*bWillPurchase*/))
+#else
 				if(!canConstruct(eBuildingType, false, !bTestTrainable, true /*bIgnoreCost*/))
+#endif
 				{
 					return false;
 				}
@@ -13678,7 +13713,9 @@ bool CvCity::IsCanPurchase(bool bTestPurchaseCost, bool bTestTrainable, UnitType
 						}
 					}
 				}
+#if !defined(MOD_BUGFIX_MINOR)
 			}
+#endif
 
 			iFaithCost = GetFaithPurchaseCost(eBuildingType);
 			if(iFaithCost < 1) return false;
