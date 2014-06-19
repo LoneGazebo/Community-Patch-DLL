@@ -580,8 +580,8 @@ protected:
 	LUAAPIEXTN(GetJerk, int);
 #endif
 #if defined(MOD_BALANCE_CORE)
-LUAAPIEXTN(GetNumDenouncements, int);
-LUAAPIEXTN(GetNumDenouncementsOfPlayer, int);
+	LUAAPIEXTN(GetNumDenouncements, int);
+	LUAAPIEXTN(GetNumDenouncementsOfPlayer, int);
 #endif
 	static int lGetMinorCivFriendshipLevelWithMajor(lua_State* L);
 	static int lGetActiveQuestForPlayer(lua_State* L); // DEPRECATED

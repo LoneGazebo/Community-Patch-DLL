@@ -2044,6 +2044,9 @@ void CvTeamTechs::SetResearchProgressTimes100(TechTypes eIndex, int iNewValue, P
 /// Accessor: get research done on one tech
 int CvTeamTechs::GetResearchProgress(TechTypes eIndex) const
 {
+#if defined(MOD_BUGFIX_MINOR)
+	return GetResearchProgressTimes100(eIndex) / 100;
+#else
 	if(eIndex != NO_TECH)
 	{
 		return m_paiResearchProgress[eIndex] / 100;
@@ -2052,6 +2055,7 @@ int CvTeamTechs::GetResearchProgress(TechTypes eIndex) const
 	{
 		return 0;
 	}
+#endif
 }
 
 /// Accessor: get research done on one tech (in hundredths)

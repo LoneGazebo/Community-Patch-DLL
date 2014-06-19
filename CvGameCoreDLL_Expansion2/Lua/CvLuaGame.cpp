@@ -3096,9 +3096,24 @@ int CvLuaGame::lSpewTestEvents(lua_State* L)
 {
 	const int iLimit = luaL_optint(L, 1, 1000);
 
+	int iValue = -32767;
 	const ULONGLONG startTick = GetTickCount64();
 
-	for (int i = 0; i < iLimit; ++i) {
+	if (iLimit > 0) {
+		for (int i = 0; i < iLimit; ++i) {
+			ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+			if (pkScriptSystem) {
+				CvLuaArgsHandle args;
+				args->Push(-1);
+				args->Push(-1);
+				args->Push(-1);
+				args->Push(-1);
+
+				bool bResult;
+				LuaSupport::CallHook(pkScriptSystem, "TestEvent", args.get(), bResult);
+			}
+		}
+	} else {
 		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
 		if (pkScriptSystem) {
 			CvLuaArgsHandle args;
@@ -3107,8 +3122,7 @@ int CvLuaGame::lSpewTestEvents(lua_State* L)
 			args->Push(-1);
 			args->Push(-1);
 
-			bool bResult;
-			LuaSupport::CallHook(pkScriptSystem, "TestEvent", args.get(), bResult);
+			LuaSupport::CallAccumulator(pkScriptSystem, "TestAccumulator", args.get(), iValue);
 		}
 	}
 
@@ -3116,7 +3130,8 @@ int CvLuaGame::lSpewTestEvents(lua_State* L)
 
 	lua_pushinteger(L, ((int) (endTick - startTick) / 1000));
 	lua_pushinteger(L, ((int) (endTick - startTick) % 1000));
-	return 2;
+	lua_pushinteger(L, iValue);
+	return 3;
 }
 #endif
 

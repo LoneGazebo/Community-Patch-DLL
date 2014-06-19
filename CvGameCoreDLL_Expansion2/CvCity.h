@@ -114,7 +114,11 @@ public:
 
 	bool canTrain(UnitTypes eUnit, bool bContinue = false, bool bTestVisible = false, bool bIgnoreCost = false, bool bWillPurchase = false, CvString* toolTipSink = NULL) const;
 	bool canTrain(UnitCombatTypes eUnitCombat) const;
+#if defined(MOD_API_EXTENSIONS)
+	bool canConstruct(BuildingTypes eBuilding, bool bContinue = false, bool bTestVisible = false, bool bIgnoreCost = false, bool bWillPurchase = false, CvString* toolTipSink = NULL) const;
+#else
 	bool canConstruct(BuildingTypes eBuilding, bool bContinue = false, bool bTestVisible = false, bool bIgnoreCost = false, CvString* toolTipSink = NULL) const;
+#endif
 	bool canCreate(ProjectTypes eProject, bool bContinue = false, bool bTestVisible = false) const;
 	bool canPrepare(SpecialistTypes eSpecialist, bool bContinue = false) const;
 	bool canMaintain(ProcessTypes eProcess, bool bContinue = false) const;
