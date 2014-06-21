@@ -4115,12 +4115,18 @@ void CvTeam::EvacuateDiplomatsAtTeam(TeamTypes eIndex)
 						if(pNotifications)
 						{
 							CvPlayerEspionage* pEspionage = GET_PLAYER(ePlayer1).GetEspionage();
+#if !defined(MOD_BUGFIX_SPY_NAMES)
 							int iSpyName = pEspionage->m_aSpyList[iSpyIndex].m_iName;
+#endif
 							CvSpyRank eSpyRank = pEspionage->m_aSpyList[iSpyIndex].m_eRank;
 							Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_DIPLOMAT_EJECTED");
 							Localization::String strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_DIPLOMAT_EJECTED_TT");
 							strNotification << pEspionage->GetSpyRankName(eSpyRank);
+#if defined(MOD_BUGFIX_SPY_NAMES)
+							strNotification << pEspionage->m_aSpyList[iSpyIndex].GetSpyName(&GET_PLAYER(ePlayer1));
+#else
 							strNotification << GET_PLAYER(ePlayer1).getCivilizationInfo().getSpyNames(iSpyName);
+#endif
 							strNotification << pCapitalCity->getNameKey();
 							pNotifications->Add(NOTIFICATION_SPY_CANT_STEAL_TECH, strNotification.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
 						}

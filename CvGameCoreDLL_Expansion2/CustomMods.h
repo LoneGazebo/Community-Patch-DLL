@@ -509,6 +509,8 @@
 
 // Minor bug fixes (missing catch-all else clauses, etc) (v30 onwards)
 #define MOD_BUGFIX_MINOR 							(true)
+// Fixes the spy name crash (v53)
+#define MOD_BUGFIX_SPY_NAMES                        (true)
 // Fixes the research overflow bug/exploit (v52)
 #define MOD_BUGFIX_RESEARCH_OVERFLOW                gCustomMods.isBUGFIX_RESEARCH_OVERFLOW()
 // Fixes the bug where a city doesn't work its centre tile (v45)
