@@ -2625,9 +2625,14 @@ int CvDiplomacyAI::GetMajorCivOpinionWeight(PlayerTypes ePlayer)
 	//////////////////////////////////////
 	// SCENARIO-SPECIFIC
 	//////////////////////////////////////
+#if defined(MOD_EVENTS_DIPLO_MODIFIERS)
+	std::vector<Opinion> aOpinions;
+	iOpinionWeight += GetDiploModifiers(ePlayer, aOpinions);
+#else
 	iOpinionWeight += GetScenarioModifier1(ePlayer);
 	iOpinionWeight += GetScenarioModifier2(ePlayer);
 	iOpinionWeight += GetScenarioModifier3(ePlayer);
+#endif
 
 	return iOpinionWeight;
 }
@@ -23433,6 +23438,86 @@ int CvDiplomacyAI::GetSupportedMyHostingScore(PlayerTypes ePlayer)
 	}
 	return iOpinionWeight;
 }
+
+#if defined(MOD_EVENTS_DIPLO_MODIFIERS)
+int CvDiplomacyAI::GetDiploModifiers(PlayerTypes eToPlayer, std::vector<Opinion>& aOpinions)
+{
+	int iValue = 0;
+	
+	if (MOD_EVENTS_DIPLO_MODIFIERS)
+	{
+		PlayerTypes eFromPlayer = m_pPlayer->GetID();
+		CivilizationTypes eFromCiv = m_pPlayer->getCivilizationType();
+		
+		CvPlayer* pToPlayer = &GET_PLAYER(eToPlayer);
+		CivilizationTypes eToCiv = pToPlayer->getCivilizationType();
+		
+		
+		for (int iI = 0; iI < GC.getNumDiploModifierInfos(); iI++) {
+			CvDiploModifierInfo* pDiploModifierInfo = GC.getDiploModifierInfo((DiploModifierTypes) iI);
+			
+			if (pDiploModifierInfo && pDiploModifierInfo->isForFromCiv(eFromCiv) && pDiploModifierInfo->isForToCiv(eToCiv)) {
+				int iModifier = 0;
+				
+				if (GAMEEVENTINVOKE_VALUE(iModifier, GAMEEVENT_GetDiploModifier, pDiploModifierInfo->GetID(), eFromPlayer, eToPlayer) == GAMEEVENTRETURN_VALUE) {
+					if (iModifier != 0) {
+						iValue += iModifier;
+		
+						Opinion kOpinion;
+						kOpinion.m_iValue = iModifier;
+						Localization::String strOpinion = Localization::Lookup(pDiploModifierInfo->GetDescriptionKey());
+						strOpinion << iModifier;
+						strOpinion << m_pPlayer->getName();
+						strOpinion << m_pPlayer->getCivilizationDescription();
+						strOpinion << pToPlayer->getName();
+						strOpinion << pToPlayer->getCivilizationDescription();
+
+						kOpinion.m_str = strOpinion.toUTF8();
+						aOpinions.push_back(kOpinion);
+					}
+				}
+			}
+		}
+	} else {
+		int iModifier;
+
+		iModifier = GetScenarioModifier1(eToPlayer);
+		if (iModifier != 0) {
+			iValue += iModifier;
+		
+			Opinion kOpinion;
+			kOpinion.m_iValue = iModifier;
+			Localization::String strOpinion = Localization::Lookup("TXT_KEY_SPECIFIC_DIPLO_STRING_1");
+			kOpinion.m_str = strOpinion.toUTF8();
+			aOpinions.push_back(kOpinion);
+		}
+	
+		iModifier = GetScenarioModifier2(eToPlayer);
+		if (iModifier != 0) {
+			iValue += iModifier;
+		
+			Opinion kOpinion;
+			kOpinion.m_iValue = iModifier;
+			Localization::String strOpinion = Localization::Lookup("TXT_KEY_SPECIFIC_DIPLO_STRING_2");
+			kOpinion.m_str = strOpinion.toUTF8();
+			aOpinions.push_back(kOpinion);
+		}
+
+		iModifier = GetScenarioModifier3(eToPlayer);
+		if (iModifier != 0) {
+			iValue += iModifier;
+		
+			Opinion kOpinion;
+			kOpinion.m_iValue = iModifier;
+			Localization::String strOpinion = Localization::Lookup("TXT_KEY_SPECIFIC_DIPLO_STRING_3");
+			kOpinion.m_str = strOpinion.toUTF8();
+			aOpinions.push_back(kOpinion);
+		}
+	}
+	
+	return iValue;
+}
+#endif
 
 int CvDiplomacyAI::GetScenarioModifier1(PlayerTypes ePlayer)
 {
