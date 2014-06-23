@@ -23443,6 +23443,40 @@ int CvDiplomacyAI::GetSupportedMyHostingScore(PlayerTypes ePlayer)
 int CvDiplomacyAI::GetDiploModifiers(PlayerTypes eToPlayer, std::vector<Opinion>& aOpinions)
 {
 	int iValue = 0;
+	int iModifier;
+
+	iModifier = GetScenarioModifier1(eToPlayer);
+	if (iModifier != 0) {
+		iValue += iModifier;
+		
+		Opinion kOpinion;
+		kOpinion.m_iValue = iModifier;
+		Localization::String strOpinion = Localization::Lookup("TXT_KEY_SPECIFIC_DIPLO_STRING_1");
+		kOpinion.m_str = strOpinion.toUTF8();
+		aOpinions.push_back(kOpinion);
+	}
+	
+	iModifier = GetScenarioModifier2(eToPlayer);
+	if (iModifier != 0) {
+		iValue += iModifier;
+		
+		Opinion kOpinion;
+		kOpinion.m_iValue = iModifier;
+		Localization::String strOpinion = Localization::Lookup("TXT_KEY_SPECIFIC_DIPLO_STRING_2");
+		kOpinion.m_str = strOpinion.toUTF8();
+		aOpinions.push_back(kOpinion);
+	}
+
+	iModifier = GetScenarioModifier3(eToPlayer);
+	if (iModifier != 0) {
+		iValue += iModifier;
+		
+		Opinion kOpinion;
+		kOpinion.m_iValue = iModifier;
+		Localization::String strOpinion = Localization::Lookup("TXT_KEY_SPECIFIC_DIPLO_STRING_3");
+		kOpinion.m_str = strOpinion.toUTF8();
+		aOpinions.push_back(kOpinion);
+	}
 	
 	if (MOD_EVENTS_DIPLO_MODIFIERS)
 	{
@@ -23457,7 +23491,7 @@ int CvDiplomacyAI::GetDiploModifiers(PlayerTypes eToPlayer, std::vector<Opinion>
 			CvDiploModifierInfo* pDiploModifierInfo = GC.getDiploModifierInfo((DiploModifierTypes) iI);
 			
 			if (pDiploModifierInfo && pDiploModifierInfo->isForFromCiv(eFromCiv) && pDiploModifierInfo->isForToCiv(eToCiv)) {
-				int iModifier = 0;
+				iModifier = 0;
 				
 				if (GAMEEVENTINVOKE_VALUE(iModifier, GAMEEVENT_GetDiploModifier, pDiploModifierInfo->GetID(), eFromPlayer, eToPlayer) == GAMEEVENTRETURN_VALUE) {
 					if (iModifier != 0) {
@@ -23477,41 +23511,6 @@ int CvDiplomacyAI::GetDiploModifiers(PlayerTypes eToPlayer, std::vector<Opinion>
 					}
 				}
 			}
-		}
-	} else {
-		int iModifier;
-
-		iModifier = GetScenarioModifier1(eToPlayer);
-		if (iModifier != 0) {
-			iValue += iModifier;
-		
-			Opinion kOpinion;
-			kOpinion.m_iValue = iModifier;
-			Localization::String strOpinion = Localization::Lookup("TXT_KEY_SPECIFIC_DIPLO_STRING_1");
-			kOpinion.m_str = strOpinion.toUTF8();
-			aOpinions.push_back(kOpinion);
-		}
-	
-		iModifier = GetScenarioModifier2(eToPlayer);
-		if (iModifier != 0) {
-			iValue += iModifier;
-		
-			Opinion kOpinion;
-			kOpinion.m_iValue = iModifier;
-			Localization::String strOpinion = Localization::Lookup("TXT_KEY_SPECIFIC_DIPLO_STRING_2");
-			kOpinion.m_str = strOpinion.toUTF8();
-			aOpinions.push_back(kOpinion);
-		}
-
-		iModifier = GetScenarioModifier3(eToPlayer);
-		if (iModifier != 0) {
-			iValue += iModifier;
-		
-			Opinion kOpinion;
-			kOpinion.m_iValue = iModifier;
-			Localization::String strOpinion = Localization::Lookup("TXT_KEY_SPECIFIC_DIPLO_STRING_3");
-			kOpinion.m_str = strOpinion.toUTF8();
-			aOpinions.push_back(kOpinion);
 		}
 	}
 	
