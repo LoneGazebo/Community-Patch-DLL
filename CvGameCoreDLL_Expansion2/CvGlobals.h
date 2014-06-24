@@ -398,6 +398,12 @@ public:
 	std::vector<CvGameSpeedInfo*>& getGameSpeedInfo();
 	_Ret_maybenull_ CvGameSpeedInfo* getGameSpeedInfo(GameSpeedTypes eGameSpeedNum);
 
+#if defined(MOD_EVENTS_DIPLO_MODIFIERS)
+	int getNumDiploModifierInfos();
+	std::vector<CvDiploModifierInfo*>& getDiploModifierInfo();
+	_Ret_maybenull_ CvDiploModifierInfo* getDiploModifierInfo(DiploModifierTypes eDiploModifierNum);
+#endif
+
 	int getNumProcessInfos();
 	std::vector<CvProcessInfo*>& getProcessInfo();
 	CvProcessInfo* getProcessInfo(ProcessTypes e);
@@ -8361,6 +8367,9 @@ protected:
 	std::vector<CvBuildInfo*> m_paBuildInfo;
 	std::vector<CvHandicapInfo*> m_paHandicapInfo;
 	std::vector<CvGameSpeedInfo*> m_paGameSpeedInfo;
+#if defined(MOD_EVENTS_DIPLO_MODIFIERS)
+	std::vector<CvDiploModifierInfo*> m_paDiploModifierInfo;
+#endif
 	std::vector<CvTurnTimerInfo*> m_paTurnTimerInfo;
 	std::vector<CvCivilizationInfo*> m_paCivilizationInfo;
 	int m_iNumPlayableCivilizationInfos;

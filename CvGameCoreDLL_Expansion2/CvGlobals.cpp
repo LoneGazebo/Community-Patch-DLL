@@ -3331,6 +3331,29 @@ CvGameSpeedInfo* CvGlobals::getGameSpeedInfo(GameSpeedTypes eGameSpeedNum)
 		return NULL;
 }
 
+#if defined(MOD_EVENTS_DIPLO_MODIFIERS)
+int CvGlobals::getNumDiploModifierInfos()
+{
+	return (int)m_paDiploModifierInfo.size();
+}
+
+std::vector<CvDiploModifierInfo*>& CvGlobals::getDiploModifierInfo()
+{
+	return m_paDiploModifierInfo;
+}
+
+CvDiploModifierInfo* CvGlobals::getDiploModifierInfo(DiploModifierTypes eDiploModifierNum)
+{
+	CvAssert(eDiploModifierNum > -1);
+	CvAssert(eDiploModifierNum < GC.getNumDiploModifierInfos());
+	if(eDiploModifierNum > -1 && eDiploModifierNum < (int)m_paDiploModifierInfo.size())
+		return m_paDiploModifierInfo[eDiploModifierNum];
+	else
+		return NULL;
+}
+
+#endif
+
 int CvGlobals::getNumProcessInfos()
 {
 	return (int)m_paProcessInfo.size();
@@ -6426,6 +6449,9 @@ void CvGlobals::deleteInfoArrays()
 	deleteInfoArray(m_paVoteSourceInfo);
 	deleteInfoArray(m_paHandicapInfo);
 	deleteInfoArray(m_paGameSpeedInfo);
+#if defined(MOD_EVENTS_DIPLO_MODIFIERS)
+	deleteInfoArray(m_paDiploModifierInfo);
+#endif
 	deleteInfoArray(m_paTurnTimerInfo);
 	deleteInfoArray(m_paVictoryInfo);
 	deleteInfoArray(m_paSmallAwardInfo);
