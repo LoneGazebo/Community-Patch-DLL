@@ -11181,7 +11181,11 @@ int CvLuaPlayer::lGetEspionageSpies(lua_State* L)
 		lua_pushinteger(L, pSpy->m_iCityY);
 		lua_setfield(L, t, "CityY");
 
+#if defined(MOD_BUGFIX_SPY_NAMES)
+		const char* szSpyName = pSpy->GetSpyName(pkThisPlayer);
+#else
 		const char* szSpyName = pkThisPlayer->getCivilizationInfo().getSpyNames(pSpy->m_iName);
+#endif
 		lua_pushstring(L, szSpyName);
 		lua_setfield(L, t, "Name");
 
