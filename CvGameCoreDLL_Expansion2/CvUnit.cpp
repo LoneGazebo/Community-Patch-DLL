@@ -2945,10 +2945,23 @@ bool CvUnit::canMoveInto(const CvPlot& plot, byte bMoveFlags) const
 	}
 
 	// Barbarians have special restrictions early in the game
-	if(isBarbarian() && (GC.getGame().getGameTurn() < GC.getGame().GetBarbarianReleaseTurn()) && (plot.isOwned()))
+#ifdef MOD_ANIMAL_BEHAVIOR		// Paz - Animals don't enter enemy owned lands, but can enter non enemy lands
+	if (isBarbarian() && (plot.isOwned()))
+	{
+		if (getOwner() == ANIMAL_PLAYER)
+		{
+			if (GET_TEAM(ANIMAL_TEAM).isAtWar(GET_PLAYER(plot.getOwner()).getTeam()))
+				return false;
+		}
+		else if (GC.getGame().getGameTurn() < GC.getGame().GetBarbarianReleaseTurn())
+			return false;
+	}
+#else
+	if (isBarbarian() && (GC.getGame().getGameTurn() < GC.getGame().GetBarbarianReleaseTurn()) && (plot.isOwned()))
 	{
 		return false;
 	}
+#endif
 
 	// Added in Civ 5: Destination plots can't allow stacked Units of the same type
 #if defined(MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS)
@@ -6550,6 +6563,11 @@ bool CvUnit::changeAdmiralPort(int iX, int iY)
 //	--------------------------------------------------------------------------------
 bool CvUnit::canPlunderTradeRoute(const CvPlot* pPlot, bool bOnlyTestVisibility) const
 {
+#ifdef MOD_ANIMAL_BEHAVIOR
+	if (getOwner() == ANIMAL_PLAYER)
+		return false;
+#endif
+
 	if (!IsCombatUnit())
 	{
 		return false;

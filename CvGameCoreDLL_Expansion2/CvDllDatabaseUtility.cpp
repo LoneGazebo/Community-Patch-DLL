@@ -262,6 +262,12 @@ bool CvDllDatabaseUtility::PerformDatabasePostProcessing()
 		InsertGameDefine(kInsertDefine, "MAX_MINOR_CIVS", MAX_MINOR_CIVS);
 		InsertGameDefine(kInsertDefine, "MAX_PLAYERS", MAX_PLAYERS);
 		InsertGameDefine(kInsertDefine, "MAX_TEAMS", MAX_TEAMS);
+#ifdef MOD_BARB_ENHANCED
+		InsertGameDefine(kInsertDefine, "ANIMAL_PLAYER", ANIMAL_PLAYER);
+		InsertGameDefine(kInsertDefine, "ANIMAL_TEAM", ANIMAL_TEAM);
+		InsertGameDefine(kInsertDefine, "NUM_NEW_BARBARIAN_PLAYERS", NUM_NEW_BARBARIAN_PLAYERS);
+		InsertGameDefine(kInsertDefine, "NUM_NEW_BARBARIAN_TEAMS", NUM_NEW_BARBARIAN_TEAMS);
+#endif
 		InsertGameDefine(kInsertDefine, "BARBARIAN_PLAYER", BARBARIAN_PLAYER);
 		InsertGameDefine(kInsertDefine, "BARBARIAN_TEAM", BARBARIAN_TEAM);
 

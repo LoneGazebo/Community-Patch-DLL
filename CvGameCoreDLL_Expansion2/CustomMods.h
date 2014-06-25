@@ -295,6 +295,17 @@
 #define MOD_AI_SMART_MELEE_TACTICS                  (MOD_AI_SMART && gCustomMods.isAI_SMART_MELEE_TACTICS())
 #endif
 
+// Barbarians Enhanced
+#define MOD_BARB_ENHANCED							gCustomMods.isMOD_BARB_ENHANCED()
+// Animal player support:					! Mod must add CIVILIZATION_ANIMALS in Civilizations and ANIMALS_CIVILIZATION in PostDefines !
+#if defined(MOD_BARB_ENHANCED)
+#define MOD_NUM_NEW_BARBS
+#define MOD_ANIMAL_PLAYER					// Add as player 62 (define ANIMAL_PLAYER, ANIMAL_TEAM enums); all spawning logic on Lua side	
+#define MOD_ANIMAL_BEHAVIOR					// Don't enter enemy borders; don't pillage trade route
+#define MOD_ANIMAL_THREAT_ADJUSTMENTS		// NOT IMPLEMENTED YET! AI don't worry about animals if inside borders
+//#define MOD_ALLOW_REDUNDANT_BARB_PLAYER_COLOR	// DEPRECIATED
+#endif
+
 // Events sent when terraforming occurs (v33)
 //   GameEvents.TerraformingMap.Add(function(iEvent, iLoad) end)
 //   GameEvents.TerraformingPlot.Add(function(iEvent, iPlotX, iPlotY, iInfo, iNewValue, iOldValue, iNewExtra, iOldExtra) end)

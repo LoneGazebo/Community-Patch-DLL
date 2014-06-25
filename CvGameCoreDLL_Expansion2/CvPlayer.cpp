@@ -4165,7 +4165,11 @@ bool CvPlayer::isObserver() const
 //	--------------------------------------------------------------------------------
 bool CvPlayer::isBarbarian() const
 {
+#ifdef MOD_BARB_ENHANCED
+	return (GetID() == BARBARIAN_PLAYER || GetID() == ANIMAL_PLAYER || GetID() == BARBARIAN_PLAYER2 || GetID() == BARBARIAN_PLAYER3 || GetID() == BARBARIAN_PLAYER4 || GetID() == BARBARIAN_PLAYER5 || GetID() == BARBARIAN_PLAYER6 || GetID() == BARBARIAN_PLAYER7 || GetID() == BARBARIAN_PLAYER8 || GetID() == BARBARIAN_PLAYER9 || GetID() == BARBARIAN_PLAYER10 || GetID() == BARBARIAN_PLAYER11 || GetID() == BARBARIAN_PLAYER12);
+#else
 	return (GetID() == BARBARIAN_PLAYER);
+#endif
 }
 
 //	--------------------------------------------------------------------------------
