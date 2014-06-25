@@ -3675,6 +3675,87 @@ FDataStream& operator>>(FDataStream& loadFrom, CvTurnTimerInfo& writeTo)
 	return loadFrom;
 }
 
+
+#if defined(MOD_EVENTS_DIPLO_MODIFIERS)
+//======================================================================================================
+//					CvDiploModifierInfo
+//======================================================================================================
+CvDiploModifierInfo::CvDiploModifierInfo() :
+	m_eFromCiv(NO_CIVILIZATION),
+	m_eToCiv(NO_CIVILIZATION)
+{}
+//------------------------------------------------------------------------------
+bool CvDiploModifierInfo::isForFromCiv(CivilizationTypes eFromCiv)
+{
+	return (m_eFromCiv == NO_CIVILIZATION || m_eFromCiv == eFromCiv);
+}
+//------------------------------------------------------------------------------
+bool CvDiploModifierInfo::isForToCiv(CivilizationTypes eToCiv)
+{
+	return (m_eToCiv == NO_CIVILIZATION || m_eToCiv == eToCiv);
+}
+//------------------------------------------------------------------------------
+bool CvDiploModifierInfo::CacheResults(Database::Results& results, CvDatabaseUtility& kUtility)
+{
+	if(CvBaseInfo::CacheResults(results, kUtility))
+	{
+		const char* szTextVal = NULL;
+
+		szTextVal = results.GetText("FromCivilizationType");
+		m_eFromCiv = (CivilizationTypes) GC.getInfoTypeForString(szTextVal, true);
+
+		szTextVal = results.GetText("ToCivilizationType");
+		m_eToCiv = (CivilizationTypes) GC.getInfoTypeForString(szTextVal, true);
+
+		return true;
+	}
+
+	return false;
+}
+
+bool CvDiploModifierInfo::operator==(const CvDiploModifierInfo& rhs) const
+{
+	if(this == &rhs) return true;
+	if(!CvBaseInfo::operator==(rhs)) return false;
+	if(m_eFromCiv != rhs.m_eFromCiv) return false;
+	if(m_eToCiv != rhs.m_eToCiv) return false;
+	return true;
+}
+
+void CvDiploModifierInfo::writeTo(FDataStream& saveTo) const
+{
+	CvBaseInfo::writeTo(saveTo);
+
+	MOD_SERIALIZE_INIT_WRITE(saveTo);
+
+	MOD_SERIALIZE_WRITE(saveTo, m_eFromCiv);
+	MOD_SERIALIZE_WRITE(saveTo, m_eToCiv);
+}
+
+void CvDiploModifierInfo::readFrom(FDataStream& loadFrom)
+{
+	CvBaseInfo::readFrom(loadFrom);
+
+	MOD_SERIALIZE_INIT_READ(loadFrom);
+
+	MOD_SERIALIZE_READ(53, loadFrom, m_eFromCiv, NO_CIVILIZATION);
+	MOD_SERIALIZE_READ(53, loadFrom, m_eToCiv, NO_CIVILIZATION);
+}
+
+FDataStream& operator<<(FDataStream& saveTo, const CvDiploModifierInfo& readFrom)
+{
+	readFrom.writeTo(saveTo);
+	return saveTo;
+}
+
+FDataStream& operator>>(FDataStream& loadFrom, CvDiploModifierInfo& writeTo)
+{
+	writeTo.readFrom(loadFrom);
+	return loadFrom;
+}
+#endif
+
+
 //======================================================================================================
 //					CvBuildInfo
 //======================================================================================================

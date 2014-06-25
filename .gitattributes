@@ -7,3 +7,6 @@
 *.ico       -text
 *.vcxproj 	eol=crlf
 *.filters	eol=crlf
+*.lua		eol=crlf
+*.xml		eol=crlf
+*.sql		eol=crlf

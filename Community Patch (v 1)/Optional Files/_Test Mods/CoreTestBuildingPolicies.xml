@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created by ModBuddy on 6/10/2014 11:59:18 PM -->
+<GameData>
+	<Table name="Policy_FreeBuilding">
+		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
+		<Column name="BuildingClassType" type="text" reference="BuildingClasses(Type)"/>
+		<Column name="Count" type="integer"/>
+	</Table>
+	<Policy_FreeBuilding>
+		<Row>
+			<PolicyType>POLICY_PIETY</PolicyType>
+			<BuildingClassType>BUILDINGCLASS_SHRINE</BuildingClassType>
+			<Count>4</Count>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_WARRIOR_CODE</PolicyType>
+			<BuildingClassType>BUILDINGCLASS_BARRACKS</BuildingClassType>
+			<Count>2</Count>
+		</Row>
+	</Policy_FreeBuilding>
+	<Policy_CityYieldChanges>
+		<Row>
+			<PolicyType>POLICY_CULTURAL_CENTERS</PolicyType>
+			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
+			<Yield>3</Yield>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_MILITARY_TRADITION</PolicyType>
+			<YieldType>YIELD_GREAT_GENERAL_POINTS</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_NAVAL_TRADITION</PolicyType>
+			<YieldType>YIELD_GREAT_ADMIRAL_POINTS</YieldType>
+			<Yield>1</Yield>
+		</Row>
+	</Policy_CityYieldChanges>
+</GameData>

@@ -331,8 +331,12 @@
 #define MOD_EVENTS_NW_DISCOVERY                     gCustomMods.isEVENTS_NW_DISCOVERY()
 
 // Event sent during Game.DoFromUIDiploEvent, see also DiscussionDialog.lua
-//   GameEvents.UiDiploEvent.Add(function(eEvent, eAIPlayer, iArg1, iArg2) end)
+//   GameEvents.UiDiploEvent.Add(function(iEvent, iAIPlayer, iArg1, iArg2) end)
 #define MOD_EVENTS_DIPLO_EVENTS                     gCustomMods.isEVENTS_DIPLO_EVENTS()
+
+// Enhanced Diplomacy Modifiers events (v53)
+//   GameEvents.GetDiploModifier.Add(function(iEvent, iFromPlayer, iToPlayer) return 0 end)
+#define MOD_EVENTS_DIPLO_MODIFIERS                  gCustomMods.isEVENTS_DIPLO_MODIFIERS()
 
 // Events sent on status change with City States
 //   GameEvents.MinorFriendsChanged.Add(function(iMinor, iMajor, bIsFriend, iOldFriendship, iNewFriendship) end)
@@ -520,6 +524,8 @@
 
 // Minor bug fixes (missing catch-all else clauses, etc) (v30 onwards)
 #define MOD_BUGFIX_MINOR 							(true)
+// Fixes the spy name crash (v53)
+#define MOD_BUGFIX_SPY_NAMES                        (true)
 // Fixes the research overflow bug/exploit (v52)
 #define MOD_BUGFIX_RESEARCH_OVERFLOW                gCustomMods.isBUGFIX_RESEARCH_OVERFLOW()
 // Fixes the bug where a city doesn't work its centre tile (v45)
@@ -711,6 +717,7 @@ enum TerraformingEventTypes {
 #define GAMEEVENT_CustomMissionTargetPlot	"CustomMissionTargetPlot",		"iiiiiii"
 #define GAMEEVENT_CustomMissionTimerInc		"CustomMissionTimerInc",		"iiiiiii"
 #define GAMEEVENT_DeclareWar				"DeclareWar",					"ii"
+#define GAMEEVENT_GetDiploModifier			"GetDiploModifier",				"iii"
 #define GAMEEVENT_GetBombardRange			"GetBombardRange",				"ii"
 #define GAMEEVENT_GetReligionToFound		"GetReligionToFound",			"iib"
 #define GAMEEVENT_GoodyHutCanNotReceive		"GoodyHutCanNotReceive",		"iiib"
@@ -974,6 +981,7 @@ public:
 	MOD_OPT_DECL(EVENTS_NEW_ERA);
 	MOD_OPT_DECL(EVENTS_NW_DISCOVERY);
 	MOD_OPT_DECL(EVENTS_DIPLO_EVENTS);
+	MOD_OPT_DECL(EVENTS_DIPLO_MODIFIERS);
 	MOD_OPT_DECL(EVENTS_MINORS);
 	MOD_OPT_DECL(EVENTS_GOODY_CHOICE);
 	MOD_OPT_DECL(EVENTS_GOODY_TECH);

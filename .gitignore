@@ -7,3 +7,7 @@
 !*.vcxproj
 !*.filters
 !*.gitattributes
+!*.xml
+!*.sql
+!*.lua
+!*.civ5mod

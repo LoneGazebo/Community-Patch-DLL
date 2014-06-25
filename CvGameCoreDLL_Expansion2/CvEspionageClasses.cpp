@@ -32,6 +32,9 @@ PlayerTypes g_eSortPlayer = NO_PLAYER; // global - used for the sort
 /// Default Constructor
 CvEspionageSpy::CvEspionageSpy()
 	: m_iName(-1)
+#if defined(MOD_BUGFIX_SPY_NAMES)
+	, m_sName(NULL)
+#endif
 	, m_eRank(NUM_SPY_RANKS)
 	, m_iCityX(-1)
 	, m_iCityY(-1)
@@ -45,6 +48,21 @@ CvEspionageSpy::CvEspionageSpy()
 {
 }
 
+#if defined(MOD_BUGFIX_SPY_NAMES)
+const char* CvEspionageSpy::GetSpyName(CvPlayer* pPlayer)
+{
+	if (m_sName == NULL) {
+		if (m_iName != -1) {
+			m_sName = pPlayer->getCivilizationInfo().getSpyNames(m_iName);
+		} else {
+			return "TXT_KEY_SPY_NAME_UNKNOWN";
+		}
+	}
+	
+	return m_sName.c_str();
+}
+#endif
+
 /// Serialization read
 FDataStream& operator>>(FDataStream& loadFrom, CvEspionageSpy& writeTo)
 {
@@ -53,6 +71,9 @@ FDataStream& operator>>(FDataStream& loadFrom, CvEspionageSpy& writeTo)
 	MOD_SERIALIZE_INIT_READ(loadFrom);
 
 	loadFrom >> writeTo.m_iName;
+#if defined(MOD_BUGFIX_SPY_NAMES)
+	MOD_SERIALIZE_READ(53, loadFrom, writeTo.m_sName, NULL);
+#endif
 	int iSpyRank;
 	loadFrom >> iSpyRank;
 	writeTo.m_eRank = (CvSpyRank)iSpyRank;
@@ -91,6 +112,9 @@ FDataStream& operator<<(FDataStream& saveTo, const CvEspionageSpy& readFrom)
 	MOD_SERIALIZE_INIT_WRITE(saveTo);
 
 	saveTo << readFrom.m_iName;
+#if defined(MOD_BUGFIX_SPY_NAMES)
+	MOD_SERIALIZE_WRITE(saveTo, readFrom.m_sName);
+#endif
 	saveTo << (int)readFrom.m_eRank;
 	saveTo << readFrom.m_iCityX;
 	saveTo << readFrom.m_iCityY;
@@ -218,7 +242,11 @@ void CvPlayerEspionage::CreateSpy()
 	CvEspionageSpy kNewSpy;
 	kNewSpy.m_eRank = (CvSpyRank)m_pPlayer->GetStartingSpyRank();
 	kNewSpy.m_eSpyState = SPY_STATE_UNASSIGNED;
+#if defined(MOD_BUGFIX_SPY_NAMES)
+	GetNextSpyName(&kNewSpy);
+#else
 	kNewSpy.m_iName = GetNextSpyName();
+#endif
 	kNewSpy.m_bEvaluateReassignment = true;
 
 #if defined(MOD_API_ESPIONAGE)
@@ -230,7 +258,11 @@ void CvPlayerEspionage::CreateSpy()
 	CvNotifications* pNotifications = m_pPlayer->GetNotifications();
 	if(pNotifications)
 	{
+#if defined(MOD_BUGFIX_SPY_NAMES)
+		const char* szSpyName = kNewSpy.GetSpyName(m_pPlayer);
+#else
 		const char* szSpyName = m_pPlayer->getCivilizationInfo().getSpyNames(kNewSpy.m_iName);
+#endif
 		CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_SPY_CREATED", szSpyName);
 		CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_SPY_CREATED", szSpyName);
 		pNotifications->Add(NOTIFICATION_SPY_CREATED_ACTIVE_PLAYER, strBuffer, strSummary, -1, -1, 0);
@@ -240,7 +272,11 @@ void CvPlayerEspionage::CreateSpy()
 	{
 		CvString strMsg;
 		strMsg.Format("New Spy, %d,", m_aSpyList.size() - 1);
+#if defined(MOD_BUGFIX_SPY_NAMES)
+		strMsg += GetLocalizedText(kNewSpy.GetSpyName(m_pPlayer));
+#else
 		strMsg += GetLocalizedText(m_pPlayer->getCivilizationInfo().getSpyNames(kNewSpy.m_iName));
+#endif
 		LogEspionageMsg(strMsg);
 	}
 }
@@ -365,7 +401,11 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 							strSummary << GET_PLAYER(eCityOwner).getCivilizationInfo().getShortDescriptionKey();
 							Localization::String strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_CANT_STEAL_TECH");
 							strNotification << GetSpyRankName(pSpy->m_eRank);;
+#if defined(MOD_BUGFIX_SPY_NAMES)
+							strNotification << pSpy->GetSpyName(m_pPlayer);
+#else
 							strNotification << m_pPlayer->getCivilizationInfo().getSpyNames(pSpy->m_iName);
+#endif
 							strNotification << GET_PLAYER(eCityOwner).getCivilizationInfo().getShortDescriptionKey();
 							pNotifications->Add(NOTIFICATION_SPY_CANT_STEAL_TECH, strNotification.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
 						}
@@ -378,7 +418,11 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 					{
 						CvString strMsg;
 						strMsg.Format("Re-eval: can't steal research, %d,", uiSpyIndex);
+#if defined(MOD_BUGFIX_SPY_NAMES)
+						strMsg += GetLocalizedText(pSpy->GetSpyName(m_pPlayer));
+#else
 						strMsg += GetLocalizedText(m_pPlayer->getCivilizationInfo().getSpyNames(pSpy->m_iName));
+#endif
 						LogEspionageMsg(strMsg);
 					}
 
@@ -406,7 +450,11 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 			{
 				CvString strMsg;
 				strMsg.Format("Re-eval: potential too low, %d,", uiSpyIndex);
+#if defined(MOD_BUGFIX_SPY_NAMES)
+				strMsg += GetLocalizedText(pSpy->GetSpyName(m_pPlayer));
+#else
 				strMsg += GetLocalizedText(m_pPlayer->getCivilizationInfo().getSpyNames(pSpy->m_iName));
+#endif
 				LogEspionageMsg(strMsg);
 			}
 		}
@@ -421,7 +469,11 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 			{
 				CvString strMsg;
 				strMsg.Format("Re-eval: m_aaPlayerStealableTechList[eCityOwner].size() == 0, %d,", uiSpyIndex);
+#if defined(MOD_BUGFIX_SPY_NAMES)
+				strMsg += GetLocalizedText(pSpy->GetSpyName(m_pPlayer));
+#else
 				strMsg += GetLocalizedText(m_pPlayer->getCivilizationInfo().getSpyNames(pSpy->m_iName));
+#endif
 				LogEspionageMsg(strMsg);
 			}
 
@@ -444,7 +496,11 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 				strSummary << GET_PLAYER(eCityOwner).getCivilizationInfo().getShortDescriptionKey();
 				Localization::String strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_CANT_STEAL_TECH");
 				strNotification << GetSpyRankName(pSpy->m_eRank);;
+#if defined(MOD_BUGFIX_SPY_NAMES)
+				strNotification << pSpy->GetSpyName(m_pPlayer);
+#else
 				strNotification << m_pPlayer->getCivilizationInfo().getSpyNames(pSpy->m_iName);
+#endif
 				strNotification << GET_PLAYER(eCityOwner).getCivilizationInfo().getShortDescriptionKey();
 				pNotifications->Add(NOTIFICATION_SPY_CANT_STEAL_TECH, strNotification.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
 			}
@@ -537,10 +593,18 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 				if(pNotifications)
 				{
 					Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_WAS_KILLED_S");
+#if defined(MOD_BUGFIX_SPY_NAMES)
+					strSummary << pSpy->GetSpyName(m_pPlayer);
+#else
 					strSummary << m_pPlayer->getCivilizationInfo().getSpyNames(pSpy->m_iName);
+#endif
 					Localization::String strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_WAS_KILLED");
 					strNotification << GetSpyRankName(pSpy->m_eRank);
+#if defined(MOD_BUGFIX_SPY_NAMES)
+					strNotification << pSpy->GetSpyName(m_pPlayer);
+#else
 					strNotification << m_pPlayer->getCivilizationInfo().getSpyNames(pSpy->m_iName);
+#endif
 					strNotification << GET_PLAYER(eCityOwner).getCivilizationInfo().getShortDescriptionKey();
 					strNotification << pCity->getNameKey();
 					pNotifications->Add(NOTIFICATION_SPY_WAS_KILLED, strNotification.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
@@ -581,7 +645,11 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 				{
 					CvString strMsg;
 					strMsg.Format("Killed, %d,", uiSpyIndex);
+#if defined(MOD_BUGFIX_SPY_NAMES)
+					strMsg += GetLocalizedText(m_aSpyList[uiSpyIndex].GetSpyName(m_pPlayer));
+#else
 					strMsg += GetLocalizedText(m_pPlayer->getCivilizationInfo().getSpyNames(m_aSpyList[uiSpyIndex].m_iName));
+#endif
 					strMsg += ",";
 					strMsg += ",";
 					strMsg += ",";
@@ -600,7 +668,11 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 				{
 					CvString strMsg;
 					strMsg.Format("Re-eval: spy completed mission, %d,", uiSpyIndex);
+#if defined(MOD_BUGFIX_SPY_NAMES)
+					strMsg += GetLocalizedText(pSpy->GetSpyName(m_pPlayer));
+#else
 					strMsg += GetLocalizedText(m_pPlayer->getCivilizationInfo().getSpyNames(pSpy->m_iName));
+#endif
 					LogEspionageMsg(strMsg);
 				}
 				int iCityOwner = (int)eCityOwner;
@@ -633,7 +705,11 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 						Localization::String strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SPY_STEAL_TECH_S");
 						Localization::String strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_STEAL_TECH");
 						strNotification << GetSpyRankName(pSpy->m_eRank);
+#if defined(MOD_BUGFIX_SPY_NAMES)
+						strNotification << pSpy->GetSpyName(m_pPlayer);
+#else
 						strNotification << m_pPlayer->getCivilizationInfo().getSpyNames(pSpy->m_iName);
+#endif
 						strNotification << pCity->getNameKey();
 						strNotification << GET_PLAYER(eCityOwner).getCivilizationInfo().getShortDescriptionKey();
 						pNotifications->Add(NOTIFICATION_SPY_STOLE_TECH, strNotification.toUTF8(), strSummary.toUTF8(), -1, -1, eCityOwner);
@@ -658,7 +734,11 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 				{
 					CvString strMsg;
 					strMsg.Format("Stealing tech, %d,", uiSpyIndex);
+#if defined(MOD_BUGFIX_SPY_NAMES)
+					strMsg += GetLocalizedText(m_aSpyList[uiSpyIndex].GetSpyName(m_pPlayer));
+#else
 					strMsg += GetLocalizedText(m_pPlayer->getCivilizationInfo().getSpyNames(m_aSpyList[uiSpyIndex].m_iName));
+#endif
 					strMsg += ",";
 					strMsg += ",";
 					strMsg += ",";
@@ -722,7 +802,11 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 		pSpy->m_iReviveCounter++;
 		if(pSpy->m_iReviveCounter >= iSpyTurnsToRevive)
 		{
+#if defined(MOD_BUGFIX_SPY_NAMES)
+			GetNextSpyName(pSpy);
+#else
 			pSpy->m_iName = GetNextSpyName();
+#endif
 			pSpy->m_eRank = (CvSpyRank)m_pPlayer->GetStartingSpyRank();
 			pSpy->m_eSpyState = SPY_STATE_UNASSIGNED;
 			pSpy->m_iCityX = -1;
@@ -736,7 +820,11 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 			{
 				CvString strMsg;
 				strMsg.Format("Re-eval: spy killed, %d,", uiSpyIndex);
+#if defined(MOD_BUGFIX_SPY_NAMES)
+				strMsg += GetLocalizedText(pSpy->GetSpyName(m_pPlayer));
+#else
 				strMsg += GetLocalizedText(m_pPlayer->getCivilizationInfo().getSpyNames(pSpy->m_iName));
+#endif
 				LogEspionageMsg(strMsg);
 			}
 
@@ -746,7 +834,11 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 				Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_REVIVED_S");
 				Localization::String strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_REVIVED");
 				strNotification << GetSpyRankName(pSpy->m_eRank);
+#if defined(MOD_BUGFIX_SPY_NAMES)
+				strNotification << pSpy->GetSpyName(m_pPlayer);
+#else
 				strNotification << m_pPlayer->getCivilizationInfo().getSpyNames(pSpy->m_iName);
+#endif
 				pNotifications->Add(NOTIFICATION_SPY_REPLACEMENT, strNotification.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
 			}
 
@@ -754,7 +846,11 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 			{
 				CvString strMsg;
 				strMsg.Format("Respawned spy, %d,", uiSpyIndex);
+#if defined(MOD_BUGFIX_SPY_NAMES)
+				strMsg += GetLocalizedText(pSpy->GetSpyName(m_pPlayer));
+#else
 				strMsg += GetLocalizedText(m_pPlayer->getCivilizationInfo().getSpyNames(pSpy->m_iName));
+#endif
 				LogEspionageMsg(strMsg);
 			}
 		}
@@ -979,6 +1075,127 @@ void CvPlayerEspionage::UncoverIntrigue(uint uiSpyIndex)
 	}
 }
 
+#if defined(MOD_BUGFIX_SPY_NAMES)
+bool isSpyNameInUse(CvPlayer* pPlayer, const char* szSpyName)
+{
+	CvPlayerEspionage* pkPlayerEspionage = pPlayer->GetEspionage();
+
+	for (uint uiSpy = 0; uiSpy < pkPlayerEspionage->m_aSpyList.size(); ++uiSpy) {
+		CvEspionageSpy* pSpy = &(pkPlayerEspionage->m_aSpyList[uiSpy]);
+
+		if (strcmp(szSpyName, pSpy->GetSpyName(pPlayer)) == 0) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+bool isSpyNameInUse(const char* szSpyName)
+{
+	for (int iPlayer = 0; iPlayer < MAX_MAJOR_CIVS; iPlayer++) {
+		CvPlayerAI& thisPlayer = GET_PLAYER((PlayerTypes)iPlayer);
+		if (thisPlayer.isEverAlive()) {
+			if (isSpyNameInUse(&thisPlayer, szSpyName)) {
+				return true;
+			}
+		}
+	}
+	
+	return false;
+}
+
+bool pickSpyName(CvCivilizationInfo* pkCivInfo, CvEspionageSpy* pSpy)
+{
+	int iCivSpyNames = pkCivInfo->getNumSpyNames();
+	if (iCivSpyNames > 0) {
+		int iOffset = GC.getGame().getJonRandNum(iCivSpyNames, "Spy name offset");
+
+		for (int i = 0; i < iCivSpyNames; i++) {
+			const char* szSpyName = pkCivInfo->getSpyNames((i + iOffset) % iCivSpyNames);
+
+			if (!isSpyNameInUse(szSpyName)) {
+				pSpy->m_sName = szSpyName;
+				// CUSTOMLOG("Using spy name %s (from civ %s)", szSpyName, pkCivInfo->GetDescription());
+				return true;
+			}
+		}
+	} else {
+		CUSTOMLOG("WARNING! Civilization %s appears to be missing spy names", pkCivInfo->GetDescription());
+	}
+
+	return false;
+}
+
+bool isCivInPlay(const CivilizationTypes eCiv)
+{
+	for (int iPlayer = 0; iPlayer < MAX_MAJOR_CIVS; iPlayer++) {
+		CvPlayerAI& thisPlayer = GET_PLAYER((PlayerTypes)iPlayer);
+		if (thisPlayer.isEverAlive() && thisPlayer.getCivilizationType() == eCiv) {
+			return true;
+		}
+	}
+
+	return false;
+}
+#endif
+
+#if defined(MOD_BUGFIX_SPY_NAMES)
+void CvPlayerEspionage::GetNextSpyName(CvEspionageSpy* pSpy)
+{
+	// CUSTOMLOG("GetNextSpyName for %s", m_pPlayer->getCivilizationInfo().GetDescription());
+
+	// This is a complete rewrite, using similiar logic to that for city names
+	// If there is a spare spy name for this player, use that
+	// Otherwise, pick a spy name not in use at random from the civs not in the game
+	// Otherwise, pick a spy name not in use at random from the civs in the game
+	// Otherwise, use the default unknown spy name
+
+	// As there is now no concept of "name index", just set this to -1 (unknown)
+	pSpy->m_iName = -1;
+
+	// Try to locate a spy name within the player's civ
+	if (pickSpyName(&(m_pPlayer->getCivilizationInfo()), pSpy)) {
+		return;
+	}
+
+	// Try to locate a spy name not in use by a civ not in the game
+	int iMaxCivs = GC.getNumCivilizationInfos();
+	int iCivOffset = GC.getGame().getJonRandNum(iMaxCivs, "Civ offset");
+
+	for (int i = 0; i < GC.getNumCivilizationInfos(); i++) {
+		const CivilizationTypes eCiv = static_cast<CivilizationTypes>((i + iCivOffset) % iMaxCivs);
+		CvCivilizationInfo* pkCivilizationInfo = GC.getCivilizationInfo(eCiv);
+		
+		if (pkCivilizationInfo != NULL && pkCivilizationInfo->getNumSpyNames() > 0) {
+			if (isCivInPlay(eCiv)) {
+				continue;
+			}
+
+			if (pickSpyName(pkCivilizationInfo, pSpy)) {
+				return;
+			}
+		}
+	}
+
+	// Try to locate a spy name not in use by a civ in the game
+	int iPlayerOffset = GC.getGame().getJonRandNum(MAX_MAJOR_CIVS, "Player offset");
+
+	for (int i = 0; i < MAX_MAJOR_CIVS; i++) {
+		const PlayerTypes ePlayer = static_cast<PlayerTypes>((i + iPlayerOffset) % MAX_MAJOR_CIVS);
+		CvPlayerAI& thisPlayer = GET_PLAYER(ePlayer);
+		if (thisPlayer.isEverAlive() && thisPlayer.getCivilizationInfo().getNumSpyNames() > 0) {
+			if (pickSpyName(&(thisPlayer.getCivilizationInfo()), pSpy)) {
+				return;
+			}
+		}
+	}
+
+	// Just use the unknown spy name
+	pSpy->m_sName = "TXT_KEY_SPY_NAME_UNKNOWN";
+	CUSTOMLOG("Using unknown spy name TXT_KEY_SPY_NAME_UNKNOWN");
+}
+#else
 int CvPlayerEspionage::GetNextSpyName()
 {
 	CvAssertMsg((uint)m_iSpyListNameOrderIndex < m_aiSpyListNameOrder.size(), "m_iSpyListNameOrderIndex out of bounds probably because this civ doesn't have spy names.")
@@ -995,6 +1212,7 @@ int CvPlayerEspionage::GetNextSpyName()
 	}
 	return iName;
 }
+#endif
 
 /// IsSpyInCity - Checks to see if spy is in a city
 bool CvPlayerEspionage::IsSpyInCity(uint uiSpyIndex)
@@ -1189,7 +1407,11 @@ bool CvPlayerEspionage::MoveSpyTo(CvCity* pCity, uint uiSpyIndex, bool bAsDiplom
 	{
 		CvString strMsg;
 		strMsg.Format("Moving spy, %d,", uiSpyIndex);
+#if defined(MOD_BUGFIX_SPY_NAMES)
+		strMsg += GetLocalizedText(m_aSpyList[uiSpyIndex].GetSpyName(m_pPlayer));
+#else
 		strMsg += GetLocalizedText(m_pPlayer->getCivilizationInfo().getSpyNames(m_aSpyList[uiSpyIndex].m_iName));
+#endif
 		strMsg += ",";
 		if(pOldCity)
 		{
@@ -1296,7 +1518,11 @@ void CvPlayerEspionage::LevelUpSpy(uint uiSpyIndex)
 		CvNotifications* pNotifications = m_pPlayer->GetNotifications();
 		if(pNotifications)
 		{
+#if defined(MOD_BUGFIX_SPY_NAMES)
+			const char* szSpyName = m_aSpyList[uiSpyIndex].GetSpyName(m_pPlayer);
+#else
 			const char* szSpyName = m_pPlayer->getCivilizationInfo().getSpyNames(m_aSpyList[uiSpyIndex].m_iName);
+#endif
 			const char* szOldPromotion = GetSpyRankName(eOriginalRank);
 			const char* szNewPromotion = GetSpyRankName(m_aSpyList[uiSpyIndex].m_eRank);
 			CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_SPY_PROMOTED", szSpyName, szOldPromotion, szNewPromotion);
@@ -1933,7 +2159,11 @@ bool CvPlayerEspionage::AttemptCoup(uint uiSpyIndex)
 	{
 		CvString strMsg;
 		strMsg.Format("Re-eval: attempting coup, %d,", uiSpyIndex);
+#if defined(MOD_BUGFIX_SPY_NAMES)
+		strMsg += GetLocalizedText(m_aSpyList[uiSpyIndex].GetSpyName(m_pPlayer));
+#else
 		strMsg += GetLocalizedText(m_pPlayer->getCivilizationInfo().getSpyNames(m_aSpyList[uiSpyIndex].m_iName));
+#endif
 		LogEspionageMsg(strMsg);
 	}
 
@@ -2062,7 +2292,11 @@ bool CvPlayerEspionage::AttemptCoup(uint uiSpyIndex)
 			strSummary << pCity->getNameKey();
 			strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_YOU_STAGE_COUP_SUCCESS");
 			strNotification << GetSpyRankName(m_aSpyList[uiSpyIndex].m_eRank);
+#if defined(MOD_BUGFIX_SPY_NAMES)
+			strNotification << m_aSpyList[uiSpyIndex].GetSpyName(m_pPlayer);
+#else
 			strNotification << m_pPlayer->getCivilizationInfo().getSpyNames(m_aSpyList[uiSpyIndex].m_iName);
+#endif
 			strNotification << pCity->getNameKey();
 			strNotification << GET_PLAYER(ePreviousAlly).getCivilizationAdjectiveKey();
 		}
@@ -2073,7 +2307,11 @@ bool CvPlayerEspionage::AttemptCoup(uint uiSpyIndex)
 			strSummary << pCity->getNameKey();
 			strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_YOU_STAGE_COUP_FAILURE");
 			strNotification << GetSpyRankName(m_aSpyList[uiSpyIndex].m_eRank);
+#if defined(MOD_BUGFIX_SPY_NAMES)
+			strNotification << m_aSpyList[uiSpyIndex].GetSpyName(m_pPlayer);
+#else
 			strNotification << m_pPlayer->getCivilizationInfo().getSpyNames(m_aSpyList[uiSpyIndex].m_iName);
+#endif
 			strNotification << pCity->getNameKey();
 			strNotification << GET_PLAYER(ePreviousAlly).getCivilizationAdjectiveKey();
 		}
@@ -2531,7 +2769,11 @@ void CvPlayerEspionage::ProcessSpyMessages()
 					strSummary << GET_PLAYER(m_aSpyNotificationMessages[ui].m_eAttackingPlayer).getCivilizationAdjectiveKey();
 					Localization::String strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_KILLED_A_SPY");
 					strNotification << GetSpyRankName(m_aSpyList[iDefendingSpy].m_eRank);
+#if defined(MOD_BUGFIX_SPY_NAMES)
+					strNotification << m_aSpyList[iDefendingSpy].GetSpyName(m_pPlayer);
+#else
 					strNotification << m_pPlayer->getCivilizationInfo().getSpyNames(m_aSpyList[iDefendingSpy].m_iName);
+#endif
 					strNotification << GET_PLAYER(m_aSpyNotificationMessages[ui].m_eAttackingPlayer).getCivilizationAdjectiveKey();
 					strNotification << pCity->getNameKey();
 
@@ -2674,7 +2916,11 @@ void CvPlayerEspionage::AddIntrigueMessage(PlayerTypes eDiscoveringPlayer, Playe
 	{
 		Localization::String str = Localization::Lookup("TXT_KEY_SPY_FULL_NAME");
 		str << GetSpyRankName(m_aSpyList[uiSpyIndex].m_eRank);
+#if defined(MOD_BUGFIX_SPY_NAMES)
+		str << m_aSpyList[uiSpyIndex].GetSpyName(m_pPlayer);
+#else
 		str << m_pPlayer->getCivilizationInfo().getSpyNames(m_aSpyList[uiSpyIndex].m_iName);
+#endif
 		kMessage.m_strSpyName = str.toUTF8();
 	}
 	kMessage.m_bShared = false;
@@ -2709,7 +2955,11 @@ void CvPlayerEspionage::AddIntrigueMessage(PlayerTypes eDiscoveringPlayer, Playe
 
 					strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_INTRIGUE_PLOTTING_AGAINST_YOU");
 					strNotification << GetSpyRankName(m_aSpyList[uiSpyIndex].m_eRank);
+#if defined(MOD_BUGFIX_SPY_NAMES)
+					strNotification << m_aSpyList[uiSpyIndex].GetSpyName(m_pPlayer);
+#else
 					strNotification << m_pPlayer->getCivilizationInfo().getSpyNames(m_aSpyList[uiSpyIndex].m_iName);
+#endif
 					CvAssertMsg(pCity, "City should be defined but is null");
 					if(pCity)
 					{
@@ -2738,7 +2988,11 @@ void CvPlayerEspionage::AddIntrigueMessage(PlayerTypes eDiscoveringPlayer, Playe
 
 					strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_INTRIGUE_PLOTTING_AGAINST_UNKNOWN");
 					strNotification << GetSpyRankName(m_aSpyList[uiSpyIndex].m_eRank);
+#if defined(MOD_BUGFIX_SPY_NAMES)
+					strNotification << m_aSpyList[uiSpyIndex].GetSpyName(m_pPlayer);
+#else
 					strNotification << m_pPlayer->getCivilizationInfo().getSpyNames(m_aSpyList[uiSpyIndex].m_iName);
+#endif
 					CvAssertMsg(pCity, "City should be defined but is null");
 					if(pCity)
 					{
@@ -2776,7 +3030,11 @@ void CvPlayerEspionage::AddIntrigueMessage(PlayerTypes eDiscoveringPlayer, Playe
 
 					strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_INTRIGUE_PLOTTING_AGAINST_KNOWN");
 					strNotification << GetSpyRankName(m_aSpyList[uiSpyIndex].m_eRank);
+#if defined(MOD_BUGFIX_SPY_NAMES)
+					strNotification << m_aSpyList[uiSpyIndex].GetSpyName(m_pPlayer);
+#else
 					strNotification << m_pPlayer->getCivilizationInfo().getSpyNames(m_aSpyList[uiSpyIndex].m_iName);
+#endif
 					CvAssertMsg(pCity, "City should be defined but is null");
 					if(pCity)
 					{
@@ -2820,7 +3078,11 @@ void CvPlayerEspionage::AddIntrigueMessage(PlayerTypes eDiscoveringPlayer, Playe
 
 				strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_INTRIGUE_BUILDING_ARMY");
 				strNotification << GetSpyRankName(m_aSpyList[uiSpyIndex].m_eRank);
+#if defined(MOD_BUGFIX_SPY_NAMES)
+				strNotification << m_aSpyList[uiSpyIndex].GetSpyName(m_pPlayer);
+#else
 				strNotification << m_pPlayer->getCivilizationInfo().getSpyNames(m_aSpyList[uiSpyIndex].m_iName);
+#endif
 				if(GC.getGame().isGameMultiPlayer() && GET_PLAYER(kMessage.m_eSourcePlayer).isHuman())
 				{
 					strNotification << GET_PLAYER(kMessage.m_eSourcePlayer).getNickName();
@@ -2850,7 +3112,11 @@ void CvPlayerEspionage::AddIntrigueMessage(PlayerTypes eDiscoveringPlayer, Playe
 
 				strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_INTRIGUE_BUILDING_AMPHIBIOUS_ARMY");
 				strNotification << GetSpyRankName(m_aSpyList[uiSpyIndex].m_eRank);
+#if defined(MOD_BUGFIX_SPY_NAMES)
+				strNotification << m_aSpyList[uiSpyIndex].GetSpyName(m_pPlayer);
+#else
 				strNotification << m_pPlayer->getCivilizationInfo().getSpyNames(m_aSpyList[uiSpyIndex].m_iName);
+#endif
 				if(GC.getGame().isGameMultiPlayer() && GET_PLAYER(kMessage.m_eSourcePlayer).isHuman())
 				{
 					strNotification << GET_PLAYER(kMessage.m_eSourcePlayer).getNickName();
@@ -2889,7 +3155,11 @@ void CvPlayerEspionage::AddIntrigueMessage(PlayerTypes eDiscoveringPlayer, Playe
 
 						strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_INTRIGUE_SNEAK_ATTACK_ARMY_AGAINST_YOU_CITY_KNOWN");
 						strNotification << GetSpyRankName(m_aSpyList[uiSpyIndex].m_eRank);
+#if defined(MOD_BUGFIX_SPY_NAMES)
+						strNotification << m_aSpyList[uiSpyIndex].GetSpyName(m_pPlayer);
+#else
 						strNotification << m_pPlayer->getCivilizationInfo().getSpyNames(m_aSpyList[uiSpyIndex].m_iName);
+#endif
 						strNotification << GET_PLAYER(kMessage.m_eSourcePlayer).getCivilizationAdjectiveKey();
 						strNotification << pCity->getNameKey();
 					}
@@ -2908,7 +3178,11 @@ void CvPlayerEspionage::AddIntrigueMessage(PlayerTypes eDiscoveringPlayer, Playe
 
 						strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_INTRIGUE_SNEAK_ATTACK_ARMY_AGAINST_YOU_CITY_UNKNOWN");
 						strNotification << GetSpyRankName(m_aSpyList[uiSpyIndex].m_eRank);
+#if defined(MOD_BUGFIX_SPY_NAMES)
+						strNotification << m_aSpyList[uiSpyIndex].GetSpyName(m_pPlayer);
+#else
 						strNotification << m_pPlayer->getCivilizationInfo().getSpyNames(m_aSpyList[uiSpyIndex].m_iName);
+#endif
 						strNotification << GET_PLAYER(kMessage.m_eSourcePlayer).getCivilizationAdjectiveKey();
 					}
 				}
@@ -2931,7 +3205,11 @@ void CvPlayerEspionage::AddIntrigueMessage(PlayerTypes eDiscoveringPlayer, Playe
 
 						strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_INTRIGUE_SNEAK_ATTACK_ARMY_AGAINST_KNOWN_CITY_KNOWN");
 						strNotification << GetSpyRankName(m_aSpyList[uiSpyIndex].m_eRank);
+#if defined(MOD_BUGFIX_SPY_NAMES)
+						strNotification << m_aSpyList[uiSpyIndex].GetSpyName(m_pPlayer);
+#else
 						strNotification << m_pPlayer->getCivilizationInfo().getSpyNames(m_aSpyList[uiSpyIndex].m_iName);
+#endif
 						strNotification << GET_PLAYER(kMessage.m_eSourcePlayer).getCivilizationAdjectiveKey();
 						strNotification << GET_PLAYER(kMessage.m_eTargetPlayer).getCivilizationAdjectiveKey();
 						strNotification << pCity->getNameKey();
@@ -2960,7 +3238,11 @@ void CvPlayerEspionage::AddIntrigueMessage(PlayerTypes eDiscoveringPlayer, Playe
 
 						strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_INTRIGUE_SNEAK_ATTACK_ARMY_AGAINST_KNOWN_CITY_UNKNOWN");
 						strNotification << GetSpyRankName(m_aSpyList[uiSpyIndex].m_eRank);
+#if defined(MOD_BUGFIX_SPY_NAMES)
+						strNotification << m_aSpyList[uiSpyIndex].GetSpyName(m_pPlayer);
+#else
 						strNotification << m_pPlayer->getCivilizationInfo().getSpyNames(m_aSpyList[uiSpyIndex].m_iName);
+#endif
 						strNotification << GET_PLAYER(kMessage.m_eSourcePlayer).getCivilizationAdjectiveKey();
 						strNotification << GET_PLAYER(kMessage.m_eTargetPlayer).getCivilizationDescriptionKey();
 					}
@@ -2991,7 +3273,11 @@ void CvPlayerEspionage::AddIntrigueMessage(PlayerTypes eDiscoveringPlayer, Playe
 					}
 
 					strNotification << GetSpyRankName(m_aSpyList[uiSpyIndex].m_eRank);
+#if defined(MOD_BUGFIX_SPY_NAMES)
+					strNotification << m_aSpyList[uiSpyIndex].GetSpyName(m_pPlayer);
+#else
 					strNotification << m_pPlayer->getCivilizationInfo().getSpyNames(m_aSpyList[uiSpyIndex].m_iName);
+#endif
 					strNotification << GET_PLAYER(kMessage.m_eSourcePlayer).getCivilizationAdjectiveKey();
 				}
 
@@ -3023,7 +3309,11 @@ void CvPlayerEspionage::AddIntrigueMessage(PlayerTypes eDiscoveringPlayer, Playe
 
 						strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_INTRIGUE_SNEAK_ATTACK_AMPHIB_AGAINST_YOU_CITY_KNOWN");
 						strNotification << GetSpyRankName(m_aSpyList[uiSpyIndex].m_eRank);
+#if defined(MOD_BUGFIX_SPY_NAMES)
+						strNotification << m_aSpyList[uiSpyIndex].GetSpyName(m_pPlayer);
+#else
 						strNotification << m_pPlayer->getCivilizationInfo().getSpyNames(m_aSpyList[uiSpyIndex].m_iName);
+#endif
 						strNotification << GET_PLAYER(kMessage.m_eSourcePlayer).getCivilizationAdjectiveKey();
 						strNotification << pCity->getNameKey();
 					}
@@ -3042,7 +3332,11 @@ void CvPlayerEspionage::AddIntrigueMessage(PlayerTypes eDiscoveringPlayer, Playe
 
 						strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_INTRIGUE_SNEAK_ATTACK_AMPHIB_AGAINST_YOU_CITY_UNKNOWN");
 						strNotification << GetSpyRankName(m_aSpyList[uiSpyIndex].m_eRank);
+#if defined(MOD_BUGFIX_SPY_NAMES)
+						strNotification << m_aSpyList[uiSpyIndex].GetSpyName(m_pPlayer);
+#else
 						strNotification << m_pPlayer->getCivilizationInfo().getSpyNames(m_aSpyList[uiSpyIndex].m_iName);
+#endif
 						strNotification << GET_PLAYER(kMessage.m_eSourcePlayer).getCivilizationAdjectiveKey();
 					}
 				}
@@ -3065,7 +3359,11 @@ void CvPlayerEspionage::AddIntrigueMessage(PlayerTypes eDiscoveringPlayer, Playe
 
 						strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_INTRIGUE_SNEAK_ATTACK_AMPHIB_AGAINST_KNOWN_CITY_KNOWN");
 						strNotification << GetSpyRankName(m_aSpyList[uiSpyIndex].m_eRank);
+#if defined(MOD_BUGFIX_SPY_NAMES)
+						strNotification << m_aSpyList[uiSpyIndex].GetSpyName(m_pPlayer);
+#else
 						strNotification << m_pPlayer->getCivilizationInfo().getSpyNames(m_aSpyList[uiSpyIndex].m_iName);
+#endif
 						strNotification << GET_PLAYER(kMessage.m_eSourcePlayer).getCivilizationAdjectiveKey();
 						strNotification << GET_PLAYER(kMessage.m_eTargetPlayer).getCivilizationAdjectiveKey();
 						strNotification << pCity->getNameKey();
@@ -3094,7 +3392,11 @@ void CvPlayerEspionage::AddIntrigueMessage(PlayerTypes eDiscoveringPlayer, Playe
 
 						strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_INTRIGUE_SNEAK_ATTACK_AMPHIB_AGAINST_KNOWN_CITY_UNKNOWN");
 						strNotification << GetSpyRankName(m_aSpyList[uiSpyIndex].m_eRank);
+#if defined(MOD_BUGFIX_SPY_NAMES)
+						strNotification << m_aSpyList[uiSpyIndex].GetSpyName(m_pPlayer);
+#else
 						strNotification << m_pPlayer->getCivilizationInfo().getSpyNames(m_aSpyList[uiSpyIndex].m_iName);
+#endif
 						strNotification << GET_PLAYER(kMessage.m_eSourcePlayer).getCivilizationAdjectiveKey();
 						strNotification << GET_PLAYER(kMessage.m_eTargetPlayer).getCivilizationDescriptionKey();
 					}
@@ -3126,7 +3428,11 @@ void CvPlayerEspionage::AddIntrigueMessage(PlayerTypes eDiscoveringPlayer, Playe
 					}
 
 					strNotification << GetSpyRankName(m_aSpyList[uiSpyIndex].m_eRank);
+#if defined(MOD_BUGFIX_SPY_NAMES)
+					strNotification << m_aSpyList[uiSpyIndex].GetSpyName(m_pPlayer);
+#else
 					strNotification << m_pPlayer->getCivilizationInfo().getSpyNames(m_aSpyList[uiSpyIndex].m_iName);
+#endif
 					strNotification << GET_PLAYER(kMessage.m_eSourcePlayer).getCivilizationAdjectiveKey();
 				}
 
@@ -3166,7 +3472,11 @@ void CvPlayerEspionage::AddIntrigueMessage(PlayerTypes eDiscoveringPlayer, Playe
 
 				Localization::String strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_INTRIGUE_CONSTRUCT_WONDER");
 				strNotification << GetSpyRankName(m_aSpyList[uiSpyIndex].m_eRank);
+#if defined(MOD_BUGFIX_SPY_NAMES)
+				strNotification << m_aSpyList[uiSpyIndex].GetSpyName(m_pPlayer);
+#else
 				strNotification << m_pPlayer->getCivilizationInfo().getSpyNames(m_aSpyList[uiSpyIndex].m_iName);
+#endif
 				if(GC.getGame().isGameMultiPlayer() && GET_PLAYER(kMessage.m_eSourcePlayer).isHuman())
 				{
 					strNotification << GET_PLAYER(kMessage.m_eSourcePlayer).getNickName();
@@ -4337,7 +4647,11 @@ void CvEspionageAI::DoTurn()
 			{
 				CvString strMsg;
 				strMsg.Format("Re-eval: UN constructed/reassign, %d,", ui);
+#if defined(MOD_BUGFIX_SPY_NAMES)
+				strMsg += GetLocalizedText(pSpy->GetSpyName(m_pPlayer));
+#else
 				strMsg += GetLocalizedText(m_pPlayer->getCivilizationInfo().getSpyNames(pSpy->m_iName));
+#endif
 				pEspionage->LogEspionageMsg(strMsg);
 			}
 		}
@@ -5551,7 +5865,11 @@ void CvEspionageAI::EvaluateSpiesAssignedToTargetPlayer(PlayerTypes ePlayer)
 			{
 				CvString strMsg;
 				strMsg.Format("Re-eval: assigned to promise player, %d,", ui);
+#if defined(MOD_BUGFIX_SPY_NAMES)
+				strMsg += GetLocalizedText(pSpy->GetSpyName(m_pPlayer));
+#else
 				strMsg += GetLocalizedText(m_pPlayer->getCivilizationInfo().getSpyNames(pSpy->m_iName));
+#endif
 				pEspionage->LogEspionageMsg(strMsg);
 			}
 		}
@@ -5583,7 +5901,11 @@ void CvEspionageAI::EvaluateUnassignedSpies(void)
 			{
 				CvString strMsg;
 				strMsg.Format("Re-eval: unassigned spy, %d,", ui);
+#if defined(MOD_BUGFIX_SPY_NAMES)
+				strMsg += GetLocalizedText(pSpy->GetSpyName(m_pPlayer));
+#else
 				strMsg += GetLocalizedText(m_pPlayer->getCivilizationInfo().getSpyNames(pSpy->m_iName));
+#endif
 				pEspionage->LogEspionageMsg(strMsg);
 			}
 		}
@@ -5615,7 +5937,11 @@ void CvEspionageAI::EvaluateDefensiveSpies(void)
 			{
 				CvString strMsg;
 				strMsg.Format("Re-eval: defensive spy, %d,", ui);
+#if defined(MOD_BUGFIX_SPY_NAMES)
+				strMsg += GetLocalizedText(pSpy->GetSpyName(m_pPlayer));
+#else
 				strMsg += GetLocalizedText(m_pPlayer->getCivilizationInfo().getSpyNames(pSpy->m_iName));
+#endif
 				pEspionage->LogEspionageMsg(strMsg);
 			}
 
@@ -5643,7 +5969,11 @@ void CvEspionageAI::EvaluateDiplomatSpies(void)
 			{
 				CvString strMsg;
 				strMsg.Format("Re-eval: diplomat spy, %d,", ui);
+#if defined(MOD_BUGFIX_SPY_NAMES)
+				strMsg += GetLocalizedText(pSpy->GetSpyName(m_pPlayer));
+#else
 				strMsg += GetLocalizedText(m_pPlayer->getCivilizationInfo().getSpyNames(pSpy->m_iName));
+#endif
 				pEspionage->LogEspionageMsg(strMsg);
 			}
 

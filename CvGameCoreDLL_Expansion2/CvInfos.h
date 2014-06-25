@@ -1100,6 +1100,33 @@ protected:
 FDataStream& operator<<(FDataStream&, const CvTurnTimerInfo&);
 FDataStream& operator>>(FDataStream&, CvTurnTimerInfo&);
 
+#if defined(MOD_EVENTS_DIPLO_MODIFIERS)
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+// CvDiploModifierInfo
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+class CvDiploModifierInfo :	public CvBaseInfo
+{
+public:
+	CvDiploModifierInfo();
+
+	virtual bool CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility);
+	virtual bool operator==(const CvDiploModifierInfo&) const;
+	
+	bool isForFromCiv(CivilizationTypes eFromCiv);
+	bool isForToCiv(CivilizationTypes eToCiv);
+
+	virtual void readFrom(FDataStream& readFrom);
+	virtual void writeTo(FDataStream& saveTo) const;
+
+protected:
+	CivilizationTypes m_eFromCiv;
+	CivilizationTypes m_eToCiv;
+};
+
+FDataStream& operator<<(FDataStream&, const CvDiploModifierInfo&);
+FDataStream& operator>>(FDataStream&, CvDiploModifierInfo&);
+#endif
+
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  class : CvBuildInfo
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

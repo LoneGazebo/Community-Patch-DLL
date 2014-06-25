@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created by ModBuddy on 5/16/2014 8:52:56 PM -->
+<GameData>
+	<BuildingClasses>
+		<Row>
+			<Type>BUILDINGCLASS_WELL</Type>
+			<DefaultBuilding>BUILDING_WELL</DefaultBuilding>
+			<Description>TXT_KEY_BUILDING_WELL</Description>
+		</Row>
+		<Row>
+			<Type>BUILDINGCLASS_BATH</Type>
+			<DefaultBuilding>BUILDING_BATH</DefaultBuilding>
+			<Description>TXT_KEY_BUILDING_BATH</Description>
+		</Row>
+		<Row>
+			<Type>BUILDINGCLASS_WIND_PLANT</Type>
+			<DefaultBuilding>BUILDING_WIND_PLANT</DefaultBuilding>
+			<Description>TXT_KEY_BUILDING_WIND_PLANT</Description>
+		</Row>
+	</BuildingClasses>
+	<Buildings>
+		<Row>
+			<Type>BUILDING_BATH</Type>
+			<BuildingClass>BUILDINGCLASS_BATH</BuildingClass>
+			<Cost>150</Cost>
+			<GoldMaintenance>2</GoldMaintenance>
+			<PrereqTech>TECH_THEOLOGY</PrereqTech>
+			<Description>TXT_KEY_BUILDING_BATH</Description>
+			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_BATH_TEXT</Civilopedia>
+			<Strategy>TXT_KEY_BUILDING_BATH_STRATEGY</Strategy>
+			<Help>TXT_KEY_BUILDING_BATH_HELP</Help>
+			<ArtDefineTag>ART_DEF_BUILDING_GARDEN</ArtDefineTag>
+			<MinAreaSize>-1</MinAreaSize>
+			<ConquestProb>66</ConquestProb>
+			<IsNoWater>true</IsNoWater>
+			<GreatPeopleRateModifier>25</GreatPeopleRateModifier>
+			<HurryCostModifier>25</HurryCostModifier>
+			<IconAtlas>EXPANSION2_BUILDING_ATLAS</IconAtlas>
+			<PortraitIndex>11</PortraitIndex>
+		</Row>
+		<Row>
+			<Type>BUILDING_WELL</Type>
+			<BuildingClass>BUILDINGCLASS_WELL</BuildingClass>
+			<Cost>85</Cost>
+			<GoldMaintenance>2</GoldMaintenance>
+			<PrereqTech>TECH_THE_WHEEL</PrereqTech>
+			<Description>TXT_KEY_BUILDING_WELL</Description>
+			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_WELL_TEXT</Civilopedia>
+			<Strategy>TXT_KEY_BUILDING_WELL_STRATEGY</Strategy>
+			<Help>TXT_KEY_BUILDING_WELL_HELP</Help>
+			<ArtDefineTag>ART_DEF_BUILDING_GARDEN</ArtDefineTag>
+			<IsNoWater>true</IsNoWater>
+			<MinAreaSize>-1</MinAreaSize>
+			<ConquestProb>66</ConquestProb>
+			<HurryCostModifier>58</HurryCostModifier>
+			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
+			<PortraitIndex>1</PortraitIndex>
+		</Row>
+		<Row>
+			<Type>BUILDING_WIND_PLANT</Type>
+			<BuildingClass>BUILDINGCLASS_WIND_PLANT</BuildingClass>
+			<Cost>420</Cost>
+			<GoldMaintenance>4</GoldMaintenance>
+			<PrereqTech>TECH_ELECTRICITY</PrereqTech>
+			<Description>TXT_KEY_BUILDING_WIND_PLANT</Description>
+			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_WIND_PLANT_TEXT</Civilopedia>
+			<Strategy>TXT_KEY_BUILDING_WIND_PLANT_STRATEGY</Strategy>
+			<Help>TXT_KEY_BUILDING_WIND_PLANT_HELP</Help>
+			<ArtDefineTag>ART_DEF_BUILDING_GARDEN</ArtDefineTag>
+			<IsNoWater>true</IsNoWater>
+			<MinAreaSize>-1</MinAreaSize>
+			<ConquestProb>66</ConquestProb>
+			<HurryCostModifier>25</HurryCostModifier>
+			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
+			<PortraitIndex>0</PortraitIndex>
+		</Row>
+	</Buildings>
+	<Building_Flavors>
+		<Row>
+			<BuildingType>BUILDING_BATH</BuildingType>
+			<FlavorType>FLAVOR_GREAT_PEOPLE</FlavorType>
+			<Flavor>30</Flavor>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_WELL</BuildingType>
+			<FlavorType>FLAVOR_GROWTH</FlavorType>
+			<Flavor>25</Flavor>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_WELL</BuildingType>
+			<FlavorType>FLAVOR_SCIENCE</FlavorType>
+			<Flavor>5</Flavor>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_WELL</BuildingType>
+			<FlavorType>FLAVOR_PRODUCTION</FlavorType>
+			<Flavor>20</Flavor>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_WIND_PLANT</BuildingType>
+			<FlavorType>FLAVOR_GROWTH</FlavorType>
+			<Flavor>10</Flavor>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_WIND_PLANT</BuildingType>
+			<FlavorType>FLAVOR_PRODUCTION</FlavorType>
+			<Flavor>70</Flavor>
+		</Row>
+	</Building_Flavors>
+	<Building_YieldChanges>
+		<Row>
+			<BuildingType>BUILDING_WELL</BuildingType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>2</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_WELL</BuildingType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>1</Yield>
+		</Row>
+	</Building_YieldChanges>
+	<Building_ResourceQuantityRequirements>
+		<Row>
+			<BuildingType>BUILDING_WIND_PLANT</BuildingType>
+			<ResourceType>RESOURCE_ALUMINUM</ResourceType>
+			<Cost>1</Cost>
+		</Row>
+	</Building_ResourceQuantityRequirements>
+	<Building_TerrainYieldChanges>
+		<Row>
+			<BuildingType>BUILDING_WIND_PLANT</BuildingType>
+			<TerrainType>TERRAIN_GRASS</TerrainType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>1</Yield>
+		</Row>
+	</Building_TerrainYieldChanges>
+	<Language_en_US>
+		<Row Tag="TXT_KEY_BUILDING_BATH">
+			<Text>Baths</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_WELL">
+			<Text>Well</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_WIND_PLANT">
+			<Text>Wind Plant</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_BATH_STRATEGY">
+			<Text>The Bath increases the speed at which [ICON_GREAT_PEOPLE] Great People are generated in the city by 25%. Baths can be constructed only in cities not next to a river or lake. They are more expensive to build, and maintain, than Gardens.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_WELL_STRATEGY">
+			<Text>The Well can only be constructed in a city without access to fresh water. The Well increases the city's [ICON_FOOD] Food intake, however it costs more to construct than the Water Mill.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_WIND_PLANT_STRATEGY">
+			<Text>The Wind Plant is a Modern-era building which can only be constructed in a city without access to fresh water. The Wind Plant increases the [ICON_PRODUCTION] Production output of every Grassland tile the city works. Constructing the Wind Plant consumes 1 [ICON_RES_ALUMINUM] Aluminum.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_WELL_HELP">
+			<Text>City must not be built next to a River.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_BATH_HELP">
+			<Text>+25% [ICON_GREAT_PEOPLE] Great People generation in this City.[NEWLINE][NEWLINE]City must not be built next to a River or Lake.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_WIND_PLANT_HELP">
+			<Text>+1 [ICON_PRODUCTION] Production in every Grassland tile. Requires 1 [ICON_RES_ALUMINUM] Aluminum.[NEWLINE][NEWLINE]City must not be built next to a River.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_BUILDINGS_BATH_TEXT">
+			<Text>Throughout history, societies devised systems to enable water to be brought to population centres. Ancient Greece utilized small bathtubs, wash basins, and foot baths for personal cleanliness. The earliest findings of baths date from the mid-2nd millennium BC in the palace complex at Knossos, Crete, and the luxurious alabaster bathtubs excavated in Akrotiri, Santorini. The Greeks established public baths and showers within gymnasiums for relaxation and personal hygiene. In fact, the word gymnasium comes from the Greek word gymnos, meaning naked. Ancient Rome developed a network of aqueducts to supply water to all large towns and population centres and had indoor plumbing, with pipes that terminated in homes and at public wells and fountains. The Roman public baths were called thermae. With the fall of the Roman Empire the aqueduct network fell into disrepair and most of it ceased to be used. In the Middle Ages, bathing commonly took place in public bathhouses. However, public nudity was frowned upon by liturgical factions of the period. Public baths were also havens for prostitution, which created opposition to the public baths. Rich people bathed at home, most likely in their bedroom, as 'bath' rooms were not common. Bathing was done in large, wooden tubs with a linen cloth laid in it to protect the bather from splinters. Additionally, during the Renaissance and Protestant Reformation, the quality and condition of the clothing (as opposed to the actual cleanliness of the body itself) were thought to reflect the soul of an individual. Clean clothing also reflected one's social status; clothes made the man or woman. Additionally, from the late Middle Ages through to the end of the 18th century, etiquette and medical manuals advised people to only wash the parts of the body that were visible to the public; for example, the ears, hands, feet, and face and neck. This did away with the public baths and left the cleaning of oneself to the privacy of one's home.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_BUILDINGS_WELL_TEXT">
+			<Text>
+				Wood-lined wells are known from the early Neolithic Linear Pottery culture, for example in Kückhoven (an outlying centre of Erkelenz), dated 5090 BC and Eythra, dated 5200 BC in Schletz (an outlying centre of Asparn an der Zaya) in Austria. Australian Aborigines relied on wells to survive the harsh Australian desert. They would dig down, scooping out sand and mud to reach clean water, then cover the source with spinifex to prevent spoilage. Non-Aborigines call these native wells, soaks or soakages. Stepwells are common in the west of India. In these wells, the water may be reached by descending a set of steps. They may be covered and are often of architectural significance. Many stepwells were also used for leisure, providing relief from the daytime heat. A qanat is an ancient water collection system made up of a series of wells and linked underground water channels that collects flowing water from a source usually a distance away, stores it, and then brings the water to the surface using gravity. Much of the population of Iran and other arid countries in Asia and North Africa historically depended upon the water from qanats; the areas of population corresponded closely to the areas where qanats are possible. In Egypt, shadoofs and sakiehs are used. When compared to each other however, the Sakkieh is much more efficient, as it can bring up water from a depth of 10 metres (versus the 3 metres of the shadoof). The Sakieh is the Egyptian version of the Noria. From the Iron Age onwards, wells are common archaeological features, both with wooden shafts and shaft linings made from wickerwork. The world's oldest known wells, located in Cyprus, date to 7500 BC. Two wells from the Neolithic period, around 6500 BC, have been discovered in Israel. One is in Atlit, on the northern coast of Israel, and the other is the Jezreel Valley.
+			</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_BUILDINGS_WIND_PLANT_TEXT">
+			<Text>
+				Wind power is the conversion of wind energy into a useful form of energy, such as using wind turbines to produce electrical power, windmills for mechanical power, windpumps for water pumping or drainage, or sails to propel ships. Large wind farms consist of hundreds of individual wind turbines which are connected to the electric power transmission network. For new constructions, onshore wind is an inexpensive source of electricity, competitive with or in many places cheaper than fossil fuel plants. Small onshore wind farms provide electricity to isolated locations. Utility companies increasingly buy surplus electricity produced by small domestic wind turbines. Offshore wind is steadier and stronger than on land, and offshore farms have less visual impact, but construction and maintenance costs are considerably higher. Wind power, as an alternative to fossil fuels, is plentiful, renewable, widely distributed, clean, produces no greenhouse gas emissions during operation and uses little land. The effects on the environment are generally less problematic than those from other power sources. As of 2011, Denmark is generating more than a quarter of its electricity from wind and 83 countries around the world are using wind power to supply the electricity grid. In 2010 wind energy production was over 2.5% of total worldwide electricity usage, and growing rapidly at more than 25% per annum. Wind power is very consistent from year to year but has significant variation over shorter time scales. As the proportion of windpower in a region increases, a need to upgrade the grid, and a lowered ability to supplant conventional production can occur. Power management techniques such as having excess capacity storage, geographically distributed turbines, dispatchable backing sources, storage such as pumped-storage hydroelectricity, exporting and importing power to neighboring areas or reducing demand when wind production is low, can greatly mitigate these problems.
+			</Text>
+		</Row>
+	</Language_en_US>
+	<Building_YieldChanges>
+		<Row>
+			<BuildingType>BUILDING_BATH</BuildingType>
+			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
+			<Yield>3</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_BARRACKS</BuildingType>
+			<YieldType>YIELD_GREAT_GENERAL_POINTS</YieldType>
+			<Yield>3</Yield>
+		</Row>
+	</Building_YieldChanges>
+</GameData>

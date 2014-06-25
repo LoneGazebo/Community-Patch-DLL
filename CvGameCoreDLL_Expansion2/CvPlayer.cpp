@@ -2187,14 +2187,22 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 						{
 							strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_EVICTED_CONQUEST_YOU");
 							strNotification << pEspionage->GetSpyRankName(pSpy->m_eRank);
+#if defined(MOD_BUGFIX_SPY_NAMES)
+							strNotification << pSpy->GetSpyName(&GET_PLAYER((PlayerTypes)i));
+#else
 							strNotification << GET_PLAYER((PlayerTypes)i).getCivilizationInfo().getSpyNames(pSpy->m_iName);
+#endif
 							strNotification << pOldCity->getNameKey();
 						}
 						else
 						{
 							strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_EVICTED_CONQUEST");
 							strNotification << pEspionage->GetSpyRankName(pSpy->m_eRank);
+#if defined(MOD_BUGFIX_SPY_NAMES)
+							strNotification << pSpy->GetSpyName(&GET_PLAYER((PlayerTypes)i));
+#else
 							strNotification << GET_PLAYER((PlayerTypes)i).getCivilizationInfo().getSpyNames(pSpy->m_iName);
+#endif
 							strNotification << pOldCity->getNameKey();
 							strNotification << getCivilizationInfo().getShortDescriptionKey();
 						}
@@ -2206,14 +2214,22 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 						{
 							strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_EVICTED_TRADE_YOU");
 							strNotification << pEspionage->GetSpyRankName(pSpy->m_eRank);
+#if defined(MOD_BUGFIX_SPY_NAMES)
+							strNotification << pSpy->GetSpyName(&GET_PLAYER((PlayerTypes)i));
+#else
 							strNotification << GET_PLAYER((PlayerTypes)i).getCivilizationInfo().getSpyNames(pSpy->m_iName);
+#endif
 							strNotification << pOldCity->getNameKey();
 						}
 						else
 						{
 							strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_EVICTED_TRADE");
 							strNotification << pEspionage->GetSpyRankName(pSpy->m_eRank);
+#if defined(MOD_BUGFIX_SPY_NAMES)
+							strNotification << pSpy->GetSpyName(&GET_PLAYER((PlayerTypes)i));
+#else
 							strNotification << GET_PLAYER((PlayerTypes)i).getCivilizationInfo().getSpyNames(pSpy->m_iName);
+#endif
 							strNotification << pOldCity->getNameKey();
 							strNotification << getCivilizationInfo().getShortDescriptionKey();
 						}

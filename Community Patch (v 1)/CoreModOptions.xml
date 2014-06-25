@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameData>
+	<!-- To turn elements of the dll off and on, please use this file (and not the BaseModValues.xml file).-->
+	<CustomModOptions>
+		<!-- Enables base mod functionality.-->
+		<Update>
+			<Where Name="COMMUNITY_PATCH"/>
+			<Set Value="1"/>
+		</Update>
+		<!-- Enables core functions, such as extra building modifiers and global defines.-->
+		<Update>
+			<Where Name="MOD_BALANCE_CORE"/>
+			<Set Value="1"/>
+		</Update>
+		<!-- Enables yield-related functions and changes.-->
+		<Update>
+			<Where Name="MOD_BALANCE_CORE_YIELDS"/>
+			<Set Value="1"/>
+		</Update>
+		<!-- Enables scaled spy mechanic.-->
+		<Update>
+			<Where Name="MOD_BALANCE_CORE_SPIES"/>
+			<Set Value="1"/>
+		</Update>
+		<!-- Enables military and tactical AI improvements.-->
+		<Update>
+			<Where Name="MOD_BALANCE_CORE_MILITARY"/>
+			<Set Value="1"/>
+		</Update>
+		<!-- Enables improved settler site selection.-->
+		<Update>
+			<Where Name="MOD_BALANCE_CORE_SETTLER"/>
+			<Set Value="1"/>
+		</Update>
+		<!-- Enables dynamic trade deal functionality.-->
+		<Update>
+			<Where Name="MOD_BALANCE_CORE_DEALS"/>
+			<Set Value="1"/>
+		</Update>
+		<!-- Enables City-State related changes.-->
+		<Update>
+			<Where Name="MOD_BALANCE_CORE_MINORS"/>
+			<Set Value="1"/>
+		</Update>
+		<!-- Enables City-State related changes.-->
+		<Update>
+			<Where Name="MOD_BALANCE_CORE_DIFFICULTY"/>
+			<Set Value="1"/>
+		</Update>
+		<!-- Enabled Happiness-related changes.-->
+		<Update>
+			<Where Name="MOD_BALANCE_CORE_HAPPINESS"/>
+			<Set Value="1"/>
+		</Update>
+		<!-- Enabled Happiness-related changes for empire.-->
+		<Update>
+			<Where Name="MOD_BALANCE_CORE_HAPPINESS_NATIONAL"/>
+			<Set Value="1"/>
+		</Update>
+	</CustomModOptions>
+</GameData>
