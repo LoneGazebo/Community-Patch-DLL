@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created by ModBuddy on 6/24/2014 12:46:57 PM -->
+<GameData>
+	<Language_en_US>
+		<Row Tag="TXT_KEY_TP_UNHAPPINESS_CULTURE">
+			<Text>{1_Num} from uncultured Cities.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TP_UNHAPPINESS_DEFENSE">
+			<Text>{1_Num} from vulnerable Cities.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TP_UNHAPPINESS_GOLD">
+			<Text>{1_Num} from impoverished Cities.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TP_UNHAPPINESS_CONNECTION">
+			<Text>{1_Num} from disconnected and blockaded Cities.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TP_UNHAPPINESS_PILLAGED">
+			<Text>{1_Num} from pillaged tiles around Cities.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TP_UNHAPPINESS_STARVING">
+			<Text>{1_Num} from starving Cities.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TP_UNHAPPINESS_MINORITY">
+			<Text>{1_Num} from religious minorities in Cities.</Text>
+		</Row>
+	</Language_en_US>
+</GameData>
