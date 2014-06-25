@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created by ModBuddy on 5/27/2014 11:35:29 PM -->
+<GameData>
+	<Building_PlotYieldChanges>
+		<Row>
+			<BuildingType>BUILDING_AQUEDUCT</BuildingType>
+			<PlotType>PLOT_MOUNTAIN</PlotType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_WORKSHOP</BuildingType>
+			<PlotType>PLOT_MOUNTAIN</PlotType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>1</Yield>
+		</Row>
+	</Building_PlotYieldChanges>
+	<Policy_PlotYieldChanges>
+		<Row>
+			<PolicyType>POLICY_MANDATE_OF_HEAVEN</PolicyType>
+			<PlotType>PLOT_MOUNTAIN</PlotType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>1</Yield>
+		</Row>
+	</Policy_PlotYieldChanges>
+</GameData>

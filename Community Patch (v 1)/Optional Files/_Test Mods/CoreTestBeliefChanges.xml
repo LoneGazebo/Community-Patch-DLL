@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created by ModBuddy on 6/15/2014 4:45:54 PM -->
+<GameData>
+	<Belief_CityYieldChanges>
+		<Row>
+			<BeliefType>BELIEF_GOD_KING</BeliefType>
+			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BeliefType>BELIEF_HOLY_WARRIORS</BeliefType>
+			<YieldType>YIELD_GREAT_GENERAL_POINTS</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BeliefType>BELIEF_GOD_SEA</BeliefType>
+			<YieldType>YIELD_GREAT_ADMIRAL_POINTS</YieldType>
+			<Yield>1</Yield>
+		</Row>
+	</Belief_CityYieldChanges>
+</GameData>
