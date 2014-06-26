@@ -2135,6 +2135,14 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 				if (eLandmarkImprovement != NO_IMPROVEMENT)
 				{
 					pPlot->setImprovementType(eLandmarkImprovement, m_pPlayer->GetID());
+#if defined(MOD_BUGFIX_MINOR)
+					// Clear the pillage state just in case something weird happened on this plot before the dig site was revealed
+#if defined(MOD_EVENTS_TILE_IMPROVEMENTS)
+					pPlot->SetImprovementPillaged(false, false);
+#else
+					pPlot->SetImprovementPillaged(false);
+#endif
+#endif
 #if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 					pPlot->SetPlayerThatClearedDigHere(m_pPlayer->GetID());
 #endif

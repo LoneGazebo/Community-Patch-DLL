@@ -1744,8 +1744,8 @@ void CvEconomicAI::DoHurry()
 {
 	int iLoop = 0;
 
-#if defined(MOD_DIPLOMACY_CITYSTATES_HURRY)
-  if (MOD_DIPLOMACY_CITYSTATES_HURRY) {
+#if defined(MOD_DIPLOMACY_CITYSTATES_HURRY) || defined(MOD_BALANCE_CORE)
+  if (MOD_DIPLOMACY_CITYSTATES_HURRY || MOD_BALANCE_CORE) {
 	//Let's give the AI a treasury cushion ...
 	int iTreasuryBuffer = /*500*/ GC.getAI_GOLD_TREASURY_BUFFER();
 	// ... modified by gamespeed
@@ -1803,7 +1803,7 @@ void CvEconomicAI::DoHurry()
 												{	
 													//Log it
 													CvString strLogString;
-													strLogString.Format("CSD - Buying unit: %s in %s. Cost: %d, Balance (before buy): %d",
+													strLogString.Format("MOD - Buying unit: %s in %s. Cost: %d, Balance (before buy): %d",
 														pkUnitInfo->GetDescription(), pLoopCity->getName().c_str(), iGoldCost, m_pPlayer->GetTreasury()->GetGold());
 													m_pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
 
@@ -1856,7 +1856,7 @@ void CvEconomicAI::DoHurry()
 									{
 										//Log it
 										CvString strLogString;
-										strLogString.Format("CSD - Buying building: %s in %s. Cost: %d, Balance (before buy): %d",
+										strLogString.Format("MOD - Buying building: %s in %s. Cost: %d, Balance (before buy): %d",
 										pkBuildingInfo->GetDescription(), pLoopCity->getName().c_str(), iGoldCost, m_pPlayer->GetTreasury()->GetGold());
 										m_pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
 					
@@ -1903,7 +1903,7 @@ void CvEconomicAI::DoHurry()
 												{	
 													//Log it
 													CvString strLogString;
-													strLogString.Format("CSD - Buying unit %s for operation in %s. Cost: %d, Balance (before buy): %d",
+													strLogString.Format("MOD - Buying unit %s for operation in %s. Cost: %d, Balance (before buy): %d",
 													pkUnitInfo->GetDescription(), pLoopCity->getName().c_str(), iGoldCost, m_pPlayer->GetTreasury()->GetGold());
 													m_pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
 
@@ -2020,7 +2020,7 @@ void CvEconomicAI::DoHurry()
 		pBestHurryCity->hurry(eBestHurryType);
 		pBestHurryCity->GetCityStrategyAI()->LogHurry(eBestHurryType, iBestHurryAmount, iBestHurryAmountAvailable, iBestHurryTurnsSaved);
 	}
-#if defined(MOD_DIPLOMACY_CITYSTATES_HURRY)
+#if defined(MOD_DIPLOMACY_CITYSTATES_HURRY) || defined(MOD_BALANCE_CORE)
   }
 #endif
 }

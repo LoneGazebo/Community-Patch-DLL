@@ -4839,10 +4839,14 @@ BeliefTypes CvReligionAI::ChoosePantheonBelief()
 		if(pEntry)
 		{
 			const int iScore = ScoreBelief(pEntry);
+#if !defined(MOD_BUGFIX_MINOR)
 			if(iScore > 0)
 			{
+#endif
 				beliefChoices.push_back(eBelief, iScore);
+#if !defined(MOD_BUGFIX_MINOR)
 			}
+#endif
 		}
 	}
 
@@ -4880,10 +4884,14 @@ BeliefTypes CvReligionAI::ChooseFounderBelief()
 		if(pEntry)
 		{
 			const int iScore = ScoreBelief(pEntry);
+#if !defined(MOD_BUGFIX_MINOR)
 			if(iScore > 0)
 			{
+#endif
 				beliefChoices.push_back(eBelief, iScore);
+#if !defined(MOD_BUGFIX_MINOR)
 			}
+#endif
 		}
 	}
 
@@ -4921,10 +4929,14 @@ BeliefTypes CvReligionAI::ChooseFollowerBelief()
 		if(pEntry)
 		{
 			const int iScore = ScoreBelief(pEntry);
+#if !defined(MOD_BUGFIX_MINOR)
 			if(iScore > 0)
 			{
+#endif
 				beliefChoices.push_back(eBelief, iScore);
+#if !defined(MOD_BUGFIX_MINOR)
 			}
+#endif
 		}
 	}
 
@@ -4962,10 +4974,14 @@ BeliefTypes CvReligionAI::ChooseEnhancerBelief()
 		if(pEntry)
 		{
 			const int iScore = ScoreBelief(pEntry);
+#if !defined(MOD_BUGFIX_MINOR)
 			if(iScore > 0)
 			{
+#endif
 				beliefChoices.push_back(eBelief, iScore);
+#if !defined(MOD_BUGFIX_MINOR)
 			}
+#endif
 		}
 	}
 
@@ -5005,10 +5021,14 @@ BeliefTypes CvReligionAI::ChooseBonusBelief(int iExcludeBelief1, int iExcludeBel
 			if (pEntry->GetID() != iExcludeBelief1 && pEntry->GetID() != iExcludeBelief2 && pEntry->GetID() != iExcludeBelief3)
 			{
 				const int iScore = ScoreBelief(pEntry);
+#if !defined(MOD_BUGFIX_MINOR)
 				if(iScore > 0)
 				{
+#endif
 					beliefChoices.push_back(eBelief, iScore);
+#if !defined(MOD_BUGFIX_MINOR)
 				}
+#endif
 			}
 		}
 	}
@@ -5047,10 +5067,14 @@ BeliefTypes CvReligionAI::ChooseReformationBelief()
 		if(pEntry)
 		{
 			const int iScore = ScoreBelief(pEntry);
+#if !defined(MOD_BUGFIX_MINOR)
 			if(iScore > 0)
 			{
+#endif
 				beliefChoices.push_back(eBelief, iScore);
+#if !defined(MOD_BUGFIX_MINOR)
 			}
+#endif
 		}
 	}
 

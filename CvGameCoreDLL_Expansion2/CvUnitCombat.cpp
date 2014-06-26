@@ -1453,6 +1453,14 @@ void CvUnitCombat::ResolveAirUnitVsCombat(const CvCombatInfo& kCombatInfo, uint 
 						bTargetDied = true;
 
 						ApplyPostCombatTraitEffects(pkAttacker, pkDefender);
+
+#if defined(MOD_BUGFIX_MINOR)
+						// Friendship from barb death via air-strike
+						if(pkDefender->isBarbarian())
+						{
+						 	pkDefender->DoTestBarbarianThreatToMinorsWithThisUnitsDeath(pkAttacker->getOwner());
+						}
+#endif
 					}
 					// Nobody died
 					else

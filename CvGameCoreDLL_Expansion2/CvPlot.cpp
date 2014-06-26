@@ -9762,6 +9762,17 @@ bool CvPlot::changeBuildProgress(BuildTypes eBuild, int iChange, PlayerTypes ePl
 			if (eImprovement != NO_IMPROVEMENT)
 			{
 				setImprovementType(eImprovement, ePlayer);
+				
+#if defined(MOD_BUGFIX_MINOR)
+				// Building a GP improvement on a resource needs to clear any previous pillaged state
+				if (GC.getImprovementInfo(eImprovement)->IsCreatedByGreatPerson()) {
+#if defined(MOD_EVENTS_TILE_IMPROVEMENTS)
+					SetImprovementPillaged(false, false);
+#else
+					SetImprovementPillaged(false);
+#endif
+				}
+#endif
 
 				// Unowned plot, someone has to foot the bill
 				if(getOwner() == NO_PLAYER)

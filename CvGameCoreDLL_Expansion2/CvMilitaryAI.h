@@ -194,10 +194,6 @@ public:
 	};
 
 	// Requests for military operations
-#if defined(MOD_BALANCE_CORE_MILITARY)
-	void SetEscortID(int iValue);
-	int GetEscortID();
-#endif
 	bool RequestSneakAttack(PlayerTypes eEnemy);
 	bool RequestShowOfForce(PlayerTypes eEnemy);
 	bool RequestBasicAttack(PlayerTypes eEnemy, int iNumUnitsWillingBuild);

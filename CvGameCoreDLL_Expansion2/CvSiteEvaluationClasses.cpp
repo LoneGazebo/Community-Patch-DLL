@@ -870,7 +870,7 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, YieldT
 						//Is the plot we're looking at in the same area as our strong neighbor?
 						if (iClosestEnemyCity <= 6)
 						{
-							rtnValue /= 2;
+							rtnValue /= 4;
 						}
 					}
 				}

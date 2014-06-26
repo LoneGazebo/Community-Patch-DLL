@@ -119,6 +119,9 @@ public:
 	int GetWorkerSpeedModifier() const;
 	int GetAfraidMinorPerTurnInfluence() const;
 	int GetLandTradeRouteRangeBonus() const;
+#if defined(MOD_TRAITS_TRADE_ROUTE_BONUSES)
+	int GetSeaTradeRouteRangeBonus() const;
+#endif
 	int GetTradeReligionModifier() const;
 	int GetTradeBuildingModifier() const;
 #if defined(MOD_BALANCE_CORE)
@@ -260,6 +263,9 @@ protected:
 	int m_iWorkerSpeedModifier;
 	int m_iAfraidMinorPerTurnInfluence;
 	int m_iLandTradeRouteRangeBonus;
+#if defined(MOD_TRAITS_TRADE_ROUTE_BONUSES)
+	int m_iSeaTradeRouteRangeBonus;
+#endif
 	int m_iTradeReligionModifier;
 	int m_iTradeBuildingModifier;
 #if defined(MOD_BALANCE_CORE)
@@ -640,6 +646,12 @@ public:
 	{
 		return m_iLandTradeRouteRangeBonus;
 	}
+#if defined(MOD_TRAITS_TRADE_ROUTE_BONUSES)
+	int GetSeaTradeRouteRangeBonus() const
+	{
+		return m_iSeaTradeRouteRangeBonus;
+	}
+#endif
 	int GetTradeReligionModifier() const
 	{
 		return m_iTradeReligionModifier;
@@ -914,6 +926,9 @@ private:
 	int m_iWorkerSpeedModifier;
 	int m_iAfraidMinorPerTurnInfluence; 
 	int m_iLandTradeRouteRangeBonus;
+#if defined(MOD_TRAITS_TRADE_ROUTE_BONUSES)
+	int m_iSeaTradeRouteRangeBonus;
+#endif
 	int m_iTradeReligionModifier;
 	int m_iTradeBuildingModifier;
 #if defined(MOD_BALANCE_CORE)

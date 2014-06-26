@@ -3314,6 +3314,9 @@ CvGameSpeedInfo::CvGameSpeedInfo() :
 	m_iReligiousPressureAdjacentCity(0),
 	m_iVictoryDelayPercent(0),
 	m_iMinorCivElectionFreqMod(0),
+#if defined(MOD_TRADE_ROUTE_SCALING)
+	m_iTradeRouteSpeedMod(100),
+#endif
 	m_iLeaguePercent(0),
 	m_iNumTurnIncrements(0),
 	m_pGameTurnInfo(NULL)
@@ -3469,6 +3472,13 @@ int CvGameSpeedInfo::getRelationshipDuration() const
 {
 	return m_iRelationshipDuration;
 }
+#if defined(MOD_TRADE_ROUTE_SCALING)
+//------------------------------------------------------------------------------
+int CvGameSpeedInfo::getTradeRouteSpeedMod() const
+{
+	return m_iTradeRouteSpeedMod;
+}
+#endif
 //------------------------------------------------------------------------------
 int CvGameSpeedInfo::getLeaguePercent() const
 {
@@ -3524,6 +3534,11 @@ bool CvGameSpeedInfo::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_iSpyRatePercent				= kResults.GetInt("SpyRatePercent");
 	m_iPeaceDealDuration			= kResults.GetInt("PeaceDealDuration");
 	m_iRelationshipDuration			= kResults.GetInt("RelationshipDuration");
+#if defined(MOD_TRADE_ROUTE_SCALING)
+	if (MOD_TRADE_ROUTE_SCALING) {
+		m_iTradeRouteSpeedMod		= kResults.GetInt("TradeRouteSpeedMod");
+	}
+#endif
 	m_iLeaguePercent				= kResults.GetInt("LeaguePercent");
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
@@ -3659,6 +3674,87 @@ FDataStream& operator>>(FDataStream& loadFrom, CvTurnTimerInfo& writeTo)
 	writeTo.readFrom(loadFrom);
 	return loadFrom;
 }
+
+
+#if defined(MOD_EVENTS_DIPLO_MODIFIERS)
+//======================================================================================================
+//					CvDiploModifierInfo
+//======================================================================================================
+CvDiploModifierInfo::CvDiploModifierInfo() :
+	m_eFromCiv(NO_CIVILIZATION),
+	m_eToCiv(NO_CIVILIZATION)
+{}
+//------------------------------------------------------------------------------
+bool CvDiploModifierInfo::isForFromCiv(CivilizationTypes eFromCiv)
+{
+	return (m_eFromCiv == NO_CIVILIZATION || m_eFromCiv == eFromCiv);
+}
+//------------------------------------------------------------------------------
+bool CvDiploModifierInfo::isForToCiv(CivilizationTypes eToCiv)
+{
+	return (m_eToCiv == NO_CIVILIZATION || m_eToCiv == eToCiv);
+}
+//------------------------------------------------------------------------------
+bool CvDiploModifierInfo::CacheResults(Database::Results& results, CvDatabaseUtility& kUtility)
+{
+	if(CvBaseInfo::CacheResults(results, kUtility))
+	{
+		const char* szTextVal = NULL;
+
+		szTextVal = results.GetText("FromCivilizationType");
+		m_eFromCiv = (CivilizationTypes) GC.getInfoTypeForString(szTextVal, true);
+
+		szTextVal = results.GetText("ToCivilizationType");
+		m_eToCiv = (CivilizationTypes) GC.getInfoTypeForString(szTextVal, true);
+
+		return true;
+	}
+
+	return false;
+}
+
+bool CvDiploModifierInfo::operator==(const CvDiploModifierInfo& rhs) const
+{
+	if(this == &rhs) return true;
+	if(!CvBaseInfo::operator==(rhs)) return false;
+	if(m_eFromCiv != rhs.m_eFromCiv) return false;
+	if(m_eToCiv != rhs.m_eToCiv) return false;
+	return true;
+}
+
+void CvDiploModifierInfo::writeTo(FDataStream& saveTo) const
+{
+	CvBaseInfo::writeTo(saveTo);
+
+	MOD_SERIALIZE_INIT_WRITE(saveTo);
+
+	MOD_SERIALIZE_WRITE(saveTo, m_eFromCiv);
+	MOD_SERIALIZE_WRITE(saveTo, m_eToCiv);
+}
+
+void CvDiploModifierInfo::readFrom(FDataStream& loadFrom)
+{
+	CvBaseInfo::readFrom(loadFrom);
+
+	MOD_SERIALIZE_INIT_READ(loadFrom);
+
+	MOD_SERIALIZE_READ(53, loadFrom, m_eFromCiv, NO_CIVILIZATION);
+	MOD_SERIALIZE_READ(53, loadFrom, m_eToCiv, NO_CIVILIZATION);
+}
+
+FDataStream& operator<<(FDataStream& saveTo, const CvDiploModifierInfo& readFrom)
+{
+	readFrom.writeTo(saveTo);
+	return saveTo;
+}
+
+FDataStream& operator>>(FDataStream& loadFrom, CvDiploModifierInfo& writeTo)
+{
+	writeTo.readFrom(loadFrom);
+	return loadFrom;
+}
+#endif
+
 
 //======================================================================================================
 //					CvBuildInfo
@@ -5769,6 +5865,9 @@ CvWorldInfo::CvWorldInfo() :
 	m_iNumCitiesUnhappinessPercent(100),
 	m_iNumCitiesPolicyCostMod(10),
 	m_iNumCitiesTechCostMod(5),
+#if defined(MOD_TRADE_ROUTE_SCALING)
+	m_iTradeRouteDistanceMod(100),
+#endif
 	m_iEstimatedNumCities(0)
 {
 }
@@ -5867,6 +5966,13 @@ int CvWorldInfo::GetNumCitiesTechCostMod() const
 {
 	return m_iNumCitiesTechCostMod;
 }
+#if defined(MOD_TRADE_ROUTE_SCALING)
+//------------------------------------------------------------------------------
+int CvWorldInfo::getTradeRouteDistanceMod() const
+{
+	return m_iTradeRouteDistanceMod;
+}
+#endif
 //------------------------------------------------------------------------------
 int CvWorldInfo::GetEstimatedNumCities() const
 {
@@ -5917,6 +6023,11 @@ bool CvWorldInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	m_iNumCitiesUnhappinessPercent	= kResults.GetInt("NumCitiesUnhappinessPercent");
 	m_iNumCitiesPolicyCostMod		= kResults.GetInt("NumCitiesPolicyCostMod");
 	m_iNumCitiesTechCostMod			= kResults.GetInt("NumCitiesTechCostMod");
+#if defined(MOD_TRADE_ROUTE_SCALING)
+	if (MOD_TRADE_ROUTE_SCALING) {
+		m_iTradeRouteDistanceMod	= kResults.GetInt("TradeRouteDistanceMod");
+	}
+#endif
 	m_iEstimatedNumCities			= kResults.GetInt("EstimatedNumCities");
 
 	return true;
@@ -5944,6 +6055,9 @@ bool CvWorldInfo::operator==(const CvWorldInfo& rhs) const
 	if(m_iAdvancedStartPointsMod != rhs.m_iAdvancedStartPointsMod) return false;
 	if(m_iNumCitiesUnhappinessPercent != rhs.m_iNumCitiesUnhappinessPercent) return false;
 	if(m_iNumCitiesPolicyCostMod != rhs.m_iNumCitiesPolicyCostMod) return false;
+#if defined(MOD_TRADE_ROUTE_SCALING)
+	if(m_iTradeRouteDistanceMod != rhs.m_iTradeRouteDistanceMod) return false;
+#endif
 	if(m_iNumCitiesTechCostMod != rhs.m_iNumCitiesTechCostMod) return false;
 	return true;
 }
@@ -5988,6 +6102,9 @@ void CvWorldInfo::readFrom(FDataStream& loadFrom)
 	{
 		m_iNumCitiesTechCostMod = 0;
 	}
+#if defined(MOD_TRADE_ROUTE_SCALING)
+	MOD_SERIALIZE_READ(52, loadFrom, m_iTradeRouteDistanceMod, 100);
+#endif
 }
 
 // A special reader for version 0 (pre-versioning)
@@ -6040,6 +6157,9 @@ void CvWorldInfo::writeTo(FDataStream& saveTo) const
 	saveTo << m_iNumCitiesUnhappinessPercent;
 	saveTo << m_iNumCitiesPolicyCostMod;
 	saveTo << m_iNumCitiesTechCostMod;
+#if defined(MOD_TRADE_ROUTE_SCALING)
+	MOD_SERIALIZE_WRITE(saveTo, m_iTradeRouteDistanceMod);
+#endif
 }
 
 FDataStream& operator<<(FDataStream& saveTo, const CvWorldInfo& readFrom)

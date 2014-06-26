@@ -311,6 +311,15 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(GetCityWorkingChange);
 	Method(ChangeCityWorkingChange);
 #endif
+#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE_HAPPINESS)
+	Method(getUnhappinessFromCulture);
+	Method(getUnhappinessFromDefense);
+	Method(getUnhappinessFromGold);
+	Method(getUnhappinessFromConnection);
+	Method(getUnhappinessFromPillaged);
+	Method(getUnhappinessFromStarving);
+	Method(getUnhappinessFromMinority);
+#endif
 
 	Method(ChangeHealRate);
 
@@ -842,7 +851,11 @@ int CvLuaCity::lCanConstructTooltip(lua_State* L)
 	const BuildingTypes eBuilding = (BuildingTypes) lua_tointeger(L, 2);
 
 	// City Production Modifier
+#if defined(MOD_API_EXTENSIONS)
+	pkCity->canConstruct(eBuilding, false, false, false, false, &toolTip);
+#else
 	pkCity->canConstruct(eBuilding, false, false, false, &toolTip);
+#endif
 
 	lua_pushstring(L, toolTip.c_str());
 	return 1;
@@ -856,7 +869,12 @@ int CvLuaCity::lCanConstruct(lua_State* L)
 	const bool bContinue = luaL_optint(L, 3, 0);
 	const bool bTestVisible = luaL_optint(L, 4, 0);
 	const bool bIgnoreCost = luaL_optint(L, 5, 0);
+#if defined(MOD_API_EXTENSIONS)
+	const bool bWillPurchase = luaL_optint(L, 6, 0);
+	const bool bResult = pkCity->canConstruct((BuildingTypes)iBuilding, bContinue, bTestVisible, bIgnoreCost, bWillPurchase);
+#else
 	const bool bResult = pkCity->canConstruct((BuildingTypes)iBuilding, bContinue, bTestVisible, bIgnoreCost);
+#endif
 
 	lua_pushboolean(L, bResult);
 	return 1;
@@ -989,7 +1007,11 @@ int CvLuaCity::lGetPurchaseBuildingTooltip(lua_State* L)
 	const BuildingTypes eBuilding = (BuildingTypes) lua_tointeger(L, 2);
 
 	// City Production Modifier
+#if defined(MOD_API_EXTENSIONS)
+	pkCity->canConstruct(eBuilding, false, false, false, false, &toolTip);
+#else
 	pkCity->canConstruct(eBuilding, false, false, false, &toolTip);
+#endif
 
 	// Not enough cash money
 	if(pkCity->GetPurchaseCost(eBuilding) > GET_PLAYER(pkCity->getOwner()).GetTreasury()->GetGold())
@@ -1017,7 +1039,11 @@ int CvLuaCity::lGetFaithPurchaseBuildingTooltip(lua_State* L)
 	const BuildingTypes eBuilding = (BuildingTypes) lua_tointeger(L, 2);
 
 	// City Production Modifier
+#if defined(MOD_API_EXTENSIONS)
+	pkCity->canConstruct(eBuilding, false, false, false, false, &toolTip);
+#else
 	pkCity->canConstruct(eBuilding, false, false, false, &toolTip);
+#endif
 
 	// Not enough faith
 	if(pkCity->GetFaithPurchaseCost(eBuilding) > GET_PLAYER(pkCity->getOwner()).GetFaith())
@@ -2712,6 +2738,58 @@ int CvLuaCity::lGetCityWorkingChange(lua_State* L)
 int CvLuaCity::lChangeCityWorkingChange(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvCity::changeCityWorkingChange);
+}
+#endif
+
+#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE_HAPPINESS)
+//int getUnhappinessFromCulture();
+int CvLuaCity::lgetUnhappinessFromCulture(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	lua_pushinteger(L, pkCity->getUnhappinessFromCulture());
+	return 1;
+}
+//int getUnhappinessFromDefense();
+int CvLuaCity::lgetUnhappinessFromDefense(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	lua_pushinteger(L, pkCity->getUnhappinessFromDefense());
+	return 1;
+}
+//int getUnhappinessFromGold();
+int CvLuaCity::lgetUnhappinessFromGold(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	lua_pushinteger(L, pkCity->getUnhappinessFromGold());
+	return 1;
+}
+//int getUnhappinessFromConnection();
+int CvLuaCity::lgetUnhappinessFromConnection(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	lua_pushinteger(L, pkCity->getUnhappinessFromConnection());
+	return 1;
+}
+//int getUnhappinessFromPillaged();
+int CvLuaCity::lgetUnhappinessFromPillaged(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	lua_pushinteger(L, pkCity->getUnhappinessFromPillaged());
+	return 1;
+}
+//int getUnhappinessFromStarving();
+int CvLuaCity::lgetUnhappinessFromStarving(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	lua_pushinteger(L, pkCity->getUnhappinessFromStarving());
+	return 1;
+}
+//int getUnhappinessFromMinority();
+int CvLuaCity::lgetUnhappinessFromMinority(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	lua_pushinteger(L, pkCity->getUnhappinessFromMinority());
+	return 1;
 }
 #endif
 

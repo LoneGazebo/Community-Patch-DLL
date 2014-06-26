@@ -16,6 +16,14 @@
 
 #define BULLY_DEBUGGING false
 
+#if defined(MOD_EVENTS_DIPLO_MODIFIERS)
+struct Opinion
+{
+	Localization::String m_str;
+	int m_iValue;
+};
+#endif
+
 struct DiploLogData
 {
 	DiploStatementTypes m_eDiploLogStatement;
@@ -1108,6 +1116,9 @@ public:
 	int GetSupportedMyProposalScore(PlayerTypes ePlayer);
 	int GetFoiledMyProposalScore(PlayerTypes ePlayer);
 	int GetSupportedMyHostingScore(PlayerTypes ePlayer);
+#if defined(MOD_EVENTS_DIPLO_MODIFIERS)
+	int GetDiploModifiers(PlayerTypes ePlayer, std::vector<Opinion>& aOpinions);
+#endif
 	int GetScenarioModifier1(PlayerTypes ePlayer);
 	int GetScenarioModifier2(PlayerTypes ePlayer);
 	int GetScenarioModifier3(PlayerTypes ePlayer);

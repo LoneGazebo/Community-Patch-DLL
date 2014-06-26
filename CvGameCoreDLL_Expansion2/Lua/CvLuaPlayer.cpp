@@ -654,6 +654,15 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetNumDenouncements);
 	Method(GetNumDenouncementsOfPlayer);
 #endif
+#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE_HAPPINESS)
+	Method(getUnhappinessFromCityCulture);
+	Method(getUnhappinessFromCityDefense);
+	Method(getUnhappinessFromCityGold);
+	Method(getUnhappinessFromCityConnection);
+	Method(getUnhappinessFromCityPillaged);
+	Method(getUnhappinessFromCityStarving);
+	Method(getUnhappinessFromCityMinority);
+#endif
 
 	Method(IsAlive);
 	Method(IsEverAlive);
@@ -6976,7 +6985,7 @@ int CvLuaPlayer::lGetFriendshipFromUnitGift(lua_State* L)
 	return 1;
 }
 
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE_MINORS)
+#if defined(MOD_API_LUA_EXTENSIONS) && (defined(MOD_BALANCE_CORE_MINORS) || defined(MOD_DIPLOMACY_CITYSTATES_QUESTS))
 //------------------------------------------------------------------------------
 //int GetJerk(TeamTypes eTeam);
 int CvLuaPlayer::lGetJerk(lua_State* L)
@@ -7013,7 +7022,78 @@ int CvLuaPlayer::lGetNumDenouncementsOfPlayer(lua_State* L)
 	return 1;
 }
 #endif
+#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE_HAPPINESS)
+//------------------------------------------------------------------------------
+//int getUnhappinessFromCityCulture();
+int CvLuaPlayer::lgetUnhappinessFromCityCulture(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
 
+	const int iResult = pkPlayer->getUnhappinessFromCityCulture();
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
+//int getUnhappinessFromCityDefense();
+int CvLuaPlayer::lgetUnhappinessFromCityDefense(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+
+	const int iResult = pkPlayer->getUnhappinessFromCityDefense();
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
+//int getUnhappinessFromCityGold();
+int CvLuaPlayer::lgetUnhappinessFromCityGold(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+
+	const int iResult = pkPlayer->getUnhappinessFromCityGold();
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
+//int getUnhappinessFromCityConnection();
+int CvLuaPlayer::lgetUnhappinessFromCityConnection(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+
+	const int iResult = pkPlayer->getUnhappinessFromCityConnection();
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
+//int getUnhappinessFromCityPillaged();
+int CvLuaPlayer::lgetUnhappinessFromCityPillaged(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+
+	const int iResult = pkPlayer->getUnhappinessFromCityPillaged();
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
+//int getUnhappinessFromCityStarving();
+int CvLuaPlayer::lgetUnhappinessFromCityStarving(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+
+	const int iResult = pkPlayer->getUnhappinessFromCityStarving();
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
+//int getUnhappinessFromCityMinority();
+int CvLuaPlayer::lgetUnhappinessFromCityMinority(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+
+	const int iResult = pkPlayer->getUnhappinessFromCityMinority();
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+#endif
 //------------------------------------------------------------------------------
 //bool isAlive();
 int CvLuaPlayer::lIsAlive(lua_State* L)
@@ -10012,11 +10092,13 @@ int CvLuaPlayer::lWasResurrectedThisTurnBy(lua_State* L)
 	return 1;
 }
 //------------------------------------------------------------------------------
+#if !defined(MOD_EVENTS_DIPLO_MODIFIERS)
 struct Opinion
 {
 	Localization::String m_str;
 	int m_iValue;
 };
+#endif
 
 struct OpinionEval
 {
@@ -10864,6 +10946,9 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		aOpinions.push_back(kOpinion);
 	}
 
+#if defined(MOD_EVENTS_DIPLO_MODIFIERS)
+	iValue = pDiploAI->GetDiploModifiers(eWithPlayer, aOpinions);
+#else
 	iValue = pDiploAI->GetScenarioModifier1(eWithPlayer);
 	if (iValue != 0)
 	{
@@ -10890,6 +10975,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		kOpinion.m_str = Localization::Lookup("TXT_KEY_SPECIFIC_DIPLO_STRING_3");
 		aOpinions.push_back(kOpinion);
 	}
+#endif
 
 	std::stable_sort(aOpinions.begin(), aOpinions.end(), OpinionEval());
 
@@ -11181,7 +11267,11 @@ int CvLuaPlayer::lGetEspionageSpies(lua_State* L)
 		lua_pushinteger(L, pSpy->m_iCityY);
 		lua_setfield(L, t, "CityY");
 
+#if defined(MOD_BUGFIX_SPY_NAMES)
+		const char* szSpyName = pSpy->GetSpyName(pkThisPlayer);
+#else
 		const char* szSpyName = pkThisPlayer->getCivilizationInfo().getSpyNames(pSpy->m_iName);
+#endif
 		lua_pushstring(L, szSpyName);
 		lua_setfield(L, t, "Name");
 

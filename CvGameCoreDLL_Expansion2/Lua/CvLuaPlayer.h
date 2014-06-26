@@ -576,12 +576,21 @@ protected:
 	static int lChangeMinorCivFriendshipWithMajor(lua_State* L);
 	static int lGetMinorCivFriendshipAnchorWithMajor(lua_State* L);
 	static int lGetFriendshipNeededForNextLevel(lua_State* L);
-#if defined(MOD_BALANCE_CORE_MINORS)
+#if defined(MOD_BALANCE_CORE_MINORS) || defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 	LUAAPIEXTN(GetJerk, int);
 #endif
 #if defined(MOD_BALANCE_CORE)
-LUAAPIEXTN(GetNumDenouncements, int);
-LUAAPIEXTN(GetNumDenouncementsOfPlayer, int);
+	LUAAPIEXTN(GetNumDenouncements, int);
+	LUAAPIEXTN(GetNumDenouncementsOfPlayer, int);
+#endif
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+	LUAAPIEXTN(getUnhappinessFromCityCulture, int);
+	LUAAPIEXTN(getUnhappinessFromCityDefense, int);
+	LUAAPIEXTN(getUnhappinessFromCityGold, int);
+	LUAAPIEXTN(getUnhappinessFromCityConnection, int);
+	LUAAPIEXTN(getUnhappinessFromCityPillaged, int);
+	LUAAPIEXTN(getUnhappinessFromCityStarving, int);
+	LUAAPIEXTN(getUnhappinessFromCityMinority, int);
 #endif
 	static int lGetMinorCivFriendshipLevelWithMajor(lua_State* L);
 	static int lGetActiveQuestForPlayer(lua_State* L); // DEPRECATED

@@ -1498,6 +1498,22 @@ void CvCityStrategyAI::DoTurn()
 				else if(MOD_DIPLOMACY_CITYSTATES && strStrategyName == "AICITYSTRATEGY_NEED_DIPLOMATS_CRITICAL")
 					bStrategyShouldBeActive = CityStrategyAIHelpers::IsTestCityStrategy_NeedDiplomatsCritical(GetCity()); 
 #endif
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+				else if(MOD_DIPLOMACY_CITYSTATES && strStrategyName == "AICITYSTRATEGY_NEED_HAPPINESS_CULTURE")
+					bStrategyShouldBeActive = CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessCulture(GetCity()); 
+				else if(MOD_DIPLOMACY_CITYSTATES && strStrategyName == "AICITYSTRATEGY_NEED_HAPPINESS_DEFENSE")
+					bStrategyShouldBeActive = CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessDefense(GetCity()); 
+				else if(MOD_DIPLOMACY_CITYSTATES && strStrategyName == "AICITYSTRATEGY_NEED_HAPPINESS_GOLD")
+					bStrategyShouldBeActive = CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessGold(GetCity());
+				else if(MOD_DIPLOMACY_CITYSTATES && strStrategyName == "AICITYSTRATEGY_NEED_HAPPINESS_CONNECTION")
+					bStrategyShouldBeActive = CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessConnection(GetCity());
+				else if(MOD_DIPLOMACY_CITYSTATES && strStrategyName == "AICITYSTRATEGY_NEED_HAPPINESS_PILLAGE")
+					bStrategyShouldBeActive = CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessPillage(GetCity());
+				else if(MOD_DIPLOMACY_CITYSTATES && strStrategyName == "AICITYSTRATEGY_NEED_HAPPINESS_RELIGION")
+					bStrategyShouldBeActive = CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessReligion(GetCity());
+				else if(MOD_DIPLOMACY_CITYSTATES && strStrategyName == "AICITYSTRATEGY_NEED_HAPPINESS_STARVE")
+					bStrategyShouldBeActive = CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessStarve(GetCity());
+#endif
 
 				// Check Lua hook
 				ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
@@ -3467,6 +3483,65 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_NeedDiplomatsCritical(CvCity *pCi
 		{
 			return true;
 		}
+	}
+	return false;
+}
+#endif
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+//Tests to help AI build buildings it needs.
+bool CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessCulture(CvCity *pCity)
+{
+	if(pCity->getUnhappinessFromCulture() > 0)
+	{
+		return true;
+	}
+	return false;
+}
+bool CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessDefense(CvCity *pCity)
+{
+	if(pCity->getUnhappinessFromDefense() > 0)
+	{
+		return true;
+	}
+	return false;
+}
+bool CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessGold(CvCity *pCity)
+{
+	if(pCity->getUnhappinessFromGold() > 0)
+	{
+		return true;
+	}
+	return false;
+}
+bool CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessConnection(CvCity *pCity)
+{
+	if(pCity->getUnhappinessFromConnection() > 0)
+	{
+		return true;
+	}
+	return false;
+}
+bool CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessPillage(CvCity *pCity)
+{
+	if(pCity->getUnhappinessFromPillaged() > 0)
+	{
+		return true;
+	}
+	return false;
+}
+bool CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessReligion(CvCity *pCity)
+{
+	if(pCity->getUnhappinessFromMinority() > 0)
+	{
+		return true;
+	}
+	return false;
+}
+bool CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessStarve(CvCity *pCity)
+{
+	if(pCity->getUnhappinessFromStarving() > 0)
+	{
+		return true;
 	}
 	return false;
 }

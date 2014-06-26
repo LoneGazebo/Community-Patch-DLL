@@ -1896,6 +1896,26 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, UnitHandle pUnit)
 		}
 	}
 
+	//Will they give us a WLTKD for their resource?
+	CvCity* pLoopCity;
+	int iCityLoop;
+	for(pLoopCity = GET_PLAYER(eID).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eID).nextCity(&iCityLoop))
+	{
+		if(pLoopCity != NULL)
+		{
+			ResourceTypes eResourceDemanded = pLoopCity->GetResourceDemanded();
+			if(eResourceDemanded != NO_RESOURCE)
+			{
+				//Will we get a WLTKD from this? We want it a bit more, please.
+				if(eMinor.getResourceInOwnedPlots(eResourceDemanded) > 0)
+				{
+					iScore *= 3;
+					iScore /= 2;
+				}
+			}
+		}
+	}
+
 	//Nobody likes hostile city-states.
 	if(pMinorCivAI->GetPersonality() == MINOR_CIV_PERSONALITY_HOSTILE)
 	{
