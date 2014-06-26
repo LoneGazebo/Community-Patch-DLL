@@ -9467,7 +9467,8 @@ int CvCity::getUnhappinessFromCulture() const
 	float fUnhappiness = 0.0f;
 	int iCityPop = getPopulation() + GC.getGame().getCurrentEra();
 	int iCityCulture = GetBaseJONSCulturePerTurn();
-	iCityCulture += GetFaithPerTurn();
+	int iCityResearch = getYieldRate(YIELD_SCIENCE, false);
+	iCityCulture += iCityResearch;
 
 	float fThreshold = (float) iCityPop * /*0.5f*/ GC.getBALANCE_UNHAPPINESS_PER_CULTURE_THRESHOLD();
 	if(fThreshold > iCityCulture)
@@ -9656,6 +9657,14 @@ int CvCity::getUnhappinessFromMinority() const
 	ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
 	const CvReligion* pReligion = NULL;
 	float fUnhappiness = 0.0f;
+	
+	
+	int iCityReligion = 0;
+	if(getPopulation() != 0)
+	{
+		iCityReligion = ((GetFaithPerTurn() / getPopulation()) * GC.getGame().getCurrentEra());
+	}
+
 	if(eMajority != NO_RELIGION && eMajority != RELIGION_PANTHEON)
 	{
 		pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, getOwner());
@@ -9663,7 +9672,7 @@ int CvCity::getUnhappinessFromMinority() const
 	if(pReligion != NULL)
 	{
 		int iFollowers = GetCityReligions()->GetNumFollowers(eMajority);
-		int iCityPop = getPopulation();
+		int iCityPop = getPopulation() - iCityReligion;
 		int iMinority = iCityPop - iFollowers;
 		if(iMinority > 0)
 		{

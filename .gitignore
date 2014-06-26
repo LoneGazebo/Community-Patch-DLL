@@ -11,3 +11,8 @@
 !*.sql
 !*.lua
 !*.civ5mod
+!*.civ5proj
+!*.civ5sln
+!*.civ5suo
+!*.dll
+!*.txt

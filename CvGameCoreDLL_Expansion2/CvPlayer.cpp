@@ -12659,6 +12659,11 @@ int CvPlayer::GetUnhappinessFromCitySpecialists(CvCity* pAssumeCityAnnexed, CvCi
 
 			iUnhappinessFromThisCity = iPopulation * iUnhappinessPerPop;
 
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+			//Took these away as they were making specialists do weird things.
+		}
+	}
+#else
 			if(pLoopCity->isCapital() && GetCapitalUnhappinessMod() != 0)
 			{
 				iUnhappinessFromThisCity *= (100 + GetCapitalUnhappinessMod());
@@ -12678,6 +12683,7 @@ int CvPlayer::GetUnhappinessFromCitySpecialists(CvCity* pAssumeCityAnnexed, CvCi
 	// Handicap mod
 	iUnhappiness *= getHandicapInfo().getPopulationUnhappinessMod();
 	iUnhappiness /= 100;
+#endif
 
 	return iUnhappiness;
 }
@@ -24423,7 +24429,7 @@ void CvPlayer::Read(FDataStream& kStream)
 	kStream >> m_iFaithEverGenerated;
 	kStream >> m_iHappiness;
 #if defined(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
-	MOD_SERIALIZE_READ(51, kStream, m_iUnhappiness, 0);
+	MOD_SERIALIZE_READ(52, kStream, m_iUnhappiness, 0);
 #endif
 	kStream >> m_iUprisingCounter;
 	kStream >> m_iExtraHappinessPerLuxury;
@@ -25306,10 +25312,10 @@ void CvPlayer::Write(FDataStream& kStream) const
 	CvInfosSerializationHelper::WriteHashedDataArray<ResourceTypes, int>(kStream, m_paiResourceExport);
 	CvInfosSerializationHelper::WriteHashedDataArray<ResourceTypes, int>(kStream, m_paiResourceImport);
 	CvInfosSerializationHelper::WriteHashedDataArray<ResourceTypes, int>(kStream, m_paiResourceFromMinors);
-	CvInfosSerializationHelper::WriteHashedDataArray<ResourceTypes, int>(kStream, m_paiResourcesSiphoned);
 #if defined(MOD_BALANCE_CORE)
 	CvInfosSerializationHelper::WriteHashedDataArray<BuildingTypes, int>(kStream, m_paiNumCitiesFreeChosenBuilding);
 #endif
+	CvInfosSerializationHelper::WriteHashedDataArray<ResourceTypes, int>(kStream, m_paiResourcesSiphoned);
 
 	kStream << m_paiImprovementCount;
 
