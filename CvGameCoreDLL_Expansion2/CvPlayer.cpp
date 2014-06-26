@@ -12659,6 +12659,11 @@ int CvPlayer::GetUnhappinessFromCitySpecialists(CvCity* pAssumeCityAnnexed, CvCi
 
 			iUnhappinessFromThisCity = iPopulation * iUnhappinessPerPop;
 
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+			//Took these away as they were making specialists do weird things.
+		}
+	}
+#else
 			if(pLoopCity->isCapital() && GetCapitalUnhappinessMod() != 0)
 			{
 				iUnhappinessFromThisCity *= (100 + GetCapitalUnhappinessMod());
@@ -12678,6 +12683,7 @@ int CvPlayer::GetUnhappinessFromCitySpecialists(CvCity* pAssumeCityAnnexed, CvCi
 	// Handicap mod
 	iUnhappiness *= getHandicapInfo().getPopulationUnhappinessMod();
 	iUnhappiness /= 100;
+#endif
 
 	return iUnhappiness;
 }

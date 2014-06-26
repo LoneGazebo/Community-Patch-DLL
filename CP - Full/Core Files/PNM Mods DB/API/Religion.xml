@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameData>
+	<Language_en_US>
+		<Row Tag="TXT_KEY_NOTIFICATION_PANTHEON_ENHANCED_ACTIVE_PLAYER">
+			<Text>You have enhanced your pantheon by adding a new belief.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_PANTHEON_ENHANCED">
+			<Text>{1_CivName} {1: plural 1?has; 2?have;} enhanced their pantheon by adding a new belief.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_PANTHEON_ENHANCED_UNKNOWN">
+			<Text>An unknown civilization has enhanced their pantheon by adding a new belief.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_PANTHEON_ENHANCED_S">
+			<Text>Pantheon Enhanced</Text>
+		</Row>
+	</Language_en_US>
+
+	<CustomModDbUpdates>
+		<Row Name="API_RELIGION" Value="1"/>
+	</CustomModDbUpdates>
+</GameData>
