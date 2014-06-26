@@ -2638,12 +2638,6 @@ void CvTacticalAI::PlotOperationalArmyMoves()
 
 			case AI_OPERATION_MOVETYPE_NAVAL_ESCORT:
 				PlotNavalEscortOperationMoves((CvAINavalEscortedOperation*)nextOp);
-#if defined(MOD_BALANCE_CORE_MILITARY)
-				if(nextOp->GetOperationType() == AI_OPERATION_NAVAL_INVASION_ESCORT)
-				{
-					PlotEscortNavalInvasion((CvAINavalEscortedOperation*)nextOp);
-				}
-#endif
 				break;
 
 			case AI_OPERATION_MOVETYPE_FREEFORM_NAVAL:
@@ -3036,7 +3030,6 @@ void CvTacticalAI::PlotCampDefenseMoves()
 #if defined(MOD_BALANCE_CORE_MILITARY)
 		if(MOD_BALANCE_CORE_MILITARY && pPlot->getImprovementType() == GC.getBARBARIAN_CAMP_IMPROVEMENT())
 		{
-			bool bAttacked = false;
 			if(pPlot->getNumUnits() > 0)
 			{
 				CvUnit* pUnit = pPlot->getUnitByIndex(0);
@@ -3060,7 +3053,6 @@ void CvTacticalAI::PlotCampDefenseMoves()
 											{
 												pUnit->PushMission(CvTypes::getMISSION_RANGE_ATTACK(), pConsiderPlot->getX(), pConsiderPlot->getY());
 												UnitProcessed(pUnit->GetID());
-												bAttacked = true;
 												if(GC.getLogging() && GC.getAILogging())
 												{
 													CvString strLogString;
@@ -3073,11 +3065,6 @@ void CvTacticalAI::PlotCampDefenseMoves()
 									}
 								}
 							}
-						}
-						if(!bAttacked)
-						{
-							pUnit->PushMission(CvTypes::getMISSION_FORTIFY(), pPlot->getX(), pPlot->getY());
-							UnitProcessed(pUnit->GetID());
 						}
 					}
 				}
@@ -5788,30 +5775,6 @@ void CvTacticalAI::ExecuteNavalFormationMoves(CvArmyAI* pArmy, CvPlot* pTurnTarg
 		}
 	}
 }
-#if defined(MOD_BALANCE_CORE_MILITARY)
-/// Protect a nearby naval operation (returns true if found one to support)
-void CvTacticalAI::PlotEscortNavalInvasion(CvAINavalEscortedOperation* pOperation)
-{
-	int iArmyID;
-	CvArmyAI* pArmyToEscort;
-
-	//This will get our army across the sea.
-	CvPlot* pEscortTarget = pEscortTarget = pOperation->GetTargetPlot();
-
-	if(pEscortTarget != NULL)
-	{
-		iArmyID = pOperation->GetFirstArmyID();
-		if(iArmyID != -1)
-		{
-			pArmyToEscort = m_pPlayer->getArmyAI(iArmyID);
-			if(pArmyToEscort != NULL)
-			{
-				ExecuteFleetMoveToTarget(pArmyToEscort, pEscortTarget);
-			}
-		}
-	}
-}
-#endif
 
 /// Help protect a nearby naval operation (returns true if found one to support)
 bool CvTacticalAI::PlotEscortNavalOperationMoves(CvArmyAI* pArmy)
@@ -8314,7 +8277,7 @@ void CvTacticalAI::ExecuteCloseOnTarget(CvTacticalTarget& kTarget, CvTacticalDom
 			// If not naval invasion, proper domain of unit?
 			if(pZone->IsNavalInvasion() ||
 			        (pZone->IsWater() && pUnit->getDomainType() == DOMAIN_SEA || !pZone->IsWater() && pUnit->getDomainType() == DOMAIN_LAND))
-			{
+			{	
 				// Find units really close to target or somewhat close that just came out of an operation
 				iDistance = plotDistance(pUnit->getX(), pUnit->getY(), kTarget.GetTargetX(), kTarget.GetTargetY());
 				if(iDistance <= iTacticalRadius || (iDistance <= (GC.getAI_OPERATIONAL_CITY_ATTACK_DEPLOY_RANGE() * 3) && pUnit->GetDeployFromOperationTurn() + GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS() >= GC.getGame().getGameTurn()))
@@ -8731,30 +8694,6 @@ void CvTacticalAI::ExecuteEscortEmbarkedMoves()
 		}
 	}
 }
-#if defined(MOD_BALANCE_CORE_MILITARY)
-void CvTacticalAI::ExecuteEscortEmbarkedOptionMoves(CvPlot* pTargetPlot)
-{
-	// Move first one to target
-	UnitHandle pUnit = m_pPlayer->getUnit(m_CurrentMoveUnits[0].GetID());
-	if(pUnit)
-	{
-		int iMovementRate = pUnit->getMoves() / GC.getMOVE_DENOMINATOR();
-		if(plotDistance(pUnit->getX(), pUnit->getY(), pTargetPlot->getX(), pTargetPlot->getY()) > iMovementRate)
-		{
-			pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTargetPlot->getX(), pTargetPlot->getY());
-			pUnit->finishMoves();
-			if(GC.getLogging() && GC.getAILogging())
-			{
-				CvString strLogString;
-				strLogString.Format("Escorting an embarked unit, X: %d, Y: %d.", pTargetPlot->getX(), pTargetPlot->getY());
-				LogTacticalMessage(strLogString);
-			}
-		}
-		// Delete this unit from those we have to move
-		UnitProcessed(m_CurrentMoveUnits[0].GetID());
-	}
-}
-#endif
 
 #if defined(MOD_AI_SMART_RANGED_UNITS)
 // Iterate through available plots and get the best one to later move at.
@@ -10199,11 +10138,11 @@ CvPlot* CvTacticalAI::FindNearbyTarget(UnitHandle pUnit, int iRange, AITacticalT
 					
 #if defined(MOD_BALANCE_CORE_MILITARY)
 						//Let's try to stay on roads and out of water, ok?
-						if(pUnit->getDomainType() != DOMAIN_SEA)
+						if(pUnit->getDomainType() == DOMAIN_LAND)
 						{
 							if(!pPlot->isRoute() || pPlot->isWater())
 							{
-								iValue *= 2;
+								iValue *= 4;
 							}
 						}
 #endif
@@ -11052,6 +10991,11 @@ int CvTacticalAI::ScoreCloseOnPlots(CvPlot* pTarget, bool bLandOnly)
 					}
 #if defined(MOD_BALANCE_CORE_MILITARY)
 					if(MOD_BALANCE_CORE_MILITARY){
+						if(pCell->IsWater())
+						{
+							iScore = -50;
+						}
+
 						//The AI spends too much time positioning- better to attack than to shuffle to death.
 						if(pCell->IsWithinRangeOfTarget() && iPlotDistance <= 1)
 						{

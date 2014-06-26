@@ -291,6 +291,15 @@ bool IsTestCityStrategy_GoodAirliftCity(CvCity *pCity);
 bool IsTestCityStrategy_NeedDiplomats(CvCity *pCity);
 bool IsTestCityStrategy_NeedDiplomatsCritical(CvCity *pCity);
 #endif
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+bool IsTestCityStrategy_NeedHappinessCulture(CvCity *pCity);
+bool IsTestCityStrategy_NeedHappinessDefense(CvCity *pCity);
+bool IsTestCityStrategy_NeedHappinessGold(CvCity *pCity);
+bool IsTestCityStrategy_NeedHappinessConnection(CvCity *pCity);
+bool IsTestCityStrategy_NeedHappinessPillage(CvCity *pCity);
+bool IsTestCityStrategy_NeedHappinessReligion(CvCity *pCity);
+bool IsTestCityStrategy_NeedHappinessStarve(CvCity *pCity);
+#endif
 }
 
 #endif // CIV5_CITY_STRATEGY_AI_H

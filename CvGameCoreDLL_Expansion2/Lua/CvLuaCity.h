@@ -311,6 +311,15 @@ protected:
 	LUAAPIEXTN(GetCityWorkingChange, int);
 	LUAAPIEXTN(ChangeCityWorkingChange, void, iChange);
 #endif
+#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE_HAPPINESS)
+	LUAAPIEXTN(getUnhappinessFromCulture, int);
+	LUAAPIEXTN(getUnhappinessFromDefense, int);
+	LUAAPIEXTN(getUnhappinessFromGold, int);
+	LUAAPIEXTN(getUnhappinessFromConnection, int);
+	LUAAPIEXTN(getUnhappinessFromPillaged, int);
+	LUAAPIEXTN(getUnhappinessFromStarving, int);
+	LUAAPIEXTN(getUnhappinessFromMinority, int);
+#endif
 
 	static int lChangeHealRate(lua_State* L);
 

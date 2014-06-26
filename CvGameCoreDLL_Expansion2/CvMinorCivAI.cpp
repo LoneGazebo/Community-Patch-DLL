@@ -1616,7 +1616,10 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn)
 			//Tell the AI to get over there!
 			if(!pAssignedPlayer->isHuman())
 			{
-				pAssignedPlayer->addAIOperation(AI_OPERATION_ALLY_DEFENSE, NO_PLAYER, pMinor->getCapitalCity()->getArea(), pMinor->getCapitalCity(), pMinor->getCapitalCity());
+				if(pMinor->getCapitalCity()->getArea() == pAssignedPlayer->getCapitalCity()->getArea())
+				{
+					pAssignedPlayer->addAIOperation(AI_OPERATION_ALLY_DEFENSE, NO_PLAYER, pMinor->getCapitalCity()->getArea(), pMinor->getCapitalCity(), pMinor->getCapitalCity());
+				}
 			}
 
 	}
@@ -1674,7 +1677,10 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn)
 		//Tell the AI to get over there!
 		if(eMajor != NO_PLAYER && !GET_PLAYER(eMajor).isHuman())
 		{
-			pAssignedPlayer->addAIOperation(AI_OPERATION_ALLY_DEFENSE, BARBARIAN_PLAYER, pMinor->getCapitalCity()->getArea(), pMinor->getCapitalCity(), pMinor->getCapitalCity());
+			if(pMinor->getCapitalCity()->getArea() == GET_PLAYER(eMajor).getCapitalCity()->getArea())
+			{
+				pAssignedPlayer->addAIOperation(AI_OPERATION_ALLY_DEFENSE, BARBARIAN_PLAYER, pMinor->getCapitalCity()->getArea(), pMinor->getCapitalCity(), pMinor->getCapitalCity());
+			}
 		}
 	}
 #endif
@@ -2514,7 +2520,7 @@ void CvMinorCivAI::Reset()
 		m_bIsHordeActive = 0;
 		m_iCooldownSpawn = 0;
 #endif
-#if defined(MOD_BALANCE_CORE_MINORS)
+#if defined(MOD_BALANCE_CORE_MINORS) || defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 		m_abIsJerk[iI] = false;
 		m_aiJerk[iI] = 0;
 #endif
@@ -2899,8 +2905,8 @@ void CvMinorCivAI::DoTurn()
 			}
 		}
 #endif
-#if defined(MOD_BALANCE_CORE_MINORS)
-	if (MOD_BALANCE_CORE_MINORS) 
+#if defined(MOD_BALANCE_CORE_MINORS) || defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
+	if (MOD_BALANCE_CORE_MINORS || MOD_DIPLOMACY_CITYSTATES_QUESTS) 
 	{
 		TeamTypes eLoopTeam;
 		for(int iTeamLoop = 0; iTeamLoop < REALLY_MAX_TEAMS; iTeamLoop++)
@@ -7959,8 +7965,8 @@ int CvMinorCivAI::GetFriendshipAnchorWithMajor(PlayerTypes eMajor)
 	{
 		iAnchor += GC.getMINOR_FRIENDSHIP_ANCHOR_MOD_WARY_OF();
 	}
-#if defined(MOD_BALANCE_CORE_MINORS)
-	if (MOD_BALANCE_CORE_MINORS) 
+#if defined(MOD_BALANCE_CORE_MINORS) || defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
+	if (MOD_BALANCE_CORE_MINORS || MOD_DIPLOMACY_CITYSTATES_QUESTS) 
 	{
 		//Anchor reduced by 10 based on num minor civs attacked. Only counts for CSs not allied to or friends with.
 		int iAttacks = GET_TEAM(pMajor->getTeam()).GetNumMinorCivsAttacked();
@@ -8358,8 +8364,8 @@ void CvMinorCivAI::DoFriendshipChangeEffects(PlayerTypes ePlayer, int iOldFriend
 
 	// If we are Friends now, mark that we've been Friends at least once this game
 	if(bNowAboveFriendsThreshold)
-#if defined(MOD_BALANCE_CORE_MINORS)
-		if (MOD_BALANCE_CORE_MINORS) 
+#if defined(MOD_BALANCE_CORE_MINORS) || defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
+		if (MOD_BALANCE_CORE_MINORS || MOD_DIPLOMACY_CITYSTATES_QUESTS) 
 		{
 			//Small Possibility of reducing # of minor civs attacked via friendship the first time we become friends with them.
 			if(!IsEverFriends(ePlayer) && (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetNumMinorCivsAttacked() > 0))
@@ -11784,8 +11790,8 @@ bool CvMinorCivAI::IsPeaceBlocked(TeamTypes eTeam) const
 	if(IsPermanentWar(eTeam))
 		return true;
 
-#if defined(MOD_BALANCE_CORE_MINORS)
-	if (MOD_BALANCE_CORE_MINORS) 
+#if defined(MOD_BALANCE_CORE_MINORS) || defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
+	if (MOD_BALANCE_CORE_MINORS || MOD_DIPLOMACY_CITYSTATES_QUESTS) 
 	{
 		if(IsJerk(eTeam))
 		{
@@ -11994,8 +12000,8 @@ void CvMinorCivAI::DoTeamDeclaredWarOnMe(TeamTypes eEnemyTeam)
 			AddNotification(strMessage, strSummary, eEnemyMajorLoop);
 		}
 	}
-#if defined(MOD_BALANCE_CORE_MINORS)
-	if(MOD_BALANCE_CORE_MINORS) 
+#if defined(MOD_BALANCE_CORE_MINORS) || defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
+	if(MOD_BALANCE_CORE_MINORS || MOD_DIPLOMACY_CITYSTATES_QUESTS) 
 	{
 		SetIsJerk(eEnemyTeam, true);
 		SetJerk(eEnemyTeam, /*30*/ GC.getBALANCE_CS_WAR_COOLDOWN_RATE());
@@ -12048,7 +12054,7 @@ void CvMinorCivAI::SetWaryOfTeam(TeamTypes eTeam, bool bValue)
 
 	m_abWaryOfTeam[eTeam] = bValue;
 }
-#if defined(MOD_BALANCE_CORE_MINORS)
+#if defined(MOD_BALANCE_CORE_MINORS)  || defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 //Did you attack me FOR NO REASON? JERK!
 bool CvMinorCivAI::IsJerk(TeamTypes eTeam) const
 {

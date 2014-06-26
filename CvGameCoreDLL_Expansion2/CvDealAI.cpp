@@ -1327,6 +1327,24 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 #if defined(MOD_BALANCE_CORE_DEALS)
 	if (MOD_BALANCE_CORE_DEALS) 
 	{
+		CvCity* pLoopCity;
+		int iCityLoop;
+		for(pLoopCity = m_pPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iCityLoop))
+		{
+			if(pLoopCity != NULL)
+			{
+				ResourceTypes eResourceDemanded = pLoopCity->GetResourceDemanded();
+				if(eResourceDemanded != NO_RESOURCE)
+				{
+					//Will we get a WLTKD from this? We want it a bit more, please.
+					if(eResourceDemanded == eResource)
+					{
+						iItemValue *= 3;
+						iItemValue /= 2;
+					}
+				}
+			}
+		}
 		//Let's consider how many resources each player has - if he has more than us, ours is worth more (and vice-versa).
 		int iOtherHappiness = GET_PLAYER(eOtherPlayer).GetExtraHappinessPerLuxury();
 		int iOurHappiness = GetPlayer()->GetExtraHappinessPerLuxury();

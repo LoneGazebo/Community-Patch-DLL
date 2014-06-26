@@ -1125,6 +1125,17 @@ bool CvCityCitizens::IsBetterThanDefaultSpecialist(SpecialistTypes eSpecialist)
 	int iSpecialistYield = pSpecialistInfo->getYieldChange(eYield);
 	int iDefaultSpecialistYield = pDefaultSpecialistInfo->getYieldChange(eYield);
 
+#if defined(MOD_BALANCE_CORE)
+	//We want the AI to use better specialists, as the base yield is just not great in the long run.
+	if(MOD_BALANCE_CORE && (pDefaultSpecialistInfo->getYieldChange(eYield) > 0))
+	{
+		if(pSpecialistInfo->getYieldChange(eYield) <= 0)
+		{
+			iSpecialistYield = (iDefaultSpecialistYield + 1);
+		}
+	}
+#endif
+
 	if (m_pCity->GetPlayer()->isHalfSpecialistUnhappiness() || m_pCity->GetPlayer()->isHalfSpecialistFood())
 	{
 		iSpecialistYield *= 2;

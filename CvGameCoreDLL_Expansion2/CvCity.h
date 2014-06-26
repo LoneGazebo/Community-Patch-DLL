@@ -529,6 +529,15 @@ public:
 	void DoAnnex();
 
 	int GetLocalHappiness() const;
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+	int getUnhappinessFromCulture() const;
+	int getUnhappinessFromDefense() const;
+	int getUnhappinessFromGold() const;
+	int getUnhappinessFromConnection() const;
+	int getUnhappinessFromPillaged() const;
+	int getUnhappinessFromStarving() const;
+	int getUnhappinessFromMinority() const;
+#endif
 	int GetHappinessFromBuildings() const;
 	int GetBaseHappinessFromBuildings() const;
 	void ChangeBaseHappinessFromBuildings(int iChange);

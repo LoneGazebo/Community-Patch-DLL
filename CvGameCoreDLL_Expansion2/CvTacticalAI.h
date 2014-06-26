@@ -840,9 +840,6 @@ private:
 	void PlotDefensiveAirlifts();
 	void PlotEscortEmbarkedMoves();
 	void ReviewUnassignedUnits();
-#if defined(MOD_BALANCE_CORE_MILITARY)
-	void PlotNavalEscortOption();
-#endif
 
 	// Operational AI support functions
 	void PlotSingleHexOperationMoves(CvAIEscortedOperation* pOperation);
@@ -857,9 +854,6 @@ private:
 	bool ScoreFormationPlots(CvArmyAI* pArmy, CvPlot* pForwardTarget, CvPlot *pCurrentCOM, int iNumUnits);
 	void ExecuteNavalFormationMoves(CvArmyAI* pArmy, CvPlot* pTurnTarget);
 	bool PlotEscortNavalOperationMoves(CvArmyAI* pArmy);
-#if defined(MOD_BALANCE_CORE_MILITARY)
-	void PlotEscortNavalInvasion(CvAINavalEscortedOperation* pOperation);
-#endif
 	void ExecuteFleetMoveToTarget(CvArmyAI* pArmy, CvPlot* pTarget);
 
 	// Routines to process and sort targets
@@ -901,9 +895,6 @@ private:
 	void ExecutePriorityAttacksOnUnitTarget(CvTacticalTarget& kTarget);
 	void ExecuteWithdrawMoves();
 	void ExecuteEscortEmbarkedMoves();
-#if defined(MOD_BALANCE_CORE_MILITARY)
-	void ExecuteEscortEmbarkedOptionMoves(CvPlot* pTargetPlot);
-#endif
 
 	// Internal low-level utility routines
 #if defined(MOD_AI_SMART_RANGED_UNITS)

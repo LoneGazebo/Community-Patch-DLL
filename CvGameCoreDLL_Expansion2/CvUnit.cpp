@@ -5337,15 +5337,13 @@ int CvUnit::GetPower() const
 bool CvUnit::canHeal(const CvPlot* pPlot, bool bTestVisible) const
 {
 	VALIDATE_OBJECT
-#if defined(MOD_BALANCE_CORE)
-#else
+
 	// No barb healing
 	if(isBarbarian())
 	{
 
 		return false;
 	}
-#endif
 
 	if(!IsHurt())
 	{
@@ -5408,17 +5406,10 @@ bool CvUnit::canHeal(const CvPlot* pPlot, bool bTestVisible) const
 		// Boats can only heal in friendly territory (without promotion)
 		if(getDomainType() == DOMAIN_SEA)
 		{
-#if defined(MOD_BALANCE_CORE)
-			if(!GET_PLAYER(getOwner()).isBarbarian())
-			{
-#endif
 			if(!IsInFriendlyTerritory() && !isHealOutsideFriendly())
 			{
 				return false;
 			}
-#if defined(MOD_BALANCE_CORE)
-			}
-#endif
 		}
 	}
 
@@ -5468,41 +5459,6 @@ int CvUnit::healRate(const CvPlot* pPlot) const
 			return 0;
 		}
 	}
-#if defined(MOD_BALANCE_CORE)
-	//Barbarians can only heal in camps (or adjacent if boats), and at a set (defined) rate.
-	if(GET_PLAYER(getOwner()).isBarbarian())
-	{
-		ImprovementTypes eCamp = (ImprovementTypes)GC.getBARBARIAN_CAMP_IMPROVEMENT();
-		if(getDomainType() == DOMAIN_LAND)
-		{
-			if(pPlot->getImprovementType() == eCamp)
-			{
-				return GC.getBALANCE_BARARIAN_HEAL_RATE();
-			}
-			else
-			{
-				return 0;
-			}
-		}
-		else if(getDomainType() == DOMAIN_SEA)
-		{
-			CvPlot* pLoopPlot;
-			for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
-			{
-				pLoopPlot = plotDirection(pPlot->getX(), pPlot->getY(), ((DirectionTypes)iI));
-
-				if(pLoopPlot != NULL)
-				{
-					if(pPlot->getImprovementType() == eCamp)
-					{
-						return GC.getBALANCE_BARARIAN_HEAL_RATE();
-					}
-				}
-			}
-			return 0;
-		}
-	}
-#endif
 #if defined(MOD_UNITS_HOVERING_LAND_ONLY_HEAL)
 	if (MOD_UNITS_HOVERING_LAND_ONLY_HEAL) {
 		// Hovering units can only heal over land
@@ -7412,12 +7368,12 @@ bool CvUnit::found()
 #endif
 	}
 
-#if defined(MOD_DIPLOMACY_CITYSTATES)
-	if(MOD_DIPLOMACY_CITYSTATES && m_pUnitInfo->IsFoundMid())
+#if defined(MOD_BALANCE_CORE_SETTLER)
+	if(MOD_BALANCE_CORE_SETTLER && m_pUnitInfo->IsFoundMid())
 	{
 		kPlayer.foundmid(getX(), getY());
 	}
-	if(MOD_DIPLOMACY_CITYSTATES && m_pUnitInfo->IsFoundLate())
+	if(MOD_BALANCE_CORE_SETTLER && m_pUnitInfo->IsFoundLate())
 	{
 		kPlayer.foundlate(getX(), getY());
 	}
@@ -10984,7 +10940,7 @@ bool CvUnit::IsFoundAbroad() const
 	return m_pUnitInfo->IsFoundAbroad();
 }
 
-#if defined(MOD_DIPLOMACY_CITYSTATES)
+#if defined(MOD_BALANCE_CORE_SETTLER)
 //	--------------------------------------------------------------------------------
 bool CvUnit::IsFoundMid() const
 {
