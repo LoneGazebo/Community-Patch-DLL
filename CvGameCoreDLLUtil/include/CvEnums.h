@@ -1326,6 +1326,13 @@ enum TurnTimerTypes
 	NO_TURNTIMER = -1,
 };
 
+#if defined(MOD_EVENTS_DIPLO_MODIFIERS)
+enum DiploModifierTypes				
+{
+	NO_DIPLOMODIFIER = -1,
+};
+#endif
+
 enum EraTypes							
 {
 	NO_ERA = -1,
