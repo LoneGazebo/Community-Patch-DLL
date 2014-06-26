@@ -605,6 +605,15 @@ function UpdateScreen()
 		else
 			fUnhappinessTimes100 = fUnhappinessTimes100 / 100;
         end
+
+-- COMMUNITY CHANGE
+		iCityCountMod = pPlayer:GetCapitalUnhappinessMod();
+		if(pCity:IsCapital()) then
+			if (iCityCountMod ~= 0) then
+				fUnhappinessTimes100 = 0;
+			end
+		end
+--END
         
         instance.CityName:SetText( pCity:GetName() );
 		instance.TradeIncomeValue:SetText( Locale.ToNumber( fUnhappinessTimes100, "#.##" ) );

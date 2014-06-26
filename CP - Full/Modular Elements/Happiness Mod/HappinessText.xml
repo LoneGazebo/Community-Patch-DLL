@@ -30,13 +30,13 @@
 			<Text>[COLOR_NEGATIVE_TEXT]Sources of [ICON_HAPPINESS_3] Unhappiness:[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CULTURE_UNHAPPINESS">
-			<Text>[ICON_BULLET][COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] Unhappiness from being uncultured (needs [ICON_CULTURE] Culture and/or [ICON_PEACE] Faith).</Text>
+			<Text>[ICON_BULLET][COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] Unhappiness from being uncultured (needs [ICON_CULTURE] Culture and [ICON_RESEARCH] Science).</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DEFENSE_UNHAPPINESS">
 			<Text>[ICON_BULLET][COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] Unhappiness from being vulnerable (needs [ICON_STRENGTH] Defense).</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GOLD_UNHAPPINESS">
-			<Text>[ICON_BULLET][COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] Unhappiness from being impoverished (needs [ICON_FOOD] Food and/or [ICON_GOLD] Gold).</Text>
+			<Text>[ICON_BULLET][COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] Unhappiness from being impoverished (needs [ICON_FOOD] Food and [ICON_GOLD] Gold).</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CONNECTION_UNHAPPINESS">
 			<Text>[ICON_BULLET][COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] Unhappiness from being disconnected or blockaded (needs to be [ICON_CONNECTED] connected to your Capital).</Text>
@@ -45,10 +45,10 @@
 			<Text>[ICON_BULLET][COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] Unhappiness from [ICON_RAZING] pillaged improvements.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_STARVING_UNHAPPINESS">
-			<Text>[ICON_BULLET][COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] Unhappiness from starving (needs [ICON_FOOD] Food).</Text>
+			<Text>[ICON_BULLET][COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] Unhappiness from starving (needs [ICON_FOOD] Food)!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MINORITY_UNHAPPINESS">
-			<Text>[ICON_BULLET][COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] Unhappiness from having religious minorities (needs your [ICON_RELIGION] Religion).</Text>
+			<Text>[ICON_BULLET][COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] Unhappiness from religious divisions (needs more [ICON_PEACE] Faith and more followers of your [ICON_RELIGION] Religion).</Text>
 		</Row>
 	</Language_en_US>
 </GameData>

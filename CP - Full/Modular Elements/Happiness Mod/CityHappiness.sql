@@ -14,6 +14,10 @@
 	SET Value = '6'
 	WHERE Name = 'UNHAPPINESS_PER_CAPTURED_CITY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
+	UPDATE TacticalMoves
+	SET Priority = '40'
+	WHERE Name = 'TACTICAL_GARRISON_1_TURN' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
+
 	UPDATE Language_en_US
 	SET Text = '[COLOR_POSITIVE_TEXT]Monarchy[ENDCOLOR][NEWLINE]+1 [ICON_GOLD] Gold and the [ICON_CAPITAL] Capital no longer counts towards [ICON_HAPPINESS_4] Unhappiness from Cities.'
 	WHERE Tag = 'TXT_KEY_POLICY_MONARCHY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
@@ -25,13 +29,15 @@
 	
 -- These values below affect local happiness from cities. Values should always be floats (i.e. 0.0, 10.1, etc.)
 
--- Unhappiness point per religious minority pop.
+-- Population calculations are increased by per city, per era - you will need more and more yields as the game goes along to keep your civilization happy!
+
+-- Unhappiness point per religious minority pop. A high faith to population ratio will reduce this penalty. Also note that this is the ONLY unhappiness calculation that goes down as the game progresses (religion makes slightly less unhappiness as you move into new eras)
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_UNHAPPINESS_PER_MINORITY_POP', '0.75'
+	SELECT 'BALANCE_UNHAPPINESS_PER_MINORITY_POP', '1.00'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
--- Unhappiness point per starving citizen.
+-- Unhappiness point per starving citizen. This can compound, so be careful.
 	INSERT INTO Defines (
 	Name, Value)
 	SELECT 'BALANCE_UNHAPPINESS_FROM_STARVING_PER_POP', '0.50'
@@ -40,10 +46,10 @@
 -- Unhappiness point per pillaged plot owned by city.
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_UNHAPPINESS_PER_PILLAGED', '0.50'
+	SELECT 'BALANCE_UNHAPPINESS_PER_PILLAGED', '0.75'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
--- Unhappiness point per pop if unconnected.
+-- Unhappiness point per pop if unconnected or blockaded.
 	INSERT INTO Defines (
 	Name, Value)
 	SELECT 'BALANCE_UNHAPPINESS_FROM_UNCONNECTED_PER_POP', '0.50'
@@ -53,37 +59,37 @@
 -- Value is multiplied by city population - if gold rate for city is lower than value, unhappiness is calculated based on the remainder (threshold - gold rate).
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_UNHAPPINESS_PER_GOLD_THRESHOLD', '1.66'
+	SELECT 'BALANCE_UNHAPPINESS_PER_GOLD_THRESHOLD', '1.50'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
--- Unhappiness point per citizen over gold threshold. Value is multiplied by remainder from threshold calculation.
+-- Unhappiness point per citizen over gold + food threshold. Value is multiplied by remainder from threshold calculation.
 	INSERT INTO Defines (
 	Name, Value)
 	SELECT 'BALANCE_UNHAPPINESS_PER_GOLD_RATE', '0.75'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 -- Unhappiness point per defense threshold (i.e. rate needed per citizen before unhappiness kicks in).
--- Value is multiplied by city population - if defense rate from buildings for city is lower than value, unhappiness is calculated based on the remainder (threshold - defense).
+-- Value is multiplied by city population - if defense rate from buildings + garrison for city is lower than value, unhappiness is calculated based on the remainder (threshold - defense).
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_UNHAPPINESS_PER_DEFENSE_THRESHOLD', '1.20'
+	SELECT 'BALANCE_UNHAPPINESS_PER_DEFENSE_THRESHOLD', '1.00'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 -- Unhappiness point per citizen over defense threshold. Value is multiplied by remainder from threshold calculation.
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_UNHAPPINESS_PER_DEFENSE_RATE', '0.75'
+	SELECT 'BALANCE_UNHAPPINESS_PER_DEFENSE_RATE', '0.50'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
--- Unhappiness point per culture threshold (i.e. rate needed per citizen before unhappiness kicks in).
+-- Unhappiness point per culture + science threshold (i.e. culture + science rate needed per citizen before unhappiness kicks in).
 -- Value is multiplied by city population - if culture rate for city is lower than value, unhappiness is calculated based on the remainder (threshold - culture rate).
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_UNHAPPINESS_PER_CULTURE_THRESHOLD', '1.20'
+	SELECT 'BALANCE_UNHAPPINESS_PER_CULTURE_THRESHOLD', '1.75'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 -- Unhappiness point per citizen over culture threshold. Value is multiplied by remainder from threshold calculation.
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_UNHAPPINESS_PER_CULTURE_RATE', '0.75'
+	SELECT 'BALANCE_UNHAPPINESS_PER_CULTURE_RATE', '1.00'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );

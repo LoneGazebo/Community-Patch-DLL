@@ -13,10 +13,9 @@
 // If you are a modder and you are creating your own DLL from the original source, this must be changed to a unique GUID.
 // Use the Visual Studio Create GUID option in the Tools menu to create a new GUID.
 #if !defined(CUSTOM_MODS_H)
-// {C3B2B6B3-439C-480b-8536-1CF39FCFC682}
-// {83F34FF0-3D60-43e7-AEDB-82C79867EE3F}
+{BF9BF7F0-E078-4d4e-8A3E-84712F85AA2B}
 static const GUID CIV5_XP2_DLL_GUID = 
-{ 0x83f34ff0, 0x3d60, 0x43e7, { 0xae, 0xdb, 0x82, 0xc7, 0x98, 0x67, 0xee, 0x3f } };
+{ 0xbf9bf7f0, 0xe078, 0x4d4e, { 0x8a, 0x3e, 0x84, 0x71, 0x2f, 0x85, 0xaa, 0x2b } };
 #else
 static const GUID CIV5_XP2_DLL_GUID = MOD_DLL_GUID;
 #endif
