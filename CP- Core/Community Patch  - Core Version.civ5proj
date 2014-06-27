@@ -9,17 +9,40 @@
     <Stability>Experimental</Stability>
     <Teaser>The Complete Civ 5 Experience</Teaser>
     <Description>Full Version of Community Patch - Contains core changes, balance changes and support for CSD/CivIV Diplomacy. Also contains support for Whoward's PNM Mods.</Description>
-    <Authors>Whoward, Gazebo</Authors>
+    <Authors>whoward69, Gazebo</Authors>
     <SpecialThanks>
     </SpecialThanks>
     <Categories>$Categories$</Categories>
     <AffectsSavedGames>true</AffectsSavedGames>
     <MinCompatibleSaveVersion>1</MinCompatibleSaveVersion>
     <SupportsSinglePlayer>true</SupportsSinglePlayer>
-    <SupportsMultiplayer>true</SupportsMultiplayer>
+    <SupportsMultiplayer>false</SupportsMultiplayer>
+    <SupportsHotSeat>true</SupportsHotSeat>
     <SupportsMac>true</SupportsMac>
+    <ReloadUnitSystem>false</ReloadUnitSystem>
+    <ReloadLandmarkSystem>false</ReloadLandmarkSystem>
+    <ReloadStrategicViewSystem>false</ReloadStrategicViewSystem>
+    <HideSetupGame>false</HideSetupGame>
     <AssemblyName>Mod Template</AssemblyName>
     <RootNamespace>Mod Template</RootNamespace>
+    <ModDependencies>
+      <Association>
+        <Type>Game</Type>
+        <Name />
+        <Id />
+        <MinVersion>1.0.3.124</MinVersion>
+        <MaxVersion>1.0.3.999</MaxVersion>
+      </Association>
+      <Association>
+        <Type>Dlc</Type>
+        <Name>Expansion 2 - Brave New World</Name>
+        <Id>6DA07636-4123-4018-B643-6575B4EC336B</Id>
+        <MinVersion>0</MinVersion>
+        <MaxVersion>999</MaxVersion>
+      </Association>
+    </ModDependencies>
+    <ModReferences />
+    <ModBlockers />
     <ModActions>
       <Action>
         <Set>OnGetDLLPath</Set>
@@ -154,12 +177,22 @@
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
+        <FileName>Core Files/PNM Mods DB/CONFIG/GameInXml.xml</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
         <FileName>Core Files/PNM Mods DB/EVENTS/CanMoveInto.sql</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
         <FileName>Core Files/PNM Mods DB/EVENTS/CityBombard.sql</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>Core Files/PNM Mods DB/EVENTS/DiploModifiers.xml</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
@@ -269,6 +302,11 @@
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
+        <FileName>Core Files/PNM Mods DB/RELIGION/PolicyBranchFaithGp.xml</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
         <FileName>Core Files/PNM Mods DB/TRADE/RouteScaling.sql</FileName>
       </Action>
       <Action>
@@ -294,20 +332,18 @@
     </ModActions>
     <Homepage>
     </Homepage>
-    <ModReferences />
-    <ReloadStrategicViewSystem>true</ReloadStrategicViewSystem>
-    <ReloadLandmarkSystem>true</ReloadLandmarkSystem>
-    <ReloadUnitSystem>true</ReloadUnitSystem>
-    <ModProperties />
+    <ModContent />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Default' ">
     <OutputPath>.</OutputPath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Package Only' ">
     <PackageMod>true</PackageMod>
+    <DeployMod>false</DeployMod>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Deploy Only' ">
     <PackageMod>false</PackageMod>
+    <DeployMod>true</DeployMod>
   </PropertyGroup>
   <ItemGroup>
     <Folder Include="Core Files\" />
@@ -413,6 +449,10 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
+    <Content Include="Core Files\PNM Mods DB\CONFIG\GameInXml.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
     <Content Include="Core Files\PNM Mods DB\CustomModTables.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
@@ -422,6 +462,10 @@
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
     <Content Include="Core Files\PNM Mods DB\EVENTS\CityBombard.sql">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="Core Files\PNM Mods DB\EVENTS\DiploModifiers.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>

@@ -208,6 +208,10 @@ public:
 	int* GetSpecialistExtraYieldArray() const;
 	int IsFreePromotion(int i) const;
 	bool IsFreePromotionUnitCombat(const int promotionID, const int unitCombatID) const;
+#if defined(MOD_RELIGION_POLICY_BRANCH_FAITH_GP)
+	bool HasFaithPurchaseUnitClasses() const;
+	bool IsFaithPurchaseUnitClass(const int eUnitClass, const int eCurrentEra) const;
+#endif
 	int GetUnitCombatProductionModifiers(int i) const;
 	int GetUnitCombatFreeExperiences(int i) const;
 	int GetBuildingClassCultureChange(int i) const;
@@ -401,6 +405,9 @@ private:
 
 	// Arrays
 	std::multimap<int, int> m_FreePromotionUnitCombats;
+#if defined(MOD_RELIGION_POLICY_BRANCH_FAITH_GP)
+	std::multimap<int, int> m_FaithPurchaseUnitClasses;
+#endif
 	int* m_piPrereqOrPolicies;
 	int* m_piPrereqAndPolicies;
 	int* m_piPolicyDisables;
