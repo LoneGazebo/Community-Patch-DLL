@@ -7257,6 +7257,12 @@ void CvPlayer::found(int iX, int iY)
 							if(pCity->canConstruct(eLoopBuilding))
 							{
 								pCity->GetCityBuildings()->SetNumRealBuilding(eLoopBuilding, 1);
+
+#if defined(MOD_EVENTS_CITY)
+								if (MOD_EVENTS_CITY) {
+									GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityConstructed, pCity->getOwner(), pCity->GetID(), eLoopBuilding, false, false);
+								}
+#endif
 							}
 						}
 					}
@@ -12135,16 +12141,29 @@ int CvPlayer::GetUnhappinessFromUnits() const
 	int iFreeUnitUnhappiness = /*0*/ GC.getFREE_UNIT_HAPPINESS();
 	if(iFreeUnitUnhappiness != 0)
 	{
+#if defined(MOD_API_EXTENSIONS)
+		// If unhappy is 2 and free happy is 4, we need to subtract 2
+		// If unhappy is 5 and free happy is 4, we need to subtract 4 --> these two make "the min of unhappy and free happy"
+		// If unhappy is -2 and free happy is 4, we need to subtract 0 --> this one adds "the previous figure not to be negative"
+		iUnhappinessFromUnits -= std::max(0, std::min(iUnhappinessFromUnits, iFreeUnitUnhappiness));
+#else
 		iUnhappinessFromUnits -= iFreeUnitUnhappiness;
+#endif
 	}
 
+#if !defined(MOD_API_EXTENSIONS)
 	// Can't be less than 0
 	if(iUnhappinessFromUnits < 0)
 	{
 		iUnhappinessFromUnits = 0;
 	}
+#endif
 
+#if defined(MOD_API_EXTENSIONS)
+	if(iUnhappinessFromUnits > 0 && GetUnhappinessFromUnitsMod() != 0)
+#else
 	if(GetUnhappinessFromUnitsMod() != 0)
+#endif
 	{
 		iUnhappinessFromUnits *= (100 + GetUnhappinessFromUnitsMod());
 		iUnhappinessFromUnits /= 100;
@@ -19017,7 +19036,6 @@ int CvPlayer::GetScienceTimes100() const
 		}
 	}
 #endif
-
 
 	return max(iValue, 0);
 }

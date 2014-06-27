@@ -53,7 +53,7 @@ void CvAIOperation::Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, int iD
 	m_iDefaultArea = iDefaultArea;
 	m_bShouldReplaceLossesWithReinforcements = false;
 
- 	SetStartCityPlot(pMuster->plot());
+	SetStartCityPlot(pMuster->plot());
 
 	// create the armies that are needed and set the state to ARMYAISTATE_WAITING_FOR_UNITS_TO_REINFORCE
 	BuildListOfUnitsWeStillNeedToBuild();
@@ -1504,7 +1504,6 @@ void CvAIOperation::LogOperationEnd()
 		case AI_OPERATION_CITY_STATE_NAVAL_ATTACK:
 		case AI_OPERATION_NUKE_ATTACK:
 		case AI_OPERATION_PURE_NAVAL_CITY_ATTACK:
-
 			strOutBuf = GetOperationName() + ", ";
 			strOutBuf += strTemp;
 			GET_PLAYER(m_eOwner).GetMilitaryAI()->LogMilitarySummaryMessage(strOutBuf);
@@ -6126,6 +6125,7 @@ bool CvAIOperationNukeAttack::FindBestFitReserveUnit(OperationSlot thisOperation
 	pThisArmy->AddUnit(m_iBestUnitID, thisOperationSlot.m_iSlotID);
 	return true;
 }
+
 
 FDataStream& operator<<(FDataStream& saveTo, const AIOperationState& readFrom)
 {

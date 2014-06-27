@@ -6949,6 +6949,7 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 								kPlayer.GetEspionage()->CreateSpy();
 							}
 						}
+
 						for(int i = 0; i < pEraInfo->getSpiesGrantedForPlayer(); i++)
 						{
 							kPlayer.GetEspionage()->CreateSpy();

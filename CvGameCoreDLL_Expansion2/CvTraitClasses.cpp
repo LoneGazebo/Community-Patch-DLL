@@ -85,6 +85,18 @@ CvTraitEntry::CvTraitEntry() :
 	m_iTradeRouteResourceModifier(0),
 	m_iUniqueLuxuryCities(0),
 	m_iUniqueLuxuryQuantity(0),
+#if defined(MOD_BUGFIX_MINOR)
+	m_iWorkerSpeedModifier(0),
+	m_iAfraidMinorPerTurnInfluence(0),
+	m_iLandTradeRouteRangeBonus(0),
+#endif
+#if defined(MOD_TRAITS_TRADE_ROUTE_BONUSES)
+	m_iSeaTradeRouteRangeBonus(0),
+#endif
+#if defined(MOD_BUGFIX_MINOR)
+	m_iTradeReligionModifier(0),
+	m_iTradeBuildingModifier(0),
+#endif
 
 	m_eFreeUnitPrereqTech(NO_TECH),
 	m_eFreeBuilding(NO_BUILDING),

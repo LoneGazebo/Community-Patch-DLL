@@ -500,6 +500,7 @@ void CvMilitaryAI::DoTurn()
 		LogAvailableForces();
 	}
 }
+
 /// Requests for sneak attack on a city of a player we're not at war with. Returns true if operation started.
 bool CvMilitaryAI::RequestSneakAttack(PlayerTypes eEnemy)
 {
@@ -1965,6 +1966,7 @@ CityAttackApproaches CvMilitaryAI::EvaluateMilitaryApproaches(CvCity* pCity, boo
 			}
 		}
 	}
+
 	switch(iNumBlocked)
 	{
 	case 0:
@@ -5409,8 +5411,7 @@ bool MilitaryAIHelpers::IsTestStrategy_NeedAntiAirUnits(CvPlayer* pPlayer, int i
 	{
 #if defined(MOD_CONFIG_AI_IN_XML)
 		// This original code simplifies to 4*iNumAA <= iNumMelee
-		int iFactor = GC.getAI_CONFIG_MILITARY_MELEE_PER_AA();
-		return (iFactor*iNumAA <= iNumMelee);
+		return (GD_INT_GET(AI_CONFIG_MILITARY_MELEE_PER_AA)*iNumAA <= iNumMelee);
 #else
 		int iRatio = (iNumAA * 10) / max(1,iNumMelee+iNumAA);
 		return (iRatio <= 2);
