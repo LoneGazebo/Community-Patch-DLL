@@ -205,6 +205,7 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_eFreeBuildingOnConquest(NO_BUILDING)
 {
 }
+
 /// Destructor
 CvPolicyEntry::~CvPolicyEntry(void)
 {

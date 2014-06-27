@@ -3189,6 +3189,9 @@ bool CvPlayerTrade::PlunderTradeRoute(int iTradeConnectionID)
 	}
 
 	TradeConnection* pTradeConnection = &(pTrade->m_aTradeConnections[iTradeConnectionIndex]);
+#if defined(MOD_EVENTS_TRADE_ROUTE_PLUNDERED)
+	TradeConnectionType eConnectionType = pTradeConnection->m_eConnectionType;
+#endif
 	DomainTypes eDomain = pTradeConnection->m_eDomain;
 	PlayerTypes eOwningPlayer = pTradeConnection->m_eOriginOwner;
 	PlayerTypes eDestPlayer = pTradeConnection->m_eDestOwner;
@@ -3391,11 +3394,7 @@ bool CvPlayerTrade::PlunderTradeRoute(int iTradeConnectionID)
 
 #if defined(MOD_EVENTS_TRADE_ROUTE_PLUNDERED)
 	if (MOD_EVENTS_TRADE_ROUTE_PLUNDERED) {
-		// If we ever get trade routes from/to arbitary plots (and not cities), we're stuffed!
-		CvCity* pFromCity = GC.getMap().plot(pTradeConnection->m_iOriginX, pTradeConnection->m_iOriginY)->getPlotCity();
-		CvCity* pToCity = GC.getMap().plot(pTradeConnection->m_iDestX, pTradeConnection->m_iDestY)->getPlotCity();
-
-		GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerPlunderedTradeRoute, pUnit->getOwner(), pUnit->GetID(), iPlunderGoldValue, pFromCity->getOwner(), pFromCity->GetID(), pToCity->getOwner(), pToCity->GetID(), pTradeConnection->m_eConnectionType, pTradeConnection->m_eDomain);
+		GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerPlunderedTradeRoute, pUnit->getOwner(), pUnit->GetID(), iPlunderGoldValue, pOriginCity->getOwner(), pOriginCity->GetID(), pDestCity->getOwner(), pDestCity->GetID(), eConnectionType, eDomain);
 	}
 #endif
 

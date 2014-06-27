@@ -8181,6 +8181,7 @@ int CvCity::getJONSCulturePerTurn() const
 		iModifier += GET_PLAYER(getOwner()).GetLeagueCultureCityModifier();
 	}
 #endif
+
 	iCulture *= iModifier;
 	iCulture /= 100;
 

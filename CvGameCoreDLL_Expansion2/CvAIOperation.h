@@ -1104,6 +1104,7 @@ protected:
 	int m_iBestUnitID;
 };
 
+
 namespace OperationalAIHelpers
 {
 int GetGatherRangeForXUnits(int iTotalUnits);

@@ -5325,6 +5325,13 @@ int CvUnit::GetPower() const
 {
 	VALIDATE_OBJECT
 	int iPower = getUnitInfo().GetPower();
+
+#if defined(MOD_BUGFIX_UNIT_POWER_CALC)
+	if (getUnitInfo().GetCombat() > 0) {
+		iPower = iPower * GetBaseCombatStrength() / getUnitInfo().GetCombat();
+	}
+#endif
+	
 	//Take promotions into account: unit with 4 promotions worth ~50% more
 	int iPowerMod = getLevel() * 125;
 	iPower = (iPower * (1000 + iPowerMod)) / 1000;
@@ -5341,7 +5348,6 @@ bool CvUnit::canHeal(const CvPlot* pPlot, bool bTestVisible) const
 	// No barb healing
 	if(isBarbarian())
 	{
-
 		return false;
 	}
 
@@ -5359,7 +5365,7 @@ bool CvUnit::canHeal(const CvPlot* pPlot, bool bTestVisible) const
 	{
 		return false;
 	}
-
+	
 	// JON - This should change when one-unit-per-plot city stuff is handled better
 	// Unit Healing in cities
 
@@ -5367,30 +5373,39 @@ bool CvUnit::canHeal(const CvPlot* pPlot, bool bTestVisible) const
 	{
 		if(plot()->isCity() && getDomainType() != DOMAIN_AIR)
 		{
-			CvUnit* pUnit;
-			int iBestDefenderValue = 0;
-			int iBestDefenderID = 0;
-
-			for(int iUnitLoop = 0; iUnitLoop < plot()->getNumUnits(); iUnitLoop++)
+#if defined(MOD_BUGFIX_MINOR)
+			// Civilians can heal in cities
+			if (!IsCivilianUnit())
 			{
-				pUnit = plot()->getUnitByIndex(iUnitLoop);
+#endif
 
-				// Only check land Units vs one another, Naval Units vs one another, etc.
-				if(pUnit->getDomainType() == getDomainType())
+				CvUnit* pUnit;
+				int iBestDefenderValue = 0;
+				int iBestDefenderID = 0;
+
+				for(int iUnitLoop = 0; iUnitLoop < plot()->getNumUnits(); iUnitLoop++)
 				{
-					if(pUnit->GetBaseCombatStrength() > iBestDefenderValue)
+					pUnit = plot()->getUnitByIndex(iUnitLoop);
+
+					// Only check land Units vs one another, Naval Units vs one another, etc.
+					if(pUnit->getDomainType() == getDomainType())
 					{
-						iBestDefenderValue = pUnit->GetBaseCombatStrength();
-						iBestDefenderID = pUnit->GetID();
+						if(pUnit->GetBaseCombatStrength() > iBestDefenderValue)
+						{
+							iBestDefenderValue = pUnit->GetBaseCombatStrength();
+							iBestDefenderID = pUnit->GetID();
+						}
 					}
 				}
-			}
 
-			// This is NOT the defending unit, it's in storage, so it can't heal
-			if(iBestDefenderID != GetID())
-			{
-				return false;
+				// This is NOT the defending unit, it's in storage, so it can't heal
+				if(iBestDefenderID != GetID())
+				{
+					return false;
+				}
+#if defined(MOD_BUGFIX_MINOR)
 			}
+#endif
 		}
 	}
 
@@ -5459,6 +5474,7 @@ int CvUnit::healRate(const CvPlot* pPlot) const
 			return 0;
 		}
 	}
+	
 #if defined(MOD_UNITS_HOVERING_LAND_ONLY_HEAL)
 	if (MOD_UNITS_HOVERING_LAND_ONLY_HEAL) {
 		// Hovering units can only heal over land
@@ -6976,6 +6992,7 @@ bool CvUnit::canRebaseAt(const CvPlot* pPlot, int iX, int iY) const
 
 	return true;
 }
+
 //	--------------------------------------------------------------------------------
 bool CvUnit::rebase(int iX, int iY)
 {
