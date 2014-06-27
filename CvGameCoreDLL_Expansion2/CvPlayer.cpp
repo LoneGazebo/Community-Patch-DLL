@@ -28066,4 +28066,65 @@ bool CvPlayer::HasUnitClass(UnitClassTypes iUnitClassType)
 
 	return false;
 }
+
+bool CvPlayer::HasTrait(TraitTypes eTrait) const
+{
+	return GetPlayerTraits()->HasTrait(eTrait);
+}
+
+bool CvPlayer::HasAnyHolyCity()
+{
+	int iLoop;
+
+	for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop)) {
+		if (pLoopCity->GetCityReligions()->IsHolyCityAnyReligion()) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+bool CvPlayer::HasHolyCity(ReligionTypes eReligion)
+{
+	int iLoop;
+	for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop)) {
+		if (pLoopCity->GetCityReligions()->IsHolyCityForReligion(eReligion)) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+bool CvPlayer::HasCapturedHolyCity(ReligionTypes eReligion)
+{
+	int iLoop;
+	for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop)) {
+		if (pLoopCity->GetCityReligions()->IsHolyCityForReligion(eReligion)) {
+			return (pLoopCity->getOriginalOwner() != GetID());
+		}
+	}
+
+	return false;
+}
+
+bool CvPlayer::HasEmbassyWith(PlayerTypes eOtherPlayer) const
+{
+	if (eOtherPlayer >= 0 && eOtherPlayer < MAX_MAJOR_CIVS) {
+		CvPlayer& kOtherPlayer = GET_PLAYER(eOtherPlayer);
+
+		return (kOtherPlayer.isAlive() && GET_TEAM(getTeam()).HasEmbassyAtTeam(kOtherPlayer.getTeam()));
+	}
+
+	return false;
+}
+
+void CvPlayer::DoForceDefPact(PlayerTypes eOtherPlayer)
+{
+	CvTeam& pOtherTeam = GET_TEAM(GET_PLAYER(eOtherPlayer).getTeam());
+
+	GET_TEAM(getTeam()).SetHasDefensivePact(pOtherTeam.GetID(), true);
+	pOtherTeam.SetHasDefensivePact(getTeam(), true);
+}
 #endif
