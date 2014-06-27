@@ -70,7 +70,9 @@
 // Enables the LUA Extensions API
 #define MOD_API_LUA_EXTENSIONS                      gCustomMods.isAPI_LUA_EXTENSIONS()
 
-// Push various hard-coded values controlling the AI out into XML
+// Push various hard-coded values controlling the game out into XML - see DB/CONFIG/GameInXml.sql for specific values -->
+#define MOD_CONFIG_GAME_IN_XML                      gCustomMods.isCONFIG_GAME_IN_XML()
+// Push various hard-coded values controlling the AI out into XML - see DB/CONFIG/AiInXml.sql for specific values
 #define MOD_CONFIG_AI_IN_XML                        gCustomMods.isCONFIG_AI_IN_XML()
 
 // Changes the stacking limits based on what the tile is (city, fort, plain, etc) - AFFECTS SAVE GAME DATA FORMAT
@@ -257,6 +259,8 @@
 #if defined(MOD_API_PLOT_YIELDS)
 #define MOD_RELIGION_PLOT_YIELDS                    (gCustomMods.isRELIGION_PLOT_YIELDS() && MOD_API_PLOT_YIELDS)
 #endif
+// Adds support for Great People being purchased by faith to be specified on a policy (usually a finisher) and not hard-coded (v53)
+#define MOD_RELIGION_POLICY_BRANCH_FAITH_GP         gCustomMods.isRELIGION_POLICY_BRANCH_FAITH_GP()
 // Adds support for "local" religions (ie ones that only have influence within the civ's own territory) (v48)
 #define MOD_RELIGION_LOCAL_RELIGIONS                gCustomMods.isRELIGION_LOCAL_RELIGIONS()
 
@@ -947,6 +951,7 @@ public:
 	MOD_OPT_DECL(RELIGION_KEEP_PROPHET_OVERFLOW);
 	MOD_OPT_DECL(RELIGION_RECURRING_PURCHASE_NOTIFIY);
 	MOD_OPT_DECL(RELIGION_PLOT_YIELDS);
+	MOD_OPT_DECL(RELIGION_POLICY_BRANCH_FAITH_GP);
 	MOD_OPT_DECL(RELIGION_LOCAL_RELIGIONS);
 
 	MOD_OPT_DECL(PROCESS_STOCKPILE);
@@ -1023,6 +1028,7 @@ public:
 	MOD_OPT_DECL(API_EXTENSIONS);
 	MOD_OPT_DECL(API_LUA_EXTENSIONS);
 
+	MOD_OPT_DECL(CONFIG_GAME_IN_XML);
 	MOD_OPT_DECL(CONFIG_AI_IN_XML);
 
 	MOD_OPT_DECL(BUGFIX_RESEARCH_OVERFLOW);
