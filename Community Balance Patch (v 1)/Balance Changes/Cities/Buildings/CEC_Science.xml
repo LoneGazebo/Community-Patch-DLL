@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameData>
+	<Buildings>
+		<Update>
+			<Where BuildingClass="BUILDINGCLASS_OBSERVATORY" />
+			<Set Mountain="0" NearbyMountainRequired="1" />
+		</Update>
+	</Buildings>
+	<Building_YieldChanges>
+		<Row>
+			<BuildingType>BUILDING_OBSERVATORY</BuildingType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Yield>4</Yield>
+		</Row>
+	</Building_YieldChanges>
+	<Building_YieldModifiers>
+		<Update>
+			<Where BuildingType="BUILDING_OBSERVATORY" YieldType="YIELD_SCIENCE" />
+			<Set Yield="10" />
+		</Update>
+	</Building_YieldModifiers>
+</GameData>

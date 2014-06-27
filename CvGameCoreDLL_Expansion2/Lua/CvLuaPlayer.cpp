@@ -655,13 +655,13 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetNumDenouncementsOfPlayer);
 #endif
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE_HAPPINESS)
-	Method(getUnhappinessFromCityCulture);
-	Method(getUnhappinessFromCityDefense);
-	Method(getUnhappinessFromCityGold);
-	Method(getUnhappinessFromCityConnection);
-	Method(getUnhappinessFromCityPillaged);
-	Method(getUnhappinessFromCityStarving);
-	Method(getUnhappinessFromCityMinority);
+	Method(GetUnhappinessFromCityCulture);
+	Method(GetUnhappinessFromCityDefense);
+	Method(GetUnhappinessFromCityGold);
+	Method(GetUnhappinessFromCityConnection);
+	Method(GetUnhappinessFromCityPillaged);
+	Method(GetUnhappinessFromCityStarving);
+	Method(GetUnhappinessFromCityMinority);
 #endif
 
 	Method(IsAlive);
@@ -7032,7 +7032,7 @@ int CvLuaPlayer::lGetNumDenouncementsOfPlayer(lua_State* L)
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE_HAPPINESS)
 //------------------------------------------------------------------------------
 //int getUnhappinessFromCityCulture();
-int CvLuaPlayer::lgetUnhappinessFromCityCulture(lua_State* L)
+int CvLuaPlayer::lGetUnhappinessFromCityCulture(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 
@@ -7042,7 +7042,7 @@ int CvLuaPlayer::lgetUnhappinessFromCityCulture(lua_State* L)
 }
 //------------------------------------------------------------------------------
 //int getUnhappinessFromCityDefense();
-int CvLuaPlayer::lgetUnhappinessFromCityDefense(lua_State* L)
+int CvLuaPlayer::lGetUnhappinessFromCityDefense(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 
@@ -7052,7 +7052,7 @@ int CvLuaPlayer::lgetUnhappinessFromCityDefense(lua_State* L)
 }
 //------------------------------------------------------------------------------
 //int getUnhappinessFromCityGold();
-int CvLuaPlayer::lgetUnhappinessFromCityGold(lua_State* L)
+int CvLuaPlayer::lGetUnhappinessFromCityGold(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 
@@ -7062,7 +7062,7 @@ int CvLuaPlayer::lgetUnhappinessFromCityGold(lua_State* L)
 }
 //------------------------------------------------------------------------------
 //int getUnhappinessFromCityConnection();
-int CvLuaPlayer::lgetUnhappinessFromCityConnection(lua_State* L)
+int CvLuaPlayer::lGetUnhappinessFromCityConnection(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 
@@ -7072,7 +7072,7 @@ int CvLuaPlayer::lgetUnhappinessFromCityConnection(lua_State* L)
 }
 //------------------------------------------------------------------------------
 //int getUnhappinessFromCityPillaged();
-int CvLuaPlayer::lgetUnhappinessFromCityPillaged(lua_State* L)
+int CvLuaPlayer::lGetUnhappinessFromCityPillaged(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 
@@ -7082,7 +7082,7 @@ int CvLuaPlayer::lgetUnhappinessFromCityPillaged(lua_State* L)
 }
 //------------------------------------------------------------------------------
 //int getUnhappinessFromCityStarving();
-int CvLuaPlayer::lgetUnhappinessFromCityStarving(lua_State* L)
+int CvLuaPlayer::lGetUnhappinessFromCityStarving(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 
@@ -7092,7 +7092,7 @@ int CvLuaPlayer::lgetUnhappinessFromCityStarving(lua_State* L)
 }
 //------------------------------------------------------------------------------
 //int getUnhappinessFromCityMinority();
-int CvLuaPlayer::lgetUnhappinessFromCityMinority(lua_State* L)
+int CvLuaPlayer::lGetUnhappinessFromCityMinority(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 

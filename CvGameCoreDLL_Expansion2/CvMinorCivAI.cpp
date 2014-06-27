@@ -8831,9 +8831,13 @@ void CvMinorCivAI::DoDefection()
 {
 	//Quest Over - Player loses all influence, rival ideology followers gain alliance.
 	PlayerTypes eOldAlly = GetPlayer()->GetMinorCivAI()->GetAlly();
-	PolicyBranchTypes ePreferredIdeology = GET_PLAYER(eOldAlly).GetCulture()->GetPublicOpinionPreferredIdeology();
-	GetPlayer()->GetMinorCivAI()->SetFriendshipWithMajor(eOldAlly, GC.getMINOR_FRIENDSHIP_AT_WAR(), true);
-	GetPlayer()->GetMinorCivAI()->EndAllActiveQuestsForPlayer(eOldAlly);
+	PolicyBranchTypes ePreferredIdeology = NO_POLICY_BRANCH_TYPE;
+	if(eOldAlly != NO_PLAYER)
+	{
+		ePreferredIdeology = GET_PLAYER(eOldAlly).GetCulture()->GetPublicOpinionPreferredIdeology();
+		GetPlayer()->GetMinorCivAI()->SetFriendshipWithMajor(eOldAlly, GC.getMINOR_FRIENDSHIP_AT_WAR(), true);
+		GetPlayer()->GetMinorCivAI()->EndAllActiveQuestsForPlayer(eOldAlly);
+	}
 
 	for (int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
 	{

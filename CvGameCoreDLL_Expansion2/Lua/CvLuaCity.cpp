@@ -312,13 +312,13 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(ChangeCityWorkingChange);
 #endif
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE_HAPPINESS)
-	Method(getUnhappinessFromCulture);
-	Method(getUnhappinessFromDefense);
-	Method(getUnhappinessFromGold);
-	Method(getUnhappinessFromConnection);
-	Method(getUnhappinessFromPillaged);
-	Method(getUnhappinessFromStarving);
-	Method(getUnhappinessFromMinority);
+	Method(GetUnhappinessFromCulture);
+	Method(GetUnhappinessFromDefense);
+	Method(GetUnhappinessFromGold);
+	Method(GetUnhappinessFromConnection);
+	Method(GetUnhappinessFromPillaged);
+	Method(GetUnhappinessFromStarving);
+	Method(GetUnhappinessFromMinority);
 #endif
 
 	Method(ChangeHealRate);
@@ -2743,49 +2743,49 @@ int CvLuaCity::lChangeCityWorkingChange(lua_State* L)
 
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE_HAPPINESS)
 //int getUnhappinessFromCulture();
-int CvLuaCity::lgetUnhappinessFromCulture(lua_State* L)
+int CvLuaCity::lGetUnhappinessFromCulture(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
 	lua_pushinteger(L, pkCity->getUnhappinessFromCulture());
 	return 1;
 }
 //int getUnhappinessFromDefense();
-int CvLuaCity::lgetUnhappinessFromDefense(lua_State* L)
+int CvLuaCity::lGetUnhappinessFromDefense(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
 	lua_pushinteger(L, pkCity->getUnhappinessFromDefense());
 	return 1;
 }
 //int getUnhappinessFromGold();
-int CvLuaCity::lgetUnhappinessFromGold(lua_State* L)
+int CvLuaCity::lGetUnhappinessFromGold(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
 	lua_pushinteger(L, pkCity->getUnhappinessFromGold());
 	return 1;
 }
 //int getUnhappinessFromConnection();
-int CvLuaCity::lgetUnhappinessFromConnection(lua_State* L)
+int CvLuaCity::lGetUnhappinessFromConnection(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
 	lua_pushinteger(L, pkCity->getUnhappinessFromConnection());
 	return 1;
 }
 //int getUnhappinessFromPillaged();
-int CvLuaCity::lgetUnhappinessFromPillaged(lua_State* L)
+int CvLuaCity::lGetUnhappinessFromPillaged(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
 	lua_pushinteger(L, pkCity->getUnhappinessFromPillaged());
 	return 1;
 }
 //int getUnhappinessFromStarving();
-int CvLuaCity::lgetUnhappinessFromStarving(lua_State* L)
+int CvLuaCity::lGetUnhappinessFromStarving(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
 	lua_pushinteger(L, pkCity->getUnhappinessFromStarving());
 	return 1;
 }
 //int getUnhappinessFromMinority();
-int CvLuaCity::lgetUnhappinessFromMinority(lua_State* L)
+int CvLuaCity::lGetUnhappinessFromMinority(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
 	lua_pushinteger(L, pkCity->getUnhappinessFromMinority());

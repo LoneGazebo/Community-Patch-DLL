@@ -145,7 +145,7 @@ CvPlayer::CvPlayer() :
 	, m_iFaith(0)
 	, m_iFaithEverGenerated(0)
 	, m_iHappiness("CvPlayer::m_iHappiness", m_syncArchive)
-#if defined(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
 	, m_iUnhappiness("CvPlayer::m_iUnhappiness", m_syncArchive)
 #endif
 	, m_iUprisingCounter("CvPlayer::m_iUprisingCounter", m_syncArchive)
@@ -801,7 +801,7 @@ void CvPlayer::uninit()
 	m_iFaith = 0;
 	m_iFaithEverGenerated = 0;
 	m_iHappiness = 0;
-#if defined(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
 	m_iUnhappiness = 0;
 #endif
 	m_iUprisingCounter = 0;
@@ -11187,7 +11187,7 @@ void CvPlayer::SetHappiness(int iNewValue)
 		m_iHappiness = iNewValue;
 	}
 }
-#if defined(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
 /// Sets how much Happiness we have
 void CvPlayer::SetUnhappiness(int iNewValue)
 {
@@ -11206,7 +11206,7 @@ int CvPlayer::GetSetUnhappiness() const
 /// How much over our Happiness limit are we?
 int CvPlayer::GetExcessHappiness() const
 {
-#if defined(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
 	return GetHappiness() - GetSetUnhappiness();
 #else
 	return GetHappiness() - GetUnhappiness();
@@ -11222,7 +11222,7 @@ bool CvPlayer::IsEmpireUnhappy() const
 	{
 		return false;
 	}
-#if defined(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
 	if(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
 	{
 		//Mechanic to allow for varied effects of happiness/unhappiness.
@@ -11232,10 +11232,14 @@ bool CvPlayer::IsEmpireUnhappy() const
 			return true;
 		}
 	}
-#else
+	else
+	{
+#endif
 	if(GetExcessHappiness() < 0)
 	{
 		return true;
+	}
+#if defined(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
 	}
 #endif
 	return false;
@@ -11259,10 +11263,14 @@ bool CvPlayer::IsEmpireVeryUnhappy() const
 			return true;
 		}
 	}
-#else
+	else
+	{
+#endif
 	if(GetExcessHappiness() <= /*-10*/ GC.getVERY_UNHAPPY_THRESHOLD())
 	{
 		return true;
+	}
+#if defined(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
 	}
 #endif
 	return false;
@@ -11286,10 +11294,14 @@ bool CvPlayer::IsEmpireSuperUnhappy() const
 			return true;
 		}
 	}
-#else
+	else
+	{
+#endif
 	if(GetExcessHappiness() <= /*-20*/ GC.getSUPER_UNHAPPY_THRESHOLD())
 	{
 		return true;
+	}
+#if defined(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
 	}
 #endif
 	return false;
@@ -12061,12 +12073,12 @@ int CvPlayer::GetHappinessFromLuxury(ResourceTypes eResource) const
 		{
 			iBaseHappiness = 0;
 		}
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-		if(MOD_BALANCE_CORE_HAPPINESS)
+#if defined(MOD_BALANCE_CORE_HAPPINESS_LUXURY)
+		if(MOD_BALANCE_CORE_HAPPINESS_LUXURY)
 		{
 			//Happiness as a factor of population and number of cities. Divisor determines this.
 	
-			int iHappinessPerPop = /*4*/ GC.getBALANCE_HAPPINESS_POPULATION_DIVISOR();
+			int iHappinessPerPop = /*12*/ GC.getBALANCE_HAPPINESS_POPULATION_DIVISOR();
 			if(iHappinessPerPop != 0 && iBaseHappiness != 0)
 			{
 				iBaseHappiness = 1;
@@ -12096,13 +12108,13 @@ int CvPlayer::GetHappinessFromLuxury(ResourceTypes eResource) const
 
 				iBaseHappiness = iBaseHappiness * iPop;
 
-				if(iBaseHappiness > /*6*/ GC.getBALANCE_HAPPINESS_LUXURY_MAXIMUM())
+				if(iBaseHappiness > /*5*/ GC.getBALANCE_HAPPINESS_LUXURY_MAXIMUM())
 				{
 					iBaseHappiness = GC.getBALANCE_HAPPINESS_LUXURY_MAXIMUM();
 				}
-				else if(iBaseHappiness <= /*2*/ GC.getBALANCE_HAPPINESS_LUXURY_BASE())
+				else if(iBaseHappiness <= /*1*/ GC.getBALANCE_HAPPINESS_LUXURY_BASE())
 				{
-					iBaseHappiness = /*2*/ GC.getBALANCE_HAPPINESS_LUXURY_BASE();
+					iBaseHappiness = GC.getBALANCE_HAPPINESS_LUXURY_BASE();
 				}
 			}
 		}
@@ -12229,8 +12241,8 @@ int CvPlayer::GetUnhappiness(CvCity* pAssumeCityAnnexed, CvCity* pAssumeCityPupp
 		iUnhappiness /= 100;
 	}
 
-#if defined(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
-	if(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+	if(MOD_BALANCE_CORE_HAPPINESS)
 	{
 		GET_PLAYER(GetID()).SetUnhappiness(iUnhappiness);
 	}
@@ -24362,7 +24374,7 @@ void CvPlayer::Read(FDataStream& kStream)
 	kStream >> m_iFaith;
 	kStream >> m_iFaithEverGenerated;
 	kStream >> m_iHappiness;
-#if defined(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
 	MOD_SERIALIZE_READ(52, kStream, m_iUnhappiness, 0);
 #endif
 	kStream >> m_iUprisingCounter;
@@ -24966,7 +24978,7 @@ void CvPlayer::Write(FDataStream& kStream) const
 	kStream << m_iFaith;
 	kStream << m_iFaithEverGenerated;
 	kStream << m_iHappiness;
-#if defined(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
 	MOD_SERIALIZE_WRITE(kStream, m_iUnhappiness);
 #endif
 	kStream << m_iUprisingCounter;

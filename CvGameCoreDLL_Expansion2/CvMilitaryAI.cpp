@@ -898,7 +898,7 @@ bool CvMilitaryAI::RequestCityStateAttack(PlayerTypes eEnemy)
 			}
 			else
 			{
-				m_iNumLandAttacksRequested++;
+				m_iNumNavalAttacksRequested++;
 				m_eArmyTypeBeingBuilt = (m_iNumLandAttacksRequested > m_iNumNavalAttacksRequested) ? ARMY_TYPE_LAND : ARMY_TYPE_NAVAL_INVASION;
 			}
 		}

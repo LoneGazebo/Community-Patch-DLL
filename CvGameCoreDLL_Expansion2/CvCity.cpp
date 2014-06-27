@@ -9507,14 +9507,17 @@ int CvCity::GetLocalHappiness() const
 //	--------------------------------------------------------------------------------
 int CvCity::getUnhappinessFromCulture() const
 {
-	float fExponent = /*0.5f*/ GC.getBALANCE_UNHAPPINESS_PER_CULTURE_RATE();
+	float fExponent = /*0.55f*/ GC.getBALANCE_UNHAPPINESS_PER_CULTURE_RATE();
 	float fUnhappiness = 0.0f;
 	int iCityPop = getPopulation() + GC.getGame().getCurrentEra();
 	int iCityCulture = GetBaseJONSCulturePerTurn();
 	int iCityResearch = getYieldRate(YIELD_SCIENCE, false);
 	iCityCulture += iCityResearch;
-
-	float fThreshold = (float) iCityPop * /*0.5f*/ GC.getBALANCE_UNHAPPINESS_PER_CULTURE_THRESHOLD();
+	if(getPopulation() != 0)
+	{
+		iCityCulture = (iCityCulture / getPopulation());
+	}
+	float fThreshold = (float) iCityPop * /*0.75f*/ GC.getBALANCE_UNHAPPINESS_PER_CULTURE_THRESHOLD();
 	if(fThreshold > iCityCulture)
 	{
 		fUnhappiness = (float) fThreshold - iCityCulture;
@@ -9533,7 +9536,7 @@ int CvCity::getUnhappinessFromCulture() const
 //	--------------------------------------------------------------------------------
 int CvCity::getUnhappinessFromDefense() const
 {
-	float fExponent = /*0.5f*/ GC.getBALANCE_UNHAPPINESS_PER_DEFENSE_RATE();
+	float fExponent = /*0.70f*/ GC.getBALANCE_UNHAPPINESS_PER_DEFENSE_RATE();
 	float fUnhappiness = 0.0f;
 	int iCityPop = getPopulation() + GC.getGame().getCurrentEra();
 
@@ -9548,7 +9551,7 @@ int CvCity::getUnhappinessFromDefense() const
 	}
 	else
 	{
-		iBuildingDefense -= (iBuildingDefense / 2);
+		iBuildingDefense -= (iBuildingDefense / 5);
 	}
 
 	int iDamage = (getDamage());
@@ -9557,8 +9560,12 @@ int CvCity::getUnhappinessFromDefense() const
 	{
 		iBuildingDefense -= (iBuildingDefense - iDamage);
 	}
+	if(getPopulation() != 0)
+	{
+		iBuildingDefense = (iBuildingDefense / getPopulation());
+	}
 
-	float fThreshold = (float) iCityPop * /*0.5f*/ GC.getBALANCE_UNHAPPINESS_PER_DEFENSE_THRESHOLD();
+	float fThreshold = (float) iCityPop * /*0.75f*/ GC.getBALANCE_UNHAPPINESS_PER_DEFENSE_THRESHOLD();
 	if(fThreshold > iBuildingDefense)
 	{
 		fUnhappiness = (float) fThreshold - iBuildingDefense;
@@ -9577,7 +9584,7 @@ int CvCity::getUnhappinessFromDefense() const
 //	--------------------------------------------------------------------------------
 int CvCity::getUnhappinessFromGold() const
 {
-	float fExponent = /*0.5f*/ GC.getBALANCE_UNHAPPINESS_PER_GOLD_RATE();
+	float fExponent = /*0.45f*/ GC.getBALANCE_UNHAPPINESS_PER_GOLD_RATE();
 	float fUnhappiness = 0.0f;
 	int iCityPop = getPopulation() + GC.getGame().getCurrentEra();
 
@@ -9585,10 +9592,15 @@ int CvCity::getUnhappinessFromGold() const
 	int iFood = foodDifferenceTimes100();
 	if(iFood > 0)
 	{
-		iGold += (iFood / 2);
+		iGold += iFood;
 	}
 
-	float fThreshold = (float) iCityPop * /*0.5f*/ GC.getBALANCE_UNHAPPINESS_PER_GOLD_THRESHOLD();
+	if(getPopulation() != 0)
+	{
+		iGold = (iGold / getPopulation());
+	}
+
+	float fThreshold = (float) iCityPop * /*0.75f*/ GC.getBALANCE_UNHAPPINESS_PER_GOLD_THRESHOLD();
 	if(fThreshold > iGold)
 	{
 		fUnhappiness = (float) fThreshold - iGold;
@@ -9612,9 +9624,9 @@ int CvCity::getUnhappinessFromConnection() const
 
 	if(!IsConnectedToCapital() || IsBlockaded())
 	{
-		if(/*0.5f*/ (GC.getBALANCE_UNHAPPINESS_FROM_UNCONNECTED_PER_POP() > 0))
+		if(/*0.75f*/ (GC.getBALANCE_UNHAPPINESS_FROM_UNCONNECTED_PER_POP() > 0))
 		{
-			fUnhappiness = (float) iCityPop * /*0.5f*/ GC.getBALANCE_UNHAPPINESS_FROM_UNCONNECTED_PER_POP();
+			fUnhappiness = (float) iCityPop * /*0.75f*/ GC.getBALANCE_UNHAPPINESS_FROM_UNCONNECTED_PER_POP();
 		}
 		else
 		{
@@ -9632,7 +9644,7 @@ int CvCity::getUnhappinessFromConnection() const
 int CvCity::getUnhappinessFromPillaged() const
 {
 	float fUnhappiness = 0.0f;
-	float fExponent = /*0.5f*/ GC.getBALANCE_UNHAPPINESS_PER_PILLAGED();
+	float fExponent = /*0.60f*/ GC.getBALANCE_UNHAPPINESS_PER_PILLAGED();
 	CvPlot* pLoopPlot;
 	int iPillaged = 0;
 	int iCityPop = getPopulation() + GC.getGame().getCurrentEra();
@@ -9685,7 +9697,7 @@ int CvCity::getUnhappinessFromStarving() const
 
 	if(iDiff < 0)
 	{
-		fUnhappiness = (float) iCityPop * /*0.5f*/ GC.getBALANCE_UNHAPPINESS_FROM_STARVING_PER_POP();
+		fUnhappiness = (float) iDiff * /*0.5f*/ GC.getBALANCE_UNHAPPINESS_FROM_STARVING_PER_POP();
 
 		if(fUnhappiness > iCityPop)
 		{
@@ -9701,13 +9713,6 @@ int CvCity::getUnhappinessFromMinority() const
 	ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
 	const CvReligion* pReligion = NULL;
 	float fUnhappiness = 0.0f;
-	
-	
-	int iCityReligion = 0;
-	if(getPopulation() != 0)
-	{
-		iCityReligion = ((GetFaithPerTurn() / getPopulation()) * GC.getGame().getCurrentEra());
-	}
 
 	if(eMajority != NO_RELIGION && eMajority != RELIGION_PANTHEON)
 	{
@@ -9715,9 +9720,17 @@ int CvCity::getUnhappinessFromMinority() const
 	}
 	if(pReligion != NULL)
 	{
+		int iCityPop = getPopulation();
 		int iFollowers = GetCityReligions()->GetNumFollowers(eMajority);
-		int iCityPop = getPopulation() - iCityReligion;
+
+		if(iFollowers != 0)
+		{
+			//Producing excess faith versus religious pop? That should matter.
+			iFollowers += ((GetFaithPerTurn() / iFollowers) + (GC.getGame().getCurrentEra() / 2));
+		}
+
 		int iMinority = iCityPop - iFollowers;
+
 		if(iMinority > 0)
 		{
 			fUnhappiness = (float) iMinority * /*0.5f*/ GC.getBALANCE_UNHAPPINESS_PER_MINORITY_POP();

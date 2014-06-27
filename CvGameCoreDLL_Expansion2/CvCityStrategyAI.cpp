@@ -3491,7 +3491,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_NeedDiplomatsCritical(CvCity *pCi
 //Tests to help AI build buildings it needs.
 bool CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessCulture(CvCity *pCity)
 {
-	if(pCity->getUnhappinessFromCulture() > 0)
+	if(pCity->getUnhappinessFromCulture() > pCity->GetLocalHappiness())
 	{
 		return true;
 	}
@@ -3499,7 +3499,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessCulture(CvCity *pCit
 }
 bool CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessDefense(CvCity *pCity)
 {
-	if(pCity->getUnhappinessFromDefense() > 0)
+	if(pCity->getUnhappinessFromDefense() > pCity->GetLocalHappiness())
 	{
 		return true;
 	}
@@ -3507,7 +3507,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessDefense(CvCity *pCit
 }
 bool CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessGold(CvCity *pCity)
 {
-	if(pCity->getUnhappinessFromGold() > 0)
+	if(pCity->getUnhappinessFromGold() > pCity->GetLocalHappiness())
 	{
 		return true;
 	}
@@ -3515,7 +3515,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessGold(CvCity *pCity)
 }
 bool CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessConnection(CvCity *pCity)
 {
-	if(pCity->getUnhappinessFromConnection() > 0)
+	if(pCity->getUnhappinessFromConnection() > pCity->GetLocalHappiness())
 	{
 		return true;
 	}
@@ -3523,7 +3523,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessConnection(CvCity *p
 }
 bool CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessPillage(CvCity *pCity)
 {
-	if(pCity->getUnhappinessFromPillaged() > 0)
+	if(pCity->getUnhappinessFromPillaged() > pCity->GetLocalHappiness())
 	{
 		return true;
 	}
@@ -3531,7 +3531,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessPillage(CvCity *pCit
 }
 bool CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessReligion(CvCity *pCity)
 {
-	if(pCity->getUnhappinessFromMinority() > 0)
+	if(pCity->getUnhappinessFromMinority() > pCity->GetLocalHappiness())
 	{
 		return true;
 	}
@@ -3539,7 +3539,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessReligion(CvCity *pCi
 }
 bool CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessStarve(CvCity *pCity)
 {
-	if(pCity->getUnhappinessFromStarving() > 0)
+	if(pCity->getUnhappinessFromStarving() > pCity->GetLocalHappiness())
 	{
 		return true;
 	}

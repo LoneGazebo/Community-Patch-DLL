@@ -1,0 +1,346 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameData>
+	<UnitPromotions>
+		<!--
+		PromotionPrereqOr should be a table allowing any number of prerequisites,
+		removing the need for redundant promotions.
+		-->
+		<Update>
+			<Where Type="PROMOTION_MARCH" />
+			<Set HealOutsideFriendly="true"
+				 PromotionPrereqOr1="PROMOTION_SHOCK_3"
+				 PromotionPrereqOr2="PROMOTION_DRILL_3"
+				 PromotionPrereqOr3="PROMOTION_BLITZ"
+				 PromotionPrereqOr4="NULL"
+				 PromotionPrereqOr5="NULL"
+				 PromotionPrereqOr6="NULL"
+				 />
+		</Update>
+		<Row>
+			<Type>PROMOTION_MARCH_II</Type>
+			<Description>TXT_KEY_PROMOTION_MARCH</Description>
+			<Help>TXT_KEY_PROMOTION_MARCH_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<PromotionPrereqOr1>PROMOTION_ACCURACY_2</PromotionPrereqOr1>
+			<PromotionPrereqOr2>PROMOTION_BARRAGE_2</PromotionPrereqOr2>
+			<PromotionPrereqOr3>PROMOTION_SIEGE</PromotionPrereqOr3>
+			<PromotionPrereqOr4>PROMOTION_VOLLEY</PromotionPrereqOr4>
+			<PromotionPrereqOr5>PROMOTION_INDIRECT_FIRE</PromotionPrereqOr5>
+			<OrderPriority>7</OrderPriority>
+			<AlwaysHeal>true</AlwaysHeal>
+			<PortraitIndex>31</PortraitIndex>
+			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
+			<PediaType>PEDIA_HEAL</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_MARCH</PediaEntry>
+		</Row>
+		<Row>
+			<Type>PROMOTION_MARCH_III</Type>
+			<Description>TXT_KEY_PROMOTION_MARCH</Description>
+			<Help>TXT_KEY_PROMOTION_MARCH_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<PromotionPrereqOr1>PROMOTION_INTERCEPTION_2</PromotionPrereqOr1>
+			<PromotionPrereqOr2>PROMOTION_DOGFIGHTING_2</PromotionPrereqOr2>
+			<PromotionPrereqOr3>PROMOTION_AIR_SIEGE_3</PromotionPrereqOr3>
+			<PromotionPrereqOr4>PROMOTION_AIR_BOMBARDMENT_3</PromotionPrereqOr4>
+			<PromotionPrereqOr5>PROMOTION_AMBUSH_2</PromotionPrereqOr5>
+			<PromotionPrereqOr6>PROMOTION_MOBILITY_2</PromotionPrereqOr6>
+			<OrderPriority>7</OrderPriority>
+			<AlwaysHeal>true</AlwaysHeal>
+			<PortraitIndex>31</PortraitIndex>
+			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
+			<PediaType>PEDIA_HEAL</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_MARCH</PediaEntry>
+		</Row>
+		<Row>
+			<Type>PROMOTION_MARCH_IV</Type>
+			<Description>TXT_KEY_PROMOTION_MARCH</Description>
+			<Help>TXT_KEY_PROMOTION_MARCH_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<PromotionPrereqOr1>PROMOTION_TRENCHES_3</PromotionPrereqOr1>
+			<PromotionPrereqOr2>PROMOTION_GUERRILLA_3</PromotionPrereqOr2>
+			<PromotionPrereqOr3>PROMOTION_COVER_VANGUARD_1</PromotionPrereqOr3>
+			<PromotionPrereqOr4>PROMOTION_AMBUSH_VANGUARD_1</PromotionPrereqOr4>
+			<!--
+			<PromotionPrereqOr4>PROMOTION_MEDIC</PromotionPrereqOr4>
+			<PromotionPrereqOr5>PROMOTION_SCOUTING_2</PromotionPrereqOr5>
+			-->
+			<OrderPriority>15</OrderPriority>
+			<AlwaysHeal>true</AlwaysHeal>
+			<PortraitIndex>31</PortraitIndex>
+			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
+			<PediaType>PEDIA_SCOUTING</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_MARCH</PediaEntry>
+		</Row>
+		<Update>
+			<Where Type="PROMOTION_BLITZ" />
+			<Set Blitz="0"
+				 RangedAttackModifier="-10"
+				 ExtraAttacks="1"
+				 CanMoveAfterAttacking="true"
+				 PortraitIndex="9"
+				 PromotionPrereqOr1="PROMOTION_SHOCK_2"
+				 PromotionPrereqOr2="PROMOTION_DRILL_2"
+				 PromotionPrereqOr3="PROMOTION_SIEGE"
+				 PromotionPrereqOr4="PROMOTION_COVER_1"
+				 PromotionPrereqOr5="PROMOTION_AMBUSH_1"
+				 PediaType="PEDIA_SHARED"
+				 />
+		</Update>
+		<Update>
+			<Where Type="PROMOTION_LOGISTICS" />
+			<Set RangedAttackModifier="-10"
+				 PromotionPrereqOr1="PROMOTION_ACCURACY_3"
+				 PromotionPrereqOr2="PROMOTION_BARRAGE_3"
+				 PromotionPrereqOr3="PROMOTION_TARGETING_3"
+				 PromotionPrereqOr4="PROMOTION_BOMBARDMENT_3"
+				 PortraitIndex="9"
+				 Description="TXT_KEY_PROMOTION_BLITZ"
+				 PediaEntry="TXT_KEY_PROMOTION_BLITZ"
+				 Help="TXT_KEY_PROMOTION_RANGED_BLITZ_HELP"
+				 PediaType="PEDIA_NAVAL"
+				 />
+		</Update>
+		<Update>
+			<Where Type="PROMOTION_AIR_LOGISTICS" />
+			<Set RangedAttackModifier="-10"
+				 PromotionPrereqOr1="PROMOTION_AIR_SIEGE_2"
+				 PromotionPrereqOr2="PROMOTION_AIR_BOMBARDMENT_2"
+				 PromotionPrereqOr3="PROMOTION_AMBUSH_2"
+				 PromotionPrereqOr4="PROMOTION_MOBILITY_2"				 
+				 PortraitIndex="9"
+				 Description="TXT_KEY_PROMOTION_BLITZ"
+				 PediaEntry="TXT_KEY_PROMOTION_BLITZ"
+				 Help="TXT_KEY_PROMOTION_RANGED_BLITZ_HELP"
+				 PediaType="PEDIA_NAVAL"
+				 />
+		</Update>
+		<Update>
+			<Where Type="PROMOTION_INSTA_HEAL" />
+			<Set PediaType="NONE"
+				 CannotBeChosen="1"
+				 />
+		</Update>
+		<Update>
+			<Where Type="PROMOTION_HEAL_IF_DESTROY_ENEMY" />
+			<Set HPHealedIfDestroyEnemy="100"
+				 />
+		</Update>
+		<Update>
+			<Where Type="PROMOTION_PARTIAL_HEAL_IF_DESTROY_ENEMY" />
+			<Set HPHealedIfDestroyEnemy="25"
+				 />
+		</Update>
+		<Update>
+			<Where Type="PROMOTION_FASTER_HEAL" />
+			<Set EnemyHealChange="10"
+				 NeutralHealChange="15"
+				 FriendlyHealChange="20"
+				 />
+		</Update>
+		<Update>
+			<Where Type="PROMOTION_CITY_PENALTY" />
+			<Set CityAttack="-50"
+				 />
+		</Update>
+		<Update>
+			<Where Type="PROMOTION_MORALE" />
+			<Set CombatPercent="20" />
+		</Update>
+		
+		<Update>
+			<Where Type="PROMOTION_CAN_MOVE_AFTER_ATTACKING" />
+			<Set FullMovesAfterAttack="true" />
+		</Update>
+		
+		<Update>
+			<Where Type="PROMOTION_MOBILITY" />
+			<Set CannotBeChosen="true"
+				 PromotionPrereqOr1="NULL"
+				 PromotionPrereqOr2="NULL"
+				 PromotionPrereqOr3="NULL"
+				 PromotionPrereqOr4="NULL"
+				 PediaType="PEDIA_SHARED"
+				 />
+		</Update>
+		<Update>
+			<Where Type="PROMOTION_COVER_1" />
+			<Set RangedDefenseMod="25" />
+		</Update>
+		<Update>
+			<Where Type="PROMOTION_COVER_2" />
+			<Set RangedDefenseMod="50" />
+		</Update>
+	</UnitPromotions>
+	<UnitPromotions_UnitCombats>
+		<Delete PromotionType="PROMOTION_MARCH" UnitCombatType="UNITCOMBAT_ARCHER" />
+		<Delete PromotionType="PROMOTION_MARCH" UnitCombatType="UNITCOMBAT_GUN" />
+		<Delete PromotionType="PROMOTION_MARCH" UnitCombatType="UNITCOMBAT_SIEGE" />
+		<Row>
+			<PromotionType>PROMOTION_MARCH_II</PromotionType>
+			<UnitCombatType>UNITCOMBAT_ARCHER</UnitCombatType>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_MARCH_II</PromotionType>
+			<UnitCombatType>UNITCOMBAT_GUN</UnitCombatType>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_MARCH_II</PromotionType>
+			<UnitCombatType>UNITCOMBAT_SIEGE</UnitCombatType>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_MARCH_II</PromotionType>
+			<UnitCombatType>UNITCOMBAT_FIGHTER</UnitCombatType>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_MARCH_II</PromotionType>
+			<UnitCombatType>UNITCOMBAT_BOMBER</UnitCombatType>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_MARCH_II</PromotionType>
+			<UnitCombatType>UNITCOMBAT_HELICOPTER</UnitCombatType>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_HILL_FIGHTER</PromotionType>
+			<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_HILL_FIGHTER</PromotionType>
+			<UnitCombatType>UNITCOMBAT_GUN</UnitCombatType>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_HILL_FIGHTER</PromotionType>
+			<UnitCombatType>UNITCOMBAT_RECON</UnitCombatType>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_DESERT_POWER</PromotionType>
+			<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_DESERT_POWER</PromotionType>
+			<UnitCombatType>UNITCOMBAT_GUN</UnitCombatType>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_DESERT_POWER</PromotionType>
+			<UnitCombatType>UNITCOMBAT_RECON</UnitCombatType>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_ARCTIC_POWER</PromotionType>
+			<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_ARCTIC_POWER</PromotionType>
+			<UnitCombatType>UNITCOMBAT_GUN</UnitCombatType>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_ARCTIC_POWER</PromotionType>
+			<UnitCombatType>UNITCOMBAT_RECON</UnitCombatType>
+		</Row>
+		<Delete PromotionType="PROMOTION_COVER_1" UnitCombatType="UNITCOMBAT_ARCHER" />
+		<Delete PromotionType="PROMOTION_COVER_1" UnitCombatType="UNITCOMBAT_GUN" />
+		<Delete PromotionType="PROMOTION_COVER_1" UnitCombatType="UNITCOMBAT_SIEGE" />
+		<Row>
+			<PromotionType>PROMOTION_COVER_1</PromotionType>
+			<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_COVER_1</PromotionType>
+			<UnitCombatType>UNITCOMBAT_ARMOR</UnitCombatType>
+		</Row>
+		<!--
+		<Delete PromotionType="PROMOTION_COVER_2" UnitCombatType="UNITCOMBAT_ARCHER" />
+		<Delete PromotionType="PROMOTION_COVER_2" UnitCombatType="UNITCOMBAT_GUN" />
+		<Delete PromotionType="PROMOTION_COVER_2" UnitCombatType="UNITCOMBAT_SIEGE" />
+		<Row>
+			<PromotionType>PROMOTION_COVER_2</PromotionType>
+			<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_COVER_2</PromotionType>
+			<UnitCombatType>UNITCOMBAT_ARMOR</UnitCombatType>
+		</Row>
+		-->
+		<Delete PromotionType="PROMOTION_WOODSMAN" />
+		<Row>
+			<PromotionType>PROMOTION_WOODSMAN</PromotionType>
+			<UnitCombatType>UNITCOMBAT_ARCHER</UnitCombatType>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_WOODSMAN</PromotionType>
+			<UnitCombatType>UNITCOMBAT_GUN</UnitCombatType>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_WOODSMAN</PromotionType>
+			<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_WOODSMAN</PromotionType>
+			<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_WOODSMAN</PromotionType>
+			<UnitCombatType>UNITCOMBAT_RECON</UnitCombatType>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_WOODSMAN</PromotionType>
+			<UnitCombatType>UNITCOMBAT_GUN</UnitCombatType>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_WOODSMAN</PromotionType>
+			<UnitCombatType>UNITCOMBAT_ARMOR</UnitCombatType>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_MORALE</PromotionType>
+			<UnitCombatType>UNITCOMBAT_FIGHTER</UnitCombatType>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_MORALE</PromotionType>
+			<UnitCombatType>UNITCOMBAT_BOMBER</UnitCombatType>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_MARCH_III</PromotionType>
+			<UnitCombatType>UNITCOMBAT_FIGHTER</UnitCombatType>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_MARCH_III</PromotionType>
+			<UnitCombatType>UNITCOMBAT_BOMBER</UnitCombatType>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_ADJACENT_BONUS</PromotionType>
+			<UnitCombatType>UNITCOMBAT_BOMBER</UnitCombatType>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_ADJACENT_BONUS</PromotionType>
+			<UnitCombatType>UNITCOMBAT_FIGHTER</UnitCombatType>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_ADJACENT_BONUS</PromotionType>
+			<UnitCombatType>UNITCOMBAT_ARCHER</UnitCombatType>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_ADJACENT_BONUS</PromotionType>
+			<UnitCombatType>UNITCOMBAT_SIEGE</UnitCombatType>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_ADJACENT_BONUS</PromotionType>
+			<UnitCombatType>UNITCOMBAT_NAVALRANGED</UnitCombatType>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_ADJACENT_BONUS</PromotionType>
+			<UnitCombatType>UNITCOMBAT_CARRIER</UnitCombatType>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_ADJACENT_BONUS</PromotionType>
+			<UnitCombatType>UNITCOMBAT_MOUNTED_ARCHER</UnitCombatType>
+		</Row>
+	</UnitPromotions_UnitCombats>
+	<Unit_FreePromotions>
+		<Update>
+			<Where UnitType="UNIT_GUIDED_MISSILE" PromotionType="PROMOTION_EVASION_II" />
+			<Set PromotionType="PROMOTION_EVASION_I" />
+		</Update>
+		<Update>
+			<Where UnitType="UNIT_HELICOPTER_GUNSHIP" PromotionType="PROMOTION_IGNORE_TERRAIN_COST" />
+			<Set PromotionType="PROMOTION_IGNORE_TERRAIN_COST_NOUPGRADE" />
+		</Update>
+	</Unit_FreePromotions>
+</GameData>

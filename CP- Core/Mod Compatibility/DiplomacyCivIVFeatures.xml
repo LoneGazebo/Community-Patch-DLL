@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<GameData>
-	<CustomModOptions>
-		<Update>
-			<Where Name="DIPLOMACY_CIV4_FEATURES"/>
-			<Set Value="1"/>
-		</Update>
-	</CustomModOptions>
-</GameData>
