@@ -7371,11 +7371,13 @@ bool CvUnit::found()
 #if defined(MOD_BALANCE_CORE_SETTLER)
 	if(MOD_BALANCE_CORE_SETTLER && m_pUnitInfo->IsFoundMid())
 	{
-		kPlayer.foundmid(getX(), getY());
+		// TODO - getPIONEER_EXTRA_PLOTS, getPIONEER_FOOD_PERCENT
+		kPlayer.cityBoost(getX(), getY(), m_pUnitInfo, GC.getPIONEER_POPULATION_CHANGE(), GC.getPIONEER_POPULATION_CHANGE(), 25);
 	}
-	if(MOD_BALANCE_CORE_SETTLER && m_pUnitInfo->IsFoundLate())
+	if(MOD_DIPLOMACY_CITYSTATES && m_pUnitInfo->IsFoundLate())
 	{
-		kPlayer.foundlate(getX(), getY());
+		// TODO - getCOLONIST_EXTRA_PLOTS, getCOLONIST_FOOD_PERCENT
+		kPlayer.cityBoost(getX(), getY(), m_pUnitInfo, GC.getCOLONIST_POPULATION_CHANGE(), GC.getCOLONIST_POPULATION_CHANGE(), 50);
 	}
 #endif
 

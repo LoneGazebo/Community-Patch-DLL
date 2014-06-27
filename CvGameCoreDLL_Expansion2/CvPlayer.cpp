@@ -7199,152 +7199,6 @@ bool CvPlayer::canFound(int iX, int iY, bool bTestVisible) const
 	return GC.getGame().GetSettlerSiteEvaluator()->CanFound(pPlot, this, bTestVisible);
 }
 
-#if defined(MOD_BALANCE_CORE_SETTLER)
-void CvPlayer::foundmid(int iX, int iY)
-{
-	//Advanced Settler Buildings
-	if(!isMinorCiv() && !isBarbarian())
-	{
-		CvPlot* pPlot = GC.getMap().plot(iX, iY);
-		CvCity* pCity = NULL;
-		if(pPlot->isCity())
-		{
-			pCity = GC.getMap().findCity(iX, iY, GetID(), NO_TEAM);
-		}
-		CvUnitEntry* pkUnitEntry;
-		UnitTypes eAdvSettler = NO_UNIT;
-		for(int iUnitLoop = 0; iUnitLoop < GC.getNumUnitInfos(); iUnitLoop++)
-		{
-			UnitTypes eLoopUnit = (UnitTypes)iUnitLoop;
-			pkUnitEntry = GC.getUnitInfo(eLoopUnit);
-			if(pkUnitEntry && pkUnitEntry->IsFoundMid())
-			{
-				eAdvSettler = eLoopUnit;
-				break;
-			}
-		}
-		if(eAdvSettler != NO_UNIT)
-		{
-			pkUnitEntry = GC.getUnitInfo(eAdvSettler);
-			if(pkUnitEntry)
-			{
-				CvUnitEntry& thisUnitInfo = *pkUnitEntry;
-				const int iNumBuildingClassInfos = GC.getNumBuildingClassInfos();
-				CvCivilizationInfo& thisCivilization = getCivilizationInfo();
-				for(int iBuildingClassLoop = 0; iBuildingClassLoop < iNumBuildingClassInfos; iBuildingClassLoop++)
-				{
-					const BuildingClassTypes eBuildingClass = (BuildingClassTypes) iBuildingClassLoop;
-					CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
-					if(!pkBuildingClassInfo)
-					{
-						continue;
-					}
-					if(thisUnitInfo.GetBuildOnFound(eBuildingClass))
-					{
-						const BuildingTypes eFreeBuilding = (BuildingTypes)(thisCivilization.getCivilizationBuildings(eBuildingClass));
-						if(canConstruct(eFreeBuilding) && pCity->isValidBuildingLocation(eFreeBuilding))
-						{
-							pCity->GetCityBuildings()->SetNumRealBuilding(eFreeBuilding, 1);
-						}
-					}
-				}
-			}
-			if(GetNewCityExtraPopulation() < GC.getPIONEER_POPULATION_CHANGE())
-			{
-				ChangeNewCityExtraPopulation(GC.getPIONEER_POPULATION_CHANGE());
-			}
-			pCity->setPopulation(GetNewCityExtraPopulation());
-			//25% food, to prevent instant-starvation
-			pCity->changeFood((pCity->growthThreshold() / 4));
-			//And a little territory to boot
-			int iExtraTerritoryClaim = GC.getPIONEER_POPULATION_CHANGE();
-			for (int i = 0; i < iExtraTerritoryClaim; i++)
-			{
-				CvPlot* pPlotToAcquire = pCity->GetNextBuyablePlot();
-
-				// maybe the player owns ALL of the plots or there are none available?
-				if(pPlotToAcquire)
-				{
-					pCity->DoAcquirePlot(pPlotToAcquire->getX(), pPlotToAcquire->getY());
-				}
-			}
-		}
-	}
-}
-
-void CvPlayer::foundlate(int iX, int iY)
-{
-	//Advanced Settler Buildings
-	if(!isMinorCiv() && !isBarbarian())
-	{
-		CvPlot* pPlot = GC.getMap().plot(iX, iY);
-		CvCity* pCity = NULL;
-		if(pPlot->isCity())
-		{
-			pCity = GC.getMap().findCity(iX, iY, GetID(), NO_TEAM);
-		}
-		CvUnitEntry* pkUnitEntry;
-		UnitTypes eAdvSettler = NO_UNIT;
-		for(int iUnitLoop = 0; iUnitLoop < GC.getNumUnitInfos(); iUnitLoop++)
-		{
-			UnitTypes eLoopUnit = (UnitTypes)iUnitLoop;
-			pkUnitEntry = GC.getUnitInfo(eLoopUnit);
-			if(pkUnitEntry && pkUnitEntry->IsFoundLate())
-			{
-				eAdvSettler = eLoopUnit;
-				break;
-			}
-		}
-		if(eAdvSettler != NO_UNIT)
-		{
-			pkUnitEntry = GC.getUnitInfo(eAdvSettler);
-			if(pkUnitEntry)
-			{
-				CvUnitEntry& thisUnitInfo = *pkUnitEntry;
-				const int iNumBuildingClassInfos = GC.getNumBuildingClassInfos();
-				CvCivilizationInfo& thisCivilization = getCivilizationInfo();
-				for(int iBuildingClassLoop = 0; iBuildingClassLoop < iNumBuildingClassInfos; iBuildingClassLoop++)
-				{
-					const BuildingClassTypes eBuildingClass = (BuildingClassTypes) iBuildingClassLoop;
-					CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
-					if(!pkBuildingClassInfo)
-					{
-						continue;
-					}
-					if(thisUnitInfo.GetBuildOnFound(eBuildingClass))
-					{
-						const BuildingTypes eFreeBuilding = (BuildingTypes)(thisCivilization.getCivilizationBuildings(eBuildingClass));
-						if(canConstruct(eFreeBuilding) && pCity->isValidBuildingLocation(eFreeBuilding))
-						{
-							pCity->GetCityBuildings()->SetNumRealBuilding(eFreeBuilding, 1);
-						}
-					}
-				}
-			}
-			if(GetNewCityExtraPopulation() < GC.getCOLONIST_POPULATION_CHANGE())
-			{
-				ChangeNewCityExtraPopulation(GC.getCOLONIST_POPULATION_CHANGE() - GetNewCityExtraPopulation());
-			}
-			pCity->setPopulation(GetNewCityExtraPopulation());
-			//50% food, to prevent instant-starvation
-			pCity->changeFood((pCity->growthThreshold() / 2));
-			//And a little territory to boot
-			int iExtraTerritoryClaim = GC.getCOLONIST_POPULATION_CHANGE();
-			for (int i = 0; i < iExtraTerritoryClaim; i++)
-			{
-				CvPlot* pPlotToAcquire = pCity->GetNextBuyablePlot();
-
-				// maybe the player owns ALL of the plots or there are none available?
-				if(pPlotToAcquire)
-				{
-					pCity->DoAcquirePlot(pPlotToAcquire->getX(), pPlotToAcquire->getY());
-				}
-			}
-		}
-	}
-}
-#endif
-
 //	--------------------------------------------------------------------------------
 #if defined(MOD_GLOBAL_RELIGIOUS_SETTLERS)
 void CvPlayer::found(int iX, int iY, ReligionTypes eReligion)
@@ -7458,6 +7312,65 @@ void CvPlayer::found(int iX, int iY)
 	}
 }
 
+#if defined(MOD_BALANCE_CORE_SETTLER)
+void CvPlayer::cityBoost(int iX, int iY, CvUnitEntry* pkUnitEntry, int iExtraPlots, int iPopChange, int iFoodPercent)
+{
+	//Advanced Settler Buildings
+	if(pkUnitEntry && !isMinorCiv() && !isBarbarian())
+	{
+		CvPlot* pPlot = GC.getMap().plot(iX, iY);
+		CvCity* pCity = NULL;
+		if(pPlot->isCity())
+		{
+			pCity = GC.getMap().findCity(iX, iY, GetID(), NO_TEAM);
+		}
+
+		if(pCity)
+		{
+			const int iNumBuildingClassInfos = GC.getNumBuildingClassInfos();
+			CvCivilizationInfo& thisCivilization = getCivilizationInfo();
+			for(int iBuildingClassLoop = 0; iBuildingClassLoop < iNumBuildingClassInfos; iBuildingClassLoop++)
+			{
+				const BuildingClassTypes eBuildingClass = (BuildingClassTypes) iBuildingClassLoop;
+				CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
+				if(!pkBuildingClassInfo)
+				{
+					continue;
+				}
+				if(pkUnitEntry->GetBuildOnFound(eBuildingClass))
+				{
+					const BuildingTypes eFreeBuilding = (BuildingTypes)(thisCivilization.getCivilizationBuildings(eBuildingClass));
+					if(canConstruct(eFreeBuilding) && pCity->isValidBuildingLocation(eFreeBuilding))
+					{
+						pCity->GetCityBuildings()->SetNumRealBuilding(eFreeBuilding, 1);
+					}
+				}
+			}
+		}
+
+		if(GetNewCityExtraPopulation() < iPopChange)
+		{
+			ChangeNewCityExtraPopulation(iPopChange - GetNewCityExtraPopulation());
+		}
+		pCity->setPopulation(GetNewCityExtraPopulation());
+
+		//25% food, to prevent instant-starvation
+		pCity->changeFood((pCity->growthThreshold() * iFoodPercent / 100));
+
+		//And a little territory to boot
+		for (int i = 0; i < iExtraPlots; i++)
+		{
+			CvPlot* pPlotToAcquire = pCity->GetNextBuyablePlot();
+
+			// maybe the player owns ALL of the plots or there are none available?
+			if(pPlotToAcquire)
+			{
+				pCity->DoAcquirePlot(pPlotToAcquire->getX(), pPlotToAcquire->getY());
+			}
+		}
+	}
+}
+#endif
 
 //	--------------------------------------------------------------------------------
 bool CvPlayer::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool bIgnoreCost, bool bIgnoreUniqueUnitStatus, CvString* toolTipSink) const
@@ -7610,11 +7523,7 @@ bool CvPlayer::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool
 	if(!bTestVisible)
 	{
 		// Settlers
-		if(pUnitInfo.IsFound() || pUnitInfo.IsFoundAbroad()
-#if defined(MOD_BALANCE_CORE_SETTLER)
-		|| pUnitInfo.IsFoundMid() || pUnitInfo.IsFoundLate()
-#endif
-			)
+		if(pUnitInfo.IsFound() || pUnitInfo.IsFoundAbroad())
 		{
 			if(IsEmpireVeryUnhappy() && GC.getVERY_UNHAPPY_CANT_TRAIN_SETTLERS() == 1)
 			{
@@ -7623,6 +7532,7 @@ bool CvPlayer::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool
 					return false;
 			}
 		}
+
 		// Project required?
 		ProjectTypes ePrereqProject = (ProjectTypes) pUnitInfo.GetProjectPrereq();
 		if(ePrereqProject != NO_PROJECT)
@@ -23727,6 +23637,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	// How many cities get free culture buildings?
 	int iNumCitiesFreeCultureBuilding = pPolicy->GetNumCitiesFreeCultureBuilding();
 	int iNumCitiesFreeFoodBuilding = pPolicy->GetNumCitiesFreeFoodBuilding();
+
 	// Loop through Cities
 	int iLoop;
 	for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
@@ -23887,6 +23798,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	// Store off number of newly built cities that will get a free building
 	ChangeNumCitiesFreeCultureBuilding(iNumCitiesFreeCultureBuilding);
 	ChangeNumCitiesFreeFoodBuilding(iNumCitiesFreeFoodBuilding);
+
 	// Not really techs but this is what we use (for now)
 	for(iI = 0; iI < GC.getNUM_AND_TECH_PREREQS(); iI++)
 	{
