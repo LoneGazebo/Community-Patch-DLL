@@ -7623,6 +7623,7 @@ bool CvPlayer::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool
 					return false;
 			}
 		}
+
 		// Project required?
 		ProjectTypes ePrereqProject = (ProjectTypes) pUnitInfo.GetProjectPrereq();
 		if(ePrereqProject != NO_PROJECT)
@@ -19104,7 +19105,6 @@ int CvPlayer::GetScienceTimes100() const
 	}
 #endif
 
-
 	return max(iValue, 0);
 }
 
@@ -23727,6 +23727,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	// How many cities get free culture buildings?
 	int iNumCitiesFreeCultureBuilding = pPolicy->GetNumCitiesFreeCultureBuilding();
 	int iNumCitiesFreeFoodBuilding = pPolicy->GetNumCitiesFreeFoodBuilding();
+
 	// Loop through Cities
 	int iLoop;
 	for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
@@ -23887,6 +23888,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	// Store off number of newly built cities that will get a free building
 	ChangeNumCitiesFreeCultureBuilding(iNumCitiesFreeCultureBuilding);
 	ChangeNumCitiesFreeFoodBuilding(iNumCitiesFreeFoodBuilding);
+
 	// Not really techs but this is what we use (for now)
 	for(iI = 0; iI < GC.getNUM_AND_TECH_PREREQS(); iI++)
 	{
@@ -28131,5 +28133,66 @@ bool CvPlayer::HasUnitClass(UnitClassTypes iUnitClassType)
 	}
 
 	return false;
+}
+
+bool CvPlayer::HasTrait(TraitTypes eTrait) const
+{
+	return GetPlayerTraits()->HasTrait(eTrait);
+}
+
+bool CvPlayer::HasAnyHolyCity()
+{
+	int iLoop;
+
+	for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop)) {
+		if (pLoopCity->GetCityReligions()->IsHolyCityAnyReligion()) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+bool CvPlayer::HasHolyCity(ReligionTypes eReligion)
+{
+	int iLoop;
+	for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop)) {
+		if (pLoopCity->GetCityReligions()->IsHolyCityForReligion(eReligion)) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+bool CvPlayer::HasCapturedHolyCity(ReligionTypes eReligion)
+{
+	int iLoop;
+	for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop)) {
+		if (pLoopCity->GetCityReligions()->IsHolyCityForReligion(eReligion)) {
+			return (pLoopCity->getOriginalOwner() != GetID());
+		}
+	}
+
+	return false;
+}
+
+bool CvPlayer::HasEmbassyWith(PlayerTypes eOtherPlayer) const
+{
+	if (eOtherPlayer >= 0 && eOtherPlayer < MAX_MAJOR_CIVS) {
+		CvPlayer& kOtherPlayer = GET_PLAYER(eOtherPlayer);
+
+		return (kOtherPlayer.isAlive() && GET_TEAM(getTeam()).HasEmbassyAtTeam(kOtherPlayer.getTeam()));
+	}
+
+	return false;
+}
+
+void CvPlayer::DoForceDefPact(PlayerTypes eOtherPlayer)
+{
+	CvTeam& pOtherTeam = GET_TEAM(GET_PLAYER(eOtherPlayer).getTeam());
+
+	GET_TEAM(getTeam()).SetHasDefensivePact(pOtherTeam.GetID(), true);
+	pOtherTeam.SetHasDefensivePact(getTeam(), true);
 }
 #endif

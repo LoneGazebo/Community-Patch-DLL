@@ -1656,6 +1656,13 @@ public:
 	bool HasAnyTradeRouteWith(PlayerTypes iPlayer) const;
 	bool HasUnit(UnitTypes iUnitType);
 	bool HasUnitClass(UnitClassTypes iUnitClassType);
+
+	bool HasTrait(TraitTypes eTrait) const;
+	bool HasAnyHolyCity();
+	bool HasHolyCity(ReligionTypes eReligion);
+	bool HasCapturedHolyCity(ReligionTypes eReligion);
+	bool HasEmbassyWith(PlayerTypes eOtherPlayer) const;
+	void DoForceDefPact(PlayerTypes eOtherPlayer);
 #endif
 
 	// for serialization

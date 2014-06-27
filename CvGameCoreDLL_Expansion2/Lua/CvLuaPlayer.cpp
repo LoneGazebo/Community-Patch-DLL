@@ -1115,6 +1115,13 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(HasAnyTradeRouteWith);
 	Method(HasUnit);
 	Method(HasUnitClass);
+
+	Method(HasTrait);
+	Method(HasAnyHolyCity);
+	Method(HasHolyCity);
+	Method(HasCapturedHolyCity);
+	Method(HasEmbassyWith);
+	Method(DoForceDefPact);
 #endif
 }
 //------------------------------------------------------------------------------
@@ -11821,4 +11828,11 @@ LUAAPIIMPL(Player, HasAnyTradeRoute)
 LUAAPIIMPL(Player, HasAnyTradeRouteWith)
 LUAAPIIMPL(Player, HasUnit)
 LUAAPIIMPL(Player, HasUnitClass)
+
+LUAAPIIMPL(Player, HasTrait)
+LUAAPIIMPL(Player, HasAnyHolyCity)
+LUAAPIIMPL(Player, HasHolyCity)
+LUAAPIIMPL(Player, HasCapturedHolyCity)
+LUAAPIIMPL(Player, HasEmbassyWith)
+LUAAPIIMPL(Player, DoForceDefPact)
 #endif
