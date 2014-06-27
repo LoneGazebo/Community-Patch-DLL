@@ -445,7 +445,7 @@ public:
 	void DoUpdateHappiness();
 	int GetHappiness() const;
 	void SetHappiness(int iNewValue);
-#if defined(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
 	void SetUnhappiness(int iNewValue);
 	int GetSetUnhappiness() const;
 #endif

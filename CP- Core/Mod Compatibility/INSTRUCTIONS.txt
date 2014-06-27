@@ -1,5 +1,0 @@
--- Text Instructions for Compatibility
--- Author: Gazebo
--- DateCreated: 6/25/2014 1:38:32 PM
---------------------------------------------------------------
-The DLL elements for CSD and Civ IV Diplomacy features are ENABLED BY DEFAULT. Delete (or rename) the file associated with the mods you are not going to use.

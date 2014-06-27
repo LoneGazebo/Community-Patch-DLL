@@ -584,13 +584,13 @@ protected:
 	LUAAPIEXTN(GetNumDenouncementsOfPlayer, int);
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
-	LUAAPIEXTN(getUnhappinessFromCityCulture, int);
-	LUAAPIEXTN(getUnhappinessFromCityDefense, int);
-	LUAAPIEXTN(getUnhappinessFromCityGold, int);
-	LUAAPIEXTN(getUnhappinessFromCityConnection, int);
-	LUAAPIEXTN(getUnhappinessFromCityPillaged, int);
-	LUAAPIEXTN(getUnhappinessFromCityStarving, int);
-	LUAAPIEXTN(getUnhappinessFromCityMinority, int);
+	LUAAPIEXTN(GetUnhappinessFromCityCulture, int);
+	LUAAPIEXTN(GetUnhappinessFromCityDefense, int);
+	LUAAPIEXTN(GetUnhappinessFromCityGold, int);
+	LUAAPIEXTN(GetUnhappinessFromCityConnection, int);
+	LUAAPIEXTN(GetUnhappinessFromCityPillaged, int);
+	LUAAPIEXTN(GetUnhappinessFromCityStarving, int);
+	LUAAPIEXTN(GetUnhappinessFromCityMinority, int);
 #endif
 	static int lGetMinorCivFriendshipLevelWithMajor(lua_State* L);
 	static int lGetActiveQuestForPlayer(lua_State* L); // DEPRECATED

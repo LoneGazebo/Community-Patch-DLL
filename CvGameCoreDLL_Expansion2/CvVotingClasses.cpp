@@ -10176,14 +10176,14 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 			}
 		}
 
-#if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS) || defined (MOD_BALANCE_CORE_MINORS)
+#if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS) || defined (MOD_BALANCE_CORE)
 		//If Germany, would be dumb for us to embargo city-states.
-		if ((MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS || MOD_BALANCE_CORE_MINORS) && GetPlayer()->GetPlayerTraits()->GetLandBarbarianConversionExtraUnits() > 0)
+		if ((MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS || MOD_BALANCE_CORE) && GetPlayer()->GetPlayerTraits()->GetLandBarbarianConversionExtraUnits() > 0)
 		{
 			iScore += -500;
 		}
 		//Mongolia, you want this. Also autocracy players.
-		if((MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS || MOD_BALANCE_CORE_MINORS) && (GetPlayer()->GetPlayerTraits()->GetAfraidMinorPerTurnInfluence() > 0) || (GetPlayer()->GetPlayerTraits()->GetCityStateCombatModifier() > 0))
+		if((MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS || MOD_BALANCE_CORE) && (GetPlayer()->GetPlayerTraits()->GetAfraidMinorPerTurnInfluence() > 0) || (GetPlayer()->GetPlayerTraits()->GetCityStateCombatModifier() > 0))
 		{
 			iScore += 50;
 		}
@@ -11581,8 +11581,8 @@ int CvLeagueAI::ScoreVoteChoicePlayer(CvProposal* pProposal, int iChoice, bool b
 	// Mostly same as evaluating Diplomatic Victory, but with higher value to pick others you like
 	if (pProposal->GetEffects()->bChangeLeagueHost)
 	{
-#if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS) || defined (MOD_BALANCE_CORE_MINORS)
-		if (MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS || MOD_BALANCE_CORE_MINORS) {
+#if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS) || defined (MOD_BALANCE_CORE)
+		if (MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS || MOD_BALANCE_CORE) {
 			AlignmentLevels eAlignment = EvaluateAlignment(eChoicePlayer);
 			PlayerTypes ePlayer = GetPlayer()->GetID();
 			//There should be more to it than this!
@@ -11723,7 +11723,7 @@ int CvLeagueAI::ScoreVoteChoicePlayer(CvProposal* pProposal, int iChoice, bool b
 					break;
 				}
 			}
-#if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS) || defined (MOD_BALANCE_CORE_MINORS)
+#if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS) || defined (MOD_BALANCE_CORE)
 		}
 #endif
 	}

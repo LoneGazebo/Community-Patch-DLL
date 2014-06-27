@@ -7388,13 +7388,11 @@ bool CvUnit::found()
 #if defined(MOD_BALANCE_CORE_SETTLER)
 	if(MOD_BALANCE_CORE_SETTLER && m_pUnitInfo->IsFoundMid())
 	{
-		// TODO - getPIONEER_EXTRA_PLOTS, getPIONEER_FOOD_PERCENT
-		kPlayer.cityBoost(getX(), getY(), m_pUnitInfo, GC.getPIONEER_POPULATION_CHANGE(), GC.getPIONEER_POPULATION_CHANGE(), 25);
+		kPlayer.cityBoost(getX(), getY(), m_pUnitInfo, GC.getPIONEER_EXTRA_PLOTS(), GC.getPIONEER_POPULATION_CHANGE(), GC.getPIONEER_FOOD_PERCENT());
 	}
 	if(MOD_DIPLOMACY_CITYSTATES && m_pUnitInfo->IsFoundLate())
 	{
-		// TODO - getCOLONIST_EXTRA_PLOTS, getCOLONIST_FOOD_PERCENT
-		kPlayer.cityBoost(getX(), getY(), m_pUnitInfo, GC.getCOLONIST_POPULATION_CHANGE(), GC.getCOLONIST_POPULATION_CHANGE(), 50);
+		kPlayer.cityBoost(getX(), getY(), m_pUnitInfo, GC.getCOLONIST_EXTRA_PLOTS(), GC.getCOLONIST_POPULATION_CHANGE(), GC.getCOLONIST_FOOD_PERCENT());
 	}
 #endif
 

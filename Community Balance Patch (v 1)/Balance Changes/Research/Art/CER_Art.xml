@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameData>
+	<IconTextureAtlases>
+		<Row>
+			<Atlas>CEP_TECH_ATLAS</Atlas>
+			<IconSize>256</IconSize>
+			<Filename>CER_Techs256.DDS</Filename>
+			<IconsPerRow>4</IconsPerRow>
+			<IconsPerColumn>1</IconsPerColumn>
+		</Row>
+		<Row>
+			<Atlas>CEP_TECH_ATLAS</Atlas>
+			<IconSize>214</IconSize>
+			<Filename>CER_Techs214.dds</Filename>
+			<IconsPerRow>4</IconsPerRow>
+			<IconsPerColumn>1</IconsPerColumn>
+		</Row>
+		<Row>
+			<Atlas>CEP_TECH_ATLAS</Atlas>
+			<IconSize>128</IconSize>
+			<Filename>CER_Techs128.dds</Filename>
+			<IconsPerRow>4</IconsPerRow>
+			<IconsPerColumn>1</IconsPerColumn>
+		</Row>
+		<Row>
+			<Atlas>CEP_TECH_ATLAS</Atlas>
+			<IconSize>80</IconSize>
+			<Filename>CER_Techs80.dds</Filename>
+			<IconsPerRow>4</IconsPerRow>
+			<IconsPerColumn>1</IconsPerColumn>
+		</Row>
+		<Row>
+			<Atlas>CEP_TECH_ATLAS</Atlas>
+			<IconSize>64</IconSize>
+			<Filename>CER_Techs64.dds</Filename>
+			<IconsPerRow>4</IconsPerRow>
+			<IconsPerColumn>1</IconsPerColumn>
+		</Row>
+		<Row>
+			<Atlas>CEP_TECH_ATLAS</Atlas>
+			<IconSize>45</IconSize>
+			<Filename>CER_Techs45.dds</Filename>
+			<IconsPerRow>4</IconsPerRow>
+			<IconsPerColumn>1</IconsPerColumn>
+		</Row>
+	</IconTextureAtlases>
+</GameData>

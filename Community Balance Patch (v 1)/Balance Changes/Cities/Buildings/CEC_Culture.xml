@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameData>
+	<Buildings>
+		<Update>
+			<Where BuildingClass="BUILDINGCLASS_OPERA_HOUSE"/>
+			<Set GoldMaintenance="0"/>
+		</Update>
+	</Buildings>
+	<Building_YieldChanges>
+		<!--
+		<Update>
+			<Where BuildingType="BUILDING_AMPHITHEATER" />
+			<Set Yield="2" />
+		</Update>
+		-->
+	</Building_YieldChanges>
+	<Building_ClassesNeededInCity>
+		<Delete BuildingClassType="BUILDINGCLASS_MONUMENT" />
+		<Delete BuildingClassType="BUILDINGCLASS_AMPHITHEATER" />
+		<Delete BuildingClassType="BUILDINGCLASS_OPERA_HOUSE" />
+		<Delete BuildingClassType="BUILDINGCLASS_MUSEUM" />
+	</Building_ClassesNeededInCity>
+</GameData>
