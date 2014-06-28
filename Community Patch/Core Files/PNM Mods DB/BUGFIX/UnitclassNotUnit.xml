@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameData>
+	<Language_en_US>
+		<Row Tag="TXT_KEY_TP_FAITH_NEXT_PROPHET_PARAM">
+			<Text>{1_Num} [ICON_PEACE] Faith is minimum required for your next chance at a {2_UNITCLASS_PROPHET}.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_RO_FAITH_TOOLTIP_PARAM">
+			<Text>Need minimum of {1_MinFaith} [ICON_PEACE] Faith for next {2_UNITCLASS_PROPHET}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RO_AUTO_FAITH_PROPHET_PARAM">
+			<Text>Save for {1_UNITCLASS_PROPHET}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RO_AUTO_FAITH_PURCHASE_PROPHET_PARAM">
+			<Text>Purchase {1_UNITCLASS_PROPHET}</Text>
+		</Row>
+	</Language_en_US>
+
+	<CustomModDbUpdates>
+		<Row Name="BUGFIX_UNITCLASS_NOT_UNIT_XML" Value="1"/>
+	</CustomModDbUpdates>
+</GameData>

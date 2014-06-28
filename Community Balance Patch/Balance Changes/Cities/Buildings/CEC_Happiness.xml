@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameData>
+	<Buildings>
+		<Update>
+			<Where BuildingClass="BUILDINGCLASS_COURTHOUSE" />
+			<Set GoldMaintenance="0"
+				 HurryCostModifier="100"
+				 />
+		</Update>
+	</Buildings>
+	<Building_ResourceYieldChanges>
+		<!--
+		<Row>
+			<BuildingType>BUILDING_CIRCUS</BuildingType>
+			<ResourceType>RESOURCE_HORSE</ResourceType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_CIRCUS</BuildingType>
+			<ResourceType>RESOURCE_IVORY</ResourceType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		-->
+	</Building_ResourceYieldChanges>
+</GameData>

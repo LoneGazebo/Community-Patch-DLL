@@ -9589,7 +9589,7 @@ int CvCity::getUnhappinessFromGold() const
 	int iCityPop = getPopulation() + GC.getGame().getCurrentEra();
 
 	int iGold = getYieldRate(YIELD_GOLD, false);
-	int iFood = foodDifferenceTimes100();
+	int iFood = foodDifference();
 	if(iFood > 0)
 	{
 		iGold += iFood;
@@ -9619,6 +9619,11 @@ int CvCity::getUnhappinessFromGold() const
 //	--------------------------------------------------------------------------------
 int CvCity::getUnhappinessFromConnection() const
 {
+	if(HasTradeRouteTo(GET_PLAYER(getOwner()).getCapitalCity()) || HasTradeRouteFrom(GET_PLAYER(getOwner()).getCapitalCity()))
+	{
+		return 0;
+	}
+
 	float fUnhappiness = 0.0f;
 	int iCityPop = getPopulation() + GC.getGame().getCurrentEra();
 
@@ -9695,8 +9700,10 @@ int CvCity::getUnhappinessFromStarving() const
 
 	int iDiff = foodDifferenceTimes100();
 
-	if(iDiff < 0)
+	if(iDiff < 0 && !isFoodProduction())
 	{
+		iDiff = (iDiff * -1);
+
 		fUnhappiness = (float) iDiff * /*0.5f*/ GC.getBALANCE_UNHAPPINESS_FROM_STARVING_PER_POP();
 
 		if(fUnhappiness > iCityPop)

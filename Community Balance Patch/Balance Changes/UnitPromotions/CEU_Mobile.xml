@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameData>
+	<UnitPromotions>
+		<Update>
+			<Where Type="PROMOTION_CHARGE" />
+			<Set AttackWoundedMod="20"
+				 MovesChange="1"
+				 PromotionPrereqOr1="PROMOTION_SHOCK_3"
+				 PromotionPrereqOr2="PROMOTION_DRILL_3"
+				 />
+		</Update>
+		<!--
+		<Update>
+			<Where Type="PROMOTION_REPAIR" />
+			<Set PromotionPrereqOr1="PROMOTION_SHOCK_3"
+				 PromotionPrereqOr2="PROMOTION_DRILL_3"
+				 />
+		</Update>
+		<Update>
+			<Where Type="PROMOTION_HELI_REPAIR" />
+			<Set PromotionPrereqOr1="PROMOTION_AMBUSH_2"
+				 />
+		</Update>
+		-->
+		<Update>
+			<Where Type="PROMOTION_AIR_REPAIR" />
+			<Set PromotionPrereqOr3="PROMOTION_AIR_SIEGE_3"
+				 PromotionPrereqOr4="PROMOTION_AIR_BOMBARDMENT_3"
+				 />
+		</Update>
+		<Row>
+			<Type>PROMOTION_MOBILITY_1</Type>
+			<Description>TXT_KEY_PROMOTION_MOBILITY_1</Description>
+			<Help>TXT_KEY_PROMOTION_MOBILITY_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<OrderPriority>2</OrderPriority>
+			<MovesChange>1</MovesChange>
+			<PortraitIndex>33</PortraitIndex>
+			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
+			<PediaType>PEDIA_SHARED</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_MOBILITY_1</PediaEntry>
+		</Row>
+		<Row>
+			<Type>PROMOTION_MOBILITY_2</Type>
+			<Description>TXT_KEY_PROMOTION_MOBILITY_2</Description>
+			<Help>TXT_KEY_PROMOTION_MOBILITY_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<PromotionPrereqOr1>PROMOTION_MOBILITY_1</PromotionPrereqOr1>
+			<OrderPriority>2</OrderPriority>
+			<MovesChange>1</MovesChange>
+			<PortraitIndex>33</PortraitIndex>
+			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
+			<PediaType>PEDIA_SHARED</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_MOBILITY_2</PediaEntry>
+		</Row>
+	</UnitPromotions>
+	<UnitPromotions_UnitCombats>
+		<Row>
+			<PromotionType>PROMOTION_MOBILITY_1</PromotionType>
+			<UnitCombatType>UNITCOMBAT_HELICOPTER</UnitCombatType>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_MOBILITY_2</PromotionType>
+			<UnitCombatType>UNITCOMBAT_HELICOPTER</UnitCombatType>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_AMBUSH_1</PromotionType>
+			<UnitCombatType>UNITCOMBAT_HELICOPTER</UnitCombatType>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_AMBUSH_2</PromotionType>
+			<UnitCombatType>UNITCOMBAT_HELICOPTER</UnitCombatType>
+		</Row>
+		<Delete PromotionType="PROMOTION_BOMBARDMENT_1" UnitCombatType="UNITCOMBAT_BOMBER" />
+		<Delete PromotionType="PROMOTION_BOMBARDMENT_2" UnitCombatType="UNITCOMBAT_BOMBER" />
+		<Delete PromotionType="PROMOTION_BOMBARDMENT_3" UnitCombatType="UNITCOMBAT_BOMBER" />
+		<Row>
+			<PromotionType>PROMOTION_AIR_BOMBARDMENT_1</PromotionType>
+			<UnitCombatType>UNITCOMBAT_BOMBER</UnitCombatType>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_AIR_BOMBARDMENT_2</PromotionType>
+			<UnitCombatType>UNITCOMBAT_BOMBER</UnitCombatType>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_AIR_BOMBARDMENT_3</PromotionType>
+			<UnitCombatType>UNITCOMBAT_BOMBER</UnitCombatType>
+		</Row>
+	</UnitPromotions_UnitCombats>
+	<Unit_FreePromotions>
+		<Delete UnitType="UNIT_CAVALRY" PromotionType="PROMOTION_MOUNTED_PENALTY" />
+		<Delete UnitType="UNIT_RUSSIAN_COSSACK" PromotionType="PROMOTION_MOUNTED_PENALTY" />
+	</Unit_FreePromotions>
+</GameData>

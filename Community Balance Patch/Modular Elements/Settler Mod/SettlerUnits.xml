@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created by ModBuddy on 4/24/2014 12:08:39 PM -->
+<GameData>
+	<Units>
+		<Row>
+			<Class>UNITCLASS_PIONEER</Class>
+			<Type>UNIT_PIONEER</Type>
+			<Moves>3</Moves>
+			<Capture>UNITCLASS_WORKER</Capture>
+			<CivilianAttackPriority>CIVILIAN_ATTACK_PRIORITY_HIGH_EARLY_GAME_ONLY</CivilianAttackPriority>
+			<HurryCostModifier>40</HurryCostModifier>
+			<Domain>DOMAIN_LAND</Domain>
+			<DefaultUnitAI>UNITAI_SETTLE</DefaultUnitAI>
+			<Description>TXT_KEY_UNIT_PIONEER</Description>
+			<Civilopedia>TXT_KEY_CIV5_PIONEER_TEXT</Civilopedia>
+			<Strategy>TXT_KEY_UNIT_PIONEER_STRATEGY</Strategy>
+			<Help>TXT_KEY_UNIT_HELP_PIONEER</Help>
+			<PrereqTech>TECH_COMPASS</PrereqTech>
+			<ObsoleteTech>TECH_BIOLOGY</ObsoleteTech>
+			<Food>true</Food>
+			<Found>true</Found>
+			<FoundMid>true</FoundMid>
+			<CombatLimit>0</CombatLimit>
+			<UnitArtInfo>ART_DEF_UNIT__SETTLER</UnitArtInfo>
+			<UnitArtInfoCulturalVariation>true</UnitArtInfoCulturalVariation>
+			<PortraitIndex>2</PortraitIndex>
+			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
+		</Row>
+		<Row>
+			<Class>UNITCLASS_COLONIST</Class>
+			<Type>UNIT_COLONIST</Type>
+			<Moves>4</Moves>
+			<Capture>UNITCLASS_WORKER</Capture>
+			<CivilianAttackPriority>CIVILIAN_ATTACK_PRIORITY_HIGH_EARLY_GAME_ONLY</CivilianAttackPriority>
+			<HurryCostModifier>80</HurryCostModifier>
+			<Domain>DOMAIN_LAND</Domain>
+			<DefaultUnitAI>UNITAI_SETTLE</DefaultUnitAI>
+			<Description>TXT_KEY_UNIT_COLONIST</Description>
+			<Civilopedia>TXT_KEY_CIV5_COLONIST_TEXT</Civilopedia>
+			<Strategy>TXT_KEY_UNIT_COLONIST_STRATEGY</Strategy>
+			<Help>TXT_KEY_UNIT_HELP_COLONIST</Help>
+			<Food>true</Food>
+			<Found>true</Found>
+			<FoundLate>true</FoundLate>
+			<PrereqTech>TECH_BIOLOGY</PrereqTech>
+			<CombatLimit>0</CombatLimit>
+			<UnitArtInfo>ART_DEF_UNIT__SETTLER</UnitArtInfo>
+			<UnitArtInfoCulturalVariation>true</UnitArtInfoCulturalVariation>
+			<IconAtlas>EXPANSION2_UNIT_ATLAS</IconAtlas>
+			<PortraitIndex>5</PortraitIndex>
+		</Row>
+	</Units>
+	<Unit_AITypes>
+		<Row>
+			<UnitType>UNIT_PIONEER</UnitType>
+			<UnitAIType>UNITAI_SETTLE</UnitAIType>
+		</Row>
+		<Row>
+			<UnitType>UNIT_COLONIST</UnitType>
+			<UnitAIType>UNITAI_SETTLE</UnitAIType>
+		</Row>
+	</Unit_AITypes>
+	<Unit_Flavors>
+		<Row>
+			<UnitType>UNIT_PIONEER</UnitType>
+			<FlavorType>FLAVOR_EXPANSION</FlavorType>
+			<Flavor>25</Flavor>
+		</Row>
+		<Row>
+			<UnitType>UNIT_COLONIST</UnitType>
+			<FlavorType>FLAVOR_EXPANSION</FlavorType>
+			<Flavor>25</Flavor>
+		</Row>
+	</Unit_Flavors>
+	<Unit_FreePromotions>
+		<Row>
+			<UnitType>UNIT_PIONEER</UnitType>
+			<PromotionType>PROMOTION_EXTRA_SIGHT_I</PromotionType>
+		</Row>
+		<Row>
+			<UnitType>UNIT_PIONEER</UnitType>
+			<PromotionType>PROMOTION_DEFENSIVE_EMBARKATION</PromotionType>
+		</Row>
+		<Row>
+			<UnitType>UNIT_COLONIST</UnitType>
+			<PromotionType>PROMOTION_EXTRA_SIGHT_I</PromotionType>
+		</Row>
+		<Row>
+			<UnitType>UNIT_COLONIST</UnitType>
+			<PromotionType>PROMOTION_DEFENSIVE_EMBARKATION</PromotionType>
+		</Row>
+		<Row>
+			<UnitType>UNIT_COLONIST</UnitType>
+			<PromotionType>PROMOTION_OCEAN_MOVEMENT</PromotionType>
+		</Row>
+	</Unit_FreePromotions>
+	<UnitClasses>
+		<Row>
+			<Type>UNITCLASS_PIONEER</Type>
+			<Description>TXT_KEY_UNIT_PIONEER</Description>
+			<DefaultUnit>UNIT_PIONEER</DefaultUnit>
+		</Row>
+		<Row>
+			<Type>UNITCLASS_COLONIST</Type>
+			<Description>TXT_KEY_UNIT_COLONIST</Description>
+			<DefaultUnit>UNIT_COLONIST</DefaultUnit>
+		</Row>
+	</UnitClasses>
+	<Language_en_US>
+		<Row Tag="TXT_KEY_UNIT_PIONEER">
+			<Text>Pioneer</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UNIT_PIONEER_STRATEGY">
+			<Text>Use this unit to construct new cities. It cannot defend itself, so accompany it with a combat unit. When founded, cities built by Pioneers earn free buildings and start with 3 [ICON_CITIZEN] Citizens.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_PIONEER_TEXT">
+			<Text>Pioneers drive civilization. While most are satisfied with the status quo, happy just to survive, in every culture there are a few hardy individuals willing to strike out on their own, to risk everything in the hope of finding a better life for themselves and their children. In the past, brave colonists have led humanity out of Africa (and back into it!) and into Europe, Asia, the Pacific, and the Americas. In the future they may lead the way to the moon, Mars, and even beyond.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UNIT_HELP_PIONEER">
+			<Text>Founds new Cities with advanced infrastructure and additional population. [NEWLINE][NEWLINE][ICON_FOOD] Growth of the City is stopped while this Unit is being built.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UNIT_COLONIST">
+			<Text>Colonist</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UNIT_COLONIST_STRATEGY">
+			<Text>Use this unit to construct new cities. It cannot defend itself, so accompany it with a combat unit. When founded, cities built by Colonists earn free buildings and start with 5 [ICON_CITIZEN] Citizens.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_COLONIST_TEXT">
+			<Text>Colonists drive civilization. While most are satisfied with the status quo, happy just to survive, in every culture there are a few hardy individuals willing to strike out on their own, to risk everything in the hope of finding a better life for themselves and their children. In the past, brave colonists have led humanity out of Africa (and back into it!) and into Europe, Asia, the Pacific, and the Americas. In the future they may lead the way to the moon, Mars, and even beyond.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UNIT_HELP_COLONIST">
+			<Text>Founds new Cities with advanced infrastructure and additional population. [NEWLINE][NEWLINE][ICON_FOOD] Growth of the City is stopped while this Unit is being built.</Text>
+		</Row>
+	</Language_en_US>
+	<Unit_ClassUpgrades>
+		<Row>
+			<UnitType>UNIT_SETTLER</UnitType>
+			<UnitClassType>UNITCLASS_PIONEER</UnitClassType>
+		</Row>
+		<Row>
+			<UnitType>UNIT_PIONEER</UnitType>
+			<UnitClassType>UNITCLASS_COLONIST</UnitClassType>
+		</Row>
+	</Unit_ClassUpgrades>
+	<Trait_NoTrain>
+		<Row>
+			<TraitType>TRAIT_SUPER_CITY_STATE</TraitType>
+			<UnitClassType>UNITCLASS_PIONEER</UnitClassType>
+		</Row>
+		<Row>
+			<TraitType>TRAIT_SUPER_CITY_STATE</TraitType>
+			<UnitClassType>UNITCLASS_COLONIST</UnitClassType>
+		</Row>
+	</Trait_NoTrain>
+</GameData>

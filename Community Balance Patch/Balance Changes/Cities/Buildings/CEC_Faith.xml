@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameData>
+	<Buildings>
+		<Update>
+			<Where Type="BUILDING_TEMPLE" />
+			<Set GoldMaintenance="1" />
+		</Update>
+	</Buildings>
+	<Building_ClassesNeededInCity>
+		<Delete BuildingClassType="BUILDINGCLASS_SHRINE" />
+	</Building_ClassesNeededInCity>
+	<Building_YieldChanges>
+		<Update>
+			<Where BuildingType="BUILDING_PAGODA" YieldType="YIELD_FAITH" />
+			<Set Yield="1" />
+		</Update>
+		<Update>
+			<Where BuildingType="BUILDING_PAGODA" YieldType="YIELD_CULTURE" />
+			<Set Yield="1" />
+		</Update>
+		<Update>
+			<Where BuildingType="BUILDING_CATHEDRAL" YieldType="YIELD_FAITH" />
+			<Set Yield="1" />
+		</Update>
+		<Update>
+			<Where BuildingType="BUILDING_CATHEDRAL" YieldType="YIELD_CULTURE" />
+			<Set Yield="1" />
+		</Update>
+		<Delete BuildingType="BUILDING_MONASTERY" />
+		<Row>
+			<BuildingType>BUILDING_MONASTERY</BuildingType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Yield>4</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_MONASTERY</BuildingType>
+			<YieldType>YIELD_FAITH</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_MONASTERY</BuildingType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Delete BuildingType="BUILDING_MOSQUE" />
+		<Row>
+			<BuildingType>BUILDING_MOSQUE</BuildingType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>5</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_MOSQUE</BuildingType>
+			<YieldType>YIELD_FAITH</YieldType>
+			<Yield>1</Yield>
+		</Row>
+	</Building_YieldChanges>
+	<Building_YieldModifiers>
+		<!--
+		<Row>
+			<BuildingType>BUILDING_MONASTERY</BuildingType>
+			<YieldType>YIELD_FAITH</YieldType>
+			<Yield>20</Yield>
+		</Row>
+		-->
+	</Building_YieldModifiers>
+	<!--
+	<Building_YieldChangesPerPop>
+		<Row>
+			<BuildingType>BUILDING_TEMPLE</BuildingType>
+			<YieldType>YIELD_FAITH</YieldType>
+			<Yield>10</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_HAGIA_SOPHIA</BuildingType>
+			<YieldType>YIELD_FAITH</YieldType>
+			<Yield>10</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_MOSQUE</BuildingType>
+			<YieldType>YIELD_FAITH</YieldType>
+			<Yield>20</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_MOSQUE_OF_DJENNE</BuildingType>
+			<YieldType>YIELD_FAITH</YieldType>
+			<Yield>20</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_CATHEDRAL</BuildingType>
+			<YieldType>YIELD_FAITH</YieldType>
+			<Yield>10</Yield>
+		</Row>
+	</Building_YieldChangesPerPop>
+	-->
+</GameData>

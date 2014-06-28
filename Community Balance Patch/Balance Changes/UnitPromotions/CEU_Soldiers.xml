@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameData>
+	<UnitPromotions>
+		<!--
+		<Update>
+			<Where Type="PROMOTION_DRILL_1" />
+			<Set RoughRangedAttackMod="15"
+				 />
+		</Update>
+		<Update>
+			<Where Type="PROMOTION_DRILL_2" />
+			<Set RoughRangedAttackMod="15"
+				 />
+		</Update>
+		<Update>
+			<Where Type="PROMOTION_DRILL_3" />
+			<Set RoughRangedAttackMod="15"
+				 />
+		</Update>
+		<Update>
+			<Where Type="PROMOTION_SHOCK_1" />
+			<Set OpenRangedAttackMod="15"
+				 />
+		</Update>
+		<Update>
+			<Where Type="PROMOTION_SHOCK_2" />
+			<Set OpenRangedAttackMod="15"
+				 />
+		</Update>
+		<Update>
+			<Where Type="PROMOTION_SHOCK_3" />
+			<Set OpenRangedAttackMod="15"
+				 />
+		</Update>
+		-->
+		<Update>
+			<Where Type="PROMOTION_SIEGE" />
+			<Set CityAttack="50"
+				 CityDefense="50"
+				 AttackFortifiedMod="30"
+				 PromotionPrereqOr1="PROMOTION_SHOCK_1"
+				 PromotionPrereqOr2="PROMOTION_DRILL_1"
+				 PromotionPrereqOr3="PROMOTION_ACCURACY_1"
+				 PromotionPrereqOr4="PROMOTION_BARRAGE_1"
+				 />
+		</Update>
+		<Update>
+			<Where Type="PROMOTION_AMBUSH_1" />
+			<Set PortraitIndex="24"
+				 TechPrereq="NULL"
+				 PromotionPrereqOr1="PROMOTION_ANTI_TANK"
+				 PromotionPrereqOr2="PROMOTION_ANTI_MOUNTED_NOUPGRADE_I"
+				 />
+		</Update>
+		<!--
+				 PromotionPrereqOr2="PROMOTION_SHOCK_1"
+				 PromotionPrereqOr3="PROMOTION_DRILL_1"
+				 -->
+		<Update>
+			<Where Type="PROMOTION_AMBUSH_2" />
+			<Set PortraitIndex="25"
+				 TechPrereq="NULL"
+				 />
+		</Update>
+		<Update>
+			<Where Type="PROMOTION_HELI_AMBUSH_1" />
+			<Set PortraitIndex="24"
+				 TechPrereq="NULL"
+				 />
+		</Update>
+		<Update>
+			<Where Type="PROMOTION_HELI_AMBUSH_2" />
+			<Set PortraitIndex="25"
+				 TechPrereq="NULL"
+				 />
+		</Update>
+	</UnitPromotions>
+	<UnitPromotions_UnitCombatMods>
+		<Row>
+			<PromotionType>PROMOTION_AMBUSH_1</PromotionType>
+			<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
+			<Modifier>25</Modifier>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_AMBUSH_1</PromotionType>
+			<UnitCombatType>UNITCOMBAT_ARMOR</UnitCombatType>
+			<Modifier>25</Modifier>
+		</Row>
+		<!--
+		<Row>
+			<PromotionType>PROMOTION_AMBUSH_2</PromotionType>
+			<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
+			<Modifier>25</Modifier>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_AMBUSH_2</PromotionType>
+			<UnitCombatType>UNITCOMBAT_RECON</UnitCombatType>
+			<Modifier>25</Modifier>
+		</Row>
+		<Update>
+			<Where PromotionType="PROMOTION_AMBUSH_2" />
+			<Set Modifier="25" />
+		</Update>
+		<Update>
+			<Where PromotionType="PROMOTION_HELI_AMBUSH_2" />
+			<Set Modifier="25" />
+		</Update>
+		-->
+			<Update>
+				<Where PromotionType="PROMOTION_AIR_AMBUSH_2" />
+				<Set Modifier="25" />
+			</Update>
+	</UnitPromotions_UnitCombatMods>
+	<UnitPromotions_UnitCombats>
+		
+	</UnitPromotions_UnitCombats>	
+</GameData>
