@@ -576,12 +576,21 @@ protected:
 	static int lChangeMinorCivFriendshipWithMajor(lua_State* L);
 	static int lGetMinorCivFriendshipAnchorWithMajor(lua_State* L);
 	static int lGetFriendshipNeededForNextLevel(lua_State* L);
-#if defined(MOD_BALANCE_CORE_MINORS)
+#if defined(MOD_BALANCE_CORE_MINORS) || defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 	LUAAPIEXTN(GetJerk, int);
 #endif
 #if defined(MOD_BALANCE_CORE)
 	LUAAPIEXTN(GetNumDenouncements, int);
 	LUAAPIEXTN(GetNumDenouncementsOfPlayer, int);
+#endif
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+	LUAAPIEXTN(GetUnhappinessFromCityCulture, int);
+	LUAAPIEXTN(GetUnhappinessFromCityDefense, int);
+	LUAAPIEXTN(GetUnhappinessFromCityGold, int);
+	LUAAPIEXTN(GetUnhappinessFromCityConnection, int);
+	LUAAPIEXTN(GetUnhappinessFromCityPillaged, int);
+	LUAAPIEXTN(GetUnhappinessFromCityStarving, int);
+	LUAAPIEXTN(GetUnhappinessFromCityMinority, int);
 #endif
 	static int lGetMinorCivFriendshipLevelWithMajor(lua_State* L);
 	static int lGetActiveQuestForPlayer(lua_State* L); // DEPRECATED
@@ -1115,6 +1124,13 @@ protected:
 	LUAAPIEXTN(HasAnyTradeRouteWith, bool, iPlayer);
 	LUAAPIEXTN(HasUnit, bool, iUnitType);
 	LUAAPIEXTN(HasUnitClass, bool, iUnitClassType);
+
+	LUAAPIEXTN(HasTrait, bool, iTrait);
+	LUAAPIEXTN(HasAnyHolyCity, bool);
+	LUAAPIEXTN(HasHolyCity, bool, eReligion);
+	LUAAPIEXTN(HasCapturedHolyCity, bool, eReligion);
+	LUAAPIEXTN(HasEmbassyWith, bool, iOtherPlayer);
+	LUAAPIEXTN(DoForceDefPact, void, iOtherPlayer);
 #endif
 };
 

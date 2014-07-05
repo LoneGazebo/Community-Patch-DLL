@@ -669,6 +669,34 @@ void CvBarbarians::DoUnits()
 				DoCampActivationNotice(pLoopPlot);
 			}
 		}
+#if defined(MOD_BALANCE_CORE_MILITARY)
+		if(MOD_BALANCE_CORE_MILITARY && (GC.getBALANCE_BARBARIAN_HEAL_RATE() != 0) && pLoopPlot != NULL && pLoopPlot->getNumUnits() > 0)
+		{
+			CvUnit* pUnit = pLoopPlot->getUnitByIndex(0);
+			
+			if(GET_PLAYER(pUnit->getOwner()).isBarbarian() && pUnit->getFortifyTurns() > 0)
+			{
+				if(pUnit->getDamage() > 0)
+				{
+					if(pUnit->getDomainType() == DOMAIN_LAND)
+					{
+						if(pUnit->plot()->getImprovementType() == eCamp)
+						{
+							pUnit->setDamage(pUnit->getDamage() - (GC.getBALANCE_BARBARIAN_HEAL_RATE() * 2));
+						}
+						else
+						{
+							pUnit->setDamage(pUnit->getDamage() - GC.getBALANCE_BARBARIAN_HEAL_RATE());
+						}
+					}
+					if(pUnit->getDomainType() == DOMAIN_SEA)
+					{
+						pUnit->setDamage(pUnit->getDamage() - (GC.getBALANCE_BARBARIAN_HEAL_RATE() / 2));
+					}
+				}
+			}
+		}
+#endif
 	}
 }
 

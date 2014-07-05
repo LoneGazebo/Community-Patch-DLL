@@ -1,0 +1,4 @@
+Please do not disable the Settler or Happiness Mods in this folder without also disabling them in the CommunityOptions.sql file. Thanks!
+
+Gazebo
+

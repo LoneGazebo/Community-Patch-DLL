@@ -11,3 +11,9 @@
 !*.sql
 !*.lua
 !*.civ5mod
+!*.civ5proj
+!*.civ5sln
+!*.dll
+!*.txt
+BuildOutput/
+BuildTemp/

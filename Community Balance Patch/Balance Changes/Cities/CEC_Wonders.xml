@@ -1,0 +1,733 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameData>
+	<Defines>
+		<Update>
+			<Where Name="BUILDING_SALE_DIVISOR" />
+			<Set Value="1" />
+		</Update>		
+	</Defines>
+<!--	<Building_SpecialistYieldChanges>
+		<Row>
+			<BuildingType>BUILDING_STATUE_OF_LIBERTY</BuildingType>
+			<SpecialistType>SPECIALIST_MUSICIAN</SpecialistType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_STATUE_OF_LIBERTY</BuildingType>
+			<SpecialistType>SPECIALIST_WRITER</SpecialistType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>1</Yield>
+		</Row>		
+	</Building_SpecialistYieldChanges> -->
+
+
+	<Buildings>
+		<Row>
+			<Type>BUILDING_BANAUE_RICE_TERRACES</Type>
+			<BuildingClass>BUILDINGCLASS_BANAUE_RICE_TERRACES</BuildingClass>
+			<Cost>270</Cost>
+			<PrereqTech>TECH_CONSTRUCTION</PrereqTech>
+			<Help>TXT_KEY_WONDER_BANAUE_RICE_TERRACES_HELP</Help>
+			<Description>TXT_KEY_BUILDING_BANAUE_RICE_TERRACES</Description>
+			<Civilopedia>TXT_KEY_WONDER_BANAUE_RICE_TERRACES_DESC</Civilopedia>
+			<Quote>TXT_KEY_WONDER_BANAUE_RICE_TERRACES_QUOTE</Quote>
+			<MaxStartEra>ERA_CLASSICAL</MaxStartEra>
+			<SpecialistType>SPECIALIST_MERCHANT</SpecialistType>
+			<GreatPeopleRateChange>1</GreatPeopleRateChange>
+			<NukeImmune>true</NukeImmune>
+			<HurryCostModifier>-1</HurryCostModifier>
+			<MinAreaSize>-1</MinAreaSize>
+			<ConquestProb>100</ConquestProb>
+			<ArtDefineTag>ART_DEF_BUILDING_FORGE</ArtDefineTag>
+			<IconAtlas>CEP_WONDER_ATLAS</IconAtlas>
+			<PortraitIndex>2</PortraitIndex>
+			<WonderSplashImage>splash_Banaue.dds</WonderSplashImage>
+			<WonderSplashAnchor>L,B</WonderSplashAnchor>
+		</Row>
+		<Row>
+			<Type>BUILDING_CHURCHES_LALIBELA</Type>
+			<BuildingClass>BUILDINGCLASS_CHURCHES_LALIBELA</BuildingClass>
+			<Cost>400</Cost>
+			<PrereqTech>TECH_THEOLOGY</PrereqTech>
+			<Help>TXT_KEY_WONDER_CHURCHES_LALIBELA_HELP</Help>
+			<Description>TXT_KEY_BUILDING_CHURCHES_LALIBELA</Description>
+			<Civilopedia>TXT_KEY_WONDER_CHURCHES_LALIBELA_DESC</Civilopedia>
+			<Quote>TXT_KEY_WONDER_CHURCHES_LALIBELA_QUOTE</Quote>
+			<MaxStartEra>ERA_MEDIEVAL</MaxStartEra>
+			<SpecialistType>SPECIALIST_ARTIST</SpecialistType>
+			<GreatPeopleRateChange>1</GreatPeopleRateChange>
+			<NukeImmune>true</NukeImmune>
+			<HurryCostModifier>-1</HurryCostModifier>
+			<MinAreaSize>-1</MinAreaSize>
+			<HolyCity>true</HolyCity>
+			<ConquestProb>100</ConquestProb>
+			<ArtDefineTag>ART_DEF_BUILDING_FORGE</ArtDefineTag>
+			<IconAtlas>CEP_WONDER_ATLAS</IconAtlas>
+			<PortraitIndex>6</PortraitIndex>
+			<WonderSplashImage>splash_Lalibela.dds</WonderSplashImage>
+			<WonderSplashAnchor>L,B</WonderSplashAnchor>
+			<ExtraMissionarySpreads>1</ExtraMissionarySpreads>
+		</Row>
+		<Row>
+			<Type>BUILDING_HOLLYWOOD</Type>
+			<BuildingClass>BUILDINGCLASS_HOLLYWOOD</BuildingClass>
+			<Cost>1250</Cost>
+			<PrereqTech>TECH_RADIO</PrereqTech>
+			<Help>TXT_KEY_WONDER_HOLLYWOOD_HELP</Help>
+			<Description>TXT_KEY_BUILDING_HOLLYWOOD</Description>
+			<Civilopedia>TXT_KEY_WONDER_HOLLYWOOD_PEDIA</Civilopedia>
+			<Quote>TXT_KEY_WONDER_HOLLYWOOD_QUOTE</Quote>
+			<MaxStartEra>ERA_MODERN</MaxStartEra>
+			<SpecialistType>SPECIALIST_ARTIST</SpecialistType>
+			<GreatPeopleRateChange>2</GreatPeopleRateChange>
+			<CultureRateModifier>25</CultureRateModifier>
+			<NukeImmune>true</NukeImmune>
+			<HurryCostModifier>-1</HurryCostModifier>
+			<MinAreaSize>-1</MinAreaSize>
+			<ConquestProb>100</ConquestProb>
+			<ArtDefineTag>ART_DEF_BUILDING_FORGE</ArtDefineTag>
+			<IconAtlas>CEP_WONDER_ATLAS</IconAtlas>
+			<PortraitIndex>5</PortraitIndex>
+			<WonderSplashImage>splash_Hollywood.dds</WonderSplashImage>
+			<WonderSplashAnchor>L,B</WonderSplashAnchor>
+		</Row>
+		<Row>
+			<Type>BUILDING_ITAIPU_DAM</Type>
+			<BuildingClass>BUILDINGCLASS_ITAIPU_DAM</BuildingClass>
+			<Cost>2100</Cost>
+			<PrereqTech>TECH_ELECTRONICS</PrereqTech>
+			<Help>TXT_KEY_WONDER_ITAIPU_DAM_HELP</Help>
+			<Description>TXT_KEY_BUILDING_ITAIPU_DAM</Description>
+			<Civilopedia>TXT_KEY_WONDER_ITAIPU_DAM_DESC</Civilopedia>
+			<Quote>TXT_KEY_WONDER_ITAIPU_DAM_QUOTE</Quote>
+			<MaxStartEra>ERA_MODERN</MaxStartEra>
+			<SpecialistType>SPECIALIST_ENGINEER</SpecialistType>
+			<SpecialistCount>2</SpecialistCount>
+			<River>true</River>
+			<NukeImmune>true</NukeImmune>
+			<HurryCostModifier>-1</HurryCostModifier>
+			<MinAreaSize>-1</MinAreaSize>
+			<ConquestProb>100</ConquestProb>
+			<FreeBuildingThisCity>BUILDINGCLASS_HYDRO_PLANT</FreeBuildingThisCity>
+			<ArtDefineTag>ART_DEF_BUILDING_FORGE</ArtDefineTag>
+			<IconAtlas>BW_ATLAS_2</IconAtlas>
+			<PortraitIndex>28</PortraitIndex>
+			<WonderSplashImage>WonderConceptThreeGeorgesDam.dds</WonderSplashImage>
+		</Row>
+		<Row>
+			<Type>BUILDING_LARGE_HADRON_COLLIDER</Type>
+			<BuildingClass>BUILDINGCLASS_LARGE_HADRON_COLLIDER</BuildingClass>
+			<Cost>1000</Cost>
+			<PrereqTech>TECH_PARTICLE_PHYSICS</PrereqTech>
+			<Help>TXT_KEY_WONDER_LARGE_HADRON_COLLIDER_HELP</Help>
+			<Description>TXT_KEY_BUILDING_LARGE_HADRON_COLLIDER</Description>
+			<Civilopedia>TXT_KEY_WONDER_LARGE_HADRON_COLLIDER_DESC</Civilopedia>
+			<Quote>TXT_KEY_WONDER_LARGE_HADRON_COLLIDER_QUOTE</Quote>
+			<MaxStartEra>ERA_POSTMODERN</MaxStartEra>
+			<SpecialistType>SPECIALIST_SCIENTIST</SpecialistType>
+			<GreatPeopleRateChange>2</GreatPeopleRateChange>
+			<FreeTechs>2</FreeTechs>
+			<NukeImmune>true</NukeImmune>
+			<HurryCostModifier>-1</HurryCostModifier>
+			<MinAreaSize>-1</MinAreaSize>
+			<ConquestProb>100</ConquestProb>
+			<ArtDefineTag>ART_DEF_BUILDING_FORGE</ArtDefineTag>
+			<IconAtlas>CEP_WONDER_ATLAS</IconAtlas>
+			<PortraitIndex>4</PortraitIndex>
+			<WonderSplashImage>splash_hadron.dds</WonderSplashImage>
+			<WonderSplashAnchor>R,B</WonderSplashAnchor>
+		</Row>
+		<Row>
+			<Type>BUILDING_PANAMA_CANAL</Type>
+			<BuildingClass>BUILDINGCLASS_PANAMA_CANAL</BuildingClass>
+			<Cost>1250</Cost>
+			<PrereqTech>TECH_DYNAMITE</PrereqTech>
+			<Help>TXT_KEY_WONDER_PANAMA_CANAL_HELP</Help>
+			<Description>TXT_KEY_BUILDING_PANAMA_CANAL</Description>
+			<Civilopedia>TXT_KEY_WONDER_PANAMA_CANAL_DESC</Civilopedia>
+			<Quote>TXT_KEY_WONDER_PANAMA_CANAL_QUOTE</Quote>
+			<MaxStartEra>ERA_MODERN</MaxStartEra>
+			<SpecialistType>SPECIALIST_MERCHANT</SpecialistType>
+			<GreatPeopleRateChange>2</GreatPeopleRateChange>
+			<Water>true</Water>
+			<CityConnectionTradeRouteModifier>25</CityConnectionTradeRouteModifier>
+			<FreePromotion>PROMOTION_PANAMA_CANAL</FreePromotion>
+			<NukeImmune>true</NukeImmune>
+			<HurryCostModifier>-1</HurryCostModifier>
+			<MinAreaSize>10</MinAreaSize>
+			<ConquestProb>100</ConquestProb>
+			<ArtDefineTag>ART_DEF_BUILDING_FORGE</ArtDefineTag>
+			<IconAtlas>BW_ATLAS_2</IconAtlas>
+			<PortraitIndex>25</PortraitIndex>
+			<WonderSplashImage>WonderConceptPanamaCanal.dds</WonderSplashImage>
+		</Row>
+		<Row>
+			<Type>BUILDING_WAT_PHRA_KAEW</Type>
+			<BuildingClass>BUILDINGCLASS_WAT_PHRA_KAEW</BuildingClass>
+			<Cost>750</Cost>
+			<PrereqTech>TECH_ARCHAEOLOGY</PrereqTech>
+			<Help>TXT_KEY_WONDER_WAT_PHRA_KAEW_HELP</Help>
+			<Description>TXT_KEY_BUILDING_WAT_PHRA_KAEW</Description>
+			<Civilopedia>TXT_KEY_WONDER_WAT_PHRA_KAEW_DESC</Civilopedia>
+			<Quote>TXT_KEY_WONDER_WAT_PHRA_KAEW_QUOTE</Quote>
+			<MaxStartEra>ERA_INDUSTRIAL</MaxStartEra>
+			<SpecialistType>SPECIALIST_ARTIST</SpecialistType>
+			<GreatPeopleRateChange>1</GreatPeopleRateChange>
+			<NukeImmune>true</NukeImmune>
+			<HurryCostModifier>-1</HurryCostModifier>
+			<MinAreaSize>-1</MinAreaSize>
+			<ConquestProb>100</ConquestProb>
+			<ArtDefineTag>ART_DEF_BUILDING_FORGE</ArtDefineTag>
+			<IconAtlas>CEP_WONDER_ATLAS</IconAtlas>
+			<PortraitIndex>1</PortraitIndex>
+			<WonderSplashImage>splash_WatPhraKaew.dds</WonderSplashImage>
+			<WonderSplashAnchor>L,T</WonderSplashAnchor>
+		</Row>
+		<Update>
+			<Where Type="BUILDING_ANGKOR_WAT" />
+			<Set MinorFriendshipFlatChange="40"
+				 GlobalPlotCultureCostModifier="0"
+				 GlobalPlotBuyCostModifier="0"
+				 FreeBuildingThisCity="NULL"
+				 />
+		</Update>
+		<Update>
+			<Where Type="BUILDING_BRANDENBURG_GATE" />
+			<Set FreeBuildingThisCity="BUILDINGCLASS_MILITARY_ACADEMY"
+				 Experience="0"
+				 GlobalExperience="20"
+				 />
+		</Update>
+		<Update>
+			<Where Type="BUILDING_CHICHEN_ITZA" />
+			<Set GoldenAgeModifier="50"
+				 Happiness="0"
+				 />
+		</Update>
+		<Update>
+			<Where Type="BUILDING_CN_TOWER" />
+			<Set PrereqTech="TECH_ELECTRONICS"
+				/>
+		</Update>
+		<Update>
+			<Where Type="BUILDING_CRISTO_REDENTOR" />
+			<Set PolicyCostModifier="0"
+				 />
+		</Update>
+		<Update>
+			<Where Type="BUILDING_FORBIDDEN_PALACE" />
+			<Set UnhappinessModifier="-10"
+				 Happiness="0"
+				 />
+		</Update>
+		<Update>
+			<Where Type="BUILDING_GREAT_WALL" />
+			<Set GreatGeneralRateChange="1"
+				 GreatPeopleRateChange="0"
+				 FreeBuildingThisCity="NULL"
+				 />
+		</Update>
+		<Update>
+			<Where Type="BUILDING_GREAT_LIBRARY" />
+			<Set GreatPeopleRateChange="0"
+				 />
+		</Update>
+		<Update>
+			<Where Type="BUILDING_HAGIA_SOPHIA" />
+			<Set FreeBuildingThisCity="NULL"
+				 Happiness="0" />
+		</Update>
+		<Update>
+			<Where Type="BUILDING_HANGING_GARDEN" />
+			<Set Happiness="6" />
+		</Update>
+		<Update>
+			<Where Type="BUILDING_HUBBLE" />
+			<Set IconAtlas="CEP_WONDER_ATLAS"
+				 PortraitIndex="0"
+				 />
+		</Update>
+		<Update>
+			<Where Type="BUILDING_RED_FORT" />
+			<Set GlobalInstantBorderRadius="2"
+				 GlobalPlotCultureCostModifier="-25"
+				 GlobalPlotBuyCostModifier="-25"
+				 Defense="0"
+				 GlobalDefenseMod="0"
+				 />
+		</Update>
+		<Update>
+			<Where Type="BUILDING_LEANING_TOWER" />
+			<Set IconAtlas="TECH_ATLAS_2"
+				 PortraitIndex="14"
+				 />
+		</Update>
+		<Update>
+			<Where Type="BUILDING_MACHU_PICHU" />
+			<Set CityConnectionTradeRouteModifier="0"
+				 Help="TXT_KEY_BUILDING_MACHU_PICHU_HELP"
+				 AlwaysShowHelp="true"
+				 />
+		</Update>
+		<Update>
+			<Where Type="BUILDING_MAUSOLEUM_HALICARNASSUS" />
+			<Set GreatPersonExpendGold="0"
+				 FreeBuildingThisCity="BUILDINGCLASS_COLOSSEUM"
+				 IconAtlas="CEP_WONDER_ATLAS"
+				 PortraitIndex="3"
+				 WonderSplashImage="splash_flavian.dds"
+				 WonderSplashAnchor="R,B"
+				 />
+		</Update>
+		<Update>
+			<Where Type="BUILDING_MOSQUE_OF_DJENNE" />
+			<Set FreeBuildingThisCity="NULL"
+				 ExtraMissionarySpreads="0"
+				 />
+		</Update>
+		<Update>
+			<Where Type="BUILDING_PETRA" />
+			<Set NotFeature="FEATURE_FLOOD_PLAINS"
+				 />
+		</Update>
+		<Update>
+			<Where Type="BUILDING_PENTAGON" />
+			<Set FreePromotionAllCombatUnits="PROMOTION_MARCH" />
+		</Update>
+		<Update>
+			<Where Type="BUILDING_PORCELAIN_TOWER" />
+			<Set MedianTechPercentChange="0"
+				 TradeDealModifier="25"
+				 />
+		</Update>
+		<Update>
+			<Where Type="BUILDING_STATUE_ZEUS" />
+			<Set InstantMilitaryIncrease="1"
+				 GreatGeneralRateChange="1"
+				 FreePromotion="NULL"
+				 />
+		</Update>
+		<Update>
+			<Where Type="BUILDING_STONEHENGE" />
+			<Set GreatPeopleRateChange="1"
+				 Help="TXT_KEY_WONDER_STONEHENGE_HELP"
+				 />
+		</Update>
+		<Update>
+			<Where Type="BUILDING_SYDNEY_OPERA_HOUSE" />
+			<Set FreePolicies="2"
+				 />
+		</Update>
+		<!--
+		<Update>
+			<Where Type="BUILDING_TAJ_MAHAL" />
+			<Set Happiness="0"
+				 GoldenAgePoints="4"
+				 />
+		</Update>
+		-->
+		<Update>
+			<Where Type="BUILDING_TERRACOTTA_ARMY" />
+			<Set InstantMilitaryIncrease="0"
+				 InstantBorderRadius="3"
+				 GreatPeopleRateChange="0"
+				 />
+		</Update>
+	</Buildings>
+	<BuildingClasses>
+		<Row>
+			<Type>BUILDINGCLASS_ITAIPU_DAM</Type>
+			<DefaultBuilding>BUILDING_ITAIPU_DAM</DefaultBuilding>
+			<Description>TXT_KEY_BUILDING_ITAIPU_DAM</Description>
+			<MaxGlobalInstances>1</MaxGlobalInstances>
+		</Row>
+		<Row>
+			<Type>BUILDINGCLASS_HOLLYWOOD</Type>
+			<DefaultBuilding>BUILDING_HOLLYWOOD</DefaultBuilding>
+			<Description>TXT_KEY_BUILDING_HOLLYWOOD</Description>
+			<MaxGlobalInstances>1</MaxGlobalInstances>
+		</Row>
+		<Row>
+			<Type>BUILDINGCLASS_BANAUE_RICE_TERRACES</Type>
+			<DefaultBuilding>BUILDING_BANAUE_RICE_TERRACES</DefaultBuilding>
+			<Description>TXT_KEY_BUILDING_BANAUE_RICE_TERRACES</Description>
+			<MaxGlobalInstances>1</MaxGlobalInstances>
+		</Row>
+		<Row>
+			<Type>BUILDINGCLASS_PANAMA_CANAL</Type>
+			<DefaultBuilding>BUILDING_PANAMA_CANAL</DefaultBuilding>
+			<Description>TXT_KEY_BUILDING_PANAMA_CANAL</Description>
+			<MaxGlobalInstances>1</MaxGlobalInstances>
+		</Row>
+		<Row>
+			<Type>BUILDINGCLASS_CHURCHES_LALIBELA</Type>
+			<DefaultBuilding>BUILDING_CHURCHES_LALIBELA</DefaultBuilding>
+			<Description>TXT_KEY_BUILDING_CHURCHES_LALIBELA</Description>
+			<MaxGlobalInstances>1</MaxGlobalInstances>
+		</Row>
+		<Row>
+			<Type>BUILDINGCLASS_LARGE_HADRON_COLLIDER</Type>
+			<DefaultBuilding>BUILDING_LARGE_HADRON_COLLIDER</DefaultBuilding>
+			<Description>TXT_KEY_BUILDING_LARGE_HADRON_COLLIDER</Description>
+			<MaxGlobalInstances>1</MaxGlobalInstances>
+		</Row>
+		<Row>
+			<Type>BUILDINGCLASS_WAT_PHRA_KAEW</Type>
+			<DefaultBuilding>BUILDING_WAT_PHRA_KAEW</DefaultBuilding>
+			<Description>TXT_KEY_BUILDING_WAT_PHRA_KAEW</Description>
+			<MaxGlobalInstances>1</MaxGlobalInstances>
+		</Row>
+	</BuildingClasses>
+	<Building_YieldInstant>
+		<Row>
+			<BuildingType>BUILDING_STONEHENGE</BuildingType>
+			<YieldType>YIELD_FAITH</YieldType>
+			<Yield>20</Yield>
+		</Row>
+	</Building_YieldInstant>
+	<Building_FreeUnits>
+		<Delete BuildingType="BUILDING_PYRAMID" />
+		<Delete BuildingType="BUILDING_BRANDENBURG_GATE" />
+		<Delete BuildingType="BUILDING_HAGIA_SOPHIA" />
+		<Row>
+			<BuildingType>BUILDING_PYRAMID</BuildingType>
+			<UnitType>UNIT_SETTLER</UnitType>
+			<NumUnits>1</NumUnits>
+		</Row>
+		<!--
+		<Row>
+			<BuildingType>BUILDING_STATUE_ZEUS</BuildingType>
+			<UnitType>UNIT_GREAT_GENERAL</UnitType>
+			<NumUnits>1</NumUnits>
+		</Row>
+		-->
+		<Row>
+			<BuildingType>BUILDING_GREAT_WALL</BuildingType>
+			<UnitType>UNIT_GREAT_GENERAL</UnitType>
+			<NumUnits>1</NumUnits>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_CHURCHES_LALIBELA</BuildingType>
+			<UnitType>UNIT_MISSIONARY_LALIBELA</UnitType>
+			<NumUnits>1</NumUnits>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_MOSQUE_OF_DJENNE</BuildingType>
+			<UnitType>UNIT_PROPHET</UnitType>
+			<NumUnits>1</NumUnits>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_HOLLYWOOD</BuildingType>
+			<UnitType>UNIT_ARTIST</UnitType>
+			<NumUnits>1</NumUnits>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_ITAIPU_DAM</BuildingType>
+			<UnitType>UNIT_ENGINEER</UnitType>
+			<NumUnits>1</NumUnits>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_CRISTO_REDENTOR</BuildingType>
+			<UnitType>UNIT_ARTIST</UnitType>
+			<NumUnits>1</NumUnits>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_CRISTO_REDENTOR</BuildingType>
+			<UnitType>UNIT_WRITER</UnitType>
+			<NumUnits>1</NumUnits>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_CRISTO_REDENTOR</BuildingType>
+			<UnitType>UNIT_MUSICIAN</UnitType>
+			<NumUnits>1</NumUnits>
+		</Row>
+		<Delete BuildingType="BUILDING_LOUVRE" />
+		<Row>
+			<BuildingType>BUILDING_LOUVRE</BuildingType>
+			<UnitType>UNIT_ARCHAEOLOGIST</UnitType>
+			<NumUnits>2</NumUnits>
+		</Row>
+	</Building_FreeUnits>
+	<Building_ResourceQuantity>
+		<Row>
+			<BuildingType>BUILDING_HOLLYWOOD</BuildingType>
+			<ResourceType>RESOURCE_MOVIES</ResourceType>
+			<Quantity>4</Quantity>
+		</Row>
+	</Building_ResourceQuantity>
+	<Building_TerrainYieldChanges>
+		<Delete BuildingType="BUILDING_PETRA" YieldType="YIELD_PRODUCTION" />
+	</Building_TerrainYieldChanges>
+	<Building_FeatureYieldChanges>
+		<Delete BuildingType="BUILDING_PETRA" YieldType="YIELD_PRODUCTION" />
+	</Building_FeatureYieldChanges>
+	<Building_ResourceYieldChanges>
+		<Delete BuildingType="BUILDING_MAUSOLEUM_HALICARNASSUS" />
+		<Row>
+			<BuildingType>BUILDING_MAUSOLEUM_HALICARNASSUS</BuildingType>
+			<ResourceType>RESOURCE_HORSE</ResourceType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>2</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_MAUSOLEUM_HALICARNASSUS</BuildingType>
+			<ResourceType>RESOURCE_IVORY</ResourceType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>2</Yield>
+		</Row>
+	</Building_ResourceYieldChanges>
+	<Building_NearestPlotYieldChanges>
+		<Row>
+			<BuildingType>BUILDING_MACHU_PICHU</BuildingType>
+			<PlotType>PLOT_MOUNTAIN</PlotType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>5</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_MACHU_PICHU</BuildingType>
+			<PlotType>PLOT_MOUNTAIN</PlotType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>5</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_MACHU_PICHU</BuildingType>
+			<PlotType>PLOT_MOUNTAIN</PlotType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>5</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_MACHU_PICHU</BuildingType>
+			<PlotType>PLOT_MOUNTAIN</PlotType>
+			<YieldType>YIELD_FAITH</YieldType>
+			<Yield>5</Yield>
+		</Row>
+	</Building_NearestPlotYieldChanges>
+	<Building_PlotYieldChanges>
+		<!--
+		<Row>
+			<BuildingType>BUILDING_BANAUE_RICE_TERRACES</BuildingType>
+			<PlotType>PLOT_HILLS</PlotType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_CHURCHES_LALIBELA</BuildingType>
+			<PlotType>PLOT_HILLS</PlotType>
+			<YieldType>YIELD_FAITH</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		-->
+	</Building_PlotYieldChanges>
+
+	<Building_YieldChanges>
+		<Delete BuildingType="BUILDING_GREAT_LIBRARY" />
+		<Delete BuildingType="BUILDING_HANGING_GARDEN" />
+		<Row>
+			<BuildingType>BUILDING_HANGING_GARDEN</BuildingType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Delete BuildingType="BUILDING_MACHU_PICHU" />
+		<Row>
+			<BuildingType>BUILDING_MACHU_PICHU</BuildingType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Delete BuildingType="BUILDING_HAGIA_SOPHIA" />
+		<Row>
+			<BuildingType>BUILDING_HAGIA_SOPHIA</BuildingType>
+			<YieldType>YIELD_FAITH</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Delete BuildingType="BUILDING_ORACLE" />
+		<Row>
+			<BuildingType>BUILDING_ORACLE</BuildingType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>5</Yield>
+		</Row>
+		<Delete BuildingType="BUILDING_MOSQUE_OF_DJENNE" />
+		<Row>
+			<BuildingType>BUILDING_MOSQUE_OF_DJENNE</BuildingType>
+			<YieldType>YIELD_FAITH</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Delete BuildingType="BUILDING_TERRACOTTA_ARMY" />
+		<Row>
+			<BuildingType>BUILDING_TERRACOTTA_ARMY</BuildingType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>5</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_BANAUE_RICE_TERRACES</BuildingType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>10</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_BANAUE_RICE_TERRACES</BuildingType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_WAT_PHRA_KAEW</BuildingType>
+			<YieldType>YIELD_FAITH</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_CHURCHES_LALIBELA</BuildingType>
+			<YieldType>YIELD_FAITH</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_HOLLYWOOD</BuildingType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>1</Yield>
+		</Row>
+	</Building_YieldChanges>
+	<Building_GlobalYieldModifiers>
+		<Row>
+			<BuildingType>BUILDING_ITAIPU_DAM</BuildingType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>15</Yield>
+		</Row>
+		<!--
+		<Row>
+			<BuildingType>BUILDING_HAGIA_SOPHIA</BuildingType>
+			<YieldType>YIELD_FAITH</YieldType>
+			<Yield>25</Yield>
+		</Row>
+		-->
+	</Building_GlobalYieldModifiers>
+	<Building_HurryModifiers>
+		<Update>
+			<Where BuildingType="BUILDING_BIG_BEN" />
+			<Set HurryCostModifier="-15" />
+		</Update>
+	</Building_HurryModifiers>
+	<Building_SpecialistYieldChanges>
+		<Row>
+			<BuildingType>BUILDING_HAGIA_SOPHIA</BuildingType>
+			<SpecialistType>SPECIALIST_CITIZEN</SpecialistType>
+			<YieldType>YIELD_FAITH</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_HAGIA_SOPHIA</BuildingType>
+			<SpecialistType>SPECIALIST_ARTIST</SpecialistType>
+			<YieldType>YIELD_FAITH</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_HAGIA_SOPHIA</BuildingType>
+			<SpecialistType>SPECIALIST_SCIENTIST</SpecialistType>
+			<YieldType>YIELD_FAITH</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_HAGIA_SOPHIA</BuildingType>
+			<SpecialistType>SPECIALIST_MERCHANT</SpecialistType>
+			<YieldType>YIELD_FAITH</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_HAGIA_SOPHIA</BuildingType>
+			<SpecialistType>SPECIALIST_ENGINEER</SpecialistType>
+			<YieldType>YIELD_FAITH</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_HAGIA_SOPHIA</BuildingType>
+			<SpecialistType>SPECIALIST_WRITER</SpecialistType>
+			<YieldType>YIELD_FAITH</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_HAGIA_SOPHIA</BuildingType>
+			<SpecialistType>SPECIALIST_MUSICIAN</SpecialistType>
+			<YieldType>YIELD_FAITH</YieldType>
+			<Yield>1</Yield>
+		</Row>		
+	</Building_SpecialistYieldChanges>
+	<Building_BuildingClassYieldModifiers>
+		<Row>
+			<BuildingType>BUILDING_WAT_PHRA_KAEW</BuildingType>
+			<BuildingClassType>BUILDINGCLASS_SHRINE</BuildingClassType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>10</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_WAT_PHRA_KAEW</BuildingType>
+			<BuildingClassType>BUILDINGCLASS_TEMPLE</BuildingClassType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>10</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_WAT_PHRA_KAEW</BuildingType>
+			<BuildingClassType>BUILDINGCLASS_SHRINE</BuildingClassType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>10</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_WAT_PHRA_KAEW</BuildingType>
+			<BuildingClassType>BUILDINGCLASS_TEMPLE</BuildingClassType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>10</Yield>
+		</Row>
+	</Building_BuildingClassYieldModifiers>
+	<Building_DomainFreeExperiences>
+		<Row>
+			<BuildingType>BUILDING_GREAT_LIGHTHOUSE</BuildingType>
+			<DomainType>DOMAIN_SEA</DomainType>
+			<Experience>20</Experience>
+		</Row>
+		<Delete BuildingType="BUILDING_BRANDENBURG_GATE" />
+	</Building_DomainFreeExperiences>
+	<UnitPromotions>
+		<Row>
+			<Type>PROMOTION_PANAMA_CANAL</Type>
+			<Description>TXT_KEY_PROMOTION_PANAMA_CANAL</Description>
+			<Help>TXT_KEY_PROMOTION_PANAMA_CANAL_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<CannotBeChosen>true</CannotBeChosen>
+			<MovesChange>1</MovesChange>
+			<PortraitIndex>33</PortraitIndex>
+			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
+			<PediaType>PEDIA_SHARED</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_PANAMA_CANAL</PediaEntry>
+		</Row>
+		<Row>
+			<Type>PROMOTION_PARTHENON</Type>
+			<Description>TXT_KEY_PROMOTION_PARTHENON</Description>
+			<Help>TXT_KEY_PROMOTION_PARTHENON_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<CannotBeChosen>true</CannotBeChosen>
+			<GreatGeneralCombatModifier>10</GreatGeneralCombatModifier>
+			<PortraitIndex>58</PortraitIndex>
+			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
+			<PediaType>PEDIA_SHARED</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_PARTHENON</PediaEntry>
+		</Row>
+	</UnitPromotions>
+	<UnitPromotions_UnitCombats>
+		<Row>
+			<PromotionType>PROMOTION_PANAMA_CANAL</PromotionType>
+			<UnitCombatType>UNITCOMBAT_NAVALRANGED</UnitCombatType>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_PANAMA_CANAL</PromotionType>
+			<UnitCombatType>UNITCOMBAT_NAVALMELEE</UnitCombatType>
+		</Row>
+	</UnitPromotions_UnitCombats>
+	<UnitPromotions_CivilianUnitType>
+		<Row>
+			<PromotionType>PROMOTION_PARTHENON</PromotionType>
+			<UnitType>UNIT_GREAT_GENERAL</UnitType>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_PARTHENON</PromotionType>
+			<UnitType>UNIT_GREAT_ADMIRAL</UnitType>
+		</Row>
+	</UnitPromotions_CivilianUnitType>
+	<!--
+	-->
+</GameData>

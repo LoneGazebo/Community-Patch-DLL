@@ -23,8 +23,8 @@
  ****************************************************************************/
 #define MOD_DLL_GUID {0xbf9bf7f0, 0xe078, 0x4d4e, { 0x8a, 0x3e, 0x84, 0x71, 0x2f, 0x85, 0xaa, 0x2b }} //{BF9BF7F0-E078-4d4e-8A3E-84712F85AA2B}
 #define MOD_DLL_NAME "Community Patch v1 (PNM v51+)"
-#define MOD_DLL_VERSION_NUMBER ((uint) 51)
-#define MOD_DLL_VERSION_STATUS ""			// a (alpha), b (beta) or blank (released)
+#define MOD_DLL_VERSION_NUMBER ((uint) 53)
+#define MOD_DLL_VERSION_STATUS "b"			// a (alpha), b (beta) or blank (released)
 #define MOD_DLL_CUSTOM_BUILD_NAME ""
 
 
@@ -70,7 +70,9 @@
 // Enables the LUA Extensions API
 #define MOD_API_LUA_EXTENSIONS                      gCustomMods.isAPI_LUA_EXTENSIONS()
 
-// Push various hard-coded values controlling the AI out into XML
+// Push various hard-coded values controlling the game out into XML - see DB/CONFIG/GameInXml.sql for specific values -->
+#define MOD_CONFIG_GAME_IN_XML                      gCustomMods.isCONFIG_GAME_IN_XML()
+// Push various hard-coded values controlling the AI out into XML - see DB/CONFIG/AiInXml.sql for specific values
 #define MOD_CONFIG_AI_IN_XML                        gCustomMods.isCONFIG_AI_IN_XML()
 
 // Changes the stacking limits based on what the tile is (city, fort, plain, etc) - AFFECTS SAVE GAME DATA FORMAT
@@ -163,7 +165,6 @@
 // Changes for the City State Diplomacy mod by Gazebo - AFFECTS SAVE GAME DATA FORMAT (v35)
 #define MOD_DIPLOMACY_CITYSTATES                    gCustomMods.isDIPLOMACY_CITYSTATES()
 #if defined(MOD_DIPLOMACY_CITYSTATES)
-#define MOD_DIPLOMACY_CITYSTATES_DIFFICULTY         (MOD_DIPLOMACY_CITYSTATES && gCustomMods.isDIPLOMACY_CITYSTATES_DIFFICULTY())
 #define MOD_DIPLOMACY_CITYSTATES_QUESTS             (MOD_DIPLOMACY_CITYSTATES && gCustomMods.isDIPLOMACY_CITYSTATES_QUESTS())
 #define MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS        (MOD_DIPLOMACY_CITYSTATES && gCustomMods.isDIPLOMACY_CITYSTATES_RESOLUTIONS())
 #define MOD_DIPLOMACY_CITYSTATES_HURRY              (MOD_DIPLOMACY_CITYSTATES && gCustomMods.isDIPLOMACY_CITYSTATES_HURRY())
@@ -179,6 +180,10 @@
 #define MOD_BALANCE_CORE_SETTLER					(MOD_COMMUNITY_PATCH && gCustomMods.isMOD_BALANCE_CORE_SETTLER())
 #define MOD_BALANCE_CORE_DEALS						(MOD_COMMUNITY_PATCH && gCustomMods.isMOD_BALANCE_CORE_DEALS())
 #define MOD_BALANCE_CORE_MINORS						(MOD_COMMUNITY_PATCH && gCustomMods.isMOD_BALANCE_CORE_MINORS())
+#define MOD_BALANCE_CORE_DIFFICULTY					(MOD_COMMUNITY_PATCH && gCustomMods.isMOD_BALANCE_CORE_DIFFICULTY())
+#define MOD_BALANCE_CORE_HAPPINESS					(MOD_COMMUNITY_PATCH && gCustomMods.isMOD_BALANCE_CORE_HAPPINESS())
+#define MOD_BALANCE_CORE_HAPPINESS_NATIONAL			(MOD_COMMUNITY_PATCH && gCustomMods.isMOD_BALANCE_CORE_HAPPINESS_NATIONAL())
+#define MOD_BALANCE_CORE_HAPPINESS_LUXURY			(MOD_COMMUNITY_PATCH && gCustomMods.isMOD_BALANCE_CORE_HAPPINESS_LUXURY())
 #endif
 
 // Changes for the CivIV Diplomacy Features mod by Putmalk - AFFECTS SAVE GAME DATA FORMAT (v36)
@@ -255,6 +260,8 @@
 #if defined(MOD_API_PLOT_YIELDS)
 #define MOD_RELIGION_PLOT_YIELDS                    (gCustomMods.isRELIGION_PLOT_YIELDS() && MOD_API_PLOT_YIELDS)
 #endif
+// Adds support for Great People being purchased by faith to be specified on a policy (usually a finisher) and not hard-coded (v53)
+#define MOD_RELIGION_POLICY_BRANCH_FAITH_GP         gCustomMods.isRELIGION_POLICY_BRANCH_FAITH_GP()
 // Adds support for "local" religions (ie ones that only have influence within the civ's own territory) (v48)
 #define MOD_RELIGION_LOCAL_RELIGIONS                gCustomMods.isRELIGION_LOCAL_RELIGIONS()
 
@@ -900,7 +907,6 @@ public:
 	MOD_OPT_DECL(DIPLOMACY_TECH_BONUSES);
 	MOD_OPT_DECL(DIPLOMACY_AUTO_DENOUNCE);
 	MOD_OPT_DECL(DIPLOMACY_CITYSTATES); 
-	MOD_OPT_DECL(DIPLOMACY_CITYSTATES_DIFFICULTY); 
 	MOD_OPT_DECL(DIPLOMACY_CITYSTATES_QUESTS); 
 	MOD_OPT_DECL(DIPLOMACY_CITYSTATES_RESOLUTIONS); 
 	MOD_OPT_DECL(DIPLOMACY_CITYSTATES_HURRY);
@@ -913,6 +919,10 @@ public:
 	MOD_OPT_DECL(MOD_BALANCE_CORE_SETTLER);
 	MOD_OPT_DECL(MOD_BALANCE_CORE_DEALS);
 	MOD_OPT_DECL(MOD_BALANCE_CORE_MINORS);
+	MOD_OPT_DECL(MOD_BALANCE_CORE_DIFFICULTY);
+	MOD_OPT_DECL(MOD_BALANCE_CORE_HAPPINESS);
+	MOD_OPT_DECL(MOD_BALANCE_CORE_HAPPINESS_NATIONAL);
+	MOD_OPT_DECL(MOD_BALANCE_CORE_HAPPINESS_LUXURY);
 
 	MOD_OPT_DECL(DIPLOMACY_CIV4_FEATURES); 
 
@@ -954,6 +964,7 @@ public:
 	MOD_OPT_DECL(RELIGION_KEEP_PROPHET_OVERFLOW);
 	MOD_OPT_DECL(RELIGION_RECURRING_PURCHASE_NOTIFIY);
 	MOD_OPT_DECL(RELIGION_PLOT_YIELDS);
+	MOD_OPT_DECL(RELIGION_POLICY_BRANCH_FAITH_GP);
 	MOD_OPT_DECL(RELIGION_LOCAL_RELIGIONS);
 
 	MOD_OPT_DECL(PROCESS_STOCKPILE);
@@ -1037,6 +1048,7 @@ public:
 	MOD_OPT_DECL(API_EXTENSIONS);
 	MOD_OPT_DECL(API_LUA_EXTENSIONS);
 
+	MOD_OPT_DECL(CONFIG_GAME_IN_XML);
 	MOD_OPT_DECL(CONFIG_AI_IN_XML);
 
 	MOD_OPT_DECL(BUGFIX_RESEARCH_OVERFLOW);

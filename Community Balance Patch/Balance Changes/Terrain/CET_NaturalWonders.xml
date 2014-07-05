@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameData>
+	<Features>
+		<Update>
+			<Where Type="FEATURE_EL_DORADO" />
+			<Set FirstFinderGold="100" />
+		</Update>
+		<Update>
+			<Where Type="FEATURE_FOUNTAIN_YOUTH" />
+			<Set AdjacentUnitFreePromotion="NULL"
+				 InBorderHappiness="1"
+				 AddsFreshWater="1"
+				 Help="NULL"
+				 />
+		</Update>
+		<Update>
+			<Where Type="FEATURE_KILIMANJARO" />
+			<Set AdjacentUnitFreePromotion="NULL"
+				 Help="NULL"
+				 />
+		</Update>
+		<Update>
+			<Where Type="FEATURE_GEYSER" />
+			<Set InBorderHappiness="1" />
+		</Update>
+		<Update>
+			<Where Type="FEATURE_SRI_PADA" />
+			<Set InBorderHappiness="0" />
+		</Update>
+		<Update>
+			<Where Type="FEATURE_MT_KAILASH" />
+			<Set InBorderHappiness="1" />
+		</Update>
+		<Update>
+			<Where Type="FEATURE_REEF" />
+			<Set NoImprovement="0" OccurrenceFrequency="100" />
+		</Update>
+		<Update>
+			<Where Type="FEATURE_LAKE_VICTORIA" />
+			<Set AddsFreshWater="1"
+				 Impassable="0"
+				 />
+		</Update>
+	</Features>
+	<Natural_Wonder_Placement>
+		<Update>
+			<Where NaturalWonderType="FEATURE_CRATER" />
+			<Set CoreTileCanBeAnyTerrainType="1"
+				 AdjacentTilesCareAboutTerrainTypes="0"
+				 AdjacentTilesAvoidGrass="0"
+				 />
+		</Update>
+		<Update>
+			<Where NaturalWonderType="FEATURE_FUJI" />
+			<Set AdjacentTilesCareAboutFeatureTypes="1"
+				 AdjacentTilesAvoidJungle="1"
+				 MaximumAllowedAdjacentJungle="0"
+				 />
+		</Update>
+		<Update>
+			<Where NaturalWonderType="FEATURE_MESA" />
+			<Set CoreTileCanBeAnyTerrainType="0"
+				 CoreTileCanBePlains="0"
+				 CoreTileCanBeTundra="0"
+				 CoreTileCanBeDesert="1"
+				 AdjacentTilesCareAboutTerrainTypes="0"
+				 AdjacentTilesAvoidGrass="0"
+				 MaximumAllowedAdjacentMountain="1"
+				 />
+		</Update>
+		<Update>
+			<Where NaturalWonderType="FEATURE_VOLCANO" />
+			<Set EligibilityMethodNumber="3"
+				 />
+		</Update>
+		<Update>
+			<Where NaturalWonderType="FEATURE_GEYSER" />
+			<Set CoreTileCanBeAnyTerrainType="0"
+				 CoreTileCanBeDesert="1"
+				 AdjacentTilesAvoidDesert="0"
+				 MaximumAllowedAdjacentDesert="99"
+				 AdjacentTilesRequireHillsPlusMountains="0"
+				 RequiredNumberOfAdjacentHillsPlusMountains="0"
+				 />
+		</Update>
+		<Update>
+			<Where NaturalWonderType="FEATURE_FOUNTAIN_YOUTH" />
+			<Set CoreTileCanBeAnyTerrainType="0"
+				 CoreTileCanBeDesert="1"
+				 AdjacentTilesRequireDesert="1"
+				 RequiredNumberOfAdjacentDesert="1"
+				 />
+		</Update>
+		<Update>
+			<Where NaturalWonderType="FEATURE_SRI_PADA" />
+			<Set AdjacentTilesCareAboutFeatureTypes="0"
+				 AdjacentTilesAvoidMarsh="0"
+				 MaximumAllowedAdjacentMarsh="99"
+				 />
+		</Update>
+		<Update>
+			<Where NaturalWonderType="FEATURE_MT_KAILASH" />
+			<Set AdjacentTilesAvoidDesert="0"
+				 AdjacentTilesAvoidJungle="1"
+				 MaximumAllowedAdjacentDesert="99"
+				 MaximumAllowedAdjacentJungle="0"
+				 />
+		</Update>
+		<Update>
+			<Where NaturalWonderType="FEATURE_LAKE_VICTORIA" />
+			<Set AdjacentTilesCareAboutTerrainTypes="1"
+				 AdjacentTilesAvoidGrass="1"
+				 MaximumAllowedAdjacentGrass="1"
+				 />
+		</Update>
+		<Update>
+			<Where NaturalWonderType="FEATURE_KILIMANJARO" />
+			<Set CoreTileCanBeDesert="1"
+				 AdjacentTilesCareAboutFeatureTypes="1"
+				 AdjacentTilesAvoidJungle="1"
+				 MaximumAllowedAdjacentJungle="0"
+				 MaximumAllowedAdjacentMountain="0"
+				 />
+		</Update>
+		
+		<Update>
+			<Where NaturalWonderType="FEATURE_SOLOMONS_MINES" />
+			<Set AdjacentTilesAvoidHills="1"
+				 MaximumAllowedAdjacentHills="1"
+				 CoreTileCanBeAnyTerrainType="0"
+				 CoreTileCanBeDesert="1"
+				 CoreTileCanBeTundra="1"
+				 CoreTileCanBeSnow="1"
+				 CoreTileCanBePlains="1"
+				 />
+		</Update>
+	</Natural_Wonder_Placement>
+	<Feature_YieldChanges>
+
+		<!-- 
+		This CET_NaturalWonders.xml data created by:
+		Natural_W tab of GEM_Details.xlsspreadsheet (in mod folder).
+		-->
+
+
+		<!-- 
+		This CET_NaturalWonders.xml data created by:
+		Natural_W tab of GEM_Details.xlsspreadsheet (in mod folder).
+		-->
+
+
+		<Delete FeatureType="FEATURE_FOUNTAIN_YOUTH" />
+		<Delete FeatureType="FEATURE_LAKE_VICTORIA" />
+		<Delete FeatureType="FEATURE_SRI_PADA" />
+		<Delete FeatureType="FEATURE_SOLOMONS_MINES" />
+		<Delete FeatureType="FEATURE_MESA" />
+		<Delete FeatureType="FEATURE_REEF" />
+		<Delete FeatureType="FEATURE_GIBRALTAR" />
+		<Delete FeatureType="FEATURE_POTOSI" />
+		<Delete FeatureType="FEATURE_EL_DORADO" />
+		<Delete FeatureType="FEATURE_CRATER" />
+		<Delete FeatureType="FEATURE_VOLCANO" />
+		<Delete FeatureType="FEATURE_GEYSER" />
+		<Delete FeatureType="FEATURE_KILIMANJARO" />
+		<Delete FeatureType="FEATURE_FUJI" />
+		<Delete FeatureType="FEATURE_ULURU" />
+		<Delete FeatureType="FEATURE_MT_SINAI" />
+		<Delete FeatureType="FEATURE_MT_KAILASH" />
+		<Row><FeatureType>FEATURE_FOUNTAIN_YOUTH</FeatureType> <YieldType>YIELD_FOOD</YieldType>               <Yield>6</Yield></Row>
+		<Row><FeatureType>FEATURE_FOUNTAIN_YOUTH</FeatureType> <YieldType>YIELD_HAPPINESS_NATIONAL</YieldType> <Yield>1</Yield></Row>
+		<Row><FeatureType>FEATURE_LAKE_VICTORIA</FeatureType>  <YieldType>YIELD_FOOD</YieldType>               <Yield>6</Yield></Row>
+		<Row><FeatureType>FEATURE_LAKE_VICTORIA</FeatureType>  <YieldType>YIELD_GOLD</YieldType>               <Yield>3</Yield></Row>
+		<Row><FeatureType>FEATURE_SRI_PADA</FeatureType>       <YieldType>YIELD_FOOD</YieldType>               <Yield>5</Yield></Row>
+		<Row><FeatureType>FEATURE_SRI_PADA</FeatureType>       <YieldType>YIELD_CULTURE</YieldType>            <Yield>2</Yield></Row>
+		<Row><FeatureType>FEATURE_SRI_PADA</FeatureType>       <YieldType>YIELD_FAITH</YieldType>              <Yield>2</Yield></Row>
+		<Row><FeatureType>FEATURE_SOLOMONS_MINES</FeatureType> <YieldType>YIELD_PRODUCTION</YieldType>         <Yield>6</Yield></Row>
+		<Row><FeatureType>FEATURE_SOLOMONS_MINES</FeatureType> <YieldType>YIELD_CULTURE</YieldType>            <Yield>3</Yield></Row>
+		<Row><FeatureType>FEATURE_MESA</FeatureType>           <YieldType>YIELD_PRODUCTION</YieldType>         <Yield>5</Yield></Row>
+		<Row><FeatureType>FEATURE_MESA</FeatureType>           <YieldType>YIELD_GOLD</YieldType>               <Yield>2</Yield></Row>
+		<Row><FeatureType>FEATURE_MESA</FeatureType>           <YieldType>YIELD_CULTURE</YieldType>            <Yield>2</Yield></Row>
+		<Row><FeatureType>FEATURE_REEF</FeatureType>           <YieldType>YIELD_FOOD</YieldType>               <Yield>2</Yield></Row>
+		<Row><FeatureType>FEATURE_REEF</FeatureType>           <YieldType>YIELD_PRODUCTION</YieldType>         <Yield>2</Yield></Row>
+		<Row><FeatureType>FEATURE_REEF</FeatureType>           <YieldType>YIELD_GOLD</YieldType>               <Yield>2</Yield></Row>
+		<Row><FeatureType>FEATURE_REEF</FeatureType>           <YieldType>YIELD_SCIENCE</YieldType>            <Yield>2</Yield></Row>
+		<Row><FeatureType>FEATURE_GIBRALTAR</FeatureType>      <YieldType>YIELD_FOOD</YieldType>               <Yield>2</Yield></Row>
+		<Row><FeatureType>FEATURE_GIBRALTAR</FeatureType>      <YieldType>YIELD_PRODUCTION</YieldType>         <Yield>2</Yield></Row>
+		<Row><FeatureType>FEATURE_GIBRALTAR</FeatureType>      <YieldType>YIELD_GOLD</YieldType>               <Yield>5</Yield></Row>
+		<Row><FeatureType>FEATURE_POTOSI</FeatureType>         <YieldType>YIELD_PRODUCTION</YieldType>         <Yield>3</Yield></Row>
+		<Row><FeatureType>FEATURE_POTOSI</FeatureType>         <YieldType>YIELD_GOLD</YieldType>               <Yield>6</Yield></Row>
+		<Row><FeatureType>FEATURE_EL_DORADO</FeatureType>      <YieldType>YIELD_GOLD</YieldType>               <Yield>6</Yield></Row>
+		<Row><FeatureType>FEATURE_EL_DORADO</FeatureType>      <YieldType>YIELD_CULTURE</YieldType>            <Yield>3</Yield></Row>
+		<Row><FeatureType>FEATURE_CRATER</FeatureType>         <YieldType>YIELD_PRODUCTION</YieldType>         <Yield>2</Yield></Row>
+		<Row><FeatureType>FEATURE_CRATER</FeatureType>         <YieldType>YIELD_GOLD</YieldType>               <Yield>2</Yield></Row>
+		<Row><FeatureType>FEATURE_CRATER</FeatureType>         <YieldType>YIELD_SCIENCE</YieldType>            <Yield>5</Yield></Row>
+		<Row><FeatureType>FEATURE_VOLCANO</FeatureType>        <YieldType>YIELD_PRODUCTION</YieldType>         <Yield>3</Yield></Row>
+		<Row><FeatureType>FEATURE_VOLCANO</FeatureType>        <YieldType>YIELD_SCIENCE</YieldType>            <Yield>6</Yield></Row>
+		<Row><FeatureType>FEATURE_GEYSER</FeatureType>         <YieldType>YIELD_SCIENCE</YieldType>            <Yield>6</Yield></Row>
+		<Row><FeatureType>FEATURE_GEYSER</FeatureType>         <YieldType>YIELD_HAPPINESS_NATIONAL</YieldType> <Yield>1</Yield></Row>
+		<Row><FeatureType>FEATURE_KILIMANJARO</FeatureType>    <YieldType>YIELD_FOOD</YieldType>               <Yield>2</Yield></Row>
+		<Row><FeatureType>FEATURE_KILIMANJARO</FeatureType>    <YieldType>YIELD_PRODUCTION</YieldType>         <Yield>2</Yield></Row>
+		<Row><FeatureType>FEATURE_KILIMANJARO</FeatureType>    <YieldType>YIELD_CULTURE</YieldType>            <Yield>5</Yield></Row>
+		<Row><FeatureType>FEATURE_FUJI</FeatureType>           <YieldType>YIELD_CULTURE</YieldType>            <Yield>6</Yield></Row>
+		<Row><FeatureType>FEATURE_FUJI</FeatureType>           <YieldType>YIELD_FAITH</YieldType>              <Yield>3</Yield></Row>
+		<Row><FeatureType>FEATURE_ULURU</FeatureType>          <YieldType>YIELD_FOOD</YieldType>               <Yield>2</Yield></Row>
+		<Row><FeatureType>FEATURE_ULURU</FeatureType>          <YieldType>YIELD_CULTURE</YieldType>            <Yield>2</Yield></Row>
+		<Row><FeatureType>FEATURE_ULURU</FeatureType>          <YieldType>YIELD_FAITH</YieldType>              <Yield>5</Yield></Row>
+		<Row><FeatureType>FEATURE_MT_SINAI</FeatureType>       <YieldType>YIELD_CULTURE</YieldType>            <Yield>3</Yield></Row>
+		<Row><FeatureType>FEATURE_MT_SINAI</FeatureType>       <YieldType>YIELD_FAITH</YieldType>              <Yield>6</Yield></Row>
+		<Row><FeatureType>FEATURE_MT_KAILASH</FeatureType>     <YieldType>YIELD_FAITH</YieldType>              <Yield>6</Yield></Row>
+		<Row><FeatureType>FEATURE_MT_KAILASH</FeatureType>     <YieldType>YIELD_HAPPINESS_NATIONAL</YieldType> <Yield>1</Yield></Row>
+
+
+	</Feature_YieldChanges>
+
+
+</GameData>

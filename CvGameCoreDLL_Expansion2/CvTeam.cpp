@@ -6953,6 +6953,7 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 								kPlayer.GetEspionage()->CreateSpy();
 							}
 						}
+
 						for(int i = 0; i < pEraInfo->getSpiesGrantedForPlayer(); i++)
 						{
 							kPlayer.GetEspionage()->CreateSpy();
@@ -7136,8 +7137,8 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 			DLLUI->setDirty(Soundtrack_DIRTY_BIT, true);
 		}
 		
-#if defined(MOD_DIPLOMACY_CITYSTATES_DIFFICULTY)
-		if(MOD_DIPLOMACY_CITYSTATES_DIFFICULTY && !isMinorCiv() && (GC.getCSD_GAME_DIFFICULTY_MULTIPLIER() > 0))
+#if defined(MOD_BALANCE_CORE_DIFFICULTY)
+		if(MOD_BALANCE_CORE_DIFFICULTY && !isMinorCiv() && (GC.getBALANCE_GAME_DIFFICULTY_MULTIPLIER() > 0))
 		{
 			CvString strHandicapType = GC.getGame().getHandicapInfo().GetType();
 
@@ -7165,7 +7166,7 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 									if(pkUnitInfo && pkUnitInfo->GetDefaultUnitAIType() == UNITAI_ATTACK && kPlayer.getCapitalCity()->canTrain(eLoopUnit))
 									{
 										int iUnitMax = 0;
-										if(iUnitMax >= GC.getCSD_GAME_DIFFICULTY_MULTIPLIER())
+										if(iUnitMax >= GC.getBALANCE_GAME_DIFFICULTY_MULTIPLIER())
 										{
 											break;
 										}
@@ -7247,12 +7248,12 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 							}
 						}
 
-						kPlayer.getCapitalCity()->ChangeUnmoddedHappinessFromBuildings(GC.getCSD_GAME_DIFFICULTY_MULTIPLIER());
-						kPlayer.GetTreasury()->ChangeGold(GC.getCSD_GAME_DIFFICULTY_MULTIPLIER() * kPlayer.GetCurrentEra() * 100);
-						kPlayer.ChangeGoldenAgeProgressMeter(GC.getCSD_GAME_DIFFICULTY_MULTIPLIER() * kPlayer.GetCurrentEra() * 40);
-						kPlayer.changeJONSCulture(GC.getCSD_GAME_DIFFICULTY_MULTIPLIER() * kPlayer.GetCurrentEra() * 40);
+						kPlayer.getCapitalCity()->ChangeUnmoddedHappinessFromBuildings(GC.getBALANCE_GAME_DIFFICULTY_MULTIPLIER());
+						kPlayer.GetTreasury()->ChangeGold(GC.getBALANCE_GAME_DIFFICULTY_MULTIPLIER() * kPlayer.GetCurrentEra() * 100);
+						kPlayer.ChangeGoldenAgeProgressMeter(GC.getBALANCE_GAME_DIFFICULTY_MULTIPLIER() * kPlayer.GetCurrentEra() * 40);
+						kPlayer.changeJONSCulture(GC.getBALANCE_GAME_DIFFICULTY_MULTIPLIER() * kPlayer.GetCurrentEra() * 40);
 
-						int iBeakersBonus = kPlayer.GetScienceYieldFromPreviousTurns(GC.getGame().getGameTurn(), (GC.getCSD_GAME_DIFFICULTY_MULTIPLIER() + (kPlayer.GetCurrentEra())));
+						int iBeakersBonus = kPlayer.GetScienceYieldFromPreviousTurns(GC.getGame().getGameTurn(), (GC.getBALANCE_GAME_DIFFICULTY_MULTIPLIER() + (kPlayer.GetCurrentEra())));
 						
 						if(iBeakersBonus > 0)
 						{

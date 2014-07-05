@@ -916,6 +916,15 @@ void CvHomelandAI::PlotFirstTurnSettlerMoves()
 					m_CurrentMoveUnits.push_back(unit);
 					bGoingToSettle = true;
 				}
+#if defined(MOD_BALANCE_CORE_SETTLER)
+				else if(m_pPlayer->isMinorCiv())
+				{
+					CvHomelandUnit unit;
+					unit.SetID(pUnit->GetID());
+					m_CurrentMoveUnits.push_back(unit);
+					bGoingToSettle = true;
+				}
+#endif
 			}
 		}
 

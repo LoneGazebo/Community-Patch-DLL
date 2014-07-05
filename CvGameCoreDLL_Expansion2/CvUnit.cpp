@@ -5338,6 +5338,13 @@ int CvUnit::GetPower() const
 {
 	VALIDATE_OBJECT
 	int iPower = getUnitInfo().GetPower();
+
+#if defined(MOD_BUGFIX_UNIT_POWER_CALC)
+	if (getUnitInfo().GetCombat() > 0) {
+		iPower = iPower * GetBaseCombatStrength() / getUnitInfo().GetCombat();
+	}
+#endif
+	
 	//Take promotions into account: unit with 4 promotions worth ~50% more
 	int iPowerMod = getLevel() * 125;
 	iPower = (iPower * (1000 + iPowerMod)) / 1000;
@@ -5350,15 +5357,12 @@ int CvUnit::GetPower() const
 bool CvUnit::canHeal(const CvPlot* pPlot, bool bTestVisible) const
 {
 	VALIDATE_OBJECT
-#if defined(MOD_BALANCE_CORE)
-#else
+
 	// No barb healing
 	if(isBarbarian())
 	{
-
 		return false;
 	}
-#endif
 
 	if(!IsHurt())
 	{
@@ -5374,7 +5378,7 @@ bool CvUnit::canHeal(const CvPlot* pPlot, bool bTestVisible) const
 	{
 		return false;
 	}
-
+	
 	// JON - This should change when one-unit-per-plot city stuff is handled better
 	// Unit Healing in cities
 
@@ -5382,30 +5386,39 @@ bool CvUnit::canHeal(const CvPlot* pPlot, bool bTestVisible) const
 	{
 		if(plot()->isCity() && getDomainType() != DOMAIN_AIR)
 		{
-			CvUnit* pUnit;
-			int iBestDefenderValue = 0;
-			int iBestDefenderID = 0;
-
-			for(int iUnitLoop = 0; iUnitLoop < plot()->getNumUnits(); iUnitLoop++)
+#if defined(MOD_BUGFIX_MINOR)
+			// Civilians can heal in cities
+			if (!IsCivilianUnit())
 			{
-				pUnit = plot()->getUnitByIndex(iUnitLoop);
+#endif
 
-				// Only check land Units vs one another, Naval Units vs one another, etc.
-				if(pUnit->getDomainType() == getDomainType())
+				CvUnit* pUnit;
+				int iBestDefenderValue = 0;
+				int iBestDefenderID = 0;
+
+				for(int iUnitLoop = 0; iUnitLoop < plot()->getNumUnits(); iUnitLoop++)
 				{
-					if(pUnit->GetBaseCombatStrength() > iBestDefenderValue)
+					pUnit = plot()->getUnitByIndex(iUnitLoop);
+
+					// Only check land Units vs one another, Naval Units vs one another, etc.
+					if(pUnit->getDomainType() == getDomainType())
 					{
-						iBestDefenderValue = pUnit->GetBaseCombatStrength();
-						iBestDefenderID = pUnit->GetID();
+						if(pUnit->GetBaseCombatStrength() > iBestDefenderValue)
+						{
+							iBestDefenderValue = pUnit->GetBaseCombatStrength();
+							iBestDefenderID = pUnit->GetID();
+						}
 					}
 				}
-			}
 
-			// This is NOT the defending unit, it's in storage, so it can't heal
-			if(iBestDefenderID != GetID())
-			{
-				return false;
+				// This is NOT the defending unit, it's in storage, so it can't heal
+				if(iBestDefenderID != GetID())
+				{
+					return false;
+				}
+#if defined(MOD_BUGFIX_MINOR)
 			}
+#endif
 		}
 	}
 
@@ -5421,17 +5434,10 @@ bool CvUnit::canHeal(const CvPlot* pPlot, bool bTestVisible) const
 		// Boats can only heal in friendly territory (without promotion)
 		if(getDomainType() == DOMAIN_SEA)
 		{
-#if defined(MOD_BALANCE_CORE)
-			if(!GET_PLAYER(getOwner()).isBarbarian())
-			{
-#endif
 			if(!IsInFriendlyTerritory() && !isHealOutsideFriendly())
 			{
 				return false;
 			}
-#if defined(MOD_BALANCE_CORE)
-			}
-#endif
 		}
 	}
 
@@ -5481,41 +5487,7 @@ int CvUnit::healRate(const CvPlot* pPlot) const
 			return 0;
 		}
 	}
-#if defined(MOD_BALANCE_CORE)
-	//Barbarians can only heal in camps (or adjacent if boats), and at a set (defined) rate.
-	if(GET_PLAYER(getOwner()).isBarbarian())
-	{
-		ImprovementTypes eCamp = (ImprovementTypes)GC.getBARBARIAN_CAMP_IMPROVEMENT();
-		if(getDomainType() == DOMAIN_LAND)
-		{
-			if(pPlot->getImprovementType() == eCamp)
-			{
-				return GC.getBALANCE_BARARIAN_HEAL_RATE();
-			}
-			else
-			{
-				return 0;
-			}
-		}
-		else if(getDomainType() == DOMAIN_SEA)
-		{
-			CvPlot* pLoopPlot;
-			for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
-			{
-				pLoopPlot = plotDirection(pPlot->getX(), pPlot->getY(), ((DirectionTypes)iI));
-
-				if(pLoopPlot != NULL)
-				{
-					if(pPlot->getImprovementType() == eCamp)
-					{
-						return GC.getBALANCE_BARARIAN_HEAL_RATE();
-					}
-				}
-			}
-			return 0;
-		}
-	}
-#endif
+	
 #if defined(MOD_UNITS_HOVERING_LAND_ONLY_HEAL)
 	if (MOD_UNITS_HOVERING_LAND_ONLY_HEAL) {
 		// Hovering units can only heal over land
@@ -7038,6 +7010,7 @@ bool CvUnit::canRebaseAt(const CvPlot* pPlot, int iX, int iY) const
 
 	return true;
 }
+
 //	--------------------------------------------------------------------------------
 bool CvUnit::rebase(int iX, int iY)
 {
@@ -7430,14 +7403,14 @@ bool CvUnit::found()
 #endif
 	}
 
-#if defined(MOD_DIPLOMACY_CITYSTATES)
-	if(MOD_DIPLOMACY_CITYSTATES && m_pUnitInfo->IsFoundMid())
+#if defined(MOD_BALANCE_CORE_SETTLER)
+	if(MOD_BALANCE_CORE_SETTLER && m_pUnitInfo->IsFoundMid())
 	{
-		kPlayer.foundmid(getX(), getY());
+		kPlayer.cityBoost(getX(), getY(), m_pUnitInfo, GC.getPIONEER_EXTRA_PLOTS(), GC.getPIONEER_POPULATION_CHANGE(), GC.getPIONEER_FOOD_PERCENT());
 	}
 	if(MOD_DIPLOMACY_CITYSTATES && m_pUnitInfo->IsFoundLate())
 	{
-		kPlayer.foundlate(getX(), getY());
+		kPlayer.cityBoost(getX(), getY(), m_pUnitInfo, GC.getCOLONIST_EXTRA_PLOTS(), GC.getCOLONIST_POPULATION_CHANGE(), GC.getCOLONIST_FOOD_PERCENT());
 	}
 #endif
 
@@ -11002,7 +10975,7 @@ bool CvUnit::IsFoundAbroad() const
 	return m_pUnitInfo->IsFoundAbroad();
 }
 
-#if defined(MOD_DIPLOMACY_CITYSTATES)
+#if defined(MOD_BALANCE_CORE_SETTLER)
 //	--------------------------------------------------------------------------------
 bool CvUnit::IsFoundMid() const
 {

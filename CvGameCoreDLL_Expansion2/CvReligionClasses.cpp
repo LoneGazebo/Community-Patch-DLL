@@ -447,7 +447,11 @@ void CvGameReligions::DoPlayerTurn(CvPlayer& kPlayer)
 	}
 
 	// Check for pantheon or great prophet spawning (now restricted so must occur before Industrial era)
+#if defined(MOD_CONFIG_GAME_IN_XML)
+	if(kPlayer.GetFaith() > 0 && !kPlayer.isMinorCiv() && kPlayer.GetCurrentEra() <= GD_INT_GET(RELIGION_LAST_FOUND_ERA))
+#else
 	if(kPlayer.GetFaith() > 0 && !kPlayer.isMinorCiv() && kPlayer.GetCurrentEra() < GC.getInfoTypeForString("ERA_INDUSTRIAL"))
+#endif
 	{
 		if(CanCreatePantheon(kPlayer.GetID(), true) == FOUNDING_OK)
 		{
@@ -529,7 +533,11 @@ void CvGameReligions::DoPlayerTurn(CvPlayer& kPlayer)
 #endif
 			bSelectionStillValid = false;
 		}
+#if defined(MOD_CONFIG_GAME_IN_XML)
+		else if (kPlayer.GetCurrentEra() > GD_INT_GET(RELIGION_LAST_FOUND_ERA))
+#else
 		else if (kPlayer.GetCurrentEra() >= GC.getInfoTypeForString("ERA_INDUSTRIAL"))
+#endif
 		{
 #if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
 			UnitTypes eProphetType = kPlayer.GetSpecificUnitType("UNITCLASS_PROPHET", true);
@@ -5575,7 +5583,11 @@ void CvReligionAI::DoFaithPurchases()
 			// Fill our cities with any Faith buildings possible
 			if(!BuyAnyAvailableFaithBuilding())
 			{
+#if defined(MOD_CONFIG_GAME_IN_XML)
+				if(m_pPlayer->GetCurrentEra() >= GD_INT_GET(RELIGION_GP_FAITH_PURCHASE_ERA))
+#else
 				if(m_pPlayer->GetCurrentEra() >= GC.getInfoTypeForString("ERA_INDUSTRIAL"))
+#endif
 				{
 					UnitTypes eGPType = GetDesiredFaithGreatPerson();
 					if (eGPType != NO_UNIT)
@@ -5650,7 +5662,11 @@ void CvReligionAI::DoFaithPurchases()
 		}
 
 		// If in Industrial, see if we want to save for buying a great person
+#if defined(MOD_CONFIG_GAME_IN_XML)
+		else if (m_pPlayer->GetCurrentEra() >= GD_INT_GET(RELIGION_GP_FAITH_PURCHASE_ERA) && GetDesiredFaithGreatPerson() != NO_UNIT)
+#else
 		else if (m_pPlayer->GetCurrentEra() >= GC.getInfoTypeForString("ERA_INDUSTRIAL") && GetDesiredFaithGreatPerson() != NO_UNIT)
+#endif
 		{
 			UnitTypes eGPType = GetDesiredFaithGreatPerson();
 			BuyGreatPerson(eGPType);
@@ -6346,37 +6362,63 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry)
 	{
 		// Count number of GP branches we have still to open and score based on that
 		int iTemp = 0;
-		PolicyBranchTypes eBranch;
-		eBranch = (PolicyBranchTypes)GC.getInfoTypeForString("POLICY_BRANCH_TRADITION", true /*bHideAssert*/);
-		if (eBranch != NO_POLICY_BRANCH_TYPE && (!m_pPlayer->GetPlayerPolicies()->IsPolicyBranchFinished(eBranch) || m_pPlayer->GetPlayerPolicies()->IsPolicyBranchBlocked(eBranch)))
+#if defined(MOD_RELIGION_POLICY_BRANCH_FAITH_GP)
+		if (MOD_RELIGION_POLICY_BRANCH_FAITH_GP)
 		{
-			iTemp++;
+			// Count the number of policies we DON'T have that unlock Great People, for the time being we won't worry about multiple policies unlocking the same GP
+			for (int iPolicyLoop = 0; iPolicyLoop < m_pPlayer->GetPlayerPolicies()->GetPolicies()->GetNumPolicies(); iPolicyLoop++)
+			{
+				const PolicyTypes eLoopPolicy = static_cast<PolicyTypes>(iPolicyLoop);
+				CvPolicyEntry* pkLoopPolicyInfo = GC.getPolicyInfo(eLoopPolicy);
+				if (pkLoopPolicyInfo && !m_pPlayer->HasPolicy(eLoopPolicy))
+				{
+					// We don't have this policy, but does it permit any GP to be bought with faith
+					if (pkLoopPolicyInfo->HasFaithPurchaseUnitClasses())
+					{
+						iTemp++;
+					}
+				}
+			}
+			
+			CUSTOMLOG("FaithPurchaseAllGreatPeople unlocks %i GPs for %s", iTemp, m_pPlayer->getCivilizationDescription());
 		}
-		eBranch = (PolicyBranchTypes)GC.getInfoTypeForString("POLICY_BRANCH_HONOR", true /*bHideAssert*/);
-		if (eBranch != NO_POLICY_BRANCH_TYPE && (!m_pPlayer->GetPlayerPolicies()->IsPolicyBranchFinished(eBranch) || m_pPlayer->GetPlayerPolicies()->IsPolicyBranchBlocked(eBranch)))
+		else
 		{
-			iTemp++;
+#endif
+			PolicyBranchTypes eBranch;
+			eBranch = (PolicyBranchTypes)GC.getInfoTypeForString("POLICY_BRANCH_TRADITION", true /*bHideAssert*/);
+			if (eBranch != NO_POLICY_BRANCH_TYPE && (!m_pPlayer->GetPlayerPolicies()->IsPolicyBranchFinished(eBranch) || m_pPlayer->GetPlayerPolicies()->IsPolicyBranchBlocked(eBranch)))
+			{
+				iTemp++;
+			}
+			eBranch = (PolicyBranchTypes)GC.getInfoTypeForString("POLICY_BRANCH_HONOR", true /*bHideAssert*/);
+			if (eBranch != NO_POLICY_BRANCH_TYPE && (!m_pPlayer->GetPlayerPolicies()->IsPolicyBranchFinished(eBranch) || m_pPlayer->GetPlayerPolicies()->IsPolicyBranchBlocked(eBranch)))
+			{
+				iTemp++;
+			}
+			eBranch = (PolicyBranchTypes)GC.getInfoTypeForString("POLICY_BRANCH_AESTHETICS", true /*bHideAssert*/);
+			if (eBranch != NO_POLICY_BRANCH_TYPE && (!m_pPlayer->GetPlayerPolicies()->IsPolicyBranchFinished(eBranch) || m_pPlayer->GetPlayerPolicies()->IsPolicyBranchBlocked(eBranch)))
+			{
+				iTemp++;
+			}
+			eBranch = (PolicyBranchTypes)GC.getInfoTypeForString("POLICY_BRANCH_COMMERCE", true /*bHideAssert*/);
+			if (eBranch != NO_POLICY_BRANCH_TYPE && (!m_pPlayer->GetPlayerPolicies()->IsPolicyBranchFinished(eBranch) || m_pPlayer->GetPlayerPolicies()->IsPolicyBranchBlocked(eBranch)))
+			{
+				iTemp++;
+			}
+			eBranch = (PolicyBranchTypes)GC.getInfoTypeForString("POLICY_BRANCH_EXPLORATION", true /*bHideAssert*/);
+			if (eBranch != NO_POLICY_BRANCH_TYPE && (!m_pPlayer->GetPlayerPolicies()->IsPolicyBranchFinished(eBranch) || m_pPlayer->GetPlayerPolicies()->IsPolicyBranchBlocked(eBranch)))
+			{
+				iTemp++;
+			}
+			eBranch = (PolicyBranchTypes)GC.getInfoTypeForString("POLICY_BRANCH_RATIONALISM", true /*bHideAssert*/);
+			if (eBranch != NO_POLICY_BRANCH_TYPE && (!m_pPlayer->GetPlayerPolicies()->IsPolicyBranchFinished(eBranch) || m_pPlayer->GetPlayerPolicies()->IsPolicyBranchBlocked(eBranch)))
+			{
+				iTemp++;
+			}
+#if defined(MOD_RELIGION_POLICY_BRANCH_FAITH_GP)
 		}
-		eBranch = (PolicyBranchTypes)GC.getInfoTypeForString("POLICY_BRANCH_AESTHETICS", true /*bHideAssert*/);
-		if (eBranch != NO_POLICY_BRANCH_TYPE && (!m_pPlayer->GetPlayerPolicies()->IsPolicyBranchFinished(eBranch) || m_pPlayer->GetPlayerPolicies()->IsPolicyBranchBlocked(eBranch)))
-		{
-			iTemp++;
-		}
-		eBranch = (PolicyBranchTypes)GC.getInfoTypeForString("POLICY_BRANCH_COMMERCE", true /*bHideAssert*/);
-		if (eBranch != NO_POLICY_BRANCH_TYPE && (!m_pPlayer->GetPlayerPolicies()->IsPolicyBranchFinished(eBranch) || m_pPlayer->GetPlayerPolicies()->IsPolicyBranchBlocked(eBranch)))
-		{
-			iTemp++;
-		}
-		eBranch = (PolicyBranchTypes)GC.getInfoTypeForString("POLICY_BRANCH_EXPLORATION", true /*bHideAssert*/);
-		if (eBranch != NO_POLICY_BRANCH_TYPE && (!m_pPlayer->GetPlayerPolicies()->IsPolicyBranchFinished(eBranch) || m_pPlayer->GetPlayerPolicies()->IsPolicyBranchBlocked(eBranch)))
-		{
-			iTemp++;
-		}
-		eBranch = (PolicyBranchTypes)GC.getInfoTypeForString("POLICY_BRANCH_RATIONALISM", true /*bHideAssert*/);
-		if (eBranch != NO_POLICY_BRANCH_TYPE && (!m_pPlayer->GetPlayerPolicies()->IsPolicyBranchFinished(eBranch) || m_pPlayer->GetPlayerPolicies()->IsPolicyBranchBlocked(eBranch)))
-		{
-			iTemp++;
-		}
+#endif
 
 		iRtnValue += (iTemp * 6);
 	}

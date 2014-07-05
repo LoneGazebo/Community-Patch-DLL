@@ -3530,20 +3530,7 @@ std::vector<int> CvLeague::GetChoicesForDecision(ResolutionDecisionTypes eDecisi
 		{
 			if (GET_PLAYER(m_vMembers[i].ePlayer).isMinorCiv())
 			{
-				// Is this CS already being affected by a proposal?
-				PlayerTypes eTargetCityState = NO_PLAYER;
-				EnactProposalList vEnactProposals = GC.getGame().GetGameLeagues()->GetActiveLeague()->GetEnactProposals();
-				for (EnactProposalList::iterator it = vEnactProposals.begin(); it != vEnactProposals.end(); ++it)
-				{
-					if(it->GetEffects()->bRaiseCityStateInfluenceToAlly || it->GetEffects()->bRaiseCityStateInfluenceToNeutral || it->GetEffects()->bRaiseCityStateInfluenceToFriend)
-					{
-						eTargetCityState = (PlayerTypes) it->GetProposerDecision()->GetDecision();
-					}
-					if(eTargetCityState != m_vMembers[i].ePlayer)
-					{
-						vChoices.push_back(m_vMembers[i].ePlayer);
-					}
-				}
+				vChoices.push_back(m_vMembers[i].ePlayer);
 			}
 		}
 		break;
@@ -10101,12 +10088,12 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 		{
 			if (bSeekingDiploVictory)
 			{
-				iScore += 25;
+				iScore += 100;
 			}
 
 			if (bSeekingDiploVictory && bStrongProduction)
 			{
-				iScore += 50;
+				iScore += 200;
 			}
 
 			int iVotes = GC.getGame().GetGameLeagues()->GetActiveLeague()->CalculateStartingVotesForMember(GetPlayer()->GetID());
@@ -10117,7 +10104,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 			//If FLAVOR_DIPLOMACY is 6+...
 			if(iFlavorDiplo - 5 > 0)
 			{
-				iScore += 20;
+				iScore += 30;
 			}
 			if(iNeededVotes > 0)
 			{
@@ -10128,16 +10115,12 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 				}
 				else if(iVoteRatio >= 50)
 				{
-					iScore += 25;
+					iScore += 30;
 				}
 				else
 				{
-					iScore += 15;
+					iScore += 20;
 				}
-			}
-			else if(iNeededVotes <= 0)
-			{
-				iScore += 50;
 			}
 			else
 			{
@@ -10193,14 +10176,14 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 			}
 		}
 
-#if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
+#if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS) || defined (MOD_BALANCE_CORE)
 		//If Germany, would be dumb for us to embargo city-states.
-		if (MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS && GetPlayer()->GetPlayerTraits()->GetLandBarbarianConversionExtraUnits() > 0)
+		if ((MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS || MOD_BALANCE_CORE) && GetPlayer()->GetPlayerTraits()->GetLandBarbarianConversionExtraUnits() > 0)
 		{
 			iScore += -500;
 		}
 		//Mongolia, you want this. Also autocracy players.
-		if(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS && (GetPlayer()->GetPlayerTraits()->GetAfraidMinorPerTurnInfluence() > 0) || (GetPlayer()->GetPlayerTraits()->GetCityStateCombatModifier() > 0))
+		if((MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS || MOD_BALANCE_CORE) && (GetPlayer()->GetPlayerTraits()->GetAfraidMinorPerTurnInfluence() > 0) || (GetPlayer()->GetPlayerTraits()->GetCityStateCombatModifier() > 0))
 		{
 			iScore += 50;
 		}
@@ -10458,13 +10441,13 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 		int iFactor = (pProposal->GetEffects()->iUnitMaintenanceGoldPercent > 0) ? 1 : -1;
 		if (bSeekingConquestVictory)
 		{
-			iScore += -40 * iFactor;
+			iScore += -50 * iFactor;
 		}
 #if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
 		if (MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS) {
 			if(!bSeekingConquestVictory)
 			{
-				iScore += 45 * iFactor;
+				iScore += 60;
 			}
 			PlayerTypes eLoopPlayer;
 			for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
@@ -10625,11 +10608,11 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 				{
 					iScore += 200;
 				}
-				//If we already have 2+ nukes...let's not let anyone else build them.
-				if(GetPlayer()->getNumNukeUnits() > 1)
-				{
-					iScore += 40;
-				}
+			}
+			//If we already have 4+ nukes...let's not let anyone else build them.
+			if(GetPlayer()->getNumNukeUnits() > 3)
+			{
+				iScore += 50;
 			}
 		}
 #endif
@@ -11212,12 +11195,9 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 			}
 		}
 	}
+	// Spaceship Control Committee
 	if (MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS && pProposal->GetEffects()->iLimitSpaceshipProduction)
 	{
-		PlayerTypes ePlayer = GetPlayer()->GetID();
-		// Establish world Tech progress average
-		int iNumPlayersAlive = 0;
-		int iWorldNumTechsAverage = 0;
 		int eMajorScience = 0;
 		TeamTypes eTeam;
 		for (int iTeamLoop = 0; iTeamLoop < MAX_MAJOR_CIVS; iTeamLoop++)	// Looping over all MAJOR teams
@@ -11226,20 +11206,14 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 
 			if (GET_TEAM(eTeam).isAlive())
 			{
-				iWorldNumTechsAverage += GET_TEAM(eTeam).GetTeamTechs()->GetNumTechsKnown();
-				iNumPlayersAlive++;
-			}
-		}
-		iWorldNumTechsAverage /= iNumPlayersAlive;
-		for(int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
-		{
-			PlayerTypes eOtherMajor = (PlayerTypes)iMajorLoop;
-			PlayerTypes ePlayer = GetPlayer()->GetID();
-			
-
-			if(GET_PLAYER(ePlayer).GetGrandStrategyAI()->GetGuessOtherPlayerSpaceshipPriority(eOtherMajor, iWorldNumTechsAverage))
-			{
-				eMajorScience++;
+				ProjectTypes eApolloProgram = (ProjectTypes) GC.getInfoTypeForString("PROJECT_APOLLO_PROGRAM", true);
+				if(eApolloProgram != NO_PROJECT)
+				{
+					if(GET_TEAM(eTeam).getProjectCount(eApolloProgram) > 0)
+					{
+						eMajorScience++;
+					}
+				}
 			}
 		}
 		if(eMajorScience > 0)
@@ -11247,7 +11221,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 			iScore += 10 * eMajorScience;
 		}
 
-		if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsGoingForSpaceshipVictory())
+		if (bSeekingScienceVictory)
 		{
 			iScore -= -100;
 		}
@@ -11266,7 +11240,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 			}
 			else
 			{
-				iScore += -20;
+				iScore += -25;
 			}
 		}
 		// At or worse than average
@@ -11274,13 +11248,13 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 		{
 			int iFactor = 50;
 			iScore += (int) (fTechRatio * iFactor);
-			if (bSeekingScienceVictory)
+			if (!bSeekingScienceVictory)
 			{
-				iScore += 50;
+				iScore += 75;
 			}
 			else
 			{
-				iScore += 25;
+				iScore += 15;
 			}
 		}
 	}
@@ -11324,7 +11298,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 					iWar++;
 				}
 				//PEACE
-				if(GetPlayer()->getPower() < GET_PLAYER(eLoopPlayer).getPower())
+				else if(GetPlayer()->getPower() < GET_PLAYER(eLoopPlayer).getPower())
 				{
 					iPeace++;
 				}
@@ -11340,37 +11314,37 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 				}
 			}
 		}
-		if(GetPlayer()->GetNumCapitalCities() > 0)
+		if(GetPlayer()->GetNumCapitalCities() > 1)
 		{
-			iWar *= GetPlayer()->GetNumCapitalCities();
+			iWar += GetPlayer()->GetNumCapitalCities();
 		}
 		if(!bSeekingConquestVictory)
 		{
-			iPeace *= 2;
+			iPeace += iPeace;
 		}
 		if(GetPlayer()->GetCapitalConqueror() != NO_PLAYER)
 		{
-			iPeace *= 2;
+			iWar += iWar;
 		}
-		if(iThreat >= GetPlayer()->GetMilitaryAI()->GetThreatWeight(THREAT_MAJOR))
+		if(iThreat < GetPlayer()->GetMilitaryAI()->GetThreatWeight(THREAT_MAJOR))
 		{
-			iPeace *= 2;
+			iPeace += iPeace;
 		}
 
-		if(iWar > 0)
+		if((iWar > 0) || (iPeace > 0))
 		{
 			if (iWar > iPeace)
 			{
-				iScore += (iWar * 5);
+				iScore += (iWar * 6);
 			}
-		}
-		else if (iPeace > 0)
-		{
-			iScore += (iPeace * -5);
+			else if (iPeace > iWar)
+			{
+				iScore += (iPeace * -6);
+			}
 		}
 		else
 		{
-			iScore += -50;
+			iScore += -25;
 		}
 	}
 	//COLD WAR
@@ -11607,8 +11581,8 @@ int CvLeagueAI::ScoreVoteChoicePlayer(CvProposal* pProposal, int iChoice, bool b
 	// Mostly same as evaluating Diplomatic Victory, but with higher value to pick others you like
 	if (pProposal->GetEffects()->bChangeLeagueHost)
 	{
-#if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
-		if (MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS) {
+#if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS) || defined (MOD_BALANCE_CORE)
+		if (MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS || MOD_BALANCE_CORE) {
 			AlignmentLevels eAlignment = EvaluateAlignment(eChoicePlayer);
 			PlayerTypes ePlayer = GetPlayer()->GetID();
 			//There should be more to it than this!
@@ -11749,7 +11723,7 @@ int CvLeagueAI::ScoreVoteChoicePlayer(CvProposal* pProposal, int iChoice, bool b
 					break;
 				}
 			}
-#if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
+#if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS) || defined (MOD_BALANCE_CORE)
 		}
 #endif
 	}

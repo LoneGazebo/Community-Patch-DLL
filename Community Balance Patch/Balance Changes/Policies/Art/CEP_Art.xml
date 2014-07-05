@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameData>
+	<IconTextureAtlases>
+		<Row>
+			<Atlas>CEP_POLICY_ATLAS</Atlas>
+			<IconSize>256</IconSize>
+			<Filename>CEP_Policies256.DDS</Filename>
+			<IconsPerRow>4</IconsPerRow>
+			<IconsPerColumn>1</IconsPerColumn>
+		</Row>
+		<Row>
+			<Atlas>CEP_POLICY_ATLAS</Atlas>
+			<IconSize>64</IconSize>
+			<Filename>CEP_Policies64.dds</Filename>
+			<IconsPerRow>4</IconsPerRow>
+			<IconsPerColumn>1</IconsPerColumn>
+		</Row>
+		<Row>
+			<Atlas>CEP_POLICY_ATLAS_ACTIVE</Atlas>
+			<IconSize>64</IconSize>
+			<Filename>CEP_Policies64Active.dds</Filename>
+			<IconsPerRow>4</IconsPerRow>
+			<IconsPerColumn>1</IconsPerColumn>
+		</Row>
+	</IconTextureAtlases>
+</GameData>

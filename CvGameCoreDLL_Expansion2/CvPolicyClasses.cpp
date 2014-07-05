@@ -205,6 +205,7 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_eFreeBuildingOnConquest(NO_BUILDING)
 {
 }
+
 /// Destructor
 CvPolicyEntry::~CvPolicyEntry(void)
 {
@@ -649,6 +650,56 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 
 		pResults->Reset();
 	}
+
+#if defined(MOD_RELIGION_POLICY_BRANCH_FAITH_GP)
+	//FaithPurchaseUnitClasses
+	if (MOD_RELIGION_POLICY_BRANCH_FAITH_GP)
+	{
+		m_FaithPurchaseUnitClasses.clear();
+
+		std::string sqlKey1 = "m_FaithPurchaseUnitClasses1";
+		Database::Results* pResults1 = kUtility.GetResults(sqlKey1);
+		if(pResults1 == NULL)
+		{
+			const char* szSQL = "select u.ID, -1 from Policy_FaithPurchaseUnitClasses p, UnitClasses u where p.PolicyType = ? and p.UnitClassType = u.Type and p.EraType is null;";
+			pResults1 = kUtility.PrepareResults(sqlKey1, szSQL);
+		}
+
+		pResults1->Bind(1, szPolicyType, false);
+
+		while(pResults1->Step())
+		{
+			const int UnitClassID = pResults1->GetInt(0);
+			const int EraID = pResults1->GetInt(1);
+
+			m_FaithPurchaseUnitClasses.insert(std::pair<int, int>(UnitClassID, EraID));
+		}
+
+		std::string sqlKey2 = "m_FaithPurchaseUnitClasses2";
+		Database::Results* pResults2 = kUtility.GetResults(sqlKey2);
+		if(pResults2 == NULL)
+		{
+			const char* szSQL = "select u.ID, e.ID from Policy_FaithPurchaseUnitClasses p, UnitClasses u, Eras e where p.PolicyType = ? and p.UnitClassType = u.Type and p.EraType = e.Type;";
+			pResults2 = kUtility.PrepareResults(sqlKey2, szSQL);
+		}
+
+		pResults2->Bind(1, szPolicyType, false);
+
+		while(pResults2->Step())
+		{
+			const int UnitClassID = pResults2->GetInt(0);
+			const int EraID = pResults2->GetInt(1);
+
+			m_FaithPurchaseUnitClasses.insert(std::pair<int, int>(UnitClassID, EraID));
+		}
+
+		//Trim capacity
+		std::multimap<int, int>(m_FaithPurchaseUnitClasses).swap(m_FaithPurchaseUnitClasses);
+
+		pResults1->Reset();
+		pResults2->Reset();
+	}
+#endif
 
 	return true;
 }
@@ -1695,6 +1746,29 @@ bool CvPolicyEntry::IsFreePromotionUnitCombat(const int promotionID, const int u
 
 	return false;
 }
+
+#if defined(MOD_RELIGION_POLICY_BRANCH_FAITH_GP)
+bool CvPolicyEntry::HasFaithPurchaseUnitClasses() const
+{
+	return (m_FaithPurchaseUnitClasses.size() != 0);
+}
+
+bool CvPolicyEntry::IsFaithPurchaseUnitClass(const int eUnitClass, const int eCurrentEra) const
+{
+	std::multimap<int, int>::const_iterator it = m_FaithPurchaseUnitClasses.find(eUnitClass);
+	if (it != m_FaithPurchaseUnitClasses.end())
+	{
+		const int eRequiredEra = it->second;
+		
+		if (eRequiredEra == NO_ERA || eCurrentEra >= eRequiredEra)
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+#endif
 
 /// Free experience by unit type
 int CvPolicyEntry::GetUnitCombatFreeExperiences(int i) const
@@ -4034,7 +4108,11 @@ bool CvPlayerPolicies::IsTimeToChooseIdeology() const
 		return false;
 	}
 
+#if defined(MOD_CONFIG_GAME_IN_XML)
+	if (m_pPlayer->GetCurrentEra() > GD_INT_GET(IDEOLOGY_START_ERA))
+#else
 	if (m_pPlayer->GetCurrentEra() > GC.getInfoTypeForString("ERA_INDUSTRIAL"))
+#endif
 	{
 		return true;
 	}

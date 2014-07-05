@@ -654,6 +654,15 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetNumDenouncements);
 	Method(GetNumDenouncementsOfPlayer);
 #endif
+#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE_HAPPINESS)
+	Method(GetUnhappinessFromCityCulture);
+	Method(GetUnhappinessFromCityDefense);
+	Method(GetUnhappinessFromCityGold);
+	Method(GetUnhappinessFromCityConnection);
+	Method(GetUnhappinessFromCityPillaged);
+	Method(GetUnhappinessFromCityStarving);
+	Method(GetUnhappinessFromCityMinority);
+#endif
 
 	Method(IsAlive);
 	Method(IsEverAlive);
@@ -1106,6 +1115,13 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(HasAnyTradeRouteWith);
 	Method(HasUnit);
 	Method(HasUnitClass);
+
+	Method(HasTrait);
+	Method(HasAnyHolyCity);
+	Method(HasHolyCity);
+	Method(HasCapturedHolyCity);
+	Method(HasEmbassyWith);
+	Method(DoForceDefPact);
 #endif
 }
 //------------------------------------------------------------------------------
@@ -6976,7 +6992,7 @@ int CvLuaPlayer::lGetFriendshipFromUnitGift(lua_State* L)
 	return 1;
 }
 
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE_MINORS)
+#if defined(MOD_API_LUA_EXTENSIONS) && (defined(MOD_BALANCE_CORE_MINORS) || defined(MOD_DIPLOMACY_CITYSTATES_QUESTS))
 //------------------------------------------------------------------------------
 //int GetJerk(TeamTypes eTeam);
 int CvLuaPlayer::lGetJerk(lua_State* L)
@@ -7013,7 +7029,78 @@ int CvLuaPlayer::lGetNumDenouncementsOfPlayer(lua_State* L)
 	return 1;
 }
 #endif
+#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE_HAPPINESS)
+//------------------------------------------------------------------------------
+//int getUnhappinessFromCityCulture();
+int CvLuaPlayer::lGetUnhappinessFromCityCulture(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
 
+	const int iResult = pkPlayer->getUnhappinessFromCityCulture();
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
+//int getUnhappinessFromCityDefense();
+int CvLuaPlayer::lGetUnhappinessFromCityDefense(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+
+	const int iResult = pkPlayer->getUnhappinessFromCityDefense();
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
+//int getUnhappinessFromCityGold();
+int CvLuaPlayer::lGetUnhappinessFromCityGold(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+
+	const int iResult = pkPlayer->getUnhappinessFromCityGold();
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
+//int getUnhappinessFromCityConnection();
+int CvLuaPlayer::lGetUnhappinessFromCityConnection(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+
+	const int iResult = pkPlayer->getUnhappinessFromCityConnection();
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
+//int getUnhappinessFromCityPillaged();
+int CvLuaPlayer::lGetUnhappinessFromCityPillaged(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+
+	const int iResult = pkPlayer->getUnhappinessFromCityPillaged();
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
+//int getUnhappinessFromCityStarving();
+int CvLuaPlayer::lGetUnhappinessFromCityStarving(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+
+	const int iResult = pkPlayer->getUnhappinessFromCityStarving();
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
+//int getUnhappinessFromCityMinority();
+int CvLuaPlayer::lGetUnhappinessFromCityMinority(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+
+	const int iResult = pkPlayer->getUnhappinessFromCityMinority();
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+#endif
 //------------------------------------------------------------------------------
 //bool isAlive();
 int CvLuaPlayer::lIsAlive(lua_State* L)
@@ -11741,4 +11828,11 @@ LUAAPIIMPL(Player, HasAnyTradeRoute)
 LUAAPIIMPL(Player, HasAnyTradeRouteWith)
 LUAAPIIMPL(Player, HasUnit)
 LUAAPIIMPL(Player, HasUnitClass)
+
+LUAAPIIMPL(Player, HasTrait)
+LUAAPIIMPL(Player, HasAnyHolyCity)
+LUAAPIIMPL(Player, HasHolyCity)
+LUAAPIIMPL(Player, HasCapturedHolyCity)
+LUAAPIIMPL(Player, HasEmbassyWith)
+LUAAPIIMPL(Player, DoForceDefPact)
 #endif

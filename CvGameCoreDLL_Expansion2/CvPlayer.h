@@ -139,10 +139,6 @@ public:
 	void InitDangerPlots();
 	void UpdateDangerPlots();
 	void SetDangerPlotsDirty();
-#if defined(MOD_BALANCE_CORE_MILITARY)
-void SetEscortID(int iValue);
-int GetEscortID();
-#endif
 
 	bool isHuman() const;
 	bool isObserver() const;
@@ -248,15 +244,14 @@ int GetEscortID();
 
 	void AwardFreeBuildings(CvCity* pCity); // slewis - broken out so that Venice can get free buildings when they purchase something
 	bool canFound(int iX, int iY, bool bTestVisible = false) const;
-#if defined(MOD_DIPLOMACY_CITYSTATES)
-	void foundmid(int iX, int iY);
-	void foundlate(int iX, int iY);
-#endif
 
 #if defined(MOD_GLOBAL_RELIGIOUS_SETTLERS)
 	void found(int iX, int iY, ReligionTypes eReligion = NO_RELIGION);
 #else
 	void found(int iX, int iY);
+#endif
+#if defined(MOD_DIPLOMACY_CITYSTATES)
+	void cityBoost(int iX, int iY, CvUnitEntry* pkUnitEntry, int iExtraPlots, int iPopChange, int iFoodPercent);
 #endif
 
 	bool canTrain(UnitTypes eUnit, bool bContinue = false, bool bTestVisible = false, bool bIgnoreCost = false, bool bIgnoreUniqueUnitStatus = false, CvString* toolTipSink = NULL) const;
@@ -450,7 +445,10 @@ int GetEscortID();
 	void DoUpdateHappiness();
 	int GetHappiness() const;
 	void SetHappiness(int iNewValue);
-
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+	void SetUnhappiness(int iNewValue);
+	int GetSetUnhappiness() const;
+#endif
 	int GetExcessHappiness() const;
 	bool IsEmpireUnhappy() const;
 	bool IsEmpireVeryUnhappy() const;
@@ -510,6 +508,15 @@ int GetEscortID();
 
 	int GetUnhappinessMod() const;
 	void ChangeUnhappinessMod(int iChange);
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+	int getUnhappinessFromCityCulture() const;
+	int getUnhappinessFromCityDefense() const;
+	int getUnhappinessFromCityGold() const;
+	int getUnhappinessFromCityConnection() const;
+	int getUnhappinessFromCityPillaged() const;
+	int getUnhappinessFromCityStarving() const;
+	int getUnhappinessFromCityMinority() const;
+#endif
 
 	int GetCityCountUnhappinessMod() const;
 	void ChangeCityCountUnhappinessMod(int iChange);
@@ -1648,6 +1655,13 @@ int GetEscortID();
 	bool HasAnyTradeRouteWith(PlayerTypes iPlayer) const;
 	bool HasUnit(UnitTypes iUnitType);
 	bool HasUnitClass(UnitClassTypes iUnitClassType);
+
+	bool HasTrait(TraitTypes eTrait) const;
+	bool HasAnyHolyCity();
+	bool HasHolyCity(ReligionTypes eReligion);
+	bool HasCapturedHolyCity(ReligionTypes eReligion);
+	bool HasEmbassyWith(PlayerTypes eOtherPlayer) const;
+	void DoForceDefPact(PlayerTypes eOtherPlayer);
 #endif
 
 	// for serialization
@@ -1779,6 +1793,9 @@ protected:
 	int m_iFaith;
 	int m_iFaithEverGenerated;
 	FAutoVariable<int, CvPlayer> m_iHappiness;
+#if defined(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
+	FAutoVariable<int, CvPlayer> m_iUnhappiness;
+#endif
 	FAutoVariable<int, CvPlayer> m_iUprisingCounter;
 	FAutoVariable<int, CvPlayer> m_iExtraHappinessPerLuxury;
 	FAutoVariable<int, CvPlayer> m_iUnhappinessFromUnits;
@@ -1819,9 +1836,6 @@ protected:
 	int m_iScienceRateFromLeague;
 	int m_iScienceRateFromLeagueAid;
 	FAutoVariable<int, CvPlayer> m_iLeagueCultureCityModifier;
-#endif
-#if defined(MOD_BALANCE_CORE_MILITARY)
-	int m_iEscortID;
 #endif
 	FAutoVariable<int, CvPlayer> m_iAdvancedStartPoints;
 	FAutoVariable<int, CvPlayer> m_iAttackBonusTurns;

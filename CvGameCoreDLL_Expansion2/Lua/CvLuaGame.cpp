@@ -3096,7 +3096,7 @@ int CvLuaGame::lSpewTestEvents(lua_State* L)
 {
 	const int iLimit = luaL_optint(L, 1, 1000);
 
-	int iValue = -32767;
+	int iValue = 0;
 	const ULONGLONG startTick = GetTickCount64();
 
 	if (iLimit > 0) {

@@ -120,7 +120,7 @@ public:
 	bool IsPillage() const;
 	bool IsFound() const;
 	bool IsFoundAbroad() const;
-#if defined(MOD_DIPLOMACY_CITYSTATES)
+#if defined(MOD_BALANCE_CORE_SETTLER)
 	bool IsFoundMid() const;
 	bool IsFoundLate() const;
 #endif
