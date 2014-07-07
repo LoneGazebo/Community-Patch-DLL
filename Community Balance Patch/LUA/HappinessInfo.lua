@@ -625,35 +625,54 @@ function UpdateScreen()
 		end
 
 -- COMMUNITY CHANGE
-		-- City Capital Count tooltip
-		iCityUnhappiness = pPlayer:GetUnhappinessFromCityForUI(pCity) / 100;
-		iCityCountMod = pPlayer:GetCapitalUnhappinessMod();
+		
+		local iCityYield = (iUnhappinessFromCityCount / iNumNormalCities);
+		local iCultureYield = pCity:GetUnhappinessFromCultureYield();
+		local iDefenseYield = pCity:GetUnhappinessFromDefenseYield();
+		local iGoldYield = pCity:GetUnhappinessFromGoldYield();
+		local iCultureNeeded = pCity:GetUnhappinessFromCultureNeeded();
+		local iDefenseNeeded = pCity:GetUnhappinessFromDefenseNeeded();
+		local iGoldNeeded = pCity:GetUnhappinessFromGoldNeeded();
 
 		if (pCity:IsCapital()) then
 			if (iCityCountMod == 0) then
-				strOccupationTT = strOccupationTT .. "[NEWLINE][NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_CITYCOUNT_UNHAPPINESS", iCityUnhappiness);
+				if(iCityYield ~= 0) then
+					strOccupationTT = strOccupationTT .. "[NEWLINE][NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_CITYCOUNT_UNHAPPINESS", iCityYield);
+				end
 			end
 		end
 		
 		if (not pCity:IsCapital()) then
-			if (iCityUnhappiness ~= 0) then
-				strOccupationTT = strOccupationTT .. "[NEWLINE][NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_CITYCOUNT_UNHAPPINESS", iCityUnhappiness);
+			if (iCityYield ~= 0) then
+				if (not pCity:IsOccupied()) then
+					strOccupationTT = strOccupationTT .. "[NEWLINE][NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_CITYCOUNT_UNHAPPINESS", iCityYield);
+				end
+			end
+		end
+
+		if (not pCity:IsCapital()) then
+			if (iCityYield ~= 0) then
+				if (pCity:IsOccupied()) then
+					if(pCity:IsNoOccupiedUnhappiness()) then
+						strOccupationTT = strOccupationTT .. "[NEWLINE][NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_CITYCOUNT_UNHAPPINESS", iCityYield);
+					end
+				end
 			end
 		end
 
 		-- Culture tooltip
 		if (iCultureUnhappiness ~= 0) then
-			strOccupationTT = strOccupationTT .. "[NEWLINE][NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_CULTURE_UNHAPPINESS", iCultureUnhappiness);
+			strOccupationTT = strOccupationTT .. "[NEWLINE][NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_CULTURE_UNHAPPINESS", iCultureUnhappiness, iCultureYield, iCultureNeeded);
 		end
 
 		-- Defense tooltip
 		if (iDefenseUnhappiness ~= 0) then
-			strOccupationTT = strOccupationTT .. "[NEWLINE][NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_DEFENSE_UNHAPPINESS", iDefenseUnhappiness);
+			strOccupationTT = strOccupationTT .. "[NEWLINE][NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_DEFENSE_UNHAPPINESS", iDefenseUnhappiness, iDefenseYield, iDefenseNeeded);
 		end
 
 		-- Gold tooltip
 		if (iGoldUnhappiness ~= 0) then
-			strOccupationTT = strOccupationTT .. "[NEWLINE][NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_GOLD_UNHAPPINESS", iGoldUnhappiness);
+			strOccupationTT = strOccupationTT .. "[NEWLINE][NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_GOLD_UNHAPPINESS", iGoldUnhappiness, iGoldYield, iGoldNeeded);
 		end
 
 		-- Connection tooltip

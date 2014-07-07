@@ -742,6 +742,14 @@
 	<Row Class="6" Name="MOD_BALANCE_CORE_HAPPINESS_NATIONAL" Value="0"/>
 	<!-- The luxury happiness sub-feature of MOD_COMMUNITY_PATCH -->
 	<Row Class="6" Name="MOD_BALANCE_CORE_HAPPINESS_LUXURY" Value="0"/>
+	<!-- The national wonder sub-feature of MOD_COMMUNITY_PATCH -->
+	<Row Class="6" Name="MOD_BALANCE_CORE_POP_REQ_BUILDINGS" Value="0"/>
+	<!-- The settler reset city growth sub-feature of MOD_COMMUNITY_PATCH -->
+	<Row Class="6" Name="MOD_BALANCE_CORE_SETTLER_RESET_FOOD" Value="0"/>
+	<!-- The happiness mods sub-feature of MOD_COMMUNITY_PATCH -->
+	<Row Class="6" Name="MOD_BALANCE_CORE_HAPPINESS_MODIFIERS" Value="0"/>
+	<!-- The wonder variable consolation prize sub-feature of MOD_COMMUNITY_PATCH -->
+	<Row Class="6" Name="MOD_BALANCE_CORE_WONDERS_VARIABLE_REWARD" Value="0"/>
 	  
   </CustomModOptions>
 

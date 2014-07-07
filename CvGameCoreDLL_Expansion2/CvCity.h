@@ -530,8 +530,14 @@ public:
 
 	int GetLocalHappiness() const;
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
+	int getUnhappinessFromCultureYield() const;
+	int getUnhappinessFromCultureNeeded() const;
 	int getUnhappinessFromCulture() const;
+	int getUnhappinessFromDefenseYield() const;
+	int getUnhappinessFromDefenseNeeded() const;
 	int getUnhappinessFromDefense() const;
+	int getUnhappinessFromGoldYield() const;
+	int getUnhappinessFromGoldNeeded() const;
 	int getUnhappinessFromGold() const;
 	int getUnhappinessFromConnection() const;
 	int getUnhappinessFromPillaged() const;
@@ -665,6 +671,31 @@ public:
 
 	int GetGrowthExtraYield() const;
 	void ChangeGrowthExtraYield(int iChange);
+#endif
+#if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
+	int GetPovertyUnhappiness() const;
+	void ChangePovertyUnhappiness(int iChange);
+
+	int GetDefenseUnhappiness() const;
+	void ChangeDefenseUnhappiness(int iChange);
+
+	int GetIlliteracyUnhappiness() const;
+	void ChangeIlliteracyUnhappiness(int iChange);
+
+	int GetMinorityUnhappiness() const;
+	void ChangeMinorityUnhappiness(int iChange);
+
+	int GetPovertyUnhappinessGlobal() const;
+	void ChangePovertyUnhappinessGlobal(int iChange);
+
+	int GetDefenseUnhappinessGlobal() const;
+	void ChangeDefenseUnhappinessGlobal(int iChange);
+
+	int GetIlliteracyUnhappinessGlobal() const;
+	void ChangeIlliteracyUnhappinessGlobal(int iChange);
+
+	int GetMinorityUnhappinessGlobal() const;
+	void ChangeMinorityUnhappinessGlobal(int iChange);
 #endif
 
 	int GetBaseYieldRateFromReligion(YieldTypes eIndex) const;
@@ -1065,6 +1096,16 @@ protected:
 	int m_iTotalArtsyAid;
 	int m_iTotalGreatWorkAid;
 	int m_iChangeGrowthExtraYield;
+#endif
+#if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
+	int m_iChangePovertyUnhappiness;
+	int m_iChangeDefenseUnhappiness;
+	int m_iChangeIlliteracyUnhappiness;
+	int m_iChangeMinorityUnhappiness;
+	int m_iChangePovertyUnhappinessGlobal;
+	int m_iChangeDefenseUnhappinessGlobal;
+	int m_iChangeIlliteracyUnhappinessGlobal;
+	int m_iChangeMinorityUnhappinessGlobal;
 #endif
 	std::vector<int> m_aiBaseYieldRateFromReligion;
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldRateModifier;

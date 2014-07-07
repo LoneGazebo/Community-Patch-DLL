@@ -5781,7 +5781,11 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 
 				if(bShouldUpdateHappiness)
 				{
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+					GET_PLAYER(getOwner()).CalculateHappiness();
+#else
 					GET_PLAYER(getOwner()).DoUpdateHappiness();
+#endif
 				}
 			}
 
@@ -6870,7 +6874,11 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 					{
 						if(GC.getResourceInfo(eResource)->getResourceUsage() == RESOURCEUSAGE_LUXURY)
 						{
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+							owningPlayer.CalculateHappiness();
+#else
 							owningPlayer.DoUpdateHappiness();
+#endif
 						}
 					}
 				}
@@ -6923,7 +6931,11 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 					{
 						if(GC.getResourceInfo(eResource)->getResourceUsage() == RESOURCEUSAGE_LUXURY)
 						{
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+							owningPlayer.CalculateHappiness();
+#else
 							owningPlayer.DoUpdateHappiness();
+#endif
 						}
 					}
 				}
@@ -9199,7 +9211,11 @@ bool CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, bool bTerrainOnly, Tea
 									}
 								}
 
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+								playerI.CalculateHappiness();
+#else
 								playerI.DoUpdateHappiness();
+#endif
 
 								// Add World Anchor
 								if(eTeam == eActiveTeam)

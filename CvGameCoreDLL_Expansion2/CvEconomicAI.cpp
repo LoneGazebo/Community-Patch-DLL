@@ -2546,8 +2546,15 @@ void CvEconomicAI::DisbandLongObsoleteUnits()
 				// The unit must have an upgrade option, if not, then we don't care about this (includes workers, settlers, explorers)
 				UnitTypes eUpgradeUnitType = pUnit->GetUpgradeUnitType();
 
+				
+#if defined(MOD_BALANCE_CORE_SETTLER)
+				//Fixed for settlers for advanced start.
+				if(eUpgradeUnitType != NO_UNIT && !pUnit->isFound())
+				{
+#else
 				if(eUpgradeUnitType != NO_UNIT)
 				{
+#endif
 					// Check out unit era based on the prerequirement tech, defaults at ancient era.
 					unitEra = 0;
 					UnitTypes currentUnitType = pUnit->getUnitType();

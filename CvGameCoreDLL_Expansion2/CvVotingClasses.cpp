@@ -6564,7 +6564,11 @@ void CvLeague::CheckResolutionsValid()
 			//antonjs: todo: relocate these league-level effects:
 			for (uint i = 0; i < m_vMembers.size(); i++)
 			{
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+				GET_PLAYER(m_vMembers[i].ePlayer).CalculateHappiness();
+#else
 				GET_PLAYER(m_vMembers[i].ePlayer).DoUpdateHappiness();
+#endif
 				GET_PLAYER(m_vMembers[i].ePlayer).updateYield();
 				GET_PLAYER(m_vMembers[i].ePlayer).recomputeGreatPeopleModifiers();
 			}
@@ -6610,7 +6614,11 @@ void CvLeague::DoEnactResolution(CvEnactProposal* pProposal)
 	//antonjs: todo: relocate these league-level effects:
 	for (uint i = 0; i < m_vMembers.size(); i++)
 	{
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+		GET_PLAYER(m_vMembers[i].ePlayer).CalculateHappiness();
+#else
 		GET_PLAYER(m_vMembers[i].ePlayer).DoUpdateHappiness();
+#endif
 		GET_PLAYER(m_vMembers[i].ePlayer).updateYield();
 		GET_PLAYER(m_vMembers[i].ePlayer).recomputeGreatPeopleModifiers();
 	}
@@ -6641,7 +6649,11 @@ void CvLeague::DoRepealResolution(CvRepealProposal* pProposal)
 			//antonjs: todo: relocate these league-level effects:
 			for (uint i = 0; i < m_vMembers.size(); i++)
 			{
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+				GET_PLAYER(m_vMembers[i].ePlayer).CalculateHappiness();
+#else
 				GET_PLAYER(m_vMembers[i].ePlayer).DoUpdateHappiness();
+#endif
 				GET_PLAYER(m_vMembers[i].ePlayer).updateYield();
 				GET_PLAYER(m_vMembers[i].ePlayer).recomputeGreatPeopleModifiers();
 			}
@@ -7145,7 +7157,11 @@ void CvLeague::DoProjectReward(PlayerTypes ePlayer, LeagueProjectTypes eLeaguePr
 		if (pRewardInfo->GetHappiness() != 0)
 		{
 			GET_PLAYER(ePlayer).ChangeHappinessFromLeagues(pRewardInfo->GetHappiness());
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+			GET_PLAYER(ePlayer).CalculateHappiness();
+#else
 			GET_PLAYER(ePlayer).DoUpdateHappiness();
+#endif
 		}
 
 		// Free Social Policy

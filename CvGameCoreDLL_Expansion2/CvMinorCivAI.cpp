@@ -7718,6 +7718,28 @@ int CvMinorCivAI::GetFriendshipChangePerTurnTimes100(PlayerTypes ePlayer)
 {
 	CvPlayer& kPlayer = GET_PLAYER(ePlayer);
 	int iChangeThisTurn = 0;
+#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
+	//No CS drop for allies - Cold War fun!
+	if(MOD_DIPLOMACY_CITYSTATES_QUESTS && IsAllies(ePlayer))
+	{
+		CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
+		if(pLeague != NULL)
+		{
+			PlayerTypes eLoopPlayer;
+			for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+			{
+				eLoopPlayer = (PlayerTypes) iPlayerLoop;
+				if(eLoopPlayer != NO_PLAYER)
+				{
+					if(GC.getGame().GetGameLeagues()->IsIdeologyEmbargoed(ePlayer, eLoopPlayer))
+					{
+						return iChangeThisTurn;
+					}
+				}
+			}
+		}
+	}
+#endif
 
 	// Modifier to rate based on traits and religion
 	int iTraitMod = kPlayer.GetPlayerTraits()->GetCityStateFriendshipModifier();
@@ -7734,10 +7756,6 @@ int CvMinorCivAI::GetFriendshipChangePerTurnTimes100(PlayerTypes ePlayer)
 	}
 	else if (iBaseFriendship > iFriendshipAnchor)
 	{
-		// Hostile Minors have Friendship decay quicker
-		if(GetPersonality() == MINOR_CIV_PERSONALITY_HOSTILE)
-			iChangeThisTurn += /*-150*/ GC.getMINOR_FRIENDSHIP_DROP_PER_TURN_HOSTILE();
-		// Aggressor!
 #if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 		//Decay if capital is taking damage during war (CSs are fickle allies if they're on the recieving end of war).
 		if(MOD_DIPLOMACY_CITYSTATES_QUESTS && IsAllies(ePlayer))
@@ -7751,6 +7769,10 @@ int CvMinorCivAI::GetFriendshipChangePerTurnTimes100(PlayerTypes ePlayer)
 			}
 		}
 #endif
+		// Hostile Minors have Friendship decay quicker
+		if(GetPersonality() == MINOR_CIV_PERSONALITY_HOSTILE)
+			iChangeThisTurn += /*-150*/ GC.getMINOR_FRIENDSHIP_DROP_PER_TURN_HOSTILE();
+		// Aggressor!
 		else if(GET_TEAM(kPlayer.getTeam()).IsMinorCivAggressor())
 			iChangeThisTurn += /*-200*/ GC.getMINOR_FRIENDSHIP_DROP_PER_TURN_AGGRESSOR();
 		// Normal decay
@@ -7813,25 +7835,6 @@ int CvMinorCivAI::GetFriendshipChangePerTurnTimes100(PlayerTypes ePlayer)
 	// Mod everything by game speed
 	iChangeThisTurn *= GC.getGame().getGameSpeedInfo().getGoldGiftMod();
 	iChangeThisTurn /= 100;
-
-#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
-	//No CS drop for allies - Cold War fun!
-	if(MOD_DIPLOMACY_CITYSTATES_QUESTS && IsAllies(ePlayer))
-	{
-		PlayerTypes eLoopPlayer;
-		for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
-		{
-			eLoopPlayer = (PlayerTypes) iPlayerLoop;
-			if(eLoopPlayer != NO_PLAYER)
-			{
-				if(GC.getGame().GetGameLeagues()->IsIdeologyEmbargoed(ePlayer, eLoopPlayer))
-				{
-					iChangeThisTurn = 0;
-				}
-			}
-		}
-	}
-#endif
 
 	return iChangeThisTurn;
 }
@@ -8539,7 +8542,11 @@ void CvMinorCivAI::DoSetBonus(PlayerTypes ePlayer, bool bAdd, bool bFriends, boo
 	// Mercantile
 	else if(eTrait == MINOR_CIV_TRAIT_MERCANTILE)
 	{
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+		GET_PLAYER(ePlayer).CalculateHappiness();
+#else
 		GET_PLAYER(ePlayer).DoUpdateHappiness();
+#endif
 	}
 	// Religious
 	if(eTrait == MINOR_CIV_TRAIT_RELIGIOUS)
@@ -9260,7 +9267,11 @@ bool CvMinorCivAI::DoMajorCivEraChange(PlayerTypes ePlayer, EraTypes eNewEra)
 			if(iOldHappiness != iNewHappiness)
 			{
 				bSomethingChanged = true;
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+				GET_PLAYER(ePlayer).CalculateHappiness();
+#else
 				GET_PLAYER(ePlayer).DoUpdateHappiness();
+#endif
 			}
 		}
 
@@ -9275,7 +9286,11 @@ bool CvMinorCivAI::DoMajorCivEraChange(PlayerTypes ePlayer, EraTypes eNewEra)
 			if(iOldHappiness != iNewHappiness)
 			{
 				bSomethingChanged = true;
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+				GET_PLAYER(ePlayer).CalculateHappiness();
+#else
 				GET_PLAYER(ePlayer).DoUpdateHappiness();
+#endif
 			}
 		}
 	}

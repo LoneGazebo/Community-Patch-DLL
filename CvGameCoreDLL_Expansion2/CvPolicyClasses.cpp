@@ -170,6 +170,16 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_bAbleToAnnexCityStates(false),
 	m_bOneShot(false),
 	m_bIncludesOneShotFreeUnits(false),
+#if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
+	m_iPovertyHappinessChangePolicy(0),
+	m_iDefenseHappinessChangePolicy(0),
+	m_iIlliteracyHappinessChangePolicy(0),
+	m_iMinorityHappinessChangePolicy(0),
+	m_iPovertyHappinessChangePolicyCapital(0),
+	m_iDefenseHappinessChangePolicyCapital(0),
+	m_iIlliteracyHappinessChangePolicyCapital(0),
+	m_iMinorityHappinessChangePolicyCapital(0),
+#endif
 	m_piPrereqOrPolicies(NULL),
 	m_piPrereqAndPolicies(NULL),
 	m_piPolicyDisables(NULL),
@@ -402,6 +412,16 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_bAbleToAnnexCityStates = kResults.GetBool("AbleToAnnexCityStates");
 	m_bOneShot = kResults.GetBool("OneShot");
 	m_bIncludesOneShotFreeUnits = kResults.GetBool("IncludesOneShotFreeUnits");
+#if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
+	m_iPovertyHappinessChangePolicy = kResults.GetInt("PovertyHappinessMod");
+	m_iDefenseHappinessChangePolicy = kResults.GetInt("DefenseHappinessMod");
+	m_iIlliteracyHappinessChangePolicy = kResults.GetInt("IlliteracyHappinessMod");
+	m_iMinorityHappinessChangePolicy = kResults.GetInt("MinorityHappinessMod");
+	m_iPovertyHappinessChangePolicy = kResults.GetInt("PovertyHappinessModCapital");
+	m_iDefenseHappinessChangePolicy = kResults.GetInt("DefenseHappinessModCapital");
+	m_iIlliteracyHappinessChangePolicy = kResults.GetInt("IlliteracyHappinessModCapital");
+	m_iMinorityHappinessChangePolicy = kResults.GetInt("MinorityHappinessModCapital");
+#endif
 
 	m_strWeLoveTheKingKey = kResults.GetText("WeLoveTheKing");
 	m_wstrWeLoveTheKing = GetLocalizedText(m_strWeLoveTheKingKey);
@@ -1567,6 +1587,40 @@ bool CvPolicyEntry::IncludesOneShotFreeUnits() const
 {
 	return m_bIncludesOneShotFreeUnits;
 }
+#if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
+int CvPolicyEntry::GetPovertyHappinessChangePolicy() const
+{
+	return m_iPovertyHappinessChangePolicy;
+}
+int CvPolicyEntry::GetDefenseHappinessChangePolicy() const
+{
+	return m_iDefenseHappinessChangePolicy;
+}
+int CvPolicyEntry::GetIlliteracyHappinessChangePolicy() const
+{
+	return m_iIlliteracyHappinessChangePolicy;
+}
+int CvPolicyEntry::GetMinorityHappinessChangePolicy() const
+{
+	return m_iMinorityHappinessChangePolicy;
+}
+int CvPolicyEntry::GetPovertyHappinessChangePolicyCapital() const
+{
+	return m_iPovertyHappinessChangePolicyCapital;
+}
+int CvPolicyEntry::GetDefenseHappinessChangePolicyCapital() const
+{
+	return m_iDefenseHappinessChangePolicyCapital;
+}
+int CvPolicyEntry::GetIlliteracyHappinessChangePolicyCapital() const
+{
+	return m_iIlliteracyHappinessChangePolicyCapital;
+}
+int CvPolicyEntry::GetMinorityHappinessChangePolicyCapital() const
+{
+	return m_iMinorityHappinessChangePolicyCapital;
+}
+#endif
 
 /// Return "We Love the King" day text
 const char* CvPolicyEntry::GetWeLoveTheKing()

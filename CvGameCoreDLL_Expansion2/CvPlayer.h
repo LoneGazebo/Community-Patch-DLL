@@ -362,6 +362,9 @@ public:
 	// Culture
 
 	int GetTotalJONSCulturePerTurn() const;
+#if defined(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
+	int GetTotalJONSCulturePerTurnforUI() const;
+#endif
 
 	int GetJONSCulturePerTurnFromCities() const;
 
@@ -429,6 +432,9 @@ public:
 
 	// Faith
 	int GetTotalFaithPerTurn() const;
+#if defined(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
+	int GetTotalFaithPerTurnForUI() const;
+#endif
 	int GetFaithPerTurnFromCities() const;
 	int GetFaithPerTurnFromMinorCivs() const;
 	int GetFaithPerTurnFromMinor(PlayerTypes eMinor) const;
@@ -448,6 +454,11 @@ public:
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	void SetUnhappiness(int iNewValue);
 	int GetSetUnhappiness() const;
+	void CalculateHappiness();
+#endif
+#if defined(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
+	//LUA Functions
+	int CalculateUnhappinessTooltip(YieldTypes eYield) const;
 #endif
 	int GetExcessHappiness() const;
 	bool IsEmpireUnhappy() const;
@@ -486,6 +497,10 @@ public:
 
 	int GetExtraHappinessPerLuxury() const;
 	void ChangeExtraHappinessPerLuxury(int iChange);
+#if defined(MOD_BALANCE_CORE_HAPPINESS_LUXURY)
+	int getPopNeededForLux() const;
+	int getCurrentTotalPop() const;
+#endif
 
 	int GetHappinessFromLuxury(ResourceTypes eResource) const;
 
@@ -1002,6 +1017,25 @@ public:
 	bool IsAbleToAnnexCityStates() const;
 	int GetAbleToAnnexCityStatesCount() const;
 	void ChangeAbleToAnnexCityStatesCount(int iChange);
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+	int GetPovertyUnhappinessMod() const;
+	void ChangePovertyUnhappinessMod(int iChange);
+	int GetDefenseUnhappinessMod() const;
+	void ChangeDefenseUnhappinessMod(int iChange);
+	int	GetIlliteracyUnhappinessMod() const;
+	void ChangeIlliteracyUnhappinessMod(int iChange);
+	int GetMinorityUnhappinessMod() const;
+	void ChangeMinorityUnhappinessMod(int iChange);
+
+	int GetPovertyUnhappinessModCapital() const;
+	void ChangePovertyUnhappinessModCapital(int iChange);
+	int GetDefenseUnhappinessModCapital() const;
+	void ChangeDefenseUnhappinessModCapital(int iChange);
+	int	GetIlliteracyUnhappinessModCapital() const;
+	void ChangeIlliteracyUnhappinessModCapital(int iChange);
+	int GetMinorityUnhappinessModCapital() const;
+	void ChangeMinorityUnhappinessModCapital(int iChange);
+#endif
 
 	int getCultureBombTimer() const;
 	void setCultureBombTimer(int iNewValue);
@@ -1180,6 +1214,9 @@ public:
 
 	int GetScience() const;
 	int GetScienceTimes100() const;
+#if defined(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
+	int GetScienceTimes100ForUI() const;
+#endif
 
 	int GetScienceFromCitiesTimes100(bool bIgnoreTrade) const;
 	int GetScienceFromOtherPlayersTimes100() const;
@@ -1793,8 +1830,9 @@ protected:
 	int m_iFaith;
 	int m_iFaithEverGenerated;
 	FAutoVariable<int, CvPlayer> m_iHappiness;
-#if defined(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
 	FAutoVariable<int, CvPlayer> m_iUnhappiness;
+	FAutoVariable<int, CvPlayer> m_iHappinessTotal;
 #endif
 	FAutoVariable<int, CvPlayer> m_iUprisingCounter;
 	FAutoVariable<int, CvPlayer> m_iExtraHappinessPerLuxury;
@@ -1895,6 +1933,17 @@ protected:
 	int m_iGreatScientistBeakerModifier;
 	int m_iGreatEngineerRateModifier;
 	int m_iGreatPersonExpendGold;
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+	int m_iPovertyUnhappinessMod;
+	int m_iDefenseUnhappinessMod;
+	int m_iIlliteracyUnhappinessMod;
+	int m_iMinorityUnhappinessMod;
+
+	int m_iPovertyUnhappinessModCapital;
+	int m_iDefenseUnhappinessModCapital;
+	int m_iIlliteracyUnhappinessModCapital;
+	int m_iMinorityUnhappinessModCapital;
+#endif
 	FAutoVariable<int, CvPlayer> m_iMaxGlobalBuildingProductionModifier;
 	FAutoVariable<int, CvPlayer> m_iMaxTeamBuildingProductionModifier;
 	FAutoVariable<int, CvPlayer> m_iMaxPlayerBuildingProductionModifier;

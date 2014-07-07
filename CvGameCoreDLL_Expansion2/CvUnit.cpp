@@ -491,6 +491,17 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 	{
 		kPlayer.ChangeNumBuilders(1);
 	}
+#if defined(MOD_BALANCE_CORE_SETTLER_RESET_FOOD)
+	if(getUnitInfo().IsFound())
+	{
+		CvCity* pCity = plot()->getPlotCity();
+		if(pCity != NULL)
+		{
+			pCity->setFood(0);
+		}
+	}
+#endif
+
 
 	// Units can add Unhappiness
 	if(GC.getUnitInfo(getUnitType())->GetUnhappiness() != 0)
@@ -15324,7 +15335,11 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 	// Units moving into and out of cities change garrison happiness
 	if((pNewPlot && pNewPlot->isCity()) || (pOldPlot && pOldPlot->isCity()))
 	{
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+		GET_PLAYER(getOwner()).CalculateHappiness();
+#else
 		GET_PLAYER(getOwner()).DoUpdateHappiness();
+#endif
 	}
 
 	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();

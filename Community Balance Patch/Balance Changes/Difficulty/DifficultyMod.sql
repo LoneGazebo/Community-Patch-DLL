@@ -68,49 +68,49 @@ AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='BALANCE_GLOBAL_DIFFICULTY_OPTION
 -- Minor Civ Free Units
 
 UPDATE Eras
-Set StartingMinorDefenseUnits = '0'
+SET StartingMinorDefenseUnits = '0'
 WHERE Type = 'ERA_ANCIENT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
 
 UPDATE Eras
-Set StartingMinorDefenseUnits = '0'
+SET StartingMinorDefenseUnits = '0'
 WHERE Type = 'ERA_CLASSICAL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
 
 UPDATE Eras
-Set StartingMinorDefenseUnits = '1'
+SET StartingMinorDefenseUnits = '1'
 WHERE Type = 'ERA_MEDIEVAL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
 
 UPDATE Eras
-Set StartingMinorDefenseUnits = '1'
+SET StartingMinorDefenseUnits = '1'
 WHERE Type = 'ERA_RENAISSANCE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
 
 UPDATE Eras
-Set StartingMinorDefenseUnits = '2'
+SET StartingMinorDefenseUnits = '2'
 WHERE Type = 'ERA_INDUSTRIAL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
 
 UPDATE Eras
-Set StartingMinorDefenseUnits = '2'
+SET StartingMinorDefenseUnits = '2'
 WHERE Type = 'ERA_MODERN' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
 
 UPDATE Eras
-Set StartingMinorDefenseUnits = '3'
+SET StartingMinorDefenseUnits = '3'
 WHERE Type = 'ERA_POSTMODERN' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
 
 UPDATE Eras
-Set StartingMinorDefenseUnits = '3'
+SET StartingMinorDefenseUnits = '3'
 WHERE Type = 'ERA_FUTURE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
 
 UPDATE HandicapInfos
-Set StartingMinorDefenseUnits = '1'
+SET StartingMinorDefenseUnits = '1'
 WHERE Type = 'HANDICAP_KING' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
 
 UPDATE HandicapInfos
-Set StartingMinorDefenseUnits = '2'
+SET StartingMinorDefenseUnits = '2'
 WHERE Type = 'HANDICAP_EMPEROR' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
 
 UPDATE HandicapInfos
-Set StartingMinorDefenseUnits = '2'
+SET StartingMinorDefenseUnits = '2'
 WHERE Type = 'HANDICAP_IMMORTAL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
 
 UPDATE HandicapInfos
-Set StartingMinorDefenseUnits = '3'
+SET StartingMinorDefenseUnits = '3'
 WHERE Type = 'HANDICAP_DEITY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
