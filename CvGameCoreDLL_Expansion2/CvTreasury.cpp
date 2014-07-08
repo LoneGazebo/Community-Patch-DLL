@@ -475,9 +475,75 @@ int CvTreasury::CalculateGrossGoldTimes100()
 	// International trade
 	iNetGold += GetGoldPerTurnFromTraits() * 100;
 
+#if defined(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
+	//Mod for national unhappiness
+	if(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
+	{
+		//Mechanic to allow for growth malus from happiness/unhappiness.
+		int iHappiness = 0;
+		iHappiness += (m_pPlayer->GetHappiness() - m_pPlayer->GetSetUnhappiness());
+
+		//If Happiness is greater than or over threshold, calculate city bonus mod.
+		if(iHappiness >= GC.getBALANCE_HAPPINESS_THRESHOLD())
+		{
+			iHappiness = (iHappiness - GC.getBALANCE_HAPPINESS_THRESHOLD());
+			//Are there minimums/maximums for the bonus? Restrict this value.
+			if(iHappiness > GC.getBALANCE_HAPPINESS_BONUS_MAXIMUM())
+			{
+				iHappiness = GC.getBALANCE_HAPPINESS_BONUS_MAXIMUM();
+			}
+			else if(iHappiness < GC.getBALANCE_HAPPINESS_BONUS_MINIMUM())
+			{
+				iHappiness = GC.getBALANCE_HAPPINESS_BONUS_MINIMUM();
+			}
+			
+		}
+		//If happiness is less than the main threshold, calculate city penalty mod.
+		else if(iHappiness < GC.getBALANCE_HAPPINESS_THRESHOLD_MAIN())
+		{
+			//Are there minimums/maximums for the penalty? Restrict this value.
+			if(iHappiness > GC.getBALANCE_HAPPINESS_PENALTY_MINIMUM())
+			{
+				iHappiness = GC.getBALANCE_HAPPINESS_PENALTY_MINIMUM();
+			}
+			else if(iHappiness < GC.getBALANCE_HAPPINESS_PENALTY_MAXIMUM())
+			{
+				iHappiness = GC.getBALANCE_HAPPINESS_PENALTY_MAXIMUM();
+			}
+		}
+		if(iHappiness != 0)
+		{
+			iNetGold += ((iNetGold * /*5*/ GC.getBALANCE_HAPPINESS_GOLD_MODIFIER() * iHappiness) / 100);
+		}
+	}
+#endif
+
 	return iNetGold;
 }
+#if defined(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
+/// Gross income for turn
+int CvTreasury::CalculateGrossGoldTimes100ForUI()
+{
+	int iNetGold;
 
+	// Gold from Cities
+	iNetGold = GetGoldFromCitiesTimes100();
+
+	// Gold per Turn from Diplomacy
+	iNetGold += GetGoldPerTurnFromDiplomacy() * 100;
+
+	// City connection bonuses
+	iNetGold += GetCityConnectionGoldTimes100();
+
+	// Religion
+	iNetGold += GetGoldPerTurnFromReligion() * 100;
+
+	// International trade
+	iNetGold += GetGoldPerTurnFromTraits() * 100;
+
+	return iNetGold;
+}
+#endif
 /// Gross income across entire game
 int CvTreasury::GetLifetimeGrossGold()
 {

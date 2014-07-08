@@ -168,6 +168,10 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	bool IsNoWater() const;
 #endif
+#if defined(MOD_BALANCE_CORE_POP_REQ_BUILDINGS)
+	int GetNationalPopulationRequired() const;
+	int GetLocalPopulationRequired() const;
+#endif
 	int GetMinAreaSize() const;
 	int GetConquestProbability() const;
 	int GetHealRateChange() const;
@@ -224,6 +228,16 @@ public:
 	int GetRAToVotes() const;
 	int GetGPExpendInfluence() const;
 	int GetGrowthExtraYield() const;
+#endif
+#if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
+	int GetPovertyHappinessChangeBuilding() const;
+	int GetDefenseHappinessChangeBuilding() const;
+	int GetIlliteracyHappinessChangeBuilding() const;
+	int GetMinorityHappinessChangeBuilding() const;
+	int GetPovertyHappinessChangeBuildingGlobal() const;
+	int GetDefenseHappinessChangeBuildingGlobal() const;
+	int GetIlliteracyHappinessChangeBuildingGlobal() const;
+	int GetMinorityHappinessChangeBuildingGlobal() const;
 #endif
 	int GetPreferredDisplayPosition() const;
 	int GetPortraitIndex() const;
@@ -467,6 +481,16 @@ private:
 	int m_iGPExpendInfluenceBase;
 	int m_iGrowthExtraYieldBase;
 #endif
+#if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
+	int m_iPovertyHappinessChangeBuilding;
+	int m_iDefenseHappinessChangeBuilding;
+	int m_iIlliteracyHappinessChangeBuilding;
+	int m_iMinorityHappinessChangeBuilding;
+	int m_iPovertyHappinessChangeBuildingGlobal;
+	int m_iDefenseHappinessChangeBuildingGlobal;
+	int m_iIlliteracyHappinessChangeBuildingGlobal;
+	int m_iMinorityHappinessChangeBuildingGlobal;
+#endif
 	int m_iPreferredDisplayPosition;
 	int m_iPortraitIndex;
 
@@ -480,6 +504,10 @@ private:
 #endif
 #if defined(MOD_BALANCE_CORE)
 	bool m_bIsNoWater;
+#endif
+#if defined(MOD_BALANCE_CORE_POP_REQ_BUILDINGS)
+	int m_iNationalPopRequired;
+	int m_iLocalPopRequired;
 #endif
 	bool m_bMountain;
 	bool m_bHill;

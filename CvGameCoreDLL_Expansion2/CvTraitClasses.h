@@ -166,6 +166,12 @@ public:
 
 	const char* getShortDescription() const;
 	void setShortDescription(const char* szVal);
+#if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
+	int GetPovertyHappinessChange() const;
+	int GetDefenseHappinessChange() const;
+	int GetIlliteracyHappinessChange() const;
+	int GetMinorityHappinessChange() const;
+#endif
 
 	// Arrays
 	int GetExtraYieldThreshold(int i) const;
@@ -307,6 +313,12 @@ protected:
 	bool m_bUniqueLuxuryRequiresNewArea;
 	bool m_bRiverTradeRoad;
 	bool m_bAngerFreeIntrusionOfCityStates;
+#if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
+	int m_iPovertyHappinessChange;
+	int m_iDefenseHappinessChange;
+	int m_iIlliteracyHappinessChange;
+	int m_iMinorityHappinessChange;
+#endif
 
 	CvString m_strShortDescription;
 
@@ -756,6 +768,25 @@ public:
 	{
 		return m_bAngerFreeIntrusionOfCityStates;
 	}
+#if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
+	int GetPovertyHappinessChange() const
+	{
+		return m_iPovertyHappinessChange;
+	}
+	int GetDefenseHappinessChange() const
+	{
+		return m_iDefenseHappinessChange;
+	}
+	int GetIlliteracyHappinessChange() const
+	{
+		return m_iIlliteracyHappinessChange;
+	}
+	int GetMinorityHappinessChange() const
+	{
+		return m_iMinorityHappinessChange;
+	}
+#endif
+
 	int GetExtraYieldThreshold(YieldTypes eYield) const
 	{
 		return m_iExtraYieldThreshold[(int)eYield];
@@ -961,6 +992,12 @@ private:
 	bool m_bUniqueLuxuryRequiresNewArea;
 	bool m_bRiverTradeRoad;
 	bool m_bAngerFreeIntrusionOfCityStates;
+#if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
+	int m_iPovertyHappinessChange;
+	int m_iDefenseHappinessChange;
+	int m_iIlliteracyHappinessChange;
+	int m_iMinorityHappinessChange;
+#endif
 
 	UnitTypes m_eCampGuardType;
 	unsigned int m_uiFreeUnitIndex;

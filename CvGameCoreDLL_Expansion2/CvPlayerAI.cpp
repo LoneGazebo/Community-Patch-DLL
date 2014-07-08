@@ -2130,7 +2130,10 @@ CvPlot* CvPlayerAI::ChooseDiplomatTargetPlot(UnitHandle pUnit, int* piTurns)
 				{
 					continue;
 				}
-
+				if(pLoopPlot->getResourceType() != NO_RESOURCE)
+				{
+					continue;
+				}
 				if(iTurns < iBestNumTurns || (iTurns == iBestNumTurns && iDistance < iBestDistance))
 				{
 					iBestNumTurns = iTurns;
@@ -2176,13 +2179,6 @@ CvPlot* CvPlayerAI::ChooseMessengerTargetPlot(UnitHandle pUnit, int* piTurns)
 			if(iTurns < MAX_INT)
 			{
 				iDistance = plotDistance(pUnit->getX(), pUnit->getY(), pLoopPlot->getX(), pLoopPlot->getY());
-
-				// Consider it to be twice as far if a water plot (those are dangerous!)
-				if(pLoopPlot->isWater())
-				{
-					iDistance *= 2;
-				}
-
 				if(iTurns < iBestNumTurns || (iTurns == iBestNumTurns && iDistance < iBestDistance))
 				{
 					iBestNumTurns = iTurns;

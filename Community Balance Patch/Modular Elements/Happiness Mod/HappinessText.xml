@@ -2,6 +2,8 @@
 <!-- Created by ModBuddy on 6/24/2014 12:46:57 PM -->
 <GameData>
 	<Language_en_US>
+		
+		<!-- Top Panel -->
 		<Row Tag="TXT_KEY_TP_UNHAPPINESS_CULTURE">
 			<Text>{1_Num} from illiteracy.</Text>
 		</Row>
@@ -32,25 +34,30 @@
 			<Text>[ICON_BULLET][COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] Unhappiness (based on number of Cities).</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CULTURE_UNHAPPINESS">
-			<Text>[ICON_BULLET][COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] Unhappiness from illiteracy (needs [ICON_CULTURE] Culture and [ICON_RESEARCH] Science).</Text>
+			<Text>[ICON_BULLET][COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] Unhappiness from illiteracy [NEWLINE](Produces an average of [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR] [ICON_CULTURE] Culture and [ICON_RESEARCH] Science per citizen, needs [COLOR_POSITIVE_TEXT]{3_Num}[ENDCOLOR]).</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DEFENSE_UNHAPPINESS">
-			<Text>[ICON_BULLET][COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] Unhappiness from vulnerability (needs [ICON_STRENGTH] Defense buildings or a stronger military garrison).</Text>
+			<Text>[ICON_BULLET][COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] Unhappiness from vulnerability [NEWLINE](Produces an average of [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR] [ICON_STRENGTH] Defense per citizen from buildings and garrison, needs [COLOR_POSITIVE_TEXT]{3_Num}[ENDCOLOR]).</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GOLD_UNHAPPINESS">
-			<Text>[ICON_BULLET][COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] Unhappiness from poverty (needs [ICON_FOOD] Food and [ICON_GOLD] Gold).</Text>
+			<Text>[ICON_BULLET][COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] Unhappiness from poverty [NEWLINE](Produces an average of [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR] [ICON_FOOD] Food and [ICON_GOLD] Gold per citizen, needs [COLOR_POSITIVE_TEXT]{3_Num}[ENDCOLOR]).</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CONNECTION_UNHAPPINESS">
-			<Text>[ICON_BULLET][COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] Unhappiness from being disconnected or blockaded (needs to be [ICON_CONNECTED] connected to, or have a [ICON_INTERNATIONAL_TRADE] Trade Route from, your Capital).</Text>
+			<Text>[ICON_BULLET][COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] Unhappiness from being disconnected or blockaded [NEWLINE](needs to be [ICON_CONNECTED] connected to or have a [ICON_INTERNATIONAL_TRADE] Trade Route from your [ICON_CAPITAL] Capital).</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PILLAGED_UNHAPPINESS">
 			<Text>[ICON_BULLET][COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] Unhappiness from nearby [ICON_RAZING] pillaged improvements.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_STARVING_UNHAPPINESS">
-			<Text>[ICON_BULLET][COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] Unhappiness from famine (needs [ICON_FOOD] Food badly).</Text>
+			<Text>[ICON_BULLET][COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] Unhappiness from famine [NEWLINE](needs [ICON_FOOD] Food badly).</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MINORITY_UNHAPPINESS">
-			<Text>[ICON_BULLET][COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] Unhappiness from religious strife (needs more [ICON_PEACE] Faith and more followers of your [ICON_RELIGION] Religion).</Text>
+			<Text>[ICON_BULLET][COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] Unhappiness from religious strife [NEWLINE](needs more [ICON_PEACE] Faith and more followers of the majority [ICON_RELIGION] Religion).</Text>
+		</Row>
+		
+		<!-- Luxury Tooltip -->
+		<Row Tag="TXT_KEY_TP_HAPPINESS_THRESHOLD_VALUE">
+			<Text>To increase the [ICON_HAPPINESS_1] Happiness value of your Luxury Resources, your empire's population must reach [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR]. Your empire's current population is [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR]. The target value increases with every Era, and for every owned City.</Text>
 		</Row>
 	</Language_en_US>
 </GameData>

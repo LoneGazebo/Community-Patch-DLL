@@ -592,6 +592,13 @@ protected:
 	LUAAPIEXTN(GetUnhappinessFromCityStarving, int);
 	LUAAPIEXTN(GetUnhappinessFromCityMinority, int);
 #endif
+#if defined(MOD_BALANCE_CORE_HAPPINESS_LUXURY)
+	LUAAPIEXTN(GetPopNeededForLux, int);
+	LUAAPIEXTN(GetCurrentTotalPop, int);
+#endif
+#if defined(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
+	LUAAPIEXTN(CalculateUnhappinessTooltip, int);
+#endif
 	static int lGetMinorCivFriendshipLevelWithMajor(lua_State* L);
 	static int lGetActiveQuestForPlayer(lua_State* L); // DEPRECATED
 	static int lIsMinorCivActiveQuestForPlayer(lua_State* L);

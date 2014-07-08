@@ -336,6 +336,25 @@ void CvHomelandAI::EstablishHomelandPriorities()
 			{
 				iPriority = GC.getAI_HOMELAND_MOVE_PRIORITY_GARRISON();
 			}
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+			if(MOD_BALANCE_CORE_HAPPINESS && iPriority != (GC.getAI_HOMELAND_MOVE_PRIORITY_SENTRY() + 1))
+			{
+				//If any of our cities need a garrison, this should win out.
+				AICityStrategyTypes eStrategyNeedDefense = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_NEED_HAPPINESS_DEFENSE");
+				CvCity* pLoopCity;
+				int iCityLoop;
+				for(pLoopCity = m_pPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iCityLoop))
+				{
+					if(pLoopCity != NULL)
+					{
+						if(pLoopCity->GetCityStrategyAI()->IsUsingCityStrategy(eStrategyNeedDefense))
+						{
+							iPriority = GC.getAI_HOMELAND_MOVE_PRIORITY_SENTRY() + 1;
+						}
+					}
+				}
+			}
+#endif
 			break;
 		case AI_HOMELAND_MOVE_HEAL:
 			iPriority = GC.getAI_HOMELAND_MOVE_PRIORITY_HEAL();

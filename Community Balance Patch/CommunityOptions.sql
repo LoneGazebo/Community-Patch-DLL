@@ -11,6 +11,24 @@ All options below are preset to the default values of this mod.
 -- If you have not read the instructions above, please do so now!
 
 /*
+Enables Support for City-State Diplomacy Mod
+1 = Enabled (Default)
+0 = Disabled 
+*/
+
+INSERT INTO COMMUNITY (Type, Value)
+VALUES ('COMMUNITY_CSD_COMPATIBILITY', 1);
+
+/*
+Enables Support for Civ 4 Diplomacy Features Mod
+1 = Enabled (Default)
+0 = Disabled 
+*/
+
+INSERT INTO COMMUNITY (Type, Value)
+VALUES ('COMMUNITY_CIVIVDF_COMPATIBILITY', 1);
+
+/*
 Changes to Civilization Traits
 1 = Enabled (Default)
 0 = Disabled 
@@ -28,7 +46,6 @@ Changes to Promotions
 INSERT INTO COMMUNITY (Type, Value)
 VALUES ('COMMUNITY_CORE_BALANCE_PROMOTIONS', 0);
 
-
 /*
 COMMUNITY Global Difficulty Option
 1 = Global Difficulty Enabled (Default)
@@ -40,9 +57,9 @@ VALUES ('BALANCE_GLOBAL_DIFFICULTY_OPTION', 1);
 
 /*
 COMMUNITY Global Difficulty Level
-0 = Global Difficulty - Disabled (Default)
+0 = Global Difficulty - Disabled 
 1 = Global Difficulty - King
-2 = Global Difficulty - Emperor 
+2 = Global Difficulty - Emperor (Default)
 3 = Global Difficulty - Immortal
 4 = Global Difficulty - Deity
 */
@@ -52,8 +69,8 @@ VALUES ('BALANCE_GLOBAL_DIFFICULTY_LEVEL', 2);
 
 /*
 Changes to Settlers
-0 = Boring Ol' Vanilla (Default)
-1 = Pioneers and Colonists! (DO NOT ENABLE)
+0 = Boring Ol' Vanilla (Careful)
+1 = Pioneers and Colonists! (Default)
 */
 
 INSERT INTO COMMUNITY (Type, Value)
@@ -95,3 +112,36 @@ Luxury Happiness Tweaks - Allows for scaling happiness bonuses for luxury bonuse
 
 INSERT INTO COMMUNITY (Type, Value)
 VALUES ('COMMUNITY_CORE_BALANCE_LUXURY_HAPPINESS', 1);
+
+/*
+National Wonder Tweaks - National Wonders now require a certain amount of national population instead of buildings in every city.
+1 = Enabled (Default)
+0 = Disabled 
+*/
+
+INSERT INTO COMMUNITY (Type, Value)
+VALUES ('COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS', 1);
+
+/*
+Wonder Consolation Tweaks - Wonders grant different yields if you are beaten to them by another player Choose one value below.
+1 = Gold
+2 = Culture (Default)
+3 = Golden Age Points
+4 = Science
+5 = Faith
+*/
+
+INSERT INTO COMMUNITY (Type, Value)
+VALUES ('COMMUNITY_CORE_BALANCE_WONDER_CONSOLATION_TWEAK', 2);
+
+/*
+Wonder Consolation Tweaks Enabler - Wonders grant different yields if you are beaten to them by another player Choose one value below.
+0 = Disabled
+1 = Enabled (Default)
+*/
+
+INSERT INTO COMMUNITY (Type, Value)
+VALUES ('COMMUNITY_CORE_BALANCE_WONDER_CONSOLATION_TWEAK_ENABLER', 1);
+
+
+
