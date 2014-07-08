@@ -5,9 +5,9 @@
     <ProjectGuid>{0d66d522-b624-4bc5-acfe-15a0c5b729f4}</ProjectGuid>
     <Name>Community Balance Patch</Name>
     <Guid>8411a7a8-dad3-4622-a18e-fcc18324c799</Guid>
-    <ModVersion>3</ModVersion>
+    <ModVersion>3.1</ModVersion>
     <Stability>Experimental</Stability>
-    <Teaser>The Complete Civ 5 Experience (v. 3) - Updated 7/6</Teaser>
+    <Teaser>The Complete Civ 5 Experience (v. 3.1) - Updated 7/7</Teaser>
     <Description>Community Balance Patch - Contains balance changes and support for CSD/CivIV Diplomacy.</Description>
     <Authors>Civfanatics Community Balance Team</Authors>
     <SpecialThanks>
@@ -125,6 +125,11 @@
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
         <FileName>Modular Elements/WonderConsolation/WonderConsolation.sql</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>Mod Compatibility/CSDChanges.sql</FileName>
       </Action>
     </ModActions>
     <Homepage>

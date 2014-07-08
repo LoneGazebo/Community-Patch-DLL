@@ -76,7 +76,7 @@
 -- Maximum happiness penalty % mod. (Should always be a negative value)
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_HAPPINESS_PENALTY_MAXIMUM', '-20'
+	SELECT 'BALANCE_HAPPINESS_PENALTY_MAXIMUM', '-15'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
 
 -- Minimum happiness penalty % mod.
@@ -100,7 +100,7 @@
 -- Science % point per happiness mod (should always be a positive value).
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_HAPPINESS_SCIENCE_MODIFIER', '3'
+	SELECT 'BALANCE_HAPPINESS_SCIENCE_MODIFIER', '2'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
  
 --Gold % point per happiness mod (should always be a positive value).
@@ -112,7 +112,7 @@
 --Gold % point per happiness mod (should always be a positive value).
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_HAPPINESS_GOLD_MODIFIER', '3'
+	SELECT 'BALANCE_HAPPINESS_GOLD_MODIFIER', '2'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
 
 -- Production % point per happiness mod (should always be a positive value).

@@ -23,15 +23,15 @@
 	WHERE Tag = 'TXT_KEY_POP_UNHAPPINESS_TT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 	UPDATE Language_en_US
-	SET Text = 'Every (non-occupied) City produces 1 [ICON_HAPPINESS_4] Unhappiness, plus 5% more per Era.'
+	SET Text = 'Every (non-occupied) City produces 1 [ICON_HAPPINESS_4] Unhappiness, plus an additional amount based on the current Era and the number of Cities you own.'
 	WHERE Tag = 'TXT_KEY_NUMBER_OF_CITIES_TT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 	UPDATE Language_en_US
-	SET Text = 'Every (non-occupied) City produces 1 [ICON_HAPPINESS_4] Unhappiness, plus 5% more per Era (Normally).'
+	SET Text = 'Every (non-occupied) City produces 1 [ICON_HAPPINESS_4] Unhappiness, plus an additional amount based on the current Era and the number of Cities you own (Normally).'
 	WHERE Tag = 'TXT_KEY_NUMBER_OF_CITIES_TT_NORMALLY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 	UPDATE Language_en_US
-	SET Text = 'Every [ICON_OCCUPIED] Occupied City produces 3 [ICON_HAPPINESS_4] Unhappiness, plus 5% more per Era (Normally).'
+	SET Text = 'Every [ICON_OCCUPIED] Occupied City produces 3 [ICON_HAPPINESS_4] Unhappiness, plus an additional amount based on the current Era and the number of Cities you own.'
 	WHERE Tag = 'TXT_KEY_NUMBER_OF_OCCUPIED_CITIES_TT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 	UPDATE Language_en_US
@@ -56,14 +56,14 @@
 
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_HAPPINESS_ERA_BASE_INCREASE_CITY_COUNT', '10'
+	SELECT 'BALANCE_HAPPINESS_ERA_BASE_INCREASE_CITY_COUNT', '5'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
--- Maximum amount of a city's population that can cause unhappiness from any given test below (number below is % of population). So, 40 = max of 40% of a city's population can be unhappy from a single test.
+-- Maximum amount of a city's population that can cause unhappiness from any given test below (number below is % of population). So, 70 = max of 70% of a city's population can be used to calculate the threshold for a single test.
 
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_MAX_UNHAPPY_PER_CITY_YIELD', '40'
+	SELECT 'BALANCE_MAX_UNHAPPY_PER_CITY_YIELD', '70'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 	
 -- The values below affect local happiness from cities.
@@ -77,13 +77,13 @@
 -- Unhappiness point per starving citizen. This can compound, so be careful.
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_UNHAPPINESS_FROM_STARVING_PER_POP', '0.33'
+	SELECT 'BALANCE_UNHAPPINESS_FROM_STARVING_PER_POP', '0.25'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 -- Unhappiness point per pillaged plot owned by city.
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_UNHAPPINESS_PER_PILLAGED', '0.33'
+	SELECT 'BALANCE_UNHAPPINESS_PER_PILLAGED', '0.25'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 -- Unhappiness point per pop if unconnected or blockaded.
@@ -109,13 +109,13 @@
 -- Value is multiplied by city population - if defense rate from buildings + garrison for city is lower than value, unhappiness is calculated based on the remainder (threshold - defense).
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_UNHAPPINESS_PER_DEFENSE_THRESHOLD', '65'
+	SELECT 'BALANCE_UNHAPPINESS_PER_DEFENSE_THRESHOLD', '40'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 -- Unhappiness point per citizen over defense threshold. Value is multiplied by remainder from threshold calculation.
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_UNHAPPINESS_PER_DEFENSE_RATE', '1.25'
+	SELECT 'BALANCE_UNHAPPINESS_PER_DEFENSE_RATE', '1.00'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 -- Unhappiness point per culture + science threshold (i.e. culture + science rate needed per citizen before unhappiness kicks in).
@@ -128,5 +128,5 @@
 -- Unhappiness point per citizen over culture threshold. Value is multiplied by remainder from threshold calculation.
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_UNHAPPINESS_PER_CULTURE_RATE', '1.25'
+	SELECT 'BALANCE_UNHAPPINESS_PER_CULTURE_RATE', '1.00'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );

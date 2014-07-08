@@ -646,8 +646,9 @@ function GoldTipHandler( control )
 	end
 -- COMMUNITY PATCH CHANGE
 	-- Gold % lost from unhappiness
+	local iGoldChange = (pPlayer:CalculateUnhappinessTooltip(YieldTypes.YIELD_GOLD) / 100);
 	if (iGoldChange < 0) then
-		strText = strText .. "[NEWLINE]  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_GOLD_LOST_FROM_UNHAPPINESS", iGoldChange);
+		strText = strText .. "[NEWLINE]  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_GOLD_LOST_FROM_UNHAPPINESS", (iGoldChange * -1));
 	end
 --END
 	strText = strText .. "[/COLOR]";

@@ -20,16 +20,6 @@ INSERT INTO COMMUNITY (Type, Value)
 VALUES ('COMMUNITY_CSD_COMPATIBILITY', 1);
 
 /*
-National Wonder Tweaks (CSD) - National Wonders now require a certain amount of national population instead of buildings in every city.
-DO NOT ENABLE WITHOUT ENABLING COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS (BELOW) AS WELL!
-1 = Enabled (Default)
-0 = Disabled 
-*/
-
-INSERT INTO COMMUNITY (Type, Value)
-VALUES ('COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS_CSD', 1);
-
-/*
 Enables Support for Civ 4 Diplomacy Features Mod
 1 = Enabled (Default)
 0 = Disabled 
