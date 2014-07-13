@@ -1,0 +1,1109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameData>
+	<!--	America
+	-->
+	<Leader_Traits>		
+		<Update>
+			<Where LeaderType="LEADER_WASHINGTON" />
+			<Set TraitType="TRAIT_AMERICAN_DREAM" />
+		</Update>		
+	</Leader_Traits>
+	<Traits>
+		<Row>
+			<Type>TRAIT_AMERICAN_DREAM</Type>
+			<Description>TXT_KEY_TRAIT_AMERICAN_DREAM</Description>
+			<ShortDescription>TXT_KEY_TRAIT_AMERICAN_DREAM_SHORT</ShortDescription>
+			<ImmigrationFrequency>10</ImmigrationFrequency>
+		</Row>
+	</Traits>	
+	<Buildings>
+		<Row>
+			<Type>BUILDING_NASA_CENTER</Type>
+			<BuildingClass>BUILDINGCLASS_LABORATORY</BuildingClass>
+			<Cost>420</Cost>
+			<GoldMaintenance>8</GoldMaintenance>
+			<PrereqTech>TECH_PLASTIC</PrereqTech>
+			<Help>TXT_KEY_BUILDING_NASA_CENTER_HELP</Help>
+			<Description>TXT_KEY_BUILDING_NASA_CENTER</Description>
+			<Civilopedia>TXT_KEY_BUILDING_NASA_CENTER_PEDIA</Civilopedia>
+			<ArtDefineTag>ART_DEF_BUILDING_LABORATORY</ArtDefineTag>
+			<FreeBuildingThisCity>BUILDINGCLASS_SPACESHIP_FACTORY</FreeBuildingThisCity>
+			<MinAreaSize>-1</MinAreaSize>
+			<ConquestProb>66</ConquestProb>
+			<HurryCostModifier>0</HurryCostModifier>
+			<IconAtlas>BW_ATLAS_2</IconAtlas>
+			<PortraitIndex>33</PortraitIndex>
+		</Row>
+	</Buildings>
+	<!--<Building_YieldSurplusModifiers>
+		<Row>
+			<BuildingType>BUILDING_NASA_CENTER</BuildingType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Yield>4</Yield>
+		</Row>
+	</Building_YieldSurplusModifiers>-->
+	<Building_YieldModifiers>
+		<Row>
+			<BuildingType>BUILDING_NASA_CENTER</BuildingType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Yield>50</Yield>
+		</Row>
+	</Building_YieldModifiers>
+	<Building_YieldInstant>
+		<Row>
+			<BuildingType>BUILDING_NASA_CENTER</BuildingType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Yield>4000</Yield>
+		</Row>
+	</Building_YieldInstant>
+	<Building_ClassesNeededInCity>
+		<Row>
+			<BuildingType>BUILDING_NASA_CENTER</BuildingType>
+			<BuildingClassType>BUILDINGCLASS_PUBLIC_SCHOOL</BuildingClassType>
+		</Row>
+	</Building_ClassesNeededInCity>
+	<Civilization_BuildingClassOverrides>
+		<Row>
+			<CivilizationType>CIVILIZATION_AMERICA</CivilizationType>
+			<BuildingClassType>BUILDINGCLASS_LABORATORY</BuildingClassType>
+			<BuildingType>BUILDING_NASA_CENTER</BuildingType>
+		</Row>
+	</Civilization_BuildingClassOverrides>
+	<Civilization_UnitClassOverrides>
+		<Delete UnitType="UNIT_AMERICAN_B17" />
+	</Civilization_UnitClassOverrides>
+	<Units>
+		<Update>
+			<Where Type="UNIT_AMERICAN_B17" />
+			<Set ShowInPedia="0" />
+		</Update>
+	</Units>
+	<Unit_FreePromotions>
+		<Delete UnitType="UNIT_AMERICAN_MINUTEMAN"/>
+		<Row>
+			<UnitType>UNIT_AMERICAN_MINUTEMAN</UnitType>
+			<PromotionType>PROMOTION_SCOUTING_1</PromotionType>
+		</Row>
+	</Unit_FreePromotions>
+	
+
+
+
+	<!--	Arabia
+	-->
+	<Trait_ResourceQuantityModifiers>
+		<Delete TraitType="TRAIT_LAND_TRADE_GOLD" />
+	</Trait_ResourceQuantityModifiers>
+	<Traits>
+		<Update>
+			<Where Type="TRAIT_LAND_TRADE_GOLD" />
+			<Set LandTradeRouteRangeBonus="10"
+				 TradeReligionModifier="100"
+				 ShortDescription="TXT_KEY_TRAIT_LAND_TRADE_GOLD_SHORT"
+				 Description="TXT_KEY_TRAIT_LAND_TRADE_GOLD"
+				 />
+		</Update>
+	</Traits>
+	<Buildings>
+		<Update>
+			<Where Type="BUILDING_BAZAAR" />
+			<Set ExtraLuxuries="false"
+				 />
+		</Update>
+	</Buildings>
+	<Building_YieldChanges>
+		<Row>
+			<BuildingType>BUILDING_BAZAAR</BuildingType>
+			<YieldType>YIELD_FAITH</YieldType>
+			<Yield>5</Yield>
+		</Row>
+	</Building_YieldChanges>
+	
+	
+	<!--	Assyria
+	-->
+	<Civilization_Start_Region_Avoid>
+		<Delete CivilizationType="CIVILIZATION_ASSYRIA"/>
+	</Civilization_Start_Region_Avoid>
+
+
+
+	<!--	Austria-->
+	
+
+	<!--<Civilization_UnitClassOverrides>
+		<Delete UnitType="UNIT_AUSTRIAN_HUSSAR" />		
+		<Row>
+			<CivilizationType>CIVILIZATION_AUSTRIA</CivilizationType>
+			<UnitClassType>UNITCLASS_LANCER</UnitClassType>
+			<UnitType>UNIT_AUSTRIAN_HUSSAR</UnitType>
+		</Row>
+	</Civilization_UnitClassOverrides>
+	
+	
+	<Unit_ClassUpgrades>
+		
+		<Row>
+			<UnitType>UNIT_AUSTRIAN_HUSSAR</UnitType>
+			<UnitClassType>UNITCLASS_WWI_TANK</UnitClassType>
+		</Row>
+	</Unit_ClassUpgrades>-->
+	<Building_YieldModifiers>
+		<Delete BuildingType="BUILDING_COFFEE_HOUSE" />
+		<Row>
+			<BuildingType>BUILDING_COFFEE_HOUSE</BuildingType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>10</Yield>
+		</Row>
+	</Building_YieldModifiers>
+
+
+
+	<!--	Aztecs
+	-->
+
+
+
+
+	<!--	Babylon
+	-->
+	<Traits>
+		<Update>
+			<Where Type="TRAIT_INGENIOUS" />
+			<Set GreatScientistRateModifier="25" />
+		</Update>
+	</Traits>
+	<Building_YieldChanges>
+		<Row>
+			<BuildingType>BUILDING_WALLS_OF_BABYLON</BuildingType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Yield>2</Yield>
+		</Row>
+	</Building_YieldChanges>
+
+
+
+	<!--	Brazil
+	-->
+	<Traits>
+		<Update>
+			<Where Type="TRAIT_CARNIVAL" />
+			<Set GoldenAgeGreatArtistRateModifier="100"
+				 GoldenAgeGreatMusicianRateModifier="100"
+				 GoldenAgeGreatWriterRateModifier="100"
+				 />
+		</Update>
+	</Traits>
+	<Improvement_TechYieldChanges>
+		<Update>
+			<Where ImprovementType="IMPROVEMENT_BRAZILWOOD_CAMP" TechType="TECH_ACOUSTICS" />
+			<Set TechType="TECH_ARCHITECTURE" />
+		</Update>
+	</Improvement_TechYieldChanges>
+
+
+
+
+	<!--	Byzantium
+	-->
+	<Buildings>
+		<Row>
+			<Type>BUILDING_BASILICA</Type>
+			<BuildingClass>BUILDINGCLASS_TEMPLE</BuildingClass>
+			<MaxStartEra>ERA_RENAISSANCE</MaxStartEra>
+			<Cost>80</Cost>
+			<GoldMaintenance>1</GoldMaintenance>
+			<PrereqTech>TECH_CALENDAR</PrereqTech>
+			<Description>TXT_KEY_BUILDING_BASILICA</Description>
+			<Civilopedia>TXT_KEY_BUILDING_BASILICA_PEDIA</Civilopedia>
+			<ArtDefineTag>TEMPLE</ArtDefineTag>
+			<MinAreaSize>-1</MinAreaSize>
+			<HurryCostModifier>25</HurryCostModifier>
+			<IconAtlas>TECH_ATLAS_2</IconAtlas>
+			<PortraitIndex>14</PortraitIndex>
+		</Row>
+	</Buildings>	
+	<Building_YieldChanges>
+		<Row>
+			<BuildingType>BUILDING_BASILICA</BuildingType>
+			<YieldType>YIELD_FAITH</YieldType>
+			<Yield>2</Yield>
+		</Row>
+	</Building_YieldChanges>
+	<Building_YieldInstant>
+		<Row>
+			<BuildingType>BUILDING_BASILICA</BuildingType>
+			<YieldType>YIELD_FAITH</YieldType>
+			<Yield>25</Yield>
+		</Row>
+	</Building_YieldInstant>
+	<Civilization_UnitClassOverrides>
+		<Delete UnitType="UNIT_BYZANTINE_CATAPHRACT" />
+	</Civilization_UnitClassOverrides>
+	<Civilization_BuildingClassOverrides>
+		<Row>
+			<CivilizationType>CIVILIZATION_BYZANTIUM</CivilizationType>
+			<BuildingClassType>BUILDINGCLASS_TEMPLE</BuildingClassType>
+			<BuildingType>BUILDING_BASILICA</BuildingType>
+		</Row>
+	</Civilization_BuildingClassOverrides>
+	<Units>
+		<Update>
+			<Where Type="UNIT_BYZANTINE_CATAPHRACT" />
+			<Set ShowInPedia="0" />
+		</Update>
+	</Units>
+
+
+
+	<!--	Carthage
+	-->
+	<Buildings>
+		<Row>
+			<Type>BUILDING_COTHON</Type>
+			<BuildingClass>BUILDINGCLASS_LIGHTHOUSE</BuildingClass>
+			<FreeStartEra>ERA_RENAISSANCE</FreeStartEra>
+			<Cost>75</Cost>
+			<GoldMaintenance>3</GoldMaintenance>
+			<PrereqTech>TECH_OPTICS</PrereqTech>
+			<Description>TXT_KEY_BUILDING_COTHON</Description>
+			<Civilopedia>TXT_KEY_BUILDING_COTHON_PEDIA</Civilopedia>
+			<ArtDefineTag>LIGHTHOUSE</ArtDefineTag>
+			<Water>true</Water>
+			<MinAreaSize>10</MinAreaSize>
+			<ArtInfoEraVariation>true</ArtInfoEraVariation>
+			<DisplayPosition>8</DisplayPosition>
+			<IconAtlas>TECH_ATLAS_1</IconAtlas>
+			<PortraitIndex>13</PortraitIndex>
+		</Row>
+	</Buildings>
+	<Building_SeaPlotYieldChanges>
+		<Row>
+			<BuildingType>BUILDING_COTHON</BuildingType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+	</Building_SeaPlotYieldChanges>	
+	<Building_ResourceQuantity>
+		<Row>
+			<BuildingType>BUILDING_COTHON</BuildingType>
+			<ResourceType>RESOURCE_TYRIAN_PURPLE</ResourceType>
+			<Quantity>1</Quantity>
+		</Row>
+	</Building_ResourceQuantity>
+	<Civilization_BuildingClassOverrides>
+		<Row>
+			<CivilizationType>CIVILIZATION_CARTHAGE</CivilizationType>
+			<BuildingClassType>BUILDINGCLASS_LIGHTHOUSE</BuildingClassType>
+			<BuildingType>BUILDING_COTHON</BuildingType>
+		</Row>
+	</Civilization_BuildingClassOverrides>
+	<Civilization_UnitClassOverrides>
+		<Delete UnitType="UNIT_CARTHAGINIAN_QUINQUEREME" />
+	</Civilization_UnitClassOverrides>
+	<Units>
+		<Update>
+			<Where Type="UNIT_CARTHAGINIAN_QUINQUEREME" />
+			<Set ShowInPedia="0" />
+		</Update>
+	</Units>
+
+
+	<!--	Celts
+	-->
+	<Traits>
+		<Update>
+			<Where Type="TRAIT_FAITH_FROM_NATURE" />
+			<Set NaturalWonderYieldModifier="50"
+				 FaithFromUnimprovedForest="0"
+				 />
+		</Update>
+	</Traits>
+	<Trait_UnimprovedFeatureYieldChanges>
+		<Row>
+			<TraitType>TRAIT_FAITH_FROM_NATURE</TraitType>
+			<FeatureType>FEATURE_FOREST</FeatureType>
+			<YieldType>YIELD_FAITH</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<TraitType>TRAIT_FAITH_FROM_NATURE</TraitType>
+			<FeatureType>FEATURE_JUNGLE</FeatureType>
+			<YieldType>YIELD_FAITH</YieldType>
+			<Yield>1</Yield>
+		</Row>
+	</Trait_UnimprovedFeatureYieldChanges>
+	<Buildings>
+		<!-- Error: Buildings with FaithCost do not check Civilization_BuildingClassOverrides table! -->
+		<Row>
+			<Type>BUILDING_ABBEY</Type>
+			<BuildingClass>BUILDINGCLASS_TEMPLE</BuildingClass>
+			<MaxStartEra>ERA_RENAISSANCE</MaxStartEra>
+			<Cost>105</Cost>
+			<FaithCost>210</FaithCost>
+			<UnlockedByBelief>true</UnlockedByBelief>
+			<GoldMaintenance>2</GoldMaintenance>
+			<PrereqTech>TECH_PHILOSOPHY</PrereqTech>
+			<Description>TXT_KEY_BUILDING_ABBEY</Description>
+			<Civilopedia>TXT_KEY_BUILDING_ABBEY_PEDIA</Civilopedia>
+			<Strategy>TXT_KEY_BUILDING_ABBEY_STRATEGY</Strategy>
+			<ArtDefineTag>TEMPLE</ArtDefineTag>
+			<MinAreaSize>-1</MinAreaSize>
+			<HurryCostModifier>25</HurryCostModifier>
+			<IconAtlas>EXPANSION_SCEN_BUILDING_ATLAS</IconAtlas>
+			<PortraitIndex>0</PortraitIndex>
+			<NeverCapture>true</NeverCapture>
+		</Row>
+		<Update>
+			<Where Type="BUILDING_CEILIDH_HALL" />
+			<Set IsVisible="0"
+				 ShowInPedia="0"
+				 />
+		</Update>
+	</Buildings>
+	<Building_YieldChanges>
+		<Row>
+			<BuildingType>BUILDING_ABBEY</BuildingType>
+			<YieldType>YIELD_FAITH</YieldType>
+			<Yield>2</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_ABBEY</BuildingType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_ABBEY</BuildingType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_ABBEY</BuildingType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_ABBEY</BuildingType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_ABBEY</BuildingType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>1</Yield>
+		</Row>
+	</Building_YieldChanges>
+	<Civilization_BuildingClassOverrides>
+		<Delete BuildingType="BUILDING_CEILIDH_HALL" />
+		<Row>
+			<CivilizationType>CIVILIZATION_CELTS</CivilizationType>
+			<BuildingClassType>BUILDINGCLASS_TEMPLE</BuildingClassType>
+			<BuildingType>BUILDING_ABBEY</BuildingType>
+		</Row>
+	</Civilization_BuildingClassOverrides>
+	<Unit_FreePromotions>
+		<Delete UnitType="UNIT_CELT_PICTISH_WARRIOR" PromotionType="PROMOTION_FOREIGN_LANDS"/>
+		<Row>
+			<UnitType>UNIT_CELT_PICTISH_WARRIOR</UnitType>
+			<PromotionType>PROMOTION_HILL_FIGHTER</PromotionType>
+		</Row>
+	</Unit_FreePromotions>
+	<Civilization_Start_Region_Priority>
+		<Delete CivilizationType="CIVILIZATION_CELTS"/>
+		<Row>
+			<CivilizationType>CIVILIZATION_CELTS</CivilizationType>
+			<RegionType>REGION_FOREST</RegionType>
+		</Row>
+		<Row>
+			<CivilizationType>CIVILIZATION_CELTS</CivilizationType>
+			<RegionType>REGION_JUNGLE</RegionType>
+		</Row>
+	</Civilization_Start_Region_Priority>
+	
+	
+	
+	
+
+
+	<!--	China
+	-->
+	<Building_YieldInstant>
+		<Row>
+			<BuildingType>BUILDING_PAPER_MAKER</BuildingType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Yield>200</Yield>
+		</Row>
+	</Building_YieldInstant>
+	<Building_YieldModifiers>
+		<Row>
+			<BuildingType>BUILDING_PAPER_MAKER</BuildingType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>10</Yield>
+		</Row>
+	</Building_YieldModifiers>
+	<Traits>
+		<Update>
+			<Where Type="TRAIT_ART_OF_WAR" />
+			<Set GreatGeneralExtraBonus="10"
+				 GreatGeneralRateModifier="0"
+				 ExtraSpies="1"
+				 />
+			<!-- 20 -->
+		</Update>
+	</Traits>
+	<Trait_FreePromotionUnitCombats>
+		<Row>
+			<TraitType>TRAIT_ART_OF_WAR</TraitType>
+			<UnitCombatType>UNITCOMBAT_COMMAND</UnitCombatType>
+			<PromotionType>PROMOTION_EXTRA_SIGHT_NOUPGRADE_II</PromotionType>
+		</Row>
+	</Trait_FreePromotionUnitCombats>
+	
+	
+	
+	
+	
+
+	<!--	Denmark
+	-->
+	<Buildings>
+		<Row>
+			<Type>BUILDING_JELLING_STONES</Type>
+			<BuildingClass>BUILDINGCLASS_HEROIC_EPIC</BuildingClass>
+			<Cost>160</Cost>
+			<PrereqTech>TECH_IRON_WORKING</PrereqTech>
+			<Description>TXT_KEY_BUILDING_JELLING_STONES</Description>
+			<Civilopedia>TXT_KEY_BUILDING_JELLING_STONES_PEDIA</Civilopedia>
+			<ArtDefineTag>ART_DEF_BUILDING_JELLING_STONES</ArtDefineTag>
+			<TrainedFreePromotion>PROMOTION_MORALE</TrainedFreePromotion>
+			<NukeImmune>true</NukeImmune>
+			<HurryCostModifier>-1</HurryCostModifier>
+			<MinAreaSize>-1</MinAreaSize>
+			<CityCaptureCulture>100</CityCaptureCulture>
+			<CityCaptureCulturePerPop>10</CityCaptureCulturePerPop>
+			<CityCaptureCulturePerEra>50</CityCaptureCulturePerEra>
+			<GreatWorkSlotType>GREAT_WORK_SLOT_LITERATURE</GreatWorkSlotType>
+			<GreatWorkCount>1</GreatWorkCount>
+			<NeverCapture>true</NeverCapture>
+			<IconAtlas>CEP_BUILDING_ATLAS</IconAtlas>
+			<PortraitIndex>5</PortraitIndex>
+		</Row>
+	</Buildings>
+	<Civilization_UnitClassOverrides>
+		<Delete UnitType="UNIT_DANISH_SKI_INFANTRY" />
+	</Civilization_UnitClassOverrides>
+	<Civilization_BuildingClassOverrides>
+		<Row>
+			<CivilizationType>CIVILIZATION_DENMARK</CivilizationType>
+			<BuildingClassType>BUILDINGCLASS_HEROIC_EPIC</BuildingClassType>
+			<BuildingType>BUILDING_JELLING_STONES</BuildingType>
+		</Row>
+	</Civilization_BuildingClassOverrides>
+	<Traits>
+		<Update>
+			<Where Type="TRAIT_VIKING_FURY" />
+			<Set ExtraEmbarkMoves="2" />
+		</Update>
+	</Traits>
+	<Units>
+		<Update>
+			<Where Type="UNIT_DANISH_SKI_INFANTRY" />
+			<Set ShowInPedia="0" />
+		</Update>
+	</Units>
+	
+	<Unit_FreePromotions>
+		<Row>
+			<UnitType>UNIT_DANISH_BERSERKER</UnitType>
+			<PromotionType>PROMOTION_CHARGE</PromotionType>
+		</Row>
+	</Unit_FreePromotions>
+
+
+	<!--	Egypt
+	-->
+	<Buildings>
+		<Row>
+			<Type>BUILDING_BASIN_IRRIGATION</Type>
+			<BuildingClass>BUILDINGCLASS_AQUEDUCT</BuildingClass>
+			<Cost>100</Cost>
+			<GoldMaintenance>2</GoldMaintenance>
+			<PrereqTech>TECH_ENGINEERING</PrereqTech>
+			<Description>TXT_KEY_BUILDING_BASIN_IRRIGATION</Description>
+			<Civilopedia>TXT_KEY_BUILDING_BASIN_IRRIGATION_PEDIA</Civilopedia>
+			<ArtDefineTag>ART_DEF_BUILDING_HOSPITAL</ArtDefineTag>
+			<FoodKept>40</FoodKept>
+			<MinAreaSize>-1</MinAreaSize>
+			<ConquestProb>66</ConquestProb>
+			<IconAtlas>TECH_ATLAS_1</IconAtlas>
+			<PortraitIndex>0</PortraitIndex>
+		</Row>
+		<Update>
+			<Where Type="BUILDING_BURIAL_TOMB" />
+			<Set IsVisible="0"
+				 ShowInPedia="0"
+				 />
+		</Update>
+	</Buildings>
+	<Building_YieldChanges>
+		<Row>
+			<BuildingType>BUILDING_BASIN_IRRIGATION</BuildingType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>2</Yield>
+		</Row>
+	</Building_YieldChanges>
+	<Building_RiverPlotYieldChanges>
+		<Row>
+			<BuildingType>BUILDING_BASIN_IRRIGATION</BuildingType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+	</Building_RiverPlotYieldChanges>
+	<Building_FeatureYieldChanges>
+		<Row>
+			<BuildingType>BUILDING_BASIN_IRRIGATION</BuildingType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<FeatureType>FEATURE_OASIS</FeatureType>
+			<Yield>2</Yield>
+		</Row>
+	</Building_FeatureYieldChanges>
+	<Civilization_Start_Region_Avoid>
+		<Delete CivilizationType="CIVILIZATION_EGYPT"/>
+	</Civilization_Start_Region_Avoid>
+	<Civilization_BuildingClassOverrides>
+		<Delete BuildingType="BUILDING_BURIAL_TOMB" />
+		<Row>
+			<CivilizationType>CIVILIZATION_EGYPT</CivilizationType>
+			<BuildingClassType>BUILDINGCLASS_AQUEDUCT</BuildingClassType>
+			<BuildingType>BUILDING_BASIN_IRRIGATION</BuildingType>
+		</Row>
+	</Civilization_BuildingClassOverrides>
+	<Unit_FreePromotions>
+		<Row>
+			<UnitType>UNIT_EGYPTIAN_WARCHARIOT</UnitType>
+			<PromotionType>PROMOTION_DESERT_POWER</PromotionType>
+		</Row>
+	</Unit_FreePromotions>
+
+
+	<!--	England
+	-->
+	<Traits>
+		<Update>
+			<Where Type="TRAIT_OCEAN_MOVEMENT" />
+			<Set ExtraEmbarkMoves="0"
+				 ExtraSpies="0"
+				 />
+		</Update>
+	</Traits>
+	<!--<Trait_FreeExperience_Domains>
+		<Row>
+			<TraitType>TRAIT_OCEAN_MOVEMENT</TraitType>
+			<DomainType>DOMAIN_SEA</DomainType>
+			<Experience>30</Experience>
+		</Row>
+	</Trait_FreeExperience_Domains> 
+	<Trait_FreePromotionUnitCombats>
+		<Delete TraitType="TRAIT_OCEAN_MOVEMENT" />
+	</Trait_FreePromotionUnitCombats>-->
+	
+	<Units>
+		<Update>
+			<Where Type="UNIT_ENGLISH_LONGBOWMAN" />
+			<Set Range="3" />
+		</Update>
+	</Units>
+	<Unit_FreePromotions>
+		<Delete UnitType="UNIT_ENGLISH_LONGBOWMAN" PromotionType="PROMOTION_RANGE" />
+	</Unit_FreePromotions>
+	<Buildings>
+		<Row>
+			<Type>BUILDING_ENGLISH_STEAM_MILL</Type>
+			<BuildingClass>BUILDINGCLASS_FACTORY</BuildingClass>
+			<Cost>280</Cost>
+			<GoldMaintenance>3</GoldMaintenance>
+			<PrereqTech>TECH_STEAM_POWER</PrereqTech>
+			<Description>TXT_KEY_BUILDING_STEAM_MILL</Description>
+			<Civilopedia>TXT_KEY_BUILDING_STEAM_MILL_PEDIA</Civilopedia>
+			<ArtDefineTag>ART_DEF_BUILDING_FACTORY</ArtDefineTag>
+			<XBuiltTriggersIdeologyChoice>3</XBuiltTriggersIdeologyChoice>
+			<SpecialistType>SPECIALIST_ENGINEER</SpecialistType>
+			<MinAreaSize>-1</MinAreaSize>
+			<ConquestProb>66</ConquestProb>
+			<IconAtlas>BW_ATLAS_1</IconAtlas>
+			<PortraitIndex>4</PortraitIndex>
+		</Row>
+	</Buildings>
+	<Building_ClassesNeededInCity>
+		<Row>
+			<BuildingType>BUILDING_ENGLISH_STEAM_MILL</BuildingType>
+			<BuildingClassType>BUILDINGCLASS_WORKSHOP</BuildingClassType>
+		</Row>
+	</Building_ClassesNeededInCity>
+	<Building_ResourceQuantityRequirements>
+		<Row>
+			<BuildingType>BUILDING_ENGLISH_STEAM_MILL</BuildingType>
+			<ResourceType>RESOURCE_COAL</ResourceType>
+			<Cost>1</Cost>
+		</Row>
+	</Building_ResourceQuantityRequirements>
+
+	<Civilization_UnitClassOverrides>
+		<Delete UnitType="UNIT_ENGLISH_SHIPOFTHELINE" />
+	</Civilization_UnitClassOverrides>
+	<Units>
+		<Update>
+			<Where Type="UNIT_ENGLISH_SHIPOFTHELINE"/>
+			<Set ShowInPedia="0"/>
+		</Update>
+	</Units>
+	<Civilization_BuildingClassOverrides>
+		<Row>
+			<CivilizationType>CIVILIZATION_ENGLAND</CivilizationType>
+			<BuildingClassType>BUILDINGCLASS_FACTORY</BuildingClassType>
+			<BuildingType>BUILDING_ENGLISH_STEAM_MILL</BuildingType>
+		</Row>
+	</Civilization_BuildingClassOverrides>
+	<Building_YieldChanges>
+		<Row>
+			<BuildingType>BUILDING_ENGLISH_STEAM_MILL</BuildingType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>4</Yield>
+		</Row>
+	</Building_YieldChanges>
+	<Building_YieldModifiers>
+		<Row>
+			<BuildingType>BUILDING_ENGLISH_STEAM_MILL</BuildingType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>15</Yield>
+		</Row>
+	</Building_YieldModifiers>
+
+
+
+	<!--	Ethiopia
+	-->
+
+	<Building_YieldChangesPerPop>
+		<Row>
+			<BuildingType>BUILDING_STELE</BuildingType>
+			<YieldType>YIELD_FAITH</YieldType>
+			<Yield>50</Yield>
+		</Row>
+	</Building_YieldChangesPerPop>
+	<Traits>
+		<Update>
+			<Where Type="TRAIT_BONUS_AGAINST_TECH" />
+			<Set DOFGreatPersonModifier="25" />
+		</Update>
+	</Traits>
+
+
+	<!--	France
+	-->
+	<Unit_FreePromotions>
+		<Row>
+			<UnitType>UNIT_FRENCH_MUSKETEER</UnitType>
+			<PromotionType>PROMOTION_FOREIGN_LANDS</PromotionType>
+		</Row>
+	</Unit_FreePromotions>
+	<Traits>
+		<Update>
+			<Where Type="TRAIT_ENHANCED_CULTURE" />
+			<Set CapitalThemingBonusModifier="0"
+				 />
+		</Update>
+	</Traits>
+	<Trait_FreeUnitFromCapitalBuilding>
+		<Row>
+			<TraitType>TRAIT_ENHANCED_CULTURE</TraitType>
+			<BuildingClass>BUILDINGCLASS_MONUMENT</BuildingClass>
+			<UnitClass>UNITCLASS_ARTIST</UnitClass>
+		</Row>
+		<Row>
+			<TraitType>TRAIT_ENHANCED_CULTURE</TraitType>
+			<BuildingClass>BUILDINGCLASS_AMPHITHEATER</BuildingClass>
+			<UnitClass>UNITCLASS_WRITER</UnitClass>
+		</Row>
+		<Row>
+			<TraitType>TRAIT_ENHANCED_CULTURE</TraitType>
+			<BuildingClass>BUILDINGCLASS_OPERA_HOUSE</BuildingClass>
+			<UnitClass>UNITCLASS_MUSICIAN</UnitClass>
+		</Row>
+		<Row>
+			<TraitType>TRAIT_ENHANCED_CULTURE</TraitType>
+			<BuildingClass>BUILDINGCLASS_MUSEUM</BuildingClass>
+			<UnitClass>UNITCLASS_ARTIST</UnitClass>
+		</Row>
+		<Row>
+			<TraitType>TRAIT_ENHANCED_CULTURE</TraitType>
+			<BuildingClass>BUILDINGCLASS_BROADCAST_TOWER</BuildingClass>
+			<UnitClass>UNITCLASS_MUSICIAN</UnitClass>
+		</Row>
+	</Trait_FreeUnitFromCapitalBuilding>
+
+
+
+	<!--	Germany
+	-->
+	
+	<!-- Re-used the Russian trait to provide the doubled resources
+	-->
+	<Traits>
+		<Update>
+			<Where Type="TRAIT_STRATEGIC_RICHES" />
+			<Set HanseaticLeague="BUILDING_HANSEATIC_LEAGUE" />
+		</Update>
+	</Traits>
+	<Leader_Traits>
+		<Update>
+			<Where LeaderType="LEADER_BISMARCK" />
+			<Set TraitType="TRAIT_STRATEGIC_RICHES" />
+		</Update>
+	</Leader_Traits>
+	<!-- These 'Trait_ResourceQuantityModifiers' are reused in the Hanseatic League trait
+	-->
+	<Trait_ResourceQuantityModifiers>
+		<Row>
+			<TraitType>TRAIT_STRATEGIC_RICHES</TraitType>
+			<ResourceType>RESOURCE_COAL</ResourceType>
+			<ResourceQuantityModifier>100</ResourceQuantityModifier>
+		</Row>
+		<Row>
+			<TraitType>TRAIT_STRATEGIC_RICHES</TraitType>
+			<ResourceType>RESOURCE_OIL</ResourceType>
+			<ResourceQuantityModifier>100</ResourceQuantityModifier>
+		</Row>
+		<Row>
+			<TraitType>TRAIT_STRATEGIC_RICHES</TraitType>
+			<ResourceType>RESOURCE_ALUMINUM</ResourceType>
+			<ResourceQuantityModifier>100</ResourceQuantityModifier>
+		</Row>
+	</Trait_ResourceQuantityModifiers>
+	<BuildingClasses>
+		<Row>
+			<Type>BUILDINGCLASS_HANSEATIC_LEAGUE</Type>
+			<DefaultBuilding>BUILDING_HANSEATIC_LEAGUE</DefaultBuilding>
+			<Description>TXT_KEY_BUILDING_HANSEATIC_LEAGUE</Description>
+			<MaxPlayerInstances>0</MaxPlayerInstances>
+			<NoLimit>true</NoLimit>
+		</Row>
+	</BuildingClasses>
+	<Buildings>
+		<Row>
+			<Type>BUILDING_HANSEATIC_LEAGUE</Type>
+			<BuildingClass>BUILDINGCLASS_HANSEATIC_LEAGUE</BuildingClass>
+			<Cost>-1</Cost>
+			<Description>TXT_KEY_TRAIT_STRATEGIC_RICHES_SHORT</Description>
+			<Help>TXT_KEY_BUILDING_HANSEATIC_LEAGUE_HELP</Help>
+			<Strategy>TXT_KEY_BUILDING_HANSEATIC_LEAGUE_STRATEGY</Strategy>
+			<Civilopedia>TXT_KEY_TRAIT_STRATEGIC_RICHES</Civilopedia>
+			<AlwaysShowHelp>true</AlwaysShowHelp>
+			<ArtDefineTag>PALACE</ArtDefineTag>
+			<ExtraLeagueVotes>3</ExtraLeagueVotes>
+			<NukeImmune>true</NukeImmune>
+			<MinAreaSize>-1</MinAreaSize>
+			<DisplayPosition>32</DisplayPosition>
+			<NeverCapture>true</NeverCapture>
+			<PortraitIndex>23</PortraitIndex>
+			<IconAtlas>TECH_ATLAS_1</IconAtlas>
+			<IsVisible>0</IsVisible>
+			<ShowInPedia>0</ShowInPedia>
+		</Row>
+	</Buildings>
+	<Unit_FreePromotions>
+		<Row>
+			<UnitType>UNIT_GERMAN_LANDSKNECHT</UnitType>
+			<PromotionType>PROMOTION_MERCENARY</PromotionType>
+		</Row>
+	</Unit_FreePromotions>
+
+
+
+	<!--	Greece
+	-->
+	<Buildings>
+		<Row>
+			<Type>BUILDING_ODEON</Type>
+			<BuildingClass>BUILDINGCLASS_AMPHITHEATER</BuildingClass>
+			<Cost>90</Cost>
+			<GoldMaintenance>2</GoldMaintenance>
+			<PrereqTech>TECH_DRAMA</PrereqTech>
+			<Description>TXT_KEY_BUILDING_ODEON</Description>
+			<Civilopedia>TXT_KEY_BUILDING_ODEON_PEDIA</Civilopedia>
+			<Strategy>TXT_KEY_BUILDING_ODEON_STRATEGY</Strategy>
+			<ArtDefineTag>COLESSEUM</ArtDefineTag>
+			<GreatWorkSlotType>GREAT_WORK_SLOT_LITERATURE</GreatWorkSlotType>
+			<GreatWorkCount>1</GreatWorkCount>
+			<MinAreaSize>-1</MinAreaSize>
+			<HurryCostModifier>25</HurryCostModifier>
+			<NeverCapture>true</NeverCapture>
+			<IconAtlas>EXPANSION_BW_ATLAS_1</IconAtlas>
+			<PortraitIndex>0</PortraitIndex>
+		</Row>
+	</Buildings>
+	<Building_YieldChanges>
+		<Row>
+			<BuildingType>BUILDING_ODEON</BuildingType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>1</Yield>
+		</Row>
+	</Building_YieldChanges>
+	<Building_YieldInstant>
+		<Row>
+			<BuildingType>BUILDING_ODEON</BuildingType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>200</Yield>
+		</Row>
+	</Building_YieldInstant>
+	<Civilization_BuildingClassOverrides>
+		<Row>
+			<CivilizationType>CIVILIZATION_GREECE</CivilizationType>
+			<BuildingClassType>BUILDINGCLASS_AMPHITHEATER</BuildingClassType>
+			<BuildingType>BUILDING_ODEON</BuildingType>
+		</Row>
+	</Civilization_BuildingClassOverrides>
+	<Civilization_UnitClassOverrides>
+		<Delete UnitType="UNIT_GREEK_COMPANIONCAVALRY" />
+	</Civilization_UnitClassOverrides>
+	<Civilization_Start_Region_Avoid>
+		<Delete CivilizationType="CIVILIZATION_GREECE"/>
+	</Civilization_Start_Region_Avoid>
+	<Traits>
+		<Update>
+			<Where Type="TRAIT_CITY_STATE_FRIENDSHIP" />
+			<Set CityCultureBonus="2" />			
+		</Update>
+	</Traits>
+	<Units>
+		<Update>
+			<Where Type="UNIT_GREEK_COMPANIONCAVALRY" />
+			<Set ShowInPedia="0" />
+		</Update>
+	</Units>
+	<Unit_FreePromotions>
+		<Row>
+			<UnitType>UNIT_GREEK_HOPLITE</UnitType>
+			<PromotionType>PROMOTION_PHALANX</PromotionType>
+		</Row>
+		<Delete UnitType="UNIT_GREEK_HOPLITE" PromotionType="PROMOTION_ANTI_MOUNTED_II"/>
+	</Unit_FreePromotions>
+
+
+	<!--	Huns
+	-->
+	<Civilization_FreeTechs>
+		<Delete CivilizationType="CIVILIZATION_HUNS" TechType="TECH_ANIMAL_HUSBANDRY" />
+	</Civilization_FreeTechs>
+	<Civilization_Start_Region_Avoid>
+		<Delete CivilizationType="CIVILIZATION_HUNS"/>
+		<Row>
+			<CivilizationType>CIVILIZATION_HUNS</CivilizationType>
+			<RegionType>REGION_JUNGLE</RegionType>
+		</Row>
+		<Row>
+			<CivilizationType>CIVILIZATION_HUNS</CivilizationType>
+			<RegionType>REGION_TUNDRA</RegionType>
+		</Row>
+	</Civilization_Start_Region_Avoid>
+	<Defines>
+		<Update>
+			<Where Name="GOLD_FROM_BARBARIAN_CONVERSION" />
+			<Set Value="100" />
+			<!-- 25 -->
+		</Update>
+	</Defines>
+	<!-- Reused the old German trait called "Furor Teutonicus" or TRAIT_CONVERTS_LAND_BARBARIANS
+	-->
+	<Leader_Traits>
+		<Update>
+			<Where LeaderType="LEADER_ATTILA" />
+			<Set TraitType="TRAIT_CONVERTS_LAND_BARBARIANS" />
+		</Update>
+	</Leader_Traits>
+	<Traits>
+		<Update>
+			<Where Type="TRAIT_CONVERTS_LAND_BARBARIANS" />
+			<Set LandBarbarianConversionPercent="100"
+				 LandUnitMaintenanceModifier="-50"
+				 />
+		</Update>
+	</Traits>		
+	<Units>
+		<Update>
+			<Where Type="UNIT_HUN_BATTERING_RAM" />
+			<Set Moves="3"
+				 Combat="14"
+				 CombatClass="UNITCOMBAT_MELEE"
+				 />
+		</Update>
+	</Units>
+	<Unit_FreePromotions>
+		<Delete UnitType="UNIT_HUN_BATTERING_RAM" PromotionType="PROMOTION_DEFENSE_PENALTY" />
+		<Delete UnitType="UNIT_HUN_BATTERING_RAM" PromotionType="PROMOTION_CITY_ASSAULT" />
+		<Delete UnitType="UNIT_HUN_BATTERING_RAM" PromotionType="PROMOTION_CITY_BONUS_II" />
+		<Row>
+			<UnitType>UNIT_HUN_BATTERING_RAM</UnitType>
+			<PromotionType>PROMOTION_CITY_BONUS_III</PromotionType>
+		</Row>		
+	</Unit_FreePromotions>
+
+
+	<!--	Inca
+	-->
+
+
+
+
+	<!--	India
+	-->
+
+	<Traits>
+		<Update>
+			<Where Type="TRAIT_POPULATION_GROWTH" />
+			<Set CityUnhappinessModifier="0"
+				 PopulationUnhappinessModifier="0"
+				/>
+			<!-- 100, -50 -->
+		</Update>
+	</Traits>
+	<Buildings>
+		<Update>
+			<Where Type="BUILDING_MUGHAL_FORT" />
+			<Set PrereqTech="NULL"
+				 Cost="-1"
+				 IsVisible="0"
+				 ShowInPedia="0"
+				 />
+		</Update>
+		<Row>
+			<Type>BUILDING_INDUS_SANITATION</Type>
+			<BuildingClass>BUILDINGCLASS_AQUEDUCT</BuildingClass>
+			<Cost>100</Cost>
+			<GoldMaintenance>2</GoldMaintenance>
+			<PrereqTech>TECH_ENGINEERING</PrereqTech>
+			<Description>TXT_KEY_BUILDING_INDUS_SANITATION</Description>
+			<Civilopedia>TXT_KEY_BUILDING_INDUS_SANITATION_PEDIA</Civilopedia>
+			<ArtDefineTag>ART_DEF_BUILDING_HOSPITAL</ArtDefineTag>
+			<Happiness>3</Happiness>
+			<FoodKept>40</FoodKept>
+			<MinAreaSize>-1</MinAreaSize>
+			<ConquestProb>66</ConquestProb>
+			<IconAtlas>CEP_BUILDING_ATLAS</IconAtlas>
+			<PortraitIndex>2</PortraitIndex>
+		</Row>
+		<Row>
+			<Type>BUILDING_VEDI</Type>
+			<BuildingClass>BUILDINGCLASS_SHRINE</BuildingClass>
+			<FreeStartEra>ERA_MEDIEVAL</FreeStartEra>
+			<MaxStartEra>ERA_RENAISSANCE</MaxStartEra>
+			<Cost>40</Cost>
+			<GoldMaintenance>1</GoldMaintenance>
+			<PrereqTech>TECH_NULL</PrereqTech>
+			<Description>TXT_KEY_BUILDING_VEDI</Description>
+			<Civilopedia>TXT_KEY_BUILDING_VEDI_PEDIA</Civilopedia>
+			<Strategy>TXT_KEY_BUILDING_SHRINE_STRATEGY</Strategy>
+			<ArtDefineTag>TEMPLE</ArtDefineTag>
+			<MinAreaSize>-1</MinAreaSize>
+			<HurryCostModifier>25</HurryCostModifier>
+			<NeverCapture>true</NeverCapture>
+			<IconAtlas>TECH_ATLAS_1</IconAtlas>
+			<PortraitIndex>9</PortraitIndex>
+		</Row>		
+	</Buildings>
+	<Building_YieldInstant>
+		<Row>
+			<BuildingType>BUILDING_VEDI</BuildingType>
+			<YieldType>YIELD_FAITH</YieldType>
+			<Yield>25</Yield>
+		</Row>
+	</Building_YieldInstant>
+	<Building_YieldChanges>
+		<Row>
+			<BuildingType>BUILDING_VEDI</BuildingType>
+			<YieldType>YIELD_FAITH</YieldType>
+			<Yield>1</Yield>
+		</Row>
+	</Building_YieldChanges>
+	
+	<Civilization_Start_Region_Priority>
+		<Delete CivilizationType="CIVILIZATION_INDIA"/>
+		<Row>
+			<CivilizationType>CIVILIZATION_INDIA</CivilizationType>
+			<RegionType>REGION_JUNGLE</RegionType>
+		</Row>
+	</Civilization_Start_Region_Priority>
+	<Civilization_BuildingClassOverrides>
+		<Delete BuildingType="BUILDING_MUGHAL_FORT" />
+		<Row>
+			<CivilizationType>CIVILIZATION_INDIA</CivilizationType>
+			<BuildingClassType>BUILDINGCLASS_AQUEDUCT</BuildingClassType>
+			<BuildingType>BUILDING_INDUS_SANITATION</BuildingType>
+		</Row>
+		<Row>
+			<CivilizationType>CIVILIZATION_INDIA</CivilizationType>
+			<BuildingClassType>BUILDINGCLASS_SHRINE</BuildingClassType>
+			<BuildingType>BUILDING_VEDI</BuildingType>
+		</Row>
+	</Civilization_BuildingClassOverrides>
+	<Civilization_UnitClassOverrides>
+		<Delete UnitType="UNIT_INDIAN_WARELEPHANT" />
+	</Civilization_UnitClassOverrides>
+	<Units>
+		<Update>
+			<Where Type="UNIT_INDIAN_WARELEPHANT" />
+			<Set ShowInPedia="0" />
+		</Update>
+	</Units>
+
+
+	<!--	Indonesia
+	-->
+	<Buildings>
+		<Update>
+			<Where Type="BUILDING_CANDI" />
+			<Set BuildingClass="BUILDINGCLASS_SHRINE"
+				 Cost="40"
+				 PrereqTech="TECH_NULL"
+				 ArtDefineTag="TEMPLE"
+				 GreatPeopleRateModifier="0"
+				 />
+		</Update>
+	</Buildings>	
+	<!--<Building_YieldChanges>
+		<Update>
+			<Where BuildingType="BUILDING_CANDI" YieldType="YIELD_FAITH"/>
+			<Set Yield="4" />
+		</Update>
+	</Building_YieldChanges>-->
+	<Building_YieldChangesPerReligion>
+		<Row>
+			<BuildingType>BUILDING_CANDI</BuildingType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>200</Yield>
+		</Row>
+	</Building_YieldChangesPerReligion>
+
+
+
+
+
+	<!--	Iroquois
+	-->
+	<Building_YieldModifiers>
+		<Row>
+			<BuildingType>BUILDING_LONGHOUSE</BuildingType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>10</Yield>
+		</Row>
+	</Building_YieldModifiers>
+
+
+
+	<LoadedFile>
+		<Update>
+			<Where Type="CEL__A_I.xml"/>
+			<Set Value="1"/>
+		</Update>
+	</LoadedFile>
+</GameData>

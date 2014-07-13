@@ -497,8 +497,15 @@ public:
 
 	int GetExtraHappinessPerLuxury() const;
 	void ChangeExtraHappinessPerLuxury(int iChange);
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+	int getGlobalAverage(YieldTypes eYield) const;
+#endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_LUXURY)
 	int getPopNeededForLux() const;
+	int GetBaseLuxuryHappiness() const;
+	void SetBaseLuxuryHappiness(int iValue);
+#endif
+#if defined(MOD_BALANCE_CORE)
 	int getCurrentTotalPop() const;
 #endif
 
@@ -1017,7 +1024,7 @@ public:
 	bool IsAbleToAnnexCityStates() const;
 	int GetAbleToAnnexCityStatesCount() const;
 	void ChangeAbleToAnnexCityStatesCount(int iChange);
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
+#if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 	int GetPovertyUnhappinessMod() const;
 	void ChangePovertyUnhappinessMod(int iChange);
 	int GetDefenseUnhappinessMod() const;
@@ -1035,6 +1042,8 @@ public:
 	void ChangeIlliteracyUnhappinessModCapital(int iChange);
 	int GetMinorityUnhappinessModCapital() const;
 	void ChangeMinorityUnhappinessModCapital(int iChange);
+	int GetPuppetUnhappinessMod() const;
+	void ChangePuppetUnhappinessMod(int iChange);	
 #endif
 
 	int getCultureBombTimer() const;
@@ -1834,6 +1843,9 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iUnhappiness;
 	FAutoVariable<int, CvPlayer> m_iHappinessTotal;
 #endif
+#if defined(MOD_BALANCE_CORE_HAPPINESS_LUXURY)
+	FAutoVariable<int, CvPlayer> m_iBaseLuxuryHappiness;
+#endif
 	FAutoVariable<int, CvPlayer> m_iUprisingCounter;
 	FAutoVariable<int, CvPlayer> m_iExtraHappinessPerLuxury;
 	FAutoVariable<int, CvPlayer> m_iUnhappinessFromUnits;
@@ -1938,11 +1950,11 @@ protected:
 	int m_iDefenseUnhappinessMod;
 	int m_iIlliteracyUnhappinessMod;
 	int m_iMinorityUnhappinessMod;
-
 	int m_iPovertyUnhappinessModCapital;
 	int m_iDefenseUnhappinessModCapital;
 	int m_iIlliteracyUnhappinessModCapital;
 	int m_iMinorityUnhappinessModCapital;
+	int m_iPuppetUnhappinessMod;
 #endif
 	FAutoVariable<int, CvPlayer> m_iMaxGlobalBuildingProductionModifier;
 	FAutoVariable<int, CvPlayer> m_iMaxTeamBuildingProductionModifier;

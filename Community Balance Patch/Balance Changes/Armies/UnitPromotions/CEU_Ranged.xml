@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameData>
+	<UnitPromotions>
+		
+		<Update>
+			<Where Type="PROMOTION_VOLLEY" />
+			<Set AttackFortifiedMod="30"
+				 />
+		</Update>
+		<Update>
+			<Where Type="PROMOTION_INDIRECT_FIRE" />
+			<Set PromotionPrereqOr1="PROMOTION_TARGETING_1"
+				 PromotionPrereqOr2="PROMOTION_BOMBARDMENT_1"
+				 PromotionPrereqOr3="PROMOTION_ACCURACY_1"
+				 PromotionPrereqOr4="PROMOTION_BARRAGE_1"
+				 />
+		</Update>
+		<Row>
+			<Type>PROMOTION_RANGED_DEFENSE_I</Type>
+			<Description>TXT_KEY_PROMOTION_RANGED_DEFENSE_I</Description>
+			<Help>TXT_KEY_PROMOTION_RANGED_DEFENSE_I_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<CannotBeChosen>true</CannotBeChosen>
+			<LostWithUpgrade>true</LostWithUpgrade>
+			<OrderPriority>2</OrderPriority>
+			<PortraitIndex>58</PortraitIndex>
+			<RangedDefenseMod>25</RangedDefenseMod>
+			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
+			<PediaType>PEDIA_ATTRIBUTES</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_RANGED_DEFENSE_II</PediaEntry>
+		</Row>
+		<Row>
+			<Type>PROMOTION_RANGED_DEFENSE_II</Type>
+			<Description>TXT_KEY_PROMOTION_RANGED_DEFENSE_II</Description>
+			<Help>TXT_KEY_PROMOTION_RANGED_DEFENSE_II_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<CannotBeChosen>true</CannotBeChosen>
+			<LostWithUpgrade>true</LostWithUpgrade>
+			<OrderPriority>2</OrderPriority>
+			<PortraitIndex>58</PortraitIndex>
+			<RangedDefenseMod>50</RangedDefenseMod>
+			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
+			<PediaType>PEDIA_ATTRIBUTES</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_RANGED_DEFENSE_II</PediaEntry>
+		</Row>
+	</UnitPromotions>
+	<UnitPromotions_UnitCombats>
+		<Delete PromotionType="PROMOTION_SIEGE" UnitCombatType="UNITCOMBAT_ARCHER" />
+		<Delete PromotionType="PROMOTION_SIEGE" UnitCombatType="UNITCOMBAT_GUN" />
+		<Delete PromotionType="PROMOTION_VOLLEY" UnitCombatType="UNITCOMBAT_SIEGE" />
+		<Row>
+			<PromotionType>PROMOTION_VOLLEY</PromotionType>
+			<UnitCombatType>UNITCOMBAT_ARCHER</UnitCombatType>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_VOLLEY</PromotionType>
+			<UnitCombatType>UNITCOMBAT_GUN</UnitCombatType>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_INDIRECT_FIRE</PromotionType>
+			<UnitCombatType>UNITCOMBAT_ARCHER</UnitCombatType>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_INDIRECT_FIRE</PromotionType>
+			<UnitCombatType>UNITCOMBAT_GUN</UnitCombatType>
+		</Row>
+	</UnitPromotions_UnitCombats>
+	
+	<UnitPromotions_UnitCombatMods>
+		<Delete PromotionType="PROMOTION_NAVAL_PENALTY" />
+	</UnitPromotions_UnitCombatMods>
+	<Unit_FreePromotions>
+		<Update>
+			<Where UnitType="UNIT_CHINESE_CHUKONU" PromotionType="PROMOTION_SECOND_ATTACK" />
+			<Set PromotionType="PROMOTION_LOGISTICS" />
+		</Update>
+		<Row>
+			<UnitType>UNIT_GUIDED_MISSILE</UnitType>
+			<PromotionType>PROMOTION_CITY_BONUS_II</PromotionType>
+		</Row>
+	</Unit_FreePromotions>
+</GameData>

@@ -245,6 +245,9 @@ protected:
 	static int lGetTurnsToInfluential(lua_State* L);
 	static int lGetNumCivsInfluentialOn(lua_State* L);
 	static int lGetNumCivsToBeInfluentialOn(lua_State* L);
+#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE)
+	LUAAPIEXTN(GetInfluenceTradeRouteGoldBonus, int);
+#endif
 	static int lGetInfluenceTradeRouteScienceBonus(lua_State* L);
 	static int lGetInfluenceCityStateSpyRankBonus(lua_State* L);
 	static int lGetInfluenceMajorCivSpyRankBonus(lua_State* L);
@@ -598,6 +601,9 @@ protected:
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
 	LUAAPIEXTN(CalculateUnhappinessTooltip, int);
+#endif
+#if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
+	LUAAPIEXTN(GetPuppetUnhappinessMod, int);
 #endif
 	static int lGetMinorCivFriendshipLevelWithMajor(lua_State* L);
 	static int lGetActiveQuestForPlayer(lua_State* L); // DEPRECATED

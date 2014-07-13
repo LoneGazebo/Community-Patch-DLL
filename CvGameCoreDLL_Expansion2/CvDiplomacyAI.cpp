@@ -5389,7 +5389,12 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness()
 						continue;
 					}
 				}
-
+#if defined(MOD_BALANCE_CORE_DEALS)
+				WarStateTypes eWarState;
+				eWarState = GetWarState(eLoopPlayer);
+				if(eWarState != WAR_STATE_OFFENSIVE || eWarState != WAR_STATE_NEARLY_WON)
+				{
+#endif
 				// If we're out for conquest then no peace!
 				if(GetWarGoal(eLoopPlayer) != WAR_GOAL_CONQUEST)
 				{
@@ -5571,6 +5576,9 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness()
 						eTreatyWillingToAccept = PEACE_TREATY_WHITE_PEACE;
 					}
 				}
+#if defined(MOD_BALANCE_CORE_DEALS)
+				}
+#endif
 			}
 
 			SetTreatyWillingToOffer(eLoopPlayer, eTreatyWillingToOffer);
@@ -15868,7 +15876,9 @@ const char* CvDiplomacyAI::GetDiploStringForMessage(DiploMessageTypes eDiploMess
 	CvAssertMsg(eDiploMessage < NUM_DIPLO_MESSAGE_TYPES, "DIPLOMACY_AI: Invalid DiploMessageType.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(eForPlayer >= NO_PLAYER, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");	// NO_PLAYER is valid because eForPlayer is used when we need specific data (e.g. for declaring war)
 	CvAssertMsg(eForPlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-
+#if defined(MOD_BALANCE_CORE)
+	EraTypes eCurrentEra = GC.getGame().getCurrentEra();
+#endif
 	const char* strText;
 
 	switch(eDiploMessage)
@@ -17020,10 +17030,48 @@ const char* CvDiplomacyAI::GetDiploStringForMessage(DiploMessageTypes eDiploMess
 		strText = GetDiploTextFromTag("RESPONSE_SWITCHED_TO_AUTOCRACY");
 		break;
 	case DIPLO_MESSAGE_YOUR_CULTURE_INFLUENTIAL:
+#if defined(MOD_BALANCE_CORE)
+		if(eCurrentEra <= 1)
+		{
+			strText = GetDiploTextFromTag("RESPONSE_INFLUENTIAL_ON_AI_CLASSICAL");
+		}
+		else if(eCurrentEra >= 2 && eCurrentEra < 4)
+		{
+			strText = GetDiploTextFromTag("RESPONSE_INFLUENTIAL_ON_AI_RENAISSANCE");
+		}
+		else if(eCurrentEra >= 4 && eCurrentEra < 6)
+		{
+			strText = GetDiploTextFromTag("RESPONSE_INFLUENTIAL_ON_AI_MODERN");
+		}
+		else
+		{
+#endif
 		strText = GetDiploTextFromTag("RESPONSE_INFLUENTIAL_ON_AI");
+#if defined(MOD_BALANCE_CORE)
+		}
+#endif
 		break;
 	case DIPLO_MESSAGE_OUR_CULTURE_INFLUENTIAL:
+#if defined(MOD_BALANCE_CORE)
+		if(eCurrentEra <= 1)
+		{
+			strText = GetDiploTextFromTag("RESPONSE_INFLUENTIAL_ON_HUMAN_CLASSICAL");
+		}
+		else if(eCurrentEra >= 2 && eCurrentEra < 4)
+		{
+			strText = GetDiploTextFromTag("RESPONSE_INFLUENTIAL_ON_HUMAN_RENAISSANCE");
+		}
+		else if(eCurrentEra >= 4 && eCurrentEra < 6)
+		{
+			strText = GetDiploTextFromTag("RESPONSE_INFLUENTIAL_ON_HUMAN_MODERN");
+		}
+		else
+		{
+#endif
 		strText = GetDiploTextFromTag("RESPONSE_INFLUENTIAL_ON_HUMAN");
+#if defined(MOD_BALANCE_CORE)
+		}
+#endif
 		break;
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)

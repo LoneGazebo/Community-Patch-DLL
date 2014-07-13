@@ -179,6 +179,7 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iDefenseHappinessChangePolicyCapital(0),
 	m_iIlliteracyHappinessChangePolicyCapital(0),
 	m_iMinorityHappinessChangePolicyCapital(0),
+	m_iPuppetUnhappinessModPolicy(0),
 #endif
 	m_piPrereqOrPolicies(NULL),
 	m_piPrereqAndPolicies(NULL),
@@ -417,10 +418,11 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iDefenseHappinessChangePolicy = kResults.GetInt("DefenseHappinessMod");
 	m_iIlliteracyHappinessChangePolicy = kResults.GetInt("IlliteracyHappinessMod");
 	m_iMinorityHappinessChangePolicy = kResults.GetInt("MinorityHappinessMod");
-	m_iPovertyHappinessChangePolicy = kResults.GetInt("PovertyHappinessModCapital");
-	m_iDefenseHappinessChangePolicy = kResults.GetInt("DefenseHappinessModCapital");
-	m_iIlliteracyHappinessChangePolicy = kResults.GetInt("IlliteracyHappinessModCapital");
-	m_iMinorityHappinessChangePolicy = kResults.GetInt("MinorityHappinessModCapital");
+	m_iPovertyHappinessChangePolicyCapital = kResults.GetInt("PovertyHappinessModCapital");
+	m_iDefenseHappinessChangePolicyCapital = kResults.GetInt("DefenseHappinessModCapital");
+	m_iIlliteracyHappinessChangePolicyCapital = kResults.GetInt("IlliteracyHappinessModCapital");
+	m_iMinorityHappinessChangePolicyCapital = kResults.GetInt("MinorityHappinessModCapital");
+	m_iPuppetUnhappinessModPolicy = kResults.GetInt("PuppetUnhappinessModPolicy");
 #endif
 
 	m_strWeLoveTheKingKey = kResults.GetText("WeLoveTheKing");
@@ -1619,6 +1621,10 @@ int CvPolicyEntry::GetIlliteracyHappinessChangePolicyCapital() const
 int CvPolicyEntry::GetMinorityHappinessChangePolicyCapital() const
 {
 	return m_iMinorityHappinessChangePolicyCapital;
+}
+int CvPolicyEntry::GetPuppetUnhappinessMod() const
+{
+	return m_iPuppetUnhappinessModPolicy;
 }
 #endif
 

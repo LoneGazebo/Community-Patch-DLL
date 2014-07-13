@@ -149,7 +149,7 @@ SET Text = 'This National Wonder increases the [ICON_GREAT_PEOPLE] Great People 
 WHERE Tag = 'TXT_KEY_BUILDING_NATIONAL_EPIC_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'This National Wonder reduces Unhappiness from Poverty and Vulnerability by 1 in all cities. It also provides +1 [ICON_CULTURE] Culture. A city must have a Colosseum before it can construct a Circus Maximus. Requires a national population of at least 20 before it can be constructed.'
+SET Text = 'This National Wonder reduces [ICON_HAPPINESS_3] Poverty and Disorder by 1 in all cities. It also provides +1 [ICON_CULTURE] Culture. A city must have a Colosseum before it can construct a Circus Maximus. Requires a national population of at least 20 before it can be constructed.'
 WHERE Tag = 'TXT_KEY_BUILDING_CIRCUS_MAXIMUS_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -195,7 +195,7 @@ SET Text = '+25% [ICON_GREAT_PEOPLE] Great People generation in this City. Conta
 WHERE Tag = 'TXT_KEY_BUILDING_NATIONAL_EPIC_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Must have built a Colosseum in the city. The cost goes up the more cities there are in the empire. Requires a national population of at least 20 before it can be constructed.'
+SET Text = 'Reduces [ICON_HAPPINESS_3] Poverty and Disorder by 1 in all cities. Must have built a Colosseum in the city. The cost goes up the more cities there are in the empire. Requires a national population of at least 20 before it can be constructed.'
 WHERE Tag = 'TXT_KEY_BUILDING_CIRCUS_MAXIMUS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US

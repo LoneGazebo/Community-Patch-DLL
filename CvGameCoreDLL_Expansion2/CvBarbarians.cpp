@@ -172,6 +172,21 @@ void CvBarbarians::BeginTurn()
 			{
 				m_aiPlotBarbCampSpawnCounter[iPlotLoop]--;
 			}
+#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
+			if(pPlot->getPlotCity() != NULL)
+			{
+				//Owned by barbs?
+				if(pPlot->getOwner() == BARBARIAN_PLAYER)
+				{
+					m_aiPlotBarbCampSpawnCounter[iPlotLoop]--;
+				}
+				else
+				{
+					m_aiPlotBarbCampSpawnCounter[iPlotLoop] = -1;
+					m_aiPlotBarbCampNumUnitsSpawned[iPlotLoop] = -1;
+				}
+			}
+#endif
 		}
 
 		// Counter is negative, meaning a camp was cleared here recently and isn't allowed to respawn in the area for a while
@@ -669,6 +684,19 @@ void CvBarbarians::DoUnits()
 				DoCampActivationNotice(pLoopPlot);
 			}
 		}
+#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
+		if(pLoopPlot->getPlotCity() != NULL)
+		{
+			if(pLoopPlot->getOwner() == BARBARIAN_PLAYER)
+			{
+				if(ShouldSpawnBarbFromCamp(pLoopPlot))
+				{
+					DoSpawnBarbarianUnit(pLoopPlot, false, false);
+					DoCampActivationNotice(pLoopPlot);
+				}
+			}
+		}
+#endif
 #if defined(MOD_BALANCE_CORE_MILITARY)
 		if(MOD_BALANCE_CORE_MILITARY && (GC.getBALANCE_BARBARIAN_HEAL_RATE() != 0) && pLoopPlot != NULL && pLoopPlot->getNumUnits() > 0)
 		{

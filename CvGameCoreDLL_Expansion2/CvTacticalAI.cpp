@@ -8657,10 +8657,14 @@ void CvTacticalAI::ExecuteEscortEmbarkedMoves()
 				{
 					continue;
 				}
+#if defined(MOD_BALANCE_CORE_MILITARY)
+				//Even if it can move, we can still keep up this way. Otherwise naval units not already 'in' the group can hardly ever join.
+#else
 				else if (pLoopUnit->canMove())
 				{
 					continue;
 				}
+#endif
 				else if (plotDistance(pUnit->getX(), pUnit->getY(), pLoopUnit->getX(), pLoopUnit->getY()) > iMovementRate)
 				{
 					continue;
@@ -8681,6 +8685,21 @@ void CvTacticalAI::ExecuteEscortEmbarkedMoves()
 
 			if (pBestTarget)
 			{
+#if defined(MOD_BALANCE_CORE_MILITARY)
+				//If a unit is chosen to be escorted, it should wait this turn so that it can stay in a safe spot (as we already know the spot is super dangerous).
+				if(MOD_BALANCE_CORE_MILITARY)
+				{
+					if(pBestTarget->getNumUnits() == 1)
+					{
+						CvUnit* pNewUnit = pBestTarget->getUnitByIndex(0);
+						if(pUnit->isEmbarked() && pNewUnit->canMove())
+						{
+							pNewUnit->setMoves(0);
+							UnitProcessed(pNewUnit->GetID());
+						}
+					}
+				}
+#endif
 				ExecuteMoveToPlot(pUnit, pBestTarget);
 				UnitProcessed(m_CurrentMoveUnits[iI].GetID());
 

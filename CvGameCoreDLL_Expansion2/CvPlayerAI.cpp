@@ -1672,66 +1672,43 @@ int CvPlayerAI::ScoreCityForDiplomat(CvCity* pCity, UnitHandle pUnit)
 }
 	
 int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, UnitHandle pUnit)
-{
+{	
+	//First, the exclusions!
+
 	//Initializations...
-	
-	EconomicAIStrategyTypes eDevelopingReligion = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_DEVELOPING_RELIGION");
-	EconomicAIStrategyTypes eNeedHappinessCritical = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_HAPPINESS_CRITICAL");
-	EconomicAIStrategyTypes eNeedHappiness = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_HAPPINESS");
-	EconomicAIStrategyTypes eFoundCity = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_FOUND_CITY");
-	EconomicAIStrategyTypes eExpandLikeCrazy = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_EXPAND_LIKE_CRAZY");
-	EconomicAIStrategyTypes eExpandToOtherContinents = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_EXPAND_TO_OTHER_CONTINENTS");
-	bool bDevelopingReligion = (eFoundCity != NO_ECONOMICAISTRATEGY) ? GetDiplomacyAI()->GetPlayer()->GetEconomicAI()->IsUsingStrategy(eDevelopingReligion) : false;
-	bool bNeedHappinessCritical = (eFoundCity != NO_ECONOMICAISTRATEGY) ? GetDiplomacyAI()->GetPlayer()->GetEconomicAI()->IsUsingStrategy(eNeedHappinessCritical) : false;
-	bool bNeedHappiness = (eFoundCity != NO_ECONOMICAISTRATEGY) ? GetDiplomacyAI()->GetPlayer()->GetEconomicAI()->IsUsingStrategy(eNeedHappiness) : false;
-	bool bFoundCity = (eFoundCity != NO_ECONOMICAISTRATEGY) ? GetDiplomacyAI()->GetPlayer()->GetEconomicAI()->IsUsingStrategy(eFoundCity) : false;
-	bool bExpandLikeCrazy = (eExpandLikeCrazy != NO_ECONOMICAISTRATEGY) ? GetDiplomacyAI()->GetPlayer()->GetEconomicAI()->IsUsingStrategy(eExpandLikeCrazy) : false;
-	bool bExpandToOtherContinents = (eExpandToOtherContinents != NO_ECONOMICAISTRATEGY) ? GetDiplomacyAI()->GetPlayer()->GetEconomicAI()->IsUsingStrategy(eExpandToOtherContinents) : false;
 	int iScore = 0;
-	PlayerTypes eID = GetDiplomacyAI()->GetPlayer()->GetID();
 	CvPlot* pPlot = pCity->plot();
 	int iFriendship = pUnit->getTradeInfluence(pPlot);
 
 	CvMinorCivAI* pMinorCivAI;
-
 	
-	CvPlayer& eMinor= GET_PLAYER(pCity->getOwner());
+	CvPlayer& eMinor = GET_PLAYER(pCity->getOwner());
 	PlayerTypes pMinor = eMinor.GetID();
 	pMinorCivAI = eMinor.GetMinorCivAI();
+
+	// Skip if not revealed.
+	if(!pCity->plot()->isRevealed(getTeam()))
+	{
+		return 0;
+	}
+
+	//If we are at war with target minor, let's not send diplomatic lambs to slaughter.
+	if(eMinor.GetMinorCivAI()->IsAtWarWithPlayersTeam(GetID()))
+	{
+		return 0;
+	}
 
 	int iOtherMajorLoop;
 	PlayerTypes eOtherMajor;
 	int iFriendshipWithMinor;
 	int iOtherPlayerFriendshipWithMinor;
 
+	EconomicAIStrategyTypes eNeedHappiness = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_HAPPINESS");
+	EconomicAIStrategyTypes eNeedHappinessCritical = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_HAPPINESS_CRITICAL");
+	bool bNeedHappiness = (eNeedHappiness != NO_ECONOMICAISTRATEGY) ? GetEconomicAI()->IsUsingStrategy(eNeedHappiness) : false;
+	bool bNeedHappinessCritical = (eNeedHappinessCritical != NO_ECONOMICAISTRATEGY) ? GetEconomicAI()->IsUsingStrategy(eNeedHappinessCritical) : false;
 
 	MinorCivApproachTypes eApproach;
-
-	//And now for the exclusions!
-
-	// Skip if not revealed.
-	if(!pCity->plot()->isRevealed(getTeam()))
-	{
-		return iScore;
-	}
-
-	//If we are at war with target minor, let's not send diplomatic lambs to slaughter.
-	if(eMinor.GetMinorCivAI()->IsAtWarWithPlayersTeam(eID))
-	{
-		return iScore;
-	}
-
-	bool bWantsToBuyout = false;
-	if(GetDiplomacyAI()->GetPlayer()->IsAbleToAnnexCityStates())
-	{
-		if(bFoundCity || bExpandLikeCrazy || bExpandToOtherContinents ||
-		        GetDiplomacyAI()->GetStateAllWars() == STATE_ALL_WARS_LOSING ||
-		        GetDiplomacyAI()->IsGoingForWorldConquest())
-		{
-			bWantsToBuyout = true;
-			return iScore;
-		}
-	}
 	
 	// **************************
 	// Approaches
@@ -1739,9 +1716,6 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, UnitHandle pUnit)
 
 	iScore = 100;
 	eApproach = GetDiplomacyAI()->GetMinorCivApproach(pMinor);
-
-	// Do we want to change our protection of this minor?
-	GetDiplomacyAI()->DoUpdateMinorCivProtection(pMinor, eApproach);
 
 	if (eApproach == MINOR_CIV_APPROACH_IGNORE)
 	{
@@ -1862,24 +1836,14 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, UnitHandle pUnit)
 		}
 	}
 
-	if(bDevelopingReligion)
-	{
-		if(pMinorCivAI->GetTrait() == MINOR_CIV_TRAIT_RELIGIOUS)
-		{
-			iScore *= 3;
-		}
-	}
-
-
-
 	// Is Our Influence worth more here? Definitely take advantage of this.
-	if(pMinorCivAI->IsActiveQuestForPlayer(eID, MINOR_CIV_QUEST_INFLUENCE))
+	if(pMinorCivAI->IsActiveQuestForPlayer(GetID(), MINOR_CIV_QUEST_INFLUENCE))
 	{
 		iScore *= 4;
 	}
 	
 	// Do they have a resource we lack?
-	int iResourcesWeLack = pMinorCivAI->GetNumResourcesMajorLacks(eID);
+	int iResourcesWeLack = pMinorCivAI->GetNumResourcesMajorLacks(GetID());
 	if(iResourcesWeLack > 0)
 	{
 		if(bNeedHappiness)
@@ -1899,7 +1863,7 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, UnitHandle pUnit)
 	//Will they give us a WLTKD for their resource?
 	CvCity* pLoopCity;
 	int iCityLoop;
-	for(pLoopCity = GET_PLAYER(eID).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eID).nextCity(&iCityLoop))
+	for(pLoopCity = GET_PLAYER(GetID()).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(GetID()).nextCity(&iCityLoop))
 	{
 		if(pLoopCity != NULL)
 		{
@@ -1911,6 +1875,7 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, UnitHandle pUnit)
 				{
 					iScore *= 3;
 					iScore /= 2;
+					break;
 				}
 			}
 		}
@@ -1927,7 +1892,7 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, UnitHandle pUnit)
 	// **************************
 
 	PlayerTypes eAlliedPlayer = NO_PLAYER;
-	iFriendshipWithMinor = pMinorCivAI->GetEffectiveFriendshipWithMajor(eID);
+	iFriendshipWithMinor = pMinorCivAI->GetEffectiveFriendshipWithMajor(GetID());
 	eAlliedPlayer = pMinorCivAI->GetAlly();
 	
 	if(eAlliedPlayer != NO_PLAYER)
@@ -1938,92 +1903,74 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, UnitHandle pUnit)
 			eOtherMajor = (PlayerTypes) iOtherMajorLoop;
 
 			iOtherPlayerFriendshipWithMinor = pMinorCivAI->GetEffectiveFriendshipWithMajor(eOtherMajor);
-
-			// If another player is allied, let's evaluate that.
-
-			//Are they not on our team?
-			if(GET_PLAYER(eOtherMajor).getTeam() != getTeam())
+			if(eOtherMajor != NO_PLAYER && GET_TEAM(GET_PLAYER(GetID()).getTeam()).isHasMet(GET_PLAYER(eOtherMajor).getTeam()))
 			{
+				MajorCivApproachTypes eApproachType = GetDiplomacyAI()->GetMajorCivApproach(eOtherMajor, false);
+				MajorCivOpinionTypes eOpinion = GetDiplomacyAI()->GetMajorCivOpinion(eOtherMajor);
+
+				// If another player is allied, let's evaluate that.
 				// Only care if they are allies
 				if(pMinorCivAI->IsAllies(eOtherMajor))
-				{
-					//If their influence is way higher than ours, let's tune this down...
-					if(iOtherPlayerFriendshipWithMinor >= (60 + iFriendship + iFriendshipWithMinor))
+				{	
+					//Are they not on our team?
+					if(GET_PLAYER(eOtherMajor).getTeam() != getTeam())
+					{
+						//If their influence is way higher than ours, let's tune this down...
+						if(iOtherPlayerFriendshipWithMinor >= (60 + iFriendship + iFriendshipWithMinor))
+						{
+							iScore /= 3;
+						}
+						//If we can pass them, ramp it up!
+						else if(iOtherPlayerFriendshipWithMinor < (iFriendship + iFriendshipWithMinor)) 
+						{
+							iScore *= 3;
+						}
+					}
+					// If a teammate is allied, let's discourage going there.
+					else
 					{
 						iScore /= 3;
 					}
-					//If we can pass them, ramp it up!
-					else if(iOtherPlayerFriendshipWithMinor < (iFriendship + iFriendshipWithMinor)) 
+					// If a friendly player is allied, let's discourage going there.
+					if(eApproachType == MAJOR_CIV_APPROACH_FRIENDLY)
 					{
-						iScore *= 3;
+						iScore /= 2;
+					}
+					// If an enemy is allied, let's take their stuff!
+					else if(eApproachType == MAJOR_CIV_APPROACH_HOSTILE)
+					{
+						iScore *= 2;
+					}
+					// If an ally is allied, let's leave it alone!
+					if(eOpinion == MAJOR_CIV_OPINION_ALLY)
+					{
+						iScore /= 2;
+					}
+					// If an competitor is allied, let's fight for it!
+					else if(eOpinion == MAJOR_CIV_OPINION_COMPETITOR)
+					{
+						iScore *= 2;
 					}
 				}
-			}
-			// If a teammate is allied, let's discourage going there.
-			else if(GET_PLAYER(eOtherMajor).getTeam() == getTeam())
-			{
-				// Only care if they are allies
-				if(pMinorCivAI->IsAllies(eOtherMajor))
-				{
-					iScore /= 3;
-				}
-			}
-			// Are we allied? Yay! But let's be careful.
-			if(pMinorCivAI->IsAllies(eID))
-			{
-				// Are WE allies by a wide margin (over 100)? If so, let's find someone new to love.
-				if(iFriendshipWithMinor >= (60 + iOtherPlayerFriendshipWithMinor)) 
-				{
-					iScore /= 4;
-				}
 				// Is another player really close to us? If so, let's keep an eye on things.
-				if(iOtherPlayerFriendshipWithMinor >= (iFriendshipWithMinor - 30))
+				else if(iOtherPlayerFriendshipWithMinor >= (iFriendshipWithMinor - 30))
 				{
 					iScore *= 2;
-				}
-					// Are we close to losing our status? If so, obsess away!
-				if(pMinorCivAI->IsCloseToNotBeingAllies(eID))
-				{
-					iScore *= 5;
-				}
+				} 
 			}
-			MajorCivApproachTypes eApproachType = GetDiplomacyAI()->GetMajorCivApproach(eOtherMajor, false);
-			MajorCivOpinionTypes eOpinion = GetDiplomacyAI()->GetMajorCivOpinion(eOtherMajor);
-			// If a friendly player is allied, let's discourage going there.
-			if(eApproachType == MAJOR_CIV_APPROACH_FRIENDLY)
+		}
+		// Are we allied? Yay! But let's be careful.
+		if(pMinorCivAI->IsAllies(GetID()))
+		{
+			// Are WE allies by a wide margin (over 100)? If so, let's find someone new to love.
+			if(iFriendshipWithMinor >= 100) 
 			{
-				// Only care if they are allies
-				if(pMinorCivAI->IsAllies(eOtherMajor))
-				{
-					iScore /= 2;
-				}
+				iScore /= 2;
 			}
-			// If an enemy is allied, let's take their stuff!
-			else if(eApproachType == MAJOR_CIV_APPROACH_HOSTILE)
+			// Are we close to losing our status? If so, obsess away!
+			else if(pMinorCivAI->IsCloseToNotBeingAllies(GetID()))
 			{
-				// Only care if they are allies
-				if(pMinorCivAI->IsAllies(eOtherMajor))
-				{
-					iScore *= 2;
-				}
-			}
-			// If an ally is allied, let's leave it alone!
-			if(eOpinion == MAJOR_CIV_OPINION_ALLY)
-			{
-				// Only care if they are allies
-				if(pMinorCivAI->IsAllies(eOtherMajor))
-				{
-					iScore /= 2;
-				}
-			}
-			// If an competitor is allied, let's fight for it!
-			else if(eOpinion == MAJOR_CIV_OPINION_COMPETITOR)
-			{
-				// Only care if they are allies
-				if(pMinorCivAI->IsAllies(eOtherMajor))
-				{
-					iScore *= 2;
-				}
+				iScore *= 5;
 			}
 		}
 	}
@@ -2034,13 +1981,13 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, UnitHandle pUnit)
 	}
 
 	// Are we already Friends? If so, let's stay the course.
-	if(pMinorCivAI->IsFriends(eID))
+	if(pMinorCivAI->IsFriends(GetID()))
 	{
 		iScore *= 2;
 	}
 
 	// Did we bully you recently?  If so, being friendly now would be very odd.
-	if(pMinorCivAI->IsRecentlyBulliedByMajor(eID))
+	if(pMinorCivAI->IsRecentlyBulliedByMajor(GetID()))
 	{
 		iScore /= 6;
 	}
@@ -2049,7 +1996,6 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, UnitHandle pUnit)
 	// Distance
 	// **************************
 
-	
 	CvMap& theMap = GC.getMap();
 	CvArea* pArea = theMap.getArea(pCity->getArea());
 
@@ -2063,31 +2009,31 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, UnitHandle pUnit)
 	}
 
 	//If our friendship is under 0, we've probably done something bad to this City-State. Let's not look at them!
-	if(eMinor.GetMinorCivAI()->GetEffectiveFriendshipWithMajor(eID) < 0)
+	if(eMinor.GetMinorCivAI()->GetEffectiveFriendshipWithMajor(GetID()) < 0)
 	{
 		iScore /= 2;
 	}
 
-	//Are there barbarians near the city-state? If so, abort!
-	if(eMinor.GetMinorCivAI()->IsThreateningBarbariansEventActiveForPlayer(eID))
+	//Are there barbarians near the city-state? If so, careful!
+	if(eMinor.GetMinorCivAI()->IsThreateningBarbariansEventActiveForPlayer(GetID()))
 	{
 		iScore /= 4;
 	}
 
 	//Let's downplay minors we can't walk to if we don't have embarkation.
-	if((pCity->getArea() != pUnit->getArea()) && !GET_TEAM(GET_PLAYER(eID).getTeam()).canEmbark())
+	if((pCity->getArea() != pUnit->getArea()) && !GET_TEAM(GET_PLAYER(GetID()).getTeam()).canEmbark())
 	{
 		iScore /= 3;
 	}
 
 	//Let's downplay far/distant minors without full embarkation.
-	else if((pCity->getArea() != pUnit->getArea()) && !GET_TEAM(GET_PLAYER(eID).getTeam()).canEmbarkAllWaterPassage())
+	else if((pCity->getArea() != pUnit->getArea()) && !GET_TEAM(GET_PLAYER(GetID()).getTeam()).canEmbarkAllWaterPassage())
 	{
 		iScore /= 2;
 	}
 
 	//If we can travel across oceans, let's emphasize island CSs to get them alliances.
-	else if((pArea->getNumTiles() <= 15) && GET_TEAM(GET_PLAYER(eID).getTeam()).canEmbarkAllWaterPassage())
+	else if((pArea->getNumTiles() <= 15) && GET_TEAM(GET_PLAYER(GetID()).getTeam()).canEmbarkAllWaterPassage())
 	{
 		iScore *= 2;
 	}

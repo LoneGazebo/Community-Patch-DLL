@@ -502,7 +502,13 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 			}
 		}
 #endif
-
+#if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
+		if(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS && owningPlayer.GetNumCitiesFounded() <= 1)
+		{
+			GET_PLAYER(getOwner()).ChangePuppetUnhappinessMod(GC.getBALANCE_HAPPINESS_PUPPET_THRESHOLD_MOD());
+		}
+#endif
+		
 		// Free resources under city?
 		for(int i = 0; i < GC.getNumResourceInfos(); i++)
 		{
@@ -9655,57 +9661,30 @@ int CvCity::GetLocalHappiness() const
 //	--------------------------------------------------------------------------------
 int CvCity::getUnhappinessFromCultureYield() const
 {
-	int iCityPop = getPopulation();
-	int iCityCulture = GetBaseJONSCulturePerTurn();
-	int iCityResearch = getYieldRate(YIELD_SCIENCE, false);
+	int iCityCulture = getJONSCulturePerTurn() * 100;
+	int iCityResearch = getYieldRateTimes100(YIELD_SCIENCE, false);
 	iCityCulture += iCityResearch;
-	
-#if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
-	//Trait adds % boost to this value (higher trait = higher artificial level of wealth).
-	if(GET_PLAYER(getOwner()).GetPlayerTraits()->GetIlliteracyHappinessChange() != 0)
+
+	//Per Pop Yield
+	if(getPopulation() != 0)
 	{
-		iCityCulture += ((GET_PLAYER(getOwner()).GetPlayerTraits()->GetIlliteracyHappinessChange() * iCityCulture) / 100);
+		iCityCulture = (iCityCulture / getPopulation());
 	}
-#endif
-	if(iCityPop != 0)
-	{
-		iCityCulture = (iCityCulture / iCityPop);
-	}
-#if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
-	//Buildings increase this by a flat integer.
-	if(GetIlliteracyUnhappiness() != 0)
-	{
-		iCityCulture += GetIlliteracyUnhappiness();
-	}
-	int iLoop = 0;
-	for(const CvCity* pLoopCity = GET_PLAYER(getOwner()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iLoop))
-	{
-		if(pLoopCity != NULL)
-		{
-			//Mod from global unhappiness building modifier.
-			if(pLoopCity->GetIlliteracyUnhappinessGlobal() != 0)
-			{
-				iCityCulture += pLoopCity->GetIlliteracyUnhappinessGlobal();
-			}
-		}		
-	}
-#endif
+
 	//This is for LUA.
 	return iCityCulture;
 }
 //	--------------------------------------------------------------------------------
 int CvCity::getUnhappinessFromCultureNeeded() const
 {
-	int iCityPop = getPopulation();
-	int iMaxUnhappy = (iCityPop * GC.getBALANCE_MAX_UNHAPPY_PER_CITY_YIELD()) / 100;
-	if(iMaxUnhappy <= 0)
-	{
-		iMaxUnhappy = 1;
-	}
-	int iThreshold = iMaxUnhappy * /*75*/ GC.getBALANCE_UNHAPPINESS_PER_CULTURE_THRESHOLD();
-	int iEraRate = (((/*10*/ GC.getBALANCE_HAPPINESS_ERA_BASE_INCREASE() * GC.getGame().getCurrentEra()) * iThreshold) / 100);
-	iThreshold += iEraRate;
+	int iThreshold = GET_PLAYER(getOwner()).getGlobalAverage(YIELD_CULTURE);
+
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
+	//Trait is % reduction to this value (higher trait = lower threshold).
+	if(GET_PLAYER(getOwner()).GetPlayerTraits()->GetIlliteracyHappinessChange() != 0)
+	{
+		iThreshold -= ((GET_PLAYER(getOwner()).GetPlayerTraits()->GetIlliteracyHappinessChange() * iThreshold) / 100);
+	}
 	//Policy cuts threshold for this value (bigger negative number = lower threshold).
 	if(GET_PLAYER(getOwner()).GetIlliteracyUnhappinessMod() != 0)
 	{
@@ -9719,9 +9698,29 @@ int CvCity::getUnhappinessFromCultureNeeded() const
 			iThreshold += ((GET_PLAYER(getOwner()).GetIlliteracyUnhappinessModCapital() * iThreshold) / 100);
 		}
 	}
+	//Buildings decrease this by a flat integer.
+	if(GetIlliteracyUnhappiness() != 0)
+	{
+		iThreshold += (GetIlliteracyUnhappiness() * -100);
+	}
+	int iLoop = 0;
+	for(const CvCity* pLoopCity = GET_PLAYER(getOwner()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iLoop))
+	{
+		if(pLoopCity != NULL)
+		{
+			//Mod from global unhappiness building modifier.
+			if(pLoopCity->GetIlliteracyUnhappinessGlobal() != 0)
+			{
+				iThreshold += (pLoopCity->GetIlliteracyUnhappinessGlobal() * -100);
+			}
+		}		
+	}
+	if(IsPuppet())
+	{
+		iThreshold += ((GET_PLAYER(getOwner()).GetPuppetUnhappinessMod() * iThreshold) / 100);
+	}
 #endif
 
-	iThreshold = iThreshold / 100;
 	//This is for LUA.
 	return iThreshold;
 }
@@ -9732,100 +9731,56 @@ int CvCity::getUnhappinessFromCulture() const
 	{
 		return 0;
 	}
-	float fExponent = /*0.55f*/ GC.getBALANCE_UNHAPPINESS_PER_CULTURE_RATE();
-	float fUnhappiness = 0.0f;
+	int iUnhappiness = 0;
 
 	int iThreshold = getUnhappinessFromCultureNeeded();
 	int iCityCulture = getUnhappinessFromCultureYield();
 
 	if(iThreshold > iCityCulture)
 	{
-		fUnhappiness = (float) iThreshold - iCityCulture;
-		if(fUnhappiness > 0)
-		{
-			fUnhappiness = (float) fExponent * (float) fUnhappiness;
-		}
+		iUnhappiness = iThreshold - iCityCulture;
+		
+		iUnhappiness /= 100;
 	}
-
-	return (int) fUnhappiness;
+	return iUnhappiness;
 }
 //	--------------------------------------------------------------------------------
 int CvCity::getUnhappinessFromDefenseYield() const
 {
-	int iCityPop = getPopulation();
-	int iBuildingDefense = m_pCityBuildings->GetBuildingDefense() / 25;
+	int iBuildingDefense = getStrengthValue(false);
 
-	iBuildingDefense *= (100 + m_pCityBuildings->GetBuildingDefenseMod());
-	iBuildingDefense /= 100;
-
-	if(GetGarrisonedUnit() != NULL)
+	if(GetGarrisonedUnit() == NULL)
 	{
-		if(GetGarrisonedUnit()->isRanged())
-		{
-			iBuildingDefense += (GetGarrisonedUnit()->GetBaseRangedCombatStrength());
-		}
-		else
-		{
-			iBuildingDefense += (GetGarrisonedUnit()->GetBaseCombatStrength() / 2);
-		}
+		// Reduction by 10% without garrison.
+		iBuildingDefense -= (iBuildingDefense / 10);
 	}
-	else
-	{
-		iBuildingDefense -= (iBuildingDefense / 4);
-	}
-
-	int iDamage = (getDamage() / 10);
+	// 10 damage = -150 points
+	int iDamage = (getDamage() * 15);
 
 	if(iDamage > 0)
 	{
 		iBuildingDefense -= iDamage;
 	}
-#if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
-	//Trait adds % boost to this value (higher trait = higher artificial level of defense).
-	if(GET_PLAYER(getOwner()).GetPlayerTraits()->GetDefenseHappinessChange() != 0)
+
+	//Per Pop Yield
+	if(getPopulation() != 0)
 	{
-		iBuildingDefense += ((GET_PLAYER(getOwner()).GetPlayerTraits()->GetDefenseHappinessChange() * iBuildingDefense) / 100);
+		iBuildingDefense = (iBuildingDefense / getPopulation());
 	}
-#endif
-	if(iCityPop != 0)
-	{
-		iBuildingDefense = (iBuildingDefense / iCityPop);
-	}
-#if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
-	//Buildings increase this by a flat integer.
-	if(GetDefenseUnhappiness() != 0)
-	{
-		iBuildingDefense += GetDefenseUnhappiness();
-	}
-	int iLoop = 0;
-	for(const CvCity* pLoopCity = GET_PLAYER(getOwner()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iLoop))
-	{
-		if(pLoopCity != NULL)
-		{
-			//Mod from global unhappiness building modifier.
-			if(pLoopCity->GetDefenseUnhappinessGlobal() != 0)
-			{
-				iBuildingDefense += pLoopCity->GetDefenseUnhappinessGlobal();
-			}
-		}		
-	}
-#endif
-	//This is for LUA.
+	
 	return iBuildingDefense;
 }
 //	--------------------------------------------------------------------------------
 int CvCity::getUnhappinessFromDefenseNeeded() const
 {
-	int iCityPop = getPopulation();
-	int iMaxUnhappy = (iCityPop * GC.getBALANCE_MAX_UNHAPPY_PER_CITY_YIELD()) / 100;
-	if(iMaxUnhappy <= 0)
-	{
-		iMaxUnhappy = 1;
-	}
-	int iThreshold = iMaxUnhappy * /*55*/ GC.getBALANCE_UNHAPPINESS_PER_DEFENSE_THRESHOLD();
-	int iEraRate = (((/*10*/ GC.getBALANCE_HAPPINESS_ERA_BASE_INCREASE() * GC.getGame().getCurrentEra()) * iThreshold) / 100);
-	iThreshold += iEraRate;
+	int iThreshold = GET_PLAYER(getOwner()).getGlobalAverage(YIELD_PRODUCTION);
+
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
+	//Trait is % reduction of this value (higher trait = lower threshold).
+	if(GET_PLAYER(getOwner()).GetPlayerTraits()->GetDefenseHappinessChange() != 0)
+	{
+		iThreshold -= ((GET_PLAYER(getOwner()).GetPlayerTraits()->GetDefenseHappinessChange() * iThreshold) / 100);
+	}
 	//Policy cuts threshold for this value (bigger negative number = lower threshold).
 	if(GET_PLAYER(getOwner()).GetDefenseUnhappinessMod() != 0)
 	{
@@ -9839,8 +9794,28 @@ int CvCity::getUnhappinessFromDefenseNeeded() const
 			iThreshold += ((GET_PLAYER(getOwner()).GetDefenseUnhappinessModCapital() * iThreshold) / 100);
 		}
 	}
+	//Buildings decrease this by a flat integer.
+	if(GetDefenseUnhappiness() != 0)
+	{
+		iThreshold += GetDefenseUnhappiness() * -100;
+	}
+	int iLoop = 0;
+	for(const CvCity* pLoopCity = GET_PLAYER(getOwner()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iLoop))
+	{
+		if(pLoopCity != NULL)
+		{
+			//Mod from global unhappiness building modifier.
+			if(pLoopCity->GetDefenseUnhappinessGlobal() != 0)
+			{
+				iThreshold += pLoopCity->GetDefenseUnhappinessGlobal() * -100;
+			}
+		}		
+	}
+	if(IsPuppet())
+	{
+		iThreshold += ((GET_PLAYER(getOwner()).GetPuppetUnhappinessMod() * iThreshold) / 100);
+	}
 #endif
-	iThreshold = iThreshold / 100;
 	//This is for LUA.
 	return iThreshold;
 }
@@ -9851,81 +9826,50 @@ int CvCity::getUnhappinessFromDefense() const
 	{
 		return 0;
 	}
-	float fExponent = /*0.70f*/ GC.getBALANCE_UNHAPPINESS_PER_DEFENSE_RATE();
-	float fUnhappiness = 0.0f;
+	int iUnhappiness = 0;
 
 	int iThreshold = getUnhappinessFromDefenseNeeded();
 	int iBuildingDefense = getUnhappinessFromDefenseYield();
 
 	if(iThreshold > iBuildingDefense)
 	{
-		fUnhappiness = (float) iThreshold - iBuildingDefense;
-		if(fUnhappiness > 0)
-		{
-			fUnhappiness = (float) fExponent * (float) fUnhappiness;
-		}
-	}
+		iUnhappiness = iThreshold - iBuildingDefense;
 
-	return (int) fUnhappiness;
+		iUnhappiness /= 100;
+	}
+	return iUnhappiness;
 }
 //	--------------------------------------------------------------------------------
 int CvCity::getUnhappinessFromGoldYield() const
 {
-	int iCityPop = getPopulation();
 
-	int iGold = getYieldRate(YIELD_GOLD, false);
-	int iFood = foodDifference();
+	int iGold = getYieldRateTimes100(YIELD_GOLD, false);
+	int iFood = foodDifferenceTimes100();
 	if(iFood > 0)
 	{
 		iGold += iFood;
 	}
-#if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
-	//Trait adds % boost to this value (higher trait = higher artificial level of defense).
-	if(GET_PLAYER(getOwner()).GetPlayerTraits()->GetPovertyHappinessChange() != 0)
-	{
-		iGold += ((GET_PLAYER(getOwner()).GetPlayerTraits()->GetPovertyHappinessChange() * iGold) / 100);
-	}
-#endif
 
-	if(iCityPop != 0)
+	//Per Pop Yield
+	if(getPopulation() != 0)
 	{
-		iGold = (iGold / iCityPop);
+		iGold = (iGold / getPopulation());
 	}
-#if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
-	//Buildings increase this by a flat integer.
-	if(GetPovertyUnhappiness() != 0)
-	{
-		iGold += GetPovertyUnhappiness();
-	}
-	int iLoop = 0;
-	for(const CvCity* pLoopCity = GET_PLAYER(getOwner()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iLoop))
-	{
-		if(pLoopCity != NULL)
-		{
-			//Mod from global unhappiness building modifier.
-			if(pLoopCity->GetPovertyUnhappinessGlobal() != 0)
-			{
-				iGold += pLoopCity->GetPovertyUnhappinessGlobal();
-			}
-		}		
-	}
-#endif
+
 	//This is for LUA.
 	return iGold;
 }
 //	--------------------------------------------------------------------------------
 int CvCity::getUnhappinessFromGoldNeeded() const
 {
-	int iCityPop = getPopulation();
-	int iMaxUnhappy = (iCityPop * GC.getBALANCE_MAX_UNHAPPY_PER_CITY_YIELD()) / 100;
-	if(iMaxUnhappy <= 0)
-	{
-		iMaxUnhappy = 1;
-	}
-	int iThreshold = iMaxUnhappy * /*75*/ GC.getBALANCE_UNHAPPINESS_PER_GOLD_THRESHOLD();
-	int iEraRate = (((/*10*/ GC.getBALANCE_HAPPINESS_ERA_BASE_INCREASE() * GC.getGame().getCurrentEra()) * iThreshold) / 100);
-	iThreshold += iEraRate;
+	int iThreshold = GET_PLAYER(getOwner()).getGlobalAverage(YIELD_GOLD);
+
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
+	//Trait is % reduction of this value (higher trait = lower threshold).
+	if(GET_PLAYER(getOwner()).GetPlayerTraits()->GetPovertyHappinessChange() != 0)
+	{
+		iThreshold -= ((GET_PLAYER(getOwner()).GetPlayerTraits()->GetPovertyHappinessChange() * iThreshold) / 100);
+	}
 	//Policy cuts threshold for this value (bigger negative number = lower threshold).
 	if(GET_PLAYER(getOwner()).GetPovertyUnhappinessMod() != 0)
 	{
@@ -9939,9 +9883,29 @@ int CvCity::getUnhappinessFromGoldNeeded() const
 			iThreshold += ((GET_PLAYER(getOwner()).GetPovertyUnhappinessModCapital() * iThreshold) / 100);
 		}
 	}
+	//Buildings decrease this by a flat integer.
+	if(GetPovertyUnhappiness() != 0)
+	{
+		iThreshold += GetPovertyUnhappiness() * -100;
+	}
+	int iLoop = 0;
+	for(const CvCity* pLoopCity = GET_PLAYER(getOwner()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iLoop))
+	{
+		if(pLoopCity != NULL)
+		{
+			//Mod from global unhappiness building modifier.
+			if(pLoopCity->GetPovertyUnhappinessGlobal() != 0)
+			{
+				iThreshold += pLoopCity->GetPovertyUnhappinessGlobal() * -100;
+			}
+		}		
+	}
+	if(IsPuppet())
+	{
+		iThreshold += ((GET_PLAYER(getOwner()).GetPuppetUnhappinessMod() * iThreshold) / 100);
+	}
 #endif
-	iThreshold = iThreshold / 100;
-	//This is for LUA.
+
 	return iThreshold;
 }
 //	--------------------------------------------------------------------------------
@@ -9951,21 +9915,18 @@ int CvCity::getUnhappinessFromGold() const
 	{
 		return 0;
 	}
-	float fExponent = /*0.45f*/ GC.getBALANCE_UNHAPPINESS_PER_GOLD_RATE();
-	float fUnhappiness = 0.0f;
+	int iUnhappiness = 0;
+
 	int iThreshold = getUnhappinessFromGoldNeeded();
 	int iGold = getUnhappinessFromGoldYield();
 
 	if(iThreshold > iGold)
 	{
-		fUnhappiness = (float) iThreshold - iGold;
-		if(fUnhappiness > 0)
-		{
-			fUnhappiness = (float) fExponent * (float) fUnhappiness;
-		}
-	}
+		iUnhappiness = iThreshold - iGold;
 
-	return (int) fUnhappiness;
+		iUnhappiness /= 100;
+	}
+	return iUnhappiness;
 }
 //	--------------------------------------------------------------------------------
 int CvCity::getUnhappinessFromConnection() const
@@ -9974,15 +9935,16 @@ int CvCity::getUnhappinessFromConnection() const
 	{
 		return 0;
 	}
-	if(HasTradeRouteTo(GET_PLAYER(getOwner()).getCapitalCity()) || HasTradeRouteFrom(GET_PLAYER(getOwner()).getCapitalCity()))
+#if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
+	//Trait takes away unhappiness from lack of connection.
+	if(GET_PLAYER(getOwner()).GetPlayerTraits()->IsNoConnectionUnhappiness())
 	{
 		return 0;
 	}
-	int iCityPop = getPopulation();
-	int iMaxUnhappy = (iCityPop * GC.getBALANCE_MAX_UNHAPPY_PER_CITY_YIELD()) / 100;
-	if(iMaxUnhappy <= 0)
+#endif
+	if(HasTradeRouteTo(GET_PLAYER(getOwner()).getCapitalCity()) || HasTradeRouteFrom(GET_PLAYER(getOwner()).getCapitalCity()))
 	{
-		iMaxUnhappy = 1;
+		return 0;
 	}
 
 	float fUnhappiness = 0.0f;
@@ -9990,11 +9952,20 @@ int CvCity::getUnhappinessFromConnection() const
 
 	if(!IsConnectedToCapital() || IsBlockaded())
 	{
-		if(/*0.75f*/ (GC.getBALANCE_UNHAPPINESS_FROM_UNCONNECTED_PER_POP() > 0))
+		if(/*0.25f*/ (GC.getBALANCE_UNHAPPINESS_FROM_UNCONNECTED_PER_POP() > 0))
 		{
-			fUnhappiness += (float) iMaxUnhappy * /*0.75f*/ GC.getBALANCE_UNHAPPINESS_FROM_UNCONNECTED_PER_POP();
-			int iEraRate = ((/*10*/ GC.getBALANCE_HAPPINESS_ERA_BASE_INCREASE() * GC.getGame().getCurrentEra()) / 100);
-			fUnhappiness += (float) iEraRate;
+			int iRealCityPop = getPopulation();
+			fUnhappiness += (float) iRealCityPop * /*0.25f*/ GC.getBALANCE_UNHAPPINESS_FROM_UNCONNECTED_PER_POP();
+#if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
+			if(IsPuppet())
+			{
+				fUnhappiness += (float) ((GET_PLAYER(getOwner()).GetPuppetUnhappinessMod() * fUnhappiness) / 100);
+			}
+#endif
+			if(fUnhappiness > iRealCityPop)
+			{
+				return iRealCityPop;
+			}
 			return (int) fUnhappiness;
 		}
 		else
@@ -10013,7 +9984,7 @@ int CvCity::getUnhappinessFromPillaged() const
 		return 0;
 	}
 	float fUnhappiness = 0.0f;
-	float fExponent = /*0.60f*/ GC.getBALANCE_UNHAPPINESS_PER_PILLAGED();
+	float fExponent = /*0.25f*/ GC.getBALANCE_UNHAPPINESS_PER_PILLAGED();
 
 	CvPlot* pLoopPlot;
 	int iPillaged = 0;
@@ -10049,11 +10020,21 @@ int CvCity::getUnhappinessFromPillaged() const
 	}
 
 	fUnhappiness += (float) iPillaged * (float) fExponent;
-	int iEraRate = (((/*10*/ GC.getBALANCE_HAPPINESS_ERA_BASE_INCREASE() * GC.getGame().getCurrentEra()) * iPillaged) / 100);
-	fUnhappiness += (float) iEraRate;
 
 	if(iPillaged > 0)
 	{
+#if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
+		if(IsPuppet())
+		{
+			fUnhappiness += (float) ((GET_PLAYER(getOwner()).GetPuppetUnhappinessMod() * fUnhappiness) / 100);
+		}
+#endif
+		int iRealCityPop = (getPopulation() / 4);
+		if(fUnhappiness > iRealCityPop)
+		{
+			return iRealCityPop;
+		}
+
 		return (int) fUnhappiness;
 	}
 	else
@@ -10069,24 +10050,26 @@ int CvCity::getUnhappinessFromStarving() const
 		return 0;
 	}
 	float fUnhappiness = 0.0f;
-	float fExponent = /*.75*/ GC.getBALANCE_UNHAPPINESS_FROM_STARVING_PER_POP();
-	int iCityPop = getPopulation();
-	int iMaxUnhappy = (iCityPop * GC.getBALANCE_MAX_UNHAPPY_PER_CITY_YIELD()) / 100;
-	if(iMaxUnhappy <= 0)
-	{
-		iMaxUnhappy = 1;
-	}
-
+	float fExponent = /*.25*/ GC.getBALANCE_UNHAPPINESS_FROM_STARVING_PER_POP();
 	int iDiff = foodDifference();
 
 	if(iDiff < 0 && !isFoodProduction())
 	{
 		iDiff = (iDiff * -1);
 
-		fUnhappiness += (float) iMaxUnhappy * fExponent;
-		int iEraRate = (((/*10*/ GC.getBALANCE_HAPPINESS_ERA_BASE_INCREASE() * GC.getGame().getCurrentEra()) * iDiff) / 100);
-		fUnhappiness += (float) iEraRate;
-
+		fUnhappiness += (float) iDiff * fExponent;
+		int iRealCityPop = getPopulation();
+#if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
+		if(IsPuppet())
+		{
+			fUnhappiness += (float) ((GET_PLAYER(getOwner()).GetPuppetUnhappinessMod() * fUnhappiness) / 100);
+		}
+#endif
+		
+		if(fUnhappiness > iRealCityPop)
+		{
+			return iRealCityPop;
+		}
 		return (int) fUnhappiness;
 	}
 
@@ -10099,11 +10082,18 @@ int CvCity::getUnhappinessFromMinority() const
 	{
 		return 0;
 	}
+#if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
+	//Trait takes away unhappiness from religious strife.
+	if(GET_PLAYER(getOwner()).GetPlayerTraits()->IsNoReligiousStrife())
+	{
+		return 0;
+	}
+#endif
 	ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
 	const CvReligion* pReligion = NULL;
 	float fUnhappiness = 0.0f;
 	
-	float fExponent = /*.75*/ GC.getBALANCE_UNHAPPINESS_PER_MINORITY_POP();
+	float fExponent = /*.50*/ GC.getBALANCE_UNHAPPINESS_PER_MINORITY_POP();
 	int iCityPop = getPopulation();
 
 	if(eMajority != NO_RELIGION && eMajority != RELIGION_PANTHEON)
@@ -10118,13 +10108,6 @@ int CvCity::getUnhappinessFromMinority() const
 			//Producing excess faith versus religious pop? That should matter.
 			iFollowers += ((GetFaithPerTurn() / iFollowers));
 		}
-#if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
-		//Trait adds % boost to this value (higher trait = higher artificial level of followers).
-		if(GET_PLAYER(getOwner()).GetPlayerTraits()->GetMinorityHappinessChange() != 0)
-		{
-			iFollowers += ((GET_PLAYER(getOwner()).GetPlayerTraits()->GetMinorityHappinessChange() * iFollowers) / 100);
-		}
-#endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 		//Buildings increase this by a flat integer.
 		if(GetMinorityUnhappiness() != 0)
@@ -10150,6 +10133,11 @@ int CvCity::getUnhappinessFromMinority() const
 		if(iMinority > 0)
 		{
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
+			//Trait adds % boost to this value (higher trait = higher artificial level of followers).
+			if(GET_PLAYER(getOwner()).GetPlayerTraits()->GetMinorityHappinessChange() != 0)
+			{
+				iMinority -= ((GET_PLAYER(getOwner()).GetPlayerTraits()->GetMinorityHappinessChange() * iMinority) / 100);
+			}
 			//Policy cuts threshold for this value (bigger negative number = lower threshold).
 			if(GET_PLAYER(getOwner()).GetMinorityUnhappinessMod() != 0)
 			{
@@ -10165,8 +10153,16 @@ int CvCity::getUnhappinessFromMinority() const
 			}
 #endif
 			fUnhappiness = (float) iMinority * fExponent;
-			int iEraRate = ((/*10*/ GC.getBALANCE_HAPPINESS_ERA_BASE_INCREASE() * GC.getGame().getCurrentEra()) / 100);
-			fUnhappiness -= (float) iEraRate;
+#if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
+			if(IsPuppet())
+			{
+				fUnhappiness += (float) ((GET_PLAYER(getOwner()).GetPuppetUnhappinessMod() * fUnhappiness) / 100);
+			}
+#endif
+			if(fUnhappiness > iCityPop)
+			{
+				return iCityPop;
+			}
 
 			return (int) fUnhappiness;
 		}

@@ -5,59 +5,97 @@
 		
 		<!-- Top Panel -->
 		<Row Tag="TXT_KEY_TP_UNHAPPINESS_CULTURE">
-			<Text>{1_Num} from illiteracy.</Text>
+			<Text>{1_Num} from Illiteracy.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TP_UNHAPPINESS_DEFENSE">
-			<Text>{1_Num} from vulnerability.</Text>
+			<Text>{1_Num} from Disorder.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TP_UNHAPPINESS_GOLD">
-			<Text>{1_Num} from poverty.</Text>
+			<Text>{1_Num} from Poverty.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TP_UNHAPPINESS_CONNECTION">
-			<Text>{1_Num} from isolation.</Text>
+			<Text>{1_Num} from Isolation.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TP_UNHAPPINESS_PILLAGED">
-			<Text>{1_Num} from pillaged tiles.</Text>
+			<Text>{1_Num} from Pillaged Tiles.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TP_UNHAPPINESS_STARVING">
-			<Text>{1_Num} from famine.</Text>
+			<Text>{1_Num} from Famine.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TP_UNHAPPINESS_MINORITY">
-			<Text>{1_Num} from religious divisions.</Text>
+			<Text>{1_Num} from Religious Divisions.</Text>
 		</Row>
 		
 		<!-- Economic Overview -->
 		<Row Tag="TXT_KEY_EO_CITY_IS_NOT_OCCUPIED">
-			<Text>[COLOR_NEGATIVE_TEXT]Sources of [ICON_HAPPINESS_3] Unhappiness:[ENDCOLOR]</Text>
+			<Text>Sources of [ICON_HAPPINESS_3] [COLOR_NEGATIVE_TEXT]Unhappiness[ENDCOLOR]:</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EO_CITY_LOCAL_UNHAPPINESS">
+			<Text>Local [ICON_HAPPINESS_3] Unhappiness: [COLOR_NEGATIVE_TEXT]{1_NUM}[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PUPPET_UNHAPPINESS_MOD">
+			<Text>[ICON_BULLET] [ICON_PUPPET] Puppet Modifier: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR]%.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITYCOUNT_UNHAPPINESS">
-			<Text>[ICON_BULLET][COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] Unhappiness (based on number of Cities).</Text>
+			<Text>[ICON_BULLET] [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] from Expansion.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CULTURE_UNHAPPINESS">
-			<Text>[ICON_BULLET][COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] Unhappiness from illiteracy [NEWLINE](Produces an average of [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR] [ICON_CULTURE] Culture and [ICON_RESEARCH] Science per citizen, needs [COLOR_POSITIVE_TEXT]{3_Num}[ENDCOLOR]).</Text>
+			<Text>[ICON_BULLET] [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] from Illiteracy ([ICON_CULTURE]/[ICON_RESEARCH]). [NEWLINE]          Produces: [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR] per [ICON_CITIZEN][NEWLINE]          Global Average: [COLOR_POSITIVE_TEXT]{3_Num}[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DEFENSE_UNHAPPINESS">
-			<Text>[ICON_BULLET][COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] Unhappiness from vulnerability [NEWLINE](Produces an average of [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR] [ICON_STRENGTH] Defense per citizen from buildings and garrison, needs [COLOR_POSITIVE_TEXT]{3_Num}[ENDCOLOR]).</Text>
+			<Text>[ICON_BULLET] [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] from Disorder ([ICON_STRENGTH]). [NEWLINE]          Produces: [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR] per [ICON_CITIZEN][NEWLINE]          Global Average: [COLOR_POSITIVE_TEXT]{3_Num}[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GOLD_UNHAPPINESS">
-			<Text>[ICON_BULLET][COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] Unhappiness from poverty [NEWLINE](Produces an average of [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR] [ICON_FOOD] Food and [ICON_GOLD] Gold per citizen, needs [COLOR_POSITIVE_TEXT]{3_Num}[ENDCOLOR]).</Text>
+			<Text>[ICON_BULLET] [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] from Poverty ([ICON_FOOD]/[ICON_GOLD]). [NEWLINE]          Produces: [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR] per [ICON_CITIZEN][NEWLINE]          Global Average: [COLOR_POSITIVE_TEXT]{3_Num}[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CONNECTION_UNHAPPINESS">
-			<Text>[ICON_BULLET][COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] Unhappiness from being disconnected or blockaded [NEWLINE](needs to be [ICON_CONNECTED] connected to or have a [ICON_INTERNATIONAL_TRADE] Trade Route from your [ICON_CAPITAL] Capital).</Text>
+			<Text>[ICON_BULLET] [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] from Isolation ([ICON_BLOCKADED] Blockaded, lacks [ICON_CONNECTED] Connection, or needs [ICON_INTERNATIONAL_TRADE] Trade Route with [ICON_CAPITAL] Capital).</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PILLAGED_UNHAPPINESS">
-			<Text>[ICON_BULLET][COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] Unhappiness from nearby [ICON_RAZING] pillaged improvements.</Text>
+			<Text>[ICON_BULLET] [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] from [ICON_RAZING] Pillaged Tiles.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_STARVING_UNHAPPINESS">
-			<Text>[ICON_BULLET][COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] Unhappiness from famine [NEWLINE](needs [ICON_FOOD] Food badly).</Text>
+			<Text>[ICON_BULLET] [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] from Famine (needs [ICON_FOOD]).</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MINORITY_UNHAPPINESS">
-			<Text>[ICON_BULLET][COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] Unhappiness from religious strife [NEWLINE](needs more [ICON_PEACE] Faith and more followers of the majority [ICON_RELIGION] Religion).</Text>
+			<Text>[ICON_BULLET] [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] from Religious Divisions (Needs Followers of [ICON_RELIGION] Majority Religion).</Text>
+		</Row>
+
+		<!-- Surplus Threshold -->
+		<Row Tag="TXT_KEY_CULTURE_UNHAPPINESS_SURPLUS">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR] above [ICON_CULTURE]/[ICON_RESEARCH] Global Average.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DEFENSE_UNHAPPINESS_SURPLUS">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR] above [ICON_STRENGTH] Global Average.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GOLD_UNHAPPINESS_SURPLUS">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR] above [ICON_FOOD]/[ICON_GOLD] Global Average.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_EO_CITY_EDUCATED">
+			<Text>[COLOR_POSITIVE_TEXT]Refined[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EO_CITY_DEFENDED">
+			<Text>[COLOR_POSITIVE_TEXT]Lawful[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EO_CITY_PROSPEROUS">
+			<Text>[COLOR_POSITIVE_TEXT]Affluent[ENDCOLOR]</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_EO_CITY_UNEDUCATED">
+			<Text>[COLOR_NEGATIVE_TEXT]Illiteracy[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EO_CITY_UNDEFENDED">
+			<Text>[COLOR_NEGATIVE_TEXT]Disorder[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EO_CITY_POOR">
+			<Text>[COLOR_NEGATIVE_TEXT]Poverty[ENDCOLOR]</Text>
 		</Row>
 		
 		<!-- Luxury Tooltip -->
 		<Row Tag="TXT_KEY_TP_HAPPINESS_THRESHOLD_VALUE">
 			<Text>To increase the [ICON_HAPPINESS_1] Happiness value of your Luxury Resources, your empire's population must reach [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR]. Your empire's current population is [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR]. The target value increases with every Era, and for every owned City.</Text>
 		</Row>
+		
 	</Language_en_US>
 </GameData>

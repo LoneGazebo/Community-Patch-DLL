@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created by ModBuddy on 7/12/2014 9:12:37 PM -->
+<GameData>
+	<Diplomacy_Responses>
+		<!-- Human over AI -->
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_INFLUENTIAL_ON_AI_CLASSICAL</ResponseType>
+			<Response>TXT_KEY_GENERIC_INFLUENTIAL_ON_AI_CLASSICAL%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_INFLUENTIAL_ON_AI_RENAISSANCE</ResponseType>
+			<Response>TXT_KEY_GENERIC_INFLUENTIAL_ON_AI_RENAISSANCE%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_INFLUENTIAL_ON_AI_MODERN</ResponseType>
+			<Response>TXT_KEY_GENERIC_INFLUENTIAL_ON_AI_MODERN%</Response>
+		</Row>
+		<!-- AI over Human -->
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_INFLUENTIAL_ON_HUMAN_CLASSICAL</ResponseType>
+			<Response>TXT_KEY_GENERIC_INFLUENTIAL_ON_HUMAN_CLASSICAL%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_INFLUENTIAL_ON_HUMAN_RENAISSANCE</ResponseType>
+			<Response>TXT_KEY_GENERIC_INFLUENTIAL_ON_HUMAN_RENAISSANCE%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_INFLUENTIAL_ON_HUMAN_MODERN</ResponseType>
+			<Response>TXT_KEY_GENERIC_INFLUENTIAL_ON_HUMAN_MODERN%</Response>
+		</Row>
+	</Diplomacy_Responses>
+	<Language_en_US>
+		<!-- Human over AI -->		
+		<Row Tag="TXT_KEY_GENERIC_INFLUENTIAL_ON_AI_CLASSICAL_1">
+			<Text>Your culture has overawed my coarse and barbaric people. Our culture will be ground to dust under the weight of your mighty influence, however others surely remain who will contest your dominance.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_INFLUENTIAL_ON_AI_RENAISSANCE_1">
+			<Text>I lament that the traditions of my ancestors are being swept away by the powerful force of your influence. Is this the beginning of an age of cultural darkness, or are you the bringer of enlightenment?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_INFLUENTIAL_ON_AI_MODERN_1">
+			<Text>We were once a proud, independent culture, but now all that remains of our former glory rests on dusty shelves. Someday you too will join us in the archives of history...but today is not that day.</Text>
+		</Row>
+		<!-- AI over Human -->
+		<Row Tag="TXT_KEY_GENERIC_INFLUENTIAL_ON_HUMAN_CLASSICAL_1">
+			<Text>I am happy to see that you have finally abandoned your miserable, barbaric customs. Do not despair, as it is far better for a culture to die by choice than by the sword...though yours, perhaps, may succumb to both.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_INFLUENTIAL_ON_HUMAN_RENAISSANCE_1">
+			<Text>Do not fear the new way of life that has enthralled your people. You will soon forget all about the backwards and rude traditions you laughably called 'culture.'</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_INFLUENTIAL_ON_HUMAN_MODERN_1">
+			<Text>There is little space now for the diverse traditions of bygone eras. Unfortunately for you, it seems that your culture has been pushed out. Don't worry, I plan on dedicating a large section of our new antiquities museum to you.</Text>
+		</Row>
+	</Language_en_US>
+</GameData>

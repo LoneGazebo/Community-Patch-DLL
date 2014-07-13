@@ -11691,7 +11691,7 @@ int CvUnit::GetMaxDefenseStrength(const CvPlot* pInPlot, const CvUnit* pAttacker
 
 	if(m_bEmbarked)
 	{
-		return GetEmbarkedUnitDefense();;
+		return GetEmbarkedUnitDefense();
 	}
 
 	if(GetBaseCombatStrength() == 0)
@@ -11824,6 +11824,13 @@ int CvUnit::GetEmbarkedUnitDefense() const
 		iRtnValue = iRtnValue * (100 + iModifier);
 		iRtnValue /= 100;
 	}
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	if(MOD_BALANCE_CORE_MILITARY)
+	{
+		//25% of defense added in. This is largely to help the AI.
+		iRtnValue += (GetBaseCombatStrength(true) / GC.getBALANCE_EMBARK_DEFENSE_DIVISOR());
+	}
+#endif
 
 	return iRtnValue;
 }

@@ -1858,11 +1858,11 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 		}
 		if(bFromMe)
 		{
-			//Are we trading away one of our core 4 cities? Bad idea.
+			//Are we trading away one of our core 3 cities? Bad idea.
 			int iNumCities = GetPlayer()->getNumCities();
-			if(iNumCities <= 4)
+			if(iNumCities <= 3)
 			{
-				iItemValue *= 5;
+				iItemValue = -1;
 			}
 		}
 	}
@@ -4709,31 +4709,31 @@ int CvDealAI::GetMapValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUseEvenV
 		switch(pPlot->getTerrainType())
 		{
 			case TERRAIN_GRASS:
-				iPlotValue = 75;
+				iPlotValue = 60;
 				break;
 			case TERRAIN_PLAINS:
-				iPlotValue = 75;
+				iPlotValue = 60;
 				break;
 			case TERRAIN_DESERT:
-				iPlotValue = 75;
+				iPlotValue = 60;
 				break;
 			case TERRAIN_HILL:
-				iPlotValue = 75;
+				iPlotValue = 60;
 				break;
 			case TERRAIN_COAST:
-				iPlotValue = 50;
+				iPlotValue = 45;
 				break;
 			case TERRAIN_TUNDRA:
-				iPlotValue = 50;
+				iPlotValue = 35;
 				break;
 			case TERRAIN_MOUNTAIN:
-				iPlotValue = 50;
+				iPlotValue = 35;
 				break;
 			case TERRAIN_SNOW:
-				iPlotValue = 10;
+				iPlotValue = 5;
 				break;
 			case TERRAIN_OCEAN:
-				iPlotValue = 10;
+				iPlotValue = 5;
 				break;
 			default:
 				iPlotValue = 20;
@@ -4752,10 +4752,10 @@ int CvDealAI::GetMapValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUseEvenV
 		}
 		iPlotValue /= 100;
 
-		// Is there a Natural Wonder here? 1000% of plot.
+		// Is there a Natural Wonder here? 500% of plot.
 		if(pPlot->IsNaturalWonder())
 		{
-			iPlotValue *= 1000;
+			iPlotValue *= 500;
 			iPlotValue /= 100;
 		}
 
@@ -4864,11 +4864,11 @@ int CvDealAI::GetTechValue(TechTypes eTech, bool bFromMe, PlayerTypes eOtherPlay
 		{
 			if(pUnitEntry->GetPrereqAndTech() == eTech)
 			{
-				iTechMod += 2;
+				iTechMod += 1;
 
 				if(pUnitEntry->GetNukeDamageLevel() > 0)
 				{
-					iTechMod *= 5;
+					iTechMod *= 3;
 				}
 			}
 		}
@@ -4881,7 +4881,7 @@ int CvDealAI::GetTechValue(TechTypes eTech, bool bFromMe, PlayerTypes eOtherPlay
 		{
 			if(pBuildingEntry->GetPrereqAndTech() == eTech)
 			{
-				iTechMod += 5;
+				iTechMod += 4;
 			}
 		}
 	}
@@ -4893,7 +4893,7 @@ int CvDealAI::GetTechValue(TechTypes eTech, bool bFromMe, PlayerTypes eOtherPlay
 		{
 			if(pProjectEntry->GetTechPrereq() == eTech)
 			{
-				iTechMod += 5;
+				iTechMod += 3;
 			}
 		}
 	}
@@ -4905,7 +4905,7 @@ int CvDealAI::GetTechValue(TechTypes eTech, bool bFromMe, PlayerTypes eOtherPlay
 		{
 			if(pBuildInfo->getTechPrereq() == eTech)
 			{
-				iTechMod += 5;
+				iTechMod += 3;
 			}
 		}
 	}
@@ -4917,7 +4917,7 @@ int CvDealAI::GetTechValue(TechTypes eTech, bool bFromMe, PlayerTypes eOtherPlay
 		{
 			if(pResourceInfo->getTechReveal() == eTech)
 			{
-				iTechMod += 5;
+				iTechMod += 3;
 			}
 		}
 	}
@@ -4926,7 +4926,7 @@ int CvDealAI::GetTechValue(TechTypes eTech, bool bFromMe, PlayerTypes eOtherPlay
 	{
 		if(!GC.getGame().isOption(GAMEOPTION_NO_TECH_TRADING) && !GC.getGame().isOption(GAMEOPTION_NO_SCIENCE))
 		{
-			iTechMod += 5;
+			iTechMod += 3;
 		}
 	}
 
@@ -4934,7 +4934,7 @@ int CvDealAI::GetTechValue(TechTypes eTech, bool bFromMe, PlayerTypes eOtherPlay
 	{
 		if(GC.getGame().isOption(GAMEOPTION_RESEARCH_AGREEMENTS) && !GC.getGame().isOption(GAMEOPTION_NO_SCIENCE))
 		{
-			iTechMod += 5;
+			iTechMod += 3;
 		}
 	}
 
@@ -4942,7 +4942,7 @@ int CvDealAI::GetTechValue(TechTypes eTech, bool bFromMe, PlayerTypes eOtherPlay
 	{
 		if(GC.getGame().isOption(GAMEOPTION_RESEARCH_AGREEMENTS) && !GC.getGame().isOption(GAMEOPTION_NO_SCIENCE))
 		{
-			iTechMod += 5;
+			iTechMod += 3;
 		}
 	}
 
@@ -5039,8 +5039,8 @@ int CvDealAI::GetVassalageValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUs
 			return 100000;
 		}
 
-		// Initial Vassalage deal value at 500
-		iItemValue = 500;
+		// Initial Vassalage deal value at 500 -- edited to 400
+		iItemValue = 400;
 
 		// Add deal value based on number of wars player is currently fighting (including with minors)
 		iItemValue += iItemValue * min(1, GET_TEAM(GET_PLAYER(eOtherPlayer).getTeam()).getAtWarCount(false));
