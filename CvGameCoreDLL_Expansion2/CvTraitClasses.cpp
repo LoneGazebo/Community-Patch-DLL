@@ -752,6 +752,14 @@ int CvTraitEntry::GetMinorityHappinessChange() const
 {
 	return m_iMinorityHappinessChange;
 }
+bool CvTraitEntry::IsNoConnectionUnhappiness() const
+{
+	return m_bNoConnectionUnhappiness;
+}
+bool CvTraitEntry::IsNoReligiousStrife() const
+{
+	return m_bIsNoReligiousStrife;
+}
 #endif
 
 /// Accessor:: 1 extra yield comes all tiles with a base yield of this
@@ -1119,6 +1127,8 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	m_iDefenseHappinessChange = kResults.GetInt("DefenseHappinessTraitMod");
 	m_iIlliteracyHappinessChange = kResults.GetInt("IlliteracyHappinessTraitMod");
 	m_iMinorityHappinessChange = kResults.GetInt("MinorityHappinessTraitMod");
+	m_bNoConnectionUnhappiness = kResults.GetBool("NoConnectionUnhappiness");
+	m_bIsNoReligiousStrife = kResults.GetBool("IsNoReligiousStrife");
 #endif
 
 	//Arrays
@@ -1626,6 +1636,14 @@ void CvPlayerTraits::InitPlayerTraits()
 			m_iDefenseHappinessChange += trait->GetDefenseHappinessChange();
 			m_iIlliteracyHappinessChange += trait->GetIlliteracyHappinessChange();
 			m_iMinorityHappinessChange += trait->GetMinorityHappinessChange();
+			if( trait->IsNoConnectionUnhappiness())
+			{
+				m_bNoConnectionUnhappiness = true;
+			}
+			if( trait->IsNoReligiousStrife())
+			{
+				m_bIsNoReligiousStrife = true;
+			}
 #endif
 
 			for(int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
@@ -1841,6 +1859,8 @@ void CvPlayerTraits::Reset()
 	m_iDefenseHappinessChange = 0;
 	m_iIlliteracyHappinessChange = 0;
 	m_iMinorityHappinessChange = 0;
+	m_bNoConnectionUnhappiness = false;
+	m_bIsNoReligiousStrife = false;
 #endif
 
 
@@ -3110,6 +3130,8 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	MOD_SERIALIZE_READ(53, kStream, m_iDefenseHappinessChange, 0);
 	MOD_SERIALIZE_READ(53, kStream, m_iIlliteracyHappinessChange, 0);
 	MOD_SERIALIZE_READ(53, kStream, m_iMinorityHappinessChange, 0);
+	MOD_SERIALIZE_READ(54, kStream, m_bNoConnectionUnhappiness, false);
+	MOD_SERIALIZE_READ(54, kStream, m_bIsNoReligiousStrife, false);
 #endif
 
 	kStream >> m_eCampGuardType;
@@ -3344,6 +3366,8 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	MOD_SERIALIZE_WRITE(kStream, m_iDefenseHappinessChange);
 	MOD_SERIALIZE_WRITE(kStream, m_iIlliteracyHappinessChange);
 	MOD_SERIALIZE_WRITE(kStream, m_iMinorityHappinessChange);
+	MOD_SERIALIZE_WRITE(kStream, m_bNoConnectionUnhappiness);
+	MOD_SERIALIZE_WRITE(kStream, m_bIsNoReligiousStrife);
 #endif
 
 	kStream << m_eCampGuardType;

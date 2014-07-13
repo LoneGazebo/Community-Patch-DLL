@@ -171,6 +171,8 @@ public:
 	int GetDefenseHappinessChange() const;
 	int GetIlliteracyHappinessChange() const;
 	int GetMinorityHappinessChange() const;
+	bool IsNoConnectionUnhappiness() const;
+	bool IsNoReligiousStrife() const;
 #endif
 
 	// Arrays
@@ -318,6 +320,8 @@ protected:
 	int m_iDefenseHappinessChange;
 	int m_iIlliteracyHappinessChange;
 	int m_iMinorityHappinessChange;
+	bool m_bNoConnectionUnhappiness;
+	bool m_bIsNoReligiousStrife;
 #endif
 
 	CvString m_strShortDescription;
@@ -785,6 +789,14 @@ public:
 	{
 		return m_iMinorityHappinessChange;
 	}
+	bool IsNoConnectionUnhappiness() const
+	{
+		return m_bNoConnectionUnhappiness;
+	}
+	bool IsNoReligiousStrife() const
+	{
+		return m_bIsNoReligiousStrife;
+	}
 #endif
 
 	int GetExtraYieldThreshold(YieldTypes eYield) const
@@ -997,6 +1009,8 @@ private:
 	int m_iDefenseHappinessChange;
 	int m_iIlliteracyHappinessChange;
 	int m_iMinorityHappinessChange;
+	bool m_bNoConnectionUnhappiness;
+	bool m_bIsNoReligiousStrife;
 #endif
 
 	UnitTypes m_eCampGuardType;

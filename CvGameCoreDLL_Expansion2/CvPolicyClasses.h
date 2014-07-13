@@ -250,6 +250,7 @@ public:
 	int GetDefenseHappinessChangePolicyCapital() const;
 	int GetIlliteracyHappinessChangePolicyCapital() const;
 	int GetMinorityHappinessChangePolicyCapital() const;
+	int GetPuppetUnhappinessMod() const;
 #endif
 private:
 	int m_iTechPrereq;
@@ -417,6 +418,7 @@ private:
 	int m_iDefenseHappinessChangePolicyCapital;
 	int m_iIlliteracyHappinessChangePolicyCapital;
 	int m_iMinorityHappinessChangePolicyCapital;
+	int m_iPuppetUnhappinessModPolicy;
 #endif
 
 	CvString m_strWeLoveTheKingKey;

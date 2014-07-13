@@ -30,6 +30,21 @@
 -- These values modify empire-wide bonuses or penalties gained (or lost) from happiness. Change the values below, making sure to keep the integers + or - as they are below.
 
 -- These values can be modified.
+	
+	-- Golden Age starting requirement.
+	UPDATE Defines
+	SET Value = '600'
+	WHERE Name = 'GOLDEN_AGE_BASE_THRESHOLD_HAPPINESS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
+
+	-- Golden Age per GA increase.
+	UPDATE Defines
+	SET Value = '300'
+	WHERE Name = 'GOLDEN_AGE_EACH_GA_ADDITIONAL_HAPPINESS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
+
+	-- % reduction of combat effectiveness per point of unhappiness.
+	UPDATE Defines
+	SET Value = '1'
+	WHERE Name = 'VERY_UNHAPPY_COMBAT_PENALTY_PER_UNHAPPY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
 
 -- Division line for when happiness bonuses begin. Happiness above threshold grants bonus. (should always be a positive value)
 	INSERT INTO Defines (
@@ -100,7 +115,7 @@
 -- Science % point per happiness mod (should always be a positive value).
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_HAPPINESS_SCIENCE_MODIFIER', '2'
+	SELECT 'BALANCE_HAPPINESS_SCIENCE_MODIFIER', '1'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
  
 --Gold % point per happiness mod (should always be a positive value).
@@ -112,7 +127,7 @@
 --Gold % point per happiness mod (should always be a positive value).
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_HAPPINESS_GOLD_MODIFIER', '2'
+	SELECT 'BALANCE_HAPPINESS_GOLD_MODIFIER', '1'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
 
 -- Production % point per happiness mod (should always be a positive value).
@@ -124,7 +139,7 @@
 -- Production % point per happiness mod (should always be a positive value).
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_HAPPINESS_PRODUCTION_MODIFIER', '3'
+	SELECT 'BALANCE_HAPPINESS_PRODUCTION_MODIFIER', '2'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
 
 -- Food % point per happiness mod (should always be a positive value).

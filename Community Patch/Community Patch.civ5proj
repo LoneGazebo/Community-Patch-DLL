@@ -5,9 +5,9 @@
     <ProjectGuid>{0d66d522-b624-4bc5-acfe-15a0c5b729f4}</ProjectGuid>
     <Name>Community Patch</Name>
     <Guid>d1b6328c-ff44-4b0d-aad7-c657f83610cd</Guid>
-    <ModVersion>54.1</ModVersion>
+    <ModVersion>55</ModVersion>
     <Stability>Experimental</Stability>
-    <Teaser>Unofficial DLL Bugfix and AI Patch for Civ 5 (v54.1)  - Updated 7/7</Teaser>
+    <Teaser>Unofficial DLL Bugfix and AI Patch for Civ 5 (v55.1)  - Updated 7/12</Teaser>
     <Description>Contains core AI improvements and bugfixes for the Civ 5 BNW DLL. Also contains support for Whoward's PNM Mods as well as the Community Balance Patch.</Description>
     <Authors>whoward69, Gazebo</Authors>
     <SpecialThanks>
@@ -97,7 +97,12 @@
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <FileName>Core Files/Core Changes/TextFixes.sql</FileName>
+        <FileName>Core Files/Core Changes/TextChanges.sql</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>Core Files/Core Changes/NewText.xml</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
@@ -370,7 +375,11 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
-    <Content Include="Core Files\Core Changes\TextFixes.sql">
+    <Content Include="Core Files\Core Changes\NewText.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="Core Files\Core Changes\TextChanges.sql">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>

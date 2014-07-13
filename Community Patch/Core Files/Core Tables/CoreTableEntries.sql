@@ -18,6 +18,14 @@ ALTER TABLE Eras ADD COLUMN 'StartingMinorDefenseUnits' integer default 0;
 
 ALTER TABLE HandicapInfos ADD COLUMN 'StartingMinorDefenseUnits' integer default 0;
 
+-- No unhappiness from Isolation.
+
+ALTER TABLE Traits ADD COLUMN 'NoConnectionUnhappiness' boolean default false;
+
+-- No unhappiness from religious strife.
+
+ALTER TABLE Traits ADD COLUMN 'IsNoReligiousStrife' boolean default false;
+
 -- Earn a free building only in your capital as your trait. No tech requirement.
 
 ALTER TABLE Traits ADD COLUMN 'FreeCapitalBuilding' text default NULL;
@@ -106,11 +114,17 @@ ALTER TABLE Policies ADD COLUMN 'DefenseHappinessModCapital' integer default 0;
 ALTER TABLE Policies ADD COLUMN 'IlliteracyHappinessModCapital' integer default 0;
 ALTER TABLE Policies ADD COLUMN 'MinorityHappinessModCapital' integer default 0;
 
+-- Reduce the Unhappiness Threshold for Puppeted Cities. Value should be negative to be good.
+
+ALTER TABLE Policies ADD COLUMN 'PuppetUnhappinessModPolicy' integer default 0;
+
 -- % boosts to city yield for happiness sources (traits) - Values should be positive to be good!
 ALTER TABLE Traits ADD COLUMN 'PovertyHappinessTraitMod' integer default 0;
 ALTER TABLE Traits ADD COLUMN 'DefenseHappinessTraitMod' integer default 0;
 ALTER TABLE Traits ADD COLUMN 'IlliteracyHappinessTraitMod' integer default 0;
 ALTER TABLE Traits ADD COLUMN 'MinorityHappinessTraitMod' integer default 0;
+
+
 
 
 
