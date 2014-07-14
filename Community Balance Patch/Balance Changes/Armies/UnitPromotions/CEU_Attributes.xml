@@ -80,19 +80,6 @@
 			<PediaType>PEDIA_ATTRIBUTES</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_SEA_BONUS_II</PediaEntry>
 		</Row>
-<!-- 		<Row>
-			<Type>PROMOTION_ANTI_SIEGE_II</Type>
-			<Description>TXT_KEY_PROMOTION_ANTI_SIEGE_II</Description>
-			<Help>TXT_KEY_PROMOTION_ANTI_SIEGE_II_HELP</Help>
-			<Sound>AS2D_IF_LEVELUP</Sound>
-			<CannotBeChosen>true</CannotBeChosen>
-			<LostWithUpgrade>true</LostWithUpgrade>
-			<OrderPriority>2</OrderPriority>
-			<PortraitIndex>58</PortraitIndex>
-			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
-			<PediaType>PEDIA_ATTRIBUTES</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_ANTI_SIEGE_II</PediaEntry>
-		</Row> -->
 		<Row>
 			<Type>PROMOTION_CITY_ATTACK_II</Type>
 			<Description>TXT_KEY_PROMOTION_CITY_ATTACK_II</Description>
@@ -408,7 +395,7 @@
 		<Row>
 			<PromotionType>PROMOTION_ANTI_MOUNTED_NOUPGRADE_I</PromotionType>
 			<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
-			<Modifier>10</Modifier>
+			<Modifier>25</Modifier>
 		</Row>
 		<Row>
 			<PromotionType>PROMOTION_ANTI_MOUNTED_NOUPGRADE_II</PromotionType>
@@ -437,7 +424,7 @@
 			<Set Modifier="100" />
 		</Update>
 		<Update>
-			<Where PromotionType="PROMOTION_ANTI_HELICOPTER" UnitCombatType="UNITCOMBAT_HELICOPTER" />
+			<Where PromotionType="PROMOTION_ANTI_AIR" UnitCombatType="UNITCOMBAT_HELICOPTER" />
 			<Set Modifier="50" />
 		</Update>
 		<Update>
