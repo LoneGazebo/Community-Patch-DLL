@@ -7,7 +7,7 @@
 			<Type>BUILDING_JAPANESE_DOJO</Type>
 			<BuildingClass>BUILDINGCLASS_BARRACKS</BuildingClass>
 			<FreeStartEra>ERA_INDUSTRIAL</FreeStartEra>
-			<Cost>150</Cost>
+			<Cost>60</Cost>
 			<GoldMaintenance>1</GoldMaintenance>
 			<PrereqTech>TECH_BRONZE_WORKING</PrereqTech>
 			<Description>TXT_KEY_BUILDING_DOJO</Description>
@@ -21,13 +21,6 @@
 			<PortraitIndex>3</PortraitIndex>
 		</Row>
 	</Buildings>
-	<Building_YieldChanges>
-		<Row>
-			<BuildingType>BUILDING_JAPANESE_DOJO</BuildingType>
-			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Yield>1</Yield>
-		</Row>
-	</Building_YieldChanges>
 	<Building_ResourceYieldChanges>
 		<Row>
 			<BuildingType>BUILDING_JAPANESE_DOJO</BuildingType>
@@ -119,43 +112,43 @@
 			<BuildingType>BUILDING_JADE_HALL</BuildingType>
 			<SpecialistType>SPECIALIST_CITIZEN</SpecialistType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>1</Yield>
+			<Yield>2</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_JADE_HALL</BuildingType>
 			<SpecialistType>SPECIALIST_MUSICIAN</SpecialistType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>1</Yield>
+			<Yield>2</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_JADE_HALL</BuildingType>
 			<SpecialistType>SPECIALIST_WRITER</SpecialistType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>1</Yield>
+			<Yield>2</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_JADE_HALL</BuildingType>
 			<SpecialistType>SPECIALIST_ARTIST</SpecialistType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>1</Yield>
+			<Yield>2</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_JADE_HALL</BuildingType>
 			<SpecialistType>SPECIALIST_SCIENTIST</SpecialistType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>1</Yield>
+			<Yield>2</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_JADE_HALL</BuildingType>
 			<SpecialistType>SPECIALIST_MERCHANT</SpecialistType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>1</Yield>
+			<Yield>2</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_JADE_HALL</BuildingType>
 			<SpecialistType>SPECIALIST_ENGINEER</SpecialistType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>1</Yield>
+			<Yield>2</Yield>
 		</Row>
 	</Building_SpecialistYieldChanges>
 	<Civilization_UnitClassOverrides>
@@ -247,16 +240,11 @@
 				 />
 		</Update>
 	</Traits>
-	<Civilization_FreeTechs>
-		<Row>
-			<CivilizationType>CIVILIZATION_MONGOL</CivilizationType>
-			<TechType>TECH_ANIMAL_HUSBANDRY</TechType>
-		</Row>
-	</Civilization_FreeTechs>
+	
 	<Trait_MovesChangeUnitCombats>
 		<Row>
 			<TraitType>TRAIT_TERROR</TraitType>
-			<UnitCombatType>UNITCOMBAT_GUN</UnitCombatType>
+			<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
 			<MovesChange>1</MovesChange>
 		</Row>
 		<Row>
@@ -265,10 +253,22 @@
 			<MovesChange>1</MovesChange>
 		</Row>
 	</Trait_MovesChangeUnitCombats>
+	<Trait_MaintenanceModifierUnitCombats>
+		<Row>
+			<TraitType>TRAIT_TERROR</TraitType>
+			<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
+			<MaintenanceModifier> -20 </MaintenanceModifier>
+		</Row>
+		<Row>
+			<TraitType>TRAIT_TERROR</TraitType>
+			<UnitCombatType>UNITCOMBAT_GUN</UnitCombatType>
+			<MaintenanceModifier> -20 </MaintenanceModifier>
+		</Row>
+	</Trait_MaintenanceModifierUnitCombats>
 	<Units>
 		<Update>
 			<Where Type="UNIT_MONGOLIAN_KHAN" />
-			<Set Moves="4" />
+			<Set Moves="5" />
 			<!-- 5 -->
 		</Update>
 	</Units>
@@ -278,7 +278,7 @@
 	<UnitPromotions>
 		<Update>
 			<Where Type="PROMOTION_MEDIC_GENERAL" />
-			<Set SameTileHealChange="4"
+			<Set SameTileHealChange="5"
 				 EnemyHealChange="0"
 				 NeutralHealChange="0"
 				 FriendlyHealChange="0" />
@@ -304,15 +304,7 @@
 				 CityGoldPerLuxuryBuildingClass="BUILDINGCLASS_AMSTERDAM_BOURSE" />
 		</Update>
 	</Traits>
-	<!--
-	<Trait_LuxuryYieldModifier>
-		<Row>
-			<TraitType>TRAIT_LUXURY_RETENTION</TraitType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<YieldMod>5</YieldMod>
-		</Row>
-	</Trait_LuxuryYieldModifier>
-	-->
+	
 	<BuildingClasses>
 		<Row>
 			<Type>BUILDINGCLASS_AMSTERDAM_BOURSE</Type>
@@ -342,23 +334,29 @@
 		</Row>
 		<Row>
 			<Type>BUILDING_TRADE_OFFICE</Type>
-			<BuildingClass>BUILDINGCLASS_CARAVANSARY</BuildingClass>
-			<Cost>120</Cost>
-			<PrereqTech>TECH_TRAPPING</PrereqTech>
+			<BuildingClass>BUILDINGCLASS_HARBOR</BuildingClass>
+			<Cost>150</Cost>
+			<PrereqTech>TECH_COMPASS</PrereqTech>
 			<Description>TXT_KEY_BUILDING_TRADE_OFFICE</Description>
 			<Civilopedia>TXT_KEY_BUILDING_TRADE_OFFICE_PEDIA</Civilopedia>
 			<ArtDefineTag>PALACE</ArtDefineTag>
 			<NukeImmune>false</NukeImmune>
-			<MinAreaSize>-1</MinAreaSize>
-			<ConquestProb>66</ConquestProb>
+			<SpecialistType>SPECIALIST_MERCHANT</SpecialistType>
+			<SpecialistCount>1</SpecialistCount>
+			<Water>true</Water>			
+			<MinAreaSize>10</MinAreaSize>
+			<ConquestProb>50</ConquestProb>
 			<HurryCostModifier>25</HurryCostModifier>
 			<DisplayPosition>32</DisplayPosition>
 			<IconAtlas>EXPANSION_TECH_ATLAS_1</IconAtlas>
 			<PortraitIndex>2</PortraitIndex>
 			<IsVisible>1</IsVisible>
 			<ShowInPedia>true</ShowInPedia>
+			<AllowsWaterRoutes>true</AllowsWaterRoutes>
+			<TradeRouteSeaGoldBonus>400</TradeRouteSeaGoldBonus>
 			<TradeRouteLandGoldBonus>200</TradeRouteLandGoldBonus>
-			<TradeRouteLandDistanceModifier>75</TradeRouteLandDistanceModifier>
+			<TradeRouteLandDistanceModifier>100</TradeRouteLandDistanceModifier>
+			<TradeRouteSeaDistanceModifier>100</TradeRouteSeaDistanceModifier>
 		</Row>
 	</Buildings>
 	<Building_Flavors>
