@@ -5,108 +5,43 @@
 	-->
 	<UnitClasses>
 		<Row>
-			<Type>UNITCLASS_BIREME</Type>
-			<Description>TXT_KEY_UNIT_BIREME</Description>
-			<DefaultUnit>UNIT_BIREME</DefaultUnit>
+			<Type>UNITCLASS_CRUISER</Type>
+			<Description>TXT_KEY_UNIT_CRUISER</Description>
+			<DefaultUnit>UNIT_CRUISER</DefaultUnit>
 		</Row>
-		<!--
 		<Row>
-			<Type>UNITCLASS_SHIP_OF_THE_LINE</Type>
-			<Description>TXT_KEY_UNIT_ENGLISH_SHIPOFTHELINE</Description>
-			<DefaultUnit>UNIT_SHIP_OF_THE_LINE</DefaultUnit>
+			<Type>UNITCLASS_MISSILE_DESTROYER</Type>
+			<Description>TXT_KEY_UNIT_MISSILE_DESTROYER</Description>
+			<DefaultUnit>UNIT_MISSILE_DESTROYER</DefaultUnit>
 		</Row>
-		-->
-			<Row>
-				<Type>UNITCLASS_MISSILE_DESTROYER</Type>
-				<Description>TXT_KEY_UNIT_MISSILE_DESTROYER</Description>
-				<DefaultUnit>UNIT_MISSILE_DESTROYER</DefaultUnit>
-			</Row>
 	</UnitClasses>
 	<Units>
-		<Update>
-			<Where Type="UNIT_PRIVATEER" />
-			<Set UnitArtInfo="ART_DEF_UNIT_U_DUTCH_SEA_BEGGARS"
-				 UnitFlagAtlas="EXPANSION_UNIT_FLAG_ATLAS"
-				 UnitFlagIconOffset="12"
-				 IconAtlas="EXPANSION_UNIT_ATLAS_1"
-				 PortraitIndex="12"
-				/>
-		</Update>
-		<Update>
-			<Where Type="UNIT_DUTCH_SEA_BEGGAR" />
-			<Set UnitArtInfo="ART_DEF_UNIT_XP_PRIVATEER"
-				 UnitFlagAtlas="EXPANSION_UNIT_FLAG_ATLAS"
-				 UnitFlagIconOffset="21"
-				 IconAtlas="EXPANSION_UNIT_ATLAS_1"
-				 PortraitIndex="21"
-				/>
-		</Update>
-		<!--
-		<Update>
-			<Where Type="UNIT_ENGLISH_SHIPOFTHELINE" />
-			<Set Class="UNITCLASS_SHIP_OF_THE_LINE"
-				 />
-		</Update>
-		-->
-		<Update>
-			<Where Type="UNIT_TRIREME" />
-			<Set UnitArtInfo="ART_DEF_UNIT_U_CARTHAGE_QUINQUEREME"
-				 UnitFlagAtlas="EXPANSION_UNIT_FLAG_ATLAS"
-				 UnitFlagIconOffset="11"
-				 IconAtlas="EXPANSION_UNIT_ATLAS_1"
-				 PortraitIndex="11"
-				 PrereqTech="TECH_OPTICS"
-				 />
-		</Update>
+		
 		<Row>
-			<Class>UNITCLASS_BIREME</Class>
-			<Type>UNIT_BIREME</Type>
-			<PrereqTech>TECH_SAILING</PrereqTech>
+			<Class>UNITCLASS_CRUSIER</Class>
+			<Type>UNIT_CRUISER</Type>
+			<PrereqTech>TECH_STEAM_POWER</PrereqTech>
 			<Domain>DOMAIN_SEA</Domain>
 			<DefaultUnitAI>UNITAI_ASSAULT_SEA</DefaultUnitAI>
-			<Description>TXT_KEY_UNIT_BIREME</Description>
+			<Description>TXT_KEY_UNIT_CRUSIER</Description>
 			<Help>TXT_KEY_GENERIC</Help>
-			<Civilopedia>TXT_KEY_UNIT_BIREME_PEDIA</Civilopedia>
+			<Civilopedia>TXT_KEY_UNIT_CRUISER_PEDIA</Civilopedia>
 			<MilitarySupport>true</MilitarySupport>
 			<MilitaryProduction>true</MilitaryProduction>
 			<Pillage>true</Pillage>
 			<Mechanized>true</Mechanized>
-			<ObsoleteTech>TECH_ASTRONOMY</ObsoleteTech>
-			<AdvancedStartCost>30</AdvancedStartCost>
-			<MinAreaSize>10</MinAreaSize>
-			<XPValueAttack>3</XPValueAttack>
-			<XPValueDefense>3</XPValueDefense>
-			<UnitArtInfo>ART_DEF_UNIT_TRIREME</UnitArtInfo>
-			<UnitFlagIconOffset>24</UnitFlagIconOffset>
-			<IconAtlas>UNIT_ATLAS_1</IconAtlas>
-			<PortraitIndex>24</PortraitIndex>
-			<MoveRate>WOODEN_BOAT</MoveRate>
-		</Row>
-		<!--
-		<Row>
-			<Class>UNITCLASS_SHIP_OF_THE_LINE</Class>
-			<Type>UNIT_SHIP_OF_THE_LINE</Type>
-			<PrereqTech>TECH_NAVIGATION</PrereqTech>
-			<ObsoleteTech>TECH_STEAM_POWER</ObsoleteTech>
-			<Domain>DOMAIN_SEA</Domain>
-			<DefaultUnitAI>UNITAI_RESERVE_SEA</DefaultUnitAI>
-			<Description>TXT_KEY_UNIT_ENGLISH_SHIPOFTHELINE</Description>
-			<Civilopedia>TXT_KEY_UNIT_SHIP_OF_THE_LINE_PEDIA</Civilopedia>
-			<MilitarySupport>true</MilitarySupport>
-			<MilitaryProduction>true</MilitaryProduction>
-			<Pillage>true</Pillage>
-			<Mechanized>true</Mechanized>
+			<ObsoleteTech>TECH_ELECTRONICS</ObsoleteTech>
 			<AdvancedStartCost>50</AdvancedStartCost>
 			<MinAreaSize>10</MinAreaSize>
 			<XPValueAttack>3</XPValueAttack>
 			<XPValueDefense>3</XPValueDefense>
-			<UnitArtInfo>ART_DEF_UNIT_U_ENGLISH_SHIPOFTHELINE</UnitArtInfo>
-			<UnitFlagIconOffset>52</UnitFlagIconOffset>
-			<IconAtlas>UNIT_ATLAS_2</IconAtlas>
-			<PortraitIndex>9</PortraitIndex>
-			<MoveRate>WOODEN_BOAT</MoveRate>
+			<UnitArtInfo>ART_DEF_UNIT_IRONCLAD</UnitArtInfo>
+			<UnitFlagIconOffset>24</UnitFlagIconOffset>
+			<IconAtlas>UNIT_ATLAS_1</IconAtlas>
+			<PortraitIndex>24</PortraitIndex>
+			<MoveRate>BOAT</MoveRate>
 		</Row>
-		-->
+		
 		<Row>
 			<Class>UNITCLASS_MISSILE_DESTROYER</Class>
 			<Type>UNIT_MISSILE_DESTROYER</Type>
@@ -135,29 +70,18 @@
 	</Units>
 	<Unit_AITypes>
 		<Row>
-			<UnitType>UNIT_BIREME</UnitType>
+			<UnitType>UNIT_CRUISER</UnitType>
 			<UnitAIType>UNITAI_ATTACK_SEA</UnitAIType>
 		</Row>
 		<Row>
-			<UnitType>UNIT_BIREME</UnitType>
+			<UnitType>UNIT_CRUSIER</UnitType>
 			<UnitAIType>UNITAI_RESERVE_SEA</UnitAIType>
 		</Row>
 		<Row>
-			<UnitType>UNIT_BIREME</UnitType>
+			<UnitType>UNIT_CRUSIER</UnitType>
 			<UnitAIType>UNITAI_ESCORT_SEA</UnitAIType>
 		</Row>
-		<!--<Row>
-			<UnitType>UNIT_SHIP_OF_THE_LINE</UnitType>
-			<UnitAIType>UNITAI_ATTACK_SEA</UnitAIType>
-		</Row>
-		<Row>
-			<UnitType>UNIT_SHIP_OF_THE_LINE</UnitType>
-			<UnitAIType>UNITAI_RESERVE_SEA</UnitAIType>
-		</Row>
-		<Row>
-			<UnitType>UNIT_SHIP_OF_THE_LINE</UnitType>
-			<UnitAIType>UNITAI_ESCORT_SEA</UnitAIType>
-		</Row>-->
+		
 		<Row>
 			<UnitType>UNIT_MISSILE_DESTROYER</UnitType>
 			<UnitAIType>UNITAI_ATTACK_SEA</UnitAIType>
@@ -172,216 +96,13 @@
 		</Row>
 	</Unit_AITypes>
 	<UnitGameplay2DScripts>
-		<Row UnitType="UNIT_BIREME">
-			<SelectionSound>AS2D_SELECT_TRIREME</SelectionSound>
-			<FirstSelectionSound>AS2D_BIRTH_TRIREME</FirstSelectionSound>
-		</Row>
-		<Row UnitType="UNIT_SHIP_OF_THE_LINE">
-			<SelectionSound>AS2D_SELECT_FRIGATE</SelectionSound>
-			<FirstSelectionSound>AS2D_BIRTH_FRIGATE</FirstSelectionSound>
+		<Row UnitType="UNIT_CRUISER">
+			<SelectionSound>AS2D_SELECT_IRONCLAD</SelectionSound>
+			<FirstSelectionSound>AS2D_BIRTH_IRONCLAD</FirstSelectionSound>
 		</Row>
 		<Row UnitType="UNIT_MISSILE_DESTROYER">
 			<SelectionSound>AS2D_SELECT_DESTROYER</SelectionSound>
 			<FirstSelectionSound>AS2D_BIRTH_DESTROYER</FirstSelectionSound>
-		</Row>
-	</UnitGameplay2DScripts>
-
-	<!--
-			Vanguard
-	-->
-	<UnitClasses>
-		<!--
-		<Row>
-			<Type>UNITCLASS_SENTINEL</Type>
-			<Description>TXT_KEY_UNIT_SENTINEL</Description>
-			<DefaultUnit>UNIT_SENTINEL</DefaultUnit>
-		</Row>
-		<Row>
-			<Type>UNITCLASS_LEVY</Type>
-			<Description>TXT_KEY_UNIT_LEVY</Description>
-			<DefaultUnit>UNIT_LEVY</DefaultUnit>
-		</Row>
-		<Row>
-			<Type>UNITCLASS_MILITIA</Type>
-			<Description>TXT_KEY_UNIT_MILITIA</Description>
-			<DefaultUnit>UNIT_MILITIA</DefaultUnit>
-		</Row>
-		<Row>
-			<Type>UNITCLASS_CONSCRIPT</Type>
-			<Description>TXT_KEY_UNIT_CONSCRIPT</Description>
-			<DefaultUnit>UNIT_CONSCRIPT</DefaultUnit>
-		</Row>
-		-->
-	</UnitClasses>
-	<Units>
-		<!--
-		<Row>
-			<Class>UNITCLASS_SENTINEL</Class>
-			<Type>UNIT_SENTINEL</Type>
-			<PrereqTech>TECH_THE_WHEEL</PrereqTech>
-			<ObsoleteTech>TECH_CIVIL_SERVICE</ObsoleteTech>
-			<Cost>100</Cost>
-			<FaithCost>112</FaithCost>
-			<RequiresFaithPurchaseEnabled>true</RequiresFaithPurchaseEnabled>
-			<Combat>9</Combat>
-			<Moves>2</Moves>
-			<CombatClass>UNITCOMBAT_RECON</CombatClass>
-			<Domain>DOMAIN_LAND</Domain>
-			<DefaultUnitAI>UNITAI_ATTACK</DefaultUnitAI>
-			<Description>TXT_KEY_UNIT_SENTINEL</Description>
-			<Civilopedia>TXT_KEY_UNIT_SENTINEL_PEDIA</Civilopedia>
-			<Pillage>true</Pillage>
-			<MilitarySupport>true</MilitarySupport>
-			<MilitaryProduction>true</MilitaryProduction>
-			<GoodyHutUpgradeUnitClass>UNITCLASS_MILITIA</GoodyHutUpgradeUnitClass>
-			<AdvancedStartCost>20</AdvancedStartCost>
-			<XPValueAttack>3</XPValueAttack>
-			<XPValueDefense>3</XPValueDefense>
-			<UnitArtInfo>ART_DEF_UNIT_GADRAUHTS_SWORDSMAN</UnitArtInfo>
-			<UnitFlagAtlas>EXPANSION_SCEN_UNIT_FLAG_ATLAS</UnitFlagAtlas>
-			<UnitFlagIconOffset>2</UnitFlagIconOffset>
-			<IconAtlas>EXPANSION_SCEN_UNIT_ATLAS</IconAtlas>
-			<PortraitIndex>2</PortraitIndex>
-		</Row>
-		<Row>
-			<Class>UNITCLASS_LEVY</Class>
-			<Type>UNIT_LEVY</Type>
-			<PrereqTech>TECH_CIVIL_SERVICE</PrereqTech>
-			<ObsoleteTech>TECH_BANKING</ObsoleteTech>
-			<Cost>150</Cost>
-			<FaithCost>180</FaithCost>
-			<RequiresFaithPurchaseEnabled>true</RequiresFaithPurchaseEnabled>
-			<Combat>14</Combat>
-			<Moves>2</Moves>
-			<CombatClass>UNITCOMBAT_RECON</CombatClass>
-			<Domain>DOMAIN_LAND</Domain>
-			<DefaultUnitAI>UNITAI_ATTACK</DefaultUnitAI>
-			<Description>TXT_KEY_UNIT_LEVY</Description>
-			<Civilopedia>TXT_KEY_UNIT_LEVY_PEDIA</Civilopedia>
-			<Pillage>true</Pillage>
-			<MilitarySupport>true</MilitarySupport>
-			<MilitaryProduction>true</MilitaryProduction>
-			<GoodyHutUpgradeUnitClass>UNITCLASS_MILITIA</GoodyHutUpgradeUnitClass>
-			<AdvancedStartCost>20</AdvancedStartCost>
-			<XPValueAttack>3</XPValueAttack>
-			<XPValueDefense>3</XPValueDefense>
-			<UnitArtInfo>ART_DEF_UNIT_U_SAXON_HUSCARL</UnitArtInfo>
-			<UnitFlagAtlas>EXPANSION_SCEN_UNIT_FLAG_ATLAS</UnitFlagAtlas>
-			<UnitFlagIconOffset>1</UnitFlagIconOffset>
-			<IconAtlas>EXPANSION_SCEN_UNIT_ATLAS</IconAtlas>
-			<PortraitIndex>1</PortraitIndex>
-		</Row>
-		<Row>
-			<Class>UNITCLASS_MILITIA</Class>
-			<Type>UNIT_MILITIA</Type>
-			<PrereqTech>TECH_BANKING</PrereqTech>
-			<ObsoleteTech>TECH_ELECTRICITY</ObsoleteTech>
-			<Cost>180</Cost>
-			<FaithCost>300</FaithCost>
-			<RequiresFaithPurchaseEnabled>true</RequiresFaithPurchaseEnabled>
-			<Combat>17</Combat>
-			<Moves>2</Moves>
-			<CombatClass>UNITCOMBAT_RECON</CombatClass>
-			<Domain>DOMAIN_LAND</Domain>
-			<DefaultUnitAI>UNITAI_ATTACK</DefaultUnitAI>
-			<Description>TXT_KEY_UNIT_MILITIA</Description>
-			<Help>-</Help>
-			<Civilopedia>TXT_KEY_UNIT_MILITIA_PEDIA</Civilopedia>
-			<Pillage>true</Pillage>
-			<MilitarySupport>true</MilitarySupport>
-			<MilitaryProduction>true</MilitaryProduction>
-			<GoodyHutUpgradeUnitClass>UNITCLASS_CONSCRIPT</GoodyHutUpgradeUnitClass>
-			<AdvancedStartCost>25</AdvancedStartCost>
-			<XPValueAttack>3</XPValueAttack>
-			<XPValueDefense>3</XPValueDefense>
-			<UnitArtInfo>ART_DEF_UNIT_U_AMERICAN_MINUTEMAN</UnitArtInfo>
-			<UnitFlagIconOffset>38</UnitFlagIconOffset>
-			<IconAtlas>UNIT_ATLAS_1</IconAtlas>
-			<PortraitIndex>39</PortraitIndex>
-		</Row>
-		<Row>
-			<Class>UNITCLASS_CONSCRIPT</Class>
-			<Type>UNIT_CONSCRIPT</Type>
-			<PrereqTech>TECH_ELECTRICITY</PrereqTech>
-			<ObsoleteTech>TECH_RADAR</ObsoleteTech>
-			<Cost>300</Cost>
-			<Combat>28</Combat>
-			<Moves>2</Moves>
-			<CombatClass>UNITCOMBAT_RECON</CombatClass>
-			<Domain>DOMAIN_LAND</Domain>
-			<DefaultUnitAI>UNITAI_ATTACK</DefaultUnitAI>
-			<Description>TXT_KEY_UNIT_CONSCRIPT</Description>
-			<Help>-</Help>
-			<Civilopedia>TXT_KEY_UNIT_CONSCRIPT_PEDIA</Civilopedia>
-			<Pillage>true</Pillage>
-			<MilitarySupport>true</MilitarySupport>
-			<MilitaryProduction>true</MilitaryProduction>
-			<GoodyHutUpgradeUnitClass>UNITCLASS_PARATROOPER</GoodyHutUpgradeUnitClass>
-			<AdvancedStartCost>30</AdvancedStartCost>
-			<XPValueAttack>3</XPValueAttack>
-			<XPValueDefense>3</XPValueDefense>
-			<UnitArtInfo>ART_DEF_UNIT_U_FRENCH_FOREIGNLEGION</UnitArtInfo>
-			<UnitFlagAtlas>VANGUARD_FLAG_ATLAS</UnitFlagAtlas>
-			<UnitFlagIconOffset>55</UnitFlagIconOffset>
-			<IconAtlas>UNIT_ATLAS_2</IconAtlas>
-			<PortraitIndex>38</PortraitIndex>
-		</Row>
-		-->
-	</Units>
-	<Unit_AITypes>
-		<!--
-		<Row>
-			<UnitType>UNIT_SENTINEL</UnitType>
-			<UnitAIType>UNITAI_ATTACK</UnitAIType>
-		</Row>
-		<Row>
-			<UnitType>UNIT_SENTINEL</UnitType>
-			<UnitAIType>UNITAI_DEFENSE</UnitAIType>
-		</Row>
-		<Row>
-			<UnitType>UNIT_LEVY</UnitType>
-			<UnitAIType>UNITAI_ATTACK</UnitAIType>
-		</Row>
-		<Row>
-			<UnitType>UNIT_LEVY</UnitType>
-			<UnitAIType>UNITAI_DEFENSE</UnitAIType>
-		</Row>
-		-->
-		<!--<Row>
-			<UnitType>UNIT_MILITIA</UnitType>
-			<UnitAIType>UNITAI_ATTACK</UnitAIType>
-		</Row>
-		<Row>
-			<UnitType>UNIT_MILITIA</UnitType>
-			<UnitAIType>UNITAI_DEFENSE</UnitAIType>
-		</Row>-->
-		<!--<Row>
-			<UnitType>UNIT_CONSCRIPT</UnitType>
-			<UnitAIType>UNITAI_ATTACK</UnitAIType>
-		</Row>
-		<Row>
-			<UnitType>UNIT_CONSCRIPT</UnitType>
-			<UnitAIType>UNITAI_DEFENSE</UnitAIType>
-		</Row>-->
-	</Unit_AITypes>
-	<UnitGameplay2DScripts>
-		<!--
-		<Row UnitType="UNIT_SENTINEL">
-			<SelectionSound>AS2D_SELECT_SCOUT</SelectionSound>
-			<FirstSelectionSound>AS2D_BIRTH_SCOUT</FirstSelectionSound>
-		</Row>
-		<Row UnitType="UNIT_LEVY">
-			<SelectionSound>AS2D_SELECT_SCOUT</SelectionSound>
-			<FirstSelectionSound>AS2D_BIRTH_SCOUT</FirstSelectionSound>
-		</Row>
-		-->
-		<Row UnitType="UNIT_MILITIA">
-			<SelectionSound>AS2D_SELECT_SCOUT</SelectionSound>
-			<FirstSelectionSound>AS2D_BIRTH_SCOUT</FirstSelectionSound>
-		</Row>
-		<Row UnitType="UNIT_CONSCRIPT">
-			<SelectionSound>AS2D_SELECT_SCOUT</SelectionSound>
-			<FirstSelectionSound>AS2D_BIRTH_SCOUT</FirstSelectionSound>
 		</Row>
 	</UnitGameplay2DScripts>
 </GameData>
