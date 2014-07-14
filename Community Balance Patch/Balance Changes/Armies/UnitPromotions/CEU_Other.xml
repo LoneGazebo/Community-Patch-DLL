@@ -272,19 +272,6 @@
 			<PromotionType>PROMOTION_COVER_1</PromotionType>
 			<UnitCombatType>UNITCOMBAT_ARMOR</UnitCombatType>
 		</Row>
-		<!--
-		<Delete PromotionType="PROMOTION_COVER_2" UnitCombatType="UNITCOMBAT_ARCHER" />
-		<Delete PromotionType="PROMOTION_COVER_2" UnitCombatType="UNITCOMBAT_GUN" />
-		<Delete PromotionType="PROMOTION_COVER_2" UnitCombatType="UNITCOMBAT_SIEGE" />
-		<Row>
-			<PromotionType>PROMOTION_COVER_2</PromotionType>
-			<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
-		</Row>
-		<Row>
-			<PromotionType>PROMOTION_COVER_2</PromotionType>
-			<UnitCombatType>UNITCOMBAT_ARMOR</UnitCombatType>
-		</Row>
-		-->
 		<Delete PromotionType="PROMOTION_WOODSMAN" />
 		<Row>
 			<PromotionType>PROMOTION_WOODSMAN</PromotionType>
