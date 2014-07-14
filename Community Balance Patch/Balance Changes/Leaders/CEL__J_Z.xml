@@ -170,18 +170,7 @@
 	</Traits>
 	<Trait_SpecialistYieldChanges>
 		<Delete TraitType="TRAIT_SCHOLARS_JADE_HALL" />
-		<!--<Row>
-			<TraitType>TRAIT_SCHOLARS_JADE_HALL</TraitType>
-			<SpecialistType>SPECIALIST_SCIENTIST</SpecialistType>
-			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Yield>2</Yield>
-		</Row>
-		<Row>
-			<TraitType>TRAIT_SCHOLARS_JADE_HALL</TraitType>
-			<SpecialistType>SPECIALIST_ENGINEER</SpecialistType>
-			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>2</Yield>
-		</Row>-->
+	
 	</Trait_SpecialistYieldChanges>
 	<Units>
 		<Update>
@@ -368,12 +357,17 @@
 		<Row>
 			<BuildingType>BUILDING_TRADE_OFFICE</BuildingType>
 			<FlavorType>FLAVOR_I_LAND_TRADE_ROUTE</FlavorType>
-			<Flavor>10</Flavor>
+			<Flavor>8</Flavor>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_TRADE_OFFICE</BuildingType>
+			<FlavorType>FLAVOR_I_SEA_TRADE_ROUTE</FlavorType>
+			<Flavor>12</Flavor>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_TRADE_OFFICE</BuildingType>
 			<FlavorType>FLAVOR_I_TRADE_ORIGIN</FlavorType>
-			<Flavor>10</Flavor>
+			<Flavor>12</Flavor>
 		</Row>
 	</Building_Flavors>
 	<Building_GlobalYieldModifiers>
@@ -383,10 +377,17 @@
 			<Yield>1</Yield>
 		</Row>
 	</Building_GlobalYieldModifiers>
+	<Building_YieldChanges>	
+		<Row>
+			<BuildingType>BUILDING_TRADE_OFFICE</BuildingType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>2</Yield>
+		</Row>
+	</Building_YieldChanges>
 	<Civilization_BuildingClassOverrides>
 		<Row>
 			<CivilizationType>CIVILIZATION_NETHERLANDS</CivilizationType>
-			<BuildingClassType>BUILDINGCLASS_CARAVANSARY</BuildingClassType>
+			<BuildingClassType>BUILDINGCLASS_HARBOR</BuildingClassType>
 			<BuildingType>BUILDING_TRADE_OFFICE</BuildingType>
 		</Row>
 	</Civilization_BuildingClassOverrides>
@@ -440,9 +441,6 @@
 			<TerrainType>TERRAIN_TUNDRA</TerrainType>
 		</Row>
 	</Improvement_ValidTerrains>
-	<Improvement_CoastalLandYields>
-		
-	</Improvement_CoastalLandYields>
 	<Civilization_Start_Along_Ocean>
 		<Row>
 			<CivilizationType>CIVILIZATION_NETHERLANDS</CivilizationType>
@@ -512,17 +510,16 @@
 		</Row>
 		<Row>
 			<Type>BUILDING_BARBARY_PORT</Type>
-			<BuildingClass>BUILDINGCLASS_HARBOR</BuildingClass>
-			<Cost>120</Cost>
-			<GoldMaintenance>3</GoldMaintenance>
-			<PrereqTech>TECH_COMPASS</PrereqTech>
+			<BuildingClass>BUILDINGCLASS_LIGHTHOUSE</BuildingClass>
+			<Cost>75</Cost>
+			<GoldMaintenance>0</GoldMaintenance>
+			<PrereqTech>TECH_OPTICS</PrereqTech>
 			<Description>TXT_KEY_BUILDING_BARBARY_PORT</Description>
 			<Civilopedia>TXT_KEY_BUILDING_BARBARY_PORT_PEDIA</Civilopedia>
-			<ArtDefineTag>HARBOR</ArtDefineTag>
+			<ArtDefineTag>LIGHTHOUSE</ArtDefineTag>
 			<Water>true</Water>
-			<AllowsWaterRoutes>true</AllowsWaterRoutes>
 			<MinAreaSize>10</MinAreaSize>
-			<ConquestProb>66</ConquestProb>
+			<ConquestProb>100</ConquestProb>
 			<HurryCostModifier>25</HurryCostModifier>
 			<ArtInfoEraVariation>true</ArtInfoEraVariation>
 			<DisplayPosition>16</DisplayPosition>
@@ -538,10 +535,18 @@
 			<Yield>1</Yield>
 		</Row>
 	</Building_YieldChanges>
+	<Building_SeaPlotYieldChanges>
+		<Row>
+			<BuildingType>BUILDING_BARBARY_PORT</BuildingType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+	</Building_SeaPlotYieldChanges>
+	
 	<Civilization_BuildingClassOverrides>
 		<Row>
 			<CivilizationType>CIVILIZATION_OTTOMAN</CivilizationType>
-			<BuildingClassType>BUILDINGCLASS_HARBOR</BuildingClassType>
+			<BuildingClassType>BUILDINGCLASS_LIGHTHOUSE</BuildingClassType>
 			<BuildingType>BUILDING_BARBARY_PORT</BuildingType>
 		</Row>
 	</Civilization_BuildingClassOverrides>
@@ -557,7 +562,7 @@
 	<Unit_FreePromotions>
 		<Row>
 			<UnitType>UNIT_OTTOMAN_JANISSARY</UnitType>
-			<PromotionType>PROMOTION_MARCH</PromotionType>
+			<PromotionType>PROMOTION_SUPPLY_I</PromotionType>
 		</Row>
 		<Update>
 			<Where UnitType="UNIT_OTTOMAN_JANISSARY" PromotionType="PROMOTION_HEAL_IF_DESTROY_ENEMY" />
@@ -649,13 +654,6 @@
 
 	<!--	Rome
 	-->
-	<Traits>
-		<Update>
-			<Where Type="TRAIT_CAPITAL_BUILDINGS_CHEAPER" />
-			<Set CapitalBuildingModifier="25" />
-			<!-- 25 -->
-		</Update>
-	</Traits>
 	<Trait_FreeResourceFirstXCities>
 		<Row>
 			<TraitType>TRAIT_CAPITAL_BUILDINGS_CHEAPER</TraitType>
@@ -664,36 +662,57 @@
 			<NumCities>5</NumCities>
 		</Row>
 	</Trait_FreeResourceFirstXCities>
-	<Units>
+	<Buildings>
 		<Row>
-			<Class>UNITCLASS_TRIREME</Class>
-			<Type>UNIT_ROMAN_LIBURNA</Type>
-			<PrereqTech>TECH_OPTICS</PrereqTech>
-			<Combat>13</Combat>
-			<Cost>50</Cost>
-			<Moves>4</Moves>
-			<CombatClass>UNITCOMBAT_NAVALMELEE</CombatClass>
-			<Domain>DOMAIN_SEA</Domain>
-			<DefaultUnitAI>UNITAI_ATTACK_SEA</DefaultUnitAI>
-			<Description>TXT_KEY_ROMAN_LIBURNA</Description>
-			<Civilopedia>TXT_KEY_ROMAN_LIBURNA_TEXT</Civilopedia>
-			<Strategy>TXT_KEY_UNIT_ROMAN_LIBURNA_STRATEGY</Strategy>
-			<Help>TXT_KEY_UNIT_HELP_ROMAN_LIBURNA</Help>
-			<MilitarySupport>true</MilitarySupport>
-			<MilitaryProduction>true</MilitaryProduction>
-			<Pillage>true</Pillage>
-			<Mechanized>true</Mechanized>
-			<ObsoleteTech>TECH_ASTRONOMY</ObsoleteTech>
-			<AdvancedStartCost>30</AdvancedStartCost>
-			<MinAreaSize>10</MinAreaSize>
-			<XPValueAttack>3</XPValueAttack>
-			<XPValueDefense>3</XPValueDefense>
-			<UnitArtInfo>ART_DEF_UNIT_TRIREME</UnitArtInfo>
-			<UnitFlagIconOffset>24</UnitFlagIconOffset>
-			<IconAtlas>UNIT_ATLAS_1</IconAtlas>
-			<PortraitIndex>24</PortraitIndex>
-			<MoveRate>WOODEN_BOAT</MoveRate>
+			<Type>BUILDING_FORUM</Type>
+			<BuildingClass>BUILDINGCLASS_MARKET</BuildingClass>
+			<FreeStartEra>ERA_INDUSTRIAL</FreeStartEra>
+			<Cost>100</Cost>
+			<PrereqTech>TECH_CURRENCY</PrereqTech>
+			<Description>TXT_KEY_BUILDING_FORUM</Description>
+			<Civilopedia>TXT_KEY_BUILDING_FORUM_PEDIA</Civilopedia>			
+			<Strategy>TXT_KEY_BUILDING_FORUM_STRATEGY</Strategy>
+			<ArtDefineTag>ART_DEF_BUILDING_MARKET</ArtDefineTag>
+			<SpecialistType>SPECIALIST_MERCHANT</SpecialistType>
+			<SpecialistCount>1</SpecialistCount>
+			<MinAreaSize>-1</MinAreaSize>
+			<ConquestProb>66</ConquestProb>
+			<TradeRouteRecipientBonus>1</TradeRouteRecipientBonus>
+			<TradeRouteTargetBonus>1</TradeRouteTargetBonus>
+			<HurryCostModifier>25</HurryCostModifier>
+			<Happiness>1</Happiness>
+			<IconAtlas>BW_ATLAS_1</IconAtlas>
+			<PortraitIndex>16</PortraitIndex>
 		</Row>
+	</Buildings>
+	<Building_YieldModifiers>
+		<Row>
+			<BuildingType>BUILDING_FORUM</BuildingType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>25</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_FORUM</BuildingType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>5</Yield>
+		</Row>
+	</Building_YieldModifiers>	
+	<Building_YieldChanges>
+        <Row>
+            <BuildingType>BUILDING_FORUM</BuildingType>
+            <YieldType>YIELD_GOLD</YieldType>
+            <Yield>2</Yield>
+        </Row>
+	</Building_YieldChanges>
+	<Civilization_BuildingClassOverrides>
+		<Row>
+			<CivilizationType>CIVILIZATION_ROME</CivilizationType>
+			<BuildingClassType>BUILDINGCLASS_MARKET</BuildingClassType>
+			<BuildingType>BUILDING_FORUM</BuildingType>
+		</Row>
+	</Civilization_BuildingClassOverrides>
+	<Units>
+		
 		<Update>
 			<Where Type="UNIT_ROMAN_LEGION" />
 			<Set WorkRate="200"
@@ -715,14 +734,7 @@
 			<UnitType>UNIT_ROMAN_LEGION</UnitType>
 			<PromotionType>PROMOTION_COVER_1</PromotionType>
 		</Row>
-		<Row>
-			<UnitType>UNIT_ROMAN_LIBURNA</UnitType>
-			<PromotionType>PROMOTION_CAN_MOVE_AFTER_ATTACKING</PromotionType>
-		</Row>
-		<Row>
-			<UnitType>UNIT_ROMAN_LIBURNA</UnitType>
-			<PromotionType>PROMOTION_COASTAL_RAIDER_1</PromotionType>
-		</Row>
+		
 	</Unit_FreePromotions>
 	<Civilization_Start_Along_Ocean>
 		<Row>
@@ -785,14 +797,7 @@
 	<Civilization_Start_Region_Priority>
 		<Delete CivilizationType="CIVILIZATION_RUSSIA"/>
 	</Civilization_Start_Region_Priority>
-	<Civilization_Start_Region_Avoid>
-		<!--
-		<Row>
-			<CivilizationType>CIVILIZATION_RUSSIA</CivilizationType>
-			<RegionType>REGION_DESERT</RegionType>
-		</Row>
-		-->
-	</Civilization_Start_Region_Avoid>
+
 
 
 
@@ -822,7 +827,7 @@
 		<Row>
 			<BuildingType>BUILDING_WAT</BuildingType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>10</Yield>
+			<Yield>15</Yield>
 		</Row>
 	</Building_YieldModifiers>
 	<Civilization_Start_Region_Avoid>
@@ -855,69 +860,11 @@
 		<Delete CivilizationType="CIVILIZATION_SONGHAI"/>
 	</Civilization_Start_Region_Avoid>
 	
-	<!--
-	<Leader_Traits>
-		<Update>
-			<Where LeaderType="LEADER_ASKIA" />
-			<Set TraitType="TRAIT_GAO_MILITIA" />
-		</Update>
-	</Leader_Traits>
-	<Traits>
-		<Row>
-			<Type>TRAIT_GAO_MILITIA</Type>
-			<Description>TXT_KEY_TRAIT_GAO_MILITIA</Description>
-			<ShortDescription>TXT_KEY_TRAIT_GAO_MILITIA_SHORT</ShortDescription>
-		</Row>
-	</Traits>
-	<Trait_FreePromotionUnitCombats>
-		<Row>
-			<TraitType>TRAIT_GAO_MILITIA</TraitType>
-			<UnitCombatType>UNITCOMBAT_RECON</UnitCombatType>
-			<PromotionType>PROMOTION_SCOUTING_1</PromotionType>
-		</Row>
-		<Row>
-			<TraitType>TRAIT_GAO_MILITIA</TraitType>
-			<UnitCombatType>UNITCOMBAT_RECON</UnitCombatType>
-			<PromotionType>PROMOTION_SCOUTING_2</PromotionType>
-		</Row>
-	</Trait_FreePromotionUnitCombats>
-	<Trait_MovesChangeUnitCombats>
-		<Row>
-			<TraitType>TRAIT_FASTER_RANGED</TraitType>
-			<UnitCombatType>UNITCOMBAT_ARCHER</UnitCombatType>
-			<MovesChange>1</MovesChange>
-		</Row>
-		<Row>
-			<TraitType>TRAIT_FASTER_RANGED</TraitType>
-			<UnitCombatType>UNITCOMBAT_GUN</UnitCombatType>
-			<MovesChange>1</MovesChange>
-		</Row>
-		<Row>
-			<TraitType>TRAIT_FASTER_RANGED</TraitType>
-			<UnitCombatType>UNITCOMBAT_SIEGE</UnitCombatType>
-			<MovesChange>1</MovesChange>
-		</Row>
-		<Row>
-			<TraitType>TRAIT_FASTER_RANGED</TraitType>
-			<UnitCombatType>UNITCOMBAT_NAVALRANGED</UnitCombatType>
-			<MovesChange>1</MovesChange>
-		</Row>
-		<Row>
-			<TraitType>TRAIT_FASTER_RANGED</TraitType>
-			<UnitCombatType>UNITCOMBAT_FIGHTER</UnitCombatType>
-			<MovesChange>2</MovesChange>
-		</Row>
-		<Row>
-			<TraitType>TRAIT_FASTER_RANGED</TraitType>
-			<UnitCombatType>UNITCOMBAT_BOMBER</UnitCombatType>
-			<MovesChange>2</MovesChange>
-		</Row>
-	</Trait_MovesChangeUnitCombats>
-	-->
+	
 	<Building_YieldChanges>
 		<Update>
 			<Where BuildingType="BUILDING_MUD_PYRAMID_MOSQUE" YieldType="YIELD_CULTURE" />
-			<Set Yield="5"/>
+			<Set Yield="4"/>
 		</Update>
 	</Building_YieldChanges>
 	<Unit_FreePromotions>
@@ -1025,7 +972,7 @@
 			<Type>BUILDING_FOLKSKOLA</Type>
 			<BuildingClass>BUILDINGCLASS_PUBLIC_SCHOOL</BuildingClass>
 			<Cost>300</Cost>
-			<GoldMaintenance>3</GoldMaintenance>
+			<GoldMaintenance>4</GoldMaintenance>
 			<PrereqTech>TECH_PRINTING_PRESS</PrereqTech>
 			<Description>TXT_KEY_BUILDING_FOLKSKOLA</Description>
 			<Civilopedia>TXT_KEY_BUILDING_FOLKSKOLA_PEDIA</Civilopedia>
@@ -1113,6 +1060,11 @@
 			<TraitType>TRAIT_BUFFALO_HORNS</TraitType>
 			<UnitCombatType>UNITCOMBAT_RECON</UnitCombatType>
 			<MaintenanceModifier> -50 </MaintenanceModifier>
+		</Row>
+		<Row>
+			<TraitType>TRAIT_BUFFALO_HORNS</TraitType>
+			<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
+			<MaintenanceModifier> -25 </MaintenanceModifier>
 		</Row>
 	</Trait_MaintenanceModifierUnitCombats>
 	<Civilization_Start_Region_Avoid>
