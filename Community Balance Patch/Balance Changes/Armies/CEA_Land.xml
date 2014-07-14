@@ -7,7 +7,7 @@
 		</Update>
 		<Update>
 			<Where Class="UNITCLASS_LANCER" />
-			<Set GoodyHutUpgradeUnitClass="UNITCLASS_WWI_TANK" />
+			<Set GoodyHutUpgradeUnitClass="UNITCLASS_CAVALRY" />
 		</Update>
 		<Update>
 			<Where Class="UNITCLASS_GUIDED_MISSILE" />
@@ -23,30 +23,22 @@
 				 GoodyHutUpgradeUnitClass="NULL"
 				 />
 		</Update>
-		
 		<Update>
 			<Where Class="UNITCLASS_PARATROOPER" />
-			<Set CombatClass="UNITCOMBAT_MELEE"
-				 Moves="3"
+			<Set Moves="3"
 				 />
 		</Update>
 		<Update>
 			<Where Class="UNITCLASS_XCOM_SQUAD" />
-			<Set CombatClass="UNITCOMBAT_MELEE"
-				 Moves="3"
+			<Set Moves="3"
 				 />
 		</Update>
 		
 		<Update>
 			<Where Class="UNITCLASS_INFANTRY" />
-			<Set Moves="3"				 
-				 UnitArtInfo="ART_DEF_UNIT_PARATROOPER"
+			<Set Moves="3"	
 				 />
 		</Update>
-		<!--
-		IconAtlas="CEP_NEW_UNITS_ATLAS"
-		PortraitIndex="2"
-		-->
 		<Update>
 			<Where Class="UNITCLASS_ROCKET_ARTILLERY" />
 			<Set Moves="3"
@@ -67,62 +59,6 @@
 			<Set HurryCostModifier="-1" />
 			<!-- 0 -->
 		</Update>
-		<Update>
-			<Where Class="UNIT_HELICOPTER_GUNSHIP" />
-			<Set CombatClass="UNITCOMBAT_MELEE" />
-		</Update>
 	</Units>
 
-
-
-	<!--
-			Other
-	-->
-
-
-
-	<!--
-			Dummy Coal-User
-	-->
-	<Units>
-		<Row>
-			<Class>UNITCLASS_ARTIST</Class>
-			<Type>UNIT_COAL_DUMMY</Type>
-			<Cost>-1</Cost>
-			<Moves>1</Moves>
-			<Domain>DOMAIN_LAND</Domain>
-			<DefaultUnitAI>UNITAI_ARTIST</DefaultUnitAI>
-			<Description>TXT_KEY_DUMMY_COAL</Description>
-			<Help>TXT_KEY_DUMMY_COAL_HELP</Help>
-			<ShowInPedia>false</ShowInPedia>
-			<AdvancedStartCost>-1</AdvancedStartCost>
-			<WorkRate>1</WorkRate>
-			<CombatLimit>0</CombatLimit>
-			<UnitArtInfo>ART_DEF_UNIT_ARTIST</UnitArtInfo>
-			<UnitArtInfoEraVariation>true</UnitArtInfoEraVariation>
-			<UnitFlagIconOffset>88</UnitFlagIconOffset>
-			<PortraitIndex>2</PortraitIndex>
-			<IconAtlas>RESOURCE_ATLAS</IconAtlas>
-			<MoveRate>GREAT_PERSON</MoveRate>
-		</Row>
-	</Units>
-	<Unit_AITypes>
-		<Row>
-			<UnitType>UNIT_COAL_DUMMY</UnitType>
-			<UnitAIType>UNITAI_ARTIST</UnitAIType>
-		</Row>
-	</Unit_AITypes>
-	<Unit_Flavors>
-		<Row>
-			<UnitType>UNIT_COAL_DUMMY</UnitType>
-			<FlavorType>FLAVOR_EXPANSION</FlavorType>
-			<Flavor>1</Flavor>
-		</Row>
-	</Unit_Flavors>
-	<Unit_ResourceQuantityRequirements>
-		<Row>
-			<UnitType>UNIT_COAL_DUMMY</UnitType>
-			<ResourceType>RESOURCE_COAL</ResourceType>
-		</Row>
-	</Unit_ResourceQuantityRequirements>
 </GameData>
