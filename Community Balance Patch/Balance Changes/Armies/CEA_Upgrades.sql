@@ -38,8 +38,6 @@ INSERT INTO Unit_ClassUpgrades (UnitClassType, UnitType) SELECT DISTINCT 'UNITCL
 INSERT INTO Unit_ClassUpgrades (UnitClassType, UnitType) SELECT DISTINCT 'UNITCLASS_BOMBER',               Type FROM Units WHERE Class = 'UNITCLASS_WWI_BOMBER';
 INSERT INTO Unit_ClassUpgrades (UnitClassType, UnitType) SELECT DISTINCT 'UNITCLASS_STEALTH_BOMBER',       Type FROM Units WHERE Class = 'UNITCLASS_BOMBER';
 INSERT INTO Unit_ClassUpgrades (UnitClassType, UnitType) SELECT DISTINCT 'UNITCLASS_MOBILE_SAM',           Type FROM Units WHERE Class = 'UNITCLASS_ANTI_AIRCRAFT_GUN';
-INSERT INTO Unit_ClassUpgrades (UnitClassType, UnitType) SELECT DISTINCT 'UNITCLASS_BIREME',               Type FROM Units WHERE Class = 'UNITCLASS_GALLEY';
-INSERT INTO Unit_ClassUpgrades (UnitClassType, UnitType) SELECT DISTINCT 'UNITCLASS_GALLEASS',             Type FROM Units WHERE Class = 'UNITCLASS_BIREME';
 INSERT INTO Unit_ClassUpgrades (UnitClassType, UnitType) SELECT DISTINCT 'UNITCLASS_FRIGATE',              Type FROM Units WHERE Class = 'UNITCLASS_GALLEASS';
 INSERT INTO Unit_ClassUpgrades (UnitClassType, UnitType) SELECT DISTINCT 'UNITCLASS_CRUISER',              Type FROM Units WHERE Class = 'UNITCLASS_FRIGATE';
 INSERT INTO Unit_ClassUpgrades (UnitClassType, UnitType) SELECT DISTINCT 'UNITCLASS_BATTLESHIP',           Type FROM Units WHERE Class = 'UNITCLASS_CRUISER';
