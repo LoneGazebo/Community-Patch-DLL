@@ -12,12 +12,12 @@ INSERT INTO Unit_ClassUpgrades (UnitClassType, UnitType) SELECT DISTINCT 'UNITCL
 INSERT INTO Unit_ClassUpgrades (UnitClassType, UnitType) SELECT DISTINCT 'UNITCLASS_GREAT_WAR_INFANTRY',   Type FROM Units WHERE Class = 'UNITCLASS_RIFLEMAN';
 INSERT INTO Unit_ClassUpgrades (UnitClassType, UnitType) SELECT DISTINCT 'UNITCLASS_INFANTRY',             Type FROM Units WHERE Class = 'UNITCLASS_GREAT_WAR_INFANTRY';
 INSERT INTO Unit_ClassUpgrades (UnitClassType, UnitType) SELECT DISTINCT 'UNITCLASS_MECHANIZED_INFANTRY',  Type FROM Units WHERE Class = 'UNITCLASS_INFANTRY';
-INSERT INTO Unit_ClassUpgrades (UnitClassType, UnitType) SELECT DISTINCT 'UNITCLASS_XCOM_SQUAD',           Type FROM Units WHERE Class = 'UNITCLASS_MECHANIZED_INFANTRY';
+INSERT INTO Unit_ClassUpgrades (UnitClassType, UnitType) SELECT DISTINCT 'UNITCLASS_XCOM_SQUAD',           Type FROM Units WHERE Class = 'UNITCLASS_PARATROOPER';
 INSERT INTO Unit_ClassUpgrades (UnitClassType, UnitType) SELECT DISTINCT 'UNITCLASS_KNIGHT',               Type FROM Units WHERE Class = 'UNITCLASS_HORSEMAN';
 INSERT INTO Unit_ClassUpgrades (UnitClassType, UnitType) SELECT DISTINCT 'UNITCLASS_KNIGHT',               Type FROM Units WHERE Class = 'UNITCLASS_CHARIOT_ARCHER';
 INSERT INTO Unit_ClassUpgrades (UnitClassType, UnitType) SELECT DISTINCT 'UNITCLASS_LANCER',               Type FROM Units WHERE Class = 'UNITCLASS_KNIGHT';
-INSERT INTO Unit_ClassUpgrades (UnitClassType, UnitType) SELECT DISTINCT 'UNITCLASS_WWI_TANK',             Type FROM Units WHERE Class = 'UNITCLASS_LANCER';
-INSERT INTO Unit_ClassUpgrades (UnitClassType, UnitType) SELECT DISTINCT 'UNITCLASS_TANK',                 Type FROM Units WHERE Class = 'UNITCLASS_CAVALRY';
+INSERT INTO Unit_ClassUpgrades (UnitClassType, UnitType) SELECT DISTINCT 'UNITCLASS_CAVALRY',              Type FROM Units WHERE Class = 'UNITCLASS_LANCER';
+INSERT INTO Unit_ClassUpgrades (UnitClassType, UnitType) SELECT DISTINCT 'UNITCLASS_WWI_TANK',             Type FROM Units WHERE Class = 'UNITCLASS_CAVALRY';
 INSERT INTO Unit_ClassUpgrades (UnitClassType, UnitType) SELECT DISTINCT 'UNITCLASS_TANK',                 Type FROM Units WHERE Class = 'UNITCLASS_WWI_TANK';
 INSERT INTO Unit_ClassUpgrades (UnitClassType, UnitType) SELECT DISTINCT 'UNITCLASS_MODERN_ARMOR',         Type FROM Units WHERE Class = 'UNITCLASS_TANK';
 INSERT INTO Unit_ClassUpgrades (UnitClassType, UnitType) SELECT DISTINCT 'UNITCLASS_MECH',                 Type FROM Units WHERE Class = 'UNITCLASS_MODERN_ARMOR';
@@ -38,13 +38,17 @@ INSERT INTO Unit_ClassUpgrades (UnitClassType, UnitType) SELECT DISTINCT 'UNITCL
 INSERT INTO Unit_ClassUpgrades (UnitClassType, UnitType) SELECT DISTINCT 'UNITCLASS_BOMBER',               Type FROM Units WHERE Class = 'UNITCLASS_WWI_BOMBER';
 INSERT INTO Unit_ClassUpgrades (UnitClassType, UnitType) SELECT DISTINCT 'UNITCLASS_STEALTH_BOMBER',       Type FROM Units WHERE Class = 'UNITCLASS_BOMBER';
 INSERT INTO Unit_ClassUpgrades (UnitClassType, UnitType) SELECT DISTINCT 'UNITCLASS_MOBILE_SAM',           Type FROM Units WHERE Class = 'UNITCLASS_ANTI_AIRCRAFT_GUN';
+INSERT INTO Unit_ClassUpgrades (UnitClassType, UnitType) SELECT DISTINCT 'UNITCLASS_BIREME',               Type FROM Units WHERE Class = 'UNITCLASS_GALLEY';
+INSERT INTO Unit_ClassUpgrades (UnitClassType, UnitType) SELECT DISTINCT 'UNITCLASS_GALLEASS',             Type FROM Units WHERE Class = 'UNITCLASS_BIREME';
 INSERT INTO Unit_ClassUpgrades (UnitClassType, UnitType) SELECT DISTINCT 'UNITCLASS_FRIGATE',              Type FROM Units WHERE Class = 'UNITCLASS_GALLEASS';
-INSERT INTO Unit_ClassUpgrades (UnitClassType, UnitType) SELECT DISTINCT 'UNITCLASS_IRONCLAD',             Type FROM Units WHERE Class = 'UNITCLASS_FRIGATE';
-INSERT INTO Unit_ClassUpgrades (UnitClassType, UnitType) SELECT DISTINCT 'UNITCLASS_BATTLESHIP',           Type FROM Units WHERE Class = 'UNITCLASS_IRONCLAD';
+INSERT INTO Unit_ClassUpgrades (UnitClassType, UnitType) SELECT DISTINCT 'UNITCLASS_CRUISER',              Type FROM Units WHERE Class = 'UNITCLASS_FRIGATE';
+INSERT INTO Unit_ClassUpgrades (UnitClassType, UnitType) SELECT DISTINCT 'UNITCLASS_BATTLESHIP',           Type FROM Units WHERE Class = 'UNITCLASS_CRUISER';
 INSERT INTO Unit_ClassUpgrades (UnitClassType, UnitType) SELECT DISTINCT 'UNITCLASS_MISSILE_CRUISER',      Type FROM Units WHERE Class = 'UNITCLASS_BATTLESHIP';
 INSERT INTO Unit_ClassUpgrades (UnitClassType, UnitType) SELECT DISTINCT 'UNITCLASS_CARAVEL',              Type FROM Units WHERE Class = 'UNITCLASS_TRIREME';
 INSERT INTO Unit_ClassUpgrades (UnitClassType, UnitType) SELECT DISTINCT 'UNITCLASS_PRIVATEER',            Type FROM Units WHERE Class = 'UNITCLASS_CARAVEL';
-INSERT INTO Unit_ClassUpgrades (UnitClassType, UnitType) SELECT DISTINCT 'UNITCLASS_DESTROYER',            Type FROM Units WHERE Class = 'UNITCLASS_PRIVATEER';
+INSERT INTO Unit_ClassUpgrades (UnitClassType, UnitType) SELECT DISTINCT 'UNITCLASS_IRONCLAD',             Type FROM Units WHERE Class = 'UNITCLASS_PRIVATEER';
+INSERT INTO Unit_ClassUpgrades (UnitClassType, UnitType) SELECT DISTINCT 'UNITCLASS_DESTROYER',            Type FROM Units WHERE Class = 'UNITCLASS_IRONCLAD';
+INSERT INTO Unit_ClassUpgrades (UnitClassType, UnitType) SELECT DISTINCT 'UNITCLASS_MISSILE_DESTROYER',    Type FROM Units WHERE Class = 'UNITCLASS_DESTROYER';
 INSERT INTO Unit_ClassUpgrades (UnitClassType, UnitType) SELECT DISTINCT 'UNITCLASS_NUCLEAR_SUBMARINE',    Type FROM Units WHERE Class = 'UNITCLASS_SUBMARINE';
 
 
