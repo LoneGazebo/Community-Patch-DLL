@@ -3,7 +3,7 @@
 
 UPDATE Units SET Cost = Cost * 1.212, Combat = Combat * 1.067                                       WHERE Class = 'UNITCLASS_MECH';
 UPDATE Units SET Cost = Cost * 1.306, Combat = Combat * 1.250                                       WHERE Class = 'UNITCLASS_XCOM_SQUAD';
-UPDATE Units SET Cost = Cost * 1.667,                          RangedCombat = RangedCombat * 1.250  WHERE Class = 'UNITCLASS_GUIDED_MISSILE';
+UPDATE Units SET Cost = Cost * 1.000,                          RangedCombat = RangedCombat * 1.250  WHERE Class = 'UNITCLASS_GUIDED_MISSILE';
 UPDATE Units SET Cost = Cost * 0.889,                          RangedCombat = RangedCombat * 0.941  WHERE Class = 'UNITCLASS_STEALTH_BOMBER';
 UPDATE Units SET Cost = Cost * 0.889,                          RangedCombat = RangedCombat * 1.067  WHERE Class = 'UNITCLASS_JET_FIGHTER';
 UPDATE Units SET Cost = Cost * 1.294, Combat = Combat * 1.100                                       WHERE Class = 'UNITCLASS_MODERN_ARMOR';
