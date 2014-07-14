@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <GameData>
 	<Defines>
-		<Update>
+		<!--<Update>
 			<Where Name="MINOR_BULLY_GOLD" />
 			<Set Value="100" />
 			<!-- 50 -->
-		</Update>
+		</Update>-->
 		<Update>
 			<Where Name="NAVAL_COMBAT_DEFENDER_STRENGTH_MULTIPLIER" />
 			<Set Value="100" />
