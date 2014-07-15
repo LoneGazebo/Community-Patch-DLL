@@ -218,7 +218,7 @@
 			<YieldType>YIELD_PRODUCTION</YieldType>
 			<Yield>1</Yield>
 		</Row>
-		<Delete ResourceType="RESOURCE_SALT" />
+		<!--<Delete ResourceType="RESOURCE_SALT" />
 		<Delete ResourceType="RESOURCE_TRUFFLES" />
 		<Delete ResourceType="RESOURCE_CITRUS" />
 		<Row>
@@ -235,7 +235,7 @@
 			<ResourceType>RESOURCE_CITRUS</ResourceType>
 			<YieldType>YIELD_FOOD</YieldType>
 			<Yield>1</Yield>
-		</Row>
+		</Row>-->
 	</Resource_YieldChanges>
 	<Improvement_ResourceType_Yields>
 		
@@ -271,7 +271,7 @@
 		<Row>
 			<ImprovementType>IMPROVEMENT_CAMP</ImprovementType>
 			<ResourceType>RESOURCE_TRUFFLES</ResourceType>
-			<YieldType>YIELD_FOOD</YieldType>
+			<YieldType>YIELD_GOLD</YieldType>
 			<Yield>1</Yield>
 		</Row>
 		<Delete ResourceType="RESOURCE_CITRUS" />
