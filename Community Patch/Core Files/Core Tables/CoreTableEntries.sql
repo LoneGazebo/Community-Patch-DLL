@@ -90,6 +90,10 @@ ALTER TABLE Buildings ADD COLUMN 'NationalPopRequired' integer default 0;
 -- Adds minimum local population requirement for a building.
 ALTER TABLE Buildings ADD COLUMN 'LocalPopRequired' integer default 0;
 
+-- Reduces specialist unhappiness in cities by a set amount, either in capital or in all cities.
+ALTER TABLE Policies ADD COLUMN 'NoUnhappfromXSpecialists' integer default 0;
+ALTER TABLE Policies ADD COLUMN 'NoUnhappfromXSpecialistsCapital' integer default 0;
+
 -- Flat boosts to city yield for happiness sources (buildings) - values should be positive to be good!
 ALTER TABLE Buildings ADD COLUMN 'PovertyHappinessChange' integer default 0;
 ALTER TABLE Buildings ADD COLUMN 'DefenseHappinessChange' integer default 0;

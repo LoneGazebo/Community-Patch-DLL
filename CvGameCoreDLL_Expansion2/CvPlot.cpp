@@ -7845,7 +7845,7 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, TeamTypes eTeam, bool bIgnor
 		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, pWorkingCity->getOwner());
 		if(pReligion)
 		{
-#if defined(MOD_BALANCE_CORE_YIELDS)
+#if defined(MOD_BALANCE_CORE_BELIEFS_RESOURCE)
 			//Change for improvement/resource
 			int iReligionChange = 0;
 			if(getResourceType() != NO_RESOURCE || getImprovementType() != NO_IMPROVEMENT)
@@ -7869,7 +7869,7 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, TeamTypes eTeam, bool bIgnor
 #endif
 			if (eSecondaryPantheon != NO_BELIEF)
 			{
-#if defined(MOD_BALANCE_CORE_YIELDS)
+#if defined(MOD_BALANCE_CORE_BELIEFS_RESOURCE)
 				//Change for improvement/resource
 				int iReligionChange = 0;
 				if(getResourceType() != NO_RESOURCE || getImprovementType() != NO_IMPROVEMENT)

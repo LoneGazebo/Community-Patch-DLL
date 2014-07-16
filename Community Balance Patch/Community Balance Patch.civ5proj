@@ -286,6 +286,11 @@
         <Type>UpdateDatabase</Type>
         <FileName>Balance Changes/Text/Promotions.sql</FileName>
       </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>Modular Elements/Happiness Mod/PolicyChanges.xml</FileName>
+      </Action>
     </ModActions>
     <Homepage>
     </Homepage>
@@ -567,6 +572,10 @@
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
     <Content Include="Modular Elements\Happiness Mod\BuildingChanges.sql">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="Modular Elements\Happiness Mod\PolicyChanges.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>

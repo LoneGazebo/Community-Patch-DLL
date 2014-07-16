@@ -1043,7 +1043,11 @@ public:
 	int GetMinorityUnhappinessModCapital() const;
 	void ChangeMinorityUnhappinessModCapital(int iChange);
 	int GetPuppetUnhappinessMod() const;
-	void ChangePuppetUnhappinessMod(int iChange);	
+	void ChangePuppetUnhappinessMod(int iChange);
+	int GetNoUnhappfromXSpecialists() const;
+	void ChangeNoUnhappfromXSpecialists(int iChange);
+	int GetNoUnhappfromXSpecialistsCapital() const;
+	void ChangeNoUnhappfromXSpecialistsCapital(int iChange);
 #endif
 
 	int getCultureBombTimer() const;
@@ -1955,6 +1959,8 @@ protected:
 	int m_iIlliteracyUnhappinessModCapital;
 	int m_iMinorityUnhappinessModCapital;
 	int m_iPuppetUnhappinessMod;
+	int m_iNoUnhappfromXSpecialists;
+	int m_iNoUnhappfromXSpecialistsCapital;
 #endif
 	FAutoVariable<int, CvPlayer> m_iMaxGlobalBuildingProductionModifier;
 	FAutoVariable<int, CvPlayer> m_iMaxTeamBuildingProductionModifier;

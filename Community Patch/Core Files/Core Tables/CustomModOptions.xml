@@ -750,6 +750,8 @@
 	<Row Class="6" Name="MOD_BALANCE_CORE_HAPPINESS_MODIFIERS" Value="0"/>
 	<!-- The wonder variable consolation prize sub-feature of MOD_COMMUNITY_PATCH -->
 	<Row Class="6" Name="MOD_BALANCE_CORE_WONDERS_VARIABLE_REWARD" Value="0"/>
+	<!-- The pantheon requires resource or improvement aspect of MOD_COMMUNITY_PATCH -->
+	<Row Class="6" Name="MOD_BALANCE_CORE_BELIEFS_RESOURCE" Value="0"/>
 	  
   </CustomModOptions>
 
