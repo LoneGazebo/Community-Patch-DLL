@@ -287,27 +287,6 @@ void CvCityCitizens::DoTurn()
 				SetFocusType(CITY_AI_FOCUS_TYPE_FOOD);
 				//SetNoAutoAssignSpecialists(true);
 			}
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-			if(MOD_BALANCE_CORE_HAPPINESS)
-			{
-				if(m_pCity->getUnhappinessFromStarving() > 0)
-				{
-					SetFocusType(CITY_AI_FOCUS_TYPE_FOOD);
-				}
-				if(m_pCity->getUnhappinessFromDefense() > 0)
-				{
-					SetFocusType(CITY_AI_FOCUS_TYPE_PRODUCTION);
-				}
-				if(m_pCity->getUnhappinessFromCulture() > 0)
-				{
-					SetFocusType(CITY_AI_FOCUS_TYPE_CULTURE);
-				}
-				if(m_pCity->getUnhappinessFromGold() > 0)
-				{
-					SetFocusType(CITY_AI_FOCUS_TYPE_GOLD);
-				}
-			}
-#endif
 		}
 		else if(m_pCity->GetCityStrategyAI()->GetSpecialization() == eWonderSpecializationType)
 		{
@@ -411,27 +390,6 @@ void CvCityCitizens::DoTurn()
 						SetFocusType(NO_CITY_AI_FOCUS_TYPE);
 					}
 				}
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-				if(MOD_BALANCE_CORE_HAPPINESS)
-				{
-					if(m_pCity->getUnhappinessFromStarving() > 0)
-					{
-						SetFocusType(CITY_AI_FOCUS_TYPE_FOOD);
-					}
-					if(m_pCity->getUnhappinessFromDefense() > 0)
-					{
-						SetFocusType(CITY_AI_FOCUS_TYPE_PRODUCTION);
-					}
-					if(m_pCity->getUnhappinessFromCulture() > 0)
-					{
-						SetFocusType(CITY_AI_FOCUS_TYPE_CULTURE);
-					}
-					if(m_pCity->getUnhappinessFromGold() > 0)
-					{
-						SetFocusType(CITY_AI_FOCUS_TYPE_GOLD);
-					}
-				}
-#endif
 				else
 				{
 					SetFocusType(NO_CITY_AI_FOCUS_TYPE);

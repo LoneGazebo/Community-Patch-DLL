@@ -66,7 +66,7 @@ CvBeliefEntry::CvBeliefEntry() :
 	m_bRequiresPeace(false),
 	m_bConvertsBarbarians(false),
 	m_bFaithPurchaseAllGreatPeople(false),
-#if defined(MOD_BALANCE_CORE_YIELDS)
+#if defined(MOD_BALANCE_CORE_BELIEFS_RESOURCE)
 	m_bRequiresImprovement(false),
 	m_bRequiresResource(false),
 #endif
@@ -393,7 +393,7 @@ bool CvBeliefEntry::FaithPurchaseAllGreatPeople() const
 	return m_bFaithPurchaseAllGreatPeople;
 }
 
-#if defined(MOD_BALANCE_CORE_YIELDS)
+#if defined(MOD_BALANCE_CORE_BELIEFS_RESOURCE)
 /// Accessor: is this a belief that grants faith only from improvements?
 bool CvBeliefEntry::RequiresImprovement() const
 {
@@ -675,7 +675,7 @@ bool CvBeliefEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_bConvertsBarbarians			  = kResults.GetBool("ConvertsBarbarians");
 	m_bFaithPurchaseAllGreatPeople	  = kResults.GetBool("FaithPurchaseAllGreatPeople");
 
-#if defined(MOD_BALANCE_CORE_YIELDS)
+#if defined(MOD_BALANCE_CORE_BELIEFS_RESOURCE)
 	m_bRequiresImprovement			  = kResults.GetBool("RequiresImprovement");
 	m_bRequiresResource				  = kResults.GetBool("RequiresResource");
 #endif
@@ -1722,7 +1722,7 @@ bool CvReligionBeliefs::IsFaithPurchaseAllGreatPeople() const
 	return false;
 }
 
-#if defined(MOD_BALANCE_CORE_YIELDS)
+#if defined(MOD_BALANCE_CORE_BELIEFS_RESOURCE)
 /// Is there a belief that requires improvements?
 bool CvReligionBeliefs::RequiresImprovement() const
 {

@@ -77,7 +77,7 @@ public:
 	bool ConvertsBarbarians() const;
 	bool FaithPurchaseAllGreatPeople() const;
 
-#if defined(MOD_BALANCE_CORE_YIELDS)
+#if defined(MOD_BALANCE_CORE_BELIEFS_RESOURCE)
 	bool RequiresImprovement() const;
 	bool RequiresResource() const;
 #endif
@@ -167,7 +167,7 @@ protected:
 	bool m_bRequiresPeace;
 	bool m_bConvertsBarbarians;
 	bool m_bFaithPurchaseAllGreatPeople;
-#if defined(MOD_BALANCE_CORE_YIELDS)
+#if defined(MOD_BALANCE_CORE_BELIEFS_RESOURCE)
 	bool m_bRequiresImprovement;
 	bool m_bRequiresResource;
 #endif
@@ -408,7 +408,7 @@ public:
 	bool IsConvertsBarbarians() const;
 	bool IsFaithPurchaseAllGreatPeople() const;
 
-#if defined(MOD_BALANCE_CORE_YIELDS)
+#if defined(MOD_BALANCE_CORE_BELIEFS_RESOURCE)
 	bool RequiresImprovement() const;
 	bool RequiresResource() const;
 #endif

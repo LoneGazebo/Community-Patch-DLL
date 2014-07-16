@@ -65,17 +65,17 @@
 -- Differentiation a byproduct of the scaling that occurrs in a typical game - food/gold/defense values from cities do not increase as fast as science and culture do.
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_TECH_RATE_CULTURE_SCIENCE', '40'
+	SELECT 'BALANCE_TECH_RATE_CULTURE_SCIENCE', '50'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 	
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_TECH_RATE_DEFENSE', '80'
+	SELECT 'BALANCE_TECH_RATE_DEFENSE', '75'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 	
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_TECH_RATE_GOLD_FOOD', '120'
+	SELECT 'BALANCE_TECH_RATE_GOLD_FOOD', '125'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 	
 -- Unhappiness point per religious minority pop. A high faith to population ratio will reduce this penalty. Also note that this is the ONLY unhappiness calculation that goes down as the game progresses (religion makes slightly less unhappiness as you move into new eras)

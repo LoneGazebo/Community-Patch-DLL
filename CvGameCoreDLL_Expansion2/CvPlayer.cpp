@@ -313,6 +313,8 @@ CvPlayer::CvPlayer() :
 	, m_iIlliteracyUnhappinessModCapital(0)
 	, m_iMinorityUnhappinessModCapital(0)
 	, m_iPuppetUnhappinessMod(0)
+	, m_iNoUnhappfromXSpecialists(0)
+	, m_iNoUnhappfromXSpecialistsCapital(0)
 #endif
 	, m_iFreeSpecialist("CvPlayer::m_iFreeSpecialist", m_syncArchive)
 	, m_iCultureBombTimer("CvPlayer::m_iCultureBombTimer", m_syncArchive)
@@ -994,6 +996,8 @@ void CvPlayer::uninit()
 	m_iIlliteracyUnhappinessModCapital = 0;
 	m_iMinorityUnhappinessModCapital = 0;
 	m_iPuppetUnhappinessMod = 0;
+	m_iNoUnhappfromXSpecialists = 0;
+	m_iNoUnhappfromXSpecialistsCapital = 0;
 #endif
 	m_iCultureBombTimer = 0;
 	m_iConversionTimer = 0;
@@ -12293,7 +12297,6 @@ int CvPlayer::getGlobalAverage(YieldTypes eYield) const
 	int iPopulation = 0;
 	int iYield = 0;
 	int iLoop = 0;
-	int iCities = 0;
 	PlayerTypes eLoopPlayer;
 	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
@@ -12304,29 +12307,24 @@ int CvPlayer::getGlobalAverage(YieldTypes eYield) const
 		{
 			for(const CvCity* pLoopCity = pMajorLoop->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = pMajorLoop->nextCity(&iLoop))
 			{
-				if(pLoopCity != NULL && (!pLoopCity->IsOccupied() || pLoopCity->IsNoOccupiedUnhappiness()))
+				if(pLoopCity != NULL && (!pLoopCity->IsOccupied() || pLoopCity->IsNoOccupiedUnhappiness()) && pLoopCity->getOwner() != BARBARIAN_PLAYER)
 				{
 					iPopulation += pLoopCity->getPopulation();
-					iCities++;
 
 					//Illiteracy
 					if(eYield == YIELD_CULTURE)
 					{
 						int iCityCulture = pLoopCity->getJONSCulturePerTurn() * 100;
-						int iCityResearch = pLoopCity->getYieldRateTimes100(YIELD_SCIENCE, false);
+						int iCityResearch = pLoopCity->getBasicYieldRateTimes100(YIELD_SCIENCE, false);
 						iYield += (iCityCulture + iCityResearch);
 					}
 					//Vulnerability - Production is just for differentiation.
 					if(eYield == YIELD_PRODUCTION)
 					{
 						int iBuildingDefense = pLoopCity->getStrengthValue(false);
-						if(pLoopCity->GetGarrisonedUnit() == NULL)
-						{
-							// Reduction by 10% without garrison.
-							iBuildingDefense -= (iBuildingDefense / 10);
-						}
-						// 10 damage = -150 points
-						int iDamage = (pLoopCity->getDamage() * 15);
+
+						// 10 damage = -100 points
+						int iDamage = (pLoopCity->getDamage() * 10);
 
 						if(iDamage > 0)
 						{
@@ -12337,7 +12335,7 @@ int CvPlayer::getGlobalAverage(YieldTypes eYield) const
 					//Poverty
 					if(eYield == YIELD_GOLD)
 					{
-						int iGold = pLoopCity->getYieldRateTimes100(YIELD_GOLD, false);
+						int iGold = pLoopCity->getBasicYieldRateTimes100(YIELD_GOLD, false);
 						int iFood = pLoopCity->foodDifferenceTimes100();
 						if(iFood > 0)
 						{
@@ -12353,27 +12351,27 @@ int CvPlayer::getGlobalAverage(YieldTypes eYield) const
 	if(eYield == YIELD_CULTURE)
 	{
 		//This gets us the yield per pop average for our empire, which lets us see which cities are cultured and which not.
-		iTechProgress *= /* 100 */ GC.getBALANCE_TECH_RATE_CULTURE_SCIENCE() / GC.getNumTechInfos();
+		iTechProgress *= /* 50 */ GC.getBALANCE_TECH_RATE_CULTURE_SCIENCE() / GC.getNumTechInfos();
 		//Tech % boost to scale culture/science demand with time.
-		iYield += ((iTechProgress * iYield) / 100);
+		iYield *= (iTechProgress + 100);
+		iYield /= 100;
 	}
 	if(eYield == YIELD_PRODUCTION)
 	{
 		//This gets us the yield per pop average for our empire, which lets us see which cities are secure and which are not.
-		iTechProgress *= /* 125 */ GC.getBALANCE_TECH_RATE_DEFENSE() / GC.getNumTechInfos();
+		iTechProgress *= /* 75 */ GC.getBALANCE_TECH_RATE_DEFENSE() / GC.getNumTechInfos();
 		//Tech % boost to scale defense demand with time.
-		iYield += ((iTechProgress * iYield) / 100);
+		iYield *= (iTechProgress + 100);
+		iYield /= 100;
 	}
 	if(eYield == YIELD_GOLD)
 	{
 		//This gets us the yield per pop average for our empire, which lets us see which cities are wealthy and which are not.
-		iTechProgress *= /* 150 */ GC.getBALANCE_TECH_RATE_FOOD_GOLD() / GC.getNumTechInfos();
+		iTechProgress *= /* 125 */ GC.getBALANCE_TECH_RATE_FOOD_GOLD() / GC.getNumTechInfos();
 		//Tech % boost to scale food/gold demand with time.
-		iYield += ((iTechProgress * iYield) / 100);
+		iYield *= (iTechProgress + 100);
+		iYield /= 100;
 	}
-
-	//# of cities to make large empires slightly more cumbersome.
-	iYield += (((iCities * 2) * iYield) / 100);
 
 	if(iPopulation != 0 && iYield != 0)
 	{
@@ -13067,6 +13065,32 @@ int CvPlayer::GetUnhappinessFromCitySpecialists(CvCity* pAssumeCityAnnexed, CvCi
 				iPopulation++; // Round up
 				iPopulation /= 2;
 			}
+#if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
+			//Less unhappiness from specialists....
+			if(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
+			{
+				int iNoHappinessSpecialists = 0;
+				if(iPopulation > 0)
+				{
+					//...in capital?
+					if(pLoopCity->isCapital())
+					{
+						iNoHappinessSpecialists += GetNoUnhappfromXSpecialistsCapital();
+					}
+					//...eslsewhere?	
+					iNoHappinessSpecialists += GetNoUnhappfromXSpecialists();
+				}
+				//Can't give more free happiness than specialists.
+				if(iNoHappinessSpecialists > iPopulation)
+				{
+					iNoHappinessSpecialists = iPopulation;
+				}
+				if(iNoHappinessSpecialists > 0)
+				{
+					iPopulation -= iNoHappinessSpecialists;
+				}
+			}
+#endif
 
 			iUnhappinessFromThisCity = iPopulation * iUnhappinessPerPop;
 
@@ -17146,6 +17170,29 @@ int CvPlayer::GetPuppetUnhappinessMod() const
 void CvPlayer::ChangePuppetUnhappinessMod(int iChange)
 {
 	m_iPuppetUnhappinessMod += iChange;
+}
+// Specialists
+//	--------------------------------------------------------------------------------
+int CvPlayer::GetNoUnhappfromXSpecialists() const
+{
+	return m_iNoUnhappfromXSpecialists;
+}
+
+//	--------------------------------------------------------------------------------
+void CvPlayer::ChangeNoUnhappfromXSpecialists(int iChange)
+{
+	m_iNoUnhappfromXSpecialists += iChange;
+}
+//	--------------------------------------------------------------------------------
+int CvPlayer::GetNoUnhappfromXSpecialistsCapital() const
+{
+	return m_iNoUnhappfromXSpecialistsCapital;
+}
+
+//	--------------------------------------------------------------------------------
+void CvPlayer::ChangeNoUnhappfromXSpecialistsCapital(int iChange)
+{
+	m_iNoUnhappfromXSpecialistsCapital += iChange;
 }
 #endif
 
@@ -24197,6 +24244,8 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	ChangeIlliteracyUnhappinessModCapital(pPolicy->GetIlliteracyHappinessChangePolicyCapital() * iChange);
 	ChangeMinorityUnhappinessModCapital(pPolicy->GetMinorityHappinessChangePolicyCapital() * iChange);
 	ChangePuppetUnhappinessMod(pPolicy->GetPuppetUnhappinessMod() * iChange);
+	ChangeNoUnhappfromXSpecialists(pPolicy->GetNoUnhappfromXSpecialists() * iChange);
+	ChangeNoUnhappfromXSpecialistsCapital(pPolicy->GetNoUnhappfromXSpecialistsCapital() * iChange);
 #endif
 
 	if(pPolicy->IsOneShot())
@@ -25304,6 +25353,8 @@ void CvPlayer::Read(FDataStream& kStream)
 	MOD_SERIALIZE_READ(53, kStream, m_iIlliteracyUnhappinessModCapital, 0);
 	MOD_SERIALIZE_READ(53, kStream, m_iMinorityUnhappinessModCapital, 0);
 	MOD_SERIALIZE_READ(53, kStream, m_iPuppetUnhappinessMod, 0);
+	MOD_SERIALIZE_READ(54, kStream, m_iNoUnhappfromXSpecialists, 0);
+	MOD_SERIALIZE_READ(54, kStream, m_iNoUnhappfromXSpecialistsCapital, 0);
 #endif
 	kStream >> m_iConversionTimer;
 	kStream >> m_iCapitalCityID;
@@ -25859,6 +25910,8 @@ void CvPlayer::Write(FDataStream& kStream) const
 	MOD_SERIALIZE_WRITE(kStream, m_iIlliteracyUnhappinessModCapital);
 	MOD_SERIALIZE_WRITE(kStream, m_iMinorityUnhappinessModCapital);
 	MOD_SERIALIZE_WRITE(kStream, m_iPuppetUnhappinessMod);
+	MOD_SERIALIZE_WRITE(kStream, m_iNoUnhappfromXSpecialists);
+	MOD_SERIALIZE_WRITE(kStream, m_iNoUnhappfromXSpecialistsCapital);
 #endif
 	kStream << m_iConversionTimer;
 	kStream << m_iCapitalCityID;
