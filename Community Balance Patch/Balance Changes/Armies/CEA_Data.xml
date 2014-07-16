@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <GameData>
 	<Defines>
-		<Update>
+		<!--<Update>
 			<Where Name="MINOR_BULLY_GOLD" />
 			<Set Value="100" />
 			<!-- 50 -->
-		</Update>
+		</Update>-->
 		<Update>
 			<Where Name="NAVAL_COMBAT_DEFENDER_STRENGTH_MULTIPLIER" />
 			<Set Value="100" />
@@ -41,11 +41,6 @@
 			<Set Value="25" />
 			<!-- 25 -->
 		</Update>
-		<Update>
-			<Where Name="RANGE_ATTACK_RANGED_DEFENDER_MOD" />
-			<Set Value="100" />
-			<!-- 100 -->
-		</Update>
 		
 		<Update>
 			<Where Name="STRATEGIC_RESOURCE_EXHAUSTED_PENALTY" />
@@ -57,7 +52,7 @@
 		</Update>
 		<Update>
 			<Where Name="CITY_STRENGTH_DEFAULT" />
-			<Set Value="500" />
+			<Set Value="600" />
 			<!-- 800 -->
 		</Update>
 		<Update>
@@ -67,17 +62,17 @@
 		</Update>
 		<Update>
 			<Where Name="CITY_STRENGTH_UNIT_DIVISOR" />
-			<Set Value="200" />
+			<Set Value="300" />
 			<!-- 500 -->
 		</Update>
 		<Update>
 			<Where Name="CITY_STRENGTH_TECH_BASE" />
-			<Set Value="4.8" />
+			<Set Value="5.5" />
 			<!-- 5.5 -->
 		</Update>
 		<Update>
 			<Where Name="CITY_STRENGTH_TECH_EXPONENT" />
-			<Set Value="2.8" />
+			<Set Value="2.5" />
 			<!-- 2.8 -->
 		</Update>
 		<Update>
@@ -95,50 +90,9 @@
 			<Set Value="20" />
 		</Update>
 		<Update>
-			<Where Name="CITY_CAPTURE_POPULATION_PERCENT" />
-			<Set Value="100" />
-			<!-- 50 -->
-		</Update>
-		<Update>
 			<Where Name="BONUS_PER_ADJACENT_FRIEND" />
 			<Set Value="15" />
 			<!-- 10 -->
-		</Update>
-		
-		
-		<!--
-		<Update>
-			<Where Name="INITIAL_GOLD_PER_UNIT_TIMES_100" />
-			<Set Value="0" />
-		</Update>
-		<Update>
-			<Where Name="UNIT_MAINTENANCE_GAME_MULTIPLIER" />
-			<Set Value="0" />
-		</Update>
-		<Update>
-			<Where Name="UNIT_MAINTENANCE_GAME_EXPONENT_DIVISOR" />
-			<Set Value="30000" />
-		</Update>
-		-->
-		<Update>
-			<Where Name="BASE_UNIT_UPGRADE_COST" />
-			<Set Value="10" />
-			<!-- 10 -->
-		</Update>
-		<Update>
-			<Where Name="UNIT_UPGRADE_COST_PER_PRODUCTION" />
-			<Set Value="2" />
-			<!-- 2 -->
-		</Update>
-		<Update>
-			<Where Name="UNIT_UPGRADE_COST_MULTIPLIER_PER_ERA" />
-			<Set Value="0" />
-			<!-- 0 -->
-		</Update>
-		<Update>
-			<Where Name="UNIT_UPGRADE_COST_EXPONENT" />
-			<Set Value="1" />
-			<!-- 1 -->
 		</Update>
 	</Defines>
 </GameData>

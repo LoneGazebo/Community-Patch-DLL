@@ -7,7 +7,7 @@
 			<!-- 3 -->
 		</Update>
 	</Defines>
-	<Cep>
+	<!--<Cep>
 		<Row Type="PLOTS_PER_CITY" >
 			<Value>37</Value>
 		</Row>
@@ -23,19 +23,7 @@
 		<Row Type="STRATEGIC_RESOURCE_UPPER_BOUND" >
 			<Value>125</Value>
 		</Row>
-	</Cep>
-	<Yields>
-		<!--
-		<Update>
-			<Where Type="YIELD_FOOD" />
-			<Set LakeChange="0" />
-		</Update>
-		<Update>
-			<Where Type="YIELD_GOLD" />
-			<Set LakeChange="1" />
-		</Update>
-		-->
-	</Yields>
+	</Cep>-->
 	<Terrains>
 		<Update>
 			<Where Type="TERRAIN_DESERT" />
@@ -112,12 +100,6 @@
 			<YieldType>YIELD_FOOD</YieldType>
 			<Yield>3</Yield>
 		</Row>
-		<!--
-		<Delete>
-			<FeatureType>FEATURE_JUNGLE</FeatureType>
-			<YieldType>YIELD_FOOD</YieldType>
-		</Delete>
-		-->
 	</Feature_YieldChanges>
 	<Resources>
 		<Update>
@@ -144,7 +126,7 @@
 			<Where Type="RESOURCE_URANIUM" />
 			<Set NumPerTerritory="2" />
 		</Update>
-		<Row>
+		<!--<Row>
 			<Type>RESOURCE_MOVIES</Type>
 			<Happiness>4</Happiness>
 			<TechCityTrade>TECH_AGRICULTURE</TechCityTrade>
@@ -185,7 +167,7 @@
 			<IconString>[ICON_HAPPINESS_1]</IconString>
 			<IconAtlas>RESOURCE_ATLAS</IconAtlas>
 			<PortraitIndex>16</PortraitIndex>
-		</Row>
+		</Row>-->
 	</Resources>
 	<Resource_FeatureBooleans>
 		<Row>
@@ -193,13 +175,13 @@
 			<FeatureType>FEATURE_MARSH</FeatureType>
 		</Row>
 	</Resource_FeatureBooleans>
-	<Resource_Flavors>
+	<!--<Resource_Flavors>
 		<Row>
 			<ResourceType>RESOURCE_MOVIES</ResourceType>
 			<FlavorType>FLAVOR_HAPPINESS</FlavorType>
 			<Flavor>15</Flavor>
 		</Row>
-	</Resource_Flavors>
+	</Resource_Flavors>-->
 	<Resource_YieldChanges>
 		<Update>
 			<Where YieldType="YIELD_GOLD" />
@@ -207,12 +189,36 @@
 		</Update>
 		<Delete ResourceType="RESOURCE_WHEAT" />
 		<Delete ResourceType="RESOURCE_COW" />
+		<Delete ResourceType="RESOURCE_IVORY" />
+		<Delete ResourceType="RESOURCE_GEMS" />
+		<Delete ResourceType="RESOURCE_GOLD" />
+		<Delete ResourceType="RESOURCE_SILVER" />
+		<Row>
+			<ResourceType>RESOURCE_GOLD</ResourceType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>2</Yield>
+		</Row>
+		<Row>
+			<ResourceType>RESOURCE_SILVER</ResourceType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>2</Yield>
+		</Row>
+		<Row>
+			<ResourceType>RESOURCE_IVORY</ResourceType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>2</Yield>
+		</Row>
+		<Row>
+			<ResourceType>RESOURCE_GEMS</ResourceType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>3</Yield>
+		</Row>
 		<Row>
 			<ResourceType>RESOURCE_COW</ResourceType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
 			<Yield>1</Yield>
 		</Row>
-		<Delete ResourceType="RESOURCE_SALT" />
+		<!--<Delete ResourceType="RESOURCE_SALT" />
 		<Delete ResourceType="RESOURCE_TRUFFLES" />
 		<Delete ResourceType="RESOURCE_CITRUS" />
 		<Row>
@@ -229,40 +235,10 @@
 			<ResourceType>RESOURCE_CITRUS</ResourceType>
 			<YieldType>YIELD_FOOD</YieldType>
 			<Yield>1</Yield>
-		</Row>
-		<!--
-		<Delete ResourceType="RESOURCE_BANANA" />
-		<Row>
-			<ResourceType>RESOURCE_BANANA</ResourceType>
-			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>2</Yield>
-		</Row>
-		-->
+		</Row>-->
 	</Resource_YieldChanges>
 	<Improvement_ResourceType_Yields>
-		<Delete ResourceType="RESOURCE_COAL"/>
-		<Delete ResourceType="RESOURCE_FISH" />
-		<Row>
-			<ImprovementType>IMPROVEMENT_FISHING_BOATS</ImprovementType>
-			<ResourceType>RESOURCE_FISH</ResourceType>
-			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>2</Yield>
-		</Row>
-		<Delete ResourceType="RESOURCE_BANANA" />
-		<Row>
-			<ImprovementType>IMPROVEMENT_PLANTATION</ImprovementType>
-			<ResourceType>RESOURCE_BANANA</ResourceType>
-			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>2</Yield>
-		</Row>
-		<!--
-		<Row>
-			<ImprovementType>IMPROVEMENT_PLANTATION</ImprovementType>
-			<ResourceType>RESOURCE_BANANA</ResourceType>
-			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Yield>-1</Yield>
-		</Row>
-		-->
+		
 		<Delete ResourceType="RESOURCE_DEER" />
 		<Row>
 			<ImprovementType>IMPROVEMENT_CAMP</ImprovementType>
@@ -295,7 +271,7 @@
 		<Row>
 			<ImprovementType>IMPROVEMENT_CAMP</ImprovementType>
 			<ResourceType>RESOURCE_TRUFFLES</ResourceType>
-			<YieldType>YIELD_FOOD</YieldType>
+			<YieldType>YIELD_GOLD</YieldType>
 			<Yield>1</Yield>
 		</Row>
 		<Delete ResourceType="RESOURCE_CITRUS" />
@@ -325,23 +301,6 @@
 			<FeatureType>FEATURE_ICE</FeatureType>
 		</Row>
 	</Improvement_ValidFeatures>
-	<!--
-	<Builds>
-		<Update>
-			<Where Type="BUILD_TRADING_POST" />
-			<Set HotKey="KB_V" />
-		</Update>
-	</Builds>
-	<Controls>
-		<Delete Type="CONTROL_ADVISOR_COUNSEL" />
-	</Controls>
-	<BuildFeatures>
-		<Update>
-			<Where BuildType="BUILD_FARM" FeatureType="FEATURE_JUNGLE" />
-			<Set PrereqTech="TECH_AGRICULTURE" />
-		</Update>
-	</BuildFeatures>
-	-->
 	<Improvements>
 		<Update>
 			<Where Type="IMPROVEMENT_CITADEL" />
@@ -372,16 +331,9 @@
 			<Where ImprovementType="IMPROVEMENT_TRADING_POST" YieldType="YIELD_GOLD" />
 			<Set Yield="1" />
 		</Update>
-		<!--
-		<Row>
-			<ImprovementType>IMPROVEMENT_TRADING_POST</ImprovementType>
-			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>1</Yield>
-		</Row>
-		-->
 		<Update>
 			<Where ImprovementType="IMPROVEMENT_ACADEMY" YieldType="YIELD_SCIENCE" />
-			<Set Yield="8" />
+			<Set Yield="5" />
 		</Update>
 		<Update>
 			<Where ImprovementType="IMPROVEMENT_CUSTOMS_HOUSE" YieldType="YIELD_GOLD" />
@@ -389,15 +341,11 @@
 		</Update>
 		<Update>
 			<Where ImprovementType="IMPROVEMENT_MANUFACTORY" YieldType="YIELD_PRODUCTION" />
-			<Set Yield="8" />
-		</Update>
-		<Update>
-			<Where ImprovementType="IMPROVEMENT_LANDMARK" YieldType="YIELD_CULTURE" />
-			<Set Yield="8" />
+			<Set Yield="6" />
 		</Update>
 		<Update>
 			<Where ImprovementType="IMPROVEMENT_HOLY_SITE" YieldType="YIELD_FAITH" />
-			<Set Yield="8" />
+			<Set Yield="6" />
 		</Update>
 		<Row>
 			<ImprovementType>IMPROVEMENT_CITADEL</ImprovementType>
@@ -422,22 +370,8 @@
 		<Delete ImprovementType="IMPROVEMENT_MANUFACTORY"/>
 		<Row>
 			<ImprovementType>IMPROVEMENT_TRADING_POST</ImprovementType>
-			<TechType>TECH_CURRENCY</TechType>
+			<TechType>TECH_ECONOMICS</TechType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>1</Yield>
-		</Row>
-		<!--
-		<Row>
-			<ImprovementType>IMPROVEMENT_MINE</ImprovementType>
-			<TechType>TECH_GUNPOWDER</TechType>
-			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Yield>1</Yield>
-		</Row>
-		-->
-		<Row>
-			<ImprovementType>IMPROVEMENT_LUMBERMILL</ImprovementType>
-			<TechType>TECH_MACHINERY</TechType>
-			<YieldType>YIELD_PRODUCTION</YieldType>
 			<Yield>1</Yield>
 		</Row>
 		<Row>
@@ -448,60 +382,129 @@
 		</Row>
 		<Row>
 			<ImprovementType>IMPROVEMENT_MINE</ImprovementType>
-			<TechType>TECH_INDUSTRIALIZATION</TechType>
+			<TechType>TECH_ELECTRICITY</TechType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
 			<Yield>1</Yield>
 		</Row>
 		<Row>
+			<ImprovementType>IMPROVEMENT_MANUFACTORY</ImprovementType>
+			<TechType>TECH_METALLURGY</TechType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>3</Yield>
+		</Row>
+		<Row>
+			<ImprovementType>IMPROVEMENT_ACADEMY</ImprovementType>
+			<TechType>TECH_SCIENTIFIC_THEORY</TechType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Yield>2</Yield>
+		</Row>
+		<Row>
+			<ImprovementType>IMPROVEMENT_CUSTOMS_HOUSE</ImprovementType>
+			<TechType>TECH_ECONOMICS</TechType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>3</Yield>
+		</Row>
+		<Row>
+			<ImprovementType>IMPROVEMENT_LANDMARK</ImprovementType>
+			<TechType>TECH_ARCHAEOLOGY</TechType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>2</Yield>
+		</Row>
+		<Row>
 			<ImprovementType>IMPROVEMENT_QUARRY</ImprovementType>
-			<TechType>TECH_GUNPOWDER</TechType>
+			<TechType>TECH_DYNAMITE</TechType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
 			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<ImprovementType>IMPROVEMENT_WELL</ImprovementType>
+			<TechType>TECH_PLASTICS</TechType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<ImprovementType>IMPROVEMENT_WELL</ImprovementType>
+			<TechType>TECH_PLASTICS</TechType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>2</Yield>
 		</Row>
 	</Improvement_TechYieldChanges>
 	<Improvement_TechFreshWaterYieldChanges>
 		<Row>
-			<ImprovementType>IMPROVEMENT_TRADING_POST</ImprovementType>
+			<ImprovementType>IMPROVEMENT_MINE</ImprovementType>
+			<TechType>TECH_METAL_CASTING</TechType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<ImprovementType>IMPROVEMENT_LUMBERMILL</ImprovementType>
+			<TechType>TECH_MACHINERY</TechType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<ImprovementType>IMPROVEMENT_PASTURE</ImprovementType>
+			<TechType>TECH_HORSEBACK_RIDING</TechType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<ImprovementType>IMPROVEMENT_PLANTATION</ImprovementType>
 			<TechType>TECH_COMPASS</TechType>
 			<YieldType>YIELD_GOLD</YieldType>
 			<Yield>1</Yield>
 		</Row>
 		<Row>
-			<ImprovementType>IMPROVEMENT_MINE</ImprovementType>
-			<TechType>TECH_METAL_CASTING</TechType>
+			<ImprovementType>IMPROVEMENT_QUARRY</ImprovementType>
+			<TechType>TECH_ENGINEERING</TechType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
 			<Yield>1</Yield>
 		</Row>
-		<!--
 		<Row>
-			<ImprovementType>IMPROVEMENT_LUMBERMILL</ImprovementType>
-			<TechType>TECH_METAL_CASTING</TechType>
-			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Yield>1</Yield>
-		</Row>
-		-->
-	</Improvement_TechFreshWaterYieldChanges>
-	<Improvement_TechNoFreshWaterYieldChanges>
-		<Row>
-			<ImprovementType>IMPROVEMENT_TRADING_POST</ImprovementType>
-			<TechType>TECH_ECONOMICS</TechType>
+			<ImprovementType>IMPROVEMENT_CAMP</ImprovementType>
+			<TechType>TECH_HORSEBACK_RIDING</TechType>
 			<YieldType>YIELD_GOLD</YieldType>
 			<Yield>1</Yield>
 		</Row>
+	</Improvement_TechFreshWaterYieldChanges>
+	<Improvement_TechNoFreshWaterYieldChanges>
+		
 		<Row>
 			<ImprovementType>IMPROVEMENT_MINE</ImprovementType>
 			<TechType>TECH_GUNPOWDER</TechType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
 			<Yield>1</Yield>
 		</Row>
-		<!--
+		<Row>
+			<ImprovementType>IMPROVEMENT_PASTURE</ImprovementType>
+			<TechType>TECH_CHIVALRY</TechType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<ImprovementType>IMPROVEMENT_QUARRY</ImprovementType>
+			<TechType>TECH_ARCHITECTURE</TechType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<ImprovementType>IMPROVEMENT_CAMP</ImprovementType>
+			<TechType>TECH_ASTRONOMY</TechType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<ImprovementType>IMPROVEMENT_PLANTATION</ImprovementType>
+			<TechType>TECH_CHEMISTRY</TechType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>1</Yield>
+		</Row>		
 		<Row>
 			<ImprovementType>IMPROVEMENT_LUMBERMILL</ImprovementType>
 			<TechType>TECH_PRINTING_PRESS</TechType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
 			<Yield>1</Yield>
-		</Row>
-		-->
+		</Row>		
 	</Improvement_TechNoFreshWaterYieldChanges>
 
 
