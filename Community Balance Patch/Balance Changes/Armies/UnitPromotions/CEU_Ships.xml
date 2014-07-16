@@ -241,9 +241,6 @@
 		<Row><PromotionType>PROMOTION_TARGETING_3</PromotionType>	<UnitCombatType>UNITCOMBAT_NAVALRANGED</UnitCombatType></Row>
 		<Row><PromotionType>PROMOTION_NAVAL_RECON_1</PromotionType>	<UnitCombatType>UNITCOMBAT_SUBMARINE</UnitCombatType></Row>
 		<Row><PromotionType>PROMOTION_NAVAL_RECON_2</PromotionType>	<UnitCombatType>UNITCOMBAT_SUBMARINE</UnitCombatType></Row>		
-		<Row><PromotionType>PROMOTION_TARGETING_1</PromotionType>	<UnitCombatType>UNITCOMBAT_SUBMARINE</UnitCombatType></Row>
-		<Row><PromotionType>PROMOTION_TARGETING_2</PromotionType>	<UnitCombatType>UNITCOMBAT_SUBMARINE</UnitCombatType></Row>
-		<Row><PromotionType>PROMOTION_TARGETING_3</PromotionType>	<UnitCombatType>UNITCOMBAT_SUBMARINE</UnitCombatType></Row>
 		<Row><PromotionType>PROMOTION_NAVAL_RECON_1</PromotionType>	<UnitCombatType>UNITCOMBAT_NAVALMELEE</UnitCombatType></Row>
 		<Row><PromotionType>PROMOTION_NAVAL_RECON_2</PromotionType>	<UnitCombatType>UNITCOMBAT_NAVALMELEE</UnitCombatType></Row>
 		<Row><PromotionType>PROMOTION_INTERCEPTION</PromotionType>	<UnitCombatType>UNITCOMBAT_NAVALMELEE</UnitCombatType></Row>
@@ -252,12 +249,7 @@
 		<Row><PromotionType>PROMOTION_TARGETING_3</PromotionType>	<UnitCombatType>UNITCOMBAT_NAVALMELEE</UnitCombatType></Row>
 		<Row><PromotionType>PROMOTION_NAVAL_POWER</PromotionType>	<UnitCombatType>UNITCOMBAT_NAVALMELEE</UnitCombatType></Row>		
 		<Row><PromotionType>PROMOTION_NAVAL_POWER</PromotionType>	<UnitCombatType>UNITCOMBAT_NAVALRANGED</UnitCombatType></Row>	
-		<!--
-		<Row><PromotionType>PROMOTION_SEE_INVISIBLE_SUBMARINE</PromotionType><UnitCombatType>UNITCOMBAT_NAVALRANGED</UnitCombatType></Row>
-		<Row><PromotionType>PROMOTION_SEE_INVISIBLE_SUBMARINE</PromotionType><UnitCombatType>UNITCOMBAT_NAVALMELEE</UnitCombatType></Row>
-		<Row><PromotionType>PROMOTION_SEE_INVISIBLE_SUBMARINE</PromotionType><UnitCombatType>UNITCOMBAT_SUBMARINE</UnitCombatType></Row>
-		<Row><PromotionType>PROMOTION_SEE_INVISIBLE_SUBMARINE</PromotionType><UnitCombatType>UNITCOMBAT_FIGHTER</UnitCombatType></Row>
-		-->
+	
 		<Delete PromotionType="PROMOTION_BOARDING_PARTY_1" />
 	</UnitPromotions_UnitCombats>
 	<Unit_FreePromotions>
@@ -265,7 +257,6 @@
 		<Delete UnitType="UNIT_CARAVEL" PromotionType="PROMOTION_WITHDRAW_BEFORE_MELEE" />
 		<Delete UnitType="UNIT_PRIVATEER" PromotionType="PROMOTION_COASTAL_RAIDER_1" />		
 		<Delete UnitType="UNIT_PRIVATEER" PromotionType="PROMOTION_PRIZE_SHIPS" />
-		<!--<Delete UnitType="UNIT_IRONCLAD" PromotionType="PROMOTION_STEAM_POWERED" /> -->
 		<Delete UnitType="UNIT_DESTROYER" PromotionType="PROMOTION_ANTI_SUBMARINE_II" />
 		<Delete UnitType="UNIT_DESTROYER" PromotionType="PROMOTION_INTERCEPTION_II" />
 		<Delete UnitType="UNIT_DESTROYER" PromotionType="PROMOTION_WITHDRAW_BEFORE_MELEE" />

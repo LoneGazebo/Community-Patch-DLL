@@ -1,112 +1,162 @@
 <?xml version="1.0" encoding="utf-8"?>
 <GameData>
-	<BuildingClasses>
-		<!--
-		<Row>
-			<Type>BUILDINGCLASS_MENTORS_HALL</Type>
-			<DefaultBuilding>BUILDING_MENTORS_HALL</DefaultBuilding>
-			<Description>TXT_KEY_BUILDING_MENTORS_HALL</Description>
-		</Row>
-		<Row>
-			<Type>BUILDINGCLASS_WAREHOUSE</Type>
-			<DefaultBuilding>BUILDING_WAREHOUSE</DefaultBuilding>
-			<Description>TXT_KEY_BUILDING_WAREHOUSE</Description>
-		</Row>
-		<Row>
-			<Type>BUILDINGCLASS_CITY_HALL</Type>
-			<DefaultBuilding>BUILDING_CITY_HALL</DefaultBuilding>
-			<Description>TXT_KEY_BUILDING_CITY_HALL</Description>
-		</Row>
-		<Row>
-			<Type>BUILDINGCLASS_LUXURY_MERCHANT</Type>
-			<DefaultBuilding>BUILDING_LUXURY_MERCHANT</DefaultBuilding>
-			<Description>TXT_KEY_BUILDING_LUXURY_MERCHANT</Description>
-		</Row>
-		<Row>
-			<Type>BUILDINGCLASS_VACCINATIONS</Type>
-			<DefaultBuilding>BUILDING_VACCINATIONS</DefaultBuilding>
-			<Description>TXT_KEY_BUILDING_VACCINATIONS</Description>
-		</Row>
-		-->
-	</BuildingClasses>
 	<Buildings>
-		<!--
-		<Row>
-			<Type>BUILDING_WAREHOUSE</Type>
-			<BuildingClass>BUILDINGCLASS_WAREHOUSE</BuildingClass>
-			<FreeStartEra>ERA_RENAISSANCE</FreeStartEra>
-			<PrereqTech>TECH_CARVEL_HULLS</PrereqTech>
-			<Description>TXT_KEY_BUILDING_WAREHOUSE</Description>
-			<Civilopedia>TXT_KEY_BUILDING_WAREHOUSE_PEDIA</Civilopedia>
-			<ArtDefineTag>ART_DEF_BUILDING_FORGE</ArtDefineTag>
-			<Water>1</Water>
-			<MinAreaSize>10</MinAreaSize>
-			<ConquestProb>0</ConquestProb>
-			<IconAtlas>CEP_BUILDING_ATLAS</IconAtlas>
-			<PortraitIndex>6</PortraitIndex>
-		</Row>
-		<Row>
-			<Type>BUILDING_MENTORS_HALL</Type>
-			<BuildingClass>BUILDINGCLASS_MENTORS_HALL</BuildingClass>
-			<FreeStartEra>ERA_CLASSICAL</FreeStartEra>
-			<Description>TXT_KEY_BUILDING_MENTORS_HALL</Description>
-			<Civilopedia>TXT_KEY_BUILDING_MENTORS_HALL_PEDIA</Civilopedia>
-			<ArtDefineTag>ART_DEF_BUILDING_LIBRARY</ArtDefineTag>
-			<MinAreaSize>-1</MinAreaSize>
-			<ConquestProb>59</ConquestProb>
-			<IconAtlas>TECH_ATLAS_1</IconAtlas>
-			<PortraitIndex>21</PortraitIndex>
-		</Row>
-		<Row>
-			<Type>BUILDING_CITY_HALL</Type>
-			<BuildingClass>BUILDINGCLASS_CITY_HALL</BuildingClass>
-			<FreeStartEra>ERA_CLASSICAL</FreeStartEra>
-			<Description>TXT_KEY_BUILDING_CITY_HALL</Description>
-			<Civilopedia>TXT_KEY_BUILDING_CITY_HALL_PEDIA</Civilopedia>
-			<ArtDefineTag>ART_DEF_BUILDING_LIBRARY</ArtDefineTag>
-			<MinAreaSize>-1</MinAreaSize>
-			<ConquestProb>100</ConquestProb>
-			<IconAtlas>EXPANSION_SCEN_BUILDING_ATLAS</IconAtlas>
-			<PortraitIndex>0</PortraitIndex>
-		</Row>
-		<Row>
-			<Type>BUILDING_LUXURY_MERCHANT</Type>
-			<BuildingClass>BUILDINGCLASS_LUXURY_MERCHANT</BuildingClass>
-			<FreeStartEra>ERA_INDUSTRIAL</FreeStartEra>
-			<Description>TXT_KEY_BUILDING_LUXURY_MERCHANT</Description>
-			<Civilopedia>TXT_KEY_BUILDING_LUXURY_MERCHANT_PEDIA</Civilopedia>
-			<ArtDefineTag>ART_DEF_BUILDING_LIBRARY</ArtDefineTag>
-			<MinAreaSize>-1</MinAreaSize>
-			<NeverCapture>true</NeverCapture>
-			<IconAtlas>TECH_ATLAS_1</IconAtlas>
-			<PortraitIndex>21</PortraitIndex>
-			<UnmoddedHappiness>1</UnmoddedHappiness>
-		</Row>
-		<Row>
-			<Type>BUILDING_VACCINES</Type>
-			<BuildingClass>BUILDINGCLASS_VACCINES</BuildingClass>
-			<FreeStartEra>ERA_INDUSTRIAL</FreeStartEra>
-			<Description>TXT_KEY_BUILDING_VACCINES</Description>
-			<Civilopedia>TXT_KEY_BUILDING_VACCINES_PEDIA</Civilopedia>
-			<ArtDefineTag>ART_DEF_BUILDING_LIBRARY</ArtDefineTag>
-			<MinAreaSize>-1</MinAreaSize>
-			<NeverCapture>true</NeverCapture>
-			<IconAtlas>TECH_ATLAS_1</IconAtlas>
-			<PortraitIndex>39</PortraitIndex>
-			<UnmoddedHappiness>1</UnmoddedHappiness>
-		</Row>
-		-->
+		<Update>
+			<Where BuildingClass="BUILDINGCLASS_PALACE" />
+			<Set Defense="400"
+				 ExtraCityHitPoints="100"				 
+				 />
+		</Update>		
+		<Update>
+			<Where BuildingClass="BUILDINGCLASS_WALLS" />
+			<Set ExtraCityHitPoints="100"
+				 />
+		</Update>
+		<Update>
+			<Where BuildingClass="BUILDINGCLASS_CASTLE" />
+			<Set ExtraCityHitPoints="150"
+				 />
+		</Update>
+		<Update>
+			<Where BuildingClass="BUILDINGCLASS_ARSENAL" />
+			<Set ExtraCityHitPoints="200"
+				 />
+		</Update>
+		<Update>
+			<Where BuildingClass="BUILDINGCLASS_MILITARY_BASE" />
+			<Set ExtraCityHitPoints="250"
+				 NukeModifier="-50"
+				 />
+		</Update>
+		<Update>
+			<Where Type="BUILDING_TEMPLE" />
+			<Set GoldMaintenance="1" />
+		</Update>
+		<Update>
+			<Where BuildingClass="BUILDINGCLASS_AQUEDUCT" />
+			<Set GoldMaintenance="2" />		
+		</Update>	
+		<Update>
+			<Where BuildingClass="BUILDINGCLASS_COURTHOUSE" />
+			<Set GoldMaintenance="0"
+				 HurryCostModifier="100"
+				 />
+		</Update>
+		<Update>
+			<Where BuildingClass="BUILDINGCLASS_COLOSSEUM" />
+			<Set GoldMaintenance="2" />
+		</Update>
+		<Update>
+			<Where BuildingClass="BUILDINGCLASS_STADIUM" />
+			<Set GoldMaintenance="3" />
+		</Update>
+		<Update>
+			<Where BuildingClass="BUILDINGCLASS_THEATRE" />
+			<Set GoldMaintenance="3" />
+		</Update>
+		<Update>
+			<Where BuildingClass="BUILDINGCLASS_WATERMILL" />
+			<Set GoldMaintenance="1" />
+		</Update>
+		<Update>
+			<Where BuildingClass="BUILDINGCLASS_WORKSHOP" />
+			<Set GoldMaintenance="1" />
+		</Update>
+		<Update>
+			<Where BuildingClass="BUILDINGCLASS_HYDRO_PLANT" />
+			<Set GoldMaintenance="2" />
+		</Update>
+		<Update>
+			<Where BuildingClass="BUILDINGCLASS_ARMORY" />
+			<Set Experience="20" />
+		</Update>
+		<Update>
+			<Where BuildingClass="BUILDINGCLASS_MILITARY_ACADEMY" />
+			<Set Experience="30" />
+		</Update>
+		<Update>
+			<Where BuildingClass="BUILDINGCLASS_STONE_WORKS" />
+			<Set ProhibitedCityTerrain="NULL" 
+				 />
+		</Update>
+		<Update>
+			<Where BuildingClass="BUILDINGCLASS_OBSERVATORY" />
+			<Set Mountain="0" NearbyMountainRequired="1" />
+		</Update>
+		<Update>
+			<Where BuildingClass="BUILDINGCLASS_PUBLIC_SCHOOL"/>
+			<Set GoldMaintenance="4"/>
+		</Update>
+		<Update>
+			<Where BuildingClass="BUILDINGCLASS_UNIVERSITY"/>
+			<Set GoldMaintenance="3"/>
+		</Update>
+		<Update>
+			<Where BuildingClass="BUILDINGCLASS_LABORATORY"/>
+			<Set GoldMaintenance="5"/>
+		</Update>
 	</Buildings>
-	<!--
+	<Building_YieldChanges>
+		<Delete BuildingType="BUILDING_SEAPORT" />
+		<Update>
+			<Where BuildingType="BUILDING_HOSPITAL" YieldType="YIELD_FOOD" />
+			<Set Yield="8" />
+		</Update>
+		
+		<Row>
+			<BuildingType>BUILDING_GARDEN</BuildingType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_CARAVANSARY</BuildingType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>1</Yield>
+		</Row>		
+		<Row>
+			<BuildingType>BUILDING_MINT</BuildingType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>2</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_SEAPORT</BuildingType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>2</Yield>
+		</Row>
+	</Building_YieldChanges>
+	<Building_YieldModifiers>
+		<Update>
+			<Where BuildingType="BUILDING_OBSERVATORY" YieldType="YIELD_SCIENCE" />
+			<Set Yield="10" />
+		</Update>
+		<Update>
+			<Where BuildingType="BUILDING_UNIVERSITY" YieldType="YIELD_SCIENCE" />
+			<Set Yield="30" />
+		</Update>
+		<Update>
+			<Where BuildingType="BUILDING_WAT" YieldType="YIELD_SCIENCE" />
+			<Set Yield="30" />
+		</Update>
+	</Building_YieldModifiers>
+	<Building_DomainProductionModifiers>
+		<Delete BuildingType="BUILDING_SEAPORT" />
+		<Row>
+			<BuildingType>BUILDING_SEAPORT</BuildingType>
+			<DomainType>DOMAIN_SEA</DomainType>
+			<Modifier>25</Modifier>
+		</Row>
+	</Building_DomainProductionModifiers>
 	<Building_ClassesNeededInCity>
-		<Row>
-			<BuildingType>BUILDING_LIBRARY</BuildingType>
-			<BuildingClassType>BUILDINGCLASS_MENTORS_HALL</BuildingClassType>
-		</Row>
-		<Row>
-			<BuildingType>BUILDING_PAPER_MAKER</BuildingType>
-			<BuildingClassType>BUILDINGCLASS_MENTORS_HALL</BuildingClassType>
-		</Row>
+		<Delete BuildingType="BUILDING_SEAPORT" />
 	</Building_ClassesNeededInCity>
-	-->
+	<Building_ResourceQuantityRequirements>
+		<Delete BuildingType="BUILDING_HYDRO_PLANT" />
+	</Building_ResourceQuantityRequirements>
+	<Building_LocalResourceOrs>
+		<Row>
+			<BuildingType>BUILDING_MINT</BuildingType>
+			<ResourceType>RESOURCE_COPPER</ResourceType>
+		</Row>
+	</Building_LocalResourceOrs>
+	
 </GameData>
