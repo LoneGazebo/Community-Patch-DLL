@@ -139,10 +139,12 @@ CvBuildingEntry::CvBuildingEntry(void):
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 	m_iPovertyHappinessChangeBuilding(0),
 	m_iDefenseHappinessChangeBuilding(0),
+	m_iUnculturedHappinessChangeBuilding(0),
 	m_iIlliteracyHappinessChangeBuilding(0),
 	m_iMinorityHappinessChangeBuilding(0),
 	m_iPovertyHappinessChangeBuildingGlobal(0),
 	m_iDefenseHappinessChangeBuildingGlobal(0),
+	m_iUnculturedHappinessChangeBuildingGlobal(0),
 	m_iIlliteracyHappinessChangeBuildingGlobal(0),
 	m_iMinorityHappinessChangeBuildingGlobal(0),
 #endif
@@ -442,10 +444,12 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	if (MOD_BALANCE_CORE_HAPPINESS_MODIFIERS) {
 		m_iPovertyHappinessChangeBuilding = kResults.GetInt("PovertyHappinessChange");
 		m_iDefenseHappinessChangeBuilding = kResults.GetInt("DefenseHappinessChange");
+		m_iUnculturedHappinessChangeBuilding = kResults.GetInt("UnculturedHappinessChange");
 		m_iIlliteracyHappinessChangeBuilding = kResults.GetInt("IlliteracyHappinessChange");
 		m_iMinorityHappinessChangeBuilding = kResults.GetInt("MinorityHappinessChange");
 		m_iPovertyHappinessChangeBuildingGlobal = kResults.GetInt("PovertyHappinessChangeGlobal");
 		m_iDefenseHappinessChangeBuildingGlobal = kResults.GetInt("DefenseHappinessChangeGlobal");
+		m_iUnculturedHappinessChangeBuildingGlobal = kResults.GetInt("UnculturedHappinessChangeGlobal");
 		m_iIlliteracyHappinessChangeBuildingGlobal = kResults.GetInt("IlliteracyHappinessChangeGlobal");
 		m_iMinorityHappinessChangeBuildingGlobal = kResults.GetInt("MinorityHappinessChangeGlobal");
 	}
@@ -1503,6 +1507,10 @@ int CvBuildingEntry::GetDefenseHappinessChangeBuilding() const
 {
 	return m_iDefenseHappinessChangeBuilding;
 }
+int CvBuildingEntry::GetUnculturedHappinessChangeBuilding() const
+{
+	return m_iUnculturedHappinessChangeBuilding;
+}
 int CvBuildingEntry::GetIlliteracyHappinessChangeBuilding() const
 {
 	return m_iIlliteracyHappinessChangeBuilding;
@@ -1518,6 +1526,10 @@ int CvBuildingEntry::GetPovertyHappinessChangeBuildingGlobal() const
 int CvBuildingEntry::GetDefenseHappinessChangeBuildingGlobal() const
 {
 	return m_iDefenseHappinessChangeBuildingGlobal;
+}
+int CvBuildingEntry::GetUnculturedHappinessChangeBuildingGlobal() const
+{
+	return m_iUnculturedHappinessChangeBuildingGlobal;
 }
 int CvBuildingEntry::GetIlliteracyHappinessChangeBuildingGlobal() const
 {

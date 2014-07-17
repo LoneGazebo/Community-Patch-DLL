@@ -217,10 +217,12 @@ CvCity::CvCity() :
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 	, m_iChangePovertyUnhappiness(0)
 	, m_iChangeDefenseUnhappiness(0)
+	, m_iChangeUnculturedUnhappiness(0)
 	, m_iChangeIlliteracyUnhappiness(0)
 	, m_iChangeMinorityUnhappiness(0)
 	, m_iChangePovertyUnhappinessGlobal(0)
 	, m_iChangeDefenseUnhappinessGlobal(0)
+	, m_iChangeUnculturedUnhappinessGlobal(0)
 	, m_iChangeIlliteracyUnhappinessGlobal(0)
 	, m_iChangeMinorityUnhappinessGlobal(0)
 #endif
@@ -929,10 +931,12 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 	m_iChangePovertyUnhappiness = 0;
 	m_iChangeDefenseUnhappiness = 0;
+	m_iChangeUnculturedUnhappiness = 0;
 	m_iChangeIlliteracyUnhappiness = 0;
 	m_iChangeMinorityUnhappiness = 0;
 	m_iChangePovertyUnhappinessGlobal = 0;
 	m_iChangeDefenseUnhappinessGlobal = 0;
+	m_iChangeUnculturedUnhappinessGlobal = 0;
 	m_iChangeIlliteracyUnhappinessGlobal = 0;
 	m_iChangeMinorityUnhappinessGlobal = 0;
 #endif
@@ -6496,6 +6500,10 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 		{
 			ChangeIlliteracyUnhappiness(pBuildingInfo->GetIlliteracyHappinessChangeBuilding() * iChange);
 		}
+		if(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS && pBuildingInfo->GetUnculturedHappinessChangeBuilding() != 0)
+		{
+			ChangeUnculturedUnhappiness(pBuildingInfo->GetUnculturedHappinessChangeBuilding() * iChange);
+		}
 		if(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS && pBuildingInfo->GetMinorityHappinessChangeBuilding() != 0)
 		{
 			ChangeMinorityUnhappiness(pBuildingInfo->GetMinorityHappinessChangeBuilding() * iChange);
@@ -6511,6 +6519,10 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 		if(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS && pBuildingInfo->GetIlliteracyHappinessChangeBuildingGlobal() != 0)
 		{
 			ChangeIlliteracyUnhappinessGlobal(pBuildingInfo->GetIlliteracyHappinessChangeBuildingGlobal() * iChange);
+		}
+		if(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS && pBuildingInfo->GetUnculturedHappinessChangeBuildingGlobal() != 0)
+		{
+			ChangeUnculturedUnhappinessGlobal(pBuildingInfo->GetUnculturedHappinessChangeBuildingGlobal() * iChange);
 		}
 		if(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS && pBuildingInfo->GetMinorityHappinessChangeBuildingGlobal() != 0)
 		{
@@ -9662,8 +9674,6 @@ int CvCity::GetLocalHappiness() const
 int CvCity::getUnhappinessFromCultureYield() const
 {
 	int iCityCulture = getJONSCulturePerTurn() * 100;
-	int iCityResearch = getYieldRateTimes100(YIELD_SCIENCE, false);
-	iCityCulture += iCityResearch;
 
 	//Per Pop Yield
 	if(getPopulation() != 0)
@@ -9678,6 +9688,90 @@ int CvCity::getUnhappinessFromCultureYield() const
 int CvCity::getUnhappinessFromCultureNeeded() const
 {
 	int iThreshold = GET_PLAYER(getOwner()).getGlobalAverage(YIELD_CULTURE);
+
+#if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
+	//Trait is % reduction to this value (higher trait = lower threshold).
+	if(GET_PLAYER(getOwner()).GetPlayerTraits()->GetUnculturedHappinessChange() != 0)
+	{
+		iThreshold -= ((GET_PLAYER(getOwner()).GetPlayerTraits()->GetUnculturedHappinessChange() * iThreshold) / 100);
+	}
+	//Policy cuts threshold for this value (bigger negative number = lower threshold).
+	if(GET_PLAYER(getOwner()).GetUnculturedUnhappinessMod() != 0)
+	{
+		iThreshold += ((GET_PLAYER(getOwner()).GetUnculturedUnhappinessMod() * iThreshold) / 100);
+	}
+	//Capital only -  Policy cuts threshold for this value (bigger negative number = lower threshold).
+	if(GET_PLAYER(getOwner()).GetUnculturedUnhappinessModCapital() != 0)
+	{
+		if(isCapital())
+		{
+			iThreshold += ((GET_PLAYER(getOwner()).GetUnculturedUnhappinessModCapital() * iThreshold) / 100);
+		}
+	}
+	//Buildings decrease this by a flat integer.
+	if(GetUnculturedUnhappiness() != 0)
+	{
+		iThreshold += (GetUnculturedUnhappiness() * -100);
+	}
+	int iLoop = 0;
+	for(const CvCity* pLoopCity = GET_PLAYER(getOwner()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iLoop))
+	{
+		if(pLoopCity != NULL)
+		{
+			//Mod from global unhappiness building modifier.
+			if(pLoopCity->GetUnculturedUnhappinessGlobal() != 0)
+			{
+				iThreshold += (pLoopCity->GetUnculturedUnhappinessGlobal() * -100);
+			}
+		}		
+	}
+	if(IsPuppet())
+	{
+		iThreshold += ((GET_PLAYER(getOwner()).GetPuppetUnhappinessMod() * iThreshold) / 100);
+	}
+#endif
+
+	//This is for LUA.
+	return iThreshold;
+}
+//	--------------------------------------------------------------------------------
+int CvCity::getUnhappinessFromCulture() const
+{
+	if(IsOccupied() && !IsNoOccupiedUnhappiness())
+	{
+		return 0;
+	}
+	int iUnhappiness = 0;
+
+	int iThreshold = getUnhappinessFromCultureNeeded();
+	int iCityCulture = getUnhappinessFromCultureYield();
+
+	if(iThreshold > iCityCulture)
+	{
+		iUnhappiness = iThreshold - iCityCulture;
+		
+		iUnhappiness /= /* 100 */ GC.getBALANCE_UNHAPPY_CITY_BASE_VALUE();
+	}
+	return iUnhappiness;
+}
+//	--------------------------------------------------------------------------------
+int CvCity::getUnhappinessFromScienceYield() const
+{
+	int iCityResearch = getYieldRateTimes100(YIELD_SCIENCE, false);
+
+	//Per Pop Yield
+	if(getPopulation() != 0)
+	{
+		iCityResearch = (iCityResearch / getPopulation());
+	}
+
+	//This is for LUA.
+	return iCityResearch;
+}
+//	--------------------------------------------------------------------------------
+int CvCity::getUnhappinessFromScienceNeeded() const
+{
+	int iThreshold = GET_PLAYER(getOwner()).getGlobalAverage(YIELD_SCIENCE);
 
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 	//Trait is % reduction to this value (higher trait = lower threshold).
@@ -9725,7 +9819,7 @@ int CvCity::getUnhappinessFromCultureNeeded() const
 	return iThreshold;
 }
 //	--------------------------------------------------------------------------------
-int CvCity::getUnhappinessFromCulture() const
+int CvCity::getUnhappinessFromScience() const
 {
 	if(IsOccupied() && !IsNoOccupiedUnhappiness())
 	{
@@ -9733,14 +9827,14 @@ int CvCity::getUnhappinessFromCulture() const
 	}
 	int iUnhappiness = 0;
 
-	int iThreshold = getUnhappinessFromCultureNeeded();
-	int iCityCulture = getUnhappinessFromCultureYield();
+	int iThreshold = getUnhappinessFromScienceNeeded();
+	int iCityResearch = getUnhappinessFromScienceYield();
 
-	if(iThreshold > iCityCulture)
+	if(iThreshold > iCityResearch)
 	{
-		iUnhappiness = iThreshold - iCityCulture;
+		iUnhappiness = iThreshold - iCityResearch;
 		
-		iUnhappiness /= 100;
+		iUnhappiness /= /* 100 */ GC.getBALANCE_UNHAPPY_CITY_BASE_VALUE();
 	}
 	return iUnhappiness;
 }
@@ -9749,13 +9843,8 @@ int CvCity::getUnhappinessFromDefenseYield() const
 {
 	int iBuildingDefense = getStrengthValue(false);
 
-	if(GetGarrisonedUnit() == NULL)
-	{
-		// Reduction by 10% without garrison.
-		iBuildingDefense -= (iBuildingDefense / 10);
-	}
-	// 10 damage = -150 points
-	int iDamage = (getDamage() * 15);
+	// 10 damage = -100 points
+	int iDamage = (getDamage() * 10);
 
 	if(iDamage > 0)
 	{
@@ -9835,7 +9924,7 @@ int CvCity::getUnhappinessFromDefense() const
 	{
 		iUnhappiness = iThreshold - iBuildingDefense;
 
-		iUnhappiness /= 100;
+		iUnhappiness /= /* 100 */ GC.getBALANCE_UNHAPPY_CITY_BASE_VALUE();
 	}
 	return iUnhappiness;
 }
@@ -9844,11 +9933,6 @@ int CvCity::getUnhappinessFromGoldYield() const
 {
 
 	int iGold = getYieldRateTimes100(YIELD_GOLD, false);
-	int iFood = foodDifferenceTimes100();
-	if(iFood > 0)
-	{
-		iGold += iFood;
-	}
 
 	//Per Pop Yield
 	if(getPopulation() != 0)
@@ -9924,7 +10008,7 @@ int CvCity::getUnhappinessFromGold() const
 	{
 		iUnhappiness = iThreshold - iGold;
 
-		iUnhappiness /= 100;
+		iUnhappiness /= /* 100 */ GC.getBALANCE_UNHAPPY_CITY_BASE_VALUE();
 	}
 	return iUnhappiness;
 }
@@ -11299,6 +11383,18 @@ void CvCity::ChangeDefenseUnhappiness(int iChange)
 {
 	m_iChangeDefenseUnhappiness += iChange;
 }
+/// Extra yield from building
+int CvCity::GetUnculturedUnhappiness() const
+{
+	return m_iChangeUnculturedUnhappiness;
+}
+
+//	--------------------------------------------------------------------------------
+/// Extra yield from building
+void CvCity::ChangeUnculturedUnhappiness(int iChange)
+{
+	m_iChangeUnculturedUnhappiness += iChange;
+}
 //	--------------------------------------------------------------------------------
 /// Extra yield from building
 int CvCity::GetIlliteracyUnhappiness() const
@@ -11350,6 +11446,18 @@ int CvCity::GetDefenseUnhappinessGlobal() const
 void CvCity::ChangeDefenseUnhappinessGlobal(int iChange)
 {
 	m_iChangeDefenseUnhappinessGlobal += iChange;
+}
+/// Extra yield from building
+int CvCity::GetUnculturedUnhappinessGlobal() const
+{
+	return m_iChangeUnculturedUnhappinessGlobal;
+}
+
+//	--------------------------------------------------------------------------------
+/// Extra yield from building
+void CvCity::ChangeUnculturedUnhappinessGlobal(int iChange)
+{
+	m_iChangeUnculturedUnhappinessGlobal += iChange;
 }
 //	--------------------------------------------------------------------------------
 /// Extra yield from building
@@ -15568,10 +15676,12 @@ void CvCity::read(FDataStream& kStream)
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 	MOD_SERIALIZE_READ(53, kStream, m_iChangePovertyUnhappiness, 0);
 	MOD_SERIALIZE_READ(53, kStream, m_iChangeDefenseUnhappiness, 0);
+	MOD_SERIALIZE_READ(53, kStream, m_iChangeUnculturedUnhappiness, 0);
 	MOD_SERIALIZE_READ(53, kStream, m_iChangeIlliteracyUnhappiness, 0);
 	MOD_SERIALIZE_READ(53, kStream, m_iChangeMinorityUnhappiness, 0);
 	MOD_SERIALIZE_READ(53, kStream, m_iChangePovertyUnhappinessGlobal, 0);
 	MOD_SERIALIZE_READ(53, kStream, m_iChangeDefenseUnhappinessGlobal, 0);
+	MOD_SERIALIZE_READ(53, kStream, m_iChangeUnculturedUnhappinessGlobal, 0);
 	MOD_SERIALIZE_READ(53, kStream, m_iChangeIlliteracyUnhappinessGlobal, 0);
 	MOD_SERIALIZE_READ(53, kStream, m_iChangeMinorityUnhappinessGlobal, 0);
 #endif
@@ -15920,10 +16030,12 @@ void CvCity::write(FDataStream& kStream) const
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 	MOD_SERIALIZE_WRITE(kStream, m_iChangePovertyUnhappiness);
 	MOD_SERIALIZE_WRITE(kStream, m_iChangeDefenseUnhappiness);
+	MOD_SERIALIZE_WRITE(kStream, m_iChangeUnculturedUnhappiness);
 	MOD_SERIALIZE_WRITE(kStream, m_iChangeIlliteracyUnhappiness);
 	MOD_SERIALIZE_WRITE(kStream, m_iChangeMinorityUnhappiness);
 	MOD_SERIALIZE_WRITE(kStream, m_iChangePovertyUnhappinessGlobal);
 	MOD_SERIALIZE_WRITE(kStream, m_iChangeDefenseUnhappinessGlobal);
+	MOD_SERIALIZE_WRITE(kStream, m_iChangeUnculturedUnhappinessGlobal);
 	MOD_SERIALIZE_WRITE(kStream, m_iChangeIlliteracyUnhappinessGlobal);
 	MOD_SERIALIZE_WRITE(kStream, m_iChangeMinorityUnhappinessGlobal);
 #endif

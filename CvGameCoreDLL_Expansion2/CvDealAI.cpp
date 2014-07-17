@@ -1768,6 +1768,26 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 			// Adjust for how well a war against this player would go (or is going)
 			switch(GetPlayer()->GetDiplomacyAI()->GetWarProjection(eOtherPlayer))
 			{
+#if defined(MOD_BALANCE_CORE_DEALS)
+			case WAR_PROJECTION_DESTRUCTION:
+				iItemValue *= 100;
+				break;
+			case WAR_PROJECTION_DEFEAT:
+				iItemValue *= 210;
+				break;
+			case WAR_PROJECTION_STALEMATE:
+				iItemValue *= 240;
+				break;
+			case WAR_PROJECTION_UNKNOWN:
+				iItemValue *= 275;
+				break;
+			case WAR_PROJECTION_GOOD:
+				iItemValue *= 450;
+				break;
+			case WAR_PROJECTION_VERY_GOOD:
+				iItemValue *= 550;
+				break;
+#else
 			case WAR_PROJECTION_DESTRUCTION:
 				iItemValue *= 100;
 				break;
@@ -1786,6 +1806,7 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 			case WAR_PROJECTION_VERY_GOOD:
 				iItemValue *= 400;
 				break;
+#endif
 			default:
 				CvAssertMsg(false, "DEAL_AI: AI player has no valid War Projection for City valuation.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.")
 				iItemValue *= 300;
@@ -1862,7 +1883,7 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 			int iNumCities = GetPlayer()->getNumCities();
 			if(iNumCities <= 3)
 			{
-				iItemValue = -1;
+				iItemValue *= 5;
 			}
 		}
 	}

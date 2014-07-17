@@ -25,11 +25,11 @@ WHERE Tag = 'TXT_KEY_TRAIT_SPICE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type
 -- Brazil
 
 UPDATE Traits
-SET IlliteracyHappinessTraitMod = '10'
+SET UnculturedHappinessTraitMod = '10'
 WHERE Type = 'TRAIT_CARNIVAL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Tourism [ICON_TOURISM] output is +100% during their Golden Ages. Earn Great Artists, Musicians, and Writers 50% faster during their Golden Ages. Reduces [ICON_HAPPINESS_3] Illiteracy in all cities by 15%.'
+SET Text = 'Tourism [ICON_TOURISM] output is +100% during their Golden Ages. Earn Great Artists, Musicians, and Writers 50% faster during their Golden Ages. Reduces [ICON_HAPPINESS_3] Dullness in all cities by 15%.'
 WHERE Tag = 'TXT_KEY_TRAIT_CARNIVAL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 -- Byzantium

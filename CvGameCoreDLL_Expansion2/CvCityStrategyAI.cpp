@@ -1500,7 +1500,9 @@ void CvCityStrategyAI::DoTurn()
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 				else if(MOD_DIPLOMACY_CITYSTATES && strStrategyName == "AICITYSTRATEGY_NEED_HAPPINESS_CULTURE")
-					bStrategyShouldBeActive = CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessCulture(GetCity()); 
+					bStrategyShouldBeActive = CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessCulture(GetCity());
+				else if(MOD_DIPLOMACY_CITYSTATES && strStrategyName == "AICITYSTRATEGY_NEED_HAPPINESS_SCIENCE")
+					bStrategyShouldBeActive = CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessScience(GetCity()); 
 				else if(MOD_DIPLOMACY_CITYSTATES && strStrategyName == "AICITYSTRATEGY_NEED_HAPPINESS_DEFENSE")
 					bStrategyShouldBeActive = CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessDefense(GetCity()); 
 				else if(MOD_DIPLOMACY_CITYSTATES && strStrategyName == "AICITYSTRATEGY_NEED_HAPPINESS_GOLD")
@@ -3492,6 +3494,14 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_NeedDiplomatsCritical(CvCity *pCi
 bool CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessCulture(CvCity *pCity)
 {
 	if(pCity->getUnhappinessFromCulture() > 0)
+	{
+		return true;
+	}
+	return false;
+}
+bool CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessScience(CvCity *pCity)
+{
+	if(pCity->getUnhappinessFromScience() > 0)
 	{
 		return true;
 	}

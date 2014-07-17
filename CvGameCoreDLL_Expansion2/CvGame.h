@@ -432,7 +432,19 @@ public:
 	void clearReplayMessageMap();
 	uint getNumReplayMessages() const;
 	const CvReplayMessage* getReplayMessage(uint i) const;
-
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+	void getGlobalAverage() const;
+	int GetCultureAverage() const;
+	void SetCultureAverage(int iValue);
+	int GetScienceAverage() const;
+	void SetScienceAverage(int iValue);
+	int GetDefenseAverage() const;
+	void SetDefenseAverage(int iValue);
+	int GetGoldAverage() const;
+	void SetGoldAverage(int iValue);
+	int GetGlobalPopulation() const;
+	void SetGlobalPopulation(int iValue);
+#endif
 	void Read(FDataStream& kStream);
 	void Write(FDataStream& kStream) const;
 	void ReadSupportingClassData(FDataStream& kStream);
@@ -696,6 +708,13 @@ protected:
 
 #if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 	char /*TeamTypes*/ m_eTeamThatCircumnavigated;
+#endif
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+	int m_iCultureAverage;
+	int m_iScienceAverage;
+	int m_iDefenseAverage;
+	int m_iGoldAverage;
+	int m_iGlobalPopulation;
 #endif
 
 	CvString m_strScriptData;

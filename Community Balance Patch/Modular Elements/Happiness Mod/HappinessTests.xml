@@ -8,6 +8,11 @@
 			<MinimumNumTurnsExecuted>20</MinimumNumTurnsExecuted>
 		</Row>
 		<Row>
+			<Type>AICITYSTRATEGY_NEED_HAPPINESS_SCIENCE</Type>
+			<CheckTriggerTurnCount>20</CheckTriggerTurnCount>
+			<MinimumNumTurnsExecuted>20</MinimumNumTurnsExecuted>
+		</Row>
+		<Row>
 			<Type>AICITYSTRATEGY_NEED_HAPPINESS_DEFENSE</Type>
 			<CheckTriggerTurnCount>20</CheckTriggerTurnCount>
 			<MinimumNumTurnsExecuted>20</MinimumNumTurnsExecuted>
@@ -45,9 +50,9 @@
 			<Flavor>20</Flavor>
 		</Row>
 		<Row>
-			<AICityStrategyType>AICITYSTRATEGY_NEED_HAPPINESS_CULTURE</AICityStrategyType>
-			<FlavorType>FLAVOR_RELIGION</FlavorType>
-			<Flavor>10</Flavor>
+			<AICityStrategyType>AICITYSTRATEGY_NEED_HAPPINESS_SCIENCE</AICityStrategyType>
+			<FlavorType>FLAVOR_SCIENCE</FlavorType>
+			<Flavor>20</Flavor>
 		</Row>
 		<Row>
 			<AICityStrategyType>AICITYSTRATEGY_NEED_HAPPINESS_DEFENSE</AICityStrategyType>
@@ -63,11 +68,6 @@
 			<AICityStrategyType>AICITYSTRATEGY_NEED_HAPPINESS_GOLD</AICityStrategyType>
 			<FlavorType>FLAVOR_GOLD</FlavorType>
 			<Flavor>20</Flavor>
-		</Row>
-		<Row>
-			<AICityStrategyType>AICITYSTRATEGY_NEED_HAPPINESS_GOLD</AICityStrategyType>
-			<FlavorType>FLAVOR_GROWTH</FlavorType>
-			<Flavor>10</Flavor>
 		</Row>
 		<Row>
 			<AICityStrategyType>AICITYSTRATEGY_NEED_HAPPINESS_GOLD</AICityStrategyType>

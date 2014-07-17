@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created by ModBuddy on 7/13/2014 4:49:33 PM -->
+<GameData>
+	<Policy_FreeBuilding>
+		<Row>
+			<PolicyType>POLICY_NAVAL_TRADITION</PolicyType>
+			<BuildingClassType>BUILDINGCLASS_SEAPORT</BuildingClassType>
+			<Count>4</Count>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_SOCIALIST_REALISM</PolicyType>
+			<BuildingClassType>BUILDINGCLASS_MUSEUM</BuildingClassType>
+			<Count>4</Count>
+		</Row>
+		<!-- 100 accounts for 'every city' in policy. -->
+		<Row>
+			<PolicyType>POLICY_YOUNG_PIONEERS</PolicyType>
+			<BuildingClassType>BUILDINGCLASS_WORKSHOP</BuildingClassType>
+			<Count>100</Count>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_MILITARISM</PolicyType>
+			<BuildingClassType>BUILDINGCLASS_MILITARY_ACADEMY</BuildingClassType>
+			<Count>4</Count>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_UNIVERSAL_HEALTHCARE_F</PolicyType>
+			<BuildingClassType>BUILDINGCLASS_HOSPITAL</BuildingClassType>
+			<Count>4</Count>
+		</Row>
+	</Policy_FreeBuilding>
+	<Language_en_US>
+		<Row>
+			<Text>[COLOR_POSITIVE_TEXT]Universal Healthcare[ENDCOLOR][NEWLINE]Receive a free Hospital in your first four cities.</Text>
+			<Tag>TXT_KEY_POLICY_UNIVERSAL_HEALTHCARE_F_HELP</Tag>
+		</Row>
+		<Row>
+			<Text>[COLOR_POSITIVE_TEXT]Peace, Land, Bread[ENDCOLOR][NEWLINE]Reduces [ICON_HAPPINESS_3] Poverty by 15% in all cities.</Text>
+			<Tag>TXT_KEY_POLICY_UNIVERSAL_HEALTHCARE_O_HELP</Tag>
+		</Row>
+		<Row>
+			<Text>[COLOR_POSITIVE_TEXT]Autarky[ENDCOLOR][NEWLINE]1 [ICON_CITIZEN] Specialist in all cities and an additional 2 [ICON_CITIZEN] Specialists in your [ICON_CAPITAL] Capital no longer cause [ICON_HAPPINESS_3] Unhappiness.</Text>
+			<Tag>TXT_KEY_POLICY_UNIVERSAL_HEALTHCARE_A_HELP</Tag>
+		</Row>
+		<Row>
+			<Text>Universal Healthcare</Text>
+			<Tag>TXT_KEY_POLICY_UNIVERSAL_HEALTHCARE_F</Tag>
+		</Row>
+		<Row>
+			<Text>Peace, Land, Bread</Text>
+			<Tag>TXT_KEY_POLICY_UNIVERSAL_HEALTHCARE_O</Tag>
+		</Row>
+		<Row>
+			<Text>Autarky</Text>
+			<Tag>TXT_KEY_POLICY_UNIVERSAL_HEALTHCARE_A</Tag>
+		</Row>
+		<Row>
+			<Text>The phrase 'Peace, Land, Bread,' popularized by Lenin and others during the early days of the Soviet Revolution, highlighted their desire to focus on the needs of the impoverished Russian peasantry. The Bolshevik Initial Decrees of the 1910-20s were announced as soon as the Bolsheviks declared their success in the October Revolution (October 26, 1917). The decrees conformed to the popular Bolshevik slogan "Peace, Bread, and Land", taken up by the masses during the July Days (July 1917), an uprising of workers and military forces.</Text>
+			<Tag>TXT_KEY_POLICY_UNIVERSAL_HEALTHCARE_TEXT_O</Tag>
+		</Row>
+		<Row>
+			<Text>Autarky is the quality of being self-sufficient. Usually the term is applied to political states or their economic systems. Autarky exists whenever an entity can survive or continue its activities without external assistance or international trade. If a self-sufficient economy also refuses all trade with the outside world then it is called a closed economy. Autarky is not necessarily an economic phenomenon; for example, a military autarky would be a state that could defend itself without help from another country. Autarky can be said to be the policy of a state or other entity when it seeks to be self-sufficient as a whole, but also can be limited to a narrow field such as possession of a key raw material.</Text>
+			<Tag>TXT_KEY_POLICY_UNIVERSAL_HEALTHCARE_TEXT_A</Tag>
+		</Row>
+	</Language_en_US>
+</GameData>

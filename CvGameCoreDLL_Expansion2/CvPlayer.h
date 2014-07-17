@@ -532,6 +532,7 @@ public:
 	void ChangeUnhappinessMod(int iChange);
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	int getUnhappinessFromCityCulture() const;
+	int getUnhappinessFromCityScience() const;
 	int getUnhappinessFromCityDefense() const;
 	int getUnhappinessFromCityGold() const;
 	int getUnhappinessFromCityConnection() const;
@@ -1029,6 +1030,8 @@ public:
 	void ChangePovertyUnhappinessMod(int iChange);
 	int GetDefenseUnhappinessMod() const;
 	void ChangeDefenseUnhappinessMod(int iChange);
+	int GetUnculturedUnhappinessMod() const;
+	void ChangeUnculturedUnhappinessMod(int iChange);
 	int	GetIlliteracyUnhappinessMod() const;
 	void ChangeIlliteracyUnhappinessMod(int iChange);
 	int GetMinorityUnhappinessMod() const;
@@ -1038,6 +1041,8 @@ public:
 	void ChangePovertyUnhappinessModCapital(int iChange);
 	int GetDefenseUnhappinessModCapital() const;
 	void ChangeDefenseUnhappinessModCapital(int iChange);
+	int GetUnculturedUnhappinessModCapital() const;
+	void ChangeUnculturedUnhappinessModCapital(int iChange);
 	int	GetIlliteracyUnhappinessModCapital() const;
 	void ChangeIlliteracyUnhappinessModCapital(int iChange);
 	int GetMinorityUnhappinessModCapital() const;
@@ -1952,10 +1957,12 @@ protected:
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	int m_iPovertyUnhappinessMod;
 	int m_iDefenseUnhappinessMod;
+	int m_iUnculturedUnhappinessMod;
 	int m_iIlliteracyUnhappinessMod;
 	int m_iMinorityUnhappinessMod;
 	int m_iPovertyUnhappinessModCapital;
 	int m_iDefenseUnhappinessModCapital;
+	int m_iUnculturedUnhappinessModCapital;
 	int m_iIlliteracyUnhappinessModCapital;
 	int m_iMinorityUnhappinessModCapital;
 	int m_iPuppetUnhappinessMod;

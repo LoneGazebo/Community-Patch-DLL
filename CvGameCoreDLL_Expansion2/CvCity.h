@@ -533,6 +533,9 @@ public:
 	int getUnhappinessFromCultureYield() const;
 	int getUnhappinessFromCultureNeeded() const;
 	int getUnhappinessFromCulture() const;
+	int getUnhappinessFromScienceYield() const;
+	int getUnhappinessFromScienceNeeded() const;
+	int getUnhappinessFromScience() const;
 	int getUnhappinessFromDefenseYield() const;
 	int getUnhappinessFromDefenseNeeded() const;
 	int getUnhappinessFromDefense() const;
@@ -679,6 +682,9 @@ public:
 	int GetDefenseUnhappiness() const;
 	void ChangeDefenseUnhappiness(int iChange);
 
+	int GetUnculturedUnhappiness() const;
+	void ChangeUnculturedUnhappiness(int iChange);
+
 	int GetIlliteracyUnhappiness() const;
 	void ChangeIlliteracyUnhappiness(int iChange);
 
@@ -690,6 +696,9 @@ public:
 
 	int GetDefenseUnhappinessGlobal() const;
 	void ChangeDefenseUnhappinessGlobal(int iChange);
+
+	int GetUnculturedUnhappinessGlobal() const;
+	void ChangeUnculturedUnhappinessGlobal(int iChange);
 
 	int GetIlliteracyUnhappinessGlobal() const;
 	void ChangeIlliteracyUnhappinessGlobal(int iChange);
@@ -1100,10 +1109,12 @@ protected:
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 	int m_iChangePovertyUnhappiness;
 	int m_iChangeDefenseUnhappiness;
+	int m_iChangeUnculturedUnhappiness;
 	int m_iChangeIlliteracyUnhappiness;
 	int m_iChangeMinorityUnhappiness;
 	int m_iChangePovertyUnhappinessGlobal;
 	int m_iChangeDefenseUnhappinessGlobal;
+	int m_iChangeUnculturedUnhappinessGlobal;
 	int m_iChangeIlliteracyUnhappinessGlobal;
 	int m_iChangeMinorityUnhappinessGlobal;
 #endif

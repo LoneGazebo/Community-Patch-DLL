@@ -43,7 +43,7 @@
 
 	-- % reduction of combat effectiveness per point of unhappiness.
 	UPDATE Defines
-	SET Value = '1'
+	SET Value = '-1'
 	WHERE Name = 'VERY_UNHAPPY_COMBAT_PENALTY_PER_UNHAPPY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
 
 -- Division line for when happiness bonuses begin. Happiness above threshold grants bonus. (should always be a positive value)

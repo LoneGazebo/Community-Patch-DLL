@@ -243,11 +243,13 @@ public:
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 	int GetPovertyHappinessChangePolicy() const;
 	int GetDefenseHappinessChangePolicy() const;
+	int GetUnculturedHappinessChangePolicy() const;
 	int GetIlliteracyHappinessChangePolicy() const;
 	int GetMinorityHappinessChangePolicy() const;
 
 	int GetPovertyHappinessChangePolicyCapital() const;
 	int GetDefenseHappinessChangePolicyCapital() const;
+	int GetUnculturedHappinessChangePolicyCapital() const;
 	int GetIlliteracyHappinessChangePolicyCapital() const;
 	int GetMinorityHappinessChangePolicyCapital() const;
 	int GetPuppetUnhappinessMod() const;
@@ -413,11 +415,13 @@ private:
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 	int m_iPovertyHappinessChangePolicy;
 	int m_iDefenseHappinessChangePolicy;
+	int m_iUnculturedHappinessChangePolicy;
 	int m_iIlliteracyHappinessChangePolicy;
 	int m_iMinorityHappinessChangePolicy;
 
 	int m_iPovertyHappinessChangePolicyCapital;
 	int m_iDefenseHappinessChangePolicyCapital;
+	int m_iUnculturedHappinessChangePolicyCapital;
 	int m_iIlliteracyHappinessChangePolicyCapital;
 	int m_iMinorityHappinessChangePolicyCapital;
 	int m_iPuppetUnhappinessModPolicy;

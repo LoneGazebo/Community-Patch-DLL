@@ -806,6 +806,7 @@ function HappinessTipHandler( control )
 		local iUnhappinessPublicOpinion = pPlayer:GetUnhappinessFromPublicOpinion();
 -- COMMUNITY PATCH CHANGES BELOW
 		local iUnhappinessFromCulture = pPlayer:GetUnhappinessFromCityCulture();
+		local iUnhappinessFromScience = pPlayer:GetUnhappinessFromCityScience();
 		local iUnhappinessFromDefense = pPlayer:GetUnhappinessFromCityDefense();
 		local iUnhappinessFromGold = pPlayer:GetUnhappinessFromCityGold();
 		local iUnhappinessFromConnection = pPlayer:GetUnhappinessFromCityConnection();
@@ -859,6 +860,10 @@ function HappinessTipHandler( control )
 		if (iUnhappinessFromCulture > 0) then
 			strText = strText .. "[NEWLINE]";
 			strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_UNHAPPINESS_CULTURE", iUnhappinessFromCulture);
+		end	
+		if (iUnhappinessFromScience > 0) then
+			strText = strText .. "[NEWLINE]";
+			strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_UNHAPPINESS_SCIENCE", iUnhappinessFromScience);
 		end	
 		if (iUnhappinessFromDefense > 0) then
 			strText = strText .. "[NEWLINE]";

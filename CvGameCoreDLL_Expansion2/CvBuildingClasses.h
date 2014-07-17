@@ -232,10 +232,12 @@ public:
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 	int GetPovertyHappinessChangeBuilding() const;
 	int GetDefenseHappinessChangeBuilding() const;
+	int GetUnculturedHappinessChangeBuilding() const;
 	int GetIlliteracyHappinessChangeBuilding() const;
 	int GetMinorityHappinessChangeBuilding() const;
 	int GetPovertyHappinessChangeBuildingGlobal() const;
 	int GetDefenseHappinessChangeBuildingGlobal() const;
+	int GetUnculturedHappinessChangeBuildingGlobal() const;
 	int GetIlliteracyHappinessChangeBuildingGlobal() const;
 	int GetMinorityHappinessChangeBuildingGlobal() const;
 #endif
@@ -484,10 +486,12 @@ private:
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 	int m_iPovertyHappinessChangeBuilding;
 	int m_iDefenseHappinessChangeBuilding;
+	int m_iUnculturedHappinessChangeBuilding;
 	int m_iIlliteracyHappinessChangeBuilding;
 	int m_iMinorityHappinessChangeBuilding;
 	int m_iPovertyHappinessChangeBuildingGlobal;
 	int m_iDefenseHappinessChangeBuildingGlobal;
+	int m_iUnculturedHappinessChangeBuildingGlobal;
 	int m_iIlliteracyHappinessChangeBuildingGlobal;
 	int m_iMinorityHappinessChangeBuildingGlobal;
 #endif

@@ -170,6 +170,7 @@ public:
 	int GetPovertyHappinessChange() const;
 	int GetDefenseHappinessChange() const;
 	int GetIlliteracyHappinessChange() const;
+	int GetUnculturedHappinessChange() const;
 	int GetMinorityHappinessChange() const;
 	bool IsNoConnectionUnhappiness() const;
 	bool IsNoReligiousStrife() const;
@@ -318,6 +319,7 @@ protected:
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 	int m_iPovertyHappinessChange;
 	int m_iDefenseHappinessChange;
+	int m_iUnculturedHappinessChange;
 	int m_iIlliteracyHappinessChange;
 	int m_iMinorityHappinessChange;
 	bool m_bNoConnectionUnhappiness;
@@ -785,6 +787,10 @@ public:
 	{
 		return m_iIlliteracyHappinessChange;
 	}
+	int GetUnculturedHappinessChange() const
+	{
+		return m_iUnculturedHappinessChange;
+	}
 	int GetMinorityHappinessChange() const
 	{
 		return m_iMinorityHappinessChange;
@@ -1007,6 +1013,7 @@ private:
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 	int m_iPovertyHappinessChange;
 	int m_iDefenseHappinessChange;
+	int m_iUnculturedHappinessChange;
 	int m_iIlliteracyHappinessChange;
 	int m_iMinorityHappinessChange;
 	bool m_bNoConnectionUnhappiness;

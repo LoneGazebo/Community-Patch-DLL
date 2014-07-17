@@ -571,7 +571,7 @@ bool CvMilitaryAI::RequestSneakAttack(PlayerTypes eEnemy)
 					if(pBestCity == NULL)
 					{
 						PlayerTypes eLoopPlayer;
-						for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+						for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 						{
 							eLoopPlayer = (PlayerTypes) iPlayerLoop;
 							if(GET_PLAYER(eLoopPlayer).isMinorCiv())
@@ -827,7 +827,7 @@ bool CvMilitaryAI::RequestCityStateAttack(PlayerTypes eEnemy)
 					if(pBestCity == NULL)
 					{
 						PlayerTypes eLoopPlayer;
-						for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+						for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 						{
 							eLoopPlayer = (PlayerTypes) iPlayerLoop;
 							if(GET_PLAYER(eLoopPlayer).isMinorCiv())
@@ -974,7 +974,7 @@ bool CvMilitaryAI::RequestSpecificAttack(CvMilitaryTarget kTarget, int iNumUnits
 				if(pBestCity == NULL)
 				{
 					PlayerTypes eLoopPlayer;
-					for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+					for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 					{
 						eLoopPlayer = (PlayerTypes) iPlayerLoop;
 						if(GET_PLAYER(eLoopPlayer).isMinorCiv())
