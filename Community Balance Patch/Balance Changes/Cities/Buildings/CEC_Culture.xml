@@ -1,10 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <GameData>
 	<Buildings>
-		<Update>
-			<Where BuildingClass="BUILDINGCLASS_OPERA_HOUSE"/>
-			<Set GoldMaintenance="0"/>
-		</Update>
+
 	</Buildings>
 	<Building_YieldChanges>
 		<!--

@@ -1,10 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <GameData>
 	<Buildings>
-		<Update>
-			<Where BuildingClass="BUILDINGCLASS_AQUEDUCT" />
-			<Set FoodKept="30" />
-		</Update>
+
 		<!--
 		<Update>
 			<Where BuildingClass="BUILDINGCLASS_HOSPITAL" />
@@ -45,31 +42,6 @@
 			<Set Yield="10" />
 		</Update>
 		-->
-		<Row>
-			<BuildingType>BUILDING_GARDEN</BuildingType>
-			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>1</Yield>
-		</Row>
-		<Row>
-			<BuildingType>BUILDING_CANDI</BuildingType>
-			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>1</Yield>
-		</Row>
-		<Update>
-			<Where BuildingType="BUILDING_WATERMILL" YieldType="YIELD_FOOD" />
-			<Set Yield="1" />
-		</Update>
-		<Update>
-			<Where BuildingType="BUILDING_FLOATING_GARDENS" YieldType="YIELD_FOOD" />
-			<Set Yield="1" />
-		</Update>
-		<Update>
-			<Where BuildingType="BUILDING_WATERMILL" YieldType="YIELD_PRODUCTION" />
-			<Set Yield="3" />
-		</Update>
-		<Update>
-			<Where BuildingType="BUILDING_FLOATING_GARDENS" YieldType="YIELD_PRODUCTION" />
-			<Set Yield="3" />
-		</Update>
+
 	</Building_YieldChanges>
 </GameData>
