@@ -38,11 +38,11 @@
 			<Text>I lament that the traditions of my ancestors are being swept away by the powerful force of your influence. Is this the beginning of an age of cultural darkness, or are you the bringer of enlightenment?</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GENERIC_INFLUENTIAL_ON_AI_MODERN_1">
-			<Text>We were once a proud, independent culture, but now all that remains of our former glory rests on dusty shelves. Someday you too will join us in the archives of history...but today is not that day.</Text>
+			<Text>We were once a proud, independent culture, but now all that remains of our former glory rests on dusty shelves. Someday you too will join us in the archives of history... but today is not that day.</Text>
 		</Row>
 		<!-- AI over Human -->
 		<Row Tag="TXT_KEY_GENERIC_INFLUENTIAL_ON_HUMAN_CLASSICAL_1">
-			<Text>I am happy to see that you have finally abandoned your miserable, barbaric customs. Do not despair, as it is far better for a culture to die by choice than by the sword...though yours, perhaps, may succumb to both.</Text>
+			<Text>I am happy to see that you have finally abandoned your miserable, barbaric customs. Do not despair, as it is far better for a culture to die by choice than by the sword... though yours, perhaps, may succumb to both.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GENERIC_INFLUENTIAL_ON_HUMAN_RENAISSANCE_1">
 			<Text>Do not fear the new way of life that has enthralled your people. You will soon forget all about the backwards and rude traditions you laughably called 'culture.'</Text>
