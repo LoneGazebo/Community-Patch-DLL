@@ -2,44 +2,20 @@
 <GameData>
 	<Buildings>
 		<Update>
-			<Where BuildingClass="BUILDINGCLASS_HARBOR" />
-			<Set GoldMaintenance="1"
-				 TradeRouteSeaDistanceModifier="100"
-				 />
+
 		</Update>
-		<Update>
-			<Where BuildingClass="BUILDINGCLASS_SEAPORT" />
-			<Set GoldMaintenance="4"
-				 />
-		</Update>
+
 	</Buildings>
-	<Building_SeaPlotYieldChanges>
-		<Row>
-			<BuildingType>BUILDING_SEAPORT</BuildingType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>1</Yield>
-		</Row>
-	</Building_SeaPlotYieldChanges>
+
 	<Building_ResourceYieldChanges>
 		<Delete BuildingType="BUILDING_SEAPORT" />
 	</Building_ResourceYieldChanges>
 	<Building_YieldChanges>
-		<Delete BuildingType="BUILDING_SEAPORT" />
-		<Row>
-			<BuildingType>BUILDING_SEAPORT</BuildingType>
-			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Yield>2</Yield>
-		</Row>
+
 	</Building_YieldChanges>
 	<Building_DomainProductionModifiers>
-		<Delete BuildingType="BUILDING_SEAPORT" />
-		<Row>
-			<BuildingType>BUILDING_SEAPORT</BuildingType>
-			<DomainType>DOMAIN_SEA</DomainType>
-			<Modifier>50</Modifier>
-		</Row>
+
 	</Building_DomainProductionModifiers>
 	<Building_ClassesNeededInCity>
-		<Delete BuildingType="BUILDING_SEAPORT" />
 	</Building_ClassesNeededInCity>
 </GameData>

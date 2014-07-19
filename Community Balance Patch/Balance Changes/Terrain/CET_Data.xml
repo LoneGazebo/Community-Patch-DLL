@@ -1,11 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <GameData>
 	<Defines>
-		<Update>
-			<Where Name="HEAVY_RESOURCE_THRESHOLD"/>
-			<Set Value="2"/>
-			<!-- 3 -->
-		</Update>
+
 	</Defines>
 	<!--<Cep>
 		<Row Type="PLOTS_PER_CITY" >
@@ -46,14 +42,7 @@
 		</Update>
 	</Terrain_Yields>
 	<Defines>
-		<Update>
-			<Where Name="FLAT_LAND_EXTRA_DEFENSE" />
-			<Set Value="-20" />
-		</Update>
-		<Update>
-			<Where Name="HILLS_EXTRA_DEFENSE" />
-			<Set Value="10" />
-		</Update>
+
 	</Defines>
 	<Features>
 		<Update>

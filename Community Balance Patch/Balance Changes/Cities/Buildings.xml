@@ -69,8 +69,10 @@
 		<Update>
 			<Where BuildingClass="BUILDINGCLASS_HARBOR"/>
 			<Set TradeRouteSeaGoldBonus="0"
+				 GoldMaintenance="1"
+				 TradeRouteSeaDistanceModifier="100"
 				 />
-				 <!-- 100   -->
+				 <!-- 100, 2, 50   -->
 		</Update>
 		<Update>
 			<Where BuildingClass="BUILDINGCLASS_HYDRO_PLANT" />
@@ -139,6 +141,12 @@
 			<Set GoldMaintenance="4"
 				 />
 				 <!--  3  -->
+		</Update>
+		<Update>
+			<Where BuildingClass="BUILDINGCLASS_SEAPORT" />
+			<Set GoldMaintenance="4"
+				 />
+				 <!--  2  -->
 		</Update>
 		<Update>
 			<Where BuildingClass="BUILDINGCLASS_STADIUM" />
@@ -276,6 +284,13 @@
 			<!-- 2 -->
 		</Update>
 	</Building_ResourceYieldChanges>
+	<Building_SeaPlotYieldChanges>
+		<Row>
+			<BuildingType>BUILDING_SEAPORT</BuildingType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+	</Building_SeaPlotYieldChanges>
 	<Building_YieldChanges>
 		<Row>
 			<BuildingType>BUILDING_CANDI</BuildingType>
