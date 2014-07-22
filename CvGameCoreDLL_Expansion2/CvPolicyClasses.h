@@ -240,7 +240,20 @@ public:
 	bool IncludesOneShotFreeUnits() const;
 
 	BuildingTypes GetFreeBuildingOnConquest() const;
+#if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
+	int GetPovertyHappinessChangePolicy() const;
+	int GetDefenseHappinessChangePolicy() const;
+	int GetIlliteracyHappinessChangePolicy() const;
+	int GetMinorityHappinessChangePolicy() const;
 
+	int GetPovertyHappinessChangePolicyCapital() const;
+	int GetDefenseHappinessChangePolicyCapital() const;
+	int GetIlliteracyHappinessChangePolicyCapital() const;
+	int GetMinorityHappinessChangePolicyCapital() const;
+	int GetPuppetUnhappinessMod() const;
+	int GetNoUnhappfromXSpecialists() const;
+	int GetNoUnhappfromXSpecialistsCapital() const;
+#endif
 private:
 	int m_iTechPrereq;
 	int m_iCultureCost;
@@ -397,6 +410,20 @@ private:
 
 	bool m_bOneShot;
 	bool m_bIncludesOneShotFreeUnits;
+#if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
+	int m_iPovertyHappinessChangePolicy;
+	int m_iDefenseHappinessChangePolicy;
+	int m_iIlliteracyHappinessChangePolicy;
+	int m_iMinorityHappinessChangePolicy;
+
+	int m_iPovertyHappinessChangePolicyCapital;
+	int m_iDefenseHappinessChangePolicyCapital;
+	int m_iIlliteracyHappinessChangePolicyCapital;
+	int m_iMinorityHappinessChangePolicyCapital;
+	int m_iPuppetUnhappinessModPolicy;
+	int m_iNoUnhappfromXSpecialists;
+	int m_iNoUnhappfromXSpecialistsCapital;
+#endif
 
 	CvString m_strWeLoveTheKingKey;
 	CvString m_wstrWeLoveTheKing;

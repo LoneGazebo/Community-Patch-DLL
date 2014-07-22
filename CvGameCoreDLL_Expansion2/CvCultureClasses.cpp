@@ -2839,7 +2839,38 @@ PlayerTypes CvPlayerCulture::GetCivLowestInfluence(bool bCheckOpenBorders) const
 }
 
 // NON-CULTURE TOURISM BONUSES
+#if defined(MOD_BALANCE_CORE)
+/// Get extra gold from trade routes based on current influence level
+int CvPlayerCulture::GetInfluenceTradeRouteGoldBonus(PlayerTypes ePlayer) const
+{
+	int iRtnValue = 0;
 
+	if (ePlayer < MAX_MAJOR_CIVS)
+	{
+		InfluenceLevelTypes eLevel = GetInfluenceLevel(ePlayer);
+		switch (eLevel)
+		{
+		case INFLUENCE_LEVEL_EXOTIC:
+			iRtnValue = GC.getBALANCE_GOLD_INFLUENCE_LEVEL_EXOTIC();
+			break;
+		case INFLUENCE_LEVEL_FAMILIAR:
+			iRtnValue  = GC.getBALANCE_GOLD_INFLUENCE_LEVEL_FAMILIAR();
+			break;
+		case INFLUENCE_LEVEL_POPULAR:
+			iRtnValue = GC.getBALANCE_GOLD_INFLUENCE_LEVEL_POPULAR();
+			break;
+		case INFLUENCE_LEVEL_INFLUENTIAL:
+			iRtnValue = GC.getBALANCE_GOLD_INFLUENCE_LEVEL_INFLUENTIAL();
+			break;
+		case INFLUENCE_LEVEL_DOMINANT:
+			iRtnValue = GC.getBALANCE_GOLD_INFLUENCE_LEVEL_DOMINANT();
+			break;
+		}
+	}
+
+	return iRtnValue;
+}
+#endif
 /// Get extra science from trade routes based on current influence level
 int CvPlayerCulture::GetInfluenceTradeRouteScienceBonus(PlayerTypes ePlayer) const
 {
@@ -2852,15 +2883,35 @@ int CvPlayerCulture::GetInfluenceTradeRouteScienceBonus(PlayerTypes ePlayer) con
 		{
 		case INFLUENCE_LEVEL_FAMILIAR:
 			iRtnValue = 1;
+#if defined(MOD_BALANCE_CORE)
+			{
+				iRtnValue += GC.getBALANCE_SCIENCE_INFLUENCE_LEVEL_FAMILIAR();
+			}
+#endif
 			break;
 		case INFLUENCE_LEVEL_POPULAR:
 			iRtnValue = 2;
+#if defined(MOD_BALANCE_CORE)
+			{
+				iRtnValue += GC.getBALANCE_SCIENCE_INFLUENCE_LEVEL_POPULAR();
+			}
+#endif
 			break;
 		case INFLUENCE_LEVEL_INFLUENTIAL:
 			iRtnValue = 3;
+#if defined(MOD_BALANCE_CORE)
+			{
+				iRtnValue += GC.getBALANCE_SCIENCE_INFLUENCE_LEVEL_INFLUENTIAL();
+			}
+#endif
 			break;
 		case INFLUENCE_LEVEL_DOMINANT:
 			iRtnValue = 4;
+#if defined(MOD_BALANCE_CORE)
+			{
+				iRtnValue += GC.getBALANCE_SCIENCE_INFLUENCE_LEVEL_DOMINANT();
+			}
+#endif
 			break;
 		}
 	}
@@ -2880,12 +2931,27 @@ int CvPlayerCulture::GetInfluenceCityConquestReduction(PlayerTypes ePlayer) cons
 		{
 		case INFLUENCE_LEVEL_FAMILIAR:
 			iRtnValue = 25;
+#if defined(MOD_BALANCE_CORE)
+			{
+				iRtnValue += GC.getBALANCE_CONQUEST_REDUCTION_BOOST();
+			}
+#endif
 			break;
 		case INFLUENCE_LEVEL_POPULAR:
 			iRtnValue = 50;
+#if defined(MOD_BALANCE_CORE)
+			{
+				iRtnValue += GC.getBALANCE_CONQUEST_REDUCTION_BOOST();
+			}
+#endif
 			break;
 		case INFLUENCE_LEVEL_INFLUENTIAL:
 			iRtnValue = 75;
+#if defined(MOD_BALANCE_CORE)
+			{
+				iRtnValue += GC.getBALANCE_CONQUEST_REDUCTION_BOOST();
+			}
+#endif
 			break;
 		case INFLUENCE_LEVEL_DOMINANT:
 			iRtnValue = 100;
@@ -2905,10 +2971,33 @@ int CvPlayerCulture::GetInfluenceSurveillanceTime(PlayerTypes ePlayer) const
 	{
 		InfluenceLevelTypes eLevel = GetInfluenceLevel(ePlayer);
 
+#if defined(MOD_BALANCE_CORE)
+		if (eLevel == INFLUENCE_LEVEL_EXOTIC)
+		{
+			iRtnValue = GC.getBALANCE_SPY_BOOST_INFLUENCE_EXOTIC();
+		}
+		if (eLevel == INFLUENCE_LEVEL_FAMILIAR)
+		{
+			iRtnValue = GC.getBALANCE_SPY_BOOST_INFLUENCE_FAMILIAR();
+		}
+		if (eLevel == INFLUENCE_LEVEL_POPULAR)
+		{
+			iRtnValue = GC.getBALANCE_SPY_BOOST_INFLUENCE_POPULAR();
+		}
+		if (eLevel == INFLUENCE_LEVEL_INFLUENTIAL)
+		{
+			iRtnValue = GC.getBALANCE_SPY_BOOST_INFLUENCE_INFLUENTIAL();
+		}
+		if (eLevel == INFLUENCE_LEVEL_DOMINANT)
+		{
+			iRtnValue = GC.getBALANCE_SPY_BOOST_INFLUENCE_DOMINANT();
+		}
+#else
 		if (eLevel >= INFLUENCE_LEVEL_FAMILIAR)
 		{
 			iRtnValue = 1;
 		}
+#endif
 	}
 	else
 	{
@@ -2920,6 +3009,7 @@ int CvPlayerCulture::GetInfluenceSurveillanceTime(PlayerTypes ePlayer) const
 			if (eAlly != NO_PLAYER)
 			{
 				InfluenceLevelTypes eLevel = GetInfluenceLevel(eAlly);
+
 				if (eLevel >= INFLUENCE_LEVEL_FAMILIAR)
 				{
 					iRtnValue = 1;

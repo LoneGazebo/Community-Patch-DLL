@@ -70,7 +70,7 @@ FROM Projects WHERE AllowsNukes = 1;
 --
 -- Building Priorities
 --
-
+--CREATE TABLE Building_Flavors_BNW AS SELECT * FROM Building_Flavors; --BNW Flavors
 DELETE FROM Building_Flavors;
 DELETE FROM Building_Flavors_Human;
 
@@ -123,6 +123,12 @@ FROM Buildings WHERE (
 	OR Gold <> 0
 	OR MinorFriendshipChange <> 0
 	OR TradeDealModifier <> 0
+	OR TradeRouteLandDistanceModifier <> 0
+	OR TradeRouteLandGoldBonus <> 0
+	OR TradeRouteSeaDistanceModifier <> 0
+	OR TradeRouteSeaGoldBonus <> 0
+	OR TradeRouteTargetBonus <> 0
+	OR NumTradeRouteBonus <> 0
 );
 
 INSERT INTO Building_Flavors (BuildingType, FlavorType, Flavor)
@@ -130,9 +136,14 @@ SELECT Type, 'FLAVOR_SCIENCE', 8
 FROM Buildings WHERE (
 	   InstantHappiness <> 0
 	OR TechShare <> 0
-	OR FreeTechs <> 0
 	OR MedianTechPercentChange <> 0
 	OR GreatScientistBeakerModifier <> 0
+);
+
+INSERT INTO Building_Flavors (BuildingType, FlavorType, Flavor)
+SELECT Type, 'FLAVOR_SCIENCE', 16
+FROM Buildings WHERE (
+	   FreeTechs <> 0
 );
 
 INSERT INTO Building_Flavors (BuildingType, FlavorType, Flavor)
@@ -291,10 +302,15 @@ FROM Buildings WHERE (
 	OR Airlift <> 0
 	OR MilitaryProductionModifier <> 0
 	OR InstantMilitaryIncrease <> 0
-	OR NoOccupiedUnhappiness <> 0
 	OR GreatGeneralRateChange <> 0
 	OR ExperiencePerTurn <> 0
 	OR GlobalExperienceFixed <> 0
+);
+
+INSERT INTO Building_Flavors (BuildingType, FlavorType, Flavor)
+SELECT Type, 'FLAVOR_OFFENSE', 16
+FROM Buildings WHERE (
+	   NoOccupiedUnhappiness <> 0
 );
 
 INSERT INTO Building_Flavors (BuildingType, FlavorType, Flavor)
@@ -354,6 +370,8 @@ SELECT Type, 'FLAVOR_I_LAND_TRADE_ROUTE', 8
 FROM Buildings WHERE (
 	   TradeRouteLandDistanceModifier <> 0
 	OR TradeRouteLandGoldBonus <> 0
+	OR TradeRouteTargetBonus <> 0
+	OR NumTradeRouteBonus <> 0
 );
 
 INSERT INTO Building_Flavors (BuildingType, FlavorType, Flavor)
@@ -361,6 +379,8 @@ SELECT Type, 'FLAVOR_I_SEA_TRADE_ROUTE', 8
 FROM Buildings WHERE (
 	   TradeRouteSeaDistanceModifier <> 0
 	OR TradeRouteSeaGoldBonus <> 0
+	OR TradeRouteTargetBonus <> 0
+	OR NumTradeRouteBonus <> 0
 );
 
 INSERT INTO Building_Flavors (BuildingType, FlavorType, Flavor)
@@ -371,8 +391,6 @@ WHERE (building.BuildingClass = class.Type AND (
 	OR class.MaxTeamInstances = 1
 	--OR class.MaxPlayerInstances = 1
 ));
-
-
 
 -- This CEAI_Flavor_Buildings.sql data created by:
 -- BuildingPriorities2 tab of CEP_LeadersAI spreadsheet (in mod folder).
@@ -393,7 +411,6 @@ INSERT INTO Building_Flavors (BuildingType, FlavorType, Flavor) SELECT building.
 INSERT INTO Building_Flavors (BuildingType, FlavorType, Flavor) SELECT building.BuildingType, yield.FlavorType, 8 FROM Building_YieldChangesPerReligion         building, Yields yield WHERE building.YieldType = yield.Type;
 INSERT INTO Building_Flavors (BuildingType, FlavorType, Flavor) SELECT building.BuildingType, yield.FlavorType, 8 FROM Building_TechEnhancedYieldChanges        building, Yields yield WHERE building.YieldType = yield.Type;
 INSERT INTO Building_Flavors (BuildingType, FlavorType, Flavor) SELECT building.BuildingType, yield.FlavorType, 8 FROM Building_YieldModifiers                  building, Yields yield WHERE building.YieldType = yield.Type;
-INSERT INTO Building_Flavors (BuildingType, FlavorType, Flavor) SELECT building.BuildingType, yield.FlavorType, 8 FROM Building_YieldChanges                    building, Yields yield WHERE building.YieldType = yield.Type;
 
 INSERT INTO Building_Flavors (BuildingType, FlavorType, Flavor) SELECT building.BuildingType, combat.FlavorType, 8 FROM Building_UnitCombatFreeExperiences       building, UnitCombatInfos combat WHERE building.UnitCombatType = combat.Type;
 INSERT INTO Building_Flavors (BuildingType, FlavorType, Flavor) SELECT building.BuildingType, combat.FlavorType, 8 FROM Building_UnitCombatProductionModifiers   building, UnitCombatInfos combat WHERE building.UnitCombatType = combat.Type;
@@ -414,6 +431,23 @@ INSERT INTO Building_Flavors (BuildingType, FlavorType, Flavor) SELECT BuildingT
 INSERT INTO Building_Flavors (BuildingType, FlavorType, Flavor) SELECT BuildingType, 'FLAVOR_NAVAL_GROWTH'        , 8 FROM Building_SeaResourceYieldChanges;
 
 
+-- Join duplicated flavors
+DROP TABLE IF EXISTS CEP_Collisions;
+CREATE TABLE CEP_Collisions(BuildingType text, FlavorType text, Flavor integer);
+INSERT INTO CEP_Collisions (BuildingType, FlavorType, Flavor) SELECT BuildingType, FlavorType, MAX(Flavor) FROM Building_Flavors GROUP BY BuildingType, FlavorType;
+DELETE FROM Building_Flavors;
+INSERT INTO Building_Flavors (BuildingType, FlavorType, Flavor) SELECT BuildingType, FlavorType, Flavor FROM CEP_Collisions;
+DROP TABLE CEP_Collisions;
+
+INSERT INTO Building_Flavors (BuildingType, FlavorType, Flavor) SELECT building.BuildingType, yield.FlavorType, 2*building.Yield FROM Building_YieldChanges                    building, Yields yield WHERE building.YieldType = yield.Type;
+
+-- Sum duplicated flavors
+DROP TABLE IF EXISTS CEP_Collisions;
+CREATE TABLE CEP_Collisions(BuildingType text, FlavorType text, Flavor integer);
+INSERT INTO CEP_Collisions (BuildingType, FlavorType, Flavor) SELECT BuildingType, FlavorType, SUM(Flavor) FROM Building_Flavors GROUP BY BuildingType, FlavorType;
+DELETE FROM Building_Flavors;
+INSERT INTO Building_Flavors (BuildingType, FlavorType, Flavor) SELECT BuildingType, FlavorType, Flavor FROM CEP_Collisions;
+DROP TABLE CEP_Collisions;
 
 
 --
@@ -553,14 +587,11 @@ INSERT INTO Building_Flavors (BuildingType, FlavorType, Flavor)
 	  AND building.GreatPeopleRateChange > 0
 	;
 
--- Specific buildings
-UPDATE Building_Flavors SET Flavor = Flavor * 2
-	WHERE BuildingType = 'BUILDING_GREAT_LIBRARY'
-	AND FlavorType = 'FLAVOR_SCIENCE';
-
 -- This CEAI_Buildings.sql data automatically created by:
 -- Buildings_Specific tab of "Good For Priorities" spreadsheet:
 -- https://docs.google.com/spreadsheet/ccc?key=0Ap8Ehya83q19dFpPbnNDMFhmM2I2YjVXR04tQWN0V2c
+
+-- New resource-specific bonuses
 INSERT INTO Building_Flavors(BuildingType, FlavorType, Flavor) VALUES ('BUILDING_GRANARY',                  'FLAVOR_RES_GRAINS',               8);
 INSERT INTO Building_Flavors(BuildingType, FlavorType, Flavor) VALUES ('BUILDING_LIGHTHOUSE',               'FLAVOR_RES_SEA',                  8);
 INSERT INTO Building_Flavors(BuildingType, FlavorType, Flavor) VALUES ('BUILDING_CARAVANSARY',              'FLAVOR_RES_LUXURY',               8);
@@ -570,6 +601,8 @@ INSERT INTO Building_Flavors(BuildingType, FlavorType, Flavor) VALUES ('BUILDING
 INSERT INTO Building_Flavors(BuildingType, FlavorType, Flavor) VALUES ('BUILDING_AMPHITHEATER',             'FLAVOR_RES_COSTUME',              8);
 INSERT INTO Building_Flavors(BuildingType, FlavorType, Flavor) VALUES ('BUILDING_STONE_WORKS',              'FLAVOR_RES_ORE',                  8);
 INSERT INTO Building_Flavors(BuildingType, FlavorType, Flavor) VALUES ('BUILDING_MINT',                     'FLAVOR_RES_CURRENCY',             8);
+
+--Weird Bonuses
 INSERT INTO Building_Flavors(BuildingType, FlavorType, Flavor) VALUES ('BUILDING_MACHU_PICHU',              'FLAVOR_GROWTH',                   32);INSERT INTO Building_Flavors(BuildingType, FlavorType, Flavor) VALUES ('BUILDING_MACHU_PICHU',              'FLAVOR_GOLD',                     32);INSERT INTO Building_Flavors(BuildingType, FlavorType, Flavor) VALUES ('BUILDING_MACHU_PICHU',              'FLAVOR_CULTURE',                  32);INSERT INTO Building_Flavors(BuildingType, FlavorType, Flavor) VALUES ('BUILDING_MACHU_PICHU',              'FLAVOR_RELIGION',                 32);
 INSERT INTO Building_Flavors(BuildingType, FlavorType, Flavor) VALUES ('BUILDING_HIMEJI_CASTLE',            'FLAVOR_DEFENSE',                  32);
 INSERT INTO Building_Flavors(BuildingType, FlavorType, Flavor) VALUES ('BUILDING_WAT_PHRA_KAEW',            'FLAVOR_GOLD',                     32);INSERT INTO Building_Flavors(BuildingType, FlavorType, Flavor) VALUES ('BUILDING_WAT_PHRA_KAEW',            'FLAVOR_CULTURE',                  32);
@@ -627,14 +660,48 @@ DROP TABLE CEP_Collisions;
 
 
 
-INSERT INTO Building_Flavors_Human (BuildingType, FlavorType, Flavor) SELECT BuildingType, FlavorType, MAX(Flavor) FROM Building_Flavors GROUP BY BuildingType, FlavorType;
-
-
-
 --
 -- AI specific changes
 --
 
+INSERT INTO Building_Flavors_Human (BuildingType, FlavorType, Flavor) SELECT BuildingType, FlavorType, MAX(Flavor) FROM Building_Flavors GROUP BY BuildingType, FlavorType;
+
+-- no AI code to deal with resource flavors yet
+DELETE FROM Building_Flavors
+WHERE FlavorType IN (
+	'FLAVOR_RES_GRAINS'               ,
+	'FLAVOR_RES_SEA'                  ,
+	'FLAVOR_RES_LUXURY'               ,
+	'FLAVOR_RES_STRATEGIC'            ,
+	'FLAVOR_RES_RELIGIOUS'            ,
+	'FLAVOR_RES_EXOTIC'               ,
+	'FLAVOR_RES_COSTUME'              ,
+	'FLAVOR_RES_ORE'                  ,
+	'FLAVOR_RES_CURRENCY'             
+);
+
+-- AI is horrible at using these effects
+UPDATE Building_Flavors SET Flavor = Flavor / 8
+	WHERE BuildingType IN (SELECT building.Type
+	FROM Buildings building, BuildingClasses class
+	WHERE (building.BuildingClass = class.Type AND (
+		   class.MaxGlobalInstances = 1
+		OR class.MaxTeamInstances = 1
+	))
+	AND (  building.WorkerSpeedModifier <> 0
+		OR building.InstantBorderRadius <> 0
+
+	));
+
+-- AI needs to use these more
+UPDATE Building_Flavors SET Flavor = Flavor * 8
+	WHERE BuildingType IN (SELECT Type
+	FROM Buildings
+	WHERE (NoOccupiedUnhappiness <> 0
+
+	));
+
+-- leave military wonders for military players
 DELETE FROM Building_Flavors
 WHERE FlavorType = 'FLAVOR_WONDER'
 AND BuildingType IN (
@@ -645,31 +712,13 @@ AND BuildingType IN (
 	)
 );
 
-UPDATE Building_Flavors
-SET Flavor = Flavor * 2
-WHERE BuildingType IN (
-	'BUILDING_STONEHENGE'		
-);
-
+-- AI is horrible at using these
 UPDATE Building_Flavors
 SET Flavor = Flavor / 8
 WHERE BuildingType IN (
-	'BUILDING_TERRACOTTA_ARMY'	,
-	'BUILDING_PYRAMID'			,
 	'BUILDING_TEMPLE_ARTEMIS'	
 );
 
---x2 flavor values of non-wonder buildings
-/*UPDATE Building_Flavors
-SET Flavor = Flavor * 2
-WHERE BuildingType IN (
-	SELECT building.Type 
-	FROM Buildings building, BuildingClasses class WHERE ( 
-		building.BuildingClass = class.Type AND NOT(
-			class.MaxGlobalInstances = 1 OR class.MaxTeamInstances = 1
-		)
-	)
-);*/
 
 -- Items no longer in the Buildings table
 DELETE FROM Building_Flavors WHERE BuildingType NOT IN (SELECT Type FROM Buildings);
@@ -678,7 +727,9 @@ DELETE FROM Building_Flavors WHERE BuildingType NOT IN (SELECT Type FROM Buildin
 DELETE FROM Building_Flavors WHERE BuildingType IN (SELECT Type FROM Buildings WHERE Cost = 0 OR Cost = -1);
 
 -- Revert BNW Flavors
-DELETE FROM Building_Flavors WHERE BuildingType IN (SELECT BuildingType FROM Building_Flavors_BNW);
-INSERT INTO Building_Flavors SELECT * FROM Building_Flavors_BNW WHERE BuildingType IN (SELECT Type FROM Buildings);
+--DELETE FROM Building_Flavors WHERE BuildingType IN (SELECT BuildingType FROM Building_Flavors_BNW);
+--INSERT INTO Building_Flavors SELECT * FROM Building_Flavors_BNW WHERE BuildingType IN (SELECT Type FROM Buildings);
+
+
 
 UPDATE LoadedFile SET Value=1 WHERE Type='CEAI_Buildings.sql';

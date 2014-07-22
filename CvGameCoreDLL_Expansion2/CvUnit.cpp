@@ -491,6 +491,17 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 	{
 		kPlayer.ChangeNumBuilders(1);
 	}
+#if defined(MOD_BALANCE_CORE_SETTLER_RESET_FOOD)
+	if(getUnitInfo().IsFound())
+	{
+		CvCity* pCity = plot()->getPlotCity();
+		if(pCity != NULL)
+		{
+			pCity->setFood(0);
+		}
+	}
+#endif
+
 
 	// Units can add Unhappiness
 	if(GC.getUnitInfo(getUnitType())->GetUnhappiness() != 0)
@@ -11698,7 +11709,7 @@ int CvUnit::GetMaxDefenseStrength(const CvPlot* pInPlot, const CvUnit* pAttacker
 
 	if(m_bEmbarked)
 	{
-		return GetEmbarkedUnitDefense();;
+		return GetEmbarkedUnitDefense();
 	}
 
 	if(GetBaseCombatStrength() == 0)
@@ -11831,6 +11842,13 @@ int CvUnit::GetEmbarkedUnitDefense() const
 		iRtnValue = iRtnValue * (100 + iModifier);
 		iRtnValue /= 100;
 	}
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	if(MOD_BALANCE_CORE_MILITARY)
+	{
+		//25% of defense added in. This is largely to help the AI.
+		iRtnValue += (GetBaseCombatStrength(true) / GC.getBALANCE_EMBARK_DEFENSE_DIVISOR());
+	}
+#endif
 
 	return iRtnValue;
 }
@@ -15342,7 +15360,11 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 	// Units moving into and out of cities change garrison happiness
 	if((pNewPlot && pNewPlot->isCity()) || (pOldPlot && pOldPlot->isCity()))
 	{
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+		GET_PLAYER(getOwner()).CalculateHappiness();
+#else
 		GET_PLAYER(getOwner()).DoUpdateHappiness();
+#endif
 	}
 
 	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();

@@ -879,6 +879,14 @@ bool CvMinorCivQuest::IsExpired()
 				{
 					return true;
 				}
+				else if(pPlot->GetPlayerThatClearedDigHere() == NO_PLAYER)
+				{
+					return true;
+				}
+				else if(pPlot->GetPlayerThatClearedDigHere() != m_eAssignedPlayer)
+				{
+					return true;
+				}
 			}
 		}
 	}
@@ -6475,72 +6483,75 @@ PlayerTypes CvMinorCivAI::SpawnHorde()
 	
 	for (int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
 	{
-		PlayerTypes eMinorLoop = (PlayerTypes) iMinorLoop;
-
-		CvPlayer* pMinorLoop = &GET_PLAYER(eMinorLoop);
-
-		CvCity* pCity = pMinorLoop->getCapitalCity();
 		
-		//Let's see if our CS is juicy and vulnerable.
-		if(pMinorLoop->isAlive() && pMinorLoop->getStartingPlot()->getOwner() == eMinorLoop && pMinorLoop->isMinorCiv())
+		PlayerTypes eMinorLoop = (PlayerTypes) iMinorLoop;
+		if(eMinorLoop != NO_PLAYER)
 		{
-			CvPlot* pPlot;
+			CvPlayer* pMinorLoop = &GET_PLAYER(eMinorLoop);
 
-			CvCityCitizens* pCitizens = pCity->GetCityCitizens();
+			CvCity* pCity = pMinorLoop->getCapitalCity();
+			
+			//Let's see if our CS is juicy and vulnerable.
+			if(pMinorLoop->isAlive() && pMinorLoop->getStartingPlot()->getOwner() == eMinorLoop && pMinorLoop->isMinorCiv())
+			{
+				CvPlot* pPlot;
 
-			int iPlots = 0;
-			int iWater = 0;
-			int iImpassable = 0;
+				CvCityCitizens* pCitizens = pCity->GetCityCitizens();
 
-			// How easy to access is this minor? We'll ignore island/mountainous CSs for this quest, to help the AI.
+				int iPlots = 0;
+				int iWater = 0;
+				int iImpassable = 0;
+
+				// How easy to access is this minor? We'll ignore island/mountainous CSs for this quest, to help the AI.
 #if defined(MOD_GLOBAL_CITY_WORKING)
-			for(int iPlotLoop = 1; iPlotLoop < pCity->GetNumWorkablePlots(); iPlotLoop++)
+				for(int iPlotLoop = 1; iPlotLoop < pCity->GetNumWorkablePlots(); iPlotLoop++)
 #else
-			for(int iPlotLoop = 1; iPlotLoop < NUM_CITY_PLOTS; iPlotLoop++)
+				for(int iPlotLoop = 1; iPlotLoop < NUM_CITY_PLOTS; iPlotLoop++)
 #endif
-			{
-				pPlot = pCitizens->GetCityPlotFromIndex(iPlotLoop);
-
-				if(pPlot)
 				{
-					if(pPlot->isWater())
+					pPlot = pCitizens->GetCityPlotFromIndex(iPlotLoop);
+
+					if(pPlot)
 					{
-						iWater++;
+						if(pPlot->isWater())
+						{
+							iWater++;
+						}
+						if(pPlot->isImpassable() || pPlot->isMountain())
+						{
+							iImpassable++;
+						}
 					}
-					if(pPlot->isImpassable() || pPlot->isMountain())
-					{
-						iImpassable++;
-					}
+					iPlots++;
 				}
-				iPlots++;
-			}
-			//50% Water? Abort. Probably an island.
-			if(iWater >= (iPlots / 2))
-			{
-				continue;
-			}
+				//50% Water? Abort. Probably an island.
+				if(iWater >= (iPlots / 2))
+				{
+					continue;
+				}
 
-			//50% Mountains? Abort. Probably Minas Tirith.
-			if(iImpassable >= (iPlots / 2))
-			{
-				continue;
-			}
+				//50% Mountains? Abort. Probably Minas Tirith.
+				if(iImpassable >= (iPlots / 2))
+				{
+					continue;
+				}
 
-			//Baseline is population.
-			iTarget = pCity->getPopulation();
+				//Baseline is population.
+				iTarget = pCity->getPopulation();
 
-			// Gold increases proclivity.
-			iTarget += (pMinorLoop->GetTreasury()->GetGold() / 10);
-			iTarget += pMinorLoop->GetTreasury()->GetImprovementGoldMaintenance();
-			iTarget += pMinorLoop->GetTreasury()->CalculateBaseNetGold();
-			iTarget += pMinorLoop->GetTrade()->GetNumDifferentTradingPartners();
+				// Gold increases proclivity.
+				iTarget += (pMinorLoop->GetTreasury()->GetGold() / 10);
+				iTarget += pMinorLoop->GetTreasury()->GetImprovementGoldMaintenance();
+				iTarget += pMinorLoop->GetTreasury()->CalculateBaseNetGold();
+				iTarget += pMinorLoop->GetTrade()->GetNumDifferentTradingPartners();
 
-			//Less military units = higher score.
-			iTarget -= pMinorLoop->getNumMilitaryUnits();
+				//Less military units = higher score.
+				iTarget -= pMinorLoop->getNumMilitaryUnits();
 
-			if(iTarget > 0)
-			{
-				veMinorRankings.push_back(eMinorLoop, iTarget);
+				if(iTarget > 0)
+				{
+					veMinorRankings.push_back(eMinorLoop, iTarget);
+				}
 			}
 		}
 	}
@@ -6775,7 +6786,7 @@ void CvMinorCivAI::DoRebellion()
 
 			pPlot = pCitizens->GetCityPlotFromIndex(iBestPlot);
 
-			// Pick a unit type - shoudl give us more melee than ranged
+			// Pick a unit type - should give us more melee than ranged
 			UnitTypes eUnit = theGame.GetRandomSpawnUnitType(eMinor, /*bIncludeUUs*/ true, /*bIncludeRanged*/ true);
 			UnitTypes emUnit = theGame.GetRandomSpawnUnitType(eMinor, /*bIncludeUUs*/ true, /*bIncludeRanged*/ false);
 
@@ -7718,6 +7729,28 @@ int CvMinorCivAI::GetFriendshipChangePerTurnTimes100(PlayerTypes ePlayer)
 {
 	CvPlayer& kPlayer = GET_PLAYER(ePlayer);
 	int iChangeThisTurn = 0;
+#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
+	//No CS drop for allies - Cold War fun!
+	if(MOD_DIPLOMACY_CITYSTATES_QUESTS && IsAllies(ePlayer))
+	{
+		CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
+		if(pLeague != NULL)
+		{
+			PlayerTypes eLoopPlayer;
+			for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+			{
+				eLoopPlayer = (PlayerTypes) iPlayerLoop;
+				if(eLoopPlayer != NO_PLAYER)
+				{
+					if(GC.getGame().GetGameLeagues()->IsIdeologyEmbargoed(ePlayer, eLoopPlayer))
+					{
+						return iChangeThisTurn;
+					}
+				}
+			}
+		}
+	}
+#endif
 
 	// Modifier to rate based on traits and religion
 	int iTraitMod = kPlayer.GetPlayerTraits()->GetCityStateFriendshipModifier();
@@ -7734,10 +7767,6 @@ int CvMinorCivAI::GetFriendshipChangePerTurnTimes100(PlayerTypes ePlayer)
 	}
 	else if (iBaseFriendship > iFriendshipAnchor)
 	{
-		// Hostile Minors have Friendship decay quicker
-		if(GetPersonality() == MINOR_CIV_PERSONALITY_HOSTILE)
-			iChangeThisTurn += /*-150*/ GC.getMINOR_FRIENDSHIP_DROP_PER_TURN_HOSTILE();
-		// Aggressor!
 #if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 		//Decay if capital is taking damage during war (CSs are fickle allies if they're on the recieving end of war).
 		if(MOD_DIPLOMACY_CITYSTATES_QUESTS && IsAllies(ePlayer))
@@ -7751,6 +7780,10 @@ int CvMinorCivAI::GetFriendshipChangePerTurnTimes100(PlayerTypes ePlayer)
 			}
 		}
 #endif
+		// Hostile Minors have Friendship decay quicker
+		if(GetPersonality() == MINOR_CIV_PERSONALITY_HOSTILE)
+			iChangeThisTurn += /*-150*/ GC.getMINOR_FRIENDSHIP_DROP_PER_TURN_HOSTILE();
+		// Aggressor!
 		else if(GET_TEAM(kPlayer.getTeam()).IsMinorCivAggressor())
 			iChangeThisTurn += /*-200*/ GC.getMINOR_FRIENDSHIP_DROP_PER_TURN_AGGRESSOR();
 		// Normal decay
@@ -7813,25 +7846,6 @@ int CvMinorCivAI::GetFriendshipChangePerTurnTimes100(PlayerTypes ePlayer)
 	// Mod everything by game speed
 	iChangeThisTurn *= GC.getGame().getGameSpeedInfo().getGoldGiftMod();
 	iChangeThisTurn /= 100;
-
-#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
-	//No CS drop for allies - Cold War fun!
-	if(MOD_DIPLOMACY_CITYSTATES_QUESTS && IsAllies(ePlayer))
-	{
-		PlayerTypes eLoopPlayer;
-		for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
-		{
-			eLoopPlayer = (PlayerTypes) iPlayerLoop;
-			if(eLoopPlayer != NO_PLAYER)
-			{
-				if(GC.getGame().GetGameLeagues()->IsIdeologyEmbargoed(ePlayer, eLoopPlayer))
-				{
-					iChangeThisTurn = 0;
-				}
-			}
-		}
-	}
-#endif
 
 	return iChangeThisTurn;
 }
@@ -8539,7 +8553,11 @@ void CvMinorCivAI::DoSetBonus(PlayerTypes ePlayer, bool bAdd, bool bFriends, boo
 	// Mercantile
 	else if(eTrait == MINOR_CIV_TRAIT_MERCANTILE)
 	{
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+		GET_PLAYER(ePlayer).CalculateHappiness();
+#else
 		GET_PLAYER(ePlayer).DoUpdateHappiness();
+#endif
 	}
 	// Religious
 	if(eTrait == MINOR_CIV_TRAIT_RELIGIOUS)
@@ -9260,7 +9278,11 @@ bool CvMinorCivAI::DoMajorCivEraChange(PlayerTypes ePlayer, EraTypes eNewEra)
 			if(iOldHappiness != iNewHappiness)
 			{
 				bSomethingChanged = true;
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+				GET_PLAYER(ePlayer).CalculateHappiness();
+#else
 				GET_PLAYER(ePlayer).DoUpdateHappiness();
+#endif
 			}
 		}
 
@@ -9275,7 +9297,11 @@ bool CvMinorCivAI::DoMajorCivEraChange(PlayerTypes ePlayer, EraTypes eNewEra)
 			if(iOldHappiness != iNewHappiness)
 			{
 				bSomethingChanged = true;
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+				GET_PLAYER(ePlayer).CalculateHappiness();
+#else
 				GET_PLAYER(ePlayer).DoUpdateHappiness();
+#endif
 			}
 		}
 	}

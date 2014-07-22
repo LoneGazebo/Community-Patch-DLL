@@ -31,6 +31,8 @@ DELETE FROM Unit_Flavors WHERE FlavorType IN (
 );
 */
 
+--CREATE TABLE Unit_Flavors_BNW AS SELECT * FROM Unit_Flavors; --BNW Flavors
+
 INSERT INTO Unit_Flavors (UnitType, FlavorType, Flavor)
 SELECT Type, 'FLAVOR_TOURISM', 1
 FROM Units WHERE Class IN (
@@ -46,13 +48,18 @@ FROM Units WHERE Class IN (
 	'UNITCLASS_INQUISITOR'			
 );
 
+INSERT INTO Unit_Flavors (UnitType, FlavorType, Flavor)
+SELECT Type, 'FLAVOR_GOLD', 1
+FROM Units WHERE (
+	Trade = 1
+);
+
 DELETE FROM Unit_Flavors WHERE FlavorType = 'FLAVOR_RECON'	AND UnitType = 'UNIT_WARRIOR';
 DELETE FROM Unit_Flavors WHERE FlavorType = 'FLAVOR_GOLD'	AND UnitType = 'UNIT_PRIVATEER';
 DELETE FROM Unit_Flavors WHERE FlavorType = 'FLAVOR_AIR'	AND UnitType = 'UNIT_PARATROOPER';
 DELETE FROM Unit_Flavors WHERE FlavorType IN ('FLAVOR_NAVAL', 'FLAVOR_NAVAL_RECON');
 
-DELETE FROM Unit_Flavors WHERE UnitType IN (SELECT Type FROM Units WHERE Class IN (
-	'UNITCLASS_BIREME'			,
+DELETE FROM Unit_Flavors WHERE UnitType IN (SELECT Type FROM Units WHERE Class IN (			,
 	'UNITCLASS_SHIP_OF_THE_LINE'	
 ) OR CombatClass IN (
 	'UNITCOMBAT_RECON'			
@@ -210,7 +217,15 @@ WHERE unit.Class IN (
 UPDATE Unit_Flavors SET Flavor = 4;
 
 UPDATE Unit_Flavors SET Flavor = Flavor * 2
-WHERE FlavorType IN ('FLAVOR_NAVAL', 'FLAVOR_NAVAL_RECON', 'FLAVOR_RELIGION', 'FLAVOR_I_LAND_TRADE_ROUTE', 'FLAVOR_I_SEA_TRADE_ROUTE', 'FLAVOR_ARCHAEOLOGY' );
+WHERE FlavorType IN (
+	'FLAVOR_NAVAL'				,
+	'FLAVOR_NAVAL_RECON'		,
+	'FLAVOR_RELIGION'			,
+	'FLAVOR_I_LAND_TRADE_ROUTE'	,
+	'FLAVOR_I_SEA_TRADE_ROUTE'	,
+	'FLAVOR_GOLD'				,
+	'FLAVOR_ARCHAEOLOGY'
+);
 
 
 -- Great People and Specialists
@@ -264,7 +279,6 @@ UPDATE Unit_Flavors SET Flavor = ROUND(Flavor * 2, 0)
 WHERE FlavorType = 'FLAVOR_NAVAL_BOMBARDMENT'
 AND UnitType IN (SELECT Type FROM Units WHERE Class IN (
 	'UNITCLASS_GALLEY'				,
-	'UNITCLASS_BIREME'			,
 	'UNITCLASS_GALLEASS'			
 ));
 
@@ -336,7 +350,7 @@ WHERE UnitType IN (SELECT Type FROM Units WHERE Class IN (
 	'UNITCLASS_SETTLER'				
 ));
 
-UPDATE Unit_Flavors SET Flavor = ROUND(Flavor * 2, 0) --originally x2
+UPDATE Unit_Flavors SET Flavor = ROUND(Flavor * 2, 0)
 WHERE UnitType IN (SELECT Type FROM Units WHERE Class IN (
 	'UNITCLASS_WORKER'				,
 	'UNITCLASS_WORKBOAT'			,
@@ -402,7 +416,7 @@ INSERT INTO SpecialistFlavors (SpecialistType, FlavorType, Flavor) SELECT Specia
 DROP TABLE CEP_Collisions;
 
 -- Revert BNW Flavors
-DELETE FROM Unit_Flavors WHERE UnitType IN (SELECT UnitType FROM Unit_Flavors_BNW);
-INSERT INTO Unit_Flavors SELECT * FROM Unit_Flavors_BNW WHERE UnitType IN (SELECT Type FROM Units);
+--DELETE FROM Unit_Flavors WHERE UnitType IN (SELECT UnitType FROM Unit_Flavors_BNW);
+--INSERT INTO Unit_Flavors SELECT * FROM Unit_Flavors_BNW WHERE UnitType IN (SELECT Type FROM Units);
 
-UPDATE LoadedFile SET Value=1 WHERE Type='CEAI_Units.sql';
+UPDATE LoadedFile SET Value=1 WHERE Type='CEG_AI_Flavors_CEAI_Units.sql';

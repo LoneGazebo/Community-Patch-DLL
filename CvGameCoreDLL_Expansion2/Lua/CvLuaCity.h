@@ -312,8 +312,14 @@ protected:
 	LUAAPIEXTN(ChangeCityWorkingChange, void, iChange);
 #endif
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE_HAPPINESS)
+	LUAAPIEXTN(GetUnhappinessFromCultureYield, int);
+	LUAAPIEXTN(GetUnhappinessFromCultureNeeded, int);
 	LUAAPIEXTN(GetUnhappinessFromCulture, int);
+	LUAAPIEXTN(GetUnhappinessFromDefenseYield, int);
+	LUAAPIEXTN(GetUnhappinessFromDefenseNeeded, int);
 	LUAAPIEXTN(GetUnhappinessFromDefense, int);
+	LUAAPIEXTN(GetUnhappinessFromGoldYield, int);
+	LUAAPIEXTN(GetUnhappinessFromGoldNeeded, int);
 	LUAAPIEXTN(GetUnhappinessFromGold, int);
 	LUAAPIEXTN(GetUnhappinessFromConnection, int);
 	LUAAPIEXTN(GetUnhappinessFromPillaged, int);

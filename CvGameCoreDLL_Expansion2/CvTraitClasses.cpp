@@ -734,6 +734,33 @@ void CvTraitEntry::setShortDescription(const char* szVal)
 {
 	m_strShortDescription = szVal;
 }
+#if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
+//Traits for affecting city happiness
+int CvTraitEntry::GetPovertyHappinessChange() const
+{
+	return m_iPovertyHappinessChange;
+}
+int CvTraitEntry::GetDefenseHappinessChange() const
+{
+	return m_iDefenseHappinessChange;
+}
+int CvTraitEntry::GetIlliteracyHappinessChange() const
+{
+	return m_iIlliteracyHappinessChange;
+}
+int CvTraitEntry::GetMinorityHappinessChange() const
+{
+	return m_iMinorityHappinessChange;
+}
+bool CvTraitEntry::IsNoConnectionUnhappiness() const
+{
+	return m_bNoConnectionUnhappiness;
+}
+bool CvTraitEntry::IsNoReligiousStrife() const
+{
+	return m_bIsNoReligiousStrife;
+}
+#endif
 
 /// Accessor:: 1 extra yield comes all tiles with a base yield of this
 int CvTraitEntry::GetExtraYieldThreshold(int i) const
@@ -1095,6 +1122,14 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	m_bUniqueLuxuryRequiresNewArea = kResults.GetBool("UniqueLuxuryRequiresNewArea");
 	m_bRiverTradeRoad = kResults.GetBool("RiverTradeRoad");
 	m_bAngerFreeIntrusionOfCityStates = kResults.GetBool("AngerFreeIntrusionOfCityStates");
+#if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
+	m_iPovertyHappinessChange = kResults.GetInt("PovertyHappinessTraitMod");
+	m_iDefenseHappinessChange = kResults.GetInt("DefenseHappinessTraitMod");
+	m_iIlliteracyHappinessChange = kResults.GetInt("IlliteracyHappinessTraitMod");
+	m_iMinorityHappinessChange = kResults.GetInt("MinorityHappinessTraitMod");
+	m_bNoConnectionUnhappiness = kResults.GetBool("NoConnectionUnhappiness");
+	m_bIsNoReligiousStrife = kResults.GetBool("IsNoReligiousStrife");
+#endif
 
 	//Arrays
 	const char* szTraitType = GetType();
@@ -1596,6 +1631,20 @@ void CvPlayerTraits::InitPlayerTraits()
 			{
 				m_bAngerFreeIntrusionOfCityStates = true;
 			}
+#if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
+			m_iPovertyHappinessChange += trait->GetPovertyHappinessChange();
+			m_iDefenseHappinessChange += trait->GetDefenseHappinessChange();
+			m_iIlliteracyHappinessChange += trait->GetIlliteracyHappinessChange();
+			m_iMinorityHappinessChange += trait->GetMinorityHappinessChange();
+			if( trait->IsNoConnectionUnhappiness())
+			{
+				m_bNoConnectionUnhappiness = true;
+			}
+			if( trait->IsNoReligiousStrife())
+			{
+				m_bIsNoReligiousStrife = true;
+			}
+#endif
 
 			for(int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
 			{
@@ -1805,6 +1854,15 @@ void CvPlayerTraits::Reset()
 	m_bUniqueLuxuryRequiresNewArea = false;
 	m_bRiverTradeRoad = false;
 	m_bAngerFreeIntrusionOfCityStates = false;
+#if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
+	m_iPovertyHappinessChange = 0;
+	m_iDefenseHappinessChange = 0;
+	m_iIlliteracyHappinessChange = 0;
+	m_iMinorityHappinessChange = 0;
+	m_bNoConnectionUnhappiness = false;
+	m_bIsNoReligiousStrife = false;
+#endif
+
 
 	m_eCampGuardType = NO_UNIT;
 	m_eCombatBonusImprovement = NO_IMPROVEMENT;
@@ -3067,6 +3125,14 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	{
 		m_bAngerFreeIntrusionOfCityStates = false;
 	}
+#if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
+	MOD_SERIALIZE_READ(53, kStream, m_iPovertyHappinessChange, 0);
+	MOD_SERIALIZE_READ(53, kStream, m_iDefenseHappinessChange, 0);
+	MOD_SERIALIZE_READ(53, kStream, m_iIlliteracyHappinessChange, 0);
+	MOD_SERIALIZE_READ(53, kStream, m_iMinorityHappinessChange, 0);
+	MOD_SERIALIZE_READ(54, kStream, m_bNoConnectionUnhappiness, false);
+	MOD_SERIALIZE_READ(54, kStream, m_bIsNoReligiousStrife, false);
+#endif
 
 	kStream >> m_eCampGuardType;
 
@@ -3295,6 +3361,14 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	kStream << m_bUniqueLuxuryRequiresNewArea;
 	kStream << m_bRiverTradeRoad;
 	kStream << m_bAngerFreeIntrusionOfCityStates;
+#if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
+	MOD_SERIALIZE_WRITE(kStream, m_iPovertyHappinessChange);
+	MOD_SERIALIZE_WRITE(kStream, m_iDefenseHappinessChange);
+	MOD_SERIALIZE_WRITE(kStream, m_iIlliteracyHappinessChange);
+	MOD_SERIALIZE_WRITE(kStream, m_iMinorityHappinessChange);
+	MOD_SERIALIZE_WRITE(kStream, m_bNoConnectionUnhappiness);
+	MOD_SERIALIZE_WRITE(kStream, m_bIsNoReligiousStrife);
+#endif
 
 	kStream << m_eCampGuardType;
 	kStream << m_eCombatBonusImprovement;

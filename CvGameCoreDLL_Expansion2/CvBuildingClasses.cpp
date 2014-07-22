@@ -136,6 +136,16 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_iGPExpendInfluenceBase(0),
 	m_iGrowthExtraYieldBase(0),
 #endif
+#if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
+	m_iPovertyHappinessChangeBuilding(0),
+	m_iDefenseHappinessChangeBuilding(0),
+	m_iIlliteracyHappinessChangeBuilding(0),
+	m_iMinorityHappinessChangeBuilding(0),
+	m_iPovertyHappinessChangeBuildingGlobal(0),
+	m_iDefenseHappinessChangeBuildingGlobal(0),
+	m_iIlliteracyHappinessChangeBuildingGlobal(0),
+	m_iMinorityHappinessChangeBuildingGlobal(0),
+#endif
 	m_iPreferredDisplayPosition(0),
 	m_iPortraitIndex(-1),
 	m_bTeamShare(false),
@@ -148,6 +158,10 @@ CvBuildingEntry::CvBuildingEntry(void):
 #endif
 #if defined(MOD_BALANCE_CORE)
 	m_bIsNoWater(false),
+#endif
+#if defined(MOD_BALANCE_CORE_POP_REQ_BUILDINGS)
+	m_iNationalPopRequired(-1),
+	m_iLocalPopRequired(-1),
 #endif
 	m_bMountain(false),
 	m_bHill(false),
@@ -295,6 +309,13 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_bIsNoWater = kResults.GetBool("IsNoWater");
 	}
 #endif
+#if defined(MOD_BALANCE_CORE_POP_REQ_BUILDINGS)
+	if(MOD_BALANCE_CORE_POP_REQ_BUILDINGS)
+	{
+		m_iNationalPopRequired = kResults.GetInt("NationalPopRequired");
+		m_iLocalPopRequired = kResults.GetInt("LocalPopRequired");
+	}
+#endif
 	m_bMountain = kResults.GetBool("Mountain");
 	m_bHill = kResults.GetBool("Hill");
 	m_bFlat = kResults.GetBool("Flat");
@@ -415,6 +436,18 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 		m_iRAToVotesBase = kResults.GetInt("RAToVotes");
 		m_iGPExpendInfluenceBase = kResults.GetInt("GPExpendInfluence");
 		m_iGrowthExtraYieldBase = kResults.GetInt("GrowthExtraYieldBase");
+	}
+#endif
+#if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
+	if (MOD_BALANCE_CORE_HAPPINESS_MODIFIERS) {
+		m_iPovertyHappinessChangeBuilding = kResults.GetInt("PovertyHappinessChange");
+		m_iDefenseHappinessChangeBuilding = kResults.GetInt("DefenseHappinessChange");
+		m_iIlliteracyHappinessChangeBuilding = kResults.GetInt("IlliteracyHappinessChange");
+		m_iMinorityHappinessChangeBuilding = kResults.GetInt("MinorityHappinessChange");
+		m_iPovertyHappinessChangeBuildingGlobal = kResults.GetInt("PovertyHappinessChangeGlobal");
+		m_iDefenseHappinessChangeBuildingGlobal = kResults.GetInt("DefenseHappinessChangeGlobal");
+		m_iIlliteracyHappinessChangeBuildingGlobal = kResults.GetInt("IlliteracyHappinessChangeGlobal");
+		m_iMinorityHappinessChangeBuildingGlobal = kResults.GetInt("MinorityHappinessChangeGlobal");
 	}
 #endif
 	m_iPreferredDisplayPosition = kResults.GetInt("DisplayPosition");
@@ -1461,6 +1494,40 @@ int CvBuildingEntry::GetGrowthExtraYield() const
 	return m_iGrowthExtraYieldBase;
 }
 #endif
+#if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
+int CvBuildingEntry::GetPovertyHappinessChangeBuilding() const
+{
+	return m_iPovertyHappinessChangeBuilding;
+}
+int CvBuildingEntry::GetDefenseHappinessChangeBuilding() const
+{
+	return m_iDefenseHappinessChangeBuilding;
+}
+int CvBuildingEntry::GetIlliteracyHappinessChangeBuilding() const
+{
+	return m_iIlliteracyHappinessChangeBuilding;
+}
+int CvBuildingEntry::GetMinorityHappinessChangeBuilding() const
+{
+	return m_iMinorityHappinessChangeBuilding;
+}
+int CvBuildingEntry::GetPovertyHappinessChangeBuildingGlobal() const
+{
+	return m_iPovertyHappinessChangeBuildingGlobal;
+}
+int CvBuildingEntry::GetDefenseHappinessChangeBuildingGlobal() const
+{
+	return m_iDefenseHappinessChangeBuildingGlobal;
+}
+int CvBuildingEntry::GetIlliteracyHappinessChangeBuildingGlobal() const
+{
+	return m_iIlliteracyHappinessChangeBuildingGlobal;
+}
+int CvBuildingEntry::GetMinorityHappinessChangeBuildingGlobal() const
+{
+	return m_iMinorityHappinessChangeBuildingGlobal;
+}
+#endif
 
 #if defined(MOD_RELIGION_CONVERSION_MODIFIERS)
 /// Modifier to chance of conversion against this city
@@ -2163,7 +2230,16 @@ bool CvBuildingEntry::IsNoWater() const
 	return m_bIsNoWater;
 }
 #endif
-
+#if defined(MOD_BALANCE_CORE_POP_REQ_BUILDINGS)
+int CvBuildingEntry::GetNationalPopulationRequired() const
+{
+	return m_iNationalPopRequired;
+}
+int CvBuildingEntry::GetLocalPopulationRequired() const
+{
+	return m_iLocalPopRequired;
+}
+#endif
 #if defined(MOD_BALANCE_CORE_YIELDS)
 /// Change to yield by plot
 int CvBuildingEntry::GetPlotYieldChange(int i, int j) const

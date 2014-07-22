@@ -2546,8 +2546,15 @@ void CvEconomicAI::DisbandLongObsoleteUnits()
 				// The unit must have an upgrade option, if not, then we don't care about this (includes workers, settlers, explorers)
 				UnitTypes eUpgradeUnitType = pUnit->GetUpgradeUnitType();
 
+				
+#if defined(MOD_BALANCE_CORE_SETTLER)
+				//Fixed for settlers for advanced start.
+				if(eUpgradeUnitType != NO_UNIT && !pUnit->isFound())
+				{
+#else
 				if(eUpgradeUnitType != NO_UNIT)
 				{
+#endif
 					// Check out unit era based on the prerequirement tech, defaults at ancient era.
 					unitEra = 0;
 					UnitTypes currentUnitType = pUnit->getUnitType();
@@ -4167,16 +4174,6 @@ bool EconomicAIHelpers::IsTestStrategy_ExpandToOtherContinents(CvPlayer* pPlayer
 			return false;
 		}
 	}
-#if defined(MOD_BALANCE_CORE_SETTLER)
-	if (MOD_BALANCE_CORE_SETTLER) 
-	{
-		//Simple test - as the game goes along we should want to do this less and less.
-		if(GC.getGame().getCurrentEra() > (pPlayer->getNumCities() + 3))
-		{
-			return false;
-		}
-	}
-#endif
 
 	if(pPlayer->getCapitalCity() != NULL)
 	{
@@ -4235,16 +4232,7 @@ bool EconomicAIHelpers::IsTestStrategy_ReallyExpandToOtherContinents(CvPlayer* p
 			}
 		}
 	}
-#if defined(MOD_BALANCE_CORE_SETTLER)
-	if (MOD_BALANCE_CORE_SETTLER) 
-	{
-		//Simple test - as the game goes along we should want to do this less and less.
-		if(GC.getGame().getCurrentEra() > (pPlayer->getNumCities() + 2))
-		{
-			return false;
-		}
-	}
-#endif
+
 	int iFlavorGrowth = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GROWTH"));
 	int iFlavorExpansion = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_EXPANSION"));
 

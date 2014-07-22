@@ -491,6 +491,26 @@ function ScienceTipHandler( control )
 	
 			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_SCIENCE_FROM_RESEARCH_AGREEMENTS", iScienceFromRAs / 100);
 		end
+
+-- COMMUNITY PATCH CHANGE
+		-- Science % lost from unhappiness
+		local iScienceChange = pPlayer:CalculateUnhappinessTooltip(YieldTypes.YIELD_SCIENCE);
+		if (iScienceChange ~= 0) then
+		
+			-- Add separator for non-initial entries
+			if (bFirstEntry) then
+				bFirstEntry = false;
+			else
+				strText = strText .. "[NEWLINE]";
+			end
+	
+			if(iScienceChange > 0) then
+				strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_SCIENCE_GAINED_FROM_HAPPINESS", iScienceChange / 100);
+			else
+				strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_SCIENCE_LOST_FROM_UNHAPPINESS", iScienceChange / 100);
+			end
+		end
+--END
 		
 		-- Let people know that building more cities makes techs harder to get
 		if (not OptionsManager.IsNoBasicHelp()) then
@@ -558,6 +578,13 @@ function GoldTipHandler( control )
 	if (iGoldPerTurnFromReligion > 0) then
 		strText = strText .. "[NEWLINE]  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_GOLD_FROM_RELIGION", iGoldPerTurnFromReligion);
 	end
+-- COMMUNITY PATCH CHANGE
+		-- Gold gained from unhappiness
+		local iGoldChange = (pPlayer:CalculateUnhappinessTooltip(YieldTypes.YIELD_GOLD) / 100);
+		if (iGoldChange > 0) then
+			strText = strText .. "[NEWLINE]  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_GOLD_GAINED_FROM_HAPPINESS", iGoldChange);
+		end
+--END
 	strText = strText .. "[/COLOR]";
 	
 	local iUnitCost = pPlayer:CalculateUnitCost();
@@ -565,7 +592,12 @@ function GoldTipHandler( control )
 	local iBuildingMaintenance = pPlayer:GetBuildingGoldMaintenance();
 	local iImprovementMaintenance = pPlayer:GetImprovementGoldMaintenance();
 	local iTotalExpenses = iUnitCost + iUnitSupply + iBuildingMaintenance + iImprovementMaintenance + iGoldPerTurnToOtherPlayers;
-	
+-- COMMUNITY PATCH CHANGE
+	if (iGoldChange < 0) then
+		iGoldChange = (iGoldChange * -1);
+		iTotalExpenses = iTotalExpenses + iGoldChange;
+	end	
+--END
 	strText = strText .. "[NEWLINE]";
 	strText = strText .. "[COLOR:255:150:150:255]";
 	strText = strText .. "[NEWLINE]-" .. Locale.ConvertTextKey("TXT_KEY_TP_TOTAL_EXPENSES", iTotalExpenses);
@@ -584,6 +616,13 @@ function GoldTipHandler( control )
 	if (iGoldPerTurnToOtherPlayers > 0) then
 		strText = strText .. "[NEWLINE]  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_GOLD_TO_OTHERS", iGoldPerTurnToOtherPlayers);
 	end
+-- COMMUNITY PATCH CHANGE
+	-- Gold % lost from unhappiness
+	local iGoldChange = (pPlayer:CalculateUnhappinessTooltip(YieldTypes.YIELD_GOLD) / 100);
+	if (iGoldChange < 0) then
+		strText = strText .. "[NEWLINE]  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_GOLD_LOST_FROM_UNHAPPINESS", (iGoldChange * -1));
+	end
+--END
 	strText = strText .. "[/COLOR]";
 	
 	if (fTotalIncome + iTotalGold < 0) then
@@ -660,6 +699,16 @@ function HappinessTipHandler( control )
 	
 		local iTotalHappiness = iPoliciesHappiness + iResourcesHappiness + iCityHappiness + iBuildingHappiness + iMinorCivHappiness + iHandicapHappiness + iTradeRouteHappiness + iReligionHappiness + iNaturalWonderHappiness + iExtraHappinessPerCity + iLeagueHappiness;
 	
+-- COMMUNITY PATCH CHANGE
+		-- Happiness/Population calculation.
+		local iPopulation = pPlayer: GetCurrentTotalPop();
+		local iPopNeeded = pPlayer: GetPopNeededForLux();
+		if(iPopulation > 0) then
+			strText = strText .. "[NEWLINE][NEWLINE]";
+			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_HAPPINESS_THRESHOLD_VALUE", iPopNeeded, iPopulation);
+		end
+--END CHANGE
+		
 		strText = strText .. "[NEWLINE][NEWLINE]";
 		strText = strText .. "[COLOR:150:255:150:255]";
 		strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_HAPPINESS_SOURCES", iTotalHappiness);
@@ -671,6 +720,7 @@ function HappinessTipHandler( control )
 	
 		local iBaseHappinessFromResources = 0;
 		local iNumHappinessResources = 0;
+
 
 		for resource in GameInfo.Resources() do
 			local resourceID = resource.ID;
@@ -1050,8 +1100,9 @@ function CultureTipHandler( control )
 			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_CULTURE_FROM_BONUS_TURNS", iCultureFromBonusTurns, iBonusTurns);
 		end
 		
-		-- Culture from Golden Age
-		local iCultureFromGoldenAge = pPlayer:GetTotalJONSCulturePerTurn() - iCultureForFree - iCultureFromCities - iCultureFromHappiness - iCultureFromMinors - iCultureFromReligion - iCultureFromTraits - iCultureFromBonusTurns;
+		-- Culture from Golden Age (COMMUNITY PATCH EDIT)
+		local iCommunityCulture = pPlayer:CalculateUnhappinessTooltip(YieldTypes.YIELD_CULTURE);
+		local iCultureFromGoldenAge = pPlayer:GetTotalJONSCulturePerTurn() - iCultureForFree - iCultureFromCities - iCultureFromHappiness - iCultureFromMinors - iCultureFromReligion - iCultureFromTraits - iCultureFromBonusTurns - iCommunityCulture; -- last part added (COMMUNITY PATCH)
 		if (iCultureFromGoldenAge ~= 0) then
 		
 			-- Add separator for non-initial entries
@@ -1059,10 +1110,21 @@ function CultureTipHandler( control )
 				strText = strText .. "[NEWLINE]";
 				bFirstEntry = false;
 			end
-
-			strText = strText .. "[NEWLINE]";
-			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_CULTURE_FROM_GOLDEN_AGE", iCultureFromGoldenAge);
+				strText = strText .. "[NEWLINE]";
+				strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_CULTURE_FROM_GOLDEN_AGE", iCultureFromGoldenAge);
 		end
+-- COMMUNITY PATCH CHANGE
+		if(iCommunityCulture ~= 0) then
+
+			if(iCommunityCulture < 0) then
+				strText = strText .. "[NEWLINE]";
+				strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_CULTURE_LOST_FROM_UNHAPPINESS", iCommunityCulture);
+			else
+				strText = strText .. "[NEWLINE]";
+				strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_CULTURE_GAINED_FROM_HAPPINESS", iCommunityCulture);
+			end
+		end
+-- END
 
 		-- Let people know that building more cities makes policies harder to get
 		if (not OptionsManager.IsNoBasicHelp()) then
@@ -1153,6 +1215,19 @@ function FaithTipHandler( control )
 			strText = strText .. "[NEWLINE]";
 			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_FAITH_FROM_RELIGION", iFaithFromReligion);
 		end
+-- COMMUNITY PATCH CHANGE
+		-- Faith % lost from unhappiness
+		local iFaithChange = pPlayer:CalculateUnhappinessTooltip(YieldTypes.YIELD_FAITH);
+		if (iFaithChange ~= 0) then
+			if(iFaithChange > 0) then
+				strText = strText .. "[NEWLINE]";
+				strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_FAITH_GAINED_FROM_HAPPINESS", iFaithChange);
+			else
+				strText = strText .. "[NEWLINE]";
+				strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_FAITH_LOST_FROM_UNHAPPINESS", iFaithChange);
+			end
+		end
+--END
 		
 		if (iFaithFromCities ~= 0 or iFaithFromMinorCivs ~= 0 or iFaithFromReligion ~= 0) then
 			strText = strText .. "[NEWLINE]";

@@ -14,33 +14,12 @@ UPDATE Units SET GoodyHutUpgradeUnitClass = NULL WHERE Type IN (
 	'UNIT_MAYAN_ATLATLIST'			
 );
 
-/*
-INSERT INTO Trait_FreeUnitAtTech
-		(TraitType, TechType, UnitClassType)
-SELECT	'TRAIT_INGENIOUS', 'TECH_WRITING', 'UNITCLASS_SCIENTIST'
-WHERE EXISTS (SELECT * FROM Traits WHERE Type='TRAIT_INGENIOUS');
-*/
 
 INSERT INTO Trait_FreeUnitAtTech
 		(TraitType, TechType, UnitClassType, PromotionType)
 SELECT  DISTINCT 'TRAIT_ALLOTMENT', PrereqTech, Class, 'PROMOTION_ALLOTMENT'
 FROM Units WHERE (Combat>0 OR RangedCombat>0) AND Cost>0 AND Suicide=0 AND PurchaseOnly=0;
 
-/*
--- This helps certain military AIs who tend to struggle in every game.
--- These AIs seem to struggle because of complex abilities which are hard for AIs to handle.
--- TODO: Disabled after v3.4 leader changes, until we see who needs the help now. 
-UPDATE Leaders SET AIBonus = 1
-WHERE Type IN (
-	'LEADER_ASKIA',
-	'LEADER_AUGUSTUS',
-	'LEADER_ELIZABETH',
-	'LEADER_GENGHIS_KHAN',
-	'LEADER_HARALD',
-	'LEADER_ISABELLA',
-	'LEADER_ODA_NOBUNAGA'
-);
-*/
 
 --
 -- Unique Units
@@ -51,7 +30,7 @@ UPDATE Units SET	   Cost   = ROUND(1.00 * (SELECT Cost   FROM Units WHERE Type =
 					   WHERE Type IN ('UNIT_AMERICAN_MINUTEMAN');
 UPDATE Units SET	   Combat = ROUND(1.15 * (SELECT Combat FROM Units WHERE Type = 'UNIT_SKIRMISHER'), 0)
 					   WHERE Type IN ('UNIT_AMERICAN_MINUTEMAN');
-*/
+
 UPDATE Units SET	   Combat = ROUND(1.25 * (SELECT Combat FROM Units WHERE Type = 'UNIT_WARRIOR'), 0)
 					   WHERE Type IN ('UNIT_AZTEC_JAGUAR');
 
@@ -112,7 +91,7 @@ UPDATE Units SET	   Cost   = ROUND(1.15 * (SELECT Cost   FROM Units WHERE Type =
 UPDATE Units SET	   Combat = ROUND(1.15 * (SELECT Combat FROM Units WHERE Type = 'UNIT_SWORDSMAN'), 0)
 					   WHERE Type IN ('UNIT_ROMAN_LEGION');
 
-
+*/
 --
 -- Promotions
 --
@@ -195,44 +174,17 @@ FROM UnitCombatInfos WHERE Type IN (
 	'UNITCOMBAT_SIEGE'			
 );
 
-/*
-INSERT INTO Trait_FreePromotionUnitCombats
-		(TraitType, UnitCombatType, PromotionType)
-SELECT	'TRAIT_PHOENICIAN_HERITAGE', Type, 'PROMOTION_MOUNTAINEER'
-FROM UnitCombatInfos WHERE Type IN (
-	'UNITCOMBAT_CIVILIAN'		,
-	'UNITCOMBAT_COMMAND'		,
-	'UNITCOMBAT_DIPLOMACY'		,
-	'UNITCOMBAT_RECON'			,
-	'UNITCOMBAT_ARCHER'			,
-	'UNITCOMBAT_MELEE'			,
-	'UNITCOMBAT_GUN'			,
-	'UNITCOMBAT_MOUNTED'		,
-	'UNITCOMBAT_ARMOR'			,
-	'UNITCOMBAT_SIEGE'			
-);
-*/
 
 INSERT INTO Trait_FreePromotionUnitCombats
 		(TraitType, UnitCombatType, PromotionType)
 SELECT	'TRAIT_LAND_TRADE_GOLD', 'UNITCOMBAT_DIPLOMACY', 'PROMOTION_DESERT_POWER'
 WHERE EXISTS (SELECT * FROM UnitCombatInfos WHERE Type='UNITCOMBAT_DIPLOMACY');
 
-/*
-INSERT INTO Trait_FreePromotionUnitCombats
-		(TraitType, UnitCombatType, PromotionType)
-SELECT	'TRAIT_VIKING_FURY', 'UNITCOMBAT_NAVAL', 'PROMOTION_NAVAL_LOGISTICS'
-WHERE EXISTS (SELECT * FROM Traits WHERE Type='TRAIT_VIKING_FURY');
-*/
 
 INSERT INTO Unit_FreePromotions
 		(UnitType, PromotionType)
 SELECT	'UNIT_BABYLONIAN_BOWMAN', 'PROMOTION_DESERT_POWER'
 WHERE EXISTS (SELECT * FROM Units WHERE Type='UNIT_BABYLONIAN_BOWMAN');
-
-/*INSERT INTO Unit_FreePromotions
-		(UnitType, PromotionType)
-SELECT	'UNIT_AMERICAN_PIONEER', 'PROMOTION_SCOUTING_1';*/
 
 INSERT INTO Unit_FreePromotions
 		(UnitType, PromotionType)
@@ -255,19 +207,6 @@ FROM Civilizations WHERE Type IN (
 	'CIVILIZATION_RUSSIA'		,
 	'CIVILIZATION_SHOSHONE'		,
 	'CIVILIZATION_ZULU'
-);
-
-INSERT INTO Civilization_FreeUnits (UnitClassType, UnitAIType, Count, CivilizationType)
-SELECT 'UNITCLASS_BIREME', 'UNITAI_EXPLORE_SEA', 1, Type 
-FROM Civilizations WHERE Type IN (
-	'CIVILIZATION_CARTHAGE'		,
-	'CIVILIZATION_VENICE'		
-);
-
-INSERT INTO Civilization_FreeUnits (UnitClassType, UnitAIType, Count, CivilizationType)
-SELECT 'UNITCLASS_TRIREME', 'UNITAI_EXPLORE_SEA', 1, Type 
-FROM Civilizations WHERE Type IN (
-	'CIVILIZATION_ROME'
 );
 
 INSERT INTO Civilization_FreeUnits (UnitClassType, UnitAIType, Count, CivilizationType)
@@ -337,8 +276,8 @@ FROM Civilizations WHERE Type IN (
 	'CIVILIZATION_POLAND'		,
 	'CIVILIZATION_POLYNESIA'	,
 	'CIVILIZATION_PORTUGAL'		,
-	'CIVILIZATION_ROME'			,
-	'CIVILIZATION_SIAM'			,
+	'CIVILIZATION_ROME'		,
+	'CIVILIZATION_SIAM'		,
 	'CIVILIZATION_SONGHAI'		,
 	'CIVILIZATION_SPAIN'		,
 	'CIVILIZATION_SWEDEN'		,
@@ -356,7 +295,7 @@ FROM Civilizations WHERE Type NOT IN
 -- Dummy Conquistador with no religious spreads remaining, but still alive
 --
 
-
+/*
 INSERT INTO Unit_AITypes(UnitType, UnitAIType)
 SELECT 'UNIT_SPANISH_CONQUISTADOR_NO_RELIGION', UnitAIType
 FROM Unit_AITypes
@@ -382,7 +321,7 @@ SELECT 'UNIT_SPANISH_CONQUISTADOR_NO_RELIGION', FlavorType, Flavor
 FROM Unit_Flavors
 WHERE UnitType = 'UNIT_SPANISH_CONQUISTADOR';
 
-
+*/
 
 
 		
@@ -399,14 +338,9 @@ WHERE TraitType = 'TRAIT_SCHOLARS_JADE_HALL';
 
 INSERT INTO Trait_ImprovementYieldChanges
 		(TraitType, ImprovementType, YieldType, Yield)
-SELECT 'TRAIT_SCHOLARS_JADE_HALL', 'IMPROVEMENT_FARM', 'YIELD_SCIENCE', 2
+SELECT 'TRAIT_SCHOLARS_JADE_HALL', 'IMPROVEMENT_FARM', 'YIELD_SCIENCE', 1
 WHERE EXISTS (SELECT * FROM Traits WHERE Type='TRAIT_SCHOLARS_JADE_HALL');
 
-/*
-INSERT INTO Trait_ImprovementYieldChanges
-		(TraitType, ImprovementType, YieldType, Yield)
-SELECT 'TRAIT_ALLOTMENT', 'IMPROVEMENT_FARM', 'YIELD_PRODUCTION', 1;
-*/
 
 INSERT INTO Improvement_Flavors
 		(ImprovementType, FlavorType, Flavor)
@@ -426,8 +360,7 @@ WHERE EXISTS (SELECT * FROM Improvements WHERE Type='IMPROVEMENT_TERRACE_FARM' )
 INSERT INTO Trait_YieldFromConstruction (TraitType, BuildingType, YieldType, Yield)
 SELECT 'TRAIT_POPULATION_GROWTH', Type, 'YIELD_POPULATION', 1
 FROM Buildings WHERE Type IN (
-	'BUILDING_HARBOR',
-	'BUILDING_GARDEN',
+	'BUILDING_LIGHTHOUSE',
 	'BUILDING_GRANARY',
 	'BUILDING_INDUS_SANITATION',
 	'BUILDING_HOSPITAL',
@@ -442,7 +375,6 @@ WHERE EXISTS (SELECT * FROM Civilizations WHERE Type='CIVILIZATION_BABYLON');
 INSERT INTO Trait_FreeResourceFirstXCities (TraitType, ResourceType, ResourceQuantity, NumCities)
 SELECT Type, 'RESOURCE_IRON', 2, 1
 FROM Traits WHERE Type IN (
-	--'TRAIT_CAPITAL_BUILDINGS_CHEAPER'	,
 	'TRAIT_VIKING_FURY'					,
 	'TRAIT_FIGHT_WELL_DAMAGED'			
 );
@@ -452,9 +384,7 @@ SELECT Type, 'RESOURCE_HORSE', 2, 1
 FROM Traits WHERE Type IN (
 	'TRAIT_TERROR'						,
 	'TRAIT_AMPHIB_WARLORD'				,
-	'TRAIT_WONDER_BUILDER'				,
-	'TRAIT_EXTRA_BELIEF'				,
-	'TRAIT_CITY_STATE_FRIENDSHIP'		
+	'TRAIT_WONDER_BUILDER'				
 );
 
 UPDATE Builds SET PrereqTech ='TECH_BRONZE_WORKING'
@@ -485,7 +415,7 @@ WHERE Type IN (
 
 --Compatibility with CSD for BUILDING_JADE_HALL
 INSERT INTO Building_SpecialistYieldChanges (BuildingType, SpecialistType, YieldType, Yield)
-SELECT 'BUILDING_JADE_HALL', 'SPECIALIST_CIVIL_SERVANT', 'YIELD_SCIENCE', 1
+SELECT 'BUILDING_JADE_HALL', 'SPECIALIST_CIVIL_SERVANT', 'YIELD_SCIENCE', 2
 WHERE EXISTS (SELECT Value FROM Cep WHERE Type = 'USING_CSD' AND Value = 2);
 
 

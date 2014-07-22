@@ -1,32 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <GameData>
 	<Defines>
-		<!--Religion-->
-		<Update>
-			<Where Name="RELIGION_MIN_FAITH_FIRST_PANTHEON" />
-			<Set Value="20" />
-			<!-- 10 -->
-		</Update>
-		<Update>
-			<Where Name="RELIGION_MIN_FAITH_FIRST_GREAT_PERSON" />
-			<Set Value="1000" />
-			<!-- 1000 -->
-		</Update>
-		<Update>
-			<Where Name="RELIGION_FAITH_DELTA_NEXT_GREAT_PERSON" />
-			<Set Value="500" />
-			<!-- 500 -->
-		</Update>
-		<Update>
-			<Where Name="RELIGION_BASE_CHANCE_PROPHET_SPAWN"/>
-			<Set Value="10" />
-			<!-- 5 -->
-		</Update>
-		<Update>
-			<Where name="RELIGION_MAX_MISSIONARIES" />
-			<Set Value="2" />
-			<!-- 4 -->
-		</Update>
+
 	</Defines>
 	<UnitClasses>
 		<Update>

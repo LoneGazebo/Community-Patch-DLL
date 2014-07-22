@@ -2035,6 +2035,15 @@ int CvPlayerTrade::GetTradeConnectionGPTValueTimes100(const TradeConnection& kTr
 				{
 					iDivisor = 1;
 				}
+
+#if defined(MOD_BALANCE_CORE)
+				// Cultural influence negation.
+				int iInfluenceBoost = GET_PLAYER(kTradeConnection.m_eDestOwner).GetCulture()->GetInfluenceTradeRouteGoldBonus(kTradeConnection.m_eOriginOwner);
+				if(iInfluenceBoost > 0)
+				{
+					return (pCity->getYieldRateTimes100(eYield, true) - iInfluenceBoost) / iDivisor;
+				}
+#endif
 				return pCity->getYieldRateTimes100(eYield, true) / iDivisor;
 			}
 		}
@@ -2425,6 +2434,10 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTrad
 					int iYourBuildingBonus = GetTradeConnectionYourBuildingValueTimes100(kTradeConnection, eYield, bAsOriginPlayer);
 					int iTheirBuildingBonus = GetTradeConnectionTheirBuildingValueTimes100(kTradeConnection, eYield, bAsOriginPlayer);
 					int iTraitBonus = GetTradeConnectionOtherTraitValueTimes100(kTradeConnection, eYield, bAsOriginPlayer);
+#if defined(MOD_BALANCE_CORE)
+					// Cultural influence bump
+					int iInfluenceBoost = GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCulture()->GetInfluenceTradeRouteGoldBonus(kTradeConnection.m_eDestOwner);
+#endif
 
 					int iModifier = 100;
 					int iDomainModifier = GetTradeConnectionDomainValueModifierTimes100(kTradeConnection, eYield);
@@ -2439,7 +2452,10 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTrad
 					iValue += iResourceBonus;
 					iValue += iPolicyBonus;
 					iValue += iTraitBonus;
-
+#if defined(MOD_BALANCE_CORE)
+					// Cultural influence bump
+					iValue += iInfluenceBoost;
+#endif
 					iModifier += iDomainModifier;
 					iModifier += iOriginRiverModifier;
 
@@ -2475,6 +2491,11 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTrad
 						int iYourBuildingBonus = GetTradeConnectionYourBuildingValueTimes100(kTradeConnection, eYield, bAsOriginPlayer);
 						int iTheirBuildingBonus = GetTradeConnectionTheirBuildingValueTimes100(kTradeConnection, eYield, bAsOriginPlayer);
 
+#if defined(MOD_BALANCE_CORE)
+						// Cultural influence bump
+						int iInfluenceBoost = GET_PLAYER(kTradeConnection.m_eDestOwner).GetCulture()->GetInfluenceTradeRouteGoldBonus(kTradeConnection.m_eOriginOwner);
+#endif
+
 						int iModifier = 100;
 						int iDomainModifier = GetTradeConnectionDomainValueModifierTimes100(kTradeConnection, eYield);
 						int iDestRiverModifier = GetTradeConnectionRiverValueModifierTimes100(kTradeConnection, eYield, false);
@@ -2484,6 +2505,11 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTrad
 						iValue += iYourBuildingBonus;
 						iValue += iTheirBuildingBonus;
 						iValue += iTraitBonus;
+
+#if defined(MOD_BALANCE_CORE)
+						// Cultural influence bump
+						iValue += iInfluenceBoost;
+#endif
 
 						iModifier += iDomainModifier;
 						iModifier += iDestRiverModifier;
@@ -2547,6 +2573,7 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTrad
 					int iDomainModifier = GetTradeConnectionDomainValueModifierTimes100(kTradeConnection, eYield);
 					iModifier += iDomainModifier;
 					iModifier += GET_PLAYER(kTradeConnection.m_eDestOwner).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_INTERNAL_TRADE_MODIFIER);
+
 					iValue *= iModifier;
 					iValue /= 100;
 				}

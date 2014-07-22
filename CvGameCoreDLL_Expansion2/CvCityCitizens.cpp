@@ -1204,6 +1204,17 @@ bool CvCityCitizens::DoAddBestCitizenFromUnassigned()
 	int iBestPlotValue = 0;
 	CvPlot* pBestPlot = GetBestCityPlotWithValue(iBestPlotValue, /*bBest*/ true, /*bWorked*/ false);
 
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+	if(MOD_BALANCE_CORE_HAPPINESS)
+	{
+		//If we're unhappy, value specialists less.
+		if(GET_PLAYER(GetOwner()).IsEmpireUnhappy() && !GET_PLAYER(GetOwner()).isHuman())
+		{
+			iSpecialistValue = (iSpecialistValue / 4);
+		}
+	}
+#endif
+
 	bool bSpecialistBetterThanPlot = (eBestSpecialistBuilding != NO_BUILDING && iSpecialistValue >= iBestPlotValue);
 
 	// Is there a Specialist we can assign?
@@ -1242,6 +1253,7 @@ bool CvCityCitizens::DoAddBestCitizenFromUnassigned()
 						{
 							DoAddSpecialistToBuilding(eBestBuilding, false);
 							return true;
+
 						}
 					}
 				}
@@ -2391,6 +2403,13 @@ int CvCityCitizens::GetTotalSpecialistCount() const
 		{
 			iNumSpecialists += GetSpecialistCount(eSpecialist);
 		}
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+		//Unemployed citz cause unhappiness, but halved, yo.
+		if (eSpecialist == (SpecialistTypes) GC.getDEFAULT_SPECIALIST())
+		{
+			iNumSpecialists += (GetSpecialistCount(eSpecialist) / 2);
+		}
+#endif
 	}
 
 	return iNumSpecialists;

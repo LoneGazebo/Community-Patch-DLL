@@ -27,7 +27,24 @@
 
 --EMPIRE BONUSES BELOW
 
--- These values modify empire-wide bonuses or penalties gained (or lost) from happiness. Change the values below, making sure to keep the integers + or - as they are below
+-- These values modify empire-wide bonuses or penalties gained (or lost) from happiness. Change the values below, making sure to keep the integers + or - as they are below.
+
+-- These values can be modified.
+	
+	-- Golden Age starting requirement.
+	UPDATE Defines
+	SET Value = '600'
+	WHERE Name = 'GOLDEN_AGE_BASE_THRESHOLD_HAPPINESS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
+
+	-- Golden Age per GA increase.
+	UPDATE Defines
+	SET Value = '300'
+	WHERE Name = 'GOLDEN_AGE_EACH_GA_ADDITIONAL_HAPPINESS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
+
+	-- % reduction of combat effectiveness per point of unhappiness.
+	UPDATE Defines
+	SET Value = '1'
+	WHERE Name = 'VERY_UNHAPPY_COMBAT_PENALTY_PER_UNHAPPY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
 
 -- Division line for when happiness bonuses begin. Happiness above threshold grants bonus. (should always be a positive value)
 	INSERT INTO Defines (
@@ -74,7 +91,7 @@
 -- Maximum happiness penalty % mod. (Should always be a negative value)
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_HAPPINESS_PENALTY_MAXIMUM', '-20'
+	SELECT 'BALANCE_HAPPINESS_PENALTY_MAXIMUM', '-15'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
 
 -- Minimum happiness penalty % mod.
@@ -98,7 +115,7 @@
 -- Science % point per happiness mod (should always be a positive value).
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_HAPPINESS_SCIENCE_MODIFIER', '3'
+	SELECT 'BALANCE_HAPPINESS_SCIENCE_MODIFIER', '1'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
  
 --Gold % point per happiness mod (should always be a positive value).
@@ -110,7 +127,7 @@
 --Gold % point per happiness mod (should always be a positive value).
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_HAPPINESS_GOLD_MODIFIER', '2'
+	SELECT 'BALANCE_HAPPINESS_GOLD_MODIFIER', '1'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
 
 -- Production % point per happiness mod (should always be a positive value).
@@ -122,7 +139,7 @@
 -- Production % point per happiness mod (should always be a positive value).
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_HAPPINESS_PRODUCTION_MODIFIER', '3'
+	SELECT 'BALANCE_HAPPINESS_PRODUCTION_MODIFIER', '2'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
 
 -- Food % point per happiness mod (should always be a positive value).
@@ -134,7 +151,7 @@
 -- Food % point per happiness mod (should always be a positive value).
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_HAPPINESS_FOOD_MODIFIER', '1'
+	SELECT 'BALANCE_HAPPINESS_FOOD_MODIFIER', '3'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
 
 -- Faith point per happiness mod (should always be a positive value). THIS ONE DIVIDES BY YOUR HAPPINESS VALUE (SO /5 HAPPINESS PER TURN)
@@ -146,7 +163,7 @@
 -- Faith point per happiness mod (should always be a positive value). THIS ONE DIVIDES BY YOUR HAPPINESS VALUE (SO /5 HAPPINESS PER TURN)
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_HAPPINESS_FAITH_MODIFIER', '4'
+	SELECT 'BALANCE_HAPPINESS_FAITH_MODIFIER', '3'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
 
 -- Culture point per happiness mod (should always be a positive value). THIS ONE DIVIDES BY YOUR HAPPINESS VALUE (SO /5 HAPPINESS PER TURN)
@@ -158,7 +175,7 @@
 -- Culture point per happiness mod (should always be a positive value). THIS ONE DIVIDES BY YOUR HAPPINESS VALUE (SO /5 HAPPINESS PER TURN)
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_HAPPINESS_CULTURE_MODIFIER', '4'
+	SELECT 'BALANCE_HAPPINESS_CULTURE_MODIFIER', '3'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
 
 -- Text for city view tooltip.
@@ -175,11 +192,64 @@
 
 -- Text for city view tooltip.
 	UPDATE Language_en_US
-	Set Text = '[ICON_BULLET][COLOR_POSITIVE_TEXT]+{1_Num}[ENDCOLOR] from Happiness and/or a Golden Age.'
+	Set Text = '[ICON_BULLET][COLOR_POSITIVE_TEXT]+{1_Num}[ENDCOLOR] from [ICON_HAPPINESS_1] Happiness and/or a Golden Age.'
 	WHERE Tag = 'TXT_KEY_TP_CULTURE_FROM_GOLDEN_AGE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
 
 
 -- Update text for top panel depending on which yields you have enabled above. Change as desired.
 	UPDATE Language_en_US
-	SET Text = 'Cities produce less while the empire is [ICON_HAPPINESS_3] unhappy. [NEWLINE]City and empire-wide yields are reduced for each point of Unhappiness. Units in combat will also fight less effectively.'
+	SET Text = 'Your empire produces less while it is [ICON_HAPPINESS_3] unhappy! [NEWLINE]City and empire-wide yields are reduced for each point of Unhappiness. Units in combat will also fight less effectively.'
 	WHERE Tag = 'TXT_KEY_TP_EMPIRE_UNHAPPY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
+
+-- TOOLTIPS FOR TOP BAR
+
+-- Text for city view tooltip.
+	INSERT INTO Language_en_US (
+	Text, Tag)
+	SELECT '[COLOR_POSITIVE_TEXT]+{1_Num}[ENDCOLOR] due to [ICON_HAPPINESS_1] Happiness.', 'TXT_KEY_TP_GOLD_GAINED_FROM_HAPPINESS'
+	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
+
+
+-- Text for city view tooltip.
+	INSERT INTO Language_en_US (
+	Text, Tag)
+	SELECT '{1_NUM} due to [ICON_HAPPINESS_3] Unhappiness.', 'TXT_KEY_TP_GOLD_LOST_FROM_UNHAPPINESS'
+	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
+
+-- Text for city view tooltip.
+	INSERT INTO Language_en_US (
+	Text, Tag)
+	SELECT '[ICON_BULLET] [COLOR_POSITIVE_TEXT]+{1_Num}[ENDCOLOR] due to [ICON_HAPPINESS_1] Happiness.', 'TXT_KEY_TP_FAITH_GAINED_FROM_HAPPINESS'
+	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
+
+
+-- Text for city view tooltip.
+	INSERT INTO Language_en_US (
+	Text, Tag)
+	SELECT '[ICON_BULLET] [COLOR_NEGATIVE_TEXT]{1_NUM}[ENDCOLOR] due to [ICON_HAPPINESS_3] Unhappiness.', 'TXT_KEY_TP_FAITH_LOST_FROM_UNHAPPINESS'
+	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
+
+-- Text for city view tooltip.
+	INSERT INTO Language_en_US (
+	Text, Tag)
+	SELECT '[ICON_BULLET] [COLOR_POSITIVE_TEXT]+{1_Num}[ENDCOLOR] [ICON_RESEARCH] due to [ICON_HAPPINESS_1] Happiness.', 'TXT_KEY_TP_SCIENCE_GAINED_FROM_HAPPINESS'
+	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
+
+
+-- Text for city view tooltip.
+	INSERT INTO Language_en_US (
+	Text, Tag)
+	SELECT '[ICON_BULLET] [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] [ICON_RESEARCH] due to [ICON_HAPPINESS_3] Unhappiness.', 'TXT_KEY_TP_SCIENCE_LOST_FROM_UNHAPPINESS'
+	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
+
+-- Text for city view tooltip.
+	INSERT INTO Language_en_US (
+	Text, Tag)
+	SELECT '[ICON_BULLET] [COLOR_NEGATIVE_TEXT]{1_NUM}[ENDCOLOR] due to due to [ICON_HAPPINESS_3] Unhappiness.', 'TXT_KEY_TP_CULTURE_LOST_FROM_UNHAPPINESS'
+	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
+
+-- Text for city view tooltip.
+	INSERT INTO Language_en_US (
+	Text, Tag)
+	SELECT '[ICON_BULLET] [COLOR_POSITIVE_TEXT]+{1_Num}[ENDCOLOR] due to [ICON_HAPPINESS_1] Happiness.', 'TXT_KEY_TP_CULTURE_GAINED_FROM_HAPPINESS'
+	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );

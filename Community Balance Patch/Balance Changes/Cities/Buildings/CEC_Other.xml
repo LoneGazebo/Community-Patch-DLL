@@ -1,103 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <GameData>
-	<BuildingClasses>
-		<Update>
-			<Where Type="BUILDINGCLASS_POLICE_STATION" />
-			<Set MaxPlayerInstances="1" />
-		</Update>
-		<Row>
-			<Type>BUILDINGCLASS_GREAT_HALL</Type>
-			<DefaultBuilding>BUILDING_GREAT_HALL</DefaultBuilding>
-			<Description>TXT_KEY_BUILDING_PALACE</Description>
-			<MaxPlayerInstances>3</MaxPlayerInstances>
-		</Row>
-	</BuildingClasses>
+
 	<Buildings>
-		<Update>
-			<Where BuildingClass="BUILDINGCLASS_PALACE" />
-			<Set Defense="400"
-				 ExtraCityHitPoints="100"
-				 IconAtlas="EXPANSION_SCEN_BUILDING_ATLAS"
-				 PortraitIndex="1"
-				 UnmoddedHappiness="6"
-				 />
-		</Update>
-		<Row>
-			<Type>BUILDING_GREAT_HALL</Type>
-			<Cost>-1</Cost>
-			<BuildingClass>BUILDINGCLASS_GREAT_HALL</BuildingClass>
-			<Description>TXT_KEY_BUILDING_PALACE</Description>
-			<Civilopedia>TXT_KEY_BUILDING_PALACE_PEDIA</Civilopedia>
-			<ArtDefineTag>ART_DEF_BUILDING_LIBRARY</ArtDefineTag>
-			<MinAreaSize>-1</MinAreaSize>
-			<NeverCapture>true</NeverCapture>
-			<IconAtlas>BW_ATLAS_1</IconAtlas>
-			<PortraitIndex>19</PortraitIndex>
-			<UnmoddedHappiness>2</UnmoddedHappiness>
-		</Row>
-		<Update>
-			<Where BuildingClass="BUILDINGCLASS_CONSTABLE" />
-			<Set EspionageModifier="-50"
-				 />
-		</Update>
-		<Update>
-			<Where BuildingClass="BUILDINGCLASS_POLICE_STATION" />
-			<Set EspionageModifier="0"
-				 GlobalEspionageModifier="-25"
-				 HurryCostModifier="-1"
-				 />
-		</Update>
-		<Update>
-			<Where BuildingClass="BUILDINGCLASS_INTELLIGENCE_AGENCY" />
-			<Set GlobalEspionageModifier="0"
-				 NumCityCostMod="0"
-				 />
-		</Update>
-		<Update>
-			<Where BuildingClass="BUILDINGCLASS_WALLS" />
-			<Set ExtraCityHitPoints="100"
-				 />
-		</Update>
-		<Update>
-			<Where BuildingClass="BUILDINGCLASS_CASTLE" />
-			<Set ExtraCityHitPoints="150"
-				 />
-		</Update>
-		<Update>
-			<Where BuildingClass="BUILDINGCLASS_ARSENAL" />
-			<Set ExtraCityHitPoints="200"
-				 />
-		</Update>
-		<Update>
-			<Where BuildingClass="BUILDINGCLASS_MILITARY_BASE" />
-			<Set ExtraCityHitPoints="250"
-				 NukeModifier="-50"
-				 />
-		</Update>
-		<Update>
-			<Where BuildingClass="BUILDINGCLASS_GARDEN" />
-			<Set GreatPeopleRateModifier="50"
-				 FreshWater="0"
-				 />
-		</Update>
+
 	</Buildings>
 	<Building_YieldChanges>
-		<Delete BuildingType="BUILDING_PALACE"/>
-		<Row>
-			<BuildingType>BUILDING_PALACE</BuildingType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>2</Yield>
-		</Row>
-		<Row>
-			<BuildingType>BUILDING_PALACE</BuildingType>
-			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>2</Yield>
-		</Row>
-		<Row>
-			<BuildingType>BUILDING_PALACE</BuildingType>
-			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>2</Yield>
-		</Row>
+
 		
 		<Row>
 			<BuildingType>BUILDING_GREAT_HALL</BuildingType>
@@ -138,11 +46,10 @@
 		-->
 	</Building_YieldChanges>
 	<Building_ClassesNeededInCity>
-		<Delete BuildingType="BUILDING_POLICE_STATION" />
-		<Delete BuildingType="BUILDING_INTELLIGENCE_AGENCY" />
+
 	</Building_ClassesNeededInCity>
 	<Building_PrereqBuildingClasses>
-		<Delete BuildingType="BUILDING_INTELLIGENCE_AGENCY" />
+
 	</Building_PrereqBuildingClasses>
 	
 	<!--

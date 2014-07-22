@@ -1,0 +1,422 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- vanilla values are included directly underneath the changed Define -->
+
+<GameData>
+	<Defines>
+<!--
+	Related to cities and the economy
+-->		
+		<Update>
+			<Where Name="GOLD_PURCHASE_GOLD_PER_PRODUCTION"/>
+			<Set Value="3"/>
+			<!-- 30 -->
+		</Update>
+		<Update>
+			<Where Name="HURRY_GOLD_PRODUCTION_EXPONENT"/>
+			<Set Value="1"/>
+			<!-- 0.75 -->
+		</Update>
+		<Update>
+			<Where Name="HURRY_GOLD_TECH_EXPONENT"/>
+			<Set Value="1.0"/>
+			<!-- 1.1 -->
+		</Update>
+		<Update>
+			<Where Name="HURRY_GOLD_CULTURE_EXPONENT"/>
+			<Set Value="1.0"/>
+			<!-- 1.1 -->
+		</Update>		
+		<Update>
+			<Where Name="TRADE_ROUTE_BASE_GOLD"/>
+			<Set Value="200"/>
+			<!-- -100 -->
+		</Update>
+		<Update>
+			<Where Name="TRADE_ROUTE_CAPITAL_POP_GOLD_MULTIPLIER"/>
+			<Set Value="0"/>
+			<!-- 15 -->
+		</Update>
+		<Update>
+			<Where Name="TRADE_ROUTE_CITY_POP_GOLD_MULTIPLIER"/>
+			<Set Value="75"/>
+			<!-- 110 -->
+		</Update>
+		<Update>
+			<Where Name="MINOR_CIV_PLOT_CULTURE_COST_MULTIPLIER" />
+			<Set Value="150" />
+		</Update>
+		<Update>
+			<Where Name="PLOT_INFLUENCE_WATER_COST" />
+			<Set Value="0" />
+			<!-- 25 -->
+		</Update>
+		<Update>
+			<Where Name="PLOT_INFLUENCE_ROUTE_COST" />
+			<Set Value="-25" />
+			<!-- 0 -->
+		</Update>
+		<Update>
+			<Where Name="PLOT_INFLUENCE_RESOURCE_COST" />
+			<Set Value="-125" />
+			<!-- -100 -->
+		</Update>
+		<Update>
+			<Where Name="PLOT_BUY_RESOURCE_COST" />
+			<Set Value="-125" />
+			<!-- -100 -->
+		</Update>
+		<Update>
+			<Where Name="PLOT_INFLUENCE_NW_COST" />
+			<Set Value="-400" />
+			<!-- -100 -->
+		</Update>
+		<Update>
+			<Where Name="PLOT_BUY_NW_COST" />
+			<Set Value="-400" />
+			<!-- -100 -->
+		</Update>
+<!--
+	Related to armies and military
+-->
+		<Update>
+			<Where Name="NAVAL_COMBAT_DEFENDER_STRENGTH_MULTIPLIER" />
+			<Set Value="100" />
+			<!-- 40 -->
+		</Update>
+		<Update>
+			<Where Name="EMBARKED_UNIT_MOVEMENT" />
+			<Set Value="3" />
+			<!-- 2 -->
+		</Update>
+		<Update>
+			<Where Name="MAX_CITY_HIT_POINTS" />
+			<Set Value="300" />
+			<!-- 200 -->
+		</Update>
+		<Update>
+			<Where Name="ENEMY_HEAL_RATE" />
+			<Set Value="10" />
+			<!-- 10 -->
+		</Update>
+		<Update>
+			<Where Name="NEUTRAL_HEAL_RATE" />
+			<Set Value="15" />
+			<!-- 10 -->
+		</Update>
+		<Update>
+			<Where Name="FRIENDLY_HEAL_RATE" />
+			<Set Value="20" />
+			<!-- 20 -->
+		</Update>
+		<Update>
+			<Where Name="CITY_HEAL_RATE" />
+			<Set Value="25" />
+			<!-- 25 -->
+		</Update>
+		<Update>
+			<Where Name="STRATEGIC_RESOURCE_EXHAUSTED_PENALTY" />
+			<Set Value="-10" />
+			<!-- -50 -->
+		</Update>
+	<!-- This Define is no longer used and the new one is set differently 
+		<Update>
+			<Where Name="VERY_UNHAPPY_COMBAT_PENALTY" />
+			<Set Value="-10" />
+		</Update>
+	-->
+		<Update>
+			<Where Name="CITY_STRENGTH_DEFAULT" />
+			<Set Value="600" />
+			<!-- 800 -->
+		</Update>
+		<Update>
+			<Where Name="CITY_STRENGTH_POPULATION_CHANGE" />
+			<Set Value="33" />
+			<!-- 40 -->
+		</Update>
+		<Update>
+			<Where Name="CITY_STRENGTH_UNIT_DIVISOR" />
+			<Set Value="300" />
+			<!-- 500 -->
+		</Update>
+		<Update>
+			<Where Name="CITY_STRENGTH_TECH_BASE" />
+			<Set Value="5.5" />
+			<!-- 5.5 -->
+		</Update>
+		<Update>
+			<Where Name="CITY_STRENGTH_TECH_EXPONENT" />
+			<Set Value="2.5" />
+			<!-- 2.8 -->
+		</Update>
+		<Update>
+			<Where Name="CITY_STRENGTH_TECH_MULTIPLIER" />
+			<Set Value="1" />
+			<!-- 1 -->
+		</Update>
+		<Update>
+			<Where Name="CITY_STRENGTH_HILL_CHANGE" />
+			<Set Value="500" />
+			<!-- 500 -->
+		</Update>
+		<Update>
+			<Where Name="CITY_HIT_POINTS_HEALED_PER_TURN" />
+			<Set Value="20" />
+		</Update>
+		<Update>
+			<Where Name="BONUS_PER_ADJACENT_FRIEND" />
+			<Set Value="15" />
+			<!-- 10 -->
+		</Update>
+<!--
+	Related to diplomacy
+-->
+		<Update>
+			<Where Name="PEACE_TREATY_LENGTH" />
+			<Set Value="20" />
+			<!-- 10 -->
+		</Update>
+		<Update>
+			<Where Name="MINOR_CIV_CONTACT_GOLD_OTHER" />
+			<Set Value="30" />
+			<!-- 15 -->
+		</Update>
+		<Update>
+			<Where Name="MINOR_FRIENDSHIP_DROP_PER_TURN" />
+			<Set Value="-100" />
+			<!-- -100 -->
+		</Update>
+		<Update>
+			<Where Name="MINOR_FRIENDSHIP_DROP_PER_TURN_HOSTILE" />
+			<Set Value="-150" />
+			<!-- -150 -->
+		</Update>
+		<Update>
+			<Where Name="MINOR_FRIENDSHIP_DROP_PER_TURN_AGGRESSOR" />
+			<Set Value="-150" />
+			<!-- -200 -->
+		</Update>
+		<Update>
+			<Where Name="MINOR_FRIENDSHIP_NEGATIVE_INCREASE_PER_TURN" />
+			<Set Value="100" />
+			<!-- 100 -->
+		</Update>
+		<Update>
+			<Where Name="MINOR_FRIENDSHIP_AT_WAR" />
+			<Set Value="-60" />
+			<!-- -60 -->
+		</Update>
+		<Update>
+			<Where Name="MINOR_CIV_AGGRESSOR_THRESHOLD" />
+			<Set Value="2" />
+			<!-- 2 -->
+		</Update>
+		<Update>
+			<Where Name="MINOR_CIV_WARMONGER_THRESHOLD" />
+			<Set Value="4" />
+			<!-- 4 -->
+		</Update>
+		<Update>
+			<Where Name="PERMANENT_WAR_AGGRESSOR_CHANCE" />
+			<Set Value="0" />
+			<!-- 50 -->
+		</Update>
+		<Update>
+			<Where Name="PERMANENT_WAR_OTHER_WARMONGER_CHANCE_DISTANT" />
+			<Set Value="0" />
+			<!-- 25 -->
+		</Update>
+		<Update>
+			<Where Name="PERMANENT_WAR_OTHER_WARMONGER_CHANCE_FAR" />
+			<Set Value="0" />
+			<!-- 50 -->
+		</Update>
+		<Update>
+			<Where Name="PERMANENT_WAR_OTHER_WARMONGER_CHANCE_CLOSE" />
+			<Set Value="0" />
+			<!-- 75 -->
+		</Update>
+		<Update>
+			<Where Name="PERMANENT_WAR_OTHER_WARMONGER_CHANCE_NEIGHBORS" />
+			<Set Value="0" />
+			<!-- 100 -->
+		</Update>
+		<Update>
+			<Where Name="PERMANENT_WAR_OTHER_CHANCE_DISTANT" />
+			<Set Value="0" />
+			<!-- 0 -->
+		</Update>
+		<Update>
+			<Where Name="PERMANENT_WAR_OTHER_CHANCE_FAR" />
+			<Set Value="0" />
+			<!-- 0 -->
+		</Update>
+		<Update>
+			<Where Name="PERMANENT_WAR_OTHER_CHANCE_CLOSE" />
+			<Set Value="0" />
+			<!-- 20 -->
+		</Update>
+		<Update>
+			<Where Name="PERMANENT_WAR_OTHER_CHANCE_NEIGHBORS" />
+			<Set Value="0" />
+			<!-- 50 -->
+		</Update>
+		<Update>
+			<Where Name="PERMANENT_WAR_OTHER_AT_WAR" />
+			<Set Value="0" />
+			<!-- 50 -->
+		</Update>
+		<Update>
+			<Where Name="MAX_DISTANCE_MINORS_BARB_QUEST" />
+			<Set Value="50" />
+			<!-- 50 -->
+		</Update>
+		<Update>
+			<Where Name="TXT_KEY_MINOR_GIFT_UNITS_REMINDER" />
+			<Set Value="2" />
+			<!-- 2 -->
+		</Update>
+		<Update>
+			<Where Name="WAR_QUEST_UNITS_TO_KILL_DIVISOR" />
+			<Set Value="4" />
+			<!-- 4 -->
+		</Update>
+		<Update>
+			<Where Name="WAR_QUEST_MIN_UNITS_TO_KILL" />
+			<Set Value="3" />
+			<!-- 3 -->
+		</Update>
+		<Update>
+			<Where Name="MINOR_CIV_BEST_RELATIONS_HAPPINESS_BONUS" />
+			<Set Value="2" />
+			<!-- 2 -->
+		</Update>
+		<Update>
+			<Where Name="FRIENDSHIP_PER_UNIT_INTRUDING" />
+			<Set Value="-6" />
+			<!-- -6 -->
+		</Update>
+		<Update>
+			<Where Name="FRIENDSHIP_PER_BARB_KILLED" />
+			<Set Value="15" />
+			<!-- 12 -->
+		</Update>
+		<Update>
+			<Where Name="FRIENDSHIP_PER_UNIT_GIFTED" />
+			<Set Value="5" />
+			<!-- 2 -->
+		</Update>
+		<Update>
+			<Where Name="MAX_INFLUENCE_FROM_MINOR_GIFTS" />
+			<Set Value="3" />
+			<!-- 3 -->
+		</Update>
+		<Update>
+			<Where Name="GOLD_GIFT_FRIENDSHIP_EXPONENT" />
+			<Set Value="1.01" />
+			<!-- 1.01 -->
+		</Update>
+		<Update>
+			<Where Name="RETURN_CIVILIAN_FRIENDSHIP" />
+			<Set Value="55" />
+			<!-- 30 -->
+		</Update>
+		<Update>
+			<Where Name="MINOR_CIV_QUEST_FIRST_POSSIBLE_TURN" />
+			<Set Value="20" />
+			<!-- 30 -->
+		</Update>
+		<Update>
+			<Where Name="MINOR_CIV_QUEST_FIRST_POSSIBLE_TURN_RAND" />
+			<Set Value="20" />
+			<!-- 20 -->
+		</Update>
+		<Update>
+			<Where Name="MINOR_CIV_QUEST_MIN_TURNS_BETWEEN" />
+			<Set Value="10" />
+			<!-- 10 -->
+		</Update>
+		<Update>
+			<Where Name="MINOR_CIV_QUEST_RAND_TURNS_BETWEEN" />
+			<Set Value="20" />
+			<!-- 25 -->
+		</Update>
+		<Update>
+			<Where Name="MINOR_CIV_QUEST_RAND_TURNS_BETWEEN_HOSTILE_MULTIPLIER" />
+			<Set Value="200" />
+			<!-- 200 -->
+		</Update>
+		<Update>
+			<Where Name="MINOR_CIV_QUEST_KILL_CAMP_RANGE" />
+			<Set Value="12" />
+			<!-- 8 -->
+		</Update>
+		<Update>
+			<Where Name="MINOR_CIV_QUEST_WONDER_COMPLETION_THRESHOLD" />
+			<Set Value="25" />
+			<!-- 25 -->
+		</Update>
+		<Update>
+			<Where Name="MAX_INFLUENCE_FROM_MINOR_GIFTS"/>
+			<Set Value="3"/>
+			<!-- 3 -->
+		</Update>
+		<Update>
+			<Where Name="FRIENDS_BASE_TURNS_UNIT_SPAWN"/>
+			<Set Value="19"/>
+			<!-- 19 -->
+		</Update>
+		<Update>
+			<Where Name="FRIENDS_RAND_TURNS_UNIT_SPAWN"/>
+			<Set Value="3"/>
+			<!-- 3 -->
+		</Update>
+<!--
+	Related to Religion and faith
+-->
+		<Update>
+			<Where Name="RELIGION_MIN_FAITH_FIRST_PANTHEON" />
+			<Set Value="20" />
+			<!-- 10 -->
+		</Update>
+		<Update>
+			<Where Name="RELIGION_MIN_FAITH_FIRST_GREAT_PERSON" />
+			<Set Value="1000" />
+			<!-- 1000 -->
+		</Update>
+		<Update>
+			<Where Name="RELIGION_FAITH_DELTA_NEXT_GREAT_PERSON" />
+			<Set Value="500" />
+			<!-- 500 -->
+		</Update>
+		<Update>
+			<Where Name="RELIGION_BASE_CHANCE_PROPHET_SPAWN"/>
+			<Set Value="10" />
+			<!-- 5 -->
+		</Update>
+		<Update>
+			<Where name="RELIGION_MAX_MISSIONARIES" />
+			<Set Value="2" />
+			<!-- 4 -->
+		</Update>
+<!--
+	Related to terrain and its bonuses
+-->
+		<Update>
+			<Where Name="HEAVY_RESOURCE_THRESHOLD"/>
+			<Set Value="2"/>
+			<!-- 3 -->
+		</Update>
+		<Update>
+			<Where Name="FLAT_LAND_EXTRA_DEFENSE" />
+			<Set Value="-20" />
+			<!-- 0 -->
+		</Update>
+		<Update>
+			<Where Name="HILLS_EXTRA_DEFENSE" />
+			<Set Value="10" />
+			<!-- 25 -->
+		</Update>
+	</Defines>
+
+</GameData>
