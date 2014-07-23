@@ -42,6 +42,10 @@ ALTER TABLE Traits ADD COLUMN 'FreeBuildingPrereqTech' text default NULL;
 
 ALTER TABLE Traits ADD COLUMN 'CapitalFreeBuildingPrereqTech' text default NULL;
 
+-- Adds a trait that lets a player conquer a city-state if they can bully it.
+
+ALTER TABLE Traits ADD COLUMN 'BullyAnnex' boolean default false;
+
 -- Grants a free valid promotion to a unit when it enters a type of feature (forest, marsh, etc.).
 
 ALTER TABLE Features ADD COLUMN 'LocationUnitFreePromotion' text default NULL;

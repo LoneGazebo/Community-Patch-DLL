@@ -2404,10 +2404,13 @@ int CvCityCitizens::GetTotalSpecialistCount() const
 			iNumSpecialists += GetSpecialistCount(eSpecialist);
 		}
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
-		//Unemployed citz cause unhappiness, but halved, yo.
-		if (eSpecialist == (SpecialistTypes) GC.getDEFAULT_SPECIALIST())
+		if(MOD_BALANCE_CORE_HAPPINESS)
 		{
-			iNumSpecialists += (GetSpecialistCount(eSpecialist) / 2);
+			//Unemployed citz cause unhappiness, but halved, yo.
+			if (eSpecialist == (SpecialistTypes) GC.getDEFAULT_SPECIALIST())
+			{
+				iNumSpecialists += (GetSpecialistCount(eSpecialist) / 2);
+			}
 		}
 #endif
 	}

@@ -137,6 +137,11 @@ public:
 	int GetTerrainExtraYield(TerrainTypes eTerrain, YieldTypes eYield) const;
 	void ChangeTerrainExtraYield(TerrainTypes eTerrain, YieldTypes eYield, int iChange);
 
+#if defined(MOD_BALANCE_CORE_YIELDS)
+	int getPlotYieldChange(PlotTypes ePlot, YieldTypes eYield) const;
+	void changePlotYieldChange(PlotTypes ePlot, YieldTypes eYield, int iChange);
+#endif
+
 	bool IsHasResourceLocal(ResourceTypes eResource, bool bTestVisible) const;
 #if defined(MOD_API_EXTENSIONS) || defined(MOD_TRADE_WONDER_RESOURCE_ROUTES)
 	int GetNumResourceLocal(ResourceTypes eResource);
@@ -1169,6 +1174,9 @@ protected:
 	int** m_ppaiResourceYieldChange;
 	int** m_ppaiFeatureYieldChange;
 	int** m_ppaiTerrainYieldChange;
+#if defined(MOD_BALANCE_CORE_YIELDS)
+	int** m_ppaaiPlotYieldChange;
+#endif
 
 	CvCityBuildings* m_pCityBuildings;
 	CvCityStrategyAI* m_pCityStrategyAI;

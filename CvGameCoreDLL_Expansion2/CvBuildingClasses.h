@@ -330,7 +330,10 @@ public:
 	int GetHurryModifier(int i) const;
 	bool IsBuildingClassNeededInCity(int i) const;
 	int GetNumFreeUnits(int i) const;
-
+#if defined(MOD_BALANCE_CORE_BUILDING_INSTANT_YIELD)
+	int GetInstantYield(int i) const;
+	int* GetInstantYieldArray() const;
+#endif
 #if defined(MOD_BALANCE_CORE_YIELDS)
 	int GetPlotYieldChange(int i, int j) const;
 	int* GetPlotYieldChangeArray(int i) const;
@@ -587,6 +590,9 @@ private:
 	int** m_ppaiTerrainYieldChange;
 	int** m_ppiBuildingClassYieldChanges;
 	int* m_paiBuildingClassHappiness;
+#if defined(MOD_BALANCE_CORE_BUILDING_INSTANT_YIELD)
+	int* m_piInstantYield;
+#endif
 #if defined(MOD_BALANCE_CORE_YIELDS)
 	int** m_ppaiBuildingPlotYieldChange;
 #endif

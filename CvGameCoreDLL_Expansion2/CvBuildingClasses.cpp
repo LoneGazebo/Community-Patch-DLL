@@ -230,6 +230,9 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_ppiBuildingClassYieldChanges(NULL),
 	m_paiBuildingClassHappiness(NULL),
 	m_paThemingBonusInfo(NULL),
+#if defined(MOD_BALANCE_CORE_BUILDING_INSTANT_YIELD)
+	m_piInstantYield(NULL),
+#endif
 #if defined(MOD_BALANCE_CORE_YIELDS)
 	m_ppaiBuildingPlotYieldChange(NULL),
 #endif
@@ -272,7 +275,12 @@ CvBuildingEntry::~CvBuildingEntry(void)
 	SAFE_DELETE_ARRAY(m_piNumFreeUnits);
 	SAFE_DELETE_ARRAY(m_paiBuildingClassHappiness);
 	SAFE_DELETE_ARRAY(m_paThemingBonusInfo);
-
+#if defined(MOD_BALANCE_CORE_BUILDING_INSTANT_YIELD)
+	if(MOD_BALANCE_CORE_BUILDING_INSTANT_YIELD)
+	{
+		SAFE_DELETE_ARRAY(m_piInstantYield);
+	}
+#endif
 	CvDatabaseUtility::SafeDelete2DArray(m_ppaiResourceYieldChange);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppaiFeatureYieldChange);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppaiSpecialistYieldChange);
@@ -558,6 +566,9 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	kUtility.SetYields(m_piAreaYieldModifier, "Building_AreaYieldModifiers", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piGlobalYieldModifier, "Building_GlobalYieldModifiers", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piTechEnhancedYieldChange, "Building_TechEnhancedYieldChanges", "BuildingType", szBuildingType);
+#if defined(MOD_BALANCE_CORE_BUILDING_INSTANT_YIELD)
+	kUtility.SetYields(m_piInstantYield, "Building_InstantYield", "BuildingType", szBuildingType);
+#endif
 
 	kUtility.PopulateArrayByValue(m_piResourceQuantityRequirements, "Resources", "Building_ResourceQuantityRequirements", "ResourceType", "BuildingType", szBuildingType, "Cost");
 	kUtility.PopulateArrayByValue(m_piResourceQuantity, "Resources", "Building_ResourceQuantity", "ResourceType", "BuildingType", szBuildingType, "Quantity");
@@ -2250,6 +2261,21 @@ int CvBuildingEntry::GetNationalPopulationRequired() const
 int CvBuildingEntry::GetLocalPopulationRequired() const
 {
 	return m_iLocalPopRequired;
+}
+#endif
+#if defined(MOD_BALANCE_CORE_BUILDING_INSTANT_YIELD)
+/// Instant yield
+int CvBuildingEntry::GetInstantYield(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piInstantYield ? m_piInstantYield[i] : -1;
+}
+
+/// Array of instant yields
+int* CvBuildingEntry::GetInstantYieldArray() const
+{
+	return m_piInstantYield;
 }
 #endif
 #if defined(MOD_BALANCE_CORE_YIELDS)

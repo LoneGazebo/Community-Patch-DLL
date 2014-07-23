@@ -1039,6 +1039,24 @@ int CvGrandStrategyAI::GetGuessOtherPlayerConquestPriority(PlayerTypes ePlayer, 
 	// Majors Conquered
 	iConquestPriority += (GetPlayer()->GetDiplomacyAI()->GetOtherPlayerNumMajorsConquered(ePlayer) * /*15*/ GC.getAI_GRAND_STRATEGY_CONQUEST_WEIGHT_PER_MAJOR_CONQUERED());
 
+#if defined(MOD_BALANCE_CORE_GRANDSTRATEGY_AI)
+	//Autocracy is usually a sure bet for conquest strategy.
+	if(MOD_BALANCE_CORE_GRANDSTRATEGY_AI)
+	{
+		PolicyBranchTypes eCurrentBranchType = GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree();
+
+		if (eCurrentBranchType == (PolicyBranchTypes)GC.getPOLICY_BRANCH_AUTOCRACY())
+		{
+			iConquestPriority *= 2;
+		}
+		//Order less so.
+		else if(eCurrentBranchType == (PolicyBranchTypes)GC.getPOLICY_BRANCH_ORDER())
+		{
+			iConquestPriority *= 3;
+			iConquestPriority /= 2;
+		}
+	}
+#endif
 	return iConquestPriority;
 }
 
@@ -1084,7 +1102,24 @@ int CvGrandStrategyAI::GetGuessOtherPlayerCulturePriority(PlayerTypes ePlayer, i
 			iCulturePriority += -GC.getAI_GS_TOURISM_RATIO_MULTIPLIER();
 		}
 		iCulturePriority += iRatio;	}
+#if defined(MOD_BALANCE_CORE_GRANDSTRATEGY_AI)
+	//Freedom is usually a sure bet for culture strategy.
+	if(MOD_BALANCE_CORE_GRANDSTRATEGY_AI)
+	{
+		PolicyBranchTypes eCurrentBranchType = GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree();
 
+		if (eCurrentBranchType == (PolicyBranchTypes)GC.getPOLICY_BRANCH_FREEDOM())
+		{
+			iCulturePriority *= 2;
+		}
+		//Order less so.
+		else if(eCurrentBranchType == (PolicyBranchTypes)GC.getPOLICY_BRANCH_ORDER())
+		{
+			iCulturePriority *= 3;
+			iCulturePriority /= 2;
+		}
+	}
+#endif
 	return iCulturePriority;
 }
 
@@ -1125,6 +1160,33 @@ int CvGrandStrategyAI::GetGuessOtherPlayerUnitedNationsPriority(PlayerTypes ePla
 	iPriority = iPriority * GC.getAI_GS_UN_SECURED_VOTE_MOD();
 	iPriority = iPriority / iCityStatesAlive;
 
+#if defined(MOD_BALANCE_CORE_GRANDSTRATEGY_AI)
+	//Freedom is usually a sure bet for diplomatic strategy.
+	if(MOD_BALANCE_CORE_GRANDSTRATEGY_AI)
+	{
+		PolicyBranchTypes eCurrentBranchType = GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree();
+
+		if (eCurrentBranchType == (PolicyBranchTypes)GC.getPOLICY_BRANCH_FREEDOM())
+		{
+			iPriority *= 2;
+		}
+		//Autocracy less so.
+		else if(eCurrentBranchType == (PolicyBranchTypes)GC.getPOLICY_BRANCH_AUTOCRACY())
+		{
+			iPriority *= 3;
+			iPriority /= 2;
+		}
+		//Lots of votes? That's not good.
+		if(GC.getGame().GetGameLeagues()->GetActiveLeague() != NULL)
+		{
+			if(GC.getGame().GetGameLeagues()->GetActiveLeague()->CalculateStartingVotesForMember(ePlayer) > GC.getGame().GetVotesNeededForDiploVictory())
+			{
+				iPriority *= 2;
+			}
+		}
+	}
+#endif
+
 	return iPriority;
 }
 
@@ -1158,6 +1220,25 @@ int CvGrandStrategyAI::GetGuessOtherPlayerSpaceshipPriority(PlayerTypes ePlayer,
 		iWorldNumTechsAverage = 1;
 
 	int iSSPriority = (iNumTechs - iWorldNumTechsAverage) * /*300*/ GC.getAI_GS_SS_TECH_PROGRESS_MOD() / iWorldNumTechsAverage;
+
+#if defined(MOD_BALANCE_CORE_GRANDSTRATEGY_AI)
+	//Order is usually a sure bet for science strategy.
+	if(MOD_BALANCE_CORE_GRANDSTRATEGY_AI)
+	{
+		PolicyBranchTypes eCurrentBranchType = GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree();
+
+		if (eCurrentBranchType == (PolicyBranchTypes)GC.getPOLICY_BRANCH_ORDER())
+		{
+			iSSPriority *= 2;
+		}
+		//Freedom less so.
+		else if(eCurrentBranchType == (PolicyBranchTypes)GC.getPOLICY_BRANCH_FREEDOM())
+		{
+			iSSPriority *= 3;
+			iSSPriority /= 2;
+		}
+	}
+#endif
 
 	return iSSPriority;
 }

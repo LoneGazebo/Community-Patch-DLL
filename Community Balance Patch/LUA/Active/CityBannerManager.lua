@@ -261,12 +261,12 @@ function RefreshCityBanner(cityBanner, iActiveTeam, iActivePlayer)
 
 			strToolTip = strToolTip .. "[NEWLINE]----------------[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_EO_CITY_LOCAL_UNHAPPINESS", iTotalUnhappiness);
 
-			if(iCultureUnhappiness == 0) then
+			if(iScienceUnhappiness == 0) then
 				strToolTip = strToolTip .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_EO_CITY_EDUCATED");
 			else
 				strToolTip = strToolTip .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_EO_CITY_UNEDUCATED");
 			end
-			if(iScienceUnhappiness == 0) then
+			if(iCultureUnhappiness == 0) then
 				strToolTip = strToolTip .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_EO_CITY_CULTURED");
 			else
 				strToolTip = strToolTip .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_EO_CITY_UNCULTURED");

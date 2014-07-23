@@ -106,7 +106,9 @@ CvTraitEntry::CvTraitEntry() :
 	m_eCapitalFreeBuildingPrereqTech(NO_TECH),
 #endif
 	m_eFreeBuildingOnConquest(NO_BUILDING),
-
+#if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
+	m_bBullyAnnex(false),
+#endif
 	m_bFightWellDamaged(false),
 	m_bMoveFriendlyWoodsAsRoad(false),
 	m_bFasterAlongRiver(false),
@@ -592,7 +594,12 @@ BuildingTypes CvTraitEntry::GetFreeBuildingOnConquest() const
 {
 	return m_eFreeBuildingOnConquest;
 }
-
+#if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
+bool CvTraitEntry::IsBullyAnnex() const
+{
+	return m_bBullyAnnex;
+}
+#endif
 /// Accessor:: does this civ get combat bonuses when damaged?
 bool CvTraitEntry::IsFightWellDamaged() const
 {
@@ -1099,6 +1106,9 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	{
 		m_eFreeBuildingOnConquest = (BuildingTypes)GC.getInfoTypeForString(szTextVal, true);
 	}
+#if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
+	m_bBullyAnnex = kResults.GetBool("BullyAnnex");
+#endif
 	m_bFightWellDamaged = kResults.GetBool("FightWellDamaged");
 	m_bMoveFriendlyWoodsAsRoad = kResults.GetBool("MoveFriendlyWoodsAsRoad");
 	m_bFasterAlongRiver = kResults.GetBool("FasterAlongRiver");
@@ -1544,7 +1554,12 @@ void CvPlayerTraits::InitPlayerTraits()
 #if defined(MOD_BALANCE_CORE)
 			m_iNumFreeBuildings	+= trait->GetNumFreeBuildings();
 #endif
-
+#if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
+			if(trait->IsBullyAnnex())
+			{
+				m_bBullyAnnex = true;
+			}
+#endif
 			if(trait->IsFightWellDamaged())
 			{
 				m_bFightWellDamaged = true;
@@ -1834,7 +1849,9 @@ void CvPlayerTraits::Reset()
 #if defined(MOD_BALANCE_CORE)
 	m_iNumFreeBuildings = 0;
 #endif
-
+#if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
+	m_bBullyAnnex = false;
+#endif
 	m_bFightWellDamaged = false;
 	m_bMoveFriendlyWoodsAsRoad = false;
 	m_bFasterAlongRiver = false;
@@ -3054,6 +3071,9 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 #if defined(MOD_BALANCE_CORE)
 	MOD_SERIALIZE_READ(51, kStream, m_iNumFreeBuildings, 0);
 #endif
+#if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
+	MOD_SERIALIZE_READ(55, kStream, m_bBullyAnnex, false);
+#endif
 	kStream >> m_bFightWellDamaged;
 	kStream >> m_bMoveFriendlyWoodsAsRoad;
 	kStream >> m_bFasterAlongRiver;
@@ -3332,7 +3352,9 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 #if defined(MOD_BALANCE_CORE)
 	MOD_SERIALIZE_WRITE(kStream, m_iNumFreeBuildings);
 #endif
-
+#if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
+	MOD_SERIALIZE_WRITE(kStream, m_bBullyAnnex);
+#endif
 	kStream << m_bFightWellDamaged;
 	kStream << m_bMoveFriendlyWoodsAsRoad;
 	kStream << m_bFasterAlongRiver;

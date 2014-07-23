@@ -262,6 +262,9 @@ CvCity::CvCity() :
 	, m_ppaiResourceYieldChange(0)
 	, m_ppaiFeatureYieldChange(0)
 	, m_ppaiTerrainYieldChange(0)
+#if defined(MOD_BALANCE_CORE_YIELDS)
+	, m_ppaaiPlotYieldChange(0)
+#endif
 	, m_pCityBuildings(FNEW(CvCityBuildings, c_eCiv5GameplayDLL, 0))
 	, m_pCityStrategyAI(FNEW(CvCityStrategyAI, c_eCiv5GameplayDLL, 0))
 	, m_pCityCitizens(FNEW(CvCityCitizens, c_eCiv5GameplayDLL, 0))
@@ -544,9 +547,19 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 		}
 	}
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
-	owningPlayer.CalculateHappiness();
-#else
+	if(MOD_BALANCE_CORE_HAPPINESS)
+	{
+		if(owningPlayer.isHuman())
+		{
+			owningPlayer.CalculateHappiness();
+		}
+	}
+	else
+	{
+#endif
 	owningPlayer.DoUpdateHappiness();
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+	}
 #endif
 
 	// Policy changes
@@ -793,6 +806,16 @@ void CvCity::uninit()
 		}
 	}
 	SAFE_DELETE_ARRAY(m_ppaiTerrainYieldChange);
+#if defined(MOD_BALANCE_CORE_YIELDS)
+	if(m_ppaaiPlotYieldChange)
+	{
+		for(int i=0; i < GC.getNumPlotInfos(); i++)
+		{
+			SAFE_DELETE_ARRAY(m_ppaaiPlotYieldChange[i]);
+		}
+	}
+	SAFE_DELETE_ARRAY(m_ppaaiPlotYieldChange);
+#endif
 
 	m_pCityBuildings->Uninit();
 	m_pCityStrategyAI->Uninit();
@@ -1162,6 +1185,20 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 				m_ppaiTerrainYieldChange[iI][iJ] = 0;
 			}
 		}
+#if defined(MOD_BALANCE_CORE_YIELDS)
+		int iNumPlotInfos = GC.getNumPlotInfos();
+		CvAssertMsg(m_ppaaiPlotYieldChange==NULL, "about to leak memory, CvCity::m_ppaaiPlotYieldChange");
+		m_ppaaiPlotYieldChange = FNEW(int*[iNumPlotInfos], c_eCiv5GameplayDLL, 0);
+		for(iI = 0; iI < iNumPlotInfos; iI++)
+		{
+			m_ppaaiPlotYieldChange[iI] = FNEW(int[NUM_YIELD_TYPES], c_eCiv5GameplayDLL, 0);
+			for(iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
+			{
+				m_ppaaiPlotYieldChange[iI][iJ] = 0;
+			}
+		}
+	
+#endif
 	}
 
 	if(!bConstructorCall)
@@ -1538,9 +1575,19 @@ void CvCity::PostKill(bool bCapital, CvPlot* pPlot, PlayerTypes eOwner)
 
 	// Recompute Happiness
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
-	owningPlayer.CalculateHappiness();
-#else
+	if(MOD_BALANCE_CORE_HAPPINESS)
+	{
+		if(owningPlayer.isHuman())
+		{
+			owningPlayer.CalculateHappiness();
+		}
+	}
+	else
+	{
+#endif
 	owningPlayer.DoUpdateHappiness();
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+	}
 #endif
 
 	// Update Unit Maintenance for the player
@@ -3194,6 +3241,31 @@ void CvCity::ChangeTerrainExtraYield(TerrainTypes eTerrain, YieldTypes eYield, i
 		updateYield();
 	}
 }
+#if defined(MOD_BALANCE_CORE_YIELDS)
+//	--------------------------------------------------------------------------------
+int CvCity::getPlotYieldChange(PlotTypes ePlot, YieldTypes eYield) const
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(ePlot > -1 && ePlot < GC.getNumPlotInfos(), "Invalid Terrain index.");
+	CvAssertMsg(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
+
+	return m_ppaaiPlotYieldChange[ePlot][eYield];
+}
+//	--------------------------------------------------------------------------------
+void CvCity::changePlotYieldChange(PlotTypes ePlot, YieldTypes eYield, int iChange)
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(ePlot > -1 && ePlot < GC.getNumPlotInfos(), "Invalid Terrain index.");
+	CvAssertMsg(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
+
+	if(iChange != 0)
+	{
+		m_ppaaiPlotYieldChange[ePlot][eYield] += iChange;
+
+		updateYield();
+	}
+}
+#endif
 
 //	--------------------------------------------------------------------------------
 /// Does this City have eResource nearby?
@@ -6414,6 +6486,55 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 				}
 			}
 			// END TERRA COTTA AWESOME
+#if defined(MOD_BALANCE_CORE_BUILDING_INSTANT_YIELD)
+			if(MOD_BALANCE_CORE_BUILDING_INSTANT_YIELD)
+			{
+				if(pBuildingInfo->GetInstantYield(YIELD_CULTURE_LOCAL) > 0)
+				{
+					ChangeJONSCultureStored(pBuildingInfo->GetInstantYield(YIELD_CULTURE_LOCAL));
+				}
+				if(pBuildingInfo->GetInstantYield(YIELD_CULTURE) > 0)
+				{
+					GET_PLAYER(getOwner()).changeJONSCulture(pBuildingInfo->GetInstantYield(YIELD_CULTURE));
+				}
+				if(pBuildingInfo->GetInstantYield(YIELD_GOLD) > 0)
+				{
+					GET_PLAYER(getOwner()).GetTreasury()->ChangeGold(pBuildingInfo->GetInstantYield(YIELD_GOLD));
+				}
+				if(pBuildingInfo->GetInstantYield(YIELD_FOOD) > 0)
+				{
+					changeFood(pBuildingInfo->GetInstantYield(YIELD_FOOD));
+				}	
+				if(pBuildingInfo->GetInstantYield(YIELD_PRODUCTION) > 0)
+				{
+					changeProduction(pBuildingInfo->GetInstantYield(YIELD_PRODUCTION));
+				}
+				if(pBuildingInfo->GetInstantYield(YIELD_FAITH) > 0)
+				{
+					GET_PLAYER(getOwner()).ChangeFaith(pBuildingInfo->GetInstantYield(YIELD_FAITH));
+				}
+				if(pBuildingInfo->GetInstantYield(YIELD_SCIENCE) > 0)
+				{
+					GET_PLAYER(getOwner()).changeOverflowResearch(pBuildingInfo->GetInstantYield(YIELD_SCIENCE));
+				}
+				if(pBuildingInfo->GetInstantYield(YIELD_GOLDEN_AGE_POINTS) > 0)
+				{
+					GET_PLAYER(getOwner()).ChangeGoldenAgeProgressMeter(pBuildingInfo->GetInstantYield(YIELD_GOLDEN_AGE_POINTS));
+				}
+				if(pBuildingInfo->GetInstantYield(YIELD_GREAT_GENERAL_POINTS) > 0)
+				{
+					GET_PLAYER(getOwner()).changeCombatExperience(pBuildingInfo->GetInstantYield(YIELD_GREAT_GENERAL_POINTS), 0);
+				}
+				if(pBuildingInfo->GetInstantYield(YIELD_GREAT_ADMIRAL_POINTS) > 0)
+				{
+					GET_PLAYER(getOwner()).changeNavalCombatExperience(pBuildingInfo->GetInstantYield(YIELD_GREAT_ADMIRAL_POINTS), 0);
+				}
+				if(pBuildingInfo->GetInstantYield(YIELD_POPULATION) > 0)
+				{
+					changePopulation(pBuildingInfo->GetInstantYield(YIELD_POPULATION), false);
+				}
+			}
+#endif
 		}
 
 		if(pBuildingInfo->GetTrainedFreePromotion() != NO_PROMOTION)
@@ -6689,6 +6810,13 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			{
 				ChangeTerrainExtraYield(((TerrainTypes)iJ), eYield, (GC.getBuildingInfo(eBuilding)->GetTerrainYieldChange(iJ, eYield) * iChange));
 			}
+#if defined(MOD_BALANCE_CORE_YIELDS)
+			for(int iJ = 0; iJ < GC.getNumPlotInfos(); iJ++)
+			{
+				changePlotYieldChange(((PlotTypes)iJ), eYield, (GC.getBuildingInfo(eBuilding)->GetPlotYieldChange(iJ, eYield) * iChange));
+			}
+#endif
+
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 			// Research agreements are not active, therefore this building now increases science yield by 25%
@@ -6792,9 +6920,19 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 	UpdateReligion(GetCityReligions()->GetReligiousMajority());
 
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
-	owningPlayer.CalculateHappiness();
-#else
+	if(MOD_BALANCE_CORE_HAPPINESS)
+	{
+		if(owningPlayer.isHuman())
+		{
+			owningPlayer.CalculateHappiness();
+		}
+	}
+	else
+	{
+#endif
 	owningPlayer.DoUpdateHappiness();
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+	}
 #endif
 
 	setLayoutDirty(true);
@@ -6847,6 +6985,15 @@ void CvCity::processSpecialist(SpecialistTypes eSpecialist, int iChange)
 	// Culture
 	int iCulturePerSpecialist = GetCultureFromSpecialist(eSpecialist);
 	ChangeJONSCulturePerTurnFromSpecialists(iCulturePerSpecialist * iChange);
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+	if(MOD_BALANCE_CORE_HAPPINESS)
+	{
+		if(GET_PLAYER(getOwner()).isHuman())
+		{
+			GET_PLAYER(getOwner()).CalculateHappiness();
+		}
+	}
+#endif
 }
 
 //	--------------------------------------------------------------------------------
@@ -7989,9 +8136,19 @@ void CvCity::setPopulation(int iNewValue, bool bReassignPop /* = true */)
 		GET_PLAYER(getOwner()).UpdateUnitProductionMaintenanceMod();
 
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
-		GET_PLAYER(getOwner()).CalculateHappiness();
-#else
+		if(MOD_BALANCE_CORE_HAPPINESS)
+		{
+			if(GET_PLAYER(getOwner()).isHuman())
+			{
+				GET_PLAYER(getOwner()).CalculateHappiness();
+			}
+		}
+		else
+		{
+#endif
 		GET_PLAYER(getOwner()).DoUpdateHappiness();
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+		}
 #endif
 
 		//updateGenericBuildings();
@@ -9493,9 +9650,19 @@ void CvCity::DoCreatePuppet()
 	}
 
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
-	GET_PLAYER(getOwner()).CalculateHappiness();
-#else
+	if(MOD_BALANCE_CORE_HAPPINESS)
+	{
+		if(GET_PLAYER(getOwner()).isHuman())
+		{
+			GET_PLAYER(getOwner()).CalculateHappiness();
+		}
+	}
+	else
+	{
+#endif
 	GET_PLAYER(getOwner()).DoUpdateHappiness();
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+	}
 #endif
 	GET_PLAYER(getOwner()).DoUpdateNextPolicyCost();
 
@@ -9517,9 +9684,19 @@ void CvCity::DoAnnex()
 	setProductionAutomated(false, true);
 
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
-	GET_PLAYER(getOwner()).CalculateHappiness();
-#else
+	if(MOD_BALANCE_CORE_HAPPINESS)
+	{
+		if(GET_PLAYER(getOwner()).isHuman())
+		{
+			GET_PLAYER(getOwner()).CalculateHappiness();
+		}
+	}
+	else
+	{
+#endif
 	GET_PLAYER(getOwner()).DoUpdateHappiness();
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+	}
 #endif
 
 #if !defined(NO_ACHIEVEMENTS)
@@ -9752,6 +9929,12 @@ int CvCity::getUnhappinessFromCulture() const
 		
 		iUnhappiness /= /* 100 */ GC.getBALANCE_UNHAPPY_CITY_BASE_VALUE();
 	}
+
+	int iPop = getPopulation() / 2;
+	if(iUnhappiness > iPop)
+	{
+		iUnhappiness = iPop;
+	}
 	return iUnhappiness;
 }
 //	--------------------------------------------------------------------------------
@@ -9835,6 +10018,11 @@ int CvCity::getUnhappinessFromScience() const
 		iUnhappiness = iThreshold - iCityResearch;
 		
 		iUnhappiness /= /* 100 */ GC.getBALANCE_UNHAPPY_CITY_BASE_VALUE();
+	}
+	int iPop = getPopulation() / 2;
+	if(iUnhappiness > iPop)
+	{
+		iUnhappiness = iPop;
 	}
 	return iUnhappiness;
 }
@@ -9926,6 +10114,12 @@ int CvCity::getUnhappinessFromDefense() const
 
 		iUnhappiness /= /* 100 */ GC.getBALANCE_UNHAPPY_CITY_BASE_VALUE();
 	}
+
+	int iPop = getPopulation() / 2;
+	if(iUnhappiness > iPop)
+	{
+		iUnhappiness = iPop;
+	}
 	return iUnhappiness;
 }
 //	--------------------------------------------------------------------------------
@@ -10009,6 +10203,11 @@ int CvCity::getUnhappinessFromGold() const
 		iUnhappiness = iThreshold - iGold;
 
 		iUnhappiness /= /* 100 */ GC.getBALANCE_UNHAPPY_CITY_BASE_VALUE();
+	}
+	int iPop = getPopulation() / 2;
+	if(iUnhappiness > iPop)
+	{
+		iUnhappiness = iPop;
 	}
 	return iUnhappiness;
 }
@@ -15111,8 +15310,12 @@ bool CvCity::doCheckProduction()
 								thisPlayer.ChangeFaith(iProductionGold);
 							}
 						}
-#else
+						else
+						{
+#endif
 						thisPlayer.GetTreasury()->ChangeGold(iProductionGold);
+#if defined(MOD_BALANCE_CORE_WONDERS_VARIABLE_REWARD)
+						}
 #endif
 
 						if(getOwner() == GC.getGame().getActivePlayer())
@@ -15847,6 +16050,10 @@ void CvCity::read(FDataStream& kStream)
 
 	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_ppaiTerrainYieldChange, NUM_YIELD_TYPES, GC.getNumTerrainInfos());
 
+#if defined(MOD_BALANCE_CORE_YIELDS)
+	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_ppaaiPlotYieldChange, NUM_YIELD_TYPES, GC.getNumPlotInfos());
+#endif
+
 	kStream >> m_iPopulationRank;
 	kStream >> m_bPopulationRankValid;
 	kStream >> m_aiBaseYieldRank;
@@ -16129,6 +16336,10 @@ void CvCity::write(FDataStream& kStream) const
 	CvInfosSerializationHelper::WriteHashedDataArray<FeatureTypes>(kStream, m_ppaiFeatureYieldChange, NUM_YIELD_TYPES, GC.getNumFeatureInfos());
 
 	CvInfosSerializationHelper::WriteHashedDataArray<TerrainTypes>(kStream, m_ppaiTerrainYieldChange, NUM_YIELD_TYPES, GC.getNumTerrainInfos());
+
+#if defined(MOD_BALANCE_CORE_YIELDS)
+	CvInfosSerializationHelper::WriteHashedDataArray<PlotTypes>(kStream, m_ppaaiPlotYieldChange, NUM_YIELD_TYPES, GC.getNumPlotInfos());	
+#endif
 
 	kStream << m_iPopulationRank;
 	kStream << m_bPopulationRankValid;

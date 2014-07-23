@@ -195,7 +195,7 @@ SET Text = '+25% [ICON_GREAT_PEOPLE] Great People generation in this City. Conta
 WHERE Tag = 'TXT_KEY_BUILDING_NATIONAL_EPIC_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Reduces [ICON_HAPPINESS_3] Poverty and Disorder by 2 in all cities. Must have built a Colosseum in the city. The cost goes up the more cities there are in the empire. Requires a national population of at least 20 before it can be constructed.'
+SET Text = 'Reduces [ICON_HAPPINESS_3] Disorder and Boredom by 2 in all cities. Must have built a Colosseum in the city. The cost goes up the more cities there are in the empire. Requires a national population of at least 20 before it can be constructed.'
 WHERE Tag = 'TXT_KEY_BUILDING_CIRCUS_MAXIMUS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US

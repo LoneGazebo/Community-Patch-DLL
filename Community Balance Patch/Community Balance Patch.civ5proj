@@ -5,9 +5,9 @@
     <ProjectGuid>{0d66d522-b624-4bc5-acfe-15a0c5b729f4}</ProjectGuid>
     <Name>Community Balance Patch</Name>
     <Guid>8411a7a8-dad3-4622-a18e-fcc18324c799</Guid>
-    <ModVersion>6</ModVersion>
+    <ModVersion>7</ModVersion>
     <Stability>Experimental</Stability>
-    <Teaser>The Complete Civ 5 Experience (v. 6) - Updated 7/16</Teaser>
+    <Teaser>The Complete Civ 5 Experience (v. 7) - Updated 7/23</Teaser>
     <Description>Community Balance Patch - Contains balance changes and support for CSD/CivIV Diplomacy.</Description>
     <Authors>Civfanatics Community Balance Team</Authors>
     <SpecialThanks>
@@ -30,11 +30,6 @@
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
         <FileName>Core Files/Core Changes/CommunityPatchDLLChanges.sql</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>Mod Compatibility/ModCompatibility.sql</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
@@ -144,152 +139,12 @@
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <FileName>Balance Changes/Armies/UnitPromotions/CEU_PromotionReplace.sql</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>Balance Changes/Armies/UnitPromotions/CEU__Promotions_End.sql</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>Balance Changes/Armies/UnitPromotions/CEU_Air.xml</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>Balance Changes/Armies/UnitPromotions/CEU_Attributes.xml</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>Balance Changes/Armies/UnitPromotions/CEU_Mobile.xml</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>Balance Changes/Armies/UnitPromotions/CEU_Other.xml</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>Balance Changes/Armies/UnitPromotions/CEU_PromotionGrid.xml</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>Balance Changes/Armies/UnitPromotions/CEU_PromotionSwap.xml</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>Balance Changes/Armies/UnitPromotions/CEU_Ranged.xml</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>Balance Changes/Armies/UnitPromotions/CEU_Ships.xml</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>Balance Changes/Armies/UnitPromotions/CEU_Soldiers.xml</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>Balance Changes/Armies/UnitPromotions/CEU_Vanguards.xml</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>Balance Changes/Armies/CEA__Start.sql</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>Balance Changes/Armies/CEA_Upgrades.sql</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>Balance Changes/Armies/CEA_Data.xml</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>Balance Changes/Armies/CEA_Land.xml</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>Balance Changes/Leaders/Traits/CEL_Start.sql</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>Balance Changes/Leaders/Traits/CEL_End.sql</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>Balance Changes/Leaders/Traits/CEL__A_I.xml</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>Balance Changes/Leaders/Traits/CEL__J_Z.xml</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>Balance Changes/Leaders/CEAI_LeaderFlavors.sql</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>Balance Changes/Leaders/CEAI_LeaderPersonalities.sql</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>Balance Changes/AI/Flavors/CEAI_Buildings.sql</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>Balance Changes/AI/Flavors/CEAI_Resources.sql</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>Balance Changes/AI/Flavors/CEAI_Techs.sql</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>Balance Changes/AI/Flavors/CEAI_Units.sql</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>Balance Changes/Text/Armies.sql</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>Balance Changes/Text/Leaders.sql</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>Balance Changes/Text/Promotions.sql</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
         <FileName>Modular Elements/Happiness Mod/PolicyChanges.xml</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>Balance Changes/Leaders/Traits/BullyAnnex.sql</FileName>
       </Action>
     </ModActions>
     <Homepage>
@@ -321,17 +176,13 @@
   </PropertyGroup>
   <ItemGroup>
     <Folder Include="Art\" />
-    <Folder Include="Balance Changes\AI\Flavors" />
-    <Folder Include="Balance Changes\Armies\" />
-    <Folder Include="Balance Changes\Armies\UnitPromotions\" />
     <Folder Include="Balance Changes\Barbarians" />
     <Folder Include="Balance Changes\Leaders\Traits" />
     <Folder Include="Balance Changes\Minors" />
     <Folder Include="Balance Changes\Difficulty" />
     <Folder Include="Balance Changes\Beliefs" />
     <Folder Include="Balance Changes\Leaders" />
-    <Folder Include="Balance Changes\AI" />
-    <Folder Include="Balance Changes\Text" />
+    <Folder Include="Balance Changes\Buildings" />
     <Folder Include="Core Files\" />
     <Folder Include="Core Files\Core Changes\" />
     <Folder Include="LUA\" />
@@ -371,86 +222,6 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
-    <Content Include="Balance Changes\AI\Flavors\CEAI_Buildings.sql">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="Balance Changes\AI\Flavors\CEAI_Resources.sql">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="Balance Changes\AI\Flavors\CEAI_Techs.sql">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="Balance Changes\AI\Flavors\CEAI_Units.sql">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="Balance Changes\Armies\CEA_Data.xml">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="Balance Changes\Armies\CEA_Land.xml">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="Balance Changes\Armies\CEA_Upgrades.sql">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="Balance Changes\Armies\CEA__Start.sql">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="Balance Changes\Armies\UnitPromotions\CEU_Air.xml">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="Balance Changes\Armies\UnitPromotions\CEU_Attributes.xml">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="Balance Changes\Armies\UnitPromotions\CEU_Mobile.xml">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="Balance Changes\Armies\UnitPromotions\CEU_Other.xml">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="Balance Changes\Armies\UnitPromotions\CEU_PromotionGrid.xml">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="Balance Changes\Armies\UnitPromotions\CEU_PromotionReplace.sql">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="Balance Changes\Armies\UnitPromotions\CEU_PromotionSwap.xml">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="Balance Changes\Armies\UnitPromotions\CEU_Ranged.xml">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="Balance Changes\Armies\UnitPromotions\CEU_Ships.xml">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="Balance Changes\Armies\UnitPromotions\CEU_Soldiers.xml">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="Balance Changes\Armies\UnitPromotions\CEU_Vanguards.xml">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="Balance Changes\Armies\UnitPromotions\CEU__Promotions_End.sql">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
     <Content Include="Balance Changes\Barbarians\BarbarianChanges.sql">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
@@ -463,43 +234,11 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
-    <Content Include="Balance Changes\Leaders\CEAI_LeaderFlavors.sql">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="Balance Changes\Leaders\CEAI_LeaderPersonalities.sql">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="Balance Changes\Leaders\Traits\CEL_End.sql">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="Balance Changes\Leaders\Traits\CEL_Start.sql">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="Balance Changes\Leaders\Traits\CEL__A_I.xml">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="Balance Changes\Leaders\Traits\CEL__J_Z.xml">
+    <Content Include="Balance Changes\Leaders\Traits\BullyAnnex.sql">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
     <Content Include="Balance Changes\Minors\MinorCivChanges.sql">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="Balance Changes\Text\Armies.sql">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="Balance Changes\Text\Leaders.sql">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="Balance Changes\Text\Promotions.sql">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
@@ -563,10 +302,6 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
-    <Content Include="Mod Compatibility\ModCompatibility.sql">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
     <Content Include="Modular Elements\Happiness Mod\CityHappiness.sql">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
@@ -576,10 +311,6 @@
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
     <Content Include="Modular Elements\Happiness Mod\PolicyChanges.xml">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="Modular Elements\Happiness Mod\Unused.sql">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>

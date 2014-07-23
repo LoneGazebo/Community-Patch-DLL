@@ -5,9 +5,9 @@
     <ProjectGuid>{0d66d522-b624-4bc5-acfe-15a0c5b729f4}</ProjectGuid>
     <Name>Community Patch</Name>
     <Guid>d1b6328c-ff44-4b0d-aad7-c657f83610cd</Guid>
-    <ModVersion>56</ModVersion>
+    <ModVersion>57</ModVersion>
     <Stability>Experimental</Stability>
-    <Teaser>Unofficial DLL Bugfix and AI Patch for Civ 5 (v56)  - Updated 7/16</Teaser>
+    <Teaser>Unofficial DLL Bugfix and AI Patch for Civ 5 (v57)  - Updated 7/23</Teaser>
     <Description>Contains core AI improvements and bugfixes for the Civ 5 BNW DLL. Also contains support for Whoward's PNM Mods as well as the Community Balance Patch.</Description>
     <Authors>whoward69, Gazebo</Authors>
     <SpecialThanks>
@@ -73,6 +73,11 @@
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
         <FileName>CommunityOptions.sql</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>CSDC4DFCompatibility/ModCompatibility.sql</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
@@ -361,6 +366,7 @@
     <Folder Include="Core Files\PNM Mods DB\TRADE\" />
     <Folder Include="Core Files\PNM Mods DB\TRAITS\" />
     <Folder Include="Core Files\PNM Mods DB\UI\" />
+    <Folder Include="CSDC4DFCompatibility" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="CommunityOptions.sql">
@@ -580,6 +586,10 @@
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
     <Content Include="Core Files\PNM Mods DB\UI\CityExpansion.sql">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="CSDC4DFCompatibility\ModCompatibility.sql">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>

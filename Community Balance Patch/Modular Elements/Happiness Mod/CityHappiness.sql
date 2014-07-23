@@ -46,7 +46,7 @@
 -- Base reduction of unhappiness threshold for Puppet cities.
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_HAPPINESS_PUPPET_THRESHOLD_MOD', '-20'
+	SELECT 'BALANCE_HAPPINESS_PUPPET_THRESHOLD_MOD', '-15'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 
@@ -63,22 +63,22 @@
 	-- Differentiation a byproduct of the scaling that occurrs in a typical game - food/gold/defense values from cities do not increase as fast as science and culture do.
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_TECH_RATE_CULTURE', '100'
+	SELECT 'BALANCE_TECH_RATE_CULTURE', '70'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_TECH_RATE_SCIENCE', '100'
+	SELECT 'BALANCE_TECH_RATE_SCIENCE', '45'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 	
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_TECH_RATE_DEFENSE', '100'
+	SELECT 'BALANCE_TECH_RATE_DEFENSE', '50'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 	
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_TECH_RATE_GOLD', '100'
+	SELECT 'BALANCE_TECH_RATE_GOLD', '65'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 	
 -- Value by which yield/threshold difference is divded. 100 = 1 point of unhappiness for every 1.00 difference between city yield and global average.
@@ -93,10 +93,10 @@
 	SELECT 'BALANCE_UNHAPPINESS_PER_MINORITY_POP', '0.40'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
--- Unhappiness point per starving citizen. This can compound, so be careful.
+-- Unhappiness point per starving citizen.
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_UNHAPPINESS_FROM_STARVING_PER_POP', '0.50'
+	SELECT 'BALANCE_UNHAPPINESS_FROM_STARVING_PER_POP', '1.00'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 -- Unhappiness point per pillaged plot owned by city.
@@ -108,5 +108,5 @@
 -- Unhappiness point per pop if unconnected or blockaded.
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_UNHAPPINESS_FROM_UNCONNECTED_PER_POP', '0.40'
+	SELECT 'BALANCE_UNHAPPINESS_FROM_UNCONNECTED_PER_POP', '0.50'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );

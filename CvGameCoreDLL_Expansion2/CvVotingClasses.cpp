@@ -6565,9 +6565,19 @@ void CvLeague::CheckResolutionsValid()
 			for (uint i = 0; i < m_vMembers.size(); i++)
 			{
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
-				GET_PLAYER(m_vMembers[i].ePlayer).CalculateHappiness();
-#else
+				if(MOD_BALANCE_CORE_HAPPINESS)
+				{
+					if(GET_PLAYER(m_vMembers[i].ePlayer).isHuman())
+					{
+						GET_PLAYER(m_vMembers[i].ePlayer).CalculateHappiness();
+					}
+				}
+				else
+				{
+#endif
 				GET_PLAYER(m_vMembers[i].ePlayer).DoUpdateHappiness();
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+				}
 #endif
 				GET_PLAYER(m_vMembers[i].ePlayer).updateYield();
 				GET_PLAYER(m_vMembers[i].ePlayer).recomputeGreatPeopleModifiers();
@@ -6615,9 +6625,19 @@ void CvLeague::DoEnactResolution(CvEnactProposal* pProposal)
 	for (uint i = 0; i < m_vMembers.size(); i++)
 	{
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
-		GET_PLAYER(m_vMembers[i].ePlayer).CalculateHappiness();
-#else
+		if(MOD_BALANCE_CORE_HAPPINESS)
+		{
+			if(GET_PLAYER(m_vMembers[i].ePlayer).isHuman())
+			{
+				GET_PLAYER(m_vMembers[i].ePlayer).CalculateHappiness();
+			}
+		}
+		else
+		{
+#endif
 		GET_PLAYER(m_vMembers[i].ePlayer).DoUpdateHappiness();
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+		}
 #endif
 		GET_PLAYER(m_vMembers[i].ePlayer).updateYield();
 		GET_PLAYER(m_vMembers[i].ePlayer).recomputeGreatPeopleModifiers();
@@ -6650,9 +6670,16 @@ void CvLeague::DoRepealResolution(CvRepealProposal* pProposal)
 			for (uint i = 0; i < m_vMembers.size(); i++)
 			{
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
-				GET_PLAYER(m_vMembers[i].ePlayer).CalculateHappiness();
-#else
+				if(MOD_BALANCE_CORE_HAPPINESS)
+				{
+					GET_PLAYER(m_vMembers[i].ePlayer).CalculateHappiness();
+				}
+				else
+				{
+#endif
 				GET_PLAYER(m_vMembers[i].ePlayer).DoUpdateHappiness();
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+				}
 #endif
 				GET_PLAYER(m_vMembers[i].ePlayer).updateYield();
 				GET_PLAYER(m_vMembers[i].ePlayer).recomputeGreatPeopleModifiers();
@@ -7158,9 +7185,19 @@ void CvLeague::DoProjectReward(PlayerTypes ePlayer, LeagueProjectTypes eLeaguePr
 		{
 			GET_PLAYER(ePlayer).ChangeHappinessFromLeagues(pRewardInfo->GetHappiness());
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
-			GET_PLAYER(ePlayer).CalculateHappiness();
-#else
+			if(MOD_BALANCE_CORE_HAPPINESS)
+			{
+				if(GET_PLAYER(ePlayer).isHuman())
+				{
+					GET_PLAYER(ePlayer).CalculateHappiness();
+				}
+			}
+			else
+			{
+#endif
 			GET_PLAYER(ePlayer).DoUpdateHappiness();
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+			}
 #endif
 		}
 

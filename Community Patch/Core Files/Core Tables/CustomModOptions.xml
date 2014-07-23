@@ -752,7 +752,12 @@
 	<Row Class="6" Name="MOD_BALANCE_CORE_WONDERS_VARIABLE_REWARD" Value="0"/>
 	<!-- The pantheon requires resource or improvement aspect of MOD_COMMUNITY_PATCH -->
 	<Row Class="6" Name="MOD_BALANCE_CORE_BELIEFS_RESOURCE" Value="0"/>
-	  
+	<!-- The annex cs if bully trait part of MOD_COMMUNITY_PATCH -->
+	<Row Class="6" Name="MOD_BALANCE_CORE_AFRAID_ANNEX" Value="0"/>
+	<!-- The instant yield from buildings part of MOD_COMMUNITY_PATCH -->
+	<Row Class="6" Name="MOD_BALANCE_CORE_BUILDING_INSTANT_YIELD" Value="0"/>
+    <!-- The AI Grand Strategy Guess Improvements part of MOD_COMMUNITY_PATCH -->
+	<Row Class="6" Name="MOD_BALANCE_CORE_GRANDSTRATEGY_AI" Value="0"/>
   </CustomModOptions>
 
   <CustomModPostDefines>

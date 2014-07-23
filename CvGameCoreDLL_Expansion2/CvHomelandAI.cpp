@@ -1518,17 +1518,17 @@ void CvHomelandAI::PlotPatrolMoves()
 		if(pUnit && !pUnit->isHuman() && pUnit->getDomainType() != DOMAIN_AIR && !pUnit->isTrade())
 		{
 #if defined(MOD_BALANCE_CORE_MILITARY)
-	if (MOD_BALANCE_CORE_MILITARY) 
-	{
-			//Patrolling is pointless.
-			if(pUnit->canFortify(pUnit->plot()) && !pUnit->isEmbarked())
+			if (MOD_BALANCE_CORE_MILITARY) 
 			{
-				pUnit->PushMission(CvTypes::getMISSION_FORTIFY());
+				//Patrolling is pointless.
+				if(pUnit->canFortify(pUnit->plot()) && !pUnit->isEmbarked())
+				{
+					pUnit->PushMission(CvTypes::getMISSION_FORTIFY());
+				}
 			}
-		}
-	}
-	}
-#else
+			else
+			{
+#endif
 			CvPlot* pTarget = FindPatrolTarget(pUnit.pointer());
 			if(pTarget)
 			{
@@ -1546,9 +1546,11 @@ void CvHomelandAI::PlotPatrolMoves()
 					LogHomelandMessage(strLogString);
 				}
 			}
+#if defined(MOD_BALANCE_CORE_MILITARY)
+			}
+#endif
 		}
 	}
-#endif
 	if(m_CurrentMoveUnits.size() > 0)
 	{
 		ExecutePatrolMoves();

@@ -7680,7 +7680,10 @@ void CvGame::doTurn()
 	GetGameCulture()->DoTurn();
 
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
-	getGlobalAverage();
+	if(MOD_BALANCE_CORE_HAPPINESS)
+	{
+		getGlobalAverage();
+	}
 #endif
 
 	GC.GetEngineUserInterface()->setCanEndTurn(false);

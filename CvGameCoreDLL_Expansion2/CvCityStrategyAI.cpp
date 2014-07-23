@@ -1499,21 +1499,21 @@ void CvCityStrategyAI::DoTurn()
 					bStrategyShouldBeActive = CityStrategyAIHelpers::IsTestCityStrategy_NeedDiplomatsCritical(GetCity()); 
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
-				else if(MOD_DIPLOMACY_CITYSTATES && strStrategyName == "AICITYSTRATEGY_NEED_HAPPINESS_CULTURE")
+				else if(MOD_BALANCE_CORE_HAPPINESS && strStrategyName == "AICITYSTRATEGY_NEED_HAPPINESS_CULTURE")
 					bStrategyShouldBeActive = CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessCulture(GetCity());
-				else if(MOD_DIPLOMACY_CITYSTATES && strStrategyName == "AICITYSTRATEGY_NEED_HAPPINESS_SCIENCE")
+				else if(MOD_BALANCE_CORE_HAPPINESS && strStrategyName == "AICITYSTRATEGY_NEED_HAPPINESS_SCIENCE")
 					bStrategyShouldBeActive = CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessScience(GetCity()); 
-				else if(MOD_DIPLOMACY_CITYSTATES && strStrategyName == "AICITYSTRATEGY_NEED_HAPPINESS_DEFENSE")
+				else if(MOD_BALANCE_CORE_HAPPINESS && strStrategyName == "AICITYSTRATEGY_NEED_HAPPINESS_DEFENSE")
 					bStrategyShouldBeActive = CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessDefense(GetCity()); 
-				else if(MOD_DIPLOMACY_CITYSTATES && strStrategyName == "AICITYSTRATEGY_NEED_HAPPINESS_GOLD")
+				else if(MOD_BALANCE_CORE_HAPPINESS && strStrategyName == "AICITYSTRATEGY_NEED_HAPPINESS_GOLD")
 					bStrategyShouldBeActive = CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessGold(GetCity());
-				else if(MOD_DIPLOMACY_CITYSTATES && strStrategyName == "AICITYSTRATEGY_NEED_HAPPINESS_CONNECTION")
+				else if(MOD_BALANCE_CORE_HAPPINESS && strStrategyName == "AICITYSTRATEGY_NEED_HAPPINESS_CONNECTION")
 					bStrategyShouldBeActive = CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessConnection(GetCity());
-				else if(MOD_DIPLOMACY_CITYSTATES && strStrategyName == "AICITYSTRATEGY_NEED_HAPPINESS_PILLAGE")
+				else if(MOD_BALANCE_CORE_HAPPINESS && strStrategyName == "AICITYSTRATEGY_NEED_HAPPINESS_PILLAGE")
 					bStrategyShouldBeActive = CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessPillage(GetCity());
-				else if(MOD_DIPLOMACY_CITYSTATES && strStrategyName == "AICITYSTRATEGY_NEED_HAPPINESS_RELIGION")
+				else if(MOD_BALANCE_CORE_HAPPINESS && strStrategyName == "AICITYSTRATEGY_NEED_HAPPINESS_RELIGION")
 					bStrategyShouldBeActive = CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessReligion(GetCity());
-				else if(MOD_DIPLOMACY_CITYSTATES && strStrategyName == "AICITYSTRATEGY_NEED_HAPPINESS_STARVE")
+				else if(MOD_BALANCE_CORE_HAPPINESS && strStrategyName == "AICITYSTRATEGY_NEED_HAPPINESS_STARVE")
 					bStrategyShouldBeActive = CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessStarve(GetCity());
 #endif
 

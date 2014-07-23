@@ -983,13 +983,10 @@ AITacticalPosture CvTacticalAI::SelectPosture(CvTacticalDominanceZone* pZone, AI
 		}
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
-		if (MOD_BALANCE_CORE_MILITARY) 
+		//The AI can be a bit passive on the attack - let's use brute force while we have the numbers at the beginning of the fight.
+		if (MOD_BALANCE_CORE_MILITARY && pZone->GetFriendlyStrength() > pZone->GetEnemyStrength() && (m_pPlayer->GetDiplomacyAI()->GetPlayerNumTurnsAtWar(m_pPlayer->GetID()) < 10))
 		{
-			//The AI can be a bit passive on the attack - let's use brute force while we have the numbers at the beginning of the fight.
-			if (pZone->GetFriendlyStrength() > pZone->GetEnemyStrength() && (m_pPlayer->GetDiplomacyAI()->GetPlayerNumTurnsAtWar(m_pPlayer->GetID()) < 10))
-			{
-				eChosenPosture = AI_TACTICAL_POSTURE_STEAMROLL;
-			}
+			eChosenPosture = AI_TACTICAL_POSTURE_STEAMROLL;
 		}
 #endif
 
@@ -1071,13 +1068,9 @@ AITacticalPosture CvTacticalAI::SelectPosture(CvTacticalDominanceZone* pZone, AI
 			eChosenPosture = AI_TACTICAL_POSTURE_ATTRIT_FROM_RANGE;
 		}
 #if defined(MOD_BALANCE_CORE_MILITARY)
-		if (MOD_BALANCE_CORE_MILITARY) 
+		if (MOD_BALANCE_CORE_MILITARY && pZone->GetFriendlyStrength() > pZone->GetEnemyStrength() && (m_pPlayer->GetDiplomacyAI()->GetPlayerNumTurnsAtWar(m_pPlayer->GetID()) < 10))
 		{
-			//The AI can be a bit passive on the attack - let's use brute force while we have the numbers at the beginning of the fight.
-			if (pZone->GetFriendlyStrength() > pZone->GetEnemyStrength() && (m_pPlayer->GetDiplomacyAI()->GetPlayerNumTurnsAtWar(m_pPlayer->GetID()) < 10))
-			{
-				eChosenPosture = AI_TACTICAL_POSTURE_STEAMROLL;
-			}
+			eChosenPosture = AI_TACTICAL_POSTURE_STEAMROLL;
 		}
 #endif
 
@@ -8685,21 +8678,6 @@ void CvTacticalAI::ExecuteEscortEmbarkedMoves()
 
 			if (pBestTarget)
 			{
-#if defined(MOD_BALANCE_CORE_MILITARY)
-				//If a unit is chosen to be escorted, it should wait this turn so that it can stay in a safe spot (as we already know the spot is super dangerous).
-				if(MOD_BALANCE_CORE_MILITARY)
-				{
-					if(pBestTarget->getNumUnits() == 1)
-					{
-						CvUnit* pNewUnit = pBestTarget->getUnitByIndex(0);
-						if(pUnit->isEmbarked() && pNewUnit->canMove())
-						{
-							pNewUnit->setMoves(0);
-							UnitProcessed(pNewUnit->GetID());
-						}
-					}
-				}
-#endif
 				ExecuteMoveToPlot(pUnit, pBestTarget);
 				UnitProcessed(m_CurrentMoveUnits[iI].GetID());
 

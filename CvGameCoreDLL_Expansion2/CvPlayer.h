@@ -1375,6 +1375,11 @@ public:
 	int getImprovementYieldChange(ImprovementTypes eIndex1, YieldTypes eIndex2) const;
 	void changeImprovementYieldChange(ImprovementTypes eIndex1, YieldTypes eIndex2, int iChange);
 
+#if defined(MOD_BALANCE_CORE_YIELDS)
+	int getPlotYieldChange(PlotTypes eIndex1, YieldTypes eIndex2) const;
+	void changePlotYieldChange(PlotTypes eIndex1, YieldTypes eIndex2, int iChange);
+#endif
+
 	CvUnitCycler& GetUnitCycler() { return m_UnitCycle; };
 
 	bool removeFromArmy(int iArmyID, int iID);
@@ -2177,7 +2182,9 @@ protected:
 
 	FAutoVariable< std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > >, CvPlayer> m_ppaaiSpecialistExtraYield;
 	FAutoVariable< std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > >, CvPlayer> m_ppaaiImprovementYieldChange;
-
+#if defined(MOD_BALANCE_CORE_YIELDS)
+	FAutoVariable< std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > >, CvPlayer> m_ppaaiPlotYieldChange;
+#endif
 	// Obsolete: only used to read old saves
 	FAutoVariable< std::vector< Firaxis::Array< int, NUM_YIELD_TYPES > >, CvPlayer> m_ppaaiBuildingClassYieldMod;
 

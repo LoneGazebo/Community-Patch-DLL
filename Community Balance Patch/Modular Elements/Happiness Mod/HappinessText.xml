@@ -8,7 +8,7 @@
 			<Text>{1_Num} from Illiteracy.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TP_UNHAPPINESS_CULTURE">
-			<Text>{1_Num} from Dullness.</Text>
+			<Text>{1_Num} from Boredom.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TP_UNHAPPINESS_DEFENSE">
 			<Text>{1_Num} from Disorder.</Text>
@@ -46,7 +46,7 @@
 			<Text>[ICON_BULLET] [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] from Illiteracy ([ICON_RESEARCH]). [NEWLINE]          Produces: [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR] per [ICON_CITIZEN][NEWLINE]          Global Average: [COLOR_POSITIVE_TEXT]{3_Num}[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CULTURE_UNHAPPINESS">
-			<Text>[ICON_BULLET] [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] from Dullness ([ICON_CULTURE]). [NEWLINE]          Produces: [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR] per [ICON_CITIZEN][NEWLINE]          Global Average: [COLOR_POSITIVE_TEXT]{3_Num}[ENDCOLOR]</Text>
+			<Text>[ICON_BULLET] [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] from Boredom ([ICON_CULTURE]). [NEWLINE]          Produces: [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR] per [ICON_CITIZEN][NEWLINE]          Global Average: [COLOR_POSITIVE_TEXT]{3_Num}[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DEFENSE_UNHAPPINESS">
 			<Text>[ICON_BULLET] [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] from Disorder ([ICON_STRENGTH]). [NEWLINE]          Produces: [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR] per [ICON_CITIZEN][NEWLINE]          Global Average: [COLOR_POSITIVE_TEXT]{3_Num}[ENDCOLOR]</Text>
@@ -91,7 +91,7 @@
 			<Text>[COLOR_POSITIVE_TEXT]Affluent[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EO_CITY_CULTURED">
-			<Text>[COLOR_POSITIVE_TEXT]Refined[ENDCOLOR]</Text>
+			<Text>[COLOR_POSITIVE_TEXT]Vibrant[ENDCOLOR]</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_EO_CITY_UNEDUCATED">
@@ -104,7 +104,7 @@
 			<Text>[COLOR_NEGATIVE_TEXT]Poor[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EO_CITY_UNCULTURED">
-			<Text>[COLOR_NEGATIVE_TEXT]Dull[ENDCOLOR]</Text>
+			<Text>[COLOR_NEGATIVE_TEXT]Bored[ENDCOLOR]</Text>
 		</Row>
 		
 		<!-- Luxury Tooltip -->
