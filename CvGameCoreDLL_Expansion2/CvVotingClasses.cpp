@@ -10141,12 +10141,12 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 		{
 			if (bSeekingDiploVictory)
 			{
-				iScore += 100;
+				iScore += 200;
 			}
 
 			if (bSeekingDiploVictory && bStrongProduction)
 			{
-				iScore += 200;
+				iScore += 400;
 			}
 
 			int iVotes = GC.getGame().GetGameLeagues()->GetActiveLeague()->CalculateStartingVotesForMember(GetPlayer()->GetID());
@@ -10157,7 +10157,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 			//If FLAVOR_DIPLOMACY is 6+...
 			if(iFlavorDiplo - 5 > 0)
 			{
-				iScore += 30;
+				iScore += 10 * iFlavorDiplo;
 			}
 			if(iNeededVotes > 0)
 			{
@@ -10762,7 +10762,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 				{
 #if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
 					if (MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS) 
-						iScore += 100;
+						iScore += 300;
 					else
 #endif
 						iScore += 25;
@@ -10779,7 +10779,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 				{
 #if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
 					if (MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS) 
-						iScore += -100;
+						iScore += -200;
 					else
 #endif
 						iScore += -25;

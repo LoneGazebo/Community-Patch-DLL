@@ -1626,7 +1626,12 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn)
 			{
 				if(pMinor->getCapitalCity()->getArea() == pAssignedPlayer->getCapitalCity()->getArea())
 				{
-					pAssignedPlayer->addAIOperation(AI_OPERATION_ALLY_DEFENSE, NO_PLAYER, pMinor->getCapitalCity()->getArea(), pMinor->getCapitalCity(), pMinor->getCapitalCity());
+					PlayerProximityTypes eProximity;
+					eProximity = GET_PLAYER(pMinor->GetID()).GetProximityToPlayer(pAssignedPlayer->GetID());
+					if(eProximity == PLAYER_PROXIMITY_NEIGHBORS)
+					{
+						pAssignedPlayer->addAIOperation(AI_OPERATION_ALLY_DEFENSE, NO_PLAYER, pMinor->getCapitalCity()->getArea(), pMinor->getCapitalCity(), pMinor->getCapitalCity());
+					}
 				}
 			}
 
@@ -1687,7 +1692,12 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn)
 		{
 			if(pMinor->getCapitalCity()->getArea() == GET_PLAYER(eMajor).getCapitalCity()->getArea())
 			{
-				pAssignedPlayer->addAIOperation(AI_OPERATION_ALLY_DEFENSE, BARBARIAN_PLAYER, pMinor->getCapitalCity()->getArea(), pMinor->getCapitalCity(), pMinor->getCapitalCity());
+				PlayerProximityTypes eProximity;
+				eProximity = GET_PLAYER(pMinor->GetID()).GetProximityToPlayer(pAssignedPlayer->GetID());
+				if(eProximity == PLAYER_PROXIMITY_NEIGHBORS)
+				{
+					pAssignedPlayer->addAIOperation(AI_OPERATION_ALLY_DEFENSE, NO_PLAYER, pMinor->getCapitalCity()->getArea(), pMinor->getCapitalCity(), pMinor->getCapitalCity());
+				}
 			}
 		}
 	}

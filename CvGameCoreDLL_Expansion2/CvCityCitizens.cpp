@@ -1204,19 +1204,19 @@ bool CvCityCitizens::DoAddBestCitizenFromUnassigned()
 	int iBestPlotValue = 0;
 	CvPlot* pBestPlot = GetBestCityPlotWithValue(iBestPlotValue, /*bBest*/ true, /*bWorked*/ false);
 
+	bool bSpecialistBetterThanPlot = (eBestSpecialistBuilding != NO_BUILDING && iSpecialistValue >= iBestPlotValue);
+
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	if(MOD_BALANCE_CORE_HAPPINESS)
 	{
-		//If we're unhappy, value specialists less.
+		//If we're unhappy, no specialists.
 		if(GET_PLAYER(GetOwner()).IsEmpireUnhappy() && !GET_PLAYER(GetOwner()).isHuman())
 		{
-			iSpecialistValue = (iSpecialistValue / 4);
+			bSpecialistBetterThanPlot = false;
 		}
 	}
 #endif
-
-	bool bSpecialistBetterThanPlot = (eBestSpecialistBuilding != NO_BUILDING && iSpecialistValue >= iBestPlotValue);
-
+	
 	// Is there a Specialist we can assign?
 	if (bSpecialistBetterThanPlot && bBetterThanSlacker)
 	{
@@ -2193,6 +2193,16 @@ void CvCityCitizens::DoAddSpecialistToBuilding(BuildingTypes eBuilding, bool bFo
 			m_aiNumForcedSpecialistsInBuilding[eBuilding]++;
 		}
 
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+		if(MOD_BALANCE_CORE_HAPPINESS)
+		{
+			if(GET_PLAYER(GetCity()->getOwner()).isHuman())
+			{
+				GET_PLAYER(GetCity()->getOwner()).CalculateHappiness();
+			}
+		}
+#endif
+
 		GetCity()->processSpecialist(eSpecialist, 1);
 		GetCity()->UpdateReligion(GetCity()->GetCityReligions()->GetReligiousMajority());
 
@@ -2239,6 +2249,16 @@ void CvCityCitizens::DoRemoveSpecialistFromBuilding(BuildingTypes eBuilding, boo
 		{
 			m_aiNumForcedSpecialistsInBuilding[eBuilding]--;
 		}
+
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+		if(MOD_BALANCE_CORE_HAPPINESS)
+		{
+			if(GET_PLAYER(GetCity()->getOwner()).isHuman())
+			{
+				GET_PLAYER(GetCity()->getOwner()).CalculateHappiness();
+			}
+		}
+#endif
 
 		GetCity()->processSpecialist(eSpecialist, -1);
 		GetCity()->UpdateReligion(GetCity()->GetCityReligions()->GetReligiousMajority());
@@ -2292,6 +2312,16 @@ void CvCityCitizens::DoRemoveAllSpecialistsFromBuilding(BuildingTypes eBuilding,
 		m_aiSpecialistCounts[eSpecialist]--;
 		m_aiNumSpecialistsInBuilding[eBuilding]--;
 		GetCity()->processSpecialist(eSpecialist, -1);
+
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+		if(MOD_BALANCE_CORE_HAPPINESS)
+		{
+			if(GET_PLAYER(GetCity()->getOwner()).isHuman())
+			{
+				GET_PLAYER(GetCity()->getOwner()).CalculateHappiness();
+			}
+		}
+#endif
 
 		// Do we kill this population or reassign him?
 		if(bEliminatePopulation)

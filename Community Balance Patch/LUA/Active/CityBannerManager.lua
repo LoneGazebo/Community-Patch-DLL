@@ -264,22 +264,22 @@ function RefreshCityBanner(cityBanner, iActiveTeam, iActivePlayer)
 			if(iScienceUnhappiness == 0) then
 				strToolTip = strToolTip .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_EO_CITY_EDUCATED");
 			else
-				strToolTip = strToolTip .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_EO_CITY_UNEDUCATED");
+				strToolTip = strToolTip .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_EO_CITY_UNEDUCATED", iScienceUnhappiness);
 			end
 			if(iCultureUnhappiness == 0) then
 				strToolTip = strToolTip .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_EO_CITY_CULTURED");
 			else
-				strToolTip = strToolTip .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_EO_CITY_UNCULTURED");
+				strToolTip = strToolTip .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_EO_CITY_UNCULTURED", iCultureUnhappiness);
 			end
 			if(iDefenseUnhappiness == 0) then
-				strToolTip = strToolTip .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_EO_CITY_DEFENDED");
+				strToolTip = strToolTip .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_EO_CITY_DEFENDED");
 			else
-				strToolTip = strToolTip .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_EO_CITY_UNDEFENDED");
+				strToolTip = strToolTip .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_EO_CITY_UNDEFENDED", iDefenseUnhappiness);
 			end
 			if(iGoldUnhappiness == 0) then
 				strToolTip = strToolTip .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_EO_CITY_PROSPEROUS");
 			else
-				strToolTip = strToolTip .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_EO_CITY_POOR");
+				strToolTip = strToolTip .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_EO_CITY_POOR", iGoldUnhappiness);
 			end
 				
 		end

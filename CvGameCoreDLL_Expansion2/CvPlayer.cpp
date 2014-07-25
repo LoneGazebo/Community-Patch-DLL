@@ -12641,8 +12641,9 @@ int CvPlayer::GetUnhappiness(CvCity* pAssumeCityAnnexed, CvCity* pAssumeCityPupp
 	{
 		//These values should return either a positive number, or zero.
 		int iNewUnhappiness = 0;
-		iNewUnhappiness += GetUnhappinessFromCitySpecialists(pAssumeCityAnnexed, pAssumeCityPuppeted) / 100;
+		iNewUnhappiness += (GetUnhappinessFromCitySpecialists(pAssumeCityAnnexed, pAssumeCityPuppeted) / 100);
 		iNewUnhappiness += getUnhappinessFromCityCulture();
+		iNewUnhappiness += getUnhappinessFromCityScience();
 		iNewUnhappiness += getUnhappinessFromCityDefense();
 		iNewUnhappiness += getUnhappinessFromCityGold();
 		iNewUnhappiness += getUnhappinessFromCityConnection();
@@ -12900,6 +12901,13 @@ int CvPlayer::GetUnhappinessFromCapturedCityCount(CvCity* pAssumeCityAnnexed, Cv
 /// Unhappiness from City Population
 int CvPlayer::GetUnhappinessFromCityPopulation(CvCity* pAssumeCityAnnexed, CvCity* pAssumeCityPuppeted) const
 {
+
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+	if(MOD_BALANCE_CORE_HAPPINESS)
+	{
+		return 0;
+	}
+#endif
 	int iUnhappiness = 0;
 	int iUnhappinessFromThisCity;
 
@@ -13068,7 +13076,7 @@ int CvPlayer::GetUnhappinessFromCitySpecialists(CvCity* pAssumeCityAnnexed, CvCi
 			//Less unhappiness from specialists....
 			if(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 			{
-				iUnhappinessPerPop = /*1*/ GC.getBALANCE_UNHAPPINESS_PER_SPECIALIST() * 100;
+				iUnhappinessPerPop = /*5*/ GC.getBALANCE_UNHAPPINESS_PER_SPECIALIST() * 10;
 				int iNoHappinessSpecialists = 0;
 				if(iPopulation > 0)
 				{
@@ -13077,7 +13085,7 @@ int CvPlayer::GetUnhappinessFromCitySpecialists(CvCity* pAssumeCityAnnexed, CvCi
 					{
 						iNoHappinessSpecialists += GetNoUnhappfromXSpecialistsCapital();
 					}
-					//...eslsewhere?	
+					//...elsewhere?	
 					iNoHappinessSpecialists += GetNoUnhappfromXSpecialists();
 				}
 				//Can't give more free happiness than specialists.
@@ -13098,9 +13106,9 @@ int CvPlayer::GetUnhappinessFromCitySpecialists(CvCity* pAssumeCityAnnexed, CvCi
 			if(MOD_BALANCE_CORE_HAPPINESS)
 			{
 				iUnhappiness += iUnhappinessFromThisCity;
-				return iUnhappiness;
-				
 			}
+			if(!MOD_BALANCE_CORE_HAPPINESS)
+			{
 //Took these away as they were making specialists do weird things.
 #endif
 			if(pLoopCity->isCapital() && GetCapitalUnhappinessMod() != 0)
@@ -13110,9 +13118,15 @@ int CvPlayer::GetUnhappinessFromCitySpecialists(CvCity* pAssumeCityAnnexed, CvCi
 			}
 
 			iUnhappiness += iUnhappinessFromThisCity;
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+			}
+#endif
 		}
 	}
-
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+	if(!MOD_BALANCE_CORE_HAPPINESS)
+	{
+#endif
 	iUnhappiness *= (100 + GetUnhappinessMod());
 	iUnhappiness /= 100;
 
@@ -13123,6 +13137,9 @@ int CvPlayer::GetUnhappinessFromCitySpecialists(CvCity* pAssumeCityAnnexed, CvCi
 	iUnhappiness *= getHandicapInfo().getPopulationUnhappinessMod();
 	iUnhappiness /= 100;
 
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+	}
+#endif
 	return iUnhappiness;
 }
 

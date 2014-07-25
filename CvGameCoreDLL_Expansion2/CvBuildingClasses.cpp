@@ -134,7 +134,6 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_iDoFToVotesBase(0),
 	m_iRAToVotesBase(0),
 	m_iGPExpendInfluenceBase(0),
-	m_iGrowthExtraYieldBase(0),
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 	m_iPovertyHappinessChangeBuilding(0),
@@ -200,6 +199,9 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_piRiverPlotYieldChange(NULL),
 	m_piLakePlotYieldChange(NULL),
 	m_piSeaResourceYieldChange(NULL),
+#if defined(MOD_DIPLOMACY_CITYSTATES) || defined(MOD_BALANCE_CORE)
+	m_piGrowthExtraYield(NULL),
+#endif
 	m_piYieldChange(NULL),
 	m_piYieldChangePerPop(NULL),
 	m_piYieldChangePerReligion(NULL),
@@ -254,6 +256,9 @@ CvBuildingEntry::~CvBuildingEntry(void)
 	SAFE_DELETE_ARRAY(m_piRiverPlotYieldChange);
 	SAFE_DELETE_ARRAY(m_piLakePlotYieldChange);
 	SAFE_DELETE_ARRAY(m_piSeaResourceYieldChange);
+#if defined(MOD_DIPLOMACY_CITYSTATES) || defined(MOD_BALANCE_CORE)
+	SAFE_DELETE_ARRAY(m_piGrowthExtraYield);
+#endif
 	SAFE_DELETE_ARRAY(m_piYieldChange);
 	SAFE_DELETE_ARRAY(m_piYieldChangePerPop);
 	SAFE_DELETE_ARRAY(m_piYieldChangePerReligion);
@@ -445,7 +450,6 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 		m_iDoFToVotesBase = kResults.GetInt("DoFToVotes");
 		m_iRAToVotesBase = kResults.GetInt("RAToVotes");
 		m_iGPExpendInfluenceBase = kResults.GetInt("GPExpendInfluence");
-		m_iGrowthExtraYieldBase = kResults.GetInt("GrowthExtraYieldBase");
 	}
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
@@ -559,6 +563,12 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	kUtility.SetYields(m_piRiverPlotYieldChange, "Building_RiverPlotYieldChanges", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piLakePlotYieldChange, "Building_LakePlotYieldChanges", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piSeaResourceYieldChange, "Building_SeaResourceYieldChanges", "BuildingType", szBuildingType);
+#if defined(MOD_DIPLOMACY_CITYSTATES) || defined(MOD_BALANCE_CORE)
+	if(MOD_DIPLOMACY_CITYSTATES || MOD_BALANCE_CORE)
+	{
+		kUtility.SetYields(m_piGrowthExtraYield, "Building_GrowthExtraYield", "BuildingType", szBuildingType);
+	}
+#endif
 	kUtility.SetYields(m_piYieldChange, "Building_YieldChanges", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldChangePerPop, "Building_YieldChangesPerPop", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldChangePerReligion, "Building_YieldChangesPerReligion", "BuildingType", szBuildingType);
@@ -1502,12 +1512,6 @@ int CvBuildingEntry::GetGPExpendInfluence() const
 {
 	return m_iGPExpendInfluenceBase;
 }
-
-/// Extra votes from Research Agreements
-int CvBuildingEntry::GetGrowthExtraYield() const
-{
-	return m_iGrowthExtraYieldBase;
-}
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 int CvBuildingEntry::GetPovertyHappinessChangeBuilding() const
@@ -1831,6 +1835,22 @@ CvString CvBuildingEntry::GetThemingBonusHelp() const
 }
 
 // ARRAYS
+
+#if defined(MOD_DIPLOMACY_CITYSTATES) || defined(MOD_BALANCE_CORE)
+/// Change to yield by type
+int CvBuildingEntry::GetGrowthExtraYield(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piGrowthExtraYield ? m_piGrowthExtraYield[i] : -1;
+}
+
+/// Array of yield changes
+int* CvBuildingEntry::GetGrowthExtraYieldArray() const
+{
+	return m_piGrowthExtraYield;
+}
+#endif
 
 /// Change to yield by type
 int CvBuildingEntry::GetYieldChange(int i) const

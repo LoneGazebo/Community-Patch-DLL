@@ -8,7 +8,6 @@
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer" default="0"/>
 	</Table>
-	
 	<!-- Allows policies to change plot values (i.e. Mountains) -->
 	<Table name="Policy_PlotYieldChanges">
 		<Column name="PolicyType" type="text" reference="Policies(Type)"/>

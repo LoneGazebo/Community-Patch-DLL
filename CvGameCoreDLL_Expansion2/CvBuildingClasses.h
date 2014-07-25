@@ -227,7 +227,6 @@ public:
 	int GetDoFToVotes() const;
 	int GetRAToVotes() const;
 	int GetGPExpendInfluence() const;
-	int GetGrowthExtraYield() const;
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 	int GetPovertyHappinessChangeBuilding() const;
@@ -287,6 +286,11 @@ public:
 	CvString GetThemingBonusHelp() const;
 
 	// Accessor Functions (Arrays)
+
+#if defined(MOD_DIPLOMACY_CITYSTATES) || defined(MOD_BALANCE_CORE)
+	int GetGrowthExtraYield(int i) const;
+	int* GetGrowthExtraYieldArray() const;
+#endif
 	int GetYieldChange(int i) const;
 	int* GetYieldChangeArray() const;
 	int GetYieldChangePerPop(int i) const;
@@ -484,7 +488,6 @@ private:
 	int m_iDoFToVotesBase;
 	int m_iRAToVotesBase;
 	int m_iGPExpendInfluenceBase;
-	int m_iGrowthExtraYieldBase;
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 	int m_iPovertyHappinessChangeBuilding;
@@ -562,6 +565,9 @@ private:
 	int* m_piRiverPlotYieldChange;
 	int* m_piLakePlotYieldChange;
 	int* m_piSeaResourceYieldChange;
+#if defined(MOD_DIPLOMACY_CITYSTATES) || defined(MOD_BALANCE_CORE)
+	int* m_piGrowthExtraYield;
+#endif
 	int* m_piYieldChange;
 	int* m_piYieldChangePerPop;
 	int* m_piYieldChangePerReligion;

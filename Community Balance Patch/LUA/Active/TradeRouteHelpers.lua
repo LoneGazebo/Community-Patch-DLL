@@ -194,6 +194,7 @@ function BuildTradeRouteGoldToolTipString (pOriginCity, pTargetCity, eDomain)
 -- Community Patch
 	if (strInfluenceValue ~= "") then
 		strResult = strResult .. strInfluenceValue;
+		strResult = strResult .. "[NEWLINE]";
 	end
 --END
 	

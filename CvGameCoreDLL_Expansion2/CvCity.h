@@ -676,9 +676,10 @@ public:
 	void ChangeTotalGreatWorkAid(int iChange);
 	int GetTotalGreatWorkAid() const;
 	void SetTotalGreatWorkAid(int iValue);
-
-	int GetGrowthExtraYield() const;
-	void ChangeGrowthExtraYield(int iChange);
+#endif
+#if defined(MOD_DIPLOMACY_CITYSTATES) || defined(MOD_BALANCE_CORE)
+	int GetGrowthExtraYield(YieldTypes eIndex) const;
+	void ChangeGrowthExtraYield(YieldTypes eIndex, int iChange);
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 	int GetPovertyUnhappiness() const;
@@ -1109,7 +1110,9 @@ protected:
 	int m_iTotalScienceyAid;
 	int m_iTotalArtsyAid;
 	int m_iTotalGreatWorkAid;
-	int m_iChangeGrowthExtraYield;
+#endif
+#if defined(MOD_DIPLOMACY_CITYSTATES) || defined(MOD_BALANCE_CORE)
+	FAutoVariable<std::vector<int>, CvCity> m_aiChangeGrowthExtraYield;
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 	int m_iChangePovertyUnhappiness;

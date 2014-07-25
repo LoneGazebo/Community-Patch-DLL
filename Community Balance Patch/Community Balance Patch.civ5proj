@@ -5,9 +5,9 @@
     <ProjectGuid>{0d66d522-b624-4bc5-acfe-15a0c5b729f4}</ProjectGuid>
     <Name>Community Balance Patch</Name>
     <Guid>8411a7a8-dad3-4622-a18e-fcc18324c799</Guid>
-    <ModVersion>7</ModVersion>
+    <ModVersion>7.1</ModVersion>
     <Stability>Experimental</Stability>
-    <Teaser>The Complete Civ 5 Experience (v. 7) - Updated 7/23</Teaser>
+    <Teaser>The Complete Civ 5 Experience (v. 7.1) - Updated 7/25</Teaser>
     <Description>Community Balance Patch - Contains balance changes and support for CSD/CivIV Diplomacy.</Description>
     <Authors>Civfanatics Community Balance Team</Authors>
     <SpecialThanks>
