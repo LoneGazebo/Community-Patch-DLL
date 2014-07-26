@@ -86,3 +86,6 @@ UPDATE Units
 SET ObsoleteTech = 'TECH_CONSTRUCTION'
 WHERE Type = 'UNIT_BARBARIAN_AXMAN';
 
+
+UPDATE LoadedFile SET Value=1 WHERE Type='BarbarianChanges.sql';
+

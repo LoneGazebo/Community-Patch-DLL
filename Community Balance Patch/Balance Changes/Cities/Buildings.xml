@@ -6,7 +6,7 @@
 		<Update>
 			<Where BuildingClass="BUILDINGCLASS_AQUEDUCT" />
 			<Set FoodKept="30"
-				 Set GoldMaintenance="2" 
+				 GoldMaintenance="2" 
 				 />
 				 <!-- 40,1 -->
 		</Update>
@@ -445,5 +445,13 @@
 	<Building_YieldSurplusModifiers>
 
 	</Building_YieldSurplusModifiers>
+
+
+	<LoadedFile>
+		<Update>
+			<Where Type="Buildings.xml"/>
+			<Set Value="1"/>
+		</Update>
+	</LoadedFile>
 
 </GameData>
