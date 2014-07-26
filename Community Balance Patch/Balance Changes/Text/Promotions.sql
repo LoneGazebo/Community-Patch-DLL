@@ -1,4 +1,6 @@
-
+/* The sql commands and text below were formulated in the UnitPromotions tab of the Google Spreadsheet 'Cep_Language'.
+https://docs.google.com/spreadsheets/d/1ptQRfVsW7UT_8gPexioizS31sM7K_3eBT3tjr4jruTs/edit#gid=410821470
+If you make any changes be sure to update the spreadsheet also.*/
 
 /* PROMOTIONS */
 REPLACE INTO Language_en_US (Tag, Text, Gender, Plurality) VALUES ('TXT_KEY_PROMOTION_ACCURACY_1_HELP', '[ICON_STRENGTH][ICON_RANGE_STRENGTH] +15% in [COLOR_POSITIVE_TEXT]OPEN[ENDCOLOR] Terrain (NO Hills, Forest or Jungle)', '', '');

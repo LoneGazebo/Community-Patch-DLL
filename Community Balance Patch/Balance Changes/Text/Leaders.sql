@@ -1,4 +1,6 @@
-
+/* The sql commands and text below were formulated in the Leaders tab of the Google Spreadsheet 'CEP_Language'.
+https://docs.google.com/spreadsheet/ccc?key=0Ap8Ehya83q19dHhmOUdwN0VCT1Nma2ZjY3k1bGhNZXc&usp=drive_web#gid=8
+If you make any changes be sure to update the spreadsheet also.*/
 /* Traits */
 REPLACE INTO Language_en_US (Tag, Text, Gender, Plurality) VALUES ('TXT_KEY_TRAIT_ART_OF_WAR', 'You get an extra Spy. Great Generals see farther and give more strength.[NEWLINE]Starts with a Warrior and Great General. ', '', '');
 REPLACE INTO Language_en_US (Tag, Text, Gender, Plurality) VALUES ('TXT_KEY_TRAIT_AMPHIB_WARLORD', 'Units move faster along rivers, and start with the Amphibious promotion.', '', '');
