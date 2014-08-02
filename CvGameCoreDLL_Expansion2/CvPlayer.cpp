@@ -653,7 +653,11 @@ void CvPlayer::init(PlayerTypes eID)
 
 		for(iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
 		{
+#if defined(MOD_BUGFIX_MINOR)
+			ChangeCityYieldChangeTimes100((YieldTypes)iJ, 100 * GetPlayerTraits()->GetFreeCityYield((YieldTypes)iJ));
+#else
 			ChangeCityYieldChange((YieldTypes)iJ, 100 * GetPlayerTraits()->GetFreeCityYield((YieldTypes)iJ));
+#endif
 			changeYieldRateModifier((YieldTypes)iJ, GetPlayerTraits()->GetYieldRateModifier((YieldTypes)iJ));
 		}
 
@@ -774,7 +778,6 @@ void CvPlayer::uninit()
 
 	m_ppaaiSpecialistExtraYield.clear();
 	m_ppaaiImprovementYieldChange.clear();
-
 	m_ppaaiBuildingClassYieldMod.clear();
 
 	m_UnitCycle.Clear();
@@ -7362,7 +7365,7 @@ void CvPlayer::found(int iX, int iY)
 		args->Push(GetID());
 		args->Push(pCity->getX());
 		args->Push(pCity->getY());
-
+		
 		bool bResult;
 		LuaSupport::CallHook(pkScriptSystem, "PlayerCityFounded", args.get(), bResult);
 	}
@@ -9488,7 +9491,7 @@ int CvPlayer::calculateTotalYield(YieldTypes eYield) const
 	const CvCity* pLoopCity;
 	int iTotalYield = 0;
 	int iLoop = 0;
-
+	
 	for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
 		iTotalYield += pLoopCity->getYieldRateTimes100(eYield, false);
@@ -9866,7 +9869,11 @@ int CvPlayer::specialistYield(SpecialistTypes eSpecialist, YieldTypes eYield) co
 
 //	--------------------------------------------------------------------------------
 /// How much additional Yield does every City produce?
+#if defined(MOD_BUGFIX_MINOR)
+int CvPlayer::GetCityYieldChangeTimes100(YieldTypes eYield) const
+#else
 int CvPlayer::GetCityYieldChange(YieldTypes eYield) const
+#endif
 {
 	CvAssertMsg(eYield >= 0, "eIndex is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eYield < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
@@ -9875,7 +9882,11 @@ int CvPlayer::GetCityYieldChange(YieldTypes eYield) const
 
 //	--------------------------------------------------------------------------------
 /// Changes how much additional Yield every City produces
+#if defined(MOD_BUGFIX_MINOR)
+void CvPlayer::ChangeCityYieldChangeTimes100(YieldTypes eYield, int iChange)
+#else
 void CvPlayer::ChangeCityYieldChange(YieldTypes eYield, int iChange)
+#endif
 {
 	CvAssertMsg(eYield >= 0, "eIndex is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eYield < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
@@ -9914,7 +9925,11 @@ void CvPlayer::ChangeCoastalCityYieldChange(YieldTypes eYield, int iChange)
 
 //	--------------------------------------------------------------------------------
 /// How much additional Yield does the Capital produce?
+#if defined(MOD_BUGFIX_MINOR)
+int CvPlayer::GetCapitalYieldChangeTimes100(YieldTypes eYield) const
+#else
 int CvPlayer::GetCapitalYieldChange(YieldTypes eYield) const
+#endif
 {
 	CvAssertMsg(eYield >= 0, "eIndex is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eYield < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
@@ -9923,7 +9938,11 @@ int CvPlayer::GetCapitalYieldChange(YieldTypes eYield) const
 
 //	--------------------------------------------------------------------------------
 /// Changes how much additional Yield the Capital produces
+#if defined(MOD_BUGFIX_MINOR)
+void CvPlayer::ChangeCapitalYieldChangeTimes100(YieldTypes eYield, int iChange)
+#else
 void CvPlayer::ChangeCapitalYieldChange(YieldTypes eYield, int iChange)
+#endif
 {
 	CvAssertMsg(eYield >= 0, "eIndex is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eYield < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
@@ -11195,7 +11214,11 @@ int CvPlayer::GetFaithPerTurnFromReligion() const
 				int iFollowers = GetReligions()->GetNumForeignFollowers(false /*bAtPeace*/);
 				if (iFollowers > 0)
 				{
+#if defined(MOD_BUGFIX_MINOR)
+					iFaithPerTurn += (iFollowers / iTemp);
+#else
 					iFaithPerTurn += (iTemp / iFollowers);
+#endif
 				}
 			}
 		}
@@ -11440,7 +11463,6 @@ int CvPlayer::GetExcessHappiness() const
 #else
 	return GetHappiness() - GetUnhappiness();
 #endif
-
 }
 
 //	--------------------------------------------------------------------------------
@@ -18488,6 +18510,15 @@ bool CvPlayer::isMinorCiv() const
 }
 
 
+#if defined(MOD_API_EXTENSIONS)
+//	--------------------------------------------------------------------------------
+bool CvPlayer::isMajorCiv() const
+{
+	return GET_TEAM(getTeam()).isMajorCiv();
+}
+#endif
+
+
 //	--------------------------------------------------------------------------------
 /// Has this player betrayed a Minor Civ he was bullying by declaring war on him?
 bool CvPlayer::IsHasBetrayedMinorCiv() const
@@ -24277,7 +24308,11 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 
 		iMod = pPolicy->GetCityYieldChange(iI) * iChange;
 		if(iMod != 0)
+#if defined(MOD_BUGFIX_MINOR)
+			ChangeCityYieldChangeTimes100(eYield, iMod * 100);
+#else
 			ChangeCityYieldChange(eYield, iMod * 100);
+#endif
 
 		iMod = pPolicy->GetCoastalCityYieldChange(iI) * iChange;
 		if(iMod != 0)
@@ -24285,7 +24320,11 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 
 		iMod = pPolicy->GetCapitalYieldChange(iI) * iChange;
 		if(iMod != 0)
+#if defined(MOD_BUGFIX_MINOR)
+			ChangeCapitalYieldChangeTimes100(eYield, iMod * 100);
+#else
 			ChangeCapitalYieldChange(eYield, iMod * 100);
+#endif
 
 		iMod = pPolicy->GetCapitalYieldPerPopChange(iI) * iChange;
 		if(iMod != 0)

@@ -944,6 +944,10 @@ CvGlobals::CvGlobals() :
 	m_iEVALUATE_WAR_BAD_TARGET(-100),
 	m_iEVALUATE_WAR_IMPOSSIBLE_TARGET(-200),
 	m_iREQUEST_PEACE_TURN_THRESHOLD(4),
+#if defined(MOD_CONFIG_GAME_IN_XML)
+	GD_INT_INIT(WAR_MAJOR_MINIMUM_TURNS, 5),
+	GD_INT_INIT(WAR_MINOR_MINIMUM_TURNS, 0),
+#endif
 	m_iPEACE_WILLINGNESS_OFFER_PROJECTION_DESTRUCTION(100),
 	m_iPEACE_WILLINGNESS_OFFER_PROJECTION_DEFEAT(60),
 	m_iPEACE_WILLINGNESS_OFFER_PROJECTION_STALEMATE(20),
@@ -2909,7 +2913,7 @@ CvMultiUnitFormationInfo* CvGlobals::getMultiUnitFormationInfo(int i)
 #if defined(MOD_API_PLOT_YIELDS)
 int CvGlobals::getNumPlotInfos()
 {
-	return (int)m_paPlotInfo.size();
+	return MOD_API_PLOT_YIELDS ? (int)m_paPlotInfo.size() : 0;
 }
 
 std::vector<CvPlotInfo*>& CvGlobals::getPlotInfo()
@@ -2919,12 +2923,16 @@ std::vector<CvPlotInfo*>& CvGlobals::getPlotInfo()
 
 CvPlotInfo* CvGlobals::getPlotInfo(PlotTypes ePlotNum)
 {
-	CvAssert(ePlotNum > -1);
-	CvAssert(ePlotNum < GC.getNumPlotInfos());
-	if(ePlotNum > -1 && ePlotNum < (int)m_paPlotInfo.size())
-		return m_paPlotInfo[ePlotNum];
-	else
+	if (MOD_API_PLOT_YIELDS) {
+		CvAssert(ePlotNum > -1);
+		CvAssert(ePlotNum < GC.getNumPlotInfos());
+		if(ePlotNum > -1 && ePlotNum < (int)m_paPlotInfo.size())
+			return m_paPlotInfo[ePlotNum];
+		else
+			return NULL;
+	} else {
 		return NULL;
+	}
 }
 #endif
 
@@ -5250,6 +5258,10 @@ void CvGlobals::cacheGlobals()
 	m_iEVALUATE_WAR_BAD_TARGET = getDefineINT("EVALUATE_WAR_BAD_TARGET");
 	m_iEVALUATE_WAR_IMPOSSIBLE_TARGET = getDefineINT("EVALUATE_WAR_IMPOSSIBLE_TARGET");
 	m_iREQUEST_PEACE_TURN_THRESHOLD = getDefineINT("REQUEST_PEACE_TURN_THRESHOLD");
+#if defined(MOD_CONFIG_GAME_IN_XML)
+	GD_INT_CACHE(WAR_MAJOR_MINIMUM_TURNS);
+	GD_INT_CACHE(WAR_MINOR_MINIMUM_TURNS);
+#endif
 	m_iPEACE_WILLINGNESS_OFFER_PROJECTION_DESTRUCTION = getDefineINT("PEACE_WILLINGNESS_OFFER_PROJECTION_DESTRUCTION");
 	m_iPEACE_WILLINGNESS_OFFER_PROJECTION_DEFEAT = getDefineINT("PEACE_WILLINGNESS_OFFER_PROJECTION_DEFEAT");
 	m_iPEACE_WILLINGNESS_OFFER_PROJECTION_STALEMATE = getDefineINT("PEACE_WILLINGNESS_OFFER_PROJECTION_STALEMATE");

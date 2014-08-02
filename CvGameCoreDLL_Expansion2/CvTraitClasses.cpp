@@ -1095,6 +1095,7 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	{
 		m_eFreeBuildingOnConquest = (BuildingTypes)GC.getInfoTypeForString(szTextVal, true);
 	}
+
 	m_bFightWellDamaged = kResults.GetBool("FightWellDamaged");
 	m_bMoveFriendlyWoodsAsRoad = kResults.GetBool("MoveFriendlyWoodsAsRoad");
 	m_bFasterAlongRiver = kResults.GetBool("FasterAlongRiver");
@@ -1862,7 +1863,6 @@ void CvPlayerTraits::Reset()
 	m_bNoConnectionUnhappiness = false;
 	m_bIsNoReligiousStrife = false;
 #endif
-
 
 	m_eCampGuardType = NO_UNIT;
 	m_eCombatBonusImprovement = NO_IMPROVEMENT;

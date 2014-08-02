@@ -246,6 +246,9 @@ public:
 	void DoUpdateWarGoals();
 
 	// Num Turns At War
+#if defined(MOD_API_EXTENSIONS)
+	int GetTeamNumTurnsAtWar(TeamTypes eTeam) const;
+#endif
 	int GetPlayerNumTurnsAtWar(PlayerTypes ePlayer) const;
 	void SetPlayerNumTurnsAtWar(PlayerTypes ePlayer, int iValue);
 	void ChangePlayerNumTurnsAtWar(PlayerTypes ePlayer, int iChange);
