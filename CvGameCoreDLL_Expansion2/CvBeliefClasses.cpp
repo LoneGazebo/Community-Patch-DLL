@@ -88,7 +88,14 @@ CvBeliefEntry::CvBeliefEntry() :
 	m_ppaiResourceYieldChange(NULL),
 	m_ppaiTerrainYieldChange(NULL),
 #if defined(MOD_RELIGION_PLOT_YIELDS)
+	m_ppaiSpecialistYieldChange(NULL),
+	m_paiCapitalYieldChange(NULL),
+	m_paiCoastalCityYieldChange(NULL),
+	m_paiGreatWorkYieldChange(NULL),
 	m_ppaiPlotYieldChange(NULL),
+#endif
+#if defined(MOD_API_UNIFIED_YIELDS)
+	m_piYieldFromKills(NULL),
 #endif
 	m_piResourceHappiness(NULL),
 	m_piYieldChangeAnySpecialist(NULL),
@@ -110,6 +117,9 @@ CvBeliefEntry::~CvBeliefEntry()
 	CvDatabaseUtility::SafeDelete2DArray(m_ppaiFeatureYieldChange);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppaiResourceYieldChange);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppaiTerrainYieldChange);
+#if defined(MOD_API_UNIFIED_YIELDS)
+	CvDatabaseUtility::SafeDelete2DArray(m_ppaiSpecialistYieldChange);
+#endif
 #if defined(MOD_RELIGION_PLOT_YIELDS)
 	if (MOD_RELIGION_PLOT_YIELDS) {
 		CvDatabaseUtility::SafeDelete2DArray(m_ppaiPlotYieldChange);
@@ -534,15 +544,53 @@ int CvBeliefEntry::GetTerrainYieldChange(int i, int j) const
 	return m_ppaiTerrainYieldChange ? m_ppaiTerrainYieldChange[i][j] : -1;
 }
 
+#if defined(MOD_API_UNIFIED_YIELDS)
+int CvBeliefEntry::GetSpecialistYieldChange(int i, int j) const
+{
+	CvAssertMsg(i < GC.getNumSpecialistInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	CvAssertMsg(j < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(j > -1, "Index out of bounds");
+	return m_ppaiSpecialistYieldChange ? m_ppaiSpecialistYieldChange[i][j] : -1;
+}
+
+int CvBeliefEntry::GetCapitalYieldChange(int i) const
+{
+	return m_paiCapitalYieldChange ? m_paiCapitalYieldChange[i] : -1;
+}
+
+int CvBeliefEntry::GetCoastalCityYieldChange(int i) const
+{
+	return m_paiCoastalCityYieldChange ? m_paiCoastalCityYieldChange[i] : -1;
+}
+
+int CvBeliefEntry::GetGreatWorkYieldChange(int i) const
+{
+	return m_paiGreatWorkYieldChange ? m_paiGreatWorkYieldChange[i] : -1;
+}
+
+/// Do we get one of our yields from defeating an enemy?
+int CvBeliefEntry::GetYieldFromKills(YieldTypes eYield) const
+{
+	CvAssertMsg((int)eYield < NUM_YIELD_TYPES, "Yield type out of bounds");
+	CvAssertMsg((int)eYield > -1, "Index out of bounds");
+	return m_piYieldFromKills[(int)eYield];
+}
+#endif
+
 #if defined(MOD_RELIGION_PLOT_YIELDS)
 /// Change to yield by plot
 int CvBeliefEntry::GetPlotYieldChange(int i, int j) const
 {
-	CvAssertMsg(i < GC.getNumPlotInfos(), "Index out of bounds");
-	CvAssertMsg(i > -1, "Index out of bounds");
-	CvAssertMsg(j < NUM_YIELD_TYPES, "Index out of bounds");
-	CvAssertMsg(j > -1, "Index out of bounds");
-	return m_ppaiPlotYieldChange ? m_ppaiPlotYieldChange[i][j] : -1;
+	if (MOD_API_PLOT_YIELDS) {
+		CvAssertMsg(i < GC.getNumPlotInfos(), "Index out of bounds");
+		CvAssertMsg(i > -1, "Index out of bounds");
+		CvAssertMsg(j < NUM_YIELD_TYPES, "Index out of bounds");
+		CvAssertMsg(j > -1, "Index out of bounds");
+		return m_ppaiPlotYieldChange ? m_ppaiPlotYieldChange[i][j] : -1;
+	} else {
+		return 0;
+	}
 }
 #endif
 
@@ -690,7 +738,6 @@ bool CvBeliefEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 
 	//Arrays
 	const char* szBeliefType = GetType();
-
 	kUtility.SetYields(m_paiCityYieldChange, "Belief_CityYieldChanges", "BeliefType", szBeliefType);
 	kUtility.SetYields(m_paiHolyCityYieldChange, "Belief_HolyCityYieldChanges", "BeliefType", szBeliefType);
 	kUtility.SetYields(m_piYieldChangeAnySpecialist, "Belief_YieldChangeAnySpecialist", "BeliefType", szBeliefType);
@@ -823,6 +870,36 @@ bool CvBeliefEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 		}
 	}
 	
+#if defined(MOD_API_UNIFIED_YIELDS)
+	//SpecialistYieldChanges
+	if (MOD_API_UNIFIED_YIELDS) {
+		kUtility.Initialize2DArray(m_ppaiSpecialistYieldChange, "Specialists", "Yields");
+
+		std::string strKey("Belief_SpecialistYieldChanges");
+		Database::Results* pResults = kUtility.GetResults(strKey);
+		if(pResults == NULL)
+		{
+			pResults = kUtility.PrepareResults(strKey, "select Specialists.ID as SpecialistID, Yields.ID as YieldID, Yield from Belief_SpecialistYieldChanges inner join Specialists on Specialists.Type = SpecialistType inner join Yields on Yields.Type = YieldType where BeliefType = ?");
+		}
+
+		pResults->Bind(1, szBeliefType);
+
+		while(pResults->Step())
+		{
+			const int SpecialistID = pResults->GetInt(0);
+			const int YieldID = pResults->GetInt(1);
+			const int yield = pResults->GetInt(2);
+
+			m_ppaiSpecialistYieldChange[SpecialistID][YieldID] = yield;
+		}
+	}
+	
+	kUtility.SetYields(m_paiCapitalYieldChange, "Belief_CapitalYieldChanges", "BeliefType", szBeliefType);
+	kUtility.SetYields(m_paiCoastalCityYieldChange, "Belief_CoastalCityYieldChanges", "BeliefType", szBeliefType);
+	kUtility.SetYields(m_paiGreatWorkYieldChange, "Belief_GreatWorkYieldChanges", "BeliefType", szBeliefType);
+	kUtility.SetYields(m_piYieldFromKills, "Belief_YieldFromKills", "BeliefType", szBeliefType);
+#endif
+
 #if defined(MOD_RELIGION_PLOT_YIELDS)
 	if (MOD_RELIGION_PLOT_YIELDS)
 	//PlotYieldChanges
@@ -1518,6 +1595,98 @@ int CvReligionBeliefs::GetTerrainYieldChange(TerrainTypes eTerrain, YieldTypes e
 
 	return rtnValue;
 }
+
+#if defined(MOD_API_UNIFIED_YIELDS)
+int CvReligionBeliefs::GetSpecialistYieldChange(SpecialistTypes eSpecialist, YieldTypes eYieldType) const
+{
+	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
+	int rtnValue = 0;
+
+	for(int i = 0; i < pBeliefs->GetNumBeliefs(); i++)
+	{
+		if(HasBelief((BeliefTypes)i))
+		{
+			rtnValue += pBeliefs->GetEntry(i)->GetSpecialistYieldChange(eSpecialist, eYieldType);
+		}
+	}
+
+	return rtnValue;
+}
+
+int CvReligionBeliefs::GetCapitalYieldChange(int iPopulation, YieldTypes eYield) const
+{
+	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
+	int rtnValue = 0;
+
+	for(int i = 0; i < pBeliefs->GetNumBeliefs(); i++)
+	{
+		if(HasBelief((BeliefTypes)i))
+		{
+			if(iPopulation >= pBeliefs->GetEntry(i)->GetMinPopulation())
+			{
+				rtnValue += pBeliefs->GetEntry(i)->GetCapitalYieldChange(eYield);
+			}
+		}
+	}
+
+	return rtnValue;
+}
+
+int CvReligionBeliefs::GetCoastalCityYieldChange(int iPopulation, YieldTypes eYield) const
+{
+	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
+	int rtnValue = 0;
+
+	for(int i = 0; i < pBeliefs->GetNumBeliefs(); i++)
+	{
+		if(HasBelief((BeliefTypes)i))
+		{
+			if(iPopulation >= pBeliefs->GetEntry(i)->GetMinPopulation())
+			{
+				rtnValue += pBeliefs->GetEntry(i)->GetCoastalCityYieldChange(eYield);
+			}
+		}
+	}
+
+	return rtnValue;
+}
+
+int CvReligionBeliefs::GetGreatWorkYieldChange(int iPopulation, YieldTypes eYield) const
+{
+	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
+	int rtnValue = 0;
+
+	for(int i = 0; i < pBeliefs->GetNumBeliefs(); i++)
+	{
+		if(HasBelief((BeliefTypes)i))
+		{
+			if(iPopulation >= pBeliefs->GetEntry(i)->GetMinPopulation())
+			{
+				rtnValue += pBeliefs->GetEntry(i)->GetGreatWorkYieldChange(eYield);
+			}
+		}
+	}
+
+	return rtnValue;
+}
+
+/// Do we get one of our yields from defeating an enemy?
+int CvReligionBeliefs::GetYieldFromKills(YieldTypes eYieldType) const
+{
+	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
+	int rtnValue = 0;
+
+	for(int i = 0; i < pBeliefs->GetNumBeliefs(); i++)
+	{
+		if(HasBelief((BeliefTypes)i))
+		{
+			rtnValue += pBeliefs->GetEntry(i)->GetYieldFromKills(eYieldType);
+		}
+	}
+
+	return rtnValue;
+}
+#endif
 
 #if defined(MOD_RELIGION_PLOT_YIELDS)
 /// Get yield change from beliefs for a specific plot

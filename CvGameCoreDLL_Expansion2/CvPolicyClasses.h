@@ -229,8 +229,22 @@ public:
 	void ChangeFreeChosenBuilding(int i, int iChange);
 #endif
 	int GetImprovementYieldChanges(int i, int j) const;
-#if defined(MOD_BALANCE_CORE_YIELDS)
+#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
 	int GetPlotYieldChanges(int i, int j) const;
+#endif
+#if defined(MOD_API_UNIFIED_YIELDS)
+	int GetFeatureYieldChanges(int i, int j) const;
+	int GetResourceYieldChanges(int i, int j) const;
+	int GetTerrainYieldChanges(int i, int j) const;
+	int GetSpecialistYieldChanges(int i, int j) const;
+	int GetYieldFromKills(int i) const;
+	int* GetYieldFromKillsArray() const;
+	int GetYieldChangeTradeRoute(int i) const;
+	int* GetYieldChangeTradeRouteArray() const;
+	int GetYieldChangesNaturalWonder(int i) const;
+	int* GetYieldChangesNaturalWonderArray() const;
+	int GetYieldChangeWorldWonder(int i) const;
+	int* GetYieldChangeWorldWonderArray() const;
 #endif
 	int GetBuildingClassYieldModifiers(int i, int j) const;
 	int GetBuildingClassYieldChanges(int i, int j) const;
@@ -464,12 +478,22 @@ private:
 //	bool* m_pabHurry;
 	bool* m_pabSpecialistValid;
 	int** m_ppiImprovementYieldChanges;
+#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
+	int** m_ppiPlotYieldChanges;
+#endif
+#if defined(MOD_API_UNIFIED_YIELDS)
+	int** m_ppiFeatureYieldChanges;
+	int** m_ppiResourceYieldChanges;
+	int** m_ppiTerrainYieldChanges;
+	int** m_ppiSpecialistYieldChanges;
+	int* m_piYieldFromKills;
+	int* m_piYieldChangeTradeRoute;
+	int* m_piYieldChangesNaturalWonder;
+	int* m_piYieldChangeWorldWonder;
+#endif
 	int** m_ppiBuildingClassYieldModifiers;
 	int** m_ppiBuildingClassYieldChanges;
 	int* m_piFlavorValue;
-#if defined(MOD_BALANCE_CORE_YIELDS)
-	int** m_ppiPlotYieldChanges;
-#endif
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

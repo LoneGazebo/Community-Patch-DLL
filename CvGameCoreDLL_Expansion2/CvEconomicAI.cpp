@@ -1353,6 +1353,16 @@ void CvEconomicAI::LogMonitor(void)
 		case YIELD_FAITH:
 			AppendToLog(strHeader, strLog, "Faith", m_pPlayer->GetTotalFaithPerTurn());
 			break;
+#if defined(MOD_API_UNIFIED_YIELDS_TOURISM)
+		case YIELD_TOURISM:
+			AppendToLog(strHeader, strLog, "Tourism", m_pPlayer->calculateTotalYield((YieldTypes)ui));
+			break;
+#endif
+#if defined(MOD_API_UNIFIED_YIELDS_GOLDEN_AGE)
+		case YIELD_GOLDEN_AGE_POINTS:
+			AppendToLog(strHeader, strLog, "Golden Age", m_pPlayer->calculateTotalYield((YieldTypes)ui));
+			break;
+#endif
 		}
 	}
 
@@ -1579,6 +1589,16 @@ void CvEconomicAI::LogCityMonitor()
 			case YIELD_FAITH:
 				AppendToLog(strHeader, strLog, "faith", aiCityYields[ui]);
 				break;
+#if defined(MOD_API_UNIFIED_YIELDS_TOURISM)
+			case YIELD_TOURISM:
+				AppendToLog(strHeader, strLog, "tourism", aiCityYields[ui]);
+				break;
+#endif
+#if defined(MOD_API_UNIFIED_YIELDS_GOLDEN_AGE)
+			case YIELD_GOLDEN_AGE_POINTS:
+				AppendToLog(strHeader, strLog, "goldenage", aiCityYields[ui]);
+				break;
+#endif
 			}
 		}
 
@@ -1611,6 +1631,16 @@ void CvEconomicAI::LogCityMonitor()
 			case YIELD_FAITH:
 				AppendToLog(strHeader, strLog, "faith / pop", fRatio);
 				break;
+#if defined(MOD_API_UNIFIED_YIELDS_TOURISM)
+			case YIELD_TOURISM:
+				AppendToLog(strHeader, strLog, "tourism / pop", fRatio);
+				break;
+#endif
+#if defined(MOD_API_UNIFIED_YIELDS_GOLDEN_AGE)
+			case YIELD_GOLDEN_AGE_POINTS:
+				AppendToLog(strHeader, strLog, "goldenage / pop", fRatio);
+				break;
+#endif
 			}
 		}
 
@@ -1638,6 +1668,16 @@ void CvEconomicAI::LogCityMonitor()
 			case YIELD_FAITH:
 				AppendToLog(strHeader, strLog, "faith specialist", aiSpecialistsYields[ui]);
 				break;
+#if defined(MOD_API_UNIFIED_YIELDS_TOURISM)
+			case YIELD_TOURISM:
+				AppendToLog(strHeader, strLog, "tourism specialist", aiSpecialistsYields[ui]);
+				break;
+#endif
+#if defined(MOD_API_UNIFIED_YIELDS_GOLDEN_AGE)
+			case YIELD_GOLDEN_AGE_POINTS:
+				AppendToLog(strHeader, strLog, "goldenage specialist", aiSpecialistsYields[ui]);
+				break;
+#endif
 			}
 		}
 
@@ -1669,6 +1709,16 @@ void CvEconomicAI::LogCityMonitor()
 			case YIELD_FAITH:
 				AppendToLog(strHeader, strLog, "faith specialist / faith", fRatio);
 				break;
+#if defined(MOD_API_UNIFIED_YIELDS_TOURISM)
+			case YIELD_TOURISM:
+				AppendToLog(strHeader, strLog, "tourism specialist / tourism", fRatio);
+				break;
+#endif
+#if defined(MOD_API_UNIFIED_YIELDS_GOLDEN_AGE)
+			case YIELD_GOLDEN_AGE_POINTS:
+				AppendToLog(strHeader, strLog, "goldenage specialist / tourism", fRatio);
+				break;
+#endif
 			}
 		}
 
@@ -4537,7 +4587,7 @@ int EconomicAIHelpers::IsTestStrategy_ScoreDiplomats(CvPlayer* pPlayer)
 
 		int iCSDistaste = /*7*/ GC.getNEED_DIPLOMAT_DISTASTE_MODIFIER() - iFlavorDiplo; //Lack of desire. Lower is better for diplo. If negative, counts as zero.
 
-		int	iThreshold = iNumCities * /*135*/ GC.getNEED_DIPLOMAT_THRESHOLD_MODIFIER() / 100; //This is the baseline threshold: Number of city-states in-game increases baseline. Changing Global value decreases diplomatic competitiveness.
+		int	iThreshold = iNumCities * /*125*/ GC.getNEED_DIPLOMAT_THRESHOLD_MODIFIER() / 100; //This is the baseline threshold: Number of city-states in-game increases baseline. Changing Global value decreases diplomatic competitiveness.
 
 		//The Minor/Major Loop Tests
 		// Loop through all minors and majors to get our relations with them.

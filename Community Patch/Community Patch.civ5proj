@@ -147,6 +147,26 @@
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
+        <FileName>Core Files/PNM Mods DB/API/UnifiedYields.sql</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>Core Files/PNM Mods DB/API/UnifiedYields.xml</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>Core Files/PNM Mods DB/API/UnifiedYieldsGoldenAge.xml</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>Core Files/PNM Mods DB/API/UnifiedYieldsTourism.xml</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
         <FileName>Core Files/PNM Mods DB/BUGFIX/FeatureRemoval.sql</FileName>
       </Action>
       <Action>
@@ -162,12 +182,12 @@
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <FileName>Core Files/PNM Mods DB/BUGFIX/UnitclassNotUnit.xml</FileName>
+        <FileName>Core Files/PNM Mods DB/BUGFIX/UnitclassNotUnit.sql</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <FileName>Core Files/PNM Mods DB/BUGFIX/UnitclassNotUnit.sql</FileName>
+        <FileName>Core Files/PNM Mods DB/BUGFIX/UnitclassNotUnit.xml</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
@@ -277,12 +297,12 @@
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <FileName>Core Files/PNM Mods DB/PROMOTIONS/VariableRecon.xml</FileName>
+        <FileName>Core Files/PNM Mods DB/PROMOTIONS/VariableRecon.sql</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <FileName>Core Files/PNM Mods DB/PROMOTIONS/VariableRecon.sql</FileName>
+        <FileName>Core Files/PNM Mods DB/PROMOTIONS/VariableRecon.xml</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
@@ -435,6 +455,22 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
+    <Content Include="Core Files\PNM Mods DB\API\UnifiedYields.sql">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="Core Files\PNM Mods DB\API\UnifiedYields.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="Core Files\PNM Mods DB\API\UnifiedYieldsGoldenAge.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="Core Files\PNM Mods DB\API\UnifiedYieldsTourism.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
     <Content Include="Core Files\PNM Mods DB\BUGFIX\FeatureRemoval.sql">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
@@ -560,6 +596,10 @@
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
     <Content Include="Core Files\PNM Mods DB\RELIGION\PlotYields.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="Core Files\PNM Mods DB\RELIGION\PolicyBranchFaithGp.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>

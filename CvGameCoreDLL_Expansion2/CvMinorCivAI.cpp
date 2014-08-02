@@ -2875,6 +2875,10 @@ void CvMinorCivAI::DoTurn()
 	{
 		DoTurnStatus();
 
+#if defined(MOD_CONFIG_GAME_IN_XML)
+		m_pPlayer->GetDiplomacyAI()->DoCounters();
+#endif
+
 		DoElection();
 		DoFriendship();
 
@@ -8394,6 +8398,7 @@ void CvMinorCivAI::DoFriendshipChangeEffects(PlayerTypes ePlayer, int iOldFriend
 #endif
 
 		SetEverFriends(ePlayer, true);
+
 	// Add Friends Bonus
 	if(!bWasAboveFriendsThreshold && bNowAboveFriendsThreshold)
 	{
@@ -8547,8 +8552,13 @@ void CvMinorCivAI::DoSetBonus(PlayerTypes ePlayer, bool bAdd, bool bFriends, boo
 			iOtherCitiesFoodTimes100 = -iOtherCitiesFoodTimes100;
 		}
 
+#if defined(MOD_BUGFIX_MINOR)
+		GET_PLAYER(ePlayer).ChangeCapitalYieldChangeTimes100(YIELD_FOOD, iCapitalFoodTimes100);
+		GET_PLAYER(ePlayer).ChangeCityYieldChangeTimes100(YIELD_FOOD, iOtherCitiesFoodTimes100);
+#else
 		GET_PLAYER(ePlayer).ChangeCapitalYieldChange(YIELD_FOOD, iCapitalFoodTimes100);
 		GET_PLAYER(ePlayer).ChangeCityYieldChange(YIELD_FOOD, iOtherCitiesFoodTimes100);
+#endif
 	}
 	// Mercantile
 	else if(eTrait == MINOR_CIV_TRAIT_MERCANTILE)
@@ -9195,7 +9205,11 @@ bool CvMinorCivAI::DoMajorCivEraChange(PlayerTypes ePlayer, EraTypes eNewEra)
 			if(iOldFood != iNewFood)
 			{
 				bSomethingChanged = true;
+#if defined(MOD_BUGFIX_MINOR)
+				GET_PLAYER(ePlayer).ChangeCapitalYieldChangeTimes100(YIELD_FOOD, iNewFood - iOldFood);
+#else
 				GET_PLAYER(ePlayer).ChangeCapitalYieldChange(YIELD_FOOD, iNewFood - iOldFood);
+#endif
 			}
 
 			// Other Cities
@@ -9205,7 +9219,11 @@ bool CvMinorCivAI::DoMajorCivEraChange(PlayerTypes ePlayer, EraTypes eNewEra)
 			if(iOldFood != iNewFood)
 			{
 				bSomethingChanged = true;
+#if defined(MOD_BUGFIX_MINOR)
+				GET_PLAYER(ePlayer).ChangeCityYieldChangeTimes100(YIELD_FOOD, iNewFood - iOldFood);
+#else
 				GET_PLAYER(ePlayer).ChangeCityYieldChange(YIELD_FOOD, iNewFood - iOldFood);
+#endif
 			}
 		}
 
@@ -9221,7 +9239,11 @@ bool CvMinorCivAI::DoMajorCivEraChange(PlayerTypes ePlayer, EraTypes eNewEra)
 			if(iOldFood != iNewFood)
 			{
 				bSomethingChanged = true;
+#if defined(MOD_BUGFIX_MINOR)
+				GET_PLAYER(ePlayer).ChangeCapitalYieldChangeTimes100(YIELD_FOOD, iNewFood - iOldFood);
+#else
 				GET_PLAYER(ePlayer).ChangeCapitalYieldChange(YIELD_FOOD, iNewFood - iOldFood);
+#endif
 			}
 
 			// Other Cities
@@ -9231,7 +9253,11 @@ bool CvMinorCivAI::DoMajorCivEraChange(PlayerTypes ePlayer, EraTypes eNewEra)
 			if(iOldFood != iNewFood)
 			{
 				bSomethingChanged = true;
+#if defined(MOD_BUGFIX_MINOR)
+				GET_PLAYER(ePlayer).ChangeCityYieldChangeTimes100(YIELD_FOOD, iNewFood - iOldFood);
+#else
 				GET_PLAYER(ePlayer).ChangeCityYieldChange(YIELD_FOOD, iNewFood - iOldFood);
+#endif
 			}
 		}
 	}
@@ -11850,6 +11876,19 @@ bool CvMinorCivAI::IsPeaceBlocked(TeamTypes eTeam) const
 
 		return true;
 	}
+	
+#if defined(MOD_CONFIG_GAME_IN_XML)
+	int iLimit = GD_INT_GET(WAR_MINOR_MINIMUM_TURNS);
+
+	if (iLimit > 0) {
+		int iTurns = m_pPlayer->GetDiplomacyAI()->GetTeamNumTurnsAtWar(eTeam);
+
+		if ((iTurns == 0 && GET_TEAM(m_pPlayer->getTeam()).isAtWar(eTeam)) || (iTurns != 0 && iTurns <= iLimit))
+		{
+			return true;
+		}
+	}
+#endif
 
 	return false;
 }

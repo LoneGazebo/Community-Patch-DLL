@@ -321,6 +321,7 @@ protected:
 	static int lIsBuildRemovesFeature(lua_State* L);
 
 #if defined(MOD_API_LUA_EXTENSIONS)
+	LUAAPIEXTN(SetArchaeologicalRecord, void, iArtifactClass, iEra, iPlayer1, iPlayer2);
 	LUAAPIEXTN(AddArchaeologicalRecord, void, iArtifactClass, iEra, iPlayer1, iPlayer2);
 #endif
 	static int lGetArchaeologyArtifactType(lua_State* L);

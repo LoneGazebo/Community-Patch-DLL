@@ -141,6 +141,21 @@ CvTraitEntry::CvTraitEntry() :
 	m_piStrategicResourceQuantityModifier(NULL),
 	m_piResourceQuantityModifiers(NULL),
 	m_ppiImprovementYieldChanges(NULL),
+#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
+	m_ppiPlotYieldChanges(NULL),
+#endif
+#if defined(MOD_API_UNIFIED_YIELDS)
+	m_paiCapitalYieldChanges(NULL),
+	m_paiCityYieldChanges(NULL),
+	m_paiCoastalCityYieldChanges(NULL),
+	m_paiGreatWorkYieldChanges(NULL),
+	m_ppiFeatureYieldChanges(NULL),
+	m_ppiResourceYieldChanges(NULL),
+	m_ppiTerrainYieldChanges(NULL),
+	m_paiYieldFromKills(NULL),
+	m_paiYieldChangeTradeRoute(NULL),
+	m_paiYieldChangeWorldWonder(NULL),
+#endif
 	m_ppiSpecialistYieldChanges(NULL),
 	m_ppiUnimprovedFeatureYieldChanges(NULL)
 {
@@ -150,6 +165,14 @@ CvTraitEntry::CvTraitEntry() :
 CvTraitEntry::~CvTraitEntry()
 {
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiImprovementYieldChanges);
+#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
+	CvDatabaseUtility::SafeDelete2DArray(m_ppiPlotYieldChanges);
+#endif
+#if defined(MOD_API_UNIFIED_YIELDS)
+	CvDatabaseUtility::SafeDelete2DArray(m_ppiFeatureYieldChanges);
+	CvDatabaseUtility::SafeDelete2DArray(m_ppiResourceYieldChanges);
+	CvDatabaseUtility::SafeDelete2DArray(m_ppiTerrainYieldChanges);
+#endif
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiSpecialistYieldChanges);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiUnimprovedFeatureYieldChanges);
 }
@@ -828,6 +851,88 @@ int CvTraitEntry::GetImprovementYieldChanges(ImprovementTypes eIndex1, YieldType
 	return m_ppiImprovementYieldChanges ? m_ppiImprovementYieldChanges[eIndex1][eIndex2] : 0;
 }
 
+#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
+/// Accessor:: Extra yield from a plot
+int CvTraitEntry::GetPlotYieldChanges(PlotTypes eIndex1, YieldTypes eIndex2) const
+{
+	if (MOD_API_PLOT_YIELDS) {
+		CvAssertMsg(eIndex1 < GC.getNumPlotInfos(), "Index out of bounds");
+		CvAssertMsg(eIndex1 > -1, "Index out of bounds");
+		CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "Index out of bounds");
+		CvAssertMsg(eIndex2 > -1, "Index out of bounds");
+		return m_ppiPlotYieldChanges ? m_ppiPlotYieldChanges[eIndex1][eIndex2] : 0;
+	} else {
+		return 0;
+	}
+}
+#endif
+
+#if defined(MOD_API_UNIFIED_YIELDS)
+int CvTraitEntry::GetCapitalYieldChanges(int i) const
+{
+	return m_paiCapitalYieldChanges ? m_paiCapitalYieldChanges[i] : -1;
+}
+
+int CvTraitEntry::GetCityYieldChanges(int i) const
+{
+	return m_paiCityYieldChanges ? m_paiCityYieldChanges[i] : -1;
+}
+
+int CvTraitEntry::GetCoastalCityYieldChanges(int i) const
+{
+	return m_paiCoastalCityYieldChanges ? m_paiCoastalCityYieldChanges[i] : -1;
+}
+
+int CvTraitEntry::GetGreatWorkYieldChanges(int i) const
+{
+	return m_paiGreatWorkYieldChanges ? m_paiGreatWorkYieldChanges[i] : -1;
+}
+
+int CvTraitEntry::GetFeatureYieldChanges(FeatureTypes eIndex1, YieldTypes eIndex2) const
+{
+	CvAssertMsg(eIndex1 < GC.getNumFeatureInfos(), "Index out of bounds");
+	CvAssertMsg(eIndex1 > -1, "Index out of bounds");
+	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(eIndex2 > -1, "Index out of bounds");
+	return m_ppiFeatureYieldChanges ? m_ppiFeatureYieldChanges[eIndex1][eIndex2] : 0;
+}
+
+int CvTraitEntry::GetResourceYieldChanges(ResourceTypes eIndex1, YieldTypes eIndex2) const
+{
+	CvAssertMsg(eIndex1 < GC.getNumResourceInfos(), "Index out of bounds");
+	CvAssertMsg(eIndex1 > -1, "Index out of bounds");
+	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(eIndex2 > -1, "Index out of bounds");
+	return m_ppiResourceYieldChanges ? m_ppiResourceYieldChanges[eIndex1][eIndex2] : 0;
+}
+
+int CvTraitEntry::GetTerrainYieldChanges(TerrainTypes eIndex1, YieldTypes eIndex2) const
+{
+	CvAssertMsg(eIndex1 < GC.getNumTerrainInfos(), "Index out of bounds");
+	CvAssertMsg(eIndex1 > -1, "Index out of bounds");
+	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(eIndex2 > -1, "Index out of bounds");
+	return m_ppiTerrainYieldChanges ? m_ppiTerrainYieldChanges[eIndex1][eIndex2] : 0;
+}
+
+int CvTraitEntry::GetYieldFromKills(YieldTypes eYield) const
+{
+	CvAssertMsg((int)eYield < NUM_YIELD_TYPES, "Yield type out of bounds");
+	CvAssertMsg((int)eYield > -1, "Index out of bounds");
+	return m_paiYieldFromKills ? m_paiYieldFromKills[(int)eYield] : 0;
+}
+
+int CvTraitEntry::GetYieldChangeTradeRoute(int i) const
+{
+	return m_paiYieldChangeTradeRoute ? m_paiYieldChangeTradeRoute[i] : 0;
+}
+
+int CvTraitEntry::GetYieldChangeWorldWonder(int i) const
+{
+	return m_paiYieldChangeWorldWonder ? m_paiYieldChangeWorldWonder[i] : 0;
+}
+#endif
+
 /// Accessor:: Extra yield from an improvement
 int CvTraitEntry::GetSpecialistYieldChanges(SpecialistTypes eIndex1, YieldTypes eIndex2) const
 {
@@ -1095,6 +1200,7 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	{
 		m_eFreeBuildingOnConquest = (BuildingTypes)GC.getInfoTypeForString(szTextVal, true);
 	}
+
 	m_bFightWellDamaged = kResults.GetBool("FightWellDamaged");
 	m_bMoveFriendlyWoodsAsRoad = kResults.GetBool("MoveFriendlyWoodsAsRoad");
 	m_bFasterAlongRiver = kResults.GetBool("FasterAlongRiver");
@@ -1272,6 +1378,115 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 			m_ppiImprovementYieldChanges[ImprovementID][YieldID] = yield;
 		}
 	}
+
+#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
+	//PlotYieldChanges
+	if (MOD_API_UNIFIED_YIELDS && MOD_API_PLOT_YIELDS)
+	{
+		kUtility.Initialize2DArray(m_ppiPlotYieldChanges, "Plots", "Yields");
+
+		std::string strKey("Trait_PlotYieldChanges");
+		Database::Results* pResults = kUtility.GetResults(strKey);
+		if(pResults == NULL)
+		{
+			pResults = kUtility.PrepareResults(strKey, "select Plots.ID as PlotID, Yields.ID as YieldID, Yield from Trait_PlotYieldChanges inner join Plots on Plots.Type = PlotType inner join Yields on Yields.Type = YieldType where TraitType = ?");
+		}
+
+		pResults->Bind(1, szTraitType);
+
+		while(pResults->Step())
+		{
+			const int PlotID = pResults->GetInt(0);
+			const int YieldID = pResults->GetInt(1);
+			const int yield = pResults->GetInt(2);
+
+			m_ppiPlotYieldChanges[PlotID][YieldID] = yield;
+		}
+	}
+#endif
+
+#if defined(MOD_API_UNIFIED_YIELDS)
+	kUtility.SetYields(m_paiCapitalYieldChanges, "Trait_CapitalYieldChanges", "TraitType", szTraitType);
+	kUtility.SetYields(m_paiCityYieldChanges, "Trait_CityYieldChanges", "TraitType", szTraitType);
+	kUtility.SetYields(m_paiCoastalCityYieldChanges, "Trait_CoastalCityYieldChanges", "TraitType", szTraitType);
+	kUtility.SetYields(m_paiGreatWorkYieldChanges, "Trait_GreatWorkYieldChanges", "TraitType", szTraitType);
+
+	//FeatureYieldChanges
+	if (MOD_API_UNIFIED_YIELDS)
+	{
+		kUtility.Initialize2DArray(m_ppiFeatureYieldChanges, "Features", "Yields");
+
+		std::string strKey("Trait_FeatureYieldChanges");
+		Database::Results* pResults = kUtility.GetResults(strKey);
+		if(pResults == NULL)
+		{
+			pResults = kUtility.PrepareResults(strKey, "select Features.ID as FeatureID, Yields.ID as YieldID, Yield from Trait_FeatureYieldChanges inner join Features on Features.Type = FeatureType inner join Yields on Yields.Type = YieldType where TraitType = ?");
+		}
+
+		pResults->Bind(1, szTraitType);
+
+		while(pResults->Step())
+		{
+			const int FeatureID = pResults->GetInt(0);
+			const int YieldID = pResults->GetInt(1);
+			const int yield = pResults->GetInt(2);
+
+			m_ppiFeatureYieldChanges[FeatureID][YieldID] = yield;
+		}
+	}
+	
+	//ResourceYieldChanges
+	if (MOD_API_UNIFIED_YIELDS)
+	{
+		kUtility.Initialize2DArray(m_ppiResourceYieldChanges, "Resources", "Yields");
+
+		std::string strKey("Trait_ResourceYieldChanges");
+		Database::Results* pResults = kUtility.GetResults(strKey);
+		if(pResults == NULL)
+		{
+			pResults = kUtility.PrepareResults(strKey, "select Resources.ID as ResourceID, Yields.ID as YieldID, Yield from Trait_ResourceYieldChanges inner join Resources on Resources.Type = ResourceType inner join Yields on Yields.Type = YieldType where TraitType = ?");
+		}
+
+		pResults->Bind(1, szTraitType);
+
+		while(pResults->Step())
+		{
+			const int ResourceID = pResults->GetInt(0);
+			const int YieldID = pResults->GetInt(1);
+			const int yield = pResults->GetInt(2);
+
+			m_ppiResourceYieldChanges[ResourceID][YieldID] = yield;
+		}
+	}
+	
+	//TerrainYieldChanges
+	if (MOD_API_UNIFIED_YIELDS)
+	{
+		kUtility.Initialize2DArray(m_ppiTerrainYieldChanges, "Terrains", "Yields");
+
+		std::string strKey("Trait_TerrainYieldChanges");
+		Database::Results* pResults = kUtility.GetResults(strKey);
+		if(pResults == NULL)
+		{
+			pResults = kUtility.PrepareResults(strKey, "select Terrains.ID as TerrainID, Yields.ID as YieldID, Yield from Trait_TerrainYieldChanges inner join Terrains on Terrains.Type = TerrainType inner join Yields on Yields.Type = YieldType where TraitType = ?");
+		}
+
+		pResults->Bind(1, szTraitType);
+
+		while(pResults->Step())
+		{
+			const int TerrainID = pResults->GetInt(0);
+			const int YieldID = pResults->GetInt(1);
+			const int yield = pResults->GetInt(2);
+
+			m_ppiTerrainYieldChanges[TerrainID][YieldID] = yield;
+		}
+	}
+	
+	kUtility.SetYields(m_paiYieldFromKills, "Trait_YieldFromKills", "TraitType", szTraitType);
+	kUtility.SetYields(m_paiYieldChangeTradeRoute, "Trait_YieldChangeTradeRoute", "TraitType", szTraitType);
+	kUtility.SetYields(m_paiYieldChangeWorldWonder, "Trait_YieldChangeWorldWonder", "TraitType", szTraitType);
+#endif
 
 	//SpecialistYieldChanges
 	{
@@ -1681,6 +1896,63 @@ void CvPlayerTraits::InitPlayerTraits()
 					}
 				}
 
+#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
+				for(int iPlotLoop = 0; iPlotLoop < GC.getNumPlotInfos(); iPlotLoop++)
+				{
+					int iChange = trait->GetPlotYieldChanges((PlotTypes)iPlotLoop, (YieldTypes)iYield);
+					if(iChange > 0)
+					{
+						Firaxis::Array<int, NUM_YIELD_TYPES> yields = m_ppaaiPlotYieldChange[iPlotLoop];
+						yields[iYield] = (m_ppaaiPlotYieldChange[iPlotLoop][iYield] + iChange);
+						m_ppaaiPlotYieldChange[iPlotLoop] = yields;
+					}
+				}
+#endif
+
+#if defined(MOD_API_UNIFIED_YIELDS)
+				m_iCapitalYieldChanges[iYield] = trait->GetCapitalYieldChanges(iYield);
+				m_iCityYieldChanges[iYield] = trait->GetCityYieldChanges(iYield);
+				m_iCoastalCityYieldChanges[iYield] = trait->GetCoastalCityYieldChanges(iYield);
+				m_iGreatWorkYieldChanges[iYield] = trait->GetGreatWorkYieldChanges(iYield);
+
+				for(int iFeatureLoop = 0; iFeatureLoop < GC.getNumFeatureInfos(); iFeatureLoop++)
+				{
+					int iChange = trait->GetFeatureYieldChanges((FeatureTypes)iFeatureLoop, (YieldTypes)iYield);
+					if(iChange > 0)
+					{
+						Firaxis::Array<int, NUM_YIELD_TYPES> yields = m_ppaaiFeatureYieldChange[iFeatureLoop];
+						yields[iYield] = (m_ppaaiFeatureYieldChange[iFeatureLoop][iYield] + iChange);
+						m_ppaaiFeatureYieldChange[iFeatureLoop] = yields;
+					}
+				}
+
+				for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+				{
+					int iChange = trait->GetResourceYieldChanges((ResourceTypes)iResourceLoop, (YieldTypes)iYield);
+					if(iChange > 0)
+					{
+						Firaxis::Array<int, NUM_YIELD_TYPES> yields = m_ppaaiResourceYieldChange[iResourceLoop];
+						yields[iYield] = (m_ppaaiResourceYieldChange[iResourceLoop][iYield] + iChange);
+						m_ppaaiResourceYieldChange[iResourceLoop] = yields;
+					}
+				}
+
+				for(int iTerrainLoop = 0; iTerrainLoop < GC.getNumTerrainInfos(); iTerrainLoop++)
+				{
+					int iChange = trait->GetTerrainYieldChanges((TerrainTypes)iTerrainLoop, (YieldTypes)iYield);
+					if(iChange > 0)
+					{
+						Firaxis::Array<int, NUM_YIELD_TYPES> yields = m_ppaaiTerrainYieldChange[iTerrainLoop];
+						yields[iYield] = (m_ppaaiTerrainYieldChange[iTerrainLoop][iYield] + iChange);
+						m_ppaaiTerrainYieldChange[iTerrainLoop] = yields;
+					}
+				}
+
+				m_iYieldFromKills[iYield] = trait->GetYieldFromKills((YieldTypes) iYield);
+				m_iYieldChangeTradeRoute[iYield] = trait->GetYieldChangeTradeRoute(iYield);
+				m_iYieldChangeWorldWonder[iYield] = trait->GetYieldChangeWorldWonder(iYield);
+#endif
+
 				for(int iSpecialistLoop = 0; iSpecialistLoop < GC.getNumSpecialistInfos(); iSpecialistLoop++)
 				{
 					int iChange = trait->GetSpecialistYieldChanges((SpecialistTypes)iSpecialistLoop, (YieldTypes)iYield);
@@ -1745,6 +2017,14 @@ void CvPlayerTraits::Uninit()
 	m_paiMovesChangeUnitCombat.clear();
 	m_paiMaintenanceModifierUnitCombat.clear();
 	m_ppaaiImprovementYieldChange.clear();
+#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
+	m_ppaaiPlotYieldChange.clear();
+#endif
+#if defined(MOD_API_UNIFIED_YIELDS)
+	m_ppaaiFeatureYieldChange.clear();
+	m_ppaaiResourceYieldChange.clear();
+	m_ppaaiTerrainYieldChange.clear();
+#endif
 	m_ppaaiSpecialistYieldChange.clear();
 	m_ppaaiUnimprovedFeatureYieldChange.clear();
 	m_aFreeResourceXCities.clear();
@@ -1863,12 +2143,23 @@ void CvPlayerTraits::Reset()
 	m_bIsNoReligiousStrife = false;
 #endif
 
-
 	m_eCampGuardType = NO_UNIT;
 	m_eCombatBonusImprovement = NO_IMPROVEMENT;
 
 	m_ppaaiImprovementYieldChange.clear();
 	m_ppaaiImprovementYieldChange.resize(GC.getNumImprovementInfos());
+#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
+	m_ppaaiPlotYieldChange.clear();
+	m_ppaaiPlotYieldChange.resize(GC.getNumPlotInfos());
+#endif
+#if defined(MOD_API_UNIFIED_YIELDS)
+	m_ppaaiFeatureYieldChange.clear();
+	m_ppaaiFeatureYieldChange.resize(GC.getNumFeatureInfos());
+	m_ppaaiResourceYieldChange.clear();
+	m_ppaaiResourceYieldChange.resize(GC.getNumResourceInfos());
+	m_ppaaiTerrainYieldChange.clear();
+	m_ppaaiTerrainYieldChange.resize(GC.getNumTerrainInfos());
+#endif
 	m_ppaaiSpecialistYieldChange.clear();
 	m_ppaaiSpecialistYieldChange.resize(GC.getNumSpecialistInfos());
 	m_ppaaiUnimprovedFeatureYieldChange.clear();
@@ -1894,6 +2185,33 @@ void CvPlayerTraits::Reset()
 		{
 			m_ppaaiImprovementYieldChange[iImprovement] = yield;
 		}
+#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
+		for(int iPlot = 0; iPlot < GC.getNumPlotInfos(); iPlot++)
+		{
+			m_ppaaiPlotYieldChange[iPlot] = yield;
+		}
+#endif
+#if defined(MOD_API_UNIFIED_YIELDS)
+		m_iCapitalYieldChanges[iYield] = 0;
+		m_iCityYieldChanges[iYield] = 0;
+		m_iCoastalCityYieldChanges[iYield] = 0;
+		m_iGreatWorkYieldChanges[iYield] = 0;
+		for(int iFeature = 0; iFeature < GC.getNumFeatureInfos(); iFeature++)
+		{
+			m_ppaaiFeatureYieldChange[iFeature] = yield;
+		}
+		for(int iResource = 0; iResource < GC.getNumResourceInfos(); iResource++)
+		{
+			m_ppaaiResourceYieldChange[iResource] = yield;
+		}
+		for(int iTerrain = 0; iTerrain < GC.getNumTerrainInfos(); iTerrain++)
+		{
+			m_ppaaiTerrainYieldChange[iTerrain] = yield;
+		}
+		m_iYieldFromKills[iYield] = 0;
+		m_iYieldChangeTradeRoute[iYield] = 0;
+		m_iYieldChangeWorldWonder[iYield] = 0;
+#endif
 		for(int iSpecialist = 0; iSpecialist < GC.getNumSpecialistInfos(); iSpecialist++)
 		{
 			m_ppaaiSpecialistYieldChange[iSpecialist] = yield;
@@ -2057,6 +2375,54 @@ int CvPlayerTraits::GetImprovementYieldChange(ImprovementTypes eImprovement, Yie
 
 	return m_ppaaiImprovementYieldChange[(int)eImprovement][(int)eYield];
 }
+
+#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
+/// Extra yield from this plot
+int CvPlayerTraits::GetPlotYieldChange(PlotTypes ePlot, YieldTypes eYield) const
+{
+	if (MOD_API_PLOT_YIELDS) {
+		CvAssertMsg(ePlot < GC.getNumPlotInfos(),  "Invalid ePlot parameter in call to CvPlayerTraits::GetPlotYieldChange()");
+		CvAssertMsg(eYield < NUM_YIELD_TYPES,  "Invalid eYield parameter in call to CvPlayerTraits::GetPlotYieldChange()");
+
+		return m_ppaaiPlotYieldChange[(int)ePlot][(int)eYield];
+	} else {
+		return 0;
+	}
+}
+#endif
+
+#if defined(MOD_API_UNIFIED_YIELDS)
+int CvPlayerTraits::GetFeatureYieldChange(FeatureTypes eFeature, YieldTypes eYield) const
+{
+	CvAssertMsg(eFeature < GC.getNumFeatureInfos(),  "Invalid eFeature parameter in call to CvPlayerTraits::GetFeatureYieldChange()");
+	CvAssertMsg(eYield < NUM_YIELD_TYPES,  "Invalid eYield parameter in call to CvPlayerTraits::GetFeatureYieldChange()");
+
+	return m_ppaaiFeatureYieldChange[(int)eFeature][(int)eYield];
+}
+
+int CvPlayerTraits::GetResourceYieldChange(ResourceTypes eResource, YieldTypes eYield) const
+{
+	CvAssertMsg(eResource < GC.getNumResourceInfos(),  "Invalid eResource parameter in call to CvPlayerTraits::GetResourceYieldChange()");
+	CvAssertMsg(eYield < NUM_YIELD_TYPES,  "Invalid eYield parameter in call to CvPlayerTraits::GetResourceYieldChange()");
+
+	return m_ppaaiResourceYieldChange[(int)eResource][(int)eYield];
+}
+
+int CvPlayerTraits::GetTerrainYieldChange(TerrainTypes eTerrain, YieldTypes eYield) const
+{
+	CvAssertMsg(eTerrain < GC.getNumTerrainInfos(),  "Invalid eTerrain parameter in call to CvPlayerTraits::GetTerrainYieldChange()");
+	CvAssertMsg(eYield < NUM_YIELD_TYPES,  "Invalid eYield parameter in call to CvPlayerTraits::GetTerrainYieldChange()");
+
+	return m_ppaaiTerrainYieldChange[(int)eTerrain][(int)eYield];
+}
+
+int CvPlayerTraits::GetYieldFromKills(YieldTypes eYield) const
+{
+	CvAssertMsg((int)eYield < NUM_YIELD_TYPES, "Yield type out of bounds");
+	CvAssertMsg((int)eYield > -1, "Index out of bounds");
+	return m_iYieldFromKills[(int)eYield];
+}
+#endif
 
 /// Extra yield from this specialist
 int CvPlayerTraits::GetSpecialistYieldChange(SpecialistTypes eSpecialist, YieldTypes eYield) const
@@ -3217,6 +3583,37 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	}
 
 	kStream >> m_ppaaiImprovementYieldChange;
+#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
+	// MOD_SERIALIZE_READ - v57/v58/v59 broke the save format  couldn't be helped, but don't make a habit of it!!!
+	kStream >> m_ppaaiPlotYieldChange;
+#endif
+#if defined(MOD_API_UNIFIED_YIELDS)
+	// MOD_SERIALIZE_READ - v57/v58/v59 broke the save format  couldn't be helped, but don't make a habit of it!!!
+	ArrayWrapper<int> kCapitalYieldChangesWrapper(NUM_YIELD_TYPES, m_iCapitalYieldChanges);
+	kStream >> kCapitalYieldChangesWrapper;
+
+	ArrayWrapper<int> kCityYieldChangesWrapper(NUM_YIELD_TYPES, m_iCityYieldChanges);
+	kStream >> kCityYieldChangesWrapper;
+
+	ArrayWrapper<int> kCoastalCityYieldChangesWrapper(NUM_YIELD_TYPES, m_iCoastalCityYieldChanges);
+	kStream >> kCoastalCityYieldChangesWrapper;
+
+	ArrayWrapper<int> kGreatWorkYieldChangesWrapper(NUM_YIELD_TYPES, m_iGreatWorkYieldChanges);
+	kStream >> kGreatWorkYieldChangesWrapper;
+
+	kStream >> m_ppaaiFeatureYieldChange;
+	kStream >> m_ppaaiResourceYieldChange;
+	kStream >> m_ppaaiTerrainYieldChange;
+
+	ArrayWrapper<int> kYieldFromKillsWrapper(NUM_YIELD_TYPES, m_iYieldFromKills);
+	kStream >> kYieldFromKillsWrapper;
+
+	ArrayWrapper<int> kYieldChangeTradeRouteWrapper(NUM_YIELD_TYPES, m_iYieldChangeTradeRoute);
+	kStream >> kYieldChangeTradeRouteWrapper;
+
+	ArrayWrapper<int> kYieldChangeWorldWonderWrapper(NUM_YIELD_TYPES, m_iYieldChangeWorldWonder);
+	kStream >> kYieldChangeWorldWonderWrapper;
+#endif
 	kStream >> m_ppaaiSpecialistYieldChange;
 
 	kStream >> m_ppaaiUnimprovedFeatureYieldChange;
@@ -3409,6 +3806,23 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	}
 
 	kStream << m_ppaaiImprovementYieldChange;
+#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
+	// MOD_SERIALIZE_READ - v57/v58/v59 broke the save format  couldn't be helped, but don't make a habit of it!!!
+	kStream << m_ppaaiPlotYieldChange;
+#endif
+#if defined(MOD_API_UNIFIED_YIELDS)
+	// MOD_SERIALIZE_READ - v57/v58/v59 broke the save format  couldn't be helped, but don't make a habit of it!!!
+	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iCapitalYieldChanges);
+	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iCityYieldChanges);
+	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iCoastalCityYieldChanges);
+	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iGreatWorkYieldChanges);
+	kStream << m_ppaaiFeatureYieldChange;
+	kStream << m_ppaaiResourceYieldChange;
+	kStream << m_ppaaiTerrainYieldChange;
+	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iYieldFromKills);
+	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iYieldChangeTradeRoute);
+	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iYieldChangeWorldWonder);
+#endif
 	kStream << m_ppaaiSpecialistYieldChange;
 	kStream << m_ppaaiUnimprovedFeatureYieldChange;
 

@@ -102,6 +102,13 @@ public:
 	int GetFeatureYieldChange(int i, int j) const;
 	int GetResourceYieldChange(int i, int j) const;
 	int GetTerrainYieldChange(int i, int j) const;
+#if defined(MOD_API_UNIFIED_YIELDS)
+	int GetSpecialistYieldChange(int i, int j) const;
+	int GetCapitalYieldChange(int i) const;
+	int GetCoastalCityYieldChange(int i) const;
+	int GetGreatWorkYieldChange(int i) const;
+	int GetYieldFromKills(YieldTypes eYield) const;
+#endif
 #if defined(MOD_RELIGION_PLOT_YIELDS)
 	int GetPlotYieldChange(int i, int j) const;
 #endif
@@ -191,6 +198,13 @@ protected:
 	int** m_ppaiFeatureYieldChange;
 	int** m_ppaiResourceYieldChange;
 	int** m_ppaiTerrainYieldChange;
+#if defined(MOD_API_UNIFIED_YIELDS)
+	int** m_ppaiSpecialistYieldChange;
+	int* m_paiCapitalYieldChange;
+	int* m_paiCoastalCityYieldChange;
+	int* m_paiGreatWorkYieldChange;
+	int* m_piYieldFromKills;
+#endif
 #if defined(MOD_RELIGION_PLOT_YIELDS)
 	int** m_ppaiPlotYieldChange;
 #endif
@@ -392,6 +406,13 @@ public:
 	int GetFeatureYieldChange(FeatureTypes eFeature, YieldTypes eYieldType) const;
 	int GetResourceYieldChange(ResourceTypes eResource, YieldTypes eYieldType) const;
 	int GetTerrainYieldChange(TerrainTypes eTerrain, YieldTypes eYieldType) const;
+#if defined(MOD_API_UNIFIED_YIELDS)
+	int GetSpecialistYieldChange(SpecialistTypes eSpecialist, YieldTypes eYieldType) const;
+	int GetCapitalYieldChange(int iPopulation, YieldTypes eYield) const;
+	int GetCoastalCityYieldChange(int iPopulation, YieldTypes eYield) const;
+	int GetGreatWorkYieldChange(int iPopulation, YieldTypes eYield) const;
+	int GetYieldFromKills(YieldTypes eYield) const;
+#endif
 #if defined(MOD_RELIGION_PLOT_YIELDS)
 	int GetPlotYieldChange(PlotTypes ePlot, YieldTypes eYieldType) const;
 #endif

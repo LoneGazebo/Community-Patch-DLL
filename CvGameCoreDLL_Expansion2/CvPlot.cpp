@@ -7809,7 +7809,7 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, TeamTypes eTeam, bool bIgnor
 	ReligionTypes eMajority = NO_RELIGION;
 	BeliefTypes eSecondaryPantheon = NO_BELIEF;
 
-#if !defined(MOD_RELIGION_PLOT_YIELDS)
+#if !defined(MOD_RELIGION_PLOT_YIELDS) && !defined(MOD_API_PLOT_YIELDS)
 	if(isImpassable() || isMountain())
 	{
 		// No Feature, or the Feature isn't a Natural Wonder (which are impassable but allowed to be worked)
@@ -7831,13 +7831,19 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, TeamTypes eTeam, bool bIgnor
 
 	CvAssertMsg(getTerrainType() != NO_TERRAIN, "TerrainType is not assigned a valid value");
 
-#if defined(MOD_RELIGION_PLOT_YIELDS)
+#if defined(MOD_RELIGION_PLOT_YIELDS) || defined(MOD_API_PLOT_YIELDS)
 	// Impassable terrain and mountains have no base yield
 	if(isImpassable() || isMountain()) {
 		iYield = 0;
 	} else
 #endif
 		iYield = GC.getTerrainInfo(getTerrainType())->getYield(eYield);
+
+#if defined(MOD_API_PLOT_YIELDS)
+	if (MOD_API_PLOT_YIELDS) {
+		iYield += GC.getPlotInfo(getPlotType())->getYield(eYield);
+	}
+#endif
 
 	// Extra yield for religion on this terrain
 	if(pWorkingCity != NULL && eMajority != NO_RELIGION)
@@ -7966,6 +7972,15 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, TeamTypes eTeam, bool bIgnor
 					iYieldChange += iReligionChange;
 				}
 			}
+
+#if defined(MOD_API_UNIFIED_YIELDS)
+			if(m_eOwner != NO_PLAYER)
+			{
+				iYieldChange += GET_PLAYER((PlayerTypes)m_eOwner).getFeatureYieldChange(getFeatureType(), eYield);
+				iYieldChange += GET_PLAYER((PlayerTypes)m_eOwner).GetPlayerTraits()->GetFeatureYieldChange(getFeatureType(), eYield);
+			}
+#endif
+
 			// Natural Wonders
 			if(m_eOwner != NO_PLAYER && pFeatureInfo->IsNaturalWonder())
 			{
@@ -7994,6 +8009,9 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, TeamTypes eTeam, bool bIgnor
 				}
 
 				iYieldChange += GET_PLAYER((PlayerTypes)m_eOwner).GetPlayerTraits()->GetYieldChangeNaturalWonder(eYield);
+#if defined(MOD_API_UNIFIED_YIELDS)
+				iYieldChange += GET_PLAYER((PlayerTypes)m_eOwner).GetYieldChangesNaturalWonder(eYield);
+#endif
 
 				iMod += GET_PLAYER((PlayerTypes)m_eOwner).GetPlayerTraits()->GetNaturalWonderYieldModifier();
 				if(iMod > 0)
@@ -8036,6 +8054,14 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, TeamTypes eTeam, bool bIgnor
 					iYield += iReligionChange;
 				}
 			}
+
+#if defined(MOD_API_UNIFIED_YIELDS)
+			if(m_eOwner != NO_PLAYER)
+			{
+				iYield += GET_PLAYER((PlayerTypes)m_eOwner).getResourceYieldChange(eResource, eYield);
+				iYield += GET_PLAYER((PlayerTypes)m_eOwner).GetPlayerTraits()->GetResourceYieldChange(eResource, eYield);
+			}
+#endif
 		}
 	}
 
@@ -8048,54 +8074,24 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, TeamTypes eTeam, bool bIgnor
 	{
 		iYield += ((bIgnoreFeature || (getFeatureType() == NO_FEATURE)) ? GC.getTerrainInfo(getTerrainType())->getHillsYieldChange(eYield) : GC.getFeatureInfo(getFeatureType())->getHillsYieldChange(eYield));
 	}
-#if defined(MOD_BALANCE_CORE_YIELDS)
-	if(MOD_BALANCE_CORE_YIELDS)
+
+#if defined(MOD_API_UNIFIED_YIELDS)
+	if(isFreshWater())
 	{
-		if(getPlotType() != NO_PLOT && pWorkingCity != NULL && !isCity())
-		{
-			//PLOT_LAND should only apply to featureless, flat terrain (other modifiers exist for other types of features and plots)
-			if(getPlotType() == PLOT_LAND)
-			{
-				if(getFeatureType() == NO_FEATURE && !isHills() && !isMountain() && !isImpassable())
-				{
-					for(int iPolicyLoop = 0; iPolicyLoop < GC.getNumPolicyInfos(); iPolicyLoop++)
-					{
-						PolicyTypes ePolicy = (PolicyTypes)iPolicyLoop;
-						CvPolicyEntry* pkPolicyInfo = GC.getPolicyInfo(ePolicy);
-						if(pkPolicyInfo)
-						{
-							if(pkPolicyInfo->GetPlotYieldChanges(getPlotType(), eYield) > 0)
-							{
-								if(GET_PLAYER((PlayerTypes)m_eOwner).GetPlayerPolicies()->HasPolicy(ePolicy) && !GET_PLAYER((PlayerTypes)m_eOwner).GetPlayerPolicies()->IsPolicyBlocked(ePolicy))
-								{
-									iYield += GC.getPolicyInfo(ePolicy)->GetPlotYieldChanges(getPlotType(), eYield);
-								}
-							}
-						}
-					}
-				}
-			}
-			else
-			{
-				for(int iPolicyLoop = 0; iPolicyLoop < GC.getNumPolicyInfos(); iPolicyLoop++)
-				{
-					PolicyTypes ePolicy = (PolicyTypes)iPolicyLoop;
-					CvPolicyEntry* pkPolicyInfo = GC.getPolicyInfo(ePolicy);
-					if(pkPolicyInfo)
-					{
-						if(pkPolicyInfo->GetPlotYieldChanges(getPlotType(), eYield) > 0)
-						{
-							if(GET_PLAYER((PlayerTypes)m_eOwner).GetPlayerPolicies()->HasPolicy(ePolicy) && !GET_PLAYER((PlayerTypes)m_eOwner).GetPlayerPolicies()->IsPolicyBlocked(ePolicy))
-							{
-								iYield += GC.getPolicyInfo(ePolicy)->GetPlotYieldChanges(getPlotType(), eYield);
-							}
-						}
-					}
-				}
-			}
-		}
+		iYield += ((bIgnoreFeature || (getFeatureType() == NO_FEATURE)) ? GC.getTerrainInfo(getTerrainType())->getFreshWaterYieldChange(eYield) : GC.getFeatureInfo(getFeatureType())->getFreshWaterYieldChange(eYield));
+	}
+
+	if(isCoastalLand())
+	{
+		iYield += ((bIgnoreFeature || (getFeatureType() == NO_FEATURE)) ? GC.getTerrainInfo(getTerrainType())->getCoastalLandYieldChange(eYield) : GC.getFeatureInfo(getFeatureType())->getCoastalLandYieldChange(eYield));
+	}
+
+	if(eTeam != NO_TEAM)
+	{
+		iYield += ((bIgnoreFeature || (getFeatureType() == NO_FEATURE)) ? GET_TEAM(eTeam).getTerrainYieldChange(getTerrainType(), eYield) : GET_TEAM(eTeam).getFeatureYieldChange(getFeatureType(), eYield));
 	}
 #endif
+
 	return std::max(0, iYield);
 }
 
@@ -8156,7 +8152,7 @@ int CvPlot::calculateImprovementYieldChange(ImprovementTypes eImprovement, Yield
 	{
 		iYield += pImprovement->GetHillsYieldChange(eYield);
 	}
-
+	
 	// Check to see if there's a bonus to apply before doing any looping
 	if(pImprovement->GetAdjacentCityYieldChange(eYield) > 0 ||
 	        pImprovement->GetAdjacentMountainYieldChange(eYield) > 0)
@@ -8183,7 +8179,11 @@ int CvPlot::calculateImprovementYieldChange(ImprovementTypes eImprovement, Yield
 		}
 	}
 
+#if defined(MOD_API_UNIFIED_YIELDS)
+	if(isFreshWater() || bOptimal)
+#else
 	if(bOptimal)
+#endif
 	{
 		iYield += pImprovement->GetFreshWaterYieldChange(eYield);
 	}
@@ -8349,6 +8349,18 @@ int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay)
 
 	iYield = calculateNatureYield(eYield, ((ePlayer != NO_PLAYER) ? GET_PLAYER(ePlayer).getTeam() : NO_TEAM));
 
+#if defined(MOD_API_UNIFIED_YIELDS)
+	if (ePlayer != NO_PLAYER) {
+		CvPlayer& kPlayer = GET_PLAYER(ePlayer);
+#if defined(MOD_API_PLOT_YIELDS)
+		iYield += kPlayer.GetPlayerTraits()->GetPlotYieldChange(getPlotType(), eYield);
+		iYield += kPlayer.getPlotYieldChange(getPlotType(), eYield);
+#endif
+		iYield += kPlayer.GetPlayerTraits()->GetTerrainYieldChange(getTerrainType(), eYield);
+		iYield += kPlayer.getTerrainYieldChange(getTerrainType(), eYield);
+	}
+#endif
+
 	if(eImprovement != NO_IMPROVEMENT && !IsImprovementPillaged())
 	{
 		int iCultureBoost = calculateImprovementYieldChange(eImprovement, eYield, ePlayer);
@@ -8465,6 +8477,14 @@ int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay)
 			}
 		}
 
+#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
+		// Extra yield for plot
+		if(pWorkingCity != NULL)
+		{
+			iYield += pWorkingCity->GetPlotExtraYield(getPlotType(), eYield);
+		}
+#endif
+
 		// Extra yield for terrain
 		if(getTerrainType() != NO_TERRAIN)
 		{
@@ -8473,52 +8493,6 @@ int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay)
 				iYield += pWorkingCity->GetTerrainExtraYield(getTerrainType(), eYield);
 			}
 		}
-
-#if defined(MOD_BALANCE_CORE_YIELDS)
-		if(MOD_BALANCE_CORE_YIELDS)
-		{
-			if(getPlotType() != NO_PLOT && !isCity())
-			{
-				if(pWorkingCity != NULL)
-				{
-					//PLOT_LAND should only apply to featureless, flat terrain (other modifiers exist for other types of features and plots)
-					if(getPlotType() == PLOT_LAND)
-					{
-						if(getFeatureType() == NO_FEATURE && !isHills() && !isMountain() && !isImpassable())
-						{
-							for(int iI = 0; iI < GC.getNumBuildingInfos(); ++iI)
-							{
-								const BuildingTypes eBuilding = static_cast<BuildingTypes>(iI);
-								CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
-								if(pkBuildingInfo)
-								{
-									if(pWorkingCity->GetCityBuildings()->GetNumActiveBuilding(eBuilding) > 0)
-									{
-										iYield += pkBuildingInfo->GetPlotYieldChange(getPlotType(), eYield);
-									}
-								}
-							}
-						}
-					}
-					else
-					{
-						for(int iI = 0; iI < GC.getNumBuildingInfos(); ++iI)
-						{
-							const BuildingTypes eBuilding = static_cast<BuildingTypes>(iI);
-							CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
-							if(pkBuildingInfo)
-							{
-								if(pWorkingCity->GetCityBuildings()->GetNumActiveBuilding(eBuilding) > 0)
-								{
-									iYield += pkBuildingInfo->GetPlotYieldChange(getPlotType(), eYield);
-								}
-							}
-						}
-					}
-				}
-			}
-		}	
-#endif
 
 		ResourceTypes eResource = getResourceType(GET_PLAYER(ePlayer).getTeam());
 		if(eResource != NO_RESOURCE)
@@ -8548,18 +8522,35 @@ int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay)
 		iYield = std::max(iYield, kYield.getMinCity());
 
 		// Mod for Player; used for Policies and such
+#if defined(MOD_BUGFIX_MINOR)
+		int iTemp = GET_PLAYER(getOwner()).GetCityYieldChangeTimes100(eYield);	// In hundreds - will be added to capitalYieldChange below
+#else
 		int iTemp = GET_PLAYER(getOwner()).GetCityYieldChange(eYield);	// In hundreds - will be added to capitalYieldChange below
+#endif
+#if defined(MOD_API_UNIFIED_YIELDS)
+		iYield += GET_PLAYER(getOwner()).GetPlayerTraits()->GetCityYieldChanges(eYield);
+#endif
 
 		// Coastal City Mod
 		if(pCity->isCoastal())
 		{
 			iYield += GET_PLAYER(getOwner()).GetCoastalCityYieldChange(eYield);
+#if defined(MOD_API_UNIFIED_YIELDS)
+			iYield += GET_PLAYER(getOwner()).GetPlayerTraits()->GetCoastalCityYieldChanges(eYield);
+#endif
 		}
 
 		// Capital Mod
 		if(pCity->isCapital())
 		{
+#if defined(MOD_BUGFIX_MINOR)
+			iTemp += GET_PLAYER(getOwner()).GetCapitalYieldChangeTimes100(eYield);
+#else
 			iTemp += GET_PLAYER(getOwner()).GetCapitalYieldChange(eYield);
+#endif
+#if defined(MOD_API_UNIFIED_YIELDS)
+			iYield += GET_PLAYER(getOwner()).GetPlayerTraits()->GetCapitalYieldChanges(eYield);
+#endif
 
 			int iPerPopYield = pCity->getPopulation() * GET_PLAYER(getOwner()).GetCapitalYieldPerPopChange(eYield);
 			iPerPopYield /= 100;
@@ -9138,6 +9129,11 @@ void CvPlot::SetNoSettling(PlayerTypes eMajor, bool bValue)
 bool CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, bool bTerrainOnly, TeamTypes eFromTeam)
 {
 	int iI;
+	
+#if defined(MOD_EVENTS_TILE_REVEALED)
+	// We need to capture this value here, as a Natural Wonder may update it before we need it
+	int iRevealedMajors = getNumMajorCivsRevealed();
+#endif
 
 	CvAssertMsg(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
@@ -9507,6 +9503,21 @@ bool CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, bool bTerrainOnly, Tea
 			bVisbilityUpdated = true;
 		}
 	}
+	
+#if defined(MOD_EVENTS_TILE_REVEALED)
+	CvTeam& kTeam = GET_TEAM(eTeam);
+	
+	if (MOD_EVENTS_TILE_REVEALED && bNewValue) {
+		GAMEEVENTINVOKE_HOOK(GAMEEVENT_TileRevealed, getX(), getY(), eTeam, eFromTeam, (kTeam.isMajorCiv() && iRevealedMajors == 0));
+	}
+
+	// This is badly named, as it's actually an on/off "revealed to any major" flag, not a counter
+	if (getNumMajorCivsRevealed() == 0) {
+		if (kTeam.isMajorCiv()) {
+			changeNumMajorCivsRevealed(1);
+		}
+	}
+#endif
 
 	return bVisbilityUpdated;
 }
@@ -11295,6 +11306,14 @@ int CvPlot::getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUp
 		}
 
 
+#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
+		// Extra yield for plot
+		if(pWorkingCity != NULL)
+		{
+			iYield += pWorkingCity->GetPlotExtraYield(getPlotType(), eYield);
+		}
+#endif
+
 		// Extra yield for terrain
 		if(getTerrainType() != NO_TERRAIN)
 		{
@@ -11329,18 +11348,35 @@ int CvPlot::getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUp
 		iYield = std::max(iYield, kYield.getMinCity());
 
 		// Mod for Player; used for Policies and such
+#if defined(MOD_BUGFIX_MINOR)
+		int iTemp = GET_PLAYER(getOwner()).GetCityYieldChangeTimes100(eYield);	// In hundreds - will be added to capitalYieldChange below
+#else
 		int iTemp = GET_PLAYER(getOwner()).GetCityYieldChange(eYield);	// In hundreds - will be added to capitalYieldChange below
+#endif
+#if defined(MOD_API_UNIFIED_YIELDS)
+		iTemp += GET_PLAYER(getOwner()).GetPlayerTraits()->GetCityYieldChanges(eYield);
+#endif
 
 		// Coastal City Mod
 		if(pCity->isCoastal())
 		{
 			iYield += GET_PLAYER(getOwner()).GetCoastalCityYieldChange(eYield);
+#if defined(MOD_API_UNIFIED_YIELDS)
+			iYield += GET_PLAYER(getOwner()).GetPlayerTraits()->GetCoastalCityYieldChanges(eYield);
+#endif
 		}
 
 		// Capital Mod
 		if(pCity->isCapital())
 		{
+#if defined(MOD_BUGFIX_MINOR)
+			iTemp += GET_PLAYER(getOwner()).GetCapitalYieldChangeTimes100(eYield);
+#else
 			iTemp += GET_PLAYER(getOwner()).GetCapitalYieldChange(eYield);
+#endif
+#if defined(MOD_API_UNIFIED_YIELDS)
+			iYield += GET_PLAYER(getOwner()).GetPlayerTraits()->GetCapitalYieldChanges(eYield);
+#endif
 
 			int iPerPopYield = pCity->getPopulation() * GET_PLAYER(getOwner()).GetCapitalYieldPerPopChange(eYield);
 			iPerPopYield /= 100;
@@ -11651,6 +11687,32 @@ bool CvPlot::MustPayMaintenanceHere(PlayerTypes ePlayer) const
 
 	return true;
 }
+
+#if defined(MOD_API_EXTENSIONS)
+//	---------------------------------------------------------------------------
+void CvPlot::SetArchaeologicalRecord(GreatWorkArtifactClass eType, PlayerTypes ePlayer1, PlayerTypes ePlayer2)
+{
+	if (ePlayer1 != NO_PLAYER)
+	{
+		m_kArchaeologyData.m_eArtifactType = eType;
+		m_kArchaeologyData.m_ePlayer1 = ePlayer1;
+		m_kArchaeologyData.m_ePlayer2 = ePlayer2;
+		m_kArchaeologyData.m_eEra = GET_PLAYER(ePlayer1).GetCurrentEra();
+	}
+}
+
+//	---------------------------------------------------------------------------
+void CvPlot::SetArchaeologicalRecord(GreatWorkArtifactClass eType, EraTypes eEra, PlayerTypes ePlayer1, PlayerTypes ePlayer2)
+{
+	if (ePlayer1 != NO_PLAYER)
+	{
+		m_kArchaeologyData.m_eArtifactType = eType;
+		m_kArchaeologyData.m_ePlayer1 = ePlayer1;
+		m_kArchaeologyData.m_ePlayer2 = ePlayer2;
+		m_kArchaeologyData.m_eEra = eEra;
+	}
+}
+#endif
 
 //	---------------------------------------------------------------------------
 void CvPlot::AddArchaeologicalRecord(GreatWorkArtifactClass eType, PlayerTypes ePlayer1, PlayerTypes ePlayer2)
