@@ -3184,6 +3184,9 @@ void CvCityBuildings::SetBuildingGreatWork(BuildingClassTypes eBuildingClass, in
 		m_aBuildingGreatWork.push_back(kWork);
 	}
 
+	// TODO - WH - by caching m_eCurrentOwner, m_iCurrentCity, m_iCurrentBuilding and m_iCurrentSlot for the Great Work here,
+	//	           a load of code that scans players/cities/buildings/slots can be speeded up
+
 	GC.GetEngineUserInterface()->setDirty(CityInfo_DIRTY_BIT, true);
 }
 

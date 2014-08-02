@@ -1253,7 +1253,6 @@ bool CvCityCitizens::DoAddBestCitizenFromUnassigned()
 						{
 							DoAddSpecialistToBuilding(eBestBuilding, false);
 							return true;
-
 						}
 					}
 				}

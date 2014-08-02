@@ -2291,7 +2291,12 @@ int CvGameReligions::GetAdjacentCityReligiousPressure (ReligionTypes eReligion, 
 
 		// Strengthened spread from World Congress? (World Religion)
 		int iLeaguesMod = GC.getGame().GetGameLeagues()->GetReligionSpreadStrengthModifier(pFromCity->getOwner(), eReligion);
+#if defined(MOD_API_EXTENSIONS)
+		// Trust the modder if they set a negative mod
+		if (iLeaguesMod != 0)
+#else
 		if (iLeaguesMod > 0)
+#endif
 		{
 			iPressure *= (100 + iLeaguesMod);
 			iPressure /= 100;
@@ -2299,7 +2304,12 @@ int CvGameReligions::GetAdjacentCityReligiousPressure (ReligionTypes eReligion, 
 
 		// Building that boosts pressure from originating city?
 		int iModifier = pFromCity->GetCityReligions()->GetReligiousPressureModifier();
-		if (iModifier > 0)
+#if defined(MOD_API_EXTENSIONS)
+		// Trust the modder if they set a negative mod
+		if (iLeaguesMod != 0)
+#else
+		if (iLeaguesMod > 0)
+#endif
 		{
 			iPressure *= (100 + iModifier);
 			iPressure /= 100;
@@ -2864,8 +2874,16 @@ bool CvPlayerReligions::HasAddedReformationBelief() const
 }
 
 /// Get the religion this player created
-ReligionTypes CvPlayerReligions::GetReligionCreatedByPlayer() const
+ReligionTypes CvPlayerReligions::GetReligionCreatedByPlayer(bool bIncludePantheon) const
 {
+#if defined(MOD_API_EXTENSIONS)
+	if (bIncludePantheon) {
+		if (!HasCreatedReligion() && HasCreatedPantheon()) {
+			return RELIGION_PANTHEON;
+		}
+	}
+#endif
+
 	return GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(m_pPlayer->GetID());
 }
 

@@ -285,6 +285,7 @@ public:
 	CvString GetThemingBonusHelp() const;
 
 	// Accessor Functions (Arrays)
+
 	int GetYieldChange(int i) const;
 	int* GetYieldChangeArray() const;
 	int GetYieldChangePerPop(int i) const;
@@ -706,6 +707,7 @@ public:
 	int GetNumGreatWorks() const;
 #endif
 	int GetNumGreatWorks(GreatWorkSlotType eGreatWorkSlot) const;
+
 	int GetLandmarksTourismPercent() const;
 	void ChangeLandmarksTourismPercent(int iChange);
 	int GetGreatWorksTourismModifier() const;

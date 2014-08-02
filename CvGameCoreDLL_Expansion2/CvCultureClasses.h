@@ -32,6 +32,9 @@ public:
 	int m_iTurnFounded;
 	EraTypes m_eEra;
 	PlayerTypes m_ePlayer;
+	
+	// TODO - WH - by adding m_eCurrentOwner, m_iCurrentCity, m_iCurrentBuilding and m_iCurrentSlot here,
+	//	           a load of code that scans players/cities/buildings/slots can be speeded up
 };
 
 FDataStream& operator>>(FDataStream&, CvGreatWork&);
@@ -74,6 +77,9 @@ public:
 	CvString GetGreatWorkEraShort(int iIndex) const;
 	PlayerTypes GetGreatWorkCreator (int iIndex) const;
 	PlayerTypes GetGreatWorkController(int iIndex) const;
+#if defined(MOD_API_EXTENSIONS)
+	CvCity* GetGreatWorkCity(int iIndex) const;
+#endif
 	int GetGreatWorkCurrentThemingBonus (int iIndex) const;
 
 	bool SwapGreatWorks (PlayerTypes ePlayer1, int iWork1, PlayerTypes ePlayer2, int iWork2);

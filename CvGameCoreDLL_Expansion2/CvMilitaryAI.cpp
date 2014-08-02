@@ -4076,7 +4076,6 @@ bool CvMilitaryAI::IsAttackReady(MultiunitFormationTypes eFormation, AIOperation
 		bRequiresNavalMoves = true;
 	}
 
-
 	iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(m_pPlayer, eFormation, bRequiresNavalMoves, &iNumRequiredSlots, &iLandReservesUsed);
 	if(iFilledSlots >= iNumRequiredSlots)
 	{

@@ -193,6 +193,9 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(IsNoCapture);
 	Method(IsRivalTerritory);
 	Method(IsFound);
+#if defined(MOD_API_LUA_EXTENSIONS)
+	Method(IsFoundAbroad);
+#endif
 	Method(IsWork);
 	Method(IsGoldenAge);
 	Method(CanCoexistWithEnemyUnit);
@@ -2035,6 +2038,18 @@ int CvLuaUnit::lIsFound(lua_State* L)
 	lua_pushboolean(L, bResult);
 	return 1;
 }
+#if defined(MOD_API_LUA_EXTENSIONS)
+//------------------------------------------------------------------------------
+//bool isFound();
+int CvLuaUnit::lIsFoundAbroad(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	const bool bResult = pkUnit->IsFoundAbroad();
+
+	lua_pushboolean(L, bResult);
+	return 1;
+}
+#endif
 //------------------------------------------------------------------------------
 // bool IsWork()
 int CvLuaUnit::lIsWork(lua_State* L)

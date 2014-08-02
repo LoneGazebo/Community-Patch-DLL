@@ -81,7 +81,11 @@ public:
 	void DoUpdateIndustrialRouteToCapital();
 
 	void SetRouteToCapitalConnected(bool bValue);
+#if defined(MOD_API_EXTENSIONS)
+	bool IsRouteToCapitalConnected(void) const;
+#else
 	bool IsRouteToCapitalConnected(void);
+#endif
 
 	void createGreatGeneral(UnitTypes eGreatPersonUnit);
 	void createGreatAdmiral(UnitTypes eGreatPersonUnit);

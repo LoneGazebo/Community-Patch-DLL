@@ -2493,6 +2493,14 @@ bool CvTeam::isMinorCiv() const
 	return bValid;
 }
 
+#if defined(MOD_API_EXTENSIONS)
+//	--------------------------------------------------------------------------------
+bool CvTeam::isMajorCiv() const
+{
+	return !(isMinorCiv() || isBarbarian() || isObserver());
+}
+#endif
+
 //	--------------------------------------------------------------------------------
 /// The number of Minor Civs this player has declared war on
 int CvTeam::GetNumMinorCivsAttacked() const

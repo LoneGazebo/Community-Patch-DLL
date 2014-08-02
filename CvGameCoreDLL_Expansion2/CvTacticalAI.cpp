@@ -3074,6 +3074,7 @@ void CvTacticalAI::PlotCampDefenseMoves()
 		if(FindUnitsWithinStrikingDistance(pPlot, 1, 0, true /* bNoRangedUnits */, false /*bNavalOnly*/, false /*bMustMoveThrough*/))
 		{
 			ExecuteMoveToPlot(pPlot);
+
 			if(GC.getLogging() && GC.getAILogging())
 			{
 				CvString strLogString;
@@ -4250,6 +4251,7 @@ void CvTacticalAI::PlotSingleHexOperationMoves(CvAIEscortedOperation* pOperation
 								}
 							}
 						}
+
 						// Looks like we should be able to move the blocking unit out of the way
 						else
 						{
@@ -5798,6 +5800,7 @@ bool CvTacticalAI::PlotEscortNavalOperationMoves(CvArmyAI* pArmy)
 			}
 		}
 	}
+
 	if(pTarget)
 	{
 		ExecuteFleetMoveToTarget(pArmy, pTarget);
@@ -8277,7 +8280,7 @@ void CvTacticalAI::ExecuteCloseOnTarget(CvTacticalTarget& kTarget, CvTacticalDom
 			// If not naval invasion, proper domain of unit?
 			if(pZone->IsNavalInvasion() ||
 			        (pZone->IsWater() && pUnit->getDomainType() == DOMAIN_SEA || !pZone->IsWater() && pUnit->getDomainType() == DOMAIN_LAND))
-			{	
+			{
 				// Find units really close to target or somewhat close that just came out of an operation
 				iDistance = plotDistance(pUnit->getX(), pUnit->getY(), kTarget.GetTargetX(), kTarget.GetTargetY());
 				if(iDistance <= iTacticalRadius || (iDistance <= (GC.getAI_OPERATIONAL_CITY_ATTACK_DEPLOY_RANGE() * 3) && pUnit->GetDeployFromOperationTurn() + GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS() >= GC.getGame().getGameTurn()))
@@ -8871,6 +8874,7 @@ bool CvTacticalAI::FindUnitsForThisMove(TacticalAIMoveTypes eMove, CvPlot* pTarg
 					bSuitableUnit = true;
 				}
 			}
+
 			if(bSuitableUnit)
 			{
 				// Is it even possible for the unit to reach in the number of requested turns (ignoring roads and RR)

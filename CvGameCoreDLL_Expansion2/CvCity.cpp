@@ -2005,7 +2005,11 @@ void CvCity::SetRouteToCapitalConnected(bool bValue)
 }
 
 //	--------------------------------------------------------------------------------
+#if defined(MOD_API_EXTENSIONS)
+bool CvCity::IsRouteToCapitalConnected(void) const
+#else
 bool CvCity::IsRouteToCapitalConnected(void)
+#endif
 {
 	return m_bRouteToCapitalConnectedThisTurn;
 }
@@ -6846,7 +6850,11 @@ void CvCity::UpdateReligion(ReligionTypes eNewMajority)
 	// Reset city level yields
 	m_iJONSCulturePerTurnFromReligion = 0;
 	m_iFaithPerTurnFromReligion = 0;
+#if defined(MOD_BUGFIX_MINOR)
+	for(int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
+#else
 	for(int iYield = 0; iYield <= YIELD_SCIENCE; iYield++)
+#endif
 	{
 		m_aiBaseYieldRateFromReligion[iYield] = 0;
 	}
@@ -10825,11 +10833,17 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 			iModifier += iTempMod;
 			if(iTempMod != 0 && toolTipSink)
 				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_PUPPET", iTempMod);
+#if defined(MOD_BUGFIX_MINOR)
+			break;
+#endif
 		case YIELD_GOLD:
 			iTempMod = GC.getPUPPET_GOLD_MODIFIER();
 			iModifier += iTempMod;
 			if(iTempMod != 0 && toolTipSink)
 				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_PUPPET", iTempMod);
+#if defined(MOD_BUGFIX_MINOR)
+			break;
+#endif
 		}
 	}
 #if defined(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
@@ -14340,7 +14354,12 @@ bool CvCity::IsCanPurchase(bool bTestPurchaseCost, bool bTestTrainable, UnitType
 
 		// Does this city have a majority religion?
 		ReligionTypes eReligion = GetCityReligions()->GetReligiousMajority();
+#if defined(MOD_BUGFIX_MINOR)
+		// Permit faith purchases from pantheon beliefs
+		if(eReligion < RELIGION_PANTHEON)
+#else
 		if(eReligion <= RELIGION_PANTHEON)
+#endif
 		{
 			return false;
 		}
@@ -14357,7 +14376,11 @@ bool CvCity::IsCanPurchase(bool bTestPurchaseCost, bool bTestTrainable, UnitType
 			CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnitType);
 			if(pkUnitInfo)
 			{
+#if defined(MOD_BUGFIX_MINOR)
+				if (pkUnitInfo->IsRequiresEnhancedReligion() && !(GC.getGame().GetGameReligions()->GetReligion(eReligion, m_eOwner)->m_bEnhanced))
+#else
 				if (pkUnitInfo->IsRequiresEnhancedReligion() && !(GC.getGame().GetGameReligions()->GetReligion(eReligion, NO_PLAYER)->m_bEnhanced))
+#endif
 				{
 					return false;
 				}

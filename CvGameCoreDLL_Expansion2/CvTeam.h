@@ -102,6 +102,9 @@ public:
 	bool isObserver() const;
 	bool isBarbarian() const;
 	bool isMinorCiv() const;
+#if defined(MOD_API_EXTENSIONS)
+	bool isMajorCiv() const;
+#endif
 
 	int GetNumMinorCivsAttacked() const;
 	void SetNumMinorCivsAttacked(int iValue);

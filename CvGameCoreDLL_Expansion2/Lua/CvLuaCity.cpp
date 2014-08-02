@@ -121,6 +121,9 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(CreateApolloProgram);
 
 	Method(IsCanPurchase);
+#if defined(MOD_API_LUA_EXTENSIONS)
+	Method(Purchase);
+#endif
 	Method(GetUnitPurchaseCost);
 	Method(GetUnitFaithPurchaseCost);
 	Method(GetBuildingPurchaseCost);
@@ -1414,6 +1417,22 @@ int CvLuaCity::lIsCanPurchase(lua_State* L)
 	lua_pushboolean(L, bResult);
 	return 1;
 }
+#if defined(MOD_API_LUA_EXTENSIONS)
+//------------------------------------------------------------------------------
+// void Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectTypes eProjectType, YieldTypes ePurchaseYield);
+int CvLuaCity::lPurchase(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const UnitTypes eUnitType = (UnitTypes) lua_tointeger(L, 2);
+	const BuildingTypes eBuildingType = (BuildingTypes) lua_tointeger(L, 3);
+	const ProjectTypes eProjectType = (ProjectTypes) lua_tointeger(L, 4);
+	const YieldTypes ePurchaseYield = (YieldTypes) lua_tointeger(L, 5);
+
+	pkCity->Purchase(eUnitType, eBuildingType, eProjectType, ePurchaseYield);
+
+	return 0;
+}
+#endif
 //------------------------------------------------------------------------------
 // int GetPurchaseCost(UnitTypes eUnit);
 int CvLuaCity::lGetUnitPurchaseCost(lua_State* L)
