@@ -2724,8 +2724,12 @@ int CvLuaPlayer::lGetPublicOpinionUnhappinessTooltip(lua_State* L)
 int CvLuaPlayer::lDoSwapGreatWorks(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
+#if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
 	YieldTypes eFocusYield = static_cast<YieldTypes>(lua_tointeger(L, 2));
 	pkPlayer->GetCulture()->DoSwapGreatWorks(eFocusYield);
+#else
+	pkPlayer->GetCulture()->DoSwapGreatWorks();
+#endif
 	return 0;
 }
 #endif
@@ -4050,6 +4054,16 @@ int CvLuaPlayer::lGetTradeYourRoutesTTString(lua_State* L)
 					case YIELD_FAITH:
 						strOriginYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_FAITH_YIELD_TT", iYieldQuantity / 100);
 						break;
+#if defined(MOD_API_UNIFIED_YIELDS_TOURISM)
+					case YIELD_TOURISM:
+						strOriginYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_TOURISM_YIELD_TT", iYieldQuantity / 100);
+						break;
+#endif
+#if defined(MOD_API_UNIFIED_YIELDS_GOLDEN_AGE)
+					case YIELD_GOLDEN_AGE_POINTS:
+						strOriginYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_GOLDEN_AGE_POINTS_YIELD_TT", iYieldQuantity / 100);
+						break;
+#endif
 					}
 				}
 			}
@@ -4081,6 +4095,16 @@ int CvLuaPlayer::lGetTradeYourRoutesTTString(lua_State* L)
 					case YIELD_FAITH:
 						strDestYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_FAITH_YIELD_TT", iYieldQuantity / 100);
 						break;
+#if defined(MOD_API_UNIFIED_YIELDS_TOURISM)
+					case YIELD_TOURISM:
+						strDestYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_TOURISM_YIELD_TT", iYieldQuantity / 100);
+						break;
+#endif
+#if defined(MOD_API_UNIFIED_YIELDS_GOLDEN_AGE)
+					case YIELD_GOLDEN_AGE_POINTS:
+						strDestYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_GOLDEN_AGE_POINTS_YIELD_TT", iYieldQuantity / 100);
+						break;
+#endif
 					}
 				}
 			}
@@ -4261,6 +4285,16 @@ int CvLuaPlayer::lGetTradeToYouRoutesTTString(lua_State* L)
 					case YIELD_FAITH:
 						strDestYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_FAITH_YIELD_TT", iYieldQuantity / 100);
 						break;
+#if defined(MOD_API_UNIFIED_YIELDS_TOURISM)
+					case YIELD_TOURISM:
+						strDestYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_TOURISM_YIELD_TT", iYieldQuantity / 100);
+						break;
+#endif
+#if defined(MOD_API_UNIFIED_YIELDS_GOLDEN_AGE)
+					case YIELD_GOLDEN_AGE_POINTS:
+						strDestYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_GOLDEN_AGE_POINTS_YIELD_TT", iYieldQuantity / 100);
+						break;
+#endif
 					}
 				}
 			}

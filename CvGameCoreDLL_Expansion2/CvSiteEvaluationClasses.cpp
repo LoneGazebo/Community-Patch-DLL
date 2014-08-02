@@ -400,6 +400,9 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, YieldT
 								{
 									iFaithValue = iRingModifier * ComputeFaithValue(pLoopPlot, pPlayer) * /*1*/ GC.getSETTLER_FAITH_MULTIPLIER();
 								}
+#if defined(MOD_API_UNIFIED_YIELDS)
+								// We don't flavour settle site choice by tourism - way to early for that!!!
+#endif
 							}
 
 							// whether or not we are working these we get the benefit as long as culture can grow to take them

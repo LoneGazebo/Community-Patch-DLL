@@ -49,6 +49,16 @@ std::string toString(const YieldTypes& v)
 	case YIELD_FAITH:
 		return std::string("YIELD_FAITH");
 		break;
+#if defined(MOD_API_UNIFIED_YIELDS_TOURISM)
+	case YIELD_TOURISM:
+		return std::string("YIELD_TOURISM");
+		break;
+#endif
+#if defined(MOD_API_UNIFIED_YIELDS_GOLDEN_AGE)
+	case YIELD_GOLDEN_AGE_POINTS:
+		return std::string("YIELD_GOLDEN_AGE_POINTS");
+		break;
+#endif
 	default:
 		return std::string("INVALID ENUM VALUE");
 		break;

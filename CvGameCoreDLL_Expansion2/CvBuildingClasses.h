@@ -285,6 +285,7 @@ public:
 	CvString GetThemingBonusHelp() const;
 
 	// Accessor Functions (Arrays)
+
 	int GetYieldChange(int i) const;
 	int* GetYieldChangeArray() const;
 	int GetYieldChangePerPop(int i) const;
@@ -329,11 +330,6 @@ public:
 	bool IsBuildingClassNeededInCity(int i) const;
 	int GetNumFreeUnits(int i) const;
 
-#if defined(MOD_BALANCE_CORE_YIELDS)
-	int GetPlotYieldChange(int i, int j) const;
-	int* GetPlotYieldChangeArray(int i) const;
-#endif
-
 	int GetResourceYieldChange(int i, int j) const;
 	int* GetResourceYieldChangeArray(int i) const;
 	int GetFeatureYieldChange(int i, int j) const;
@@ -344,6 +340,10 @@ public:
 	int* GetResourceYieldModifierArray(int i) const;
 	int GetTerrainYieldChange(int i, int j) const;
 	int* GetTerrainYieldChangeArray(int i) const;
+#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
+	int GetPlotYieldChange(int i, int j) const;
+	int* GetPlotYieldChangeArray(int i) const;
+#endif
 	int GetBuildingClassYieldChange(int i, int j) const;
 	int GetBuildingClassHappiness(int i) const;
 
@@ -581,11 +581,11 @@ private:
 	int** m_ppaiSpecialistYieldChange;
 	int** m_ppaiResourceYieldModifier;
 	int** m_ppaiTerrainYieldChange;
+#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
+	int** m_ppaiPlotYieldChange;
+#endif
 	int** m_ppiBuildingClassYieldChanges;
 	int* m_paiBuildingClassHappiness;
-#if defined(MOD_BALANCE_CORE_YIELDS)
-	int** m_ppaiBuildingPlotYieldChange;
-#endif
 
 	CvThemingBonusInfo* m_paThemingBonusInfo;
 	int m_iNumThemingBonuses;
@@ -696,7 +696,7 @@ public:
 	bool GetNextAvailableGreatWorkSlot(BuildingClassTypes *eBuildingClass, int *iSlot) const;
 	bool GetNextAvailableGreatWorkSlot(GreatWorkSlotType eGreatWorkSlot, BuildingClassTypes *eBuildingClass, int *iSlot) const;
 
-#if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
+#if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES) || defined(MOD_API_UNIFIED_YIELDS)
 	int GetYieldFromGreatWorks(YieldTypes eYield) const;
 #endif
 	int GetCultureFromGreatWorks() const;
@@ -706,6 +706,7 @@ public:
 	int GetNumGreatWorks() const;
 #endif
 	int GetNumGreatWorks(GreatWorkSlotType eGreatWorkSlot) const;
+
 	int GetLandmarksTourismPercent() const;
 	void ChangeLandmarksTourismPercent(int iChange);
 	int GetGreatWorksTourismModifier() const;

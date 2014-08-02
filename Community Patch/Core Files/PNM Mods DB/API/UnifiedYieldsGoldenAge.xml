@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- DO NOT DELETE THIS FILE!!! -->
+<GameData>
+	<Yields>
+		<Row>
+			<!-- DO NOT CHANGE! MUST correspond to the value in CvGameCoreEnums.h -->
+			<ID>7</ID>
+			<Type>YIELD_GOLDEN_AGE_POINTS</Type>
+			<Description>TXT_KEY_YIELD_GOLDEN_AGE_POINTS</Description>
+			<IconString>[ICON_GOLDEN_AGE]</IconString>
+			<ImageTexture>YieldAtlas_128_GoldenAge.dds</ImageTexture>
+			<MinCity>0</MinCity>
+			<AIWeightPercent>80</AIWeightPercent>
+		</Row>
+	</Yields>
+
+	<Defines>
+		<Row Name="PUPPET_GOLDEN_AGE_MODIFIER">
+			<Value>-50</Value>
+		</Row>
+	</Defines>
+
+	<Language_en_US>
+		<Row Tag="TXT_KEY_YIELD_GOLDEN_AGE_POINTS">
+			<Text>Golden Age</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TOP_PANEL_ITR_GOLDEN_AGE_POINTS_YIELD_TT">
+			<Text>{1_Num} [ICON_GOLDEN_AGE] Golden Age</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GOLDEN_AGE_POINTS_FROM_TRADE_ROUTES">
+			<Text>{1_perTurn:number "#.##"} [ICON_GOLDEN_AGE] from Trade Routes established with this city</Text>
+		</Row>
+	</Language_en_US>
+</GameData>

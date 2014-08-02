@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <GameData>
+	<Defines>
+		<Row Name="WAR_MAJOR_MINIMUM_TURNS">
+			<Value>5</Value>
+		</Row>
+		<Row Name="WAR_MINOR_MINIMUM_TURNS">
+			<Value>0</Value>
+		</Row>
+	</Defines>
+
 	<PostDefines>
 		<Row Name="RELIGION_LAST_FOUND_ERA">
 			<Key>ERA_RENAISSANCE</Key>

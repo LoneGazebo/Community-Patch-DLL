@@ -321,14 +321,24 @@ public:
 
 	int specialistYield(SpecialistTypes eSpecialist, YieldTypes eYield) const;
 
+#if defined(MOD_BUGFIX_MINOR)
+	int GetCityYieldChangeTimes100(YieldTypes eYield) const;
+	void ChangeCityYieldChangeTimes100(YieldTypes eYield, int iChange);
+#else
 	int GetCityYieldChange(YieldTypes eYield) const;
 	void ChangeCityYieldChange(YieldTypes eYield, int iChange);
+#endif
 
 	int GetCoastalCityYieldChange(YieldTypes eYield) const;
 	void ChangeCoastalCityYieldChange(YieldTypes eYield, int iChange);
 
+#if defined(MOD_BUGFIX_MINOR)
+	int GetCapitalYieldChangeTimes100(YieldTypes eYield) const;
+	void ChangeCapitalYieldChangeTimes100(YieldTypes eYield, int iChange);
+#else
 	int GetCapitalYieldChange(YieldTypes eYield) const;
 	void ChangeCapitalYieldChange(YieldTypes eYield, int iChange);
+#endif
 
 	int GetCapitalYieldPerPopChange(YieldTypes eYield) const;
 	void ChangeCapitalYieldPerPopChange(YieldTypes eYield, int iChange);
@@ -429,6 +439,11 @@ public:
 	void ReportYieldFromKill(YieldTypes eYield, int iValue, int iX, int iY, int iDelay);
 
 	void DoTechFromCityConquer(CvCity* pConqueredCity);
+
+#if defined(MOD_API_UNIFIED_YIELDS)
+	int GetYieldPerTurnFromReligion(YieldTypes eYield) const;
+	int GetYieldPerTurnFromTraits(YieldTypes eYield) const;
+#endif
 
 	// Faith
 	int GetTotalFaithPerTurn() const;
@@ -1114,6 +1129,9 @@ public:
 	uint getTotalTimePlayed() const;
 
 	bool isMinorCiv() const;
+#if defined(MOD_API_EXTENSIONS)
+	bool isMajorCiv() const;
+#endif
 	bool IsHasBetrayedMinorCiv() const;
 	void SetHasBetrayedMinorCiv(bool bValue);
 
@@ -1366,6 +1384,37 @@ public:
 
 	int getSpecialistExtraYield(SpecialistTypes eIndex1, YieldTypes eIndex2) const;
 	void changeSpecialistExtraYield(SpecialistTypes eIndex1, YieldTypes eIndex2, int iChange);
+
+#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
+	int getPlotYieldChange(PlotTypes eIndex1, YieldTypes eIndex2) const;
+	void changePlotYieldChange(PlotTypes eIndex1, YieldTypes eIndex2, int iChange);
+#endif
+
+#if defined(MOD_API_UNIFIED_YIELDS)
+	int getFeatureYieldChange(FeatureTypes eIndex1, YieldTypes eIndex2) const;
+	void changeFeatureYieldChange(FeatureTypes eIndex1, YieldTypes eIndex2, int iChange);
+
+	int getResourceYieldChange(ResourceTypes eIndex1, YieldTypes eIndex2) const;
+	void changeResourceYieldChange(ResourceTypes eIndex1, YieldTypes eIndex2, int iChange);
+
+	int getTerrainYieldChange(TerrainTypes eIndex1, YieldTypes eIndex2) const;
+	void changeTerrainYieldChange(TerrainTypes eIndex1, YieldTypes eIndex2, int iChange);
+
+	int getSpecialistYieldChange(SpecialistTypes eIndex1, YieldTypes eIndex2) const;
+	void changeSpecialistYieldChange(SpecialistTypes eIndex1, YieldTypes eIndex2, int iChange);
+
+	int GetYieldFromKills(YieldTypes eYield) const;
+	void changeYieldFromKills(YieldTypes eYield, int iChange);
+
+	int GetYieldChangeTradeRoute(YieldTypes eYield) const;
+	void ChangeYieldChangeTradeRoute(YieldTypes eYield, int iChange);
+
+	int GetYieldChangesNaturalWonder(YieldTypes eYield) const;
+	void ChangeYieldChangesNaturalWonder(YieldTypes eYield, int iChange);
+
+	int GetYieldChangeWorldWonder(YieldTypes eYield) const;
+	void ChangeYieldChangeWorldWonder(YieldTypes eYield, int iChange);
+#endif
 
 	int getImprovementYieldChange(ImprovementTypes eIndex1, YieldTypes eIndex2) const;
 	void changeImprovementYieldChange(ImprovementTypes eIndex1, YieldTypes eIndex2, int iChange);
@@ -2169,6 +2218,19 @@ protected:
 	FAutoVariable<std::vector<bool>, CvPlayer> m_pabGetsScienceFromPlayer;
 
 	FAutoVariable< std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > >, CvPlayer> m_ppaaiSpecialistExtraYield;
+#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
+	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppaaiPlotYieldChange;
+#endif
+#if defined(MOD_API_UNIFIED_YIELDS)
+	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppaaiFeatureYieldChange;
+	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppaaiResourceYieldChange;
+	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppaaiTerrainYieldChange;
+	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppaaiSpecialistYieldChange;
+	std::vector<int> m_aiYieldFromKills;
+	std::vector<int> m_aiYieldChangeTradeRoute;
+	std::vector<int> m_aiYieldChangesNaturalWonder;
+	std::vector<int> m_aiYieldChangeWorldWonder;
+#endif
 	FAutoVariable< std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > >, CvPlayer> m_ppaaiImprovementYieldChange;
 
 	// Obsolete: only used to read old saves

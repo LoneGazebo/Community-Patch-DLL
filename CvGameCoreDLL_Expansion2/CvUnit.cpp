@@ -216,6 +216,9 @@ CvUnit::CvUnit() :
 	, m_iExtraNavalMoves("CvUnit::m_iExtraNavalMoves", m_syncArchive)
 	, m_iKamikazePercent("CvUnit::m_iKamikazePercent", m_syncArchive)
 	, m_iBaseCombat("CvUnit::m_iBaseCombat", m_syncArchive)
+#if defined(MOD_API_EXTENSIONS)
+	, m_iBaseRangedCombat(0)
+#endif
 	, m_eFacingDirection("CvUnit::m_eFacingDirection", m_syncArchive, true)
 	, m_iArmyId("CvUnit::m_iArmyId", m_syncArchive)
 	, m_iIgnoreTerrainCostCount("CvUnit::m_iIgnoreTerrainCostCount", m_syncArchive)
@@ -1147,6 +1150,9 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_eUnitType = eUnit;
 	m_pUnitInfo = (NO_UNIT != m_eUnitType) ? GC.getUnitInfo(m_eUnitType) : NULL;
 	m_iBaseCombat = (NO_UNIT != m_eUnitType) ? m_pUnitInfo->GetCombat() : 0;
+#if defined(MOD_API_EXTENSIONS)
+	m_iBaseRangedCombat = (NO_UNIT != m_eUnitType) ? m_pUnitInfo->GetRangedCombat() : 0;
+#endif
 	m_eLeaderUnitType = NO_UNIT;
 	m_eInvisibleType = NO_INVISIBLE;
 	m_eSeeInvisibleType = NO_INVISIBLE;
@@ -7407,6 +7413,12 @@ bool CvUnit::found()
 	}
 #endif
 
+		
+#if defined(MOD_EVENTS_UNIT_FOUNDED)
+	if (MOD_EVENTS_UNIT_FOUNDED) {
+		GAMEEVENTINVOKE_HOOK(GAMEEVENT_UnitCityFounded, getOwner(), GetID(), getUnitType(), getX(), getY());
+	}
+#endif
 	auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 	gDLL->GameplayUnitVisibility(pDllUnit.get(), false);
 	kill(true);
@@ -19725,6 +19737,10 @@ void CvUnit::read(FDataStream& kStream)
 #endif
 	kStream >> m_iEmbarkDefensiveModifier;
 
+#if defined(MOD_API_EXTENSIONS)
+	MOD_SERIALIZE_READ(58, kStream, m_iBaseRangedCombat, ((NO_UNIT != m_eUnitType) ? m_pUnitInfo->GetRangedCombat() : 0));
+#endif
+
 	kStream >> m_iCapitalDefenseModifier;
 	kStream >> m_iCapitalDefenseFalloff;
 
@@ -19897,6 +19913,9 @@ void CvUnit::write(FDataStream& kStream) const
 	MOD_SERIALIZE_WRITE(kStream, m_iEmbarkedDeepWaterCount);
 #endif
 	kStream << m_iEmbarkDefensiveModifier;
+#if defined(MOD_API_EXTENSIONS)
+	MOD_SERIALIZE_WRITE(kStream, m_iBaseRangedCombat);
+#endif
 	kStream << m_iCapitalDefenseModifier;
 	kStream << m_iCapitalDefenseFalloff;
 	kStream << m_iCityAttackPlunderModifier;

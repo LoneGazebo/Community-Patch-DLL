@@ -1513,6 +1513,9 @@ protected:
 	FAutoVariable<int, CvUnit> m_iExtraNavalMoves;
 	FAutoVariable<int, CvUnit> m_iKamikazePercent;
 	FAutoVariable<int, CvUnit> m_iBaseCombat;
+#if defined(MOD_API_EXTENSIONS)
+	int m_iBaseRangedCombat;
+#endif
 	FAutoVariable<DirectionTypes, CvUnit> m_eFacingDirection;
 	FAutoVariable<int, CvUnit> m_iArmyId;
 

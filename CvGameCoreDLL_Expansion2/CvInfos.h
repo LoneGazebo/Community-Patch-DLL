@@ -1542,6 +1542,11 @@ public:
 	int getYieldChange(int i) const;
 	int getRiverYieldChange(int i) const;
 	int getHillsYieldChange(int i) const;
+#if defined(MOD_API_UNIFIED_YIELDS)
+	int getCoastalLandYieldChange(int i) const;
+	int getFreshWaterYieldChange(int i) const;
+	int GetTechYieldChanges(int i, int j) const;
+#endif
 	int get3DAudioScriptFootstepIndex(int i) const;
 
 	bool isTerrain(int i) const;
@@ -1607,6 +1612,11 @@ protected:
 	int* m_piYieldChange;
 	int* m_piRiverYieldChange;
 	int* m_piHillsYieldChange;
+#if defined(MOD_API_UNIFIED_YIELDS)
+	int* m_piCoastalLandYieldChange;
+	int* m_piFreshWaterChange;
+	int** m_ppiTechYieldChanges;
+#endif
 	int* m_pi3DAudioScriptFootstepIndex;
 	bool* m_pbTerrain;
 
@@ -1627,6 +1637,9 @@ class CvYieldInfo : public CvBaseInfo
 public:
 	CvYieldInfo();
 
+#if defined(MOD_API_EXTENSIONS)
+	const char* getIconString() const;
+#endif
 	int getHillsChange() const;
 	int getMountainChange() const;
 	int getLakeChange() const;
@@ -1642,6 +1655,9 @@ public:
 	virtual bool CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility);
 
 protected:
+#if defined(MOD_API_EXTENSIONS)
+	CvString m_strIconString;
+#endif
 	int m_iHillsChange;
 	int m_iMountainChange;
 	int m_iLakeChange;
@@ -1700,6 +1716,11 @@ public:
 	int getYield(int i) const;
 	int getRiverYieldChange(int i) const;
 	int getHillsYieldChange(int i) const;
+#if defined(MOD_API_UNIFIED_YIELDS)
+	int getCoastalLandYieldChange(int i) const;
+	int getFreshWaterYieldChange(int i) const;
+	int GetTechYieldChanges(int i, int j) const;
+#endif
 	int get3DAudioScriptFootstepIndex(int i) const;
 
 	// Other
@@ -1736,6 +1757,11 @@ protected:
 	int* m_piYields;
 	int* m_piRiverYieldChange;
 	int* m_piHillsYieldChange;
+#if defined(MOD_API_UNIFIED_YIELDS)
+	int* m_piCoastalLandYieldChange;
+	int* m_piFreshWaterChange;
+	int** m_ppiTechYieldChanges;
+#endif
 	int* m_pi3DAudioScriptFootstepIndex;
 
 	CvString m_strEffectTypeTag;		// Effect type for effect macros
@@ -2383,4 +2409,28 @@ private:
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 typedef CvBaseInfo CvDomainInfo;
 
+
+#if defined(MOD_API_UNIFIED_YIELDS)
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+// Helper Functions to serialize arrays of variable length (based on number of features defined in game)
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+namespace FeatureArrayHelpers
+{
+void Read(FDataStream& kStream, int* paiFeatureArray);
+void Write(FDataStream& kStream, int* paiFeatureArray, int iArraySize);
+void ReadYieldArray(FDataStream& kStream, int** ppaaiFeatureYieldArray, int iNumYields);
+void WriteYieldArray(FDataStream& kStream, int** ppaaiFeatureYieldArray, int iArraySize);
+}
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+// Helper Functions to serialize arrays of variable length (based on number of terrains defined in game)
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+namespace TerrainArrayHelpers
+{
+void Read(FDataStream& kStream, int* paiTerrainArray);
+void Write(FDataStream& kStream, int* paiTerrainArray, int iArraySize);
+void ReadYieldArray(FDataStream& kStream, int** ppaaiTerrainYieldArray, int iNumYields);
+void WriteYieldArray(FDataStream& kStream, int** ppaaiTerrainYieldArray, int iArraySize);
+}
+#endif
 #endif
