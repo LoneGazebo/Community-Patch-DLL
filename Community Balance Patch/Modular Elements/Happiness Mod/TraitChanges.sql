@@ -9,7 +9,7 @@ SET PovertyHappinessTraitMod = '15'
 WHERE Type = 'TRAIT_POPULATION_GROWTH' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Reduces [ICON_HAPPINESS_3] Poverty in all cities by 15%, [ICON_HAPPINESS_3] Unhappiness from number of [ICON_CITIZEN] Citizens halved.'
+SET Text = 'Reduces [ICON_HAPPINESS_3] Poverty threshold in all cities by 15%, [ICON_HAPPINESS_3] Unhappiness from number of [ICON_CITIZEN] Citizens halved.'
 WHERE Tag = 'TXT_KEY_TRAIT_POPULATION_GROWTH' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 -- Indonesia
@@ -25,11 +25,11 @@ WHERE Tag = 'TXT_KEY_TRAIT_SPICE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type
 -- Brazil
 
 UPDATE Traits
-SET IlliteracyHappinessTraitMod = '10'
+SET UnculturedHappinessTraitMod = '10'
 WHERE Type = 'TRAIT_CARNIVAL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Tourism [ICON_TOURISM] output is +100% during their Golden Ages. Earn Great Artists, Musicians, and Writers 50% faster during their Golden Ages. Reduces [ICON_HAPPINESS_3] Illiteracy in all cities by 15%.'
+SET Text = 'Tourism [ICON_TOURISM] output is +100% during their Golden Ages. Earn Great Artists, Musicians, and Writers 50% faster during their Golden Ages. Reduces [ICON_HAPPINESS_3] Boredom threshold in all cities by 15%.'
 WHERE Tag = 'TXT_KEY_TRAIT_CARNIVAL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 -- Byzantium
@@ -49,7 +49,7 @@ SET DefenseHappinessTraitMod = '10'
 WHERE Type = 'TRAIT_RAZE_AND_HORSES' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Raze Cities at double speed. Borrow City names from other Civs. Start with Animal Husbandry technology. +1 [ICON_PRODUCTION] Production per Pasture. Reduces [ICON_HAPPINESS_3] Disorder in all cities by 10%.'
+SET Text = 'Raze Cities at double speed. Borrow City names from other Civs. Start with Animal Husbandry technology. +1 [ICON_PRODUCTION] Production per Pasture. Reduces [ICON_HAPPINESS_3] Disorder threshold in all cities by 10%.'
 WHERE Tag = 'TXT_KEY_TRAIT_RAZE_AND_HORSES' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 

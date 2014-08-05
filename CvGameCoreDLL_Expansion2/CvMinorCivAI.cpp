@@ -1626,7 +1626,12 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn)
 			{
 				if(pMinor->getCapitalCity()->getArea() == pAssignedPlayer->getCapitalCity()->getArea())
 				{
-					pAssignedPlayer->addAIOperation(AI_OPERATION_ALLY_DEFENSE, NO_PLAYER, pMinor->getCapitalCity()->getArea(), pMinor->getCapitalCity(), pMinor->getCapitalCity());
+					PlayerProximityTypes eProximity;
+					eProximity = GET_PLAYER(pMinor->GetID()).GetProximityToPlayer(pAssignedPlayer->GetID());
+					if(eProximity == PLAYER_PROXIMITY_NEIGHBORS)
+					{
+						pAssignedPlayer->addAIOperation(AI_OPERATION_ALLY_DEFENSE, NO_PLAYER, pMinor->getCapitalCity()->getArea(), pMinor->getCapitalCity(), pMinor->getCapitalCity());
+					}
 				}
 			}
 
@@ -1687,7 +1692,12 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn)
 		{
 			if(pMinor->getCapitalCity()->getArea() == GET_PLAYER(eMajor).getCapitalCity()->getArea())
 			{
-				pAssignedPlayer->addAIOperation(AI_OPERATION_ALLY_DEFENSE, BARBARIAN_PLAYER, pMinor->getCapitalCity()->getArea(), pMinor->getCapitalCity(), pMinor->getCapitalCity());
+				PlayerProximityTypes eProximity;
+				eProximity = GET_PLAYER(pMinor->GetID()).GetProximityToPlayer(pAssignedPlayer->GetID());
+				if(eProximity == PLAYER_PROXIMITY_NEIGHBORS)
+				{
+					pAssignedPlayer->addAIOperation(AI_OPERATION_ALLY_DEFENSE, NO_PLAYER, pMinor->getCapitalCity()->getArea(), pMinor->getCapitalCity(), pMinor->getCapitalCity());
+				}
 			}
 		}
 	}
@@ -7836,6 +7846,70 @@ int CvMinorCivAI::GetFriendshipChangePerTurnTimes100(PlayerTypes ePlayer)
 			iShift += kPlayer.GetPlayerPolicies()->GetNumericModifier(POLICYMOD_AFRAID_INFLUENCE);
 			iShift += kPlayer.GetPlayerTraits()->GetAfraidMinorPerTurnInfluence();
 		}
+		if(CanMajorBullyUnit(ePlayer))
+		{
+#if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
+			if(MOD_BALANCE_CORE_AFRAID_ANNEX)
+			{
+				if(kPlayer.GetPlayerTraits()->IsBullyAnnex())
+				{
+					PlayerTypes ePlayer;
+					const char* strMinorsNameKey = GetPlayer()->getNameKey();
+					const char* strBullyName;
+					Localization::String strMessageOthers;
+					Localization::String strSummaryOthers;
+					for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+					{
+						ePlayer = (PlayerTypes) iPlayerLoop;
+						if(GET_PLAYER(ePlayer).GetID() == kPlayer.GetID())
+						{
+							// Notify player has met the bully
+							strMessageOthers = Localization::Lookup("TXT_KEY_BALANCE_ANNEXED_CS");
+							strMessageOthers << strMinorsNameKey;
+							strSummaryOthers = Localization::Lookup("TXT_KEY_BALANCE_ANNEXED_CS_SUMMARY");
+							strSummaryOthers << strMinorsNameKey;
+							AddNotification(strMessageOthers.toUTF8(), strSummaryOthers.toUTF8(), ePlayer);
+						}
+						else if(GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isHasMet(GetPlayer()->getTeam()))
+						{
+							if(GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isHasMet(kPlayer.getTeam()))
+							{							
+								// Notify player has met the bully
+								strBullyName = kPlayer.getCivilizationShortDescriptionKey();
+								strMessageOthers = Localization::Lookup("TXT_KEY_BALANCE_KNOWN_CS_BULLY_ANNEXED_KNOWN");
+								strMessageOthers << strBullyName << strMinorsNameKey;
+								strSummaryOthers = Localization::Lookup("TXT_KEY_BALANCE_KNOWN_CS_BULLY_ANNEXED_KNOWN_SUMMARY");
+								strSummaryOthers << strMinorsNameKey;
+								AddNotification(strMessageOthers.toUTF8(), strSummaryOthers.toUTF8(), ePlayer);
+							}
+							else
+							{
+								// Notify player has not met the bully
+								strMessageOthers = Localization::Lookup("TXT_KEY_BALANCE_KNOWN_CS_BULLY_ANNEXED_UNKNOWN");
+								strMessageOthers << strMinorsNameKey;
+								strSummaryOthers = Localization::Lookup("TXT_KEY_BALANCE_KNOWN_CS_BULLY_ANNEXED_UNKNOWN_SUMMARY");
+								strSummaryOthers << strMinorsNameKey;
+								AddNotification(strMessageOthers.toUTF8(), strSummaryOthers.toUTF8(), ePlayer);
+							}
+						}
+						else if(GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isHasMet(kPlayer.getTeam()))
+						{
+							// Notify player has met the bully
+							strMessageOthers = Localization::Lookup("TXT_KEY_BALANCE_UNKNOWN_CS_BULLY_ANNEXED_KNOWN");
+							strMessageOthers << strMinorsNameKey;
+							strSummaryOthers = Localization::Lookup("TXT_KEY_BALANCE_UNKNOWN_CS_BULLY_ANNEXED_KNOWN_SUMMARY");
+							strSummaryOthers << strMinorsNameKey;
+							AddNotification(strMessageOthers.toUTF8(), strSummaryOthers.toUTF8(), ePlayer);
+						}
+					}
+					if(GetPlayer()->getCapitalCity() != NULL)
+					{
+						kPlayer.acquireCity(GetPlayer()->getCapitalCity(), true, false, false);
+					}
+				}
+			}
+		}
+#endif
 		
 		if (iShift != 0)
 		{
@@ -8554,9 +8628,19 @@ void CvMinorCivAI::DoSetBonus(PlayerTypes ePlayer, bool bAdd, bool bFriends, boo
 	else if(eTrait == MINOR_CIV_TRAIT_MERCANTILE)
 	{
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
-		GET_PLAYER(ePlayer).CalculateHappiness();
-#else
+		if(MOD_BALANCE_CORE_HAPPINESS)
+		{
+			if(GET_PLAYER(ePlayer).isHuman())
+			{
+				GET_PLAYER(ePlayer).CalculateHappiness();
+			}
+		}
+		else
+		{
+#endif
 		GET_PLAYER(ePlayer).DoUpdateHappiness();
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+		}
 #endif
 	}
 	// Religious
@@ -9279,9 +9363,19 @@ bool CvMinorCivAI::DoMajorCivEraChange(PlayerTypes ePlayer, EraTypes eNewEra)
 			{
 				bSomethingChanged = true;
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
-				GET_PLAYER(ePlayer).CalculateHappiness();
-#else
+				if(MOD_BALANCE_CORE_HAPPINESS)
+				{
+					if(GET_PLAYER(ePlayer).isHuman())
+					{
+						GET_PLAYER(ePlayer).CalculateHappiness();
+					}
+				}
+				else
+				{
+#endif
 				GET_PLAYER(ePlayer).DoUpdateHappiness();
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+				}
 #endif
 			}
 		}
@@ -9298,9 +9392,19 @@ bool CvMinorCivAI::DoMajorCivEraChange(PlayerTypes ePlayer, EraTypes eNewEra)
 			{
 				bSomethingChanged = true;
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
-				GET_PLAYER(ePlayer).CalculateHappiness();
-#else
+				if(MOD_BALANCE_CORE_HAPPINESS)
+				{
+					if(GET_PLAYER(ePlayer).isHuman())
+					{
+						GET_PLAYER(ePlayer).CalculateHappiness();
+					}
+				}
+				else
+				{
+#endif
 				GET_PLAYER(ePlayer).DoUpdateHappiness();
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+				}
 #endif
 			}
 		}

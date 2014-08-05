@@ -315,6 +315,9 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(GetUnhappinessFromCultureYield);
 	Method(GetUnhappinessFromCultureNeeded);
 	Method(GetUnhappinessFromCulture);
+	Method(GetUnhappinessFromScienceYield);
+	Method(GetUnhappinessFromScienceNeeded);
+	Method(GetUnhappinessFromScience);
 	Method(GetUnhappinessFromDefenseYield);
 	Method(GetUnhappinessFromDefenseNeeded);
 	Method(GetUnhappinessFromDefense);
@@ -2767,6 +2770,27 @@ int CvLuaCity::lGetUnhappinessFromCulture(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
 	lua_pushinteger(L, pkCity->getUnhappinessFromCulture());
+	return 1;
+}
+//int getUnhappinessFromScienceYield();
+int CvLuaCity::lGetUnhappinessFromScienceYield(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	lua_pushinteger(L, pkCity->getUnhappinessFromScienceYield());
+	return 1;
+}
+//int getUnhappinessFromScienceNeeded();
+int CvLuaCity::lGetUnhappinessFromScienceNeeded(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	lua_pushinteger(L, pkCity->getUnhappinessFromScienceNeeded());
+	return 1;
+}
+//int getUnhappinessFromScience();
+int CvLuaCity::lGetUnhappinessFromScience(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	lua_pushinteger(L, pkCity->getUnhappinessFromScience());
 	return 1;
 }
 //int getUnhappinessFromCultureYield();

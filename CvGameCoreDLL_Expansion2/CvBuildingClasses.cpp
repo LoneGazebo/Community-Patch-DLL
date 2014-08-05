@@ -134,15 +134,16 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_iDoFToVotesBase(0),
 	m_iRAToVotesBase(0),
 	m_iGPExpendInfluenceBase(0),
-	m_iGrowthExtraYieldBase(0),
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 	m_iPovertyHappinessChangeBuilding(0),
 	m_iDefenseHappinessChangeBuilding(0),
+	m_iUnculturedHappinessChangeBuilding(0),
 	m_iIlliteracyHappinessChangeBuilding(0),
 	m_iMinorityHappinessChangeBuilding(0),
 	m_iPovertyHappinessChangeBuildingGlobal(0),
 	m_iDefenseHappinessChangeBuildingGlobal(0),
+	m_iUnculturedHappinessChangeBuildingGlobal(0),
 	m_iIlliteracyHappinessChangeBuildingGlobal(0),
 	m_iMinorityHappinessChangeBuildingGlobal(0),
 #endif
@@ -198,6 +199,9 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_piRiverPlotYieldChange(NULL),
 	m_piLakePlotYieldChange(NULL),
 	m_piSeaResourceYieldChange(NULL),
+#if defined(MOD_DIPLOMACY_CITYSTATES) || defined(MOD_BALANCE_CORE)
+	m_piGrowthExtraYield(NULL),
+#endif
 	m_piYieldChange(NULL),
 	m_piYieldChangePerPop(NULL),
 	m_piYieldChangePerReligion(NULL),
@@ -228,6 +232,9 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_ppiBuildingClassYieldChanges(NULL),
 	m_paiBuildingClassHappiness(NULL),
 	m_paThemingBonusInfo(NULL),
+#if defined(MOD_BALANCE_CORE_BUILDING_INSTANT_YIELD)
+	m_piInstantYield(NULL),
+#endif
 #if defined(MOD_BALANCE_CORE_YIELDS)
 	m_ppaiBuildingPlotYieldChange(NULL),
 #endif
@@ -249,6 +256,9 @@ CvBuildingEntry::~CvBuildingEntry(void)
 	SAFE_DELETE_ARRAY(m_piRiverPlotYieldChange);
 	SAFE_DELETE_ARRAY(m_piLakePlotYieldChange);
 	SAFE_DELETE_ARRAY(m_piSeaResourceYieldChange);
+#if defined(MOD_DIPLOMACY_CITYSTATES) || defined(MOD_BALANCE_CORE)
+	SAFE_DELETE_ARRAY(m_piGrowthExtraYield);
+#endif
 	SAFE_DELETE_ARRAY(m_piYieldChange);
 	SAFE_DELETE_ARRAY(m_piYieldChangePerPop);
 	SAFE_DELETE_ARRAY(m_piYieldChangePerReligion);
@@ -270,7 +280,12 @@ CvBuildingEntry::~CvBuildingEntry(void)
 	SAFE_DELETE_ARRAY(m_piNumFreeUnits);
 	SAFE_DELETE_ARRAY(m_paiBuildingClassHappiness);
 	SAFE_DELETE_ARRAY(m_paThemingBonusInfo);
-
+#if defined(MOD_BALANCE_CORE_BUILDING_INSTANT_YIELD)
+	if(MOD_BALANCE_CORE_BUILDING_INSTANT_YIELD)
+	{
+		SAFE_DELETE_ARRAY(m_piInstantYield);
+	}
+#endif
 	CvDatabaseUtility::SafeDelete2DArray(m_ppaiResourceYieldChange);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppaiFeatureYieldChange);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppaiSpecialistYieldChange);
@@ -435,17 +450,18 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 		m_iDoFToVotesBase = kResults.GetInt("DoFToVotes");
 		m_iRAToVotesBase = kResults.GetInt("RAToVotes");
 		m_iGPExpendInfluenceBase = kResults.GetInt("GPExpendInfluence");
-		m_iGrowthExtraYieldBase = kResults.GetInt("GrowthExtraYieldBase");
 	}
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 	if (MOD_BALANCE_CORE_HAPPINESS_MODIFIERS) {
 		m_iPovertyHappinessChangeBuilding = kResults.GetInt("PovertyHappinessChange");
 		m_iDefenseHappinessChangeBuilding = kResults.GetInt("DefenseHappinessChange");
+		m_iUnculturedHappinessChangeBuilding = kResults.GetInt("UnculturedHappinessChange");
 		m_iIlliteracyHappinessChangeBuilding = kResults.GetInt("IlliteracyHappinessChange");
 		m_iMinorityHappinessChangeBuilding = kResults.GetInt("MinorityHappinessChange");
 		m_iPovertyHappinessChangeBuildingGlobal = kResults.GetInt("PovertyHappinessChangeGlobal");
 		m_iDefenseHappinessChangeBuildingGlobal = kResults.GetInt("DefenseHappinessChangeGlobal");
+		m_iUnculturedHappinessChangeBuildingGlobal = kResults.GetInt("UnculturedHappinessChangeGlobal");
 		m_iIlliteracyHappinessChangeBuildingGlobal = kResults.GetInt("IlliteracyHappinessChangeGlobal");
 		m_iMinorityHappinessChangeBuildingGlobal = kResults.GetInt("MinorityHappinessChangeGlobal");
 	}
@@ -547,6 +563,12 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	kUtility.SetYields(m_piRiverPlotYieldChange, "Building_RiverPlotYieldChanges", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piLakePlotYieldChange, "Building_LakePlotYieldChanges", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piSeaResourceYieldChange, "Building_SeaResourceYieldChanges", "BuildingType", szBuildingType);
+#if defined(MOD_DIPLOMACY_CITYSTATES) || defined(MOD_BALANCE_CORE)
+	if(MOD_DIPLOMACY_CITYSTATES || MOD_BALANCE_CORE)
+	{
+		kUtility.SetYields(m_piGrowthExtraYield, "Building_GrowthExtraYield", "BuildingType", szBuildingType);
+	}
+#endif
 	kUtility.SetYields(m_piYieldChange, "Building_YieldChanges", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldChangePerPop, "Building_YieldChangesPerPop", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldChangePerReligion, "Building_YieldChangesPerReligion", "BuildingType", szBuildingType);
@@ -554,6 +576,9 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	kUtility.SetYields(m_piAreaYieldModifier, "Building_AreaYieldModifiers", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piGlobalYieldModifier, "Building_GlobalYieldModifiers", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piTechEnhancedYieldChange, "Building_TechEnhancedYieldChanges", "BuildingType", szBuildingType);
+#if defined(MOD_BALANCE_CORE_BUILDING_INSTANT_YIELD)
+	kUtility.SetYields(m_piInstantYield, "Building_InstantYield", "BuildingType", szBuildingType);
+#endif
 
 	kUtility.PopulateArrayByValue(m_piResourceQuantityRequirements, "Resources", "Building_ResourceQuantityRequirements", "ResourceType", "BuildingType", szBuildingType, "Cost");
 	kUtility.PopulateArrayByValue(m_piResourceQuantity, "Resources", "Building_ResourceQuantity", "ResourceType", "BuildingType", szBuildingType, "Quantity");
@@ -1487,12 +1512,6 @@ int CvBuildingEntry::GetGPExpendInfluence() const
 {
 	return m_iGPExpendInfluenceBase;
 }
-
-/// Extra votes from Research Agreements
-int CvBuildingEntry::GetGrowthExtraYield() const
-{
-	return m_iGrowthExtraYieldBase;
-}
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 int CvBuildingEntry::GetPovertyHappinessChangeBuilding() const
@@ -1502,6 +1521,10 @@ int CvBuildingEntry::GetPovertyHappinessChangeBuilding() const
 int CvBuildingEntry::GetDefenseHappinessChangeBuilding() const
 {
 	return m_iDefenseHappinessChangeBuilding;
+}
+int CvBuildingEntry::GetUnculturedHappinessChangeBuilding() const
+{
+	return m_iUnculturedHappinessChangeBuilding;
 }
 int CvBuildingEntry::GetIlliteracyHappinessChangeBuilding() const
 {
@@ -1518,6 +1541,10 @@ int CvBuildingEntry::GetPovertyHappinessChangeBuildingGlobal() const
 int CvBuildingEntry::GetDefenseHappinessChangeBuildingGlobal() const
 {
 	return m_iDefenseHappinessChangeBuildingGlobal;
+}
+int CvBuildingEntry::GetUnculturedHappinessChangeBuildingGlobal() const
+{
+	return m_iUnculturedHappinessChangeBuildingGlobal;
 }
 int CvBuildingEntry::GetIlliteracyHappinessChangeBuildingGlobal() const
 {
@@ -1808,6 +1835,22 @@ CvString CvBuildingEntry::GetThemingBonusHelp() const
 }
 
 // ARRAYS
+
+#if defined(MOD_DIPLOMACY_CITYSTATES) || defined(MOD_BALANCE_CORE)
+/// Change to yield by type
+int CvBuildingEntry::GetGrowthExtraYield(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piGrowthExtraYield ? m_piGrowthExtraYield[i] : -1;
+}
+
+/// Array of yield changes
+int* CvBuildingEntry::GetGrowthExtraYieldArray() const
+{
+	return m_piGrowthExtraYield;
+}
+#endif
 
 /// Change to yield by type
 int CvBuildingEntry::GetYieldChange(int i) const
@@ -2238,6 +2281,21 @@ int CvBuildingEntry::GetNationalPopulationRequired() const
 int CvBuildingEntry::GetLocalPopulationRequired() const
 {
 	return m_iLocalPopRequired;
+}
+#endif
+#if defined(MOD_BALANCE_CORE_BUILDING_INSTANT_YIELD)
+/// Instant yield
+int CvBuildingEntry::GetInstantYield(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piInstantYield ? m_piInstantYield[i] : -1;
+}
+
+/// Array of instant yields
+int* CvBuildingEntry::GetInstantYieldArray() const
+{
+	return m_piInstantYield;
 }
 #endif
 #if defined(MOD_BALANCE_CORE_YIELDS)

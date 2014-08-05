@@ -173,10 +173,12 @@ CvPolicyEntry::CvPolicyEntry(void):
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 	m_iPovertyHappinessChangePolicy(0),
 	m_iDefenseHappinessChangePolicy(0),
+	m_iUnculturedHappinessChangePolicy(0),
 	m_iIlliteracyHappinessChangePolicy(0),
 	m_iMinorityHappinessChangePolicy(0),
 	m_iPovertyHappinessChangePolicyCapital(0),
 	m_iDefenseHappinessChangePolicyCapital(0),
+	m_iUnculturedHappinessChangePolicyCapital(0),
 	m_iIlliteracyHappinessChangePolicyCapital(0),
 	m_iMinorityHappinessChangePolicyCapital(0),
 	m_iPuppetUnhappinessModPolicy(0),
@@ -418,10 +420,12 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 	m_iPovertyHappinessChangePolicy = kResults.GetInt("PovertyHappinessMod");
 	m_iDefenseHappinessChangePolicy = kResults.GetInt("DefenseHappinessMod");
+	m_iUnculturedHappinessChangePolicy = kResults.GetInt("UnculturedHappinessMod");
 	m_iIlliteracyHappinessChangePolicy = kResults.GetInt("IlliteracyHappinessMod");
 	m_iMinorityHappinessChangePolicy = kResults.GetInt("MinorityHappinessMod");
 	m_iPovertyHappinessChangePolicyCapital = kResults.GetInt("PovertyHappinessModCapital");
 	m_iDefenseHappinessChangePolicyCapital = kResults.GetInt("DefenseHappinessModCapital");
+	m_iUnculturedHappinessChangePolicyCapital = kResults.GetInt("UnculturedHappinessModCapital");
 	m_iIlliteracyHappinessChangePolicyCapital = kResults.GetInt("IlliteracyHappinessModCapital");
 	m_iMinorityHappinessChangePolicyCapital = kResults.GetInt("MinorityHappinessModCapital");
 	m_iPuppetUnhappinessModPolicy = kResults.GetInt("PuppetUnhappinessModPolicy");
@@ -1602,6 +1606,10 @@ int CvPolicyEntry::GetDefenseHappinessChangePolicy() const
 {
 	return m_iDefenseHappinessChangePolicy;
 }
+int CvPolicyEntry::GetUnculturedHappinessChangePolicy() const
+{
+	return m_iUnculturedHappinessChangePolicy;
+}
 int CvPolicyEntry::GetIlliteracyHappinessChangePolicy() const
 {
 	return m_iIlliteracyHappinessChangePolicy;
@@ -1617,6 +1625,10 @@ int CvPolicyEntry::GetPovertyHappinessChangePolicyCapital() const
 int CvPolicyEntry::GetDefenseHappinessChangePolicyCapital() const
 {
 	return m_iDefenseHappinessChangePolicyCapital;
+}
+int CvPolicyEntry::GetUnculturedHappinessChangePolicyCapital() const
+{
+	return m_iUnculturedHappinessChangePolicyCapital;
 }
 int CvPolicyEntry::GetIlliteracyHappinessChangePolicyCapital() const
 {

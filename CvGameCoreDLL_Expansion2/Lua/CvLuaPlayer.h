@@ -588,6 +588,7 @@ protected:
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	LUAAPIEXTN(GetUnhappinessFromCityCulture, int);
+	LUAAPIEXTN(GetUnhappinessFromCityScience, int);
 	LUAAPIEXTN(GetUnhappinessFromCityDefense, int);
 	LUAAPIEXTN(GetUnhappinessFromCityGold, int);
 	LUAAPIEXTN(GetUnhappinessFromCityConnection, int);

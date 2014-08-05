@@ -37,5 +37,10 @@
 			<Where Name="MOD_BALANCE_CORE_DEALS"/>
 			<Set Value="1"/>
 		</Update>
+		<!-- This affects the AI's grand strategy guessing improvements.-->
+		<Update>
+			<Where Name="MOD_BALANCE_CORE_GRANDSTRATEGY_AI"/>
+			<Set Value="1"/>
+		</Update>
 	</CustomModOptions>
   </GameData>

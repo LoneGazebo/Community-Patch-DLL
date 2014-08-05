@@ -29,8 +29,8 @@
 	
 	<!-- This is the "No More Civilian Traffic Jams (NMCTJs) Mod" by Pazyryk - see http://forums.civfanatics.com/showthread.php?t=519754 (v45) -->
     <!-- See also: "Global - No More Civilian Traffic Jams" -->
-	<Row Class="6" Name="GLOBAL_BREAK_CIVILIAN_1UPT" Value="0"/>
-	<Row Class="6" Name="GLOBAL_BREAK_CIVILIAN_RESTRICTIONS" Value="0"/>
+	<Row Class="6" Name="GLOBAL_BREAK_CIVILIAN_1UPT" Value="1"/>
+	<Row Class="6" Name="GLOBAL_BREAK_CIVILIAN_RESTRICTIONS" Value="1"/>
 
     <!-- Great Generals and Admirals gained from combat experience spawn in the war-zone and not in a distant city (v19) -->
     <!-- See also: "Global - Local Generals" -->
@@ -103,11 +103,11 @@
 	
     <!-- Units attacking from cities, forts or citadels will not follow-up if they kill the defender (v19) -->
     <!-- See also: "Global - No Followup From Cities" -->
-    <Row Class="6" Name="GLOBAL_NO_FOLLOWUP_FROM_CITIES" Value="0"/>
+    <Row Class="6" Name="GLOBAL_NO_FOLLOWUP_FROM_CITIES" Value="1"/>
 
     <!-- Units that can move after attacking can also capture civilian units (eg workers in empty barbarian camps) (v32) -->
     <!-- See also: "Global - No Followup From Cities" -->
-    <Row Class="5" Name="GLOBAL_CAPTURE_AFTER_ATTACKING" Value="0"/>
+    <Row Class="5" Name="GLOBAL_CAPTURE_AFTER_ATTACKING" Value="1"/>
 
     <!-- Trade routes can't be plundered on ocean tiles - too much sea to hide in, too many directions to escape in (v39) -->
     <!-- See also: "Global - No Ocean Plundering" -->
@@ -617,7 +617,7 @@
 
     <!-- Enables the Plot Yield tables (v35) -->
     <!-- See also: "Religion - Bonus Beliefs" -->
-    <Row Class="2" Name="API_PLOT_YIELDS" Value="0" DbUpdates="1"/>
+    <Row Class="2" Name="API_PLOT_YIELDS" Value="1" DbUpdates="1"/>
 
     <!-- Enables the Achievements table (v45) -->
     <Row Class="2" Name="API_ACHIEVEMENTS" Value="0" DbUpdates="1"/>
@@ -681,7 +681,7 @@
     <!-- See also: "Global - 2 Units Per Fort" -->
     <!-- See also: "Global - 3 Units Per City" -->
     <!-- See also: "Global - No Followup From Cities" -->
-    <Row Class="1" Name="BUGFIX_CITY_STACKING" Value="0"/>
+    <Row Class="1" Name="BUGFIX_CITY_STACKING" Value="1"/>
     <!-- Fixes the bug where Barb Camps ignore the ValidTerrains and ValidFeatures tables (v19) -->
     <Row Class="1" Name="BUGFIX_BARB_CAMP_TERRAINS" Value="1"/>
     <!-- Fixes the bug where Barb Camps won't spawn units if they are added via pPlot:SetImprovementType() (v21) -->
@@ -752,7 +752,12 @@
 	<Row Class="6" Name="MOD_BALANCE_CORE_WONDERS_VARIABLE_REWARD" Value="0"/>
 	<!-- The pantheon requires resource or improvement aspect of MOD_COMMUNITY_PATCH -->
 	<Row Class="6" Name="MOD_BALANCE_CORE_BELIEFS_RESOURCE" Value="0"/>
-	  
+	<!-- The annex cs if bully trait part of MOD_COMMUNITY_PATCH -->
+	<Row Class="6" Name="MOD_BALANCE_CORE_AFRAID_ANNEX" Value="0"/>
+	<!-- The instant yield from buildings part of MOD_COMMUNITY_PATCH -->
+	<Row Class="6" Name="MOD_BALANCE_CORE_BUILDING_INSTANT_YIELD" Value="0"/>
+    <!-- The AI Grand Strategy Guess Improvements part of MOD_COMMUNITY_PATCH -->
+	<Row Class="6" Name="MOD_BALANCE_CORE_GRANDSTRATEGY_AI" Value="0"/>
   </CustomModOptions>
 
   <CustomModPostDefines>

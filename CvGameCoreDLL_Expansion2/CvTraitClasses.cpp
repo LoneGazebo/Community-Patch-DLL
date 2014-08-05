@@ -106,7 +106,9 @@ CvTraitEntry::CvTraitEntry() :
 	m_eCapitalFreeBuildingPrereqTech(NO_TECH),
 #endif
 	m_eFreeBuildingOnConquest(NO_BUILDING),
-
+#if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
+	m_bBullyAnnex(false),
+#endif
 	m_bFightWellDamaged(false),
 	m_bMoveFriendlyWoodsAsRoad(false),
 	m_bFasterAlongRiver(false),
@@ -592,7 +594,12 @@ BuildingTypes CvTraitEntry::GetFreeBuildingOnConquest() const
 {
 	return m_eFreeBuildingOnConquest;
 }
-
+#if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
+bool CvTraitEntry::IsBullyAnnex() const
+{
+	return m_bBullyAnnex;
+}
+#endif
 /// Accessor:: does this civ get combat bonuses when damaged?
 bool CvTraitEntry::IsFightWellDamaged() const
 {
@@ -743,6 +750,10 @@ int CvTraitEntry::GetPovertyHappinessChange() const
 int CvTraitEntry::GetDefenseHappinessChange() const
 {
 	return m_iDefenseHappinessChange;
+}
+int CvTraitEntry::GetUnculturedHappinessChange() const
+{
+	return m_iUnculturedHappinessChange;
 }
 int CvTraitEntry::GetIlliteracyHappinessChange() const
 {
@@ -1095,6 +1106,9 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	{
 		m_eFreeBuildingOnConquest = (BuildingTypes)GC.getInfoTypeForString(szTextVal, true);
 	}
+#if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
+	m_bBullyAnnex = kResults.GetBool("BullyAnnex");
+#endif
 	m_bFightWellDamaged = kResults.GetBool("FightWellDamaged");
 	m_bMoveFriendlyWoodsAsRoad = kResults.GetBool("MoveFriendlyWoodsAsRoad");
 	m_bFasterAlongRiver = kResults.GetBool("FasterAlongRiver");
@@ -1125,6 +1139,7 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 	m_iPovertyHappinessChange = kResults.GetInt("PovertyHappinessTraitMod");
 	m_iDefenseHappinessChange = kResults.GetInt("DefenseHappinessTraitMod");
+	m_iUnculturedHappinessChange = kResults.GetInt("UnculturedHappinessChange");
 	m_iIlliteracyHappinessChange = kResults.GetInt("IlliteracyHappinessTraitMod");
 	m_iMinorityHappinessChange = kResults.GetInt("MinorityHappinessTraitMod");
 	m_bNoConnectionUnhappiness = kResults.GetBool("NoConnectionUnhappiness");
@@ -1539,7 +1554,12 @@ void CvPlayerTraits::InitPlayerTraits()
 #if defined(MOD_BALANCE_CORE)
 			m_iNumFreeBuildings	+= trait->GetNumFreeBuildings();
 #endif
-
+#if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
+			if(trait->IsBullyAnnex())
+			{
+				m_bBullyAnnex = true;
+			}
+#endif
 			if(trait->IsFightWellDamaged())
 			{
 				m_bFightWellDamaged = true;
@@ -1634,6 +1654,7 @@ void CvPlayerTraits::InitPlayerTraits()
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 			m_iPovertyHappinessChange += trait->GetPovertyHappinessChange();
 			m_iDefenseHappinessChange += trait->GetDefenseHappinessChange();
+			m_iUnculturedHappinessChange += trait->GetUnculturedHappinessChange();
 			m_iIlliteracyHappinessChange += trait->GetIlliteracyHappinessChange();
 			m_iMinorityHappinessChange += trait->GetMinorityHappinessChange();
 			if( trait->IsNoConnectionUnhappiness())
@@ -1828,7 +1849,9 @@ void CvPlayerTraits::Reset()
 #if defined(MOD_BALANCE_CORE)
 	m_iNumFreeBuildings = 0;
 #endif
-
+#if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
+	m_bBullyAnnex = false;
+#endif
 	m_bFightWellDamaged = false;
 	m_bMoveFriendlyWoodsAsRoad = false;
 	m_bFasterAlongRiver = false;
@@ -1857,6 +1880,7 @@ void CvPlayerTraits::Reset()
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 	m_iPovertyHappinessChange = 0;
 	m_iDefenseHappinessChange = 0;
+	m_iUnculturedHappinessChange = 0;
 	m_iIlliteracyHappinessChange = 0;
 	m_iMinorityHappinessChange = 0;
 	m_bNoConnectionUnhappiness = false;
@@ -3047,6 +3071,9 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 #if defined(MOD_BALANCE_CORE)
 	MOD_SERIALIZE_READ(51, kStream, m_iNumFreeBuildings, 0);
 #endif
+#if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
+	MOD_SERIALIZE_READ(55, kStream, m_bBullyAnnex, false);
+#endif
 	kStream >> m_bFightWellDamaged;
 	kStream >> m_bMoveFriendlyWoodsAsRoad;
 	kStream >> m_bFasterAlongRiver;
@@ -3128,6 +3155,7 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 	MOD_SERIALIZE_READ(53, kStream, m_iPovertyHappinessChange, 0);
 	MOD_SERIALIZE_READ(53, kStream, m_iDefenseHappinessChange, 0);
+	MOD_SERIALIZE_READ(53, kStream, m_iUnculturedHappinessChange, 0);
 	MOD_SERIALIZE_READ(53, kStream, m_iIlliteracyHappinessChange, 0);
 	MOD_SERIALIZE_READ(53, kStream, m_iMinorityHappinessChange, 0);
 	MOD_SERIALIZE_READ(54, kStream, m_bNoConnectionUnhappiness, false);
@@ -3324,7 +3352,9 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 #if defined(MOD_BALANCE_CORE)
 	MOD_SERIALIZE_WRITE(kStream, m_iNumFreeBuildings);
 #endif
-
+#if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
+	MOD_SERIALIZE_WRITE(kStream, m_bBullyAnnex);
+#endif
 	kStream << m_bFightWellDamaged;
 	kStream << m_bMoveFriendlyWoodsAsRoad;
 	kStream << m_bFasterAlongRiver;
@@ -3364,6 +3394,7 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 	MOD_SERIALIZE_WRITE(kStream, m_iPovertyHappinessChange);
 	MOD_SERIALIZE_WRITE(kStream, m_iDefenseHappinessChange);
+	MOD_SERIALIZE_WRITE(kStream, m_iUnculturedHappinessChange);
 	MOD_SERIALIZE_WRITE(kStream, m_iIlliteracyHappinessChange);
 	MOD_SERIALIZE_WRITE(kStream, m_iMinorityHappinessChange);
 	MOD_SERIALIZE_WRITE(kStream, m_bNoConnectionUnhappiness);

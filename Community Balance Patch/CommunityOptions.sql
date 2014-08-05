@@ -11,31 +11,22 @@ All options below are preset to the default values of this mod.
 -- If you have not read the instructions above, please do so now!
 
 /*
-Enables Support for City-State Diplomacy Mod
-1 = Enabled (Default)
-0 = Disabled 
-*/
-
-INSERT INTO COMMUNITY (Type, Value)
-VALUES ('COMMUNITY_CSD_COMPATIBILITY', 1);
-
-/*
-Enables Support for Civ 4 Diplomacy Features Mod
-1 = Enabled (Default)
-0 = Disabled 
-*/
-
-INSERT INTO COMMUNITY (Type, Value)
-VALUES ('COMMUNITY_CIVIVDF_COMPATIBILITY', 1);
-
-/*
 Changes to Civilization Traits
 1 = Enabled (Default)
 0 = Disabled 
 */
 
 INSERT INTO COMMUNITY (Type, Value)
-VALUES ('COMMUNITY_CORE_BALANCE_CIVS', 0);
+VALUES ('COMMUNITY_CORE_BALANCE_CIVS', 1);
+
+/*
+Changes to Buildings
+1 = Enabled (Default)
+0 = Disabled 
+*/
+
+INSERT INTO COMMUNITY (Type, Value)
+VALUES ('COMMUNITY_CORE_BALANCE_BUILDINGS', 1);
 
 /*
 Changes to Promotions

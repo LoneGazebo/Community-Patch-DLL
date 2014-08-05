@@ -6565,9 +6565,19 @@ void CvLeague::CheckResolutionsValid()
 			for (uint i = 0; i < m_vMembers.size(); i++)
 			{
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
-				GET_PLAYER(m_vMembers[i].ePlayer).CalculateHappiness();
-#else
+				if(MOD_BALANCE_CORE_HAPPINESS)
+				{
+					if(GET_PLAYER(m_vMembers[i].ePlayer).isHuman())
+					{
+						GET_PLAYER(m_vMembers[i].ePlayer).CalculateHappiness();
+					}
+				}
+				else
+				{
+#endif
 				GET_PLAYER(m_vMembers[i].ePlayer).DoUpdateHappiness();
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+				}
 #endif
 				GET_PLAYER(m_vMembers[i].ePlayer).updateYield();
 				GET_PLAYER(m_vMembers[i].ePlayer).recomputeGreatPeopleModifiers();
@@ -6615,9 +6625,19 @@ void CvLeague::DoEnactResolution(CvEnactProposal* pProposal)
 	for (uint i = 0; i < m_vMembers.size(); i++)
 	{
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
-		GET_PLAYER(m_vMembers[i].ePlayer).CalculateHappiness();
-#else
+		if(MOD_BALANCE_CORE_HAPPINESS)
+		{
+			if(GET_PLAYER(m_vMembers[i].ePlayer).isHuman())
+			{
+				GET_PLAYER(m_vMembers[i].ePlayer).CalculateHappiness();
+			}
+		}
+		else
+		{
+#endif
 		GET_PLAYER(m_vMembers[i].ePlayer).DoUpdateHappiness();
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+		}
 #endif
 		GET_PLAYER(m_vMembers[i].ePlayer).updateYield();
 		GET_PLAYER(m_vMembers[i].ePlayer).recomputeGreatPeopleModifiers();
@@ -6650,9 +6670,16 @@ void CvLeague::DoRepealResolution(CvRepealProposal* pProposal)
 			for (uint i = 0; i < m_vMembers.size(); i++)
 			{
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
-				GET_PLAYER(m_vMembers[i].ePlayer).CalculateHappiness();
-#else
+				if(MOD_BALANCE_CORE_HAPPINESS)
+				{
+					GET_PLAYER(m_vMembers[i].ePlayer).CalculateHappiness();
+				}
+				else
+				{
+#endif
 				GET_PLAYER(m_vMembers[i].ePlayer).DoUpdateHappiness();
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+				}
 #endif
 				GET_PLAYER(m_vMembers[i].ePlayer).updateYield();
 				GET_PLAYER(m_vMembers[i].ePlayer).recomputeGreatPeopleModifiers();
@@ -7158,9 +7185,19 @@ void CvLeague::DoProjectReward(PlayerTypes ePlayer, LeagueProjectTypes eLeaguePr
 		{
 			GET_PLAYER(ePlayer).ChangeHappinessFromLeagues(pRewardInfo->GetHappiness());
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
-			GET_PLAYER(ePlayer).CalculateHappiness();
-#else
+			if(MOD_BALANCE_CORE_HAPPINESS)
+			{
+				if(GET_PLAYER(ePlayer).isHuman())
+				{
+					GET_PLAYER(ePlayer).CalculateHappiness();
+				}
+			}
+			else
+			{
+#endif
 			GET_PLAYER(ePlayer).DoUpdateHappiness();
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+			}
 #endif
 		}
 
@@ -10104,12 +10141,12 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 		{
 			if (bSeekingDiploVictory)
 			{
-				iScore += 100;
+				iScore += 200;
 			}
 
 			if (bSeekingDiploVictory && bStrongProduction)
 			{
-				iScore += 200;
+				iScore += 400;
 			}
 
 			int iVotes = GC.getGame().GetGameLeagues()->GetActiveLeague()->CalculateStartingVotesForMember(GetPlayer()->GetID());
@@ -10120,7 +10157,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 			//If FLAVOR_DIPLOMACY is 6+...
 			if(iFlavorDiplo - 5 > 0)
 			{
-				iScore += 30;
+				iScore += 10 * iFlavorDiplo;
 			}
 			if(iNeededVotes > 0)
 			{
@@ -10725,7 +10762,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 				{
 #if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
 					if (MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS) 
-						iScore += 100;
+						iScore += 300;
 					else
 #endif
 						iScore += 25;
@@ -10742,7 +10779,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 				{
 #if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
 					if (MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS) 
-						iScore += -100;
+						iScore += -200;
 					else
 #endif
 						iScore += -25;

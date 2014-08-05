@@ -137,6 +137,11 @@ public:
 	int GetTerrainExtraYield(TerrainTypes eTerrain, YieldTypes eYield) const;
 	void ChangeTerrainExtraYield(TerrainTypes eTerrain, YieldTypes eYield, int iChange);
 
+#if defined(MOD_BALANCE_CORE_YIELDS)
+	int getPlotYieldChange(PlotTypes ePlot, YieldTypes eYield) const;
+	void changePlotYieldChange(PlotTypes ePlot, YieldTypes eYield, int iChange);
+#endif
+
 	bool IsHasResourceLocal(ResourceTypes eResource, bool bTestVisible) const;
 #if defined(MOD_API_EXTENSIONS) || defined(MOD_TRADE_WONDER_RESOURCE_ROUTES)
 	int GetNumResourceLocal(ResourceTypes eResource);
@@ -533,6 +538,9 @@ public:
 	int getUnhappinessFromCultureYield() const;
 	int getUnhappinessFromCultureNeeded() const;
 	int getUnhappinessFromCulture() const;
+	int getUnhappinessFromScienceYield() const;
+	int getUnhappinessFromScienceNeeded() const;
+	int getUnhappinessFromScience() const;
 	int getUnhappinessFromDefenseYield() const;
 	int getUnhappinessFromDefenseNeeded() const;
 	int getUnhappinessFromDefense() const;
@@ -668,9 +676,10 @@ public:
 	void ChangeTotalGreatWorkAid(int iChange);
 	int GetTotalGreatWorkAid() const;
 	void SetTotalGreatWorkAid(int iValue);
-
-	int GetGrowthExtraYield() const;
-	void ChangeGrowthExtraYield(int iChange);
+#endif
+#if defined(MOD_DIPLOMACY_CITYSTATES) || defined(MOD_BALANCE_CORE)
+	int GetGrowthExtraYield(YieldTypes eIndex) const;
+	void ChangeGrowthExtraYield(YieldTypes eIndex, int iChange);
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 	int GetPovertyUnhappiness() const;
@@ -678,6 +687,9 @@ public:
 
 	int GetDefenseUnhappiness() const;
 	void ChangeDefenseUnhappiness(int iChange);
+
+	int GetUnculturedUnhappiness() const;
+	void ChangeUnculturedUnhappiness(int iChange);
 
 	int GetIlliteracyUnhappiness() const;
 	void ChangeIlliteracyUnhappiness(int iChange);
@@ -690,6 +702,9 @@ public:
 
 	int GetDefenseUnhappinessGlobal() const;
 	void ChangeDefenseUnhappinessGlobal(int iChange);
+
+	int GetUnculturedUnhappinessGlobal() const;
+	void ChangeUnculturedUnhappinessGlobal(int iChange);
 
 	int GetIlliteracyUnhappinessGlobal() const;
 	void ChangeIlliteracyUnhappinessGlobal(int iChange);
@@ -1095,15 +1110,19 @@ protected:
 	int m_iTotalScienceyAid;
 	int m_iTotalArtsyAid;
 	int m_iTotalGreatWorkAid;
-	int m_iChangeGrowthExtraYield;
+#endif
+#if defined(MOD_DIPLOMACY_CITYSTATES) || defined(MOD_BALANCE_CORE)
+	FAutoVariable<std::vector<int>, CvCity> m_aiChangeGrowthExtraYield;
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 	int m_iChangePovertyUnhappiness;
 	int m_iChangeDefenseUnhappiness;
+	int m_iChangeUnculturedUnhappiness;
 	int m_iChangeIlliteracyUnhappiness;
 	int m_iChangeMinorityUnhappiness;
 	int m_iChangePovertyUnhappinessGlobal;
 	int m_iChangeDefenseUnhappinessGlobal;
+	int m_iChangeUnculturedUnhappinessGlobal;
 	int m_iChangeIlliteracyUnhappinessGlobal;
 	int m_iChangeMinorityUnhappinessGlobal;
 #endif
@@ -1158,6 +1177,9 @@ protected:
 	int** m_ppaiResourceYieldChange;
 	int** m_ppaiFeatureYieldChange;
 	int** m_ppaiTerrainYieldChange;
+#if defined(MOD_BALANCE_CORE_YIELDS)
+	int** m_ppaaiPlotYieldChange;
+#endif
 
 	CvCityBuildings* m_pCityBuildings;
 	CvCityStrategyAI* m_pCityStrategyAI;

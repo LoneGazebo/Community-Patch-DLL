@@ -137,7 +137,9 @@ public:
 	BuildingTypes GetFreeCapitalBuilding() const;
 #endif
 	BuildingTypes GetFreeBuildingOnConquest() const;
-
+#if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
+	bool IsBullyAnnex() const;
+#endif
 	bool IsFightWellDamaged() const;
 	bool IsMoveFriendlyWoodsAsRoad() const;
 	bool IsFasterAlongRiver() const;
@@ -170,6 +172,7 @@ public:
 	int GetPovertyHappinessChange() const;
 	int GetDefenseHappinessChange() const;
 	int GetIlliteracyHappinessChange() const;
+	int GetUnculturedHappinessChange() const;
 	int GetMinorityHappinessChange() const;
 	bool IsNoConnectionUnhappiness() const;
 	bool IsNoReligiousStrife() const;
@@ -289,7 +292,9 @@ protected:
 	TechTypes m_eCapitalFreeBuildingPrereqTech;
 #endif
 	BuildingTypes m_eFreeBuildingOnConquest;
-
+#if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
+	bool m_bBullyAnnex;
+#endif
 	bool m_bFightWellDamaged;
 	bool m_bMoveFriendlyWoodsAsRoad;
 	bool m_bFasterAlongRiver;
@@ -318,6 +323,7 @@ protected:
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 	int m_iPovertyHappinessChange;
 	int m_iDefenseHappinessChange;
+	int m_iUnculturedHappinessChange;
 	int m_iIlliteracyHappinessChange;
 	int m_iMinorityHappinessChange;
 	bool m_bNoConnectionUnhappiness;
@@ -682,6 +688,12 @@ public:
 		return m_iNumFreeBuildings;
 	}
 #endif
+#if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
+	bool IsBullyAnnex() const
+	{
+		return m_bBullyAnnex;
+	};
+#endif
 
 	bool IsFightWellDamaged() const
 	{
@@ -784,6 +796,10 @@ public:
 	int GetIlliteracyHappinessChange() const
 	{
 		return m_iIlliteracyHappinessChange;
+	}
+	int GetUnculturedHappinessChange() const
+	{
+		return m_iUnculturedHappinessChange;
 	}
 	int GetMinorityHappinessChange() const
 	{
@@ -1007,6 +1023,7 @@ private:
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 	int m_iPovertyHappinessChange;
 	int m_iDefenseHappinessChange;
+	int m_iUnculturedHappinessChange;
 	int m_iIlliteracyHappinessChange;
 	int m_iMinorityHappinessChange;
 	bool m_bNoConnectionUnhappiness;
@@ -1022,7 +1039,9 @@ private:
 	BuildingTypes m_eFreeCapitalBuilding;
 #endif
 	BuildingTypes m_eFreeBuildingOnConquest;
-
+#if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
+	bool m_bBullyAnnex;
+#endif
 	int m_iExtraYieldThreshold[NUM_YIELD_TYPES];
 	int m_iFreeCityYield[NUM_YIELD_TYPES];
 	int m_iYieldChangeStrategicResources[NUM_YIELD_TYPES];

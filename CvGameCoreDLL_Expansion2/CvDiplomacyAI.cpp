@@ -7133,6 +7133,28 @@ void CvDiplomacyAI::DoUpdateOnePlayerTargetValue(PlayerTypes ePlayer)
 	if(eTargetValue < TARGET_VALUE_SOFT && IsPlayerRecklessExpander(ePlayer))
 		eTargetValue = TargetValueTypes(eTargetValue + 1);
 
+#if defined(MOD_BALANCE_CORE_DIFFICULTY)
+	//Is human? Let's make them more ripe as targets.
+	if(MOD_BALANCE_CORE_DIFFICULTY && GC.getBALANCE_GAME_DIFFICULTY_MULTIPLIER() > 0)
+	{
+		if(GET_PLAYER(ePlayer).isHuman())
+		{
+			if(eTargetValue < TARGET_VALUE_SOFT)
+			{
+				int eBump = GC.getBALANCE_GAME_DIFFICULTY_MULTIPLIER() + eTargetValue;
+				if(eBump >= TARGET_VALUE_SOFT)
+				{
+					eTargetValue = TargetValueTypes(TARGET_VALUE_SOFT);
+				}
+				else
+				{
+					eTargetValue = TargetValueTypes(eBump);
+				}
+			}
+		}
+	}
+#endif
+
 	// If it's a city-state and we've been at war for a LONG time, bump things up
 	if(eTargetValue > TARGET_VALUE_IMPOSSIBLE && GetPlayerNumTurnsAtWar(ePlayer) > /*50*/ GC.getTARGET_INCREASE_WAR_TURNS())
 		eTargetValue = TargetValueTypes(eTargetValue - 1);

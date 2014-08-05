@@ -659,6 +659,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 #endif
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE_HAPPINESS)
 	Method(GetUnhappinessFromCityCulture);
+	Method(GetUnhappinessFromCityScience);
 	Method(GetUnhappinessFromCityDefense);
 	Method(GetUnhappinessFromCityGold);
 	Method(GetUnhappinessFromCityConnection);
@@ -7062,6 +7063,16 @@ int CvLuaPlayer::lGetUnhappinessFromCityCulture(lua_State* L)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 
 	const int iResult = pkPlayer->getUnhappinessFromCityCulture();
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
+//int getUnhappinessFromCityScience();
+int CvLuaPlayer::lGetUnhappinessFromCityScience(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+
+	const int iResult = pkPlayer->getUnhappinessFromCityScience();
 	lua_pushinteger(L, iResult);
 	return 1;
 }

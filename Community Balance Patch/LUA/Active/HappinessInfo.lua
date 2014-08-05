@@ -586,6 +586,7 @@ function UpdateScreen()
 	    local fUnhappinessTimes100 = pPlayer:GetUnhappinessFromCityForUI(pCity);
 		-- COMMUNITY CHANGE
 		local iCultureUnhappiness = pCity:GetUnhappinessFromCulture();
+		local iScienceUnhappiness = pCity:GetUnhappinessFromScience();
 		local iDefenseUnhappiness = pCity:GetUnhappinessFromDefense();
 		local iGoldUnhappiness = pCity:GetUnhappinessFromGold();
 		local iConnectionUnhappiness = pCity:GetUnhappinessFromConnection();
@@ -593,7 +594,7 @@ function UpdateScreen()
 		local iStarvingUnhappiness = pCity:GetUnhappinessFromStarving();
 		local iMinorityUnhappiness = pCity:GetUnhappinessFromMinority();
 
-		local iTotalUnhappyCP = (iCultureUnhappiness + iDefenseUnhappiness + iGoldUnhappiness + iConnectionUnhappiness + iPillagedUnhappiness + iStarvingUnhappiness + iMinorityUnhappiness) * 100;
+		local iTotalUnhappyCP = (iScienceUnhappiness + iCultureUnhappiness + iDefenseUnhappiness + iGoldUnhappiness + iConnectionUnhappiness + iPillagedUnhappiness + iStarvingUnhappiness + iMinorityUnhappiness) * 100;
 		fUnhappinessTimes100 = fUnhappinessTimes100 + iTotalUnhappyCP;
 		--END
 		local instance = {};
@@ -627,13 +628,15 @@ function UpdateScreen()
 -- COMMUNITY CHANGE
 		
 		local iCityYield = (iUnhappinessFromCityCount / iNumNormalCities);
+		local iPuppetMod = pPlayer:GetPuppetUnhappinessMod();
 		local iCultureYield = pCity:GetUnhappinessFromCultureYield() / 100;
 		local iDefenseYield = pCity:GetUnhappinessFromDefenseYield() / 100;
 		local iGoldYield = pCity:GetUnhappinessFromGoldYield() / 100;
 		local iCultureNeeded = pCity:GetUnhappinessFromCultureNeeded() / 100;
 		local iDefenseNeeded = pCity:GetUnhappinessFromDefenseNeeded() / 100;
 		local iGoldNeeded = pCity:GetUnhappinessFromGoldNeeded() / 100;
-		local iPuppetMod = pPlayer:GetPuppetUnhappinessMod();
+		local iScienceYield = pCity:GetUnhappinessFromScienceYield() / 100;
+		local iScienceNeeded = pCity:GetUnhappinessFromScienceNeeded() / 100;
 
 		if (pCity:IsCapital()) then
 			if (iCityCountMod == 0) then
@@ -666,13 +669,21 @@ function UpdateScreen()
 				strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_PUPPET_UNHAPPINESS_MOD", iPuppetMod);
 			end
 		end
-
+		
 		-- Culture tooltip
 		if (iCultureUnhappiness > 0) then
 			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_CULTURE_UNHAPPINESS", iCultureUnhappiness, iCultureYield, iCultureNeeded);
 		end
 		if ((iCultureYield - iCultureNeeded) >= 0) then
 			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_CULTURE_UNHAPPINESS_SURPLUS", (iCultureYield - iCultureNeeded));
+		end
+
+		-- Science tooltip
+		if (iScienceUnhappiness > 0) then
+			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_SCIENCE_UNHAPPINESS", iScienceUnhappiness, iScienceYield, iScienceNeeded);
+		end
+		if ((iScienceYield - iScienceNeeded) >= 0) then
+			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_SCIENCE_UNHAPPINESS_SURPLUS", (iScienceYield - iScienceNeeded));
 		end
 
 		-- Defense tooltip

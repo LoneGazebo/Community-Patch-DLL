@@ -1045,6 +1045,13 @@ void CvGame::uninit()
 #if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 	m_eTeamThatCircumnavigated = NO_TEAM;
 #endif
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+	m_iCultureAverage = 0;
+	m_iScienceAverage = 0;
+	m_iDefenseAverage = 0;
+	m_iGoldAverage = 0;
+	m_iGlobalPopulation = 0;
+#endif
 
 	m_strScriptData = "";
 	m_iEarliestBarbarianReleaseTurn = 0;
@@ -7672,6 +7679,13 @@ void CvGame::doTurn()
 	GetGameLeagues()->DoTurn();
 	GetGameCulture()->DoTurn();
 
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+	if(MOD_BALANCE_CORE_HAPPINESS)
+	{
+		getGlobalAverage();
+	}
+#endif
+
 	GC.GetEngineUserInterface()->setCanEndTurn(false);
 	GC.GetEngineUserInterface()->setHasMovedUnit(false);
 
@@ -9429,6 +9443,111 @@ uint CvGame::getNumReplayMessages() const
 	return m_listReplayMessages.size();
 }
 
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+//	--------------------------------------------------------------------------------
+void CvGame::getGlobalAverage() const
+{
+	CvCity* pLoopCity;
+	int iCityLoop;
+	PlayerTypes eLoopPlayer;
+	int iPopulation = 0;
+	int iCultureYield = 0;
+	int iScienceYield = 0;
+	int iDefenseYield = 0;
+	int iGoldYield = 0;
+	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	{
+		eLoopPlayer = (PlayerTypes) iPlayerLoop;
+		if(eLoopPlayer != NO_PLAYER && GET_PLAYER(eLoopPlayer).isAlive() && !GET_PLAYER(eLoopPlayer).isMinorCiv() && !GET_PLAYER(eLoopPlayer).isBarbarian())
+		{
+			for(pLoopCity = GET_PLAYER(eLoopPlayer).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eLoopPlayer).nextCity(&iCityLoop))
+			{
+				if(pLoopCity != NULL)
+				{
+					iPopulation += pLoopCity->getPopulation();
+
+					//Uncultured
+					iCultureYield += pLoopCity->getJONSCulturePerTurn() * 100;
+
+					//Illiteracy
+					iScienceYield += pLoopCity->getYieldRateTimes100(YIELD_SCIENCE, false);
+					
+					//Disorder
+					iDefenseYield += pLoopCity->getStrengthValue(false);
+
+						// 10 damage = -100 points
+						int iDamage = (pLoopCity->getDamage() * 10);
+
+						if(iDamage > 0)
+						{
+							iDefenseYield -= iDamage;
+						}
+
+					//Poverty
+					iGoldYield += pLoopCity->getYieldRateTimes100(YIELD_GOLD, false);
+				}		
+			}
+		}
+	}
+	GC.getGame().SetCultureAverage(iCultureYield);
+	GC.getGame().SetScienceAverage(iScienceYield);
+	GC.getGame().SetDefenseAverage(iDefenseYield);
+	GC.getGame().SetGoldAverage(iGoldYield);
+	GC.getGame().SetGlobalPopulation(iPopulation);
+}
+//	--------------------------------------------------------------------------------
+void CvGame::SetCultureAverage(int iValue)
+{
+	if(GetCultureAverage() != iValue)
+	m_iCultureAverage = iValue;
+}
+//	--------------------------------------------------------------------------------
+void CvGame::SetScienceAverage(int iValue)
+{
+	if(GetScienceAverage() != iValue)
+	m_iScienceAverage = iValue;
+}
+//	--------------------------------------------------------------------------------
+void CvGame::SetDefenseAverage(int iValue)
+{
+	if(GetDefenseAverage() != iValue)
+	m_iDefenseAverage = iValue;
+}
+//	--------------------------------------------------------------------------------
+void CvGame::SetGoldAverage(int iValue)
+{
+	if(GetGoldAverage() != iValue)
+	m_iGoldAverage = iValue;
+}
+//	--------------------------------------------------------------------------------
+void CvGame::SetGlobalPopulation(int iValue)
+{
+	if(GetGlobalPopulation() != iValue)
+	m_iGlobalPopulation = iValue;
+}
+//	--------------------------------------------------------------------------------
+int CvGame::GetCultureAverage() const
+{
+	return m_iCultureAverage;
+}
+int CvGame::GetScienceAverage() const
+{
+	return m_iScienceAverage;
+}
+int CvGame::GetDefenseAverage() const
+{
+	return m_iDefenseAverage;
+}	
+int CvGame::GetGoldAverage() const
+{
+	return m_iGoldAverage;
+}
+int CvGame::GetGlobalPopulation() const
+{
+	return m_iGlobalPopulation;
+}	
+#endif
+
 //	--------------------------------------------------------------------------------
 const CvReplayMessage* CvGame::getReplayMessage(uint i) const
 {
@@ -9526,6 +9645,13 @@ void CvGame::Read(FDataStream& kStream)
 
 #if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 	MOD_SERIALIZE_READ(39, kStream, m_eTeamThatCircumnavigated, NO_TEAM);
+#endif
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+	MOD_SERIALIZE_READ(55, kStream, m_iCultureAverage, 0);
+	MOD_SERIALIZE_READ(55, kStream, m_iScienceAverage, 0);
+	MOD_SERIALIZE_READ(55, kStream, m_iDefenseAverage, 0);
+	MOD_SERIALIZE_READ(55, kStream, m_iGoldAverage, 0);
+	MOD_SERIALIZE_READ(55, kStream, m_iGlobalPopulation, 0);
 #endif
 
 	kStream >> m_strScriptData;
@@ -9765,6 +9891,14 @@ void CvGame::Write(FDataStream& kStream) const
 #if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 	MOD_SERIALIZE_WRITE(kStream, m_eTeamThatCircumnavigated);
 #endif
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+	MOD_SERIALIZE_WRITE(kStream, m_iCultureAverage);
+	MOD_SERIALIZE_WRITE(kStream, m_iScienceAverage);
+	MOD_SERIALIZE_WRITE(kStream, m_iDefenseAverage);
+	MOD_SERIALIZE_WRITE(kStream, m_iGoldAverage);
+	MOD_SERIALIZE_WRITE(kStream, m_iGlobalPopulation);
+#endif
+
 
 	kStream << m_strScriptData;
 

@@ -31,6 +31,12 @@ WHERE BuildingType = 'BUILDING_EHRENHALLE' AND EXISTS (SELECT * FROM CSD WHERE T
 -- Pop Requirement
 
 UPDATE Buildings
+SET NationalPopRequired = '10'
+WHERE Type = 'BUILDING_COURT_SCRIBE' AND EXISTS (SELECT * FROM CSD WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS_CSD' AND Value= 1 );
+
+-- Pop Requirement
+
+UPDATE Buildings
 SET NationalPopRequired = '25'
 WHERE Type = 'BUILDING_PRINTING_PRESS' AND EXISTS (SELECT * FROM CSD WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS_CSD' AND Value= 1 );
 
@@ -89,6 +95,14 @@ SET NumCityCostMod = '35'
 WHERE Type = 'BUILDING_EHRENHALLE' AND EXISTS (SELECT * FROM CSD WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS_CSD' AND Value= 1 );
 
 -- TEXT CHANGES
+
+UPDATE Language_en_US
+SET Text = 'Requires a national population of at least 10 before it can be built. +1 [ICON_RES_PAPER] Paper. +10% [ICON_PRODUCTION] Production of Diplomatic Units. Can only be constructed in a Capital. [NEWLINE][NEWLINE] +10% of the [ICON_PRODUCTION] Production of the City is added to the current [ICON_PRODUCTION] Production amount every time the city gains a [ICON_CITIZEN] Citizen.'
+WHERE Tag = 'TXT_KEY_BUILDING_COURT_SCRIBE_HELP' AND EXISTS (SELECT * FROM CSD WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS_CSD' AND Value= 1 );
+
+UPDATE Language_en_US
+SET Text = 'This National Wonder is unique, in that players may only build it in your capital, so long as you have a national population of 10. It gives a small production boost when building diplomatic units in the capital, and one [ICON_RES_PAPER] Paper resource. Build this building if you want to secure a city-state ally or two during the first few eras of the game. The additional [ICON_PRODUCTION] Production granted upon City growth makes it important to build this building early on to maximize the boost. Requires 10 [ICON_CITIZEN] National Population before it can be constructed.'
+WHERE Tag = 'TXT_KEY_BUILDING_COURT_SCRIBE_STRATEGY' AND EXISTS (SELECT * FROM CSD WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS_CSD' AND Value= 1 );
 
 UPDATE Language_en_US
 SET Text = 'This National Wonder cannot be built unless the city has a Public School and you have a national population of at least 45. Build this national wonder to receive additional votes in the World Congress based on the number of Research Agreements you currently have with other players. You will also receive a large boost to the Culture and Science output of the city where it is built.'

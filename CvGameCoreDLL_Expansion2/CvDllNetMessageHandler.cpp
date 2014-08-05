@@ -989,9 +989,19 @@ void CvDllNetMessageHandler::ResponseUpdatePolicies(PlayerTypes ePlayer, bool bN
 		{
 			kPlayer.setHasPolicy(ePolicy, bValue);
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
-			kPlayer.CalculateHappiness();
-#else
+		if(MOD_BALANCE_CORE_HAPPINESS)
+		{
+			if(kPlayer.isHuman())
+			{
+				kPlayer.CalculateHappiness();
+			}
+		}
+		else
+		{
+#endif
 			kPlayer.DoUpdateHappiness();
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+		}
 #endif			
 			kPlayer.DoUpdateHappiness();
 		}

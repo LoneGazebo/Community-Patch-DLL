@@ -42,6 +42,10 @@ ALTER TABLE Traits ADD COLUMN 'FreeBuildingPrereqTech' text default NULL;
 
 ALTER TABLE Traits ADD COLUMN 'CapitalFreeBuildingPrereqTech' text default NULL;
 
+-- Adds a trait that lets a player conquer a city-state if they can bully it.
+
+ALTER TABLE Traits ADD COLUMN 'BullyAnnex' boolean default false;
+
 -- Grants a free valid promotion to a unit when it enters a type of feature (forest, marsh, etc.).
 
 ALTER TABLE Features ADD COLUMN 'LocationUnitFreePromotion' text default NULL;
@@ -98,24 +102,28 @@ ALTER TABLE Policies ADD COLUMN 'NoUnhappfromXSpecialistsCapital' integer defaul
 ALTER TABLE Buildings ADD COLUMN 'PovertyHappinessChange' integer default 0;
 ALTER TABLE Buildings ADD COLUMN 'DefenseHappinessChange' integer default 0;
 ALTER TABLE Buildings ADD COLUMN 'IlliteracyHappinessChange' integer default 0;
+ALTER TABLE Buildings ADD COLUMN 'UnculturedHappinessChange' integer default 0;
 ALTER TABLE Buildings ADD COLUMN 'MinorityHappinessChange' integer default 0;
 
 -- Flat global boosts to city yield for happiness sources (buildings) - values should be positive to be good!
 ALTER TABLE Buildings ADD COLUMN 'PovertyHappinessChangeGlobal' integer default 0;
 ALTER TABLE Buildings ADD COLUMN 'DefenseHappinessChangeGlobal' integer default 0;
 ALTER TABLE Buildings ADD COLUMN 'IlliteracyHappinessChangeGlobal' integer default 0;
+ALTER TABLE Buildings ADD COLUMN 'UnculturedHappinessChangeGlobal' integer default 0;
 ALTER TABLE Buildings ADD COLUMN 'MinorityHappinessChangeGlobal' integer default 0;
 
 -- % reduction to city threshold for happiness sources (policies) - Values should be negative to be good!
 ALTER TABLE Policies ADD COLUMN 'PovertyHappinessMod' integer default 0;
 ALTER TABLE Policies ADD COLUMN 'DefenseHappinessMod' integer default 0;
 ALTER TABLE Policies ADD COLUMN 'IlliteracyHappinessMod' integer default 0;
+ALTER TABLE Policies ADD COLUMN 'UnculturedHappinessMod' integer default 0;
 ALTER TABLE Policies ADD COLUMN 'MinorityHappinessMod' integer default 0;
 
 -- % reduction to city threshold for happiness sources in Capital (policies) - Values should be negative to be good!
 ALTER TABLE Policies ADD COLUMN 'PovertyHappinessModCapital' integer default 0;
 ALTER TABLE Policies ADD COLUMN 'DefenseHappinessModCapital' integer default 0;
 ALTER TABLE Policies ADD COLUMN 'IlliteracyHappinessModCapital' integer default 0;
+ALTER TABLE Policies ADD COLUMN 'UnculturedHappinessModCapital' integer default 0;
 ALTER TABLE Policies ADD COLUMN 'MinorityHappinessModCapital' integer default 0;
 
 -- Reduce the Unhappiness Threshold for Puppeted Cities. Value should be negative to be good.
@@ -126,6 +134,7 @@ ALTER TABLE Policies ADD COLUMN 'PuppetUnhappinessModPolicy' integer default 0;
 ALTER TABLE Traits ADD COLUMN 'PovertyHappinessTraitMod' integer default 0;
 ALTER TABLE Traits ADD COLUMN 'DefenseHappinessTraitMod' integer default 0;
 ALTER TABLE Traits ADD COLUMN 'IlliteracyHappinessTraitMod' integer default 0;
+ALTER TABLE Traits ADD COLUMN 'UnculturedHappinessTraitMod' integer default 0;
 ALTER TABLE Traits ADD COLUMN 'MinorityHappinessTraitMod' integer default 0;
 
 

@@ -15343,9 +15343,19 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 	if((pNewPlot && pNewPlot->isCity()) || (pOldPlot && pOldPlot->isCity()))
 	{
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
-		GET_PLAYER(getOwner()).CalculateHappiness();
-#else
+		if(MOD_BALANCE_CORE_HAPPINESS)
+		{
+			if(GET_PLAYER(getOwner()).isHuman())
+			{
+				GET_PLAYER(getOwner()).CalculateHappiness();
+			}
+		}
+		else
+		{
+#endif
 		GET_PLAYER(getOwner()).DoUpdateHappiness();
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+		}
 #endif
 	}
 

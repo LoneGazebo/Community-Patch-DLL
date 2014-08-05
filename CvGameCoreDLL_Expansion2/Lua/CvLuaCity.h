@@ -315,6 +315,9 @@ protected:
 	LUAAPIEXTN(GetUnhappinessFromCultureYield, int);
 	LUAAPIEXTN(GetUnhappinessFromCultureNeeded, int);
 	LUAAPIEXTN(GetUnhappinessFromCulture, int);
+	LUAAPIEXTN(GetUnhappinessFromScienceYield, int);
+	LUAAPIEXTN(GetUnhappinessFromScienceNeeded, int);
+	LUAAPIEXTN(GetUnhappinessFromScience, int);
 	LUAAPIEXTN(GetUnhappinessFromDefenseYield, int);
 	LUAAPIEXTN(GetUnhappinessFromDefenseNeeded, int);
 	LUAAPIEXTN(GetUnhappinessFromDefense, int);

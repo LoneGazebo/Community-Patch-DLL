@@ -227,15 +227,16 @@ public:
 	int GetDoFToVotes() const;
 	int GetRAToVotes() const;
 	int GetGPExpendInfluence() const;
-	int GetGrowthExtraYield() const;
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 	int GetPovertyHappinessChangeBuilding() const;
 	int GetDefenseHappinessChangeBuilding() const;
+	int GetUnculturedHappinessChangeBuilding() const;
 	int GetIlliteracyHappinessChangeBuilding() const;
 	int GetMinorityHappinessChangeBuilding() const;
 	int GetPovertyHappinessChangeBuildingGlobal() const;
 	int GetDefenseHappinessChangeBuildingGlobal() const;
+	int GetUnculturedHappinessChangeBuildingGlobal() const;
 	int GetIlliteracyHappinessChangeBuildingGlobal() const;
 	int GetMinorityHappinessChangeBuildingGlobal() const;
 #endif
@@ -285,6 +286,11 @@ public:
 	CvString GetThemingBonusHelp() const;
 
 	// Accessor Functions (Arrays)
+
+#if defined(MOD_DIPLOMACY_CITYSTATES) || defined(MOD_BALANCE_CORE)
+	int GetGrowthExtraYield(int i) const;
+	int* GetGrowthExtraYieldArray() const;
+#endif
 	int GetYieldChange(int i) const;
 	int* GetYieldChangeArray() const;
 	int GetYieldChangePerPop(int i) const;
@@ -328,7 +334,10 @@ public:
 	int GetHurryModifier(int i) const;
 	bool IsBuildingClassNeededInCity(int i) const;
 	int GetNumFreeUnits(int i) const;
-
+#if defined(MOD_BALANCE_CORE_BUILDING_INSTANT_YIELD)
+	int GetInstantYield(int i) const;
+	int* GetInstantYieldArray() const;
+#endif
 #if defined(MOD_BALANCE_CORE_YIELDS)
 	int GetPlotYieldChange(int i, int j) const;
 	int* GetPlotYieldChangeArray(int i) const;
@@ -479,15 +488,16 @@ private:
 	int m_iDoFToVotesBase;
 	int m_iRAToVotesBase;
 	int m_iGPExpendInfluenceBase;
-	int m_iGrowthExtraYieldBase;
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 	int m_iPovertyHappinessChangeBuilding;
 	int m_iDefenseHappinessChangeBuilding;
+	int m_iUnculturedHappinessChangeBuilding;
 	int m_iIlliteracyHappinessChangeBuilding;
 	int m_iMinorityHappinessChangeBuilding;
 	int m_iPovertyHappinessChangeBuildingGlobal;
 	int m_iDefenseHappinessChangeBuildingGlobal;
+	int m_iUnculturedHappinessChangeBuildingGlobal;
 	int m_iIlliteracyHappinessChangeBuildingGlobal;
 	int m_iMinorityHappinessChangeBuildingGlobal;
 #endif
@@ -555,6 +565,9 @@ private:
 	int* m_piRiverPlotYieldChange;
 	int* m_piLakePlotYieldChange;
 	int* m_piSeaResourceYieldChange;
+#if defined(MOD_DIPLOMACY_CITYSTATES) || defined(MOD_BALANCE_CORE)
+	int* m_piGrowthExtraYield;
+#endif
 	int* m_piYieldChange;
 	int* m_piYieldChangePerPop;
 	int* m_piYieldChangePerReligion;
@@ -583,6 +596,9 @@ private:
 	int** m_ppaiTerrainYieldChange;
 	int** m_ppiBuildingClassYieldChanges;
 	int* m_paiBuildingClassHappiness;
+#if defined(MOD_BALANCE_CORE_BUILDING_INSTANT_YIELD)
+	int* m_piInstantYield;
+#endif
 #if defined(MOD_BALANCE_CORE_YIELDS)
 	int** m_ppaiBuildingPlotYieldChange;
 #endif

@@ -293,6 +293,7 @@ bool IsTestCityStrategy_NeedDiplomatsCritical(CvCity *pCity);
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 bool IsTestCityStrategy_NeedHappinessCulture(CvCity *pCity);
+bool IsTestCityStrategy_NeedHappinessScience(CvCity *pCity);
 bool IsTestCityStrategy_NeedHappinessDefense(CvCity *pCity);
 bool IsTestCityStrategy_NeedHappinessGold(CvCity *pCity);
 bool IsTestCityStrategy_NeedHappinessConnection(CvCity *pCity);
