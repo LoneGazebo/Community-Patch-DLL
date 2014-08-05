@@ -64,3 +64,28 @@ WHERE Type = 'TERRAIN_HILL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='BARB
 UPDATE Terrains
 SET SpawnLocationUnitFreePromotion = 'PROMOTION_ALTITUDE_TRAINING'
 WHERE Type = 'TERRAIN_HILL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='BARBARIAN_HEAL' AND Value= 1 );
+
+-- Barbarian Axman quirks.
+
+UPDATE Civilization_UnitClassOverrides
+SET UnitClassType = 'UNITCLASS_AXMAN'
+WHERE UnitType = 'UNIT_BARBARIAN_AXMAN';
+
+INSERT INTO UnitClasses (Type, Description, DefaultUnit)
+VALUES ('UNITCLASS_AXMAN', 'TXT_KEY_UNIT_AXMAN', 'none');
+
+UPDATE Units
+SET Class = 'UNITCLASS_AXMAN'
+WHERE Type = 'UNIT_BARBARIAN_AXMAN';
+
+UPDATE Units
+SET GoodyHutUpgradeUnitClass = 'UNITCLASS_COMPOSITE_BOWMAN'
+WHERE Type = 'UNIT_BARBARIAN_AXMAN';
+
+UPDATE Units
+SET ObsoleteTech = 'TECH_CONSTRUCTION'
+WHERE Type = 'UNIT_BARBARIAN_AXMAN';
+
+
+UPDATE LoadedFile SET Value=1 WHERE Type='BarbarianChanges.sql';
+

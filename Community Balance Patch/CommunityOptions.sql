@@ -151,3 +151,22 @@ Tourism Changes
 
 INSERT INTO COMMUNITY (Type, Value)
 VALUES ('COMMUNITY_CORE_BALANCE_TOURISM_CHANGES', 1);
+
+/*
+Speech
+0 = Disabled
+1 = Enabled (Default)
+*/
+INSERT INTO COMMUNITY (Type, Value) VALUES ('PLAY_SPEECH_START'		, 1);
+INSERT INTO COMMUNITY (Type, Value) VALUES ('PLAY_SPEECH_WONDERS'		, 1);
+INSERT INTO COMMUNITY (Type, Value) VALUES ('PLAY_SPEECH_TECHS'		, 1);
+INSERT INTO COMMUNITY (Type, Value) VALUES ('PLAY_ERA_VOS'			, 1);
+
+/*
+UnitMovement Changes
+0 = Disabled
+1 = Enabled (Default)
+*/
+
+INSERT INTO COMMUNITY (Type, Value)
+VALUES ('COMMUNITY_UNITMOVEMENT_INCREASE', 1);

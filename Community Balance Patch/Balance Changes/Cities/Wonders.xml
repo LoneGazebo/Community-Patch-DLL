@@ -1,0 +1,407 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameData>
+	<Defines>
+		<Update>
+			<Where Name="BUILDING_SALE_DIVISOR" />
+			<Set Value="1" />
+		</Update>		
+	</Defines>
+
+	<Buildings>
+
+		<Update>
+			<Where Type="BUILDING_ANGKOR_WAT" />
+			<Set MinorFriendshipFlatChange="40"
+				 GlobalPlotCultureCostModifier="0"
+				 GlobalPlotBuyCostModifier="0"
+				 FreeBuildingThisCity="NULL"
+				 />
+		</Update>
+		<Update>
+			<Where Type="BUILDING_BRANDENBURG_GATE" />
+			<Set FreeBuildingThisCity="BUILDINGCLASS_MILITARY_ACADEMY"
+				 Experience="0"
+				 GlobalExperience="20"
+				 />
+		</Update>
+		<Update>
+			<Where Type="BUILDING_CHICHEN_ITZA" />
+			<Set GoldenAgeModifier="50"
+				 Happiness="0"
+				 />
+		</Update>
+		<Update>
+			<Where Type="BUILDING_CN_TOWER" />
+			<Set PrereqTech="TECH_ELECTRONICS"
+				/>
+		</Update>
+		<Update>
+			<Where Type="BUILDING_CRISTO_REDENTOR" />
+			<Set PolicyCostModifier="0"
+				 />
+		</Update>
+		<Update>
+			<Where Type="BUILDING_FORBIDDEN_PALACE" />
+			<Set UnhappinessModifier="-10"
+				 Happiness="0"
+				 />
+		</Update>
+		<Update>
+			<Where Type="BUILDING_GREAT_WALL" />
+			<Set GreatGeneralRateChange="1"
+				 GreatPeopleRateChange="0"
+				 FreeBuildingThisCity="NULL"
+				 />
+		</Update>
+		<Update>
+			<Where Type="BUILDING_GREAT_LIBRARY" />
+			<Set GreatPeopleRateChange="0"
+				 />
+		</Update>
+		<Update>
+			<Where Type="BUILDING_HAGIA_SOPHIA" />
+			<Set FreeBuildingThisCity="NULL"
+				 Happiness="0" />
+		</Update>
+		<Update>
+			<Where Type="BUILDING_HANGING_GARDEN" />
+			<Set Happiness="6" />
+		</Update>
+		<Update>
+			<Where Type="BUILDING_HUBBLE" />
+			<Set IconAtlas="CEP_WONDER_ATLAS"
+				 PortraitIndex="0"
+				 />
+		</Update>
+		<Update>
+			<Where Type="BUILDING_RED_FORT" />
+			<Set GlobalInstantBorderRadius="2"
+				 GlobalPlotCultureCostModifier="-25"
+				 GlobalPlotBuyCostModifier="-25"
+				 Defense="0"
+				 GlobalDefenseMod="0"
+				 />
+		</Update>
+		<Update>
+			<Where Type="BUILDING_LEANING_TOWER" />
+			<Set IconAtlas="TECH_ATLAS_2"
+				 PortraitIndex="14"
+				 />
+		</Update>
+		<Update>
+			<Where Type="BUILDING_MACHU_PICHU" />
+			<Set CityConnectionTradeRouteModifier="0"
+				 Help="TXT_KEY_BUILDING_MACHU_PICHU_HELP"
+				 AlwaysShowHelp="true"
+				 />
+		</Update>
+		<Update>
+			<Where Type="BUILDING_MAUSOLEUM_HALICARNASSUS" />
+			<Set GreatPersonExpendGold="0"
+				 FreeBuildingThisCity="BUILDINGCLASS_COLOSSEUM"
+				 IconAtlas="CEP_WONDER_ATLAS"
+				 PortraitIndex="3"
+				 WonderSplashImage="splash_flavian.dds"
+				 WonderSplashAnchor="R,B"
+				 />
+		</Update>
+		<Update>
+			<Where Type="BUILDING_MOSQUE_OF_DJENNE" />
+			<Set FreeBuildingThisCity="NULL"
+				 ExtraMissionarySpreads="0"
+				 />
+		</Update>
+		<Update>
+			<Where Type="BUILDING_PETRA" />
+			<Set NotFeature="FEATURE_FLOOD_PLAINS"
+				 />
+		</Update>
+		<Update>
+			<Where Type="BUILDING_PENTAGON" />
+			<Set FreePromotionAllCombatUnits="PROMOTION_MARCH" />
+		</Update>
+		<Update>
+			<Where Type="BUILDING_PORCELAIN_TOWER" />
+			<Set MedianTechPercentChange="0"
+				 TradeDealModifier="25"
+				 />
+		</Update>
+		<Update>
+			<Where Type="BUILDING_STATUE_ZEUS" />
+			<Set InstantMilitaryIncrease="1"
+				 GreatGeneralRateChange="1"
+				 FreePromotion="NULL"
+				 />
+		</Update>
+		<Update>
+			<Where Type="BUILDING_STONEHENGE" />
+			<Set GreatPeopleRateChange="1"
+				 Help="TXT_KEY_WONDER_STONEHENGE_HELP"
+				 />
+		</Update>
+		<Update>
+			<Where Type="BUILDING_SYDNEY_OPERA_HOUSE" />
+			<Set FreePolicies="2"
+				 />
+		</Update>
+		<!--
+		<Update>
+			<Where Type="BUILDING_TAJ_MAHAL" />
+			<Set Happiness="0"
+				 GoldenAgePoints="4"
+				 />
+		</Update>
+		-->
+		<Update>
+			<Where Type="BUILDING_TERRACOTTA_ARMY" />
+			<Set InstantMilitaryIncrease="0"
+				 InstantBorderRadius="3"
+				 GreatPeopleRateChange="0"
+				 />
+		</Update>
+	</Buildings>
+
+	<Building_YieldInstant>
+		<Row>
+			<BuildingType>BUILDING_STONEHENGE</BuildingType>
+			<YieldType>YIELD_FAITH</YieldType>
+			<Yield>20</Yield>
+		</Row>
+	</Building_YieldInstant>
+	<Building_FreeUnits>
+		<Delete BuildingType="BUILDING_PYRAMID" />
+		<Delete BuildingType="BUILDING_BRANDENBURG_GATE" />
+		<Delete BuildingType="BUILDING_HAGIA_SOPHIA" />
+		<Row>
+			<BuildingType>BUILDING_PYRAMID</BuildingType>
+			<UnitType>UNIT_SETTLER</UnitType>
+			<NumUnits>1</NumUnits>
+		</Row>
+		<!--
+		<Row>
+			<BuildingType>BUILDING_STATUE_ZEUS</BuildingType>
+			<UnitType>UNIT_GREAT_GENERAL</UnitType>
+			<NumUnits>1</NumUnits>
+		</Row>
+		-->
+		<Row>
+			<BuildingType>BUILDING_GREAT_WALL</BuildingType>
+			<UnitType>UNIT_GREAT_GENERAL</UnitType>
+			<NumUnits>1</NumUnits>
+		</Row>
+
+		<Row>
+			<BuildingType>BUILDING_MOSQUE_OF_DJENNE</BuildingType>
+			<UnitType>UNIT_PROPHET</UnitType>
+			<NumUnits>1</NumUnits>
+		</Row>
+
+		<Row>
+			<BuildingType>BUILDING_CRISTO_REDENTOR</BuildingType>
+			<UnitType>UNIT_ARTIST</UnitType>
+			<NumUnits>1</NumUnits>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_CRISTO_REDENTOR</BuildingType>
+			<UnitType>UNIT_WRITER</UnitType>
+			<NumUnits>1</NumUnits>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_CRISTO_REDENTOR</BuildingType>
+			<UnitType>UNIT_MUSICIAN</UnitType>
+			<NumUnits>1</NumUnits>
+		</Row>
+		<Delete BuildingType="BUILDING_LOUVRE" />
+		<Row>
+			<BuildingType>BUILDING_LOUVRE</BuildingType>
+			<UnitType>UNIT_ARCHAEOLOGIST</UnitType>
+			<NumUnits>2</NumUnits>
+		</Row>
+	</Building_FreeUnits>
+
+	<Building_TerrainYieldChanges>
+		<Delete BuildingType="BUILDING_PETRA" YieldType="YIELD_PRODUCTION" />
+	</Building_TerrainYieldChanges>
+	<Building_FeatureYieldChanges>
+		<Delete BuildingType="BUILDING_PETRA" YieldType="YIELD_PRODUCTION" />
+	</Building_FeatureYieldChanges>
+	<Building_ResourceYieldChanges>
+		<Delete BuildingType="BUILDING_MAUSOLEUM_HALICARNASSUS" />
+		<Row>
+			<BuildingType>BUILDING_MAUSOLEUM_HALICARNASSUS</BuildingType>
+			<ResourceType>RESOURCE_HORSE</ResourceType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>2</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_MAUSOLEUM_HALICARNASSUS</BuildingType>
+			<ResourceType>RESOURCE_IVORY</ResourceType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>2</Yield>
+		</Row>
+	</Building_ResourceYieldChanges>
+	<Building_NearestPlotYieldChanges>
+		<Row>
+			<BuildingType>BUILDING_MACHU_PICHU</BuildingType>
+			<PlotType>PLOT_MOUNTAIN</PlotType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>5</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_MACHU_PICHU</BuildingType>
+			<PlotType>PLOT_MOUNTAIN</PlotType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>5</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_MACHU_PICHU</BuildingType>
+			<PlotType>PLOT_MOUNTAIN</PlotType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>5</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_MACHU_PICHU</BuildingType>
+			<PlotType>PLOT_MOUNTAIN</PlotType>
+			<YieldType>YIELD_FAITH</YieldType>
+			<Yield>5</Yield>
+		</Row>
+	</Building_NearestPlotYieldChanges>
+	<Building_PlotYieldChanges>
+
+	</Building_PlotYieldChanges>
+
+	<Building_YieldChanges>
+		<Delete BuildingType="BUILDING_GREAT_LIBRARY" />
+		<Delete BuildingType="BUILDING_HANGING_GARDEN" />
+		<Row>
+			<BuildingType>BUILDING_HANGING_GARDEN</BuildingType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Delete BuildingType="BUILDING_MACHU_PICHU" />
+		<Row>
+			<BuildingType>BUILDING_MACHU_PICHU</BuildingType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Delete BuildingType="BUILDING_HAGIA_SOPHIA" />
+		<Row>
+			<BuildingType>BUILDING_HAGIA_SOPHIA</BuildingType>
+			<YieldType>YIELD_FAITH</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Delete BuildingType="BUILDING_ORACLE" />
+		<Row>
+			<BuildingType>BUILDING_ORACLE</BuildingType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>5</Yield>
+		</Row>
+		<Delete BuildingType="BUILDING_MOSQUE_OF_DJENNE" />
+		<Row>
+			<BuildingType>BUILDING_MOSQUE_OF_DJENNE</BuildingType>
+			<YieldType>YIELD_FAITH</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Delete BuildingType="BUILDING_TERRACOTTA_ARMY" />
+		<Row>
+			<BuildingType>BUILDING_TERRACOTTA_ARMY</BuildingType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>5</Yield>
+		</Row>
+
+	</Building_YieldChanges>
+
+	<Building_HurryModifiers>
+		<Update>
+			<Where BuildingType="BUILDING_BIG_BEN" />
+			<Set HurryCostModifier="-15" />
+		</Update>
+	</Building_HurryModifiers>
+	<Building_SpecialistYieldChanges>
+		<Row>
+			<BuildingType>BUILDING_HAGIA_SOPHIA</BuildingType>
+			<SpecialistType>SPECIALIST_CITIZEN</SpecialistType>
+			<YieldType>YIELD_FAITH</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_HAGIA_SOPHIA</BuildingType>
+			<SpecialistType>SPECIALIST_ARTIST</SpecialistType>
+			<YieldType>YIELD_FAITH</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_HAGIA_SOPHIA</BuildingType>
+			<SpecialistType>SPECIALIST_SCIENTIST</SpecialistType>
+			<YieldType>YIELD_FAITH</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_HAGIA_SOPHIA</BuildingType>
+			<SpecialistType>SPECIALIST_MERCHANT</SpecialistType>
+			<YieldType>YIELD_FAITH</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_HAGIA_SOPHIA</BuildingType>
+			<SpecialistType>SPECIALIST_ENGINEER</SpecialistType>
+			<YieldType>YIELD_FAITH</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_HAGIA_SOPHIA</BuildingType>
+			<SpecialistType>SPECIALIST_WRITER</SpecialistType>
+			<YieldType>YIELD_FAITH</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_HAGIA_SOPHIA</BuildingType>
+			<SpecialistType>SPECIALIST_MUSICIAN</SpecialistType>
+			<YieldType>YIELD_FAITH</YieldType>
+			<Yield>1</Yield>
+		</Row>		
+	</Building_SpecialistYieldChanges>
+
+	<Building_DomainFreeExperiences>
+		<Row>
+			<BuildingType>BUILDING_GREAT_LIGHTHOUSE</BuildingType>
+			<DomainType>DOMAIN_SEA</DomainType>
+			<Experience>20</Experience>
+		</Row>
+		<Delete BuildingType="BUILDING_BRANDENBURG_GATE" />
+	</Building_DomainFreeExperiences>
+	<UnitPromotions>
+
+		<Row>
+			<Type>PROMOTION_PARTHENON</Type>
+			<Description>TXT_KEY_PROMOTION_PARTHENON</Description>
+			<Help>TXT_KEY_PROMOTION_PARTHENON_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<CannotBeChosen>true</CannotBeChosen>
+			<GreatGeneralCombatModifier>10</GreatGeneralCombatModifier>
+			<PortraitIndex>58</PortraitIndex>
+			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
+			<PediaType>PEDIA_SHARED</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_PARTHENON</PediaEntry>
+		</Row>
+	</UnitPromotions>
+
+	<UnitPromotions_CivilianUnitType>
+		<Row>
+			<PromotionType>PROMOTION_PARTHENON</PromotionType>
+			<UnitType>UNIT_GREAT_GENERAL</UnitType>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_PARTHENON</PromotionType>
+			<UnitType>UNIT_GREAT_ADMIRAL</UnitType>
+		</Row>
+	</UnitPromotions_CivilianUnitType>
+
+
+	<LoadedFile>
+		<Update>
+			<Where Type="Wonders.xml"/>
+			<Set Value="1"/>
+		</Update>
+	</LoadedFile>	
+</GameData>
