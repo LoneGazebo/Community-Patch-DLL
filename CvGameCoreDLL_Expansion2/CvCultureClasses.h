@@ -33,8 +33,13 @@ public:
 	EraTypes m_eEra;
 	PlayerTypes m_ePlayer;
 	
-	// TODO - WH - by adding m_eCurrentOwner, m_iCurrentCity, m_iCurrentBuilding and m_iCurrentSlot here,
-	//	           a load of code that scans players/cities/buildings/slots can be speeded up
+#if defined(MOD_API_EXTENSIONS)
+	// Cache the current location
+	PlayerTypes m_eCurrentOwner;
+	int m_iCurrentCity;
+	BuildingClassTypes m_eCurrentBuildingClass;
+	int m_iCurrentSlot;
+#endif
 };
 
 FDataStream& operator>>(FDataStream&, CvGreatWork&);
@@ -67,6 +72,9 @@ public:
 		return m_CurrentGreatWorks.size();
 	}
 
+#if defined(MOD_API_EXTENSIONS)
+	CvGreatWork* GetGreatWork(int iIndex) const;
+#endif
 	GreatWorkType GetGreatWorkType(int iIndex) const;
 	GreatWorkClass GetGreatWorkClass(int iIndex) const;
 	CvString GetGreatWorkTooltip(int iIndex, PlayerTypes eOwner) const;

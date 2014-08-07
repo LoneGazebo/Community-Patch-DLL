@@ -1987,7 +1987,7 @@ int CvPlayerTrade::GetTradeConnectionBaseValueTimes100(const TradeConnection& kT
 		}
 		else
 		{
-			return 100;
+			return 0;
 		}
 	}
 
@@ -2481,20 +2481,26 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTrad
 			case YIELD_GOLDEN_AGE_POINTS:
 #endif
 			case YIELD_SCIENCE:
-				int iBaseValue = GetTradeConnectionBaseValueTimes100(kTradeConnection, eYield, bAsOriginPlayer);
 #if defined(MOD_API_UNIFIED_YIELDS)
-				int iTraitBonus = GetTradeConnectionOtherTraitValueTimes100(kTradeConnection, eYield, bAsOriginPlayer);
+				{
+#endif
+					int iBaseValue = GetTradeConnectionBaseValueTimes100(kTradeConnection, eYield, bAsOriginPlayer);
+#if defined(MOD_API_UNIFIED_YIELDS)
+					int iTraitBonus = GetTradeConnectionOtherTraitValueTimes100(kTradeConnection, eYield, bAsOriginPlayer);
 #endif
 
-				iValue = iBaseValue;
+					iValue = iBaseValue;
 #if defined(MOD_API_UNIFIED_YIELDS)
-				iValue += iTraitBonus;
+					iValue += iTraitBonus;
 #endif
 
-				int iModifier = 100;
+					int iModifier = 100;
 				
-				iValue *= iModifier;
-				iValue /= 100;
+					iValue *= iModifier;
+					iValue /= 100;
+#if defined(MOD_API_UNIFIED_YIELDS)
+				}
+#endif
 				break;
 			}
 		}

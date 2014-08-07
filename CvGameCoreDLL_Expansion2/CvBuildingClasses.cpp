@@ -3186,10 +3186,15 @@ void CvCityBuildings::SetBuildingGreatWork(BuildingClassTypes eBuildingClass, in
 		kWork.iSlot = iSlot;
 		kWork.iGreatWorkIndex = iGreatWorkIndex;
 		m_aBuildingGreatWork.push_back(kWork);
-	}
 
-	// TODO - WH - by caching m_eCurrentOwner, m_iCurrentCity, m_iCurrentBuilding and m_iCurrentSlot for the Great Work here,
-	//	           a load of code that scans players/cities/buildings/slots can be speeded up
+#if defined(MOD_API_EXTENSIONS)
+		CvGreatWork* pWork = GC.getGame().GetGameCulture()->GetGreatWork(iGreatWorkIndex);
+		pWork->m_eCurrentOwner = m_pCity->getOwner();
+		pWork->m_iCurrentCity = m_pCity->GetID();
+		pWork->m_eCurrentBuildingClass = eBuildingClass;
+		pWork->m_iCurrentSlot = iSlot;
+#endif
+	}
 
 	GC.GetEngineUserInterface()->setDirty(CityInfo_DIRTY_BIT, true);
 }

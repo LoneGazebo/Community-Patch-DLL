@@ -11096,6 +11096,10 @@ void CvPlayer::ReportYieldFromKill(YieldTypes eYield, int iValue, int iX, int iY
 	CvString yieldString;
 	if(iValue > 0)
 	{
+#if defined(MOD_API_UNIFIED_YIELDS)
+		yieldString.Format("%s+%%d[ENDCOLOR]%s", GC.getYieldInfo(eYield)->getColorString(), GC.getYieldInfo(eYield)->getIconString());
+#else
+
 		switch(eYield)
 		{
 		case YIELD_GOLD:
@@ -11110,15 +11114,17 @@ void CvPlayer::ReportYieldFromKill(YieldTypes eYield, int iValue, int iX, int iY
 		case YIELD_SCIENCE:
 			yieldString = "[COLOR_BLUE]+%d[ENDCOLOR][ICON_RESEARCH]";
 			break;
-#if defined(MOD_API_UNIFIED_YIELDS)
-		case YIELD_GOLDEN_AGE_POINTS:
-			yieldString = "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GOLDEN_AGE]";
+		case YIELD_FOOD:
+			yieldString = "[COLOR_GREEN]+%d[ENDCOLOR][ICON_FOOD]";
 			break;
-#endif
+		case YIELD_PRODUCTION:
+			yieldString = "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_PRODUCTION]";
+			break;
 		default:
 			// Not supported
 			return;
 		}
+#endif
 
 		if(GetID() == GC.getGame().getActivePlayer())
 		{
@@ -29231,6 +29237,16 @@ bool CvPlayer::IsAtPeace() const
 	return !IsAtWar();
 }
 
+bool CvPlayer::IsAtPeaceAllMajors() const
+{
+	return !IsAtWarAnyMajor();
+}
+
+bool CvPlayer::IsAtPeaceAllMinors() const
+{
+	return !IsAtWarAnyMinor();
+}
+
 bool CvPlayer::IsAtPeaceWith(PlayerTypes iPlayer) const
 {
 	return !IsAtWarWith(iPlayer);
@@ -29240,8 +29256,34 @@ bool CvPlayer::IsAtWar() const
 {
 	CvTeam kTeam = GET_TEAM(getTeam());
 
-	for (int iTeam = 0; iTeam < MAX_TEAMS; iTeam++) {
+	for (int iTeam = 0; iTeam < (MAX_TEAMS-1); iTeam++) {
 		if (GET_TEAM((TeamTypes)iTeam).isAlive() && kTeam.isAtWar((TeamTypes)iTeam)) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+bool CvPlayer::IsAtWarAnyMajor() const
+{
+	CvTeam kTeam = GET_TEAM(getTeam());
+
+	for (int iTeam = 0; iTeam < (MAX_TEAMS-1); iTeam++) {
+		if (GET_TEAM((TeamTypes)iTeam).isAlive() && GET_TEAM((TeamTypes)iTeam).isMajorCiv() && kTeam.isAtWar((TeamTypes)iTeam)) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+bool CvPlayer::IsAtWarAnyMinor() const
+{
+	CvTeam kTeam = GET_TEAM(getTeam());
+
+	for (int iTeam = 0; iTeam < (MAX_TEAMS-1); iTeam++) {
+		if (GET_TEAM((TeamTypes)iTeam).isAlive() && GET_TEAM((TeamTypes)iTeam).isMinorCiv() && kTeam.isAtWar((TeamTypes)iTeam)) {
 			return true;
 		}
 	}

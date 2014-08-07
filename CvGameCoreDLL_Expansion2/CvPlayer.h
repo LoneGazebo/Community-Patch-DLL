@@ -1737,8 +1737,12 @@ public:
 	bool HasIdeology(PolicyBranchTypes iPolicyBranchType) const;
 	bool HasProject(ProjectTypes iProjectType) const;
 	bool IsAtPeace() const;
+	bool IsAtPeaceAllMajors() const;
+	bool IsAtPeaceAllMinors() const;
 	bool IsAtPeaceWith(PlayerTypes iPlayer) const;
 	bool IsAtWar() const;
+	bool IsAtWarAnyMajor() const;
+	bool IsAtWarAnyMinor() const;
 	bool IsAtWarWith(PlayerTypes iPlayer) const;
 	bool HasPantheon() const;
 	bool HasAnyReligion() const;

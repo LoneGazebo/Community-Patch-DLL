@@ -1111,8 +1111,12 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(HasIdeology);
 	Method(HasProject);
 	Method(IsAtPeace);
+	Method(IsAtPeaceAllMajors);
+	Method(IsAtPeaceAllMinors);
 	Method(IsAtPeaceWith);
 	Method(IsAtWar);
+	Method(IsAtWarAnyMajor);
+	Method(IsAtWarAnyMinor);
 	Method(IsAtWarWith);
 	Method(HasPantheon);
 	Method(HasAnyReligion);
@@ -11917,8 +11921,12 @@ LUAAPIIMPL(Player, HasPolicyBranch)
 LUAAPIIMPL(Player, HasIdeology)
 LUAAPIIMPL(Player, HasProject)
 LUAAPIIMPL(Player, IsAtPeace)
+LUAAPIIMPL(Player, IsAtPeaceAllMajors)
+LUAAPIIMPL(Player, IsAtPeaceAllMinors)
 LUAAPIIMPL(Player, IsAtPeaceWith)
 LUAAPIIMPL(Player, IsAtWar)
+LUAAPIIMPL(Player, IsAtWarAnyMajor)
+LUAAPIIMPL(Player, IsAtWarAnyMinor)
 LUAAPIIMPL(Player, IsAtWarWith)
 LUAAPIIMPL(Player, HasPantheon)
 LUAAPIIMPL(Player, HasAnyReligion)

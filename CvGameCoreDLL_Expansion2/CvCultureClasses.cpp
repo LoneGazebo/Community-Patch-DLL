@@ -28,6 +28,13 @@ CvGreatWork::CvGreatWork()
 	, m_iTurnFounded(-1)
 	, m_eEra(NO_ERA)
 	, m_ePlayer(NO_PLAYER)
+
+#if defined(MOD_API_EXTENSIONS)
+	, m_eCurrentOwner(NO_PLAYER)
+	, m_iCurrentCity(-1)
+	, m_eCurrentBuildingClass(NO_BUILDINGCLASS)
+	, m_iCurrentSlot(-1)
+#endif
 {
 }
 
@@ -39,6 +46,13 @@ CvGreatWork::CvGreatWork(CvString szGreatPersonName, GreatWorkType eType, GreatW
 	, m_iTurnFounded(iTurn)
 	, m_eEra(eEra)
 	, m_ePlayer(ePlayer)
+
+#if defined(MOD_API_EXTENSIONS)
+	, m_eCurrentOwner(NO_PLAYER)
+	, m_iCurrentCity(-1)
+	, m_eCurrentBuildingClass(NO_BUILDINGCLASS)
+	, m_iCurrentSlot(-1)
+#endif
 {
 	m_iTurnFounded = GC.getGame().getGameTurn();
 }
@@ -77,6 +91,13 @@ FDataStream& operator>>(FDataStream& loadFrom, CvGreatWork& writeTo)
 	loadFrom >> writeTo.m_eEra;
 	loadFrom >> writeTo.m_ePlayer;
 
+#if defined(MOD_API_EXTENSIONS)
+	MOD_SERIALIZE_READ(60, loadFrom, writeTo.m_eCurrentOwner, NO_PLAYER);
+	MOD_SERIALIZE_READ(60, loadFrom, writeTo.m_iCurrentCity, -1);
+	MOD_SERIALIZE_READ(60, loadFrom, writeTo.m_eCurrentBuildingClass, NO_BUILDINGCLASS);
+	MOD_SERIALIZE_READ(60, loadFrom, writeTo.m_iCurrentSlot, -1);
+#endif
+
 	return loadFrom;
 }
 
@@ -95,6 +116,13 @@ FDataStream& operator<<(FDataStream& saveTo, const CvGreatWork& readFrom)
 	saveTo << readFrom.m_iTurnFounded;
 	saveTo << readFrom.m_eEra;
 	saveTo << readFrom.m_ePlayer;
+
+#if defined(MOD_API_EXTENSIONS)
+	MOD_SERIALIZE_WRITE(saveTo, readFrom.m_eCurrentOwner);
+	MOD_SERIALIZE_WRITE(saveTo, readFrom.m_iCurrentCity);
+	MOD_SERIALIZE_WRITE(saveTo, readFrom.m_eCurrentBuildingClass);
+	MOD_SERIALIZE_WRITE(saveTo, readFrom.m_iCurrentSlot);
+#endif
 
 	return saveTo;
 }
@@ -140,12 +168,82 @@ int CvGameCulture::CreateGreatWork(GreatWorkType eType, GreatWorkClass eClass, P
 	newGreatWork.m_iTurnFounded = GC.getGame().getGameTurn();
 	newGreatWork.m_szGreatPersonName = szCreator;
 
+#if defined(MOD_API_EXTENSIONS)
+	newGreatWork.m_eCurrentOwner = NO_PLAYER;
+	newGreatWork.m_iCurrentCity = -1;
+	newGreatWork.m_eCurrentBuildingClass = NO_BUILDINGCLASS;
+	newGreatWork.m_iCurrentSlot = -1;
+#endif
+
 	int iNumGreatWorks = m_CurrentGreatWorks.size();
 
 	m_CurrentGreatWorks.push_back(newGreatWork);
 
 	return iNumGreatWorks;
 }
+
+#if defined(MOD_API_EXTENSIONS)
+CvGreatWork* CvGameCulture::GetGreatWork(int iIndex) const
+{
+	CvAssertMsg (iIndex < GetNumGreatWorks(), "Bad Great Work index");
+	CvGreatWork* pWork = GetGreatWork(iIndex);
+	
+	if (pWork->m_eCurrentOwner == NO_PLAYER) {
+		CUSTOMLOG("Location of GW %i is not cached", iIndex);
+		// we need to work out (the non-cached way) where the great work is
+		// for each player
+		//   for each building
+		//     for each slot
+		//       check to see if it holds this work
+
+		for (uint uiPlayer = 0; uiPlayer < MAX_MAJOR_CIVS; uiPlayer++)
+		{
+			PlayerTypes ePlayer = (PlayerTypes)uiPlayer;
+
+			int iCityLoop;
+			CvCity* pCity = NULL;
+			for (pCity = GET_PLAYER(ePlayer).firstCity(&iCityLoop); pCity != NULL; pCity = GET_PLAYER(ePlayer).nextCity(&iCityLoop))
+			{
+				for(int iBuildingClassLoop = 0; iBuildingClassLoop < GC.getNumBuildingClassInfos(); iBuildingClassLoop++)
+				{
+					BuildingClassTypes eBuildingClass = (BuildingClassTypes)iBuildingClassLoop;
+					CvCivilizationInfo& playerCivilizationInfo = GET_PLAYER(ePlayer).getCivilizationInfo();
+					BuildingTypes eBuilding = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings(eBuildingClass);
+					if (eBuilding != NO_BUILDING)
+					{
+						CvBuildingEntry *pkBuilding = GC.getBuildingInfo(eBuilding);
+						if (pkBuilding)
+						{
+							if (pCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
+							{
+								int iNumSlots = pkBuilding->GetGreatWorkCount();
+								for (int iI = 0; iI < iNumSlots; iI++)
+								{
+									int iGreatWorkIndex = pCity->GetCityBuildings()->GetBuildingGreatWork((BuildingClassTypes)iBuildingClassLoop, iI);
+									if (iGreatWorkIndex == iIndex)
+									{
+										pWork->m_eCurrentOwner = ePlayer;
+										pWork->m_iCurrentCity = pCity->GetID();
+										pWork->m_eCurrentBuildingClass = eBuildingClass;
+										pWork->m_iCurrentSlot = iI;
+										CUSTOMLOG("Location of GW %i is with player %i in city %i, building class %i, slot %i", iIndex, ((int) ePlayer), pCity->GetID(), ((int) eBuildingClass), iI);
+										
+										// need to bail out of lots of loops - I feel a goto coming on!
+										goto GwLocationBailOut;
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+GwLocationBailOut:; // VILE! I feel unclean!
+	}
+
+	return pWork;
+}
+#endif
 
 GreatWorkType CvGameCulture::GetGreatWorkType(int iIndex) const
 {
@@ -341,8 +439,10 @@ PlayerTypes CvGameCulture::GetGreatWorkController(int iIndex) const
 {
 	CvAssertMsg (iIndex < GetNumGreatWorks(), "Bad Great Work index");
 	
-	// TODO - WH - by caching m_eCurrentOwner, m_iCurrentCity, m_iCurrentBuilding and m_iCurrentSlot this code can be speeded up
-
+#if defined(MOD_API_EXTENSIONS)
+	const CvGreatWork* pWork = GetGreatWork(iIndex);
+	return pWork->m_eCurrentOwner;
+#else
 	// for each player
 	//   for each building
 	//     for each slot
@@ -384,53 +484,17 @@ PlayerTypes CvGameCulture::GetGreatWorkController(int iIndex) const
 	}
 
 	return NO_PLAYER;
+#endif
 }
 
 #if defined(MOD_API_EXTENSIONS)
 CvCity* CvGameCulture::GetGreatWorkCity(int iIndex) const
 {
 	CvAssertMsg (iIndex < GetNumGreatWorks(), "Bad Great Work index");
-	
-	// TODO - WH - by caching m_eCurrentOwner, m_iCurrentCity, m_iCurrentBuilding and m_iCurrentSlot this code can be speeded up
 
-	// for each player
-	//   for each building
-	//     for each slot
-	//       check to see if it holds this work
-
-	for (uint uiPlayer = 0; uiPlayer < MAX_MAJOR_CIVS; uiPlayer++)
-	{
-		PlayerTypes ePlayer = (PlayerTypes)uiPlayer;
-
-		int iCityLoop;
-		CvCity* pCity = NULL;
-		for (pCity = GET_PLAYER(ePlayer).firstCity(&iCityLoop); pCity != NULL; pCity = GET_PLAYER(ePlayer).nextCity(&iCityLoop))
-		{
-			for(int iBuildingClassLoop = 0; iBuildingClassLoop < GC.getNumBuildingClassInfos(); iBuildingClassLoop++)
-			{
-				CvCivilizationInfo& playerCivilizationInfo = GET_PLAYER(ePlayer).getCivilizationInfo();
-				BuildingTypes eBuilding = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings((BuildingClassTypes)iBuildingClassLoop);
-				if (eBuilding != NO_BUILDING)
-				{
-					CvBuildingEntry *pkBuilding = GC.getBuildingInfo(eBuilding);
-					if (pkBuilding)
-					{
-						if (pCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
-						{
-							int iNumSlots = pkBuilding->GetGreatWorkCount();
-							for (int iI = 0; iI < iNumSlots; iI++)
-							{
-								int iGreatWorkIndex = pCity->GetCityBuildings()->GetBuildingGreatWork((BuildingClassTypes)iBuildingClassLoop, iI);
-								if (iGreatWorkIndex == iIndex)
-								{
-									return pCity;
-								}
-							}
-						}
-					}
-				}
-			}
-		}
+	const CvGreatWork* pWork = GetGreatWork(iIndex);
+	if (pWork->m_eCurrentOwner != NO_PLAYER && pWork->m_iCurrentCity != -1) {
+		return GET_PLAYER(pWork->m_eCurrentOwner).getCity(pWork->m_iCurrentCity);
 	}
 	
 	return NULL;
@@ -441,8 +505,13 @@ int CvGameCulture::GetGreatWorkCurrentThemingBonus (int iIndex) const
 {
 	CvAssertMsg (iIndex < GetNumGreatWorks(), "Bad Great Work index");
 
-	// TODO - WH - by caching m_eCurrentOwner, m_iCurrentCity, m_iCurrentBuilding and m_iCurrentSlot this code can be speeded up
-
+#if defined(MOD_API_EXTENSIONS)
+	CvCity* pCity = GetGreatWorkCity(iIndex);
+	if (pCity) {
+		const CvGreatWork* pWork = GetGreatWork(iIndex);
+		return pCity->GetCityCulture()->GetThemingBonus(pWork->m_eCurrentBuildingClass);
+	}
+#else
 	// for each player
 	//   for each building
 	//     for each slot
@@ -483,6 +552,7 @@ int CvGameCulture::GetGreatWorkCurrentThemingBonus (int iIndex) const
 			}
 		}
 	}
+#endif
 
 	return 0;
 }
@@ -600,8 +670,6 @@ bool CvGameCulture::SwapGreatWorks (PlayerTypes ePlayer1, int iWork1, PlayerType
 		return false;
 	}
 
-	// TODO - WH - by caching m_eCurrentOwner, m_iCurrentCity, m_iCurrentBuilding and m_iCurrentSlot this code can be speeded up
-
 	CvCity* pCity1 = NULL;
 	BuildingClassTypes eBuildingClass1 = NO_BUILDINGCLASS;
 	int iSwapIndex1 = -1;
@@ -610,6 +678,17 @@ bool CvGameCulture::SwapGreatWorks (PlayerTypes ePlayer1, int iWork1, PlayerType
 	BuildingClassTypes eBuildingClass2 = NO_BUILDINGCLASS;
 	int iSwapIndex2 = -1;
 
+#if defined(MOD_API_EXTENSIONS)
+	const CvGreatWork* pWork1 = GetGreatWork(iWork1);
+	pCity1 = GetGreatWorkCity(iWork1);
+	eBuildingClass1 = pWork1->m_eCurrentBuildingClass;
+	iSwapIndex1 = pWork1->m_iCurrentSlot;
+	
+	const CvGreatWork* pWork2 = GetGreatWork(iWork2);
+	pCity2 = GetGreatWorkCity(iWork2);
+	eBuildingClass2 = pWork2->m_eCurrentBuildingClass;
+	iSwapIndex2 = pWork2->m_iCurrentSlot;
+#else
 	int iCityLoop;
 	CvCity* pCity = NULL;
 	for (uint ui = 0; ui < 2; ui++)
@@ -669,6 +748,7 @@ bool CvGameCulture::SwapGreatWorks (PlayerTypes ePlayer1, int iWork1, PlayerType
 			}
 		}
 	}
+#endif
 
 	if (pCity1 == NULL || pCity2 == NULL)
 	{

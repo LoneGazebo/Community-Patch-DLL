@@ -1120,8 +1120,12 @@ protected:
 	LUAAPIEXTN(HasIdeology, bool, iPolicyBranchType);
 	LUAAPIEXTN(HasProject, bool, iProjectType);
 	LUAAPIEXTN(IsAtPeace, bool);
+	LUAAPIEXTN(IsAtPeaceAllMajors, bool);
+	LUAAPIEXTN(IsAtPeaceAllMinors, bool);
 	LUAAPIEXTN(IsAtPeaceWith, bool, iPlayer);
 	LUAAPIEXTN(IsAtWar, bool);
+	LUAAPIEXTN(IsAtWarAnyMajor, bool);
+	LUAAPIEXTN(IsAtWarAnyMinor, bool);
 	LUAAPIEXTN(IsAtWarWith, bool, iPlayer);
 	LUAAPIEXTN(HasPantheon, bool);
 	LUAAPIEXTN(HasAnyReligion, bool);
