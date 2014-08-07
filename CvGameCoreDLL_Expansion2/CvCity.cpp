@@ -366,6 +366,9 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	pPlot->SetCityPurchaseID(m_iID);
 
 	int iRange = 1;
+#if defined(MOD_CONFIG_GAME_IN_XML)
+	iRange = GD_INT_GET(CITY_STARTING_RINGS);
+#endif
 	for(int iDX = -iRange; iDX <= iRange; iDX++)
 	{
 		for(int iDY = -iRange; iDY <= iRange; iDY++)
