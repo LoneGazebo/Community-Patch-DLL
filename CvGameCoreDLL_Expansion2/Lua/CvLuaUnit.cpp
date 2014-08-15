@@ -193,6 +193,9 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(IsNoCapture);
 	Method(IsRivalTerritory);
 	Method(IsFound);
+#if defined(MOD_API_LUA_EXTENSIONS)
+	Method(IsFoundAbroad);
+#endif
 	Method(IsWork);
 	Method(IsGoldenAge);
 	Method(CanCoexistWithEnemyUnit);
@@ -234,6 +237,9 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 #endif
 
 	Method(GetBaseRangedCombatStrength);
+#if defined(MOD_API_EXTENSIONS)
+	Method(SetBaseRangedCombatStrength);
+#endif
 	Method(GetMaxRangedCombatStrength);
 	Method(GetCombatLimit);
 	Method(GetRangedCombatLimit);
@@ -2035,6 +2041,18 @@ int CvLuaUnit::lIsFound(lua_State* L)
 	lua_pushboolean(L, bResult);
 	return 1;
 }
+#if defined(MOD_API_LUA_EXTENSIONS)
+//------------------------------------------------------------------------------
+//bool isFound();
+int CvLuaUnit::lIsFoundAbroad(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	const bool bResult = pkUnit->IsFoundAbroad();
+
+	lua_pushboolean(L, bResult);
+	return 1;
+}
+#endif
 //------------------------------------------------------------------------------
 // bool IsWork()
 int CvLuaUnit::lIsWork(lua_State* L)
@@ -2393,6 +2411,17 @@ int CvLuaUnit::lGetBaseRangedCombatStrength(lua_State* L)
 	lua_pushinteger(L, iResult);
 	return 1;
 }
+#if defined(MOD_API_EXTENSIONS)
+//------------------------------------------------------------------------------
+int CvLuaUnit::lSetBaseRangedCombatStrength(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	const int iStrength = lua_tointeger(L, 2);
+
+	pkUnit->SetBaseRangedCombatStrength(iStrength);
+	return 0;
+}
+#endif
 //------------------------------------------------------------------------------
 //int airMaxCombatStr(CyUnit* pOther, bool bAttacking);
 int CvLuaUnit::lGetMaxRangedCombatStrength(lua_State* L)

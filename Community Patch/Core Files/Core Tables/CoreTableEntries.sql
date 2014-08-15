@@ -137,7 +137,59 @@ ALTER TABLE Traits ADD COLUMN 'IlliteracyHappinessTraitMod' integer default 0;
 ALTER TABLE Traits ADD COLUMN 'UnculturedHappinessTraitMod' integer default 0;
 ALTER TABLE Traits ADD COLUMN 'MinorityHappinessTraitMod' integer default 0;
 
+-- New Policies
 
+-- Reduces unhappiness in occupied cities w/ Garrison. Negative = reduction.
+ALTER TABLE Policies ADD COLUMN 'GarrisonsOccupiedUnhapppinessMod' integer default 0;
 
+-- Spawns a free ranged unit with a new city.
+ALTER TABLE Policies ADD COLUMN 'BestRangedUnitSpawnSettle' integer default 0;
 
+-- No Unhappiness from Expansion
+ALTER TABLE Policies ADD COLUMN 'NoUnhappinessExpansion' boolean default false;
 
+-- No Unhapppiness from Isolation
+ALTER TABLE Policies ADD COLUMN 'NoUnhappyIsolation' boolean default false;
+
+-- Double City Border Growth During GA
+ALTER TABLE Policies ADD COLUMN 'DoubleBorderGA' boolean default false;
+
+-- Free Population
+ALTER TABLE Policies ADD COLUMN 'FreePopulation' integer default 0;
+
+-- Citizen movement Rate
+ALTER TABLE Policies ADD COLUMN 'ExtraMoves' integer default 0;
+
+-- Religious Pressure Mod Trade Route
+ALTER TABLE Policies ADD COLUMN 'TradeReligionModifier' integer default 0;
+
+-- New Beliefs
+
+-- Combat bonus v. other religions in our lands
+ALTER TABLE Beliefs ADD COLUMN 'CombatVersusOtherReligionOwnLands' integer default 0;
+
+-- Combat bonus v. other religions in their lands
+ALTER TABLE Beliefs ADD COLUMN 'CombatVersusOtherReligionTheirLands' integer default 0;
+
+-- Influence with CS from missionary spread
+ALTER TABLE Beliefs ADD COLUMN 'MissionaryInfluenceCS' integer default 0;
+
+-- Happiness per known civ with a Pantheon
+ALTER TABLE Beliefs ADD COLUMN 'HappinessPerPantheon' integer default 0;
+
+-- Extra Votes from Belief
+ALTER TABLE Beliefs ADD COLUMN 'ExtraVotes' integer default 0;
+
+-- New Buildings
+
+-- National Religious Followers Needed for a Building
+ALTER TABLE Buildings ADD COLUMN 'NationalFollowerPopRequired' integer default 0;
+
+-- Global Religious Followers Needed for a Building
+ALTER TABLE Buildings ADD COLUMN 'GlobalFollowerPopRequired' integer default 0;
+
+-- Allows for Reformation Policy
+ALTER TABLE Buildings ADD COLUMN 'IsReformation' boolean default false;
+
+-- Allows for Building to be unlocked by a specific policy (not a branch)
+ALTER TABLE Buildings ADD COLUMN 'PolicyType' text default NULL;

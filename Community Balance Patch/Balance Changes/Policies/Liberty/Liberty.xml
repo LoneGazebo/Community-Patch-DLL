@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created by ModBuddy on 8/11/2014 2:16:47 PM -->
+<GameData>
+	<Policy_YieldFromTech>
+		<Row>
+			<PolicyType>POLICY_LIBERTY</PolicyType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>5</Yield>
+		</Row>
+	</Policy_YieldFromTech>
+	<Policy_YieldFromConstruction>
+		<Row>
+			<PolicyType>POLICY_LIBERTY</PolicyType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>5</Yield>
+		</Row>
+	</Policy_YieldFromConstruction>
+	<Policy_YieldGPExpend>
+		<Row>
+			<PolicyType>POLICY_MERITOCRACY</PolicyType>
+			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
+			<Yield>50</Yield>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_MERITOCRACY</PolicyType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Yield>50</Yield>
+		</Row>
+	</Policy_YieldGPExpend>
+</GameData>

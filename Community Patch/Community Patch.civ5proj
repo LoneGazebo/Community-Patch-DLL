@@ -5,9 +5,9 @@
     <ProjectGuid>{0d66d522-b624-4bc5-acfe-15a0c5b729f4}</ProjectGuid>
     <Name>Community Patch</Name>
     <Guid>d1b6328c-ff44-4b0d-aad7-c657f83610cd</Guid>
-    <ModVersion>57.1</ModVersion>
+    <ModVersion>61.1</ModVersion>
     <Stability>Experimental</Stability>
-    <Teaser>Unofficial DLL Bugfix and AI Patch for Civ 5 (v57.1)  - Updated 7/25</Teaser>
+    <Teaser>Unofficial DLL Bugfix and AI Patch for Civ 5 (v61.1)  - Updated 8/15</Teaser>
     <Description>Contains core AI improvements and bugfixes for the Civ 5 BNW DLL. Also contains support for Whoward's PNM Mods as well as the Community Balance Patch.</Description>
     <Authors>whoward69, Gazebo</Authors>
     <SpecialThanks>
@@ -148,6 +148,26 @@
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
         <FileName>Core Files/PNM Mods DB/API/Religion.xml</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>Core Files/PNM Mods DB/API/UnifiedYields.sql</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>Core Files/PNM Mods DB/API/UnifiedYields.xml</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>Core Files/PNM Mods DB/API/UnifiedYieldsGoldenAge.xml</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>Core Files/PNM Mods DB/API/UnifiedYieldsTourism.xml</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
@@ -357,10 +377,12 @@
     <Folder Include="Core Files\Core Values\" />
     <Folder Include="Core Files\PNM Mods DB" />
     <Folder Include="Core Files\PNM Mods DB\API\" />
+    <Folder Include="Core Files\PNM Mods DB\ART\" />
     <Folder Include="Core Files\PNM Mods DB\BUGFIX\" />
     <Folder Include="Core Files\PNM Mods DB\CONFIG\" />
     <Folder Include="Core Files\PNM Mods DB\EVENTS\" />
     <Folder Include="Core Files\PNM Mods DB\GLOBAL\" />
+    <Folder Include="Core Files\PNM Mods DB\InGame\" />
     <Folder Include="Core Files\PNM Mods DB\PROMOTIONS\" />
     <Folder Include="Core Files\PNM Mods DB\RELIGION\" />
     <Folder Include="Core Files\PNM Mods DB\TRADE\" />
@@ -440,6 +462,30 @@
     <Content Include="Core Files\PNM Mods DB\API\Religion.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="Core Files\PNM Mods DB\API\UnifiedYields.sql">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="Core Files\PNM Mods DB\API\UnifiedYields.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="Core Files\PNM Mods DB\API\UnifiedYieldsGoldenAge.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="Core Files\PNM Mods DB\API\UnifiedYieldsTourism.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="Core Files\PNM Mods DB\ART\YieldAtlas_128_GoldenAge.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Core Files\PNM Mods DB\ART\YieldAtlas_128_Tourism.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
     <Content Include="Core Files\PNM Mods DB\BUGFIX\FeatureRemoval.sql">
       <SubType>Lua</SubType>
@@ -521,6 +567,14 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
+    <Content Include="Core Files\PNM Mods DB\InGame\YieldIconManager.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Core Files\PNM Mods DB\InGame\YieldIconManager.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
     <Content Include="Core Files\PNM Mods DB\PROMOTIONS\CrossIce.sql">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
@@ -566,6 +620,10 @@
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
     <Content Include="Core Files\PNM Mods DB\RELIGION\PlotYields.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="Core Files\PNM Mods DB\RELIGION\PolicyBranchFaithGp.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>

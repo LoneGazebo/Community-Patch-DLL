@@ -50,5 +50,23 @@
 		<Row Tag="TXT_KEY_GENERIC_INFLUENTIAL_ON_HUMAN_MODERN_1">
 			<Text>There is little space now for the diverse traditions of bygone eras. Unfortunately for you, it seems that your culture has been pushed out. Don't worry, I plan on dedicating a large section of our new antiquities museum to you.</Text>
 		</Row>
+		
+		<!-- New Building Pop Requirements -->
+
+		<Row Tag="TXT_KEY_NO_ACTION_BUILDING_NEED_NATIONAL_POP">
+			<Text>[NEWLINE]{2_BuildingName:textkey} requires {1_Num} more national citizens to be constructed.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NO_ACTION_BUILDING_NEED_LOCAL_POP">
+			<Text>[NEWLINE]{2_BuildingName:textkey} requires {1_Num} more local citizens to be constructed.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NO_ACTION_BUILDING_NEED_FOLLOWER_POP">
+			<Text>[NEWLINE]{2_BuildingName:textkey} requires {1_Num} more national followers of your [ICON_RELIGION] Religion to be constructed.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NO_ACTION_BUILDING_NEED_GLOBAL_FOLLOWER_POP">
+			<Text>[NEWLINE]{2_BuildingName:textkey} requires {1_Num}% more global followers of your [ICON_RELIGION] Religion to be constructed.</Text>
+		</Row>
 	</Language_en_US>
 </GameData>

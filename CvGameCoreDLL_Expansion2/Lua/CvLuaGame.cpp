@@ -400,6 +400,8 @@ void CvLuaGame::RegisterMembers(lua_State* L)
 #if defined(MOD_API_LUA_EXTENSIONS)
 	Method(ReloadGameDataDefines);
 	Method(ReloadCustomModOptions);
+	Method(IsCustomModOption);
+	Method(GetCustomModOption);
 	Method(SpewTestEvents);
 #endif
 
@@ -1286,6 +1288,7 @@ int CvLuaGame::lGetVictory(lua_State* L)
 //void setWinner(TeamTypes eNewWinner, VictoryTypes eNewVictory);
 int CvLuaGame::lSetWinner(lua_State* L)
 {
+	CUSTOMLOG("Calling setWinner from Lua: %i, %i", lua_tointeger(L, 1), lua_tointeger(L, 2));
 	return BasicLuaMethod(L, &CvGame::setWinner);
 }
 //------------------------------------------------------------------------------
@@ -3090,6 +3093,20 @@ int CvLuaGame::lReloadCustomModOptions(lua_State* L)
 {
 	gCustomMods.reloadCache();
 	return 0;
+}
+//------------------------------------------------------------------------------
+int CvLuaGame::lIsCustomModOption(lua_State* L)
+{
+	const char* szOption = luaL_checkstring(L, 1);
+	lua_pushboolean(L, (gCustomMods.getOption(szOption, 0) == 1));
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaGame::lGetCustomModOption(lua_State* L)
+{
+	const char* szOption = luaL_checkstring(L, 1);
+	lua_pushinteger(L, gCustomMods.getOption(szOption, 0));
+	return 1;
 }
 //------------------------------------------------------------------------------
 int CvLuaGame::lSpewTestEvents(lua_State* L)

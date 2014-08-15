@@ -22,9 +22,9 @@
  ****************************************************************************
  ****************************************************************************/
 #define MOD_DLL_GUID {0xbf9bf7f0, 0xe078, 0x4d4e, { 0x8a, 0x3e, 0x84, 0x71, 0x2f, 0x85, 0xaa, 0x2b }} //{BF9BF7F0-E078-4d4e-8A3E-84712F85AA2B}
-#define MOD_DLL_NAME "Community Patch v57 (PNM v51+)"
-#define MOD_DLL_VERSION_NUMBER ((uint) 57)
-#define MOD_DLL_VERSION_STATUS "b"			// a (alpha), b (beta) or blank (released)
+#define MOD_DLL_NAME "Community Patch v58 (PNM v51+)"
+#define MOD_DLL_VERSION_NUMBER ((uint) 60)
+#define MOD_DLL_VERSION_STATUS ""			// a (alpha), b (beta) or blank (released)
 #define MOD_DLL_CUSTOM_BUILD_NAME ""
 
 
@@ -44,6 +44,9 @@
 #define CUSTOMLOGDEBUG "CustomMods.log"
 // true/false to include/exclude file name and line number in the log
 #define CUSTOMLOGFILEINFO true
+
+// Comment out this line to switch off all unified yield logging
+#define UNIFIEDLOGDEBUG "UnifiedYields.log"
 
 // Comment out this line to remove minidumps - see http://forums.civfanatics.com/showthread.php?t=498919
 // If minidumps are enabled, do NOT set GenerateDebugInfo=No (Props -> Config Props -> Linker -> Debugging)
@@ -69,6 +72,13 @@
 #define MOD_API_EXTENSIONS                          gCustomMods.isAPI_EXTENSIONS()
 // Enables the LUA Extensions API
 #define MOD_API_LUA_EXTENSIONS                      gCustomMods.isAPI_LUA_EXTENSIONS()
+// Enables the Unified Yields extensions - thanks to bane_, JFD and Ulixes for extensive testing (v54)
+#define MOD_API_UNIFIED_YIELDS                      (true)
+#define MOD_API_UNIFIED_YIELDS_CONSOLIDATION        (true)
+// Enables the Unified Yields (YIELD_TOURISM) extensions (v56)
+#define MOD_API_UNIFIED_YIELDS_TOURISM              (true)
+// Enables the Unified Yields (YIELD_GOLDEN_AGE_POINTS) extensions (v57)
+#define MOD_API_UNIFIED_YIELDS_GOLDEN_AGE           (true)
 
 // Push various hard-coded values controlling the game out into XML - see DB/CONFIG/GameInXml.sql for specific values -->
 #define MOD_CONFIG_GAME_IN_XML                      gCustomMods.isCONFIG_GAME_IN_XML()
@@ -192,6 +202,9 @@
 #define MOD_BALANCE_CORE_AFRAID_ANNEX				(MOD_COMMUNITY_PATCH && gCustomMods.isMOD_BALANCE_CORE_AFRAID_ANNEX())
 #define MOD_BALANCE_CORE_BUILDING_INSTANT_YIELD		(MOD_COMMUNITY_PATCH && gCustomMods.isMOD_BALANCE_CORE_BUILDING_INSTANT_YIELD())
 #define MOD_BALANCE_CORE_GRANDSTRATEGY_AI			(MOD_COMMUNITY_PATCH && gCustomMods.isMOD_BALANCE_CORE_GRANDSTRATEGY_AI())
+#define MOD_BALANCE_CORE_BELIEFS					(MOD_COMMUNITY_PATCH && gCustomMods.isMOD_BALANCE_CORE_BELIEFS())
+#define MOD_BALANCE_CORE_FOLLOWER_POP_WONDER		(MOD_COMMUNITY_PATCH && gCustomMods.isMOD_BALANCE_CORE_FOLLOWER_POP_WONDER())
+#define MOD_BALANCE_CORE_POLICIES					(MOD_COMMUNITY_PATCH && gCustomMods.isMOD_BALANCE_CORE_POLICIES())
 #endif
 
 // Changes for the CivIV Diplomacy Features mod by Putmalk - AFFECTS SAVE GAME DATA FORMAT (v36)
@@ -262,6 +275,8 @@
 #define MOD_RELIGION_CONVERSION_MODIFIERS           gCustomMods.isRELIGION_CONVERSION_MODIFIERS()
 // Keeps overflow faith from spawning a Great Prophet if the base spawn chance is 100% (v21)
 #define MOD_RELIGION_KEEP_PROPHET_OVERFLOW          gCustomMods.isRELIGION_KEEP_PROPHET_OVERFLOW()
+// Inquisitors will keep religion out of allied City State cities if positioned adjacent (v60)
+#define MOD_RELIGION_ALLIED_INQUISITORS             gCustomMods.isRELIGION_ALLIED_INQUISITORS()
 // Send purchase notifications at every boundary and not just the first (v42)
 #define MOD_RELIGION_RECURRING_PURCHASE_NOTIFIY     gCustomMods.isRELIGION_RECURRING_PURCHASE_NOTIFIY()
 // Adds support for the Belief_PlotYieldChanges table (v35)
@@ -321,6 +336,10 @@
 //   GameEvents.TileOwnershipChanged.Add(function(iPlotX, iPlotY, iOwner, iOldOwner) end) (v46)
 //   GameEvents.TileRouteChanged.Add(function(iPlotX, iPlotY, iOwner, iOldRoute, iNewRoute, bPillaged) end)
 #define MOD_EVENTS_TILE_IMPROVEMENTS                gCustomMods.isEVENTS_TILE_IMPROVEMENTS()
+
+// Event sent when a plot is revealed (v58)
+//   GameEvents.TileRevealed.Add(function(iPlotX, iPlotY, iteam, iFromTeam, bFirst) end)
+#define MOD_EVENTS_TILE_REVEALED                    gCustomMods.isEVENTS_TILE_REVEALED()
 
 // Event sent when a team circumnavigates the globe
 //   GameEvents.CircumnavigatedGlobe.Add(function(iTeam) end)
@@ -390,8 +409,12 @@
 #define MOD_EVENTS_PARADROPS                        gCustomMods.isEVENTS_PARADROPS()
 
 // Event sent when a unit is created (v46)
-//   GameEvents.UnitCreated.Add(function(iPlayer, iUnit, iUnitType, iPlotX, iPlotY, bTestVisible) end)
+//   GameEvents.UnitCreated.Add(function(iPlayer, iUnit, iUnitType, iPlotX, iPlotY) end)
 #define MOD_EVENTS_UNIT_CREATED                     gCustomMods.isEVENTS_UNIT_CREATED()
+
+// Event sent when a unit founds a city (v58)
+//   GameEvents.UnitCityFounded.Add(function(iPlayer, iUnit, iUnitType, iPlotX, iPlotY) end)
+#define MOD_EVENTS_UNIT_FOUNDED                     gCustomMods.isEVENTS_UNIT_FOUNDED()
 
 // Event sent just before a unit is killed (via CvUnit::kill()) (v22)
 //   GameEvents.UnitPrekill.Add(function(iPlayer, iUnit, iUnitType, iX, iY, bDelay, iByPlayer) end)
@@ -654,6 +677,17 @@ enum TerraformingEventTypes {
 #define CUSTOMLOG(sFmt, ...) __noop
 #endif
 
+// Unified yields logger
+#if defined(UNIFIEDLOGDEBUG)
+#define UNIFIEDLOG(sFmt, ...) {																		\
+	CvString sMsg; CvString::format(sMsg, sFmt, __VA_ARGS__);										\
+	CvString sLine; CvString::format(sLine, "%s: %i - %s", __FILE__, __LINE__, sMsg.c_str());	    \
+	LOGFILEMGR.GetLog(UNIFIEDLOGDEBUG, FILogFile::kDontTimeStamp)->Msg(sLine.c_str());			    \
+}
+#else
+#define UNIFIEDLOG(sFmt, ...) __noop
+#endif
+
 
 // Message wrappers
 #define SHOW_PLAYER_MESSAGE(pPlayer, szMessage)       DLLUI->AddMessage(0, pPlayer->GetID(), false, GC.getEVENT_MESSAGE_TIME(), szMessage)
@@ -766,6 +800,7 @@ enum TerraformingEventTypes {
 #define GAMEEVENT_TileFeatureChanged		"TileFeatureChanged",			"iiiii"
 #define GAMEEVENT_TileImprovementChanged	"TileImprovementChanged",		"iiiiib"
 #define GAMEEVENT_TileOwnershipChanged		"TileOwnershipChanged",			"iiii"
+#define GAMEEVENT_TileRevealed				"TileRevealed",					"iiiib"
 #define GAMEEVENT_TileRouteChanged			"TileRouteChanged",				"iiiiib"
 #define GAMEEVENT_UiDiploEvent				"UiDiploEvent",					"iiii"
 #define GAMEEVENT_UnitCanHaveAnyUpgrade		"UnitCanHaveAnyUpgrade",		"ii"
@@ -774,6 +809,7 @@ enum TerraformingEventTypes {
 #define GAMEEVENT_UnitCanHavePromotion		"UnitCanHavePromotion",			"iii"
 #define GAMEEVENT_UnitCanHaveUpgrade		"UnitCanHaveUpgrade",			"iiii"
 #define GAMEEVENT_UnitCaptureType			"UnitCaptureType",				"iiii"
+#define GAMEEVENT_UnitCityFounded			"UnitCityFounded",				"iiiii"
 #define GAMEEVENT_UnitCreated				"UnitCreated",					"iiiii"
 #define GAMEEVENT_UnitPrekill				"UnitPrekill",					"iiiiibi"
 #define GAMEEVENT_UnitPromoted				"UnitPromoted",					"iii"
@@ -928,6 +964,9 @@ public:
 	MOD_OPT_DECL(MOD_BALANCE_CORE_AFRAID_ANNEX);
 	MOD_OPT_DECL(MOD_BALANCE_CORE_BUILDING_INSTANT_YIELD);
 	MOD_OPT_DECL(MOD_BALANCE_CORE_GRANDSTRATEGY_AI);
+	MOD_OPT_DECL(MOD_BALANCE_CORE_BELIEFS);
+	MOD_OPT_DECL(MOD_BALANCE_CORE_FOLLOWER_POP_WONDER);
+	MOD_OPT_DECL(MOD_BALANCE_CORE_POLICIES);
 
 	MOD_OPT_DECL(DIPLOMACY_CIV4_FEATURES); 
 
@@ -967,6 +1006,7 @@ public:
 	MOD_OPT_DECL(RELIGION_RANDOMISE);
 	MOD_OPT_DECL(RELIGION_CONVERSION_MODIFIERS);
 	MOD_OPT_DECL(RELIGION_KEEP_PROPHET_OVERFLOW);
+	MOD_OPT_DECL(RELIGION_ALLIED_INQUISITORS);
 	MOD_OPT_DECL(RELIGION_RECURRING_PURCHASE_NOTIFIY);
 	MOD_OPT_DECL(RELIGION_PLOT_YIELDS);
 	MOD_OPT_DECL(RELIGION_POLICY_BRANCH_FAITH_GP);
@@ -993,6 +1033,7 @@ public:
 
 	MOD_OPT_DECL(EVENTS_TERRAFORMING);
 	MOD_OPT_DECL(EVENTS_TILE_IMPROVEMENTS);
+	MOD_OPT_DECL(EVENTS_TILE_REVEALED);
 	MOD_OPT_DECL(EVENTS_CIRCUMNAVIGATION);
 	MOD_OPT_DECL(EVENTS_NEW_ERA);
 	MOD_OPT_DECL(EVENTS_NW_DISCOVERY);
@@ -1016,6 +1057,7 @@ public:
 	MOD_OPT_DECL(EVENTS_AREA_RESOURCES);
 	MOD_OPT_DECL(EVENTS_PARADROPS);
 	MOD_OPT_DECL(EVENTS_UNIT_CREATED);
+	MOD_OPT_DECL(EVENTS_UNIT_FOUNDED);
 	MOD_OPT_DECL(EVENTS_UNIT_PREKILL);
 	MOD_OPT_DECL(EVENTS_UNIT_CAPTURE);
 	MOD_OPT_DECL(EVENTS_CAN_MOVE_INTO);

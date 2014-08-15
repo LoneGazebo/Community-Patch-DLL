@@ -258,6 +258,9 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE)
 	Method(GetInfluenceTradeRouteGoldBonus);
 #endif
+#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE_POLICIES)
+	Method(GetNoUnhappinessExpansion);
+#endif
 	Method(GetInfluenceCityStateSpyRankBonus);
 	Method(GetInfluenceMajorCivSpyRankBonus);
 	Method(GetInfluenceSpyRankTooltip);
@@ -300,6 +303,10 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetReligionCreatedByPlayer);
 	Method(GetFoundedReligionEnemyCityCombatMod);
 	Method(GetFoundedReligionFriendlyCityCombatMod);
+#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE_BELIEFS)
+	Method(GetCombatVersusOtherReligionOwnLands);
+	Method(GetCombatVersusOtherReligionTheirLands);
+#endif
 	Method(GetMinimumFaithNextGreatProphet);
 	Method(HasReligionInMostCities);
 	Method(DoesUnitPassFaithPurchaseCheck);
@@ -1112,8 +1119,12 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(HasIdeology);
 	Method(HasProject);
 	Method(IsAtPeace);
+	Method(IsAtPeaceAllMajors);
+	Method(IsAtPeaceAllMinors);
 	Method(IsAtPeaceWith);
 	Method(IsAtWar);
+	Method(IsAtWarAnyMajor);
+	Method(IsAtWarAnyMinor);
 	Method(IsAtWarWith);
 	Method(HasPantheon);
 	Method(HasAnyReligion);
@@ -2609,6 +2620,17 @@ int CvLuaPlayer::lGetInfluenceTradeRouteGoldBonus(lua_State* L)
 	return 1;
 }
 #endif
+#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE_POLICIES)
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lGetNoUnhappinessExpansion(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	
+	const bool bResult = pkPlayer->GetNoUnhappinessExpansion();
+	lua_pushboolean(L, bResult);
+	return 1;
+}
+#endif
 //------------------------------------------------------------------------------
 //int GetInfluenceTradeRouteScienceBonus();
 int CvLuaPlayer::lGetInfluenceTradeRouteScienceBonus(lua_State* L)
@@ -2725,8 +2747,12 @@ int CvLuaPlayer::lGetPublicOpinionUnhappinessTooltip(lua_State* L)
 int CvLuaPlayer::lDoSwapGreatWorks(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
+#if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
 	YieldTypes eFocusYield = static_cast<YieldTypes>(lua_tointeger(L, 2));
 	pkPlayer->GetCulture()->DoSwapGreatWorks(eFocusYield);
+#else
+	pkPlayer->GetCulture()->DoSwapGreatWorks();
+#endif
 	return 0;
 }
 #endif
@@ -3006,6 +3032,70 @@ int CvLuaPlayer::lGetFoundedReligionFriendlyCityCombatMod(lua_State* L)
 
 	return 1;
 }
+#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE_BELIEFS)
+//------------------------------------------------------------------------------
+//bool GetCombatVersusOtherReligionOwnLands();
+int CvLuaPlayer::lGetCombatVersusOtherReligionOwnLands(lua_State* L)
+{
+	int iRtnValue = 0;
+
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	CvPlot* pkPlot = CvLuaPlot::GetInstance(L, 2);
+	if(pkPlot)
+	{
+		CvCity* pPlotCity = pkPlot->getWorkingCity();
+		if(pPlotCity)
+		{
+			CvGameReligions* pReligions = GC.getGame().GetGameReligions();
+			ReligionTypes eReligion = pPlotCity->GetCityReligions()->GetReligiousMajority();
+			ReligionTypes eFoundedReligion = pReligions->GetFounderBenefitsReligion(pkPlayer->GetID());
+			if(eFoundedReligion != NO_RELIGION && eReligion == eFoundedReligion)
+			{
+				const CvReligion* pReligion = pReligions->GetReligion(eFoundedReligion, pkPlayer->GetID());
+				if(pReligion)
+				{
+					iRtnValue = pReligion->m_Beliefs.GetCombatVersusOtherReligionOwnLands();
+				}
+			}
+		}
+
+	}
+	lua_pushinteger(L, iRtnValue);
+
+	return 1;
+}
+//------------------------------------------------------------------------------
+//bool GetCombatVersusOtherReligionTheirLands();
+int CvLuaPlayer::lGetCombatVersusOtherReligionTheirLands(lua_State* L)
+{
+	int iRtnValue = 0;
+
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	CvPlot* pkPlot = CvLuaPlot::GetInstance(L, 2);
+	if(pkPlot)
+	{
+		CvCity* pPlotCity = pkPlot->getWorkingCity();
+		if(pPlotCity)
+		{
+			CvGameReligions* pReligions = GC.getGame().GetGameReligions();
+			ReligionTypes eReligion = pPlotCity->GetCityReligions()->GetReligiousMajority();
+			ReligionTypes eFoundedReligion = pReligions->GetFounderBenefitsReligion(pkPlayer->GetID());
+			if(eFoundedReligion != NO_RELIGION && eReligion != eFoundedReligion && eReligion != NO_RELIGION)
+			{
+				const CvReligion* pReligion = pReligions->GetReligion(eFoundedReligion, pkPlayer->GetID());
+				if(pReligion)
+				{
+					iRtnValue = pReligion->m_Beliefs.GetCombatVersusOtherReligionTheirLands();
+				}
+			}
+		}
+
+	}
+	lua_pushinteger(L, iRtnValue);
+
+	return 1;
+}
+#endif
 //------------------------------------------------------------------------------
 // int GetMinimumFaithNextGreatProphet() const
 int CvLuaPlayer::lGetMinimumFaithNextGreatProphet(lua_State* L)
@@ -3061,7 +3151,6 @@ int CvLuaPlayer::lGetExcessHappiness(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvPlayerAI::GetExcessHappiness);
 }
-
 //------------------------------------------------------------------------------
 //bool IsEmpireUnhappy() const;
 int CvLuaPlayer::lIsEmpireUnhappy(lua_State* L)
@@ -3528,6 +3617,9 @@ int CvLuaPlayer::lGetPotentialInternationalTradeRouteDestinations(lua_State* L)
 						pLoopCity->GetCityReligions()->WouldExertTradeRoutePressureToward(pOriginCity, eFromReligion, iFromPressureAmount);
 
 						int iTradeReligionModifer = pkPlayer->GetPlayerTraits()->GetTradeReligionModifier();
+#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE_POLICIES)
+						iTradeReligionModifer += pkPlayer->GetTradeReligionModifier();
+#endif
 						if (iTradeReligionModifer != 0)
 						{
 							iToPressureAmount *= 100 + iTradeReligionModifer;
@@ -4051,6 +4143,16 @@ int CvLuaPlayer::lGetTradeYourRoutesTTString(lua_State* L)
 					case YIELD_FAITH:
 						strOriginYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_FAITH_YIELD_TT", iYieldQuantity / 100);
 						break;
+#if defined(MOD_API_UNIFIED_YIELDS_TOURISM)
+					case YIELD_TOURISM:
+						strOriginYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_TOURISM_YIELD_TT", iYieldQuantity / 100);
+						break;
+#endif
+#if defined(MOD_API_UNIFIED_YIELDS_GOLDEN_AGE)
+					case YIELD_GOLDEN_AGE_POINTS:
+						strOriginYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_GOLDEN_AGE_POINTS_YIELD_TT", iYieldQuantity / 100);
+						break;
+#endif
 					}
 				}
 			}
@@ -4082,6 +4184,16 @@ int CvLuaPlayer::lGetTradeYourRoutesTTString(lua_State* L)
 					case YIELD_FAITH:
 						strDestYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_FAITH_YIELD_TT", iYieldQuantity / 100);
 						break;
+#if defined(MOD_API_UNIFIED_YIELDS_TOURISM)
+					case YIELD_TOURISM:
+						strDestYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_TOURISM_YIELD_TT", iYieldQuantity / 100);
+						break;
+#endif
+#if defined(MOD_API_UNIFIED_YIELDS_GOLDEN_AGE)
+					case YIELD_GOLDEN_AGE_POINTS:
+						strDestYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_GOLDEN_AGE_POINTS_YIELD_TT", iYieldQuantity / 100);
+						break;
+#endif
 					}
 				}
 			}
@@ -4262,6 +4374,16 @@ int CvLuaPlayer::lGetTradeToYouRoutesTTString(lua_State* L)
 					case YIELD_FAITH:
 						strDestYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_FAITH_YIELD_TT", iYieldQuantity / 100);
 						break;
+#if defined(MOD_API_UNIFIED_YIELDS_TOURISM)
+					case YIELD_TOURISM:
+						strDestYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_TOURISM_YIELD_TT", iYieldQuantity / 100);
+						break;
+#endif
+#if defined(MOD_API_UNIFIED_YIELDS_GOLDEN_AGE)
+					case YIELD_GOLDEN_AGE_POINTS:
+						strDestYieldsStr += GetLocalizedText("TXT_KEY_TOP_PANEL_ITR_GOLDEN_AGE_POINTS_YIELD_TT", iYieldQuantity / 100);
+						break;
+#endif
 					}
 				}
 			}
@@ -4567,6 +4689,9 @@ int CvLuaPlayer::lGetTradeRoutesAvailable(lua_State* L)
 						if (iTurnsLeft < 0)
 						{
 							int iTradeReligionModifer = pkPlayer->GetPlayerTraits()->GetTradeReligionModifier();
+#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE_POLICIES)
+							iTradeReligionModifer += pkPlayer->GetTradeReligionModifier();
+#endif
 							if (iTradeReligionModifer != 0)
 							{
 								iToPressure *= 100 + iTradeReligionModifer;
@@ -11894,8 +12019,12 @@ LUAAPIIMPL(Player, HasPolicyBranch)
 LUAAPIIMPL(Player, HasIdeology)
 LUAAPIIMPL(Player, HasProject)
 LUAAPIIMPL(Player, IsAtPeace)
+LUAAPIIMPL(Player, IsAtPeaceAllMajors)
+LUAAPIIMPL(Player, IsAtPeaceAllMinors)
 LUAAPIIMPL(Player, IsAtPeaceWith)
 LUAAPIIMPL(Player, IsAtWar)
+LUAAPIIMPL(Player, IsAtWarAnyMajor)
+LUAAPIIMPL(Player, IsAtWarAnyMinor)
 LUAAPIIMPL(Player, IsAtWarWith)
 LUAAPIIMPL(Player, HasPantheon)
 LUAAPIIMPL(Player, HasAnyReligion)

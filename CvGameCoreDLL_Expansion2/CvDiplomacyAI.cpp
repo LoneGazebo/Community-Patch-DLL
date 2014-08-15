@@ -5593,7 +5593,11 @@ bool CvDiplomacyAI::IsWillingToMakePeaceWithHuman(PlayerTypes ePlayer)
 	CvPlayer& kHumanPlayer = GET_PLAYER(ePlayer);
 	if (kHumanPlayer.isHuman())
 	{
+#if defined(MOD_CONFIG_GAME_IN_XML)
+		bool bWillMakePeace = GetPlayerNumTurnsAtWar(ePlayer) >= GD_INT_GET(WAR_MAJOR_MINIMUM_TURNS);
+#else
 		bool bWillMakePeace = GetPlayerNumTurnsAtWar(ePlayer) >= 5;
+#endif
 
 		if(!GET_TEAM(m_pPlayer->getTeam()).canChangeWarPeace(kHumanPlayer.getTeam()))
 		{
@@ -6645,6 +6649,26 @@ void CvDiplomacyAI::DoUpdateWarGoals()
 		}
 	}
 }
+
+#if defined(MOD_API_EXTENSIONS)
+/// How many turns have we been at war with this Team?
+int CvDiplomacyAI::GetTeamNumTurnsAtWar(TeamTypes eTeam) const
+{
+	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Team Index.");
+	CvAssertMsg(ePlayer < MAX_CIV_TEAMS, "DIPLOMACY_AI: Invalid Team Index.");
+	int iMaxTurns = 0;
+	
+	for (int i = 0; i < MAX_CIV_PLAYERS; ++i) {
+		const PlayerTypes ePlayer = static_cast<PlayerTypes>(i);
+		CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
+		if (kPlayer.isAlive() && kPlayer.getTeam() == eTeam) {
+			iMaxTurns = std::max(iMaxTurns, (int) m_paiPlayerNumTurnsAtWar[ePlayer]);
+		}
+	}
+	
+	return iMaxTurns;
+}
+#endif
 
 /// How many turns have we been at war with this Player?
 int CvDiplomacyAI::GetPlayerNumTurnsAtWar(PlayerTypes ePlayer) const

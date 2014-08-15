@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created by ModBuddy on 8/11/2014 10:51:14 AM -->
+<GameData>
+	<Belief_BuildingClassFaithPurchase>
+		<Row>
+			<BeliefType>BELIEF_UNDERGROUND_SECT</BeliefType>
+			<BuildingClassType>BUILDINGCLASS_OPERA_HOUSE</BuildingClassType>
+		</Row>
+		<Row>
+			<BeliefType>BELIEF_UNDERGROUND_SECT</BeliefType>
+			<BuildingClassType>BUILDINGCLASS_MUSEUM</BuildingClassType>
+		</Row>
+		<Row>
+			<BeliefType>BELIEF_UNDERGROUND_SECT</BeliefType>
+			<BuildingClassType>BUILDINGCLASS_BROADCAST_TOWER</BuildingClassType>
+		</Row>
+	</Belief_BuildingClassFaithPurchase>
+	<Belief_BuildingClassYieldChanges>
+		<Row>
+			<BeliefType>BELIEF_SACRED_SITES</BeliefType>
+			<BuildingClassType>BUILDINGCLASS_HERMITAGE</BuildingClassType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<YieldChange>10</YieldChange>
+		</Row>
+	</Belief_BuildingClassYieldChanges>
+	<Belief_BuildingClassTourism>
+		<Row>
+			<BeliefType>BELIEF_SACRED_SITES</BeliefType>
+			<BuildingClassType>BUILDINGCLASS_HERMITAGE</BuildingClassType>
+			<Tourism>10</Tourism>
+		</Row>
+	</Belief_BuildingClassTourism>
+	<Belief_ImprovementYieldChanges>
+		<Row>
+			<BeliefType>BELIEF_UNITY_OF_PROPHETS</BeliefType>
+			<ImprovementType>IMPROVEMENT_ACADEMY</ImprovementType>
+			<YieldType>YIELD_FAITH</YieldType>
+			<Yield>5</Yield>
+		</Row>
+		<Row>
+			<BeliefType>BELIEF_UNITY_OF_PROPHETS</BeliefType>
+			<ImprovementType>IMPROVEMENT_HOLY_SITE</ImprovementType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Yield>5</Yield>
+		</Row>
+	</Belief_ImprovementYieldChanges>
+</GameData>

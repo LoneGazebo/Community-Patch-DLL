@@ -723,6 +723,14 @@ double CvCityStrategyAI::GetDeficientYieldValue(YieldTypes eYieldType)
 		break;
 	case YIELD_FAITH:
 		break;
+#if defined(MOD_API_UNIFIED_YIELDS_TOURISM)
+	case YIELD_TOURISM:
+		break;
+#endif
+#if defined(MOD_API_UNIFIED_YIELDS_GOLDEN_AGE)
+	case YIELD_GOLDEN_AGE_POINTS:
+		break;
+#endif
 	default:
 		FAssertMsg(false, "Yield type is not handled. What?");
 		return false;

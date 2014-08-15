@@ -56,42 +56,45 @@
 
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_HAPPINESS_TECH_BASE_CITY_COUNT', '16'
+	SELECT 'BALANCE_HAPPINESS_TECH_BASE_CITY_COUNT', '10'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 	
 -- Rates at which technology affects global happiness averages for science/culture, defense and food. 100 = 1:1 rate (1% of techs researched = 1% boost to average).
 
-	-- Differentiation a byproduct of the scaling that occurrs in a typical game - food/gold/defense values from cities do not increase as fast as science and culture do.
+	-- 75 Differentiation a byproduct of the scaling that occurrs in a typical game - food/gold/defense values from cities do not increase as fast as science and culture do.
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_TECH_RATE_CULTURE', '90'
+	SELECT 'BALANCE_TECH_RATE_CULTURE', '150'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
+	-- 25
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_TECH_RATE_SCIENCE', '30'
+	SELECT 'BALANCE_TECH_RATE_SCIENCE', '175'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 	
+	--50
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_TECH_RATE_DEFENSE', '45'
+	SELECT 'BALANCE_TECH_RATE_DEFENSE', '200'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 	
+	--50
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_TECH_RATE_GOLD', '75'
+	SELECT 'BALANCE_TECH_RATE_GOLD', '200'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 	
 -- Value by which yield/threshold difference is divded. 100 = 1 point of unhappiness for every 1.00 difference between city yield and global average.
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_UNHAPPY_CITY_BASE_VALUE', '100'
+	SELECT 'BALANCE_UNHAPPY_CITY_BASE_VALUE', '50'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 -- Unhappiness point per religious minority pop. A high faith to population ratio will reduce this penalty. Also note that this is the ONLY unhappiness calculation that goes down as the game progresses (religion makes slightly less unhappiness as you move into new eras)
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_UNHAPPINESS_PER_MINORITY_POP', '0.40'
+	SELECT 'BALANCE_UNHAPPINESS_PER_MINORITY_POP', '0.50'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 -- Unhappiness point per starving citizen.
@@ -109,5 +112,5 @@
 -- Unhappiness point per pop if unconnected or blockaded.
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_UNHAPPINESS_FROM_UNCONNECTED_PER_POP', '0.40'
+	SELECT 'BALANCE_UNHAPPINESS_FROM_UNCONNECTED_PER_POP', '0.33'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );

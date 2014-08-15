@@ -111,6 +111,9 @@ public:
 	int GetReplacementBuildingClass() const;
 	int GetPrereqAndTech() const;
 	int GetPolicyBranchType() const;
+#if defined(MOD_BALANCE_CORE_POLICIES)
+	int GetPolicyType() const;
+#endif
 	int GetSpecialistType() const;
 	int GetSpecialistCount() const;
 	int GetSpecialistExtraCulture() const;
@@ -167,10 +170,15 @@ public:
 #endif
 #if defined(MOD_BALANCE_CORE)
 	bool IsNoWater() const;
+	bool IsReformation() const;
 #endif
 #if defined(MOD_BALANCE_CORE_POP_REQ_BUILDINGS)
 	int GetNationalPopulationRequired() const;
 	int GetLocalPopulationRequired() const;
+#endif
+#if defined(MOD_BALANCE_CORE_FOLLOWER_POP_WONDER)
+	int GetNationalFollowerPopRequired() const;
+	int GetGlobalFollowerPopRequired() const;
 #endif
 	int GetMinAreaSize() const;
 	int GetConquestProbability() const;
@@ -291,6 +299,10 @@ public:
 	int GetGrowthExtraYield(int i) const;
 	int* GetGrowthExtraYieldArray() const;
 #endif
+#if defined(MOD_BALANCE_CORE_POLICIES)
+	int GetYieldFromDeath(int i) const;
+	int* GetYieldFromDeathArray() const;
+#endif
 	int GetYieldChange(int i) const;
 	int* GetYieldChangeArray() const;
 	int GetYieldChangePerPop(int i) const;
@@ -338,10 +350,6 @@ public:
 	int GetInstantYield(int i) const;
 	int* GetInstantYieldArray() const;
 #endif
-#if defined(MOD_BALANCE_CORE_YIELDS)
-	int GetPlotYieldChange(int i, int j) const;
-	int* GetPlotYieldChangeArray(int i) const;
-#endif
 
 	int GetResourceYieldChange(int i, int j) const;
 	int* GetResourceYieldChangeArray(int i) const;
@@ -353,6 +361,10 @@ public:
 	int* GetResourceYieldModifierArray(int i) const;
 	int GetTerrainYieldChange(int i, int j) const;
 	int* GetTerrainYieldChangeArray(int i) const;
+#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
+	int GetPlotYieldChange(int i, int j) const;
+	int* GetPlotYieldChangeArray(int i) const;
+#endif
 	int GetBuildingClassYieldChange(int i, int j) const;
 	int GetBuildingClassHappiness(int i) const;
 
@@ -376,6 +388,9 @@ private:
 	int m_iReplacementBuildingClass;
 	int m_iPrereqAndTech;
 	int m_iPolicyBranchType;
+#if defined(MOD_BALANCE_CORE_POLICIES)
+	int m_iPolicyType;
+#endif
 	int m_iSpecialistType;
 	int m_iSpecialistCount;
 	int m_iSpecialistExtraCulture;
@@ -514,10 +529,15 @@ private:
 #endif
 #if defined(MOD_BALANCE_CORE)
 	bool m_bIsNoWater;
+	bool m_bIsReformation;
 #endif
 #if defined(MOD_BALANCE_CORE_POP_REQ_BUILDINGS)
 	int m_iNationalPopRequired;
 	int m_iLocalPopRequired;
+#endif
+#if defined(MOD_BALANCE_CORE_FOLLOWER_POP_WONDER)
+	int m_iNationalFollowerPopRequired;
+	int m_iGlobalFollowerPopRequired;
 #endif
 	bool m_bMountain;
 	bool m_bHill;
@@ -568,6 +588,9 @@ private:
 #if defined(MOD_DIPLOMACY_CITYSTATES) || defined(MOD_BALANCE_CORE)
 	int* m_piGrowthExtraYield;
 #endif
+#if defined(MOD_BALANCE_CORE_POLICIES)
+	int* m_piYieldFromDeath;
+#endif
 	int* m_piYieldChange;
 	int* m_piYieldChangePerPop;
 	int* m_piYieldChangePerReligion;
@@ -594,13 +617,13 @@ private:
 	int** m_ppaiSpecialistYieldChange;
 	int** m_ppaiResourceYieldModifier;
 	int** m_ppaiTerrainYieldChange;
+#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
+	int** m_ppaiPlotYieldChange;
+#endif
 	int** m_ppiBuildingClassYieldChanges;
 	int* m_paiBuildingClassHappiness;
 #if defined(MOD_BALANCE_CORE_BUILDING_INSTANT_YIELD)
 	int* m_piInstantYield;
-#endif
-#if defined(MOD_BALANCE_CORE_YIELDS)
-	int** m_ppaiBuildingPlotYieldChange;
 #endif
 
 	CvThemingBonusInfo* m_paThemingBonusInfo;
@@ -712,7 +735,7 @@ public:
 	bool GetNextAvailableGreatWorkSlot(BuildingClassTypes *eBuildingClass, int *iSlot) const;
 	bool GetNextAvailableGreatWorkSlot(GreatWorkSlotType eGreatWorkSlot, BuildingClassTypes *eBuildingClass, int *iSlot) const;
 
-#if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
+#if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES) || defined(MOD_API_UNIFIED_YIELDS)
 	int GetYieldFromGreatWorks(YieldTypes eYield) const;
 #endif
 	int GetCultureFromGreatWorks() const;
@@ -722,6 +745,7 @@ public:
 	int GetNumGreatWorks() const;
 #endif
 	int GetNumGreatWorks(GreatWorkSlotType eGreatWorkSlot) const;
+
 	int GetLandmarksTourismPercent() const;
 	void ChangeLandmarksTourismPercent(int iChange);
 	int GetGreatWorksTourismModifier() const;

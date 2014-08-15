@@ -3927,6 +3927,26 @@ int CvLeague::CalculateStartingVotesForMember(PlayerTypes ePlayer, bool bForceUp
 		int iRAToVotes = MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS ? GET_PLAYER(ePlayer).GetRAToVotes() : 0;
 		iVotes += iRAToVotes;
 #endif
+#if defined(MOD_BALANCE_CORE_BELIEFS)
+		int iReligionVotes = 0;
+		if(MOD_BALANCE_CORE_BELIEFS)
+		{
+			CvGameReligions* pReligions = GC.getGame().GetGameReligions();
+			ReligionTypes eFoundedReligion = pReligions->GetFounderBenefitsReligion(ePlayer);
+			if(eFoundedReligion != NO_RELIGION)
+			{
+				const CvReligion* pReligion = pReligions->GetReligion(eFoundedReligion, NO_PLAYER);
+				if(pReligion)
+				{
+					if(pReligion->m_Beliefs.GetExtraVotes() > 0)
+					{
+						iReligionVotes = pReligion->m_Beliefs.GetExtraVotes();
+						iVotes += iReligionVotes;
+					}
+				}
+			}
+		}
+#endif
 
 		// World Religion
 		int iWorldReligionVotes = GetExtraVotesForFollowingReligion(ePlayer);
@@ -4010,7 +4030,14 @@ int CvLeague::CalculateStartingVotesForMember(PlayerTypes ePlayer, bool bForceUp
 				pMember->sVoteSources += sTemp.toUTF8();
 			}
 #endif
-
+#if defined(MOD_BALANCE_CORE_BELIEFS)
+			if (MOD_BALANCE_CORE_BELIEFS && iReligionVotes > 0)
+			{
+				Localization::String sTemp = Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_MEMBER_DETAILS_RELIGION_REFORMATION_VOTES");
+				sTemp << iReligionVotes;
+				pMember->sVoteSources += sTemp.toUTF8();
+			}
+#endif
 			if (iWorldReligionVotes > 0)
 			{
 				Localization::String sTemp = Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_MEMBER_DETAILS_WORLD_RELIGION_VOTES");

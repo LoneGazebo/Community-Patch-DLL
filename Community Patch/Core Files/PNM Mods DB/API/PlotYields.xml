@@ -11,11 +11,31 @@
 		<Column name="PortraitIndex" type="integer" default="-1"/>
 		<Column name="IconAtlas" type="text" default="NULL" reference="IconTextureAtlases(Atlas)"/>
 	</Table>
+	
 	<Table name="Plot_Yields">
 		<Column name="PlotType" type="text" reference="Plots(Type)"/>
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer" default="0"/>
 	</Table>
+	<Table name="Building_PlotYieldChanges">
+		<Column name="BuildingType" type="text" reference="Buildings(Type)"/>
+		<Column name="PlotType" type="text" reference="Plots(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+	</Table>
+	<Table name="Policy_PlotYieldChanges">
+		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
+		<Column name="PlotType" type="text" reference="Plots(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+	</Table>
+	<Table name="Trait_PlotYieldChanges">
+		<Column name="TraitType" type="text" reference="Traits(Type)"/>
+		<Column name="PlotType" type="text" reference="Plots(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+	</Table>
+
 	<Plots>
 		<Row>
 			<ID>0</ID>
@@ -49,6 +69,7 @@
 			<IconAtlas>TERRAIN_ATLAS</IconAtlas>
 		</Row>
 	</Plots>
+
 	<Plot_Yields>
 		<Row>
 			<PlotType>PLOT_MOUNTAIN</PlotType>

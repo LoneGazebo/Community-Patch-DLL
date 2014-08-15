@@ -248,6 +248,9 @@ protected:
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE)
 	LUAAPIEXTN(GetInfluenceTradeRouteGoldBonus, int);
 #endif
+#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE_POLICIES)
+	LUAAPIEXTN(GetNoUnhappinessExpansion, int);
+#endif
 	static int lGetInfluenceTradeRouteScienceBonus(lua_State* L);
 	static int lGetInfluenceCityStateSpyRankBonus(lua_State* L);
 	static int lGetInfluenceMajorCivSpyRankBonus(lua_State* L);
@@ -289,6 +292,10 @@ protected:
 	static int lGetReligionCreatedByPlayer(lua_State* L);
 	static int lGetFoundedReligionEnemyCityCombatMod(lua_State* L);
 	static int lGetFoundedReligionFriendlyCityCombatMod(lua_State* L);
+#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE_BELIEFS)
+	LUAAPIEXTN(GetCombatVersusOtherReligionOwnLands, int);
+	LUAAPIEXTN(GetCombatVersusOtherReligionTheirLands, int);
+#endif
 	static int lGetMinimumFaithNextGreatProphet(lua_State* L);
 	static int lHasReligionInMostCities(lua_State* L);
 	static int lDoesUnitPassFaithPurchaseCheck(lua_State* L);
@@ -1121,8 +1128,12 @@ protected:
 	LUAAPIEXTN(HasIdeology, bool, iPolicyBranchType);
 	LUAAPIEXTN(HasProject, bool, iProjectType);
 	LUAAPIEXTN(IsAtPeace, bool);
+	LUAAPIEXTN(IsAtPeaceAllMajors, bool);
+	LUAAPIEXTN(IsAtPeaceAllMinors, bool);
 	LUAAPIEXTN(IsAtPeaceWith, bool, iPlayer);
 	LUAAPIEXTN(IsAtWar, bool);
+	LUAAPIEXTN(IsAtWarAnyMajor, bool);
+	LUAAPIEXTN(IsAtWarAnyMinor, bool);
 	LUAAPIEXTN(IsAtWarWith, bool, iPlayer);
 	LUAAPIEXTN(HasPantheon, bool);
 	LUAAPIEXTN(HasAnyReligion, bool);

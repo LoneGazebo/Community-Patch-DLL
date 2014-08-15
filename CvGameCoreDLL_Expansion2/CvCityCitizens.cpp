@@ -720,6 +720,33 @@ bool CvCityCitizens::IsAIWantSpecialistRightNow()
 					{
 						iWeight *= 3;
 					}
+					
+#if defined(MOD_API_UNIFIED_YIELDS)
+					if(GetPlayer()->getSpecialistYieldChange(eSpecialist, YIELD_SCIENCE) > 0)
+					{
+						iWeight *= 3;
+					}
+
+					ReligionTypes eMajority = m_pCity->GetCityReligions()->GetReligiousMajority();
+					if(eMajority >= RELIGION_PANTHEON)
+					{
+						const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, m_pCity->getOwner());
+						if(pReligion)
+						{
+							int iReligionChange = pReligion->m_Beliefs.GetSpecialistYieldChange(eSpecialist, YIELD_SCIENCE);
+							BeliefTypes eSecondaryPantheon = m_pCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
+							if (eSecondaryPantheon != NO_BELIEF)
+							{
+								iReligionChange += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetSpecialistYieldChange(eSpecialist, YIELD_SCIENCE);
+							}
+
+							if(iReligionChange > 0)
+							{
+								iWeight *= 3;
+							}
+						}
+					}
+#endif
 				}
 			}
 		}
@@ -756,6 +783,33 @@ bool CvCityCitizens::IsAIWantSpecialistRightNow()
 						{
 							iWeight *= 2;
 						}
+
+#if defined(MOD_API_UNIFIED_YIELDS)
+						if(GetPlayer()->getSpecialistYieldChange(eSpecialist, YIELD_PRODUCTION) > 0)
+						{
+							iWeight *= 2;
+						}
+
+						ReligionTypes eMajority = m_pCity->GetCityReligions()->GetReligiousMajority();
+						if(eMajority >= RELIGION_PANTHEON)
+						{
+							const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, m_pCity->getOwner());
+							if(pReligion)
+							{
+								int iReligionChange = pReligion->m_Beliefs.GetSpecialistYieldChange(eSpecialist, YIELD_PRODUCTION);
+								BeliefTypes eSecondaryPantheon = m_pCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
+								if (eSecondaryPantheon != NO_BELIEF)
+								{
+									iReligionChange += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetSpecialistYieldChange(eSpecialist, YIELD_PRODUCTION);
+								}
+
+								if(iReligionChange > 0)
+								{
+									iWeight *= 2;
+								}
+							}
+						}
+#endif
 					}
 				}
 			}
@@ -852,6 +906,33 @@ bool CvCityCitizens::IsAIWantSpecialistRightNow()
 						{
 							iWeight *= 2;
 						}
+
+#if defined(MOD_API_UNIFIED_YIELDS)
+						if(GetPlayer()->getSpecialistYieldChange(eSpecialist, YIELD_GOLD) > 0)
+						{
+							iWeight *= 2;
+						}
+
+						ReligionTypes eMajority = m_pCity->GetCityReligions()->GetReligiousMajority();
+						if(eMajority >= RELIGION_PANTHEON)
+						{
+							const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, m_pCity->getOwner());
+							if(pReligion)
+							{
+								int iReligionChange = pReligion->m_Beliefs.GetSpecialistYieldChange(eSpecialist, YIELD_GOLD);
+								BeliefTypes eSecondaryPantheon = m_pCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
+								if (eSecondaryPantheon != NO_BELIEF)
+								{
+									iReligionChange += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetSpecialistYieldChange(eSpecialist, YIELD_GOLD);
+								}
+
+								if(iReligionChange > 0)
+								{
+									iWeight *= 2;
+								}
+							}
+						}
+#endif
 					}
 				}
 			}
@@ -974,7 +1055,16 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist)
 	int iGoldYieldValue = (GC.getAI_CITIZEN_VALUE_GOLD() * pPlayer->specialistYield(eSpecialist, YIELD_GOLD));
 	int iScienceYieldValue = (GC.getAI_CITIZEN_VALUE_SCIENCE() * pPlayer->specialistYield(eSpecialist, YIELD_SCIENCE));
 	int iCultureYieldValue = (GC.getAI_CITIZEN_VALUE_CULTURE() * m_pCity->GetCultureFromSpecialist(eSpecialist)); 
+#if defined(MOD_API_UNIFIED_YIELDS)
+	iCultureYieldValue += (GC.getAI_CITIZEN_VALUE_CULTURE() * pPlayer->specialistYield(eSpecialist, YIELD_CULTURE));
+#endif
 	int iFaithYieldValue = (GC.getAI_CITIZEN_VALUE_FAITH() * pPlayer->specialistYield(eSpecialist, YIELD_FAITH));
+#if defined(MOD_API_UNIFIED_YIELDS_TOURISM)
+	int iTourismYieldValue = (GC.getAI_CITIZEN_VALUE_CULTURE() * pPlayer->specialistYield(eSpecialist, YIELD_TOURISM));
+#endif
+#if defined(MOD_API_UNIFIED_YIELDS_GOLDEN_AGE)
+	int iGoldenAgeYieldValue = (GC.getAI_CITIZEN_VALUE_CULTURE() * pPlayer->specialistYield(eSpecialist, YIELD_GOLDEN_AGE_POINTS));
+#endif
 	int iGPPYieldValue = pSpecialistInfo->getGreatPeopleRateChange() * 3; // TODO: un-hardcode this
 	int iHappinessYieldValue = (m_pCity->GetPlayer()->isHalfSpecialistUnhappiness()) ? 5 : 0; // TODO: un-hardcode this
 	iHappinessYieldValue = m_pCity->GetPlayer()->IsEmpireUnhappy() ? iHappinessYieldValue * 2 : iHappinessYieldValue; // TODO: un-hardcode this
@@ -995,7 +1085,14 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist)
 	else if(eFocus == CITY_AI_FOCUS_TYPE_SCIENCE)
 		iScienceYieldValue *= 3;
 	else if(eFocus == CITY_AI_FOCUS_TYPE_CULTURE)
+#if defined(MOD_API_UNIFIED_YIELDS_TOURISM)
+	{
 		iCultureYieldValue *= 3;
+		iTourismYieldValue *= 2;
+	}
+#else
+		iCultureYieldValue *= 3;
+#endif
 	else if(eFocus == CITY_AI_FOCUS_TYPE_GOLD_GROWTH)
 	{
 		iFoodYieldValue *= 2;
@@ -1065,6 +1162,12 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist)
 	iValue += iScienceYieldValue;
 	iValue += iCultureYieldValue;
 	iValue += iFaithYieldValue;
+#if defined(MOD_API_UNIFIED_YIELDS_TOURISM)
+	iValue += iTourismYieldValue;
+#endif
+#if defined(MOD_API_UNIFIED_YIELDS_GOLDEN_AGE)
+	iValue += iGoldenAgeYieldValue;
+#endif
 	iValue += iGPPYieldValue;
 	iValue += iHappinessYieldValue;
 
@@ -1453,6 +1556,15 @@ void CvCityCitizens::DoReallocateCitizens()
 	{
 		DoAddBestCitizenFromUnassigned();
 	}
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+	if(MOD_BALANCE_CORE_HAPPINESS)
+	{
+		if(GET_PLAYER(GetCity()->getOwner()).isHuman())
+		{
+			GET_PLAYER(GetCity()->getOwner()).CalculateHappiness();
+		}
+	}
+#endif
 }
 
 

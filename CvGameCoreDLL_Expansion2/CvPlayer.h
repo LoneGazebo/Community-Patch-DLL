@@ -321,14 +321,24 @@ public:
 
 	int specialistYield(SpecialistTypes eSpecialist, YieldTypes eYield) const;
 
+#if defined(MOD_BUGFIX_MINOR)
+	int GetCityYieldChangeTimes100(YieldTypes eYield) const;
+	void ChangeCityYieldChangeTimes100(YieldTypes eYield, int iChange);
+#else
 	int GetCityYieldChange(YieldTypes eYield) const;
 	void ChangeCityYieldChange(YieldTypes eYield, int iChange);
+#endif
 
 	int GetCoastalCityYieldChange(YieldTypes eYield) const;
 	void ChangeCoastalCityYieldChange(YieldTypes eYield, int iChange);
 
+#if defined(MOD_BUGFIX_MINOR)
+	int GetCapitalYieldChangeTimes100(YieldTypes eYield) const;
+	void ChangeCapitalYieldChangeTimes100(YieldTypes eYield, int iChange);
+#else
 	int GetCapitalYieldChange(YieldTypes eYield) const;
 	void ChangeCapitalYieldChange(YieldTypes eYield, int iChange);
+#endif
 
 	int GetCapitalYieldPerPopChange(YieldTypes eYield) const;
 	void ChangeCapitalYieldPerPopChange(YieldTypes eYield, int iChange);
@@ -421,6 +431,9 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	int GetNumCitiesFreeChosenBuilding(BuildingClassTypes eBuildingClass) const;
 	void ChangeNumCitiesFreeChosenBuilding(BuildingClassTypes eBuildingClass, int iChange);
+	
+	void SetReformation(bool bValue);
+	bool IsReformation() const;
 #endif
 
 	void DoYieldsFromKill(UnitTypes eAttackingUnitType, UnitTypes eKilledUnitType, int iX, int iY, bool bWasBarbarian, int iExistingDelay);
@@ -429,6 +442,11 @@ public:
 	void ReportYieldFromKill(YieldTypes eYield, int iValue, int iX, int iY, int iDelay);
 
 	void DoTechFromCityConquer(CvCity* pConqueredCity);
+
+#if defined(MOD_API_UNIFIED_YIELDS)
+	int GetYieldPerTurnFromReligion(YieldTypes eYield) const;
+	int GetYieldPerTurnFromTraits(YieldTypes eYield) const;
+#endif
 
 	// Faith
 	int GetTotalFaithPerTurn() const;
@@ -1119,6 +1137,9 @@ public:
 	uint getTotalTimePlayed() const;
 
 	bool isMinorCiv() const;
+#if defined(MOD_API_EXTENSIONS)
+	bool isMajorCiv() const;
+#endif
 	bool IsHasBetrayedMinorCiv() const;
 	void SetHasBetrayedMinorCiv(bool bValue);
 
@@ -1221,7 +1242,53 @@ public:
 
 	int getYieldRateModifier(YieldTypes eIndex) const;
 	void changeYieldRateModifier(YieldTypes eIndex, int iChange);
+#if defined(MOD_BALANCE_CORE_POLICIES)
+	int GetTradeReligionModifier() const;
+	void changeTradeReligionModifier(int iChange);
 
+	int getYieldFromDeath(YieldTypes eIndex) const;
+	void changeYieldFromDeath(YieldTypes eIndex, int iChange);
+
+	int getYieldFromConstruction(YieldTypes eIndex) const;
+	void changeYieldFromConstruction(YieldTypes eIndex, int iChange);
+
+	int getYieldFromTech(YieldTypes eIndex) const;
+	void changeYieldFromTech(YieldTypes eIndex, int iChange);
+
+	int getYieldFromBorderGrowth(YieldTypes eIndex) const;
+	void changeYieldFromBorderGrowth(YieldTypes eIndex, int iChange);
+
+	int getYieldGPExpend(YieldTypes eIndex) const;
+	void changeYieldGPExpend(YieldTypes eIndex, int iChange);
+
+	int getConquerorYield(YieldTypes eIndex) const;
+	void changeConquerorYield(YieldTypes eIndex, int iChange);
+
+	int getReligionYieldRateModifier(YieldTypes eIndex)	const;
+	void changeReligionYieldRateModifier(YieldTypes eIndex, int iChange);
+
+
+	int GetGarrisonsOccupiedUnhapppinessMod() const;
+	void changeGarrisonsOccupiedUnhapppinessMod(int iChange);
+
+	int GetBestRangedUnitSpawnSettle() const;
+	void changeBestRangedUnitSpawnSettle(int iChange);
+
+	int GetExtraMoves() const;
+	void changeExtraMoves(int iChange);
+
+	bool IsNoUnhappinessExpansion() const;
+	int GetNoUnhappinessExpansion() const;
+	void ChangeNoUnhappinessExpansion(int iChange);
+
+	bool IsNoUnhappyIsolation() const;
+	int GetNoUnhappyIsolation() const;
+	void ChangeNoUnhappyIsolation(int iChange);
+
+	bool IsDoubleBorderGA() const;
+	int GetDoubleBorderGA() const;
+	void ChangeDoubleBorderGA(int iChange);
+#endif
 	int getCapitalYieldRateModifier(YieldTypes eIndex) const;
 	void changeCapitalYieldRateModifier(YieldTypes eIndex, int iChange);
 
@@ -1372,13 +1439,39 @@ public:
 	int getSpecialistExtraYield(SpecialistTypes eIndex1, YieldTypes eIndex2) const;
 	void changeSpecialistExtraYield(SpecialistTypes eIndex1, YieldTypes eIndex2, int iChange);
 
-	int getImprovementYieldChange(ImprovementTypes eIndex1, YieldTypes eIndex2) const;
-	void changeImprovementYieldChange(ImprovementTypes eIndex1, YieldTypes eIndex2, int iChange);
-
-#if defined(MOD_BALANCE_CORE_YIELDS)
+#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
 	int getPlotYieldChange(PlotTypes eIndex1, YieldTypes eIndex2) const;
 	void changePlotYieldChange(PlotTypes eIndex1, YieldTypes eIndex2, int iChange);
 #endif
+
+#if defined(MOD_API_UNIFIED_YIELDS)
+	int getFeatureYieldChange(FeatureTypes eIndex1, YieldTypes eIndex2) const;
+	void changeFeatureYieldChange(FeatureTypes eIndex1, YieldTypes eIndex2, int iChange);
+
+	int getResourceYieldChange(ResourceTypes eIndex1, YieldTypes eIndex2) const;
+	void changeResourceYieldChange(ResourceTypes eIndex1, YieldTypes eIndex2, int iChange);
+
+	int getTerrainYieldChange(TerrainTypes eIndex1, YieldTypes eIndex2) const;
+	void changeTerrainYieldChange(TerrainTypes eIndex1, YieldTypes eIndex2, int iChange);
+
+	int getSpecialistYieldChange(SpecialistTypes eIndex1, YieldTypes eIndex2) const;
+	void changeSpecialistYieldChange(SpecialistTypes eIndex1, YieldTypes eIndex2, int iChange);
+
+	int GetYieldFromKills(YieldTypes eYield) const;
+	void changeYieldFromKills(YieldTypes eYield, int iChange);
+
+	int GetYieldChangeTradeRoute(YieldTypes eYield) const;
+	void ChangeYieldChangeTradeRoute(YieldTypes eYield, int iChange);
+
+	int GetYieldChangesNaturalWonder(YieldTypes eYield) const;
+	void ChangeYieldChangesNaturalWonder(YieldTypes eYield, int iChange);
+
+	int GetYieldChangeWorldWonder(YieldTypes eYield) const;
+	void ChangeYieldChangeWorldWonder(YieldTypes eYield, int iChange);
+#endif
+
+	int getImprovementYieldChange(ImprovementTypes eIndex1, YieldTypes eIndex2) const;
+	void changeImprovementYieldChange(ImprovementTypes eIndex1, YieldTypes eIndex2, int iChange);
 
 	CvUnitCycler& GetUnitCycler() { return m_UnitCycle; };
 
@@ -1698,8 +1791,12 @@ public:
 	bool HasIdeology(PolicyBranchTypes iPolicyBranchType) const;
 	bool HasProject(ProjectTypes iProjectType) const;
 	bool IsAtPeace() const;
+	bool IsAtPeaceAllMajors() const;
+	bool IsAtPeaceAllMinors() const;
 	bool IsAtPeaceWith(PlayerTypes iPlayer) const;
 	bool IsAtWar() const;
+	bool IsAtWarAnyMajor() const;
+	bool IsAtWarAnyMinor() const;
 	bool IsAtWarWith(PlayerTypes iPlayer) const;
 	bool HasPantheon() const;
 	bool HasAnyReligion() const;
@@ -1857,6 +1954,9 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iUnhappiness;
 	FAutoVariable<int, CvPlayer> m_iHappinessTotal;
 #endif
+#if defined(MOD_BALANCE_CORE)
+	bool m_bIsReformation;
+#endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_LUXURY)
 	FAutoVariable<int, CvPlayer> m_iBaseLuxuryHappiness;
 #endif
@@ -1973,6 +2073,15 @@ protected:
 	int m_iPuppetUnhappinessMod;
 	int m_iNoUnhappfromXSpecialists;
 	int m_iNoUnhappfromXSpecialistsCapital;
+#endif
+#if defined(MOD_BALANCE_CORE_POLICIES)
+	int m_iGarrisonsOccupiedUnhapppinessMod;
+	int m_iBestRangedUnitSpawnSettle;
+	int m_iExtraMoves;
+	int m_iNoUnhappinessExpansion;
+	int m_iNoUnhappyIsolation;
+	int m_iDoubleBorderGA;
+	int m_iTradeReligionModifier;
 #endif
 	FAutoVariable<int, CvPlayer> m_iMaxGlobalBuildingProductionModifier;
 	FAutoVariable<int, CvPlayer> m_iMaxTeamBuildingProductionModifier;
@@ -2129,6 +2238,16 @@ protected:
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiCapitalYieldPerPopChange;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiSeaPlotYield;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiYieldRateModifier;
+#if defined(MOD_BALANCE_CORE_POLICIES)
+	FAutoVariable<std::vector<int>, CvPlayer> m_aiYieldFromDeath;
+	FAutoVariable<std::vector<int>, CvPlayer> m_aiYieldFromConstruction;
+	FAutoVariable<std::vector<int>, CvPlayer> m_aiYieldFromTech;
+	FAutoVariable<std::vector<int>, CvPlayer> m_aiYieldFromBorderGrowth;
+	FAutoVariable<std::vector<int>, CvPlayer> m_aiYieldGPExpend;
+	FAutoVariable<std::vector<int>, CvPlayer> m_aiConquerorYield;
+	FAutoVariable<std::vector<int>, CvPlayer> m_aiReligionYieldRateModifier;
+#endif
+
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiCapitalYieldRateModifier;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiExtraYieldThreshold;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiSpecialistExtraYield;
@@ -2181,10 +2300,21 @@ protected:
 	FAutoVariable<std::vector<bool>, CvPlayer> m_pabGetsScienceFromPlayer;
 
 	FAutoVariable< std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > >, CvPlayer> m_ppaaiSpecialistExtraYield;
-	FAutoVariable< std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > >, CvPlayer> m_ppaaiImprovementYieldChange;
-#if defined(MOD_BALANCE_CORE_YIELDS)
-	FAutoVariable< std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > >, CvPlayer> m_ppaaiPlotYieldChange;
+#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
+	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppaaiPlotYieldChange;
 #endif
+#if defined(MOD_API_UNIFIED_YIELDS)
+	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppaaiFeatureYieldChange;
+	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppaaiResourceYieldChange;
+	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppaaiTerrainYieldChange;
+	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppaaiSpecialistYieldChange;
+	std::vector<int> m_aiYieldFromKills;
+	std::vector<int> m_aiYieldChangeTradeRoute;
+	std::vector<int> m_aiYieldChangesNaturalWonder;
+	std::vector<int> m_aiYieldChangeWorldWonder;
+#endif
+	FAutoVariable< std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > >, CvPlayer> m_ppaaiImprovementYieldChange;
+
 	// Obsolete: only used to read old saves
 	FAutoVariable< std::vector< Firaxis::Array< int, NUM_YIELD_TYPES > >, CvPlayer> m_ppaaiBuildingClassYieldMod;
 

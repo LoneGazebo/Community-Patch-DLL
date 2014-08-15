@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created by ModBuddy on 8/12/2014 8:30:37 AM -->
+<GameData>
+	<Buildings>
+		<!--Engineer-->
+		<Row>
+			<Type>BUILDING_CAPITAL_ENGINEER</Type>
+			<BuildingClass>BUILDINGCLASS_CAPITAL_ENGINEER</BuildingClass>
+			<Description>TXT_KEY_BUILDING_CAPITAL_ENGINEER</Description>
+			<NeverCapture>true</NeverCapture>
+			<ArtDefineTag>ART_DEF_BUILDING_FORGE</ArtDefineTag>
+			<MinAreaSize>-1</MinAreaSize>
+			<SpecialistType>SPECIALIST_ENGINEER</SpecialistType>
+			<SpecialistCount>1</SpecialistCount>
+			<IconAtlas>BW_ATLAS_1</IconAtlas>
+			<PortraitIndex>28</PortraitIndex>
+			<Cost>-1</Cost>
+			<PrereqTech>TECH_AGRICULTURE</PrereqTech>
+		</Row>
+	</Buildings>
+	<BuildingClasses>
+		<!--Engineer-->
+		<Row>
+			<Type>BUILDINGCLASS_CAPITAL_ENGINEER</Type>
+			<DefaultBuilding>BUILDING_CAPITAL_ENGINEER</DefaultBuilding>
+			<Description>TXT_KEY_BUILDING_CAPITAL_ENGINEER</Description>
+		</Row>
+	</BuildingClasses>
+	<Language_en_US>
+		<Row Tag="TXT_KEY_BUILDING_CAPITAL_ENGINEER">
+			<Text>Palace Engineer</Text>
+		</Row>
+	</Language_en_US>
+	<Building_ClassesNeededInCity>
+		<Row>
+			<BuildingType>BUILDING_CAPITAL_ENGINEER</BuildingType>
+			<BuildingClassType>BUILDINGCLASS_PALACE</BuildingClassType>
+		</Row>
+	</Building_ClassesNeededInCity>
+</GameData>

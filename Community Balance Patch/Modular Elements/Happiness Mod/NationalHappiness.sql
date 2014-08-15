@@ -33,12 +33,12 @@
 	
 	-- Golden Age starting requirement.
 	UPDATE Defines
-	SET Value = '600'
+	SET Value = '650'
 	WHERE Name = 'GOLDEN_AGE_BASE_THRESHOLD_HAPPINESS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
 
 	-- Golden Age per GA increase.
 	UPDATE Defines
-	SET Value = '300'
+	SET Value = '325'
 	WHERE Name = 'GOLDEN_AGE_EACH_GA_ADDITIONAL_HAPPINESS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
 
 	-- % reduction of combat effectiveness per point of unhappiness.
@@ -151,7 +151,7 @@
 -- Food % point per happiness mod (should always be a positive value).
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_HAPPINESS_FOOD_MODIFIER', '3'
+	SELECT 'BALANCE_HAPPINESS_FOOD_MODIFIER', '2'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
 
 -- Faith point per happiness mod (should always be a positive value). THIS ONE DIVIDES BY YOUR HAPPINESS VALUE (SO /5 HAPPINESS PER TURN)

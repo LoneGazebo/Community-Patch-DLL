@@ -78,6 +78,11 @@ CvTeam::CvTeam()
 
 	m_pTeamTechs = FNEW(CvTeamTechs, c_eCiv5GameplayDLL, 0);
 
+#if defined(MOD_API_UNIFIED_YIELDS)
+	m_ppaaiFeatureYieldChange = NULL;
+	m_ppaaiTerrainYieldChange = NULL;
+#endif
+
 	m_ppaaiImprovementYieldChange = NULL;
 	m_ppaaiImprovementNoFreshWaterYieldChange = NULL;
 	m_ppaaiImprovementFreshWaterYieldChange = NULL;
@@ -141,6 +146,11 @@ void CvTeam::uninit()
 	m_paiTerrainTradeCount = NULL;
 	m_aiVictoryCountdown = NULL;
 	m_aiForceTeamVoteEligibilityCount = NULL;
+
+#if defined(MOD_API_UNIFIED_YIELDS)
+	m_ppaaiFeatureYieldChange = NULL;
+	m_ppaaiTerrainYieldChange = NULL;
+#endif
 
 	m_ppaaiImprovementYieldChange = NULL;
 	m_ppaaiImprovementNoFreshWaterYieldChange = NULL;
@@ -262,6 +272,9 @@ void CvTeam::reset(TeamTypes eID, bool bConstructorCall)
 		int numUnitClassInfos = GC.getNumUnitClassInfos();
 		int numBuildingClassInfos = GC.getNumBuildingClassInfos();
 		int numBuildingInfos = GC.getNumBuildingInfos();
+#if defined(MOD_API_UNIFIED_YIELDS)
+		int numFeatureInfos = GC.getNumFeatureInfos();
+#endif
 		int numTerrainInfos = GC.getNumTerrainInfos();
 		int numImprovementInfos = GC.getNumImprovementInfos();
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
@@ -292,6 +305,12 @@ void CvTeam::reset(TeamTypes eID, bool bConstructorCall)
 			{&m_paiObsoleteBuildingCount,			numBuildingInfos, 0},
 			{&m_paiTerrainTradeCount,				numTerrainInfos, 0},
 			{&m_aiVictoryCountdown,					numVictoryInfos, 0},
+
+#if defined(MOD_API_UNIFIED_YIELDS)
+			// If adding more entries into this strucure, you also need to update CvTeamData in Cvteam.h to match
+			{&m_ppaaiFeatureYieldChange,			numFeatureInfos, NUM_YIELD_TYPES},
+			{&m_ppaaiTerrainYieldChange,			numTerrainInfos, NUM_YIELD_TYPES},
+#endif
 
 			{&m_ppaaiImprovementYieldChange,		numImprovementInfos, NUM_YIELD_TYPES},
 			{&m_ppaaiImprovementNoFreshWaterYieldChange,numImprovementInfos, NUM_YIELD_TYPES},
@@ -357,6 +376,21 @@ void CvTeam::reset(TeamTypes eID, bool bConstructorCall)
 			m_aiNumTurnsAtWar[i] = 0;
 			m_aiNumTurnsLockedIntoWar[i] = 0;
 		}
+
+#if defined(MOD_API_UNIFIED_YIELDS)
+		for(int j = 0; j < NUM_YIELD_TYPES; j++)
+		{
+			for(int i = 0; i < numFeatureInfos; i++)
+			{
+				m_ppaaiFeatureYieldChange[i][j] = 0;
+			}
+
+			for(int i = 0; i < numTerrainInfos; i++)
+			{
+				m_ppaaiTerrainYieldChange[i][j] = 0;
+			}
+		}
+#endif
 
 		for(int i = 0; i < numImprovementInfos; i++)
 		{
@@ -2492,6 +2526,14 @@ bool CvTeam::isMinorCiv() const
 
 	return bValid;
 }
+
+#if defined(MOD_API_EXTENSIONS)
+//	--------------------------------------------------------------------------------
+bool CvTeam::isMajorCiv() const
+{
+	return !(isMinorCiv() || isBarbarian() || isObserver());
+}
+#endif
 
 //	--------------------------------------------------------------------------------
 /// The number of Minor Civs this player has declared war on
@@ -4891,6 +4933,7 @@ void CvTeam::enhanceBuilding(BuildingTypes eIndex, int iChange)
 						{
 							for(int k = 0; k < NUM_YIELD_TYPES; k++)
 							{
+#if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
 								if((YieldTypes)k == YIELD_CULTURE)
 								{
 									pLoopCity->ChangeJONSCulturePerTurnFromBuildings(thisBuildingEntry->GetTechEnhancedYieldChange(k) * iChange);
@@ -4900,6 +4943,7 @@ void CvTeam::enhanceBuilding(BuildingTypes eIndex, int iChange)
 									pLoopCity->ChangeFaithPerTurnFromBuildings(thisBuildingEntry->GetTechEnhancedYieldChange(k) * iChange);
 								}
 								else
+#endif
 								{
 									pLoopCity->ChangeBaseYieldRateFromBuildings(((YieldTypes)k), thisBuildingEntry->GetTechEnhancedYieldChange(k) * iChange);
 								}
@@ -5620,6 +5664,59 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 				//AddNotification(NOTIFICATION_VICTORY, strBuffer, strSummary);
 
 				SetCurrentEra(eNewEra);
+#if defined(MOD_BALANCE_CORE_BELIEFS)
+				for(int iI = 0; iI < MAX_PLAYERS; iI++)
+				{
+					const PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iI);
+					CvPlayerAI& kPlayer = GET_PLAYER(eLoopPlayer);
+					int iEra = GC.getGame().getCurrentEra();
+					if(iEra < 1)
+					{
+						iEra = 1;
+					}
+					if(kPlayer.isAlive() && kPlayer.getTeam() == GetID())
+					{
+						ReligionTypes eReligionFounded = kPlayer.GetReligions()->GetReligionCreatedByPlayer();
+						if(eReligionFounded > RELIGION_PANTHEON)
+						{
+							const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligionFounded, kPlayer.GetID());
+							if(pReligion)
+							{
+								if(pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_FAITH) > 0)
+								{
+									kPlayer.ChangeFaith(pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_FAITH) * iEra);
+								}
+								if(pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_GOLD) > 0)
+								{
+									kPlayer.GetTreasury()->ChangeGold(pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_GOLD) * iEra);
+								}
+								if(pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_CULTURE) > 0)
+								{
+									kPlayer.changeJONSCulture(pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_CULTURE) * iEra);
+								}
+								if(pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_SCIENCE) > 0)
+								{
+									TechTypes eCurrentTech = kPlayer.GetPlayerTechs()->GetCurrentResearch();
+									if(eCurrentTech == NO_TECH)
+									{
+										kPlayer.changeOverflowResearch(pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_SCIENCE) * iEra);
+									}
+									else
+									{
+										GET_TEAM(kPlayer.getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_SCIENCE) * iEra, kPlayer.GetID());
+									}
+								}
+#if defined(MOD_API_UNIFIED_YIELDS_GOLDEN_AGE)
+								if(pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_GOLDEN_AGE_POINTS) > 0)
+								{
+									kPlayer.ChangeGoldenAgeProgressMeter(pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_GOLDEN_AGE_POINTS) * iEra);
+								}
+#endif
+							}
+						}
+					}
+				}
+#endif
 			}
 			// DON'T enter a new era with this tech
 			else
@@ -5932,15 +6029,19 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 											if(pkPolicyInfo->GetFreeChosenBuilding(eBuildingClass) > 0)
 											{
 												const BuildingTypes eFreeBuilding = (BuildingTypes)(thisCivilization.getCivilizationBuildings(eBuildingClass));
-												if(GET_PLAYER(eLoopPlayer).canConstruct(eFreeBuilding) && pLoopCity->isValidBuildingLocation(eFreeBuilding))
+												CvBuildingEntry* pkBuilding = GC.getBuildingInfo(eFreeBuilding);
+												if(pkBuilding)
 												{
-													pLoopCity->GetCityBuildings()->SetNumFreeBuilding(eFreeBuilding, 1);		
-													GET_PLAYER(eLoopPlayer).ChangeNumCitiesFreeChosenBuilding(eBuildingClass, 1);
-													if(GET_PLAYER(eLoopPlayer).GetNumCitiesFreeChosenBuilding(eBuildingClass) >= (pkPolicyInfo->GetFreeChosenBuilding(eBuildingClass)))
+													if((GET_PLAYER(eLoopPlayer).canConstruct(eFreeBuilding) || (pkBuilding->GetProductionCost() == -1)) && pLoopCity->isValidBuildingLocation(eFreeBuilding))
 													{
-														pkPolicyInfo->ChangeFreeChosenBuilding(eBuildingClass, ((GET_PLAYER(eLoopPlayer).GetNumCitiesFreeChosenBuilding(eBuildingClass) * -1)));
+														pLoopCity->GetCityBuildings()->SetNumFreeBuilding(eFreeBuilding, 1);		
+														GET_PLAYER(eLoopPlayer).ChangeNumCitiesFreeChosenBuilding(eBuildingClass, 1);
+														if(GET_PLAYER(eLoopPlayer).GetNumCitiesFreeChosenBuilding(eBuildingClass) >= (pkPolicyInfo->GetFreeChosenBuilding(eBuildingClass)))
+														{
+															pkPolicyInfo->ChangeFreeChosenBuilding(eBuildingClass, ((GET_PLAYER(eLoopPlayer).GetNumCitiesFreeChosenBuilding(eBuildingClass) * -1)));
+														}
+														pLoopCity->SetOwedChosenBuilding(eBuildingClass, false);
 													}
-													pLoopCity->SetOwedChosenBuilding(eBuildingClass, false);
 												}
 											}
 										}
@@ -6051,6 +6152,64 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 		}
 	}
 }
+
+
+#if defined(MOD_API_UNIFIED_YIELDS)
+//	--------------------------------------------------------------------------------
+int CvTeam::getFeatureYieldChange(FeatureTypes eIndex1, YieldTypes eIndex2) const
+{
+	CvAssertMsg(eIndex1 >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex1 < GC.getNumFeatureInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
+	CvAssertMsg(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
+	return m_ppaaiFeatureYieldChange[eIndex1][eIndex2];
+}
+
+//	--------------------------------------------------------------------------------
+void CvTeam::changeFeatureYieldChange(FeatureTypes eIndex1, YieldTypes eIndex2, int iChange)
+{
+	CvAssertMsg(eIndex1 >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex1 < GC.getNumFeatureInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
+	CvAssertMsg(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
+
+	if(iChange != 0)
+	{
+		m_ppaaiFeatureYieldChange[eIndex1][eIndex2] = (m_ppaaiFeatureYieldChange[eIndex1][eIndex2] + iChange);
+		CvAssert(getFeatureYieldChange(eIndex1, eIndex2) >= 0);
+
+		updateYield();
+	}
+}
+
+
+//	--------------------------------------------------------------------------------
+int CvTeam::getTerrainYieldChange(TerrainTypes eIndex1, YieldTypes eIndex2) const
+{
+	CvAssertMsg(eIndex1 >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex1 < GC.getNumTerrainInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
+	CvAssertMsg(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
+	return m_ppaaiTerrainYieldChange[eIndex1][eIndex2];
+}
+
+//	--------------------------------------------------------------------------------
+void CvTeam::changeTerrainYieldChange(TerrainTypes eIndex1, YieldTypes eIndex2, int iChange)
+{
+	CvAssertMsg(eIndex1 >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex1 < GC.getNumTerrainInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
+	CvAssertMsg(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
+
+	if(iChange != 0)
+	{
+		m_ppaaiTerrainYieldChange[eIndex1][eIndex2] = (m_ppaaiTerrainYieldChange[eIndex1][eIndex2] + iChange);
+		CvAssert(getTerrainYieldChange(eIndex1, eIndex2) >= 0);
+
+		updateYield();
+	}
+}
+#endif
 
 
 //	--------------------------------------------------------------------------------
@@ -6494,6 +6653,32 @@ void CvTeam::processTech(TechTypes eTech, int iChange)
 			}
 		}
 	}
+	
+#if defined(MOD_API_UNIFIED_YIELDS)
+	for(iI = 0; iI < GC.getNumFeatureInfos(); iI++)
+	{
+		CvFeatureInfo* pFeatureEntry = GC.getFeatureInfo((FeatureTypes)iI);
+		if(pFeatureEntry)
+		{
+			for(iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
+			{
+				changeFeatureYieldChange(((FeatureTypes)iI), ((YieldTypes)iJ), (pFeatureEntry->GetTechYieldChanges(eTech, iJ) * iChange));
+			}
+		}
+	}
+
+	for(iI = 0; iI < GC.getNumTerrainInfos(); iI++)
+	{
+		CvTerrainInfo* pTerrainEntry = GC.getTerrainInfo((TerrainTypes)iI);
+		if(pTerrainEntry)
+		{
+			for(iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
+			{
+				changeTerrainYieldChange(((TerrainTypes)iI), ((YieldTypes)iJ), (pTerrainEntry->GetTechYieldChanges(eTech, iJ) * iChange));
+			}
+		}
+	}
+#endif
 
 	for(iI = 0; iI < GC.getNumImprovementInfos(); iI++)
 	{
@@ -6581,6 +6766,17 @@ void CvTeam::processTech(TechTypes eTech, int iChange)
 					}
 					kPlayer.getCapitalCity()->GetCityBuildings()->SetNumFreeBuilding(eFreeCapitalBuilding, 1);
 				}
+			}
+#endif
+#if defined(MOD_BALANCE_CORE_POLICIES)
+			if(kPlayer.getYieldFromTech(YIELD_CULTURE) > 0)
+			{
+				int iEra = GC.getGame().getCurrentEra();
+				if(iEra < 1)
+				{
+					iEra = 1;
+				}
+				kPlayer.changeJONSCulture(kPlayer.getYieldFromTech(YIELD_CULTURE) * iEra);
 			}
 #endif
 		}
@@ -7571,6 +7767,11 @@ void CvTeam::Read(FDataStream& kStream)
 
 	m_pTeamTechs->Read(kStream);
 
+#if defined(MOD_API_UNIFIED_YIELDS)
+	FeatureArrayHelpers::ReadYieldArray(kStream, m_ppaaiFeatureYieldChange, NUM_YIELD_TYPES);
+	TerrainArrayHelpers::ReadYieldArray(kStream, m_ppaaiTerrainYieldChange, NUM_YIELD_TYPES);
+#endif
+
 	ImprovementArrayHelpers::ReadYieldArray(kStream, m_ppaaiImprovementYieldChange, NUM_YIELD_TYPES);
 	ImprovementArrayHelpers::ReadYieldArray(kStream, m_ppaaiImprovementNoFreshWaterYieldChange, NUM_YIELD_TYPES);
 	ImprovementArrayHelpers::ReadYieldArray(kStream, m_ppaaiImprovementFreshWaterYieldChange, NUM_YIELD_TYPES);
@@ -7708,6 +7909,11 @@ void CvTeam::Write(FDataStream& kStream) const
 	kStream << ArrayWrapperConst<int>(MAX_CIV_TEAMS, &m_aiTurnTeamMet[0]);
 
 	m_pTeamTechs->Write(kStream);
+
+#if defined(MOD_API_UNIFIED_YIELDS)
+	FeatureArrayHelpers::WriteYieldArray(kStream, m_ppaaiFeatureYieldChange, GC.getNumFeatureInfos());
+	TerrainArrayHelpers::WriteYieldArray(kStream, m_ppaaiTerrainYieldChange, GC.getNumTerrainInfos());
+#endif
 
 	int iNumImprovements = GC.getNumImprovementInfos();
 	ImprovementArrayHelpers::WriteYieldArray(kStream, m_ppaaiImprovementYieldChange, iNumImprovements);

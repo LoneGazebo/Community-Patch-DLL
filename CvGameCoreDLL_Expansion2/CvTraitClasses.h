@@ -193,6 +193,21 @@ public:
 	int GetMovesChangeUnitCombat(const int unitCombatID) const;
 	int GetMaintenanceModifierUnitCombat(const int unitCombatID) const;
 	int GetImprovementYieldChanges(ImprovementTypes eIndex1, YieldTypes eIndex2) const;
+#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
+	int GetPlotYieldChanges(PlotTypes eIndex1, YieldTypes eIndex2) const;
+#endif
+#if defined(MOD_API_UNIFIED_YIELDS)
+	int GetCapitalYieldChanges(int i) const;
+	int GetCityYieldChanges(int i) const;
+	int GetCoastalCityYieldChanges(int i) const;
+	int GetGreatWorkYieldChanges(int i) const;
+	int GetFeatureYieldChanges(FeatureTypes eIndex1, YieldTypes eIndex2) const;
+	int GetResourceYieldChanges(ResourceTypes eIndex1, YieldTypes eIndex2) const;
+	int GetTerrainYieldChanges(TerrainTypes eIndex1, YieldTypes eIndex2) const;
+	int GetYieldFromKills(YieldTypes eYield) const;
+	int GetYieldChangeTradeRoute(int i) const;
+	int GetYieldChangeWorldWonder(int i) const;
+#endif
 	int GetSpecialistYieldChanges(SpecialistTypes eIndex1, YieldTypes eIndex2) const;
 	int GetUnimprovedFeatureYieldChanges(FeatureTypes eIndex1, YieldTypes eIndex2) const;
 	FreeResourceXCities GetFreeResourceXCities(ResourceTypes eResource) const;
@@ -345,6 +360,21 @@ protected:
 	int* m_piMovesChangeUnitCombats;
 	int* m_piMaintenanceModifierUnitCombats;
 	int** m_ppiImprovementYieldChanges;
+#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
+	int** m_ppiPlotYieldChanges;
+#endif
+#if defined(MOD_API_UNIFIED_YIELDS)
+	int* m_paiCapitalYieldChanges;
+	int* m_paiCityYieldChanges;
+	int* m_paiCoastalCityYieldChanges;
+	int* m_paiGreatWorkYieldChanges;
+	int** m_ppiFeatureYieldChanges;
+	int** m_ppiResourceYieldChanges;
+	int** m_ppiTerrainYieldChanges;
+	int* m_paiYieldFromKills;
+	int* m_paiYieldChangeTradeRoute;
+	int* m_paiYieldChangeWorldWonder;
+#endif
 	int** m_ppiSpecialistYieldChanges;
 	int** m_ppiUnimprovedFeatureYieldChanges;
 
@@ -854,6 +884,39 @@ public:
 	int GetMovesChangeUnitCombat(const int unitCombatID) const;
 	int GetMaintenanceModifierUnitCombat(const int unitCombatID) const;
 	int GetImprovementYieldChange(ImprovementTypes eImprovement, YieldTypes eYield) const;
+#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
+	int GetPlotYieldChange(PlotTypes ePlot, YieldTypes eYield) const;
+#endif
+#if defined(MOD_API_UNIFIED_YIELDS)
+	int GetCapitalYieldChanges(YieldTypes eYield) const
+	{
+		return m_iCapitalYieldChanges[(int)eYield];
+	};
+	int GetCityYieldChanges(YieldTypes eYield) const
+	{
+		return m_iCityYieldChanges[(int)eYield];
+	};
+	int GetCoastalCityYieldChanges(YieldTypes eYield) const
+	{
+		return m_iCoastalCityYieldChanges[(int)eYield];
+	};
+	int GetGreatWorkYieldChanges(YieldTypes eYield) const
+	{
+		return m_iGreatWorkYieldChanges[(int)eYield];
+	};
+	int GetFeatureYieldChange(FeatureTypes eFeature, YieldTypes eYield) const;
+	int GetResourceYieldChange(ResourceTypes eResource, YieldTypes eYield) const;
+	int GetTerrainYieldChange(TerrainTypes eTerrain, YieldTypes eYield) const;
+	int GetYieldFromKills(YieldTypes eYield) const;
+	int GetYieldChangeTradeRoute(YieldTypes eYield) const
+	{
+		return m_iYieldChangeTradeRoute[(int)eYield];
+	};
+	int GetYieldChangeWorldWonder(YieldTypes eYield) const
+	{
+		return m_iYieldChangeWorldWonder[(int)eYield];
+	};
+#endif
 	int GetSpecialistYieldChange(SpecialistTypes eSpecialist, YieldTypes eYield) const;
 	int GetUnimprovedFeatureYieldChange(FeatureTypes eFeature, YieldTypes eYield) const;
 	FreeResourceXCities GetFreeResourceXCities(ResourceTypes eResource) const;
@@ -1068,6 +1131,21 @@ private:
 	std::vector<int> m_paiMaintenanceModifierUnitCombat;
 
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppaaiImprovementYieldChange;
+#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
+	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppaaiPlotYieldChange;
+#endif
+#if defined(MOD_API_UNIFIED_YIELDS)
+	int m_iCityYieldChanges[NUM_YIELD_TYPES];
+	int m_iCapitalYieldChanges[NUM_YIELD_TYPES];
+	int m_iCoastalCityYieldChanges[NUM_YIELD_TYPES];
+	int m_iGreatWorkYieldChanges[NUM_YIELD_TYPES];
+	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppaaiFeatureYieldChange;
+	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppaaiResourceYieldChange;
+	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppaaiTerrainYieldChange;
+	int m_iYieldFromKills[NUM_YIELD_TYPES];
+	int m_iYieldChangeTradeRoute[NUM_YIELD_TYPES];
+	int m_iYieldChangeWorldWonder[NUM_YIELD_TYPES];
+#endif
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppaaiSpecialistYieldChange;
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppaaiUnimprovedFeatureYieldChange;
 

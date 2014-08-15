@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created by ModBuddy on 8/11/2014 5:07:12 PM -->
+<GameData>
+	<Language_en_US>
+		<Row Tag="TXT_KEY_PROMOTION_HONOR_BONUS">
+			<Text>Conscription</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_HONOR_BONUS_HELP">
+			<Text>+10% [ICON_STRENGTH] Strength</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_KILL_HEAL">
+			<Text>Logistics</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_KILL_HEAL_HELP">
+			<Text>Heal 20 points when you destoy an enemy unit.</Text>
+		</Row>
+	</Language_en_US>
+</GameData>

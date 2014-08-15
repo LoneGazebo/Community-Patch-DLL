@@ -217,6 +217,16 @@ void CvBuilderTaskingAI::Update(void)
 				case YIELD_FAITH:
 					strYield = "faith      ";
 					break;
+#if defined(MOD_API_UNIFIED_YIELDS_TOURISM)
+				case YIELD_TOURISM:
+					strYield = "tourism    ";
+					break;
+#endif
+#if defined(MOD_API_UNIFIED_YIELDS_GOLDEN_AGE)
+				case YIELD_GOLDEN_AGE_POINTS:
+					strYield = "goldenage  ";
+					break;
+#endif
 				}
 
 				CvString strNumbers;
@@ -1525,6 +1535,14 @@ void CvBuilderTaskingAI::AddChopDirectives(CvUnit* pUnit, CvPlot* pPlot, int iMo
 				//	iYieldDifferenceWeight += iDeltaYield * pFlavorManager->GetPersonalityIndividualFlavor((FlavorTypes)iFlavorLoop) * GC.getBUILDER_TASKING_PLOT_EVAL_MULTIPLIER_SCIENCE();
 				//}
 				break;
+#if defined(MOD_API_UNIFIED_YIELDS_TOURISM)
+			case YIELD_TOURISM:
+				break;
+#endif
+#if defined(MOD_API_UNIFIED_YIELDS_GOLDEN_AGE)
+			case YIELD_GOLDEN_AGE_POINTS:
+				break;
+#endif
 			}
 		}
 	}
