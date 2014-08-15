@@ -23,6 +23,3 @@ WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Va
 UPDATE Language_en_US
 SET Text = 'You are at war with {1_CityStateName:textkey}, which means it will not make peace with you! (If you declared war on this City-State, it will not make peace with you until {2_JerkRate} or more turns have expired.)'
 WHERE Tag = 'TXT_KEY_PEACE_BLOCKED_CSTATE_TT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
-
-
-UPDATE LoadedFile SET Value=1 WHERE Type='MinorCivChanges.sql';

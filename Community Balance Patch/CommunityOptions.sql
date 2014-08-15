@@ -78,6 +78,15 @@ INSERT INTO COMMUNITY (Type, Value)
 VALUES ('BARBARIAN_HEAL', 1);
 
 /*
+Policy Tweaks - Changes to game policies and ideologies
+1 = Enabled (Default)
+0 = Disabled 
+*/
+
+INSERT INTO COMMUNITY (Type, Value)
+VALUES ('COMMUNITY_CORE_BALANCE_POLICIES', 1);
+
+/*
 National Happiness Tweaks - Allows for variable bonuses/penalties from happiness/unhappiness
 1 = Enabled (Default)
 0 = Disabled 
@@ -151,22 +160,3 @@ Tourism Changes
 
 INSERT INTO COMMUNITY (Type, Value)
 VALUES ('COMMUNITY_CORE_BALANCE_TOURISM_CHANGES', 1);
-
-/*
-Speech
-0 = Disabled
-1 = Enabled (Default)
-*/
-INSERT INTO COMMUNITY (Type, Value) VALUES ('PLAY_SPEECH_START'		, 1);
-INSERT INTO COMMUNITY (Type, Value) VALUES ('PLAY_SPEECH_WONDERS'		, 1);
-INSERT INTO COMMUNITY (Type, Value) VALUES ('PLAY_SPEECH_TECHS'		, 1);
-INSERT INTO COMMUNITY (Type, Value) VALUES ('PLAY_ERA_VOS'			, 1);
-
-/*
-UnitMovement Changes
-0 = Disabled
-1 = Enabled (Default)
-*/
-
-INSERT INTO COMMUNITY (Type, Value)
-VALUES ('COMMUNITY_UNITMOVEMENT_INCREASE', 1);

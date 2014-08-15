@@ -628,6 +628,9 @@ function UpdateScreen()
 -- COMMUNITY CHANGE
 		
 		local iCityYield = (iUnhappinessFromCityCount / iNumNormalCities);
+		if(pPlayer:GetNoUnhappinessExpansion()) then
+			iCityYield = 0;
+		end
 		local iPuppetMod = pPlayer:GetPuppetUnhappinessMod();
 		local iCultureYield = pCity:GetUnhappinessFromCultureYield() / 100;
 		local iDefenseYield = pCity:GetUnhappinessFromDefenseYield() / 100;

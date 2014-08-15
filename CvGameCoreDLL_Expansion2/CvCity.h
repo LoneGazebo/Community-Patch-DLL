@@ -81,7 +81,11 @@ public:
 	void DoUpdateIndustrialRouteToCapital();
 
 	void SetRouteToCapitalConnected(bool bValue);
+#if defined(MOD_API_EXTENSIONS)
+	bool IsRouteToCapitalConnected(void) const;
+#else
 	bool IsRouteToCapitalConnected(void);
+#endif
 
 	void createGreatGeneral(UnitTypes eGreatPersonUnit);
 	void createGreatAdmiral(UnitTypes eGreatPersonUnit);
@@ -137,9 +141,9 @@ public:
 	int GetTerrainExtraYield(TerrainTypes eTerrain, YieldTypes eYield) const;
 	void ChangeTerrainExtraYield(TerrainTypes eTerrain, YieldTypes eYield, int iChange);
 
-#if defined(MOD_BALANCE_CORE_YIELDS)
-	int getPlotYieldChange(PlotTypes ePlot, YieldTypes eYield) const;
-	void changePlotYieldChange(PlotTypes ePlot, YieldTypes eYield, int iChange);
+#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
+	int GetPlotExtraYield(PlotTypes ePlot, YieldTypes eYield) const;
+	void ChangePlotExtraYield(PlotTypes ePlot, YieldTypes eYield, int iChange);
 #endif
 
 	bool IsHasResourceLocal(ResourceTypes eResource, bool bTestVisible) const;
@@ -384,7 +388,9 @@ public:
 	int GetBaseJONSCulturePerTurn() const;
 
 	int GetJONSCulturePerTurnFromBuildings() const;
+#if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
 	void ChangeJONSCulturePerTurnFromBuildings(int iChange);
+#endif
 
 	int GetJONSCulturePerTurnFromPolicies() const;
 	void ChangeJONSCulturePerTurnFromPolicies(int iChange);
@@ -397,7 +403,9 @@ public:
 	int GetJONSCulturePerTurnFromTraits() const;
 
 	int GetJONSCulturePerTurnFromReligion() const;
+#if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
 	void ChangeJONSCulturePerTurnFromReligion(int iChange);
+#endif
 
 	int GetJONSCulturePerTurnFromLeagues() const;
 
@@ -413,7 +421,9 @@ public:
 
 	int GetFaithPerTurn() const;
 	int GetFaithPerTurnFromBuildings() const;
+#if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
 	void ChangeFaithPerTurnFromBuildings(int iChange);
+#endif
 
 	int GetFaithPerTurnFromPolicies() const;
 	void ChangeFaithPerTurnFromPolicies(int iChange);
@@ -421,7 +431,9 @@ public:
 	int GetFaithPerTurnFromTraits() const;
 
 	int GetFaithPerTurnFromReligion() const;
+#if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
 	void ChangeFaithPerTurnFromReligion(int iChange);
+#endif
 
 	int getNumWorldWonders() const;
 	void changeNumWorldWonders(int iChange);
@@ -631,6 +643,10 @@ public:
 	int getSeaResourceYield(YieldTypes eIndex) const;
 	void changeSeaResourceYield(YieldTypes eIndex, int iChange);
 
+#if defined(MOD_API_UNIFIED_YIELDS)
+	int GetYieldPerTurnFromReligion(ReligionTypes eReligion, YieldTypes eYield) const;
+#endif
+
 	int getBaseYieldRateModifier(YieldTypes eIndex, int iExtra = 0, CvString* toolTipSink = NULL) const;
 	int getYieldRate(YieldTypes eIndex, bool bIgnoreTrade) const;
 	int getYieldRateTimes100(YieldTypes eIndex, bool bIgnoreTrade) const;
@@ -645,7 +661,7 @@ public:
 	int GetBaseScienceFromArt() const;
 #endif
 
-#if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
+#if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES) || defined(MOD_API_UNIFIED_YIELDS)
 	int GetBaseYieldRateFromGreatWorks(YieldTypes eIndex) const;
 #endif
 
@@ -725,6 +741,11 @@ public:
 
 	int getYieldRateModifier(YieldTypes eIndex) const;
 	void changeYieldRateModifier(YieldTypes eIndex, int iChange);
+
+#if defined(MOD_BALANCE_CORE_POLICIES)
+	int getReligionBuildingYieldRateModifier(YieldTypes eIndex)	const;
+	void changeReligionBuildingYieldRateModifier(YieldTypes eIndex, int iChange);
+#endif
 
 	int getPowerYieldRateModifier(YieldTypes eIndex) const;
 	void changePowerYieldRateModifier(YieldTypes eIndex, int iChange);
@@ -1022,13 +1043,21 @@ protected:
 	FAutoVariable<int, CvCity> m_iGreatPeopleRateModifier;
 	FAutoVariable<int, CvCity> m_iJONSCultureStored;
 	FAutoVariable<int, CvCity> m_iJONSCultureLevel;
+#if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
 	FAutoVariable<int, CvCity> m_iJONSCulturePerTurnFromBuildings;
+#endif
 	FAutoVariable<int, CvCity> m_iJONSCulturePerTurnFromPolicies;
 	FAutoVariable<int, CvCity> m_iJONSCulturePerTurnFromSpecialists;
+#if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
 	FAutoVariable<int, CvCity> m_iJONSCulturePerTurnFromReligion;
+#endif
+#if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
 	int m_iFaithPerTurnFromBuildings;
+#endif
 	int m_iFaithPerTurnFromPolicies;
+#if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
 	int m_iFaithPerTurnFromReligion;
+#endif
 	FAutoVariable<int, CvCity> m_iCultureRateModifier;
 	FAutoVariable<int, CvCity> m_iNumWorldWonders;
 	FAutoVariable<int, CvCity> m_iNumTeamWonders;
@@ -1126,6 +1155,9 @@ protected:
 	int m_iChangeIlliteracyUnhappinessGlobal;
 	int m_iChangeMinorityUnhappinessGlobal;
 #endif
+#if defined(MOD_BALANCE_CORE_POLICIES)
+	FAutoVariable<std::vector<int>, CvCity> m_aiReligionBuildingYieldRateModifier;
+#endif
 	std::vector<int> m_aiBaseYieldRateFromReligion;
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldRateModifier;
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldPerPop;
@@ -1177,8 +1209,8 @@ protected:
 	int** m_ppaiResourceYieldChange;
 	int** m_ppaiFeatureYieldChange;
 	int** m_ppaiTerrainYieldChange;
-#if defined(MOD_BALANCE_CORE_YIELDS)
-	int** m_ppaaiPlotYieldChange;
+#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
+	int** m_ppaiPlotYieldChange;
 #endif
 
 	CvCityBuildings* m_pCityBuildings;

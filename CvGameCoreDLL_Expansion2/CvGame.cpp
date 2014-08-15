@@ -9194,6 +9194,7 @@ void CvGame::testVictory()
 	if(bEndGame && !aaiGameWinners.empty())
 	{
 		int iWinner = getJonRandNum(aaiGameWinners.size(), "Victory tie breaker");
+		CUSTOMLOG("Calling setWinner from testVictory: %i, %i", aaiGameWinners[iWinner][0], aaiGameWinners[iWinner][1]);
 		setWinner(((TeamTypes)aaiGameWinners[iWinner][0]), ((VictoryTypes)aaiGameWinners[iWinner][1]));
 	}
 
@@ -9450,11 +9451,17 @@ void CvGame::getGlobalAverage() const
 	CvCity* pLoopCity;
 	int iCityLoop;
 	PlayerTypes eLoopPlayer;
-	int iPopulation = 0;
+	int iPopulation, iTotalPopulation = 0;
 	int iCultureYield = 0;
 	int iScienceYield = 0;
 	int iDefenseYield = 0;
 	int iGoldYield = 0;
+
+	std::vector<float> vfCultureYield;
+	std::vector<float> vfScienceYield;
+	std::vector<float> vfDefenseYield;
+	std::vector<float> vfGoldYield;
+
 	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
 		eLoopPlayer = (PlayerTypes) iPlayerLoop;
@@ -9464,18 +9471,30 @@ void CvGame::getGlobalAverage() const
 			{
 				if(pLoopCity != NULL)
 				{
-					iPopulation += pLoopCity->getPopulation();
+					iPopulation = pLoopCity->getPopulation();
+					
+					iTotalPopulation += iPopulation;
 
 					//Uncultured
-					iCultureYield += pLoopCity->getJONSCulturePerTurn() * 100;
+					iCultureYield = pLoopCity->getJONSCulturePerTurn() * 100;
+					float iCultureAvg = iCultureYield / (float)iPopulation;
+					vfCultureYield.push_back((float)iCultureAvg);
 
 					//Illiteracy
-					iScienceYield += pLoopCity->getYieldRateTimes100(YIELD_SCIENCE, false);
+					iScienceYield = pLoopCity->getYieldRateTimes100(YIELD_SCIENCE, false);
+					float iScienceAvg = iScienceYield / (float)iPopulation;
+					vfScienceYield.push_back((float)iScienceAvg);
 					
 					//Disorder
-					iDefenseYield += pLoopCity->getStrengthValue(false);
+					iDefenseYield = pLoopCity->getStrengthValue(false);
 
-						// 10 damage = -100 points
+						// Garrisoned Unit x 25
+						CvUnit* pGarrisonedUnit = pLoopCity->GetGarrisonedUnit();
+						if(pGarrisonedUnit)
+						{
+							iDefenseYield += (pGarrisonedUnit->GetBaseCombatStrength() * 25);
+						}
+
 						int iDamage = (pLoopCity->getDamage() * 10);
 
 						if(iDamage > 0)
@@ -9483,41 +9502,73 @@ void CvGame::getGlobalAverage() const
 							iDefenseYield -= iDamage;
 						}
 
+					float iDefenseAvg = iDefenseYield / (float)iPopulation;
+					vfDefenseYield.push_back((float)iDefenseAvg);
 					//Poverty
-					iGoldYield += pLoopCity->getYieldRateTimes100(YIELD_GOLD, false);
+					iGoldYield = pLoopCity->getYieldRateTimes100(YIELD_GOLD, false);
+					float iGoldAvg = iGoldYield / (float)iPopulation;
+					vfGoldYield.push_back((float)iGoldAvg);
 				}		
 			}
 		}
 	}
-	GC.getGame().SetCultureAverage(iCultureYield);
-	GC.getGame().SetScienceAverage(iScienceYield);
-	GC.getGame().SetDefenseAverage(iDefenseYield);
-	GC.getGame().SetGoldAverage(iGoldYield);
-	GC.getGame().SetGlobalPopulation(iPopulation);
+	//Cannot define median if calculations are at zero.
+	if (vfCultureYield.empty() || vfScienceYield.empty() || vfDefenseYield.empty() || vfGoldYield.empty())
+	{	
+		return;
+	}
+	
+	//Select median of each category
+	size_t n = vfCultureYield.size() / 2;
+
+	//Find Median...
+	std::nth_element(vfCultureYield.begin(), vfCultureYield.begin()+n, vfCultureYield.end());
+	std::nth_element(vfScienceYield.begin(), vfScienceYield.begin()+n, vfScienceYield.end());
+	std::nth_element(vfDefenseYield.begin(), vfDefenseYield.begin()+n, vfDefenseYield.end());
+	std::nth_element(vfGoldYield.begin(), vfGoldYield.begin()+n, vfGoldYield.end());
+	
+	//And set it.
+	GC.getGame().SetCultureAverage((int)vfCultureYield[n]);
+	GC.getGame().SetScienceAverage((int)vfScienceYield[n]);
+	GC.getGame().SetDefenseAverage((int)vfDefenseYield[n]);
+	GC.getGame().SetGoldAverage((int)vfGoldYield[n]);
+	GC.getGame().SetGlobalPopulation(iTotalPopulation);
 }
 //	--------------------------------------------------------------------------------
 void CvGame::SetCultureAverage(int iValue)
 {
 	if(GetCultureAverage() != iValue)
-	m_iCultureAverage = iValue;
+	{
+		float fAlpha = 0.2f;
+		m_iCultureAverage = int(0.5f + (iValue * fAlpha) + (m_iCultureAverage * ( 1 - fAlpha)));
+	}
 }
 //	--------------------------------------------------------------------------------
 void CvGame::SetScienceAverage(int iValue)
 {
 	if(GetScienceAverage() != iValue)
-	m_iScienceAverage = iValue;
+	{
+		float fAlpha = 0.2f;
+		m_iScienceAverage = int(0.5f + (iValue * fAlpha) + (m_iCultureAverage * ( 1 - fAlpha)));
+	}
 }
 //	--------------------------------------------------------------------------------
 void CvGame::SetDefenseAverage(int iValue)
 {
 	if(GetDefenseAverage() != iValue)
-	m_iDefenseAverage = iValue;
+	{
+		float fAlpha = 0.2f;
+		m_iDefenseAverage = int(0.5f + (iValue * fAlpha) + (m_iCultureAverage * ( 1 - fAlpha)));
+	}
 }
 //	--------------------------------------------------------------------------------
 void CvGame::SetGoldAverage(int iValue)
 {
 	if(GetGoldAverage() != iValue)
-	m_iGoldAverage = iValue;
+	{
+		float fAlpha = 0.2f;
+		m_iGoldAverage = int(0.5f + (iValue * fAlpha) + (m_iCultureAverage * ( 1 - fAlpha)));
+	}
 }
 //	--------------------------------------------------------------------------------
 void CvGame::SetGlobalPopulation(int iValue)
@@ -10797,6 +10848,7 @@ void CvGame::DoTestConquestVictory()
 			{
 				if(pkVictoryInfo->isConquest() && isVictoryValid(eVictory))
 				{
+					CUSTOMLOG("Calling setWinner from DoTestConquestVictory: %i, %i", eTeamWhoWon, eVictory);
 					setWinner(eTeamWhoWon, eVictory);
 				}
 			}

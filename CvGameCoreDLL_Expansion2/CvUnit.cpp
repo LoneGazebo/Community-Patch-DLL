@@ -216,6 +216,9 @@ CvUnit::CvUnit() :
 	, m_iExtraNavalMoves("CvUnit::m_iExtraNavalMoves", m_syncArchive)
 	, m_iKamikazePercent("CvUnit::m_iKamikazePercent", m_syncArchive)
 	, m_iBaseCombat("CvUnit::m_iBaseCombat", m_syncArchive)
+#if defined(MOD_API_EXTENSIONS)
+	, m_iBaseRangedCombat(0)
+#endif
 	, m_eFacingDirection("CvUnit::m_eFacingDirection", m_syncArchive, true)
 	, m_iArmyId("CvUnit::m_iArmyId", m_syncArchive)
 	, m_iIgnoreTerrainCostCount("CvUnit::m_iIgnoreTerrainCostCount", m_syncArchive)
@@ -1147,6 +1150,9 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_eUnitType = eUnit;
 	m_pUnitInfo = (NO_UNIT != m_eUnitType) ? GC.getUnitInfo(m_eUnitType) : NULL;
 	m_iBaseCombat = (NO_UNIT != m_eUnitType) ? m_pUnitInfo->GetCombat() : 0;
+#if defined(MOD_API_EXTENSIONS)
+	m_iBaseRangedCombat = (NO_UNIT != m_eUnitType) ? m_pUnitInfo->GetRangedCombat() : 0;
+#endif
 	m_eLeaderUnitType = NO_UNIT;
 	m_eInvisibleType = NO_INVISIBLE;
 	m_eSeeInvisibleType = NO_INVISIBLE;
@@ -1546,6 +1552,29 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 	// If a player killed this Unit...
 	if(ePlayer != NO_PLAYER)
 	{
+#if defined(MOD_BALANCE_CORE)
+		//Faith bonus from defeated units.
+		int iEra = GC.getGame().getCurrentEra();
+		if(iEra < 1)
+		{
+			iEra = 1;
+		}
+		if(GET_PLAYER(getOwner()).getYieldFromDeath(YIELD_FAITH) > 0)
+		{
+			if(IsCombatUnit())
+			{
+				int iFaith = GET_PLAYER(getOwner()).getYieldFromDeath(YIELD_FAITH) * iEra;
+				GET_PLAYER(getOwner()).ChangeFaith(iFaith);
+				if(getOwner() == GC.getGame().getActivePlayer())
+				{
+					char text[256] = {0};
+					float fDelay = GC.getPOST_COMBAT_TEXT_DELAY() * 2;
+					sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", iFaith);
+					DLLUI->AddPopupText(pPlot->getX(), pPlot->getY(), text, fDelay);
+				}
+			}
+		}
+#endif
 		if(!isBarbarian() && !GET_PLAYER(ePlayer).isBarbarian())
 		{
 			// Notify Diplo AI that damage has been done
@@ -5342,6 +5371,11 @@ int CvUnit::GetPower() const
 		iPower = iPower * GetBaseCombatStrength() / getUnitInfo().GetCombat();
 	}
 #endif
+#if defined(MOD_API_EXTENSIONS) && defined(MOD_BUGFIX_UNIT_POWER_CALC)
+	if (getUnitInfo().GetRangedCombat() > 0) {
+		iPower = iPower * GetBaseRangedCombatStrength() / getUnitInfo().GetRangedCombat();
+	}
+#endif
 	
 	//Take promotions into account: unit with 4 promotions worth ~50% more
 	int iPowerMod = getLevel() * 125;
@@ -5669,6 +5703,61 @@ void CvUnit::doHeal()
 	if(!isBarbarian())
 	{
 		changeDamage(-(healRate(plot())));
+#if defined(MOD_BALANCE_CORE_BELIEFS)
+		CvCity* pCity = plot()->getPlotCity();
+		CvCity* pClosestCity = NULL;
+		// Faith from religion heal
+		if(!pCity)
+		{
+			pClosestCity = plot()->GetAdjacentFriendlyCity(getTeam());
+		}
+		else
+		{
+			pClosestCity = pCity;
+		}
+		if(pClosestCity && pClosestCity->getOwner() == getOwner())
+		{
+			ReligionTypes eMajority = pClosestCity->GetCityReligions()->GetReligiousMajority();
+			if(eMajority != NO_RELIGION)
+			{
+				const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, getOwner());
+				if(pReligion)
+				{
+					int iEra = GC.getGame().getCurrentEra();
+					if(iEra < 1)
+					{
+						iEra = 1;
+					}
+					if(pReligion->m_Beliefs.GetYieldPerHeal(YIELD_FAITH) > 0)
+					{
+						GET_PLAYER(getOwner()).ChangeFaith(pReligion->m_Beliefs.GetYieldPerHeal(YIELD_FAITH) * iEra);
+						if(getOwner() == GC.getGame().getActivePlayer())
+						{
+							char text[256] = {0};
+							float fDelay = 0.0f;
+							sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", pReligion->m_Beliefs.GetYieldPerHeal(YIELD_FAITH)* iEra);
+							DLLUI->AddPopupText(getX(),getY(), text, fDelay);
+						}
+					}
+					BeliefTypes eSecondaryPantheon = pClosestCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
+					if (eSecondaryPantheon != NO_BELIEF)
+					{
+						if(GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetYieldPerHeal(YIELD_FAITH) > 0)
+						{
+							GET_PLAYER(getOwner()).ChangeFaith(GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetYieldPerHeal(YIELD_FAITH) * iEra);
+							if(getOwner() == GC.getGame().getActivePlayer())
+							{
+								char text[256] = {0};
+								float fDelay = 0.0f;
+								sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", pReligion->m_Beliefs.GetYieldPerHeal(YIELD_FAITH) * iEra);
+								DLLUI->AddPopupText(getX(),getY(), text, fDelay);
+							}
+						}
+					}
+				}
+			}
+		}	
+#endif
 	}
 }
 
@@ -7407,6 +7496,12 @@ bool CvUnit::found()
 	}
 #endif
 
+		
+#if defined(MOD_EVENTS_UNIT_FOUNDED)
+	if (MOD_EVENTS_UNIT_FOUNDED) {
+		GAMEEVENTINVOKE_HOOK(GAMEEVENT_UnitCityFounded, getOwner(), GetID(), getUnitType(), getX(), getY());
+	}
+#endif
 	auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 	gDLL->GameplayUnitVisibility(pDllUnit.get(), false);
 	kill(true);
@@ -7856,7 +7951,16 @@ bool CvUnit::CanSpreadReligion(const CvPlot* pPlot) const
 bool CvUnit::DoSpreadReligion()
 {
 	int iScienceBonus = 0;
-
+#if defined(MOD_BALANCE_CORE_BELIEFS)
+	int iGoldenAgeBonus = 0;
+	int iTourism = 0;
+	int iCSInfluence = 0;
+	int iEra = GC.getGame().getCurrentEra();
+	if(iEra < 1)
+	{
+		iEra = 1;
+	}
+#endif
 	CvCity* pCity = GetSpreadReligionTargetCity();
 
 	if (pCity != NULL)
@@ -7889,6 +7993,16 @@ bool CvUnit::DoSpreadReligion()
 							iScienceBonus = 0;
 						}
 					}
+#if defined(MOD_BALANCE_CORE_BELIEFS)
+#if defined(MOD_API_UNIFIED_YIELDS_GOLDEN_AGE)
+					iGoldenAgeBonus = pReligion->m_Beliefs.GetYieldFromSpread(YIELD_GOLDEN_AGE_POINTS) * iEra;
+#endif
+					iCSInfluence = pReligion->m_Beliefs.GetMissionaryInfluenceCS();
+#if defined(MOD_API_UNIFIED_YIELDS_TOURISM)
+					iTourism = pReligion->m_Beliefs.GetYieldFromForeignSpread(YIELD_TOURISM) * iEra;
+#endif
+#endif
+
 				}
 			}
 
@@ -7938,6 +8052,72 @@ bool CvUnit::DoSpreadReligion()
 					DLLUI->AddPopupText(pCity->getX(), pCity->getY(), text, fDelay);
 				}
 			}
+#if defined(MOD_BALANCE_CORE_BELIEFS)
+#if defined(MOD_API_UNIFIED_YIELDS_GOLDEN_AGE)
+			float fDelay = GC.getPOST_COMBAT_TEXT_DELAY() * 2;
+			if(iGoldenAgeBonus > 0)
+			{
+				CvPlayer &kPlayer = GET_PLAYER(m_eOwner);
+				kPlayer.ChangeGoldenAgeProgressMeter(iGoldenAgeBonus);
+				if (pCity->plot() && pCity->plot()->GetActiveFogOfWarMode() == FOGOFWARMODE_OFF)
+				{
+					char text[256] = {0};
+					sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GOLDEN_AGE]", iGoldenAgeBonus);
+					fDelay += 0.5f;
+					DLLUI->AddPopupText(pCity->getX(), pCity->getY(), text, fDelay);
+				}
+			}
+#endif
+			if(iCSInfluence > 0)
+			{
+				CvPlayer &kPlayer = GET_PLAYER(m_eOwner);
+				if(GET_PLAYER(pCity->getOwner()).isMinorCiv())
+				{
+					GET_PLAYER(pCity->getOwner()).GetMinorCivAI()->ChangeFriendshipWithMajor(kPlayer.GetID(), iCSInfluence, false);
+					if (pCity->plot() && pCity->plot()->GetActiveFogOfWarMode() == FOGOFWARMODE_OFF)
+					{
+						char text[256] = {0};
+						sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_INFLUENCE]", iCSInfluence);
+						fDelay += 0.5f;
+						DLLUI->AddPopupText(pCity->getX(), pCity->getY(), text, fDelay);
+					}
+				}
+			}
+#if defined(MOD_API_UNIFIED_YIELDS_TOURISM)
+			if(iTourism > 0)
+			{
+				if((pCity->getOwner() != m_eOwner) && !GET_PLAYER(pCity->getOwner()).isMinorCiv())
+				{
+					CvPlayer &kPlayer = GET_PLAYER(m_eOwner);
+					kPlayer.GetCulture()->ChangeInfluenceOn(pCity->getOwner(), iTourism);
+					// Show tourism spread
+					if (pCity->plot() && pCity->plot()->GetActiveFogOfWarMode() == FOGOFWARMODE_OFF)
+					{
+						CvString strInfluenceText;
+						InfluenceLevelTypes eLevel = kPlayer.GetCulture()->GetInfluenceLevel(pCity->getOwner());
+
+						if (eLevel == INFLUENCE_LEVEL_UNKNOWN)
+							strInfluenceText = GetLocalizedText( "TXT_KEY_CO_UNKNOWN" );
+						else if (eLevel == INFLUENCE_LEVEL_EXOTIC)
+							strInfluenceText = GetLocalizedText( "TXT_KEY_CO_EXOTIC");
+						else if (eLevel == INFLUENCE_LEVEL_FAMILIAR)
+							strInfluenceText = GetLocalizedText( "TXT_KEY_CO_FAMILIAR");
+						else if (eLevel == INFLUENCE_LEVEL_POPULAR)
+							strInfluenceText = GetLocalizedText( "TXT_KEY_CO_POPULAR");
+						else if (eLevel == INFLUENCE_LEVEL_INFLUENTIAL)
+							strInfluenceText = GetLocalizedText( "TXT_KEY_CO_INFLUENTIAL");
+						else if (eLevel == INFLUENCE_LEVEL_DOMINANT)
+							strInfluenceText = GetLocalizedText( "TXT_KEY_CO_DOMINANT");
+
+ 						char text[256] = {0};
+						sprintf_s(text, "[COLOR_WHITE]+%d [ICON_TOURISM][ENDCOLOR]   %s", iTourism, strInfluenceText.c_str());
+ 						fDelay += 0.5f;
+ 						DLLUI->AddPopupText(pCity->getX(), pCity->getY(), text, fDelay);
+ 					}
+				}
+			}
+#endif
+#endif
 
 			bool bShow = plot()->isActiveVisible(false);
 			if(bShow)
@@ -10737,6 +10917,13 @@ int CvUnit::baseMoves(DomainTypes eIntoDomain /* = NO_DOMAIN */) const
 		iExtraGoldenAgeMoves = pTraits->GetGoldenAgeMoveChange();
 	}
 
+#if defined(MOD_BALANCE_CORE_POLICIES)
+	if((m_pUnitInfo->IsFound() || (m_pUnitInfo->GetWorkRate() > 0)) && !IsCombatUnit())
+	{
+		iExtraGoldenAgeMoves += GET_PLAYER(getOwner()).GetExtraMoves();
+	}
+#endif
+
 	int iExtraUnitCombatTypeMoves = pTraits->GetMovesChangeUnitCombat((UnitCombatTypes)(m_pUnitInfo->GetUnitCombatType()));
 
 	return (m_pUnitInfo->GetMoves() + getExtraMoves() + thisTeam.getExtraMoves(eDomain) + m_iExtraNavalMoves + iExtraGoldenAgeMoves + iExtraUnitCombatTypeMoves);
@@ -11356,6 +11543,47 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 			}
 		}
 
+#if defined(MOD_BALANCE_CORE_BELIEFS)
+		if(pOtherUnit != NULL)
+		{
+			if(!pOtherUnit->isBarbarian() && pOtherUnit->getOwner() != NO_PLAYER)
+			{
+				if(GET_PLAYER(pOtherUnit->getOwner()).GetReligions()->GetReligionInMostCities() != NO_RELIGION)
+				{
+					if(GET_PLAYER(pOtherUnit->getOwner()).GetReligions()->GetReligionInMostCities() != GET_PLAYER(getOwner()).GetReligions()->GetReligionInMostCities())
+					{
+						if(eFoundedReligion != NO_RELIGION)
+						{
+							const CvReligion* pReligion = pReligions->GetReligion(eFoundedReligion, NO_PLAYER);
+							if(pReligion)
+							{
+								// Bonus in own land
+								if(pReligion->m_Beliefs.GetCombatVersusOtherReligionOwnLands() > 0)
+								{
+									if(pBattlePlot->IsFriendlyTerritory(getOwner()))
+									{
+										iTempModifier = pReligion->m_Beliefs.GetCombatVersusOtherReligionOwnLands();
+										iModifier += iTempModifier;
+									}
+								}
+								//Bonus in their land
+								if(pReligion->m_Beliefs.GetCombatVersusOtherReligionTheirLands() > 0)
+								{
+									if(pBattlePlot->IsFriendlyTerritory(pOtherUnit->getOwner()))
+									{
+										iTempModifier = pReligion->m_Beliefs.GetCombatVersusOtherReligionTheirLands();
+										iModifier += iTempModifier;
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	
+#endif
+
 		// Bonuses outside one's lands
 		else
 		{
@@ -11873,8 +12101,23 @@ int CvUnit::GetBaseRangedCombatStrength() const
 	}
 #endif
 
+#if defined(MOD_API_EXTENSIONS)
+	return m_iBaseRangedCombat;
+#else
 	return m_pUnitInfo->GetRangedCombat();
+#endif
 }
+
+
+#if defined(MOD_API_EXTENSIONS)
+//	--------------------------------------------------------------------------------
+void CvUnit::SetBaseRangedCombatStrength(int iStrength)
+{
+	VALIDATE_OBJECT
+
+	m_iBaseRangedCombat = iStrength;
+}
+#endif
 
 
 //	--------------------------------------------------------------------------------
@@ -15194,6 +15437,27 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 						CvBarbarians::DoBarbCampCleared(pNewPlot, getOwner());
 
 						kPlayer.GetTreasury()->ChangeGold(iNumGold);
+
+#if defined(MOD_BALANCE_CORE_POLICIES)
+						int iEra = GC.getGame().getCurrentEra();
+						if(iEra < 1)
+						{
+							iEra = 1;
+						}
+						float fDelay = 0.5f;
+						if(GET_PLAYER(getOwner()).getConquerorYield(YIELD_CULTURE) > 0)
+						{	
+							int iCulturePoints = (GET_PLAYER(getOwner()).getConquerorYield(YIELD_CULTURE) * iEra);
+							GET_PLAYER(getOwner()).changeJONSCulture(iCulturePoints);
+							if(GET_PLAYER(getOwner()).GetID() == GC.getGame().getActivePlayer())
+							{
+								char text[256] = {0};
+								fDelay += 0.5f;
+								sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", iCulturePoints);
+								DLLUI->AddPopupText(pNewPlot->getX(),pNewPlot->getY(), text, fDelay);
+							}
+						}
+#endif
 
 						// Set who last cleared the camp here
 						pNewPlot->SetPlayerThatClearedBarbCampHere(getOwner());
@@ -19735,6 +19999,10 @@ void CvUnit::read(FDataStream& kStream)
 #endif
 	kStream >> m_iEmbarkDefensiveModifier;
 
+#if defined(MOD_API_EXTENSIONS)
+	MOD_SERIALIZE_READ(58, kStream, m_iBaseRangedCombat, ((NO_UNIT != m_eUnitType) ? m_pUnitInfo->GetRangedCombat() : 0));
+#endif
+
 	kStream >> m_iCapitalDefenseModifier;
 	kStream >> m_iCapitalDefenseFalloff;
 
@@ -19907,6 +20175,9 @@ void CvUnit::write(FDataStream& kStream) const
 	MOD_SERIALIZE_WRITE(kStream, m_iEmbarkedDeepWaterCount);
 #endif
 	kStream << m_iEmbarkDefensiveModifier;
+#if defined(MOD_API_EXTENSIONS)
+	MOD_SERIALIZE_WRITE(kStream, m_iBaseRangedCombat);
+#endif
 	kStream << m_iCapitalDefenseModifier;
 	kStream << m_iCapitalDefenseFalloff;
 	kStream << m_iCityAttackPlunderModifier;

@@ -1,20 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Created by ModBuddy on 5/27/2014 11:00:03 PM -->
 <GameData>
-	<!-- Allows a building to change plot values (i.e. Mountains) -->
-	<Table name="Building_PlotYieldChanges">
-		<Column name="BuildingType" type="text" reference="Buildings(Type)"/>
-		<Column name="PlotType" type="text" reference="Plots(Type)"/>
-		<Column name="YieldType" type="text" reference="Yields(Type)"/>
-		<Column name="Yield" type="integer" default="0"/>
-	</Table>
-	<!-- Allows policies to change plot values (i.e. Mountains) -->
-	<Table name="Policy_PlotYieldChanges">
-		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
-		<Column name="PlotType" type="text" reference="Plots(Type)"/>
-		<Column name="YieldType" type="text" reference="Yields(Type)"/>
-		<Column name="Yield" type="integer" default="0"/>
-	</Table>
 	<!-- Allows you to define tables that are built when founded by advanced settlers. -->
 	<Table name="Unit_BuildOnFound">
 		<Column name="UnitType" type="text" reference="Units(Type)"/>
@@ -29,20 +15,189 @@
 	<!-- Allows you to define an instant yield granted when a building is constructed. -->
 	<Table name="Building_InstantYield">
 		<Column name="BuildingType" type="text" reference="Buildings(Type)"/>
-		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer" default="0"/>
 	</Table>
+
+	<!-- PANTHEON: Allows you to define any belief to grant 1 yield per X pop, where X is the number below. (FAITH ONLY)-->
+	<Table name="Belief_YieldPerPop">
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+	</Table>
+
+	<!-- PANTHEON: Allows you to define any belief to grant 1 yield per X gpt, where X is the number below. (FAITH and SCIENCE ONLY)-->
+	<Table name="Belief_YieldPerGPT">
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+	</Table>
+
+	<!-- PANTHEON: Allows you to define any belief to grant x yield for every unique luxury, where X is the number below. (FAITH ONLY)-->
+	<Table name="Belief_YieldPerLux">
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+	</Table>
+
+	<!-- PANTHEON: Allows you to define any belief to grant x yield for every border growth, where X is the number below. (FAITH ONLY)-->
+	<Table name="Belief_YieldPerBorderGrowth">
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+	</Table>
+
+	<!-- PANTHEON: Allows you to define any belief to grant x yield for every use of the faith healer ability, where X is the number below. (FAITH ONLY)-->
+	<Table name="Belief_YieldPerHeal">
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+	</Table>
+
+	<!-- Allows you to define any belief to grant x yield for every birth, where X is the number below. (ALL EXCEPT TOURISM for Belief, FAITH and Golden Age Points for Pantheon)-->
+	<Table name="Belief_YieldPerBirth">
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+	</Table>
+
+	<!-- PANTHEON: Allows you to define any belief to grant 1 yield per x science rate, where X is the number below. (FAITH ONLY)-->
+	<Table name="Belief_YieldPerScience">
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+	</Table>
+
+	<!-- FOUNDER: Allows you to define any belief to grant X yield from GP use, where X is the number below. (NATIONAL YIELDS EXCEPT FAITH)-->
+	<Table name="Belief_YieldFromGPUse">
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+	</Table>
+
+	<!-- FOUNDER: Allows you to define any belief to grant x yield % bonus in Holy City during a golden age, where X is the number below. (all city yields) -->
+	<Table name="Belief_YieldBonusGoldenAge">
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+	</Table>
+
+	<!-- FOUNDER: Allows you to define any belief to grant x yield from spreading your faith, where X is the number below. (Golden Age Points only) -->
+	<Table name="Belief_YieldFromSpread">
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+	</Table>
+
+	<!-- FOUNDER: Allows you to define any belief to grant x yield from spreading your faith abroad, where X is the number below. (Tourism Points only) -->
+	<Table name="Belief_YieldFromForeignSpread">
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+	</Table>
+
+	<!-- FOUNDER: Allows you to define any belief to grant x yield from conquering a city, where X is the number below. (Golden Age Points and Faith only) -->
+	<Table name="Belief_YieldFromConquest">
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+	</Table>
+
+	<!-- FOUNDER: Allows you to define any belief to grant x yield from unlocking a policy, where X is the number below. (Golden Age Points and Faith only) -->
+	<Table name="Belief_YieldFromPolicyUnlock">
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+	</Table>
+
+	<!-- FOUNDER: Allows you to define any belief to grant x yield from unlocking a new era, where X is the number below. (All national yields except Tourism) -->
+	<Table name="Belief_YieldFromEraUnlock">
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+	</Table>
+
+	<!-- FOUNDER: Allows you to define any belief to grant x yield from converting a city, where X is the number below. (Science only) -->
+	<Table name="Belief_YieldFromConversion">
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+	</Table>
+	
+	<!-- FOUNDER: Allows you to define any belief to grant x % yield boost during a WLTKD, where X is the number below. (All city yields) -->
+	<Table name="Belief_YieldFromWLTKD">
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+	</Table>
+
+	<!-- BUILDING: Allows you to define a building to grant a yield when an owned unit is killed, where X is the number below. (Faith only) -->
+	<Table name="Building_YieldFromDeath">
+		<Column name="BuildingType" type="text" reference="Buildings(Type)"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+	</Table>
+
+	<!-- FOLLOWER: Allows you to define a policy to grant a yield per follower in a city, up to a maximum amount. -->
+	<Table name="Belief_MaxYieldPerFollower">
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
+		<Column name="Max" type="integer" default="0"/>
+	</Table>
+
+	<!-- POLICY: Allows you to define an instant yield granted when a building is constructed. (culture only - grants local border growth as well) -->
+	<Table name="Policy_YieldFromConstruction">
+		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+	</Table>
+
+	<!-- POLICY: Allows you to define an instant yield granted when a tech is researched. (culture only) -->
+	<Table name="Policy_YieldFromTech">
+		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+	</Table>
+
+	<!-- POLICY: Allows you to define an instant yield granted when border growth occurrs. (all except tourism) -->
+	<Table name="Policy_YieldFromBorderGrowth">
+		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+	</Table>
+
+	<!-- POLICY: Allows you to define an instant yield granted when a GP is expended. (all national yields except tourism) -->
+	<Table name="Policy_YieldGPExpend">
+		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+	</Table>
+
+	<!-- POLICY: Allows you to define a yield that is calculated (per population) for a city when it is captured. The yield is doubled for capitals.-->
+	<Table name="Policy_ConquerorYield">
+		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+	</Table>
+
+	<!-- POLICY: Allows you to define a yield modifier that is granted by a building if your majority religion is present -->
+	<Table name="Policy_ReligionBuildingYieldMod">
+		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
+		<Column name="BuildingClassType" type="text" reference="BuildingClasses(Type)"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
+		<Column name="YieldMod" type="integer" default="0"/>
+	</Table>
+
+	<!-- POLICY: Allows you to define a yield modifier that is granted by a building if your majority religion is present -->
+	<Table name="Policy_ReligionYieldMod">
+		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+	</Table>
+
 	<Yields>
 		<Row>
-			<ID>6</ID>
-			<Type>YIELD_GOLDEN_AGE_POINTS</Type>
-			<Description>TXT_KEY_YIELD_GOLDEN_AGE_POINTS</Description>
-			<IconString>[ICON_GOLDEN_AGE]</IconString>
-			<MinCity>0</MinCity>
-			<AIWeightPercent>50</AIWeightPercent>
-		</Row>
-		<Row>
-			<ID>7</ID>
+			<ID>8</ID>
 			<Type>YIELD_GREAT_GENERAL_POINTS</Type>
 			<Description>TXT_KEY_YIELD_GREAT_GENERAL_POINTS</Description>
 			<IconString>[ICON_GOLDEN_AGE]</IconString>
@@ -50,7 +205,7 @@
 			<AIWeightPercent>50</AIWeightPercent>
 		</Row>
 		<Row>
-			<ID>8</ID>
+			<ID>9</ID>
 			<Type>YIELD_GREAT_ADMIRAL_POINTS</Type>
 			<Description>TXT_KEY_YIELD_GREAT_ADMIRAL_POINTS</Description>
 			<IconString>[ICON_GOLDEN_AGE]</IconString>
@@ -58,7 +213,7 @@
 			<AIWeightPercent>50</AIWeightPercent>
 		</Row>
 		<Row>
-			<ID>9</ID>
+			<ID>10</ID>
 			<Type>YIELD_POPULATION</Type>
 			<Description>TXT_KEY_YIELD_POPULATION</Description>
 			<IconString>[ICON_CITIZEN]</IconString>
@@ -66,7 +221,7 @@
 			<AIWeightPercent>50</AIWeightPercent>
 		</Row>
 		<Row>
-			<ID>10</ID>
+			<ID>11</ID>
 			<Type>YIELD_CULTURE_LOCAL</Type>
 			<Description>TXT_KEY_YIELD_CULTURE_LOCAL</Description>
 			<IconString>[ICON_CULTURE]</IconString>

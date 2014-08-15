@@ -195,6 +195,57 @@ CvString CvGameCulture::GetGreatWorkTooltip(int iIndex, PlayerTypes eOwner) cons
 	szTooltip += ")";
 	szTooltip += "[NEWLINE]";
 	CvString cultureString;
+
+#if defined(MOD_API_UNIFIED_YIELDS)
+	cultureString = "";
+	char* sPrefix = "";
+	int iTourismPerWork = GC.getBASE_TOURISM_PER_GREAT_WORK();
+	int iValue;
+	
+	for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++) {
+		YieldTypes eYield = (YieldTypes) iYield;
+		
+		if (eYield == YIELD_CULTURE) {
+			iValue = GC.getBASE_CULTURE_PER_GREAT_WORK();
+#if defined(MOD_API_UNIFIED_YIELDS_TOURISM)
+		} else if (eYield == YIELD_TOURISM) {
+			iValue = iTourismPerWork;
+#endif
+		} else {
+			iValue = 0;
+		}
+
+		iValue += GET_PLAYER(eOwner).GetGreatWorkYieldChange(eYield);
+		iValue += GET_PLAYER(eOwner).GetPlayerTraits()->GetGreatWorkYieldChanges(eYield);
+
+		CvCity* pCity = GetGreatWorkCity(iIndex);
+		if (pCity) {
+			ReligionTypes eMajority = pCity->GetCityReligions()->GetReligiousMajority();
+			if(eMajority >= RELIGION_PANTHEON)
+			{
+				const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, pCity->getOwner());
+				if(pReligion)
+				{
+					iValue += pReligion->m_Beliefs.GetGreatWorkYieldChange(pCity->getPopulation(), eYield);
+					BeliefTypes eSecondaryPantheon = pCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
+					if (eSecondaryPantheon != NO_BELIEF)
+					{
+						iValue += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetGreatWorkYieldChange(eYield);
+					}
+				}
+			}
+		}
+
+		if (iValue > 0) {
+			cultureString.Format("%s%s+%d %s", cultureString.c_str(), sPrefix, iValue, GC.getYieldInfo(eYield)->getIconString());
+			sPrefix = ", ";
+		}
+	}
+	
+#if !defined(MOD_API_UNIFIED_YIELDS_TOURISM)
+	cultureString.Format("%s, +%d [ICON_TOURISM]", cultureString.c_str(), iTourismPerWork);
+#endif
+#else
 	int iCulturePerWork = GC.getBASE_CULTURE_PER_GREAT_WORK();
 	iCulturePerWork += GET_PLAYER(eOwner).GetGreatWorkYieldChange(YIELD_CULTURE);
 	int iTourismPerWork = GC.getBASE_TOURISM_PER_GREAT_WORK();
@@ -205,6 +256,8 @@ CvString CvGameCulture::GetGreatWorkTooltip(int iIndex, PlayerTypes eOwner) cons
 	else
 #endif
 		cultureString.Format ("+%d [ICON_CULTURE], +%d [ICON_TOURISM]", iCulturePerWork, iTourismPerWork);
+#endif
+
 	szTooltip += cultureString;
 
 	return szTooltip;
@@ -288,6 +341,8 @@ PlayerTypes CvGameCulture::GetGreatWorkController(int iIndex) const
 {
 	CvAssertMsg (iIndex < GetNumGreatWorks(), "Bad Great Work index");
 	
+	// TODO - WH - by caching m_eCurrentOwner, m_iCurrentCity, m_iCurrentBuilding and m_iCurrentSlot this code can be speeded up
+
 	// for each player
 	//   for each building
 	//     for each slot
@@ -331,9 +386,62 @@ PlayerTypes CvGameCulture::GetGreatWorkController(int iIndex) const
 	return NO_PLAYER;
 }
 
+#if defined(MOD_API_EXTENSIONS)
+CvCity* CvGameCulture::GetGreatWorkCity(int iIndex) const
+{
+	CvAssertMsg (iIndex < GetNumGreatWorks(), "Bad Great Work index");
+	
+	// TODO - WH - by caching m_eCurrentOwner, m_iCurrentCity, m_iCurrentBuilding and m_iCurrentSlot this code can be speeded up
+
+	// for each player
+	//   for each building
+	//     for each slot
+	//       check to see if it holds this work
+
+	for (uint uiPlayer = 0; uiPlayer < MAX_MAJOR_CIVS; uiPlayer++)
+	{
+		PlayerTypes ePlayer = (PlayerTypes)uiPlayer;
+
+		int iCityLoop;
+		CvCity* pCity = NULL;
+		for (pCity = GET_PLAYER(ePlayer).firstCity(&iCityLoop); pCity != NULL; pCity = GET_PLAYER(ePlayer).nextCity(&iCityLoop))
+		{
+			for(int iBuildingClassLoop = 0; iBuildingClassLoop < GC.getNumBuildingClassInfos(); iBuildingClassLoop++)
+			{
+				CvCivilizationInfo& playerCivilizationInfo = GET_PLAYER(ePlayer).getCivilizationInfo();
+				BuildingTypes eBuilding = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings((BuildingClassTypes)iBuildingClassLoop);
+				if (eBuilding != NO_BUILDING)
+				{
+					CvBuildingEntry *pkBuilding = GC.getBuildingInfo(eBuilding);
+					if (pkBuilding)
+					{
+						if (pCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
+						{
+							int iNumSlots = pkBuilding->GetGreatWorkCount();
+							for (int iI = 0; iI < iNumSlots; iI++)
+							{
+								int iGreatWorkIndex = pCity->GetCityBuildings()->GetBuildingGreatWork((BuildingClassTypes)iBuildingClassLoop, iI);
+								if (iGreatWorkIndex == iIndex)
+								{
+									return pCity;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	return NULL;
+}
+#endif
+
 int CvGameCulture::GetGreatWorkCurrentThemingBonus (int iIndex) const
 {
 	CvAssertMsg (iIndex < GetNumGreatWorks(), "Bad Great Work index");
+
+	// TODO - WH - by caching m_eCurrentOwner, m_iCurrentCity, m_iCurrentBuilding and m_iCurrentSlot this code can be speeded up
 
 	// for each player
 	//   for each building
@@ -491,6 +599,8 @@ bool CvGameCulture::SwapGreatWorks (PlayerTypes ePlayer1, int iWork1, PlayerType
 	{
 		return false;
 	}
+
+	// TODO - WH - by caching m_eCurrentOwner, m_iCurrentCity, m_iCurrentBuilding and m_iCurrentSlot this code can be speeded up
 
 	CvCity* pCity1 = NULL;
 	BuildingClassTypes eBuildingClass1 = NO_BUILDINGCLASS;
@@ -716,7 +826,7 @@ CvGreatWorkBuildingInMyEmpire::CvGreatWorkBuildingInMyEmpire()
 {
 	m_bThemed = false;
 	m_bEndangered = false;
-#if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
+#if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES) || defined(MOD_API_UNIFIED_YIELDS)
 	m_bPuppet = false;
     m_eYieldType = NO_YIELD;
 #endif
@@ -3109,12 +3219,28 @@ int CvPlayerCulture::GetTourism()
 {
 	int iRtnValue = 0;
 
-	CvCity *pCity;
-	int iLoop;
-	for(pCity = m_pPlayer->firstCity(&iLoop); pCity != NULL; pCity = m_pPlayer->nextCity(&iLoop))
+#if defined(MOD_API_UNIFIED_YIELDS_TOURISM)
+	int iStartEra = GD_INT_GET(TOURISM_START_ERA);
+	int iStartTech = GD_INT_GET(TOURISM_START_TECH);
+	
+	if (!MOD_API_UNIFIED_YIELDS_TOURISM || ((iStartTech == -1 || m_pPlayer->HasTech((TechTypes) iStartTech)) && (iStartEra == -1 || m_pPlayer->GetCurrentEra() > iStartEra)))
 	{
-		iRtnValue += pCity->GetCityCulture()->GetBaseTourism();
+#endif
+		CvCity *pCity;
+		int iLoop;
+		for(pCity = m_pPlayer->firstCity(&iLoop); pCity != NULL; pCity = m_pPlayer->nextCity(&iLoop))
+		{
+			iRtnValue += pCity->GetCityCulture()->GetBaseTourism();
+		}
+
+#if defined(MOD_API_UNIFIED_YIELDS_TOURISM)
+		// Tourism from religion
+		iRtnValue += m_pPlayer->GetYieldPerTurnFromReligion(YIELD_TOURISM);
+
+		// Trait bonus which adds Tourism for trade partners? 
+		iRtnValue += m_pPlayer->GetYieldPerTurnFromTraits(YIELD_TOURISM);
 	}
+#endif
 
 	return iRtnValue;
 }
@@ -4422,6 +4548,11 @@ int CvCityCulture::GetBaseTourismBeforeModifiers()
 	iBase += m_pCity->GetCityBuildings()->GetThemingBonuses(YIELD_CULTURE);
 #else
 	iBase += m_pCity->GetCityBuildings()->GetThemingBonuses();
+#endif
+
+#if defined(MOD_API_UNIFIED_YIELDS_TOURISM)
+	// Add in all the tourism from yields
+	iBase += m_pCity->getYieldRate(YIELD_TOURISM, false);
 #endif
 
 	int iPercent = m_pCity->GetCityBuildings()->GetLandmarksTourismPercent();

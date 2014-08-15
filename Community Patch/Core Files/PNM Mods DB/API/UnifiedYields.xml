@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- DO NOT DELETE THIS FILE!!! -->
+<GameData>
+	<!-- See also: PlotYields.xml -->
+	
+	<Table name="Belief_CapitalYieldChanges">
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<Table name="Belief_CoastalCityYieldChanges">
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<Table name="Belief_GreatWorkYieldChanges">
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<Table name="Belief_SpecialistYieldChanges">
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
+		<Column name="SpecialistType" type="text" reference="Specialists(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer"/>
+	</Table>
+	<Table name="Belief_YieldFromKills">
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer"/>
+	</Table>
+	
+	<Table name="Feature_CoastalLandYields">
+		<Column name="FeatureType" type="text" reference="Features(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer"/>
+	</Table>
+	<Table name="Feature_FreshWaterYields">
+		<Column name="FeatureType" type="text" reference="Features(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer"/>
+	</Table>
+	<Table name="Feature_TechYieldChanges">
+		<Column name="FeatureType" type="text" reference="Features(Type)"/>
+		<Column name="TechType" type="text" reference="Technologies(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer"/>
+	</Table>
+
+	<Table name="Policy_FeatureYieldChanges">
+		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
+		<Column name="FeatureType" type="text" reference="Features(Type)"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+	</Table>
+	<Table name="Policy_ResourceYieldChanges">
+		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
+		<Column name="ResourceType" type="text" reference="Resources(Type)"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+	</Table>
+	<Table name="Policy_SpecialistYieldChanges">
+		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
+		<Column name="SpecialistType" type="text" reference="Specialists(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer"/>
+	</Table>
+	<Table name="Policy_TerrainYieldChanges">
+		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
+		<Column name="TerrainType" type="text" reference="Terrains(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+	</Table>
+	<Table name="Policy_YieldChangesNaturalWonder">
+		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+	</Table>
+	<Table name="Policy_YieldChangeWorldWonder">
+		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+	</Table>
+	<Table name="Policy_YieldChangeTradeRoute">
+		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+	</Table>
+	<Table name="Policy_YieldFromKills">
+		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer"/>
+	</Table>
+
+	<Table name="Terrain_CoastalLandYields">
+		<Column name="TerrainType" type="text" reference="Terrains(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+	</Table>
+	<Table name="Terrain_FreshWaterYields">
+		<Column name="TerrainType" type="text" reference="Terrains(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+	</Table>
+	<Table name="Terrain_TechYieldChanges">
+		<Column name="TerrainType" type="text" reference="Terrains(Type)"/>
+		<Column name="TechType" type="text" reference="Technologies(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer"/>
+	</Table>
+
+	<Table name="Trait_CapitalYieldChanges">
+		<Column name="TraitType" type="text" reference="Traits(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<Table name="Trait_CityYieldChanges">
+		<Column name="TraitType" type="text" reference="Traits(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<Table name="Trait_CoastalCityYieldChanges">
+		<Column name="TraitType" type="text" reference="Traits(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<Table name="Trait_FeatureYieldChanges">
+		<Column name="TraitType" type="text" reference="Traits(Type)"/>
+		<Column name="FeatureType" type="text" reference="Features(Type)"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+	</Table>
+	<Table name="Trait_GreatWorkYieldChanges">
+		<Column name="TraitType" type="text" reference="Traits(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<Table name="Trait_ResourceYieldChanges">
+		<Column name="TraitType" type="text" reference="Traits(Type)"/>
+		<Column name="ResourceType" type="text" reference="Resources(Type)"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+	</Table>
+	<Table name="Trait_TerrainYieldChanges">
+		<Column name="TraitType" type="text" reference="Traits(Type)"/>
+		<Column name="TerrainType" type="text" reference="Terrains(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+	</Table>
+	<Table name="Trait_YieldChangeTradeRoute">
+		<Column name="TraitType" type="text" reference="Traits(Type)"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+	</Table>
+	<Table name="Trait_YieldChangeWorldWonder">
+		<Column name="TraitType" type="text" reference="Traits(Type)"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+	</Table>
+	<Table name="Trait_YieldFromKills">
+		<Column name="TraitType" type="text" reference="Traits(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer"/>
+	</Table>
+
+	<CustomModDbUpdates>
+		<Row Name="API_UNIFIED_YIELDS_XML" Value="1"/>
+	</CustomModDbUpdates>
+</GameData>

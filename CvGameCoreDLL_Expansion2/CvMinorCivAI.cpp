@@ -6815,7 +6815,13 @@ void CvMinorCivAI::DoRebellion()
 				if (pmUnit)
 				{
 					if (!pmUnit->jumpToNearestValidPlotWithinRange(3))
+					{
 						pmUnit->kill(false);		// Could not find a spot!
+					}
+					else
+					{
+						pmUnit->setMoves(0);
+					}
 				}
 
 				iNumRebels--;
@@ -6826,7 +6832,13 @@ void CvMinorCivAI::DoRebellion()
 				if (pUnit)
 				{
 					if (!pUnit->jumpToNearestValidPlotWithinRange(3))
+					{
 						pUnit->kill(false);		// Could not find a spot!
+					}
+					else
+					{
+						pUnit->setMoves(0);
+					}
 				}
 			}
 			while(iNumRebels > 0);
@@ -7115,6 +7127,14 @@ BuildingTypes CvMinorCivAI::GetBestNationalWonderForQuest(PlayerTypes ePlayer)
 			continue;
 		}
 
+#if defined(MOD_BALANCE_CORE_BELIEFS)
+		//No belief-based buildings, please.
+		if(pkBuildingInfo->IsUnlockedByBelief())
+		{
+			continue;
+		}
+#endif
+
 		// Must be able to build it
 		if(!GET_PLAYER(ePlayer).canConstruct(eBuilding))
 		{
@@ -7181,6 +7201,9 @@ PlayerTypes CvMinorCivAI::GetBestCityStateLiberate(PlayerTypes eForPlayer)
 		if(GetPlayer()->getTeam() == GET_PLAYER(eTarget).getTeam())
 			continue;
 
+		if(!GET_PLAYER(eTarget).isMinorCiv())
+			continue;
+
 		if(GetPlayer()->GetProximityToPlayer(eTarget) > eClosestProximity)
 		{
 			eClosestProximity = GetPlayer()->GetProximityToPlayer(eTarget);
@@ -7201,7 +7224,26 @@ PlayerTypes CvMinorCivAI::GetBestCityStateLiberate(PlayerTypes eForPlayer)
 		eTarget = (PlayerTypes) iTargetLoop;
 		TeamTypes eConqueredTeam = GET_PLAYER(eTarget).getTeam();
 		TeamTypes eConquerorTeam = GET_TEAM(eConqueredTeam).GetKilledByTeam();
-	
+
+		PlayerTypes eTeamPlayer;
+		PlayerTypes eAustriaPlayer = NO_PLAYER;
+
+		int iPlayerLoop;
+		// Loop through all players to see if they're on our team
+		for(iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+		{
+			eTeamPlayer = (PlayerTypes) iPlayerLoop;
+			// On this team
+			if(GET_PLAYER(eTeamPlayer).getTeam() == eConquerorTeam)
+			{
+				if(GET_PLAYER(eTeamPlayer).IsAbleToAnnexCityStates())
+				{
+					eAustriaPlayer = eTeamPlayer;
+				}
+			}
+		}
+		if(eAustriaPlayer != NO_PLAYER)
+			continue;
 
 		if(GET_PLAYER(eTarget).isAlive())
 			continue;
@@ -8621,8 +8663,13 @@ void CvMinorCivAI::DoSetBonus(PlayerTypes ePlayer, bool bAdd, bool bFriends, boo
 			iOtherCitiesFoodTimes100 = -iOtherCitiesFoodTimes100;
 		}
 
+#if defined(MOD_BUGFIX_MINOR)
+		GET_PLAYER(ePlayer).ChangeCapitalYieldChangeTimes100(YIELD_FOOD, iCapitalFoodTimes100);
+		GET_PLAYER(ePlayer).ChangeCityYieldChangeTimes100(YIELD_FOOD, iOtherCitiesFoodTimes100);
+#else
 		GET_PLAYER(ePlayer).ChangeCapitalYieldChange(YIELD_FOOD, iCapitalFoodTimes100);
 		GET_PLAYER(ePlayer).ChangeCityYieldChange(YIELD_FOOD, iOtherCitiesFoodTimes100);
+#endif
 	}
 	// Mercantile
 	else if(eTrait == MINOR_CIV_TRAIT_MERCANTILE)
@@ -9279,7 +9326,11 @@ bool CvMinorCivAI::DoMajorCivEraChange(PlayerTypes ePlayer, EraTypes eNewEra)
 			if(iOldFood != iNewFood)
 			{
 				bSomethingChanged = true;
+#if defined(MOD_BUGFIX_MINOR)
+				GET_PLAYER(ePlayer).ChangeCapitalYieldChangeTimes100(YIELD_FOOD, iNewFood - iOldFood);
+#else
 				GET_PLAYER(ePlayer).ChangeCapitalYieldChange(YIELD_FOOD, iNewFood - iOldFood);
+#endif
 			}
 
 			// Other Cities
@@ -9289,7 +9340,11 @@ bool CvMinorCivAI::DoMajorCivEraChange(PlayerTypes ePlayer, EraTypes eNewEra)
 			if(iOldFood != iNewFood)
 			{
 				bSomethingChanged = true;
+#if defined(MOD_BUGFIX_MINOR)
+				GET_PLAYER(ePlayer).ChangeCityYieldChangeTimes100(YIELD_FOOD, iNewFood - iOldFood);
+#else
 				GET_PLAYER(ePlayer).ChangeCityYieldChange(YIELD_FOOD, iNewFood - iOldFood);
+#endif
 			}
 		}
 
@@ -9305,7 +9360,11 @@ bool CvMinorCivAI::DoMajorCivEraChange(PlayerTypes ePlayer, EraTypes eNewEra)
 			if(iOldFood != iNewFood)
 			{
 				bSomethingChanged = true;
+#if defined(MOD_BUGFIX_MINOR)
+				GET_PLAYER(ePlayer).ChangeCapitalYieldChangeTimes100(YIELD_FOOD, iNewFood - iOldFood);
+#else
 				GET_PLAYER(ePlayer).ChangeCapitalYieldChange(YIELD_FOOD, iNewFood - iOldFood);
+#endif
 			}
 
 			// Other Cities
@@ -9315,7 +9374,11 @@ bool CvMinorCivAI::DoMajorCivEraChange(PlayerTypes ePlayer, EraTypes eNewEra)
 			if(iOldFood != iNewFood)
 			{
 				bSomethingChanged = true;
+#if defined(MOD_BUGFIX_MINOR)
+				GET_PLAYER(ePlayer).ChangeCityYieldChangeTimes100(YIELD_FOOD, iNewFood - iOldFood);
+#else
 				GET_PLAYER(ePlayer).ChangeCityYieldChange(YIELD_FOOD, iNewFood - iOldFood);
+#endif
 			}
 		}
 	}
@@ -11954,6 +12017,19 @@ bool CvMinorCivAI::IsPeaceBlocked(TeamTypes eTeam) const
 
 		return true;
 	}
+	
+#if defined(MOD_CONFIG_GAME_IN_XML)
+	int iLimit = GD_INT_GET(WAR_MINOR_MINIMUM_TURNS);
+
+	if (iLimit > 0) {
+		int iTurns = m_pPlayer->GetDiplomacyAI()->GetTeamNumTurnsAtWar(eTeam);
+
+		if ((iTurns == 0 && GET_TEAM(m_pPlayer->getTeam()).isAtWar(eTeam)) || (iTurns != 0 && iTurns <= iLimit))
+		{
+			return true;
+		}
+	}
+#endif
 
 	return false;
 }

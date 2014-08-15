@@ -121,6 +121,9 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(CreateApolloProgram);
 
 	Method(IsCanPurchase);
+#if defined(MOD_API_LUA_EXTENSIONS)
+	Method(Purchase);
+#endif
 	Method(GetUnitPurchaseCost);
 	Method(GetUnitFaithPurchaseCost);
 	Method(GetBuildingPurchaseCost);
@@ -1417,6 +1420,22 @@ int CvLuaCity::lIsCanPurchase(lua_State* L)
 	lua_pushboolean(L, bResult);
 	return 1;
 }
+#if defined(MOD_API_LUA_EXTENSIONS)
+//------------------------------------------------------------------------------
+// void Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectTypes eProjectType, YieldTypes ePurchaseYield);
+int CvLuaCity::lPurchase(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const UnitTypes eUnitType = (UnitTypes) lua_tointeger(L, 2);
+	const BuildingTypes eBuildingType = (BuildingTypes) lua_tointeger(L, 3);
+	const ProjectTypes eProjectType = (ProjectTypes) lua_tointeger(L, 4);
+	const YieldTypes ePurchaseYield = (YieldTypes) lua_tointeger(L, 5);
+
+	pkCity->Purchase(eUnitType, eBuildingType, eProjectType, ePurchaseYield);
+
+	return 0;
+}
+#endif
 //------------------------------------------------------------------------------
 // int GetPurchaseCost(UnitTypes eUnit);
 int CvLuaCity::lGetUnitPurchaseCost(lua_State* L)
@@ -2239,7 +2258,15 @@ int CvLuaCity::lGetJONSCulturePerTurnFromBuildings(lua_State* L)
 //void ChangeJONSCulturePerTurnFromBuildings(int iChange);
 int CvLuaCity::lChangeJONSCulturePerTurnFromBuildings(lua_State* L)
 {
+#if defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
+	CvCity* pkCity = GetInstance(L);
+	int iChange = lua_tointeger(L, 2);
+	pkCity->ChangeBaseYieldRateFromBuildings(YIELD_CULTURE, iChange);
+
+	return 0;
+#else
 	return BasicLuaMethod(L, &CvCity::ChangeJONSCulturePerTurnFromBuildings);
+#endif
 }
 //------------------------------------------------------------------------------
 //int GetJONSCulturePerTurnFromPolicies() const;
@@ -2287,7 +2314,15 @@ int CvLuaCity::lGetJONSCulturePerTurnFromReligion(lua_State* L)
 //void ChangeJONSCulturePerTurnFromReligion(int iChange);
 int CvLuaCity::lChangeJONSCulturePerTurnFromReligion(lua_State* L)
 {
+#if defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
+	CvCity* pkCity = GetInstance(L);
+	int iChange = lua_tointeger(L, 2);
+	pkCity->ChangeBaseYieldRateFromReligion(YIELD_CULTURE, iChange);
+
+	return 0;
+#else
 	return BasicLuaMethod(L, &CvCity::ChangeJONSCulturePerTurnFromReligion);
+#endif
 }
 //------------------------------------------------------------------------------
 //int GetJONSCulturePerTurnFromLeagues() const;
@@ -2479,7 +2514,15 @@ int CvLuaCity::lGetFaithPerTurnFromReligion(lua_State* L)
 //void ChangeFaithPerTurnFromReligion(int iChange);
 int CvLuaCity::lChangeFaithPerTurnFromReligion(lua_State* L)
 {
+#if defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
+	CvCity* pkCity = GetInstance(L);
+	int iChange = lua_tointeger(L, 2);
+	pkCity->ChangeBaseYieldRateFromReligion(YIELD_FAITH, iChange);
+
+	return 0;
+#else
 	return BasicLuaMethod(L, &CvCity::ChangeFaithPerTurnFromReligion);
+#endif
 }
 //------------------------------------------------------------------------------
 //int IsReligionInCity() const;

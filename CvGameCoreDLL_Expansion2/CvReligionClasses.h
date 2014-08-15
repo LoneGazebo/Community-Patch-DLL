@@ -343,7 +343,11 @@ public:
 	bool HasCreatedReligion() const;
 #endif
 	bool HasAddedReformationBelief() const;
+#if defined(MOD_API_EXTENSIONS)
+	ReligionTypes GetReligionCreatedByPlayer(bool bIncludePantheon = false) const;
+#else
 	ReligionTypes GetReligionCreatedByPlayer() const;
+#endif
 #if defined(MOD_RELIGION_RECURRING_PURCHASE_NOTIFIY)
 	bool CanAffordNextPurchase();
 	void SetFaithAtLastNotify(int iFaith);

@@ -28,72 +28,72 @@ WHERE Tag = 'TXT_KEY_WONDER_NEUSCHWANSTEIN_HELP' AND EXISTS (SELECT * FROM COMMU
 
 -- Cathedral
 
-UPDATE Buildings
-SET PovertyHappinessChange = '1'
-WHERE Type = 'BUILDING_CATHEDRAL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
+--UPDATE Buildings
+--SET PovertyHappinessChange = '1'
+--WHERE Type = 'BUILDING_CATHEDRAL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
-UPDATE Buildings
-SET Happiness = '0'
-WHERE Type = 'BUILDING_CATHEDRAL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
+--UPDATE Buildings
+--SET Happiness = '0'
+--WHERE Type = 'BUILDING_CATHEDRAL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
-UPDATE Buildings 
-SET Help = 'TXT_KEY_BUILDING_CATHEDRAL_HELP'
-WHERE Type = 'BUILDING_CATHEDRAL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
+--UPDATE Buildings 
+--SET Help = 'TXT_KEY_BUILDING_CATHEDRAL_HELP'
+--WHERE Type = 'BUILDING_CATHEDRAL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
-INSERT INTO Language_en_US (
-Tag, Text)
-SELECT 'TXT_KEY_BUILDING_CATHEDRAL_HELP', 'Reduces [ICON_HAPPINESS_3] Poverty threshold by 1 in the City where it is built.'
-WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
+--INSERT INTO Language_en_US (
+--Tag, Text)
+--SELECT 'TXT_KEY_BUILDING_CATHEDRAL_HELP', 'Reduces [ICON_HAPPINESS_3] Poverty threshold by 1 in the City where it is built.'
+--WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
-UPDATE Language_en_US
-SET Text = 'Can only be built in cities following a religion with the Cathedrals belief. Construct this building by purchasing it with [ICON_PEACE] Faith. Reduces [ICON_HAPPINESS_3] Poverty threshold by 1 in the City where it is built.'
-WHERE Tag = 'TXT_KEY_BUILDING_CATHEDRAL_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
+--UPDATE Language_en_US
+--SET Text = 'Can only be built in cities following a religion with the Cathedrals belief. Construct this building by purchasing it with [ICON_PEACE] Faith. Reduces [ICON_HAPPINESS_3] Poverty threshold by 1 in the City where it is built.'
+--WHERE Tag = 'TXT_KEY_BUILDING_CATHEDRAL_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 -- Mosque
 
-UPDATE Buildings
-SET IlliteracyHappinessChange = '1'
-WHERE Type = 'BUILDING_MOSQUE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
+--UPDATE Buildings
+--SET IlliteracyHappinessChange = '1'
+--WHERE Type = 'BUILDING_MOSQUE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
-UPDATE Buildings
-SET Happiness = '0'
-WHERE Type = 'BUILDING_MOSQUE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
+--UPDATE Buildings
+--SET Happiness = '0'
+--WHERE Type = 'BUILDING_MOSQUE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
-UPDATE Buildings 
-SET Help = 'TXT_KEY_BUILDING_MOSQUE_HELP'
-WHERE Type = 'BUILDING_MOSQUE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
+--UPDATE Buildings 
+--SET Help = 'TXT_KEY_BUILDING_MOSQUE_HELP'
+--WHERE Type = 'BUILDING_MOSQUE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
-INSERT INTO Language_en_US (
-Tag, Text)
-SELECT 'TXT_KEY_BUILDING_MOSQUE_HELP', '[ICON_HAPPINESS_3] Illiteracy threshold reduced by 1 in the City where it is built.'
-WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
+--INSERT INTO Language_en_US (
+--Tag, Text)
+--SELECT 'TXT_KEY_BUILDING_MOSQUE_HELP', '[ICON_HAPPINESS_3] Illiteracy threshold reduced by 1 in the City where it is built.'
+--WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
-UPDATE Language_en_US
-SET Text = 'Can only be built in cities following a religion with the Mosques belief. Construct this building by purchasing it with [ICON_PEACE] Faith. Reduces [ICON_HAPPINESS_3] Illiteracy threshold by 1 in the City where it is built.'
-WHERE Tag = 'TXT_KEY_BUILDING_MOSQUE_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
+--UPDATE Language_en_US
+--SET Text = 'Can only be built in cities following a religion with the Mosques belief. Construct this building by purchasing it with [ICON_PEACE] Faith. Reduces [ICON_HAPPINESS_3] Illiteracy threshold by 1 in the City where it is built.'
+--WHERE Tag = 'TXT_KEY_BUILDING_MOSQUE_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 -- Pagoda
 
-UPDATE Buildings
-SET UnculturedHappinessChange = '1'
-WHERE Type = 'BUILDING_PAGODA' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
+--UPDATE Buildings
+--SET UnculturedHappinessChange = '1'
+--WHERE Type = 'BUILDING_PAGODA' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
+--
+--UPDATE Buildings
+--SET Happiness = '0'
+--WHERE Type = 'BUILDING_PAGODA' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
-UPDATE Buildings
-SET Happiness = '0'
-WHERE Type = 'BUILDING_PAGODA' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
+--UPDATE Buildings 
+--SET Help = 'TXT_KEY_BUILDING_PAGODA_HELP'
+--WHERE Type = 'BUILDING_PAGODA' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
-UPDATE Buildings 
-SET Help = 'TXT_KEY_BUILDING_PAGODA_HELP'
-WHERE Type = 'BUILDING_PAGODA' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
+--INSERT INTO Language_en_US (
+--Tag, Text)
+--SELECT 'TXT_KEY_BUILDING_PAGODA_HELP', 'Reduces [ICON_HAPPINESS_3] Boredom threshold by 1 in the City where it is built.'
+--WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
-INSERT INTO Language_en_US (
-Tag, Text)
-SELECT 'TXT_KEY_BUILDING_PAGODA_HELP', 'Reduces [ICON_HAPPINESS_3] Boredom threshold by 1 in the City where it is built.'
-WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
-
-UPDATE Language_en_US
-SET Text = 'Can only be built in cities following a religion with the Pagodas belief. Construct this building by purchasing it with [ICON_PEACE] Faith. Reduces [ICON_HAPPINESS_3] Boredom by 1 in the City where it is built.'
-WHERE Tag = 'TXT_KEY_BUILDING_PAGODA_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
+--UPDATE Language_en_US
+--SET Text = 'Can only be built in cities following a religion with the Pagodas belief. Construct this building by purchasing it with [ICON_PEACE] Faith. Reduces [ICON_HAPPINESS_3] Boredom by 1 in the City where it is built.'
+--WHERE Tag = 'TXT_KEY_BUILDING_PAGODA_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 -- Taj Mahal
 
@@ -127,10 +127,6 @@ WHERE Tag = 'TXT_KEY_BUILDING_STONE_WORKS_HELP' AND EXISTS (SELECT * FROM COMMUN
 
 UPDATE Buildings
 SET UnculturedHappinessChange = '1'
-WHERE Type = 'BUILDING_COLOSSEUM' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
-
-UPDATE Buildings
-SET DefenseHappinessChange = '1'
 WHERE Type = 'BUILDING_CIRCUS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 UPDATE Buildings
@@ -144,11 +140,15 @@ WHERE Tag = 'TXT_KEY_BUILDING_CIRCUS_HELP' AND EXISTS (SELECT * FROM COMMUNITY W
 -- Colosseum
 
 UPDATE Buildings
-SET DefenseHappinessChange = '1'
-WHERE Type = 'BUILDING_CIRCUS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
+SET IlliteracyHappinessChange = '1'
+WHERE Type = 'BUILDING_COLOSSEUM' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 UPDATE Buildings
-SET Happiness = '1'
+SET UnculturedHappinessChange = '1'
+WHERE Type = 'BUILDING_COLOSSEUM' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
+
+UPDATE Buildings
+SET Happiness = '0'
 WHERE Type = 'BUILDING_COLOSSEUM' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 UPDATE Buildings 
@@ -157,11 +157,11 @@ WHERE Type = 'BUILDING_COLOSSEUM' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type
 
 INSERT INTO Language_en_US (
 Tag, Text)
-SELECT 'TXT_KEY_BUILDING_COLOSSEUM_HELP', 'Reduces [ICON_HAPPINESS_3] Disorder threshold by 1 in the City where it is built.'
+SELECT 'TXT_KEY_BUILDING_COLOSSEUM_HELP', 'Reduces [ICON_HAPPINESS_3] Illiteracy and Boredom thresholds by 1 in the City where it is built.'
 WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Reduces [ICON_HAPPINESS_3] Disorder threshold by 1 in the City where it is built.'
+SET Text = 'Reduces [ICON_HAPPINESS_3] Illiteracy and Boredom thresholds by 1 in the City where it is built.'
 WHERE Tag = 'TXT_KEY_BUILDING_COLOSSEUM_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 -- Zoo
@@ -171,33 +171,41 @@ SET IlliteracyHappinessChange = '1'
 WHERE Type = 'BUILDING_THEATRE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 UPDATE Buildings
-SET Happiness = '1'
+SET UnculturedHappinessChange = '1'
+WHERE Type = 'BUILDING_THEATRE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
+
+UPDATE Buildings
+SET Happiness = '0'
 WHERE Type = 'BUILDING_THEATRE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Reduces [ICON_HAPPINESS_3] Illiteracy threshold by 1 in the City where it is built.'
+SET Text = 'Reduces [ICON_HAPPINESS_3] Illiteracy and Boredom thresholds by 1 in the City where it is built.'
 WHERE Tag = 'TXT_KEY_BUILDING_THEATRE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'The city must possess a Colosseum before the Zoo can be constructed.'
+SET Text = 'Reduces [ICON_HAPPINESS_3] Illiteracy and Boredom thresholds by 1 in the City where it is built. The city must possess a Colosseum before the Zoo can be constructed.'
 WHERE Tag = 'TXT_KEY_BUILDING_THEATRE_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 -- Stadium
 
 UPDATE Buildings
-SET PovertyHappinessChange = '1'
+SET UnculturedHappinessChange = '1'
 WHERE Type = 'BUILDING_STADIUM' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 UPDATE Buildings
-SET Happiness = '1'
+SET IlliteracyHappinessChange = '1'
+WHERE Type = 'BUILDING_STADIUM' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
+
+UPDATE Buildings
+SET Happiness = '0'
 WHERE Type = 'BUILDING_STADIUM' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Reduces [ICON_HAPPINESS_3] Poverty threshold by 1 in the City where it is built.'
+SET Text = 'Reduces [ICON_HAPPINESS_3] Illiteracy and Boredom thresholds by 1 in the City where it is built.'
 WHERE Tag = 'TXT_KEY_BUILDING_STADIUM_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'The city must already possess a Zoo before it can construct a Stadium.'
+SET Text = 'Reduces [ICON_HAPPINESS_3] Illiteracy and Boredom thresholds by 1 in the City where it is built. The city must already possess a Zoo before it can construct a Stadium.'
 WHERE Tag = 'TXT_KEY_BUILDING_STADIUM_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 
@@ -208,7 +216,7 @@ SET PovertyHappinessChangeGlobal = '1'
 WHERE Type = 'BUILDING_CHICHEN_ITZA' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 UPDATE Buildings
-SET Happiness = '0'
+SET Happiness = '1'
 WHERE Type = 'BUILDING_CHICHEN_ITZA' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -236,7 +244,7 @@ SET IlliteracyHappinessChange = '1'
 WHERE Type = 'BUILDING_BURIAL_TOMB' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 UPDATE Buildings
-SET Happiness = '0'
+SET Happiness = '1'
 WHERE Type = 'BUILDING_BURIAL_TOMB' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -273,7 +281,7 @@ SET IlliteracyHappinessChangeGlobal = '1'
 WHERE Type = 'BUILDING_EIFFEL_TOWER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 UPDATE Buildings
-SET UnmoddedHappiness = '2'
+SET UnmoddedHappiness = '1'
 WHERE Type = 'BUILDING_EIFFEL_TOWER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -293,11 +301,15 @@ WHERE Type = 'BUILDING_CIRCUS_MAXIMUS' AND EXISTS (SELECT * FROM COMMUNITY WHERE
 -- Police Station
 
 UPDATE Buildings
-SET DefenseHappinessChange = '1'
+SET DefenseHappinessChange = '2'
+WHERE Type = 'BUILDING_POLICE_STATION' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
+
+UPDATE Buildings
+SET PovertyHappinessChange = '2'
 WHERE Type = 'BUILDING_POLICE_STATION' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Reduces [ICON_HAPPINESS_3] Disorder threshold by 1 in this city. Reduces enemy spy stealing rate by 25%.[NEWLINE][NEWLINE]City must have a Constabulary.'
+SET Text = 'Reduces [ICON_HAPPINESS_3] Poverty and Disorder thresholds by 2 in this city. Reduces enemy spy stealing rate by 25%.[NEWLINE][NEWLINE]City must have a Constabulary.'
 WHERE Tag = 'TXT_KEY_BUILDING_POLICE_STATION_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 -- Constabulary

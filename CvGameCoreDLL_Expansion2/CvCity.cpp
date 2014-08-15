@@ -129,13 +129,21 @@ CvCity::CvCity() :
 	, m_iGreatPeopleRateModifier("CvCity::m_iGreatPeopleRateModifier", m_syncArchive)
 	, m_iJONSCultureStored("CvCity::m_iJONSCultureStored", m_syncArchive, true)
 	, m_iJONSCultureLevel("CvCity::m_iJONSCultureLevel", m_syncArchive)
+#if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
 	, m_iJONSCulturePerTurnFromBuildings("CvCity::m_iJONSCulturePerTurnFromBuildings", m_syncArchive)
+#endif
 	, m_iJONSCulturePerTurnFromPolicies("CvCity::m_iJONSCulturePerTurnFromPolicies", m_syncArchive)
 	, m_iJONSCulturePerTurnFromSpecialists("CvCity::m_iJONSCulturePerTurnFromSpecialists", m_syncArchive)
+#if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
 	, m_iJONSCulturePerTurnFromReligion("CvCity::m_iJONSCulturePerTurnFromReligion", m_syncArchive)
+#endif
+#if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
 	, m_iFaithPerTurnFromBuildings(0)
+#endif
 	, m_iFaithPerTurnFromPolicies(0)
+#if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
 	, m_iFaithPerTurnFromReligion(0)
+#endif
 	, m_iCultureRateModifier("CvCity::m_iCultureRateModifier", m_syncArchive)
 	, m_iNumWorldWonders("CvCity::m_iNumWorldWonders", m_syncArchive)
 	, m_iNumTeamWonders("CvCity::m_iNumTeamWonders", m_syncArchive)
@@ -228,6 +236,9 @@ CvCity::CvCity() :
 #if defined(MOD_DIPLOMACY_CITYSTATES) || defined(MOD_BALANCE_CORE)
 	, m_aiChangeGrowthExtraYield("CvCity::m_aiChangeGrowthExtraYield", m_syncArchive)
 #endif
+#if defined(MOD_BALANCE_CORE_POLICIES)
+	, m_aiReligionBuildingYieldRateModifier("CvCity::m_aiReligionBuildingYieldRateModifier", m_syncArchive)
+#endif
 	, m_aiYieldRateModifier("CvCity::m_aiYieldRateModifier", m_syncArchive)
 	, m_aiYieldPerPop("CvCity::m_aiYieldPerPop", m_syncArchive)
 	, m_aiPowerYieldRateModifier("CvCity::m_aiPowerYieldRateModifier", m_syncArchive)
@@ -264,8 +275,8 @@ CvCity::CvCity() :
 	, m_ppaiResourceYieldChange(0)
 	, m_ppaiFeatureYieldChange(0)
 	, m_ppaiTerrainYieldChange(0)
-#if defined(MOD_BALANCE_CORE_YIELDS)
-	, m_ppaaiPlotYieldChange(0)
+#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
+	, m_ppaiPlotYieldChange(0)
 #endif
 	, m_pCityBuildings(FNEW(CvCityBuildings, c_eCiv5GameplayDLL, 0))
 	, m_pCityStrategyAI(FNEW(CvCityStrategyAI, c_eCiv5GameplayDLL, 0))
@@ -373,6 +384,9 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	pPlot->SetCityPurchaseID(m_iID);
 
 	int iRange = 1;
+#if defined(MOD_CONFIG_GAME_IN_XML)
+	iRange = GD_INT_GET(CITY_STARTING_RINGS);
+#endif
 	for(int iDX = -iRange; iDX <= iRange; iDX++)
 	{
 		for(int iDY = -iRange; iDY <= iRange; iDY++)
@@ -762,6 +776,29 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 
 	AI_init();
 
+#if defined(MOD_BALANCE_CORE_POLICIES)
+	if(MOD_BALANCE_CORE_POLICIES && owningPlayer.GetBestRangedUnitSpawnSettle() > 0)
+	{
+		UnitTypes eType = GetCityStrategyAI()->GetUnitProductionAI()->RecommendUnit(UNITAI_RANGED);
+		if(eType != NO_UNIT)
+		{
+			int iResult = CreateUnit(eType, NO_UNITAI, false /*bUseToSatisfyOperation*/);
+
+			CvAssertMsg(iResult != FFreeList::INVALID_INDEX, "Unable to create unit");
+
+			if (iResult != FFreeList::INVALID_INDEX)
+			{
+				CvUnit* pUnit = owningPlayer.getUnit(iResult);
+				if (!pUnit->jumpToNearestValidPlot())
+				{
+					pUnit->kill(false);	// Could not find a valid spot!
+				}
+				pUnit->setMoves(1);	
+			}
+		}
+	}
+#endif
+
 	if (GC.getGame().getGameTurn() == 0)
 	{
 		chooseProduction();
@@ -808,15 +845,16 @@ void CvCity::uninit()
 		}
 	}
 	SAFE_DELETE_ARRAY(m_ppaiTerrainYieldChange);
-#if defined(MOD_BALANCE_CORE_YIELDS)
-	if(m_ppaaiPlotYieldChange)
+
+#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
+	if(m_ppaiPlotYieldChange)
 	{
 		for(int i=0; i < GC.getNumPlotInfos(); i++)
 		{
-			SAFE_DELETE_ARRAY(m_ppaaiPlotYieldChange[i]);
+			SAFE_DELETE_ARRAY(m_ppaiPlotYieldChange[i]);
 		}
 	}
-	SAFE_DELETE_ARRAY(m_ppaaiPlotYieldChange);
+	SAFE_DELETE_ARRAY(m_ppaiPlotYieldChange);
 #endif
 
 	m_pCityBuildings->Uninit();
@@ -858,13 +896,21 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_iGreatPeopleRateModifier = 0;
 	m_iJONSCultureStored = 0;
 	m_iJONSCultureLevel = 0;
+#if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
 	m_iJONSCulturePerTurnFromBuildings = 0;
+#endif
 	m_iJONSCulturePerTurnFromPolicies = 0;
 	m_iJONSCulturePerTurnFromSpecialists = 0;
+#if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
 	m_iJONSCulturePerTurnFromReligion = 0;
+#endif
+#if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
 	m_iFaithPerTurnFromBuildings = 0;
+#endif
 	m_iFaithPerTurnFromPolicies = 0;
+#if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
 	m_iFaithPerTurnFromReligion = 0;
+#endif
 	m_iCultureRateModifier = 0;
 	m_iNumWorldWonders = 0;
 	m_iNumTeamWonders = 0;
@@ -967,6 +1013,9 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 #if defined(MOD_DIPLOMACY_CITYSTATES) || defined(MOD_BALANCE_CORE)
 	m_aiChangeGrowthExtraYield.resize(NUM_YIELD_TYPES);
 #endif
+#if defined(MOD_BALANCE_CORE_POLICIES)
+	m_aiReligionBuildingYieldRateModifier.resize(NUM_YIELD_TYPES);
+#endif
 	m_aiBaseYieldRateFromReligion.resize(NUM_YIELD_TYPES);
 	m_aiYieldPerPop.resize(NUM_YIELD_TYPES);
 	m_aiYieldPerReligion.resize(NUM_YIELD_TYPES);
@@ -990,6 +1039,9 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 #endif
 #if defined(MOD_DIPLOMACY_CITYSTATES) || defined(MOD_BALANCE_CORE)
 		m_aiChangeGrowthExtraYield.setAt(iI, 0);
+#endif
+#if defined(MOD_BALANCE_CORE_POLICIES)
+		m_aiReligionBuildingYieldRateModifier.setAt(iI, 0);
 #endif
 		m_aiBaseYieldRateFromReligion[iI] = 0;
 		m_aiYieldPerPop.setAt(iI, 0);
@@ -1192,19 +1244,19 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 				m_ppaiTerrainYieldChange[iI][iJ] = 0;
 			}
 		}
-#if defined(MOD_BALANCE_CORE_YIELDS)
+
+#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
 		int iNumPlotInfos = GC.getNumPlotInfos();
-		CvAssertMsg(m_ppaaiPlotYieldChange==NULL, "about to leak memory, CvCity::m_ppaaiPlotYieldChange");
-		m_ppaaiPlotYieldChange = FNEW(int*[iNumPlotInfos], c_eCiv5GameplayDLL, 0);
+		CvAssertMsg(m_ppaiPlotYieldChange==NULL, "about to leak memory, CvCity::m_ppaiPlotYieldChange");
+		m_ppaiPlotYieldChange = FNEW(int*[iNumPlotInfos], c_eCiv5GameplayDLL, 0);
 		for(iI = 0; iI < iNumPlotInfos; iI++)
 		{
-			m_ppaaiPlotYieldChange[iI] = FNEW(int[NUM_YIELD_TYPES], c_eCiv5GameplayDLL, 0);
+			m_ppaiPlotYieldChange[iI] = FNEW(int[NUM_YIELD_TYPES], c_eCiv5GameplayDLL, 0);
 			for(iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
 			{
-				m_ppaaiPlotYieldChange[iI][iJ] = 0;
+				m_ppaiPlotYieldChange[iI][iJ] = 0;
 			}
 		}
-	
 #endif
 	}
 
@@ -1819,6 +1871,13 @@ void CvCity::doTurn()
 		if(getJONSCulturePerTurn() > 0)
 		{
 			ChangeJONSCultureStored(getJONSCulturePerTurn());
+#if defined(MOD_BALANCE_CORE_POLICIES)
+			//Doubles during Golden Age
+			if(GET_PLAYER(getOwner()).IsDoubleBorderGA() && GET_PLAYER(getOwner()).isGoldenAge())
+			{
+				ChangeJONSCultureStored(getJONSCulturePerTurn());
+			}
+#endif
 		}
 
 		// Enough Culture to acquire a new Plot?
@@ -2063,7 +2122,11 @@ void CvCity::SetRouteToCapitalConnected(bool bValue)
 }
 
 //	--------------------------------------------------------------------------------
+#if defined(MOD_API_EXTENSIONS)
+bool CvCity::IsRouteToCapitalConnected(void) const
+#else
 bool CvCity::IsRouteToCapitalConnected(void)
+#endif
 {
 	return m_bRouteToCapitalConnectedThisTurn;
 }
@@ -2844,6 +2907,23 @@ bool CvCity::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestVis
 		return false;
 	}
 
+#if defined(MOD_BALANCE_CORE_BELIEFS)
+	// Religion-enabled national wonder
+	if(pkBuildingInfo && pkBuildingInfo->IsUnlockedByBelief() && pkBuildingInfo->IsReformation())
+	{
+		CvGameReligions* pReligions = GC.getGame().GetGameReligions();
+		ReligionTypes eFoundedReligion = pReligions->GetFounderBenefitsReligion(getOwner());
+		if(eFoundedReligion != NO_RELIGION)
+		{
+			const CvReligion* pReligion = pReligions->GetReligion(eFoundedReligion, getOwner());
+			if(pReligion == NULL || !pReligion->m_Beliefs.IsBuildingClassEnabled((BuildingClassTypes)pkBuildingInfo->GetBuildingClassType()))
+			{
+				return false;
+			}
+		}
+	}
+#endif
+
 	// Local Resource requirements met?
 	if(!IsBuildingLocalResourceValid(eBuilding, bTestVisible, toolTipSink))
 	{
@@ -2975,6 +3055,23 @@ bool CvCity::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestVis
 			}
 		}
 	}
+
+#if defined(MOD_BALANCE_CORE_POP_REQ_BUILDINGS)
+	//Requires a certain population size, either nationally or locally.
+	if(MOD_BALANCE_CORE_POP_REQ_BUILDINGS)
+	{
+		if(pkBuildingInfo->GetLocalPopulationRequired() > 0)
+		{
+			int iPopRequired = pkBuildingInfo->GetLocalPopulationRequired();
+			if(getPopulation() < iPopRequired)
+			{
+				GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_BUILDING_NEED_LOCAL_POP", pkBuildingInfo->GetTextKey(), "", iPopRequired - getPopulation());
+				if(toolTipSink == NULL)
+				return false;
+			}
+		}
+	}
+#endif
 
 
 	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
@@ -3248,28 +3345,37 @@ void CvCity::ChangeTerrainExtraYield(TerrainTypes eTerrain, YieldTypes eYield, i
 		updateYield();
 	}
 }
-#if defined(MOD_BALANCE_CORE_YIELDS)
+
+#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
 //	--------------------------------------------------------------------------------
-int CvCity::getPlotYieldChange(PlotTypes ePlot, YieldTypes eYield) const
+/// Extra yield for a Plot this city is working?
+int CvCity::GetPlotExtraYield(PlotTypes ePlot, YieldTypes eYield) const
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(ePlot > -1 && ePlot < GC.getNumPlotInfos(), "Invalid Terrain index.");
-	CvAssertMsg(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
+	if (MOD_API_PLOT_YIELDS) {
+		CvAssertMsg(ePlot > -1 && ePlot < GC.getNumPlotInfos(), "Invalid Plot index.");
+		CvAssertMsg(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
 
-	return m_ppaaiPlotYieldChange[ePlot][eYield];
+		return m_ppaiPlotYieldChange[ePlot][eYield];
+	} else {
+		return 0;
+	}
 }
+
 //	--------------------------------------------------------------------------------
-void CvCity::changePlotYieldChange(PlotTypes ePlot, YieldTypes eYield, int iChange)
+void CvCity::ChangePlotExtraYield(PlotTypes ePlot, YieldTypes eYield, int iChange)
 {
 	VALIDATE_OBJECT
-	CvAssertMsg(ePlot > -1 && ePlot < GC.getNumPlotInfos(), "Invalid Terrain index.");
-	CvAssertMsg(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
+	if (MOD_API_PLOT_YIELDS) {
+		CvAssertMsg(ePlot > -1 && ePlot < GC.getNumPlotInfos(), "Invalid Plot index.");
+		CvAssertMsg(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
 
-	if(iChange != 0)
-	{
-		m_ppaaiPlotYieldChange[ePlot][eYield] += iChange;
+		if(iChange != 0)
+		{
+			m_ppaiPlotYieldChange[ePlot][eYield] += iChange;
 
-		updateYield();
+			updateYield();
+		}
 	}
 }
 #endif
@@ -3393,13 +3499,21 @@ void CvCity::ChangeNumResourceLocal(ResourceTypes eResource, int iChange)
 					int iCulture = pkBuildingInfo->GetResourceCultureChange(eResource);
 
 					if(iCulture != 0)
+#if defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
+						ChangeBaseYieldRateFromBuildings(YIELD_CULTURE, iCulture * iChange);
+#else
 						ChangeJONSCulturePerTurnFromBuildings(iCulture * iChange);
+#endif
 
 					// Does eBuilding give faith with eResource?
 					int iFaith = pkBuildingInfo->GetResourceFaithChange(eResource);
 
 					if(iFaith != 0)
+#if defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
+						ChangeBaseYieldRateFromBuildings(YIELD_FAITH, iFaith * iChange);
+#else
 						ChangeFaithPerTurnFromBuildings(iFaith * iChange);
+#endif
 				}
 			}
 		}
@@ -6522,7 +6636,15 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 				}
 				if(pBuildingInfo->GetInstantYield(YIELD_SCIENCE) > 0)
 				{
-					GET_PLAYER(getOwner()).changeOverflowResearch(pBuildingInfo->GetInstantYield(YIELD_SCIENCE));
+					TechTypes eCurrentTech = owningPlayer.GetPlayerTechs()->GetCurrentResearch();
+					if(eCurrentTech == NO_TECH)
+					{
+						owningPlayer.changeOverflowResearch(pBuildingInfo->GetInstantYield(YIELD_SCIENCE));
+					}
+					else
+					{
+						owningTeam.GetTeamTechs()->ChangeResearchProgress(eCurrentTech, pBuildingInfo->GetInstantYield(YIELD_SCIENCE), owningPlayer.GetID());
+					}
 				}
 				if(pBuildingInfo->GetInstantYield(YIELD_GOLDEN_AGE_POINTS) > 0)
 				{
@@ -6582,9 +6704,17 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 		int iBuildingCulture = pBuildingInfo->GetYieldChange(YIELD_CULTURE);
 		if(iBuildingCulture > 0)
 		{
+#if defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
+			iBuildingCulture = owningPlayer.GetPlayerTraits()->GetCultureBuildingYieldChange();
+#else
 			iBuildingCulture += owningPlayer.GetPlayerTraits()->GetCultureBuildingYieldChange();
+#endif
 		}
+#if defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
+		ChangeBaseYieldRateFromBuildings(YIELD_CULTURE, iBuildingCulture * iChange);
+#else
 		ChangeJONSCulturePerTurnFromBuildings(iBuildingCulture * iChange);
+#endif
 		changeCultureRateModifier(pBuildingInfo->GetCultureRateModifier() * iChange);
 		changePlotCultureCostModifier(pBuildingInfo->GetPlotCultureCostModifier() * iChange);
 		changePlotBuyCostModifier(pBuildingInfo->GetPlotBuyCostModifier() * iChange);
@@ -6592,8 +6722,10 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 		changeCityWorkingChange(pBuildingInfo->GetCityWorkingChange() * iChange);
 #endif
 
+#if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
 		int iBuildingFaith = pBuildingInfo->GetYieldChange(YIELD_FAITH);
 		ChangeFaithPerTurnFromBuildings(iBuildingFaith * iChange);
+#endif
 		m_pCityReligions->ChangeReligiousPressureModifier(pBuildingInfo->GetReligiousPressureModifier() * iChange);
 
 		PolicyTypes ePolicy;
@@ -6650,6 +6782,12 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			ChangeMinorityUnhappinessGlobal(pBuildingInfo->GetMinorityHappinessChangeBuildingGlobal() * iChange);
 		}
 #endif
+#if defined(MOD_BALANCE_CORE)
+		if(MOD_BALANCE_CORE && pBuildingInfo->IsReformation())
+		{
+			GET_PLAYER(getOwner()).SetReformation(true);
+		}
+#endif
 
 		changeMaxFoodKeptPercent(pBuildingInfo->GetFoodKept() * iChange);
 		changeMilitaryProductionModifier(pBuildingInfo->GetMilitaryProductionModifier() * iChange);
@@ -6701,7 +6839,11 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 
 				if(iCulture != 0)
 				{
+#if defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
+					ChangeBaseYieldRateFromBuildings(YIELD_CULTURE, iCulture * m_paiNumResourcesLocal[eResource]);
+#else
 					ChangeJONSCulturePerTurnFromBuildings(iCulture * m_paiNumResourcesLocal[eResource]);
+#endif
 				}
 
 				// What about faith?
@@ -6709,7 +6851,11 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 
 				if(iFaith != 0)
 				{
+#if defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
+					ChangeBaseYieldRateFromBuildings(YIELD_FAITH, iFaith * m_paiNumResourcesLocal[eResource]);
+#else
 					ChangeFaithPerTurnFromBuildings(iFaith * m_paiNumResourcesLocal[eResource]);
+#endif
 				}
 			}
 		}
@@ -6777,6 +6923,10 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			}
 		}
 
+#if defined(MOD_API_UNIFIED_YIELDS)
+		CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
+#endif
+
 		YieldTypes eYield;
 
 		for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
@@ -6801,7 +6951,33 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 
 			CvPlayerPolicies* pPolicies = GET_PLAYER(getOwner()).GetPlayerPolicies();
 			changeYieldRateModifier(eYield, pPolicies->GetBuildingClassYieldModifier(eBuildingClass, eYield) * iChange);
+#if defined(MOD_BALANCE_CORE_POLICIES)
+			changeReligionBuildingYieldRateModifier(eYield, pPolicies->GetReligionBuildingClassYieldModifier(eBuildingClass, eYield) * iChange);
+#endif
 			ChangeBaseYieldRateFromBuildings(eYield, pPolicies->GetBuildingClassYieldChange(eBuildingClass, eYield) * iChange);
+
+#if defined(MOD_API_UNIFIED_YIELDS)
+			if (pkBuildingClassInfo && isWorldWonderClass(*pkBuildingClassInfo))
+			{
+#if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
+				if(eYield == YIELD_CULTURE)
+				{
+					ChangeJONSCulturePerTurnFromBuildings(GetPlayer()->GetYieldChangeWorldWonder(eYield) * iChange);
+					ChangeJONSCulturePerTurnFromBuildings(GetPlayer()->GetPlayerTraits()->GetYieldChangeWorldWonder(eYield) * iChange);
+				}
+				else if(eYield == YIELD_FAITH)
+				{
+					ChangeFaithPerTurnFromBuildings(GetPlayer()->GetYieldChangeWorldWonder(eYield) * iChange);
+					ChangeFaithPerTurnFromBuildings(GetPlayer()->GetPlayerTraits()->GetYieldChangeWorldWonder(eYield) * iChange);
+				}
+				else
+#endif
+				{
+					ChangeBaseYieldRateFromBuildings(eYield, GetPlayer()->GetYieldChangeWorldWonder(eYield) * iChange);
+					ChangeBaseYieldRateFromBuildings(eYield, GetPlayer()->GetPlayerTraits()->GetYieldChangeWorldWonder(eYield) * iChange);
+				}
+			}
+#endif
 
 			for(int iJ = 0; iJ < GC.getNumResourceInfos(); iJ++)
 			{
@@ -6817,13 +6993,13 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			{
 				ChangeTerrainExtraYield(((TerrainTypes)iJ), eYield, (GC.getBuildingInfo(eBuilding)->GetTerrainYieldChange(iJ, eYield) * iChange));
 			}
-#if defined(MOD_BALANCE_CORE_YIELDS)
+
+#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
 			for(int iJ = 0; iJ < GC.getNumPlotInfos(); iJ++)
 			{
-				changePlotYieldChange(((PlotTypes)iJ), eYield, (GC.getBuildingInfo(eBuilding)->GetPlotYieldChange(iJ, eYield) * iChange));
+				ChangePlotExtraYield(((PlotTypes)iJ), eYield, (GC.getBuildingInfo(eBuilding)->GetPlotYieldChange(iJ, eYield) * iChange));
 			}
 #endif
-
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 			// Research agreements are not active, therefore this building now increases science yield by 25%
@@ -6845,6 +7021,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			{
 				if(owningTeam.GetTeamTechs()->HasTech((TechTypes)pBuildingInfo->GetEnhancedYieldTech()))
 				{
+#if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
 					if(eYield == YIELD_CULTURE)
 					{
 						ChangeJONSCulturePerTurnFromBuildings(pBuildingInfo->GetTechEnhancedYieldChange(eYield) * iChange);
@@ -6854,6 +7031,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 						ChangeFaithPerTurnFromBuildings(pBuildingInfo->GetTechEnhancedYieldChange(eYield) * iChange);
 					}
 					else
+#endif
 					{
 						ChangeBaseYieldRateFromBuildings(eYield, pBuildingInfo->GetTechEnhancedYieldChange(eYield) * iChange);
 					}
@@ -6863,6 +7041,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			int iBuildingClassBonus = owningPlayer.GetBuildingClassYieldChange(eBuildingClass, eYield);
 			if(iBuildingClassBonus > 0)
 			{
+#if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
 				if(eYield == YIELD_CULTURE)
 				{
 					ChangeJONSCulturePerTurnFromBuildings(iBuildingClassBonus * iChange);
@@ -6872,6 +7051,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 					ChangeFaithPerTurnFromBuildings(iBuildingClassBonus * iChange);
 				}
 				else
+#endif
 				{
 					ChangeBaseYieldRateFromBuildings(eYield, iBuildingClassBonus * iChange);
 				}
@@ -6925,6 +7105,25 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 	}
 
 	UpdateReligion(GetCityReligions()->GetReligiousMajority());
+
+#if defined(MOD_BALANCE_CORE_POLICIES)
+	if(owningPlayer.getYieldFromConstruction(YIELD_CULTURE) > 0)
+	{
+		int iEra = GC.getGame().getCurrentEra();
+		if(iEra < 1)
+		{
+			iEra = 1;
+		}
+		owningPlayer.changeJONSCulture(owningPlayer.getYieldFromConstruction(YIELD_CULTURE) * iEra);
+		if(getOwner() == GC.getGame().getActivePlayer())
+		{
+			char text[256] = {0};
+			float fDelay = 0.0f;
+			sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", owningPlayer.getYieldFromConstruction(YIELD_CULTURE) * iEra);
+			DLLUI->AddPopupText(getX(),getY(), text, fDelay);
+		}
+	}
+#endif
 
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	if(MOD_BALANCE_CORE_HAPPINESS)
@@ -7001,9 +7200,15 @@ void CvCity::UpdateReligion(ReligionTypes eNewMajority)
 	updateYield();
 
 	// Reset city level yields
+#if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
 	m_iJONSCulturePerTurnFromReligion = 0;
 	m_iFaithPerTurnFromReligion = 0;
+#endif
+#if defined(MOD_BUGFIX_MINOR)
+	for(int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
+#else
 	for(int iYield = 0; iYield <= YIELD_SCIENCE; iYield++)
+#endif
 	{
 		m_aiBaseYieldRateFromReligion[iYield] = 0;
 	}
@@ -7013,6 +7218,7 @@ void CvCity::UpdateReligion(ReligionTypes eNewMajority)
 		int iYieldPerReligion = GetYieldPerReligionTimes100((YieldTypes)iYield);
 		if (iYieldPerReligion > 0)
 		{
+#if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
 			switch(iYield)
 			{
 				case YIELD_CULTURE:
@@ -7022,9 +7228,12 @@ void CvCity::UpdateReligion(ReligionTypes eNewMajority)
 					ChangeFaithPerTurnFromReligion((GetCityReligions()->GetNumReligionsWithFollowers() * iYieldPerReligion) / 100);
 					break;
 				default:
+#endif
 					ChangeBaseYieldRateFromReligion((YieldTypes)iYield, (GetCityReligions()->GetNumReligionsWithFollowers() * iYieldPerReligion) / 100);
+#if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
 					break;
 			}
+#endif
 		}
 
 		if(eNewMajority != NO_RELIGION)
@@ -7035,12 +7244,56 @@ void CvCity::UpdateReligion(ReligionTypes eNewMajority)
 				int iFollowers = GetCityReligions()->GetNumFollowers(eNewMajority);
 
 				int iReligionYieldChange = pReligion->m_Beliefs.GetCityYieldChange(getPopulation(), (YieldTypes)iYield);
+#if defined(MOD_BALANCE_CORE_BELIEFS)
+				if((getPopulation() > 0) && (pReligion->m_Beliefs.GetYieldPerPop((YieldTypes)iYield) > 0))
+				{
+					int iFaithPerPop = (getPopulation() / pReligion->m_Beliefs.GetYieldPerPop((YieldTypes)iYield));
+					if(iFaithPerPop != 0)
+					{
+						iReligionYieldChange += iFaithPerPop;
+					}
+				}
+				int iReligionYieldMaxFollowers = pReligion->m_Beliefs.GetMaxYieldPerFollower((YieldTypes)iYield);
+				if (iReligionYieldMaxFollowers > 0)
+				{
+					int iFollowers = GetCityReligions()->GetNumFollowers(pReligion->m_eReligion);
+					int iTempMod = min(iFollowers, iReligionYieldMaxFollowers);
+					iReligionYieldChange += iTempMod;
+				}
+#endif
+#if defined(MOD_API_UNIFIED_YIELDS)
+				if (isCapital()) {
+					iReligionYieldChange += pReligion->m_Beliefs.GetCapitalYieldChange(getPopulation(), (YieldTypes)iYield);
+				}
+				if (isCoastal()) {
+					iReligionYieldChange += pReligion->m_Beliefs.GetCoastalCityYieldChange(getPopulation(), (YieldTypes)iYield);
+				}
+#endif
 				BeliefTypes eSecondaryPantheon = GetCityReligions()->GetSecondaryReligionPantheonBelief();
 				if (eSecondaryPantheon != NO_BELIEF && getPopulation() >= GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetMinPopulation())
 				{
 					iReligionYieldChange += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetCityYieldChange((YieldTypes)iYield);
+#if defined(MOD_BALANCE_CORE_BELIEFS)
+					if((getPopulation() > 0) && (pReligion->m_Beliefs.GetYieldPerPop((YieldTypes)iYield) > 0))
+					{
+						int iFaithPerPop = (getPopulation() / pReligion->m_Beliefs.GetYieldPerPop((YieldTypes)iYield));
+						if(iFaithPerPop != 0)
+						{
+							iReligionYieldChange += iFaithPerPop;
+						}
+					}	
+#endif
+#if defined(MOD_API_UNIFIED_YIELDS)
+					if (isCapital()) {
+						iReligionYieldChange += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetCapitalYieldChange((YieldTypes)iYield);
+					}
+					if (isCoastal()) {
+						iReligionYieldChange += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetCoastalCityYieldChange((YieldTypes)iYield);
+					}
+#endif
 				}
 
+#if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
 				switch(iYield)
 				{
 				case YIELD_CULTURE:
@@ -7050,9 +7303,12 @@ void CvCity::UpdateReligion(ReligionTypes eNewMajority)
 					ChangeFaithPerTurnFromReligion(iReligionYieldChange);
 					break;
 				default:
+#endif
 					ChangeBaseYieldRateFromReligion((YieldTypes)iYield, iReligionYieldChange);
+#if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
 					break;
 				}
+#endif
 
 				if(IsRouteToCapitalConnected())
 				{
@@ -7063,6 +7319,7 @@ void CvCity::UpdateReligion(ReligionTypes eNewMajority)
 						iReligionChange += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetYieldChangeTradeRoute((YieldTypes)iYield);
 					}
 
+#if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
 					switch(iYield)
 					{
 					case YIELD_CULTURE:
@@ -7072,13 +7329,17 @@ void CvCity::UpdateReligion(ReligionTypes eNewMajority)
 						ChangeFaithPerTurnFromReligion(iReligionChange);
 						break;
 					default:
+#endif
 						ChangeBaseYieldRateFromReligion((YieldTypes)iYield, iReligionChange);
+#if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
 						break;
 					}
+#endif
 				}
 				
 				if (GetCityCitizens()->GetTotalSpecialistCount() > 0)
 				{
+#if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
 					switch(iYield)
 					{
 					case YIELD_CULTURE:
@@ -7088,9 +7349,12 @@ void CvCity::UpdateReligion(ReligionTypes eNewMajority)
 						ChangeFaithPerTurnFromReligion(pReligion->m_Beliefs.GetYieldChangeAnySpecialist((YieldTypes)iYield));
 						break;
 					default:
+#endif
 						ChangeBaseYieldRateFromReligion((YieldTypes)iYield, pReligion->m_Beliefs.GetYieldChangeAnySpecialist((YieldTypes)iYield));
+#if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
 						break;
 					}
+#endif
 				}
 
 				// Buildings
@@ -7118,6 +7382,7 @@ void CvCity::UpdateReligion(ReligionTypes eNewMajority)
 								iYieldFromBuilding += pReligion->m_Beliefs.GetYieldChangeWorldWonder((YieldTypes)iYield);
 							}
 
+#if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
 							switch(iYield)
 							{
 							case YIELD_CULTURE:
@@ -7127,9 +7392,12 @@ void CvCity::UpdateReligion(ReligionTypes eNewMajority)
 								ChangeFaithPerTurnFromReligion(iYieldFromBuilding);
 								break;
 							default:
+#endif
 								ChangeBaseYieldRateFromReligion((YieldTypes)iYield, iYieldFromBuilding);
+#if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
 								break;
 							}
+#endif
 						}
 					}
 				}
@@ -8115,13 +8383,28 @@ void CvCity::setPopulation(int iNewValue, bool bReassignPop /* = true */)
 				if(GetGrowthExtraYield(YIELD_SCIENCE) > 0)
 				{
 					int iScienceBoost = ((getYieldRate(YIELD_SCIENCE, false) * GetGrowthExtraYield(YIELD_FAITH)) / 100);
+					TechTypes eCurrentTech = GET_PLAYER(getOwner()).GetPlayerTechs()->GetCurrentResearch();
 					if (iScienceBoost > 0)
-					{
-						GET_PLAYER(getOwner()).changeOverflowResearch(iScienceBoost);
+					{		
+						if(eCurrentTech == NO_TECH)
+						{
+							GET_PLAYER(getOwner()).changeOverflowResearch(iScienceBoost);
+						}
+						else
+						{
+							GET_TEAM(GET_PLAYER(getOwner()).getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iScienceBoost, getOwner());
+						}
 					}
 					if (iScienceBoost <= 0)
 					{
-						GET_PLAYER(getOwner()).changeOverflowResearch(1);
+						if(eCurrentTech == NO_TECH)
+						{
+							GET_PLAYER(getOwner()).changeOverflowResearch(1);
+						}
+						else
+						{
+							GET_TEAM(GET_PLAYER(getOwner()).getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, 1, getOwner());
+						}
 					}
 				}
 			}
@@ -8424,8 +8707,276 @@ void CvCity::DoJONSCultureLevelIncrease()
 				SetJONSCultureStored(iOverflow);
 				ChangeJONSCultureLevel(1);
 			}
+#if defined(MOD_BALANCE_CORE_BELIEFS)
+			CvGameReligions* pReligions = GC.getGame().GetGameReligions();
+
+			ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
+			if(eMajority != NO_RELIGION)
+			{
+				BeliefTypes eSecondaryPantheon = GetCityReligions()->GetSecondaryReligionPantheonBelief();
+
+				const CvReligion* pReligion = pReligions->GetReligion(eMajority, getOwner());
+				if(pReligion)
+				{
+					int iEra = GC.getGame().getCurrentEra();
+					if(iEra < 1)
+					{
+						iEra = 1;
+					}
+					if(pReligion->m_Beliefs.GetYieldPerBorderGrowth(YIELD_FAITH) > 0)
+					{
+						GET_PLAYER(getOwner()).ChangeFaith(pReligion->m_Beliefs.GetYieldPerBorderGrowth(YIELD_FAITH) * iEra);
+						if(getOwner() == GC.getGame().getActivePlayer())
+						{
+							char text[256] = {0};
+							float fDelay = 0.0f;
+							sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", pReligion->m_Beliefs.GetYieldPerBorderGrowth(YIELD_FAITH));
+							DLLUI->AddPopupText(pPlotToAcquire->getX(),pPlotToAcquire->getY(), text, fDelay);
+						}
+					}
+					if (eSecondaryPantheon != NO_BELIEF && GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetYieldPerBorderGrowth(YIELD_FAITH))
+					{
+						GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetYieldPerBorderGrowth(YIELD_FAITH);
+						if(getOwner() == GC.getGame().getActivePlayer())
+						{
+							char text[256] = {0};
+							float fDelay = 0.5f;
+							sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetYieldPerBorderGrowth(YIELD_FAITH) * iEra);
+							DLLUI->AddPopupText(pPlotToAcquire->getX(),pPlotToAcquire->getY(), text, fDelay);
+						}
+					}
+				}
+			}
+#endif
+#if defined(MOD_BALANCE_CORE_POLICIES)
+			int iEra = GC.getGame().getCurrentEra();
+			float fDelay = 0.0f;
+			if(iEra < 1)
+			{
+				iEra = 1;
+			}
+			if(GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_FOOD) > 0)
+			{
+				changeFood(GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_FOOD) * iEra);
+				if(getOwner() == GC.getGame().getActivePlayer())
+				{
+					char text[256] = {0};
+					fDelay += 0.5f;
+					sprintf_s(text, "[COLOR_GREEN]+%d[ENDCOLOR][ICON_FOOD]", GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_FOOD) * iEra);
+					DLLUI->AddPopupText(pPlotToAcquire->getX(),pPlotToAcquire->getY(), text, fDelay);
+				}
+			}
+			if(GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_PRODUCTION) > 0)
+			{
+				changeProduction(GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_PRODUCTION) * iEra);
+				if(getOwner() == GC.getGame().getActivePlayer())
+				{
+					char text[256] = {0};
+					fDelay += 0.5f;
+					sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_PRODUCTION]", GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_PRODUCTION) * iEra);
+					DLLUI->AddPopupText(pPlotToAcquire->getX(),pPlotToAcquire->getY(), text, fDelay);
+				}
+			}
+			if(GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_GOLD) > 0)
+			{
+				GET_PLAYER(getOwner()).GetTreasury()->ChangeGold(GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_GOLD) * iEra);
+				if(getOwner() == GC.getGame().getActivePlayer())
+				{
+					char text[256] = {0};
+					fDelay += 0.5f;
+					sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]", GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_GOLD) * iEra);
+					DLLUI->AddPopupText(pPlotToAcquire->getX(),pPlotToAcquire->getY(), text, fDelay);
+				}
+			}
+			if(GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_FAITH) > 0)
+			{
+				GET_PLAYER(getOwner()).ChangeFaith(GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_FAITH) * iEra);
+				if(getOwner() == GC.getGame().getActivePlayer())
+				{
+					char text[256] = {0};
+					fDelay += 0.5f;
+					sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_FAITH) * iEra);
+					DLLUI->AddPopupText(pPlotToAcquire->getX(),pPlotToAcquire->getY(), text, fDelay);
+				}
+			}
+			if(GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_CULTURE) > 0)
+			{
+				GET_PLAYER(getOwner()).changeJONSCulture(GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_CULTURE) * iEra);
+				if(getOwner() == GC.getGame().getActivePlayer())
+				{
+					char text[256] = {0};
+					fDelay += 0.5f;
+					sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_CULTURE) * iEra);
+					DLLUI->AddPopupText(pPlotToAcquire->getX(),pPlotToAcquire->getY(), text, fDelay);
+				}
+			}
+			if(GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_GOLDEN_AGE_POINTS) > 0)
+			{
+				GET_PLAYER(getOwner()).ChangeGoldenAgeProgressMeter(GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_GOLDEN_AGE_POINTS) * iEra);
+				if(getOwner() == GC.getGame().getActivePlayer())
+				{
+					char text[256] = {0};
+					fDelay += 0.5f;
+					sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GOLDEN_AGE]", GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_GOLDEN_AGE_POINTS) * iEra);
+					DLLUI->AddPopupText(pPlotToAcquire->getX(),pPlotToAcquire->getY(), text, fDelay);
+				}
+			}
+			if(GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_SCIENCE) > 0)
+			{
+				TechTypes eCurrentTech = GET_PLAYER(getOwner()).GetPlayerTechs()->GetCurrentResearch();
+				if(eCurrentTech == NO_TECH)
+				{
+					GET_PLAYER(getOwner()).changeOverflowResearch(GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_SCIENCE) * iEra);
+				}
+				else
+				{
+					GET_TEAM(GET_PLAYER(getOwner()).getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_SCIENCE) * iEra, getOwner());
+				}
+				if(getOwner() == GC.getGame().getActivePlayer())
+				{
+					char text[256] = {0};
+					fDelay += 0.5f;
+					sprintf_s(text, "[COLOR_BLUE]+%d[ENDCOLOR][ICON_RESEARCH]", GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_SCIENCE) * iEra);
+					DLLUI->AddPopupText(pPlotToAcquire->getX(),pPlotToAcquire->getY(), text, fDelay);
+				}
+			}
+#endif
 		} else {
 			// AI or dis-interested human, just acquire the plot normally
+#endif
+#if defined(MOD_BALANCE_CORE_BELIEFS)
+			CvGameReligions* pReligions = GC.getGame().GetGameReligions();
+			ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
+			if(eMajority != NO_RELIGION)
+			{
+				int iEra = GC.getGame().getCurrentEra();
+				if(iEra < 1)
+				{
+					iEra = 1;
+				}
+				BeliefTypes eSecondaryPantheon = GetCityReligions()->GetSecondaryReligionPantheonBelief();
+
+				const CvReligion* pReligion = pReligions->GetReligion(eMajority, getOwner());
+				if(pReligion)
+				{
+					float fDelay = 0.0f;
+					if(pReligion->m_Beliefs.GetYieldPerBorderGrowth(YIELD_FAITH) > 0)
+					{
+						GET_PLAYER(getOwner()).ChangeFaith(pReligion->m_Beliefs.GetYieldPerBorderGrowth(YIELD_FAITH) * iEra);
+						if(getOwner() == GC.getGame().getActivePlayer())
+						{
+							char text[256] = {0};
+							fDelay += 0.5f;
+							sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", pReligion->m_Beliefs.GetYieldPerBorderGrowth(YIELD_FAITH) * iEra);
+							DLLUI->AddPopupText(pPlotToAcquire->getX(),pPlotToAcquire->getY(), text, fDelay);
+						}
+					}
+					if (eSecondaryPantheon != NO_BELIEF && GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetYieldPerBorderGrowth(YIELD_FAITH))
+					{
+						GET_PLAYER(getOwner()).ChangeFaith(pReligion->m_Beliefs.GetYieldPerBorderGrowth(YIELD_FAITH) * iEra);
+						if(getOwner() == GC.getGame().getActivePlayer())
+						{
+							char text[256] = {0};
+							fDelay += 0.5f;
+							sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", pReligion->m_Beliefs.GetYieldPerBorderGrowth(YIELD_FAITH) * iEra);
+							DLLUI->AddPopupText(pPlotToAcquire->getX(),pPlotToAcquire->getY(), text, fDelay);
+						}
+					}
+				}
+			}
+#endif
+#if defined(MOD_BALANCE_CORE_POLICIES)
+			int iEra = GC.getGame().getCurrentEra();
+			if(iEra < 1)
+			{
+				iEra = 1;
+			}
+			float fDelay = 0.0f;
+			if(GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_FOOD) > 0)
+			{
+				changeFood(GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_FOOD) * iEra);
+				if(getOwner() == GC.getGame().getActivePlayer())
+				{
+					char text[256] = {0};
+					fDelay += 0.5f;
+					sprintf_s(text, "[COLOR_GREEN]+%d[ENDCOLOR][ICON_FOOD]", GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_FOOD) * iEra);
+					DLLUI->AddPopupText(pPlotToAcquire->getX(),pPlotToAcquire->getY(), text, fDelay);
+				}
+			}
+			if(GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_PRODUCTION) > 0)
+			{
+				changeProduction(GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_PRODUCTION) * iEra);
+				if(getOwner() == GC.getGame().getActivePlayer())
+				{
+					char text[256] = {0};
+					fDelay += 0.5f;
+					sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_PRODUCTION]", GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_PRODUCTION) * iEra);
+					DLLUI->AddPopupText(pPlotToAcquire->getX(),pPlotToAcquire->getY(), text, fDelay);
+				}
+			}
+			if(GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_GOLD) > 0)
+			{
+				GET_PLAYER(getOwner()).GetTreasury()->ChangeGold(GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_GOLD) * iEra);
+				if(getOwner() == GC.getGame().getActivePlayer())
+				{
+					char text[256] = {0};
+					fDelay += 0.5f;
+					sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]", GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_GOLD) * iEra);
+					DLLUI->AddPopupText(pPlotToAcquire->getX(),pPlotToAcquire->getY(), text, fDelay);
+				}
+			}
+			if(GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_FAITH) > 0)
+			{
+				GET_PLAYER(getOwner()).ChangeFaith(GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_FAITH) * iEra);
+				if(getOwner() == GC.getGame().getActivePlayer())
+				{
+					char text[256] = {0};
+					fDelay += 0.5f;
+					sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_FAITH) * iEra);
+					DLLUI->AddPopupText(pPlotToAcquire->getX(),pPlotToAcquire->getY(), text, fDelay);
+				}
+			}
+			if(GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_CULTURE) > 0)
+			{
+				GET_PLAYER(getOwner()).changeJONSCulture(GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_CULTURE) * iEra);
+				if(getOwner() == GC.getGame().getActivePlayer())
+				{
+					char text[256] = {0};
+					fDelay += 0.5f;
+					sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_CULTURE) * iEra);
+					DLLUI->AddPopupText(pPlotToAcquire->getX(),pPlotToAcquire->getY(), text, fDelay);
+				}
+			}
+			if(GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_GOLDEN_AGE_POINTS) > 0)
+			{
+				GET_PLAYER(getOwner()).ChangeGoldenAgeProgressMeter(GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_GOLDEN_AGE_POINTS) * iEra);
+				if(getOwner() == GC.getGame().getActivePlayer())
+				{
+					char text[256] = {0};
+					fDelay += 0.5f;
+					sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GOLDEN_AGE]", GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_GOLDEN_AGE_POINTS) * iEra);
+					DLLUI->AddPopupText(pPlotToAcquire->getX(),pPlotToAcquire->getY(), text, fDelay);
+				}
+			}
+			if(GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_SCIENCE) > 0)
+			{
+				TechTypes eCurrentTech = GET_PLAYER(getOwner()).GetPlayerTechs()->GetCurrentResearch();
+				if(eCurrentTech == NO_TECH)
+				{
+					GET_PLAYER(getOwner()).changeOverflowResearch(GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_SCIENCE) * iEra);
+				}
+				else
+				{
+					GET_TEAM(GET_PLAYER(getOwner()).getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_SCIENCE) * iEra, getOwner());
+				}
+				if(getOwner() == GC.getGame().getActivePlayer())
+				{
+					char text[256] = {0};
+					fDelay += 0.5f;
+					sprintf_s(text, "[COLOR_BLUE]+%d[ENDCOLOR][ICON_RESEARCH]", GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_SCIENCE) * iEra);
+					DLLUI->AddPopupText(pPlotToAcquire->getX(),pPlotToAcquire->getY(), text, fDelay);
+				}
+			}
 #endif
 		if(GC.getLogging() && GC.getAILogging())
 		{
@@ -8556,7 +9107,14 @@ int CvCity::getJONSCulturePerTurn() const
 	int iModifier = 100;
 
 	// City modifier
+#if defined(MOD_API_UNIFIED_YIELDS)
+	// getCultureRateModifier() is just the culture specific building modifiers
+	// we want getBaseYieldRateModifier(YIELD_CULTURE) as well
+	iModifier = getBaseYieldRateModifier(YIELD_CULTURE, getCultureRateModifier());
+#else
 	iModifier += getCultureRateModifier();
+#endif
+
 	// Player modifier
 	iModifier += GET_PLAYER(getOwner()).GetJONSCultureCityModifier();
 
@@ -8592,7 +9150,21 @@ int CvCity::GetBaseJONSCulturePerTurn() const
 	iCulturePerTurn += GetJONSCulturePerTurnFromBuildings();
 	iCulturePerTurn += GetJONSCulturePerTurnFromPolicies();
 	iCulturePerTurn += GetJONSCulturePerTurnFromSpecialists();
-#if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
+#if defined(MOD_API_UNIFIED_YIELDS)
+	// GetJONSCulturePerTurnFromSpecialists() uses the Specialists.CulturePerTurn column,
+	// GetBaseYieldRateFromSpecialists(YIELD_CULTURE) gets everything else!
+	iCulturePerTurn += GetBaseYieldRateFromSpecialists(YIELD_CULTURE);
+	iCulturePerTurn += (GetYieldPerPopTimes100(YIELD_CULTURE) * getPopulation()) / 100;
+#endif
+#if defined(MOD_API_UNIFIED_YIELDS)
+	if (IsRouteToCapitalConnected())
+	{
+		iCulturePerTurn += GET_PLAYER(getOwner()).GetYieldChangeTradeRoute(YIELD_CULTURE);
+		iCulturePerTurn += GET_PLAYER(getOwner()).GetPlayerTraits()->GetYieldChangeTradeRoute(YIELD_CULTURE);
+	}
+#endif
+
+#if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES) || defined(MOD_API_UNIFIED_YIELDS)
 	iCulturePerTurn += GetBaseYieldRateFromGreatWorks(YIELD_CULTURE);
 #else
 	iCulturePerTurn += GetJONSCulturePerTurnFromGreatWorks();
@@ -8602,6 +9174,14 @@ int CvCity::GetBaseJONSCulturePerTurn() const
 	iCulturePerTurn += GetJONSCulturePerTurnFromReligion();
 	iCulturePerTurn += GetJONSCulturePerTurnFromLeagues();
 
+#if defined(MOD_API_UNIFIED_YIELDS)
+	// Process production into culture
+	iCulturePerTurn += (getBasicYieldRateTimes100(YIELD_PRODUCTION, false) / 100) * getProductionToYieldModifier(YIELD_CULTURE) / 100;
+
+	// Culture from having trade routes
+	iCulturePerTurn += GET_PLAYER(m_eOwner).GetTrade()->GetTradeValuesAtCityTimes100(this, YIELD_CULTURE) / 100;
+#endif
+
 	return iCulturePerTurn;
 }
 
@@ -8609,9 +9189,14 @@ int CvCity::GetBaseJONSCulturePerTurn() const
 int CvCity::GetJONSCulturePerTurnFromBuildings() const
 {
 	VALIDATE_OBJECT
+#if defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
+	return GetBaseYieldRateFromBuildings(YIELD_CULTURE); 
+#else
 	return m_iJONSCulturePerTurnFromBuildings;
+#endif
 }
 
+#if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
 //	--------------------------------------------------------------------------------
 void CvCity::ChangeJONSCulturePerTurnFromBuildings(int iChange)
 {
@@ -8621,6 +9206,7 @@ void CvCity::ChangeJONSCulturePerTurnFromBuildings(int iChange)
 		m_iJONSCulturePerTurnFromBuildings = (m_iJONSCulturePerTurnFromBuildings + iChange);
 	}
 }
+#endif
 
 //	--------------------------------------------------------------------------------
 int CvCity::GetJONSCulturePerTurnFromPolicies() const
@@ -8659,7 +9245,7 @@ void CvCity::ChangeJONSCulturePerTurnFromSpecialists(int iChange)
 //	--------------------------------------------------------------------------------
 int CvCity::GetJONSCulturePerTurnFromGreatWorks() const
 {
-#if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
+#if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES) || defined(MOD_API_UNIFIED_YIELDS)
 	return GetCityBuildings()->GetYieldFromGreatWorks(YIELD_CULTURE);
 #else
 	return GetCityBuildings()->GetCultureFromGreatWorks();
@@ -8677,9 +9263,14 @@ int CvCity::GetJONSCulturePerTurnFromTraits() const
 int CvCity::GetJONSCulturePerTurnFromReligion() const
 {
 	VALIDATE_OBJECT
+#if defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
+	return GetBaseYieldRateFromReligion(YIELD_CULTURE);
+#else
 	return m_iJONSCulturePerTurnFromReligion;
+#endif
 }
 
+#if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
 //	--------------------------------------------------------------------------------
 void CvCity::ChangeJONSCulturePerTurnFromReligion(int iChange)
 {
@@ -8689,6 +9280,7 @@ void CvCity::ChangeJONSCulturePerTurnFromReligion(int iChange)
 		m_iJONSCulturePerTurnFromReligion = (m_iJONSCulturePerTurnFromReligion + iChange);
 	}
 }
+#endif
 
 //	--------------------------------------------------------------------------------
 int CvCity::GetJONSCulturePerTurnFromLeagues() const
@@ -8713,7 +9305,19 @@ int CvCity::GetFaithPerTurn() const
 	}
 
 	int iFaith = GetFaithPerTurnFromBuildings();
-#if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
+#if defined(MOD_API_UNIFIED_YIELDS)
+	iFaith += GetBaseYieldRateFromSpecialists(YIELD_FAITH);
+	iFaith += (GetYieldPerPopTimes100(YIELD_FAITH) * getPopulation()) / 100;
+#endif
+#if defined(MOD_API_UNIFIED_YIELDS)
+	if (IsRouteToCapitalConnected())
+	{
+		iFaith += GET_PLAYER(getOwner()).GetYieldChangeTradeRoute(YIELD_FAITH);
+		iFaith += GET_PLAYER(getOwner()).GetPlayerTraits()->GetYieldChangeTradeRoute(YIELD_FAITH);
+	}
+#endif
+
+#if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES) || defined(MOD_API_UNIFIED_YIELDS)
 	iFaith += GetBaseYieldRateFromGreatWorks(YIELD_FAITH);
 #endif
 	iFaith += GetBaseYieldRateFromTerrain(YIELD_FAITH);
@@ -8721,6 +9325,29 @@ int CvCity::GetFaithPerTurn() const
 	iFaith += GetFaithPerTurnFromTraits();
 	iFaith += GetFaithPerTurnFromReligion();
 
+#if defined(MOD_API_UNIFIED_YIELDS)
+	// Process production into faith
+	iFaith += (getBasicYieldRateTimes100(YIELD_PRODUCTION, false) / 100) * getProductionToYieldModifier(YIELD_FAITH) / 100;
+
+	// Faith from having trade routes
+	iFaith += GET_PLAYER(m_eOwner).GetTrade()->GetTradeValuesAtCityTimes100(this, YIELD_FAITH) / 100;
+#endif
+
+#if defined(MOD_API_UNIFIED_YIELDS)
+	int iModifier = 100;
+
+	// City modifier
+	iModifier = getBaseYieldRateModifier(YIELD_FAITH);
+
+	// Puppet?
+	if(IsPuppet())
+	{
+		iModifier += GC.getPUPPET_FAITH_MODIFIER();
+	}
+
+	iFaith *= iModifier;
+	iFaith /= 100;
+#else
 	// Puppet?
 	int iModifier = 0;
 	if(IsPuppet())
@@ -8729,6 +9356,7 @@ int CvCity::GetFaithPerTurn() const
 		iFaith *= (100 + iModifier);
 		iFaith /= 100;
 	}
+#endif
 
 	return iFaith;
 }
@@ -8737,9 +9365,14 @@ int CvCity::GetFaithPerTurn() const
 int CvCity::GetFaithPerTurnFromBuildings() const
 {
 	VALIDATE_OBJECT
+#if defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
+	return GetBaseYieldRateFromBuildings(YIELD_FAITH);
+#else
 	return m_iFaithPerTurnFromBuildings;
+#endif
 }
 
+#if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
 //	--------------------------------------------------------------------------------
 void CvCity::ChangeFaithPerTurnFromBuildings(int iChange)
 {
@@ -8749,6 +9382,7 @@ void CvCity::ChangeFaithPerTurnFromBuildings(int iChange)
 		m_iFaithPerTurnFromBuildings = (m_iFaithPerTurnFromBuildings + iChange);
 	}
 }
+#endif
 
 //	--------------------------------------------------------------------------------
 int CvCity::GetFaithPerTurnFromPolicies() const
@@ -8809,9 +9443,14 @@ int CvCity::GetFaithPerTurnFromTraits() const
 int CvCity::GetFaithPerTurnFromReligion() const
 {
 	VALIDATE_OBJECT
+#if defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
+	return GetBaseYieldRateFromReligion(YIELD_FAITH);
+#else
 	return m_iFaithPerTurnFromReligion;
+#endif
 }
 
+#if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
 //	--------------------------------------------------------------------------------
 void CvCity::ChangeFaithPerTurnFromReligion(int iChange)
 {
@@ -8821,6 +9460,7 @@ void CvCity::ChangeFaithPerTurnFromReligion(int iChange)
 		m_iFaithPerTurnFromReligion = (m_iFaithPerTurnFromReligion + iChange);
 	}
 }
+#endif
 
 //	--------------------------------------------------------------------------------
 int CvCity::getCultureRateModifier() const
@@ -9966,7 +10606,11 @@ int CvCity::getUnhappinessFromCulture() const
 		iUnhappiness /= /* 100 */ GC.getBALANCE_UNHAPPY_CITY_BASE_VALUE();
 	}
 
-	int iPop = getPopulation() / 2;
+	int iPop = getPopulation() / 4;
+	if(iPop <= 0)
+	{
+		iPop = 1;
+	}
 	if(iUnhappiness > iPop)
 	{
 		iUnhappiness = iPop;
@@ -10055,7 +10699,11 @@ int CvCity::getUnhappinessFromScience() const
 		
 		iUnhappiness /= /* 100 */ GC.getBALANCE_UNHAPPY_CITY_BASE_VALUE();
 	}
-	int iPop = getPopulation() / 2;
+	int iPop = getPopulation() / 4;
+	if(iPop <= 0)
+	{
+		iPop = 1;
+	}
 	if(iUnhappiness > iPop)
 	{
 		iUnhappiness = iPop;
@@ -10065,23 +10713,29 @@ int CvCity::getUnhappinessFromScience() const
 //	--------------------------------------------------------------------------------
 int CvCity::getUnhappinessFromDefenseYield() const
 {
-	int iBuildingDefense = getStrengthValue(false);
+	int iDefenseYield = getStrengthValue(false);
 
-	// 10 damage = -100 points
+	// Garrisoned Unit x 25
+	CvUnit* pGarrisonedUnit = GetGarrisonedUnit();
+	if(pGarrisonedUnit)
+	{
+		iDefenseYield += (pGarrisonedUnit->GetBaseCombatStrength() * 25);
+	}
+
 	int iDamage = (getDamage() * 10);
 
 	if(iDamage > 0)
 	{
-		iBuildingDefense -= iDamage;
+		iDefenseYield -= iDamage;
 	}
 
 	//Per Pop Yield
 	if(getPopulation() != 0)
 	{
-		iBuildingDefense = (iBuildingDefense / getPopulation());
+		iDefenseYield = (iDefenseYield / getPopulation());
 	}
 	
-	return iBuildingDefense;
+	return iDefenseYield;
 }
 //	--------------------------------------------------------------------------------
 int CvCity::getUnhappinessFromDefenseNeeded() const
@@ -10151,7 +10805,11 @@ int CvCity::getUnhappinessFromDefense() const
 		iUnhappiness /= /* 100 */ GC.getBALANCE_UNHAPPY_CITY_BASE_VALUE();
 	}
 
-	int iPop = getPopulation() / 2;
+	int iPop = getPopulation() / 4;
+	if(iPop <= 0)
+	{
+		iPop = 1;
+	}
 	if(iUnhappiness > iPop)
 	{
 		iUnhappiness = iPop;
@@ -10240,7 +10898,11 @@ int CvCity::getUnhappinessFromGold() const
 
 		iUnhappiness /= /* 100 */ GC.getBALANCE_UNHAPPY_CITY_BASE_VALUE();
 	}
-	int iPop = getPopulation() / 2;
+	int iPop = getPopulation() / 4;
+	if(iPop <= 0)
+	{
+		iPop = 1;
+	}
 	if(iUnhappiness > iPop)
 	{
 		iUnhappiness = iPop;
@@ -10257,6 +10919,13 @@ int CvCity::getUnhappinessFromConnection() const
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 	//Trait takes away unhappiness from lack of connection.
 	if(GET_PLAYER(getOwner()).GetPlayerTraits()->IsNoConnectionUnhappiness())
+	{
+		return 0;
+	}
+#endif
+#if defined(MOD_BALANCE_CORE_POLICIES)
+	//Policy takes away unhappiness from lack of connection.
+	if(GET_PLAYER(getOwner()).IsNoUnhappyIsolation())
 	{
 		return 0;
 	}
@@ -10281,6 +10950,11 @@ int CvCity::getUnhappinessFromConnection() const
 				fUnhappiness += (float) ((GET_PLAYER(getOwner()).GetPuppetUnhappinessMod() * fUnhappiness) / 100);
 			}
 #endif
+			iRealCityPop /= 4;
+			if(iRealCityPop <= 0)
+			{
+				iRealCityPop = 1;
+			}
 			if(fUnhappiness > iRealCityPop)
 			{
 				return iRealCityPop;
@@ -10349,6 +11023,10 @@ int CvCity::getUnhappinessFromPillaged() const
 		}
 #endif
 		int iRealCityPop = (getPopulation() / 4);
+		if(iRealCityPop <= 0)
+		{
+			iRealCityPop = 1;
+		}
 		if(fUnhappiness > iRealCityPop)
 		{
 			return iRealCityPop;
@@ -10384,7 +11062,11 @@ int CvCity::getUnhappinessFromStarving() const
 			fUnhappiness += (float) ((GET_PLAYER(getOwner()).GetPuppetUnhappinessMod() * fUnhappiness) / 100);
 		}
 #endif
-		
+		iRealCityPop /= 4;
+		if(iRealCityPop <= 0)
+		{
+			iRealCityPop = 1;
+		}
 		if(fUnhappiness > iRealCityPop)
 		{
 			return iRealCityPop;
@@ -10424,8 +11106,8 @@ int CvCity::getUnhappinessFromMinority() const
 		int iFollowers = GetCityReligions()->GetNumFollowers(eMajority);
 		if(iFollowers != 0)
 		{
-			//Producing excess faith versus religious pop? That should matter.
-			iFollowers += ((GetFaithPerTurn() / iFollowers));
+			//Producing lots of faith? That should matter.
+			iFollowers += (GetFaithPerTurn() / 10);
 		}
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 		//Buildings increase this by a flat integer.
@@ -10478,6 +11160,11 @@ int CvCity::getUnhappinessFromMinority() const
 				fUnhappiness += (float) ((GET_PLAYER(getOwner()).GetPuppetUnhappinessMod() * fUnhappiness) / 100);
 			}
 #endif
+			iCityPop /= 4;
+			if(iCityPop <= 0)
+			{
+				iCityPop = 1;
+			}
 			if(fUnhappiness > iCityPop)
 			{
 				return iCityPop;
@@ -11046,6 +11733,27 @@ void CvCity::changeSeaResourceYield(YieldTypes eIndex, int iChange)
 	}
 }
 
+#if defined(MOD_API_UNIFIED_YIELDS)
+//	--------------------------------------------------------------------------------
+/// Yield per turn from Religion
+int CvCity::GetYieldPerTurnFromReligion(ReligionTypes eReligion, YieldTypes eYield) const
+{
+	int iYieldPerTurn = 0;
+	const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, NO_PLAYER);
+
+	// Only do this for food and production, other yields from religion are handled at the player level
+	if (pReligion && (eYield == YIELD_FOOD || eYield == YIELD_PRODUCTION))
+	{
+		if (GetCityReligions()->IsHolyCityForReligion(eReligion))
+		{
+			iYieldPerTurn += pReligion->m_Beliefs.GetHolyCityYieldChange(eYield);
+		}
+	}
+
+	return iYieldPerTurn;
+}
+#endif
+
 //	--------------------------------------------------------------------------------
 int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* toolTipSink) const
 {
@@ -11122,6 +11830,19 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 			if(toolTipSink)
 				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_YIELD_BELIEF", iTempMod);
 		}
+#if defined(MOD_BALANCE_CORE_POLICIES)
+		if(eMajority != NO_RELIGION && eMajority > RELIGION_PANTHEON)
+		{
+			if(GET_PLAYER(getOwner()).GetReligions()->GetReligionInMostCities() == eMajority)
+			{	
+				iTempMod = GET_PLAYER(getOwner()).getReligionYieldRateModifier(eIndex);
+				iTempMod += getReligionBuildingYieldRateModifier(eIndex);
+				iModifier += iTempMod;
+				if(toolTipSink)
+					GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_YIELD_RELIGION_POLICIES", iTempMod);
+			}
+		}
+#endif
 	}
 
 	// Production Yield Rate Modifier from City States
@@ -11144,13 +11865,38 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 			iModifier += iTempMod;
 			if(iTempMod != 0 && toolTipSink)
 				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_PUPPET", iTempMod);
+#if defined(MOD_BUGFIX_MINOR)
+			break;
+#endif
 		case YIELD_GOLD:
 			iTempMod = GC.getPUPPET_GOLD_MODIFIER();
 			iModifier += iTempMod;
 			if(iTempMod != 0 && toolTipSink)
 				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_PUPPET", iTempMod);
+#if defined(MOD_BUGFIX_MINOR)
+			break;
+#endif
+#if defined(MOD_API_UNIFIED_YIELDS_TOURISM)
+		case YIELD_TOURISM:
+			iTempMod = GC.getPUPPET_TOURISM_MODIFIER();
+			iModifier += iTempMod;
+			if(iTempMod != 0 && toolTipSink)
+				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_PUPPET", iTempMod);
+			break;
+#endif
+#if defined(MOD_API_UNIFIED_YIELDS_GOLDEN_AGE)
+		case YIELD_GOLDEN_AGE_POINTS:
+			iTempMod = GC.getPUPPET_GOLDEN_AGE_MODIFIER();
+			iModifier += iTempMod;
+			if(iTempMod != 0 && toolTipSink)
+				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_PUPPET", iTempMod);
+			break;
+#endif
 		}
 	}
+
+	iModifier += iExtra;
+
 #if defined(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
 	if(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
 	{
@@ -11191,7 +11937,7 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 			iHappiness = 0;
 		}
 		//Let's do the yield mods.			
-		if(eIndex == YIELD_PRODUCTION)
+		if(eIndex == YIELD_PRODUCTION  && (iHappiness != 0))
 		{
 			iTempMod = (GC.getBALANCE_HAPPINESS_PRODUCTION_MODIFIER() * iHappiness);
 			iModifier += iTempMod;
@@ -11200,7 +11946,6 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 		}
 	}
 #endif
-	iModifier += iExtra;
 
 	// note: player->invalidateYieldRankCache() must be called for anything that is checked here
 	// so if any extra checked things are added here, the cache needs to be invalidated
@@ -11260,6 +12005,20 @@ int CvCity::getYieldRateTimes100(YieldTypes eIndex, bool bIgnoreTrade) const
 		{
 			return 0;
 		}
+
+#if defined(MOD_API_UNIFIED_YIELDS_TOURISM)
+		if(eIndex == YIELD_TOURISM)
+		{
+			return 0;
+		}
+#endif
+
+#if defined(MOD_API_UNIFIED_YIELDS_GOLDEN_AGE)
+		if(eIndex == YIELD_GOLDEN_AGE_POINTS)
+		{
+			return 0;
+		}
+#endif
 	}
 
 	int iProcessYield = 0;
@@ -11314,7 +12073,7 @@ int CvCity::getBaseYieldRate(YieldTypes eIndex) const
 	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
 	int iValue = 0;
-#if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
+#if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES) || defined(MOD_API_UNIFIED_YIELDS)
 	iValue += GetBaseYieldRateFromGreatWorks(eIndex);
 #endif
 	iValue += GetBaseYieldRateFromTerrain(eIndex);
@@ -11322,13 +12081,50 @@ int CvCity::getBaseYieldRate(YieldTypes eIndex) const
 	iValue += GetBaseYieldRateFromSpecialists(eIndex);
 	iValue += GetBaseYieldRateFromMisc(eIndex);
 	iValue += GetBaseYieldRateFromReligion(eIndex);
+
+#if defined(MOD_API_UNIFIED_YIELDS)
+	if (IsRouteToCapitalConnected())
+	{
+		iValue += GET_PLAYER(getOwner()).GetYieldChangeTradeRoute(eIndex);
+		iValue += GET_PLAYER(getOwner()).GetPlayerTraits()->GetYieldChangeTradeRoute(eIndex);
+	}
+#endif
+
 #if defined(MOD_DIPLOMACY_CITYSTATES)
 	if(MOD_DIPLOMACY_CITYSTATES && GET_PLAYER(getOwner()).IsLeagueArt() && eIndex == YIELD_SCIENCE)
 	{
 		iValue += GetBaseScienceFromArt();
 	}
 #endif
-
+#if defined(MOD_BALANCE_CORE_BELIEFS)
+	ReligionTypes eReligionFounded = GET_PLAYER(getOwner()).GetReligions()->GetReligionCreatedByPlayer();
+	if(eReligionFounded > RELIGION_PANTHEON)
+	{
+		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligionFounded, getOwner());
+		if(pReligion)
+		{
+			if(pReligion->m_Beliefs.GetYieldBonusGoldenAge(eIndex) > 0)
+			{
+				if(GET_PLAYER(getOwner()).getGoldenAgeTurns() > 0)
+				{
+					if(GetCityReligions()->IsHolyCityForReligion(pReligion->m_eReligion))
+					{
+						iValue *= (100+ pReligion->m_Beliefs.GetYieldBonusGoldenAge(eIndex));
+						iValue /= 100;
+					}
+				}
+			}
+			if(pReligion->m_Beliefs.GetYieldFromWLTKD(eIndex) > 0)
+			{
+				if(GetWeLoveTheKingDayCounter() > 0)
+				{
+					iValue *= (100 + pReligion->m_Beliefs.GetYieldFromWLTKD(eIndex));
+					iValue /= 100;
+				}
+			}
+		}
+	}
+#endif
 	return iValue;
 }
 
@@ -11344,7 +12140,7 @@ int CvCity::GetBaseScienceFromArt() const
 }	
 #endif
 
-#if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
+#if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES) || defined(MOD_API_UNIFIED_YIELDS)
 //	--------------------------------------------------------------------------------
 /// Base yield rate from Great Works
 int CvCity::GetBaseYieldRateFromGreatWorks(YieldTypes eIndex) const
@@ -11741,7 +12537,16 @@ int CvCity::GetBaseYieldRateFromReligion(YieldTypes eIndex) const
 	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
 	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
+#if defined(MOD_API_UNIFIED_YIELDS)
+	int iBaseYield = m_aiBaseYieldRateFromReligion[eIndex];
+
+	// This will only return a value for food and production
+	iBaseYield += GetYieldPerTurnFromReligion(GetCityReligions()->GetReligiousMajority(), eIndex);
+		
+	return iBaseYield;
+#else
 	return m_aiBaseYieldRateFromReligion[eIndex];
+#endif
 }
 
 //	--------------------------------------------------------------------------------
@@ -11840,6 +12645,33 @@ void CvCity::changeYieldRateModifier(YieldTypes eIndex, int iChange)
 	}
 }
 
+#if defined(MOD_BALANCE_CORE_POLICIES)
+//	--------------------------------------------------------------------------------
+int CvCity::getReligionBuildingYieldRateModifier(YieldTypes eIndex)	const
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	return m_aiReligionBuildingYieldRateModifier[eIndex];
+}
+
+
+//	--------------------------------------------------------------------------------
+void CvCity::changeReligionBuildingYieldRateModifier(YieldTypes eIndex, int iChange)
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+
+	if(iChange != 0)
+	{
+		m_aiReligionBuildingYieldRateModifier.setAt(eIndex, m_aiReligionBuildingYieldRateModifier[eIndex] + iChange);
+		CvAssert(getYieldRate(eIndex, false) >= 0);
+
+		GET_PLAYER(getOwner()).invalidateYieldRankCache(eIndex);
+	}
+}
+#endif
 
 //	--------------------------------------------------------------------------------
 int CvCity::getResourceYieldRateModifier(YieldTypes eIndex) const
@@ -11895,6 +12727,24 @@ int CvCity::getExtraSpecialistYield(YieldTypes eIndex, SpecialistTypes eSpeciali
 	int iYieldMultiplier = GET_PLAYER(getOwner()).getSpecialistExtraYield(eSpecialist, eIndex) +
 	                       GET_PLAYER(getOwner()).getSpecialistExtraYield(eIndex) +
 	                       GET_PLAYER(getOwner()).GetPlayerTraits()->GetSpecialistYieldChange(eSpecialist, eIndex);
+#if defined(MOD_API_UNIFIED_YIELDS)
+	iYieldMultiplier += GET_PLAYER(getOwner()).getSpecialistYieldChange(eSpecialist, eIndex);
+
+	ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
+	if(eMajority >= RELIGION_PANTHEON)
+	{
+		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, getOwner());
+		if(pReligion)
+		{
+			iYieldMultiplier += pReligion->m_Beliefs.GetSpecialistYieldChange(eSpecialist, eIndex);
+			BeliefTypes eSecondaryPantheon = GetCityReligions()->GetSecondaryReligionPantheonBelief();
+			if (eSecondaryPantheon != NO_BELIEF)
+			{
+				iYieldMultiplier += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetSpecialistYieldChange(eSpecialist, eIndex);
+			}
+		}
+	}
+#endif
 	int iExtraYield = GetCityCitizens()->GetSpecialistCount(eSpecialist) * iYieldMultiplier;
 
 	return iExtraYield;
@@ -12001,6 +12851,18 @@ int CvCity::GetTradeYieldModifier(YieldTypes eIndex, CvString* toolTipSink) cons
 				*toolTipSink += "[NEWLINE][BULLET]";
 				*toolTipSink += GetLocalizedText("TXT_KEY_FAITH_FROM_TRADE_ROUTES", iReturnValue / 100.0f);
 				break;
+#if defined(MOD_API_UNIFIED_YIELDS_TOURISM)
+			case YIELD_TOURISM:
+				*toolTipSink += "[NEWLINE][BULLET]";
+				*toolTipSink += GetLocalizedText("TXT_KEY_TOURISM_FROM_TRADE_ROUTES", iReturnValue / 100.0f);
+				break;
+#endif
+#if defined(MOD_API_UNIFIED_YIELDS_GOLDEN_AGE)
+			case YIELD_GOLDEN_AGE_POINTS:
+				*toolTipSink += "[NEWLINE][BULLET]";
+				*toolTipSink += GetLocalizedText("TXT_KEY_GOLDEN_AGE_POINTS_FROM_TRADE_ROUTES", iReturnValue / 100.0f);
+				break;
+#endif
 			}
 		}
 	}
@@ -14695,7 +15557,12 @@ bool CvCity::IsCanPurchase(bool bTestPurchaseCost, bool bTestTrainable, UnitType
 
 		// Does this city have a majority religion?
 		ReligionTypes eReligion = GetCityReligions()->GetReligiousMajority();
+#if defined(MOD_BUGFIX_MINOR)
+		// Permit faith purchases from pantheon beliefs
+		if(eReligion < RELIGION_PANTHEON)
+#else
 		if(eReligion <= RELIGION_PANTHEON)
+#endif
 		{
 			return false;
 		}
@@ -14712,7 +15579,11 @@ bool CvCity::IsCanPurchase(bool bTestPurchaseCost, bool bTestTrainable, UnitType
 			CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnitType);
 			if(pkUnitInfo)
 			{
+#if defined(MOD_BUGFIX_MINOR)
+				if (pkUnitInfo->IsRequiresEnhancedReligion() && !(GC.getGame().GetGameReligions()->GetReligion(eReligion, m_eOwner)->m_bEnhanced))
+#else
 				if (pkUnitInfo->IsRequiresEnhancedReligion() && !(GC.getGame().GetGameReligions()->GetReligion(eReligion, NO_PLAYER)->m_bEnhanced))
+#endif
 				{
 					return false;
 				}
@@ -14763,6 +15634,15 @@ bool CvCity::IsCanPurchase(bool bTestPurchaseCost, bool bTestTrainable, UnitType
 					{
 						return false;
 					}
+#if defined(MOD_BALANCE_CORE)
+					if(pkUnitInfo && pkUnitInfo->IsSpreadReligion())
+					{
+						if(eReligion <= RELIGION_PANTHEON)
+						{
+							return false;
+						}
+					}
+#endif
 				}
 #endif
 			}
@@ -15183,7 +16063,104 @@ void CvCity::doGrowth()
 		{
 			changeFood(-(std::max(0, (growthThreshold() - getFoodKept()))));
 			changePopulation(1);
-
+#if defined(MOD_BALANCE_CORE_BELIEFS)
+			const ReligionTypes iReligion = GetCityReligions()->GetReligiousMajority();
+			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(iReligion, getOwner());
+			int iEra = GC.getGame().getCurrentEra();
+			if(iEra < 1)
+			{
+				iEra = 1;
+			}
+			if(pReligion)
+			{
+				float fDelay = 0.0f;
+				if(pReligion->m_Beliefs.GetYieldPerBirth(YIELD_FOOD) > 0)
+				{
+					changeFood(pReligion->m_Beliefs.GetYieldPerBirth(YIELD_FOOD) * iEra);
+					if(getOwner() == GC.getGame().getActivePlayer())
+					{
+						char text[256] = {0};
+						fDelay += 0.5f;
+						sprintf_s(text, "[COLOR_GREEN]+%d[ENDCOLOR][ICON_FOOD]", pReligion->m_Beliefs.GetYieldPerBirth(YIELD_FOOD) * iEra);
+						DLLUI->AddPopupText(getX(),getY(), text, fDelay);
+					}
+				}
+				if(pReligion->m_Beliefs.GetYieldPerBirth(YIELD_PRODUCTION) > 0)
+				{
+					changeProduction(pReligion->m_Beliefs.GetYieldPerBirth(YIELD_PRODUCTION) * iEra);
+					if(getOwner() == GC.getGame().getActivePlayer())
+					{
+						char text[256] = {0};
+						fDelay += 0.5f;
+						sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_PRODUCTION]", pReligion->m_Beliefs.GetYieldPerBirth(YIELD_PRODUCTION) * iEra);
+						DLLUI->AddPopupText(getX(),getY(), text, fDelay);
+					}
+				}
+				if(pReligion->m_Beliefs.GetYieldPerBirth(YIELD_GOLD) > 0)
+				{
+					GET_PLAYER(getOwner()).GetTreasury()->ChangeGold(pReligion->m_Beliefs.GetYieldPerBirth(YIELD_GOLD) * iEra);
+					if(getOwner() == GC.getGame().getActivePlayer())
+					{
+						char text[256] = {0};
+						fDelay += 0.5f;
+						sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]", pReligion->m_Beliefs.GetYieldPerBirth(YIELD_GOLD) * iEra);
+						DLLUI->AddPopupText(getX(),getY(), text, fDelay);
+					}
+				}
+				if(pReligion->m_Beliefs.GetYieldPerBirth(YIELD_SCIENCE) > 0)
+				{
+					TechTypes eCurrentTech = GET_PLAYER(getOwner()).GetPlayerTechs()->GetCurrentResearch();
+					if(eCurrentTech == NO_TECH)
+					{
+						GET_PLAYER(getOwner()).changeOverflowResearch(pReligion->m_Beliefs.GetYieldPerBirth(YIELD_SCIENCE) * iEra);
+					}
+					else
+					{
+						GET_TEAM(GET_PLAYER(getOwner()).getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, pReligion->m_Beliefs.GetYieldPerBirth(YIELD_SCIENCE), getOwner());
+					}
+					if(getOwner() == GC.getGame().getActivePlayer())
+					{
+						char text[256] = {0};
+						fDelay += 0.5f;
+						sprintf_s(text, "[COLOR_BLUE]+%d[ENDCOLOR][ICON_RESEARCH]", pReligion->m_Beliefs.GetYieldPerBirth(YIELD_SCIENCE) * iEra);
+						DLLUI->AddPopupText(getX(),getY(), text, fDelay);
+					}
+				}
+				if(pReligion->m_Beliefs.GetYieldPerBirth(YIELD_CULTURE) > 0)
+				{
+					GET_PLAYER(getOwner()).changeJONSCulture(pReligion->m_Beliefs.GetYieldPerBirth(YIELD_CULTURE));
+					if(getOwner() == GC.getGame().getActivePlayer())
+					{
+						char text[256] = {0};
+						fDelay += 0.5f;
+						sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", pReligion->m_Beliefs.GetYieldPerBirth(YIELD_CULTURE) * iEra);
+						DLLUI->AddPopupText(getX(),getY(), text, fDelay);
+					}
+				}
+				if(pReligion->m_Beliefs.GetYieldPerBirth(YIELD_FAITH) > 0)
+				{
+					GET_PLAYER(getOwner()).ChangeFaith(pReligion->m_Beliefs.GetYieldPerBirth(YIELD_FAITH));
+					if(getOwner() == GC.getGame().getActivePlayer())
+					{
+						char text[256] = {0};
+						fDelay += 0.5f;
+						sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", pReligion->m_Beliefs.GetYieldPerBirth(YIELD_FAITH) * iEra);
+						DLLUI->AddPopupText(getX(),getY(), text, fDelay);
+					}
+				}
+				if(pReligion->m_Beliefs.GetYieldPerBirth(YIELD_GOLDEN_AGE_POINTS) > 0)
+				{
+					GET_PLAYER(getOwner()).ChangeGoldenAgeProgressMeter(pReligion->m_Beliefs.GetYieldPerBirth(YIELD_GOLDEN_AGE_POINTS) * iEra);
+					if(getOwner() == GC.getGame().getActivePlayer())
+					{
+						char text[256] = {0};
+						fDelay += 0.5f;
+						sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GOLDEN_AGE]", pReligion->m_Beliefs.GetYieldPerBirth(YIELD_GOLDEN_AGE_POINTS) * iEra);
+						DLLUI->AddPopupText(getX(),getY(), text, fDelay);
+					}
+				}
+			}
+#endif
 			// Only show notification if the city is small
 			if(getPopulation() <= 5)
 			{
@@ -15808,15 +16785,25 @@ void CvCity::read(FDataStream& kStream)
 	kStream >> m_iGreatPeopleRateModifier;
 	kStream >> m_iJONSCultureStored;
 	kStream >> m_iJONSCultureLevel;
+#if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
+	// MOD_SERIALIZE_READ - v57/v58/v59 broke the save format  couldn't be helped, but don't make a habit of it!!!
 	kStream >> m_iJONSCulturePerTurnFromBuildings;
+#endif
 	kStream >> m_iJONSCulturePerTurnFromPolicies;
 	kStream >> m_iJONSCulturePerTurnFromSpecialists;
+#if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
+	// MOD_SERIALIZE_READ - v57/v58/v59 broke the save format  couldn't be helped, but don't make a habit of it!!!
 	kStream >> m_iJONSCulturePerTurnFromReligion;
+#endif
+#if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
+	// MOD_SERIALIZE_READ - v57/v58/v59 broke the save format  couldn't be helped, but don't make a habit of it!!!
 	kStream >> m_iFaithPerTurnFromBuildings;
-
+#endif
 	kStream >> m_iFaithPerTurnFromPolicies;
-
+#if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
+	// MOD_SERIALIZE_READ - v57/v58/v59 broke the save format  couldn't be helped, but don't make a habit of it!!!
 	kStream >> m_iFaithPerTurnFromReligion;
+#endif
 
 	kStream >> m_iCultureRateModifier;
 	kStream >> m_iNumWorldWonders;
@@ -15937,6 +16924,9 @@ void CvCity::read(FDataStream& kStream)
 	MOD_SERIALIZE_READ(53, kStream, m_iChangeUnculturedUnhappinessGlobal, 0);
 	MOD_SERIALIZE_READ(53, kStream, m_iChangeIlliteracyUnhappinessGlobal, 0);
 	MOD_SERIALIZE_READ(53, kStream, m_iChangeMinorityUnhappinessGlobal, 0);
+#endif
+#if defined(MOD_BALANCE_CORE_POLICIES)
+	MOD_SERIALIZE_READ_AUTO(60, kStream, m_aiReligionBuildingYieldRateModifier, NUM_YIELD_TYPES, 0);
 #endif
 	kStream >> m_aiBaseYieldRateFromReligion;
 	kStream >> m_aiYieldPerPop;
@@ -16100,8 +17090,9 @@ void CvCity::read(FDataStream& kStream)
 
 	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_ppaiTerrainYieldChange, NUM_YIELD_TYPES, GC.getNumTerrainInfos());
 
-#if defined(MOD_BALANCE_CORE_YIELDS)
-	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_ppaaiPlotYieldChange, NUM_YIELD_TYPES, GC.getNumPlotInfos());
+#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
+	// MOD_SERIALIZE_READ - v57/v58/v59 broke the save format  couldn't be helped, but don't make a habit of it!!!
+	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_ppaiPlotYieldChange, NUM_YIELD_TYPES, GC.getNumPlotInfos());
 #endif
 
 	kStream >> m_iPopulationRank;
@@ -16194,13 +17185,25 @@ void CvCity::write(FDataStream& kStream) const
 	kStream << m_iGreatPeopleRateModifier;
 	kStream << m_iJONSCultureStored;
 	kStream << m_iJONSCultureLevel;
+#if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
+	// MOD_SERIALIZE_WRITE - v57/v58/v59 broke the save format  couldn't be helped, but don't make a habit of it!!!
 	kStream << m_iJONSCulturePerTurnFromBuildings;
+#endif
 	kStream << m_iJONSCulturePerTurnFromPolicies;
 	kStream << m_iJONSCulturePerTurnFromSpecialists;
+#if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
+	// MOD_SERIALIZE_WRITE - v57/v58/v59 broke the save format  couldn't be helped, but don't make a habit of it!!!
 	kStream << m_iJONSCulturePerTurnFromReligion;
+#endif
+#if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
+	// MOD_SERIALIZE_WRITE - v57/v58/v59 broke the save format  couldn't be helped, but don't make a habit of it!!!
 	kStream << m_iFaithPerTurnFromBuildings;
+#endif
 	kStream << m_iFaithPerTurnFromPolicies;
+#if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
+	// MOD_SERIALIZE_WRITE - v57/v58/v59 broke the save format  couldn't be helped, but don't make a habit of it!!!
 	kStream << m_iFaithPerTurnFromReligion;
+#endif
 	kStream << m_iCultureRateModifier;
 	kStream << m_iNumWorldWonders;
 	kStream << m_iNumTeamWonders;
@@ -16298,6 +17301,9 @@ void CvCity::write(FDataStream& kStream) const
 	MOD_SERIALIZE_WRITE(kStream, m_iChangeIlliteracyUnhappinessGlobal);
 	MOD_SERIALIZE_WRITE(kStream, m_iChangeMinorityUnhappinessGlobal);
 #endif
+#if defined(MOD_BALANCE_CORE_POLICIES)
+	MOD_SERIALIZE_WRITE_AUTO(kStream, m_aiReligionBuildingYieldRateModifier);
+#endif
 	kStream << m_aiBaseYieldRateFromReligion;
 	kStream << m_aiYieldPerPop;
 	kStream << m_aiYieldPerReligion;
@@ -16389,8 +17395,9 @@ void CvCity::write(FDataStream& kStream) const
 
 	CvInfosSerializationHelper::WriteHashedDataArray<TerrainTypes>(kStream, m_ppaiTerrainYieldChange, NUM_YIELD_TYPES, GC.getNumTerrainInfos());
 
-#if defined(MOD_BALANCE_CORE_YIELDS)
-	CvInfosSerializationHelper::WriteHashedDataArray<PlotTypes>(kStream, m_ppaaiPlotYieldChange, NUM_YIELD_TYPES, GC.getNumPlotInfos());	
+#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
+	// MOD_SERIALIZE_WRITE - v57/v58/v59 broke the save format  couldn't be helped, but don't make a habit of it!!!
+	CvInfosSerializationHelper::WriteHashedDataArray<PlotTypes>(kStream, m_ppaiPlotYieldChange, NUM_YIELD_TYPES, GC.getNumPlotInfos());
 #endif
 
 	kStream << m_iPopulationRank;

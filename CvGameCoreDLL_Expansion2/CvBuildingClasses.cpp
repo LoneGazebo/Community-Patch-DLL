@@ -37,6 +37,9 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_iReplacementBuildingClass(NO_BUILDINGCLASS),
 	m_iPrereqAndTech(NO_TECH),
 	m_iPolicyBranchType(NO_POLICY_BRANCH_TYPE),
+#if defined(MOD_BALANCE_CORE_POLICIES)
+	m_iPolicyType(NO_POLICY),
+#endif
 	m_iSpecialistType(NO_SPECIALIST),
 	m_iSpecialistCount(0),
 	m_iSpecialistExtraCulture(0),
@@ -159,10 +162,15 @@ CvBuildingEntry::CvBuildingEntry(void):
 #endif
 #if defined(MOD_BALANCE_CORE)
 	m_bIsNoWater(false),
+	m_bIsReformation(false),
 #endif
 #if defined(MOD_BALANCE_CORE_POP_REQ_BUILDINGS)
 	m_iNationalPopRequired(-1),
 	m_iLocalPopRequired(-1),
+#endif
+#if defined(MOD_BALANCE_CORE_FOLLOWER_POP_WONDER)
+	m_iNationalFollowerPopRequired(-1),
+	m_iGlobalFollowerPopRequired(-1),
 #endif
 	m_bMountain(false),
 	m_bHill(false),
@@ -202,6 +210,9 @@ CvBuildingEntry::CvBuildingEntry(void):
 #if defined(MOD_DIPLOMACY_CITYSTATES) || defined(MOD_BALANCE_CORE)
 	m_piGrowthExtraYield(NULL),
 #endif
+#if defined(MOD_BALANCE_CORE_POLICIES)
+	m_piYieldFromDeath(NULL),
+#endif
 	m_piYieldChange(NULL),
 	m_piYieldChangePerPop(NULL),
 	m_piYieldChangePerReligion(NULL),
@@ -229,14 +240,14 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_ppaiSpecialistYieldChange(NULL),
 	m_ppaiResourceYieldModifier(NULL),
 	m_ppaiTerrainYieldChange(NULL),
+#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
+	m_ppaiPlotYieldChange(NULL),
+#endif
 	m_ppiBuildingClassYieldChanges(NULL),
 	m_paiBuildingClassHappiness(NULL),
 	m_paThemingBonusInfo(NULL),
 #if defined(MOD_BALANCE_CORE_BUILDING_INSTANT_YIELD)
 	m_piInstantYield(NULL),
-#endif
-#if defined(MOD_BALANCE_CORE_YIELDS)
-	m_ppaiBuildingPlotYieldChange(NULL),
 #endif
 	m_iNumThemingBonuses(0)
 {
@@ -258,6 +269,9 @@ CvBuildingEntry::~CvBuildingEntry(void)
 	SAFE_DELETE_ARRAY(m_piSeaResourceYieldChange);
 #if defined(MOD_DIPLOMACY_CITYSTATES) || defined(MOD_BALANCE_CORE)
 	SAFE_DELETE_ARRAY(m_piGrowthExtraYield);
+#endif
+#if defined(MOD_BALANCE_CORE_POLICIES)
+	SAFE_DELETE_ARRAY(m_piYieldFromDeath);
 #endif
 	SAFE_DELETE_ARRAY(m_piYieldChange);
 	SAFE_DELETE_ARRAY(m_piYieldChangePerPop);
@@ -291,13 +305,10 @@ CvBuildingEntry::~CvBuildingEntry(void)
 	CvDatabaseUtility::SafeDelete2DArray(m_ppaiSpecialistYieldChange);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppaiResourceYieldModifier);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppaiTerrainYieldChange);
-	CvDatabaseUtility::SafeDelete2DArray(m_ppiBuildingClassYieldChanges);
-#if defined(MOD_BALANCE_CORE_YIELDS)
-	if(MOD_BALANCE_CORE_YIELDS)
-	{
-		CvDatabaseUtility::SafeDelete2DArray(m_ppaiBuildingPlotYieldChange);
-	}
+#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
+	CvDatabaseUtility::SafeDelete2DArray(m_ppaiPlotYieldChange);
 #endif
+	CvDatabaseUtility::SafeDelete2DArray(m_ppiBuildingClassYieldChanges);
 }
 
 /// Read from XML file
@@ -322,6 +333,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 #if defined(MOD_BALANCE_CORE)
 	if(MOD_BALANCE_CORE){
 	m_bIsNoWater = kResults.GetBool("IsNoWater");
+	m_bIsReformation = kResults.GetBool("IsReformation");
 	}
 #endif
 #if defined(MOD_BALANCE_CORE_POP_REQ_BUILDINGS)
@@ -329,6 +341,13 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	{
 		m_iNationalPopRequired = kResults.GetInt("NationalPopRequired");
 		m_iLocalPopRequired = kResults.GetInt("LocalPopRequired");
+	}
+#endif
+#if defined(MOD_BALANCE_CORE_FOLLOWER_POP_WONDER)
+	if(MOD_BALANCE_CORE_FOLLOWER_POP_WONDER)
+	{
+		m_iNationalFollowerPopRequired = kResults.GetInt("NationalFollowerPopRequired");
+		m_iGlobalFollowerPopRequired = kResults.GetInt("GlobalFollowerPopRequired");
 	}
 #endif
 	m_bMountain = kResults.GetBool("Mountain");
@@ -538,6 +557,11 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	szTextVal = kResults.GetText("PolicyBranchType");
 	m_iPolicyBranchType = GC.getInfoTypeForString(szTextVal, true);
 
+#if defined(MOD_BALANCE_CORE_POLICIES)
+	szTextVal = kResults.GetText("PolicyType");
+	m_iPolicyType = GC.getInfoTypeForString(szTextVal, true);
+#endif
+
 	szTextVal = kResults.GetText("SpecialistType");
 	m_iSpecialistType = GC.getInfoTypeForString(szTextVal, true);
 	m_iSpecialistCount = kResults.GetInt("SpecialistCount");
@@ -567,6 +591,12 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	if(MOD_DIPLOMACY_CITYSTATES || MOD_BALANCE_CORE)
 	{
 		kUtility.SetYields(m_piGrowthExtraYield, "Building_GrowthExtraYield", "BuildingType", szBuildingType);
+	}
+#endif
+#if defined(MOD_BALANCE_CORE_POLICIES)
+	if(MOD_BALANCE_CORE_POLICIES)
+	{
+		kUtility.SetYields(m_piYieldFromDeath, "Building_YieldFromDeath", "BuildingType", szBuildingType);
 	}
 #endif
 	kUtility.SetYields(m_piYieldChange, "Building_YieldChanges", "BuildingType", szBuildingType);
@@ -674,11 +704,12 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 			m_ppaiTerrainYieldChange[TerrainID][YieldID] = yield;
 		}
 	}
-#if defined(MOD_BALANCE_CORE_YIELDS)
-	if (MOD_BALANCE_CORE_YIELDS)
+	
+#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
 	//PlotYieldChanges
+	if (MOD_API_UNIFIED_YIELDS && MOD_API_PLOT_YIELDS)
 	{
-		kUtility.Initialize2DArray(m_ppaiBuildingPlotYieldChange, "Plots", "Yields");
+		kUtility.Initialize2DArray(m_ppaiPlotYieldChange, "Plots", "Yields");
 
 		std::string strKey("Building_PlotYieldChanges");
 		Database::Results* pResults = kUtility.GetResults(strKey);
@@ -695,7 +726,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 			const int YieldID = pResults->GetInt(1);
 			const int yield = pResults->GetInt(2);
 
-			m_ppaiBuildingPlotYieldChange[PlotID][YieldID] = yield;
+			m_ppaiPlotYieldChange[PlotID][YieldID] = yield;
 		}
 	}
 #endif
@@ -917,7 +948,13 @@ int CvBuildingEntry::GetPolicyBranchType() const
 {
 	return m_iPolicyBranchType;
 }
-
+#if defined(MOD_BALANCE_CORE_POLICIES)
+/// Policy required for this building
+int CvBuildingEntry::GetPolicyType() const
+{
+	return m_iPolicyType;
+}
+#endif
 /// What SpecialistType is allowed by this Building
 int CvBuildingEntry::GetSpecialistType() const
 {
@@ -1851,7 +1888,21 @@ int* CvBuildingEntry::GetGrowthExtraYieldArray() const
 	return m_piGrowthExtraYield;
 }
 #endif
+#if defined(MOD_BALANCE_CORE_FOLLOWER_POP_WONDER)
+/// Change to yield by type
+int CvBuildingEntry::GetYieldFromDeath(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piYieldFromDeath ? m_piYieldFromDeath[i] : -1;
+}
 
+/// Array of yield changes
+int* CvBuildingEntry::GetYieldFromDeathArray() const
+{
+	return m_piYieldFromDeath;
+}
+#endif
 /// Change to yield by type
 int CvBuildingEntry::GetYieldChange(int i) const
 {
@@ -2248,6 +2299,30 @@ int* CvBuildingEntry::GetTerrainYieldChangeArray(int i) const
 	return m_ppaiTerrainYieldChange[i];
 }
 
+#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
+/// Change to Plot yield by type
+int CvBuildingEntry::GetPlotYieldChange(int i, int j) const
+{
+	if (MOD_API_PLOT_YIELDS) {
+		CvAssertMsg(i < GC.getNumPlotInfos(), "Index out of bounds");
+		CvAssertMsg(i > -1, "Index out of bounds");
+		CvAssertMsg(j < NUM_YIELD_TYPES, "Index out of bounds");
+		CvAssertMsg(j > -1, "Index out of bounds");
+		return m_ppaiPlotYieldChange ? m_ppaiPlotYieldChange[i][j] : -1;
+	} else {
+		return 0;
+	}
+}
+
+/// Array of changes to Plot yield
+int* CvBuildingEntry::GetPlotYieldChangeArray(int i) const
+{
+	CvAssertMsg(i < GC.getNumPlotInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_ppaiPlotYieldChange[i];
+}
+#endif
+
 /// Yield change for a specific BuildingClass by yield type
 int CvBuildingEntry::GetBuildingClassYieldChange(int i, int j) const
 {
@@ -2272,6 +2347,11 @@ bool CvBuildingEntry::IsNoWater() const
 {
 	return m_bIsNoWater;
 }
+/// Does this building enable a reformation?
+bool CvBuildingEntry::IsReformation() const
+{
+	return m_bIsReformation;
+}
 #endif
 #if defined(MOD_BALANCE_CORE_POP_REQ_BUILDINGS)
 int CvBuildingEntry::GetNationalPopulationRequired() const
@@ -2281,6 +2361,16 @@ int CvBuildingEntry::GetNationalPopulationRequired() const
 int CvBuildingEntry::GetLocalPopulationRequired() const
 {
 	return m_iLocalPopRequired;
+}
+#endif
+#if defined(MOD_BALANCE_CORE_FOLLOWER_POP_WONDER)
+int CvBuildingEntry::GetNationalFollowerPopRequired() const
+{
+	return m_iNationalFollowerPopRequired;
+}
+int CvBuildingEntry::GetGlobalFollowerPopRequired() const
+{
+	return m_iGlobalFollowerPopRequired;
 }
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INSTANT_YIELD)
@@ -2296,24 +2386,6 @@ int CvBuildingEntry::GetInstantYield(int i) const
 int* CvBuildingEntry::GetInstantYieldArray() const
 {
 	return m_piInstantYield;
-}
-#endif
-#if defined(MOD_BALANCE_CORE_YIELDS)
-/// Change to yield by plot
-int CvBuildingEntry::GetPlotYieldChange(int i, int j) const
-{
-	CvAssertMsg(i < GC.getNumPlotInfos(), "Index out of bounds");
-	CvAssertMsg(i > -1, "Index out of bounds");
-	CvAssertMsg(j < NUM_YIELD_TYPES, "Index out of bounds");
-	CvAssertMsg(j > -1, "Index out of bounds");
-	return m_ppaiBuildingPlotYieldChange ? m_ppaiBuildingPlotYieldChange[i][j] : -1;
-}
-/// Array of changes to Feature yield
-int* CvBuildingEntry::GetPlotYieldChangeArray(int i) const
-{
-	CvAssertMsg(i < GC.getNumPlotInfos(), "Index out of bounds");
-	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_ppaiBuildingPlotYieldChange[i];
 }
 #endif
 
@@ -3242,6 +3314,9 @@ void CvCityBuildings::SetBuildingGreatWork(BuildingClassTypes eBuildingClass, in
 		m_aBuildingGreatWork.push_back(kWork);
 	}
 
+	// TODO - WH - by caching m_eCurrentOwner, m_iCurrentCity, m_iCurrentBuilding and m_iCurrentSlot for the Great Work here,
+	//	           a load of code that scans players/cities/buildings/slots can be speeded up
+
 	GC.GetEngineUserInterface()->setDirty(CityInfo_DIRTY_BIT, true);
 }
 
@@ -3426,14 +3501,31 @@ bool CvCityBuildings::GetNextAvailableGreatWorkSlot(GreatWorkSlotType eGreatWork
 	return false;
 }
 
-#if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
+#if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES) || defined(MOD_API_UNIFIED_YIELDS)
 /// Accessor: How much of this yield are we generating from Great Works in our buildings?
 int CvCityBuildings::GetYieldFromGreatWorks(YieldTypes eYield) const
 {
-	int iYieldPerWork = GC.getBASE_CULTURE_PER_GREAT_WORK();
-	iYieldPerWork += GET_PLAYER(m_pCity->getOwner()).GetGreatWorkYieldChange(eYield);
+	int iYieldPerBuilding = GC.getBASE_CULTURE_PER_GREAT_WORK();
+	int iYieldPerWork = GET_PLAYER(m_pCity->getOwner()).GetGreatWorkYieldChange(eYield);
+	iYieldPerWork += GET_PLAYER(m_pCity->getOwner()).GetPlayerTraits()->GetGreatWorkYieldChanges(eYield);
 
-	int iCount = 0;
+	ReligionTypes eMajority = m_pCity->GetCityReligions()->GetReligiousMajority();
+	if(eMajority >= RELIGION_PANTHEON)
+	{
+		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, m_pCity->getOwner());
+		if(pReligion)
+		{
+			iYieldPerWork += pReligion->m_Beliefs.GetGreatWorkYieldChange(m_pCity->getPopulation(), eYield);
+			BeliefTypes eSecondaryPantheon = m_pCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
+			if (eSecondaryPantheon != NO_BELIEF)
+			{
+				iYieldPerWork += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetGreatWorkYieldChange(eYield);
+			}
+		}
+	}
+
+	int iWorkCount = 0;
+	int iBuildingCount = 0;
 
 	CvCivilizationInfo *pkCivInfo = GC.getCivilizationInfo(m_pCity->getCivilizationType());
 	if (pkCivInfo)
@@ -3448,18 +3540,24 @@ int CvCityBuildings::GetYieldFromGreatWorks(YieldTypes eYield) const
 				CvBuildingEntry *pkInfo = GC.getBuildingInfo(eBuilding);
 				if (pkInfo)
 				{
-					if (pkInfo->GetGreatWorkYieldType() == eYield)
+					iWorkCount++;
+					
+					if ((MOD_GLOBAL_GREATWORK_YIELDTYPES && eYield == pkInfo->GetGreatWorkYieldType()) || (!MOD_GLOBAL_GREATWORK_YIELDTYPES && eYield == YIELD_CULTURE))
 					{
-						iCount++;
+						iBuildingCount++;
 					}
 				}
 			}
 		}
 	}
-	// CUSTOMLOG("There are %i great works in %s with yield type %i", iCount, m_pCity->getName().c_str(), (int) eYield);
-	
-	int iRtnValue = iYieldPerWork * iCount;
+	int iRtnValue = (iWorkCount * iYieldPerWork) + (iBuildingCount * iYieldPerBuilding);
+#if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
 	iRtnValue += GetThemingBonuses(eYield);
+#else
+	if (eYield == YIELD_CULTURE) {
+		iRtnValue += GetThemingBonuses();
+	}
+#endif
 
 	return iRtnValue;
 }
@@ -3468,7 +3566,7 @@ int CvCityBuildings::GetYieldFromGreatWorks(YieldTypes eYield) const
 /// Accessor: How much culture are we generating from Great Works in our buildings?
 int CvCityBuildings::GetCultureFromGreatWorks() const
 {
-#if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
+#if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES) || defined(MOD_API_UNIFIED_YIELDS)
 	return GetYieldFromGreatWorks(YIELD_CULTURE);
 #else
 	int iCulturePerWork = GC.getBASE_CULTURE_PER_GREAT_WORK();

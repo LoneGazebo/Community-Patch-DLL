@@ -121,6 +121,9 @@ protected:
 	static int lCreateApolloProgram(lua_State* L);
 
 	static int lIsCanPurchase(lua_State* L);
+#if defined(MOD_API_LUA_EXTENSIONS)
+	LUAAPIEXTN(Purchase, void, int, int, int, int);
+#endif
 	static int lGetUnitPurchaseCost(lua_State* L);
 	static int lGetUnitFaithPurchaseCost(lua_State* L);
 	static int lGetBuildingPurchaseCost(lua_State* L);

@@ -396,6 +396,8 @@ protected:
 #if defined(MOD_API_LUA_EXTENSIONS)
 	LUAAPIEXTN(ReloadGameDataDefines, void);
 	LUAAPIEXTN(ReloadCustomModOptions, void);
+	LUAAPIEXTN(IsCustomModOption, bool, sOption);
+	LUAAPIEXTN(GetCustomModOption, int, sOption);
 	LUAAPIEXTN(SpewTestEvents, int, iLimit); // returns iSeconds, iMilliSeconds, iValue
 #endif
 
