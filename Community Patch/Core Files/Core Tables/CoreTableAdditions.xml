@@ -10,7 +10,7 @@
 	<Table name="Policy_FreeBuilding">
 		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
 		<Column name="BuildingClassType" type="text" reference="BuildingClasses(Type)"/>
-		<Column name="Count" type="integer"/>
+		<Column name="Count" type="integer" notnull="true"/>
 	</Table>
 	<!-- Allows you to define an instant yield granted when a building is constructed. -->
 	<Table name="Building_InstantYield">

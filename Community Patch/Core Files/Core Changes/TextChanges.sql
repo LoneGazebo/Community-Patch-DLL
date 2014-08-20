@@ -23,3 +23,19 @@ WHERE Tag = 'TXT_KEY_BUILDING_INTELLIGENCE_AGENCY_HELP';
 UPDATE Language_en_US
 SET Text = 'An important defensive National Wonder for a technology-driven civilization. The National Intelligence Agency provides additional spies, levels up all your existing spies, and provides a 15% reduction in enemy spy effectiveness. A civilization must have a Police Station in all cities before it can construct the National Intelligence Agency.'
 WHERE Tag = 'TXT_KEY_BUILDING_INTELLIGENCE_AGENCY_STRATEGY';
+
+UPDATE Language_en_US
+SET Text = '{1_SpyRank} {2_SpyName} was killed by {TXT_KEY_GRAMMAR_A_AN &lt;&lt; {3_CivAdj}} counterspy while operating out of {4_CityName}!'
+WHERE Tag = 'TXT_KEY_NOTIFICATION_SPY_WAS_KILLED';
+
+UPDATE Language_en_US
+SET Text = 'Conducting Espionage'
+WHERE Tag = 'TXT_KEY_SPY_STATE_ESTABLISHED_SURVEILLANCE';
+
+UPDATE Language_en_US
+SET Text = 'Disrupting Plans'
+WHERE Tag = 'TXT_KEY_SPY_STATE_ESTABLISHED_SURVEILLANCE_PROGRESS_BAR';
+
+UPDATE Language_en_US
+SET Text = '[COLOR_NEGATIVE_TEXT]Your spies were caught operating in their lands.[ENDCOLOR]'
+WHERE Tag = 'TXT_KEY_DIPLO_CAUGHT_STEALING';

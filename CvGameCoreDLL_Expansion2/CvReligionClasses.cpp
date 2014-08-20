@@ -4403,7 +4403,7 @@ void CvCityReligions::CityConvertsReligion(ReligionTypes eMajority, ReligionType
 				}
 			}
 #if defined(MOD_BALANCE_CORE_BELIEFS)
-			int iEra = GC.getGame().getCurrentEra();
+			int iEra = GET_PLAYER(pNewReligion->m_eFounder).GetCurrentEra();
 			if(iEra < 1)
 			{
 				iEra = 1;
@@ -4427,7 +4427,7 @@ void CvCityReligions::CityConvertsReligion(ReligionTypes eMajority, ReligionType
 				{
 					char text[256] = {0};
 					sprintf_s(text, "[COLOR_BLUE]+%d[ENDCOLOR][ICON_RESEARCH]", iScienceBonus);
-					GC.GetEngineUserInterface()->AddPopupText(m_pCity->getX(), m_pCity->getY(), text, 0.5f);
+					GC.GetEngineUserInterface()->AddPopupText(m_pCity->getX(), m_pCity->getY(), text, 1.0f);
 				}
 			}
 #endif

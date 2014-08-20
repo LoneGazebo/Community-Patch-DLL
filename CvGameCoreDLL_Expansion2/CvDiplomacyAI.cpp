@@ -7158,8 +7158,8 @@ void CvDiplomacyAI::DoUpdateOnePlayerTargetValue(PlayerTypes ePlayer)
 		eTargetValue = TargetValueTypes(eTargetValue + 1);
 
 #if defined(MOD_BALANCE_CORE_DIFFICULTY)
-	//Is human? Let's make them more ripe as targets.
-	if(MOD_BALANCE_CORE_DIFFICULTY && GC.getBALANCE_GAME_DIFFICULTY_MULTIPLIER() > 0)
+	//Is human? Let's make them more ripe as targets. Only works on 'Emperor' and above.
+	if(MOD_BALANCE_CORE_DIFFICULTY && GC.getBALANCE_GAME_DIFFICULTY_MULTIPLIER() > 1)
 	{
 		if(GET_PLAYER(ePlayer).isHuman())
 		{

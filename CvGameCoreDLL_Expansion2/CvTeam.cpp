@@ -5669,7 +5669,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 				{
 					const PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iI);
 					CvPlayerAI& kPlayer = GET_PLAYER(eLoopPlayer);
-					int iEra = GC.getGame().getCurrentEra();
+					int iEra = kPlayer.GetCurrentEra();
 					if(iEra < 1)
 					{
 						iEra = 1;
@@ -6001,52 +6001,6 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 							{
 								pLoopCity->GetCityBuildings()->SetNumFreeBuilding(eFreeFoodBuilding, 1);
 								pLoopCity->SetOwedFoodBuilding(false);
-							}
-						}
-#endif
-#if defined(MOD_BALANCE_CORE)
-						for(int iPolicyLoop = 0; iPolicyLoop < GC.getNumPolicyInfos(); iPolicyLoop++)
-						{
-							PolicyTypes pPolicy = (PolicyTypes)iPolicyLoop;
-							CvPolicyEntry* pkPolicyInfo = GC.getPolicyInfo(pPolicy);
-							if(pkPolicyInfo)
-							{
-								if(GET_PLAYER(eLoopPlayer).GetPlayerPolicies()->HasPolicy(pPolicy) && !GET_PLAYER(eLoopPlayer).GetPlayerPolicies()->IsPolicyBlocked(pPolicy))
-								{
-									const int iNumBuildingClassInfos = GC.getNumBuildingClassInfos();
-									CvCivilizationInfo& thisCivilization = GET_PLAYER(eLoopPlayer).getCivilizationInfo();
-									for(int iBuildingClassLoop = 0; iBuildingClassLoop < iNumBuildingClassInfos; iBuildingClassLoop++)
-									{
-										const BuildingClassTypes eBuildingClass = (BuildingClassTypes) iBuildingClassLoop;
-										CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
-										if(!pkBuildingClassInfo)
-										{
-											continue;
-										}
-										//How many cities get free buildings of our choice?
-										if(pLoopCity->IsOwedChosenBuilding(eBuildingClass))
-										{
-											if(pkPolicyInfo->GetFreeChosenBuilding(eBuildingClass) > 0)
-											{
-												const BuildingTypes eFreeBuilding = (BuildingTypes)(thisCivilization.getCivilizationBuildings(eBuildingClass));
-												CvBuildingEntry* pkBuilding = GC.getBuildingInfo(eFreeBuilding);
-												if(pkBuilding)
-												{
-													if((GET_PLAYER(eLoopPlayer).canConstruct(eFreeBuilding) || (pkBuilding->GetProductionCost() == -1)) && pLoopCity->isValidBuildingLocation(eFreeBuilding))
-													{
-														pLoopCity->GetCityBuildings()->SetNumFreeBuilding(eFreeBuilding, 1);		
-														GET_PLAYER(eLoopPlayer).ChangeNumCitiesFreeChosenBuilding(eBuildingClass, 1);
-														if(GET_PLAYER(eLoopPlayer).GetNumCitiesFreeChosenBuilding(eBuildingClass) >= (pkPolicyInfo->GetFreeChosenBuilding(eBuildingClass)))
-														{
-															pkPolicyInfo->ChangeFreeChosenBuilding(eBuildingClass, ((GET_PLAYER(eLoopPlayer).GetNumCitiesFreeChosenBuilding(eBuildingClass) * -1)));
-														}
-														pLoopCity->SetOwedChosenBuilding(eBuildingClass, false);
-													}
-												}
-											}
-										}
-									}
-								}
 							}
 						}
 #endif
@@ -6768,15 +6722,64 @@ void CvTeam::processTech(TechTypes eTech, int iChange)
 				}
 			}
 #endif
+#if defined(MOD_BALANCE_CORE)
+			// Free buildings (once unlocked via tech)
+			CvCity* pLoopCity;
+			CvCivilizationInfo& thisCiv = kPlayer.getCivilizationInfo();
+			for(iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
+			{
+				CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo((BuildingClassTypes)iI);
+				if(!pkBuildingClassInfo)
+				{
+					continue;
+				}
+				
+				if(kPlayer.GetNumCitiesFreeChosenBuilding((BuildingClassTypes)iI) > 0)
+				{
+					BuildingTypes eBuilding = ((BuildingTypes)(thisCiv.getCivilizationBuildings(iI)));
+
+					if(eBuilding != NO_BUILDING)
+					{
+						CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+						if(pkBuildingInfo)
+						{
+							int iLoop;
+							for(pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
+							{
+								if(pLoopCity->isValidBuildingLocation(eBuilding) && (pLoopCity->canConstruct(eBuilding) || (pkBuildingInfo->GetProductionCost() == -1)))
+								{
+									if(kPlayer.GetNumCitiesFreeChosenBuilding((BuildingClassTypes)iI) > 0)
+									{
+										pLoopCity->GetCityBuildings()->SetNumFreeBuilding(eBuilding, 1);
+										if(pLoopCity->GetCityBuildings()->GetNumFreeBuilding(eBuilding) > 0)
+										{
+											kPlayer.ChangeNumCitiesFreeChosenBuilding((BuildingClassTypes)iI, -1);
+										}
+										if(pLoopCity->getFirstBuildingOrder(eBuilding) == 0)
+										{
+											pLoopCity->clearOrderQueue();
+											pLoopCity->chooseProduction();
+											// Send a notification to the user that what they were building was given to them, and they need to produce something else.
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+#endif
 #if defined(MOD_BALANCE_CORE_POLICIES)
 			if(kPlayer.getYieldFromTech(YIELD_CULTURE) > 0)
 			{
-				int iEra = GC.getGame().getCurrentEra();
-				if(iEra < 1)
+				kPlayer.changeJONSCulture(kPlayer.getYieldFromTech(YIELD_CULTURE));
+				if(kPlayer.GetID() == GC.getGame().getActivePlayer())
 				{
-					iEra = 1;
+					char text[256] = {0};
+					float fDelay = 0.0f;
+					sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", kPlayer.getYieldFromTech(YIELD_CULTURE));
+					DLLUI->AddPopupText(kPlayer.getCapitalCity()->getX(),kPlayer.getCapitalCity()->getY(), text, fDelay);
 				}
-				kPlayer.changeJONSCulture(kPlayer.getYieldFromTech(YIELD_CULTURE) * iEra);
 			}
 #endif
 		}

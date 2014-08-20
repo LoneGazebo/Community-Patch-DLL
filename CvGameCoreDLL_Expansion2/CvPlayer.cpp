@@ -152,6 +152,9 @@ CvPlayer::CvPlayer() :
 #if defined(MOD_BALANCE_CORE)
 	, m_bIsReformation(false)
 #endif
+#if defined(MOD_BALANCE_CORE_SPIES)
+	, m_iSpyCooldown(0)
+#endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_LUXURY)
 	, m_iBaseLuxuryHappiness("CvPlayer::m_iBaseLuxuryHappiness", m_syncArchive)
 #endif
@@ -865,6 +868,9 @@ void CvPlayer::uninit()
 #if defined(MOD_BALANCE_CORE)
 	m_bIsReformation = false;
 #endif
+#if defined(MOD_BALANCE_CORE_SPIES)
+	m_iSpyCooldown = 0;
+#endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_LUXURY)
 	m_iBaseLuxuryHappiness = 0;
 #endif
@@ -1312,7 +1318,7 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 		m_paiHurryModifier.resize(GC.getNumHurryInfos(), 0);
 #if defined(MOD_BALANCE_CORE)
 		m_paiNumCitiesFreeChosenBuilding.clear();
-		m_paiNumCitiesFreeChosenBuilding.resize(GC.getNumBuildingInfos(), 0);
+		m_paiNumCitiesFreeChosenBuilding.resize(GC.getNumBuildingClassInfos(), 0);
 #endif
 
 		m_pabLoyalMember.clear();
@@ -2203,7 +2209,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 	{
 		CvGameReligions* pReligions = GC.getGame().GetGameReligions();
 		ReligionTypes eFoundedReligion = pReligions->GetFounderBenefitsReligion(GetID());
-		int iEra = GC.getGame().getCurrentEra();
+		int iEra = GetCurrentEra();
 		if(iEra < 1)
 		{
 			iEra = 1;
@@ -2252,7 +2258,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 	{
 		if(!pOldCity->isEverOwned(GetID()))
 		{
-			int iEra = GC.getGame().getCurrentEra();
+			int iEra = GetCurrentEra();
 			if(iEra < 1)
 			{
 				iEra = 1;
@@ -7482,47 +7488,33 @@ void CvPlayer::AwardFreeBuildings(CvCity* pCity)
 		ChangeNumCitiesFreeFoodBuilding(-1);
 	}
 #if defined(MOD_BALANCE_CORE)
-	for(int iPolicyLoop = 0; iPolicyLoop < GC.getNumPolicyInfos(); iPolicyLoop++)
+	// Free buildings from policies
+	CvCivilizationInfo& thisCiv = getCivilizationInfo();
+	for(int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
 	{
-		PolicyTypes pPolicy = (PolicyTypes)iPolicyLoop;
-		CvPolicyEntry* pkPolicyInfo = GC.getPolicyInfo(pPolicy);
-		if(pkPolicyInfo)
+		CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo((BuildingClassTypes)iI);
+		if(!pkBuildingClassInfo)
 		{
-			if(GetPlayerPolicies()->HasPolicy(pPolicy) && !GetPlayerPolicies()->IsPolicyBlocked(pPolicy))
+			continue;
+		}
+
+		BuildingTypes eBuilding = ((BuildingTypes)(thisCiv.getCivilizationBuildings(iI)));
+
+		if(eBuilding != NO_BUILDING)
+		{
+			CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+			if(pkBuildingInfo)
 			{
-				const int iNumBuildingClassInfos = GC.getNumBuildingClassInfos();
-				CvCivilizationInfo& thisCivilization = getCivilizationInfo();
-				for(int iBuildingClassLoop = 0; iBuildingClassLoop < iNumBuildingClassInfos; iBuildingClassLoop++)
-				{
-					const BuildingClassTypes eBuildingClass = (BuildingClassTypes) iBuildingClassLoop;
-					CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
-					if(!pkBuildingClassInfo)
+				if(GetNumCitiesFreeChosenBuilding((BuildingClassTypes)iI) > 0)
+				{	
+					// -1 check is for buildings you only want to come from policies.
+					if(pCity->isValidBuildingLocation(eBuilding) && (pCity->canConstruct(eBuilding) || (pkBuildingInfo->GetProductionCost() == -1)))
 					{
-						continue;
-					}
-					//How many cities get free buildings of our choice?
-					if(pkPolicyInfo->GetFreeChosenBuilding(eBuildingClass) > 0)
-					{
-						const BuildingTypes eFreeBuilding = (BuildingTypes)(thisCivilization.getCivilizationBuildings(eBuildingClass));
-						if(pCity->isValidBuildingLocation(eFreeBuilding))
+						pCity->GetCityBuildings()->SetNumFreeBuilding(eBuilding, 1);
+
+						if(pCity->GetCityBuildings()->GetNumFreeBuilding(eBuilding) > 0)
 						{
-							CvBuildingEntry* pkBuilding = GC.getBuildingInfo(eFreeBuilding);
-							if(pkBuilding)
-							{
-								if(canConstruct(eFreeBuilding) || (pkBuilding->GetProductionCost() == -1))
-								{
-									pCity->GetCityBuildings()->SetNumFreeBuilding(eFreeBuilding, 1);		
-									ChangeNumCitiesFreeChosenBuilding(eBuildingClass, 1);
-									if(GetNumCitiesFreeChosenBuilding(eBuildingClass) >= (pkPolicyInfo->GetFreeChosenBuilding(eBuildingClass)))
-									{
-										pkPolicyInfo->ChangeFreeChosenBuilding(eBuildingClass, ((GetNumCitiesFreeChosenBuilding(eBuildingClass) * -1)));
-									}
-								}
-								else
-								{
-									pCity->SetOwedChosenBuilding(eBuildingClass, true);
-								}
-							}
+							ChangeNumCitiesFreeChosenBuilding((BuildingClassTypes)iI, -1);
 						}
 					}
 				}
@@ -11247,8 +11239,8 @@ int CvPlayer::GetNumCitiesFreeChosenBuilding(BuildingClassTypes eBuildingClass) 
 /// Changes number of cities remaining to get a free building
 void CvPlayer::ChangeNumCitiesFreeChosenBuilding(BuildingClassTypes eBuildingClass, int iChange)
 {
-	if(iChange != 0)
-		m_paiNumCitiesFreeChosenBuilding.setAt(eBuildingClass, (m_paiNumCitiesFreeChosenBuilding[eBuildingClass] + iChange));
+	m_paiNumCitiesFreeChosenBuilding.setAt(eBuildingClass, (m_paiNumCitiesFreeChosenBuilding[eBuildingClass] + iChange));
+	CvAssert(GetNumCitiesFreeChosenBuilding(eBuildingClass) >= 0);
 }
 /// Reformation Unlock
 void CvPlayer::SetReformation(bool bValue)
@@ -11264,7 +11256,24 @@ bool CvPlayer::IsReformation() const
 	return m_bIsReformation;
 }
 #endif
-
+#if defined(MOD_BALANCE_CORE_SPIES)
+/// Sets how much Unhappiness we have
+void CvPlayer::SetSpyCooldown(int iNewValue)
+{
+	if(m_iSpyCooldown != iNewValue)
+	{
+		m_iSpyCooldown = iNewValue;
+	}
+}
+int CvPlayer::GetSpyCooldown() const
+{
+	return m_iSpyCooldown;
+}
+void CvPlayer::ChangeSpyCooldown(int iNewValue)
+{
+	SetSpyCooldown(GetSpyCooldown() + iNewValue);
+}
+#endif
 //	--------------------------------------------------------------------------------
 /// Handle earning yields from a combat win
 void CvPlayer::DoYieldsFromKill(UnitTypes eAttackingUnitType, UnitTypes eKilledUnitType, int iX, int iY, bool bWasBarbarian, int iExistingDelay)
@@ -14956,7 +14965,7 @@ void CvPlayer::doAdoptPolicy(PolicyTypes ePolicy)
 		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligionFounded, GetID());
 		if(pReligion)
 		{
-			int iEra = GC.getGame().getCurrentEra();
+			int iEra = GetCurrentEra();
 			if(iEra < 1)
 			{
 				iEra = 1;
@@ -16100,7 +16109,7 @@ void CvPlayer::DoGreatPersonExpended(UnitTypes /*eGreatPersonUnit*/)
 				ChangeFaith(iFaith);
 			}
 #if defined(MOD_BALANCE_CORE_BELIEFS)
-			int iEra = GC.getGame().getCurrentEra();
+			int iEra = GetCurrentEra();
 			if(iEra < 1)
 			{
 				iEra = 1;
@@ -25956,53 +25965,6 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 			// Decrement cities left to get free food building (at end of loop we'll set the remainder)
 			iNumCitiesFreeFoodBuilding--;
 		}
-#if defined(MOD_BALANCE_CORE)
-		const int iNumBuildingClassInfos = GC.getNumBuildingClassInfos();
-		CvCivilizationInfo& thisCivilization = getCivilizationInfo();
-		for(int iBuildingClassLoop = 0; iBuildingClassLoop < iNumBuildingClassInfos; iBuildingClassLoop++)
-		{
-			const BuildingClassTypes eBuildingClass = (BuildingClassTypes) iBuildingClassLoop;
-			CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
-			if(!pkBuildingClassInfo)
-			{
-				continue;
-			}
-			//How many cities get free buildings of our choice?
-			if(pPolicy->GetFreeChosenBuilding(eBuildingClass) > 0)
-			{
-				const BuildingTypes eFreeBuilding = (BuildingTypes)(thisCivilization.getCivilizationBuildings(eBuildingClass));
-				if(pLoopCity->isValidBuildingLocation(eFreeBuilding))
-				{
-					CvBuildingEntry* pkBuilding = GC.getBuildingInfo(eFreeBuilding);
-					if(pkBuilding)
-					{
-						if(canConstruct(eFreeBuilding) || (pkBuilding->GetProductionCost() == -1))
-						{
-							if(GetNumCitiesFreeChosenBuilding(eBuildingClass) < (pPolicy->GetFreeChosenBuilding(eBuildingClass)))
-							{
-								pLoopCity->GetCityBuildings()->SetNumFreeBuilding(eFreeBuilding, 1);		
-								ChangeNumCitiesFreeChosenBuilding(eBuildingClass, 1);
-								if(GetNumCitiesFreeChosenBuilding(eBuildingClass) >= (pPolicy->GetFreeChosenBuilding(eBuildingClass)))
-								{
-									pPolicy->ChangeFreeChosenBuilding(eBuildingClass, ((GetNumCitiesFreeChosenBuilding(eBuildingClass) * -1)));
-								}
-								if(pLoopCity->getFirstBuildingOrder(eFreeBuilding) == 0)
-								{
-									pLoopCity->clearOrderQueue();
-									pLoopCity->chooseProduction();		// Send a notification to the user that what they were building was given to them, and they need to produce something else.
-								}
-							}
-						}
-						else
-						{
-							pLoopCity->SetOwedChosenBuilding(eBuildingClass, true);
-						}
-					}
-				}
-			}
-		}
-#endif
-
 		// Free Culture-per-turn in every City
 		int iCityCultureChange = pPolicy->GetCulturePerCity() * iChange;
 		if(pLoopCity->GetGarrisonedUnit() != NULL)
@@ -26152,6 +26114,60 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 		}
 #endif
 	}
+#if defined(MOD_BALANCE_CORE)
+	// Building modifiers
+	BuildingClassTypes eFreeBuildingClass = NO_BUILDINGCLASS;
+	BuildingTypes eFreeBuilding = NO_BUILDING;
+	CvCivilizationInfo& thisCiv = getCivilizationInfo();
+	for(iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
+	{
+		CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo((BuildingClassTypes)iI);
+		if(!pkBuildingClassInfo)
+		{
+			continue;
+		}
+
+		if(pPolicy->GetFreeChosenBuilding(iI) > 0)
+		{
+			eBuilding = ((BuildingTypes)(thisCiv.getCivilizationBuildings(iI)));
+
+			if(eBuilding != NO_BUILDING)
+			{
+				eFreeBuildingClass = (BuildingClassTypes)iI;
+				eFreeBuilding = eBuilding;
+				ChangeNumCitiesFreeChosenBuilding(eFreeBuildingClass, pPolicy->GetFreeChosenBuilding(iI));
+			}
+		}
+	}
+	if(eFreeBuildingClass != NO_BUILDINGCLASS)
+	{
+		CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eFreeBuilding);
+		if(pkBuildingInfo)
+		{
+			int iLoopTwo;
+			for(pLoopCity = firstCity(&iLoopTwo); pLoopCity != NULL; pLoopCity = nextCity(&iLoopTwo))
+			{
+				if(pLoopCity->isValidBuildingLocation(eFreeBuilding) && (pLoopCity->canConstruct(eFreeBuilding) || (pkBuildingInfo->GetProductionCost() == -1)))
+				{
+					if(GetNumCitiesFreeChosenBuilding(eFreeBuildingClass) > 0)
+					{
+						pLoopCity->GetCityBuildings()->SetNumFreeBuilding(eFreeBuilding, 1);
+						if(pLoopCity->GetCityBuildings()->GetNumFreeBuilding(eFreeBuilding) > 0)
+						{
+							ChangeNumCitiesFreeChosenBuilding(eFreeBuildingClass, -1);
+						}
+						if(pLoopCity->getFirstBuildingOrder(eFreeBuilding) == 0)
+						{
+							pLoopCity->clearOrderQueue();
+							pLoopCity->chooseProduction();
+							// Send a notification to the user that what they were building was given to them, and they need to produce something else.
+						}
+					}
+				}
+			}
+		}
+	}
+#endif
 
 	// Store off number of newly built cities that will get a free building
 	ChangeNumCitiesFreeCultureBuilding(iNumCitiesFreeCultureBuilding);
@@ -26714,6 +26730,9 @@ void CvPlayer::Read(FDataStream& kStream)
 #endif
 #if defined(MOD_BALANCE_CORE)
 	MOD_SERIALIZE_READ(60, kStream, m_bIsReformation, false);
+#endif
+#if defined(MOD_BALANCE_CORE_SPIES)
+	MOD_SERIALIZE_READ(61, kStream, m_iSpyCooldown, 0);
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_LUXURY)
 	MOD_SERIALIZE_READ(54, kStream, m_iBaseLuxuryHappiness, 0);
@@ -27372,6 +27391,9 @@ void CvPlayer::Write(FDataStream& kStream) const
 #if defined(MOD_BALANCE_CORE)
 	MOD_SERIALIZE_WRITE(kStream, m_bIsReformation);
 #endif
+#if defined(MOD_BALANCE_CORE_SPIES)
+	MOD_SERIALIZE_WRITE(kStream, m_iSpyCooldown);
+#endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_LUXURY)
 	MOD_SERIALIZE_WRITE(kStream, m_iBaseLuxuryHappiness);
 #endif
@@ -27684,7 +27706,7 @@ void CvPlayer::Write(FDataStream& kStream) const
 	CvInfosSerializationHelper::WriteHashedDataArray<ResourceTypes, int>(kStream, m_paiResourceImport);
 	CvInfosSerializationHelper::WriteHashedDataArray<ResourceTypes, int>(kStream, m_paiResourceFromMinors);
 #if defined(MOD_BALANCE_CORE)
-	CvInfosSerializationHelper::WriteHashedDataArray<BuildingTypes, int>(kStream, m_paiNumCitiesFreeChosenBuilding);
+	CvInfosSerializationHelper::WriteHashedDataArray<BuildingClassTypes, int>(kStream, m_paiNumCitiesFreeChosenBuilding);
 #endif
 	CvInfosSerializationHelper::WriteHashedDataArray<ResourceTypes, int>(kStream, m_paiResourcesSiphoned);
 

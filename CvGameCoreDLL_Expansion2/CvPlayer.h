@@ -435,6 +435,11 @@ public:
 	void SetReformation(bool bValue);
 	bool IsReformation() const;
 #endif
+#if defined(MOD_BALANCE_CORE_SPIES)
+	void SetSpyCooldown(int iNewValue);
+	int GetSpyCooldown() const;
+	void ChangeSpyCooldown(int iValue);
+#endif
 
 	void DoYieldsFromKill(UnitTypes eAttackingUnitType, UnitTypes eKilledUnitType, int iX, int iY, bool bWasBarbarian, int iExistingDelay);
 	void DoYieldBonusFromKill(YieldTypes eYield, UnitTypes eAttackingUnitType, UnitTypes eKilledUnitType, int iX, int iY, bool bWasBarbarian, int &iNumBonuses);
@@ -1956,6 +1961,9 @@ protected:
 #endif
 #if defined(MOD_BALANCE_CORE)
 	bool m_bIsReformation;
+#endif
+#if defined(MOD_BALANCE_CORE_SPIES)
+	int m_iSpyCooldown;
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_LUXURY)
 	FAutoVariable<int, CvPlayer> m_iBaseLuxuryHappiness;
