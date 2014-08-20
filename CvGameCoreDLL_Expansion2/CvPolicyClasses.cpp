@@ -2109,12 +2109,14 @@ int CvPolicyEntry::GetFreeChosenBuilding(int i) const
 {
 	CvAssertMsg(i < GC.getNumBuildingClassInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_paiFreeChosenBuilding[i];
+	return m_paiFreeChosenBuilding ? m_paiFreeChosenBuilding[i] : -1;
 }
 void CvPolicyEntry::ChangeFreeChosenBuilding(int i, int iChange)
 {
 	if(iChange != 0)
+	{
 		m_paiFreeChosenBuilding[i] += iChange;
+	}
 }
 #endif
 #if defined(MOD_BALANCE_CORE_POLICIES)

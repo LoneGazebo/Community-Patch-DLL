@@ -424,9 +424,6 @@ private:
 	int m_iHappinessToScience;
 	int m_iNumCitiesFreeCultureBuilding;
 	int m_iNumCitiesFreeFoodBuilding;
-#if defined(MOD_BALANCE_CORE)
-	int m_iFreeChosenBuilding;
-#endif
 
 	bool m_bHalfSpecialistUnhappiness;
 	bool m_bHalfSpecialistFood;

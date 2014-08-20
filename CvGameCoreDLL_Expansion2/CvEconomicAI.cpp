@@ -3760,6 +3760,8 @@ bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes /*eStra
 			// CASE 1: we can go offshore
 			if (bCanEmbark && (pPlayer->getNumCities() > 1))
 			{
+#if defined(MOD_BALANCE_CORE_SETTLER)
+#else
 				int iRandArea = GC.getGame().getJonRandNum(6, "Randomly choose an area to settle");
 
 				if (iRandArea <= 1) // this is "pick best tile I know ignoring what area it is part of", in the early game this is usually the start landmass
@@ -3778,10 +3780,13 @@ bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes /*eStra
 				}
 				else // this is as likely as the other options combined
 				{
+#endif
 					iArea = iBestArea;
 					bWantEscort = IsAreaSafeForQuickColony(iArea, pPlayer);
+#if defined(MOD_BALANCE_CORE_SETTLER)
+#else
 				}
-
+#endif
 				if (bWantEscort)
 				{
 					pPlayer->addAIOperation(AI_OPERATION_FOUND_CITY, NO_PLAYER, iArea);

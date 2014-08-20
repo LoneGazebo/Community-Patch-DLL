@@ -113,6 +113,13 @@ struct SpyNotificationMessage
 	PlayerTypes m_eAttackingPlayer;
 	int m_iSpyResult;
 	TechTypes m_eStolenTech;
+#if defined(MOD_BALANCE_CORE_SPIES)
+	BuildingTypes m_eDamagedBuilding;
+	UnitTypes m_eDamagedUnit;
+	bool m_bDamagedCity;
+	int m_iGold;
+	bool m_bRebellion;
+#endif
 };
 struct IntrigueNotificationMessage
 {
@@ -149,6 +156,9 @@ public:
 
 	void CreateSpy(void);
 	void ProcessSpy(uint uiSpyIndex);
+#if defined(MOD_BALANCE_CORE_SPIES)
+	void DoAdvancedAction(uint uiSpyIndex);
+#endif
 	void UncoverIntrigue(uint uiSpyIndex);
 #if defined(MOD_BUGFIX_SPY_NAMES)
 	void GetNextSpyName(CvEspionageSpy* pSpy);
@@ -205,7 +215,11 @@ public:
 	bool IsMyDiplomatVisitingThem(PlayerTypes ePlayer, bool bIncludeTravelling = false);
 	bool IsOtherDiplomatVisitingMe(PlayerTypes ePlayer);
 
+#if defined(MOD_BALANCE_CORE_SPIES)
+	void AddSpyMessage(int iCityX, int iCityY, PlayerTypes ePlayer, int iSpyResult, TechTypes eStolenTech, BuildingTypes eBuilding, UnitTypes eUnit, bool bUnrest, int iValue, bool bRebel);
+#else
 	void AddSpyMessage(int iCityX, int iCityY, PlayerTypes ePlayer, int iSpyResult, TechTypes eStolenTech);
+#endif
 	void ProcessSpyMessages(void);
 
 	void AddIntrigueMessage(PlayerTypes eDiscoveringPlayer, PlayerTypes eSourcePlayer, PlayerTypes eTargetPlayer, BuildingTypes eBuilding, ProjectTypes eProject, CvIntrigueType eIntrigueType, uint uiSpyIndex, CvCity* pCity, bool bShowNotification);

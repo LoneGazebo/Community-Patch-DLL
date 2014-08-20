@@ -5618,6 +5618,19 @@ int CvCity::getGeneralProductionModifiers(CvString* toolTipSink) const
 				break;
 			}
 		}
+		//OCC
+		if(GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE))
+		{
+			if(GET_PLAYER(getOwner()).GetCurrentEra() >= GC.getInfoTypeForString("ERA_INDUSTRIAL", true /*bHideAssert*/))
+			{
+				const int iTempMod = GC.getINDUSTRIAL_ROUTE_PRODUCTION_MOD();
+				iMultiplier += iTempMod;
+				if(toolTipSink && iTempMod)
+				{
+					GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_RAILROAD_CONNECTION", iTempMod);
+				}
+			}
+		}
 	}
 #endif
 
@@ -7109,17 +7122,12 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	if(owningPlayer.getYieldFromConstruction(YIELD_CULTURE) > 0)
 	{
-		int iEra = GC.getGame().getCurrentEra();
-		if(iEra < 1)
-		{
-			iEra = 1;
-		}
-		owningPlayer.changeJONSCulture(owningPlayer.getYieldFromConstruction(YIELD_CULTURE) * iEra);
+		owningPlayer.changeJONSCulture(owningPlayer.getYieldFromConstruction(YIELD_CULTURE));
 		if(getOwner() == GC.getGame().getActivePlayer())
 		{
 			char text[256] = {0};
 			float fDelay = 0.0f;
-			sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", owningPlayer.getYieldFromConstruction(YIELD_CULTURE) * iEra);
+			sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", owningPlayer.getYieldFromConstruction(YIELD_CULTURE));
 			DLLUI->AddPopupText(getX(),getY(), text, fDelay);
 		}
 	}
@@ -8718,7 +8726,7 @@ void CvCity::DoJONSCultureLevelIncrease()
 				const CvReligion* pReligion = pReligions->GetReligion(eMajority, getOwner());
 				if(pReligion)
 				{
-					int iEra = GC.getGame().getCurrentEra();
+					int iEra = GET_PLAYER(getOwner()).GetCurrentEra();
 					if(iEra < 1)
 					{
 						iEra = 1;
@@ -8749,7 +8757,7 @@ void CvCity::DoJONSCultureLevelIncrease()
 			}
 #endif
 #if defined(MOD_BALANCE_CORE_POLICIES)
-			int iEra = GC.getGame().getCurrentEra();
+			int iEra = GET_PLAYER(getOwner()).GetCurrentEra();
 			float fDelay = 0.0f;
 			if(iEra < 1)
 			{
@@ -8849,7 +8857,7 @@ void CvCity::DoJONSCultureLevelIncrease()
 			ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
 			if(eMajority != NO_RELIGION)
 			{
-				int iEra = GC.getGame().getCurrentEra();
+				int iEra = GET_PLAYER(getOwner()).GetCurrentEra();
 				if(iEra < 1)
 				{
 					iEra = 1;
@@ -8886,7 +8894,7 @@ void CvCity::DoJONSCultureLevelIncrease()
 			}
 #endif
 #if defined(MOD_BALANCE_CORE_POLICIES)
-			int iEra = GC.getGame().getCurrentEra();
+			int iEra = GET_PLAYER(getOwner()).GetCurrentEra();
 			if(iEra < 1)
 			{
 				iEra = 1;
@@ -11830,20 +11838,20 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 			if(toolTipSink)
 				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_YIELD_BELIEF", iTempMod);
 		}
-#if defined(MOD_BALANCE_CORE_POLICIES)
-		if(eMajority != NO_RELIGION && eMajority > RELIGION_PANTHEON)
-		{
-			if(GET_PLAYER(getOwner()).GetReligions()->GetReligionInMostCities() == eMajority)
-			{	
-				iTempMod = GET_PLAYER(getOwner()).getReligionYieldRateModifier(eIndex);
-				iTempMod += getReligionBuildingYieldRateModifier(eIndex);
-				iModifier += iTempMod;
-				if(toolTipSink)
-					GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_YIELD_RELIGION_POLICIES", iTempMod);
-			}
-		}
-#endif
 	}
+#if defined(MOD_BALANCE_CORE_POLICIES)
+	if(eMajority != NO_RELIGION && eMajority > RELIGION_PANTHEON)
+	{
+		if(GET_PLAYER(getOwner()).GetReligions()->GetReligionInMostCities() == eMajority)
+		{	
+			iTempMod = GET_PLAYER(getOwner()).getReligionYieldRateModifier(eIndex);
+			iTempMod += getReligionBuildingYieldRateModifier(eIndex);
+			iModifier += iTempMod;
+			if(toolTipSink)
+				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_YIELD_RELIGION_POLICIES", iTempMod);
+		}
+	}
+#endif
 
 	// Production Yield Rate Modifier from City States
 	if(eIndex == YIELD_PRODUCTION && GetCityBuildings()->GetCityStateTradeRouteProductionModifier() > 0 )
@@ -16066,7 +16074,7 @@ void CvCity::doGrowth()
 #if defined(MOD_BALANCE_CORE_BELIEFS)
 			const ReligionTypes iReligion = GetCityReligions()->GetReligiousMajority();
 			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(iReligion, getOwner());
-			int iEra = GC.getGame().getCurrentEra();
+			int iEra = GET_PLAYER(getOwner()).GetCurrentEra();
 			if(iEra < 1)
 			{
 				iEra = 1;
@@ -17469,6 +17477,14 @@ bool CvCity::isValidBuildingLocation(BuildingTypes eBuilding) const
 		{
 			if(plot()->isFreshWater())
 			return false;
+		}
+		//Capital Only
+		if(pkBuildingInfo->IsCapitalOnly())
+		{
+			if(!isCapital())
+			{
+				return false;
+			}
 		}
 	}
 #endif

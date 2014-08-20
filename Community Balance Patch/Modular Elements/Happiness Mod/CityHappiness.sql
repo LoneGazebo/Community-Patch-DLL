@@ -56,7 +56,7 @@
 
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_HAPPINESS_TECH_BASE_CITY_COUNT', '10'
+	SELECT 'BALANCE_HAPPINESS_TECH_BASE_CITY_COUNT', '12'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 	
 -- Rates at which technology affects global happiness averages for science/culture, defense and food. 100 = 1:1 rate (1% of techs researched = 1% boost to average).
@@ -64,25 +64,25 @@
 	-- 75 Differentiation a byproduct of the scaling that occurrs in a typical game - food/gold/defense values from cities do not increase as fast as science and culture do.
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_TECH_RATE_CULTURE', '150'
+	SELECT 'BALANCE_TECH_RATE_CULTURE', '175'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 	-- 25
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_TECH_RATE_SCIENCE', '175'
+	SELECT 'BALANCE_TECH_RATE_SCIENCE', '150'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 	
 	--50
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_TECH_RATE_DEFENSE', '200'
+	SELECT 'BALANCE_TECH_RATE_DEFENSE', '175'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 	
 	--50
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_TECH_RATE_GOLD', '200'
+	SELECT 'BALANCE_TECH_RATE_GOLD', '175'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 	
 -- Value by which yield/threshold difference is divded. 100 = 1 point of unhappiness for every 1.00 difference between city yield and global average.

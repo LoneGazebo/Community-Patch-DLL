@@ -1,6 +1,6 @@
 -- Liberty Opener
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Liberty[ENDCOLOR] is best for civilizations which desire robust infrastructure.[NEWLINE][NEWLINE]Adopting Liberty will provide 5 [ICON_CULTURE] Culture every time you research a Technology or construct a Building. Bonus scales with Era. Receive +2% [ICON_PRODUCTION] Production towards buildings, and an additional +2% [ICON_PRODUCTION] Production for every Liberty policy you unlock. Unlocks building the Pyramids.[NEWLINE][NEWLINE]Adopting all policies in the Liberty tree will grant a free Great Person of your choice near the [ICON_CAPITAL] Capital.'
+SET Text = '[COLOR_POSITIVE_TEXT]Liberty[ENDCOLOR] is best for civilizations which desire robust infrastructure.[NEWLINE][NEWLINE]Adopting Liberty will provide 10 [ICON_CULTURE] Culture every time you research a Technology or construct a Building. Receive +2% [ICON_PRODUCTION] Production towards buildings, and an additional +2% [ICON_PRODUCTION] Production for every Liberty policy you unlock. Unlocks building the Pyramids.[NEWLINE][NEWLINE]Adopting all policies in the Liberty tree will grant a free Great Person of your choice near the [ICON_CAPITAL] Capital.'
 WHERE Tag = 'TXT_KEY_POLICY_BRANCH_LIBERTY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 -- Collective Rule (Now City Planning)

@@ -162,6 +162,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 #endif
 #if defined(MOD_BALANCE_CORE)
 	m_bIsNoWater(false),
+	m_bIsCapitalOnly(false),
 	m_bIsReformation(false),
 #endif
 #if defined(MOD_BALANCE_CORE_POP_REQ_BUILDINGS)
@@ -333,6 +334,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 #if defined(MOD_BALANCE_CORE)
 	if(MOD_BALANCE_CORE){
 	m_bIsNoWater = kResults.GetBool("IsNoWater");
+	m_bIsCapitalOnly = kResults.GetBool("CapitalOnly");
 	m_bIsReformation = kResults.GetBool("IsReformation");
 	}
 #endif
@@ -2346,6 +2348,11 @@ int CvBuildingEntry::GetBuildingClassHappiness(int i) const
 bool CvBuildingEntry::IsNoWater() const
 {
 	return m_bIsNoWater;
+}
+/// Does a city need to be the Capital?
+bool CvBuildingEntry::IsCapitalOnly() const
+{
+	return m_bIsCapitalOnly;
 }
 /// Does this building enable a reformation?
 bool CvBuildingEntry::IsReformation() const

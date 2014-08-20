@@ -14,7 +14,7 @@ SET GarrisonedCityRangeStrikeModifier = '0'
 WHERE Type = 'POLICY_OLIGARCHY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Policies
-SET GarrisonFreeMaintenance = 'false'
+SET GarrisonFreeMaintenance = '0'
 WHERE Type = 'POLICY_OLIGARCHY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 -- Legalism

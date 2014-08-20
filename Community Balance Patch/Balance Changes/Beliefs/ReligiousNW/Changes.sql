@@ -1,7 +1,7 @@
 -- No more holy city dependency for Grand Temple
 
 UPDATE Buildings
-SET HolyCity = 'false'
+SET HolyCity = '0'
 WHERE Type = 'BUILDING_GRAND_TEMPLE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Buildings

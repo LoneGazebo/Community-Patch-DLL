@@ -170,6 +170,7 @@ public:
 #endif
 #if defined(MOD_BALANCE_CORE)
 	bool IsNoWater() const;
+	bool IsCapitalOnly() const;
 	bool IsReformation() const;
 #endif
 #if defined(MOD_BALANCE_CORE_POP_REQ_BUILDINGS)
@@ -529,6 +530,7 @@ private:
 #endif
 #if defined(MOD_BALANCE_CORE)
 	bool m_bIsNoWater;
+	bool m_bIsCapitalOnly;
 	bool m_bIsReformation;
 #endif
 #if defined(MOD_BALANCE_CORE_POP_REQ_BUILDINGS)

@@ -1554,7 +1554,7 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 	{
 #if defined(MOD_BALANCE_CORE)
 		//Faith bonus from defeated units.
-		int iEra = GC.getGame().getCurrentEra();
+		int iEra = GET_PLAYER(getOwner()).GetCurrentEra();
 		if(iEra < 1)
 		{
 			iEra = 1;
@@ -5723,7 +5723,7 @@ void CvUnit::doHeal()
 				const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, getOwner());
 				if(pReligion)
 				{
-					int iEra = GC.getGame().getCurrentEra();
+					int iEra = GET_PLAYER(getOwner()).GetCurrentEra();
 					if(iEra < 1)
 					{
 						iEra = 1;
@@ -7955,7 +7955,7 @@ bool CvUnit::DoSpreadReligion()
 	int iGoldenAgeBonus = 0;
 	int iTourism = 0;
 	int iCSInfluence = 0;
-	int iEra = GC.getGame().getCurrentEra();
+	int iEra = GET_PLAYER(getOwner()).GetCurrentEra();
 	if(iEra < 1)
 	{
 		iEra = 1;
@@ -15439,7 +15439,7 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 						kPlayer.GetTreasury()->ChangeGold(iNumGold);
 
 #if defined(MOD_BALANCE_CORE_POLICIES)
-						int iEra = GC.getGame().getCurrentEra();
+						int iEra = GET_PLAYER(getOwner()).GetCurrentEra();
 						if(iEra < 1)
 						{
 							iEra = 1;

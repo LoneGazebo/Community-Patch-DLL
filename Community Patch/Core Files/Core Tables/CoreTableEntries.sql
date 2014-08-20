@@ -2,6 +2,10 @@
 
 ALTER TABLE Buildings ADD COLUMN 'IsNoWater' boolean default false;
 
+-- Create buildings that must be in the Capital
+
+ALTER TABLE Buildings ADD COLUMN 'CapitalOnly' boolean default false;
+
 -- Belief requires an improvement on a terrain type to grant its yield.
 
 ALTER TABLE Beliefs ADD COLUMN 'RequiresImprovement' boolean default false;

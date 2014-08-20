@@ -7,15 +7,17 @@
 			<Type>BUILDING_CAPITAL_ENGINEER</Type>
 			<BuildingClass>BUILDINGCLASS_CAPITAL_ENGINEER</BuildingClass>
 			<Description>TXT_KEY_BUILDING_CAPITAL_ENGINEER</Description>
-			<NeverCapture>true</NeverCapture>
-			<ArtDefineTag>ART_DEF_BUILDING_FORGE</ArtDefineTag>
+			<Help>TXT_KEY_BUILDING_CAPITAL_ENGINEER_HELP</Help>
+			<Civilopedia>TXT_KEY_BUILDING_CAPITAL_ENGINEER_PEDIA</Civilopedia>
+			<ConquestProb>33</ConquestProb>
+			<ArtDefineTag>ART_DEF_BUILDING_MARKET</ArtDefineTag>
 			<MinAreaSize>-1</MinAreaSize>
+			<CapitalOnly>true</CapitalOnly>
 			<SpecialistType>SPECIALIST_ENGINEER</SpecialistType>
 			<SpecialistCount>1</SpecialistCount>
 			<IconAtlas>BW_ATLAS_1</IconAtlas>
 			<PortraitIndex>28</PortraitIndex>
 			<Cost>-1</Cost>
-			<PrereqTech>TECH_AGRICULTURE</PrereqTech>
 		</Row>
 	</Buildings>
 	<BuildingClasses>
@@ -24,17 +26,18 @@
 			<Type>BUILDINGCLASS_CAPITAL_ENGINEER</Type>
 			<DefaultBuilding>BUILDING_CAPITAL_ENGINEER</DefaultBuilding>
 			<Description>TXT_KEY_BUILDING_CAPITAL_ENGINEER</Description>
+			<MaxPlayerInstances>1</MaxPlayerInstances>
 		</Row>
 	</BuildingClasses>
 	<Language_en_US>
 		<Row Tag="TXT_KEY_BUILDING_CAPITAL_ENGINEER">
 			<Text>Palace Engineer</Text>
 		</Row>
-	</Language_en_US>
-	<Building_ClassesNeededInCity>
-		<Row>
-			<BuildingType>BUILDING_CAPITAL_ENGINEER</BuildingType>
-			<BuildingClassType>BUILDINGCLASS_PALACE</BuildingClassType>
+		<Row Tag="TXT_KEY_BUILDING_CAPITAL_ENGINEER_HELP">
+			<Text>Grants a free Engineer specialist in your Capital. Can only be constructed via the Oligarchy Policy.</Text>
 		</Row>
-	</Building_ClassesNeededInCity>
+		<Row Tag="TXT_KEY_BUILDING_CAPITAL_ENGINEER_PEDIA">
+			<Text>The Palace Engineer is an abstraction of the traditional concept of a court builder, or architect.</Text>
+		</Row>
+	</Language_en_US>
 </GameData>

@@ -5,14 +5,14 @@
 		<Row>
 			<PolicyType>POLICY_LIBERTY</PolicyType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>5</Yield>
+			<Yield>10</Yield>
 		</Row>
 	</Policy_YieldFromTech>
 	<Policy_YieldFromConstruction>
 		<Row>
 			<PolicyType>POLICY_LIBERTY</PolicyType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>5</Yield>
+			<Yield>10</Yield>
 		</Row>
 	</Policy_YieldFromConstruction>
 	<Policy_YieldGPExpend>

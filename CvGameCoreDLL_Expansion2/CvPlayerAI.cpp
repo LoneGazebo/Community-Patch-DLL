@@ -186,9 +186,14 @@ void CvPlayerAI::AI_updateFoundValues(bool bStartingLoc)
 		for (int iI = 0; iI < iNumPlots; iI++)
 		{
 			CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(iI);
-
-			if (pLoopPlot->isRevealed(eTeam))
+#if defined(MOD_BALANCE_CORE_SETTLER)
+			//consider only known tiles which don't belong to another player
+			if (MOD_BALANCE_CORE_SETTLER && pLoopPlot->isRevealed(eTeam) && ( (pLoopPlot->getOwner() == NO_PLAYER) || (pLoopPlot->getOwner() == GetID())))
 			{
+#else
+			if (pLoopPlot->isRevealed(eTeam))
+			{	
+#endif
 				const int iValue = GC.getGame().GetSettlerSiteEvaluator()->PlotFoundValue(pLoopPlot, this, NO_YIELD, false);
 				pLoopPlot->setFoundValue(eID, iValue);
 				if (iValue >= iGoodEnoughToBeWorthOurTime)
