@@ -2,9 +2,15 @@
 *
 !*/
 !*.h
+!*.hpp
+!*.c
 !*.cpp
+!*.inl
 !*.rc
+!*.def
 !*.vcxproj
+!*.vcproj
+!*.sln
 !*.filters
 !*.gitattributes
 !*.xml
@@ -13,7 +19,9 @@
 !*.civ5mod
 !*.civ5proj
 !*.civ5sln
+!*.lib
 !*.dll
 !*.txt
+!*.py
 BuildOutput/
 BuildTemp/

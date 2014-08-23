@@ -700,9 +700,6 @@
     <ClInclude Include="CvPlot.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClCompile Include="CvPlotInfo.h">
-      <Filter>Header Files</Filter>
-    </ClCompile>
     <ClInclude Include="CvPlotManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -1037,6 +1034,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CvCityManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CvPlotInfo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
