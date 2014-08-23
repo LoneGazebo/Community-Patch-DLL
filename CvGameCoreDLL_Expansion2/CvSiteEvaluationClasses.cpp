@@ -679,28 +679,12 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, YieldT
 #if defined(MOD_BALANCE_CORE_SETTLER)
 	if (MOD_BALANCE_CORE_SETTLER) 
 	{
-		//Is this a water chokepoint? (More than four would make this a peninsula, which is not what we are looking for.)
-		if(pPlot->IsChokePoint(true, false, 0))
+		//Is this a chokepoint?
+		if(pPlot->IsChokePoint())
 		{
 			rtnValue += (int)rtnValue * /*100*/ GC.getBALANCE_CHOKEPOINT_STRATEGIC_VALUE() / 100;
 		}
-		//Looking for mountains for chokepoints.
-		//If the adjacent plot is not touching another mountain, and there is more than one mountain around pPlot, we've found a potential chokepoint.
-		else if(pPlot->IsChokePoint(false, true, 1))
-		{
-			//Awesome, we found a mountain chokepoint within 1. Emphasize!
-			rtnValue += (int)rtnValue * /*100*/ GC.getBALANCE_CHOKEPOINT_STRATEGIC_VALUE() / 75;
-		}
-		else if(pPlot->IsChokePoint(false, true, 2))
-		{
-			//Awesome, we found a mountain chokepoint within 2. Emphasize!
-			rtnValue += (int)rtnValue * /*100*/ GC.getBALANCE_CHOKEPOINT_STRATEGIC_VALUE() / 100;
-		}
-		else if(pPlot->IsChokePoint(false, true, 3))
-		{
-			//Awesome, we found a mountain chokepoint within 3. Emphasize!
-			rtnValue += (int)rtnValue * /*100*/ GC.getBALANCE_CHOKEPOINT_STRATEGIC_VALUE() / 125;
-		}
+
 		//Too many bad plots?
 		if(iBadPlot > (iLoopPlots / 4))
 		{

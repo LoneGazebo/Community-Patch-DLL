@@ -3223,232 +3223,82 @@ int CvPlot::GetNumAdjacentMountains() const
 	return iNumMountains;
 }
 #if defined(MOD_BALANCE_CORE_SETTLER)
-int CvPlot::GetNumAdjacentWater() const
+int CvPlot::countPassableLandNeighbors(CvPlot** aPassableNeighbors) const
 {
+	int iPassable = 0;
 	CvPlot* pAdjacentPlot;
-	int iI;
-	int iNumWater = 0;
 
-	for (iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
+	for (int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
 	{
 		pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
-
 		if(pAdjacentPlot != NULL)
 		{
-			if (pAdjacentPlot->isWater())
+			if(!pAdjacentPlot->isWater() && !pAdjacentPlot->isImpassable())
 			{
-				iNumWater++;
+				if (aPassableNeighbors)
+					aPassableNeighbors[iPassable] = pAdjacentPlot;
+				iPassable++;
 			}
 		}
 	}
-	return iNumWater;
+	return iPassable;
 }
-int CvPlot::GetNumAdjacentPlotType(PlotTypes iPlotType) const
+
+bool CvPlot::IsChokePoint()
 {
-	CvPlot* pAdjacentPlot;
-	int iI;
-	int iNumPlot = 0;
+	//only passable land plots can be chokepoints
+	if(isWater() || isImpassable())
+		return false;
 
-	for (iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
+	CvPlot* aPassableNeighbors[NUM_DIRECTION_TYPES];
+	int iPassable = countPassableLandNeighbors(aPassableNeighbors);
+
+	//a plot is a chokepoint if it has between two and three passable land plots as neighbors
+	//(with four passable plots it's not a real chokepoint ...)
+	if (iPassable<2 || iPassable>4)
+		return false;
+
+	//each adjacent passable plot must have at least 3 passable neighbors (anti peninsula/dead end valley check)
+	int iPassableAndNoPeninsula = 0;
+	CvPlot* aPassableNeighborsNonPeninsula[NUM_DIRECTION_TYPES];
+	for (int iI = 0; iI<iPassable; iI++)
 	{
-		pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
-
-		if(pAdjacentPlot != NULL)
+		if (aPassableNeighbors[iI]->countPassableLandNeighbors(NULL)>2)
 		{
-			if(iPlotType == PLOT_OCEAN)
-			{
-				if(pAdjacentPlot->isWater())
-				{
-					iNumPlot++;
-				}
-			}
-			else if (pAdjacentPlot->HasPlotType(iPlotType))
-			{
-				iNumPlot++;
-			}
-		}
-	}
-	return iNumPlot;
-}
-bool CvPlot::NoTwoPlotTypeTouch(PlotTypes iPlotType, bool bChokePoint)
-{
-	CvPlot* pAdjacentPlot;
-	int iI;
-	bool bNoAdjacent = false;
-	int iNumPlotType = 0;
-
-	for (iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
-	{
-		pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
-
-		if(pAdjacentPlot != NULL)
-		{
-			if(iPlotType == PLOT_OCEAN)
-			{
-				iNumPlotType++;
-				if(pAdjacentPlot->isWater())
-				{
-					if(pAdjacentPlot->GetNumAdjacentPlotType(iPlotType) <= 0)
-					{
-						bNoAdjacent = true;
-					}
-				}
-			}
-			else if(pAdjacentPlot->HasPlotType(iPlotType))
-			{
-				iNumPlotType++;
-				if(pAdjacentPlot->getPlotType() == getPlotType())
-				{
-					//1, because of Plots being the same PlotType
-					if(pAdjacentPlot->GetNumAdjacentPlotType(iPlotType) <= 1)
-					{
-						bNoAdjacent = true;
-					}
-				}
-				else
-				{
-					if(pAdjacentPlot->GetNumAdjacentPlotType(iPlotType) <= 0)
-					{
-						bNoAdjacent = true;
-					}
-				}
-			}
-		}
-	}
-	//Are the tests above valid, and is the player looking for a chokepoint?
-	if(bChokePoint && bNoAdjacent)
-	{
-		if(iNumPlotType > 1)
-		{
-			bNoAdjacent = true;
-		}
-		else
-		{
-			bNoAdjacent = false;
+			aPassableNeighborsNonPeninsula[iPassableAndNoPeninsula] = aPassableNeighbors[iI];
+			iPassableAndNoPeninsula++;
 		}
 	}
 
-	return bNoAdjacent;
-}
-bool CvPlot::IsChokePoint(bool bWater, bool bMountain, int iDistance)
-{
-	CvPlot* pAdjacentPlot;
-	CvPlot* pAdjacentLandPlot;
-	int iI;
-	int iNumGoodWater = 0;
-	int iLandPlots = 0;
-	int iWaterPlots = 0;
-	int iNumMountain = 0;
-	int iNumRange = 0;
-
-	if(bWater && isCoastalLand(GC.getMIN_WATER_SIZE_FOR_OCEAN()))
+	if (iPassableAndNoPeninsula<2)
+		return false;
+	else if (iPassableAndNoPeninsula==2)
 	{
-		for (iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
-		{
-			pAdjacentLandPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
-
-			if(pAdjacentLandPlot != NULL)
-			{
-				//First, let's make sure we have a land bridge here.
-				if(!pAdjacentLandPlot->isWater() && !pAdjacentLandPlot->isImpassable())
-				{
-					iLandPlots++;
-				}
-				else if(pAdjacentLandPlot->isWater())
-				{
-					iWaterPlots++;
-				}
-			}
-		}
-		//Are there 2-4 land plots? If so, next test.
-		if(iLandPlots > 1 && iLandPlots <= 4)
-		{
-			if(iWaterPlots > 1 && iWaterPlots <= 4)
-			{
-				//Let's look at the other plots.
-				for (iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
-				{
-					pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
-
-					if(pAdjacentPlot != NULL && pAdjacentPlot->isWater())
-					{				
-						//If less than one, is lake. If more than four, is peninsula.
-						if(pAdjacentPlot->GetNumAdjacentPlotType(PLOT_OCEAN) > 0 && (pAdjacentPlot->GetNumAdjacentPlotType(PLOT_OCEAN) <= 4))
-						{
-							iNumGoodWater++;	
-						}
-					}
-				}
-			}
-
-			//If two, let's check for continuity. We don't want that.
-			if(iNumGoodWater == 2)
-			{
-				if(NoTwoPlotTypeTouch(PLOT_OCEAN, true))
-				{
-					return true;
-				}
-			}
-			//If more than two, that means there is most likely water on both sides. Good!
-			if(iNumGoodWater > 2)
-			{
-				return true;
-			}
-		}
+		//check they are not adjacent
+		return !( aPassableNeighborsNonPeninsula[0]->isAdjacent(aPassableNeighborsNonPeninsula[1]) );
 	}
-	if(bMountain)
+	else if (iPassableAndNoPeninsula==3)
 	{
-		int iX = getX(); int iY = getY();
-		for (int i = -iDistance; i <= iDistance; ++i) 
-		{
-			for (int j = -iDistance; j <= iDistance; ++j) 
-			{
-				CvPlot* pLoopPlot = ::plotXYWithRangeCheck(iX, iY, i, j, iDistance);
-			
-				if (pLoopPlot != NULL && pLoopPlot->getFeatureType() != FEATURE_ICE)
-				{
-					if(pLoopPlot->isImpassable())
-					{
-						//Do two mountains not touch here?
-						if(pLoopPlot->NoTwoPlotTypeTouch(PLOT_MOUNTAIN, false))
-						{
-							iNumMountain++;
-						}
-						//More than one mountain clumped together. Range, possibly?
-						else
-						{
-							iNumRange++;
-						}
-					}
-				}
-			}
-		}
-		//Scaled numbers based on distance.
-		//More than one mountain within 1 ring?
-		if(iDistance == 1)
-		{
-			if(iNumMountain > 1 || ((iNumRange < 2) && (iNumRange > 0)))
-			{
-				return true;
-			}
-		}
-		//More than three mountains within two rings?
-		else if(iDistance == 2)
-		{
-			if(iNumMountain > 3 || ((iNumRange < 4) && (iNumRange > 0)))
-			{
-				return true;
-			}
-		}
-		//More than five mountains within three rings?
-		else if(iDistance == 3)
-		{
-			if(iNumMountain > 5 || ((iNumRange < 6) && (iNumRange > 0)))
-			{
-				return true;
-			}
-		}
+		//three passable plots. not more than one pair may be adjacent
+		int AB = int(aPassableNeighborsNonPeninsula[0]->isAdjacent(aPassableNeighborsNonPeninsula[1]));
+		int AC = int(aPassableNeighborsNonPeninsula[0]->isAdjacent(aPassableNeighborsNonPeninsula[2]));
+		int BC = int(aPassableNeighborsNonPeninsula[1]->isAdjacent(aPassableNeighborsNonPeninsula[2]));
+
+		return (AB+AC+BC)<2;
 	}
+	else if (iPassableAndNoPeninsula==4)
+	{
+		//four passable plots. not more than two pairs may be adjacent
+		int AB = int(aPassableNeighborsNonPeninsula[0]->isAdjacent(aPassableNeighborsNonPeninsula[1]));
+		int AC = int(aPassableNeighborsNonPeninsula[0]->isAdjacent(aPassableNeighborsNonPeninsula[2]));
+		int AD = int(aPassableNeighborsNonPeninsula[0]->isAdjacent(aPassableNeighborsNonPeninsula[3]));
+		int BC = int(aPassableNeighborsNonPeninsula[1]->isAdjacent(aPassableNeighborsNonPeninsula[2]));
+		int BD = int(aPassableNeighborsNonPeninsula[1]->isAdjacent(aPassableNeighborsNonPeninsula[3]));
+		int CD = int(aPassableNeighborsNonPeninsula[2]->isAdjacent(aPassableNeighborsNonPeninsula[3]));
+
+		return (AB+AC+AD+BC+BD+CD)<4;
+	}
+
 	return false;
 }
 #endif
