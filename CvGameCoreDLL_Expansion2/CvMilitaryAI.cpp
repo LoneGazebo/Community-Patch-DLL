@@ -1866,10 +1866,6 @@ CityAttackApproaches CvMilitaryAI::EvaluateMilitaryApproaches(CvCity* pCity, boo
 					{
 						iNumTough++;
 					}
-					if(pLoopPlot->isMountain())
-					{
-						iNumBlocked++;
-					}
 					if(pLoopPlot->isImpassable())
 					{
 						iNumBlocked++;
@@ -1952,7 +1948,7 @@ CityAttackApproaches CvMilitaryAI::EvaluateMilitaryApproaches(CvCity* pCity, boo
 				}
 				else
 				{
-					if(pLoopPlot->isImpassable() || pLoopPlot->isMountain())
+					if(pLoopPlot->isImpassable())
 					{
 						iNumBlocked++;
 					}

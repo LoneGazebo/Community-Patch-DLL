@@ -2051,7 +2051,7 @@ int StepValid(CvAStarNode* parent, CvAStarNode* node, int data, const void* poin
 		return FALSE;
 	}
 
-	if(pNewPlot->isImpassable() || pNewPlot->isMountain())
+	if(pNewPlot->isImpassable())
 	{
 		return FALSE;
 	}
@@ -2660,7 +2660,7 @@ int BuildRouteValid(CvAStarNode* parent, CvAStarNode* node, int data, const void
 		return FALSE;
 	}
 
-	if(pNewPlot->isImpassable() || pNewPlot->isMountain())
+	if(pNewPlot->isImpassable())
 	{
 		return FALSE;
 	}
@@ -3995,7 +3995,7 @@ int TradeRouteLandPathCost(CvAStarNode* parent, CvAStarNode* node, int data, con
 	}
 	
 	// Penalty for ending a turn on a mountain
-	if(pToPlot->isImpassable() || pToPlot->isMountain())
+	if(pToPlot->isImpassable())
 	{
 		iCost += 1000;
 	}
@@ -4027,7 +4027,7 @@ int TradeRouteLandValid(CvAStarNode* parent, CvAStarNode* node, int data, const 
 		return FALSE;
 	}
 
-	if(pNewPlot->isMountain() || pNewPlot->isImpassable())
+	if(pNewPlot->isMountain())
 	{
 		return FALSE;
 	}

@@ -79,7 +79,7 @@ bool CvCitySiteEvaluator::CanFound(CvPlot* pPlot, const CvPlayer* pPlayer, bool 
 		}
 	}
 
-	if(pPlot->isImpassable() || pPlot->isMountain())
+	if(pPlot->isImpassable())
 	{
 		return false;
 	}
@@ -892,7 +892,7 @@ int CvCitySiteEvaluator::PlotFertilityValue(CvPlot* pPlot)
 {
 	int rtnValue = 0;
 
-	if(!pPlot->isWater() && !pPlot->isImpassable() && !pPlot->isMountain())
+	if(!pPlot->isWater() && !pPlot->isImpassable())
 	{
 		rtnValue += ComputeFoodValue(pPlot, NULL);
 		rtnValue += ComputeProductionValue(pPlot, NULL);
@@ -1199,7 +1199,7 @@ int CvCitySiteEvaluator::ComputeStrategicValue(CvPlot* pPlot, CvPlayer* pPlayer,
 	if(!pPlot) return rtnValue;
 
 	// Possible chokepoint if impassable terrain and exactly 2 plots from city
-	if(iPlotsFromCity == 2 && (pPlot->isImpassable() || pPlot->isMountain()))
+	if(iPlotsFromCity == 2 && (pPlot->isImpassable()))
 	{
 		rtnValue += /*5*/ GC.getCHOKEPOINT_STRATEGIC_VALUE();
 	}

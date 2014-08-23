@@ -3350,7 +3350,7 @@ bool CvPlot::IsChokePoint(bool bWater, bool bMountain, int iDistance)
 			if(pAdjacentLandPlot != NULL)
 			{
 				//First, let's make sure we have a land bridge here.
-				if(!pAdjacentLandPlot->isWater() && !pAdjacentLandPlot->isImpassable() && !pAdjacentLandPlot->isMountain())
+				if(!pAdjacentLandPlot->isWater() && !pAdjacentLandPlot->isImpassable())
 				{
 					iLandPlots++;
 				}
@@ -3407,7 +3407,7 @@ bool CvPlot::IsChokePoint(bool bWater, bool bMountain, int iDistance)
 			
 				if (pLoopPlot != NULL && pLoopPlot->getFeatureType() != FEATURE_ICE)
 				{
-					if(pLoopPlot->isMountain() || pLoopPlot->isImpassable())
+					if(pLoopPlot->isImpassable())
 					{
 						//Do two mountains not touch here?
 						if(pLoopPlot->NoTwoPlotTypeTouch(PLOT_MOUNTAIN, false))
@@ -11931,24 +11931,32 @@ void CvPlot::updateImpassable()
 {
 	const TerrainTypes eTerrain = getTerrainType();
 	const FeatureTypes eFeature = getFeatureType();
+	const PlotTypes ePlot = getPlotType();
 
 	m_bIsImpassable = false;
 
+	bool bA = false, bB = false, bC = false;
+
+	if(ePlot != NO_PLOT)
+	{
+		CvPlotInfo* pkPlotInfo = GC.getPlotInfo(ePlot);
+		if(pkPlotInfo)
+			bA = pkPlotInfo->isImpassable();
+	}
 	if(eTerrain != NO_TERRAIN)
 	{
-		if(eFeature == NO_FEATURE)
-		{
-			CvTerrainInfo* pkTerrainInfo = GC.getTerrainInfo(eTerrain);
-			if(pkTerrainInfo)
-				m_bIsImpassable = pkTerrainInfo->isImpassable();
-		}
-		else
-		{
-			CvFeatureInfo* pkFeatureInfo = GC.getFeatureInfo(eFeature);
-			if(pkFeatureInfo)
-				m_bIsImpassable = pkFeatureInfo->isImpassable();
-		}
+		CvTerrainInfo* pkTerrainInfo = GC.getTerrainInfo(eTerrain);
+		if(pkTerrainInfo)
+			bB = pkTerrainInfo->isImpassable();
 	}
+	if(eFeature != NO_FEATURE)
+	{
+		CvFeatureInfo* pkFeatureInfo = GC.getFeatureInfo(eFeature);
+		if(pkFeatureInfo)
+			bC = pkFeatureInfo->isImpassable();
+	}
+
+	m_bIsImpassable = bA || bB || bC;
 }
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)

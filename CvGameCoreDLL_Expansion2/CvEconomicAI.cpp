@@ -1243,7 +1243,7 @@ double CvEconomicAI::GetImprovedToImprovablePlotsRatio()
 			continue;
 		}
 
-		if(pPlot->isWater() || pPlot->isImpassable() || pPlot->isMountain() || pPlot->isCity())
+		if(pPlot->isWater() || pPlot->isImpassable() || pPlot->isCity())
 		{
 			continue;
 		}
@@ -2449,7 +2449,7 @@ void CvEconomicAI::DisbandExtraWorkers()
 			continue;
 		}
 
-		if(pPlot->isWater() || pPlot->isImpassable() || pPlot->isMountain() || pPlot->isCity())
+		if(pPlot->isWater() || pPlot->isImpassable() || pPlot->isCity())
 		{
 			continue;
 		}

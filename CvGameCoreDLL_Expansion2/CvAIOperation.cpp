@@ -3888,7 +3888,7 @@ CvPlot* CvAIOperationAllyDefense::FindBestTarget()
 				continue;
 
 			// Can't be impassable
-			if(pPlot->isImpassable() || pPlot->isMountain())
+			if(pPlot->isImpassable())
 				continue;
 
 			// Can't be ANOTHER city

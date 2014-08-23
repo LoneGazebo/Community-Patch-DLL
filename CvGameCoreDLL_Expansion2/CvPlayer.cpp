@@ -1889,7 +1889,7 @@ CvPlot* CvPlayer::addFreeUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 #endif
 							if(pLoopPlot != NULL && pLoopPlot->getArea() == pStartingPlot->getArea())
 							{
-								if(!pLoopPlot->isImpassable() && !pLoopPlot->isMountain())
+								if(!pLoopPlot->isImpassable())
 								{
 									if(!(pLoopPlot->isUnit()))
 									{
@@ -7273,7 +7273,7 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 						{
 							if(pLoopPlot->getArea() == pPlot->getArea())
 							{
-								if(!(pLoopPlot->isImpassable()) && !pLoopPlot->isMountain() && !(pLoopPlot->getPlotCity()))
+								if(!(pLoopPlot->isImpassable()) && !(pLoopPlot->getPlotCity()))
 								{
 									if(pLoopPlot->getNumUnits() == 0)
 									{
@@ -12285,7 +12285,7 @@ void CvPlayer::DoUprising()
 				continue;
 
 			// Can't be impassable
-			if(pPlot->isImpassable() || pPlot->isMountain())
+			if(pPlot->isImpassable())
 				continue;
 
 			// Can't be water
@@ -20145,7 +20145,7 @@ void CvPlayer::DoUpdateCramped()
 						iTotalPlotsNearby++;
 
 						// A "good" unowned Plot
-						if(!pPlot->isOwned() && !pPlot->isImpassable() && !pPlot->isMountain() && !pPlot->isWater())
+						if(!pPlot->isOwned() && !pPlot->isImpassable() && !pPlot->isWater())
 						{
 							iUsablePlotsNearby++;
 						}
@@ -24807,7 +24807,7 @@ int CvPlayer::getAdvancedStartUnitCost(UnitTypes eUnit, bool bAdd, CvPlot* pPlot
 					return -1;
 				}
 
-				if(pPlot->isImpassable() || pPlot->isMountain())
+				if(pPlot->isImpassable())
 				{
 					return -1;
 				}
@@ -25147,7 +25147,7 @@ int CvPlayer::getAdvancedStartRouteCost(RouteTypes eRoute, bool bAdd, CvPlot* pP
 
 		if(bAdd)
 		{
-			if(pPlot->isImpassable() || pPlot->isWater() || pPlot->isMountain())
+			if(pPlot->isImpassable() || pPlot->isWater())
 			{
 				return -1;
 			}
