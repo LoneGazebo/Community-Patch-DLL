@@ -1547,7 +1547,11 @@ public:
 	bool haveAIOperationOfType(int iOperationType, int* piID=NULL, PlayerTypes eTargetPlayer = NO_PLAYER, CvPlot* pTargetPlot=NULL);
 	int numOperationsOfType(int iOperationType);
 	bool IsCityAlreadyTargeted(CvCity* pCity, DomainTypes eDomain=NO_DOMAIN, int iPercentToTarget=100, int iIgnoreOperationID=-1) const;
+#ifdef MOD_BALANCE_CORE_SETTLER
+	bool IsPlotTargetedForCity(CvPlot *pPlot, CvAIOperation* pOpToIgnore) const;
+#else
 	bool IsPlotTargetedForCity(CvPlot *pPlot) const;
+#endif
 	void GatherPerTurnReplayStats(int iGameTurn);
 	unsigned int getNumReplayDataSets() const;
 	const char* getReplayDataSetName(unsigned int uiDataSet) const;
@@ -1645,7 +1649,11 @@ public:
 	void ChangeTurnsSinceSettledLastCity(int iChange);
 
 	int GetBestSettleAreas(int iMinScore, int& iFirstArea, int& iSecondArea);
-	CvPlot* GetBestSettlePlot(CvUnit* pUnit, bool bEscorted, int iArea = -1) const;
+#ifdef MOD_BALANCE_CORE_SETTLER
+	CvPlot* GetBestSettlePlot(CvUnit* pUnit, bool bEscorted, int iArea, CvAIOperation* pOpToIgnore) const;
+#else
+	CvPlot* GetBestSettlePlot(CvUnit* pUnit, bool bEscorted, int iArea=-1) const;
+#endif
 
 	// New Victory Stuff
 	int GetNumWonders() const;

@@ -181,6 +181,8 @@ void CvPlayerAI::AI_updateFoundValues(bool bStartingLoc)
 	}
 	else
 	{
+		//Todo: Speed optimization - do this only if we have a settler?
+
 		const TeamTypes eTeam = getTeam();
 		GC.getGame().GetSettlerSiteEvaluator()->ComputeFlavorMultipliers(this);
 		for (int iI = 0; iI < iNumPlots; iI++)

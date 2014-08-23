@@ -3000,6 +3000,8 @@ CvAIOperationFoundCity::~CvAIOperationFoundCity()
 void CvAIOperationFoundCity::Init(int iID, PlayerTypes eOwner, PlayerTypes /*eEnemy*/, int iDefaultArea, CvCity* /*pTarget*/, CvCity* /*pMuster*/)
 {
 	m_iTargetArea = iDefaultArea;
+	m_iRetargetCount = 0;
+
 	CvUnit* pOurCivilian;
 	CvPlot* pTargetSite = NULL;
 	CvPlot* pNewTarget = NULL;
@@ -3209,6 +3211,54 @@ bool CvAIOperationFoundCity::ArmyInPosition(CvArmyAI* pArmy)
 				CvPlot* pCityPlot = pSettler->plot();
 				int iPlotValue = GC.getGame().GetSettlerSiteEvaluator()->PlotFoundValue(pCityPlot, &GET_PLAYER(m_eOwner), NO_YIELD, false);
 
+#ifdef MOD_BALANCE_CORE_SETTLER
+
+				//ilteroi: now that the neighboring tiles are guaranteed to be revealed, recheck if we are at the best plot -----------
+				//minor twist: the nearby plots are already targeted for a city. so we need to ignore this very operation when checking the plots
+				CvPlot* pAltPlot = GET_PLAYER(m_eOwner).GetBestSettlePlot(pSettler, m_bEscorted, m_iTargetArea, this);
+				int iDelta = 0; //our distance to the current best location
+				if (pAltPlot)
+					iDelta = ::plotDistance(pCityPlot->getX(),pCityPlot->getY(),pAltPlot->getX(),pAltPlot->getY());
+				if (iDelta==0 || iDelta>3 || m_iRetargetCount>1)
+				{
+					pSettler->PushMission(CvTypes::getMISSION_FOUND());
+
+					if(GC.getLogging() && GC.getAILogging())
+					{
+						CvArea* pArea = pCityPlot->area();
+						CvCity* pCity = pCityPlot->getPlotCity();
+
+						if (pCity != NULL)
+						{
+							strMsg.Format("City founded, At X=%d, At Y=%d, %s, %d, %d", pCityPlot->getX(), pCityPlot->getY(), pCity->getName().GetCString(), iPlotValue, pArea->getTotalFoundValue());
+							LogOperationSpecialMessage(strMsg);
+						}
+					}
+					m_eCurrentState = AI_OPERATION_STATE_SUCCESSFUL_FINISH;
+				}
+				else
+				{
+					if(GC.getLogging() && GC.getAILogging())
+					{
+						strMsg.Format("Retargeting because of new situation. Target was (X=%d Y=%d), new target (X=%d Y=%d)", GetTargetPlot()->getX(), GetTargetPlot()->getY(), pAltPlot->getX(),pAltPlot->getY());
+						LogOperationSpecialMessage(strMsg);
+					}
+					m_iRetargetCount += 1;
+					//taken from RetargetCivilian()
+					SetTargetPlot(pAltPlot);
+					pArmy->SetGoalPlot(pAltPlot);
+					pArmy->SetArmyAIState(ARMYAISTATE_MOVING_TO_DESTINATION);
+					m_eCurrentState = AI_OPERATION_STATE_MOVING_TO_TARGET;
+
+					pSettler->finishMoves();
+					iUnitID = pArmy->GetNextUnitID();
+					if(iUnitID != -1)
+					{
+						pEscort = GET_PLAYER(m_eOwner).getUnit(iUnitID);
+						pEscort->finishMoves();
+					}
+				}
+#else
 				pSettler->PushMission(CvTypes::getMISSION_FOUND());
 
 				if(GC.getLogging() && GC.getAILogging())
@@ -3223,6 +3273,8 @@ bool CvAIOperationFoundCity::ArmyInPosition(CvArmyAI* pArmy)
 					}
 				}
 				m_eCurrentState = AI_OPERATION_STATE_SUCCESSFUL_FINISH;
+#endif //MOD_BALANCE_CORE_SETTLER
+
 			}
 
 			// If we're at our target but can no longer found a city, might be someone else beat us to this area
@@ -3257,6 +3309,21 @@ bool CvAIOperationFoundCity::ArmyInPosition(CvArmyAI* pArmy)
 }
 
 /// Find the plot where we want to settle
+#ifdef MOD_BALANCE_CORE_SETTLER
+
+CvPlot* CvAIOperationFoundCity::FindBestTarget(CvUnit* pUnit, bool bOnlySafePaths)
+{
+	CvPlot* pResult = GET_PLAYER(m_eOwner).GetBestSettlePlot(pUnit, !bOnlySafePaths /*m_bEscorted*/, m_iTargetArea, this);
+	if (pResult == NULL)
+	{
+		m_iTargetArea = -1;
+		pResult = GET_PLAYER(m_eOwner).GetBestSettlePlot(pUnit, !bOnlySafePaths /*m_bEscorted*/, -1, this);
+	}
+	return pResult;
+}
+
+#else
+
 CvPlot* CvAIOperationFoundCity::FindBestTarget(CvUnit* pUnit, bool bOnlySafePaths)
 {
 	CvPlot* pResult = GET_PLAYER(m_eOwner).GetBestSettlePlot(pUnit, bOnlySafePaths /*m_bEscorted*/, m_iTargetArea);
@@ -3268,6 +3335,7 @@ CvPlot* CvAIOperationFoundCity::FindBestTarget(CvUnit* pUnit, bool bOnlySafePath
 	return pResult;
 }
 
+#endif
 
 /// Returns true when we should abort the operation totally (besides when we have lost all units in it)
 bool CvAIOperationFoundCity::ShouldAbort()
@@ -3419,18 +3487,6 @@ CvUnit* CvAIOperationQuickColonize::FindBestCivilian()
 		}
 	}
 	return NULL;
-}
-
-/// Find the plot where we want to settle
-CvPlot* CvAIOperationQuickColonize::FindBestTarget(CvUnit* pUnit, bool /*bOnlySafePaths*/)
-{
-	CvPlot* pResult = GET_PLAYER(m_eOwner).GetBestSettlePlot(pUnit, false, m_iTargetArea);
-	if (pResult == NULL)
-	{
-		m_iTargetArea = -1;
-		pResult = GET_PLAYER(m_eOwner).GetBestSettlePlot(pUnit, false, -1);
-	}
-	return pResult;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -5627,7 +5683,11 @@ bool CvAINavalEscortedOperation::ArmyInPosition(CvArmyAI* pArmy)
 /// Find the plot where we want to settle
 CvPlot* CvAINavalEscortedOperation::FindBestTarget(CvUnit* pUnit)
 {
+#ifdef MOD_BALANCE_CORE_SETTLER
+	return GET_PLAYER(m_eOwner).GetBestSettlePlot(pUnit, true, -1, this);
+#else
 	return GET_PLAYER(m_eOwner).GetBestSettlePlot(pUnit, true, -1);
+#endif
 }
 
 /// Start the civilian off to a new target plot

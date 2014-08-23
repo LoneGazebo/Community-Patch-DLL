@@ -558,9 +558,11 @@ public:
 	}
 	virtual bool ArmyInPosition(CvArmyAI* pArmy);
 	virtual bool ShouldAbort();
+	virtual CvPlot* FindBestTarget(CvUnit* pUnit, bool bOnlySafePaths);
 
 private:
-	virtual CvPlot* FindBestTarget(CvUnit* pUnit, bool bOnlySafePaths);
+
+	int m_iRetargetCount;
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -590,7 +592,7 @@ public:
 	virtual CvUnit* FindBestCivilian();
 
 private:
-	CvPlot* FindBestTarget(CvUnit* pUnit, bool bOnlySafePaths);
+
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

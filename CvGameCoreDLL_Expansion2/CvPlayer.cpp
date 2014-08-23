@@ -24032,7 +24032,11 @@ bool CvPlayer::IsCityAlreadyTargeted(CvCity* pCity, DomainTypes eDomain, int iPe
 
 //	--------------------------------------------------------------------------------
 /// Are we already sending a settler to this plot (or any plot within 2)
+#ifdef MOD_BALANCE_CORE_SETTLER
+bool CvPlayer::IsPlotTargetedForCity(CvPlot *pPlot, CvAIOperation* pOpToIgnore) const
+#else
 bool CvPlayer::IsPlotTargetedForCity(CvPlot *pPlot) const
+#endif
 {
 	CvAIOperation* pOperation;
 	std::map<int , CvAIOperation*>::const_iterator iter;
@@ -24040,7 +24044,11 @@ bool CvPlayer::IsPlotTargetedForCity(CvPlot *pPlot) const
 	for(iter = m_AIOperations.begin(); iter != m_AIOperations.end(); ++iter)
 	{
 		pOperation = iter->second;
+#ifdef MOD_BALANCE_CORE_SETTLER
+		if(pOperation && pOperation!=pOpToIgnore)
+#else
 		if(pOperation)
+#endif
 		{
 			switch (pOperation->GetOperationType())
 			{
@@ -28912,7 +28920,11 @@ int CvPlayer::GetBestSettleAreas(int iMinScore, int& iFirstArea, int& iSecondAre
 
 //	--------------------------------------------------------------------------------
 /// Find the best spot in the entire world for this unit to settle
+#ifdef MOD_BALANCE_CORE_SETTLER
+CvPlot* CvPlayer::GetBestSettlePlot(CvUnit* pUnit, bool bEscorted, int iArea, CvAIOperation* pOpToIgnore) const
+#else
 CvPlot* CvPlayer::GetBestSettlePlot(CvUnit* pUnit, bool bEscorted, int iArea) const
+#endif
 {
 	if(!pUnit)
 		return NULL;
@@ -28985,7 +28997,11 @@ CvPlot* CvPlayer::GetBestSettlePlot(CvUnit* pUnit, bool bEscorted, int iArea) co
 			continue;
 		}
 
+#ifdef MOD_BALANCE_CORE_SETTLER
+		if (IsPlotTargetedForCity(pPlot,pOpToIgnore))
+#else
 		if (IsPlotTargetedForCity(pPlot))
+#endif
 		{
 			continue;
 		}
