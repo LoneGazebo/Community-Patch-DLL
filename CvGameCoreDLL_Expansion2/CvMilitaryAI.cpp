@@ -4109,14 +4109,11 @@ UnitHandle CvMilitaryAI::FindBestUnitToScrap(bool bLand, bool bDeficitForcedDisb
 			}
 #if defined(MOD_BALANCE_CORE_SETTLER)
 			//Failsafe to keep AI from deleting advanced start settlers.
-			if(MOD_BALANCE_CORE_SETTLER)
+			if(m_pPlayer->GetNumCitiesFounded() < 3)
 			{
-				if(m_pPlayer->GetNumCitiesFounded() < 3)
+				if(pUnitInfo.IsFound() || pUnitInfo.IsFoundAbroad())
 				{
-					if(pUnitInfo.IsFound() || pUnitInfo.IsFoundAbroad())
-					{
-						continue;
-					}
+					continue;
 				}
 			}
 #endif

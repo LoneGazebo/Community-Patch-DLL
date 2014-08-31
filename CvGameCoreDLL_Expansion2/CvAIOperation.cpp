@@ -3060,8 +3060,11 @@ void CvAIOperationFoundCity::Init(int iID, PlayerTypes eOwner, PlayerTypes /*eEn
 				else
 				{
 					// There was no escort immediately available.  Let's look for a "safe" city site instead
-
+#ifdef MOD_BALANCE_CORE_SETTLER
+					if (eOwner == -1 || GET_PLAYER(eOwner).getNumCities() > 1 || GET_PLAYER(eOwner).GetDiplomacyAI()->GetBoldness() > 7) // unless we'd rather play it safe
+#else
 					if (eOwner == -1 || GET_PLAYER(eOwner).getNumCities() > 1 || GET_PLAYER(eOwner).GetDiplomacyAI()->GetBoldness() > 5) // unless we'd rather play it safe
+#endif
 					{
 						pNewTarget = FindBestTarget(pOurCivilian, true);
 					}
@@ -3212,8 +3215,7 @@ bool CvAIOperationFoundCity::ArmyInPosition(CvArmyAI* pArmy)
 				int iPlotValue = GC.getGame().GetSettlerSiteEvaluator()->PlotFoundValue(pCityPlot, &GET_PLAYER(m_eOwner), NO_YIELD, false);
 
 #ifdef MOD_BALANCE_CORE_SETTLER
-
-				//ilteroi: now that the neighboring tiles are guaranteed to be revealed, recheck if we are at the best plot -----------
+				//now that the neighboring tiles are guaranteed to be revealed, recheck if we are at the best plot
 				//minor twist: the nearby plots are already targeted for a city. so we need to ignore this very operation when checking the plots
 				CvPlot* pAltPlot = GET_PLAYER(m_eOwner).GetBestSettlePlot(pSettler, m_bEscorted, m_iTargetArea, this);
 				int iDelta = 0; //our distance to the current best location

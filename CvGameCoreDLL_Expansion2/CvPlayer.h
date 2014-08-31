@@ -1650,7 +1650,7 @@ public:
 
 	int GetBestSettleAreas(int iMinScore, int& iFirstArea, int& iSecondArea);
 #ifdef MOD_BALANCE_CORE_SETTLER
-	CvPlot* GetBestSettlePlot(CvUnit* pUnit, bool bEscorted, int iArea, CvAIOperation* pOpToIgnore) const;
+	CvPlot* GetBestSettlePlot(CvUnit* pUnit, bool bEscorted, int iArea, CvAIOperation* pOpToIgnore);
 #else
 	CvPlot* GetBestSettlePlot(CvUnit* pUnit, bool bEscorted, int iArea=-1) const;
 #endif

@@ -44,7 +44,9 @@
 #include "ICvDLLUserInterface.h"
 #include "CvEnumSerialization.h"
 #include "FStlContainerSerialization.h"
+
 #include <sstream>
+#include <iomanip>
 
 #include "CvInternalGameCoreUtils.h"
 #include "CvAchievementUnlocker.h"
@@ -28921,10 +28923,165 @@ int CvPlayer::GetBestSettleAreas(int iMinScore, int& iFirstArea, int& iSecondAre
 //	--------------------------------------------------------------------------------
 /// Find the best spot in the entire world for this unit to settle
 #ifdef MOD_BALANCE_CORE_SETTLER
-CvPlot* CvPlayer::GetBestSettlePlot(CvUnit* pUnit, bool bEscorted, int iArea, CvAIOperation* pOpToIgnore) const
+CvPlot* CvPlayer::GetBestSettlePlot(CvUnit* pUnit, bool bEscorted, int iArea, CvAIOperation* pOpToIgnore)
+{
+	if(!pUnit)
+		return NULL;
+
+	//--------
+	std::stringstream ss;
+	ss << "c:\\temp\\" << getCivilizationShortDescription() << "_" << std::setfill('0') << std::setw(3) << GC.getGame().getGameTurn() << ".txt";
+	std::ofstream dump(ss.str().c_str(), std::ios::out);
+	//--------
+
+	int iSettlerX = pUnit->getX();
+	int iSettlerY = pUnit->getY();
+	int iUnitArea = pUnit->getArea();
+	PlayerTypes eOwner = pUnit->getOwner();
+	TeamTypes eTeam = pUnit->getTeam();
+
+	int iBestFoundValue = 0;
+	CvPlot* pBestFoundPlot = NULL;
+
+	int iEvalDistance = /*12*/ GC.getSETTLER_EVALUATION_DISTANCE();
+	int iDistanceDropoffMod = /*99*/ GC.getSETTLER_DISTANCE_DROPOFF_MODIFIER();
+
+	iEvalDistance += (GC.getGame().getGameTurn() * 5) / 100;
+
+	// scale this based on world size
+	const int iDefaultNumTiles = 80*52;
+	int iDefaultEvalDistance = iEvalDistance;
+	iEvalDistance = (iEvalDistance * GC.getMap().numPlots()) / iDefaultNumTiles;
+	iEvalDistance = max(iDefaultEvalDistance,iEvalDistance);
+
+	if(bEscorted && GC.getMap().GetAIMapHint() & 5)  // this is primarily a naval map or at the very least an offshore expansion map
+	{
+		iEvalDistance *= 3;
+		iEvalDistance /= 2;
+	}
+	// Stay close to home if don't have an escort (unless we were going offshore which doesn't use escorts anymore)
+	else if(!bEscorted)
+	{
+		iEvalDistance *= 2;
+		iEvalDistance /= 3;
+	}
+
+	CvMap& kMap = GC.getMap();
+	int iNumPlots = kMap.numPlots();
+	for(int iPlotLoop = 0; iPlotLoop < iNumPlots; iPlotLoop++)
+	{
+		CvPlot* pPlot = kMap.plotByIndexUnchecked(iPlotLoop);
+
+		if(!pPlot)
+		{
+			continue;
+		}
+
+		if(!pPlot->isRevealed(getTeam()))
+		{
+			//--------------
+			dump << pPlot->getX() << "," << pPlot->getY() << "," << pPlot->getTerrainType() << "," << pPlot->getPlotType() << "," \
+				<< pPlot->getFeatureType() << "," << pPlot->getOwner() << ",0,0" << std::endl;
+			//--------------
+			continue;
+		}
+
+		if(pPlot->getOwner() != NO_PLAYER && pPlot->getOwner() != eOwner)
+		{
+			//--------------
+			dump << pPlot->getX() << "," << pPlot->getY() << "," << pPlot->getTerrainType() << "," << pPlot->getPlotType() << "," \
+				<< pPlot->getFeatureType() << "," << pPlot->getOwner() << ",1,-2" << std::endl;
+			//--------------
+			continue;
+		}
+
+		if(pPlot->IsAdjacentOwnedByOtherTeam(eTeam))
+		{
+			//--------------
+			dump << pPlot->getX() << "," << pPlot->getY() << "," << pPlot->getTerrainType()  << "," << pPlot->getPlotType() << "," \
+				<< pPlot->getFeatureType() << "," << pPlot->getOwner() << ",1,-1" << std::endl;
+			//--------------
+			continue;
+		}
+
+		if(!pUnit->canFound(pPlot))
+		{
+			//--------------
+			dump << pPlot->getX() << "," << pPlot->getY() << "," << pPlot->getTerrainType() << "," << pPlot->getPlotType() << "," \
+				<< pPlot->getFeatureType() << "," << pPlot->getOwner() << ",1,0" << std::endl;
+			//--------------
+			continue;
+		}
+
+		if(iArea != -1 && pPlot->getArea() != iArea)
+		{
+			continue;
+		}
+
+		if (IsPlotTargetedForCity(pPlot,pOpToIgnore))
+		{
+			//--------------
+			dump << pPlot->getX() << "," << pPlot->getY() << "," << pPlot->getTerrainType() << "," << pPlot->getPlotType() << "," \
+				<< pPlot->getFeatureType() << "," << pPlot->getOwner() << ",1,-3" << std::endl;
+			//--------------
+			continue;
+		}
+
+		if(!bEscorted && pPlot->isVisibleEnemyUnit(eOwner))
+		{
+			//--------------
+			dump << pPlot->getX() << "," << pPlot->getY() << "," << pPlot->getTerrainType() << "," << pPlot->getPlotType() << "," \
+				<< pPlot->getFeatureType() << "," << pPlot->getOwner() << ",1,-4" << std::endl;
+			//--------------
+			continue;
+		}
+
+		//finally no more obstacles
+		int iValue = 0;
+		if (GC.getLogging() && GC.getAILogging()) 
+		{
+			CvString strDebug;
+			iValue = GC.getGame().GetSettlerSiteEvaluator()->PlotFoundValue(pPlot, this, NO_YIELD, false, &strDebug);
+			//--------------
+			dump << pPlot->getX() << "," << pPlot->getY() << "," << pPlot->getTerrainType() << "," << pPlot->getPlotType() << "," \
+				<< pPlot->getFeatureType() << "," << pPlot->getOwner() << ",1," << iValue << "," << strDebug.c_str() << std::endl;
+			//--------------
+		}
+		else
+			//with caching
+			iValue = pPlot->getFoundValue(eOwner);
+
+		if(iValue > 5000)
+		{
+			int iSettlerDistance = ::plotDistance(pPlot->getX(), pPlot->getY(), iSettlerX, iSettlerY);
+			//todo: fix iDistanceDropoffMod - should probably be a subtraction!
+			int iDistanceDropoff = min(99,(iDistanceDropoffMod * iSettlerDistance) / iEvalDistance);
+			iDistanceDropoff = max(0,iDistanceDropoff);
+			iValue = iValue * (100 - iDistanceDropoff) / 100;
+			if(pPlot->getArea() != iUnitArea)
+			{
+				if(GC.getMap().GetAIMapHint() & 5)  // this is primarily a naval map (or an offshore map like terra)
+				{
+					iValue *= 3;
+					iValue /= 2;
+				}
+				else
+				{
+					iValue *= 2;
+					iValue /= 3;
+				}
+			}
+			if(iValue > iBestFoundValue)
+			{
+				iBestFoundValue = iValue;
+				pBestFoundPlot = pPlot;
+			}
+		}
+	}
+	return pBestFoundPlot;
+}
 #else
 CvPlot* CvPlayer::GetBestSettlePlot(CvUnit* pUnit, bool bEscorted, int iArea) const
-#endif
 {
 	if(!pUnit)
 		return NULL;
@@ -28997,11 +29154,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(CvUnit* pUnit, bool bEscorted, int iArea) co
 			continue;
 		}
 
-#ifdef MOD_BALANCE_CORE_SETTLER
-		if (IsPlotTargetedForCity(pPlot,pOpToIgnore))
-#else
 		if (IsPlotTargetedForCity(pPlot))
-#endif
 		{
 			continue;
 		}
@@ -29039,6 +29192,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(CvUnit* pUnit, bool bEscorted, int iArea) co
 	}
 	return pBestFoundPlot;
 }
+#endif //MOD_BALANCE_CORE_SETTLER
 
 
 //	--------------------------------------------------------------------------------

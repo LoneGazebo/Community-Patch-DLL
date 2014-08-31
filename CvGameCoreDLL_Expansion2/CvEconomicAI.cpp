@@ -3719,10 +3719,16 @@ bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes /*eStra
 	int iNumAreas;
 	int iArea = -1;
 
+#if defined(MOD_BALANCE_CORE_SETTLER)
+	// Never run this strategy for a human player, barbarians or minor civs
+	if (pPlayer->isBarbarian() || pPlayer->isMinorCiv() || pPlayer->isHuman())
+		return false;
+#else
 	if(GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && pPlayer->isHuman())
 	{
 		return false;
 	}
+#endif
 
 	// Never run this strategy for a human player
 	if(!pPlayer->isHuman())
