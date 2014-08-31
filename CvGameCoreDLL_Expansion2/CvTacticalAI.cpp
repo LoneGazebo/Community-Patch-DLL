@@ -2064,9 +2064,9 @@ bool CvTacticalAI::PlotCaptureCityMoves()
 					// If we have the city already down to minimum, don't use ranged... Only try to capture.
 					// This will never be true, as the city heals between turns!!!
 					bool bNoRangedUnits = (iRequiredDamage <= 10);
-					if (bNoRangedUnits) CUSTOMLOG("City attack without ranged units");
 					if(FindUnitsWithinStrikingDistance(pPlot, 1, 0, bNoRangedUnits, false /*bNavalOnly*/, false /*bMustMoveThrough*/, true /*bIncludeBlockedUnits*/))
 					{
+						//can be called only after FindUnitsWithinStrikingDistance!
 						int iExpectedDamage = ComputeTotalExpectedDamage(pTarget, pPlot);
 
 						if(GC.getLogging() && GC.getAILogging())
@@ -2166,12 +2166,6 @@ bool CvTacticalAI::PlotDamageCityMoves()
 					//If don't have units nearby to actually conquer, and bad dominance flag, get out.
 					if(!FindUnitsWithinStrikingDistance(pPlot, 2, 0, true /*bNoRangedUnits*/, false /*bNavalOnly*/, false /*bMustMoveThrough*/, true /*bIncludeBlockedUnits*/))
 					{
-						if(GC.getLogging() && GC.getAILogging())
-						{
-							CvString strLogString("Attacking city");
-							LogTacticalMessage(strLogString);
-						}
-
 						CvTacticalDominanceZone* pZone;
 						pZone = m_pMap->GetZoneByCity(pCity, false);
 						if (pZone != NULL)
@@ -2180,7 +2174,7 @@ bool CvTacticalAI::PlotDamageCityMoves()
 							{
 								if(GC.getLogging() && GC.getAILogging())
 								{
-									CvString strLogString("Pulling back from city, not enough units");
+									CvString strLogString("Pulling back from city, no melee support for conquering");
 									LogTacticalMessage(strLogString);
 								}
 								return bAttackMade;
@@ -2197,10 +2191,11 @@ bool CvTacticalAI::PlotDamageCityMoves()
 					// If we have the city already down to minimum, don't use ranged... Only try to capture.
 					// This will never be true, as the city heals between turns!!!
 					bool bNoRangedUnits = (iRequiredDamage <= 10);
-					if (bNoRangedUnits) CUSTOMLOG("City attack without ranged units");
 					if(FindUnitsWithinStrikingDistance(pPlot, 1, 0, bNoRangedUnits, false /*bNavalOnly*/, false /*bMustMoveThrough*/, true /*bIncludeBlockedUnits*/))
 					{
 						int iExpectedDamage = ComputeTotalExpectedDamage(pTarget, pPlot);
+
+						//todo: attack ranged only?
 
 						if(GC.getLogging() && GC.getAILogging())
 						{

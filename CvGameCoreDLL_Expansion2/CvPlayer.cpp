@@ -28929,9 +28929,9 @@ CvPlot* CvPlayer::GetBestSettlePlot(CvUnit* pUnit, bool bEscorted, int iArea, Cv
 		return NULL;
 
 	//--------
-	std::stringstream ss;
-	ss << "c:\\temp\\" << getCivilizationShortDescription() << "_" << std::setfill('0') << std::setw(3) << GC.getGame().getGameTurn() << ".txt";
-	std::ofstream dump(ss.str().c_str(), std::ios::out);
+	bool bLogging = GC.getLogging() && GC.getAILogging();
+	std::stringstream dump;
+	int iDanger=0, iFertility=0;
 	//--------
 
 	int iSettlerX = pUnit->getX();
@@ -28977,11 +28977,18 @@ CvPlot* CvPlayer::GetBestSettlePlot(CvUnit* pUnit, bool bEscorted, int iArea, Cv
 			continue;
 		}
 
+		if (bLogging)
+		{
+			iDanger = GetPlotDanger(*pPlot);
+			iFertility = GC.getGame().GetSettlerSiteEvaluator()->PlotFertilityValue(pPlot);
+		}
+
 		if(!pPlot->isRevealed(getTeam()))
 		{
 			//--------------
+			if (bLogging) 
 			dump << pPlot->getX() << "," << pPlot->getY() << "," << pPlot->getTerrainType() << "," << pPlot->getPlotType() << "," \
-				<< pPlot->getFeatureType() << "," << pPlot->getOwner() << ",0,0" << std::endl;
+				<< pPlot->getFeatureType() << "," << pPlot->getOwner() << ",0," << iDanger << "," << iFertility << ",0" << std::endl;
 			//--------------
 			continue;
 		}
@@ -28989,8 +28996,9 @@ CvPlot* CvPlayer::GetBestSettlePlot(CvUnit* pUnit, bool bEscorted, int iArea, Cv
 		if(pPlot->getOwner() != NO_PLAYER && pPlot->getOwner() != eOwner)
 		{
 			//--------------
+			if (bLogging) 
 			dump << pPlot->getX() << "," << pPlot->getY() << "," << pPlot->getTerrainType() << "," << pPlot->getPlotType() << "," \
-				<< pPlot->getFeatureType() << "," << pPlot->getOwner() << ",1,-2" << std::endl;
+				<< pPlot->getFeatureType() << "," << pPlot->getOwner() << ",1," << iDanger << "," << iFertility << ",-2" << std::endl;
 			//--------------
 			continue;
 		}
@@ -28998,8 +29006,9 @@ CvPlot* CvPlayer::GetBestSettlePlot(CvUnit* pUnit, bool bEscorted, int iArea, Cv
 		if(pPlot->IsAdjacentOwnedByOtherTeam(eTeam))
 		{
 			//--------------
+			if (bLogging) 
 			dump << pPlot->getX() << "," << pPlot->getY() << "," << pPlot->getTerrainType()  << "," << pPlot->getPlotType() << "," \
-				<< pPlot->getFeatureType() << "," << pPlot->getOwner() << ",1,-1" << std::endl;
+				<< pPlot->getFeatureType() << "," << pPlot->getOwner() << ",1," << iDanger << "," << iFertility << ",-1" << std::endl;
 			//--------------
 			continue;
 		}
@@ -29007,8 +29016,9 @@ CvPlot* CvPlayer::GetBestSettlePlot(CvUnit* pUnit, bool bEscorted, int iArea, Cv
 		if(!pUnit->canFound(pPlot))
 		{
 			//--------------
+			if (bLogging) 
 			dump << pPlot->getX() << "," << pPlot->getY() << "," << pPlot->getTerrainType() << "," << pPlot->getPlotType() << "," \
-				<< pPlot->getFeatureType() << "," << pPlot->getOwner() << ",1,0" << std::endl;
+				<< pPlot->getFeatureType() << "," << pPlot->getOwner() << ",1," << iDanger << "," << iFertility << ",0" << std::endl;
 			//--------------
 			continue;
 		}
@@ -29021,8 +29031,9 @@ CvPlot* CvPlayer::GetBestSettlePlot(CvUnit* pUnit, bool bEscorted, int iArea, Cv
 		if (IsPlotTargetedForCity(pPlot,pOpToIgnore))
 		{
 			//--------------
+			if (bLogging) 
 			dump << pPlot->getX() << "," << pPlot->getY() << "," << pPlot->getTerrainType() << "," << pPlot->getPlotType() << "," \
-				<< pPlot->getFeatureType() << "," << pPlot->getOwner() << ",1,-3" << std::endl;
+				<< pPlot->getFeatureType() << "," << pPlot->getOwner() << ",1," << iDanger << "," << iFertility << ",-3" << std::endl;
 			//--------------
 			continue;
 		}
@@ -29030,21 +29041,22 @@ CvPlot* CvPlayer::GetBestSettlePlot(CvUnit* pUnit, bool bEscorted, int iArea, Cv
 		if(!bEscorted && pPlot->isVisibleEnemyUnit(eOwner))
 		{
 			//--------------
+			if (bLogging) 
 			dump << pPlot->getX() << "," << pPlot->getY() << "," << pPlot->getTerrainType() << "," << pPlot->getPlotType() << "," \
-				<< pPlot->getFeatureType() << "," << pPlot->getOwner() << ",1,-4" << std::endl;
+				<< pPlot->getFeatureType() << "," << pPlot->getOwner() << ",1," << iDanger << "," << iFertility << ",-4" << std::endl;
 			//--------------
 			continue;
 		}
 
 		//finally no more obstacles
 		int iValue = 0;
-		if (GC.getLogging() && GC.getAILogging()) 
+		if (bLogging) 
 		{
 			CvString strDebug;
 			iValue = GC.getGame().GetSettlerSiteEvaluator()->PlotFoundValue(pPlot, this, NO_YIELD, false, &strDebug);
 			//--------------
 			dump << pPlot->getX() << "," << pPlot->getY() << "," << pPlot->getTerrainType() << "," << pPlot->getPlotType() << "," \
-				<< pPlot->getFeatureType() << "," << pPlot->getOwner() << ",1," << iValue << "," << strDebug.c_str() << std::endl;
+				<< pPlot->getFeatureType() << "," << pPlot->getOwner() << ",1," << iDanger << "," << iFertility << "," << iValue << "," << strDebug.c_str() << std::endl;
 			//--------------
 		}
 		else
@@ -29078,9 +29090,21 @@ CvPlot* CvPlayer::GetBestSettlePlot(CvUnit* pUnit, bool bEscorted, int iArea, Cv
 			}
 		}
 	}
+
+
+	if (bLogging) 
+	{
+		std::stringstream ss;
+		ss << "CitySites_" << getCivilizationAdjective() << "_" << std::setfill('0') << std::setw(3) << GC.getGame().getGameTurn() << ".txt";
+		FILogFile* pLog=LOGFILEMGR.GetLog( ss.str().c_str(), FILogFile::kDontTimeStamp );
+		pLog->Msg( dump.str().c_str() );
+	}
+
+
 	return pBestFoundPlot;
 }
 #else
+
 CvPlot* CvPlayer::GetBestSettlePlot(CvUnit* pUnit, bool bEscorted, int iArea) const
 {
 	if(!pUnit)

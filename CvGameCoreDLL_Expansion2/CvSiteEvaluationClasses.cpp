@@ -372,8 +372,8 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, YieldT
 							}
 						}
 
-						// Skip the city plot itself for now
-						if (iDistance <= 5)
+						//count the tile only if it's not being worked by another city
+						if ( (iDistance <= 5) && (pLoopPlot->getWorkingCity()==NULL) )
 						{
 							int iRingModifier = m_iRingModifier[iDistance];
 
@@ -388,6 +388,7 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, YieldT
 #if defined(MOD_GLOBAL_CITY_WORKING)
 							if (iDistance > 0 && iDistance <= pPlayer->getWorkPlotDistance())
 #else	
+							// Skip the city plot itself for now
 							if (iDistance > 0 && iDistance <= NUM_CITY_RINGS)
 #endif
 							{
@@ -446,7 +447,7 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, YieldT
 							// lower value a lot if we already own this tile
 							if (iPlotValue > 0 && pLoopPlot->getOwner() == pPlayer->GetID())
 							{
-								iPlotValue = (iPlotValue * 66)/100;
+								iPlotValue = (iPlotValue * 50)/100;
 							}
 
 							// add this plot into the total
@@ -767,11 +768,6 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, YieldT
 		if (iGrowthFlavor < 4) iSweetMin--;
 		if (iExpansionFlavor < 4) iSweetMax--;
 
-		if (iClosestCityOfMine < iSweetMin) 
-		{
-			iValueModifier -= (iTotalPlotValue*30)/100;
-			vQualifiersNegative.push_back("(V) too close to existing cities");
-		}
 		if ((iClosestCityOfMine >= iSweetMin) && (iClosestCityOfMine <= iSweetMax)) 
 		{
 			iValueModifier += (iTotalPlotValue*20)/100;
@@ -798,7 +794,7 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, YieldT
 			if (iClosestEnemyCity <= 5 && iClosestCityOfMine < 8)
 			{
 				iStratModifier += (iTotalPlotValue*50)/100;
-				vQualifiersPositive.push_back("(S) close to enemy, but not far from home");
+				vQualifiersPositive.push_back("(S) close to enemy and but not far from home");
 			}
 		}
 		else

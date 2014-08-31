@@ -3218,6 +3218,8 @@ bool CvAIOperationFoundCity::ArmyInPosition(CvArmyAI* pArmy)
 				//now that the neighboring tiles are guaranteed to be revealed, recheck if we are at the best plot
 				//minor twist: the nearby plots are already targeted for a city. so we need to ignore this very operation when checking the plots
 				CvPlot* pAltPlot = GET_PLAYER(m_eOwner).GetBestSettlePlot(pSettler, m_bEscorted, m_iTargetArea, this);
+				int iAltValue = GC.getGame().GetSettlerSiteEvaluator()->PlotFoundValue(pAltPlot, &GET_PLAYER(m_eOwner), NO_YIELD, false);
+
 				int iDelta = 0; //our distance to the current best location
 				if (pAltPlot)
 					iDelta = ::plotDistance(pCityPlot->getX(),pCityPlot->getY(),pAltPlot->getX(),pAltPlot->getY());
@@ -3242,7 +3244,8 @@ bool CvAIOperationFoundCity::ArmyInPosition(CvArmyAI* pArmy)
 				{
 					if(GC.getLogging() && GC.getAILogging())
 					{
-						strMsg.Format("Retargeting because of new situation. Target was (X=%d Y=%d), new target (X=%d Y=%d)", GetTargetPlot()->getX(), GetTargetPlot()->getY(), pAltPlot->getX(),pAltPlot->getY());
+						strMsg.Format("Retargeting because of new situation. Target was (X=%d Y=%d value=%d), new target (X=%d Y=%d value=%d)", 
+							GetTargetPlot()->getX(), GetTargetPlot()->getY(), iPlotValue, pAltPlot->getX(),pAltPlot->getY(), iAltValue );
 						LogOperationSpecialMessage(strMsg);
 					}
 					m_iRetargetCount += 1;
