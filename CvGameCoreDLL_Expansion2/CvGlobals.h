@@ -8548,8 +8548,8 @@ protected:
 
 	ICvDLLDatabaseUtility1* m_pkDatabaseLoadUtility;
 
-	int m_aiPlotDirectionX[NUM_DIRECTION_TYPES];
-	int m_aiPlotDirectionY[NUM_DIRECTION_TYPES];
+	int m_aiPlotDirectionX[NUM_DIRECTION_TYPES+2];
+	int m_aiPlotDirectionY[NUM_DIRECTION_TYPES+2];
 #if defined(MOD_GLOBAL_CITY_WORKING)
 	int m_aiCityPlotX[MAX_CITY_PLOTS];
 	int m_aiCityPlotY[MAX_CITY_PLOTS];

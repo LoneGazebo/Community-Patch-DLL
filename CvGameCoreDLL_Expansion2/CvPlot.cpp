@@ -1259,13 +1259,11 @@ bool CvPlot::isRiverSide() const
 //	--------------------------------------------------------------------------------
 bool CvPlot::isRiverConnection(DirectionTypes eDirection) const
 {
-	if(eDirection == NO_DIRECTION)
-	{
-		return false;
-	}
-
 	switch(eDirection)
 	{
+	case NO_DIRECTION:
+		return false;
+		break;
 
 	case DIRECTION_NORTHEAST:
 		return (isRiverCrossing(DIRECTION_NORTHWEST) || isRiverCrossing(DIRECTION_EAST));
@@ -5083,7 +5081,7 @@ CvPlot* CvPlot::getInlandCorner() const
 			pRiverPlot = GC.getMap().plotCheckInvalid(getX(), getY());
 			break;
 		case 1:
-			pRiverPlot = plotDirection(getX(), getY(), DIRECTION_NORTH);
+			pRiverPlot = plotDirection(getX(), getY(), DIRECTION_NORTHEAST);
 			break;
 		case 2:
 			pRiverPlot = plotDirection(getX(), getY(), DIRECTION_NORTHWEST);

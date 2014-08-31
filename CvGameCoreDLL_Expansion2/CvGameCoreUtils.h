@@ -171,22 +171,18 @@ inline int plotDistance(int iX1, int iY1, int iX2, int iY2)
 //
 inline CvPlot* plotDirection(int iX, int iY, DirectionTypes eDirection)
 {
-	if(eDirection == NO_DIRECTION)
-	{
-		return GC.getMap().plot(iX, iY);
-	}
-	else
-	{
-		// convert to hex-space coordinates - the coordinate system axes are E and NE (not orthogonal)
-		iX = xToHexspaceX(iX , iY);
-		iX += GC.getPlotDirectionX()[eDirection];
-		iY += GC.getPlotDirectionY()[eDirection];
+	return GC.getMap().getNeighborUnchecked(iX,iY,eDirection);
+	/*
+	// convert to hex-space coordinates - the coordinate system axes are E and NE (not orthogonal)
+	iX = xToHexspaceX(iX , iY);
+	iX += GC.getPlotDirectionX()[eDirection];
+	iY += GC.getPlotDirectionY()[eDirection];
 
-		// convert from hex-space coordinates to the storage array
-		iX = hexspaceXToX(iX, iY);
+	// convert from hex-space coordinates to the storage array
+	iX = hexspaceXToX(iX, iY);
 
-		return GC.getMap().plot(iX, iY);
-	}
+	return GC.getMap().plot(iX, iY);
+	*/
 }
 
 inline CvPlot* plotXY(int iX, int iY, int iDX, int iDY)
