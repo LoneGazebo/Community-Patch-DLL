@@ -2611,21 +2611,27 @@ void CvHomelandAI::ExecuteFirstTurnSettlerMoves()
 						else
 						{
 							//apparently no good plot around. move in a random direction to explore
-							CvPlot* pAdjacentPlot = NULL;				
-							while(pAdjacentPlot == NULL || pAdjacentPlot->isWater() || pAdjacentPlot->isImpassable())
- 							{
+							CvPlot* pAdjacentPlot = NULL;
+							
+							int iCount = 0;
+							while(pAdjacentPlot == NULL || pAdjacentPlot->isWater() || pAdjacentPlot->isImpassable() || iCount<10)
+							{
 								int iDir = GC.getGame().getJonRandNum(NUM_DIRECTION_TYPES, "Roll to see where to move!");
 								pAdjacentPlot = plotDirection(pUnit->getX(), pUnit->getY(), ((DirectionTypes)iDir));
+								iCount++;
 							}
 
-							pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pAdjacentPlot->getX(), pAdjacentPlot->getY());
-							UnitProcessed(pUnit->GetID());
-							if(GC.getLogging() && GC.getAILogging())
+							if (iCount<10)
 							{
-								CvString strLogString;
-								strLogString.Format("Things aren't looking good for us! Scramble to X: %d, Y: %d", pUnit->getX(), pUnit->getY());
-								LogHomelandMessage(strLogString);
- 							}
+								pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pAdjacentPlot->getX(), pAdjacentPlot->getY());
+								UnitProcessed(pUnit->GetID());
+								if(GC.getLogging() && GC.getAILogging())
+								{
+									CvString strLogString;
+									strLogString.Format("Things aren't looking good for us! Scramble to X: %d, Y: %d", pUnit->getX(), pUnit->getY());
+									LogHomelandMessage(strLogString);
+								}
+							}
 						}
 					}
 				}
