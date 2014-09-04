@@ -345,6 +345,9 @@ void CvMap::InitPlots()
 	}
 
 	m_kPlotManager.Init(getGridWidth(), getGridHeight());
+
+	// Important speed optimization
+	PrecalcNeighbors();
 }
 
 //	--------------------------------------------------------------------------------
@@ -378,15 +381,30 @@ void CvMap::init(CvMapInitData* pInitInfo/*=NULL*/)
 	int iW = getGridWidth();
 	int iH = getGridHeight();
 
-	CvPlot** pNeighbors = m_pPlotNeighbors;
-	int iNX, iNY, iHX, iHY;
-
 	for(iY = 0; iY < iH; iY++)
 	{
 		for(iX = 0; iX < iW; iX++)
 		{
 			plotUnchecked(iX, iY)->init(iX, iY);
+		}
+	}
+}
 
+void CvMap::PrecalcNeighbors()
+{
+	int iW = getGridWidth();
+	int iH = getGridHeight();
+
+	CvPlot** pNeighbors = m_pPlotNeighbors;
+	if (!pNeighbors)
+		return;
+
+	int iNX, iNY, iHX, iHY;
+
+	for(int iY = 0; iY < iH; iY++)
+	{
+		for(int iX = 0; iX < iW; iX++)
+		{
 			//set up neighborhood indices
 			for(int iDirection = 0; iDirection < NUM_DIRECTION_TYPES+2; iDirection++)
 			{
@@ -407,6 +425,7 @@ void CvMap::init(CvMapInitData* pInitInfo/*=NULL*/)
 		}
 	}
 }
+
 
 //	--------------------------------------------------------------------------------
 void CvMap::uninit()

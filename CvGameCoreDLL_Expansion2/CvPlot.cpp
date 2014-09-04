@@ -3294,7 +3294,7 @@ bool CvPlot::IsChokePoint()
 		int BD = int(aPassableNeighborsNonPeninsula[1]->isAdjacent(aPassableNeighborsNonPeninsula[3]));
 		int CD = int(aPassableNeighborsNonPeninsula[2]->isAdjacent(aPassableNeighborsNonPeninsula[3]));
 
-		return (AB+AC+AD+BC+BD+CD)<4;
+		return (AB+AC+AD+BC+BD+CD)<3;
 	}
 
 	return false;

@@ -254,6 +254,8 @@ public:
 
 	CvPlotManager& plotManager() { return m_kPlotManager; }
 
+	void PrecalcNeighbors();
+
 	/// Areas
 	int getIndexAfterLastArea();
 	int getNumAreas();
