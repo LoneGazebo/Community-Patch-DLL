@@ -828,7 +828,7 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, YieldT
 					//Todo: Is the plot we're looking at in the same area as our strong neighbor?
 					if (iClosestEnemyCity <= 6)
 					{
-						iStratModifier -= (iTotalPlotValue*50)/100;
+						iStratModifier -= (iTotalPlotValue*30)/100;
 						vQualifiersNegative.push_back("(S) too dangerous");
 					}
 				}

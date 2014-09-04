@@ -28940,31 +28940,17 @@ CvPlot* CvPlayer::GetBestSettlePlot(CvUnit* pUnit, bool bEscorted, int iArea, Cv
 	PlayerTypes eOwner = pUnit->getOwner();
 	TeamTypes eTeam = pUnit->getTeam();
 
-	int iBestFoundValue = 0;
+	//start with a base value of 5k!
+	int iBestFoundValue = 5000;
 	CvPlot* pBestFoundPlot = NULL;
 
-	int iEvalDistance = /*12*/ GC.getSETTLER_EVALUATION_DISTANCE();
-	int iDistanceDropoffMod = /*99*/ GC.getSETTLER_DISTANCE_DROPOFF_MODIFIER();
-
+	// scale plot values by distance based on world size
+	float fDefaultDiagnonal = sqrt( 80.f*80.f+52.f*52.f );
+	float fActualDiagonal = sqrt( (float)GC.getMap().getGridHeight()*GC.getMap().getGridHeight() + GC.getMap().getGridWidth()*GC.getMap().getGridWidth() );
+	int iEvalDistance = int(GC.getSETTLER_EVALUATION_DISTANCE() * fActualDiagonal / fDefaultDiagnonal + 0.5f);
+	iEvalDistance = max( /*12*/ GC.getSETTLER_EVALUATION_DISTANCE(), iEvalDistance );
+	//prefer settling close in the beginning
 	iEvalDistance += (GC.getGame().getGameTurn() * 5) / 100;
-
-	// scale this based on world size
-	const int iDefaultNumTiles = 80*52;
-	int iDefaultEvalDistance = iEvalDistance;
-	iEvalDistance = (iEvalDistance * GC.getMap().numPlots()) / iDefaultNumTiles;
-	iEvalDistance = max(iDefaultEvalDistance,iEvalDistance);
-
-	if(bEscorted && GC.getMap().GetAIMapHint() & 5)  // this is primarily a naval map or at the very least an offshore expansion map
-	{
-		iEvalDistance *= 3;
-		iEvalDistance /= 2;
-	}
-	// Stay close to home if don't have an escort (unless we were going offshore which doesn't use escorts anymore)
-	else if(!bEscorted)
-	{
-		iEvalDistance *= 2;
-		iEvalDistance /= 3;
-	}
 
 	CvMap& kMap = GC.getMap();
 	int iNumPlots = kMap.numPlots();
@@ -28988,7 +28974,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(CvUnit* pUnit, bool bEscorted, int iArea, Cv
 			//--------------
 			if (bLogging) 
 			dump << pPlot->getX() << "," << pPlot->getY() << "," << pPlot->getTerrainType() << "," << pPlot->getPlotType() << "," \
-				<< pPlot->getFeatureType() << "," << pPlot->getOwner() << ",0," << iDanger << "," << iFertility << ",0" << std::endl;
+				<< pPlot->getFeatureType() << "," << pPlot->getOwner() << ",0," << iDanger << "," << iFertility << ",-1" << ",0" << std::endl;
 			//--------------
 			continue;
 		}
@@ -28998,7 +28984,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(CvUnit* pUnit, bool bEscorted, int iArea, Cv
 			//--------------
 			if (bLogging) 
 			dump << pPlot->getX() << "," << pPlot->getY() << "," << pPlot->getTerrainType() << "," << pPlot->getPlotType() << "," \
-				<< pPlot->getFeatureType() << "," << pPlot->getOwner() << ",1," << iDanger << "," << iFertility << ",-2" << std::endl;
+				<< pPlot->getFeatureType() << "," << pPlot->getOwner() << ",1," << iDanger << "," << iFertility << ",-1" << ",-2" << std::endl;
 			//--------------
 			continue;
 		}
@@ -29008,7 +28994,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(CvUnit* pUnit, bool bEscorted, int iArea, Cv
 			//--------------
 			if (bLogging) 
 			dump << pPlot->getX() << "," << pPlot->getY() << "," << pPlot->getTerrainType()  << "," << pPlot->getPlotType() << "," \
-				<< pPlot->getFeatureType() << "," << pPlot->getOwner() << ",1," << iDanger << "," << iFertility << ",-1" << std::endl;
+				<< pPlot->getFeatureType() << "," << pPlot->getOwner() << ",1," << iDanger << "," << iFertility << ",-1" << ",-1" << std::endl;
 			//--------------
 			continue;
 		}
@@ -29018,7 +29004,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(CvUnit* pUnit, bool bEscorted, int iArea, Cv
 			//--------------
 			if (bLogging) 
 			dump << pPlot->getX() << "," << pPlot->getY() << "," << pPlot->getTerrainType() << "," << pPlot->getPlotType() << "," \
-				<< pPlot->getFeatureType() << "," << pPlot->getOwner() << ",1," << iDanger << "," << iFertility << ",0" << std::endl;
+				<< pPlot->getFeatureType() << "," << pPlot->getOwner() << ",1," << iDanger << "," << iFertility << ",-1" << ",0" << std::endl;
 			//--------------
 			continue;
 		}
@@ -29033,7 +29019,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(CvUnit* pUnit, bool bEscorted, int iArea, Cv
 			//--------------
 			if (bLogging) 
 			dump << pPlot->getX() << "," << pPlot->getY() << "," << pPlot->getTerrainType() << "," << pPlot->getPlotType() << "," \
-				<< pPlot->getFeatureType() << "," << pPlot->getOwner() << ",1," << iDanger << "," << iFertility << ",-3" << std::endl;
+				<< pPlot->getFeatureType() << "," << pPlot->getOwner() << ",1," << iDanger << "," << iFertility << ",-1" << ",-3" << std::endl;
 			//--------------
 			continue;
 		}
@@ -29043,9 +29029,21 @@ CvPlot* CvPlayer::GetBestSettlePlot(CvUnit* pUnit, bool bEscorted, int iArea, Cv
 			//--------------
 			if (bLogging) 
 			dump << pPlot->getX() << "," << pPlot->getY() << "," << pPlot->getTerrainType() << "," << pPlot->getPlotType() << "," \
-				<< pPlot->getFeatureType() << "," << pPlot->getOwner() << ",1," << iDanger << "," << iFertility << ",-4" << std::endl;
+				<< pPlot->getFeatureType() << "," << pPlot->getOwner() << ",1," << iDanger << "," << iFertility << ",-1" << ",-4" << std::endl;
 			//--------------
 			continue;
+		}
+
+		//take distance into account
+		int iSettlerDistance = ::plotDistance(pPlot->getX(), pPlot->getY(), iSettlerX, iSettlerY);
+		int iDistanceDropoff = min(99,( GC.getSETTLER_DISTANCE_DROPOFF_MODIFIER() * iSettlerDistance) / iEvalDistance);
+		int iScale = (100 - max(0,iDistanceDropoff));
+		if(pPlot->getArea() != iUnitArea)
+		{
+			if(GC.getMap().GetAIMapHint() & 5)  //encourage offshore expansion
+				iScale += 50;
+			else	//careful when going offshore
+				iScale -= 33;
 		}
 
 		//finally no more obstacles
@@ -29056,38 +29054,20 @@ CvPlot* CvPlayer::GetBestSettlePlot(CvUnit* pUnit, bool bEscorted, int iArea, Cv
 			iValue = GC.getGame().GetSettlerSiteEvaluator()->PlotFoundValue(pPlot, this, NO_YIELD, false, &strDebug);
 			//--------------
 			dump << pPlot->getX() << "," << pPlot->getY() << "," << pPlot->getTerrainType() << "," << pPlot->getPlotType() << "," \
-				<< pPlot->getFeatureType() << "," << pPlot->getOwner() << ",1," << iDanger << "," << iFertility << "," << iValue << "," << strDebug.c_str() << std::endl;
+				<< pPlot->getFeatureType() << "," << pPlot->getOwner() << ",1," << iDanger << "," << iFertility << "," << iScale << "," 
+				<< iValue << "," << strDebug.c_str() << std::endl;
 			//--------------
 		}
 		else
 			//with caching
 			iValue = pPlot->getFoundValue(eOwner);
 
-		if(iValue > 5000)
+		//factor in the distance
+		iValue = (iValue/100)*iScale;
+		if(iValue > iBestFoundValue)
 		{
-			int iSettlerDistance = ::plotDistance(pPlot->getX(), pPlot->getY(), iSettlerX, iSettlerY);
-			//todo: fix iDistanceDropoffMod - should probably be a subtraction!
-			int iDistanceDropoff = min(99,(iDistanceDropoffMod * iSettlerDistance) / iEvalDistance);
-			iDistanceDropoff = max(0,iDistanceDropoff);
-			iValue = iValue * (100 - iDistanceDropoff) / 100;
-			if(pPlot->getArea() != iUnitArea)
-			{
-				if(GC.getMap().GetAIMapHint() & 5)  // this is primarily a naval map (or an offshore map like terra)
-				{
-					iValue *= 3;
-					iValue /= 2;
-				}
-				else
-				{
-					iValue *= 2;
-					iValue /= 3;
-				}
-			}
-			if(iValue > iBestFoundValue)
-			{
-				iBestFoundValue = iValue;
-				pBestFoundPlot = pPlot;
-			}
+			iBestFoundValue = iValue;
+			pBestFoundPlot = pPlot;
 		}
 	}
 

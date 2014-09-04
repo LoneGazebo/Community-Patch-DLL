@@ -92,6 +92,7 @@ layer_string = {
 	5: "civ modifier   ",
 	6: "danger         ",
 	7: "fertility      ",
+	8: "distance factor",
 }
 
 class Control(object):
@@ -121,7 +122,7 @@ class Control(object):
 		self.set_caption(self.view_mode)
 
 	def set_caption(self,view_mode):
-		pg.display.set_caption( "Fake Map Viewer - %s - space to change" % layer_string.get(view_mode,"unknown layer") )
+		pg.display.set_caption( "Fake Map Viewer - %s - space to change" % layer_string.get(view_mode,"unknown layer").strip() )
 
 	def event_loop(self):
 		"""
@@ -251,7 +252,7 @@ class Plot():
 if __name__ == "__main__":
 	
 	n_properties = 7
-	n_values = 7
+	n_values = 8
 	
 	scale = [1]*n_values
 	sizex = 0
@@ -280,12 +281,12 @@ if __name__ == "__main__":
 		while len(values)<n_values:
 			values.append(0)
 		#little hack so danger comes last
-		values = values[2:] + values[:2]
+		values = values[3:] + values[:3]
 		hints = data[n_properties+n_values:]
 		plots.append( Plot(x,y,terrain,ptype,feature,owner,visible,values,hints) )
 
 	#also rearrange the scale
-	scale = scale[2:] + scale[:2]
+	scale = scale[3:] + scale[:3]
 
 	#set the scale factors	
 	for p in plots:
