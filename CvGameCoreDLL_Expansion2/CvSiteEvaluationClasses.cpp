@@ -770,7 +770,7 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, YieldT
 
 		if ((iClosestCityOfMine >= iSweetMin) && (iClosestCityOfMine <= iSweetMax)) 
 		{
-			iValueModifier += (iTotalPlotValue*20)/100;
+			iValueModifier += (iTotalPlotValue*10)/100; //make this a small bonus, there is a separate distance check anyway
 			vQualifiersPositive.push_back("(V) optimal distance to existing cities");
 		}
 

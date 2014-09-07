@@ -28947,10 +28947,12 @@ CvPlot* CvPlayer::GetBestSettlePlot(CvUnit* pUnit, bool bEscorted, int iArea, Cv
 	// scale plot values by distance based on world size
 	float fDefaultDiagnonal = sqrt( 80.f*80.f+52.f*52.f );
 	float fActualDiagonal = sqrt( (float)GC.getMap().getGridHeight()*GC.getMap().getGridHeight() + GC.getMap().getGridWidth()*GC.getMap().getGridWidth() );
-	int iEvalDistance = int(GC.getSETTLER_EVALUATION_DISTANCE() * fActualDiagonal / fDefaultDiagnonal + 0.5f);
-	iEvalDistance = max( /*12*/ GC.getSETTLER_EVALUATION_DISTANCE(), iEvalDistance );
 	//prefer settling close in the beginning
-	iEvalDistance += (GC.getGame().getGameTurn() * 5) / 100;
+	float fTimeOffset = GC.getGame().getGameTurn() / 50.f;
+
+	//this will be used later
+	int iEvalDistance = int(GC.getSETTLER_EVALUATION_DISTANCE() * fActualDiagonal / fDefaultDiagnonal + 0.5f + fTimeOffset);
+	iEvalDistance = max( /*12*/ GC.getSETTLER_EVALUATION_DISTANCE(), iEvalDistance );
 
 	CvMap& kMap = GC.getMap();
 	int iNumPlots = kMap.numPlots();
@@ -28967,6 +28969,11 @@ CvPlot* CvPlayer::GetBestSettlePlot(CvUnit* pUnit, bool bEscorted, int iArea, Cv
 		{
 			iDanger = GetPlotDanger(*pPlot);
 			iFertility = GC.getGame().GetSettlerSiteEvaluator()->PlotFertilityValue(pPlot);
+		}
+
+		if(iArea != -1 && pPlot->getArea() != iArea)
+		{
+			continue;
 		}
 
 		if(!pPlot->isRevealed(getTeam()))
@@ -29009,11 +29016,6 @@ CvPlot* CvPlayer::GetBestSettlePlot(CvUnit* pUnit, bool bEscorted, int iArea, Cv
 			continue;
 		}
 
-		if(iArea != -1 && pPlot->getArea() != iArea)
-		{
-			continue;
-		}
-
 		if (IsPlotTargetedForCity(pPlot,pOpToIgnore))
 		{
 			//--------------
@@ -29036,14 +29038,25 @@ CvPlot* CvPlayer::GetBestSettlePlot(CvUnit* pUnit, bool bEscorted, int iArea, Cv
 
 		//take distance into account
 		int iSettlerDistance = ::plotDistance(pPlot->getX(), pPlot->getY(), iSettlerX, iSettlerY);
-		int iDistanceDropoff = min(99,( GC.getSETTLER_DISTANCE_DROPOFF_MODIFIER() * iSettlerDistance) / iEvalDistance);
-		int iScale = (100 - max(0,iDistanceDropoff));
+		int iScale = ( 100 * ( iSettlerDistance - GC.getSETTLER_DISTANCE_DROPOFF_MODIFIER() ) ) / iEvalDistance;
+		iScale = 100 - min(100,max(0,iScale));
+
 		if(pPlot->getArea() != iUnitArea)
 		{
 			if(GC.getMap().GetAIMapHint() & 5)  //encourage offshore expansion
 				iScale += 50;
 			else	//careful when going offshore
 				iScale -= 33;
+		}
+
+		if (iScale==0)
+		{
+			//--------------
+			if (bLogging) 
+			dump << pPlot->getX() << "," << pPlot->getY() << "," << pPlot->getTerrainType() << "," << pPlot->getPlotType() << "," \
+				<< pPlot->getFeatureType() << "," << pPlot->getOwner() << ",1," << iDanger << "," << iFertility << ",0" << ",-5" << std::endl;
+			//--------------
+			continue;
 		}
 
 		//finally no more obstacles
