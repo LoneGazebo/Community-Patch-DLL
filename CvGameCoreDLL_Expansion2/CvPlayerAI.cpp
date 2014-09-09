@@ -163,8 +163,10 @@ void CvPlayerAI::AI_doTurnUnitsPost()
 
 void CvPlayerAI::AI_updateFoundValues(bool bStartingLoc)
 {
-	//speed optimization: need a settler to found!
-	if (GetNumUnitsWithUnitAI(UNITAI_SETTLE, false, true)==0)
+	//speed optimization: do this only if we want to expand
+	EconomicAIStrategyTypes eStrategyEnoughSettlers = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_ENOUGH_EXPANSION");
+	bool bEnoughSettlers = GetEconomicAI()->IsUsingStrategy(eStrategyEnoughSettlers);
+	if (bEnoughSettlers)
 		return;
 
 	int iGoodEnoughToBeWorthOurTime = GC.getAI_STRATEGY_MINIMUM_SETTLE_FERTILITY();

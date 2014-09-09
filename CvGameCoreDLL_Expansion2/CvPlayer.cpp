@@ -28948,7 +28948,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(CvUnit* pUnit, bool bEscorted, int iArea, Cv
 	float fDefaultDiagnonal = sqrt( 80.f*80.f+52.f*52.f );
 	float fActualDiagonal = sqrt( (float)GC.getMap().getGridHeight()*GC.getMap().getGridHeight() + GC.getMap().getGridWidth()*GC.getMap().getGridWidth() );
 	//prefer settling close in the beginning
-	float fTimeOffset = GC.getGame().getGameTurn() / 50.f;
+	float fTimeOffset = GC.getGame().getGameTurn() / 30.f;
 
 	//this will be used later
 	int iEvalDistance = int(GC.getSETTLER_EVALUATION_DISTANCE() * fActualDiagonal / fDefaultDiagnonal + 0.5f + fTimeOffset);
