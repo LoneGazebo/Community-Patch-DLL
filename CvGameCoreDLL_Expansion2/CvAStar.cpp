@@ -186,6 +186,10 @@ void CvAStar::Initialize(int iColumns, int iRows, bool bWrapX, bool bWrapY, CvAP
 			m_ppaaNodes[iI][iJ].m_iY = iJ;
 		}
 	}
+
+	for(iI = 0; iI < m_iColumns; iI++)
+		for(iJ = 0; iJ < m_iRows; iJ++)
+			PrecalcNeighbors( &(m_ppaaNodes[iI][iJ]) );
 }
 
 //	--------------------------------------------------------------------------------
@@ -375,6 +379,43 @@ CvAStarNode* CvAStar::GetBest()
 	return temp;
 }
 
+// --------------------
+/// precompute neighbors for a node
+void CvAStar::PrecalcNeighbors(CvAStarNode* node)
+{
+	int range = 6;
+	int x, y;
+
+	static int s_CvAStarChildHexX[6] = { 0, 1,  1,  0, -1, -1, };
+	static int s_CvAStarChildHexY[6] = { 1, 0, -1, -1,  0,  1, };
+
+	for(int i = 0; i < range; i++)
+	{
+		x = node->m_iX - ((node->m_iY >= 0) ? (node->m_iY>>1) : ((node->m_iY - 1)/2));
+		x += s_CvAStarChildHexX[i];
+		y = yRange(node->m_iY + s_CvAStarChildHexY[i]);
+		x += ((y >= 0) ? (y>>1) : ((y - 1)/2));
+		x = xRange(x);
+		y = yRange(y);
+
+		if(isValid(x, y))
+		{
+			node->m_apNeighbors[i] = &(m_ppaaNodes[x][y]);
+
+			int dx = abs(node->m_iX - node->m_apNeighbors[i]->m_iX);
+			int dy = abs(node->m_iY - node->m_apNeighbors[i]->m_iY);
+			if (dx>m_iColumns/2)
+				dx = m_iColumns-dx;
+			if (dy>m_iRows/2)
+				dy = m_iRows-dy;
+			if (dx>1 || dy>1)
+				OutputDebugStr("invalid neighbor");
+		}
+		else
+			node->m_apNeighbors[i] = NULL;
+	}
+}
+
 //	--------------------------------------------------------------------------------
 /// Creates children for the node
 void CvAStar::CreateChildren(CvAStarNode* node)
@@ -384,26 +425,13 @@ void CvAStar::CreateChildren(CvAStarNode* node)
 	int x, y;
 	int i;
 
-	static int s_CvAStarChildHexX[6] = { 0, 1,  1,  0, -1, -1, };
-	static int s_CvAStarChildHexY[6] = { 1, 0, -1, -1,  0,  1, };
-
 	for(i = 0; i < range; i++)
 	{
-		x = node->m_iX - ((node->m_iY >= 0) ? (node->m_iY>>1) : ((node->m_iY - 1)/2));
-		x += s_CvAStarChildHexX[i];
-		y = yRange(node->m_iY + s_CvAStarChildHexY[i]);
-		x += ((y >= 0) ? (y>>1) : ((y - 1)/2));
-		x = xRange(x);
+		check = node->m_apNeighbors[i];
 
-		PREFETCH_FASTAR_NODE(&(m_ppaaNodes[x][y]));
-		if(isValid(x, y))
+		if(check && udFunc(udValid, node, check, 0, m_pData))
 		{
-			check = &(m_ppaaNodes[x][y]);
-
-			if(udFunc(udValid, node, check, 0, m_pData))
-			{
-				LinkChild(node, check);
-			}
+			LinkChild(node, check);
 		}
 	}
 
@@ -1208,8 +1236,13 @@ int PathCost(CvAStarNode* parent, CvAStarNode* node, int data, const void* point
 /// Standard path finder - check validity of a coordinate
 int PathValid(CvAStarNode* parent, CvAStarNode* node, int data, const void* pointer, CvAStar* finder)
 {
-	CvMap& theMap = GC.getMap();
+	// If this is the first node in the path, it is always valid (starting location)
+	if (parent == NULL)
+	{
+		return TRUE;
+	}
 
+	CvMap& theMap = GC.getMap();
 	CvPlot* pToPlot = theMap.plotUnchecked(node->m_iX, node->m_iY);
 	PREFETCH_FASTAR_CVPLOT(reinterpret_cast<char*>(pToPlot));
 
@@ -1250,12 +1283,6 @@ int PathValid(CvAStarNode* parent, CvAStarNode* node, int data, const void* poin
 	kToNodeCacheData.bContainsEnemyCity = pToPlot->isEnemyCity(*pUnit);
 	kToNodeCacheData.bContainsVisibleEnemy = pToPlot->isVisibleEnemyUnit(pUnit);
 	kToNodeCacheData.bContainsVisibleEnemyDefender = pToPlot->getBestDefender(NO_PLAYER, unit_owner, pUnit).pointer() != NULL;
-
-	// If this is the first node in the path, it is always valid (starting location)
-	if (parent == NULL)
-	{
-		return TRUE;
-	}
 
 	CvPlot* pFromPlot = theMap.plotUnchecked(parent->m_iX, parent->m_iY);
 	PREFETCH_FASTAR_CVPLOT(reinterpret_cast<char*>(pFromPlot));
@@ -2794,6 +2821,10 @@ void CvTwoLayerPathFinder::Initialize(int iColumns, int iRows, bool bWrapX, bool
 			m_ppaaPartialMoveNodes[iI][iJ].m_iY = iJ;
 		}
 	}
+
+	for(iI = 0; iI < m_iColumns; iI++)
+		for(iJ = 0; iJ < m_iRows; iJ++)
+			PrecalcNeighbors( &(m_ppaaPartialMoveNodes[iI][iJ]) );
 };
 
 //	--------------------------------------------------------------------------------
