@@ -399,18 +399,7 @@ void CvAStar::PrecalcNeighbors(CvAStarNode* node)
 		y = yRange(y);
 
 		if(isValid(x, y))
-		{
 			node->m_apNeighbors[i] = &(m_ppaaNodes[x][y]);
-
-			int dx = abs(node->m_iX - node->m_apNeighbors[i]->m_iX);
-			int dy = abs(node->m_iY - node->m_apNeighbors[i]->m_iY);
-			if (dx>m_iColumns/2)
-				dx = m_iColumns-dx;
-			if (dy>m_iRows/2)
-				dy = m_iRows-dy;
-			if (dx>1 || dy>1)
-				OutputDebugStr("invalid neighbor");
-		}
 		else
 			node->m_apNeighbors[i] = NULL;
 	}
