@@ -35,6 +35,7 @@
 #include "CvImprovementClasses.h"
 #include "CvBuilderTaskingAI.h"
 #include "CvDangerPlots.h"
+#include "CvDistanceMap.h"
 #include "CvCityConnections.h"
 #include "CvNotifications.h"
 #include "CvDiplomacyRequests.h"
@@ -511,6 +512,9 @@ CvPlayer::CvPlayer() :
 	m_pDealAI = FNEW(CvDealAI, c_eCiv5GameplayDLL, 0);
 	m_pBuilderTaskingAI = FNEW(CvBuilderTaskingAI, c_eCiv5GameplayDLL, 0);
 	m_pDangerPlots = FNEW(CvDangerPlots, c_eCiv5GameplayDLL, 0);
+#ifdef MOD_BALANCE_CORE_SETTLER
+	m_pCityDistance = FNEW(CvDistanceMap, c_eCiv5GameplayDLL, 0);
+#endif
 	m_pCityConnections = FNEW(CvCityConnections, c_eCiv5GameplayDLL, 0);
 	m_pTreasury = FNEW(CvTreasury, c_eCiv5GameplayDLL, 0);
 	m_pTraits = FNEW(CvPlayerTraits, c_eCiv5GameplayDLL, 0);
@@ -542,6 +546,9 @@ CvPlayer::~CvPlayer()
 	uninit();
 
 	SAFE_DELETE(m_pDangerPlots);
+#ifdef MOD_BALANCE_CORE_SETTLER
+	SAFE_DELETE(m_pCityDistance);
+#endif
 	delete m_pPlayerPolicies;
 	delete m_pEconomicAI;
 	delete m_pMilitaryAI;
@@ -29091,6 +29098,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(CvUnit* pUnit, bool bEscorted, int iArea, Cv
 		ss << "CitySites_" << getCivilizationAdjective() << "_" << std::setfill('0') << std::setw(3) << GC.getGame().getGameTurn() << ".txt";
 		FILogFile* pLog=LOGFILEMGR.GetLog( ss.str().c_str(), FILogFile::kDontTimeStamp );
 		pLog->Msg( dump.str().c_str() );
+		pLog->Close();
 	}
 
 

@@ -85,6 +85,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="CvCityManager.cpp" />
+    <ClCompile Include="CvDistanceMap.cpp" />
     <ClCompile Include="CvTargeting.cpp" />
     <ClCompile Include="_precompile.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Mod|Win32'">Create</PrecompiledHeader>
@@ -285,6 +286,7 @@
     <ClInclude Include="CvDiplomacyAI.h" />
     <ClInclude Include="CvDiplomacyAIEnums.h" />
     <ClInclude Include="CvDiplomacyRequests.h" />
+    <ClInclude Include="CvDistanceMap.h" />
     <ClInclude Include="CvEconomicAI.h" />
     <ClInclude Include="CvEmphasisClasses.h" />
     <ClInclude Include="CvEspionageClasses.h" />

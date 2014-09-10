@@ -509,6 +509,9 @@
     <ClCompile Include="CvCityManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="CvDistanceMap.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="banned.h">
@@ -1037,6 +1040,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CvPlotInfo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CvDistanceMap.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

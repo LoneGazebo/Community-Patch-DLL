@@ -42,6 +42,9 @@ class CvMinorCivAI;
 class CvDealAI;
 class CvBuilderTaskingAI;
 class CvDangerPlots;
+#ifdef MOD_BALANCE_CORE_SETTLER
+	class CvDistanceMap;
+#endif
 class CvCityConnections;
 class CvNotifications;
 class CvTreasury;
@@ -2368,6 +2371,10 @@ protected:
 
 	// Danger plots!
 	CvDangerPlots* m_pDangerPlots;
+
+#ifdef MOD_BALANCE_CORE_SETTLER
+	CvDistanceMap* m_pCityDistance;
+#endif
 
 	// Policies
 	CvPlayerPolicies* m_pPlayerPolicies;
