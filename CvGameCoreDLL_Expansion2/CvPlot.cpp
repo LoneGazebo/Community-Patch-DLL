@@ -1126,60 +1126,57 @@ bool CvPlot::isLake() const
 
 
 //	--------------------------------------------------------------------------------
-// XXX precalculate this???
 bool CvPlot::isFreshWater() const
 {
-	CvPlot* pLoopPlot;
-	int iDX, iDY;
-
 	if(isWater() || isImpassable() || isMountain())
 		return false;
 
 	if(isRiver())
-	{
 		return true;
-	}
 
-	for(iDX = -1; iDX <= 1; iDX++)
+	//now the more complex checks
+	const CvPlot* aPlotsToCheck[NUM_DIRECTION_TYPES+1];
+	aPlotsToCheck[NUM_DIRECTION_TYPES] = this;
+	for(int iDirectionLoop = 0; iDirectionLoop < NUM_DIRECTION_TYPES; ++iDirectionLoop)
+		aPlotsToCheck[iDirectionLoop] = plotDirection(getX(), getY(), ((DirectionTypes)iDirectionLoop));
+
+	for(int iCount=0; iCount<NUM_DIRECTION_TYPES+1; iCount++)
 	{
-		for(iDY = -1; iDY <= 1; iDY++)
-		{
-			pLoopPlot	= plotXYWithRangeCheck(getX(), getY(), iDX, iDY, 1);
+		const CvPlot* pLoopPlot = aPlotsToCheck[iCount];
 
-			if(pLoopPlot != NULL)
+		if(pLoopPlot != NULL)
+		{
+			if(pLoopPlot->isLake())
 			{
-				if(pLoopPlot->isLake())
+				return true;
+			}
+
+			FeatureTypes feature_type = pLoopPlot->getFeatureType();
+
+			if(feature_type != NO_FEATURE)
+			{
+				if(GC.getFeatureInfo(feature_type)->isAddsFreshWater())
 				{
 					return true;
 				}
-
-				FeatureTypes feature_type = pLoopPlot->getFeatureType();
-
-				if(feature_type != NO_FEATURE)
-				{
-					if(GC.getFeatureInfo(feature_type)->isAddsFreshWater())
-					{
-						return true;
-					}
-				}
+			}
 
 #if defined(MOD_API_EXTENSIONS)
-				ImprovementTypes improvement_type = pLoopPlot->getImprovementType();
+			ImprovementTypes improvement_type = pLoopPlot->getImprovementType();
 
-				if(improvement_type != NO_IMPROVEMENT)
-				{
-					if(GC.getImprovementInfo(improvement_type)->IsAddsFreshWater())
-					{
-						return true;
-					}
-				}
-
-				if (pLoopPlot->isCity() && pLoopPlot->getPlotCity()->isAddsFreshWater())
+			if(improvement_type != NO_IMPROVEMENT)
+			{
+				if(GC.getImprovementInfo(improvement_type)->IsAddsFreshWater())
 				{
 					return true;
 				}
-#endif
 			}
+
+			if (pLoopPlot->isCity() && pLoopPlot->getPlotCity()->isAddsFreshWater())
+			{
+				return true;
+			}
+#endif
 		}
 	}
 
