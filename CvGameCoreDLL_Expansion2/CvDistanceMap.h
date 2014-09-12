@@ -20,7 +20,7 @@ public:
 	void Reset();
 
 	void Update();
-	int GetDanger(const CvPlot& pPlot) const;
+	int GetDistanceFromFriendlyCity(const CvPlot& pPlot) const;
 
 	void SetDirty();
 	bool IsDirty() const

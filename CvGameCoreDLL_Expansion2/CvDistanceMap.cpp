@@ -40,7 +40,7 @@ void CvDistanceMap::Init(PlayerTypes ePlayer, bool bAllocate)
 		m_bArrayAllocated = true;
 		for(int i = 0; i < iGridSize; i++)
 		{
-			m_values[i] = 0;
+			m_values[i] = INT_MAX;
 		}
 	}
 }
@@ -104,4 +104,10 @@ void CvDistanceMap::Update()
 void CvDistanceMap::SetDirty()
 {
 	m_bDirty = true;
+}
+
+//	-----------------------------------------------------------------------------------------------
+int CvDistanceMap::GetDistanceFromFriendlyCity(const CvPlot& plot) const
+{
+	return m_values[ GC.getMap().plotNum( plot.getX(), plot.getY() ) ]; 
 }

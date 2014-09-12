@@ -349,31 +349,25 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, YieldT
 		}
 	}
 
+	int iRange = pPlayer->getWorkPlotDistance();
+
 	CvString strMsg;
-	for (int iDX = -7; iDX <= 7; iDX++)
+	for (int iDX = -iRange; iDX <= iRange; iDX++)
 	{
-		for (int iDY = -7; iDY <= 7; iDY++)
+		for (int iDY = -iRange; iDY <= iRange; iDY++)
 		{
 			CvPlot* pLoopPlot = plotXY(pPlot->getX(), pPlot->getY(), iDX, iDY);
 
 			if (pLoopPlot != NULL)
 			{
 				int iDistance = plotDistance(pPlot->getX(), pPlot->getY(), pLoopPlot->getX(), pLoopPlot->getY());
-				if (iDistance <= 7)
+
+				if (iDistance <= iRange)
 				{
 					if ((pLoopPlot->getOwner() == NO_PLAYER) || (pLoopPlot->getOwner() == pPlayer->GetID()))
 					{
-						// See if there are other cities nearby
-						if (iClosestCityOfMine > iDistance)
-						{
-							if (pLoopPlot->isCity())
-							{
-								iClosestCityOfMine = iDistance;
-							}
-						}
-
-						//count the tile only if it's not being worked by another city
-						if ( (iDistance <= 5) && (pLoopPlot->getWorkingCity()==NULL) )
+						//count the tile only if it's not being worked by another city or too close to it (so it will be worked sooner or later)
+						if ( pLoopPlot->getWorkingCity()==NULL && pPlayer->GetCityDistance(pLoopPlot)>2 )
 						{
 							int iRingModifier = m_iRingModifier[iDistance];
 
@@ -385,37 +379,28 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, YieldT
 							iResourceValue = 0;
 							iStrategicValue = 0;
 
-#if defined(MOD_GLOBAL_CITY_WORKING)
-							if (iDistance > 0 && iDistance <= pPlayer->getWorkPlotDistance())
-#else	
-							// Skip the city plot itself for now
-							if (iDistance > 0 && iDistance <= NUM_CITY_RINGS)
-#endif
+							if (eYield == NO_YIELD || eYield == YIELD_FOOD)
 							{
-								if (eYield == NO_YIELD || eYield == YIELD_FOOD)
-								{
-									iFoodValue = iRingModifier * ComputeFoodValue(pLoopPlot, pPlayer) * /*15*/ GC.getSETTLER_FOOD_MULTIPLIER();
-								}
-								if (eYield == NO_YIELD || eYield == YIELD_PRODUCTION)
-								{
-									iProductionValue = iRingModifier * ComputeProductionValue(pLoopPlot, pPlayer) * /*3*/ GC.getSETTLER_PRODUCTION_MULTIPLIER();
-								}
-								if (eYield == NO_YIELD || eYield == YIELD_GOLD)
-								{
-									iGoldValue = iRingModifier * ComputeGoldValue(pLoopPlot, pPlayer) * /*2*/ GC.getSETTLER_GOLD_MULTIPLIER();
-								}
-								if (eYield == NO_YIELD || eYield == YIELD_SCIENCE)
-								{
-									iScienceValue = iRingModifier * ComputeScienceValue(pLoopPlot, pPlayer) * /*1*/ GC.getSETTLER_SCIENCE_MULTIPLIER();
-								}
-								if (eYield == NO_YIELD || eYield == YIELD_FAITH)
-								{
-									iFaithValue = iRingModifier * ComputeFaithValue(pLoopPlot, pPlayer) * /*1*/ GC.getSETTLER_FAITH_MULTIPLIER();
-								}
+								iFoodValue = iRingModifier * ComputeFoodValue(pLoopPlot, pPlayer) * /*15*/ GC.getSETTLER_FOOD_MULTIPLIER();
+							}
+							if (eYield == NO_YIELD || eYield == YIELD_PRODUCTION)
+							{
+								iProductionValue = iRingModifier * ComputeProductionValue(pLoopPlot, pPlayer) * /*3*/ GC.getSETTLER_PRODUCTION_MULTIPLIER();
+							}
+							if (eYield == NO_YIELD || eYield == YIELD_GOLD)
+							{
+								iGoldValue = iRingModifier * ComputeGoldValue(pLoopPlot, pPlayer) * /*2*/ GC.getSETTLER_GOLD_MULTIPLIER();
+							}
+							if (eYield == NO_YIELD || eYield == YIELD_SCIENCE)
+							{
+								iScienceValue = iRingModifier * ComputeScienceValue(pLoopPlot, pPlayer) * /*1*/ GC.getSETTLER_SCIENCE_MULTIPLIER();
+							}
+							if (eYield == NO_YIELD || eYield == YIELD_FAITH)
+							{
+								iFaithValue = iRingModifier * ComputeFaithValue(pLoopPlot, pPlayer) * /*1*/ GC.getSETTLER_FAITH_MULTIPLIER();
 							}
 
-							// whether or not we are working these we get the benefit as long as culture can grow to take them
-							if (iDistance <= 5 && pLoopPlot->getOwner() == NO_PLAYER) // there is no benefit if we already own these tiles
+							if (pLoopPlot->getOwner() == NO_PLAYER) // there is no benefit if we already own these tiles
 							{
 								iHappinessValue = iRingModifier * ComputeHappinessValue(pLoopPlot, pPlayer) * /*6*/ GC.getSETTLER_HAPPINESS_MULTIPLIER();
 								iResourceValue = iRingModifier * ComputeTradeableResourceValue(pLoopPlot, pPlayer) * /*1*/ GC.getSETTLER_RESOURCE_MULTIPLIER();
@@ -436,7 +421,7 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, YieldT
 
 							// if this tile is a NW boost the value just so that we force the AI to claim them (if we can work it)
 #if defined(MOD_GLOBAL_CITY_WORKING)
-							if (pLoopPlot->IsNaturalWonder() && iDistance > 0 && iDistance <= pPlayer->getWorkPlotDistance())
+							if (pLoopPlot->IsNaturalWonder())
 #else	
 							if (pLoopPlot->IsNaturalWonder() && iDistance > 0 && iDistance <= NUM_CITY_RINGS)
 #endif
@@ -543,17 +528,6 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, YieldT
 								iWaterPlot++;
 							if(iPlotValue==0)
 								iBadPlot++;
-						}
-					}
-					else // this tile is owned by someone else
-					{
-						// See if there are other cities nearby (only count major civs)
-						if (iClosestEnemyCity > iDistance)
-						{
-							if (pLoopPlot->isCity() && (pLoopPlot->getOwner() < MAX_MAJOR_CIVS))
-							{
-								iClosestEnemyCity = iDistance;
-							}
 						}
 					}
 				}
@@ -695,9 +669,11 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, YieldT
 				if(eProximity >= PLAYER_PROXIMITY_CLOSE)
 				{
 					CvCity* pLoopTheirCity;
-					int iClosestDistance = 6;
+					int iBorderlandRange = 6;
 					int iDistance = 0;
 					int iLoop;
+					bool bIsLandgrab = false;
+
 					for(pLoopTheirCity = GET_PLAYER(eOtherPlayer).firstCity(&iLoop); pLoopTheirCity != NULL; pLoopTheirCity = GET_PLAYER(eOtherPlayer).nextCity(&iLoop))
 					{
 						if(pLoopTheirCity != NULL)
@@ -705,18 +681,21 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, YieldT
 							if(pPlot->getArea() == pLoopTheirCity->getArea())
 							{
 								iDistance = plotDistance(pPlot->getX(), pPlot->getY(), pLoopTheirCity->getX(), pLoopTheirCity->getY());
+
+								//remember this for later
+								iClosestEnemyCity = min<int>(iClosestEnemyCity,iDistance);
 								
-								if(iDistance <= iClosestDistance)
+								if(iDistance <= iBorderlandRange && !bIsLandgrab)
 								{
 									//There's at least 6 hexes between these plots, which means we can theoretically settle here.
 									int iNumPlots = 0;
 									int iNumNonFreePlots = 0;
 
-									for(int iDX = -iClosestDistance; iDX <= iClosestDistance; iDX++)
+									for(int iDX = -iBorderlandRange; iDX <= iBorderlandRange; iDX++)
 									{
-										for(int iDY = -iClosestDistance; iDY <= iClosestDistance; iDY++)
+										for(int iDY = -iBorderlandRange; iDY <= iBorderlandRange; iDY++)
 										{
-											CvPlot* pLoopPlot = plotXYWithRangeCheck(pPlot->getX(), pPlot->getY(), iDX, iDY, iClosestDistance);
+											CvPlot* pLoopPlot = plotXYWithRangeCheck(pPlot->getX(), pPlot->getY(), iDX, iDY, iBorderlandRange);
 											if(pLoopPlot)
 											{
 												//Let's look for good, empty land.
@@ -728,13 +707,14 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, YieldT
 											}
 										}
 									}
+
 									//Good space must be greater than bad plots by at least 30%
-									if(iNumPlots > iNumNonFreePlots*1.3)
+									//Neighbor must not be too strong
+									if ( (iNumPlots > iNumNonFreePlots*1.3) && (pPlayer->GetMilitaryMight() > GET_PLAYER(eOtherPlayer).GetMilitaryMight() ) )
 									{
-										//If there is significant empty land, and it is within the theoretical hex separation of the nearest two cities of two different players, there's a good chance it is border land. GET IT!
 										iStratModifier += (iTotalPlotValue * /*50*/ GC.getBALANCE_EMPIRE_BORDERLAND_STRATEGIC_VALUE()) / 100;
 										vQualifiersPositive.push_back("(S) landgrab");
-										break;
+										bIsLandgrab = true;
 									}
 								}
 							}
@@ -746,6 +726,7 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, YieldT
 	}
 
 	// Nearby Cities?
+	iClosestCityOfMine = pPlayer->GetCityDistance(pPlot);
 
 	// Human
 	if (pPlayer != NULL && pPlayer->isHuman())
@@ -813,25 +794,6 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, YieldT
 			{
 				iValueModifier += (iTotalPlotValue*50)/100;
 				vQualifiersPositive.push_back("(V) too far from home");
-			}
-		}
-
-		//Let's judge just how well we can defend this city if we push out. If our neighbors are stronger than us, let's turtle a bit.
-		for(int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
-		{
-			PlayerTypes eOtherPlayer = (PlayerTypes) iMajorLoop;
-			if(eOtherPlayer != NO_PLAYER && GET_PLAYER(eOtherPlayer).isAlive() && !GET_PLAYER(eOtherPlayer).isMinorCiv() && !GET_PLAYER(eOtherPlayer).isBarbarian())
-			{
-				PlayerProximityTypes eProximity = GET_PLAYER(eOtherPlayer).GetProximityToPlayer(pPlayer->GetID());
-				if(eProximity == PLAYER_PROXIMITY_NEIGHBORS && (pPlayer->GetMilitaryMight() < GET_PLAYER(eOtherPlayer).GetMilitaryMight()*0.9f))
-				{
-					//Todo: Is the plot we're looking at in the same area as our strong neighbor?
-					if (iClosestEnemyCity <= 6)
-					{
-						iStratModifier -= (iTotalPlotValue*30)/100;
-						vQualifiersNegative.push_back("(S) too dangerous");
-					}
-				}
 			}
 		}
 	}

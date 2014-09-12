@@ -815,6 +815,10 @@ void CvPlayer::uninit()
 		m_pDangerPlots->Uninit();
 	}
 
+#ifdef MOD_BALANCE_CORE_SETTLER
+	m_pCityDistance->Uninit();
+#endif
+
 	m_ppaaiSpecialistExtraYield.clear();
 #if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
 	m_ppaaiPlotYieldChange.clear();
@@ -1361,6 +1365,11 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 			m_pDiplomacyRequests->Init(eID);
 		}
 		m_pDangerPlots->Init(eID, false /*bAllocate*/);
+
+#ifdef MOD_BALANCE_CORE_SETTLER
+		m_pCityDistance->Init(eID, true);
+#endif
+
 		m_pTreasury->Init(this);
 		m_pTraits->Init(GC.GetGameTraits(), this);
 		m_pEspionage->Init(this);
@@ -1956,7 +1965,7 @@ CvCity* CvPlayer::initCity(int iX, int iY, bool bBumpUnits, bool bInitialFoundin
 CvCity* CvPlayer::initCity(int iX, int iY, bool bBumpUnits, bool bInitialFounding)
 #endif
 {
-	CvCity* pCity = addCity();
+	CvCity* pCity = m_cities.Add();
 
 	CvAssertMsg(pCity != NULL, "City is not assigned a valid value");
 	if(pCity != NULL)
@@ -1968,6 +1977,11 @@ CvCity* CvPlayer::initCity(int iX, int iY, bool bBumpUnits, bool bInitialFoundin
 		pCity->init(pCity->GetID(), GetID(), iX, iY, bBumpUnits, bInitialFounding);
 #endif
 		pCity->GetCityStrategyAI()->UpdateFlavorsForNewCity();
+
+#ifdef MOD_BALANCE_CORE_SETTLER
+		m_pCityDistance->Update();
+#endif
+
 	}
 
 	return pCity;
@@ -4892,7 +4906,7 @@ void CvPlayer::doTurnPostDiplomacy()
 			AI_PERF_FORMAT("AI-perf.csv", ("Plots/Danger, Turn %03d, %s", kGame.getElapsedGameTurns(), getCivilizationShortDescription()) );
 
 			UpdatePlots();
-			m_pDangerPlots->UpdateDanger();
+			UpdateDangerPlots();
 		}
 
 		if(!isBarbarian())
@@ -23721,18 +23735,25 @@ const CvCity* CvPlayer::getCity(int iID) const
 	return(m_cities.GetAt(iID));
 }
 
-
-//	--------------------------------------------------------------------------------
-CvCity* CvPlayer::addCity()
-{
-	return(m_cities.Add());
-}
-
 //	--------------------------------------------------------------------------------
 void CvPlayer::deleteCity(int iID)
 {
 	m_cities.RemoveAt(iID);
+
+#ifdef MOD_BALANCE_CORE_SETTLER
+	m_pCityDistance->Update();
+#endif
 }
+
+#ifdef MOD_BALANCE_CORE_SETTLER
+int CvPlayer::GetCityDistance( const CvPlot* pPlot ) const
+{
+	if (pPlot && m_pCityDistance)
+		return m_pCityDistance->GetDistanceFromFriendlyCity( *pPlot );
+	else
+		return INT_MAX;
+}
+#endif
 
 //	--------------------------------------------------------------------------------
 CvCity* CvPlayer::GetFirstCityWithBuildingClass(BuildingClassTypes eBuildingClass)
@@ -27372,6 +27393,8 @@ void CvPlayer::Read(FDataStream& kStream)
 	if(m_bTurnActive)
 		GC.getGame().changeNumGameTurnActive(1, std::string("setTurnActive() [loading save game] for player ") + getName());
 
+	m_pCityDistance->Init( GetID(), true );
+	m_pCityDistance->Update();
 }
 
 //	--------------------------------------------------------------------------------
@@ -28941,8 +28964,6 @@ CvPlot* CvPlayer::GetBestSettlePlot(CvUnit* pUnit, bool bEscorted, int iArea, Cv
 	int iDanger=0, iFertility=0;
 	//--------
 
-	int iSettlerX = pUnit->getX();
-	int iSettlerY = pUnit->getY();
 	int iUnitArea = pUnit->getArea();
 	PlayerTypes eOwner = pUnit->getOwner();
 	TeamTypes eTeam = pUnit->getTeam();
@@ -29043,9 +29064,8 @@ CvPlot* CvPlayer::GetBestSettlePlot(CvUnit* pUnit, bool bEscorted, int iArea, Cv
 			continue;
 		}
 
-		//take distance into account
-		int iSettlerDistance = ::plotDistance(pPlot->getX(), pPlot->getY(), iSettlerX, iSettlerY);
-		int iScale = ( 100 * ( iSettlerDistance - GC.getSETTLER_DISTANCE_DROPOFF_MODIFIER() ) ) / iEvalDistance;
+		//take distance from existing cities into account
+		int iScale = ( 100 * ( GetCityDistance(pPlot) - GC.getSETTLER_DISTANCE_DROPOFF_MODIFIER() ) ) / iEvalDistance;
 		iScale = 100 - min(100,max(0,iScale));
 
 		if(pPlot->getArea() != iUnitArea)

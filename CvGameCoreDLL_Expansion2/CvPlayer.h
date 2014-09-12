@@ -1514,7 +1514,6 @@ public:
 	int getNumCities() const;
 	CvCity* getCity(int iID);
 	const CvCity* getCity(int iID) const;
-	CvCity* addCity();
 	void deleteCity(int iID);
 	CvCity* GetFirstCityWithBuildingClass(BuildingClassTypes eBuildingClass);
 
@@ -1893,6 +1892,10 @@ public:
 	int GetVassalGoldMaintenanceMod() const;
 	void SetVassalGoldMaintenanceMod(int iValue);
 	void ChangeVassalGoldMaintenanceMod(int iChange);
+#endif
+
+#ifdef MOD_BALANCE_CORE_SETTLER
+	int GetCityDistance( const CvPlot* pPlot ) const;
 #endif
 
 protected:
