@@ -1368,7 +1368,8 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 		m_pDangerPlots->Init(eID, false /*bAllocate*/);
 
 #ifdef MOD_BALANCE_CORE_SETTLER
-		m_pCityDistance->Init(eID, true);
+		//don't allocate here, map size is not known
+		m_pCityDistance->Init(eID, false);
 #endif
 
 		m_pTreasury->Init(this);
@@ -1502,14 +1503,11 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 /// This is called after the map and other game constructs have been setup and just before the game starts.
 void CvPlayer::gameStartInit()
 {
-	// if the game is loaded, don't init the danger plots. This was already done in the serialization process.
-	if(CvPreGame::gameStartType() != GAME_LOADED)
-	{
-		if(!GC.GetEngineUserInterface()->IsLoadedGame())
-		{
-			InitDangerPlots(); // moved this up because everyone should have danger plots inited. This is bad because saved games get much bigger for no reason.
-		}
-	}
+	//make sure the non-serialized infos are up to date
+	m_pDangerPlots->Init(GetID(), true);
+	m_pCityDistance->Init(GetID(), true);
+	m_pCityDistance->Update();
+	UpdateDangerPlots();
 
 	verifyAlive();
 	if(!isAlive())
@@ -4477,13 +4475,6 @@ int CvPlayer::GetNumUnitsWithUnitCombat(UnitCombatTypes eUnitCombat)
 	}
 
 	return iNumUnits;
-}
-
-//	-----------------------------------------------------------------------------------------------
-/// Setting up danger plots
-void CvPlayer::InitDangerPlots()
-{
-	m_pDangerPlots->Init(GetID(), true /*bAllocate*/);
 }
 
 //	-----------------------------------------------------------------------------------------------
@@ -27247,7 +27238,6 @@ void CvPlayer::Read(FDataStream& kStream)
 	m_pDealAI->Read(kStream);
 	m_pBuilderTaskingAI->Read(kStream);
 	m_pCityConnections->Read(kStream);
-	m_pDangerPlots->Read(kStream);
 	m_pTraits->Read(kStream);
 	kStream >> *m_pEspionage;
 	kStream >> *m_pEspionageAI;
@@ -27400,9 +27390,6 @@ void CvPlayer::Read(FDataStream& kStream)
 
 	if(m_bTurnActive)
 		GC.getGame().changeNumGameTurnActive(1, std::string("setTurnActive() [loading save game] for player ") + getName());
-
-	m_pCityDistance->Init( GetID(), true );
-	m_pCityDistance->Update();
 }
 
 //	--------------------------------------------------------------------------------
@@ -27798,7 +27785,6 @@ void CvPlayer::Write(FDataStream& kStream) const
 	m_pDealAI->Write(kStream);
 	m_pBuilderTaskingAI->Write(kStream);
 	m_pCityConnections->Write(kStream);
-	m_pDangerPlots->Write(kStream);
 	m_pTraits->Write(kStream);
 	kStream << *m_pEspionage;
 	kStream << *m_pEspionageAI;

@@ -193,7 +193,7 @@ void CvDangerPlots::UpdateDanger(bool bPretendWarWithAllCivs, bool bIgnoreVisibi
 	}
 
 	// Citadels
-	int iCitadelValue = GetDangerValueOfCitadel();
+	int iCitadelValue = 1000; //GetDangerValueOfCitadel();
 	int iPlotLoop;
 	CvPlot* pPlot, *pAdjacentPlot;
 	for(iPlotLoop = 0; iPlotLoop < GC.getMap().numPlots(); iPlotLoop++)

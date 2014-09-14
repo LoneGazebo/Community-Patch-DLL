@@ -139,7 +139,6 @@ public:
 	int GetNumUnitsWithDomain(DomainTypes eDomain, bool bMilitaryOnly);
 	int GetNumUnitsWithUnitCombat(UnitCombatTypes eDomain);
 
-	void InitDangerPlots();
 	void UpdateDangerPlots();
 	void SetDangerPlotsDirty();
 
