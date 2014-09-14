@@ -1316,7 +1316,7 @@ void CvHomelandAI::PlotOpportunisticSettlementMoves()
 					if (!pPlot->isRevealed(eUnitTeam)) continue;
 					if (!m_pPlayer->canFound(iPlotX, iPlotY)) continue;
 
-					aBestPlots.push_back(pPlot, m_pPlayer->AI_foundValue(iPlotX, iPlotY, -1, false));
+					aBestPlots.push_back(pPlot, pPlot->getFoundValue(m_pPlayer->GetID()) );
 				}
 			}
 
@@ -2481,8 +2481,9 @@ void CvHomelandAI::ExecuteFirstTurnSettlerMoves()
 						if(pAdjacentPlot != NULL && pUnit->canFound(pAdjacentPlot))
 						{
 							iAdjacentValue = GC.getGame().GetSettlerSiteEvaluator()->PlotFoundValue(pAdjacentPlot, m_pPlayer, NO_YIELD, false);
-							if(iAdjacentValue > iInitialPlotValue)
+							if(iAdjacentValue > iInitialPlotValue*1.05f) //should be at least five percent better to justify the hassle
 							{
+								OutputDebugStr( CvString::format("%s settler found better initial plot: %d vs %d\n", m_pPlayer->getCivilizationAdjective(), iAdjacentValue, iInitialPlotValue) );
 								iInitialPlotValue = iAdjacentValue;
 								pBestAdjacentPlot = pAdjacentPlot;
 							}

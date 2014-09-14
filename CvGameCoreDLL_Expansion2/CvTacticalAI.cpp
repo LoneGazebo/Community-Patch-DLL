@@ -4056,11 +4056,13 @@ void CvTacticalAI::PlotSingleHexOperationMoves(CvAIEscortedOperation* pOperation
 		return;
 	}
 
+	//may be null!
+	pEscort = m_pPlayer->getUnit(pThisArmy->GetNextUnitID());
+
 	// ESCORT AND CIVILIAN MEETING UP
 	if(pThisArmy->GetArmyAIState() == ARMYAISTATE_WAITING_FOR_UNITS_TO_REINFORCE ||
 	        pThisArmy->GetArmyAIState() == ARMYAISTATE_WAITING_FOR_UNITS_TO_CATCH_UP)
 	{
-		pEscort = m_pPlayer->getUnit(pThisArmy->GetNextUnitID());
 		if(!pEscort || pEscort->TurnProcessed())
 		{
 			// Escort died or was poached for other tactical action, operation will clean itself up when call CheckOnTarget()
@@ -4146,6 +4148,17 @@ void CvTacticalAI::PlotSingleHexOperationMoves(CvAIEscortedOperation* pOperation
 		// If we're not there yet, we have work to do (otherwise CheckOnTarget() will finish operation for us)
 		if(pCivilian->plot() != pOperation->GetTargetPlot())
 		{
+			//todo: make sure to stay away from danger (MoveCivilianToSafety?)
+			bool bDanger = pCivilian->SentryAlert(true);
+			if (bDanger)
+			{
+				CvString msg = CvString::format("settler in danger at (%d,%d)", pCivilian->getX(), pCivilian->getY() );
+				if (pEscort && pEscort->plot()!=pCivilian->plot())
+					msg += CvString::format(", escort at (%d,%d)", pEscort->getX(), pEscort->getY() );
+				msg += "\n";
+				OutputDebugStr( msg );
+			}
+
 			// Look at where we'd move this turn taking units into consideration
 			int iFlags = 0;
 			if(pThisArmy->GetNumSlotsFilled() > 1)
@@ -4158,7 +4171,6 @@ void CvTacticalAI::PlotSingleHexOperationMoves(CvAIEscortedOperation* pOperation
 			{
 				pOperation->RetargetCivilian(pCivilian.pointer(), pThisArmy);
 				pCivilian->finishMoves();
-				pEscort = m_pPlayer->getUnit(pThisArmy->GetNextUnitID());
 				if(pEscort)
 				{
 					pEscort->finishMoves();
@@ -4190,8 +4202,6 @@ void CvTacticalAI::PlotSingleHexOperationMoves(CvAIEscortedOperation* pOperation
 
 				else
 				{
-					pEscort = m_pPlayer->getUnit(pThisArmy->GetNextUnitID());
-
 					// See if escort can move to the same location in one turn
 					if(TurnsToReachTarget(pEscort, pCivilianMove) <= 1)
 					{

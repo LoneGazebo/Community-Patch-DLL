@@ -165,7 +165,8 @@ void CvPlayerAI::AI_updateFoundValues(bool bStartingLoc)
 {
 	//speed optimization: do this only if we want to expand
 	//any other safe checks we could do?
-	if (isMinorCiv() || isBarbarian())
+	bool bVenice = GetPlayerTraits()->IsNoAnnexing();
+	if (isMinorCiv() || isBarbarian() || bVenice)
 		return;
 
 	int iGoodEnoughToBeWorthOurTime = GC.getAI_STRATEGY_MINIMUM_SETTLE_FERTILITY();
@@ -181,7 +182,9 @@ void CvPlayerAI::AI_updateFoundValues(bool bStartingLoc)
 	{
 		for(int iI = 0; iI < iNumPlots; iI++)
 		{
-			GC.getMap().plotByIndexUnchecked(iI)->setFoundValue(eID, -1);
+			CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(iI);
+			const int iValue = GC.getGame().GetSettlerSiteEvaluator()->PlotFoundValue(pLoopPlot, this, NO_YIELD, false);
+			pLoopPlot->setFoundValue(eID, iValue);
 		}
 	}
 	else
@@ -405,7 +408,6 @@ bool CvPlayerAI::AI_captureUnit(UnitTypes, CvPlot* pPlot)
 
 int CvPlayerAI::AI_foundValue(int iX, int iY, int, bool bStartingLoc)
 {
-
 	CvPlot* pPlot;
 	int rtnValue = 0;
 

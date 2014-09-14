@@ -710,7 +710,7 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, YieldT
 
 									//Good space must be greater than bad plots by at least 30%
 									//Neighbor must not be too strong
-									if ( (iNumPlots > iNumNonFreePlots*1.3) && (pPlayer->GetMilitaryMight() > GET_PLAYER(eOtherPlayer).GetMilitaryMight() ) )
+									if ( (iNumPlots > iNumNonFreePlots*1.3f) && (pPlayer->GetMilitaryMight() > GET_PLAYER(eOtherPlayer).GetMilitaryMight()*1.1f ) )
 									{
 										iStratModifier += (iTotalPlotValue * /*50*/ GC.getBALANCE_EMPIRE_BORDERLAND_STRATEGIC_VALUE()) / 100;
 										vQualifiersPositive.push_back("(S) landgrab");

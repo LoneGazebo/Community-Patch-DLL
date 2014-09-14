@@ -3504,7 +3504,8 @@ bool EconomicAIHelpers::IsTestStrategy_EnoughExpansion(EconomicAIStrategyTypes e
 	int iBestArea;
 	int iSecondBestArea;
 
-	if (GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && pPlayer->isHuman())
+	bool bCannotExpand = pPlayer->isBarbarian() || pPlayer->isMinorCiv() || pPlayer->GetPlayerTraits()->IsNoAnnexing();
+	if ((GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && pPlayer->isHuman()) || bCannotExpand)
 	{
 		return true;
 	}
@@ -3514,6 +3515,18 @@ bool EconomicAIHelpers::IsTestStrategy_EnoughExpansion(EconomicAIStrategyTypes e
 	{
 		return true;
 	}
+
+#ifdef MOD_BALANCE_CORE_SETTLER
+	//check if there are any good settle plots around
+	CvPlot* pBestSettlePlot = pPlayer->GetBestSettlePlot(NULL,true,-1,NULL,true);
+	int iBestFoundValue = pBestSettlePlot ? pBestSettlePlot->getFoundValue( pPlayer->GetID() ) : 0;
+	int iLastFoundValue = pPlayer->GetFoundValueOfLastSettledCity();
+	if (iBestFoundValue < 0.5f * iLastFoundValue )
+	{
+		OutputDebugStr( CvString::format("%s: No good settle plot (ratio .2f)\n", pPlayer->getCivilizationDescription(), iBestFoundValue/(float)iLastFoundValue ) );
+		return true;
+	}
+#endif
 
 	int iNumExtraSettlers = 0;
 

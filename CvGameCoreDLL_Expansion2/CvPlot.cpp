@@ -1000,9 +1000,6 @@ bool CvPlot::isAdjacentToIce() const
 //	--------------------------------------------------------------------------------
 bool CvPlot::isCoastalLand(int iMinWaterSize) const
 {
-	CvPlot* pAdjacentPlot;
-	int iI;
-
 	if(isWater())
 	{
 		return false;
@@ -1014,9 +1011,10 @@ bool CvPlot::isCoastalLand(int iMinWaterSize) const
 		iMinWaterSize = GC.getMIN_WATER_SIZE_FOR_OCEAN();
 	}
 
-	for(iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
+	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(this);
+	for(int iCount=0; iCount<NUM_DIRECTION_TYPES; iCount++)
 	{
-		pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
+		const CvPlot* pAdjacentPlot = aPlotsToCheck[iCount];
 
 		if(pAdjacentPlot != NULL)
 		{
@@ -1135,11 +1133,8 @@ bool CvPlot::isFreshWater() const
 		return true;
 
 	//now the more complex checks
-	const CvPlot* aPlotsToCheck[NUM_DIRECTION_TYPES+1];
-	aPlotsToCheck[NUM_DIRECTION_TYPES] = this;
-	for(int iDirectionLoop = 0; iDirectionLoop < NUM_DIRECTION_TYPES; ++iDirectionLoop)
-		aPlotsToCheck[iDirectionLoop] = plotDirection(getX(), getY(), ((DirectionTypes)iDirectionLoop));
-
+	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(this);
+	//+1 means we check the plot itself also!
 	for(int iCount=0; iCount<NUM_DIRECTION_TYPES+1; iCount++)
 	{
 		const CvPlot* pLoopPlot = aPlotsToCheck[iCount];
@@ -8649,7 +8644,7 @@ bool CvPlot::isBestAdjacentFound(PlayerTypes eIndex)
 	int iI;
 
 	CvPlayer& thisPlayer = GET_PLAYER(eIndex);
-	int iPlotValue = thisPlayer.AI_foundValue(getX(), getY());
+	int iPlotValue = getFoundValue(eIndex);
 
 	if(iPlotValue == 0)
 	{
@@ -8662,7 +8657,7 @@ bool CvPlot::isBestAdjacentFound(PlayerTypes eIndex)
 
 		if((pAdjacentPlot != NULL) && pAdjacentPlot->isRevealed(thisPlayer.getTeam()))
 		{
-			if(thisPlayer.AI_foundValue(pAdjacentPlot->getX(), pAdjacentPlot->getY()) > iPlotValue)
+			if(pAdjacentPlot->getFoundValue(eIndex) > iPlotValue)
 			{
 				return false;
 			}

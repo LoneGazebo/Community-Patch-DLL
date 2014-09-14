@@ -7622,11 +7622,7 @@ void CvGame::addGreatPersonBornName(const CvString& szName)
 //	--------------------------------------------------------------------------------
 void CvGame::doTurn()
 {
-#ifndef FINAL_RELEASE
-	char temp[256];
-	sprintf_s(temp, "Turn %i\n", getGameTurn());
-	OutputDebugString(temp);
-#endif
+	OutputDebugString(CvString::format("Turn \t%03i\tTime \t%012d\n", getGameTurn(), GetTickCount()));
 
 	int aiShuffle[MAX_PLAYERS];
 	int iLoopPlayer;

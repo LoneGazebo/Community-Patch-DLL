@@ -21,7 +21,7 @@ from operator import itemgetter
 CAPTION = "Fake Map Viewer (space to change view)"
 
 RADIUS_BIG = 12
-RADIUS_SMALL = 6
+RADIUS_SMALL = 9
 DISTANCEX = int( 2*RADIUS_BIG )
 DISTANCEY = int( math.sqrt(3)*RADIUS_BIG )
 ODDOFFSET = int( DISTANCEX/2 )
@@ -85,14 +85,24 @@ ptype_string = {
 
 layer_string = {
 	0: "terrain/owner  ",
-	1: "final valuation",
-	2: "aggregate yields",
-	3: "value modifier  ", 
-	4: "strategic modifier",
-	5: "civ modifier   ",
-	6: "danger         ",
-	7: "fertility      ",
-	8: "distance factor",
+	1: "area           ",
+	2: "total value    ",
+	3: "aggregate yields",
+	4: "value modifier  ", 
+	5: "strategic modifier",
+	6: "civ modifier   ",
+	7: "danger         ",
+	8: "fertility      ",
+	9: "distance factor",
+}
+
+blocked_reason = {
+	-1: "cannot found",
+	-2: "enemy land",
+	-3: "already targeted",
+	-4: "enemy unit",
+	-5: "too far",
+	-6: "not in target area",
 }
 
 class Control(object):
@@ -181,7 +191,7 @@ class Control(object):
 			self.clock.tick(self.fps)
 
 class Plot():
-	def __init__(self,x,y,terrain,ptype,feature,owner,visible,values,hints):
+	def __init__(self,x,y,terrain,ptype,feature,owner,area,visible,values,hints):
 		self.idx_x = x
 		self.idx_y = y
 		self.x = x*DISTANCEX + (y%2)*ODDOFFSET
@@ -190,6 +200,7 @@ class Plot():
 		self.ptype = ptype
 		self.feature = feature
 		self.owner = owner
+		self.area = area
 		self.visible = visible
 		self.values = values
 		self.hints = hints
@@ -210,7 +221,10 @@ class Plot():
 				self.color_values.append( pg.Color(0,+g,0) )
 
 		self.color_owner = pg.Color("#FF00FF")
-		self.color_owner.hsva = ( zlib.adler32("%02d"%self.owner) % 360, 100, 100, 100 )
+		self.color_owner.hsva = ( zlib.adler32("%08d"%self.owner) % 360, 100, 100, 100 )
+
+		self.color_area = pg.Color("#FF00FF")
+		self.color_area.hsva = ( zlib.adler32("%08d"%self.area) % 360, 100, 100, 100 )
 
 		#draw functions don't take alpha, so a little workaround is needed
 		self.surface = pg.Surface( (2*RADIUS_BIG,2*RADIUS_BIG) ).convert()
@@ -221,12 +235,20 @@ class Plot():
 		return math.sqrt( (pos[0]-self.x)**2 + (pos[1]-self.y)**2 )
 
 	def show_details(self):
-		print("plot (%d,%d) - owner %d\n\tterrain %s, plot %s, feature %s\n" %  \
+		print("plot (%d,%d) - owner %d\n\tterrain %s, plot %s, feature %s\n\tarea %03d\n" %  \
 			(self.idx_x,self.idx_y,self.owner,
 			terrain_string.get(self.terrain,"unknown"),
 			ptype_string.get(self.ptype,"unknown"),
-			feature_string.get(self.feature,"unknown")))
-		print( "\n".join( ("\t%s:\t%08d" % (layer_string.get(i+1,"unknown layer"),v) ) for i,v in enumerate(self.values) ) ) 
+			feature_string.get(self.feature,"unknown"),
+			self.area))
+		#special treatment for total
+		total = self.values[0]
+		if total<0:
+			print( "\tblocked because of:  %s\n" % blocked_reason.get(total,"unknown") )
+		else:
+			print( "\t%s:\t%08d\n" % (layer_string.get(2),total) )
+		#rest is automatic			
+		print( "\n".join( ("\t%s:\t%08d" % (layer_string.get(i+3,"unknown layer"),v) ) for i,v in enumerate(self.values[1:]) ) ) 
 		print( "\n".join( ( ("\t%s\t" % s) for s in self.hints) ) )
 
 	def draw(self, target, view_mode):
@@ -234,24 +256,27 @@ class Plot():
 		background = pg.Color(0,0,0)
 		self.surface.fill( background )
 		self.surface.set_colorkey( background )
+
+		if self.ptype==0: #mountain
+			sane_terrain = 7 #force mountain
+		else: #for land,hill,ocean it's fine as is
+			sane_terrain = self.terrain
+
+		pg.draw.circle(self.surface, terrain_color[sane_terrain], (RADIUS_BIG,RADIUS_BIG), RADIUS_BIG, 0)
 		
 		if view_mode==0:
-			if self.ptype==0: #mountain
-				sane_terrain = 7 #force mountain
-			else: #for land,hill,ocean it's fine as is
-				sane_terrain = self.terrain
-
-			pg.draw.circle(self.surface, terrain_color[sane_terrain], (RADIUS_BIG,RADIUS_BIG), RADIUS_BIG, 0)
 			if (self.owner!=-1):
 				pg.draw.circle(self.surface, self.color_owner, (RADIUS_BIG,RADIUS_BIG), RADIUS_SMALL, 0)
+		elif view_mode==1:
+			pg.draw.circle(self.surface, self.color_area, (RADIUS_BIG,RADIUS_BIG), RADIUS_SMALL, 0)
 		else:
-			pg.draw.circle(self.surface, self.color_values[view_mode-1], (RADIUS_BIG,RADIUS_BIG), RADIUS_BIG, 0)
+			pg.draw.circle(self.surface, self.color_values[view_mode-2], (RADIUS_BIG,RADIUS_BIG), RADIUS_SMALL, 0)
 			
 		target.blit( self.surface, (self.x-RADIUS_BIG,self.y-RADIUS_BIG) )
 
 if __name__ == "__main__":
 	
-	n_properties = 7
+	n_properties = 8
 	n_values = 8
 	
 	scale = [1]*n_values
@@ -271,19 +296,19 @@ if __name__ == "__main__":
 			scale[i] = max( scale[i], abs(data[i]) )
 	
 	#do this before actually creating the plots (need to initialize pygame)
-	run_it = Control(plots,(sizex+1,sizey+1),n_values+1)
+	run_it = Control(plots,(sizex+1,sizey+1),n_values+2)
 
 	for line in open(sys.argv[1],"r"):
 		data = line.split(",")
-		x,y,terrain,ptype,feature,owner,visible = map(int, data[:n_properties])
+		x,y,terrain,ptype,feature,owner,area,visible = map(int, data[:n_properties])
 		values = map(int, data[n_properties:n_properties+n_values])
 		#pad with zeros
 		while len(values)<n_values:
 			values.append(0)
-		#little hack so danger comes last
+		#little hack so total value comes first
 		values = values[3:] + values[:3]
 		hints = data[n_properties+n_values:]
-		plots.append( Plot(x,y,terrain,ptype,feature,owner,visible,values,hints) )
+		plots.append( Plot(x,y,terrain,ptype,feature,owner,area,visible,values,hints) )
 
 	#also rearrange the scale
 	scale = scale[3:] + scale[:3]

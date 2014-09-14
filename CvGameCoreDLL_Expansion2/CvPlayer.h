@@ -1652,7 +1652,9 @@ public:
 
 	int GetBestSettleAreas(int iMinScore, int& iFirstArea, int& iSecondArea);
 #ifdef MOD_BALANCE_CORE_SETTLER
-	CvPlot* GetBestSettlePlot(CvUnit* pUnit, bool bEscorted, int iArea, CvAIOperation* pOpToIgnore);
+	CvPlot* GetBestSettlePlot(const CvUnit* pUnit, bool bEscorted, int iTargetArea, CvAIOperation* pOpToIgnore, bool bSuppressLogging=false);
+	int GetFoundValueOfLastSettledCity() const;
+	void SetFoundValueOfLastSettledCity(int iValue);
 #else
 	CvPlot* GetBestSettlePlot(CvUnit* pUnit, bool bEscorted, int iArea=-1) const;
 #endif
@@ -2377,6 +2379,7 @@ protected:
 
 #ifdef MOD_BALANCE_CORE_SETTLER
 	CvDistanceMap* m_pCityDistance;
+	int	m_iFoundValueOfLastSettledCity;
 #endif
 
 	// Policies

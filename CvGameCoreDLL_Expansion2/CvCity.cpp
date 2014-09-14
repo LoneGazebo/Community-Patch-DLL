@@ -472,6 +472,8 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	}
 
 	area()->changeCitiesPerPlayer(getOwner(), 1);
+	if (isCoastal())
+		waterArea()->changeCitiesPerPlayer(getOwner(), 1);
 
 	GET_TEAM(getTeam()).changeNumCities(1);
 
@@ -1605,6 +1607,8 @@ void CvCity::PreKill()
 	pPlot->setPlotCity(NULL);
 
 	area()->changeCitiesPerPlayer(getOwner(), -1);
+	if (isCoastal())
+		waterArea()->changeCitiesPerPlayer(getOwner(), -1);
 
 	GET_TEAM(getTeam()).changeNumCities(-1);
 
@@ -8429,6 +8433,9 @@ void CvCity::setPopulation(int iNewValue, bool bReassignPop /* = true */)
 		}
 
 		area()->changePopulationPerPlayer(getOwner(), (getPopulation() - iOldPopulation));
+		if (isCoastal())
+			waterArea()->changePopulationPerPlayer(getOwner(), (getPopulation() - iOldPopulation));
+
 		GET_PLAYER(getOwner()).changeTotalPopulation(getPopulation() - iOldPopulation);
 		GET_TEAM(getTeam()).changeTotalPopulation(getPopulation() - iOldPopulation);
 		GC.getGame().changeTotalPopulation(getPopulation() - iOldPopulation);
