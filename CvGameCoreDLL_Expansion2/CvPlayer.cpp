@@ -5251,8 +5251,8 @@ void CvPlayer::DoUnitReset()
 			}
 		}
 
-		int iCitadelDamage;
-		if(pLoopUnit->IsNearEnemyCitadel(iCitadelDamage))
+		int iCitadelDamage = pLoopUnit->plot()->GetDamageFromNearByFeatures(GetID());
+		if( iCitadelDamage )
 		{
 			pLoopUnit->changeDamage(iCitadelDamage, NO_PLAYER, /*fAdditionalTextDelay*/ 0.5f);
 		}

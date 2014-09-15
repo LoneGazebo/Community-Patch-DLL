@@ -5840,7 +5840,7 @@ void CvPlot::setPlotType(PlotTypes eNewValue, bool bRecalculate, bool bRebuildGr
 		m_ePlotType = eNewValue;
 
 		updateYield();
-
+		updateImpassable();
 		updateSeeFromSight(true);
 
 		if((getTerrainType() == NO_TERRAIN) || (GC.getTerrainInfo(getTerrainType())->isWater() != isWater()))
@@ -11764,6 +11764,50 @@ bool CvPlot::HasWrittenArtifact() const
 		bRtnValue = true;
 	}
 	return bRtnValue;
+}
+
+// Citadel
+int CvPlot::GetDamageFromNearByFeatures(PlayerTypes ePlayer) const
+{
+	int iCitadelRange = 1;
+
+	CvPlot* pLoopPlot;
+	TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
+
+	ImprovementTypes eImprovement;
+	int iDamage = 0, iTotalDamage = 0;
+
+	// Look around this Unit to see if there's an adjacent Citadel
+	for(int iX = -iCitadelRange; iX <= iCitadelRange; iX++)
+	{
+		for(int iY = -iCitadelRange; iY <= iCitadelRange; iY++)
+		{
+			pLoopPlot = plotXYWithRangeCheck(getX(), getY(), iX, iY, iCitadelRange);
+
+			if(pLoopPlot != NULL && pLoopPlot->isRevealed(eTeam) )
+			{
+				eImprovement = pLoopPlot->getImprovementType();
+
+				// Citadel here?
+				if(eImprovement != NO_IMPROVEMENT && !pLoopPlot->IsImprovementPillaged())
+				{
+					iDamage = GC.getImprovementInfo(eImprovement)->GetNearbyEnemyDamage();
+					if(iDamage != 0)
+					{
+						if(pLoopPlot->getOwner() != NO_PLAYER)
+						{
+							if(GET_TEAM(eTeam).isAtWar(pLoopPlot->getTeam()))
+							{
+								iTotalDamage += iDamage;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return iTotalDamage;
 }
 
 //	---------------------------------------------------------------------------

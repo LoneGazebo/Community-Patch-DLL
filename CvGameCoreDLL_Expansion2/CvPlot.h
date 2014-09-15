@@ -838,6 +838,9 @@ public:
 	void SetArtifactGreatWork(GreatWorkType eWork);
 	bool HasWrittenArtifact() const;
 
+	// Citadel
+	int GetDamageFromNearByFeatures(PlayerTypes ePlayer) const;
+
 #if defined(MOD_API_EXTENSIONS)
 	bool IsCivilization(CivilizationTypes iCivilizationType) const;
 	bool HasFeature(FeatureTypes iFeatureType) const;
