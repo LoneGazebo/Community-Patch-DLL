@@ -29085,7 +29085,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, bool bEscorted, int iTa
 		int iScale = ( 100 * ( GetCityDistance(pPlot) - GC.getSETTLER_DISTANCE_DROPOFF_MODIFIER() ) ) / iEvalDistance;
 		iScale = 100 - min(100,max(0,iScale));
 
-		if(pPlot->getArea() != iUnitArea)
+		if( iUnitArea!=-1 && (pPlot->getArea()!=iUnitArea) )
 		{
 			if(GC.getMap().GetAIMapHint() & 5)  //encourage offshore expansion
 				iScale += 50;

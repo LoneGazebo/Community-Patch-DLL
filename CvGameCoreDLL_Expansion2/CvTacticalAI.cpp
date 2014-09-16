@@ -4152,7 +4152,7 @@ void CvTacticalAI::PlotSingleHexOperationMoves(CvAIEscortedOperation* pOperation
 			bool bDanger = pCivilian->SentryAlert(true);
 			if (bDanger)
 			{
-				CvString msg = CvString::format("settler in danger at (%d,%d)", pCivilian->getX(), pCivilian->getY() );
+				CvString msg = CvString::format("%s settler in danger at (%d,%d)", GET_PLAYER(pCivilian->getOwner()).getCivilizationAdjective(), pCivilian->getX(), pCivilian->getY() );
 				if (pEscort && pEscort->plot()!=pCivilian->plot())
 					msg += CvString::format(", escort at (%d,%d)", pEscort->getX(), pEscort->getY() );
 				msg += "\n";

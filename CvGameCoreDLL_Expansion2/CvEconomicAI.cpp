@@ -3188,6 +3188,7 @@ bool EconomicAIHelpers::IsTestStrategy_NeedRecon(CvPlayer* pPlayer)
 		}
 	}
 
+#ifdef MOD_BALANCE_CORE_SETTLER
 	// Need recon if there are no good plots to settle
 	EconomicAIStrategyTypes eStrategyNoExpansion = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_ENOUGH_EXPANSION");
 	if(eStrategyNoExpansion != NO_ECONOMICAISTRATEGY)
@@ -3197,6 +3198,7 @@ bool EconomicAIHelpers::IsTestStrategy_NeedRecon(CvPlayer* pPlayer)
 			return true;
 		}
 	}
+#endif
 
 	return (pPlayer->GetEconomicAI()->GetReconState() == RECON_STATE_NEEDED);
 }

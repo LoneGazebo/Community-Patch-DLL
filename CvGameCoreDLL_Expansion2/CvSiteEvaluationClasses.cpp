@@ -279,6 +279,8 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, YieldT
 	// Make sure this player can even build a city here
 	if(!CanFound(pPlot, pPlayer, false))
 	{
+		if(pDebug)
+			pDebug->format("cannot found");
 		return 0;
 	}
 
