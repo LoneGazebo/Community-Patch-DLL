@@ -3188,6 +3188,16 @@ bool EconomicAIHelpers::IsTestStrategy_NeedRecon(CvPlayer* pPlayer)
 		}
 	}
 
+	// Need recon if there are no good plots to settle
+	EconomicAIStrategyTypes eStrategyNoExpansion = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_ENOUGH_EXPANSION");
+	if(eStrategyNoExpansion != NO_ECONOMICAISTRATEGY)
+	{
+		if(pPlayer->GetEconomicAI()->IsUsingStrategy(eStrategyNoExpansion))
+		{
+			return true;
+		}
+	}
+
 	return (pPlayer->GetEconomicAI()->GetReconState() == RECON_STATE_NEEDED);
 }
 
@@ -3523,7 +3533,8 @@ bool EconomicAIHelpers::IsTestStrategy_EnoughExpansion(EconomicAIStrategyTypes e
 	int iLastFoundValue = pPlayer->GetFoundValueOfLastSettledCity();
 	if (iBestFoundValue < 0.5f * iLastFoundValue )
 	{
-		OutputDebugStr( CvString::format("%s: No good settle plot (ratio .2f)\n", pPlayer->getCivilizationDescription(), iBestFoundValue/(float)iLastFoundValue ) );
+		OutputDebugStr( CvString::format("%s: No good settle plot: ratio %.2f (%08d vs %08d) \n", 
+			pPlayer->getCivilizationDescription(), iBestFoundValue/(float)iLastFoundValue, iBestFoundValue, iLastFoundValue) );
 		return true;
 	}
 #endif
