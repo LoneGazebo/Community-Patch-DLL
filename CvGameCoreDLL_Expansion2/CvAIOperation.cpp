@@ -525,7 +525,11 @@ bool CvAIOperation::CheckOnTarget()
 					pCivilian = GET_PLAYER(m_eOwner).getUnit(iUnitID);
 					pCivilianPlot = pCivilian->plot();
 				}
-				if(m_eCurrentState == AI_OPERATION_STATE_MOVING_TO_TARGET && pCivilianPlot == GetTargetPlot())
+#ifdef MOD_BALANCE_CORE_SETTLER
+				if( (m_eCurrentState==AI_OPERATION_STATE_MOVING_TO_TARGET || m_eCurrentState==AI_OPERATION_STATE_AT_TARGET) && pCivilianPlot==GetTargetPlot())
+#else
+				if( m_eCurrentState == AI_OPERATION_STATE_MOVING_TO_TARGET && pCivilianPlot == GetTargetPlot())
+#endif
 				{
 					ArmyInPosition(pThisArmy);
 					return true;
@@ -3234,7 +3238,7 @@ bool CvAIOperationFoundCity::ArmyInPosition(CvArmyAI* pArmy)
 
 						if (pCity != NULL)
 						{
-							strMsg.Format("City founded, At X=%d, At Y=%d, %s, %d, %d", pCityPlot->getX(), pCityPlot->getY(), pCity->getName().GetCString(), iPlotValue, pArea->getTotalFoundValue());
+							strMsg.Format("City founded (%s), At X=%d, At Y=%d, %s, %d, %d", pCity->getName().c_str(), pCityPlot->getX(), pCityPlot->getY(), pCity->getName().GetCString(), iPlotValue, pArea->getTotalFoundValue());
 							LogOperationSpecialMessage(strMsg);
 						}
 					}

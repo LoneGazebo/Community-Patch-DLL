@@ -2174,6 +2174,38 @@ void CvEconomicAI::DoReconState()
 		return;
 	}
 
+	// Never desperate for explorers if we are at war
+	MilitaryAIStrategyTypes eStrategyAtWar = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_AT_WAR");
+	if(eStrategyAtWar != NO_MILITARYAISTRATEGY)
+	{
+		if(GetPlayer()->GetMilitaryAI()->IsUsingStrategy(eStrategyAtWar))
+		{
+			m_eReconState = RECON_STATE_ENOUGH;
+			m_eNavalReconState = RECON_STATE_ENOUGH;
+			return;
+		}
+	}
+
+#ifdef MOD_BALANCE_CORE_SETTLER
+	bool bIsVenice = GetPlayer()->GetPlayerTraits()->IsNoAnnexing();
+	if (!bIsVenice)
+	{
+		// Need recon if there are no good plots to settle
+		CvPlot* pBestSettlePlot = GetPlayer()->GetBestSettlePlot(NULL,true,-1,NULL,true);
+		int iBestFoundValue = pBestSettlePlot ? pBestSettlePlot->getFoundValue( GetPlayer()->GetID() ) : 0;
+		int iLastFoundValue = GetPlayer()->GetFoundValueOfLastSettledCity();
+		if (iBestFoundValue < 0.5f * iLastFoundValue )
+		{
+			OutputDebugStr( CvString::format("%s - no good settle plot: ratio %.2f (%08d vs %08d) - need more recon\n", 
+				GetPlayer()->getCivilizationDescription(), iBestFoundValue/(float)iLastFoundValue, iBestFoundValue, iLastFoundValue) );
+
+			m_eReconState = RECON_STATE_NEEDED;
+			m_eNavalReconState = RECON_STATE_NEEDED;
+			return;
+		}
+	}
+#endif
+
 	// Start at 1 so we don't get divide-by-0 errors
 	//   Land recon counters
 	int iNumLandPlotsRevealed = 1;
@@ -3178,28 +3210,6 @@ bool EconomicAIHelpers::IsAreaSafeForQuickColony(int iAreaID, CvPlayer* pPlayer)
 /// "Need Recon" Player Strategy: chosen by the DoRecon() function
 bool EconomicAIHelpers::IsTestStrategy_NeedRecon(CvPlayer* pPlayer)
 {
-	// Never desperate for explorers if we are at war
-	MilitaryAIStrategyTypes eStrategyAtWar = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_AT_WAR");
-	if(eStrategyAtWar != NO_MILITARYAISTRATEGY)
-	{
-		if(pPlayer->GetMilitaryAI()->IsUsingStrategy(eStrategyAtWar))
-		{
-			return false;
-		}
-	}
-
-#ifdef MOD_BALANCE_CORE_SETTLER
-	// Need recon if there are no good plots to settle
-	EconomicAIStrategyTypes eStrategyNoExpansion = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_ENOUGH_EXPANSION");
-	if(eStrategyNoExpansion != NO_ECONOMICAISTRATEGY)
-	{
-		if(pPlayer->GetEconomicAI()->IsUsingStrategy(eStrategyNoExpansion))
-		{
-			return true;
-		}
-	}
-#endif
-
 	return (pPlayer->GetEconomicAI()->GetReconState() == RECON_STATE_NEEDED);
 }
 
@@ -3527,19 +3537,6 @@ bool EconomicAIHelpers::IsTestStrategy_EnoughExpansion(EconomicAIStrategyTypes e
 	{
 		return true;
 	}
-
-#ifdef MOD_BALANCE_CORE_SETTLER
-	//check if there are any good settle plots around
-	CvPlot* pBestSettlePlot = pPlayer->GetBestSettlePlot(NULL,true,-1,NULL,true);
-	int iBestFoundValue = pBestSettlePlot ? pBestSettlePlot->getFoundValue( pPlayer->GetID() ) : 0;
-	int iLastFoundValue = pPlayer->GetFoundValueOfLastSettledCity();
-	if (iBestFoundValue < 0.5f * iLastFoundValue )
-	{
-		OutputDebugStr( CvString::format("%s: No good settle plot: ratio %.2f (%08d vs %08d) \n", 
-			pPlayer->getCivilizationDescription(), iBestFoundValue/(float)iLastFoundValue, iBestFoundValue, iLastFoundValue) );
-		return true;
-	}
-#endif
 
 	int iNumExtraSettlers = 0;
 

@@ -8622,6 +8622,26 @@ void CvPlot::updateYield()
 	}
 }
 
+#ifdef MOD_CORE_EXPLORATION
+
+//	--------------------------------------------------------------------------------
+int CvPlot::GetExplorationBonus(const CvPlayer* pPlayer, int iScaleCloseness, int iScaleLatitude)
+{
+	//give a bonus to tiles that are close to our own territory and not too close to the poles
+	int iDistToOwnCities = pPlayer->GetCityDistance(this);
+	int iDistToMapCenter = abs(getLatitude());
+	int iClosenessBonus = max(0, ((iScaleCloseness - iDistToOwnCities) * 100) / iScaleCloseness);
+	int iStrategyBonus = max(0, ((iScaleLatitude - iDistToMapCenter) * 100) / iScaleLatitude);
+	
+	int iFertilityBonus = 0;
+	if ( pPlayer->GetFoundValueOfLastSettledCity()>0 )
+		iFertilityBonus = max(0, (getFoundValue(pPlayer->GetID())*100) / pPlayer->GetFoundValueOfLastSettledCity() );
+
+	return iClosenessBonus + iStrategyBonus + iFertilityBonus;
+}
+
+#endif
+
 //	--------------------------------------------------------------------------------
 int CvPlot::getFoundValue(PlayerTypes eIndex)
 {

@@ -1,6 +1,6 @@
 ﻿#-------------------------------------------------------------------------------
-# Name:		plotmap
-# Purpose:	 visualize civ settle plot selection
+# Name:		explora
+# Purpose:	 visualize civ ai exploration progress
 #
 # Author:	  ilteroi
 #
@@ -19,17 +19,6 @@ RADIUS_SMALL = 9
 DISTANCEX = int( 2*RADIUS_BIG )
 DISTANCEY = int( math.sqrt(3)*RADIUS_BIG )
 ODDOFFSET = int( DISTANCEX/2 )
-
-ai_unit_type = {
-	1: "UNITAI_SETTLE",					# these are Settlers
-	2: "UNITAI_WORKER",					# builder
-	3: "UNITAI_ATTACK",					# use these to attack other units
-	4: "UNITAI_CITY_BOMBARD",			# use these to attack cities
-	5: "UNITAI_FAST_ATTACK",			# use these to pillage enemy improvements and attack barbarians
-	6: "UNITAI_DEFENSE",				# these are units that are mainly in the floating defense force
-	7: "UNITAI_COUNTER",				# these are counter-units to specific other units - these will likely need more logic in building and using
-	8: "UNITAI_RANGED",					# ranged attacks
-}
 
 terrain_color = { 
 	-1: pg.Color("#444444"), #none
@@ -77,32 +66,9 @@ ptype_string = {
 	3: "ocean",
 }
 
-layer_string = {
-	0: "terrain/owner  ",
-	1: "area           ",
-	2: "total value    ",
-	3: "aggregate yields",
-	4: "value modifier  ", 
-	5: "strategic modifier",
-	6: "civ modifier   ",
-	7: "danger         ",
-	8: "fertility      ",
-	9: "distance factor",
-}
-
-blocked_reason = {
-	0: "not revealed",
-	-1: "cannot found",
-	-2: "enemy land",
-	-3: "already targeted",
-	-4: "enemy unit",
-	-5: "too far",
-	-6: "not in target area",
-}
-
 class Control(object):
 	"""A simple control class."""
-	def __init__(self,plots,bounds,n_layers):
+	def __init__(self,plots,bounds):
 		"""
 		Initialize all of the usual suspects. If the os.environ line is
 		included, then the screen will recenter after it is resized.
@@ -111,8 +77,8 @@ class Control(object):
 		self.plots = plots
 		self.bounds = bounds
 		self.native_screen_size = ( bounds[0]*DISTANCEX, bounds[1]*DISTANCEY )
-		self.n_layers = n_layers
-		self.view_mode = 0
+		self.view_index = 0
+		self.direction = 1;
 
 		pg.init()
 		self.screen = pg.display.set_mode( tuple(i/2 for i in self.native_screen_size), pg.RESIZABLE)
@@ -124,10 +90,10 @@ class Control(object):
 		self.done = False
 		self.keys = pg.key.get_pressed()
 
-		self.set_caption(self.view_mode)
+		self.set_caption()
 
-	def set_caption(self,view_mode):
-		pg.display.set_caption( "Fake Map Viewer - %s - space to change" % layer_string.get(view_mode,"unknown layer").strip() )
+	def set_caption(self):
+		pg.display.set_caption( "Exploration Viewer - %03d - cursor: direction, space: play/pause" % self.view_index )
 
 	def event_loop(self):
 		"""
@@ -139,8 +105,9 @@ class Control(object):
 			if event.type == pg.QUIT or self.keys[pg.K_ESCAPE]:
 				self.done = True
 			elif self.keys[pg.K_SPACE]:
-				self.view_mode = (self.view_mode + 1) % self.n_layers
-				self.set_caption(self.view_mode)
+				self.direction = abs( self.direction - 1)
+			elif any( self.keys[k] for k in (pg.K_RIGHT,pg.K_LEFT,pg.K_UP,pg.K_DOWN) ):
+				self.direction *= -1
 			elif event.type == pg.VIDEORESIZE:
 				self.screen = pg.display.set_mode(event.size, pg.RESIZABLE)
 				self.screen_rect = self.screen.get_rect()
@@ -165,8 +132,9 @@ class Control(object):
 		the image directly to the display; if not, resize the image first.
 		"""
 		self.image.fill(pg.Color("black"))
+
 		for p in self.plots:
-			p.draw(self.image,self.view_mode)
+			p.draw(self.image,self.view_index)
 		
 		#flip to adjust for the way it's displayed in civ
 		self.image = pg.transform.flip( self.image, False, True )
@@ -179,14 +147,20 @@ class Control(object):
 
 	def main_loop(self):
 		"""Loop-dee-loop."""
+		counter = 0
 		while not self.done:
 			self.event_loop()
 			self.update()
 			pg.display.update()
 			self.clock.tick(self.fps)
+			counter += 1
+			if counter%int(5) == 0:
+				counter = 0
+				self.view_index += 1
+				self.set_caption()
 
 class Plot():
-	def __init__(self,x,y,terrain,ptype,feature,owner,area,visible,values,hints):
+	def __init__(self,x,y,terrain,ptype,feature,area):
 		self.idx_x = x
 		self.idx_y = y
 		self.x = x*DISTANCEX + (y%2)*ODDOFFSET
@@ -196,57 +170,40 @@ class Plot():
 		self.feature = feature
 		self.owner = owner
 		self.area = area
-		self.visible = visible
-		self.values = values
-		self.hints = hints
-
-	def init(self,scale):
-		#determine colors
-		assert( len(self.values)==len(scale) )
-		gray = [int(255.*v/s) for v,s in zip(self.values,scale)]
-		self.color_values = []
-
-		for g in gray:
-			if g<0:
-				if self.values[0]<0:
-					self.color_values.append( pg.Color(128,0,128) ) #blocked
-				else:
-					self.color_values.append( pg.Color(-g,0,0) )
-			else:
-				self.color_values.append( pg.Color(0,+g,0) )
-
-		self.color_owner = pg.Color("#FF00FF")
-		self.color_owner.hsva = ( zlib.adler32("%08d"%self.owner) % 360, 100, 100, 100 )
+		self.owner = []
+		self.revealed = []
+		self.color_owner = []
 
 		self.color_area = pg.Color("#FF00FF")
 		self.color_area.hsva = ( zlib.adler32("%08d"%self.area) % 360, 100, 100, 100 )
 
 		#draw functions don't take alpha, so a little workaround is needed
 		self.surface = pg.Surface( (2*RADIUS_BIG,2*RADIUS_BIG) ).convert()
-		if not self.visible:
-			self.surface.set_alpha(128)
+
+	def push_data(self,revealed,owner):
+		self.revealed.append(revealed)
+		self.owner.append(owner)
+
+		self.color_owner.append(pg.Color("#FF00FF"))
+		self.color_owner[-1].hsva = ( zlib.adler32("%08d"%self.owner[-1]) % 360, 100, 100, 100 )
 			
 	def screen_dist(self,pos):
 		return math.sqrt( (pos[0]-self.x)**2 + (pos[1]-self.y)**2 )
 
 	def show_details(self):
+		sane_index = index % len(self.owner)
+		owner = self.owner[sane_index]
+
 		print("plot (%d,%d) - owner %d\n\tterrain %s, plot %s, feature %s, area %08d\n" %  \
-			(self.idx_x,self.idx_y,self.owner,
+			(self.idx_x,self.idx_y,owner,
 			terrain_string.get(self.terrain,"unknown"),
 			ptype_string.get(self.ptype,"unknown"),
 			feature_string.get(self.feature,"unknown"),
 			self.area))
-		#special treatment for total
-		total = self.values[0]
-		if total<=0:
-			print( "\tblocked because of:  %s\n" % blocked_reason.get(total,"unknown") )
-		else:
-			print( "\t%s:\t%08d\n" % (layer_string.get(2),total) )
-		#rest is automatic			
-		print( "\n".join( ("\t%s:\t%08d" % (layer_string.get(i+3,"unknown layer"),v) ) for i,v in enumerate(self.values[1:]) ) ) 
-		print( "\n".join( ( ("\t%s\t" % s) for s in self.hints) ) )
 
-	def draw(self, target, view_mode):
+	def draw(self, target, index):
+
+		sane_index = index % len(self.revealed)
 
 		background = pg.Color(0,0,0)
 		self.surface.fill( background )
@@ -259,58 +216,56 @@ class Plot():
 
 		pg.draw.circle(self.surface, terrain_color[sane_terrain], (RADIUS_BIG,RADIUS_BIG), RADIUS_BIG, 0)
 		
-		if view_mode==0:
-			if (self.owner!=-1):
-				pg.draw.circle(self.surface, self.color_owner, (RADIUS_BIG,RADIUS_BIG), RADIUS_SMALL, 0)
-		elif view_mode==1:
-			pg.draw.circle(self.surface, self.color_area, (RADIUS_BIG,RADIUS_BIG), RADIUS_SMALL, 0)
+		if (self.owner[sane_index] !=-1 ):
+			pg.draw.circle(self.surface, self.color_owner[sane_index], (RADIUS_BIG,RADIUS_BIG), RADIUS_SMALL, 0)
+
+		if self.revealed[sane_index]:
+			self.surface.set_alpha(255)
 		else:
-			pg.draw.circle(self.surface, self.color_values[view_mode-2], (RADIUS_BIG,RADIUS_BIG), RADIUS_SMALL, 0)
+			self.surface.set_alpha(64)
 			
 		target.blit( self.surface, (self.x-RADIUS_BIG,self.y-RADIUS_BIG) )
+
+def findFiles(path,match):
+	for f in os.listdir(path):
+		if not os.path.isfile(f):
+			continue
+		if any( x in f for x in match ):
+			yield f
 
 if __name__ == "__main__":
 	
 	n_properties = 8
-	n_values = 8
 	
-	scale = [1]*n_values
 	sizex = 0
 	sizey = 0
+
+	files = sorted(findFiles(".",[ sys.argv[1]]))
 	
-	if not os.path.isfile(sys.argv[1]):
+	if not files:
 		sys.exit(1)
 	
 	plots = []
-	for line in open(sys.argv[1],"r"):
-		data = map(int, line.split(",")[:n_properties+n_values])
+	for line in open(files[0],"r"):
+		data = map(int, line.split(",")[:n_properties])
 		sizex = max(sizex,data[0])
 		sizey = max(sizey,data[1])
-		data = data[n_properties:n_properties+n_values]
-		for i in range(len(data)):
-			scale[i] = max( scale[i], abs(data[i]) )
 	
 	#do this before actually creating the plots (need to initialize pygame)
-	run_it = Control(plots,(sizex+1,sizey+1),n_values+2)
+	run_it = Control(plots,(sizex+1,sizey+1))
 
-	for line in open(sys.argv[1],"r"):
-		data = line.split(",")
-		x,y,terrain,ptype,feature,owner,area,visible = map(int, data[:n_properties])
-		values = map(int, data[n_properties:n_properties+n_values])
-		#pad with zeros
-		while len(values)<n_values:
-			values.append(0)
-		#little hack so total value comes first
-		values = values[3:] + values[:3]
-		hints = data[n_properties+n_values:]
-		plots.append( Plot(x,y,terrain,ptype,feature,owner,area,visible,values,hints) )
-
-	#also rearrange the scale
-	scale = scale[3:] + scale[:3]
-
-	#set the scale factors	
-	for p in plots:
-		p.init(scale)
+	lookup = {}
+	for line in open(files[0],"r"):
+		data = map(int, line.split(",")[:n_properties])
+		x,y,terrain,ptype,feature,owner,area,revealed = map(int, data[:n_properties])
+		plots.append( Plot(x,y,terrain,ptype,feature,area) )
+		lookup[ (x,y) ] = len(plots)-1
+	
+	for f in files:
+		for line in open(f,"r"):
+			data = line.split(",")
+			x,y,terrain,ptype,feature,owner,area,revealed = map(int, data[:n_properties])
+			plots[ lookup[(x,y)] ].push_data(revealed,owner)
 	
 	run_it.main_loop()
 	pg.quit()

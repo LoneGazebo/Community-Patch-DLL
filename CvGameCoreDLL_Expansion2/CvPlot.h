@@ -673,6 +673,10 @@ public:
 
 	int countNumAirUnits(TeamTypes eTeam) const;
 
+#ifdef MOD_CORE_EXPLORATION
+	int GetExplorationBonus(const CvPlayer* pPlayer, int iScaleCloseness, int iScaleLatitude);
+#endif
+
 	int getFoundValue(PlayerTypes eIndex);
 	bool isBestAdjacentFound(PlayerTypes eIndex);
 	void setFoundValue(PlayerTypes eIndex, int iNewValue);

@@ -31,6 +31,9 @@
 // Comment out this line to include all the achievements code (which don't work in modded games, so we don't need the code!)
 #define NO_ACHIEVEMENTS
 
+// Experimental for new explorer logic
+#define MOD_CORE_EXPLORATION
+
 // Uncomment this line to include the achievements hack code
 // #define ACHIEVEMENT_HACKS
 #if defined(ACHIEVEMENT_HACKS)

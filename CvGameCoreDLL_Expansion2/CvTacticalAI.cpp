@@ -4148,7 +4148,7 @@ void CvTacticalAI::PlotSingleHexOperationMoves(CvAIEscortedOperation* pOperation
 		// If we're not there yet, we have work to do (otherwise CheckOnTarget() will finish operation for us)
 		if(pCivilian->plot() != pOperation->GetTargetPlot())
 		{
-			//todo: make sure to stay away from danger (MoveCivilianToSafety?)
+			//todo: make sure to stay away from danger
 			bool bDanger = pCivilian->SentryAlert(true);
 			if (bDanger)
 			{
@@ -4157,6 +4157,9 @@ void CvTacticalAI::PlotSingleHexOperationMoves(CvAIEscortedOperation* pOperation
 					msg += CvString::format(", escort at (%d,%d)", pEscort->getX(), pEscort->getY() );
 				msg += "\n";
 				OutputDebugStr( msg );
+
+				if (!pEscort || pEscort->plot()!=pCivilian->plot())
+					m_pPlayer->GetHomelandAI()->MoveCivilianToSafety(pCivilian.pointer());
 			}
 
 			// Look at where we'd move this turn taking units into consideration
