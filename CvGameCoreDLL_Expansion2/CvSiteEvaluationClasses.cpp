@@ -1283,11 +1283,11 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, YieldT
 #endif
 
 /// Retrieve the relative fertility of this plot (alone)
-int CvCitySiteEvaluator::PlotFertilityValue(CvPlot* pPlot)
+int CvCitySiteEvaluator::PlotFertilityValue(CvPlot* pPlot, bool bAllPlots)
 {
 	int rtnValue = 0;
 
-	if(!pPlot->isWater() && !pPlot->isImpassable())
+	if( bAllPlots || (!pPlot->isWater() && !pPlot->isImpassable()) )
 	{
 		rtnValue += ComputeFoodValue(pPlot, NULL);
 		rtnValue += ComputeProductionValue(pPlot, NULL);

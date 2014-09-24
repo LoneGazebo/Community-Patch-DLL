@@ -29015,7 +29015,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, bool bEscorted, int iTa
 		if (bLogging)
 		{
 			iDanger = GetPlotDanger(*pPlot);
-			iFertility = GC.getGame().GetSettlerSiteEvaluator()->PlotFertilityValue(pPlot);
+			iFertility = GC.getGame().GetSettlerSiteEvaluator()->PlotFertilityValue(pPlot,true);
 		}
 
 		if(!pPlot->isRevealed(getTeam()))

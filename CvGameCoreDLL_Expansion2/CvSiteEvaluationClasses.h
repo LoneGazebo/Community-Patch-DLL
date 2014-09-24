@@ -46,7 +46,7 @@ public:
 	virtual int PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, YieldTypes eYield = NO_YIELD, bool bCoastOnly=false);
 #endif
 
-	virtual int PlotFertilityValue(CvPlot* pPlot);
+	virtual int PlotFertilityValue(CvPlot* pPlot, bool bAllPlots=false);
 	virtual int BestFoundValueForSpecificYield(CvPlayer* pPlayer, YieldTypes eYield);
 
 protected:
