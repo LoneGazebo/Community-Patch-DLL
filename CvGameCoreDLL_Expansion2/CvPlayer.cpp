@@ -28975,10 +28975,10 @@ ostream& operator<<(ostream& os, const CvPlot* pPlot)
     return os;
 }
 
-CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, bool bEscorted, int iTargetArea, CvAIOperation* pOpToIgnore, bool bSuppressLogging)
+CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, bool bEscorted, int iTargetArea, CvAIOperation* pOpToIgnore, bool bEnableLogging)
 {
 	//--------
-	bool bLogging = GC.getLogging() && GC.getAILogging() && !bSuppressLogging;
+	bool bLogging = GC.getLogging() && GC.getAILogging() && bEnableLogging;
 	std::stringstream dump;
 	int iDanger=0, iFertility=0;
 	//--------

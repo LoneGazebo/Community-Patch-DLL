@@ -2191,7 +2191,7 @@ void CvEconomicAI::DoReconState()
 	if (!bIsVenice)
 	{
 		// Need recon if there are no good plots to settle
-		CvPlot* pBestSettlePlot = GetPlayer()->GetBestSettlePlot(NULL,true,-1,NULL,true);
+		CvPlot* pBestSettlePlot = GetPlayer()->GetBestSettlePlot(NULL,true,-1,NULL);
 		int iBestFoundValue = pBestSettlePlot ? pBestSettlePlot->getFoundValue( GetPlayer()->GetID() ) : 0;
 		int iLastFoundValue = GetPlayer()->GetFoundValueOfLastSettledCity();
 		if (iBestFoundValue < 0.5f * iLastFoundValue )

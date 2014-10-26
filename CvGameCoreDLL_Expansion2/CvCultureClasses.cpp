@@ -3716,17 +3716,6 @@ void CvPlayerCulture::DoPublicOpinion()
 			}
 		}
 
-		// Compute effects of dissatisfaction
-		int iPerCityUnhappy = 1;
-		int iUnhappyPerXPop = 10;
-
-#if defined(MOD_DIPLOMACY_CITYSTATES)
-		if (MOD_DIPLOMACY_CITYSTATES) {
-			iPerCityUnhappy = GC.getIDEOLOGY_PER_CITY_UNHAPPY();
-			iUnhappyPerXPop = GC.getIDEOLOGY_POP_PER_UNHAPPY();
-		}
-#endif
-
 		if (m_eOpinion != PUBLIC_OPINION_CONTENT)
 		{
 			if (iDissatisfaction < 3)
@@ -3742,7 +3731,7 @@ void CvPlayerCulture::DoPublicOpinion()
 				m_eOpinion = PUBLIC_OPINION_REVOLUTIONARY_WAVE;
 			}
 
-			m_iOpinionUnhappiness = ComputePublicOpinionUnhappiness(iDissatisfaction, iPerCityUnhappy, iUnhappyPerXPop);
+			m_iOpinionUnhappiness = ComputePublicOpinionUnhappiness(iDissatisfaction);
 
 			// Find civ exerting greatest pressure
 			int iGreatestDominance = -1;
@@ -3821,7 +3810,7 @@ void CvPlayerCulture::DoPublicOpinion()
 			locText = Localization::Lookup("TXT_KEY_CO_OPINION_TT_UNHAPPINESS_LINE1");
 			locText << m_iOpinionUnhappiness;
 			m_strOpinionUnhappinessTooltip += locText.toUTF8();
-
+/*
 			locText = Localization::Lookup("TXT_KEY_CO_OPINION_TT_UNHAPPINESS_LINE2");
 			m_strOpinionUnhappinessTooltip += locText.toUTF8();
 
@@ -3832,6 +3821,7 @@ void CvPlayerCulture::DoPublicOpinion()
 			locText = Localization::Lookup("TXT_KEY_CO_OPINION_TT_UNHAPPINESS_LINE4");
 			locText << iUnhappyPerXPop;
 			m_strOpinionUnhappinessTooltip += locText.toUTF8();
+*/
 		}
 	}
 }
@@ -3930,23 +3920,13 @@ int CvPlayerCulture::ComputeHypotheticalPublicOpinionUnhappiness(PolicyBranchTyp
 		}
 	}
 
-	int iPerCityUnhappy = 1;
-	int iUnhappyPerXPop = 10;
-
-#if defined(MOD_DIPLOMACY_CITYSTATES)
-	if (MOD_DIPLOMACY_CITYSTATES) {
-		iPerCityUnhappy = GC.getIDEOLOGY_PER_CITY_UNHAPPY();
-		iUnhappyPerXPop = GC.getIDEOLOGY_POP_PER_UNHAPPY();
-	}
-#endif
-
 	if (iDissatisfaction == 0)
 	{
 		return 0;
 	}
 	else
 	{
-		return ComputePublicOpinionUnhappiness(iDissatisfaction, iPerCityUnhappy, iUnhappyPerXPop);
+		return ComputePublicOpinionUnhappiness(iDissatisfaction);
 	}
 }
 
@@ -4040,48 +4020,35 @@ int CvPlayerCulture::GetTotalThemingBonuses() const
 // PRIVATE METHODS
 
 /// Compute effects of dissatisfaction
-int CvPlayerCulture::ComputePublicOpinionUnhappiness(int iDissatisfaction, int &iPerCityUnhappy, int &iUnhappyPerXPop)
+int CvPlayerCulture::ComputePublicOpinionUnhappiness(int iDissatisfaction)
 {
-	if (iDissatisfaction < 3)
-	{
-		iPerCityUnhappy = 1;
-		iUnhappyPerXPop = 10;
+	if (iDissatisfaction<1)
+		return 0;
 
-#if defined(MOD_DIPLOMACY_CITYSTATES)
-		if (MOD_DIPLOMACY_CITYSTATES) {
-			iPerCityUnhappy = GC.getIDEOLOGY_PER_CITY_UNHAPPY();
-			iUnhappyPerXPop = GC.getIDEOLOGY_POP_PER_UNHAPPY();
-		}
-#endif
+	float fPerCityUnhappy = 1.f;
+	float fUnhappyPerXPop = 10.f;
+
+	//important!
+	float fPerCityUnhappySlope = 0.2f;
+	float fUnhappyPerXPopSlope = -1.0f;
+
+#if 0 //defined(MOD_DIPLOMACY_CITYSTATES)
+	if (MOD_DIPLOMACY_CITYSTATES) {
+		fPerCityUnhappy = (float)GC.getIDEOLOGY_PER_CITY_UNHAPPY();
+		fUnhappyPerXPop = (float)GC.getIDEOLOGY_POP_PER_UNHAPPY();
 	}
-	else if (iDissatisfaction < 5)
-	{
-		iPerCityUnhappy = 2;
-		iUnhappyPerXPop = 5;
-
-#if defined(MOD_DIPLOMACY_CITYSTATES)
-		if (MOD_DIPLOMACY_CITYSTATES) {
-			iPerCityUnhappy = GC.getIDEOLOGY_PER_CITY_UNHAPPY() * 2;
-			iUnhappyPerXPop = (int) ((GC.getIDEOLOGY_POP_PER_UNHAPPY() / 2.0) + 1.0);
-		}
 #endif
-	}
-	else
-	{
-		iPerCityUnhappy = 4;
-		iUnhappyPerXPop = 3;
 
-#if defined(MOD_DIPLOMACY_CITYSTATES)
-		if (MOD_DIPLOMACY_CITYSTATES) {
-			iPerCityUnhappy = GC.getIDEOLOGY_PER_CITY_UNHAPPY() * 3;
-			iUnhappyPerXPop = (int) ((GC.getIDEOLOGY_POP_PER_UNHAPPY() / 4.0) + 1.0);
-		}
-#endif
-	}
+	fPerCityUnhappy += iDissatisfaction*fPerCityUnhappySlope;
+	fUnhappyPerXPop += iDissatisfaction*fUnhappyPerXPopSlope;
 
-	CUSTOMLOG("ComputePublicOpinionUnhappiness: dissatisfaction=%i, perCity=%i, perPop=%i", iDissatisfaction, iPerCityUnhappy, iUnhappyPerXPop);
-	iUnhappyPerXPop = max(1,iUnhappyPerXPop); //avoid division by zero
-	return max(m_pPlayer->getNumCities() * iPerCityUnhappy, m_pPlayer->getTotalPopulation() / iUnhappyPerXPop);
+	//sanitization
+	fPerCityUnhappy = min(10.f,max(1.f,fPerCityUnhappy));
+	fUnhappyPerXPop = min(100.f,max(1.f,fUnhappyPerXPop));
+
+	CUSTOMLOG("ComputePublicOpinionUnhappiness: dissatisfaction=%i, perCity=%.2f, perXPop=%.2f", iDissatisfaction, fPerCityUnhappy, fUnhappyPerXPop);
+
+	return (int) max(m_pPlayer->getNumCities() * fPerCityUnhappy, m_pPlayer->getTotalPopulation() / fUnhappyPerXPop);
 }
 
 // LOGGING FUNCTIONS
