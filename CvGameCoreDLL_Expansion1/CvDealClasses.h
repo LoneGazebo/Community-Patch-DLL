@@ -264,6 +264,7 @@ public:
 	void DoCancelDealsBetweenTeams(TeamTypes eTeam1, TeamTypes eTeam2);
 	void DoCancelDealsBetweenPlayers(PlayerTypes eFromPlayer, PlayerTypes eToPlayer);
 	void DoCancelAllDealsWithPlayer(PlayerTypes eCancelPlayer);
+	void DoCancelAllProposedDealsWithPlayer(PlayerTypes eCancelPlayer);
 	void DoEndTradedItem(CvTradedItem* pItem, PlayerTypes eToPlayer, bool bCancelled);
 
 	int GetTradeItemGoldCost(TradeableItems eItem, PlayerTypes ePlayer1, PlayerTypes ePlayer2) const;

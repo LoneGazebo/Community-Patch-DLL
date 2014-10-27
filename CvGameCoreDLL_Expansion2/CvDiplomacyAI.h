@@ -1551,7 +1551,7 @@ private:
 
 namespace CvDiplomacyAIHelpers
 {
-	int GetWarmongerOffset(int iNumCitiesRemaining);
+	int GetWarmongerOffset(int iNumCitiesRemaining, bool bIsMinor);
 	CvString GetWarmongerPreviewString(PlayerTypes eCurrentOwner);
 	CvString GetLiberationPreviewString(PlayerTypes eOriginalOwner);
 	void ApplyWarmongerPenalties(PlayerTypes eConqueror, PlayerTypes eConquered);

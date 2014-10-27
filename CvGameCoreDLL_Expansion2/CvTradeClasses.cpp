@@ -1765,6 +1765,8 @@ void CvPlayerTrade::MoveUnits (void)
 				// create new unit
 				UnitTypes eUnitType = GetTradeUnit(eDomain);
 				CvUnit* pRebornUnit = m_pPlayer->initUnit(eUnitType, iOriginX, iOriginY, UNITAI_TRADE_UNIT);
+
+				DEBUG_VARIABLE(pRebornUnit);
 				CvAssertMsg(pRebornUnit, "pRebornUnit is null. This is bad!!");
 			}
 		}

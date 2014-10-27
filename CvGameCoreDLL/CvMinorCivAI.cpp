@@ -3160,12 +3160,40 @@ void CvMinorCivAI::DoFriendshipChangeEffects(PlayerTypes ePlayer, int iOldFriend
 	{
 		bAdd = true;
 		bFriends = true;
+
+		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+		if (pkScriptSystem)
+		{
+			CvLuaArgsHandle args;
+			args->Push(m_pPlayer->GetID());
+			args->Push(ePlayer);
+			args->Push(true);
+			args->Push(iOldFriendship);
+			args->Push(iNewFriendship);
+
+			bool bResult;
+			LuaSupport::CallHook(pkScriptSystem, "MinorFriendsChanged", args.get(), bResult);
+		}
 	}
 	// Remove Friends bonus
 	else if (bWasAboveFriendsThreshold && !bNowAboveFriendsThreshold)
 	{
 		bAdd = false;
 		bFriends = true;
+
+		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+		if (pkScriptSystem)
+		{
+			CvLuaArgsHandle args;
+			args->Push(m_pPlayer->GetID());
+			args->Push(ePlayer);
+			args->Push(false);
+			args->Push(iOldFriendship);
+			args->Push(iNewFriendship);
+
+			bool bResult;
+			LuaSupport::CallHook(pkScriptSystem, "MinorFriendsChanged", args.get(), bResult);
+		}
 	}
 
 	// Resolve Allies status
@@ -3180,12 +3208,41 @@ void CvMinorCivAI::DoFriendshipChangeEffects(PlayerTypes ePlayer, int iOldFriend
 	{
 		bAdd = true;
 		bAllies = true;
+
+
+		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+		if (pkScriptSystem) 
+		{
+			CvLuaArgsHandle args;
+			args->Push(m_pPlayer->GetID());
+			args->Push(ePlayer);
+			args->Push(true);
+			args->Push(iOldFriendship);
+			args->Push(iNewFriendship);
+
+			bool bResult;
+			LuaSupport::CallHook(pkScriptSystem, "MinorFriendsChanged", args.get(), bResult);
+		}
 	}
 	// Remove Allies bonus
 	else if (eOldAlly == ePlayer && bWasAboveAlliesThreshold && !bNowAboveAlliesThreshold)
 	{
 		bAdd = false;
 		bAllies = true;
+
+		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+		if (pkScriptSystem) 
+		{
+			CvLuaArgsHandle args;
+			args->Push(m_pPlayer->GetID());
+			args->Push(ePlayer);
+			args->Push(false);
+			args->Push(iOldFriendship);
+			args->Push(iNewFriendship);
+
+			bool bResult;
+			LuaSupport::CallHook(pkScriptSystem, "MinorFriendsChanged", args.get(), bResult);
+		}
 	}
 
 	// Make changes to bonuses here, and send out notifications

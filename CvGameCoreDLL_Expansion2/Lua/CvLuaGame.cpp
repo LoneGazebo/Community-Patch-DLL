@@ -2678,7 +2678,7 @@ int CvLuaGame::lGetLongestCityConnectionPlots(lua_State* L)
 
 				CvPlot* pSecondCityPlot = pSecondCity->plot();
 
-				bool bUsingXP2Scenario2 = gDLL->IsModActivated(CIV5_XP2_SCENARIO2_MODID);
+				bool bUsingXP2Scenario2 = gDLL->IsModActivated(CIV5_XP2_SCENARIO2_MODID) || gDLL->IsModActivated(CIV5_COMPLETE_SCENARIO1_MODID);
 				if(bUsingXP2Scenario2)
 				{
 					// active player

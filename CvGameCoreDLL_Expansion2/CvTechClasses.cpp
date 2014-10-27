@@ -1962,6 +1962,14 @@ void CvTeamTechs::SetResearchProgressTimes100(TechTypes eIndex, int iNewValue, P
 		
 		int iOverflow = iResearchProgress - iResearchCost;
 
+		// April 2014 Balance Patch change - EFB
+		//    Don't allow the overflow to get out of hand
+		int iMaxOverflow = GetMaxResearchOverflow(eIndex, ePlayer);
+		if (iOverflow > iMaxOverflow)
+		{
+			iOverflow = iMaxOverflow;
+		}
+
 		if(iOverflow >= 0)
 		{
 			GET_PLAYER(ePlayer).changeOverflowResearchTimes100(iOverflow);
@@ -2099,4 +2107,27 @@ int CvTeamTechs::ChangeResearchProgressPercent(TechTypes eIndex, int iPercent, P
 	}
 
 	return iBeakers;
+}
+
+// PRIVATE FUNCTIONS
+
+int CvTeamTechs::GetMaxResearchOverflow(TechTypes eTech, PlayerTypes ePlayer) const
+{
+	CvPlayer &kPlayer = GET_PLAYER(ePlayer);
+
+	// 5 turns of science is a reasonable allowance of overflow (about equal to a standard research agreement award)
+	int iReturnValue = kPlayer.GetScienceTimes100() * 5;   
+
+	// Alternatively let it be the raw cost of the tech (times 100)
+	CvTechEntry* pkTechInfo = GC.getTechInfo(eTech);
+	if(pkTechInfo == NULL)
+	{
+		return 0;
+	}
+
+	int iCost = pkTechInfo->GetResearchCost() * 100;
+
+	iReturnValue = max(iCost, iReturnValue);
+
+	return iReturnValue;
 }

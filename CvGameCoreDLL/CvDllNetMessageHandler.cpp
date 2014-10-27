@@ -468,6 +468,18 @@ void CvDllNetMessageHandler::ResponseSellBuilding(PlayerTypes ePlayer, int iCity
 	if (pCity)
 	{
 		pCity->GetCityBuildings()->DoSellBuilding(eBuilding);
+
+		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+		if (pkScriptSystem) 
+		{
+			CvLuaArgsHandle args;
+			args->Push(ePlayer);
+			args->Push(iCityID);
+			args->Push(eBuilding);
+
+			bool bResult;
+			LuaSupport::CallHook(pkScriptSystem, "CitySoldBuilding", args.get(), bResult);
+		}
 	}
 }
 //------------------------------------------------------------------------------

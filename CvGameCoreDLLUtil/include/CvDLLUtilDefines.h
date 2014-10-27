@@ -54,3 +54,5 @@ const char* const CIV5_DLC_06_PACKAGEID = "BBB0D085-A0B1-4475-B007-3E549CF3ADC3"
 
 const char* const CIV5_XP2_SCENARIO1_MODID = "55fd836a-72e5-4aba-bbcf-3395b05a0e70";	//American Civil War
 const char* const CIV5_XP2_SCENARIO2_MODID = "f2eb1642-3334-4d2c-8db1-08e6aede3532";	//Scramble for Africa
+
+const char* const CIV5_COMPLETE_SCENARIO1_MODID = "34fb6c19-10dd-4b65-b143-fd00b2c0826f"; //Deluxe Conquest of the New World

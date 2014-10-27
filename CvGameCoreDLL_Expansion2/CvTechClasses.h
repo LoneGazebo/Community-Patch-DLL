@@ -304,6 +304,8 @@ public:
 	CvTechXMLEntries* GetTechs() const;
 
 private:
+	int GetMaxResearchOverflow(TechTypes eTech, PlayerTypes ePlayer) const;
+
 	TechTypes m_eLastTechAcquired;
 
 	bool* m_pabHasTech;

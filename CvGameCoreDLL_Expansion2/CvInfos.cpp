@@ -6278,6 +6278,7 @@ CvEraInfo::CvEraInfo() :
 	m_iTradeRouteFoodBonusTimes100(0),
 	m_iTradeRouteProductionBonusTimes100(0),
 	m_iLeaguePercent(0),
+	m_iWarmongerPercent(0),
 	m_bNoGoodies(false),
 	m_bNoBarbUnits(false),
 	m_bNoReligion(false),
@@ -6443,6 +6444,12 @@ int CvEraInfo::getLeaguePercent() const
 }
 
 //------------------------------------------------------------------------------
+int CvEraInfo::getWarmongerPercent() const
+{
+	return m_iWarmongerPercent;
+}
+
+//------------------------------------------------------------------------------
 const char* CvEraInfo::getArtPrefix() const
 {
 	return m_strArtPrefix.c_str();
@@ -6542,6 +6549,7 @@ bool CvEraInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUt
 	m_iTradeRouteFoodBonusTimes100 = kResults.GetInt("TradeRouteFoodBonusTimes100");
 	m_iTradeRouteProductionBonusTimes100 = kResults.GetInt("TradeRouteProductionBonusTimes100");
 	m_iLeaguePercent			= kResults.GetInt("LeaguePercent");
+	m_iWarmongerPercent			= kResults.GetInt("WarmongerPercent");
 
 	m_strCityBombardEffectTag	= kResults.GetText("CityBombardEffectTag");
 	m_uiCityBombardEffectTagHash = FString::Hash(m_strCityBombardEffectTag);

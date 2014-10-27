@@ -881,10 +881,11 @@ int CvLuaUnit::lCanEmbarkOnto(lua_State* L)
 	CvUnit* pkUnit = GetInstance(L);
 	CvPlot* pkOriginPlot = CvLuaPlot::GetInstance(L, 2);
 	CvPlot* pkTargetPlot = CvLuaPlot::GetInstance(L, 3);
+	bool bIsDestination = luaL_optbool(L, 4, true);		// Assume Lua is querying for a destination of the embark.  This will cause the test to fail if there is are stacking issues.
 	bool bResult = false;
 	if(pkOriginPlot && pkTargetPlot)
 	{
-		bResult = pkUnit->canEmbarkOnto(*pkOriginPlot, *pkTargetPlot);
+		bResult = pkUnit->canEmbarkOnto(*pkOriginPlot, *pkTargetPlot, false, bIsDestination);
 	}
 
 	lua_pushboolean(L, bResult);
@@ -896,11 +897,12 @@ int CvLuaUnit::lCanDisembarkOnto(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
 	CvPlot* pkTargetPlot = CvLuaPlot::GetInstance(L, 2);
+	bool bIsDestination = luaL_optbool(L, 3, true);		// Assume Lua is querying for a destination of the dis-embark.  This will cause the test to fail if there is are stacking issues.
 
 	bool bResult = false;
 	if(pkTargetPlot)
 	{
-		bResult = pkUnit->canDisembarkOnto(*pkTargetPlot);
+		bResult = pkUnit->canDisembarkOnto(*pkTargetPlot, bIsDestination);	
 	}
 
 	lua_pushboolean(L, bResult);
