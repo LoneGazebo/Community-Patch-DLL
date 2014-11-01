@@ -341,8 +341,6 @@ PlayerTypes CvGameCulture::GetGreatWorkController(int iIndex) const
 {
 	CvAssertMsg (iIndex < GetNumGreatWorks(), "Bad Great Work index");
 	
-	// TODO - WH - by caching m_eCurrentOwner, m_iCurrentCity, m_iCurrentBuilding and m_iCurrentSlot this code can be speeded up
-
 	// for each player
 	//   for each building
 	//     for each slot
@@ -391,8 +389,6 @@ CvCity* CvGameCulture::GetGreatWorkCity(int iIndex) const
 {
 	CvAssertMsg (iIndex < GetNumGreatWorks(), "Bad Great Work index");
 	
-	// TODO - WH - by caching m_eCurrentOwner, m_iCurrentCity, m_iCurrentBuilding and m_iCurrentSlot this code can be speeded up
-
 	// for each player
 	//   for each building
 	//     for each slot
@@ -440,8 +436,6 @@ CvCity* CvGameCulture::GetGreatWorkCity(int iIndex) const
 int CvGameCulture::GetGreatWorkCurrentThemingBonus (int iIndex) const
 {
 	CvAssertMsg (iIndex < GetNumGreatWorks(), "Bad Great Work index");
-
-	// TODO - WH - by caching m_eCurrentOwner, m_iCurrentCity, m_iCurrentBuilding and m_iCurrentSlot this code can be speeded up
 
 	// for each player
 	//   for each building
@@ -599,8 +593,6 @@ bool CvGameCulture::SwapGreatWorks (PlayerTypes ePlayer1, int iWork1, PlayerType
 	{
 		return false;
 	}
-
-	// TODO - WH - by caching m_eCurrentOwner, m_iCurrentCity, m_iCurrentBuilding and m_iCurrentSlot this code can be speeded up
 
 	CvCity* pCity1 = NULL;
 	BuildingClassTypes eBuildingClass1 = NO_BUILDINGCLASS;
@@ -2755,6 +2747,29 @@ int CvPlayerCulture::GetInfluencePerTurn(PlayerTypes ePlayer) const
 			
 			iRtnValue += iInfluenceToAdd;
 		}
+
+#if defined(MOD_API_UNIFIED_YIELDS_TOURISM)
+		int iExtraInfluenceToAdd = 0;
+
+		// Tourism from religion
+		iExtraInfluenceToAdd += m_pPlayer->GetYieldPerTurnFromReligion(YIELD_TOURISM);
+
+		// Trait bonus which adds Tourism for trade partners? 
+		iExtraInfluenceToAdd += m_pPlayer->GetYieldPerTurnFromTraits(YIELD_TOURISM);
+		
+		if (iExtraInfluenceToAdd > 0)
+		{
+			// if we have the internet online, check to see if the opponent has the firewall
+			// if they have the firewall, deduct the internet bonus from them
+			if (iTechSpreadModifier > 0 && bTargetHasGreatFirewall)
+			{
+				iExtraInfluenceToAdd -= ((iExtraInfluenceToAdd * iTechSpreadModifier) / 100);
+			}
+		}
+
+		iRtnValue += iExtraInfluenceToAdd;
+#endif
+
 		iRtnValue = iRtnValue * (100 + iModifier) / 100;
 	}
 
@@ -3223,7 +3238,7 @@ int CvPlayerCulture::GetTourism()
 	int iStartEra = GD_INT_GET(TOURISM_START_ERA);
 	int iStartTech = GD_INT_GET(TOURISM_START_TECH);
 	
-	if (!MOD_API_UNIFIED_YIELDS_TOURISM || ((iStartTech == -1 || m_pPlayer->HasTech((TechTypes) iStartTech)) && (iStartEra == -1 || m_pPlayer->GetCurrentEra() > iStartEra)))
+	if (!MOD_API_UNIFIED_YIELDS_TOURISM || ((iStartTech == -1 || m_pPlayer->HasTech((TechTypes) iStartTech)) && (iStartEra == -1 || m_pPlayer->GetCurrentEra() >= iStartEra)))
 	{
 #endif
 		CvCity *pCity;
@@ -4528,7 +4543,11 @@ int CvCityCulture::GetBaseTourismBeforeModifiers()
 	{
 		int iFromWonders = GetCultureFromWonders();
 		int iFromNaturalWonders = GetCultureFromNaturalWonders();
+#if defined(MOD_API_UNIFIED_YIELDS)
+		int iFromImprovements = GetYieldFromImprovements(YIELD_CULTURE);
+#else
 		int iFromImprovements = GetCultureFromImprovements();
+#endif
 		iBase += ((iFromWonders + iFromNaturalWonders + iFromImprovements) * iPercent / 100);
 	}
 
@@ -4560,7 +4579,11 @@ int CvCityCulture::GetBaseTourismBeforeModifiers()
 			{
 				if(m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
 				{
+#if defined(MOD_BUGFIX_MINOR)
+					iBase += pReligion->m_Beliefs.GetBuildingClassTourism(eBuildingClass) * m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding);
+#else
 					iBase += pReligion->m_Beliefs.GetBuildingClassTourism(eBuildingClass);
+#endif
 				}
 			}
 		}
@@ -4588,7 +4611,11 @@ int CvCityCulture::GetBaseTourismBeforeModifiers()
 				int iTourism = pkEntry->GetTechEnhancedTourism();
 				if (iTourism > 0 && GET_TEAM(m_pCity->getTeam()).GetTeamTechs()->HasTech((TechTypes)pkEntry->GetEnhancedYieldTech()))
 				{
+#if defined(MOD_BUGFIX_MINOR)
+					iBase += iTourism * m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding);
+#else
 					iBase += iTourism;
+#endif
 				}
 			}
 		}
@@ -4641,7 +4668,11 @@ int CvCityCulture::GetBaseTourism()
 				iBuildingMod = kPlayer.GetPlayerPolicies()->GetBuildingClassTourismModifier((BuildingClassTypes)iBuildingClassLoop);
 				if (iBuildingMod != 0 && m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
 				{
+#if defined(MOD_BUGFIX_MINOR)
+					iModifier += iBuildingMod * m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding);
+#else
 					iModifier += iBuildingMod;
+#endif
 				}
 			}
 		}
@@ -4794,7 +4825,11 @@ CvString CvCityCulture::GetTourismTooltip()
 	{
 		int iFromWonders = GetCultureFromWonders();
 		int iFromNaturalWonders = GetCultureFromNaturalWonders();
+#if defined(MOD_API_UNIFIED_YIELDS)
+		int iFromImprovements = GetYieldFromImprovements(YIELD_CULTURE);
+#else
 		int iFromImprovements = GetCultureFromImprovements();
+#endif
 		iTileTourism = ((iFromWonders + iFromNaturalWonders + iFromImprovements) * iPercent / 100);
 		if (szRtnValue.length() > 0)
 		{
@@ -4838,7 +4873,11 @@ CvString CvCityCulture::GetTourismTooltip()
 			{
 				if(m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
 				{
+#if defined(MOD_BUGFIX_MINOR)
+					iReligiousArtTourism += pReligion->m_Beliefs.GetBuildingClassTourism(eBuildingClass) * m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding);
+#else
 					iReligiousArtTourism += pReligion->m_Beliefs.GetBuildingClassTourism(eBuildingClass);
+#endif
 				}
 			}
 		}
@@ -4870,6 +4909,9 @@ CvString CvCityCulture::GetTourismTooltip()
 				int iTechEnhancedTourism = GC.getBuildingInfo(eBuilding)->GetTechEnhancedTourism();
 				if (iTechEnhancedTourism > 0 && GET_TEAM(m_pCity->getTeam()).GetTeamTechs()->HasTech((TechTypes)GC.getBuildingInfo(eBuilding)->GetEnhancedYieldTech()))
 				{
+#if defined(MOD_BUGFIX_MINOR)
+					iTechEnhancedTourism *= m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding);
+#endif
 					if (szRtnValue.length() > 0)
 					{
 						szRtnValue += "[NEWLINE][NEWLINE]";
@@ -4893,6 +4935,9 @@ CvString CvCityCulture::GetTourismTooltip()
 				iBuildingMod = kCityPlayer.GetPlayerPolicies()->GetBuildingClassTourismModifier((BuildingClassTypes)iBuildingClassLoop);
 				if (iBuildingMod != 0 && m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
 				{
+#if defined(MOD_BUGFIX_MINOR)
+					iBuildingMod *= m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding);
+#endif
 					if (szRtnValue.length() > 0)
 					{
 						szRtnValue += "[NEWLINE][NEWLINE]";
@@ -5350,11 +5395,15 @@ int CvCityCulture::GetCultureFromNaturalWonders() const
 }
 
 /// City's current culture from improvements
+#if defined(MOD_API_UNIFIED_YIELDS)
+int CvCityCulture::GetYieldFromImprovements(YieldTypes eYield) const
+#else
 int CvCityCulture::GetCultureFromImprovements() const
+#endif
 {
 	int iRtnValue = 0;
 	CvPlot* pLoopPlot;
-
+	
 	// Look at all workable Plots
 #if defined(MOD_GLOBAL_CITY_WORKING)
 	for(int iPlotLoop = 0; iPlotLoop < m_pCity->GetNumWorkablePlots(); iPlotLoop++)
@@ -5377,15 +5426,23 @@ int CvCityCulture::GetCultureFromImprovements() const
 						ImprovementTypes eImprovement = pLoopPlot->getImprovementType();
 						if (eImprovement != NO_IMPROVEMENT)
 						{
-							iRtnValue += pLoopPlot->calculateYield(YIELD_CULTURE);
+							iRtnValue += pLoopPlot->calculateYield(eYield);
 
 							CvImprovementEntry* pImprovement = GC.getImprovementInfo(eImprovement);
-							if(pImprovement && pImprovement->GetYieldChange(YIELD_CULTURE) > 0)
+							if(pImprovement && pImprovement->GetYieldChange(eYield) > 0)
 							{
+#if defined(MOD_API_UNIFIED_YIELDS)
+								int iAdjacentCulture = pImprovement->GetYieldAdjacentSameType(eYield);
+#else
 								int iAdjacentCulture = pImprovement->GetCultureAdjacentSameType();
+#endif
 								if(iAdjacentCulture > 0)
 								{
+#if defined(MOD_API_UNIFIED_YIELDS)
+									iRtnValue += pLoopPlot->ComputeYieldFromAdjacentImprovement(*pImprovement, eImprovement, eYield);
+#else
 									iRtnValue += pLoopPlot->ComputeCultureFromAdjacentImprovement(*pImprovement, eImprovement);
+#endif
 								}
 							}
 						}

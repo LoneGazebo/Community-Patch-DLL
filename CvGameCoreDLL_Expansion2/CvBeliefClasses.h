@@ -119,20 +119,33 @@ public:
 	int GetHolyCityYieldChange(int i) const;
 	int GetYieldChangePerForeignCity(int i) const;
 	int GetYieldChangePerXForeignFollowers(int i) const;
+#if defined(MOD_API_UNIFIED_YIELDS)
+	int GetYieldPerFollowingCity(int i) const;
+	int GetYieldPerXFollowers(int i) const;
+	int GetYieldPerOtherReligionFollower(int i) const;
+#endif
 	int GetResourceQuantityModifier(int i) const;
 	int GetImprovementYieldChange(ImprovementTypes eIndex1, YieldTypes eIndex2) const;
 	int GetBuildingClassYieldChange(int i, int j) const;
 	int GetBuildingClassHappiness(int i) const;
 	int GetBuildingClassTourism(int i) const;
 	int GetFeatureYieldChange(int i, int j) const;
+#if defined(MOD_API_UNIFIED_YIELDS)
+	int GetCityYieldFromUnimprovedFeature(int i, int j) const;
+	int GetUnimprovedFeatureYieldChange(int i, int j) const;
+#endif
 	int GetResourceYieldChange(int i, int j) const;
 	int GetTerrainYieldChange(int i, int j) const;
 #if defined(MOD_API_UNIFIED_YIELDS)
+	int GetTradeRouteYieldChange(int i, int j) const;
 	int GetSpecialistYieldChange(int i, int j) const;
+	int GetGreatPersonExpendedYield(int i, int j) const;
+	int GetGoldenAgeGreatPersonRateModifier(int i) const;
 	int GetCapitalYieldChange(int i) const;
 	int GetCoastalCityYieldChange(int i) const;
 	int GetGreatWorkYieldChange(int i) const;
 	int GetYieldFromKills(YieldTypes eYield) const;
+	int GetYieldFromBarbarianKills(YieldTypes eYield) const;
 #endif
 #if defined(MOD_RELIGION_PLOT_YIELDS)
 	int GetPlotYieldChange(int i, int j) const;
@@ -215,23 +228,36 @@ protected:
 	int* m_paiHolyCityYieldChange;
 	int* m_paiYieldChangePerForeignCity;
 	int* m_paiYieldChangePerXForeignFollowers;
+#if defined(MOD_API_UNIFIED_YIELDS)
+	int* m_piYieldPerFollowingCity;
+	int* m_piYieldPerXFollowers;
+	int* m_piYieldPerOtherReligionFollower;
+#endif
 	int* m_piResourceQuantityModifiers;
 	int** m_ppiImprovementYieldChanges;
 	int** m_ppiBuildingClassYieldChanges;
 	int* m_paiBuildingClassHappiness;
 	int* m_paiBuildingClassTourism;
 	int** m_ppaiFeatureYieldChange;
+#if defined(MOD_API_UNIFIED_YIELDS)
+	int** m_ppiCityYieldFromUnimprovedFeature;
+	int** m_ppiUnimprovedFeatureYieldChanges;
+#endif
 	int** m_ppaiResourceYieldChange;
 	int** m_ppaiTerrainYieldChange;
 #if defined(MOD_API_UNIFIED_YIELDS)
-	int** m_ppaiSpecialistYieldChange;
-	int* m_paiCapitalYieldChange;
-	int* m_paiCoastalCityYieldChange;
-	int* m_paiGreatWorkYieldChange;
+	int** m_ppiTradeRouteYieldChange;
+	int** m_ppiSpecialistYieldChange;
+	int** m_ppiGreatPersonExpendedYield;
+	int* m_piGoldenAgeGreatPersonRateModifier;
+	int* m_piCapitalYieldChange;
+	int* m_piCoastalCityYieldChange;
+	int* m_piGreatWorkYieldChange;
 	int* m_piYieldFromKills;
+	int* m_piYieldFromBarbarianKills;
 #endif
 #if defined(MOD_RELIGION_PLOT_YIELDS)
-	int** m_ppaiPlotYieldChange;
+	int** m_ppiPlotYieldChange;
 #endif
 	int* m_piResourceHappiness;
 	int* m_piYieldChangeAnySpecialist;
@@ -469,19 +495,32 @@ public:
 	int GetHolyCityYieldChange(YieldTypes eYield) const;
 	int GetYieldChangePerForeignCity(YieldTypes eYield) const;
 	int GetYieldChangePerXForeignFollowers(YieldTypes eYield) const;
+#if defined(MOD_API_UNIFIED_YIELDS)
+	int GetYieldPerFollowingCity(YieldTypes eYield) const;
+	int GetYieldPerXFollowers(YieldTypes eYield) const;
+	int GetYieldPerOtherReligionFollower(YieldTypes eYield) const;
+#endif
 	int GetResourceQuantityModifier(ResourceTypes eResource) const;
 	int GetImprovementYieldChange(ImprovementTypes eImprovement, YieldTypes eYield) const;
 	int GetBuildingClassYieldChange(BuildingClassTypes eBuildingClass, YieldTypes eYieldType, int iFollowers) const;
 	int GetBuildingClassHappiness(BuildingClassTypes eBuildingClass, int iFollowers) const;
 	int GetBuildingClassTourism(BuildingClassTypes eBuildingClass) const;
 	int GetFeatureYieldChange(FeatureTypes eFeature, YieldTypes eYieldType) const;
+#if defined(MOD_API_UNIFIED_YIELDS)
+	int GetCityYieldFromUnimprovedFeature(FeatureTypes eFeature, YieldTypes eYieldType) const;
+	int GetUnimprovedFeatureYieldChange(FeatureTypes eFeature, YieldTypes eYieldType) const;
+#endif
 	int GetResourceYieldChange(ResourceTypes eResource, YieldTypes eYieldType) const;
 	int GetTerrainYieldChange(TerrainTypes eTerrain, YieldTypes eYieldType) const;
 #if defined(MOD_API_UNIFIED_YIELDS)
+	int GetTradeRouteYieldChange(DomainTypes eDomain, YieldTypes eYieldType) const;
 	int GetSpecialistYieldChange(SpecialistTypes eSpecialist, YieldTypes eYieldType) const;
+	int GetGreatPersonExpendedYield(GreatPersonTypes eGreatPerson, YieldTypes eYieldType) const;
+	int GetGoldenAgeGreatPersonRateModifier(GreatPersonTypes eGreatPerson) const;
 	int GetCapitalYieldChange(int iPopulation, YieldTypes eYield) const;
 	int GetCoastalCityYieldChange(int iPopulation, YieldTypes eYield) const;
 	int GetGreatWorkYieldChange(int iPopulation, YieldTypes eYield) const;
+	int GetYieldFromBarbarianKills(YieldTypes eYield) const;
 	int GetYieldFromKills(YieldTypes eYield) const;
 #endif
 #if defined(MOD_RELIGION_PLOT_YIELDS)

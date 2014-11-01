@@ -742,7 +742,11 @@ void CvDllNetMessageHandler::ResponseGreatPersonChoice(PlayerTypes ePlayer, Unit
 	CvCity* pCity = kPlayer.GetGreatPersonSpawnCity(eGreatPersonUnit);
 	if(pCity)
 	{
+#if defined(MOD_GLOBAL_TRULY_FREE_GP)
+		pCity->GetCityCitizens()->DoSpawnGreatPerson(eGreatPersonUnit, true, false, MOD_GLOBAL_TRULY_FREE_GP);
+#else
 		pCity->GetCityCitizens()->DoSpawnGreatPerson(eGreatPersonUnit, true, false);
+#endif
 	}
 	kPlayer.ChangeNumFreeGreatPeople(-1);
 }
@@ -753,7 +757,11 @@ void CvDllNetMessageHandler::ResponseMayaBonusChoice(PlayerTypes ePlayer, UnitTy
 	CvCity* pCity = kPlayer.GetGreatPersonSpawnCity(eGreatPersonUnit);
 	if(pCity)
 	{
+#if defined(MOD_GLOBAL_TRULY_FREE_GP)
+		pCity->GetCityCitizens()->DoSpawnGreatPerson(eGreatPersonUnit, true, false, MOD_GLOBAL_TRULY_FREE_GP);
+#else
 		pCity->GetCityCitizens()->DoSpawnGreatPerson(eGreatPersonUnit, true, false);
+#endif
 	}
 	kPlayer.ChangeNumMayaBoosts(-1);
 	kPlayer.GetPlayerTraits()->SetUnitBaktun(eGreatPersonUnit);
@@ -765,7 +773,11 @@ void CvDllNetMessageHandler::ResponseFaithGreatPersonChoice(PlayerTypes ePlayer,
 	CvCity* pCity = kPlayer.GetGreatPersonSpawnCity(eGreatPersonUnit);
 	if(pCity)
 	{
+#if defined(MOD_GLOBAL_TRULY_FREE_GP)
+		pCity->GetCityCitizens()->DoSpawnGreatPerson(eGreatPersonUnit, true, true, false);
+#else
 		pCity->GetCityCitizens()->DoSpawnGreatPerson(eGreatPersonUnit, true, true);
+#endif
 	}
 	kPlayer.ChangeNumFaithGreatPeople(-1);
 }
@@ -892,6 +904,20 @@ void CvDllNetMessageHandler::ResponseSellBuilding(PlayerTypes ePlayer, int iCity
 #if defined(MOD_EVENTS_CITY)
 		if (MOD_EVENTS_CITY) {
 			GAMEEVENTINVOKE_HOOK(GAMEEVENT_CitySoldBuilding, ePlayer, iCityID, eBuilding);
+		} else {
+#endif
+		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+		if (pkScriptSystem) 
+		{
+			CvLuaArgsHandle args;
+			args->Push(ePlayer);
+			args->Push(iCityID);
+			args->Push(eBuilding);
+
+			bool bResult;
+			LuaSupport::CallHook(pkScriptSystem, "CitySoldBuilding", args.get(), bResult);
+		}
+#if defined(MOD_EVENTS_CITY)
 		}
 #endif
 	}

@@ -120,6 +120,9 @@ typedef wchar_t          wchar;
 #if defined(MOD_API_PLOT_YIELDS)
 #include "CvPlotInfo.h"
 #endif
+#if defined(MOD_API_UNIFIED_YIELDS)
+#include "CvGreatPersonInfo.h"
+#endif
 #include "CvInfos.h"
 #include "CvTeam.h"
 #include "CvRandom.h"

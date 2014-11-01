@@ -87,8 +87,13 @@ public:
 	bool IsRouteToCapitalConnected(void);
 #endif
 
+#if defined(MOD_GLOBAL_TRULY_FREE_GP)
+	void createGreatGeneral(UnitTypes eGreatPersonUnit, bool bIsFree);
+	void createGreatAdmiral(UnitTypes eGreatPersonUnit, bool bIsFree);
+#else
 	void createGreatGeneral(UnitTypes eGreatPersonUnit);
 	void createGreatAdmiral(UnitTypes eGreatPersonUnit);
+#endif
 
 	CityTaskResult doTask(TaskTypes eTask, int iData1 = -1, int iData2 = -1, bool bOption = false, bool bAlt = false, bool bShift = false, bool bCtrl = false);
 
@@ -96,8 +101,8 @@ public:
 
 #if defined(MOD_GLOBAL_CITY_WORKING)
 	int getBuyPlotDistance() const;
-	int getWorkPlotDistance() const;
-	int GetNumWorkablePlots() const;
+	int getWorkPlotDistance(int iChange = 0) const;
+	int GetNumWorkablePlots(int iChange = 0) const;
 #endif
 
 	void clearWorkingOverride(int iIndex);
@@ -428,7 +433,11 @@ public:
 	int GetFaithPerTurnFromPolicies() const;
 	void ChangeFaithPerTurnFromPolicies(int iChange);
 
+#if defined(MOD_API_UNIFIED_YIELDS)
+	int GetYieldPerTurnFromUnimprovedFeatures(YieldTypes eYield) const;
+#else
 	int GetFaithPerTurnFromTraits() const;
+#endif
 
 	int GetFaithPerTurnFromReligion() const;
 #if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)

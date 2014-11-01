@@ -1227,6 +1227,10 @@ public:
 	int getHealing() const;
 	int getDamagePrereq() const;
 	int getPopulation() const;
+#if defined(MOD_BALANCE_CORE)
+	int getProduction() const;
+	int getGoldenAge() const;
+#endif
 	int getCulture() const;
 	int getFaith() const;
 	int getProphetPercent() const;
@@ -1261,6 +1265,10 @@ protected:
 	int m_iHealing;
 	int m_iDamagePrereq;
 	int m_iPopulation;
+#if defined(MOD_BALANCE_CORE)
+	int m_iProduction;
+	int m_iGoldenAge;
+#endif
 	int m_iCulture;
 	int m_iFaith;
 	int m_iProphetPercent;
@@ -2203,6 +2211,7 @@ public:
 	int getTradeRouteFoodBonusTimes100() const;
 	int getTradeRouteProductionBonusTimes100() const;
 	int getLeaguePercent() const;
+	int getWarmongerPercent() const;
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	bool getVassalageEnabled() const;
@@ -2264,6 +2273,7 @@ protected:
 	int m_iTradeRouteFoodBonusTimes100;
 	int m_iTradeRouteProductionBonusTimes100;
 	int m_iLeaguePercent;
+	int m_iWarmongerPercent;
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	bool m_bVassalageEnabled;

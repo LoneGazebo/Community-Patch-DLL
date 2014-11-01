@@ -2885,6 +2885,10 @@ void CvMinorCivAI::DoTurn()
 	{
 		DoTurnStatus();
 
+#if defined(MOD_CONFIG_GAME_IN_XML)
+		m_pPlayer->GetDiplomacyAI()->DoCounters();
+#endif
+
 		DoElection();
 		DoFriendship();
 
@@ -8325,8 +8329,10 @@ void CvMinorCivAI::SetAlly(PlayerTypes eNewAlly)
 			}
 		}
 
+#if !defined(NO_ACHIEVEMENTS)
 		//Achievement Test
 		kNewAlly.GetPlayerAchievements().AlliedWithCityState(GetPlayer()->GetID());;
+#endif
 	}
 
 	// Alter who gets this guy's resources
@@ -8519,6 +8525,22 @@ void CvMinorCivAI::DoFriendshipChangeEffects(PlayerTypes ePlayer, int iOldFriend
 #if defined(MOD_EVENTS_MINORS)
 		if (MOD_EVENTS_MINORS) {
 			GAMEEVENTINVOKE_HOOK(GAMEEVENT_MinorFriendsChanged, m_pPlayer->GetID(), ePlayer, true, iOldFriendship, iNewFriendship);
+		} else {
+#endif
+		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+		if (pkScriptSystem) 
+		{
+			CvLuaArgsHandle args;
+			args->Push(m_pPlayer->GetID());
+			args->Push(ePlayer);
+			args->Push(true);
+			args->Push(iOldFriendship);
+			args->Push(iNewFriendship);
+
+			bool bResult;
+			LuaSupport::CallHook(pkScriptSystem, "MinorFriendsChanged", args.get(), bResult);
+		}
+#if defined(MOD_EVENTS_MINORS)
 		}
 #endif
 	}
@@ -8531,6 +8553,22 @@ void CvMinorCivAI::DoFriendshipChangeEffects(PlayerTypes ePlayer, int iOldFriend
 #if defined(MOD_EVENTS_MINORS)
 		if (MOD_EVENTS_MINORS) {
 			GAMEEVENTINVOKE_HOOK(GAMEEVENT_MinorFriendsChanged, m_pPlayer->GetID(), ePlayer, false, iOldFriendship, iNewFriendship);
+		} else {
+#endif
+		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+		if (pkScriptSystem) 
+		{
+			CvLuaArgsHandle args;
+			args->Push(m_pPlayer->GetID());
+			args->Push(ePlayer);
+			args->Push(false);
+			args->Push(iOldFriendship);
+			args->Push(iNewFriendship);
+
+			bool bResult;
+			LuaSupport::CallHook(pkScriptSystem, "MinorFriendsChanged", args.get(), bResult);
+		}
+#if defined(MOD_EVENTS_MINORS)
 		}
 #endif
 	}
@@ -8551,6 +8589,22 @@ void CvMinorCivAI::DoFriendshipChangeEffects(PlayerTypes ePlayer, int iOldFriend
 #if defined(MOD_EVENTS_MINORS)
 		if (MOD_EVENTS_MINORS) {
 			GAMEEVENTINVOKE_HOOK(GAMEEVENT_MinorAlliesChanged, m_pPlayer->GetID(), ePlayer, true, iOldFriendship, iNewFriendship);
+		} else {
+#endif
+		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+		if (pkScriptSystem) 
+		{
+			CvLuaArgsHandle args;
+			args->Push(m_pPlayer->GetID());
+			args->Push(ePlayer);
+			args->Push(true);
+			args->Push(iOldFriendship);
+			args->Push(iNewFriendship);
+
+			bool bResult;
+			LuaSupport::CallHook(pkScriptSystem, "MinorAlliesChanged", args.get(), bResult);
+		}
+#if defined(MOD_EVENTS_MINORS)
 		}
 #endif
 	}
@@ -8563,6 +8617,22 @@ void CvMinorCivAI::DoFriendshipChangeEffects(PlayerTypes ePlayer, int iOldFriend
 #if defined(MOD_EVENTS_MINORS)
 		if (MOD_EVENTS_MINORS) {
 			GAMEEVENTINVOKE_HOOK(GAMEEVENT_MinorAlliesChanged, m_pPlayer->GetID(), ePlayer, false, iOldFriendship, iNewFriendship);
+		} else {
+#endif
+		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+		if (pkScriptSystem)
+		{
+			CvLuaArgsHandle args;
+			args->Push(m_pPlayer->GetID());
+			args->Push(ePlayer);
+			args->Push(false);
+			args->Push(iOldFriendship);
+			args->Push(iNewFriendship);
+
+			bool bResult;
+			LuaSupport::CallHook(pkScriptSystem, "MinorAlliesChanged", args.get(), bResult);
+		}
+#if defined(MOD_EVENTS_MINORS)
 		}
 #endif
 	}
@@ -10639,9 +10709,10 @@ void CvMinorCivAI::DoBuyout(PlayerTypes eMajor)
 	}
 
 	
-
+#if !defined(NO_ACHIEVEMENTS)
 	CvPlayerAI& kMajorPlayer = GET_PLAYER(eMajor);
 	kMajorPlayer.GetPlayerAchievements().BoughtCityState(iNumUnits);
+#endif
 }
 
 #if defined(MOD_GLOBAL_VENICE_KEEPS_RESOURCES)

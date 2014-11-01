@@ -539,7 +539,11 @@ public:
 
 	// Get the amount of warmonger hatred they generated
 	int GetOtherPlayerWarmongerAmount(PlayerTypes ePlayer);
+#if defined(MOD_API_EXTENSIONS)
+	void ChangeOtherPlayerWarmongerAmountTimes100(PlayerTypes ePlayer, int iChange);
+#else
 	void ChangeOtherPlayerWarmongerAmount(PlayerTypes ePlayer, int iChange);
+#endif
 	int GetOtherPlayerWarmongerScore(PlayerTypes ePlayer);
 
 	/////////////////////////////////////////////////////////
@@ -1413,7 +1417,11 @@ private:
 		char m_aiOtherPlayerNumMajorsAttacked[MAX_MAJOR_CIVS];
 		char m_aiOtherPlayerNumMajorsConquered[MAX_MAJOR_CIVS];
 
+#if defined(MOD_API_EXTENSIONS)
+		int m_aiOtherPlayerWarmongerAmountTimes100[MAX_MAJOR_CIVS];
+#else
 		int m_aiOtherPlayerWarmongerAmount[MAX_MAJOR_CIVS];
+#endif
 
 		short m_aiOtherPlayerTurnsSinceWeLikedTheirProposal[MAX_MAJOR_CIVS];
 		short m_aiOtherPlayerTurnsSinceWeDislikedTheirProposal[MAX_MAJOR_CIVS];
@@ -1698,7 +1706,11 @@ private:
 	char* m_paiOtherPlayerNumMinorsConquered;
 	char* m_paiOtherPlayerNumMajorsAttacked;
 	char* m_paiOtherPlayerNumMajorsConquered;
+#if defined(MOD_API_EXTENSIONS)
+	int*  m_paiOtherPlayerWarmongerAmountTimes100;
+#else
 	int*  m_paiOtherPlayerWarmongerAmount;
+#endif
 
 	short* m_paiOtherPlayerTurnsSinceWeLikedTheirProposal;
 	short* m_paiOtherPlayerTurnsSinceWeDislikedTheirProposal;
@@ -1730,13 +1742,16 @@ private:
 namespace CvDiplomacyAIHelpers
 {
 #if defined(MOD_CONFIG_AI_IN_XML)
-	int GetWarmongerOffset(PlayerTypes eOriginalOwner);
+	int GetWarmongerOffset(PlayerTypes eOriginalOwner, bool bIsCapital);
+	CvString GetWarmongerPreviewString(PlayerTypes eCurrentOwner, bool bIsCapital);
+	CvString GetLiberationPreviewString(PlayerTypes eOriginalOwner, bool bIsCapital);
+	void ApplyWarmongerPenalties(PlayerTypes eConqueror, PlayerTypes eConquered, bool bIsCapital);
 #else
-	int GetWarmongerOffset(int iNumCitiesRemaining);
-#endif
+	int GetWarmongerOffset(int iNumCitiesRemaining, bool bIsMinor);
 	CvString GetWarmongerPreviewString(PlayerTypes eCurrentOwner);
 	CvString GetLiberationPreviewString(PlayerTypes eOriginalOwner);
 	void ApplyWarmongerPenalties(PlayerTypes eConqueror, PlayerTypes eConquered);
+#endif
 }
 
 #endif //CIV5_AI_DIPLOMACY_H

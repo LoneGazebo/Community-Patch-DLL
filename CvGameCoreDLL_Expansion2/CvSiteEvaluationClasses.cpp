@@ -1605,20 +1605,24 @@ int CvCitySiteEvaluator::ComputeStrategicValue(CvPlot* pPlot, CvPlayer* pPlayer,
 		rtnValue += /*5*/ GC.getCHOKEPOINT_STRATEGIC_VALUE();
 	}
 #if defined(MOD_BALANCE_CORE_SETTLER)
-	//Some features and terrain types are useful strategically. (Or really bad)
-	if((pPlot->getOwner() == NO_PLAYER) || (pPlot->getOwner() != pPlayer->GetID()))
+	if (MOD_BALANCE_CORE_SETTLER) 
 	{
-		if(iPlotsFromCity <= 3 && (pPlot->getFeatureType() == FEATURE_ICE) || (pPlot->getTerrainType() == TERRAIN_SNOW))
+
+		//Some features and terrain types are useful strategically. (Or really bad)
+		if(pPlot->getOwner() == NO_PLAYER)
 		{
-			rtnValue += /*-10*/ GC.getBALANCE_BAD_TILES_STRATEGIC_VALUE();
-		}
-		if(iPlotsFromCity <= 3 && pPlot->isFreshWater())
-		{
-			rtnValue += /*2*/ GC.getBALANCE_FRESH_WATER_STRATEGIC_VALUE();
-		}
-		if(iPlotsFromCity <= 3 && pPlot->isCoastalLand())
-		{
-			rtnValue += /*2*/ GC.getBALANCE_COAST_STRATEGIC_VALUE();
+			if(iPlotsFromCity <= 3 && (pPlot->getFeatureType() == FEATURE_ICE) || (pPlot->getTerrainType() == TERRAIN_SNOW))
+			{
+				rtnValue += /*-10*/ GC.getBALANCE_BAD_TILES_STRATEGIC_VALUE();
+			}
+			if(iPlotsFromCity <= 3 && pPlot->isFreshWater())
+			{
+				rtnValue += /*2*/ GC.getBALANCE_FRESH_WATER_STRATEGIC_VALUE();
+			}
+			if(iPlotsFromCity <= 3 && pPlot->isCoastalLand())
+			{
+				rtnValue += /*2*/ GC.getBALANCE_COAST_STRATEGIC_VALUE();
+			}
 		}
 	}
 #endif

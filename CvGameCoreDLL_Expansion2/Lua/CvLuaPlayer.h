@@ -777,6 +777,9 @@ protected:
 
 	static int lGetCities(lua_State* L);
 	static int lGetNumCities(lua_State* L);
+#if defined(MOD_API_LUA_EXTENSIONS)
+	LUAAPIEXTN(GetNumPuppetCities, int);
+#endif
 	static int lGetCityByID(lua_State* L);
 
 	static int lGetUnits(lua_State* L);

@@ -526,15 +526,15 @@ bool CvGame::InitMap(CvGameInitialItemsOverrides& kGameInitialItemsOverrides)
 			if (eTeam != NO_TEAM)
 			{
 				const int iNumInvisibleInfos = NUM_INVISIBLE_TYPES;
-				for(iI = 0; iI < GC.getMap().numPlots(); iI++)
+				for(int plotID = 0; plotID < GC.getMap().numPlots(); plotID++)
 				{
-					CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(iI);
+					CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(plotID);
 
-					pLoopPlot->changeVisibilityCount(eTeam, pLoopPlot->getVisibilityCount(eTeam) + 1, NO_INVISIBLE, true, false);
+					pLoopPlot->changeVisibilityCount(eTeam, 1, NO_INVISIBLE, true, false);
 
 					for(int iJ = 0; iJ < iNumInvisibleInfos; iJ++)
 					{
-						pLoopPlot->changeInvisibleVisibilityCount(eTeam, ((InvisibleTypes)iJ), pLoopPlot->getInvisibleVisibilityCount(eTeam, ((InvisibleTypes)iJ)) + 1);
+						pLoopPlot->changeInvisibleVisibilityCount(eTeam, ((InvisibleTypes)iJ), 1);
 					}
 
 					pLoopPlot->setRevealed(eTeam, true, false);
@@ -1625,7 +1625,7 @@ void CvGame::CheckPlayerTurnDeactivate()
 										for(int iJ = (kPlayer.GetID() + 1); iJ < MAX_PLAYERS; iJ++)
 										{
 											CvPlayer& kNextPlayer = GET_PLAYER((PlayerTypes)iJ);
-											if(kNextPlayer.isAlive() && !kPlayer.isSimultaneousTurns())
+											if(kNextPlayer.isAlive() && !kNextPlayer.isSimultaneousTurns())
 											{//the player is alive and also running sequential turns.  they're up!
 												if(isPbem() && kNextPlayer.isHuman())
 												{
@@ -2027,7 +2027,9 @@ void CvGame::updateTestEndTurn()
 				{
 					if(pkIface->canEndTurn() && gDLL->allAICivsProcessedThisTurn() && allUnitAIProcessed() && !gDLL->HasSentTurnComplete())
 					{
+#if !defined(NO_ACHIEVEMENTS)
 						activePlayer.GetPlayerAchievements().EndTurn();
+#endif
 
 #if defined(MOD_EVENTS_RED_TURN)
 						if (MOD_EVENTS_RED_TURN)
@@ -2048,7 +2050,9 @@ void CvGame::updateTestEndTurn()
 #endif
 
 						gDLL->sendTurnComplete();
+#if !defined(NO_ACHIEVEMENTS)
 						CvAchievementUnlocker::EndTurn();
+#endif
 						m_endTurnTimer.Start();
 					}
 				}
@@ -2128,7 +2132,9 @@ void CvGame::updateTestEndTurn()
 							{
 								if(!gDLL->HasSentTurnComplete() && gDLL->allAICivsProcessedThisTurn() && allUnitAIProcessed() && pkIface && pkIface->IsMPAutoEndTurnEnabled())
 								{
+#if !defined(NO_ACHIEVEMENTS)
 									activePlayer.GetPlayerAchievements().EndTurn();
+#endif
 
 #if defined(MOD_EVENTS_RED_TURN)
 									if (MOD_EVENTS_RED_TURN)
@@ -2149,7 +2155,9 @@ void CvGame::updateTestEndTurn()
 #endif
 
 									gDLL->sendTurnComplete();
+#if !defined(NO_ACHIEVEMENTS)
 									CvAchievementUnlocker::EndTurn();
+#endif
 								}
 
 								GC.GetEngineUserInterface()->setEndTurnCounter(3); // XXX
@@ -3548,9 +3556,13 @@ void CvGame::doControl(ControlTypes eControl)
 			// RED >>>>>
 #endif
 
+#if !defined(NO_ACHIEVEMENTS)
 			kActivePlayer.GetPlayerAchievements().EndTurn();
+#endif
 			gDLL->sendTurnComplete();
+#if !defined(NO_ACHIEVEMENTS)
 			CvAchievementUnlocker::EndTurn();
+#endif
 			GC.GetEngineUserInterface()->setInterfaceMode(INTERFACEMODE_SELECTION);
 		}
 		break;
@@ -3560,8 +3572,10 @@ void CvGame::doControl(ControlTypes eControl)
 		EndTurnBlockingTypes eBlock = GET_PLAYER(getActivePlayer()).GetEndTurnBlockingType();
 		if(gDLL->allAICivsProcessedThisTurn() && allUnitAIProcessed() && (eBlock == NO_ENDTURN_BLOCKING_TYPE || eBlock == ENDTURN_BLOCKING_UNITS))
 		{
+#if !defined(NO_ACHIEVEMENTS)
 			CvPlayerAI& kActivePlayer = GET_PLAYER(getActivePlayer());
 			kActivePlayer.GetPlayerAchievements().EndTurn();
+#endif
 
 #if defined(MOD_EVENTS_RED_TURN)
 				if (MOD_EVENTS_RED_TURN)
@@ -3582,7 +3596,9 @@ void CvGame::doControl(ControlTypes eControl)
 #endif
 
 			gDLL->sendTurnComplete();
+#if !defined(NO_ACHIEVEMENTS)
 			CvAchievementUnlocker::EndTurn();
+#endif
 			SetForceEndingTurn(true);
 			GC.GetEngineUserInterface()->setInterfaceMode(INTERFACEMODE_SELECTION);
 		}
@@ -5171,6 +5187,21 @@ void CvGame::DoFromUIDiploEvent(FromUIDiploEventTypes eEvent, PlayerTypes eAIPla
 #if defined(MOD_EVENTS_DIPLO_EVENTS)
 	if (MOD_EVENTS_DIPLO_EVENTS) {
 		GAMEEVENTINVOKE_HOOK(GAMEEVENT_UiDiploEvent, eEvent, eAIPlayer, iArg1, iArg2);
+	} else {
+#endif
+	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+	if(pkScriptSystem)
+	{
+		CvLuaArgsHandle args;
+		args->Push(eEvent);
+		args->Push(eAIPlayer);
+		args->Push(iArg1);
+		args->Push(iArg2);
+
+		bool bResult;
+		LuaSupport::CallHook(pkScriptSystem, "UiDiploEvent", args.get(), bResult);
+	}
+#if defined(MOD_EVENTS_DIPLO_EVENTS)
 	}
 #endif
 
@@ -5960,7 +5991,7 @@ void CvGame::setWinner(TeamTypes eNewWinner, VictoryTypes eNewVictory)
 				if(!GC.getGame().isGameMultiPlayer() && kWinningTeamLeader.isHuman() && kWinningTeamLeader.isLocalPlayer())
 				{
 					const bool bUsingDLC1Scenario = gDLL->IsModActivated(CIV5_DLC_01_SCENARIO_MODID);
-					const bool bUsingDLC2Scenario = gDLL->IsModActivated(CIV5_DLC_02_SCENARIO_MODID);
+					const bool bUsingDLC2Scenario = gDLL->IsModActivated(CIV5_DLC_02_SCENARIO_MODID) || gDLL->IsModActivated(CIV5_COMPLETE_SCENARIO1_MODID);
 					const bool bUsingDLC3Scenario = gDLL->IsModActivated(CIV5_DLC_03_SCENARIO_MODID);
 					const bool bUsingDLC4Scenario = gDLL->IsModActivated(CIV5_DLC_04_SCENARIO_MODID);
 					const bool bUsingDLC5Scenario = gDLL->IsModActivated(CIV5_DLC_05_SCENARIO_MODID);
@@ -8328,7 +8359,7 @@ void CvGame::updateMoves()
 
 
 	int currentTurn = getGameTurn();
-	bool activatePlayers = m_lastTurnAICivsProcessed != currentTurn;
+	bool activatePlayers = playersToProcess.empty() && m_lastTurnAICivsProcessed != currentTurn;
 	// If no AI with an active turn, check humans.
 	if(playersToProcess.empty())
 	{
@@ -8340,10 +8371,14 @@ void CvGame::updateMoves()
 			{//if the active player is an observer, send a turn complete so we don't hold up the game.
 				//We wait until allAICivsProcessedThisTurn to prevent a race condition where an observer could send turn complete,
 				//before all clients have cleared the netbarrier locally.
+#if !defined(NO_ACHIEVEMENTS)
 				CvPlayer& kActivePlayer = GET_PLAYER(eActivePlayer);
 				kActivePlayer.GetPlayerAchievements().EndTurn();
+#endif
 				gDLL->sendTurnComplete();
+#if !defined(NO_ACHIEVEMENTS)
 				CvAchievementUnlocker::EndTurn();
+#endif
 			}
 
 			if(!processPlayerAutoMoves)
@@ -9483,15 +9518,16 @@ void CvGame::getGlobalAverage() const
 					
 					//Disorder
 					iDefenseYield = pLoopCity->getStrengthValue(false);
+					iDefenseYield += (pLoopCity->GetCityBuildings()->GetBuildingDefense() / 2);
 
-						// Garrisoned Unit x 25
+						// Garrisoned Unit x 5
 						CvUnit* pGarrisonedUnit = pLoopCity->GetGarrisonedUnit();
 						if(pGarrisonedUnit)
 						{
-							iDefenseYield += (pGarrisonedUnit->GetBaseCombatStrength() * 25);
+							iDefenseYield += (pGarrisonedUnit->GetBaseCombatStrength() * 5);
 						}
 
-						int iDamage = (pLoopCity->getDamage() * 10);
+						int iDamage = (pLoopCity->getDamage() * 25);
 
 						if(iDamage > 0)
 						{

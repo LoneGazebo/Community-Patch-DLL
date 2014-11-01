@@ -2452,8 +2452,7 @@ void CvHomelandAI::ExecuteFirstTurnSettlerMoves()
 		if(pUnit)
 		{
 #if defined(MOD_BALANCE_CORE_SETTLER)
-			//Let's not try this too much. Two turns is enough.
-			if(GC.getGame().getGameTurn() <= 2)
+			if (MOD_BALANCE_CORE_SETTLER && (GC.getSETTLER_MOVE_ON_START() > 0)) 
 			{
 				int iInitialPlotValue = 0;
 				int iAdjacentValue = 0;
@@ -2632,6 +2631,17 @@ void CvHomelandAI::ExecuteFirstTurnSettlerMoves()
 							}
 						}
 					}
+				}
+			}
+			else
+			{
+				pUnit->PushMission(CvTypes::getMISSION_FOUND());
+				UnitProcessed(pUnit->GetID());
+				if(GC.getLogging() && GC.getAILogging())
+				{
+					CvString strLogString;
+					strLogString.Format("Founded city at, X: %d, Y: %d", pUnit->getX(), pUnit->getY());
+					LogHomelandMessage(strLogString);
 				}
 			}
 #else
