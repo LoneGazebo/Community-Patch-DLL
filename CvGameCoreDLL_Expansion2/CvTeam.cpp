@@ -221,7 +221,9 @@ void CvTeam::uninit()
 		m_paiTurnMadePeaceTreatyWithTeam[i] = -1;
 		m_aiIgnoreWarningCount[i] = 0;
 		m_abHasMet[i] = false;
-		m_abAtWar[i] = false;
+#if defined(MOD_EVENTS_WAR_AND_PEACE)
+		m_abAggressorPacifier[i] = false;
+#endif
 		m_abPermanentWarPeace[i] = false;
 		m_abEmbassy[i] = false;
 		m_abOpenBorders[i] = false;
@@ -1155,7 +1157,7 @@ void CvTeam::declareWar(TeamTypes eTeam, bool bDefensivePact)
 #endif
 {
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
-	DoDeclareWar(eOriginatingPlayer, eTeam, bDefensivePact);
+	DoDeclareWar(eOriginatingPlayer, true, eTeam, bDefensivePact);
 #else
 	DoDeclareWar(eTeam, bDefensivePact);
 #endif
@@ -1166,9 +1168,9 @@ void CvTeam::declareWar(TeamTypes eTeam, bool bDefensivePact)
 //	-----------------------------------------------------------------------------------------------
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyPact, bool bVassal)
+void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyPact, bool bVassal)
 #else
-void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyPact)
+void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyPact)
 #endif
 #else
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
@@ -1256,7 +1258,7 @@ void CvTeam::DoDeclareWar(TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyP
 				if(GET_TEAM((TeamTypes)iI).IsHasDefensivePact(eTeam))
 				{
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
-					GET_TEAM((TeamTypes)iI).DoDeclareWar(eOriginatingPlayer, GetID(), /*bDefensivePact*/ true);
+					GET_TEAM((TeamTypes)iI).DoDeclareWar(eOriginatingPlayer, !bAggressor, GetID(), /*bDefensivePact*/ true);
 #else
 					GET_TEAM((TeamTypes)iI).DoDeclareWar(GetID(), /*bDefensivePact*/ true);
 #endif
@@ -1277,7 +1279,7 @@ void CvTeam::DoDeclareWar(TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyP
 					if(eHisMaster != GetID())
 					{
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
-						GET_TEAM(GetID()).DoDeclareWar(getLeaderID(), eHisMaster, false);
+						GET_TEAM(GetID()).DoDeclareWar(getLeaderID(), bAggressor, eHisMaster, false);
 #else
 						GET_TEAM(GetID()).DoDeclareWar(eHisMaster, false);
 #endif
@@ -1303,11 +1305,29 @@ void CvTeam::DoDeclareWar(TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyP
 	// Bump Units out of places they shouldn't be
 	GC.getMap().verifyUnitValidPlot();
 
+#if defined(MOD_EVENTS_WAR_AND_PEACE)
+	setAtWar(eTeam, true, bAggressor);
+	GET_TEAM(eTeam).setAtWar(GetID(), true, !bAggressor);
+#else
 	setAtWar(eTeam, true);
 	GET_TEAM(eTeam).setAtWar(GetID(), true);
+#endif
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
 	if (MOD_EVENTS_WAR_AND_PEACE) {
-		GAMEEVENTINVOKE_HOOK(GAMEEVENT_DeclareWar, eOriginatingPlayer, eTeam);
+		GAMEEVENTINVOKE_HOOK(GAMEEVENT_DeclareWar, eOriginatingPlayer, eTeam, bAggressor);
+	} else {
+#endif
+	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+	if (pkScriptSystem)
+	{
+		CvLuaArgsHandle args;
+		args->Push(GetID());
+		args->Push(eTeam);
+
+		bool bResult;
+		LuaSupport::CallHook(pkScriptSystem, "DeclareWar", args.get(), bResult);
+	}
+#if defined(MOD_EVENTS_WAR_AND_PEACE)
 	}
 #endif
 
@@ -1547,7 +1567,7 @@ void CvTeam::DoNowAtWarOrPeace(TeamTypes eTeam, bool bWar)
 					{
 						// Match war state
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
-						GET_TEAM(GET_PLAYER(eMinor).getTeam()).DoDeclareWar(eMinor, eTeam, /*bDefensivePact*/ false, /*bMinorAllyPact*/ true);
+						GET_TEAM(GET_PLAYER(eMinor).getTeam()).DoDeclareWar(eMinor, false, eTeam, /*bDefensivePact*/ false, /*bMinorAllyPact*/ true);
 #else
 						GET_TEAM(GET_PLAYER(eMinor).getTeam()).DoDeclareWar(eTeam, /*bDefensivePact*/ false, /*bMinorAllyPact*/ true);
 #endif
@@ -1614,7 +1634,7 @@ void CvTeam::makePeace(TeamTypes eTeam, bool bBumpUnits, bool bSuppressNotificat
 #endif
 {
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
-	DoMakePeace(eOriginatingPlayer, eTeam, bBumpUnits, bSuppressNotification);
+	DoMakePeace(eOriginatingPlayer, true, eTeam, bBumpUnits, bSuppressNotification);
 #else
 	DoMakePeace(eTeam, bBumpUnits, bSuppressNotification);
 #endif
@@ -1623,7 +1643,7 @@ void CvTeam::makePeace(TeamTypes eTeam, bool bBumpUnits, bool bSuppressNotificat
 //	------------------------------------------------------------------------------------------------
 //	The make peace handler, can be called recursively
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
-void CvTeam::DoMakePeace(PlayerTypes eOriginatingPlayer, TeamTypes eTeam, bool bBumpUnits, bool bSuppressNotification)
+void CvTeam::DoMakePeace(PlayerTypes eOriginatingPlayer, bool bPacifier, TeamTypes eTeam, bool bBumpUnits, bool bSuppressNotification)
 #else
 void CvTeam::DoMakePeace(TeamTypes eTeam, bool bBumpUnits, bool bSuppressNotification)
 #endif
@@ -1636,11 +1656,29 @@ void CvTeam::DoMakePeace(TeamTypes eTeam, bool bBumpUnits, bool bSuppressNotific
 
 	if(isAtWar(eTeam))
 	{
+#if defined(MOD_EVENTS_WAR_AND_PEACE)
+		setAtWar(eTeam, false, bPacifier);
+		GET_TEAM(eTeam).setAtWar(GetID(), false, !bPacifier);
+#else
 		setAtWar(eTeam, false);
 		GET_TEAM(eTeam).setAtWar(GetID(), false);
+#endif
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
 		if (MOD_EVENTS_WAR_AND_PEACE) {
-			GAMEEVENTINVOKE_HOOK(GAMEEVENT_MakePeace, eOriginatingPlayer, eTeam);
+			GAMEEVENTINVOKE_HOOK(GAMEEVENT_MakePeace, eOriginatingPlayer, eTeam, bPacifier);
+		} else {
+#endif
+		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+		if (pkScriptSystem)
+		{
+			CvLuaArgsHandle args;
+			args->Push(GetID());
+			args->Push(eTeam);
+
+			bool bResult;
+			LuaSupport::CallHook(pkScriptSystem, "MakePeace", args.get(), bResult);
+		}
+#if defined(MOD_EVENTS_WAR_AND_PEACE)
 		}
 #endif
 
@@ -1739,7 +1777,7 @@ void CvTeam::DoMakePeace(TeamTypes eTeam, bool bBumpUnits, bool bSuppressNotific
 								if(!GET_PLAYER(eOurMinor).GetMinorCivAI()->IsPermanentWar(eTeamWeMadePeaceWith))
 								{
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
-									GET_TEAM(GET_PLAYER(eOurMinor).getTeam()).DoMakePeace(eOurMinor, eTeamWeMadePeaceWith, /*bBumpUnits*/ true, /*bSuppressNotification*/ true);
+									GET_TEAM(GET_PLAYER(eOurMinor).getTeam()).DoMakePeace(eOurMinor, bPacifier, eTeamWeMadePeaceWith, /*bBumpUnits*/ true, /*bSuppressNotification*/ true);
 #else
 									GET_TEAM(GET_PLAYER(eOurMinor).getTeam()).DoMakePeace(eTeamWeMadePeaceWith, /*bBumpUnits*/ true, /*bSuppressNotification*/ true);
 #endif
@@ -3207,6 +3245,30 @@ void CvTeam::changeCityWorkingChange(int iChange)
 {
 	if(iChange != 0)
 	{
+		for (int iPlayer = 0; iPlayer < MAX_PLAYERS; iPlayer++) {
+			CvPlayer& kLoopPlayer = GET_PLAYER((PlayerTypes)iPlayer);
+			if (kLoopPlayer.isAlive()) {
+				if (kLoopPlayer.getTeam() == GetID()) {
+					CvCity* pLoopCity;
+					int iLoop;
+		
+					for (pLoopCity = kLoopPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kLoopPlayer.nextCity(&iLoop)) {
+						int iOldPlots = pLoopCity->GetNumWorkablePlots();
+						int iNewPlots = pLoopCity->GetNumWorkablePlots(iChange);
+			
+						for (int iI = std::min(iOldPlots, iNewPlots); iI < std::max(iOldPlots, iNewPlots); ++iI) {
+							CvPlot* pLoopPlot = plotCity(pLoopCity->getX(), pLoopCity->getY(), iI);
+
+							if (pLoopPlot) {
+								pLoopPlot->changeCityRadiusCount(iChange);
+								pLoopPlot->changePlayerCityRadiusCount(kLoopPlayer.GetID(), iChange);
+							}
+						}
+					}
+				}
+			}
+		}
+
 		m_iCityWorkingChange = (m_iCityWorkingChange + iChange);
 	}
 }
@@ -3803,6 +3865,24 @@ bool CvTeam::SetHasFoundPlayersTerritory(PlayerTypes ePlayer, bool bValue)
 	return false;
 }
 
+#if defined(MOD_EVENTS_WAR_AND_PEACE)
+//	--------------------------------------------------------------------------------
+bool CvTeam::isAggressor(TeamTypes eIndex) const
+{
+	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
+	return (isAtWar(eIndex) && m_abAggressorPacifier[eIndex]);
+}
+
+//	--------------------------------------------------------------------------------
+bool CvTeam::isPacifier(TeamTypes eIndex) const
+{
+	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
+	return (!isAtWar(eIndex) && m_abAggressorPacifier[eIndex]);
+}
+#endif
+
 //	--------------------------------------------------------------------------------
 bool CvTeam::isAtWar(TeamTypes eIndex) const
 {
@@ -3813,13 +3893,24 @@ bool CvTeam::isAtWar(TeamTypes eIndex) const
 
 
 //	--------------------------------------------------------------------------------
+#if defined(MOD_EVENTS_WAR_AND_PEACE)
+void CvTeam::setAtWar(TeamTypes eIndex, bool bNewValue, bool bAggressorPacifier)
+#else
 void CvTeam::setAtWar(TeamTypes eIndex, bool bNewValue)
+#endif
 {
 	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eIndex < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
 	CvAssertMsg(eIndex != GetID() || bNewValue == false, "Team is setting war with itself!");
 	if(eIndex != GetID() || bNewValue == false)
+#if defined(MOD_EVENTS_WAR_AND_PEACE)
+	{
 		m_abAtWar[eIndex] = bNewValue;
+		m_abAggressorPacifier[eIndex] = bAggressorPacifier;
+	}
+#else
+		m_abAtWar[eIndex] = bNewValue;
+#endif
 
 	gDLL->GameplayWarStateChanged(GetID(), eIndex, bNewValue);
 
@@ -4936,16 +5027,31 @@ void CvTeam::enhanceBuilding(BuildingTypes eIndex, int iChange)
 #if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
 								if((YieldTypes)k == YIELD_CULTURE)
 								{
+#if defined(MOD_BUGFIX_MINOR)
+									int iEnhancedYield = thisBuildingEntry->GetTechEnhancedYieldChange(k) * pLoopCity->GetCityBuildings()->GetNumBuilding(eIndex);
+									pLoopCity->ChangeJONSCulturePerTurnFromBuildings(iEnhancedYield * iChange);
+#else
 									pLoopCity->ChangeJONSCulturePerTurnFromBuildings(thisBuildingEntry->GetTechEnhancedYieldChange(k) * iChange);
+#endif
 								}
 								else if((YieldTypes)k == YIELD_FAITH)
 								{
+#if defined(MOD_BUGFIX_MINOR)
+									int iEnhancedYield = thisBuildingEntry->GetTechEnhancedYieldChange(k) * pLoopCity->GetCityBuildings()->GetNumBuilding(eIndex);
+									pLoopCity->ChangeFaithPerTurnFromBuildings(iEnhancedYield * iChange);
+#else
 									pLoopCity->ChangeFaithPerTurnFromBuildings(thisBuildingEntry->GetTechEnhancedYieldChange(k) * iChange);
+#endif
 								}
 								else
 #endif
 								{
+#if defined(MOD_BUGFIX_MINOR)
+									int iEnhancedYield = thisBuildingEntry->GetTechEnhancedYieldChange(k) * pLoopCity->GetCityBuildings()->GetNumBuilding(eIndex);
+									pLoopCity->ChangeBaseYieldRateFromBuildings(((YieldTypes)k), iEnhancedYield * iChange);
+#else
 									pLoopCity->ChangeBaseYieldRateFromBuildings(((YieldTypes)k), thisBuildingEntry->GetTechEnhancedYieldChange(k) * iChange);
+#endif
 								}
 							}
 						}
@@ -5812,7 +5918,11 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 
 							if(pCapitalCity != NULL)
 							{
+#if defined(MOD_GLOBAL_TRULY_FREE_GP)
+								pCapitalCity->GetCityCitizens()->DoSpawnGreatPerson(eFreeUnit, true, false, MOD_GLOBAL_TRULY_FREE_GP);
+#else
 								pCapitalCity->GetCityCitizens()->DoSpawnGreatPerson(eFreeUnit, true, false);
+#endif
 							}
 						}
 					}
@@ -6442,6 +6552,18 @@ void CvTeam::testCircumnavigated()
 						// Notifications should now be sent via the event
 						// CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_CIRC_GLOBE");
 						// AddNotification(NOTIFICATION_GENERIC, strBuffer, strSummary, -1, -1, -1);
+					} else {
+#endif
+					ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+					if (pkScriptSystem)
+					{
+						CvLuaArgsHandle args;
+						args->Push(eTeamID);
+
+						bool bResult = false;
+						LuaSupport::CallHook(pkScriptSystem, "CircumnavigatedGlobe", args.get(), bResult);
+					}
+#if defined(MOD_EVENTS_CIRCUMNAVIGATION)
 					}
 #endif
 				}
@@ -7345,6 +7467,17 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 		{
 			DLLUI->setDirty(Soundtrack_DIRTY_BIT, true);
 		}
+
+		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+		if(pkScriptSystem)
+		{
+			CvLuaArgsHandle args;
+			args->Push(GetID());
+			args->Push(GetCurrentEra());
+			
+			bool bResult = false;
+			LuaSupport::CallHook(pkScriptSystem, "TeamSetEra", args.get(), bResult);
+		}
 		
 #if defined(MOD_BALANCE_CORE_DIFFICULTY)
 		if(MOD_BALANCE_CORE_DIFFICULTY && !isMinorCiv() && (GC.getBALANCE_GAME_DIFFICULTY_MULTIPLIER() > 0))
@@ -7490,6 +7623,19 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 #if defined(MOD_EVENTS_NEW_ERA)
 		if (MOD_EVENTS_NEW_ERA && GetCurrentEra() != GC.getGame().getStartEra()) {
 			GAMEEVENTINVOKE_HOOK(GAMEEVENT_TeamSetEra, GetID(), GetCurrentEra(), ((GetID() < MAX_MAJOR_CIVS) && !bAlreadyProvided));
+		} else {
+#endif
+		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+		if(pkScriptSystem)
+		{
+			CvLuaArgsHandle args;
+			args->Push(GetID());
+			args->Push(GetCurrentEra());
+			
+			bool bResult = false;
+			LuaSupport::CallHook(pkScriptSystem, "TeamSetEra", args.get(), bResult);
+		}
+#if defined(MOD_EVENTS_NEW_ERA)
 		}
 #endif
 	}
@@ -7694,6 +7840,17 @@ void CvTeam::Read(FDataStream& kStream)
 	ArrayWrapper<bool> kAtWarWrapper(MAX_TEAMS, &m_abAtWar[0]);
 	kStream >> kAtWarWrapper;
 
+#if defined(MOD_EVENTS_WAR_AND_PEACE)
+	if (uiDllSaveVersion >= 63) {
+		ArrayWrapper<bool> kAtWarWrapper(MAX_TEAMS, &m_abAggressorPacifier[0]);
+		kStream >> kAtWarWrapper;
+	} else {
+		for (int i = 0; i < MAX_TEAMS; ++i) {
+			m_abAggressorPacifier[i] = false;
+		}
+	}
+#endif
+
 	ArrayWrapper<bool> kPermanentWarWrapper(MAX_TEAMS, &m_abPermanentWarPeace[0]);
 	kStream >> kPermanentWarWrapper;
 
@@ -7870,6 +8027,9 @@ void CvTeam::Write(FDataStream& kStream) const
 	kStream << ArrayWrapperConst<bool>(MAX_TEAMS, &m_abHasMet[0]);
 	kStream << ArrayWrapperConst<bool>(MAX_PLAYERS, &m_abHasFoundPlayersTerritory[0]);
 	kStream << ArrayWrapperConst<bool>(MAX_TEAMS, &m_abAtWar[0]);
+#if defined(MOD_EVENTS_WAR_AND_PEACE)
+	kStream << ArrayWrapperConst<bool>(MAX_TEAMS, &m_abAggressorPacifier[0]);
+#endif
 	kStream << ArrayWrapperConst<bool>(MAX_TEAMS, &m_abPermanentWarPeace[0]);
 	kStream << ArrayWrapperConst<bool>(MAX_TEAMS, &m_abEmbassy[0]);
 	kStream << ArrayWrapperConst<bool>(MAX_TEAMS, &m_abOpenBorders[0]);
@@ -8362,7 +8522,7 @@ void CvTeam::DoUpdateVassalWarPeaceRelationships()
 		{
 			if(!isAtWar(eTeam))
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
-				DoDeclareWar(getLeaderID(), eTeam, false, false, true);
+				DoDeclareWar(getLeaderID(), GET_TEAM(eMaster).isAggressor(eTeam), eTeam, false, false, true);
 #else
 				DoDeclareWar(eTeam, false, false, true);
 #endif
@@ -8372,7 +8532,7 @@ void CvTeam::DoUpdateVassalWarPeaceRelationships()
 		{
 			if(isAtWar(eTeam))
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
-				DoMakePeace(getLeaderID(), eTeam, true);
+				DoMakePeace(getLeaderID(), GET_TEAM(eMaster).isPacifier(eTeam), eTeam, true);
 #else
 				DoMakePeace(eTeam, true);
 #endif

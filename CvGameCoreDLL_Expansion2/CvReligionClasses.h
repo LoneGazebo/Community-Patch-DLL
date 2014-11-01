@@ -205,7 +205,7 @@ public:
 	BeliefTypes GetBeliefInPantheon(PlayerTypes ePlayer) const;
 	bool HasCreatedPantheon(PlayerTypes ePlayer) const;
 	int GetNumPantheonsCreated() const;
-#if defined (MOD_EVENTS_ACQUIRE_BELIEFS) || defined(MOD_TRAITS_ANY_BELIEF)
+#if defined(MOD_EVENTS_ACQUIRE_BELIEFS) || defined(MOD_TRAITS_ANY_BELIEF)
 	std::vector<BeliefTypes> GetAvailablePantheonBeliefs(PlayerTypes ePlayer=NO_PLAYER);
 #else
 	std::vector<BeliefTypes> GetAvailablePantheonBeliefs();
@@ -240,7 +240,7 @@ public:
 #else
 	int GetNumReligionsStillToFound() const;
 #endif
-#if defined (MOD_EVENTS_ACQUIRE_BELIEFS) || defined(MOD_TRAITS_ANY_BELIEF)
+#if defined(MOD_EVENTS_ACQUIRE_BELIEFS) || defined(MOD_TRAITS_ANY_BELIEF)
 	std::vector<BeliefTypes> GetAvailableFounderBeliefs(PlayerTypes ePlayer=NO_PLAYER, ReligionTypes eReligion=NO_RELIGION);
 	std::vector<BeliefTypes> GetAvailableFollowerBeliefs(PlayerTypes ePlayer=NO_PLAYER, ReligionTypes eReligion=NO_RELIGION);
 	std::vector<BeliefTypes> GetAvailableEnhancerBeliefs(PlayerTypes ePlayer=NO_PLAYER, ReligionTypes eReligion=NO_RELIGION);
@@ -323,9 +323,15 @@ public:
 	void Write(FDataStream& kStream);
 
 	// Data accessors
+#if defined(MOD_GLOBAL_TRULY_FREE_GP)
+	int GetNumProphetsSpawned(bool bExcludeFree) const;
+	void ChangeNumProphetsSpawned(int iValue, bool bIsFree);
+	int GetCostNextProphet(bool bIncludeBeliefDiscounts, bool bAdjustForSpeedDifficulty, bool bExcludeFree) const;
+#else
 	int GetNumProphetsSpawned() const;
 	void ChangeNumProphetsSpawned(int iValue);
 	int GetCostNextProphet(bool bIncludeBeliefDiscounts, bool bAdjustForSpeedDifficulty) const;
+#endif
 	bool IsFoundingReligion() const
 	{
 		return m_bFoundingReligion;
@@ -368,6 +374,9 @@ public:
 private:
 	CvPlayer* m_pPlayer;
 
+#if defined(MOD_GLOBAL_TRULY_FREE_GP)
+	int m_iNumFreeProphetsSpawned;
+#endif
 	int m_iNumProphetsSpawned;
 	int m_bFoundingReligion;
 #if defined(MOD_RELIGION_RECURRING_PURCHASE_NOTIFIY)
@@ -544,7 +553,7 @@ public:
 
 	void DoTurn();
 
-#if defined (MOD_EVENTS_ACQUIRE_BELIEFS)
+#if defined(MOD_EVENTS_ACQUIRE_BELIEFS)
 	BeliefTypes ChoosePantheonBelief(PlayerTypes ePlayer/*=NO_PLAYER*/);
 	BeliefTypes ChooseFounderBelief(PlayerTypes ePlayer/*=NO_PLAYER*/, ReligionTypes eReligion/*=NO_RELIGION*/);
 	BeliefTypes ChooseFollowerBelief(PlayerTypes ePlayer/*=NO_PLAYER*/, ReligionTypes eReligion/*=NO_RELIGION*/);

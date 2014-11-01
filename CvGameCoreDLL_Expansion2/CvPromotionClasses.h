@@ -205,6 +205,10 @@ public:
 	int GetTerrainDefensePercent(int i) const;
 	int GetFeatureAttackPercent(int i) const;
 	int GetFeatureDefensePercent(int i) const;
+#if defined(MOD_API_UNIFIED_YIELDS)
+	int GetYieldFromKills(int i) const;
+	int GetYieldFromBarbarianKills(int i) const;
+#endif
 	int GetUnitCombatModifierPercent(int i) const;
 	int GetUnitClassModifierPercent(int i) const;
 	int GetDomainModifierPercent(int i) const;
@@ -391,6 +395,10 @@ protected:
 	int* m_piTerrainDefensePercent;
 	int* m_piFeatureAttackPercent;
 	int* m_piFeatureDefensePercent;
+#if defined(MOD_API_UNIFIED_YIELDS)
+	int* m_piYieldFromKills;
+	int* m_piYieldFromBarbarianKills;
+#endif
 	int* m_piUnitCombatModifierPercent;
 	int* m_piUnitClassModifierPercent;
 	int* m_piDomainModifierPercent;

@@ -285,6 +285,7 @@ void CvUnitCombat::ResolveMeleeCombat(const CvCombatInfo& kCombatInfo, uint uiPa
 	CvString strBuffer;
 	bool bAttackerDead = false;
 	bool bDefenderDead = false;
+	int iAttackerDamageDelta = 0;
 
 	CvUnit* pkAttacker = kCombatInfo.getUnit(BATTLE_UNIT_ATTACKER);
 	CvUnit* pkDefender = kCombatInfo.getUnit(BATTLE_UNIT_DEFENDER);
@@ -317,9 +318,8 @@ void CvUnitCombat::ResolveMeleeCombat(const CvCombatInfo& kCombatInfo, uint uiPa
 		}
 #endif
 
-		// JON: At some point we want the changeDamage() function to kill a Unit immediately instead of applying a delay, but for now it has to delay to prevent funkiness
 		pkDefender->changeDamage(iAttackerDamageInflicted, pkAttacker->getOwner());
-		pkAttacker->changeDamage(iDefenderDamageInflicted, pkDefender->getOwner());
+		iAttackerDamageDelta = pkAttacker->changeDamage(iDefenderDamageInflicted, pkDefender->getOwner(), -1.f);		// Signal that we don't want the popup text.  It will be added later when the unit is at its final location
 
 		// Update experience for both sides.
 		pkDefender->changeExperience(
@@ -340,14 +340,18 @@ void CvUnitCombat::ResolveMeleeCombat(const CvCombatInfo& kCombatInfo, uint uiPa
 		bAttackerDead = (pkAttacker->getDamage() >= GC.getMAX_HIT_POINTS());
 		bDefenderDead = (pkDefender->getDamage() >= GC.getMAX_HIT_POINTS());
 
+#if !defined(NO_ACHIEVEMENTS)
 		CvPlayerAI& kAttackerOwner = GET_PLAYER(pkAttacker->getOwner());
 		kAttackerOwner.GetPlayerAchievements().AttackedUnitWithUnit(pkAttacker, pkDefender);
+#endif
 
 		// Attacker died
 		if(bAttackerDead)
 		{
+#if !defined(NO_ACHIEVEMENTS)
 			CvPlayerAI& kDefenderOwner = GET_PLAYER(pkDefender->getOwner());
 			kDefenderOwner.GetPlayerAchievements().KilledUnitWithUnit(pkDefender, pkAttacker);
+#endif
 
 			auto_ptr<ICvUnit1> pAttacker = GC.WrapUnitPointer(pkAttacker);
 			gDLL->GameplayUnitDestroyedInCombat(pAttacker.get());
@@ -370,7 +374,9 @@ void CvUnitCombat::ResolveMeleeCombat(const CvCombatInfo& kCombatInfo, uint uiPa
 		// Defender died
 		else if(bDefenderDead)
 		{
+#if !defined(NO_ACHIEVEMENTS)
 			kAttackerOwner.GetPlayerAchievements().KilledUnitWithUnit(pkAttacker, pkDefender);
+#endif
 
 			auto_ptr<ICvUnit1> pDefender = GC.WrapUnitPointer(pkDefender);
 			gDLL->GameplayUnitDestroyedInCombat(pDefender.get());
@@ -507,6 +513,14 @@ void CvUnitCombat::ResolveMeleeCombat(const CvCombatInfo& kCombatInfo, uint uiPa
 				pkAttacker->finishMoves();
 				GC.GetEngineUserInterface()->changeCycleSelectionCounter(1);
 			}
+
+			// Now that the attacker is in their final location, show any damage popup
+			if (!pkAttacker->IsDead() && iAttackerDamageDelta != 0)
+#if defined(SHOW_PLOT_POPUP)
+				pkAttacker->ShowDamageDeltaText(iAttackerDamageDelta, pkAttacker->plot());
+#else
+				CvUnit::ShowDamageDeltaText(iAttackerDamageDelta, pkAttacker->plot());
+#endif
 		}
 
 		// Report that combat is over in case we want to queue another attack
@@ -601,7 +615,7 @@ void CvUnitCombat::GenerateRangedCombatInfo(CvUnit& kAttacker, CvUnit* pkDefende
 	pkCombatInfo->setExperience(BATTLE_UNIT_ATTACKER, iExperience);
 	pkCombatInfo->setMaxExperienceAllowed(BATTLE_UNIT_ATTACKER, iMaxXP);
 	pkCombatInfo->setInBorders(BATTLE_UNIT_ATTACKER, plot.getOwner() == eDefenderOwner);
-#if defined (MOD_BUGFIX_BARB_GP_XP)
+#if defined(MOD_BUGFIX_BARB_GP_XP)
 	bool bGeneralsXP = !kAttacker.isBarbarian();
 	if (MOD_BUGFIX_BARB_GP_XP) {
 		if (!plot.isCity()) {
@@ -761,8 +775,10 @@ void CvUnitCombat::ResolveRangedUnitVsCombat(const CvCombatInfo& kCombatInfo, ui
 
 						bTargetDied = true;
 
+#if !defined(NO_ACHIEVEMENTS)
 						CvPlayerAI& kAttackerOwner = GET_PLAYER(pkAttacker->getOwner());
 						kAttackerOwner.GetPlayerAchievements().KilledUnitWithUnit(pkAttacker, pkDefender);
+#endif
 
 						ApplyPostCombatTraitEffects(pkAttacker, pkDefender);
 
@@ -933,7 +949,11 @@ void CvUnitCombat::ResolveRangedCityVsUnitCombat(const CvCombatInfo& kCombatInfo
 
 						// Earn bonuses for kills?
 						CvPlayer& kAttackingPlayer = GET_PLAYER(pkAttacker->getOwner());
+#if defined(MOD_API_UNIFIED_YIELDS)
+						kAttackingPlayer.DoYieldsFromKill(NULL, pkDefender, pkDefender->getX(), pkDefender->getY(), 0);
+#else
 						kAttackingPlayer.DoYieldsFromKill(NO_UNIT, pkDefender->getUnitType(), pkDefender->getX(), pkDefender->getY(), pkDefender->isBarbarian(), 0);
+#endif
 					}
 
 					//set damage but don't update entity damage visibility
@@ -1288,7 +1308,7 @@ void CvUnitCombat::GenerateAirCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender, 
 	pkCombatInfo->setExperience(BATTLE_UNIT_ATTACKER, iExperience);
 	pkCombatInfo->setMaxExperienceAllowed(BATTLE_UNIT_ATTACKER, iMaxXP);
 	pkCombatInfo->setInBorders(BATTLE_UNIT_ATTACKER, plot.getOwner() == eDefenderOwner);
-#if defined (MOD_BUGFIX_BARB_GP_XP)
+#if defined(MOD_BUGFIX_BARB_GP_XP)
 	bool bGeneralsXP = !kAttacker.isBarbarian();
 	if (MOD_BUGFIX_BARB_GP_XP) {
 		if (!plot.isCity()) {
@@ -1402,8 +1422,10 @@ void CvUnitCombat::ResolveAirUnitVsCombat(const CvCombatInfo& kCombatInfo, uint 
 						auto_ptr<ICvUnit1> pAttacker = GC.WrapUnitPointer(pkAttacker);
 						gDLL->GameplayUnitDestroyedInCombat(pAttacker.get());
 
+#if !defined(NO_ACHIEVEMENTS)
 						CvPlayerAI& kDefenderOwner = GET_PLAYER(pkDefender->getOwner());
 						kDefenderOwner.GetPlayerAchievements().KilledUnitWithUnit(pkDefender, pkAttacker);
+#endif
 
 						if(iActivePlayerID == pkAttacker->getOwner())
 						{
@@ -1429,8 +1451,10 @@ void CvUnitCombat::ResolveAirUnitVsCombat(const CvCombatInfo& kCombatInfo, uint 
 					// Defender died
 					else if(pkDefender->IsDead())
 					{
+#if !defined(NO_ACHIEVEMENTS)
 						CvPlayerAI& kAttackerOwner = GET_PLAYER(pkAttacker->getOwner());
 						kAttackerOwner.GetPlayerAchievements().KilledUnitWithUnit(pkAttacker, pkDefender);
+#endif
 
 						if(iActivePlayerID == pkAttacker->getOwner())
 						{
@@ -1908,11 +1932,9 @@ void CvUnitCombat::GenerateNuclearCombatInfo(CvUnit& kAttacker, CvPlot& plot, Cv
 		abTeamsAffected[iI] = kAttacker.isNukeVictim(&plot, ((TeamTypes)iI));
 	}
 
-#if defined(MOD_EVENTS_NUCLEAR_DETONATION)
 	int iPlotTeam = plot.getTeam();
 	bool bWar = false;
 	bool bBystander = false;
-#endif
 
 	for(iI = 0; iI < MAX_TEAMS; iI++)
 	{
@@ -1926,13 +1948,14 @@ void CvUnitCombat::GenerateNuclearCombatInfo(CvUnit& kAttacker, CvPlot& plot, Cv
 				GET_TEAM(kAttacker.getTeam()).declareWar(((TeamTypes)iI));
 #endif
 
-#if defined(MOD_EVENTS_NUCLEAR_DETONATION)
-				if (iPlotTeam == iI) {
+				if (iPlotTeam == iI) 
+				{
 					bWar = true;
-				} else {
+				} 
+				else 
+				{
 					bBystander = true;
 				}
-#endif
 			}
 		}
 	}
@@ -1940,6 +1963,23 @@ void CvUnitCombat::GenerateNuclearCombatInfo(CvUnit& kAttacker, CvPlot& plot, Cv
 #if defined(MOD_EVENTS_NUCLEAR_DETONATION)
 	if (MOD_EVENTS_NUCLEAR_DETONATION) {
 		GAMEEVENTINVOKE_HOOK(GAMEEVENT_NuclearDetonation, kAttacker.getOwner(), plot.getX(), plot.getY(), bWar, bBystander);
+	} else {
+#endif
+	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+	if (pkScriptSystem) 
+	{	
+		CvLuaArgsHandle args;
+
+		args->Push(kAttacker.getOwner());
+		args->Push(plot.getX());
+		args->Push(plot.getY());
+		args->Push(bWar);
+		args->Push(bBystander);
+
+		bool bResult;
+		LuaSupport::CallHook(pkScriptSystem, "NuclearDetonation", args.get(), bResult);
+	}
+#if defined(MOD_EVENTS_NUCLEAR_DETONATION)
 	}
 #endif
 
@@ -3494,14 +3534,26 @@ void CvUnitCombat::ApplyPostCombatTraitEffects(CvUnit* pkWinner, CvUnit* pkLoser
 			int iValue = iCombatStrength * pkWinner->GetGoldenAgeValueFromKills() / 100;
 			kPlayer.ChangeGoldenAgeProgressMeter(iValue);
 
+#if defined(MOD_API_UNIFIED_YIELDS_GOLDEN_AGE)
+			CvYieldInfo* pYieldInfo = GC.getYieldInfo(YIELD_GOLDEN_AGE_POINTS);
+			CvString yieldString;
+			yieldString.Format("%s+%%d[ENDCOLOR]%s", pYieldInfo->getColorString(), pYieldInfo->getIconString());
+#else
 			CvString yieldString = "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GOLDEN_AGE]";
+#endif
 
 			if(pkWinner->getOwner() == GC.getGame().getActivePlayer())
 			{
 				char text[256] = {0};
+#if !defined(SHOW_PLOT_POPUP)
 				float fDelay = GC.getPOST_COMBAT_TEXT_DELAY() * 1.5f;
+#endif
 				sprintf_s(text, yieldString, iValue);
+#if defined(SHOW_PLOT_POPUP)
+				SHOW_PLOT_POPUP(pkLoser->plot(), pkWinner->getOwner(), text, 0.0);
+#else
 				GC.GetEngineUserInterface()->AddPopupText(pkLoser->getX(), pkLoser->getY(), text, fDelay);
+#endif
 
 				iExistingDelay++;
 			}
@@ -3509,7 +3561,11 @@ void CvUnitCombat::ApplyPostCombatTraitEffects(CvUnit* pkWinner, CvUnit* pkLoser
 	}
 
 	// Earn bonuses for kills?
+#if defined(MOD_API_UNIFIED_YIELDS)
+	kPlayer.DoYieldsFromKill(pkWinner, pkLoser, pkLoser->getX(), pkLoser->getY(), iExistingDelay);
+#else
 	kPlayer.DoYieldsFromKill(pkWinner->getUnitType(), pkLoser->getUnitType(), pkLoser->getX(), pkLoser->getY(), pkLoser->isBarbarian(), iExistingDelay);
+#endif
 
 #if !defined(NO_ACHIEVEMENTS)
 	//Achievements and Stats
@@ -3574,7 +3630,9 @@ void CvUnitCombat::ApplyPostCityCombatEffects(CvUnit* pkAttacker, CvCity* pkDefe
 {
 	CvString colorString;
 	int iPlunderModifier;
+#if !defined(SHOW_PLOT_POPUP)
 	float fDelay = GC.getPOST_COMBAT_TEXT_DELAY() * 3;
+#endif
 	iPlunderModifier = pkAttacker->GetCityAttackPlunderModifier();
 	if(iPlunderModifier > 0)
 	{
@@ -3594,7 +3652,11 @@ void CvUnitCombat::ApplyPostCityCombatEffects(CvUnit* pkAttacker, CvCity* pkDefe
 				char text[256] = {0};
 				colorString = "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]";
 				sprintf_s(text, colorString, iGoldPlundered);
+#if defined(SHOW_PLOT_POPUP)
+				SHOW_PLOT_POPUP(pkAttacker->plot(), pkAttacker->getOwner(), text, 0.0);
+#else
 				GC.GetEngineUserInterface()->AddPopupText(pkAttacker->getX(), pkAttacker->getY(), text, fDelay);
+#endif
 			}
 		}
 	}

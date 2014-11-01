@@ -368,7 +368,11 @@ public:
 	void setUpgradeProgress(int iNewValue);
 	void changeUpgradeProgress(int iChange);
 
+#if defined(MOD_API_UNIFIED_YIELDS)
+	int ComputeYieldFromAdjacentImprovement(CvImprovementEntry& kImprovement, ImprovementTypes eValue, YieldTypes eYield) const;
+#else
 	int ComputeCultureFromAdjacentImprovement(CvImprovementEntry& kImprovement, ImprovementTypes eValue) const;
+#endif
 
 #if defined(MOD_GLOBAL_STACKING_RULES)
 	int getAdditionalUnitsFromImprovement() const;
@@ -788,6 +792,10 @@ public:
 	CvString getScriptData() const;
 	void setScriptData(const char* szNewValue);
 
+#if defined(SHOW_PLOT_POPUP)
+	void showPopupText(PlayerTypes ePlayer, const char* szMessage);
+#endif
+
 	bool canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible) const;
 
 	void read(FDataStream& kStream);
@@ -978,6 +986,10 @@ protected:
 
 	char* m_szScriptData;
 	short* m_paiBuildProgress;
+
+#if defined(SHOW_PLOT_POPUP)
+	float m_fPopupDelay;
+#endif
 
 	UnitHandle m_pCenterUnit;
 

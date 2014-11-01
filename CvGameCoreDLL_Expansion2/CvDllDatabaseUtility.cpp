@@ -365,6 +365,11 @@ bool CvDllDatabaseUtility::PrefetchGameData()
 		PrefetchCollection(GC.getPlotInfo(), "Plots");
 	}
 #endif
+#if defined(MOD_API_UNIFIED_YIELDS)
+	if (MOD_API_UNIFIED_YIELDS) {
+		PrefetchCollection(GC.getGreatPersonInfo(), "GreatPersons");
+	}
+#endif
 	PrefetchCollection(GC.getTerrainInfo(), "Terrains");
 	PrefetchCollection(GC.getYieldInfo(), "Yields");
 

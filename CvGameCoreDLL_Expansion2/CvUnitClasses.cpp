@@ -57,6 +57,10 @@ CvUnitEntry::CvUnitEntry(void) :
 	m_bRequiresEnhancedReligion(false),
 	m_bProhibitsSpread(false),
 	m_bCanBuyCityState(false),
+#if defined(MOD_GLOBAL_SEPARATE_GREAT_ADMIRAL)
+	m_bCanRepairFleet(false),
+	m_bCanChangePort(false),
+#endif
 	m_iCombat(0),
 	m_iCombatLimit(0),
 	m_iRangedCombat(0),
@@ -231,6 +235,12 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	m_bRequiresEnhancedReligion = kResults.GetBool("RequiresEnhancedReligion");
 	m_bProhibitsSpread = kResults.GetBool("ProhibitsSpread");
 	m_bCanBuyCityState = kResults.GetBool("CanBuyCityState");
+#if defined(MOD_GLOBAL_SEPARATE_GREAT_ADMIRAL)
+	if (MOD_GLOBAL_SEPARATE_GREAT_ADMIRAL) {
+		m_bCanRepairFleet = kResults.GetBool("CanRepairFleet");
+		m_bCanChangePort = kResults.GetBool("CanChangePort");
+	}
+#endif
 	m_iCombat = kResults.GetInt("Combat");
 	m_iCombatLimit = kResults.GetInt("CombatLimit");
 	m_iRangedCombat = kResults.GetInt("RangedCombat");
@@ -352,6 +362,9 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	kUtility.PopulateArrayByValue(m_piResourceQuantityRequirements, "Resources", "Unit_ResourceQuantityRequirements", "ResourceType", "UnitType", szUnitType, "Cost");
 	kUtility.PopulateArrayByValue(m_piProductionModifierBuildings, "Buildings", "Unit_ProductionModifierBuildings", "BuildingType", "UnitType", szUnitType, "ProductionModifier");
 	kUtility.PopulateArrayByValue(m_piYieldFromKills, "Yields", "Unit_YieldFromKills", "YieldType", "UnitType", szUnitType, "Yield");
+#if defined(MOD_API_UNIFIED_YIELDS)
+	kUtility.PopulateArrayByValue(m_piYieldFromBarbarianKills, "Yields", "Unit_YieldFromBarbarianKills", "YieldType", "UnitType", szUnitType, "Yield");
+#endif
 	kUtility.PopulateArrayByExistence(m_pbFreePromotions, "UnitPromotions", "Unit_FreePromotions", "PromotionType", "UnitType", szUnitType);
 
 	kUtility.PopulateArrayByExistence(m_pbUpgradeUnitClass, "UnitClasses", "Unit_ClassUpgrades", "UnitClassType", "UnitType", szUnitType);
@@ -711,6 +724,18 @@ bool CvUnitEntry::IsCanBuyCityState() const
 {
 	return m_bCanBuyCityState;
 }
+
+#if defined(MOD_GLOBAL_SEPARATE_GREAT_ADMIRAL)
+bool CvUnitEntry::IsCanRepairFleet() const
+{
+	return m_bCanRepairFleet;
+}
+
+bool CvUnitEntry::IsCanChangePort() const
+{
+	return m_bCanChangePort;
+}
+#endif
 
 /// Returns combat value
 int CvUnitEntry::GetCombat() const
@@ -1092,6 +1117,16 @@ int CvUnitEntry::GetYieldFromKills(YieldTypes eYield) const
 	CvAssertMsg((int)eYield > -1, "Index out of bounds");
 	return m_piYieldFromKills[(int)eYield];
 }
+
+#if defined(MOD_API_UNIFIED_YIELDS)
+/// Do we get one of our yields from defeating a barbarian?
+int CvUnitEntry::GetYieldFromBarbarianKills(YieldTypes eYield) const
+{
+	CvAssertMsg((int)eYield < NUM_YIELD_TYPES, "Yield type out of bounds");
+	CvAssertMsg((int)eYield > -1, "Index out of bounds");
+	return m_piYieldFromBarbarianKills[(int)eYield];
+}
+#endif
 
 /// Boost in production for leader with this trait
 int CvUnitEntry::GetProductionTraits(int i) const

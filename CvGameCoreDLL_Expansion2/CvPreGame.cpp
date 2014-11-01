@@ -498,7 +498,8 @@ int calcActiveSlotCount(const std::vector<SlotStatus>& slotStatus, const std::ve
 		SlotStatus eStatus = slotStatus[i];
 		SlotClaim eClaim = slotClaims[i];
 
-		if((eStatus == SS_TAKEN || eStatus == SS_COMPUTER || eStatus == SS_OBSERVER) && eClaim == SLOTCLAIM_ASSIGNED)
+		if((eStatus == SS_TAKEN || eStatus == SS_COMPUTER || eStatus == SS_OBSERVER) 
+			&& (eClaim == SLOTCLAIM_ASSIGNED || eClaim == SLOTCLAIM_RESERVED))
 			++iCount;
 	}
 

@@ -44,8 +44,8 @@ public:
 	void AddFlavorWeights(FlavorTypes eFlavor, int iWeight, int iPropagationPercent);
 
 	// Choose a player's next tech to research
-	TechTypes ChooseNextTech(bool bFreeTech = false);
-	TechTypes RecommendNextTech(TechTypes eIgnoreTech = NO_TECH);
+	TechTypes ChooseNextTech(CvPlayer *pPlayer, bool bFreeTech = false);
+	TechTypes RecommendNextTech(CvPlayer *pPlayer, TechTypes eIgnoreTech = NO_TECH);
 
 	int GetWeight(TechTypes eTech);
 
@@ -57,7 +57,7 @@ private:
 	void PropagateWeights(int iTech, int iWeight, int iPropagationPercent, int iPropagationLevel);
 
 	// Recompute weights taking into account tech cost
-	void ReweightByCost();
+	void ReweightByCost(CvPlayer *pPlayer);
 
 	// Logging functions
 	void LogPossibleResearch();

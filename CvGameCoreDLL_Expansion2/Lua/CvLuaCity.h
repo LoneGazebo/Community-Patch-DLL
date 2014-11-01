@@ -345,6 +345,9 @@ protected:
 	static int lGetMaxFoodKeptPercent(lua_State* L);
 	static int lGetOverflowProduction(lua_State* L);
 	static int lSetOverflowProduction(lua_State* L);
+#if defined(MOD_API_LUA_EXTENSIONS)
+	LUAAPIEXTN(ChangeOverflowProduction, void, int);
+#endif
 	static int lGetFeatureProduction(lua_State* L);
 	static int lSetFeatureProduction(lua_State* L);
 	static int lGetMilitaryProductionModifier(lua_State* L);
