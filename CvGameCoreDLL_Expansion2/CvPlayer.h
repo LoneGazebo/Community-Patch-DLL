@@ -89,10 +89,18 @@ public:
 #else
 	CvCity* initCity(int iX, int iY, bool bBumpUnits = true, bool bInitialFounding = true);
 #endif
+#if defined(MOD_API_EXTENSIONS)
+#if defined(MOD_GLOBAL_VENICE_KEEPS_RESOURCES)
+	CvCity* acquireCity(CvCity* pCity, bool bConquest, bool bGift, bool bVenice = false);
+#else
+	CvCity* acquireCity(CvCity* pCity, bool bConquest, bool bGift);
+#endif
+#else
 #if defined(MOD_GLOBAL_VENICE_KEEPS_RESOURCES)
 	void acquireCity(CvCity* pCity, bool bConquest, bool bGift, bool bVenice = false);
 #else
 	void acquireCity(CvCity* pCity, bool bConquest, bool bGift);
+#endif
 #endif
 	void killCities();
 	CvString getNewCityName() const;
@@ -441,8 +449,13 @@ public:
 	void ChangeSpyCooldown(int iValue);
 #endif
 
+#if defined(MOD_API_UNIFIED_YIELDS)
+	void DoYieldsFromKill(CvUnit* pAttackingUnit, CvUnit* pDefendingUnit, int iX, int iY, int iExistingDelay);
+	void DoYieldBonusFromKill(YieldTypes eYield, CvUnit* pAttackingUnit, UnitTypes eKilledUnitType, int iX, int iY, bool bWasBarbarian, int &iNumBonuses);
+#else
 	void DoYieldsFromKill(UnitTypes eAttackingUnitType, UnitTypes eKilledUnitType, int iX, int iY, bool bWasBarbarian, int iExistingDelay);
 	void DoYieldBonusFromKill(YieldTypes eYield, UnitTypes eAttackingUnitType, UnitTypes eKilledUnitType, int iX, int iY, bool bWasBarbarian, int &iNumBonuses);
+#endif
 	void DoUnresearchedTechBonusFromKill(UnitTypes eKilledUnitType, int iX, int iY, int &iNumBonuses);
 	void ReportYieldFromKill(YieldTypes eYield, int iValue, int iX, int iY, int iDelay);
 
@@ -747,9 +760,41 @@ public:
 	void changeGoldenAgeModifier(int iChange);
 
 	// Great People Stuff
+#if defined(MOD_GLOBAL_TRULY_FREE_GP)
+	void createGreatGeneral(UnitTypes eGreatPersonUnit, int iX, int iY, bool bIsFree);
+	void createGreatAdmiral(UnitTypes eGreatPersonUnit, int iX, int iY, bool bIsFree);
+#else
 	void createGreatGeneral(UnitTypes eGreatPersonUnit, int iX, int iY);
 	void createGreatAdmiral(UnitTypes eGreatPersonUnit, int iX, int iY);
+#endif
 
+#if defined(MOD_GLOBAL_TRULY_FREE_GP)
+	int getGreatPeopleCreated(bool bExcludeFree) const;
+	void incrementGreatPeopleCreated(bool bIsFree);
+
+	int getGreatGeneralsCreated(bool bExcludeFree) const;
+	void incrementGreatGeneralsCreated(bool bIsFree);
+	int getGreatAdmiralsCreated(bool bExcludeFree) const;
+	void incrementGreatAdmiralsCreated(bool bIsFree);
+#if defined(MOD_GLOBAL_SEPARATE_GP_COUNTERS)
+	int getGreatMerchantsCreated(bool bExcludeFree) const;
+	void incrementGreatMerchantsCreated(bool bIsFree);
+	int getGreatScientistsCreated(bool bExcludeFree) const;
+	void incrementGreatScientistsCreated(bool bIsFree);
+	int getGreatEngineersCreated(bool bExcludeFree) const;
+	void incrementGreatEngineersCreated(bool bIsFree);
+#endif
+	int getGreatWritersCreated(bool bExcludeFree) const;
+	void incrementGreatWritersCreated(bool bIsFree);
+	int getGreatArtistsCreated(bool bExcludeFree) const;
+	void incrementGreatArtistsCreated(bool bIsFree);
+	int getGreatMusiciansCreated(bool bExcludeFree) const;
+	void incrementGreatMusiciansCreated(bool bIsFree);
+#if defined(MOD_DIPLOMACY_CITYSTATES)
+	int getGreatDiplomatsCreated(bool bExcludeFree) const;
+	void incrementGreatDiplomatsCreated(bool bIsFree);
+#endif
+#else
 	int getGreatPeopleCreated() const;
 	void incrementGreatPeopleCreated();
 
@@ -774,8 +819,7 @@ public:
 #if defined(MOD_DIPLOMACY_CITYSTATES)
 	int getGreatDiplomatsCreated() const;
 	void incrementGreatDiplomatsCreated();
-	int getDiplomatsFromFaith() const;
-	void incrementDiplomatsFromFaith();
+#endif
 #endif
 
 	int getMerchantsFromFaith() const;
@@ -794,6 +838,10 @@ public:
 	void incrementAdmiralsFromFaith();
 	int getEngineersFromFaith() const;
 	void incrementEngineersFromFaith();
+#if defined(MOD_DIPLOMACY_CITYSTATES)
+	int getDiplomatsFromFaith() const;
+	void incrementDiplomatsFromFaith();
+#endif
 
 	int getGreatPeopleThresholdModifier() const;
 	void changeGreatPeopleThresholdModifier(int iChange);
@@ -832,10 +880,14 @@ public:
 	void SetGreatGeneralCombatBonus(int iValue);
 
 	// Unit Killed in Combat
+#if defined(MOD_API_EXTENSIONS)
+	void DoUnitKilledCombat(CvUnit* pKillingUnit, PlayerTypes eKilledPlayer, UnitTypes eUnitType);
+#else
 	void DoUnitKilledCombat(PlayerTypes eKilledPlayer, UnitTypes eUnit);
+#endif
 
 	// Great People Expenditure
-#if defined (MOD_EVENTS_GREAT_PEOPLE)
+#if defined(MOD_EVENTS_GREAT_PEOPLE)
 	void DoGreatPersonExpended(UnitTypes eGreatPersonUnit, CvUnit* pGreatPersonUnit);
 #else
 	void DoGreatPersonExpended(UnitTypes eGreatPersonUnit);
@@ -850,7 +902,11 @@ public:
 	void SetGreatPeopleSpawnCounter(int iValue);
 	void ChangeGreatPeopleSpawnCounter(int iChange);
 
+#if defined(MOD_GLOBAL_TRULY_FREE_GP)
+	void DoSpawnGreatPerson(PlayerTypes eMinor, bool bIsFree);
+#else
 	void DoSpawnGreatPerson(PlayerTypes eMinor);
+#endif
 	void DoGreatPeopleSpawnTurn();
 	CvCity* GetGreatPersonSpawnCity(UnitTypes eUnit);
 
@@ -1453,17 +1509,35 @@ public:
 	int getFeatureYieldChange(FeatureTypes eIndex1, YieldTypes eIndex2) const;
 	void changeFeatureYieldChange(FeatureTypes eIndex1, YieldTypes eIndex2, int iChange);
 
+	int getCityYieldFromUnimprovedFeature(FeatureTypes eIndex1, YieldTypes eIndex2) const;
+	void changeCityYieldFromUnimprovedFeature(FeatureTypes eIndex1, YieldTypes eIndex2, int iChange);
+
+	int getUnimprovedFeatureYieldChange(FeatureTypes eIndex1, YieldTypes eIndex2) const;
+	void changeUnimprovedFeatureYieldChange(FeatureTypes eIndex1, YieldTypes eIndex2, int iChange);
+
 	int getResourceYieldChange(ResourceTypes eIndex1, YieldTypes eIndex2) const;
 	void changeResourceYieldChange(ResourceTypes eIndex1, YieldTypes eIndex2, int iChange);
 
 	int getTerrainYieldChange(TerrainTypes eIndex1, YieldTypes eIndex2) const;
 	void changeTerrainYieldChange(TerrainTypes eIndex1, YieldTypes eIndex2, int iChange);
 
+	int getTradeRouteYieldChange(DomainTypes eIndex1, YieldTypes eIndex2) const;
+	void changeTradeRouteYieldChange(DomainTypes eIndex1, YieldTypes eIndex2, int iChange);
+
 	int getSpecialistYieldChange(SpecialistTypes eIndex1, YieldTypes eIndex2) const;
 	void changeSpecialistYieldChange(SpecialistTypes eIndex1, YieldTypes eIndex2, int iChange);
 
+	int getGreatPersonExpendedYield(GreatPersonTypes eIndex1, YieldTypes eIndex2) const;
+	void changeGreatPersonExpendedYield(GreatPersonTypes eIndex1, YieldTypes eIndex2, int iChange);
+
+	int getGoldenAgeGreatPersonRateModifier(GreatPersonTypes eIndex1) const;
+	void changeGoldenAgeGreatPersonRateModifier(GreatPersonTypes eIndex1, int iChange);
+
 	int GetYieldFromKills(YieldTypes eYield) const;
 	void changeYieldFromKills(YieldTypes eYield, int iChange);
+
+	int GetYieldFromBarbarianKills(YieldTypes eYield) const;
+	void changeYieldFromBarbarianKills(YieldTypes eYield, int iChange);
 
 	int GetYieldChangeTradeRoute(YieldTypes eYield) const;
 	void ChangeYieldChangeTradeRoute(YieldTypes eYield, int iChange);
@@ -1473,6 +1547,9 @@ public:
 
 	int GetYieldChangeWorldWonder(YieldTypes eYield) const;
 	void ChangeYieldChangeWorldWonder(YieldTypes eYield, int iChange);
+
+	int getBuildingClassYieldChange(BuildingClassTypes eIndex1, YieldTypes eIndex2) const;
+	void changeBuildingClassYieldChange(BuildingClassTypes eIndex1, YieldTypes eIndex2, int iChange);
 #endif
 
 	int getImprovementYieldChange(ImprovementTypes eIndex1, YieldTypes eIndex2) const;
@@ -1864,7 +1941,9 @@ public:
 	std::string debugDump(const FAutoVariableBase&) const;
 	std::string stackTraceRemark(const FAutoVariableBase&) const;
 
+#if !defined(NO_ACHIEVEMENTS)
 	CvPlayerAchievements& GetPlayerAchievements(){return m_kPlayerAchievements;}
+#endif
 
 	bool hasTurnTimerExpired();
 
@@ -2020,6 +2099,22 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iNumUnitGoldenAges;
 	FAutoVariable<int, CvPlayer> m_iStrikeTurns;
 	FAutoVariable<int, CvPlayer> m_iGoldenAgeModifier;
+#if defined(MOD_GLOBAL_TRULY_FREE_GP)
+	int m_iFreeGreatPeopleCreated;
+	int m_iFreeGreatGeneralsCreated;
+	int m_iFreeGreatAdmiralsCreated;
+#if defined(MOD_GLOBAL_SEPARATE_GP_COUNTERS)
+	int m_iFreeGreatMerchantsCreated;
+	int m_iFreeGreatScientistsCreated;
+	int m_iFreeGreatEngineersCreated;
+#endif
+	int m_iFreeGreatWritersCreated;
+	int m_iFreeGreatArtistsCreated;
+	int m_iFreeGreatMusiciansCreated;
+#if defined(MOD_DIPLOMACY_CITYSTATES)
+	int m_iFreeGreatDiplomatsCreated;
+#endif
+#endif
 	FAutoVariable<int, CvPlayer> m_iGreatPeopleCreated;
 	FAutoVariable<int, CvPlayer> m_iGreatGeneralsCreated;
 	int m_iGreatAdmiralsCreated;
@@ -2309,17 +2404,24 @@ protected:
 
 	FAutoVariable< std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > >, CvPlayer> m_ppaaiSpecialistExtraYield;
 #if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
-	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppaaiPlotYieldChange;
+	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiPlotYieldChange;
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
-	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppaaiFeatureYieldChange;
-	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppaaiResourceYieldChange;
-	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppaaiTerrainYieldChange;
-	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppaaiSpecialistYieldChange;
-	std::vector<int> m_aiYieldFromKills;
-	std::vector<int> m_aiYieldChangeTradeRoute;
-	std::vector<int> m_aiYieldChangesNaturalWonder;
-	std::vector<int> m_aiYieldChangeWorldWonder;
+	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiFeatureYieldChange;
+	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiResourceYieldChange;
+	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiTerrainYieldChange;
+	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiTradeRouteYieldChange;
+	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiSpecialistYieldChange;
+	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiGreatPersonExpendedYield;
+	std::vector<int> m_piGoldenAgeGreatPersonRateModifier;
+	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiUnimprovedFeatureYieldChange;
+	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiCityYieldFromUnimprovedFeature;
+	std::vector<int> m_piYieldFromKills;
+	std::vector<int> m_piYieldFromBarbarianKills;
+	std::vector<int> m_piYieldChangeTradeRoute;
+	std::vector<int> m_piYieldChangesNaturalWonder;
+	std::vector<int> m_piYieldChangeWorldWonder;
+	FAutoVariable< std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > >, CvPlayer> m_ppiBuildingClassYieldChange;
 #endif
 	FAutoVariable< std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > >, CvPlayer> m_ppaaiImprovementYieldChange;
 

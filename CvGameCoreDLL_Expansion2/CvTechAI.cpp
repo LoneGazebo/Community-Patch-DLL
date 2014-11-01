@@ -139,7 +139,7 @@ void CvTechAI::AddFlavorWeights(FlavorTypes eFlavor, int iWeight, int iPropagati
 
 
 /// Choose a player's next tech research project
-TechTypes CvTechAI::ChooseNextTech(bool bFreeTech)
+TechTypes CvTechAI::ChooseNextTech(CvPlayer *pPlayer, bool bFreeTech)
 {
 	RandomNumberDelegate fcn;
 	TechTypes rtnValue = NO_TECH;
@@ -175,7 +175,7 @@ TechTypes CvTechAI::ChooseNextTech(bool bFreeTech)
 
 	// Reweight our possible choices by their cost, but only if cost is actually a factor!
 	if(!bFreeTech)
-		ReweightByCost();
+		ReweightByCost(pPlayer);
 
 	m_ResearchableTechs.SortItems();
 	LogPossibleResearch();
@@ -192,7 +192,7 @@ TechTypes CvTechAI::ChooseNextTech(bool bFreeTech)
 }
 
 /// Choose a player's next tech research project
-TechTypes CvTechAI::RecommendNextTech(TechTypes eIgnoreTech /* = NO_TECH */)
+TechTypes CvTechAI::RecommendNextTech(CvPlayer *pPlayer, TechTypes eIgnoreTech /* = NO_TECH */)
 {
 	TechTypes rtnValue = NO_TECH;
 	int iTechLoop;
@@ -212,7 +212,7 @@ TechTypes CvTechAI::RecommendNextTech(TechTypes eIgnoreTech /* = NO_TECH */)
 		}
 	}
 
-	ReweightByCost();
+	ReweightByCost(pPlayer);
 	m_ResearchableTechs.SortItems();
 	LogPossibleResearch();
 
@@ -348,9 +348,12 @@ void CvTechAI::PropagateWeights(int iTech, int iWeight, int iPropagationPercent,
 }
 
 /// Recompute weights taking into account tech cost
-void CvTechAI::ReweightByCost()
+void CvTechAI::ReweightByCost(CvPlayer *pPlayer)
 {
 	TechTypes eTech;
+
+	// April 2014 Balance Patch: if lots of science overflow, want to pick an expensive tech
+	bool bNeedExpensiveTechs = pPlayer->getOverflowResearchTimes100() > (pPlayer->GetScienceTimes100() * 2);
 
 	for(int iI = 0; iI < m_ResearchableTechs.size(); iI++)
 	{
@@ -367,7 +370,15 @@ void CvTechAI::ReweightByCost()
 
 		fWeightDivisor = pow((double) iTurnsLeft, fTotalCostFactor);
 
-		int iNewWeight = int(double(m_ResearchableTechs.GetWeight(iI)) / fWeightDivisor);
+		int iNewWeight;
+		if (bNeedExpensiveTechs)
+		{
+			iNewWeight = int(double(m_ResearchableTechs.GetWeight(iI)) * fWeightDivisor);
+		}
+		else
+		{
+			iNewWeight = int(double(m_ResearchableTechs.GetWeight(iI)) / fWeightDivisor);
+		}
 
 		// Now actually change the weight
 		m_ResearchableTechs.SetWeight(iI, iNewWeight);

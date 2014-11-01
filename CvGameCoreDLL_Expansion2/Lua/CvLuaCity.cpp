@@ -345,6 +345,9 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(GetMaxFoodKeptPercent);
 	Method(GetOverflowProduction);
 	Method(SetOverflowProduction);
+#if defined(MOD_API_LUA_EXTENSIONS)
+	Method(ChangeOverflowProduction);
+#endif
 	Method(GetFeatureProduction);
 	Method(SetFeatureProduction);
 	Method(GetMilitaryProductionModifier);
@@ -2502,7 +2505,14 @@ int CvLuaCity::lGetFaithPerTurnFromPolicies(lua_State* L)
 //int GetFaithPerTurnFromTraits() const;
 int CvLuaCity::lGetFaithPerTurnFromTraits(lua_State* L)
 {
+#if defined(MOD_API_UNIFIED_YIELDS)
+	CvCity* pkCity = GetInstance(L);
+	const int iBonus = pkCity->GetYieldPerTurnFromUnimprovedFeatures(YIELD_FAITH);
+	lua_pushinteger(L, iBonus);
+	return 1;
+#else
 	return BasicLuaMethod(L, &CvCity::GetFaithPerTurnFromTraits);
+#endif
 }
 //------------------------------------------------------------------------------
 //int GetFaithPerTurnFromReligion() const;
@@ -2969,6 +2979,14 @@ int CvLuaCity::lSetOverflowProduction(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvCity::setOverflowProduction);
 }
+#if defined(MOD_API_LUA_EXTENSIONS)
+//------------------------------------------------------------------------------
+//void changeOverflowProduction(int iChange);
+int CvLuaCity::lChangeOverflowProduction(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvCity::changeOverflowProduction);
+}
+#endif
 //------------------------------------------------------------------------------
 //int getFeatureProduction();
 int CvLuaCity::lGetFeatureProduction(lua_State* L)

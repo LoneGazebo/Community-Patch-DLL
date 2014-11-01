@@ -158,6 +158,10 @@ CvPlot::CvPlot() :
 
 	m_szScriptData = NULL;
 
+#if defined(SHOW_PLOT_POPUP)
+	m_fPopupDelay = 0.5;
+#endif
+
 	m_cContinentType = 0;
 	m_cRiverCrossing = 0;
 
@@ -191,6 +195,10 @@ void CvPlot::init(int iX, int iY)
 void CvPlot::uninit()
 {
 	SAFE_DELETE_ARRAY(m_szScriptData);
+
+#if defined(SHOW_PLOT_POPUP)
+	m_fPopupDelay = 0.5;
+#endif
 
 	m_pCenterUnit = NULL;
 
@@ -412,6 +420,10 @@ void CvPlot::erase(bool bEraseUnits)
 //	--------------------------------------------------------------------------------
 void CvPlot::doTurn()
 {
+#if defined(SHOW_PLOT_POPUP)
+	m_fPopupDelay = 0.5;
+#endif
+
 	if(isOwned())
 	{
 		changeOwnershipDuration(1);
@@ -4561,6 +4573,11 @@ bool CvPlot::isValidDomainForLocation(const CvUnit& unit) const
 	{
 		return true;
 	}
+
+	if (unit.getDomainType() == DOMAIN_AIR && unit.canLoad(*this))
+	{
+		return true;
+	}
 	
 #if defined(MOD_PROMOTIONS_CROSS_ICE)
 	if (unit.getDomainType() == DOMAIN_LAND && isIce() && unit.canCrossIce()) {
@@ -4568,11 +4585,10 @@ bool CvPlot::isValidDomainForLocation(const CvUnit& unit) const
 	}
 #endif
 
-#if defined(MOD_EVENTS_REBASE)
-	if (unit.getDomainType() == DOMAIN_AIR && MOD_EVENTS_REBASE && unit.canLoad(*this)) {
+	if (unit.getDomainType() == DOMAIN_AIR && unit.canLoad(*this))
+	{
 		return true;
 	}
-#endif
 
 #if defined(MOD_GLOBAL_PASSABLE_FORTS)
 	return (unit.getDomainType() == DOMAIN_SEA) ? isFriendlyCityOrPassableImprovement(unit, true) : isCity();
@@ -4925,19 +4941,31 @@ void CvPlot::changeUpgradeProgress(int iChange)
 }
 
 //	--------------------------------------------------------------------------------
+#if defined(MOD_API_UNIFIED_YIELDS)
+int CvPlot::ComputeYieldFromAdjacentImprovement(CvImprovementEntry& kImprovement, ImprovementTypes eValue, YieldTypes eYield) const
+#else
 int CvPlot::ComputeCultureFromAdjacentImprovement(CvImprovementEntry& kImprovement, ImprovementTypes eValue) const
+#endif
 {
 	CvPlot* pAdjacentPlot;
 	int iRtnValue = 0;
 
+#if defined(MOD_API_UNIFIED_YIELDS)
+	if(kImprovement.GetYieldAdjacentSameType(eYield) > 0)
+#else
 	if(kImprovement.GetCultureAdjacentSameType() > 0)
+#endif
 	{
 		for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
 		{
 			pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
 			if(pAdjacentPlot && pAdjacentPlot->getImprovementType() == eValue)
 			{
+#if defined(MOD_API_UNIFIED_YIELDS)
+				iRtnValue += kImprovement.GetYieldAdjacentSameType(eYield);
+#else
 				iRtnValue += kImprovement.GetCultureAdjacentSameType();
+#endif
 			}
 		}
 	}
@@ -6676,17 +6704,26 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 			CvImprovementEntry& oldImprovementEntry = *GC.getImprovementInfo(eOldImprovement);
 
 			// If this improvement can add culture to nearby improvements, update them as well
-			if(oldImprovementEntry.GetCultureAdjacentSameType() > 0)
+#if defined(MOD_API_UNIFIED_YIELDS)
+			for(iI = 0; iI < NUM_YIELD_TYPES; iI++)
 			{
-				for(iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+				if(oldImprovementEntry.GetYieldAdjacentSameType((YieldTypes) iI) > 0)
+#else
+				if(oldImprovementEntry.GetCultureAdjacentSameType() > 0)
+#endif
 				{
-					CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
-					if(pAdjacentPlot && pAdjacentPlot->getImprovementType() == eOldImprovement)
+					for(iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
 					{
-						pAdjacentPlot->updateYield();
+						CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
+						if(pAdjacentPlot && pAdjacentPlot->getImprovementType() == eOldImprovement)
+						{
+							pAdjacentPlot->updateYield();
+						}
 					}
 				}
+#if defined(MOD_API_UNIFIED_YIELDS)
 			}
+#endif
 
 			if(area())
 			{
@@ -6794,17 +6831,26 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 			CvImprovementEntry& newImprovementEntry = *GC.getImprovementInfo(eNewValue);
 
 			// If this improvement can add culture to nearby improvements, update them as well
-			if(newImprovementEntry.GetCultureAdjacentSameType() > 0)
+#if defined(MOD_API_UNIFIED_YIELDS)
+			for(int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
 			{
-				for(iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+				if(newImprovementEntry.GetYieldAdjacentSameType((YieldTypes) iYield) > 0)
+#else
+				if(newImprovementEntry.GetCultureAdjacentSameType() > 0)
+#endif
 				{
-					CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
-					if(pAdjacentPlot && pAdjacentPlot->getImprovementType() == eNewValue)
+					for(iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
 					{
-						pAdjacentPlot->updateYield();
+						CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
+						if(pAdjacentPlot && pAdjacentPlot->getImprovementType() == eNewValue)
+						{
+							pAdjacentPlot->updateYield();
+						}
 					}
 				}
+#if defined(MOD_API_UNIFIED_YIELDS)
 			}
+#endif
 
 			if(area())
 			{
@@ -8005,6 +8051,23 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, TeamTypes eTeam, bool bIgnor
 			if(m_eOwner != NO_PLAYER && getImprovementType() == NO_IMPROVEMENT)
 			{
 				iYieldChange +=  GET_PLAYER((PlayerTypes)m_eOwner).GetPlayerTraits()->GetUnimprovedFeatureYieldChange(getFeatureType(), eYield);
+#if defined(MOD_API_UNIFIED_YIELDS)
+				iYieldChange +=  GET_PLAYER((PlayerTypes)m_eOwner).getUnimprovedFeatureYieldChange(getFeatureType(), eYield);
+
+				if(pWorkingCity != NULL && eMajority != NO_RELIGION)
+				{
+					const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, pWorkingCity->getOwner());
+					if(pReligion)
+					{
+						int iReligionChange = pReligion->m_Beliefs.GetUnimprovedFeatureYieldChange(getFeatureType(), eYield);
+						if (eSecondaryPantheon != NO_BELIEF)
+						{
+							iReligionChange += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetUnimprovedFeatureYieldChange(getFeatureType(), eYield);
+						}
+						iYieldChange += iReligionChange;
+					}
+				}
+#endif
 			}
 
 			// Leagues
@@ -8470,18 +8533,36 @@ int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay)
 		int iCultureBoost = calculateImprovementYieldChange(eImprovement, eYield, ePlayer);
 		iYield += iCultureBoost;
 
+#if !defined(MOD_API_UNIFIED_YIELDS)
 		if(eYield == YIELD_CULTURE)
+#endif
 		{
 			CvImprovementEntry* pImprovement = GC.getImprovementInfo(eImprovement);
+#if defined(MOD_API_UNIFIED_YIELDS)
+			if(pImprovement && pImprovement->GetYieldChange(eYield) > 0)
+#else
 			if(pImprovement && pImprovement->GetYieldChange(YIELD_CULTURE) > 0)
+#endif
 			{
+#if defined(MOD_API_UNIFIED_YIELDS)
+				int iAdjacentCulture = pImprovement->GetYieldAdjacentSameType(eYield);
+#else
 				int iAdjacentCulture = pImprovement->GetCultureAdjacentSameType();
+#endif
 				if(iAdjacentCulture > 0)
 				{
+#if defined(MOD_API_UNIFIED_YIELDS)
+					iYield += ComputeYieldFromAdjacentImprovement(*pImprovement, eImprovement, eYield);
+#else
 					iYield += ComputeCultureFromAdjacentImprovement(*pImprovement, eImprovement);
+#endif
 				}
 			}
+#if defined(MOD_API_UNIFIED_YIELDS)
+			if(eYield == YIELD_CULTURE && getOwner() != NO_PLAYER)
+#else
 			if(getOwner() != NO_PLAYER)
+#endif
 			{
 				iYield += GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_EXTRA_CULTURE_FROM_IMPROVEMENTS);
 				iYield += GET_PLAYER(getOwner()).GetPlayerPolicies()->GetImprovementCultureChange(eImprovement);
@@ -9302,6 +9383,22 @@ bool CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, bool bTerrainOnly, Tea
 #if defined(MOD_EVENTS_NW_DISCOVERY)
 					if (MOD_EVENTS_NW_DISCOVERY) {
 						GAMEEVENTINVOKE_HOOK(GAMEEVENT_NaturalWonderDiscovered, eTeam, getFeatureType(), getX(), getY(), (getNumMajorCivsRevealed() == 0));
+					} else {
+#endif
+					ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+					if (pkScriptSystem) 
+					{
+						CvLuaArgsHandle args;
+						args->Push(eTeam);
+						args->Push(getFeatureType());
+						args->Push(getX());
+						args->Push(getY());
+						args->Push((getNumMajorCivsRevealed() == 0)); // bFirst
+
+						bool bResult = false;
+						LuaSupport::CallHook(pkScriptSystem, "NaturalWonderDiscovered", args.get(), bResult);
+					}
+#if defined(MOD_EVENTS_NW_DISCOVERY)
 					}
 #endif
 					
@@ -9435,16 +9532,27 @@ bool CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, bool bTerrainOnly, Tea
 										playerI.GetTreasury()->ChangeGold(iGoldPerTeamMember);
 									}
 								}
+#if defined(MOD_BUGFIX_MINOR)
+							}
+#endif
 
 								if(eTeam == eActiveTeam)
 								{
 									char text[256] = {0};
+#if !defined(SHOW_PLOT_POPUP)
 									float fDelay = GC.getPOST_COMBAT_TEXT_DELAY() * 3;
+#endif
 									text[0] = NULL;
 									sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]", iFinderGold);
+#if defined(SHOW_PLOT_POPUP)
+									SHOW_PLOT_POPUP(this, NO_PLAYER, text, 0.0f);
+#else
 									GC.GetEngineUserInterface()->AddPopupText(getX(), getY(), text, fDelay);
+#endif
 								}
+#if !defined(MOD_BUGFIX_MINOR)
 							}
+#endif
 						}
 					}
 
@@ -9769,14 +9877,13 @@ bool CvPlot::setRevealedImprovementType(TeamTypes eTeam, ImprovementTypes eNewVa
 		{
 			updateSymbols();
 			setLayoutDirty(true);
-
-			// Found a Barbarian Camp
-			if(eNewValue == GC.getBARBARIAN_CAMP_IMPROVEMENT())
-			{
-				CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_FOUND_BARB_CAMP");
-				CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_FOUND_BARB_CAMP");
-				GET_TEAM(eTeam).AddNotification(NOTIFICATION_BARBARIAN, strBuffer, strSummary, getX(), getY());
-			}
+		}
+		// Found a Barbarian Camp
+		if(eNewValue == GC.getBARBARIAN_CAMP_IMPROVEMENT())
+		{
+			CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_FOUND_BARB_CAMP");
+			CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_FOUND_BARB_CAMP");
+			GET_TEAM(eTeam).AddNotification(NOTIFICATION_BARBARIAN, strBuffer, strSummary, getX(), getY());
 		}
 		return true;
 	}
@@ -10519,6 +10626,17 @@ void CvPlot::setScriptData(const char* szNewValue)
 	SAFE_DELETE_ARRAY(m_szScriptData);
 	m_szScriptData = _strdup(szNewValue);
 }
+
+#if defined(SHOW_PLOT_POPUP)
+void CvPlot::showPopupText(PlayerTypes ePlayer, const char* szMessage)
+{
+	if (ePlayer == NO_PLAYER || isVisible(GET_PLAYER(ePlayer).getTeam()))
+	{
+		DLLUI->AddPopupText(getX(), getY(), szMessage, m_fPopupDelay);
+		m_fPopupDelay += 0.5;
+	}
+}
+#endif
 
 // Protected Functions...
 
@@ -11322,20 +11440,43 @@ int CvPlot::getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUp
 
 		iYield += calculateImprovementYieldChange(eImprovement, eYield, ePlayer, false);
 
+#if defined(MOD_API_UNIFIED_YIELDS)
+		if (getOwner() != NO_PLAYER)
+#else
 		if (eYield == YIELD_CULTURE && getOwner() != NO_PLAYER)
+#endif
 		{
 			CvImprovementEntry* pImprovement = GC.getImprovementInfo(eImprovement);
+#if defined(MOD_API_UNIFIED_YIELDS)
+			if(pImprovement && pImprovement->GetYieldChange(eYield) > 0)
+#else
 			if(pImprovement && pImprovement->GetYieldChange(YIELD_CULTURE) > 0)
+#endif
 			{
+#if defined(MOD_API_UNIFIED_YIELDS)
+				int iAdjacentCulture = pImprovement->GetYieldAdjacentSameType(eYield);
+#else
 				int iAdjacentCulture = pImprovement->GetCultureAdjacentSameType();
+#endif
 				if(iAdjacentCulture > 0)
 				{
+#if defined(MOD_API_UNIFIED_YIELDS)
+					iYield += ComputeYieldFromAdjacentImprovement(*pImprovement, eImprovement, eYield);
+#else
 					iYield += ComputeCultureFromAdjacentImprovement(*pImprovement, eImprovement);
+#endif
 				}
 			}
 
-			iYield += GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_EXTRA_CULTURE_FROM_IMPROVEMENTS);
-			iYield += GET_PLAYER(getOwner()).GetPlayerPolicies()->GetImprovementCultureChange(eImprovement);
+#if defined(MOD_API_UNIFIED_YIELDS)
+			if (eYield == YIELD_CULTURE)
+			{
+#endif
+				iYield += GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_EXTRA_CULTURE_FROM_IMPROVEMENTS);
+				iYield += GET_PLAYER(getOwner()).GetPlayerPolicies()->GetImprovementCultureChange(eImprovement);
+#if defined(MOD_API_UNIFIED_YIELDS)
+			}
+#endif
 		}
 	}
 

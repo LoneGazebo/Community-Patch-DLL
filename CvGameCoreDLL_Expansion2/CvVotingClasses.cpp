@@ -7291,6 +7291,26 @@ void CvLeague::DoProjectReward(PlayerTypes ePlayer, LeagueProjectTypes eLeaguePr
 				CvCity* pCapital = GET_PLAYER(ePlayer).getCapitalCity();
 				if (pCapital)
 				{
+#if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
+					CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
+					if(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS && pkUnitInfo)
+					{
+						if((pkUnitInfo->GetDomainType() == DOMAIN_SEA) && !pCapital->isCoastal(GC.getMIN_WATER_SIZE_FOR_OCEAN()))
+						{
+							CvCity* pLoopCity;
+							int iLoop;
+							for(pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoop))
+							{
+								if(pLoopCity->isCoastal(GC.getMIN_WATER_SIZE_FOR_OCEAN()))
+								{
+									pCapital = pLoopCity;
+									break;
+								}
+							}
+						}
+					}
+#endif
+						
 					CvUnit* pUnit = GET_PLAYER(ePlayer).initUnit(eUnit, pCapital->getX(), pCapital->getY());
 					pUnit->jumpToNearestValidPlot();
 				}
@@ -9017,11 +9037,12 @@ void CvLeagueAI::DoVoteCommitments(CvLeague* pLeague)
 
 // How much do we like this vote commitment (either from us to someone else, or from someone else to us)?
 #if defined(MOD_BUGFIX_MINOR)
-CvLeagueAI::DesireLevels CvLeagueAI::EvaluateVoteForTrade(int iResolutionID, int iVoteChoice, int, bool bRepeal)
+CvLeagueAI::DesireLevels CvLeagueAI::EvaluateVoteForTrade(int iResolutionID, int iVoteChoice, int iNumVotes, bool bRepeal)
 #else
 CvLeagueAI::DesireLevels CvLeagueAI::EvaluateVoteForTrade(int iResolutionID, int iVoteChoice, int iNumVotes, bool bRepeal)
 #endif
 {
+	DEBUG_VARIABLE(iNumVotes);
 	DesireLevels eValue = DESIRE_NEVER;
 	
 	if (GC.getGame().GetGameLeagues()->GetNumActiveLeagues() > 0)

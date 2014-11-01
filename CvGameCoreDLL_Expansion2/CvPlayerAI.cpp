@@ -486,7 +486,11 @@ void CvPlayerAI::AI_chooseFreeGreatPerson()
 			CvCity* pCapital = getCapitalCity();
 			if(pCapital)
 			{
+#if defined(MOD_GLOBAL_TRULY_FREE_GP)
+				pCapital->GetCityCitizens()->DoSpawnGreatPerson(eDesiredGreatPerson, true, false, MOD_GLOBAL_TRULY_FREE_GP);
+#else
 				pCapital->GetCityCitizens()->DoSpawnGreatPerson(eDesiredGreatPerson, true, false);
+#endif
 			}
 			ChangeNumFreeGreatPeople(-1);
 		}
@@ -524,7 +528,7 @@ void CvPlayerAI::AI_chooseFreeTech()
 
 	if(eBestTech == NO_TECH)
 	{
-		eBestTech = GetPlayerTechs()->GetTechAI()->ChooseNextTech(/*bFreeTech*/ true);
+		eBestTech = GetPlayerTechs()->GetTechAI()->ChooseNextTech(this, /*bFreeTech*/ true);
 	}
 
 	if(eBestTech != NO_TECH)
@@ -581,7 +585,7 @@ void CvPlayerAI::AI_chooseResearch()
 
 		if(eBestTech == NO_TECH)
 		{
-			eBestTech = GetPlayerTechs()->GetTechAI()->ChooseNextTech();
+			eBestTech = GetPlayerTechs()->GetTechAI()->ChooseNextTech(this);
 		}
 
 		if(eBestTech != NO_TECH)

@@ -148,6 +148,9 @@ CvImprovementEntry::CvImprovementEntry(void):
 	m_pbTerrainMakesValid(NULL),
 	m_pbFeatureMakesValid(NULL),
 	m_pbImprovementMakesValid(NULL),
+#if defined(MOD_API_UNIFIED_YIELDS)
+	m_piAdjacentSameTypeYield(NULL),
+#endif
 	m_ppiTechYieldChanges(NULL),
 	m_ppiTechNoFreshWaterYieldChanges(NULL),
 	m_ppiTechFreshWaterYieldChanges(NULL),
@@ -173,6 +176,9 @@ CvImprovementEntry::~CvImprovementEntry(void)
 	SAFE_DELETE_ARRAY(m_pbTerrainMakesValid);
 	SAFE_DELETE_ARRAY(m_pbFeatureMakesValid);
 	SAFE_DELETE_ARRAY(m_pbImprovementMakesValid);
+#if defined(MOD_API_UNIFIED_YIELDS)
+	SAFE_DELETE_ARRAY(m_piAdjacentSameTypeYield);
+#endif
 
 	if(m_paImprovementResource != NULL)
 	{
@@ -328,6 +334,10 @@ bool CvImprovementEntry::CacheResults(Database::Results& kResults, CvDatabaseUti
 									  "PrereqImprovement",
 									  "ImprovementType",
 							          szImprovementType);
+
+#if defined(MOD_API_UNIFIED_YIELDS)
+	kUtility.PopulateArrayByValue(m_piAdjacentSameTypeYield, "Yields", "Improvement_YieldAdjacentSameType", "YieldType", "ImprovementType", szImprovementType, "Yield");
+#endif
 
 	kUtility.SetYields(m_piYieldChange, "Improvement_Yields", "ImprovementType", szImprovementType);
 	kUtility.SetYields(m_piYieldPerEra, "Improvement_YieldPerEra", "ImprovementType", szImprovementType);
@@ -555,11 +565,26 @@ int CvImprovementEntry::GetAdditionalUnits() const
 }
 #endif
 
+#if defined(MOD_API_UNIFIED_YIELDS)
+/// Bonus yield if another Improvement of same type is adjacent
+int CvImprovementEntry::GetYieldAdjacentSameType(YieldTypes eYield) const
+{
+	int iYield = GetAdjacentSameTypeYield(eYield);
+	
+	// Special case for culture
+	if (eYield == YIELD_CULTURE) {
+		iYield += m_iCultureAdjacentSameType;
+	}
+	
+	return iYield;
+}
+#else
 /// Bonus culture if another Improvement of same type is adjacent
 int CvImprovementEntry::GetCultureAdjacentSameType() const
 {
 	return m_iCultureAdjacentSameType;
 }
+#endif
 
 /// The number of tiles in an area needed for a goody hut to be placed by the map generator
 int CvImprovementEntry::GetTilesPerGoody() const
@@ -1038,6 +1063,16 @@ bool CvImprovementEntry::GetImprovementMakesValid(int i) const
 	CvAssertMsg(i > -1, "Index out of bounds");
 	return m_pbImprovementMakesValid ? m_pbImprovementMakesValid[i] : false;
 }
+
+#if defined(MOD_API_UNIFIED_YIELDS)
+/// If this improvement requires a terrain type to be valid
+int CvImprovementEntry::GetAdjacentSameTypeYield(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piAdjacentSameTypeYield ? m_piAdjacentSameTypeYield[i] : false;
+}
+#endif
 
 /// How much a tech improves the yield of this improvement
 int CvImprovementEntry::GetTechYieldChanges(int i, int j) const

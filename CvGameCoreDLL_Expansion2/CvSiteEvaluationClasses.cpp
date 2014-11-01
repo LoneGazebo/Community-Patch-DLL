@@ -1207,7 +1207,7 @@ int CvCitySiteEvaluator::ComputeStrategicValue(CvPlot* pPlot, CvPlayer* pPlayer,
 	if (MOD_BALANCE_CORE_SETTLER) 
 	{
 		//Some features and terrain types are useful strategically. (Or really bad)
-		if((pPlot->getOwner() == NO_PLAYER) || (pPlot->getOwner() != pPlayer->GetID()))
+		if(pPlot->getOwner() == NO_PLAYER)
 		{
 			if(iPlotsFromCity <= 3 && (pPlot->getFeatureType() == FEATURE_ICE) || (pPlot->getTerrainType() == TERRAIN_SNOW))
 			{

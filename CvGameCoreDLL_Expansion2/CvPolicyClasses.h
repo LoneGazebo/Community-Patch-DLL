@@ -251,11 +251,18 @@ public:
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
 	int GetFeatureYieldChanges(int i, int j) const;
+	int GetCityYieldFromUnimprovedFeature(int i, int j) const;
+	int GetUnimprovedFeatureYieldChanges(int i, int j) const;
 	int GetResourceYieldChanges(int i, int j) const;
 	int GetTerrainYieldChanges(int i, int j) const;
+	int GetTradeRouteYieldChange(int i, int j) const;
 	int GetSpecialistYieldChanges(int i, int j) const;
+	int GetGreatPersonExpendedYield(int i, int j) const;
+	int GetGoldenAgeGreatPersonRateModifier(int i) const;
 	int GetYieldFromKills(int i) const;
 	int* GetYieldFromKillsArray() const;
+	int GetYieldFromBarbarianKills(int i) const;
+	int* GetYieldFromBarbarianKillsArray() const;
 	int GetYieldChangeTradeRoute(int i) const;
 	int* GetYieldChangeTradeRouteArray() const;
 	int GetYieldChangesNaturalWonder(int i) const;
@@ -517,10 +524,16 @@ private:
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
 	int** m_ppiFeatureYieldChanges;
+	int** m_ppiCityYieldFromUnimprovedFeature;
+	int** m_ppiUnimprovedFeatureYieldChanges;
 	int** m_ppiResourceYieldChanges;
 	int** m_ppiTerrainYieldChanges;
+	int** m_ppiTradeRouteYieldChange;
 	int** m_ppiSpecialistYieldChanges;
+	int** m_ppiGreatPersonExpendedYield;
+	int* m_piGoldenAgeGreatPersonRateModifier;
 	int* m_piYieldFromKills;
+	int* m_piYieldFromBarbarianKills;
 	int* m_piYieldChangeTradeRoute;
 	int* m_piYieldChangesNaturalWonder;
 	int* m_piYieldChangeWorldWonder;

@@ -263,8 +263,17 @@ public:
 	bool IsHasFoundPlayersTerritory(PlayerTypes ePlayer) const;
 	bool SetHasFoundPlayersTerritory(PlayerTypes ePlayer, bool bValue);
 
+#if defined(MOD_EVENTS_WAR_AND_PEACE)
+	bool isAggressor(TeamTypes eIndex) const;
+	bool isPacifier(TeamTypes eIndex) const;
+#endif
+
 	bool isAtWar(TeamTypes eIndex) const;
+#if defined(MOD_EVENTS_WAR_AND_PEACE)
+	void setAtWar(TeamTypes eIndex, bool bNewValue, bool bAggressorPacifier);
+#else
 	void setAtWar(TeamTypes eIndex, bool bNewValue);
+#endif
 	bool HasCommonEnemy(TeamTypes eOtherTeam) const;
 
 	int GetNumTurnsAtWar(TeamTypes eTeam) const;
@@ -539,6 +548,9 @@ protected:
 	Firaxis::Array< bool, REALLY_MAX_PLAYERS > m_abHasFoundPlayersTerritory;
 	Firaxis::Array< bool, REALLY_MAX_TEAMS > m_abHasMet;
 	Firaxis::Array< bool, REALLY_MAX_TEAMS > m_abAtWar;
+#if defined(MOD_EVENTS_WAR_AND_PEACE)
+	Firaxis::Array< bool, REALLY_MAX_TEAMS > m_abAggressorPacifier;
+#endif
 	Firaxis::Array< bool, REALLY_MAX_TEAMS > m_abPermanentWarPeace;
 	Firaxis::Array< bool, REALLY_MAX_TEAMS > m_abEmbassy;
 	Firaxis::Array< bool, REALLY_MAX_TEAMS > m_abOpenBorders;
@@ -646,9 +658,9 @@ protected:
 	void DoNowAtWarOrPeace(TeamTypes eTeam, bool bWar);
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	void DoDeclareWar(PlayerTypes eOriginatingPlayer, TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyPact = false, bool bVassal = false);
+	void DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyPact = false, bool bVassal = false);
 #else
-	void DoDeclareWar(PlayerTypes eOriginatingPlayer, TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyPact = false);
+	void DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyPact = false);
 #endif
 #else
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
@@ -658,7 +670,7 @@ protected:
 #endif
 #endif
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
-	void DoMakePeace(PlayerTypes eOriginatingPlayer, TeamTypes eTeam, bool bBumpUnits, bool bSuppressNotification = false);
+	void DoMakePeace(PlayerTypes eOriginatingPlayer, bool bPacifier, TeamTypes eTeam, bool bBumpUnits, bool bSuppressNotification = false);
 #else
 	void DoMakePeace(TeamTypes eTeam, bool bBumpUnits, bool bSuppressNotification = false);
 #endif

@@ -128,6 +128,8 @@ public:
 	int GetNumFreeBuildings() const;
 	TechTypes GetFreeBuildingPrereqTech() const;
 	TechTypes GetCapitalFreeBuildingPrereqTech() const;
+	int TradeRouteStartYield(int i) const;
+	int YieldFromRouteMovement(int i) const;
 #endif
 
 	TechTypes GetFreeUnitPrereqTech() const;
@@ -196,7 +198,12 @@ public:
 #if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
 	int GetPlotYieldChanges(PlotTypes eIndex1, YieldTypes eIndex2) const;
 #endif
+#if defined(MOD_BALANCE_CORE)
+	int GetTradeRouteStartYield(int i) const;
+	int GetYieldFromRouteMovement(int i) const;
+#endif
 #if defined(MOD_API_UNIFIED_YIELDS)
+	int GetBuildingClassYieldChanges(BuildingClassTypes eIndex1, YieldTypes eIndex2) const;
 	int GetCapitalYieldChanges(int i) const;
 	int GetCityYieldChanges(int i) const;
 	int GetCoastalCityYieldChanges(int i) const;
@@ -205,10 +212,17 @@ public:
 	int GetResourceYieldChanges(ResourceTypes eIndex1, YieldTypes eIndex2) const;
 	int GetTerrainYieldChanges(TerrainTypes eIndex1, YieldTypes eIndex2) const;
 	int GetYieldFromKills(YieldTypes eYield) const;
+	int GetYieldFromBarbarianKills(YieldTypes eYield) const;
 	int GetYieldChangeTradeRoute(int i) const;
 	int GetYieldChangeWorldWonder(int i) const;
+	int GetTradeRouteYieldChange(DomainTypes eIndex1, YieldTypes eIndex2) const;
 #endif
 	int GetSpecialistYieldChanges(SpecialistTypes eIndex1, YieldTypes eIndex2) const;
+#if defined(MOD_API_UNIFIED_YIELDS)
+	int GetGreatPersonExpendedYield(GreatPersonTypes eIndex1, YieldTypes eIndex2) const;
+	int GetGoldenAgeGreatPersonRateModifier(GreatPersonTypes eIndex1) const;
+	int GetCityYieldFromUnimprovedFeature(FeatureTypes eIndex1, YieldTypes eIndex2) const;
+#endif
 	int GetUnimprovedFeatureYieldChanges(FeatureTypes eIndex1, YieldTypes eIndex2) const;
 	FreeResourceXCities GetFreeResourceXCities(ResourceTypes eResource) const;
 
@@ -363,19 +377,31 @@ protected:
 #if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
 	int** m_ppiPlotYieldChanges;
 #endif
+#if defined(MOD_BALANCE_CORE)
+	int* m_piTradeRouteStartYield;
+	int* m_piYieldFromRouteMovement;
+#endif
 #if defined(MOD_API_UNIFIED_YIELDS)
-	int* m_paiCapitalYieldChanges;
-	int* m_paiCityYieldChanges;
-	int* m_paiCoastalCityYieldChanges;
-	int* m_paiGreatWorkYieldChanges;
+	int** m_ppiBuildingClassYieldChanges;
+	int* m_piCapitalYieldChanges;
+	int* m_piCityYieldChanges;
+	int* m_piCoastalCityYieldChanges;
+	int* m_piGreatWorkYieldChanges;
 	int** m_ppiFeatureYieldChanges;
 	int** m_ppiResourceYieldChanges;
 	int** m_ppiTerrainYieldChanges;
-	int* m_paiYieldFromKills;
-	int* m_paiYieldChangeTradeRoute;
-	int* m_paiYieldChangeWorldWonder;
+	int* m_piYieldFromKills;
+	int* m_piYieldFromBarbarianKills;
+	int* m_piYieldChangeTradeRoute;
+	int* m_piYieldChangeWorldWonder;
+	int** m_ppiTradeRouteYieldChange;
 #endif
 	int** m_ppiSpecialistYieldChanges;
+#if defined(MOD_API_UNIFIED_YIELDS)
+	int** m_ppiGreatPersonExpendedYield;
+	int* m_piGoldenAgeGreatPersonRateModifier;
+	int** m_ppiCityYieldFromUnimprovedFeature;
+#endif
 	int** m_ppiUnimprovedFeatureYieldChanges;
 
 	std::multimap<int, int> m_FreePromotionUnitCombats;
@@ -887,7 +913,18 @@ public:
 #if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
 	int GetPlotYieldChange(PlotTypes ePlot, YieldTypes eYield) const;
 #endif
+#if defined(MOD_BALANCE_CORE)
+	int GetTradeRouteStartYield(YieldTypes eYield) const
+	{
+		return m_iTradeRouteStartYield[(int)eYield];
+	};
+	int GetYieldFromRouteMovement(YieldTypes eYield) const
+	{
+		return m_iYieldFromRouteMovement[(int)eYield];
+	};
+#endif
 #if defined(MOD_API_UNIFIED_YIELDS)
+	int GetBuildingClassYieldChange(BuildingClassTypes eBuildingClass, YieldTypes eYield) const;
 	int GetCapitalYieldChanges(YieldTypes eYield) const
 	{
 		return m_iCapitalYieldChanges[(int)eYield];
@@ -908,6 +945,7 @@ public:
 	int GetResourceYieldChange(ResourceTypes eResource, YieldTypes eYield) const;
 	int GetTerrainYieldChange(TerrainTypes eTerrain, YieldTypes eYield) const;
 	int GetYieldFromKills(YieldTypes eYield) const;
+	int GetYieldFromBarbarianKills(YieldTypes eYield) const;
 	int GetYieldChangeTradeRoute(YieldTypes eYield) const
 	{
 		return m_iYieldChangeTradeRoute[(int)eYield];
@@ -916,8 +954,14 @@ public:
 	{
 		return m_iYieldChangeWorldWonder[(int)eYield];
 	};
+	int GetTradeRouteYieldChange(DomainTypes eDomain, YieldTypes eYield) const;
 #endif
 	int GetSpecialistYieldChange(SpecialistTypes eSpecialist, YieldTypes eYield) const;
+#if defined(MOD_API_UNIFIED_YIELDS)
+	int GetGreatPersonExpendedYield(GreatPersonTypes eGreatPerson, YieldTypes eYield) const;
+	int GetGoldenAgeGreatPersonRateModifier(GreatPersonTypes eGreatPerson) const;
+	int GetCityYieldFromUnimprovedFeature(FeatureTypes eFeature, YieldTypes eYield) const;
+#endif
 	int GetUnimprovedFeatureYieldChange(FeatureTypes eFeature, YieldTypes eYield) const;
 	FreeResourceXCities GetFreeResourceXCities(ResourceTypes eResource) const;
 
@@ -1132,21 +1176,33 @@ private:
 
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppaaiImprovementYieldChange;
 #if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
-	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppaaiPlotYieldChange;
+	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiPlotYieldChange;
+#endif
+#if defined(MOD_BALANCE_CORE)
+	int m_iTradeRouteStartYield[NUM_YIELD_TYPES];
+	int m_iYieldFromRouteMovement[NUM_YIELD_TYPES];
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
+	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiBuildingClassYieldChange;
 	int m_iCityYieldChanges[NUM_YIELD_TYPES];
 	int m_iCapitalYieldChanges[NUM_YIELD_TYPES];
 	int m_iCoastalCityYieldChanges[NUM_YIELD_TYPES];
 	int m_iGreatWorkYieldChanges[NUM_YIELD_TYPES];
-	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppaaiFeatureYieldChange;
-	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppaaiResourceYieldChange;
-	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppaaiTerrainYieldChange;
+	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiFeatureYieldChange;
+	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiResourceYieldChange;
+	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiTerrainYieldChange;
 	int m_iYieldFromKills[NUM_YIELD_TYPES];
+	int m_iYieldFromBarbarianKills[NUM_YIELD_TYPES];
 	int m_iYieldChangeTradeRoute[NUM_YIELD_TYPES];
 	int m_iYieldChangeWorldWonder[NUM_YIELD_TYPES];
+	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiTradeRouteYieldChange;
 #endif
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppaaiSpecialistYieldChange;
+#if defined(MOD_API_UNIFIED_YIELDS)
+	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiGreatPersonExpendedYield;
+	std::vector<int> m_piGoldenAgeGreatPersonRateModifier;
+	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiCityYieldFromUnimprovedFeature;
+#endif
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppaaiUnimprovedFeatureYieldChange;
 
 	std::vector<FreeResourceXCities> m_aFreeResourceXCities;

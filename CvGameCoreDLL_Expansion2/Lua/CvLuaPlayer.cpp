@@ -791,6 +791,9 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(Cities);
 	Method(GetNumCities);
 	Method(GetCityByID);
+#if defined(MOD_API_LUA_EXTENSIONS)
+	Method(GetNumPuppetCities);
+#endif
 
 	Method(Units);
 	Method(GetNumUnits);
@@ -3102,7 +3105,11 @@ int CvLuaPlayer::lGetMinimumFaithNextGreatProphet(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 
+#if defined(MOD_GLOBAL_TRULY_FREE_GP)
+	int iFaith = pkPlayer->GetReligions()->GetCostNextProphet(true /*bIncludeBeliefDiscounts*/, true /*bAdjustForSpeedDifficulty*/, MOD_GLOBAL_TRULY_FREE_GP);
+#else
 	int iFaith = pkPlayer->GetReligions()->GetCostNextProphet(true /*bIncludeBeliefDiscounts*/, true /*bAdjustForSpeedDifficulty*/);
+#endif
 	lua_pushinteger(L, iFaith);
 
 	return 1;
@@ -3151,6 +3158,7 @@ int CvLuaPlayer::lGetExcessHappiness(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvPlayerAI::GetExcessHappiness);
 }
+
 //------------------------------------------------------------------------------
 //bool IsEmpireUnhappy() const;
 int CvLuaPlayer::lIsEmpireUnhappy(lua_State* L)
@@ -5707,7 +5715,12 @@ int CvLuaPlayer::lCreateGreatGeneral(lua_State* L)
 	const int x = lua_tointeger(L, 3);
 	const int y = lua_tointeger(L, 4);
 
+#if defined(MOD_GLOBAL_TRULY_FREE_GP)
+	const bool bIsFree = luaL_optint(L, 5, 0);
+	pkPlayer->createGreatGeneral(eGreatPersonUnit, x, y, bIsFree);
+#else
 	pkPlayer->createGreatGeneral(eGreatPersonUnit, x, y);
+#endif
 	return 0;
 }
 //------------------------------------------------------------------------------
@@ -7895,6 +7908,14 @@ int CvLuaPlayer::lGetNumCities(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvPlayerAI::getNumCities);
 }
+#if defined(MOD_API_LUA_EXTENSIONS)
+//------------------------------------------------------------------------------
+//int getNumCities();
+int CvLuaPlayer::lGetNumPuppetCities(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlayerAI::GetNumPuppetCities);
+}
+#endif
 //------------------------------------------------------------------------------
 //CyCity* getCity(int iID);
 int CvLuaPlayer::lGetCityByID(lua_State* L)
@@ -11907,14 +11928,24 @@ int CvLuaPlayer::lHasUnitOfClassType(lua_State* L)
 int CvLuaPlayer::lGetWarmongerPreviewString(lua_State* L)
 {
 	const PlayerTypes eOwner = (PlayerTypes) lua_tointeger(L, 2);
+#if defined(MOD_CONFIG_AI_IN_XML)
+	const bool bIsCapital = luaL_optbool(L, 3, false);
+	lua_pushstring(L, CvDiplomacyAIHelpers::GetWarmongerPreviewString(eOwner, bIsCapital));
+#else
 	lua_pushstring(L, CvDiplomacyAIHelpers::GetWarmongerPreviewString(eOwner));
+#endif
 	return 1;
 }
 
 int CvLuaPlayer::lGetLiberationPreviewString(lua_State* L)
 {
 	const PlayerTypes eOriginalOwner = (PlayerTypes) lua_tointeger(L, 2);
+#if defined(MOD_CONFIG_AI_IN_XML)
+	const bool bIsCapital = luaL_optbool(L, 3, false);
+	lua_pushstring(L, CvDiplomacyAIHelpers::GetLiberationPreviewString(eOriginalOwner, bIsCapital));
+#else
 	lua_pushstring(L, CvDiplomacyAIHelpers::GetLiberationPreviewString(eOriginalOwner));
+#endif
 	return 1;
 }
 

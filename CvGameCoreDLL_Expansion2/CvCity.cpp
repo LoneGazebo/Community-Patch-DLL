@@ -2133,17 +2133,33 @@ bool CvCity::IsRouteToCapitalConnected(void)
 
 
 //	--------------------------------------------------------------------------------
+#if defined(MOD_GLOBAL_TRULY_FREE_GP)
+void CvCity::createGreatGeneral(UnitTypes eGreatPersonUnit, bool bIsFree)
+#else
 void CvCity::createGreatGeneral(UnitTypes eGreatPersonUnit)
+#endif
 {
 	VALIDATE_OBJECT
+#if defined(MOD_GLOBAL_TRULY_FREE_GP)
+	GET_PLAYER(getOwner()).createGreatGeneral(eGreatPersonUnit, getX(), getY(), bIsFree);
+#else
 	GET_PLAYER(getOwner()).createGreatGeneral(eGreatPersonUnit, getX(), getY());
+#endif
 }
 
 //	--------------------------------------------------------------------------------
+#if defined(MOD_GLOBAL_TRULY_FREE_GP)
+void CvCity::createGreatAdmiral(UnitTypes eGreatPersonUnit, bool bIsFree)
+#else
 void CvCity::createGreatAdmiral(UnitTypes eGreatPersonUnit)
+#endif
 {
 	VALIDATE_OBJECT
+#if defined(MOD_GLOBAL_TRULY_FREE_GP)
+	GET_PLAYER(getOwner()).createGreatAdmiral(eGreatPersonUnit, getX(), getY(), bIsFree);
+#else
 	GET_PLAYER(getOwner()).createGreatAdmiral(eGreatPersonUnit, getX(), getY());
+#endif
 }
 
 //	--------------------------------------------------------------------------------
@@ -2296,22 +2312,22 @@ int CvCity::getBuyPlotDistance() const
 
 //	--------------------------------------------------------------------------------
 /// How far out this city may buy/work plots
-int CvCity::getWorkPlotDistance() const
+int CvCity::getWorkPlotDistance(int iChange) const
 {
 	int iDistance = GET_PLAYER(getOwner()).getWorkPlotDistance();
 	
 	// Change distance based on buildings/wonders in this city
 	iDistance += GetCityWorkingChange();
-
-	iDistance = std::min(MAX_CITY_RADIUS, std::max(MIN_CITY_RADIUS, iDistance));
+	
+	iDistance = std::min(MAX_CITY_RADIUS, std::max(MIN_CITY_RADIUS, iDistance+iChange));
 	return iDistance;
 }
 
 //	--------------------------------------------------------------------------------
 /// How many plots this city may work
-int CvCity::GetNumWorkablePlots() const
+int CvCity::GetNumWorkablePlots(int iChange) const
 {
-	int iWorkablePlots = ((6 * (1+getWorkPlotDistance()) * getWorkPlotDistance() / 2) + 1);
+	int iWorkablePlots = ((6 * (1+getWorkPlotDistance(iChange)) * getWorkPlotDistance(iChange) / 2) + 1);
 	return iWorkablePlots;
 }
 #endif
@@ -3499,6 +3515,9 @@ void CvCity::ChangeNumResourceLocal(ResourceTypes eResource, int iChange)
 					int iCulture = pkBuildingInfo->GetResourceCultureChange(eResource);
 
 					if(iCulture != 0)
+#if defined(MOD_BUGFIX_MINOR)
+						iCulture *= GetCityBuildings()->GetNumBuilding(eBuilding);
+#endif
 #if defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
 						ChangeBaseYieldRateFromBuildings(YIELD_CULTURE, iCulture * iChange);
 #else
@@ -3509,6 +3528,9 @@ void CvCity::ChangeNumResourceLocal(ResourceTypes eResource, int iChange)
 					int iFaith = pkBuildingInfo->GetResourceFaithChange(eResource);
 
 					if(iFaith != 0)
+#if defined(MOD_BUGFIX_MINOR)
+						iFaith *= GetCityBuildings()->GetNumBuilding(eBuilding);
+#endif
 #if defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
 						ChangeBaseYieldRateFromBuildings(YIELD_FAITH, iFaith * iChange);
 #else
@@ -5144,7 +5166,11 @@ int CvCity::GetFaithPurchaseCost(UnitTypes eUnit, bool bIncludeBeliefDiscounts)
 					}
 					else
 					{
+#if defined(MOD_GLOBAL_TRULY_FREE_GP)
+						iCost = kPlayer.GetReligions()->GetCostNextProphet(true /*bIncludeBeliefDiscounts*/, false /*bAdjustForSpeedDifficulty*/, MOD_GLOBAL_TRULY_FREE_GP);
+#else
 						iCost = kPlayer.GetReligions()->GetCostNextProphet(true /*bIncludeBeliefDiscounts*/, false /*bAdjustForSpeedDifficulty*/);
+#endif
 					}
 				}
 				else if (eThisPlayersUnitType == eUnit)
@@ -5760,6 +5786,9 @@ int CvCity::getProductionModifier(UnitTypes eUnit, CvString* toolTipSink) const
 
 				if(iTempMod != 0)
 				{
+#if defined(MOD_BUGFIX_MINOR)
+					iTempMod *= GetCityBuildings()->GetNumBuilding(eBuilding);
+#endif
 					iBuildingMod += iTempMod;
 					if(toolTipSink && iTempMod)
 					{
@@ -6461,7 +6490,11 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 						// Great prophet?
 						if(GC.GetGameUnits()->GetEntry(eFreeUnitType)->IsFoundReligion())
 						{
+#if defined(MOD_GLOBAL_TRULY_FREE_GP)
+							GetCityCitizens()->DoSpawnGreatPerson(eFreeUnitType, true /*bIncrementCount*/, true, MOD_GLOBAL_TRULY_FREE_GP);
+#else
 							GetCityCitizens()->DoSpawnGreatPerson(eFreeUnitType, true /*bIncrementCount*/, true);
+#endif
 						}
 						else
 						{
@@ -6470,13 +6503,21 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 							// Bump up the count
 							if(pFreeUnit->IsGreatGeneral())
 							{
+#if defined(MOD_GLOBAL_TRULY_FREE_GP)
+								owningPlayer.incrementGreatGeneralsCreated(MOD_GLOBAL_TRULY_FREE_GP);
+#else
 								owningPlayer.incrementGreatGeneralsCreated();
+#endif
 								if (!pFreeUnit->jumpToNearestValidPlot())
 									pFreeUnit->kill(false);	// Could not find a valid spot!
 							}
 							else if(pFreeUnit->IsGreatAdmiral())
 							{
+#if defined(MOD_GLOBAL_TRULY_FREE_GP)
+								owningPlayer.incrementGreatAdmiralsCreated(MOD_GLOBAL_TRULY_FREE_GP);
+#else
 								owningPlayer.incrementGreatAdmiralsCreated();
+#endif
 								CvPlot *pSpawnPlot = owningPlayer.GetGreatAdmiralSpawnPlot(pFreeUnit);
 								if (pFreeUnit->plot() != pSpawnPlot)
 								{
@@ -6485,26 +6526,42 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 							}
 							else if (pkUnitInfo->GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_WRITER"))
 							{
+#if defined(MOD_GLOBAL_TRULY_FREE_GP)
+								owningPlayer.incrementGreatWritersCreated(MOD_GLOBAL_TRULY_FREE_GP);
+#else
 								owningPlayer.incrementGreatWritersCreated();
+#endif
 								if (!pFreeUnit->jumpToNearestValidPlot())
 									pFreeUnit->kill(false);	// Could not find a valid spot!
 							}							
 							else if (pkUnitInfo->GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_ARTIST"))
 							{
+#if defined(MOD_GLOBAL_TRULY_FREE_GP)
+								owningPlayer.incrementGreatArtistsCreated(MOD_GLOBAL_TRULY_FREE_GP);
+#else
 								owningPlayer.incrementGreatArtistsCreated();
+#endif
 								if (!pFreeUnit->jumpToNearestValidPlot())
 									pFreeUnit->kill(false);	// Could not find a valid spot!
 							}							
 							else if (pkUnitInfo->GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_MUSICIAN"))
 							{
+#if defined(MOD_GLOBAL_TRULY_FREE_GP)
+								owningPlayer.incrementGreatMusiciansCreated(MOD_GLOBAL_TRULY_FREE_GP);
+#else
 								owningPlayer.incrementGreatMusiciansCreated();
+#endif
 								if (!pFreeUnit->jumpToNearestValidPlot())
 									pFreeUnit->kill(false);	// Could not find a valid spot!
 							}							
 #if defined(MOD_DIPLOMACY_CITYSTATES)
 							else if (MOD_DIPLOMACY_CITYSTATES && pkUnitInfo->GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_GREAT_DIPLOMAT"))
 							{
+#if defined(MOD_GLOBAL_TRULY_FREE_GP)
+								owningPlayer.incrementGreatDiplomatsCreated(MOD_GLOBAL_TRULY_FREE_GP);
+#else
 								owningPlayer.incrementGreatDiplomatsCreated();
+#endif
 								if (!pFreeUnit->jumpToNearestValidPlot())
 									pFreeUnit->kill(false);	// Could not find a valid spot!
 							}
@@ -6514,15 +6571,31 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 #if defined(MOD_GLOBAL_SEPARATE_GP_COUNTERS)
 								if (MOD_GLOBAL_SEPARATE_GP_COUNTERS) {
 									if (pkUnitInfo->GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_MERCHANT")) {
+#if defined(MOD_GLOBAL_TRULY_FREE_GP)
+										owningPlayer.incrementGreatMerchantsCreated(MOD_GLOBAL_TRULY_FREE_GP);
+#else
 										owningPlayer.incrementGreatMerchantsCreated();
+#endif
 									} else if (pkUnitInfo->GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_SCIENTIST")) {
+#if defined(MOD_GLOBAL_TRULY_FREE_GP)
+										owningPlayer.incrementGreatScientistsCreated(MOD_GLOBAL_TRULY_FREE_GP);
+#else
 										owningPlayer.incrementGreatScientistsCreated();
+#endif
 									} else {
+#if defined(MOD_GLOBAL_TRULY_FREE_GP)
+										owningPlayer.incrementGreatEngineersCreated(MOD_GLOBAL_TRULY_FREE_GP);
+#else
 										owningPlayer.incrementGreatEngineersCreated();
+#endif
 									}
 								} else
 #endif
+#if defined(MOD_GLOBAL_TRULY_FREE_GP)
+								owningPlayer.incrementGreatPeopleCreated(MOD_GLOBAL_TRULY_FREE_GP);
+#else
 								owningPlayer.incrementGreatPeopleCreated();
+#endif
 								if (!pFreeUnit->jumpToNearestValidPlot())
 									pFreeUnit->kill(false);	// Could not find a valid spot!
 							}
@@ -6964,10 +7037,10 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 
 			CvPlayerPolicies* pPolicies = GET_PLAYER(getOwner()).GetPlayerPolicies();
 			changeYieldRateModifier(eYield, pPolicies->GetBuildingClassYieldModifier(eBuildingClass, eYield) * iChange);
-#if defined(MOD_BALANCE_CORE_POLICIES)
-			changeReligionBuildingYieldRateModifier(eYield, pPolicies->GetReligionBuildingClassYieldModifier(eBuildingClass, eYield) * iChange);
-#endif
 			ChangeBaseYieldRateFromBuildings(eYield, pPolicies->GetBuildingClassYieldChange(eBuildingClass, eYield) * iChange);
+#if defined(MOD_API_UNIFIED_YIELDS)
+			ChangeBaseYieldRateFromBuildings(eYield, GET_PLAYER(getOwner()).GetPlayerTraits()->GetBuildingClassYieldChange(eBuildingClass, eYield) * iChange);
+#endif
 
 #if defined(MOD_API_UNIFIED_YIELDS)
 			if (pkBuildingClassInfo && isWorldWonderClass(*pkBuildingClassInfo))
@@ -7384,6 +7457,9 @@ void CvCity::UpdateReligion(ReligionTypes eNewMajority)
 						if(GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
 						{
 							int iYieldFromBuilding = pReligion->m_Beliefs.GetBuildingClassYieldChange(eBuildingClass, (YieldTypes)iYield, iFollowers);
+#if defined(MOD_BUGFIX_MINOR)
+							iYieldFromBuilding *= GetCityBuildings()->GetNumBuilding(eBuilding);
+#endif
 
 							if (isWorldWonderClass(*pkBuildingClassInfo))
 							{
@@ -8711,6 +8787,21 @@ void CvCity::DoJONSCultureLevelIncrease()
 			} else {
 				// The cheapest plot we can have is outside our working/buying distance, so just acquire it
 				DoAcquirePlot(pPlotToAcquire->getX(), pPlotToAcquire->getY());
+
+				ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+				if (pkScriptSystem) 
+				{
+					CvLuaArgsHandle args;
+					args->Push(getOwner());
+					args->Push(GetID());
+					args->Push(pPlotToAcquire->getX());
+					args->Push(pPlotToAcquire->getY());
+					args->Push(false); // bGold
+					args->Push(true); // bFaith/bCulture
+
+					bool bResult;
+					LuaSupport::CallHook(pkScriptSystem, "CityBoughtPlot", args.get(), bResult);
+				}
 				// and also the deferred stuff
 				SetJONSCultureStored(iOverflow);
 				ChangeJONSCultureLevel(1);
@@ -9014,6 +9105,23 @@ void CvCity::DoJONSCultureLevelIncrease()
 #if defined(MOD_EVENTS_CITY)
 			if (MOD_EVENTS_CITY) {
 				GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityBoughtPlot, getOwner(), GetID(), pPlotToAcquire->getX(), pPlotToAcquire->getY(), false, true);
+			} else {
+#endif
+		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+		if (pkScriptSystem) 
+		{
+			CvLuaArgsHandle args;
+			args->Push(getOwner());
+			args->Push(GetID());
+			args->Push(pPlotToAcquire->getX());
+			args->Push(pPlotToAcquire->getY());
+			args->Push(false); // bGold
+			args->Push(true); // bFaith/bCulture
+
+			bool bResult;
+			LuaSupport::CallHook(pkScriptSystem, "CityBoughtPlot", args.get(), bResult);
+		}
+#if defined(MOD_EVENTS_CITY)
 			}
 #endif
 #if defined(MOD_UI_CITY_EXPANSION)
@@ -9178,6 +9286,9 @@ int CvCity::GetBaseJONSCulturePerTurn() const
 	iCulturePerTurn += GetJONSCulturePerTurnFromGreatWorks();
 #endif
 	iCulturePerTurn += GetBaseYieldRateFromTerrain(YIELD_CULTURE);
+#if defined(MOD_API_UNIFIED_YIELDS)
+	iCulturePerTurn += GetYieldPerTurnFromUnimprovedFeatures(YIELD_CULTURE);
+#endif
 	iCulturePerTurn += GetJONSCulturePerTurnFromTraits();
 	iCulturePerTurn += GetJONSCulturePerTurnFromReligion();
 	iCulturePerTurn += GetJONSCulturePerTurnFromLeagues();
@@ -9330,7 +9441,11 @@ int CvCity::GetFaithPerTurn() const
 #endif
 	iFaith += GetBaseYieldRateFromTerrain(YIELD_FAITH);
 	iFaith += GetFaithPerTurnFromPolicies();
+#if defined(MOD_API_UNIFIED_YIELDS)
+	iFaith += GetYieldPerTurnFromUnimprovedFeatures(YIELD_FAITH);
+#else
 	iFaith += GetFaithPerTurnFromTraits();
+#endif
 	iFaith += GetFaithPerTurnFromReligion();
 
 #if defined(MOD_API_UNIFIED_YIELDS)
@@ -9410,6 +9525,67 @@ void CvCity::ChangeFaithPerTurnFromPolicies(int iChange)
 }
 
 //	--------------------------------------------------------------------------------
+#if defined(MOD_API_UNIFIED_YIELDS)
+int CvCity::GetYieldPerTurnFromUnimprovedFeatures(YieldTypes eYield) const
+{
+	VALIDATE_OBJECT
+	int iYield = 0;
+
+	CvPlayer& kPlayer = GET_PLAYER(getOwner());
+	ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
+	const CvReligion* pReligion = (eMajority == NO_RELIGION) ? NULL : GC.getGame().GetGameReligions()->GetReligion(eMajority, getOwner());
+	BeliefTypes eSecondaryPantheon = GetCityReligions()->GetSecondaryReligionPantheonBelief();
+
+	for (int iI = 0; iI < GC.getNumFeatureInfos(); iI++)
+	{
+		FeatureTypes eFeature = (FeatureTypes) iI;
+
+		if (!GC.getFeatureInfo(eFeature)->IsNaturalWonder()) {
+			int iBaseYield = kPlayer.getCityYieldFromUnimprovedFeature(eFeature, eYield);
+			iBaseYield += kPlayer.GetPlayerTraits()->GetCityYieldFromUnimprovedFeature(eFeature, eYield);
+		
+			if(pReligion)
+			{
+				iBaseYield += pReligion->m_Beliefs.GetCityYieldFromUnimprovedFeature(eFeature, eYield);
+				if (eSecondaryPantheon != NO_BELIEF)
+				{
+					iBaseYield += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetCityYieldFromUnimprovedFeature(eFeature, eYield);
+				}
+			}
+
+			if (eYield == YIELD_FAITH && eFeature == FEATURE_FOREST && kPlayer.GetPlayerTraits()->IsFaithFromUnimprovedForest())
+			{
+				++iBaseYield;
+			}
+		
+			if (iBaseYield > 0)
+			{
+				int iAdjacentFeatures = 0;
+
+				for (int iDirectionLoop = 0; iDirectionLoop < NUM_DIRECTION_TYPES; ++iDirectionLoop)
+				{
+					CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iDirectionLoop));
+					if (pAdjacentPlot && pAdjacentPlot->getFeatureType() == eFeature && pAdjacentPlot->getImprovementType() == NO_IMPROVEMENT)
+					{
+						iAdjacentFeatures++;
+					}
+				}
+
+				if (iAdjacentFeatures > 2)
+				{
+					iYield += iBaseYield * 2;
+				}
+				else if (iAdjacentFeatures > 0)
+				{
+					iYield += iBaseYield;
+				}
+			}
+		}
+	}
+	
+	return iYield;
+}
+#else
 int CvCity::GetFaithPerTurnFromTraits() const
 {
 	VALIDATE_OBJECT
@@ -9446,6 +9622,7 @@ int CvCity::GetFaithPerTurnFromTraits() const
 
 	return iRtnValue;
 }
+#endif
 
 //	--------------------------------------------------------------------------------
 int CvCity::GetFaithPerTurnFromReligion() const
@@ -9756,7 +9933,21 @@ int CvCity::GetCityWorkingChange() const
 void CvCity::changeCityWorkingChange(int iChange)
 {
 	VALIDATE_OBJECT
-	m_iCityWorkingChange = (m_iCityWorkingChange + iChange);
+	if(iChange != 0)
+	{
+		int iOldPlots = GetNumWorkablePlots();
+		m_iCityWorkingChange = (m_iCityWorkingChange + iChange);
+		int iNewPlots = GetNumWorkablePlots();
+			
+		for (int iI = std::min(iOldPlots, iNewPlots); iI < std::max(iOldPlots, iNewPlots); ++iI) {
+			CvPlot* pLoopPlot = plotCity(getX(), getY(), iI);
+
+			if (pLoopPlot) {
+				pLoopPlot->changeCityRadiusCount(iChange);
+				pLoopPlot->changePlayerCityRadiusCount(getOwner(), iChange);
+			}
+		}
+	}
 }
 #endif
 
@@ -10467,7 +10658,11 @@ int CvCity::GetLocalHappiness() const
 				{
 					if(GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
 					{
+#if defined(MOD_BUGFIX_MINOR)
+						iHappinessFromReligion += pReligion->m_Beliefs.GetBuildingClassHappiness(eBuildingClass, iFollowers) * GetCityBuildings()->GetNumBuilding(eBuilding);
+#else
 						iHappinessFromReligion += pReligion->m_Beliefs.GetBuildingClassHappiness(eBuildingClass, iFollowers);
+#endif
 					}
 				}
 			}
@@ -10502,7 +10697,11 @@ int CvCity::GetLocalHappiness() const
 					{
 						if(pkPolicyInfo->GetBuildingClassHappiness(eBuildingClass) != 0)
 						{
+#if defined(MOD_BUGFIX_MINOR)
+							iSpecialPolicyBuildingHappiness += pkPolicyInfo->GetBuildingClassHappiness(eBuildingClass) * GetCityBuildings()->GetNumBuilding(eBuilding);
+#else
 							iSpecialPolicyBuildingHappiness += pkPolicyInfo->GetBuildingClassHappiness(eBuildingClass);
+#endif
 						}
 					}
 				}
@@ -10722,15 +10921,16 @@ int CvCity::getUnhappinessFromScience() const
 int CvCity::getUnhappinessFromDefenseYield() const
 {
 	int iDefenseYield = getStrengthValue(false);
+	iDefenseYield += (GetCityBuildings()->GetBuildingDefense() / 2);
 
-	// Garrisoned Unit x 25
+	// Garrisoned Unit x 5
 	CvUnit* pGarrisonedUnit = GetGarrisonedUnit();
 	if(pGarrisonedUnit)
 	{
-		iDefenseYield += (pGarrisonedUnit->GetBaseCombatStrength() * 25);
+		iDefenseYield += (pGarrisonedUnit->GetBaseCombatStrength() * 5);
 	}
 
-	int iDamage = (getDamage() * 10);
+	int iDamage = (getDamage() * 25);
 
 	if(iDamage > 0)
 	{
@@ -12085,6 +12285,9 @@ int CvCity::getBaseYieldRate(YieldTypes eIndex) const
 	iValue += GetBaseYieldRateFromGreatWorks(eIndex);
 #endif
 	iValue += GetBaseYieldRateFromTerrain(eIndex);
+#if defined(MOD_API_UNIFIED_YIELDS)
+	iValue += GetYieldPerTurnFromUnimprovedFeatures(eIndex);
+#endif
 	iValue += GetBaseYieldRateFromBuildings(eIndex);
 	iValue += GetBaseYieldRateFromSpecialists(eIndex);
 	iValue += GetBaseYieldRateFromMisc(eIndex);
@@ -13597,7 +13800,11 @@ void CvCity::setDamage(int iValue, bool noMessage)
 				sprintf_s(text, "[COLOR_RED]%d[ENDCOLOR]", iDiff);
 			}
 
+#if defined(SHOW_PLOT_POPUP)
+			SHOW_PLOT_POPUP(plot(), NO_PLAYER, text, fDelay);
+#else
 			DLLUI->AddPopupText(m_iX, m_iY, text, fDelay);
+#endif
 		}
 		m_iDamage = iValue;
 	}
@@ -13851,6 +14058,26 @@ void CvCity::GetBuyablePlotList(std::vector<int>& aiPlotList)
 					if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_CityCanAcquirePlot, getOwner(), GetID(), pLoopPlot->getX(), pLoopPlot->getY()) == GAMEEVENTRETURN_FALSE) {
 						continue;
 					}
+				} else {
+#endif				
+				ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+				if (pkScriptSystem) 
+				{
+					CvLuaArgsHandle args;
+					args->Push(getOwner());
+					args->Push(GetID());
+					args->Push(pLoopPlot->getX());
+					args->Push(pLoopPlot->getY());
+
+					bool bResult = false;
+					if (LuaSupport::CallTestAll(pkScriptSystem, "CityCanAcquirePlot", args.get(), bResult))
+					{
+						if (bResult == false) {
+							continue;
+						}
+					}
+				}
+#if defined(MOD_EVENTS_CITY_BORDERS)
 				}
 #endif				
 
@@ -14191,6 +14418,23 @@ void CvCity::BuyPlot(int iPlotX, int iPlotY)
 #else
 		GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityBoughtPlot, getOwner(), GetID(), plot()->getX(), plot()->getY(), true, false);
 #endif
+	} else {
+#endif
+	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+	if (pkScriptSystem) 
+	{
+		CvLuaArgsHandle args;
+		args->Push(getOwner());
+		args->Push(GetID());
+		args->Push(plot()->getX());
+		args->Push(plot()->getY());
+		args->Push(true); // bGold
+		args->Push(false); // bFaith/bCulture
+
+		bool bResult;
+		LuaSupport::CallHook(pkScriptSystem, "CityBoughtPlot", args.get(), bResult);
+	}
+#if defined(MOD_EVENTS_CITY)
 	}
 #endif
 
@@ -14699,6 +14943,22 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
 #if defined(MOD_EVENTS_CITY)
 				if (MOD_EVENTS_CITY) {
 					GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityTrained, getOwner(), GetID(), iResult, false, false);
+				} else {
+#endif
+				ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+				if (pkScriptSystem) 
+				{
+					CvLuaArgsHandle args;
+					args->Push(getOwner());
+					args->Push(GetID());
+					args->Push(GET_PLAYER(getOwner()).getUnit(iResult)->GetID()); // This is probably just iResult
+					args->Push(false); // bGold
+					args->Push(false); // bFaith/bCulture
+
+					bool bResult;
+					LuaSupport::CallHook(pkScriptSystem, "CityTrained", args.get(), bResult);
+				}
+#if defined(MOD_EVENTS_CITY)
 				}
 #endif
 
@@ -14758,6 +15018,22 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
 #if defined(MOD_EVENTS_CITY)
 				if (MOD_EVENTS_CITY) {
 					GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityConstructed, getOwner(), GetID(), eConstructBuilding, false, false);
+				} else {
+#endif
+				ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+				if (pkScriptSystem) 
+				{
+					CvLuaArgsHandle args;
+					args->Push(getOwner());
+					args->Push(GetID());
+					args->Push(eConstructBuilding);
+					args->Push(false); // bGold
+					args->Push(false); // bFaith/bCulture
+
+					bool bScriptResult;
+					LuaSupport::CallHook(pkScriptSystem, "CityConstructed", args.get(), bScriptResult);
+				}
+#if defined(MOD_EVENTS_CITY)
 				}
 #endif
 
@@ -14849,6 +15125,22 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
 #if defined(MOD_EVENTS_CITY)
 			if (MOD_EVENTS_CITY) {
 				GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityCreated, getOwner(), GetID(), eCreateProject, false, false);
+			} else {
+#endif
+			ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+			if (pkScriptSystem) 
+			{
+				CvLuaArgsHandle args;
+				args->Push(getOwner());
+				args->Push(GetID());
+				args->Push(eCreateProject);
+				args->Push(false); // bGold
+				args->Push(false); // bFaith/bCulture
+
+				bool bScriptResult;
+				LuaSupport::CallHook(pkScriptSystem, "CityCreated", args.get(), bScriptResult);
+			}
+#if defined(MOD_EVENTS_CITY)
 			}
 #endif
 
@@ -15637,20 +15929,12 @@ bool CvCity::IsCanPurchase(bool bTestPurchaseCost, bool bTestTrainable, UnitType
 				else
 				{
 					// Missionaries, Inquisitors and Prophets
-					// We need to test that the player can build the unit, specifically the check for civ specific versions unit
-					if(!canTrain(eUnitType, false, !bTestTrainable, true /*bIgnoreCost*/, true /*bWillPurchase*/))
+					// We need a full religion and not just a pantheon,
+					// and also to test that the player can build the unit, specifically the check for a civ specific version of the unit
+					if(eReligion <= RELIGION_PANTHEON || !canTrain(eUnitType, false, !bTestTrainable, true /*bIgnoreCost*/, true /*bWillPurchase*/))
 					{
 						return false;
 					}
-#if defined(MOD_BALANCE_CORE)
-					if(pkUnitInfo && pkUnitInfo->IsSpreadReligion())
-					{
-						if(eReligion <= RELIGION_PANTHEON)
-						{
-							return false;
-						}
-					}
-#endif
 				}
 #endif
 			}
@@ -15714,7 +15998,7 @@ bool CvCity::IsCanPurchase(bool bTestPurchaseCost, bool bTestTrainable, UnitType
 
 					if(pkBuildingInfo->IsBuildingClassNeededInCity(iI))
 					{
-						CvCivilizationInfo& thisCivInfo = *GC.getCivilizationInfo(getCivilizationType());
+						CvCivilizationInfo& thisCivInfo = getCivilizationInfo();
 						ePrereqBuilding = ((BuildingTypes)(thisCivInfo.getCivilizationBuildings(iI)));
 
 						if(ePrereqBuilding != NO_BUILDING)
@@ -15812,7 +16096,23 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 #if defined(MOD_EVENTS_CITY)
 				if (MOD_EVENTS_CITY) {
 					GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityTrained, getOwner(), GetID(), pUnit->GetID(), true, false);
+				} else {
+#endif
+				ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+				if (pkScriptSystem) 
+				{
+					CvLuaArgsHandle args;
+					args->Push(getOwner());
+					args->Push(GetID());
+					args->Push(pUnit->GetID());
+					args->Push(true); // bGold
+					args->Push(false); // bFaith/bCulture
+
+					bool bScriptResult;
+					LuaSupport::CallHook(pkScriptSystem, "CityTrained", args.get(), bScriptResult);
 				}
+#if defined(MOD_EVENTS_CITY)
+			}
 #endif
 			}
 		}
@@ -15823,6 +16123,22 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 #if defined(MOD_EVENTS_CITY)
 			if (MOD_EVENTS_CITY) {
 				GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityConstructed, getOwner(), GetID(), eBuildingType, true, false);
+			} else {
+#endif
+			ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+			if (pkScriptSystem) 
+			{
+				CvLuaArgsHandle args;
+				args->Push(getOwner());
+				args->Push(GetID());
+				args->Push(eBuildingType);
+				args->Push(true); // bGold
+				args->Push(false); // bFaith/bCulture
+
+				bool bScriptResult;
+				LuaSupport::CallHook(pkScriptSystem, "CityConstructed", args.get(), bScriptResult);
+			}
+#if defined(MOD_EVENTS_CITY)
 			}
 #endif
 
@@ -15837,6 +16153,22 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 #if defined(MOD_EVENTS_CITY)
 			if (MOD_EVENTS_CITY) {
 				GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityCreated, getOwner(), GetID(), eProjectType, true, false);
+			} else {
+#endif
+			ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+			if (pkScriptSystem) 
+			{
+				CvLuaArgsHandle args;
+				args->Push(getOwner());
+				args->Push(GetID());
+				args->Push(eProjectType);
+				args->Push(true); // bGold
+				args->Push(false); // bFaith/bCulture
+
+				bool bScriptResult;
+				LuaSupport::CallHook(pkScriptSystem, "CityCreated", args.get(), bScriptResult);
+			}
+#if defined(MOD_EVENTS_CITY)
 			}
 #endif
 		}
@@ -15877,6 +16209,22 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 #if defined(MOD_EVENTS_CITY)
 			if (MOD_EVENTS_CITY) {
 				GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityTrained, getOwner(), GetID(), pUnit->GetID(), false, true);
+			} else {
+#endif
+			ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+			if (pkScriptSystem) 
+			{
+				CvLuaArgsHandle args;
+				args->Push(getOwner());
+				args->Push(GetID());
+				args->Push(pUnit->GetID());
+				args->Push(false); // bGold
+				args->Push(true); // bFaith/bCulture
+
+				bool bResult;
+				LuaSupport::CallHook(pkScriptSystem, "CityTrained", args.get(), bResult);
+			}
+#if defined(MOD_EVENTS_CITY)
 			}
 #endif
 
@@ -15949,7 +16297,11 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 			}
 			else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_PROPHET"))
 			{
+#if defined(MOD_GLOBAL_TRULY_FREE_GP)
+				kPlayer.GetReligions()->ChangeNumProphetsSpawned(1, false);
+#else
 				kPlayer.GetReligions()->ChangeNumProphetsSpawned(1);
+#endif
 			}
 #if defined(MOD_DIPLOMACY_CITYSTATES)
 			else if (MOD_DIPLOMACY_CITYSTATES && eUnitClass == GC.getInfoTypeForString("UNITCLASS_GREAT_DIPLOMAT"))
@@ -15987,6 +16339,22 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 #if defined(MOD_EVENTS_CITY)
 			if (MOD_EVENTS_CITY) {
 				GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityConstructed, getOwner(), GetID(), eBuildingType, false, true);
+			} else {
+#endif
+			ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+			if (pkScriptSystem)
+			{
+				CvLuaArgsHandle args;
+				args->Push(getOwner());
+				args->Push(GetID());
+				args->Push(eBuildingType);
+				args->Push(false); // bGold
+				args->Push(true); // bFaith/bCulture
+
+				bool bScriptResult;
+				LuaSupport::CallHook(pkScriptSystem, "CityConstructed", args.get(), bScriptResult);
+			}
+#if defined(MOD_EVENTS_CITY)
 			}
 #endif
 
@@ -16986,7 +17354,11 @@ void CvCity::read(FDataStream& kStream)
 				{
 					if (pkEntry->GetAirModifier() > 0 && m_pCityBuildings->GetNumBuilding(eBuilding) > 0)
 					{
+#if defined(MOD_BUGFIX_MINOR)
+						m_iMaxAirUnits += pkEntry->GetAirModifier() * m_pCityBuildings->GetNumBuilding(eBuilding);
+#else
 						m_iMaxAirUnits += pkEntry->GetAirModifier();
+#endif
 					}
 				}
 			}

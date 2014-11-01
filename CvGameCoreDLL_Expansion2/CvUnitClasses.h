@@ -72,6 +72,10 @@ public:
 	bool IsProhibitsSpread() const;
 	bool IsRemoveHeresy() const;
 	bool IsCanBuyCityState() const;
+#if defined(MOD_GLOBAL_SEPARATE_GREAT_ADMIRAL)
+	bool IsCanRepairFleet() const;
+	bool IsCanChangePort() const;
+#endif
 	int GetCombat() const;
 	void SetCombat(int iNum);
 	int GetCombatLimit() const;
@@ -161,6 +165,9 @@ public:
 	int GetResourceQuantityRequirement(int i) const;
 	int GetBuildingProductionModifier(BuildingTypes eBuilding) const;
 	int GetYieldFromKills(YieldTypes eYield) const;
+#if defined(MOD_API_UNIFIED_YIELDS)
+	int GetYieldFromBarbarianKills(YieldTypes eYield) const;
+#endif
 	int GetProductionTraits(int i) const;
 	int GetFlavorValue(int i) const;
 	int GetUnitGroupRequired(int i) const;
@@ -229,6 +236,10 @@ private:
 	bool m_bProhibitsSpread;
 	bool m_bRemoveHeresy;
 	bool m_bCanBuyCityState;
+#if defined(MOD_GLOBAL_SEPARATE_GREAT_ADMIRAL)
+	bool m_bCanRepairFleet;
+	bool m_bCanChangePort;
+#endif
 	int m_iCombat;
 	int m_iCombatLimit;
 	int m_iRangedCombat;
@@ -317,6 +328,9 @@ private:
 	int* m_piUnitGroupRequired;
 	int* m_piProductionModifierBuildings;
 	int* m_piYieldFromKills;
+#if defined(MOD_API_UNIFIED_YIELDS)
+	int* m_piYieldFromBarbarianKills;
+#endif
 
 	bool* m_pbUpgradeUnitClass;
 	bool* m_pbUnitAIType;

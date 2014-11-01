@@ -170,6 +170,10 @@ CvPromotionEntry::CvPromotionEntry():
 	m_piTerrainDefensePercent(NULL),
 	m_piFeatureAttackPercent(NULL),
 	m_piFeatureDefensePercent(NULL),
+#if defined(MOD_API_UNIFIED_YIELDS)
+	m_piYieldFromKills(NULL),
+	m_piYieldFromBarbarianKills(NULL),
+#endif
 	m_piUnitCombatModifierPercent(NULL),
 	m_piUnitClassModifierPercent(NULL),
 	m_piDomainModifierPercent(NULL),
@@ -201,6 +205,10 @@ CvPromotionEntry::~CvPromotionEntry(void)
 	SAFE_DELETE_ARRAY(m_piTerrainDefensePercent);
 	SAFE_DELETE_ARRAY(m_piFeatureAttackPercent);
 	SAFE_DELETE_ARRAY(m_piFeatureDefensePercent);
+#if defined(MOD_API_UNIFIED_YIELDS)
+	SAFE_DELETE_ARRAY(m_piYieldFromKills);
+	SAFE_DELETE_ARRAY(m_piYieldFromBarbarianKills);
+#endif
 	SAFE_DELETE_ARRAY(m_piUnitCombatModifierPercent);
 	SAFE_DELETE_ARRAY(m_piUnitClassModifierPercent);
 	SAFE_DELETE_ARRAY(m_piDomainModifierPercent);
@@ -536,6 +544,62 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 			m_piFeaturePassableTech[iFeatureID] = iPassableTech;
 		}
 	}
+
+#if defined(MOD_API_UNIFIED_YIELDS)
+	//UnitPromotions_YieldFromKills
+	{
+		kUtility.InitializeArray(m_piYieldFromKills, NUM_YIELD_TYPES, 0);
+
+		std::string sqlKey = "UnitPromotions_YieldFromKills";
+		Database::Results* pResults = kUtility.GetResults(sqlKey);
+		if(pResults == NULL)
+		{
+			const char* szSQL = "select Yields.ID as YieldID, UnitPromotions_YieldFromKills.* from UnitPromotions_YieldFromKills inner join Yields on YieldType = Yields.Type where PromotionType = ?";
+			pResults = kUtility.PrepareResults(sqlKey, szSQL);
+		}
+
+		CvAssert(pResults);
+		if(!pResults) return false;
+
+		pResults->Bind(1, szPromotionType);
+
+		while(pResults->Step())
+		{
+			const int iYieldID = pResults->GetInt("YieldID");
+			CvAssert(iYieldID > -1 && iYieldID < iNumYields);
+
+			const int iYield = pResults->GetInt("Yield");
+			m_piYieldFromKills[iYieldID] = iYield;
+		}
+	}
+
+	//UnitPromotions_YieldFromBarbarianKills
+	{
+		kUtility.InitializeArray(m_piYieldFromBarbarianKills, NUM_YIELD_TYPES, 0);
+
+		std::string sqlKey = "UnitPromotions_YieldFromBarbarianKills";
+		Database::Results* pResults = kUtility.GetResults(sqlKey);
+		if(pResults == NULL)
+		{
+			const char* szSQL = "select Yields.ID as YieldID, UnitPromotions_YieldFromBarbarianKills.* from UnitPromotions_YieldFromBarbarianKills inner join Yields on YieldType = Yields.Type where PromotionType = ?";
+			pResults = kUtility.PrepareResults(sqlKey, szSQL);
+		}
+
+		CvAssert(pResults);
+		if(!pResults) return false;
+
+		pResults->Bind(1, szPromotionType);
+
+		while(pResults->Step())
+		{
+			const int iYieldID = pResults->GetInt("YieldID");
+			CvAssert(iYieldID > -1 && iYieldID < iNumYields);
+
+			const int iYield = pResults->GetInt("Yield");
+			m_piYieldFromBarbarianKills[iYieldID] = iYield;
+		}
+	}
+#endif
 
 	//UnitPromotions_UnitClasses
 	{
@@ -1679,6 +1743,34 @@ int CvPromotionEntry::GetFeatureDefensePercent(int i) const
 
 	return -1;
 }
+
+#if defined(MOD_API_UNIFIED_YIELDS)
+int CvPromotionEntry::GetYieldFromKills(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+
+	if(i > -1 && i < NUM_YIELD_TYPES && m_piYieldFromKills)
+	{
+		return m_piYieldFromKills[i];
+	}
+
+	return 0;
+}
+
+int CvPromotionEntry::GetYieldFromBarbarianKills(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+
+	if(i > -1 && i < NUM_YIELD_TYPES && m_piYieldFromBarbarianKills)
+	{
+		return m_piYieldFromBarbarianKills[i];
+	}
+
+	return 0;
+}
+#endif
 
 /// Returns an array of bonuses when fighting against a certain unit
 int CvPromotionEntry::GetUnitCombatModifierPercent(int i) const

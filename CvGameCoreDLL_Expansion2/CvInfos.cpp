@@ -4078,6 +4078,10 @@ CvGoodyInfo::CvGoodyInfo() : CvBaseInfo()
 	, m_iHealing(0)
 	, m_iDamagePrereq(0)
 	, m_iPopulation(0)
+#if defined(MOD_BALANCE_CORE)
+	, m_iProduction(0)
+	, m_iGoldenAge(0)
+#endif
 	, m_iCulture(0)
 	, m_iFaith(0)
 	, m_iProphetPercent(0)
@@ -4163,7 +4167,16 @@ int CvGoodyInfo::getPopulation() const
 {
 	return m_iPopulation;
 }
-
+#if defined(MOD_BALANCE_CORE)
+int CvGoodyInfo::getProduction() const
+{
+	return m_iProduction;
+}
+int CvGoodyInfo::getGoldenAge() const
+{
+	return m_iGoldenAge;
+}
+#endif
 int CvGoodyInfo::getBarbarianUnitProb() const
 {
 	return m_iBarbarianUnitProb;
@@ -4254,6 +4267,10 @@ bool CvGoodyInfo::CacheResults(Database::Results& results, CvDatabaseUtility& kU
 	m_iHealing = results.GetInt("Healing");
 	m_iDamagePrereq = results.GetInt("DamagePrereq");
 	m_iPopulation = results.GetInt("Population");
+#if defined(MOD_BALANCE_CORE)
+	m_iProduction = results.GetInt("Production");
+	m_iGoldenAge = results.GetInt("GoldenAge");
+#endif
 	m_iCulture = results.GetInt("Culture");
 	m_iFaith = results.GetInt("Faith");
 	m_iProphetPercent = results.GetInt("ProphetPercent");
@@ -6746,6 +6763,7 @@ CvEraInfo::CvEraInfo() :
 	m_iTradeRouteFoodBonusTimes100(0),
 	m_iTradeRouteProductionBonusTimes100(0),
 	m_iLeaguePercent(0),
+	m_iWarmongerPercent(0),
 	m_bNoGoodies(false),
 	m_bNoBarbUnits(false),
 	m_bNoReligion(false),
@@ -6915,7 +6933,11 @@ int CvEraInfo::getLeaguePercent() const
 {
 	return m_iLeaguePercent;
 }
-
+//------------------------------------------------------------------------------
+int CvEraInfo::getWarmongerPercent() const
+{
+	return m_iWarmongerPercent;
+}
 //------------------------------------------------------------------------------
 const char* CvEraInfo::getArtPrefix() const
 {
@@ -7019,6 +7041,7 @@ bool CvEraInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUt
 	m_iTradeRouteFoodBonusTimes100 = kResults.GetInt("TradeRouteFoodBonusTimes100");
 	m_iTradeRouteProductionBonusTimes100 = kResults.GetInt("TradeRouteProductionBonusTimes100");
 	m_iLeaguePercent			= kResults.GetInt("LeaguePercent");
+	m_iWarmongerPercent			= kResults.GetInt("WarmongerPercent");
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	if (MOD_DIPLOMACY_CIV4_FEATURES) {
 		m_bVassalageEnabled			= kResults.GetBool("VassalageEnabled");
