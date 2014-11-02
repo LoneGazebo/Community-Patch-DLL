@@ -512,6 +512,9 @@
     <ClCompile Include="CvDistanceMap.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="CvGreatPersonInfo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="banned.h">
@@ -1043,6 +1046,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CvDistanceMap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CvGreatPersonInfo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -2633,17 +2633,6 @@ void CvHomelandAI::ExecuteFirstTurnSettlerMoves()
 					}
 				}
 			}
-			else
-			{
-				pUnit->PushMission(CvTypes::getMISSION_FOUND());
-				UnitProcessed(pUnit->GetID());
-				if(GC.getLogging() && GC.getAILogging())
-				{
-					CvString strLogString;
-					strLogString.Format("Founded city at, X: %d, Y: %d", pUnit->getX(), pUnit->getY());
-					LogHomelandMessage(strLogString);
-				}
-			}
 #else
 			pUnit->PushMission(CvTypes::getMISSION_FOUND());
 			UnitProcessed(pUnit->GetID());
