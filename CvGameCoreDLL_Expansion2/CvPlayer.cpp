@@ -11519,6 +11519,121 @@ void CvPlayer::DoYieldsFromKill(UnitTypes eAttackingUnitType, UnitTypes eKilledU
 #else
 		DoYieldBonusFromKill((YieldTypes)iYield, eAttackingUnitType, eKilledUnitType, iX, iY, bWasBarbarian, iNumBonuses);
 #endif
+#if defined(MOD_BALANCE_CORE)
+		//Bonus resource in a city every time you win a battle. (Rome UB)
+		CvCity* pLoopCity;
+		int iLoop;
+		TechTypes eCurrentTech = GetPlayerTechs()->GetCurrentResearch();
+		float fDelay = 0.0f;
+		for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+		{
+			if(pLoopCity && pLoopCity->getOwner() == GetID())
+			{
+				int iYieldFromVictory = pLoopCity->GetYieldFromVictory((YieldTypes)iYield);
+				if (iYieldFromVictory > 0)
+				{
+					switch(iYield)
+					{
+						case YIELD_CULTURE:
+							changeJONSCulture(iYieldFromVictory);
+							pLoopCity->ChangeJONSCultureStored(iYieldFromVictory);
+							if(GetID() == GC.getGame().getActivePlayer())
+							{
+								char text[256] = {0};
+								fDelay += 0.5f;
+								sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", iYieldFromVictory);
+								DLLUI->AddPopupText(pLoopCity->getX(),pLoopCity->getY(), text, fDelay);
+							}
+							break;
+						case YIELD_GOLDEN_AGE_POINTS:
+							ChangeGoldenAgeProgressMeter(iYieldFromVictory);
+							if(GetID() == GC.getGame().getActivePlayer())
+							{
+								char text[256] = {0};
+								fDelay += 0.5f;
+								sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GOLDEN_AGE]", iYieldFromVictory);
+								DLLUI->AddPopupText(pLoopCity->getX(),pLoopCity->getY(), text, fDelay);
+							}
+							break;
+						case YIELD_FAITH:
+							ChangeFaith(iYieldFromVictory);
+							if(GetID() == GC.getGame().getActivePlayer())
+							{
+								char text[256] = {0};
+								fDelay += 0.5f;
+								sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", iYieldFromVictory);
+								DLLUI->AddPopupText(pLoopCity->getX(),pLoopCity->getY(), text, fDelay);
+							}
+							break;
+						case YIELD_SCIENCE:	
+							if(eCurrentTech == NO_TECH)
+							{
+								changeOverflowResearch(iYieldFromVictory);
+							}
+							else
+							{
+								GET_TEAM(GET_PLAYER(GetID()).getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iYieldFromVictory, GetID());
+							}
+							if(GetID() == GC.getGame().getActivePlayer())
+							{
+								char text[256] = {0};
+								fDelay += 0.5f;
+								sprintf_s(text, "[COLOR_BLUE]+%d[ENDCOLOR][ICON_RESEARCH]", iYieldFromVictory);
+								DLLUI->AddPopupText(pLoopCity->getX(),pLoopCity->getY(), text, fDelay);
+							}
+							break;
+						case YIELD_GOLD:
+							GetTreasury()->ChangeGold(iYieldFromVictory);
+							if(GetID() == GC.getGame().getActivePlayer())
+							{
+								char text[256] = {0};
+								fDelay += 0.5f;
+								sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]", iYieldFromVictory);
+								DLLUI->AddPopupText(pLoopCity->getX(),pLoopCity->getY(), text, fDelay);
+							}
+						case YIELD_FOOD:
+							pLoopCity->changeFood(iYieldFromVictory);
+							if(GetID() == GC.getGame().getActivePlayer())
+							{
+								char text[256] = {0};
+								fDelay += 0.5f;
+								sprintf_s(text, "[COLOR_GREEN]+%d[ENDCOLOR][ICON_FOOD]", iYieldFromVictory);
+								DLLUI->AddPopupText(pLoopCity->getX(),pLoopCity->getY(), text, fDelay);
+							}
+						case YIELD_PRODUCTION:
+							pLoopCity->changeProduction(iYieldFromVictory);
+							if(GetID() == GC.getGame().getActivePlayer())
+							{
+								char text[256] = {0};
+								fDelay += 0.5f;
+								sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_PRODUCTION]", iYieldFromVictory);
+								DLLUI->AddPopupText(pLoopCity->getX(),pLoopCity->getY(), text, fDelay);
+							}
+						case YIELD_GREAT_GENERAL_POINTS:
+							changeCombatExperience(iYieldFromVictory);
+							if(GetID() == GC.getGame().getActivePlayer())
+							{
+								char text[256] = {0};
+								fDelay += 0.5f;
+								sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GREAT_GENERAL]", iYieldFromVictory);
+								DLLUI->AddPopupText(pLoopCity->getX(),pLoopCity->getY(), text, fDelay);
+							}
+						case YIELD_GREAT_ADMIRAL_POINTS:
+							changeNavalCombatExperience(iYieldFromVictory);
+							if(GetID() == GC.getGame().getActivePlayer())
+							{
+								char text[256] = {0};
+								fDelay += 0.5f;
+								sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GREAT_ADMIRAL]", iYieldFromVictory);
+								DLLUI->AddPopupText(pLoopCity->getX(),pLoopCity->getY(), text, fDelay);
+							}
+							break;
+					}
+				}
+			}
+		}
+
+#endif
 	}
 }
 
