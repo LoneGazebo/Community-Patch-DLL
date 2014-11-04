@@ -706,6 +706,10 @@ public:
 	int GetGrowthExtraYield(YieldTypes eIndex) const;
 	void ChangeGrowthExtraYield(YieldTypes eIndex, int iChange);
 #endif
+#if defined(MOD_BALANCE_CORE)
+	int GetYieldFromVictory(YieldTypes eIndex) const;
+	void ChangeYieldFromVictory(YieldTypes eIndex, int iChange);
+#endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 	int GetPovertyUnhappiness() const;
 	void ChangePovertyUnhappiness(int iChange);
@@ -1151,6 +1155,9 @@ protected:
 #endif
 #if defined(MOD_DIPLOMACY_CITYSTATES) || defined(MOD_BALANCE_CORE)
 	FAutoVariable<std::vector<int>, CvCity> m_aiChangeGrowthExtraYield;
+#endif
+#if defined(MOD_BALANCE_CORE)
+	FAutoVariable<std::vector<int>, CvCity> m_aiChangeYieldFromVictory;
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 	int m_iChangePovertyUnhappiness;

@@ -304,6 +304,10 @@ public:
 	int GetYieldFromDeath(int i) const;
 	int* GetYieldFromDeathArray() const;
 #endif
+#if defined(MOD_BALANCE_CORE)
+	int GetYieldFromVictory(int i) const;
+	int* GetYieldFromVictoryArray() const;
+#endif
 	int GetYieldChange(int i) const;
 	int* GetYieldChangeArray() const;
 	int GetYieldChangePerPop(int i) const;
@@ -592,6 +596,9 @@ private:
 #endif
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	int* m_piYieldFromDeath;
+#endif
+#if defined(MOD_BALANCE_CORE)
+	int* m_piYieldFromVictory;
 #endif
 	int* m_piYieldChange;
 	int* m_piYieldChangePerPop;

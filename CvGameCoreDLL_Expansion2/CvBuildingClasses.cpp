@@ -214,6 +214,9 @@ CvBuildingEntry::CvBuildingEntry(void):
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	m_piYieldFromDeath(NULL),
 #endif
+#if defined(MOD_BALANCE_CORE)
+	m_piYieldFromVictory(NULL),
+#endif
 	m_piYieldChange(NULL),
 	m_piYieldChangePerPop(NULL),
 	m_piYieldChangePerReligion(NULL),
@@ -273,6 +276,9 @@ CvBuildingEntry::~CvBuildingEntry(void)
 #endif
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	SAFE_DELETE_ARRAY(m_piYieldFromDeath);
+#endif
+#if defined(MOD_BALANCE_CORE)
+	SAFE_DELETE_ARRAY(m_piYieldFromVictory);
 #endif
 	SAFE_DELETE_ARRAY(m_piYieldChange);
 	SAFE_DELETE_ARRAY(m_piYieldChangePerPop);
@@ -599,6 +605,12 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	if(MOD_BALANCE_CORE_POLICIES)
 	{
 		kUtility.SetYields(m_piYieldFromDeath, "Building_YieldFromDeath", "BuildingType", szBuildingType);
+	}
+#endif
+#if defined(MOD_BALANCE_CORE)
+	if(MOD_BALANCE_CORE)
+	{
+		kUtility.SetYields(m_piYieldFromVictory, "Building_YieldFromVictory", "BuildingType", szBuildingType);
 	}
 #endif
 	kUtility.SetYields(m_piYieldChange, "Building_YieldChanges", "BuildingType", szBuildingType);
@@ -1890,19 +1902,32 @@ int* CvBuildingEntry::GetGrowthExtraYieldArray() const
 	return m_piGrowthExtraYield;
 }
 #endif
-#if defined(MOD_BALANCE_CORE_FOLLOWER_POP_WONDER)
-/// Change to yield by type
+#if defined(MOD_BALANCE_CORE_POLICIES)
+/// Change to yield by type if unit defeated in battle
 int CvBuildingEntry::GetYieldFromDeath(int i) const
 {
 	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 	return m_piYieldFromDeath ? m_piYieldFromDeath[i] : -1;
 }
-
 /// Array of yield changes
 int* CvBuildingEntry::GetYieldFromDeathArray() const
 {
 	return m_piYieldFromDeath;
+}
+#endif
+#if defined(MOD_BALANCE_CORE)
+/// Change to yield if victorious in battle.
+int CvBuildingEntry::GetYieldFromVictory(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piYieldFromVictory ? m_piYieldFromVictory[i] : -1;
+}
+/// Array of yield changes
+int* CvBuildingEntry::GetYieldFromVictoryArray() const
+{
+	return m_piYieldFromVictory;
 }
 #endif
 /// Change to yield by type
