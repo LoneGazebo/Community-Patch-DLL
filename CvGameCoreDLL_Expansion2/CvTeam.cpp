@@ -7842,8 +7842,8 @@ void CvTeam::Read(FDataStream& kStream)
 
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
 	if (uiDllSaveVersion >= 63) {
-		ArrayWrapper<bool> kAtWarWrapper(MAX_TEAMS, &m_abAggressorPacifier[0]);
-		kStream >> kAtWarWrapper;
+		ArrayWrapper<bool> kAggressorPacifierWrapper(MAX_TEAMS, &m_abAggressorPacifier[0]);
+		kStream >> kAggressorPacifierWrapper;
 	} else {
 		for (int i = 0; i < MAX_TEAMS; ++i) {
 			m_abAggressorPacifier[i] = false;

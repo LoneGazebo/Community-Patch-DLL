@@ -426,43 +426,6 @@ bool CvGameTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Domai
 	CreateVis(iNewTradeRouteIndex);
 	MoveUnit(iNewTradeRouteIndex);
 
-#if defined(MOD_BALANCE_CORE)
-	//Free lump resource when you start a trade route.
-	TechTypes eCurrentTech = GET_PLAYER(eOriginPlayer).GetPlayerTechs()->GetCurrentResearch();
-	for(int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
-	{
-		int iYieldFromStartingRoute = GET_PLAYER(eOriginPlayer).GetPlayerTraits()->GetTradeRouteStartYield((YieldTypes)iYield);
-		if (iYieldFromStartingRoute > 0)
-		{
-			switch(iYield)
-			{
-				case YIELD_CULTURE:
-					GET_PLAYER(eOriginPlayer).changeJONSCulture(iYieldFromStartingRoute);
-					break;
-				case YIELD_GOLDEN_AGE_POINTS:
-					GET_PLAYER(eOriginPlayer).ChangeGoldenAgeProgressMeter(iYieldFromStartingRoute);
-					break;
-				case YIELD_FAITH:
-					GET_PLAYER(eOriginPlayer).ChangeFaith(iYieldFromStartingRoute);
-					break;
-				case YIELD_SCIENCE:	
-					if(eCurrentTech == NO_TECH)
-					{
-						GET_PLAYER(eOriginPlayer).changeOverflowResearch(iYieldFromStartingRoute);
-					}
-					else
-					{
-						GET_TEAM(GET_PLAYER(eOriginPlayer).getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iYieldFromStartingRoute, eOriginPlayer);
-					}
-					break;
-				case YIELD_GOLD:
-					GET_PLAYER(eOriginPlayer).GetTreasury()->ChangeGold(iYieldFromStartingRoute);
-					break;
-			}
-		}
-	}
-#endif
-
 	if(GC.getLogging())
 	{
 		CvString strMsg;
@@ -1551,6 +1514,30 @@ bool CvGameTrade::MoveUnit (int iIndex)
 							DLLUI->AddPopupText(pkUnit->getX(),pkUnit->getY(), text, fDelay);
 						}
 						break;
+					case YIELD_GREAT_GENERAL_POINTS:
+						if(pkUnit->getDomainType() == DOMAIN_LAND)
+						{
+							GET_PLAYER(pkUnit->getOwner()).changeCombatExperience(iYieldFromRouteMovement);
+							if(pkUnit->getOwner() == GC.getGame().getActivePlayer())
+							{
+								char text[256] = {0};
+								fDelay += 0.5f;
+								sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GREAT_GENERAL]", iYieldFromRouteMovement);
+								DLLUI->AddPopupText(pkUnit->getX(),pkUnit->getY(), text, fDelay);
+							}
+						}
+					case YIELD_GREAT_ADMIRAL_POINTS:
+						if(pkUnit->getDomainType() == DOMAIN_SEA)
+						{
+							GET_PLAYER(pkUnit->getOwner()).changeNavalCombatExperience(iYieldFromRouteMovement);
+							if(pkUnit->getOwner() == GC.getGame().getActivePlayer())
+							{
+								char text[256] = {0};
+								fDelay += 0.5f;
+								sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GREAT_ADMIRAL]", iYieldFromRouteMovement);
+								DLLUI->AddPopupText(pkUnit->getX(),pkUnit->getY(), text, fDelay);
+							}
+						}
 				}
 			}
 		}
@@ -2020,9 +2007,109 @@ void CvPlayerTrade::MoveUnits (void)
 				int iOriginY = pTradeConnection->m_iOriginY;
 				DomainTypes eDomain = pTradeConnection->m_eDomain;
 
+#if defined(MOD_BALANCE_CORE)
+				//Free lump resource when you complete an international trade route.
+				if(pTradeConnection->m_eConnectionType == TRADE_CONNECTION_INTERNATIONAL)
+				{
+					TechTypes eCurrentTech = GET_PLAYER(pTradeConnection->m_eOriginOwner).GetPlayerTechs()->GetCurrentResearch();
+					float fDelay = 0.0f;
+					for(int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
+					{
+						int iYieldFromStartingRoute = GET_PLAYER(pTradeConnection->m_eOriginOwner).GetPlayerTraits()->GetTradeRouteStartYield((YieldTypes)iYield);
+						if (iYieldFromStartingRoute > 0)
+						{
+							switch(iYield)
+							{
+								case YIELD_CULTURE:
+									GET_PLAYER(pTradeConnection->m_eOriginOwner).changeJONSCulture(iYieldFromStartingRoute);
+									if(pTradeConnection->m_eOriginOwner == GC.getGame().getActivePlayer())
+									{
+										char text[256] = {0};
+										fDelay += 0.5f;
+										sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", iYieldFromStartingRoute);
+										DLLUI->AddPopupText(iOriginX ,iOriginY, text, fDelay);
+									}
+									break;
+								case YIELD_GOLDEN_AGE_POINTS:
+									GET_PLAYER(pTradeConnection->m_eOriginOwner).ChangeGoldenAgeProgressMeter(iYieldFromStartingRoute);
+									if(pTradeConnection->m_eOriginOwner == GC.getGame().getActivePlayer())
+									{
+										char text[256] = {0};
+										fDelay += 0.5f;
+										sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GOLDEN_AGE]", iYieldFromStartingRoute);
+										DLLUI->AddPopupText(iOriginX ,iOriginY, text, fDelay);
+									}
+									break;
+								case YIELD_FAITH:
+									GET_PLAYER(pTradeConnection->m_eOriginOwner).ChangeFaith(iYieldFromStartingRoute);
+									if(pTradeConnection->m_eOriginOwner == GC.getGame().getActivePlayer())
+									{
+										char text[256] = {0};
+										fDelay += 0.5f;
+										sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", iYieldFromStartingRoute);
+										DLLUI->AddPopupText(iOriginX, iOriginY, text, fDelay);
+									}
+									break;
+								case YIELD_SCIENCE:	
+									if(eCurrentTech == NO_TECH)
+									{
+										GET_PLAYER(pTradeConnection->m_eOriginOwner).changeOverflowResearch(iYieldFromStartingRoute);
+									}
+									else
+									{
+										GET_TEAM(GET_PLAYER(pTradeConnection->m_eOriginOwner).getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iYieldFromStartingRoute, pTradeConnection->m_eOriginOwner);
+									}
+									if(pTradeConnection->m_eOriginOwner == GC.getGame().getActivePlayer())
+									{
+										char text[256] = {0};
+										fDelay += 0.5f;
+										sprintf_s(text, "[COLOR_BLUE]+%d[ENDCOLOR][ICON_RESEARCH]", iYieldFromStartingRoute);
+										DLLUI->AddPopupText(iOriginX, iOriginY, text, fDelay);
+									}
+									break;
+								case YIELD_GOLD:
+									GET_PLAYER(pTradeConnection->m_eOriginOwner).GetTreasury()->ChangeGold(iYieldFromStartingRoute);
+									if(pTradeConnection->m_eOriginOwner == GC.getGame().getActivePlayer())
+									{
+										char text[256] = {0};
+										fDelay += 0.5f;
+										sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]", iYieldFromStartingRoute);
+										DLLUI->AddPopupText(iOriginX, iOriginY, text, fDelay);
+									}
+									break;
+								case YIELD_GREAT_GENERAL_POINTS:
+									if(pTradeConnection->m_eDomain == DOMAIN_LAND)
+									{
+										GET_PLAYER(pTradeConnection->m_eOriginOwner).changeCombatExperience(iYieldFromStartingRoute);
+										if(pTradeConnection->m_eOriginOwner == GC.getGame().getActivePlayer())
+										{
+											char text[256] = {0};
+											fDelay += 0.5f;
+											sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GREAT_GENERAL]", iYieldFromStartingRoute);
+											DLLUI->AddPopupText(iOriginX, iOriginY, text, fDelay);
+										}
+									}
+								case YIELD_GREAT_ADMIRAL_POINTS:
+									if(pTradeConnection->m_eDomain == DOMAIN_SEA)
+									{
+										GET_PLAYER(pTradeConnection->m_eOriginOwner).changeNavalCombatExperience(iYieldFromStartingRoute);
+										if(pTradeConnection->m_eOriginOwner == GC.getGame().getActivePlayer())
+										{
+											char text[256] = {0};
+											fDelay += 0.5f;
+											sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GREAT_ADMIRAL]", iYieldFromStartingRoute);
+											DLLUI->AddPopupText(iOriginX, iOriginY, text, fDelay);
+										}
+									}
+							}
+						}
+					}
+				}
+#endif
+
 				// wipe trade route
 				pTrade->EmptyTradeRoute(ui);
-				
+
 				// create new unit
 #if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
 				UnitTypes eUnitType = GetTradeUnit(eDomain, m_pPlayer);

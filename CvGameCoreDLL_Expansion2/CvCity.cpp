@@ -236,6 +236,9 @@ CvCity::CvCity() :
 #if defined(MOD_DIPLOMACY_CITYSTATES) || defined(MOD_BALANCE_CORE)
 	, m_aiChangeGrowthExtraYield("CvCity::m_aiChangeGrowthExtraYield", m_syncArchive)
 #endif
+#if defined(MOD_BALANCE_CORE)
+	, m_aiChangeYieldFromVictory("CvCity::m_aiChangeYieldFromVictory", m_syncArchive)
+#endif
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	, m_aiReligionBuildingYieldRateModifier("CvCity::m_aiReligionBuildingYieldRateModifier", m_syncArchive)
 #endif
@@ -1014,6 +1017,9 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 #if defined(MOD_DIPLOMACY_CITYSTATES) || defined(MOD_BALANCE_CORE)
 	m_aiChangeGrowthExtraYield.resize(NUM_YIELD_TYPES);
 #endif
+#if defined(MOD_BALANCE_CORE)
+	m_aiChangeYieldFromVictory.resize(NUM_YIELD_TYPES);
+#endif
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	m_aiReligionBuildingYieldRateModifier.resize(NUM_YIELD_TYPES);
 #endif
@@ -1040,6 +1046,9 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 #endif
 #if defined(MOD_DIPLOMACY_CITYSTATES) || defined(MOD_BALANCE_CORE)
 		m_aiChangeGrowthExtraYield.setAt(iI, 0);
+#endif
+#if defined(MOD_BALANCE_CORE)
+		m_aiChangeYieldFromVictory.setAt(iI, 0);
 #endif
 #if defined(MOD_BALANCE_CORE_POLICIES)
 		m_aiReligionBuildingYieldRateModifier.setAt(iI, 0);
@@ -7029,6 +7038,12 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 				ChangeGrowthExtraYield(eYield, pBuildingInfo->GetGrowthExtraYield(eYield) * iChange);
 			}
 #endif
+#if defined(MOD_BALANCE_CORE)
+			if(MOD_BALANCE_CORE)
+			{
+				ChangeYieldFromVictory(eYield, pBuildingInfo->GetYieldFromVictory(eYield) * iChange);
+			}
+#endif
 			changeSeaPlotYield(eYield, (pBuildingInfo->GetSeaPlotYieldChange(eYield) * iChange));
 			changeRiverPlotYield(eYield, (pBuildingInfo->GetRiverPlotYieldChange(eYield) * iChange));
 			changeLakePlotYield(eYield, (pBuildingInfo->GetLakePlotYieldChange(eYield) * iChange));
@@ -12626,6 +12641,32 @@ void CvCity::ChangeGrowthExtraYield(YieldTypes eIndex, int iChange)
 	}
 }
 #endif
+#if defined(MOD_BALANCE_CORE)
+//	--------------------------------------------------------------------------------
+/// Extra yield from building
+int CvCity::GetYieldFromVictory(YieldTypes eIndex) const
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	return m_aiChangeYieldFromVictory[eIndex];
+}
+
+//	--------------------------------------------------------------------------------
+/// Extra yield from building
+void CvCity::ChangeYieldFromVictory(YieldTypes eIndex, int iChange)
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+
+	if(iChange != 0)
+	{
+		m_aiChangeYieldFromVictory.setAt(eIndex, m_aiChangeYieldFromVictory[eIndex] + iChange);
+		CvAssert(GetYieldFromVictory(eIndex) >= 0);
+	}
+}
+#endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 //	--------------------------------------------------------------------------------
 /// Extra yield from building
@@ -17305,6 +17346,9 @@ void CvCity::read(FDataStream& kStream)
 #if defined(MOD_DIPLOMACY_CITYSTATES) || defined(MOD_BALANCE_CORE)
 	MOD_SERIALIZE_READ_AUTO(49, kStream, m_aiChangeGrowthExtraYield, NUM_YIELD_TYPES, 0);
 #endif
+#if defined(MOD_BALANCE_CORE)
+	MOD_SERIALIZE_READ_AUTO(65, kStream, m_aiChangeYieldFromVictory, NUM_YIELD_TYPES, 0);
+#endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 	MOD_SERIALIZE_READ(53, kStream, m_iChangePovertyUnhappiness, 0);
 	MOD_SERIALIZE_READ(53, kStream, m_iChangeDefenseUnhappiness, 0);
@@ -17684,6 +17728,9 @@ void CvCity::write(FDataStream& kStream) const
 #endif
 #if defined(MOD_DIPLOMACY_CITYSTATES) || defined(MOD_BALANCE_CORE)
 	MOD_SERIALIZE_WRITE_AUTO(kStream, m_aiChangeGrowthExtraYield);
+#endif
+#if defined(MOD_BALANCE_CORE)
+	MOD_SERIALIZE_WRITE_AUTO(kStream, m_aiChangeYieldFromVictory);
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 	MOD_SERIALIZE_WRITE(kStream, m_iChangePovertyUnhappiness);
