@@ -377,6 +377,9 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetBarbarianCombatBonus);
 	Method(SetBarbarianCombatBonus);
 	Method(ChangeBarbarianCombatBonus);
+#if defined(MOD_BALANCE_CORE)
+	Method(GetCombatBonusVsHigherPop);
+#endif
 	Method(GetCombatBonusVsHigherTech);
 	Method(GetCombatBonusVsLargerCiv);
 
@@ -5086,6 +5089,18 @@ int CvLuaPlayer::lChangeBarbarianCombatBonus(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvPlayerAI::ChangeBarbarianCombatBonus);
 }
+//------------------------------------------------------------------------------
+#if defined(MOD_BALANCE_CORE)
+int CvLuaPlayer::lGetCombatBonusVsHigherPop(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	if(pkPlayer)
+	{
+		lua_pushinteger(L, pkPlayer->GetPlayerTraits()->GetCombatBonusVsHigherPop());
+	}
+	return 1;
+}
+#endif
 //------------------------------------------------------------------------------
 int CvLuaPlayer::lGetCombatBonusVsHigherTech(lua_State* L)
 {

@@ -70,6 +70,9 @@ CvTraitEntry::CvTraitEntry() :
 	m_iNearbyImprovementCombatBonus(0),
 	m_iNearbyImprovementBonusRange(0),
 	m_iCultureBuildingYieldChange(0),
+#if defined(MOD_BALANCE_CORE)
+	m_iCombatBonusVsHigherPop(0),
+#endif
 	m_iCombatBonusVsHigherTech(0),
 	m_iCombatBonusVsLargerCiv(0),
 	m_iLandUnitMaintenanceModifier(0),
@@ -474,6 +477,14 @@ int CvTraitEntry::GetCultureBuildingYieldChange() const
 {
 	return m_iCultureBuildingYieldChange;
 }
+
+#if defined(MOD_BALANCE_CORE)
+/// Accessor: combat bonus vs. civ with more citizens
+int CvTraitEntry::GetCombatBonusVsHigherPop() const
+{
+	return m_iCombatBonusVsHigherPop;
+}
+#endif
 
 /// Accessor: combat bonus in own territory vs. higher tech units
 int CvTraitEntry::GetCombatBonusVsHigherTech() const
@@ -1207,6 +1218,9 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	m_iNearbyImprovementCombatBonus			= kResults.GetInt("NearbyImprovementCombatBonus");
 	m_iNearbyImprovementBonusRange			= kResults.GetInt("NearbyImprovementBonusRange");
 	m_iCultureBuildingYieldChange			= kResults.GetInt("CultureBuildingYieldChange");
+#if defined(MOD_BALANCE_CORE)
+	m_iCombatBonusVsHigherPop				= kResults.GetInt("CombatBonusVsHigherPop");
+#endif
 	m_iCombatBonusVsHigherTech				= kResults.GetInt("CombatBonusVsHigherTech");
 	m_iCombatBonusVsLargerCiv				= kResults.GetInt("CombatBonusVsLargerCiv");
 	m_iLandUnitMaintenanceModifier          = kResults.GetInt("LandUnitMaintenanceModifier");
@@ -1931,6 +1945,9 @@ void CvPlayerTraits::InitPlayerTraits()
 			m_iNearbyImprovementCombatBonus += trait->GetNearbyImprovementCombatBonus();
 			m_iNearbyImprovementBonusRange += trait->GetNearbyImprovementBonusRange();
 			m_iCultureBuildingYieldChange += trait->GetCultureBuildingYieldChange();
+#if defined(MOD_BALANCE_CORE)
+			m_iCombatBonusVsHigherPop += trait->GetCombatBonusVsHigherPop();
+#endif
 			m_iCombatBonusVsHigherTech += trait->GetCombatBonusVsHigherTech();
 			m_iCombatBonusVsLargerCiv += trait->GetCombatBonusVsLargerCiv();
 			m_iLandUnitMaintenanceModifier += trait->GetLandUnitMaintenanceModifier();
@@ -2355,6 +2372,9 @@ void CvPlayerTraits::Reset()
 	m_iNearbyImprovementCombatBonus = 0;
 	m_iNearbyImprovementBonusRange = 0;
 	m_iCultureBuildingYieldChange = 0;
+#if defined(MOD_BALANCE_CORE)
+	m_iCombatBonusVsHigherPop = 0;
+#endif
 	m_iCombatBonusVsHigherTech = 0;
 	m_iCombatBonusVsLargerCiv = 0;
 	m_iLandUnitMaintenanceModifier = 0;
@@ -3688,6 +3708,10 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 
 	kStream >> m_iCultureBuildingYieldChange;
 
+#if defined(MOD_BALANCE_CORE)
+	kStream >> m_iCombatBonusVsHigherPop;
+#endif
+
 	kStream >> m_iCombatBonusVsHigherTech;
 
 	kStream >> m_iCombatBonusVsLargerCiv;
@@ -4110,6 +4134,9 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	kStream << m_iNearbyImprovementCombatBonus;
 	kStream << m_iNearbyImprovementBonusRange;
 	kStream << m_iCultureBuildingYieldChange;
+#if defined(MOD_BALANCE_CORE)
+	kStream << m_iCombatBonusVsHigherPop;
+#endif
 	kStream << m_iCombatBonusVsHigherTech;
 	kStream << m_iCombatBonusVsLargerCiv;
 	kStream << m_iLandUnitMaintenanceModifier;

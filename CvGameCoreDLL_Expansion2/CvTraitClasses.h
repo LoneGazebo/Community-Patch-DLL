@@ -101,6 +101,9 @@ public:
 	int GetNearbyImprovementCombatBonus() const;
 	int GetNearbyImprovementBonusRange() const;
 	int GetCultureBuildingYieldChange() const;
+#if defined(MOD_BALANCE_CORE)
+	int GetCombatBonusVsHigherPop() const;
+#endif
 	int GetCombatBonusVsHigherTech() const;
 	int GetCombatBonusVsLargerCiv() const;
 	int GetLandUnitMaintenanceModifier() const;
@@ -285,6 +288,9 @@ protected:
 	int m_iNearbyImprovementCombatBonus;
 	int m_iNearbyImprovementBonusRange;
 	int m_iCultureBuildingYieldChange;
+#if defined(MOD_BALANCE_CORE)
+	int m_iCombatBonusVsHigherPop;
+#endif
 	int m_iCombatBonusVsHigherTech;
 	int m_iCombatBonusVsLargerCiv;
 	int m_iLandUnitMaintenanceModifier;
@@ -652,6 +658,12 @@ public:
 	{
 		return m_iCultureBuildingYieldChange;
 	};
+#if defined(MOD_BALANCE_CORE)
+	int GetCombatBonusVsHigherPop() const
+	{
+		return m_iCombatBonusVsHigherPop;
+	};
+#endif
 	int GetCombatBonusVsHigherTech() const
 	{
 		return m_iCombatBonusVsHigherTech;
@@ -1073,6 +1085,9 @@ private:
 	int m_iNearbyImprovementCombatBonus;
 	int m_iNearbyImprovementBonusRange;
 	int m_iCultureBuildingYieldChange;
+#if defined(MOD_BALANCE_CORE)
+	int m_iCombatBonusVsHigherPop;
+#endif
 	int m_iCombatBonusVsHigherTech;
 	int m_iCombatBonusVsLargerCiv;
 	int m_iLandUnitMaintenanceModifier;

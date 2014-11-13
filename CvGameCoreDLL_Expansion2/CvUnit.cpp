@@ -12020,6 +12020,18 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 			}
 		}
 
+#if defined(MOD_BALANCE_CORE)
+		// Trait (player level) bonus against more populated civs
+		iTempModifier = GET_PLAYER(getOwner()).GetPlayerTraits()->GetCombatBonusVsHigherPop();
+		if(iTempModifier > 0)
+		{
+			if(pOtherUnit && pOtherUnit->IsHigherPopThan(this))
+			{
+				iModifier += iTempModifier;
+			}
+		}
+#endif
+
 		// Trait (player level) bonus against higher tech units
 		iTempModifier = GET_PLAYER(getOwner()).GetPlayerTraits()->GetCombatBonusVsHigherTech();
 		if(iTempModifier > 0)
@@ -24214,6 +24226,23 @@ void CvUnit::SetBeenPromotedFromGoody(bool bBeenPromoted)
 		m_iFlags = m_iFlags & ~UNITFLAG_ALREADY_GOT_GOODY_UPGRADE;
 	}
 }
+
+#if defined(MOD_BALANCE_CORE)
+//	--------------------------------------------------------------------------------
+bool CvUnit::IsHigherPopThan(const CvUnit* pOtherUnit) const
+{
+	int iMyPop = 0;
+	int iOtherPop = 0;
+
+	CvPlayer& kPlayer = GET_PLAYER(getOwner());
+	iMyPop = kPlayer.getTotalPopulation();
+
+	CvPlayer& kOtherPlayer = GET_PLAYER(pOtherUnit->getOwner());
+	iOtherPop = kOtherPlayer.getTotalPopulation();
+
+	return iMyPop > iOtherPop;
+}
+#endif
 
 //	--------------------------------------------------------------------------------
 bool CvUnit::IsHigherTechThan(UnitTypes otherUnit) const

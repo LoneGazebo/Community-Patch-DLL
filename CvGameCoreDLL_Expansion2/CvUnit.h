@@ -1364,6 +1364,9 @@ public:
 	bool IsHasBeenPromotedFromGoody() const;
 	void SetBeenPromotedFromGoody(bool bBeenPromoted);
 
+#if defined(MOD_BALANCE_CORE)
+	bool IsHigherPopThan(const CvUnit* pOtherUnit) const;
+#endif
 	bool IsHigherTechThan(UnitTypes otherUnit) const;
 	bool IsLargerCivThan(const CvUnit* pOtherUnit) const;
 
