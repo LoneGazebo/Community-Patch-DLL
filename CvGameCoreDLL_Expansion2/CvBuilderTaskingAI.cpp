@@ -1729,7 +1729,7 @@ void CvBuilderTaskingAI::AddScrubFalloutDirectives(CvUnit* pUnit, CvPlot* pPlot,
 bool CvBuilderTaskingAI::ShouldBuilderConsiderPlot(CvUnit* pUnit, CvPlot* pPlot)
 {
 	// if plot is impassable, bail!
-	if(pPlot->isImpassable() || pPlot->isMountain())
+	if(pPlot->isImpassable())
 	{
 		if(m_bLogging)
 		{

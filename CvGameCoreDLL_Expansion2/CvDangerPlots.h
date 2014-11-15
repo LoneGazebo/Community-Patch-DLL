@@ -40,7 +40,6 @@ public:
 	bool ShouldIgnorePlayer(PlayerTypes ePlayer);
 	bool ShouldIgnoreUnit(CvUnit* pUnit, bool bIgnoreVisibility = false);
 	bool ShouldIgnoreCity(CvCity* pCity, bool bIgnoreVisibility = false);
-	bool ShouldIgnoreCitadel(CvPlot* pCitadelPlot, bool bIgnoreVisibility = false);
 	void AssignUnitDangerValue(CvUnit* pUnit, CvPlot* pPlot);
 	void AssignCityDangerValue(CvCity* pCity, CvPlot* pPlot);
 

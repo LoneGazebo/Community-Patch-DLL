@@ -35,11 +35,12 @@
     <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Mod|Win32'" />
     <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Mod|Win32'" />
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Mod|Win32'">$(ProjectName)$(Platform)$(Configuration)</TargetName>
+    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Mod|Win32'">..\ThirdPartyLibs;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Mod|Win32'">
     <ClCompile>
       <AdditionalOptions>/EHsc %(AdditionalOptions)</AdditionalOptions>
-      <Optimization>Full</Optimization>
+      <Optimization>Disabled</Optimization>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <OmitFramePointers>true</OmitFramePointers>
@@ -77,9 +78,15 @@
       <ModuleDefinitionFile>$(ProjectDir)CvGameCoreDLL.def</ModuleDefinitionFile>
       <DelayLoadDLLs>%(DelayLoadDLLs)</DelayLoadDLLs>
     </Link>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="CvCityManager.cpp" />
+    <ClCompile Include="CvDistanceMap.cpp" />
+    <ClCompile Include="CvGreatPersonInfo.cpp" />
     <ClCompile Include="CvTargeting.cpp" />
     <ClCompile Include="_precompile.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Mod|Win32'">Create</PrecompiledHeader>
@@ -280,6 +287,7 @@
     <ClInclude Include="CvDiplomacyAI.h" />
     <ClInclude Include="CvDiplomacyAIEnums.h" />
     <ClInclude Include="CvDiplomacyRequests.h" />
+    <ClInclude Include="CvDistanceMap.h" />
     <ClInclude Include="CvEconomicAI.h" />
     <ClInclude Include="CvEmphasisClasses.h" />
     <ClInclude Include="CvEspionageClasses.h" />
@@ -296,6 +304,7 @@
     <ClInclude Include="CvGlobals.h" />
     <ClInclude Include="CvGoodyHuts.h" />
     <ClInclude Include="CvGrandStrategyAI.h" />
+    <ClInclude Include="CvGreatPersonInfo.h" />
     <ClInclude Include="CvHomelandAI.h" />
     <ClInclude Include="CvImprovementClasses.h" />
     <ClInclude Include="CvInfos.h" />

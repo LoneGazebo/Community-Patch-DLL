@@ -7653,11 +7653,7 @@ void CvGame::addGreatPersonBornName(const CvString& szName)
 //	--------------------------------------------------------------------------------
 void CvGame::doTurn()
 {
-#ifndef FINAL_RELEASE
-	char temp[256];
-	sprintf_s(temp, "Turn %i\n", getGameTurn());
-	OutputDebugString(temp);
-#endif
+	OutputDebugString(CvString::format("Turn \t%03i\tTime \t%012d\n", getGameTurn(), GetTickCount()));
 
 	int aiShuffle[MAX_PLAYERS];
 	int iLoopPlayer;
@@ -9575,7 +9571,7 @@ void CvGame::SetCultureAverage(int iValue)
 {
 	if(GetCultureAverage() != iValue)
 	{
-		float fAlpha = 0.2f;
+		float fAlpha = 0.05f;
 		m_iCultureAverage = int(0.5f + (iValue * fAlpha) + (m_iCultureAverage * ( 1 - fAlpha)));
 	}
 }
@@ -9584,7 +9580,7 @@ void CvGame::SetScienceAverage(int iValue)
 {
 	if(GetScienceAverage() != iValue)
 	{
-		float fAlpha = 0.2f;
+		float fAlpha = 0.05f;
 		m_iScienceAverage = int(0.5f + (iValue * fAlpha) + (m_iCultureAverage * ( 1 - fAlpha)));
 	}
 }
@@ -9593,7 +9589,7 @@ void CvGame::SetDefenseAverage(int iValue)
 {
 	if(GetDefenseAverage() != iValue)
 	{
-		float fAlpha = 0.2f;
+		float fAlpha = 0.05f;
 		m_iDefenseAverage = int(0.5f + (iValue * fAlpha) + (m_iCultureAverage * ( 1 - fAlpha)));
 	}
 }
@@ -9602,7 +9598,7 @@ void CvGame::SetGoldAverage(int iValue)
 {
 	if(GetGoldAverage() != iValue)
 	{
-		float fAlpha = 0.2f;
+		float fAlpha = 0.05f;
 		m_iGoldAverage = int(0.5f + (iValue * fAlpha) + (m_iCultureAverage * ( 1 - fAlpha)));
 	}
 }
@@ -11463,6 +11459,27 @@ void CvGame::LogGameState(bool bLogHeaders)
 			strTemp.Format("%d", iMinorBully);
 			strOutput += ", " + strTemp;
 		}
+
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+		if(bFirstTurn)
+		{
+			strOutput += ", CultureAvg";
+			strOutput += ", ScienceAvg";
+			strOutput += ", DefenseAvg";
+			strOutput += ", GoldAvg";
+		}
+		else
+		{
+			strTemp.Format("%d", GC.getGame().GetCultureAverage());
+			strOutput += ", " + strTemp;
+			strTemp.Format("%d", GC.getGame().GetScienceAverage());
+			strOutput += ", " + strTemp;
+			strTemp.Format("%d", GC.getGame().GetDefenseAverage());
+			strOutput += ", " + strTemp;
+			strTemp.Format("%d", GC.getGame().GetGoldAverage());
+			strOutput += ", " + strTemp;
+		}
+#endif
 
 		pLog->Msg(strOutput);
 	}

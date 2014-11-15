@@ -42,6 +42,9 @@ class CvMinorCivAI;
 class CvDealAI;
 class CvBuilderTaskingAI;
 class CvDangerPlots;
+#ifdef MOD_BALANCE_CORE_SETTLER
+	class CvDistanceMap;
+#endif
 class CvCityConnections;
 class CvNotifications;
 class CvTreasury;
@@ -144,7 +147,6 @@ public:
 	int GetNumUnitsWithDomain(DomainTypes eDomain, bool bMilitaryOnly);
 	int GetNumUnitsWithUnitCombat(UnitCombatTypes eDomain);
 
-	void InitDangerPlots();
 	void UpdateDangerPlots();
 	void SetDangerPlotsDirty();
 
@@ -1588,7 +1590,6 @@ public:
 	int getNumCities() const;
 	CvCity* getCity(int iID);
 	const CvCity* getCity(int iID) const;
-	CvCity* addCity();
 	void deleteCity(int iID);
 	CvCity* GetFirstCityWithBuildingClass(BuildingClassTypes eBuildingClass);
 
@@ -1624,7 +1625,11 @@ public:
 	bool haveAIOperationOfType(int iOperationType, int* piID=NULL, PlayerTypes eTargetPlayer = NO_PLAYER, CvPlot* pTargetPlot=NULL);
 	int numOperationsOfType(int iOperationType);
 	bool IsCityAlreadyTargeted(CvCity* pCity, DomainTypes eDomain=NO_DOMAIN, int iPercentToTarget=100, int iIgnoreOperationID=-1) const;
+#ifdef MOD_BALANCE_CORE_SETTLER
+	bool IsPlotTargetedForCity(CvPlot *pPlot, CvAIOperation* pOpToIgnore) const;
+#else
 	bool IsPlotTargetedForCity(CvPlot *pPlot) const;
+#endif
 	void GatherPerTurnReplayStats(int iGameTurn);
 	unsigned int getNumReplayDataSets() const;
 	const char* getReplayDataSetName(unsigned int uiDataSet) const;
@@ -1722,7 +1727,13 @@ public:
 	void ChangeTurnsSinceSettledLastCity(int iChange);
 
 	int GetBestSettleAreas(int iMinScore, int& iFirstArea, int& iSecondArea);
-	CvPlot* GetBestSettlePlot(CvUnit* pUnit, bool bEscorted, int iArea = -1) const;
+#ifdef MOD_BALANCE_CORE_SETTLER
+	CvPlot* GetBestSettlePlot(const CvUnit* pUnit, bool bEscorted, int iTargetArea, CvAIOperation* pOpToIgnore, bool bEnableLogging=false);
+	int GetFoundValueOfLastSettledCity() const;
+	void SetFoundValueOfLastSettledCity(int iValue);
+#else
+	CvPlot* GetBestSettlePlot(CvUnit* pUnit, bool bEscorted, int iArea=-1) const;
+#endif
 
 	// New Victory Stuff
 	int GetNumWonders() const;
@@ -1961,6 +1972,10 @@ public:
 	int GetVassalGoldMaintenanceMod() const;
 	void SetVassalGoldMaintenanceMod(int iValue);
 	void ChangeVassalGoldMaintenanceMod(int iChange);
+#endif
+
+#ifdef MOD_BALANCE_CORE_SETTLER
+	int GetCityDistance( const CvPlot* pPlot ) const;
 #endif
 
 protected:
@@ -2462,6 +2477,11 @@ protected:
 
 	// Danger plots!
 	CvDangerPlots* m_pDangerPlots;
+
+#ifdef MOD_BALANCE_CORE_SETTLER
+	CvDistanceMap* m_pCityDistance;
+	int	m_iFoundValueOfLastSettledCity;
+#endif
 
 	// Policies
 	CvPlayerPolicies* m_pPlayerPolicies;

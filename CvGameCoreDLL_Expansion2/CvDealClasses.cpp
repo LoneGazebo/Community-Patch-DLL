@@ -3516,9 +3516,9 @@ void CvGameDeals::LogDealComplete(CvDeal* pDeal)
 
 			pLog->Msg(strOutBuf);
 
-			OutputDebugString("\n");
-			OutputDebugString(strOutBuf);
-			OutputDebugString("\n");
+			//OutputDebugString("\n");
+			//OutputDebugString(strOutBuf);
+			//OutputDebugString("\n");
 		}
 	}
 }

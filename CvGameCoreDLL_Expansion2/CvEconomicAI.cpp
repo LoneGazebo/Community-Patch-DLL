@@ -1243,7 +1243,7 @@ double CvEconomicAI::GetImprovedToImprovablePlotsRatio()
 			continue;
 		}
 
-		if(pPlot->isWater() || pPlot->isImpassable() || pPlot->isMountain() || pPlot->isCity())
+		if(pPlot->isWater() || pPlot->isImpassable() || pPlot->isCity())
 		{
 			continue;
 		}
@@ -2174,6 +2174,38 @@ void CvEconomicAI::DoReconState()
 		return;
 	}
 
+	// Never desperate for explorers if we are at war
+	MilitaryAIStrategyTypes eStrategyAtWar = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_AT_WAR");
+	if(eStrategyAtWar != NO_MILITARYAISTRATEGY)
+	{
+		if(GetPlayer()->GetMilitaryAI()->IsUsingStrategy(eStrategyAtWar))
+		{
+			m_eReconState = RECON_STATE_ENOUGH;
+			m_eNavalReconState = RECON_STATE_ENOUGH;
+			return;
+		}
+	}
+
+#ifdef MOD_BALANCE_CORE_SETTLER
+	bool bIsVenice = GetPlayer()->GetPlayerTraits()->IsNoAnnexing();
+	if (!bIsVenice)
+	{
+		// Need recon if there are no good plots to settle
+		CvPlot* pBestSettlePlot = GetPlayer()->GetBestSettlePlot(NULL,true,-1,NULL);
+		int iBestFoundValue = pBestSettlePlot ? pBestSettlePlot->getFoundValue( GetPlayer()->GetID() ) : 0;
+		int iLastFoundValue = GetPlayer()->GetFoundValueOfLastSettledCity();
+		if (iBestFoundValue < 0.5f * iLastFoundValue )
+		{
+			OutputDebugStr( CvString::format("%s - no good settle plot: ratio %.2f (%08d vs %08d) - need more recon\n", 
+				GetPlayer()->getCivilizationDescription(), iBestFoundValue/(float)iLastFoundValue, iBestFoundValue, iLastFoundValue) );
+
+			m_eReconState = RECON_STATE_NEEDED;
+			m_eNavalReconState = RECON_STATE_NEEDED;
+			return;
+		}
+	}
+#endif
+
 	// Start at 1 so we don't get divide-by-0 errors
 	//   Land recon counters
 	int iNumLandPlotsRevealed = 1;
@@ -2449,7 +2481,7 @@ void CvEconomicAI::DisbandExtraWorkers()
 			continue;
 		}
 
-		if(pPlot->isWater() || pPlot->isImpassable() || pPlot->isMountain() || pPlot->isCity())
+		if(pPlot->isWater() || pPlot->isImpassable() || pPlot->isCity())
 		{
 			continue;
 		}
@@ -3178,16 +3210,6 @@ bool EconomicAIHelpers::IsAreaSafeForQuickColony(int iAreaID, CvPlayer* pPlayer)
 /// "Need Recon" Player Strategy: chosen by the DoRecon() function
 bool EconomicAIHelpers::IsTestStrategy_NeedRecon(CvPlayer* pPlayer)
 {
-	// Never desperate for explorers if we are at war
-	MilitaryAIStrategyTypes eStrategyAtWar = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_AT_WAR");
-	if(eStrategyAtWar != NO_MILITARYAISTRATEGY)
-	{
-		if(pPlayer->GetMilitaryAI()->IsUsingStrategy(eStrategyAtWar))
-		{
-			return false;
-		}
-	}
-
 	return (pPlayer->GetEconomicAI()->GetReconState() == RECON_STATE_NEEDED);
 }
 
@@ -3504,7 +3526,8 @@ bool EconomicAIHelpers::IsTestStrategy_EnoughExpansion(EconomicAIStrategyTypes e
 	int iBestArea;
 	int iSecondBestArea;
 
-	if (GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && pPlayer->isHuman())
+	bool bCannotExpand = pPlayer->isBarbarian() || pPlayer->isMinorCiv() || pPlayer->GetPlayerTraits()->IsNoAnnexing();
+	if ((GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && pPlayer->isHuman()) || bCannotExpand)
 	{
 		return true;
 	}
@@ -3719,10 +3742,16 @@ bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes /*eStra
 	int iNumAreas;
 	int iArea = -1;
 
+#if defined(MOD_BALANCE_CORE_SETTLER)
+	// Never run this strategy for a human player, barbarians or minor civs
+	if (pPlayer->isBarbarian() || pPlayer->isMinorCiv() || pPlayer->isHuman())
+		return false;
+#else
 	if(GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && pPlayer->isHuman())
 	{
 		return false;
 	}
+#endif
 
 	// Never run this strategy for a human player
 	if(!pPlayer->isHuman())
@@ -3760,8 +3789,8 @@ bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes /*eStra
 			// CASE 1: we can go offshore
 			if (bCanEmbark && (pPlayer->getNumCities() > 1))
 			{
-#if defined(MOD_BALANCE_CORE_SETTLER)
-#else
+#if !defined(MOD_BALANCE_CORE_SETTLER)
+
 				int iRandArea = GC.getGame().getJonRandNum(6, "Randomly choose an area to settle");
 
 				if (iRandArea <= 1) // this is "pick best tile I know ignoring what area it is part of", in the early game this is usually the start landmass
@@ -3780,12 +3809,12 @@ bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes /*eStra
 				}
 				else // this is as likely as the other options combined
 				{
-#endif
 					iArea = iBestArea;
 					bWantEscort = IsAreaSafeForQuickColony(iArea, pPlayer);
-#if defined(MOD_BALANCE_CORE_SETTLER)
-#else
 				}
+#else
+				iArea = iBestArea;
+				bWantEscort = IsAreaSafeForQuickColony(iArea, pPlayer);
 #endif
 				if (bWantEscort)
 				{

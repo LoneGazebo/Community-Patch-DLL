@@ -228,7 +228,7 @@ CvMap::CvMap()
 	m_paiNumResourceOnLand = NULL;
 
 	m_pMapPlots = NULL;
-
+	m_pPlotNeighbors = NULL;
 
 	m_pYields = NULL;
 	m_pFoundValue = NULL;
@@ -261,11 +261,11 @@ CvMap::~CvMap()
 //	--------------------------------------------------------------------------------
 void CvMap::InitPlots()
 {
-	m_pMapPlots = FNEW(CvPlot[numPlots()], c_eCiv5GameplayDLL, 0);
-	//allocate all the memory we need up front
-
 	int iNumPlots = numPlots();
 
+	m_pMapPlots = FNEW(CvPlot[iNumPlots], c_eCiv5GameplayDLL, 0);
+
+	//allocate all the memory we need up front
 	m_pYields					= FNEW(short[NUM_YIELD_TYPES*iNumPlots], c_eCiv5GameplayDLL, 0);
 	m_pFoundValue				= FNEW(int[REALLY_MAX_PLAYERS*iNumPlots], c_eCiv5GameplayDLL, 0);
 	m_pPlayerCityRadiusCount	= FNEW(char[REALLY_MAX_PLAYERS*iNumPlots], c_eCiv5GameplayDLL, 0);
@@ -281,6 +281,13 @@ void CvMap::InitPlots()
 	m_pAvoidMovement			= FNEW(bool[MAX_MAJOR_CIVS*iNumPlots], c_eCiv5GameplayDLL, 0);
 #endif
 
+	//this will be used for fast lookup of neighbors
+	//the trick is that NO_DIRECTION is not -1 but NUM_DIRECTION_TYPES+1
+	//therefore we need to allocate (NUM_DIRECTION_TYPES+2) pointers per plot
+	m_pPlotNeighbors			= FNEW(CvPlot*[iNumPlots*(NUM_DIRECTION_TYPES+2)], c_eCiv5GameplayDLL, 0);
+
+
+	memset(m_pPlotNeighbors, 0, iNumPlots*(NUM_DIRECTION_TYPES+2)*sizeof(CvPlot*));
 	memset(m_pYields, 0, NUM_YIELD_TYPES*iNumPlots*sizeof(short));
 	memset(m_pFoundValue, 0, REALLY_MAX_PLAYERS*iNumPlots*sizeof(int));
 	memset(m_pPlayerCityRadiusCount, 0, REALLY_MAX_PLAYERS*iNumPlots*sizeof(char));
@@ -294,7 +301,6 @@ void CvMap::InitPlots()
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	memset(m_pAvoidMovement, 0, MAX_MAJOR_CIVS*iNumPlots * sizeof(bool));
 #endif
-
 
 	short* pYields					= m_pYields;
 	int*   pFoundValue				= m_pFoundValue;
@@ -327,7 +333,6 @@ void CvMap::InitPlots()
 		m_pMapPlots[i].m_abAvoidMovement			= pAvoidMovement;
 #endif
 
-
 		pYields					+= NUM_YIELD_TYPES;
 		pFoundValue				+= REALLY_MAX_PLAYERS;
 		pPlayerCityRadiusCount  += REALLY_MAX_PLAYERS;
@@ -337,10 +342,12 @@ void CvMap::InitPlots()
 		pRevealedRouteType		+= REALLY_MAX_TEAMS;
 		pNoSettling				+= MAX_MAJOR_CIVS;
 		pResourceForceReveal	+= REALLY_MAX_TEAMS;
-
 	}
 
 	m_kPlotManager.Init(getGridWidth(), getGridHeight());
+
+	// Important speed optimization
+	PrecalcNeighbors();
 }
 
 //	--------------------------------------------------------------------------------
@@ -374,15 +381,51 @@ void CvMap::init(CvMapInitData* pInitInfo/*=NULL*/)
 	int iW = getGridWidth();
 	int iH = getGridHeight();
 
-
-	for(iX = 0; iX < iW; iX++)
+	for(iY = 0; iY < iH; iY++)
 	{
-		for(iY = 0; iY < iH; iY++)
+		for(iX = 0; iX < iW; iX++)
 		{
 			plotUnchecked(iX, iY)->init(iX, iY);
 		}
 	}
 }
+
+void CvMap::PrecalcNeighbors()
+{
+	int iW = getGridWidth();
+	int iH = getGridHeight();
+
+	CvPlot** pNeighbors = m_pPlotNeighbors;
+	if (!pNeighbors)
+		return;
+
+	int iNX, iNY, iHX, iHY;
+
+	for(int iY = 0; iY < iH; iY++)
+	{
+		for(int iX = 0; iX < iW; iX++)
+		{
+			//set up neighborhood indices
+			for(int iDirection = 0; iDirection < NUM_DIRECTION_TYPES+2; iDirection++)
+			{
+				// convert to hex-space coordinates - is this really necessary? can't we do it in cartesian also?
+				iHX = xToHexspaceX(iX , iY);
+				iHY = iY;
+				iHX += GC.getPlotDirectionX()[iDirection];
+				iHY += GC.getPlotDirectionY()[iDirection];
+				iNX = hexspaceXToX(iHX, iHY);
+				iNY = iHY;
+
+				iNX = coordRange(iNX, iW, m_bWrapX);
+				iNY = coordRange(iNY, iH, m_bWrapY);
+				pNeighbors[iDirection] = isPlot(iNX, iNY) ? (m_pMapPlots+plotNum(iNX,iNY)) : NULL;
+			}
+
+			pNeighbors += (NUM_DIRECTION_TYPES+2);
+		}
+	}
+}
+
 
 //	--------------------------------------------------------------------------------
 void CvMap::uninit()
@@ -391,6 +434,7 @@ void CvMap::uninit()
 	SAFE_DELETE_ARRAY(m_paiNumResourceOnLand);
 
 	SAFE_DELETE_ARRAY(m_pMapPlots);
+	SAFE_DELETE_ARRAY(m_pPlotNeighbors);
 
 
 	SAFE_DELETE_ARRAY(m_pYields);

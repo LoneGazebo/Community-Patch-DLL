@@ -611,13 +611,14 @@ int CvLuaEnums::pRegister(lua_State* L)
 	RegisterEnum(FLOWDIRECTION_NORTHWEST);
 
 	RegisterEnum(NUM_FLOWDIRECTION_TYPES);
-
+	/*
 	RegisterEnum(FLOWDIRECTION_NORTH_MASK);
 	RegisterEnum(FLOWDIRECTION_SOUTH_MASK);
 	RegisterEnum(FLOWDIRECTION_SOUTHEAST_MASK);
 	RegisterEnum(FLOWDIRECTION_NORTHWEST_MASK);
 	RegisterEnum(FLOWDIRECTION_SOUTHWEST_MASK);
 	RegisterEnum(FLOWDIRECTION_NORTHEAST_MASK);
+	*/
 	EnumEnd(L);
 
 	// PolicyBranchTypes

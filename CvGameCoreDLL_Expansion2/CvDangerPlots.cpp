@@ -193,31 +193,15 @@ void CvDangerPlots::UpdateDanger(bool bPretendWarWithAllCivs, bool bIgnoreVisibi
 	}
 
 	// Citadels
-	int iCitadelValue = GetDangerValueOfCitadel();
-	int iPlotLoop;
-	CvPlot* pPlot, *pAdjacentPlot;
-	for(iPlotLoop = 0; iPlotLoop < GC.getMap().numPlots(); iPlotLoop++)
+	for(int iPlotLoop = 0; iPlotLoop < GC.getMap().numPlots(); iPlotLoop++)
 	{
-		pPlot = GC.getMap().plotByIndexUnchecked(iPlotLoop);
+		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(iPlotLoop);
 
 		if(pPlot->isRevealed(thisTeam))
 		{
-			ImprovementTypes eImprovement = pPlot->getRevealedImprovementType(thisTeam);
-			if(eImprovement != NO_IMPROVEMENT && GC.getImprovementInfo(eImprovement)->GetNearbyEnemyDamage() > 0)
-			{
-				if(!ShouldIgnoreCitadel(pPlot, bIgnoreVisibility))
-				{
-					for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
-					{
-						pAdjacentPlot = plotDirection(pPlot->getX(), pPlot->getY(), ((DirectionTypes)iI));
-
-						if(pAdjacentPlot != NULL)
-						{
-							AddDanger(pAdjacentPlot->getX(), pAdjacentPlot->getY(), iCitadelValue, true);
-						}
-					}
-				}
-			}
+			int iDamage = pPlot->GetDamageFromNearByFeatures(m_ePlayer);
+			if (iDamage)
+				AddDanger(pPlot->getX(), pPlot->getY(), iDamage, true);
 		}
 	}
 
@@ -565,33 +549,6 @@ bool CvDangerPlots::ShouldIgnoreCity(CvCity* pCity, bool bIgnoreVisibility)
 	return false;
 }
 
-/// Should this city be ignored when creating the danger plots?
-bool CvDangerPlots::ShouldIgnoreCitadel(CvPlot* pCitadelPlot, bool bIgnoreVisibility)
-{
-	// ignore unseen cities
-	if(!pCitadelPlot->isRevealed(GET_PLAYER(m_ePlayer).getTeam())  && !bIgnoreVisibility)
-	{
-		return true;
-	}
-
-	PlayerTypes eOwner = pCitadelPlot->getOwner();
-	if(eOwner != NO_PLAYER)
-	{
-		// Our own citadels aren't dangerous
-		if(eOwner == m_ePlayer)
-		{
-			return true;
-		}
-
-		if(!atWar(GET_PLAYER(m_ePlayer).getTeam(), GET_PLAYER(eOwner).getTeam()))
-		{
-			return true;
-		}
-	}
-
-	return false;
-}
-
 //	-----------------------------------------------------------------------------------------------
 /// Contains the calculations to do the danger value for the plot according to the unit
 void CvDangerPlots::AssignUnitDangerValue(CvUnit* pUnit, CvPlot* pPlot)
@@ -672,17 +629,6 @@ void CvDangerPlots::AssignCityDangerValue(CvCity* pCity, CvPlot* pPlot)
 	int iCombatValue = pCity->getStrengthValue();
 	iCombatValue = ModifyDangerByRelationship(pCity->getOwner(), pPlot, iCombatValue);
 	AddDanger(pPlot->getX(), pPlot->getY(), iCombatValue, false);
-}
-
-/// How much danger should we apply to a citadel?
-int CvDangerPlots::GetDangerValueOfCitadel() const
-{
-	// Compute power of this player's strongest unit
-	CvMilitaryAI* pMilitaryAI = GET_PLAYER(m_ePlayer).GetMilitaryAI();
-	int iPower = pMilitaryAI->GetPowerOfStrongestBuildableUnit(DOMAIN_LAND);
-
-	// Magic number to approximate danger from one turn of citadel damage
-	return iPower * 50;
 }
 
 /// reads in danger plots info

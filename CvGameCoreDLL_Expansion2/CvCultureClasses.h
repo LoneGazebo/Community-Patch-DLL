@@ -292,7 +292,7 @@ public:
 	int m_iSwappableMusicIndex;
 
 private:
-	int ComputePublicOpinionUnhappiness(int iDissatisfaction, int &iPerCityUnhappy, int &iUnhappyPerXPop);
+	int ComputePublicOpinionUnhappiness(int iDissatisfaction);
 
 	// Logging functions
 	void LogCultureData();

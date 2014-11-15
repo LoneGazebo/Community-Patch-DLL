@@ -298,7 +298,6 @@ CvCity::CvCity() :
 #if defined(MOD_BALANCE_CORE)
 	, m_abOwedChosenBuilding("CvCity::m_abOwedChosenBuilding", m_syncArchive)
 #endif
-
 	, m_bOwedCultureBuilding(false)
 #if defined(MOD_BUGFIX_FREE_FOOD_BUILDING)
 	, m_bOwedFoodBuilding(false)
@@ -476,6 +475,10 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	}
 
 	area()->changeCitiesPerPlayer(getOwner(), 1);
+#if defined(MOD_CORE_RIPARIAN_CITIES)
+	if (isCoastal())
+		waterArea()->changeCitiesPerPlayer(getOwner(), 1);
+#endif
 
 	GET_TEAM(getTeam()).changeNumCities(1);
 
@@ -1615,6 +1618,10 @@ void CvCity::PreKill()
 	pPlot->setPlotCity(NULL);
 
 	area()->changeCitiesPerPlayer(getOwner(), -1);
+#if defined(MOD_CORE_RIPARIAN_CITIES)
+	if (isCoastal())
+		waterArea()->changeCitiesPerPlayer(getOwner(), -1);
+#endif
 
 	GET_TEAM(getTeam()).changeNumCities(-1);
 
@@ -7670,13 +7677,23 @@ bool CvCity::isCoastal(int iMinWaterSize) const
 //	--------------------------------------------------------------------------------
 bool CvCity::isAddsFreshWater() const {
 	VALIDATE_OBJECT
-
+	/*
 	for (int iI = 0; iI < GC.getNumBuildingInfos(); iI++) {
 		if (m_pCityBuildings->GetNumBuilding((BuildingTypes)iI) > 0) {
 			if (GC.getBuildingInfo((BuildingTypes)iI)->IsAddsFreshWater()) {
 				return true;
 			}
 		}
+	}
+	*/
+	//ideally this should be cached and changed when a building is added/removed ...
+	const CvBuildingXMLEntries* pkBuildings = GetCityBuildings()->GetBuildings();
+	const int nBuildings = GetCityBuildings()->GetBuildings()->GetNumBuildings();
+	for(int iBuilding = 0; iBuilding < nBuildings; iBuilding++)
+	{
+		CvBuildingEntry* pInfo = pkBuildings->GetEntry(iBuilding);
+		if (pInfo && pInfo->IsAddsFreshWater())
+			return true;
 	}
 
 	return false;
@@ -8511,6 +8528,11 @@ void CvCity::setPopulation(int iNewValue, bool bReassignPop /* = true */)
 		}
 
 		area()->changePopulationPerPlayer(getOwner(), (getPopulation() - iOldPopulation));
+#if defined(MOD_CORE_RIPARIAN_CITIES)
+		if (isCoastal())
+			waterArea()->changePopulationPerPlayer(getOwner(), (getPopulation() - iOldPopulation));
+#endif
+
 		GET_PLAYER(getOwner()).changeTotalPopulation(getPopulation() - iOldPopulation);
 		GET_TEAM(getTeam()).changeTotalPopulation(getPopulation() - iOldPopulation);
 		GC.getGame().changeTotalPopulation(getPopulation() - iOldPopulation);

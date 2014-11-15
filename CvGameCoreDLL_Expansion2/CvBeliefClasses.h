@@ -606,6 +606,7 @@ private:
 	TechTypes m_eSpreadModifierDoublingTech;
 
 	BeliefList m_ReligionBeliefs;
+	std::vector<int> m_BeliefLookup;
 
 	// Arrays
 	int* m_paiBuildingClassEnabled;

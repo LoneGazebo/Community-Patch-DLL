@@ -972,9 +972,6 @@ public:
 
 	void changeExtraAttacks(int iChange);
 
-	// Citadel
-	bool IsNearEnemyCitadel(int& iCitadelDamage);
-
 	// Great General Stuff
 	bool IsNearGreatGeneral() const;
 	bool IsStackedGreatGeneral() const;

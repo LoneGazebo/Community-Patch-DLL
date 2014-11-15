@@ -659,7 +659,7 @@ public:
 	// Accessor functions
 	std::vector<CvBuildingEntry*>& GetBuildingEntries();
 	int GetNumBuildings();
-	_Ret_maybenull_ CvBuildingEntry* GetEntry(int index);
+	_Ret_maybenull_ CvBuildingEntry* GetEntry(int index) const;
 
 	void DeleteArray();
 

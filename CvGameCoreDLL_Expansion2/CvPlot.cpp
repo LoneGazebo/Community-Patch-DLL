@@ -1012,9 +1012,6 @@ bool CvPlot::isAdjacentToIce() const
 //	--------------------------------------------------------------------------------
 bool CvPlot::isCoastalLand(int iMinWaterSize) const
 {
-	CvPlot* pAdjacentPlot;
-	int iI;
-
 	if(isWater())
 	{
 		return false;
@@ -1026,9 +1023,10 @@ bool CvPlot::isCoastalLand(int iMinWaterSize) const
 		iMinWaterSize = GC.getMIN_WATER_SIZE_FOR_OCEAN();
 	}
 
-	for(iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
+	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(this);
+	for(int iCount=0; iCount<NUM_DIRECTION_TYPES; iCount++)
 	{
-		pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
+		const CvPlot* pAdjacentPlot = aPlotsToCheck[iCount];
 
 		if(pAdjacentPlot != NULL)
 		{
@@ -1138,60 +1136,54 @@ bool CvPlot::isLake() const
 
 
 //	--------------------------------------------------------------------------------
-// XXX precalculate this???
 bool CvPlot::isFreshWater() const
 {
-	CvPlot* pLoopPlot;
-	int iDX, iDY;
-
 	if(isWater() || isImpassable() || isMountain())
 		return false;
 
 	if(isRiver())
-	{
 		return true;
-	}
 
-	for(iDX = -1; iDX <= 1; iDX++)
+	//now the more complex checks
+	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(this);
+	//+1 means we check the plot itself also!
+	for(int iCount=0; iCount<NUM_DIRECTION_TYPES+1; iCount++)
 	{
-		for(iDY = -1; iDY <= 1; iDY++)
-		{
-			pLoopPlot	= plotXYWithRangeCheck(getX(), getY(), iDX, iDY, 1);
+		const CvPlot* pLoopPlot = aPlotsToCheck[iCount];
 
-			if(pLoopPlot != NULL)
+		if(pLoopPlot != NULL)
+		{
+			if(pLoopPlot->isLake())
 			{
-				if(pLoopPlot->isLake())
+				return true;
+			}
+
+			FeatureTypes feature_type = pLoopPlot->getFeatureType();
+
+			if(feature_type != NO_FEATURE)
+			{
+				if(GC.getFeatureInfo(feature_type)->isAddsFreshWater())
 				{
 					return true;
 				}
-
-				FeatureTypes feature_type = pLoopPlot->getFeatureType();
-
-				if(feature_type != NO_FEATURE)
-				{
-					if(GC.getFeatureInfo(feature_type)->isAddsFreshWater())
-					{
-						return true;
-					}
-				}
+			}
 
 #if defined(MOD_API_EXTENSIONS)
-				ImprovementTypes improvement_type = pLoopPlot->getImprovementType();
+			ImprovementTypes improvement_type = pLoopPlot->getImprovementType();
 
-				if(improvement_type != NO_IMPROVEMENT)
-				{
-					if(GC.getImprovementInfo(improvement_type)->IsAddsFreshWater())
-					{
-						return true;
-					}
-				}
-
-				if (pLoopPlot->isCity() && pLoopPlot->getPlotCity()->isAddsFreshWater())
+			if(improvement_type != NO_IMPROVEMENT)
+			{
+				if(GC.getImprovementInfo(improvement_type)->IsAddsFreshWater())
 				{
 					return true;
 				}
-#endif
 			}
+
+			if (pLoopPlot->isCity() && pLoopPlot->getPlotCity()->isAddsFreshWater())
+			{
+				return true;
+			}
+#endif
 		}
 	}
 
@@ -1271,13 +1263,11 @@ bool CvPlot::isRiverSide() const
 //	--------------------------------------------------------------------------------
 bool CvPlot::isRiverConnection(DirectionTypes eDirection) const
 {
-	if(eDirection == NO_DIRECTION)
-	{
-		return false;
-	}
-
 	switch(eDirection)
 	{
+	case NO_DIRECTION:
+		return false;
+		break;
 
 	case DIRECTION_NORTHEAST:
 		return (isRiverCrossing(DIRECTION_NORTHWEST) || isRiverCrossing(DIRECTION_EAST));
@@ -3235,232 +3225,82 @@ int CvPlot::GetNumAdjacentMountains() const
 	return iNumMountains;
 }
 #if defined(MOD_BALANCE_CORE_SETTLER)
-int CvPlot::GetNumAdjacentWater() const
+int CvPlot::countPassableLandNeighbors(CvPlot** aPassableNeighbors) const
 {
+	int iPassable = 0;
 	CvPlot* pAdjacentPlot;
-	int iI;
-	int iNumWater = 0;
 
-	for (iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
+	for (int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
 	{
 		pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
-
 		if(pAdjacentPlot != NULL)
 		{
-			if (pAdjacentPlot->isWater())
+			if(!pAdjacentPlot->isWater() && !pAdjacentPlot->isImpassable())
 			{
-				iNumWater++;
+				if (aPassableNeighbors)
+					aPassableNeighbors[iPassable] = pAdjacentPlot;
+				iPassable++;
 			}
 		}
 	}
-	return iNumWater;
+	return iPassable;
 }
-int CvPlot::GetNumAdjacentPlotType(PlotTypes iPlotType) const
+
+bool CvPlot::IsChokePoint()
 {
-	CvPlot* pAdjacentPlot;
-	int iI;
-	int iNumPlot = 0;
+	//only passable land plots can be chokepoints
+	if(isWater() || isImpassable())
+		return false;
 
-	for (iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
+	CvPlot* aPassableNeighbors[NUM_DIRECTION_TYPES];
+	int iPassable = countPassableLandNeighbors(aPassableNeighbors);
+
+	//a plot is a chokepoint if it has between two and three passable land plots as neighbors
+	//(with four passable plots it's not a real chokepoint ...)
+	if (iPassable<2 || iPassable>4)
+		return false;
+
+	//each adjacent passable plot must have at least 3 passable neighbors (anti peninsula/dead end valley check)
+	int iPassableAndNoPeninsula = 0;
+	CvPlot* aPassableNeighborsNonPeninsula[NUM_DIRECTION_TYPES];
+	for (int iI = 0; iI<iPassable; iI++)
 	{
-		pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
-
-		if(pAdjacentPlot != NULL)
+		if (aPassableNeighbors[iI]->countPassableLandNeighbors(NULL)>2)
 		{
-			if(iPlotType == PLOT_OCEAN)
-			{
-				if(pAdjacentPlot->isWater())
-				{
-					iNumPlot++;
-				}
-			}
-			else if (pAdjacentPlot->HasPlotType(iPlotType))
-			{
-				iNumPlot++;
-			}
-		}
-	}
-	return iNumPlot;
-}
-bool CvPlot::NoTwoPlotTypeTouch(PlotTypes iPlotType, bool bChokePoint)
-{
-	CvPlot* pAdjacentPlot;
-	int iI;
-	bool bNoAdjacent = false;
-	int iNumPlotType = 0;
-
-	for (iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
-	{
-		pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
-
-		if(pAdjacentPlot != NULL)
-		{
-			if(iPlotType == PLOT_OCEAN)
-			{
-				iNumPlotType++;
-				if(pAdjacentPlot->isWater())
-				{
-					if(pAdjacentPlot->GetNumAdjacentPlotType(iPlotType) <= 0)
-					{
-						bNoAdjacent = true;
-					}
-				}
-			}
-			else if(pAdjacentPlot->HasPlotType(iPlotType))
-			{
-				iNumPlotType++;
-				if(pAdjacentPlot->getPlotType() == getPlotType())
-				{
-					//1, because of Plots being the same PlotType
-					if(pAdjacentPlot->GetNumAdjacentPlotType(iPlotType) <= 1)
-					{
-						bNoAdjacent = true;
-					}
-				}
-				else
-				{
-					if(pAdjacentPlot->GetNumAdjacentPlotType(iPlotType) <= 0)
-					{
-						bNoAdjacent = true;
-					}
-				}
-			}
-		}
-	}
-	//Are the tests above valid, and is the player looking for a chokepoint?
-	if(bChokePoint && bNoAdjacent)
-	{
-		if(iNumPlotType > 1)
-		{
-			bNoAdjacent = true;
-		}
-		else
-		{
-			bNoAdjacent = false;
+			aPassableNeighborsNonPeninsula[iPassableAndNoPeninsula] = aPassableNeighbors[iI];
+			iPassableAndNoPeninsula++;
 		}
 	}
 
-	return bNoAdjacent;
-}
-bool CvPlot::IsChokePoint(bool bWater, bool bMountain, int iDistance)
-{
-	CvPlot* pAdjacentPlot;
-	CvPlot* pAdjacentLandPlot;
-	int iI;
-	int iNumGoodWater = 0;
-	int iLandPlots = 0;
-	int iWaterPlots = 0;
-	int iNumMountain = 0;
-	int iNumRange = 0;
-
-	if(bWater && isCoastalLand(GC.getMIN_WATER_SIZE_FOR_OCEAN()))
+	if (iPassableAndNoPeninsula<2)
+		return false;
+	else if (iPassableAndNoPeninsula==2)
 	{
-		for (iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
-		{
-			pAdjacentLandPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
-
-			if(pAdjacentLandPlot != NULL)
-			{
-				//First, let's make sure we have a land bridge here.
-				if(!pAdjacentLandPlot->isWater() && !pAdjacentLandPlot->isImpassable() && !pAdjacentLandPlot->isMountain())
-				{
-					iLandPlots++;
-				}
-				else if(pAdjacentLandPlot->isWater())
-				{
-					iWaterPlots++;
-				}
-			}
-		}
-		//Are there 2-4 land plots? If so, next test.
-		if(iLandPlots > 1 && iLandPlots <= 4)
-		{
-			if(iWaterPlots > 1 && iWaterPlots <= 4)
-			{
-				//Let's look at the other plots.
-				for (iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
-				{
-					pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
-
-					if(pAdjacentPlot != NULL && pAdjacentPlot->isWater())
-					{				
-						//If less than one, is lake. If more than four, is peninsula.
-						if(pAdjacentPlot->GetNumAdjacentPlotType(PLOT_OCEAN) > 0 && (pAdjacentPlot->GetNumAdjacentPlotType(PLOT_OCEAN) <= 4))
-						{
-							iNumGoodWater++;	
-						}
-					}
-				}
-			}
-
-			//If two, let's check for continuity. We don't want that.
-			if(iNumGoodWater == 2)
-			{
-				if(NoTwoPlotTypeTouch(PLOT_OCEAN, true))
-				{
-					return true;
-				}
-			}
-			//If more than two, that means there is most likely water on both sides. Good!
-			if(iNumGoodWater > 2)
-			{
-				return true;
-			}
-		}
+		//check they are not adjacent
+		return !( aPassableNeighborsNonPeninsula[0]->isAdjacent(aPassableNeighborsNonPeninsula[1]) );
 	}
-	if(bMountain)
+	else if (iPassableAndNoPeninsula==3)
 	{
-		int iX = getX(); int iY = getY();
-		for (int i = -iDistance; i <= iDistance; ++i) 
-		{
-			for (int j = -iDistance; j <= iDistance; ++j) 
-			{
-				CvPlot* pLoopPlot = ::plotXYWithRangeCheck(iX, iY, i, j, iDistance);
-			
-				if (pLoopPlot != NULL && pLoopPlot->getFeatureType() != FEATURE_ICE)
-				{
-					if(pLoopPlot->isMountain() || pLoopPlot->isImpassable())
-					{
-						//Do two mountains not touch here?
-						if(pLoopPlot->NoTwoPlotTypeTouch(PLOT_MOUNTAIN, false))
-						{
-							iNumMountain++;
-						}
-						//More than one mountain clumped together. Range, possibly?
-						else
-						{
-							iNumRange++;
-						}
-					}
-				}
-			}
-		}
-		//Scaled numbers based on distance.
-		//More than one mountain within 1 ring?
-		if(iDistance == 1)
-		{
-			if(iNumMountain > 1 || ((iNumRange < 2) && (iNumRange > 0)))
-			{
-				return true;
-			}
-		}
-		//More than three mountains within two rings?
-		else if(iDistance == 2)
-		{
-			if(iNumMountain > 3 || ((iNumRange < 4) && (iNumRange > 0)))
-			{
-				return true;
-			}
-		}
-		//More than five mountains within three rings?
-		else if(iDistance == 3)
-		{
-			if(iNumMountain > 5 || ((iNumRange < 6) && (iNumRange > 0)))
-			{
-				return true;
-			}
-		}
+		//three passable plots. not more than one pair may be adjacent
+		int AB = int(aPassableNeighborsNonPeninsula[0]->isAdjacent(aPassableNeighborsNonPeninsula[1]));
+		int AC = int(aPassableNeighborsNonPeninsula[0]->isAdjacent(aPassableNeighborsNonPeninsula[2]));
+		int BC = int(aPassableNeighborsNonPeninsula[1]->isAdjacent(aPassableNeighborsNonPeninsula[2]));
+
+		return (AB+AC+BC)<2;
 	}
+	else if (iPassableAndNoPeninsula==4)
+	{
+		//four passable plots. not more than two pairs may be adjacent
+		int AB = int(aPassableNeighborsNonPeninsula[0]->isAdjacent(aPassableNeighborsNonPeninsula[1]));
+		int AC = int(aPassableNeighborsNonPeninsula[0]->isAdjacent(aPassableNeighborsNonPeninsula[2]));
+		int AD = int(aPassableNeighborsNonPeninsula[0]->isAdjacent(aPassableNeighborsNonPeninsula[3]));
+		int BC = int(aPassableNeighborsNonPeninsula[1]->isAdjacent(aPassableNeighborsNonPeninsula[2]));
+		int BD = int(aPassableNeighborsNonPeninsula[1]->isAdjacent(aPassableNeighborsNonPeninsula[3]));
+		int CD = int(aPassableNeighborsNonPeninsula[2]->isAdjacent(aPassableNeighborsNonPeninsula[3]));
+
+		return (AB+AC+AD+BC+BD+CD)<3;
+	}
+
 	return false;
 }
 #endif
@@ -5261,7 +5101,7 @@ CvPlot* CvPlot::getInlandCorner() const
 			pRiverPlot = GC.getMap().plotCheckInvalid(getX(), getY());
 			break;
 		case 1:
-			pRiverPlot = plotDirection(getX(), getY(), DIRECTION_NORTH);
+			pRiverPlot = plotDirection(getX(), getY(), DIRECTION_NORTHEAST);
 			break;
 		case 2:
 			pRiverPlot = plotDirection(getX(), getY(), DIRECTION_NORTHWEST);
@@ -6028,7 +5868,7 @@ void CvPlot::setPlotType(PlotTypes eNewValue, bool bRecalculate, bool bRebuildGr
 		m_ePlotType = eNewValue;
 
 		updateYield();
-
+		updateImpassable();
 		updateSeeFromSight(true);
 
 		if((getTerrainType() == NO_TERRAIN) || (GC.getTerrainInfo(getTerrainType())->isWater() != isWater()))
@@ -8863,6 +8703,26 @@ void CvPlot::updateYield()
 	}
 }
 
+#ifdef MOD_BALANCE_CORE_SETTLER
+
+//	--------------------------------------------------------------------------------
+int CvPlot::GetExplorationBonus(const CvPlayer* pPlayer, int iScaleCloseness, int iScaleLatitude)
+{
+	//give a bonus to tiles that are close to our own territory and not too close to the poles
+	int iDistToOwnCities = pPlayer->GetCityDistance(this);
+	int iDistToMapCenter = abs(getLatitude());
+	int iClosenessBonus = max(0, ((iScaleCloseness - iDistToOwnCities) * 100) / iScaleCloseness);
+	int iStrategyBonus = max(0, ((iScaleLatitude - iDistToMapCenter) * 100) / iScaleLatitude);
+	
+	int iFertilityBonus = 0;
+	if ( pPlayer->GetFoundValueOfLastSettledCity()>0 )
+		iFertilityBonus = max(0, (getFoundValue(pPlayer->GetID())*100) / pPlayer->GetFoundValueOfLastSettledCity() );
+
+	return iClosenessBonus + iStrategyBonus + iFertilityBonus;
+}
+
+#endif
+
 //	--------------------------------------------------------------------------------
 int CvPlot::getFoundValue(PlayerTypes eIndex)
 {
@@ -8885,7 +8745,7 @@ bool CvPlot::isBestAdjacentFound(PlayerTypes eIndex)
 	int iI;
 
 	CvPlayer& thisPlayer = GET_PLAYER(eIndex);
-	int iPlotValue = thisPlayer.AI_foundValue(getX(), getY());
+	int iPlotValue = getFoundValue(eIndex);
 
 	if(iPlotValue == 0)
 	{
@@ -8898,7 +8758,7 @@ bool CvPlot::isBestAdjacentFound(PlayerTypes eIndex)
 
 		if((pAdjacentPlot != NULL) && pAdjacentPlot->isRevealed(thisPlayer.getTeam()))
 		{
-			if(thisPlayer.AI_foundValue(pAdjacentPlot->getX(), pAdjacentPlot->getY()) > iPlotValue)
+			if(pAdjacentPlot->getFoundValue(eIndex) > iPlotValue)
 			{
 				return false;
 			}
@@ -12067,29 +11927,81 @@ bool CvPlot::HasWrittenArtifact() const
 	return bRtnValue;
 }
 
+// Citadel
+int CvPlot::GetDamageFromNearByFeatures(PlayerTypes ePlayer) const
+{
+	int iCitadelRange = 1;
+
+	CvPlot* pLoopPlot;
+	TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
+
+	ImprovementTypes eImprovement;
+	int iDamage = 0, iTotalDamage = 0;
+
+	// Look around this Unit to see if there's an adjacent Citadel
+	for(int iX = -iCitadelRange; iX <= iCitadelRange; iX++)
+	{
+		for(int iY = -iCitadelRange; iY <= iCitadelRange; iY++)
+		{
+			pLoopPlot = plotXYWithRangeCheck(getX(), getY(), iX, iY, iCitadelRange);
+
+			if(pLoopPlot != NULL && pLoopPlot->isRevealed(eTeam) )
+			{
+				eImprovement = pLoopPlot->getImprovementType();
+
+				// Citadel here?
+				if(eImprovement != NO_IMPROVEMENT && !pLoopPlot->IsImprovementPillaged())
+				{
+					iDamage = GC.getImprovementInfo(eImprovement)->GetNearbyEnemyDamage();
+					if(iDamage != 0)
+					{
+						if(pLoopPlot->getOwner() != NO_PLAYER)
+						{
+							if(GET_TEAM(eTeam).isAtWar(pLoopPlot->getTeam()))
+							{
+								iTotalDamage += iDamage;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return iTotalDamage;
+}
+
 //	---------------------------------------------------------------------------
 void CvPlot::updateImpassable()
 {
 	const TerrainTypes eTerrain = getTerrainType();
 	const FeatureTypes eFeature = getFeatureType();
+	const PlotTypes ePlot = getPlotType();
 
 	m_bIsImpassable = false;
 
+	bool bA = false, bB = false, bC = false;
+
+	if(ePlot != NO_PLOT)
+	{
+		CvPlotInfo* pkPlotInfo = GC.getPlotInfo(ePlot);
+		if(pkPlotInfo)
+			bA = pkPlotInfo->isImpassable();
+	}
 	if(eTerrain != NO_TERRAIN)
 	{
-		if(eFeature == NO_FEATURE)
-		{
-			CvTerrainInfo* pkTerrainInfo = GC.getTerrainInfo(eTerrain);
-			if(pkTerrainInfo)
-				m_bIsImpassable = pkTerrainInfo->isImpassable();
-		}
-		else
-		{
-			CvFeatureInfo* pkFeatureInfo = GC.getFeatureInfo(eFeature);
-			if(pkFeatureInfo)
-				m_bIsImpassable = pkFeatureInfo->isImpassable();
-		}
+		CvTerrainInfo* pkTerrainInfo = GC.getTerrainInfo(eTerrain);
+		if(pkTerrainInfo)
+			bB = pkTerrainInfo->isImpassable();
 	}
+	if(eFeature != NO_FEATURE)
+	{
+		CvFeatureInfo* pkFeatureInfo = GC.getFeatureInfo(eFeature);
+		if(pkFeatureInfo)
+			bC = pkFeatureInfo->isImpassable();
+	}
+
+	m_bIsImpassable = bA || bB || bC;
 }
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)

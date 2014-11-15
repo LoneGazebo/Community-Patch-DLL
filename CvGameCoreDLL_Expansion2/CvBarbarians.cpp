@@ -387,7 +387,7 @@ void CvBarbarians::DoCamps()
 				// Plot must be valid (not Water, nonvisible)
 				if(!pLoopPlot->isWater())
 				{
-					if(!pLoopPlot->isImpassable() && !pLoopPlot->isMountain())
+					if(!pLoopPlot->isImpassable())
 					{
 #if defined(MOD_BUGFIX_BARB_CAMP_TERRAINS)
 						CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eCamp);
@@ -813,7 +813,7 @@ void CvBarbarians::DoSpawnBarbarianUnit(CvPlot* pPlot, bool bIgnoreMaxBarbarians
 			{
 				if(pLoopPlot->getNumUnits() == 0)
 				{
-					if(!pLoopPlot->isImpassable() && !pLoopPlot->isMountain())
+					if(!pLoopPlot->isImpassable())
 					{
 						if(!pLoopPlot->isCity())
 						{

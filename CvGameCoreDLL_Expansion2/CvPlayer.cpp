@@ -35,6 +35,7 @@
 #include "CvImprovementClasses.h"
 #include "CvBuilderTaskingAI.h"
 #include "CvDangerPlots.h"
+#include "CvDistanceMap.h"
 #include "CvCityConnections.h"
 #include "CvNotifications.h"
 #include "CvDiplomacyRequests.h"
@@ -44,7 +45,9 @@
 #include "ICvDLLUserInterface.h"
 #include "CvEnumSerialization.h"
 #include "FStlContainerSerialization.h"
+
 #include <sstream>
+#include <iomanip>
 
 #include "CvInternalGameCoreUtils.h"
 #include "CvAchievementUnlocker.h"
@@ -528,6 +531,10 @@ CvPlayer::CvPlayer() :
 	m_pDealAI = FNEW(CvDealAI, c_eCiv5GameplayDLL, 0);
 	m_pBuilderTaskingAI = FNEW(CvBuilderTaskingAI, c_eCiv5GameplayDLL, 0);
 	m_pDangerPlots = FNEW(CvDangerPlots, c_eCiv5GameplayDLL, 0);
+#ifdef MOD_BALANCE_CORE_SETTLER
+	m_pCityDistance = FNEW(CvDistanceMap, c_eCiv5GameplayDLL, 0);
+	m_iFoundValueOfLastSettledCity = 0;
+#endif
 	m_pCityConnections = FNEW(CvCityConnections, c_eCiv5GameplayDLL, 0);
 	m_pTreasury = FNEW(CvTreasury, c_eCiv5GameplayDLL, 0);
 	m_pTraits = FNEW(CvPlayerTraits, c_eCiv5GameplayDLL, 0);
@@ -559,6 +566,9 @@ CvPlayer::~CvPlayer()
 	uninit();
 
 	SAFE_DELETE(m_pDangerPlots);
+#ifdef MOD_BALANCE_CORE_SETTLER
+	SAFE_DELETE(m_pCityDistance);
+#endif
 	delete m_pPlayerPolicies;
 	delete m_pEconomicAI;
 	delete m_pMilitaryAI;
@@ -824,6 +834,10 @@ void CvPlayer::uninit()
 	{
 		m_pDangerPlots->Uninit();
 	}
+
+#ifdef MOD_BALANCE_CORE_SETTLER
+	m_pCityDistance->Uninit();
+#endif
 
 	m_ppaaiSpecialistExtraYield.clear();
 #if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
@@ -1394,6 +1408,12 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 			m_pDiplomacyRequests->Init(eID);
 		}
 		m_pDangerPlots->Init(eID, false /*bAllocate*/);
+
+#ifdef MOD_BALANCE_CORE_SETTLER
+		//don't allocate here, map size is not known
+		m_pCityDistance->Init(eID, false);
+#endif
+
 		m_pTreasury->Init(this);
 		m_pTraits->Init(GC.GetGameTraits(), this);
 		m_pEspionage->Init(this);
@@ -1566,14 +1586,11 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 /// This is called after the map and other game constructs have been setup and just before the game starts.
 void CvPlayer::gameStartInit()
 {
-	// if the game is loaded, don't init the danger plots. This was already done in the serialization process.
-	if(CvPreGame::gameStartType() != GAME_LOADED)
-	{
-		if(!GC.GetEngineUserInterface()->IsLoadedGame())
-		{
-			InitDangerPlots(); // moved this up because everyone should have danger plots inited. This is bad because saved games get much bigger for no reason.
-		}
-	}
+	//make sure the non-serialized infos are up to date
+	m_pDangerPlots->Init(GetID(), true);
+	m_pCityDistance->Init(GetID(), true);
+	m_pCityDistance->Update();
+	UpdateDangerPlots();
 
 	verifyAlive();
 	if(!isAlive())
@@ -1972,7 +1989,7 @@ CvPlot* CvPlayer::addFreeUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 #endif
 							if(pLoopPlot != NULL && pLoopPlot->getArea() == pStartingPlot->getArea())
 							{
-								if(!pLoopPlot->isImpassable() && !pLoopPlot->isMountain())
+								if(!pLoopPlot->isImpassable())
 								{
 									if(!(pLoopPlot->isUnit()))
 									{
@@ -2030,7 +2047,7 @@ CvCity* CvPlayer::initCity(int iX, int iY, bool bBumpUnits, bool bInitialFoundin
 CvCity* CvPlayer::initCity(int iX, int iY, bool bBumpUnits, bool bInitialFounding)
 #endif
 {
-	CvCity* pCity = addCity();
+	CvCity* pCity = m_cities.Add();
 
 	CvAssertMsg(pCity != NULL, "City is not assigned a valid value");
 	if(pCity != NULL)
@@ -2042,6 +2059,11 @@ CvCity* CvPlayer::initCity(int iX, int iY, bool bBumpUnits, bool bInitialFoundin
 		pCity->init(pCity->GetID(), GetID(), iX, iY, bBumpUnits, bInitialFounding);
 #endif
 		pCity->GetCityStrategyAI()->UpdateFlavorsForNewCity();
+
+#ifdef MOD_BALANCE_CORE_SETTLER
+		m_pCityDistance->Update();
+#endif
+
 	}
 
 	return pCity;
@@ -4565,13 +4587,6 @@ int CvPlayer::GetNumUnitsWithUnitCombat(UnitCombatTypes eUnitCombat)
 }
 
 //	-----------------------------------------------------------------------------------------------
-/// Setting up danger plots
-void CvPlayer::InitDangerPlots()
-{
-	m_pDangerPlots->Init(GetID(), true /*bAllocate*/);
-}
-
-//	-----------------------------------------------------------------------------------------------
 void CvPlayer::UpdateDangerPlots()
 {
 	m_pDangerPlots->UpdateDanger(false, false);
@@ -4992,7 +5007,7 @@ void CvPlayer::doTurnPostDiplomacy()
 			AI_PERF_FORMAT("AI-perf.csv", ("Plots/Danger, Turn %03d, %s", kGame.getElapsedGameTurns(), getCivilizationShortDescription()) );
 
 			UpdatePlots();
-			m_pDangerPlots->UpdateDanger();
+			UpdateDangerPlots();
 		}
 
 		if(!isBarbarian())
@@ -5345,8 +5360,8 @@ void CvPlayer::DoUnitReset()
 			}
 		}
 
-		int iCitadelDamage;
-		if(pLoopUnit->IsNearEnemyCitadel(iCitadelDamage))
+		int iCitadelDamage = pLoopUnit->plot()->GetDamageFromNearByFeatures(GetID());
+		if( iCitadelDamage )
 		{
 			pLoopUnit->changeDamage(iCitadelDamage, NO_PLAYER, /*fAdditionalTextDelay*/ 0.5f);
 		}
@@ -7490,7 +7505,7 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 						{
 							if(pLoopPlot->getArea() == pPlot->getArea())
 							{
-								if(!(pLoopPlot->isImpassable()) && !pLoopPlot->isMountain() && !(pLoopPlot->getPlotCity()))
+								if(!(pLoopPlot->isImpassable()) && !(pLoopPlot->getPlotCity()))
 								{
 									if(pLoopPlot->getNumUnits() == 0)
 									{
@@ -7784,6 +7799,9 @@ void CvPlayer::found(int iX, int iY)
 	}
 
 	SetTurnsSinceSettledLastCity(0);
+
+	int iFoundValue = GC.getMap().plot(iX,iY)->getFoundValue(GetID());
+	SetFoundValueOfLastSettledCity(iFoundValue);
 
 #if defined(MOD_GLOBAL_RELIGIOUS_SETTLERS) && defined(MOD_API_EXTENSIONS)
 	CvCity* pCity = initCity(iX, iY, true, true, eReligion);
@@ -12705,7 +12723,7 @@ void CvPlayer::DoUprising()
 				continue;
 
 			// Can't be impassable
-			if(pPlot->isImpassable() || pPlot->isMountain())
+			if(pPlot->isImpassable())
 				continue;
 
 			// Can't be water
@@ -20892,7 +20910,7 @@ void CvPlayer::DoUpdateCramped()
 						iTotalPlotsNearby++;
 
 						// A "good" unowned Plot
-						if(!pPlot->isOwned() && !pPlot->isImpassable() && !pPlot->isMountain() && !pPlot->isWater())
+						if(!pPlot->isOwned() && !pPlot->isImpassable() && !pPlot->isWater())
 						{
 							iUsablePlotsNearby++;
 						}
@@ -24650,18 +24668,25 @@ const CvCity* CvPlayer::getCity(int iID) const
 	return(m_cities.GetAt(iID));
 }
 
-
-//	--------------------------------------------------------------------------------
-CvCity* CvPlayer::addCity()
-{
-	return(m_cities.Add());
-}
-
 //	--------------------------------------------------------------------------------
 void CvPlayer::deleteCity(int iID)
 {
 	m_cities.RemoveAt(iID);
+
+#ifdef MOD_BALANCE_CORE_SETTLER
+	m_pCityDistance->Update();
+#endif
 }
+
+#ifdef MOD_BALANCE_CORE_SETTLER
+int CvPlayer::GetCityDistance( const CvPlot* pPlot ) const
+{
+	if (pPlot && m_pCityDistance)
+		return m_pCityDistance->GetDistanceFromFriendlyCity( *pPlot );
+	else
+		return INT_MAX;
+}
+#endif
 
 //	--------------------------------------------------------------------------------
 CvCity* CvPlayer::GetFirstCityWithBuildingClass(BuildingClassTypes eBuildingClass)
@@ -24970,7 +24995,11 @@ bool CvPlayer::IsCityAlreadyTargeted(CvCity* pCity, DomainTypes eDomain, int iPe
 
 //	--------------------------------------------------------------------------------
 /// Are we already sending a settler to this plot (or any plot within 2)
+#ifdef MOD_BALANCE_CORE_SETTLER
+bool CvPlayer::IsPlotTargetedForCity(CvPlot *pPlot, CvAIOperation* pOpToIgnore) const
+#else
 bool CvPlayer::IsPlotTargetedForCity(CvPlot *pPlot) const
+#endif
 {
 	CvAIOperation* pOperation;
 	std::map<int , CvAIOperation*>::const_iterator iter;
@@ -24978,7 +25007,11 @@ bool CvPlayer::IsPlotTargetedForCity(CvPlot *pPlot) const
 	for(iter = m_AIOperations.begin(); iter != m_AIOperations.end(); ++iter)
 	{
 		pOperation = iter->second;
+#ifdef MOD_BALANCE_CORE_SETTLER
+		if(pOperation && pOperation!=pOpToIgnore)
+#else
 		if(pOperation)
+#endif
 		{
 			switch (pOperation->GetOperationType())
 			{
@@ -25745,7 +25778,7 @@ int CvPlayer::getAdvancedStartUnitCost(UnitTypes eUnit, bool bAdd, CvPlot* pPlot
 					return -1;
 				}
 
-				if(pPlot->isImpassable() || pPlot->isMountain())
+				if(pPlot->isImpassable())
 				{
 					return -1;
 				}
@@ -26085,7 +26118,7 @@ int CvPlayer::getAdvancedStartRouteCost(RouteTypes eRoute, bool bAdd, CvPlot* pP
 
 		if(bAdd)
 		{
-			if(pPlot->isImpassable() || pPlot->isWater() || pPlot->isMountain())
+			if(pPlot->isImpassable() || pPlot->isWater())
 			{
 				return -1;
 			}
@@ -28226,7 +28259,6 @@ void CvPlayer::Read(FDataStream& kStream)
 	m_pDealAI->Read(kStream);
 	m_pBuilderTaskingAI->Read(kStream);
 	m_pCityConnections->Read(kStream);
-	m_pDangerPlots->Read(kStream);
 	m_pTraits->Read(kStream);
 	kStream >> *m_pEspionage;
 	kStream >> *m_pEspionageAI;
@@ -28369,6 +28401,10 @@ void CvPlayer::Read(FDataStream& kStream)
 	MOD_SERIALIZE_READ(36, kStream, m_iVassalGoldMaintenanceMod, 0);
 #endif
 
+#ifdef MOD_BALANCE_CORE_SETTLER
+	kStream >> m_iFoundValueOfLastSettledCity;
+#endif
+
 	if(GetID() < MAX_MAJOR_CIVS)
 	{
 		if(!m_pDiplomacyRequests)
@@ -28382,7 +28418,6 @@ void CvPlayer::Read(FDataStream& kStream)
 
 	if(m_bTurnActive)
 		GC.getGame().changeNumGameTurnActive(1, std::string("setTurnActive() [loading save game] for player ") + getName());
-
 }
 
 //	--------------------------------------------------------------------------------
@@ -28794,7 +28829,6 @@ void CvPlayer::Write(FDataStream& kStream) const
 	m_pDealAI->Write(kStream);
 	m_pBuilderTaskingAI->Write(kStream);
 	m_pCityConnections->Write(kStream);
-	m_pDangerPlots->Write(kStream);
 	m_pTraits->Write(kStream);
 	kStream << *m_pEspionage;
 	kStream << *m_pEspionageAI;
@@ -28916,6 +28950,10 @@ void CvPlayer::Write(FDataStream& kStream) const
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	MOD_SERIALIZE_WRITE(kStream, m_iVassalGoldMaintenanceMod);
+#endif
+
+#ifdef MOD_BALANCE_CORE_SETTLER
+	kStream << m_iFoundValueOfLastSettledCity;
 #endif
 }
 
@@ -29931,6 +29969,21 @@ int CvPlayer::GetNumNaturalWondersInOwnedPlots()
 }
 
 //	--------------------------------------------------------------------------------
+/// How good was the last city?
+void CvPlayer::SetFoundValueOfLastSettledCity(int iValue)
+{
+	if(m_iFoundValueOfLastSettledCity != iValue)
+		m_iFoundValueOfLastSettledCity = iValue;
+}
+
+//	--------------------------------------------------------------------------------
+/// How good was the last city?
+int CvPlayer::GetFoundValueOfLastSettledCity() const
+{
+	return m_iFoundValueOfLastSettledCity;
+}
+
+//	--------------------------------------------------------------------------------
 /// How long ago did this guy last settle a city?
 int CvPlayer::GetTurnsSinceSettledLastCity() const
 {
@@ -30020,6 +30073,180 @@ int CvPlayer::GetBestSettleAreas(int iMinScore, int& iFirstArea, int& iSecondAre
 
 //	--------------------------------------------------------------------------------
 /// Find the best spot in the entire world for this unit to settle
+#ifdef MOD_BALANCE_CORE_SETTLER
+
+ostream& operator<<(ostream& os, const CvPlot* pPlot)
+{
+	if (pPlot)
+	    os << pPlot->getX() << "," << pPlot->getY() << "," << pPlot->getTerrainType() << "," << pPlot->getPlotType() << "," \
+			<< pPlot->getFeatureType() << "," << pPlot->getOwner() << "," << pPlot->getArea();
+    return os;
+}
+
+CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, bool bEscorted, int iTargetArea, CvAIOperation* pOpToIgnore, bool bEnableLogging)
+{
+	//--------
+	bool bLogging = GC.getLogging() && GC.getAILogging() && bEnableLogging;
+	std::stringstream dump;
+	int iDanger=0, iFertility=0;
+	//--------
+
+	int iUnitArea = pUnit ? pUnit->getArea() : -1;
+	PlayerTypes eOwner = pUnit ? pUnit->getOwner() : GetID();
+	TeamTypes eTeam = pUnit ? pUnit->getTeam() : getTeam();
+
+	//start with a predefined base value
+	int iBestFoundValue = GC.getAI_STRATEGY_MINIMUM_SETTLE_FERTILITY();
+	CvPlot* pBestFoundPlot = NULL;
+
+	// scale plot values by distance based on world size
+	float fDefaultDiagnonal = sqrt( 80.f*80.f+52.f*52.f );
+	float fActualDiagonal = sqrt( (float)GC.getMap().getGridHeight()*GC.getMap().getGridHeight() + GC.getMap().getGridWidth()*GC.getMap().getGridWidth() );
+	//prefer settling close in the beginning
+	float fTimeOffset = GC.getGame().getGameTurn() / 30.f;
+
+	//this will be used later
+	int iEvalDistance = int(GC.getSETTLER_EVALUATION_DISTANCE() * fActualDiagonal / fDefaultDiagnonal + 0.5f + fTimeOffset);
+	iEvalDistance = max( /*12*/ GC.getSETTLER_EVALUATION_DISTANCE(), iEvalDistance );
+
+	CvMap& kMap = GC.getMap();
+	int iNumPlots = kMap.numPlots();
+	for(int iPlotLoop = 0; iPlotLoop < iNumPlots; iPlotLoop++)
+	{
+		CvPlot* pPlot = kMap.plotByIndexUnchecked(iPlotLoop);
+
+		if(!pPlot)
+		{
+			continue;
+		}
+
+		if (bLogging)
+		{
+			iDanger = GetPlotDanger(*pPlot);
+			iFertility = GC.getGame().GetSettlerSiteEvaluator()->PlotFertilityValue(pPlot,true);
+		}
+
+		if(!pPlot->isRevealed(getTeam()))
+		{
+			//--------------
+			if (bLogging) 
+			dump << pPlot << ",0," << iDanger << "," << iFertility << ",-1" << ",0" << std::endl;
+			//--------------
+			continue;
+		}
+
+		if(iTargetArea != -1 && pPlot->getArea() != iTargetArea)
+		{
+			//--------------
+			if (bLogging) 
+			dump << pPlot << ",1," << iDanger << "," << iFertility << ",-1" << ",-6" << std::endl;
+			//--------------
+			continue;
+		}
+
+		if(pPlot->getOwner() != NO_PLAYER && pPlot->getOwner() != eOwner)
+		{
+			//--------------
+			if (bLogging) 
+			dump << pPlot << ",1," << iDanger << "," << iFertility << ",-1" << ",-2" << std::endl;
+			//--------------
+			continue;
+		}
+
+		if(pPlot->IsAdjacentOwnedByOtherTeam(eTeam))
+		{
+			//--------------
+			if (bLogging) 
+			dump << pPlot << ",1," << iDanger << "," << iFertility << ",-1" << ",-2" << std::endl;
+			//--------------
+			continue;
+		}
+
+		if((pUnit && !pUnit->canFound(pPlot)) || pPlot->isImpassable())
+		{
+			//--------------
+			if (bLogging) 
+			dump << pPlot << ",1," << iDanger << "," << iFertility << ",-1" << ",-1" << std::endl;
+			//--------------
+			continue;
+		}
+
+		if (IsPlotTargetedForCity(pPlot,pOpToIgnore))
+		{
+			//--------------
+			if (bLogging) 
+			dump << pPlot << ",1," << iDanger << "," << iFertility << ",-1" << ",-3" << std::endl;
+			//--------------
+			continue;
+		}
+
+		if(!bEscorted && pPlot->isVisibleEnemyUnit(eOwner))
+		{
+			//--------------
+			if (bLogging) 
+			dump << pPlot << ",1," << iDanger << "," << iFertility << ",-1" << ",-4" << std::endl;
+			//--------------
+			continue;
+		}
+
+		//take distance from existing cities into account
+		int iScale = ( 100 * ( GetCityDistance(pPlot) - GC.getSETTLER_DISTANCE_DROPOFF_MODIFIER() ) ) / iEvalDistance;
+		iScale = 100 - min(100,max(0,iScale));
+
+		if( iUnitArea!=-1 && (pPlot->getArea()!=iUnitArea) )
+		{
+			if(GC.getMap().GetAIMapHint() & 5)  //encourage offshore expansion
+				iScale += 50;
+			else	//careful when going offshore
+				iScale -= 33;
+		}
+
+		if (iScale==0)
+		{
+			//--------------
+			if (bLogging) 
+			dump << pPlot << ",1," << iDanger << "," << iFertility << ",0" << ",-5" << std::endl;
+			//--------------
+			continue;
+		}
+
+		//finally no more obstacles
+		int iValue = 0;
+		if (bLogging) 
+		{
+			CvString strDebug;
+			iValue = GC.getGame().GetSettlerSiteEvaluator()->PlotFoundValue(pPlot, this, NO_YIELD, false, &strDebug);
+			//--------------
+			dump << pPlot << ",1," << iDanger << "," << iFertility << "," << iScale << "," << iValue << "," << strDebug.c_str() << std::endl;
+			//--------------
+		}
+		else
+			//with caching
+			iValue = pPlot->getFoundValue(eOwner);
+
+		//factor in the distance
+		iValue = (iValue/100)*iScale;
+		if(iValue > iBestFoundValue)
+		{
+			iBestFoundValue = iValue;
+			pBestFoundPlot = pPlot;
+		}
+	}
+
+
+	if (bLogging) 
+	{
+		std::stringstream ss;
+		ss << "CitySites_" << getCivilizationAdjective() << "_" << std::setfill('0') << std::setw(3) << GC.getGame().getGameTurn() << ".txt";
+		FILogFile* pLog=LOGFILEMGR.GetLog( ss.str().c_str(), FILogFile::kDontTimeStamp );
+		pLog->Msg( dump.str().c_str() );
+		pLog->Close();
+	}
+
+	return pBestFoundPlot;
+}
+#else
+
 CvPlot* CvPlayer::GetBestSettlePlot(CvUnit* pUnit, bool bEscorted, int iArea) const
 {
 	if(!pUnit)
@@ -30131,6 +30358,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(CvUnit* pUnit, bool bEscorted, int iArea) co
 	}
 	return pBestFoundPlot;
 }
+#endif //MOD_BALANCE_CORE_SETTLER
 
 
 //	--------------------------------------------------------------------------------

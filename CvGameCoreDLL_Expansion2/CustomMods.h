@@ -31,6 +31,12 @@
 // Comment out this line to include all the achievements code (which don't work in modded games, so we don't need the code!)
 #define NO_ACHIEVEMENTS
 
+// Coastal cities are assigned to the water body as well as the land area they are on
+#define MOD_CORE_RIPARIAN_CITIES
+
+// unhappiness from public opinion scales linearly with dissatisfaction
+#define MOD_CORE_SMOOTH_PUBLIC_OPINION
+
 // Uncomment this line to include the achievements hack code
 // #define ACHIEVEMENT_HACKS
 #if defined(ACHIEVEMENT_HACKS)
@@ -191,7 +197,7 @@
 #define MOD_BALANCE_CORE_YIELDS						(MOD_COMMUNITY_PATCH && gCustomMods.isMOD_BALANCE_CORE_YIELDS())
 #define MOD_BALANCE_CORE_SPIES						(MOD_COMMUNITY_PATCH && gCustomMods.isMOD_BALANCE_CORE_SPIES())
 #define MOD_BALANCE_CORE_MILITARY					(MOD_COMMUNITY_PATCH && gCustomMods.isMOD_BALANCE_CORE_MILITARY())
-#define MOD_BALANCE_CORE_SETTLER					(MOD_COMMUNITY_PATCH && gCustomMods.isMOD_BALANCE_CORE_SETTLER())
+#define MOD_BALANCE_CORE_SETTLER					(MOD_COMMUNITY_PATCH)
 #define MOD_BALANCE_CORE_DEALS						(MOD_COMMUNITY_PATCH && gCustomMods.isMOD_BALANCE_CORE_DEALS())
 #define MOD_BALANCE_CORE_MINORS						(MOD_COMMUNITY_PATCH && gCustomMods.isMOD_BALANCE_CORE_MINORS())
 #define MOD_BALANCE_CORE_DIFFICULTY					(MOD_COMMUNITY_PATCH && gCustomMods.isMOD_BALANCE_CORE_DIFFICULTY())

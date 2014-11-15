@@ -2475,7 +2475,7 @@ void CvBuildingXMLEntries::DeleteArray()
 }
 
 /// Get a specific entry
-CvBuildingEntry* CvBuildingXMLEntries::GetEntry(int index)
+CvBuildingEntry* CvBuildingXMLEntries::GetEntry(int index) const
 {
 	return m_paBuildingEntries[index];
 }

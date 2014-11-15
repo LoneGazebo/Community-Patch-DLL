@@ -24183,9 +24183,9 @@ void CvDiplomacyAI::LogMinorCivGiftGold(PlayerTypes eMinor, int iOldFriendship, 
 
 		pLog->Msg(strOutBuf);
 
-		OutputDebugString("\n");
-		OutputDebugString(strOutBuf);
-		OutputDebugString("\n");
+		//OutputDebugString("\n");
+		//OutputDebugString(strOutBuf);
+		//OutputDebugString("\n");
 	}
 }
 
@@ -24258,9 +24258,9 @@ void CvDiplomacyAI::LogMinorCivBullyGold(PlayerTypes eMinor, int iOldFriendshipT
 
 		pLog->Msg(strOutBuf);
 
-		OutputDebugString("\n");
-		OutputDebugString(strOutBuf);
-		OutputDebugString("\n");
+		//OutputDebugString("\n");
+		//OutputDebugString(strOutBuf);
+		//OutputDebugString("\n");
 	}
 }
 
@@ -24332,9 +24332,9 @@ void CvDiplomacyAI::LogMinorCivBullyUnit(PlayerTypes eMinor, int iOldFriendshipT
 
 		pLog->Msg(strOutBuf);
 
-		OutputDebugString("\n");
-		OutputDebugString(strOutBuf);
-		OutputDebugString("\n");
+		//OutputDebugString("\n");
+		//OutputDebugString(strOutBuf);
+		//OutputDebugString("\n");
 	}
 }
 
@@ -24392,9 +24392,9 @@ void CvDiplomacyAI::LogMinorCivQuestReceived(PlayerTypes eMinor, int iOldFriends
 
 		pLog->Msg(strOutBuf);
 
-		OutputDebugString("\n");
-		OutputDebugString(strOutBuf);
-		OutputDebugString("\n");
+		//OutputDebugString("\n");
+		//OutputDebugString(strOutBuf);
+		//OutputDebugString("\n");
 	}
 }
 
@@ -24452,9 +24452,9 @@ void CvDiplomacyAI::LogMinorCivQuestFinished(PlayerTypes eMinor, int iOldFriends
 
 		pLog->Msg(strOutBuf);
 
-		OutputDebugString("\n");
-		OutputDebugString(strOutBuf);
-		OutputDebugString("\n");
+		//OutputDebugString("\n");
+		//OutputDebugString(strOutBuf);
+		//OutputDebugString("\n");
 	}
 }
 
@@ -24512,9 +24512,9 @@ void CvDiplomacyAI::LogMinorCivQuestCancelled(PlayerTypes eMinor, int iOldFriend
 
 		pLog->Msg(strOutBuf);
 
-		OutputDebugString("\n");
-		OutputDebugString(strOutBuf);
-		OutputDebugString("\n");
+		//OutputDebugString("\n");
+		//OutputDebugString(strOutBuf);
+		//OutputDebugString("\n");
 	}
 }
 
@@ -24572,9 +24572,9 @@ void CvDiplomacyAI::LogMinorCivBuyout(PlayerTypes eMinor, int iGoldPaid, bool bS
 
 		pLog->Msg(strOutBuf);
 
-		OutputDebugString("\n");
-		OutputDebugString(strOutBuf);
-		OutputDebugString("\n");
+		//OutputDebugString("\n");
+		//OutputDebugString(strOutBuf);
+		//OutputDebugString("\n");
 	}
 }
 
@@ -24911,9 +24911,9 @@ void CvDiplomacyAI::LogPublicDeclaration(PublicDeclarationTypes eDeclaration, in
 			pLog->Msg(strOutBuf);
 		}
 
-		OutputDebugString("\n");
-		OutputDebugString(strOutBuf);
-		OutputDebugString("\n");
+		//OutputDebugString("\n");
+		//OutputDebugString(strOutBuf);
+		//OutputDebugString("\n");
 	}
 }
 
@@ -24961,9 +24961,9 @@ void CvDiplomacyAI::LogWarDeclaration(PlayerTypes ePlayer, int iTotalWarWeight)
 
 		pLog->Msg(strOutBuf);
 
-		OutputDebugString("\n");
-		OutputDebugString(strOutBuf);
-		OutputDebugString("\n");
+		//OutputDebugString("\n");
+		//OutputDebugString(strOutBuf);
+		//OutputDebugString("\n");
 
 		// Want this in DiploMessage Log
 //		if (!GET_PLAYER(ePlayer).isMinorCiv())
@@ -25023,9 +25023,9 @@ void CvDiplomacyAI::LogPeaceMade(PlayerTypes ePlayer)
 
 		pLog->Msg(strOutBuf);
 
-		OutputDebugString("\n");
-		OutputDebugString(strOutBuf);
-		OutputDebugString("\n");
+		//OutputDebugString("\n");
+		//OutputDebugString(strOutBuf);
+		//OutputDebugString("\n");
 
 		// Want this in DiploMessage Log
 //		if (!GET_PLAYER(ePlayer).isMinorCiv())
@@ -25085,9 +25085,9 @@ void CvDiplomacyAI::LogDoF(PlayerTypes ePlayer)
 
 		pLog->Msg(strOutBuf);
 
-		OutputDebugString("\n");
-		OutputDebugString(strOutBuf);
-		OutputDebugString("\n");
+		//OutputDebugString("\n");
+		//OutputDebugString(strOutBuf);
+		//OutputDebugString("\n");
 	}
 }
 
@@ -25135,9 +25135,9 @@ void CvDiplomacyAI::LogDenounce(PlayerTypes ePlayer, bool bBackstab, bool bRefus
 
 		pLog->Msg(strOutBuf);
 
-		OutputDebugString("\n");
-		OutputDebugString(strOutBuf);
-		OutputDebugString("\n");
+		//OutputDebugString("\n");
+		//OutputDebugString(strOutBuf);
+		//OutputDebugString("\n");
 	}
 }
 
@@ -25183,9 +25183,9 @@ void CvDiplomacyAI::LogFriendRequestDenounce(PlayerTypes ePlayer, PlayerTypes eA
 
 		pLog->Msg(strOutBuf);
 
-		OutputDebugString("\n");
-		OutputDebugString(strOutBuf);
-		OutputDebugString("\n");
+		//OutputDebugString("\n");
+		//OutputDebugString(strOutBuf);
+		//OutputDebugString("\n");
 	}
 }
 
@@ -25236,9 +25236,9 @@ void CvDiplomacyAI::LogCoopWar(PlayerTypes ePlayer, PlayerTypes eAgainstPlayer, 
 
 		pLog->Msg(strOutBuf);
 
-		OutputDebugString("\n");
-		OutputDebugString(strOutBuf);
-		OutputDebugString("\n");
+		//OutputDebugString("\n");
+		//OutputDebugString(strOutBuf);
+		//OutputDebugString("\n");
 	}
 }
 
@@ -25279,9 +25279,9 @@ void CvDiplomacyAI::LogWantRA(PlayerTypes ePlayer)
 
 		pLog->Msg(strOutBuf);
 
-		OutputDebugString("\n");
-		OutputDebugString(strOutBuf);
-		OutputDebugString("\n");
+		//OutputDebugString("\n");
+		//OutputDebugString(strOutBuf);
+		//OutputDebugString("\n");
 	}
 }
 
@@ -27796,7 +27796,7 @@ void CvDiplomacyAI::LogStatementToPlayer(PlayerTypes ePlayer, DiploStatementType
 			break;
 #endif
 		default:
-			strTemp.Format("Unknown message!!!");
+			strTemp.Format("Unknown message!!! %d", eMessage);
 			break;
 		}
 
@@ -27820,9 +27820,9 @@ void CvDiplomacyAI::LogStatementToPlayer(PlayerTypes ePlayer, DiploStatementType
 			pLog->Msg(strOutBuf);
 		}
 
-		OutputDebugString("\n");
-		OutputDebugString(strOutBuf);
-		OutputDebugString("\n");
+		//OutputDebugString("\n");
+		//OutputDebugString(strOutBuf);
+		//OutputDebugString("\n");
 	}
 }
 
@@ -27871,9 +27871,9 @@ void CvDiplomacyAI::LogOpenEmbassy(PlayerTypes ePlayer)
 
 		pLog->Msg(strOutBuf);
 
-		OutputDebugString("\n");
-		OutputDebugString(strOutBuf);
-		OutputDebugString("\n");
+		//OutputDebugString("\n");
+		//OutputDebugString(strOutBuf);
+		//OutputDebugString("\n");
 	}
 }
 
@@ -27914,9 +27914,9 @@ void CvDiplomacyAI::LogCloseEmbassy(PlayerTypes ePlayer)
 
 		pLog->Msg(strOutBuf);
 
-		OutputDebugString("\n");
-		OutputDebugString(strOutBuf);
-		OutputDebugString("\n");
+		//OutputDebugString("\n");
+		//OutputDebugString(strOutBuf);
+		//OutputDebugString("\n");
 	}
 }
 

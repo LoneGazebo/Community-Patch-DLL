@@ -12444,7 +12444,7 @@ int CvUnit::GetEmbarkedUnitDefense() const
 	if(MOD_BALANCE_CORE_MILITARY)
 	{
 		//25% of defense added in. This is largely to help the AI.
-		iRtnValue += (GetBaseCombatStrength(true) / GC.getBALANCE_EMBARK_DEFENSE_DIVISOR());
+		iRtnValue += (GetBaseCombatStrength(true) / max(1,GC.getBALANCE_EMBARK_DEFENSE_DIVISOR() ) );
 	}
 #endif
 
@@ -18031,53 +18031,6 @@ void CvUnit::changeExtraAttacks(int iChange)
 
 		setInfoBarDirty(true);
 	}
-}
-
-//	--------------------------------------------------------------------------------
-// Citadel
-bool CvUnit::IsNearEnemyCitadel(int& iCitadelDamage)
-{
-	VALIDATE_OBJECT
-
-	int iCitadelRange = 1;
-
-	CvPlot* pLoopPlot;
-
-	ImprovementTypes eImprovement;
-	int iDamage;
-
-	// Look around this Unit to see if there's an adjacent Citadel
-	for(int iX = -iCitadelRange; iX <= iCitadelRange; iX++)
-	{
-		for(int iY = -iCitadelRange; iY <= iCitadelRange; iY++)
-		{
-			pLoopPlot = plotXYWithRangeCheck(getX(), getY(), iX, iY, iCitadelRange);
-
-			if(pLoopPlot != NULL)
-			{
-				eImprovement = pLoopPlot->getImprovementType();
-
-				// Citadel here?
-				if(eImprovement != NO_IMPROVEMENT && !pLoopPlot->IsImprovementPillaged())
-				{
-					iDamage = GC.getImprovementInfo(eImprovement)->GetNearbyEnemyDamage();
-					if(iDamage != 0)
-					{
-						if(pLoopPlot->getOwner() != NO_PLAYER)
-						{
-							if(GET_TEAM(getTeam()).isAtWar(pLoopPlot->getTeam()))
-							{
-								iCitadelDamage = iDamage;
-								return true;
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-
-	return false;
 }
 
 //	--------------------------------------------------------------------------------
