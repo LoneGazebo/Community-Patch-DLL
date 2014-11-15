@@ -2728,7 +2728,7 @@ bool CvHomelandAI::PickUpGoodies(CvEconomicAI* pEconomicAI, UnitHandle pUnit)
 
 typedef CvWeightedVector<CvPlot*, 100, true> WeightedPlotVector;
 
-#ifdef MOD_CORE_EXPLORATION
+#ifdef MOD_BALANCE_CORE_SETTLER
 
 /// Moves units to explore the map
 void CvHomelandAI::ExecuteExplorerMoves()
@@ -3470,7 +3470,7 @@ void CvHomelandAI::ExecuteExplorerMoves()
 	}
 }
 
-#endif //MOD_CORE_EXPLORATION
+#endif //MOD_BALANCE_CORE_SETTLER
 
 /// Moves units to explore the map
 #if defined(MOD_AI_SECONDARY_WORKERS)

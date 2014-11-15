@@ -8703,7 +8703,7 @@ void CvPlot::updateYield()
 	}
 }
 
-#ifdef MOD_CORE_EXPLORATION
+#ifdef MOD_BALANCE_CORE_SETTLER
 
 //	--------------------------------------------------------------------------------
 int CvPlot::GetExplorationBonus(const CvPlayer* pPlayer, int iScaleCloseness, int iScaleLatitude)

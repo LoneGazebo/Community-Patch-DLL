@@ -475,8 +475,10 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	}
 
 	area()->changeCitiesPerPlayer(getOwner(), 1);
+#if defined(MOD_CORE_RIPARIAN_CITIES)
 	if (isCoastal())
 		waterArea()->changeCitiesPerPlayer(getOwner(), 1);
+#endif
 
 	GET_TEAM(getTeam()).changeNumCities(1);
 
@@ -1616,8 +1618,10 @@ void CvCity::PreKill()
 	pPlot->setPlotCity(NULL);
 
 	area()->changeCitiesPerPlayer(getOwner(), -1);
+#if defined(MOD_CORE_RIPARIAN_CITIES)
 	if (isCoastal())
 		waterArea()->changeCitiesPerPlayer(getOwner(), -1);
+#endif
 
 	GET_TEAM(getTeam()).changeNumCities(-1);
 
@@ -8524,8 +8528,10 @@ void CvCity::setPopulation(int iNewValue, bool bReassignPop /* = true */)
 		}
 
 		area()->changePopulationPerPlayer(getOwner(), (getPopulation() - iOldPopulation));
+#if defined(MOD_CORE_RIPARIAN_CITIES)
 		if (isCoastal())
 			waterArea()->changePopulationPerPlayer(getOwner(), (getPopulation() - iOldPopulation));
+#endif
 
 		GET_PLAYER(getOwner()).changeTotalPopulation(getPopulation() - iOldPopulation);
 		GET_TEAM(getTeam()).changeTotalPopulation(getPopulation() - iOldPopulation);

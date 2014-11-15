@@ -4157,9 +4157,10 @@ void CvTacticalAI::PlotSingleHexOperationMoves(CvAIEscortedOperation* pOperation
 					msg += CvString::format(", escort at (%d,%d)", pEscort->getX(), pEscort->getY() );
 				msg += "\n";
 				OutputDebugStr( msg );
-
+#ifdef MOD_BALANCE_CORE_SETTLER
 				if (!pEscort || pEscort->plot()!=pCivilian->plot())
 					m_pPlayer->GetHomelandAI()->MoveCivilianToSafety(pCivilian.pointer());
+#endif
 			}
 
 			// Look at where we'd move this turn taking units into consideration
