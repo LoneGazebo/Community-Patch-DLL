@@ -558,9 +558,13 @@ public:
 	}
 	virtual bool ArmyInPosition(CvArmyAI* pArmy);
 	virtual bool ShouldAbort();
-
-private:
+#if defined(MOD_BALANCE_CORE_SETTLER)
 	virtual CvPlot* FindBestTarget(CvUnit* pUnit, bool bOnlySafePaths);
+#endif
+private:
+#if !defined(MOD_BALANCE_CORE_SETTLER)
+	virtual CvPlot* FindBestTarget(CvUnit* pUnit, bool bOnlySafePaths);
+#endif
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -590,7 +594,9 @@ public:
 	virtual CvUnit* FindBestCivilian();
 
 private:
+#if !defined(MOD_BALANCE_CORE_SETTLER)
 	CvPlot* FindBestTarget(CvUnit* pUnit, bool bOnlySafePaths);
+#endif
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

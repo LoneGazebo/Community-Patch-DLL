@@ -751,9 +751,9 @@ void CvCityStrategyAI::ChooseProduction(bool bUseAsyncRandom, BuildingTypes eIgn
 
 	CvPlayerAI& kPlayer = GET_PLAYER(m_pCity->getOwner());
 	CvDiplomacyAI* pDiploAI = kPlayer.GetDiplomacyAI();
-
+#if !defined(MOD_BALANCE_CORE)
 	//int iSettlersOnMap = kPlayer.GetNumUnitsWithUnitAI(UNITAI_SETTLE, true);
-
+#endif
 	// Use the asynchronous random number generate if "no random" is set
 	if(bUseAsyncRandom)
 	{
@@ -979,9 +979,19 @@ void CvCityStrategyAI::ChooseProduction(bool bUseAsyncRandom, BuildingTypes eIgn
 						{
 							int iWaterTiles = pBiggestNearbyBodyOfWater->getNumTiles();
 							int iNumUnitsofMine = pBiggestNearbyBodyOfWater->getUnitsPerPlayer(m_pCity->getOwner());
+#if defined(MOD_CORE_RIPARIAN_CITIES)
+							int iNumUnitsOther = pBiggestNearbyBodyOfWater->getNumUnits()-iNumUnitsofMine;
+							int iNumCitiesofMine = pBiggestNearbyBodyOfWater->getCitiesPerPlayer(m_pCity->getOwner());
+							int iNumCitiesOther = pBiggestNearbyBodyOfWater->getNumCities()-iNumCitiesofMine;
+#endif
+
 #if defined(MOD_CONFIG_AI_IN_XML)
 							int iFactor = GC.getAI_CONFIG_MILITARY_TILES_PER_SHIP();
+	#if defined(MOD_CORE_RIPARIAN_CITIES)
+							if (iNumUnitsofMine * iFactor > iWaterTiles || (iNumUnitsOther==0 && iNumCitiesOther==0) )
+	#else
 							if (iNumUnitsofMine * iFactor > iWaterTiles)
+	#endif
 #else
 							if (iNumUnitsofMine * 5 > iWaterTiles)
 #endif

@@ -8589,9 +8589,13 @@ protected:
 	CvTwoLayerPathFinder* m_tacticalAnalysisMapFinder;
 
 	ICvDLLDatabaseUtility1* m_pkDatabaseLoadUtility;
-
+#if defined(MOD_BALANCE_CORE)
+	int m_aiPlotDirectionX[NUM_DIRECTION_TYPES+2];
+	int m_aiPlotDirectionY[NUM_DIRECTION_TYPES+2];
+#else
 	int m_aiPlotDirectionX[NUM_DIRECTION_TYPES];
 	int m_aiPlotDirectionY[NUM_DIRECTION_TYPES];
+#endif
 #if defined(MOD_GLOBAL_CITY_WORKING)
 	int m_aiCityPlotX[MAX_CITY_PLOTS];
 	int m_aiCityPlotY[MAX_CITY_PLOTS];

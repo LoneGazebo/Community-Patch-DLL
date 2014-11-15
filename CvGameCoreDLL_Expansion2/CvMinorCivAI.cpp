@@ -6531,7 +6531,7 @@ PlayerTypes CvMinorCivAI::SpawnHorde()
 						{
 							iWater++;
 						}
-						if(pPlot->isImpassable() || pPlot->isMountain())
+						if(pPlot->isImpassable())
 						{
 							iImpassable++;
 						}
@@ -6750,7 +6750,7 @@ void CvMinorCivAI::DoRebellion()
 				continue;
 
 			// Can't be impassable
-			if(pPlot->isImpassable() || pPlot->isMountain())
+			if(pPlot->isImpassable())
 				continue;
 
 			// Can't be water

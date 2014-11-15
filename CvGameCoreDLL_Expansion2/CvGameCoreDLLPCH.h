@@ -169,8 +169,10 @@ using namespace fastdelegate;
 
 #ifdef FINAL_RELEASE
 // Undefine OutputDebugString in final release builds
+#if !defined(MOD_BALANCE_CORE)
 #undef OutputDebugString
 #define OutputDebugString(x)
+#endif
 #endif //FINAL_RELEASE
 
 #endif	// CVGAMECOREDLLPCH_H

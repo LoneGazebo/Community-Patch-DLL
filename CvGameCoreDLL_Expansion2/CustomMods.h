@@ -31,6 +31,12 @@
 // Comment out this line to include all the achievements code (which don't work in modded games, so we don't need the code!)
 #define NO_ACHIEVEMENTS
 
+// Coastal cities are assigned to the water body as well as the land area they are on
+#define MOD_CORE_RIPARIAN_CITIES
+
+// unhappiness from public opinion scales linearly with dissatisfaction
+#define MOD_CORE_SMOOTH_PUBLIC_OPINION
+
 // Uncomment this line to include the achievements hack code
 // #define ACHIEVEMENT_HACKS
 #if defined(ACHIEVEMENT_HACKS)

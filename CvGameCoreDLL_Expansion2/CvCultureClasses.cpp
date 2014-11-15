@@ -1208,21 +1208,19 @@ void CvPlayerCulture::MoveWorks (GreatWorkSlotType eType, vector<CvGreatWorkBuil
 	std::sort (buildings.begin(), buildings.end(), SortThemingBonus);
 
 #if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
-	/*
-	 * The order is
-	 *  - theme homeland and puppet buildings
-	 *  - theme endangered buildings
-	 *  - work out the swaps
-	 *  - fill single homeland buildings with a focused yield
-	 *  - fill single puppet buildings with a focused yield
-	 *  - fill single homeland buildings with any yield
-	 *  - fill single puppet buildings with any yield
-	 *  - fill single homeland buildings with no yield
-	 *  - fill single puppet buildings with no yield
-	 *  - fill single endangered buildings with a focused yield
-	 *  - fill single endangered buildings with any yield
-	 *  - fill single endangered buildings with no yield
-	*/
+	//	The order is
+	//   - theme homeland and puppet buildings
+	//   - theme endangered buildings
+	//   - work out the swaps
+	//   - fill single homeland buildings with a focused yield
+	//   - fill single puppet buildings with a focused yield
+	//   - fill single homeland buildings with any yield
+	//   - fill single puppet buildings with any yield
+	//   - fill single homeland buildings with no yield
+	//   - fill single puppet buildings with no yield
+	//   - fill single endangered buildings with a focused yield
+	//   - fill single endangered buildings with any yield
+	//   - fill single endangered buildings with no yield 
 #endif
 
 	// First building that are not endangered
@@ -3730,16 +3728,10 @@ void CvPlayerCulture::DoPublicOpinion()
 				iDissatisfaction = (iPressureForFreedom + iPressureForAutocracy) - iPressureForOrder;
 			}
 		}
-
+#if !defined(MOD_BALANCE_CORE)
 		// Compute effects of dissatisfaction
 		int iPerCityUnhappy = 1;
 		int iUnhappyPerXPop = 10;
-
-#if defined(MOD_DIPLOMACY_CITYSTATES)
-		if (MOD_DIPLOMACY_CITYSTATES) {
-			iPerCityUnhappy = GC.getIDEOLOGY_PER_CITY_UNHAPPY();
-			iUnhappyPerXPop = GC.getIDEOLOGY_POP_PER_UNHAPPY();
-		}
 #endif
 
 		if (m_eOpinion != PUBLIC_OPINION_CONTENT)
@@ -3756,9 +3748,11 @@ void CvPlayerCulture::DoPublicOpinion()
 			{
 				m_eOpinion = PUBLIC_OPINION_REVOLUTIONARY_WAVE;
 			}
-
+#if defined(MOD_BALANCE_CORE)
+			m_iOpinionUnhappiness = ComputePublicOpinionUnhappiness(iDissatisfaction);
+#else
 			m_iOpinionUnhappiness = ComputePublicOpinionUnhappiness(iDissatisfaction, iPerCityUnhappy, iUnhappyPerXPop);
-
+#endif
 			// Find civ exerting greatest pressure
 			int iGreatestDominance = -1;
 			for (int iLoopPlayer = 0; iLoopPlayer < MAX_MAJOR_CIVS; iLoopPlayer++)
@@ -3836,7 +3830,7 @@ void CvPlayerCulture::DoPublicOpinion()
 			locText = Localization::Lookup("TXT_KEY_CO_OPINION_TT_UNHAPPINESS_LINE1");
 			locText << m_iOpinionUnhappiness;
 			m_strOpinionUnhappinessTooltip += locText.toUTF8();
-
+#if !defined(MOD_BALANCE_CORE)
 			locText = Localization::Lookup("TXT_KEY_CO_OPINION_TT_UNHAPPINESS_LINE2");
 			m_strOpinionUnhappinessTooltip += locText.toUTF8();
 
@@ -3847,6 +3841,7 @@ void CvPlayerCulture::DoPublicOpinion()
 			locText = Localization::Lookup("TXT_KEY_CO_OPINION_TT_UNHAPPINESS_LINE4");
 			locText << iUnhappyPerXPop;
 			m_strOpinionUnhappinessTooltip += locText.toUTF8();
+#endif
 		}
 	}
 }
@@ -3944,15 +3939,9 @@ int CvPlayerCulture::ComputeHypotheticalPublicOpinionUnhappiness(PolicyBranchTyp
 			iDissatisfaction = (iPressureForFreedom + iPressureForAutocracy) - iPressureForOrder;
 		}
 	}
-
+#if !defined(MOD_BALANCE_CORE)
 	int iPerCityUnhappy = 1;
 	int iUnhappyPerXPop = 10;
-
-#if defined(MOD_DIPLOMACY_CITYSTATES)
-	if (MOD_DIPLOMACY_CITYSTATES) {
-		iPerCityUnhappy = GC.getIDEOLOGY_PER_CITY_UNHAPPY();
-		iUnhappyPerXPop = GC.getIDEOLOGY_POP_PER_UNHAPPY();
-	}
 #endif
 
 	if (iDissatisfaction == 0)
@@ -3961,7 +3950,11 @@ int CvPlayerCulture::ComputeHypotheticalPublicOpinionUnhappiness(PolicyBranchTyp
 	}
 	else
 	{
+#if defined(MOD_BALANCE_CORE)
+		return ComputePublicOpinionUnhappiness(iDissatisfaction);
+#else
 		return ComputePublicOpinionUnhappiness(iDissatisfaction, iPerCityUnhappy, iUnhappyPerXPop);
+#endif
 	}
 }
 
@@ -4055,6 +4048,32 @@ int CvPlayerCulture::GetTotalThemingBonuses() const
 // PRIVATE METHODS
 
 /// Compute effects of dissatisfaction
+#if defined(MOD_BALANCE_CORE)
+int CvPlayerCulture::ComputePublicOpinionUnhappiness(int iDissatisfaction)
+{
+
+	if (iDissatisfaction<1)
+		return 0;
+
+	float fPerCityUnhappy = 1.f;
+	float fUnhappyPerXPop = 10.f;
+
+	//important!
+	float fPerCityUnhappySlope = 0.2f;
+	float fUnhappyPerXPopSlope = -1.0f;
+
+	fPerCityUnhappy += iDissatisfaction*fPerCityUnhappySlope;
+	fUnhappyPerXPop += iDissatisfaction*fUnhappyPerXPopSlope;
+
+	//sanitization
+	fPerCityUnhappy = min(10.f,max(1.f,fPerCityUnhappy));
+	fUnhappyPerXPop = min(100.f,max(1.f,fUnhappyPerXPop));
+
+	CUSTOMLOG("ComputePublicOpinionUnhappiness: dissatisfaction=%i, perCity=%.2f, perXPop=%.2f", iDissatisfaction, fPerCityUnhappy, fUnhappyPerXPop);
+
+	return (int) max(m_pPlayer->getNumCities() * fPerCityUnhappy, m_pPlayer->getTotalPopulation() / fUnhappyPerXPop);
+}
+#else
 int CvPlayerCulture::ComputePublicOpinionUnhappiness(int iDissatisfaction, int &iPerCityUnhappy, int &iUnhappyPerXPop)
 {
 	if (iDissatisfaction < 3)
@@ -4097,6 +4116,7 @@ int CvPlayerCulture::ComputePublicOpinionUnhappiness(int iDissatisfaction, int &
 	CUSTOMLOG("ComputePublicOpinionUnhappiness: dissatisfaction=%i, perCity=%i, perPop=%i", iDissatisfaction, iPerCityUnhappy, iUnhappyPerXPop);
 	return max(m_pPlayer->getNumCities() * iPerCityUnhappy, m_pPlayer->getTotalPopulation() / iUnhappyPerXPop);
 }
+#endif
 
 // LOGGING FUNCTIONS
 

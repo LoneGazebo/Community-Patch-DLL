@@ -39,8 +39,13 @@ public:
 	virtual void Init();
 	virtual void ComputeFlavorMultipliers(CvPlayer* pPlayer);
 	virtual bool CanFound(CvPlot* pPlot, const CvPlayer* pPlayer, bool bTestVisible) const;
-	virtual int PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, YieldTypes eYield = NO_YIELD, bool bCoastOnly=true);
+#if defined(MOD_BALANCE_CORE_SETTLER)
+	virtual int PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, YieldTypes eYield = NO_YIELD, bool bCoastOnly=false, CvString* pDebug=NULL);
+	virtual int PlotFertilityValue(CvPlot* pPlot, bool bAllPlots=false);
+#else
+	virtual int PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, YieldTypes eYield = NO_YIELD, bool bCoastOnly=false);
 	virtual int PlotFertilityValue(CvPlot* pPlot);
+#endif
 	virtual int BestFoundValueForSpecificYield(CvPlayer* pPlayer, YieldTypes eYield);
 
 protected:
@@ -86,7 +91,11 @@ public:
 	CvSiteEvaluatorForSettler(void);
 	~CvSiteEvaluatorForSettler(void);
 
+#if defined(MOD_BALANCE_CORE_SETTLER)
+	virtual int PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, YieldTypes eYield = NO_YIELD, bool bCoastOnly=false, CvString* pDebug=NULL);
+#else
 	int PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, YieldTypes eYield = NO_YIELD, bool bCoastOnly=true);
+#endif
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

@@ -971,10 +971,10 @@ public:
 	void changeExtraRoughDefensePercent(int iChange);
 
 	void changeExtraAttacks(int iChange);
-
+#if !defined(MOD_BALANCE_CORE)
 	// Citadel
 	bool IsNearEnemyCitadel(int& iCitadelDamage);
-
+#endif
 	// Great General Stuff
 	bool IsNearGreatGeneral() const;
 	bool IsStackedGreatGeneral() const;
@@ -1364,6 +1364,9 @@ public:
 	bool IsHasBeenPromotedFromGoody() const;
 	void SetBeenPromotedFromGoody(bool bBeenPromoted);
 
+#if defined(MOD_BALANCE_CORE)
+	bool IsHigherPopThan(const CvUnit* pOtherUnit) const;
+#endif
 	bool IsHigherTechThan(UnitTypes otherUnit) const;
 	bool IsLargerCivThan(const CvUnit* pOtherUnit) const;
 
