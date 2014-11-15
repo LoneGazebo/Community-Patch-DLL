@@ -12476,7 +12476,7 @@ int CvUnit::GetEmbarkedUnitDefense() const
 	if(MOD_BALANCE_CORE_MILITARY && !kPlayer.isHuman())
 	{
 		//25% of defense added in. This is largely to help the AI.
-		iRtnValue += (GetBaseCombatStrength(true) / GC.getBALANCE_EMBARK_DEFENSE_DIVISOR());
+		iRtnValue += (GetBaseCombatStrength(true) / max(1,GC.getBALANCE_EMBARK_DEFENSE_DIVISOR() ) );
 	}
 #endif
 
@@ -18074,6 +18074,7 @@ void CvUnit::changeExtraAttacks(int iChange)
 }
 
 //	--------------------------------------------------------------------------------
+#if !defined(MOD_BALANCE_CORE)
 // Citadel
 bool CvUnit::IsNearEnemyCitadel(int& iCitadelDamage)
 {
@@ -18119,7 +18120,7 @@ bool CvUnit::IsNearEnemyCitadel(int& iCitadelDamage)
 
 	return false;
 }
-
+#endif
 //	--------------------------------------------------------------------------------
 /// Great General close enough to give us a bonus?
 bool CvUnit::IsNearGreatGeneral() const

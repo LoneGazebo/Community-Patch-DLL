@@ -193,15 +193,28 @@ void CvDangerPlots::UpdateDanger(bool bPretendWarWithAllCivs, bool bIgnoreVisibi
 	}
 
 	// Citadels
+#if defined(MOD_BALANCE_CORE)
+	for(int iPlotLoop = 0; iPlotLoop < GC.getMap().numPlots(); iPlotLoop++)
+#else
 	int iCitadelValue = GetDangerValueOfCitadel();
 	int iPlotLoop;
 	CvPlot* pPlot, *pAdjacentPlot;
 	for(iPlotLoop = 0; iPlotLoop < GC.getMap().numPlots(); iPlotLoop++)
+#endif
 	{
+#if defined(MOD_BALANCE_CORE)
+		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(iPlotLoop);
+#else
 		pPlot = GC.getMap().plotByIndexUnchecked(iPlotLoop);
+#endif
 
 		if(pPlot->isRevealed(thisTeam))
 		{
+#if defined(MOD_BALANCE_CORE)
+			int iDamage = pPlot->GetDamageFromNearByFeatures(m_ePlayer);
+			if (iDamage)
+				AddDanger(pPlot->getX(), pPlot->getY(), iDamage, true);		
+#else
 			ImprovementTypes eImprovement = pPlot->getRevealedImprovementType(thisTeam);
 			if(eImprovement != NO_IMPROVEMENT && GC.getImprovementInfo(eImprovement)->GetNearbyEnemyDamage() > 0)
 			{
@@ -218,6 +231,7 @@ void CvDangerPlots::UpdateDanger(bool bPretendWarWithAllCivs, bool bIgnoreVisibi
 					}
 				}
 			}
+#endif
 		}
 	}
 
@@ -564,7 +578,7 @@ bool CvDangerPlots::ShouldIgnoreCity(CvCity* pCity, bool bIgnoreVisibility)
 
 	return false;
 }
-
+#if !defined(MOD_BALANCE_CORE)
 /// Should this city be ignored when creating the danger plots?
 bool CvDangerPlots::ShouldIgnoreCitadel(CvPlot* pCitadelPlot, bool bIgnoreVisibility)
 {
@@ -591,7 +605,7 @@ bool CvDangerPlots::ShouldIgnoreCitadel(CvPlot* pCitadelPlot, bool bIgnoreVisibi
 
 	return false;
 }
-
+#endif
 //	-----------------------------------------------------------------------------------------------
 /// Contains the calculations to do the danger value for the plot according to the unit
 void CvDangerPlots::AssignUnitDangerValue(CvUnit* pUnit, CvPlot* pPlot)

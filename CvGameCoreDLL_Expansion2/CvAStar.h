@@ -295,6 +295,9 @@ protected:
 	inline int xRange(int iX);
 	inline int yRange(int iY);
 	inline bool isValid(int iX, int iY);
+#if defined(MOD_BALANCE_CORE)
+	void PrecalcNeighbors(CvAStarNode* node);
+#endif
 
 	inline int udFunc(CvAStarFunc func, CvAStarNode* param1, CvAStarNode* param2, int data, const void* cb);
 

@@ -191,10 +191,8 @@ public:
 	int GetNumAdjacentDifferentTeam(TeamTypes eTeam, bool bIgnoreWater) const;
 	int GetNumAdjacentMountains() const;
 #if defined(MOD_BALANCE_CORE_SETTLER)
-	int GetNumAdjacentWater() const;
-	int GetNumAdjacentPlotType(PlotTypes iPlotType) const;
-	bool NoTwoPlotTypeTouch(PlotTypes iPlotType, bool bChokePoint = false);
-	bool IsChokePoint(bool bWater = false, bool bMountain = false, int iDistance = 0);
+	int countPassableLandNeighbors(CvPlot** aPassableNeighbors) const;
+	bool IsChokePoint();
 #endif
 
 	void plotAction(PlotUnitFunc func, int iData1 = -1, int iData2 = -1, PlayerTypes eOwner = NO_PLAYER, TeamTypes eTeam = NO_TEAM);
@@ -679,6 +677,10 @@ public:
 
 	int countNumAirUnits(TeamTypes eTeam) const;
 
+#if defined(MOD_BALANCE_CORE_SETTLER)
+	int GetExplorationBonus(const CvPlayer* pPlayer, int iScaleCloseness, int iScaleLatitude);
+#endif
+
 	int getFoundValue(PlayerTypes eIndex);
 	bool isBestAdjacentFound(PlayerTypes eIndex);
 	void setFoundValue(PlayerTypes eIndex, int iNewValue);
@@ -847,7 +849,10 @@ public:
 	void SetArtifactType(GreatWorkArtifactClass eType);
 	void SetArtifactGreatWork(GreatWorkType eWork);
 	bool HasWrittenArtifact() const;
-
+#if defined(MOD_BALANCE_CORE)
+	// Citadel
+	int GetDamageFromNearByFeatures(PlayerTypes ePlayer) const;
+#endif
 #if defined(MOD_API_EXTENSIONS)
 	bool IsCivilization(CivilizationTypes iCivilizationType) const;
 	bool HasFeature(FeatureTypes iFeatureType) const;

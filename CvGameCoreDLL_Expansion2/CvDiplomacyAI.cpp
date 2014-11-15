@@ -24386,10 +24386,11 @@ void CvDiplomacyAI::LogMinorCivGiftGold(PlayerTypes eMinor, int iOldFriendship, 
 		}
 
 		pLog->Msg(strOutBuf);
-
+#if !defined(MOD_BALANCE_CORE)
 		OutputDebugString("\n");
 		OutputDebugString(strOutBuf);
 		OutputDebugString("\n");
+#endif
 	}
 }
 
@@ -24461,10 +24462,11 @@ void CvDiplomacyAI::LogMinorCivBullyGold(PlayerTypes eMinor, int iOldFriendshipT
 		strOutBuf += ", " + strTemp;
 
 		pLog->Msg(strOutBuf);
-
+#if !defined(MOD_BALANCE_CORE)
 		OutputDebugString("\n");
 		OutputDebugString(strOutBuf);
 		OutputDebugString("\n");
+#endif
 	}
 }
 
@@ -24535,10 +24537,11 @@ void CvDiplomacyAI::LogMinorCivBullyUnit(PlayerTypes eMinor, int iOldFriendshipT
 		strOutBuf += ", " + strTemp;
 
 		pLog->Msg(strOutBuf);
-
+#if !defined(MOD_BALANCE_CORE)
 		OutputDebugString("\n");
 		OutputDebugString(strOutBuf);
 		OutputDebugString("\n");
+#endif
 	}
 }
 
@@ -24595,10 +24598,11 @@ void CvDiplomacyAI::LogMinorCivQuestReceived(PlayerTypes eMinor, int iOldFriends
 		strOutBuf += GC.getMinorCivInfo(GET_PLAYER(eMinor).GetMinorCivAI()->GetMinorCivType())->GetType();
 
 		pLog->Msg(strOutBuf);
-
+#if !defined(MOD_BALANCE_CORE)
 		OutputDebugString("\n");
 		OutputDebugString(strOutBuf);
 		OutputDebugString("\n");
+#endif
 	}
 }
 
@@ -24655,10 +24659,11 @@ void CvDiplomacyAI::LogMinorCivQuestFinished(PlayerTypes eMinor, int iOldFriends
 		strOutBuf += GC.getMinorCivInfo(GET_PLAYER(eMinor).GetMinorCivAI()->GetMinorCivType())->GetType();
 
 		pLog->Msg(strOutBuf);
-
+#if !defined(MOD_BALANCE_CORE)
 		OutputDebugString("\n");
 		OutputDebugString(strOutBuf);
 		OutputDebugString("\n");
+#endif
 	}
 }
 
@@ -24716,9 +24721,11 @@ void CvDiplomacyAI::LogMinorCivQuestCancelled(PlayerTypes eMinor, int iOldFriend
 
 		pLog->Msg(strOutBuf);
 
+#if !defined(MOD_BALANCE_CORE)
 		OutputDebugString("\n");
 		OutputDebugString(strOutBuf);
 		OutputDebugString("\n");
+#endif
 	}
 }
 
@@ -24776,9 +24783,11 @@ void CvDiplomacyAI::LogMinorCivBuyout(PlayerTypes eMinor, int iGoldPaid, bool bS
 
 		pLog->Msg(strOutBuf);
 
+#if !defined(MOD_BALANCE_CORE)
 		OutputDebugString("\n");
 		OutputDebugString(strOutBuf);
 		OutputDebugString("\n");
+#endif
 	}
 }
 
@@ -25115,9 +25124,11 @@ void CvDiplomacyAI::LogPublicDeclaration(PublicDeclarationTypes eDeclaration, in
 			pLog->Msg(strOutBuf);
 		}
 
+#if !defined(MOD_BALANCE_CORE)
 		OutputDebugString("\n");
 		OutputDebugString(strOutBuf);
 		OutputDebugString("\n");
+#endif
 	}
 }
 
@@ -25164,10 +25175,11 @@ void CvDiplomacyAI::LogWarDeclaration(PlayerTypes ePlayer, int iTotalWarWeight)
 		}
 
 		pLog->Msg(strOutBuf);
-
+#if !defined(MOD_BALANCE_CORE)
 		OutputDebugString("\n");
 		OutputDebugString(strOutBuf);
 		OutputDebugString("\n");
+#endif
 
 		// Want this in DiploMessage Log
 //		if (!GET_PLAYER(ePlayer).isMinorCiv())
@@ -25227,9 +25239,11 @@ void CvDiplomacyAI::LogPeaceMade(PlayerTypes ePlayer)
 
 		pLog->Msg(strOutBuf);
 
+#if !defined(MOD_BALANCE_CORE)
 		OutputDebugString("\n");
 		OutputDebugString(strOutBuf);
 		OutputDebugString("\n");
+#endif
 
 		// Want this in DiploMessage Log
 //		if (!GET_PLAYER(ePlayer).isMinorCiv())
@@ -25289,9 +25303,11 @@ void CvDiplomacyAI::LogDoF(PlayerTypes ePlayer)
 
 		pLog->Msg(strOutBuf);
 
+#if !defined(MOD_BALANCE_CORE)
 		OutputDebugString("\n");
 		OutputDebugString(strOutBuf);
 		OutputDebugString("\n");
+#endif
 	}
 }
 
@@ -25339,9 +25355,11 @@ void CvDiplomacyAI::LogDenounce(PlayerTypes ePlayer, bool bBackstab, bool bRefus
 
 		pLog->Msg(strOutBuf);
 
+#if !defined(MOD_BALANCE_CORE)
 		OutputDebugString("\n");
 		OutputDebugString(strOutBuf);
 		OutputDebugString("\n");
+#endif
 	}
 }
 
@@ -25386,10 +25404,11 @@ void CvDiplomacyAI::LogFriendRequestDenounce(PlayerTypes ePlayer, PlayerTypes eA
 			strOutBuf = strBaseString + ", ASKED " + otherPlayerName + " TO DENOUNCE " + againstPlayerName + "!";
 
 		pLog->Msg(strOutBuf);
-
+#if !defined(MOD_BALANCE_CORE)
 		OutputDebugString("\n");
 		OutputDebugString(strOutBuf);
 		OutputDebugString("\n");
+#endif
 	}
 }
 
@@ -25439,10 +25458,11 @@ void CvDiplomacyAI::LogCoopWar(PlayerTypes ePlayer, PlayerTypes eAgainstPlayer, 
 			strOutBuf = strBaseString + ", wanted coop war with " + otherPlayerName + " against " + againstPlayerName + "!";
 
 		pLog->Msg(strOutBuf);
-
+#if !defined(MOD_BALANCE_CORE)
 		OutputDebugString("\n");
 		OutputDebugString(strOutBuf);
 		OutputDebugString("\n");
+#endif
 	}
 }
 
@@ -25482,10 +25502,11 @@ void CvDiplomacyAI::LogWantRA(PlayerTypes ePlayer)
 		strOutBuf = strBaseString + otherPlayerName + ", Wants Research Agreement!";
 
 		pLog->Msg(strOutBuf);
-
+#if !defined(MOD_BALANCE_CORE)
 		OutputDebugString("\n");
 		OutputDebugString(strOutBuf);
 		OutputDebugString("\n");
+#endif
 	}
 }
 
@@ -28017,7 +28038,11 @@ void CvDiplomacyAI::LogStatementToPlayer(PlayerTypes ePlayer, DiploStatementType
 			break;
 #endif
 		default:
+#if defined(MOD_BALANCE_CORE)
+			strTemp.Format("Unknown message!!! %d", eMessage);
+#else
 			strTemp.Format("Unknown message!!!");
+#endif
 			break;
 		}
 
@@ -28040,10 +28065,11 @@ void CvDiplomacyAI::LogStatementToPlayer(PlayerTypes ePlayer, DiploStatementType
 			pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
 			pLog->Msg(strOutBuf);
 		}
-
+#if !defined(MOD_BALANCE_CORE)
 		OutputDebugString("\n");
 		OutputDebugString(strOutBuf);
 		OutputDebugString("\n");
+#endif
 	}
 }
 
@@ -28091,10 +28117,11 @@ void CvDiplomacyAI::LogOpenEmbassy(PlayerTypes ePlayer)
 		strOutBuf = strBaseString + ",***** OPENED EMBASSY @ " + otherPlayerName + "! *****";
 
 		pLog->Msg(strOutBuf);
-
+#if !defined(MOD_BALANCE_CORE)
 		OutputDebugString("\n");
 		OutputDebugString(strOutBuf);
 		OutputDebugString("\n");
+#endif
 	}
 }
 
@@ -28134,10 +28161,11 @@ void CvDiplomacyAI::LogCloseEmbassy(PlayerTypes ePlayer)
 		strOutBuf = strBaseString + ",***** CLOSED EMBASSY @ " + otherPlayerName + "! *****";
 
 		pLog->Msg(strOutBuf);
-
+#if !defined(MOD_BALANCE_CORE)
 		OutputDebugString("\n");
 		OutputDebugString(strOutBuf);
 		OutputDebugString("\n");
+#endif
 	}
 }
 

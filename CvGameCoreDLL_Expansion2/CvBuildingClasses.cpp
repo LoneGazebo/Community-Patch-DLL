@@ -2475,7 +2475,11 @@ void CvBuildingXMLEntries::DeleteArray()
 }
 
 /// Get a specific entry
+#if defined(MOD_BALANCE_CORE)
+CvBuildingEntry* CvBuildingXMLEntries::GetEntry(int index) const
+#else
 CvBuildingEntry* CvBuildingXMLEntries::GetEntry(int index)
+#endif
 {
 	return m_paBuildingEntries[index];
 }

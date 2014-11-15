@@ -971,10 +971,10 @@ public:
 	void changeExtraRoughDefensePercent(int iChange);
 
 	void changeExtraAttacks(int iChange);
-
+#if !defined(MOD_BALANCE_CORE)
 	// Citadel
 	bool IsNearEnemyCitadel(int& iCitadelDamage);
-
+#endif
 	// Great General Stuff
 	bool IsNearGreatGeneral() const;
 	bool IsStackedGreatGeneral() const;

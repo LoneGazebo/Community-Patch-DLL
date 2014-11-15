@@ -2233,6 +2233,18 @@ void CvGlobals::init()
 	//
 	// These vars are used to initialize the globals.
 	//
+#if defined(MOD_BALANCE_CORE)
+	int aiPlotDirectionX[NUM_DIRECTION_TYPES+2] =
+	{
+		0,	// DIRECTION_NORTHEAST
+		1,	// DIRECTION_EAST
+		1,	// DIRECTION_SOUTHEAST
+		0,	// DIRECTION_SOUTHWEST
+		-1,	// DIRECTION_WEST
+		-1,	// DIRECTION_NORTHWEST
+		0,	// DUMMY
+		0,	// NONE
+#else
 	int aiPlotDirectionX[NUM_DIRECTION_TYPES] =
 	{
 		0,	// DIRECTION_NORTHEAST
@@ -2241,8 +2253,20 @@ void CvGlobals::init()
 		0,	// DIRECTION_SOUTHWEST
 		-1,	// DIRECTION_WEST
 		-1,	// DIRECTION_NORTHWEST
+#endif
 	};
-
+#if defined(MOD_BALANCE_CORE)
+	int aiPlotDirectionY[NUM_DIRECTION_TYPES+2] =
+	{
+		1,	// DIRECTION_NORTHEAST
+		0,	// DIRECTION_EAST
+		-1,	// DIRECTION_SOUTHEAST
+		-1,	// DIRECTION_SOUTHWEST
+		0,	// DIRECTION_WEST
+		1,	// DIRECTION_NORTHWEST
+		0,	// DUMMY
+		0,	// NONE
+#else
 	int aiPlotDirectionY[NUM_DIRECTION_TYPES] =
 	{
 		1,	// DIRECTION_NORTHEAST
@@ -2251,6 +2275,7 @@ void CvGlobals::init()
 		-1,	// DIRECTION_SOUTHWEST
 		0,	// DIRECTION_WEST
 		1,	// DIRECTION_NORTHWEST
+#endif
 	};
 
 	// these are now in hex-space coords

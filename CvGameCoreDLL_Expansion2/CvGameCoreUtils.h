@@ -171,6 +171,9 @@ inline int plotDistance(int iX1, int iY1, int iX2, int iY2)
 //
 inline CvPlot* plotDirection(int iX, int iY, DirectionTypes eDirection)
 {
+#if defined(MOD_BALANCE_CORE)
+	return GC.getMap().getNeighborUnchecked(iX,iY,eDirection);
+#else
 	if(eDirection == NO_DIRECTION)
 	{
 		return GC.getMap().plot(iX, iY);
@@ -187,6 +190,7 @@ inline CvPlot* plotDirection(int iX, int iY, DirectionTypes eDirection)
 
 		return GC.getMap().plot(iX, iY);
 	}
+#endif
 }
 
 inline CvPlot* plotXY(int iX, int iY, int iDX, int iDY)

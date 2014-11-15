@@ -3515,10 +3515,11 @@ void CvGameDeals::LogDealComplete(CvDeal* pDeal)
 			strOutBuf += ", " + strTemp;
 
 			pLog->Msg(strOutBuf);
-
+#if !defined(MOD_BALANCE_CORE)
 			OutputDebugString("\n");
 			OutputDebugString(strOutBuf);
 			OutputDebugString("\n");
+#endif
 		}
 	}
 }

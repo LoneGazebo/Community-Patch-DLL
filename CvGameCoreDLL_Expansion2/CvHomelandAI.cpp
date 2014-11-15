@@ -1115,7 +1115,7 @@ void CvHomelandAI::PlotMovesToSafety()
 
 					// Everyone else flees at less than or equal to 50% combat strength
 #if defined(MOD_AI_SMART_FLEE_FROM_DANGER)
-					else if(MOD_AI_SMART_FLEE_FROM_DANGER && (pUnit->IsUnderEnemyRangedAttack() || (pUnit->GetBaseCombatStrengthConsideringDamage() * 2 <= pUnit->GetBaseCombatStrength())))
+					else if(MOD_AI_SMART_FLEE_FROM_DANGER || pUnit->IsUnderEnemyRangedAttack() || pUnit->GetBaseCombatStrengthConsideringDamage() * 2 <= pUnit->GetBaseCombatStrength())
 #else
 					else if(pUnit->IsUnderEnemyRangedAttack() || pUnit->GetBaseCombatStrengthConsideringDamage() * 2 <= pUnit->GetBaseCombatStrength())
 #endif
@@ -1320,7 +1320,7 @@ void CvHomelandAI::PlotOpportunisticSettlementMoves()
 					if (!pPlot->isRevealed(eUnitTeam)) continue;
 					if (!m_pPlayer->canFound(iPlotX, iPlotY)) continue;
 
-					aBestPlots.push_back(pPlot, m_pPlayer->AI_foundValue(iPlotX, iPlotY, -1, false));
+					aBestPlots.push_back(pPlot, pPlot->getFoundValue(m_pPlayer->GetID()) );
 				}
 			}
 
@@ -2458,78 +2458,63 @@ void CvHomelandAI::ExecuteFirstTurnSettlerMoves()
 #if defined(MOD_BALANCE_CORE_SETTLER)
 			if (MOD_BALANCE_CORE_SETTLER && (GC.getSETTLER_MOVE_ON_START() > 0)) 
 			{
-				//Let's not try this too much. Two turns is enough.
-				if(GC.getGame().getGameTurn() <= 2)
+				int iInitialPlotValue = 0;
+				int iAdjacentValue = 0;
+				CvPlot* pBestAdjacentPlot = NULL;
+				//Let's check for a river, coast and mountains within one hex. If all there, break, you fool!
+				if(pUnit->plot()->isFreshWater() && pUnit->plot()->isCoastalLand() && (pUnit->plot()->GetNumAdjacentMountains() > 0))
 				{
-					int iInitialPlotValue = 0;
-					int iAdjacentValue = 0;
-					CvPlot* pBestAdjacentPlot = NULL;
-					//Let's check for a river, coast and mountains within one hex. If all there, break, you fool!
-					if(pUnit->plot()->isFreshWater() && pUnit->plot()->isCoastalLand() && (pUnit->plot()->GetNumAdjacentMountains() > 0))
+					pUnit->PushMission(CvTypes::getMISSION_FOUND());
+					UnitProcessed(pUnit->GetID());
+					if(GC.getLogging() && GC.getAILogging())
 					{
-						pUnit->PushMission(CvTypes::getMISSION_FOUND());
-						UnitProcessed(pUnit->GetID());
-						if(GC.getLogging() && GC.getAILogging())
+						CvString strLogString;
+						strLogString.Format("Founded city at starting location as it is great, X: %d, Y: %d", pUnit->getX(), pUnit->getY());
+						LogHomelandMessage(strLogString);
+						break;
+					}
+				}
+				else if(!pUnit->plot()->isFreshWater() || !pUnit->plot()->isCoastalLand() || (pUnit->plot()->GetNumAdjacentMountains() <= 0))
+				{
+					iInitialPlotValue = GC.getGame().GetSettlerSiteEvaluator()->PlotFoundValue(pUnit->plot(), m_pPlayer, NO_YIELD, false);
+
+					for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+					{
+						CvPlot* pAdjacentPlot = plotDirection(pUnit->getX(), pUnit->getY(), ((DirectionTypes)iI));
+						if(pAdjacentPlot != NULL && pUnit->canFound(pAdjacentPlot))
 						{
-							CvString strLogString;
-							strLogString.Format("Founded city at starting location as it is great, X: %d, Y: %d", pUnit->getX(), pUnit->getY());
-							LogHomelandMessage(strLogString);
-							break;
+							iAdjacentValue = GC.getGame().GetSettlerSiteEvaluator()->PlotFoundValue(pAdjacentPlot, m_pPlayer, NO_YIELD, false);
+							if(iAdjacentValue > iInitialPlotValue*1.05f) //should be at least five percent better to justify the hassle
+							{
+								OutputDebugStr( CvString::format("%s settler found better initial plot: %d vs %d\n", m_pPlayer->getCivilizationAdjective(), iAdjacentValue, iInitialPlotValue) );
+								iInitialPlotValue = iAdjacentValue;
+								pBestAdjacentPlot = pAdjacentPlot;
+							}
 						}
 					}
-					else if(!pUnit->plot()->isFreshWater() || !pUnit->plot()->isCoastalLand() || (pUnit->plot()->GetNumAdjacentMountains() <= 0))
+					if(pBestAdjacentPlot != NULL)
 					{
-						iInitialPlotValue = GC.getGame().GetSettlerSiteEvaluator()->PlotFoundValue(pUnit->plot(), m_pPlayer, NO_YIELD, false);
-
-						for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
-						{
-							CvPlot* pAdjacentPlot = plotDirection(pUnit->getX(), pUnit->getY(), ((DirectionTypes)iI));
-							if(pAdjacentPlot != NULL && pUnit->canFound(pAdjacentPlot))
-							{
-								iAdjacentValue = GC.getGame().GetSettlerSiteEvaluator()->PlotFoundValue(pAdjacentPlot, m_pPlayer, NO_YIELD, false);
-								if(iAdjacentValue > iInitialPlotValue)
-								{
-									iInitialPlotValue = iAdjacentValue;
-									pBestAdjacentPlot = pAdjacentPlot;
-								}
-							}
-						}
-						if(pBestAdjacentPlot != NULL)
-						{
-							pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestAdjacentPlot->getX(), pBestAdjacentPlot->getY());
-							if(pUnit->plot() == pBestAdjacentPlot && (pUnit->getMoves() > 0))
-							{
-								pUnit->PushMission(CvTypes::getMISSION_FOUND());
-								UnitProcessed(pUnit->GetID());
-								if(GC.getLogging() && GC.getAILogging())
-								{
-									CvString strLogString;
-									strLogString.Format("Founded city at adjacent site, as it is superior. X: %d, Y: %d", pUnit->getX(), pUnit->getY());
-									LogHomelandMessage(strLogString);
-									break;
-								}
-							}
-							//Couldn't get there and found in one move? That's okay - it is better to lose a turn or two early on than to be in a bad spot.
-							else
-							{
-								UnitProcessed(pUnit->GetID());
-								if(GC.getLogging() && GC.getAILogging())
-								{
-									CvString strLogString;
-									strLogString.Format("Moved to superior starting site. Wish me luck! X: %d, Y: %d", pUnit->getX(), pUnit->getY());
-									LogHomelandMessage(strLogString);
-									break;
-								}
-							}
-						}
-						else
+						pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestAdjacentPlot->getX(), pBestAdjacentPlot->getY());
+						if(pUnit->plot() == pBestAdjacentPlot && (pUnit->getMoves() > 0))
 						{
 							pUnit->PushMission(CvTypes::getMISSION_FOUND());
 							UnitProcessed(pUnit->GetID());
 							if(GC.getLogging() && GC.getAILogging())
 							{
 								CvString strLogString;
-								strLogString.Format("Founded city at this location as it is the best we can do, X: %d, Y: %d", pUnit->getX(), pUnit->getY());
+								strLogString.Format("Founded city at adjacent site, as it is superior. X: %d, Y: %d", pUnit->getX(), pUnit->getY());
+								LogHomelandMessage(strLogString);
+								break;
+							}
+						}
+						//Couldn't get there and found in one move? That's okay - it is better to lose a turn or two early on than to be in a bad spot.
+						else
+						{
+							UnitProcessed(pUnit->GetID());
+							if(GC.getLogging() && GC.getAILogging())
+							{
+								CvString strLogString;
+								strLogString.Format("Moved to superior starting site. Wish me luck! X: %d, Y: %d", pUnit->getX(), pUnit->getY());
 								LogHomelandMessage(strLogString);
 								break;
 							}
@@ -2542,86 +2527,104 @@ void CvHomelandAI::ExecuteFirstTurnSettlerMoves()
 						if(GC.getLogging() && GC.getAILogging())
 						{
 							CvString strLogString;
-							strLogString.Format("Founded city at base spot as the adjacent test was invalid, X: %d, Y: %d", pUnit->getX(), pUnit->getY());
+							strLogString.Format("Founded city at this location as it is the best we can do, X: %d, Y: %d", pUnit->getX(), pUnit->getY());
 							LogHomelandMessage(strLogString);
+							break;
 						}
 					}
 				}
 				//Turn 3+
 				else
 				{
-					int iInitialPlotValue = 0;
-					int iAdjacentValue = 0;
-					CvPlot* pBestAdjacentPlot = NULL;
-					if(pUnit->canFound(pUnit->plot()))
+					pUnit->PushMission(CvTypes::getMISSION_FOUND());
+					UnitProcessed(pUnit->GetID());
+					if(GC.getLogging() && GC.getAILogging())
 					{
-						pUnit->PushMission(CvTypes::getMISSION_FOUND());
-						UnitProcessed(pUnit->GetID());
-						if(GC.getLogging() && GC.getAILogging())
+						CvString strLogString;
+						strLogString.Format("Founded city at base spot as the adjacent test was invalid, X: %d, Y: %d", pUnit->getX(), pUnit->getY());
+						LogHomelandMessage(strLogString);
+					}
+				}
+			}
+			else
+			{
+				int iInitialPlotValue = 0;
+				int iAdjacentValue = 0;
+				CvPlot* pBestAdjacentPlot = NULL;
+				if(pUnit->canFound(pUnit->plot()))
+				{
+					pUnit->PushMission(CvTypes::getMISSION_FOUND());
+					UnitProcessed(pUnit->GetID());
+					if(GC.getLogging() && GC.getAILogging())
+					{
+						CvString strLogString;
+						strLogString.Format("Founded city because we are out of time, X: %d, Y: %d", pUnit->getX(), pUnit->getY());
+						LogHomelandMessage(strLogString);
+						break;
+					}
+				}
+				else
+				{
+					iInitialPlotValue = GC.getGame().GetSettlerSiteEvaluator()->PlotFoundValue(pUnit->plot(), m_pPlayer, NO_YIELD, false);
+
+					for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+					{
+						CvPlot* pAdjacentPlot = plotDirection(pUnit->getX(), pUnit->getY(), ((DirectionTypes)iI));
+						if(pAdjacentPlot != NULL)
 						{
-							CvString strLogString;
-							strLogString.Format("Founded city because we are out of time, X: %d, Y: %d", pUnit->getX(), pUnit->getY());
-							LogHomelandMessage(strLogString);
-							break;
+							iAdjacentValue = GC.getGame().GetSettlerSiteEvaluator()->PlotFoundValue(pAdjacentPlot, m_pPlayer, NO_YIELD, false);
+							if(iAdjacentValue > iInitialPlotValue)
+							{
+								iInitialPlotValue = iAdjacentValue;
+								pBestAdjacentPlot = pAdjacentPlot;
+							}
+						}
+					}
+					if(pBestAdjacentPlot != NULL)
+					{
+						pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestAdjacentPlot->getX(), pBestAdjacentPlot->getY());
+						if(pUnit->plot() == pBestAdjacentPlot && (pUnit->getMoves() > 0))
+						{
+							if(pUnit->canFound(pBestAdjacentPlot))
+							{
+								pUnit->PushMission(CvTypes::getMISSION_FOUND());
+								UnitProcessed(pUnit->GetID());
+								if(GC.getLogging() && GC.getAILogging())
+								{
+									CvString strLogString;
+									strLogString.Format("Founded city at adjacent site, as we are out of time. X: %d, Y: %d", pUnit->getX(), pUnit->getY());
+									LogHomelandMessage(strLogString);
+									break;
+								}
+							}
+							else
+							{
+								UnitProcessed(pUnit->GetID());
+								if(GC.getLogging() && GC.getAILogging())
+								{
+									CvString strLogString;
+									strLogString.Format("Moved to superior starting site. Trying to hurry! X: %d, Y: %d", pUnit->getX(), pUnit->getY());
+									LogHomelandMessage(strLogString);
+									break;
+								}
+							}
 						}
 					}
 					else
 					{
-						iInitialPlotValue = GC.getGame().GetSettlerSiteEvaluator()->PlotFoundValue(pUnit->plot(), m_pPlayer, NO_YIELD, false);
-
-						for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+						//apparently no good plot around. move in a random direction to explore
+						CvPlot* pAdjacentPlot = NULL;
+							
+						int iCount = 0;
+						while(pAdjacentPlot == NULL || pAdjacentPlot->isWater() || pAdjacentPlot->isImpassable() || iCount<10)
 						{
-							CvPlot* pAdjacentPlot = plotDirection(pUnit->getX(), pUnit->getY(), ((DirectionTypes)iI));
-							if(pAdjacentPlot != NULL)
-							{
-								iAdjacentValue = GC.getGame().GetSettlerSiteEvaluator()->PlotFoundValue(pAdjacentPlot, m_pPlayer, NO_YIELD, false);
-								if(iAdjacentValue > iInitialPlotValue)
-								{
-									iInitialPlotValue = iAdjacentValue;
-									pBestAdjacentPlot = pAdjacentPlot;
-								}
-							}
+							int iDir = GC.getGame().getJonRandNum(NUM_DIRECTION_TYPES, "Roll to see where to move!");
+							pAdjacentPlot = plotDirection(pUnit->getX(), pUnit->getY(), ((DirectionTypes)iDir));
+							iCount++;
 						}
-						if(pBestAdjacentPlot != NULL)
-						{
-							pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestAdjacentPlot->getX(), pBestAdjacentPlot->getY());
-							if(pUnit->plot() == pBestAdjacentPlot && (pUnit->getMoves() > 0))
-							{
-								if(pUnit->canFound(pBestAdjacentPlot))
-								{
-									pUnit->PushMission(CvTypes::getMISSION_FOUND());
-									UnitProcessed(pUnit->GetID());
-									if(GC.getLogging() && GC.getAILogging())
-									{
-										CvString strLogString;
-										strLogString.Format("Founded city at adjacent site, as we are out of time. X: %d, Y: %d", pUnit->getX(), pUnit->getY());
-										LogHomelandMessage(strLogString);
-										break;
-									}
-								}
-								else
-								{
-									UnitProcessed(pUnit->GetID());
-									if(GC.getLogging() && GC.getAILogging())
-									{
-										CvString strLogString;
-										strLogString.Format("Moved to superior starting site. Trying to hurry! X: %d, Y: %d", pUnit->getX(), pUnit->getY());
-										LogHomelandMessage(strLogString);
-										break;
-									}
-								}
-							}
-						}
-						else
-						{
-							//apparently no good plot around. move in a random direction to explore
-							CvPlot* pAdjacentPlot = NULL;				
-							while(pAdjacentPlot == NULL || pAdjacentPlot->isWater() || pAdjacentPlot->isImpassable())
- 							{
-								int iDir = GC.getGame().getJonRandNum(NUM_DIRECTION_TYPES, "Roll to see where to move!");
-								pAdjacentPlot = plotDirection(pUnit->getX(), pUnit->getY(), ((DirectionTypes)iDir));
-							}
 
+						if (iCount<10)
+						{
 							pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pAdjacentPlot->getX(), pAdjacentPlot->getY());
 							UnitProcessed(pUnit->GetID());
 							if(GC.getLogging() && GC.getAILogging())
@@ -2629,20 +2632,9 @@ void CvHomelandAI::ExecuteFirstTurnSettlerMoves()
 								CvString strLogString;
 								strLogString.Format("Things aren't looking good for us! Scramble to X: %d, Y: %d", pUnit->getX(), pUnit->getY());
 								LogHomelandMessage(strLogString);
- 							}
+							}
 						}
 					}
-				}
-			}
-			else
-			{
-				pUnit->PushMission(CvTypes::getMISSION_FOUND());
-				UnitProcessed(pUnit->GetID());
-				if(GC.getLogging() && GC.getAILogging())
-				{
-					CvString strLogString;
-					strLogString.Format("Founded city at, X: %d, Y: %d", pUnit->getX(), pUnit->getY());
-					LogHomelandMessage(strLogString);
 				}
 			}
 #else
@@ -2658,11 +2650,366 @@ void CvHomelandAI::ExecuteFirstTurnSettlerMoves()
 		}
 	}
 }
+#if defined(MOD_BALANCE_CORE)
+bool CvHomelandAI::PickUpGoodies(CvEconomicAI* pEconomicAI, UnitHandle pUnit)
+{
+	int iUnitX = pUnit->getX();
+	int iUnitY = pUnit->getY();
+	CvTwoLayerPathFinder& kPathFinder = GC.getPathFinder();
+	CvPlot* pkStepPlot = NULL;
+	CvPlot* pGoodyPlot = pEconomicAI->GetUnitTargetGoodyPlot(pUnit.pointer(), &pkStepPlot);
+	if (pGoodyPlot)
+	{
+		if(GC.getLogging() && GC.getAILogging())
+		{
+			CvString strLogString;
+			strLogString.Format("UnitID: %d has goody target, X: %d, Y: %d", pUnit->GetID(), pGoodyPlot->getX(), pGoodyPlot->getY());
+			LogHomelandMessage(strLogString);
+		}
+	}
+
+	if(pGoodyPlot && (pGoodyPlot->isGoody(m_pPlayer->getTeam()) || (pGoodyPlot->HasBarbarianCamp()) && !pGoodyPlot->isVisibleEnemyDefender(pUnit.pointer())))
+	{
+		bool bCanFindPath = false;
+		if (pkStepPlot)	// Do we already have our first step point?
+		{
+			if (IsValidExplorerEndTurnPlot(pUnit.pointer(), pkStepPlot))
+				bCanFindPath = true;
+
+			// The economic AI should recalculate next time through, but just in case, let's say that we've used the step plot
+			pEconomicAI->ClearUnitTargetGoodyStepPlot(pUnit.pointer());
+		}
+
+		if (!pkStepPlot || !bCanFindPath)
+		{
+			bCanFindPath = kPathFinder.GenerateUnitPath(pUnit.pointer(), iUnitX, iUnitY, pGoodyPlot->getX(), pGoodyPlot->getY(), MOVE_TERRITORY_NO_ENEMY | MOVE_MAXIMIZE_EXPLORE | MOVE_UNITS_IGNORE_DANGER /*iFlags*/, true/*bReuse*/);
+			if(bCanFindPath)
+			{
+				pkStepPlot = kPathFinder.GetPathEndTurnPlot();
+			}
+		}
+
+		if (bCanFindPath)
+		{
+			if(pkStepPlot)
+			{
+				CvAssert(!pUnit->atPlot(*pkStepPlot));
+				if(GC.getLogging() && GC.getAILogging())
+				{
+					CvString strLogString;
+					strLogString.Format("UnitID: %d Moving to goody hut, X: %d, Y: %d, from X: %d Y: %d", pUnit->GetID(), pkStepPlot->getX(), pkStepPlot->getY(), pUnit->getX(), pUnit->getY());
+					LogHomelandMessage(strLogString);
+				}
+				pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pkStepPlot->getX(), pkStepPlot->getY(), MOVE_TERRITORY_NO_ENEMY | MOVE_MAXIMIZE_EXPLORE | MOVE_UNITS_IGNORE_DANGER, false, false, MISSIONAI_EXPLORE, pkStepPlot);
+				pUnit->finishMoves();
+				UnitProcessed(pUnit->GetID());
+			}
+			else
+			{
+				if(GC.getLogging() && GC.getAILogging())
+				{
+					CvString strLogString;
+					strLogString.Format("UnitID: %d No end turn plot to goody from, X: %d, Y: %d", pUnit->GetID(), pUnit->getX(), pUnit->getY());
+					LogHomelandMessage(strLogString);
+				}
+			}
+
+			return true;
+		}
+		else
+		{
+			if(GC.getLogging() && GC.getAILogging())
+			{
+				CvString strLogString;
+				strLogString.Format("UnitID: %d Can't find path to goody from, X: %d, Y: %d", pUnit->GetID(), pUnit->getX(), pUnit->getY());
+				LogHomelandMessage(strLogString);
+			}
+		}
+	}
+
+	return false;
+}
+
+typedef CvWeightedVector<CvPlot*, 100, true> WeightedPlotVector;
+#endif
+#if defined(MOD_BALANCE_CORE)
+/// Moves units to explore the map
+void CvHomelandAI::ExecuteExplorerMoves()
+{
+	bool bFoundNearbyExplorePlot = false;
+	CvEconomicAI* pEconomicAI = m_pPlayer->GetEconomicAI();
+
+	//check goody huts and camps
+	pEconomicAI->UpdatePlots();
+
+	//used later for plot weighting
+	int iMaxLatitude = min( abs(GC.getMap().getTopLatitude()), abs(GC.getMap().getBottomLatitude()));
+	int iHalfAWorldAway = int( sqrt( (float)GC.getMap().getGridHeight()*GC.getMap().getGridHeight() + GC.getMap().getGridWidth()*GC.getMap().getGridWidth() ) / 2 );
+
+	CvTwoLayerPathFinder& kPathFinder = GC.getPathFinder();
+	FStaticVector< CvHomelandUnit, 64, true, c_eCiv5GameplayDLL >::iterator it;
+	for(it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
+	{
+		UnitHandle pUnit = m_pPlayer->getUnit(it->GetID());
+		if(!pUnit || pUnit->TurnProcessed())
+		{
+			continue;
+		}
+
+		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+		if(pkScriptSystem)
+		{
+			CvLuaArgsHandle args;
+			args->Push(pUnit->getOwner());
+			args->Push(pUnit->GetID());
+
+			bool bResult;
+			LuaSupport::CallHook(pkScriptSystem, "UnitGetSpecialExploreTarget", args.get(), bResult);
+
+			if(bResult)
+			{
+				continue;
+			}
+		}
+
+		if (!m_pPlayer->isHuman() && pUnit->CanStartMission(CvTypes::getMISSION_SELL_EXOTIC_GOODS(), -1, -1))
+		{
+			// Far enough from home to get a good reward?
+			float fRewardFactor = pUnit->calculateExoticGoodsDistanceFactor(pUnit->plot());
+			if (fRewardFactor >= 0.5f)
+			{
+				pUnit->PushMission(CvTypes::getMISSION_SELL_EXOTIC_GOODS());
+				if(GC.getLogging() && GC.getAILogging())
+				{
+					CvString strLogString;
+					strLogString.Format("UnitID: %d used Sell Exotic Goods, X: %d, Y: %d", pUnit->GetID(), pUnit->getX(), pUnit->getY());
+					LogHomelandMessage(strLogString);
+				}
+			}
+		}
+
+		int iUnitX = pUnit->getX();
+		int iUnitY = pUnit->getY();
+
+		//check if a goody is assigned for this unit
+		if (PickUpGoodies(pEconomicAI,pUnit))
+			continue;
+
+		CvPlot* pBestPlot = NULL;
+		int iBestPlotScore = 0;
+
+		TeamTypes eTeam = pUnit->getTeam();
+		int iBaseSightRange = pUnit->getUnitInfo().GetBaseSightRange();
+		int iMovementRange = pUnit->movesLeft();
+
+		for(int eDir=0; eDir<NUM_DIRECTION_TYPES; eDir++)
+		{
+			CvPlot* pEvalPlot = GC.getMap().getNeighborUnchecked(iUnitX, iUnitY, (DirectionTypes)eDir);
+
+			if(!pEvalPlot || !IsValidExplorerEndTurnPlot(pUnit.pointer(), pEvalPlot))
+				continue;
+
+			DomainTypes eDomain = pUnit->getDomainType();
+			int iScore = CvEconomicAI::ScoreExplorePlot(pEvalPlot, eTeam, iBaseSightRange, eDomain) + pEvalPlot->GetExplorationBonus(m_pPlayer,iHalfAWorldAway,iMaxLatitude);
+
+			if(iScore > 0)
+			{
+				if (eDomain == DOMAIN_LAND)
+				{
+					if (pEvalPlot->isHills())
+					{
+						iScore += 50;
+					}
+					if (pUnit->IsEmbarkAllWater() && !pEvalPlot->isShallowWater())
+					{
+						iScore += 200;
+					}
+				}
+				else if (eDomain == DOMAIN_SEA)
+				{
+					if(pUnit->canSellExoticGoods(pEvalPlot))
+					{
+						float fRewardFactor = pUnit->calculateExoticGoodsDistanceFactor(pEvalPlot);
+						if (fRewardFactor >= 0.75f)
+						{
+							iScore += 150;
+						}
+						else if (fRewardFactor >= 0.5f)
+						{
+							iScore += 75;
+						}
+					}
+
+					if(pEvalPlot->isAdjacentToLand())
+					{
+						iScore += 200;
+					}
+				}
+			}
+
+			if(iScore > iBestPlotScore)
+			{
+				pBestPlot = pEvalPlot;
+				iBestPlotScore = iScore;
+				bFoundNearbyExplorePlot = true;
+			}
+		}
+
+		if(!pBestPlot && iMovementRange > 0)
+		{
+			FFastVector<int>& aiExplorationPlots = pEconomicAI->GetExplorationPlots();
+			if (aiExplorationPlots.size() > 0)
+			{
+				FFastVector<int>& aiExplorationPlotRatings = pEconomicAI->GetExplorationPlotRatings();
+				iBestPlotScore = 0;
+
+				for(uint ui = 0; ui < aiExplorationPlots.size(); ui++)
+				{
+					int iPlot = aiExplorationPlots[ui];
+					if(iPlot < 0)
+					{
+						continue;
+					}
+
+					CvPlot* pEvalPlot = GC.getMap().plotByIndex(iPlot);
+					if(!pEvalPlot)
+					{
+						continue;
+					}
+
+					int iPlotScore = 0;
+
+					if(!IsValidExplorerEndTurnPlot(pUnit.pointer(), pEvalPlot))
+					{
+						continue;
+					}
+
+					int iRating = aiExplorationPlotRatings[ui] + pEvalPlot->GetExplorationBonus(m_pPlayer,iHalfAWorldAway,iMaxLatitude);
+
+					// hitting the path finder, may not be the best idea. . .
+					bool bCanFindPath = kPathFinder.GenerateUnitPath(pUnit.pointer(), iUnitX, iUnitY, pEvalPlot->getX(), pEvalPlot->getY(), MOVE_TERRITORY_NO_ENEMY | MOVE_MAXIMIZE_EXPLORE | MOVE_UNITS_IGNORE_DANGER /*iFlags*/, true/*bReuse*/);
+					if(!bCanFindPath)
+					{
+						continue;
+					}
+
+					CvAStarNode* pNode = kPathFinder.GetLastNode();
+					int iDistance = pNode->m_iData2;
+					iPlotScore = (1000 * iRating) / max(1,iDistance);
+
+					if(iPlotScore > iBestPlotScore)
+					{
+						CvPlot* pEndTurnPlot = kPathFinder.GetPathEndTurnPlot();
+						if(pEndTurnPlot == pUnit->plot())
+						{
+							pBestPlot = NULL;
+							iBestPlotScore = iPlotScore;
+						}
+						else if(IsValidExplorerEndTurnPlot(pUnit.pointer(), pEndTurnPlot))
+						{
+							pBestPlot = pEndTurnPlot;
+							iBestPlotScore = iPlotScore;
+						}
+						else
+						{
+							// not a valid destination
+							continue;
+						}
+					}
+				}
+			}
+		}
+
+		if(pBestPlot)
+		{
+			CvAssertMsg(!pUnit->atPlot(*pBestPlot), "Exploring unit is already at the best place to explore");
+			pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestPlot->getX(), pBestPlot->getY(), MOVE_TERRITORY_NO_ENEMY | MOVE_MAXIMIZE_EXPLORE | MOVE_UNITS_IGNORE_DANGER, false, false, MISSIONAI_EXPLORE, pBestPlot);
+
+			// Only mark as done if out of movement
+			if(pUnit->getMoves() <= 0)
+			{
+				UnitProcessed(pUnit->GetID());
+			}
+
+			if(GC.getLogging() && GC.getAILogging())
+			{
+				CvString strLogString;
+				if(bFoundNearbyExplorePlot)
+				{
+					strLogString.Format("UnitID: %d Explored to nearby target, To X: %d, Y: %d, From X: %d, Y: %d", pUnit->GetID(), pUnit->getX(), pUnit->getY(), iUnitX, iUnitY);
+				}
+				else
+				{
+					strLogString.Format("UnitID: %d Explored to distant target, To X: %d, Y: %d, From X: %d, Y: %d", pUnit->GetID(), pUnit->getX(), pUnit->getY(), iUnitX, iUnitY);
+				}
+				LogHomelandMessage(strLogString);
+			}
+		}
+		else
+		{
+			if(pUnit->isHuman())
+			{
+				if(GC.getLogging() && GC.getAILogging())
+				{
+					CvString strLogString;
+					strLogString.Format("UnitID: %d Explorer (human) found no target, X: %d, Y: %d", pUnit->GetID(), pUnit->getX(), pUnit->getY());
+					LogHomelandMessage(strLogString);
+				}
+				pUnit->SetAutomateType(NO_AUTOMATE);
+				UnitProcessed(pUnit->GetID());
+			}
+			else
+			{
+				// If this is a land explorer and there is no ignore unit path to a friendly city, then disband him
+				if(pUnit->AI_getUnitAIType() == UNITAI_EXPLORE)
+				{
+					if(GC.getLogging() && GC.getAILogging())
+					{
+						CvString strLogString;
+						strLogString.Format("UnitID: %d Explorer (AI) found no target, X: %d, Y: %d", pUnit->GetID(), pUnit->getX(), pUnit->getY());
+						LogHomelandMessage(strLogString);
+					}
+
+					CvCity* pLoopCity;
+					int iLoop;
+					bool bFoundPath = false;
+					for(pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
+					{
+						if(GC.getIgnoreUnitsPathFinder().DoesPathExist(*(pUnit), pUnit->plot(), pLoopCity->plot()))
+						{
+							bFoundPath = true;
+							break;
+						}
+					}
+					if(!bFoundPath)
+					{
+						CvString strLogString;
+						strLogString.Format("UnitID: %d Disbanding explorer, X: %d, Y: %d", pUnit->GetID(), pUnit->getX(), pUnit->getY());
+						LogHomelandMessage(strLogString);
+
+						UnitProcessed(pUnit->GetID());
+						pUnit->kill(true);
+						m_pPlayer->GetEconomicAI()->IncrementExplorersDisbanded();
+					}
+				}
+				else if(pUnit->AI_getUnitAIType() == UNITAI_EXPLORE_SEA)
+				{
+					if(GC.getLogging() && GC.getAILogging())
+					{
+						CvString strLogString;
+						strLogString.Format("UnitID: %d Sea explorer (AI) found no target, X: %d, Y: %d", pUnit->GetID(), pUnit->getX(), pUnit->getY());
+						LogHomelandMessage(strLogString);
+					}
+				}
+			}
+		}
+	}
+}
+
+#else
 
 #define PATH_PLAN_LAST
-typedef CvWeightedVector<CvPlot*, 100, true> WeightedPlotVector;
 
-/// Moves units to explore the map
 void CvHomelandAI::ExecuteExplorerMoves()
 {
 	bool bFoundNearbyExplorePlot = false;
@@ -3125,6 +3472,8 @@ void CvHomelandAI::ExecuteExplorerMoves()
 		}
 	}
 }
+
+#endif //MOD_BALANCE_CORE_SETTLER
 
 /// Moves units to explore the map
 #if defined(MOD_AI_SECONDARY_WORKERS)
