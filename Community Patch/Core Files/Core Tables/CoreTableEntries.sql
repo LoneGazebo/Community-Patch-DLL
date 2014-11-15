@@ -22,6 +22,10 @@ ALTER TABLE Eras ADD COLUMN 'StartingMinorDefenseUnits' integer default 0;
 
 ALTER TABLE HandicapInfos ADD COLUMN 'StartingMinorDefenseUnits' integer default 0;
 
+-- Combat Bonus vs Higher Pop Civilization.
+
+ALTER TABLE Traits ADD COLUMN 'CombatBonusVsHigherPop' integer default 0;
+
 -- No unhappiness from Isolation.
 
 ALTER TABLE Traits ADD COLUMN 'NoConnectionUnhappiness' boolean default false;

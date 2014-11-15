@@ -554,6 +554,9 @@ protected:
 	static int lExecuteSpecialExploreMove(lua_State* L);
 
 	static int lSetDeployFromOperationTurn(lua_State* L);
+#if defined(MOD_BALANCE_CORE)
+	static int lIsHigherPopThan(lua_State* L);
+#endif
 	static int lIsHigherTechThan(lua_State* L);
 	static int lIsLargerCivThan(lua_State* L);
 

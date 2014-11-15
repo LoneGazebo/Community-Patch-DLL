@@ -970,6 +970,17 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 --END
 			end
 			
+-- COMMUNITY PATCH CHANGE	
+		
+			-- CombatBonusVsHigherPop
+			iModifier = pMyPlayer:GetCombatBonusVsHigherPop();
+			if (iModifier ~= 0 and pTheirUnit:IsHigherPopThan(pMyUnit)) then
+				controlTable = g_MyCombatDataIM:GetInstance();
+				controlTable.Text:LocalizeAndSetText(  "TXT_KEY_EUPANEL_TRAIT_LOW_POP_BONUS" );
+				controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
+			end
+--END					
+			
 			-- CombatBonusVsHigherTech
 			if (pToPlot:GetOwner() == iMyPlayer) then
 				iModifier = pMyPlayer:GetCombatBonusVsHigherTech();
@@ -1562,6 +1573,17 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 						controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
 					end
 				end
+	
+-- COMMUNITY PATCH CHANGE	
+		
+				-- CombatBonusVsHigherPop
+				iModifier = pTheirPlayer:GetCombatBonusVsHigherPop();
+				if (iModifier ~= 0 and pMyUnit:IsHigherPopThan(pTheirUnit)) then
+					controlTable = g_TheirCombatDataIM:GetInstance();
+					controlTable.Text:LocalizeAndSetText(  "TXT_KEY_EUPANEL_TRAIT_LOW_POP_BONUS" );
+					controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
+				end
+--END		
 	
 				-- CombatBonusVsHigherTech
 				if (pToPlot:GetOwner() == iTheirPlayer) then

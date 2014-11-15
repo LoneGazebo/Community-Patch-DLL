@@ -545,6 +545,9 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(ExecuteSpecialExploreMove);
 
 	Method(SetDeployFromOperationTurn);
+#if defined(MOD_BALANCE_CORE)
+	Method(IsHigherPopThan);
+#endif
 	Method(IsHigherTechThan);
 	Method(IsLargerCivThan);
 
@@ -5027,6 +5030,19 @@ int CvLuaUnit::lSetDeployFromOperationTurn(lua_State* L)
 	pkUnit->SetDeployFromOperationTurn(iTurn);
 	return 0;
 }
+#if defined(MOD_BALANCE_CORE)
+//------------------------------------------------------------------------------
+//bool IsHigherPopThan(CvUnit *pOtherUnit);
+int CvLuaUnit::lIsHigherPopThan(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	CvUnit* pkOtherUnit = CvLuaUnit::GetInstance(L, 2);
+	const bool bResult = pkUnit->IsHigherPopThan(pkOtherUnit);
+
+	lua_pushboolean(L, bResult);
+	return 1;
+}
+#endif
 //------------------------------------------------------------------------------
 //bool IsHigherTechThan(UnitTypes eOtherUnit );
 int CvLuaUnit::lIsHigherTechThan(lua_State* L)
@@ -5048,7 +5064,8 @@ int CvLuaUnit::lIsLargerCivThan(lua_State* L)
 
 	lua_pushboolean(L, bResult);
 	return 1;
-}//------------------------------------------------------------------------------
+}
+//------------------------------------------------------------------------------
 //bool IsRangedSupportFire();
 int CvLuaUnit::lIsRangedSupportFire(lua_State* L)
 {
