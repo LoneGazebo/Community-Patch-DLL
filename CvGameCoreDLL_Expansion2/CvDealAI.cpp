@@ -1302,6 +1302,14 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 		else
 		{
 			int iHappinessFromResource = pkResourceInfo->getHappiness();
+#if defined(MOD_BALANCE_CORE_HAPPINESS_LUXURY)
+			//Let's modify this value to make it more clearly pertain to current happiness for luxuries.
+			iHappinessFromResource = GetPlayer()->GetBaseLuxuryHappiness();
+			if(iHappinessFromResource <= 0)
+			{
+				iHappinessFromResource = 1;
+			}
+#endif
 			iItemValue += (iResourceQuantity * iHappinessFromResource * iNumTurns * 2);	// Ex: 1 Silk for 4 Happiness * 30 turns * 2 = 240
 
 			// If we only have 1 of a Luxury then we value it much more
@@ -1909,12 +1917,18 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 		if(!bFromMe)
 		{
 			int iHappiness = GetPlayer()->GetExcessHappiness();
+
+			//Did we build this city? We want our people back!
+			if(pCity->getOriginalOwner() == GetPlayer()->GetID())
+			{
+				iItemValue *= 2;
+			}
 			//Would this city cause us to become unhappy? It is worthless to us.
-			if(iHappiness < pCity->getPopulation())
+			else if(iHappiness < pCity->getPopulation())
 			{
 				iItemValue = -1;
 			}
-			if(GetPlayer()->IsEmpireUnhappy())
+			else if(GetPlayer()->IsEmpireUnhappy())
 			{
 				iItemValue = -1;
 			}
@@ -1925,7 +1939,7 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 			int iNumCities = GetPlayer()->getNumCities();
 			if(iNumCities <= 3)
 			{
-				iItemValue *= 5;
+				iItemValue *= 20;
 			}
 		}
 	}

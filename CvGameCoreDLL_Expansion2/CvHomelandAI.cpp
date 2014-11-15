@@ -337,7 +337,7 @@ void CvHomelandAI::EstablishHomelandPriorities()
 				iPriority = GC.getAI_HOMELAND_MOVE_PRIORITY_GARRISON();
 			}
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
-			if(MOD_BALANCE_CORE_HAPPINESS && iPriority != (GC.getAI_HOMELAND_MOVE_PRIORITY_SENTRY() + 1))
+			if(MOD_BALANCE_CORE_HAPPINESS)
 			{
 				//If any of our cities need a garrison, this should win out.
 				AICityStrategyTypes eStrategyNeedDefense = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_NEED_HAPPINESS_DEFENSE");
@@ -349,7 +349,7 @@ void CvHomelandAI::EstablishHomelandPriorities()
 					{
 						if(pLoopCity->GetCityStrategyAI()->IsUsingCityStrategy(eStrategyNeedDefense))
 						{
-							iPriority = GC.getAI_HOMELAND_MOVE_PRIORITY_SENTRY() + 1;
+							iPriority = GC.getAI_HOMELAND_MOVE_PRIORITY_SENTRY() + 10;
 						}
 					}
 				}
@@ -1024,8 +1024,8 @@ void CvHomelandAI::PlotHealMoves()
 
 				if (iDangerLevel > 0)
 				{
-					// Set the health limit to 75%
-					iHealingLimit = ((pUnit->GetMaxHitPoints() * 3) / 4);
+					// Set the health limit to 50%
+					iHealingLimit = ((pUnit->GetMaxHitPoints() * 2) / 4);
 				}
 			}
 #endif
@@ -1115,7 +1115,7 @@ void CvHomelandAI::PlotMovesToSafety()
 
 					// Everyone else flees at less than or equal to 50% combat strength
 #if defined(MOD_AI_SMART_FLEE_FROM_DANGER)
-					else if(MOD_AI_SMART_FLEE_FROM_DANGER || pUnit->IsUnderEnemyRangedAttack() || pUnit->GetBaseCombatStrengthConsideringDamage() * 2 <= pUnit->GetBaseCombatStrength())
+					else if(MOD_AI_SMART_FLEE_FROM_DANGER && (pUnit->IsUnderEnemyRangedAttack() || (pUnit->GetBaseCombatStrengthConsideringDamage() * 2 <= pUnit->GetBaseCombatStrength())))
 #else
 					else if(pUnit->IsUnderEnemyRangedAttack() || pUnit->GetBaseCombatStrengthConsideringDamage() * 2 <= pUnit->GetBaseCombatStrength())
 #endif
@@ -1161,6 +1161,10 @@ void CvHomelandAI::PlotMovesToSafety()
 	if(m_CurrentMoveUnits.size() > 0)
 	{
 		ExecuteMovesToSafestPlot();
+#if defined(MOD_BALANCE_CORE_MILITARY)
+		//Do twice to confirm that everyone has moved their full extent.
+		ExecuteMovesToSafestPlot();
+#endif
 	}
 }
 

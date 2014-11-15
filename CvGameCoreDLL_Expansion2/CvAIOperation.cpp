@@ -3862,6 +3862,7 @@ CvPlot* CvAIOperationAllyDefense::FindBestTarget()
 					{
 						eClosestProximity = GET_PLAYER(eMinor).GetProximityToPlayer(m_eOwner);
 						pCity = GET_PLAYER(eMinor).getCapitalCity();
+						pPlot = pCity->plot();
 					}
 				}
 			}
@@ -3875,34 +3876,15 @@ CvPlot* CvAIOperationAllyDefense::FindBestTarget()
 	}
 
 	//Let's find a target plot that isn't our ally's capital.
-	if(pCity != NULL)
+	if(pCity != NULL && pPlot != NULL)
 	{
-		int iTempWeight = 0;
-		
-		int iBestPlotWeight = -1;
-
-		// Start at 1, since ID 0 is the city plot itself
-		for(int iPlotLoop = 1; iPlotLoop < NUM_DIRECTION_TYPES; iPlotLoop++)
+		for(int iPlotLoop = 0; iPlotLoop < NUM_DIRECTION_TYPES; iPlotLoop++)
 		{
-			if(!pPlot)		// Should be valid, but make sure
-				continue;
-
 			// Can't be impassable
-			if(pPlot->isImpassable() || pPlot->isMountain())
-				continue;
-
-			// Can't be ANOTHER city
-			if(pPlot->isCity())
-				continue;
-
-			// Add weight if there's a defensive bonus for this plot
-			if(pPlot->defenseModifier(GET_PLAYER(m_eOwner).getTeam(), false, false))
-				iTempWeight += 4;
-
-			if(iTempWeight > iBestPlotWeight)
+			if(pPlot != NULL && !pPlot->isCity() && !pPlot->isImpassable() && !pPlot->isMountain() && !pPlot->isWater())
 			{
-				iBestPlotWeight = iTempWeight;
 				pBestPlot = pPlot;
+				break;
 			}
 		}
 

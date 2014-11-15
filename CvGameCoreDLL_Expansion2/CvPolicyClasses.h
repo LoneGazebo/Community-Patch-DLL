@@ -229,6 +229,8 @@ public:
 	void ChangeFreeChosenBuilding(int i, int iChange);
 #endif
 #if defined(MOD_BALANCE_CORE_POLICIES)
+	int GetYieldFromBirth(int i) const;
+	int GetYieldFromBirthCapital(int i) const;
 	int GetYieldFromConstruction(int i) const;
 	int GetYieldFromTech(int i) const;
 	bool GetNoUnhappinessExpansion() const;
@@ -500,6 +502,8 @@ private:
 	int* m_paiFreeChosenBuilding;
 #endif
 #if defined(MOD_BALANCE_CORE_POLICIES)
+	int* m_piYieldFromBirth;
+	int* m_piYieldFromBirthCapital;
 	int* m_piYieldFromConstruction;
 	int* m_piYieldFromTech;
 	bool m_bNoUnhappinessExpansion;

@@ -660,6 +660,14 @@ void CvDangerPlots::AssignUnitDangerValue(CvUnit* pUnit, CvPlot* pPlot)
 
 			int iUnitCombatValue = iBaseUnitCombatValue / iTurnsAway;
 			iUnitCombatValue = ModifyDangerByRelationship(pUnit->getOwner(), pPlot, iUnitCombatValue);
+#if defined(MOD_BALANCE_CORE_MILITARY)
+			//Embarked? Scary!
+			if(pPlot->isWater() && pUnit->getDomainType() != DOMAIN_SEA)
+			{
+				iUnitCombatValue *= 3;
+				iUnitCombatValue /= 2;
+			}
+#endif
 			AddDanger(iPlotX, iPlotY, iUnitCombatValue, iTurnsAway <= 1);
 		}
 	}
@@ -670,6 +678,21 @@ void CvDangerPlots::AssignUnitDangerValue(CvUnit* pUnit, CvPlot* pPlot)
 void CvDangerPlots::AssignCityDangerValue(CvCity* pCity, CvPlot* pPlot)
 {
 	int iCombatValue = pCity->getStrengthValue();
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	//If city is strong, we should increase its threat.
+	CvMilitaryAI* pMilitaryAI = GET_PLAYER(m_ePlayer).GetMilitaryAI();
+	int iPower = pMilitaryAI->GetPowerOfStrongestBuildableUnit(DOMAIN_LAND);
+	if(iCombatValue > iPower)
+	{
+		iCombatValue *= 2;
+	}
+	//If plot is water, increase the value. Water is dangerous!
+	if(pPlot->isWater())
+	{
+		iCombatValue *= 3;
+		iCombatValue /= 2;
+	}
+#endif
 	iCombatValue = ModifyDangerByRelationship(pCity->getOwner(), pPlot, iCombatValue);
 	AddDanger(pPlot->getX(), pPlot->getY(), iCombatValue, false);
 }

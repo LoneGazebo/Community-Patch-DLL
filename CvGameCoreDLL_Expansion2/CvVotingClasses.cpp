@@ -4931,29 +4931,23 @@ bool CvLeague::IsIdeologyEmbargoed(PlayerTypes eTrader, PlayerTypes eRecipient)
 	{ 
 		if (it->GetEffects()->bEmbargoIdeology)
 		{
-			PlayerTypes eLoopPlayer;
-			for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+			if(GET_PLAYER(eTrader).isMinorCiv() && !GET_PLAYER(eTrader).GetMinorCivAI()->IsAllies(eRecipient))
 			{
-				eLoopPlayer = (PlayerTypes) iPlayerLoop;
-				if (GET_PLAYER(eLoopPlayer).isAlive())
+				return true;
+			}
+			else if(GET_PLAYER(eRecipient).isMinorCiv() && !GET_PLAYER(eRecipient).GetMinorCivAI()->IsAllies(eTrader))
+			{
+				return true;
+			}
+			else
+			{
+				PolicyBranchTypes eOurIdeology = GET_PLAYER(eTrader).GetPlayerPolicies()->GetLateGamePolicyTree();
+				PolicyBranchTypes eTheirIdeology = GET_PLAYER(eRecipient).GetPlayerPolicies()->GetLateGamePolicyTree();
+				if (eOurIdeology != NO_POLICY_BRANCH_TYPE && eTheirIdeology != NO_POLICY_BRANCH_TYPE)
 				{
-					if(!GET_PLAYER(eLoopPlayer).isMinorCiv())
+					if(eTheirIdeology != eOurIdeology)
 					{
-						PolicyBranchTypes eOurIdeology = GET_PLAYER(eTrader).GetPlayerPolicies()->GetLateGamePolicyTree();
-						PolicyBranchTypes eTheirIdeology = GET_PLAYER(eLoopPlayer).GetPlayerPolicies()->GetLateGamePolicyTree();
-						if (eOurIdeology != NO_POLICY_BRANCH_TYPE && eTheirIdeology != NO_POLICY_BRANCH_TYPE)
-						{
-							if(eTheirIdeology != eOurIdeology)
-							{
-								if(eLoopPlayer == eTrader || eLoopPlayer  == eRecipient)
-								return true;
-							}
-						}
-					}
-					else if(GET_PLAYER(eLoopPlayer).isMinorCiv() && !GET_PLAYER(eLoopPlayer).GetMinorCivAI()->IsAllies(eTrader))
-					{
-						if(eLoopPlayer == eTrader || eLoopPlayer  == eRecipient)
-							return true;
+						return true;
 					}
 				}
 			}
@@ -11249,7 +11243,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 				}		
 				else if (eAlliedPlayer == ePlayer)
 				{
-					iScore += -100;
+					iScore += -500;
 				}
 			}
 			if(eAlliedPlayer == NO_PLAYER)

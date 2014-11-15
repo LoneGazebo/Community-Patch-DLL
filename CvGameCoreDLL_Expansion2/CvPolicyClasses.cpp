@@ -211,6 +211,8 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_paiFreeChosenBuilding(NULL),
 #endif
 #if defined(MOD_BALANCE_CORE_POLICIES)
+	m_piYieldFromBirth(NULL),
+	m_piYieldFromBirthCapital(NULL),
 	m_piYieldFromConstruction(NULL),
 	m_piYieldFromTech(NULL),
 	m_bNoUnhappinessExpansion(false),
@@ -285,6 +287,8 @@ CvPolicyEntry::~CvPolicyEntry(void)
 	SAFE_DELETE_ARRAY(m_paiFreeChosenBuilding);
 #endif
 #if defined(MOD_BALANCE_CORE_POLICIES)
+	SAFE_DELETE_ARRAY(m_piYieldFromBirth);
+	SAFE_DELETE_ARRAY(m_piYieldFromBirthCapital);
 	SAFE_DELETE_ARRAY(m_piYieldFromConstruction);
 	SAFE_DELETE_ARRAY(m_piYieldFromTech);
 	SAFE_DELETE_ARRAY(m_piYieldFromBorderGrowth);
@@ -528,6 +532,8 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	kUtility.SetYields(m_piGreatWorkYieldChange, "Policy_GreatWorkYieldChanges", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piSpecialistExtraYield, "Policy_SpecialistExtraYields", "PolicyType", szPolicyType);
 #if defined(MOD_BALANCE_CORE_POLICIES)
+	kUtility.SetYields(m_piYieldFromBirth, "Policy_YieldFromBirth", "PolicyType", szPolicyType);
+	kUtility.SetYields(m_piYieldFromBirthCapital, "Policy_YieldFromBirthCapital", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piYieldFromConstruction, "Policy_YieldFromConstruction", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piYieldFromTech, "Policy_YieldFromTech", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piYieldFromBorderGrowth, "Policy_YieldFromBorderGrowth", "PolicyType", szPolicyType);
@@ -2230,6 +2236,20 @@ void CvPolicyEntry::ChangeFreeChosenBuilding(int i, int iChange)
 }
 #endif
 #if defined(MOD_BALANCE_CORE_POLICIES)
+/// Does this Policy grant yields from citizen birth?
+int CvPolicyEntry::GetYieldFromBirth(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piYieldFromBirth[i];
+}
+/// Does this Policy grant yields from citizen birth in the Capital?
+int CvPolicyEntry::GetYieldFromBirthCapital(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piYieldFromBirthCapital[i];
+}
 /// Does this Policy grant yields from constructing buildings?
 int CvPolicyEntry::GetYieldFromConstruction(int i) const
 {

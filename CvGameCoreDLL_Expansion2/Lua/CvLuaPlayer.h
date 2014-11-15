@@ -247,6 +247,7 @@ protected:
 	static int lGetNumCivsToBeInfluentialOn(lua_State* L);
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE)
 	LUAAPIEXTN(GetInfluenceTradeRouteGoldBonus, int);
+	LUAAPIEXTN(GetWoundedUnitDamageMod, int);
 #endif
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE_POLICIES)
 	LUAAPIEXTN(GetNoUnhappinessExpansion, int);

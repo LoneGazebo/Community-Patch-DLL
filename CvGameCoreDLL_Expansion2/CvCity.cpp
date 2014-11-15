@@ -2946,6 +2946,10 @@ bool CvCity::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestVis
 				return false;
 			}
 		}
+		else
+		{
+			return false;
+		}
 	}
 #endif
 
@@ -10764,6 +10768,17 @@ int CvCity::getUnhappinessFromCultureNeeded() const
 {
 	int iThreshold = GET_PLAYER(getOwner()).getGlobalAverage(YIELD_CULTURE);
 
+	if(isCapital())
+	{
+		if(GET_PLAYER(getOwner()).GetPlayerTraits()->IsNoAnnexing() || GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE))
+		{
+			iThreshold += ((iThreshold * (GC.getBALANCE_HAPPINESS_CAPITAL_MODIFIER() * 2))  / 100);
+		}
+		else
+		{
+			iThreshold += ((iThreshold * GC.getBALANCE_HAPPINESS_CAPITAL_MODIFIER()) / 100);
+		}
+	}
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 	//Trait is % reduction to this value (higher trait = lower threshold).
 	if(GET_PLAYER(getOwner()).GetPlayerTraits()->GetUnculturedHappinessChange() != 0)
@@ -10786,7 +10801,7 @@ int CvCity::getUnhappinessFromCultureNeeded() const
 	//Buildings decrease this by a flat integer.
 	if(GetUnculturedUnhappiness() != 0)
 	{
-		iThreshold += (GetUnculturedUnhappiness() * -100);
+		iThreshold += (GetUnculturedUnhappiness() * (getPopulation() * -1));
 	}
 	int iLoop = 0;
 	for(const CvCity* pLoopCity = GET_PLAYER(getOwner()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iLoop))
@@ -10796,7 +10811,7 @@ int CvCity::getUnhappinessFromCultureNeeded() const
 			//Mod from global unhappiness building modifier.
 			if(pLoopCity->GetUnculturedUnhappinessGlobal() != 0)
 			{
-				iThreshold += (pLoopCity->GetUnculturedUnhappinessGlobal() * -100);
+				iThreshold += (pLoopCity->GetUnculturedUnhappinessGlobal() * (getPopulation() * -1));
 			}
 		}		
 	}
@@ -10826,9 +10841,13 @@ int CvCity::getUnhappinessFromCulture() const
 		iUnhappiness = iThreshold - iCityCulture;
 		
 		iUnhappiness /= /* 100 */ GC.getBALANCE_UNHAPPY_CITY_BASE_VALUE();
+		if(iUnhappiness < 1)
+		{
+			iUnhappiness = 1;
+		}
 	}
 
-	int iPop = getPopulation() / 4;
+	int iPop = getPopulation();
 	if(iPop <= 0)
 	{
 		iPop = 1;
@@ -10858,6 +10877,17 @@ int CvCity::getUnhappinessFromScienceNeeded() const
 {
 	int iThreshold = GET_PLAYER(getOwner()).getGlobalAverage(YIELD_SCIENCE);
 
+	if(isCapital())
+	{
+		if(GET_PLAYER(getOwner()).GetPlayerTraits()->IsNoAnnexing() || GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE))
+		{
+			iThreshold += ((iThreshold * (GC.getBALANCE_HAPPINESS_CAPITAL_MODIFIER() * 2))  / 100);
+		}
+		else
+		{
+			iThreshold += ((iThreshold * GC.getBALANCE_HAPPINESS_CAPITAL_MODIFIER()) / 100);
+		}
+	}
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 	//Trait is % reduction to this value (higher trait = lower threshold).
 	if(GET_PLAYER(getOwner()).GetPlayerTraits()->GetIlliteracyHappinessChange() != 0)
@@ -10880,7 +10910,7 @@ int CvCity::getUnhappinessFromScienceNeeded() const
 	//Buildings decrease this by a flat integer.
 	if(GetIlliteracyUnhappiness() != 0)
 	{
-		iThreshold += (GetIlliteracyUnhappiness() * -100);
+		iThreshold += (GetIlliteracyUnhappiness() * (getPopulation() * -1));
 	}
 	int iLoop = 0;
 	for(const CvCity* pLoopCity = GET_PLAYER(getOwner()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iLoop))
@@ -10890,7 +10920,7 @@ int CvCity::getUnhappinessFromScienceNeeded() const
 			//Mod from global unhappiness building modifier.
 			if(pLoopCity->GetIlliteracyUnhappinessGlobal() != 0)
 			{
-				iThreshold += (pLoopCity->GetIlliteracyUnhappinessGlobal() * -100);
+				iThreshold += (pLoopCity->GetIlliteracyUnhappinessGlobal() * (pLoopCity->getPopulation() * -1));
 			}
 		}		
 	}
@@ -10920,8 +10950,13 @@ int CvCity::getUnhappinessFromScience() const
 		iUnhappiness = iThreshold - iCityResearch;
 		
 		iUnhappiness /= /* 100 */ GC.getBALANCE_UNHAPPY_CITY_BASE_VALUE();
+		if(iUnhappiness < 1)
+		{
+			iUnhappiness = 1;
+		}
 	}
-	int iPop = getPopulation() / 4;
+
+	int iPop = getPopulation();
 	if(iPop <= 0)
 	{
 		iPop = 1;
@@ -10938,14 +10973,7 @@ int CvCity::getUnhappinessFromDefenseYield() const
 	int iDefenseYield = getStrengthValue(false);
 	iDefenseYield += (GetCityBuildings()->GetBuildingDefense() / 2);
 
-	// Garrisoned Unit x 5
-	CvUnit* pGarrisonedUnit = GetGarrisonedUnit();
-	if(pGarrisonedUnit)
-	{
-		iDefenseYield += (pGarrisonedUnit->GetBaseCombatStrength() * 5);
-	}
-
-	int iDamage = (getDamage() * 25);
+	int iDamage = getDamage() * 10;
 
 	if(iDamage > 0)
 	{
@@ -10965,6 +10993,17 @@ int CvCity::getUnhappinessFromDefenseNeeded() const
 {
 	int iThreshold = GET_PLAYER(getOwner()).getGlobalAverage(YIELD_PRODUCTION);
 
+	if(isCapital())
+	{
+		if(GET_PLAYER(getOwner()).GetPlayerTraits()->IsNoAnnexing() || GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE))
+		{
+			iThreshold += ((iThreshold * (GC.getBALANCE_HAPPINESS_CAPITAL_MODIFIER() * 2))  / 100);
+		}
+		else
+		{
+			iThreshold += ((iThreshold * GC.getBALANCE_HAPPINESS_CAPITAL_MODIFIER()) / 100);
+		}
+	}
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 	//Trait is % reduction of this value (higher trait = lower threshold).
 	if(GET_PLAYER(getOwner()).GetPlayerTraits()->GetDefenseHappinessChange() != 0)
@@ -10987,7 +11026,7 @@ int CvCity::getUnhappinessFromDefenseNeeded() const
 	//Buildings decrease this by a flat integer.
 	if(GetDefenseUnhappiness() != 0)
 	{
-		iThreshold += GetDefenseUnhappiness() * -100;
+		iThreshold += GetDefenseUnhappiness() * (getPopulation() * -1);
 	}
 	int iLoop = 0;
 	for(const CvCity* pLoopCity = GET_PLAYER(getOwner()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iLoop))
@@ -10997,7 +11036,7 @@ int CvCity::getUnhappinessFromDefenseNeeded() const
 			//Mod from global unhappiness building modifier.
 			if(pLoopCity->GetDefenseUnhappinessGlobal() != 0)
 			{
-				iThreshold += pLoopCity->GetDefenseUnhappinessGlobal() * -100;
+				iThreshold += pLoopCity->GetDefenseUnhappinessGlobal() * (pLoopCity->getPopulation() * -1);
 			}
 		}		
 	}
@@ -11026,9 +11065,13 @@ int CvCity::getUnhappinessFromDefense() const
 		iUnhappiness = iThreshold - iBuildingDefense;
 
 		iUnhappiness /= /* 100 */ GC.getBALANCE_UNHAPPY_CITY_BASE_VALUE();
+		if(iUnhappiness < 1)
+		{
+			iUnhappiness = 1;
+		}
 	}
 
-	int iPop = getPopulation() / 4;
+	int iPop = getPopulation();
 	if(iPop <= 0)
 	{
 		iPop = 1;
@@ -11059,6 +11102,17 @@ int CvCity::getUnhappinessFromGoldNeeded() const
 {
 	int iThreshold = GET_PLAYER(getOwner()).getGlobalAverage(YIELD_GOLD);
 
+	if(isCapital())
+	{
+		if(GET_PLAYER(getOwner()).GetPlayerTraits()->IsNoAnnexing() || GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE))
+		{
+			iThreshold += ((iThreshold * (GC.getBALANCE_HAPPINESS_CAPITAL_MODIFIER() * 2))  / 100);
+		}
+		else
+		{
+			iThreshold += ((iThreshold * GC.getBALANCE_HAPPINESS_CAPITAL_MODIFIER()) / 100);
+		}
+	}
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 	//Trait is % reduction of this value (higher trait = lower threshold).
 	if(GET_PLAYER(getOwner()).GetPlayerTraits()->GetPovertyHappinessChange() != 0)
@@ -11081,7 +11135,7 @@ int CvCity::getUnhappinessFromGoldNeeded() const
 	//Buildings decrease this by a flat integer.
 	if(GetPovertyUnhappiness() != 0)
 	{
-		iThreshold += GetPovertyUnhappiness() * -100;
+		iThreshold += GetPovertyUnhappiness() * (getPopulation() * -1);
 	}
 	int iLoop = 0;
 	for(const CvCity* pLoopCity = GET_PLAYER(getOwner()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iLoop))
@@ -11091,7 +11145,7 @@ int CvCity::getUnhappinessFromGoldNeeded() const
 			//Mod from global unhappiness building modifier.
 			if(pLoopCity->GetPovertyUnhappinessGlobal() != 0)
 			{
-				iThreshold += pLoopCity->GetPovertyUnhappinessGlobal() * -100;
+				iThreshold += pLoopCity->GetPovertyUnhappinessGlobal() * (pLoopCity->getPopulation() * -1);
 			}
 		}		
 	}
@@ -11120,8 +11174,13 @@ int CvCity::getUnhappinessFromGold() const
 		iUnhappiness = iThreshold - iGold;
 
 		iUnhappiness /= /* 100 */ GC.getBALANCE_UNHAPPY_CITY_BASE_VALUE();
+		if(iUnhappiness < 1)
+		{
+			iUnhappiness = 1;
+		}
 	}
-	int iPop = getPopulation() / 4;
+
+	int iPop = getPopulation();
 	if(iPop <= 0)
 	{
 		iPop = 1;
@@ -11173,7 +11232,6 @@ int CvCity::getUnhappinessFromConnection() const
 				fUnhappiness += (float) ((GET_PLAYER(getOwner()).GetPuppetUnhappinessMod() * fUnhappiness) / 100);
 			}
 #endif
-			iRealCityPop /= 4;
 			if(iRealCityPop <= 0)
 			{
 				iRealCityPop = 1;
@@ -11245,7 +11303,7 @@ int CvCity::getUnhappinessFromPillaged() const
 			fUnhappiness += (float) ((GET_PLAYER(getOwner()).GetPuppetUnhappinessMod() * fUnhappiness) / 100);
 		}
 #endif
-		int iRealCityPop = (getPopulation() / 4);
+		int iRealCityPop = getPopulation();
 		if(iRealCityPop <= 0)
 		{
 			iRealCityPop = 1;
@@ -11285,7 +11343,6 @@ int CvCity::getUnhappinessFromStarving() const
 			fUnhappiness += (float) ((GET_PLAYER(getOwner()).GetPuppetUnhappinessMod() * fUnhappiness) / 100);
 		}
 #endif
-		iRealCityPop /= 4;
 		if(iRealCityPop <= 0)
 		{
 			iRealCityPop = 1;
@@ -11336,7 +11393,7 @@ int CvCity::getUnhappinessFromMinority() const
 		//Buildings increase this by a flat integer.
 		if(GetMinorityUnhappiness() != 0)
 		{
-			iFollowers += GetMinorityUnhappiness();
+			iFollowers += (GetMinorityUnhappiness() * getPopulation()) / 100;
 		}
 		int iLoop = 0;
 		for(const CvCity* pLoopCity = GET_PLAYER(getOwner()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iLoop))
@@ -11346,7 +11403,7 @@ int CvCity::getUnhappinessFromMinority() const
 				//Mod from global unhappiness building modifier.
 				if(pLoopCity->GetMinorityUnhappinessGlobal() != 0)
 				{
-					iFollowers += pLoopCity->GetMinorityUnhappinessGlobal();
+					iFollowers += (pLoopCity->GetMinorityUnhappiness() * pLoopCity->getPopulation()) / 100;
 				}
 			}		
 		}
@@ -11383,7 +11440,6 @@ int CvCity::getUnhappinessFromMinority() const
 				fUnhappiness += (float) ((GET_PLAYER(getOwner()).GetPuppetUnhappinessMod() * fUnhappiness) / 100);
 			}
 #endif
-			iCityPop /= 4;
 			if(iCityPop <= 0)
 			{
 				iCityPop = 1;
@@ -12054,19 +12110,6 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_YIELD_BELIEF", iTempMod);
 		}
 	}
-#if defined(MOD_BALANCE_CORE_POLICIES)
-	if(eMajority != NO_RELIGION && eMajority > RELIGION_PANTHEON)
-	{
-		if(GET_PLAYER(getOwner()).GetReligions()->GetReligionInMostCities() == eMajority)
-		{	
-			iTempMod = GET_PLAYER(getOwner()).getReligionYieldRateModifier(eIndex);
-			iTempMod += getReligionBuildingYieldRateModifier(eIndex);
-			iModifier += iTempMod;
-			if(toolTipSink)
-				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_YIELD_RELIGION_POLICIES", iTempMod);
-		}
-	}
-#endif
 
 	// Production Yield Rate Modifier from City States
 	if(eIndex == YIELD_PRODUCTION && GetCityBuildings()->GetCityStateTradeRouteProductionModifier() > 0 )
@@ -12320,6 +12363,17 @@ int CvCity::getBaseYieldRate(YieldTypes eIndex) const
 	if(MOD_DIPLOMACY_CITYSTATES && GET_PLAYER(getOwner()).IsLeagueArt() && eIndex == YIELD_SCIENCE)
 	{
 		iValue += GetBaseScienceFromArt();
+	}
+#endif
+#if defined(MOD_BALANCE_CORE_POLICIES)
+	ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
+	if(eMajority != NO_RELIGION && eMajority > RELIGION_PANTHEON)
+	{
+		if(GET_PLAYER(getOwner()).GetReligions()->GetReligionInMostCities() == eMajority)
+		{	
+			iValue += GET_PLAYER(getOwner()).getReligionYieldRateModifier(eIndex);
+			iValue += getReligionBuildingYieldRateModifier(eIndex);
+		}
 	}
 #endif
 #if defined(MOD_BALANCE_CORE_BELIEFS)
@@ -16480,17 +16534,20 @@ void CvCity::doGrowth()
 		{
 			changeFood(-(std::max(0, (growthThreshold() - getFoodKept()))));
 			changePopulation(1);
-#if defined(MOD_BALANCE_CORE_BELIEFS)
-			const ReligionTypes iReligion = GetCityReligions()->GetReligiousMajority();
-			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(iReligion, getOwner());
+#if defined(MOD_BALANCE_CORE)
+			float fDelay = 0.0f;
 			int iEra = GET_PLAYER(getOwner()).GetCurrentEra();
 			if(iEra < 1)
 			{
 				iEra = 1;
 			}
-			if(pReligion)
+#endif
+#if defined(MOD_BALANCE_CORE_BELIEFS)
+			
+			const ReligionTypes iReligion = GetCityReligions()->GetReligiousMajority();
+			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(iReligion, getOwner());
+			if(pReligion && (getPopulation() >= getHighestPopulation()))
 			{
-				float fDelay = 0.0f;
 				if(pReligion->m_Beliefs.GetYieldPerBirth(YIELD_FOOD) > 0)
 				{
 					changeFood(pReligion->m_Beliefs.GetYieldPerBirth(YIELD_FOOD) * iEra);
@@ -16577,6 +16634,185 @@ void CvCity::doGrowth()
 					}
 				}
 			}
+#endif
+#if defined(MOD_BALANCE_CORE_POLICIES)
+			if((getPopulation() >= getHighestPopulation()))
+			{
+				if(GET_PLAYER(getOwner()).getYieldFromBirth(YIELD_FOOD) > 0)
+				{
+					changeFood(GET_PLAYER(getOwner()).getYieldFromBirth(YIELD_FOOD) * iEra);
+					if(getOwner() == GC.getGame().getActivePlayer())
+					{
+						char text[256] = {0};
+						fDelay += 0.5f;
+						sprintf_s(text, "[COLOR_GREEN]+%d[ENDCOLOR][ICON_FOOD]", GET_PLAYER(getOwner()).getYieldFromBirth(YIELD_FOOD) * iEra);
+						DLLUI->AddPopupText(getX(),getY(), text, fDelay);
+					}
+				}
+				if(GET_PLAYER(getOwner()).getYieldFromBirth(YIELD_PRODUCTION) > 0)
+				{
+					changeProduction(GET_PLAYER(getOwner()).getYieldFromBirth(YIELD_PRODUCTION) * iEra);
+					if(getOwner() == GC.getGame().getActivePlayer())
+					{
+						char text[256] = {0};
+						fDelay += 0.5f;
+						sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_PRODUCTION]", GET_PLAYER(getOwner()).getYieldFromBirth(YIELD_PRODUCTION) * iEra);
+						DLLUI->AddPopupText(getX(),getY(), text, fDelay);
+					}
+				}
+				if(GET_PLAYER(getOwner()).getYieldFromBirth(YIELD_GOLD) > 0)
+				{
+					GET_PLAYER(getOwner()).GetTreasury()->ChangeGold(GET_PLAYER(getOwner()).getYieldFromBirth(YIELD_GOLD) * iEra);
+					if(getOwner() == GC.getGame().getActivePlayer())
+					{
+						char text[256] = {0};
+						fDelay += 0.5f;
+						sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]", GET_PLAYER(getOwner()).getYieldFromBirth(YIELD_GOLD) * iEra);
+						DLLUI->AddPopupText(getX(),getY(), text, fDelay);
+					}
+				}
+				if(GET_PLAYER(getOwner()).getYieldFromBirth(YIELD_SCIENCE) > 0)
+				{
+					TechTypes eCurrentTech = GET_PLAYER(getOwner()).GetPlayerTechs()->GetCurrentResearch();
+					if(eCurrentTech == NO_TECH)
+					{
+						GET_PLAYER(getOwner()).changeOverflowResearch(GET_PLAYER(getOwner()).getYieldFromBirth(YIELD_SCIENCE) * iEra);
+					}
+					else
+					{
+						GET_TEAM(GET_PLAYER(getOwner()).getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, GET_PLAYER(getOwner()).getYieldFromBirth(YIELD_SCIENCE), getOwner());
+					}
+					if(getOwner() == GC.getGame().getActivePlayer())
+					{
+						char text[256] = {0};
+						fDelay += 0.5f;
+						sprintf_s(text, "[COLOR_BLUE]+%d[ENDCOLOR][ICON_RESEARCH]", GET_PLAYER(getOwner()).getYieldFromBirth(YIELD_SCIENCE) * iEra);
+						DLLUI->AddPopupText(getX(),getY(), text, fDelay);
+					}
+				}
+				if(GET_PLAYER(getOwner()).getYieldFromBirth(YIELD_CULTURE) > 0)
+				{
+					GET_PLAYER(getOwner()).changeJONSCulture(GET_PLAYER(getOwner()).getYieldFromBirth(YIELD_CULTURE));
+					if(getOwner() == GC.getGame().getActivePlayer())
+					{
+						char text[256] = {0};
+						fDelay += 0.5f;
+						sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", GET_PLAYER(getOwner()).getYieldFromBirth(YIELD_CULTURE) * iEra);
+						DLLUI->AddPopupText(getX(),getY(), text, fDelay);
+					}
+				}
+				if(GET_PLAYER(getOwner()).getYieldFromBirth(YIELD_FAITH) > 0)
+				{
+					GET_PLAYER(getOwner()).ChangeFaith(GET_PLAYER(getOwner()).getYieldFromBirth(YIELD_FAITH));
+					if(getOwner() == GC.getGame().getActivePlayer())
+					{
+						char text[256] = {0};
+						fDelay += 0.5f;
+						sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", GET_PLAYER(getOwner()).getYieldFromBirth(YIELD_FAITH) * iEra);
+						DLLUI->AddPopupText(getX(),getY(), text, fDelay);
+					}
+				}
+				if(GET_PLAYER(getOwner()).getYieldFromBirth(YIELD_GOLDEN_AGE_POINTS) > 0)
+				{
+					GET_PLAYER(getOwner()).ChangeGoldenAgeProgressMeter(GET_PLAYER(getOwner()).getYieldFromBirth(YIELD_GOLDEN_AGE_POINTS) * iEra);
+					if(getOwner() == GC.getGame().getActivePlayer())
+					{
+						char text[256] = {0};
+						fDelay += 0.5f;
+						sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GOLDEN_AGE]", GET_PLAYER(getOwner()).getYieldFromBirth(YIELD_GOLDEN_AGE_POINTS) * iEra);
+						DLLUI->AddPopupText(getX(),getY(), text, fDelay);
+					}
+				}
+				if(isCapital())
+				{
+					if(GET_PLAYER(getOwner()).getYieldFromBirthCapital(YIELD_FOOD) > 0)
+					{
+						changeFood(GET_PLAYER(getOwner()).getYieldFromBirthCapital(YIELD_FOOD) * iEra);
+						if(getOwner() == GC.getGame().getActivePlayer())
+						{
+							char text[256] = {0};
+							fDelay += 0.5f;
+							sprintf_s(text, "[COLOR_GREEN]+%d[ENDCOLOR][ICON_FOOD]", GET_PLAYER(getOwner()).getYieldFromBirthCapital(YIELD_FOOD) * iEra);
+							DLLUI->AddPopupText(getX(),getY(), text, fDelay);
+						}
+					}
+					if(GET_PLAYER(getOwner()).getYieldFromBirthCapital(YIELD_PRODUCTION) > 0)
+					{
+						changeProduction(GET_PLAYER(getOwner()).getYieldFromBirthCapital(YIELD_PRODUCTION) * iEra);
+						if(getOwner() == GC.getGame().getActivePlayer())
+						{
+							char text[256] = {0};
+							fDelay += 0.5f;
+							sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_PRODUCTION]", GET_PLAYER(getOwner()).getYieldFromBirthCapital(YIELD_PRODUCTION) * iEra);
+							DLLUI->AddPopupText(getX(),getY(), text, fDelay);
+						}
+					}
+					if(GET_PLAYER(getOwner()).getYieldFromBirthCapital(YIELD_GOLD) > 0)
+					{
+						GET_PLAYER(getOwner()).GetTreasury()->ChangeGold(GET_PLAYER(getOwner()).getYieldFromBirthCapital(YIELD_GOLD) * iEra);
+						if(getOwner() == GC.getGame().getActivePlayer())
+						{
+							char text[256] = {0};
+							fDelay += 0.5f;
+							sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]", GET_PLAYER(getOwner()).getYieldFromBirthCapital(YIELD_GOLD) * iEra);
+							DLLUI->AddPopupText(getX(),getY(), text, fDelay);
+						}
+					}
+					if(GET_PLAYER(getOwner()).getYieldFromBirthCapital(YIELD_SCIENCE) > 0)
+					{
+						TechTypes eCurrentTech = GET_PLAYER(getOwner()).GetPlayerTechs()->GetCurrentResearch();
+						if(eCurrentTech == NO_TECH)
+						{
+							GET_PLAYER(getOwner()).changeOverflowResearch(GET_PLAYER(getOwner()).getYieldFromBirthCapital(YIELD_SCIENCE) * iEra);
+						}
+						else
+						{
+							GET_TEAM(GET_PLAYER(getOwner()).getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, GET_PLAYER(getOwner()).getYieldFromBirthCapital(YIELD_SCIENCE), getOwner());
+						}
+						if(getOwner() == GC.getGame().getActivePlayer())
+						{
+							char text[256] = {0};
+							fDelay += 0.5f;
+							sprintf_s(text, "[COLOR_BLUE]+%d[ENDCOLOR][ICON_RESEARCH]", GET_PLAYER(getOwner()).getYieldFromBirthCapital(YIELD_SCIENCE) * iEra);
+							DLLUI->AddPopupText(getX(),getY(), text, fDelay);
+						}
+					}
+					if(GET_PLAYER(getOwner()).getYieldFromBirthCapital(YIELD_CULTURE) > 0)
+					{
+						GET_PLAYER(getOwner()).changeJONSCulture(GET_PLAYER(getOwner()).getYieldFromBirthCapital(YIELD_CULTURE));
+						if(getOwner() == GC.getGame().getActivePlayer())
+						{
+							char text[256] = {0};
+							fDelay += 0.5f;
+							sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", GET_PLAYER(getOwner()).getYieldFromBirthCapital(YIELD_CULTURE) * iEra);
+							DLLUI->AddPopupText(getX(),getY(), text, fDelay);
+						}
+					}
+					if(GET_PLAYER(getOwner()).getYieldFromBirthCapital(YIELD_FAITH) > 0)
+					{
+						GET_PLAYER(getOwner()).ChangeFaith(GET_PLAYER(getOwner()).getYieldFromBirthCapital(YIELD_FAITH));
+						if(getOwner() == GC.getGame().getActivePlayer())
+						{
+							char text[256] = {0};
+							fDelay += 0.5f;
+							sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", GET_PLAYER(getOwner()).getYieldFromBirthCapital(YIELD_FAITH) * iEra);
+							DLLUI->AddPopupText(getX(),getY(), text, fDelay);
+						}
+					}
+					if(GET_PLAYER(getOwner()).getYieldFromBirthCapital(YIELD_GOLDEN_AGE_POINTS) > 0)
+					{
+						GET_PLAYER(getOwner()).ChangeGoldenAgeProgressMeter(GET_PLAYER(getOwner()).getYieldFromBirthCapital(YIELD_GOLDEN_AGE_POINTS) * iEra);
+						if(getOwner() == GC.getGame().getActivePlayer())
+						{
+							char text[256] = {0};
+							fDelay += 0.5f;
+							sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GOLDEN_AGE]", GET_PLAYER(getOwner()).getYieldFromBirthCapital(YIELD_GOLDEN_AGE_POINTS) * iEra);
+							DLLUI->AddPopupText(getX(),getY(), text, fDelay);
+						}
+					}
+				}
+			}
+
 #endif
 			// Only show notification if the city is small
 			if(getPopulation() <= 5)

@@ -1307,6 +1307,12 @@ public:
 	int GetTradeReligionModifier() const;
 	void changeTradeReligionModifier(int iChange);
 
+	int getYieldFromBirth(YieldTypes eIndex) const;
+	void changeYieldFromBirth(YieldTypes eIndex, int iChange);
+
+	int getYieldFromBirthCapital(YieldTypes eIndex) const;
+	void changeYieldFromBirthCapital(YieldTypes eIndex, int iChange);
+
 	int getYieldFromDeath(YieldTypes eIndex) const;
 	void changeYieldFromDeath(YieldTypes eIndex, int iChange);
 
@@ -2342,6 +2348,8 @@ protected:
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiSeaPlotYield;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiYieldRateModifier;
 #if defined(MOD_BALANCE_CORE_POLICIES)
+	FAutoVariable<std::vector<int>, CvPlayer> m_aiYieldFromBirth;
+	FAutoVariable<std::vector<int>, CvPlayer> m_aiYieldFromBirthCapital;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiYieldFromDeath;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiYieldFromConstruction;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiYieldFromTech;

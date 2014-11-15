@@ -927,11 +927,20 @@ void CvGameReligions::FoundPantheon(PlayerTypes ePlayer, BeliefTypes eBelief)
 	} else {
 #endif
 		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+#if defined(MOD_BALANCE_CORE)
+		//Bugfix?
+		if(pkScriptSystem && ePlayer != NO_PLAYER && !kPlayer.isMinorCiv() && !kPlayer.isBarbarian()) 
+#else
 		if(pkScriptSystem) 
+#endif
 		{
 			CvLuaArgsHandle args;
 			args->Push(ePlayer);
+#if defined(MOD_BALANCE_CORE)
+			args->Push(kPlayer.getCapitalCity()->GetID());
+#else
 			args->Push(GET_PLAYER(ePlayer).getCapitalCity()->GetID());
+#endif
 			args->Push(RELIGION_PANTHEON);
 			args->Push(eBelief);
 
@@ -5635,7 +5644,12 @@ CvCity *CvReligionAI::ChooseProphetConversionCity(bool bOnlyBetterThanEnhancingR
 		for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 		{
 			CvPlayer &kLoopPlayer = GET_PLAYER((PlayerTypes)iPlayerLoop);
-			if(kLoopPlayer.isAlive() && iPlayerLoop != m_pPlayer->GetID())
+			if(kLoopPlayer.isAlive() && iPlayerLoop != m_pPlayer->GetID()
+#if defined(MOD_BALANCE_CORE_BELIEFS)
+				//Make sure we aren't at war with the target player.
+				&& (!GET_TEAM(m_pPlayer->getTeam()).isAtWar(kLoopPlayer.getTeam()))
+#endif
+				)
 			{
 				int iCityLoop;
 				for(pLoopCity = GET_PLAYER((PlayerTypes)iPlayerLoop).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER((PlayerTypes)iPlayerLoop).nextCity(&iCityLoop))
@@ -5668,6 +5682,33 @@ CvCity *CvReligionAI::ChooseProphetConversionCity(bool bOnlyBetterThanEnhancingR
 						{
 							iScore *= 2;
 						}
+
+#if defined(MOD_BALANCE_CORE_BELIEFS)
+						//	- Do we have a belief that promotes foreign cities? If so, promote them.
+						if(MOD_BALANCE_CORE_BELIEFS)
+						{
+							for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+							{
+								YieldTypes eYield = (YieldTypes)iI;
+								if(pkReligion->m_Beliefs.GetYieldFromForeignSpread(eYield) > 0)
+								{
+									iScore *= 2;
+								}						
+								else if(pkReligion->m_Beliefs.GetYieldChangePerXForeignFollowers(eYield) > 0)
+								{
+									iScore *= 2;
+								}
+								else if(pkReligion->m_Beliefs.GetYieldChangePerForeignCity(eYield) > 0)
+								{
+									iScore *= 2;
+								}
+							}
+							if(pkReligion->m_Beliefs.GetHappinessPerXPeacefulForeignFollowers() > 0)
+							{
+								iScore *= 2;
+							}	
+						}
+#endif
 
 						if (iScore > iBestScore)
 						{

@@ -1271,6 +1271,8 @@ void CvPlayerEspionage::DoAdvancedAction(uint uiSpyIndex, bool bDebug)
 			{
 				int iResult = GC.getGame().getJonRandNum(100, "Random roll for the result of an advanced-action spy mission");
 				iResult -= (iRank * 5);
+				int iBonus = pCity->getUnhappinessFromCulture() + pCity->getUnhappinessFromDefense() + pCity->getUnhappinessFromGold() + pCity->getUnhappinessFromScience();
+					iResult -= (iBonus / 4);
 				if(GC.getLogging())
 				{
 					CvString strMsg;
@@ -1291,10 +1293,9 @@ void CvPlayerEspionage::DoAdvancedAction(uint uiSpyIndex, bool bDebug)
 					LogEspionageMsg(strMsg);
 				}
 				//Rebellion
-				if (iResult <= 20 && bDoUnrest)
+				if (iResult <= 20 && bDoRebellion)
 				{
 					int iDamage = (GC.getBALANCE_SPY_SABOTAGE_RATE() * iRank);
-					GET_PLAYER(pCity->getOwner()).ChangeCityRevoltCounter((iRank));
 					pCity->setDamage(iDamage * 2);
 					m_pPlayer->ChangeSpyCooldown(iDamage);
 
@@ -1302,7 +1303,6 @@ void CvPlayerEspionage::DoAdvancedAction(uint uiSpyIndex, bool bDebug)
 					// In hundreds
 					int iNumRebels = (iRank * 100); //Based on rank of spy.
 					int iExtraRoll = iRank * 100; //1+ Rebels maximum
-					iExtraRoll += (GC.getGame().getCurrentEra() * 50); //Increase possible rebel spawns as game continues.
 					iNumRebels += GC.getGame().getJonRandNum(iExtraRoll, "Rebel count rand roll");
 					iNumRebels /= 100;
 					int iNumRebelTotal = iNumRebels;
@@ -1498,7 +1498,7 @@ void CvPlayerEspionage::DoAdvancedAction(uint uiSpyIndex, bool bDebug)
 					}
 				}
 				//Riots!
-				else if (iResult <= 40 && bDoRebellion)
+				else if (iResult <= 40 && bDoUnrest)
 				{
 					m_pPlayer->ChangeSpyCooldown(pCity->getFood());
 					int iFood = pCity->getFood();
@@ -4882,7 +4882,7 @@ void CvPlayerEspionage::ProcessSpyMessages()
 				break;
 				}
 			}
-			else if(bUnrest)
+			else if(bRebellion)
 			{
 				switch(m_aSpyNotificationMessages[ui].m_iSpyResult)
 				{
@@ -4966,7 +4966,7 @@ void CvPlayerEspionage::ProcessSpyMessages()
 				break;
 				}
 			}
-			else if(bRebellion)
+			else if(bUnrest)
 			{
 				switch(m_aSpyNotificationMessages[ui].m_iSpyResult)
 				{
