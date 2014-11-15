@@ -257,6 +257,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetInfluenceTradeRouteScienceBonus);
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE)
 	Method(GetInfluenceTradeRouteGoldBonus);
+	Method(GetWoundedUnitDamageMod);
 #endif
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE_POLICIES)
 	Method(GetNoUnhappinessExpansion);
@@ -2619,6 +2620,15 @@ int CvLuaPlayer::lGetInfluenceTradeRouteGoldBonus(lua_State* L)
 	PlayerTypes eOtherPlayer = (PlayerTypes)lua_tointeger(L, 2);
 	
 	const int iResult = pkPlayer->GetCulture()->GetInfluenceTradeRouteGoldBonus(eOtherPlayer);
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lGetWoundedUnitDamageMod(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	
+	const int iResult = pkPlayer->GetWoundedUnitDamageMod();
 	lua_pushinteger(L, iResult);
 	return 1;
 }

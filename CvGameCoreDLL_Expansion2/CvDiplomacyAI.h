@@ -634,6 +634,9 @@ public:
 	void DoFYIBefriendedHumanFriend(PlayerTypes ePlayer, DiploStatementTypes& eStatement, int& iData1);
 	void DoHappySamePolicyTree(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
 	void DoIdeologicalStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
+#if defined(MOD_BALANCE_CORE)
+	void DoVictoryCompetitionStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
+#endif
 
 	void DoWeLikedTheirProposal(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
 	void DoWeDislikedTheirProposal(PlayerTypes ePlayer, DiploStatementTypes& eStatement);

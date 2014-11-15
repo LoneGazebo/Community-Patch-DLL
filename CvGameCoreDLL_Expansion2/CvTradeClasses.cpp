@@ -1526,6 +1526,7 @@ bool CvGameTrade::MoveUnit (int iIndex)
 								DLLUI->AddPopupText(pkUnit->getX(),pkUnit->getY(), text, fDelay);
 							}
 						}
+						break;
 					case YIELD_GREAT_ADMIRAL_POINTS:
 						if(pkUnit->getDomainType() == DOMAIN_SEA)
 						{
@@ -1538,6 +1539,7 @@ bool CvGameTrade::MoveUnit (int iIndex)
 								DLLUI->AddPopupText(pkUnit->getX(),pkUnit->getY(), text, fDelay);
 							}
 						}
+						break;
 				}
 			}
 		}
@@ -2089,6 +2091,7 @@ void CvPlayerTrade::MoveUnits (void)
 											DLLUI->AddPopupText(iOriginX, iOriginY, text, fDelay);
 										}
 									}
+									break;
 								case YIELD_GREAT_ADMIRAL_POINTS:
 									if(pTradeConnection->m_eDomain == DOMAIN_SEA)
 									{
@@ -2101,6 +2104,7 @@ void CvPlayerTrade::MoveUnits (void)
 											DLLUI->AddPopupText(iOriginX, iOriginY, text, fDelay);
 										}
 									}
+									break;
 							}
 						}
 					}

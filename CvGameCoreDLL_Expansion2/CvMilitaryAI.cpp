@@ -4249,6 +4249,57 @@ bool CvMilitaryAI::WillAirUnitRebase(CvUnit* pUnit) const
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	if(MOD_BALANCE_CORE_MILITARY)
 	{
+		//Is this a bomber that lacks useful missions?
+		if (pUnit->canAirAttack() && !pUnit->canAirSweep())
+		{
+			int iDX, iDY;
+			int iRange = pUnit->GetRange();
+			bool bEnemyCity = false;
+			bool bEnemyUnit = false;
+			for(iDX = -(iRange); iDX <= iRange; iDX++)
+			{
+				for(iDY = -(iRange); iDY <= iRange; iDY++)
+				{
+					CvPlot* pLoopPlot = plotXYWithRangeCheck(pUnit->getX(), pUnit->getY(), iDX, iDY, iRange);
+
+					if(pLoopPlot != NULL)
+					{
+						//Is there an enemy city nearby?
+						if(pLoopPlot->isCity() && (pLoopPlot->getOwner() != pUnit->getOwner()))
+						{
+							if(atWar(GET_PLAYER(pLoopPlot->getOwner()).getTeam(), m_pPlayer->getTeam()))
+							{
+								//There's a target here.
+								bEnemyCity = true;
+								break;
+							}
+						}
+						//What about a unit?
+						if(pLoopPlot->getNumUnits() > 0)
+						{
+							CvUnit* pUnit = pLoopPlot->getUnitByIndex(0);
+							if(pUnit->getOwner() != m_pPlayer->GetID())
+							{
+								if(atWar(GET_PLAYER(pUnit->getOwner()).getTeam(), m_pPlayer->getTeam()))
+								{
+									//There's a target here.
+									bEnemyUnit = true;
+									break;
+								}
+							}
+						}
+					}
+				}
+			}
+			if(bEnemyCity || bEnemyUnit)
+			{
+				bNeedsToMove = false;
+			}
+			else
+			{
+				bNeedsToMove = true;
+			}
+		}
 		//Let's stop peace-time shifting of units. It is absurd. Only shift if mustering for an attack or at war.
 		PlayerTypes eLoopPlayer;
 		for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)

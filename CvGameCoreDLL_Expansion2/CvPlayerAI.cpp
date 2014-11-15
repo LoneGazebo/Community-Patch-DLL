@@ -1622,6 +1622,7 @@ int CvPlayerAI::ScoreCityForDiplomat(CvCity* pCity, UnitHandle pUnit)
 	int iScore = 0;
 	int iI;
 	CvPlayer& kCityPlayer = GET_PLAYER(pCity->getOwner());
+	CvPlayer& eMinor = GET_PLAYER(pCity->getOwner());
 
 	// Skip if not revealed
 	if(!pCity->plot()->isRevealed(getTeam()))
@@ -1633,6 +1634,11 @@ int CvPlayerAI::ScoreCityForDiplomat(CvCity* pCity, UnitHandle pUnit)
 	if(atWar(getTeam(), kCityPlayer.getTeam()))
 	{
 		return iScore;
+	}
+
+	if(eMinor.GetMinorCivAI()->IsActiveQuestForPlayer(GetID(), MINOR_CIV_QUEST_HORDE) || eMinor.GetMinorCivAI()->IsActiveQuestForPlayer(GetID(), MINOR_CIV_QUEST_REBELLION))
+	{
+		return 0;
 	}
 
 	//Return score if we can't embark and they aren't on our landmass.
@@ -1703,6 +1709,11 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, UnitHandle pUnit)
 
 	//If we are at war with target minor, let's not send diplomatic lambs to slaughter.
 	if(eMinor.GetMinorCivAI()->IsAtWarWithPlayersTeam(GetID()))
+	{
+		return 0;
+	}
+
+	if(eMinor.GetMinorCivAI()->IsActiveQuestForPlayer(GetID(), MINOR_CIV_QUEST_HORDE) || eMinor.GetMinorCivAI()->IsActiveQuestForPlayer(GetID(), MINOR_CIV_QUEST_REBELLION))
 	{
 		return 0;
 	}

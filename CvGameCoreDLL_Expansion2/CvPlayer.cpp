@@ -415,6 +415,8 @@ CvPlayer::CvPlayer() :
 	, m_aiSeaPlotYield("CvPlayer::m_aiSeaPlotYield", m_syncArchive)
 	, m_aiYieldRateModifier("CvPlayer::m_aiYieldRateModifier", m_syncArchive)
 #if defined(MOD_BALANCE_CORE_POLICIES)
+	, m_aiYieldFromBirth("CvPlayer::m_aiYieldFromBirth", m_syncArchive)
+	, m_aiYieldFromBirthCapital("CvPlayer::m_aiYieldFromBirthCapital", m_syncArchive)
 	, m_aiYieldFromDeath("CvPlayer::m_aiYieldFromDeath", m_syncArchive)
 	, m_aiYieldFromConstruction("CvPlayer::m_aiYieldFromConstruction", m_syncArchive)
 	, m_aiYieldFromTech("CvPlayer::m_aiYieldFromTech", m_syncArchive)
@@ -740,12 +742,21 @@ void CvPlayer::init(PlayerTypes eID)
 		if(eFreeBuilding != NO_BUILDING)
 		{
 #if defined(MOD_BALANCE_CORE)
-			if(GetPlayerTraits()->GetFreeBuildingPrereqTech() == NO_TECH)
+			CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eFreeBuilding);
+			if(pkBuildingInfo)
 			{
-#endif
-			changeFreeBuildingCount(eFreeBuilding, 1);
-#if defined(MOD_BALANCE_CORE)
+				int iNumBuilding = GetPlayerTraits()->GetNumFreeBuildings();
+				if(iNumBuilding > 0)
+				{
+					ChangeNumCitiesFreeChosenBuilding((BuildingClassTypes)pkBuildingInfo->GetBuildingClassType(), iNumBuilding);
+				}
+				else
+				{
+					ChangeNumCitiesFreeChosenBuilding((BuildingClassTypes)pkBuildingInfo->GetBuildingClassType(), 100);
+				}
 			}
+#else
+					changeFreeBuildingCount(eFreeBuilding, 1);
 #endif
 		}
 
@@ -1240,6 +1251,12 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 	m_aiYieldRateModifier.resize(NUM_YIELD_TYPES, 0);
 
 #if defined(MOD_BALANCE_CORE_POLICIES)
+	m_aiYieldFromBirth.clear();
+	m_aiYieldFromBirth.resize(NUM_YIELD_TYPES, 0);
+
+	m_aiYieldFromBirthCapital.clear();
+	m_aiYieldFromBirthCapital.resize(NUM_YIELD_TYPES, 0);
+	
 	m_aiYieldFromDeath.clear();
 	m_aiYieldFromDeath.resize(NUM_YIELD_TYPES, 0);
 
@@ -6709,6 +6726,10 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit) 
 			{
 				if(GetPlayerTechs()->CanResearch(eTech))
 				{
+#if defined(MOD_BALANCE_CORE)
+					if(GetPlayerTechs()->GetCurrentResearch() != eTech)
+					{
+#endif
 					bool bUseTech = true;
 					ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
 					if (pkScriptSystem) 
@@ -6731,6 +6752,9 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit) 
 						bTechFound = true;
 					}
 					break;
+#if defined(MOD_BALANCE_CORE)
+					}
+#endif
 				}
 			}
 		}
@@ -7351,7 +7375,13 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 #if defined(MOD_EVENTS_GOODY_TECH)
 					}
 #endif
-
+#if defined(MOD_BALANCE_CORE)
+					//Are we already researching a tech? No value here.
+					if(GetPlayerTechs()->GetCurrentResearch() == eTech)
+					{
+						bUseTech = false;
+					}
+#endif
 					if(bUseTech)
 					{
 						iValue = (1 + GC.getGame().getJonRandNum(10000, "Goody Tech"));
@@ -7705,7 +7735,7 @@ void CvPlayer::AwardFreeBuildings(CvCity* pCity)
 		ChangeNumCitiesFreeFoodBuilding(-1);
 	}
 #if defined(MOD_BALANCE_CORE)
-	// Free buildings from policies
+	// Free buildings from policies and traits
 	CvCivilizationInfo& thisCiv = getCivilizationInfo();
 	for(int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
 	{
@@ -9723,10 +9753,6 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 	int iLoop;
 	CvCity* pLoopCity;
 	int iBuildingCount;
-#if defined(MOD_BALANCE_CORE)
-	int iNumFreeBuildings = 0;
-	BuildingTypes eTargetBuilding = NO_BUILDING;
-#endif
 	for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
 		// Building modifiers
@@ -9788,33 +9814,10 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 						}
 					}
 				}
-#if defined(MOD_BALANCE_CORE)
-				if(eBuilding == GetPlayerTraits()->GetFreeBuilding())
-				{
-					//If the building is for every city, this value should be zero.
-					if(GetPlayerTraits()->GetNumFreeBuildings() > 0)
-					{
-						if(pLoopCity->GetCityBuildings()->GetNumFreeBuilding(eBuilding) > 0)
-						{
-							iNumFreeBuildings++;
-							eTargetBuilding = eBuilding;
-						}
-					}
-				}
-#endif
+
 			}
 		}
 	}
-#if defined(MOD_BALANCE_CORE)
-	//Take away free buildings if we've exceeded the number for our trait.
-	if(eTargetBuilding != NO_BUILDING)
-	{
-		if(iNumFreeBuildings >= GetPlayerTraits()->GetNumFreeBuildings())
-		{
-			m_paiFreeBuildingCount.setAt(eTargetBuilding, 0);
-		}
-	}
-#endif
 }
 
 //	--------------------------------------------------------------------------------
@@ -11591,6 +11594,7 @@ void CvPlayer::DoYieldsFromKill(UnitTypes eAttackingUnitType, UnitTypes eKilledU
 								sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]", iYieldFromVictory);
 								DLLUI->AddPopupText(pLoopCity->getX(),pLoopCity->getY(), text, fDelay);
 							}
+							break;
 						case YIELD_FOOD:
 							pLoopCity->changeFood(iYieldFromVictory);
 							if(GetID() == GC.getGame().getActivePlayer())
@@ -11600,6 +11604,7 @@ void CvPlayer::DoYieldsFromKill(UnitTypes eAttackingUnitType, UnitTypes eKilledU
 								sprintf_s(text, "[COLOR_GREEN]+%d[ENDCOLOR][ICON_FOOD]", iYieldFromVictory);
 								DLLUI->AddPopupText(pLoopCity->getX(),pLoopCity->getY(), text, fDelay);
 							}
+							break;
 						case YIELD_PRODUCTION:
 							pLoopCity->changeProduction(iYieldFromVictory);
 							if(GetID() == GC.getGame().getActivePlayer())
@@ -11609,6 +11614,7 @@ void CvPlayer::DoYieldsFromKill(UnitTypes eAttackingUnitType, UnitTypes eKilledU
 								sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_PRODUCTION]", iYieldFromVictory);
 								DLLUI->AddPopupText(pLoopCity->getX(),pLoopCity->getY(), text, fDelay);
 							}
+							break;
 						case YIELD_GREAT_GENERAL_POINTS:
 							changeCombatExperience(iYieldFromVictory);
 							if(GetID() == GC.getGame().getActivePlayer())
@@ -11618,6 +11624,7 @@ void CvPlayer::DoYieldsFromKill(UnitTypes eAttackingUnitType, UnitTypes eKilledU
 								sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GREAT_GENERAL]", iYieldFromVictory);
 								DLLUI->AddPopupText(pLoopCity->getX(),pLoopCity->getY(), text, fDelay);
 							}
+							break;
 						case YIELD_GREAT_ADMIRAL_POINTS:
 							changeNavalCombatExperience(iYieldFromVictory);
 							if(GetID() == GC.getGame().getActivePlayer())
@@ -13362,46 +13369,38 @@ void CvPlayer::ChangeExtraHappinessPerLuxury(int iChange)
 int CvPlayer::getGlobalAverage(YieldTypes eYield) const
 {	
 	int iYield = 0;
-	//Unhappiness from # of cities slowly increases with each tech, and with each founded city.
-	int iTechProgress = GET_TEAM(getTeam()).GetTeamTechs()->GetNumTechsKnown();
-	if(GC.getBALANCE_HAPPINESS_TECH_BASE_CITY_COUNT() != 0)
-	{
-		iTechProgress += ((iTechProgress * getNumCities()) / /*20*/ GC.getBALANCE_HAPPINESS_TECH_BASE_CITY_COUNT());
-	}
+	float iTotal = 0.0;
+
+	//Let's modify this based on the number of player techs - more techs means the threshold goes higher. Variables allow us to make this more or less severe an increase.
+	//Increase will be x * 2 + 10, so that, at end of game, Tech contributes 167% of a yield's requirement back to the yield. This should be difficult enough.
+	float iTech = (GET_TEAM(getTeam()).GetTeamTechs()->GetNumTechsKnown() * (float) /*1.5f*/ GC.getBALANCE_HAPPINESS_TECH_BASE_MODIFIER()) + GC.getBALANCE_HAPPINESS_TECH_BASE_CITY_COUNT();
+
 	if(eYield == YIELD_CULTURE)
 	{
 		iYield = GC.getGame().GetCultureAverage();
-		//This gets us the yield per pop average for our empire, which lets us see which cities are cultured and which not.
-		iTechProgress += (/* 100 */ GC.getBALANCE_TECH_RATE_CULTURE() * iTechProgress) / GC.getNumTechInfos();
-		//Tech % boost to scale culture/science demand with time.
-		iYield += ((iTechProgress * iYield) / 100);
+		iTotal = (float)iYield;
+		iTotal += ((iYield * iTech) / 100);
 	}
-	if(eYield == YIELD_SCIENCE)
+	else if(eYield == YIELD_SCIENCE)
 	{
 		iYield = GC.getGame().GetScienceAverage();
-		//This gets us the yield per pop average for our empire, which lets us see which cities are literate and which not.
-		iTechProgress += (/* 100 */ GC.getBALANCE_TECH_RATE_SCIENCE() * iTechProgress) / GC.getNumTechInfos();
-		//Tech % boost to scale culture/science demand with time.
-		iYield += ((iTechProgress * iYield) / 100);
+		iTotal = (float)iYield;
+		iTotal += ((iYield * iTech) / 100);
 	}
-	if(eYield == YIELD_PRODUCTION)
+	else if(eYield == YIELD_PRODUCTION)
 	{
 		iYield = GC.getGame().GetDefenseAverage();
-		//This gets us the yield per pop average for our empire, which lets us see which cities are ordered and which not.
-		iTechProgress += (/* 100 */ GC.getBALANCE_TECH_RATE_DEFENSE() * iTechProgress) / GC.getNumTechInfos();
-		//Tech % boost to scale culture/science demand with time.
-		iYield += ((iTechProgress * iYield) / 100);
+		iTotal = (float)iYield;
+		iTotal += ((iYield * iTech) / 100);
 	}
-	if(eYield == YIELD_GOLD)
+	else if(eYield == YIELD_GOLD)
 	{
 		iYield = GC.getGame().GetGoldAverage();
-		//This gets us the yield per pop average for our empire, which lets us see which cities are affluent and which not.
-		iTechProgress += (/* 100 */ GC.getBALANCE_TECH_RATE_GOLD() * iTechProgress) / GC.getNumTechInfos();
-		//Tech % boost to scale culture/science demand with time.
-		iYield += ((iTechProgress * iYield) / 100);
+		iTotal = (float)iYield;
+		iTotal += ((iYield * iTech) / 100);
 	}
 
-	return iYield;
+	return (int) iTotal;
 }
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_LUXURY)
@@ -14094,7 +14093,7 @@ int CvPlayer::GetUnhappinessFromCitySpecialists(CvCity* pAssumeCityAnnexed, CvCi
 			//Less unhappiness from specialists....
 			if(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 			{
-				iUnhappinessPerPop = /*5*/ GC.getBALANCE_UNHAPPINESS_PER_SPECIALIST() * 10;
+				iUnhappinessPerPop = /*25*/ GC.getBALANCE_UNHAPPINESS_PER_SPECIALIST();
 				int iNoHappinessSpecialists = 0;
 				if(iPopulation > 0)
 				{
@@ -21150,6 +21149,60 @@ void CvPlayer::changeTradeReligionModifier(int iChange)
 	m_iTradeReligionModifier += iChange;
 }
 //	--------------------------------------------------------------------------------
+int CvPlayer::getYieldFromBirth(YieldTypes eIndex) const
+{
+	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	return m_aiYieldFromBirth[eIndex];
+}
+
+
+//	--------------------------------------------------------------------------------
+void CvPlayer::changeYieldFromBirth(YieldTypes eIndex, int iChange)
+{
+	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+
+	if(iChange != 0)
+	{
+		m_aiYieldFromBirth.setAt(eIndex, m_aiYieldFromBirth[eIndex] + iChange);
+
+		invalidateYieldRankCache(eIndex);
+
+		if(getTeam() == GC.getGame().getActiveTeam())
+		{
+			GC.GetEngineUserInterface()->setDirty(CityInfo_DIRTY_BIT, true);
+		}
+	}
+}
+//	--------------------------------------------------------------------------------
+int CvPlayer::getYieldFromBirthCapital(YieldTypes eIndex) const
+{
+	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	return m_aiYieldFromBirthCapital[eIndex];
+}
+
+
+//	--------------------------------------------------------------------------------
+void CvPlayer::changeYieldFromBirthCapital(YieldTypes eIndex, int iChange)
+{
+	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+
+	if(iChange != 0)
+	{
+		m_aiYieldFromBirthCapital.setAt(eIndex, m_aiYieldFromBirthCapital[eIndex] + iChange);
+
+		invalidateYieldRankCache(eIndex);
+
+		if(getTeam() == GC.getGame().getActiveTeam())
+		{
+			GC.GetEngineUserInterface()->setDirty(CityInfo_DIRTY_BIT, true);
+		}
+	}
+}
+//	--------------------------------------------------------------------------------
 int CvPlayer::getYieldFromDeath(YieldTypes eIndex) const
 {
 	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
@@ -26648,6 +26701,8 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 #if defined(MOD_BALANCE_CORE_POLICIES)
 		if(MOD_BALANCE_CORE_POLICIES)
 		{
+			changeYieldFromBirth(eYield, (pPolicy->GetYieldFromBirth(iI) * iChange));
+			changeYieldFromBirthCapital(eYield, (pPolicy->GetYieldFromBirthCapital(iI) * iChange));
 			changeYieldFromConstruction(eYield, (pPolicy->GetYieldFromConstruction(iI) * iChange));
 			changeYieldFromTech(eYield, (pPolicy->GetYieldFromTech(iI) * iChange));
 			changeYieldFromBorderGrowth(eYield, (pPolicy->GetYieldFromBorderGrowth(iI) * iChange));
@@ -28108,6 +28163,8 @@ void CvPlayer::Read(FDataStream& kStream)
 	kStream >> m_aiSeaPlotYield;
 	kStream >> m_aiYieldRateModifier;
 #if defined(MOD_BALANCE_CORE_POLICIES)
+	MOD_SERIALIZE_READ_AUTO(65, kStream, m_aiYieldFromBirth, NUM_YIELD_TYPES, 0);
+	MOD_SERIALIZE_READ_AUTO(65, kStream, m_aiYieldFromBirthCapital, NUM_YIELD_TYPES, 0);
 	MOD_SERIALIZE_READ_AUTO(60, kStream, m_aiYieldFromDeath, NUM_YIELD_TYPES, 0);
 	MOD_SERIALIZE_READ_AUTO(60, kStream, m_aiYieldFromConstruction, NUM_YIELD_TYPES, 0);
 	MOD_SERIALIZE_READ_AUTO(60, kStream, m_aiYieldFromTech, NUM_YIELD_TYPES, 0);
@@ -28711,6 +28768,8 @@ void CvPlayer::Write(FDataStream& kStream) const
 	kStream << m_aiSeaPlotYield;
 	kStream << m_aiYieldRateModifier;
 #if defined(MOD_BALANCE_CORE_POLICIES)
+	MOD_SERIALIZE_WRITE_AUTO(kStream, m_aiYieldFromBirth);
+	MOD_SERIALIZE_WRITE_AUTO(kStream, m_aiYieldFromBirthCapital);
 	MOD_SERIALIZE_WRITE_AUTO(kStream, m_aiYieldFromDeath);
 	MOD_SERIALIZE_WRITE_AUTO(kStream, m_aiYieldFromConstruction);
 	MOD_SERIALIZE_WRITE_AUTO(kStream, m_aiYieldFromTech);

@@ -9522,24 +9522,9 @@ void CvGame::getGlobalAverage() const
 					
 					//Disorder
 					iDefenseYield = pLoopCity->getStrengthValue(false);
-					iDefenseYield += (pLoopCity->GetCityBuildings()->GetBuildingDefense() / 2);
-
-						// Garrisoned Unit x 5
-						CvUnit* pGarrisonedUnit = pLoopCity->GetGarrisonedUnit();
-						if(pGarrisonedUnit)
-						{
-							iDefenseYield += (pGarrisonedUnit->GetBaseCombatStrength() * 5);
-						}
-
-						int iDamage = (pLoopCity->getDamage() * 25);
-
-						if(iDamage > 0)
-						{
-							iDefenseYield -= iDamage;
-						}
-
 					float iDefenseAvg = iDefenseYield / (float)iPopulation;
 					vfDefenseYield.push_back((float)iDefenseAvg);
+
 					//Poverty
 					iGoldYield = pLoopCity->getYieldRateTimes100(YIELD_GOLD, false);
 					float iGoldAvg = iGoldYield / (float)iPopulation;

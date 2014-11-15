@@ -2391,15 +2391,12 @@ void CvTacticalAI::PlotMovesToSafety(bool bCombatUnits)
 							bAddUnit = true;
 						}
 #if defined(MOD_BALANCE_CORE_MILITARY)
-						else if(MOD_BALANCE_CORE_MILITARY)
+						else if(MOD_BALANCE_CORE_MILITARY && pUnit->isEmbarked())
 						{
-							//Are you embarked, and injured, and alone, and in enemy territory? Bail out!
-							if(pUnit->isEmbarked())
+							//Are you embarked, and 50% injured, and alone, and in enemy territory? Bail out!
+							if(pUnit->plot()->getOwner() != pUnit->getOwner() && !pUnit->IsFriendlyUnitAdjacent(true) && (pUnit->GetCurrHitPoints() <= (pUnit->GetMaxHitPoints() / 2)))
 							{
-								if(pUnit->plot()->getOwner() != pUnit->getOwner() && !pUnit->IsFriendlyUnitAdjacent(true))
-								{
-									bAddUnit = true;
-								}
+								bAddUnit = true;
 							}
 						}
 #endif
@@ -4892,7 +4889,11 @@ void CvTacticalAI::ClearEnemiesNearArmy(CvArmyAI* pArmy)
 		// Is the target of an appropriate type?
 		if(m_AllTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT ||
 		        m_AllTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT ||
-		        m_AllTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT)
+		        m_AllTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT
+#if defined(MOD_BALANCE_CORE_MILITARY)
+				|| m_AllTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_CITY
+#endif
+				)
 		{
 			// Is this unit near enough?
 			if(plotDistance(pArmy->GetX(), pArmy->GetY(), m_AllTargets[iI].GetTargetX(), m_AllTargets[iI].GetTargetY()) <= iRange)
@@ -4925,7 +4926,11 @@ void CvTacticalAI::ClearEnemiesNearArmy(CvArmyAI* pArmy)
 			// Is the target of an appropriate type?
 			if(m_AllTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT ||
 			        m_AllTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT ||
-			        m_AllTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT)
+			        m_AllTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT
+#if defined(MOD_BALANCE_CORE_MILITARY)
+					|| m_AllTargets[iI].GetTargetType() == AI_TACTICAL_TARGET_CITY
+#endif					
+					)
 			{
 				if(m_AllTargets[iI].IsTargetStillAlive(m_pPlayer->GetID()))
 				{
@@ -7124,6 +7129,65 @@ void CvTacticalAI::ExecuteBarbarianMoves(bool bAggressive)
 						}
 					}
 				}
+#if defined(MOD_BALANCE_CORE_MILITARY)
+				//Let's make Barbs scarier. If they end their move next to a city, let's have them pillage some Gold from the City. If they end their turn in owned land, let's give them a smaller chance to do so.
+				int iGold = 0;
+				if(pUnit)
+				{	
+					if(pUnit->plot()->GetAdjacentCity() != NULL)
+					{
+						CvCity* pCity = pUnit->plot()->GetAdjacentCity();
+						if(pCity && pCity->getOwner() != NO_PLAYER && !GET_PLAYER(pCity->getOwner()).isMinorCiv() && !GET_PLAYER(pCity->getOwner()).isBarbarian())
+						{
+							//Can steal up to 20%
+							iGold = (GET_PLAYER(pCity->getOwner()).GetTreasury()->GetGold() *  GC.getGame().getJonRandNum(20, "Barbarian Random Gold Theft") / 100);
+							{
+								if(iGold > 5)
+								{
+									GET_PLAYER(pCity->getOwner()).GetTreasury()->ChangeGold(-iGold);
+
+									Localization::String strMessage = Localization::Lookup("TXT_KEY_BARBARIAN_GOLD_THEFT_CITY_DETAILED");
+									strMessage << iGold;
+									strMessage << pCity->getNameKey();
+									Localization::String strSummary = Localization::Lookup("TXT_KEY_BARBARIAN_GOLD_THEFT_CITY");
+									strSummary << pCity->getNameKey();
+
+									CvNotifications* pNotification = GET_PLAYER(pCity->getOwner()).GetNotifications();
+									if(pNotification)
+									{
+										pNotification->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), pCity->getX(), pCity->getY(), pCity->getOwner());
+									}
+								}
+							}
+						}
+					}
+					else if(pUnit->plot()->getOwner() != NO_PLAYER)
+					{
+						PlayerTypes pPlayer = pUnit->plot()->getOwner();
+						if(pPlayer && pPlayer != NO_PLAYER && !GET_PLAYER(pPlayer).isMinorCiv() && !GET_PLAYER(pPlayer).isBarbarian())
+						{
+							//Can steal up to 10%
+							iGold = (GET_PLAYER(pPlayer).GetTreasury()->GetGold() *  GC.getGame().getJonRandNum(10, "Barbarian Random Gold Theft") / 100);
+							{
+								if(iGold > 5)
+								{
+									GET_PLAYER(pPlayer).GetTreasury()->ChangeGold(-iGold);
+
+									Localization::String strMessage = Localization::Lookup("TXT_KEY_BARBARIAN_GOLD_THEFT_DETAILED");
+									strMessage << iGold;
+									Localization::String strSummary = Localization::Lookup("TXT_KEY_BARBARIAN_GOLD_THEFT");
+
+									CvNotifications* pNotification = GET_PLAYER(pPlayer).GetNotifications();
+									if(pNotification)
+									{
+										pNotification->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), pUnit->getX(), pUnit->getY(), pPlayer);
+									}
+								}
+							}
+						}
+					}
+				}
+#endif
 			}
 		}
 	}
@@ -9619,18 +9683,23 @@ bool CvTacticalAI::MoveToUsingSafeEmbark(UnitHandle pUnit, CvPlot* pTargetPlot, 
 
 	else
 	{
+#if defined(MOD_BALANCE_CORE_MILITARY)
+#else		
 		CvPlot *pMovePlot = pUnit->GetPathEndTurnPlot();
-		
 		// On land?  If so go ahead and move there
 		if (!pMovePlot->isWater())
 		{
 			pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTargetPlot->getX(), pTargetPlot->getY());
 			return true;
 		}
-
+#endif
 		// How dangerous is this plot?
+#if defined(MOD_BALANCE_CORE_MILITARY)
+#else
 		else
 		{
+#endif
+		
 			bool bDangerous = false;
 
 			int iPlotIndex = GC.getMap().plotNum(pTargetPlot->getX(), pTargetPlot->getY());
@@ -9685,7 +9754,10 @@ bool CvTacticalAI::MoveToUsingSafeEmbark(UnitHandle pUnit, CvPlot* pTargetPlot, 
 					return true;	
 				}
 			}
+#if defined(MOD_BALANCE_CORE_MILITARY)
+#else
 		}
+#endif
 	}
 }
 
@@ -10082,7 +10154,7 @@ CvPlot* CvTacticalAI::FindNearbyTarget(UnitHandle pUnit, int iRange, AITacticalT
 						{
 							if(!pPlot->isRoute() || pPlot->isWater())
 							{
-								iValue *= 2;
+								iValue *= 5;
 							}
 						}
 #endif
@@ -10937,7 +11009,7 @@ int CvTacticalAI::ScoreCloseOnPlots(CvPlot* pTarget, bool bLandOnly)
 							iScore += pCell->GetDefenseModifier();
 						}
 						//If we can bombard from friendly territory, this is good.
-						else if(pCell->IsFriendlyTerritory() && pCell->IsWithinRangeOfTarget() && iPlotDistance > 1)
+						else if(pCell->IsFriendlyTerritory() && pCell->IsWithinRangeOfTarget())
 						{
 							bChoiceBombardSpot = true;
 							iRtnValue++;
@@ -11043,14 +11115,24 @@ void CvTacticalAI::ScoreHedgehogPlots(CvPlot* pTarget)
 				}
 				if(pPlot->isCity() && pPlot->getOwner() == m_pPlayer->GetID())
 				{
+#if defined(MOD_BALANCE_CORE_MILITARY)
+					//Let's prioritize filling up cities, okay?
+					iScore += 1000;
+					bChoiceBombardSpot = true;
+#else
 					iScore += 100;
+#endif
 				}
 				else
 				{
 					iScore += pCell->GetDefenseModifier() * 4;
 				}
 
+#if defined(MOD_BALANCE_CORE_MILITARY)
+				pCell->SetSafeForDeployment(bChoiceBombardSpot || bSafeFromAttack);
+#else
 				pCell->SetSafeForDeployment(bSafeFromAttack);
+#endif
 				pCell->SetDeploymentScore(iScore);
 
 				// Save this in our list of potential targets
@@ -11185,7 +11267,12 @@ int CvTacticalAI::ScoreGreatGeneralPlot(UnitHandle pGeneral, CvPlot* pTarget, Cv
 	// No friendly city or unit
 	else
 	{	
+#if defined(MOD_BALANCE_CORE_MILITARY)
+		//GGs should never go alone if possible.
+		iDangerDivisor = 10000;
+#else
 		iDangerDivisor = 1000;
+#endif
 	}
 
 	// Distance to center of army (if still under operational AI)

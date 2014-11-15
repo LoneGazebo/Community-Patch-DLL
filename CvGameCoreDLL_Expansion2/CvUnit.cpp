@@ -499,7 +499,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 		kPlayer.ChangeNumBuilders(1);
 	}
 #if defined(MOD_BALANCE_CORE_SETTLER_RESET_FOOD)
-	if(getUnitInfo().IsFound())
+	if(MOD_BALANCE_CORE_SETTLER_RESET_FOOD && getUnitInfo().IsFound())
 	{
 		CvCity* pCity = plot()->getPlotCity();
 		if(pCity != NULL)
@@ -10414,6 +10414,11 @@ void CvUnit::promote(PromotionTypes ePromotion, int iLeaderUnitId)
 	{
 		setHasPromotion(ePromotion, true);
 
+#if defined(MOD_BALANCE_CORE_MILITARY)
+		//Insta-heal removed, gain health with each promotion instead.
+		changeDamage((-GC.getINSTA_HEAL_RATE() / 5));
+#endif
+
 #if defined(MOD_EVENTS_UNIT_UPGRADES)
 		if (MOD_EVENTS_UNIT_UPGRADES) {
 			GAMEEVENTINVOKE_HOOK(GAMEEVENT_UnitPromoted, getOwner(), GetID(), ePromotion);
@@ -11832,7 +11837,6 @@ int CvUnit::GetBaseCombatStrengthConsideringDamage() const
 
 	// Reduce strength points based on damage mod calculated above. Example: 4 damage will normally reduce a 20 strength Unit by 2/10ths, or 1/5, or 4, making it effectively a 16
 	iStrength -= (iStrength * iDamageMod / GC.getMAX_HIT_POINTS());
-
 	return iStrength;
 }
 
@@ -12163,6 +12167,14 @@ int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot,
 		iModifier += iTempModifier;
 	}
 
+#if defined(MOD_BALANCE_CORE)
+	//If Japan, you should get stronger as you lose health.
+	if(GET_PLAYER(getOwner()).GetPlayerTraits()->IsFightWellDamaged())
+	{
+		iModifier += (getDamage() / 5);
+	}
+#endif
+
 	////////////////////////
 	// KNOWN DESTINATION PLOT
 	////////////////////////
@@ -12326,6 +12338,14 @@ int CvUnit::GetMaxDefenseStrength(const CvPlot* pInPlot, const CvUnit* pAttacker
 	if(bFromRangedAttack)
 		iModifier += rangedDefenseModifier();
 
+#if defined(MOD_BALANCE_CORE)
+	//If Japan, you should get stronger as you lose health.
+	if(GET_PLAYER(getOwner()).GetPlayerTraits()->IsFightWellDamaged())
+	{
+		iModifier += (getDamage() / 5);
+	}
+#endif
+
 	////////////////////////
 	// KNOWN DEFENSE PLOT
 	////////////////////////
@@ -12441,7 +12461,7 @@ int CvUnit::GetEmbarkedUnitDefense() const
 		iRtnValue /= 100;
 	}
 #if defined(MOD_BALANCE_CORE_MILITARY)
-	if(MOD_BALANCE_CORE_MILITARY)
+	if(MOD_BALANCE_CORE_MILITARY && !kPlayer.isHuman())
 	{
 		//25% of defense added in. This is largely to help the AI.
 		iRtnValue += (GetBaseCombatStrength(true) / GC.getBALANCE_EMBARK_DEFENSE_DIVISOR());
@@ -12580,6 +12600,14 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 	// Our empire fights well in Golden Ages?
 	if(kPlayer.isGoldenAge())
 		iModifier += pTraits->GetGoldenAgeCombatModifier();
+
+#if defined(MOD_BALANCE_CORE)
+	//If Japan, you should get stronger as you lose health.
+	if(GET_PLAYER(getOwner()).GetPlayerTraits()->IsFightWellDamaged())
+	{
+		iModifier += (getDamage() / 5);
+	}
+#endif
 
 	////////////////////////
 	// OTHER UNIT IS KNOWN
@@ -20927,13 +20955,37 @@ bool CvUnit::canEverRangeStrikeAtFromPlot(int iX, int iY, CvPlot* pSourcePlot) c
 	{
 		if(!pTargetPlot->isValidDomainForAction(*this))
 		{
-			return false;
+#if defined(MOD_BALANCE_CORE_MILITARY)
+			//Subs should be able to attack cities (they're on the coast, they've got ports, etc.). This will help the AI.
+			if(!pTargetPlot->isCity() && !pTargetPlot->isCoastalLand())
+			{
+#endif
+				return false;
+#if defined(MOD_BALANCE_CORE_MILITARY)
+			}
+			else if(pTargetPlot->isCoastalLand() && !pTargetPlot->isCity())
+			{
+				return false;
+			}
+#endif
 		}
 
 		// preventing submarines from shooting into lakes.
 		if (pSourcePlot->getArea() != pTargetPlot->getArea())
 		{
+#if defined(MOD_BALANCE_CORE_MILITARY)
+			//Subs should be able to attack cities (they're on the coast, they've got ports, etc.). This will help the AI.
+			if(!pTargetPlot->isCity() && !pTargetPlot->isCoastalLand())
+			{
+#endif
 			return false;
+#if defined(MOD_BALANCE_CORE_MILITARY)
+			}
+			else if(pTargetPlot->isCoastalLand() && !pTargetPlot->isCity())
+			{
+				return false;
+			}
+#endif
 		}
 	}
 
@@ -23494,13 +23546,18 @@ void CvUnit::AI_promote()
 
 	iBestValue = 0;
 	eBestPromotion = NO_PROMOTION;
-
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	int iNumValidPromotions = 0;
+#endif
 	for(iI = 0; iI < GC.getNumPromotionInfos(); iI++)
 	{
 		const PromotionTypes ePromotion(static_cast<PromotionTypes>(iI));
 
 		if(canPromote(ePromotion, -1))
 		{
+#if defined(MOD_BALANCE_CORE_MILITARY)
+			iNumValidPromotions++;
+#endif
 			iValue = AI_promotionValue(ePromotion);
 			if(GC.getLogging() && GC.getAILogging())
 			{
@@ -23520,7 +23577,22 @@ void CvUnit::AI_promote()
 			}
 		}
 	}
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	if(iNumValidPromotions == 1)
+	{
+		promote(eBestPromotion, -1);
+		AI_promote();
 
+		if(GC.getLogging() && GC.getAILogging())
+		{
+			CvString szMsg;
+			szMsg.Format("Took Only Available Promotion, %s, Received by %s, X: %d, Y: %d, Damage: %d",
+			             GC.getPromotionInfo(eBestPromotion)->GetDescription(), getName().GetCString(), getX(), getY(), getDamage());
+			GET_PLAYER(m_eOwner).GetTacticalAI()->LogTacticalMessage(szMsg, true /*bSkipLogDominanceZone*/);
+		}
+	}
+	else
+#endif
 	if(eBestPromotion != NO_PROMOTION)
 	{
 		promote(eBestPromotion, -1);
@@ -23575,6 +23647,23 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 			iValue += 1000;   // Enough to lock this one up
 		}
 	}
+
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	iTemp = pkPromotionInfo->GetCombatPercent();
+	if(iTemp != 0)
+	{
+		iExtra = getExtraCombatPercent();
+		iTemp *= (100 + iExtra * 2);
+		iTemp /= 100;
+
+		iValue += iTemp + iFlavorOffense * 6;
+	}
+	iTemp = pkPromotionInfo->GetRangedAttackModifier();
+	if(iTemp != 0)
+	{
+		iValue += iTemp + iFlavorOffense * 6;
+	}
+#endif
 
 	iTemp = pkPromotionInfo->GetOpenAttackPercent();
 	if(iTemp != 0)

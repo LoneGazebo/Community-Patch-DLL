@@ -221,6 +221,7 @@ void CvTeam::uninit()
 		m_paiTurnMadePeaceTreatyWithTeam[i] = -1;
 		m_aiIgnoreWarningCount[i] = 0;
 		m_abHasMet[i] = false;
+		m_abAtWar[i] = false;
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
 		m_abAggressorPacifier[i] = false;
 #endif
@@ -6821,15 +6822,6 @@ void CvTeam::processTech(TechTypes eTech, int iChange)
 				iUnitClass = kPlayer.GetPlayerTraits()->GetNextFreeUnit();
 			}
 #if defined(MOD_BALANCE_CORE)
-			//Free building unlocked via tech?
-			if(kPlayer.GetPlayerTraits()->GetFreeBuildingPrereqTech() == eTech)
-			{
-				BuildingTypes eFreeBuilding = kPlayer.GetPlayerTraits()->GetFreeBuilding();
-				if(eFreeBuilding != NO_BUILDING)
-				{
-					kPlayer.changeFreeBuildingCount(eFreeBuilding, 1);
-				}
-			}
 			//Free building in capital unlocked via tech?
 			if(kPlayer.GetPlayerTraits()->GetCapitalFreeBuildingPrereqTech() == eTech)
 			{
@@ -7841,14 +7833,8 @@ void CvTeam::Read(FDataStream& kStream)
 	kStream >> kAtWarWrapper;
 
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
-	if (uiDllSaveVersion >= 63) {
-		ArrayWrapper<bool> kAggressorPacifierWrapper(MAX_TEAMS, &m_abAggressorPacifier[0]);
-		kStream >> kAggressorPacifierWrapper;
-	} else {
-		for (int i = 0; i < MAX_TEAMS; ++i) {
-			m_abAggressorPacifier[i] = false;
-		}
-	}
+	ArrayWrapper<bool> kAggressorPacifierWrapper(MAX_TEAMS, &m_abAggressorPacifier[0]);
+	kStream >> kAggressorPacifierWrapper;
 #endif
 
 	ArrayWrapper<bool> kPermanentWarWrapper(MAX_TEAMS, &m_abPermanentWarPeace[0]);
@@ -7953,6 +7939,9 @@ void CvTeam::Read(FDataStream& kStream)
 	{
 		m_abAtWar[m_eID] = false;
 		m_aiNumTurnsAtWar[m_eID] = 0;
+#if defined(MOD_EVENTS_WAR_AND_PEACE)
+		m_abAggressorPacifier[m_eID] = false;
+#endif
 	}
 }
 
