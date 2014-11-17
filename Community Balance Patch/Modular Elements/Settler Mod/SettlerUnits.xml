@@ -16,7 +16,7 @@
 			<Strategy>TXT_KEY_UNIT_PIONEER_STRATEGY</Strategy>
 			<Help>TXT_KEY_UNIT_HELP_PIONEER</Help>
 			<PrereqTech>TECH_ASTRONOMY</PrereqTech>
-			<ObsoleteTech>TECH_BIOLOGY</ObsoleteTech>
+			<ObsoleteTech>TECH_INDUSTRIALIZATION</ObsoleteTech>
 			<Food>true</Food>
 			<Found>true</Found>
 			<FoundMid>true</FoundMid>
@@ -42,7 +42,7 @@
 			<Food>true</Food>
 			<Found>true</Found>
 			<FoundLate>true</FoundLate>
-			<PrereqTech>TECH_BIOLOGY</PrereqTech>
+			<PrereqTech>TECH_INDUSTRIALIZATION</PrereqTech>
 			<CombatLimit>0</CombatLimit>
 			<UnitArtInfo>ART_DEF_UNIT__SETTLER</UnitArtInfo>
 			<UnitArtInfoCulturalVariation>true</UnitArtInfoCulturalVariation>

@@ -457,7 +457,7 @@
 		<Row>
 			<PolicyType>POLICY_MILITARY_TRADITION</PolicyType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>100</Yield>
+			<Yield>75</Yield>
 		</Row>
 	</Policy_YieldFromKills>
 	<Policy_FreePromotions>
@@ -479,7 +479,7 @@
 		<Row>
 			<PolicyType>POLICY_PROFESSIONAL_ARMY</PolicyType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>15</Yield>
+			<Yield>10</Yield>
 		</Row>
 	</Policy_YieldFromBorderGrowth>
 </GameData>

@@ -16,8 +16,8 @@
 			<ReligiousPressureModifier>100</ReligiousPressureModifier>
 			<HurryCostModifier>-1</HurryCostModifier>
 			<MinAreaSize>-1</MinAreaSize>
-			<IconAtlas>EXPANSION_BW_ATLAS_3</IconAtlas>
-			<PortraitIndex>0</PortraitIndex>
+			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
+			<PortraitIndex>21</PortraitIndex>
 			<Cost>125</Cost>
 			<IsReformation>true</IsReformation>
 			<NumCityCostMod>30</NumCityCostMod>
@@ -25,7 +25,7 @@
 			<UnlockedByBelief>true</UnlockedByBelief>
 			<FaithCost>1000</FaithCost>
 		</Row>
-		<!--Heavenly Throne-->
+		<!--Celestial Throne-->
 		<Row>
 			<Type>BUILDING_HEAVENLY_THRONE</Type>
 			<BuildingClass>BUILDINGCLASS_HEAVENLY_THRONE</BuildingClass>
@@ -39,8 +39,8 @@
 			<ReligiousPressureModifier>100</ReligiousPressureModifier>
 			<HurryCostModifier>-1</HurryCostModifier>
 			<MinAreaSize>-1</MinAreaSize>
-			<IconAtlas>EXPANSION_BW_ATLAS_3</IconAtlas>
-			<PortraitIndex>0</PortraitIndex>
+			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
+			<PortraitIndex>27</PortraitIndex>
 			<Cost>125</Cost>
 			<IsReformation>true</IsReformation>
 			<NumCityCostMod>30</NumCityCostMod>
@@ -62,8 +62,8 @@
 			<ReligiousPressureModifier>100</ReligiousPressureModifier>
 			<HurryCostModifier>-1</HurryCostModifier>
 			<MinAreaSize>-1</MinAreaSize>
-			<IconAtlas>EXPANSION_BW_ATLAS_3</IconAtlas>
-			<PortraitIndex>0</PortraitIndex>
+			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
+			<PortraitIndex>34</PortraitIndex>
 			<Cost>125</Cost>
 			<IsReformation>true</IsReformation>
 			<NumCityCostMod>30</NumCityCostMod>
@@ -88,8 +88,8 @@
 			<ReligiousPressureModifier>100</ReligiousPressureModifier>
 			<HurryCostModifier>-1</HurryCostModifier>
 			<MinAreaSize>-1</MinAreaSize>
-			<IconAtlas>EXPANSION_BW_ATLAS_3</IconAtlas>
-			<PortraitIndex>0</PortraitIndex>
+			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
+			<PortraitIndex>40</PortraitIndex>
 			<Cost>125</Cost>
 			<IsReformation>true</IsReformation>
 			<NumCityCostMod>30</NumCityCostMod>
@@ -111,8 +111,8 @@
 			<ReligiousPressureModifier>100</ReligiousPressureModifier>
 			<HurryCostModifier>-1</HurryCostModifier>
 			<MinAreaSize>-1</MinAreaSize>
-			<IconAtlas>EXPANSION_BW_ATLAS_3</IconAtlas>
-			<PortraitIndex>0</PortraitIndex>
+			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
+			<PortraitIndex>38</PortraitIndex>
 			<Cost>125</Cost>
 			<IsReformation>true</IsReformation>
 			<NumCityCostMod>30</NumCityCostMod>
@@ -134,10 +134,9 @@
 			<ReligiousPressureModifier>100</ReligiousPressureModifier>
 			<HurryCostModifier>-1</HurryCostModifier>
 			<MinAreaSize>-1</MinAreaSize>
-			<IconAtlas>EXPANSION_BW_ATLAS_3</IconAtlas>
-			<PortraitIndex>0</PortraitIndex>
+			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
+			<PortraitIndex>7</PortraitIndex>
 			<Cost>125</Cost>
-			<CultureRateModifier>15</CultureRateModifier>
 			<IsReformation>true</IsReformation>
 			<NumCityCostMod>30</NumCityCostMod>
 			<GlobalFollowerPopRequired>20</GlobalFollowerPopRequired>
@@ -158,8 +157,8 @@
 			<ReligiousPressureModifier>100</ReligiousPressureModifier>
 			<HurryCostModifier>-1</HurryCostModifier>
 			<MinAreaSize>-1</MinAreaSize>
-			<IconAtlas>EXPANSION_BW_ATLAS_3</IconAtlas>
-			<PortraitIndex>0</PortraitIndex>
+			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
+			<PortraitIndex>8</PortraitIndex>
 			<Cost>125</Cost>
 			<IsReformation>true</IsReformation>
 			<NumCityCostMod>30</NumCityCostMod>
@@ -167,22 +166,22 @@
 			<UnlockedByBelief>true</UnlockedByBelief>
 			<FaithCost>1000</FaithCost>
 		</Row>
-		<!--Basilica-->
+		<!--Apostolic Palace-->
 		<Row>
-			<Type>BUILDING_BASILICA</Type>
-			<BuildingClass>BUILDINGCLASS_BASILICA</BuildingClass>		
-			<Help>TXT_KEY_BUILDING_BASILICA_HELP</Help>
-			<Description>TXT_KEY_BUILDING_BASILICA</Description>
-			<Civilopedia>TXT_KEY_BUILDING_BASILICA_TEXT</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_BASILICA_STRATEGY</Strategy>
+			<Type>BUILDING_APOSTOLIC_PALACE</Type>
+			<BuildingClass>BUILDINGCLASS_APOSTOLIC_PALACE</BuildingClass>		
+			<Help>TXT_KEY_BUILDING_APOSTOLIC_PALACE_HELP</Help>
+			<Description>TXT_KEY_BUILDING_APOSTOLIC_PALACE</Description>
+			<Civilopedia>TXT_KEY_BUILDING_APOSTOLIC_PALACE_TEXT</Civilopedia>
+			<Strategy>TXT_KEY_BUILDING_APOSTOLIC_PALACE_STRATEGY</Strategy>
 			<ArtDefineTag>TEMPLE</ArtDefineTag>
 			<NukeImmune>true</NukeImmune>
 			<HolyCity>true</HolyCity>
 			<ReligiousPressureModifier>100</ReligiousPressureModifier>
 			<HurryCostModifier>-1</HurryCostModifier>
 			<MinAreaSize>-1</MinAreaSize>
-			<IconAtlas>EXPANSION_BW_ATLAS_3</IconAtlas>
-			<PortraitIndex>0</PortraitIndex>
+			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
+			<PortraitIndex>6</PortraitIndex>
 			<Cost>125</Cost>
 			<IsReformation>true</IsReformation>
 			<NumCityCostMod>30</NumCityCostMod>
@@ -205,8 +204,8 @@
 			<HurryCostModifier>-1</HurryCostModifier>
 			<MinAreaSize>-1</MinAreaSize>
 			<NeverCapture>true</NeverCapture>
-			<IconAtlas>EXPANSION_BW_ATLAS_3</IconAtlas>
-			<PortraitIndex>0</PortraitIndex>
+			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
+			<PortraitIndex>12</PortraitIndex>
 			<Cost>125</Cost>
 			<IsReformation>true</IsReformation>
 			<NumCityCostMod>30</NumCityCostMod>
@@ -223,7 +222,7 @@
 			<Description>TXT_KEY_BUILDING_MAUSOLEUM</Description>
 			<MaxPlayerInstances>1</MaxPlayerInstances>
 		</Row>
-		<!--Heavenly Throne-->
+		<!--Celestial Throne-->
 		<Row>
 			<Type>BUILDINGCLASS_HEAVENLY_THRONE</Type>
 			<DefaultBuilding>BUILDING_HEAVENLY_THRONE</DefaultBuilding>
@@ -265,11 +264,11 @@
 			<Description>TXT_KEY_BUILDING_HOLY_COUNCIL</Description>
 			<MaxPlayerInstances>1</MaxPlayerInstances>
 		</Row>
-		<!--Basilica-->
+		<!--Apostolic Palace-->
 		<Row>
-			<Type>BUILDINGCLASS_BASILICA</Type>
-			<DefaultBuilding>BUILDING_BASILICA</DefaultBuilding>
-			<Description>TXT_KEY_BUILDING_BASILICA</Description>
+			<Type>BUILDINGCLASS_APOSTOLIC_PALACE</Type>
+			<DefaultBuilding>BUILDING_APOSTOLIC_PALACE</DefaultBuilding>
+			<Description>TXT_KEY_BUILDING_APOSTOLIC_PALACE</Description>
 			<MaxPlayerInstances>1</MaxPlayerInstances>
 		</Row>
 		<!--Grand Ossuary-->
@@ -284,42 +283,42 @@
 		<Row>
 			<BuildingType>BUILDING_MAUSOLEUM</BuildingType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>4</Yield>
+			<Yield>6</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_HEAVENLY_THRONE</BuildingType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>4</Yield>
+			<Yield>2</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_HEAVENLY_THRONE</BuildingType>
 			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>3</Yield>
+			<Yield>2</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_HEAVENLY_THRONE</BuildingType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>3</Yield>
+			<Yield>2</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_HEAVENLY_THRONE</BuildingType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>3</Yield>
+			<Yield>2</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_HEAVENLY_THRONE</BuildingType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Yield>3</Yield>
+			<Yield>2</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_HEAVENLY_THRONE</BuildingType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>3</Yield>
+			<Yield>2</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_GREAT_ALTAR</BuildingType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>4</Yield>
+			<Yield>5</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_RELIQUARY</BuildingType>
@@ -339,7 +338,7 @@
 		<Row>
 			<BuildingType>BUILDING_SACRED_GARDEN</BuildingType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>4</Yield>
+			<Yield>3</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_HOLY_COUNCIL</BuildingType>
@@ -347,19 +346,34 @@
 			<Yield>4</Yield>
 		</Row>
 		<Row>
-			<BuildingType>BUILDING_BASILICA</BuildingType>
+			<BuildingType>BUILDING_APOSTOLIC_PALACE</BuildingType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>5</Yield>
+			<Yield>4</Yield>
 		</Row>
 		<Row>
-			<BuildingType>BUILDING_BASILICA</BuildingType>
+			<BuildingType>BUILDING_APOSTOLIC_PALACE</BuildingType>
 			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Yield>3</Yield>
+			<Yield>4</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_GRAND_OSSUARY</BuildingType>
 			<YieldType>YIELD_FAITH</YieldType>
+			<Yield>7</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_DIVINE_COURT</BuildingType>
+			<YieldType>YIELD_GOLD</YieldType>
 			<Yield>8</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_HOLY_COUNCIL</BuildingType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>5</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_SACRED_GARDEN</BuildingType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>5</Yield>
 		</Row>
 	</Building_YieldChanges>
 	<Building_DomainProductionModifiers>
@@ -383,6 +397,7 @@
 			<AIPriority>5</AIPriority>
 		</Row>
 	</Building_ThemingBonuses>
+	<!--
 	<Building_YieldModifiers>
 		<Row>
 			<BuildingType>BUILDING_DIVINE_COURT</BuildingType>
@@ -395,6 +410,7 @@
 			<Yield>15</Yield>
 		</Row>
 	</Building_YieldModifiers>
+	-->
 	<Building_YieldFromDeath>
 		<Row>
 			<BuildingType>BUILDING_MAUSOLEUM</BuildingType>
@@ -439,7 +455,7 @@
 			<Flavor>200</Flavor>
 		</Row>
 		<Row>
-			<BuildingType>BUILDING_BASILICA</BuildingType>
+			<BuildingType>BUILDING_APOSTOLIC_PALACE</BuildingType>
 			<FlavorType>FLAVOR_RELIGION</FlavorType>
 			<Flavor>200</Flavor>
 		</Row>

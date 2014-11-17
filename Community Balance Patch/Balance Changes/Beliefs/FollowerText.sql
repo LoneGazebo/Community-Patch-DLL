@@ -1,3 +1,8 @@
+-- Cathedral
+UPDATE Language_en_US
+SET Text = 'Use [ICON_PEACE] Faith to purchase Cathedrals (+2 [ICON_PEACE] Faith, +2 [ICON_GOLD] Gold, 1 Great Work of Art slot)'
+WHERE Tag = 'TXT_KEY_BELIEF_CATHEDRALS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
+
 -- Pagoda
 UPDATE Language_en_US
 SET Text = 'Use [ICON_PEACE] Faith to purchase Pagodas (+2 [ICON_PEACE] Faith, +2 [ICON_CULTURE] Culture, 1 [ICON_GREAT_WORK] Great Work of Art slot)'

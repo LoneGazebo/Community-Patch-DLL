@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created by ModBuddy on 11/5/2014 3:02:12 PM -->
+<GameData>
+  <!-- Marsh Walker -->
+	<UnitPromotions>
+		<Row>
+			<Type>PROMOTION_MARSH_WALKER</Type>
+			<Description>TXT_KEY_PROMOTION_MARSH_WALKER</Description>
+			<Help>TXT_KEY_PROMOTION_MARSH_WALKER_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<OrderPriority>99</OrderPriority>
+			<PortraitIndex>44</PortraitIndex>
+			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
+			<PediaType>PEDIA_SHARED</PediaType>
+			<CannotBeChosen>true</CannotBeChosen>
+			<PediaEntry>TXT_KEY_PROMOTION_MARSH_WALKER</PediaEntry>
+		</Row>
+	<!-- White Walker -->
+		<Row>
+			<Type>PROMOTION_WHITE_WALKER</Type>
+			<Description>TXT_KEY_PROMOTION_WHITE_WALKER</Description>
+			<Help>TXT_KEY_PROMOTION_WHITE_WALKER_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<OrderPriority>99</OrderPriority>
+			<PortraitIndex>44</PortraitIndex>
+			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
+			<PediaType>PEDIA_SHARED</PediaType>
+			<CannotBeChosen>true</CannotBeChosen>
+			<PediaEntry>TXT_KEY_PROMOTION_WHITE_WALKER</PediaEntry>
+		</Row>
+	</UnitPromotions>
+	<UnitPromotions_Features>
+		<Row>
+			<PromotionType>PROMOTION_MARSH_WALKER</PromotionType>
+			<FeatureType>FEATURE_MARSH</FeatureType>
+			<DoubleMove>true</DoubleMove>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_MARSH_WALKER</PromotionType>
+			<FeatureType>FEATURE_FLOOD_PLAINS</FeatureType>
+			<DoubleMove>true</DoubleMove>
+		</Row>
+	</UnitPromotions_Features>
+	<UnitPromotions_Terrains>
+		<Row>
+			<PromotionType>PROMOTION_WHITE_WALKER</PromotionType>
+			<TerrainType>TERRAIN_TUNDRA</TerrainType>
+			<DoubleMove>true</DoubleMove>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_WHITE_WALKER</PromotionType>
+			<TerrainType>TERRAIN_SNOW</TerrainType>
+			<DoubleMove>true</DoubleMove>
+		</Row>
+	</UnitPromotions_Terrains>
+	<Language_en_US>
+		<Row Tag="TXT_KEY_PROMOTION_MARSH_WALKER">
+			<Text>Marsh Walkers</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_MARSH_WALKER_HELP">
+			<Text>Double movement on Marshe and Flood Plain tiles.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_WHITE_WALKER">
+			<Text>White Walkers</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_WHITE_WALKER_HELP">
+			<Text>Double movement on Snow and Tundra tiles.</Text>
+		</Row>
+		<!-- Barbarian Gold Theft Text-->
+		<Row Tag="TXT_KEY_BARBARIAN_GOLD_THEFT_CITY_DETAILED">
+			<Text>Barbarians near the city of {2_City} looted the surrounding countryside, stealing {1_Gold} [ICON_GOLD] Gold![NEWLINE]Destroy these Barbarians before they steal more [ICON_GOLD] Gold!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BARBARIAN_GOLD_THEFT_CITY">
+			<Text>Barbarians looted the city of {1_City}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BARBARIAN_GOLD_THEFT_DETAILED">
+			<Text>Barbarians looted your countryside, stealing {1_Gold} [ICON_GOLD] Gold![NEWLINE]Destroy these Barbarians before they steal more [ICON_GOLD] Gold!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BARBARIAN_GOLD_THEFT">
+			<Text>Barbarians looted your countryside!</Text>
+		</Row>
+	</Language_en_US>
+</GameData>

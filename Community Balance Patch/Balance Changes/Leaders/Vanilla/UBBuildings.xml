@@ -1,0 +1,400 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created by ModBuddy on 10/28/2014 1:01:42 PM -->
+<GameData>
+  <!-- Floating Gardens -->
+	<Building_YieldChangesPerPop>
+		<Row>
+			<BuildingType>BUILDING_FLOATING_GARDENS</BuildingType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>25</Yield>
+		</Row>
+	</Building_YieldChangesPerPop>
+  <!-- Bazaar -->
+	<Building_YieldChanges>
+		<Row>
+			<BuildingType>BUILDING_BAZAAR</BuildingType>
+			<YieldType>YIELD_FAITH</YieldType>
+			<Yield>3</Yield>
+		</Row>
+	</Building_YieldChanges>
+	<Building_YieldChangesPerPop>
+		<Row>
+			<BuildingType>BUILDING_BAZAAR</BuildingType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>25</Yield>
+		</Row>
+	</Building_YieldChangesPerPop>
+<!-- Hanse -->
+	<Building_YieldChangesPerPop>
+		<Row>
+			<BuildingType>BUILDING_HANSE</BuildingType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>50</Yield>
+		</Row>
+	</Building_YieldChangesPerPop>
+<!-- Satrap -->
+	<Building_YieldChangesPerPop>
+		<Row>
+			<BuildingType>BUILDING_SATRAPS_COURT</BuildingType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>50</Yield>
+		</Row>
+	</Building_YieldChangesPerPop>
+  <!-- Indus Sanitation -->
+	<Buildings>
+		<Row>
+			<Type>BUILDING_INDUS_CANAL</Type>
+			<BuildingClass>BUILDINGCLASS_AQUEDUCT</BuildingClass>
+			<Cost>100</Cost>
+			<GoldMaintenance>1</GoldMaintenance>
+			<PrereqTech>TECH_ENGINEERING</PrereqTech>
+			<Help>TXT_KEY_BUILDING_INDUS_CANAL_HELP</Help>
+			<Description>TXT_KEY_BUILDING_INDUS_CANAL</Description>
+			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_INDUS_CANAL_TEXT</Civilopedia>
+			<Strategy>TXT_KEY_BUILDING_INDUS_CANAL_STRATEGY</Strategy>
+			<ArtDefineTag>ART_DEF_BUILDING_HOSPITAL</ArtDefineTag>
+			<FoodKept>50</FoodKept>
+			<MinAreaSize>-1</MinAreaSize>
+			<ConquestProb>66</ConquestProb>
+			<HurryCostModifier>0</HurryCostModifier>
+			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
+			<PortraitIndex>18</PortraitIndex>
+		</Row>
+	</Buildings>
+	<Building_Flavors>
+		<Row>
+			<BuildingType>BUILDING_INDUS_CANAL</BuildingType>
+			<FlavorType>FLAVOR_GROWTH</FlavorType>
+			<Flavor>100</Flavor>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_INDUS_CANAL</BuildingType>
+			<FlavorType>FLAVOR_SCIENCE</FlavorType>
+			<Flavor>30</Flavor>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_INDUS_CANAL</BuildingType>
+			<FlavorType>FLAVOR_PRODUCTION</FlavorType>
+			<Flavor>10</Flavor>
+		</Row>
+	</Building_Flavors>
+	<Building_YieldChanges>
+		<Row>
+			<BuildingType>BUILDING_INDUS_CANAL</BuildingType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_INDUS_CANAL</BuildingType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>2</Yield>
+		</Row>
+	</Building_YieldChanges>
+	<Civilization_BuildingClassOverrides>
+		<Row>
+			<CivilizationType>CIVILIZATION_INDIA</CivilizationType>
+			<BuildingClassType>BUILDINGCLASS_AQUEDUCT</BuildingClassType>
+			<BuildingType>BUILDING_INDUS_CANAL</BuildingType>
+		</Row>
+	</Civilization_BuildingClassOverrides>
+	<Building_LakePlotYieldChanges>
+		<Row>
+			<BuildingType>BUILDING_INDUS_CANAL</BuildingType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+	</Building_LakePlotYieldChanges>
+	<Building_FeatureYieldChanges>
+		<Row>
+			<BuildingType>BUILDING_INDUS_CANAL</BuildingType>
+			<FeatureType>FEATURE_OASIS</FeatureType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+	</Building_FeatureYieldChanges>
+	<Language_en_US>
+		<Row Tag="TXT_KEY_BUILDING_INDUS_CANAL">
+			<Text>Indus Canals</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_BUILDINGS_INDUS_CANAL_TEXT">
+			<Text>
+				The Indus civilization's economy appears to have depended significantly on trade, which was facilitated by major advances in transport technology. The IVC may have been the first civilization to use wheeled transport. These advances may have included bullock carts that are identical to those seen throughout South Asia today, as well as boats. Most of these boats were probably small, flat-bottomed craft, perhaps driven by sail, similar to those one can see on the Indus River today; however, there is secondary evidence of sea-going craft. Archaeologists have discovered a massive, dredged canal and what they regard as a docking facility at the coastal city of Lothal in western India (Gujarat state). An extensive canal network, used for irrigation, has however also been discovered by H.-P. Francfort.
+			</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_INDUS_CANAL_HELP">
+			<Text>Unique Indian replacement for the Aqueduct. Carries over 50% of [ICON_FOOD] Food after City growth. Grants +1 [ICON_FOOD] Food on Oases and Lakes. Receive +1 [ICON_PRODUCTION] Production and +2 [ICON_FOOD] Food in the City where it is built.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_INDUS_CANAL_STRATEGY">
+			<Text>Build these unique Aqueducts to rapidly increase your city's population size, and to boost the City's productivity.</Text>
+		</Row>
+	</Language_en_US>
+	<!-- Dojo -->
+	<Buildings>
+		<Row>
+			<Type>BUILDING_DOJO</Type>
+			<BuildingClass>BUILDINGCLASS_ARMORY</BuildingClass>
+			<Cost>160</Cost>
+			<GoldMaintenance>1</GoldMaintenance>
+			<PrereqTech>TECH_CHIVALRY</PrereqTech>
+			<Help>TXT_KEY_BUILDING_DOJO_HELP</Help>
+			<Description>TXT_KEY_BUILDING_DOJO</Description>
+			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_DOJO_TEXT</Civilopedia>
+			<Strategy>TXT_KEY_BUILDING_DOJO_STRATEGY</Strategy>
+			<ArtDefineTag>ART_DEF_BUILDING_BARRACKS</ArtDefineTag>
+			<MinAreaSize>-1</MinAreaSize>
+			<HurryCostModifier>25</HurryCostModifier>
+			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
+			<NeverCapture>true</NeverCapture>
+			<PortraitIndex>24</PortraitIndex>
+		</Row>
+	</Buildings>
+	<Building_ClassesNeededInCity>
+		<Row>
+			<BuildingType>BUILDING_DOJO</BuildingType>
+			<BuildingClassType>BUILDINGCLASS_BARRACKS</BuildingClassType>
+		</Row>
+	</Building_ClassesNeededInCity>
+	<Building_DomainFreeExperiences>
+		<Row>
+			<BuildingType>BUILDING_DOJO</BuildingType>
+			<DomainType>DOMAIN_LAND</DomainType>
+			<Experience>25</Experience>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_DOJO</BuildingType>
+			<DomainType>DOMAIN_SEA</DomainType>
+			<Experience>25</Experience>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_DOJO</BuildingType>
+			<DomainType>DOMAIN_AIR</DomainType>
+			<Experience>25</Experience>
+		</Row>
+	</Building_DomainFreeExperiences>
+	<Building_Flavors>
+		<Row>
+			<BuildingType>BUILDING_DOJO</BuildingType>
+			<FlavorType>FLAVOR_MILITARY_TRAINING</FlavorType>
+			<Flavor>20</Flavor>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_DOJO</BuildingType>
+			<FlavorType>FLAVOR_CULTURE</FlavorType>
+			<Flavor>20</Flavor>
+		</Row>
+	</Building_Flavors>
+	<Civilization_BuildingClassOverrides>
+		<Row>
+			<CivilizationType>CIVILIZATION_JAPAN</CivilizationType>
+			<BuildingClassType>BUILDINGCLASS_ARMORY</BuildingClassType>
+			<BuildingType>BUILDING_DOJO</BuildingType>
+		</Row>
+	</Civilization_BuildingClassOverrides>
+	<Building_ResourceYieldChanges>
+		<Row>
+			<BuildingType>BUILDING_DOJO</BuildingType>
+			<ResourceType>RESOURCE_IRON</ResourceType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_DOJO</BuildingType>
+			<ResourceType>RESOURCE_HORSE</ResourceType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>1</Yield>
+		</Row>
+	</Building_ResourceYieldChanges>
+	<Language_en_US>
+		<Row Tag="TXT_KEY_BUILDING_DOJO">
+			<Text>Dojo</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_BUILDINGS_DOJO_TEXT">
+			<Text>
+				A dojo is a Japanese term which literally means "place of the way". Initially, dōjōs were adjunct to temples. The term can refer to a formal training place for any of the Japanese do arts[which?] but typically it is considered the formal gathering place for students of any Japanese martial arts style such as karate, judo, or samurai, to conduct training, examinations and other related encounters.
+				The concept of a dōjō only referring to a training place specifically for Asian martial arts is a Western concept; in Japan, any physical training facility, including professional wrestling schools, may be called dōjō because of its close martial arts roots.
+			</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_DOJO_HELP">
+			<Text>Unique Japanese replacement for the Armory. Grants +25 Experience to all military units trained in this city, and sources of [ICON_RES_IRON] Iron and [ICON_RES_HORSE] Horses near this city generate +1 [ICON_CULTURE] Culture.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_DOJO_STRATEGY">
+			<Text>Build these unique Armories to produce dominant military units, and to generate additional mid-game Culture.</Text>
+		</Row>
+	</Language_en_US>
+	<!-- Odeon -->
+	<Buildings>
+		<Row>
+			<Type>BUILDING_ODEON</Type>
+			<BuildingClass>BUILDINGCLASS_AMPHITHEATER</BuildingClass>
+			<FreeStartEra>ERA_INDUSTRIAL</FreeStartEra>
+			<Cost>100</Cost>
+			<PrereqTech>TECH_DRAMA</PrereqTech>
+			<Description>TXT_KEY_BUILDING_ODEON</Description>
+			<GoldMaintenance>1</GoldMaintenance>
+			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_ODEON_TEXT</Civilopedia>
+			<Strategy>TXT_KEY_BUILDING_ODEON_STRATEGY</Strategy>
+			<Help>TXT_KEY_BUILDING_ODEON_HELP</Help>
+			<ArtDefineTag>COLESSEUM</ArtDefineTag>
+			<TechEnhancedTourism>2</TechEnhancedTourism>
+			<EnhancedYieldTech>TECH_PHILOSOPHY</EnhancedYieldTech>
+			<ConquestProb>100</ConquestProb>
+			<MinAreaSize>-1</MinAreaSize>
+			<HurryCostModifier>25</HurryCostModifier>
+			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
+			<PortraitIndex>31</PortraitIndex>
+		</Row>
+	</Buildings>
+	<Building_Flavors>
+		<Row>
+			<BuildingType>BUILDING_ODEON</BuildingType>
+			<FlavorType>FLAVOR_CULTURE</FlavorType>
+			<Flavor>50</Flavor>
+		</Row>
+	</Building_Flavors>
+	<Civilization_BuildingClassOverrides>
+		<Row>
+			<CivilizationType>CIVILIZATION_GREECE</CivilizationType>
+			<BuildingClassType>BUILDINGCLASS_AMPHITHEATER</BuildingClassType>
+			<BuildingType>BUILDING_ODEON</BuildingType>
+		</Row>
+	</Civilization_BuildingClassOverrides>
+	<Building_YieldChanges>
+		<Row>
+			<BuildingType>BUILDING_ODEON</BuildingType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>4</Yield>
+		</Row>
+	</Building_YieldChanges>
+	<Building_ResourceYieldChanges>
+		<Row>
+			<BuildingType>BUILDING_ODEON</BuildingType>
+			<ResourceType>RESOURCE_DYE</ResourceType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>1</Yield>
+		</Row>
+	</Building_ResourceYieldChanges>
+	<Language_en_US>
+		<Row Tag="TXT_KEY_BUILDING_ODEON">
+			<Text>Odeon</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_BUILDINGS_ODEON_TEXT">
+			<Text>
+				The oldest known odeon in Greece was the Skias at Sparta, so called from its resemblance to the top of a parasol, said to have been erected by Theodorus of Samos (600 B.C.); in Athens an odeon near the spring Enneacrunus on the Ilissus was referred to the age of Peisistratus, and appears to have been rebuilt or restored by Lycurgus (c. 330 B.C.). This is probably the building which, according to Aristophanes, was used for judicial purposes, for the distribution of corn, and even for the billeting of soldiers.
+			</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_ODEON_HELP">
+			<Text>Unique Greek replacement for the Amphitheater. Generates 4 [ICON_CULTURE] Culture, as well as +1 [ICON_CULTURE] Culture on nearby [ICON_RES_DYE] Dye resources. Contains no slot for a Great Work, however it produces +2 [ICON_TOURISM] Tourism once you research Philosophy.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_ODEON_STRATEGY">
+			<Text>Build these unique Amphitheaters to boost your city's Culture, Tourism, and Gold.</Text>
+		</Row>
+	</Language_en_US>
+	<!-- Triumphal Arch -->
+	<Buildings>
+		<Row>
+			<Type>BUILDING_TRIUMPHAL_ARCH</Type>
+			<BuildingClass>BUILDINGCLASS_MONUMENT</BuildingClass>
+			<FreeStartEra>ERA_MEDIEVAL</FreeStartEra>
+			<Cost>40</Cost>
+			<GoldMaintenance>1</GoldMaintenance>
+			<Description>TXT_KEY_BUILDING_TRIUMPHAL_ARCH</Description>
+			<Civilopedia>TXT_KEY_CIV5_BUILDING_TRIUMPHAL_ARCH_TEXT</Civilopedia>
+			<Strategy>TXT_KEY_BUILDING_TRIUMPHAL_ARCH_STRATEGY</Strategy>
+			<Help>TXT_KEY_BUILDING_TRIUMPHAL_ARCH_HELP</Help>
+			<ArtDefineTag>MONUMENT</ArtDefineTag>
+			<MinAreaSize>-1</MinAreaSize>
+			<HurryCostModifier>40</HurryCostModifier>
+			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
+			<PortraitIndex>35</PortraitIndex>
+			<NeverCapture>true</NeverCapture>
+		</Row>
+	</Buildings>
+	<Building_Flavors>
+		<Row>
+			<BuildingType>BUILDING_TRIUMPHAL_ARCH</BuildingType>
+			<FlavorType>FLAVOR_CULTURE</FlavorType>
+			<Flavor>50</Flavor>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_TRIUMPHAL_ARCH</BuildingType>
+			<FlavorType>FLAVOR_PRODUCTION</FlavorType>
+			<Flavor>50</Flavor>
+		</Row>
+	</Building_Flavors>
+	<Civilization_BuildingClassOverrides>
+		<Row>
+			<CivilizationType>CIVILIZATION_ROME</CivilizationType>
+			<BuildingClassType>BUILDINGCLASS_MONUMENT</BuildingClassType>
+			<BuildingType>BUILDING_TRIUMPHAL_ARCH</BuildingType>
+		</Row>
+	</Civilization_BuildingClassOverrides>
+	<Building_YieldChanges>
+		<Row>
+			<BuildingType>BUILDING_TRIUMPHAL_ARCH</BuildingType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_TRIUMPHAL_ARCH</BuildingType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>2</Yield>
+		</Row>
+	</Building_YieldChanges>
+	<Building_YieldFromVictory>
+		<Row>
+			<BuildingType>BUILDING_TRIUMPHAL_ARCH</BuildingType>
+			<YieldType>YIELD_GREAT_GENERAL_POINTS</YieldType>
+			<Yield>3</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_TRIUMPHAL_ARCH</BuildingType>
+			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
+			<Yield>3</Yield>
+		</Row>
+	</Building_YieldFromVictory>
+	
+	<Language_en_US>
+		<Row Tag="TXT_KEY_BUILDING_TRIUMPHAL_ARCH">
+			<Text>Triumphal Arch</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_BUILDING_TRIUMPHAL_ARCH_TEXT">
+			<Text>
+				A triumphal arch is a monumental structure in the shape of an archway with one or more arched passageways, often designed to span a road. In its simplest form a triumphal arch consists of two massive piers connected by an arch, crowned with a flat entablature or attic on which a statue might be mounted or which bears commemorative inscriptions. The main structure is often decorated with carvings, sculpted reliefs and dedications. More elaborate triumphal arches may have multiple archways.
+				Triumphal arches are one of the most influential and distinctive types of architecture associated with ancient Rome. Thought to have been invented by the Romans, the triumphal arch was used to commemorate victorious generals or significant public events such as the founding of new colonies, the construction of a road or bridge, the death of a member of the imperial family or the accession of a new emperor.
+			</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_TRIUMPHAL_ARCH_HELP">
+			<Text>Unique Roman replacement for the Monument. Generates +2 [ICON_CULTURE] Culture and +1 [ICON_PRODUCTION] Production. [NEWLINE][NEWLINE] Whenever you destroy an enemy unit, produce +3 [ICON_GREAT_GENERAL] Great General points and +3 [ICON_GOLDEN_AGE] Golden Age points.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_TRIUMPHAL_ARCH_STRATEGY">
+			<Text>Build these unique Monuments to boost your city's Culture growth and early Production, and to maximize your empire's gain from the victories of your conquering armies.</Text>
+		</Row>
+	</Language_en_US>
+	<!-- Mud Pyramid Mosque -->
+	<Building_ResourceYieldChanges>
+		<Row>
+			<BuildingType>BUILDING_MUD_PYRAMID_MOSQUE</BuildingType>
+			<ResourceType>RESOURCE_INCENSE</ResourceType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_MUD_PYRAMID_MOSQUE</BuildingType>
+			<ResourceType>RESOURCE_WINE</ResourceType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_BURIAL_TOMB</BuildingType>
+			<ResourceType>RESOURCE_INCENSE</ResourceType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_BURIAL_TOMB</BuildingType>
+			<ResourceType>RESOURCE_WINE</ResourceType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>1</Yield>
+		</Row>
+	</Building_ResourceYieldChanges>
+</GameData>

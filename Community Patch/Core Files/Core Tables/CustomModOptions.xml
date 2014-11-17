@@ -15,28 +15,32 @@
     <!--   5=Common - Common enhancements, obvious game play changes -->
     <!--   6=Major  - Major enhancements, massive game play changes -->
 
-	<!-- DbUpdates - indicates if the DLL code requires associated database changes -->
-	<!--   Missing - no associated database updates -->
-	<!--         0 - unimportant database updates (usually TXT_KEY_s that if deleted won't cause serious problems -->
-	<!--         1 - required database updates -->
-	<!--   The sql/xml changes for GLOBAL_STACKING_RULES can be found in DB/GLOBAL/SackingRules.sql/xml -->
-	<!--   If these file(s) have been deleted, eg for compatibility with other mods, the option will be forced off -->
+    <!-- DbUpdates - indicates if the DLL code requires associated database changes -->
+    <!--   Missing - no associated database updates -->
+    <!--         0 - unimportant database updates (usually TXT_KEY_s that if deleted won't cause serious problems -->
+    <!--         1 - required database updates -->
+    <!--   The sql/xml changes for GLOBAL_STACKING_RULES can be found in DB/GLOBAL/SackingRules.sql/xml -->
+    <!--   If these file(s) have been deleted, eg for compatibility with other mods, the option will be forced off -->
 
-	<!-- Changes the stacking limits based on what the tile is (city, fort, plain, etc) (v19) -->
+    <!-- Changes the stacking limits based on what the tile is (city, fort, plain, etc) (v19) -->
     <!-- See also: "Global - 2 Units Per Fort" -->
     <!-- See also: "Global - 3 Units Per City" -->
-	<Row Class="5" Name="GLOBAL_STACKING_RULES" Value="0" DbUpdates="1"/>
-	
-	<!-- This is the "No More Civilian Traffic Jams (NMCTJs) Mod" by Pazyryk - see http://forums.civfanatics.com/showthread.php?t=519754 (v45) -->
+    <Row Class="5" Name="GLOBAL_STACKING_RULES" Value="0" DbUpdates="1"/>
+    
+    <!-- This is the "No More Civilian Traffic Jams (NMCTJs) Mod" by Pazyryk - see http://forums.civfanatics.com/showthread.php?t=519754 (v45) -->
     <!-- See also: "Global - No More Civilian Traffic Jams" -->
-	<Row Class="6" Name="GLOBAL_BREAK_CIVILIAN_1UPT" Value="0"/>
-	<Row Class="6" Name="GLOBAL_BREAK_CIVILIAN_RESTRICTIONS" Value="0"/>
+    <Row Class="6" Name="GLOBAL_BREAK_CIVILIAN_1UPT" Value="0"/>
+    <Row Class="6" Name="GLOBAL_BREAK_CIVILIAN_RESTRICTIONS" Value="0"/>
 
     <!-- Great Generals and Admirals gained from combat experience spawn in the war-zone and not in a distant city (v19) -->
     <!-- See also: "Global - Local Generals" -->
     <Row Class="5" Name="GLOBAL_LOCAL_GENERALS" Value="0"/>
 
-	<!-- Permits units to have promotion trees different from their assigned CombatClass (v19) -->
+    <!-- Separates out the repair fleet and change port abilities of the Great Admiral (v61) -->
+    <!-- If you enable this option, you will need to add back the abilities to the standard GA -->
+    <Row Class="5" Name="GLOBAL_SEPARATE_GREAT_ADMIRAL" Value="0" DbUpdates="1"/>
+
+    <!-- Permits units to have promotion trees different from their assigned CombatClass (v19) -->
     <!-- See also: "Promotions - Subs Silent Running" -->
     <!-- See also: "Promotions - AntiAir Specialisations" -->
     <Row Class="4" Name="GLOBAL_PROMOTION_CLASSES" Value="0" DbUpdates="1"/>
@@ -51,7 +55,7 @@
     <!-- See also: "Global - Passable Forts" -->
     <Row Class="6" Name="GLOBAL_PASSABLE_FORTS_ANY" Value="0"/>
 
-	<!-- Goody Huts can always give gold, stops the late-game issue where entering a goody hut can result in nothing being awarded (v22) -->
+    <!-- Goody Huts can always give gold, stops the late-game issue where entering a goody hut can result in nothing being awarded (v22) -->
     <!-- See also: "Goody Huts - No Auto-Mapping" -->
     <Row Class="6" Name="GLOBAL_ANYTIME_GOODY_GOLD" Value="0"/>
 
@@ -59,9 +63,9 @@
     <!-- See also: "Global - City Forest Bonus" -->
     <Row Class="6" Name="GLOBAL_CITY_FOREST_BONUS" Value="0"/>
     <Row Class="0" Name="GLOBAL_CITY_FOREST_BONUS_PERCENT" Value="125"/> <!-- Percentage of "ring-1 chop" (v47) -->
-	<!-- Also GLOBAL_CITY_FOREST_BONUS_TECH in CustomModPostDefines -->
+    <!-- Also GLOBAL_CITY_FOREST_BONUS_TECH in CustomModPostDefines -->
 
-	<!-- Permit cities to work tiles up to MAXIMUM_ACQUIRE_PLOT_DISTANCE - WARNING! Cities take 2.5 times as much memory/file space (v19) -->
+    <!-- Permit cities to work tiles up to MAXIMUM_ACQUIRE_PLOT_DISTANCE - WARNING! Cities take 2.5 times as much memory/file space (v19) -->
     <!-- See also: "Global - City Working Distance" -->
     <Row Class="6" Name="GLOBAL_CITY_WORKING" Value="0" DbUpdates="1"/>
 
@@ -88,26 +92,26 @@
     <!-- City States give different gifts depending on their type (cultural, religious, maritime, etc) (v19) -->
     <!-- See also: "Global - City States Gifts" -->
     <Row Class="6" Name="GLOBAL_CS_GIFTS" Value="0"/>
-	
+    
     <!-- City States allied to a major behave as an overseas territory of that major (v39) -->
     <!-- See also: "Global - City States Overseas Territory" -->
     <Row Class="6" Name="GLOBAL_CS_OVERSEAS_TERRITORY" Value="0"/>
-	
+    
     <!-- City States at war with each other but allied to the same major will declare peace (v39) -->
     <!-- See also: "Global - City States No Allied Skirmishes" -->
     <Row Class="4" Name="GLOBAL_CS_NO_ALLIED_SKIRMISHES" Value="0"/>
-	
+    
     <!-- Mercantile City States acquired via a Merchant of Venice do not lose their unique resources (v22) -->
     <!-- See also: "Global - Venice Keeps Resources" -->
     <Row Class="6" Name="GLOBAL_VENICE_KEEPS_RESOURCES" Value="0"/>
-	
+    
     <!-- Units attacking from cities, forts or citadels will not follow-up if they kill the defender (v19) -->
     <!-- See also: "Global - No Followup From Cities" -->
-    <Row Class="6" Name="GLOBAL_NO_FOLLOWUP_FROM_CITIES" Value="1"/>
+    <Row Class="6" Name="GLOBAL_NO_FOLLOWUP_FROM_CITIES" Value="0"/>
 
     <!-- Units that can move after attacking can also capture civilian units (eg workers in empty barbarian camps) (v32) -->
     <!-- See also: "Global - No Followup From Cities" -->
-    <Row Class="5" Name="GLOBAL_CAPTURE_AFTER_ATTACKING" Value="1"/>
+    <Row Class="5" Name="GLOBAL_CAPTURE_AFTER_ATTACKING" Value="0"/>
 
     <!-- Trade routes can't be plundered on ocean tiles - too much sea to hide in, too many directions to escape in (v39) -->
     <!-- See also: "Global - No Ocean Plundering" -->
@@ -118,11 +122,11 @@
     <Row Class="5" Name="GLOBAL_NO_CONQUERED_SPACESHIPS" Value="0"/>
 
     <!-- Modified blockade logic (v52) -->
-	<!-- The standard logic says "if there is an enemy ship within two hexes of a port, it is blockaded" -->
-	<!-- HOWEVER - this includes the situations where -->
-	<!--   a) an enemy ship on the other side of a two-wide strip of land can blockade a port (ie enemy-land-port-water blockades the port) -->
-	<!--   b) a port with two non-adjacent exits (ie on a one-wide strip of land) can be blockaded by a non-adjacent enemy (ie enemy-water-port-water blockades the port) -->
-	<!-- What is needed is a check for every adjacent water plot to the port being blockaded, not a simple check of the port itself -->
+    <!-- The standard logic says "if there is an enemy ship within two hexes of a port, it is blockaded" -->
+    <!-- HOWEVER - this includes the situations where -->
+    <!--   a) an enemy ship on the other side of a two-wide strip of land can blockade a port (ie enemy-land-port-water blockades the port) -->
+    <!--   b) a port with two non-adjacent exits (ie on a one-wide strip of land) can be blockaded by a non-adjacent enemy (ie enemy-water-port-water blockades the port) -->
+    <!-- What is needed is a check for every adjacent water plot to the port being blockaded, not a simple check of the port itself -->
     <!-- See also: "Global - Allies Block Blockades" -->
     <Row Class="6" Name="GLOBAL_ADJACENT_BLOCKADES" Value="0"/>
     <!-- Adjacent allied ships block blockades by enemy ships 2 or more tiles away (v19) -->
@@ -145,7 +149,7 @@
     <!-- Row Class="0" Name="GLOBAL_GRATEFUL_SETTLERS_FRIENDLY_MULTIPLIER" Value="10"/ -->
     <!-- Row Class="0" Name="GLOBAL_GRATEFUL_SETTLERS_DIVISOR" Value="8"/ -->
 
-	<!-- Route To will only build roads, or upgrade road to rail, for human players (v44) -->
+    <!-- Route To will only build roads, or upgrade road to rail, for human players (v44) -->
     <!-- See also: "UI - No Auto-Embark Workers" -->
     <Row Class="4" Name="GLOBAL_QUICK_ROUTES" Value="0"/>
 
@@ -174,20 +178,23 @@
     <!-- See also: "Global - Great Work Vaults" -->
     <Row Class="6" Name="GLOBAL_GREATWORK_YIELDTYPES" Value="0" DbUpdates="1"/>
 
-	<!-- Units of this type will not be gifted by City States (v46) -->
+    <!-- Units of this type will not be gifted by City States (v46) -->
     <!-- See also: "Civilization - Morindim" -->
     <Row Class="4" Name="GLOBAL_EXCLUDE_FROM_GIFTS" Value="0" DbUpdates="1"/>
 
-	<!-- Units of this type may move after being upgraded (v46) -->
+    <!-- Units of this type may move after being upgraded (v46) -->
     <!-- See also: "Civilization - Morindim" -->
     <Row Class="5" Name="GLOBAL_MOVE_AFTER_UPGRADE" Value="0" DbUpdates="1"/>
 
-	<!-- Units of this type may never embark (v46) -->
+    <!-- Units of this type may never embark (v46) -->
     <!-- See also: "Civilization - Morindim" -->
     <Row Class="5" Name="GLOBAL_CANNOT_EMBARK" Value="0" DbUpdates="1"/>
 
-	<!-- Separates the Engineer, Scientist and Merchant GP counters (v52) -->
+    <!-- Separates the Engineer, Scientist and Merchant GP counters (v52) -->
     <Row Class="6" Name="GLOBAL_SEPARATE_GP_COUNTERS" Value="0"/>
+
+    <!-- Removes free GP (from buildings, policies, traits, etc) from the GP counters (v61) -->
+    <Row Class="6" Name="GLOBAL_TRULY_FREE_GP" Value="0"/>
 
     <!-- Tech bonuses from other teams require an embassy or spy in their capital and not from just having met them (v30) -->
     <!-- See also: "Diplomacy - Tech Bonuses" -->
@@ -200,14 +207,12 @@
 	<!-- Changes for the City State Diplomacy mod by Gazebo (v35) -->
 	<!-- See also: "Diplomacy - City States" -->
     <Row Class="6" Name="DIPLOMACY_CITYSTATES" Value="0"/>
-	<!-- The difficulty sub-feature of DIPLOMACY_CITYSTATES -->
-    <Row Class="6" Name="DIPLOMACY_CITYSTATES_DIFFICULTY" Value="1"/>
 	<!-- The quests sub-feature of DIPLOMACY_CITYSTATES -->
-    <Row Class="6" Name="DIPLOMACY_CITYSTATES_QUESTS" Value="1"/>
+    <Row Class="6" Name="DIPLOMACY_CITYSTATES_QUESTS" Value="0"/>
 	<!-- The resolutions sub-feature of DIPLOMACY_CITYSTATES -->
-    <Row Class="6" Name="DIPLOMACY_CITYSTATES_RESOLUTIONS" Value="1"/>
+    <Row Class="6" Name="DIPLOMACY_CITYSTATES_RESOLUTIONS" Value="0"/>
 	<!-- The hurry sub-feature of DIPLOMACY_CITYSTATES -->
-    <Row Class="6" Name="DIPLOMACY_CITYSTATES_HURRY" Value="1"/>
+    <Row Class="6" Name="DIPLOMACY_CITYSTATES_HURRY" Value="0"/>
 
 	<!-- Changes for the Civ4 Diplomacy Features mod by Putmalk (v36) -->
 	<!-- See also: "Diplomacy - CivIV Features" -->
@@ -275,6 +280,9 @@
     <Row Class="6" Name="UI_CITY_EXPANSION" Value="0" DbUpdates="1"/>
     <Row Class="0" Name="UI_CITY_EXPANSION_BUTTONPOPUP_MODDER_OFFSET" Value="0"/>
 
+    <!-- National Wonders (NW) requiring a building in every city exclude those being razed (in addition to excluding puppets) (v63) -->
+    <Row Class="5" Name="BUILDINGS_NW_EXCLUDE_RAZING" Value="0"/>
+
     <!-- Purchase of buildings in cities allows for any current production, (current production is depreciated) (v19) -->
     <!-- See also: "Global - Pro-rata Buildings Purchase" -->
     <Row Class="5" Name="BUILDINGS_PRO_RATA_PURCHASE" Value="0"/>
@@ -320,12 +328,14 @@
     <!-- Keeps overflow faith from spawning a Great Prophet if the base spawn chance is 100% (v21) -->
     <!-- See also: "Religion - Fixed Prophets" -->
     <Row Class="4" Name="RELIGION_KEEP_PROPHET_OVERFLOW" Value="0"/>
+    <!-- Inquisitors will keep religion out of allied City State cities if positioned adjacent (v60) -->
+    <Row Class="4" Name="RELIGION_ALLIED_INQUISITORS" Value="0"/>
     <!-- Send purchase notifications at every boundary and not just the first (v42) -->
     <!-- See also: "Religion - Recurring Purchase Notifications" -->
     <Row Class="4" Name="RELIGION_RECURRING_PURCHASE_NOTIFIY" Value="0"/>
 	<!-- Adds support for the Belief_PlotYieldChanges table (v35) -->
     <!-- See also: "Religion - Bonus Beliefs" -->
-    <Row Class="6" Name="RELIGION_PLOT_YIELDS" Value="0" DbUpdates="1"/>
+    <Row Class="6" Name="RELIGION_PLOT_YIELDS" Value="1" DbUpdates="1"/>
 	<!-- Adds support for Great People being purchased by faith to be specified on a policy (usually a finisher) and not hard-coded (v53) -->
     <Row Class="6" Name="RELIGION_POLICY_BRANCH_FAITH_GP" Value="0" DbUpdates="1"/>
     <!-- Adds support for "local" religions (ie ones that only have influence within the civ's own territory) (v48) -->
@@ -457,6 +467,11 @@
 	<!--   GameEvents.PlayerCanSpreadReligion.Add(function(iPlayer, iUnit, iPlotX, iPlotY) return true end) -->
 	<!--   GameEvents.PlayerCanRemoveHeresy.Add(function(iPlayer, iUnit, iPlotX, iPlotY) return true end) -->
     <Row Class="3" Name="EVENTS_RELIGION" Value="0"/>
+
+    <!-- Events sents on espionage outcomes (v63) -->
+    <!--   GameEvents.EspionageResult.Add(function(iPlayer, iSpy, iResult, iCityX, iCityY) end) -->
+    <!--   GameEvents.EspionageState.Add(function(iPlayer, iSpy, iState, iCityX, iCityY) end) -->
+    <Row Class="3" Name="EVENTS_ESPIONAGE" Value="0"/>
 
     <!-- Events sent by plots (v30) -->
 	<!--   GameEvents.PlayerCanBuild.Add(function(iPlayer, iUnit, iX, iY, iBuild) return true end) -->

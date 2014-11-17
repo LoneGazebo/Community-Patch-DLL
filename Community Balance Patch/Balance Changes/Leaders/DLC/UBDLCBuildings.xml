@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created by ModBuddy on 10/29/2014 1:20:05 AM -->
+<GameData>
+	<!-- Spanish Mission -->
+	<Buildings>
+		<Row>
+			<Type>BUILDING_MISSION</Type>
+			<BuildingClass>BUILDINGCLASS_CASTLE</BuildingClass>
+			<Cost>100</Cost>
+			<PrereqTech>TECH_CHIVALRY</PrereqTech>
+			<Help>TXT_KEY_BUILDING_MISSION_HELP</Help>
+			<Description>TXT_KEY_BUILDING_MISSION</Description>
+			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_MISSION_TEXT</Civilopedia>
+			<Strategy>TXT_KEY_BUILDING_MISSION_STRATEGY</Strategy>
+			<ArtDefineTag>CASTLE</ArtDefineTag>
+			<MinAreaSize>-1</MinAreaSize>
+			<AllowsRangeStrike>true</AllowsRangeStrike>
+			<Defense>500</Defense>
+			<ExtraCityHitPoints>125</ExtraCityHitPoints>
+			<HurryCostModifier>20</HurryCostModifier>
+			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
+			<PortraitIndex>16</PortraitIndex>
+			<ArtInfoCulturalVariation>true</ArtInfoCulturalVariation>
+			<DisplayPosition>1</DisplayPosition>
+			<NeverCapture>true</NeverCapture>
+		</Row>
+	</Buildings>
+	<Building_Flavors>
+		<Row>
+			<BuildingType>BUILDING_MISSION</BuildingType>
+			<FlavorType>FLAVOR_DEFENSE</FlavorType>
+			<Flavor>50</Flavor>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_MISSION</BuildingType>
+			<FlavorType>FLAVOR_PRODUCTION</FlavorType>
+			<Flavor>50</Flavor>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_MISSION</BuildingType>
+			<FlavorType>FLAVOR_RELIGION</FlavorType>
+			<Flavor>30</Flavor>
+		</Row>
+	</Building_Flavors>
+	<Building_InstantYield>
+		<Row>
+			<BuildingType>BUILDING_MISSION</BuildingType>
+			<YieldType>YIELD_FAITH</YieldType>
+			<Yield>60</Yield>
+		</Row>
+	</Building_InstantYield>
+	<Civilization_BuildingClassOverrides>
+		<Row>
+			<CivilizationType>CIVILIZATION_SPAIN</CivilizationType>
+			<BuildingClassType>BUILDINGCLASS_CASTLE</BuildingClassType>
+			<BuildingType>BUILDING_MISSION</BuildingType>
+		</Row>
+	</Civilization_BuildingClassOverrides>
+	<Building_YieldChanges>
+		<Row>
+			<BuildingType>BUILDING_MISSION</BuildingType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>3</Yield>
+		</Row>
+	</Building_YieldChanges>
+	<Language_en_US>
+		<Row Tag="TXT_KEY_BUILDING_MISSION">
+			<Text>Mission</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_BUILDINGS_MISSION_TEXT">
+			<Text>
+				The history of Spain's missions in the American South and Southwest reveals much about Spain's strategy, contributions, and failures in these regions. The expeditions of Francisco Vázquez de Coronado (1540 42) and Juan de Oñate (1598) convinced Spanish authorities that no wealthy Indian empires like that of the Aztecs were to be found north of Mexico. Consequently the Spanish came to view the northern frontier of their empire as a defensive barrier and as a place where pagan souls might be saved. In what are now the states of Florida, Texas, New Mexico, Arizona, and California, missions were founded to propagate the doctrines of the Roman Catholic church. To protect these missions as well as the mines and ranches of Mexico from attack from the north, the Spanish established presidios fortified garrisons of troops.
+				Franciscan priests founded a series of missions in Florida after 1573, mainly along the Atlantic and Gulf coasts. The first missions in New Mexico were established by friars accompanying Oñate's expedition of 1598; during the next 100 years Franciscan priests founded more than 40 additional missions, most of them along the Rio Grande. Especially influential was Father Alonso de Benavides, who directed the founding of 10 missions between 1625 and 1629 and thereafter promoted them ably in Spain. By 1680 missions had been established among most of the New Mexican Indians.
+			</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_MISSION_HELP">
+			<Text>Unique Spanish replacement for the Castle. Is cheaper and weaker than the Castle that it replaces, but grants +3 [ICON_PRODUCTION] Production and a large amount of [ICON_PEACE] Faith when it is constructed. Does not require Walls in order to be built.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_MISSION_STRATEGY">
+			<Text>Build these unique Castles to quickly boost a City's productivity and defense, bypass the need for Walls, and to receive a large amount of faith.</Text>
+		</Row>
+	</Language_en_US>
+	<!-- Jelling Stones -->
+	<Buildings>
+		<Row>
+			<Type>BUILDING_JELLING_STONES</Type>
+			<BuildingClass>BUILDINGCLASS_NATIONAL_EPIC</BuildingClass>
+			<Cost>125</Cost>
+			<PrereqTech>TECH_DRAMA</PrereqTech>
+			<Help>TXT_KEY_BUILDING_JELLING_STONES_HELP</Help>
+			<Description>TXT_KEY_BUILDING_JELLING_STONES</Description>
+			<Civilopedia>TXT_KEY_BUILDING_JELLING_STONES_PEDIA</Civilopedia>
+			<Strategy>TXT_KEY_BUILDING_JELLING_STONES_STRATEGY</Strategy>
+			<ArtDefineTag>ART_DEF_BUILDING_NATIONAL_EPIC</ArtDefineTag>
+			<GreatPeopleRateModifier>33</GreatPeopleRateModifier>
+			<NukeImmune>true</NukeImmune>
+			<NationalPopRequired>15</NationalPopRequired>
+			<NumCityCostMod>20</NumCityCostMod>
+			<GoldenAge>true</GoldenAge>
+			<HurryCostModifier>-1</HurryCostModifier>
+			<MinAreaSize>-1</MinAreaSize>
+			<TechEnhancedTourism>3</TechEnhancedTourism>
+			<EnhancedYieldTech>TECH_IRON_WORKING</EnhancedYieldTech>
+			<NeverCapture>true</NeverCapture>
+			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
+			<PortraitIndex>25</PortraitIndex>
+		</Row>
+	</Buildings>
+	<Building_Flavors>
+		<Row>
+			<BuildingType>BUILDING_JELLING_STONES</BuildingType>
+			<FlavorType>FLAVOR_CULTURE</FlavorType>
+			<Flavor>50</Flavor>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_JELLING_STONES</BuildingType>
+			<FlavorType>FLAVOR_GREAT_PEOPLE</FlavorType>
+			<Flavor>30</Flavor>
+		</Row>
+	</Building_Flavors>
+	<Building_InstantYield>
+		<Row>
+			<BuildingType>BUILDING_JELLING_STONES</BuildingType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>250</Yield>
+		</Row>
+	</Building_InstantYield>
+	<Civilization_BuildingClassOverrides>
+		<Row>
+			<CivilizationType>CIVILIZATION_DENMARK</CivilizationType>
+			<BuildingClassType>BUILDINGCLASS_NATIONAL_EPIC</BuildingClassType>
+			<BuildingType>BUILDING_JELLING_STONES</BuildingType>
+		</Row>
+	</Civilization_BuildingClassOverrides>
+	<Building_YieldChanges>
+		<Row>
+			<BuildingType>BUILDING_JELLING_STONES</BuildingType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>3</Yield>
+		</Row>
+	</Building_YieldChanges>
+	<Language_en_US>
+		<Row Tag="TXT_KEY_BUILDING_JELLING_STONES">
+			<Text>Jelling Stones</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_JELLING_STONES_PEDIA">
+			<Text>
+				The Jelling stones are massive carved runestones from the 10th century, found at the town of Jelling in Denmark. The older of the two Jelling stones was raised by King Gorm the Old in memory of his wife Thyra. The larger of the two stones was raised by King Gorm's son, Harald Bluetooth in memory of his parents, celebrating his conquest of Denmark and Norway, and his conversion of the Danes to Christianity. The runic inscriptions on these stones are considered the most well known in Denmark.
+			</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_JELLING_STONES_HELP">
+			<Text>Unique Danish replacement for the National Epic. This National Wonder contains no Great Works of Literature slots, however it produces +3 [ICON_TOURISM] Tourism and [ICON_CULTURE] Culture and increases the Great Person rate for the city where it is built by 33%. Grants a large amount of [ICON_CULTURE] Culture and a [ICON_GOLDEN_AGE] Golden Age when completed.[NEWLINE][NEWLINE]Requires 15 National Population to be constructed.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_JELLING_STONES_STRATEGY">
+			<Text>+33% Great Person rate, +3 [ICON_CULTURE] Culture, +3 [ICON_TOURISM] and an instant boost of 250 [ICON_CULTURE] Culture. Begins a [ICON_GOLDEN_AGE] Golden Age.[NEWLINE][NEWLINE]Requires 15 National Population to be constructed.</Text>
+		</Row>
+	</Language_en_US>
+</GameData>

@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created by ModBuddy on 7/9/2014 12:11:28 AM -->
+<GameData>
+	<CitySpecialization_Flavors>
+		<!-- Flavors for growth and production increased for specs that don't have them as primary -->
+		<Update>
+			<Set Flavor="20" />
+			<Where CitySpecializationType="CITYSPECIALIZATION_COMMERCE" FlavorType="FLAVOR_PRODUCTION" />
+		</Update>
+		<Update>
+			<Set Flavor="30" />
+			<Where CitySpecializationType="CITYSPECIALIZATION_COMMERCE" FlavorType="FLAVOR_GROWTH" />
+		</Update>
+		<Update>
+			<Set Flavor="20" />
+			<Where CitySpecializationType="CITYSPECIALIZATION_SCIENCE" FlavorType="FLAVOR_PRODUCTION" />
+		</Update>
+		<Update>
+			<Set Flavor="30" />
+			<Where CitySpecializationType="CITYSPECIALIZATION_GENERAL_ECONOMIC" FlavorType="FLAVOR_GROWTH" />
+		</Update>
+		<Update>
+			<Set Flavor="25" />
+			<Where CitySpecializationType="CITYSPECIALIZATION_GENERAL_ECONOMIC" FlavorType="FLAVOR_PRODUCTION" />
+		</Update>
+		<!-- Slight culture flavor decrease so it's at least level with science -->
+		<Update>
+			<Set Flavor="20" />
+			<Where CitySpecializationType="CITYSPECIALIZATION_GENERAL_ECONOMIC" FlavorType="FLAVOR_CULTURE" />
+		</Update>
+	</CitySpecialization_Flavors>
+	
+	<CitySpecialization_TargetYields>
+		<!-- Target gold yields all increased by 0.3 per pop, science yields by 0.5 per pop; helps the AI out early,
+			but it still kind of falters late because the extra 0.5 per pop stays 0.5 throughout the entire game -->
+		<Update>
+			<Set Yield="80" />
+			<Where CitySpecializationType="CITYSPECIALIZATION_GENERAL_ECONOMIC" YieldType="YIELD_GOLD" />
+		</Update>
+		<Update>
+			<Set Yield="100" />
+			<Where CitySpecializationType="CITYSPECIALIZATION_GENERAL_ECONOMIC" YieldType="YIELD_SCIENCE" />
+		</Update>
+		<Update>
+			<Set Yield="30" />
+			<Where CitySpecializationType="CITYSPECIALIZATION_MILITARY_TRAINING" YieldType="YIELD_GOLD" />
+		</Update>
+		<Update>
+			<Set Yield="50" />
+			<Where CitySpecializationType="CITYSPECIALIZATION_MILITARY_TRAINING" YieldType="YIELD_SCIENCE" />
+		</Update>
+		<Update>
+			<Set Yield="30" />
+			<Where CitySpecializationType="CITYSPECIALIZATION_MILITARY_NAVAL" YieldType="YIELD_GOLD" />
+		</Update>
+		<Update>
+			<Set Yield="50" />
+			<Where CitySpecializationType="CITYSPECIALIZATION_MILITARY_NAVAL" YieldType="YIELD_SCIENCE" />
+		</Update>
+		<Update>
+			<Set Yield="130" />
+			<Where CitySpecializationType="CITYSPECIALIZATION_COMMERCE" YieldType="YIELD_GOLD" />
+		</Update>
+		<Update>
+			<Set Yield="50" />
+			<Where CitySpecializationType="CITYSPECIALIZATION_COMMERCE" YieldType="YIELD_SCIENCE" />
+		</Update>
+		<Update>
+			<Set Yield="30" />
+			<Where CitySpecializationType="CITYSPECIALIZATION_SCIENCE" YieldType="YIELD_GOLD" />
+		</Update>
+		<Update>
+			<Set Yield="150" />
+			<Where CitySpecializationType="CITYSPECIALIZATION_SCIENCE" YieldType="YIELD_SCIENCE" />
+		</Update>
+	</CitySpecialization_TargetYields>
+</GameData>

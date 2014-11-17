@@ -38,7 +38,7 @@ WHERE Tag = 'TXT_KEY_POLICY_REPRESENTATION_HELP' AND EXISTS (SELECT * FROM COMMU
 
 -- Meritocracy
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Meritocracy[ENDCOLOR][NEWLINE] When you expend a Great Person, receive a large amount of [ICON_GOLDEN_AGE] Golden Age Points and [ICON_RESEARCH] Science. Bonus scales with Era.'
+SET Text = '[COLOR_POSITIVE_TEXT]Meritocracy[ENDCOLOR][NEWLINE] When you expend a Great Person, receive 40 [ICON_GOLDEN_AGE] Golden Age Points and [ICON_RESEARCH] Science. Bonus scales with Era.'
 WHERE Tag = 'TXT_KEY_POLICY_MERITOCRACY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 -- Finisher

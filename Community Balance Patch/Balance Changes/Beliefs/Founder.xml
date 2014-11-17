@@ -183,7 +183,7 @@
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_PILGRIMAGE</BeliefType>
-			<BuildingClassType>BUILDINGCLASS_BASILICA</BuildingClassType>
+			<BuildingClassType>BUILDINGCLASS_APOSTOLIC_PALACE</BuildingClassType>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_WORLD_CHURCH</BeliefType>

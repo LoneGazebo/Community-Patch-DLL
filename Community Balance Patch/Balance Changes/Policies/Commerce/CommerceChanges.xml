@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created by ModBuddy on 11/4/2014 3:43:11 PM -->
+<GameData>
+  <!-- Commerce -->
+	<Policy_YieldFromConstruction>
+		<Row>
+			<PolicyType>POLICY_COMMERCE</PolicyType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>25</Yield>
+		</Row>
+	</Policy_YieldFromConstruction>
+</GameData>

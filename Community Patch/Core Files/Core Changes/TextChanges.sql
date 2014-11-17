@@ -25,10 +25,6 @@ SET Text = 'An important defensive National Wonder for a technology-driven civil
 WHERE Tag = 'TXT_KEY_BUILDING_INTELLIGENCE_AGENCY_STRATEGY';
 
 UPDATE Language_en_US
-SET Text = '{1_SpyRank} {2_SpyName} was killed by {TXT_KEY_GRAMMAR_A_AN &lt;&lt; {3_CivAdj}} counterspy while operating out of {4_CityName}!'
-WHERE Tag = 'TXT_KEY_NOTIFICATION_SPY_WAS_KILLED';
-
-UPDATE Language_en_US
 SET Text = 'Conducting Espionage'
 WHERE Tag = 'TXT_KEY_SPY_STATE_ESTABLISHED_SURVEILLANCE';
 

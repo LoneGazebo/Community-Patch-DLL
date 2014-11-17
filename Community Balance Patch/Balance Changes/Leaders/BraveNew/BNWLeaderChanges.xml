@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created by ModBuddy on 10/29/2014 1:39:44 AM -->
+<GameData>
+<!-- Ahmad -->
+	<Trait_YieldChangesPerTradePartner>
+		<Row>
+			<TraitType>TRAIT_GATEWAY_AFRICA</TraitType>
+			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
+			<Yield>2</Yield>
+		</Row>
+	</Trait_YieldChangesPerTradePartner>
+ <!-- Kasbah -->
+	<Improvement_Yields>
+		<Row>
+			<ImprovementType>IMPROVEMENT_KASBAH</ImprovementType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>1</Yield>
+		</Row>
+	</Improvement_Yields>
+<!-- Candi -->
+	<Building_GrowthExtraYield>
+		<Row>
+			<BuildingType>BUILDING_CANDI</BuildingType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>30</Yield>
+		</Row>
+	</Building_GrowthExtraYield>
+<!-- Ducal Stables -->
+	<Building_YieldChanges>
+		<Row>
+			<BuildingType>BUILDING_DUCAL_STABLE</BuildingType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>1</Yield>
+		</Row>
+	</Building_YieldChanges>
+</GameData>

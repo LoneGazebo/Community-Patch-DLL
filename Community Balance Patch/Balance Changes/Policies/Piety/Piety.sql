@@ -79,6 +79,10 @@ UPDATE Building_YieldChanges
 SET Yield = '0'
 WHERE BuildingType = 'BUILDING_MONASTERY' AND YieldType = 'YIELD_CULTURE' and EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
+UPDATE Building_YieldChanges
+SET Yield = '1'
+WHERE BuildingType = 'BUILDING_MONASTERY' AND YieldType = 'YIELD_FAITH' and EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
+
 -- Free Religion (Now Tolerance)
 UPDATE Policies
 SET FaithCostModifier = '-4'
@@ -91,10 +95,6 @@ WHERE Type = 'POLICY_FREE_RELIGION' AND EXISTS (SELECT * FROM COMMUNITY WHERE Ty
 UPDATE Policies
 SET MinorityHappinessModCapital = '-100'
 WHERE Type = 'POLICY_FREE_RELIGION' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
-
-UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Religious Tolerance[ENDCOLOR][NEWLINE]Cities with a majority religion also get the Pantheon belief bonus of the second most popular religion. Reduces [ICON_HAPPINESS_3] Religious Strife by 50% in all Cities and an additional 50% in [ICON_CAPITAL] Capital.'
-WHERE Tag = 'TXT_KEY_POLICY_FREE_RELIGION_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 -- Finisher
 UPDATE Policy_FreeUnitClasses

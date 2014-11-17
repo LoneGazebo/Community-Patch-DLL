@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameData>
+	<!--
+	<Technologies>
+		<Update>
+			<Where Type="TECH_PHILOSOPHY" />
+			<Set ResearchAgreementTradingAllowed="0" />
+		</Update>
+	</Technologies>
+	-->
+	
+	<Defines>
+
+		
+		<!-- 
+		<Update>
+			<Where Name="EACH_GOLD_VALUE_PERCENT"/>
+			<Set Value="125"/> 100
+		</Update>
+		 -->
+
+		<!--
+		<Update>
+			<Where Name="MINOR_CIV_GOLD_GIFT_GAME_MULTIPLIER"/>
+			<Set Value="3"/> 2 
+		</Update>
+		<Update>
+			<Where Name="MINOR_CIV_GOLD_GIFT_GAME_DIVISOR"/>
+			<Set Value="3"/> 3
+		</Update>
+		-->
+
+
+		<!-- Weights -->
+
+		
+		<!--
+		<Row Name="MINOR_CIV_QUEST_WEIGHT_MULTIPLIER_FRIENDLY_FIND_PLAYER">
+			<Value>10000</Value>
+		</Row>
+		<Row Name="MINOR_CIV_QUEST_WEIGHT_MULTIPLIER_FRIENDLY_FIND_NATURAL_WONDER">
+			<Value>10000</Value>
+		</Row>
+		<Row Name="MINOR_CIV_QUEST_WEIGHT_MULTIPLIER_FRIENDLY_FIND_KILL_CAMP">
+			<Value>1000</Value>
+		</Row>
+		<Row Name="MINOR_CIV_QUEST_WEIGHT_MULTIPLIER_FRIENDLY_FIND_KILL_CITY_STATE">
+			<Value>0</Value>
+		</Row>
+		<Update>
+			<Where Name="MINOR_CIV_QUEST_WEIGHT_MULTIPLIER_FRIENDLY_ROUTE"/>
+			<Set Value="500"/>
+		</Update>
+		<Update>
+			<Where Name="MINOR_CIV_QUEST_WEIGHT_MULTIPLIER_MARITIME_FIND_PLAYER"/>
+			<Set Value="10000"/>
+		</Update>
+		<Update>
+			<Where Name="MINOR_CIV_QUEST_WEIGHT_MULTIPLIER_MARITIME_ROUTE"/>
+			<Set Value="1000"/>
+		</Update>
+		<Update>
+			<Where Name="MINOR_CIV_QUEST_WEIGHT_MULTIPLIER_MARITIME_CONNECT_RESOURCE"/>
+			<Set Value="1000"/>
+		</Update>
+		<Update>
+			<Where Name="MINOR_CIV_QUEST_WEIGHT_MULTIPLIER_CULTURED_CONSTRUCT_WONDER"/>
+			<Set Value="1000"/>
+		</Update>
+		<Update>
+			<Where Name="MINOR_CIV_QUEST_WEIGHT_MULTIPLIER_CULTURED_GREAT_PERSON"/>
+			<Set Value="1000"/>
+		</Update>
+		-->
+		
+		<!--
+				Warlike City-State
+				
+			   Tiers
+			   1. Unfriendly and undiscovered civs or natural wonders
+				  Check next tier.
+			   2. Barbarian camps nearby
+				  Request assistance against a camp.
+			   3. City-states nearby
+				  Request a CS killed.
+			   4. Friendly or Allied
+				  Road for military units.
+		-->
+		<!--
+		<Update>
+			<Where Name="MINOR_CIV_QUEST_WEIGHT_MULTIPLIER_MILITARISTIC_KILL_CAMP"/>
+			<Set Value="10000"/>
+		</Update>
+		<Row Name="MINOR_CIV_QUEST_WEIGHT_MULTIPLIER_HOSTILE_KILL_CAMP">
+			<Value>10000</Value>
+		</Row>
+		<Row Name="MINOR_CIV_QUEST_WEIGHT_MULTIPLIER_MILITARISTIC_ROUTE">
+			<Value>1000</Value>
+		</Row>
+		<Update>
+			<Where Name="MINOR_CIV_QUEST_WEIGHT_MULTIPLIER_HOSTILE_ROUTE"/>
+			<Set Value="1000"/>
+		</Update>
+		<Update>
+			<Where Name="MINOR_CIV_QUEST_WEIGHT_MULTIPLIER_MILITARISTIC_KILL_CITY_STATE"/>
+			<Set Value="100"/>
+		</Update>
+		<Update>
+			<Where Name="MINOR_CIV_QUEST_WEIGHT_MULTIPLIER_HOSTILE_KILL_CITY_STATE"/>
+			<Set Value="100"/>
+		</Update>
+		<Update>
+			<Where Name="MINOR_CIV_QUEST_WEIGHT_MULTIPLIER_MILITARISTIC_FIND_NATURAL_WONDER"/>
+			<Set Value="50"/>
+		</Update>
+		<Update>
+			<Where Name="MINOR_CIV_QUEST_WEIGHT_MULTIPLIER_HOSTILE_FIND_NATURAL_WONDER"/>
+			<Set Value="50"/>
+		</Update>
+		-->
+
+		<!--
+				Irrational City-State
+				Random hostile or peaceful personality when analyzing tier level.
+		-->
+		
+		<!--
+				Isolationist City-State
+				Minds its own business, can only be bribed.
+		-->
+		<Row Name="MINOR_CIV_QUEST_WEIGHT_MULTIPLIER_NEUTRAL_FIND_PLAYER">
+			<Value>10</Value>
+		</Row>
+		<Row Name="MINOR_CIV_QUEST_WEIGHT_MULTIPLIER_NEUTRAL_FIND_NATURAL_WONDER">
+			<Value>10</Value>
+		</Row>
+		<Row Name="MINOR_CIV_QUEST_WEIGHT_MULTIPLIER_NEUTRAL_FIND_KILL_CAMP">
+			<Value>0</Value>
+		</Row>
+		<Update>
+			<Where Name="MINOR_CIV_QUEST_WEIGHT_MULTIPLIER_NEUTRAL_KILL_CITY_STATE"/>
+			<Set Value="0"/>
+		</Update>
+		<Row Name="MINOR_CIV_QUEST_WEIGHT_MULTIPLIER_NEUTRAL_ROUTE">
+			<Value>10</Value>
+		</Row>
+		<Row Name="MINOR_CIV_QUEST_WEIGHT_MULTIPLIER_NEUTRAL_CONNECT_RESOURCE">
+			<Value>0</Value>
+		</Row>
+		<Row Name="MINOR_CIV_QUEST_WEIGHT_MULTIPLIER_NEUTRAL_CONSTRUCT_WONDER">
+			<Value>10</Value>
+		</Row>
+		<Row Name="MINOR_CIV_QUEST_WEIGHT_MULTIPLIER_NEUTRAL_GREAT_PERSON">
+			<Value>0</Value>
+		</Row>
+	</Defines>
+</GameData>

@@ -28,6 +28,28 @@
 			<ResponseType>RESPONSE_INFLUENTIAL_ON_HUMAN_MODERN</ResponseType>
 			<Response>TXT_KEY_GENERIC_INFLUENTIAL_ON_HUMAN_MODERN%</Response>
 		</Row>
+
+		<!-- Victory Competition Diplomacy Statements -->
+		<Row LeaderType="GENERIC">
+			<ResponseType>DIPLO_MESSAGE_VICTORY_COMPETITION_ANNOUNCE_WORLD_CONQUEST</ResponseType>
+			<Response>TXT_KEY_GENERIC_COMPETITION_ANNOUNCE_WORLD_CONQUEST%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>DIPLO_MESSAGE_VICTORY_COMPETITION_ANNOUNCE_WORLD_CONGRESS</ResponseType>
+			<Response>TXT_KEY_GENERIC_COMPETITION_ANNOUNCE_WORLD_CONGRESS%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>DIPLO_MESSAGE_VICTORY_COMPETITION_ANNOUNCE_CULTURE</ResponseType>
+			<Response>TXT_KEY_GENERIC_COMPETITION_ANNOUNCE_CULTURE%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>DIPLO_MESSAGE_VICTORY_COMPETITION_ANNOUNCE_SPACESHIP</ResponseType>
+			<Response>TXT_KEY_GENERIC_COMPETITION_ANNOUNCE_SPACESHIP%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>DIPLO_MESSAGE_VICTORY_COMPETITION_ANNOUNCE_CONFUSED</ResponseType>
+			<Response>TXT_KEY_GENERIC_COMPETITION_ANNOUNCE_CONFUSED%</Response>
+		</Row>
 	</Diplomacy_Responses>
 	<Language_en_US>
 		<!-- Human over AI -->		
@@ -38,17 +60,49 @@
 			<Text>I lament that the traditions of my ancestors are being swept away by the powerful force of your influence. Is this the beginning of an age of cultural darkness, or are you the bringer of enlightenment?</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GENERIC_INFLUENTIAL_ON_AI_MODERN_1">
-			<Text>We were once a proud, independent culture, but now all that remains of our former glory rests on dusty shelves. Someday you too will join us in the archives of history...but today is not that day.</Text>
+			<Text>We were once a proud, independent culture, but now all that remains of our former glory rests on dusty shelves. Someday you too will join us in the archives of history ... but today is not that day.</Text>
 		</Row>
 		<!-- AI over Human -->
 		<Row Tag="TXT_KEY_GENERIC_INFLUENTIAL_ON_HUMAN_CLASSICAL_1">
-			<Text>I am happy to see that you have finally abandoned your miserable, barbaric customs. Do not despair, as it is far better for a culture to die by choice than by the sword...though yours, perhaps, may succumb to both.</Text>
+			<Text>I am happy to see that you have finally abandoned your miserable, barbaric customs. Do not despair, as it is far better for a culture to die by choice than by the sword ... though yours, perhaps, may succumb to both.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GENERIC_INFLUENTIAL_ON_HUMAN_RENAISSANCE_1">
 			<Text>Do not fear the new way of life that has enthralled your people. You will soon forget all about the backwards and rude traditions you laughably called 'culture.'</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GENERIC_INFLUENTIAL_ON_HUMAN_MODERN_1">
 			<Text>There is little space now for the diverse traditions of bygone eras. Unfortunately for you, it seems that your culture has been pushed out. Don't worry, I plan on dedicating a large section of our new antiquities museum to you.</Text>
+		</Row>
+
+		<!-- Only made if the AI is competitive, and the player and the AI are advancing towards the same victory condition. -->
+		<Row Tag="TXT_KEY_GENERIC_COMPETITION_ANNOUNCE_WORLD_CONQUEST1">
+			<Text>This world is not big enough for two would-be conquerors. Though I see that you are on the warpath, I do not fear you or your power. My armies will meet yours on the battlefield soon enough, a challenge that will forever decide the fate of humanity. I can only hope that such a conflict will not destroy us both. Prepare yourself!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_COMPETITION_ANNOUNCE_WORLD_CONQUEST2">
+			<Text>Do you hear the footsteps of my armies? Fear me, and fear them, as there cannot be two world conquerors on this day. I seek a place in the sun, an empire that streches around the world. Unfortunately for you, your army stands in my way. Not for long.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_COMPETITION_ANNOUNCE_WORLD_CONGRES1">
+			<Text>You will soon bend your knee to my silver-tongued diplomats. I've watched your petty envoys and bureaucrats attempt to seize control of the World Congress for some time now, but I will tolerate it no longer. Global hegemony shall be mine!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_COMPETITION_ANNOUNCE_WORLD_CONGRES2">
+			<Text>You'll be happy to know that I've just finished revising my acceptance speech for the position of 'Supreme Leader of Earth.' I do hope you'll attend the reception, as I've reserved you a place at my side. I think.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_COMPETITION_ANNOUNCE_CULTURE1">
+			<Text>I received a shipment of your so-called 'cultural artifacts' the other day. How quaint. While you may have swayed a few lesser cultures to your side, you will all soon know the meaning of true culture. Prepare for an onslaught, not of firepower, but of my cultural superiority!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_COMPETITION_ANNOUNCE_CULTURE2">
+			<Text>I know you will agree that there are few sights as glorious as that of a foreign army conquering a city full of willing, passive citizens, especially when that army is composed of musicians, artists, and other cultural luminaries. Unfortunately for you, there is only room for one cultural conqueror on this planet. Prepare to be enlightened.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_COMPETITION_ANNOUNCE_SPACESHIP1">
+			<Text>Though we both stare into the night sky and dream of interstellar empire, historians will remember only one of us for being the first to accomplish such a great task: me. Do not fret, as our mutual love of science need not lead to war. In fact, how would you like a seat on our first spaceship? Being a footnote of history is better than not being remembered at all, right?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_COMPETITION_ANNOUNCE_SPACESHIP2">
+			<Text>We shall soon slip the surly bonds of Earth and pierce the heavens in our shiny new rockets. I'm sorry, by 'we' I meant my people, not yours. We shall be the first to Alpha Centauri, this I can promise you. If you insist on racing us, I'll give you this advice: make sure the pointy end of your rocket is facing upwards.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_COMPETITION_ANNOUNCE_CONFUSED1">
+			<Text>I have no idea what you are up to, or what kind of mark you are trying to make on history, but know this: we're watching you, and we have our own plans. And they're probably better than yours. Maybe.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_COMPETITION_ANNOUNCE_CONFUSED2">
+			<Text>One of my historians came by the other day to ask me about you and your impact on world history. Do you want to know what I told him? Nothing, and not for a lack of trying. What are you doing over there, anyways? Feeling a bit listless, maybe?</Text>
 		</Row>
 		
 		<!-- New Building Pop Requirements -->
@@ -70,16 +124,29 @@
 		</Row>
 
 		<!-- New Spy Action Texts -->
+		<!-- Spy Killed -->
+
+		<Row Tag="TXT_KEY_NOTIFICATION_SPY_WAS_KILLED_S_ADVANCED">
+			<Text>{1_SpyName} killed in {2_CityName}!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_SPY_WAS_KILLED_ADVANCED">
+			<Text>Your spy {1_SpyRank} {2_SpyName} was killed by {TXT_KEY_GRAMMAR_A_AN &lt;&lt; {3_CivAdj}} counterspy while operating out of {4_CityName}!</Text>
+		</Row>
 		
+		<!-- Killed a Spy -->
+		<Row Tag="TXT_KEY_NOTIFICATION_KILLED_A_SPY_ADVANCED">
+			<Text>Your spy {1_SpyRank} {2_SpyName} killed {TXT_KEY_GRAMMAR_A_AN &lt;&lt; {3_CivAdj}} spy operating out of {4_CityName}!</Text>
+		</Row>
 
 		<!-- Building Damaged -->
 
 		<!-- Spy Owner Notification (Wonder)  -->
 		<Row Tag="TXT_KEY_NOTIFICATION_SPY_SETBACK_WONDER_S">
-			<Text>Wonder construction delayed in {1_CityName}!</Text>
+			<Text>Wonder construction sabotaged in {1_CityName}!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_SPY_SETBACK_WONDER">
-			<Text>{1_SpyRank} {2_SpyName} in {3_CityName} has delayed a Wonder, costing the city {4_Setback} [ICON_PRODUCTION] Production!</Text>
+			<Text>{1_SpyRank} {2_SpyName} in {3_CityName} sabotaged a Wonder, costing the city {4_Setback} [ICON_PRODUCTION] Production!</Text>
 		</Row>
 
 		<!-- Spy Owner Notification (Building)  -->
@@ -87,7 +154,7 @@
 			<Text>Building project sabotaged in {1_CityName}!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_SPY_SETBACK_BUIDLING">
-			<Text>{1_SpyRank} {2_SpyName} in {3_CityName} has sabotaged a building project, costing the city {4_Setback} [ICON_PRODUCTION] Production!</Text>
+			<Text>{1_SpyRank} {2_SpyName} in {3_CityName} sabotaged a building project, costing the city {4_Setback} [ICON_PRODUCTION] Production!</Text>
 		</Row>
 
 		<!-- Detected-->
@@ -95,50 +162,50 @@
 			<Text>{1_BuildingName} sabotaged in {2_CityName}!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_BUILDING_DAMAGED_SPY_DETECTED_W_TIP">
-			<Text>An unidentified spy has sabotaged production of {1_Building} in {2_CityName}, costing you {3_Lost} [ICON_PRODUCTION] Production![NEWLINE]You may want to place one of your own spies in this city to help protect it in the future.</Text>
+			<Text>An unidentified spy sabotaged your {1_Building} in {2_CityName}, costing you {3_Lost} [ICON_PRODUCTION] Production![NEWLINE]You may want to place one of your own spies in this city to help protect it in the future.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_BUILDING_DAMAGED_SPY_DETECTED">
-			<Text>An unidentified spy has delayed production of {1_Building} in {2_CityName}, costing you {3_Lost} [ICON_PRODUCTION] Production!</Text>
+			<Text>An unidentified spy sabotaged your {1_Building} in {2_CityName}, costing you {3_Lost} [ICON_PRODUCTION] Production!</Text>
 		</Row>
 		<!-- Identified  -->
 		<Row Tag="TXT_KEY_NOTIFICATION_BUILDING_DAMAGED_SPY_IDENTIFIED_S">
-			<Text>{1_CivShortDesc} delayed your {2_BuildingName} in {3_CityName}!</Text>
+			<Text>{1_CivShortDesc} sabotaged your {2_BuildingName} in {3_CityName}!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_BUILDING_DAMAGED_SPY_IDENTIFIED_W_TIP">
-			<Text>{TXT_KEY_GRAMMAR_UPPER_A_AN &lt;&lt; {1_CivAdj}} spy damaged the construction of {2_Building} in {3_CityName}, costing you {4_Lost} [ICON_PRODUCTION] Production![NEWLINE]You may want to place one of your own spies in this city to help protect it in the future.</Text>
+			<Text>{TXT_KEY_GRAMMAR_UPPER_A_AN &lt;&lt; {1_CivAdj}} spy sabotaged your {2_Building} in {3_CityName}, costing you {4_Lost} [ICON_PRODUCTION] Production![NEWLINE]You may want to place one of your own spies in this city to help protect it in the future.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_BUILDING_DAMAGED_SPY_IDENTIFIED">
-			<Text>{TXT_KEY_GRAMMAR_UPPER_A_AN &lt;&lt; {1_CivAdj}} spy damaged the construction of {2_Building} in {3_CityName}, costing you {4_Lost} [ICON_PRODUCTION] Production!</Text>
+			<Text>{TXT_KEY_GRAMMAR_UPPER_A_AN &lt;&lt; {1_CivAdj}} spy sabotaged your {2_Building} in {3_CityName}, costing you {4_Lost} [ICON_PRODUCTION] Production!</Text>
 		</Row>
 		<!-- Unit Damaged -->
 
 		<!-- Spy Owner Notification (Unit)  -->
 		<Row Tag="TXT_KEY_NOTIFICATION_SPY_SETBACK_UNIT_S">
-			<Text>Military Mutiny in {1_CityName}!</Text>
+			<Text>Military plans stolen from {1_CityName}!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_SPY_SETBACK_UNIT">
-			<Text>{1_SpyRank} {2_SpyName} has caused a military mutiny in {3_CityName}, costing the city {4_Setback} [ICON_PRODUCTION] Production towards their current project!</Text>
+			<Text>{1_SpyRank} {2_SpyName} stole military plans from {3_CityName}, costing the city {4_Setback} [ICON_PRODUCTION] Production towards their current military unit!</Text>
 		</Row>
 
 		<!-- Detected-->
 		<Row Tag="TXT_KEY_NOTIFICATION_UNIT_DAMAGED_SPY_DETECTED_S">
-			<Text>{1_UnitName} production delayed in {2_CityName}!</Text>
+			<Text>{1_UnitName} delayed in {2_CityName}!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_UNIT_DAMAGED_SPY_DETECTED_W_TIP">
-			<Text>An unidentified spy has delayed {1_Unit} production in {2_CityName}, costing you {3_Lost} [ICON_PRODUCTION] Production![NEWLINE]You may want to place one of your own spies in this city to help protect it in the future.</Text>
+			<Text>An unidentified spy stole military plans from {2_CityName}, costing your {1_Unit} {3_Lost} [ICON_PRODUCTION] Production![NEWLINE]You may want to place one of your own spies in this city to help protect it in the future.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_UNIT_DAMAGED_SPY_DETECTED">
-			<Text>An unidentified spy has delayed {1_Unit} production in {2_CityName}, costing you {3_Lost} [ICON_PRODUCTION] Production!</Text>
+			<Text>An unidentified spy stole military plans from {2_CityName}, costing your {1_Unit} {3_Lost} [ICON_PRODUCTION] Production!!</Text>
 		</Row>
 		<!-- Identified  -->
 		<Row Tag="TXT_KEY_NOTIFICATION_UNIT_DAMAGED_SPY_IDENTIFIED_S">
-			<Text>{1_CivShortDesc} delayed production of {2_UnitName} in {3_CityName}!</Text>
+			<Text>{1_CivShortDesc} delayed your {2_UnitName} in {3_CityName}!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_UNIT_DAMAGED_SPY_IDENTIFIED_W_TIP">
-			<Text>{TXT_KEY_GRAMMAR_UPPER_A_AN &lt;&lt; {1_CivAdj}} spy damaged the construction of {2_Unit} in {3_CityName}, costing you {4_Lost} [ICON_PRODUCTION] Production![NEWLINE]You may want to place one of your own spies in this city to help protect it in the future.</Text>
+			<Text>{TXT_KEY_GRAMMAR_UPPER_A_AN &lt;&lt; {1_CivAdj}} spy stole military plans from {3_CityName}, costing your {2_Unit} {4_Lost} [ICON_PRODUCTION] Production![NEWLINE]You may want to place one of your own spies in this city to help protect it in the future.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_UNIT_DAMAGED_SPY_IDENTIFIED">
-			<Text>{TXT_KEY_GRAMMAR_UPPER_A_AN &lt;&lt; {1_CivAdj}} spy damaged the construction of {2_Unit} in {3_CityName}, costing you {4_Lost} [ICON_PRODUCTION] Production!</Text>
+			<Text>{TXT_KEY_GRAMMAR_UPPER_A_AN &lt;&lt; {1_CivAdj}} spy stole  military plans from {3_CityName}, costing your {2_Unit} {4_Lost} [ICON_PRODUCTION] Production!</Text>
 		</Row>
 		<!-- City Damaged -->
 
@@ -147,7 +214,7 @@
 			<Text>Riot in {1_CityName}!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_SPY_SETBACK_RESISTANCE">
-			<Text>{1_SpyRank} {2_SpyName} has incited a riot in {3_CityName}, causing {4_Damage} damage and temporary resistance!</Text>
+			<Text>{1_SpyRank} {2_SpyName} incited a riot in {3_CityName}, causing temporary resistance and destroying the city's [ICON_FOOD] Food supply!</Text>
 		</Row>
 
 		<!-- Detected-->
@@ -155,50 +222,50 @@
 			<Text>Riot provoked in {1_CityName}!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_CITY_DAMAGED_SPY_DETECTED_W_TIP">
-			<Text>An unidentified spy has provoked a riot in {1_CityName}, dealing {2_Num} damage to the city and causing temporary resistance![NEWLINE]You may want to place one of your own spies in this city to help protect it in the future.</Text>
+			<Text>An unidentified spy provoked a riot in {1_CityName}, causing temporary resistance and destroying the city's [ICON_FOOD] Food supply![NEWLINE]You may want to place one of your own spies in this city to help protect it in the future.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_CITY_DAMAGED_SPY_DETECTED">
-			<Text>An unidentified spy has provked a riot in {1_CityName}, dealing {2_Num} damage to the city and causing temporary resistance!</Text>
+			<Text>An unidentified spy provked a riot in {1_CityName}, causing temporary resistance and destroying the city's [ICON_FOOD] Food supply!</Text>
 		</Row>
 		<!-- Identified  -->
 		<Row Tag="TXT_KEY_NOTIFICATION_CITY_DAMAGED_SPY_IDENTIFIED_S">
 			<Text>{1_CivShortDesc} has provoked a riot in {2_CityName}!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_CITY_DAMAGED_SPY_IDENTIFIED_W_TIP">
-			<Text>{TXT_KEY_GRAMMAR_UPPER_A_AN &lt;&lt; {1_CivAdj}} spy provoked a riot in {2_CityName}, dealing {3_Num} damage to the city and causing temporary resistance![NEWLINE]You may want to place one of your own spies in this city to help protect it in the future.</Text>
+			<Text>{TXT_KEY_GRAMMAR_UPPER_A_AN &lt;&lt; {1_CivAdj}} spy provoked a riot in {2_CityName}, causing temporary resistance and destroying the city's [ICON_FOOD] Food supply![NEWLINE]You may want to place one of your own spies in this city to help protect it in the future.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_CITY_DAMAGED_SPY_IDENTIFIED">
-			<Text>{TXT_KEY_GRAMMAR_UPPER_A_AN &lt;&lt; {1_CivAdj}} spy provoked a riot in in {2_CityName}, dealing {3_Num} damage to the city and causing temporary resistance!</Text>
+			<Text>{TXT_KEY_GRAMMAR_UPPER_A_AN &lt;&lt; {1_CivAdj}} spy provoked a riot in in {2_CityName}, causing temporary resistance and destroying the city's [ICON_FOOD] Food supply!</Text>
 		</Row>
 		<!-- GP Damaged -->
 
 		<!-- Spy Owner Notification (City)  -->
 		<Row Tag="TXT_KEY_NOTIFICATION_SPY_SETBACK_GP_S">
-			<Text>Dignitary assassinated in {1_CityName}!</Text>
+			<Text>Successful assassination in {1_CityName}!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_SPY_SETBACK_GP">
-			<Text>{1_SpyRank} {2_SpyName} has assassinated a dignitary in {3_CityName}, delaying Great Person progress by {4_Num} {ICON_GREAT_PERSON} Points!</Text>
+			<Text>{1_SpyRank} {2_SpyName} has successfully committed an assassination in {3_CityName}, delaying [ICON_GREAT_PEOPLE] Great Person progress by {4_Num}!</Text>
 		</Row>
 
 		<!-- Detected-->
 		<Row Tag="TXT_KEY_NOTIFICATION_GP_DAMAGED_SPY_DETECTED_S">
-			<Text>Dignitary assassinated in {1_CityName}!</Text>
+			<Text>Assassination in {1_CityName}!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_GP_DAMAGED_SPY_DETECTED_W_TIP">
-			<Text>An unidentified spy has assassinated a dignitary in {2_CityName}, reducing the city's {1_Unit} progress by {3_Num} {ICON_GREAT_PERSON} Points![NEWLINE]You may want to place one of your own spies in this city to help protect it in the future.</Text>
+			<Text>An unidentified spy committed an assassination in {2_CityName}, reducing the city's [ICON_GREAT_PEOPLE] {1_Unit} Points by {3_Num}![NEWLINE]You may want to place one of your own spies in this city to help protect it in the future.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_GP_DAMAGED_SPY_DETECTED">
-			<Text>An unidentified spy has assassinated a dignitary in {2_CityName}, reducing the city's {1_Unit} progress by {3_Num} {ICON_GREAT_PERSON} Points!</Text>
+			<Text>An unidentified spy committed an assassination in {2_CityName}, reducing the city's [ICON_GREAT_PEOPLE] {1_Unit} Points by {3_Num}!</Text>
 		</Row>
 		<!-- Identified  -->
 		<Row Tag="TXT_KEY_NOTIFICATION_GP_DAMAGED_SPY_IDENTIFIED_S">
-			<Text>{1_CivShortDesc} has assassinated a dignitary in {2_CityName}!</Text>
+			<Text>{1_CivShortDesc} committed an assassination in {2_CityName}!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_GP_DAMAGED_SPY_IDENTIFIED_W_TIP">
-			<Text>{TXT_KEY_GRAMMAR_UPPER_A_AN &lt;&lt; {1_CivAdj}} spy has assassinated a dignitary in {3_CityName}, reducing your {2_Unit} progress by {4_Num} {ICON_GREAT_PERSON} Points![NEWLINE]You may want to place one of your own spies in this city to help protect it in the future.</Text>
+			<Text>{TXT_KEY_GRAMMAR_UPPER_A_AN &lt;&lt; {1_CivAdj}} spy committed an assassination in {3_CityName}, reducing the city's [ICON_GREAT_PEOPLE] {2_Unit} Points by {4_Num}![NEWLINE]You may want to place one of your own spies in this city to help protect it in the future.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_GP_DAMAGED_SPY_IDENTIFIED">
-			<Text>{TXT_KEY_GRAMMAR_UPPER_A_AN &lt;&lt; {1_CivAdj}} spy has assassinated a dignitary in {3_CityName}, reducing your {2_Unit} progress by {4_Num} {ICON_GREAT_PERSON} Points!</Text>
+			<Text>{TXT_KEY_GRAMMAR_UPPER_A_AN &lt;&lt; {1_CivAdj}} spy committed an assassination in {3_CityName}, reducing the city's [ICON_GREAT_PEOPLE] {2_Unit} Points by {4_Num}!!</Text>
 		</Row>
 		<!-- Rebellion Trigger -->
 		<!-- Spy Owner Notification (Rebellion)  -->
@@ -206,7 +273,7 @@
 			<Text>Arming rebels in {1_CityName}!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_SPY_REBELLION_RESISTANCE">
-			<Text>{1_SpyRank} {2_SpyName} has armed rebels in {3_CityName}, erasing the city's current Growth and increasing the chance of open rebellion!</Text>
+			<Text>{1_SpyRank} {2_SpyName} has armed rebels in {3_CityName}, allowing them to damage the city and spawn nearby!</Text>
 		</Row>
 
 		<!-- Detected-->
@@ -214,20 +281,20 @@
 			<Text>Rebellion brewing in {1_CityName}!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_REBEL_ARMED_SPY_DETECTED_W_TIP">
-			<Text>An unidentified spy is helping rebels in {1_CityName}, erasing the city's current Growth and increasing the chance of rebellion in your empire![NEWLINE]You may want to place one of your own spies in this city to help protect it in the future.</Text>
+			<Text>An unidentified spy helped rebels in {1_CityName}, allowing them to damage the city and spawn nearby![NEWLINE]You may want to place one of your own spies in this city to help protect it in the future.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_REBEL_ARMED_SPY_DETECTED">
-			<Text>>An unidentified spy is helping rebels in {1_CityName}, erasing the city's current Growth and increasing the chance of rebellion in your empire!</Text>
+			<Text>An unidentified spy helped rebels in {1_CityName}, allowing them to damage the city and spawn nearby!</Text>
 		</Row>
 		<!-- Identified  -->
 		<Row Tag="TXT_KEY_NOTIFICATION_REBEL_ARMED_SPY_IDENTIFIED_S">
-			<Text>{1_CivShortDesc} has armed rebels in {2_CityName}!</Text>
+			<Text>{1_CivShortDesc} armed rebels in {2_CityName}!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_REBEL_ARMED_SPY_IDENTIFIED_W_TIP">
-			<Text>{TXT_KEY_GRAMMAR_UPPER_A_AN &lt;&lt; {1_CivAdj}} spy is helping rebels in {2_CityName}, erasing the city's current Growth and increasing the chance of rebellion in your empire![NEWLINE]You may want to place one of your own spies in this city to help protect it in the future.</Text>
+			<Text>{TXT_KEY_GRAMMAR_UPPER_A_AN &lt;&lt; {1_CivAdj}} spy helped rebels in {2_CityName}, allowing them to damage the city and spawn nearby![NEWLINE]You may want to place one of your own spies in this city to help protect it in the future.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_REBEL_ARMED_SPY_IDENTIFIED">
-			<Text>{TXT_KEY_GRAMMAR_UPPER_A_AN &lt;&lt; {1_CivAdj}} spy is helping rebels in {2_CityName}, erasing the city's current Growth and increasing the chance of rebellion in your empire!</Text>
+			<Text>{TXT_KEY_GRAMMAR_UPPER_A_AN &lt;&lt; {1_CivAdj}} spy helped rebels in {2_CityName}, allowing them to damage the city and spawn nearby!</Text>
 		</Row>
 
 		<!-- Gold Theft -->
@@ -236,7 +303,7 @@
 			<Text>Successful robbery in {1_CityName}!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_SPY_SETBACK_GOLD">
-			<Text>{1_SpyRank} {2_SpyName} has stolen from {3_CityName}, taking {4_Gold} [ICON_GOLD]!</Text>
+			<Text>{1_SpyRank} {2_SpyName} robbed the treasury of {3_CityName}, taking {4_Gold} [ICON_GOLD] Gold!</Text>
 		</Row>
 
 		<!-- Detected-->
@@ -244,20 +311,20 @@
 			<Text>Treasury robbed in {1_CityName}!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_GOLD_STOLEN_SPY_DETECTED_W_TIP">
-			<Text>An unidentified spy has robbed {1_CityName}, taking {2_Gold} [ICON_GOLD] Gold![NEWLINE]You may want to place one of your own spies in this city to help protect it in the future.</Text>
+			<Text>An unidentified spy robbed the treasury of {1_CityName}, taking {2_Gold} [ICON_GOLD] Gold![NEWLINE]You may want to place one of your own spies in this city to help protect it in the future.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_GOLD_STOLEN_SPY_DETECTED">
-			<Text>An unidentified spy has robbed {1_CityName}, taking {2_Gold} [ICON_GOLD] Gold!</Text>
+			<Text>An unidentified spy robbed the treasury of {1_CityName}, taking {2_Gold} [ICON_GOLD] Gold!</Text>
 		</Row>
 		<!-- Identified  -->
 		<Row Tag="TXT_KEY_NOTIFICATION_GOLD_STOLEN_SPY_IDENTIFIED_S">
-			<Text>{1_CivShortDesc} has robbed the treasury in {2_CityName}!</Text>
+			<Text>{1_CivShortDesc} robbed the treasury of {2_CityName}!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_GOLD_STOLEN_SPY_IDENTIFIED_W_TIP">
-			<Text>{TXT_KEY_GRAMMAR_UPPER_A_AN &lt;&lt; {1_CivAdj}} spy has robbed the treasury in {2_CityName}, taking {3_Gold} [ICON_GOLD] Gold![NEWLINE]You may want to place one of your own spies in this city to help protect it in the future.</Text>
+			<Text>{TXT_KEY_GRAMMAR_UPPER_A_AN &lt;&lt; {1_CivAdj}} spy robbed the treasury of {2_CityName}, taking {3_Gold} [ICON_GOLD] Gold![NEWLINE]You may want to place one of your own spies in this city to help protect it in the future.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_GOLD_STOLEN_SPY_IDENTIFIED">
-			<Text>{TXT_KEY_GRAMMAR_UPPER_A_AN &lt;&lt; {1_CivAdj}} spy has robbed the treasury in {2_CityName}, taking {3_Gold} [ICON_GOLD] Gold!</Text>
+			<Text>{TXT_KEY_GRAMMAR_UPPER_A_AN &lt;&lt; {1_CivAdj}} spy robbed the treasury of {2_CityName}, taking {3_Gold} [ICON_GOLD] Gold!</Text>
 		</Row>
 	</Language_en_US>
 </GameData>

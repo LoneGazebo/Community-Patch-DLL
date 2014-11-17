@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created by ModBuddy on 7/8/2014 9:28:41 PM -->
+<GameData>
+	<AIGrandStrategy_Flavors>
+		<!-- Remember: this is flavor's influence on GS weight during GS reroll, not the GS' influence on flavor -->
+		<Update>
+			<Set Flavor="9" />
+			<Where AIGrandStrategyType="AIGRANDSTRATEGY_CONQUEST" />
+		</Update>
+		<Update>
+			<Set Flavor="10" />
+			<Where AIGrandStrategyType="AIGRANDSTRATEGY_CULTURE" />
+		</Update>
+		<Update>
+			<Set Flavor="10" />
+			<Where AIGrandStrategyType="AIGRANDSTRATEGY_UNITED_NATIONS" />
+		</Update>
+		<Update>
+			<Set Flavor="16" />
+			<Where AIGrandStrategyType="AIGRANDSTRATEGY_SPACESHIP" />
+		</Update>
+	</AIGrandStrategy_Flavors>
+	<!-- These aren't actual target yields, but increased flavor for city specializations of a yield type -->
+	<AIGrandStrategy_Yields>
+		<Row>
+			<AIGrandStrategyType>AIGRANDSTRATEGY_CONQUEST</AIGrandStrategyType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>50</Yield>
+		</Row>
+		<Row>
+			<AIGrandStrategyType>AIGRANDSTRATEGY_UNITED_NATIONS</AIGrandStrategyType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Yield>50</Yield>
+		</Row>
+		<Row>
+			<AIGrandStrategyType>AIGRANDSTRATEGY_CULTURE</AIGrandStrategyType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Yield>50</Yield>
+		</Row>
+		<Row>
+			<AIGrandStrategyType>AIGRANDSTRATEGY_SPACESHIP</AIGrandStrategyType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>50</Yield>
+		</Row>
+	</AIGrandStrategy_Yields>
+	<AIGrandStrategy_FlavorMods>
+		<!-- GS has slightly higher influence on flavors now -->
+		<Update>
+			<Set Flavor="3" />
+			<Where AIGrandStrategyType="AIGRANDSTRATEGY_CONQUEST" FlavorType="FLAVOR_OFFENSE"/>
+		</Update>
+		<Update>
+			<Set Flavor="2" />
+			<Where AIGrandStrategyType="AIGRANDSTRATEGY_CONQUEST" FlavorType="FLAVOR_EXPANSION"/>
+		</Update>
+		<Update>
+			<Set Flavor="2" />
+			<Where AIGrandStrategyType="AIGRANDSTRATEGY_CONQUEST" FlavorType="FLAVOR_MILITARY_TRAINING"/>
+		</Update>
+		<Update>
+			<Set Flavor="2" />
+			<Where AIGrandStrategyType="AIGRANDSTRATEGY_CONQUEST" FlavorType="FLAVOR_AIR"/>
+		</Update>
+		<Update>
+			<Set Flavor="6" />
+			<Where AIGrandStrategyType="AIGRANDSTRATEGY_CONQUEST" FlavorType="FLAVOR_NUKE"/>
+		</Update>
+		<!-- Weird omissions from the Conquest GS -->
+		<Row>
+			<AIGrandStrategyType>AIGRANDSTRATEGY_CONQUEST</AIGrandStrategyType>
+			<FlavorType>FLAVOR_MOBILE</FlavorType>
+			<Flavor>2</Flavor>
+		</Row>
+		<Row>
+			<AIGrandStrategyType>AIGRANDSTRATEGY_CONQUEST</AIGrandStrategyType>
+			<FlavorType>FLAVOR_DEFENSE</FlavorType>
+			<Flavor>1</Flavor>
+		</Row>
+		<Row>
+			<AIGrandStrategyType>AIGRANDSTRATEGY_CONQUEST</AIGrandStrategyType>
+			<FlavorType>FLAVOR_NAVAL</FlavorType>
+			<Flavor>1</Flavor>
+		</Row>
+		<!-- Imperial Russia wants its warm water ports! -->
+		<Row>
+			<AIGrandStrategyType>AIGRANDSTRATEGY_CONQUEST</AIGrandStrategyType>
+			<FlavorType>FLAVOR_WATER_CONNECTION</FlavorType>
+			<Flavor>3</Flavor>
+		</Row>
+
+		<!-- GS has slightly higher influence on flavors now -->
+		<Update>
+			<Set Flavor="3" />
+			<Where AIGrandStrategyType="AIGRANDSTRATEGY_CULTURE" FlavorType="FLAVOR_CULTURE"/>
+		</Update>
+		<Update>
+			<Set Flavor="2" />
+			<Where AIGrandStrategyType="AIGRANDSTRATEGY_CULTURE" FlavorType="FLAVOR_RELIGION"/>
+		</Update>
+
+		<!-- GS has slightly higher influence on flavors now -->
+		<Update>
+			<Set Flavor="4" />
+			<Where AIGrandStrategyType="AIGRANDSTRATEGY_SPACESHIP" FlavorType="FLAVOR_SPACESHIP"/>
+		</Update>
+		<Update>
+			<Set Flavor="3" />
+			<Where AIGrandStrategyType="AIGRANDSTRATEGY_SPACESHIP" FlavorType="FLAVOR_SCIENCE"/>
+		</Update>
+		<Update>
+			<Set Flavor="2" />
+			<Where AIGrandStrategyType="AIGRANDSTRATEGY_SPACESHIP" FlavorType="FLAVOR_PRODUCTION"/>
+		</Update>
+		<!-- Science is NOT opposed by religion. Science is opposed by knobheads. Learn the difference. 
+			On a more serious note, the -5 flavor was a bit much, especially considering a lot of religious traits actually help 
+			science, eg. God King, Swords to Plowshares, Fertility Rites, happiness-boosting traits combined with Rationalism -->
+		<Update>
+			<Set Flavor="-2" />
+			<Where AIGrandStrategyType="AIGRANDSTRATEGY_SPACESHIP" FlavorType="FLAVOR_RELIGION"/>
+		</Update>
+		<!-- Great Scientists and Great Engineers help spaceship victory quite a bit, so why not add some flavor? -->
+		<Row>
+			<AIGrandStrategyType>AIGRANDSTRATEGY_SPACESHIP</AIGrandStrategyType>
+			<FlavorType>FLAVOR_GREAT_PEOPLE</FlavorType>
+			<Flavor>1</Flavor>
+		</Row>
+		<Row>
+			<AIGrandStrategyType>AIGRANDSTRATEGY_SPACESHIP</AIGrandStrategyType>
+			<FlavorType>FLAVOR_GOLD</FlavorType>
+			<Flavor>1</Flavor>
+		</Row>
+	</AIGrandStrategy_FlavorMods>
+</GameData>

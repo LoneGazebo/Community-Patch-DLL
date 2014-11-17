@@ -1,0 +1,394 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created by ModBuddy on 11/13/2014 1:38:29 PM -->
+<GameData>
+  <!-- Slater Mill -->
+		<BuildingClasses>
+			<Row>
+				<Type>BUILDINGCLASS_SLATER_MILL</Type>
+				<DefaultBuilding>BUILDING_SLATER_MILL</DefaultBuilding>
+				<Description>TXT_KEY_BUILDING_SLATER_MILL</Description>
+				<MaxGlobalInstances>1</MaxGlobalInstances>
+			</Row>
+		</BuildingClasses>
+		<Buildings>
+			<Row>
+				<Type>BUILDING_SLATER_MILL</Type>
+				<BuildingClass>BUILDINGCLASS_SLATER_MILL</BuildingClass>
+				<Cost>750</Cost>
+				<PrereqTech>TECH_STEAM_POWER</PrereqTech>
+				<Description>TXT_KEY_BUILDING_SLATER_MILL</Description>
+				<Civilopedia>TXT_KEY_CIV5_BUILDINGS_SLATER_MILL_TEXT</Civilopedia>
+				<Help>TXT_KEY_BUILDING_SLATER_MILL_HELP</Help>
+				<MaxStartEra>ERA_MEDIEVAL</MaxStartEra>
+				<Quote>TXT_KEY_WONDER_SLATER_MILL_QUOTE</Quote>
+				<ArtDefineTag>ART_DEF_BUILDING_FACTORY</ArtDefineTag>
+				<NukeImmune>true</NukeImmune>
+				<River>true</River>
+				<SpecialistType>SPECIALIST_ENGINEER</SpecialistType>
+				<GreatPeopleRateChange>1</GreatPeopleRateChange>
+				<HurryCostModifier>-1</HurryCostModifier>
+				<MinAreaSize>-1</MinAreaSize>
+				<ConquestProb>100</ConquestProb>
+				<FreeBuildingThisCity>BUILDINGCLASS_FACTORY</FreeBuildingThisCity>
+				<DisplayPosition>1</DisplayPosition>
+				<IconAtlas>BW_ATLAS_1</IconAtlas>
+				<WonderSplashImage>WonderConceptGreatLighthouse.dds</WonderSplashImage>
+				<PortraitIndex>4</PortraitIndex>
+			</Row>
+		</Buildings>
+		<Building_Flavors>
+			<Row>
+				<BuildingType>BUILDING_SLATER_MILL</BuildingType>
+				<FlavorType>FLAVOR_GREAT_PEOPLE</FlavorType>
+				<Flavor>30</Flavor>
+			</Row>
+			<Row>
+				<BuildingType>BUILDING_SLATER_MILL</BuildingType>
+				<FlavorType>FLAVOR_PRODUCTION</FlavorType>
+				<Flavor>40</Flavor>
+			</Row>
+			<Row>
+				<BuildingType>BUILDING_SLATER_MILL</BuildingType>
+				<FlavorType>FLAVOR_WONDER</FlavorType>
+				<Flavor>25</Flavor>
+			</Row>
+		</Building_Flavors>
+		<Building_YieldChanges>
+			<Row>
+				<BuildingType>BUILDING_SLATER_MILL</BuildingType>
+				<YieldType>YIELD_PRODUCTION</YieldType>
+				<Yield>5</Yield>
+			</Row>
+		</Building_YieldChanges>
+		<Building_ResourceQuantity>
+			<Row>
+				<BuildingType>BUILDING_SLATER_MILL</BuildingType>
+				<ResourceType>RESOURCE_COAL</ResourceType>
+				<Quantity>2</Quantity>
+			</Row>
+		</Building_ResourceQuantity>
+		<Language_en_US>
+			<Row Tag="TXT_KEY_BUILDING_SLATER_MILL">
+				<Text>Slater Mill</Text>
+			</Row>
+			<Row Tag="TXT_KEY_BUILDING_SLATER_MILL_HELP">
+				<Text>City must be built next to a River. Grants a free Factory in the city where it is built, and a large boost to [ICON_PRODUCTION] Production. Also grants two free [ICON_RES_COAL] Coal.</Text>
+			</Row>
+			<Row Tag="TXT_KEY_CIV5_BUILDINGS_SLATER_MILL_TEXT">
+				<Text>
+					A National Historic Landmark, the Slater Mill is located next to the Blackstone River in Pawtucket, Rhode Island. Modeled after cotton spinning mills first established in England, the Slater Mill is the first water-powered cotton spinning mill in North America to utilize the Arkwright system of cotton spinning as developed by Richard Arkwright. Samuel Slater, the mill's founder, apprenticed as a young man in Belper, England with industrialist Jedediah Strutt. Shortly after immigrating to the United States, Slater was hired by Moses Brown of Providence, Rhode Island to produce a working set of machines necessary to spin cotton yarn using water-power. Construction of the machines, as well as a dam, waterway, waterwheel and mill was completed in 1793. Manufacturing was based on Richard Arkwright's cotton spinning system which included carding, drawing, and spinning machines. Slater initially hired children and families to work in his mill, establishing a pattern that was replicated throughout the Blackstone Valley and known as the "Rhode Island System". It was later eclipsed by Francis Cabot Lowell's Waltham System. Slater Mill was the first property to be listed on the National Register of Historic Places, and was designated a National Historic Landmark on November 13, 1966.
+				</Text>
+			</Row>
+			<Row Tag="TXT_KEY_WONDER_SLATER_MILL_QUOTE">
+				<Text>[NEWLINE][TAB][TAB]"If I do not make as good of yarn as they do in England, I will have nothing for my services, but will throw the whole of what I have attempted over the bridge."[NEWLINE][TAB][TAB] - Samuel Slater[NEWLINE][TAB]</Text>
+			</Row>
+		</Language_en_US>
+	<!-- Red Square -->
+	<BuildingClasses>
+		<Row>
+			<Type>BUILDINGCLASS_RED_SQUARE</Type>
+			<DefaultBuilding>BUILDING_RED_SQUARE</DefaultBuilding>
+			<Description>TXT_KEY_BUILDING_RED_SQUARE</Description>
+			<MaxGlobalInstances>1</MaxGlobalInstances>
+		</Row>
+	</BuildingClasses>
+	<Buildings>
+		<Row>
+			<Type>BUILDING_RED_SQUARE</Type>
+			<BuildingClass>BUILDINGCLASS_RED_SQUARE</BuildingClass>
+			<Cost>950</Cost>
+			<PrereqTech>TECH_REPLACEABLE_PARTS</PrereqTech>
+			<PolicyBranchType>POLICY_BRANCH_ORDER</PolicyBranchType>
+			<Description>TXT_KEY_BUILDING_RED_SQUARE</Description>
+			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_RED_SQUARE_TEXT</Civilopedia>
+			<Help>TXT_KEY_BUILDING_RED_SQUARE_HELP</Help>
+			<Quote>TXT_KEY_WONDER_RED_SQUARE_QUOTE</Quote>
+			<ArtDefineTag>ART_DEF_BUILDING_FACTORY</ArtDefineTag>
+			<NukeImmune>true</NukeImmune>
+			<HurryCostModifier>-1</HurryCostModifier>
+			<MinAreaSize>-1</MinAreaSize>
+			<FreePolicies>1</FreePolicies>
+			<ConquestProb>100</ConquestProb>
+			<FreeBuildingThisCity>BUILDINGCLASS_POLICE_STATION</FreeBuildingThisCity>
+			<DefenseHappinessChangeGlobal>10</DefenseHappinessChangeGlobal>
+			<DisplayPosition>1</DisplayPosition>
+			<NullifyInfluenceModifier>true</NullifyInfluenceModifier>
+			<IconAtlas>BW_ATLAS_1</IconAtlas>
+			<WonderSplashImage>WonderConceptKremlin.dds</WonderSplashImage>
+			<PortraitIndex>39</PortraitIndex>
+		</Row>
+	</Buildings>
+	<Building_Flavors>
+		<Row>
+			<BuildingType>BUILDING_RED_SQUARE</BuildingType>
+			<FlavorType>FLAVOR_GREAT_PEOPLE</FlavorType>
+			<Flavor>30</Flavor>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_RED_SQUARE</BuildingType>
+			<FlavorType>FLAVOR_HAPPINESS</FlavorType>
+			<Flavor>40</Flavor>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_RED_SQUARE</BuildingType>
+			<FlavorType>FLAVOR_WONDER</FlavorType>
+			<Flavor>25</Flavor>
+		</Row>
+	</Building_Flavors>
+	<Building_YieldChanges>
+		<Row>
+			<BuildingType>BUILDING_RED_SQUARE</BuildingType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>2</Yield>
+		</Row>
+	</Building_YieldChanges>
+	<Language_en_US>
+		<Row Tag="TXT_KEY_BUILDING_RED_SQUARE">
+			<Text>Red Square</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_RED_SQUARE_HELP">
+			<Text>Requires Order. 1 Free Social Policy. Greatly reduces [ICON_HAPPINESS_3] Disorder in all cities. Receive a free Police Station in the city where it is built. Negates the [ICON_TOURISM] Tourism bonus from other players technologies.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_BUILDINGS_RED_SQUARE_TEXT">
+			<Text>
+				The name Red Square does not originate from the pigment of the surrounding bricks (which, in fact, were whitewashed at certain times in history) nor from the link between the color red and communism. Rather, the name came about because the Russian word krasnaya can mean either "red" or "beautiful." This word, with the meaning "beautiful", was originally applied to Saint Basil's Cathedral and was subsequently transferred to the nearby square. It is believed that the square acquired its current name (replacing the older Pozhar, or "burnt-out place") in the 17th century. Several ancient Russian towns, such as Suzdal, Yelets, and Pereslavl-Zalessky, have their main square named Krasnaya ploshchad.
+			</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WONDER_RED_SQUARE_QUOTE">
+			<Text>
+				[NEWLINE][TAB][TAB]"Everyone imposes his own system as far as his army can reach."[NEWLINE][TAB][TAB] - Josef Stalin[NEWLINE][TAB]</Text>
+		</Row>
+	</Language_en_US>
+	<!-- Bletchley Park -->
+	<BuildingClasses>
+		<Row>
+			<Type>BUILDINGCLASS_BLETCHLEY_PARK</Type>
+			<DefaultBuilding>BUILDING_BLETCHLEY_PARK</DefaultBuilding>
+			<Description>TXT_KEY_BUILDING_BLETCHLEY_PARK</Description>
+			<MaxGlobalInstances>1</MaxGlobalInstances>
+		</Row>
+	</BuildingClasses>
+	<Buildings>
+		<Row>
+			<Type>BUILDING_BLETCHLEY_PARK</Type>
+			<BuildingClass>BUILDINGCLASS_BLETCHLEY_PARK</BuildingClass>
+			<Cost>1350</Cost>
+			<PrereqTech>TECH_COMPUTERS</PrereqTech>
+			<Description>TXT_KEY_BUILDING_BLETCHLEY_PARK</Description>
+			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_BLETCHLEY_PARK_TEXT</Civilopedia>
+			<Help>TXT_KEY_BUILDING_BLETCHLEY_PARK_HELP</Help>
+			<Quote>TXT_KEY_WONDER_BLETCHLEY_PARK_QUOTE</Quote>
+			<ArtDefineTag>ART_DEF_BUILDING_FACTORY</ArtDefineTag>
+			<NukeImmune>true</NukeImmune>
+			<HurryCostModifier>-1</HurryCostModifier>
+			<MinAreaSize>-1</MinAreaSize>
+			<ConquestProb>100</ConquestProb>
+			<FreeBuildingThisCity>BUILDINGCLASS_LABORATORY</FreeBuildingThisCity>
+			<DisplayPosition>1</DisplayPosition>
+			<IconAtlas>EXPANSION2_BUILDING_ATLAS</IconAtlas>
+			<GlobalEspionageModifier>-15</GlobalEspionageModifier>
+			<ExtraSpies>2</ExtraSpies>
+			<Espionage>true</Espionage>
+			<SpyRankChange>1</SpyRankChange>
+			<InstantSpyRankChange>1</InstantSpyRankChange>
+			<WonderSplashImage>WonderConceptGreatLighthouse.dds</WonderSplashImage>
+			<PortraitIndex>10</PortraitIndex>
+		</Row>
+	</Buildings>
+	<Building_Flavors>
+		<Row>
+			<BuildingType>BUILDING_BLETCHLEY_PARK</BuildingType>
+			<FlavorType>FLAVOR_GREAT_PEOPLE</FlavorType>
+			<Flavor>30</Flavor>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_BLETCHLEY_PARK</BuildingType>
+			<FlavorType>FLAVOR_SCIENCE</FlavorType>
+			<Flavor>40</Flavor>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_BLETCHLEY_PARK</BuildingType>
+			<FlavorType>FLAVOR_WONDER</FlavorType>
+			<Flavor>25</Flavor>
+		</Row>
+	</Building_Flavors>
+	<Building_YieldChanges>
+		<Row>
+			<BuildingType>BUILDING_BLETCHLEY_PARK</BuildingType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Yield>5</Yield>
+		</Row>
+	</Building_YieldChanges>
+	<Language_en_US>
+		<Row Tag="TXT_KEY_BUILDING_BLETCHLEY_PARK">
+			<Text>Bletchley Park</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_BLETCHLEY_PARK_HELP">
+			<Text>Receive a free Research Lab in the city where it is built. Provides two additional spies and levels up all your existing spies. Also provides a 15% reduction in enemy spy effectiveness.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_BUILDINGS_BLETCHLEY_PARK_TEXT">
+			<Text>
+				Bletchley Park, in Milton Keynes, Buckinghamshire, was the central site of the United Kingdom's Government Code and Cypher School, which during the Second World War regularly penetrated the secret communications of the Axis Power, most importantly the German Enigma and Lorenz ciphers. The official historian of World War II British Intelligence has written that the "Ultra" intelligence produced at Bletchley shortened the war by two to four years, and that without it the outcome of the war would have been uncertain. The site is now an educational and historical attraction memorialising and celebrating those accomplishments.
+			</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WONDER_BLETCHLEY_PARK_QUOTE">
+			<Text>
+				[NEWLINE][TAB][TAB]"Bletchley Park: the goose that laid the golden eggs and never cackled."[NEWLINE][TAB][TAB] - Winston Churchill[NEWLINE][TAB]
+			</Text>
+		</Row>
+	</Language_en_US>
+	<!-- Bretton Woods -->
+	<BuildingClasses>
+		<Row>
+			<Type>BUILDINGCLASS_BRETTON_WOODS</Type>
+			<DefaultBuilding>BUILDING_BRETTON_WOODS</DefaultBuilding>
+			<Description>TXT_KEY_BUILDING_BRETTON_WOODS</Description>
+			<MaxGlobalInstances>1</MaxGlobalInstances>
+		</Row>
+	</BuildingClasses>
+	<Buildings>
+		<Row>
+			<Type>BUILDING_BRETTON_WOODS</Type>
+			<BuildingClass>BUILDINGCLASS_BRETTON_WOODS</BuildingClass>
+			<Cost>1350</Cost>
+			<PrereqTech>TECH_ELECTRONICS</PrereqTech>
+			<Description>TXT_KEY_BUILDING_BRETTON_WOODS</Description>
+			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_BRETTON_WOODS_TEXT</Civilopedia>
+			<Help>TXT_KEY_BUILDING_BRETTON_WOODS_HELP</Help>
+			<Quote>TXT_KEY_WONDER_BRETTON_WOODS_QUOTE</Quote>
+			<ArtDefineTag>ART_DEF_BUILDING_FACTORY</ArtDefineTag>
+			<NukeImmune>true</NukeImmune>
+			<HurryCostModifier>-1</HurryCostModifier>
+			<MinAreaSize>-1</MinAreaSize>
+			<ConquestProb>100</ConquestProb>
+			<FreeBuildingThisCity>BUILDINGCLASS_HOTEL</FreeBuildingThisCity>
+			<FreeGreatPeople>1</FreeGreatPeople>
+			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
+			<EnhancedYieldTech>TECH_COMPUTERS</EnhancedYieldTech>
+			<TechEnhancedTourism>5</TechEnhancedTourism>
+			<WonderSplashImage>WonderConceptGreatLighthouse.dds</WonderSplashImage>
+			<PortraitIndex>20</PortraitIndex>
+		</Row>
+	</Buildings>
+	<Building_Flavors>
+		<Row>
+			<BuildingType>BUILDING_BRETTON_WOODS</BuildingType>
+			<FlavorType>FLAVOR_GREAT_PEOPLE</FlavorType>
+			<Flavor>50</Flavor>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_BRETTON_WOODS</BuildingType>
+			<FlavorType>FLAVOR_CULTURE</FlavorType>
+			<Flavor>30</Flavor>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_BRETTON_WOODS</BuildingType>
+			<FlavorType>FLAVOR_WONDER</FlavorType>
+			<Flavor>30</Flavor>
+		</Row>
+	</Building_Flavors>
+	<Building_YieldChanges>
+		<Row>
+			<BuildingType>BUILDING_BRETTON_WOODS</BuildingType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>2</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_BRETTON_WOODS</BuildingType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>10</Yield>
+		</Row>
+	</Building_YieldChanges>
+	<Language_en_US>
+		<Row Tag="TXT_KEY_BUILDING_BRETTON_WOODS">
+			<Text>Bretton Woods</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_BRETTON_WOODS_HELP">
+			<Text>Receive a free Hotel in the city where it is built, and a free Great Person of your choice. Grants 5 [ICON_TOURISM] Tourism, and a large amount of [ICON_GOLD] Gold.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_BUILDINGS_BRETTON_WOODS_TEXT">
+			<Text>
+				The Bretton Woods Conference, formally known as the United Nations Monetary and Financial Conference, was the gathering of 730 delegates from all 44 Allied nations at the Mount Washington Hotel, situated in Bretton Woods, New Hampshire, United States, to regulate the international monetary and financial order after the conclusion of World War II. The conference was held from the 1st to 22nd of July, 1944. Agreements were executed that later established the International Bank for Reconstruction and Development (IBRD, which is part of today's World Bank Group) and the International Monetary Fund (IMF).
+			</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WONDER_BRETTON_WOODS_QUOTE">
+			<Text>
+				[NEWLINE][TAB][TAB]"The importance of money flows from it being a link between the present and the future."[NEWLINE][TAB][TAB] - John Maynard Keynes[NEWLINE][TAB]
+			</Text>
+		</Row>
+	</Language_en_US>
+	<!-- CERN -->
+	<BuildingClasses>
+		<Row>
+			<Type>BUILDINGCLASS_CERN</Type>
+			<DefaultBuilding>BUILDING_CERN</DefaultBuilding>
+			<Description>TXT_KEY_BUILDING_CERN</Description>
+			<MaxGlobalInstances>1</MaxGlobalInstances>
+		</Row>
+	</BuildingClasses>
+	<Buildings>
+		<Row>
+			<Type>BUILDING_CERN</Type>
+			<BuildingClass>BUILDINGCLASS_CERN</BuildingClass>
+			<Cost>2000</Cost>
+			<PrereqTech>TECH_PARTICLE_PHYSICS</PrereqTech>
+			<Description>TXT_KEY_BUILDING_CERN</Description>
+			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_CERN_TEXT</Civilopedia>
+			<Help>TXT_KEY_BUILDING_CERN_HELP</Help>
+			<Quote>TXT_KEY_WONDER_CERN_QUOTE</Quote>
+			<ArtDefineTag>ART_DEF_BUILDING_FACTORY</ArtDefineTag>
+			<NukeImmune>true</NukeImmune>
+			<HurryCostModifier>-1</HurryCostModifier>
+			<MinAreaSize>-1</MinAreaSize>
+			<MinorFriendshipChange>35</MinorFriendshipChange>
+			<ConquestProb>100</ConquestProb>
+			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
+			<WonderSplashImage>WonderConceptGreatLighthouse.dds</WonderSplashImage>
+			<PortraitIndex>28</PortraitIndex>
+		</Row>
+	</Buildings>
+	<Building_Flavors>
+		<Row>
+			<BuildingType>BUILDING_CERN</BuildingType>
+			<FlavorType>FLAVOR_SCIENCE</FlavorType>
+			<Flavor>50</Flavor>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_CERN</BuildingType>
+			<FlavorType>FLAVOR_WONDER</FlavorType>
+			<Flavor>30</Flavor>
+		</Row>
+	</Building_Flavors>
+	<Building_YieldChanges>
+		<Row>
+			<BuildingType>BUILDING_CERN</BuildingType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Yield>15</Yield>
+		</Row>
+	</Building_YieldChanges>
+	<Building_InstantYield>
+		<Row>
+			<BuildingType>BUILDING_CERN</BuildingType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Yield>10000</Yield>
+		</Row>
+	</Building_InstantYield>
+	<Language_en_US>
+		<Row Tag="TXT_KEY_BUILDING_CERN">
+			<Text>CERN</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_CERN_HELP">
+			<Text>Receive a massive one-time [ICON_RESEARCH] Science Boost when completed, and +30 [ICON_INFLUENCE] Influence with all City-States in the world.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_BUILDINGS_CERN_TEXT">
+			<Text>
+				The European Organization for Nuclear Research, known as CERN, is a European research organization whose purpose is to operate the world's largest particle physics laboratory. Established in 1954, the organization is based in the northwest suburbs of Geneva on the Franco–Swiss border, and has 21 European member states. Israel is the first (and currently only) non-European country granted full membership. The term CERN is also used to refer to the laboratory, which in 2013 counted 2513 staff members, and hosted some 12,313 fellows, associates, apprentices as well as visiting scientists and engineers representing 608 universities and research facilities and 113 nationalities. CERN's main function is to provide the particle accelerators and other infrastructure needed for high-energy physics research – as a result, numerous experiments have been constructed at CERN following international collaborations. It is also the birthplace of the World Wide Web. The main site at Meyrin has a large computer centre containing powerful data processing facilities, primarily for experimental-data analysis; because of the need to make these facilities available to researchers elsewhere, it has historically been a major wide area networking hub.
+			</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WONDER_CERN_QUOTE">
+			<Text>
+				[NEWLINE][TAB][TAB]"When you look at a vacuum in a quantum theory of fields, it isn't exactly nothing."[NEWLINE][TAB][TAB] - Dr. Peter Higgs[NEWLINE][TAB]
+			</Text>
+		</Row>
+	</Language_en_US>
+</GameData>

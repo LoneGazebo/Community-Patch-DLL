@@ -1,3 +1,8 @@
+-- Table for Growth Extra Yield Buildings
+CREATE TABLE IF NOT EXISTS Building_GrowthExtraYield (
+BuildingType text, YieldType text, Yield integer
+);
+
 -- Create buildings that cannot have access to fresh water.
 
 ALTER TABLE Buildings ADD COLUMN 'IsNoWater' boolean default false;
@@ -22,6 +27,10 @@ ALTER TABLE Eras ADD COLUMN 'StartingMinorDefenseUnits' integer default 0;
 
 ALTER TABLE HandicapInfos ADD COLUMN 'StartingMinorDefenseUnits' integer default 0;
 
+-- Grants additional starting happiness based on gamespeed.
+
+ALTER TABLE GameSpeeds ADD COLUMN 'StartingHappiness' integer default 0;
+
 -- No unhappiness from Isolation.
 
 ALTER TABLE Traits ADD COLUMN 'NoConnectionUnhappiness' boolean default false;
@@ -33,6 +42,10 @@ ALTER TABLE Traits ADD COLUMN 'IsNoReligiousStrife' boolean default false;
 -- Earn a free building only in your capital as your trait. No tech requirement.
 
 ALTER TABLE Traits ADD COLUMN 'FreeCapitalBuilding' text default NULL;
+
+-- Combat Bonus vs Higher Pop Civilization.
+
+ALTER TABLE Traits ADD COLUMN 'CombatBonusVsHigherPop' integer default 0;
 
 -- Earn a set number of free buildings. Uses standard 'FreeBuilding' trait (i.e. Carthage). No tech requirement.
 
@@ -197,3 +210,7 @@ ALTER TABLE Buildings ADD COLUMN 'IsReformation' boolean default false;
 
 -- Allows for Building to be unlocked by a specific policy (not a branch)
 ALTER TABLE Buildings ADD COLUMN 'PolicyType' text default NULL;
+
+-- New Goody Hut Additions
+ALTER TABLE GoodyHuts ADD COLUMN 'Production' integer default 0;
+ALTER TABLE GoodyHuts ADD COLUMN 'GoldenAge' integer default 0;
