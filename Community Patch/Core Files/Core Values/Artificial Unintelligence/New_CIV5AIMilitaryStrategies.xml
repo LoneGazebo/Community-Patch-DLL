@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created by ModBuddy on 7/9/2014 12:04:58 AM -->
+<GameData>
+	<AIMilitaryStrategy_Player_Flavors>
+		<!-- Nukes should be a lot more popular, especially when civs are threatened -->
+		<Row>
+			<AIMilitaryStrategyType>MILITARYAISTRATEGY_AT_WAR</AIMilitaryStrategyType>
+			<FlavorType>FLAVOR_NUKE</FlavorType>
+			<Flavor>20</Flavor>
+		</Row>
+		<Row>
+			<AIMilitaryStrategyType>MILITARYAISTRATEGY_EMPIRE_DEFENSE</AIMilitaryStrategyType>
+			<FlavorType>FLAVOR_NUKE</FlavorType>
+			<Flavor>15</Flavor>
+		</Row>
+		<Row>
+			<AIMilitaryStrategyType>MILITARYAISTRATEGY_EMPIRE_DEFENSE_CRITICAL</AIMilitaryStrategyType>
+			<FlavorType>FLAVOR_NUKE</FlavorType>
+			<Flavor>50</Flavor>
+		</Row>
+		<Row>
+			<AIMilitaryStrategyType>MILITARYAISTRATEGY_WAR_MOBILIZATION</AIMilitaryStrategyType>
+			<FlavorType>FLAVOR_NUKE</FlavorType>
+			<Flavor>10</Flavor>
+		</Row>
+		<Row>
+			<AIMilitaryStrategyType>MILITARYAISTRATEGY_LOSING_WARS</AIMilitaryStrategyType>
+			<FlavorType>FLAVOR_NUKE</FlavorType>
+			<Flavor>30</Flavor>
+		</Row>
+		<!-- Mainly for non-BNW, that -50 Growth flavor really is a bit too much -->
+		<Update>
+			<Set Flavor="-10" />
+			<Where AIMilitaryStrategyType="MILITARYAISTRATEGY_WAR_MOBILIZATION" FlavorType="FLAVOR_GROWTH" />
+		</Update>
+	</AIMilitaryStrategy_Player_Flavors>
+</GameData>

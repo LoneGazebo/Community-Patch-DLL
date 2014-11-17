@@ -19,10 +19,10 @@
 			<Text>May only be constructed in a Holy City, and only if at least 20% of the global population follows your Religion.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_HEAVENLY_THRONE">
-			<Text>Heavenly Throne</Text>
+			<Text>Celestial Throne</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_HEAVENLY_THRONE_STRATEGY">
-			<Text>Build the Heavenly Throne for a big boost to your Holy City's base yields. Constructing this National Wonder will also allow you to choose a Reformation Belief. May only be constructed in a Holy City, and only if at least 20% of the global population follows your Religion.</Text>
+			<Text>Build the Celestial Throne for a big boost to your Holy City's base yields. Constructing this National Wonder will also allow you to choose a Reformation Belief. May only be constructed in a Holy City, and only if at least 20% of the global population follows your Religion.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_HEAVENLY_THRONE_TEXT">
 			<Text>A throne is the seat of state of a potentate or dignitary, especially the seat occupied by a sovereign on state occasions; or the seat occupied by a pope or bishop on ceremonial occasions. "Throne" in an abstract sense can also refer to the monarchy or the Crown itself, an instance of metonymy, and is also used in many expressions such as "the power behind the throne".</Text>
@@ -50,12 +50,11 @@
 			<Text>Reliquary</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_RELIQUARY_STRATEGY">
-			<Text>Build the Reliquary for a powerful Tourism-centric bonus. Constructing this National Wonder will also allow you to choose a Reformation Belief. May only be constructed in a Holy City, and only if at least 20% of the global population follows your Religion.</Text>
+			<Text>Build the Reliquary for a powerful Tourism-centric bonus. The building's Tourism bonus is only possible if all four Works of Art/Artifacts come from differing players. Constructing this National Wonder will also allow you to choose a Reformation Belief. May only be constructed in a Holy City, and only if at least 20% of the global population follows your Religion.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_RELIQUARY_TEXT">
 			<Text>
-				A reliquary is a container for relics. These may be the purported physical remains of saints, such as bones, pieces of clothing, or some object associated with saints or other religious figures. The authenticity of any given relic is often a matter of debate; for that reason, some churches require documentation of the relic's provenance.
-				Relics have long been important to Buddhists, Christians, Hindus and many other religions. In these cultures, reliquaries are often presented in shrines, churches, or temples to which the faithful make pilgrimages in order to gain blessings. In Central West Africa, reliquaries used in the Bwete rituals contain objects considered magical, or the bones of ancestors, and are commonly constructed with a guardian figure attached to the reliquary.
+				A reliquary is a container for relics. These may be the purported physical remains of saints, such as bones, pieces of clothing, or some object associated with saints or other religious figures. The authenticity of any given relic is often a matter of debate; for that reason, some churches require documentation of the relic's provenance. Relics have long been important to Buddhists, Christians, Hindus and many other religions. In these cultures, reliquaries are often presented in shrines, churches, or temples to which the faithful make pilgrimages in order to gain blessings. In Central West Africa, reliquaries used in the Bwete rituals contain objects considered magical, or the bones of ancestors, and are commonly constructed with a guardian figure attached to the reliquary.
 			</Text>
 		</Row>
 		<Row Tag="TXT_KEY_THEMING_BONUS_RELIQUARY_HELP">
@@ -76,7 +75,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_SACRED_GARDEN_HELP">
-			<Text>+15% [ICON_CULTURE] Culture in the City. May only be constructed in a Holy City, and only if at least 20% of the global population follows your Religion.</Text>
+			<Text>May only be constructed in a Holy City, and only if at least 20% of the global population follows your Religion.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_SACRED_GARDEN">
 			<Text>Sacred Garden</Text>
@@ -91,7 +90,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_HOLY_COUNCIL_HELP">
-			<Text>+15% [ICON_FOOD] Food in the City. May only be constructed in a Holy City, and only if at least 20% of the global population follows your Religion.</Text>
+			<Text>May only be constructed in a Holy City, and only if at least 20% of the global population follows your Religion.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_HOLY_COUNCIL">
 			<Text>Holy Council</Text>
@@ -103,17 +102,17 @@
 			<Text>An ecumenical council (or holy council) is a conference of ecclesiastical dignitaries and theological experts convened to discuss and settle matters of Church doctrine and practice in which those entitled to vote are convoked from the whole world (oikoumene) and which secures the approbation of the whole Church.</Text>
 		</Row>
 
-		<Row Tag="TXT_KEY_BUILDING_BASILICA_HELP">
-			<Text>+3 [ICON_GOLDEN_AGE] Golden Age points. May only be constructed in a Holy City, and only if at least 20% of the global population follows your Religion.</Text>
+		<Row Tag="TXT_KEY_BUILDING_APOSTOLIC_PALACE_HELP">
+			<Text>+4 [ICON_GOLDEN_AGE] Golden Age points. May only be constructed in a Holy City, and only if at least 20% of the global population follows your Religion.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_BUILDING_BASILICA">
-			<Text>Basilica</Text>
+		<Row Tag="TXT_KEY_BUILDING_APOSTOLIC_PALACE">
+			<Text>Apostolic Palace</Text>
 		</Row>
-		<Row Tag="TXT_KEY_BUILDING_BASILICA_STRATEGY">
-			<Text>Build the Basilica for more rapid Golden Ages. Constructing this National Wonder will also allow you to choose a Reformation Belief. May only be constructed in a Holy City, and only if at least 20% of the global population follows your Religion.</Text>
+		<Row Tag="TXT_KEY_BUILDING_APOSTOLIC_PALACE_STRATEGY">
+			<Text>Build the Apostolic Palace for more rapid Golden Ages. Constructing this National Wonder will also allow you to choose a Reformation Belief. May only be constructed in a Holy City, and only if at least 20% of the global population follows your Religion.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_BUILDING_BASILICA_TEXT">
-			<Text>The Latin word basilica has three distinct applications in modern English. The word was originally used to describe an open, Roman, public court building, usually located adjacent to the forum of a Roman town. By extension it was applied to Christian buildings of the same form and continues to be used in an architectural sense to describe those buildings with a central nave and aisles. Later, the term came to refer specifically to a large and important church that has been given special ceremonial rights by the Pope.</Text>
+		<Row Tag="TXT_KEY_BUILDING_APOSTOLIC_PALACE_TEXT">
+			<Text>The Latin word basilica has three distinct applications in modern English. The word was originally used to describe an open, Roman, public court building, usually located adjacent to the forum of a Roman town. By extension it was applied to Christian buildings of the same form and continues to be used in an architectural sense to describe those buildings with a central nave and aisles. Later, the term came to refer specifically to a large and important church, the Apostolic Palace, that has been given special ceremonial rights by the Pope.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_GRAND_OSSUARY_HELP">

@@ -18,7 +18,7 @@
 			<PolicyType>POLICY_PIETY</PolicyType>
 			<BuildingClassType>BUILDINGCLASS_PALACE</BuildingClassType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<YieldChange>2</YieldChange>
+			<YieldChange>1</YieldChange>
 		</Row>
 	</Policy_BuildingClassYieldChanges>
 	<Policy_BuildingClassProductionModifiers>
@@ -33,38 +33,30 @@
 			<ProductionModifier>100</ProductionModifier>
 		</Row>
 	</Policy_BuildingClassProductionModifiers>
-	<Policy_BuildingClassYieldModifiers>
-		<Row>
-			<PolicyType>POLICY_ORGANIZED_RELIGION</PolicyType>
-			<BuildingClassType>BUILDINGCLASS_GRAND_TEMPLE</BuildingClassType>
-			<YieldType>YIELD_CULTURE</YieldType>
-			<YieldMod>20</YieldMod>
-		</Row>
-	</Policy_BuildingClassYieldModifiers>
 	<Policy_ReligionBuildingYieldMod>
 		<Row>
 			<PolicyType>POLICY_MANDATE_OF_HEAVEN</PolicyType>
 			<BuildingClassType>BUILDINGCLASS_MARKET</BuildingClassType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<YieldMod>15</YieldMod>
+			<YieldMod>2</YieldMod>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_MANDATE_OF_HEAVEN</PolicyType>
 			<BuildingClassType>BUILDINGCLASS_TEMPLE</BuildingClassType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<YieldMod>15</YieldMod>
+			<YieldMod>2</YieldMod>
 		</Row>
 	</Policy_ReligionBuildingYieldMod>
 	<Policy_ReligionYieldMod>
 		<Row>
 			<PolicyType>POLICY_THEOCRACY</PolicyType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>25</Yield>
+			<Yield>2</Yield>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_THEOCRACY</PolicyType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Yield>10</Yield>
+			<Yield>2</Yield>
 		</Row>
 	</Policy_ReligionYieldMod>
 	<Policy_SpecialistExtraYields>
@@ -74,7 +66,7 @@
 			<Yield>1</Yield>
 		</Row>
 	</Policy_SpecialistExtraYields>
-	<Building_YieldModifiers>
+	<!--<Building_YieldModifiers>
 		<Row>
 			<BuildingType>BUILDING_MONASTERY</BuildingType>
 			<YieldType>YIELD_FOOD</YieldType>
@@ -85,13 +77,25 @@
 			<YieldType>YIELD_SCIENCE</YieldType>
 			<Yield>10</Yield>
 		</Row>
-	</Building_YieldModifiers>
+	</Building_YieldModifiers>-->
+	<Building_YieldChanges>
+		<Row>
+			<BuildingType>BUILDING_MONASTERY</BuildingType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_MONASTERY</BuildingType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>2</Yield>
+		</Row>
+	</Building_YieldChanges>
 	<Policy_ImprovementYieldChanges>
 		<Row>
 			<PolicyType>POLICY_PIETY_FINISHER</PolicyType>
 			<ImprovementType>IMPROVEMENT_HOLY_SITE</ImprovementType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>3</Yield>
+			<Yield>2</Yield>
 		</Row>
 	</Policy_ImprovementYieldChanges>
 	<Language_en_US>

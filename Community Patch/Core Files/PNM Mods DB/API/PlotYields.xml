@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <GameData>
-	<!-- API_PLOT_YIELDS -->
+	<!-- See also: RELIGION/PlotYields.xml -->
+	
 	<Table name="Plots">
 		<Column name="ID" type="integer" primarykey="true" autoincrement="true"/>
 		<Column name="Type" type="text" notnull="true" unique="true"/>
@@ -13,23 +14,27 @@
 	</Table>
 	
 	<Table name="Plot_Yields">
+		<!-- Refer to Terrain_Yields -->
 		<Column name="PlotType" type="text" reference="Plots(Type)"/>
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer" default="0"/>
 	</Table>
 	<Table name="Building_PlotYieldChanges">
+		<!-- Refer to Belief_TerrainYieldChanges -->
 		<Column name="BuildingType" type="text" reference="Buildings(Type)"/>
 		<Column name="PlotType" type="text" reference="Plots(Type)"/>
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer" default="0"/>
 	</Table>
 	<Table name="Policy_PlotYieldChanges">
+		<!-- Refer to Belief_TerrainYieldChanges -->
 		<Column name="PolicyType" type="text" reference="Policies(Type)"/>
 		<Column name="PlotType" type="text" reference="Plots(Type)"/>
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer" default="0"/>
 	</Table>
 	<Table name="Trait_PlotYieldChanges">
+		<!-- Refer to Belief_TerrainYieldChanges -->
 		<Column name="TraitType" type="text" reference="Traits(Type)"/>
 		<Column name="PlotType" type="text" reference="Plots(Type)"/>
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>

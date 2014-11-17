@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created by ModBuddy on 10/28/2014 1:25:35 PM -->
+<GameData>
+  <!-- American Frontiersman -->
+	<Units>
+		<Row>
+			<Class>UNITCLASS_SETTLER</Class>
+			<Type>UNIT_FRONTIERSMAN</Type>
+			<Requirements>TXT_KEY_NO_ACTION_SETTLER_SIZE_LIMIT_HARDCODED</Requirements>
+			<Food>true</Food>
+			<Found>true</Found>
+			<Moves>4</Moves>
+			<CivilianAttackPriority>CIVILIAN_ATTACK_PRIORITY_HIGH_EARLY_GAME_ONLY</CivilianAttackPriority>
+			<HurryCostModifier>20</HurryCostModifier>
+			<Domain>DOMAIN_LAND</Domain>
+			<DefaultUnitAI>UNITAI_SETTLE</DefaultUnitAI>
+			<Description>TXT_KEY_UNIT_FRONTIERSMAN</Description>
+			<Civilopedia>TXT_KEY_CIV5_ANTIQUITY_FRONTIERSMAN_TEXT</Civilopedia>
+			<Strategy>TXT_KEY_UNIT_FRONTIERSMAN_STRATEGY</Strategy>
+			<Help>TXT_KEY_UNIT_HELP_FRONTIERSMAN</Help>
+			<ObsoleteTech>TECH_ASTRONOMY</ObsoleteTech>
+			<CombatLimit>0</CombatLimit>
+			<UnitArtInfo>ART_DEF_UNIT__SETTLER</UnitArtInfo>
+			<UnitArtInfoCulturalVariation>true</UnitArtInfoCulturalVariation>
+			<PortraitIndex>2</PortraitIndex>
+			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
+		</Row>
+	</Units>
+	<Unit_AITypes>
+		<Row>
+			<UnitType>UNIT_FRONTIERSMAN</UnitType>
+			<UnitAIType>UNITAI_SETTLE</UnitAIType>
+		</Row>
+	</Unit_AITypes>
+	<Unit_Flavors>
+		<Row>
+			<UnitType>UNIT_FRONTIERSMAN</UnitType>
+			<FlavorType>FLAVOR_EXPANSION</FlavorType>
+			<Flavor>40</Flavor>
+		</Row>
+	</Unit_Flavors>
+	<Unit_FreePromotions>
+		<Row>
+			<UnitType>UNIT_FRONTIERSMAN</UnitType>
+			<PromotionType>PROMOTION_PIONEER_SPIRIT</PromotionType>
+		</Row>
+		<Row>
+			<UnitType>UNIT_FRONTIERSMAN</UnitType>
+			<PromotionType>PROMOTION_EXTRA_SIGHT_I</PromotionType>
+		</Row>
+	</Unit_FreePromotions>
+	<UnitPromotions>
+		<!--Pioneer Promotions-->
+		<Row>
+			<Type>PROMOTION_PIONEER_SPIRIT</Type>
+			<Description>TXT_KEY_PROMOTION_PIONEER_SPIRIT</Description>
+			<Help>TXT_KEY_PROMOTION_PIONEER_SPIRIT_HELP</Help>
+			<ExtraWithdrawal>300</ExtraWithdrawal>
+			<PortraitIndex>59</PortraitIndex>
+			<IconAtlas>ABILITY_ATLAS</IconAtlas>
+			<PediaType>PEDIA_ATTRIBUTES</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_WITHDRAW_BEFORE_MELEE</PediaEntry>
+			<ExtraNavalMovement>2</ExtraNavalMovement>
+			<CannotBeChosen>true</CannotBeChosen>
+		</Row>
+	</UnitPromotions>
+	<Language_en_US>
+		<Row Tag="TXT_KEY_UNIT_WITHDREW_DETAILED_PIONEER">
+			<Text>{TXT_KEY_GRAMMAR_UPPER_A_AN &lt;&lt; {@1_UnitName}} evaded capture!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UNIT_WITHDREW_PIONEER">
+			<Text>A civilian evaded capture!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_PIONEER_SPIRIT">
+			<Text>Frontier Spirit</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_PIONEER_SPIRIT_HELP">
+			<Text>Unit will withdraw from melee attacks if there is an available hex nearby. If unit cannot withdraw, it will be destroyed.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UNIT_FRONTIERSMAN">
+			<Text>Frontiersman</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_ANTIQUITY_FRONTIERSMAN_TEXT">
+			<Text>
+				American pioneers, or frontiersmen, are any of the people in American history who migrated west to join in settling and developing new areas. The term especially refers to those who were going to settle any territory which had previously not been settled or developed by European or American society, although the territory may have been inhabited by or utilized by native peoples.
+				The pioneer concept and ethos greatly predate the migration to parts of the United States now called Western, as many places now considered as East were also settled by pioneers from the coast. For example, Daniel Boone, a key figure in American pioneer history, settled in Kentucky, when that "Dark and Bloody Ground" was still undeveloped.
+				One important development in the Western settlement was the Homestead Act, which provided formal legislation which regulated the settlement process. The figure of the pioneer has played a large role in American culture, literature and folklore. The pioneer is not the only iconic figure which figures in the settlement of the West. Much cultural note is given to other figures of a more transient nature, such as cowboys, trappers, prospectors, miners etc. However, the pioneer alone represents those who went into unexplored territory in search of a new life, looking to establish permanent settlement.
+			</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UNIT_HELP_FRONTIERSMAN">
+			<Text>This unique Settler replacement evades capture by enemy units, has a high movement rate, and has an improved range of vision. These abilities equip the Frontiersman with better survival skills when moving to found a new city.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UNIT_FRONTIERSMAN_STRATEGY">
+			<Text>Use these unique settlers to claim land in otherwise hostile or dangerous regions where others might fear to send their settlers. Be careful, however, as the frontier spirit of the Frontiersman prevents them from being captured, meaning that if they have nowhere to retreat to, they will be destroyed.</Text>
+		</Row>
+	</Language_en_US>
+	<Civilization_UnitClassOverrides>
+		<Row>
+			<CivilizationType>CIVILIZATION_AMERICA</CivilizationType>
+			<UnitClassType>UNITCLASS_SETTLER</UnitClassType>
+			<UnitType>UNIT_FRONTIERSMAN</UnitType>
+		</Row>
+	</Civilization_UnitClassOverrides>
+</GameData>

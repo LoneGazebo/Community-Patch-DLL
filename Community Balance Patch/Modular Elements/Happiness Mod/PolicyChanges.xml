@@ -35,11 +35,11 @@
 			<Tag>TXT_KEY_POLICY_UNIVERSAL_HEALTHCARE_F_HELP</Tag>
 		</Row>
 		<Row>
-			<Text>[COLOR_POSITIVE_TEXT]Peace, Land, Bread[ENDCOLOR][NEWLINE]Reduces [ICON_HAPPINESS_3] Poverty threshold by 15% in all cities.</Text>
+			<Text>[COLOR_POSITIVE_TEXT]Peace, Land, Bread[ENDCOLOR][NEWLINE]Reduces [ICON_HAPPINESS_3] Poverty by 15% in all cities.</Text>
 			<Tag>TXT_KEY_POLICY_UNIVERSAL_HEALTHCARE_O_HELP</Tag>
 		</Row>
 		<Row>
-			<Text>[COLOR_POSITIVE_TEXT]Autarky[ENDCOLOR][NEWLINE]1 [ICON_CITIZEN] Specialist in all cities and an additional 2 [ICON_CITIZEN] Specialists in your [ICON_CAPITAL] Capital no longer cause [ICON_HAPPINESS_3] Unhappiness.</Text>
+			<Text>[COLOR_POSITIVE_TEXT]Autarky[ENDCOLOR][NEWLINE]2 [ICON_CITIZEN] Specialists in all cities and an additional 2 [ICON_CITIZEN] Specialists in your [ICON_CAPITAL] Capital no longer cause [ICON_HAPPINESS_3] Unhappiness.</Text>
 			<Tag>TXT_KEY_POLICY_UNIVERSAL_HEALTHCARE_A_HELP</Tag>
 		</Row>
 		<Row>

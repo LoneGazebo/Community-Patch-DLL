@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created by ModBuddy on 10/29/2014 9:43:07 AM -->
+<GameData>
+	<!-- Doge's Palace -->
+	<Buildings>
+		<Row>
+			<Type>BUILDING_DOGE_PALACE</Type>
+			<BuildingClass>BUILDINGCLASS_PALACE</BuildingClass>
+			<Cost>0</Cost>
+			<Help>TXT_KEY_BUILDING_DOGE_PALACE_HELP</Help>
+			<Description>TXT_KEY_BUILDING_DOGE_PALACE</Description>
+			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_DOGE_PALACE_TEXT</Civilopedia>
+			<Strategy>TXT_KEY_BUILDING_DOGE_PALACE_STRATEGY</Strategy>
+			<ArtDefineTag>PALACE</ArtDefineTag>
+			<Capital>true</Capital>
+			<NukeImmune>true</NukeImmune>
+			<MinAreaSize>-1</MinAreaSize>
+			<Defense>500</Defense>
+			<ArtInfoCulturalVariation>true</ArtInfoCulturalVariation>
+			<DisplayPosition>32</DisplayPosition>
+			<GreatPeopleRateModifier>15</GreatPeopleRateModifier>
+			<NeverCapture>true</NeverCapture>
+			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
+			<PortraitIndex>42</PortraitIndex>
+		</Row>
+	</Buildings>
+	<Civilization_BuildingClassOverrides>
+		<Row>
+			<CivilizationType>CIVILIZATION_VENICE</CivilizationType>
+			<BuildingClassType>BUILDINGCLASS_PALACE</BuildingClassType>
+			<BuildingType>BUILDING_DOGE_PALACE</BuildingType>
+		</Row>
+	</Civilization_BuildingClassOverrides>
+	<Building_YieldChanges>
+		<Row>
+			<BuildingType>BUILDING_DOGE_PALACE</BuildingType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>5</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_DOGE_PALACE</BuildingType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>5</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_DOGE_PALACE</BuildingType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Yield>5</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_DOGE_PALACE</BuildingType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>2</Yield>
+		</Row>
+	</Building_YieldChanges>
+	<Language_en_US>
+		<Row Tag="TXT_KEY_BUILDING_DOGE_PALACE">
+			<Text>Doge's Palace</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_BUILDINGS_DOGE_PALACE_TEXT">
+			<Text>
+				The Doge's Palace (Italian: Palazzo Ducale) is a palace built in Venetian Gothic style, and one of the main landmarks of the city of Venice, northern Italy. The palace was the residence of the Doge of Venice, the supreme authority of the Republic of Venice, opening as a museum in 1923. Today, it is one of the 11 museums run by the Fondazione Musei Civici di Venezia.
+			</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_DOGE_PALACE_HELP">
+			<Text>Unique Venetian replacement for the Palace. This building has higher yields and defense than the standard Palace, and improves Great Person generation by 15% in your [ICON_CAPITAL] Capital. It does not, however, contain a slot for a Great Work.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_DOGE_PALACE_STRATEGY">
+			<Text>+15% Great Person rate, +5 [ICON_GOLD] Gold, [ICON_PRODUCTION] Production, [ICON_RESEARCH] Science, and [ICON_STRENGTH] Defense, as well as +2 [ICON_CULTURE] Culture.</Text>
+		</Row>
+	</Language_en_US>
+  
+</GameData>

@@ -37,22 +37,22 @@
 			<Text>Local [ICON_HAPPINESS_3] Unhappiness: [COLOR_NEGATIVE_TEXT]{1_NUM}[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PUPPET_UNHAPPINESS_MOD">
-			<Text>[ICON_BULLET] [ICON_PUPPET] Puppet Global Avg. Mod: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR]%.</Text>
+			<Text>[ICON_BULLET] [ICON_PUPPET] Puppet Needs Modifier: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR]%.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITYCOUNT_UNHAPPINESS">
 			<Text>[ICON_BULLET] [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] from Number of Cities.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_SCIENCE_UNHAPPINESS">
-			<Text>[ICON_BULLET] [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] from Illiteracy ([ICON_RESEARCH]). [NEWLINE]          Produces: [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR] per [ICON_CITIZEN][NEWLINE]          Global Average: [COLOR_POSITIVE_TEXT]{3_Num}[ENDCOLOR]</Text>
+			<Text>[ICON_BULLET] [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] from Illiteracy ([ICON_RESEARCH]). [NEWLINE]          Produces: [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR] [ICON_RESEARCH] per [ICON_CITIZEN][NEWLINE]          Needs: [COLOR_POSITIVE_TEXT]{3_Num}[ENDCOLOR] [ICON_RESEARCH]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CULTURE_UNHAPPINESS">
-			<Text>[ICON_BULLET] [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] from Boredom ([ICON_CULTURE]). [NEWLINE]          Produces: [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR] per [ICON_CITIZEN][NEWLINE]          Global Average: [COLOR_POSITIVE_TEXT]{3_Num}[ENDCOLOR]</Text>
+			<Text>[ICON_BULLET] [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] from Boredom ([ICON_CULTURE]). [NEWLINE]          Produces: [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR] [ICON_CULTURE] per [ICON_CITIZEN][NEWLINE]          Needs: [COLOR_POSITIVE_TEXT]{3_Num}[ENDCOLOR] [ICON_CULTURE]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DEFENSE_UNHAPPINESS">
-			<Text>[ICON_BULLET] [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] from Disorder ([ICON_STRENGTH]). [NEWLINE]          Produces: [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR] per [ICON_CITIZEN][NEWLINE]          Global Average: [COLOR_POSITIVE_TEXT]{3_Num}[ENDCOLOR]</Text>
+			<Text>[ICON_BULLET] [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] from Disorder ([ICON_STRENGTH]). [NEWLINE]          Produces: [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR] [ICON_STRENGTH] per [ICON_CITIZEN][NEWLINE]          Needs: [COLOR_POSITIVE_TEXT]{3_Num}[ENDCOLOR] [ICON_STRENGTH]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GOLD_UNHAPPINESS">
-			<Text>[ICON_BULLET] [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] from Poverty ([ICON_GOLD]). [NEWLINE]          Produces: [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR] per [ICON_CITIZEN][NEWLINE]          Global Average: [COLOR_POSITIVE_TEXT]{3_Num}[ENDCOLOR]</Text>
+			<Text>[ICON_BULLET] [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] from Poverty ([ICON_GOLD]). [NEWLINE]          Produces: [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR] [ICON_GOLD] per [ICON_CITIZEN][NEWLINE]          Needs: [COLOR_POSITIVE_TEXT]{3_Num}[ENDCOLOR] [ICON_GOLD]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CONNECTION_UNHAPPINESS">
 			<Text>[ICON_BULLET] [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] from Isolation ([ICON_BLOCKADED] Blockaded, lacks [ICON_CONNECTED] Connection, or needs [ICON_INTERNATIONAL_TRADE] Trade Route with [ICON_CAPITAL] Capital).</Text>
@@ -61,7 +61,7 @@
 			<Text>[ICON_BULLET] [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] from [ICON_RAZING] Pillaged Tiles.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_STARVING_UNHAPPINESS">
-			<Text>[ICON_BULLET] [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] from Famine (No [ICON_FOOD]).</Text>
+			<Text>[ICON_BULLET] [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] from Famine (Needs [ICON_FOOD]).</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MINORITY_UNHAPPINESS">
 			<Text>[ICON_BULLET] [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] from Religious Divisions (Needs Followers of [ICON_RELIGION] Majority Religion).</Text>
@@ -69,42 +69,42 @@
 
 		<!-- Surplus Threshold -->
 		<Row Tag="TXT_KEY_CULTURE_UNHAPPINESS_SURPLUS">
-			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR] above [ICON_CULTURE] Global Average.</Text>
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR] above [ICON_CULTURE] Need.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_SCIENCE_UNHAPPINESS_SURPLUS">
-			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR] above [ICON_RESEARCH] Global Average.</Text>
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR] above [ICON_RESEARCH] Need.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DEFENSE_UNHAPPINESS_SURPLUS">
-			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR] above [ICON_STRENGTH] Global Average.</Text>
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR] above [ICON_STRENGTH] Need.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GOLD_UNHAPPINESS_SURPLUS">
-			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR] above [ICON_GOLD] Global Average.</Text>
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR] above [ICON_GOLD] Need.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_EO_CITY_EDUCATED">
-			<Text>[COLOR_POSITIVE_TEXT]Literacy[ENDCOLOR]</Text>
+			<Text>[COLOR_POSITIVE_TEXT]Literate[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EO_CITY_DEFENDED">
-			<Text>[COLOR_POSITIVE_TEXT]Order[ENDCOLOR]</Text>
+			<Text>[COLOR_POSITIVE_TEXT]Calm[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EO_CITY_PROSPEROUS">
-			<Text>[COLOR_POSITIVE_TEXT]Wealth[ENDCOLOR]</Text>
+			<Text>[COLOR_POSITIVE_TEXT]Wealthy[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EO_CITY_CULTURED">
-			<Text>[COLOR_POSITIVE_TEXT]Culture[ENDCOLOR]</Text>
+			<Text>[COLOR_POSITIVE_TEXT]Cultured[ENDCOLOR]</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_EO_CITY_UNEDUCATED">
-			<Text>[COLOR_NEGATIVE_TEXT]Illiteracy ({1_Num})[ENDCOLOR]</Text>
+			<Text>Illiteracy [COLOR_NEGATIVE_TEXT]({1_Num})[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EO_CITY_UNDEFENDED">
-			<Text>[COLOR_NEGATIVE_TEXT]Disorder ({1_Num})[ENDCOLOR]</Text>
+			<Text>Disorder [COLOR_NEGATIVE_TEXT]({1_Num})[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EO_CITY_POOR">
-			<Text>[COLOR_NEGATIVE_TEXT]Poverty ({1_Num})[ENDCOLOR]</Text>
+			<Text>Poverty [COLOR_NEGATIVE_TEXT]({1_Num})[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EO_CITY_UNCULTURED">
-			<Text>[COLOR_NEGATIVE_TEXT]Boredom ({1_Num})[ENDCOLOR]</Text>
+			<Text>Boredom [COLOR_NEGATIVE_TEXT]({1_Num})[ENDCOLOR]</Text>
 		</Row>
 		
 		<!-- Luxury Tooltip -->

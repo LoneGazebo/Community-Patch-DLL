@@ -9,6 +9,7 @@ All options below are preset to the default values of this mod.
 
 -- OPTIONS --
 -- If you have not read the instructions above, please do so now!
+-- Disabling files below will only remove the SQL changes. If you also want to remove the XML changes, you will need to delete the associated XML files.
 
 /*
 Changes to Civilization Traits
@@ -29,13 +30,40 @@ INSERT INTO COMMUNITY (Type, Value)
 VALUES ('COMMUNITY_CORE_BALANCE_BUILDINGS', 1);
 
 /*
+Changes to Units
+1 = Enabled (Default)
+0 = Disabled 
+*/
+
+INSERT INTO COMMUNITY (Type, Value)
+VALUES ('COMMUNITY_CORE_BALANCE_UNITS', 1);
+
+/*
+Changes to Leaders
+1 = Enabled (Default)
+0 = Disabled 
+*/
+
+INSERT INTO COMMUNITY (Type, Value)
+VALUES ('COMMUNITY_CORE_BALANCE_LEADERS', 1);
+
+/*
+Changes to Terrain
+1 = Enabled (Default)
+0 = Disabled 
+*/
+
+INSERT INTO COMMUNITY (Type, Value)
+VALUES ('COMMUNITY_CORE_BALANCE_TERRAIN', 1);
+
+/*
 Changes to Promotions
 1 = Enabled (Default)
 0 = Disabled 
 */
 
 INSERT INTO COMMUNITY (Type, Value)
-VALUES ('COMMUNITY_CORE_BALANCE_PROMOTIONS', 0);
+VALUES ('COMMUNITY_CORE_BALANCE_PROMOTIONS', 1);
 
 /*
 COMMUNITY Global Difficulty Option
@@ -160,3 +188,12 @@ Tourism Changes
 
 INSERT INTO COMMUNITY (Type, Value)
 VALUES ('COMMUNITY_CORE_BALANCE_TOURISM_CHANGES', 1);
+
+/*
+Changes to Minors
+1 = Enabled (Default)
+0 = Disabled 
+*/
+
+INSERT INTO COMMUNITY (Type, Value)
+VALUES ('COMMUNITY_CORE_BALANCE_MINORS', 1);

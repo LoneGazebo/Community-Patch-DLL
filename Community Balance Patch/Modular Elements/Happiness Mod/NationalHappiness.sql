@@ -38,12 +38,12 @@
 
 	-- Golden Age per GA increase.
 	UPDATE Defines
-	SET Value = '325'
+	SET Value = '350'
 	WHERE Name = 'GOLDEN_AGE_EACH_GA_ADDITIONAL_HAPPINESS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
 
 	-- % reduction of combat effectiveness per point of unhappiness.
 	UPDATE Defines
-	SET Value = '-1'
+	SET Value = '0'
 	WHERE Name = 'VERY_UNHAPPY_COMBAT_PENALTY_PER_UNHAPPY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
 
 -- Division line for when happiness bonuses begin. Happiness above threshold grants bonus. (should always be a positive value)
@@ -139,7 +139,7 @@
 -- Production % point per happiness mod (should always be a positive value).
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_HAPPINESS_PRODUCTION_MODIFIER', '2'
+	SELECT 'BALANCE_HAPPINESS_PRODUCTION_MODIFIER', '0'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
 
 -- Food % point per happiness mod (should always be a positive value).
@@ -151,7 +151,7 @@
 -- Food % point per happiness mod (should always be a positive value).
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_HAPPINESS_FOOD_MODIFIER', '2'
+	SELECT 'BALANCE_HAPPINESS_FOOD_MODIFIER', '1'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
 
 -- Faith point per happiness mod (should always be a positive value). THIS ONE DIVIDES BY YOUR HAPPINESS VALUE (SO /5 HAPPINESS PER TURN)
@@ -163,7 +163,7 @@
 -- Faith point per happiness mod (should always be a positive value). THIS ONE DIVIDES BY YOUR HAPPINESS VALUE (SO /5 HAPPINESS PER TURN)
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_HAPPINESS_FAITH_MODIFIER', '3'
+	SELECT 'BALANCE_HAPPINESS_FAITH_MODIFIER', '1'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
 
 -- Culture point per happiness mod (should always be a positive value). THIS ONE DIVIDES BY YOUR HAPPINESS VALUE (SO /5 HAPPINESS PER TURN)
@@ -175,7 +175,7 @@
 -- Culture point per happiness mod (should always be a positive value). THIS ONE DIVIDES BY YOUR HAPPINESS VALUE (SO /5 HAPPINESS PER TURN)
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_HAPPINESS_CULTURE_MODIFIER', '3'
+	SELECT 'BALANCE_HAPPINESS_CULTURE_MODIFIER', '1'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
 
 -- Text for city view tooltip.
@@ -198,7 +198,7 @@
 
 -- Update text for top panel depending on which yields you have enabled above. Change as desired.
 	UPDATE Language_en_US
-	SET Text = 'Your empire produces less while it is [ICON_HAPPINESS_3] unhappy! [NEWLINE]City and empire-wide yields are reduced for each point of Unhappiness. Units in combat will also fight less effectively.'
+	SET Text = 'Your empire is [ICON_HAPPINESS_3] unhappy! [NEWLINE][NEWLINE]Empire-wide [ICON_CULTURE] Culture, [ICON_PEACE] Faith, [ICON_GOLD] Gold, [ICON_FOOD] Food, and [ICON_RESEARCH] Science output are reduced by [COLOR_NEGATIVE_TEXT]1%[ENDCOLOR] for each point of [ICON_HAPPINESS_3] Unhappiness!'
 	WHERE Tag = 'TXT_KEY_TP_EMPIRE_UNHAPPY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
 
 -- TOOLTIPS FOR TOP BAR

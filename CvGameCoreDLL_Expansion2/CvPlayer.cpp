@@ -12372,6 +12372,12 @@ void CvPlayer::DoUpdateHappiness()
 	// Start level
 	m_iHappiness = getHandicapInfo().getHappinessDefault();
 
+#if defined(MOD_BALANCE_CORE)
+	// Gamespeed Bonus level
+	int iGameSpeedHappiness = GC.getGame().getGameSpeedInfo().GetStartingHappiness();
+	m_iHappiness += iGameSpeedHappiness;
+#endif
+
 	// Increase from Luxury Resources
 	int iNumHappinessFromResources = GetHappinessFromResources();
 	m_iHappiness += iNumHappinessFromResources;

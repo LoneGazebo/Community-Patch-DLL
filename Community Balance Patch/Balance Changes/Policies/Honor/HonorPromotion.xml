@@ -5,7 +5,7 @@
 		<Row>
 			<Type>PROMOTION_HONOR_BONUS</Type>
 			<Description>TXT_KEY_PROMOTION_HONOR_BONUS</Description>
-			<Help>TXT_KEY_PROMOTION_DISCIPLINE_HELP</Help>
+			<Help>TXT_KEY_PROMOTION_HONOR_BONUS_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<CannotBeChosen>true</CannotBeChosen>
 			<CombatPercent>10</CombatPercent>

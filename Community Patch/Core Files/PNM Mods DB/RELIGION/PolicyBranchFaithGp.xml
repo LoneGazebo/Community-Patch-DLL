@@ -39,15 +39,7 @@
 			<PolicyType>POLICY_EXPLORATION_FINISHER</PolicyType>
 			<UnitClassType>UNITCLASS_GREAT_ADMIRAL</UnitClassType>
 		</Row>
-
-		<!-- CSD -->
-		<Row>
-			<PolicyType>POLICY_PATRONAGE_FINISHER</PolicyType>
-			<UnitClassType>UNITCLASS_GREAT_DIPLOMAT</UnitClassType>
-		</Row>
 	</Policy_FaithPurchaseUnitClasses>
-
-
 	<CustomModDbUpdates>
 		<Row Name="RELIGION_POLICY_BRANCH_FAITH_GP" Value="1"/>
 	</CustomModDbUpdates>

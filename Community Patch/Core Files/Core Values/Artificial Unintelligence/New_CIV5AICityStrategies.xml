@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created by ModBuddy on 7/8/2014 11:59:13 PM -->
+<GameData>
+	<AICityStrategy_Flavors>
+		<!-- Old values were all -3, which was slightly too much *just* because a city has a barracks -->
+		<Update>
+			<Set Flavor="-1" />
+			<Where AICityStrategyType="AICITYSTRATEGY_HAVE_TRAINING_FACILITY" FlavorType="FLAVOR_TILE_IMPROVEMENT" />
+		</Update>
+		<Update>
+			<Set Flavor="-1" />
+			<Where AICityStrategyType="AICITYSTRATEGY_HAVE_TRAINING_FACILITY" FlavorType="FLAVOR_EXPANSION" />
+		</Update>
+		<Update>
+			<Set Flavor="-1" />
+			<Where AICityStrategyType="AICITYSTRATEGY_HAVE_TRAINING_FACILITY" FlavorType="FLAVOR_GROWTH" />
+		</Update>
+		<Update>
+			<Set Flavor="-1" />
+			<Where AICityStrategyType="AICITYSTRATEGY_HAVE_TRAINING_FACILITY" FlavorType="FLAVOR_HAPPINESS" />
+		</Update>
+		<!-- Defense flavor influences more than just unit behavior, it also influences unit types and diplomacy, so the base 25 needed to be increased a bit -->
+		<Update>
+			<Set Flavor="35" />
+			<Where AICityStrategyType="AICITYSTRATEGY_CAPITAL_UNDER_THREAT" FlavorType="FLAVOR_DEFENSE" />
+		</Update>
+		<!-- Makes sure settlers are more likely to be produced by the capital instead of forcing a smaller city to do the job -->
+		<Row>
+			<AICityStrategyType>AICITYSTRATEGY_ORIGINAL_CAPITAL</AICityStrategyType>
+			<FlavorType>FLAVOR_EXPANSION</FlavorType>
+			<Flavor>5</Flavor>
+		</Row>
+	</AICityStrategy_Flavors>
+</GameData>

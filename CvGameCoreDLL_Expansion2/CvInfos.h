@@ -971,6 +971,9 @@ public:
 	virtual ~CvGameSpeedInfo();
 
 	int GetDealDuration() const;
+#if defined(MOD_BALANCE_CORE)
+	int GetStartingHappiness() const;
+#endif
 	int getGrowthPercent() const;
 	int getTrainPercent() const;
 	int getConstructPercent() const;
@@ -1020,6 +1023,9 @@ public:
 
 protected:
 	int m_iDealDuration;
+#if defined(MOD_BALANCE_CORE)
+	int m_iStartingHappiness;
+#endif
 	int m_iGrowthPercent;
 	int m_iTrainPercent;
 	int m_iConstructPercent;
