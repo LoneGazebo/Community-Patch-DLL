@@ -133,6 +133,8 @@ public:
 	TechTypes GetCapitalFreeBuildingPrereqTech() const;
 	int TradeRouteStartYield(int i) const;
 	int YieldFromRouteMovement(int i) const;
+	int YieldFromExport(int i) const;
+	int YieldFromImport(int i) const;
 #endif
 
 	TechTypes GetFreeUnitPrereqTech() const;
@@ -204,6 +206,8 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	int GetTradeRouteStartYield(int i) const;
 	int GetYieldFromRouteMovement(int i) const;
+	int GetYieldFromExport(int i) const;
+	int GetYieldFromImport(int i) const;
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
 	int GetBuildingClassYieldChanges(BuildingClassTypes eIndex1, YieldTypes eIndex2) const;
@@ -386,6 +390,8 @@ protected:
 #if defined(MOD_BALANCE_CORE)
 	int* m_piTradeRouteStartYield;
 	int* m_piYieldFromRouteMovement;
+	int* m_piYieldFromExport;
+	int* m_piYieldFromImport;
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
 	int** m_ppiBuildingClassYieldChanges;
@@ -934,6 +940,14 @@ public:
 	{
 		return m_iYieldFromRouteMovement[(int)eYield];
 	};
+	int GetYieldFromExport(YieldTypes eYield) const
+	{
+		return m_iYieldFromExport[(int)eYield];
+	};
+	int GetYieldFromImport(YieldTypes eYield) const
+	{
+		return m_iYieldFromImport[(int)eYield];
+	};
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
 	int GetBuildingClassYieldChange(BuildingClassTypes eBuildingClass, YieldTypes eYield) const;
@@ -1196,6 +1210,8 @@ private:
 #if defined(MOD_BALANCE_CORE)
 	int m_iTradeRouteStartYield[NUM_YIELD_TYPES];
 	int m_iYieldFromRouteMovement[NUM_YIELD_TYPES];
+	int m_iYieldFromExport[NUM_YIELD_TYPES];
+	int m_iYieldFromImport[NUM_YIELD_TYPES];
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiBuildingClassYieldChange;

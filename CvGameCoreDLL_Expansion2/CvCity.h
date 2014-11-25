@@ -416,7 +416,10 @@ public:
 
 	int getCultureRateModifier() const;
 	void changeCultureRateModifier(int iChange);
-
+#if defined(MOD_BALANCE_CORE_POLICIES)
+	int getBuildingClassCultureChange(BuildingClassTypes eIndex) const;
+	void changeBuildingClassCultureChange(BuildingClassTypes eIndex, int iChange);
+#endif
 	// END Culture
 
 #if defined(MOD_API_EXTENSIONS)
@@ -556,6 +559,10 @@ public:
 
 	int GetLocalHappiness() const;
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
+	int getUnhappyCitizenCount() const;
+	void setUnhappyCitizenCount(int iNewValue);
+	void changeUnhappyCitizenCount(int iChange) const;
+
 	int getUnhappinessFromCultureYield() const;
 	int getUnhappinessFromCultureNeeded() const;
 	int getUnhappinessFromCulture() const;
@@ -756,8 +763,8 @@ public:
 	void changeYieldRateModifier(YieldTypes eIndex, int iChange);
 
 #if defined(MOD_BALANCE_CORE_POLICIES)
-	int getReligionBuildingYieldRateModifier(YieldTypes eIndex)	const;
-	void changeReligionBuildingYieldRateModifier(YieldTypes eIndex, int iChange);
+	int getReligionBuildingYieldRateModifier(BuildingClassTypes eIndex1, YieldTypes eIndex2)	const;
+	void changeReligionBuildingYieldRateModifier(BuildingClassTypes eIndex1, YieldTypes eIndex2, int iChange);
 #endif
 
 	int getPowerYieldRateModifier(YieldTypes eIndex) const;
@@ -1158,6 +1165,7 @@ protected:
 #endif
 #if defined(MOD_BALANCE_CORE)
 	FAutoVariable<std::vector<int>, CvCity> m_aiChangeYieldFromVictory;
+	int m_iUnhappyCitizen;
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 	int m_iChangePovertyUnhappiness;
@@ -1170,9 +1178,6 @@ protected:
 	int m_iChangeUnculturedUnhappinessGlobal;
 	int m_iChangeIlliteracyUnhappinessGlobal;
 	int m_iChangeMinorityUnhappinessGlobal;
-#endif
-#if defined(MOD_BALANCE_CORE_POLICIES)
-	FAutoVariable<std::vector<int>, CvCity> m_aiReligionBuildingYieldRateModifier;
 #endif
 	std::vector<int> m_aiBaseYieldRateFromReligion;
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldRateModifier;
@@ -1205,6 +1210,9 @@ protected:
 	FAutoVariable<std::vector<int>, CvCity> m_paiUnitCombatFreeExperience;
 	FAutoVariable<std::vector<int>, CvCity> m_paiUnitCombatProductionModifier;
 	FAutoVariable<std::vector<int>, CvCity> m_paiFreePromotionCount;
+#if defined(MOD_BALANCE_CORE_POLICIES)
+	FAutoVariable<std::vector<int>, CvCity> m_paiBuildingClassCulture;
+#endif
 
 	int m_iBaseHappinessFromBuildings;
 	int m_iUnmoddedHappinessFromBuildings;
@@ -1227,6 +1235,9 @@ protected:
 	int** m_ppaiTerrainYieldChange;
 #if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
 	int** m_ppaiPlotYieldChange;
+#endif
+#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
+	int** m_ppaiReligionBuildingYieldRateModifier;
 #endif
 
 	CvCityBuildings* m_pCityBuildings;

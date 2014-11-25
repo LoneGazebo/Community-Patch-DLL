@@ -286,7 +286,6 @@ int CvMinorCivQuest::GetInfluenceReward() const
 		iReward = 0;
 		break;
 	}
-
 	return iReward;
 }
 
@@ -1687,17 +1686,12 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn)
 			pMinor->GetMinorCivAI()->DoRebellion();
 		}
 
-		//Tell the AI to get over there!
+		//Tell the AI ally to get over there!
 		if(eMajor != NO_PLAYER && !GET_PLAYER(eMajor).isHuman())
 		{
-			if(pMinor->getCapitalCity()->getArea() == GET_PLAYER(eMajor).getCapitalCity()->getArea())
+			if((pMinor->GetMinorCivAI()->GetAlly() != NO_PLAYER) && (pMinor->GetMinorCivAI()->GetAlly() == eMajor))
 			{
-				PlayerProximityTypes eProximity;
-				eProximity = GET_PLAYER(pMinor->GetID()).GetProximityToPlayer(pAssignedPlayer->GetID());
-				if(eProximity == PLAYER_PROXIMITY_NEIGHBORS)
-				{
-					pAssignedPlayer->addAIOperation(AI_OPERATION_ALLY_DEFENSE, NO_PLAYER, pMinor->getCapitalCity()->getArea(), pMinor->getCapitalCity(), pMinor->getCapitalCity());
-				}
+				pAssignedPlayer->addAIOperation(AI_OPERATION_ALLY_DEFENSE, NO_PLAYER, pMinor->getCapitalCity()->getArea(), pMinor->getCapitalCity(), pMinor->getCapitalCity());
 			}
 		}
 	}
@@ -1831,7 +1825,16 @@ bool CvMinorCivQuest::DoFinishQuest()
 	PlayerTypes eOldAlly = pMinor->GetMinorCivAI()->GetAlly();
 	int iOldInf = pMinor->GetMinorCivAI()->GetEffectiveFriendshipWithMajor(m_eAssignedPlayer);
 
+#if defined(MOD_BALANCE_CORE)
+	int iInfluence = GetInfluenceReward();
+	if(GET_PLAYER(m_eAssignedPlayer).GetDoubleQuestInfluence() > 0)
+	{
+		iInfluence *= 2;
+	}
+	pMinor->GetMinorCivAI()->ChangeFriendshipWithMajor(m_eAssignedPlayer, iInfluence, /*bFromQuest*/ true);
+#else
 	pMinor->GetMinorCivAI()->ChangeFriendshipWithMajor(m_eAssignedPlayer, GetInfluenceReward(), /*bFromQuest*/ true);
+#endif
 	
 	bool bNowFriends = pMinor->GetMinorCivAI()->IsFriends(m_eAssignedPlayer);
 	bool bNowAllies = pMinor->GetMinorCivAI()->IsAllies(m_eAssignedPlayer);

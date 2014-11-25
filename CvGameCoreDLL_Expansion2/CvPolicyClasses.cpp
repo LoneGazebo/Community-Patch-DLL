@@ -218,6 +218,13 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_bNoUnhappinessExpansion(false),
 	m_bNoUnhappyIsolation(false),
 	m_bDoubleBorderGA(false),
+	m_bDoubleQuestInfluence(false),
+	m_iInternalTradeGold(0),
+	m_iCitadelBoost(0),
+	m_iFreeWCVotes(0),
+	m_iInfluenceGPExpend(0),
+	m_iFreeTradeRoute(0),
+	m_iFreeSpy(0),
 	m_piYieldFromBorderGrowth(NULL),
 	m_piYieldGPExpend(NULL),
 	m_iGarrisonsOccupiedUnhapppinessMod(0),
@@ -502,6 +509,13 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_bNoUnhappinessExpansion = kResults.GetBool("NoUnhappinessExpansion");
 	m_bNoUnhappyIsolation = kResults.GetBool("NoUnhappyIsolation");
 	m_bDoubleBorderGA = kResults.GetBool("DoubleBorderGA");
+	m_bDoubleQuestInfluence = kResults.GetBool("DoubleQuestInfluence");
+	m_iInternalTradeGold = kResults.GetInt("InternalTradeGold");
+	m_iCitadelBoost = kResults.GetInt("CitadelBoost");
+	m_iFreeWCVotes = kResults.GetInt("FreeWCVotes");
+	m_iInfluenceGPExpend = kResults.GetInt("InfluenceGPExpend");
+	m_iFreeTradeRoute = kResults.GetInt("FreeTradeRoute");
+	m_iFreeSpy = kResults.GetInt("FreeSpy");
 #endif
 	m_strWeLoveTheKingKey = kResults.GetText("WeLoveTheKing");
 	m_wstrWeLoveTheKing = GetLocalizedText(m_strWeLoveTheKingKey);
@@ -2278,6 +2292,41 @@ bool CvPolicyEntry::GetNoUnhappyIsolation() const
 bool CvPolicyEntry::GetDoubleBorderGA() const
 {
 	return m_bDoubleBorderGA;
+}
+/// Double influence from quests?
+bool CvPolicyEntry::GetDoubleQuestInfluence() const
+{
+	return m_bDoubleQuestInfluence;
+}
+/// Citadel Boost?
+int CvPolicyEntry::GetCitadelBoost() const
+{
+	return m_iCitadelBoost;
+}
+/// Gold from internal trade routes?
+int CvPolicyEntry::GetInternalTradeGold() const
+{
+	return m_iInternalTradeGold;
+}
+//Free WC Votes?
+int CvPolicyEntry::GetFreeWCVotes() const
+{
+	return m_iFreeWCVotes;
+}
+//Influence from GP expenditure?
+int CvPolicyEntry::GetInfluenceGPExpend() const
+{
+	return m_iInfluenceGPExpend;
+}
+//Free Trade Route?
+int CvPolicyEntry::GetFreeTradeRoute() const
+{
+	return m_iFreeTradeRoute;
+}
+//Free Spy?
+int CvPolicyEntry::GetFreeSpy() const
+{
+	return m_iFreeSpy;
 }
 /// Does this Policy grant yields from border growth?
 int CvPolicyEntry::GetYieldFromBorderGrowth(int i) const

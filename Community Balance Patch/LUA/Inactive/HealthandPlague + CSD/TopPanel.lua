@@ -853,14 +853,14 @@ function HappinessTipHandler( control )
 		local iUnhappinessFromOccupiedCities = Locale.ToNumber( pPlayer:GetUnhappinessFromOccupiedCities() / 100, "#.##" );
 		local iUnhappinessPublicOpinion = pPlayer:GetUnhappinessFromPublicOpinion();
 -- COMMUNITY PATCH CHANGES BELOW
-		local iUnhappinessFromCulture = pPlayer:GetUnhappinessFromCityCulture();
-		local iUnhappinessFromScience = pPlayer:GetUnhappinessFromCityScience();
-		local iUnhappinessFromDefense = pPlayer:GetUnhappinessFromCityDefense();
-		local iUnhappinessFromGold = pPlayer:GetUnhappinessFromCityGold();
-		local iUnhappinessFromConnection = pPlayer:GetUnhappinessFromCityConnection();
-		local iUnhappinessFromPillaged = pPlayer:GetUnhappinessFromCityPillaged();
 		local iUnhappinessFromStarving = pPlayer:GetUnhappinessFromCityStarving();
+		local iUnhappinessFromPillaged = pPlayer:GetUnhappinessFromCityPillaged();
+		local iUnhappinessFromGold = pPlayer:GetUnhappinessFromCityGold();
+		local iUnhappinessFromDefense = pPlayer:GetUnhappinessFromCityDefense();
+		local iUnhappinessFromConnection = pPlayer:GetUnhappinessFromCityConnection();
 		local iUnhappinessFromMinority = pPlayer:GetUnhappinessFromCityMinority();
+		local iUnhappinessFromScience = pPlayer:GetUnhappinessFromCityScience();
+		local iUnhappinessFromCulture = pPlayer:GetUnhappinessFromCityCulture();
 --END
 		
 		strText = strText .. "[NEWLINE][NEWLINE]";
@@ -905,38 +905,38 @@ function HappinessTipHandler( control )
 			strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_UNHAPPINESS_PUBLIC_OPINION", iUnhappinessPublicOpinion);
 		end
 --COMMUNITY PATCH CHANGES
-		if (iUnhappinessFromCulture > 0) then
+		if (iUnhappinessFromStarving > 0) then
 			strText = strText .. "[NEWLINE]";
-			strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_UNHAPPINESS_CULTURE", iUnhappinessFromCulture);
-		end	
+			strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_UNHAPPINESS_STARVING", iUnhappinessFromStarving);
+		end
+		if (iUnhappinessFromPillaged > 0) then
+			strText = strText .. "[NEWLINE]";
+			strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_UNHAPPINESS_PILLAGED", iUnhappinessFromPillaged);
+		end
+		if (iUnhappinessFromGold > 0) then
+			strText = strText .. "[NEWLINE]";
+			strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_UNHAPPINESS_GOLD", iUnhappinessFromGold);
+		end
+		if (iUnhappinessFromDefense > 0) then
+			strText = strText .. "[NEWLINE]";
+			strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_UNHAPPINESS_DEFENSE", iUnhappinessFromDefense);
+		end
+		if (iUnhappinessFromConnection > 0) then
+			strText = strText .. "[NEWLINE]";
+			strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_UNHAPPINESS_CONNECTION", iUnhappinessFromConnection);
+		end
+		if (iUnhappinessFromMinority > 0) then
+			strText = strText .. "[NEWLINE]";
+			strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_UNHAPPINESS_MINORITY", iUnhappinessFromMinority);
+		end		
 		if (iUnhappinessFromScience > 0) then
 			strText = strText .. "[NEWLINE]";
 			strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_UNHAPPINESS_SCIENCE", iUnhappinessFromScience);
 		end	
-		if (iUnhappinessFromDefense > 0) then
+		if (iUnhappinessFromCulture > 0) then
 			strText = strText .. "[NEWLINE]";
-			strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_UNHAPPINESS_DEFENSE", iUnhappinessFromDefense);
-		end	
-		if (iUnhappinessFromGold > 0) then
-			strText = strText .. "[NEWLINE]";
-			strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_UNHAPPINESS_GOLD", iUnhappinessFromGold);
-		end	
-		if (iUnhappinessFromConnection > 0) then
-			strText = strText .. "[NEWLINE]";
-			strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_UNHAPPINESS_CONNECTION", iUnhappinessFromConnection);
-		end	
-		if (iUnhappinessFromPillaged > 0) then
-			strText = strText .. "[NEWLINE]";
-			strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_UNHAPPINESS_PILLAGED", iUnhappinessFromPillaged);
-		end	
-		if (iUnhappinessFromStarving > 0) then
-			strText = strText .. "[NEWLINE]";
-			strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_UNHAPPINESS_STARVING", iUnhappinessFromStarving);
-		end	
-		if (iUnhappinessFromMinority > 0) then
-			strText = strText .. "[NEWLINE]";
-			strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_UNHAPPINESS_MINORITY", iUnhappinessFromMinority);
-		end	
+			strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_UNHAPPINESS_CULTURE", iUnhappinessFromCulture);
+		end
 --END CHANGES	
 		strText = strText .. "[/COLOR]";
 	

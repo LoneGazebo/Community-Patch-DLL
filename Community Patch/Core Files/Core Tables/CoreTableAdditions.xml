@@ -217,9 +217,8 @@
 	</Table>
 
 
-	<!-- TRAIT: Allows you to define a lump yield that is gained every time you start a trade route.-->
+	<!-- TRAIT: Allows you to define a lump yield that is gained every time you complete an international trade route.-->
 	<Table name="Trait_TradeRouteStartYield">
-		<!-- Refer to Belief_CityYieldChanges and Policy_CityYieldChanges  -->
 		<Column name="TraitType" type="text" reference="Traits(Type)"/>
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer" notnull="true"/>
@@ -227,12 +226,24 @@
 
 	<!-- TRAIT: Allows you to define a yield that is gained every turn a trade unit moves.-->
 	<Table name="Trait_YieldFromRouteMovement">
-		<!-- Refer to Belief_CityYieldChanges and Policy_CityYieldChanges  -->
 		<Column name="TraitType" type="text" reference="Traits(Type)"/>
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer" notnull="true"/>
 	</Table>
 
+	<!-- TRAIT: Allows you to define a yield that is gained every turn based on the number of luxury resources you export.-->
+	<Table name="Trait_YieldFromExport">
+		<Column name="TraitType" type="text" reference="Traits(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	
+	<!-- TRAIT: Allows you to define a yield that is gained every turn based on the number of luxury resources you import.-->
+	<Table name="Trait_YieldFromImport">
+		<Column name="TraitType" type="text" reference="Traits(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
 	<Yields>
 		<Row>
 			<ID>8</ID>

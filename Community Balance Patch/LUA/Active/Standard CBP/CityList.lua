@@ -142,14 +142,14 @@ function UpdateDisplay()
 		local iNumNormalCities = pPlayer:GetNumCities() - iNumOccupiedCities;
 		local iUnhappinessFromCityCount = Locale.ToNumber( pPlayer:GetUnhappinessFromCityCount() / 100, "#.##" );
 		local iCityYield = (iUnhappinessFromCityCount / iNumNormalCities);
-		local iCultureUnhappiness = pCity:GetUnhappinessFromCulture();
-		local iScienceUnhappiness = pCity:GetUnhappinessFromScience();
-		local iDefenseUnhappiness = pCity:GetUnhappinessFromDefense();
-		local iGoldUnhappiness = pCity:GetUnhappinessFromGold();
-		local iConnectionUnhappiness = pCity:GetUnhappinessFromConnection();
-		local iPillagedUnhappiness = pCity:GetUnhappinessFromPillaged();
 		local iStarvingUnhappiness = pCity:GetUnhappinessFromStarving();
+		local iPillagedUnhappiness = pCity:GetUnhappinessFromPillaged();
+		local iGoldUnhappiness = pCity:GetUnhappinessFromGold();
+		local iDefenseUnhappiness = pCity:GetUnhappinessFromDefense();
+		local iConnectionUnhappiness = pCity:GetUnhappinessFromConnection();
 		local iMinorityUnhappiness = pCity:GetUnhappinessFromMinority();
+		local iScienceUnhappiness = pCity:GetUnhappinessFromScience();
+		local iCultureUnhappiness = pCity:GetUnhappinessFromCulture();
 		
 		local iTotalUnhappiness = iScienceUnhappiness + iCultureUnhappiness + iDefenseUnhappiness	+ iGoldUnhappiness + iConnectionUnhappiness + iPillagedUnhappiness + iStarvingUnhappiness + iMinorityUnhappiness + iCityYield;
 
@@ -197,30 +197,14 @@ function UpdateDisplay()
 			end
 		end
 		
-		-- Culture tooltip
-		if (iCultureUnhappiness > 0) then
-			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_CULTURE_UNHAPPINESS", iCultureUnhappiness, iCultureYield, iCultureNeeded);
+		-- Starving tooltip
+		if (iStarvingUnhappiness ~= 0) then
+			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_STARVING_UNHAPPINESS", iStarvingUnhappiness);
 		end
-		if ((iCultureYield - iCultureNeeded) >= 0) then
-			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_CULTURE_UNHAPPINESS_SURPLUS", (iCultureYield - iCultureNeeded));
+		-- Pillaged tooltip
+		if (iPillagedUnhappiness ~= 0) then
+			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_PILLAGED_UNHAPPINESS", iPillagedUnhappiness);
 		end
-
-		-- Science tooltip
-		if (iScienceUnhappiness > 0) then
-			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_SCIENCE_UNHAPPINESS", iScienceUnhappiness, iScienceYield, iScienceNeeded);
-		end
-		if ((iScienceYield - iScienceNeeded) >= 0) then
-			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_SCIENCE_UNHAPPINESS_SURPLUS", (iScienceYield - iScienceNeeded));
-		end
-
-		-- Defense tooltip
-		if (iDefenseUnhappiness > 0) then
-			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_DEFENSE_UNHAPPINESS", iDefenseUnhappiness, iDefenseYield, iDefenseNeeded);
-		end
-		if ((iDefenseYield - iDefenseNeeded) >= 0) then
-			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_DEFENSE_UNHAPPINESS_SURPLUS", (iDefenseYield - iDefenseNeeded));
-		end
-
 		-- Gold tooltip
 		if (iGoldUnhappiness > 0) then
 			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_GOLD_UNHAPPINESS", iGoldUnhappiness, iGoldYield, iGoldNeeded);
@@ -228,27 +212,35 @@ function UpdateDisplay()
 		if ((iGoldYield - iGoldNeeded) >= 0) then
 			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_GOLD_UNHAPPINESS_SURPLUS", (iGoldYield - iGoldNeeded));
 		end
-
+		-- Defense tooltip
+		if (iDefenseUnhappiness > 0) then
+			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_DEFENSE_UNHAPPINESS", iDefenseUnhappiness, iDefenseYield, iDefenseNeeded);
+		end
+		if ((iDefenseYield - iDefenseNeeded) >= 0) then
+			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_DEFENSE_UNHAPPINESS_SURPLUS", (iDefenseYield - iDefenseNeeded));
+		end
 		-- Connection tooltip
 		if (iConnectionUnhappiness ~= 0) then
 			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_CONNECTION_UNHAPPINESS", iConnectionUnhappiness);
 		end
-
-		-- Pillaged tooltip
-		if (iPillagedUnhappiness ~= 0) then
-			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_PILLAGED_UNHAPPINESS", iPillagedUnhappiness);
-		end
-
-		-- Starving tooltip
-		if (iStarvingUnhappiness ~= 0) then
-			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_STARVING_UNHAPPINESS", iStarvingUnhappiness);
-		end
-
 		-- Minority tooltip
 		if (iMinorityUnhappiness ~= 0) then
 			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_MINORITY_UNHAPPINESS", iMinorityUnhappiness);
 		end
-
+		-- Science tooltip
+		if (iScienceUnhappiness > 0) then
+			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_SCIENCE_UNHAPPINESS", iScienceUnhappiness, iScienceYield, iScienceNeeded);
+		end
+		if ((iScienceYield - iScienceNeeded) >= 0) then
+			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_SCIENCE_UNHAPPINESS_SURPLUS", (iScienceYield - iScienceNeeded));
+		end
+		-- Culture tooltip
+		if (iCultureUnhappiness > 0) then
+			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_CULTURE_UNHAPPINESS", iCultureUnhappiness, iCultureYield, iCultureNeeded);
+		end
+		if ((iCultureYield - iCultureNeeded) >= 0) then
+			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_CULTURE_UNHAPPINESS_SURPLUS", (iCultureYield - iCultureNeeded));
+		end
 		instance.CityName:SetToolTipString(strOccupationTT);
 -- END   
         

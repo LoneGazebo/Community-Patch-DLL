@@ -9526,6 +9526,11 @@ void CvGame::getGlobalAverage() const
 					
 					//Disorder
 					iDefenseYield = pLoopCity->getStrengthValue(false);
+					iDefenseYield += (pLoopCity->GetCityBuildings()->GetBuildingDefense() * 4);
+					if(pLoopCity->GetGarrisonedUnit() != NULL)
+					{
+						iDefenseYield += pLoopCity->GetGarrisonedUnit()->GetBaseCombatStrength() * 5;
+					}
 					float iDefenseAvg = iDefenseYield / (float)iPopulation;
 					vfDefenseYield.push_back((float)iDefenseAvg);
 

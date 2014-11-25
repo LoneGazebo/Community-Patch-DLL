@@ -180,6 +180,26 @@ ALTER TABLE Policies ADD COLUMN 'ExtraMoves' integer default 0;
 -- Religious Pressure Mod Trade Route
 ALTER TABLE Policies ADD COLUMN 'TradeReligionModifier' integer default 0;
 
+-- Free Votes
+ALTER TABLE Policies ADD COLUMN 'DoubleQuestInfluence' boolean default false;
+
+-- Double XP from Quests
+ALTER TABLE Policies ADD COLUMN 'FreeWCVotes' integer default 0;
+
+-- GP Expend Influence Boost
+ALTER TABLE Policies ADD COLUMN 'InfluenceGPExpend' integer default 0;
+
+-- Free Trade Route
+ALTER TABLE Policies ADD COLUMN 'FreeTradeRoute' integer default 0;
+
+-- Free Spy
+ALTER TABLE Policies ADD COLUMN 'FreeSpy' integer default 0;
+
+-- Gold from Internal Trade Routes
+ALTER TABLE Policies ADD COLUMN 'InternalTradeGold' integer default 0;
+
+-- Boost Culture Bomb from Citadel
+ALTER TABLE Policies ADD COLUMN 'CitadelBoost' integer default 0;
 -- New Beliefs
 
 -- Combat bonus v. other religions in our lands

@@ -95,16 +95,28 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_EO_CITY_UNEDUCATED">
-			<Text>Illiteracy [COLOR_NEGATIVE_TEXT]({1_Num})[ENDCOLOR]</Text>
+			<Text>[COLOR_NEGATIVE_TEXT]({1_Num})[ENDCOLOR] [ICON_CITIZEN]: "We are [ICON_RESEARCH] illiterate!"</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EO_CITY_UNDEFENDED">
-			<Text>Disorder [COLOR_NEGATIVE_TEXT]({1_Num})[ENDCOLOR]</Text>
+			<Text>[COLOR_NEGATIVE_TEXT]({1_Num})[ENDCOLOR] [ICON_CITIZEN]: "This city is not [ICON_STRENGTH] safe!"</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EO_CITY_POOR">
-			<Text>Poverty [COLOR_NEGATIVE_TEXT]({1_Num})[ENDCOLOR]</Text>
+			<Text>[COLOR_NEGATIVE_TEXT]({1_Num})[ENDCOLOR] [ICON_CITIZEN]: "We need more [ICON_GOLD] money!"</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EO_CITY_UNCULTURED">
-			<Text>Boredom [COLOR_NEGATIVE_TEXT]({1_Num})[ENDCOLOR]</Text>
+			<Text>[COLOR_NEGATIVE_TEXT]({1_Num})[ENDCOLOR] [ICON_CITIZEN]: "Our city is [ICON_CULTURE] boring!"</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EO_CITY_UNCONNECTED">
+			<Text>[COLOR_NEGATIVE_TEXT]({1_Num})[ENDCOLOR] [ICON_CITIZEN]: "We are [ICON_BLOCKADED] disconnected!"</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EO_CITY_PILLAGED">
+			<Text>[COLOR_NEGATIVE_TEXT]({1_Num})[ENDCOLOR] [ICON_CITIZEN]: "Our lands are [ICON_RAZING] burning!"</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EO_CITY_STARVING">
+			<Text>[COLOR_NEGATIVE_TEXT]({1_Num})[ENDCOLOR] [ICON_CITIZEN]: "There is not enough [ICON_FOOD] food!"</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EO_CITY_RELIGION">
+			<Text>[COLOR_NEGATIVE_TEXT]({1_Num})[ENDCOLOR] [ICON_CITIZEN]: "We need more [ICON_RELIGION] followers!"</Text>
 		</Row>
 		
 		<!-- Luxury Tooltip -->

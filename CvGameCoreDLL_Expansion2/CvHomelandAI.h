@@ -284,9 +284,6 @@ private:
 	// Routines to execute homeland moves
 	void ExecuteFirstTurnSettlerMoves();
 	void ExecuteExplorerMoves();
-#if defined(MOD_BALANCE_CORE)
-	bool PickUpGoodies(CvEconomicAI* pEconomicAI, UnitHandle pUnit);
-#endif
 
 #if defined(MOD_AI_SECONDARY_WORKERS)
 	void ExecuteWorkerMoves(bool bSecondary = false);

@@ -1,6 +1,6 @@
 -- Honor 
 UPDATE Policies
-SET CultureFromBarbarianKills = '200'
+SET CultureFromBarbarianKills = '185'
 WHERE Type = 'POLICY_HONOR' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 -- Warrior Code (Now Imperialism)

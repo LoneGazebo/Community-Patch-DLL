@@ -6,12 +6,12 @@
 		<Row>
 			<BeliefType>BELIEF_CEREMONIAL_BURIAL</BeliefType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>25</Yield>
+			<Yield>50</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_CEREMONIAL_BURIAL</BeliefType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>25</Yield>
+			<Yield>50</Yield>
 		</Row>
 	</Belief_YieldFromGPUse>
 	<Belief_YieldBonusGoldenAge>
@@ -51,7 +51,7 @@
 		<Row>
 			<BeliefType>BELIEF_PILGRIMAGE</BeliefType>
 			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Yield>15</Yield>
+			<Yield>30</Yield>
 		</Row>
 	</Belief_YieldFromSpread>
 
@@ -59,7 +59,7 @@
 		<Row>
 			<BeliefType>BELIEF_TITHE</BeliefType>
 			<YieldType>YIELD_TOURISM</YieldType>
-			<Yield>10</Yield>
+			<Yield>20</Yield>
 		</Row>
 	</Belief_YieldFromForeignSpread>
 
@@ -67,12 +67,12 @@
 		<Row>
 			<BeliefType>BELIEF_INTERFAITH_DIALOGUE</BeliefType>
 			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Yield>10</Yield>
+			<Yield>20</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_INTERFAITH_DIALOGUE</BeliefType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>10</Yield>
+			<Yield>20</Yield>
 		</Row>
 	</Belief_YieldFromConquest>
 
@@ -80,17 +80,17 @@
 		<Row>
 			<BeliefType>BELIEF_CHURCH_PROPERTY</BeliefType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>25</Yield>
+			<Yield>50</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_CHURCH_PROPERTY</BeliefType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>25</Yield>
+			<Yield>50</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_CHURCH_PROPERTY</BeliefType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>25</Yield>
+			<Yield>50</Yield>
 		</Row>
 	</Belief_YieldFromPolicyUnlock>
 
@@ -98,27 +98,27 @@
 		<Row>
 			<BeliefType>BELIEF_INITIATION_RITES</BeliefType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>100</Yield>
+			<Yield>400</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_INITIATION_RITES</BeliefType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>100</Yield>
+			<Yield>400</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_INITIATION_RITES</BeliefType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>100</Yield>
+			<Yield>400</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_INITIATION_RITES</BeliefType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>100</Yield>
+			<Yield>400</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_INITIATION_RITES</BeliefType>
 			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Yield>100</Yield>
+			<Yield>400</Yield>
 		</Row>
 	</Belief_YieldFromEraUnlock>
 
@@ -126,7 +126,7 @@
 		<Row>
 			<BeliefType>BELIEF_PAPAL_PRIMACY</BeliefType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>25</Yield>
+			<Yield>40</Yield>
 		</Row>
 	</Belief_YieldFromConversion>
 

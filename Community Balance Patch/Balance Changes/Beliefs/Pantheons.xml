@@ -32,11 +32,11 @@
 			<BeliefType>BELIEF_EARTH_MOTHER</BeliefType>
 			<BuildingClassType>BUILDINGCLASS_WALLS</BuildingClassType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<YieldChange>1</YieldChange>
+			<YieldChange>2</YieldChange>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_OPEN_SKY</BeliefType>
-			<BuildingClassType>BUILDINGCLASS_CIRCUS</BuildingClassType>
+			<BuildingClassType>BUILDINGCLASS_STABLE</BuildingClassType>
 			<YieldType>YIELD_CULTURE</YieldType>
 			<YieldChange>2</YieldChange>
 		</Row>
@@ -44,13 +44,13 @@
 			<BeliefType>BELIEF_GOD_SEA</BeliefType>
 			<BuildingClassType>BUILDINGCLASS_LIGHTHOUSE</BuildingClassType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
-			<YieldChange>1</YieldChange>
+			<YieldChange>2</YieldChange>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_GOD_WAR</BeliefType>
 			<BuildingClassType>BUILDINGCLASS_COLOSSEUM</BuildingClassType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<YieldChange>1</YieldChange>
+			<YieldChange>2</YieldChange>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_GODDESS_STRATEGY</BeliefType>
@@ -75,7 +75,7 @@
 		<Row>
 			<BeliefType>BELIEF_ANCESTOR_WORSHIP</BeliefType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>3</Yield>
+			<Yield>5</Yield>
 		</Row>
 	</Belief_YieldPerPop>
 	<Belief_YieldPerGPT>
@@ -120,7 +120,7 @@
 		<Row>
 			<BeliefType>BELIEF_MONUMENT_GODS</BeliefType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>1</Yield>
+			<Yield>3</Yield>
 		</Row>
 	</Belief_YieldChangeWorldWonder>
 	<Belief_YieldChangeNaturalWonder>
@@ -167,7 +167,7 @@
 		<Row>
 			<BeliefType>BELIEF_FAITH_HEALERS</BeliefType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>3</Yield>
+			<Yield>5</Yield>
 		</Row>
 	</Belief_YieldPerHeal>
 	<Belief_FeatureYieldChanges>

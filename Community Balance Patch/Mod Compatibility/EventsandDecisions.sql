@@ -27,4 +27,3 @@ UPDATE UnitPromotions
 UPDATE UnitPromotions
 	SET RangedAttackModifier = 20
 	WHERE Type = 'PROMOTION_DECISIONS_HUNSRECURVEBOW';
-

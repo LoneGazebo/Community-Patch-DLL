@@ -1006,7 +1006,29 @@ bool IsSafe(CvPlayerAI* pPlayer)
 GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveWriter(CvUnit* pGreatWriter)
 {
 	GreatPeopleDirectiveTypes eDirective = NO_GREAT_PEOPLE_DIRECTIVE_TYPE;
+#if defined(MOD_BALANCE_CORE)
+	// Create Great Work if there is a slot
+	GreatWorkType eGreatWork = pGreatWriter->GetGreatWork();
+	if (eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE && GetEconomicAI()->GetBestGreatWorkCity(pGreatWriter->plot(), eGreatWork))
+	{
+		eDirective = GREAT_PEOPLE_DIRECTIVE_USE_POWER;
+	}
+	// Defend against ideology pressure if not going for culture win
+	if (eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE && !GetDiplomacyAI()->IsGoingForCultureVictory() && GetCulture()->GetPublicOpinionUnhappiness() > 10)
+	{
+		eDirective = GREAT_PEOPLE_DIRECTIVE_CULTURE_BLAST;
+	}
 
+	// If not going for culture win and a Level 2 or 3 Tenet is available, try to snag it
+	if (eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE && !GetDiplomacyAI()->IsGoingForCultureVictory() && GetPlayerPolicies()->CanGetAdvancedTenet())
+	{
+		eDirective = GREAT_PEOPLE_DIRECTIVE_CULTURE_BLAST;
+	}
+	if ((GC.getGame().getGameTurn() - pGreatWriter->getGameTurnCreated()) >= GC.getAI_HOMELAND_GREAT_PERSON_TURNS_TO_WAIT())
+	{
+		eDirective = GREAT_PEOPLE_DIRECTIVE_CULTURE_BLAST;
+	}
+#else
 	// Defend against ideology pressure if not going for culture win
 	if (eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE && !GetDiplomacyAI()->IsGoingForCultureVictory() && GetCulture()->GetPublicOpinionUnhappiness() > 10)
 	{
@@ -1033,22 +1055,39 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveWriter(CvUnit* pGreatWriter)
 	{
 		eDirective = GREAT_PEOPLE_DIRECTIVE_CULTURE_BLAST;
 	}
-
-#if defined(MOD_AI_SMART_GREAT_PEOPLE)
-	// If still no directive, defaults at building great work.
-	if (MOD_AI_SMART_GREAT_PEOPLE && eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE)
-	{
-		eDirective = GREAT_PEOPLE_DIRECTIVE_USE_POWER;
-	}
 #endif
-
 	return eDirective;
 }
 
 GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveArtist(CvUnit* pGreatArtist)
 {
 	GreatPeopleDirectiveTypes eDirective = NO_GREAT_PEOPLE_DIRECTIVE_TYPE;
-
+#if defined(MOD_BALANCE_CORE)
+	// Create Great Work if there is a slot
+	GreatWorkType eGreatWork = pGreatArtist->GetGreatWork();
+	if (eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE && GetEconomicAI()->GetBestGreatWorkCity(pGreatArtist->plot(), eGreatWork))
+	{
+		eDirective = GREAT_PEOPLE_DIRECTIVE_USE_POWER;
+	}
+	// If finishing up spaceship parts, Golden Age will help build those quickly
+	if (eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE && GetDiplomacyAI()->IsGoingForSpaceshipVictory() && EconomicAIHelpers::IsTestStrategy_GS_SpaceshipHomestretch(this))
+	{
+		eDirective = GREAT_PEOPLE_DIRECTIVE_GOLDEN_AGE;
+	}
+	if (eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE && GetPlayerTraits()->GetGoldenAgeTourismModifier() > 0 && GetCulture()->GetNumCivsInfluentialOn() > 0)
+	{
+		eDirective = GREAT_PEOPLE_DIRECTIVE_GOLDEN_AGE;
+	}
+	// If Persia and I'm at war, get a Golden Age going
+	if (eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE && GetPlayerTraits()->GetGoldenAgeMoveChange() > 0 && GetMilitaryAI()->GetNumberCivsAtWarWith() > 1 && !isGoldenAge())
+	{
+		eDirective = GREAT_PEOPLE_DIRECTIVE_GOLDEN_AGE;
+	}
+	if ((GC.getGame().getGameTurn() - pGreatArtist->getGameTurnCreated()) >= GC.getAI_HOMELAND_GREAT_PERSON_TURNS_TO_WAIT())
+	{
+		eDirective = GREAT_PEOPLE_DIRECTIVE_GOLDEN_AGE;
+	}
+#else
 	// Defend against ideology pressure if not going for culture win
 	if (eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE && !GetDiplomacyAI()->IsGoingForCultureVictory() && GetCulture()->GetPublicOpinionUnhappiness() > 10)
 	{
@@ -1107,7 +1146,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveArtist(CvUnit* pGreatArtist)
 		eDirective = GREAT_PEOPLE_DIRECTIVE_USE_POWER;
 	}
 #endif
-
+#endif
 	return eDirective;
 }
 
@@ -1164,7 +1203,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveMusician(CvUnit* pGreatMusicia
 GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveEngineer(CvUnit* pGreatEngineer)
 {
 	GreatPeopleDirectiveTypes eDirective = NO_GREAT_PEOPLE_DIRECTIVE_TYPE;
-
+	
 	// look for a wonder to rush
 	if(eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE)
 	{
@@ -1172,10 +1211,40 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveEngineer(CvUnit* pGreatEnginee
 		BuildingTypes eNextWonderDesired = GetWonderProductionAI()->ChooseWonder(false /*bUseAsyncRandom*/, false /*bAdjustForOtherPlayers*/, iNextWonderWeight);
 		if(eNextWonderDesired != NO_BUILDING)
 		{
+#if defined(MOD_BALANCE_CORE)
+			//Let's make sure the wonder is worth it. Need scales with era. This should, hopefully, discount the value of wonders by the mid-game.
+			CvBuildingEntry* thisBuildingEntry = GC.getBuildingInfo(eNextWonderDesired);
+			if(thisBuildingEntry)
+			{
+				const CvBuildingClassInfo& kBuildingClassInfo = thisBuildingEntry->GetBuildingClassInfo();
+				//Is this actually a world wonder?
+				if(kBuildingClassInfo.getMaxGlobalInstances() != -1)
+				{
+					if(GetWonderProductionAI()->GetWeight(eNextWonderDesired) > (10000 * GetCurrentEra() + 1))
+					{
+#endif
 			eDirective = GREAT_PEOPLE_DIRECTIVE_USE_POWER;
+#if defined(MOD_BALANCE_CORE)
+					}
+				}
+			}
+#endif
 		}
 	}
-
+#if defined(MOD_BALANCE_CORE)
+	ImprovementTypes eManufactory = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_MANUFACTORY");
+	int iFlavor =  GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_PRODUCTION"));
+	iFlavor -= (GetCurrentEra() + GetNumUnitsWithUnitAI(UNITAI_ENGINEER));
+	// Build manufactories up to your flavor.
+	if(eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE)
+	{
+		int iNumImprovement = getImprovementCount(eManufactory);
+		if(iNumImprovement < iFlavor)
+		{
+			eDirective = GREAT_PEOPLE_DIRECTIVE_CONSTRUCT_IMPROVEMENT;
+		}
+	}
+#else
 	if (eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE && GC.getGame().getGameTurn() <= ((GC.getGame().getEstimateEndTurn() * 3) / 4))
 	{
 		if (GetDiplomacyAI()->IsGoingForWorldConquest())
@@ -1183,7 +1252,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveEngineer(CvUnit* pGreatEnginee
 			eDirective = GREAT_PEOPLE_DIRECTIVE_CONSTRUCT_IMPROVEMENT;
 		}
 	}
-
+#endif
 	if(eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE && (GC.getGame().getGameTurn() - pGreatEngineer->getGameTurnCreated()) >= GC.getAI_HOMELAND_GREAT_PERSON_TURNS_TO_WAIT())
 	{
 		eDirective = GREAT_PEOPLE_DIRECTIVE_CONSTRUCT_IMPROVEMENT;
@@ -1208,6 +1277,21 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveMerchant(CvUnit* pGreatMerchan
 		return NO_GREAT_PEOPLE_DIRECTIVE_TYPE;
 	}
 
+#if defined(MOD_BALANCE_CORE)
+	ImprovementTypes eCustomHouse = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_CUSTOMS_HOUSE");
+	int iFlavor =  GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GOLD"));
+	iFlavor -= (GetCurrentEra() + GetNumUnitsWithUnitAI(UNITAI_MERCHANT));
+	// build custom houses up to your flavor.
+	bool bConstructImprovement = !bTheVeniceException;
+	if(bConstructImprovement && eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE)
+	{
+		int iNumImprovement = getImprovementCount(eCustomHouse);
+		if(iNumImprovement < iFlavor)
+		{
+			eDirective = GREAT_PEOPLE_DIRECTIVE_CONSTRUCT_IMPROVEMENT;
+		}
+	}
+#else
 	if (eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE && GC.getGame().getGameTurn() <= ((GC.getGame().getEstimateEndTurn() * 2) / 4))
 	{
 #if defined(MOD_DIPLOMACY_CITYSTATES)
@@ -1222,17 +1306,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveMerchant(CvUnit* pGreatMerchan
 			eDirective = GREAT_PEOPLE_DIRECTIVE_CONSTRUCT_IMPROVEMENT;
 		}
 	}
-
-#if defined(MOD_AI_SMART_GREAT_PEOPLE)
-	if (MOD_AI_SMART_GREAT_PEOPLE && eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE && GC.getGame().getGameTurn() <= ((GC.getGame().getEstimateEndTurn() * 1) / 4))
-	{
-		if (!bTheVeniceException)
-		{
-			eDirective = GREAT_PEOPLE_DIRECTIVE_CONSTRUCT_IMPROVEMENT;
-		}	
-	}
 #endif
-
 	// Attempt a run to a minor civ
 	if(eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE && IsSafe(this))
 	{
@@ -1260,10 +1334,25 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveScientist(CvUnit* /*pGreatScie
 	{
 		eDirective = GREAT_PEOPLE_DIRECTIVE_USE_POWER;
 	}
+#if defined(MOD_BALANCE_CORE)
+	if(eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE)
+	{
+		ImprovementTypes eAcademy = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_ACADEMY");
+		int iFlavor =  GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SCIENCE"));
+		//This is to prevent a buildup of scientists if the AI is having a hard time planting them.
+		iFlavor -= (GetCurrentEra() + GetNumUnitsWithUnitAI(UNITAI_SCIENTIST));
+		// Even if not going spaceship right now, build academies up to your flavor.
+		int iNumImprovement = getImprovementCount(eAcademy);
+		if(iNumImprovement < iFlavor)
+		{
+			eDirective = GREAT_PEOPLE_DIRECTIVE_CONSTRUCT_IMPROVEMENT;
+		}
+	}
+#else
 
 #if defined(MOD_AI_SMART_GREAT_PEOPLE)
-	int iDivisor = MOD_AI_SMART_GREAT_PEOPLE ? 3 : 4;
-	if(eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE && GC.getGame().getGameTurn() <= ((GC.getGame().getEstimateEndTurn() * 1) / iDivisor))
+	//First half. Simple.
+	if(eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE && GC.getGame().getGameTurn() <= ((GC.getGame().getEstimateEndTurn() * 1) / 2))
 #else
 	if(eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE && GC.getGame().getGameTurn() <= ((GC.getGame().getEstimateEndTurn() * 1) / 4))
 #endif
@@ -1272,18 +1361,8 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveScientist(CvUnit* /*pGreatScie
 		{
 			eDirective = GREAT_PEOPLE_DIRECTIVE_CONSTRUCT_IMPROVEMENT;
 		}
-#if defined(MOD_AI_SMART_GREAT_PEOPLE)
-		else if (MOD_AI_SMART_GREAT_PEOPLE)
-		{
-			// Even if not going spaceship right now, build academy 66% of times.
-			if ((GC.getGame().getGameTurn()) % 3 != 0)
-			{
-				eDirective = GREAT_PEOPLE_DIRECTIVE_CONSTRUCT_IMPROVEMENT;
-			}
-		}
-#endif
 	}
-
+#endif
 	if (eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE)
 	{
 		// a tech boost is never bad
@@ -1331,28 +1410,27 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveProphet(CvUnit*)
 	ReligionTypes eReligion = GetReligions()->GetReligionCreatedByPlayer();
 	const CvReligion* pMyReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, GetID());
 
-	// CASE 1: I have an enhanced religion
+	// CASE 1: I have an enhanced religion. 
 	if (pMyReligion && pMyReligion->m_bEnhanced)
 	{
-#if defined(MOD_AI_SMART_GREAT_PEOPLE)
-		bool bSpreadReligion = GetReligionAI()->ChooseProphetConversionCity(false/*bOnlyBetterThanEnhancingReligion*/);
-		
-		// If gets a phophet very early in the game progress, holy site is a great option.
-		if(MOD_AI_SMART_GREAT_PEOPLE && GC.getGame().getGameTurn() <= ((GC.getGame().getEstimateEndTurn() * 1) / 5))
+#if defined(MOD_BALANCE_CORE)
+		ImprovementTypes eHolySite = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_HOLY_SITE");
+		int iFlavor =  GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RELIGION"));
+		iFlavor -= GetNumUnitsWithUnitAI(UNITAI_PROPHET);
+		//Let's use our prophets for improvments instead of wasting them on conversion.
+		int iNumImprovement = getImprovementCount(eHolySite);
+		if(iNumImprovement < iFlavor)
 		{
-			if ((GC.getGame().getGameTurn()) % 3 != 0)
-			{
-				bSpreadReligion = false;
-			}
+			eDirective = GREAT_PEOPLE_DIRECTIVE_CONSTRUCT_IMPROVEMENT;
 		}
-#endif
-
-		// Spread religion if there is any city that needs it
-#if defined(MOD_AI_SMART_GREAT_PEOPLE)
-		if (bSpreadReligion)
+		//Only convert once we've hit our peak.
+		if(eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE)
+		{
+			eDirective = GREAT_PEOPLE_DIRECTIVE_SPREAD_RELIGION;
+		}
 #else
+		// Spread religion if there is any city that needs it
 		if (GetReligionAI()->ChooseProphetConversionCity(false/*bOnlyBetterThanEnhancingReligion*/))
-#endif
 		{
 			eDirective = GREAT_PEOPLE_DIRECTIVE_SPREAD_RELIGION;
 		}
@@ -1360,6 +1438,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveProphet(CvUnit*)
 		{
 			eDirective = GREAT_PEOPLE_DIRECTIVE_CONSTRUCT_IMPROVEMENT;
 		}
+#endif
 	}
 
 

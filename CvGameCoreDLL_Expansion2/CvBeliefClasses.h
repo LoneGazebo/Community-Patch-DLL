@@ -606,9 +606,7 @@ private:
 	TechTypes m_eSpreadModifierDoublingTech;
 
 	BeliefList m_ReligionBeliefs;
-#if defined(MOD_BALANCE_CORE)
-	std::vector<int> m_BeliefLookup;
-#endif
+
 	// Arrays
 	int* m_paiBuildingClassEnabled;
 };

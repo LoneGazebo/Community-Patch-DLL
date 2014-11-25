@@ -585,6 +585,9 @@ private:
 	void BuyInquisitor(ReligionTypes eReligion);
 	void BuyGreatPerson(UnitTypes eUnit);
 	void BuyFaithBuilding(ReligionTypes eReligion, BuildingClassTypes eBuildingClass);
+#if defined(MOD_BALANCE_CORE_BELIEFS)
+	bool BuyAnyAvailableNonFaithUnit();
+#endif
 	bool BuyAnyAvailableNonFaithBuilding();
 	bool BuyAnyAvailableFaithBuilding();
 
@@ -602,6 +605,9 @@ private:
 	bool HaveNearbyConversionTarget(ReligionTypes eReligion, bool bCanIncludeReligionStarter) const;
 	bool HaveEnoughInquisitors(ReligionTypes eReligion) const;
 	BuildingClassTypes FaithBuildingAvailable(ReligionTypes eReligion) const;
+#if defined(MOD_BALANCE_CORE_BELIEFS)
+	bool CanBuyNonFaithUnit() const;
+#endif
 	bool CanBuyNonFaithBuilding() const;
 	UnitTypes GetDesiredFaithGreatPerson() const;
 

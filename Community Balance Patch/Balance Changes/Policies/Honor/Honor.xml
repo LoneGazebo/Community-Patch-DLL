@@ -6,72 +6,42 @@
 		<Row>
 			<PolicyType>POLICY_HONOR</PolicyType>
 			<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
-			<ProductionModifier>3</ProductionModifier>
-		</Row>
-		<Row>
-			<PolicyType>POLICY_HONOR</PolicyType>
-			<UnitCombatType>UNITCOMBAT_NAVALRANGED</UnitCombatType>
-			<ProductionModifier>3</ProductionModifier>
-		</Row>
-		<Row>
-			<PolicyType>POLICY_HONOR</PolicyType>
-			<UnitCombatType>UNITCOMBAT_SUBMARINE</UnitCombatType>
-			<ProductionModifier>3</ProductionModifier>
-		</Row>
-		<Row>
-			<PolicyType>POLICY_HONOR</PolicyType>
-			<UnitCombatType>UNITCOMBAT_CARRIER</UnitCombatType>
-			<ProductionModifier>3</ProductionModifier>
-		</Row>
-		<Row>
-			<PolicyType>POLICY_HONOR</PolicyType>
-			<UnitCombatType>UNITCOMBAT_NAVALMELEE</UnitCombatType>
-			<ProductionModifier>3</ProductionModifier>
+			<ProductionModifier>5</ProductionModifier>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_HONOR</PolicyType>
 			<UnitCombatType>UNITCOMBAT_ARMOR</UnitCombatType>
-			<ProductionModifier>3</ProductionModifier>
-		</Row>
-		<Row>
-			<PolicyType>POLICY_HONOR</PolicyType>
-			<UnitCombatType>UNITCOMBAT_BOMBER</UnitCombatType>
-			<ProductionModifier>3</ProductionModifier>
+			<ProductionModifier>5</ProductionModifier>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_HONOR</PolicyType>
 			<UnitCombatType>UNITCOMBAT_HELICOPTER</UnitCombatType>
-			<ProductionModifier>3</ProductionModifier>
+			<ProductionModifier>5</ProductionModifier>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_HONOR</PolicyType>
 			<UnitCombatType>UNITCOMBAT_GUN</UnitCombatType>
-			<ProductionModifier>3</ProductionModifier>
+			<ProductionModifier>5</ProductionModifier>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_HONOR</PolicyType>
 			<UnitCombatType>UNITCOMBAT_SIEGE</UnitCombatType>
-			<ProductionModifier>3</ProductionModifier>
-		</Row>
-		<Row>
-			<PolicyType>POLICY_HONOR</PolicyType>
-			<UnitCombatType>UNITCOMBAT_FIGHTER</UnitCombatType>
-			<ProductionModifier>3</ProductionModifier>
+			<ProductionModifier>5</ProductionModifier>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_HONOR</PolicyType>
 			<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
-			<ProductionModifier>3</ProductionModifier>
+			<ProductionModifier>5</ProductionModifier>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_HONOR</PolicyType>
 			<UnitCombatType>UNITCOMBAT_ARCHER</UnitCombatType>
-			<ProductionModifier>3</ProductionModifier>
+			<ProductionModifier>5</ProductionModifier>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_HONOR</PolicyType>
 			<UnitCombatType>UNITCOMBAT_RECON</UnitCombatType>
-			<ProductionModifier>3</ProductionModifier>
+			<ProductionModifier>5</ProductionModifier>
 		</Row>
 		<!-- Warrior Code -->
 		<Row>
@@ -81,32 +51,7 @@
 		</Row>
 		<Row>
 			<PolicyType>POLICY_WARRIOR_CODE</PolicyType>
-			<UnitCombatType>UNITCOMBAT_NAVALRANGED</UnitCombatType>
-			<ProductionModifier>3</ProductionModifier>
-		</Row>
-		<Row>
-			<PolicyType>POLICY_WARRIOR_CODE</PolicyType>
-			<UnitCombatType>UNITCOMBAT_SUBMARINE</UnitCombatType>
-			<ProductionModifier>3</ProductionModifier>
-		</Row>
-		<Row>
-			<PolicyType>POLICY_WARRIOR_CODE</PolicyType>
-			<UnitCombatType>UNITCOMBAT_CARRIER</UnitCombatType>
-			<ProductionModifier>3</ProductionModifier>
-		</Row>
-		<Row>
-			<PolicyType>POLICY_WARRIOR_CODE</PolicyType>
-			<UnitCombatType>UNITCOMBAT_NAVALMELEE</UnitCombatType>
-			<ProductionModifier>3</ProductionModifier>
-		</Row>
-		<Row>
-			<PolicyType>POLICY_WARRIOR_CODE</PolicyType>
 			<UnitCombatType>UNITCOMBAT_ARMOR</UnitCombatType>
-			<ProductionModifier>3</ProductionModifier>
-		</Row>
-		<Row>
-			<PolicyType>POLICY_WARRIOR_CODE</PolicyType>
-			<UnitCombatType>UNITCOMBAT_BOMBER</UnitCombatType>
 			<ProductionModifier>3</ProductionModifier>
 		</Row>
 		<Row>
@@ -122,11 +67,6 @@
 		<Row>
 			<PolicyType>POLICY_WARRIOR_CODE</PolicyType>
 			<UnitCombatType>UNITCOMBAT_SIEGE</UnitCombatType>
-			<ProductionModifier>3</ProductionModifier>
-		</Row>
-		<Row>
-			<PolicyType>POLICY_WARRIOR_CODE</PolicyType>
-			<UnitCombatType>UNITCOMBAT_FIGHTER</UnitCombatType>
 			<ProductionModifier>3</ProductionModifier>
 		</Row>
 		<Row>
@@ -152,32 +92,7 @@
 		</Row>
 		<Row>
 			<PolicyType>POLICY_DISCIPLINE</PolicyType>
-			<UnitCombatType>UNITCOMBAT_NAVALRANGED</UnitCombatType>
-			<ProductionModifier>3</ProductionModifier>
-		</Row>
-		<Row>
-			<PolicyType>POLICY_DISCIPLINE</PolicyType>
-			<UnitCombatType>UNITCOMBAT_SUBMARINE</UnitCombatType>
-			<ProductionModifier>3</ProductionModifier>
-		</Row>
-		<Row>
-			<PolicyType>POLICY_DISCIPLINE</PolicyType>
-			<UnitCombatType>UNITCOMBAT_CARRIER</UnitCombatType>
-			<ProductionModifier>3</ProductionModifier>
-		</Row>
-		<Row>
-			<PolicyType>POLICY_DISCIPLINE</PolicyType>
-			<UnitCombatType>UNITCOMBAT_NAVALMELEE</UnitCombatType>
-			<ProductionModifier>3</ProductionModifier>
-		</Row>
-		<Row>
-			<PolicyType>POLICY_DISCIPLINE</PolicyType>
 			<UnitCombatType>UNITCOMBAT_ARMOR</UnitCombatType>
-			<ProductionModifier>3</ProductionModifier>
-		</Row>
-		<Row>
-			<PolicyType>POLICY_DISCIPLINE</PolicyType>
-			<UnitCombatType>UNITCOMBAT_BOMBER</UnitCombatType>
 			<ProductionModifier>3</ProductionModifier>
 		</Row>
 		<Row>
@@ -193,11 +108,6 @@
 		<Row>
 			<PolicyType>POLICY_DISCIPLINE</PolicyType>
 			<UnitCombatType>UNITCOMBAT_SIEGE</UnitCombatType>
-			<ProductionModifier>3</ProductionModifier>
-		</Row>
-		<Row>
-			<PolicyType>POLICY_DISCIPLINE</PolicyType>
-			<UnitCombatType>UNITCOMBAT_FIGHTER</UnitCombatType>
 			<ProductionModifier>3</ProductionModifier>
 		</Row>
 		<Row>
@@ -223,32 +133,7 @@
 		</Row>
 		<Row>
 			<PolicyType>POLICY_MILITARY_TRADITION</PolicyType>
-			<UnitCombatType>UNITCOMBAT_NAVALRANGED</UnitCombatType>
-			<ProductionModifier>3</ProductionModifier>
-		</Row>
-		<Row>
-			<PolicyType>POLICY_MILITARY_TRADITION</PolicyType>
-			<UnitCombatType>UNITCOMBAT_SUBMARINE</UnitCombatType>
-			<ProductionModifier>3</ProductionModifier>
-		</Row>
-		<Row>
-			<PolicyType>POLICY_MILITARY_TRADITION</PolicyType>
-			<UnitCombatType>UNITCOMBAT_CARRIER</UnitCombatType>
-			<ProductionModifier>3</ProductionModifier>
-		</Row>
-		<Row>
-			<PolicyType>POLICY_MILITARY_TRADITION</PolicyType>
-			<UnitCombatType>UNITCOMBAT_NAVALMELEE</UnitCombatType>
-			<ProductionModifier>3</ProductionModifier>
-		</Row>
-		<Row>
-			<PolicyType>POLICY_MILITARY_TRADITION</PolicyType>
 			<UnitCombatType>UNITCOMBAT_ARMOR</UnitCombatType>
-			<ProductionModifier>3</ProductionModifier>
-		</Row>
-		<Row>
-			<PolicyType>POLICY_MILITARY_TRADITION</PolicyType>
-			<UnitCombatType>UNITCOMBAT_BOMBER</UnitCombatType>
 			<ProductionModifier>3</ProductionModifier>
 		</Row>
 		<Row>
@@ -264,11 +149,6 @@
 		<Row>
 			<PolicyType>POLICY_MILITARY_TRADITION</PolicyType>
 			<UnitCombatType>UNITCOMBAT_SIEGE</UnitCombatType>
-			<ProductionModifier>3</ProductionModifier>
-		</Row>
-		<Row>
-			<PolicyType>POLICY_MILITARY_TRADITION</PolicyType>
-			<UnitCombatType>UNITCOMBAT_FIGHTER</UnitCombatType>
 			<ProductionModifier>3</ProductionModifier>
 		</Row>
 		<Row>
@@ -294,32 +174,7 @@
 		</Row>
 		<Row>
 			<PolicyType>POLICY_MILITARY_CASTE</PolicyType>
-			<UnitCombatType>UNITCOMBAT_NAVALRANGED</UnitCombatType>
-			<ProductionModifier>3</ProductionModifier>
-		</Row>
-		<Row>
-			<PolicyType>POLICY_MILITARY_CASTE</PolicyType>
-			<UnitCombatType>UNITCOMBAT_SUBMARINE</UnitCombatType>
-			<ProductionModifier>3</ProductionModifier>
-		</Row>
-		<Row>
-			<PolicyType>POLICY_MILITARY_CASTE</PolicyType>
-			<UnitCombatType>UNITCOMBAT_CARRIER</UnitCombatType>
-			<ProductionModifier>3</ProductionModifier>
-		</Row>
-		<Row>
-			<PolicyType>POLICY_MILITARY_CASTE</PolicyType>
-			<UnitCombatType>UNITCOMBAT_NAVALMELEE</UnitCombatType>
-			<ProductionModifier>3</ProductionModifier>
-		</Row>
-		<Row>
-			<PolicyType>POLICY_MILITARY_CASTE</PolicyType>
 			<UnitCombatType>UNITCOMBAT_ARMOR</UnitCombatType>
-			<ProductionModifier>3</ProductionModifier>
-		</Row>
-		<Row>
-			<PolicyType>POLICY_MILITARY_CASTE</PolicyType>
-			<UnitCombatType>UNITCOMBAT_BOMBER</UnitCombatType>
 			<ProductionModifier>3</ProductionModifier>
 		</Row>
 		<Row>
@@ -335,11 +190,6 @@
 		<Row>
 			<PolicyType>POLICY_MILITARY_CASTE</PolicyType>
 			<UnitCombatType>UNITCOMBAT_SIEGE</UnitCombatType>
-			<ProductionModifier>3</ProductionModifier>
-		</Row>
-		<Row>
-			<PolicyType>POLICY_MILITARY_CASTE</PolicyType>
-			<UnitCombatType>UNITCOMBAT_FIGHTER</UnitCombatType>
 			<ProductionModifier>3</ProductionModifier>
 		</Row>
 		<Row>
@@ -365,32 +215,7 @@
 		</Row>
 		<Row>
 			<PolicyType>POLICY_PROFESSIONAL_ARMY</PolicyType>
-			<UnitCombatType>UNITCOMBAT_NAVALRANGED</UnitCombatType>
-			<ProductionModifier>3</ProductionModifier>
-		</Row>
-		<Row>
-			<PolicyType>POLICY_PROFESSIONAL_ARMY</PolicyType>
-			<UnitCombatType>UNITCOMBAT_SUBMARINE</UnitCombatType>
-			<ProductionModifier>3</ProductionModifier>
-		</Row>
-		<Row>
-			<PolicyType>POLICY_PROFESSIONAL_ARMY</PolicyType>
-			<UnitCombatType>UNITCOMBAT_CARRIER</UnitCombatType>
-			<ProductionModifier>3</ProductionModifier>
-		</Row>
-		<Row>
-			<PolicyType>POLICY_PROFESSIONAL_ARMY</PolicyType>
-			<UnitCombatType>UNITCOMBAT_NAVALMELEE</UnitCombatType>
-			<ProductionModifier>3</ProductionModifier>
-		</Row>
-		<Row>
-			<PolicyType>POLICY_PROFESSIONAL_ARMY</PolicyType>
 			<UnitCombatType>UNITCOMBAT_ARMOR</UnitCombatType>
-			<ProductionModifier>3</ProductionModifier>
-		</Row>
-		<Row>
-			<PolicyType>POLICY_PROFESSIONAL_ARMY</PolicyType>
-			<UnitCombatType>UNITCOMBAT_BOMBER</UnitCombatType>
 			<ProductionModifier>3</ProductionModifier>
 		</Row>
 		<Row>
@@ -406,11 +231,6 @@
 		<Row>
 			<PolicyType>POLICY_PROFESSIONAL_ARMY</PolicyType>
 			<UnitCombatType>UNITCOMBAT_SIEGE</UnitCombatType>
-			<ProductionModifier>3</ProductionModifier>
-		</Row>
-		<Row>
-			<PolicyType>POLICY_PROFESSIONAL_ARMY</PolicyType>
-			<UnitCombatType>UNITCOMBAT_FIGHTER</UnitCombatType>
 			<ProductionModifier>3</ProductionModifier>
 		</Row>
 		<Row>
@@ -457,7 +277,7 @@
 		<Row>
 			<PolicyType>POLICY_MILITARY_TRADITION</PolicyType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>75</Yield>
+			<Yield>70</Yield>
 		</Row>
 	</Policy_YieldFromKills>
 	<Policy_FreePromotions>
@@ -479,7 +299,7 @@
 		<Row>
 			<PolicyType>POLICY_PROFESSIONAL_ARMY</PolicyType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>10</Yield>
+			<Yield>15</Yield>
 		</Row>
 	</Policy_YieldFromBorderGrowth>
 </GameData>

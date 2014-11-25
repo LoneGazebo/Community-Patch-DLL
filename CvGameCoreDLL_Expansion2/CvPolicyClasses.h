@@ -236,6 +236,13 @@ public:
 	bool GetNoUnhappinessExpansion() const;
 	bool GetNoUnhappyIsolation() const;
 	bool GetDoubleBorderGA() const;
+	bool GetDoubleQuestInfluence() const;
+	int GetCitadelBoost() const;
+	int GetInternalTradeGold() const;
+	int GetFreeWCVotes() const;
+	int GetInfluenceGPExpend() const;
+	int GetFreeTradeRoute() const;
+	int GetFreeSpy() const;
 	int GetYieldFromBorderGrowth(int i) const;
 	int GetYieldGPExpend(int i) const;
 	int GetGarrisonsOccupiedUnhapppinessMod() const;
@@ -509,6 +516,13 @@ private:
 	bool m_bNoUnhappinessExpansion;
 	bool m_bNoUnhappyIsolation;
 	bool m_bDoubleBorderGA;
+	bool m_bDoubleQuestInfluence;
+	int m_iCitadelBoost;
+	int m_iInternalTradeGold;
+	int m_iFreeWCVotes;
+	int m_iInfluenceGPExpend;
+	int m_iFreeTradeRoute;
+	int m_iFreeSpy;
 	int* m_piYieldFromBorderGrowth;
 	int* m_piYieldGPExpend;
 	int m_iGarrisonsOccupiedUnhapppinessMod;

@@ -152,6 +152,8 @@ CvTraitEntry::CvTraitEntry() :
 #if defined(MOD_BALANCE_CORE)
 	m_piTradeRouteStartYield(NULL),
 	m_piYieldFromRouteMovement(NULL),
+	m_piYieldFromExport(NULL),
+	m_piYieldFromImport(NULL),
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
 	m_ppiBuildingClassYieldChanges(NULL),
@@ -623,6 +625,14 @@ int CvTraitEntry::YieldFromRouteMovement(int i) const
 {
 	return m_piYieldFromRouteMovement ? m_piYieldFromRouteMovement[i] : -1;
 }
+int CvTraitEntry::YieldFromExport(int i) const
+{
+	return m_piYieldFromExport ? m_piYieldFromExport[i] : -1;
+}
+int CvTraitEntry::YieldFromImport(int i) const
+{
+	return m_piYieldFromImport ? m_piYieldFromImport[i] : -1;
+}
 #endif
 
 /// Accessor: tech that triggers this free unit
@@ -922,6 +932,14 @@ int CvTraitEntry::GetTradeRouteStartYield(int i) const
 int CvTraitEntry::GetYieldFromRouteMovement(int i) const
 {
 	return m_piYieldFromRouteMovement ? m_piYieldFromRouteMovement[i] : -1;
+}
+int CvTraitEntry::GetYieldFromExport(int i) const
+{
+	return m_piYieldFromExport ? m_piYieldFromExport[i] : -1;
+}
+int CvTraitEntry::GetYieldFromImport(int i) const
+{
+	return m_piYieldFromImport ? m_piYieldFromImport[i] : -1;
 }
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
@@ -1522,6 +1540,8 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 #if defined(MOD_BALANCE_CORE)
 	kUtility.SetYields(m_piTradeRouteStartYield, "Trait_TradeRouteStartYield", "TraitType", szTraitType);
 	kUtility.SetYields(m_piYieldFromRouteMovement, "Trait_YieldFromRouteMovement", "TraitType", szTraitType);
+	kUtility.SetYields(m_piYieldFromExport, "Trait_YieldFromExport", "TraitType", szTraitType);
+	kUtility.SetYields(m_piYieldFromImport, "Trait_YieldFromImport", "TraitType", szTraitType);
 #endif
 
 #if defined(MOD_API_UNIFIED_YIELDS)
@@ -2147,6 +2167,8 @@ void CvPlayerTraits::InitPlayerTraits()
 #if defined(MOD_BALANCE_CORE)
 				m_iTradeRouteStartYield[iYield] = trait->GetTradeRouteStartYield(iYield);
 				m_iYieldFromRouteMovement[iYield] = trait->GetYieldFromRouteMovement(iYield);
+				m_iYieldFromExport[iYield] = trait->GetYieldFromExport(iYield);
+				m_iYieldFromImport[iYield] = trait->GetYieldFromImport(iYield);
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
 				for(int iBuildingClassLoop = 0; iBuildingClassLoop < GC.getNumBuildingClassInfos(); iBuildingClassLoop++)
@@ -2501,6 +2523,8 @@ void CvPlayerTraits::Reset()
 #if defined(MOD_BALANCE_CORE)
 		m_iTradeRouteStartYield[iYield] = 0;
 		m_iYieldFromRouteMovement[iYield] = 0;
+		m_iYieldFromExport[iYield] = 0;
+		m_iYieldFromImport[iYield] = 0;
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
 		for(int iBuildingClass = 0; iBuildingClass < GC.getNumBuildingClassInfos(); iBuildingClass++)
@@ -4014,6 +4038,10 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	kStream >> kTradeRouteStartYieldWrapper;
 	ArrayWrapper<int> kYieldFromRouteMovementWrapper(NUM_YIELD_TYPES, m_iYieldFromRouteMovement);
 	kStream >> kYieldFromRouteMovementWrapper;
+	ArrayWrapper<int> kYieldFromExportWrapper(NUM_YIELD_TYPES, m_iYieldFromExport);
+	kStream >> kYieldFromExportWrapper;
+	ArrayWrapper<int> kYieldFromImportWrapper(NUM_YIELD_TYPES, m_iYieldFromImport);
+	kStream >> kYieldFromImportWrapper;
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
 	// MOD_SERIALIZE_READ - v57/v58/v59 and v61 broke the save format  couldn't be helped, but don't make a habit of it!!!
@@ -4259,6 +4287,8 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 #if defined(MOD_BALANCE_CORE)
 	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iTradeRouteStartYield);
 	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iYieldFromRouteMovement);
+	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iYieldFromExport);
+	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iYieldFromImport);
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
 	// MOD_SERIALIZE_READ - v57/v58/v59 and v61 broke the save format  couldn't be helped, but don't make a habit of it!!!

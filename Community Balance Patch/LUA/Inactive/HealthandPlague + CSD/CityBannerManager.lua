@@ -244,55 +244,52 @@ function RefreshCityBanner(cityBanner, iActiveTeam, iActivePlayer)
 
 -- COMMUNITY PATCH
 		if (isActivePlayerCity) then
-			local iNumOccupiedCities = 0;
-			for city in player:Cities() do
-				if (city:IsOccupied() and not city:IsNoOccupiedUnhappiness()) then
-					iNumOccupiedCities = iNumOccupiedCities + 1;
-				end
-			end
-			local iCityCountMod = player:GetCapitalUnhappinessMod();
-			local iNumNormalCities = player:GetNumCities() - iNumOccupiedCities;
-			local iUnhappinessFromCityCount = Locale.ToNumber( player:GetUnhappinessFromCityCount() / 100, "#.##" );
-			local iCityYield = (iUnhappinessFromCityCount / iNumNormalCities);
-			local iCultureUnhappiness = city:GetUnhappinessFromCulture();
-			local iScienceUnhappiness = city:GetUnhappinessFromScience();
-			local iDefenseUnhappiness = city:GetUnhappinessFromDefense();
-			local iGoldUnhappiness = city:GetUnhappinessFromGold();
-			local iConnectionUnhappiness = city:GetUnhappinessFromConnection();
-			local iPillagedUnhappiness = city:GetUnhappinessFromPillaged();
 			local iStarvingUnhappiness = city:GetUnhappinessFromStarving();
+			local iPillagedUnhappiness = city:GetUnhappinessFromPillaged();
+			local iGoldUnhappiness = city:GetUnhappinessFromGold();
+			local iDefenseUnhappiness = city:GetUnhappinessFromDefense();
+			local iConnectionUnhappiness = city:GetUnhappinessFromConnection();
 			local iMinorityUnhappiness = city:GetUnhappinessFromMinority();
-		
-			local iTotalUnhappiness = iCultureUnhappiness + iDefenseUnhappiness	+ iGoldUnhappiness + iConnectionUnhappiness + iPillagedUnhappiness + iScienceUnhappiness + iStarvingUnhappiness + iMinorityUnhappiness + iCityYield;
+			local iScienceUnhappiness = city:GetUnhappinessFromScience();
+			local iCultureUnhappiness = city:GetUnhappinessFromCulture();
+			
+			local iTotalUnhappiness = iCultureUnhappiness + iDefenseUnhappiness	+ iGoldUnhappiness + iConnectionUnhappiness + iPillagedUnhappiness + iScienceUnhappiness + iStarvingUnhappiness + iMinorityUnhappiness;
 
 			strToolTip = strToolTip .. "[NEWLINE]----------------[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_EO_CITY_LOCAL_UNHAPPINESS", iTotalUnhappiness);
 
-			if(iScienceUnhappiness == 0) then
-				strToolTip = strToolTip .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_EO_CITY_EDUCATED");
-			else
-				strToolTip = strToolTip .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_EO_CITY_UNEDUCATED", iScienceUnhappiness);
+			-- Starving tooltip
+			if (iStarvingUnhappiness ~= 0) then
+				strToolTip = strToolTip .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_EO_CITY_STARVING", iStarvingUnhappiness);
 			end
-			if(iCultureUnhappiness == 0) then
-				strToolTip = strToolTip .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_EO_CITY_CULTURED");
-			else
-				strToolTip = strToolTip .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_EO_CITY_UNCULTURED", iCultureUnhappiness);
+			-- Pillaged tooltip
+			if (iPillagedUnhappiness ~= 0) then
+				strToolTip = strToolTip .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_EO_CITY_PILLAGED", iPillagedUnhappiness);
 			end
-			if(iDefenseUnhappiness == 0) then
-				strToolTip = strToolTip .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_EO_CITY_DEFENDED");
-			else
+			if(iGoldUnhappiness ~= 0) then
+				strToolTip = strToolTip .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_EO_CITY_POOR", iGoldUnhappiness);
+			end
+			if(iDefenseUnhappiness ~= 0) then
 				strToolTip = strToolTip .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_EO_CITY_UNDEFENDED", iDefenseUnhappiness);
 			end
-			if(iGoldUnhappiness == 0) then
-				strToolTip = strToolTip .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_EO_CITY_PROSPEROUS");
-			else
-				strToolTip = strToolTip .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_EO_CITY_POOR", iGoldUnhappiness);
+			-- Connection tooltip
+			if (iConnectionUnhappiness ~= 0) then
+				strToolTip = strToolTip .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_EO_CITY_UNCONNECTED", iConnectionUnhappiness);
 			end
-				
+			-- Minority tooltip
+			if (iMinorityUnhappiness ~= 0) then
+				strToolTip = strToolTip .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_EO_CITY_RELIGION", iMinorityUnhappiness);
+			end
+			if(iScienceUnhappiness ~= 0) then
+				strToolTip = strToolTip .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_EO_CITY_UNEDUCATED", iScienceUnhappiness);
+			end
+			if(iCultureUnhappiness ~= 0) then
+				strToolTip = strToolTip .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_EO_CITY_UNCULTURED", iCultureUnhappiness);
+			end		
 		end
 -- END
 
 		controls.BannerButton:SetToolTipString(strToolTip);
-	
+
 		if (controls.ReligiousIcon ~= nil) then
 			controls.ReligiousIcon:SetToolTipString(religionToolTip);
 		end		

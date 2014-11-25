@@ -393,6 +393,10 @@ public:
 	int GetJONSCulturePerTurnFromExcessHappiness() const;
 	int GetJONSCulturePerTurnFromTraits() const;
 
+#if defined(MOD_BALANCE_CORE)
+	int GetYieldPerTurnFromResources(YieldTypes eYield, bool bExported, bool bImported) const;
+#endif
+
 	int GetJONSCulturePerTurnForFree() const;
 	void ChangeJONSCulturePerTurnForFree(int iChange);
 
@@ -1359,6 +1363,34 @@ public:
 	bool IsDoubleBorderGA() const;
 	int GetDoubleBorderGA() const;
 	void ChangeDoubleBorderGA(int iChange);
+
+	bool IsDoubleQuestInfluence() const;
+	int GetDoubleQuestInfluence() const;
+	void changeDoubleQuestInfluence(int iChange);
+
+	bool IsCitadelBoost() const;
+	int GetCitadelBoost() const;
+	void changeCitadelBoost(int iChange);
+
+	bool IsGoldInternalTrade() const;
+	int GetGoldInternalTrade() const;
+	void changeGoldInternalTrade(int iChange);
+
+	int GetFreeWCVotes() const;
+	void changeFreeWCVotes(int iChange);
+
+	int GetInfluenceGPExpend() const;
+	void changeInfluenceGPExpend(int iChange);
+
+	int GetFreeTradeRoute() const;
+	void changeFreeTradeRoute(int iChange);
+
+	int GetFreeSpy() const;
+	void changeFreeSpy(int iChange);
+
+	int getBuildingClassCultureChange(BuildingClassTypes eIndex) const;
+	void changeBuildingClassCultureChange(BuildingClassTypes eIndex, int iChange);
+	
 #endif
 	int getCapitalYieldRateModifier(YieldTypes eIndex) const;
 	void changeCapitalYieldRateModifier(YieldTypes eIndex, int iChange);
@@ -2210,6 +2242,13 @@ protected:
 	int m_iNoUnhappinessExpansion;
 	int m_iNoUnhappyIsolation;
 	int m_iDoubleBorderGA;
+	int m_iDoubleQuestInfluence;
+	int m_iCitadelBoost;
+	int m_iGoldInternalTrade;
+	int m_iFreeWCVotes;
+	int m_iInfluenceGPExpend;
+	int m_iFreeTradeRoute;
+	int m_iFreeSpy;
 	int m_iTradeReligionModifier;
 #endif
 	FAutoVariable<int, CvPlayer> m_iMaxGlobalBuildingProductionModifier;
@@ -2377,6 +2416,7 @@ protected:
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiYieldGPExpend;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiConquerorYield;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiReligionYieldRateModifier;
+	FAutoVariable<std::vector<int>, CvPlayer> m_paiBuildingClassCulture;
 #endif
 
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiCapitalYieldRateModifier;

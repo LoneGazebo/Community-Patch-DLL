@@ -1,6 +1,6 @@
 -- Piety Opener
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Piety[ENDCOLOR] increases the [ICON_PEACE] Faith and [ICON_GOLD] Gold of empires.[NEWLINE][NEWLINE]Adopting Piety gives you +1 [ICON_PEACE] Faith in your [ICON_CAPITAL] Capital. Shrines and Temples produce +1 [ICON_CULTURE] Culture. Purchases made with [ICON_PEACE] Faith cost 4% less, with each additional policy unlocked in Piety reducing this by an additional 4%. Unlocks building Stonehenge.[NEWLINE][NEWLINE]Adopting all Policies in the Piety tree causes Holy Sites to produce +2 [ICON_GOLD] Gold and +3 [ICON_CULTURE] Culture, and all Specialists to produce +1 [ICON_PEACE] Faith.'
+SET Text = '[COLOR_POSITIVE_TEXT]Piety[ENDCOLOR] increases the [ICON_PEACE] Faith and [ICON_GOLD] Gold of empires.[NEWLINE][NEWLINE]Adopting Piety gives you +1 [ICON_PEACE] Faith in your [ICON_CAPITAL] Capital. Shrines and Temples produce +1 [ICON_CULTURE] Culture. Purchases made with [ICON_PEACE] Faith cost 4% less, with each additional policy unlocked in Piety reducing this by an additional 4%. Unlocks building Stonehenge.[NEWLINE][NEWLINE]Adopting all Policies in the Piety tree causes Holy Sites to produce +2 [ICON_GOLD] Gold and +3 [ICON_CULTURE] Culture, and all Specialists to produce +1 [ICON_PEACE] Faith. It also allows the purchase of Great Artists with [ICON_PEACE] Faith starting in the Industrial Era.'
 WHERE Tag = 'TXT_KEY_POLICY_BRANCH_PIETY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 -- Organized Religion
@@ -40,7 +40,7 @@ SET Text = 'Monasticism'
 WHERE Tag = 'TXT_KEY_POLICY_REFORMATION' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Monasticism[ENDCOLOR][NEWLINE] Can purchase Monasteries with [ICON_PEACE] Faith (+1 [ICON_PEACE] Faith, +2 [ICON_FOOD] Food, +1 [ICON_RESEARCH] Science, 1 Scientist slot).'
+SET Text = '[COLOR_POSITIVE_TEXT]Monasticism[ENDCOLOR][NEWLINE] Can purchase Monasteries with [ICON_PEACE] Faith (+1 [ICON_PEACE] Faith, +2 [ICON_FOOD] Food, +1 [ICON_RESEARCH] Science, 1 Scientist slot). Receive a free Monastery in your [ICON_CAPITAL] Capital.'
 WHERE Tag = 'TXT_KEY_POLICY_REFORMATION_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US

@@ -287,6 +287,17 @@ void CvTreasury::DoUpdateCityConnectionGold()
 			}
 		}
 	}
+#if defined(MOD_BALANCE_CORE_POLICIES)
+	//Bonus for Internal Trade Routes Gold Policy added in here (for LUA simplicity)
+	if(m_pPlayer->GetGoldInternalTrade() > 0)
+	{
+		int iInternalTradeRoutes = m_pPlayer->GetTrade()->GetNumberOfInternalTradeRoutes();
+		if(iInternalTradeRoutes > 0)
+		{
+			iNumGold += ((iInternalTradeRoutes * /*5*/ m_pPlayer->GetGoldInternalTrade()) * 100);
+		}
+	}
+#endif
 
 	m_iCityConnectionGoldTimes100 = iNumGold;
 }
@@ -418,7 +429,11 @@ int CvTreasury::GetGoldPerTurnFromTradeRoutesTimes100() const
 /// Gold per turn from traits
 int CvTreasury::GetGoldPerTurnFromTraits() const
 {
+#if defined(MOD_BALANCE_CORE)
+	return ((m_pPlayer->GetPlayerTraits()->GetYieldChangePerTradePartner(YIELD_GOLD) * m_pPlayer->GetTrade()->GetNumDifferentTradingPartners()) + (m_pPlayer->GetYieldPerTurnFromResources(YIELD_GOLD, true, false)));
+#else
 	return m_pPlayer->GetPlayerTraits()->GetYieldChangePerTradePartner(YIELD_GOLD) * m_pPlayer->GetTrade()->GetNumDifferentTradingPartners();
+#endif
 }
 
 /// Gold Per Turn from Religion
