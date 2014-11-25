@@ -3947,6 +3947,10 @@ int CvLeague::CalculateStartingVotesForMember(PlayerTypes ePlayer, bool bForceUp
 			}
 		}
 #endif
+#if defined(MOD_BALANCE_CORE_POLICIES)
+		int iPolicyVotes = MOD_BALANCE_CORE_POLICIES ? GET_PLAYER(ePlayer).GetFreeWCVotes() : 0;
+		iVotes += iPolicyVotes;
+#endif
 
 		// World Religion
 		int iWorldReligionVotes = GetExtraVotesForFollowingReligion(ePlayer);
@@ -4035,6 +4039,14 @@ int CvLeague::CalculateStartingVotesForMember(PlayerTypes ePlayer, bool bForceUp
 			{
 				Localization::String sTemp = Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_MEMBER_DETAILS_RELIGION_REFORMATION_VOTES");
 				sTemp << iReligionVotes;
+				pMember->sVoteSources += sTemp.toUTF8();
+			}
+#endif
+#if defined(MOD_BALANCE_CORE_POLICIES)
+			if(MOD_BALANCE_CORE_POLICIES && iPolicyVotes > 0)
+			{
+				Localization::String sTemp = Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_MEMBER_DETAILS_PATRONAGE_FINISHER_VOTES");
+				sTemp << iPolicyVotes;
 				pMember->sVoteSources += sTemp.toUTF8();
 			}
 #endif

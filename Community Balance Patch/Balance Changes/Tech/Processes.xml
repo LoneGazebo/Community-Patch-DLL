@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created by ModBuddy on 11/18/2014 2:12:06 PM -->
+<GameData>
+	<Processes>
+		<Row>
+			<Type>PROCESS_CULTURE</Type>
+			<Description>TXT_KEY_PROCESS_CULTURE</Description>
+			<Help>TXT_KEY_PROCESS_CULTURE_HELP</Help>
+			<Strategy>TXT_KEY_PROCESS_CULTURE_STRATEGY</Strategy>
+			<TechPrereq>TECH_DRAMA</TechPrereq>
+			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
+			<PortraitIndex>43</PortraitIndex>
+		</Row>
+	</Processes>
+	<Process_Flavors>
+		<Row>
+			<ProcessType>PROCESS_CULTURE</ProcessType>
+			<FlavorType>FLAVOR_CULTURE</FlavorType>
+			<Flavor>5</Flavor>
+		</Row>
+	</Process_Flavors>
+	<Process_ProductionYields>
+		<Row>
+			<ProcessType>PROCESS_CULTURE</ProcessType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>25</Yield>
+		</Row>
+	</Process_ProductionYields>
+	<Language_en_US>
+		<Row Tag="TXT_KEY_PROCESS_CULTURE">
+			<Text>Arts</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROCESS_CULTURE_HELP">
+			<Text>[COLOR_POSITIVE_TEXT]Arts[ENDCOLOR] converts 25% of [ICON_PRODUCTION] Production of this City into [ICON_CULTURE] Culture.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROCESS_CULTURE_STRATEGY">
+			<Text>Investing production in art is a good way to boost your Civilization's cutural output, either to grab that next policy or to stave off a Tourism victory.</Text>
+		</Row>
+	</Language_en_US>
+</GameData>

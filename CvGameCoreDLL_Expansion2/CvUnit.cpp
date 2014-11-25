@@ -9613,6 +9613,91 @@ void CvUnit::PerformCultureBomb(int iRadius)
 
 			// Have to set owner after we do the above stuff
 			pLoopPlot->setOwner(getOwner(), iBestCityID);
+#if defined(MOD_BALANCE_CORE_POLICIES)
+			if(GET_PLAYER(getOwner()).IsCitadelBoost())
+			{
+				int iEra = GET_PLAYER(getOwner()).GetCurrentEra();
+				float fDelay = 0.0f;
+				if(iEra < 1)
+				{
+					iEra = 1;
+				}
+				if(GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_GOLD) > 0)
+				{
+					GET_PLAYER(getOwner()).GetTreasury()->ChangeGold(GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_GOLD) * iEra);
+					if(getOwner() == GC.getGame().getActivePlayer())
+					{
+						char text[256] = {0};
+						fDelay += 0.5f;
+						sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]", GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_GOLD) * iEra);
+						DLLUI->AddPopupText(pLoopPlot->getX(),pLoopPlot->getY(), text, fDelay);
+					}
+				}
+				if(GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_FAITH) > 0)
+				{
+					GET_PLAYER(getOwner()).ChangeFaith(GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_FAITH) * iEra);
+					if(getOwner() == GC.getGame().getActivePlayer())
+					{
+						char text[256] = {0};
+						fDelay += 0.5f;
+						sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_FAITH) * iEra);
+						DLLUI->AddPopupText(pLoopPlot->getX(),pLoopPlot->getY(), text, fDelay);
+					}
+				}
+				if(GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_CULTURE) > 0)
+				{
+					GET_PLAYER(getOwner()).changeJONSCulture(GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_CULTURE) * iEra);
+					if(getOwner() == GC.getGame().getActivePlayer())
+					{
+						char text[256] = {0};
+						fDelay += 0.5f;
+						sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_CULTURE) * iEra);
+						DLLUI->AddPopupText(pLoopPlot->getX(),pLoopPlot->getY(), text, fDelay);
+					}
+				}
+				if(GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_GOLDEN_AGE_POINTS) > 0)
+				{
+					GET_PLAYER(getOwner()).ChangeGoldenAgeProgressMeter(GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_GOLDEN_AGE_POINTS) * iEra);
+					if(getOwner() == GC.getGame().getActivePlayer())
+					{
+						char text[256] = {0};
+						fDelay += 0.5f;
+						sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GOLDEN_AGE]", GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_GOLDEN_AGE_POINTS) * iEra);
+						DLLUI->AddPopupText(pLoopPlot->getX(),pLoopPlot->getY(), text, fDelay);
+					}
+				}
+				if(GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_SCIENCE) > 0)
+				{
+					TechTypes eCurrentTech = GET_PLAYER(getOwner()).GetPlayerTechs()->GetCurrentResearch();
+					if(eCurrentTech == NO_TECH)
+					{
+						GET_PLAYER(getOwner()).changeOverflowResearch(GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_SCIENCE) * iEra);
+					}
+					else
+					{
+						GET_TEAM(GET_PLAYER(getOwner()).getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_SCIENCE) * iEra, getOwner());
+					}
+					if(getOwner() == GC.getGame().getActivePlayer())
+					{
+						char text[256] = {0};
+						fDelay += 0.5f;
+						sprintf_s(text, "[COLOR_BLUE]+%d[ENDCOLOR][ICON_RESEARCH]", GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_SCIENCE) * iEra);
+						DLLUI->AddPopupText(pLoopPlot->getX(),pLoopPlot->getY(), text, fDelay);
+					}
+				}
+				if(GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_GREAT_GENERAL_POINTS) > 0)
+				{
+					GET_PLAYER(getOwner()).changeCombatExperience(GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_GREAT_GENERAL_POINTS) * iEra);
+					if(getOwner() == GC.getGame().getActivePlayer())
+					{
+						char text[256] = {0};
+						fDelay += 0.5f;
+						sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GREAT_GENERAL]", GET_PLAYER(getOwner()).getYieldFromBorderGrowth(YIELD_GREAT_GENERAL_POINTS) * iEra);
+						DLLUI->AddPopupText(pLoopPlot->getX(),pLoopPlot->getY(), text, fDelay);
+					}
+				}
+			}
+#endif
 		}
 	}
 
@@ -10178,7 +10263,14 @@ bool CvUnit::build(BuildTypes eBuild)
 				{
 					if (pkImprovementInfo->GetCultureBombRadius() > 0)
 					{
+#if defined(MOD_BALANCE_CORE_POLICIES)
+						int iCultureBomb = pkImprovementInfo->GetCultureBombRadius();
+						iCultureBomb += GET_PLAYER(getOwner()).GetCitadelBoost();
+
+						PerformCultureBomb(iCultureBomb);
+#else
 						PerformCultureBomb(pkImprovementInfo->GetCultureBombRadius());
+#endif
 					}
 				}
 			}
@@ -23666,15 +23758,19 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	if(iTemp != 0)
 	{
 		iExtra = getExtraCombatPercent();
-		iTemp *= (100 + iExtra * 2);
+//Let's encourage getting all three tiers asap.
+		iTemp *= (100 + (iExtra * 50));
 		iTemp /= 100;
 
-		iValue += iTemp + iFlavorOffense * 6;
+		iValue += iTemp + iFlavorOffense + iFlavorDefense * 10;
 	}
 	iTemp = pkPromotionInfo->GetRangedAttackModifier();
 	if(iTemp != 0)
 	{
-		iValue += iTemp + iFlavorOffense * 6;
+		iExtra = GetRangedAttackModifier();
+		iTemp *= (100 + (iExtra * 50));
+		iTemp /= 100;
+		iValue += iTemp + iFlavorOffense + iFlavorDefense * 10;
 	}
 #endif
 

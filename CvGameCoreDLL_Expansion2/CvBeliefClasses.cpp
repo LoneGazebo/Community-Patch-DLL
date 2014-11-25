@@ -1417,9 +1417,7 @@ CvReligionBeliefs::CvReligionBeliefs(const CvReligionBeliefs& source)
 	m_eSpreadModifierDoublingTech = source.m_eSpreadModifierDoublingTech;
 
 	m_ReligionBeliefs = source.m_ReligionBeliefs;
-#if defined(MOD_BALANCE_CORE)
-	m_BeliefLookup = source.m_BeliefLookup;
-#endif
+
 	m_paiBuildingClassEnabled = FNEW(int[GC.getNumBuildingClassInfos()], c_eCiv5GameplayDLL, 0);
 	for(int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
 	{
@@ -1479,10 +1477,7 @@ void CvReligionBeliefs::Reset()
 	m_eSpreadModifierDoublingTech = NO_TECH;
 
 	m_ReligionBeliefs.clear();
-#if defined(MOD_BALANCE_CORE)
-	//add one for NO_BELIEF
-	m_BeliefLookup = std::vector<int>(GC.GetGameBeliefs()->GetNumBeliefs()+1,0);
-#endif
+
 	m_paiBuildingClassEnabled = FNEW(int[GC.getNumBuildingClassInfos()], c_eCiv5GameplayDLL, 0);
 	for(int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
 	{
@@ -1556,19 +1551,13 @@ void CvReligionBeliefs::AddBelief(BeliefTypes eBelief)
 	}
 
 	m_ReligionBeliefs.push_back((int)eBelief);
-#if defined(MOD_BALANCE_CORE)
-	m_BeliefLookup[(int)(eBelief+1)] = 1;
-#endif
+
 }
 
 /// Does this religion possess a specific belief?
 bool CvReligionBeliefs::HasBelief(BeliefTypes eBelief) const
 {
-#if defined(MOD_BALANCE_CORE)
-	return m_BeliefLookup[(int)(eBelief+1)]==1;
-#else
 	return (find(m_ReligionBeliefs.begin(), m_ReligionBeliefs.end(), (int)eBelief) != m_ReligionBeliefs.end());
-#endif
 }
 
 /// Does this religion possess a specific belief?
@@ -2832,9 +2821,6 @@ void CvReligionBeliefs::Read(FDataStream& kStream)
 	{
 		int iBeliefIndex = CvInfosSerializationHelper::ReadHashed(kStream);
 		m_ReligionBeliefs.push_back(iBeliefIndex);
-#if defined(MOD_BALANCE_CORE)
-		m_BeliefLookup[(int)(iBeliefIndex+1)] = 1;
-#endif
 	}
 
 	BuildingClassArrayHelpers::Read(kStream, m_paiBuildingClassEnabled);

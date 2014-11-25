@@ -3236,6 +3236,27 @@ int CvPlayerTrade::GetNumberOfCityStateTradeRoutes()
 
 	return iNumConnections;
 }
+#if defined(MOD_BALANCE_CORE_POLICIES)
+//Returns the number of internal trade routes in your empire
+int CvPlayerTrade::GetNumberOfInternalTradeRoutes()
+{
+	CvGameTrade* pTrade = GC.getGame().GetGameTrade();
+	int iNumConnections = 0;
+	for (uint ui = 0; ui < pTrade->m_aTradeConnections.size(); ui++)
+	{
+		TradeConnection* pConnection = &(pTrade->m_aTradeConnections[ui]);
+
+		if (pConnection->m_eOriginOwner == m_pPlayer->GetID())
+		{
+			if(pConnection->m_eDestOwner == m_pPlayer->GetID())
+			{
+				iNumConnections++;
+			}
+		}
+	}
+	return iNumConnections;
+}
+#endif
 
 //	--------------------------------------------------------------------------------
 bool CvPlayerTrade::IsPreviousTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, DomainTypes eDomain, TradeConnectionType eConnectionType)
@@ -3936,6 +3957,12 @@ uint CvPlayerTrade::GetNumTradeRoutesPossible (void)
 			}
 		}
 	}
+#if defined(MOD_BALANCE_CORE_POLICIES)
+	if(m_pPlayer->GetFreeTradeRoute() > 0)
+	{
+		iNumRoutes += m_pPlayer->GetFreeTradeRoute();
+	}
+#endif
 
 	int iModifier = 100 + m_pPlayer->GetPlayerTraits()->GetNumTradeRoutesModifier();
 	iNumRoutes *= iModifier;
@@ -4653,6 +4680,14 @@ int CvTradeAI::ScoreInternationalTR (const TradeConnection& kTradeConnection)
 
 	// gold
 	int iGoldAmount = pPlayerTrade->GetTradeConnectionValueTimes100(kTradeConnection, YIELD_GOLD, true);
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+	//if a city is impoverished, let's send trade routes from there (multiply based on amount of unhappiness.
+	CvCity* pFromCity = CvGameTrade::GetOriginCity(kTradeConnection);
+	if(pFromCity->getUnhappinessFromGold() > 0)
+	{
+		iGoldAmount *= pFromCity->getUnhappinessFromGold();
+	}
+#endif
 	int iOtherGoldAmount = pOtherPlayerTrade->GetTradeConnectionValueTimes100(kTradeConnection, YIELD_GOLD, false);
 	int iGoldDelta = iGoldAmount - iOtherGoldAmount;
 
@@ -4666,6 +4701,13 @@ int CvTradeAI::ScoreInternationalTR (const TradeConnection& kTradeConnection)
 
 	// tech
 	int iTechDifferenceP1fromP2 = GC.getGame().GetGameTrade()->GetTechDifference(kTradeConnection.m_eOriginOwner, kTradeConnection.m_eDestOwner);
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+	//if a city is illiterate, let's send trade routes from there (add based on amount of unhappiness.
+	if(pFromCity->getUnhappinessFromScience() > 0)
+	{
+		iTechDifferenceP1fromP2 += pFromCity->getUnhappinessFromScience();
+	}
+#endif
 	int iTechDifferenceP2fromP1 = GC.getGame().GetGameTrade()->GetTechDifference(kTradeConnection.m_eDestOwner,   kTradeConnection.m_eOriginOwner);
 	int iTechDelta = iTechDifferenceP1fromP2 - iTechDifferenceP2fromP1;
 
@@ -4961,21 +5003,37 @@ void CvTradeAI::PrioritizeTradeRoutes(TradeConnectionList& aTradeConnectionList)
 #endif
 
 	// FOOD FOOD FOOD FOOD
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+	if (m_pPlayer->getUnhappinessFromCityStarving() >= 0)
+#else
 	if (m_pPlayer->GetHappiness() >= 0)
+#endif
 	{
 		// - Find smallest city
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+#else
 		int iSmallestCitySize = MAX_INT;
+#endif
 		CvCity* pSmallestCity = NULL;
 		int iCityLoop;
 		CvCity* pCity = NULL;
 		for (pCity = m_pPlayer->firstCity(&iCityLoop); pCity != NULL; pCity = m_pPlayer->nextCity(&iCityLoop))
 		{
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+			//Look for starving cities or, if internal trade grants gold, the first city.
+			if(pCity->getUnhappinessFromStarving() > 0 || (m_pPlayer->GetGoldInternalTrade() > 0))
+			{
+				pSmallestCity = pCity;
+				break;
+			}
+#else
 			int iCitySize = pCity->getPopulation();
 			if (iCitySize < iSmallestCitySize)
 			{
 				pSmallestCity = pCity;
 				iSmallestCitySize = iCitySize;
 			}
+#endif	
 		}
 
 		// - Send tr there
@@ -5003,7 +5061,12 @@ void CvTradeAI::PrioritizeTradeRoutes(TradeConnectionList& aTradeConnectionList)
 	// - Search for spaceship city
 	std::vector<CvCity*> apProductionTargetCities;
 	CvCity* pWonderCity = m_pPlayer->GetCitySpecializationAI()->GetWonderBuildCity();
+#if defined(MOD_BALANCE_CORE_POLICIES)
+	//Look for wonder or, if internal trade grants gold, the first city.
+	if (pWonderCity || (m_pPlayer->GetGoldInternalTrade() > 0))
+#else
 	if (pWonderCity)
+#endif
 	{
 		apProductionTargetCities.push_back(pWonderCity);
 	}

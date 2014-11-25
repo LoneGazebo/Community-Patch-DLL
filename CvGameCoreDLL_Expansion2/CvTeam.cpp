@@ -3906,11 +3906,11 @@ void CvTeam::setAtWar(TeamTypes eIndex, bool bNewValue)
 	if(eIndex != GetID() || bNewValue == false)
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
 	{
-		m_abAtWar[eIndex] = bNewValue;
 		m_abAggressorPacifier[eIndex] = bAggressorPacifier;
-	}
-#else
+#endif
 		m_abAtWar[eIndex] = bNewValue;
+#if defined(MOD_EVENTS_WAR_AND_PEACE)
+	}
 #endif
 
 	gDLL->GameplayWarStateChanged(GetID(), eIndex, bNewValue);
@@ -6860,7 +6860,7 @@ void CvTeam::processTech(TechTypes eTech, int iChange)
 							int iLoop;
 							for(pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
 							{
-								if(pLoopCity->isValidBuildingLocation(eBuilding) && (pLoopCity->canConstruct(eBuilding) || (pkBuildingInfo->GetProductionCost() == -1)))
+								if(pLoopCity->isValidBuildingLocation(eBuilding))
 								{
 									if(kPlayer.GetNumCitiesFreeChosenBuilding((BuildingClassTypes)iI) > 0)
 									{

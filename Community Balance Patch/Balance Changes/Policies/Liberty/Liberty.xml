@@ -19,12 +19,12 @@
 		<Row>
 			<PolicyType>POLICY_MERITOCRACY</PolicyType>
 			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Yield>40</Yield>
+			<Yield>50</Yield>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_MERITOCRACY</PolicyType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>40</Yield>
+			<Yield>50</Yield>
 		</Row>
 	</Policy_YieldGPExpend>
 </GameData>

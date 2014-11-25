@@ -1,0 +1,11 @@
+-- Nerf Scientists a bit
+
+UPDATE SpecialistYields
+SET Yield = '2'
+WHERE SpecialistType = 'SPECIALIST_SCIENTIST' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+-- Buff Merchants
+
+UPDATE SpecialistYields
+SET Yield = '3'
+WHERE SpecialistType = 'SPECIALIST_MERCHANT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );

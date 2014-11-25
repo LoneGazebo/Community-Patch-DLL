@@ -324,7 +324,7 @@
     <Row Class="4" Name="RELIGION_RANDOMISE" Value="0"/>
     <!-- Adds ConversionModifier and GlobalConversionModifier (in the same vein as espionage modifiers) to buildings (v19) -->
     <!-- See also: "Global - Counter Religion" -->
-    <Row Class="5" Name="RELIGION_CONVERSION_MODIFIERS" Value="0" DbUpdates="1"/>
+    <Row Class="5" Name="RELIGION_CONVERSION_MODIFIERS" Value="1" DbUpdates="1"/>
     <!-- Keeps overflow faith from spawning a Great Prophet if the base spawn chance is 100% (v21) -->
     <!-- See also: "Religion - Fixed Prophets" -->
     <Row Class="4" Name="RELIGION_KEEP_PROPHET_OVERFLOW" Value="0"/>
@@ -337,7 +337,7 @@
     <!-- See also: "Religion - Bonus Beliefs" -->
     <Row Class="6" Name="RELIGION_PLOT_YIELDS" Value="1" DbUpdates="1"/>
 	<!-- Adds support for Great People being purchased by faith to be specified on a policy (usually a finisher) and not hard-coded (v53) -->
-    <Row Class="6" Name="RELIGION_POLICY_BRANCH_FAITH_GP" Value="0" DbUpdates="1"/>
+    <Row Class="6" Name="RELIGION_POLICY_BRANCH_FAITH_GP" Value="1" DbUpdates="1"/>
     <!-- Adds support for "local" religions (ie ones that only have influence within the civ's own territory) (v48) -->
     <!-- See also: "Civilization - Morindim" -->
     <Row Class="5" Name="RELIGION_LOCAL_RELIGIONS" Value="0" DbUpdates="1"/>
@@ -349,10 +349,10 @@
 
     <!-- Fixes the AI's inability to use combat units as secondary workers (v26) -->
     <!-- See also: "AI - Secondary Workers And Settlers" -->
-    <Row Class="6" Name="AI_SECONDARY_WORKERS" Value="0"/>
+    <Row Class="6" Name="AI_SECONDARY_WORKERS" Value="1"/>
     <!-- Fixes the AI's inability to use combat units for founding cities (v26) -->
     <!-- See also: "AI - Secondary Workers And Settlers" -->
-    <Row Class="6" Name="AI_SECONDARY_SETTLERS" Value="0"/>
+    <Row Class="6" Name="AI_SECONDARY_SETTLERS" Value="1"/>
 
     <!-- Features from the "Smart AI mod" by Ninakoru - see http://forums.civfanatics.com/showthread.php?t=521955 (v50) -->
     <!-- See also: "AI - Smart" -->
@@ -789,13 +789,15 @@
 	<Row Class="6" Name="MOD_BALANCE_CORE_BUILDING_INSTANT_YIELD" Value="0"/>
     <!-- The AI Grand Strategy Guess Improvements part of MOD_COMMUNITY_PATCH -->
 	<Row Class="6" Name="MOD_BALANCE_CORE_GRANDSTRATEGY_AI" Value="0"/>
-    <!-- The AI Grand Strategy Guess Improvements part of MOD_COMMUNITY_PATCH -->
+    <!-- The Beliefs and Religion Overhauls of MOD_COMMUNITY_PATCH -->
 	<Row Class="6" Name="MOD_BALANCE_CORE_BELIEFS" Value="0"/>
-	<!-- The AI Grand Strategy Guess Improvements part of MOD_COMMUNITY_PATCH -->
+	<!-- The National Wonders require x population part of MOD_COMMUNITY_PATCH -->
 	<Row Class="6" Name="MOD_BALANCE_CORE_FOLLOWER_POP_WONDER" Value="0"/>
-	<!-- The AI Grand Strategy Guess Improvements part of MOD_COMMUNITY_PATCH -->
+	<!-- The Policies and Ideololgies MOD_COMMUNITY_PATCH -->
 	<Row Class="6" Name="MOD_BALANCE_CORE_POLICIES" Value="0"/>
-	  
+	  <!-- The more dangerous barbarians element of MOD_COMMUNITY_PATCH -->
+	  <Row Class="6" Name="MOD_BALANCE_CORE_BARBARIAN_THEFT" Value="0"/>
+
   </CustomModOptions>
 
   <CustomModPostDefines>

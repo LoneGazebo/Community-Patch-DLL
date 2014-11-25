@@ -28,6 +28,30 @@
 			<WonderSplashAudio>AS2D_WONDER_SPEECH_GREAT_MOSQUE_OF_DJENNE</WonderSplashAudio>
 		</Row>
 		<Row>
+			<Type>BUILDING_PYRAMID</Type>
+			<BuildingClass>BUILDINGCLASS_PYRAMID</BuildingClass>
+			<Cost>185</Cost>
+			<PrereqTech>TECH_CALENDAR</PrereqTech>
+			<Help>TXT_KEY_WONDER_CHICHEN_ITZA_HELP</Help>
+			<Description>TXT_KEY_BUILDING_PYRAMID</Description>
+			<Civilopedia>TXT_KEY_WONDER_PYRAMIDS_DESC</Civilopedia>
+			<Quote>TXT_KEY_WONDER_PYRAMIDS_QUOTE</Quote>
+			<ArtDefineTag>THE PYRAMIDS</ArtDefineTag>
+			<MaxStartEra>ERA_CLASSICAL</MaxStartEra>
+			<SpecialistType>SPECIALIST_ENGINEER</SpecialistType>
+			<GreatPeopleRateChange>1</GreatPeopleRateChange>
+			<NukeImmune>true</NukeImmune>
+			<HurryCostModifier>-1</HurryCostModifier>
+			<MinAreaSize>-1</MinAreaSize>
+			<ConquestProb>100</ConquestProb>
+			<WorkerSpeedModifier>25</WorkerSpeedModifier>
+			<DisplayPosition>4</DisplayPosition>
+			<IconAtlas>BW_ATLAS_2</IconAtlas>
+			<PortraitIndex>0</PortraitIndex>
+			<WonderSplashImage>WonderConceptPyramids.dds</WonderSplashImage>
+			<WonderSplashAudio>AS2D_WONDER_SPEECH_THE_PYRAMIDS_01</WonderSplashAudio>
+		</Row>
+		<Row>
 			<Type>BUILDING_KREMLIN</Type>
 			<BuildingClass>BUILDINGCLASS_KREMLIN</BuildingClass>
 			<Cost>300</Cost>

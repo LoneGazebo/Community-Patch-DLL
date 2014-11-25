@@ -523,6 +523,11 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(GetBuildingYieldChange);
 	Method(SetBuildingYieldChange);
 
+#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE_POLICIES)
+	Method(GetBuildingClassCultureChange);
+	Method(GetReligionYieldRateModifier);
+	Method(GetReligionBuildingYieldRateModifier);
+#endif
 	Method(GetBuildingEspionageModifier);
 	Method(GetBuildingGlobalEspionageModifier);
 
@@ -4284,6 +4289,57 @@ int CvLuaCity::lGetBuildingYieldChange(lua_State* L)
 	return 1;
 }
 
+#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE_POLICIES)
+int CvLuaCity::lGetBuildingClassCultureChange(lua_State* L)
+{
+	const BuildingClassTypes eBuildingClassType = (BuildingClassTypes)lua_tointeger(L, 2);
+
+	CvCity* pkCity = GetInstance(L);
+	const int eYield = lua_tointeger(L, 2);
+	const int iResult = pkCity->getBuildingClassCultureChange((BuildingClassTypes)eBuildingClassType);
+
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+//int getReligionYieldRateModifier(YieldTypes eYield);
+int CvLuaCity::lGetReligionYieldRateModifier(lua_State* L)
+{
+	int iRtnValue = 0;
+	CvCity* pkCity = GetInstance(L);
+	const int eYield = lua_tointeger(L, 2);
+	const PlayerTypes ePlayer = pkCity->getOwner();
+	ReligionTypes eMajority = pkCity->GetCityReligions()->GetReligiousMajority();
+	ReligionTypes ePlayerReligion = GET_PLAYER(ePlayer).GetReligions()->GetReligionInMostCities();
+	if(ePlayerReligion != NO_RELIGION && eMajority == ePlayerReligion)
+	{
+		iRtnValue = GET_PLAYER(ePlayer).getReligionYieldRateModifier((YieldTypes)eYield);
+	}
+
+	lua_pushinteger(L, iRtnValue);
+
+	return 1;
+}
+//int getReligionBuildingYieldRateModifier(BuildingClassTypes eBuildingClass, YieldTypes eYield);
+int CvLuaCity::lGetReligionBuildingYieldRateModifier(lua_State* L)
+{
+	int iRtnValue = 0;
+	CvCity* pkCity = GetInstance(L);
+	const int eBuildingClass = lua_tointeger(L, 2);
+	const int eYield = lua_tointeger(L, 3);
+	const PlayerTypes ePlayer = pkCity->getOwner();
+	CvGameReligions* pReligions = GC.getGame().GetGameReligions();
+	ReligionTypes eReligion = pkCity->GetCityReligions()->GetReligiousMajority();
+	ReligionTypes ePlayerReligion = GET_PLAYER(ePlayer).GetReligions()->GetReligionInMostCities();
+	if(ePlayerReligion != NO_RELIGION && eReligion == ePlayerReligion)
+	{
+		 iRtnValue = pkCity->getReligionBuildingYieldRateModifier((BuildingClassTypes)eBuildingClass, (YieldTypes)eYield);
+	}
+
+	lua_pushinteger(L, iRtnValue);
+
+	return 1;
+}
+#endif
 //int GetBuildingEspionageModifier(BuildingClassTypes eBuildingClass)
 int CvLuaCity::lGetBuildingEspionageModifier(lua_State* L)
 {

@@ -13,17 +13,19 @@
 			<ArtDefineTag>TEMPLE</ArtDefineTag>
 			<NukeImmune>true</NukeImmune>
 			<HolyCity>true</HolyCity>
-			<ReligiousPressureModifier>100</ReligiousPressureModifier>
 			<HurryCostModifier>-1</HurryCostModifier>
 			<MinAreaSize>-1</MinAreaSize>
+			<MinorityHappinessChange>5</MinorityHappinessChange>
+			<ConversionModifier>-20</ConversionModifier>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
 			<PortraitIndex>21</PortraitIndex>
 			<Cost>125</Cost>
+			<ReligiousPressureModifier>25</ReligiousPressureModifier>
 			<IsReformation>true</IsReformation>
 			<NumCityCostMod>30</NumCityCostMod>
 			<GlobalFollowerPopRequired>20</GlobalFollowerPopRequired>
 			<UnlockedByBelief>true</UnlockedByBelief>
-			<FaithCost>1000</FaithCost>
+			<FaithCost>-1</FaithCost>
 		</Row>
 		<!--Celestial Throne-->
 		<Row>
@@ -35,18 +37,20 @@
 			<Strategy>TXT_KEY_BUILDING_HEAVENLY_THRONE_STRATEGY</Strategy>
 			<ArtDefineTag>TEMPLE</ArtDefineTag>
 			<NukeImmune>true</NukeImmune>
+			<MinorityHappinessChange>5</MinorityHappinessChange>
 			<HolyCity>true</HolyCity>
-			<ReligiousPressureModifier>100</ReligiousPressureModifier>
+			<ConversionModifier>-20</ConversionModifier>
 			<HurryCostModifier>-1</HurryCostModifier>
 			<MinAreaSize>-1</MinAreaSize>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
 			<PortraitIndex>27</PortraitIndex>
 			<Cost>125</Cost>
+			<ReligiousPressureModifier>25</ReligiousPressureModifier>
 			<IsReformation>true</IsReformation>
 			<NumCityCostMod>30</NumCityCostMod>
 			<GlobalFollowerPopRequired>20</GlobalFollowerPopRequired>
 			<UnlockedByBelief>true</UnlockedByBelief>
-			<FaithCost>1000</FaithCost>
+			<FaithCost>-1</FaithCost>
 		</Row>
 		<!--Great Altar-->
 		<Row>
@@ -58,18 +62,20 @@
 			<Strategy>TXT_KEY_BUILDING_GREAT_ALTAR_STRATEGY</Strategy>
 			<ArtDefineTag>TEMPLE</ArtDefineTag>
 			<NukeImmune>true</NukeImmune>
+			<MinorityHappinessChange>5</MinorityHappinessChange>
 			<HolyCity>true</HolyCity>
-			<ReligiousPressureModifier>100</ReligiousPressureModifier>
+			<ConversionModifier>-20</ConversionModifier>
 			<HurryCostModifier>-1</HurryCostModifier>
 			<MinAreaSize>-1</MinAreaSize>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
 			<PortraitIndex>34</PortraitIndex>
 			<Cost>125</Cost>
+			<ReligiousPressureModifier>25</ReligiousPressureModifier>
 			<IsReformation>true</IsReformation>
 			<NumCityCostMod>30</NumCityCostMod>
 			<GlobalFollowerPopRequired>20</GlobalFollowerPopRequired>
 			<UnlockedByBelief>true</UnlockedByBelief>
-			<FaithCost>1000</FaithCost>
+			<FaithCost>-1</FaithCost>
 		</Row>
 		<!--Reliquary-->
 		<Row>
@@ -84,18 +90,20 @@
 			<GreatWorkCount>4</GreatWorkCount>
 			<ArtDefineTag>TEMPLE</ArtDefineTag>
 			<NukeImmune>true</NukeImmune>
+			<MinorityHappinessChange>5</MinorityHappinessChange>
+			<ConversionModifier>-20</ConversionModifier>
 			<HolyCity>true</HolyCity>
-			<ReligiousPressureModifier>100</ReligiousPressureModifier>
 			<HurryCostModifier>-1</HurryCostModifier>
 			<MinAreaSize>-1</MinAreaSize>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
 			<PortraitIndex>40</PortraitIndex>
 			<Cost>125</Cost>
+			<ReligiousPressureModifier>25</ReligiousPressureModifier>
 			<IsReformation>true</IsReformation>
 			<NumCityCostMod>30</NumCityCostMod>
 			<GlobalFollowerPopRequired>20</GlobalFollowerPopRequired>
 			<UnlockedByBelief>true</UnlockedByBelief>
-			<FaithCost>1000</FaithCost>
+			<FaithCost>-1</FaithCost>
 		</Row>
 		<!--Divine Court-->
 		<Row>
@@ -107,18 +115,20 @@
 			<Strategy>TXT_KEY_BUILDING_DIVINE_COURT_STRATEGY</Strategy>
 			<ArtDefineTag>TEMPLE</ArtDefineTag>
 			<NukeImmune>true</NukeImmune>
+			<ConversionModifier>-20</ConversionModifier>
 			<HolyCity>true</HolyCity>
-			<ReligiousPressureModifier>100</ReligiousPressureModifier>
+			<MinorityHappinessChange>5</MinorityHappinessChange>
 			<HurryCostModifier>-1</HurryCostModifier>
 			<MinAreaSize>-1</MinAreaSize>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
 			<PortraitIndex>38</PortraitIndex>
 			<Cost>125</Cost>
+			<ReligiousPressureModifier>25</ReligiousPressureModifier>
 			<IsReformation>true</IsReformation>
 			<NumCityCostMod>30</NumCityCostMod>
 			<GlobalFollowerPopRequired>20</GlobalFollowerPopRequired>
 			<UnlockedByBelief>true</UnlockedByBelief>
-			<FaithCost>1000</FaithCost>
+			<FaithCost>-1</FaithCost>
 		</Row>
 		<!--Sacred Garden-->
 		<Row>
@@ -130,18 +140,20 @@
 			<Strategy>TXT_KEY_BUILDING_SACRED_GARDEN_STRATEGY</Strategy>
 			<ArtDefineTag>TEMPLE</ArtDefineTag>
 			<NukeImmune>true</NukeImmune>
+			<MinorityHappinessChange>5</MinorityHappinessChange>
+			<ConversionModifier>-20</ConversionModifier>
 			<HolyCity>true</HolyCity>
-			<ReligiousPressureModifier>100</ReligiousPressureModifier>
 			<HurryCostModifier>-1</HurryCostModifier>
 			<MinAreaSize>-1</MinAreaSize>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
 			<PortraitIndex>7</PortraitIndex>
 			<Cost>125</Cost>
+			<ReligiousPressureModifier>25</ReligiousPressureModifier>
 			<IsReformation>true</IsReformation>
 			<NumCityCostMod>30</NumCityCostMod>
 			<GlobalFollowerPopRequired>20</GlobalFollowerPopRequired>
 			<UnlockedByBelief>true</UnlockedByBelief>
-			<FaithCost>1000</FaithCost>
+			<FaithCost>-1</FaithCost>
 		</Row>
 		<!--Holy Council-->
 		<Row>
@@ -153,18 +165,20 @@
 			<Strategy>TXT_KEY_BUILDING_HOLY_COUNCIL_STRATEGY</Strategy>
 			<ArtDefineTag>TEMPLE</ArtDefineTag>
 			<NukeImmune>true</NukeImmune>
+			<ConversionModifier>-20</ConversionModifier>
 			<HolyCity>true</HolyCity>
-			<ReligiousPressureModifier>100</ReligiousPressureModifier>
+			<MinorityHappinessChange>5</MinorityHappinessChange>
 			<HurryCostModifier>-1</HurryCostModifier>
 			<MinAreaSize>-1</MinAreaSize>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
 			<PortraitIndex>8</PortraitIndex>
 			<Cost>125</Cost>
+			<ReligiousPressureModifier>25</ReligiousPressureModifier>
 			<IsReformation>true</IsReformation>
 			<NumCityCostMod>30</NumCityCostMod>
 			<GlobalFollowerPopRequired>20</GlobalFollowerPopRequired>
 			<UnlockedByBelief>true</UnlockedByBelief>
-			<FaithCost>1000</FaithCost>
+			<FaithCost>-1</FaithCost>
 		</Row>
 		<!--Apostolic Palace-->
 		<Row>
@@ -177,17 +191,19 @@
 			<ArtDefineTag>TEMPLE</ArtDefineTag>
 			<NukeImmune>true</NukeImmune>
 			<HolyCity>true</HolyCity>
-			<ReligiousPressureModifier>100</ReligiousPressureModifier>
+			<MinorityHappinessChange>5</MinorityHappinessChange>
+			<ConversionModifier>-20</ConversionModifier>
 			<HurryCostModifier>-1</HurryCostModifier>
 			<MinAreaSize>-1</MinAreaSize>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
 			<PortraitIndex>6</PortraitIndex>
 			<Cost>125</Cost>
+			<ReligiousPressureModifier>25</ReligiousPressureModifier>
 			<IsReformation>true</IsReformation>
 			<NumCityCostMod>30</NumCityCostMod>
 			<GlobalFollowerPopRequired>20</GlobalFollowerPopRequired>
 			<UnlockedByBelief>true</UnlockedByBelief>
-			<FaithCost>1000</FaithCost>
+			<FaithCost>-1</FaithCost>
 		</Row>
 		<!--Grand Ossuary-->
 		<Row>
@@ -200,18 +216,20 @@
 			<ArtDefineTag>TEMPLE</ArtDefineTag>
 			<NukeImmune>true</NukeImmune>
 			<HolyCity>true</HolyCity>
-			<ReligiousPressureModifier>100</ReligiousPressureModifier>
+			<MinorityHappinessChange>5</MinorityHappinessChange>
+			<ConversionModifier>-20</ConversionModifier>
 			<HurryCostModifier>-1</HurryCostModifier>
 			<MinAreaSize>-1</MinAreaSize>
 			<NeverCapture>true</NeverCapture>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
 			<PortraitIndex>12</PortraitIndex>
 			<Cost>125</Cost>
+			<ReligiousPressureModifier>25</ReligiousPressureModifier>
 			<IsReformation>true</IsReformation>
 			<NumCityCostMod>30</NumCityCostMod>
 			<GlobalFollowerPopRequired>20</GlobalFollowerPopRequired>
 			<UnlockedByBelief>true</UnlockedByBelief>
-			<FaithCost>1000</FaithCost>
+			<FaithCost>-1</FaithCost>
 		</Row>
 	</Buildings>
 	<BuildingClasses>

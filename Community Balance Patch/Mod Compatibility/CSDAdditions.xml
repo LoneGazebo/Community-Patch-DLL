@@ -8,7 +8,7 @@
 			<UnitClassType>UNITCLASS_GREAT_DIPLOMAT</UnitClassType>
 		</Row>
 	</Policy_FaithPurchaseUnitClasses>
-
+	
 	<GreatPersons>
 		<Row>
 			<Type>GREATPERSON_DIPLOMAT</Type>
@@ -16,6 +16,13 @@
 			<Specialist>SPECIALIST_CIVIL_SERVANT</Specialist>
 		</Row>
 	</GreatPersons>
+	<Policy_TourismOnUnitCreation>
+		<Row>
+			<PolicyType>POLICY_FUTURISM</PolicyType>
+			<UnitClassType>UNITCLASS_GREAT_DIPLOMAT</UnitClassType>
+			<Tourism>250</Tourism>
+		</Row>
+	</Policy_TourismOnUnitCreation>
 	<!-- CSD Promotions (here as failsafe)-->
 	<!-- Standard Promotions -->
 	<UnitPromotions>

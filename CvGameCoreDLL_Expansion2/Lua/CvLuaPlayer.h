@@ -1005,7 +1005,6 @@ protected:
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_RELIGION_CONVERSION_MODIFIERS)
 	LUAAPIEXTN(GetPolicyConversionModifier, int, iPolicyType);
 #endif
-
 	static int lGetPlayerBuildingClassYieldChange(lua_State* L);
 	static int lGetPlayerBuildingClassHappiness(lua_State* L);
 

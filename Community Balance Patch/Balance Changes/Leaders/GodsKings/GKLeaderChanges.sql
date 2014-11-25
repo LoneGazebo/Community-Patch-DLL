@@ -114,6 +114,13 @@ UPDATE Language_en_US
 SET Text = 'Choose one more Belief than normal when you found a Religion. No [ICON_HAPPINESS_3] Unhappiness from Religious Strife.'
 WHERE Tag = 'TXT_KEY_TRAIT_EXTRA_BELIEF' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
--- William -- Boost Polder (early production)
+-- William -- Boost Polder (early production) -- New Trait
+UPDATE Traits
+SET LuxuryHappinessRetention = '0'
+WHERE Type = 'TRAIT_LUXURY_RETENTION' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
+UPDATE Language_en_US
+SET Text = 'Receives +2 [ICON_CULTURE] Culture for every Luxury Resource you Import from other Civilizations and City-States, and +3 [ICON_GOLD] Gold for every Luxury Resource you export to other Civilizations.'
+WHERE Tag = 'TXT_KEY_TRAIT_LUXURY_RETENTION' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 -- Maria Theresa -- Coffee House +2 Production

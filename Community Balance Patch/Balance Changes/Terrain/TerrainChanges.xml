@@ -43,7 +43,6 @@
 			<Where YieldType="YIELD_GOLD" />
 			<Set Yield="1" />
 		</Update>
-		<Delete ResourceType="RESOURCE_WHEAT" />
 		<Delete ResourceType="RESOURCE_COW" />
 		<Row>
 			<ResourceType>RESOURCE_COW</ResourceType>
@@ -77,7 +76,7 @@
 			<ImprovementType>IMPROVEMENT_FISHING_BOATS</ImprovementType>
 			<ResourceType>RESOURCE_FISH</ResourceType>
 			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>2</Yield>
+			<Yield>1</Yield>
 		</Row>
 		<Delete ResourceType="RESOURCE_BANANA" />
 		<Row>
@@ -99,7 +98,7 @@
 			<ImprovementType>IMPROVEMENT_FARM</ImprovementType>
 			<ResourceType>RESOURCE_WHEAT</ResourceType>
 			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>1</Yield>
+			<Yield>2</Yield>
 		</Row>
 		<Delete ResourceType="RESOURCE_COW" />
 		<Row>
@@ -252,7 +251,7 @@
 		</Row>
 		<Row>
 			<ImprovementType>IMPROVEMENT_MANUFACTORY</ImprovementType>
-			<TechType>TECH_METALLURGY</TechType>
+			<TechType>TECH_FERTILIZER</TechType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
 			<Yield>3</Yield>
 		</Row>
@@ -296,13 +295,13 @@
 	<Improvement_TechFreshWaterYieldChanges>
 		<Row>
 			<ImprovementType>IMPROVEMENT_TRADING_POST</ImprovementType>
-			<TechType>TECH_CURRENCY</TechType>
+			<TechType>TECH_GUILDS</TechType>
 			<YieldType>YIELD_GOLD</YieldType>
 			<Yield>1</Yield>
 		</Row>
 		<Row>
 			<ImprovementType>IMPROVEMENT_MINE</ImprovementType>
-			<TechType>TECH_METAL_CASTING</TechType>
+			<TechType>TECH_MACHINERY</TechType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
 			<Yield>1</Yield>
 		</Row>
@@ -314,7 +313,7 @@
 		</Row>
 		<Row>
 			<ImprovementType>IMPROVEMENT_PASTURE</ImprovementType>
-			<TechType>TECH_HORSEBACK_RIDING</TechType>
+			<TechType>TECH_GUILDS</TechType>
 			<YieldType>YIELD_FOOD</YieldType>
 			<Yield>1</Yield>
 		</Row>
@@ -332,7 +331,7 @@
 		</Row>
 		<Row>
 			<ImprovementType>IMPROVEMENT_CAMP</ImprovementType>
-			<TechType>TECH_HORSEBACK_RIDING</TechType>
+			<TechType>TECH_GUILDS</TechType>
 			<YieldType>YIELD_GOLD</YieldType>
 			<Yield>1</Yield>
 		</Row>
@@ -353,7 +352,7 @@
 		</Row>
 		<Row>
 			<ImprovementType>IMPROVEMENT_PASTURE</ImprovementType>
-			<TechType>TECH_CHIVALRY</TechType>
+			<TechType>TECH_CHEMISTRY</TechType>
 			<YieldType>YIELD_FOOD</YieldType>
 			<Yield>1</Yield>
 		</Row>

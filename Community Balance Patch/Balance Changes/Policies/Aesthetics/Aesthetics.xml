@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created by ModBuddy on 11/17/2014 5:41:48 PM -->
+<GameData>
+	<!-- Opener -->
+	<Policy_YieldGPExpend>
+		<Row>
+			<PolicyType>POLICY_AESTHETICS</PolicyType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>100</Yield>
+		</Row>
+	</Policy_YieldGPExpend>
+	<!-- Cultural Centers -->
+	<Policy_BuildingClassYieldChanges>
+		<Row>
+			<PolicyType>POLICY_CULTURAL_CENTERS</PolicyType>
+			<BuildingClassType>BUILDINGCLASS_AMPHITHEATER</BuildingClassType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<YieldChange>1</YieldChange>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_CULTURAL_CENTERS</PolicyType>
+			<BuildingClassType>BUILDINGCLASS_OPERA_HOUSE</BuildingClassType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<YieldChange>1</YieldChange>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_CULTURAL_CENTERS</PolicyType>
+			<BuildingClassType>BUILDINGCLASS_MUSEUM</BuildingClassType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<YieldChange>1</YieldChange>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_CULTURAL_CENTERS</PolicyType>
+			<BuildingClassType>BUILDINGCLASS_BROADCAST_TOWER</BuildingClassType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<YieldChange>1</YieldChange>
+		</Row>
+	</Policy_BuildingClassYieldChanges>
+	<Policy_BuildingClassCultureChanges>
+		<Row>
+			<PolicyType>POLICY_CULTURAL_CENTERS</PolicyType>
+			<BuildingClassType>BUILDINGCLASS_AMPHITHEATER</BuildingClassType>
+			<CultureChange>1</CultureChange>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_CULTURAL_CENTERS</PolicyType>
+			<BuildingClassType>BUILDINGCLASS_OPERA_HOUSE</BuildingClassType>
+			<CultureChange>1</CultureChange>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_CULTURAL_CENTERS</PolicyType>
+			<BuildingClassType>BUILDINGCLASS_MUSEUM</BuildingClassType>
+			<CultureChange>1</CultureChange>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_CULTURAL_CENTERS</PolicyType>
+			<BuildingClassType>BUILDINGCLASS_BROADCAST_TOWER</BuildingClassType>
+			<CultureChange>1</CultureChange>
+		</Row>
+	</Policy_BuildingClassCultureChanges>
+	<!-- Fine Art -->
+	<Policy_GreatWorkYieldChanges>
+		<Row>
+			<PolicyType>POLICY_FINE_ARTS</PolicyType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+	</Policy_GreatWorkYieldChanges>
+	<!-- Finisher -->
+	<Policy_ImprovementCultureChanges>
+		<Row>
+			<PolicyType>POLICY_AESTHETICS_FINISHER</PolicyType>
+			<ImprovementType>IMPROVEMENT_HOLY_SITE</ImprovementType>
+			<CultureChange>1</CultureChange>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_AESTHETICS_FINISHER</PolicyType>
+			<ImprovementType>IMPROVEMENT_ACADEMY</ImprovementType>
+			<CultureChange>1</CultureChange>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_AESTHETICS_FINISHER</PolicyType>
+			<ImprovementType>IMPROVEMENT_CUSTOMS_HOUSE</ImprovementType>
+			<CultureChange>1</CultureChange>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_AESTHETICS_FINISHER</PolicyType>
+			<ImprovementType>IMPROVEMENT_MANUFACTORY</ImprovementType>
+			<CultureChange>1</CultureChange>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_AESTHETICS_FINISHER</PolicyType>
+			<ImprovementType>IMPROVEMENT_CITADEL</ImprovementType>
+			<CultureChange>1</CultureChange>
+		</Row>
+	</Policy_ImprovementCultureChanges>	
+</GameData>

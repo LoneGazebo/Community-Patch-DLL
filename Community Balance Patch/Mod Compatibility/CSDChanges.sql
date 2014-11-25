@@ -1,3 +1,24 @@
+-- Policy Changes
+
+DELETE FROM Language_en_US
+WHERE Tag = 'TXT_KEY_POLICY_BRANCH_PATRONAGE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
+
+INSERT INTO Language_en_US (Tag, Text)
+SELECT 'TXT_KEY_POLICY_BRANCH_PATRONAGE_HELP', '[COLOR_POSITIVE_TEXT]Patronage[ENDCOLOR] enhances the benefits of City-State friendship and Global Diplomacy.[NEWLINE][NEWLINE]Adopting Patronage will cause [ICON_INFLUENCE] Influence with City-States to degrade 25% slower than normal and raise the resting point for [ICON_INFLUENCE] Influence with all City-States by 5, with each subsequent Patronage policy you unlock increasing this by 3. Unlocks building the Forbidden Palace.[NEWLINE][NEWLINE]Adopting all policies in the Patronage tree will cause allied City-States to occasionally gift you [ICON_GREAT_PEOPLE] Great People. It also allows the purchase of Great Diplomats with [ICON_PEACE] Faith starting in the Industrial Era.'
+WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
+	
+DELETE FROM Language_en_US
+WHERE Tag = 'TXT_KEY_POLICY_SCHOLASTICISM_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
+
+INSERT INTO Language_en_US (Tag, Text)
+SELECT 'TXT_KEY_POLICY_SCHOLASTICISM_HELP', '[COLOR_POSITIVE_TEXT]Scholasticism[ENDCOLOR][NEWLINE]Earn Great Diplomats 25% faster. All City-States which are [COLOR_POSITIVE_TEXT]Allies[ENDCOLOR] provide a [ICON_RESEARCH] Science bonus equal to 33% of what they produce for themselves.'
+WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
+
+UPDATE Policies
+SET GreatDiplomatRateModifier = 25
+WHERE Type = 'POLICY_SCHOLASTICISM' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
+	
+
 -- Building Requirement - Printing Press
 
 UPDATE Building_PrereqBuildingClasses

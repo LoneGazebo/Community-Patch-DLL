@@ -19,6 +19,9 @@
 	SET Text = 'Every [ICON_CITIZEN] Citizen in an [ICON_OCCUPIED] Occupied City produces 1 [ICON_HAPPINESS_3] Unhappiness'
 	WHERE Tag = 'TXT_KEY_OCCUPIED_POP_UNHAPPINESS_TT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
+	UPDATE Language_en_US
+	SET Text = 'Sort By Unhappiness'
+	WHERE Tag = 'TXT_KEY_EO_SORT_STRENGTH' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 	-- FREE HAPPINESS FROM GAME SPEED
 
@@ -58,35 +61,35 @@
 	SELECT 'BALANCE_UNHAPPINESS_PER_SPECIALIST', '30'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
--- Base reduction of unhappiness threshold for Puppet cities. -15% is default.
+-- Base reduction of unhappiness threshold for Puppet cities. -20% is default.
 	INSERT INTO Defines (
 	Name, Value)
 	SELECT 'BALANCE_HAPPINESS_PUPPET_THRESHOLD_MOD', '-15'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
--- Base Modifier for Capital Thresholds. Offsets boost from Palace, helps make Capital a source of Unhappiness early on. 25% is default. Capital needs higher because it is the capital, silly.
+-- Base Modifier for Capital Thresholds. Offsets boost from Palace, helps make Capital a source of Unhappiness early on. 35% is default. Capital needs higher because it is the capital, silly.
 		INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_HAPPINESS_CAPITAL_MODIFIER', '25'
+	SELECT 'BALANCE_HAPPINESS_CAPITAL_MODIFIER', '35'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
--- 	Base Value of Test - Modifier to tech % cost. 1.80 is default.
+-- 	Base Value of Test - Modifier to tech % cost. 1.75 is default.
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_HAPPINESS_TECH_BASE_MODIFIER', '1.80'
+	SELECT 'BALANCE_HAPPINESS_TECH_BASE_MODIFIER', '1.75'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
--- Base increase of threshold values based on # of techs (ignore 'City' part). Increases the Global Averages as you research techs. Higher values are more difficult. 15 is default.
+-- Base increase of threshold values based on # of techs (ignore 'City' part). Increases the Global Averages as you research techs. Higher values are more difficult. 30 is default.
 
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_HAPPINESS_TECH_BASE_CITY_COUNT', '15'
+	SELECT 'BALANCE_HAPPINESS_TECH_BASE_CITY_COUNT', '30'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 	
 -- Value by which yield/threshold difference is divded. 25 = 1 point of unhappiness for every 0.25 difference between city yield and global average.
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_UNHAPPY_CITY_BASE_VALUE', '25'
+	SELECT 'BALANCE_UNHAPPY_CITY_BASE_VALUE', '30'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 -- Unhappiness point per religious minority pop. A high faith to population ratio will reduce this penalty. Also note that this is the ONLY unhappiness calculation that goes down as the game progresses (religion makes slightly less unhappiness as you move into new eras)
@@ -110,5 +113,7 @@
 -- Unhappiness point per pop if unconnected or blockaded.
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_UNHAPPINESS_FROM_UNCONNECTED_PER_POP', '0.25'
+	SELECT 'BALANCE_UNHAPPINESS_FROM_UNCONNECTED_PER_POP', '0.33'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
+
+

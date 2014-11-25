@@ -1990,6 +1990,10 @@ void CvTeamTechs::SetResearchProgressTimes100(TechTypes eIndex, int iNewValue, P
 		int iResearchCost = GetResearchCost(eIndex) * 100;
 
 		// Player modifiers to cost
+#if defined(MOD_BALANCE_CORE)
+		if(ePlayer != NO_PLAYER)
+		{
+#endif
 		int iResearchMod = std::max(1, GET_PLAYER(ePlayer).calculateResearchModifier(eIndex));
 		iResearchCost = (iResearchCost * 100) / iResearchMod;
 		int iNumCitiesMod = GC.getMap().getWorldInfo().GetNumCitiesTechCostMod();	// Default is 40, gets smaller on larger maps
@@ -2052,6 +2056,9 @@ void CvTeamTechs::SetResearchProgressTimes100(TechTypes eIndex, int iNewValue, P
 				}
 			}
 		}
+#if defined(MOD_BALANCE_CORE)
+		}
+#endif
 	}
 }
 

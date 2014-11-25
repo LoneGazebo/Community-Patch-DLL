@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created by ModBuddy on 11/4/2014 3:52:30 PM -->
+<GameData>
+	<!-- Workers Faculties -->
+	<Policy_BuildingClassYieldChanges>
+		<Row>
+			<PolicyType>POLICY_WORKERS_FACULTIES</PolicyType>
+			<BuildingClassType>BUILDINGCLASS_FACTORY</BuildingClassType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<YieldChange>2</YieldChange>
+		</Row>
+	</Policy_BuildingClassYieldChanges>
+	<!-- Academy of Sciences -->
+	<Policy_FreeBuilding>
+		<Row>
+			<PolicyType>POLICY_ACADEMY_SCIENCES</PolicyType>
+			<BuildingClassType>BUILDINGCLASS_UNIVERSITY</BuildingClassType>
+			<Count>100</Count>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_SOCIALIST_REALISM</PolicyType>
+			<BuildingClassType>BUILDINGCLASS_MUSEUM</BuildingClassType>
+			<Count>100</Count>
+		</Row>
+	</Policy_FreeBuilding>
+	<!-- Proletariat -->
+	<Policy_BuildingClassHappiness>
+		<Row>
+			<PolicyType>POLICY_DICTATORSHIP_PROLETARIAT</PolicyType>
+			<BuildingClassType>BUILDINGCLASS_FACTORY</BuildingClassType>
+			<Happiness>1</Happiness>
+		</Row>
+	</Policy_BuildingClassHappiness>
+	<!-- Iron Curtain -->
+	<Policy_YieldChangeTradeRoute>
+		<Row>
+			<PolicyType>POLICY_IRON_CURTAIN</PolicyType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>3</Yield>
+		</Row>
+	</Policy_YieldChangeTradeRoute>
+	<!-- Patriotic War -->
+	<Policy_FreeUnitClasses>
+		<Row>
+			<PolicyType>POLICY_PATRIOTIC_WAR</PolicyType>
+			<UnitClassType>UNITCLASS_INFANTRY</UnitClassType>
+			<Count>2</Count>
+		</Row>
+	</Policy_FreeUnitClasses>
+	<Language_en_US>
+		<Row Tag="TXT_KEY_POLICY_UNIVERSAL_HEALTHCARE_O_HELP">
+			<Text>[COLOR_POSITIVE_TEXT]Peace, Land, Bread[ENDCOLOR][NEWLINE]Reduces [ICON_HAPPINESS_3] Poverty by 20% in all cities.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_POLICY_UNIVERSAL_HEALTHCARE_O">
+			<Text>Peace, Land, Bread</Text>
+		</Row>
+		<Row Tag="TXT_KEY_POLICY_UNIVERSAL_HEALTHCARE_TEXT_O">
+			<Text>The phrase 'Peace, Land, Bread,' popularized by Lenin and others during the early days of the Soviet Revolution, highlighted their desire to focus on the needs of the impoverished Russian peasantry. The Bolshevik Initial Decrees of the 1910-20s were announced as soon as the Bolsheviks declared their success in the October Revolution (October 26, 1917). The decrees conformed to the popular Bolshevik slogan "Peace, Bread, and Land", taken up by the masses during the July Days (July 1917), an uprising of workers and military forces.</Text>
+		</Row>
+	</Language_en_US>
+</GameData>

@@ -8600,33 +8600,6 @@ int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay)
 			}
 		}
 
-#if defined(MOD_BALANCE_CORE_YIELDS)
-		if(MOD_BALANCE_CORE_YIELDS)
-		{
-			if(getPlotType() != NO_PLOT)
-			{
-				if(pWorkingCity != NULL)
-				{
-					//PLOT_LAND should only apply to featureless, flat terrain (other modifiers exist for other types of features and plots)
-					if(getPlotType() == PLOT_LAND)
-					{
-						if(getFeatureType() == NO_FEATURE && !isHills() && !isMountain() && !isImpassable())
-						{
-							iYield += pWorkingCity->GetPlotExtraYield(getPlotType(), eYield);
-							iYield += GET_PLAYER(getOwner()).getPlotYieldChange(getPlotType(), eYield);
-						}
-
-					}
-					else
-					{
-						iYield += pWorkingCity->GetPlotExtraYield(getPlotType(), eYield);
-						iYield += GET_PLAYER(getOwner()).getPlotYieldChange(getPlotType(), eYield);
-					}
-				}
-			}
-		}	
-#endif
-
 		ResourceTypes eResource = getResourceType(GET_PLAYER(ePlayer).getTeam());
 		if(eResource != NO_RESOURCE)
 		{

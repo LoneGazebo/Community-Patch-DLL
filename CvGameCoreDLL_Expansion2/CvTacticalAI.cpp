@@ -982,14 +982,6 @@ AITacticalPosture CvTacticalAI::SelectPosture(CvTacticalDominanceZone* pZone, AI
 			eChosenPosture = AI_TACTICAL_POSTURE_WITHDRAW;
 		}
 
-#if defined(MOD_BALANCE_CORE_MILITARY)
-		//The AI can be a bit passive on the attack - let's use brute force while we have the numbers at the beginning of the fight.
-		if (MOD_BALANCE_CORE_MILITARY && pZone->GetFriendlyStrength() > pZone->GetEnemyStrength() && (m_pPlayer->GetDiplomacyAI()->GetPlayerNumTurnsAtWar(m_pPlayer->GetID()) < 10))
-		{
-			eChosenPosture = AI_TACTICAL_POSTURE_STEAMROLL;
-		}
-#endif
-
 		// Temporary zone: want Steamroll of Surgical Strike so we close in on city
 		else if (bTemporaryZone)
 		{
@@ -1067,12 +1059,6 @@ AITacticalPosture CvTacticalAI::SelectPosture(CvTacticalDominanceZone* pZone, AI
 		{
 			eChosenPosture = AI_TACTICAL_POSTURE_ATTRIT_FROM_RANGE;
 		}
-#if defined(MOD_BALANCE_CORE_MILITARY)
-		if (MOD_BALANCE_CORE_MILITARY && pZone->GetFriendlyStrength() > pZone->GetEnemyStrength() && (m_pPlayer->GetDiplomacyAI()->GetPlayerNumTurnsAtWar(m_pPlayer->GetID()) < 10))
-		{
-			eChosenPosture = AI_TACTICAL_POSTURE_STEAMROLL;
-		}
-#endif
 
 		// Exploit flanks - for first time need dominance in unit count
 		else if(eUnitCountDominance == TACTICAL_DOMINANCE_FRIENDLY && pZone->GetEnemyUnitCount() > 0)
@@ -2048,7 +2034,7 @@ bool CvTacticalAI::PlotCaptureCityMoves()
 				if(pCity != NULL)
 				{
 					//If don't have units to actually conquer, get out.
-					if(!FindUnitsWithinStrikingDistance(pPlot, 1, 0, true /*bNoRangedUnits*/, false /*bRangedOnly*/, false /*bNavalOnly*/, false /*bMustMoveThrough*/, true /*bIncludeBlockedUnits*/))
+					if(!FindUnitsWithinStrikingDistance(pPlot, 1, 0, true /*bNoRangedUnits*/, false /*bNavalOnly*/, false /*bMustMoveThrough*/, true /*bIncludeBlockedUnits*/))
 					{
 						if(GC.getLogging() && GC.getAILogging())
 						{
@@ -2063,20 +2049,11 @@ bool CvTacticalAI::PlotCaptureCityMoves()
 					pTarget->SetAuxIntData(iRequiredDamage);
 					// If we have the city already down to minimum, don't use ranged... Only try to capture.
 					// This will never be true, as the city heals between turns!!!
-					bool bNoRangedUnits = (iRequiredDamage <= 10);
-					if(FindUnitsWithinStrikingDistance(pPlot, 1, 0, bNoRangedUnits, false /*bRangedOnly*/, false /*bNavalOnly*/, false /*bMustMoveThrough*/, true /*bIncludeBlockedUnits*/))
+					bool bNoRangedUnits = (iRequiredDamage <= 1);
+					if (bNoRangedUnits) CUSTOMLOG("City attack without ranged units");
+					if(FindUnitsWithinStrikingDistance(pPlot, 1, 0, bNoRangedUnits, false /*bNavalOnly*/, false /*bMustMoveThrough*/, true /*bIncludeBlockedUnits*/))
 					{
-						//can be called only after FindUnitsWithinStrikingDistance!
-						int iExpectedDamage = ComputeTotalExpectedDamage(pTarget, pPlot);
-
-						if(GC.getLogging() && GC.getAILogging())
-						{
-							CvString strLogString;
-							strLogString.Format("Try to capture city, required damage %d, expected damage %d", iRequiredDamage, iExpectedDamage);
-							LogTacticalMessage(strLogString);
-						}
-
-						if( iExpectedDamage >= (iRequiredDamage / 2)) // risky
+						if(ComputeTotalExpectedDamage(pTarget, pPlot) >= (iRequiredDamage / 2)) // risky
 						{
 							// If so, execute enough moves to take it
 							ExecuteAttack(pTarget, pPlot, false, false);
@@ -2094,11 +2071,7 @@ bool CvTacticalAI::PlotCaptureCityMoves()
 			else
 			{
 #endif
-#if defined(MOD_BALANCE_CORE)
-				if(FindUnitsWithinStrikingDistance(pPlot, 1, 0, false /*bNoRangedUnits*/, false /*bRangedOnly*/, false /*bNavalOnly*/, false /*bMustMoveThrough*/, true /*bIncludeBlockedUnits*/))
-#else
 				if(FindUnitsWithinStrikingDistance(pPlot, 1, 0, false /*bNoRangedUnits*/, false /*bNavalOnly*/, false /*bMustMoveThrough*/, true /*bIncludeBlockedUnits*/))
-#endif	
 				{
 					// Do we have enough firepower to destroy it?
 					CvCity* pCity = pPlot->getPlotCity();
@@ -2168,7 +2141,7 @@ bool CvTacticalAI::PlotDamageCityMoves()
 				if(pCity != NULL)
 				{
 					//If don't have units nearby to actually conquer, and bad dominance flag, get out.
-					if(!FindUnitsWithinStrikingDistance(pPlot, 2, 0, true /*bNoRangedUnits*/, false /*bRangedOnly*/, false /*bNavalOnly*/, false /*bMustMoveThrough*/, true /*bIncludeBlockedUnits*/))
+					if(!FindUnitsWithinStrikingDistance(pPlot, 2, 0, true /*bNoRangedUnits*/, false /*bNavalOnly*/, false /*bMustMoveThrough*/, true /*bIncludeBlockedUnits*/))
 					{
 						CvTacticalDominanceZone* pZone;
 						pZone = m_pMap->GetZoneByCity(pCity, false);
@@ -2192,8 +2165,11 @@ bool CvTacticalAI::PlotDamageCityMoves()
 
 					iRequiredDamage = pCity->GetMaxHitPoints() - pCity->getDamage();
 					pTarget->SetAuxIntData(iRequiredDamage);
-
-					if(FindUnitsWithinStrikingDistance(pPlot, 1, 0, false /*bNoRangedUnits*/, true /*bRangedOnly*/, false /*bNavalOnly*/, false /*bMustMoveThrough*/, true /*bIncludeBlockedUnits*/))
+					// If we have the city already down to minimum, don't use ranged... Only try to capture.
+					// This will never be true, as the city heals between turns!!!
+					bool bNoRangedUnits = (iRequiredDamage <= 1);
+					if (bNoRangedUnits) CUSTOMLOG("City attack without ranged units");
+					if(FindUnitsWithinStrikingDistance(pPlot, 1, 0, bNoRangedUnits, false /*bNavalOnly*/, false /*bMustMoveThrough*/, true /*bIncludeBlockedUnits*/))
 					{
 						int iExpectedDamage = ComputeTotalExpectedDamage(pTarget, pPlot);
 
@@ -2205,7 +2181,7 @@ bool CvTacticalAI::PlotDamageCityMoves()
 						}
 
 						// Don't want to hammer away to try and take down a city for more than 8 turns
-						if(iExpectedDamage > (iRequiredDamage / 8))
+						if(ComputeTotalExpectedDamage(pTarget, pPlot) > (iRequiredDamage / 8))
 						{
 							// If so, execute enough moves to take it
 							ExecuteAttack(pTarget, pPlot, false, true);
@@ -2217,11 +2193,7 @@ bool CvTacticalAI::PlotDamageCityMoves()
 			else
 			{
 #endif
-#if defined(MOD_BALANCE_CORE)
-				if(FindUnitsWithinStrikingDistance(pPlot, 1, 0, false /*bNoRangedUnits*/, false /*bRangedOnly*/, false /*bNavalOnly*/, false /*bMustMoveThrough*/, true /*bIncludeBlockedUnits*/))
-#else
 				if(FindUnitsWithinStrikingDistance(pPlot, 1, 0, false /*bNoRangedUnits*/, false /*bNavalOnly*/, false /*bMustMoveThrough*/, true /*bIncludeBlockedUnits*/))
-#endif
 				{
 					CvCity* pCity = pPlot->getPlotCity();
 					if(pCity != NULL)
@@ -2270,11 +2242,7 @@ void CvTacticalAI::PlotBarbarianCampMoves()
 	{
 		// See what units we have who can reach target this turn
 		CvPlot* pPlot = GC.getMap().plot(pTarget->GetTargetX(), pTarget->GetTargetY());
-#if defined(MOD_BALANCE_CORE)
-		if(FindUnitsWithinStrikingDistance(pPlot, 1, 0, false /* bNoRangedUnits */, false /*bRangedOnly*/, false /*bNavalOnly*/, false /*bMustMoveThrough*/, false /*bIncludeBlockedUnits*/, false /*bWillPillage*/, true /*bTargetUndefended*/))
-#else
 		if(FindUnitsWithinStrikingDistance(pPlot, 1, 0, false /* bNoRangedUnits */, false /*bNavalOnly*/, false /*bMustMoveThrough*/, false /*bIncludeBlockedUnits*/, false /*bWillPillage*/, true /*bTargetUndefended*/))
-#endif
 		{
 			// Queue best one up to capture it
 			ExecuteBarbarianCampMove(pPlot);
@@ -2308,11 +2276,7 @@ void CvTacticalAI::PlotDestroyUnitMoves(AITacticalTargetType targetType, bool bM
 		UnitHandle pDefender = pPlot->getVisibleEnemyDefender(m_pPlayer->GetID());
 		if(pDefender)
 		{
-#if defined(MOD_BALANCE_CORE)
-			bUnitCanAttack = FindUnitsWithinStrikingDistance(pPlot, 1, 0);
-#else
 			bUnitCanAttack = FindUnitsWithinStrikingDistance(pPlot, 1, 0, false /* bNoRangedUnits */);
-#endif
 			bCityCanAttack = FindCitiesWithinStrikingDistance(pPlot);
 			if(bUnitCanAttack || bCityCanAttack)
 			{
@@ -2611,11 +2575,8 @@ void CvTacticalAI::PlotBarbarianPlunderTradeUnitMove(DomainTypes eDomain)
 	{
 		// See what units we have who can reach target this turn
 		CvPlot* pPlot = GC.getMap().plot(pTarget->GetTargetX(), pTarget->GetTargetY());
-#if defined(MOD_BALANCE_CORE)
-		if (FindUnitsWithinStrikingDistance(pPlot, 0, 0, false /* bNoRangedUnits */, false /*bRangedOnly*/, bNavalOnly, true /*bMustMoveThrough*/, false /*bIncludeBlockedUnits*/, false /*bWillPillage*/))
-#else
+
 		if (FindUnitsWithinStrikingDistance(pPlot, 0, 0, false /* bNoRangedUnits */, bNavalOnly, true /*bMustMoveThrough*/, false /*bIncludeBlockedUnits*/, false /*bWillPillage*/))
-#endif
 		{
 			// Queue best one up to capture it
 			ExecutePlunderTradeUnit(pPlot);
@@ -2733,11 +2694,8 @@ void CvTacticalAI::PlotPillageMoves(AITacticalTargetType eTarget, bool bFirstPas
 			}
 
 		}
-#if defined(MOD_BALANCE_CORE)
-		else if (bFirstPass && FindUnitsWithinStrikingDistance(pPlot, 0, iPillageHeal, false /* bNoRangedUnits */, false /*bRangedOnly*/, false /*bNavalOnly*/, true /*bMustMoveThrough*/, false /*bIncludeBlockedUnits*/, true /*bWillPillage*/))
-#else
+
 		else if (bFirstPass && FindUnitsWithinStrikingDistance(pPlot, 0, iPillageHeal, false /* bNoRangedUnits */, false /*bNavalOnly*/, true /*bMustMoveThrough*/, false /*bIncludeBlockedUnits*/, true /*bWillPillage*/))
-#endif
 		{
 			// Queue best one up to capture it
 			ExecutePillage(pPlot);
@@ -2751,11 +2709,7 @@ void CvTacticalAI::PlotPillageMoves(AITacticalTargetType eTarget, bool bFirstPas
 		}
 
 		// No one can reach it this turn, what about next turn?
-#if defined(MOD_BALANCE_CORE)
-		else if(!bFirstPass && FindUnitsWithinStrikingDistance(pPlot, 2, iPillageHeal, false /* bNoRangedUnits */, false /*bRangedOnly*/, false /*bNavalOnly*/, false /*bMustMoveThrough*/, false /*bIncludeBlockedUnits*/, true /*bWillPillage*/))
-#else
 		else if(!bFirstPass && FindUnitsWithinStrikingDistance(pPlot, 2, iPillageHeal, false /* bNoRangedUnits */, false /*bNavalOnly*/, false /*bMustMoveThrough*/, false /*bIncludeBlockedUnits*/, true /*bWillPillage*/))
-#endif
 		{
 			ExecuteMoveToTarget(pPlot);
 
@@ -2866,11 +2820,8 @@ void CvTacticalAI::PlotPlunderTradeUnitMoves (DomainTypes eDomain)
 	{
 		// See what units we have who can reach target this turn
 		CvPlot* pPlot = GC.getMap().plot(pTarget->GetTargetX(), pTarget->GetTargetY());
-#if defined(MOD_BALANCE_CORE)
-		if (FindUnitsWithinStrikingDistance(pPlot, 0, 0, false /* bNoRangedUnits */, false /*bRangedOnly*/, bNavalOnly, true /*bMustMoveThrough*/, false /*bIncludeBlockedUnits*/, false /*bWillPillage*/))
-#else
+
 		if (FindUnitsWithinStrikingDistance(pPlot, 0, 0, false /* bNoRangedUnits */, bNavalOnly, true /*bMustMoveThrough*/, false /*bIncludeBlockedUnits*/, false /*bWillPillage*/))
-#endif
 		{
 			// Queue best one up to capture it
 			ExecutePlunderTradeUnit(pPlot);
@@ -2896,11 +2847,7 @@ void CvTacticalAI::PlotBlockadeImprovementMoves()
 	{
 		// See what units we have who can reach target this turn
 		CvPlot* pPlot = GC.getMap().plot(pTarget->GetTargetX(), pTarget->GetTargetY());
-#if defined(MOD_BALANCE_CORE)
-		if(FindUnitsWithinStrikingDistance(pPlot, 2, 0, false /* bNoRangedUnits */, false /*bRangedOnly*/, true /* bNavalOnly */, false /*bMustMoveThrough*/))
-#else
 		if(FindUnitsWithinStrikingDistance(pPlot, 2, 0, false /* bNoRangedUnits */, true /* bNavalOnly */, false /*bMustMoveThrough*/))
-#endif
 		{
 			// Queue best one up to capture it
 			ExecuteNavalBlockadeMove(pPlot);
@@ -2925,11 +2872,7 @@ void CvTacticalAI::PlotCivilianAttackMoves(AITacticalTargetType eTargetType)
 	{
 		// See what units we have who can reach target this turn
 		CvPlot* pPlot = GC.getMap().plot(pTarget->GetTargetX(), pTarget->GetTargetY());
-#if defined(MOD_BALANCE_CORE)
-		if(FindUnitsWithinStrikingDistance(pPlot, 1, 0, false /* bNoRangedUnits */, false /*bRangedOnly*/, false /*bNavalOnly*/, false /*bMustMoveThrough*/, false /*bIncludeBlockedUnits*/, false /*bWillPillage*/, true /*bTargetUndefended*/))
-#else
 		if(FindUnitsWithinStrikingDistance(pPlot, 1, 0, false /* bNoRangedUnits */, false /*bNavalOnly*/, false /*bMustMoveThrough*/, false /*bIncludeBlockedUnits*/, false /*bWillPillage*/, true /*bTargetUndefended*/))
-#endif
 		{
 			// Queue best one up to capture it
 			ExecuteCivilianCapture(pPlot);
@@ -3107,11 +3050,7 @@ void CvTacticalAI::PlotCampDefenseMoves()
 			}
 		}
 #endif
-#if defined(MOD_BALANCE_CORE)
-		if(FindUnitsWithinStrikingDistance(pPlot, 1, 0, true /* bNoRangedUnits */, false /*bRangedOnly*/, false /*bNavalOnly*/, false /*bMustMoveThrough*/))
-#else
 		if(FindUnitsWithinStrikingDistance(pPlot, 1, 0, true /* bNoRangedUnits */, false /*bNavalOnly*/, false /*bMustMoveThrough*/))
-#endif
 		{
 			ExecuteMoveToPlot(pPlot);
 			if(GC.getLogging() && GC.getAILogging())
@@ -7265,10 +7204,10 @@ void CvTacticalAI::ExecuteBarbarianMoves(bool bAggressive)
 						}
 					}
 				}
-#if defined(MOD_BALANCE_CORE_MILITARY)
+#if defined(MOD_BALANCE_CORE_BARBARIAN_THEFT)
 				//Let's make Barbs scarier. If they end their move next to a city, let's have them pillage some Gold from the City. If they end their turn in owned land, let's give them a smaller chance to do so.
 				int iGold = 0;
-				if(pUnit)
+				if(pUnit && MOD_BALANCE_CORE_BARBARIAN_THEFT)
 				{	
 					if(pUnit->plot()->GetAdjacentCity() != NULL)
 					{
@@ -8376,11 +8315,7 @@ bool CvTacticalAI::ExecuteFlankAttack(CvTacticalTarget& kTarget)
 				{
 					kTarget.SetAuxIntData(pDefender->GetCurrHitPoints());
 					m_CurrentMoveCities.clear();
-#if defined(MOD_BALANCE_CORE)
-					if(FindUnitsWithinStrikingDistance(pTargetPlot, 1, 0))
-#else
 					if(FindUnitsWithinStrikingDistance(pTargetPlot, 1, 0, false /* bNoRangedUnits */))
-#endif
 					{
 						ComputeTotalExpectedDamage(&kTarget, pTargetPlot);
 						ExecuteAttack(&kTarget, pTargetPlot, false/*bInflictWhatWeTake*/, true/*bMustSurviveAttack*/);
@@ -9036,12 +8971,7 @@ bool CvTacticalAI::FindUnitsForThisMove(TacticalAIMoveTypes eMove, CvPlot* pTarg
 }
 
 /// Fills m_CurrentMoveUnits with all units within X turns of a target (returns TRUE if 1 or more found)
-#if defined(MOD_BALANCE_CORE)
-bool CvTacticalAI::FindUnitsWithinStrikingDistance(CvPlot* pTarget, int iNumTurnsAway, int iPreferredDamageLevel, 
-	bool bNoRangedUnits, bool bRangedOnly, bool bNavalOnly, bool bMustMoveThrough, bool bIncludeBlockedUnits, bool bWillPillage, bool bTargetUndefended)
-#else
 bool CvTacticalAI::FindUnitsWithinStrikingDistance(CvPlot* pTarget, int iNumTurnsAway, int iPreferredDamageLevel, bool bNoRangedUnits, bool bNavalOnly, bool bMustMoveThrough, bool bIncludeBlockedUnits, bool bWillPillage, bool bTargetUndefended)
-#endif
 {
 	list<int>::iterator it;
 	UnitHandle pLoopUnit;
@@ -9087,11 +9017,6 @@ bool CvTacticalAI::FindUnitsWithinStrikingDistance(CvPlot* pTarget, int iNumTurn
 				if (MOD_AI_SMART_MELEE_TACTICS && bNoRangedUnits && pLoopUnit->IsCanAttackRanged())
 				{
 					// To effectively skip all ranged units...
-					continue;
-				}
-				if (MOD_AI_SMART_MELEE_TACTICS && bRangedOnly && !pLoopUnit->IsCanAttackRanged())
-				{
-					// To effectively skip all non-ranged units...
 					continue;
 				}
 #endif

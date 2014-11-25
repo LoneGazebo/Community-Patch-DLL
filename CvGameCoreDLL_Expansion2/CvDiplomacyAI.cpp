@@ -14038,7 +14038,11 @@ void CvDiplomacyAI::DoCaughtYourSpyStatement(PlayerTypes ePlayer, DiploStatement
 			else
 			{
 				DiploStatementTypes eTempStatement = DIPLO_STATEMENT_CAUGHT_YOUR_SPY;
+#if defined(MOD_BALANCE_CORE_SPIES)
+				int iTurnsBetweenStatements = 40;
+#else
 				int iTurnsBetweenStatements = 1;
+#endif
 
 				if(GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
 				{
@@ -14061,7 +14065,11 @@ void CvDiplomacyAI::DoKilledYourSpyStatement(PlayerTypes ePlayer, DiploStatement
 			if(m_pPlayer->GetEspionageAI()->m_aiTurnLastSpyKilled[ePlayer] == GC.getGame().getGameTurn())
 			{
 				DiploStatementTypes eTempStatement = DIPLO_STATEMENT_KILLED_YOUR_SPY;
+#if defined(MOD_BALANCE_CORE_SPIES)
+				int iTurnsBetweenStatements = 40;
+#else
 				int iTurnsBetweenStatements = 1;
+#endif
 
 				if(GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
 				{
@@ -14096,7 +14104,11 @@ void CvDiplomacyAI::DoKilledMySpyStatement(PlayerTypes ePlayer, DiploStatementTy
 			else
 			{
 				DiploStatementTypes eTempStatement = DIPLO_STATEMENT_KILLED_MY_SPY;
+#if defined(MOD_BALANCE_CORE_SPIES)
+				int iTurnsBetweenStatements = 40;
+#else
 				int iTurnsBetweenStatements = 1;
+#endif
 
 				if(GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
 				{

@@ -546,7 +546,7 @@
 				<PromotionPrereqOr2>PROMOTION_DOGFIGHTING_1</PromotionPrereqOr2>
 				<PromotionPrereqOr3>PROMOTION_AIR_SIEGE_1</PromotionPrereqOr3>
 				<OrderPriority>3</OrderPriority>
-				<PortraitIndex>52</PortraitIndex>
+				<PortraitIndex>3</PortraitIndex>
 				<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 				<PediaType>PEDIA_AIR</PediaType>
 				<PediaEntry>TXT_KEY_PROMOTION_AIR_TARGETING_1</PediaEntry>
@@ -558,36 +558,10 @@
 				<Sound>AS2D_IF_LEVELUP</Sound>
 				<PromotionPrereqOr1>PROMOTION_AIR_TARGETING_1</PromotionPrereqOr1>
 				<OrderPriority>3</OrderPriority>
-				<PortraitIndex>53</PortraitIndex>
-				<IconAtlas>PROMOTION_ATLAS</IconAtlas>
-				<PediaType>PEDIA_AIR</PediaType>
-				<PediaEntry>TXT_KEY_PROMOTION_AIR_TARGETING_2</PediaEntry>
-			</Row>
-			<Row>
-				<Type>PROMOTION_AIR_AMBUSH_1</Type>
-				<Description>TXT_KEY_PROMOTION_AIR_AMBUSH_1</Description>
-				<Help>TXT_KEY_PROMOTION_AIR_AMBUSH_1_HELP</Help>
-				<Sound>AS2D_IF_LEVELUP</Sound>
-				<PromotionPrereqOr1>PROMOTION_INTERCEPTION_1</PromotionPrereqOr1>
-				<PromotionPrereqOr2>PROMOTION_DOGFIGHTING_1</PromotionPrereqOr2>
-				<PromotionPrereqOr3>PROMOTION_AIR_SIEGE_1</PromotionPrereqOr3>
-				<OrderPriority>4</OrderPriority>
-				<PortraitIndex>3</PortraitIndex>
-				<IconAtlas>PROMOTION_ATLAS</IconAtlas>
-				<PediaType>PEDIA_AIR</PediaType>
-				<PediaEntry>TXT_KEY_PROMOTION_AIR_AMBUSH_1</PediaEntry>
-			</Row>
-			<Row>
-				<Type>PROMOTION_AIR_AMBUSH_2</Type>
-				<Description>TXT_KEY_PROMOTION_AIR_AMBUSH_2</Description>
-				<Help>TXT_KEY_PROMOTION_AIR_AMBUSH_1_HELP</Help>
-				<Sound>AS2D_IF_LEVELUP</Sound>
-				<PromotionPrereqOr1>PROMOTION_AIR_AMBUSH_1</PromotionPrereqOr1>
-				<OrderPriority>4</OrderPriority>
 				<PortraitIndex>4</PortraitIndex>
 				<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 				<PediaType>PEDIA_AIR</PediaType>
-				<PediaEntry>TXT_KEY_PROMOTION_AIR_AMBUSH_2</PediaEntry>
+				<PediaEntry>TXT_KEY_PROMOTION_AIR_TARGETING_2</PediaEntry>
 			</Row>
 			<Row>
 				<Type>PROMOTION_AIR_RANGE</Type>
@@ -820,7 +794,7 @@
 				<Description>TXT_KEY_PROMOTION_COASTAL_RAIDER_1</Description>
 				<Help>TXT_KEY_PROMOTION_COASTAL_RAIDER_1_HELP</Help>
 				<Sound>AS2D_IF_LEVELUP</Sound>
-				<CityAttack>20</CityAttack>
+				<CityAttack>15</CityAttack>
 				<CityAttackPlunderModifier>33</CityAttackPlunderModifier>
 				<PortraitIndex>3</PortraitIndex>
 				<IconAtlas>EXPANSION_PROMOTION_ATLAS</IconAtlas>
@@ -833,7 +807,7 @@
 				<Help>TXT_KEY_PROMOTION_COASTAL_RAIDER_2_HELP</Help>
 				<Sound>AS2D_IF_LEVELUP</Sound>
 				<PromotionPrereqOr1>PROMOTION_COASTAL_RAIDER_1</PromotionPrereqOr1>
-				<CityAttack>20</CityAttack>
+				<CityAttack>15</CityAttack>
 				<CityAttackPlunderModifier>33</CityAttackPlunderModifier>
 				<PortraitIndex>4</PortraitIndex>
 				<IconAtlas>EXPANSION_PROMOTION_ATLAS</IconAtlas>
@@ -846,7 +820,7 @@
 				<Help>TXT_KEY_PROMOTION_COASTAL_RAIDER_3_HELP</Help>
 				<Sound>AS2D_IF_LEVELUP</Sound>
 				<PromotionPrereqOr1>PROMOTION_COASTAL_RAIDER_2</PromotionPrereqOr1>
-				<CityAttack>20</CityAttack>
+				<CityAttack>15</CityAttack>
 				<CityAttackPlunderModifier>34</CityAttackPlunderModifier>
 				<PortraitIndex>5</PortraitIndex>
 				<IconAtlas>EXPANSION_PROMOTION_ATLAS</IconAtlas>
@@ -894,7 +868,7 @@
 				<IconAtlas>EXPANSION2_PROMOTION_ATLAS</IconAtlas>
 				<PediaType>PEDIA_ATTRIBUTES</PediaType>
 				<PediaEntry>TXT_KEY_PROMOTION_WOLFPACK_1</PediaEntry>
-				<AttackMod>25</AttackMod>
+				<AttackMod>15</AttackMod>
 			</Row>
 			<Row>
 				<Type>PROMOTION_WOLFPACK_2</Type>
@@ -906,7 +880,7 @@
 				<IconAtlas>EXPANSION2_PROMOTION_ATLAS</IconAtlas>
 				<PediaType>PEDIA_ATTRIBUTES</PediaType>
 				<PediaEntry>TXT_KEY_PROMOTION_WOLFPACK_2</PediaEntry>
-				<AttackMod>25</AttackMod>
+				<AttackMod>15</AttackMod>
 			</Row>
 			<Row>
 				<Type>PROMOTION_WOLFPACK_3</Type>
@@ -918,7 +892,7 @@
 				<IconAtlas>EXPANSION2_PROMOTION_ATLAS</IconAtlas>
 				<PediaType>PEDIA_ATTRIBUTES</PediaType>
 				<PediaEntry>TXT_KEY_PROMOTION_WOLFPACK_3</PediaEntry>
-				<AttackMod>25</AttackMod>
+				<AttackMod>15</AttackMod>
 			</Row>
 			<Row>
 				<Type>PROMOTION_FLIGHT_DECK_1</Type>

@@ -66,18 +66,6 @@
 			<Yield>1</Yield>
 		</Row>
 	</Policy_SpecialistExtraYields>
-	<!--<Building_YieldModifiers>
-		<Row>
-			<BuildingType>BUILDING_MONASTERY</BuildingType>
-			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>10</Yield>
-		</Row>
-		<Row>
-			<BuildingType>BUILDING_MONASTERY</BuildingType>
-			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>10</Yield>
-		</Row>
-	</Building_YieldModifiers>-->
 	<Building_YieldChanges>
 		<Row>
 			<BuildingType>BUILDING_MONASTERY</BuildingType>
@@ -90,6 +78,13 @@
 			<Yield>2</Yield>
 		</Row>
 	</Building_YieldChanges>
+	<Policy_FreeBuilding>
+		<Row>
+			<PolicyType>POLICY_REFORMATION</PolicyType>
+			<BuildingClassType>BUILDINGCLASS_MONASTERY</BuildingClassType>
+			<Count>1</Count>
+		</Row>
+	</Policy_FreeBuilding>
 	<Policy_ImprovementYieldChanges>
 		<Row>
 			<PolicyType>POLICY_PIETY_FINISHER</PolicyType>
@@ -101,6 +96,21 @@
 	<Language_en_US>
 		<Row Tag="TXT_KEY_PRODMOD_YIELD_RELIGION_POLICIES">
 			<Text>[NEWLINE][ICON_BULLET]Piety Modifer: {1_Num}%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_YIELD_FROM_PIETY">
+			<Text>{1_Num} {2_IconString} from Piety</Text>
+		</Row>
+		<Row Tag="TXT_KEY_FAITH_FROM_PIETY">
+			<Text>{1_Num} [ICON_PEACE] from Piety</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CULTURE_FROM_PIETY">
+			<Text>{1_Num} [ICON_CULTURE] from Piety</Text>
+		</Row>
+		<Row Tag="TXT_KEY_FAITH_FROM_POP">
+			<Text>{1_Num} [ICON_PEACE] from [ICON_CITIZEN] Population</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CULTURE_FROM_POPULATION">
+			<Text>{1_Num} [ICON_CULTURE] from [ICON_CITIZEN] Population</Text>
 		</Row>
 	</Language_en_US>
 </GameData>

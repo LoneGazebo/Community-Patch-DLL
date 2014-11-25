@@ -1304,10 +1304,10 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 			int iHappinessFromResource = pkResourceInfo->getHappiness();
 #if defined(MOD_BALANCE_CORE_HAPPINESS_LUXURY)
 			//Let's modify this value to make it more clearly pertain to current happiness for luxuries.
-			iHappinessFromResource = GetPlayer()->GetBaseLuxuryHappiness();
+			iHappinessFromResource = GetPlayer()->GetBaseLuxuryHappiness() + 1;
 			if(iHappinessFromResource <= 0)
 			{
-				iHappinessFromResource = 1;
+				iHappinessFromResource = 2;
 			}
 #endif
 			iItemValue += (iResourceQuantity * iHappinessFromResource * iNumTurns * 2);	// Ex: 1 Silk for 4 Happiness * 30 turns * 2 = 240

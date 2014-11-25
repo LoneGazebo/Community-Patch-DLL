@@ -1,27 +1,27 @@
 -- Honor Opener/Finisher
 UPDATE Language_en_US
-SET Text = 'CONQUEST'
+SET Text = 'MIGHT'
 WHERE Tag = 'TXT_KEY_POLICY_BRANCH_HONOR_CAP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Conquest'
+SET Text = 'Might'
 WHERE Tag = 'TXT_KEY_POLICY_BRANCH_HONOR' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Conquest[ENDCOLOR] will greatly benefit expansionists.[NEWLINE][NEWLINE]Adopting Honor gives a +33% combat bonus VS Barbarians, and notifications will be provided when new Barbarian Encampments spawn in revealed territory. Gain [ICON_CULTURE] Culture for the empire from each barbarian killed, each Camp cleared, and each City conquered. Unlocks building the Statue of Zeus.[NEWLINE][NEWLINE]Adopting all policies in the Conquest tree will reduce Policy cost due to number of cities by 25%, and will grant [ICON_GOLDEN_AGE] Golden Age Points from city conquest. It also allows the purchase of Great Generals with [ICON_PEACE] Faith starting in the Industrial Era.'
+SET Text = '[COLOR_POSITIVE_TEXT]Might[ENDCOLOR] will greatly benefit expansionists.[NEWLINE][NEWLINE]Adopting Honor gives a +33% combat bonus VS Barbarians, and notifications will be provided when new Barbarian Encampments spawn in revealed territory. Gain [ICON_CULTURE] Culture for the empire from each barbarian killed, each Camp cleared, and each City conquered. Receive a +5% [ICON_PRODUCTION] production modifier for all land military units, and +3% for each additional policy unlocked in Might. Unlocks building the Statue of Zeus.[NEWLINE][NEWLINE]Adopting all policies in the Might tree will reduce Policy cost due to number of cities by 25%, and will grant [ICON_GOLDEN_AGE] Golden Age Points from city conquest. It also allows the purchase of Great Generals with [ICON_PEACE] Faith starting in the Industrial Era.'
 WHERE Tag = 'TXT_KEY_POLICY_BRANCH_HONOR_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 -- Warrior Code (Now Imperialism)
 UPDATE Language_en_US
-SET Text = 'Imperialism'
+SET Text = 'Expansionism'
 WHERE Tag = 'TXT_KEY_POLICY_WARRIOR_CODE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Imperialism[ENDCOLOR][NEWLINE]No [ICON_HAPPINESS_3] Unhappiness from Isolation. A Free Settler appears in the [ICON_CAPITAL] Capital.'
+SET Text = '[COLOR_POSITIVE_TEXT]Expansionism[ENDCOLOR][NEWLINE]No [ICON_HAPPINESS_3] Unhappiness from Isolation. A Free Settler appears in the [ICON_CAPITAL] Capital.'
 WHERE Tag = 'TXT_KEY_POLICY_WARRIOR_CODE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Imperialism, as it is defined by the Dictionary of Human Geography, is an unequal human and territorial relationship, usually in the form of an empire, based on ideas of superiority and practices of dominance, and involving the extension of authority and control of one state or people over another.'
+SET Text = 'In general, expansionism consists of expansionist policies of governments and states. While some have linked the term to promoting economic growth (in contrast to no growth / sustainable policies), more commonly expansionism refers to the doctrine of a state expanding its territorial base (or economic influence) usually, though not necessarily, by means of military aggression. Compare empire-building, colonialism, and Lebensraum. Irredentism, revanchism, reunification or pan-nationalism are sometimes used to justify and legitimize expansionism, but only when the explicit goal is to reconquer territories that have been lost, or to take over ancestral lands. A simple territorial dispute, such as a border dispute, is not usually referred to as expansionism.'
 WHERE Tag = 'TXT_KEY_POLICY_WARRIORCODE_TEXT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 -- Discipline (Now Martial Law)

@@ -1,3 +1,9 @@
+-- Great Artists come from Piety
+
+INSERT INTO Policy_FaithPurchaseUnitClasses (PolicyType, UnitClassType)
+SELECT 'POLICY_PIETY_FINISHER' , 'UNITCLASS_ARTIST'
+WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
+
 -- Piety Opener
 UPDATE Policy_BuildingClassProductionModifiers
 SET ProductionModifier = '0'

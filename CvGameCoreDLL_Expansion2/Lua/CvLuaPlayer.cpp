@@ -10269,7 +10269,6 @@ int CvLuaPlayer::lGetPolicyConversionModifier(lua_State* L)
 	return 1;
 }
 #endif
-
 //------------------------------------------------------------------------------
 int CvLuaPlayer::lGetPlayerBuildingClassYieldChange(lua_State* L)
 {

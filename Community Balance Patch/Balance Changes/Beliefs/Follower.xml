@@ -5,12 +5,12 @@
 		<Row>
 			<BeliefType>BELIEF_RELIGIOUS_COMMUNITY</BeliefType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Max>15</Max>
+			<Max>10</Max>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_FEED_WORLD</BeliefType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Max>15</Max>
+			<Max>10</Max>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_CHORAL_MUSIC</BeliefType>
@@ -47,12 +47,12 @@
 		<Row>
 			<BeliefType>BELIEF_LITURGICAL_DRAMA</BeliefType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Max>10</Max>
+			<Max>5</Max>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_DIVINE_INSPIRATION</BeliefType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Max>10</Max>
+			<Max>5</Max>
 		</Row>
 	</Belief_MaxYieldPerFollower>
 	<Belief_YieldPerBirth>

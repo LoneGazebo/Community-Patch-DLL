@@ -41,7 +41,11 @@ public:
 	int GetWeight(UnitTypes eUnit);
 
 	// Recommend highest-weighted unit
+#if defined(MOD_BALANCE_CORE)
+	UnitTypes RecommendUnit(UnitAITypes eUnitAIType, bool bUsesStrategicResource);
+#else
 	UnitTypes RecommendUnit(UnitAITypes eUnitAIType = NO_UNITAI);
+#endif
 
 	// Logging
 	void LogPossibleBuilds(UnitAITypes eUnitAIType = NO_UNITAI);

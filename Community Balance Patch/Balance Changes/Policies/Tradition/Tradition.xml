@@ -1,76 +1,53 @@
 <GameData>
-	<Policy_CapitalYieldChanges>
-		<Row>
-			<PolicyType>POLICY_TRADITION</PolicyType>
-			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>1</Yield>
-		</Row>
-		<Row>
-			<PolicyType>POLICY_ARISTOCRACY</PolicyType>
-			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>1</Yield>
-		</Row>
-		<Row>
-			<PolicyType>POLICY_OLIGARCHY</PolicyType>
-			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>1</Yield>
-		</Row>
-		<Row>
-			<PolicyType>POLICY_LANDED_ELITE</PolicyType>
-			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>1</Yield>
-		</Row>
+	<Policy_PrereqPolicies>
 		<Row>
 			<PolicyType>POLICY_LEGALISM</PolicyType>
-			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>1</Yield>
+			<PrereqPolicy>POLICY_ARISTOCRACY</PrereqPolicy>
+		</Row>
+	</Policy_PrereqPolicies>
+	<Policy_CapitalYieldPerPopChanges>
+		<Row>
+			<PolicyType>POLICY_ARISTOCRACY</PolicyType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>20</Yield>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_MONARCHY</PolicyType>
-			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>1</Yield>
-		</Row>
-	</Policy_CapitalYieldChanges>
-	<Policy_CapitalYieldPerPopChanges>
-		<Row>
-			<PolicyType>POLICY_OLIGARCHY</PolicyType>
-			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Yield>25</Yield>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>20</Yield>
 		</Row>
 	</Policy_CapitalYieldPerPopChanges>
 	<Policy_CityYieldChanges>
 		<Row>
-			<PolicyType>POLICY_OLIGARCHY</PolicyType>
+			<PolicyType>POLICY_ARISTOCRACY</PolicyType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_LANDED_ELITE</PolicyType>
 			<YieldType>YIELD_FOOD</YieldType>
 			<Yield>2</Yield>
 		</Row>
 	</Policy_CityYieldChanges>
 	<Policy_FreeBuilding>
 		<Row>
-			<PolicyType>POLICY_OLIGARCHY</PolicyType>
+			<PolicyType>POLICY_MONARCHY</PolicyType>
 			<BuildingClassType>BUILDINGCLASS_CAPITAL_ENGINEER</BuildingClassType>
 			<Count>1</Count>
 		</Row>
 	</Policy_FreeBuilding>
-	<Policy_YieldChangeWorldWonder>
-		<Row>
-			<PolicyType>POLICY_ARISTOCRACY</PolicyType>
-			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>1</Yield>
-		</Row>
-	</Policy_YieldChangeWorldWonder>
 	<Policy_YieldFromBirth>
 		<Row>
-			<PolicyType>POLICY_MONARCHY</PolicyType>
+			<PolicyType>POLICY_OLIGARCHY</PolicyType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>10</Yield>
+			<Yield>20</Yield>
 		</Row>
 	</Policy_YieldFromBirth>
 	<Policy_YieldFromBirthCapital>
 		<Row>
-			<PolicyType>POLICY_MONARCHY</PolicyType>
+			<PolicyType>POLICY_OLIGARCHY</PolicyType>
 			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Yield>20</Yield>
+			<Yield>50</Yield>
 		</Row>
 	</Policy_YieldFromBirthCapital>
 </GameData>

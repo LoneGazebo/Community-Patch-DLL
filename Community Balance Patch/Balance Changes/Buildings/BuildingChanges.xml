@@ -78,6 +78,21 @@
 		<Row>
 			<BuildingType>BUILDING_BROADCAST_TOWER</BuildingType>
 			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>50</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_AMPHITHEATER</BuildingType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>20</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_OPERA_HOUSE</BuildingType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>25</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_MUSEUM</BuildingType>
+			<YieldType>YIELD_CULTURE</YieldType>
 			<Yield>33</Yield>
 		</Row>
 	</Building_YieldChangesPerPop>
@@ -145,13 +160,13 @@
 			<BuildingType>BUILDING_MINT</BuildingType>
 			<ResourceType>RESOURCE_GEMS</ResourceType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>1</Yield>
+			<Yield>2</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_MINT</BuildingType>
 			<ResourceType>RESOURCE_COPPER</ResourceType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>1</Yield>
+			<Yield>2</Yield>
 		</Row>
 	<!-- Caravanserai -->
 		<Row>
@@ -169,12 +184,6 @@
 		<Row>
 			<BuildingType>BUILDING_CARAVANSARY</BuildingType>
 			<ResourceType>RESOURCE_FUR</ResourceType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>1</Yield>
-		</Row>
-		<Row>
-			<BuildingType>BUILDING_CARAVANSARY</BuildingType>
-			<ResourceType>RESOURCE_SILK</ResourceType>
 			<YieldType>YIELD_GOLD</YieldType>
 			<Yield>1</Yield>
 		</Row>

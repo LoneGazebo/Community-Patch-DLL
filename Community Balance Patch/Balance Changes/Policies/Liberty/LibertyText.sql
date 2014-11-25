@@ -1,6 +1,6 @@
 -- Liberty Opener
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Liberty[ENDCOLOR] is best for civilizations which desire robust infrastructure.[NEWLINE][NEWLINE]Adopting Liberty will provide 10 [ICON_CULTURE] Culture every time you research a Technology or construct a Building. Receive +2% [ICON_PRODUCTION] Production towards buildings, and an additional +2% [ICON_PRODUCTION] Production for every Liberty policy you unlock. Unlocks building the Pyramids.[NEWLINE][NEWLINE]Adopting all policies in the Liberty tree will grant a free Great Person of your choice near the [ICON_CAPITAL] Capital.'
+SET Text = '[COLOR_POSITIVE_TEXT]Liberty[ENDCOLOR] is best for civilizations which desire robust infrastructure.[NEWLINE][NEWLINE]Adopting Liberty will provide 10 [ICON_CULTURE] Culture every time you research a Technology or construct a Building. Receive +2% [ICON_PRODUCTION] Production towards buildings, and an additional +2% [ICON_PRODUCTION] Production for every Liberty policy you unlock. Unlocks building the Parthenon.[NEWLINE][NEWLINE]Adopting all policies in the Liberty tree will grant a free Great Person of your choice near the [ICON_CAPITAL] Capital. It also allows the purchase of Great Writers with [ICON_PEACE] Faith starting in the Industrial Era.'
 WHERE Tag = 'TXT_KEY_POLICY_BRANCH_LIBERTY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 -- Collective Rule (Now City Planning)
@@ -24,7 +24,7 @@ SET Text = 'Civil Engineers'
 WHERE Tag = 'TXT_KEY_POLICY_REPUBLIC' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Civil Engineers[ENDCOLOR][NEWLINE] +1 [ICON_PRODUCTION] Production in all cities. Road and Railroad [ICON_GOLD] Gold maintenance reduced by 50%.'
+SET Text = '[COLOR_POSITIVE_TEXT]Civil Engineers[ENDCOLOR][NEWLINE] +2 [ICON_PRODUCTION] Production in all cities. Road and Railroad [ICON_GOLD] Gold maintenance reduced by 50%.'
 WHERE Tag = 'TXT_KEY_POLICY_REPUBLIC_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -38,7 +38,7 @@ WHERE Tag = 'TXT_KEY_POLICY_REPRESENTATION_HELP' AND EXISTS (SELECT * FROM COMMU
 
 -- Meritocracy
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Meritocracy[ENDCOLOR][NEWLINE] When you expend a Great Person, receive 40 [ICON_GOLDEN_AGE] Golden Age Points and [ICON_RESEARCH] Science. Bonus scales with Era.'
+SET Text = '[COLOR_POSITIVE_TEXT]Meritocracy[ENDCOLOR][NEWLINE] When you expend a Great Person, receive 50 [ICON_GOLDEN_AGE] Golden Age Points and [ICON_RESEARCH] Science. Bonus scales with Era.'
 WHERE Tag = 'TXT_KEY_POLICY_MERITOCRACY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 -- Finisher

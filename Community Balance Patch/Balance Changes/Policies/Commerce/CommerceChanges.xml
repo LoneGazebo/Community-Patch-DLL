@@ -1,12 +1,220 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Created by ModBuddy on 11/4/2014 3:43:11 PM -->
 <GameData>
-  <!-- Commerce -->
+  <!-- Commerce Opener -->
 	<Policy_YieldFromConstruction>
 		<Row>
 			<PolicyType>POLICY_COMMERCE</PolicyType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>25</Yield>
+			<Yield>30</Yield>
 		</Row>
 	</Policy_YieldFromConstruction>
+	<!-- Gold cost reduction -->
+	<Policy_HurryModifiers>
+		<Row>
+			<PolicyType>POLICY_COMMERCE</PolicyType>
+			<HurryType>HURRY_GOLD</HurryType>
+			<HurryCostModifier>-5</HurryCostModifier>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_TRADE_UNIONS</PolicyType>
+			<HurryType>HURRY_GOLD</HurryType>
+			<HurryCostModifier>-5</HurryCostModifier>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_CARAVANS</PolicyType>
+			<HurryType>HURRY_GOLD</HurryType>
+			<HurryCostModifier>-5</HurryCostModifier>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_ENTREPRENEURSHIP</PolicyType>
+			<HurryType>HURRY_GOLD</HurryType>
+			<HurryCostModifier>-5</HurryCostModifier>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_MERCANTILISM</PolicyType>
+			<HurryType>HURRY_GOLD</HurryType>
+			<HurryCostModifier>-5</HurryCostModifier>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_PROTECTIONISM</PolicyType>
+			<HurryType>HURRY_GOLD</HurryType>
+			<HurryCostModifier>-5</HurryCostModifier>
+		</Row>
+	</Policy_HurryModifiers>
+	<!-- Mercenary Army -->
+	<UnitClasses>
+		<Row>
+			<Type>UNITCLASS_GUERILLA</Type>
+			<Description>TXT_KEY_UNIT_GUERILLA</Description>
+			<DefaultUnit>UNIT_GUERILLA</DefaultUnit>
+		</Row>
+	</UnitClasses>
+	<Units>
+		<Row>
+			<Class>UNITCLASS_GUERILLA</Class>
+			<Type>UNIT_GUERILLA</Type>
+			<PrereqTech>TECH_PENICILIN</PrereqTech>
+			<Combat>55</Combat>
+			<Cost>200</Cost>
+			<FaithCost>0</FaithCost>
+			<PurchaseOnly>true</PurchaseOnly>
+			<RequiresFaithPurchaseEnabled>false</RequiresFaithPurchaseEnabled>
+			<Moves>2</Moves>
+			<CombatClass>UNITCOMBAT_GUN</CombatClass>
+			<Domain>DOMAIN_LAND</Domain>
+			<MoveAfterPurchase>true</MoveAfterPurchase>
+			<DefaultUnitAI>UNITAI_FAST_ATTACK</DefaultUnitAI>
+			<Description>TXT_KEY_UNIT_GUERILLA</Description>
+			<Civilopedia>TXT_KEY_CIV5_GUERILLA_TEXT</Civilopedia>
+			<Strategy>TXT_KEY_UNIT_GUERILLA_STRATEGY</Strategy>
+			<Help>TXT_KEY_UNIT_HELP_GUERILLA</Help>
+			<MilitarySupport>true</MilitarySupport>
+			<MilitaryProduction>true</MilitaryProduction>
+			<Pillage>true</Pillage>
+			<PolicyType>POLICY_TRADE_UNIONS</PolicyType>
+			<IgnoreBuildingDefense>true</IgnoreBuildingDefense>
+			<AdvancedStartCost>40</AdvancedStartCost>
+			<XPValueAttack>3</XPValueAttack>
+			<XPValueDefense>3</XPValueDefense>
+			<Conscription>3</Conscription>
+			<UnitArtInfo>ART_DEF_UNIT_MARINE</UnitArtInfo>
+			<UnitFlagAtlas>EXPANSION_UNIT_FLAG_ATLAS</UnitFlagAtlas>
+			<UnitFlagIconOffset>19</UnitFlagIconOffset>
+			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
+			<PortraitIndex>15</PortraitIndex>
+		</Row>
+	</Units>
+	<Unit_AITypes>
+		<Row>
+			<UnitType>UNIT_GUERILLA</UnitType>
+			<UnitAIType>UNITAI_ATTACK</UnitAIType>
+		</Row>
+		<Row>
+			<UnitType>UNIT_GUERILLA</UnitType>
+			<UnitAIType>UNITAI_DEFENSE</UnitAIType>
+		</Row>
+		<Row>
+			<UnitType>UNIT_GUERILLA</UnitType>
+			<UnitAIType>UNITAI_FAST_ATTACK</UnitAIType>
+		</Row>
+	</Unit_AITypes>
+	<Unit_Flavors>
+		<Row>
+			<UnitType>UNIT_GUERILLA</UnitType>
+			<FlavorType>FLAVOR_OFFENSE</FlavorType>
+			<Flavor>20</Flavor>
+		</Row>
+		<Row>
+			<UnitType>UNIT_GUERILLA</UnitType>
+			<FlavorType>FLAVOR_DEFENSE</FlavorType>
+			<Flavor>15</Flavor>
+		</Row>
+	</Unit_Flavors>
+	<Unit_FreePromotions>
+		<Row>
+			<UnitType>UNIT_GUERILLA</UnitType>
+			<PromotionType>PROMOTION_AMPHIBIOUS</PromotionType>
+		</Row>
+		<Row>
+			<UnitType>UNIT_GUERILLA</UnitType>
+			<PromotionType>PROMOTION_DEFENSIVE_EMBARKATION</PromotionType>
+		</Row>
+		<Row>
+			<UnitType>UNIT_GUERILLA</UnitType>
+			<PromotionType>PROMOTION_SNEAK_ATTACK</PromotionType>
+		</Row>
+	</Unit_FreePromotions>
+	<Language_en_US>
+		<Row Tag="TXT_KEY_UNIT_GUERILLA">
+			<Text>Mercenaries</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_GUERILLA_TEXT">
+			<Text>Soldiers in private military companies (PMCs) are the contemporary strand of the mercenary trade, providing logistics, soldiers, military training, and other services. Thus, PMC contractors are civilians (in governmental, international, and civil organizations) authorized to accompany an army to the field; hence, the term civilian contractor. Nevertheless, PMCs may use armed force, hence defined as: "legally established enterprises that make a profit, by either providing services involving the potential exercise of [armed] force in a systematic way and by military means, and/or by the transfer of that potential to clients through training and other practices, such as logistics support, equipment procurement, and intelligence gathering."</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UNIT_GUERILLA_STRATEGY">
+			<Text>Use Mercenaries as a cheap, if slightly less effective means of defending your land from invaders, or as the flanks of a precision attack. Mercenaries receive a large bonus for flanking, so deploy them wisely! Only available if you have unlocked the Mercenary Army policy in the Commerce branch. Can only be obtained via a [ICON_GOLD] Gold purchase.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UNIT_HELP_GUERILLA">
+			<Text>+50% [ICON_STRENGTH] Strength bonus when flanking, and bonuses when embarked or attacking over rivers.</Text>
+		</Row>
+	</Language_en_US>
+	<!-- Entrepreneurship -->
+	<Policy_SpecialistExtraYields>
+		<Row>
+			<PolicyType>POLICY_ENTREPRENEURSHIP</PolicyType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>2</Yield>
+		</Row>
+	</Policy_SpecialistExtraYields>
+	<Policy_ImprovementYieldChanges>
+		<Row>
+			<PolicyType>POLICY_COMMERCE_FINISHER</PolicyType>
+			<ImprovementType>IMPROVEMENT_TRADING_POST</ImprovementType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>1</Yield>
+		</Row>
+	</Policy_ImprovementYieldChanges>
+	<!-- Organization -->
+	<Policy_BuildingClassYieldChanges>
+		<Row>
+			<PolicyType>POLICY_MARITIME_INFRASTRUCTURE</PolicyType>
+			<BuildingClassType>BUILDINGCLASS_FACTORY</BuildingClassType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<YieldChange>2</YieldChange>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_MARITIME_INFRASTRUCTURE</PolicyType>
+			<BuildingClassType>BUILDINGCLASS_SEAPORT</BuildingClassType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<YieldChange>2</YieldChange>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_MARITIME_INFRASTRUCTURE</PolicyType>
+			<BuildingClassType>BUILDINGCLASS_WORKSHOP</BuildingClassType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<YieldChange>2</YieldChange>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_MARITIME_INFRASTRUCTURE</PolicyType>
+			<BuildingClassType>BUILDINGCLASS_FACTORY</BuildingClassType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<YieldChange>1</YieldChange>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_MARITIME_INFRASTRUCTURE</PolicyType>
+			<BuildingClassType>BUILDINGCLASS_SEAPORT</BuildingClassType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<YieldChange>1</YieldChange>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_MARITIME_INFRASTRUCTURE</PolicyType>
+			<BuildingClassType>BUILDINGCLASS_WORKSHOP</BuildingClassType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<YieldChange>1</YieldChange>
+		</Row>
+	</Policy_BuildingClassYieldChanges>
+	<!-- Mercantilism -->
+	<Policy_BuildingClassCultureChanges>
+		<Row>
+			<PolicyType>POLICY_MERCANTILISM</PolicyType>
+			<BuildingClassType>BUILDINGCLASS_MINT</BuildingClassType>
+			<CultureChange>1</CultureChange>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_MERCANTILISM</PolicyType>
+			<BuildingClassType>BUILDINGCLASS_MARKET</BuildingClassType>
+			<CultureChange>1</CultureChange>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_MERCANTILISM</PolicyType>
+			<BuildingClassType>BUILDINGCLASS_BANK</BuildingClassType>
+			<CultureChange>1</CultureChange>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_MERCANTILISM</PolicyType>
+			<BuildingClassType>BUILDINGCLASS_STOCK_EXCHANGE</BuildingClassType>
+			<CultureChange>1</CultureChange>
+		</Row>
+	</Policy_BuildingClassCultureChanges>
 </GameData>

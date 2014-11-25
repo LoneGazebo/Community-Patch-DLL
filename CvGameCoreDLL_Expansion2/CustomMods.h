@@ -17,7 +17,7 @@
  *****  See the comment in CvDllVersion.h regarding the DLL GUID value  *****
  *****                                                                  *****
  *****                                                                  *****
- *****          This DLL is based on the 1.0.3.144 source code          *****
+ *****          This DLL is based on the 1.0.3.276 source code          *****
  *****                                                                  *****
  ****************************************************************************
  ****************************************************************************/
@@ -215,6 +215,7 @@
 #define MOD_BALANCE_CORE_BELIEFS					(MOD_COMMUNITY_PATCH && gCustomMods.isMOD_BALANCE_CORE_BELIEFS())
 #define MOD_BALANCE_CORE_FOLLOWER_POP_WONDER		(MOD_COMMUNITY_PATCH && gCustomMods.isMOD_BALANCE_CORE_FOLLOWER_POP_WONDER())
 #define MOD_BALANCE_CORE_POLICIES					(MOD_COMMUNITY_PATCH && gCustomMods.isMOD_BALANCE_CORE_POLICIES())
+#define MOD_BALANCE_CORE_BARBARIAN_THEFT			(MOD_COMMUNITY_PATCH && gCustomMods.isMOD_BALANCE_CORE_BARBARIAN_THEFT())
 #endif
 
 // Changes for the CivIV Diplomacy Features mod by Putmalk - AFFECTS SAVE GAME DATA FORMAT (v36)
@@ -990,6 +991,7 @@ public:
 	MOD_OPT_DECL(MOD_BALANCE_CORE_BELIEFS);
 	MOD_OPT_DECL(MOD_BALANCE_CORE_FOLLOWER_POP_WONDER);
 	MOD_OPT_DECL(MOD_BALANCE_CORE_POLICIES);
+	MOD_OPT_DECL(MOD_BALANCE_CORE_BARBARIAN_THEFT);
 
 	MOD_OPT_DECL(DIPLOMACY_CIV4_FEATURES); 
 

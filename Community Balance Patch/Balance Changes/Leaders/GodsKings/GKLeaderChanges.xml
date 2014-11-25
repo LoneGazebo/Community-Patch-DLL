@@ -25,4 +25,19 @@
 			<Yield>2</Yield>
 		</Row>
 	</Building_YieldChanges>
+	<!-- William -->
+	<Trait_YieldFromImport>
+		<Row>
+			<TraitType>TRAIT_LUXURY_RETENTION</TraitType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>2</Yield>
+		</Row>
+	</Trait_YieldFromImport>
+	<Trait_YieldFromExport>
+		<Row>
+			<TraitType>TRAIT_LUXURY_RETENTION</TraitType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>3</Yield>
+		</Row>
+	</Trait_YieldFromExport>
 </GameData>

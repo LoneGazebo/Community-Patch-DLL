@@ -118,7 +118,7 @@
 		</Update>
 		<Update>
 			<Where Name="MAX_CITY_HIT_POINTS" />
-			<Set Value="400" />
+			<Set Value="600" />
 			<!-- 200 -->
 		</Update>
 		<Update>

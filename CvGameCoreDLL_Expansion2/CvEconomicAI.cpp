@@ -3611,6 +3611,13 @@ bool EconomicAIHelpers::IsTestStrategy_NeedHappiness(EconomicAIStrategyTypes eSt
 		return false;
 	}
 
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+	if(pPlayer->isMinorCiv() || pPlayer->isBarbarian())
+	{
+		return false;
+	}
+#endif
+
 	if(pPlayer->getTotalPopulation() > 0 && pPlayer->GetUnhappiness() > 0)
 	{
 		int iExcessHappiness = pPlayer->GetExcessHappiness();

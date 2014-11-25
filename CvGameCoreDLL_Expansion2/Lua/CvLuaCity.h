@@ -528,6 +528,12 @@ protected:
 	static int lGetBuildingYieldChange(lua_State* L);
 	static int lSetBuildingYieldChange(lua_State* L);
 
+#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE_POLICIES)
+	LUAAPIEXTN(GetBuildingClassCultureChange, int);
+	LUAAPIEXTN(GetReligionYieldRateModifier, int);
+	LUAAPIEXTN(GetReligionBuildingYieldRateModifier, int);
+#endif
+
 	static int lGetBuildingEspionageModifier(lua_State* L);
 	static int lGetBuildingGlobalEspionageModifier(lua_State* L);
 	
