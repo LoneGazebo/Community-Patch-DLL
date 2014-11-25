@@ -1106,13 +1106,9 @@ void CvPlayerEspionage::DoAdvancedAction(uint uiSpyIndex, bool bDebug)
 				{
 					pCityEspionage->SetSpyResult(ePlayer, uiSpyIndex, SPY_RESULT_IDENTIFIED);
 				}
-				else if (iSpyResult >= 250)
-				{
-					pCityEspionage->SetSpyResult(ePlayer, uiSpyIndex, SPY_RESULT_DETECTED);
-				}
 				else
 				{
-					pCityEspionage->SetSpyResult(ePlayer, uiSpyIndex, SPY_RESULT_UNDETECTED);
+					pCityEspionage->SetSpyResult(ePlayer, uiSpyIndex, SPY_RESULT_DETECTED);
 				}
 				if(GC.getLogging())
 				{
@@ -1145,13 +1141,9 @@ void CvPlayerEspionage::DoAdvancedAction(uint uiSpyIndex, bool bDebug)
 				{
 					pCityEspionage->SetSpyResult(ePlayer, uiSpyIndex, SPY_RESULT_IDENTIFIED);
 				}
-				else if (iSpyResult >= 350)
-				{
-					pCityEspionage->SetSpyResult(ePlayer, uiSpyIndex, SPY_RESULT_DETECTED);
-				}
 				else
 				{
-					pCityEspionage->SetSpyResult(ePlayer, uiSpyIndex, SPY_RESULT_UNDETECTED);
+					pCityEspionage->SetSpyResult(ePlayer, uiSpyIndex, SPY_RESULT_DETECTED);
 				}
 				if(GC.getLogging())
 				{

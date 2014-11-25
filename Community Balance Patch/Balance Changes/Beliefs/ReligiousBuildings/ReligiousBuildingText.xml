@@ -48,6 +48,9 @@
 		<Row Tag="TXT_KEY_BUILDING_ORDER_STRATEGY">
 			<Text>Can only be built in cities following a religion with the Orders belief. Construct this building by purchasing it with [ICON_PEACE] Faith. Build the Order to gain Faith, +10 XP for Military units, and the Morale promotion for your land units. Reduces [ICON_HAPPINESS_3] Religious Division.</Text>
 		</Row>
+		<Row Tag="TXT_KEY_BUILDING_ORDER_HELP">
+			<Text>+10 XP and the [COLOR_POSITIVE_TEXT]Morale[ENDCOLOR] promotion for Military units produced in this city. Reduces [ICON_HAPPINESS_3] Religious Division.</Text>
+		</Row>
 		<Row Tag="TXT_KEY_BUILDING_ORDER_TEXT">
 			<Text>A military order is any one of a variety of Christian societies of knights that were founded from the Middle Ages onwards for the purpose of crusading – propagating or defending the faith (originally Catholic, and after the Reformation sometimes Protestant), either in the Holy Land or against Islam (as, for example, during the Reconquista) or pagans (mainly in the Baltic region) in Europe. Many orders have, since the end of the Crusades and the Ottoman incursions, become secularized, and are usually represented by Roman Catholic ceremonial, missionary and charitable organizations in modern times.</Text>
 		</Row>
