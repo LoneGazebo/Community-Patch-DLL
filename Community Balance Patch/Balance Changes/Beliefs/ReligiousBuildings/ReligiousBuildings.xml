@@ -12,7 +12,7 @@
 			<ConquestProb>100</ConquestProb>
 			<ArtDefineTag>TEMPLE</ArtDefineTag>
 			<MinAreaSize>-1</MinAreaSize>
-			<Happiness>2</Happiness>
+			<Happiness>1</Happiness>
 			<ReligiousPressureModifier>15</ReligiousPressureModifier>
 			<ConversionModifier>-20</ConversionModifier>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
@@ -92,6 +92,7 @@
 			<Description>TXT_KEY_BUILDING_ORDER</Description>
 			<Civilopedia>TXT_KEY_BUILDING_ORDER_TEXT</Civilopedia>
 			<Strategy>TXT_KEY_BUILDING_ORDER_STRATEGY</Strategy>
+			<Help>TXT_KEY_BUILDING_ORDER_HELP</Help>
 			<TrainedFreePromotion>PROMOTION_MORALE</TrainedFreePromotion>
 			<ConquestProb>100</ConquestProb>
 			<MinorityHappinessChange>2</MinorityHappinessChange>
@@ -142,7 +143,7 @@
 		<Row>
 			<BuildingType>BUILDING_STUPA</BuildingType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>2</Yield>
+			<Yield>4</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_CHURCH</BuildingType>
@@ -194,12 +195,12 @@
 		<Row>
 			<BuildingType>BUILDING_STUPA</BuildingType>
 			<FlavorType>FLAVOR_RELIGION</FlavorType>
-			<Flavor>4</Flavor>
+			<Flavor>8</Flavor>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_STUPA</BuildingType>
 			<FlavorType>FLAVOR_HAPPINESS</FlavorType>
-			<Flavor>8</Flavor>
+			<Flavor>4</Flavor>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_CHURCH</BuildingType>
