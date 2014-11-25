@@ -6,4 +6,6 @@
 !*.rc
 !*.vcxproj
 !*.dds
+!*.ftsxml
+!*.gr2
 !*.filters
