@@ -166,7 +166,11 @@ int CvUnitProductionAI::GetWeight(UnitTypes eUnit)
 }
 
 /// Recommend highest-weighted unit
+#if defined(MOD_BALANCE_CORE)
+UnitTypes CvUnitProductionAI::RecommendUnit(UnitAITypes eUnitAIType, bool bUsesStrategicResource)
+#else
 UnitTypes CvUnitProductionAI::RecommendUnit(UnitAITypes eUnitAIType)
+#endif
 {
 	int iUnitLoop;
 	int iWeight;

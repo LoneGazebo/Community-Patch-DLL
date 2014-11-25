@@ -571,6 +571,21 @@ void CvWorldBuilderMapLoader::SetInitialItems(bool bFirstCall)
 			kPlayer.GetCityConnections()->Update();
 			kPlayer.GetTreasury()->DoUpdateCityConnectionGold();
 			kPlayer.GetTreasury()->DoGold();
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+			if(MOD_BALANCE_CORE_HAPPINESS)
+			{
+				if(kPlayer.isHuman())
+				{
+					kPlayer.CalculateHappiness();
+				}
+			}
+			else
+			{
+#endif
+			kPlayer.DoUpdateHappiness();
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+			}
+#endif
 			kPlayer.DoUpdateHappiness();
 		}
 	}
@@ -1135,8 +1150,13 @@ bool CvWorldBuilderMapLoader::InitMap()
 
 			if(sg_kSave.m_kTeamsAtWar.Get(uiTeam1, uiTeam2))
 			{
+#if defined(MOD_EVENTS_WAR_AND_PEACE)
+				kTeam1.setAtWar(eTeam2, true, true);
+				kTeam2.setAtWar(eTeam1, true, true);
+#else
 				kTeam1.setAtWar(eTeam2, true);
 				kTeam2.setAtWar(eTeam1, true);
+#endif
 			}
 
 			if(sg_kSave.m_kTeamsAtPermanentWarOrPeace.Get(uiTeam1, uiTeam2))

@@ -142,6 +142,10 @@ public:
 	short m_iNumChildren;
 	bool m_bOnStack;
 
+#if defined(MOD_BALANCE_CORE)
+	//for faster neighbor lookup (potential children)
+	CvAStarNode* m_apNeighbors[6];
+#endif
 	CvPathNodeCacheData m_kCostCacheData;
 };
 

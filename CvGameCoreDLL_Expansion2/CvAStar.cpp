@@ -186,6 +186,11 @@ void CvAStar::Initialize(int iColumns, int iRows, bool bWrapX, bool bWrapY, CvAP
 			m_ppaaNodes[iI][iJ].m_iY = iJ;
 		}
 	}
+#if defined(MOD_BALANCE_CORE)
+	for(iI = 0; iI < m_iColumns; iI++)
+		for(iJ = 0; iJ < m_iRows; iJ++)
+			PrecalcNeighbors( &(m_ppaaNodes[iI][iJ]) );
+#endif
 }
 
 //	--------------------------------------------------------------------------------
@@ -374,7 +379,73 @@ CvAStarNode* CvAStar::GetBest()
 
 	return temp;
 }
+#if defined(MOD_BALANCE_CORE)
+// --------------------
+/// precompute neighbors for a node
+void CvAStar::PrecalcNeighbors(CvAStarNode* node)
+{
+	int range = 6;
+	int x, y;
 
+	static int s_CvAStarChildHexX[6] = { 0, 1,  1,  0, -1, -1, };
+	static int s_CvAStarChildHexY[6] = { 1, 0, -1, -1,  0,  1, };
+
+	for(int i = 0; i < range; i++)
+	{
+		x = node->m_iX - ((node->m_iY >= 0) ? (node->m_iY>>1) : ((node->m_iY - 1)/2));
+		x += s_CvAStarChildHexX[i];
+		y = yRange(node->m_iY + s_CvAStarChildHexY[i]);
+		x += ((y >= 0) ? (y>>1) : ((y - 1)/2));
+		x = xRange(x);
+		y = yRange(y);
+
+		if(isValid(x, y))
+			node->m_apNeighbors[i] = &(m_ppaaNodes[x][y]);
+		else
+			node->m_apNeighbors[i] = NULL;
+	}
+}
+
+//	--------------------------------------------------------------------------------
+/// Creates children for the node
+void CvAStar::CreateChildren(CvAStarNode* node)
+{
+	CvAStarNode* check;
+	int range = 6;
+	int x, y;
+	int i;
+
+	for(i = 0; i < range; i++)
+	{
+		check = node->m_apNeighbors[i];
+
+		if(check && udFunc(udValid, node, check, 0, m_pData))
+		{
+			LinkChild(node, check);
+		}
+	}
+
+	if(udNumExtraChildrenFunc && udGetExtraChildFunc)
+	{
+		int iExtraChildren = udNumExtraChildrenFunc(node, this);
+		for(int i = 0; i < iExtraChildren; i++)
+		{
+			udGetExtraChildFunc(node, i, x, y, this);
+			PREFETCH_FASTAR_NODE(&(m_ppaaNodes[x][y]));
+
+			if(isValid(x, y))
+			{
+				check = &(m_ppaaNodes[x][y]);
+
+				if(udFunc(udValid, node, check, 0, m_pData))
+				{
+					LinkChild(node, check);
+				}
+			}
+		}
+	}
+}
+#else
 //	--------------------------------------------------------------------------------
 /// Creates children for the node
 void CvAStar::CreateChildren(CvAStarNode* node)
@@ -427,7 +498,7 @@ void CvAStar::CreateChildren(CvAStarNode* node)
 		}
 	}
 }
-
+#endif
 //	--------------------------------------------------------------------------------
 /// Link in a child
 void CvAStar::LinkChild(CvAStarNode* node, CvAStarNode* check)
@@ -1208,8 +1279,14 @@ int PathCost(CvAStarNode* parent, CvAStarNode* node, int data, const void* point
 /// Standard path finder - check validity of a coordinate
 int PathValid(CvAStarNode* parent, CvAStarNode* node, int data, const void* pointer, CvAStar* finder)
 {
+#if defined(MOD_BALANCE_CORE)
+	// If this is the first node in the path, it is always valid (starting location)
+	if (parent == NULL)
+	{
+		return TRUE;
+	}
+#endif
 	CvMap& theMap = GC.getMap();
-
 	CvPlot* pToPlot = theMap.plotUnchecked(node->m_iX, node->m_iY);
 	PREFETCH_FASTAR_CVPLOT(reinterpret_cast<char*>(pToPlot));
 
@@ -1250,13 +1327,13 @@ int PathValid(CvAStarNode* parent, CvAStarNode* node, int data, const void* poin
 	kToNodeCacheData.bContainsEnemyCity = pToPlot->isEnemyCity(*pUnit);
 	kToNodeCacheData.bContainsVisibleEnemy = pToPlot->isVisibleEnemyUnit(pUnit);
 	kToNodeCacheData.bContainsVisibleEnemyDefender = pToPlot->getBestDefender(NO_PLAYER, unit_owner, pUnit).pointer() != NULL;
-
+#if !defined(MOD_BALANCE_CORE)
 	// If this is the first node in the path, it is always valid (starting location)
 	if (parent == NULL)
 	{
 		return TRUE;
 	}
-
+#endif
 	CvPlot* pFromPlot = theMap.plotUnchecked(parent->m_iX, parent->m_iY);
 	PREFETCH_FASTAR_CVPLOT(reinterpret_cast<char*>(pFromPlot));
 
@@ -1279,6 +1356,7 @@ int PathValid(CvAStarNode* parent, CvAStarNode* node, int data, const void* poin
 	// We have determined that this node is not the origin above (parent == NULL)
 	CvAStarNode* pNode = node;
 	bool bPreviousNodeHostile = false;
+	bool bPreviousVisibleToTeam = kToNodeCacheData.bPlotVisibleToTeam;
 	int iDestX = finder->GetDestX();
 	int iDestY = finder->GetDestY();
 	int iNodeX = node->m_iX;
@@ -1318,7 +1396,7 @@ int PathValid(CvAStarNode* parent, CvAStarNode* node, int data, const void* poin
 		if(iOldNumTurns != -1 || (iDestX == iNodeX && iDestY == iNodeY))
 		{
 			// This plot is of greater distance than previously, so we know the unit is ending its turn here (pNode), or it's trying to attack through a unit (and might end up on this tile if an attack fails to kill the enemy)
-			if(iNumTurns != iOldNumTurns || bPreviousNodeHostile)
+						if(iNumTurns != iOldNumTurns || bPreviousNodeHostile || !bPreviousVisibleToTeam)
 			{
 				// Don't count origin, or else a unit will block its own movement!
 				if(iNodeX != iUnitX || iNodeY != iUnitY)
@@ -1340,7 +1418,7 @@ int PathValid(CvAStarNode* parent, CvAStarNode* node, int data, const void* poin
 							return FALSE;
 						}
 
-						if(kNodeCacheData.bIsMountain && !kNodeCacheData.bCanEnterTerrain)	// only doing canEnterTerrain on mountain plots because it is expensive, though it probably should always be called and some other checks in this loop could be removed.
+						if(kNodeCacheData.bIsMountain && !kNodeCacheData.bCanEnterTerrain)
 						{
 							return FALSE;
 						}
@@ -1379,6 +1457,7 @@ int PathValid(CvAStarNode* parent, CvAStarNode* node, int data, const void* poin
 			}
 		}
 
+		bPreviousVisibleToTeam = kNodeCacheData.bPlotVisibleToTeam;
 		// JON - Special case for the original node passed into this function because it's not yet linked to any parent
 		if(pNode == node && bFirstRun)
 		{
@@ -2050,8 +2129,11 @@ int StepValid(CvAStarNode* parent, CvAStarNode* node, int data, const void* poin
 	{
 		return FALSE;
 	}
-
+#if defined(MOD_BALANCE_CORE)
+	if(pNewPlot->isImpassable())
+#else
 	if(pNewPlot->isImpassable() || pNewPlot->isMountain())
+#endif
 	{
 		return FALSE;
 	}
@@ -2659,8 +2741,11 @@ int BuildRouteValid(CvAStarNode* parent, CvAStarNode* node, int data, const void
 	{
 		return FALSE;
 	}
-
+#if defined(MOD_BALANCE_CORE)
+	if(pNewPlot->isImpassable())
+#else
 	if(pNewPlot->isImpassable() || pNewPlot->isMountain())
+#endif
 	{
 		return FALSE;
 	}
@@ -2794,6 +2879,11 @@ void CvTwoLayerPathFinder::Initialize(int iColumns, int iRows, bool bWrapX, bool
 			m_ppaaPartialMoveNodes[iI][iJ].m_iY = iJ;
 		}
 	}
+#if defined(MOD_BALANCE_CORE)
+		for(iI = 0; iI < m_iColumns; iI++)
+		for(iJ = 0; iJ < m_iRows; iJ++)
+			PrecalcNeighbors( &(m_ppaaPartialMoveNodes[iI][iJ]) );
+#endif
 };
 
 //	--------------------------------------------------------------------------------
@@ -3995,7 +4085,11 @@ int TradeRouteLandPathCost(CvAStarNode* parent, CvAStarNode* node, int data, con
 	}
 	
 	// Penalty for ending a turn on a mountain
+#if defined(MOD_BALANCE_CORE)
+	if(pToPlot->isImpassable())
+#else
 	if(pToPlot->isImpassable() || pToPlot->isMountain())
+#endif
 	{
 		iCost += 1000;
 	}
@@ -4026,8 +4120,11 @@ int TradeRouteLandValid(CvAStarNode* parent, CvAStarNode* node, int data, const 
 	{
 		return FALSE;
 	}
-
+#if defined(MOD_BALANCE_CORE)
+	if(pNewPlot->isMountain())
+#else
 	if(pNewPlot->isMountain() || pNewPlot->isImpassable())
+#endif
 	{
 		return FALSE;
 	}

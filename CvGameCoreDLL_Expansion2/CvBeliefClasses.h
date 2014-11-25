@@ -77,9 +77,34 @@ public:
 	bool ConvertsBarbarians() const;
 	bool FaithPurchaseAllGreatPeople() const;
 
-#if defined(MOD_BALANCE_CORE_YIELDS)
+#if defined(MOD_BALANCE_CORE_BELIEFS_RESOURCE)
 	bool RequiresImprovement() const;
 	bool RequiresResource() const;
+#endif
+
+#if defined(MOD_BALANCE_CORE_BELIEFS)
+	int GetYieldPerPop(int i) const;
+	int GetYieldPerGPT(int i) const;
+	int GetYieldPerLux(int i) const;
+	int GetYieldPerBorderGrowth(int i) const;
+	int GetYieldPerHeal(int i) const;
+	int GetYieldPerBirth(int i) const;
+	int GetYieldPerScience(int i) const;
+	int GetYieldFromGPUse(int i) const;
+	int GetYieldBonusGoldenAge(int i) const;
+	int GetYieldFromSpread(int i) const;
+	int GetYieldFromForeignSpread(int i) const;
+	int GetYieldFromConquest(int i) const;
+	int GetYieldFromPolicyUnlock(int i) const;
+	int GetYieldFromEraUnlock(int i) const;
+	int GetYieldFromConversion(int i) const;
+	int GetYieldFromWLTKD(int i) const;
+	int GetCombatVersusOtherReligionOwnLands() const;
+	int GetCombatVersusOtherReligionTheirLands() const;
+	int GetMissionaryInfluenceCS()const;
+	int GetHappinessPerPantheon() const;
+	int GetExtraVotes() const;
+	int GetMaxYieldPerFollower(int i) const;
 #endif
 
 	EraTypes GetObsoleteEra() const;
@@ -94,14 +119,34 @@ public:
 	int GetHolyCityYieldChange(int i) const;
 	int GetYieldChangePerForeignCity(int i) const;
 	int GetYieldChangePerXForeignFollowers(int i) const;
+#if defined(MOD_API_UNIFIED_YIELDS)
+	int GetYieldPerFollowingCity(int i) const;
+	int GetYieldPerXFollowers(int i) const;
+	int GetYieldPerOtherReligionFollower(int i) const;
+#endif
 	int GetResourceQuantityModifier(int i) const;
 	int GetImprovementYieldChange(ImprovementTypes eIndex1, YieldTypes eIndex2) const;
 	int GetBuildingClassYieldChange(int i, int j) const;
 	int GetBuildingClassHappiness(int i) const;
 	int GetBuildingClassTourism(int i) const;
 	int GetFeatureYieldChange(int i, int j) const;
+#if defined(MOD_API_UNIFIED_YIELDS)
+	int GetCityYieldFromUnimprovedFeature(int i, int j) const;
+	int GetUnimprovedFeatureYieldChange(int i, int j) const;
+#endif
 	int GetResourceYieldChange(int i, int j) const;
 	int GetTerrainYieldChange(int i, int j) const;
+#if defined(MOD_API_UNIFIED_YIELDS)
+	int GetTradeRouteYieldChange(int i, int j) const;
+	int GetSpecialistYieldChange(int i, int j) const;
+	int GetGreatPersonExpendedYield(int i, int j) const;
+	int GetGoldenAgeGreatPersonRateModifier(int i) const;
+	int GetCapitalYieldChange(int i) const;
+	int GetCoastalCityYieldChange(int i) const;
+	int GetGreatWorkYieldChange(int i) const;
+	int GetYieldFromKills(YieldTypes eYield) const;
+	int GetYieldFromBarbarianKills(YieldTypes eYield) const;
+#endif
 #if defined(MOD_RELIGION_PLOT_YIELDS)
 	int GetPlotYieldChange(int i, int j) const;
 #endif
@@ -167,7 +212,7 @@ protected:
 	bool m_bRequiresPeace;
 	bool m_bConvertsBarbarians;
 	bool m_bFaithPurchaseAllGreatPeople;
-#if defined(MOD_BALANCE_CORE_YIELDS)
+#if defined(MOD_BALANCE_CORE_BELIEFS_RESOURCE)
 	bool m_bRequiresImprovement;
 	bool m_bRequiresResource;
 #endif
@@ -183,16 +228,36 @@ protected:
 	int* m_paiHolyCityYieldChange;
 	int* m_paiYieldChangePerForeignCity;
 	int* m_paiYieldChangePerXForeignFollowers;
+#if defined(MOD_API_UNIFIED_YIELDS)
+	int* m_piYieldPerFollowingCity;
+	int* m_piYieldPerXFollowers;
+	int* m_piYieldPerOtherReligionFollower;
+#endif
 	int* m_piResourceQuantityModifiers;
 	int** m_ppiImprovementYieldChanges;
 	int** m_ppiBuildingClassYieldChanges;
 	int* m_paiBuildingClassHappiness;
 	int* m_paiBuildingClassTourism;
 	int** m_ppaiFeatureYieldChange;
+#if defined(MOD_API_UNIFIED_YIELDS)
+	int** m_ppiCityYieldFromUnimprovedFeature;
+	int** m_ppiUnimprovedFeatureYieldChanges;
+#endif
 	int** m_ppaiResourceYieldChange;
 	int** m_ppaiTerrainYieldChange;
+#if defined(MOD_API_UNIFIED_YIELDS)
+	int** m_ppiTradeRouteYieldChange;
+	int** m_ppiSpecialistYieldChange;
+	int** m_ppiGreatPersonExpendedYield;
+	int* m_piGoldenAgeGreatPersonRateModifier;
+	int* m_piCapitalYieldChange;
+	int* m_piCoastalCityYieldChange;
+	int* m_piGreatWorkYieldChange;
+	int* m_piYieldFromKills;
+	int* m_piYieldFromBarbarianKills;
+#endif
 #if defined(MOD_RELIGION_PLOT_YIELDS)
-	int** m_ppaiPlotYieldChange;
+	int** m_ppiPlotYieldChange;
 #endif
 	int* m_piResourceHappiness;
 	int* m_piYieldChangeAnySpecialist;
@@ -203,6 +268,31 @@ protected:
 	int* m_piMaxYieldModifierPerFollower;
 	bool* m_pbFaithPurchaseUnitEraEnabled;
     bool* m_pbBuildingClassEnabled;
+
+#if defined(MOD_BALANCE_CORE_BELIEFS)
+	int* m_piYieldPerPop;
+	int* m_piYieldPerGPT;
+	int* m_piYieldPerLux;
+	int* m_piYieldPerBorderGrowth;
+	int* m_piYieldPerHeal;
+	int* m_piYieldPerBirth;
+	int* m_piYieldPerScience;
+	int* m_piYieldFromGPUse;
+	int* m_piYieldBonusGoldenAge;
+	int* m_piYieldFromSpread;
+	int* m_piYieldFromForeignSpread;
+	int* m_piYieldFromConquest;
+	int* m_piYieldFromPolicyUnlock;
+	int* m_piYieldFromEraUnlock;
+	int* m_piYieldFromConversion;
+	int* m_piYieldFromWLTKD;
+	int* m_piMaxYieldPerFollower;
+	int m_iCombatVersusOtherReligionOwnLands;
+	int m_iCombatVersusOtherReligionTheirLands;
+	int m_iMissionaryInfluenceCS;
+	int m_iHappinessPerPantheon;
+	int m_iExtraVotes;
+#endif
 
 private:
 	CvBeliefEntry(const CvBeliefEntry&);
@@ -353,7 +443,28 @@ public:
 	{
 		return m_iFaithBuildingTourism;
 	}
-
+#if defined(MOD_BALANCE_CORE_BELIEFS)
+	int GetCombatVersusOtherReligionOwnLands() const
+	{
+		return m_iCombatVersusOtherReligionOwnLands;
+	}
+	int GetCombatVersusOtherReligionTheirLands() const
+	{
+		return m_iCombatVersusOtherReligionTheirLands;
+	}
+	int GetMissionaryInfluenceCS() const
+	{
+		return m_iMissionaryInfluenceCS;
+	}
+	int GetHappinessPerPantheon() const
+	{
+		return m_iHappinessPerPantheon;
+	}
+	int GetExtraVotes() const
+	{
+		return m_iExtraVotes;
+	}
+#endif
 	EraTypes GetObsoleteEra() const
 	{
 		return m_eObsoleteEra;
@@ -384,14 +495,34 @@ public:
 	int GetHolyCityYieldChange(YieldTypes eYield) const;
 	int GetYieldChangePerForeignCity(YieldTypes eYield) const;
 	int GetYieldChangePerXForeignFollowers(YieldTypes eYield) const;
+#if defined(MOD_API_UNIFIED_YIELDS)
+	int GetYieldPerFollowingCity(YieldTypes eYield) const;
+	int GetYieldPerXFollowers(YieldTypes eYield) const;
+	int GetYieldPerOtherReligionFollower(YieldTypes eYield) const;
+#endif
 	int GetResourceQuantityModifier(ResourceTypes eResource) const;
 	int GetImprovementYieldChange(ImprovementTypes eImprovement, YieldTypes eYield) const;
 	int GetBuildingClassYieldChange(BuildingClassTypes eBuildingClass, YieldTypes eYieldType, int iFollowers) const;
 	int GetBuildingClassHappiness(BuildingClassTypes eBuildingClass, int iFollowers) const;
 	int GetBuildingClassTourism(BuildingClassTypes eBuildingClass) const;
 	int GetFeatureYieldChange(FeatureTypes eFeature, YieldTypes eYieldType) const;
+#if defined(MOD_API_UNIFIED_YIELDS)
+	int GetCityYieldFromUnimprovedFeature(FeatureTypes eFeature, YieldTypes eYieldType) const;
+	int GetUnimprovedFeatureYieldChange(FeatureTypes eFeature, YieldTypes eYieldType) const;
+#endif
 	int GetResourceYieldChange(ResourceTypes eResource, YieldTypes eYieldType) const;
 	int GetTerrainYieldChange(TerrainTypes eTerrain, YieldTypes eYieldType) const;
+#if defined(MOD_API_UNIFIED_YIELDS)
+	int GetTradeRouteYieldChange(DomainTypes eDomain, YieldTypes eYieldType) const;
+	int GetSpecialistYieldChange(SpecialistTypes eSpecialist, YieldTypes eYieldType) const;
+	int GetGreatPersonExpendedYield(GreatPersonTypes eGreatPerson, YieldTypes eYieldType) const;
+	int GetGoldenAgeGreatPersonRateModifier(GreatPersonTypes eGreatPerson) const;
+	int GetCapitalYieldChange(int iPopulation, YieldTypes eYield) const;
+	int GetCoastalCityYieldChange(int iPopulation, YieldTypes eYield) const;
+	int GetGreatWorkYieldChange(int iPopulation, YieldTypes eYield) const;
+	int GetYieldFromBarbarianKills(YieldTypes eYield) const;
+	int GetYieldFromKills(YieldTypes eYield) const;
+#endif
 #if defined(MOD_RELIGION_PLOT_YIELDS)
 	int GetPlotYieldChange(PlotTypes ePlot, YieldTypes eYieldType) const;
 #endif
@@ -408,9 +539,29 @@ public:
 	bool IsConvertsBarbarians() const;
 	bool IsFaithPurchaseAllGreatPeople() const;
 
-#if defined(MOD_BALANCE_CORE_YIELDS)
+#if defined(MOD_BALANCE_CORE_BELIEFS_RESOURCE)
 	bool RequiresImprovement() const;
 	bool RequiresResource() const;
+#endif
+
+#if defined(MOD_BALANCE_CORE_BELIEFS)
+	int GetYieldPerPop(YieldTypes eYieldType) const;
+	int GetYieldPerGPT(YieldTypes eYieldType) const;
+	int GetYieldPerLux(YieldTypes eYieldType) const;
+	int GetYieldPerBorderGrowth(YieldTypes eYieldType) const;
+	int GetYieldPerHeal(YieldTypes eYieldType) const;
+	int GetYieldPerBirth(YieldTypes eYieldType) const;
+	int GetYieldPerScience(YieldTypes eYieldType) const;
+	int GetYieldFromGPUse(YieldTypes eYieldType) const;
+	int GetYieldBonusGoldenAge(YieldTypes eYieldType) const;
+	int GetYieldFromSpread(YieldTypes eYieldType) const;
+	int GetYieldFromForeignSpread(YieldTypes eYieldType) const;
+	int GetYieldFromConquest(YieldTypes eYieldType) const;
+	int GetYieldFromPolicyUnlock(YieldTypes eYieldType) const;
+	int GetYieldFromEraUnlock(YieldTypes eYieldType) const;
+	int GetYieldFromConversion(YieldTypes eYieldType) const;
+	int GetYieldFromWLTKD(YieldTypes eYieldType) const;
+	int GetMaxYieldPerFollower(YieldTypes eYieldType) const;
 #endif
 
 	// Serialization
@@ -442,6 +593,13 @@ private:
 	int m_iSpyPressure;
 	int m_iInquisitorPressureRetention;
 	int m_iFaithBuildingTourism;
+#if defined(MOD_BALANCE_CORE_BELIEFS)
+	int m_iCombatVersusOtherReligionOwnLands;
+	int m_iCombatVersusOtherReligionTheirLands;
+	int m_iMissionaryInfluenceCS;
+	int m_iHappinessPerPantheon;
+	int m_iExtraVotes;
+#endif
 
 	EraTypes m_eObsoleteEra;
 	ResourceTypes m_eResourceRevealed;

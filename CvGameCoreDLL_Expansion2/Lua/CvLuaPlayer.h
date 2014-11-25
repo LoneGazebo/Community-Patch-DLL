@@ -245,6 +245,13 @@ protected:
 	static int lGetTurnsToInfluential(lua_State* L);
 	static int lGetNumCivsInfluentialOn(lua_State* L);
 	static int lGetNumCivsToBeInfluentialOn(lua_State* L);
+#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE)
+	LUAAPIEXTN(GetInfluenceTradeRouteGoldBonus, int);
+	LUAAPIEXTN(GetWoundedUnitDamageMod, int);
+#endif
+#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE_POLICIES)
+	LUAAPIEXTN(GetNoUnhappinessExpansion, int);
+#endif
 	static int lGetInfluenceTradeRouteScienceBonus(lua_State* L);
 	static int lGetInfluenceCityStateSpyRankBonus(lua_State* L);
 	static int lGetInfluenceMajorCivSpyRankBonus(lua_State* L);
@@ -286,6 +293,10 @@ protected:
 	static int lGetReligionCreatedByPlayer(lua_State* L);
 	static int lGetFoundedReligionEnemyCityCombatMod(lua_State* L);
 	static int lGetFoundedReligionFriendlyCityCombatMod(lua_State* L);
+#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE_BELIEFS)
+	LUAAPIEXTN(GetCombatVersusOtherReligionOwnLands, int);
+	LUAAPIEXTN(GetCombatVersusOtherReligionTheirLands, int);
+#endif
 	static int lGetMinimumFaithNextGreatProphet(lua_State* L);
 	static int lHasReligionInMostCities(lua_State* L);
 	static int lDoesUnitPassFaithPurchaseCheck(lua_State* L);
@@ -353,6 +364,9 @@ protected:
 	static int lGetBarbarianCombatBonus(lua_State* L);
 	static int lSetBarbarianCombatBonus(lua_State* L);
 	static int lChangeBarbarianCombatBonus(lua_State* L);
+#if defined(MOD_BALANCE_CORE)
+	static int lGetCombatBonusVsHigherPop(lua_State* L);
+#endif
 	static int lGetCombatBonusVsHigherTech(lua_State* L);
 	static int lGetCombatBonusVsLargerCiv(lua_State* L);
 
@@ -576,12 +590,32 @@ protected:
 	static int lChangeMinorCivFriendshipWithMajor(lua_State* L);
 	static int lGetMinorCivFriendshipAnchorWithMajor(lua_State* L);
 	static int lGetFriendshipNeededForNextLevel(lua_State* L);
-#if defined(MOD_BALANCE_CORE_MINORS)
+#if defined(MOD_BALANCE_CORE_MINORS) || defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 	LUAAPIEXTN(GetJerk, int);
 #endif
 #if defined(MOD_BALANCE_CORE)
-LUAAPIEXTN(GetNumDenouncements, int);
-LUAAPIEXTN(GetNumDenouncementsOfPlayer, int);
+	LUAAPIEXTN(GetNumDenouncements, int);
+	LUAAPIEXTN(GetNumDenouncementsOfPlayer, int);
+#endif
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+	LUAAPIEXTN(GetUnhappinessFromCityCulture, int);
+	LUAAPIEXTN(GetUnhappinessFromCityScience, int);
+	LUAAPIEXTN(GetUnhappinessFromCityDefense, int);
+	LUAAPIEXTN(GetUnhappinessFromCityGold, int);
+	LUAAPIEXTN(GetUnhappinessFromCityConnection, int);
+	LUAAPIEXTN(GetUnhappinessFromCityPillaged, int);
+	LUAAPIEXTN(GetUnhappinessFromCityStarving, int);
+	LUAAPIEXTN(GetUnhappinessFromCityMinority, int);
+#endif
+#if defined(MOD_BALANCE_CORE_HAPPINESS_LUXURY)
+	LUAAPIEXTN(GetPopNeededForLux, int);
+	LUAAPIEXTN(GetCurrentTotalPop, int);
+#endif
+#if defined(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
+	LUAAPIEXTN(CalculateUnhappinessTooltip, int);
+#endif
+#if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
+	LUAAPIEXTN(GetPuppetUnhappinessMod, int);
 #endif
 	static int lGetMinorCivFriendshipLevelWithMajor(lua_State* L);
 	static int lGetActiveQuestForPlayer(lua_State* L); // DEPRECATED
@@ -747,6 +781,9 @@ LUAAPIEXTN(GetNumDenouncementsOfPlayer, int);
 
 	static int lGetCities(lua_State* L);
 	static int lGetNumCities(lua_State* L);
+#if defined(MOD_API_LUA_EXTENSIONS)
+	LUAAPIEXTN(GetNumPuppetCities, int);
+#endif
 	static int lGetCityByID(lua_State* L);
 
 	static int lGetUnits(lua_State* L);
@@ -968,7 +1005,6 @@ LUAAPIEXTN(GetNumDenouncementsOfPlayer, int);
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_RELIGION_CONVERSION_MODIFIERS)
 	LUAAPIEXTN(GetPolicyConversionModifier, int, iPolicyType);
 #endif
-
 	static int lGetPlayerBuildingClassYieldChange(lua_State* L);
 	static int lGetPlayerBuildingClassHappiness(lua_State* L);
 
@@ -1098,8 +1134,12 @@ LUAAPIEXTN(GetNumDenouncementsOfPlayer, int);
 	LUAAPIEXTN(HasIdeology, bool, iPolicyBranchType);
 	LUAAPIEXTN(HasProject, bool, iProjectType);
 	LUAAPIEXTN(IsAtPeace, bool);
+	LUAAPIEXTN(IsAtPeaceAllMajors, bool);
+	LUAAPIEXTN(IsAtPeaceAllMinors, bool);
 	LUAAPIEXTN(IsAtPeaceWith, bool, iPlayer);
 	LUAAPIEXTN(IsAtWar, bool);
+	LUAAPIEXTN(IsAtWarAnyMajor, bool);
+	LUAAPIEXTN(IsAtWarAnyMinor, bool);
 	LUAAPIEXTN(IsAtWarWith, bool, iPlayer);
 	LUAAPIEXTN(HasPantheon, bool);
 	LUAAPIEXTN(HasAnyReligion, bool);
@@ -1115,6 +1155,13 @@ LUAAPIEXTN(GetNumDenouncementsOfPlayer, int);
 	LUAAPIEXTN(HasAnyTradeRouteWith, bool, iPlayer);
 	LUAAPIEXTN(HasUnit, bool, iUnitType);
 	LUAAPIEXTN(HasUnitClass, bool, iUnitClassType);
+
+	LUAAPIEXTN(HasTrait, bool, iTrait);
+	LUAAPIEXTN(HasAnyHolyCity, bool);
+	LUAAPIEXTN(HasHolyCity, bool, eReligion);
+	LUAAPIEXTN(HasCapturedHolyCity, bool, eReligion);
+	LUAAPIEXTN(HasEmbassyWith, bool, iOtherPlayer);
+	LUAAPIEXTN(DoForceDefPact, void, iOtherPlayer);
 #endif
 };
 

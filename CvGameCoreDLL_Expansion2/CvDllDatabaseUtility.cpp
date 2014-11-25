@@ -336,6 +336,10 @@ bool CvDllDatabaseUtility::PrefetchGameData()
 	PrefetchCollection(GC.getVoteSourceInfo(), "VoteSources");
 	PrefetchCollection(GC.getUnitDomainInfo(), "Domains");
 
+#if defined(MOD_EVENTS_DIPLO_MODIFIERS)
+	PrefetchCollection(GC.getDiploModifierInfo(), "DiploModifiers");
+#endif
+
 	//Leaders
 	PrefetchCollection(GC.getLeaderHeadInfo(), "Leaders");
 
@@ -359,6 +363,11 @@ bool CvDllDatabaseUtility::PrefetchGameData()
 #if defined(MOD_API_PLOT_YIELDS)
 	if (MOD_API_PLOT_YIELDS) {
 		PrefetchCollection(GC.getPlotInfo(), "Plots");
+	}
+#endif
+#if defined(MOD_API_UNIFIED_YIELDS)
+	if (MOD_API_UNIFIED_YIELDS) {
+		PrefetchCollection(GC.getGreatPersonInfo(), "GreatPersons");
 	}
 #endif
 	PrefetchCollection(GC.getTerrainInfo(), "Terrains");
@@ -655,6 +664,10 @@ bool CvDllDatabaseUtility::ValidatePrefetchProcess()
 	ValidateVectorSize(getNumBuildingInfos);
 	ValidateVectorSize(getNumUnitClassInfos);
 	//ValidateVectorSize(getNumActionInfos);	//Action Infos are generated as a post process.
+
+#if defined(MOD_EVENTS_DIPLO_MODIFIERS)
+	ValidateVectorSize(getNumDiploModifierInfos);
+#endif
 
 	ValidateCount(gc.getMissionInfo().size);
 	ValidateCount(gc.getControlInfo().size);

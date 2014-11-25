@@ -193,15 +193,28 @@ void CvDangerPlots::UpdateDanger(bool bPretendWarWithAllCivs, bool bIgnoreVisibi
 	}
 
 	// Citadels
+#if defined(MOD_BALANCE_CORE)
+	for(int iPlotLoop = 0; iPlotLoop < GC.getMap().numPlots(); iPlotLoop++)
+#else
 	int iCitadelValue = GetDangerValueOfCitadel();
 	int iPlotLoop;
 	CvPlot* pPlot, *pAdjacentPlot;
 	for(iPlotLoop = 0; iPlotLoop < GC.getMap().numPlots(); iPlotLoop++)
+#endif
 	{
+#if defined(MOD_BALANCE_CORE)
+		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(iPlotLoop);
+#else
 		pPlot = GC.getMap().plotByIndexUnchecked(iPlotLoop);
+#endif
 
 		if(pPlot->isRevealed(thisTeam))
 		{
+#if defined(MOD_BALANCE_CORE)
+			int iDamage = pPlot->GetDamageFromNearByFeatures(m_ePlayer);
+			if (iDamage)
+				AddDanger(pPlot->getX(), pPlot->getY(), iDamage, true);		
+#else
 			ImprovementTypes eImprovement = pPlot->getRevealedImprovementType(thisTeam);
 			if(eImprovement != NO_IMPROVEMENT && GC.getImprovementInfo(eImprovement)->GetNearbyEnemyDamage() > 0)
 			{
@@ -218,6 +231,7 @@ void CvDangerPlots::UpdateDanger(bool bPretendWarWithAllCivs, bool bIgnoreVisibi
 					}
 				}
 			}
+#endif
 		}
 	}
 
@@ -564,7 +578,7 @@ bool CvDangerPlots::ShouldIgnoreCity(CvCity* pCity, bool bIgnoreVisibility)
 
 	return false;
 }
-
+#if !defined(MOD_BALANCE_CORE)
 /// Should this city be ignored when creating the danger plots?
 bool CvDangerPlots::ShouldIgnoreCitadel(CvPlot* pCitadelPlot, bool bIgnoreVisibility)
 {
@@ -591,7 +605,7 @@ bool CvDangerPlots::ShouldIgnoreCitadel(CvPlot* pCitadelPlot, bool bIgnoreVisibi
 
 	return false;
 }
-
+#endif
 //	-----------------------------------------------------------------------------------------------
 /// Contains the calculations to do the danger value for the plot according to the unit
 void CvDangerPlots::AssignUnitDangerValue(CvUnit* pUnit, CvPlot* pPlot)
@@ -660,6 +674,14 @@ void CvDangerPlots::AssignUnitDangerValue(CvUnit* pUnit, CvPlot* pPlot)
 
 			int iUnitCombatValue = iBaseUnitCombatValue / iTurnsAway;
 			iUnitCombatValue = ModifyDangerByRelationship(pUnit->getOwner(), pPlot, iUnitCombatValue);
+#if defined(MOD_BALANCE_CORE_MILITARY)
+			//Embarked? Scary!
+			if(pPlot->isWater() && pUnit->getDomainType() != DOMAIN_SEA)
+			{
+				iUnitCombatValue *= 3;
+				iUnitCombatValue /= 2;
+			}
+#endif
 			AddDanger(iPlotX, iPlotY, iUnitCombatValue, iTurnsAway <= 1);
 		}
 	}
@@ -670,6 +692,21 @@ void CvDangerPlots::AssignUnitDangerValue(CvUnit* pUnit, CvPlot* pPlot)
 void CvDangerPlots::AssignCityDangerValue(CvCity* pCity, CvPlot* pPlot)
 {
 	int iCombatValue = pCity->getStrengthValue();
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	//If city is strong, we should increase its threat.
+	CvMilitaryAI* pMilitaryAI = GET_PLAYER(m_ePlayer).GetMilitaryAI();
+	int iPower = pMilitaryAI->GetPowerOfStrongestBuildableUnit(DOMAIN_LAND);
+	if(iCombatValue > iPower)
+	{
+		iCombatValue *= 2;
+	}
+	//If plot is water, increase the value. Water is dangerous!
+	if(pPlot->isWater())
+	{
+		iCombatValue *= 3;
+		iCombatValue /= 2;
+	}
+#endif
 	iCombatValue = ModifyDangerByRelationship(pCity->getOwner(), pPlot, iCombatValue);
 	AddDanger(pPlot->getX(), pPlot->getY(), iCombatValue, false);
 }

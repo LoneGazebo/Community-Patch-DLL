@@ -652,6 +652,29 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_PlayerCanMakePeace, ePlayer, eToTeam) == GAMEEVENTRETURN_FALSE) {
 				return false;
 			}
+		} else {
+#endif
+		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+		if (pkScriptSystem)
+		{
+			// Construct and push in some event arguments.
+			CvLuaArgsHandle args;
+			args->Push(ePlayer);
+			args->Push(eToTeam);
+
+			// Attempt to execute the game events.
+			// Will return false if there are no registered listeners.
+			bool bResult = false;
+			if (LuaSupport::CallTestAll(pkScriptSystem, "IsAbleToMakePeace", args.get(), bResult)) 
+			{
+				// Check the result.
+				if (bResult == false)
+				{
+					return false;
+				}
+			}
+		}
+#if defined(MOD_EVENTS_WAR_AND_PEACE)
 		}
 #endif
 	}
@@ -792,10 +815,10 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 		int iID = iData1;
 		//antonjs: todo: verify iChoice is valid as well:
 		//int iChoice = iData2;
-#if !defined(MOD_BUGFIX_MINOR)
 		int iNumVotes = iData3;
-#endif
 		bool bRepeal = bFlag1;
+
+		DEBUG_VARIABLE(iNumVotes);
 
 		if(GC.getGame().GetGameLeagues()->GetNumActiveLeagues() == 0)
 			return false;
@@ -2938,6 +2961,23 @@ void CvGameDeals::DoCancelAllDealsWithPlayer(PlayerTypes eCancelPlayer)
 	}
 }
 
+void CvGameDeals::DoCancelAllProposedDealsWithPlayer(PlayerTypes eCancelPlayer)
+{//Cancel all proposed deals involving eCancelPlayer.
+	PlayerTypes eLoopPlayer;
+	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	{
+		eLoopPlayer = (PlayerTypes) iPlayerLoop;
+		if(GetProposedDeal(eCancelPlayer, eLoopPlayer))
+		{//deal from eCancelPlayer
+			FinalizeDeal(eCancelPlayer, eLoopPlayer, false);
+		}
+		if(GetProposedDeal(eLoopPlayer, eCancelPlayer))
+		{//deal to eCancelPlayer
+			FinalizeDeal(eLoopPlayer, eCancelPlayer, false);
+		}
+	}
+}
+
 /// End a TradedItem (if it's an ongoing item)
 void CvGameDeals::DoEndTradedItem(CvTradedItem* pItem, PlayerTypes eToPlayer, bool bCancelled)
 {
@@ -3475,10 +3515,11 @@ void CvGameDeals::LogDealComplete(CvDeal* pDeal)
 			strOutBuf += ", " + strTemp;
 
 			pLog->Msg(strOutBuf);
-
+#if !defined(MOD_BALANCE_CORE)
 			OutputDebugString("\n");
 			OutputDebugString(strOutBuf);
 			OutputDebugString("\n");
+#endif
 		}
 	}
 }

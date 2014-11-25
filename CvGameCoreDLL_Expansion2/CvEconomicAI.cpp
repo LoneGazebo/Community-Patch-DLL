@@ -1242,8 +1242,11 @@ double CvEconomicAI::GetImprovedToImprovablePlotsRatio()
 		{
 			continue;
 		}
-
+#if defined(MOD_BALANCE_CORE)
+		if(pPlot->isWater() || pPlot->isImpassable() || pPlot->isCity())
+#else
 		if(pPlot->isWater() || pPlot->isImpassable() || pPlot->isMountain() || pPlot->isCity())
+#endif
 		{
 			continue;
 		}
@@ -1353,6 +1356,16 @@ void CvEconomicAI::LogMonitor(void)
 		case YIELD_FAITH:
 			AppendToLog(strHeader, strLog, "Faith", m_pPlayer->GetTotalFaithPerTurn());
 			break;
+#if defined(MOD_API_UNIFIED_YIELDS_TOURISM)
+		case YIELD_TOURISM:
+			AppendToLog(strHeader, strLog, "Tourism", m_pPlayer->calculateTotalYield((YieldTypes)ui));
+			break;
+#endif
+#if defined(MOD_API_UNIFIED_YIELDS_GOLDEN_AGE)
+		case YIELD_GOLDEN_AGE_POINTS:
+			AppendToLog(strHeader, strLog, "Golden Age", m_pPlayer->calculateTotalYield((YieldTypes)ui));
+			break;
+#endif
 		}
 	}
 
@@ -1579,6 +1592,16 @@ void CvEconomicAI::LogCityMonitor()
 			case YIELD_FAITH:
 				AppendToLog(strHeader, strLog, "faith", aiCityYields[ui]);
 				break;
+#if defined(MOD_API_UNIFIED_YIELDS_TOURISM)
+			case YIELD_TOURISM:
+				AppendToLog(strHeader, strLog, "tourism", aiCityYields[ui]);
+				break;
+#endif
+#if defined(MOD_API_UNIFIED_YIELDS_GOLDEN_AGE)
+			case YIELD_GOLDEN_AGE_POINTS:
+				AppendToLog(strHeader, strLog, "goldenage", aiCityYields[ui]);
+				break;
+#endif
 			}
 		}
 
@@ -1611,6 +1634,16 @@ void CvEconomicAI::LogCityMonitor()
 			case YIELD_FAITH:
 				AppendToLog(strHeader, strLog, "faith / pop", fRatio);
 				break;
+#if defined(MOD_API_UNIFIED_YIELDS_TOURISM)
+			case YIELD_TOURISM:
+				AppendToLog(strHeader, strLog, "tourism / pop", fRatio);
+				break;
+#endif
+#if defined(MOD_API_UNIFIED_YIELDS_GOLDEN_AGE)
+			case YIELD_GOLDEN_AGE_POINTS:
+				AppendToLog(strHeader, strLog, "goldenage / pop", fRatio);
+				break;
+#endif
 			}
 		}
 
@@ -1638,6 +1671,16 @@ void CvEconomicAI::LogCityMonitor()
 			case YIELD_FAITH:
 				AppendToLog(strHeader, strLog, "faith specialist", aiSpecialistsYields[ui]);
 				break;
+#if defined(MOD_API_UNIFIED_YIELDS_TOURISM)
+			case YIELD_TOURISM:
+				AppendToLog(strHeader, strLog, "tourism specialist", aiSpecialistsYields[ui]);
+				break;
+#endif
+#if defined(MOD_API_UNIFIED_YIELDS_GOLDEN_AGE)
+			case YIELD_GOLDEN_AGE_POINTS:
+				AppendToLog(strHeader, strLog, "goldenage specialist", aiSpecialistsYields[ui]);
+				break;
+#endif
 			}
 		}
 
@@ -1669,6 +1712,16 @@ void CvEconomicAI::LogCityMonitor()
 			case YIELD_FAITH:
 				AppendToLog(strHeader, strLog, "faith specialist / faith", fRatio);
 				break;
+#if defined(MOD_API_UNIFIED_YIELDS_TOURISM)
+			case YIELD_TOURISM:
+				AppendToLog(strHeader, strLog, "tourism specialist / tourism", fRatio);
+				break;
+#endif
+#if defined(MOD_API_UNIFIED_YIELDS_GOLDEN_AGE)
+			case YIELD_GOLDEN_AGE_POINTS:
+				AppendToLog(strHeader, strLog, "goldenage specialist / tourism", fRatio);
+				break;
+#endif
 			}
 		}
 
@@ -1744,8 +1797,8 @@ void CvEconomicAI::DoHurry()
 {
 	int iLoop = 0;
 
-#if defined(MOD_DIPLOMACY_CITYSTATES_HURRY)
-  if (MOD_DIPLOMACY_CITYSTATES_HURRY) {
+#if defined(MOD_DIPLOMACY_CITYSTATES_HURRY) || defined(MOD_BALANCE_CORE)
+  if (MOD_DIPLOMACY_CITYSTATES_HURRY || MOD_BALANCE_CORE) {
 	//Let's give the AI a treasury cushion ...
 	int iTreasuryBuffer = /*500*/ GC.getAI_GOLD_TREASURY_BUFFER();
 	// ... modified by gamespeed
@@ -1803,7 +1856,7 @@ void CvEconomicAI::DoHurry()
 												{	
 													//Log it
 													CvString strLogString;
-													strLogString.Format("CSD - Buying unit: %s in %s. Cost: %d, Balance (before buy): %d",
+													strLogString.Format("MOD - Buying unit: %s in %s. Cost: %d, Balance (before buy): %d",
 														pkUnitInfo->GetDescription(), pLoopCity->getName().c_str(), iGoldCost, m_pPlayer->GetTreasury()->GetGold());
 													m_pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
 
@@ -1856,7 +1909,7 @@ void CvEconomicAI::DoHurry()
 									{
 										//Log it
 										CvString strLogString;
-										strLogString.Format("CSD - Buying building: %s in %s. Cost: %d, Balance (before buy): %d",
+										strLogString.Format("MOD - Buying building: %s in %s. Cost: %d, Balance (before buy): %d",
 										pkBuildingInfo->GetDescription(), pLoopCity->getName().c_str(), iGoldCost, m_pPlayer->GetTreasury()->GetGold());
 										m_pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
 					
@@ -1903,7 +1956,7 @@ void CvEconomicAI::DoHurry()
 												{	
 													//Log it
 													CvString strLogString;
-													strLogString.Format("CSD - Buying unit %s for operation in %s. Cost: %d, Balance (before buy): %d",
+													strLogString.Format("MOD - Buying unit %s for operation in %s. Cost: %d, Balance (before buy): %d",
 													pkUnitInfo->GetDescription(), pLoopCity->getName().c_str(), iGoldCost, m_pPlayer->GetTreasury()->GetGold());
 													m_pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
 
@@ -2020,7 +2073,7 @@ void CvEconomicAI::DoHurry()
 		pBestHurryCity->hurry(eBestHurryType);
 		pBestHurryCity->GetCityStrategyAI()->LogHurry(eBestHurryType, iBestHurryAmount, iBestHurryAmountAvailable, iBestHurryTurnsSaved);
 	}
-#if defined(MOD_DIPLOMACY_CITYSTATES_HURRY)
+#if defined(MOD_DIPLOMACY_CITYSTATES_HURRY) || defined(MOD_BALANCE_CORE)
   }
 #endif
 }
@@ -2123,6 +2176,38 @@ void CvEconomicAI::DoReconState()
 		m_eNavalReconState = RECON_STATE_ENOUGH;
 		return;
 	}
+
+	// Never desperate for explorers if we are at war
+	MilitaryAIStrategyTypes eStrategyAtWar = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_AT_WAR");
+	if(eStrategyAtWar != NO_MILITARYAISTRATEGY)
+	{
+		if(GetPlayer()->GetMilitaryAI()->IsUsingStrategy(eStrategyAtWar))
+		{
+			m_eReconState = RECON_STATE_ENOUGH;
+			m_eNavalReconState = RECON_STATE_ENOUGH;
+			return;
+		}
+	}
+
+#if defined(MOD_BALANCE_CORE_SETTLER)
+	bool bIsVenice = GetPlayer()->GetPlayerTraits()->IsNoAnnexing();
+	if (!bIsVenice)
+	{
+		// Need recon if there are no good plots to settle
+		CvPlot* pBestSettlePlot = GetPlayer()->GetBestSettlePlot(NULL,true,-1,NULL);
+		int iBestFoundValue = pBestSettlePlot ? pBestSettlePlot->getFoundValue( GetPlayer()->GetID() ) : 0;
+		int iLastFoundValue = GetPlayer()->GetFoundValueOfLastSettledCity();
+		if (iBestFoundValue < 0.5f * iLastFoundValue )
+		{
+			OutputDebugStr( CvString::format("%s - no good settle plot: ratio %.2f (%08d vs %08d) - need more recon\n", 
+				GetPlayer()->getCivilizationDescription(), iBestFoundValue/(float)iLastFoundValue, iBestFoundValue, iLastFoundValue) );
+
+			m_eReconState = RECON_STATE_NEEDED;
+			m_eNavalReconState = RECON_STATE_NEEDED;
+			return;
+		}
+	}
+#endif
 
 	// Start at 1 so we don't get divide-by-0 errors
 	//   Land recon counters
@@ -2398,8 +2483,11 @@ void CvEconomicAI::DisbandExtraWorkers()
 		{
 			continue;
 		}
-
+#if defined(MOD_BALANCE_CORE)
+		if(pPlot->isWater() || pPlot->isImpassable() || pPlot->isCity())
+#else
 		if(pPlot->isWater() || pPlot->isImpassable() || pPlot->isMountain() || pPlot->isCity())
+#endif
 		{
 			continue;
 		}
@@ -2546,8 +2634,15 @@ void CvEconomicAI::DisbandLongObsoleteUnits()
 				// The unit must have an upgrade option, if not, then we don't care about this (includes workers, settlers, explorers)
 				UnitTypes eUpgradeUnitType = pUnit->GetUpgradeUnitType();
 
+				
+#if defined(MOD_BALANCE_CORE_SETTLER)
+				//Fixed for settlers for advanced start.
+				if(eUpgradeUnitType != NO_UNIT && !pUnit->isFound())
+				{
+#else
 				if(eUpgradeUnitType != NO_UNIT)
 				{
+#endif
 					// Check out unit era based on the prerequirement tech, defaults at ancient era.
 					unitEra = 0;
 					UnitTypes currentUnitType = pUnit->getUnitType();
@@ -3121,6 +3216,7 @@ bool EconomicAIHelpers::IsAreaSafeForQuickColony(int iAreaID, CvPlayer* pPlayer)
 /// "Need Recon" Player Strategy: chosen by the DoRecon() function
 bool EconomicAIHelpers::IsTestStrategy_NeedRecon(CvPlayer* pPlayer)
 {
+#if !defined(MOD_BALANCE_CORE)
 	// Never desperate for explorers if we are at war
 	MilitaryAIStrategyTypes eStrategyAtWar = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_AT_WAR");
 	if(eStrategyAtWar != NO_MILITARYAISTRATEGY)
@@ -3130,7 +3226,7 @@ bool EconomicAIHelpers::IsTestStrategy_NeedRecon(CvPlayer* pPlayer)
 			return false;
 		}
 	}
-
+#endif
 	return (pPlayer->GetEconomicAI()->GetReconState() == RECON_STATE_NEEDED);
 }
 
@@ -3446,8 +3542,12 @@ bool EconomicAIHelpers::IsTestStrategy_EnoughExpansion(EconomicAIStrategyTypes e
 {
 	int iBestArea;
 	int iSecondBestArea;
-
+#if defined(MOD_BALANCE_CORE)
+	bool bCannotExpand = pPlayer->isBarbarian() || pPlayer->isMinorCiv() || pPlayer->GetPlayerTraits()->IsNoAnnexing();
+	if ((GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && pPlayer->isHuman()) || bCannotExpand)
+#else
 	if (GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && pPlayer->isHuman())
+#endif
 	{
 		return true;
 	}
@@ -3510,6 +3610,13 @@ bool EconomicAIHelpers::IsTestStrategy_NeedHappiness(EconomicAIStrategyTypes eSt
 	{
 		return false;
 	}
+
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+	if(pPlayer->isMinorCiv() || pPlayer->isBarbarian())
+	{
+		return false;
+	}
+#endif
 
 	if(pPlayer->getTotalPopulation() > 0 && pPlayer->GetUnhappiness() > 0)
 	{
@@ -3662,10 +3769,16 @@ bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes /*eStra
 	int iNumAreas;
 	int iArea = -1;
 
+#if defined(MOD_BALANCE_CORE_SETTLER)
+	// Never run this strategy for a human player, barbarians or minor civs
+	if (pPlayer->isBarbarian() || pPlayer->isMinorCiv() || pPlayer->isHuman())
+		return false;
+#else
 	if(GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && pPlayer->isHuman())
 	{
 		return false;
 	}
+#endif
 
 	// Never run this strategy for a human player
 	if(!pPlayer->isHuman())
@@ -3703,6 +3816,8 @@ bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes /*eStra
 			// CASE 1: we can go offshore
 			if (bCanEmbark && (pPlayer->getNumCities() > 1))
 			{
+#if !defined(MOD_BALANCE_CORE_SETTLER)
+
 				int iRandArea = GC.getGame().getJonRandNum(6, "Randomly choose an area to settle");
 
 				if (iRandArea <= 1) // this is "pick best tile I know ignoring what area it is part of", in the early game this is usually the start landmass
@@ -3724,7 +3839,10 @@ bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes /*eStra
 					iArea = iBestArea;
 					bWantEscort = IsAreaSafeForQuickColony(iArea, pPlayer);
 				}
-
+#else
+				iArea = iBestArea;
+				bWantEscort = IsAreaSafeForQuickColony(iArea, pPlayer);
+#endif
 				if (bWantEscort)
 				{
 					pPlayer->addAIOperation(AI_OPERATION_FOUND_CITY, NO_PLAYER, iArea);
@@ -4167,16 +4285,6 @@ bool EconomicAIHelpers::IsTestStrategy_ExpandToOtherContinents(CvPlayer* pPlayer
 			return false;
 		}
 	}
-#if defined(MOD_BALANCE_CORE_SETTLER)
-	if (MOD_BALANCE_CORE_SETTLER) 
-	{
-		//Simple test - as the game goes along we should want to do this less and less.
-		if(GC.getGame().getCurrentEra() > (pPlayer->getNumCities() + 3))
-		{
-			return false;
-		}
-	}
-#endif
 
 	if(pPlayer->getCapitalCity() != NULL)
 	{
@@ -4235,16 +4343,7 @@ bool EconomicAIHelpers::IsTestStrategy_ReallyExpandToOtherContinents(CvPlayer* p
 			}
 		}
 	}
-#if defined(MOD_BALANCE_CORE_SETTLER)
-	if (MOD_BALANCE_CORE_SETTLER) 
-	{
-		//Simple test - as the game goes along we should want to do this less and less.
-		if(GC.getGame().getCurrentEra() > (pPlayer->getNumCities() + 2))
-		{
-			return false;
-		}
-	}
-#endif
+
 	int iFlavorGrowth = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GROWTH"));
 	int iFlavorExpansion = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_EXPANSION"));
 

@@ -121,6 +121,9 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(CreateApolloProgram);
 
 	Method(IsCanPurchase);
+#if defined(MOD_API_LUA_EXTENSIONS)
+	Method(Purchase);
+#endif
 	Method(GetUnitPurchaseCost);
 	Method(GetUnitFaithPurchaseCost);
 	Method(GetBuildingPurchaseCost);
@@ -311,6 +314,24 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(GetCityWorkingChange);
 	Method(ChangeCityWorkingChange);
 #endif
+#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE_HAPPINESS)
+	Method(GetUnhappinessFromCultureYield);
+	Method(GetUnhappinessFromCultureNeeded);
+	Method(GetUnhappinessFromCulture);
+	Method(GetUnhappinessFromScienceYield);
+	Method(GetUnhappinessFromScienceNeeded);
+	Method(GetUnhappinessFromScience);
+	Method(GetUnhappinessFromDefenseYield);
+	Method(GetUnhappinessFromDefenseNeeded);
+	Method(GetUnhappinessFromDefense);
+	Method(GetUnhappinessFromGoldYield);
+	Method(GetUnhappinessFromGoldNeeded);
+	Method(GetUnhappinessFromGold);
+	Method(GetUnhappinessFromConnection);
+	Method(GetUnhappinessFromPillaged);
+	Method(GetUnhappinessFromStarving);
+	Method(GetUnhappinessFromMinority);
+#endif
 
 	Method(ChangeHealRate);
 
@@ -324,6 +345,9 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(GetMaxFoodKeptPercent);
 	Method(GetOverflowProduction);
 	Method(SetOverflowProduction);
+#if defined(MOD_API_LUA_EXTENSIONS)
+	Method(ChangeOverflowProduction);
+#endif
 	Method(GetFeatureProduction);
 	Method(SetFeatureProduction);
 	Method(GetMilitaryProductionModifier);
@@ -499,6 +523,11 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(GetBuildingYieldChange);
 	Method(SetBuildingYieldChange);
 
+#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE_POLICIES)
+	Method(GetBuildingClassCultureChange);
+	Method(GetReligionYieldRateModifier);
+	Method(GetReligionBuildingYieldRateModifier);
+#endif
 	Method(GetBuildingEspionageModifier);
 	Method(GetBuildingGlobalEspionageModifier);
 
@@ -842,7 +871,11 @@ int CvLuaCity::lCanConstructTooltip(lua_State* L)
 	const BuildingTypes eBuilding = (BuildingTypes) lua_tointeger(L, 2);
 
 	// City Production Modifier
+#if defined(MOD_API_EXTENSIONS)
+	pkCity->canConstruct(eBuilding, false, false, false, false, &toolTip);
+#else
 	pkCity->canConstruct(eBuilding, false, false, false, &toolTip);
+#endif
 
 	lua_pushstring(L, toolTip.c_str());
 	return 1;
@@ -856,7 +889,12 @@ int CvLuaCity::lCanConstruct(lua_State* L)
 	const bool bContinue = luaL_optint(L, 3, 0);
 	const bool bTestVisible = luaL_optint(L, 4, 0);
 	const bool bIgnoreCost = luaL_optint(L, 5, 0);
+#if defined(MOD_API_EXTENSIONS)
+	const bool bWillPurchase = luaL_optint(L, 6, 0);
+	const bool bResult = pkCity->canConstruct((BuildingTypes)iBuilding, bContinue, bTestVisible, bIgnoreCost, bWillPurchase);
+#else
 	const bool bResult = pkCity->canConstruct((BuildingTypes)iBuilding, bContinue, bTestVisible, bIgnoreCost);
+#endif
 
 	lua_pushboolean(L, bResult);
 	return 1;
@@ -989,7 +1027,11 @@ int CvLuaCity::lGetPurchaseBuildingTooltip(lua_State* L)
 	const BuildingTypes eBuilding = (BuildingTypes) lua_tointeger(L, 2);
 
 	// City Production Modifier
+#if defined(MOD_API_EXTENSIONS)
+	pkCity->canConstruct(eBuilding, false, false, false, false, &toolTip);
+#else
 	pkCity->canConstruct(eBuilding, false, false, false, &toolTip);
+#endif
 
 	// Not enough cash money
 	if(pkCity->GetPurchaseCost(eBuilding) > GET_PLAYER(pkCity->getOwner()).GetTreasury()->GetGold())
@@ -1017,7 +1059,11 @@ int CvLuaCity::lGetFaithPurchaseBuildingTooltip(lua_State* L)
 	const BuildingTypes eBuilding = (BuildingTypes) lua_tointeger(L, 2);
 
 	// City Production Modifier
+#if defined(MOD_API_EXTENSIONS)
+	pkCity->canConstruct(eBuilding, false, false, false, false, &toolTip);
+#else
 	pkCity->canConstruct(eBuilding, false, false, false, &toolTip);
+#endif
 
 	// Not enough faith
 	if(pkCity->GetFaithPurchaseCost(eBuilding) > GET_PLAYER(pkCity->getOwner()).GetFaith())
@@ -1382,6 +1428,22 @@ int CvLuaCity::lIsCanPurchase(lua_State* L)
 	lua_pushboolean(L, bResult);
 	return 1;
 }
+#if defined(MOD_API_LUA_EXTENSIONS)
+//------------------------------------------------------------------------------
+// void Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectTypes eProjectType, YieldTypes ePurchaseYield);
+int CvLuaCity::lPurchase(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const UnitTypes eUnitType = (UnitTypes) lua_tointeger(L, 2);
+	const BuildingTypes eBuildingType = (BuildingTypes) lua_tointeger(L, 3);
+	const ProjectTypes eProjectType = (ProjectTypes) lua_tointeger(L, 4);
+	const YieldTypes ePurchaseYield = (YieldTypes) lua_tointeger(L, 5);
+
+	pkCity->Purchase(eUnitType, eBuildingType, eProjectType, ePurchaseYield);
+
+	return 0;
+}
+#endif
 //------------------------------------------------------------------------------
 // int GetPurchaseCost(UnitTypes eUnit);
 int CvLuaCity::lGetUnitPurchaseCost(lua_State* L)
@@ -2204,7 +2266,15 @@ int CvLuaCity::lGetJONSCulturePerTurnFromBuildings(lua_State* L)
 //void ChangeJONSCulturePerTurnFromBuildings(int iChange);
 int CvLuaCity::lChangeJONSCulturePerTurnFromBuildings(lua_State* L)
 {
+#if defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
+	CvCity* pkCity = GetInstance(L);
+	int iChange = lua_tointeger(L, 2);
+	pkCity->ChangeBaseYieldRateFromBuildings(YIELD_CULTURE, iChange);
+
+	return 0;
+#else
 	return BasicLuaMethod(L, &CvCity::ChangeJONSCulturePerTurnFromBuildings);
+#endif
 }
 //------------------------------------------------------------------------------
 //int GetJONSCulturePerTurnFromPolicies() const;
@@ -2252,7 +2322,15 @@ int CvLuaCity::lGetJONSCulturePerTurnFromReligion(lua_State* L)
 //void ChangeJONSCulturePerTurnFromReligion(int iChange);
 int CvLuaCity::lChangeJONSCulturePerTurnFromReligion(lua_State* L)
 {
+#if defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
+	CvCity* pkCity = GetInstance(L);
+	int iChange = lua_tointeger(L, 2);
+	pkCity->ChangeBaseYieldRateFromReligion(YIELD_CULTURE, iChange);
+
+	return 0;
+#else
 	return BasicLuaMethod(L, &CvCity::ChangeJONSCulturePerTurnFromReligion);
+#endif
 }
 //------------------------------------------------------------------------------
 //int GetJONSCulturePerTurnFromLeagues() const;
@@ -2432,7 +2510,14 @@ int CvLuaCity::lGetFaithPerTurnFromPolicies(lua_State* L)
 //int GetFaithPerTurnFromTraits() const;
 int CvLuaCity::lGetFaithPerTurnFromTraits(lua_State* L)
 {
+#if defined(MOD_API_UNIFIED_YIELDS)
+	CvCity* pkCity = GetInstance(L);
+	const int iBonus = pkCity->GetYieldPerTurnFromUnimprovedFeatures(YIELD_FAITH);
+	lua_pushinteger(L, iBonus);
+	return 1;
+#else
 	return BasicLuaMethod(L, &CvCity::GetFaithPerTurnFromTraits);
+#endif
 }
 //------------------------------------------------------------------------------
 //int GetFaithPerTurnFromReligion() const;
@@ -2444,7 +2529,15 @@ int CvLuaCity::lGetFaithPerTurnFromReligion(lua_State* L)
 //void ChangeFaithPerTurnFromReligion(int iChange);
 int CvLuaCity::lChangeFaithPerTurnFromReligion(lua_State* L)
 {
+#if defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
+	CvCity* pkCity = GetInstance(L);
+	int iChange = lua_tointeger(L, 2);
+	pkCity->ChangeBaseYieldRateFromReligion(YIELD_FAITH, iChange);
+
+	return 0;
+#else
 	return BasicLuaMethod(L, &CvCity::ChangeFaithPerTurnFromReligion);
+#endif
 }
 //------------------------------------------------------------------------------
 //int IsReligionInCity() const;
@@ -2715,6 +2808,121 @@ int CvLuaCity::lChangeCityWorkingChange(lua_State* L)
 }
 #endif
 
+#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE_HAPPINESS)
+//int getUnhappinessFromCultureYield();
+int CvLuaCity::lGetUnhappinessFromCultureYield(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	lua_pushinteger(L, pkCity->getUnhappinessFromCultureYield());
+	return 1;
+}
+//int getUnhappinessFromCultureNeeded();
+int CvLuaCity::lGetUnhappinessFromCultureNeeded(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	lua_pushinteger(L, pkCity->getUnhappinessFromCultureNeeded());
+	return 1;
+}
+//int getUnhappinessFromCulture();
+int CvLuaCity::lGetUnhappinessFromCulture(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	lua_pushinteger(L, pkCity->getUnhappinessFromCulture());
+	return 1;
+}
+//int getUnhappinessFromScienceYield();
+int CvLuaCity::lGetUnhappinessFromScienceYield(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	lua_pushinteger(L, pkCity->getUnhappinessFromScienceYield());
+	return 1;
+}
+//int getUnhappinessFromScienceNeeded();
+int CvLuaCity::lGetUnhappinessFromScienceNeeded(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	lua_pushinteger(L, pkCity->getUnhappinessFromScienceNeeded());
+	return 1;
+}
+//int getUnhappinessFromScience();
+int CvLuaCity::lGetUnhappinessFromScience(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	lua_pushinteger(L, pkCity->getUnhappinessFromScience());
+	return 1;
+}
+//int getUnhappinessFromCultureYield();
+int CvLuaCity::lGetUnhappinessFromDefenseYield(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	lua_pushinteger(L, pkCity->getUnhappinessFromDefenseYield());
+	return 1;
+}
+//int getUnhappinessFromDefenseNeeded();
+int CvLuaCity::lGetUnhappinessFromDefenseNeeded(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	lua_pushinteger(L, pkCity->getUnhappinessFromDefenseNeeded());
+	return 1;
+}
+//int getUnhappinessFromDefense();
+int CvLuaCity::lGetUnhappinessFromDefense(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	lua_pushinteger(L, pkCity->getUnhappinessFromDefense());
+	return 1;
+}
+//int getUnhappinessFromGoldYield();
+int CvLuaCity::lGetUnhappinessFromGoldYield(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	lua_pushinteger(L, pkCity->getUnhappinessFromGoldYield());
+	return 1;
+}
+//int getUnhappinessFromGoldNeeded();
+int CvLuaCity::lGetUnhappinessFromGoldNeeded(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	lua_pushinteger(L, pkCity->getUnhappinessFromGoldNeeded());
+	return 1;
+}
+//int getUnhappinessFromGold();
+int CvLuaCity::lGetUnhappinessFromGold(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	lua_pushinteger(L, pkCity->getUnhappinessFromGold());
+	return 1;
+}
+//int getUnhappinessFromConnection();
+int CvLuaCity::lGetUnhappinessFromConnection(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	lua_pushinteger(L, pkCity->getUnhappinessFromConnection());
+	return 1;
+}
+//int getUnhappinessFromPillaged();
+int CvLuaCity::lGetUnhappinessFromPillaged(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	lua_pushinteger(L, pkCity->getUnhappinessFromPillaged());
+	return 1;
+}
+//int getUnhappinessFromStarving();
+int CvLuaCity::lGetUnhappinessFromStarving(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	lua_pushinteger(L, pkCity->getUnhappinessFromStarving());
+	return 1;
+}
+//int getUnhappinessFromMinority();
+int CvLuaCity::lGetUnhappinessFromMinority(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	lua_pushinteger(L, pkCity->getUnhappinessFromMinority());
+	return 1;
+}
+#endif
+
 //------------------------------------------------------------------------------
 //void changeHealRate(int iChange);
 int CvLuaCity::lChangeHealRate(lua_State* L)
@@ -2776,6 +2984,14 @@ int CvLuaCity::lSetOverflowProduction(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvCity::setOverflowProduction);
 }
+#if defined(MOD_API_LUA_EXTENSIONS)
+//------------------------------------------------------------------------------
+//void changeOverflowProduction(int iChange);
+int CvLuaCity::lChangeOverflowProduction(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvCity::changeOverflowProduction);
+}
+#endif
 //------------------------------------------------------------------------------
 //int getFeatureProduction();
 int CvLuaCity::lGetFeatureProduction(lua_State* L)
@@ -3150,7 +3366,7 @@ int CvLuaCity::lChangeBaseYieldRateFromMisc(lua_State* L)
 	return BasicLuaMethod(L, &CvCity::ChangeBaseYieldRateFromMisc);
 }
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_DIPLOMACY_CITYSTATES)
-	// Base yield rate from League
+// Base yield rate from League
 int CvLuaCity::lGetBaseYieldRateFromLeague(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvCity::GetBaseYieldRateFromLeague);
@@ -4073,6 +4289,57 @@ int CvLuaCity::lGetBuildingYieldChange(lua_State* L)
 	return 1;
 }
 
+#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE_POLICIES)
+int CvLuaCity::lGetBuildingClassCultureChange(lua_State* L)
+{
+	const BuildingClassTypes eBuildingClassType = (BuildingClassTypes)lua_tointeger(L, 2);
+
+	CvCity* pkCity = GetInstance(L);
+	const int eYield = lua_tointeger(L, 2);
+	const int iResult = pkCity->getBuildingClassCultureChange((BuildingClassTypes)eBuildingClassType);
+
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+//int getReligionYieldRateModifier(YieldTypes eYield);
+int CvLuaCity::lGetReligionYieldRateModifier(lua_State* L)
+{
+	int iRtnValue = 0;
+	CvCity* pkCity = GetInstance(L);
+	const int eYield = lua_tointeger(L, 2);
+	const PlayerTypes ePlayer = pkCity->getOwner();
+	ReligionTypes eMajority = pkCity->GetCityReligions()->GetReligiousMajority();
+	ReligionTypes ePlayerReligion = GET_PLAYER(ePlayer).GetReligions()->GetReligionInMostCities();
+	if(ePlayerReligion != NO_RELIGION && eMajority == ePlayerReligion)
+	{
+		iRtnValue = GET_PLAYER(ePlayer).getReligionYieldRateModifier((YieldTypes)eYield);
+	}
+
+	lua_pushinteger(L, iRtnValue);
+
+	return 1;
+}
+//int getReligionBuildingYieldRateModifier(BuildingClassTypes eBuildingClass, YieldTypes eYield);
+int CvLuaCity::lGetReligionBuildingYieldRateModifier(lua_State* L)
+{
+	int iRtnValue = 0;
+	CvCity* pkCity = GetInstance(L);
+	const int eBuildingClass = lua_tointeger(L, 2);
+	const int eYield = lua_tointeger(L, 3);
+	const PlayerTypes ePlayer = pkCity->getOwner();
+	CvGameReligions* pReligions = GC.getGame().GetGameReligions();
+	ReligionTypes eReligion = pkCity->GetCityReligions()->GetReligiousMajority();
+	ReligionTypes ePlayerReligion = GET_PLAYER(ePlayer).GetReligions()->GetReligionInMostCities();
+	if(ePlayerReligion != NO_RELIGION && eReligion == ePlayerReligion)
+	{
+		 iRtnValue = pkCity->getReligionBuildingYieldRateModifier((BuildingClassTypes)eBuildingClass, (YieldTypes)eYield);
+	}
+
+	lua_pushinteger(L, iRtnValue);
+
+	return 1;
+}
+#endif
 //int GetBuildingEspionageModifier(BuildingClassTypes eBuildingClass)
 int CvLuaCity::lGetBuildingEspionageModifier(lua_State* L)
 {

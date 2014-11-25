@@ -69,8 +69,19 @@ class CvEspionageSpy
 public:
 	CvEspionageSpy();
 
+#if defined(MOD_BUGFIX_SPY_NAMES)
+	const char* GetSpyName(CvPlayer* pPlayer);
+#endif
+
+#if defined(MOD_API_ESPIONAGE)
+	void SetSpyState(PlayerTypes eSpyOwner, int iSpyIndex, CvSpyState eSpyState);
+#endif
+
 	// Public data
 	int m_iName;
+#if defined(MOD_BUGFIX_SPY_NAMES)
+	CvString m_sName;
+#endif
 	int m_iCityX;
 	int m_iCityY;
 	CvSpyRank m_eRank;
@@ -106,6 +117,13 @@ struct SpyNotificationMessage
 	PlayerTypes m_eAttackingPlayer;
 	int m_iSpyResult;
 	TechTypes m_eStolenTech;
+#if defined(MOD_BALANCE_CORE_SPIES)
+	BuildingTypes m_eDamagedBuilding;
+	UnitTypes m_eDamagedUnit;
+	bool m_bDamagedCity;
+	int m_iGold;
+	bool m_bRebellion;
+#endif
 };
 struct IntrigueNotificationMessage
 {
@@ -142,8 +160,15 @@ public:
 
 	void CreateSpy(void);
 	void ProcessSpy(uint uiSpyIndex);
+#if defined(MOD_BALANCE_CORE_SPIES)
+	void DoAdvancedAction(uint uiSpyIndex, bool bDebug);
+#endif
 	void UncoverIntrigue(uint uiSpyIndex);
+#if defined(MOD_BUGFIX_SPY_NAMES)
+	void GetNextSpyName(CvEspionageSpy* pSpy);
+#else
 	int  GetNextSpyName(void);
+#endif
 	bool IsSpyInCity(uint uiSpyIndex);
 	CvCity* GetCityWithSpy(uint uiSpyIndex);
 	int  GetSpyIndexInCity(CvCity* pCity);
@@ -194,7 +219,11 @@ public:
 	bool IsMyDiplomatVisitingThem(PlayerTypes ePlayer, bool bIncludeTravelling = false);
 	bool IsOtherDiplomatVisitingMe(PlayerTypes ePlayer);
 
+#if defined(MOD_BALANCE_CORE_SPIES)
+	void AddSpyMessage(int iCityX, int iCityY, PlayerTypes ePlayer, int iSpyResult, TechTypes eStolenTech, BuildingTypes eBuilding, UnitTypes eUnit, bool bUnrest, int iValue, bool bRebel);
+#else
 	void AddSpyMessage(int iCityX, int iCityY, PlayerTypes ePlayer, int iSpyResult, TechTypes eStolenTech);
+#endif
 	void ProcessSpyMessages(void);
 
 	void AddIntrigueMessage(PlayerTypes eDiscoveringPlayer, PlayerTypes eSourcePlayer, PlayerTypes eTargetPlayer, BuildingTypes eBuilding, ProjectTypes eProject, CvIntrigueType eIntrigueType, uint uiSpyIndex, CvCity* pCity, bool bShowNotification);
@@ -262,7 +291,11 @@ public:
 	void SetLastProgress(PlayerTypes ePlayer, int iProgress);
 	void SetLastPotential(PlayerTypes ePlayer, int iPotential);
 	void SetLastBasePotential(PlayerTypes ePlayer, int iPotential);
-	void SetSpyResult(PlayerTypes ePlayer, int iResult);
+#if defined(MOD_EVENTS_ESPIONAGE)
+	void SetSpyResult(PlayerTypes eSpyOwner, int iSpyIndex, int iResult);
+#else
+	void SetSpyResulttsp(PlayerTypes ePlayer, int iResult);
+#endif
 
 	bool HasCounterSpy();
 

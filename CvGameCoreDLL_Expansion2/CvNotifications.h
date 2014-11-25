@@ -74,6 +74,7 @@ public:
 		int m_iLookupIndex;     // internal use - identifier to keep the connection between the ui and this system
 		bool m_bNeedsBroadcast; // internal use - have we broadcast this message?
 		bool m_bDismissed;		// internal use - has this message been dismissed?
+		bool m_bWaitExtraTurn;	// Should this wait for an extra turn before it auto-expires?
 	};
 
 	void Activate(Notification& notification);
@@ -82,6 +83,7 @@ public:
 
 	bool IsNotificationExpired(int iIndex);
 	bool IsNotificationEndOfTurnExpired(int iIndex);  // remove it from the end of the turn
+	bool IsNotificationTypeEndOfTurnExpired(NotificationTypes eNotificationType, int iForSpecificEntry = -1);
 
 	static void AddToPlayer(PlayerTypes ePlayer, NotificationTypes eNotificationType, const char* strMessage, const char* strSummary, int iX=-1, int iY=-1, int iGameDataIndex=-1, int iExtraGameData=-1);
 	//---------------------------------------PROTECTED MEMBER VARIABLES---------------------------------

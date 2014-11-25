@@ -172,6 +172,21 @@ void CvBarbarians::BeginTurn()
 			{
 				m_aiPlotBarbCampSpawnCounter[iPlotLoop]--;
 			}
+#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
+			if(pPlot->getPlotCity() != NULL)
+			{
+				//Owned by barbs?
+				if(pPlot->getOwner() == BARBARIAN_PLAYER)
+				{
+					m_aiPlotBarbCampSpawnCounter[iPlotLoop]--;
+				}
+				else
+				{
+					m_aiPlotBarbCampSpawnCounter[iPlotLoop] = -1;
+					m_aiPlotBarbCampNumUnitsSpawned[iPlotLoop] = -1;
+				}
+			}
+#endif
 		}
 
 		// Counter is negative, meaning a camp was cleared here recently and isn't allowed to respawn in the area for a while
@@ -372,7 +387,11 @@ void CvBarbarians::DoCamps()
 				// Plot must be valid (not Water, nonvisible)
 				if(!pLoopPlot->isWater())
 				{
+#if defined(MOD_BALANCE_CORE)
+					if(!pLoopPlot->isImpassable())
+#else
 					if(!pLoopPlot->isImpassable() && !pLoopPlot->isMountain())
+#endif
 					{
 #if defined(MOD_BUGFIX_BARB_CAMP_TERRAINS)
 						CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eCamp);
@@ -669,6 +688,47 @@ void CvBarbarians::DoUnits()
 				DoCampActivationNotice(pLoopPlot);
 			}
 		}
+#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
+		if(pLoopPlot->getPlotCity() != NULL)
+		{
+			if(pLoopPlot->getOwner() == BARBARIAN_PLAYER)
+			{
+				if(ShouldSpawnBarbFromCamp(pLoopPlot))
+				{
+					DoSpawnBarbarianUnit(pLoopPlot, false, false);
+					DoCampActivationNotice(pLoopPlot);
+				}
+			}
+		}
+#endif
+#if defined(MOD_BALANCE_CORE_MILITARY)
+		if(MOD_BALANCE_CORE_MILITARY && (GC.getBALANCE_BARBARIAN_HEAL_RATE() != 0) && pLoopPlot != NULL && pLoopPlot->getNumUnits() > 0)
+		{
+			CvUnit* pUnit = pLoopPlot->getUnitByIndex(0);
+			
+			if(GET_PLAYER(pUnit->getOwner()).isBarbarian() && pUnit->getFortifyTurns() > 0)
+			{
+				if(pUnit->getDamage() > 0)
+				{
+					if(pUnit->getDomainType() == DOMAIN_LAND)
+					{
+						if(pUnit->plot()->getImprovementType() == eCamp)
+						{
+							pUnit->setDamage(pUnit->getDamage() - (GC.getBALANCE_BARBARIAN_HEAL_RATE() * 2));
+						}
+						else
+						{
+							pUnit->setDamage(pUnit->getDamage() - GC.getBALANCE_BARBARIAN_HEAL_RATE());
+						}
+					}
+					if(pUnit->getDomainType() == DOMAIN_SEA)
+					{
+						pUnit->setDamage(pUnit->getDamage() - (GC.getBALANCE_BARBARIAN_HEAL_RATE() / 2));
+					}
+				}
+			}
+		}
+#endif
 	}
 }
 
@@ -693,11 +753,19 @@ void CvBarbarians::DoSpawnBarbarianUnit(CvPlot* pPlot, bool bIgnoreMaxBarbarians
 	if (pPlot && pPlot->GetNumCombatUnits() == 0)
 	{
 		UnitTypes eUnit;
+#if defined(MOD_BALANCE_CORE_MILITARY)
+		eUnit = GetRandomBarbarianUnitType(GC.getMap().getArea(pPlot->getArea()), UNITAI_RANGED);
+#else
 		eUnit = GetRandomBarbarianUnitType(GC.getMap().getArea(pPlot->getArea()), UNITAI_FAST_ATTACK);
+#endif
 
 		if (eUnit != NO_UNIT)
 		{
+#if defined(MOD_BALANCE_CORE_MILITARY)
+			CvUnit* pUnit = GET_PLAYER(BARBARIAN_PLAYER).initUnit(eUnit, pPlot->getX(), pPlot->getY(), UNITAI_RANGED);
+#else
 			CvUnit* pUnit = GET_PLAYER(BARBARIAN_PLAYER).initUnit(eUnit, pPlot->getX(), pPlot->getY(), UNITAI_FAST_ATTACK);
+#endif
 			pUnit->finishMoves();
 			return;
 		}
@@ -749,7 +817,11 @@ void CvBarbarians::DoSpawnBarbarianUnit(CvPlot* pPlot, bool bIgnoreMaxBarbarians
 			{
 				if(pLoopPlot->getNumUnits() == 0)
 				{
+#if defined(MOD_BALANCE_CORE)
+					if(!pLoopPlot->isImpassable())
+#else
 					if(!pLoopPlot->isImpassable() && !pLoopPlot->isMountain())
+#endif
 					{
 						if(!pLoopPlot->isCity())
 						{
@@ -796,6 +868,12 @@ void CvBarbarians::DoSpawnBarbarianUnit(CvPlot* pPlot, bool bIgnoreMaxBarbarians
 				{
 					pUnit->finishMoves();
 				}
+
+#if defined(MOD_BUGFIX_MINOR)
+				// Stop units from plundered trade routes ending up in the ocean
+				if (!pUnit->jumpToNearestValidPlot())
+					pUnit->kill(false);	// Could not find a valid spot!
+#endif
 			}
 		}
 	}

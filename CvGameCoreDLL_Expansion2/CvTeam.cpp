@@ -78,6 +78,11 @@ CvTeam::CvTeam()
 
 	m_pTeamTechs = FNEW(CvTeamTechs, c_eCiv5GameplayDLL, 0);
 
+#if defined(MOD_API_UNIFIED_YIELDS)
+	m_ppaaiFeatureYieldChange = NULL;
+	m_ppaaiTerrainYieldChange = NULL;
+#endif
+
 	m_ppaaiImprovementYieldChange = NULL;
 	m_ppaaiImprovementNoFreshWaterYieldChange = NULL;
 	m_ppaaiImprovementFreshWaterYieldChange = NULL;
@@ -141,6 +146,11 @@ void CvTeam::uninit()
 	m_paiTerrainTradeCount = NULL;
 	m_aiVictoryCountdown = NULL;
 	m_aiForceTeamVoteEligibilityCount = NULL;
+
+#if defined(MOD_API_UNIFIED_YIELDS)
+	m_ppaaiFeatureYieldChange = NULL;
+	m_ppaaiTerrainYieldChange = NULL;
+#endif
 
 	m_ppaaiImprovementYieldChange = NULL;
 	m_ppaaiImprovementNoFreshWaterYieldChange = NULL;
@@ -212,6 +222,9 @@ void CvTeam::uninit()
 		m_aiIgnoreWarningCount[i] = 0;
 		m_abHasMet[i] = false;
 		m_abAtWar[i] = false;
+#if defined(MOD_EVENTS_WAR_AND_PEACE)
+		m_abAggressorPacifier[i] = false;
+#endif
 		m_abPermanentWarPeace[i] = false;
 		m_abEmbassy[i] = false;
 		m_abOpenBorders[i] = false;
@@ -262,6 +275,9 @@ void CvTeam::reset(TeamTypes eID, bool bConstructorCall)
 		int numUnitClassInfos = GC.getNumUnitClassInfos();
 		int numBuildingClassInfos = GC.getNumBuildingClassInfos();
 		int numBuildingInfos = GC.getNumBuildingInfos();
+#if defined(MOD_API_UNIFIED_YIELDS)
+		int numFeatureInfos = GC.getNumFeatureInfos();
+#endif
 		int numTerrainInfos = GC.getNumTerrainInfos();
 		int numImprovementInfos = GC.getNumImprovementInfos();
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
@@ -292,6 +308,12 @@ void CvTeam::reset(TeamTypes eID, bool bConstructorCall)
 			{&m_paiObsoleteBuildingCount,			numBuildingInfos, 0},
 			{&m_paiTerrainTradeCount,				numTerrainInfos, 0},
 			{&m_aiVictoryCountdown,					numVictoryInfos, 0},
+
+#if defined(MOD_API_UNIFIED_YIELDS)
+			// If adding more entries into this strucure, you also need to update CvTeamData in Cvteam.h to match
+			{&m_ppaaiFeatureYieldChange,			numFeatureInfos, NUM_YIELD_TYPES},
+			{&m_ppaaiTerrainYieldChange,			numTerrainInfos, NUM_YIELD_TYPES},
+#endif
 
 			{&m_ppaaiImprovementYieldChange,		numImprovementInfos, NUM_YIELD_TYPES},
 			{&m_ppaaiImprovementNoFreshWaterYieldChange,numImprovementInfos, NUM_YIELD_TYPES},
@@ -357,6 +379,21 @@ void CvTeam::reset(TeamTypes eID, bool bConstructorCall)
 			m_aiNumTurnsAtWar[i] = 0;
 			m_aiNumTurnsLockedIntoWar[i] = 0;
 		}
+
+#if defined(MOD_API_UNIFIED_YIELDS)
+		for(int j = 0; j < NUM_YIELD_TYPES; j++)
+		{
+			for(int i = 0; i < numFeatureInfos; i++)
+			{
+				m_ppaaiFeatureYieldChange[i][j] = 0;
+			}
+
+			for(int i = 0; i < numTerrainInfos; i++)
+			{
+				m_ppaaiTerrainYieldChange[i][j] = 0;
+			}
+		}
+#endif
 
 		for(int i = 0; i < numImprovementInfos; i++)
 		{
@@ -1121,7 +1158,7 @@ void CvTeam::declareWar(TeamTypes eTeam, bool bDefensivePact)
 #endif
 {
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
-	DoDeclareWar(eOriginatingPlayer, eTeam, bDefensivePact);
+	DoDeclareWar(eOriginatingPlayer, true, eTeam, bDefensivePact);
 #else
 	DoDeclareWar(eTeam, bDefensivePact);
 #endif
@@ -1132,9 +1169,9 @@ void CvTeam::declareWar(TeamTypes eTeam, bool bDefensivePact)
 //	-----------------------------------------------------------------------------------------------
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyPact, bool bVassal)
+void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyPact, bool bVassal)
 #else
-void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyPact)
+void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyPact)
 #endif
 #else
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
@@ -1222,7 +1259,7 @@ void CvTeam::DoDeclareWar(TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyP
 				if(GET_TEAM((TeamTypes)iI).IsHasDefensivePact(eTeam))
 				{
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
-					GET_TEAM((TeamTypes)iI).DoDeclareWar(eOriginatingPlayer, GetID(), /*bDefensivePact*/ true);
+					GET_TEAM((TeamTypes)iI).DoDeclareWar(eOriginatingPlayer, !bAggressor, GetID(), /*bDefensivePact*/ true);
 #else
 					GET_TEAM((TeamTypes)iI).DoDeclareWar(GetID(), /*bDefensivePact*/ true);
 #endif
@@ -1243,7 +1280,7 @@ void CvTeam::DoDeclareWar(TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyP
 					if(eHisMaster != GetID())
 					{
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
-						GET_TEAM(GetID()).DoDeclareWar(getLeaderID(), eHisMaster, false);
+						GET_TEAM(GetID()).DoDeclareWar(getLeaderID(), bAggressor, eHisMaster, false);
 #else
 						GET_TEAM(GetID()).DoDeclareWar(eHisMaster, false);
 #endif
@@ -1269,11 +1306,29 @@ void CvTeam::DoDeclareWar(TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyP
 	// Bump Units out of places they shouldn't be
 	GC.getMap().verifyUnitValidPlot();
 
+#if defined(MOD_EVENTS_WAR_AND_PEACE)
+	setAtWar(eTeam, true, bAggressor);
+	GET_TEAM(eTeam).setAtWar(GetID(), true, !bAggressor);
+#else
 	setAtWar(eTeam, true);
 	GET_TEAM(eTeam).setAtWar(GetID(), true);
+#endif
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
 	if (MOD_EVENTS_WAR_AND_PEACE) {
-		GAMEEVENTINVOKE_HOOK(GAMEEVENT_DeclareWar, eOriginatingPlayer, eTeam);
+		GAMEEVENTINVOKE_HOOK(GAMEEVENT_DeclareWar, eOriginatingPlayer, eTeam, bAggressor);
+	} else {
+#endif
+	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+	if (pkScriptSystem)
+	{
+		CvLuaArgsHandle args;
+		args->Push(GetID());
+		args->Push(eTeam);
+
+		bool bResult;
+		LuaSupport::CallHook(pkScriptSystem, "DeclareWar", args.get(), bResult);
+	}
+#if defined(MOD_EVENTS_WAR_AND_PEACE)
 	}
 #endif
 
@@ -1513,7 +1568,7 @@ void CvTeam::DoNowAtWarOrPeace(TeamTypes eTeam, bool bWar)
 					{
 						// Match war state
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
-						GET_TEAM(GET_PLAYER(eMinor).getTeam()).DoDeclareWar(eMinor, eTeam, /*bDefensivePact*/ false, /*bMinorAllyPact*/ true);
+						GET_TEAM(GET_PLAYER(eMinor).getTeam()).DoDeclareWar(eMinor, false, eTeam, /*bDefensivePact*/ false, /*bMinorAllyPact*/ true);
 #else
 						GET_TEAM(GET_PLAYER(eMinor).getTeam()).DoDeclareWar(eTeam, /*bDefensivePact*/ false, /*bMinorAllyPact*/ true);
 #endif
@@ -1580,7 +1635,7 @@ void CvTeam::makePeace(TeamTypes eTeam, bool bBumpUnits, bool bSuppressNotificat
 #endif
 {
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
-	DoMakePeace(eOriginatingPlayer, eTeam, bBumpUnits, bSuppressNotification);
+	DoMakePeace(eOriginatingPlayer, true, eTeam, bBumpUnits, bSuppressNotification);
 #else
 	DoMakePeace(eTeam, bBumpUnits, bSuppressNotification);
 #endif
@@ -1589,7 +1644,7 @@ void CvTeam::makePeace(TeamTypes eTeam, bool bBumpUnits, bool bSuppressNotificat
 //	------------------------------------------------------------------------------------------------
 //	The make peace handler, can be called recursively
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
-void CvTeam::DoMakePeace(PlayerTypes eOriginatingPlayer, TeamTypes eTeam, bool bBumpUnits, bool bSuppressNotification)
+void CvTeam::DoMakePeace(PlayerTypes eOriginatingPlayer, bool bPacifier, TeamTypes eTeam, bool bBumpUnits, bool bSuppressNotification)
 #else
 void CvTeam::DoMakePeace(TeamTypes eTeam, bool bBumpUnits, bool bSuppressNotification)
 #endif
@@ -1602,11 +1657,29 @@ void CvTeam::DoMakePeace(TeamTypes eTeam, bool bBumpUnits, bool bSuppressNotific
 
 	if(isAtWar(eTeam))
 	{
+#if defined(MOD_EVENTS_WAR_AND_PEACE)
+		setAtWar(eTeam, false, bPacifier);
+		GET_TEAM(eTeam).setAtWar(GetID(), false, !bPacifier);
+#else
 		setAtWar(eTeam, false);
 		GET_TEAM(eTeam).setAtWar(GetID(), false);
+#endif
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
 		if (MOD_EVENTS_WAR_AND_PEACE) {
-			GAMEEVENTINVOKE_HOOK(GAMEEVENT_MakePeace, eOriginatingPlayer, eTeam);
+			GAMEEVENTINVOKE_HOOK(GAMEEVENT_MakePeace, eOriginatingPlayer, eTeam, bPacifier);
+		} else {
+#endif
+		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+		if (pkScriptSystem)
+		{
+			CvLuaArgsHandle args;
+			args->Push(GetID());
+			args->Push(eTeam);
+
+			bool bResult;
+			LuaSupport::CallHook(pkScriptSystem, "MakePeace", args.get(), bResult);
+		}
+#if defined(MOD_EVENTS_WAR_AND_PEACE)
 		}
 #endif
 
@@ -1705,7 +1778,7 @@ void CvTeam::DoMakePeace(TeamTypes eTeam, bool bBumpUnits, bool bSuppressNotific
 								if(!GET_PLAYER(eOurMinor).GetMinorCivAI()->IsPermanentWar(eTeamWeMadePeaceWith))
 								{
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
-									GET_TEAM(GET_PLAYER(eOurMinor).getTeam()).DoMakePeace(eOurMinor, eTeamWeMadePeaceWith, /*bBumpUnits*/ true, /*bSuppressNotification*/ true);
+									GET_TEAM(GET_PLAYER(eOurMinor).getTeam()).DoMakePeace(eOurMinor, bPacifier, eTeamWeMadePeaceWith, /*bBumpUnits*/ true, /*bSuppressNotification*/ true);
 #else
 									GET_TEAM(GET_PLAYER(eOurMinor).getTeam()).DoMakePeace(eTeamWeMadePeaceWith, /*bBumpUnits*/ true, /*bSuppressNotification*/ true);
 #endif
@@ -2493,6 +2566,14 @@ bool CvTeam::isMinorCiv() const
 	return bValid;
 }
 
+#if defined(MOD_API_EXTENSIONS)
+//	--------------------------------------------------------------------------------
+bool CvTeam::isMajorCiv() const
+{
+	return !(isMinorCiv() || isBarbarian() || isObserver());
+}
+#endif
+
 //	--------------------------------------------------------------------------------
 /// The number of Minor Civs this player has declared war on
 int CvTeam::GetNumMinorCivsAttacked() const
@@ -3165,6 +3246,30 @@ void CvTeam::changeCityWorkingChange(int iChange)
 {
 	if(iChange != 0)
 	{
+		for (int iPlayer = 0; iPlayer < MAX_PLAYERS; iPlayer++) {
+			CvPlayer& kLoopPlayer = GET_PLAYER((PlayerTypes)iPlayer);
+			if (kLoopPlayer.isAlive()) {
+				if (kLoopPlayer.getTeam() == GetID()) {
+					CvCity* pLoopCity;
+					int iLoop;
+		
+					for (pLoopCity = kLoopPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kLoopPlayer.nextCity(&iLoop)) {
+						int iOldPlots = pLoopCity->GetNumWorkablePlots();
+						int iNewPlots = pLoopCity->GetNumWorkablePlots(iChange);
+			
+						for (int iI = std::min(iOldPlots, iNewPlots); iI < std::max(iOldPlots, iNewPlots); ++iI) {
+							CvPlot* pLoopPlot = plotCity(pLoopCity->getX(), pLoopCity->getY(), iI);
+
+							if (pLoopPlot) {
+								pLoopPlot->changeCityRadiusCount(iChange);
+								pLoopPlot->changePlayerCityRadiusCount(kLoopPlayer.GetID(), iChange);
+							}
+						}
+					}
+				}
+			}
+		}
+
 		m_iCityWorkingChange = (m_iCityWorkingChange + iChange);
 	}
 }
@@ -3761,6 +3866,24 @@ bool CvTeam::SetHasFoundPlayersTerritory(PlayerTypes ePlayer, bool bValue)
 	return false;
 }
 
+#if defined(MOD_EVENTS_WAR_AND_PEACE)
+//	--------------------------------------------------------------------------------
+bool CvTeam::isAggressor(TeamTypes eIndex) const
+{
+	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
+	return (isAtWar(eIndex) && m_abAggressorPacifier[eIndex]);
+}
+
+//	--------------------------------------------------------------------------------
+bool CvTeam::isPacifier(TeamTypes eIndex) const
+{
+	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
+	return (!isAtWar(eIndex) && m_abAggressorPacifier[eIndex]);
+}
+#endif
+
 //	--------------------------------------------------------------------------------
 bool CvTeam::isAtWar(TeamTypes eIndex) const
 {
@@ -3771,13 +3894,24 @@ bool CvTeam::isAtWar(TeamTypes eIndex) const
 
 
 //	--------------------------------------------------------------------------------
+#if defined(MOD_EVENTS_WAR_AND_PEACE)
+void CvTeam::setAtWar(TeamTypes eIndex, bool bNewValue, bool bAggressorPacifier)
+#else
 void CvTeam::setAtWar(TeamTypes eIndex, bool bNewValue)
+#endif
 {
 	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eIndex < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
 	CvAssertMsg(eIndex != GetID() || bNewValue == false, "Team is setting war with itself!");
 	if(eIndex != GetID() || bNewValue == false)
+#if defined(MOD_EVENTS_WAR_AND_PEACE)
+	{
+		m_abAggressorPacifier[eIndex] = bAggressorPacifier;
+#endif
 		m_abAtWar[eIndex] = bNewValue;
+#if defined(MOD_EVENTS_WAR_AND_PEACE)
+	}
+#endif
 
 	gDLL->GameplayWarStateChanged(GetID(), eIndex, bNewValue);
 
@@ -4115,12 +4249,18 @@ void CvTeam::EvacuateDiplomatsAtTeam(TeamTypes eIndex)
 						if(pNotifications)
 						{
 							CvPlayerEspionage* pEspionage = GET_PLAYER(ePlayer1).GetEspionage();
+#if !defined(MOD_BUGFIX_SPY_NAMES)
 							int iSpyName = pEspionage->m_aSpyList[iSpyIndex].m_iName;
+#endif
 							CvSpyRank eSpyRank = pEspionage->m_aSpyList[iSpyIndex].m_eRank;
 							Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_DIPLOMAT_EJECTED");
 							Localization::String strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_DIPLOMAT_EJECTED_TT");
 							strNotification << pEspionage->GetSpyRankName(eSpyRank);
+#if defined(MOD_BUGFIX_SPY_NAMES)
+							strNotification << pEspionage->m_aSpyList[iSpyIndex].GetSpyName(&GET_PLAYER(ePlayer1));
+#else
 							strNotification << GET_PLAYER(ePlayer1).getCivilizationInfo().getSpyNames(iSpyName);
+#endif
 							strNotification << pCapitalCity->getNameKey();
 							pNotifications->Add(NOTIFICATION_SPY_CANT_STEAL_TECH, strNotification.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
 						}
@@ -4885,17 +5025,34 @@ void CvTeam::enhanceBuilding(BuildingTypes eIndex, int iChange)
 						{
 							for(int k = 0; k < NUM_YIELD_TYPES; k++)
 							{
+#if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
 								if((YieldTypes)k == YIELD_CULTURE)
 								{
+#if defined(MOD_BUGFIX_MINOR)
+									int iEnhancedYield = thisBuildingEntry->GetTechEnhancedYieldChange(k) * pLoopCity->GetCityBuildings()->GetNumBuilding(eIndex);
+									pLoopCity->ChangeJONSCulturePerTurnFromBuildings(iEnhancedYield * iChange);
+#else
 									pLoopCity->ChangeJONSCulturePerTurnFromBuildings(thisBuildingEntry->GetTechEnhancedYieldChange(k) * iChange);
+#endif
 								}
 								else if((YieldTypes)k == YIELD_FAITH)
 								{
+#if defined(MOD_BUGFIX_MINOR)
+									int iEnhancedYield = thisBuildingEntry->GetTechEnhancedYieldChange(k) * pLoopCity->GetCityBuildings()->GetNumBuilding(eIndex);
+									pLoopCity->ChangeFaithPerTurnFromBuildings(iEnhancedYield * iChange);
+#else
 									pLoopCity->ChangeFaithPerTurnFromBuildings(thisBuildingEntry->GetTechEnhancedYieldChange(k) * iChange);
+#endif
 								}
 								else
+#endif
 								{
+#if defined(MOD_BUGFIX_MINOR)
+									int iEnhancedYield = thisBuildingEntry->GetTechEnhancedYieldChange(k) * pLoopCity->GetCityBuildings()->GetNumBuilding(eIndex);
+									pLoopCity->ChangeBaseYieldRateFromBuildings(((YieldTypes)k), iEnhancedYield * iChange);
+#else
 									pLoopCity->ChangeBaseYieldRateFromBuildings(((YieldTypes)k), thisBuildingEntry->GetTechEnhancedYieldChange(k) * iChange);
+#endif
 								}
 							}
 						}
@@ -5614,6 +5771,59 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 				//AddNotification(NOTIFICATION_VICTORY, strBuffer, strSummary);
 
 				SetCurrentEra(eNewEra);
+#if defined(MOD_BALANCE_CORE_BELIEFS)
+				for(int iI = 0; iI < MAX_PLAYERS; iI++)
+				{
+					const PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iI);
+					CvPlayerAI& kPlayer = GET_PLAYER(eLoopPlayer);
+					int iEra = kPlayer.GetCurrentEra();
+					if(iEra < 1)
+					{
+						iEra = 1;
+					}
+					if(kPlayer.isAlive() && kPlayer.getTeam() == GetID())
+					{
+						ReligionTypes eReligionFounded = kPlayer.GetReligions()->GetReligionCreatedByPlayer();
+						if(eReligionFounded > RELIGION_PANTHEON)
+						{
+							const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligionFounded, kPlayer.GetID());
+							if(pReligion)
+							{
+								if(pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_FAITH) > 0)
+								{
+									kPlayer.ChangeFaith(pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_FAITH) * iEra);
+								}
+								if(pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_GOLD) > 0)
+								{
+									kPlayer.GetTreasury()->ChangeGold(pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_GOLD) * iEra);
+								}
+								if(pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_CULTURE) > 0)
+								{
+									kPlayer.changeJONSCulture(pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_CULTURE) * iEra);
+								}
+								if(pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_SCIENCE) > 0)
+								{
+									TechTypes eCurrentTech = kPlayer.GetPlayerTechs()->GetCurrentResearch();
+									if(eCurrentTech == NO_TECH)
+									{
+										kPlayer.changeOverflowResearch(pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_SCIENCE) * iEra);
+									}
+									else
+									{
+										GET_TEAM(kPlayer.getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_SCIENCE) * iEra, kPlayer.GetID());
+									}
+								}
+#if defined(MOD_API_UNIFIED_YIELDS_GOLDEN_AGE)
+								if(pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_GOLDEN_AGE_POINTS) > 0)
+								{
+									kPlayer.ChangeGoldenAgeProgressMeter(pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_GOLDEN_AGE_POINTS) * iEra);
+								}
+#endif
+							}
+						}
+					}
+				}
+#endif
 			}
 			// DON'T enter a new era with this tech
 			else
@@ -5709,7 +5919,11 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 
 							if(pCapitalCity != NULL)
 							{
+#if defined(MOD_GLOBAL_TRULY_FREE_GP)
+								pCapitalCity->GetCityCitizens()->DoSpawnGreatPerson(eFreeUnit, true, false, MOD_GLOBAL_TRULY_FREE_GP);
+#else
 								pCapitalCity->GetCityCitizens()->DoSpawnGreatPerson(eFreeUnit, true, false);
+#endif
 							}
 						}
 					}
@@ -5901,48 +6115,6 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 							}
 						}
 #endif
-#if defined(MOD_BALANCE_CORE)
-						for(int iPolicyLoop = 0; iPolicyLoop < GC.getNumPolicyInfos(); iPolicyLoop++)
-						{
-							PolicyTypes pPolicy = (PolicyTypes)iPolicyLoop;
-							CvPolicyEntry* pkPolicyInfo = GC.getPolicyInfo(pPolicy);
-							if(pkPolicyInfo)
-							{
-								if(GET_PLAYER(eLoopPlayer).GetPlayerPolicies()->HasPolicy(pPolicy) && !GET_PLAYER(eLoopPlayer).GetPlayerPolicies()->IsPolicyBlocked(pPolicy))
-								{
-									const int iNumBuildingClassInfos = GC.getNumBuildingClassInfos();
-									CvCivilizationInfo& thisCivilization = GET_PLAYER(eLoopPlayer).getCivilizationInfo();
-									for(int iBuildingClassLoop = 0; iBuildingClassLoop < iNumBuildingClassInfos; iBuildingClassLoop++)
-									{
-										const BuildingClassTypes eBuildingClass = (BuildingClassTypes) iBuildingClassLoop;
-										CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
-										if(!pkBuildingClassInfo)
-										{
-											continue;
-										}
-										//How many cities get free buildings of our choice?
-										if(pLoopCity->IsOwedChosenBuilding(eBuildingClass))
-										{
-											if(pkPolicyInfo->GetFreeChosenBuilding(eBuildingClass) > 0)
-											{
-												const BuildingTypes eFreeBuilding = (BuildingTypes)(thisCivilization.getCivilizationBuildings(eBuildingClass));
-												if(GET_PLAYER(eLoopPlayer).canConstruct(eFreeBuilding) && pLoopCity->isValidBuildingLocation(eFreeBuilding))
-												{
-													pLoopCity->GetCityBuildings()->SetNumFreeBuilding(eFreeBuilding, 1);		
-													GET_PLAYER(eLoopPlayer).ChangeNumCitiesFreeChosenBuilding(eBuildingClass, 1);
-													if(GET_PLAYER(eLoopPlayer).GetNumCitiesFreeChosenBuilding(eBuildingClass) >= (pkPolicyInfo->GetFreeChosenBuilding(eBuildingClass)))
-													{
-														pkPolicyInfo->ChangeFreeChosenBuilding(eBuildingClass, ((GET_PLAYER(eLoopPlayer).GetNumCitiesFreeChosenBuilding(eBuildingClass) * -1)));
-													}
-													pLoopCity->SetOwedChosenBuilding(eBuildingClass, false);
-												}
-											}
-										}
-									}
-								}
-							}
-						}
-#endif
 					}
 				}
 			}
@@ -5991,7 +6163,21 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 		{
 			if(GET_PLAYER((PlayerTypes)iPlayerLoop).isAlive() && GET_PLAYER((PlayerTypes) iPlayerLoop).getTeam() == GetID())
 			{
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+				if(MOD_BALANCE_CORE_HAPPINESS)
+				{
+					if(GET_PLAYER((PlayerTypes) iPlayerLoop).isHuman())
+					{
+						GET_PLAYER((PlayerTypes) iPlayerLoop).CalculateHappiness();
+					}
+				}
+				else
+				{
+#endif
 				GET_PLAYER((PlayerTypes) iPlayerLoop).DoUpdateHappiness();
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+				}
+#endif
 			}
 		}
 
@@ -6031,6 +6217,64 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 		}
 	}
 }
+
+
+#if defined(MOD_API_UNIFIED_YIELDS)
+//	--------------------------------------------------------------------------------
+int CvTeam::getFeatureYieldChange(FeatureTypes eIndex1, YieldTypes eIndex2) const
+{
+	CvAssertMsg(eIndex1 >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex1 < GC.getNumFeatureInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
+	CvAssertMsg(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
+	return m_ppaaiFeatureYieldChange[eIndex1][eIndex2];
+}
+
+//	--------------------------------------------------------------------------------
+void CvTeam::changeFeatureYieldChange(FeatureTypes eIndex1, YieldTypes eIndex2, int iChange)
+{
+	CvAssertMsg(eIndex1 >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex1 < GC.getNumFeatureInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
+	CvAssertMsg(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
+
+	if(iChange != 0)
+	{
+		m_ppaaiFeatureYieldChange[eIndex1][eIndex2] = (m_ppaaiFeatureYieldChange[eIndex1][eIndex2] + iChange);
+		CvAssert(getFeatureYieldChange(eIndex1, eIndex2) >= 0);
+
+		updateYield();
+	}
+}
+
+
+//	--------------------------------------------------------------------------------
+int CvTeam::getTerrainYieldChange(TerrainTypes eIndex1, YieldTypes eIndex2) const
+{
+	CvAssertMsg(eIndex1 >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex1 < GC.getNumTerrainInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
+	CvAssertMsg(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
+	return m_ppaaiTerrainYieldChange[eIndex1][eIndex2];
+}
+
+//	--------------------------------------------------------------------------------
+void CvTeam::changeTerrainYieldChange(TerrainTypes eIndex1, YieldTypes eIndex2, int iChange)
+{
+	CvAssertMsg(eIndex1 >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex1 < GC.getNumTerrainInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
+	CvAssertMsg(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
+
+	if(iChange != 0)
+	{
+		m_ppaaiTerrainYieldChange[eIndex1][eIndex2] = (m_ppaaiTerrainYieldChange[eIndex1][eIndex2] + iChange);
+		CvAssert(getTerrainYieldChange(eIndex1, eIndex2) >= 0);
+
+		updateYield();
+	}
+}
+#endif
 
 
 //	--------------------------------------------------------------------------------
@@ -6309,6 +6553,18 @@ void CvTeam::testCircumnavigated()
 						// Notifications should now be sent via the event
 						// CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_CIRC_GLOBE");
 						// AddNotification(NOTIFICATION_GENERIC, strBuffer, strSummary, -1, -1, -1);
+					} else {
+#endif
+					ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+					if (pkScriptSystem)
+					{
+						CvLuaArgsHandle args;
+						args->Push(eTeamID);
+
+						bool bResult = false;
+						LuaSupport::CallHook(pkScriptSystem, "CircumnavigatedGlobe", args.get(), bResult);
+					}
+#if defined(MOD_EVENTS_CIRCUMNAVIGATION)
 					}
 #endif
 				}
@@ -6474,6 +6730,32 @@ void CvTeam::processTech(TechTypes eTech, int iChange)
 			}
 		}
 	}
+	
+#if defined(MOD_API_UNIFIED_YIELDS)
+	for(iI = 0; iI < GC.getNumFeatureInfos(); iI++)
+	{
+		CvFeatureInfo* pFeatureEntry = GC.getFeatureInfo((FeatureTypes)iI);
+		if(pFeatureEntry)
+		{
+			for(iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
+			{
+				changeFeatureYieldChange(((FeatureTypes)iI), ((YieldTypes)iJ), (pFeatureEntry->GetTechYieldChanges(eTech, iJ) * iChange));
+			}
+		}
+	}
+
+	for(iI = 0; iI < GC.getNumTerrainInfos(); iI++)
+	{
+		CvTerrainInfo* pTerrainEntry = GC.getTerrainInfo((TerrainTypes)iI);
+		if(pTerrainEntry)
+		{
+			for(iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
+			{
+				changeTerrainYieldChange(((TerrainTypes)iI), ((YieldTypes)iJ), (pTerrainEntry->GetTechYieldChanges(eTech, iJ) * iChange));
+			}
+		}
+	}
+#endif
 
 	for(iI = 0; iI < GC.getNumImprovementInfos(); iI++)
 	{
@@ -6540,15 +6822,6 @@ void CvTeam::processTech(TechTypes eTech, int iChange)
 				iUnitClass = kPlayer.GetPlayerTraits()->GetNextFreeUnit();
 			}
 #if defined(MOD_BALANCE_CORE)
-			//Free building unlocked via tech?
-			if(kPlayer.GetPlayerTraits()->GetFreeBuildingPrereqTech() == eTech)
-			{
-				BuildingTypes eFreeBuilding = kPlayer.GetPlayerTraits()->GetFreeBuilding();
-				if(eFreeBuilding != NO_BUILDING)
-				{
-					kPlayer.changeFreeBuildingCount(eFreeBuilding, 1);
-				}
-			}
 			//Free building in capital unlocked via tech?
 			if(kPlayer.GetPlayerTraits()->GetCapitalFreeBuildingPrereqTech() == eTech)
 			{
@@ -6560,6 +6833,66 @@ void CvTeam::processTech(TechTypes eTech, int iChange)
 						kPlayer.getCapitalCity()->GetCityBuildings()->SetNumRealBuilding(eFreeCapitalBuilding, 0);
 					}
 					kPlayer.getCapitalCity()->GetCityBuildings()->SetNumFreeBuilding(eFreeCapitalBuilding, 1);
+				}
+			}
+#endif
+#if defined(MOD_BALANCE_CORE)
+			// Free buildings (once unlocked via tech)
+			CvCity* pLoopCity;
+			CvCivilizationInfo& thisCiv = kPlayer.getCivilizationInfo();
+			for(iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
+			{
+				CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo((BuildingClassTypes)iI);
+				if(!pkBuildingClassInfo)
+				{
+					continue;
+				}
+				
+				if(kPlayer.GetNumCitiesFreeChosenBuilding((BuildingClassTypes)iI) > 0)
+				{
+					BuildingTypes eBuilding = ((BuildingTypes)(thisCiv.getCivilizationBuildings(iI)));
+
+					if(eBuilding != NO_BUILDING)
+					{
+						CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+						if(pkBuildingInfo)
+						{
+							int iLoop;
+							for(pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
+							{
+								if(pLoopCity->isValidBuildingLocation(eBuilding))
+								{
+									if(kPlayer.GetNumCitiesFreeChosenBuilding((BuildingClassTypes)iI) > 0)
+									{
+										pLoopCity->GetCityBuildings()->SetNumFreeBuilding(eBuilding, 1);
+										if(pLoopCity->GetCityBuildings()->GetNumFreeBuilding(eBuilding) > 0)
+										{
+											kPlayer.ChangeNumCitiesFreeChosenBuilding((BuildingClassTypes)iI, -1);
+										}
+										if(pLoopCity->getFirstBuildingOrder(eBuilding) == 0)
+										{
+											pLoopCity->clearOrderQueue();
+											pLoopCity->chooseProduction();
+											// Send a notification to the user that what they were building was given to them, and they need to produce something else.
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+#endif
+#if defined(MOD_BALANCE_CORE_POLICIES)
+			if(kPlayer.getYieldFromTech(YIELD_CULTURE) > 0)
+			{
+				kPlayer.changeJONSCulture(kPlayer.getYieldFromTech(YIELD_CULTURE));
+				if(kPlayer.GetID() == GC.getGame().getActivePlayer())
+				{
+					char text[256] = {0};
+					float fDelay = 0.0f;
+					sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", kPlayer.getYieldFromTech(YIELD_CULTURE));
+					DLLUI->AddPopupText(kPlayer.getCapitalCity()->getX(),kPlayer.getCapitalCity()->getY(), text, fDelay);
 				}
 			}
 #endif
@@ -6943,6 +7276,7 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 								kPlayer.GetEspionage()->CreateSpy();
 							}
 						}
+
 						for(int i = 0; i < pEraInfo->getSpiesGrantedForPlayer(); i++)
 						{
 							kPlayer.GetEspionage()->CreateSpy();
@@ -7125,9 +7459,20 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 		{
 			DLLUI->setDirty(Soundtrack_DIRTY_BIT, true);
 		}
+
+		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+		if(pkScriptSystem)
+		{
+			CvLuaArgsHandle args;
+			args->Push(GetID());
+			args->Push(GetCurrentEra());
+			
+			bool bResult = false;
+			LuaSupport::CallHook(pkScriptSystem, "TeamSetEra", args.get(), bResult);
+		}
 		
-#if defined(MOD_DIPLOMACY_CITYSTATES_DIFFICULTY)
-		if(MOD_DIPLOMACY_CITYSTATES_DIFFICULTY && !isMinorCiv() && (GC.getCSD_GAME_DIFFICULTY_MULTIPLIER() > 0))
+#if defined(MOD_BALANCE_CORE_DIFFICULTY)
+		if(MOD_BALANCE_CORE_DIFFICULTY && !isMinorCiv() && (GC.getBALANCE_GAME_DIFFICULTY_MULTIPLIER() > 0))
 		{
 			CvString strHandicapType = GC.getGame().getHandicapInfo().GetType();
 
@@ -7140,41 +7485,7 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 					CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
 					if(!kPlayer.isHuman() && !kPlayer.isMinorCiv() && !kPlayer.isBarbarian() && kPlayer.isAlive() && kPlayer.getTeam() == GetID())
 					{
-						CvCivilizationInfo& playerCivilizationInfo = kPlayer.getCivilizationInfo();
-						for(int iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
-						{
-							const UnitClassTypes eUnitClass = static_cast<UnitClassTypes>(iI);
-							CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eUnitClass);
-							if(pkUnitClassInfo)
-							{
-								const UnitTypes eLoopUnit = (UnitTypes) playerCivilizationInfo.getCivilizationUnits(iI);
-
-								if(eLoopUnit != NO_UNIT)
-								{
-									CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eLoopUnit);
-									if(pkUnitInfo && pkUnitInfo->GetDefaultUnitAIType() == UNITAI_ATTACK && kPlayer.getCapitalCity()->canTrain(eLoopUnit))
-									{
-										int iUnitMax = 0;
-										if(iUnitMax >= GC.getCSD_GAME_DIFFICULTY_MULTIPLIER())
-										{
-											break;
-										}
-										CvUnit* pNewUnit = kPlayer.initUnit(eLoopUnit, kPlayer.getCapitalCity()->getX(), kPlayer.getCapitalCity()->getY(), UNITAI_ATTACK);
-										bool bJumpSuccess = pNewUnit->jumpToNearestValidPlot();
-										if (!bJumpSuccess)
-										{
-											pNewUnit->kill(false);
-											break;
-										}
-										iUnitMax++;
-									}
-								}
-							}
-						}
-						EraTypes eMedieval = (EraTypes) GC.getInfoTypeForString("ERA_MEDIEVAL", true);
-						EraTypes eIndustrial = (EraTypes) GC.getInfoTypeForString("ERA_INDUSTRIAL", true);
-
-						if(eNewValue == eMedieval || eNewValue == eIndustrial)
+						if(kPlayer.getCapitalCity() != NULL)
 						{
 							CvCivilizationInfo& playerCivilizationInfo = kPlayer.getCivilizationInfo();
 							for(int iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
@@ -7188,72 +7499,111 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 									if(eLoopUnit != NO_UNIT)
 									{
 										CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eLoopUnit);
-										if(pkUnitInfo && pkUnitInfo->GetDefaultUnitAIType() == UNITAI_WORKER && kPlayer.getCapitalCity()->canTrain(eLoopUnit))
+
+										if(pkUnitInfo && pkUnitInfo->GetDefaultUnitAIType() == UNITAI_ATTACK && kPlayer.getCapitalCity()->canTrain(eLoopUnit))
 										{
-											CvUnit* pNewUnit = kPlayer.initUnit(eLoopUnit, kPlayer.getCapitalCity()->getX(), kPlayer.getCapitalCity()->getY(), UNITAI_WORKER);
+											int iUnitMax = 0;
+											if(iUnitMax >= GC.getBALANCE_GAME_DIFFICULTY_MULTIPLIER())
+											{
+												break;
+											}
+											CvUnit* pNewUnit = kPlayer.initUnit(eLoopUnit, kPlayer.getCapitalCity()->getX(), kPlayer.getCapitalCity()->getY(), UNITAI_ATTACK);
 											bool bJumpSuccess = pNewUnit->jumpToNearestValidPlot();
 											if (!bJumpSuccess)
 											{
 												pNewUnit->kill(false);
 												break;
 											}
-											break;
+											iUnitMax++;
 										}
 									}
 								}
 							}
-						}
+							EraTypes eMedieval = (EraTypes) GC.getInfoTypeForString("ERA_MEDIEVAL", true);
+							EraTypes eIndustrial = (EraTypes) GC.getInfoTypeForString("ERA_INDUSTRIAL", true);
 
-						EraTypes eRenaissance = (EraTypes) GC.getInfoTypeForString("ERA_RENAISSANCE", true);
-						EraTypes eClassical = (EraTypes) GC.getInfoTypeForString("ERA_CLASSICAL", true);
-
-						if(eNewValue == eClassical || eNewValue == eRenaissance)
-						{
-							CvCivilizationInfo& playerCivilizationInfo = kPlayer.getCivilizationInfo();
-							for(int iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
+							if(eNewValue == eMedieval || eNewValue == eIndustrial)
 							{
-								const UnitClassTypes eUnitClass = static_cast<UnitClassTypes>(iI);
-								CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eUnitClass);
-								if(pkUnitClassInfo)
+								CvCivilizationInfo& playerCivilizationInfo = kPlayer.getCivilizationInfo();
+								for(int iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
 								{
-									const UnitTypes eLoopUnit = (UnitTypes) playerCivilizationInfo.getCivilizationUnits(iI);
-
-									if(eLoopUnit != NO_UNIT)
+									const UnitClassTypes eUnitClass = static_cast<UnitClassTypes>(iI);
+									CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eUnitClass);
+									if(pkUnitClassInfo)
 									{
-										CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eLoopUnit);
-										if(pkUnitInfo && pkUnitInfo->GetDefaultUnitAIType() == UNITAI_EXPLORE && kPlayer.getCapitalCity()->canTrain(eLoopUnit))
+										const UnitTypes eLoopUnit = (UnitTypes) playerCivilizationInfo.getCivilizationUnits(iI);
+
+										if(eLoopUnit != NO_UNIT)
 										{
-											CvUnit* pNewUnit = kPlayer.initUnit(eLoopUnit, kPlayer.getCapitalCity()->getX(), kPlayer.getCapitalCity()->getY(), UNITAI_EXPLORE);
-											bool bJumpSuccess = pNewUnit->jumpToNearestValidPlot();
-											if (!bJumpSuccess)
+											CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eLoopUnit);
+											if(pkUnitInfo && pkUnitInfo->GetDefaultUnitAIType() == UNITAI_WORKER && kPlayer.getCapitalCity()->canTrain(eLoopUnit))
 											{
-												pNewUnit->kill(false);
+												CvUnit* pNewUnit = kPlayer.initUnit(eLoopUnit, kPlayer.getCapitalCity()->getX(), kPlayer.getCapitalCity()->getY(), UNITAI_WORKER);
+												bool bJumpSuccess = pNewUnit->jumpToNearestValidPlot();
+												if (!bJumpSuccess)
+												{
+													pNewUnit->kill(false);
+													break;
+												}
 												break;
 											}
-											break;
 										}
 									}
 								}
 							}
-						}
 
-						kPlayer.getCapitalCity()->ChangeUnmoddedHappinessFromBuildings(GC.getCSD_GAME_DIFFICULTY_MULTIPLIER());
-						kPlayer.GetTreasury()->ChangeGold(GC.getCSD_GAME_DIFFICULTY_MULTIPLIER() * kPlayer.GetCurrentEra() * 100);
-						kPlayer.ChangeGoldenAgeProgressMeter(GC.getCSD_GAME_DIFFICULTY_MULTIPLIER() * kPlayer.GetCurrentEra() * 40);
-						kPlayer.changeJONSCulture(GC.getCSD_GAME_DIFFICULTY_MULTIPLIER() * kPlayer.GetCurrentEra() * 40);
+							EraTypes eRenaissance = (EraTypes) GC.getInfoTypeForString("ERA_RENAISSANCE", true);
+							EraTypes eClassical = (EraTypes) GC.getInfoTypeForString("ERA_CLASSICAL", true);
 
-						int iBeakersBonus = kPlayer.GetScienceYieldFromPreviousTurns(GC.getGame().getGameTurn(), (GC.getCSD_GAME_DIFFICULTY_MULTIPLIER() + (kPlayer.GetCurrentEra())));
-						
-						if(iBeakersBonus > 0)
-						{
-							TechTypes eCurrentTech = kPlayer.GetPlayerTechs()->GetCurrentResearch();
-							if(eCurrentTech == NO_TECH)
+							if(eNewValue == eClassical || eNewValue == eRenaissance)
 							{
-								kPlayer.changeOverflowResearch(iBeakersBonus);
+								CvCivilizationInfo& playerCivilizationInfo = kPlayer.getCivilizationInfo();
+								for(int iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
+								{
+									const UnitClassTypes eUnitClass = static_cast<UnitClassTypes>(iI);
+									CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eUnitClass);
+									if(pkUnitClassInfo)
+									{
+										const UnitTypes eLoopUnit = (UnitTypes) playerCivilizationInfo.getCivilizationUnits(iI);
+
+										if(eLoopUnit != NO_UNIT)
+										{
+											CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eLoopUnit);
+
+											if(pkUnitInfo && pkUnitInfo->GetDefaultUnitAIType() == UNITAI_EXPLORE && kPlayer.getCapitalCity()->canTrain(eLoopUnit))
+											{
+												CvUnit* pNewUnit = kPlayer.initUnit(eLoopUnit, kPlayer.getCapitalCity()->getX(), kPlayer.getCapitalCity()->getY(), UNITAI_EXPLORE);
+												bool bJumpSuccess = pNewUnit->jumpToNearestValidPlot();
+												if (!bJumpSuccess)
+												{
+													pNewUnit->kill(false);
+													break;
+												}
+												break;
+											}
+										}
+									}
+								}
 							}
-							else
+
+							kPlayer.getCapitalCity()->ChangeUnmoddedHappinessFromBuildings(GC.getBALANCE_GAME_DIFFICULTY_MULTIPLIER());
+							kPlayer.GetTreasury()->ChangeGold(GC.getBALANCE_GAME_DIFFICULTY_MULTIPLIER() * kPlayer.GetCurrentEra() * 100);
+							kPlayer.ChangeGoldenAgeProgressMeter(GC.getBALANCE_GAME_DIFFICULTY_MULTIPLIER() * kPlayer.GetCurrentEra() * 40);
+							kPlayer.changeJONSCulture(GC.getBALANCE_GAME_DIFFICULTY_MULTIPLIER() * kPlayer.GetCurrentEra() * 40);
+
+							int iBeakersBonus = kPlayer.GetScienceYieldFromPreviousTurns(GC.getGame().getGameTurn(), (GC.getBALANCE_GAME_DIFFICULTY_MULTIPLIER() + (kPlayer.GetCurrentEra())));
+							
+							if(iBeakersBonus > 0)
 							{
-								GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iBeakersBonus, ePlayer);
+								TechTypes eCurrentTech = kPlayer.GetPlayerTechs()->GetCurrentResearch();
+								if(eCurrentTech == NO_TECH)
+								{
+									kPlayer.changeOverflowResearch(iBeakersBonus);
+								}
+								else
+								{
+									GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iBeakersBonus, ePlayer);
+								}
 							}
 						}
 					}
@@ -7265,6 +7615,19 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 #if defined(MOD_EVENTS_NEW_ERA)
 		if (MOD_EVENTS_NEW_ERA && GetCurrentEra() != GC.getGame().getStartEra()) {
 			GAMEEVENTINVOKE_HOOK(GAMEEVENT_TeamSetEra, GetID(), GetCurrentEra(), ((GetID() < MAX_MAJOR_CIVS) && !bAlreadyProvided));
+		} else {
+#endif
+		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+		if(pkScriptSystem)
+		{
+			CvLuaArgsHandle args;
+			args->Push(GetID());
+			args->Push(GetCurrentEra());
+			
+			bool bResult = false;
+			LuaSupport::CallHook(pkScriptSystem, "TeamSetEra", args.get(), bResult);
+		}
+#if defined(MOD_EVENTS_NEW_ERA)
 		}
 #endif
 	}
@@ -7469,6 +7832,11 @@ void CvTeam::Read(FDataStream& kStream)
 	ArrayWrapper<bool> kAtWarWrapper(MAX_TEAMS, &m_abAtWar[0]);
 	kStream >> kAtWarWrapper;
 
+#if defined(MOD_EVENTS_WAR_AND_PEACE)
+	ArrayWrapper<bool> kAggressorPacifierWrapper(MAX_TEAMS, &m_abAggressorPacifier[0]);
+	kStream >> kAggressorPacifierWrapper;
+#endif
+
 	ArrayWrapper<bool> kPermanentWarWrapper(MAX_TEAMS, &m_abPermanentWarPeace[0]);
 	kStream >> kPermanentWarWrapper;
 
@@ -7545,6 +7913,11 @@ void CvTeam::Read(FDataStream& kStream)
 
 	m_pTeamTechs->Read(kStream);
 
+#if defined(MOD_API_UNIFIED_YIELDS)
+	FeatureArrayHelpers::ReadYieldArray(kStream, m_ppaaiFeatureYieldChange, NUM_YIELD_TYPES);
+	TerrainArrayHelpers::ReadYieldArray(kStream, m_ppaaiTerrainYieldChange, NUM_YIELD_TYPES);
+#endif
+
 	ImprovementArrayHelpers::ReadYieldArray(kStream, m_ppaaiImprovementYieldChange, NUM_YIELD_TYPES);
 	ImprovementArrayHelpers::ReadYieldArray(kStream, m_ppaaiImprovementNoFreshWaterYieldChange, NUM_YIELD_TYPES);
 	ImprovementArrayHelpers::ReadYieldArray(kStream, m_ppaaiImprovementFreshWaterYieldChange, NUM_YIELD_TYPES);
@@ -7566,6 +7939,9 @@ void CvTeam::Read(FDataStream& kStream)
 	{
 		m_abAtWar[m_eID] = false;
 		m_aiNumTurnsAtWar[m_eID] = 0;
+#if defined(MOD_EVENTS_WAR_AND_PEACE)
+		m_abAggressorPacifier[m_eID] = false;
+#endif
 	}
 }
 
@@ -7640,6 +8016,9 @@ void CvTeam::Write(FDataStream& kStream) const
 	kStream << ArrayWrapperConst<bool>(MAX_TEAMS, &m_abHasMet[0]);
 	kStream << ArrayWrapperConst<bool>(MAX_PLAYERS, &m_abHasFoundPlayersTerritory[0]);
 	kStream << ArrayWrapperConst<bool>(MAX_TEAMS, &m_abAtWar[0]);
+#if defined(MOD_EVENTS_WAR_AND_PEACE)
+	kStream << ArrayWrapperConst<bool>(MAX_TEAMS, &m_abAggressorPacifier[0]);
+#endif
 	kStream << ArrayWrapperConst<bool>(MAX_TEAMS, &m_abPermanentWarPeace[0]);
 	kStream << ArrayWrapperConst<bool>(MAX_TEAMS, &m_abEmbassy[0]);
 	kStream << ArrayWrapperConst<bool>(MAX_TEAMS, &m_abOpenBorders[0]);
@@ -7682,6 +8061,11 @@ void CvTeam::Write(FDataStream& kStream) const
 	kStream << ArrayWrapperConst<int>(MAX_CIV_TEAMS, &m_aiTurnTeamMet[0]);
 
 	m_pTeamTechs->Write(kStream);
+
+#if defined(MOD_API_UNIFIED_YIELDS)
+	FeatureArrayHelpers::WriteYieldArray(kStream, m_ppaaiFeatureYieldChange, GC.getNumFeatureInfos());
+	TerrainArrayHelpers::WriteYieldArray(kStream, m_ppaaiTerrainYieldChange, GC.getNumTerrainInfos());
+#endif
 
 	int iNumImprovements = GC.getNumImprovementInfos();
 	ImprovementArrayHelpers::WriteYieldArray(kStream, m_ppaaiImprovementYieldChange, iNumImprovements);
@@ -8021,7 +8405,21 @@ void CvTeam::DoEndVassal(TeamTypes eTeam, bool bPeaceful, bool bSuppressNotifica
 		{
 			if(GET_PLAYER((PlayerTypes)iPlayerLoop).isAlive() && GET_PLAYER((PlayerTypes) iPlayerLoop).getTeam() == GetID())
 			{
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+				if(MOD_BALANCE_CORE_HAPPINESS)
+				{
+					if(GET_PLAYER((PlayerTypes) iPlayerLoop).isHuman())
+					{
+						GET_PLAYER((PlayerTypes) iPlayerLoop).CalculateHappiness();
+					}
+				}
+				else
+				{
+#endif
 				GET_PLAYER((PlayerTypes) iPlayerLoop).DoUpdateHappiness();
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+				}
+#endif
 			}
 		}
 
@@ -8113,7 +8511,7 @@ void CvTeam::DoUpdateVassalWarPeaceRelationships()
 		{
 			if(!isAtWar(eTeam))
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
-				DoDeclareWar(getLeaderID(), eTeam, false, false, true);
+				DoDeclareWar(getLeaderID(), GET_TEAM(eMaster).isAggressor(eTeam), eTeam, false, false, true);
 #else
 				DoDeclareWar(eTeam, false, false, true);
 #endif
@@ -8123,7 +8521,7 @@ void CvTeam::DoUpdateVassalWarPeaceRelationships()
 		{
 			if(isAtWar(eTeam))
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
-				DoMakePeace(getLeaderID(), eTeam, true);
+				DoMakePeace(getLeaderID(), GET_TEAM(eMaster).isPacifier(eTeam), eTeam, true);
 #else
 				DoMakePeace(eTeam, true);
 #endif
@@ -8307,7 +8705,21 @@ void CvTeam::DoBecomeVassal(TeamTypes eTeam, bool bVoluntary)
 	{
 		if(GET_PLAYER((PlayerTypes)iPlayerLoop).isAlive() && GET_PLAYER((PlayerTypes) iPlayerLoop).getTeam() == GetID())
 		{
-			GET_PLAYER((PlayerTypes) iPlayerLoop).DoUpdateHappiness();
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+			if(MOD_BALANCE_CORE_HAPPINESS)
+			{
+				if(GET_PLAYER((PlayerTypes) iPlayerLoop).isHuman())
+				{
+					GET_PLAYER((PlayerTypes) iPlayerLoop).CalculateHappiness();
+				}
+			}
+			else
+			{
+#endif
+				GET_PLAYER((PlayerTypes) iPlayerLoop).DoUpdateHappiness();
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+			}
+#endif
 		}
 	}
 

@@ -170,6 +170,21 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_bAbleToAnnexCityStates(false),
 	m_bOneShot(false),
 	m_bIncludesOneShotFreeUnits(false),
+#if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
+	m_iPovertyHappinessChangePolicy(0),
+	m_iDefenseHappinessChangePolicy(0),
+	m_iUnculturedHappinessChangePolicy(0),
+	m_iIlliteracyHappinessChangePolicy(0),
+	m_iMinorityHappinessChangePolicy(0),
+	m_iPovertyHappinessChangePolicyCapital(0),
+	m_iDefenseHappinessChangePolicyCapital(0),
+	m_iUnculturedHappinessChangePolicyCapital(0),
+	m_iIlliteracyHappinessChangePolicyCapital(0),
+	m_iMinorityHappinessChangePolicyCapital(0),
+	m_iPuppetUnhappinessModPolicy(0),
+	m_iNoUnhappfromXSpecialists(0),
+	m_iNoUnhappfromXSpecialistsCapital(0),
+#endif
 	m_piPrereqOrPolicies(NULL),
 	m_piPrereqAndPolicies(NULL),
 	m_piPolicyDisables(NULL),
@@ -195,16 +210,59 @@ CvPolicyEntry::CvPolicyEntry(void):
 #if defined(MOD_BALANCE_CORE)
 	m_paiFreeChosenBuilding(NULL),
 #endif
+#if defined(MOD_BALANCE_CORE_POLICIES)
+	m_piYieldFromBirth(NULL),
+	m_piYieldFromBirthCapital(NULL),
+	m_piYieldFromConstruction(NULL),
+	m_piYieldFromTech(NULL),
+	m_bNoUnhappinessExpansion(false),
+	m_bNoUnhappyIsolation(false),
+	m_bDoubleBorderGA(false),
+	m_bDoubleQuestInfluence(false),
+	m_iInternalTradeGold(0),
+	m_iCitadelBoost(0),
+	m_iFreeWCVotes(0),
+	m_iInfluenceGPExpend(0),
+	m_iFreeTradeRoute(0),
+	m_iFreeSpy(0),
+	m_piYieldFromBorderGrowth(NULL),
+	m_piYieldGPExpend(NULL),
+	m_iGarrisonsOccupiedUnhapppinessMod(0),
+	m_iTradeReligionModifier(0),
+	m_iBestRangedUnitSpawnSettle(0),
+	m_iFreePopulation(0),
+	m_iExtraMoves(0),
+	m_piConquerorYield(NULL),
+	m_piReligionYieldMod(NULL),
+	m_ppiReligionBuildingYieldMod(NULL),
+#endif
 	m_ppiImprovementYieldChanges(NULL),
-	m_ppiBuildingClassYieldModifiers(NULL),
-	m_ppiBuildingClassYieldChanges(NULL),
-#if defined(MOD_BALANCE_CORE_YIELDS)
+#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
 	m_ppiPlotYieldChanges(NULL),
 #endif
+#if defined(MOD_API_UNIFIED_YIELDS)
+	m_ppiFeatureYieldChanges(NULL),
+	m_ppiCityYieldFromUnimprovedFeature(NULL),
+	m_ppiUnimprovedFeatureYieldChanges(NULL),
+	m_ppiResourceYieldChanges(NULL),
+	m_ppiTerrainYieldChanges(NULL),
+	m_ppiTradeRouteYieldChange(NULL),
+	m_ppiSpecialistYieldChanges(NULL),
+	m_ppiGreatPersonExpendedYield(NULL),
+	m_piGoldenAgeGreatPersonRateModifier(NULL),
+	m_piYieldFromKills(NULL),
+	m_piYieldFromBarbarianKills(NULL),
+	m_piYieldChangeTradeRoute(NULL),
+	m_piYieldChangesNaturalWonder(NULL),
+	m_piYieldChangeWorldWonder(NULL),
+#endif
+	m_ppiBuildingClassYieldModifiers(NULL),
+	m_ppiBuildingClassYieldChanges(NULL),
 	m_piFlavorValue(NULL),
 	m_eFreeBuildingOnConquest(NO_BUILDING)
 {
 }
+
 /// Destructor
 CvPolicyEntry::~CvPolicyEntry(void)
 {
@@ -235,13 +293,39 @@ CvPolicyEntry::~CvPolicyEntry(void)
 #if defined(MOD_BALANCE_CORE)
 	SAFE_DELETE_ARRAY(m_paiFreeChosenBuilding);
 #endif
-
+#if defined(MOD_BALANCE_CORE_POLICIES)
+	SAFE_DELETE_ARRAY(m_piYieldFromBirth);
+	SAFE_DELETE_ARRAY(m_piYieldFromBirthCapital);
+	SAFE_DELETE_ARRAY(m_piYieldFromConstruction);
+	SAFE_DELETE_ARRAY(m_piYieldFromTech);
+	SAFE_DELETE_ARRAY(m_piYieldFromBorderGrowth);
+	SAFE_DELETE_ARRAY(m_piYieldGPExpend);
+	SAFE_DELETE_ARRAY(m_piConquerorYield);
+	SAFE_DELETE_ARRAY(m_piReligionYieldMod);
+	CvDatabaseUtility::SafeDelete2DArray(m_ppiReligionBuildingYieldMod);
+#endif
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiImprovementYieldChanges);
-	CvDatabaseUtility::SafeDelete2DArray(m_ppiBuildingClassYieldModifiers);
-	CvDatabaseUtility::SafeDelete2DArray(m_ppiBuildingClassYieldChanges);
-#if defined(MOD_BALANCE_CORE_YIELDS)
+#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiPlotYieldChanges);
 #endif
+#if defined(MOD_API_UNIFIED_YIELDS)
+	CvDatabaseUtility::SafeDelete2DArray(m_ppiFeatureYieldChanges);
+	CvDatabaseUtility::SafeDelete2DArray(m_ppiCityYieldFromUnimprovedFeature);
+	CvDatabaseUtility::SafeDelete2DArray(m_ppiUnimprovedFeatureYieldChanges);
+	CvDatabaseUtility::SafeDelete2DArray(m_ppiResourceYieldChanges);
+	CvDatabaseUtility::SafeDelete2DArray(m_ppiTerrainYieldChanges);
+	CvDatabaseUtility::SafeDelete2DArray(m_ppiTradeRouteYieldChange);
+	CvDatabaseUtility::SafeDelete2DArray(m_ppiSpecialistYieldChanges);
+	CvDatabaseUtility::SafeDelete2DArray(m_ppiGreatPersonExpendedYield);
+	SAFE_DELETE_ARRAY(m_piGoldenAgeGreatPersonRateModifier);
+	SAFE_DELETE_ARRAY(m_piYieldFromKills);
+	SAFE_DELETE_ARRAY(m_piYieldFromBarbarianKills);
+	SAFE_DELETE_ARRAY(m_piYieldChangeTradeRoute);
+	SAFE_DELETE_ARRAY(m_piYieldChangesNaturalWonder);
+	SAFE_DELETE_ARRAY(m_piYieldChangeWorldWonder);
+#endif
+	CvDatabaseUtility::SafeDelete2DArray(m_ppiBuildingClassYieldModifiers);
+	CvDatabaseUtility::SafeDelete2DArray(m_ppiBuildingClassYieldChanges);
 }
 
 /// Read from XML file (pass 1)
@@ -401,7 +485,38 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_bAbleToAnnexCityStates = kResults.GetBool("AbleToAnnexCityStates");
 	m_bOneShot = kResults.GetBool("OneShot");
 	m_bIncludesOneShotFreeUnits = kResults.GetBool("IncludesOneShotFreeUnits");
-
+#if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
+	m_iPovertyHappinessChangePolicy = kResults.GetInt("PovertyHappinessMod");
+	m_iDefenseHappinessChangePolicy = kResults.GetInt("DefenseHappinessMod");
+	m_iUnculturedHappinessChangePolicy = kResults.GetInt("UnculturedHappinessMod");
+	m_iIlliteracyHappinessChangePolicy = kResults.GetInt("IlliteracyHappinessMod");
+	m_iMinorityHappinessChangePolicy = kResults.GetInt("MinorityHappinessMod");
+	m_iPovertyHappinessChangePolicyCapital = kResults.GetInt("PovertyHappinessModCapital");
+	m_iDefenseHappinessChangePolicyCapital = kResults.GetInt("DefenseHappinessModCapital");
+	m_iUnculturedHappinessChangePolicyCapital = kResults.GetInt("UnculturedHappinessModCapital");
+	m_iIlliteracyHappinessChangePolicyCapital = kResults.GetInt("IlliteracyHappinessModCapital");
+	m_iMinorityHappinessChangePolicyCapital = kResults.GetInt("MinorityHappinessModCapital");
+	m_iPuppetUnhappinessModPolicy = kResults.GetInt("PuppetUnhappinessModPolicy");
+	m_iNoUnhappfromXSpecialists = kResults.GetInt("NoUnhappfromXSpecialists");
+	m_iNoUnhappfromXSpecialistsCapital = kResults.GetInt("NoUnhappfromXSpecialistsCapital");
+#endif
+#if defined(MOD_BALANCE_CORE_POLICIES)
+	m_iGarrisonsOccupiedUnhapppinessMod = kResults.GetInt("GarrisonsOccupiedUnhapppinessMod");
+	m_iTradeReligionModifier = kResults.GetInt("TradeReligionModifier");
+	m_iBestRangedUnitSpawnSettle = kResults.GetInt("BestRangedUnitSpawnSettle");
+	m_iFreePopulation = kResults.GetInt("FreePopulation");
+	m_iExtraMoves = kResults.GetInt("ExtraMoves");
+	m_bNoUnhappinessExpansion = kResults.GetBool("NoUnhappinessExpansion");
+	m_bNoUnhappyIsolation = kResults.GetBool("NoUnhappyIsolation");
+	m_bDoubleBorderGA = kResults.GetBool("DoubleBorderGA");
+	m_bDoubleQuestInfluence = kResults.GetBool("DoubleQuestInfluence");
+	m_iInternalTradeGold = kResults.GetInt("InternalTradeGold");
+	m_iCitadelBoost = kResults.GetInt("CitadelBoost");
+	m_iFreeWCVotes = kResults.GetInt("FreeWCVotes");
+	m_iInfluenceGPExpend = kResults.GetInt("InfluenceGPExpend");
+	m_iFreeTradeRoute = kResults.GetInt("FreeTradeRoute");
+	m_iFreeSpy = kResults.GetInt("FreeSpy");
+#endif
 	m_strWeLoveTheKingKey = kResults.GetText("WeLoveTheKing");
 	m_wstrWeLoveTheKing = GetLocalizedText(m_strWeLoveTheKingKey);
 
@@ -430,7 +545,16 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	kUtility.SetYields(m_piCapitalYieldModifier, "Policy_CapitalYieldModifiers", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piGreatWorkYieldChange, "Policy_GreatWorkYieldChanges", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piSpecialistExtraYield, "Policy_SpecialistExtraYields", "PolicyType", szPolicyType);
-
+#if defined(MOD_BALANCE_CORE_POLICIES)
+	kUtility.SetYields(m_piYieldFromBirth, "Policy_YieldFromBirth", "PolicyType", szPolicyType);
+	kUtility.SetYields(m_piYieldFromBirthCapital, "Policy_YieldFromBirthCapital", "PolicyType", szPolicyType);
+	kUtility.SetYields(m_piYieldFromConstruction, "Policy_YieldFromConstruction", "PolicyType", szPolicyType);
+	kUtility.SetYields(m_piYieldFromTech, "Policy_YieldFromTech", "PolicyType", szPolicyType);
+	kUtility.SetYields(m_piYieldFromBorderGrowth, "Policy_YieldFromBorderGrowth", "PolicyType", szPolicyType);
+	kUtility.SetYields(m_piYieldGPExpend, "Policy_YieldGPExpend", "PolicyType", szPolicyType);
+	kUtility.SetYields(m_piConquerorYield, "Policy_ConquerorYield", "PolicyType", szPolicyType);
+	kUtility.SetYields(m_piReligionYieldMod, "Policy_ReligionYieldMod", "PolicyType", szPolicyType);
+#endif
 	kUtility.SetFlavors(m_piFlavorValue, "Policy_Flavors", "PolicyType", szPolicyType);
 
 	kUtility.PopulateArrayByValue(m_paiHurryModifier, "HurryInfos", "Policy_HurryModifiers", "HurryType", "PolicyType", szPolicyType, "HurryCostModifier");
@@ -523,6 +647,256 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 			m_ppiImprovementYieldChanges[ImprovementID][YieldID] = yield;
 		}
 	}
+#if defined(MOD_BALANCE_CORE_POLICIES)
+	//ReligionBuildingYieldMod
+	{
+		kUtility.Initialize2DArray(m_ppiReligionBuildingYieldMod, "BuildingClasses", "Yields");
+
+		std::string strKey("Policy_ReligionBuildingYieldMod");
+		Database::Results* pResults = kUtility.GetResults(strKey);
+		if(pResults == NULL)
+		{
+			pResults = kUtility.PrepareResults(strKey, "select BuildingClasses.ID as BuildingClassID, Yields.ID as YieldID, YieldMod from Policy_ReligionBuildingYieldMod inner join BuildingClasses on BuildingClasses.Type = BuildingClassType inner join Yields on Yields.Type = YieldType where PolicyType = ?");
+		}
+
+		pResults->Bind(1, szPolicyType);
+
+		while(pResults->Step())
+		{
+			const int BuildingClassID = pResults->GetInt(0);
+			const int iYieldID = pResults->GetInt(1);
+			const int iYieldMod = pResults->GetInt(2);
+
+			m_ppiReligionBuildingYieldMod[BuildingClassID][iYieldID] = iYieldMod;
+		}
+	}
+#endif
+#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
+	//PlotYieldChanges
+	if (MOD_API_UNIFIED_YIELDS && MOD_API_PLOT_YIELDS)
+	{
+		kUtility.Initialize2DArray(m_ppiPlotYieldChanges, "Plots", "Yields");
+
+		std::string strKey("Policy_PlotYieldChanges");
+		Database::Results* pResults = kUtility.GetResults(strKey);
+		if(pResults == NULL)
+		{
+			pResults = kUtility.PrepareResults(strKey, "select Plots.ID as PlotID, Yields.ID as YieldID, Yield from Policy_PlotYieldChanges inner join Plots on Plots.Type = PlotType inner join Yields on Yields.Type = YieldType where PolicyType = ?");
+		}
+
+		pResults->Bind(1, szPolicyType);
+
+		while(pResults->Step())
+		{
+			const int PlotID = pResults->GetInt(0);
+			const int YieldID = pResults->GetInt(1);
+			const int yield = pResults->GetInt(2);
+
+			m_ppiPlotYieldChanges[PlotID][YieldID] = yield;
+		}
+	}
+#endif
+
+#if defined(MOD_API_UNIFIED_YIELDS)
+	//FeatureYieldChanges
+	if (MOD_API_UNIFIED_YIELDS)
+	{
+		kUtility.Initialize2DArray(m_ppiFeatureYieldChanges, "Features", "Yields");
+
+		std::string strKey("Policy_FeatureYieldChanges");
+		Database::Results* pResults = kUtility.GetResults(strKey);
+		if(pResults == NULL)
+		{
+			pResults = kUtility.PrepareResults(strKey, "select Features.ID as FeatureID, Yields.ID as YieldID, Yield from Policy_FeatureYieldChanges inner join Features on Features.Type = FeatureType inner join Yields on Yields.Type = YieldType where PolicyType = ?");
+		}
+
+		pResults->Bind(1, szPolicyType);
+
+		while(pResults->Step())
+		{
+			const int FeatureID = pResults->GetInt(0);
+			const int YieldID = pResults->GetInt(1);
+			const int yield = pResults->GetInt(2);
+
+			m_ppiFeatureYieldChanges[FeatureID][YieldID] = yield;
+		}
+	}
+	
+	//CityYieldFromUnimprovedFeature
+	if (MOD_API_UNIFIED_YIELDS)
+	{
+		kUtility.Initialize2DArray(m_ppiCityYieldFromUnimprovedFeature, "Features", "Yields");
+
+		std::string strKey("Policy_CityYieldFromUnimprovedFeature");
+		Database::Results* pResults = kUtility.GetResults(strKey);
+		if(pResults == NULL)
+		{
+			pResults = kUtility.PrepareResults(strKey, "select Features.ID as FeatureID, Yields.ID as YieldID, Yield from Policy_CityYieldFromUnimprovedFeature inner join Features on Features.Type = FeatureType inner join Yields on Yields.Type = YieldType where PolicyType = ?");
+		}
+
+		pResults->Bind(1, szPolicyType);
+
+		while(pResults->Step())
+		{
+			const int FeatureID = pResults->GetInt(0);
+			const int YieldID = pResults->GetInt(1);
+			const int yield = pResults->GetInt(2);
+
+			m_ppiCityYieldFromUnimprovedFeature[FeatureID][YieldID] = yield;
+		}
+	}
+	
+	//UnimprovedFeatureYieldChanges
+	if (MOD_API_UNIFIED_YIELDS)
+	{
+		kUtility.Initialize2DArray(m_ppiUnimprovedFeatureYieldChanges, "Features", "Yields");
+
+		std::string strKey("Policy_UnimprovedFeatureYieldChanges");
+		Database::Results* pResults = kUtility.GetResults(strKey);
+		if(pResults == NULL)
+		{
+			pResults = kUtility.PrepareResults(strKey, "select Features.ID as FeatureID, Yields.ID as YieldID, Yield from Policy_UnimprovedFeatureYieldChanges inner join Features on Features.Type = FeatureType inner join Yields on Yields.Type = YieldType where PolicyType = ?");
+		}
+
+		pResults->Bind(1, szPolicyType);
+
+		while(pResults->Step())
+		{
+			const int FeatureID = pResults->GetInt(0);
+			const int YieldID = pResults->GetInt(1);
+			const int yield = pResults->GetInt(2);
+
+			m_ppiUnimprovedFeatureYieldChanges[FeatureID][YieldID] = yield;
+		}
+	}
+	
+	//ResourceYieldChanges
+	if (MOD_API_UNIFIED_YIELDS)
+	{
+		kUtility.Initialize2DArray(m_ppiResourceYieldChanges, "Resources", "Yields");
+
+		std::string strKey("Policy_ResourceYieldChanges");
+		Database::Results* pResults = kUtility.GetResults(strKey);
+		if(pResults == NULL)
+		{
+			pResults = kUtility.PrepareResults(strKey, "select Resources.ID as ResourceID, Yields.ID as YieldID, Yield from Policy_ResourceYieldChanges inner join Resources on Resources.Type = ResourceType inner join Yields on Yields.Type = YieldType where PolicyType = ?");
+		}
+
+		pResults->Bind(1, szPolicyType);
+
+		while(pResults->Step())
+		{
+			const int ResourceID = pResults->GetInt(0);
+			const int YieldID = pResults->GetInt(1);
+			const int yield = pResults->GetInt(2);
+
+			m_ppiResourceYieldChanges[ResourceID][YieldID] = yield;
+		}
+	}
+	
+	//TerrainYieldChanges
+	if (MOD_API_UNIFIED_YIELDS)
+	{
+		kUtility.Initialize2DArray(m_ppiTerrainYieldChanges, "Terrains", "Yields");
+
+		std::string strKey("Policy_TerrainYieldChanges");
+		Database::Results* pResults = kUtility.GetResults(strKey);
+		if(pResults == NULL)
+		{
+			pResults = kUtility.PrepareResults(strKey, "select Terrains.ID as TerrainID, Yields.ID as YieldID, Yield from Policy_TerrainYieldChanges inner join Terrains on Terrains.Type = TerrainType inner join Yields on Yields.Type = YieldType where PolicyType = ?");
+		}
+
+		pResults->Bind(1, szPolicyType);
+
+		while(pResults->Step())
+		{
+			const int TerrainID = pResults->GetInt(0);
+			const int YieldID = pResults->GetInt(1);
+			const int yield = pResults->GetInt(2);
+
+			m_ppiTerrainYieldChanges[TerrainID][YieldID] = yield;
+		}
+	}
+	
+	//TradeRouteYieldChange
+	if (MOD_API_UNIFIED_YIELDS)
+	{
+		kUtility.Initialize2DArray(m_ppiTradeRouteYieldChange, "Domains", "Yields");
+
+		std::string strKey("Policy_TradeRouteYieldChange");
+		Database::Results* pResults = kUtility.GetResults(strKey);
+		if(pResults == NULL)
+		{
+			pResults = kUtility.PrepareResults(strKey, "select Domains.ID as DomainID, Yields.ID as YieldID, Yield from Policy_TradeRouteYieldChange inner join Domains on Domains.Type = DomainType inner join Yields on Yields.Type = YieldType where PolicyType = ?");
+		}
+
+		pResults->Bind(1, szPolicyType);
+
+		while(pResults->Step())
+		{
+			const int DomainID = pResults->GetInt(0);
+			const int YieldID = pResults->GetInt(1);
+			const int yield = pResults->GetInt(2);
+
+			m_ppiTradeRouteYieldChange[DomainID][YieldID] = yield;
+		}
+	}
+	
+	//SpecialistYieldChanges
+	if (MOD_API_UNIFIED_YIELDS)
+	{
+		kUtility.Initialize2DArray(m_ppiSpecialistYieldChanges, "Specialists", "Yields");
+
+		std::string strKey("Policy_SpecialistYieldChanges");
+		Database::Results* pResults = kUtility.GetResults(strKey);
+		if(pResults == NULL)
+		{
+			pResults = kUtility.PrepareResults(strKey, "select Specialists.ID as SpecialistID, Yields.ID as YieldID, Yield from Policy_SpecialistYieldChanges inner join Specialists on Specialists.Type = SpecialistType inner join Yields on Yields.Type = YieldType where PolicyType = ?");
+		}
+
+		pResults->Bind(1, szPolicyType);
+
+		while(pResults->Step())
+		{
+			const int SpecialistID = pResults->GetInt(0);
+			const int YieldID = pResults->GetInt(1);
+			const int yield = pResults->GetInt(2);
+
+			m_ppiSpecialistYieldChanges[SpecialistID][YieldID] = yield;
+		}
+	}
+	
+	//GreatPersonExpendedYield
+	if (MOD_API_UNIFIED_YIELDS)
+	{
+		kUtility.Initialize2DArray(m_ppiGreatPersonExpendedYield, "GreatPersons", "Yields");
+
+		std::string strKey("Policy_GreatPersonExpendedYield");
+		Database::Results* pResults = kUtility.GetResults(strKey);
+		if(pResults == NULL)
+		{
+			pResults = kUtility.PrepareResults(strKey, "select GreatPersons.ID as GreatPersonID, Yields.ID as YieldID, Yield from Policy_GreatPersonExpendedYield inner join GreatPersons on GreatPersons.Type = GreatPersonType inner join Yields on Yields.Type = YieldType where PolicyType = ?");
+		}
+
+		pResults->Bind(1, szPolicyType);
+
+		while(pResults->Step())
+		{
+			const int GreatPersonID = pResults->GetInt(0);
+			const int YieldID = pResults->GetInt(1);
+			const int yield = pResults->GetInt(2);
+
+			m_ppiGreatPersonExpendedYield[GreatPersonID][YieldID] = yield;
+		}
+	}
+	
+	kUtility.PopulateArrayByValue(m_piGoldenAgeGreatPersonRateModifier, "GreatPersons", "Policy_GoldenAgeGreatPersonRateModifier", "GreatPersonType", "PolicyType", szPolicyType, "Modifier");
+	kUtility.SetYields(m_piYieldFromKills, "Policy_YieldFromKills", "PolicyType", szPolicyType);
+	kUtility.SetYields(m_piYieldFromBarbarianKills, "Policy_YieldFromBarbarianKills", "PolicyType", szPolicyType);
+	kUtility.SetYields(m_piYieldChangeTradeRoute, "Policy_YieldChangeTradeRoute", "PolicyType", szPolicyType);
+	kUtility.SetYields(m_piYieldChangesNaturalWonder, "Policy_YieldChangesNaturalWonder", "PolicyType", szPolicyType);
+	kUtility.SetYields(m_piYieldChangeWorldWonder, "Policy_YieldChangeWorldWonder", "PolicyType", szPolicyType);
+#endif
 
 	//ImprovementCultureChanges
 	kUtility.PopulateArrayByValue(m_piImprovementCultureChange, "Improvements", "Policy_ImprovementCultureChanges", "ImprovementType", "PolicyType", szPolicyType, "CultureChange");
@@ -549,33 +923,6 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 
 		pResults->Reset();
 	}
-#if defined(MOD_BALANCE_CORE_YIELDS)
-	if(MOD_BALANCE_CORE_YIELDS)
-	{
-		//PlotYieldChanges
-		{
-			kUtility.Initialize2DArray(m_ppiPlotYieldChanges, "Plots", "Yields");
-
-			std::string strKey("Policy_PlotYieldChanges");
-			Database::Results* pResults = kUtility.GetResults(strKey);
-			if(pResults == NULL)
-			{
-				pResults = kUtility.PrepareResults(strKey, "select Plots.ID as PlotID, Yields.ID as YieldID, Yield from Policy_PlotYieldChanges inner join Plots on Plots.Type = PlotType inner join Yields on Yields.Type = YieldType where PolicyType = ?");
-			}
-
-			pResults->Bind(1, szPolicyType);
-
-			while(pResults->Step())
-			{
-				const int PlotsID = pResults->GetInt(0);
-				const int YieldID = pResults->GetInt(1);
-				const int yield = pResults->GetInt(2);
-
-				m_ppiPlotYieldChanges[PlotsID][YieldID] = yield;
-			}
-		}
-	}
-#endif
 
 	//AndPreReqs
 	{
@@ -649,6 +996,56 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 
 		pResults->Reset();
 	}
+
+#if defined(MOD_RELIGION_POLICY_BRANCH_FAITH_GP)
+	//FaithPurchaseUnitClasses
+	if (MOD_RELIGION_POLICY_BRANCH_FAITH_GP)
+	{
+		m_FaithPurchaseUnitClasses.clear();
+
+		std::string sqlKey1 = "m_FaithPurchaseUnitClasses1";
+		Database::Results* pResults1 = kUtility.GetResults(sqlKey1);
+		if(pResults1 == NULL)
+		{
+			const char* szSQL = "select u.ID, -1 from Policy_FaithPurchaseUnitClasses p, UnitClasses u where p.PolicyType = ? and p.UnitClassType = u.Type and p.EraType is null;";
+			pResults1 = kUtility.PrepareResults(sqlKey1, szSQL);
+		}
+
+		pResults1->Bind(1, szPolicyType, false);
+
+		while(pResults1->Step())
+		{
+			const int UnitClassID = pResults1->GetInt(0);
+			const int EraID = pResults1->GetInt(1);
+
+			m_FaithPurchaseUnitClasses.insert(std::pair<int, int>(UnitClassID, EraID));
+		}
+
+		std::string sqlKey2 = "m_FaithPurchaseUnitClasses2";
+		Database::Results* pResults2 = kUtility.GetResults(sqlKey2);
+		if(pResults2 == NULL)
+		{
+			const char* szSQL = "select u.ID, e.ID from Policy_FaithPurchaseUnitClasses p, UnitClasses u, Eras e where p.PolicyType = ? and p.UnitClassType = u.Type and p.EraType = e.Type;";
+			pResults2 = kUtility.PrepareResults(sqlKey2, szSQL);
+		}
+
+		pResults2->Bind(1, szPolicyType, false);
+
+		while(pResults2->Step())
+		{
+			const int UnitClassID = pResults2->GetInt(0);
+			const int EraID = pResults2->GetInt(1);
+
+			m_FaithPurchaseUnitClasses.insert(std::pair<int, int>(UnitClassID, EraID));
+		}
+
+		//Trim capacity
+		std::multimap<int, int>(m_FaithPurchaseUnitClasses).swap(m_FaithPurchaseUnitClasses);
+
+		pResults1->Reset();
+		pResults2->Reset();
+	}
+#endif
 
 	return true;
 }
@@ -1516,6 +1913,60 @@ bool CvPolicyEntry::IncludesOneShotFreeUnits() const
 {
 	return m_bIncludesOneShotFreeUnits;
 }
+#if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
+int CvPolicyEntry::GetPovertyHappinessChangePolicy() const
+{
+	return m_iPovertyHappinessChangePolicy;
+}
+int CvPolicyEntry::GetDefenseHappinessChangePolicy() const
+{
+	return m_iDefenseHappinessChangePolicy;
+}
+int CvPolicyEntry::GetUnculturedHappinessChangePolicy() const
+{
+	return m_iUnculturedHappinessChangePolicy;
+}
+int CvPolicyEntry::GetIlliteracyHappinessChangePolicy() const
+{
+	return m_iIlliteracyHappinessChangePolicy;
+}
+int CvPolicyEntry::GetMinorityHappinessChangePolicy() const
+{
+	return m_iMinorityHappinessChangePolicy;
+}
+int CvPolicyEntry::GetPovertyHappinessChangePolicyCapital() const
+{
+	return m_iPovertyHappinessChangePolicyCapital;
+}
+int CvPolicyEntry::GetDefenseHappinessChangePolicyCapital() const
+{
+	return m_iDefenseHappinessChangePolicyCapital;
+}
+int CvPolicyEntry::GetUnculturedHappinessChangePolicyCapital() const
+{
+	return m_iUnculturedHappinessChangePolicyCapital;
+}
+int CvPolicyEntry::GetIlliteracyHappinessChangePolicyCapital() const
+{
+	return m_iIlliteracyHappinessChangePolicyCapital;
+}
+int CvPolicyEntry::GetMinorityHappinessChangePolicyCapital() const
+{
+	return m_iMinorityHappinessChangePolicyCapital;
+}
+int CvPolicyEntry::GetPuppetUnhappinessMod() const
+{
+	return m_iPuppetUnhappinessModPolicy;
+}
+int CvPolicyEntry::GetNoUnhappfromXSpecialists() const
+{
+	return m_iNoUnhappfromXSpecialists;
+}
+int CvPolicyEntry::GetNoUnhappfromXSpecialistsCapital() const
+{
+	return m_iNoUnhappfromXSpecialistsCapital;
+}
+#endif
 
 /// Return "We Love the King" day text
 const char* CvPolicyEntry::GetWeLoveTheKing()
@@ -1696,6 +2147,29 @@ bool CvPolicyEntry::IsFreePromotionUnitCombat(const int promotionID, const int u
 	return false;
 }
 
+#if defined(MOD_RELIGION_POLICY_BRANCH_FAITH_GP)
+bool CvPolicyEntry::HasFaithPurchaseUnitClasses() const
+{
+	return (m_FaithPurchaseUnitClasses.size() != 0);
+}
+
+bool CvPolicyEntry::IsFaithPurchaseUnitClass(const int eUnitClass, const int eCurrentEra) const
+{
+	std::multimap<int, int>::const_iterator it = m_FaithPurchaseUnitClasses.find(eUnitClass);
+	if (it != m_FaithPurchaseUnitClasses.end())
+	{
+		const int eRequiredEra = it->second;
+		
+		if (eRequiredEra == NO_ERA || eCurrentEra >= eRequiredEra)
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+#endif
+
 /// Free experience by unit type
 int CvPolicyEntry::GetUnitCombatFreeExperiences(int i) const
 {
@@ -1759,22 +2233,164 @@ bool CvPolicyEntry::IsSpecialistValid(int i) const
 	CvAssertMsg(i > -1, "Index out of bounds");
 	return m_pabSpecialistValid ? m_pabSpecialistValid[i] : false;
 }
-
 #if defined(MOD_BALANCE_CORE)
 /// Does this Policy grant a free building?
 int CvPolicyEntry::GetFreeChosenBuilding(int i) const
 {
 	CvAssertMsg(i < GC.getNumBuildingClassInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_paiFreeChosenBuilding[i];
+	return m_paiFreeChosenBuilding ? m_paiFreeChosenBuilding[i] : -1;
 }
 void CvPolicyEntry::ChangeFreeChosenBuilding(int i, int iChange)
 {
 	if(iChange != 0)
+	{
 		m_paiFreeChosenBuilding[i] += iChange;
+	}
 }
 #endif
-
+#if defined(MOD_BALANCE_CORE_POLICIES)
+/// Does this Policy grant yields from citizen birth?
+int CvPolicyEntry::GetYieldFromBirth(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piYieldFromBirth[i];
+}
+/// Does this Policy grant yields from citizen birth in the Capital?
+int CvPolicyEntry::GetYieldFromBirthCapital(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piYieldFromBirthCapital[i];
+}
+/// Does this Policy grant yields from constructing buildings?
+int CvPolicyEntry::GetYieldFromConstruction(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piYieldFromConstruction[i];
+}
+/// Does this Policy grant yields from researching techs?
+int CvPolicyEntry::GetYieldFromTech(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piYieldFromTech[i];
+}
+/// Does this Policy negate expansion unhappiness?
+bool CvPolicyEntry::GetNoUnhappinessExpansion() const
+{
+	return m_bNoUnhappinessExpansion;
+}
+/// Does this Policy negate isolation unhappiness?
+bool CvPolicyEntry::GetNoUnhappyIsolation() const
+{
+	return m_bNoUnhappyIsolation;
+}
+/// Does this Policy generate double border growth during GAs?
+bool CvPolicyEntry::GetDoubleBorderGA() const
+{
+	return m_bDoubleBorderGA;
+}
+/// Double influence from quests?
+bool CvPolicyEntry::GetDoubleQuestInfluence() const
+{
+	return m_bDoubleQuestInfluence;
+}
+/// Citadel Boost?
+int CvPolicyEntry::GetCitadelBoost() const
+{
+	return m_iCitadelBoost;
+}
+/// Gold from internal trade routes?
+int CvPolicyEntry::GetInternalTradeGold() const
+{
+	return m_iInternalTradeGold;
+}
+//Free WC Votes?
+int CvPolicyEntry::GetFreeWCVotes() const
+{
+	return m_iFreeWCVotes;
+}
+//Influence from GP expenditure?
+int CvPolicyEntry::GetInfluenceGPExpend() const
+{
+	return m_iInfluenceGPExpend;
+}
+//Free Trade Route?
+int CvPolicyEntry::GetFreeTradeRoute() const
+{
+	return m_iFreeTradeRoute;
+}
+//Free Spy?
+int CvPolicyEntry::GetFreeSpy() const
+{
+	return m_iFreeSpy;
+}
+/// Does this Policy grant yields from border growth?
+int CvPolicyEntry::GetYieldFromBorderGrowth(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piYieldFromBorderGrowth[i];
+}
+/// Does this Policy grant yields from expending GPs?
+int CvPolicyEntry::GetYieldGPExpend(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piYieldGPExpend[i];
+}
+/// Does this Policy grant unhappiness reduction from garrisons?
+int CvPolicyEntry::GetGarrisonsOccupiedUnhapppinessMod() const
+{
+	return m_iGarrisonsOccupiedUnhapppinessMod;
+}
+/// Does this Policy grant religios pressure from trade?
+int CvPolicyEntry::GetTradeReligionModifier() const
+{
+	return m_iTradeReligionModifier;
+}
+/// Does this Policy grant a free ranged unit upon settling?
+int CvPolicyEntry::GetBestRangedUnitSpawnSettle() const
+{
+	return m_iBestRangedUnitSpawnSettle;
+}
+/// Does this Policy grant free population?
+int CvPolicyEntry::GetFreePopulation() const
+{
+	return m_iFreePopulation;
+}
+/// Does this Policy grant free moves?
+int CvPolicyEntry::GetExtraMoves() const
+{
+	return m_iExtraMoves;
+}
+/// Does this Policy grant yields from conquering cities?
+int CvPolicyEntry::GetConquerorYield(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piConquerorYield[i];
+}
+/// Does this Policy boost yields from having your religion in the city?
+int CvPolicyEntry::GetReligionYieldMod(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piReligionYieldMod[i];
+}
+/// Does this Policy boost building yields from having your religion in the city?
+int CvPolicyEntry::GetReligionBuildingYieldMod(int i, int j) const
+{
+	CvAssertMsg(i < GC.getNumBuildingClassInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	CvAssertMsg(j < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(j > -1, "Index out of bounds");
+	return m_ppiReligionBuildingYieldMod[i][j];
+}
+#endif
 /// Yield modifier for a specific improvement by yield type
 int CvPolicyEntry::GetImprovementYieldChanges(int i, int j) const
 {
@@ -1784,15 +2400,161 @@ int CvPolicyEntry::GetImprovementYieldChanges(int i, int j) const
 	CvAssertMsg(j > -1, "Index out of bounds");
 	return m_ppiImprovementYieldChanges[i][j];
 }
-#if defined(MOD_BALANCE_CORE_YIELDS)
+
+#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
 /// Yield modifier for a specific plot by yield type
 int CvPolicyEntry::GetPlotYieldChanges(int i, int j) const
 {
-	CvAssertMsg(i < GC.getNumPlotInfos(), "Index out of bounds");
+	if (MOD_API_PLOT_YIELDS) {
+		CvAssertMsg(i < GC.getNumPlotInfos(), "Index out of bounds");
+		CvAssertMsg(i > -1, "Index out of bounds");
+		CvAssertMsg(j < NUM_YIELD_TYPES, "Index out of bounds");
+		CvAssertMsg(j > -1, "Index out of bounds");
+		return m_ppiPlotYieldChanges[i][j];
+	} else {
+		return 0;
+	}
+}
+#endif
+
+#if defined(MOD_API_UNIFIED_YIELDS)
+int CvPolicyEntry::GetFeatureYieldChanges(int i, int j) const
+{
+	CvAssertMsg(i < GC.getNumFeatureInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	CvAssertMsg(j < NUM_PLOT_TYPES, "Index out of bounds");
+	CvAssertMsg(j < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(j > -1, "Index out of bounds");
-	return m_ppiPlotYieldChanges[i][j];
+	return m_ppiFeatureYieldChanges[i][j];
+}
+
+int CvPolicyEntry::GetCityYieldFromUnimprovedFeature(int i, int j) const
+{
+	CvAssertMsg(i < GC.getNumFeatureInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	CvAssertMsg(j < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(j > -1, "Index out of bounds");
+	return m_ppiCityYieldFromUnimprovedFeature[i][j];
+}
+
+int CvPolicyEntry::GetUnimprovedFeatureYieldChanges(int i, int j) const
+{
+	CvAssertMsg(i < GC.getNumFeatureInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	CvAssertMsg(j < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(j > -1, "Index out of bounds");
+	return m_ppiUnimprovedFeatureYieldChanges[i][j];
+}
+
+int CvPolicyEntry::GetResourceYieldChanges(int i, int j) const
+{
+	CvAssertMsg(i < GC.getNumResourceInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	CvAssertMsg(j < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(j > -1, "Index out of bounds");
+	return m_ppiResourceYieldChanges[i][j];
+}
+
+int CvPolicyEntry::GetTerrainYieldChanges(int i, int j) const
+{
+	CvAssertMsg(i < GC.getNumTerrainInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	CvAssertMsg(j < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(j > -1, "Index out of bounds");
+	return m_ppiTerrainYieldChanges[i][j];
+}
+
+int CvPolicyEntry::GetTradeRouteYieldChange(int i, int j) const
+{
+	CvAssertMsg(i < GC.getNumDomainInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	CvAssertMsg(j < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(j > -1, "Index out of bounds");
+	return m_ppiTradeRouteYieldChange[i][j];
+}
+
+int CvPolicyEntry::GetSpecialistYieldChanges(int i, int j) const
+{
+	CvAssertMsg(i < GC.getNumSpecialistInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	CvAssertMsg(j < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(j > -1, "Index out of bounds");
+	return m_ppiSpecialistYieldChanges[i][j];
+}
+
+int CvPolicyEntry::GetGreatPersonExpendedYield(int i, int j) const
+{
+	CvAssertMsg(i < GC.getNumGreatPersonInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	CvAssertMsg(j < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(j > -1, "Index out of bounds");
+	return m_ppiGreatPersonExpendedYield[i][j];
+}
+
+int CvPolicyEntry::GetGoldenAgeGreatPersonRateModifier(int i) const
+{
+	CvAssertMsg(i < GC.getNumGreatPersonInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piGoldenAgeGreatPersonRateModifier ? m_piGoldenAgeGreatPersonRateModifier[i] : 0;
+}
+
+int CvPolicyEntry::GetYieldFromKills(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piYieldFromKills ? m_piYieldFromKills[i] : 0;
+}
+
+int* CvPolicyEntry::GetYieldFromKillsArray() const
+{
+	return m_piYieldFromKills;
+}
+
+int CvPolicyEntry::GetYieldFromBarbarianKills(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piYieldFromBarbarianKills ? m_piYieldFromBarbarianKills[i] : 0;
+}
+
+int* CvPolicyEntry::GetYieldFromBarbarianKillsArray() const
+{
+	return m_piYieldFromBarbarianKills;
+}
+
+int CvPolicyEntry::GetYieldChangeTradeRoute(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piYieldChangeTradeRoute ? m_piYieldChangeTradeRoute[i] : 0;
+}
+
+int* CvPolicyEntry::GetYieldChangeTradeRouteArray() const
+{
+	return m_piYieldChangeTradeRoute;
+}
+
+int CvPolicyEntry::GetYieldChangesNaturalWonder(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piYieldChangesNaturalWonder ? m_piYieldChangesNaturalWonder[i] : 0;
+}
+
+int* CvPolicyEntry::GetYieldChangesNaturalWonderArray() const
+{
+	return m_piYieldChangesNaturalWonder;
+}
+
+int CvPolicyEntry::GetYieldChangeWorldWonder(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piYieldChangeWorldWonder ? m_piYieldChangeWorldWonder[i] : 0;
+}
+
+int* CvPolicyEntry::GetYieldChangeWorldWonderArray() const
+{
+	return m_piYieldChangeWorldWonder;
 }
 #endif
 
@@ -2725,7 +3487,24 @@ int CvPlayerPolicies::GetBuildingClassYieldChange(BuildingClassTypes eBuildingCl
 
 	return rtnValue;
 }
+#if defined(MOD_BALANCE_CORE_POLICIES)
+/// Get yield modifier from policies for a specific building class if your religion is present
+int CvPlayerPolicies::GetReligionBuildingClassYieldModifier(BuildingClassTypes eBuildingClass, YieldTypes eYieldType)
+{
+	int rtnValue = 0;
 
+	for(int i = 0; i < m_pPolicies->GetNumPolicies(); i++)
+	{
+		// Do we have this policy?
+		if(m_pabHasPolicy[i] && !IsPolicyBlocked((PolicyTypes)i))
+		{
+			rtnValue += m_pPolicies->GetPolicyEntry(i)->GetReligionBuildingYieldMod(eBuildingClass, eYieldType);
+		}
+	}
+
+	return rtnValue;
+}
+#endif
 /// Get culture change from policies for a specific improvement
 int CvPlayerPolicies::GetImprovementCultureChange(ImprovementTypes eImprovement)
 {
@@ -3173,6 +3952,50 @@ void CvPlayerPolicies::DoUnlockPolicyBranch(PolicyBranchTypes eBranchType)
 	{
 		GC.GetEngineUserInterface()->setDirty(Policies_DIRTY_BIT, true);
 	}
+
+#if defined(MOD_BALANCE_CORE_BELIEFS)
+	ReligionTypes eReligionFounded = GetPlayer()->GetReligions()->GetReligionCreatedByPlayer();
+	if(eReligionFounded > RELIGION_PANTHEON)
+	{
+		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligionFounded, GetPlayer()->GetID());
+		if(pReligion)
+		{
+			int iEra = GC.getGame().getCurrentEra();
+			if(iEra < 1)
+			{
+				iEra = 1;
+			}
+			if(pReligion->m_Beliefs.GetYieldFromPolicyUnlock(YIELD_FAITH) > 0)
+			{
+				GetPlayer()->ChangeFaith(pReligion->m_Beliefs.GetYieldFromPolicyUnlock(YIELD_FAITH) * iEra);
+			}
+			if(pReligion->m_Beliefs.GetYieldFromPolicyUnlock(YIELD_GOLD) > 0)
+			{
+				GetPlayer()->GetTreasury()->ChangeGold(pReligion->m_Beliefs.GetYieldFromPolicyUnlock(YIELD_GOLD) * iEra);
+			}
+			if(pReligion->m_Beliefs.GetYieldFromPolicyUnlock(YIELD_SCIENCE) > 0)
+			{
+				TechTypes eCurrentTech = GetPlayer()->GetPlayerTechs()->GetCurrentResearch();
+				if(eCurrentTech == NO_TECH)
+				{
+					GetPlayer()->changeOverflowResearch(pReligion->m_Beliefs.GetYieldFromPolicyUnlock(YIELD_SCIENCE) * iEra);
+				}
+				else
+				{
+					GET_TEAM(GET_PLAYER(GetPlayer()->GetID()).getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, pReligion->m_Beliefs.GetYieldFromPolicyUnlock(YIELD_SCIENCE) * iEra, GetPlayer()->GetID());
+				}
+			}
+			if(pReligion->m_Beliefs.GetYieldFromPolicyUnlock(YIELD_CULTURE) > 0)
+			{
+				GetPlayer()->changeJONSCulture(pReligion->m_Beliefs.GetYieldFromPolicyUnlock(YIELD_CULTURE) * iEra);
+			}
+			if(pReligion->m_Beliefs.GetYieldFromPolicyUnlock(YIELD_GOLDEN_AGE_POINTS) > 0)
+			{
+				GetPlayer()->ChangeGoldenAgeProgressMeter(pReligion->m_Beliefs.GetYieldFromPolicyUnlock(YIELD_GOLDEN_AGE_POINTS) * iEra);
+			}
+		}
+	}
+#endif
 
 	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
 	if(pkScriptSystem)
@@ -4034,7 +4857,11 @@ bool CvPlayerPolicies::IsTimeToChooseIdeology() const
 		return false;
 	}
 
+#if defined(MOD_CONFIG_GAME_IN_XML)
+	if (m_pPlayer->GetCurrentEra() > GD_INT_GET(IDEOLOGY_START_ERA))
+#else
 	if (m_pPlayer->GetCurrentEra() > GC.getInfoTypeForString("ERA_INDUSTRIAL"))
+#endif
 	{
 		return true;
 	}

@@ -10,9 +10,13 @@
 #ifndef CIV5_HOMELAND_AI_H
 #define CIV5_HOMELAND_AI_H
 
+#if defined(MOD_BALANCE_CORE_MILITARY)
+#define UPGRADE_THIS_TURN_PRIORITY_BOOST 5000
+#define UPGRADE_IN_TERRITORY_PRIORITY_BOOST 2000
+#else
 #define UPGRADE_THIS_TURN_PRIORITY_BOOST 1000
 #define UPGRADE_IN_TERRITORY_PRIORITY_BOOST 500
-
+#endif
 enum AIHomelandTargetType
 {
     AI_HOMELAND_TARGET_NONE,
@@ -217,6 +221,12 @@ public:
 	void LogHomelandMessage(CvString& strMsg);
 	void LogPatrolMessage(CvString& strMsg, CvUnit* pPatrolUnit);
 
+#if defined(MOD_AI_SECONDARY_WORKERS)
+	bool MoveCivilianToSafety(CvUnit* pUnit, bool bIgnoreUnits = false, bool bSecondary = false);
+#else
+	bool MoveCivilianToSafety(CvUnit* pUnit, bool bIgnoreUnits = false);
+#endif
+
 private:
 
 	typedef FStaticVector< CvHomelandUnit, 64, true, c_eCiv5GameplayDLL > MoveUnitsArray;
@@ -274,6 +284,7 @@ private:
 	// Routines to execute homeland moves
 	void ExecuteFirstTurnSettlerMoves();
 	void ExecuteExplorerMoves();
+
 #if defined(MOD_AI_SECONDARY_WORKERS)
 	void ExecuteWorkerMoves(bool bSecondary = false);
 #else
@@ -316,11 +327,6 @@ private:
 	bool FindUnitsForThisMove(AIHomelandMove eMove, bool bFirstTime);
 	CvPlot* FindPatrolTarget(CvUnit* pUnit);
 	bool GetBestUnitToReachTarget(CvPlot* pTarget, int iMaxTurns);
-#if defined(MOD_AI_SECONDARY_WORKERS)
-	bool MoveCivilianToSafety(CvUnit* pUnit, bool bIgnoreUnits = false, bool bSecondary = false);
-#else
-	bool MoveCivilianToSafety(CvUnit* pUnit, bool bIgnoreUnits = false);
-#endif
 	bool MoveToEmptySpaceNearTarget(CvUnit* pUnit, CvPlot* pTarget, bool bLand=true);
 	CvCity* ChooseBestFreeWonderCity(BuildingTypes eWonder, UnitHandle pEngineer);
 	CvPlot* FindArchaeologistTarget(CvUnit *pUnit);

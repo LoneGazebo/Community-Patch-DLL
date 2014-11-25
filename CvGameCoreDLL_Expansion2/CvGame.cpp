@@ -526,15 +526,15 @@ bool CvGame::InitMap(CvGameInitialItemsOverrides& kGameInitialItemsOverrides)
 			if (eTeam != NO_TEAM)
 			{
 				const int iNumInvisibleInfos = NUM_INVISIBLE_TYPES;
-				for(iI = 0; iI < GC.getMap().numPlots(); iI++)
+				for(int plotID = 0; plotID < GC.getMap().numPlots(); plotID++)
 				{
-					CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(iI);
+					CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(plotID);
 
-					pLoopPlot->changeVisibilityCount(eTeam, pLoopPlot->getVisibilityCount(eTeam) + 1, NO_INVISIBLE, true, false);
+					pLoopPlot->changeVisibilityCount(eTeam, 1, NO_INVISIBLE, true, false);
 
 					for(int iJ = 0; iJ < iNumInvisibleInfos; iJ++)
 					{
-						pLoopPlot->changeInvisibleVisibilityCount(eTeam, ((InvisibleTypes)iJ), pLoopPlot->getInvisibleVisibilityCount(eTeam, ((InvisibleTypes)iJ)) + 1);
+						pLoopPlot->changeInvisibleVisibilityCount(eTeam, ((InvisibleTypes)iJ), 1);
 					}
 
 					pLoopPlot->setRevealed(eTeam, true, false);
@@ -1044,6 +1044,13 @@ void CvGame::uninit()
 	m_eIndustrialRoute = NO_ROUTE;
 #if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 	m_eTeamThatCircumnavigated = NO_TEAM;
+#endif
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+	m_iCultureAverage = 0;
+	m_iScienceAverage = 0;
+	m_iDefenseAverage = 0;
+	m_iGoldAverage = 0;
+	m_iGlobalPopulation = 0;
 #endif
 
 	m_strScriptData = "";
@@ -1618,7 +1625,7 @@ void CvGame::CheckPlayerTurnDeactivate()
 										for(int iJ = (kPlayer.GetID() + 1); iJ < MAX_PLAYERS; iJ++)
 										{
 											CvPlayer& kNextPlayer = GET_PLAYER((PlayerTypes)iJ);
-											if(kNextPlayer.isAlive() && !kPlayer.isSimultaneousTurns())
+											if(kNextPlayer.isAlive() && !kNextPlayer.isSimultaneousTurns())
 											{//the player is alive and also running sequential turns.  they're up!
 												if(isPbem() && kNextPlayer.isHuman())
 												{
@@ -2020,7 +2027,9 @@ void CvGame::updateTestEndTurn()
 				{
 					if(pkIface->canEndTurn() && gDLL->allAICivsProcessedThisTurn() && allUnitAIProcessed() && !gDLL->HasSentTurnComplete())
 					{
+#if !defined(NO_ACHIEVEMENTS)
 						activePlayer.GetPlayerAchievements().EndTurn();
+#endif
 
 #if defined(MOD_EVENTS_RED_TURN)
 						if (MOD_EVENTS_RED_TURN)
@@ -2041,7 +2050,9 @@ void CvGame::updateTestEndTurn()
 #endif
 
 						gDLL->sendTurnComplete();
+#if !defined(NO_ACHIEVEMENTS)
 						CvAchievementUnlocker::EndTurn();
+#endif
 						m_endTurnTimer.Start();
 					}
 				}
@@ -2121,7 +2132,9 @@ void CvGame::updateTestEndTurn()
 							{
 								if(!gDLL->HasSentTurnComplete() && gDLL->allAICivsProcessedThisTurn() && allUnitAIProcessed() && pkIface && pkIface->IsMPAutoEndTurnEnabled())
 								{
+#if !defined(NO_ACHIEVEMENTS)
 									activePlayer.GetPlayerAchievements().EndTurn();
+#endif
 
 #if defined(MOD_EVENTS_RED_TURN)
 									if (MOD_EVENTS_RED_TURN)
@@ -2142,7 +2155,9 @@ void CvGame::updateTestEndTurn()
 #endif
 
 									gDLL->sendTurnComplete();
+#if !defined(NO_ACHIEVEMENTS)
 									CvAchievementUnlocker::EndTurn();
+#endif
 								}
 
 								GC.GetEngineUserInterface()->setEndTurnCounter(3); // XXX
@@ -3541,9 +3556,13 @@ void CvGame::doControl(ControlTypes eControl)
 			// RED >>>>>
 #endif
 
+#if !defined(NO_ACHIEVEMENTS)
 			kActivePlayer.GetPlayerAchievements().EndTurn();
+#endif
 			gDLL->sendTurnComplete();
+#if !defined(NO_ACHIEVEMENTS)
 			CvAchievementUnlocker::EndTurn();
+#endif
 			GC.GetEngineUserInterface()->setInterfaceMode(INTERFACEMODE_SELECTION);
 		}
 		break;
@@ -3553,8 +3572,10 @@ void CvGame::doControl(ControlTypes eControl)
 		EndTurnBlockingTypes eBlock = GET_PLAYER(getActivePlayer()).GetEndTurnBlockingType();
 		if(gDLL->allAICivsProcessedThisTurn() && allUnitAIProcessed() && (eBlock == NO_ENDTURN_BLOCKING_TYPE || eBlock == ENDTURN_BLOCKING_UNITS))
 		{
+#if !defined(NO_ACHIEVEMENTS)
 			CvPlayerAI& kActivePlayer = GET_PLAYER(getActivePlayer());
 			kActivePlayer.GetPlayerAchievements().EndTurn();
+#endif
 
 #if defined(MOD_EVENTS_RED_TURN)
 				if (MOD_EVENTS_RED_TURN)
@@ -3575,7 +3596,9 @@ void CvGame::doControl(ControlTypes eControl)
 #endif
 
 			gDLL->sendTurnComplete();
+#if !defined(NO_ACHIEVEMENTS)
 			CvAchievementUnlocker::EndTurn();
+#endif
 			SetForceEndingTurn(true);
 			GC.GetEngineUserInterface()->setInterfaceMode(INTERFACEMODE_SELECTION);
 		}
@@ -5164,6 +5187,21 @@ void CvGame::DoFromUIDiploEvent(FromUIDiploEventTypes eEvent, PlayerTypes eAIPla
 #if defined(MOD_EVENTS_DIPLO_EVENTS)
 	if (MOD_EVENTS_DIPLO_EVENTS) {
 		GAMEEVENTINVOKE_HOOK(GAMEEVENT_UiDiploEvent, eEvent, eAIPlayer, iArg1, iArg2);
+	} else {
+#endif
+	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+	if(pkScriptSystem)
+	{
+		CvLuaArgsHandle args;
+		args->Push(eEvent);
+		args->Push(eAIPlayer);
+		args->Push(iArg1);
+		args->Push(iArg2);
+
+		bool bResult;
+		LuaSupport::CallHook(pkScriptSystem, "UiDiploEvent", args.get(), bResult);
+	}
+#if defined(MOD_EVENTS_DIPLO_EVENTS)
 	}
 #endif
 
@@ -5953,7 +5991,7 @@ void CvGame::setWinner(TeamTypes eNewWinner, VictoryTypes eNewVictory)
 				if(!GC.getGame().isGameMultiPlayer() && kWinningTeamLeader.isHuman() && kWinningTeamLeader.isLocalPlayer())
 				{
 					const bool bUsingDLC1Scenario = gDLL->IsModActivated(CIV5_DLC_01_SCENARIO_MODID);
-					const bool bUsingDLC2Scenario = gDLL->IsModActivated(CIV5_DLC_02_SCENARIO_MODID);
+					const bool bUsingDLC2Scenario = gDLL->IsModActivated(CIV5_DLC_02_SCENARIO_MODID) || gDLL->IsModActivated(CIV5_COMPLETE_SCENARIO1_MODID);
 					const bool bUsingDLC3Scenario = gDLL->IsModActivated(CIV5_DLC_03_SCENARIO_MODID);
 					const bool bUsingDLC4Scenario = gDLL->IsModActivated(CIV5_DLC_04_SCENARIO_MODID);
 					const bool bUsingDLC5Scenario = gDLL->IsModActivated(CIV5_DLC_05_SCENARIO_MODID);
@@ -7615,10 +7653,14 @@ void CvGame::addGreatPersonBornName(const CvString& szName)
 //	--------------------------------------------------------------------------------
 void CvGame::doTurn()
 {
+#if defined(MOD_BALANCE_CORE)
+	OutputDebugString(CvString::format("Turn \t%03i\tTime \t%012d\n", getGameTurn(), GetTickCount()));
+#else
 #ifndef FINAL_RELEASE
 	char temp[256];
 	sprintf_s(temp, "Turn %i\n", getGameTurn());
 	OutputDebugString(temp);
+#endif
 #endif
 
 	int aiShuffle[MAX_PLAYERS];
@@ -7671,6 +7713,13 @@ void CvGame::doTurn()
 	GetGameTrade()->DoTurn();
 	GetGameLeagues()->DoTurn();
 	GetGameCulture()->DoTurn();
+
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+	if(MOD_BALANCE_CORE_HAPPINESS)
+	{
+		getGlobalAverage();
+	}
+#endif
 
 	GC.GetEngineUserInterface()->setCanEndTurn(false);
 	GC.GetEngineUserInterface()->setHasMovedUnit(false);
@@ -8318,7 +8367,7 @@ void CvGame::updateMoves()
 
 
 	int currentTurn = getGameTurn();
-	bool activatePlayers = m_lastTurnAICivsProcessed != currentTurn;
+	bool activatePlayers = playersToProcess.empty() && m_lastTurnAICivsProcessed != currentTurn;
 	// If no AI with an active turn, check humans.
 	if(playersToProcess.empty())
 	{
@@ -8330,10 +8379,14 @@ void CvGame::updateMoves()
 			{//if the active player is an observer, send a turn complete so we don't hold up the game.
 				//We wait until allAICivsProcessedThisTurn to prevent a race condition where an observer could send turn complete,
 				//before all clients have cleared the netbarrier locally.
+#if !defined(NO_ACHIEVEMENTS)
 				CvPlayer& kActivePlayer = GET_PLAYER(eActivePlayer);
 				kActivePlayer.GetPlayerAchievements().EndTurn();
+#endif
 				gDLL->sendTurnComplete();
+#if !defined(NO_ACHIEVEMENTS)
 				CvAchievementUnlocker::EndTurn();
+#endif
 			}
 
 			if(!processPlayerAutoMoves)
@@ -9180,6 +9233,7 @@ void CvGame::testVictory()
 	if(bEndGame && !aaiGameWinners.empty())
 	{
 		int iWinner = getJonRandNum(aaiGameWinners.size(), "Victory tie breaker");
+		CUSTOMLOG("Calling setWinner from testVictory: %i, %i", aaiGameWinners[iWinner][0], aaiGameWinners[iWinner][1]);
 		setWinner(((TeamTypes)aaiGameWinners[iWinner][0]), ((VictoryTypes)aaiGameWinners[iWinner][1]));
 	}
 
@@ -9429,6 +9483,152 @@ uint CvGame::getNumReplayMessages() const
 	return m_listReplayMessages.size();
 }
 
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+//	--------------------------------------------------------------------------------
+void CvGame::getGlobalAverage() const
+{
+	CvCity* pLoopCity;
+	int iCityLoop;
+	PlayerTypes eLoopPlayer;
+	int iPopulation, iTotalPopulation = 0;
+	int iCultureYield = 0;
+	int iScienceYield = 0;
+	int iDefenseYield = 0;
+	int iGoldYield = 0;
+
+	std::vector<float> vfCultureYield;
+	std::vector<float> vfScienceYield;
+	std::vector<float> vfDefenseYield;
+	std::vector<float> vfGoldYield;
+
+	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	{
+		eLoopPlayer = (PlayerTypes) iPlayerLoop;
+		if(eLoopPlayer != NO_PLAYER && GET_PLAYER(eLoopPlayer).isAlive() && !GET_PLAYER(eLoopPlayer).isMinorCiv() && !GET_PLAYER(eLoopPlayer).isBarbarian())
+		{
+			for(pLoopCity = GET_PLAYER(eLoopPlayer).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eLoopPlayer).nextCity(&iCityLoop))
+			{
+				if(pLoopCity != NULL)
+				{
+					iPopulation = pLoopCity->getPopulation();
+					
+					iTotalPopulation += iPopulation;
+
+					//Uncultured
+					iCultureYield = pLoopCity->getJONSCulturePerTurn() * 100;
+					float iCultureAvg = iCultureYield / (float)iPopulation;
+					vfCultureYield.push_back((float)iCultureAvg);
+
+					//Illiteracy
+					iScienceYield = pLoopCity->getYieldRateTimes100(YIELD_SCIENCE, false);
+					float iScienceAvg = iScienceYield / (float)iPopulation;
+					vfScienceYield.push_back((float)iScienceAvg);
+					
+					//Disorder
+					iDefenseYield = pLoopCity->getStrengthValue(false);
+					iDefenseYield += (pLoopCity->GetCityBuildings()->GetBuildingDefense() * 4);
+					if(pLoopCity->GetGarrisonedUnit() != NULL)
+					{
+						iDefenseYield += pLoopCity->GetGarrisonedUnit()->GetBaseCombatStrength() * 5;
+					}
+					float iDefenseAvg = iDefenseYield / (float)iPopulation;
+					vfDefenseYield.push_back((float)iDefenseAvg);
+
+					//Poverty
+					iGoldYield = pLoopCity->getYieldRateTimes100(YIELD_GOLD, false);
+					float iGoldAvg = iGoldYield / (float)iPopulation;
+					vfGoldYield.push_back((float)iGoldAvg);
+				}		
+			}
+		}
+	}
+	//Cannot define median if calculations are at zero.
+	if (vfCultureYield.empty() || vfScienceYield.empty() || vfDefenseYield.empty() || vfGoldYield.empty())
+	{	
+		return;
+	}
+	
+	//Select median of each category
+	size_t n = vfCultureYield.size() / 2;
+
+	//Find Median...
+	std::nth_element(vfCultureYield.begin(), vfCultureYield.begin()+n, vfCultureYield.end());
+	std::nth_element(vfScienceYield.begin(), vfScienceYield.begin()+n, vfScienceYield.end());
+	std::nth_element(vfDefenseYield.begin(), vfDefenseYield.begin()+n, vfDefenseYield.end());
+	std::nth_element(vfGoldYield.begin(), vfGoldYield.begin()+n, vfGoldYield.end());
+	
+	//And set it.
+	GC.getGame().SetCultureAverage((int)vfCultureYield[n]);
+	GC.getGame().SetScienceAverage((int)vfScienceYield[n]);
+	GC.getGame().SetDefenseAverage((int)vfDefenseYield[n]);
+	GC.getGame().SetGoldAverage((int)vfGoldYield[n]);
+	GC.getGame().SetGlobalPopulation(iTotalPopulation);
+}
+//	--------------------------------------------------------------------------------
+void CvGame::SetCultureAverage(int iValue)
+{
+	if(GetCultureAverage() != iValue)
+	{
+		float fAlpha = 0.05f;
+		m_iCultureAverage = int(0.5f + (iValue * fAlpha) + (m_iCultureAverage * ( 1 - fAlpha)));
+	}
+}
+//	--------------------------------------------------------------------------------
+void CvGame::SetScienceAverage(int iValue)
+{
+	if(GetScienceAverage() != iValue)
+	{
+		float fAlpha = 0.05f;
+		m_iScienceAverage = int(0.5f + (iValue * fAlpha) + (m_iCultureAverage * ( 1 - fAlpha)));
+	}
+}
+//	--------------------------------------------------------------------------------
+void CvGame::SetDefenseAverage(int iValue)
+{
+	if(GetDefenseAverage() != iValue)
+	{
+		float fAlpha = 0.05f;
+		m_iDefenseAverage = int(0.5f + (iValue * fAlpha) + (m_iCultureAverage * ( 1 - fAlpha)));
+	}
+}
+//	--------------------------------------------------------------------------------
+void CvGame::SetGoldAverage(int iValue)
+{
+	if(GetGoldAverage() != iValue)
+	{
+		float fAlpha = 0.05f;
+		m_iGoldAverage = int(0.5f + (iValue * fAlpha) + (m_iCultureAverage * ( 1 - fAlpha)));
+	}
+}
+//	--------------------------------------------------------------------------------
+void CvGame::SetGlobalPopulation(int iValue)
+{
+	if(GetGlobalPopulation() != iValue)
+	m_iGlobalPopulation = iValue;
+}
+//	--------------------------------------------------------------------------------
+int CvGame::GetCultureAverage() const
+{
+	return m_iCultureAverage;
+}
+int CvGame::GetScienceAverage() const
+{
+	return m_iScienceAverage;
+}
+int CvGame::GetDefenseAverage() const
+{
+	return m_iDefenseAverage;
+}	
+int CvGame::GetGoldAverage() const
+{
+	return m_iGoldAverage;
+}
+int CvGame::GetGlobalPopulation() const
+{
+	return m_iGlobalPopulation;
+}	
+#endif
+
 //	--------------------------------------------------------------------------------
 const CvReplayMessage* CvGame::getReplayMessage(uint i) const
 {
@@ -9526,6 +9726,13 @@ void CvGame::Read(FDataStream& kStream)
 
 #if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 	MOD_SERIALIZE_READ(39, kStream, m_eTeamThatCircumnavigated, NO_TEAM);
+#endif
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+	MOD_SERIALIZE_READ(55, kStream, m_iCultureAverage, 0);
+	MOD_SERIALIZE_READ(55, kStream, m_iScienceAverage, 0);
+	MOD_SERIALIZE_READ(55, kStream, m_iDefenseAverage, 0);
+	MOD_SERIALIZE_READ(55, kStream, m_iGoldAverage, 0);
+	MOD_SERIALIZE_READ(55, kStream, m_iGlobalPopulation, 0);
 #endif
 
 	kStream >> m_strScriptData;
@@ -9765,6 +9972,14 @@ void CvGame::Write(FDataStream& kStream) const
 #if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 	MOD_SERIALIZE_WRITE(kStream, m_eTeamThatCircumnavigated);
 #endif
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+	MOD_SERIALIZE_WRITE(kStream, m_iCultureAverage);
+	MOD_SERIALIZE_WRITE(kStream, m_iScienceAverage);
+	MOD_SERIALIZE_WRITE(kStream, m_iDefenseAverage);
+	MOD_SERIALIZE_WRITE(kStream, m_iGoldAverage);
+	MOD_SERIALIZE_WRITE(kStream, m_iGlobalPopulation);
+#endif
+
 
 	kStream << m_strScriptData;
 
@@ -10663,6 +10878,7 @@ void CvGame::DoTestConquestVictory()
 			{
 				if(pkVictoryInfo->isConquest() && isVictoryValid(eVictory))
 				{
+					CUSTOMLOG("Calling setWinner from DoTestConquestVictory: %i, %i", eTeamWhoWon, eVictory);
 					setWinner(eTeamWhoWon, eVictory);
 				}
 			}
@@ -11241,6 +11457,27 @@ void CvGame::LogGameState(bool bLogHeaders)
 			strTemp.Format("%d", iMinorBully);
 			strOutput += ", " + strTemp;
 		}
+
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+		if(bFirstTurn)
+		{
+			strOutput += ", CultureAvg";
+			strOutput += ", ScienceAvg";
+			strOutput += ", DefenseAvg";
+			strOutput += ", GoldAvg";
+		}
+		else
+		{
+			strTemp.Format("%d", GC.getGame().GetCultureAverage());
+			strOutput += ", " + strTemp;
+			strTemp.Format("%d", GC.getGame().GetScienceAverage());
+			strOutput += ", " + strTemp;
+			strTemp.Format("%d", GC.getGame().GetDefenseAverage());
+			strOutput += ", " + strTemp;
+			strTemp.Format("%d", GC.getGame().GetGoldAverage());
+			strOutput += ", " + strTemp;
+		}
+#endif
 
 		pLog->Msg(strOutput);
 	}

@@ -128,6 +128,9 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(CanTrade);
 	Method(CanBuyCityState);
 	Method(CanRepairFleet);
+#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_GLOBAL_SEPARATE_GREAT_ADMIRAL)
+	Method(CanChangePort);
+#endif
 	Method(CanBuildSpaceship);
 
 	Method(CanGoldenAge);
@@ -193,6 +196,9 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(IsNoCapture);
 	Method(IsRivalTerritory);
 	Method(IsFound);
+#if defined(MOD_API_LUA_EXTENSIONS)
+	Method(IsFoundAbroad);
+#endif
 	Method(IsWork);
 	Method(IsGoldenAge);
 	Method(CanCoexistWithEnemyUnit);
@@ -234,6 +240,9 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 #endif
 
 	Method(GetBaseRangedCombatStrength);
+#if defined(MOD_API_EXTENSIONS)
+	Method(SetBaseRangedCombatStrength);
+#endif
 	Method(GetMaxRangedCombatStrength);
 	Method(GetCombatLimit);
 	Method(GetRangedCombatLimit);
@@ -536,6 +545,9 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(ExecuteSpecialExploreMove);
 
 	Method(SetDeployFromOperationTurn);
+#if defined(MOD_BALANCE_CORE)
+	Method(IsHigherPopThan);
+#endif
 	Method(IsHigherTechThan);
 	Method(IsLargerCivThan);
 
@@ -593,8 +605,8 @@ int CvLuaUnit::lConvert(lua_State* L)
 	bool bIsUpgrade = lua_toboolean(L, 3);
 
 	pkUnit->convert(pkUnitToConvert, bIsUpgrade);
-#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BUGFIX_MINOR)
-	pkUnit->setupGraphical();
+#if defined(MOD_BUGFIX_MINOR)
+	// Unlike every other call to CvUnit::convert() do NOT call CvUnit::setupGraphical() here as it creates ghost units on the map
 #endif
 
 	return 0;
@@ -1068,10 +1080,11 @@ int CvLuaUnit::lCanEmbarkOnto(lua_State* L)
 	CvUnit* pkUnit = GetInstance(L);
 	CvPlot* pkOriginPlot = CvLuaPlot::GetInstance(L, 2);
 	CvPlot* pkTargetPlot = CvLuaPlot::GetInstance(L, 3);
+	bool bIsDestination = luaL_optbool(L, 4, true);		// Assume Lua is querying for a destination of the embark.  This will cause the test to fail if there is are stacking issues.
 	bool bResult = false;
 	if(pkOriginPlot && pkTargetPlot)
 	{
-		bResult = pkUnit->canEmbarkOnto(*pkOriginPlot, *pkTargetPlot);
+		bResult = pkUnit->canEmbarkOnto(*pkOriginPlot, *pkTargetPlot, false, bIsDestination);
 	}
 
 	lua_pushboolean(L, bResult);
@@ -1083,11 +1096,12 @@ int CvLuaUnit::lCanDisembarkOnto(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
 	CvPlot* pkTargetPlot = CvLuaPlot::GetInstance(L, 2);
+	bool bIsDestination = luaL_optbool(L, 3, true);		// Assume Lua is querying for a destination of the dis-embark.  This will cause the test to fail if there is are stacking issues.
 
 	bool bResult = false;
 	if(pkTargetPlot)
 	{
-		bResult = pkUnit->canDisembarkOnto(*pkTargetPlot);
+		bResult = pkUnit->canDisembarkOnto(*pkTargetPlot, bIsDestination);	
 	}
 
 	lua_pushboolean(L, bResult);
@@ -1515,6 +1529,19 @@ int CvLuaUnit::lCanRepairFleet(lua_State* L)
 	lua_pushboolean(L, bResult);
 	return 1;
 }
+#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_GLOBAL_SEPARATE_GREAT_ADMIRAL)
+//------------------------------------------------------------------------------
+//bool canChangePort(CvPlot* pPlot);
+int CvLuaUnit::lCanChangePort(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	CvPlot* pkPlot = CvLuaPlot::GetInstance(L, 2);
+	const bool bResult = pkUnit->canChangeAdmiralPort(pkPlot);
+
+	lua_pushboolean(L, bResult);
+	return 1;
+}
+#endif
 //------------------------------------------------------------------------------
 //bool CanBuildSpaceship(CyPlot* pPlot, bool bVisible);
 int CvLuaUnit::lCanBuildSpaceship(lua_State* L)
@@ -2035,6 +2062,18 @@ int CvLuaUnit::lIsFound(lua_State* L)
 	lua_pushboolean(L, bResult);
 	return 1;
 }
+#if defined(MOD_API_LUA_EXTENSIONS)
+//------------------------------------------------------------------------------
+//bool isFound();
+int CvLuaUnit::lIsFoundAbroad(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	const bool bResult = pkUnit->IsFoundAbroad();
+
+	lua_pushboolean(L, bResult);
+	return 1;
+}
+#endif
 //------------------------------------------------------------------------------
 // bool IsWork()
 int CvLuaUnit::lIsWork(lua_State* L)
@@ -2393,6 +2432,17 @@ int CvLuaUnit::lGetBaseRangedCombatStrength(lua_State* L)
 	lua_pushinteger(L, iResult);
 	return 1;
 }
+#if defined(MOD_API_EXTENSIONS)
+//------------------------------------------------------------------------------
+int CvLuaUnit::lSetBaseRangedCombatStrength(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	const int iStrength = lua_tointeger(L, 2);
+
+	pkUnit->SetBaseRangedCombatStrength(iStrength);
+	return 0;
+}
+#endif
 //------------------------------------------------------------------------------
 //int airMaxCombatStr(CyUnit* pOther, bool bAttacking);
 int CvLuaUnit::lGetMaxRangedCombatStrength(lua_State* L)
@@ -4980,6 +5030,19 @@ int CvLuaUnit::lSetDeployFromOperationTurn(lua_State* L)
 	pkUnit->SetDeployFromOperationTurn(iTurn);
 	return 0;
 }
+#if defined(MOD_BALANCE_CORE)
+//------------------------------------------------------------------------------
+//bool IsHigherPopThan(CvUnit *pOtherUnit);
+int CvLuaUnit::lIsHigherPopThan(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	CvUnit* pkOtherUnit = CvLuaUnit::GetInstance(L, 2);
+	const bool bResult = pkUnit->IsHigherPopThan(pkOtherUnit);
+
+	lua_pushboolean(L, bResult);
+	return 1;
+}
+#endif
 //------------------------------------------------------------------------------
 //bool IsHigherTechThan(UnitTypes eOtherUnit );
 int CvLuaUnit::lIsHigherTechThan(lua_State* L)
@@ -5001,7 +5064,8 @@ int CvLuaUnit::lIsLargerCivThan(lua_State* L)
 
 	lua_pushboolean(L, bResult);
 	return 1;
-}//------------------------------------------------------------------------------
+}
+//------------------------------------------------------------------------------
 //bool IsRangedSupportFire();
 int CvLuaUnit::lIsRangedSupportFire(lua_State* L)
 {

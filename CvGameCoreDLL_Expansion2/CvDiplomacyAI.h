@@ -16,6 +16,14 @@
 
 #define BULLY_DEBUGGING false
 
+#if defined(MOD_EVENTS_DIPLO_MODIFIERS)
+struct Opinion
+{
+	Localization::String m_str;
+	int m_iValue;
+};
+#endif
+
 struct DiploLogData
 {
 	DiploStatementTypes m_eDiploLogStatement;
@@ -238,6 +246,9 @@ public:
 	void DoUpdateWarGoals();
 
 	// Num Turns At War
+#if defined(MOD_API_EXTENSIONS)
+	int GetTeamNumTurnsAtWar(TeamTypes eTeam) const;
+#endif
 	int GetPlayerNumTurnsAtWar(PlayerTypes ePlayer) const;
 	void SetPlayerNumTurnsAtWar(PlayerTypes ePlayer, int iValue);
 	void ChangePlayerNumTurnsAtWar(PlayerTypes ePlayer, int iChange);
@@ -528,7 +539,11 @@ public:
 
 	// Get the amount of warmonger hatred they generated
 	int GetOtherPlayerWarmongerAmount(PlayerTypes ePlayer);
+#if defined(MOD_API_EXTENSIONS)
+	void ChangeOtherPlayerWarmongerAmountTimes100(PlayerTypes ePlayer, int iChange);
+#else
 	void ChangeOtherPlayerWarmongerAmount(PlayerTypes ePlayer, int iChange);
+#endif
 	int GetOtherPlayerWarmongerScore(PlayerTypes ePlayer);
 
 	/////////////////////////////////////////////////////////
@@ -619,6 +634,9 @@ public:
 	void DoFYIBefriendedHumanFriend(PlayerTypes ePlayer, DiploStatementTypes& eStatement, int& iData1);
 	void DoHappySamePolicyTree(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
 	void DoIdeologicalStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
+#if defined(MOD_BALANCE_CORE)
+	void DoVictoryCompetitionStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
+#endif
 
 	void DoWeLikedTheirProposal(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
 	void DoWeDislikedTheirProposal(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
@@ -1108,6 +1126,9 @@ public:
 	int GetSupportedMyProposalScore(PlayerTypes ePlayer);
 	int GetFoiledMyProposalScore(PlayerTypes ePlayer);
 	int GetSupportedMyHostingScore(PlayerTypes ePlayer);
+#if defined(MOD_EVENTS_DIPLO_MODIFIERS)
+	int GetDiploModifiers(PlayerTypes ePlayer, std::vector<Opinion>& aOpinions);
+#endif
 	int GetScenarioModifier1(PlayerTypes ePlayer);
 	int GetScenarioModifier2(PlayerTypes ePlayer);
 	int GetScenarioModifier3(PlayerTypes ePlayer);
@@ -1399,7 +1420,11 @@ private:
 		char m_aiOtherPlayerNumMajorsAttacked[MAX_MAJOR_CIVS];
 		char m_aiOtherPlayerNumMajorsConquered[MAX_MAJOR_CIVS];
 
+#if defined(MOD_API_EXTENSIONS)
+		int m_aiOtherPlayerWarmongerAmountTimes100[MAX_MAJOR_CIVS];
+#else
 		int m_aiOtherPlayerWarmongerAmount[MAX_MAJOR_CIVS];
+#endif
 
 		short m_aiOtherPlayerTurnsSinceWeLikedTheirProposal[MAX_MAJOR_CIVS];
 		short m_aiOtherPlayerTurnsSinceWeDislikedTheirProposal[MAX_MAJOR_CIVS];
@@ -1684,7 +1709,11 @@ private:
 	char* m_paiOtherPlayerNumMinorsConquered;
 	char* m_paiOtherPlayerNumMajorsAttacked;
 	char* m_paiOtherPlayerNumMajorsConquered;
+#if defined(MOD_API_EXTENSIONS)
+	int*  m_paiOtherPlayerWarmongerAmountTimes100;
+#else
 	int*  m_paiOtherPlayerWarmongerAmount;
+#endif
 
 	short* m_paiOtherPlayerTurnsSinceWeLikedTheirProposal;
 	short* m_paiOtherPlayerTurnsSinceWeDislikedTheirProposal;
@@ -1716,13 +1745,16 @@ private:
 namespace CvDiplomacyAIHelpers
 {
 #if defined(MOD_CONFIG_AI_IN_XML)
-	int GetWarmongerOffset(PlayerTypes eOriginalOwner);
+	int GetWarmongerOffset(PlayerTypes eOriginalOwner, bool bIsCapital);
+	CvString GetWarmongerPreviewString(PlayerTypes eCurrentOwner, bool bIsCapital);
+	CvString GetLiberationPreviewString(PlayerTypes eOriginalOwner, bool bIsCapital);
+	void ApplyWarmongerPenalties(PlayerTypes eConqueror, PlayerTypes eConquered, bool bIsCapital);
 #else
-	int GetWarmongerOffset(int iNumCitiesRemaining);
-#endif
+	int GetWarmongerOffset(int iNumCitiesRemaining, bool bIsMinor);
 	CvString GetWarmongerPreviewString(PlayerTypes eCurrentOwner);
 	CvString GetLiberationPreviewString(PlayerTypes eOriginalOwner);
 	void ApplyWarmongerPenalties(PlayerTypes eConqueror, PlayerTypes eConquered);
+#endif
 }
 
 #endif //CIV5_AI_DIPLOMACY_H

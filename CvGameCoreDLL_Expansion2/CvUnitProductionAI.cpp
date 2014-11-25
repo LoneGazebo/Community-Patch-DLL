@@ -155,7 +155,11 @@ int CvUnitProductionAI::GetWeight(UnitTypes eUnit)
 }
 
 /// Recommend highest-weighted unit
+#if defined(MOD_BALANCE_CORE)
+UnitTypes CvUnitProductionAI::RecommendUnit(UnitAITypes eUnitAIType, bool bUsesStrategicResource)
+#else
 UnitTypes CvUnitProductionAI::RecommendUnit(UnitAITypes eUnitAIType)
+#endif
 {
 	int iUnitLoop;
 	int iWeight;
@@ -176,6 +180,21 @@ UnitTypes CvUnitProductionAI::RecommendUnit(UnitAITypes eUnitAIType)
 		CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
 		if(pkUnitInfo)
 		{
+#if defined(MOD_BALANCE_CORE)
+			if(!bUsesStrategicResource)
+			{
+				ResourceTypes eResource;
+				for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+				{
+					eResource = (ResourceTypes) iResourceLoop;
+					int iNumResource = pkUnitInfo->GetResourceQuantityRequirement(eResource);
+					if (iNumResource > 0)
+					{
+						continue;
+					}
+				}
+			}
+#endif
 			// Make sure this unit can be built now
 			if(m_pCity->canTrain(eUnit))
 			{

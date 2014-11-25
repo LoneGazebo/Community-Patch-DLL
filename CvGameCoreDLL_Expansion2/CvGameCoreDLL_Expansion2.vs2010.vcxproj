@@ -80,12 +80,15 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="CvCityManager.cpp" />
+    <ClCompile Include="CvDistanceMap.cpp" />
+    <ClCompile Include="CvGreatPersonInfo.cpp" />
     <ClCompile Include="CvTargeting.cpp" />
     <ClCompile Include="_precompile.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Mod|Win32'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="CustomMods.cpp" />
     <ClCompile Include="CvAchievementUnlocker.cpp" />
+    <ClCompile Include="CvAchievementInfo.cpp" />
     <ClCompile Include="CvAdvisorCounsel.cpp" />
     <ClCompile Include="CvAdvisorRecommender.cpp" />
     <ClCompile Include="CvAIOperation.cpp" />
@@ -249,6 +252,7 @@
     <ClInclude Include="banned.h" />
     <ClInclude Include="CustomMods.h" />
     <ClInclude Include="CvAchievementUnlocker.h" />
+    <ClInclude Include="CvAchievementInfo.h" />
     <ClInclude Include="CvAdvisorCounsel.h" />
     <ClInclude Include="CvAdvisorRecommender.h" />
     <ClInclude Include="CvAIOperation.h" />
@@ -278,6 +282,7 @@
     <ClInclude Include="CvDiplomacyAI.h" />
     <ClInclude Include="CvDiplomacyAIEnums.h" />
     <ClInclude Include="CvDiplomacyRequests.h" />
+    <ClInclude Include="CvDistanceMap.h" />
     <ClInclude Include="CvEconomicAI.h" />
     <ClInclude Include="CvEmphasisClasses.h" />
     <ClInclude Include="CvEspionageClasses.h" />
@@ -294,6 +299,7 @@
     <ClInclude Include="CvGlobals.h" />
     <ClInclude Include="CvGoodyHuts.h" />
     <ClInclude Include="CvGrandStrategyAI.h" />
+    <ClInclude Include="CvGreatPersonInfo.h" />
     <ClInclude Include="CvHomelandAI.h" />
     <ClInclude Include="CvImprovementClasses.h" />
     <ClInclude Include="CvInfos.h" />

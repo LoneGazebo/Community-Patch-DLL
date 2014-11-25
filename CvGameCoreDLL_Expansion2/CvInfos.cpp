@@ -3290,6 +3290,9 @@ bool CvHandicapInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 //======================================================================================================
 CvGameSpeedInfo::CvGameSpeedInfo() :
 	m_iDealDuration(0),
+#if defined(MOD_BALANCE_CORE)
+	m_iStartingHappiness(0),
+#endif
 	m_iGrowthPercent(0),
 	m_iTrainPercent(0),
 	m_iConstructPercent(0),
@@ -3314,6 +3317,9 @@ CvGameSpeedInfo::CvGameSpeedInfo() :
 	m_iReligiousPressureAdjacentCity(0),
 	m_iVictoryDelayPercent(0),
 	m_iMinorCivElectionFreqMod(0),
+#if defined(MOD_TRADE_ROUTE_SCALING)
+	m_iTradeRouteSpeedMod(100),
+#endif
 	m_iLeaguePercent(0),
 	m_iNumTurnIncrements(0),
 	m_pGameTurnInfo(NULL)
@@ -3329,6 +3335,12 @@ int CvGameSpeedInfo::GetDealDuration() const
 {
 	return m_iDealDuration;
 }
+#if defined(MOD_BALANCE_CORE)
+int CvGameSpeedInfo::GetStartingHappiness() const
+{
+	return m_iStartingHappiness;
+}
+#endif
 //------------------------------------------------------------------------------
 int CvGameSpeedInfo::getGrowthPercent() const
 {
@@ -3469,6 +3481,13 @@ int CvGameSpeedInfo::getRelationshipDuration() const
 {
 	return m_iRelationshipDuration;
 }
+#if defined(MOD_TRADE_ROUTE_SCALING)
+//------------------------------------------------------------------------------
+int CvGameSpeedInfo::getTradeRouteSpeedMod() const
+{
+	return m_iTradeRouteSpeedMod;
+}
+#endif
 //------------------------------------------------------------------------------
 int CvGameSpeedInfo::getLeaguePercent() const
 {
@@ -3496,6 +3515,9 @@ bool CvGameSpeedInfo::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 		return false;
 
 	m_iDealDuration					= kResults.GetInt("DealDuration");
+#if defined(MOD_BALANCE_CORE)
+	m_iStartingHappiness			= kResults.GetInt("StartingHappiness");
+#endif
 	m_iGrowthPercent				= kResults.GetInt("GrowthPercent");
 	m_iTrainPercent					= kResults.GetInt("TrainPercent");
 	m_iConstructPercent				= kResults.GetInt("ConstructPercent");
@@ -3524,6 +3546,11 @@ bool CvGameSpeedInfo::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_iSpyRatePercent				= kResults.GetInt("SpyRatePercent");
 	m_iPeaceDealDuration			= kResults.GetInt("PeaceDealDuration");
 	m_iRelationshipDuration			= kResults.GetInt("RelationshipDuration");
+#if defined(MOD_TRADE_ROUTE_SCALING)
+	if (MOD_TRADE_ROUTE_SCALING) {
+		m_iTradeRouteSpeedMod		= kResults.GetInt("TradeRouteSpeedMod");
+	}
+#endif
 	m_iLeaguePercent				= kResults.GetInt("LeaguePercent");
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
@@ -3659,6 +3686,87 @@ FDataStream& operator>>(FDataStream& loadFrom, CvTurnTimerInfo& writeTo)
 	writeTo.readFrom(loadFrom);
 	return loadFrom;
 }
+
+
+#if defined(MOD_EVENTS_DIPLO_MODIFIERS)
+//======================================================================================================
+//					CvDiploModifierInfo
+//======================================================================================================
+CvDiploModifierInfo::CvDiploModifierInfo() :
+	m_eFromCiv(NO_CIVILIZATION),
+	m_eToCiv(NO_CIVILIZATION)
+{}
+//------------------------------------------------------------------------------
+bool CvDiploModifierInfo::isForFromCiv(CivilizationTypes eFromCiv)
+{
+	return (m_eFromCiv == NO_CIVILIZATION || m_eFromCiv == eFromCiv);
+}
+//------------------------------------------------------------------------------
+bool CvDiploModifierInfo::isForToCiv(CivilizationTypes eToCiv)
+{
+	return (m_eToCiv == NO_CIVILIZATION || m_eToCiv == eToCiv);
+}
+//------------------------------------------------------------------------------
+bool CvDiploModifierInfo::CacheResults(Database::Results& results, CvDatabaseUtility& kUtility)
+{
+	if(CvBaseInfo::CacheResults(results, kUtility))
+	{
+		const char* szTextVal = NULL;
+
+		szTextVal = results.GetText("FromCivilizationType");
+		m_eFromCiv = (CivilizationTypes) GC.getInfoTypeForString(szTextVal, true);
+
+		szTextVal = results.GetText("ToCivilizationType");
+		m_eToCiv = (CivilizationTypes) GC.getInfoTypeForString(szTextVal, true);
+
+		return true;
+	}
+
+	return false;
+}
+
+bool CvDiploModifierInfo::operator==(const CvDiploModifierInfo& rhs) const
+{
+	if(this == &rhs) return true;
+	if(!CvBaseInfo::operator==(rhs)) return false;
+	if(m_eFromCiv != rhs.m_eFromCiv) return false;
+	if(m_eToCiv != rhs.m_eToCiv) return false;
+	return true;
+}
+
+void CvDiploModifierInfo::writeTo(FDataStream& saveTo) const
+{
+	CvBaseInfo::writeTo(saveTo);
+
+	MOD_SERIALIZE_INIT_WRITE(saveTo);
+
+	MOD_SERIALIZE_WRITE(saveTo, m_eFromCiv);
+	MOD_SERIALIZE_WRITE(saveTo, m_eToCiv);
+}
+
+void CvDiploModifierInfo::readFrom(FDataStream& loadFrom)
+{
+	CvBaseInfo::readFrom(loadFrom);
+
+	MOD_SERIALIZE_INIT_READ(loadFrom);
+
+	MOD_SERIALIZE_READ(53, loadFrom, m_eFromCiv, NO_CIVILIZATION);
+	MOD_SERIALIZE_READ(53, loadFrom, m_eToCiv, NO_CIVILIZATION);
+}
+
+FDataStream& operator<<(FDataStream& saveTo, const CvDiploModifierInfo& readFrom)
+{
+	readFrom.writeTo(saveTo);
+	return saveTo;
+}
+
+FDataStream& operator>>(FDataStream& loadFrom, CvDiploModifierInfo& writeTo)
+{
+	writeTo.readFrom(loadFrom);
+	return loadFrom;
+}
+#endif
+
 
 //======================================================================================================
 //					CvBuildInfo
@@ -3982,6 +4090,10 @@ CvGoodyInfo::CvGoodyInfo() : CvBaseInfo()
 	, m_iHealing(0)
 	, m_iDamagePrereq(0)
 	, m_iPopulation(0)
+#if defined(MOD_BALANCE_CORE)
+	, m_iProduction(0)
+	, m_iGoldenAge(0)
+#endif
 	, m_iCulture(0)
 	, m_iFaith(0)
 	, m_iProphetPercent(0)
@@ -4067,7 +4179,16 @@ int CvGoodyInfo::getPopulation() const
 {
 	return m_iPopulation;
 }
-
+#if defined(MOD_BALANCE_CORE)
+int CvGoodyInfo::getProduction() const
+{
+	return m_iProduction;
+}
+int CvGoodyInfo::getGoldenAge() const
+{
+	return m_iGoldenAge;
+}
+#endif
 int CvGoodyInfo::getBarbarianUnitProb() const
 {
 	return m_iBarbarianUnitProb;
@@ -4158,6 +4279,10 @@ bool CvGoodyInfo::CacheResults(Database::Results& results, CvDatabaseUtility& kU
 	m_iHealing = results.GetInt("Healing");
 	m_iDamagePrereq = results.GetInt("DamagePrereq");
 	m_iPopulation = results.GetInt("Population");
+#if defined(MOD_BALANCE_CORE)
+	m_iProduction = results.GetInt("Production");
+	m_iGoldenAge = results.GetInt("GoldenAge");
+#endif
 	m_iCulture = results.GetInt("Culture");
 	m_iFaith = results.GetInt("Faith");
 	m_iProphetPercent = results.GetInt("ProphetPercent");
@@ -4793,6 +4918,12 @@ CvFeatureInfo::CvFeatureInfo() :
 	m_iInBorderHappiness(0),
 	m_iOccurrenceFrequency(0),
 	m_iAdjacentUnitFreePromotion(NO_PROMOTION),
+#if defined(MOD_BALANCE_CORE)
+	m_iLocationUnitFreePromotion(NO_PROMOTION),
+	m_iSpawnLocationUnitFreePromotion(NO_PROMOTION),
+	m_bIsBarbarianOnly(false),
+	m_bIsCityStateOnly(false),
+#endif
 	m_bYieldNotAdditive(false),
 	m_bNoCoast(false),
 	m_bNoRiver(false),
@@ -4812,6 +4943,11 @@ CvFeatureInfo::CvFeatureInfo() :
 	m_piYieldChange(NULL),
 	m_piRiverYieldChange(NULL),
 	m_piHillsYieldChange(NULL),
+#if defined(MOD_API_UNIFIED_YIELDS)
+	m_piCoastalLandYieldChange(NULL),
+	m_piFreshWaterChange(NULL),
+	m_ppiTechYieldChanges(NULL),
+#endif
 	m_pi3DAudioScriptFootstepIndex(NULL),
 	m_pbTerrain(NULL),
 	m_bClearable(false)
@@ -4823,6 +4959,14 @@ CvFeatureInfo::~CvFeatureInfo()
 	SAFE_DELETE_ARRAY(m_piYieldChange);
 	SAFE_DELETE_ARRAY(m_piRiverYieldChange);
 	SAFE_DELETE_ARRAY(m_piHillsYieldChange);
+#if defined(MOD_API_UNIFIED_YIELDS)
+	SAFE_DELETE_ARRAY(m_piCoastalLandYieldChange);
+	SAFE_DELETE_ARRAY(m_piFreshWaterChange);
+	if(m_ppiTechYieldChanges != NULL)
+	{
+		CvDatabaseUtility::SafeDelete2DArray(m_ppiTechYieldChanges);
+	}
+#endif
 	SAFE_DELETE_ARRAY(m_pi3DAudioScriptFootstepIndex);
 	SAFE_DELETE_ARRAY(m_pbTerrain);
 }
@@ -4908,6 +5052,24 @@ int CvFeatureInfo::getAdjacentUnitFreePromotion() const
 {
 	return m_iAdjacentUnitFreePromotion;
 }
+#if defined(MOD_BALANCE_CORE)
+int CvFeatureInfo::getLocationUnitFreePromotion() const
+{
+	return m_iLocationUnitFreePromotion;
+}
+int CvFeatureInfo::getSpawnLocationUnitFreePromotion() const
+{
+	return m_iSpawnLocationUnitFreePromotion;
+}
+bool CvFeatureInfo::isBarbarianOnly() const
+{
+	return m_bIsBarbarianOnly;
+}
+bool CvFeatureInfo::isCityStateOnly() const
+{
+	return m_bIsCityStateOnly;
+}
+#endif
 //------------------------------------------------------------------------------
 bool CvFeatureInfo::isYieldNotAdditive() const
 {
@@ -5024,6 +5186,31 @@ int CvFeatureInfo::getHillsYieldChange(int i) const
 	CvAssertMsg(i > -1, "Index out of bounds");
 	return m_piHillsYieldChange ? m_piHillsYieldChange[i] : -1;
 }
+#if defined(MOD_API_UNIFIED_YIELDS)
+//------------------------------------------------------------------------------
+int CvFeatureInfo::getCoastalLandYieldChange(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piCoastalLandYieldChange ? m_piCoastalLandYieldChange[i] : -1;
+}
+//------------------------------------------------------------------------------
+int CvFeatureInfo::getFreshWaterYieldChange(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piFreshWaterChange ? m_piFreshWaterChange[i] : -1;
+}
+//------------------------------------------------------------------------------
+int CvFeatureInfo::GetTechYieldChanges(int i, int j) const
+{
+	CvAssertMsg(i < GC.getNumTechInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	CvAssertMsg(j < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(j > -1, "Index out of bounds");
+	return m_ppiTechYieldChanges[i][j];
+}
+#endif
 //------------------------------------------------------------------------------
 int CvFeatureInfo::get3DAudioScriptFootstepIndex(int i) const
 {
@@ -5087,6 +5274,17 @@ bool CvFeatureInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	szTextVal = kResults.GetText("AdjacentUnitFreePromotion");
 	m_iAdjacentUnitFreePromotion = GC.getInfoTypeForString(szTextVal, true);
 
+#if defined(MOD_BALANCE_CORE)
+	szTextVal = kResults.GetText("LocationUnitFreePromotion");
+	m_iLocationUnitFreePromotion = GC.getInfoTypeForString(szTextVal, true);
+
+	szTextVal = kResults.GetText("SpawnLocationUnitFreePromotion");
+	m_iSpawnLocationUnitFreePromotion = GC.getInfoTypeForString(szTextVal, true);
+
+	m_bIsBarbarianOnly = kResults.GetBool("IsBarbarianOnly");
+	m_bIsCityStateOnly = kResults.GetBool("IsCityStateOnly");
+#endif
+
 	const char* szTerrainType = kResults.GetText("GrowthTerrainType");
 	if(szTerrainType != NULL)
 	{
@@ -5128,6 +5326,41 @@ bool CvFeatureInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	kUtility.SetYields(m_piYieldChange, "Feature_YieldChanges", "FeatureType", szFeatureType);
 	kUtility.SetYields(m_piRiverYieldChange, "Feature_RiverYieldChanges", "FeatureType", szFeatureType);
 	kUtility.SetYields(m_piHillsYieldChange, "Feature_HillsYieldChanges", "FeatureType", szFeatureType);
+#if defined(MOD_API_UNIFIED_YIELDS)
+	kUtility.SetYields(m_piCoastalLandYieldChange, "Feature_CoastalLandYields", "FeatureType", szFeatureType);
+	kUtility.SetYields(m_piFreshWaterChange, "Feature_FreshWaterYields", "FeatureType", szFeatureType);
+
+	const int iNumYields = kUtility.MaxRows("Yields");
+	const int iNumTechs = GC.getNumTechInfos();
+	CvAssertMsg(iNumTechs > 0, "Num Tech Infos <= 0");
+
+	//TechYieldChanges
+	if (MOD_API_UNIFIED_YIELDS) {
+		kUtility.Initialize2DArray(m_ppiTechYieldChanges, iNumTechs, iNumYields);
+
+		std::string strKey = "Features - TechYieldChanges";
+		Database::Results* pResults = kUtility.GetResults(strKey);
+		if(pResults == NULL)
+		{
+			pResults = kUtility.PrepareResults(strKey, "select Yields.ID as YieldID, Technologies.ID as TechID, Yield from Feature_TechYieldChanges inner join Yields on YieldType = Yields.Type inner join Technologies on TechType = Technologies.Type where FeatureType = ?");
+		}
+
+		pResults->Bind(1, szFeatureType, strlen(szFeatureType), false);
+
+		while(pResults->Step())
+		{
+			const int yield_idx = pResults->GetInt(0);
+			CvAssert(yield_idx > -1);
+
+			const int tech_idx = pResults->GetInt(1);
+			CvAssert(tech_idx > -1);
+
+			const int yield = pResults->GetInt(2);
+
+			m_ppiTechYieldChanges[tech_idx][yield_idx] = yield;
+		}
+	}
+#endif
 
 	kUtility.PopulateArrayByExistence(m_pbTerrain, "Terrains", "Feature_TerrainBooleans", "TerrainType", "FeatureType", szFeatureType);
 
@@ -5141,6 +5374,10 @@ bool CvFeatureInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 //					CvYieldInfo
 //======================================================================================================
 CvYieldInfo::CvYieldInfo() :
+#if defined(MOD_API_EXTENSIONS)
+	m_strIconString(""),
+	m_strColorString(""),
+#endif
 	m_iHillsChange(0),
 	m_iMountainChange(0),
 	m_iLakeChange(0),
@@ -5154,6 +5391,18 @@ CvYieldInfo::CvYieldInfo() :
 	m_iAIWeightPercent(0)
 {
 }
+#if defined(MOD_API_EXTENSIONS)
+//------------------------------------------------------------------------------
+const char* CvYieldInfo::getIconString() const
+{
+	return m_strIconString;
+}
+//------------------------------------------------------------------------------
+const char* CvYieldInfo::getColorString() const
+{
+	return m_strColorString;
+}
+#endif
 //------------------------------------------------------------------------------
 int CvYieldInfo::getHillsChange() const
 {
@@ -5215,6 +5464,10 @@ bool CvYieldInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	if(!CvBaseInfo::CacheResults(kResults, kUtility))
 		return false;
 
+#if defined(MOD_API_EXTENSIONS)
+	m_strIconString = kResults.GetText("IconString");
+	m_strColorString = kResults.GetText("ColorString");
+#endif
 	kResults.GetValue("HillsChange", m_iHillsChange);
 	kResults.GetValue("MountainChange", m_iMountainChange);
 	kResults.GetValue("LakeChange", m_iLakeChange);
@@ -5245,6 +5498,13 @@ CvTerrainInfo::CvTerrainInfo() :
 	m_iTurnDamage(0),
 	m_iExtraTurnDamage(0),
 #endif
+#if defined(MOD_BALANCE_CORE)
+	m_iLocationUnitFreePromotion(NO_PROMOTION),
+	m_iSpawnLocationUnitFreePromotion(NO_PROMOTION),
+	m_bIsBarbarianOnly(false),
+	m_bIsCityStateOnly(false),
+	m_iAdjacentUnitFreePromotion(NO_PROMOTION),
+#endif
 	m_bWater(false),
 	m_bImpassable(false),
 	m_bFound(false),
@@ -5254,6 +5514,11 @@ CvTerrainInfo::CvTerrainInfo() :
 	m_piYields(NULL),
 	m_piRiverYieldChange(NULL),
 	m_piHillsYieldChange(NULL),
+#if defined(MOD_API_UNIFIED_YIELDS)
+	m_piCoastalLandYieldChange(NULL),
+	m_piFreshWaterChange(NULL),
+	m_ppiTechYieldChanges(NULL),
+#endif
 	m_pi3DAudioScriptFootstepIndex(NULL)
 {
 }
@@ -5263,6 +5528,14 @@ CvTerrainInfo::~CvTerrainInfo()
 	SAFE_DELETE_ARRAY(m_piYields);
 	SAFE_DELETE_ARRAY(m_piRiverYieldChange);
 	SAFE_DELETE_ARRAY(m_piHillsYieldChange);
+#if defined(MOD_API_UNIFIED_YIELDS)
+	SAFE_DELETE_ARRAY(m_piCoastalLandYieldChange);
+	SAFE_DELETE_ARRAY(m_piFreshWaterChange);
+	if(m_ppiTechYieldChanges != NULL)
+	{
+		CvDatabaseUtility::SafeDelete2DArray(m_ppiTechYieldChanges);
+	}
+#endif
 	SAFE_DELETE_ARRAY(m_pi3DAudioScriptFootstepIndex);
 }
 //------------------------------------------------------------------------------
@@ -5305,6 +5578,29 @@ int CvTerrainInfo::getTurnDamage() const
 int CvTerrainInfo::getExtraTurnDamage() const
 {
 	return m_iExtraTurnDamage;
+}
+#endif
+#if defined(MOD_BALANCE_CORE)
+int CvTerrainInfo::getLocationUnitFreePromotion() const
+{
+	return m_iLocationUnitFreePromotion;
+}
+int CvTerrainInfo::getSpawnLocationUnitFreePromotion() const
+{
+	return m_iSpawnLocationUnitFreePromotion;
+}
+bool CvTerrainInfo::isBarbarianOnly() const
+{
+	return m_bIsBarbarianOnly;
+}
+bool CvTerrainInfo::isCityStateOnly() const
+{
+	return m_bIsCityStateOnly;
+}
+//------------------------------------------------------------------------------
+int CvTerrainInfo::getAdjacentUnitFreePromotion() const
+{
+	return m_iAdjacentUnitFreePromotion;
 }
 #endif
 //------------------------------------------------------------------------------
@@ -5373,6 +5669,31 @@ int CvTerrainInfo::getHillsYieldChange(int i) const
 	CvAssertMsg(i > -1, "Index out of bounds");
 	return m_piHillsYieldChange ? m_piHillsYieldChange[i] : -1;
 }
+#if defined(MOD_API_UNIFIED_YIELDS)
+//------------------------------------------------------------------------------
+int CvTerrainInfo::getCoastalLandYieldChange(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piCoastalLandYieldChange ? m_piCoastalLandYieldChange[i] : -1;
+}
+//------------------------------------------------------------------------------
+int CvTerrainInfo::getFreshWaterYieldChange(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piFreshWaterChange ? m_piFreshWaterChange[i] : -1;
+}
+//------------------------------------------------------------------------------
+int CvTerrainInfo::GetTechYieldChanges(int i, int j) const
+{
+	CvAssertMsg(i < GC.getNumTechInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	CvAssertMsg(j < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(j > -1, "Index out of bounds");
+	return m_ppiTechYieldChanges[i][j];
+}
+#endif
 //------------------------------------------------------------------------------
 int CvTerrainInfo::get3DAudioScriptFootstepIndex(int i) const
 {
@@ -5415,12 +5736,60 @@ bool CvTerrainInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 		m_iWorldSoundscapeScriptId = -1;
 		Remark(1, "Warning: Missing soundscape definition in XML for feature: '%s'", GetType());
 	}
+#if defined(MOD_BALANCE_CORE)
+	szTextVal = kResults.GetText("LocationUnitFreePromotion");
+	m_iLocationUnitFreePromotion = GC.getInfoTypeForString(szTextVal, true);
+
+	szTextVal = kResults.GetText("SpawnLocationUnitFreePromotion");
+	m_iSpawnLocationUnitFreePromotion = GC.getInfoTypeForString(szTextVal, true);
+
+	m_bIsBarbarianOnly = kResults.GetBool("IsBarbarianOnly");
+	m_bIsCityStateOnly = kResults.GetBool("IsCityStateOnly");
+
+	szTextVal = kResults.GetText("AdjacentUnitFreePromotion");
+	m_iAdjacentUnitFreePromotion = GC.getInfoTypeForString(szTextVal, true);
+#endif
 
 	//Arrays
 	const char* szTerrainType = GetType();
 	kUtility.SetYields(m_piYields, "Terrain_Yields", "TerrainType", szTerrainType);
 	kUtility.SetYields(m_piRiverYieldChange, "Terrain_RiverYieldChanges", "TerrainType", szTerrainType);
 	kUtility.SetYields(m_piHillsYieldChange, "Terrain_HillsYieldChanges", "TerrainType", szTerrainType);
+#if defined(MOD_API_UNIFIED_YIELDS)
+	kUtility.SetYields(m_piCoastalLandYieldChange, "Terrain_CoastalLandYields", "TerrainType", szTerrainType);
+	kUtility.SetYields(m_piFreshWaterChange, "Terrain_FreshWaterYields", "TerrainType", szTerrainType);
+
+	const int iNumYields = kUtility.MaxRows("Yields");
+	const int iNumTechs = GC.getNumTechInfos();
+	CvAssertMsg(iNumTechs > 0, "Num Tech Infos <= 0");
+
+	//TechYieldChanges
+	if (MOD_API_UNIFIED_YIELDS) {
+		kUtility.Initialize2DArray(m_ppiTechYieldChanges, iNumTechs, iNumYields);
+
+		std::string strKey = "Terrains - TechYieldChanges";
+		Database::Results* pResults = kUtility.GetResults(strKey);
+		if(pResults == NULL)
+		{
+			pResults = kUtility.PrepareResults(strKey, "select Yields.ID as YieldID, Technologies.ID as TechID, Yield from Terrain_TechYieldChanges inner join Yields on YieldType = Yields.Type inner join Technologies on TechType = Technologies.Type where TerrainType = ?");
+		}
+
+		pResults->Bind(1, szTerrainType, strlen(szTerrainType), false);
+
+		while(pResults->Step())
+		{
+			const int yield_idx = pResults->GetInt(0);
+			CvAssert(yield_idx > -1);
+
+			const int tech_idx = pResults->GetInt(1);
+			CvAssert(tech_idx > -1);
+
+			const int yield = pResults->GetInt(2);
+
+			m_ppiTechYieldChanges[tech_idx][yield_idx] = yield;
+		}
+	}
+#endif
 
 	m_strEffectTypeTag = kResults.GetText("EffectTypeTag");
 
@@ -5691,6 +6060,9 @@ CvWorldInfo::CvWorldInfo() :
 	m_iNumCitiesUnhappinessPercent(100),
 	m_iNumCitiesPolicyCostMod(10),
 	m_iNumCitiesTechCostMod(5),
+#if defined(MOD_TRADE_ROUTE_SCALING)
+	m_iTradeRouteDistanceMod(100),
+#endif
 	m_iEstimatedNumCities(0)
 {
 }
@@ -5789,6 +6161,13 @@ int CvWorldInfo::GetNumCitiesTechCostMod() const
 {
 	return m_iNumCitiesTechCostMod;
 }
+#if defined(MOD_TRADE_ROUTE_SCALING)
+//------------------------------------------------------------------------------
+int CvWorldInfo::getTradeRouteDistanceMod() const
+{
+	return m_iTradeRouteDistanceMod;
+}
+#endif
 //------------------------------------------------------------------------------
 int CvWorldInfo::GetEstimatedNumCities() const
 {
@@ -5839,6 +6218,11 @@ bool CvWorldInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	m_iNumCitiesUnhappinessPercent	= kResults.GetInt("NumCitiesUnhappinessPercent");
 	m_iNumCitiesPolicyCostMod		= kResults.GetInt("NumCitiesPolicyCostMod");
 	m_iNumCitiesTechCostMod			= kResults.GetInt("NumCitiesTechCostMod");
+#if defined(MOD_TRADE_ROUTE_SCALING)
+	if (MOD_TRADE_ROUTE_SCALING) {
+		m_iTradeRouteDistanceMod	= kResults.GetInt("TradeRouteDistanceMod");
+	}
+#endif
 	m_iEstimatedNumCities			= kResults.GetInt("EstimatedNumCities");
 
 	return true;
@@ -5866,6 +6250,9 @@ bool CvWorldInfo::operator==(const CvWorldInfo& rhs) const
 	if(m_iAdvancedStartPointsMod != rhs.m_iAdvancedStartPointsMod) return false;
 	if(m_iNumCitiesUnhappinessPercent != rhs.m_iNumCitiesUnhappinessPercent) return false;
 	if(m_iNumCitiesPolicyCostMod != rhs.m_iNumCitiesPolicyCostMod) return false;
+#if defined(MOD_TRADE_ROUTE_SCALING)
+	if(m_iTradeRouteDistanceMod != rhs.m_iTradeRouteDistanceMod) return false;
+#endif
 	if(m_iNumCitiesTechCostMod != rhs.m_iNumCitiesTechCostMod) return false;
 	return true;
 }
@@ -5910,6 +6297,9 @@ void CvWorldInfo::readFrom(FDataStream& loadFrom)
 	{
 		m_iNumCitiesTechCostMod = 0;
 	}
+#if defined(MOD_TRADE_ROUTE_SCALING)
+	MOD_SERIALIZE_READ(52, loadFrom, m_iTradeRouteDistanceMod, 100);
+#endif
 }
 
 // A special reader for version 0 (pre-versioning)
@@ -5962,6 +6352,9 @@ void CvWorldInfo::writeTo(FDataStream& saveTo) const
 	saveTo << m_iNumCitiesUnhappinessPercent;
 	saveTo << m_iNumCitiesPolicyCostMod;
 	saveTo << m_iNumCitiesTechCostMod;
+#if defined(MOD_TRADE_ROUTE_SCALING)
+	MOD_SERIALIZE_WRITE(saveTo, m_iTradeRouteDistanceMod);
+#endif
 }
 
 FDataStream& operator<<(FDataStream& saveTo, const CvWorldInfo& readFrom)
@@ -6382,6 +6775,7 @@ CvEraInfo::CvEraInfo() :
 	m_iTradeRouteFoodBonusTimes100(0),
 	m_iTradeRouteProductionBonusTimes100(0),
 	m_iLeaguePercent(0),
+	m_iWarmongerPercent(0),
 	m_bNoGoodies(false),
 	m_bNoBarbUnits(false),
 	m_bNoReligion(false),
@@ -6551,7 +6945,11 @@ int CvEraInfo::getLeaguePercent() const
 {
 	return m_iLeaguePercent;
 }
-
+//------------------------------------------------------------------------------
+int CvEraInfo::getWarmongerPercent() const
+{
+	return m_iWarmongerPercent;
+}
 //------------------------------------------------------------------------------
 const char* CvEraInfo::getArtPrefix() const
 {
@@ -6655,6 +7053,7 @@ bool CvEraInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& kUt
 	m_iTradeRouteFoodBonusTimes100 = kResults.GetInt("TradeRouteFoodBonusTimes100");
 	m_iTradeRouteProductionBonusTimes100 = kResults.GetInt("TradeRouteProductionBonusTimes100");
 	m_iLeaguePercent			= kResults.GetInt("LeaguePercent");
+	m_iWarmongerPercent			= kResults.GetInt("WarmongerPercent");
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	if (MOD_DIPLOMACY_CIV4_FEATURES) {
 		m_bVassalageEnabled			= kResults.GetBool("VassalageEnabled");
@@ -6943,5 +7342,240 @@ int CvGameSpeedInfo::getMinimumVassalTurns() const
 int CvGameSpeedInfo::getNumTurnsBetweenVassals() const
 {
 	return m_iNumTurnsBetweenVassals;
+}
+#endif
+
+#if defined(MOD_API_UNIFIED_YIELDS)
+/// Helper function to read in an integer array of data sized according to number of building types
+void FeatureArrayHelpers::Read(FDataStream& kStream, int* paiFeatureArray)
+{
+	int iNumEntries;
+
+	kStream >> iNumEntries;
+
+	int iArraySize = GC.getNumFeatureInfos();
+	for(int iI = 0; iI < iNumEntries; iI++)
+	{
+		uint uiHash;
+		kStream >> uiHash;
+		if (uiHash != 0 && uiHash != (uint)NO_FEATURE)
+		{
+			int iType = GC.getInfoTypeForHash(uiHash);
+			if(iType != -1 && iType < iArraySize)
+			{
+				kStream >> paiFeatureArray[iType];
+			}
+			else
+			{
+				CvString szError;
+				szError.Format("LOAD ERROR: Feature Type not found");
+				GC.LogMessage(szError.GetCString());
+				CvAssertMsg(false, szError);
+
+				int iDummy;
+				kStream >> iDummy;
+			}
+		}
+	}
+}
+
+/// Helper function to write out an integer array of data sized according to number of feature types
+void FeatureArrayHelpers::Write(FDataStream& kStream, int* paiFeatureArray, int iArraySize)
+{
+	kStream << iArraySize;
+
+	for(int iI = 0; iI < iArraySize; iI++)
+	{
+		const FeatureTypes eFeature = static_cast<FeatureTypes>(iI);
+		CvFeatureInfo* pkFeatureInfo = GC.getFeatureInfo(eFeature);
+		if(pkFeatureInfo)
+		{
+			CvInfosSerializationHelper::WriteHashed(kStream, pkFeatureInfo);
+			kStream << paiFeatureArray[iI];
+		}
+		else
+		{
+			kStream << (int)NO_FEATURE;
+		}
+	}
+}
+
+/// Helper function to read in an integer array of data sized according to number of building types
+void FeatureArrayHelpers::ReadYieldArray(FDataStream& kStream, int** ppaaiFeatureYieldArray, int iNumYields)
+{
+	int iNumEntries;
+
+	kStream >> iNumEntries;
+
+	for(int iI = 0; iI < iNumEntries; iI++)
+	{
+		int iHash;
+		kStream >> iHash;
+		if(iHash != (int)0)
+		{
+			int iType = GC.getInfoTypeForHash(iHash);
+			if(iType != -1)
+			{
+				for(int jJ = 0; jJ < iNumYields; jJ++)
+				{
+					kStream >> ppaaiFeatureYieldArray[iType][jJ];
+				}
+			}
+			else
+			{
+				CvString szError;
+				szError.Format("LOAD ERROR: Feature Type not found: %08x", iHash);
+				GC.LogMessage(szError.GetCString());
+				CvAssertMsg(false, szError);
+
+				for(int jJ = 0; jJ < iNumYields; jJ++)
+				{
+					int iDummy;
+					kStream >> iDummy;
+				}
+			}
+		}
+	}
+}
+
+/// Helper function to write out an integer array of data sized according to number of feature types
+void FeatureArrayHelpers::WriteYieldArray(FDataStream& kStream, int** ppaaiFeatureYieldArray, int iArraySize)
+{
+	kStream << iArraySize;
+
+	for(int iI = 0; iI < iArraySize; iI++)
+	{
+		const FeatureTypes eFeature = static_cast<FeatureTypes>(iI);
+		CvFeatureInfo* pkFeatureInfo = GC.getFeatureInfo(eFeature);
+		if(pkFeatureInfo)
+		{
+			CvInfosSerializationHelper::WriteHashed(kStream, pkFeatureInfo);
+			for(int jJ = 0; jJ < NUM_YIELD_TYPES; jJ++)
+			{
+				kStream << ppaaiFeatureYieldArray[iI][jJ];
+			}
+		}
+		else
+		{
+			kStream << (int)0;
+		}
+	}
+}
+
+
+/// Helper function to read in an integer array of data sized according to number of building types
+void TerrainArrayHelpers::Read(FDataStream& kStream, int* paiTerrainArray)
+{
+	int iNumEntries;
+
+	kStream >> iNumEntries;
+
+	int iArraySize = GC.getNumTerrainInfos();
+	for(int iI = 0; iI < iNumEntries; iI++)
+	{
+		uint uiHash;
+		kStream >> uiHash;
+		if (uiHash != 0 && uiHash != (uint)NO_TERRAIN)
+		{
+			int iType = GC.getInfoTypeForHash(uiHash);
+			if(iType != -1 && iType < iArraySize)
+			{
+				kStream >> paiTerrainArray[iType];
+			}
+			else
+			{
+				CvString szError;
+				szError.Format("LOAD ERROR: Terrain Type not found");
+				GC.LogMessage(szError.GetCString());
+				CvAssertMsg(false, szError);
+
+				int iDummy;
+				kStream >> iDummy;
+			}
+		}
+	}
+}
+
+/// Helper function to write out an integer array of data sized according to number of terrain types
+void TerrainArrayHelpers::Write(FDataStream& kStream, int* paiTerrainArray, int iArraySize)
+{
+	kStream << iArraySize;
+
+	for(int iI = 0; iI < iArraySize; iI++)
+	{
+		const TerrainTypes eTerrain = static_cast<TerrainTypes>(iI);
+		CvTerrainInfo* pkTerrainInfo = GC.getTerrainInfo(eTerrain);
+		if(pkTerrainInfo)
+		{
+			CvInfosSerializationHelper::WriteHashed(kStream, pkTerrainInfo);
+			kStream << paiTerrainArray[iI];
+		}
+		else
+		{
+			kStream << (int)NO_TERRAIN;
+		}
+	}
+}
+
+/// Helper function to read in an integer array of data sized according to number of building types
+void TerrainArrayHelpers::ReadYieldArray(FDataStream& kStream, int** ppaaiTerrainYieldArray, int iNumYields)
+{
+	int iNumEntries;
+
+	kStream >> iNumEntries;
+
+	for(int iI = 0; iI < iNumEntries; iI++)
+	{
+		int iHash;
+		kStream >> iHash;
+		if(iHash != (int)0)
+		{
+			int iType = GC.getInfoTypeForHash(iHash);
+			if(iType != -1)
+			{
+				for(int jJ = 0; jJ < iNumYields; jJ++)
+				{
+					kStream >> ppaaiTerrainYieldArray[iType][jJ];
+				}
+			}
+			else
+			{
+				CvString szError;
+				szError.Format("LOAD ERROR: Terrain Type not found: %08x", iHash);
+				GC.LogMessage(szError.GetCString());
+				CvAssertMsg(false, szError);
+
+				for(int jJ = 0; jJ < iNumYields; jJ++)
+				{
+					int iDummy;
+					kStream >> iDummy;
+				}
+			}
+		}
+	}
+}
+
+/// Helper function to write out an integer array of data sized according to number of terrain types
+void TerrainArrayHelpers::WriteYieldArray(FDataStream& kStream, int** ppaaiTerrainYieldArray, int iArraySize)
+{
+	kStream << iArraySize;
+
+	for(int iI = 0; iI < iArraySize; iI++)
+	{
+		const TerrainTypes eTerrain = static_cast<TerrainTypes>(iI);
+		CvTerrainInfo* pkTerrainInfo = GC.getTerrainInfo(eTerrain);
+		if(pkTerrainInfo)
+		{
+			CvInfosSerializationHelper::WriteHashed(kStream, pkTerrainInfo);
+			for(int jJ = 0; jJ < NUM_YIELD_TYPES; jJ++)
+			{
+				kStream << ppaaiTerrainYieldArray[iI][jJ];
+			}
+		}
+		else
+		{
+			kStream << (int)0;
+		}
+	}
 }
 #endif

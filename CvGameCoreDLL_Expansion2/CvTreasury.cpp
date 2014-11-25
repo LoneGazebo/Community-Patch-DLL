@@ -287,6 +287,17 @@ void CvTreasury::DoUpdateCityConnectionGold()
 			}
 		}
 	}
+#if defined(MOD_BALANCE_CORE_POLICIES)
+	//Bonus for Internal Trade Routes Gold Policy added in here (for LUA simplicity)
+	if(m_pPlayer->GetGoldInternalTrade() > 0)
+	{
+		int iInternalTradeRoutes = m_pPlayer->GetTrade()->GetNumberOfInternalTradeRoutes();
+		if(iInternalTradeRoutes > 0)
+		{
+			iNumGold += ((iInternalTradeRoutes * /*5*/ m_pPlayer->GetGoldInternalTrade()) * 100);
+		}
+	}
+#endif
 
 	m_iCityConnectionGoldTimes100 = iNumGold;
 }
@@ -418,7 +429,11 @@ int CvTreasury::GetGoldPerTurnFromTradeRoutesTimes100() const
 /// Gold per turn from traits
 int CvTreasury::GetGoldPerTurnFromTraits() const
 {
+#if defined(MOD_BALANCE_CORE)
+	return ((m_pPlayer->GetPlayerTraits()->GetYieldChangePerTradePartner(YIELD_GOLD) * m_pPlayer->GetTrade()->GetNumDifferentTradingPartners()) + (m_pPlayer->GetYieldPerTurnFromResources(YIELD_GOLD, true, false)));
+#else
 	return m_pPlayer->GetPlayerTraits()->GetYieldChangePerTradePartner(YIELD_GOLD) * m_pPlayer->GetTrade()->GetNumDifferentTradingPartners();
+#endif
 }
 
 /// Gold Per Turn from Religion
@@ -426,6 +441,9 @@ int CvTreasury::GetGoldPerTurnFromReligion() const
 {
 	int iGoldFromReligion = 0;
 
+#if defined(MOD_API_UNIFIED_YIELDS)
+	iGoldFromReligion += m_pPlayer->GetYieldPerTurnFromReligion(YIELD_GOLD);
+#else
 	CvGameReligions* pReligions = GC.getGame().GetGameReligions();
 
 	// Founder beliefs
@@ -443,8 +461,13 @@ int CvTreasury::GetGoldPerTurnFromReligion() const
 			{
 				iGoldFromReligion += (pReligions->GetNumFollowers(eFoundedReligion) / iGoldPerXFollowers);
 			}
+
+#if defined(MOD_API_UNIFIED_YIELDS)
+			iGoldFromReligion += m_pPlayer->GetYieldPerTurnFromReligion(YIELD_GOLD);
+#endif
 		}
 	}
+#endif
 
 	return iGoldFromReligion;
 }
@@ -475,9 +498,75 @@ int CvTreasury::CalculateGrossGoldTimes100()
 	// International trade
 	iNetGold += GetGoldPerTurnFromTraits() * 100;
 
+#if defined(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
+	//Mod for national unhappiness
+	if(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
+	{
+		//Mechanic to allow for growth malus from happiness/unhappiness.
+		int iHappiness = 0;
+		iHappiness += (m_pPlayer->GetHappiness() - m_pPlayer->GetSetUnhappiness());
+
+		//If Happiness is greater than or over threshold, calculate city bonus mod.
+		if(iHappiness >= GC.getBALANCE_HAPPINESS_THRESHOLD())
+		{
+			iHappiness = (iHappiness - GC.getBALANCE_HAPPINESS_THRESHOLD());
+			//Are there minimums/maximums for the bonus? Restrict this value.
+			if(iHappiness > GC.getBALANCE_HAPPINESS_BONUS_MAXIMUM())
+			{
+				iHappiness = GC.getBALANCE_HAPPINESS_BONUS_MAXIMUM();
+			}
+			else if(iHappiness < GC.getBALANCE_HAPPINESS_BONUS_MINIMUM())
+			{
+				iHappiness = GC.getBALANCE_HAPPINESS_BONUS_MINIMUM();
+			}
+			
+		}
+		//If happiness is less than the main threshold, calculate city penalty mod.
+		else if(iHappiness < GC.getBALANCE_HAPPINESS_THRESHOLD_MAIN())
+		{
+			//Are there minimums/maximums for the penalty? Restrict this value.
+			if(iHappiness > GC.getBALANCE_HAPPINESS_PENALTY_MINIMUM())
+			{
+				iHappiness = GC.getBALANCE_HAPPINESS_PENALTY_MINIMUM();
+			}
+			else if(iHappiness < GC.getBALANCE_HAPPINESS_PENALTY_MAXIMUM())
+			{
+				iHappiness = GC.getBALANCE_HAPPINESS_PENALTY_MAXIMUM();
+			}
+		}
+		if(iHappiness != 0)
+		{
+			iNetGold += ((iNetGold * /*5*/ GC.getBALANCE_HAPPINESS_GOLD_MODIFIER() * iHappiness) / 100);
+		}
+	}
+#endif
+
 	return iNetGold;
 }
+#if defined(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
+/// Gross income for turn
+int CvTreasury::CalculateGrossGoldTimes100ForUI()
+{
+	int iNetGold;
 
+	// Gold from Cities
+	iNetGold = GetGoldFromCitiesTimes100();
+
+	// Gold per Turn from Diplomacy
+	iNetGold += GetGoldPerTurnFromDiplomacy() * 100;
+
+	// City connection bonuses
+	iNetGold += GetCityConnectionGoldTimes100();
+
+	// Religion
+	iNetGold += GetGoldPerTurnFromReligion() * 100;
+
+	// International trade
+	iNetGold += GetGoldPerTurnFromTraits() * 100;
+
+	return iNetGold;
+}
+#endif
 /// Gross income across entire game
 int CvTreasury::GetLifetimeGrossGold()
 {

@@ -121,6 +121,9 @@ protected:
 	static int lCreateApolloProgram(lua_State* L);
 
 	static int lIsCanPurchase(lua_State* L);
+#if defined(MOD_API_LUA_EXTENSIONS)
+	LUAAPIEXTN(Purchase, void, int, int, int, int);
+#endif
 	static int lGetUnitPurchaseCost(lua_State* L);
 	static int lGetUnitFaithPurchaseCost(lua_State* L);
 	static int lGetBuildingPurchaseCost(lua_State* L);
@@ -311,6 +314,24 @@ protected:
 	LUAAPIEXTN(GetCityWorkingChange, int);
 	LUAAPIEXTN(ChangeCityWorkingChange, void, iChange);
 #endif
+#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE_HAPPINESS)
+	LUAAPIEXTN(GetUnhappinessFromCultureYield, int);
+	LUAAPIEXTN(GetUnhappinessFromCultureNeeded, int);
+	LUAAPIEXTN(GetUnhappinessFromCulture, int);
+	LUAAPIEXTN(GetUnhappinessFromScienceYield, int);
+	LUAAPIEXTN(GetUnhappinessFromScienceNeeded, int);
+	LUAAPIEXTN(GetUnhappinessFromScience, int);
+	LUAAPIEXTN(GetUnhappinessFromDefenseYield, int);
+	LUAAPIEXTN(GetUnhappinessFromDefenseNeeded, int);
+	LUAAPIEXTN(GetUnhappinessFromDefense, int);
+	LUAAPIEXTN(GetUnhappinessFromGoldYield, int);
+	LUAAPIEXTN(GetUnhappinessFromGoldNeeded, int);
+	LUAAPIEXTN(GetUnhappinessFromGold, int);
+	LUAAPIEXTN(GetUnhappinessFromConnection, int);
+	LUAAPIEXTN(GetUnhappinessFromPillaged, int);
+	LUAAPIEXTN(GetUnhappinessFromStarving, int);
+	LUAAPIEXTN(GetUnhappinessFromMinority, int);
+#endif
 
 	static int lChangeHealRate(lua_State* L);
 
@@ -324,6 +345,9 @@ protected:
 	static int lGetMaxFoodKeptPercent(lua_State* L);
 	static int lGetOverflowProduction(lua_State* L);
 	static int lSetOverflowProduction(lua_State* L);
+#if defined(MOD_API_LUA_EXTENSIONS)
+	LUAAPIEXTN(ChangeOverflowProduction, void, int);
+#endif
 	static int lGetFeatureProduction(lua_State* L);
 	static int lSetFeatureProduction(lua_State* L);
 	static int lGetMilitaryProductionModifier(lua_State* L);
@@ -503,6 +527,12 @@ protected:
 
 	static int lGetBuildingYieldChange(lua_State* L);
 	static int lSetBuildingYieldChange(lua_State* L);
+
+#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE_POLICIES)
+	LUAAPIEXTN(GetBuildingClassCultureChange, int);
+	LUAAPIEXTN(GetReligionYieldRateModifier, int);
+	LUAAPIEXTN(GetReligionBuildingYieldRateModifier, int);
+#endif
 
 	static int lGetBuildingEspionageModifier(lua_State* L);
 	static int lGetBuildingGlobalEspionageModifier(lua_State* L);

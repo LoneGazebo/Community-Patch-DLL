@@ -241,9 +241,21 @@ public:
 	{
 		return &(m_pMapPlots[plotNum(iX, iY)]);
 	}
+#if defined(MOD_BALANCE_CORE)
+	CvPlot** getNeighborsUnchecked(const CvPlot* pPlot) const
+	{
+		return m_pPlotNeighbors+plotNum(pPlot->getX(),pPlot->getY())*(NUM_DIRECTION_TYPES+2);
+	}
 
+	CvPlot* getNeighborUnchecked(int iX, int iY, DirectionTypes eDir) const
+	{
+		return m_pPlotNeighbors[ plotNum(iX,iY)*(NUM_DIRECTION_TYPES+2)+(int)eDir ];
+	}
+#endif
 	CvPlotManager& plotManager() { return m_kPlotManager; }
-
+#if defined(MOD_BALANCE_CORE)
+	void PrecalcNeighbors();
+#endif
 	/// Areas
 	int getIndexAfterLastArea();
 	int getNumAreas();
@@ -322,6 +334,9 @@ protected:
 	int* m_paiNumResourceOnLand;
 
 	CvPlot* m_pMapPlots;
+#if defined(MOD_BALANCE_CORE)
+	CvPlot** m_pPlotNeighbors;
+#endif
 
 	short* m_pYields;
 	int*   m_pFoundValue;

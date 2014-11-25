@@ -208,6 +208,10 @@ public:
 	int* GetSpecialistExtraYieldArray() const;
 	int IsFreePromotion(int i) const;
 	bool IsFreePromotionUnitCombat(const int promotionID, const int unitCombatID) const;
+#if defined(MOD_RELIGION_POLICY_BRANCH_FAITH_GP)
+	bool HasFaithPurchaseUnitClasses() const;
+	bool IsFaithPurchaseUnitClass(const int eUnitClass, const int eCurrentEra) const;
+#endif
 	int GetUnitCombatProductionModifiers(int i) const;
 	int GetUnitCombatFreeExperiences(int i) const;
 	int GetBuildingClassCultureChange(int i) const;
@@ -224,9 +228,56 @@ public:
 	int GetFreeChosenBuilding(int i) const;
 	void ChangeFreeChosenBuilding(int i, int iChange);
 #endif
+#if defined(MOD_BALANCE_CORE_POLICIES)
+	int GetYieldFromBirth(int i) const;
+	int GetYieldFromBirthCapital(int i) const;
+	int GetYieldFromConstruction(int i) const;
+	int GetYieldFromTech(int i) const;
+	bool GetNoUnhappinessExpansion() const;
+	bool GetNoUnhappyIsolation() const;
+	bool GetDoubleBorderGA() const;
+	bool GetDoubleQuestInfluence() const;
+	int GetCitadelBoost() const;
+	int GetInternalTradeGold() const;
+	int GetFreeWCVotes() const;
+	int GetInfluenceGPExpend() const;
+	int GetFreeTradeRoute() const;
+	int GetFreeSpy() const;
+	int GetYieldFromBorderGrowth(int i) const;
+	int GetYieldGPExpend(int i) const;
+	int GetGarrisonsOccupiedUnhapppinessMod() const;
+	int GetTradeReligionModifier() const;
+	int GetBestRangedUnitSpawnSettle() const;
+	int GetConquerorYield(int i) const;
+	int GetReligionBuildingYieldMod(int i, int j) const;
+	int GetReligionYieldMod(int i) const;
+	int GetFreePopulation() const;
+	int GetExtraMoves() const;
+#endif
 	int GetImprovementYieldChanges(int i, int j) const;
-#if defined(MOD_BALANCE_CORE_YIELDS)
+#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
 	int GetPlotYieldChanges(int i, int j) const;
+#endif
+#if defined(MOD_API_UNIFIED_YIELDS)
+	int GetFeatureYieldChanges(int i, int j) const;
+	int GetCityYieldFromUnimprovedFeature(int i, int j) const;
+	int GetUnimprovedFeatureYieldChanges(int i, int j) const;
+	int GetResourceYieldChanges(int i, int j) const;
+	int GetTerrainYieldChanges(int i, int j) const;
+	int GetTradeRouteYieldChange(int i, int j) const;
+	int GetSpecialistYieldChanges(int i, int j) const;
+	int GetGreatPersonExpendedYield(int i, int j) const;
+	int GetGoldenAgeGreatPersonRateModifier(int i) const;
+	int GetYieldFromKills(int i) const;
+	int* GetYieldFromKillsArray() const;
+	int GetYieldFromBarbarianKills(int i) const;
+	int* GetYieldFromBarbarianKillsArray() const;
+	int GetYieldChangeTradeRoute(int i) const;
+	int* GetYieldChangeTradeRouteArray() const;
+	int GetYieldChangesNaturalWonder(int i) const;
+	int* GetYieldChangesNaturalWonderArray() const;
+	int GetYieldChangeWorldWonder(int i) const;
+	int* GetYieldChangeWorldWonderArray() const;
 #endif
 	int GetBuildingClassYieldModifiers(int i, int j) const;
 	int GetBuildingClassYieldChanges(int i, int j) const;
@@ -236,7 +287,22 @@ public:
 	bool IncludesOneShotFreeUnits() const;
 
 	BuildingTypes GetFreeBuildingOnConquest() const;
+#if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
+	int GetPovertyHappinessChangePolicy() const;
+	int GetDefenseHappinessChangePolicy() const;
+	int GetUnculturedHappinessChangePolicy() const;
+	int GetIlliteracyHappinessChangePolicy() const;
+	int GetMinorityHappinessChangePolicy() const;
 
+	int GetPovertyHappinessChangePolicyCapital() const;
+	int GetDefenseHappinessChangePolicyCapital() const;
+	int GetUnculturedHappinessChangePolicyCapital() const;
+	int GetIlliteracyHappinessChangePolicyCapital() const;
+	int GetMinorityHappinessChangePolicyCapital() const;
+	int GetPuppetUnhappinessMod() const;
+	int GetNoUnhappfromXSpecialists() const;
+	int GetNoUnhappfromXSpecialistsCapital() const;
+#endif
 private:
 	int m_iTechPrereq;
 	int m_iCultureCost;
@@ -374,9 +440,6 @@ private:
 	int m_iHappinessToScience;
 	int m_iNumCitiesFreeCultureBuilding;
 	int m_iNumCitiesFreeFoodBuilding;
-#if defined(MOD_BALANCE_CORE)
-	int m_iFreeChosenBuilding;
-#endif
 
 	bool m_bHalfSpecialistUnhappiness;
 	bool m_bHalfSpecialistFood;
@@ -393,6 +456,22 @@ private:
 
 	bool m_bOneShot;
 	bool m_bIncludesOneShotFreeUnits;
+#if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
+	int m_iPovertyHappinessChangePolicy;
+	int m_iDefenseHappinessChangePolicy;
+	int m_iUnculturedHappinessChangePolicy;
+	int m_iIlliteracyHappinessChangePolicy;
+	int m_iMinorityHappinessChangePolicy;
+
+	int m_iPovertyHappinessChangePolicyCapital;
+	int m_iDefenseHappinessChangePolicyCapital;
+	int m_iUnculturedHappinessChangePolicyCapital;
+	int m_iIlliteracyHappinessChangePolicyCapital;
+	int m_iMinorityHappinessChangePolicyCapital;
+	int m_iPuppetUnhappinessModPolicy;
+	int m_iNoUnhappfromXSpecialists;
+	int m_iNoUnhappfromXSpecialistsCapital;
+#endif
 
 	CvString m_strWeLoveTheKingKey;
 	CvString m_wstrWeLoveTheKing;
@@ -401,6 +480,9 @@ private:
 
 	// Arrays
 	std::multimap<int, int> m_FreePromotionUnitCombats;
+#if defined(MOD_RELIGION_POLICY_BRANCH_FAITH_GP)
+	std::multimap<int, int> m_FaithPurchaseUnitClasses;
+#endif
 	int* m_piPrereqOrPolicies;
 	int* m_piPrereqAndPolicies;
 	int* m_piPolicyDisables;
@@ -426,16 +508,57 @@ private:
 #if defined(MOD_BALANCE_CORE)
 	int* m_paiFreeChosenBuilding;
 #endif
-
+#if defined(MOD_BALANCE_CORE_POLICIES)
+	int* m_piYieldFromBirth;
+	int* m_piYieldFromBirthCapital;
+	int* m_piYieldFromConstruction;
+	int* m_piYieldFromTech;
+	bool m_bNoUnhappinessExpansion;
+	bool m_bNoUnhappyIsolation;
+	bool m_bDoubleBorderGA;
+	bool m_bDoubleQuestInfluence;
+	int m_iCitadelBoost;
+	int m_iInternalTradeGold;
+	int m_iFreeWCVotes;
+	int m_iInfluenceGPExpend;
+	int m_iFreeTradeRoute;
+	int m_iFreeSpy;
+	int* m_piYieldFromBorderGrowth;
+	int* m_piYieldGPExpend;
+	int m_iGarrisonsOccupiedUnhapppinessMod;
+	int m_iTradeReligionModifier;
+	int m_iBestRangedUnitSpawnSettle;
+	int m_iFreePopulation;
+	int m_iExtraMoves;
+	int* m_piConquerorYield;
+	int* m_piReligionYieldMod;
+	int** m_ppiReligionBuildingYieldMod;
+#endif
 //	bool* m_pabHurry;
 	bool* m_pabSpecialistValid;
 	int** m_ppiImprovementYieldChanges;
+#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
+	int** m_ppiPlotYieldChanges;
+#endif
+#if defined(MOD_API_UNIFIED_YIELDS)
+	int** m_ppiFeatureYieldChanges;
+	int** m_ppiCityYieldFromUnimprovedFeature;
+	int** m_ppiUnimprovedFeatureYieldChanges;
+	int** m_ppiResourceYieldChanges;
+	int** m_ppiTerrainYieldChanges;
+	int** m_ppiTradeRouteYieldChange;
+	int** m_ppiSpecialistYieldChanges;
+	int** m_ppiGreatPersonExpendedYield;
+	int* m_piGoldenAgeGreatPersonRateModifier;
+	int* m_piYieldFromKills;
+	int* m_piYieldFromBarbarianKills;
+	int* m_piYieldChangeTradeRoute;
+	int* m_piYieldChangesNaturalWonder;
+	int* m_piYieldChangeWorldWonder;
+#endif
 	int** m_ppiBuildingClassYieldModifiers;
 	int** m_ppiBuildingClassYieldChanges;
 	int* m_piFlavorValue;
-#if defined(MOD_BALANCE_CORE_YIELDS)
-	int** m_ppiPlotYieldChanges;
-#endif
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -616,6 +739,9 @@ public:
 	int GetYieldModifier(YieldTypes eYieldType);
 	int GetBuildingClassYieldModifier(BuildingClassTypes eBuildingClass, YieldTypes eYieldType);
 	int GetBuildingClassYieldChange(BuildingClassTypes eBuildingClass, YieldTypes eYieldType);
+#if defined(MOD_BALANCE_CORE_POLICIES)
+	int GetReligionBuildingClassYieldModifier(BuildingClassTypes eBuildingClass, YieldTypes eYieldType);
+#endif
 	int GetBuildingClassProductionModifier(BuildingClassTypes eBuildingClass);
 	int GetBuildingClassTourismModifier(BuildingClassTypes eBuildingClass);
 	int GetImprovementCultureChange(ImprovementTypes eImprovement);

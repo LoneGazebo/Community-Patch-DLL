@@ -101,6 +101,9 @@ public:
 	int GetNearbyImprovementCombatBonus() const;
 	int GetNearbyImprovementBonusRange() const;
 	int GetCultureBuildingYieldChange() const;
+#if defined(MOD_BALANCE_CORE)
+	int GetCombatBonusVsHigherPop() const;
+#endif
 	int GetCombatBonusVsHigherTech() const;
 	int GetCombatBonusVsLargerCiv() const;
 	int GetLandUnitMaintenanceModifier() const;
@@ -119,12 +122,19 @@ public:
 	int GetWorkerSpeedModifier() const;
 	int GetAfraidMinorPerTurnInfluence() const;
 	int GetLandTradeRouteRangeBonus() const;
+#if defined(MOD_TRAITS_TRADE_ROUTE_BONUSES)
+	int GetSeaTradeRouteRangeBonus() const;
+#endif
 	int GetTradeReligionModifier() const;
 	int GetTradeBuildingModifier() const;
 #if defined(MOD_BALANCE_CORE)
 	int GetNumFreeBuildings() const;
 	TechTypes GetFreeBuildingPrereqTech() const;
 	TechTypes GetCapitalFreeBuildingPrereqTech() const;
+	int TradeRouteStartYield(int i) const;
+	int YieldFromRouteMovement(int i) const;
+	int YieldFromExport(int i) const;
+	int YieldFromImport(int i) const;
 #endif
 
 	TechTypes GetFreeUnitPrereqTech() const;
@@ -134,7 +144,9 @@ public:
 	BuildingTypes GetFreeCapitalBuilding() const;
 #endif
 	BuildingTypes GetFreeBuildingOnConquest() const;
-
+#if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
+	bool IsBullyAnnex() const;
+#endif
 	bool IsFightWellDamaged() const;
 	bool IsMoveFriendlyWoodsAsRoad() const;
 	bool IsFasterAlongRiver() const;
@@ -163,6 +175,15 @@ public:
 
 	const char* getShortDescription() const;
 	void setShortDescription(const char* szVal);
+#if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
+	int GetPovertyHappinessChange() const;
+	int GetDefenseHappinessChange() const;
+	int GetIlliteracyHappinessChange() const;
+	int GetUnculturedHappinessChange() const;
+	int GetMinorityHappinessChange() const;
+	bool IsNoConnectionUnhappiness() const;
+	bool IsNoReligiousStrife() const;
+#endif
 
 	// Arrays
 	int GetExtraYieldThreshold(int i) const;
@@ -179,7 +200,36 @@ public:
 	int GetMovesChangeUnitCombat(const int unitCombatID) const;
 	int GetMaintenanceModifierUnitCombat(const int unitCombatID) const;
 	int GetImprovementYieldChanges(ImprovementTypes eIndex1, YieldTypes eIndex2) const;
+#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
+	int GetPlotYieldChanges(PlotTypes eIndex1, YieldTypes eIndex2) const;
+#endif
+#if defined(MOD_BALANCE_CORE)
+	int GetTradeRouteStartYield(int i) const;
+	int GetYieldFromRouteMovement(int i) const;
+	int GetYieldFromExport(int i) const;
+	int GetYieldFromImport(int i) const;
+#endif
+#if defined(MOD_API_UNIFIED_YIELDS)
+	int GetBuildingClassYieldChanges(BuildingClassTypes eIndex1, YieldTypes eIndex2) const;
+	int GetCapitalYieldChanges(int i) const;
+	int GetCityYieldChanges(int i) const;
+	int GetCoastalCityYieldChanges(int i) const;
+	int GetGreatWorkYieldChanges(int i) const;
+	int GetFeatureYieldChanges(FeatureTypes eIndex1, YieldTypes eIndex2) const;
+	int GetResourceYieldChanges(ResourceTypes eIndex1, YieldTypes eIndex2) const;
+	int GetTerrainYieldChanges(TerrainTypes eIndex1, YieldTypes eIndex2) const;
+	int GetYieldFromKills(YieldTypes eYield) const;
+	int GetYieldFromBarbarianKills(YieldTypes eYield) const;
+	int GetYieldChangeTradeRoute(int i) const;
+	int GetYieldChangeWorldWonder(int i) const;
+	int GetTradeRouteYieldChange(DomainTypes eIndex1, YieldTypes eIndex2) const;
+#endif
 	int GetSpecialistYieldChanges(SpecialistTypes eIndex1, YieldTypes eIndex2) const;
+#if defined(MOD_API_UNIFIED_YIELDS)
+	int GetGreatPersonExpendedYield(GreatPersonTypes eIndex1, YieldTypes eIndex2) const;
+	int GetGoldenAgeGreatPersonRateModifier(GreatPersonTypes eIndex1) const;
+	int GetCityYieldFromUnimprovedFeature(FeatureTypes eIndex1, YieldTypes eIndex2) const;
+#endif
 	int GetUnimprovedFeatureYieldChanges(FeatureTypes eIndex1, YieldTypes eIndex2) const;
 	FreeResourceXCities GetFreeResourceXCities(ResourceTypes eResource) const;
 
@@ -242,6 +292,9 @@ protected:
 	int m_iNearbyImprovementCombatBonus;
 	int m_iNearbyImprovementBonusRange;
 	int m_iCultureBuildingYieldChange;
+#if defined(MOD_BALANCE_CORE)
+	int m_iCombatBonusVsHigherPop;
+#endif
 	int m_iCombatBonusVsHigherTech;
 	int m_iCombatBonusVsLargerCiv;
 	int m_iLandUnitMaintenanceModifier;
@@ -260,6 +313,9 @@ protected:
 	int m_iWorkerSpeedModifier;
 	int m_iAfraidMinorPerTurnInfluence;
 	int m_iLandTradeRouteRangeBonus;
+#if defined(MOD_TRAITS_TRADE_ROUTE_BONUSES)
+	int m_iSeaTradeRouteRangeBonus;
+#endif
 	int m_iTradeReligionModifier;
 	int m_iTradeBuildingModifier;
 #if defined(MOD_BALANCE_CORE)
@@ -275,7 +331,9 @@ protected:
 	TechTypes m_eCapitalFreeBuildingPrereqTech;
 #endif
 	BuildingTypes m_eFreeBuildingOnConquest;
-
+#if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
+	bool m_bBullyAnnex;
+#endif
 	bool m_bFightWellDamaged;
 	bool m_bMoveFriendlyWoodsAsRoad;
 	bool m_bFasterAlongRiver;
@@ -301,6 +359,15 @@ protected:
 	bool m_bUniqueLuxuryRequiresNewArea;
 	bool m_bRiverTradeRoad;
 	bool m_bAngerFreeIntrusionOfCityStates;
+#if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
+	int m_iPovertyHappinessChange;
+	int m_iDefenseHappinessChange;
+	int m_iUnculturedHappinessChange;
+	int m_iIlliteracyHappinessChange;
+	int m_iMinorityHappinessChange;
+	bool m_bNoConnectionUnhappiness;
+	bool m_bIsNoReligiousStrife;
+#endif
 
 	CvString m_strShortDescription;
 
@@ -317,7 +384,36 @@ protected:
 	int* m_piMovesChangeUnitCombats;
 	int* m_piMaintenanceModifierUnitCombats;
 	int** m_ppiImprovementYieldChanges;
+#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
+	int** m_ppiPlotYieldChanges;
+#endif
+#if defined(MOD_BALANCE_CORE)
+	int* m_piTradeRouteStartYield;
+	int* m_piYieldFromRouteMovement;
+	int* m_piYieldFromExport;
+	int* m_piYieldFromImport;
+#endif
+#if defined(MOD_API_UNIFIED_YIELDS)
+	int** m_ppiBuildingClassYieldChanges;
+	int* m_piCapitalYieldChanges;
+	int* m_piCityYieldChanges;
+	int* m_piCoastalCityYieldChanges;
+	int* m_piGreatWorkYieldChanges;
+	int** m_ppiFeatureYieldChanges;
+	int** m_ppiResourceYieldChanges;
+	int** m_ppiTerrainYieldChanges;
+	int* m_piYieldFromKills;
+	int* m_piYieldFromBarbarianKills;
+	int* m_piYieldChangeTradeRoute;
+	int* m_piYieldChangeWorldWonder;
+	int** m_ppiTradeRouteYieldChange;
+#endif
 	int** m_ppiSpecialistYieldChanges;
+#if defined(MOD_API_UNIFIED_YIELDS)
+	int** m_ppiGreatPersonExpendedYield;
+	int* m_piGoldenAgeGreatPersonRateModifier;
+	int** m_ppiCityYieldFromUnimprovedFeature;
+#endif
 	int** m_ppiUnimprovedFeatureYieldChanges;
 
 	std::multimap<int, int> m_FreePromotionUnitCombats;
@@ -568,6 +664,12 @@ public:
 	{
 		return m_iCultureBuildingYieldChange;
 	};
+#if defined(MOD_BALANCE_CORE)
+	int GetCombatBonusVsHigherPop() const
+	{
+		return m_iCombatBonusVsHigherPop;
+	};
+#endif
 	int GetCombatBonusVsHigherTech() const
 	{
 		return m_iCombatBonusVsHigherTech;
@@ -640,6 +742,12 @@ public:
 	{
 		return m_iLandTradeRouteRangeBonus;
 	}
+#if defined(MOD_TRAITS_TRADE_ROUTE_BONUSES)
+	int GetSeaTradeRouteRangeBonus() const
+	{
+		return m_iSeaTradeRouteRangeBonus;
+	}
+#endif
 	int GetTradeReligionModifier() const
 	{
 		return m_iTradeReligionModifier;
@@ -653,6 +761,12 @@ public:
 	{
 		return m_iNumFreeBuildings;
 	}
+#endif
+#if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
+	bool IsBullyAnnex() const
+	{
+		return m_bBullyAnnex;
+	};
 #endif
 
 	bool IsFightWellDamaged() const
@@ -744,6 +858,37 @@ public:
 	{
 		return m_bAngerFreeIntrusionOfCityStates;
 	}
+#if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
+	int GetPovertyHappinessChange() const
+	{
+		return m_iPovertyHappinessChange;
+	}
+	int GetDefenseHappinessChange() const
+	{
+		return m_iDefenseHappinessChange;
+	}
+	int GetIlliteracyHappinessChange() const
+	{
+		return m_iIlliteracyHappinessChange;
+	}
+	int GetUnculturedHappinessChange() const
+	{
+		return m_iUnculturedHappinessChange;
+	}
+	int GetMinorityHappinessChange() const
+	{
+		return m_iMinorityHappinessChange;
+	}
+	bool IsNoConnectionUnhappiness() const
+	{
+		return m_bNoConnectionUnhappiness;
+	}
+	bool IsNoReligiousStrife() const
+	{
+		return m_bIsNoReligiousStrife;
+	}
+#endif
+
 	int GetExtraYieldThreshold(YieldTypes eYield) const
 	{
 		return m_iExtraYieldThreshold[(int)eYield];
@@ -783,7 +928,66 @@ public:
 	int GetMovesChangeUnitCombat(const int unitCombatID) const;
 	int GetMaintenanceModifierUnitCombat(const int unitCombatID) const;
 	int GetImprovementYieldChange(ImprovementTypes eImprovement, YieldTypes eYield) const;
+#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
+	int GetPlotYieldChange(PlotTypes ePlot, YieldTypes eYield) const;
+#endif
+#if defined(MOD_BALANCE_CORE)
+	int GetTradeRouteStartYield(YieldTypes eYield) const
+	{
+		return m_iTradeRouteStartYield[(int)eYield];
+	};
+	int GetYieldFromRouteMovement(YieldTypes eYield) const
+	{
+		return m_iYieldFromRouteMovement[(int)eYield];
+	};
+	int GetYieldFromExport(YieldTypes eYield) const
+	{
+		return m_iYieldFromExport[(int)eYield];
+	};
+	int GetYieldFromImport(YieldTypes eYield) const
+	{
+		return m_iYieldFromImport[(int)eYield];
+	};
+#endif
+#if defined(MOD_API_UNIFIED_YIELDS)
+	int GetBuildingClassYieldChange(BuildingClassTypes eBuildingClass, YieldTypes eYield) const;
+	int GetCapitalYieldChanges(YieldTypes eYield) const
+	{
+		return m_iCapitalYieldChanges[(int)eYield];
+	};
+	int GetCityYieldChanges(YieldTypes eYield) const
+	{
+		return m_iCityYieldChanges[(int)eYield];
+	};
+	int GetCoastalCityYieldChanges(YieldTypes eYield) const
+	{
+		return m_iCoastalCityYieldChanges[(int)eYield];
+	};
+	int GetGreatWorkYieldChanges(YieldTypes eYield) const
+	{
+		return m_iGreatWorkYieldChanges[(int)eYield];
+	};
+	int GetFeatureYieldChange(FeatureTypes eFeature, YieldTypes eYield) const;
+	int GetResourceYieldChange(ResourceTypes eResource, YieldTypes eYield) const;
+	int GetTerrainYieldChange(TerrainTypes eTerrain, YieldTypes eYield) const;
+	int GetYieldFromKills(YieldTypes eYield) const;
+	int GetYieldFromBarbarianKills(YieldTypes eYield) const;
+	int GetYieldChangeTradeRoute(YieldTypes eYield) const
+	{
+		return m_iYieldChangeTradeRoute[(int)eYield];
+	};
+	int GetYieldChangeWorldWonder(YieldTypes eYield) const
+	{
+		return m_iYieldChangeWorldWonder[(int)eYield];
+	};
+	int GetTradeRouteYieldChange(DomainTypes eDomain, YieldTypes eYield) const;
+#endif
 	int GetSpecialistYieldChange(SpecialistTypes eSpecialist, YieldTypes eYield) const;
+#if defined(MOD_API_UNIFIED_YIELDS)
+	int GetGreatPersonExpendedYield(GreatPersonTypes eGreatPerson, YieldTypes eYield) const;
+	int GetGoldenAgeGreatPersonRateModifier(GreatPersonTypes eGreatPerson) const;
+	int GetCityYieldFromUnimprovedFeature(FeatureTypes eFeature, YieldTypes eYield) const;
+#endif
 	int GetUnimprovedFeatureYieldChange(FeatureTypes eFeature, YieldTypes eYield) const;
 	FreeResourceXCities GetFreeResourceXCities(ResourceTypes eResource) const;
 
@@ -895,6 +1099,9 @@ private:
 	int m_iNearbyImprovementCombatBonus;
 	int m_iNearbyImprovementBonusRange;
 	int m_iCultureBuildingYieldChange;
+#if defined(MOD_BALANCE_CORE)
+	int m_iCombatBonusVsHigherPop;
+#endif
 	int m_iCombatBonusVsHigherTech;
 	int m_iCombatBonusVsLargerCiv;
 	int m_iLandUnitMaintenanceModifier;
@@ -914,6 +1121,9 @@ private:
 	int m_iWorkerSpeedModifier;
 	int m_iAfraidMinorPerTurnInfluence; 
 	int m_iLandTradeRouteRangeBonus;
+#if defined(MOD_TRAITS_TRADE_ROUTE_BONUSES)
+	int m_iSeaTradeRouteRangeBonus;
+#endif
 	int m_iTradeReligionModifier;
 	int m_iTradeBuildingModifier;
 #if defined(MOD_BALANCE_CORE)
@@ -946,6 +1156,15 @@ private:
 	bool m_bUniqueLuxuryRequiresNewArea;
 	bool m_bRiverTradeRoad;
 	bool m_bAngerFreeIntrusionOfCityStates;
+#if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
+	int m_iPovertyHappinessChange;
+	int m_iDefenseHappinessChange;
+	int m_iUnculturedHappinessChange;
+	int m_iIlliteracyHappinessChange;
+	int m_iMinorityHappinessChange;
+	bool m_bNoConnectionUnhappiness;
+	bool m_bIsNoReligiousStrife;
+#endif
 
 	UnitTypes m_eCampGuardType;
 	unsigned int m_uiFreeUnitIndex;
@@ -956,7 +1175,9 @@ private:
 	BuildingTypes m_eFreeCapitalBuilding;
 #endif
 	BuildingTypes m_eFreeBuildingOnConquest;
-
+#if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
+	bool m_bBullyAnnex;
+#endif
 	int m_iExtraYieldThreshold[NUM_YIELD_TYPES];
 	int m_iFreeCityYield[NUM_YIELD_TYPES];
 	int m_iYieldChangeStrategicResources[NUM_YIELD_TYPES];
@@ -983,7 +1204,36 @@ private:
 	std::vector<int> m_paiMaintenanceModifierUnitCombat;
 
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppaaiImprovementYieldChange;
+#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
+	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiPlotYieldChange;
+#endif
+#if defined(MOD_BALANCE_CORE)
+	int m_iTradeRouteStartYield[NUM_YIELD_TYPES];
+	int m_iYieldFromRouteMovement[NUM_YIELD_TYPES];
+	int m_iYieldFromExport[NUM_YIELD_TYPES];
+	int m_iYieldFromImport[NUM_YIELD_TYPES];
+#endif
+#if defined(MOD_API_UNIFIED_YIELDS)
+	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiBuildingClassYieldChange;
+	int m_iCityYieldChanges[NUM_YIELD_TYPES];
+	int m_iCapitalYieldChanges[NUM_YIELD_TYPES];
+	int m_iCoastalCityYieldChanges[NUM_YIELD_TYPES];
+	int m_iGreatWorkYieldChanges[NUM_YIELD_TYPES];
+	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiFeatureYieldChange;
+	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiResourceYieldChange;
+	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiTerrainYieldChange;
+	int m_iYieldFromKills[NUM_YIELD_TYPES];
+	int m_iYieldFromBarbarianKills[NUM_YIELD_TYPES];
+	int m_iYieldChangeTradeRoute[NUM_YIELD_TYPES];
+	int m_iYieldChangeWorldWonder[NUM_YIELD_TYPES];
+	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiTradeRouteYieldChange;
+#endif
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppaaiSpecialistYieldChange;
+#if defined(MOD_API_UNIFIED_YIELDS)
+	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiGreatPersonExpendedYield;
+	std::vector<int> m_piGoldenAgeGreatPersonRateModifier;
+	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiCityYieldFromUnimprovedFeature;
+#endif
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppaaiUnimprovedFeatureYieldChange;
 
 	std::vector<FreeResourceXCities> m_aFreeResourceXCities;

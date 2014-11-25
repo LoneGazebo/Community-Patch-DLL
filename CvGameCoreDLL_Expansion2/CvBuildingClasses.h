@@ -111,6 +111,9 @@ public:
 	int GetReplacementBuildingClass() const;
 	int GetPrereqAndTech() const;
 	int GetPolicyBranchType() const;
+#if defined(MOD_BALANCE_CORE_POLICIES)
+	int GetPolicyType() const;
+#endif
 	int GetSpecialistType() const;
 	int GetSpecialistCount() const;
 	int GetSpecialistExtraCulture() const;
@@ -167,6 +170,16 @@ public:
 #endif
 #if defined(MOD_BALANCE_CORE)
 	bool IsNoWater() const;
+	bool IsCapitalOnly() const;
+	bool IsReformation() const;
+#endif
+#if defined(MOD_BALANCE_CORE_POP_REQ_BUILDINGS)
+	int GetNationalPopulationRequired() const;
+	int GetLocalPopulationRequired() const;
+#endif
+#if defined(MOD_BALANCE_CORE_FOLLOWER_POP_WONDER)
+	int GetNationalFollowerPopRequired() const;
+	int GetGlobalFollowerPopRequired() const;
 #endif
 	int GetMinAreaSize() const;
 	int GetConquestProbability() const;
@@ -223,7 +236,18 @@ public:
 	int GetDoFToVotes() const;
 	int GetRAToVotes() const;
 	int GetGPExpendInfluence() const;
-	int GetGrowthExtraYield() const;
+#endif
+#if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
+	int GetPovertyHappinessChangeBuilding() const;
+	int GetDefenseHappinessChangeBuilding() const;
+	int GetUnculturedHappinessChangeBuilding() const;
+	int GetIlliteracyHappinessChangeBuilding() const;
+	int GetMinorityHappinessChangeBuilding() const;
+	int GetPovertyHappinessChangeBuildingGlobal() const;
+	int GetDefenseHappinessChangeBuildingGlobal() const;
+	int GetUnculturedHappinessChangeBuildingGlobal() const;
+	int GetIlliteracyHappinessChangeBuildingGlobal() const;
+	int GetMinorityHappinessChangeBuildingGlobal() const;
 #endif
 	int GetPreferredDisplayPosition() const;
 	int GetPortraitIndex() const;
@@ -233,6 +257,7 @@ public:
 	bool IsFreshWater() const;
 #if defined(MOD_API_EXTENSIONS)
 	bool IsAddsFreshWater() const;
+	bool IsPurchaseOnly() const;
 #endif
 	bool IsMountain() const;
 	bool IsHill() const;
@@ -270,6 +295,19 @@ public:
 	CvString GetThemingBonusHelp() const;
 
 	// Accessor Functions (Arrays)
+
+#if defined(MOD_DIPLOMACY_CITYSTATES) || defined(MOD_BALANCE_CORE)
+	int GetGrowthExtraYield(int i) const;
+	int* GetGrowthExtraYieldArray() const;
+#endif
+#if defined(MOD_BALANCE_CORE_POLICIES)
+	int GetYieldFromDeath(int i) const;
+	int* GetYieldFromDeathArray() const;
+#endif
+#if defined(MOD_BALANCE_CORE)
+	int GetYieldFromVictory(int i) const;
+	int* GetYieldFromVictoryArray() const;
+#endif
 	int GetYieldChange(int i) const;
 	int* GetYieldChangeArray() const;
 	int GetYieldChangePerPop(int i) const;
@@ -313,10 +351,9 @@ public:
 	int GetHurryModifier(int i) const;
 	bool IsBuildingClassNeededInCity(int i) const;
 	int GetNumFreeUnits(int i) const;
-
-#if defined(MOD_BALANCE_CORE_YIELDS)
-	int GetPlotYieldChange(int i, int j) const;
-	int* GetPlotYieldChangeArray(int i) const;
+#if defined(MOD_BALANCE_CORE_BUILDING_INSTANT_YIELD)
+	int GetInstantYield(int i) const;
+	int* GetInstantYieldArray() const;
 #endif
 
 	int GetResourceYieldChange(int i, int j) const;
@@ -329,6 +366,10 @@ public:
 	int* GetResourceYieldModifierArray(int i) const;
 	int GetTerrainYieldChange(int i, int j) const;
 	int* GetTerrainYieldChangeArray(int i) const;
+#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
+	int GetPlotYieldChange(int i, int j) const;
+	int* GetPlotYieldChangeArray(int i) const;
+#endif
 	int GetBuildingClassYieldChange(int i, int j) const;
 	int GetBuildingClassHappiness(int i) const;
 
@@ -352,6 +393,9 @@ private:
 	int m_iReplacementBuildingClass;
 	int m_iPrereqAndTech;
 	int m_iPolicyBranchType;
+#if defined(MOD_BALANCE_CORE_POLICIES)
+	int m_iPolicyType;
+#endif
 	int m_iSpecialistType;
 	int m_iSpecialistCount;
 	int m_iSpecialistExtraCulture;
@@ -464,7 +508,18 @@ private:
 	int m_iDoFToVotesBase;
 	int m_iRAToVotesBase;
 	int m_iGPExpendInfluenceBase;
-	int m_iGrowthExtraYieldBase;
+#endif
+#if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
+	int m_iPovertyHappinessChangeBuilding;
+	int m_iDefenseHappinessChangeBuilding;
+	int m_iUnculturedHappinessChangeBuilding;
+	int m_iIlliteracyHappinessChangeBuilding;
+	int m_iMinorityHappinessChangeBuilding;
+	int m_iPovertyHappinessChangeBuildingGlobal;
+	int m_iDefenseHappinessChangeBuildingGlobal;
+	int m_iUnculturedHappinessChangeBuildingGlobal;
+	int m_iIlliteracyHappinessChangeBuildingGlobal;
+	int m_iMinorityHappinessChangeBuildingGlobal;
 #endif
 	int m_iPreferredDisplayPosition;
 	int m_iPortraitIndex;
@@ -475,9 +530,20 @@ private:
 	bool m_bFreshWater;
 #if defined(MOD_API_EXTENSIONS)
 	bool m_bAddsFreshWater;
+	bool m_bPurchaseOnly;
 #endif
 #if defined(MOD_BALANCE_CORE)
 	bool m_bIsNoWater;
+	bool m_bIsCapitalOnly;
+	bool m_bIsReformation;
+#endif
+#if defined(MOD_BALANCE_CORE_POP_REQ_BUILDINGS)
+	int m_iNationalPopRequired;
+	int m_iLocalPopRequired;
+#endif
+#if defined(MOD_BALANCE_CORE_FOLLOWER_POP_WONDER)
+	int m_iNationalFollowerPopRequired;
+	int m_iGlobalFollowerPopRequired;
 #endif
 	bool m_bMountain;
 	bool m_bHill;
@@ -525,6 +591,15 @@ private:
 	int* m_piRiverPlotYieldChange;
 	int* m_piLakePlotYieldChange;
 	int* m_piSeaResourceYieldChange;
+#if defined(MOD_DIPLOMACY_CITYSTATES) || defined(MOD_BALANCE_CORE)
+	int* m_piGrowthExtraYield;
+#endif
+#if defined(MOD_BALANCE_CORE_POLICIES)
+	int* m_piYieldFromDeath;
+#endif
+#if defined(MOD_BALANCE_CORE)
+	int* m_piYieldFromVictory;
+#endif
 	int* m_piYieldChange;
 	int* m_piYieldChangePerPop;
 	int* m_piYieldChangePerReligion;
@@ -551,10 +626,13 @@ private:
 	int** m_ppaiSpecialistYieldChange;
 	int** m_ppaiResourceYieldModifier;
 	int** m_ppaiTerrainYieldChange;
+#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
+	int** m_ppaiPlotYieldChange;
+#endif
 	int** m_ppiBuildingClassYieldChanges;
 	int* m_paiBuildingClassHappiness;
-#if defined(MOD_BALANCE_CORE_YIELDS)
-	int** m_ppaiBuildingPlotYieldChange;
+#if defined(MOD_BALANCE_CORE_BUILDING_INSTANT_YIELD)
+	int* m_piInstantYield;
 #endif
 
 	CvThemingBonusInfo* m_paThemingBonusInfo;
@@ -581,8 +659,11 @@ public:
 	// Accessor functions
 	std::vector<CvBuildingEntry*>& GetBuildingEntries();
 	int GetNumBuildings();
+#if defined(MOD_BALANCE_CORE)
+	_Ret_maybenull_ CvBuildingEntry* GetEntry(int index) const;
+#else
 	_Ret_maybenull_ CvBuildingEntry* GetEntry(int index);
-
+#endif
 	void DeleteArray();
 
 private:
@@ -666,7 +747,7 @@ public:
 	bool GetNextAvailableGreatWorkSlot(BuildingClassTypes *eBuildingClass, int *iSlot) const;
 	bool GetNextAvailableGreatWorkSlot(GreatWorkSlotType eGreatWorkSlot, BuildingClassTypes *eBuildingClass, int *iSlot) const;
 
-#if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
+#if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES) || defined(MOD_API_UNIFIED_YIELDS)
 	int GetYieldFromGreatWorks(YieldTypes eYield) const;
 #endif
 	int GetCultureFromGreatWorks() const;
@@ -676,6 +757,7 @@ public:
 	int GetNumGreatWorks() const;
 #endif
 	int GetNumGreatWorks(GreatWorkSlotType eGreatWorkSlot) const;
+
 	int GetLandmarksTourismPercent() const;
 	void ChangeLandmarksTourismPercent(int iChange);
 	int GetGreatWorksTourismModifier() const;

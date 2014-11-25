@@ -135,6 +135,9 @@ protected:
 	static int lCanTrade(lua_State* L);
 	static int lCanBuyCityState(lua_State* L);
 	static int lCanRepairFleet(lua_State* L);
+#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_GLOBAL_SEPARATE_GREAT_ADMIRAL)
+	LUAAPIEXTN(CanChangePort, bool);
+#endif
 	static int lCanBuildSpaceship(lua_State* L);
 
 	static int lCanGoldenAge(lua_State* L);
@@ -199,6 +202,9 @@ protected:
 	static int lIsNoCapture(lua_State* L);
 	static int lIsRivalTerritory(lua_State* L);
 	static int lIsFound(lua_State* L);
+#if defined(MOD_API_LUA_EXTENSIONS)
+	LUAAPIEXTN(IsFoundAbroad, bool);
+#endif
 	static int lIsWork(lua_State* L);
 	static int lIsGoldenAge(lua_State* L);
 	static int lCanCoexistWithEnemyUnit(lua_State* L);
@@ -240,6 +246,9 @@ protected:
 #endif
 
 	static int lGetBaseRangedCombatStrength(lua_State* L);
+#if defined(MOD_API_EXTENSIONS)
+	LUAAPIEXTN(SetBaseRangedCombatStrength, void, int);
+#endif
 	static int lGetMaxRangedCombatStrength(lua_State* L);
 	static int lGetCombatLimit(lua_State* L);
 	static int lGetRangedCombatLimit(lua_State* L);
@@ -545,6 +554,9 @@ protected:
 	static int lExecuteSpecialExploreMove(lua_State* L);
 
 	static int lSetDeployFromOperationTurn(lua_State* L);
+#if defined(MOD_BALANCE_CORE)
+	static int lIsHigherPopThan(lua_State* L);
+#endif
 	static int lIsHigherTechThan(lua_State* L);
 	static int lIsLargerCivThan(lua_State* L);
 

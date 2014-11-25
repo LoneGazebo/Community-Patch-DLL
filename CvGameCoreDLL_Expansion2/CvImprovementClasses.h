@@ -54,7 +54,11 @@ public:
 
 	int GetGoldMaintenance() const;
 	int GetCultureBombRadius() const;
+#if defined(MOD_API_UNIFIED_YIELDS)
+	int GetYieldAdjacentSameType(YieldTypes eYield) const;
+#else
 	int GetCultureAdjacentSameType() const;
+#endif
 
 #if defined(MOD_GLOBAL_STACKING_RULES)
 	int GetAdditionalUnits() const;
@@ -116,6 +120,9 @@ public:
 	bool IsInAdjacentFriendly() const;
 	bool IsIgnoreOwnership() const;
 	bool IsOnlyCityStateTerritory() const;
+#if defined(MOD_DIPLOMACY_CITYSTATES)
+	bool IsEmbassy() const;
+#endif
 	bool IsNoTwoAdjacent() const;
 	bool IsAdjacentLuxury() const;
 	bool IsAllowsWalkWater() const;
@@ -159,6 +166,10 @@ public:
 	bool GetTerrainMakesValid(int i) const;
 	bool GetFeatureMakesValid(int i) const;
 	bool GetImprovementMakesValid(int i) const;
+
+#if defined(MOD_API_UNIFIED_YIELDS)
+	int GetAdjacentSameTypeYield(int i) const;
+#endif
 
 	int GetTechYieldChanges(int i, int j) const;
 	int* GetTechYieldChangesArray(int i);
@@ -242,6 +253,9 @@ protected:
 	bool m_bInAdjacentFriendly;
 	bool m_bIgnoreOwnership;
 	bool m_bOnlyCityStateTerritory;
+#if defined(MOD_DIPLOMACY_CITYSTATES)
+	bool m_bIsEmbassy;
+#endif
 	bool m_bNoTwoAdjacent;
     bool m_bAdjacentLuxury;
 	bool m_bAllowsWalkWater;
@@ -271,6 +285,10 @@ protected:
 	bool* m_pbTerrainMakesValid;
 	bool* m_pbFeatureMakesValid;
 	bool* m_pbImprovementMakesValid;
+
+#if defined(MOD_API_UNIFIED_YIELDS)
+	int* m_piAdjacentSameTypeYield;
+#endif
 
 	int** m_ppiTechYieldChanges;
 	int** m_ppiTechNoFreshWaterYieldChanges;

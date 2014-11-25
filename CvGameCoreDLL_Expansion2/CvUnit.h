@@ -243,9 +243,9 @@ public:
 
 	bool canEmbark(const CvPlot* pPlot) const;
 	bool canDisembark(const CvPlot* pPlot) const;
-	bool canEmbarkOnto(const CvPlot& pOriginPlot, const CvPlot& pTargetPlot, bool bOverrideEmbarkedCheck = false) const;
-	bool canDisembarkOnto(const CvPlot& pOriginPlot, const CvPlot& pTargetPlot, bool bOverrideEmbarkedCheck = false) const;
-	bool canDisembarkOnto(const CvPlot& pTargetPlot) const;
+	bool canEmbarkOnto(const CvPlot& pOriginPlot, const CvPlot& pTargetPlot, bool bOverrideEmbarkedCheck = false, bool bIsDestination = false) const;
+	bool canDisembarkOnto(const CvPlot& pOriginPlot, const CvPlot& pTargetPlot, bool bOverrideEmbarkedCheck = false, bool bIsDestination = false) const;
+	bool canDisembarkOnto(const CvPlot& pTargetPlot, bool bIsDestination = false) const;
 	bool CanEverEmbark() const;  // can this unit ever change into an embarked unit
 	void embark(CvPlot* pPlot);
 	void disembark(CvPlot* pPlot);
@@ -470,7 +470,7 @@ public:
 	void changeRivalTerritoryCount(int iChange);
 	bool isFound() const;
 	bool IsFoundAbroad() const;
-#if defined(MOD_DIPLOMACY_CITYSTATES)
+#if defined(MOD_BALANCE_CORE_SETTLER)
 	bool IsFoundMid() const;
 	bool IsFoundLate() const;
 #endif
@@ -513,6 +513,9 @@ public:
 	bool canSiege(TeamTypes eTeam) const;
 
 	int GetBaseRangedCombatStrength() const;
+#if defined(MOD_API_EXTENSIONS)
+	void SetBaseRangedCombatStrength(int iStrength);
+#endif
 	int GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* pCity, bool bAttacking, bool bForRangedAttack) const;
 
 	int GetAirCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bIncludeRand, int iAssumeExtraDamage = 0) const;
@@ -764,8 +767,13 @@ public:
 	void setGameTurnCreated(int iNewValue);
 
 	int getDamage() const;
-	void setDamage(int iNewValue, PlayerTypes ePlayer = NO_PLAYER, float fAdditionalTextDelay = 0.0f, CvString* pAppendText = NULL);
-	void changeDamage(int iChange, PlayerTypes ePlayer = NO_PLAYER, float fAdditionalTextDelay = 0.0f, CvString* pAppendText = NULL);
+	int setDamage(int iNewValue, PlayerTypes ePlayer = NO_PLAYER, float fAdditionalTextDelay = 0.0f, const CvString* pAppendText = NULL);
+	int changeDamage(int iChange, PlayerTypes ePlayer = NO_PLAYER, float fAdditionalTextDelay = 0.0f, const CvString* pAppendText = NULL);
+#if defined(SHOW_PLOT_POPUP)
+	void ShowDamageDeltaText(int iDelta, CvPlot* pkPlot, float fAdditionalTextDelay = 0.0f, const CvString* pAppendText = NULL);
+#else
+	static void ShowDamageDeltaText(int iDelta, CvPlot* pkPlot, float fAdditionalTextDelay = 0.0f, const CvString* pAppendText = NULL);
+#endif
 
 	int getMoves() const;
 	void setMoves(int iNewValue);
@@ -963,10 +971,10 @@ public:
 	void changeExtraRoughDefensePercent(int iChange);
 
 	void changeExtraAttacks(int iChange);
-
+#if !defined(MOD_BALANCE_CORE)
 	// Citadel
 	bool IsNearEnemyCitadel(int& iCitadelDamage);
-
+#endif
 	// Great General Stuff
 	bool IsNearGreatGeneral() const;
 	bool IsStackedGreatGeneral() const;
@@ -1177,6 +1185,13 @@ public:
 	int getExtraFeatureDefensePercent(FeatureTypes eIndex) const;
 	void changeExtraFeatureDefensePercent(FeatureTypes eIndex, int iChange);
 
+#if defined(MOD_API_UNIFIED_YIELDS)
+	int getYieldFromKills(YieldTypes eIndex) const;
+	void changeYieldFromKills(YieldTypes eIndex, int iChange);
+	int getYieldFromBarbarianKills(YieldTypes eIndex) const;
+	void changeYieldFromBarbarianKills(YieldTypes eIndex, int iChange);
+#endif
+
 	int getExtraUnitCombatModifier(UnitCombatTypes eIndex) const;
 	void changeExtraUnitCombatModifier(UnitCombatTypes eIndex, int iChange);
 
@@ -1349,6 +1364,9 @@ public:
 	bool IsHasBeenPromotedFromGoody() const;
 	void SetBeenPromotedFromGoody(bool bBeenPromoted);
 
+#if defined(MOD_BALANCE_CORE)
+	bool IsHigherPopThan(const CvUnit* pOtherUnit) const;
+#endif
 	bool IsHigherTechThan(UnitTypes otherUnit) const;
 	bool IsLargerCivThan(const CvUnit* pOtherUnit) const;
 
@@ -1513,6 +1531,9 @@ protected:
 	FAutoVariable<int, CvUnit> m_iExtraNavalMoves;
 	FAutoVariable<int, CvUnit> m_iKamikazePercent;
 	FAutoVariable<int, CvUnit> m_iBaseCombat;
+#if defined(MOD_API_EXTENSIONS)
+	int m_iBaseRangedCombat;
+#endif
 	FAutoVariable<DirectionTypes, CvUnit> m_eFacingDirection;
 	FAutoVariable<int, CvUnit> m_iArmyId;
 
@@ -1625,6 +1646,10 @@ protected:
 	FAutoVariable<std::vector<int>, CvUnit> m_extraTerrainDefensePercent;
 	FAutoVariable<std::vector<int>, CvUnit> m_extraFeatureAttackPercent;
 	FAutoVariable<std::vector<int>, CvUnit> m_extraFeatureDefensePercent;
+#if defined(MOD_API_UNIFIED_YIELDS)
+	FAutoVariable<std::vector<int>, CvUnit> m_yieldFromKills;
+	FAutoVariable<std::vector<int>, CvUnit> m_yieldFromBarbarianKills;
+#endif
 	FAutoVariable<std::vector<int>, CvUnit> m_extraUnitCombatModifier;
 	FAutoVariable<std::vector<int>, CvUnit> m_unitClassModifier;
 	int m_iMissionTimer;

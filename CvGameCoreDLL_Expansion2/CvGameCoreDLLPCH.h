@@ -120,6 +120,9 @@ typedef wchar_t          wchar;
 #if defined(MOD_API_PLOT_YIELDS)
 #include "CvPlotInfo.h"
 #endif
+#if defined(MOD_API_UNIFIED_YIELDS)
+#include "CvGreatPersonInfo.h"
+#endif
 #include "CvInfos.h"
 #include "CvTeam.h"
 #include "CvRandom.h"
@@ -166,8 +169,10 @@ using namespace fastdelegate;
 
 #ifdef FINAL_RELEASE
 // Undefine OutputDebugString in final release builds
+#if !defined(MOD_BALANCE_CORE)
 #undef OutputDebugString
 #define OutputDebugString(x)
+#endif
 #endif //FINAL_RELEASE
 
 #endif	// CVGAMECOREDLLPCH_H

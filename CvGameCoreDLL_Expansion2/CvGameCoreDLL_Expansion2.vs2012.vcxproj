@@ -85,6 +85,7 @@
     </ClCompile>
     <ClCompile Include="CustomMods.cpp" />
     <ClCompile Include="CvAchievementUnlocker.cpp" />
+    <ClCompile Include="CvAchievementInfo.cpp" />
     <ClCompile Include="CvAdvisorCounsel.cpp" />
     <ClCompile Include="CvAdvisorRecommender.cpp" />
     <ClCompile Include="CvAIOperation.cpp" />
@@ -248,6 +249,7 @@
     <ClInclude Include="banned.h" />
     <ClInclude Include="CustomMods.h" />
     <ClInclude Include="CvAchievementUnlocker.h" />
+    <ClInclude Include="CvAchievementInfo.h" />
     <ClInclude Include="CvAdvisorCounsel.h" />
     <ClInclude Include="CvAdvisorRecommender.h" />
     <ClInclude Include="CvAIOperation.h" />

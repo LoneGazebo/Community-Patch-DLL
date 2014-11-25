@@ -81,10 +81,19 @@ public:
 	void DoUpdateIndustrialRouteToCapital();
 
 	void SetRouteToCapitalConnected(bool bValue);
+#if defined(MOD_API_EXTENSIONS)
+	bool IsRouteToCapitalConnected(void) const;
+#else
 	bool IsRouteToCapitalConnected(void);
+#endif
 
+#if defined(MOD_GLOBAL_TRULY_FREE_GP)
+	void createGreatGeneral(UnitTypes eGreatPersonUnit, bool bIsFree);
+	void createGreatAdmiral(UnitTypes eGreatPersonUnit, bool bIsFree);
+#else
 	void createGreatGeneral(UnitTypes eGreatPersonUnit);
 	void createGreatAdmiral(UnitTypes eGreatPersonUnit);
+#endif
 
 	CityTaskResult doTask(TaskTypes eTask, int iData1 = -1, int iData2 = -1, bool bOption = false, bool bAlt = false, bool bShift = false, bool bCtrl = false);
 
@@ -92,8 +101,8 @@ public:
 
 #if defined(MOD_GLOBAL_CITY_WORKING)
 	int getBuyPlotDistance() const;
-	int getWorkPlotDistance() const;
-	int GetNumWorkablePlots() const;
+	int getWorkPlotDistance(int iChange = 0) const;
+	int GetNumWorkablePlots(int iChange = 0) const;
 #endif
 
 	void clearWorkingOverride(int iIndex);
@@ -114,7 +123,11 @@ public:
 
 	bool canTrain(UnitTypes eUnit, bool bContinue = false, bool bTestVisible = false, bool bIgnoreCost = false, bool bWillPurchase = false, CvString* toolTipSink = NULL) const;
 	bool canTrain(UnitCombatTypes eUnitCombat) const;
+#if defined(MOD_API_EXTENSIONS)
+	bool canConstruct(BuildingTypes eBuilding, bool bContinue = false, bool bTestVisible = false, bool bIgnoreCost = false, bool bWillPurchase = false, CvString* toolTipSink = NULL) const;
+#else
 	bool canConstruct(BuildingTypes eBuilding, bool bContinue = false, bool bTestVisible = false, bool bIgnoreCost = false, CvString* toolTipSink = NULL) const;
+#endif
 	bool canCreate(ProjectTypes eProject, bool bContinue = false, bool bTestVisible = false) const;
 	bool canPrepare(SpecialistTypes eSpecialist, bool bContinue = false) const;
 	bool canMaintain(ProcessTypes eProcess, bool bContinue = false) const;
@@ -132,6 +145,11 @@ public:
 
 	int GetTerrainExtraYield(TerrainTypes eTerrain, YieldTypes eYield) const;
 	void ChangeTerrainExtraYield(TerrainTypes eTerrain, YieldTypes eYield, int iChange);
+
+#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
+	int GetPlotExtraYield(PlotTypes ePlot, YieldTypes eYield) const;
+	void ChangePlotExtraYield(PlotTypes ePlot, YieldTypes eYield, int iChange);
+#endif
 
 	bool IsHasResourceLocal(ResourceTypes eResource, bool bTestVisible) const;
 #if defined(MOD_API_EXTENSIONS) || defined(MOD_TRADE_WONDER_RESOURCE_ROUTES)
@@ -375,7 +393,9 @@ public:
 	int GetBaseJONSCulturePerTurn() const;
 
 	int GetJONSCulturePerTurnFromBuildings() const;
+#if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
 	void ChangeJONSCulturePerTurnFromBuildings(int iChange);
+#endif
 
 	int GetJONSCulturePerTurnFromPolicies() const;
 	void ChangeJONSCulturePerTurnFromPolicies(int iChange);
@@ -388,13 +408,18 @@ public:
 	int GetJONSCulturePerTurnFromTraits() const;
 
 	int GetJONSCulturePerTurnFromReligion() const;
+#if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
 	void ChangeJONSCulturePerTurnFromReligion(int iChange);
+#endif
 
 	int GetJONSCulturePerTurnFromLeagues() const;
 
 	int getCultureRateModifier() const;
 	void changeCultureRateModifier(int iChange);
-
+#if defined(MOD_BALANCE_CORE_POLICIES)
+	int getBuildingClassCultureChange(BuildingClassTypes eIndex) const;
+	void changeBuildingClassCultureChange(BuildingClassTypes eIndex, int iChange);
+#endif
 	// END Culture
 
 #if defined(MOD_API_EXTENSIONS)
@@ -404,15 +429,23 @@ public:
 
 	int GetFaithPerTurn() const;
 	int GetFaithPerTurnFromBuildings() const;
+#if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
 	void ChangeFaithPerTurnFromBuildings(int iChange);
+#endif
 
 	int GetFaithPerTurnFromPolicies() const;
 	void ChangeFaithPerTurnFromPolicies(int iChange);
 
+#if defined(MOD_API_UNIFIED_YIELDS)
+	int GetYieldPerTurnFromUnimprovedFeatures(YieldTypes eYield) const;
+#else
 	int GetFaithPerTurnFromTraits() const;
+#endif
 
 	int GetFaithPerTurnFromReligion() const;
+#if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
 	void ChangeFaithPerTurnFromReligion(int iChange);
+#endif
 
 	int getNumWorldWonders() const;
 	void changeNumWorldWonders(int iChange);
@@ -525,6 +558,28 @@ public:
 	void DoAnnex();
 
 	int GetLocalHappiness() const;
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+	int getUnhappyCitizenCount() const;
+	void setUnhappyCitizenCount(int iNewValue);
+	void changeUnhappyCitizenCount(int iChange) const;
+
+	int getUnhappinessFromCultureYield() const;
+	int getUnhappinessFromCultureNeeded() const;
+	int getUnhappinessFromCulture() const;
+	int getUnhappinessFromScienceYield() const;
+	int getUnhappinessFromScienceNeeded() const;
+	int getUnhappinessFromScience() const;
+	int getUnhappinessFromDefenseYield() const;
+	int getUnhappinessFromDefenseNeeded() const;
+	int getUnhappinessFromDefense() const;
+	int getUnhappinessFromGoldYield() const;
+	int getUnhappinessFromGoldNeeded() const;
+	int getUnhappinessFromGold() const;
+	int getUnhappinessFromConnection() const;
+	int getUnhappinessFromPillaged() const;
+	int getUnhappinessFromStarving() const;
+	int getUnhappinessFromMinority() const;
+#endif
 	int GetHappinessFromBuildings() const;
 	int GetBaseHappinessFromBuildings() const;
 	void ChangeBaseHappinessFromBuildings(int iChange);
@@ -604,6 +659,10 @@ public:
 	int getSeaResourceYield(YieldTypes eIndex) const;
 	void changeSeaResourceYield(YieldTypes eIndex, int iChange);
 
+#if defined(MOD_API_UNIFIED_YIELDS)
+	int GetYieldPerTurnFromReligion(ReligionTypes eReligion, YieldTypes eYield) const;
+#endif
+
 	int getBaseYieldRateModifier(YieldTypes eIndex, int iExtra = 0, CvString* toolTipSink = NULL) const;
 	int getYieldRate(YieldTypes eIndex, bool bIgnoreTrade) const;
 	int getYieldRateTimes100(YieldTypes eIndex, bool bIgnoreTrade) const;
@@ -618,7 +677,7 @@ public:
 	int GetBaseScienceFromArt() const;
 #endif
 
-#if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
+#if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES) || defined(MOD_API_UNIFIED_YIELDS)
 	int GetBaseYieldRateFromGreatWorks(YieldTypes eIndex) const;
 #endif
 
@@ -649,9 +708,45 @@ public:
 	void ChangeTotalGreatWorkAid(int iChange);
 	int GetTotalGreatWorkAid() const;
 	void SetTotalGreatWorkAid(int iValue);
+#endif
+#if defined(MOD_DIPLOMACY_CITYSTATES) || defined(MOD_BALANCE_CORE)
+	int GetGrowthExtraYield(YieldTypes eIndex) const;
+	void ChangeGrowthExtraYield(YieldTypes eIndex, int iChange);
+#endif
+#if defined(MOD_BALANCE_CORE)
+	int GetYieldFromVictory(YieldTypes eIndex) const;
+	void ChangeYieldFromVictory(YieldTypes eIndex, int iChange);
+#endif
+#if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
+	int GetPovertyUnhappiness() const;
+	void ChangePovertyUnhappiness(int iChange);
 
-	int GetGrowthExtraYield() const;
-	void ChangeGrowthExtraYield(int iChange);
+	int GetDefenseUnhappiness() const;
+	void ChangeDefenseUnhappiness(int iChange);
+
+	int GetUnculturedUnhappiness() const;
+	void ChangeUnculturedUnhappiness(int iChange);
+
+	int GetIlliteracyUnhappiness() const;
+	void ChangeIlliteracyUnhappiness(int iChange);
+
+	int GetMinorityUnhappiness() const;
+	void ChangeMinorityUnhappiness(int iChange);
+
+	int GetPovertyUnhappinessGlobal() const;
+	void ChangePovertyUnhappinessGlobal(int iChange);
+
+	int GetDefenseUnhappinessGlobal() const;
+	void ChangeDefenseUnhappinessGlobal(int iChange);
+
+	int GetUnculturedUnhappinessGlobal() const;
+	void ChangeUnculturedUnhappinessGlobal(int iChange);
+
+	int GetIlliteracyUnhappinessGlobal() const;
+	void ChangeIlliteracyUnhappinessGlobal(int iChange);
+
+	int GetMinorityUnhappinessGlobal() const;
+	void ChangeMinorityUnhappinessGlobal(int iChange);
 #endif
 
 	int GetBaseYieldRateFromReligion(YieldTypes eIndex) const;
@@ -666,6 +761,11 @@ public:
 
 	int getYieldRateModifier(YieldTypes eIndex) const;
 	void changeYieldRateModifier(YieldTypes eIndex, int iChange);
+
+#if defined(MOD_BALANCE_CORE_POLICIES)
+	int getReligionBuildingYieldRateModifier(BuildingClassTypes eIndex1, YieldTypes eIndex2)	const;
+	void changeReligionBuildingYieldRateModifier(BuildingClassTypes eIndex1, YieldTypes eIndex2, int iChange);
+#endif
 
 	int getPowerYieldRateModifier(YieldTypes eIndex) const;
 	void changePowerYieldRateModifier(YieldTypes eIndex, int iChange);
@@ -963,13 +1063,21 @@ protected:
 	FAutoVariable<int, CvCity> m_iGreatPeopleRateModifier;
 	FAutoVariable<int, CvCity> m_iJONSCultureStored;
 	FAutoVariable<int, CvCity> m_iJONSCultureLevel;
+#if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
 	FAutoVariable<int, CvCity> m_iJONSCulturePerTurnFromBuildings;
+#endif
 	FAutoVariable<int, CvCity> m_iJONSCulturePerTurnFromPolicies;
 	FAutoVariable<int, CvCity> m_iJONSCulturePerTurnFromSpecialists;
+#if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
 	FAutoVariable<int, CvCity> m_iJONSCulturePerTurnFromReligion;
+#endif
+#if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
 	int m_iFaithPerTurnFromBuildings;
+#endif
 	int m_iFaithPerTurnFromPolicies;
+#if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
 	int m_iFaithPerTurnFromReligion;
+#endif
 	FAutoVariable<int, CvCity> m_iCultureRateModifier;
 	FAutoVariable<int, CvCity> m_iNumWorldWonders;
 	FAutoVariable<int, CvCity> m_iNumTeamWonders;
@@ -1051,7 +1159,25 @@ protected:
 	int m_iTotalScienceyAid;
 	int m_iTotalArtsyAid;
 	int m_iTotalGreatWorkAid;
-	int m_iChangeGrowthExtraYield;
+#endif
+#if defined(MOD_DIPLOMACY_CITYSTATES) || defined(MOD_BALANCE_CORE)
+	FAutoVariable<std::vector<int>, CvCity> m_aiChangeGrowthExtraYield;
+#endif
+#if defined(MOD_BALANCE_CORE)
+	FAutoVariable<std::vector<int>, CvCity> m_aiChangeYieldFromVictory;
+	int m_iUnhappyCitizen;
+#endif
+#if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
+	int m_iChangePovertyUnhappiness;
+	int m_iChangeDefenseUnhappiness;
+	int m_iChangeUnculturedUnhappiness;
+	int m_iChangeIlliteracyUnhappiness;
+	int m_iChangeMinorityUnhappiness;
+	int m_iChangePovertyUnhappinessGlobal;
+	int m_iChangeDefenseUnhappinessGlobal;
+	int m_iChangeUnculturedUnhappinessGlobal;
+	int m_iChangeIlliteracyUnhappinessGlobal;
+	int m_iChangeMinorityUnhappinessGlobal;
 #endif
 	std::vector<int> m_aiBaseYieldRateFromReligion;
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldRateModifier;
@@ -1066,9 +1192,6 @@ protected:
 
 	FAutoVariable<std::vector<bool>, CvCity> m_abEverOwned;
 	FAutoVariable<std::vector<bool>, CvCity> m_abRevealed;
-#if defined(MOD_BALANCE_CORE)
-	FAutoVariable<std::vector<bool>, CvCity> m_abOwedChosenBuilding;
-#endif
 
 	FAutoVariable<CvString, CvCity> m_strScriptData;
 
@@ -1087,6 +1210,9 @@ protected:
 	FAutoVariable<std::vector<int>, CvCity> m_paiUnitCombatFreeExperience;
 	FAutoVariable<std::vector<int>, CvCity> m_paiUnitCombatProductionModifier;
 	FAutoVariable<std::vector<int>, CvCity> m_paiFreePromotionCount;
+#if defined(MOD_BALANCE_CORE_POLICIES)
+	FAutoVariable<std::vector<int>, CvCity> m_paiBuildingClassCulture;
+#endif
 
 	int m_iBaseHappinessFromBuildings;
 	int m_iUnmoddedHappinessFromBuildings;
@@ -1100,9 +1226,6 @@ protected:
 #if defined(MOD_BUGFIX_FREE_FOOD_BUILDING)
 	bool m_bOwedFoodBuilding;
 #endif
-#if defined(MOD_BALANCE_CORE)
-	bool m_bOwedChosenBuilding;
-#endif
 
 	mutable FFastSmallFixedList< OrderData, 25, true, c_eCiv5GameplayDLL > m_orderQueue;
 
@@ -1110,6 +1233,12 @@ protected:
 	int** m_ppaiResourceYieldChange;
 	int** m_ppaiFeatureYieldChange;
 	int** m_ppaiTerrainYieldChange;
+#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
+	int** m_ppaiPlotYieldChange;
+#endif
+#if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
+	int** m_ppaiReligionBuildingYieldRateModifier;
+#endif
 
 	CvCityBuildings* m_pCityBuildings;
 	CvCityStrategyAI* m_pCityStrategyAI;
@@ -1128,6 +1257,9 @@ protected:
 	FAutoVariable<std::vector<bool>, CvCity> m_abBaseYieldRankValid;
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldRank;
 	FAutoVariable<std::vector<bool>, CvCity> m_abYieldRankValid;
+#if defined(MOD_BALANCE_CORE)
+	FAutoVariable<std::vector<bool>, CvCity> m_abOwedChosenBuilding;
+#endif
 
 	IDInfo m_combatUnit;		// The unit the city is in combat with
 

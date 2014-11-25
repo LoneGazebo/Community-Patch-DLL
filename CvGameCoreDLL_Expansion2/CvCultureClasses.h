@@ -74,6 +74,9 @@ public:
 	CvString GetGreatWorkEraShort(int iIndex) const;
 	PlayerTypes GetGreatWorkCreator (int iIndex) const;
 	PlayerTypes GetGreatWorkController(int iIndex) const;
+#if defined(MOD_API_EXTENSIONS)
+	CvCity* GetGreatWorkCity(int iIndex) const;
+#endif
 	int GetGreatWorkCurrentThemingBonus (int iIndex) const;
 
 	bool SwapGreatWorks (PlayerTypes ePlayer1, int iWork1, PlayerTypes ePlayer2, int iWork2);
@@ -152,7 +155,7 @@ public:
 	BuildingTypes m_eBuilding;
 	bool m_bThemed;
 	bool m_bEndangered;
-#if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
+#if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES) || defined(MOD_API_UNIFIED_YIELDS)
 	bool m_bPuppet;
 	YieldTypes m_eYieldType;
 #endif
@@ -235,6 +238,9 @@ public:
 	int GetNumCivsInfluentialOn() const;
 	int GetNumCivsToBeInfluentialOn() const;
 	PlayerTypes GetCivLowestInfluence(bool bCheckOpenBorders) const;
+#if defined(MOD_BALANCE_CORE)
+	int GetInfluenceTradeRouteGoldBonus(PlayerTypes ePlayer) const;
+#endif
 	int GetInfluenceTradeRouteScienceBonus(PlayerTypes ePlayer) const;
 	int GetInfluenceCityConquestReduction(PlayerTypes ePlayer) const;
 	int GetInfluenceSurveillanceTime(PlayerTypes ePlayer) const;
@@ -286,8 +292,11 @@ public:
 	int m_iSwappableMusicIndex;
 
 private:
+#if defined(MOD_BALANCE_CORE)
+	int ComputePublicOpinionUnhappiness(int iDissatisfaction);
+#else
 	int ComputePublicOpinionUnhappiness(int iDissatisfaction, int &iPerCityUnhappy, int &iUnhappyPerXPop);
-
+#endif
 	// Logging functions
 	void LogCultureData();
 	void LogThemedBuilding(int iCityID, BuildingTypes eBuilding, int iBonus);
@@ -344,7 +353,11 @@ public:
 
 	int GetCultureFromWonders() const;
 	int GetCultureFromNaturalWonders() const;
+#if defined(MOD_API_UNIFIED_YIELDS)
+	int GetYieldFromImprovements(YieldTypes eYield) const;
+#else
 	int GetCultureFromImprovements() const;
+#endif
 
 	void LogGreatWorks (FILogFile* pLog);
 

@@ -228,9 +228,9 @@ CvAICityStrategyEntry* CvAICityStrategies::GetEntry(int index)
 
 /// defining static
 #if defined(MOD_GLOBAL_CITY_WORKING)
-unsigned char  CvCityStrategyAI::m_acBestYields[NUM_YIELD_TYPES][MAX_CITY_PLOTS - 1];
+unsigned char  CvCityStrategyAI::m_acBestYields[NUM_YIELD_TYPES][MAX_CITY_PLOTS];
 #else
-unsigned char  CvCityStrategyAI::m_acBestYields[NUM_YIELD_TYPES][NUM_CITY_PLOTS - 1];
+unsigned char  CvCityStrategyAI::m_acBestYields[NUM_YIELD_TYPES][NUM_CITY_PLOTS];
 #endif
 
 /// Constructor
@@ -723,6 +723,14 @@ double CvCityStrategyAI::GetDeficientYieldValue(YieldTypes eYieldType)
 		break;
 	case YIELD_FAITH:
 		break;
+#if defined(MOD_API_UNIFIED_YIELDS_TOURISM)
+	case YIELD_TOURISM:
+		break;
+#endif
+#if defined(MOD_API_UNIFIED_YIELDS_GOLDEN_AGE)
+	case YIELD_GOLDEN_AGE_POINTS:
+		break;
+#endif
 	default:
 		FAssertMsg(false, "Yield type is not handled. What?");
 		return false;
@@ -743,9 +751,9 @@ void CvCityStrategyAI::ChooseProduction(bool bUseAsyncRandom, BuildingTypes eIgn
 
 	CvPlayerAI& kPlayer = GET_PLAYER(m_pCity->getOwner());
 	CvDiplomacyAI* pDiploAI = kPlayer.GetDiplomacyAI();
-
+#if !defined(MOD_BALANCE_CORE)
 	//int iSettlersOnMap = kPlayer.GetNumUnitsWithUnitAI(UNITAI_SETTLE, true);
-
+#endif
 	// Use the asynchronous random number generate if "no random" is set
 	if(bUseAsyncRandom)
 	{
@@ -971,9 +979,19 @@ void CvCityStrategyAI::ChooseProduction(bool bUseAsyncRandom, BuildingTypes eIgn
 						{
 							int iWaterTiles = pBiggestNearbyBodyOfWater->getNumTiles();
 							int iNumUnitsofMine = pBiggestNearbyBodyOfWater->getUnitsPerPlayer(m_pCity->getOwner());
+#if defined(MOD_CORE_RIPARIAN_CITIES)
+							int iNumUnitsOther = pBiggestNearbyBodyOfWater->getNumUnits()-iNumUnitsofMine;
+							int iNumCitiesofMine = pBiggestNearbyBodyOfWater->getCitiesPerPlayer(m_pCity->getOwner());
+							int iNumCitiesOther = pBiggestNearbyBodyOfWater->getNumCities()-iNumCitiesofMine;
+#endif
+
 #if defined(MOD_CONFIG_AI_IN_XML)
 							int iFactor = GC.getAI_CONFIG_MILITARY_TILES_PER_SHIP();
+	#if defined(MOD_CORE_RIPARIAN_CITIES)
+							if (iNumUnitsofMine * iFactor > iWaterTiles || (iNumUnitsOther==0 && iNumCitiesOther==0) )
+	#else
 							if (iNumUnitsofMine * iFactor > iWaterTiles)
+	#endif
 #else
 							if (iNumUnitsofMine * 5 > iWaterTiles)
 #endif
@@ -1498,6 +1516,24 @@ void CvCityStrategyAI::DoTurn()
 				else if(MOD_DIPLOMACY_CITYSTATES && strStrategyName == "AICITYSTRATEGY_NEED_DIPLOMATS_CRITICAL")
 					bStrategyShouldBeActive = CityStrategyAIHelpers::IsTestCityStrategy_NeedDiplomatsCritical(GetCity()); 
 #endif
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+				else if(MOD_BALANCE_CORE_HAPPINESS && strStrategyName == "AICITYSTRATEGY_NEED_HAPPINESS_CULTURE")
+					bStrategyShouldBeActive = CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessCulture(GetCity());
+				else if(MOD_BALANCE_CORE_HAPPINESS && strStrategyName == "AICITYSTRATEGY_NEED_HAPPINESS_SCIENCE")
+					bStrategyShouldBeActive = CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessScience(GetCity()); 
+				else if(MOD_BALANCE_CORE_HAPPINESS && strStrategyName == "AICITYSTRATEGY_NEED_HAPPINESS_DEFENSE")
+					bStrategyShouldBeActive = CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessDefense(GetCity()); 
+				else if(MOD_BALANCE_CORE_HAPPINESS && strStrategyName == "AICITYSTRATEGY_NEED_HAPPINESS_GOLD")
+					bStrategyShouldBeActive = CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessGold(GetCity());
+				else if(MOD_BALANCE_CORE_HAPPINESS && strStrategyName == "AICITYSTRATEGY_NEED_HAPPINESS_CONNECTION")
+					bStrategyShouldBeActive = CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessConnection(GetCity());
+				else if(MOD_BALANCE_CORE_HAPPINESS && strStrategyName == "AICITYSTRATEGY_NEED_HAPPINESS_PILLAGE")
+					bStrategyShouldBeActive = CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessPillage(GetCity());
+				else if(MOD_BALANCE_CORE_HAPPINESS && strStrategyName == "AICITYSTRATEGY_NEED_HAPPINESS_RELIGION")
+					bStrategyShouldBeActive = CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessReligion(GetCity());
+				else if(MOD_BALANCE_CORE_HAPPINESS && strStrategyName == "AICITYSTRATEGY_NEED_HAPPINESS_STARVE")
+					bStrategyShouldBeActive = CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessStarve(GetCity());
+#endif
 
 				// Check Lua hook
 				ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
@@ -1734,7 +1770,11 @@ void CvCityStrategyAI::UpdateBestYields()
 				{
 					if(pCityBuildings->GetNumBuilding(eBuilding) > 0)
 					{
+#if defined(MOD_BUGFIX_MINOR)
+						iCityYieldSum += pkBuildingInfo->GetYieldChange(iYield) * pCityBuildings->GetNumBuilding(eBuilding);
+#else
 						iCityYieldSum += pkBuildingInfo->GetYieldChange(iYield);
+#endif
 					}
 				}
 			}
@@ -3337,7 +3377,11 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_NeedTourismBuilding(CvCity *pCity
 	int iTourismValue = 0;
 	iTourismValue += pCity->GetCityCulture()->GetCultureFromWonders();
 	iTourismValue += pCity->GetCityCulture()->GetCultureFromNaturalWonders();
+#if defined(MOD_API_UNIFIED_YIELDS)
+	iTourismValue += pCity->GetCityCulture()->GetYieldFromImprovements(YIELD_CULTURE);
+#else
 	iTourismValue += pCity->GetCityCulture()->GetCultureFromImprovements();
+#endif
 	iTourismValue += pCity->GetCityCulture()->GetBaseTourism();
 
 	if (iTourismValue > 10)
@@ -3467,6 +3511,73 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_NeedDiplomatsCritical(CvCity *pCi
 		{
 			return true;
 		}
+	}
+	return false;
+}
+#endif
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+//Tests to help AI build buildings it needs.
+bool CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessCulture(CvCity *pCity)
+{
+	if(!GET_PLAYER(pCity->getOwner()).isMinorCiv() && pCity->getUnhappinessFromCulture() > 0)
+	{
+		return true;
+	}
+	return false;
+}
+bool CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessScience(CvCity *pCity)
+{
+	if(!GET_PLAYER(pCity->getOwner()).isMinorCiv() && pCity->getUnhappinessFromScience() > 0)
+	{
+		return true;
+	}
+	return false;
+}
+bool CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessDefense(CvCity *pCity)
+{
+	if(!GET_PLAYER(pCity->getOwner()).isMinorCiv() && pCity->getUnhappinessFromDefense() > 0)
+	{
+		return true;
+	}
+	return false;
+}
+bool CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessGold(CvCity *pCity)
+{
+	if(!GET_PLAYER(pCity->getOwner()).isMinorCiv() && pCity->getUnhappinessFromGold() > 0)
+	{
+		return true;
+	}
+	return false;
+}
+bool CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessConnection(CvCity *pCity)
+{
+	if(!GET_PLAYER(pCity->getOwner()).isMinorCiv() && pCity->getUnhappinessFromConnection() > 0)
+	{
+		return true;
+	}
+	return false;
+}
+bool CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessPillage(CvCity *pCity)
+{
+	if(!GET_PLAYER(pCity->getOwner()).isMinorCiv() && pCity->getUnhappinessFromPillaged() > 0)
+	{
+		return true;
+	}
+	return false;
+}
+bool CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessReligion(CvCity *pCity)
+{
+	if(!GET_PLAYER(pCity->getOwner()).isMinorCiv() && pCity->getUnhappinessFromMinority() > 0)
+	{
+		return true;
+	}
+	return false;
+}
+bool CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessStarve(CvCity *pCity)
+{
+	if(!GET_PLAYER(pCity->getOwner()).isMinorCiv() && pCity->getUnhappinessFromStarving() > 0)
+	{
+		return true;
 	}
 	return false;
 }

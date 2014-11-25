@@ -230,9 +230,9 @@ private:
 	CvWeightedVector<CvCityBuildable, (SAFE_ESTIMATE_NUM_BUILDINGS + SAFE_ESTIMATE_NUM_UNITS), true> m_Buildables;
 
 #if defined(MOD_GLOBAL_CITY_WORKING)
-	static unsigned char  m_acBestYields[NUM_YIELD_TYPES][MAX_CITY_PLOTS - 1];
+	static unsigned char  m_acBestYields[NUM_YIELD_TYPES][MAX_CITY_PLOTS];
 #else
-	static unsigned char  m_acBestYields[NUM_YIELD_TYPES][NUM_CITY_PLOTS - 1];
+	static unsigned char  m_acBestYields[NUM_YIELD_TYPES][NUM_CITY_PLOTS];
 #endif
 	unsigned short m_asBestYieldAverageTimes100[NUM_YIELD_TYPES];
 	short m_asYieldDeltaTimes100[NUM_YIELD_TYPES];
@@ -290,6 +290,16 @@ bool IsTestCityStrategy_GoodAirliftCity(CvCity *pCity);
 #if defined(MOD_DIPLOMACY_CITYSTATES)
 bool IsTestCityStrategy_NeedDiplomats(CvCity *pCity);
 bool IsTestCityStrategy_NeedDiplomatsCritical(CvCity *pCity);
+#endif
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+bool IsTestCityStrategy_NeedHappinessCulture(CvCity *pCity);
+bool IsTestCityStrategy_NeedHappinessScience(CvCity *pCity);
+bool IsTestCityStrategy_NeedHappinessDefense(CvCity *pCity);
+bool IsTestCityStrategy_NeedHappinessGold(CvCity *pCity);
+bool IsTestCityStrategy_NeedHappinessConnection(CvCity *pCity);
+bool IsTestCityStrategy_NeedHappinessPillage(CvCity *pCity);
+bool IsTestCityStrategy_NeedHappinessReligion(CvCity *pCity);
+bool IsTestCityStrategy_NeedHappinessStarve(CvCity *pCity);
 #endif
 }
 
