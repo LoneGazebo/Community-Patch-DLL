@@ -5,4 +5,5 @@
 !*.cpp
 !*.rc
 !*.vcxproj
+!*.dds
 !*.filters
