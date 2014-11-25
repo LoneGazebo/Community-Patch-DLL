@@ -509,6 +509,12 @@
     <ClCompile Include="CvCityManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="CvDistanceMap.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CvGreatPersonInfo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="banned.h">
@@ -700,9 +706,6 @@
     <ClInclude Include="CvPlot.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClCompile Include="CvPlotInfo.h">
-      <Filter>Header Files</Filter>
-    </ClCompile>
     <ClInclude Include="CvPlotManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -1037,6 +1040,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CvCityManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CvPlotInfo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CvDistanceMap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CvGreatPersonInfo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

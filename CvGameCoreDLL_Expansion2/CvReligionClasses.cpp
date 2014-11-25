@@ -5984,7 +5984,7 @@ void CvReligionAI::DoFaithPurchases()
 
 				if(GC.getLogging())
 				{
-					strLogMsg += ", Saving for Great Person, ";
+					strLogMsg += ", Focusing on a Great Person, ";
 					strLogMsg += GC.getUnitInfo(eGPType)->GetDescription();
 				}
 				return;
@@ -6002,7 +6002,7 @@ void CvReligionAI::DoFaithPurchases()
 						BuyGreatPerson(eProphetType);
 						if(GC.getLogging())
 						{
-							strLogMsg += ", Saving for Prophet, badly need to Convert Non-Puppet Cities";
+							strLogMsg += ", Focusing on Prophets, badly need to Convert Non-Puppet Cities";
 						}
 						return;
 					}
@@ -6012,7 +6012,7 @@ void CvReligionAI::DoFaithPurchases()
 
 						if(GC.getLogging())
 						{
-							strLogMsg += ", Saving for Missionary, Need to Convert Non-Puppet Cities";
+							strLogMsg += ", Focusing on Missionaries, Need to Convert Non-Puppet Cities";
 						}
 						return;
 					}
@@ -6026,7 +6026,7 @@ void CvReligionAI::DoFaithPurchases()
 
 				if(GC.getLogging())
 				{
-					strLogMsg += ", Saving for Missionary, Need to Convert Puppet Cities";
+					strLogMsg += ", Focusing on Missionaries, Need to Convert Puppet Cities";
 				}
 			}
 			// FOURTH PRIORITY
@@ -6036,7 +6036,7 @@ void CvReligionAI::DoFaithPurchases()
 				BuyAnyAvailableNonFaithUnit();
 				if(GC.getLogging())
 				{
-					strLogMsg += ", Saving for Non Faith Unit";
+					strLogMsg += ", Focusing on Non Faith Unit";
 				}
 			}
 			// FIFTH PRIORITY
@@ -6047,7 +6047,7 @@ void CvReligionAI::DoFaithPurchases()
 
 				if(GC.getLogging())
 				{
-					strLogMsg += ", Saving for Inquisitors, Need to Defend Our Cities";
+					strLogMsg += ", Focusing on Inquisitors, Need to Defend Our Cities";
 				}
 			}
 		}
@@ -6062,7 +6062,7 @@ void CvReligionAI::DoFaithPurchases()
 
 				if(GC.getLogging())
 				{
-					strLogMsg += ", Saving for Faith Building, For Our Non-Puppet Cities";
+					strLogMsg += ", Focusing on Faith Buildings, For Our Non-Puppet Cities";
 				}
 				return;
 			}
@@ -6073,7 +6073,7 @@ void CvReligionAI::DoFaithPurchases()
 				BuyAnyAvailableNonFaithBuilding();
 				if(GC.getLogging())
 				{
-					strLogMsg += ", Saving for non Faith Building, Have Reformation Belief";
+					strLogMsg += ", Focusing on non Faith Buildings, Have belief that allows this";
 				}
 			}
 			// THIRD PRIORITY
@@ -6084,7 +6084,7 @@ void CvReligionAI::DoFaithPurchases()
 
 				if(GC.getLogging())
 				{
-					strLogMsg += ", Saving for Faith Building, For Our Puppet Cities";
+					strLogMsg += ", Focusing on Faith Buildings, For Our Puppet Cities";
 				}
 			}
 		}
@@ -6107,7 +6107,7 @@ void CvReligionAI::DoFaithPurchases()
 
 						if(GC.getLogging())
 						{
-							strLogMsg += ", Saving for Missionary, Need to Convert EVERYONE because religious zealotry";
+							strLogMsg += ", Focusing on Missionaries, Need to Convert EVERYONE because religious zealotry";
 						}
 						return;
 					}
@@ -6121,7 +6121,7 @@ void CvReligionAI::DoFaithPurchases()
 
 				if(GC.getLogging())
 				{
-					strLogMsg += ", Saving for Missionary, Need to Convert Cities of Religion Starters";
+					strLogMsg += ", Focusing on Missionaries, Need to Convert Cities of Religion Starters";
 				}
 			}
 			//FIFTH PRIORITY
@@ -6132,7 +6132,7 @@ void CvReligionAI::DoFaithPurchases()
 
 				if(GC.getLogging())
 				{
-					strLogMsg += ", Saving for Missionary, Need to Convert Cities of Non-Religion Starters";
+					strLogMsg += ", Focusing on Missionaries, Need to Convert Cities of Non-Religion Starters";
 				}
 			}
 		}
