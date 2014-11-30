@@ -4122,7 +4122,7 @@ void CvTacticalAI::PlotSingleHexOperationMoves(CvAIEscortedOperation* pOperation
 				if (pEscort && pEscort->plot()!=pCivilian->plot())
 					msg += CvString::format(", escort at (%d,%d)", pEscort->getX(), pEscort->getY() );
 				msg += "\n";
-				OutputDebugStr( msg );
+				OutputDebugString( msg );
 #if defined(MOD_BALANCE_CORE_SETTLER)
 				if (!pEscort || pEscort->plot()!=pCivilian->plot())
 					m_pPlayer->GetHomelandAI()->MoveCivilianToSafety(pCivilian.pointer());

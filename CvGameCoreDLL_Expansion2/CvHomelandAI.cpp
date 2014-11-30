@@ -2495,7 +2495,7 @@ void CvHomelandAI::ExecuteFirstTurnSettlerMoves()
 							iAdjacentValue = GC.getGame().GetSettlerSiteEvaluator()->PlotFoundValue(pAdjacentPlot, m_pPlayer, NO_YIELD, false);
 							if(iAdjacentValue > iInitialPlotValue*1.05f) //should be at least five percent better to justify the hassle
 							{
-								OutputDebugStr( CvString::format("%s settler found better initial plot: %d vs %d\n", m_pPlayer->getCivilizationAdjective(), iAdjacentValue, iInitialPlotValue) );
+								OutputDebugString( CvString::format("%s settler found better initial plot: %d vs %d\n", m_pPlayer->getCivilizationAdjective(), iAdjacentValue, iInitialPlotValue) );
 								iInitialPlotValue = iAdjacentValue;
 								pBestAdjacentPlot = pAdjacentPlot;
 							}
