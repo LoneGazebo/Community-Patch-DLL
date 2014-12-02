@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Created by ModBuddy on 11/5/2014 10:11:32 AM -->
 <GameData>
-  <!-- Anti-Air becomes 'anti-vehicle' -->
 	<Unit_FreePromotions>
+		<!-- Modern ranged becomes 'anti-vehicle' -->
 		<Row>
 			<UnitType>UNIT_BAZOOKA</UnitType>
 			<PromotionType>PROMOTION_ANTI_TANK</PromotionType>
@@ -11,6 +11,10 @@
 			<UnitType>UNIT_ROCKET_ARTILLERY</UnitType>
 			<PromotionType>PROMOTION_ANTI_TANK</PromotionType>
 		</Row>
+		<!-- Buff Quinqureme -->
+		<Row>
+			<UnitType>UNIT_CARTHAGINIAN_QUINQUEREME</UnitType>
+			<PromotionType>PROMOTION_COASTAL_RAIDER_1</PromotionType>
+		</Row>
 	</Unit_FreePromotions>
-  
 </GameData>

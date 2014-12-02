@@ -3809,7 +3809,6 @@ bool CvDealAI::IsOfferPeace(PlayerTypes eOtherPlayer, CvDeal* pDeal, bool bEqual
 
 		result = true;
 	}
-
 	return result;
 }
 

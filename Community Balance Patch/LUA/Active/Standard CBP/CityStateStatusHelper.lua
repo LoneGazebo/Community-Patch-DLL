@@ -241,7 +241,7 @@ function GetCityStateStatusToolTip(iMajor, iMinor, bFullInfo)
 	local iInfluenceAnchor = pMinor:GetMinorCivFriendshipAnchorWithMajor(iMajor);
 	--COMMUNITY
 	local iJerk = pMinor:GetJerk(iMajorTeam);
-	
+	--END
 	local strStatusTT = "";
 	
 	-- Status and Influence
@@ -268,8 +268,8 @@ function GetCityStateStatusToolTip(iMajor, iMinor, bFullInfo)
 										    iInfluence, GameDefines["MINOR_FRIENDSHIP_AT_WAR"]);
 										    
 		strStatusTT = strStatusTT .. "[NEWLINE][NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_PERMANENT_WAR_CSTATE_TT", strShortDescKey);
-		
-	elseif (pMinor:IsPeaceBlocked(iActiveTeam)) then		-- Peace blocked by being at war (COMMUNITY PATCH CHANGES)
+-- Peace blocked by being at war (COMMUNITY PATCH CHANGES)		
+	elseif (pMinor:IsPeaceBlocked(iActiveTeam)) then		
 		strStatusTT = Locale.ConvertTextKey("TXT_KEY_DIPLO_STATUS_TT", Locale.ConvertTextKey(strShortDescKey), Locale.ConvertTextKey("TXT_KEY_ANGRY"),
 										    iInfluence, GameDefines["MINOR_FRIENDSHIP_AT_WAR"]);
 										    
@@ -279,7 +279,8 @@ function GetCityStateStatusToolTip(iMajor, iMinor, bFullInfo)
 		strStatusTT = Locale.ConvertTextKey("TXT_KEY_DIPLO_STATUS_TT", Locale.ConvertTextKey(strShortDescKey), Locale.ConvertTextKey("TXT_KEY_ANGRY"),
 										    iInfluence, GameDefines["MINOR_FRIENDSHIP_AT_WAR"]);
 										    
-		strStatusTT = strStatusTT .. "[NEWLINE][NEWLINE]" ..Locale.ConvertTextKey("TXT_KEY_WAR_CSTATE_TT", strShortDescKey);
+		strStatusTT = strStatusTT .. "[NEWLINE][NEWLINE]" ..Locale.ConvertTextKey("TXT_KEY_WAR_CSTATE_TT", strShortDescKey, iJerk);
+--END
 		
 	elseif (iInfluence < GameDefines["FRIENDSHIP_THRESHOLD_NEUTRAL"]) then
 		-- Afraid

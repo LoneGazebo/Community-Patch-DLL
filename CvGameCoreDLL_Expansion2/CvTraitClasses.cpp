@@ -154,6 +154,12 @@ CvTraitEntry::CvTraitEntry() :
 	m_piYieldFromRouteMovement(NULL),
 	m_piYieldFromExport(NULL),
 	m_piYieldFromImport(NULL),
+	m_piYieldFromCSAlly(NULL),
+	m_piYieldFromSettle(NULL),
+	m_iVotePerXCSAlliance(0),
+	m_iGoldenAgeFromVictory(0),
+	m_bFreeGreatWorkOnConquest(false),
+	m_bPopulationBoostReligion(false),
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
 	m_ppiBuildingClassYieldChanges(NULL),
@@ -625,13 +631,14 @@ int CvTraitEntry::YieldFromRouteMovement(int i) const
 {
 	return m_piYieldFromRouteMovement ? m_piYieldFromRouteMovement[i] : -1;
 }
-int CvTraitEntry::YieldFromExport(int i) const
+/// Accessor:: does this civ get a free great work when it conquers a city?
+bool CvTraitEntry::IsFreeGreatWorkOnConquest() const
 {
-	return m_piYieldFromExport ? m_piYieldFromExport[i] : -1;
+	return m_bFreeGreatWorkOnConquest;
 }
-int CvTraitEntry::YieldFromImport(int i) const
+bool CvTraitEntry::IsPopulationBoostReligion() const
 {
-	return m_piYieldFromImport ? m_piYieldFromImport[i] : -1;
+	return m_bPopulationBoostReligion;
 }
 #endif
 
@@ -940,6 +947,22 @@ int CvTraitEntry::GetYieldFromExport(int i) const
 int CvTraitEntry::GetYieldFromImport(int i) const
 {
 	return m_piYieldFromImport ? m_piYieldFromImport[i] : -1;
+}
+int CvTraitEntry::GetYieldFromCSAlly(int i) const
+{
+	return m_piYieldFromCSAlly ? m_piYieldFromCSAlly[i] : -1;
+}
+int CvTraitEntry::GetYieldFromSettle(int i) const
+{
+	return m_piYieldFromSettle ? m_piYieldFromSettle[i] : -1;
+}
+int CvTraitEntry::GetVotePerXCSAlliance() const
+{
+	return m_iVotePerXCSAlliance;
+}
+int CvTraitEntry::GetGoldenAgeFromVictory() const
+{
+	return m_iGoldenAgeFromVictory;
 }
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
@@ -1542,6 +1565,12 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	kUtility.SetYields(m_piYieldFromRouteMovement, "Trait_YieldFromRouteMovement", "TraitType", szTraitType);
 	kUtility.SetYields(m_piYieldFromExport, "Trait_YieldFromExport", "TraitType", szTraitType);
 	kUtility.SetYields(m_piYieldFromImport, "Trait_YieldFromImport", "TraitType", szTraitType);
+	kUtility.SetYields(m_piYieldFromCSAlly, "Trait_YieldFromCSAlly", "TraitType", szTraitType);
+	kUtility.SetYields(m_piYieldFromSettle, "Trait_YieldFromSettle", "TraitType", szTraitType);
+	m_iVotePerXCSAlliance = kResults.GetInt("VotePerXCSAlliance");
+	m_iGoldenAgeFromVictory = kResults.GetInt("GoldenAgeFromVictory");
+	m_bFreeGreatWorkOnConquest = kResults.GetBool("FreeGreatWorkOnConquest");
+	m_bPopulationBoostReligion = kResults.GetBool("PopulationBoostReligion");
 #endif
 
 #if defined(MOD_API_UNIFIED_YIELDS)
@@ -2169,6 +2198,18 @@ void CvPlayerTraits::InitPlayerTraits()
 				m_iYieldFromRouteMovement[iYield] = trait->GetYieldFromRouteMovement(iYield);
 				m_iYieldFromExport[iYield] = trait->GetYieldFromExport(iYield);
 				m_iYieldFromImport[iYield] = trait->GetYieldFromImport(iYield);
+				m_iYieldFromCSAlly[iYield] = trait->GetYieldFromCSAlly(iYield);
+				m_iYieldFromSettle[iYield] = trait->GetYieldFromSettle(iYield);
+				m_iVotePerXCSAlliance = trait->GetVotePerXCSAlliance();
+				m_iGoldenAgeFromVictory = trait->GetGoldenAgeFromVictory();
+				if(trait->IsFreeGreatWorkOnConquest())
+				{
+					m_bFreeGreatWorkOnConquest = true;
+				}
+				if(trait->IsPopulationBoostReligion())
+				{
+					m_bPopulationBoostReligion = true;
+				}
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
 				for(int iBuildingClassLoop = 0; iBuildingClassLoop < GC.getNumBuildingClassInfos(); iBuildingClassLoop++)
@@ -2525,6 +2566,12 @@ void CvPlayerTraits::Reset()
 		m_iYieldFromRouteMovement[iYield] = 0;
 		m_iYieldFromExport[iYield] = 0;
 		m_iYieldFromImport[iYield] = 0;
+		m_iYieldFromSettle[iYield] = 0;
+		m_iYieldFromCSAlly[iYield] = 0;
+		m_iVotePerXCSAlliance = 0;
+		m_iGoldenAgeFromVictory = 0;
+		m_bFreeGreatWorkOnConquest = false;
+		m_bPopulationBoostReligion = false;
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
 		for(int iBuildingClass = 0; iBuildingClass < GC.getNumBuildingClassInfos(); iBuildingClass++)
@@ -2971,7 +3018,74 @@ BuildingTypes CvPlayerTraits::GetFreeBuildingOnConquest() const
 
 	return NO_BUILDING;
 }
+#if defined(MOD_BALANCE_CORE)
+/// Should unique luxuries appear around this tile?
+void CvPlayerTraits::AddUniqueLuxuriesAround(CvCity *pCity)
+{
+	// Still have more of these cities to award?
+	if (m_iUniqueLuxuryCities > m_iUniqueLuxuryCitiesPlaced)
+	{
+		m_iUniqueLuxuryCitiesPlaced++;   // One less to give out
+		m_aUniqueLuxuryAreas.push_back(m_iUniqueLuxuryCitiesPlaced);  		// Store area
+		int iNumUniqueResourcesGiven = m_aUniqueLuxuryAreas.size();
 
+		// Loop through all resources and see if we can find this many unique ones
+		ResourceTypes eResourceToGive = NO_RESOURCE;
+		int iNumUniquesFound = 0;
+		for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+		{
+			ResourceTypes eResource = (ResourceTypes) iResourceLoop;
+			CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
+			if (pkResource != NULL && pkResource->GetRequiredCivilization() == m_pPlayer->getCivilizationType())
+			{
+				iNumUniquesFound++;
+				if (iNumUniquesFound == iNumUniqueResourcesGiven)
+				{
+					eResourceToGive = eResource;
+					break;
+				}
+			}
+		}
+
+		if (eResourceToGive != NO_RESOURCE)
+		{
+			int iNumResourceGiven = 0;
+			int iNumResourceTotal = m_iUniqueLuxuryQuantity;
+			if(((m_pPlayer->GetNumCitiesFounded() <= 1) || (m_pPlayer->getCapitalCity() != NULL && (m_pPlayer->getCapitalCity()->getArea() != pCity->getArea()))))
+			{
+				iNumResourceTotal += m_iUniqueLuxuryQuantity;
+			}
+			CvPlot* pLoopPlot;
+#if defined(MOD_GLOBAL_CITY_WORKING)
+			for(int iCityPlotLoop = 0; iCityPlotLoop < pCity->GetNumWorkablePlots(); iCityPlotLoop++)
+#else
+			for(int iCityPlotLoop = 0; iCityPlotLoop < NUM_CITY_PLOTS; iCityPlotLoop++)
+#endif
+			{
+				pLoopPlot = plotCity(pCity->getX(), pCity->getY(), iCityPlotLoop);
+				if(pLoopPlot != NULL && !pLoopPlot->isCity() && !pLoopPlot->isImpassable() && !pLoopPlot->isWater() && !pLoopPlot->isMountain() && !pLoopPlot->IsNaturalWonder())
+				{
+					if((pLoopPlot->getFeatureType() != FEATURE_FOREST) && pLoopPlot->HasResource(NO_RESOURCE) && pLoopPlot->HasImprovement(NO_IMPROVEMENT))
+					{
+						pLoopPlot->setResourceType(NO_RESOURCE, 0, false);
+						pLoopPlot->setResourceType(eResourceToGive, 1, false);
+						iNumResourceGiven++;
+						if(iNumResourceGiven >= iNumResourceTotal)
+						{
+							break;
+						}
+					}
+				}
+			}
+			if(iNumResourceGiven < iNumResourceTotal)
+			{
+				pCity->plot()->setResourceType(NO_RESOURCE, 0, false);
+				pCity->plot()->setResourceType(eResourceToGive, iNumResourceGiven, false);
+			}
+		}
+	}
+}
+#endif
 /// Should unique luxuries appear beneath this tile?
 void CvPlayerTraits::AddUniqueLuxuries(CvCity *pCity)
 {
@@ -4042,6 +4156,14 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	kStream >> kYieldFromExportWrapper;
 	ArrayWrapper<int> kYieldFromImportWrapper(NUM_YIELD_TYPES, m_iYieldFromImport);
 	kStream >> kYieldFromImportWrapper;
+	ArrayWrapper<int> kYieldFromSettleWrapper(NUM_YIELD_TYPES, m_iYieldFromSettle);
+	kStream >> kYieldFromSettleWrapper;
+	ArrayWrapper<int> kYieldFromCSAlly(NUM_YIELD_TYPES, m_iYieldFromCSAlly);
+	kStream >> kYieldFromCSAlly;
+	MOD_SERIALIZE_READ(66, kStream, m_bFreeGreatWorkOnConquest, false);
+	MOD_SERIALIZE_READ(66, kStream, m_bPopulationBoostReligion, false);
+	MOD_SERIALIZE_READ(66, kStream, m_iVotePerXCSAlliance, 0);
+	MOD_SERIALIZE_READ(66, kStream, m_iGoldenAgeFromVictory, 0);
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
 	// MOD_SERIALIZE_READ - v57/v58/v59 and v61 broke the save format  couldn't be helped, but don't make a habit of it!!!
@@ -4289,6 +4411,12 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iYieldFromRouteMovement);
 	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iYieldFromExport);
 	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iYieldFromImport);
+	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iYieldFromSettle);
+	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iYieldFromCSAlly);
+	MOD_SERIALIZE_WRITE(kStream, m_bFreeGreatWorkOnConquest);
+	MOD_SERIALIZE_WRITE(kStream, m_bPopulationBoostReligion);
+	MOD_SERIALIZE_WRITE(kStream, m_iVotePerXCSAlliance);
+	MOD_SERIALIZE_WRITE(kStream, m_iGoldenAgeFromVictory);
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
 	// MOD_SERIALIZE_READ - v57/v58/v59 and v61 broke the save format  couldn't be helped, but don't make a habit of it!!!

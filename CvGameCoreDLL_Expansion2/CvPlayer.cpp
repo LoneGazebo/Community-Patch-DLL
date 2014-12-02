@@ -2381,6 +2381,19 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 			}
 		}
 	}
+#if defined(MOD_BALANCE_CORE)
+	if(bConquest && MOD_BALANCE_CORE)
+	{
+		if (GetPlayerTraits()->IsFreeGreatWorkOnConquest())
+		{
+			// Will this be the first time we have owned this city?
+			if (!pOldCity->isEverOwned(GetID()))
+			{
+				DoFreeGreatWorkOnConquest(pOldCity->getOwner(), pOldCity);
+			}
+		}
+	}
+#endif
 #if defined(MOD_BALANCE_CORE_BELIEFS)
 	if(bConquest)
 	{
@@ -11044,19 +11057,19 @@ int CvPlayer::GetYieldPerTurnFromResources(YieldTypes eYield, bool bExported, bo
 		{
 			if(getResourceExport(eResourceLoop) > 0)
 			{
-				iExport++;
+				iExport += getResourceExport(eResourceLoop);
 			}
 			if(getResourceImport(eResourceLoop) > 0)
 			{
-				iImport++;
+				iImport += getResourceImport(eResourceLoop);
 			}
 			if(getResourceFromMinors(eResourceLoop) > 0)
 			{
-				iImport++;
+				iImport += getResourceFromMinors(eResourceLoop);
 			}
 			if(getResourceSiphoned(eResourceLoop) > 0)
 			{
-				iImport++;
+				iImport += getResourceSiphoned(eResourceLoop);
 			}
 		}
 	}
@@ -12084,7 +12097,172 @@ void CvPlayer::DoTechFromCityConquer(CvCity* pConqueredCity)
 		}
 	}
 }
+#if defined(MOD_BALANCE_CORE)
+//	--------------------------------------------------------------------------------
+/// Generate a random great work on city conquest
+void CvPlayer::DoFreeGreatWorkOnConquest(PlayerTypes ePlayer, CvCity* pCity)
+{
+	GreatWorkSlotType eArtArtifactSlot = CvTypes::getGREAT_WORK_SLOT_ART_ARTIFACT();
 
+	int iOpenArt = 0;
+	int iArtStolen = 0;
+	const char* strTargetNameKey = pCity->getNameKey();
+	const CvCity* pLoopCity;
+	int iLoop;
+	for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+	{
+		iOpenArt += pLoopCity->GetCityBuildings()->GetNumAvailableGreatWorkSlots(eArtArtifactSlot);
+	}
+	if(GET_PLAYER(ePlayer).isAlive() && !GET_PLAYER(ePlayer).isMinorCiv() && !GET_PLAYER(ePlayer).isBarbarian())
+	{
+		if(iOpenArt > 0)
+		{
+			int iCityLoop;
+			CvCity* pPlayerCity = NULL;
+			int iGreatWorkIndex;
+			int ArtPlunder = GC.getGame().getJonRandNum(iOpenArt, "Art Plunder Value");
+			for(int iArtLoop = 0; iArtLoop < ArtPlunder; iArtLoop++)
+			{			
+				for (pPlayerCity = GET_PLAYER(ePlayer).firstCity(&iCityLoop); pPlayerCity != NULL; pPlayerCity = GET_PLAYER(ePlayer).nextCity(&iCityLoop))
+				{
+					for(int iBuildingClassLoop = 0; iBuildingClassLoop < GC.getNumBuildingClassInfos(); iBuildingClassLoop++)
+					{
+						CvCivilizationInfo& playerCivilizationInfo = GET_PLAYER(ePlayer).getCivilizationInfo();
+						BuildingTypes eBuilding = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings((BuildingClassTypes)iBuildingClassLoop);
+						if (eBuilding != NO_BUILDING)
+						{
+							CvBuildingEntry *pkBuilding = GC.getBuildingInfo(eBuilding);
+							if (pkBuilding)
+							{
+								if (pPlayerCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0 && pkBuilding->GetGreatWorkSlotType() == eArtArtifactSlot)
+								{
+									int iNumSlots = pkBuilding->GetGreatWorkCount();
+									if(iNumSlots > 0)
+									{
+										for (int iI = 0; iI < iNumSlots; iI++)
+										{
+											iGreatWorkIndex = pPlayerCity->GetCityBuildings()->GetBuildingGreatWork((BuildingClassTypes)iBuildingClassLoop, iI);
+											if (iGreatWorkIndex != NO_GREAT_WORK)
+											{
+												// remove existing great works
+												pPlayerCity->GetCityBuildings()->SetBuildingGreatWork((BuildingClassTypes)iBuildingClassLoop, iGreatWorkIndex, -1);
+												// and create great work at home
+												BuildingClassTypes eGWBuildingClass;
+												int iGWSlot;
+												CvCity *pArtCity = GetCulture()->GetClosestAvailableGreatWorkSlot(pPlayerCity->getX(), pPlayerCity->getY(), eArtArtifactSlot, &eGWBuildingClass, &iGWSlot);
+												if (pArtCity)
+												{
+													pArtCity->GetCityBuildings()->SetBuildingGreatWork(eGWBuildingClass, iGWSlot, iGreatWorkIndex);
+													iArtStolen++;
+													if(GetID() == GC.getGame().getActivePlayer())
+													{
+														CvPopupInfo kPopup(BUTTONPOPUP_GREAT_WORK_COMPLETED_ACTIVE_PLAYER, iGreatWorkIndex);
+														GC.GetEngineUserInterface()->AddPopup(kPopup);
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+			if(iArtStolen > 0)
+			{
+				if(GetID() == GC.getGame().getActivePlayer())
+				{
+					Localization::String strMessage;
+					Localization::String strSummary;
+					strMessage = Localization::Lookup("TXT_KEY_ART_STOLEN");
+					strMessage << iArtStolen;
+					strMessage << strTargetNameKey;
+					strSummary = Localization::Lookup("TXT_KEY_ART_STOLEN_SUMMARY");
+
+					CvNotifications* pNotification = GetNotifications();
+					if(pNotification)
+					{
+						pNotification->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), pCity->getX(), pCity->getY(), (int) pCity->GetID(), GetID());
+					}
+				}
+				if(ePlayer == GC.getGame().getActivePlayer())
+				{
+					Localization::String strMessage;
+					Localization::String strSummary;
+					strMessage = Localization::Lookup("TXT_KEY_ART_PLUNDERED");
+					strMessage << iArtStolen;
+					strMessage << strTargetNameKey;
+					strSummary = Localization::Lookup("TXT_KEY_ART_PLUNDERED_SUMMARY");
+
+					CvNotifications* pNotification = GET_PLAYER(ePlayer).GetNotifications();
+					if(pNotification)
+					{
+						pNotification->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), pCity->getX(), pCity->getY(), (int) pCity->GetID(), pCity->getOwner());
+					}
+				}
+			}
+			else
+			{
+				ChangeCultureBonusTurns(pCity->getPopulation());
+				if(GetID() == GC.getGame().getActivePlayer())
+				{
+					Localization::String strMessage;
+					Localization::String strSummary;
+					strMessage = Localization::Lookup("TXT_KEY_CULTURE_BOOST_ART");
+					strMessage << pCity->getPopulation();
+					strMessage << strTargetNameKey;
+					strSummary = Localization::Lookup("TXT_KEY_CULTURE_BOOST_ART_SUMMARY");
+
+					CvNotifications* pNotification = GetNotifications();
+					if(pNotification)
+					{
+						pNotification->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), pCity->getX(), pCity->getY(), (int) pCity->GetID(), GetID());
+					}
+				}
+			}
+		}
+		else
+		{
+			ChangeCultureBonusTurns(pCity->getPopulation());
+			if(GetID() == GC.getGame().getActivePlayer())
+			{
+				Localization::String strMessage;
+				Localization::String strSummary;
+				strMessage = Localization::Lookup("TXT_KEY_CULTURE_BOOST_ART");
+				strMessage << pCity->getPopulation();
+				strMessage << strTargetNameKey;
+				strSummary = Localization::Lookup("TXT_KEY_CULTURE_BOOST_ART_SUMMARY");
+
+				CvNotifications* pNotification = GetNotifications();
+				if(pNotification)
+				{
+					pNotification->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), pCity->getX(), pCity->getY(), (int) pCity->GetID(), GetID());
+				}
+			}
+		}
+	}
+	else
+	{
+		ChangeCultureBonusTurns(pCity->getPopulation());
+		if(GetID() == GC.getGame().getActivePlayer())
+		{
+			Localization::String strMessage;
+			Localization::String strSummary;
+			strMessage = Localization::Lookup("TXT_KEY_CULTURE_BOOST_ART");
+			strMessage << pCity->getPopulation();
+			strMessage << strTargetNameKey;
+			strSummary = Localization::Lookup("TXT_KEY_CULTURE_BOOST_ART_SUMMARY");
+
+			CvNotifications* pNotification = GetNotifications();
+			if(pNotification)
+			{
+				pNotification->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), pCity->getX(), pCity->getY(), (int) pCity->GetID(), GetID());
+			}
+		}
+	}
+}
+#endif
 #if defined(MOD_API_UNIFIED_YIELDS)
 //	--------------------------------------------------------------------------------
 /// Yield per turn from Religion

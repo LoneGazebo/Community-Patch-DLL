@@ -528,6 +528,9 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(GetReligionYieldRateModifier);
 	Method(GetReligionBuildingYieldRateModifier);
 #endif
+#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE)
+	Method(GetBaseYieldRateFromCSAlliance);
+#endif
 	Method(GetBuildingEspionageModifier);
 	Method(GetBuildingGlobalEspionageModifier);
 
@@ -4337,6 +4340,17 @@ int CvLuaCity::lGetReligionBuildingYieldRateModifier(lua_State* L)
 
 	lua_pushinteger(L, iRtnValue);
 
+	return 1;
+}
+#endif
+#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE)
+int CvLuaCity::lGetBaseYieldRateFromCSAlliance(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const YieldTypes eIndex = (YieldTypes)lua_tointeger(L, 2);
+	const int iResult = pkCity->GetBaseYieldRateFromCSAlliance(eIndex);
+
+	lua_pushinteger(L, iResult);
 	return 1;
 }
 #endif

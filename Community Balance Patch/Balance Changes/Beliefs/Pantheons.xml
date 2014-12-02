@@ -56,7 +56,7 @@
 			<BeliefType>BELIEF_GODDESS_STRATEGY</BeliefType>
 			<BuildingClassType>BUILDINGCLASS_BARRACKS</BuildingClassType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<YieldChange>1</YieldChange>
+			<YieldChange>2</YieldChange>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_STONE_CIRCLES</BeliefType>
@@ -101,7 +101,7 @@
 		<Row>
 			<BeliefType>BELIEF_GODDESS_LOVE</BeliefType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>5</Yield>
+			<Yield>10</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_GODDESS_LOVE</BeliefType>
@@ -113,7 +113,7 @@
 		<Row>
 			<BeliefType>BELIEF_MESSENGER_GODS</BeliefType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>1</Yield>
+			<Yield>2</Yield>
 		</Row>
 	</Belief_YieldChangeTradeRoute>
 	<Belief_YieldChangeWorldWonder>
@@ -160,14 +160,14 @@
 		<Row>
 			<BeliefType>BELIEF_RELIGIOUS_SETTLEMENTS</BeliefType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>5</Yield>
+			<Yield>10</Yield>
 		</Row>
 	</Belief_YieldPerBorderGrowth>
 	<Belief_YieldPerHeal>
 		<Row>
 			<BeliefType>BELIEF_FAITH_HEALERS</BeliefType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>5</Yield>
+			<Yield>10</Yield>
 		</Row>
 	</Belief_YieldPerHeal>
 	<Belief_FeatureYieldChanges>
@@ -202,13 +202,13 @@
 			<BeliefType>BELIEF_DESERT_FOLKLORE</BeliefType>
 			<TerrainType>TERRAIN_DESERT</TerrainType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>1</Yield>
+			<Yield>2</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_DANCE_AURORA</BeliefType>
 			<TerrainType>TERRAIN_TUNDRA</TerrainType>
 			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>1</Yield>
+			<Yield>2</Yield>
 		</Row>
 	</Belief_TerrainYieldChanges>
 	<Belief_PlotYieldChanges>

@@ -15,7 +15,7 @@ SET NumUnits = '1'
 WHERE BuildingType = 'BUILDING_PYRAMID' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Tile improvement construction speed increased by 25% and one Settler appear near the City.'
+SET Text = 'Tile improvement construction speed increased by 25% and a Settler appears near the City.'
 WHERE Tag = 'TXT_KEY_WONDER_CHICHEN_ITZA_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 -- Statue of Zeus

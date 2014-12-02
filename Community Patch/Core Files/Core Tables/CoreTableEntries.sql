@@ -154,6 +154,20 @@ ALTER TABLE Traits ADD COLUMN 'IlliteracyHappinessTraitMod' integer default 0;
 ALTER TABLE Traits ADD COLUMN 'UnculturedHappinessTraitMod' integer default 0;
 ALTER TABLE Traits ADD COLUMN 'MinorityHappinessTraitMod' integer default 0;
 
+-- New Traits - Free Great Work(s) on Conquest (or Culture Boost if no great works/slots)
+
+ALTER TABLE Traits ADD COLUMN 'FreeGreatWorkOnConquest' boolean default false;
+
+-- New Traits - Religious Pressure modified based on population
+
+ALTER TABLE Traits ADD COLUMN 'PopulationBoostReligion' boolean default false;
+
+-- New Traits - Additioanl WC vote for every x CS Alliances
+ALTER TABLE Traits ADD COLUMN 'VotePerXCSAlliance' integer default 0;
+
+-- New Traits - Golden Age received from favorable peace treaty
+ALTER TABLE Traits ADD COLUMN 'GoldenAgeFromVictory' integer default 0;
+
 -- New Policies
 
 -- Reduces unhappiness in occupied cities w/ Garrison. Negative = reduction.

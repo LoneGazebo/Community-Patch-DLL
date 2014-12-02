@@ -133,8 +133,6 @@ public:
 	TechTypes GetCapitalFreeBuildingPrereqTech() const;
 	int TradeRouteStartYield(int i) const;
 	int YieldFromRouteMovement(int i) const;
-	int YieldFromExport(int i) const;
-	int YieldFromImport(int i) const;
 #endif
 
 	TechTypes GetFreeUnitPrereqTech() const;
@@ -208,6 +206,12 @@ public:
 	int GetYieldFromRouteMovement(int i) const;
 	int GetYieldFromExport(int i) const;
 	int GetYieldFromImport(int i) const;
+	int GetYieldFromCSAlly(int i) const;
+	int GetYieldFromSettle(int i) const;
+	int GetVotePerXCSAlliance() const;
+	int GetGoldenAgeFromVictory() const;
+	bool IsFreeGreatWorkOnConquest() const;
+	bool IsPopulationBoostReligion() const;
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
 	int GetBuildingClassYieldChanges(BuildingClassTypes eIndex1, YieldTypes eIndex2) const;
@@ -392,6 +396,12 @@ protected:
 	int* m_piYieldFromRouteMovement;
 	int* m_piYieldFromExport;
 	int* m_piYieldFromImport;
+	int* m_piYieldFromCSAlly;
+	int* m_piYieldFromSettle;
+	int m_iVotePerXCSAlliance;
+	int m_iGoldenAgeFromVictory;
+	bool m_bFreeGreatWorkOnConquest;
+	bool m_bPopulationBoostReligion;
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
 	int** m_ppiBuildingClassYieldChanges;
@@ -948,6 +958,30 @@ public:
 	{
 		return m_iYieldFromImport[(int)eYield];
 	};
+	int GetYieldFromCSAlly(YieldTypes eYield) const
+	{
+		return m_iYieldFromCSAlly[(int)eYield];
+	};
+	int GetYieldFromSettle(YieldTypes eYield) const
+	{
+		return m_iYieldFromSettle[(int)eYield];
+	};
+	int GetVotePerXCSAlliance() const
+	{
+		return m_iVotePerXCSAlliance;
+	}
+	int GetGoldenAgeFromVictory() const
+	{
+		return m_iGoldenAgeFromVictory;
+	}
+	bool IsFreeGreatWorkOnConquest() const
+	{
+		return m_bFreeGreatWorkOnConquest;
+	}
+	bool IsPopulationBoostReligion() const
+	{
+		return m_bPopulationBoostReligion;
+	}
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
 	int GetBuildingClassYieldChange(BuildingClassTypes eBuildingClass, YieldTypes eYield) const;
@@ -995,6 +1029,9 @@ public:
 
 	// Public functions to make trait-based game state changes
 	void AddUniqueLuxuries(CvCity *pCity);
+#if defined(MOD_BALANCE_CORE)
+	void AddUniqueLuxuriesAround(CvCity *pCity);
+#endif
 	bool CheckForBarbarianConversion(CvPlot* pPlot);
 	int GetCapitalBuildingDiscount(BuildingTypes eBuilding);
 #if defined(MOD_BALANCE_CORE)
@@ -1212,6 +1249,12 @@ private:
 	int m_iYieldFromRouteMovement[NUM_YIELD_TYPES];
 	int m_iYieldFromExport[NUM_YIELD_TYPES];
 	int m_iYieldFromImport[NUM_YIELD_TYPES];
+	int m_iYieldFromCSAlly[NUM_YIELD_TYPES];
+	int m_iYieldFromSettle[NUM_YIELD_TYPES];
+	int m_iVotePerXCSAlliance;
+	int m_iGoldenAgeFromVictory;
+	bool m_bFreeGreatWorkOnConquest;
+	bool m_bPopulationBoostReligion;
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiBuildingClassYieldChange;

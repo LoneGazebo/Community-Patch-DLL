@@ -23,7 +23,7 @@ WHERE UnitType = 'UNIT_AMERICAN_B17' AND EXISTS (SELECT * FROM COMMUNITY WHERE T
 DELETE FROM UnitGameplay2DScripts
 WHERE UnitType = 'UNIT_AMERICAN_B17' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
--- Arabia -- Faith Instead of Luxury Doubling from Bazaar -- Units move faster in Desert
+-- Arabia -- Faith Instead of Luxury Doubling from Bazaar -- Units move faster in Desert -- Boosted Religion over Trade route spread.
 UPDATE Buildings
 SET ExtraLuxuries = 'false'
 WHERE Type = 'BUILDING_BAZAAR' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
@@ -33,8 +33,12 @@ SET Text = 'Provides +3 [ICON_PEACE] Faith. +1 [ICON_GOLD] Gold for every 4 [ICO
 WHERE Tag = 'TXT_KEY_BUILDING_BAZAAR_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'All land military units move twice as fast in the Desert. Caravans gain 50% extended range, and your trade routes spread religion twice as effectively. [ICON_OIL] Oil resources are doubled.'
+SET Text = 'All land military units move twice as fast in the Desert. Caravans gain 50% extended range, and your trade routes spread religion much more effectively. [ICON_OIL] Oil resources are doubled.'
 WHERE Tag = 'TXT_KEY_TRAIT_LAND_TRADE_GOLD2' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
+
+UPDATE Traits
+SET TradeReligionModifier = '150'
+WHERE Type = 'TRAIT_LAND_TRADE_GOLD' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 -- Aztec -- Set Floating Garden to +1 Food per 4 citizens instead of +15%
 UPDATE Language_en_US
@@ -56,11 +60,6 @@ WHERE Type = 'BUILDING_MUD_PYRAMID_MOSQUE' AND EXISTS (SELECT * FROM COMMUNITY W
 UPDATE Language_en_US
 SET Text = 'Requires no [ICON_GOLD] Gold maintenance. Reduces [ICON_HAPPINESS_3] Religious Unrest, and grants +1 [ICON_CULTURE] Culture from [ICON_RES_INCENSE] Incense and [ICON_RES_WINE] Wine resources nearby.'
 WHERE Tag = 'TXT_KEY_BUILDING_MUD_PYRAMID_MOSQUE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
-
--- Bismarck -- Hanse Yield Per Pop
-UPDATE Language_en_US
-SET Text = 'Unique German Bank replacement. +5% [ICON_PRODUCTION] Production for each Trade Route your civilization has with a City-State, and +1 [ICON_GOLD] Gold for every 2 [ICON_CITIZEN] Citizens in the City. Trade routes other players make to a city with a Hanse will generate an extra 1 [ICON_GOLD] Gold for the city owner and the trade route owner gains an additional 1 [ICON_GOLD] Gold for the trade route.'
-WHERE Tag = 'TXT_KEY_BUILDING_HANSE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 -- Darius -- Adjust Satrap
 UPDATE Language_en_US
@@ -103,6 +102,33 @@ WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS
 
 DELETE FROM Building_ClassesNeededInCity
 WHERE BuildingType = 'BUILDING_BURIAL_TOMB' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
+-- Germany -- New UA
+
+-- Bismarck -- Hanse Yield Per Pop
+UPDATE Language_en_US
+SET Text = 'Unique German Bank replacement. +5% [ICON_PRODUCTION] Production for each Trade Route your civilization has with a City-State, and +1 [ICON_GOLD] Gold for every 2 [ICON_CITIZEN] Citizens in the City. Trade routes other players make to a city with a Hanse will generate an extra 1 [ICON_GOLD] Gold for the city owner and the trade route owner gains an additional 1 [ICON_GOLD] Gold for the trade route.'
+WHERE Tag = 'TXT_KEY_BUILDING_HANSE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
+
+UPDATE Language_en_US
+SET Text = 'Receive +3 [ICON_GOLD] Gold in all owned cities for every City-State you are allied with. For every 3 City-State alliances, receive 1 additional vote in the World Congress.'
+WHERE Tag = 'TXT_KEY_TRAIT_CONVERTS_LAND_BARBARIANS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
+UPDATE Language_en_US
+SET Text = 'Realpolitik'
+WHERE Tag = 'TXT_KEY_TRAIT_CONVERTS_LAND_BARBARIANS_SHORT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
+UPDATE Traits
+SET VotePerXCSAlliance = '3'
+WHERE Type = 'TRAIT_CONVERTS_LAND_BARBARIANS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
+UPDATE Traits
+SET LandBarbarianConversionPercent = '0'
+WHERE Type = 'TRAIT_CONVERTS_LAND_BARBARIANS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+UPDATE Traits
+SET LandUnitMaintenanceModifier = '0'
+WHERE Type = 'TRAIT_CONVERTS_LAND_BARBARIANS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
 
 -- Greece -- +2 Culture per city -- Odeon
 DELETE FROM Units
@@ -161,16 +187,20 @@ SET CityUnhappinessModifier = '0'
 WHERE Type = 'TRAIT_POPULATION_GROWTH' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Traits
-SET PovertyHappinessTraitMod = '20'
+SET PopulationBoostReligion = 'true'
 WHERE Type = 'TRAIT_POPULATION_GROWTH' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Traits
-SET IlliteracyHappinessTraitMod = '20'
+SET IsNoReligiousStrife = 'true'
 WHERE Type = 'TRAIT_POPULATION_GROWTH' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Reduces [ICON_HAPPINESS_3] Unhappiness from Poverty and Illiteracy in all cities by 20%.'
+SET Text = 'Cannot build Missionaries or gain [ICON_HAPPINESS_3] Unhappiness from Religious Strife. Pressure for your majority Religion increases in owned cities based on the number of [ICON_CITIZEN] Followers in them. Starts with enough [ICON_PEACE] Faith for a Pantheon.'
 WHERE Tag = 'TXT_KEY_TRAIT_POPULATION_GROWTH' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
+UPDATE Language_en_US
+SET Text = 'Font of Dharma'
+WHERE Tag = 'TXT_KEY_TRAIT_POPULATION_GROWTH_SHORT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 -- Iroquois -- All units receive Woodsman promotion
 UPDATE Language_en_US
@@ -207,30 +237,44 @@ UPDATE Language_en_US
 SET Text = 'The [ICON_STRENGTH] Combat Strength of your units increases as they take damage. +1 [ICON_CULTURE] Culture from each Fishing Boat and +2 [ICON_CULTURE] Culture from each Atoll.'
 WHERE Tag = 'TXT_KEY_TRAIT_FIGHT_WELL_DAMAGED' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
--- Napoleon -- Receive a free culture building in Capital when researched
+-- Napoleon -- Plunders artwork!
 UPDATE Traits
-SET FreeCapitalBuilding = 'BUILDING_OPERA_HOUSE'
-WHERE Type = 'TRAIT_ENHANCED_CULTURE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
-
-UPDATE Traits
-SET FreeBuilding = 'BUILDING_MUSEUM'
-WHERE Type = 'TRAIT_ENHANCED_CULTURE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
-
-UPDATE Traits
-SET NumFreeBuildings = '1'
-WHERE Type = 'TRAIT_ENHANCED_CULTURE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
-
-UPDATE Traits
-SET CapitalFreeBuildingPrereqTech = 'TECH_ACOUSTICS'
-WHERE Type = 'TRAIT_ENHANCED_CULTURE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
-
-UPDATE Traits
-SET FreeBuildingPrereqTech = 'TECH_ARCHAEOLOGY'
+SET FreeGreatWorkOnConquest = 'true'
 WHERE Type = 'TRAIT_ENHANCED_CULTURE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Theming bonuses are doubled in your [ICON_CAPITAL] Capital. Receive a free Opera House and Museum in your [ICON_CAPITAL] Capital upon researching their prerequisite technologies.'
+SET Text = 'Theming bonuses doubled in [ICON_CAPITAL] Capital. Plunder [ICON_GREAT_WORK] Great Works of Art based on the number of empty slots in your empire. If none can be plundered, receive a temporary [ICON_CULTURE] Culture boost based on the population of the conquered city.'
 WHERE Tag = 'TXT_KEY_TRAIT_ENHANCED_CULTURE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
+UPDATE Language_en_US
+SET Text = 'Riches of Conquest'
+WHERE Tag = 'TXT_KEY_TRAIT_ENHANCED_CULTURE_SHORT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
+INSERT INTO Language_en_US (Text, Tag)
+SELECT 'Napoleon stole {1_Num} [ICON_GREAT_WORK] Great Work(s) of Art from you when he conquered {2_City}!' , 'TXT_KEY_ART_PLUNDERED'
+WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
+INSERT INTO Language_en_US (Text, Tag)
+SELECT 'Art stolen!' , 'TXT_KEY_ART_PLUNDERED_SUMMARY'
+WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
+INSERT INTO Language_en_US (Text, Tag)
+SELECT 'You plundered {1_Num} [ICON_GREAT_WORK] Great Work(s) of Art from the conquest of {2_City}!' , 'TXT_KEY_ART_STOLEN'
+WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
+INSERT INTO Language_en_US (Text, Tag)
+SELECT 'Art plundered!' , 'TXT_KEY_ART_STOLEN_SUMMARY'
+WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
+INSERT INTO Language_en_US (Text, Tag)
+SELECT 'The conquest of {2_City} has doubled your [ICON_CULTURE] Culture output for the next {1_Num} turn(s)!' , 'TXT_KEY_CULTURE_BOOST_ART'
+WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
+INSERT INTO Language_en_US (Text, Tag)
+SELECT 'Culture boost!' , 'TXT_KEY_CULTURE_BOOST_ART_SUMMARY'
+WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
+
 
 -- Ottomans -- Receive a free Caravansary in your first 4 cities, and Trade Routes generate Golden Age points when starting a Trade Route. -- Unique trebuchet (cannon) 
 UPDATE Traits

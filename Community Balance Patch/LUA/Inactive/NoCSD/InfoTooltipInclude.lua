@@ -169,7 +169,7 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 		iCulture = iCulture + pCity:GetReligionBuildingClassYieldChange(buildingClassID, YieldTypes.YIELD_CULTURE) + pActivePlayer:GetPlayerBuildingClassYieldChange(buildingClassID, YieldTypes.YIELD_CULTURE);
 		iCulture = iCulture + pCity:GetLeagueBuildingClassYieldChange(buildingClassID, YieldTypes.YIELD_CULTURE);
 -- CBP
-		iCulture = iCulture + pActivePlayer:GetPlayerBuildingClassCultureChange(buildingClassID);
+		iCulture = iCulture + pCity:GetBuildingClassCultureChange(buildingClassID);
 		iCulture = iCulture + pCity:GetReligionBuildingYieldRateModifier(buildingClassID, YieldTypes.YIELD_CULTURE);
 -- END
 	end
@@ -617,6 +617,23 @@ function GetCultureTooltip(pCity)
 			strCultureToolTip = strCultureToolTip .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_CULTURE_FROM_RELIGION", iCultureFromReligion);
 		end
 
+-- CBP
+
+		-- Base Yield from Pop
+		local iYieldPerPop = pCity:GetYieldPerPopTimes100(YieldTypes.YIELD_CULTURE);
+		if (iYieldPerPop ~= 0) then
+			iYieldPerPop = iYieldPerPop * pCity:GetPopulation();
+			iYieldPerPop = iYieldPerPop / 100;
+			-- Spacing
+			if (bFirst) then
+				bFirst = false;
+			else
+				strCultureToolTip = strCultureToolTip .. "[NEWLINE]";
+			end
+			strCultureToolTip = strCultureToolTip .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_CULTURE_FROM_POPULATION", iYieldPerPop);
+		end
+-- END
+
 -- CBP -- Yield Increase from Piety
 		local iYieldFromPiety = pCity:GetReligionYieldRateModifier(YieldTypes.YIELD_CULTURE);
 		if ( iYieldFromPiety ~= 0) then
@@ -746,7 +763,22 @@ function GetFaithTooltip(pCity)
 		
 			table.insert(faithTips, "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_FAITH_FROM_BUILDINGS", iFaithFromBuildings));
 		end
-	
+-- CBP
+
+		-- Base Yield from Pop
+		local iYieldPerPop = pCity:GetYieldPerPopTimes100(YieldTypes.YIELD_FAITH);
+		if (iYieldPerPop ~= 0) then
+			iYieldPerPop = iYieldPerPop * pCity:GetPopulation();
+			iYieldPerPop = iYieldPerPop / 100;
+			
+			table.insert(faithTips, "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_FAITH_FROM_POP", iYieldPerPop));
+		end
+		-- Faith from Specialists
+		local iYieldFromSpecialists = pCity:GetBaseYieldRateFromSpecialists(YieldTypes.YIELD_FAITH);
+		if (iYieldFromSpecialists ~= 0) then
+			table.insert(faithTips, "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_YIELD_FROM_SPECIALISTS_FAITH", iYieldFromSpecialists));
+		end
+-- END
 		-- Faith from Traits
 		local iFaithFromTraits = pCity:GetFaithPerTurnFromTraits();
 		if (iFaithFromTraits ~= 0) then
@@ -877,6 +909,13 @@ function GetYieldTooltip(pCity, iYieldType, iBase, iTotal, strIconString, strMod
 		else
 			strYieldBreakdown = strYieldBreakdown .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_YIELD_FROM_MISC", iYieldFromMisc, strIconString);
 		end
+		strYieldBreakdown = strYieldBreakdown .. "[NEWLINE]";
+	end
+
+	-- CBP -- Yield Increase from CS Alliance (Germany)
+	local iYieldFromCSAlliance = pCity:GetBaseYieldRateFromCSAlliance(iYieldType);
+	if (iYieldFromCSAlliance ~= 0) then
+		strYieldBreakdown = strYieldBreakdown .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_YIELD_FROM_CS_ALLIANCE", iYieldFromCSAlliance, strIconString);
 		strYieldBreakdown = strYieldBreakdown .. "[NEWLINE]";
 	end
 

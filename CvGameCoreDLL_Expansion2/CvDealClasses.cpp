@@ -2354,7 +2354,9 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 			PlayerTypes eAcceptedToPlayer;
 			TeamTypes eFromTeam;
 			TeamTypes eToTeam;
-
+#if defined(MOD_BALANCE_CORE)
+			bool bDone = false;
+#endif
 			for(it = kDeal.m_TradedItems.begin(); it != kDeal.m_TradedItems.end(); ++it)
 			{
 				// if the deal is renewed do not start it up
@@ -2556,6 +2558,21 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 					GET_TEAM(eFromTeam).makePeace(eToTeam);
 #endif
 					GET_TEAM(eFromTeam).setForcePeace(eToTeam, true);
+#if defined(MOD_BALANCE_CORE)
+					if(MOD_BALANCE_CORE)
+					{
+						if((kDeal.GetSurrenderingPlayer() == eAcceptedFromPlayer) && !bDone)
+						{
+							GET_PLAYER(eAcceptedToPlayer).changeGoldenAgeTurns(GET_PLAYER(eAcceptedToPlayer).GetPlayerTraits()->GetGoldenAgeFromVictory());
+							bDone = true;
+						}
+						else if((kDeal.GetSurrenderingPlayer() == eAcceptedToPlayer) && !bDone)
+						{
+							GET_PLAYER(eAcceptedFromPlayer).changeGoldenAgeTurns(GET_PLAYER(eAcceptedFromPlayer).GetPlayerTraits()->GetGoldenAgeFromVictory());
+							bDone = true;
+						}
+					}
+#endif
 				}
 				//////////////////////////////////////////////////////////////////////
 				// **** DO NOT PUT ANYTHING AFTER THIS LINE ****

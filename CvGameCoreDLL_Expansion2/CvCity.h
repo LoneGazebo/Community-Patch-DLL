@@ -751,6 +751,12 @@ public:
 
 	int GetBaseYieldRateFromReligion(YieldTypes eIndex) const;
 	void ChangeBaseYieldRateFromReligion(YieldTypes eIndex, int iChange);
+
+#if defined(MOD_BALANCE_CORE)
+	int GetBaseYieldRateFromCSAlliance(YieldTypes eIndex) const;
+	void ChangeBaseYieldRateFromCSAlliance(YieldTypes eIndex, int iChange);
+	void SetBaseYieldRateFromCSAlliance(YieldTypes eIndex, int iValue);
+#endif
 	// END Base Yield
 
 	int GetYieldPerPopTimes100(YieldTypes eIndex) const;
@@ -1180,6 +1186,9 @@ protected:
 	int m_iChangeMinorityUnhappinessGlobal;
 #endif
 	std::vector<int> m_aiBaseYieldRateFromReligion;
+#if defined(MOD_BALANCE_CORE)
+	FAutoVariable<std::vector<int>, CvCity> m_aiBaseYieldRateFromCSAlliance;
+#endif
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldRateModifier;
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldPerPop;
 	std::vector<int> m_aiYieldPerReligion;

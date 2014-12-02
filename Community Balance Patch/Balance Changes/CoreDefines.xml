@@ -118,7 +118,7 @@
 		</Update>
 		<Update>
 			<Where Name="MAX_CITY_HIT_POINTS" />
-			<Set Value="600" />
+			<Set Value="500" />
 			<!-- 200 -->
 		</Update>
 		<Update>
@@ -138,7 +138,7 @@
 		</Update>
 		<Update>
 			<Where Name="CITY_HEAL_RATE" />
-			<Set Value="15" />
+			<Set Value="30" />
 			<!-- 25 -->
 		</Update>
 		<Update>
@@ -148,27 +148,27 @@
 		</Update>
 		<Update>
 			<Where Name="CITY_STRENGTH_DEFAULT" />
-			<Set Value="450" />
+			<Set Value="400" />
 			<!-- 800 -->
 		</Update>
 		<Update>
 			<Where Name="CITY_STRENGTH_POPULATION_CHANGE" />
-			<Set Value="25" />
+			<Set Value="20" />
 			<!-- 40 -->
 		</Update>
 		<Update>
 			<Where Name="CITY_STRENGTH_UNIT_DIVISOR" />
-			<Set Value="275" />
+			<Set Value="280" />
 			<!-- 500 -->
 		</Update>
 		<Update>
 			<Where Name="CITY_STRENGTH_TECH_BASE" />
-			<Set Value="3.8" />
+			<Set Value="3.9" />
 			<!-- 5.5 -->
 		</Update>
 		<Update>
 			<Where Name="CITY_STRENGTH_TECH_EXPONENT" />
-			<Set Value="2.2" />
+			<Set Value="2.3" />
 			<!-- 2.8 -->
 		</Update>
 		<Update>
@@ -178,7 +178,7 @@
 		</Update>
 		<Update>
 			<Where Name="CITY_STRENGTH_HILL_CHANGE" />
-			<Set Value="400" />
+			<Set Value="300" />
 			<!-- 500 -->
 		</Update>
 		<Update>

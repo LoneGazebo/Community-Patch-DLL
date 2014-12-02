@@ -27,7 +27,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_OPEN_SKY' AND EXISTS (SELECT * FROM COMMUNITY WHERE 
 
 -- Messenger of the Gods
 UPDATE Language_en_US
-SET Text = '+1 [ICON_PEACE] Faith and +2 [ICON_RESEARCH] Science in cities with a [ICON_CONNECTED] City Connection'
+SET Text = '+2 [ICON_PEACE] Faith and +2 [ICON_RESEARCH] Science in cities with a [ICON_CONNECTED] City Connection'
 WHERE Tag = 'TXT_KEY_BELIEF_MESSENGER_GODS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- One With Nature
@@ -65,12 +65,12 @@ WHERE Tag = 'TXT_KEY_BELIEF_SACRED_WATERS' AND EXISTS (SELECT * FROM COMMUNITY W
 
 -- Goddess of Love
 UPDATE Language_en_US
-SET Text = 'Gain 5 [ICON_PEACE] Faith and 5 [ICON_GOLDEN_AGE] Golden Age Points every time a [ICON_CITIZEN] Citizen is born. Bonus scales with Era'
+SET Text = 'Gain 10 [ICON_PEACE] Faith and 5 [ICON_GOLDEN_AGE] Golden Age Points every time a [ICON_CITIZEN] Citizen is born. Bonus scales with Era'
 WHERE Tag = 'TXT_KEY_BELIEF_GODDESS_LOVE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Religious Settlements
 UPDATE Language_en_US
-SET Text = '+10% faster border growth, and gain 5 [ICON_PEACE] Faith every time a city expands its borders. Bonus scales with Era'
+SET Text = '+10% faster border growth, and gain 10 [ICON_PEACE] Faith every time a city expands its borders. Bonus scales with Era'
 WHERE Tag = 'TXT_KEY_BELIEF_RELIGIOUS_SETTLEMENTS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- God of Festivals
@@ -91,7 +91,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_ANCESTOR_WORSHIP' AND EXISTS (SELECT * FROM COMMUNIT
 -- Desert Folklore
 
 UPDATE Language_en_US
-SET Text = '+1 [ICON_PEACE] Faith and +1 [ICON_GOLD] Gold from Desert tiles with improved resources'
+SET Text = '+1 [ICON_PEACE] Faith and +2 [ICON_GOLD] Gold from Desert tiles with improved resources'
 WHERE Tag = 'TXT_KEY_BELIEF_DESERT_FOLKLORE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Sacred Path
@@ -101,22 +101,22 @@ WHERE Tag = 'TXT_KEY_BELIEF_SACRED_PATH' AND EXISTS (SELECT * FROM COMMUNITY WHE
 
 -- Goddess of Protection
 UPDATE Language_en_US
-SET Text = '+30% increase in city [ICON_RANGE_STRENGTH] Ranged Combat Strength, and +1 [ICON_PEACE] Faith from Barracks'
+SET Text = '+30% increase in city [ICON_RANGE_STRENGTH] Ranged Combat Strength, and +2 [ICON_PEACE] Faith from Barracks'
 WHERE Tag = 'TXT_KEY_BELIEF_GODDESS_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Faith Healers
 UPDATE Language_en_US
-SET Text = '+15 HP healed per turn if adjacent to a friendly city. Gain 5 [ICON_PEACE] Faith when healed this way. Bonus scales with Era'
+SET Text = '+15 HP healed per turn if adjacent to a friendly city. Gain 10 [ICON_PEACE] Faith when healed this way. Bonus scales with Era'
 WHERE Tag = 'TXT_KEY_BELIEF_FAITH_HEALERS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Monuments to the Gods
 UPDATE Language_en_US
-SET Text = '+3 [ICON_PEACE] Faith from World Wonders, and +10% [ICON_PRODUCTION] Production of Ancient/Classical Wonders'
+SET Text = '+3 [ICON_PEACE] Faith from World Wonders, and +15% [ICON_PRODUCTION] Production of Ancient/Classical Wonders'
 WHERE Tag = 'TXT_KEY_BELIEF_MONUMENT_GODS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Dance of the Aurora
 UPDATE Language_en_US
-SET Text = '+1 [ICON_PEACE] Faith and +1 [ICON_FOOD] Food from Tundra tiles with improved resources'
+SET Text = '+1 [ICON_PEACE] Faith and +2 [ICON_FOOD] Food from Tundra tiles with improved resources'
 WHERE Tag = 'TXT_KEY_BELIEF_DANCE_AURORA' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 --  Tears of the Gods (Now Polytheism)

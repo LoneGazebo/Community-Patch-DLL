@@ -88,6 +88,10 @@ function BuildTradeRouteGoldToolTipString (pOriginCity, pTargetCity, eDomain)
 	if (iDomainModifier ~= 0) then
 		if (eDomain == DomainTypes.DOMAIN_SEA) then
 			strDomainModifier = Locale.ConvertTextKey("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_DOMAIN_SEA_MODIFIER", (iDomainModifier + 100) / 100);
+-- CBP change
+		else
+			strDomainModifier = Locale.ConvertTextKey("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_DOMAIN_LAND_MODIFIER", (iDomainModifier + 100) / 100);
+-- end
 		end
 	end
 
@@ -189,6 +193,7 @@ function BuildTradeRouteGoldToolTipString (pOriginCity, pTargetCity, eDomain)
 	
 	if (strRiverModifier ~= "") then
 		strResult = strResult .. strRiverModifier;
+		strResult = strResult .. "[NEWLINE]";
 	end
 
 -- Community Patch

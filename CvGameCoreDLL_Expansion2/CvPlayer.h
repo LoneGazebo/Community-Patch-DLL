@@ -468,6 +468,9 @@ public:
 	void ReportYieldFromKill(YieldTypes eYield, int iValue, int iX, int iY, int iDelay);
 
 	void DoTechFromCityConquer(CvCity* pConqueredCity);
+#if defined(MOD_BALANCE_CORE)
+	void DoFreeGreatWorkOnConquest(PlayerTypes ePlayer, CvCity* pCity);
+#endif
 
 #if defined(MOD_API_UNIFIED_YIELDS)
 	int GetYieldPerTurnFromReligion(YieldTypes eYield) const;
