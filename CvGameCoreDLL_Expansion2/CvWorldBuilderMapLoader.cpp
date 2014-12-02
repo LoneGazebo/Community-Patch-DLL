@@ -1788,7 +1788,7 @@ void CvWorldBuilderMapLoader::ValidateCoast()
 	//kTimer.Stop();
 	//FStringFixedBuffer(sMsg, 64);
 	//sMsg.Format("CvWorldBuilderMapLoader::ValidateCoast() took %fs\n", kTimer.m_fTimer);
-	//OutputDebugStr(sMsg);
+	//OutputDebugString(sMsg);
 }
 
 void CvWorldBuilderMapLoader::ClearResources()

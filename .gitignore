@@ -3,6 +3,7 @@
 !*/
 !*.h
 !*.cpp
+!*.hpp
 !*.rc
 !*.vcxproj
 !*.filters
@@ -14,6 +15,12 @@
 !*.civ5proj
 !*.civ5sln
 !*.dll
+
+!*.py
+!*.inl
+!*.def
+!*.lib
+
 !*.txt
 !*.dds
 !*.gr2
