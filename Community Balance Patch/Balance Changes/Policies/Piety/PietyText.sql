@@ -1,11 +1,11 @@
 -- Piety Opener
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Piety[ENDCOLOR] increases the [ICON_PEACE] Faith and [ICON_GOLD] Gold of empires.[NEWLINE][NEWLINE]Adopting Piety gives you +1 [ICON_PEACE] Faith in your [ICON_CAPITAL] Capital. Shrines and Temples produce +1 [ICON_CULTURE] Culture. Purchases made with [ICON_PEACE] Faith cost 4% less, with each additional policy unlocked in Piety reducing this by an additional 4%. Unlocks building Stonehenge.[NEWLINE][NEWLINE]Adopting all Policies in the Piety tree causes Holy Sites to produce +2 [ICON_GOLD] Gold and +3 [ICON_CULTURE] Culture, and all Specialists to produce +1 [ICON_PEACE] Faith. It also allows the purchase of Great Artists with [ICON_PEACE] Faith starting in the Industrial Era.'
+SET Text = '[COLOR_POSITIVE_TEXT]Piety[ENDCOLOR] capitalizes on your investment in religion and trade.[NEWLINE][NEWLINE]Adopting Piety gives you +1 [ICON_PEACE] Faith in your [ICON_CAPITAL] Capital. Shrines produce +1 [ICON_CULTURE] Culture, and Temples +2 [ICON_CULTURE] Culture. Purchases made with [ICON_PEACE] Faith cost 5% less, with each additional policy unlocked in Piety reducing this by an additional 4%. Unlocks building Stonehenge.[NEWLINE][NEWLINE]Adopting all Policies in the Piety tree causes Holy Sites to produce +2 [ICON_GOLD] Gold and +3 [ICON_CULTURE] Culture, and cities with a majority [ICON_RELIGION] Religion also get the Pantheon belief bonus of the second most popular [ICON_RELIGION] Religion. Reduces [ICON_HAPPINESS_3] Unhappiness from Religious Strife by 50% in all Cities and an additional 50% in the [ICON_CAPITAL] Capital. Lastly, it allows the purchase of Great Artists with [ICON_PEACE] Faith starting in the Industrial Era.'
 WHERE Tag = 'TXT_KEY_POLICY_BRANCH_PIETY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 -- Organized Religion
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Organized Religion[ENDCOLOR][NEWLINE] Temples and Shrines produce +1 [ICON_PEACE] Faith, and can be built 50% faster.'
+SET Text = '[COLOR_POSITIVE_TEXT]Organized Religion[ENDCOLOR][NEWLINE] Temples and Shrines grant +1 [ICON_PEACE] Faith to the City where they are built, and can be constructed 50% faster.'
 WHERE Tag = 'TXT_KEY_POLICY_ORGANIZED_RELIGION_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 -- Mandate of Heaven (Now Trade Fairs)
@@ -14,7 +14,7 @@ SET Text = 'Trade Fairs'
 WHERE Tag = 'TXT_KEY_POLICY_MANDATE_OF_HEAVEN' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Trade Fairs[ENDCOLOR][NEWLINE]+2 [ICON_GOLD] Gold from Temples and +2 [ICON_GOLD] Gold from Markets in a city if your majority [ICON_RELIGION] Religion is present. [ICON_INTERNATIONAL_TRADE] Trade Routes generate +1 [ICON_GOLD] Gold, and your majority religion spreads 50% more quickly over [ICON_INTERNATIONAL_TRADE] Trade Routes.'
+SET Text = '[COLOR_POSITIVE_TEXT]Trade Fairs[ENDCOLOR][NEWLINE]+3 [ICON_GOLD] Gold from Temples and +2 [ICON_GOLD] Gold from Markets in a city if your majority [ICON_RELIGION] Religion is present. [ICON_INTERNATIONAL_TRADE] Trade Routes generate +2 [ICON_GOLD] Gold, and your majority religion spreads 50% more quickly over [ICON_INTERNATIONAL_TRADE] Trade Routes.'
 WHERE Tag = 'TXT_KEY_POLICY_MANDATE_OF_HEAVEN_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -27,7 +27,7 @@ SET Text = 'Divine Right'
 WHERE Tag = 'TXT_KEY_POLICY_THEOCRACY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Divine Right[ENDCOLOR][NEWLINE] Cities that follow your majority [ICON_RELIGION] Religion generate +2 [ICON_PRODUCTION] Production and +2 [ICON_PEACE] Faith. Border growth is doubled during [ICON_GOLDEN_AGE] Golden Ages.'
+SET Text = '[COLOR_POSITIVE_TEXT]Divine Right[ENDCOLOR][NEWLINE] Cities that follow your majority [ICON_RELIGION] Religion generate +3 [ICON_PRODUCTION] Production and +2 [ICON_PEACE] Faith. Border growth is doubled during [ICON_GOLDEN_AGE] Golden Ages.'
 WHERE Tag = 'TXT_KEY_POLICY_THEOCRACY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -40,7 +40,7 @@ SET Text = 'Monasticism'
 WHERE Tag = 'TXT_KEY_POLICY_REFORMATION' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Monasticism[ENDCOLOR][NEWLINE] Can purchase Monasteries with [ICON_PEACE] Faith (+1 [ICON_PEACE] Faith, +2 [ICON_FOOD] Food, +1 [ICON_RESEARCH] Science, 1 Scientist slot). Receive a free Monastery in your [ICON_CAPITAL] Capital.'
+SET Text = '[COLOR_POSITIVE_TEXT]Monasticism[ENDCOLOR][NEWLINE] Can purchase Monasteries with [ICON_PEACE] Faith (+1 [ICON_PEACE] Faith, +2 [ICON_FOOD] Food, +2 [ICON_RESEARCH] Science, 1 Scientist slot). Receive a free Monastery in your [ICON_CAPITAL] Capital.'
 WHERE Tag = 'TXT_KEY_POLICY_REFORMATION_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -49,20 +49,20 @@ WHERE Tag = 'TXT_KEY_POLICY_REFORMATION_TEXT' AND EXISTS (SELECT * FROM COMMUNIT
 
 -- Free Religion (Now Tolerance)
 UPDATE Language_en_US
-SET Text = 'Tolerance'
+SET Text = 'Iconography'
 WHERE Tag = 'TXT_KEY_POLICY_FREE_RELIGION' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Tolerance[ENDCOLOR][NEWLINE]Cities with a majority [ICON_RELIGION] Religion also get the Pantheon belief bonus of the second most popular [ICON_RELIGION] Religion. Reduces [ICON_HAPPINESS_3] Unhappiness from Religious Strife by 50% in all Cities and an additional 50% in the [ICON_CAPITAL] Capital.'
+SET Text = '[COLOR_POSITIVE_TEXT]Iconography[ENDCOLOR][NEWLINE]All Specialists to produce +1 [ICON_PEACE] Faith. A [ICON_GREAT_ARTIST] Great Artist appears near your [ICON_CAPITAL] Capital.'
 WHERE Tag = 'TXT_KEY_POLICY_FREE_RELIGION_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Tolerance or toleration to tolerate, or put up with, conditionally, also to suggest a fair, objective, and permissive attitude toward those whose opinions, practices, race, religion, nationality, etc., differ from your own; freedom from bigotry.'
+SET Text = 'Iconography is the branch of art history which studies the identification, description, and the interpretation of the content of images: the subjects depicted, the particular compositions and details used to do so, and other elements that are distinct from artistic style. The word iconography comes from the Greek ????? ("image") and ??????? ("to write"). A secondary meaning (based on a non-standard translation of the Greek and Russian equivalent terms) is the production of religious images, called icons, in the Byzantine and Orthodox Christian tradition; that is covered at Icon. In art history, "an iconography" may also mean a particular depiction of a subject in terms of the content of the image, such as the number of figures used, their placing and gestures. The term is also used in many academic fields other than art history, for example semiotics and media studies, and in general usage, for the content of images, the typical depiction in images of a subject, and related senses. Sometimes distinctions have been made between Iconology and Iconography, although the definitions, and so the distinction made, varies. When referring to movies, genres are immediately recognizable through their iconography, motifs that become associated with a specific genre through repetition.'
 WHERE Tag = 'TXT_KEY_POLICY_FREERELIGION_TEXT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 -- Monastery
 UPDATE Language_en_US
-SET Text = '+2 [ICON_FOOD] Food, +1 [ICON_RESEARCH] Science, +1 [ICON_PEACE] Faith, and 1 Scientist slot.'
+SET Text = '+2 [ICON_FOOD] Food, +2 [ICON_RESEARCH] Science, +1 [ICON_PEACE] Faith, and 1 Scientist slot.'
 WHERE Tag = 'TXT_KEY_BUILDING_MONASTERY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US

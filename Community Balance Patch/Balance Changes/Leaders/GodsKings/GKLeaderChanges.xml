@@ -30,7 +30,7 @@
 		<Row>
 			<TraitType>TRAIT_LUXURY_RETENTION</TraitType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>2</Yield>
+			<Yield>3</Yield>
 		</Row>
 	</Trait_YieldFromImport>
 	<Trait_YieldFromExport>
@@ -40,4 +40,12 @@
 			<Yield>3</Yield>
 		</Row>
 	</Trait_YieldFromExport>
+	<!-- Dido -->
+	<Trait_YieldFromSettle>
+		<Row>
+			<TraitType>TRAIT_PHOENICIAN_HERITAGE</TraitType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>200</Yield>
+		</Row>
+	</Trait_YieldFromSettle>
 </GameData>

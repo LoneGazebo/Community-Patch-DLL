@@ -3955,6 +3955,39 @@ int CvLeague::CalculateStartingVotesForMember(PlayerTypes ePlayer, bool bForceUp
 			iVotes += iPolicyVotes;
 		}
 #endif
+#if defined(MOD_BALANCE_CORE)
+		int iTraitVotes = 0;
+		if(MOD_BALANCE_CORE_POLICIES)
+		{
+			int iTraitPotential = 0;
+			//The Base INTs
+			int iNumAllies = 0;
+
+			// Loop through all minors and get the total number we've met.
+			for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+			{
+				PlayerTypes eMinor = (PlayerTypes) iPlayerLoop;
+
+				if (eMinor != ePlayer && GET_PLAYER(eMinor).isAlive() && GET_PLAYER(eMinor).isMinorCiv())
+				{
+					if (GET_PLAYER(eMinor).GetMinorCivAI()->IsAllies(ePlayer))
+					{
+						iNumAllies++;
+					}
+				}
+			}
+			if(iNumAllies != 0)
+			{
+				iTraitPotential = GET_PLAYER(ePlayer).GetPlayerTraits()->GetVotePerXCSAlliance();
+				if(iTraitPotential != 0)
+				{
+					iTraitVotes = (iNumAllies / iTraitPotential);
+				}
+			}
+
+			iVotes += iTraitVotes;
+		}
+#endif
 
 		// World Religion
 		int iWorldReligionVotes = GetExtraVotesForFollowingReligion(ePlayer);
@@ -4051,6 +4084,14 @@ int CvLeague::CalculateStartingVotesForMember(PlayerTypes ePlayer, bool bForceUp
 			{
 				Localization::String sTemp = Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_MEMBER_DETAILS_PATRONAGE_FINISHER_VOTES");
 				sTemp << iPolicyVotes;
+				pMember->sVoteSources += sTemp.toUTF8();
+			}
+#endif
+#if defined(MOD_BALANCE_CORE)
+			if(MOD_BALANCE_CORE && iTraitVotes > 0)
+			{
+				Localization::String sTemp = Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_MEMBER_DETAILS_TRAIT_VOTES");
+				sTemp << iTraitVotes;
 				pMember->sVoteSources += sTemp.toUTF8();
 			}
 #endif
@@ -4718,32 +4759,35 @@ int CvLeague::GetExtraVotesForFollowingReligion(PlayerTypes ePlayer)
 			{
 #if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
 				if (MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS) {
-					const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, ePlayer);
+					const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, NO_PLAYER);
 					CvPlot* pkPlot = NULL;
+					int iReligionAlly = 0;
 					if(pReligion)
 					{
 						pkPlot = GC.getMap().plot(pReligion->m_iHolyCityX, pReligion->m_iHolyCityY);
-					}
-					//Did you found the religion and own the Holy City? More votes for you.
-					if((GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(ePlayer) == eReligion) && ((pkPlot != NULL) && (pkPlot->getOwner() == ePlayer)))
-					{
 						PlayerTypes eLoopPlayer;
-						int iReligionAlly = 0;
 						for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 						{
 							eLoopPlayer = (PlayerTypes) iPlayerLoop;
-							if (GET_PLAYER(eLoopPlayer).GetReligions()->HasReligionInMostCities(eReligion) && !GET_PLAYER(eLoopPlayer).isMinorCiv() && (eLoopPlayer != ePlayer))
+							if((eLoopPlayer != NO_PLAYER) && GET_PLAYER(eLoopPlayer).isAlive() && !GET_PLAYER(eLoopPlayer).isMinorCiv() && (eLoopPlayer != ePlayer))
+							if (GET_PLAYER(eLoopPlayer).GetReligions()->HasReligionInMostCities(eReligion))
 							{
 								iReligionAlly++;
 							}
 						}
+					}
+					//Did you found the religion and own the Holy City? More votes for you.
+					if((GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(ePlayer) == eReligion) && ((pkPlot != NULL) && (pkPlot->getOwner() == ePlayer)))
+					{
 						iVotes += it->GetEffects()->iVotesForFollowingReligion;
 						iVotes += iReligionAlly++;
+						return iVotes;
 					}
 					//Did you found it, but you don't own the Holy City anymore? You are only a follower, then.
 					else if((GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(ePlayer) == eReligion) && ((pkPlot != NULL) && (pkPlot->getOwner() != ePlayer)))
 					{
 						iVotes += it->GetEffects()->iVotesForFollowingReligion;
+						return iVotes;
 					}
 					//What if we share the faith, but didn't create it?
 					else if((GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(ePlayer) != eReligion) && (GET_PLAYER(ePlayer).GetReligions()->HasReligionInMostCities(eReligion)))
@@ -4751,22 +4795,14 @@ int CvLeague::GetExtraVotesForFollowingReligion(PlayerTypes ePlayer)
 						//Who owns the holy city? They get the bonus.
 						if((pkPlot != NULL) && (pkPlot->getOwner() == ePlayer))
 						{
-							PlayerTypes eLoopPlayer;
-							int iReligionAlly = 0;
-							for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
-							{
-								eLoopPlayer = (PlayerTypes) iPlayerLoop;
-								if (GET_PLAYER(eLoopPlayer).GetReligions()->HasReligionInMostCities(eReligion) && !GET_PLAYER(eLoopPlayer).isMinorCiv() && (eLoopPlayer != ePlayer))
-								{
-									iReligionAlly++;
-								}
-							}
 							iVotes += it->GetEffects()->iVotesForFollowingReligion;
 							iVotes += iReligionAlly++;
+							return iVotes;
 						}
 						else
 						{
 							iVotes += it->GetEffects()->iVotesForFollowingReligion;
+							return iVotes;
 						}
 					}
 				}

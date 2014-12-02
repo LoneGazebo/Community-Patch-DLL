@@ -54,6 +54,7 @@
 			<Strategy>TXT_KEY_BUILDING_INDUS_CANAL_STRATEGY</Strategy>
 			<ArtDefineTag>ART_DEF_BUILDING_HOSPITAL</ArtDefineTag>
 			<FoodKept>50</FoodKept>
+			<PovertyHappinessChange>1</PovertyHappinessChange>
 			<MinAreaSize>-1</MinAreaSize>
 			<ConquestProb>66</ConquestProb>
 			<HurryCostModifier>0</HurryCostModifier>
@@ -78,11 +79,19 @@
 			<Flavor>10</Flavor>
 		</Row>
 	</Building_Flavors>
+	<Building_FeatureYieldChanges>
+		<Row>
+			<BuildingType>BUILDING_INDUS_CANAL</BuildingType>
+			<FeatureType>FEATURE_FLOOD_PLAINS</FeatureType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+	</Building_FeatureYieldChanges>
 	<Building_YieldChanges>
 		<Row>
 			<BuildingType>BUILDING_INDUS_CANAL</BuildingType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Yield>1</Yield>
+			<Yield>2</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_INDUS_CANAL</BuildingType>
@@ -118,11 +127,11 @@
 		</Row>
 		<Row Tag="TXT_KEY_CIV5_BUILDINGS_INDUS_CANAL_TEXT">
 			<Text>
-				The Indus civilization's economy appears to have depended significantly on trade, which was facilitated by major advances in transport technology. The IVC may have been the first civilization to use wheeled transport. These advances may have included bullock carts that are identical to those seen throughout South Asia today, as well as boats. Most of these boats were probably small, flat-bottomed craft, perhaps driven by sail, similar to those one can see on the Indus River today; however, there is secondary evidence of sea-going craft. Archaeologists have discovered a massive, dredged canal and what they regard as a docking facility at the coastal city of Lothal in western India (Gujarat state). An extensive canal network, used for irrigation, has however also been discovered by H.-P. Francfort.
+				The Indus civilization's economy appears to have depended significantly on trade, which was facilitated by major advances in transport technology. The Indus peoples may have been the first civilization to use wheeled transport. These advances may have included bullock carts that are identical to those seen throughout South Asia today, as well as boats. Most of these boats were probably small, flat-bottomed craft, perhaps driven by sail, similar to those one can see on the Indus River today; however, there is secondary evidence of sea-going craft. Archaeologists have discovered a massive, dredged canal and what they regard as a docking facility at the coastal city of Lothal in western India (Gujarat state). An extensive canal network, used for irrigation, has however also been discovered by H.-P. Francfort.
 			</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_INDUS_CANAL_HELP">
-			<Text>Unique Indian replacement for the Aqueduct. Carries over 50% of [ICON_FOOD] Food after City growth. Grants +1 [ICON_FOOD] Food on Oases and Lakes. Receive +1 [ICON_PRODUCTION] Production and +2 [ICON_FOOD] Food in the City where it is built.</Text>
+			<Text>Unique Indian replacement for the Aqueduct. Carries over 50% of [ICON_FOOD] Food after City growth. Grants +1 [ICON_FOOD] Food on Oases, Lakes, and Flood Plains. Receive +2 [ICON_PRODUCTION] Production and +2 [ICON_FOOD] Food in the City where it is built. Reduces [ICON_HAPPINESS_3] Poverty slightly.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_INDUS_CANAL_STRATEGY">
 			<Text>Build these unique Aqueducts to rapidly increase your city's population size, and to boost the City's productivity.</Text>

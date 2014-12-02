@@ -52,12 +52,12 @@ WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_TOURISM
 
 INSERT INTO Defines (
 Name, Value)
-SELECT 'BALANCE_SPY_BOOST_INFLUENCE_EXOTIC', '1'
+SELECT 'BALANCE_SPY_BOOST_INFLUENCE_EXOTIC', '5'
 WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_TOURISM_CHANGES' AND Value= 1 );
 
 INSERT INTO Defines (
 Name, Value)
-SELECT 'BALANCE_SPY_BOOST_INFLUENCE_FAMILIAR', '2'
+SELECT 'BALANCE_SPY_BOOST_INFLUENCE_FAMILIAR', '4'
 WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_TOURISM_CHANGES' AND Value= 1 );
 
 INSERT INTO Defines (
@@ -67,7 +67,7 @@ WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_TOURISM
 
 INSERT INTO Defines (
 Name, Value)
-SELECT 'BALANCE_SPY_BOOST_INFLUENCE_INFLUENTIAL', '4'
+SELECT 'BALANCE_SPY_BOOST_INFLUENCE_INFLUENTIAL', '2'
 WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_TOURISM_CHANGES' AND Value= 1 );
 
 INSERT INTO Defines (
@@ -101,20 +101,27 @@ INSERT INTO Defines (
 Name, Value)
 SELECT 'BALANCE_GOLD_INFLUENCE_LEVEL_DOMINANT', '0'
 WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_TOURISM_CHANGES' AND Value= 1 );
-	
+
+
+-- Update text for tooltips based on what you changed above.	
+INSERT INTO Language_en_US (
+Text, Tag)
+SELECT '[NEWLINE][NEWLINE]Accrued benefits:[NEWLINE]- Each Trade Route to influenced civ:[NEWLINE]+3 [ICON_GOLD] Gold[NEWLINE]- Each Trade Route to influenced civ:[NEWLINE]+1 [ICON_RESEARCH] Science[NEWLINE]- [ICON_SPY] Spies Establish Surveillance in 5 turns' , 'TXT_KEY_CO_INFLUENCE_BONUSES_EXOTIC'
+WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_TOURISM_CHANGES' AND Value= 1 );
+
 -- Update texts for tooltips based on what you changed above.
 UPDATE Language_en_US
-SET Text = '[NEWLINE][NEWLINE]Accrued benefits:[NEWLINE]- Each Trade Route to influenced civ:[NEWLINE]+2 [ICON_GOLD] Gold[NEWLINE]- Each Trade Route to influenced civ:[NEWLINE]+2 [ICON_RESEARCH] Science[NEWLINE]- [ICON_SPY] Spies Establish Surveillance in 3 turns[NEWLINE]- When conquering influenced city of civ:[NEWLINE]30% reduction in Unrest time/Population loss.'
+SET Text = '[NEWLINE][NEWLINE]Accrued benefits:[NEWLINE]- Each Trade Route to influenced civ:[NEWLINE]+2 [ICON_GOLD] Gold[NEWLINE]- Each Trade Route to influenced civ:[NEWLINE]+2 [ICON_RESEARCH] Science[NEWLINE]- [ICON_SPY] Spies Establish Surveillance in 4 turns[NEWLINE]- When conquering influenced city of civ:[NEWLINE]30% reduction in Unrest time/Population loss.'
 WHERE Tag = 'TXT_KEY_CO_INFLUENCE_BONUSES_FAMILIAR' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_TOURISM_CHANGES' AND Value= 1 );
 
 -- Update texts for tooltips based on what you changed above.
 UPDATE Language_en_US
-SET Text = '[NEWLINE][NEWLINE]Accrued benefits:[NEWLINE]- Each Trade Route to influenced civ:[NEWLINE]+1 [ICON_GOLD] Gold[NEWLINE]- Each Trade Route to influenced civ:[NEWLINE]+4 [ICON_RESEARCH] Science[NEWLINE]- [ICON_SPY] Spies Establish Surveillance in 2 turns[NEWLINE]- When conquering influenced city of civ:[NEWLINE]55% reduction in Unrest time/Population loss.'
+SET Text = '[NEWLINE][NEWLINE]Accrued benefits:[NEWLINE]- Each Trade Route to influenced civ:[NEWLINE]+1 [ICON_GOLD] Gold[NEWLINE]- Each Trade Route to influenced civ:[NEWLINE]+4 [ICON_RESEARCH] Science[NEWLINE]- [ICON_SPY] Spies Establish Surveillance in 3 turns[NEWLINE]- When conquering influenced city of civ:[NEWLINE]55% reduction in Unrest time/Population loss.'
 WHERE Tag = 'TXT_KEY_CO_INFLUENCE_BONUSES_POPULAR' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_TOURISM_CHANGES' AND Value= 1 );
 
 -- Update texts for tooltips based on what you changed above.
 UPDATE Language_en_US
-SET Text = '[NEWLINE][NEWLINE]Accrued benefits:[NEWLINE]- Each Trade Route to influenced civ:[NEWLINE]+0 [ICON_GOLD] Gold[NEWLINE]- Each Trade Route to influenced civ:[NEWLINE]+6 [ICON_RESEARCH] Science[NEWLINE]- [ICON_SPY] Spies Establish Surveillance in 1 turn[NEWLINE]- When conquering influenced city of civ:[NEWLINE]80% reduction in Unrest time/Population loss.'
+SET Text = '[NEWLINE][NEWLINE]Accrued benefits:[NEWLINE]- Each Trade Route to influenced civ:[NEWLINE]+0 [ICON_GOLD] Gold[NEWLINE]- Each Trade Route to influenced civ:[NEWLINE]+6 [ICON_RESEARCH] Science[NEWLINE]- [ICON_SPY] Spies Establish Surveillance in 2 turns[NEWLINE]- When conquering influenced city of civ:[NEWLINE]80% reduction in Unrest time/Population loss.'
 WHERE Tag = 'TXT_KEY_CO_INFLUENCE_BONUSES_INFLUENTIAL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_TOURISM_CHANGES' AND Value= 1 );
 
 -- Update texts for tooltips based on what you changed above.

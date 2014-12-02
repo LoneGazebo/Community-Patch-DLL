@@ -1093,16 +1093,22 @@ void CvPlayerEspionage::DoAdvancedAction(uint uiSpyIndex, bool bDebug)
 			{
 				iSpyResult = GC.getGame().getJonRandNum(500, "Random roll for the result of a spy mission with a counterspy in the city");
 				int iCounterspyIndex = GET_PLAYER(eCityOwner).GetEspionage()->GetSpyIndexInCity(pCity);
-				iSpyResult += GET_PLAYER(eCityOwner).GetEspionage()->m_aSpyList[iCounterspyIndex].m_eRank * 25;
+				iSpyResult += GET_PLAYER(eCityOwner).GetEspionage()->m_aSpyList[iCounterspyIndex].m_eRank * 50;
 				iSpyResult *= (100 + GET_PLAYER(pCity->getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CATCH_SPIES_MODIFIER));
 				iSpyResult /= 100;
-				iSpyResult += (pCity->GetEspionageModifier() * -1);
-				iSpyResult += (GET_PLAYER(eCityOwner).GetEspionageModifier() * -1);
-				if(iSpyResult >= 450)
+				iSpyResult *= (100 + (pCity->GetEspionageModifier() * -1));
+				iSpyResult /= 100;
+				iSpyResult *= (100 + (GET_PLAYER(eCityOwner).GetEspionageModifier() * -1));
+				iSpyResult /= 100;
+				iSpyResult *= (100 + GET_PLAYER(eCityOwner).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_STEAL_TECH_SLOWER_MODIFIER));
+				iSpyResult /= 100;
+				iSpyResult *= (100 - m_pPlayer->GetPlayerPolicies()->GetNumericModifier(POLICYMOD_STEAL_TECH_FASTER_MODIFIER));
+				iSpyResult /= 100;
+				if(iSpyResult >= 475)
 				{
 					pCityEspionage->SetSpyResult(ePlayer, uiSpyIndex, SPY_RESULT_KILLED);
 				}
-				else if(iSpyResult >= 350)
+				else if(iSpyResult >= 300)
 				{
 					pCityEspionage->SetSpyResult(ePlayer, uiSpyIndex, SPY_RESULT_IDENTIFIED);
 				}
@@ -1135,8 +1141,14 @@ void CvPlayerEspionage::DoAdvancedAction(uint uiSpyIndex, bool bDebug)
 				iSpyResult = GC.getGame().getJonRandNum(500, "Random roll for the result of a spying mission without a counterspy in the city");
 				iSpyResult *= (100 + GET_PLAYER(pCity->getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CATCH_SPIES_MODIFIER));
 				iSpyResult /= 100;
-				iSpyResult += (pCity->GetEspionageModifier() * -1);
-				iSpyResult += (GET_PLAYER(eCityOwner).GetEspionageModifier() * -1);
+				iSpyResult *= (100 + (pCity->GetEspionageModifier() * -1));
+				iSpyResult /= 100;
+				iSpyResult *= (100 + (GET_PLAYER(eCityOwner).GetEspionageModifier() * -1));
+				iSpyResult /= 100;
+				iSpyResult *= (100 + GET_PLAYER(eCityOwner).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_STEAL_TECH_SLOWER_MODIFIER));
+				iSpyResult /= 100;
+				iSpyResult *= (100 - m_pPlayer->GetPlayerPolicies()->GetNumericModifier(POLICYMOD_STEAL_TECH_FASTER_MODIFIER));
+				iSpyResult /= 100;
 				if(iSpyResult >= 450)
 				{
 					pCityEspionage->SetSpyResult(ePlayer, uiSpyIndex, SPY_RESULT_IDENTIFIED);

@@ -504,7 +504,18 @@ function AddBuildingButton( pCity, building )
 			-- Yield
 			for pYieldInfo in GameInfo.Yields() do
 				local iYieldID = pYieldInfo.ID;
+				local iYieldAmount = pCity:GetSpecialistYield(iSpecialistID, iYieldID);
 
+-- CBP CHANGE
+				local iSpecialistCount= pCity:GetSpecialistCount(iSpecialistID);
+				if(iSpecialistCount <= 0) then
+					iSpecialistCount = 1;
+				end
+				if(iYieldID ~= YieldTypes.YIELD_FAITH) then
+					local iExtraYieldAmount = (pCity:GetExtraSpecialistYieldOfType(iYieldID, iSpecialistID)/iSpecialistCount);
+					iYieldAmount = iYieldAmount + iExtraYieldAmount;
+				end
+-- END
 				-- PLAGUE MOD (Specialist Health)
 				local iYieldAmount = 0
 				if pYieldInfo.Type == healthYieldType then
@@ -643,7 +654,18 @@ function AddBuildingButton( pCity, building )
 				-- Yield
 				for pYieldInfo in GameInfo.Yields() do
 					local iYieldID = pYieldInfo.ID;
-
+					local iYieldAmount = pCity:GetSpecialistYield(iSpecialistID, iYieldID);
+					
+-- CBP CHANGE
+					local iSpecialistCount= pCity:GetSpecialistCount(iSpecialistID);
+					if(iSpecialistCount <= 0) then
+						iSpecialistCount = 1;
+					end
+					if(iYieldID ~= YieldTypes.YIELD_FAITH) then
+						local iExtraYieldAmount = (pCity:GetExtraSpecialistYieldOfType(iYieldID, iSpecialistID)/iSpecialistCount);
+						iYieldAmount = iYieldAmount + iExtraYieldAmount;
+					end
+-- END
 					-- PLAGUE MOD (Specialist Health)
 					local iYieldAmount = 0
 					if pYieldInfo.Type == healthYieldType then

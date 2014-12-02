@@ -2425,6 +2425,20 @@ int CvGameReligions::GetAdjacentCityReligiousPressure (ReligionTypes eReligion, 
 			iPressure *= (100 + iModifier);
 			iPressure /= 100;
 		}
+#if defined(MOD_BALANCE_CORE)
+		if(GET_PLAYER(pFromCity->getOwner()).GetPlayerTraits()->IsPopulationBoostReligion())
+		{
+			if((GC.getGame().GetGameReligions()->GetFounderBenefitsReligion(pFromCity->getOwner()) == eReligion) || (GET_PLAYER(pFromCity->getOwner()).GetReligions()->GetReligionInMostCities() == eReligion))
+			{
+				int iPopReligionModifer = (pFromCity->GetCityReligions()->GetNumFollowers(eReligion) * 10);
+				if (iPopReligionModifer != 0)
+				{
+					iPressure *= 100 + iPopReligionModifer;
+					iPressure /= 100;
+				}
+			}
+		}
+#endif
 	}
 
 #if defined(MOD_RELIGION_CONVERSION_MODIFIERS)
@@ -2447,7 +2461,6 @@ int CvGameReligions::GetAdjacentCityReligiousPressure (ReligionTypes eReligion, 
 		}
 	}
 #endif
-	
 	// CUSTOMLOG("GetAdjacentCityReligiousPressure for %i from %s to %s is %i", eReligion, pFromCity->getName().c_str(), pToCity->getName().c_str(), iPressure);
 	return iPressure;
 }
@@ -6843,6 +6856,9 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry)
 	int iFlavorReligion = pFlavorManager->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RELIGION"));
 	int iFlavorGrowth = pFlavorManager->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GROWTH"));
 #endif
+#if defined(MOD_BALANCE_CORE)
+	bool bIndia = m_pPlayer->GetPlayerTraits()->IsPopulationBoostReligion();
+#endif
 
 	int iNumEnhancedReligions = pGameReligions->GetNumReligionsEnhanced();
 	int iReligionsEnhancedPercent = (100 * iNumEnhancedReligions) / GC.getMap().getWorldInfo().getMaxActiveReligions();
@@ -7022,6 +7038,12 @@ BuildingClassTypes eFaithBuildingClass = NO_BUILDINGCLASS;
 		if (pEntry->GetYieldFromForeignSpread(iI) > 0)
 		{
 			iRtnValue += (pEntry->GetYieldFromForeignSpread(iI) * iFlavorReligion);
+#if defined(MOD_BALANCE_CORE)
+			if(bIndia)
+			{
+				iRtnValue /= 5;
+			}
+#endif
 		}
 		if (pEntry->GetYieldFromConquest(iI) > 0)
 		{
@@ -7040,6 +7062,12 @@ BuildingClassTypes eFaithBuildingClass = NO_BUILDINGCLASS;
 		if (pEntry->GetYieldFromConversion(iI) > 0)
 		{
 			iRtnValue += (pEntry->GetYieldFromConversion(iI) * iFlavorReligion);
+#if defined(MOD_BALANCE_CORE)
+			if(bIndia)
+			{
+				iRtnValue /= 5;
+			}
+#endif
 		}
 		if (pEntry->GetYieldFromWLTKD(iI) > 0)
 		{
@@ -7267,6 +7295,24 @@ BuildingClassTypes eFaithBuildingClass = NO_BUILDINGCLASS;
 			}
 		}
 		iRtnValue += (pEntry->GetHappinessPerPantheon() * iPantheons);			
+	}
+#endif
+#if defined(MOD_BALANCE_CORE)
+	if(bIndia && ((pEntry->GetMissionaryCostModifier() < 0)))
+	{
+		iRtnValue = 0;
+	}
+	if(bIndia && (pEntry->GetMissionaryInfluenceCS() > 0))
+	{
+		iRtnValue = 0;
+	}
+	if(bIndia && (pEntry->GetMissionaryStrengthModifier() > 0))
+	{
+		iRtnValue = 0;
+	}
+	if(bIndia && pEntry->ConvertsBarbarians())
+	{
+		iRtnValue = 0;
 	}
 #endif
 

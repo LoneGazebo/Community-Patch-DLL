@@ -1,10 +1,14 @@
 -- Attila
 UPDATE Traits
-SET DefenseHappinessTraitMod = '20'
-WHERE Type = 'TRAIT_POPULATION_GROWTH' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+SET LandBarbarianConversionPercent = '75'
+WHERE Type = 'TRAIT_RAZE_AND_HORSES' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
+UPDATE Defines
+SET Value = '50'
+WHERE Name = 'GOLD_FROM_BARBARIAN_CONVERSION' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Raze Cities at double speed. Borrow City names from other in-game Civs. +1 [ICON_PRODUCTION] Production per Pasture. Reduces [ICON_HAPPINESS_3] Unhappiness from Disorder in all cities by 20%.'
+SET Text = 'Raze Cities at double speed. +1 [ICON_PRODUCTION] Production from Pastures. Upon defeating a Barbarian unit inside an encampment, there is a 75% chance you earn 50 [ICON_GOLD] Gold and they join your side.'
 WHERE Tag = 'TXT_KEY_TRAIT_RAZE_AND_HORSES' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 DELETE FROM Civilization_FreeTechs
@@ -45,7 +49,13 @@ WHERE BuildingType = 'BUILDING_CEILIDH_HALL' AND EXISTS (SELECT * FROM COMMUNITY
 UPDATE Language_en_US
 SET Text = 'The Ceilidh Hall is a Classical-era building unique to the Celts, replacing the Colosseum. Reduces [ICON_HAPPINESS_3] Boredom and increases city [ICON_CULTURE] Culture, [ICON_HAPPINESS_1] Happiness and [ICON_PEACE] Faith, and contains a slot for a Great Work of Music.'
 WHERE Tag = 'TXT_KEY_BUILDING_CEILIDH_HALL_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
-	
+
+-- Dido
+UPDATE Language_en_US
+SET Text = 'Cities produce a large sum of [ICON_GOLD] Gold when founded, and coastal Cities also gain a free Harbor. Units may cross mountains after a Great General is earned, taking 20 HP damage if they end a turn on one.'
+WHERE Tag = 'TXT_KEY_TRAIT_PHOENICIAN_HERITAGE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
+
+
 -- Gustavus Adolphus -- Remove Hakkepillita, add unique University
 DELETE FROM Units
 WHERE Type = 'UNIT_SWEDISH_HAKKAPELIITTA' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
@@ -73,15 +83,11 @@ WHERE UnitType = 'UNIT_SWEDISH_HAKKAPELIITTA' AND EXISTS (SELECT * FROM COMMUNIT
 
 -- Selassie -- Free Great Engineer at Industrialization
 UPDATE Traits
-SET FreeUnit = 'UNITCLASS_ENGINEER'
-WHERE Type = 'TRAIT_BONUS_AGAINST_TECH' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
-
-UPDATE Traits
-SET FreeUnitPrereqTech = 'TECH_INDUSTRIALIZATION'
+SET GoldenAgeFromVictory = '10'
 WHERE Type = 'TRAIT_BONUS_AGAINST_TECH' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Combat bonus (+20%) when fighting units from a Civilization with more Cities than Ethiopia. Free Great Engineer at Industrialization.'
+SET Text = 'Combat bonus (+20%) when fighting units from a Civilization with more Cities than Ethiopia. When you complete a favorable Peace Treaty, a [ICON_GOLDEN_AGE] Golden Age begins.'
 WHERE Tag = 'TXT_KEY_TRAIT_BONUS_AGAINST_TECH' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 -- Theodora -- Basilica UB (Replace Dromon)
@@ -106,12 +112,8 @@ WHERE UnitType = 'UNIT_BYZANTINE_DROMON' AND EXISTS (SELECT * FROM COMMUNITY WHE
 DELETE FROM UnitGameplay2DScripts
 WHERE UnitType = 'UNIT_BYZANTINE_DROMON' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
-UPDATE Traits
-SET IsNoReligiousStrife = 'true'
-WHERE Type = 'TRAIT_EXTRA_BELIEF' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
-
 UPDATE Language_en_US
-SET Text = 'Choose one more Belief than normal when you found a Religion. No [ICON_HAPPINESS_3] Unhappiness from Religious Strife.'
+SET Text = 'Choose one more Belief than normal when you found a Religion.'
 WHERE Tag = 'TXT_KEY_TRAIT_EXTRA_BELIEF' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 -- William -- Boost Polder (early production) -- New Trait
@@ -120,7 +122,7 @@ SET LuxuryHappinessRetention = '0'
 WHERE Type = 'TRAIT_LUXURY_RETENTION' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Receives +2 [ICON_CULTURE] Culture for every Luxury Resource you Import from other Civilizations and City-States, and +3 [ICON_GOLD] Gold for every Luxury Resource you export to other Civilizations.'
+SET Text = 'Receives +3 [ICON_CULTURE] Culture for every Luxury Resource you Import from other Civilizations and City-States, and +3 [ICON_GOLD] Gold for every Luxury Resource you export to other Civilizations.'
 WHERE Tag = 'TXT_KEY_TRAIT_LUXURY_RETENTION' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 -- Maria Theresa -- Coffee House +2 Production

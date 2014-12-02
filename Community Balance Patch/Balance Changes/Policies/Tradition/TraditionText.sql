@@ -1,6 +1,6 @@
 -- Opener
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Tradition[ENDCOLOR] focuses on [ICON_FOOD] Food and [ICON_GOLDEN_AGE] Golden Ages.[NEWLINE][NEWLINE]Adopting Tradition grants +2 [ICON_CULTURE] Culture in the [ICON_CAPITAL] Capital and +5% [ICON_FOOD] Growth in all Cities, with an additional +3% [ICON_FOOD] Growth in all cities for every unlocked Tradition policy. Unlocks building the Hanging Gardens.[NEWLINE][NEWLINE]Adopting all Policies in the Tradition tree will grant +25% to the [ICON_GREAT_PEOPLE] Great People Rate of all cities. It also allows the purchase of Great Engineers with [ICON_PEACE] Faith starting in the Industrial Era.'
+SET Text = '[COLOR_POSITIVE_TEXT]Tradition[ENDCOLOR] focuses on building robust cities and an impressive Capital.[NEWLINE][NEWLINE]Adopting Tradition grants +2 [ICON_CULTURE] Culture in the [ICON_CAPITAL] Capital and +5% [ICON_FOOD] Growth in all Cities, with an additional +3% [ICON_FOOD] Growth in all cities for every unlocked Tradition policy. Unlocks building the Hanging Gardens.[NEWLINE][NEWLINE]Adopting all Policies in the Tradition tree will grant +25% to the [ICON_GREAT_PEOPLE] Great People Rate of all cities. It also allows the purchase of Great Engineers with [ICON_PEACE] Faith starting in the Industrial Era.'
 WHERE Tag = 'TXT_KEY_POLICY_BRANCH_TRADITION_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 -- Aristocracy

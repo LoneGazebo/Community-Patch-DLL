@@ -7,7 +7,7 @@
     <Guid>8411a7a8-dad3-4622-a18e-fcc18324c799</Guid>
     <ModVersion>12</ModVersion>
     <Stability>Beta</Stability>
-    <Teaser>The Complete Civ 5 Experience (v. 12.4.1) - Updated 11/25</Teaser>
+    <Teaser>The Complete Civ 5 Experience (v. 12.6)  - Updated 12/1</Teaser>
     <Description>Community Balance Patch - Contains balance changes and support for CSD/CivIV Diplomacy/Health&amp;Plague/Events &amp; Decisions</Description>
     <Authors>Civfanatics Community Balance Team</Authors>
     <SpecialThanks>
@@ -676,6 +676,31 @@
         <Type>UpdateDatabase</Type>
         <FileName>Balance Changes/Policies/Flavors/Flavors.xml</FileName>
       </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>Modular Elements/SpiceIslands/GlobalSpiceIslands.xml</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>Art/Improvements/GlobalSpiceIslandsArt.xml</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>Balance Changes/Specialists/GPChanges.sql</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>Balance Changes/Specialists/GPChanges.xml</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>Balance Changes/Specialists/SpecialistChanges.sql</FileName>
+      </Action>
     </ModActions>
     <Homepage>
     </Homepage>
@@ -694,6 +719,8 @@
       </Association>
     </ModDependencies>
     <SupportsHotSeat>true</SupportsHotSeat>
+    <ModContent>
+    </ModContent>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Default' ">
     <OutputPath>.</OutputPath>
@@ -706,6 +733,8 @@
   </PropertyGroup>
   <ItemGroup>
     <Folder Include="Art\" />
+    <Folder Include="Art\Improvements" />
+    <Folder Include="Art\Splash" />
     <Folder Include="Art\Units" />
     <Folder Include="Art\Units\Icons\" />
     <Folder Include="Art\Units\Model\" />
@@ -755,6 +784,7 @@
     <Folder Include="Mod Compatibility" />
     <Folder Include="Modular Elements" />
     <Folder Include="Modular Elements\Happiness Mod" />
+    <Folder Include="Modular Elements\SpiceIslands" />
     <Folder Include="Modular Elements\WonderConsolation" />
     <Folder Include="Modular Elements\Settler Mod" />
     <Folder Include="Balance Changes" />
@@ -783,6 +813,42 @@
     <Content Include="Art\Icons.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="Art\Improvements\GlobalSpiceIslandsArt.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="Art\Improvements\SV_Cloves.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Art\Improvements\SV_Nutmeg.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Art\Improvements\SV_Pepper.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Art\Splash\bletchleysplash.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Art\Splash\brettonsplash.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Art\Splash\CernSplash.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Art\Splash\motherlandsplash.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Art\Splash\SlaterSplash.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
     <Content Include="Art\Units\NewUnits.sql">
       <SubType>Lua</SubType>
@@ -1204,6 +1270,14 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
+    <Content Include="Balance Changes\Specialists\GPChanges.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="Balance Changes\Specialists\GPChanges.sql">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
     <Content Include="Balance Changes\Specialists\SpecialistChanges.sql">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
@@ -1425,6 +1499,10 @@
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
     <Content Include="Modular Elements\Settler Mod\SettlerUnits.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="Modular Elements\SpiceIslands\GlobalSpiceIslands.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>

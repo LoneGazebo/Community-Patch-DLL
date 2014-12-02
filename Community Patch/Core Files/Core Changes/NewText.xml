@@ -326,5 +326,11 @@
 		<Row Tag="TXT_KEY_NOTIFICATION_GOLD_STOLEN_SPY_IDENTIFIED">
 			<Text>{TXT_KEY_GRAMMAR_UPPER_A_AN &lt;&lt; {1_CivAdj}} spy robbed the treasury of {2_CityName}, taking {3_Gold} [ICON_GOLD] Gold!</Text>
 		</Row>
+
+		<!-- Trade Route for Land Modifiers -->
+		<Row Tag="TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_DOMAIN_LAND_MODIFIER">
+			<Text>Land route: {1_Num}x</Text>
+		</Row>
+		
 	</Language_en_US>
 </GameData>

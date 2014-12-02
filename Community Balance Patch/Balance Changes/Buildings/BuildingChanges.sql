@@ -80,7 +80,7 @@ WHERE Type = 'BUILDING_WATERMILL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type
 
 -- Aqueduct
 UPDATE Language_en_US
-SET Text = '40% of [ICON_FOOD] Food is carried over after a new [ICON_CITIZEN] Citizen is born. +1 [ICON_FOOD] Food on Lakes and Oases worked by this city. Reduces [ICON_HAPPINESS_3] Poverty.'
+SET Text = '40% of [ICON_FOOD] Food is carried over after a new [ICON_CITIZEN] Citizen is born. +1 [ICON_FOOD] Food on Lakes and Oases worked by this city. Reduces [ICON_HAPPINESS_3] Poverty slightly.'
 WHERE Tag = 'TXT_KEY_BUILDING_AQUEDUCT_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Buildings
@@ -127,11 +127,11 @@ WHERE Tag = 'TXT_KEY_BUILDING_MEDICAL_LAB_HELP' AND EXISTS (SELECT * FROM COMMUN
 
 -- Recycling Center
 UPDATE Buildings
-SET PovertyHappinessChange = '3'
+SET PovertyHappinessChange = '6'
 WHERE Type = 'BUILDING_RECYCLING_CENTER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 	
 UPDATE Language_en_US
-SET Text = 'Provides 2 [ICON_RES_ALUMINUM] Aluminum. Maximum of 5 of these buildings in your empire. Reduces [ICON_HAPPINESS_3] Poverty.'
+SET Text = 'Provides 2 [ICON_RES_ALUMINUM] Aluminum. Maximum of 5 of these buildings in your empire. Reduces [ICON_HAPPINESS_3] Poverty greatly.'
 WHERE Tag = 'TXT_KEY_BUILDING_RECYCLING_CENTER_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 -- Garden
@@ -255,7 +255,7 @@ SET DefenseHappinessChange = '1'
 WHERE Type = 'BUILDING_BARRACKS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '+15 XP for all Units. Reduces [ICON_HAPPINESS_3] Disorder.'
+SET Text = '+15 XP for all Units. Reduces [ICON_HAPPINESS_3] Disorder slightly.'
 WHERE Tag = 'TXT_KEY_BUILDING_BARRACKS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 	
 -- Armory
@@ -418,7 +418,7 @@ SET IlliteracyHappinessChange = '1'
 WHERE Type = 'BUILDING_LIBRARY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '+1 [ICON_RESEARCH] for every two [ICON_CITIZEN] Citizens in the City. Reduces [ICON_HAPPINESS_3] Illiteracy.'
+SET Text = '+1 [ICON_RESEARCH] for every two [ICON_CITIZEN] Citizens in the City. Reduces [ICON_HAPPINESS_3] Illiteracy slightly.'
 WHERE Tag = 'TXT_KEY_BUILDING_LIBRARY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
  
 -- University
@@ -461,11 +461,11 @@ SET GoldMaintenance = '4'
 WHERE Type = 'BUILDING_LABORATORY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Buildings
-SET IlliteracyHappinessChange = '3'
+SET IlliteracyHappinessChange = '6'
 WHERE Type = 'BUILDING_LABORATORY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '+1 [ICON_RESEARCH] Science from Jungle tiles worked by this City, and +1 [ICON_RESEARCH] for every two [ICON_CITIZEN] Citizens in the City. Reduces [ICON_HAPPINESS_3] Illiteracy.[NEWLINE][NEWLINE]City must have a Public School.'
+SET Text = '+1 [ICON_RESEARCH] Science from Jungle tiles worked by this City, and +1 [ICON_RESEARCH] for every two [ICON_CITIZEN] Citizens in the City. Reduces [ICON_HAPPINESS_3] Illiteracy greatly.[NEWLINE][NEWLINE]City must have a Public School.'
 WHERE Tag = 'TXT_KEY_BUILDING_LABORATORY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 -- Observatory
@@ -696,11 +696,11 @@ WHERE Type = 'BUILDING_COLOSSEUM' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type
 
 INSERT INTO Language_en_US (
 Tag, Text)
-SELECT 'TXT_KEY_BUILDING_COLOSSEUM_HELP', 'Reduces [ICON_HAPPINESS_3] Boredom.'
+SELECT 'TXT_KEY_BUILDING_COLOSSEUM_HELP', 'Reduces [ICON_HAPPINESS_3] Boredom slightly.'
 WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Reduces [ICON_HAPPINESS_3] Boredom.'
+SET Text = 'Reduces [ICON_HAPPINESS_3] Boredom slightly.'
 WHERE Tag = 'TXT_KEY_BUILDING_COLOSSEUM_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 -- Zoo
@@ -738,11 +738,11 @@ SET Happiness = '0'
 WHERE Type = 'BUILDING_STADIUM' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 UPDATE Buildings
-SET UnculturedHappinessChange = '3'
+SET UnculturedHappinessChange = '6'
 WHERE Type = 'BUILDING_STADIUM' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Reduces [ICON_HAPPINESS_3] Boredom.'
+SET Text = 'Reduces [ICON_HAPPINESS_3] Boredom greatly.'
 WHERE Tag = 'TXT_KEY_BUILDING_STADIUM_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -763,11 +763,11 @@ WHERE Type = 'BUILDING_STADIUM' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='
 -- Police Station
 
 UPDATE Buildings
-SET DefenseHappinessChange = '3'
+SET DefenseHappinessChange = '6'
 WHERE Type = 'BUILDING_POLICE_STATION' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Reduces [ICON_HAPPINESS_3] Disorder. Reduces enemy spy stealing rate by 25%.[NEWLINE][NEWLINE]City must have a Constabulary.'
+SET Text = 'Reduces [ICON_HAPPINESS_3] Disorder greatly. Reduces enemy spy stealing rate by 25%.[NEWLINE][NEWLINE]City must have a Constabulary.'
 WHERE Tag = 'TXT_KEY_BUILDING_POLICE_STATION_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 UPDATE Buildings

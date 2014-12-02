@@ -492,6 +492,17 @@ function AddBuildingButton( pCity, building )
 			for pYieldInfo in GameInfo.Yields() do
 				local iYieldID = pYieldInfo.ID;
 				local iYieldAmount = pCity:GetSpecialistYield(iSpecialistID, iYieldID);
+
+-- CBP CHANGE
+				local iSpecialistCount= pCity:GetSpecialistCount(iSpecialistID);
+				if(iSpecialistCount <= 0) then
+					iSpecialistCount = 1;
+				end
+				if(iYieldID ~= YieldTypes.YIELD_FAITH) then
+					local iExtraYieldAmount = (pCity:GetExtraSpecialistYieldOfType(iYieldID, iSpecialistID)/iSpecialistCount);
+					iYieldAmount = iYieldAmount + iExtraYieldAmount;
+				end
+-- END
 				
 				--Specialist Yield included in pCity:GetSpecialistYield();
 				--iYieldAmount = iYieldAmount + Players[pCity:GetOwner()]:GetSpecialistExtraYield(iSpecialistID, iYieldID);
@@ -614,6 +625,16 @@ function AddBuildingButton( pCity, building )
 					local iYieldID = pYieldInfo.ID;
 					local iYieldAmount = pCity:GetSpecialistYield(iSpecialistID, iYieldID);
 					
+-- CBP CHANGE
+					local iSpecialistCount= pCity:GetSpecialistCount(iSpecialistID);
+					if(iSpecialistCount <= 0) then
+						iSpecialistCount = 1;
+					end
+					if(iYieldID ~= YieldTypes.YIELD_FAITH) then
+						local iExtraYieldAmount = (pCity:GetExtraSpecialistYieldOfType(iYieldID, iSpecialistID)/iSpecialistCount);
+						iYieldAmount = iYieldAmount + iExtraYieldAmount;
+					end
+-- END
 					if (iYieldAmount > 0) then
 						table.insert(yields, tostring(iYieldAmount) .. pYieldInfo.IconString);
 					end
@@ -848,13 +869,6 @@ function OnCityViewUpdate()
 			cityNameSize = cityNameSize - Controls.CityCapitalIcon:GetSizeX();
 		end
 		TruncateString(Controls.CityNameTitleBarLabel, cityNameSize, convertedKey); 
-		
-		Controls.TitleStack:CalculateSize();
-		Controls.TitleStack:ReprocessAnchoring();
-
-	    Controls.Defense:SetText(  math.floor( pCity:GetStrengthValue() / 100 ) );
-
- 		CivIconHookup( pPlayer:GetID(), 64, Controls.CivIcon, Controls.CivIconBG, Controls.CivIconShadow, false, true );
 
 -- COMMUNITY PATCH
 	
@@ -2852,3 +2866,5 @@ function OnEventActivePlayerChanged( iActivePlayer, iPrevActivePlayer )
 	end
 end
 Events.GameplaySetActivePlayer.Add(OnEventActivePlayerChanged);
+
+print("CBP CityView.lua")

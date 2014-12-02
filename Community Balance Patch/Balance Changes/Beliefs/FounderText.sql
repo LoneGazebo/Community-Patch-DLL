@@ -68,7 +68,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_PILGRIMAGE_SHORT' AND EXISTS (SELECT * FROM COMMUNIT
 
 -- World Church (Now Theocratic Rule)
 UPDATE Language_en_US
-SET Text = 'Unlocks Grand Ossuary National Wonder (+8 [ICON_PEACE] Faith). We Love the King Day boosts the [ICON_PEACE] Faith, [ICON_CULTURE] Culture, [ICON_GOLD] Gold and [ICON_RESEARCH] Science output of a city by 25%.'
+SET Text = 'Unlocks Grand Ossuary National Wonder (+7 [ICON_PEACE] Faith). We Love the King Day boosts the [ICON_PEACE] Faith, [ICON_CULTURE] Culture, [ICON_GOLD] Gold and [ICON_RESEARCH] Science output of a city by 25%.'
 WHERE Tag = 'TXT_KEY_BELIEF_WORLD_CHURCH' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US

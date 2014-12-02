@@ -88,7 +88,7 @@ WHERE Type = 'BELIEF_FAITH_HEALERS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Ty
 
 -- Monuments to the Gods
 UPDATE Beliefs
-SET WonderProductionModifier = '10'
+SET WonderProductionModifier = '15'
 WHERE Type = 'BELIEF_MONUMENT_GODS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Dance of the Aurora

@@ -31,6 +31,13 @@
 		<Row Tag="TXT_KEY_PROMOTION_DESERT_SHIPS_HELP">
 			<Text>Double movement on Desert tiles.</Text>
 		</Row>
+		<!-- Germany -->
+		<Row Tag="TXT_KEY_YIELD_FROM_CS_ALLIANCE">
+			<Text>{1_Num} {2_IconString} from City-State Alliances</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_MEMBER_DETAILS_TRAIT_VOTES">
+			<Text>[NEWLINE][ICON_BULLET]{1_NumVotes} from Civilization Trait</Text>
+		</Row>
 	</Language_en_US>
 	<Trait_FreePromotionUnitCombats>
 		<Row>
@@ -120,6 +127,14 @@
 			<Yield>40</Yield>
 		</Row>
 	</Trait_TradeRouteStartYield>
+	<!-- Germany -->
+	<Trait_YieldFromCSAlly>
+		<Row>
+			<TraitType>TRAIT_CONVERTS_LAND_BARBARIANS</TraitType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>3</Yield>
+		</Row>
+	</Trait_YieldFromCSAlly>
 	<!-- Greece -->
 	<Trait_YieldChanges>
 		<Row>
@@ -128,6 +143,14 @@
 			<Yield>2</Yield>
 		</Row>
 	</Trait_YieldChanges>
+	<!-- India -->
+	<Civilization_UnitClassOverrides>
+		<Row>
+			<CivilizationType>CIVILIZATION_INDIA</CivilizationType>
+			<UnitClassType>UNITCLASS_MISSIONARY</UnitClassType>
+			<UnitType/>
+		</Row>
+	</Civilization_UnitClassOverrides>
 	<!-- Oda -->
 	<Language_en_US>
 		<Row Tag="TXT_KEY_EUPANEL_BUSHIDO">

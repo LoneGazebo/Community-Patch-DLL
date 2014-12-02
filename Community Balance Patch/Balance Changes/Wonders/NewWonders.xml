@@ -32,7 +32,7 @@
 				<FreeBuildingThisCity>BUILDINGCLASS_FACTORY</FreeBuildingThisCity>
 				<DisplayPosition>1</DisplayPosition>
 				<IconAtlas>BW_ATLAS_1</IconAtlas>
-				<WonderSplashImage>WonderConceptGreatLighthouse.dds</WonderSplashImage>
+				<WonderSplashImage>SlaterSplash.dds</WonderSplashImage>
 				<PortraitIndex>4</PortraitIndex>
 			</Row>
 		</Buildings>
@@ -86,75 +86,76 @@
 	<!-- Red Square -->
 	<BuildingClasses>
 		<Row>
-			<Type>BUILDINGCLASS_RED_SQUARE</Type>
-			<DefaultBuilding>BUILDING_RED_SQUARE</DefaultBuilding>
-			<Description>TXT_KEY_BUILDING_RED_SQUARE</Description>
+			<Type>BUILDINGCLASS_MOTHERLAND_STATUE</Type>
+			<DefaultBuilding>BUILDING_MOTHERLAND_STATUE</DefaultBuilding>
+			<Description>TXT_KEY_BUILDING_MOTHERLAND_STATUE</Description>
 			<MaxGlobalInstances>1</MaxGlobalInstances>
 		</Row>
 	</BuildingClasses>
 	<Buildings>
 		<Row>
-			<Type>BUILDING_RED_SQUARE</Type>
-			<BuildingClass>BUILDINGCLASS_RED_SQUARE</BuildingClass>
+			<Type>BUILDING_MOTHERLAND_STATUE</Type>
+			<BuildingClass>BUILDINGCLASS_MOTHERLAND_STATUE</BuildingClass>
 			<Cost>950</Cost>
 			<PrereqTech>TECH_REPLACEABLE_PARTS</PrereqTech>
 			<PolicyBranchType>POLICY_BRANCH_ORDER</PolicyBranchType>
-			<Description>TXT_KEY_BUILDING_RED_SQUARE</Description>
-			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_RED_SQUARE_TEXT</Civilopedia>
-			<Help>TXT_KEY_BUILDING_RED_SQUARE_HELP</Help>
-			<Quote>TXT_KEY_WONDER_RED_SQUARE_QUOTE</Quote>
-			<ArtDefineTag>ART_DEF_BUILDING_FACTORY</ArtDefineTag>
+			<Description>TXT_KEY_BUILDING_MOTHERLAND_STATUE</Description>
+			<Quote>TXT_KEY_BUILDING_MOTHERLAND_STATUE_QUOTE</Quote>
+			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_MOTHERLAND_STATUE_TEXT</Civilopedia>
+			<Help>TXT_KEY_WONDER_MOTHERLAND_STATUE_HELP</Help>
+			<ArtDefineTag>ART_DEF_BUILDING_MOTHERLAND_STATUE</ArtDefineTag>
 			<NukeImmune>true</NukeImmune>
 			<HurryCostModifier>-1</HurryCostModifier>
 			<MinAreaSize>-1</MinAreaSize>
+			<DisplayPosition>2</DisplayPosition>
 			<FreePolicies>1</FreePolicies>
 			<ConquestProb>100</ConquestProb>
 			<FreeBuildingThisCity>BUILDINGCLASS_POLICE_STATION</FreeBuildingThisCity>
 			<DefenseHappinessChangeGlobal>10</DefenseHappinessChangeGlobal>
-			<DisplayPosition>1</DisplayPosition>
 			<NullifyInfluenceModifier>true</NullifyInfluenceModifier>
-			<IconAtlas>BW_ATLAS_1</IconAtlas>
-			<WonderSplashImage>WonderConceptKremlin.dds</WonderSplashImage>
-			<PortraitIndex>39</PortraitIndex>
+			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
+			<PortraitIndex>46</PortraitIndex>
+			<WonderSplashImage>motherlandsplash.dds</WonderSplashImage>
+			<WonderSplashAudio>AS2D_WONDER_SPEECH_MOTHERLAND_STATUE</WonderSplashAudio>
 		</Row>
 	</Buildings>
 	<Building_Flavors>
 		<Row>
-			<BuildingType>BUILDING_RED_SQUARE</BuildingType>
+			<BuildingType>BUILDING_MOTHERLAND_STATUE</BuildingType>
 			<FlavorType>FLAVOR_GREAT_PEOPLE</FlavorType>
 			<Flavor>30</Flavor>
 		</Row>
 		<Row>
-			<BuildingType>BUILDING_RED_SQUARE</BuildingType>
+			<BuildingType>BUILDING_MOTHERLAND_STATUE</BuildingType>
 			<FlavorType>FLAVOR_HAPPINESS</FlavorType>
 			<Flavor>40</Flavor>
 		</Row>
 		<Row>
-			<BuildingType>BUILDING_RED_SQUARE</BuildingType>
+			<BuildingType>BUILDING_MOTHERLAND_STATUE</BuildingType>
 			<FlavorType>FLAVOR_WONDER</FlavorType>
 			<Flavor>25</Flavor>
 		</Row>
 	</Building_Flavors>
 	<Building_YieldChanges>
 		<Row>
-			<BuildingType>BUILDING_RED_SQUARE</BuildingType>
+			<BuildingType>BUILDING_MOTHERLAND_STATUE</BuildingType>
 			<YieldType>YIELD_CULTURE</YieldType>
 			<Yield>2</Yield>
 		</Row>
 	</Building_YieldChanges>
 	<Language_en_US>
-		<Row Tag="TXT_KEY_BUILDING_RED_SQUARE">
-			<Text>Red Square</Text>
+		<Row Tag="TXT_KEY_BUILDING_MOTHERLAND_STATUE">
+			<Text>The Motherland Calls</Text>
 		</Row>
-		<Row Tag="TXT_KEY_BUILDING_RED_SQUARE_HELP">
+		<Row Tag="TXT_KEY_WONDER_MOTHERLAND_STATUE_HELP">
 			<Text>Requires Order. 1 Free Social Policy. Greatly reduces [ICON_HAPPINESS_3] Disorder in all cities. Receive a free Police Station in the city where it is built. Negates the [ICON_TOURISM] Tourism bonus from other players technologies.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_CIV5_BUILDINGS_RED_SQUARE_TEXT">
+		<Row Tag="TXT_KEY_CIV5_BUILDINGS_MOTHERLAND_STATUE_TEXT">
 			<Text>
-				The name Red Square does not originate from the pigment of the surrounding bricks (which, in fact, were whitewashed at certain times in history) nor from the link between the color red and communism. Rather, the name came about because the Russian word krasnaya can mean either "red" or "beautiful." This word, with the meaning "beautiful", was originally applied to Saint Basil's Cathedral and was subsequently transferred to the nearby square. It is believed that the square acquired its current name (replacing the older Pozhar, or "burnt-out place") in the 17th century. Several ancient Russian towns, such as Suzdal, Yelets, and Pereslavl-Zalessky, have their main square named Krasnaya ploshchad.
+				The Motherland Calls, also called Mother Motherland, Mother Motherland Is Calling, simply The Motherland, or The Mamayev Monument, is a statue in Mamayev Kurgan in Volgograd, Russia, commemorating the Battle of Stalingrad. It was designed by sculptor Yevgeny Vuchetich and structural engineer Nikolai Nikitin, and declared the largest statue in the world in 1967. Compared with the later higher statues, The Motherland Calls is significantly more complex from an engineering point of view, due to its characteristic posture with a sword raised high in the right hand and the left hand extended in a calling gesture. The technology behind the statue is based on a combination of prestressed concrete with wire ropes structure, a solution which can be found also in another work of Nikitin's, the super-tall Ostankino Tower in Moscow. It is the tallest statue of a woman in the world.
 			</Text>
 		</Row>
-		<Row Tag="TXT_KEY_WONDER_RED_SQUARE_QUOTE">
+		<Row Tag="TXT_KEY_BUILDING_MOTHERLAND_STATUE_QUOTE">
 			<Text>
 				[NEWLINE][TAB][TAB]"Everyone imposes his own system as far as his army can reach."[NEWLINE][TAB][TAB] - Josef Stalin[NEWLINE][TAB]</Text>
 		</Row>
@@ -185,14 +186,14 @@
 			<ConquestProb>100</ConquestProb>
 			<FreeBuildingThisCity>BUILDINGCLASS_LABORATORY</FreeBuildingThisCity>
 			<DisplayPosition>1</DisplayPosition>
-			<IconAtlas>EXPANSION2_BUILDING_ATLAS</IconAtlas>
+			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
 			<GlobalEspionageModifier>-15</GlobalEspionageModifier>
 			<ExtraSpies>2</ExtraSpies>
 			<Espionage>true</Espionage>
 			<SpyRankChange>1</SpyRankChange>
 			<InstantSpyRankChange>1</InstantSpyRankChange>
-			<WonderSplashImage>WonderConceptGreatLighthouse.dds</WonderSplashImage>
-			<PortraitIndex>10</PortraitIndex>
+			<WonderSplashImage>bletchleysplash.dds</WonderSplashImage>
+			<PortraitIndex>44</PortraitIndex>
 		</Row>
 	</Buildings>
 	<Building_Flavors>
@@ -266,8 +267,8 @@
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
 			<EnhancedYieldTech>TECH_COMPUTERS</EnhancedYieldTech>
 			<TechEnhancedTourism>5</TechEnhancedTourism>
-			<WonderSplashImage>WonderConceptGreatLighthouse.dds</WonderSplashImage>
-			<PortraitIndex>20</PortraitIndex>
+			<WonderSplashImage>brettonsplash.dds</WonderSplashImage>
+			<PortraitIndex>45</PortraitIndex>
 		</Row>
 	</Buildings>
 	<Building_Flavors>
@@ -343,7 +344,7 @@
 			<MinorFriendshipChange>35</MinorFriendshipChange>
 			<ConquestProb>100</ConquestProb>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
-			<WonderSplashImage>WonderConceptGreatLighthouse.dds</WonderSplashImage>
+			<WonderSplashImage>CernSplash.dds</WonderSplashImage>
 			<PortraitIndex>28</PortraitIndex>
 		</Row>
 	</Buildings>

@@ -8589,6 +8589,25 @@ void CvMinorCivAI::DoFriendshipChangeEffects(PlayerTypes ePlayer, int iOldFriend
 		bAdd = true;
 		bAllies = true;
 
+#if defined(MOD_BALANCE_CORE)
+		//If we get a yield bonus in all cities because of CS alliance, this is a good place to change it.
+		if(MOD_BALANCE_CORE)
+		{
+			for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+			{
+				YieldTypes eYield = (YieldTypes) iI;
+				if(GET_PLAYER(ePlayer).GetPlayerTraits()->GetYieldFromCSAlly(eYield) > 0)
+				{
+					int iLoopCity;
+					for (CvCity* pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoopCity))
+					{
+						pLoopCity->ChangeBaseYieldRateFromCSAlliance(eYield, GET_PLAYER(ePlayer).GetPlayerTraits()->GetYieldFromCSAlly(eYield));
+					}
+				}
+			}
+		}
+#endif
+
 #if defined(MOD_EVENTS_MINORS)
 		if (MOD_EVENTS_MINORS) {
 			GAMEEVENTINVOKE_HOOK(GAMEEVENT_MinorAlliesChanged, m_pPlayer->GetID(), ePlayer, true, iOldFriendship, iNewFriendship);
@@ -8616,6 +8635,25 @@ void CvMinorCivAI::DoFriendshipChangeEffects(PlayerTypes ePlayer, int iOldFriend
 	{
 		bAdd = false;
 		bAllies = true;
+
+#if defined(MOD_BALANCE_CORE)
+		//If we lose a yield bonus in all cities because of CS alliance, this is a good place to change it.
+		if(MOD_BALANCE_CORE)
+		{
+			for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+			{
+				YieldTypes eYield = (YieldTypes) iI;
+				if(GET_PLAYER(ePlayer).GetPlayerTraits()->GetYieldFromCSAlly(eYield) > 0)
+				{
+					int iLoopCity;
+					for (CvCity* pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoopCity))
+					{
+						pLoopCity->ChangeBaseYieldRateFromCSAlliance(eYield, (GET_PLAYER(ePlayer).GetPlayerTraits()->GetYieldFromCSAlly(eYield) * -1));
+					}
+				}
+			}
+		}
+#endif
 
 #if defined(MOD_EVENTS_MINORS)
 		if (MOD_EVENTS_MINORS) {
@@ -10983,7 +11021,11 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 	//
 	// -110
 	// **************************
+#if defined(MOD_BALANCE_CORE_MINORS)
+	const int iBaseReluctanceScore = -140;
+#else
 	const int iBaseReluctanceScore = -110;
+#endif
 	
 	if (sTooltipSink)
 	{
@@ -11054,7 +11096,11 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 	// **************************
 	if (bForUnit)
 	{
+#if defined(MOD_BALANCE_CORE_MINORS)
+		int iUnitScore = -40;
+#else
 		int iUnitScore = -30;
+#endif
 		iScore += iUnitScore;
 		if (sTooltipSink)
 		{
@@ -11093,7 +11139,11 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 	// **************************
 	if(GetAlly() != NO_PLAYER && GetAlly() != eBullyPlayer)
 	{
+#if defined(MOD_BALANCE_CORE_MINORS)
+		int iAllyScore = -30;
+#else
 		int iAllyScore = -10;
+#endif
 		iScore += iAllyScore;
 		if (sTooltipSink)
 		{
@@ -11115,7 +11165,11 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 		eMajorLoop = (PlayerTypes) iMajorLoop;
 		if(eMajorLoop != eBullyPlayer && IsProtectedByMajor(eMajorLoop))
 		{
+#if defined(MOD_BALANCE_CORE_MINORS)
+			iProtectionScore += -30;
+#else
 			iProtectionScore += -20;
+#endif
 			iScore += iProtectionScore;
 			if (sTooltipSink)
 			{
@@ -11135,7 +11189,11 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 	// **************************
 	if(GetPersonality() == MINOR_CIV_PERSONALITY_HOSTILE)
 	{
+#if defined(MOD_BALANCE_CORE_MINORS)
+		int iHostileScore = -20;
+#else
 		int iHostileScore = -10;
+#endif
 		iScore += iHostileScore;
 		if (sTooltipSink)
 		{
@@ -11147,7 +11205,11 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 	}
 	if(GetTrait() == MINOR_CIV_TRAIT_MILITARISTIC)
 	{
+#if defined(MOD_BALANCE_CORE_MINORS)
+		int iMilitaristicScore = -20;
+#else
 		int iMilitaristicScore = -10;
+#endif
 		iScore += iMilitaristicScore;
 		if (sTooltipSink)
 		{
