@@ -795,8 +795,10 @@
 	<Row Class="6" Name="MOD_BALANCE_CORE_FOLLOWER_POP_WONDER" Value="0"/>
 	<!-- The Policies and Ideololgies MOD_COMMUNITY_PATCH -->
 	<Row Class="6" Name="MOD_BALANCE_CORE_POLICIES" Value="0"/>
-	  <!-- The more dangerous barbarians element of MOD_COMMUNITY_PATCH -->
-	  <Row Class="6" Name="MOD_BALANCE_CORE_BARBARIAN_THEFT" Value="0"/>
+	<!-- The more dangerous barbarians element of MOD_COMMUNITY_PATCH -->
+	<Row Class="6" Name="MOD_BALANCE_CORE_BARBARIAN_THEFT" Value="0"/>
+	<!-- Turn 0 Settler moves of MOD_COMMUNITY_PATCH -->
+	<Row Class="6" Name="MOD_BALANCE_CORE_SETTLER_MOVE" Value="0"/>
 
   </CustomModOptions>
 

@@ -319,7 +319,12 @@
 		<Row>
 			<PolicyType>POLICY_FREE_RELIGION</PolicyType>
 			<FlavorType>FLAVOR_RELIGION</FlavorType>
-			<Flavor>25</Flavor>
+			<Flavor>20</Flavor>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_FREE_RELIGION</PolicyType>
+			<FlavorType>FLAVOR_GREAT_PEOPLE</FlavorType>
+			<Flavor>20</Flavor>
 		</Row>
 		<!-- Patronage -->
 		<Row>

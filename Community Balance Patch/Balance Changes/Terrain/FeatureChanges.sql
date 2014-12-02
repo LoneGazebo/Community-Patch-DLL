@@ -119,13 +119,6 @@ AND resYields.ImprovementType = impBasic.Type
 AND NOT impBasic.Water = 1;
 */
 
-
--- This CET_Start.sql data created by:
--- TechUnlocks tab of CEM_Details.xls spreadsheet (in mod folder).
-UPDATE BuildFeatures SET PrereqTech = 'TECH_ANIMAL_HUSBANDRY' WHERE FeatureType = 'FEATURE_FOREST';
-UPDATE BuildFeatures SET PrereqTech = 'TECH_THE_WHEEL' WHERE FeatureType = 'FEATURE_JUNGLE';
-UPDATE BuildFeatures SET PrereqTech = 'TECH_BRONZE_WORKING' WHERE FeatureType = 'FEATURE_MARSH';
-
 -- Buff jungles and forests
 INSERT INTO BuildFeatures (BuildType, FeatureType, PrereqTech, Time, Remove)
 VALUES ('BUILD_CAMP', 'FEATURE_MARSH', 'TECH_BRONZE_WORKING', '600', 1);
@@ -141,4 +134,4 @@ UPDATE BuildFeatures SET Remove = 0 WHERE  FeatureType = 'FEATURE_JUNGLE' AND Bu
 UPDATE BuildFeatures SET Time = 400 WHERE (FeatureType = 'FEATURE_JUNGLE' AND Time <> 0 AND Remove = 0);
 UPDATE BuildFeatures SET Time = 600 WHERE (FeatureType = 'FEATURE_JUNGLE' AND Time <> 0 AND Remove = 1);
 UPDATE BuildFeatures SET Time = 200 WHERE  BuildType   = 'BUILD_REMOVE_JUNGLE';
-UPDATE BuildFeatures SET Production = 40 WHERE FeatureType = 'FEATURE_FOREST' AND Remove = 1;
+UPDATE BuildFeatures SET Production = 30 WHERE FeatureType = 'FEATURE_FOREST' AND Remove = 1;

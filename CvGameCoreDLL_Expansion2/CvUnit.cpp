@@ -812,7 +812,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 		}
 #if defined(MOD_GLOBAL_RELIGIOUS_SETTLERS)
 	}
-	else if (MOD_GLOBAL_RELIGIOUS_SETTLERS && (getUnitInfo().IsFound() || getUnitInfo().IsFoundAbroad()))
+	else if (MOD_GLOBAL_RELIGIOUS_SETTLERS && (getUnitInfo().IsFound() || getUnitInfo().IsFoundAbroad() || getUnitInfo().IsFoundMid() || getUnitInfo().IsFoundLate()))
 	{
 		ReligionTypes eReligion = RELIGION_PANTHEON;
 
@@ -5868,7 +5868,18 @@ void CvUnit::DoAttrition()
 		if(getDomainType() == DOMAIN_LAND && pPlot->isMountain() && !canMoveAllTerrain())
 		{
 			strAppendText =  GetLocalizedText("TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_ATTRITION");
+#if defined(MOD_BALANCE_CORE)
+			if(MOD_BALANCE_CORE && GET_PLAYER(getOwner()).GetPlayerTraits()->IsCrossesMountainsAfterGreatGeneral())
+			{
+				changeDamage(20, NO_PLAYER, 0.0, &strAppendText);
+			}
+			else
+			{
+#endif
 			changeDamage(50, NO_PLAYER, 0.0, &strAppendText);
+#if defined(MOD_BALANCE_CORE)
+			}
+#endif
 		}
 #if defined(MOD_API_PLOT_BASED_DAMAGE)
 	}
