@@ -165,4 +165,70 @@
 			<Text>Reduces [ICON_HAPPINESS_3] Religious Unrest. +1 [ICON_PEACE] Culture from [ICON_RES_INCENSE] Incense and [ICON_RES_WINE] Wine, and +1 [ICON_PEACE] Faith for every two [ICON_CITIZEN] Citizens.</Text>
 		</Row>
 	</Language_en_US>
+	<!-- Great Cothon -->
+	<Buildings>
+		<Row>
+			<Type>BUILDING_GREAT_COTHON</Type>
+			<BuildingClass>BUILDINGCLASS_NATIONAL_TREASURY</BuildingClass>
+			<Cost>125</Cost>
+			<PrereqTech>TECH_CURRENCY</PrereqTech>
+			<Help>TXT_KEY_BUILDING_GREAT_COTHON_HELP</Help>
+			<Description>TXT_KEY_BUILDING_GREAT_COTHON</Description>
+			<Civilopedia>TXT_KEY_BUILDING_GREAT_COTHON_PEDIA</Civilopedia>
+			<Strategy>TXT_KEY_BUILDING_GREAT_COTHON_STRATEGY</Strategy>
+			<ArtDefineTag>ART_DEF_BUILDING_NATIONAL_TREASURY</ArtDefineTag>
+			<NumTradeRouteBonus>2</NumTradeRouteBonus>
+			<NukeImmune>true</NukeImmune>
+			<TradeRouteRecipientBonus>5</TradeRouteRecipientBonus>
+			<TradeRouteTargetBonus>3</TradeRouteTargetBonus>
+			<NationalPopRequired>25</NationalPopRequired>
+			<CityConnectionTradeRouteModifier>10</CityConnectionTradeRouteModifier>
+			<NumCityCostMod>30</NumCityCostMod>
+			<HurryCostModifier>-1</HurryCostModifier>
+			<MinAreaSize>-1</MinAreaSize>
+			<NeverCapture>true</NeverCapture>
+			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
+			<PortraitIndex>47</PortraitIndex>
+		</Row>
+	</Buildings>
+	<Building_Flavors>
+		<Row>
+			<BuildingType>BUILDING_GREAT_COTHON</BuildingType>
+			<FlavorType>FLAVOR_GOLD</FlavorType>
+			<Flavor>75</Flavor>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_GREAT_COTHON</BuildingType>
+			<FlavorType>FLAVOR_I_TRADE_ORIGIN</FlavorType>
+			<Flavor>75</Flavor>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_GREAT_COTHON</BuildingType>
+			<FlavorType>FLAVOR_I_TRADE_DESTINATION</FlavorType>
+			<Flavor>75</Flavor>
+		</Row>
+	</Building_Flavors>
+	<Civilization_BuildingClassOverrides>
+		<Row>
+			<CivilizationType>CIVILIZATION_CARTHAGE</CivilizationType>
+			<BuildingClassType>BUILDINGCLASS_NATIONAL_TREASURY</BuildingClassType>
+			<BuildingType>BUILDING_GREAT_COTHON</BuildingType>
+		</Row>
+	</Civilization_BuildingClassOverrides>
+	<Language_en_US>
+		<Row Tag="TXT_KEY_BUILDING_GREAT_COTHON">
+			<Text>Great Cothon</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_GREAT_COTHON_PEDIA">
+			<Text>
+				A cothon is an artificial, protected inner harbor such as that in Carthage during the Punic Wars around 200 BC. The cothon at Carthage was divided into a rectangular merchant harbor followed by an inner protected harbor reserved for military use only. This inner harbor was circular and surrounded by an outer ring of structures divided into a series of docking bays for ship maintenance, along with an island structure at its centre that also housed navy ships. Each individual docking bay featured a raised slipway. Above the raised docking bays was a second level consisting of warehouses where oars and rigging were kept along with supplies such as wood and canvas. On the island structure there existed a raised 'cabin' where the admiral in command could observe the whole harbor along with the surrounding sea. Altogether the inner docking complex could house up to 220 ships. The entire harbor was protected by an outer wall and the main entrance could be closed off with iron chains.
+			</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_GREAT_COTHON_STRATEGY">
+			<Text>Unique Carthaginian replacement for the East India Company. Must have built a Market in the city, and have a National Population of at least 25. In addition to the normal bonuses provided by the East India Company, the Great Cothon provides additional gold for both recipient and target of trade routes from the city where it is built, provides two additional trade routes, and a slight boost to the value of city connections. Unlike the East India Company, the Great Cothon is made available in the Classical Era with the discovery of Currency.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_GREAT_COTHON_HELP">
+			<Text>Must have built a Market in the city, and have a National Population of at least 25. The cost goes up the more cities there are in the empire.[NEWLINE][NEWLINE]Trade routes other players make to a city with the Great Cothon will generate an extra 5 [ICON_GOLD] Gold for the city owner and the trade route owner gains an additional 3 [ICON_GOLD] Gold for the trade route. Grants two additional [ICON_INTERNATIONAL_TRADE] Trade Routes and +10% [ICON_GOLD] Gold from [ICON_CONNECTED] City Connections.</Text>
+		</Row>
+	</Language_en_US>
 </GameData>

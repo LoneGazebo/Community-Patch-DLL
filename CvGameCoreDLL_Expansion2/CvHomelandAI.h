@@ -85,7 +85,7 @@ public:
 		return m_pTarget;
 	};
 
-#ifdef MOD_BALANCE_CORE_SETTLER
+#if defined(MOD_BALANCE_CORE_SETTLER)
 
 	void PushPrevPlot(int iIdx)
 	{
@@ -121,7 +121,7 @@ private:
 	int m_iAuxData;
 	int m_iMovesToTarget;
 
-#ifdef MOD_BALANCE_CORE_SETTLER
+#if defined(MOD_BALANCE_CORE_SETTLER)
 	//to detect endless loops
 	int m_iPrevPlotIdx1, m_iPrevPlotIdx2;
 #endif
@@ -242,8 +242,9 @@ public:
 	// Public exploration routines
 	bool IsAnyValidExploreMoves(const CvUnit* pUnit) const;
 	bool ExecuteSpecialExploreMove(CvUnit* pUnit, CvPlot* pPlot);
+#if defined(MOD_BALANCE_CORE)
 	bool PickUpGoodies(CvEconomicAI* pEconomicAI, UnitHandle pUnit);
-
+#endif
 	// Public logging
 	void LogHomelandMessage(CvString& strMsg);
 	void LogPatrolMessage(CvString& strMsg, CvUnit* pPatrolUnit);

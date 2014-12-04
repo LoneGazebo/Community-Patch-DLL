@@ -3,6 +3,9 @@ CREATE TABLE IF NOT EXISTS Building_GrowthExtraYield (
 BuildingType text, YieldType text, Yield integer
 );
 
+-- Create Era Value for Great Works creators that makes them spawn in the appropriate era.
+ALTER TABLE Unit_UniqueNames ADD COLUMN 'EraType' text default NULL;
+
 -- Create buildings that cannot have access to fresh water.
 
 ALTER TABLE Buildings ADD COLUMN 'IsNoWater' boolean default false;

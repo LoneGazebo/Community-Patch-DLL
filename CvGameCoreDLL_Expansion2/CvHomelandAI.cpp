@@ -29,7 +29,7 @@ CvHomelandUnit::CvHomelandUnit() :
 	, m_iAuxData(0)
 	, m_iMovesToTarget(0)
 	, m_pTarget(NULL)
-#ifdef MOD_BALANCE_CORE_SETTLER
+#if defined(MOD_BALANCE_CORE_SETTLER)
 	, m_iPrevPlotIdx1(0)
 	, m_iPrevPlotIdx2(0)
 #endif
@@ -2674,7 +2674,7 @@ void CvHomelandAI::ExecuteFirstTurnSettlerMoves()
 		}
 	}
 }
-
+#if defined(MOD_BALANCE_CORE)
 bool CvHomelandAI::PickUpGoodies(CvEconomicAI* pEconomicAI, UnitHandle pUnit)
 {
 	int iUnitX = pUnit->getX();
@@ -2753,10 +2753,10 @@ bool CvHomelandAI::PickUpGoodies(CvEconomicAI* pEconomicAI, UnitHandle pUnit)
 
 	return false;
 }
-
+#endif
 typedef CvWeightedVector<CvPlot*, 100, true> WeightedPlotVector;
 
-#ifdef MOD_BALANCE_CORE_SETTLER
+#if defined(MOD_BALANCE_CORE_SETTLER)
 
 /// Moves units to explore the map
 void CvHomelandAI::ExecuteExplorerMoves()
@@ -3517,8 +3517,7 @@ void CvHomelandAI::ExecuteExplorerMoves()
 	}
 }
 
-
-#endif //MOD_BALANCE_CORE_SETTLER
+#endif
 
 /// Moves units to explore the map
 #if defined(MOD_AI_SECONDARY_WORKERS)
