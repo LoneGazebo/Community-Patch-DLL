@@ -143,6 +143,9 @@ CvUnitEntry::CvUnitEntry(void) :
 	m_paszMiddleArtDefineTags(NULL),
 	m_paszUnitNames(NULL),
 	m_paeGreatWorks(NULL),
+#if defined(MOD_BALANCE_CORE)
+	m_paeGreatPersonEra(NULL),
+#endif
 	m_bUnitArtInfoEraVariation(false),
 	m_bUnitArtInfoCulturalVariation(false),
 	m_iUnitFlagIconOffset(0),
@@ -174,6 +177,9 @@ CvUnitEntry::~CvUnitEntry(void)
 	SAFE_DELETE_ARRAY(m_paszMiddleArtDefineTags);
 	SAFE_DELETE_ARRAY(m_paszUnitNames);
 	SAFE_DELETE_ARRAY(m_paeGreatWorks);
+#if defined(MOD_BALANCE_CORE)
+	SAFE_DELETE_ARRAY(m_paeGreatPersonEra);	
+#endif
 
 }
 
@@ -427,12 +433,19 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 		{
 			m_paszUnitNames = FNEW(CvString[m_iNumUnitNames], c_eCiv5GameplayDLL, 0);
 			m_paeGreatWorks = FNEW(GreatWorkType[m_iNumUnitNames], c_eCiv5GameplayDLL, 0);
+#if defined(MOD_BALANCE_CORE)
+			m_paeGreatPersonEra = FNEW(EraTypes[m_iNumUnitNames], c_eCiv5GameplayDLL, 0);
+#endif
 
 			std::string strKey = "Units - UniqueNames";
 			Database::Results* pResults = kUtility.GetResults(strKey);
 			if(pResults == NULL)
 			{
+#if defined(MOD_BALANCE_CORE)
+				pResults = kUtility.PrepareResults(strKey, "select UniqueName, GreatWorkType, EraType from Unit_UniqueNames where UnitType = ? ORDER BY rowid");
+#else
 				pResults = kUtility.PrepareResults(strKey, "select UniqueName, GreatWorkType from Unit_UniqueNames where UnitType = ? ORDER BY rowid");
+#endif
 			}
 
 			pResults->Bind(1, szUnitType, -1, false);
@@ -451,7 +464,17 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 				{
 					m_paeGreatWorks[i] = static_cast<GreatWorkType>(GC.getInfoTypeForString(szGreatWorkType, true));
 				}
-
+#if defined(MOD_BALANCE_CORE)
+				const char* szEraType = pResults->GetText(2);
+				if(szEraType == NULL)
+				{
+					m_paeGreatPersonEra[i] = NO_ERA;
+				}
+				else
+				{
+					m_paeGreatPersonEra[i] = static_cast<EraTypes>(GC.getInfoTypeForString(szEraType, true));
+				}
+#endif
 				i++;
 			}
 
@@ -1284,7 +1307,15 @@ GreatWorkType CvUnitEntry::GetGreatWorks(int i) const
 	CvAssertMsg(i > -1, "Index out of bounds");
 	return (m_paeGreatWorks) ? m_paeGreatWorks[i] : NO_GREAT_WORK;
 }
-
+#if defined(MOD_BALANCE_CORE)
+/// Unique era for individual units.
+EraTypes CvUnitEntry::GetGreatPersonEra(int i) const
+{
+	CvAssertMsg(i < GetNumUnitNames(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return (m_paeGreatPersonEra) ? m_paeGreatPersonEra[i] : NO_ERA;
+}
+#endif
 /// What flag icon to use
 int CvUnitEntry::GetUnitFlagIconOffset() const
 {

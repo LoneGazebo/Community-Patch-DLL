@@ -6689,7 +6689,6 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 	CvPlayer& owningPlayer = GET_PLAYER(getOwner());
 	CvTeam& owningTeam = GET_TEAM(getTeam());
 	CvCivilizationInfo& thisCiv = getCivilizationInfo();
-
 	if(!(owningTeam.isObsoleteBuilding(eBuilding)) || bObsolete)
 	{
 		// One-shot items
@@ -6762,7 +6761,6 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 #if defined(MOD_BALANCE_CORE)
 								}
 #endif
-
 								// Bump up the count
 								if(pFreeUnit->IsGreatGeneral())
 								{

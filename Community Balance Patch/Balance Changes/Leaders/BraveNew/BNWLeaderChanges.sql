@@ -85,8 +85,12 @@ UPDATE Traits
 SET UniqueLuxuryCities = '3'
 WHERE Type = 'TRAIT_SPICE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
+UPDATE Traits
+SET NoConnectionUnhappiness = 'true'
+WHERE Type = 'TRAIT_SPICE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
 UPDATE Language_en_US
-SET Text = 'A unique luxury appears near your first three cities, with an additional luxury appearing if the city is your [ICON_CAPITAL] Capital, or if it is founded on a different landmass than your [ICON_CAPITAL] Capital.'
+SET Text = 'A unique luxury appears near your first three cities, with an additional luxury appearing if the city is your [ICON_CAPITAL] Capital, or if it is founded on a different landmass than your [ICON_CAPITAL] Capital. No [ICON_HAPPINESS_3] Unhappiness from Isolation.'
 WHERE Tag = 'TXT_KEY_TRAIT_SPICE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US

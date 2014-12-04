@@ -159,7 +159,9 @@ public:
 
 	const char* GetUnitNames(int i) const;
 	GreatWorkType GetGreatWorks(int i) const;
-
+#if defined(MOD_BALANCE_CORE)
+	EraTypes GetGreatPersonEra(int i) const;
+#endif
 	// Accessor Functions (Arrays)
 	int GetPrereqAndTechs(int i) const;
 	int GetResourceQuantityRequirement(int i) const;
@@ -349,6 +351,9 @@ private:
 	CvString* m_paszMiddleArtDefineTags;
 	CvString* m_paszUnitNames;
 	GreatWorkType* m_paeGreatWorks;
+#if defined(MOD_BALANCE_CORE)
+	EraTypes* m_paeGreatPersonEra;
+#endif
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
