@@ -54,12 +54,16 @@ UPDATE Traits
 Set NearbyImprovementBonusRange = '4'
 WHERE Type = 'TRAIT_WAYFINDING' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
+UPDATE Traits
+Set NavalUnitMaintenanceModifier = '-25'
+WHERE Type = 'TRAIT_WAYFINDING' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
 UPDATE Builds
 Set PrereqTech = 'TECH_THE_WHEEL'
 WHERE Type = 'BUILD_MOAI' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Can embark and move over Oceans immediately. +1 Sight when embarked. +10% [ICON_STRENGTH] Combat Strength bonus if within 4 tiles of a Moai.'
+SET Text = 'Can embark and move over Oceans immediately. +1 Sight when embarked. +10% [ICON_STRENGTH] Combat Strength bonus if within 4 tiles of a Moai. Naval unit [ICON_GOLD] Gold maintenance reduced by 25%.'
 WHERE Tag = 'TXT_KEY_TRAIT_WAYFINDING' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 -- Spain

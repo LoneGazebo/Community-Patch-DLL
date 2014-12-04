@@ -445,13 +445,66 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 	SetGreatWork(NO_GREAT_WORK);
 	iUnitName = GC.getGame().getUnitCreatedCount(getUnitType());
 	int iNumNames = getUnitInfo().GetNumUnitNames();
+#if defined(MOD_BALANCE_CORE)
+	std::vector<int> vfPossibleUnits;
+#endif
 	if(iUnitName < iNumNames)
 	{
 		if(iNameOffset == -1)
 		{
 			iNameOffset = GC.getGame().getJonRandNum(iNumNames, "Unit name selection");
 		}
-	
+#if defined(MOD_BALANCE_CORE)
+		CvString strName = NULL;
+		//Look for units from previous and current eras.
+		for(iI = 0; iI < iNumNames; iI++)
+		{
+			EraTypes eUnitEra = getUnitInfo().GetGreatPersonEra(iI);
+			if((eUnitEra != NO_ERA) && eUnitEra <= GET_PLAYER(getOwner()).GetCurrentEra())
+			{
+				strName = getUnitInfo().GetUnitNames(iI);
+				if(!GC.getGame().isGreatPersonBorn(strName))
+				{
+					vfPossibleUnits.push_back(iI);
+				}
+			}
+		}
+		if(vfPossibleUnits.size() > 0)
+		{
+			int iRoll = GC.getGame().getJonRandNum(vfPossibleUnits.size(), "Rolling for era-specific unit");
+			strName = getUnitInfo().GetUnitNames(vfPossibleUnits[iRoll]);
+			setName(strName);
+			SetGreatWork(getUnitInfo().GetGreatWorks(vfPossibleUnits[iRoll]));
+			GC.getGame().addGreatPersonBornName(strName);
+		}
+		//None? Let's look to the next era.
+		else
+		{
+			for(iI = 0; iI < iNumNames; iI++)
+			{
+				EraTypes eUnitEra = getUnitInfo().GetGreatPersonEra(iI);
+				if((eUnitEra != NO_ERA) && ((eUnitEra - 1 ) == GET_PLAYER(getOwner()).GetCurrentEra()))
+				{
+					strName = getUnitInfo().GetUnitNames(iI);
+					if(!GC.getGame().isGreatPersonBorn(strName))
+					{
+						vfPossibleUnits.push_back(iI);
+					}
+				}
+			}
+			if(vfPossibleUnits.size() > 0)
+			{
+				int iRoll = GC.getGame().getJonRandNum(vfPossibleUnits.size(), "Rolling for era-specific unit");
+				strName = getUnitInfo().GetUnitNames(vfPossibleUnits[iRoll]);
+				setName(strName);
+				SetGreatWork(getUnitInfo().GetGreatWorks(vfPossibleUnits[iRoll]));
+				GC.getGame().addGreatPersonBornName(strName);
+			}
+		}
+		//If still no valid GPs, do the old random method.
+		if(vfPossibleUnits.size() <= 0)
+		{
+#endif
 		for(iI = 0; iI < iNumNames; iI++)
 		{
 			int iIndex = (iNameOffset + iI) % iNumNames;
@@ -473,14 +526,16 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 						continue;
 					}
 				}
-#endif
-				
+#endif			
 				setName(strName);
 				SetGreatWork(getUnitInfo().GetGreatWorks(iIndex));
 				GC.getGame().addGreatPersonBornName(strName);
 				break;
 			}
 		}
+#if defined(MOD_BALANCE_CORE)
+		}
+#endif
 	}
 
 	setGameTurnCreated(GC.getGame().getGameTurn());

@@ -276,21 +276,9 @@ WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS
 
 
 
--- Ottomans -- Receive a free Caravansary in your first 4 cities, and Trade Routes generate Golden Age points when starting a Trade Route. -- Unique trebuchet (cannon) 
+-- Ottomans -- Receive a free Caravansary in all cities, and Trade Routes generate Golden Age points when finishing a Trade Route. 
 UPDATE Traits
 SET NavalUnitMaintenanceModifier = '0'
-WHERE Type = 'TRAIT_CONVERTS_SEA_BARBARIANS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
-
-UPDATE Traits
-SET NumFreeBuildings = '4'
-WHERE Type = 'TRAIT_CONVERTS_SEA_BARBARIANS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
-
-UPDATE Traits
-SET FreeBuildingPrereqTech = 'TECH_HORSEBACK_RIDING'
-WHERE Type = 'TRAIT_CONVERTS_SEA_BARBARIANS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
-
-UPDATE Traits
-SET FreeBuildingPrereqTech = 'TECH_HORSEBACK_RIDING'
 WHERE Type = 'TRAIT_CONVERTS_SEA_BARBARIANS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Traits
@@ -305,7 +293,7 @@ SET Text = 'Innovation Through Commerce'
 WHERE Tag = 'TXT_KEY_TRAIT_CONVERTS_SEA_BARBARIANS_SHORT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Receive 40 [ICON_RESEARCH] Science and [ICON_GOLDEN_AGE] Golden Age Points every time you complete an [ICON_INTERNATIONAL_TRADE] International Trade Route, and a free Caravansary in your first four cities.'
+SET Text = 'Receive 40 [ICON_RESEARCH] Science and [ICON_GOLDEN_AGE] Golden Age Points every time you complete an [ICON_INTERNATIONAL_TRADE] International Trade Route, and a free Caravansary in every city.'
 WHERE Tag = 'TXT_KEY_TRAIT_CONVERTS_SEA_BARBARIANS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 -- Rome -- Unique Monument (Triumphal Arch) -- Receive Culture boost when you conquer a City.

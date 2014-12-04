@@ -8736,19 +8736,23 @@ void CvPlot::updateYield()
 #if defined(MOD_BALANCE_CORE_SETTLER)
 
 //	--------------------------------------------------------------------------------
-int CvPlot::GetExplorationBonus(const CvPlayer* pPlayer, int iScaleCloseness, int iScaleLatitude)
+int CvPlot::GetExplorationBonus(const CvPlayer* pPlayer, const CvPlot* pRefPlot)
 {
-	//give a bonus to tiles that are close to our own territory and not too close to the poles
+	if (!pPlayer)
+		return 0;
+
+	//give a bonus to fertile tiles that are close to our own territory
 	int iDistToOwnCities = pPlayer->GetCityDistance(this);
-	int iDistToMapCenter = abs(getLatitude());
-	int iClosenessBonus = max(0, ((iScaleCloseness - iDistToOwnCities) * 100) / iScaleCloseness);
-	int iStrategyBonus = max(0, ((iScaleLatitude - iDistToMapCenter) * 100) / iScaleLatitude);
+	int iDistRef = pPlayer->GetCityDistance(pRefPlot);
 	
 	int iFertilityBonus = 0;
 	if ( pPlayer->GetFoundValueOfLastSettledCity()>0 )
 		iFertilityBonus = max(0, (getFoundValue(pPlayer->GetID())*100) / pPlayer->GetFoundValueOfLastSettledCity() );
 
-	return iClosenessBonus + iStrategyBonus + iFertilityBonus;
+	if (iDistToOwnCities>iDistRef)
+		return (iFertilityBonus*70)/100;
+	else
+		return iFertilityBonus;
 }
 
 #endif
