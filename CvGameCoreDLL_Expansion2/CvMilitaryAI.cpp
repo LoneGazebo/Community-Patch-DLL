@@ -1651,6 +1651,172 @@ void CvMilitaryAI::ShouldAttackBySea(PlayerTypes eEnemy, CvMilitaryTarget& targe
 	target.m_iPathLength = iPathLength;
 }
 
+
+#if defined(MOD_BALANCE_CORE_MILITARY)
+
+/// Come up with a target priority looking at distance, strength, approaches (high score = more desirable target)
+int CvMilitaryAI::ScoreTarget(CvMilitaryTarget& target, AIOperationTypes eAIOperationType)
+{
+	float fRtnValue = 1;
+
+	float fDistWeightInterpolated = 1;
+	if(!target.m_bAttackBySea)
+	{
+		// interpolate linearly between a low and a high distance
+		float fDistanceLow = 8, fWeightLow = 10;
+		float fDistanceHigh = 20, fWeightHigh = 1;
+
+		// Is this a sneak attack?  If so distance is REALLY important (want to target spaces on edge of empire)
+		if (eAIOperationType == AI_OPERATION_SNEAK_CITY_ATTACK)
+		{
+			fDistanceLow /= 2;
+			fDistanceHigh /= 2;
+		}
+
+		float fSlope = (fWeightHigh-fWeightLow) / (fDistanceHigh-fDistanceLow);
+		fDistWeightInterpolated = (target.m_iPathLength-fDistanceLow) * fSlope + fWeightLow;
+
+		fRtnValue *= min( fWeightLow, max( fWeightHigh, fDistWeightInterpolated ) );
+
+		// Double if we can assemble troops in muster city with airlifts
+		if (target.m_pMusterCity->CanAirlift())
+			fRtnValue *= 2;
+
+	}
+	else
+	{
+		// interpolate linearly between a low and a high distance
+		float fDistanceLow = 12, fWeightLow = 5;
+		float fDistanceHigh = 30, fWeightHigh = 2;
+
+		// Is this a sneak attack?  If so distance is REALLY important (want to target spaces on edge of empire)
+		if (eAIOperationType == AI_OPERATION_NAVAL_SNEAK_ATTACK)
+		{
+			fDistanceLow /= 2;
+			fDistanceHigh /= 2;
+		}
+
+		float fSlope = (fWeightHigh-fWeightLow) / (fDistanceHigh-fDistanceLow);
+		fDistWeightInterpolated = (target.m_iPathLength-fDistanceLow) * fSlope + fWeightLow;
+
+		fRtnValue *= min( fWeightLow, max( fWeightHigh, fDistWeightInterpolated ) );
+
+		// If coming over sea, inland cities are trickier
+		if(!target.m_pTargetCity->plot()->isCoastalLand())
+			fRtnValue /= 2;
+	}
+
+	CityAttackApproaches eApproaches;
+	int iApproachMultiplier = 0;
+	eApproaches = EvaluateMilitaryApproaches(target.m_pTargetCity, true /* Assume units coming by sea can disembark */, target.m_bAttackBySea);
+	switch(eApproaches)
+	{
+	case ATTACK_APPROACH_UNRESTRICTED:
+		iApproachMultiplier = 5;
+		break;
+
+	case ATTACK_APPROACH_OPEN:
+		iApproachMultiplier = 4;
+		break;
+
+	case ATTACK_APPROACH_NEUTRAL:
+		iApproachMultiplier = 3;
+		break;
+
+	case ATTACK_APPROACH_LIMITED:
+		iApproachMultiplier = 2;
+		break;
+
+	case ATTACK_APPROACH_RESTRICTED:
+		iApproachMultiplier = 1;
+		break;
+
+	case ATTACK_APPROACH_NONE:
+		iApproachMultiplier = 0;
+		break;
+	}
+
+	fRtnValue *= iApproachMultiplier;
+
+	// should probably give a bonus if these cities are adjacent
+
+	// Don't want to start at a city that isn't connected to our capital
+	if (!target.m_pMusterCity->IsRouteToCapitalConnected() && !target.m_pMusterCity->isCapital())
+		fRtnValue /= 2;
+
+	// this won't work if we are "just checking" as the zone are only built for actual war war opponents
+	// TODO come up with a better way to do this that is always correct
+	float fFriendlyStrength = (float)target.iMusterNearbyUnitPower;
+	float fEnemyStrength = target.iTargetNearbyUnitPower + (target.m_pTargetCity->getStrengthValue() / 50.f);
+	fFriendlyStrength = max(1.f, fFriendlyStrength);
+	fEnemyStrength = max(1.f, fEnemyStrength);
+	float fRatio = min( 10.f, fFriendlyStrength / fEnemyStrength );
+
+	fRtnValue *= fRatio;
+
+	if (target.m_pTargetCity->IsOriginalCapital())
+	{
+		fRtnValue *= GC.getAI_MILITARY_CAPTURING_ORIGINAL_CAPITAL();
+		fRtnValue /= 100;
+	}
+
+	if (target.m_pTargetCity->getOriginalOwner() == m_pPlayer->GetID())
+	{
+		fRtnValue *= GC.getAI_MILITARY_RECAPTURING_OWN_CITY();
+		fRtnValue /= 100;
+	}
+	
+#if defined(MOD_DIPLOMACY_CITYSTATES)
+	if (MOD_DIPLOMACY_CITYSTATES) {
+		for(int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
+		{
+			PlayerTypes eMinor = (PlayerTypes) iMinorLoop;
+			if (target.m_pTargetCity->getOriginalOwner() == eMinor)
+			{
+				CvPlayer* pMinor = &GET_PLAYER(eMinor);
+				if(pMinor->GetMinorCivAI()->GetQuestData1(m_pPlayer->GetID(), MINOR_CIV_QUEST_LIBERATION) == eMinor)
+				{
+					fRtnValue *= GC.getAI_MILITARY_RECAPTURING_CITY_STATE();
+					fRtnValue /= 100;
+				}
+			}
+		}
+	}
+#endif
+
+	// Don't want it to already be targeted by an operation that's not well on its way
+	if(m_pPlayer->IsCityAlreadyTargeted(target.m_pTargetCity, NO_DOMAIN, 50))
+		fRtnValue /= 10;
+
+	// Economic value of target
+	// TODO: take into account leader personality
+
+	float fEconomicValue = 1 + (target.m_pTargetCity->getPopulation() / 3.f);
+	// filter out all but the most productive
+	fEconomicValue += target.m_pTargetCity->getYieldRateTimes100(YIELD_FOOD, false);
+	fEconomicValue += target.m_pTargetCity->getYieldRateTimes100(YIELD_PRODUCTION, false) * 2;
+	fEconomicValue += target.m_pTargetCity->getYieldRateTimes100(YIELD_SCIENCE, false);
+	fEconomicValue += target.m_pTargetCity->getYieldRateTimes100(YIELD_GOLD, false);
+	fEconomicValue += target.m_pTargetCity->getYieldRateTimes100(YIELD_CULTURE, false);
+	fEconomicValue += target.m_pTargetCity->getYieldRateTimes100(YIELD_FAITH, false);
+#if defined(MOD_API_UNIFIED_YIELDS_TOURISM)
+	fEconomicValue += target.m_pTargetCity->getYieldRateTimes100(YIELD_TOURISM, false);
+#endif
+#if defined(MOD_API_UNIFIED_YIELDS_GOLDEN_AGE)
+	fEconomicValue += target.m_pTargetCity->getYieldRateTimes100(YIELD_GOLDEN_AGE_POINTS, false);
+#endif
+
+	fRtnValue *= sqrt(fEconomicValue)/100;
+
+	CvString msg = CvString::format( "Evaluating attack on %s from base in %s. Approach is %d. Distance is %d (weight %.2f), strength ratio %.2f, economic value %.2f --> score %.2f\n",
+		target.m_pTargetCity->getName().c_str(), target.m_pMusterCity->getName().c_str(), eApproaches, target.m_iPathLength, fDistWeightInterpolated, fRatio, sqrt(fEconomicValue)/100, fRtnValue );
+	OutputDebugString( msg.c_str() );
+
+	return (int)fRtnValue;
+}
+
+#else
+
 /// Come up with a target priority looking at distance, strength, approaches (high score = more desirable target)
 int CvMilitaryAI::ScoreTarget(CvMilitaryTarget& target, AIOperationTypes eAIOperationType)
 {
@@ -1823,6 +1989,8 @@ int CvMilitaryAI::ScoreTarget(CvMilitaryTarget& target, AIOperationTypes eAIOper
 
 	return min(10000000, (int)uliRtnValue & 0x7fffffff);
 }
+
+#endif //MOD_BALANCE_CORE_MILITARY
 
 /// How open an approach do we have to this city if we want to attack it?
 CityAttackApproaches CvMilitaryAI::EvaluateMilitaryApproaches(CvCity* pCity, bool bAttackByLand, bool bAttackBySea)

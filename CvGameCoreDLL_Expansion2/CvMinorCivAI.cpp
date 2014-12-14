@@ -12501,7 +12501,7 @@ TechTypes CvMinorCivAI::GetGoodTechPlayerDoesntHave(PlayerTypes ePlayer, int iRo
 
 
 	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
-	CvTeam kTeam = GET_TEAM(kPlayer.getTeam());
+	CvTeam& kTeam = GET_TEAM(kPlayer.getTeam());
 
 	for(int iTechLoop = 0; iTechLoop < GC.getNumTechInfos(); iTechLoop++)
 	{

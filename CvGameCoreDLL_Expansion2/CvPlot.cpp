@@ -2989,6 +2989,51 @@ int CvPlot::getUnitPower(PlayerTypes eOwner) const
 	return iCount;
 }
 
+#if defined(MOD_BALANCE_CORE_MILITARY)
+
+//	--------------------------------------------------------------------------------
+int CvPlot::defenseModifier(TeamTypes eDefender, bool, bool bHelp) const
+{
+	// Plot type
+	int iModifier = 0;
+	if(isHills() || isMountain())
+		iModifier = /*25*/ GC.getHILLS_EXTRA_DEFENSE();
+
+	// Feature
+	if(getFeatureType() != NO_FEATURE)
+		iModifier = max( iModifier, GC.getFeatureInfo(getFeatureType())->getDefenseModifier() );
+
+	// Terrain
+	if(getTerrainType() != NO_TERRAIN)
+		iModifier = max( iModifier, GC.getTerrainInfo(getTerrainType())->getDefenseModifier() );
+
+	// Improvements count extra, but include them for tooltips only if the tile is revealed
+	ImprovementTypes eImprovement = bHelp ? getRevealedImprovementType(GC.getGame().getActiveTeam()) : getImprovementType();
+	if(eImprovement != NO_IMPROVEMENT && !IsImprovementPillaged())
+	{
+		if(eDefender != NO_TEAM && (getTeam() == NO_TEAM || GET_TEAM(eDefender).isFriendlyTerritory(getTeam())))
+		{
+			CvImprovementEntry* pkImprovement = GC.getImprovementInfo(eImprovement);
+			if (pkImprovement)
+				iModifier += pkImprovement->GetDefenseModifier();
+		}
+	}
+
+	// Cities also give a boost
+	if(!bHelp)
+	{
+		const CvCity* pCity = getPlotCity();
+
+		if(pCity != NULL)
+		{
+			iModifier += pCity->getStrengthValue()/100;
+		}
+	}
+
+	return iModifier;
+}
+
+#else
 
 //	--------------------------------------------------------------------------------
 int CvPlot::defenseModifier(TeamTypes eDefender, bool, bool bHelp) const
@@ -3053,6 +3098,8 @@ int CvPlot::defenseModifier(TeamTypes eDefender, bool, bool bHelp) const
 
 	return iModifier;
 }
+
+#endif //defined MOD_BALANCE_CORE_MILITARY
 
 //	---------------------------------------------------------------------------
 int CvPlot::movementCost(const CvUnit* pUnit, const CvPlot* pFromPlot, int iMovesRemaining /*= 0*/) const
