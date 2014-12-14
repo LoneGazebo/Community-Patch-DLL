@@ -34,6 +34,8 @@
 // Coastal cities are assigned to the water body as well as the land area they are on
 #define MOD_CORE_RIPARIAN_CITIES
 
+#define MOD_BALANCE_CORE_MILITARY_LOGGING
+
 // Uncomment this line to include the achievements hack code
 // #define ACHIEVEMENT_HACKS
 #if defined(ACHIEVEMENT_HACKS)

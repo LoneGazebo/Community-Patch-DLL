@@ -303,7 +303,7 @@ public:
 	{
 		return (m_iAuxData > target.m_iAuxData);
 	};
-	inline AITacticalTargetType GetTargetType()
+	inline AITacticalTargetType GetTargetType() const
 	{
 		return m_eTargetType;
 	}
@@ -311,7 +311,7 @@ public:
 	{
 		m_eTargetType = eTargetType;
 	}
-	inline int GetTargetX()
+	inline int GetTargetX() const
 	{
 		return m_iTargetX;
 	}
@@ -319,7 +319,7 @@ public:
 	{
 		m_iTargetX = iValue;
 	}
-	inline int GetTargetY()
+	inline int GetTargetY() const
 	{
 		return m_iTargetY;
 	}
@@ -327,7 +327,7 @@ public:
 	{
 		m_iTargetY = iValue;
 	}
-	inline PlayerTypes GetTargetPlayer()
+	inline PlayerTypes GetTargetPlayer() const
 	{
 		return m_eTargetPlayer;
 	}

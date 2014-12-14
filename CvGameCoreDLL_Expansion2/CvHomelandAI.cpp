@@ -277,12 +277,12 @@ void CvHomelandAI::EstablishHomelandPriorities()
 		if(GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_DEFENSE")
 		{
 			iFlavorDefense = m_pPlayer->GetFlavorManager()->GetIndividualFlavor((FlavorTypes)iFlavorLoop);
-			iFlavorDefense = (int)((double)iFlavorDefense * m_fFlavorDampening);
+			iFlavorDefense = (int)(iFlavorDefense * m_fFlavorDampening);
 		}
 		if(GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_OFFENSE")
 		{
 			iFlavorOffense = m_pPlayer->GetFlavorManager()->GetIndividualFlavor((FlavorTypes)iFlavorLoop);
-			iFlavorOffense = (int)((double)iFlavorOffense * m_fFlavorDampening);
+			iFlavorOffense = (int)(iFlavorOffense * m_fFlavorDampening);
 		}
 		else if(GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_EXPANSION")
 		{
@@ -291,7 +291,7 @@ void CvHomelandAI::EstablishHomelandPriorities()
 		else if(GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_RECON")
 		{
 			iFlavorExplore = m_pPlayer->GetFlavorManager()->GetIndividualFlavor((FlavorTypes)iFlavorLoop);
-			iFlavorExplore = (int)((double)iFlavorExplore * m_fFlavorDampening);
+			iFlavorExplore = (int)(iFlavorExplore * m_fFlavorDampening);
 		}
 		else if(GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_GOLD")
 		{

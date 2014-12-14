@@ -1584,6 +1584,13 @@ void CvTacticalAI::FindTacticalTargets()
 
 	// Sort remaining targets by aux data (if used for that target type)
 	std::stable_sort(m_AllTargets.begin(), m_AllTargets.end());
+
+#if defined(MOD_BALANCE_CORE_MILITARY_LOGGING)
+	// mark the targets in the tactical map
+	for (TacticalList::const_iterator i=m_AllTargets.begin(); i!=m_AllTargets.end(); ++i)
+		m_pMap->GetCell( GC.getMap().plotNum( i->GetTargetX(), i->GetTargetY() ) )->SetTargetType( i->GetTargetType() ); 
+#endif
+
 }
 
 void CvTacticalAI::ProcessDominanceZones()
@@ -1708,6 +1715,11 @@ void CvTacticalAI::ProcessDominanceZones()
 				}
 			}
 		}
+
+#if defined(MOD_BALANCE_CORE_MILITARY_LOGGING)
+		m_pMap->Dump();
+#endif
+
 	}
 }
 
@@ -5465,6 +5477,10 @@ bool CvTacticalAI::ScoreDeploymentPlots(CvPlot* pTarget, CvArmyAI* pArmy, int iN
 						}
 
 						m_TempTargets.push_back(target);
+
+#if defined(MOD_BALANCE_CORE_MILITARY_LOGGING)
+						pCell->SetTargetType( target.GetTargetType() );
+#endif
 					}
 				}
 			}
@@ -5612,7 +5628,13 @@ bool CvTacticalAI::ScoreFormationPlots(CvArmyAI* pArmy, CvPlot* pForwardTarget, 
 						{
 							target.SetTargetType(AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT);
 						}
+
 						m_TempTargets.push_back(target);
+
+#if defined(MOD_BALANCE_CORE_MILITARY_LOGGING)
+						pCell->SetTargetType( target.GetTargetType() );
+#endif
+
 					}
 				}
 			}
@@ -11138,6 +11160,10 @@ int CvTacticalAI::ScoreCloseOnPlots(CvPlot* pTarget, bool bLandOnly)
 					}
 
 					m_TempTargets.push_back(target);
+
+#if defined(MOD_BALANCE_CORE_MILITARY_LOGGING)
+					pCell->SetTargetType( target.GetTargetType() );
+#endif
 				}
 			}
 		}
@@ -11226,6 +11252,11 @@ void CvTacticalAI::ScoreHedgehogPlots(CvPlot* pTarget)
 				}
 
 				m_TempTargets.push_back(target);
+
+#if defined(MOD_BALANCE_CORE_MILITARY_LOGGING)
+				pCell->SetTargetType( target.GetTargetType() );
+#endif
+
 			}
 		}
 	}
