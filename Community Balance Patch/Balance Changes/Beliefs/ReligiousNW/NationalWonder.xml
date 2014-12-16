@@ -410,7 +410,7 @@
 		<Row>
 			<BuildingType>BUILDING_RELIQUARY</BuildingType>
 			<Description>TXT_KEY_THEMING_BONUS_RELIQUARY</Description>
-			<Bonus>4</Bonus>
+			<Bonus>8</Bonus>
 			<RequiresUniquePlayers>true</RequiresUniquePlayers>
 			<AIPriority>5</AIPriority>
 		</Row>

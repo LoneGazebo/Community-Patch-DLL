@@ -7566,6 +7566,10 @@ void CvEspionageAI::FindTargetSpyNumbers(int* piTargetOffensiveSpies, int* piTar
 
 		// assign spies to be diplomats
 		int iNumDiplomats = (int)floor(fNumDiplomats);
+#if defined(MOD_BALANCE_CORE)
+		int iFlavorDiplomacy = m_pPlayer->GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DIPLOMACY"));
+		iNumDiplomats += iFlavorDiplomacy;
+#endif
 		*piTargetDiplomatSpies = min(iNumRemainingSpies, iNumDiplomats);
 		bAllocatedDiplomatSpies = true;
 		iNumRemainingSpies -= *piTargetDiplomatSpies;
@@ -7611,6 +7615,17 @@ void CvEspionageAI::FindTargetSpyNumbers(int* piTargetOffensiveSpies, int* piTar
 		bAllocatedOffensiveSpies = true;
 		iNumRemainingSpies -= *piTargetOffensiveSpies;
 
+#if defined(MOD_BALANCE_CORE)
+		int iFlavorDiplomacy = m_pPlayer->GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DIPLOMACY"));
+		int iNumDiplomats = min(iNumRemainingSpies, (iFlavorDiplomacy / 4));
+		*piTargetDiplomatSpies = iNumDiplomats;
+		if (iNumDiplomats > 0)
+		{
+			bAllocatedDiplomatSpies = true;
+			iNumRemainingSpies -= *piTargetDiplomatSpies;
+		}
+#endif
+
 		// Assign the rest to militaristic city-states
 		// for now, assign spies to the militaristic city states
 		int iNumMilitaristicCityStates = 0;
@@ -7645,7 +7660,12 @@ void CvEspionageAI::FindTargetSpyNumbers(int* piTargetOffensiveSpies, int* piTar
 	else if (pDiploAI->IsGoingForCultureVictory())
 	{
 		// assign two spies to be diplomats
+#if defined(MOD_BALANCE_CORE)
+		int iFlavorDiplomacy = m_pPlayer->GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DIPLOMACY"));
+		int iNumDiplomats = min(iNumRemainingSpies, (iFlavorDiplomacy / 2));
+#else
 		int iNumDiplomats = min(iNumRemainingSpies, 2);
+#endif
 		iNumDiplomats = min(iNumDiplomats, m_pPlayer->GetCulture()->GetMaxPropagandaDiplomatsWanted());
 		*piTargetDiplomatSpies = iNumDiplomats;
 
@@ -7657,12 +7677,32 @@ void CvEspionageAI::FindTargetSpyNumbers(int* piTargetOffensiveSpies, int* piTar
 	}
 	else if (pDiploAI->IsGoingForSpaceshipVictory())
 	{
+#if defined(MOD_BALANCE_CORE)
+		int iFlavorDiplomacy = m_pPlayer->GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DIPLOMACY"));
+		int iNumDiplomats = min(iNumRemainingSpies, (iFlavorDiplomacy / 3));
+		*piTargetDiplomatSpies = iNumDiplomats;
+		if (iNumDiplomats > 0)
+		{
+			bAllocatedDiplomatSpies = true;
+			iNumRemainingSpies -= *piTargetDiplomatSpies;
+		}
+#endif
 		// assign none to CS
 		*piTargetCityStateSpies = 0;
 		bAllocatedCityStateSpies = true;
 	}
 	else
 	{
+#if defined(MOD_BALANCE_CORE)
+		int iFlavorDiplomacy = m_pPlayer->GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DIPLOMACY"));
+		int iNumDiplomats = min(iNumRemainingSpies, (iFlavorDiplomacy / 4));
+		*piTargetDiplomatSpies = iNumDiplomats;
+		if (iNumDiplomats > 0)
+		{
+			bAllocatedDiplomatSpies = true;
+			iNumRemainingSpies -= *piTargetDiplomatSpies;
+		}
+#endif
 		// assign 1/3rd to CS
 		*piTargetCityStateSpies = iNumRemainingSpies / 3;
 		bAllocatedCityStateSpies = true;

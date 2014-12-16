@@ -945,6 +945,15 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 				end
 			end
 
+			-- COMMUNITY (Resistance)
+			iModifier = pMyUnit:GetResistancePower(pTheirUnit);
+			if(iModifier ~= 0) then
+				controlTable = g_MyCombatDataIM:GetInstance();
+				controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_RESISTANCE_POWER" );
+				controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
+			end
+				
+
 			-- Bonus for fighting in one's lands
 			if (pToPlot:IsFriendlyTerritory(c)) then
 				
@@ -1337,6 +1346,15 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 					   controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
 					end
 				end
+
+			-- COMMUNITY (Resistance)
+				iModifier = pTheirUnit:GetResistancePower(pMyUnit);
+				if(iModifier ~= 0) then
+					controlTable = g_TheirCombatDataIM:GetInstance();
+					controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_RESISTANCE_POWER" );
+					controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
+				end
+			--END
 
 				-- Lack Strategic Resources
 				iModifier = pTheirUnit:GetStrategicResourceCombatPenalty();

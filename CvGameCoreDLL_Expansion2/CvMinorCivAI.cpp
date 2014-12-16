@@ -778,21 +778,6 @@ bool CvMinorCivQuest::IsRevoked()
 			return true;
 #endif
 	}
-	
-#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
-	if (MOD_DIPLOMACY_CITYSTATES_QUESTS) {
-		//No longer allies?
-		PlayerTypes eAlly = GET_PLAYER(m_eMinor).GetMinorCivAI()->GetAlly();
-		if(eAlly != NO_PLAYER)
-		{
-			if(!GET_PLAYER(GetMinor()).GetMinorCivAI()->IsAllies(eAlly))
-			{
-				if(m_eType == MINOR_CIV_QUEST_REBELLION)
-					return true;
-			}
-		}
-	}
-#endif
 
 	return false;
 }
@@ -1102,7 +1087,7 @@ bool CvMinorCivQuest::IsExpired()
 	// The Horde is still in the City-State's threat-radius - oh no!
 	else if(m_eType == MINOR_CIV_QUEST_HORDE)
 	{
-		if((GC.getGame().getGameTurn() == GetEndTurn()) && (GET_PLAYER(GetMinor()).GetMinorCivAI()->GetNumThreateningBarbarians() > 0))
+		if((GC.getGame().getGameTurn() == GetEndTurn()) && (GET_PLAYER(m_eMinor).GetMinorCivAI()->GetNumThreateningBarbarians() > 0))
 		{
 			return true;
 		}
@@ -1110,7 +1095,14 @@ bool CvMinorCivQuest::IsExpired()
 	//Are there still rebels milling about? You lose!
 	else if(m_eType == MINOR_CIV_QUEST_REBELLION)
 	{
-		if((GC.getGame().getGameTurn() == GetEndTurn()) && ((GET_PLAYER(GetMinor()).GetMinorCivAI()->GetNumThreateningBarbarians() > 0)))
+		PlayerTypes eAlly = GET_PLAYER(m_eMinor).GetMinorCivAI()->GetAlly();
+		PlayerTypes eOriginalAlly = (PlayerTypes) GetPrimaryData();
+		if((GC.getGame().getGameTurn() == GetEndTurn()) && (GET_PLAYER(m_eMinor).GetMinorCivAI()->GetNumThreateningBarbarians() > 0))
+		{
+			return true;
+		}
+		//No longer allies?
+		else if(eAlly != eOriginalAlly)
 		{
 			return true;
 		}
@@ -1642,6 +1634,7 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn)
 		PlayerTypes eMajor = pMinor->GetMinorCivAI()->GetAlly();
 		if(eMajor != NO_PLAYER)
 		{
+			m_iData1 = eMajor;
 			PolicyBranchTypes ePreferredIdeology = GET_PLAYER(eMajor).GetCulture()->GetPublicOpinionPreferredIdeology();
 			const char* strCivKey = GET_PLAYER(eMajor).getCivilizationShortDescriptionKey();
 
@@ -1671,12 +1664,20 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn)
 				strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_QUEST_REBELLION");
 				strSummary << strCivKey;
 			}
+			else
+			{
+				strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_QUEST_REBELLION_GENERAL_BLANK");
+				strMessage << iTurnsRemaining;
+				strMessage << strCivKey;
+				strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_QUEST_REBELLION_BLANK");
+				strSummary << strCivKey;
+			}
 		}
 		else
 		{
-			strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_QUEST_REBELLION_GENERAL_BLANK");
+			strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_QUEST_REBELLION_GENERAL_BLANK_RANDOM");
 			strMessage << iTurnsRemaining;
-			strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_QUEST_REBELLION_BLANK");
+			strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_QUEST_REBELLION_BLANK_RANDOM");
 		}
 
 		if(!pMinor->GetMinorCivAI()->IsRebellionActive())
@@ -2318,10 +2319,10 @@ bool CvMinorCivQuest::DoCancelQuest()
 		{
 			//City Defects! Don't ignore city-state quests!
 
-			PlayerTypes eMajor = pMinor->GetMinorCivAI()->GetAlly();
-			if(eMajor != NO_PLAYER)
+			PlayerTypes eAlly = (PlayerTypes) GetPrimaryData();
+			if(eAlly != NO_PLAYER)
 			{
-				const char* strCivKey = GET_PLAYER(eMajor).getCivilizationShortDescriptionKey();
+				const char* strCivKey = GET_PLAYER(eAlly).getCivilizationShortDescriptionKey();
 
 				strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_QUEST_ENDED_REBELLION");
 				strMessage << strCivKey;
@@ -6604,6 +6605,11 @@ PlayerTypes CvMinorCivAI::SpawnRebels()
 	PlayerTypes pActiveMinor = GetPlayer()->GetID();
 	PlayerTypes ePlayer = GetPlayer()->GetMinorCivAI()->GetAlly();
 
+	if(ePlayer == NO_PLAYER)
+	{
+		return NO_PLAYER;
+	}
+
 	int iRebelBuildUp = 0;
 
 	PublicOpinionTypes eOpinionInMyCiv = m_pPlayer->GetCulture()->GetPublicOpinionType();
@@ -6895,8 +6901,8 @@ bool CvMinorCivAI::IsValidRebellion()
 
 	int iMaxQuests = (iActiveRebellions / iActivePlayers);
 
-	//If there are more quests active than 50% of all civs, the quest should abort, as that's too many for the AI to handle.
-	if(iMaxQuests >= 5)
+	//If there are more quests active than 40% of all civs, the quest should abort, as that's too many for the AI to handle.
+	if(iMaxQuests >= 4)
 	{
 		return false;
 	}
@@ -6980,6 +6986,13 @@ ResourceTypes CvMinorCivAI::GetNearbyResourceForQuest(PlayerTypes ePlayer)
 			{
 				continue;
 			}
+#if defined(MOD_BALANCE_CORE)
+			// Can't give out a request for a resource we already (potentially) have access to.
+			if(GetPlayer()->getResourceInOwnedPlots(eResource) > 0)
+			{
+				continue;
+			}
+#endif
 
 			// Player can't already have this Resource
 			if(GET_PLAYER(ePlayer).getNumResourceTotal(eResource, /*bIncludeImport*/ true) > 0)
@@ -9077,14 +9090,30 @@ void CvMinorCivAI::DoIntrusion()
 void CvMinorCivAI::DoSack()
 {
 	CvPlot* pPlot = GetPlayer()->getCapitalCity()->plot();
-	CvGame& theGame = GC.getGame();
-	PlayerTypes eMinor = GetPlayer()->GetID();
+	if(pPlot != NULL)
+	{
+		CvGame& theGame = GC.getGame();
+		PlayerTypes eMinor = GetPlayer()->GetID();
 
-	UnitTypes eUnit = theGame.GetRandomSpawnUnitType(eMinor, /*bIncludeUUs*/ false, /*bIncludeRanged*/ true);
-	// Init unit
-	GET_PLAYER(BARBARIAN_PLAYER).initUnit(eUnit, pPlot->getX(), pPlot->getY());
+		UnitTypes eUnit = theGame.GetRandomSpawnUnitType(eMinor, /*bIncludeUUs*/ true, /*bIncludeRanged*/ true);
+		if(eUnit != NO_UNIT)
+		{
+			// Init unit
+			GET_PLAYER(BARBARIAN_PLAYER).initUnit(eUnit, pPlot->getX(), pPlot->getY());
+		}
+		else
+		{
+			UnitTypes eBarbUnit = theGame.GetRandomSpawnUnitType(BARBARIAN_PLAYER, /*bIncludeUUs*/ true, /*bIncludeRanged*/ true);
+			if(eBarbUnit)
+			{
+					// Init unit
+				GET_PLAYER(BARBARIAN_PLAYER).initUnit(eBarbUnit, pPlot->getX(), pPlot->getY());
+			}
+		}
 
-	SetSacked(false);
+
+		SetSacked(false);
+	}
 }
 //Do Defection
 void CvMinorCivAI::DoDefection()

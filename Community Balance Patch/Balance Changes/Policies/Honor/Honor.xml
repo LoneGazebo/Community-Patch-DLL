@@ -267,11 +267,6 @@
 			<UnitClassType>UNITCLASS_SETTLER</UnitClassType>
 			<Count>1</Count>
 		</Row>
-		<Row>
-			<PolicyType>POLICY_PROFESSIONAL_ARMY</PolicyType>
-			<UnitClassType>UNITCLASS_GREAT_GENERAL</UnitClassType>
-			<Count>1</Count>
-		</Row>
 	</Policy_FreeUnitClasses>
 	<Policy_YieldFromKills>
 		<Row>
@@ -292,14 +287,14 @@
 	</Policy_FreePromotions>
 	<Policy_YieldFromBorderGrowth>
 		<Row>
-			<PolicyType>POLICY_PROFESSIONAL_ARMY</PolicyType>
+			<PolicyType>POLICY_DISCIPLINE</PolicyType>
 			<YieldType>YIELD_FOOD</YieldType>
 			<Yield>10</Yield>
 		</Row>
 		<Row>
-			<PolicyType>POLICY_PROFESSIONAL_ARMY</PolicyType>
+			<PolicyType>POLICY_DISCIPLINE</PolicyType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>15</Yield>
+			<Yield>20</Yield>
 		</Row>
 	</Policy_YieldFromBorderGrowth>
 </GameData>

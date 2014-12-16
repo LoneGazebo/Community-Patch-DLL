@@ -79,7 +79,9 @@ void CvLuaLeague::PushMethods(lua_State* L, int t)
 	Method(GetSpaceShipProductionMod);
 	Method(GetSpaceShipPurchaseMod);
 #endif
-	
+#if defined(MOD_BALANCE_CORE_DEALS)
+	Method(GetPotentialVotesForMember);
+#endif
 	Method(GetResolutionName);
 	Method(GetResolutionDetails);
 	Method(GetMemberDetails);
@@ -654,6 +656,20 @@ int CvLuaLeague::lGetSpaceShipPurchaseMod(lua_State* L)
 	CvLeague* pLeague = GetInstance(L);
 
 	int iValue = pLeague->GetSpaceShipPurchaseMod();
+	lua_pushinteger(L, iValue);
+	return 1;
+}
+#endif
+#if defined(MOD_BALANCE_CORE_DEALS)
+//------------------------------------------------------------------------------
+//int CvLeague::GetPotentialVotesForMember(PlayerTypes ePlayer, PlayerTypes eFromPlayer)
+int CvLuaLeague::lGetPotentialVotesForMember(lua_State* L)
+{
+	CvLeague* pLeague = GetInstance(L);
+	const PlayerTypes ePlayer = (PlayerTypes) lua_tointeger(L, 2);
+	const PlayerTypes eFromPlayer = (PlayerTypes) lua_tointeger(L, 3);
+
+	const int iValue = pLeague->GetPotentialVotesForMember(ePlayer, eFromPlayer);
 	lua_pushinteger(L, iValue);
 	return 1;
 }

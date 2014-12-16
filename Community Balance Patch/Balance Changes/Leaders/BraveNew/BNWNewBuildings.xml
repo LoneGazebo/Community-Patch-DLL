@@ -15,7 +15,7 @@
 			<Capital>true</Capital>
 			<NukeImmune>true</NukeImmune>
 			<MinAreaSize>-1</MinAreaSize>
-			<Defense>500</Defense>
+			<Defense>800</Defense>
 			<ArtInfoCulturalVariation>true</ArtInfoCulturalVariation>
 			<DisplayPosition>32</DisplayPosition>
 			<GreatPeopleRateModifier>15</GreatPeopleRateModifier>

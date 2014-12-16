@@ -19,12 +19,12 @@
 <!-- Related to movement -->
 		<Update>
 			<Where Name="AI_TACTICAL_MOVE_PRIORITY_RANDOMNESS"/>
-			<Set Value="1"/>
+			<Set Value="3"/>
 			<!-- 6 -->
 		</Update>
 		<Update>
 			<Where Name="AI_HOMELAND_MOVE_PRIORITY_RANDOMNESS"/>
-			<Set Value="2"/>
+			<Set Value="5"/>
 			<!-- 10 -->
 		</Update>
 		<!--  Related to Settling -->
@@ -36,17 +36,17 @@
 <!-- Related to cities and the economy -->
 		<Update>
 			<Where Name="GOLD_PURCHASE_GOLD_PER_PRODUCTION"/>
-			<Set Value="3"/>
+			<Set Value="15"/>
 			<!-- 30 -->
 		</Update>
 		<Update>
 			<Where Name="HURRY_GOLD_PRODUCTION_EXPONENT"/>
-			<Set Value="1"/>
+			<Set Value="0.80"/>
 			<!-- 0.75 -->
 		</Update>
 		<Update>
 			<Where Name="HURRY_GOLD_TECH_EXPONENT"/>
-			<Set Value="1.0"/>
+			<Set Value="0.95"/>
 			<!-- 1.1 -->
 		</Update>
 		<Update>
@@ -56,22 +56,22 @@
 		</Update>		
 		<Update>
 			<Where Name="TRADE_ROUTE_BASE_GOLD"/>
-			<Set Value="100"/>
+			<Set Value="0"/>
 			<!-- -100 -->
 		</Update>
 		<Update>
 			<Where Name="TRADE_ROUTE_CAPITAL_POP_GOLD_MULTIPLIER"/>
-			<Set Value="0"/>
+			<Set Value="10"/>
 			<!-- 15 -->
 		</Update>
 		<Update>
 			<Where Name="TRADE_ROUTE_CITY_POP_GOLD_MULTIPLIER"/>
-			<Set Value="70"/>
+			<Set Value="75"/>
 			<!-- 110 -->
 		</Update>
 		<Update>
 			<Where Name="MINOR_CIV_PLOT_CULTURE_COST_MULTIPLIER" />
-			<Set Value="150" />
+			<Set Value="200" />
 		</Update>
 		<Update>
 			<Where Name="PLOT_INFLUENCE_WATER_COST" />
@@ -80,27 +80,27 @@
 		</Update>
 		<Update>
 			<Where Name="PLOT_INFLUENCE_ROUTE_COST" />
-			<Set Value="-25" />
+			<Set Value="-50" />
 			<!-- 0 -->
 		</Update>
 		<Update>
 			<Where Name="PLOT_INFLUENCE_RESOURCE_COST" />
-			<Set Value="-125" />
+			<Set Value="-150" />
 			<!-- -100 -->
 		</Update>
 		<Update>
 			<Where Name="PLOT_BUY_RESOURCE_COST" />
-			<Set Value="-125" />
+			<Set Value="-150" />
 			<!-- -100 -->
 		</Update>
 		<Update>
 			<Where Name="PLOT_INFLUENCE_NW_COST" />
-			<Set Value="-400" />
+			<Set Value="-500" />
 			<!-- -100 -->
 		</Update>
 		<Update>
 			<Where Name="PLOT_BUY_NW_COST" />
-			<Set Value="-400" />
+			<Set Value="-500" />
 			<!-- -100 -->
 		</Update>
 <!--
@@ -118,7 +118,7 @@
 		</Update>
 		<Update>
 			<Where Name="MAX_CITY_HIT_POINTS" />
-			<Set Value="500" />
+			<Set Value="300" />
 			<!-- 200 -->
 		</Update>
 		<Update>
@@ -143,7 +143,7 @@
 		</Update>
 		<Update>
 			<Where Name="STRATEGIC_RESOURCE_EXHAUSTED_PENALTY" />
-			<Set Value="-10" />
+			<Set Value="-15" />
 			<!-- -50 -->
 		</Update>
 		<Update>
@@ -158,7 +158,7 @@
 		</Update>
 		<Update>
 			<Where Name="CITY_STRENGTH_UNIT_DIVISOR" />
-			<Set Value="280" />
+			<Set Value="250" />
 			<!-- 500 -->
 		</Update>
 		<Update>
@@ -168,7 +168,7 @@
 		</Update>
 		<Update>
 			<Where Name="CITY_STRENGTH_TECH_EXPONENT" />
-			<Set Value="2.3" />
+			<Set Value="2.2" />
 			<!-- 2.8 -->
 		</Update>
 		<Update>
@@ -178,7 +178,7 @@
 		</Update>
 		<Update>
 			<Where Name="CITY_STRENGTH_HILL_CHANGE" />
-			<Set Value="300" />
+			<Set Value="250" />
 			<!-- 500 -->
 		</Update>
 		<Update>
@@ -215,7 +215,7 @@
 		</Update>
 		<Update>
 			<Where Name="MINOR_FRIENDSHIP_DROP_PER_TURN_AGGRESSOR" />
-			<Set Value="-150" />
+			<Set Value="-200" />
 			<!-- -200 -->
 		</Update>
 		<Update>
@@ -240,52 +240,52 @@
 		</Update>
 		<Update>
 			<Where Name="PERMANENT_WAR_AGGRESSOR_CHANCE" />
-			<Set Value="0" />
+			<Set Value="40" />
 			<!-- 50 -->
 		</Update>
 		<Update>
 			<Where Name="PERMANENT_WAR_OTHER_WARMONGER_CHANCE_DISTANT" />
-			<Set Value="0" />
+			<Set Value="20" />
 			<!-- 25 -->
 		</Update>
 		<Update>
 			<Where Name="PERMANENT_WAR_OTHER_WARMONGER_CHANCE_FAR" />
-			<Set Value="0" />
+			<Set Value="30" />
 			<!-- 50 -->
 		</Update>
 		<Update>
 			<Where Name="PERMANENT_WAR_OTHER_WARMONGER_CHANCE_CLOSE" />
-			<Set Value="0" />
+			<Set Value="50" />
 			<!-- 75 -->
 		</Update>
 		<Update>
 			<Where Name="PERMANENT_WAR_OTHER_WARMONGER_CHANCE_NEIGHBORS" />
-			<Set Value="0" />
+			<Set Value="60" />
 			<!-- 100 -->
 		</Update>
 		<Update>
 			<Where Name="PERMANENT_WAR_OTHER_CHANCE_DISTANT" />
-			<Set Value="0" />
+			<Set Value="10" />
 			<!-- 0 -->
 		</Update>
 		<Update>
 			<Where Name="PERMANENT_WAR_OTHER_CHANCE_FAR" />
-			<Set Value="0" />
+			<Set Value="15" />
 			<!-- 0 -->
 		</Update>
 		<Update>
 			<Where Name="PERMANENT_WAR_OTHER_CHANCE_CLOSE" />
-			<Set Value="0" />
+			<Set Value="20" />
 			<!-- 20 -->
 		</Update>
 		<Update>
 			<Where Name="PERMANENT_WAR_OTHER_CHANCE_NEIGHBORS" />
-			<Set Value="0" />
+			<Set Value="25" />
 			<!-- 50 -->
 		</Update>
 		<Update>
 			<Where Name="PERMANENT_WAR_OTHER_AT_WAR" />
-			<Set Value="0" />
+			<Set Value="30" />
 			<!-- 50 -->
 		</Update>
 		<Update>
@@ -315,7 +315,7 @@
 		</Update>
 		<Update>
 			<Where Name="FRIENDSHIP_PER_UNIT_INTRUDING" />
-			<Set Value="-6" />
+			<Set Value="-5" />
 			<!-- -6 -->
 		</Update>
 		<Update>
@@ -325,7 +325,7 @@
 		</Update>
 		<Update>
 			<Where Name="FRIENDSHIP_PER_UNIT_GIFTED" />
-			<Set Value="5" />
+			<Set Value="10" />
 			<!-- 2 -->
 		</Update>
 		<Update>
@@ -340,12 +340,12 @@
 		</Update>
 		<Update>
 			<Where Name="RETURN_CIVILIAN_FRIENDSHIP" />
-			<Set Value="55" />
+			<Set Value="50" />
 			<!-- 30 -->
 		</Update>
 		<Update>
 			<Where Name="MINOR_CIV_QUEST_FIRST_POSSIBLE_TURN" />
-			<Set Value="20" />
+			<Set Value="35" />
 			<!-- 30 -->
 		</Update>
 		<Update>

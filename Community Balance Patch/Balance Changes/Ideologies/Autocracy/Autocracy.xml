@@ -28,6 +28,11 @@
 			<UnitClassType>UNITCLASS_SCIENTIST</UnitClassType>
 			<Tourism>250</Tourism>
 		</Row>
+		<Row>
+			<PolicyType>POLICY_FUTURISM</PolicyType>
+			<UnitClassType>UNITCLASS_PROPHET</UnitClassType>
+			<Tourism>250</Tourism>
+		</Row>
 	</Policy_TourismOnUnitCreation>
 	<!-- Mobilization -->
 	<Policy_BuildingClassYieldChanges>
@@ -84,18 +89,18 @@
 		</Row>
 	</Policy_BuildingClassCultureChanges>
 		<!-- Lebensraum-->
-		<Policy_YieldFromBorderGrowth>
-			<Row>
-				<PolicyType>POLICY_INDUSTRIAL_ESPIONAGE</PolicyType>
-				<YieldType>YIELD_CULTURE</YieldType>
-				<Yield>50</Yield>
-			</Row>
-			<Row>
-				<PolicyType>POLICY_INDUSTRIAL_ESPIONAGE</PolicyType>
-				<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-				<Yield>50</Yield>
-			</Row>
-		</Policy_YieldFromBorderGrowth>
+	<Policy_YieldFromBorderGrowth>
+		<Row>
+			<PolicyType>POLICY_INDUSTRIAL_ESPIONAGE</PolicyType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>25</Yield>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_INDUSTRIAL_ESPIONAGE</PolicyType>
+			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
+			<Yield>25</Yield>
+		</Row>
+	</Policy_YieldFromBorderGrowth>
 	<UnitPromotions_UnitCombats>
 		<Row>
 			<PromotionType>PROMOTION_LIGHTNING_WARFARE</PromotionType>

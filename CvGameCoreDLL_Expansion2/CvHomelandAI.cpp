@@ -5757,7 +5757,12 @@ bool CvHomelandAI::MoveCivilianToSafety(CvUnit* pUnit, bool bIgnoreUnits, bool b
 bool CvHomelandAI::MoveCivilianToSafety(CvUnit* pUnit, bool bIgnoreUnits)
 #endif
 {
+#if defined(MOD_BALANCE_CORE)
+	//Higher search range to keep them far away from danger.
+	int iSearchRange = pUnit->SearchRange(2);
+#else
 	int iSearchRange = pUnit->SearchRange(1);
+#endif
 
 	// Collecting all the possibilities first.
 	WeightedPlotVector aBestPlotList;

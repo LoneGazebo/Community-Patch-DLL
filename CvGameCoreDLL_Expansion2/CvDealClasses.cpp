@@ -828,7 +828,11 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			return false;
 
 		CvAssert(pLeague->IsProposed(iID, bRepeal));
+#if defined(MOD_BALANCE_CORE_DEALS)
+		CvAssert(iNumVotes <= pLeague->GetPotentialVotesForMember(ePlayer, eToPlayer));
+#else
 		CvAssert(iNumVotes <= pLeague->GetCoreVotesForMember(ePlayer));
+#endif
 		
 		// Can't already have a vote commitment in the deal
 		if(!bFinalizing && IsVoteCommitmentTrade(ePlayer))

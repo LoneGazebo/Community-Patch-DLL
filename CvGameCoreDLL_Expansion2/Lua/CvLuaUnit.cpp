@@ -547,6 +547,7 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(SetDeployFromOperationTurn);
 #if defined(MOD_BALANCE_CORE)
 	Method(IsHigherPopThan);
+	Method(GetResistancePower);
 #endif
 	Method(IsHigherTechThan);
 	Method(IsLargerCivThan);
@@ -5040,6 +5041,16 @@ int CvLuaUnit::lIsHigherPopThan(lua_State* L)
 	const bool bResult = pkUnit->IsHigherPopThan(pkOtherUnit);
 
 	lua_pushboolean(L, bResult);
+	return 1;
+}
+//int GetResistancePower(CvUnit *pOtherUnit);
+int CvLuaUnit::lGetResistancePower(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	CvUnit* pkOtherUnit = CvLuaUnit::GetInstance(L, 2);
+	int iResistancePower = pkUnit->GetResistancePower(pkOtherUnit);
+	lua_pushinteger(L, iResistancePower);
+
 	return 1;
 }
 #endif

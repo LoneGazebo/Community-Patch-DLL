@@ -16,9 +16,9 @@ UPDATE Terrains
 SET SeeFrom = '2'
 WHERE Type = 'TERRAIN_MOUNTAIN' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_TERRAIN' AND Value= 1 );
 
--- Improvements -- Trading Post -- Available at Pottery
+-- Improvements -- Trading Post -- Available at Currency
 
 UPDATE Builds
-SET PrereqTech = 'TECH_POTTERY'
+SET PrereqTech = 'TECH_CURRENCY'
 WHERE Type = 'BUILD_TRADING_POST' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_TERRAIN' AND Value= 1 );
 

@@ -15,5 +15,12 @@
 		<Row Tag="TXT_KEY_PROMOTION_KILL_HEAL_HELP">
 			<Text>Heal 20 points when you destoy an enemy unit.</Text>
 		</Row>
+		<!-- Honor ProdMod Text-->
+		<Row Tag="TXT_KEY_PRODMOD_YIELD_PUPPET_POLICY">
+			<Text>[NEWLINE][ICON_BULLET]Modifier for [ICON_PUPPET] Puppet from Martial Law: {1_Num}%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODMOD_YIELD_OCCUPIED_POLICY">
+			<Text>[NEWLINE][ICON_BULLET]Modifier for [ICON_OCCUPIED] Occupied from Martial Law: {1_Num}%</Text>
+		</Row>
 	</Language_en_US>
 </GameData>

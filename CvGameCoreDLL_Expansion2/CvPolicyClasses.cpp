@@ -221,6 +221,8 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_bDoubleQuestInfluence(false),
 	m_iInternalTradeGold(0),
 	m_iCitadelBoost(0),
+	m_iPuppetProdMod(0),
+	m_iOccupiedProdMod(0),
 	m_iFreeWCVotes(0),
 	m_iInfluenceGPExpend(0),
 	m_iFreeTradeRoute(0),
@@ -512,6 +514,8 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_bDoubleQuestInfluence = kResults.GetBool("DoubleQuestInfluence");
 	m_iInternalTradeGold = kResults.GetInt("InternalTradeGold");
 	m_iCitadelBoost = kResults.GetInt("CitadelBoost");
+	m_iPuppetProdMod = kResults.GetInt("PuppetProdMod");
+	m_iOccupiedProdMod = kResults.GetInt("OccupiedProdMod");
 	m_iFreeWCVotes = kResults.GetInt("FreeWCVotes");
 	m_iInfluenceGPExpend = kResults.GetInt("InfluenceGPExpend");
 	m_iFreeTradeRoute = kResults.GetInt("FreeTradeRoute");
@@ -2302,6 +2306,16 @@ bool CvPolicyEntry::GetDoubleQuestInfluence() const
 int CvPolicyEntry::GetCitadelBoost() const
 {
 	return m_iCitadelBoost;
+}
+/// Puppet Production Boost?
+int CvPolicyEntry::GetPuppetProdMod() const
+{
+	return m_iPuppetProdMod;
+}
+/// Occupied Production Boost?
+int CvPolicyEntry::GetOccupiedProdMod() const
+{
+	return m_iOccupiedProdMod;
 }
 /// Gold from internal trade routes?
 int CvPolicyEntry::GetInternalTradeGold() const

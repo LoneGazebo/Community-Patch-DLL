@@ -6,17 +6,20 @@
 			<Text>Stupa</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_STUPA_STRATEGY">
-			<Text>Can only be built in cities following a religion with the Stupas belief. Construct this building by purchasing it with [ICON_PEACE] Faith. Build the Stupa to gain Faith and Happiness in the City, and reduce [ICON_HAPPINESS_3] Religious Division.</Text>
+			<Text>Can only be built in cities following a religion with the Stupas belief. Construct this building by purchasing it with [ICON_PEACE] Faith. Build the Stupa to gain Faith and, once you have researched Theology, Tourism in the City, and reduce [ICON_HAPPINESS_3] Religious Division.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_STUPA_TEXT">
 			<Text>A stupa is a mound-like or hemispherical structure containing Buddhist relics, typically the ashes of Buddhist monks, used by Buddhists as a place of meditation.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_STUPA_HELP">
+			<Text>+1 [ICON_TOURISM] Tourism once you have researched Theology.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_CHURCH">
 			<Text>Church</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_CHURCH_STRATEGY">
-			<Text>Can only be built in cities following a religion with the Churches belief. Construct this building by purchasing it with [ICON_PEACE] Faith. Build the Church to gain Faith, Happiness, and a Great Work of Music slot in the City. Reduces [ICON_HAPPINESS_3] Religious Division.</Text>
+			<Text>Can only be built in cities following a religion with the Churches belief. Construct this building by purchasing it with [ICON_PEACE] Faith. Build the Church to gain Faith and a Great Work of Music slot in the City. Reduces [ICON_HAPPINESS_3] Religious Division.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_CHURCH_TEXT">
 			<Text>A church building, often simply called a church, is a building used for religious activities, particularly worship services. The term in its architectural sense is most often used by Christians to refer to their religious buildings but can be used by other religions. In traditional Christian architecture, the church is often arranged in the shape of a Christian cross. When viewed from plan view the longest part of a cross is represented by the aisle and the junction of the cross is located at the altar area.</Text>

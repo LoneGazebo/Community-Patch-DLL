@@ -238,6 +238,8 @@ public:
 	bool GetDoubleBorderGA() const;
 	bool GetDoubleQuestInfluence() const;
 	int GetCitadelBoost() const;
+	int GetPuppetProdMod() const;
+	int GetOccupiedProdMod() const;
 	int GetInternalTradeGold() const;
 	int GetFreeWCVotes() const;
 	int GetInfluenceGPExpend() const;
@@ -517,6 +519,8 @@ private:
 	bool m_bNoUnhappyIsolation;
 	bool m_bDoubleBorderGA;
 	bool m_bDoubleQuestInfluence;
+	int m_iPuppetProdMod;
+	int m_iOccupiedProdMod;
 	int m_iCitadelBoost;
 	int m_iInternalTradeGold;
 	int m_iFreeWCVotes;

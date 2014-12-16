@@ -270,8 +270,13 @@ function RefreshCityBanner(cityBanner, iActiveTeam, iActivePlayer)
 				strToolTip = strToolTip .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_EO_CITY_UNCONNECTED", iConnectionUnhappiness);
 			end
 			-- Minority tooltip
-			if (iMinorityUnhappiness ~= 0) then
-				strToolTip = strToolTip .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_EO_CITY_RELIGION", iMinorityUnhappiness);
+			local ePlayerReligion = city:GetReligiousMajority();
+			if (ePlayerReligion >= 0) then
+				local playerreligion = GameInfo.Religions[ePlayerReligion];
+				local strReligionIcon = playerreligion.IconString;
+				if (iMinorityUnhappiness ~= 0) then
+					strToolTip = strToolTip .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_EO_CITY_RELIGION", iMinorityUnhappiness, strReligionIcon);
+				end
 			end
 			if(iScienceUnhappiness ~= 0) then
 				strToolTip = strToolTip .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_EO_CITY_UNEDUCATED", iScienceUnhappiness);

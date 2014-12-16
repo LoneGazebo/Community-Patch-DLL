@@ -98,10 +98,10 @@
 			<Text>[COLOR_NEGATIVE_TEXT]({1_Num})[ENDCOLOR] [ICON_CITIZEN]: "We are [ICON_RESEARCH] illiterate!"</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EO_CITY_UNDEFENDED">
-			<Text>[COLOR_NEGATIVE_TEXT]({1_Num})[ENDCOLOR] [ICON_CITIZEN]: "This city is not [ICON_STRENGTH] safe!"</Text>
+			<Text>[COLOR_NEGATIVE_TEXT]({1_Num})[ENDCOLOR] [ICON_CITIZEN]: "This city is [ICON_STRENGTH] unsafe!"</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EO_CITY_POOR">
-			<Text>[COLOR_NEGATIVE_TEXT]({1_Num})[ENDCOLOR] [ICON_CITIZEN]: "We need more [ICON_GOLD] money!"</Text>
+			<Text>[COLOR_NEGATIVE_TEXT]({1_Num})[ENDCOLOR] [ICON_CITIZEN]: "We are [ICON_GOLD] impoverished!"</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EO_CITY_UNCULTURED">
 			<Text>[COLOR_NEGATIVE_TEXT]({1_Num})[ENDCOLOR] [ICON_CITIZEN]: "Our city is [ICON_CULTURE] boring!"</Text>
@@ -113,15 +113,15 @@
 			<Text>[COLOR_NEGATIVE_TEXT]({1_Num})[ENDCOLOR] [ICON_CITIZEN]: "Our lands are [ICON_RAZING] burning!"</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EO_CITY_STARVING">
-			<Text>[COLOR_NEGATIVE_TEXT]({1_Num})[ENDCOLOR] [ICON_CITIZEN]: "There is not enough [ICON_FOOD] food!"</Text>
+			<Text>[COLOR_NEGATIVE_TEXT]({1_Num})[ENDCOLOR] [ICON_CITIZEN]: "There is not enough [ICON_FOOD] Food!"</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EO_CITY_RELIGION">
-			<Text>[COLOR_NEGATIVE_TEXT]({1_Num})[ENDCOLOR] [ICON_CITIZEN]: "We need more [ICON_RELIGION] followers!"</Text>
+			<Text>[COLOR_NEGATIVE_TEXT]({1_Num})[ENDCOLOR] [ICON_CITIZEN]: "We want more {2_ReligionIcon} Followers!"</Text>
 		</Row>
 		
 		<!-- Luxury Tooltip -->
 		<Row Tag="TXT_KEY_TP_HAPPINESS_THRESHOLD_VALUE">
-			<Text>To increase the [ICON_HAPPINESS_1] Happiness value of your Luxury Resources, your empire's population must reach [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR]. Your empire's current population is [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR]. The target value increases with every Era, and for every owned City.</Text>
+			<Text>[ENDCOLOR]To increase the [ICON_HAPPINESS_1] Happiness value of your Luxury Resources, your empire's population must reach [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR]. Your empire's current population is [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR]. The target value increases with every Era, and for every owned City.</Text>
 		</Row>
 		
 	</Language_en_US>

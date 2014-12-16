@@ -8307,19 +8307,15 @@ int CvPlot::calculateImprovementYieldChange(ImprovementTypes eImprovement, Yield
 			{
 #if defined(MOD_BALANCE_CORE_BELIEFS_RESOURCE)
 				int iReligionChange = 0;
-				if (MOD_BALANCE_CORE_BELIEFS_RESOURCE)
+				bool bRequiresResource = pReligion->m_Beliefs.RequiresResource();
+				if(pImprovement->IsCreatedByGreatPerson())
 				{
-					bool bRequiresResource = pReligion->m_Beliefs.RequiresResource();
-					if(pImprovement->IsCreatedByGreatPerson())
-					{
-						bRequiresResource = false;
-					}
-					if(bRequiresResource && (getResourceType() != NO_RESOURCE))
+					bRequiresResource = false;
+				}
+				if (MOD_BALANCE_CORE_BELIEFS_RESOURCE && bRequiresResource)
+				{	
+					if(bRequiresResource && (getResourceType(GET_PLAYER(pWorkingCity->getOwner()).getTeam()) != NO_RESOURCE))
 					{		
-						iReligionChange = pReligion->m_Beliefs.GetImprovementYieldChange(eImprovement, eYield);
-					}
-					else
-					{
 						iReligionChange = pReligion->m_Beliefs.GetImprovementYieldChange(eImprovement, eYield);
 					}
 				}
@@ -8334,15 +8330,15 @@ int CvPlot::calculateImprovementYieldChange(ImprovementTypes eImprovement, Yield
 				if (eSecondaryPantheon != NO_BELIEF)
 				{
 #if defined(MOD_BALANCE_CORE_BELIEFS_RESOURCE)
-					if (MOD_BALANCE_CORE_BELIEFS_RESOURCE)
+					bRequiresResource = GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->RequiresResource();
+					if(pImprovement->IsCreatedByGreatPerson())
 					{
-						bool bRequiresResource = GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->RequiresResource();
-						if(bRequiresResource && (getResourceType() != NO_RESOURCE))
+						bRequiresResource = false;
+					}
+					if (MOD_BALANCE_CORE_BELIEFS_RESOURCE && bRequiresResource)
+					{	
+						if(bRequiresResource && (getResourceType(GET_PLAYER(pWorkingCity->getOwner()).getTeam()) != NO_RESOURCE))
 						{		
-							iReligionChange += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetImprovementYieldChange(eImprovement, eYield);
-						}
-						else
-						{
 							iReligionChange += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetImprovementYieldChange(eImprovement, eYield);
 						}
 					}

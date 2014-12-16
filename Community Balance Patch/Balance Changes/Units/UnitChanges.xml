@@ -1,6 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Created by ModBuddy on 11/5/2014 10:11:32 AM -->
 <GameData>
+	<Units>
+		<Row>
+			<Class>UNITCLASS_PROPHET</Class>
+			<Type>UNIT_PROPHET</Type>
+			<Cost>-1</Cost>
+			<Moves>2</Moves>
+			<CivilianAttackPriority>CIVILIAN_ATTACK_PRIORITY_HIGH</CivilianAttackPriority>
+			<Special>SPECIALUNIT_PEOPLE</Special>
+			<Domain>DOMAIN_LAND</Domain>
+			<DefaultUnitAI>UNITAI_PROPHET</DefaultUnitAI>
+			<Description>TXT_KEY_UNIT_GREAT_PROPHET</Description>
+			<Civilopedia>TXT_KEY_CIV5_GREATPROPHETS_TEXT</Civilopedia>
+			<Strategy>TXT_KEY_UNIT_GREAT_PROPHET_STRATEGY</Strategy>
+			<AdvancedStartCost>-1</AdvancedStartCost>
+			<WorkRate>1</WorkRate>
+			<CombatLimit>0</CombatLimit>
+			<FoundReligion>true</FoundReligion>
+			<SpreadReligion>true</SpreadReligion>
+			<ReligionSpreads>4</ReligionSpreads>
+			<ReligiousStrength>1000</ReligiousStrength>
+			<UnitArtInfo>ART_DEF_UNIT_GREAT_PROPHET</UnitArtInfo>
+			<UnitFlagAtlas>EXPANSION_UNIT_FLAG_ATLAS</UnitFlagAtlas>
+			<UnitFlagIconOffset>16</UnitFlagIconOffset>
+			<IconAtlas>EXPANSION_UNIT_ATLAS_1</IconAtlas>
+			<PortraitIndex>16</PortraitIndex>
+			<MoveRate>GREAT_PERSON</MoveRate>
+		</Row>
+	</Units>
 	<Unit_FreePromotions>
 		<!-- Modern ranged becomes 'anti-vehicle' -->
 		<Row>
@@ -11,10 +39,96 @@
 			<UnitType>UNIT_ROCKET_ARTILLERY</UnitType>
 			<PromotionType>PROMOTION_ANTI_TANK</PromotionType>
 		</Row>
+		<Row>
+			<UnitType>UNIT_SUBMARINE</UnitType>
+			<PromotionType>PROMOTION_CITY_PENALTY</PromotionType>
+		</Row>
+		<Row>
+			<UnitType>UNIT_NUCLEAR_SUBMARINE</UnitType>
+			<PromotionType>PROMOTION_CITY_PENALTY</PromotionType>
+		</Row>
 		<!-- Buff Quinqureme -->
 		<Row>
 			<UnitType>UNIT_CARTHAGINIAN_QUINQUEREME</UnitType>
 			<PromotionType>PROMOTION_COASTAL_RAIDER_1</PromotionType>
 		</Row>
+		<!-- Ranged Units penalty when attacking naval units -->
+		<Row>
+			<UnitType>UNIT_ARCHER</UnitType>
+			<PromotionType>PROMOTION_NAVAL_MISFIRE</PromotionType>
+		</Row>
+		<Row>
+			<UnitType>UNIT_BARBARIAN_ARCHER</UnitType>
+			<PromotionType>PROMOTION_NAVAL_MISFIRE</PromotionType>
+		</Row>
+		<Row>
+			<UnitType>UNIT_BARBARIAN_AXMAN</UnitType>
+			<PromotionType>PROMOTION_NAVAL_MISFIRE</PromotionType>
+		</Row>
+		<Row>
+			<UnitType>UNIT_MAYAN_ATLATLIST</UnitType>
+			<PromotionType>PROMOTION_NAVAL_MISFIRE</PromotionType>
+		</Row>
+		<Row>
+			<UnitType>UNIT_BABYLONIAN_BOWMAN</UnitType>
+			<PromotionType>PROMOTION_NAVAL_MISFIRE</PromotionType>
+		</Row>
+		<Row>
+			<UnitType>UNIT_INCAN_SLINGER</UnitType>
+			<PromotionType>PROMOTION_NAVAL_MISFIRE</PromotionType>
+		</Row>
+		<Row>
+			<UnitType>UNIT_CHARIOT_ARCHER</UnitType>
+			<PromotionType>PROMOTION_NAVAL_MISFIRE</PromotionType>
+		</Row>
+		<Row>
+			<UnitType>UNIT_EGYPTIAN_WARCHARIOT</UnitType>
+			<PromotionType>PROMOTION_NAVAL_MISFIRE</PromotionType>
+		</Row>
+		<Row>
+			<UnitType>UNIT_HUN_HORSE_ARCHER</UnitType>
+			<PromotionType>PROMOTION_NAVAL_MISFIRE</PromotionType>
+		</Row>
+		<Row>
+			<UnitType>UNIT_INDIAN_WARELEPHANT</UnitType>
+			<PromotionType>PROMOTION_NAVAL_MISFIRE</PromotionType>
+		</Row>
+		<Row>
+			<UnitType>UNIT_ENGLISH_LONGBOWMAN</UnitType>
+			<PromotionType>PROMOTION_NAVAL_MISFIRE</PromotionType>
+		</Row>
+		<Row>
+			<UnitType>UNIT_CHINESE_CHUKONU</UnitType>
+			<PromotionType>PROMOTION_NAVAL_MISFIRE</PromotionType>
+		</Row>
+		<Row>
+			<UnitType>UNIT_ARABIAN_CAMELARCHER</UnitType>
+			<PromotionType>PROMOTION_NAVAL_MISFIRE</PromotionType>
+		</Row>
+		<Row>
+			<UnitType>UNIT_MONGOLIAN_KESHIK</UnitType>
+			<PromotionType>PROMOTION_NAVAL_MISFIRE</PromotionType>
+		</Row>
+		<Row>
+			<UnitType>UNIT_COMPOSITE_BOWMAN</UnitType>
+			<PromotionType>PROMOTION_NAVAL_MISFIRE</PromotionType>
+		</Row>
+		<Row>
+			<UnitType>UNIT_CROSSBOWMAN</UnitType>
+			<PromotionType>PROMOTION_NAVAL_MISFIRE</PromotionType>
+		</Row>
+		<Row>
+			<UnitType>UNIT_GATLINGGUN</UnitType>
+			<PromotionType>PROMOTION_NAVAL_MISFIRE</PromotionType>
+		</Row>
+		<Row>
+			<UnitType>UNIT_MACHINE_GUN</UnitType>
+			<PromotionType>PROMOTION_NAVAL_MISFIRE</PromotionType>
+		</Row>
+		<Row>
+			<UnitType>UNIT_BAZOOKA</UnitType>
+			<PromotionType>PROMOTION_NAVAL_MISFIRE</PromotionType>
+		</Row>
 	</Unit_FreePromotions>
+	
 </GameData>

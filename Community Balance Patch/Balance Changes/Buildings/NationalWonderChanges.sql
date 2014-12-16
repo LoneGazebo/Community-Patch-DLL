@@ -1,3 +1,95 @@
+-- NATIONAL WONDERS
+-- National Epic -- Change Name, give art
+UPDATE Buildings
+SET GreatWorkSlotType = 'GREAT_WORK_SLOT_ART_ARTIFACT'
+WHERE Type = 'BUILDING_NATIONAL_EPIC' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
+
+UPDATE Language_en_US
+SET Text = 'National Monument'
+WHERE Tag = 'TXT_KEY_BUILDING_NATIONAL_EPIC' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
+
+UPDATE Language_en_US
+SET Text = 'A National monument is a monument constructed in order to commemorate something of national importance such as a war or the founding of the country. The term may also refer to a specific monument status, such as a national heritage site, which most national monuments are by reason of their cultural importance rather than age. The National monument aims to represent the nation, and serve as a focus for national identity.'
+WHERE Tag = 'TXT_KEY_BUILDING_NATIONAL_EPIC_PEDIA' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
+
+-- National College
+
+UPDATE Buildings
+SET GreatWorkSlotType = 'GREAT_WORK_SLOT_LITERATURE'
+WHERE Type = 'BUILDING_NATIONAL_COLLEGE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
+
+UPDATE Buildings
+SET GreatWorkCount = '1'
+WHERE Type = 'BUILDING_NATIONAL_COLLEGE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
+
+-- East India Co.
+UPDATE Buildings
+SET PovertyHappinessChange = '4'
+WHERE Type = 'BUILDING_NATIONAL_TREASURY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
+
+-- Circus Maximus
+
+UPDATE Buildings
+SET PrereqTech = 'TECH_METAL_CASTING'
+WHERE Type = 'BUILDING_CIRCUS_MAXIMUS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
+
+UPDATE Buildings
+SET UnmoddedHappiness = '2'
+WHERE Type = 'BUILDING_CIRCUS_MAXIMUS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
+
+UPDATE Buildings
+SET UnculturedHappinessChange = '4'
+WHERE Type = 'BUILDING_CIRCUS_MAXIMUS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
+
+-- National Intelligence Agency
+
+UPDATE Buildings
+SET DefenseHappinessChange = '4'
+WHERE Type = 'BUILDING_INTELLIGENCE_AGENCY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
+
+-- Oxford University
+
+UPDATE Buildings
+SET IlliteracyHappinessChange = '4'
+WHERE Type = 'BUILDING_OXFORD_UNIVERSITY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
+
+-- Grand Temple
+
+UPDATE Buildings
+SET MinorityHappinessChange = '4'
+WHERE Type = 'BUILDING_GRAND_TEMPLE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
+
+-- Move Bomb Shelter
+UPDATE Buildings
+SET PrereqTech = 'TECH_ADVANCED_BALLISTICS'
+WHERE Type = 'BUILDING_BOMB_SHELTER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+-- Moved NIA
+
+UPDATE Buildings
+SET PrereqTech = 'TECH_COMPUTERS'
+WHERE Type = 'BUILDING_INTELLIGENCE_AGENCY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
+
+-- Palace Defense Bump
+
+UPDATE Buildings
+SET Defense = '500'
+WHERE Type = 'BUILDING_PALACE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
+
+-- Hermitage Remove Culture Mod
+UPDATE Buildings
+SET CultureRateModifier = '0'
+WHERE Type = 'BUILDING_HERMITAGE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
+
+-- Oxford Change
+
+UPDATE Buildings
+SET FreeTechs = '0'
+WHERE Type = 'BUILDING_OXFORD_UNIVERSITY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
+
+UPDATE Building_YieldChanges
+SET Yield = '3'
+WHERE BuildingType = 'BUILDING_OXFORD_UNIVERSITY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 -- Building Requirement
 
@@ -146,7 +238,7 @@ SET Text = 'This National Wonder gives all units built in this city the "Morale"
 WHERE Tag = 'TXT_KEY_BUILDING_HEROIC_EPIC_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'This National Wonder increases the [ICON_GREAT_PEOPLE] Great People generation of a city by 25%. It also provides +1 [ICON_CULTURE] Culture. A city must have a monument before it can construct a National Epic. Requires a national population of at least 20 before it can be constructed.'
+SET Text = 'This National Wonder increases the [ICON_GREAT_PEOPLE] Great People generation of a city by 25%. It also provides +1 [ICON_CULTURE] Culture. A city must have a monument before it can construct a National Monument. Requires a national population of at least 20 before it can be constructed.'
 WHERE Tag = 'TXT_KEY_BUILDING_NATIONAL_EPIC_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -166,11 +258,11 @@ SET Text = 'The Ironworks National Wonder increases [ICON_PRODUCTION] Production
 WHERE Tag = 'TXT_KEY_BUILDING_IRONWORKS_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'The Oxford University National Wonder provides 1 free technology, +1 [ICON_CULTURE] Culture, and reduces [ICON_HAPPINESS_3] Illiteracy by 2. The city must have a university before it can construct Oxford University. Requires a national population of at least 50 before it can be constructed.'
+SET Text = 'The Oxford University National Wonder provides +1 [ICON_CULTURE] Culture, and reduces [ICON_HAPPINESS_3] Illiteracy by 2. The city must have a university before it can construct Oxford University. Requires a national population of at least 50 before it can be constructed.'
 WHERE Tag = 'TXT_KEY_BUILDING_OXFORD_UNIVERSITY_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'This National Wonder produces +1 [ICON_CULTURE] Culture for every 2 [ICON_CITIZEN] Citizens in the City. It cannot be constructed unless the city has an Opera House. Requires a national population of at least 60 before it can be constructed.'
+SET Text = 'This National Wonder produces +1 [ICON_CULTURE] Culture for every 4 [ICON_CITIZEN] Citizens in the City. It cannot be constructed unless the city has an Opera House. Requires a national population of at least 60 before it can be constructed.'
 WHERE Tag = 'TXT_KEY_BUILDING_HERMITAGE_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -192,7 +284,7 @@ SET Text = 'All newly-trained non-air Units in this City receive the [COLOR_POSI
 WHERE Tag = 'TXT_KEY_BUILDING_HEROIC_EPIC_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '+25% [ICON_GREAT_PEOPLE] Great People generation in this City. Contains 1 slot for a Great Work of Writing.[NEWLINE][NEWLINE]Must have built a Monument in the city. The cost goes up the more cities there are in the empire. Requires a national population of at least 20 before it can be constructed.'
+SET Text = '+25% [ICON_GREAT_PEOPLE] Great People generation in this City. Contains 1 slot for a Great Work of Art or an Artifact.[NEWLINE][NEWLINE]Must have built a Monument in the city. The cost goes up the more cities there are in the empire. Requires a national population of at least 20 before it can be constructed.'
 WHERE Tag = 'TXT_KEY_BUILDING_NATIONAL_EPIC_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -204,7 +296,7 @@ SET Text = 'Reduces [ICON_HAPPINESS_3] Poverty. Must have built a Market in the 
 WHERE Tag = 'TXT_KEY_BUILDING_NATIONAL_TREASURY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Must have built a Library in the city. The cost goes up the more cities there are in the empire. +1 [ICON_RESEARCH] Science for every 4 [ICON_CITIZEN] Citizens in the City. Requires a national population of at least 30 before it can be constructed.'
+SET Text = 'Must have built a Library in the city. The cost goes up the more cities there are in the empire. +1 [ICON_RESEARCH] Science for every 4 [ICON_CITIZEN] Citizens in the City. Contains 1 slot for a Great Work of Writing. Requires a national population of at least 30 before it can be constructed.'
 WHERE Tag = 'TXT_KEY_BUILDING_NATIONAL_COLLEGE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -212,11 +304,11 @@ SET Text = 'Must have built a Workshop in the city. The cost goes up the more ci
 WHERE Tag = 'TXT_KEY_BUILDING_IRONWORKS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Reduces [ICON_HAPPINESS_3] Illiteracy. 1 Free Technology. Contains 2 slots for Great Works of Writing.[NEWLINE][NEWLINE]Must have built a University in the city. The cost goes up the more cities there are in the empire. Requires a national population of at least 50 before it can be constructed.'
+SET Text = 'Reduces [ICON_HAPPINESS_3] Illiteracy. Contains 2 slots for Great Works of Writing.[NEWLINE][NEWLINE]Must have built a University in the city. The cost goes up the more cities there are in the empire. Requires a national population of at least 50 before it can be constructed.'
 WHERE Tag = 'TXT_KEY_BUILDING_OXFORD_UNIVERSITY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '+50% [ICON_CULTURE] Culture in this City. Contains 3 slots for Great Works of Art.[NEWLINE][NEWLINE]Must have built an Opera House in the city. The cost goes up the more cities there are in the empire. Requires a national population of at least 60 before it can be constructed.'
+SET Text = '+1 [ICON_CULTURE] Culture for every 4 [ICON_CITIZEN] Citizens in the City. Contains 3 slots for Great Works of Art.[NEWLINE][NEWLINE]Must have built an Opera House in the city. The cost goes up the more cities there are in the empire. Requires a national population of at least 60 before it can be constructed.'
 WHERE Tag = 'TXT_KEY_BUILDING_HERMITAGE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US
