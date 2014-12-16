@@ -496,16 +496,12 @@ function AddBuildingButton( pCity, building )
 				local iYieldID = pYieldInfo.ID;
 				local iYieldAmount = pCity:GetSpecialistYield(iSpecialistID, iYieldID);
 
--- CBP CHANGE
-				local iSpecialistCount= pCity:GetSpecialistCount(iSpecialistID);
-				if(iSpecialistCount <= 0) then
-					iSpecialistCount = 1;
+-- CBP
+				local iExtraYield = pCity:GetSpecialistYieldChange(iSpecialistID, iYieldID);
+				if(iYieldAmount > 0) then
+					iYieldAmount = (iYieldAmount + iExtraYield);
 				end
-				if(iYieldID ~= YieldTypes.YIELD_FAITH) then
-					local iExtraYieldAmount = (pCity:GetExtraSpecialistYieldOfType(iYieldID, iSpecialistID)/iSpecialistCount);
-					iYieldAmount = iYieldAmount + iExtraYieldAmount;
-				end
--- END
+-- End
 				
 				--Specialist Yield included in pCity:GetSpecialistYield();
 				--iYieldAmount = iYieldAmount + Players[pCity:GetOwner()]:GetSpecialistExtraYield(iSpecialistID, iYieldID);
@@ -631,17 +627,14 @@ function AddBuildingButton( pCity, building )
 				for pYieldInfo in GameInfo.Yields() do
 					local iYieldID = pYieldInfo.ID;
 					local iYieldAmount = pCity:GetSpecialistYield(iSpecialistID, iYieldID);
+
+-- CBP
+					local iExtraYield = pCity:GetSpecialistYieldChange(iSpecialistID, iYieldID);
+					if(iYieldAmount > 0) then
+						iYieldAmount = (iYieldAmount + iExtraYield);
+					end
+-- End
 					
--- CBP CHANGE
-					local iSpecialistCount= pCity:GetSpecialistCount(iSpecialistID);
-					if(iSpecialistCount <= 0) then
-						iSpecialistCount = 1;
-					end
-					if(iYieldID ~= YieldTypes.YIELD_FAITH) then
-						local iExtraYieldAmount = (pCity:GetExtraSpecialistYieldOfType(iYieldID, iSpecialistID)/iSpecialistCount);
-						iYieldAmount = iYieldAmount + iExtraYieldAmount;
-					end
--- END
 					if (iYieldAmount > 0) then
 						table.insert(yields, tostring(iYieldAmount) .. pYieldInfo.IconString);
 					end

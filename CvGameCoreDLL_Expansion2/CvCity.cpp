@@ -5908,6 +5908,26 @@ int CvCity::getGeneralProductionModifiers(CvString* toolTipSink) const
 		}
 	}
 #endif
+#if defined(MOD_BALANCE_CORE_POLICIES)
+	if(MOD_BALANCE_CORE_POLICIES && GET_PLAYER(getOwner()).IsPuppetProdMod() && IsPuppet())
+	{
+		int iTempMod = GET_PLAYER(getOwner()).GetPuppetProdMod();
+		iMultiplier += iTempMod;
+		if(toolTipSink && iTempMod)
+		{
+			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_YIELD_PUPPET_POLICY", iTempMod);
+		}
+	}
+	if(MOD_BALANCE_CORE_POLICIES && GET_PLAYER(getOwner()).IsOccupiedProdMod() && IsOccupied() && !IsNoOccupiedUnhappiness())
+	{
+		int iTempMod = GET_PLAYER(getOwner()).GetOccupiedProdMod();
+		iMultiplier += iTempMod;
+		if(toolTipSink && iTempMod)
+		{
+			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_YIELD_OCCUPIED_POLICY", iTempMod);
+		}
+	}
+#endif
 	return iMultiplier;
 }
 
@@ -7923,6 +7943,10 @@ void CvCity::UpdateReligion(ReligionTypes eNewMajority)
 					}
 #endif
 				}
+#if defined(MOD_BALANCE_CORE)
+				//Update for specialist changes.
+				updateExtraSpecialistYield();
+#endif
 
 				// Buildings
 				for(int jJ = 0; jJ < GC.getNumBuildingClassInfos(); jJ++)
@@ -11969,7 +11993,7 @@ int CvCity::getUnhappinessFromStarving() const
 	float fExponent = /*.25*/ GC.getBALANCE_UNHAPPINESS_FROM_STARVING_PER_POP();
 	int iDiff = foodDifference();
 
-	if(iDiff < 0 && !isFoodProduction() && !GetCityCitizens()->IsForcedAvoidGrowth())
+	if(iDiff < 0 && !isFoodProduction())
 	{
 		iDiff = (iDiff * -1);
 
@@ -12773,6 +12797,46 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 		}
 	}
 
+#if defined(MOD_BALANCE_CORE_BELIEFS)
+	ReligionTypes eReligionFounded = GET_PLAYER(getOwner()).GetReligions()->GetReligionCreatedByPlayer();
+	if(eReligionFounded > RELIGION_PANTHEON)
+	{
+		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligionFounded, getOwner());
+		if(pReligion)
+		{
+			ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
+			if(GetCityReligions()->IsHolyCityForReligion(pReligion->m_eReligion))
+			{
+				if(pReligion->m_Beliefs.GetYieldBonusGoldenAge(eIndex) > 0)
+				{
+					if(GET_PLAYER(getOwner()).getGoldenAgeTurns() > 0)
+					{
+						iTempMod = pReligion->m_Beliefs.GetYieldBonusGoldenAge(eIndex);
+						iModifier += iTempMod;
+						if(toolTipSink){
+							GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODUCTION_GOLDEN_AGE", iTempMod);
+						}
+					}
+				}
+			}
+			if(eMajority == eReligionFounded)
+			{
+				if(pReligion->m_Beliefs.GetYieldFromWLTKD(eIndex) > 0)
+				{
+					if(GetWeLoveTheKingDayCounter() > 0)
+					{
+						iTempMod = pReligion->m_Beliefs.GetYieldFromWLTKD(eIndex);
+						iModifier += iTempMod;
+						if(toolTipSink){
+							GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODUCTION_WLTKD", iTempMod);
+						}
+					}
+				}
+			}
+		}
+	}
+#endif
+
 	// Puppet
 	if(IsPuppet())
 	{
@@ -13048,35 +13112,7 @@ int CvCity::getBaseYieldRate(YieldTypes eIndex) const
 		}
 	}
 #endif
-#if defined(MOD_BALANCE_CORE_BELIEFS)
-	ReligionTypes eReligionFounded = GET_PLAYER(getOwner()).GetReligions()->GetReligionCreatedByPlayer();
-	if(eReligionFounded > RELIGION_PANTHEON)
-	{
-		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligionFounded, getOwner());
-		if(pReligion)
-		{
-			if(pReligion->m_Beliefs.GetYieldBonusGoldenAge(eIndex) > 0)
-			{
-				if(GET_PLAYER(getOwner()).getGoldenAgeTurns() > 0)
-				{
-					if(GetCityReligions()->IsHolyCityForReligion(pReligion->m_eReligion))
-					{
-						iValue *= (100+ pReligion->m_Beliefs.GetYieldBonusGoldenAge(eIndex));
-						iValue /= 100;
-					}
-				}
-			}
-			if(pReligion->m_Beliefs.GetYieldFromWLTKD(eIndex) > 0)
-			{
-				if(GetWeLoveTheKingDayCounter() > 0)
-				{
-					iValue *= (100 + pReligion->m_Beliefs.GetYieldFromWLTKD(eIndex));
-					iValue /= 100;
-				}
-			}
-		}
-	}
-#endif
+
 	return iValue;
 }
 

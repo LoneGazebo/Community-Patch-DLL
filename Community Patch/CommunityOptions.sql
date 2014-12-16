@@ -28,6 +28,15 @@ INSERT INTO COMMUNITY (Type, Value)
 VALUES ('COMMUNITY_CORE_BALANCE_SETTLER_TWEAKS', 1);
 
 /*
+Era-Specific Great Writers/Artists/Musicians
+1 = Enabled (Default)
+0 = Disabled 
+*/
+
+INSERT INTO COMMUNITY (Type, Value)
+VALUES ('COMMUNITY_CORE_BALANCE_ERA_GREAT_WORKS', 1);
+
+/*
 AI Settlers allowed to move on turn 0
 1 = Enabled (Default)
 0 = Disabled 

@@ -57,4 +57,9 @@
 			<EraType>ERA_FUTURE</EraType>
 		</Row>
 	</Belief_EraFaithUnitPurchase>
+	<Language_en_US>
+		<Row Tag="TXT_KEY_SCIENCE_FROM_RELIGION">
+			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT]+{1_Num}[ENDCOLOR] [ICON_RESEARCH] from your [ICON_RELIGION] Religion.</Text>
+		</Row>
+	</Language_en_US>
 </GameData>

@@ -18,32 +18,32 @@
 		<Row>
 			<BeliefType>BELIEF_PEACE_LOVING</BeliefType>
 			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>25</Yield>
+			<Yield>20</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_PEACE_LOVING</BeliefType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Yield>25</Yield>
+			<Yield>20</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_PEACE_LOVING</BeliefType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>25</Yield>
+			<Yield>20</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_PEACE_LOVING</BeliefType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>25</Yield>
+			<Yield>20</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_PEACE_LOVING</BeliefType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>25</Yield>
+			<Yield>20</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_PEACE_LOVING</BeliefType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>25</Yield>
+			<Yield>20</Yield>
 		</Row>
 	</Belief_YieldBonusGoldenAge>
 
@@ -51,7 +51,7 @@
 		<Row>
 			<BeliefType>BELIEF_PILGRIMAGE</BeliefType>
 			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Yield>30</Yield>
+			<Yield>50</Yield>
 		</Row>
 	</Belief_YieldFromSpread>
 
@@ -67,12 +67,12 @@
 		<Row>
 			<BeliefType>BELIEF_INTERFAITH_DIALOGUE</BeliefType>
 			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Yield>20</Yield>
+			<Yield>40</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_INTERFAITH_DIALOGUE</BeliefType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>20</Yield>
+			<Yield>40</Yield>
 		</Row>
 	</Belief_YieldFromConquest>
 
@@ -80,17 +80,17 @@
 		<Row>
 			<BeliefType>BELIEF_CHURCH_PROPERTY</BeliefType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>50</Yield>
+			<Yield>75</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_CHURCH_PROPERTY</BeliefType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>50</Yield>
+			<Yield>75</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_CHURCH_PROPERTY</BeliefType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>50</Yield>
+			<Yield>75</Yield>
 		</Row>
 	</Belief_YieldFromPolicyUnlock>
 
@@ -98,27 +98,27 @@
 		<Row>
 			<BeliefType>BELIEF_INITIATION_RITES</BeliefType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>400</Yield>
+			<Yield>300</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_INITIATION_RITES</BeliefType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>400</Yield>
+			<Yield>300</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_INITIATION_RITES</BeliefType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>400</Yield>
+			<Yield>300</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_INITIATION_RITES</BeliefType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>400</Yield>
+			<Yield>300</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_INITIATION_RITES</BeliefType>
 			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Yield>400</Yield>
+			<Yield>300</Yield>
 		</Row>
 	</Belief_YieldFromEraUnlock>
 
@@ -126,7 +126,7 @@
 		<Row>
 			<BeliefType>BELIEF_PAPAL_PRIMACY</BeliefType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>40</Yield>
+			<Yield>50</Yield>
 		</Row>
 	</Belief_YieldFromConversion>
 
@@ -134,22 +134,22 @@
 		<Row>
 			<BeliefType>BELIEF_WORLD_CHURCH</BeliefType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>25</Yield>
+			<Yield>20</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_WORLD_CHURCH</BeliefType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>25</Yield>
+			<Yield>20</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_WORLD_CHURCH</BeliefType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>25</Yield>
+			<Yield>20</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_WORLD_CHURCH</BeliefType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>25</Yield>
+			<Yield>20</Yield>
 		</Row>
 	</Belief_YieldFromWLTKD>
 	<Belief_BuildingClassFaithPurchase>
@@ -190,4 +190,26 @@
 			<BuildingClassType>BUILDINGCLASS_GRAND_OSSUARY</BuildingClassType>
 		</Row>
 	</Belief_BuildingClassFaithPurchase>
+	<Language_en_US>
+		<Row Tag="TXT_KEY_PRODUCTION_GOLDEN_AGE">
+			<Text>[NEWLINE] [ICON_BULLET]Modifier from [ICON_GOLDEN_AGE] Golden Age: {1_Num}%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODUCTION_WLTKD">
+			<Text>[NEWLINE] [ICON_BULLET]Modifier from 'We Love the King Day:' {1_Num}%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CULTURE_GOLDEN_AGE">
+			<Text>+{1_Num}% [ICON_CULTURE] from [ICON_GOLDEN_AGE] Golden Age</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CULTURE_WLTKD">
+			<Text>+{1_Num}% [ICON_CULTURE] from 'We Love the King Day'</Text>
+		</Row>
+		<Row Tag="TXT_KEY_FAITH_FROM_GOLDEN_AGE">
+			<Text>+{1_Num}% [ICON_PEACE] from [ICON_GOLDEN_AGE] Golden Age</Text>
+		</Row>
+		<Row Tag="TXT_KEY_FAITH_FROM_WLTKD">
+			<Text>+{1_Num}% [ICON_PEACE] from 'We Love the King Day'</Text>
+		</Row>
+
+		
+	</Language_en_US>
 </GameData>

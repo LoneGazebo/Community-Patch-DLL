@@ -1985,9 +1985,34 @@ void CvTeamTechs::SetResearchProgressTimes100(TechTypes eIndex, int iNewValue, P
 			GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
 			GC.GetEngineUserInterface()->setDirty(Score_DIRTY_BIT, true);
 		}
+#if defined(MOD_BALANCE_CORE)
+		int iResearchProgress = 0;
+		int iResearchCost = 0;
+		if(eIndex != -1)
+		{
+			iResearchProgress = GetResearchProgressTimes100(eIndex);
+			iResearchCost = GetResearchCost(eIndex) * 100;
+		}
+		else
+		{
+			const TechTypes eCurrentResearch = GET_PLAYER(ePlayer).GetPlayerTechs()->GetCurrentResearch();
+			if(eCurrentResearch != NO_TECH)
+			{
+				iResearchProgress = GetResearchProgressTimes100(eCurrentResearch);
+				iResearchCost = GetResearchCost(eCurrentResearch) * 100;
+			}
+			else
+			{
+				iResearchProgress = 0;
+				iResearchCost = 0;
+			}
+		}
 
+
+#else
 		int iResearchProgress = GetResearchProgressTimes100(eIndex);
 		int iResearchCost = GetResearchCost(eIndex) * 100;
+#endif
 
 		// Player modifiers to cost
 #if defined(MOD_BALANCE_CORE)

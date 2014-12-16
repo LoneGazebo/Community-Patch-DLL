@@ -2700,6 +2700,99 @@ int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int
 	// Giving our votes to them - Higher value for voting on things we dislike
 	if (bFromMe)
 	{
+#if defined(MOD_BALANCE_CORE_DEALS)
+		//If the votes we'd give would secure passage of this vote, let's see if we like them enough to do it.
+		CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
+		int iTheirVotes = 0;
+		int iVotesNeeded = 0;
+		if (pLeague != NULL)
+		{
+			iTheirVotes = pLeague->CalculateStartingVotesForMember(eOtherPlayer);
+			PlayerTypes eLoopPlayer;
+			for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+			{
+				eLoopPlayer = (PlayerTypes) iPlayerLoop;
+				if (GET_PLAYER(eLoopPlayer).isAlive() && !GET_PLAYER(eLoopPlayer).isMinorCiv() && pLeague->IsMember(eLoopPlayer))
+				{			
+					iVotesNeeded += pLeague->CalculateStartingVotesForMember(eLoopPlayer);
+				}
+			}
+		}
+		//If the total is more than a third of the total votes on the board...that probably means it'll pass.
+		if((pLeague != NULL) && ((iNumVotes + iTheirVotes) > (iVotesNeeded / 3)))
+		{
+			// Adjust based on LeagueAI
+			CvLeagueAI::DesireLevels eDesire = GetPlayer()->GetLeagueAI()->EvaluateVoteForTrade(iProposalID, iVoteChoice, iNumVotes, bRepeal);
+			switch(eDesire)
+			{
+			case CvLeagueAI::DESIRE_NEVER:
+			case CvLeagueAI::DESIRE_STRONG_DISLIKE:
+				iValue += 500000;
+				break;
+			case CvLeagueAI::DESIRE_DISLIKE:
+				iValue += 500;
+				break;
+			case CvLeagueAI::DESIRE_WEAK_DISLIKE:
+				iValue += 350;
+				break;
+			case CvLeagueAI::DESIRE_NEUTRAL:
+			case CvLeagueAI::DESIRE_WEAK_LIKE:
+			case CvLeagueAI::DESIRE_LIKE:
+				iValue += 250;
+				break;
+			case CvLeagueAI::DESIRE_STRONG_LIKE:
+			case CvLeagueAI::DESIRE_ALWAYS:
+				iValue += 100;
+				break;
+			default:
+				iValue += 500000;
+				break;
+			}
+			CvAssert(eOtherPlayer != NO_PLAYER);
+			if (eOtherPlayer != NO_PLAYER)
+			{
+				CvLeagueAI::AlignmentLevels eAlignment = GetPlayer()->GetLeagueAI()->EvaluateAlignment(eOtherPlayer);
+				switch (eAlignment)
+				{
+				case CvLeagueAI::ALIGNMENT_LIBERATOR:
+				case CvLeagueAI::ALIGNMENT_LEADER:
+					iValue += -25;
+					break;
+				case CvLeagueAI::ALIGNMENT_SELF:
+					CvAssertMsg(false, "ALIGNMENT_SELF found when evaluating a trade deal for delegates. Please send Anton your save file and version.");
+					break;
+				case CvLeagueAI::ALIGNMENT_ALLY:
+					iValue += -15;
+					break;
+				case CvLeagueAI::ALIGNMENT_CONFIDANT:
+				case CvLeagueAI::ALIGNMENT_FRIEND:
+					iValue += -5;
+					break;
+				case CvLeagueAI::ALIGNMENT_NEUTRAL:
+					break;
+				case CvLeagueAI::ALIGNMENT_RIVAL:
+					iValue += 50;
+					break;
+				case CvLeagueAI::ALIGNMENT_HATRED:
+					iValue += 200;
+					break;
+				case CvLeagueAI::ALIGNMENT_ENEMY:
+				case CvLeagueAI::ALIGNMENT_WAR:
+					iValue += 500000;
+					break;
+				default:
+					break;
+				}
+				MajorCivApproachTypes eOtherPlayerApproach = GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(eOtherPlayer, /*bHideTrueFeelings*/ false);
+				if (eOtherPlayerApproach == MAJOR_CIV_APPROACH_HOSTILE || eOtherPlayerApproach == MAJOR_CIV_APPROACH_WAR)
+				{
+					iValue += 500000;
+				}
+			}
+		}
+		else
+		{
+#endif
 		// Adjust based on LeagueAI
 		CvLeagueAI::DesireLevels eDesire = GetPlayer()->GetLeagueAI()->EvaluateVoteForTrade(iProposalID, iVoteChoice, iNumVotes, bRepeal);
 		switch(eDesire)
@@ -2771,10 +2864,64 @@ int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int
 				iValue += 100000;
 			}
 		}
+#if defined(MOD_BALANCE_CORE_DEALS)
+		}
+#endif
 	}
 	// Giving their votes to us - Higher value for voting on things we like
 	else
 	{
+#if defined(MOD_BALANCE_CORE_DEALS)
+		//If the votes we'd give would secure passage of this vote, these votes are worth a bit more.
+		CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
+		int iOurVotes = 0;
+		int iVotesNeeded = 0;
+		if (pLeague != NULL)
+		{
+			iOurVotes = pLeague->CalculateStartingVotesForMember(GetPlayer()->GetID());
+			PlayerTypes eLoopPlayer;
+			for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+			{
+				eLoopPlayer = (PlayerTypes) iPlayerLoop;
+				if (GET_PLAYER(eLoopPlayer).isAlive() && !GET_PLAYER(eLoopPlayer).isMinorCiv() && pLeague->IsMember(eLoopPlayer))
+				{			
+					iVotesNeeded += pLeague->CalculateStartingVotesForMember(eLoopPlayer);
+				}
+			}
+		}
+		//If the total is more than a third of the total votes on the board...that probably means it'll pass.
+		if((pLeague != NULL) && ((iNumVotes + iOurVotes) > (iVotesNeeded / 3)))
+		{
+			// Adjust based on LeagueAI
+			CvLeagueAI::DesireLevels eDesire = GetPlayer()->GetLeagueAI()->EvaluateVoteForTrade(iProposalID, iVoteChoice, iNumVotes, bRepeal);
+			switch(eDesire)
+			{
+			case CvLeagueAI::DESIRE_NEVER:
+			case CvLeagueAI::DESIRE_STRONG_DISLIKE:
+			case CvLeagueAI::DESIRE_WEAK_DISLIKE:
+			case CvLeagueAI::DESIRE_NEUTRAL:
+				iValue += -500000;
+				break;
+			case CvLeagueAI::DESIRE_WEAK_LIKE:
+				iValue += 100;
+				break;
+			case CvLeagueAI::DESIRE_LIKE:
+				iValue += 200;
+				break;
+			case CvLeagueAI::DESIRE_STRONG_LIKE:
+				iValue += 300;
+				break;
+			case CvLeagueAI::DESIRE_ALWAYS:
+				iValue += 400;
+				break;
+			default:
+				iValue += -500000;
+				break;
+			}
+		}
+		else
+		{
+#endif
 		// Adjust based on LeagueAI
 		CvLeagueAI::DesireLevels eDesire = GetPlayer()->GetLeagueAI()->EvaluateVoteForTrade(iProposalID, iVoteChoice, iNumVotes, bRepeal);
 		switch(eDesire)
@@ -2825,6 +2972,9 @@ int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int
 				}
 			}
 		}
+#if defined(MOD_BALANCE_CORE_DEALS)
+		}
+#endif
 	}
 
 	iValue = MAX(iValue, 0);

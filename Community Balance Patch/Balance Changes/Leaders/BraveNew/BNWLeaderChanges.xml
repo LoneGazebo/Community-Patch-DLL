@@ -9,6 +9,14 @@
 			<Yield>2</Yield>
 		</Row>
 	</Trait_YieldChangesPerTradePartner>
+<!-- Ashurbanipal -->
+	<Building_YieldChanges>
+		<Row>
+			<BuildingType>BUILDING_ROYAL_LIBRARY</BuildingType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Yield>2</Yield>
+		</Row>
+	</Building_YieldChanges>
  <!-- Kasbah -->
 	<Improvement_Yields>
 		<Row>

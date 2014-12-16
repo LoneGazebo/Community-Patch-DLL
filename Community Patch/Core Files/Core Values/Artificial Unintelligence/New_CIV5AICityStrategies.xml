@@ -21,14 +21,14 @@
 		</Update>
 		<!-- Defense flavor influences more than just unit behavior, it also influences unit types and diplomacy, so the base 25 needed to be increased a bit -->
 		<Update>
-			<Set Flavor="35" />
+			<Set Flavor="30" />
 			<Where AICityStrategyType="AICITYSTRATEGY_CAPITAL_UNDER_THREAT" FlavorType="FLAVOR_DEFENSE" />
 		</Update>
 		<!-- Makes sure settlers are more likely to be produced by the capital instead of forcing a smaller city to do the job -->
 		<Row>
 			<AICityStrategyType>AICITYSTRATEGY_ORIGINAL_CAPITAL</AICityStrategyType>
 			<FlavorType>FLAVOR_EXPANSION</FlavorType>
-			<Flavor>5</Flavor>
+			<Flavor>1</Flavor>
 		</Row>
 	</AICityStrategy_Flavors>
 </GameData>

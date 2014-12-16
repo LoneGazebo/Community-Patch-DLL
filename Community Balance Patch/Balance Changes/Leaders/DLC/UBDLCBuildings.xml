@@ -6,7 +6,7 @@
 		<Row>
 			<Type>BUILDING_MISSION</Type>
 			<BuildingClass>BUILDINGCLASS_CASTLE</BuildingClass>
-			<Cost>100</Cost>
+			<Cost>125</Cost>
 			<PrereqTech>TECH_CHIVALRY</PrereqTech>
 			<Help>TXT_KEY_BUILDING_MISSION_HELP</Help>
 			<Description>TXT_KEY_BUILDING_MISSION</Description>
@@ -46,7 +46,7 @@
 		<Row>
 			<BuildingType>BUILDING_MISSION</BuildingType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>60</Yield>
+			<Yield>100</Yield>
 		</Row>
 	</Building_InstantYield>
 	<Civilization_BuildingClassOverrides>
@@ -60,7 +60,7 @@
 		<Row>
 			<BuildingType>BUILDING_MISSION</BuildingType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Yield>3</Yield>
+			<Yield>2</Yield>
 		</Row>
 	</Building_YieldChanges>
 	<Language_en_US>
@@ -99,7 +99,7 @@
 			<GoldenAge>true</GoldenAge>
 			<HurryCostModifier>-1</HurryCostModifier>
 			<MinAreaSize>-1</MinAreaSize>
-			<TechEnhancedTourism>3</TechEnhancedTourism>
+			<TechEnhancedTourism>5</TechEnhancedTourism>
 			<EnhancedYieldTech>TECH_IRON_WORKING</EnhancedYieldTech>
 			<NeverCapture>true</NeverCapture>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
@@ -136,7 +136,7 @@
 		<Row>
 			<BuildingType>BUILDING_JELLING_STONES</BuildingType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>3</Yield>
+			<Yield>5</Yield>
 		</Row>
 	</Building_YieldChanges>
 	<Language_en_US>
@@ -149,10 +149,10 @@
 			</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_JELLING_STONES_HELP">
-			<Text>Unique Danish replacement for the National Epic. This National Wonder contains no Great Works of Literature slots, however it produces +3 [ICON_TOURISM] Tourism and [ICON_CULTURE] Culture and increases the Great Person rate for the city where it is built by 33%. Grants a large amount of [ICON_CULTURE] Culture and a [ICON_GOLDEN_AGE] Golden Age when completed.[NEWLINE][NEWLINE]Requires 15 National Population to be constructed.</Text>
+			<Text>+33% Great Person rate, +5 [ICON_CULTURE] Culture, +5 [ICON_TOURISM] and an instant boost of 250 [ICON_CULTURE] Culture. Begins a [ICON_GOLDEN_AGE] Golden Age.[NEWLINE][NEWLINE]Requires 15 National Population to be constructed.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_JELLING_STONES_STRATEGY">
-			<Text>+33% Great Person rate, +3 [ICON_CULTURE] Culture, +3 [ICON_TOURISM] and an instant boost of 250 [ICON_CULTURE] Culture. Begins a [ICON_GOLDEN_AGE] Golden Age.[NEWLINE][NEWLINE]Requires 15 National Population to be constructed.</Text>
+			<Text>Unique Danish replacement for the National Epic. This National Wonder contains no Great Works of Literature slots, however it produces +5 [ICON_TOURISM] Tourism and [ICON_CULTURE] Culture and increases the Great Person rate for the city where it is built by 33%. Grants a large amount of [ICON_CULTURE] Culture and a [ICON_GOLDEN_AGE] Golden Age when completed.[NEWLINE][NEWLINE]Requires 15 National Population to be constructed.</Text>
 		</Row>
 	</Language_en_US>
 </GameData>

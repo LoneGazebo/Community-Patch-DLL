@@ -5,9 +5,9 @@
     <ProjectGuid>{0d66d522-b624-4bc5-acfe-15a0c5b729f4}</ProjectGuid>
     <Name>Community Balance Patch</Name>
     <Guid>8411a7a8-dad3-4622-a18e-fcc18324c799</Guid>
-    <ModVersion>12</ModVersion>
+    <ModVersion>13</ModVersion>
     <Stability>Beta</Stability>
-    <Teaser>The Complete Civ 5 Experience (v. 12.7)  - Updated 12/4</Teaser>
+    <Teaser>The Complete Civ 5 Experience (v. 13)  - Updated 12/15</Teaser>
     <Description>Community Balance Patch - Contains balance changes and support for CSD/CivIV Diplomacy/Health&amp;Plague/Events &amp; Decisions</Description>
     <Authors>Civfanatics Community Balance Team</Authors>
     <SpecialThanks>
@@ -439,6 +439,11 @@
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
+        <FileName>Balance Changes/Buildings/BuildingCosts.sql</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
         <FileName>Balance Changes/Terrain/WorldChanges.sql</FileName>
       </Action>
       <Action>
@@ -701,6 +706,21 @@
         <Type>UpdateDatabase</Type>
         <FileName>Balance Changes/Specialists/SpecialistChanges.sql</FileName>
       </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>Balance Changes/Tech/GlobalCityBombardRange.sql</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>Balance Changes/Text/TextChanges.sql</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>Balance Changes/Text/TextChanges.xml</FileName>
+      </Action>
     </ModActions>
     <Homepage>
     </Homepage>
@@ -720,6 +740,12 @@
     </ModDependencies>
     <SupportsHotSeat>true</SupportsHotSeat>
     <ModContent>
+      <Content>
+        <Type>InGameUIAddin</Type>
+        <Name>GlobalCityBombardRange</Name>
+        <Description>GlobalCityBombardRange</Description>
+        <FileName>LUA/Other/GlobalCityBombardRange.lua</FileName>
+      </Content>
     </ModContent>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Default' ">
@@ -757,6 +783,7 @@
     <Folder Include="Balance Changes\Buildings" />
     <Folder Include="Balance Changes\AI" />
     <Folder Include="Balance Changes\Ideologies" />
+    <Folder Include="Balance Changes\Text" />
     <Folder Include="Balance Changes\Specialists" />
     <Folder Include="Balance Changes\Policies\Commerce" />
     <Folder Include="Balance Changes\Policies\Aesthetics" />
@@ -781,6 +808,7 @@
     <Folder Include="LUA\Inactive" />
     <Folder Include="LUA\Inactive\HealthandPlague + CSD" />
     <Folder Include="LUA\Inactive\NoCSD" />
+    <Folder Include="LUA\Other" />
     <Folder Include="Mod Compatibility" />
     <Folder Include="Modular Elements" />
     <Folder Include="Modular Elements\Happiness Mod" />
@@ -834,7 +862,7 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Art\Splash\brettonsplash.dds">
+    <Content Include="Art\Splash\empiresplash.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
@@ -1019,6 +1047,10 @@
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
     <Content Include="Balance Changes\Buildings\BuildingChanges.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="Balance Changes\Buildings\BuildingCosts.sql">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
@@ -1282,6 +1314,10 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
+    <Content Include="Balance Changes\Tech\GlobalCityBombardRange.sql">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
     <Content Include="Balance Changes\Tech\Processes.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
@@ -1319,6 +1355,14 @@
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
     <Content Include="Balance Changes\Terrain\TerrainChanges.sql">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="Balance Changes\Text\TextChanges.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="Balance Changes\Text\TextChanges.sql">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
@@ -1361,6 +1405,10 @@
     <Content Include="Core Files\Core Changes\CommunityPatchDLLChanges.sql">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="LUA\Active\Standard CBP\Bombardment.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
     <Content Include="LUA\Active\Standard CBP\CityBannerManager.lua">
       <SubType>Lua</SubType>
@@ -1418,6 +1466,10 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
+    <Content Include="LUA\Active\Standard CBP\TradeLogic.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
     <Content Include="LUA\Active\Standard CBP\TradeRouteHelpers.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
@@ -1447,6 +1499,10 @@
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
     <Content Include="LUA\Inactive\NoCSD\TopPanel.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="LUA\Other\GlobalCityBombardRange.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>

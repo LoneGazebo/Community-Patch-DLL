@@ -29,7 +29,7 @@
 		<Row>
 			<BuildingType>BUILDING_HANSE</BuildingType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>50</Yield>
+			<Yield>25</Yield>
 		</Row>
 	</Building_YieldChangesPerPop>
 <!-- Satrap -->
@@ -37,7 +37,7 @@
 		<Row>
 			<BuildingType>BUILDING_SATRAPS_COURT</BuildingType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>50</Yield>
+			<Yield>25</Yield>
 		</Row>
 	</Building_YieldChangesPerPop>
   <!-- Indus Sanitation -->
@@ -45,8 +45,8 @@
 		<Row>
 			<Type>BUILDING_INDUS_CANAL</Type>
 			<BuildingClass>BUILDINGCLASS_AQUEDUCT</BuildingClass>
-			<Cost>100</Cost>
-			<GoldMaintenance>1</GoldMaintenance>
+			<Cost>125</Cost>
+			<GoldMaintenance>2</GoldMaintenance>
 			<PrereqTech>TECH_ENGINEERING</PrereqTech>
 			<Help>TXT_KEY_BUILDING_INDUS_CANAL_HELP</Help>
 			<Description>TXT_KEY_BUILDING_INDUS_CANAL</Description>
@@ -142,8 +142,8 @@
 		<Row>
 			<Type>BUILDING_DOJO</Type>
 			<BuildingClass>BUILDINGCLASS_ARMORY</BuildingClass>
-			<Cost>160</Cost>
-			<GoldMaintenance>1</GoldMaintenance>
+			<Cost>150</Cost>
+			<GoldMaintenance>3</GoldMaintenance>
 			<PrereqTech>TECH_CHIVALRY</PrereqTech>
 			<Help>TXT_KEY_BUILDING_DOJO_HELP</Help>
 			<Description>TXT_KEY_BUILDING_DOJO</Description>
@@ -236,15 +236,15 @@
 			<Type>BUILDING_ODEON</Type>
 			<BuildingClass>BUILDINGCLASS_AMPHITHEATER</BuildingClass>
 			<FreeStartEra>ERA_INDUSTRIAL</FreeStartEra>
-			<Cost>100</Cost>
+			<Cost>125</Cost>
 			<PrereqTech>TECH_DRAMA</PrereqTech>
 			<Description>TXT_KEY_BUILDING_ODEON</Description>
-			<GoldMaintenance>1</GoldMaintenance>
+			<GoldMaintenance>2</GoldMaintenance>
 			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_ODEON_TEXT</Civilopedia>
 			<Strategy>TXT_KEY_BUILDING_ODEON_STRATEGY</Strategy>
 			<Help>TXT_KEY_BUILDING_ODEON_HELP</Help>
 			<ArtDefineTag>COLESSEUM</ArtDefineTag>
-			<TechEnhancedTourism>2</TechEnhancedTourism>
+			<TechEnhancedTourism>1</TechEnhancedTourism>
 			<EnhancedYieldTech>TECH_PHILOSOPHY</EnhancedYieldTech>
 			<ConquestProb>100</ConquestProb>
 			<MinAreaSize>-1</MinAreaSize>
@@ -271,9 +271,16 @@
 		<Row>
 			<BuildingType>BUILDING_ODEON</BuildingType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>4</Yield>
+			<Yield>1</Yield>
 		</Row>
 	</Building_YieldChanges>
+	<Building_YieldChangesPerPop>
+		<Row>
+			<BuildingType>BUILDING_ODEON</BuildingType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>20</Yield>
+		</Row>
+	</Building_YieldChangesPerPop>
 	<Building_ResourceYieldChanges>
 		<Row>
 			<BuildingType>BUILDING_ODEON</BuildingType>
@@ -292,10 +299,10 @@
 			</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_ODEON_HELP">
-			<Text>Unique Greek replacement for the Amphitheater. Generates 4 [ICON_CULTURE] Culture, as well as +1 [ICON_CULTURE] Culture on nearby [ICON_RES_DYE] Dye resources. Contains no slot for a Great Work, however it produces +2 [ICON_TOURISM] Tourism once you research Philosophy.</Text>
+			<Text>+1 [ICON_CULTURE] Culture, and +1 [ICON_CULTURE] Culture for every 5 [ICON_CITIZEN] Citizens in the city. +1 [ICON_CULTURE] Culture on nearby [ICON_RES_DYE] Dye resources. [NEWLINE][NEWLINE]+2 [ICON_TOURISM] Tourism once you research Philosophy.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_ODEON_STRATEGY">
-			<Text>Build these unique Amphitheaters to boost your city's Culture, Tourism, and Gold.</Text>
+			<Text>Unique Greek replacement for the Amphitheater. Build these unique Amphitheaters to boost your city's Culture and Tourism. Contains no slot for a Great Work, however it produces +2 [ICON_TOURISM] Tourism once you research Philosophy.</Text>
 		</Row>
 	</Language_en_US>
 	<!-- Triumphal Arch -->
@@ -304,7 +311,7 @@
 			<Type>BUILDING_TRIUMPHAL_ARCH</Type>
 			<BuildingClass>BUILDINGCLASS_MONUMENT</BuildingClass>
 			<FreeStartEra>ERA_MEDIEVAL</FreeStartEra>
-			<Cost>40</Cost>
+			<Cost>50</Cost>
 			<GoldMaintenance>1</GoldMaintenance>
 			<Description>TXT_KEY_BUILDING_TRIUMPHAL_ARCH</Description>
 			<Civilopedia>TXT_KEY_CIV5_BUILDING_TRIUMPHAL_ARCH_TEXT</Civilopedia>
@@ -373,7 +380,7 @@
 			</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_TRIUMPHAL_ARCH_HELP">
-			<Text>Unique Roman replacement for the Monument. Generates +2 [ICON_CULTURE] Culture and +1 [ICON_PRODUCTION] Production. [NEWLINE][NEWLINE] Whenever you destroy an enemy unit, produce +3 [ICON_GREAT_GENERAL] Great General points and +3 [ICON_GOLDEN_AGE] Golden Age points.</Text>
+			<Text>Unique Roman replacement for the Monument. [NEWLINE][NEWLINE] Whenever you destroy an enemy unit, produce +3 [ICON_GREAT_GENERAL] Great General points and +3 [ICON_GOLDEN_AGE] Golden Age points.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_TRIUMPHAL_ARCH_STRATEGY">
 			<Text>Build these unique Monuments to boost your city's Culture growth and early Production, and to maximize your empire's gain from the victories of your conquering armies.</Text>

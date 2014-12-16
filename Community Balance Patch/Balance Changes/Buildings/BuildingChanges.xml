@@ -78,7 +78,7 @@
 		<Row>
 			<BuildingType>BUILDING_BROADCAST_TOWER</BuildingType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>50</Yield>
+			<Yield>20</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_AMPHITHEATER</BuildingType>
@@ -88,12 +88,12 @@
 		<Row>
 			<BuildingType>BUILDING_OPERA_HOUSE</BuildingType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>25</Yield>
+			<Yield>20</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_MUSEUM</BuildingType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>33</Yield>
+			<Yield>20</Yield>
 		</Row>
 	</Building_YieldChangesPerPop>
 	<!-- Military Academy -->
@@ -136,22 +136,23 @@
 		</Row>
 	</Building_ResourceYieldChanges>
 	<Building_YieldChangesPerPop>
-		<Row>
-			<BuildingType>BUILDING_MARKET</BuildingType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>25</Yield>
-		</Row>
+	<!-- Market -->
+			<Row>
+				<BuildingType>BUILDING_MARKET</BuildingType>
+				<YieldType>YIELD_GOLD</YieldType>
+				<Yield>20</Yield>
+			</Row>
 	<!-- Bank -->
 		<Row>
 			<BuildingType>BUILDING_BANK</BuildingType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>33</Yield>
+			<Yield>20</Yield>
 		</Row>
 	<!-- Stock Exchange -->
 		<Row>
 			<BuildingType>BUILDING_STOCK_EXCHANGE</BuildingType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>50</Yield>
+			<Yield>25</Yield>
 		</Row>
 	</Building_YieldChangesPerPop>
 	<!-- Mint -->
@@ -162,11 +163,12 @@
 			<YieldType>YIELD_GOLD</YieldType>
 			<Yield>2</Yield>
 		</Row>
+	<!-- Forge -->
 		<Row>
-			<BuildingType>BUILDING_MINT</BuildingType>
+			<BuildingType>BUILDING_FORGE</BuildingType>
 			<ResourceType>RESOURCE_COPPER</ResourceType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>2</Yield>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>1</Yield>
 		</Row>
 	<!-- Caravanserai -->
 		<Row>
@@ -191,10 +193,6 @@
 	<Building_LocalResourceOrs>
 		<Row>
 			<BuildingType>BUILDING_MINT</BuildingType>
-			<ResourceType>RESOURCE_COPPER</ResourceType>
-		</Row>
-		<Row>
-			<BuildingType>BUILDING_MINT</BuildingType>
 			<ResourceType>RESOURCE_GEMS</ResourceType>
 		</Row>
 	</Building_LocalResourceOrs>
@@ -209,16 +207,21 @@
 	</Building_FeatureYieldChanges>
 	<Building_YieldChanges>
 		<Row>
-			<BuildingType>BUILDING_LABORATORY</BuildingType>
+			<BuildingType>BUILDING_UNIVERSITY</BuildingType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>2</Yield>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_WINDMILL</BuildingType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>3</Yield>
 		</Row>
 	</Building_YieldChanges>
 	<Building_YieldChangesPerPop>
 		<Row>
 			<BuildingType>BUILDING_LABORATORY</BuildingType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>50</Yield>
+			<Yield>25</Yield>
 		</Row>
 	</Building_YieldChangesPerPop>
 	<!-- Observatory-->
@@ -249,9 +252,9 @@
 		<Row>
 			<Type>BUILDING_STONE_WORKS</Type>
 			<BuildingClass>BUILDINGCLASS_STONE_WORKS</BuildingClass>
-			<Cost>75</Cost>
+			<Cost>50</Cost>
 			<GoldMaintenance>1</GoldMaintenance>
-			<PrereqTech>TECH_CALENDAR</PrereqTech>
+			<PrereqTech>TECH_MINING</PrereqTech>
 			<Help>TXT_KEY_BUILDING_STONE_WORKS_HELP</Help>
 			<Description>TXT_KEY_BUILDING_STONE_WORKS</Description>
 			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_STONE_WORKS_TEXT</Civilopedia>
@@ -269,7 +272,7 @@
 		<Row>
 			<BuildingType>BUILDING_FORGE</BuildingType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Yield>2</Yield>
+			<Yield>1</Yield>
 		</Row>
 	</Building_YieldChanges>
 	<!-- Factory -->
@@ -277,7 +280,7 @@
 		<Row>
 			<BuildingType>BUILDING_FACTORY</BuildingType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Yield>50</Yield>
+			<Yield>25</Yield>
 		</Row>
 	</Building_YieldChangesPerPop>
 	<!-- Nuclear and Solar Plants -->
@@ -293,12 +296,4 @@
 			<Yield>15</Yield>
 		</Row>
 	</Building_YieldModifiers>
-	<!-- Zoo -->
-	<Building_ResourceQuantityRequirements>
-		<Row>
-			<BuildingType>BUILDING_THEATRE</BuildingType>
-			<ResourceType>RESOURCE_HORSE</ResourceType>
-			<Cost>1</Cost>
-		</Row>
-	</Building_ResourceQuantityRequirements>
 </GameData>

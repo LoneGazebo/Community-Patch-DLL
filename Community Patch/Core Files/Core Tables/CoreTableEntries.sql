@@ -150,6 +150,11 @@ ALTER TABLE Policies ADD COLUMN 'MinorityHappinessModCapital' integer default 0;
 
 ALTER TABLE Policies ADD COLUMN 'PuppetUnhappinessModPolicy' integer default 0;
 
+-- Puppets and/or Occupied cities receive a % production modifier. Values should be positive to be good.
+ALTER TABLE Policies ADD COLUMN 'PuppetProdMod' integer default 0;
+ALTER TABLE Policies ADD COLUMN 'OccupiedProdMod' integer default 0;
+
+
 -- % boosts to city yield for happiness sources (traits) - Values should be positive to be good!
 ALTER TABLE Traits ADD COLUMN 'PovertyHappinessTraitMod' integer default 0;
 ALTER TABLE Traits ADD COLUMN 'DefenseHappinessTraitMod' integer default 0;

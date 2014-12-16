@@ -40,13 +40,6 @@
 		</Row>
 	</Policy_YieldChangeTradeRoute>
 	<!-- Patriotic War -->
-	<Policy_FreeUnitClasses>
-		<Row>
-			<PolicyType>POLICY_PATRIOTIC_WAR</PolicyType>
-			<UnitClassType>UNITCLASS_INFANTRY</UnitClassType>
-			<Count>2</Count>
-		</Row>
-	</Policy_FreeUnitClasses>
 	<Language_en_US>
 		<Row Tag="TXT_KEY_POLICY_UNIVERSAL_HEALTHCARE_O_HELP">
 			<Text>[COLOR_POSITIVE_TEXT]Peace, Land, Bread[ENDCOLOR][NEWLINE]Reduces [ICON_HAPPINESS_3] Poverty by 20% in all cities.</Text>

@@ -21,6 +21,9 @@
 #include "CvInternalGameCoreUtils.h"
 #include "CvWonderProductionAI.h"
 #endif
+#if defined(MOD_BALANCE_CORE_DEALS)
+#include "CvDiplomacyAI.h"
+#endif
 
 #include "LintFree.h"
 
@@ -425,6 +428,52 @@ bool CvGameTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Domai
 
 	CreateVis(iNewTradeRouteIndex);
 	MoveUnit(iNewTradeRouteIndex);
+
+#if defined(MOD_BALANCE_CORE_POLICIES)
+	if(MOD_BALANCE_CORE_POLICIES && (GET_PLAYER(eOriginPlayer).GetGoldInternalTrade() > 0) && ((eConnectionType == TRADE_CONNECTION_FOOD) || (eConnectionType == TRADE_CONNECTION_PRODUCTION)))
+	{
+		GET_PLAYER(eOriginPlayer).GetTreasury()->DoUpdateCityConnectionGold();
+	}
+#if defined(MOD_TRADE_WONDER_RESOURCE_ROUTES)
+	if(MOD_BALANCE_CORE_POLICIES && MOD_TRADE_WONDER_RESOURCE_ROUTES && (GET_PLAYER(eOriginPlayer).GetGoldInternalTrade() > 0) && (eConnectionType == TRADE_CONNECTION_WONDER_RESOURCE))
+	{
+		GET_PLAYER(eOriginPlayer).GetTreasury()->DoUpdateCityConnectionGold();
+	}
+#endif
+#endif
+#if defined(MOD_BALANCE_CORE_DEALS)
+	if(MOD_BALANCE_CORE_DEALS && (eConnectionType == TRADE_CONNECTION_INTERNATIONAL))
+	{
+		if(!GET_PLAYER(eDestPlayer).isHuman() && !GET_PLAYER(eDestPlayer).isMinorCiv() && !GET_PLAYER(eOriginPlayer).isMinorCiv())
+		{
+			int iFlavorGoldDest = GET_PLAYER(eDestPlayer).GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GOLD"));
+			int iFlavorScienceDest = GET_PLAYER(eDestPlayer).GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SCIENCE"));
+			int iFlavorDiplomacyDest = GET_PLAYER(eDestPlayer).GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DIPLOMACY"));
+			int iGoldDest = (m_aTradeConnections[iNewTradeRouteIndex].m_aiDestYields[YIELD_GOLD] / 10);
+			int iScienceDest = (m_aTradeConnections[iNewTradeRouteIndex].m_aiDestYields[YIELD_SCIENCE] / 10);
+			int iTradeValueDest = ((iScienceDest + iGoldDest + iFlavorGoldDest + iFlavorScienceDest + iFlavorDiplomacyDest) / 2);
+			if(iTradeValueDest > 0)
+			{
+				GET_PLAYER(eDestPlayer).GetDiplomacyAI()->ChangeRecentTradeValue(eOriginPlayer, iTradeValueDest);
+			}
+		}
+		if(!GET_PLAYER(eOriginPlayer).isHuman() && !GET_PLAYER(eOriginPlayer).isMinorCiv() && !GET_PLAYER(eDestPlayer).isMinorCiv())
+		{
+			int iFlavorGoldOrigin = GET_PLAYER(eOriginPlayer).GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GOLD"));
+			int iFlavorScienceOrigin = GET_PLAYER(eOriginPlayer).GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SCIENCE"));
+			int iFlavorDiplomacyOrigin = GET_PLAYER(eOriginPlayer).GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DIPLOMACY"));
+			int iGoldOrigin = (m_aTradeConnections[iNewTradeRouteIndex].m_aiOriginYields[YIELD_GOLD] / 10);
+			int iScienceOrigin = (m_aTradeConnections[iNewTradeRouteIndex].m_aiOriginYields[YIELD_SCIENCE] / 10);
+			int iTradeValueOrigin = ((iScienceOrigin + iGoldOrigin + iFlavorGoldOrigin + iFlavorScienceOrigin + iFlavorDiplomacyOrigin) / 2);
+			if(iTradeValueOrigin > 0)
+			{
+				GET_PLAYER(eOriginPlayer).GetDiplomacyAI()->ChangeRecentTradeValue(eDestPlayer, iTargetTurns);
+			}
+		}
+
+	
+	}
+#endif
 
 	if(GC.getLogging())
 	{
@@ -5061,17 +5110,17 @@ void CvTradeAI::PrioritizeTradeRoutes(TradeConnectionList& aTradeConnectionList)
 	// - Search for spaceship city
 	std::vector<CvCity*> apProductionTargetCities;
 	CvCity* pWonderCity = m_pPlayer->GetCitySpecializationAI()->GetWonderBuildCity();
-#if defined(MOD_BALANCE_CORE_POLICIES)
-	//Look for wonder or, if internal trade grants gold, the first city.
-	if (pWonderCity || (m_pPlayer->GetGoldInternalTrade() > 0))
-#else
 	if (pWonderCity)
-#endif
 	{
 		apProductionTargetCities.push_back(pWonderCity);
 	}
 	CvCity* pCity = NULL;
 	int iCityLoop;
+#if defined(MOD_BALANCE_CORE_POLICIES)
+	//If internal trade grants gold, let's make a super production city.
+	int iBestProduction = 0;
+	CvCity* pBestCity = NULL;
+#endif
 	for (pCity = m_pPlayer->firstCity(&iCityLoop); pCity != NULL; pCity = m_pPlayer->nextCity(&iCityLoop))
 	{
 		UnitTypes eUnit = pCity->getProductionUnit();
@@ -5086,7 +5135,23 @@ void CvTradeAI::PrioritizeTradeRoutes(TradeConnectionList& aTradeConnectionList)
 				}
 			}
 		}
+#if defined(MOD_BALANCE_CORE_POLICIES)
+		if (m_pPlayer->GetGoldInternalTrade() > 0)
+		{
+			if(pCity->getProduction() > iBestProduction)
+			{
+				iBestProduction = pCity->getProduction();
+				pBestCity = pCity;
+			}
+		}
 	}
+	if(pBestCity != NULL)
+	{
+		apProductionTargetCities.push_back(pBestCity);
+	}
+#else
+	}
+#endif
 	if (apProductionTargetCities.size() > 0)
 	{
 		aProductionSortedTR.clear();

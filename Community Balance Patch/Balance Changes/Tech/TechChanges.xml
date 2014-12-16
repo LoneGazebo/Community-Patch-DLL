@@ -1,4 +1,11 @@
 <GameData>
+	<Technology_Flavors>
+		<Row>
+			<TechType>TECH_ARCHAEOLOGY</TechType>
+			<FlavorType>FLAVOR_GROWTH</FlavorType>
+			<Flavor>15</Flavor>
+		</Row>
+	</Technology_Flavors>
 	<Technologies>
 		<Update>
 			<Set GridY="2" />
@@ -213,7 +220,7 @@
 			<Where Type="TECH_RAILROAD" />
 		</Update>
 		<Update>
-			<Set Era="ERA_POSTMODERN" GridX="14" />
+			<Set Era="ERA_POSTMODERN" GridX="14" GridY="2"/>
 			<Where Type="TECH_ELECTRONICS" />
 		</Update>
 		<Update>
@@ -233,7 +240,7 @@
 			<Where Type="TECH_RADAR" />
 		</Update>
 		<Update>
-			<Set GridX="13" GridY="7" />
+			<Set GridX="13" GridY="9" />
 			<Where Type="TECH_COMBINED_ARMS" />
 		</Update>
 		<Update>
@@ -241,19 +248,19 @@
 			<Where Type="TECH_ECOLOGY" />
 		</Update>
 		<Update>
-			<Set GridY="2" />
+			<Set GridY="6" />
 			<Where Type="TECH_NUCLEAR_FISSION" />
 		</Update>
 		<Update>
-			<Set GridX="13" GridY="9" />
+			<Set GridX="13" GridY="7" />
 			<Where Type="TECH_ROCKETRY" />
 		</Update>
 		<Update>
-			<Set GridY="6" />
+			<Set GridY="4" />
 			<Where Type="TECH_COMPUTERS" />
 		</Update>
 		<Update>
-			<Set GridY="7" />
+			<Set GridY="3" />
 			<Where Type="TECH_TELECOM" />
 		</Update>
 		<Update>
@@ -261,7 +268,7 @@
 			<Where Type="TECH_MOBILE_TACTICS" />
 		</Update>
 		<Update>
-			<Set GridY="3" />
+			<Set GridY="7" />
 			<Where Type="TECH_ADVANCED_BALLISTICS" />
 		</Update>
 		<Update>
@@ -273,7 +280,7 @@
 			<Where Type="TECH_LASERS" />
 		</Update>
 		<Update>
-			<Set GridY="8" />
+			<Set GridY="6" />
 			<Where Type="TECH_INTERNET" />
 		</Update>
 		<Update>
@@ -293,7 +300,7 @@
 			<Where Type="TECH_NANOTECHNOLOGY" />
 		</Update>
 		<Update>
-			<Set GridY="6" />
+			<Set GridY="8" />
 			<Where Type="TECH_STEALTH" />
 		</Update>
 		<Update>
@@ -333,7 +340,7 @@
 		</Row>
 		<Row>
 			<TechType>TECH_PARTICLE_PHYSICS</TechType>
-			<PrereqTech>TECH_STEALTH</PrereqTech>
+			<PrereqTech>TECH_INTERNET</PrereqTech>
 		</Row>
 		<Row>
 			<TechType>TECH_PARTICLE_PHYSICS</TechType>
@@ -365,34 +372,50 @@
 		</Row>
 		<Row>
 			<TechType>TECH_ROBOTICS</TechType>
-			<PrereqTech>TECH_ADVANCED_BALLISTICS</PrereqTech>
+			<PrereqTech>TECH_TELECOM</PrereqTech>
 		</Row>
 		<Row>
 			<TechType>TECH_LASERS</TechType>
-			<PrereqTech>TECH_ADVANCED_BALLISTICS</PrereqTech>
+			<PrereqTech>TECH_TELECOM</PrereqTech>
 		</Row>
 		<Row>
 			<TechType>TECH_LASERS</TechType>
 			<PrereqTech>TECH_SATELLITES</PrereqTech>
 		</Row>
 		<Row>
-			<TechType>TECH_STEALTH</TechType>
+			<TechType>TECH_INTERNET</TechType>
 			<PrereqTech>TECH_SATELLITES</PrereqTech>
 		</Row>
 		<Row>
+			<TechType>TECH_INTERNET</TechType>
+			<PrereqTech>TECH_ADVANCED_BALLISTICS</PrereqTech>
+		</Row>
+		<Row>
 			<TechType>TECH_STEALTH</TechType>
-			<PrereqTech>TECH_TELECOM</PrereqTech>
+			<PrereqTech>TECH_ADVANCED_BALLISTICS</PrereqTech>
 		</Row>
 		<Row>
-			<TechType>TECH_INTERNET</TechType>
-			<PrereqTech>TECH_TELECOM</PrereqTech>
-		</Row>
-		<Row>
-			<TechType>TECH_INTERNET</TechType>
+			<TechType>TECH_STEALTH</TechType>
 			<PrereqTech>TECH_MOBILE_TACTICS</PrereqTech>
 		</Row>
 		<Row>
 			<TechType>TECH_ECOLOGY</TechType>
+			<PrereqTech>TECH_ELECTRONICS</PrereqTech>
+		</Row>
+		<Row>
+			<TechType>TECH_TELECOM</TechType>
+			<PrereqTech>TECH_ELECTRONICS</PrereqTech>
+		</Row>
+		<Row>
+			<TechType>TECH_TELECOM</TechType>
+			<PrereqTech>TECH_COMPUTERS</PrereqTech>
+		</Row>
+		<Row>
+			<TechType>TECH_SATELLITES</TechType>
+			<PrereqTech>TECH_COMPUTERS</PrereqTech>
+		</Row>
+		<Row>
+			<TechType>TECH_SATELLITES</TechType>
 			<PrereqTech>TECH_NUCLEAR_FISSION</PrereqTech>
 		</Row>
 		<Row>
@@ -401,22 +424,6 @@
 		</Row>
 		<Row>
 			<TechType>TECH_ADVANCED_BALLISTICS</TechType>
-			<PrereqTech>TECH_ELECTRONICS</PrereqTech>
-		</Row>
-		<Row>
-			<TechType>TECH_SATELLITES</TechType>
-			<PrereqTech>TECH_ELECTRONICS</PrereqTech>
-		</Row>
-		<Row>
-			<TechType>TECH_SATELLITES</TechType>
-			<PrereqTech>TECH_COMPUTERS</PrereqTech>
-		</Row>
-		<Row>
-			<TechType>TECH_TELECOM</TechType>
-			<PrereqTech>TECH_COMPUTERS</PrereqTech>
-		</Row>
-		<Row>
-			<TechType>TECH_TELECOM</TechType>
 			<PrereqTech>TECH_RADAR</PrereqTech>
 		</Row>
 		<Row>
@@ -425,24 +432,12 @@
 		</Row>
 		<!-- Atomic Era -->
 		<Row>
-			<TechType>TECH_NUCLEAR_FISSION</TechType>
+			<TechType>TECH_ELECTRONICS</TechType>
 			<PrereqTech>TECH_PENICILIN</PrereqTech>
 		</Row>
 		<Row>
-			<TechType>TECH_NUCLEAR_FISSION</TechType>
-			<PrereqTech>TECH_REFRIGERATION</PrereqTech>
-		</Row>
-		<Row>
-			<TechType>TECH_NUCLEAR_FISSION</TechType>
-			<PrereqTech>TECH_ATOMIC_THEORY</PrereqTech>
-		</Row>
-		<Row>
 			<TechType>TECH_ELECTRONICS</TechType>
 			<PrereqTech>TECH_REFRIGERATION</PrereqTech>
-		</Row>
-		<Row>
-			<TechType>TECH_ELECTRONICS</TechType>
-			<PrereqTech>TECH_ATOMIC_THEORY</PrereqTech>
 		</Row>
 		<Row>
 			<TechType>TECH_COMPUTERS</TechType>
@@ -450,7 +445,15 @@
 		</Row>
 		<Row>
 			<TechType>TECH_COMPUTERS</TechType>
-			<PrereqTech>TECH_COMBINED_ARMS</PrereqTech>
+			<PrereqTech>TECH_REFRIGERATION</PrereqTech>
+		</Row>
+		<Row>
+			<TechType>TECH_NUCLEAR_FISSION</TechType>
+			<PrereqTech>TECH_ATOMIC_THEORY</PrereqTech>
+		</Row>
+		<Row>
+			<TechType>TECH_NUCLEAR_FISSION</TechType>
+			<PrereqTech>TECH_ROCKETRY</PrereqTech>
 		</Row>
 		<Row>
 			<TechType>TECH_RADAR</TechType>
@@ -459,10 +462,6 @@
 		<Row>
 			<TechType>TECH_RADAR</TechType>
 			<PrereqTech>TECH_COMBINED_ARMS</PrereqTech>
-		</Row>
-		<Row>
-			<TechType>TECH_RADAR</TechType>
-			<PrereqTech>TECH_ATOMIC_THEORY</PrereqTech>
 		</Row>
 		<Row>
 			<TechType>TECH_PENICILIN</TechType>
@@ -486,11 +485,11 @@
 		</Row>
 		<Row>
 			<TechType>TECH_COMBINED_ARMS</TechType>
-			<PrereqTech>TECH_FLIGHT</PrereqTech>
+			<PrereqTech>TECH_BALLISTICS</PrereqTech>
 		</Row>
 		<Row>
-			<TechType>TECH_COMBINED_ARMS</TechType>
-			<PrereqTech>TECH_BALLISTICS</PrereqTech>
+			<TechType>TECH_ROCKETRY</TechType>
+			<PrereqTech>TECH_FLIGHT</PrereqTech>
 		</Row>
 		<Row>
 			<TechType>TECH_ROCKETRY</TechType>

@@ -14,6 +14,9 @@
 //static 
 short* CvBarbarians::m_aiPlotBarbCampSpawnCounter = NULL;
 short* CvBarbarians::m_aiPlotBarbCampNumUnitsSpawned = NULL;
+#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
+short* CvBarbarians::m_aiPlotBarbCitySpawnCounter = NULL;
+#endif
 FStaticVector<DirectionTypes, 6, true, c_eCiv5GameplayDLL, 0> CvBarbarians::m_aeValidBarbSpawnDirections;
 
 //	---------------------------------------------------------------------------
@@ -162,8 +165,11 @@ void CvBarbarians::BeginTurn()
 		{
 			// No Camp here any more
 			CvPlot* pPlot = kMap.plotByIndex(iPlotLoop);
-
+#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
+			if((pPlot->getImprovementType() != eCamp) || ((pPlot->getPlotCity() != NULL) && (pPlot->getOwner() != BARBARIAN_PLAYER)))
+#else
 			if (pPlot->getImprovementType() != eCamp)
+#endif
 			{
 				m_aiPlotBarbCampSpawnCounter[iPlotLoop] = -1;
 				m_aiPlotBarbCampNumUnitsSpawned[iPlotLoop] = -1;
@@ -172,21 +178,6 @@ void CvBarbarians::BeginTurn()
 			{
 				m_aiPlotBarbCampSpawnCounter[iPlotLoop]--;
 			}
-#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
-			if(pPlot->getPlotCity() != NULL)
-			{
-				//Owned by barbs?
-				if(pPlot->getOwner() == BARBARIAN_PLAYER)
-				{
-					m_aiPlotBarbCampSpawnCounter[iPlotLoop]--;
-				}
-				else
-				{
-					m_aiPlotBarbCampSpawnCounter[iPlotLoop] = -1;
-					m_aiPlotBarbCampNumUnitsSpawned[iPlotLoop] = -1;
-				}
-			}
-#endif
 		}
 
 		// Counter is negative, meaning a camp was cleared here recently and isn't allowed to respawn in the area for a while
@@ -194,6 +185,22 @@ void CvBarbarians::BeginTurn()
 		{
 			m_aiPlotBarbCampSpawnCounter[iPlotLoop]++;
 		}
+#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
+		CvPlot* pPlot = kMap.plotByIndex(iPlotLoop);
+		if(MOD_DIPLOMACY_CITYSTATES_QUESTS && (pPlot->getPlotCity() != NULL) && (pPlot->getOwner() == BARBARIAN_PLAYER))
+		{
+			if((m_aiPlotBarbCitySpawnCounter[iPlotLoop] + (m_aiPlotBarbCampNumUnitsSpawned[iPlotLoop] * 2)) > 10)
+			{
+				DoSpawnBarbarianUnit(pPlot, false, false);
+				m_aiPlotBarbCitySpawnCounter[iPlotLoop] = 0;
+				m_aiPlotBarbCampNumUnitsSpawned[iPlotLoop]++;
+			}
+			else
+			{
+				m_aiPlotBarbCitySpawnCounter[iPlotLoop]++;
+			}
+		}
+#endif
 	}
 }
 
@@ -208,6 +215,12 @@ void CvBarbarians::MapInit(int iWorldNumPlots)
 	{
 		SAFE_DELETE_ARRAY(m_aiPlotBarbCampNumUnitsSpawned);
 	}
+#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
+	if (m_aiPlotBarbCitySpawnCounter != NULL)
+	{
+		SAFE_DELETE_ARRAY(m_aiPlotBarbCitySpawnCounter);
+	}	
+#endif
 	
 	int iI;
 
@@ -221,12 +234,21 @@ void CvBarbarians::MapInit(int iWorldNumPlots)
 		{
 			m_aiPlotBarbCampNumUnitsSpawned = FNEW(short[iWorldNumPlots], c_eCiv5GameplayDLL, 0);
 		}
+#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
+		if (m_aiPlotBarbCitySpawnCounter == NULL)
+		{
+			m_aiPlotBarbCitySpawnCounter = FNEW(short[iWorldNumPlots], c_eCiv5GameplayDLL, 0);
+		}
+#endif
 
 		// Default values
 		for (iI = 0; iI < iWorldNumPlots; ++iI)
 		{
 			m_aiPlotBarbCampSpawnCounter[iI] = -1;
 			m_aiPlotBarbCampNumUnitsSpawned[iI] = -1;
+#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
+			m_aiPlotBarbCitySpawnCounter[iI] = -1;
+#endif
 		}
 	}
 }
@@ -244,6 +266,12 @@ void CvBarbarians::Uninit()
 	{
 		SAFE_DELETE_ARRAY(m_aiPlotBarbCampNumUnitsSpawned);
 	}
+#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
+	if (m_aiPlotBarbCitySpawnCounter != NULL)
+	{
+		SAFE_DELETE_ARRAY(m_aiPlotBarbCitySpawnCounter);
+	}
+#endif
 }
 
 //	---------------------------------------------------------------------------
@@ -261,6 +289,9 @@ void CvBarbarians::Read(FDataStream& kStream, uint uiParentVersion)
 
 	kStream >> ArrayWrapper<short>(iWorldNumPlots, m_aiPlotBarbCampSpawnCounter);
 	kStream >> ArrayWrapper<short>(iWorldNumPlots, m_aiPlotBarbCampNumUnitsSpawned);
+#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
+	kStream >> ArrayWrapper<short>(iWorldNumPlots, m_aiPlotBarbCitySpawnCounter);
+#endif
 }
 
 //	---------------------------------------------------------------------------
@@ -275,6 +306,9 @@ void CvBarbarians::Write(FDataStream& kStream)
 	int iWorldNumPlots = GC.getMap().numPlots();
 	kStream << ArrayWrapper<short>(iWorldNumPlots, m_aiPlotBarbCampSpawnCounter);
 	kStream << ArrayWrapper<short>(iWorldNumPlots, m_aiPlotBarbCampNumUnitsSpawned);
+#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
+	kStream << ArrayWrapper<short>(iWorldNumPlots, m_aiPlotBarbCitySpawnCounter);
+#endif
 }
 
 //	--------------------------------------------------------------------------------

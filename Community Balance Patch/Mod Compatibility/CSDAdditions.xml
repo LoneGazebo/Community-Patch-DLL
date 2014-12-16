@@ -8,7 +8,20 @@
 			<UnitClassType>UNITCLASS_GREAT_DIPLOMAT</UnitClassType>
 		</Row>
 	</Policy_FaithPurchaseUnitClasses>
-	
+	<Building_SpecialistYieldChanges>
+		<Row>
+			<BuildingType>BUILDING_STATUE_OF_LIBERTY</BuildingType>
+			<SpecialistType>SPECIALIST_CIVIL_SERVANT</SpecialistType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_EMPIRE_STATE_BUILDING</BuildingType>
+			<SpecialistType>SPECIALIST_CIVIL_SERVANT</SpecialistType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+	</Building_SpecialistYieldChanges>
 	<GreatPersons>
 		<Row>
 			<Type>GREATPERSON_DIPLOMAT</Type>

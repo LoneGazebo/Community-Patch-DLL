@@ -58,7 +58,10 @@
 			</Text>
 		</Row>
 		<Row Tag="TXT_KEY_THEMING_BONUS_RELIQUARY_HELP">
-			<Text>All four Works of Art/Artifacts must come from differing players.</Text>
+			<Text>To maximize your bonus, make sure the Great Work Slots are all filled with Works of Art/Artifacts from differing players.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_THEMING_BONUS_RELIQUARY">
+			<Text>Holy Reliquary of {2_CivAdjective}</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_DIVINE_COURT_HELP">

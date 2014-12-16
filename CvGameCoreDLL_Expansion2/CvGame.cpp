@@ -5255,11 +5255,19 @@ void CvGame::DoUpdateDiploVictory()
 				{
 					if (pPlayer->isAlive())
 					{
+#if defined(MOD_BALANCE_CORE)
+						fCityStatesToCount += 1.25f;
+#else
 						fCityStatesToCount += 1.0f;
+#endif
 					}
 					else
 					{
+#if defined(MOD_BALANCE_CORE)
+						fCityStatesToCount += 0.75f;
+#else
 						fCityStatesToCount += 0.5f;
+#endif
 					}
 				}
 			}
@@ -5268,11 +5276,19 @@ void CvGame::DoUpdateDiploVictory()
 			{
 				if (pPlayer->isAlive())
 				{
+#if defined(MOD_BALANCE_CORE)
+					fCivsToCount += 1.25f;
+#else
 					fCivsToCount += 1.0f;
+#endif
 				}
 				else
 				{
+#if defined(MOD_BALANCE_CORE)
+					fCivsToCount += 0.75f;
+#else
 					fCivsToCount += 0.5f;
+#endif
 				}
 			}
 		}
@@ -9526,11 +9542,6 @@ void CvGame::getGlobalAverage() const
 					
 					//Disorder
 					iDefenseYield = pLoopCity->getStrengthValue(false);
-					iDefenseYield += (pLoopCity->GetCityBuildings()->GetBuildingDefense() * 4);
-					if(pLoopCity->GetGarrisonedUnit() != NULL)
-					{
-						iDefenseYield += pLoopCity->GetGarrisonedUnit()->GetBaseCombatStrength() * 5;
-					}
 					float iDefenseAvg = iDefenseYield / (float)iPopulation;
 					vfDefenseYield.push_back((float)iDefenseAvg);
 
@@ -9579,7 +9590,7 @@ void CvGame::SetScienceAverage(int iValue)
 	if(GetScienceAverage() != iValue)
 	{
 		float fAlpha = 0.05f;
-		m_iScienceAverage = int(0.5f + (iValue * fAlpha) + (m_iCultureAverage * ( 1 - fAlpha)));
+		m_iScienceAverage = int(0.5f + (iValue * fAlpha) + (m_iScienceAverage * ( 1 - fAlpha)));
 	}
 }
 //	--------------------------------------------------------------------------------
@@ -9588,7 +9599,7 @@ void CvGame::SetDefenseAverage(int iValue)
 	if(GetDefenseAverage() != iValue)
 	{
 		float fAlpha = 0.05f;
-		m_iDefenseAverage = int(0.5f + (iValue * fAlpha) + (m_iCultureAverage * ( 1 - fAlpha)));
+		m_iDefenseAverage = int(0.5f + (iValue * fAlpha) + (m_iDefenseAverage * ( 1 - fAlpha)));
 	}
 }
 //	--------------------------------------------------------------------------------
@@ -9597,7 +9608,7 @@ void CvGame::SetGoldAverage(int iValue)
 	if(GetGoldAverage() != iValue)
 	{
 		float fAlpha = 0.05f;
-		m_iGoldAverage = int(0.5f + (iValue * fAlpha) + (m_iCultureAverage * ( 1 - fAlpha)));
+		m_iGoldAverage = int(0.5f + (iValue * fAlpha) + (m_iGoldAverage * ( 1 - fAlpha)));
 	}
 }
 //	--------------------------------------------------------------------------------

@@ -91,7 +91,7 @@
 -- Maximum happiness penalty % mod. (Should always be a negative value)
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_HAPPINESS_PENALTY_MAXIMUM', '-15'
+	SELECT 'BALANCE_HAPPINESS_PENALTY_MAXIMUM', '-20'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
 
 -- Minimum happiness penalty % mod.
@@ -195,10 +195,20 @@
 	Set Text = '[ICON_BULLET][COLOR_POSITIVE_TEXT]+{1_Num}[ENDCOLOR] from [ICON_HAPPINESS_1] Happiness and/or a Golden Age.'
 	WHERE Tag = 'TXT_KEY_TP_CULTURE_FROM_GOLDEN_AGE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
 
+-- Update Text for Very Unhappy and Super Unhappy
 
 -- Update text for top panel depending on which yields you have enabled above. Change as desired.
 	UPDATE Language_en_US
-	SET Text = 'Your empire is [ICON_HAPPINESS_3] unhappy! [NEWLINE][NEWLINE]Empire-wide [ICON_CULTURE] Culture, [ICON_PEACE] Faith, [ICON_GOLD] Gold, [ICON_FOOD] Food, and [ICON_RESEARCH] Science output are reduced by [COLOR_NEGATIVE_TEXT]1%[ENDCOLOR] for each point of [ICON_HAPPINESS_3] Unhappiness!'
+	SET Text = 'Your empire is [ICON_HAPPINESS_3] very unhappy![ENDCOLOR] [NEWLINE][NEWLINE]Empire-wide [ICON_CULTURE] Culture, [ICON_PEACE] Faith, [ICON_GOLD] Gold, [ICON_FOOD] Growth, and [ICON_RESEARCH] Science are [COLOR_NEGATIVE_TEXT]reduced by 1%[ENDCOLOR] for each point of [ICON_HAPPINESS_3] Unhappiness (up to -20 [ICON_HAPPINESS_3] Unhappiness)!'
+	WHERE Tag = 'TXT_KEY_TP_EMPIRE_VERY_UNHAPPY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
+
+	UPDATE Language_en_US
+	SET Text = 'Because your [ICON_HAPPINESS_4] Unhappiness has reached 20, the Empire is is in revolt! [ENDCOLOR]Cities may abandon your empire and flip to the civilization that is most culturally influential over your people, and uprisings may occur with rebel (barbarian) units appearing in your territory!'
+	WHERE Tag = 'TXT_KEY_TP_EMPIRE_SUPER_UNHAPPY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
+	
+-- Update text for top panel depending on which yields you have enabled above. Change as desired.
+	UPDATE Language_en_US
+	SET Text = 'Your empire is [ICON_HAPPINESS_3] unhappy! [NEWLINE][NEWLINE][ENDCOLOR]Empire-wide [ICON_CULTURE] Culture, [ICON_PEACE] Faith, [ICON_GOLD] Gold, [ICON_FOOD] Growth, and [ICON_RESEARCH] Science are [COLOR_NEGATIVE_TEXT]reduced by 1%[ENDCOLOR] for each point of [ICON_HAPPINESS_3] Unhappiness (up to -20 [ICON_HAPPINESS_3] Unhappiness)!'
 	WHERE Tag = 'TXT_KEY_TP_EMPIRE_UNHAPPY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
 
 -- TOOLTIPS FOR TOP BAR
