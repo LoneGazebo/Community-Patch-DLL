@@ -49,21 +49,51 @@ UPDATE Buildings
 SET PrereqTech = 'TECH_CONSTRUCTION'
 WHERE Type = 'BUILDING_FLOATING_GARDENS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
+UPDATE Units
+SET ObsoleteTech = 'TECH_CIVIL_SERVICE'
+WHERE Type = 'UNIT_AZTEC_JAGUAR' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
 -- Askia -- Boost Mosque
 UPDATE Building_YieldChanges
-SET Yield = '3'
+SET Yield = '2'
 WHERE BuildingType = 'BUILDING_MUD_PYRAMID_MOSQUE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 DELETE FROM Building_ClassesNeededInCity
 WHERE BuildingType = 'BUILDING_MUD_PYRAMID_MOSQUE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Buildings
-SET MinorityHappinessChange = '1'
+SET MinorityHappinessChange = '2'
 WHERE Type = 'BUILDING_MUD_PYRAMID_MOSQUE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 UPDATE Language_en_US
 SET Text = 'Requires no [ICON_GOLD] Gold maintenance. Reduces [ICON_HAPPINESS_3] Religious Unrest, and grants +1 [ICON_CULTURE] Culture from [ICON_RES_INCENSE] Incense and [ICON_RES_WINE] Wine resources nearby.'
 WHERE Tag = 'TXT_KEY_BUILDING_MUD_PYRAMID_MOSQUE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
+
+-- Catherine -- Move Krepost, give bonus
+UPDATE Buildings
+SET PrereqTech = 'TECH_ARCHERY'
+WHERE Type = 'BUILDING_KREPOST' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
+
+UPDATE Buildings
+SET DefenseHappinessChange = '2'
+WHERE Type = 'BUILDING_KREPOST' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
+
+UPDATE Buildings
+SET ExtraCityHitPoints = '25'
+WHERE Type = 'BUILDING_KREPOST' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
+
+UPDATE Buildings
+SET Defense = '200'
+WHERE Type = 'BUILDING_KREPOST' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
+
+UPDATE Language_en_US
+SET Text = '+15 XP for all Units. [ICON_CULTURE] Culture and [ICON_GOLD] Gold costs of acquiring new tiles reduced by 25% in this city. Increases city Defense Strength by 2 and Hit Points by 25, and reduces [ICON_HAPPINESS_3] Disorder slightly.'
+WHERE Tag = 'TXT_KEY_BUILDING_KREPOST_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
+
+UPDATE Language_en_US
+SET Text = 'The Krepost is the Russian unique building, replacing the barracks. The Krepost provides 15 experience points for all military units constructed in its city. In addition, the Krepost increases cultural border growth by 25% and city defense strength by 2. It is quite worthwhile to construct these useful buildings in all Russian cities, but especially in cities on the the Russian frontier.'
+WHERE Tag = 'TXT_KEY_BUILDINGS_KREPOST_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
+
 
 -- Darius -- Adjust Satrap
 UPDATE Language_en_US
@@ -108,6 +138,32 @@ BuildingType, ResourceType, YieldType, Yield)
 SELECT 'BUILDING_BURIAL_TOMB', 'RESOURCE_WINE', 'YIELD_FAITH', '1'
 WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
+-- Elizabeth -- Replace Longbowman with a unique Factory
+DELETE FROM Units
+WHERE Type = 'UNIT_ENGLISH_LONGBOWMAN' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
+DELETE FROM Civilization_UnitClassOverrides
+WHERE UnitType = 'UNIT_ENGLISH_LONGBOWMAN' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
+DELETE FROM Unit_AITypes
+WHERE UnitType = 'UNIT_ENGLISH_LONGBOWMAN' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
+DELETE FROM Unit_ClassUpgrades
+WHERE UnitType = 'UNIT_ENGLISH_LONGBOWMAN' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
+DELETE FROM Unit_FreePromotions
+WHERE UnitType = 'UNIT_ENGLISH_LONGBOWMAN' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
+DELETE FROM Unit_Flavors
+WHERE UnitType = 'UNIT_ENGLISH_LONGBOWMAN' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
+DELETE FROM Unit_ResourceQuantityRequirements
+WHERE UnitType = 'UNIT_ENGLISH_LONGBOWMAN' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
+DELETE FROM UnitGameplay2DScripts
+WHERE UnitType = 'UNIT_ENGLISH_LONGBOWMAN' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
+
 -- Germany -- New UA
 
 -- Bismarck -- Hanse Yield Per Pop
@@ -130,6 +186,7 @@ WHERE Type = 'TRAIT_CONVERTS_LAND_BARBARIANS' AND EXISTS (SELECT * FROM COMMUNIT
 UPDATE Traits
 SET LandBarbarianConversionPercent = '0'
 WHERE Type = 'TRAIT_CONVERTS_LAND_BARBARIANS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
 UPDATE Traits
 SET LandUnitMaintenanceModifier = '0'
 WHERE Type = 'TRAIT_CONVERTS_LAND_BARBARIANS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
@@ -161,7 +218,7 @@ DELETE FROM UnitGameplay2DScripts
 WHERE UnitType = 'UNIT_GREEK_COMPANIONCAVALRY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'City-State [ICON_INFLUENCE] Influence degrades at half and recovers at twice the normal rate. +2 [ICON_CULTURE] Culture in every City.'
+SET Text = 'City-State [ICON_INFLUENCE] Influence degrades at half and recovers at twice the normal rate. +1 [ICON_CULTURE] Culture in every City.'
 WHERE Tag = 'TXT_KEY_TRAIT_CITY_STATE_FRIENDSHIP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -213,7 +270,7 @@ WHERE Tag = 'TXT_KEY_TRAIT_POPULATION_GROWTH_SHORT' AND EXISTS (SELECT * FROM CO
 
 -- Iroquois -- All units receive Woodsman promotion
 UPDATE Language_en_US
-SET Text = 'Units move through Forest and Jungle in friendly territory as if it is Road. These tiles can be used to establish [ICON_CONNECTED] Trade Routes upon researching The Wheel. All land military units receive the Woodsman promotion for free.'
+SET Text = 'Units move through Forest and Jungle in friendly territory as if it is Road. These tiles can be used to establish [ICON_CONNECTED] Trade Routes upon researching The Wheel. Land military units start with the Woodsman promotion.'
 WHERE Tag = 'TXT_KEY_TRAIT_IGNORE_TERRAIN_IN_FOREST' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Building_YieldChanges
@@ -254,13 +311,17 @@ UPDATE Language_en_US
 SET Text = 'The [ICON_STRENGTH] Combat Strength of your units increases as they take damage. +1 [ICON_CULTURE] Culture from each Fishing Boat and +2 [ICON_CULTURE] Culture from each Atoll.'
 WHERE Tag = 'TXT_KEY_TRAIT_FIGHT_WELL_DAMAGED' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
+UPDATE Unit_ClassUpgrades
+SET UnitClassType = 'UNITCLASS_MUSKETMAN'
+WHERE UnitType = 'UNIT_JAPANESE_SAMURAI' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
 -- Napoleon -- Plunders artwork!
 UPDATE Traits
 SET FreeGreatWorkOnConquest = 'true'
 WHERE Type = 'TRAIT_ENHANCED_CULTURE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Theming bonuses doubled in [ICON_CAPITAL] Capital. Plunder [ICON_GREAT_WORK] Great Works of Art based on the number of empty slots in your empire. If none can be plundered, receive a temporary [ICON_CULTURE] Culture boost based on the population of the conquered city.'
+SET Text = 'Theming bonuses doubled in [ICON_CAPITAL] Capital. Plunder [ICON_GREAT_WORK] Great Works of Art when you conquer a City. Receive a temporary [ICON_CULTURE] Culture boost if you cannot plunder.'
 WHERE Tag = 'TXT_KEY_TRAIT_ENHANCED_CULTURE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -296,6 +357,32 @@ SET Text = '[ICON_BULLET][COLOR_POSITIVE_TEXT]+{1_Num}[ENDCOLOR] from a temporar
 WHERE Tag = 'TXT_KEY_TP_CULTURE_FROM_BONUS_TURNS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 -- Ottomans -- Receive a free Caravansary in all cities, and Trade Routes generate Golden Age points when finishing a Trade Route. 
+
+-- Remove Sipahi, replace with Siege Workshop
+DELETE FROM Units
+WHERE Type = 'UNIT_OTTOMAN_SIPAHI' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
+DELETE FROM Civilization_UnitClassOverrides
+WHERE UnitType = 'UNIT_OTTOMAN_SIPAHI' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
+DELETE FROM Unit_AITypes
+WHERE UnitType = 'UNIT_OTTOMAN_SIPAHI' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
+DELETE FROM Unit_ClassUpgrades
+WHERE UnitType = 'UNIT_OTTOMAN_SIPAHI' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
+DELETE FROM Unit_FreePromotions
+WHERE UnitType = 'UNIT_OTTOMAN_SIPAHI' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
+DELETE FROM Unit_Flavors
+WHERE UnitType = 'UNIT_OTTOMAN_SIPAHI' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
+DELETE FROM Unit_ResourceQuantityRequirements
+WHERE UnitType = 'UNIT_OTTOMAN_SIPAHI' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
+DELETE FROM UnitGameplay2DScripts
+WHERE UnitType = 'UNIT_OTTOMAN_SIPAHI' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
 UPDATE Traits
 SET NavalUnitMaintenanceModifier = '0'
 WHERE Type = 'TRAIT_CONVERTS_SEA_BARBARIANS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
@@ -314,6 +401,10 @@ WHERE Tag = 'TXT_KEY_TRAIT_CONVERTS_SEA_BARBARIANS_SHORT' AND EXISTS (SELECT * F
 UPDATE Language_en_US
 SET Text = 'Receive 40 [ICON_RESEARCH] Science and [ICON_GOLDEN_AGE] Golden Age Points every time you complete an [ICON_INTERNATIONAL_TRADE] International Trade Route, and a free Caravansary in every city.'
 WHERE Tag = 'TXT_KEY_TRAIT_CONVERTS_SEA_BARBARIANS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
+UPDATE Units
+SET ObsoleteTech = 'TECH_REPLACEABLE_PARTS'
+WHERE Type = 'UNIT_OTTOMAN_JANISSARY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 -- Rome -- Unique Monument (Triumphal Arch) -- Receive Culture boost when you conquer a City.
 DELETE FROM Units
@@ -374,15 +465,4 @@ WHERE Type = 'BUILDING_PAPER_MAKER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Ty
 UPDATE Buildings
 SET SpecialistType = 'SPECIALIST_SCIENTIST'
 WHERE Type = 'BUILDING_PAPER_MAKER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
-
-
--- Babylon 
-
-UPDATE Buildings
-SET ExtraCityHitPoints = '125'
-WHERE Type = 'BUILDING_WALLS_OF_BABYLON' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
-
-UPDATE Language_en_US
-SET Text = 'The Walls of Babylon are a Babylonian Unique Building, replacing the standard city Walls. The Walls of Babylon increase Defense Strength in a city by 6 and Hit Points by 125, the latter almost double that of standard Walls.'
-WHERE Tag = 'TXT_KEY_CIV5_BABYLON_WALLS_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 

@@ -13,8 +13,8 @@
 	<Improvement_Yields>
 		<Row>
 			<ImprovementType>IMPROVEMENT_POLDER</ImprovementType>
-			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Yield>1</Yield>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>2</Yield>
 		</Row>
 	</Improvement_Yields>
 <!-- Coffee House -->
@@ -48,4 +48,50 @@
 			<Yield>200</Yield>
 		</Row>
 	</Trait_YieldFromSettle>
+	<!-- Make Hunnic Archer a Classical Unit -->
+	<UnitClasses>
+		<Row>
+			<Type>UNITCLASS_HORSE_ARCHER</Type>
+			<Description>TXT_KEY_UNIT_HUN_HORSE_ARCHER</Description>
+			<DefaultUnit>UNIT_HUN_HORSE_ARCHER</DefaultUnit>
+		</Row>
+	</UnitClasses>
+	<!-- Mounted Units stronger for Attila -->
+	<Trait_FreePromotionUnitClass>
+		<Row>
+			<TraitType>TRAIT_RAZE_AND_HORSES</TraitType>
+			<UnitClassType>UNITCLASS_HORSEMAN</UnitClassType>
+			<PromotionType>PROMOTION_FLANK_ATTACK_BONUS</PromotionType>
+		</Row>
+		<Row>
+			<TraitType>TRAIT_RAZE_AND_HORSES</TraitType>
+			<UnitClassType>UNITCLASS_KNIGHT</UnitClassType>
+			<PromotionType>PROMOTION_FLANK_ATTACK_BONUS</PromotionType>
+		</Row>
+		<Row>
+			<TraitType>TRAIT_RAZE_AND_HORSES</TraitType>
+			<UnitClassType>UNITCLASS_LANCER</UnitClassType>
+			<PromotionType>PROMOTION_FLANK_ATTACK_BONUS</PromotionType>
+		</Row>
+		<Row>
+			<TraitType>TRAIT_RAZE_AND_HORSES</TraitType>
+			<UnitClassType>UNITCLASS_CAVALRY</UnitClassType>
+			<PromotionType>PROMOTION_FLANK_ATTACK_BONUS</PromotionType>
+		</Row>
+		<Row>
+			<TraitType>TRAIT_RAZE_AND_HORSES</TraitType>
+			<UnitClassType>UNITCLASS_CHARIOT_ARCHER</UnitClassType>
+			<PromotionType>PROMOTION_WITHDRAW_BEFORE_MELEE</PromotionType>
+		</Row>
+		<Row>
+			<TraitType>TRAIT_RAZE_AND_HORSES</TraitType>
+			<UnitClassType>UNITCLASS_HORSE_ARCHER</UnitClassType>
+			<PromotionType>PROMOTION_WITHDRAW_BEFORE_MELEE</PromotionType>
+		</Row>
+		<Row>
+			<TraitType>TRAIT_RAZE_AND_HORSES</TraitType>
+			<UnitClassType>UNITCLASS_MOUNTED_BOWMAN</UnitClassType>
+			<PromotionType>PROMOTION_WITHDRAW_BEFORE_MELEE</PromotionType>
+		</Row>
+	</Trait_FreePromotionUnitClass>
 </GameData>

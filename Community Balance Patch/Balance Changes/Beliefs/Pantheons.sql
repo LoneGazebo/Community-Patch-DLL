@@ -79,6 +79,10 @@ WHERE Type = 'BELIEF_DESERT_FOLKLORE' AND EXISTS (SELECT * FROM COMMUNITY WHERE 
 
 -- Sacred Path
 
+UPDATE Belief_FeatureYieldChanges
+SET Yield = '0'
+WHERE BeliefType = 'BELIEF_SACRED_PATH' AND FeatureType = 'FEATURE_JUNGLE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
+
 -- Goddess of Protection
 
 -- Faith Healers

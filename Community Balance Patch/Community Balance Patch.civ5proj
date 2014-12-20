@@ -7,7 +7,7 @@
     <Guid>8411a7a8-dad3-4622-a18e-fcc18324c799</Guid>
     <ModVersion>13</ModVersion>
     <Stability>Beta</Stability>
-    <Teaser>The Complete Civ 5 Experience (v. 13)  - Updated 12/15</Teaser>
+    <Teaser>The Complete Civ 5 Experience (v. 13.1)  - Updated 12/19</Teaser>
     <Description>Community Balance Patch - Contains balance changes and support for CSD/CivIV Diplomacy/Health&amp;Plague/Events &amp; Decisions</Description>
     <Authors>Civfanatics Community Balance Team</Authors>
     <SpecialThanks>
@@ -35,6 +35,16 @@
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
         <FileName>Art/Icons.xml</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>Art/Improvements/Eki/IconsEki.xml</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>Art/Improvements/Encampment/IconsEncampment.xml</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
@@ -479,22 +489,22 @@
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <FileName>Balance Changes/Leaders/Vanilla/VanillaLeaderChanges.sql</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
         <FileName>Balance Changes/Leaders/Vanilla/VanillaLeaderChanges.xml</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <FileName>Balance Changes/Leaders/DLC/DLCChanges.sql</FileName>
+        <FileName>Balance Changes/Leaders/Vanilla/VanillaLeaderChanges.sql</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
         <FileName>Balance Changes/Leaders/DLC/DLCChanges.xml</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>Balance Changes/Leaders/DLC/DLCChanges.sql</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
@@ -509,17 +519,17 @@
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <FileName>Balance Changes/Leaders/BraveNew/BNWLeaderChanges.sql</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
         <FileName>Balance Changes/Leaders/BraveNew/BNWLeaderChanges.xml</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <FileName>Balance Changes/Leaders/GodsKings/GKLeaderChanges.sql</FileName>
+        <FileName>Balance Changes/Leaders/BraveNew/BNWLeaderChanges.sql</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>Balance Changes/Leaders/BraveNew/UniqueImprovementBNW.xml</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
@@ -529,7 +539,17 @@
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
+        <FileName>Balance Changes/Leaders/GodsKings/GKLeaderChanges.sql</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
         <FileName>Balance Changes/Leaders/GodsKings/GKNewBuildings.xml</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>Balance Changes/Leaders/GodsKings/UniqueImprovement.xml</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
@@ -726,7 +746,7 @@
     </Homepage>
     <ModReferences />
     <ReloadStrategicViewSystem>true</ReloadStrategicViewSystem>
-    <ReloadLandmarkSystem>false</ReloadLandmarkSystem>
+    <ReloadLandmarkSystem>true</ReloadLandmarkSystem>
     <ReloadUnitSystem>true</ReloadUnitSystem>
     <ModProperties />
     <ModDependencies>
@@ -760,6 +780,8 @@
   <ItemGroup>
     <Folder Include="Art\" />
     <Folder Include="Art\Improvements" />
+    <Folder Include="Art\Improvements\Eki" />
+    <Folder Include="Art\Improvements\Encampment" />
     <Folder Include="Art\Splash" />
     <Folder Include="Art\Units" />
     <Folder Include="Art\Units\Icons\" />
@@ -807,6 +829,7 @@
     <Folder Include="LUA\Active\Standard CBP" />
     <Folder Include="LUA\Inactive" />
     <Folder Include="LUA\Inactive\HealthandPlague + CSD" />
+    <Folder Include="LUA\Inactive\NoCiv4DF" />
     <Folder Include="LUA\Inactive\NoCSD" />
     <Folder Include="LUA\Other" />
     <Folder Include="Mod Compatibility" />
@@ -841,6 +864,78 @@
     <Content Include="Art\Icons.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="Art\Improvements\Eki\EkiAtlas256.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Art\Improvements\Eki\EkiAtlas64.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Art\Improvements\Eki\EkiBuildIcon45.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Art\Improvements\Eki\EkiBuildIcon64.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Art\Improvements\Eki\eki_built.fxsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Art\Improvements\Eki\eki_hb_diff.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Art\Improvements\Eki\eki_hb_grnd.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Art\Improvements\Eki\eki_hb_grnd_h.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Art\Improvements\Eki\eki_hb_sref.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Art\Improvements\Eki\hb_eki.gr2">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Art\Improvements\Eki\IconsEki.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="Art\Improvements\Eki\SV_Eki.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Art\Improvements\Encampment\EncampmentAtlas256.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Art\Improvements\Encampment\EncampmentAtlas64.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Art\Improvements\Encampment\EncampmentBuildIcon45.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Art\Improvements\Encampment\EncampmentBuildIcon64.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Art\Improvements\Encampment\IconsEncampment.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="Art\Improvements\Encampment\SV_Encampment.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
     <Content Include="Art\Improvements\GlobalSpiceIslandsArt.xml">
       <SubType>Lua</SubType>
@@ -1130,6 +1225,10 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
+    <Content Include="Balance Changes\Leaders\BraveNew\UniqueImprovementBNW.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
     <Content Include="Balance Changes\Leaders\DLC\DLCChanges.sql">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
@@ -1139,6 +1238,10 @@
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
     <Content Include="Balance Changes\Leaders\DLC\UBDLCBuildings.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="Balance Changes\Leaders\GodsKings\UniqueImprovement.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
@@ -1483,6 +1586,10 @@
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
     <Content Include="LUA\Inactive\HealthandPlague + CSD\TopPanel.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="LUA\Inactive\NoCiv4DF\TradeLogic.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>

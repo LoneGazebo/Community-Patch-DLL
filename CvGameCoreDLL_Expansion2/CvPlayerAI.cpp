@@ -1079,7 +1079,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveArtist(CvUnit* pGreatArtist)
 		eDirective = GREAT_PEOPLE_DIRECTIVE_GOLDEN_AGE;
 	}
 	// If Persia and I'm at war, get a Golden Age going
-	if (eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE && GetPlayerTraits()->GetGoldenAgeMoveChange() > 0 && GetMilitaryAI()->GetNumberCivsAtWarWith() > 1 && !isGoldenAge())
+	if (eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE && GetPlayerTraits()->GetGoldenAgeMoveChange() > 0 && GetMilitaryAI()->GetNumberCivsAtWarWith() > 0 && !isGoldenAge())
 	{
 		eDirective = GREAT_PEOPLE_DIRECTIVE_GOLDEN_AGE;
 	}

@@ -348,6 +348,9 @@ void CvLuaGame::RegisterMembers(lua_State* L)
 #endif
 	Method(FoundReligion);
 	Method(EnhanceReligion);
+#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE)
+	Method(AddReformation);
+#endif
 	Method(SetHolyCity);
 	Method(GetFounder);
 	Method(SetFounder);
@@ -2558,6 +2561,19 @@ int CvLuaGame::lEnhanceReligion(lua_State* L)
 
 	return 0;
 }
+#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE)
+//------------------------------------------------------------------------------
+int CvLuaGame::lAddReformation(lua_State* L)
+{
+	const PlayerTypes ePlayer = static_cast<PlayerTypes>(luaL_checkint(L, 1));
+	const ReligionTypes eReligion = static_cast<ReligionTypes>(luaL_checkint(L, 2));
+	const BeliefTypes eBelief = static_cast<BeliefTypes>(luaL_checkint(L, 3));
+
+	GC.getGame().GetGameReligions()->AddReformationBelief(ePlayer, eReligion, eBelief);
+
+	return 0;
+}
+#endif
 //------------------------------------------------------------------------------
 int CvLuaGame::lSetHolyCity(lua_State* L)
 {

@@ -983,7 +983,7 @@
 				<Help>TXT_KEY_PROMOTION_MORALE_HELP</Help>
 				<Sound>AS2D_IF_LEVELUP</Sound>
 				<CannotBeChosen>true</CannotBeChosen>
-				<CombatPercent>5</CombatPercent>
+				<CombatPercent>10</CombatPercent>
 				<PortraitIndex>59</PortraitIndex>
 				<IconAtlas>ABILITY_ATLAS</IconAtlas>
 				<PediaType>PEDIA_SHARED</PediaType>

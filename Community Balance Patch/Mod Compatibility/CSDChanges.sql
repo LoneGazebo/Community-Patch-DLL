@@ -220,4 +220,46 @@ UPDATE Buildings
 SET FaithToVotes = '6'
 WHERE Type = 'BUILDING_GRAND_OSSUARY' AND EXISTS (SELECT * FROM CSD WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS_CSD' AND Value= 1 );
 
+-- Building Prereq Techs
 
+UPDATE Buildings
+SET PrereqTech = 'TECH_RADIO'
+WHERE Type = 'BUILDING_FOREIGN_OFFICE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
+
+-- Text for NW Religion
+
+UPDATE Language_en_US
+SET Text = 'Gain [ICON_PEACE] Faith when an owned unit is killed in battle. Bonus scales with Era. May only be constructed in a Holy City, and only if at least 20% of the global population follows your Religion. Reduces [ICON_HAPPINESS_3] Religious Division. [NEWLINE][NEWLINE]Receive 1 additional Delegate in the World Congress for every 6 cities following your Religion.'
+WHERE Tag = 'TXT_KEY_BUILDING_MAUSOLEUM_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
+
+UPDATE Language_en_US
+SET Text = 'May only be constructed in a Holy City, and only if at least 20% of the global population follows your Religion. [NEWLINE][NEWLINE]Receive 1 additional Delegate in the World Congress for every 6 cities following your Religion.'
+WHERE Tag = 'TXT_KEY_BUILDING_HEAVENLY_THRONE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
+
+UPDATE Language_en_US
+SET Text = '+15% Military Unit [ICON_PRODUCTION] Production. May only be constructed in a Holy City, and only if at least 20% of the global population follows your Religion. [NEWLINE][NEWLINE]Receive 1 additional Delegate in the World Congress for every 6 cities following your Religion.'
+WHERE Tag = 'TXT_KEY_BUILDING_GREAT_ALTAR_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
+
+UPDATE Language_en_US
+SET Text = 'May only be constructed in a Holy City, and only if at least 20% of the global population follows your Religion. [NEWLINE][NEWLINE]Receive 1 additional Delegate in the World Congress for every 6 cities following your Religion.'
+WHERE Tag = 'TXT_KEY_BUILDING_RELIQUARY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
+
+UPDATE Language_en_US
+SET Text = 'May only be constructed in a Holy City, and only if at least 20% of the global population follows your Religion. [NEWLINE][NEWLINE]Receive 1 additional Delegate in the World Congress for every 6 cities following your Religion.'
+WHERE Tag = 'TXT_KEY_BUILDING_DIVINE_COURT_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
+
+UPDATE Language_en_US
+SET Text = 'May only be constructed in a Holy City, and only if at least 20% of the global population follows your Religion. [NEWLINE][NEWLINE]Receive 1 additional Delegate in the World Congress for every 6 cities following your Religion.'
+WHERE Tag = 'TXT_KEY_BUILDING_SACRED_GARDEN_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
+
+UPDATE Language_en_US
+SET Text = 'May only be constructed in a Holy City, and only if at least 20% of the global population follows your Religion. [NEWLINE][NEWLINE]Receive 1 additional Delegate in the World Congress for every 6 cities following your Religion.'
+WHERE Tag = 'TXT_KEY_BUILDING_HOLY_COUNCIL_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
+
+UPDATE Language_en_US
+SET Text = '+4 [ICON_GOLDEN_AGE] Golden Age points. May only be constructed in a Holy City, and only if at least 20% of the global population follows your Religion. [NEWLINE][NEWLINE]Receive 1 additional Delegate in the World Congress for every 6 cities following your Religion.'
+WHERE Tag = 'TXT_KEY_BUILDING_APOSTOLIC_PALACE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
+
+UPDATE Language_en_US
+SET Text = 'May only be onstructed in a Holy City, and only if at least 20% of the global population follows your Religion. [NEWLINE][NEWLINE]Receive 1 additional Delegate in the World Congress for every 6 cities following your Religion.'
+WHERE Tag = 'TXT_KEY_BUILDING_GRAND_OSSUARY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );

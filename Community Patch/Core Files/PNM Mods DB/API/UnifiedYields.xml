@@ -118,7 +118,13 @@
 		<!-- Refer to Improvements.CultureAdjacentSameType -->
 		<Column name="ImprovementType" type="text" reference="Improvements(Type)"/>
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>
-		<Column name="Yield" type="integer"/>
+		<Column name="Yield" type="integer" default="0"/>
+	</Table>
+	<Table name="Improvement_YieldAdjacentTwoSameType">
+		<!-- Refer to Improvements.CultureAdjacentSameType -->
+		<Column name="ImprovementType" type="text" reference="Improvements(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
 	</Table>
 
 	<Table name="Policy_CityYieldFromUnimprovedFeature">

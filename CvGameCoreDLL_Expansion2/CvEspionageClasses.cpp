@@ -2750,7 +2750,9 @@ void CvPlayerEspionage::UncoverIntrigue(uint uiSpyIndex)
 	}
 
 	// go through to determine any intrigue
-
+#if defined(MOD_BALANCE_CORE_SPIES)
+	int iSpyRank = m_aSpyList[uiSpyIndex].m_eRank;
+#endif
 	// sending out a sneak attack
 	for(uint ui = 0; ui < aiMajorCivIndex.size(); ui++)
 	{
@@ -2774,7 +2776,10 @@ void CvPlayerEspionage::UncoverIntrigue(uint uiSpyIndex)
 		}
 
 		CvCity* pTargetCity = NULL;
+#if defined(MOD_BALANCE_CORE_SPIES)
+#else
 		int iSpyRank = m_aSpyList[uiSpyIndex].m_eRank;
+#endif
 		iSpyRank += m_pPlayer->GetCulture()->GetInfluenceMajorCivSpyRankBonus(eCityOwner);
 
 		if(iSpyRank >= SPY_RANK_AGENT)
@@ -2804,11 +2809,31 @@ void CvPlayerEspionage::UncoverIntrigue(uint uiSpyIndex)
 		case AI_OPERATION_SNEAK_CITY_ATTACK:
 		{
 			AddIntrigueMessage(m_pPlayer->GetID(), eCityOwner, eRevealedTargetPlayer, NO_BUILDING, NO_PROJECT, INTRIGUE_TYPE_ARMY_SNEAK_ATTACK, uiSpyIndex, pTargetCity, true);
+#if defined(MOD_BALANCE_CORE_SPIES)
+			if(MOD_BALANCE_CORE_SPIES && pSpy->m_bIsDiplomat && (iSpyRank <= SPY_RANK_AGENT))
+			{
+				int iNewResult = GC.getGame().getJonRandNum(100, "Random roll for the result of diplomatic intrigue");
+				if(iNewResult >= 80)
+				{
+					LevelUpSpy(uiSpyIndex);
+				}
+			}
+#endif
 		}
 		break;
 		case AI_OPERATION_NAVAL_SNEAK_ATTACK:
 		{
 			AddIntrigueMessage(m_pPlayer->GetID(), eCityOwner, eRevealedTargetPlayer, NO_BUILDING, NO_PROJECT, INTRIGUE_TYPE_AMPHIBIOUS_SNEAK_ATTACK, uiSpyIndex, pTargetCity, true);
+#if defined(MOD_BALANCE_CORE_SPIES)
+			if(MOD_BALANCE_CORE_SPIES && pSpy->m_bIsDiplomat && (iSpyRank <= SPY_RANK_AGENT))
+			{
+				int iNewResult = GC.getGame().getJonRandNum(100, "Random roll for the result of diplomatic intrigue");
+				if(iNewResult >= 80)
+				{
+					LevelUpSpy(uiSpyIndex);
+				}
+			}
+#endif
 		}
 		break;
 		}
@@ -2827,9 +2852,29 @@ void CvPlayerEspionage::UncoverIntrigue(uint uiSpyIndex)
 			{
 			case ARMY_TYPE_LAND:
 				AddIntrigueMessage(m_pPlayer->GetID(), eCityOwner, NO_PLAYER, NO_BUILDING, NO_PROJECT, INTRIGUE_TYPE_BUILDING_ARMY, uiSpyIndex, pCity, true);
+#if defined(MOD_BALANCE_CORE_SPIES)
+				if(MOD_BALANCE_CORE_SPIES && pSpy->m_bIsDiplomat && (iSpyRank <= SPY_RANK_AGENT))
+				{
+					int iNewResult = GC.getGame().getJonRandNum(100, "Random roll for the result of diplomatic intrigue");
+					if(iNewResult >= 85)
+					{
+						LevelUpSpy(uiSpyIndex);
+					}
+				}
+#endif
 				break;
 			case ARMY_TYPE_NAVAL_INVASION:
 				AddIntrigueMessage(m_pPlayer->GetID(), eCityOwner, NO_PLAYER, NO_BUILDING, NO_PROJECT, INTRIGUE_TYPE_BUILDING_AMPHIBIOUS_ARMY, uiSpyIndex, pCity, true);
+#if defined(MOD_BALANCE_CORE_SPIES)
+				if(MOD_BALANCE_CORE_SPIES && pSpy->m_bIsDiplomat && (iSpyRank <= SPY_RANK_AGENT))
+				{
+					int iNewResult = GC.getGame().getJonRandNum(100, "Random roll for the result of diplomatic intrigue");
+					if(iNewResult >= 85)
+					{
+						LevelUpSpy(uiSpyIndex);
+					}
+				}
+#endif
 				break;
 			}
 		}
@@ -2876,10 +2921,30 @@ void CvPlayerEspionage::UncoverIntrigue(uint uiSpyIndex)
 				if(GET_TEAM(m_pPlayer->getTeam()).isHasMet(GET_PLAYER(eOtherOtherPlayer).getTeam()))
 				{
 					AddIntrigueMessage(m_pPlayer->GetID(), eCityOwner, eOtherOtherPlayer, NO_BUILDING, NO_PROJECT, INTRIGUE_TYPE_DECEPTION, uiSpyIndex, pCity, true);
+#if defined(MOD_BALANCE_CORE_SPIES)
+					if(MOD_BALANCE_CORE_SPIES && pSpy->m_bIsDiplomat && (iSpyRank <= SPY_RANK_AGENT))
+					{
+						int iNewResult = GC.getGame().getJonRandNum(100, "Random roll for the result of diplomatic intrigue");
+						if(iNewResult >= 90)
+						{
+							LevelUpSpy(uiSpyIndex);
+						}
+					}
+#endif
 				}
 				else
 				{
 					AddIntrigueMessage(m_pPlayer->GetID(), eCityOwner, NO_PLAYER, NO_BUILDING, NO_PROJECT, INTRIGUE_TYPE_DECEPTION, uiSpyIndex, pCity, true);
+#if defined(MOD_BALANCE_CORE_SPIES)
+					if(MOD_BALANCE_CORE_SPIES && pSpy->m_bIsDiplomat && (iSpyRank <= SPY_RANK_AGENT))
+					{
+						int iNewResult = GC.getGame().getJonRandNum(100, "Random roll for the result of diplomatic intrigue");
+						if(iNewResult >= 90)
+						{
+							LevelUpSpy(uiSpyIndex);
+						}
+					}
+#endif
 				}
 				break; // we reported intrigue, now bail out
 			}
@@ -2909,6 +2974,16 @@ void CvPlayerEspionage::UncoverIntrigue(uint uiSpyIndex)
 	if (bNotifyAboutConstruction)
 	{
 		AddIntrigueMessage(m_pPlayer->GetID(), eCityOwner, NO_PLAYER, eBuilding, eProject, INTRIGUE_TYPE_CONSTRUCTING_WONDER, uiSpyIndex, pCity, true);
+#if defined(MOD_BALANCE_CORE_SPIES)
+		if(MOD_BALANCE_CORE_SPIES && pSpy->m_bIsDiplomat && (iSpyRank <= SPY_RANK_AGENT))
+		{
+			int iNewResult = GC.getGame().getJonRandNum(100, "Random roll for the result of diplomatic intrigue");
+			if(iNewResult >= 90)
+			{
+				LevelUpSpy(uiSpyIndex);
+			}
+		}
+#endif
 	}
 }
 

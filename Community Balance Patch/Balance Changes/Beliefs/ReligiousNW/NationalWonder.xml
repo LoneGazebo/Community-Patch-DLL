@@ -405,6 +405,11 @@
 			<DomainType>DOMAIN_LAND</DomainType>
 			<Modifier>15</Modifier>
 		</Row>
+		<Row>
+			<BuildingType>BUILDING_GREAT_ALTAR</BuildingType>
+			<DomainType>DOMAIN_AIR</DomainType>
+			<Modifier>15</Modifier>
+		</Row>
 	</Building_DomainProductionModifiers>
 	<Building_ThemingBonuses>
 		<Row>

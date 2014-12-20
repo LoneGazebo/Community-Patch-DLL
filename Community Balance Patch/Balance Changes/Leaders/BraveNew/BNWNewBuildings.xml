@@ -16,6 +16,8 @@
 			<NukeImmune>true</NukeImmune>
 			<MinAreaSize>-1</MinAreaSize>
 			<Defense>800</Defense>
+			<TechEnhancedTourism>6</TechEnhancedTourism>
+			<EnhancedYieldTech>TECH_GUILDS</EnhancedYieldTech>
 			<ArtInfoCulturalVariation>true</ArtInfoCulturalVariation>
 			<DisplayPosition>32</DisplayPosition>
 			<GreatPeopleRateModifier>15</GreatPeopleRateModifier>
@@ -62,11 +64,11 @@
 				The Doge's Palace (Italian: Palazzo Ducale) is a palace built in Venetian Gothic style, and one of the main landmarks of the city of Venice, northern Italy. The palace was the residence of the Doge of Venice, the supreme authority of the Republic of Venice, opening as a museum in 1923. Today, it is one of the 11 museums run by the Fondazione Musei Civici di Venezia.
 			</Text>
 		</Row>
-		<Row Tag="TXT_KEY_BUILDING_DOGE_PALACE_HELP">
-			<Text>Unique Venetian replacement for the Palace. This building has higher yields and defense than the standard Palace, and improves Great Person generation by 15% in your [ICON_CAPITAL] Capital. It does not, however, contain a slot for a Great Work.</Text>
-		</Row>
 		<Row Tag="TXT_KEY_BUILDING_DOGE_PALACE_STRATEGY">
-			<Text>+15% Great Person rate, +5 [ICON_GOLD] Gold, [ICON_PRODUCTION] Production, [ICON_RESEARCH] Science, and [ICON_STRENGTH] Defense, as well as +2 [ICON_CULTURE] Culture.</Text>
+			<Text>Unique Venetian replacement for the Palace. This building has higher yields and defense than the standard Palace, and improves Great Person generation by 15% in your [ICON_CAPITAL] Capital. Produces +5 [ICON_TOURISM] when you research Guilds. It does not contain a slot for a Great Work.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_DOGE_PALACE_HELP">
+			<Text>+15% Great Person rate and +5 [ICON_TOURISM] when you research Guilds.</Text>
 		</Row>
 	</Language_en_US>
   

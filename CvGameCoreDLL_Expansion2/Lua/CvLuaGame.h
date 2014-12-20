@@ -343,6 +343,9 @@ protected:
 #endif
 	static int lFoundReligion(lua_State* L);
 	static int lEnhanceReligion(lua_State* L);
+#if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_API_RELIGION)
+	LUAAPIEXTN(AddReformation, void, iPlayer, iBelief);
+#endif
 	static int lSetHolyCity(lua_State* L);
 	static int lGetFounder(lua_State* L);
 	static int lSetFounder(lua_State* L);

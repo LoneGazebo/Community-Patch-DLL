@@ -2711,7 +2711,7 @@ void CvMilitaryAI::UpdateBaseData()
 			if(eOtherPlayer != NO_PLAYER && !GET_PLAYER(eOtherPlayer).isMinorCiv() && (eOtherPlayer != m_pPlayer->GetID()))
 			{
 				MajorCivApproachTypes eApproachType = GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(eOtherPlayer, false);
-				if((eApproachType <= MAJOR_CIV_APPROACH_GUARDED) || (GET_PLAYER(eOtherPlayer).GetProximityToPlayer(GetPlayer()->GetID()) >= PLAYER_PROXIMITY_CLOSE))
+				if((eApproachType <= MAJOR_CIV_APPROACH_GUARDED) || (GET_PLAYER(eOtherPlayer).GetProximityToPlayer(GetPlayer()->GetID()) == PLAYER_PROXIMITY_NEIGHBORS))
 				{
 					for (int iUnitLoop = 0; iUnitLoop < GET_PLAYER(eOtherPlayer).getNumUnits(); iUnitLoop++)
 					{
@@ -5624,7 +5624,7 @@ int MilitaryAIHelpers::ComputeRecommendedNavySize(CvPlayer* pPlayer)
 			if(eOtherPlayer != NO_PLAYER && !GET_PLAYER(eOtherPlayer).isMinorCiv() && (eOtherPlayer != pPlayer->GetID()))
 			{
 				MajorCivApproachTypes eApproachType = pPlayer->GetDiplomacyAI()->GetMajorCivApproach(eOtherPlayer, false);
-				if((eApproachType <= MAJOR_CIV_APPROACH_GUARDED) || (GET_PLAYER(eOtherPlayer).GetProximityToPlayer(pPlayer->GetID()) >= PLAYER_PROXIMITY_CLOSE))
+				if((eApproachType <= MAJOR_CIV_APPROACH_GUARDED) || (GET_PLAYER(eOtherPlayer).GetProximityToPlayer(pPlayer->GetID()) == PLAYER_PROXIMITY_NEIGHBORS))
 				{
 					for (int iUnitLoop = 0; iUnitLoop < GET_PLAYER(eOtherPlayer).getNumUnits(); iUnitLoop++)
 					{
