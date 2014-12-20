@@ -296,4 +296,17 @@
 			<Yield>15</Yield>
 		</Row>
 	</Building_YieldModifiers>
+	<!-- Happiness Flavors -->
+	<Building_Flavors>
+		<Row>
+			<BuildingType>BUILDING_WALLS</BuildingType>
+			<FlavorType>FLAVOR_HAPPINESS</FlavorType>
+			<Flavor>40</Flavor>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_CASTLE</BuildingType>
+			<FlavorType>FLAVOR_HAPPINESS</FlavorType>
+			<Flavor>40</Flavor>
+		</Row>
+	</Building_Flavors>
 </GameData>

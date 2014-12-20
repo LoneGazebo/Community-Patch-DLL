@@ -257,6 +257,18 @@
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer" notnull="true"/>
 	</Table>
+	<!-- TRAIT: Allows you to add movement points to specific unit classes -->
+	<Table name="Trait_MovesChangeUnitClass">
+		<Column name="TraitType" type="text" reference="Traits(Type)"/>
+		<Column name="UnitClassType" type="text" reference="UnitClasses(Type)"/>
+		<Column name="MovesChange" type="int"/>
+	</Table>
+	<!-- TRAIT: Allows you to add a promotion to specific unit classes -->
+	<Table name="Trait_FreePromotionUnitClass">
+		<Column name="TraitType" type="text" reference="Traits(Type)"/>
+		<Column name="UnitClassType" type="text" reference="UnitClasses(Type)"/>
+		<Column name="PromotionType" type="text" reference="UnitPromotions(Type)"/>
+	</Table>
 	<Yields>
 		<Row>
 			<ID>8</ID>

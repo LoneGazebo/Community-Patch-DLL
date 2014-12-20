@@ -2,6 +2,7 @@
 <!-- Created by ModBuddy on 10/28/2014 1:25:35 PM -->
 <GameData>
   <!-- American Frontiersman -->
+	<!--
 	<Units>
 		<Row>
 			<Class>UNITCLASS_SETTLER</Class>
@@ -51,6 +52,7 @@
 	</Unit_FreePromotions>
 	<UnitPromotions>
 		<!--Pioneer Promotions-->
+<!--
 		<Row>
 			<Type>PROMOTION_PIONEER_SPIRIT</Type>
 			<Description>TXT_KEY_PROMOTION_PIONEER_SPIRIT</Description>
@@ -101,4 +103,6 @@
 			<UnitType>UNIT_FRONTIERSMAN</UnitType>
 		</Row>
 	</Civilization_UnitClassOverrides>
+	
+	-->
 </GameData>

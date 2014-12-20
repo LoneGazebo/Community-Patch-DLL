@@ -617,6 +617,21 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 			}
 		}
 	}
+#if defined(MOD_BALANCE_CORE)
+	const UnitClassTypes unitClassType = getUnitClassType();
+	if(unitClassType != NO_UNITCLASS)
+	{
+		// Any free Promotions to apply?
+		for(int iJ = 0; iJ < GC.getNumPromotionInfos(); iJ++)
+		{
+			const PromotionTypes promotionID = (PromotionTypes)iJ;
+			if(kPlayer.GetPlayerTraits()->HasFreePromotionUnitClass(promotionID, unitClassType))
+			{
+				setHasPromotion(promotionID, true);
+			}
+		}
+	}
+#endif
 
 	// Free Promotions from Policies, Techs, etc.
 	for(iI = 0; iI < GC.getNumPromotionInfos(); iI++)
@@ -11476,6 +11491,10 @@ int CvUnit::baseMoves(DomainTypes eIntoDomain /* = NO_DOMAIN */) const
 #endif
 
 	int iExtraUnitCombatTypeMoves = pTraits->GetMovesChangeUnitCombat((UnitCombatTypes)(m_pUnitInfo->GetUnitCombatType()));
+
+#if defined(MOD_BALANCE_CORE)
+	iExtraUnitCombatTypeMoves += pTraits->GetMovesChangeUnitClass((UnitClassTypes)(m_pUnitInfo->GetUnitClassType()));
+#endif
 
 	return (m_pUnitInfo->GetMoves() + getExtraMoves() + thisTeam.getExtraMoves(eDomain) + m_iExtraNavalMoves + iExtraGoldenAgeMoves + iExtraUnitCombatTypeMoves);
 }

@@ -86,7 +86,7 @@
 		<Row>
 			<Type>BUILDING_BASILICA</Type>
 			<BuildingClass>BUILDINGCLASS_TEMPLE</BuildingClass>
-			<MaxStartEra>ERA_RENAISSANCE</MaxStartEra>
+			<FreeStartEra>ERA_RENAISSANCE</FreeStartEra>
 			<Cost>125</Cost>
 			<PrereqTech>TECH_PHILOSOPHY</PrereqTech>
 			<Description>TXT_KEY_BUILDING_BASILICA_DESC</Description>

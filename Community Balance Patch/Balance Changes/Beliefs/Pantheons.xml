@@ -173,6 +173,12 @@
 	<Belief_FeatureYieldChanges>
 		<Row>
 			<BeliefType>BELIEF_SACRED_PATH</BeliefType>
+			<FeatureType>FEATURE_FOREST</FeatureType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BeliefType>BELIEF_SACRED_PATH</BeliefType>
 			<FeatureType>FEATURE_JUNGLE</FeatureType>
 			<YieldType>YIELD_FAITH</YieldType>
 			<Yield>1</Yield>

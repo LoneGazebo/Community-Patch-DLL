@@ -94,10 +94,6 @@
 			<PromotionType>PROMOTION_NAVAL_MISFIRE</PromotionType>
 		</Row>
 		<Row>
-			<UnitType>UNIT_ENGLISH_LONGBOWMAN</UnitType>
-			<PromotionType>PROMOTION_NAVAL_MISFIRE</PromotionType>
-		</Row>
-		<Row>
 			<UnitType>UNIT_CHINESE_CHUKONU</UnitType>
 			<PromotionType>PROMOTION_NAVAL_MISFIRE</PromotionType>
 		</Row>

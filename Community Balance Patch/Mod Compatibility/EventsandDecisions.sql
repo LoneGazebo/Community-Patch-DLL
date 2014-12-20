@@ -27,3 +27,23 @@ UPDATE UnitPromotions
 UPDATE UnitPromotions
 	SET RangedAttackModifier = 20
 	WHERE Type = 'PROMOTION_DECISIONS_HUNSRECURVEBOW';
+
+Update Building_YieldModifiers
+SET Yield = '10'
+WHERE BuildingType = 'BUILDING_DECISIONS_WEIGHTSFORMAL';
+
+Update Building_YieldModifiers
+SET Yield = '10'
+WHERE BuildingType = 'BUILDING_DECISIONS_PUBLICTRANSPORT';
+
+Update Buildings
+SET Happiness = '1'
+WHERE Type = 'BUILDING_DECISIONS_CODEOFLAWS';
+
+UPDATE Language_en_US
+SET Text = 'Have you ever tried converting perches to pikes, and realized along the way that you lost a number? Headaches? Sleepless nights? Not anymore! Our bureaucracy offers to formalize the weights and measures system.[NEWLINE][NEWLINE]Requirement/Restrictions:[NEWLINE][ICON_BULLET]Must have researched Mathematics[NEWLINE][ICON_BULLET]May only be enacted once per game[NEWLINE]Costs:[NEWLINE][ICON_BULLET]{1_Gold} [ICON_GOLD] Gold[NEWLINE][ICON_BULLET]1 [ICON_MAGISTRATES] Magistrates[NEWLINE]Rewards:[NEWLINE][ICON_BULLET]+10% [ICON_GOLD] Gold in all cities'
+WHERE Tag = 'TXT_KEY_DECISIONS_WEIGHTSFORMAL_DESC' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+UPDATE Language_en_US
+SET Text = 'Have you ever tried converting perches to pikes, and realized along the way that you lost a number? Headaches? Sleepless nights? Not anymore! Our bureaucracy offers to formalize the weights and measures system.[NEWLINE][NEWLINE]Rewards:[NEWLINE][ICON_BULLET]+10% [ICON_GOLD] Gold in all cities'
+WHERE Tag = 'TXT_KEY_DECISIONS_WEIGHTSFORMAL_ENACTED_DESC' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );

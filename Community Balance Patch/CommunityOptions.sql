@@ -75,6 +75,15 @@ INSERT INTO COMMUNITY (Type, Value)
 VALUES ('COMMUNITY_CORE_BARBARIAN_THEFT', 1);
 
 /*
+Enables No More Civilian Traffic Jams (by Pazyryk)
+1 = Enabled (Default)
+0 = Disabled 
+*/
+
+INSERT INTO COMMUNITY (Type, Value)
+VALUES ('COMMUNITY_CORE_BALANCE_NMCJT', 1);
+
+/*
 COMMUNITY Global Difficulty Option
 1 = Global Difficulty Enabled (Default)
 2 = Global Difficulty Disabled

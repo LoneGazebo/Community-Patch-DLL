@@ -10127,14 +10127,28 @@ int CvCity::GetYieldPerTurnFromUnimprovedFeatures(YieldTypes eYield) const
 						iAdjacentFeatures++;
 					}
 				}
-
-				if (iAdjacentFeatures > 2)
+				//Buff Boudica
+				if(kPlayer.GetPlayerTraits()->IsFaithFromUnimprovedForest())
 				{
-					iYield += iBaseYield * 2;
+					if (iAdjacentFeatures > 2)
+					{
+						iYield += iBaseYield * 4;
+					}
+					else if (iAdjacentFeatures > 0)
+					{
+						iYield += iBaseYield * 2;
+					}
 				}
-				else if (iAdjacentFeatures > 0)
+				else
 				{
-					iYield += iBaseYield;
+					if (iAdjacentFeatures > 2)
+					{
+						iYield += iBaseYield * 2;
+					}
+					else if (iAdjacentFeatures > 0)
+					{
+						iYield += iBaseYield;
+					}
 				}
 			}
 		}

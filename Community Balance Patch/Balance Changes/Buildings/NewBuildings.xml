@@ -31,6 +31,7 @@
 			<Help>TXT_KEY_BUILDING_BATH_HELP</Help>
 			<ArtDefineTag>ART_DEF_BUILDING_GARDEN</ArtDefineTag>
 			<MinAreaSize>-1</MinAreaSize>
+			<MutuallyExclusiveGroup>2</MutuallyExclusiveGroup>
 			<ConquestProb>66</ConquestProb>
 			<IsNoWater>true</IsNoWater>
 			<GreatPeopleRateModifier>25</GreatPeopleRateModifier>
@@ -48,6 +49,7 @@
 			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_WELL_TEXT</Civilopedia>
 			<Strategy>TXT_KEY_BUILDING_WELL_STRATEGY</Strategy>
 			<Help>TXT_KEY_BUILDING_WELL_HELP</Help>
+			<MutuallyExclusiveGroup>3</MutuallyExclusiveGroup>
 			<ArtDefineTag>ART_DEF_BUILDING_GARDEN</ArtDefineTag>
 			<IsNoWater>true</IsNoWater>
 			<MinAreaSize>-1</MinAreaSize>
@@ -68,6 +70,7 @@
 			<Help>TXT_KEY_BUILDING_WIND_PLANT_HELP</Help>
 			<ArtDefineTag>ART_DEF_BUILDING_GARDEN</ArtDefineTag>
 			<IsNoWater>true</IsNoWater>
+			<MutuallyExclusiveGroup>4</MutuallyExclusiveGroup>
 			<MinAreaSize>-1</MinAreaSize>
 			<ConquestProb>66</ConquestProb>
 			<HurryCostModifier>0</HurryCostModifier>
@@ -166,13 +169,13 @@
 			<Text>The Wind Plant is a Modern-era building which can only be constructed in a city without access to fresh water. The Hydro Plant increases the [ICON_PRODUCTION] Production output of every Grassland tile the city works.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_WELL_HELP">
-			<Text>City must not be built next to a River.</Text>
+			<Text>City must not be built next to a River. Cannot be built if the City already has a Watermill.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_BATH_HELP">
-			<Text>+25% [ICON_GREAT_PEOPLE] Great People generation in this City.[NEWLINE][NEWLINE]City must not be built next to a River.</Text>
+			<Text>+25% [ICON_GREAT_PEOPLE] Great People generation in this City.[NEWLINE][NEWLINE]City must not be built next to a River. Cannot be built if the City already has a Garden.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_WIND_PLANT_HELP">
-			<Text>+1 [ICON_PRODUCTION] Production in every Grassland tile. [NEWLINE][NEWLINE]City must not be built next to a River.</Text>
+			<Text>+1 [ICON_PRODUCTION] Production in every Grassland tile. [NEWLINE][NEWLINE]City must not be built next to a River. Cannot be built if the City already has a Hydro Plant.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CIV5_BUILDINGS_BATH_TEXT">
 			<Text>Throughout history, societies devised systems to enable water to be brought to population centres. Ancient Greece utilized small bathtubs, wash basins, and foot baths for personal cleanliness. The earliest findings of baths date from the mid-2nd millennium BC in the palace complex at Knossos, Crete, and the luxurious alabaster bathtubs excavated in Akrotiri, Santorini. The Greeks established public baths and showers within gymnasiums for relaxation and personal hygiene. In fact, the word gymnasium comes from the Greek word gymnos, meaning naked. Ancient Rome developed a network of aqueducts to supply water to all large towns and population centres and had indoor plumbing, with pipes that terminated in homes and at public wells and fountains. The Roman public baths were called thermae. With the fall of the Roman Empire the aqueduct network fell into disrepair and most of it ceased to be used. In the Middle Ages, bathing commonly took place in public bathhouses. However, public nudity was frowned upon by liturgical factions of the period. Public baths were also havens for prostitution, which created opposition to the public baths. Rich people bathed at home, most likely in their bedroom, as 'bath' rooms were not common. Bathing was done in large, wooden tubs with a linen cloth laid in it to protect the bather from splinters. Additionally, during the Renaissance and Protestant Reformation, the quality and condition of the clothing (as opposed to the actual cleanliness of the body itself) were thought to reflect the soul of an individual. Clean clothing also reflected one's social status; clothes made the man or woman. Additionally, from the late Middle Ages through to the end of the 18th century, etiquette and medical manuals advised people to only wash the parts of the body that were visible to the public; for example, the ears, hands, feet, and face and neck. This did away with the public baths and left the cleaning of oneself to the privacy of one's home.</Text>

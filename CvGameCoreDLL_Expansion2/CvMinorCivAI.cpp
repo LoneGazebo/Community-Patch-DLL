@@ -6485,7 +6485,27 @@ PlayerTypes CvMinorCivAI::SpawnHorde()
 	}
 	else if(eCurrentEra > eRenaissance)
 	{
-		return NO_PLAYER;;
+		return NO_PLAYER;
+	}
+
+	//No hordes if isolated on islands (prevents barbarian overload).
+	bool bIsAlone = true;
+	PlayerTypes eLoopPlayer;
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+	{
+		eLoopPlayer = (PlayerTypes) iPlayerLoop;
+		if(eLoopPlayer != NO_PLAYER && GET_PLAYER(eLoopPlayer).isAlive() && !GET_PLAYER(eLoopPlayer).isMinorCiv() && GET_PLAYER(eLoopPlayer).getCapitalCity() != NULL)
+		{
+			if(GET_PLAYER(pActiveMinor).getCapitalCity()->getArea() == GET_PLAYER(eLoopPlayer).getCapitalCity()->getArea())
+			{
+				bIsAlone = false;
+				break;
+			}
+		}
+	}
+	if(bIsAlone)
+	{
+		return NO_PLAYER;
 	}
 
 	int iTarget = 0;

@@ -75,6 +75,10 @@ WHERE Tag = 'TXT_KEY_BUILDING_GRANARY_HELP' AND EXISTS (SELECT * FROM COMMUNITY 
 
 -- Watermill
 
+UPDATE Buildings
+SET MutuallyExclusiveGroup = '3'
+WHERE Type = 'BUILDING_WATERMILL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
+
 -- Aqueduct
 UPDATE Language_en_US
 SET Text = '40% of [ICON_FOOD] Food is carried over after a new [ICON_CITIZEN] Citizen is born. +1 [ICON_FOOD] Food on Lakes and Oases worked by this city. Reduces [ICON_HAPPINESS_3] Poverty slightly.'
@@ -118,6 +122,10 @@ SET Text = 'Provides 2 [ICON_RES_ALUMINUM] Aluminum. Maximum of 5 of these build
 WHERE Tag = 'TXT_KEY_BUILDING_RECYCLING_CENTER_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 -- Garden
+
+UPDATE Buildings
+SET MutuallyExclusiveGroup = '2'
+WHERE Type = 'BUILDING_GARDEN' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 UPDATE Language_en_US
 SET Text = '+25% [ICON_GREAT_PEOPLE] Great People generation in this City. +1 [ICON_FOOD] Food from [ICON_RES_CITRUS] Citrus and [ICON_RES_WINE] Wine. [NEWLINE][NEWLINE]City must be built next to a River or Lake.'
@@ -263,6 +271,10 @@ WHERE Type = 'BUILDING_WATERMILL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type
 UPDATE Buildings
 SET PrereqTech = 'TECH_IRON_WORKING'
 WHERE Type = 'BUILDING_FORGE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
+
+UPDATE Building_DomainProductionModifiers
+SET Modifier = '0'
+WHERE BuildingType = 'BUILDING_FORGE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Buildings
 SET SpecialistType = 'SPECIALIST_ENGINEER'
@@ -483,6 +495,9 @@ SET Text = 'The Hydro Plant is a Modern-era building which can only be construct
 WHERE Tag = 'TXT_KEY_BUILDING_HYDRO_PLANT_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 -- Courthouse
+UPDATE Buildings
+SET PrereqTech = 'TECH_PHILOSOPHY'
+WHERE Type = 'BUILDING_COURTHOUSE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Buildings
 SET HurryCostModifier = '75'
@@ -498,7 +513,7 @@ WHERE Tag = 'TXT_KEY_BUILDING_COURTHOUSE_HELP' AND EXISTS (SELECT * FROM COMMUNI
 
 -- Walls
 UPDATE Buildings
-SET ExtraCityHitPoints = '75'
+SET ExtraCityHitPoints = '50'
 WHERE Type = 'BUILDING_WALLS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Buildings
@@ -506,12 +521,12 @@ SET Defense = '600'
 WHERE Type = 'BUILDING_WALLS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Walls increase a city Defense Strength by 6 and Hit Points by 75, making the city more difficult to capture. Walls are quite useful for cities located along a frontier.'
+SET Text = 'Walls increase a city Defense Strength by 6 and Hit Points by 50, making the city more difficult to capture. Walls are quite useful for cities located along a frontier.'
 WHERE Tag = 'TXT_KEY_BUILDING_WALLS_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 	
 -- Castle
 UPDATE Buildings
-SET ExtraCityHitPoints = '100'
+SET ExtraCityHitPoints = '75'
 WHERE Type = 'BUILDING_CASTLE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Buildings
@@ -519,12 +534,12 @@ SET Defense = '800'
 WHERE Type = 'BUILDING_CASTLE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'The Castle is a Medieval-era building which increases Defensive Strength by 8 and Hit Points by 125. The city must possess Walls before the Castle can be constructed.'
+SET Text = 'The Castle is a Medieval-era building which increases Defensive Strength by 8 and Hit Points by 75. The city must possess Walls before the Castle can be constructed.'
 WHERE Tag = 'TXT_KEY_BUILDING_CASTLE_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 -- Arsenal
 UPDATE Buildings
-SET ExtraCityHitPoints = '125'
+SET ExtraCityHitPoints = '100'
 WHERE Type = 'BUILDING_ARSENAL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Buildings
@@ -532,12 +547,12 @@ SET Defense = '1000'
 WHERE Type = 'BUILDING_ARSENAL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'The Arsenal is a mid-game military building that increases Defense Strength by 10 and Hit Points by 125, making the city more difficult to capture. The city must possess a Castle before it can construct an Arsenal.'
+SET Text = 'The Arsenal is a mid-game military building that increases Defense Strength by 10 and Hit Points by 100, making the city more difficult to capture. The city must possess a Castle before it can construct an Arsenal.'
 WHERE Tag = 'TXT_KEY_BUILDING_ARSENAL_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 -- Military Base
 UPDATE Buildings
-SET ExtraCityHitPoints = '150'
+SET ExtraCityHitPoints = '125'
 WHERE Type = 'BUILDING_MILITARY_BASE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Buildings
@@ -549,7 +564,7 @@ SET HealRateChange = '5'
 WHERE Type = 'BUILDING_MILITARY_BASE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'The Military Base is a late-game building which increases Defensive Strength by 12 and Hit Points by 150. The city must possess an Arsenal before a Military Base may be constructed. Garrisoned units receive an additional 5 Health when healing in this city.'
+SET Text = 'The Military Base is a late-game building which increases Defensive Strength by 12 and Hit Points by 125. The city must possess an Arsenal before a Military Base may be constructed. Garrisoned units receive an additional 5 Health when healing in this city.'
 WHERE Tag = 'TXT_KEY_BUILDING_MILITARY_BASE_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 -- Bomb Shelter
@@ -566,10 +581,19 @@ SET Text = 'Reduces population loss from nuclear attack by 75%, increases Defens
 WHERE Tag = 'TXT_KEY_BUILDING_BOMB_SHELTER_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
  -- Factory
+UPDATE Building_YieldChanges
+SET Yield = '1'
+WHERE BuildingType = 'BUILDING_FACTORY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
+
 UPDATE Language_en_US
 SET Text = 'Requires 1 [ICON_RES_COAL] Coal. +1 [ICON_PRODUCTION] Production for every 4 [ICON_CITIZEN] Citizens in the City.'
 WHERE Tag = 'TXT_KEY_BUILDING_FACTORY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
-	
+
+-- Hydro Plant
+UPDATE Buildings
+SET MutuallyExclusiveGroup = '4'
+WHERE Type = 'BUILDING_HYDRO_PLANT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
+
 -- Spaceship Factory
 
 -- Nuclear/Solar Plants
@@ -659,9 +683,6 @@ WHERE Tag = 'TXT_KEY_BUILDING_THEATRE_HELP' AND EXISTS (SELECT * FROM COMMUNITY 
 UPDATE Language_en_US
 SET Text = 'Build the Zoo if you are having problems with happiness.'
 WHERE Tag = 'TXT_KEY_BUILDING_THEATRE_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
-
-DELETE FROM Building_ClassesNeededInCity
-WHERE BuildingType = 'BUILDING_THEATRE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 UPDATE Buildings
 SET PrereqTech = 'TECH_SCIENTIFIC_THEORY'

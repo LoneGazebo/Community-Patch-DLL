@@ -145,6 +145,9 @@ protected:
 
 	bool m_bKeepMarshes;
 	bool m_bKeepJungle;
+#if defined(MOD_BALANCE_CORE)
+	bool m_bEvaluateAdjacent;
+#endif
 };
 
 #endif //CIV5_BUILDER_TASKING_AI_H

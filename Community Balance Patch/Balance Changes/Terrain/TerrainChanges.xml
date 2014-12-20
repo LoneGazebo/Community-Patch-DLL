@@ -380,4 +380,52 @@
 			<Yield>1</Yield>
 		</Row>		
 	</Improvement_TechNoFreshWaterYieldChanges>
+	<Resource_TerrainBooleans>
+		<Row>
+			<ResourceType>RESOURCE_OIL</ResourceType>
+			<TerrainType>TERRAIN_OCEAN</TerrainType>
+		</Row>
+	</Resource_TerrainBooleans>
+	<Resource_QuantityTypes>
+		<Row>
+			<ResourceType>RESOURCE_IRON</ResourceType>
+			<Quantity>3</Quantity>
+		</Row>
+		<Row>
+			<ResourceType>RESOURCE_IRON</ResourceType>
+			<Quantity>4</Quantity>
+		</Row>
+		<Row>
+			<ResourceType>RESOURCE_COAL</ResourceType>
+			<Quantity>2</Quantity>
+		</Row>
+		<Row>
+			<ResourceType>RESOURCE_COAL</ResourceType>
+			<Quantity>4</Quantity>
+		</Row>
+		<Row>
+			<ResourceType>RESOURCE_OIL</ResourceType>
+			<Quantity>4</Quantity>
+		</Row>
+		<Row>
+			<ResourceType>RESOURCE_OIL</ResourceType>
+			<Quantity>6</Quantity>
+		</Row>
+		<Row>
+			<ResourceType>RESOURCE_ALUMINUM</ResourceType>
+			<Quantity>6</Quantity>
+		</Row>
+		<Row>
+			<ResourceType>RESOURCE_ALUMINUM</ResourceType>
+			<Quantity>3</Quantity>
+		</Row>
+		<Row>
+			<ResourceType>RESOURCE_URANIUM</ResourceType>
+			<Quantity>3</Quantity>
+		</Row>
+		<Row>
+			<ResourceType>RESOURCE_URANIUM</ResourceType>
+			<Quantity>5</Quantity>
+		</Row>
+	</Resource_QuantityTypes>
 </GameData>

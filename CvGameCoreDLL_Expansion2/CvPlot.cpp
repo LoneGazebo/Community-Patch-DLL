@@ -4886,6 +4886,29 @@ int CvPlot::ComputeCultureFromAdjacentImprovement(CvImprovementEntry& kImproveme
 
 	return iRtnValue;
 }
+#if defined(MOD_API_UNIFIED_YIELDS)
+int CvPlot::ComputeYieldFromTwoAdjacentImprovement(CvImprovementEntry& kImprovement, ImprovementTypes eValue, YieldTypes eYield) const
+{
+	CvPlot* pAdjacentPlot;
+	int iRtnValue = 0;
+
+	if(kImprovement.GetYieldAdjacentTwoSameType(eYield) > 0)
+	{
+		for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+		{
+			pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
+			if(pAdjacentPlot && pAdjacentPlot->getImprovementType() == eValue)
+			{
+				iRtnValue += kImprovement.GetYieldAdjacentTwoSameType(eYield);
+			}
+		}
+	}
+
+	iRtnValue /= 2;
+
+	return iRtnValue;
+}
+#endif
 
 #if defined(MOD_GLOBAL_STACKING_RULES)
 //	--------------------------------------------------------------------------------
@@ -6643,6 +6666,17 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 					}
 				}
 #if defined(MOD_API_UNIFIED_YIELDS)
+				if(oldImprovementEntry.GetYieldAdjacentTwoSameType((YieldTypes) iI) > 0)
+				{
+					for(iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+					{
+						CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
+						if(pAdjacentPlot && pAdjacentPlot->getImprovementType() == eOldImprovement)
+						{
+							pAdjacentPlot->updateYield();
+						}
+					}
+				}
 			}
 #endif
 
@@ -6770,6 +6804,17 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 					}
 				}
 #if defined(MOD_API_UNIFIED_YIELDS)
+				if(newImprovementEntry.GetYieldAdjacentTwoSameType((YieldTypes) iYield) > 0)
+				{
+					for(iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+					{
+						CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
+						if(pAdjacentPlot && pAdjacentPlot->getImprovementType() == eNewValue)
+						{
+							pAdjacentPlot->updateYield();
+						}
+					}
+				}
 			}
 #endif
 
@@ -8439,6 +8484,7 @@ int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay)
 			{
 #if defined(MOD_API_UNIFIED_YIELDS)
 				int iAdjacentCulture = pImprovement->GetYieldAdjacentSameType(eYield);
+				iAdjacentCulture += pImprovement->GetYieldAdjacentTwoSameType(eYield);
 #else
 				int iAdjacentCulture = pImprovement->GetCultureAdjacentSameType();
 #endif
@@ -8446,6 +8492,7 @@ int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay)
 				{
 #if defined(MOD_API_UNIFIED_YIELDS)
 					iYield += ComputeYieldFromAdjacentImprovement(*pImprovement, eImprovement, eYield);
+					iYield += ComputeYieldFromTwoAdjacentImprovement(*pImprovement, eImprovement, eYield);
 #else
 					iYield += ComputeCultureFromAdjacentImprovement(*pImprovement, eImprovement);
 #endif
@@ -11353,6 +11400,7 @@ int CvPlot::getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUp
 			{
 #if defined(MOD_API_UNIFIED_YIELDS)
 				int iAdjacentCulture = pImprovement->GetYieldAdjacentSameType(eYield);
+				iAdjacentCulture += pImprovement->GetYieldAdjacentTwoSameType(eYield);
 #else
 				int iAdjacentCulture = pImprovement->GetCultureAdjacentSameType();
 #endif
@@ -11360,6 +11408,7 @@ int CvPlot::getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUp
 				{
 #if defined(MOD_API_UNIFIED_YIELDS)
 					iYield += ComputeYieldFromAdjacentImprovement(*pImprovement, eImprovement, eYield);
+					iYield += ComputeYieldFromTwoAdjacentImprovement(*pImprovement, eImprovement, eYield);
 #else
 					iYield += ComputeCultureFromAdjacentImprovement(*pImprovement, eImprovement);
 #endif

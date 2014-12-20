@@ -34,7 +34,7 @@
 	WHERE Type = 'GAMESPEED_EPIC' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 	UPDATE GameSpeeds
-	SET StartingHappiness = '0'
+	SET StartingHappiness = '1'
 	WHERE Type = 'GAMESPEED_STANDARD' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 	-- DEFINES FOR CITY HAPPINESS
@@ -55,7 +55,7 @@
 	SET Value = '2'
 	WHERE Name = 'UNHAPPINESS_PER_CAPTURED_CITY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
--- 30 = 0.30 unhappiness per specialist. Unemployed citizens are worth 0.20 unhappiness per citizen.
+-- 30 = 0.30 unhappiness per specialist. Unemployed citizens are worth 0.15 unhappiness per citizen.
 	INSERT INTO Defines (
 	Name, Value)
 	SELECT 'BALANCE_UNHAPPINESS_PER_SPECIALIST', '30'
@@ -73,10 +73,10 @@
 	SELECT 'BALANCE_HAPPINESS_CAPITAL_MODIFIER', '15'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
--- 	Base Value of Test - Modifier to tech % cost. 2.15 is default.
+-- 	Base Value of Test - Modifier to tech % cost. 2.30 is default.
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_HAPPINESS_TECH_BASE_MODIFIER', '2.15'
+	SELECT 'BALANCE_HAPPINESS_TECH_BASE_MODIFIER', '2.30'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 -- Base increase of threshold values based on # of techs (ignore 'City' part). Increases the Global Averages as you research techs. Higher values are more difficult. 0 is default.
@@ -86,10 +86,10 @@
 	SELECT 'BALANCE_HAPPINESS_TECH_BASE_CITY_COUNT', '0'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 	
--- Value by which yield/threshold difference is divded. 40 = 1 point of unhappiness for every 0.40 difference between city yield and global average.
+-- Value by which yield/threshold difference is divded. 45 = 1 point of unhappiness for every 0.45 difference between city yield and global average.
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_UNHAPPY_CITY_BASE_VALUE', '40'
+	SELECT 'BALANCE_UNHAPPY_CITY_BASE_VALUE', '45'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 -- Unhappiness point per religious minority pop. A high faith to population ratio will reduce this penalty. Also note that this is the ONLY unhappiness calculation that goes down as the game progresses (religion makes slightly less unhappiness as you move into new eras)
@@ -113,7 +113,7 @@
 -- Unhappiness point per pop if unconnected or blockaded.
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_UNHAPPINESS_FROM_UNCONNECTED_PER_POP', '0.25'
+	SELECT 'BALANCE_UNHAPPINESS_FROM_UNCONNECTED_PER_POP', '0.20'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 

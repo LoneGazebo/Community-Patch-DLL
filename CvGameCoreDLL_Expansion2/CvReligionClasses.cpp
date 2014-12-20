@@ -7390,15 +7390,27 @@ BuildingClassTypes eFaithBuildingClass = NO_BUILDINGCLASS;
 	}
 	if (pEntry->GetInquisitorPressureRetention() > 0)
 	{
+#if defined(MOD_BALANCE_CORE)
+		iRtnValue += (pEntry->GetInquisitorPressureRetention() * iFlavorReligion);
+#else
 		iRtnValue += (pEntry->GetInquisitorPressureRetention() / 2);
+#endif
 	}
 	if (pEntry->GetSpyPressure() > 0)
 	{
+#if defined(MOD_BALANCE_CORE)
+		iRtnValue += (pEntry->GetSpyPressure() * iFlavorDiplomacy);
+#else
 		iRtnValue += (pEntry->GetSpyPressure()* 5);
+#endif
 	}
 	if (pEntry->GetFaithBuildingTourism() > 0)
 	{
+#if defined(MOD_BALANCE_CORE)
+		iRtnValue += (pEntry->GetFaithBuildingTourism() * iFlavorCulture);
+#else
 		iRtnValue += (pEntry->GetFaithBuildingTourism() * 20);
+#endif
 	}
 #if defined(MOD_BALANCE_CORE_BELIEFS)
 	if (pEntry->GetMissionaryInfluenceCS() > 0)
