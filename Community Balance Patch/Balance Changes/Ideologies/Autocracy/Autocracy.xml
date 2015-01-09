@@ -93,12 +93,12 @@
 		<Row>
 			<PolicyType>POLICY_INDUSTRIAL_ESPIONAGE</PolicyType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>25</Yield>
+			<Yield>20</Yield>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_INDUSTRIAL_ESPIONAGE</PolicyType>
 			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Yield>25</Yield>
+			<Yield>20</Yield>
 		</Row>
 	</Policy_YieldFromBorderGrowth>
 	<UnitPromotions_UnitCombats>

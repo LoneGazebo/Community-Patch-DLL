@@ -1,14 +1,14 @@
 
 UPDATE Defines
-SET Value = '8'
+SET Value = '15'
 WHERE Name = 'CULTURE_LEVEL_EXOTIC' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_TOURISM_CHANGES' AND Value= 1 );
 		
 UPDATE Defines
-SET Value = '25'
+SET Value = '30'
 WHERE Name = 'CULTURE_LEVEL_FAMILIAR' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_TOURISM_CHANGES' AND Value= 1 );
 		
 UPDATE Defines
-SET Value = '51'
+SET Value = '60'
 WHERE Name = 'CULTURE_LEVEL_POPULAR' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_TOURISM_CHANGES' AND Value= 1 );
 
 UPDATE Defines
@@ -75,7 +75,7 @@ Name, Value)
 SELECT 'BALANCE_SPY_BOOST_INFLUENCE_DOMINANT', '1'
 WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_TOURISM_CHANGES' AND Value= 1 );
 
---- These 5 values change the amount of gold earned from trade routes with influence civs. Lower influence = more gold (trade-off for higher influence, as exoticism = more value).
+--- These 5 values change the amount of gold earned from trade routes with influenced civs. Lower influence = more gold (trade-off for higher influence, as exoticism = more value).
 	
 INSERT INTO Defines (
 Name, Value)

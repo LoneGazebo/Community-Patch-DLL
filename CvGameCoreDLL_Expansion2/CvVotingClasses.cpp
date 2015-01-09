@@ -1755,6 +1755,7 @@ void CvActiveResolution::DoEffects(PlayerTypes ePlayer)
 			}
 		}
 	}
+	GET_PLAYER(ePlayer).ProcessLeagueResolutions();
 #endif
 
 	m_iTurnEnacted = GC.getGame().getGameTurn();
@@ -1993,6 +1994,7 @@ void CvActiveResolution::RemoveEffects(PlayerTypes ePlayer)
 		{
 		}
 	}
+	GET_PLAYER(ePlayer).ProcessLeagueResolutions();
 #endif
 
 	m_iTurnEnacted = -1;

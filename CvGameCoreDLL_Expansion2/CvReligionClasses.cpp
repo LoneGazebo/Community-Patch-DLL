@@ -4096,6 +4096,13 @@ void CvCityReligions::SimulateReligiousPressure(ReligionTypes eReligion, int iPr
 	CopyToSimulatedStatus();
 
 	ReligionInCityList::iterator it;
+
+#if defined(MOD_BALANCE_CORE)
+	if(eReligion == -1)
+	{
+		return;
+	}
+#endif
 	for(it = m_SimulatedStatus.begin(); it != m_SimulatedStatus.end(); it++)
 	{
 		if(it->m_eReligion == eReligion)
@@ -7150,7 +7157,7 @@ BuildingClassTypes eFaithBuildingClass = NO_BUILDINGCLASS;
 		}
 		if (pEntry->GetYieldPerHeal(iI) > 0)
 		{
-			iRtnValue += (pEntry->GetYieldPerHeal(iI) * iFlavorDefense);
+			iRtnValue += (pEntry->GetYieldPerHeal(iI) * (iFlavorDefense / 2));
 		}
 		if (pEntry->GetYieldPerScience(iI) > 0)
 		{
@@ -7497,7 +7504,13 @@ int CvReligionAI::ScoreCityForMissionary(CvCity* pCity, UnitHandle pUnit)
 	{
 		return iScore;
 	}
-
+#if defined(MOD_BALANCE_CORE)
+	// Skip if at war with city owner
+	if (GET_TEAM(m_pPlayer->getTeam()).isAtWar(GET_PLAYER(pCity->getOwner()).getTeam()))
+	{
+		return iScore;
+	}
+#endif
 	// Base score based on if we are establishing majority
 	iScore = 100;
 	if(ShouldBecomeNewMajority(pCity, eMyReligion, pUnit->GetReligionData()->GetReligiousStrength() * GC.getRELIGION_MISSIONARY_PRESSURE_MULTIPLIER()))

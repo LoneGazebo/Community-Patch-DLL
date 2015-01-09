@@ -294,7 +294,7 @@
 		<Row>
 			<PolicyType>POLICY_DISCIPLINE</PolicyType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>20</Yield>
+			<Yield>15</Yield>
 		</Row>
 	</Policy_YieldFromBorderGrowth>
 </GameData>

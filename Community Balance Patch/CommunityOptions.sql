@@ -66,6 +66,15 @@ INSERT INTO COMMUNITY (Type, Value)
 VALUES ('COMMUNITY_CORE_BALANCE_PROMOTIONS', 1);
 
 /*
+Purchases in Cities scale with # of cities
+1 = Enabled (Default)
+0 = Disabled 
+*/
+
+INSERT INTO COMMUNITY (Type, Value)
+VALUES ('COMMUNITY_CORE_BALANCE_PURCHASE_CITY_MOD', 1);
+
+/*
 Barbarians can Steal Gold
 1 = Enabled (Default)
 0 = Disabled 

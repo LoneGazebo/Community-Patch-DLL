@@ -25,7 +25,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_DEFENDER_FAITH' AND EXISTS (SELECT * FROM COMMUNITY 
 
 -- Religious Fervor (Now The One True Faith)
 UPDATE Language_en_US
-SET Text = 'Receive 3 additional votes in the World Congress. Missionaries performing the Spread Religion action erode existing pressure from other religions.'
+SET Text = 'Receive 3 additional Delegates in the World Congress. Missionaries performing the Spread Religion action erode existing pressure from other religions.'
 WHERE Tag = 'TXT_KEY_BELIEF_RELIGIOUS_FERVOR' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US

@@ -133,7 +133,7 @@
 			<Help>TXT_KEY_PROMOTION_NOBEL_LAUREATE_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<OrderPriority>3</OrderPriority>
-			<TradeMissionInfluenceModifier>10</TradeMissionInfluenceModifier>
+			<TradeMissionInfluenceModifier>15</TradeMissionInfluenceModifier>
 			<CannotBeChosen>true</CannotBeChosen>
 			<PortraitIndex>8</PortraitIndex>
 			<IconAtlas>EXPANSION2_PROMOTION_ATLAS</IconAtlas>

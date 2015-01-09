@@ -50,8 +50,8 @@
 			<Class>UNITCLASS_GUERILLA</Class>
 			<Type>UNIT_GUERILLA</Type>
 			<PrereqTech>TECH_PENICILIN</PrereqTech>
-			<Combat>60</Combat>
-			<Cost>325</Cost>
+			<Combat>65</Combat>
+			<Cost>350</Cost>
 			<FaithCost>0</FaithCost>
 			<PurchaseOnly>true</PurchaseOnly>
 			<RequiresFaithPurchaseEnabled>false</RequiresFaithPurchaseEnabled>
@@ -77,7 +77,7 @@
 			<UnitFlagAtlas>EXPANSION_UNIT_FLAG_ATLAS</UnitFlagAtlas>
 			<UnitFlagIconOffset>19</UnitFlagIconOffset>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
-			<PortraitIndex>15</PortraitIndex>
+			<PortraitIndex>52</PortraitIndex>
 		</Row>
 	</Units>
 	<Unit_AITypes>
@@ -139,7 +139,7 @@
 		<Row>
 			<PolicyType>POLICY_COMMERCE_FINISHER</PolicyType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Yield>2</Yield>
+			<Yield>1</Yield>
 		</Row>
 	</Policy_SpecialistExtraYields>
 	<Policy_ImprovementYieldChanges>

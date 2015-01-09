@@ -6,7 +6,7 @@
 		<Row>
 			<BuildingType>BUILDING_FLOATING_GARDENS</BuildingType>
 			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>25</Yield>
+			<Yield>50</Yield>
 		</Row>
 	</Building_YieldChangesPerPop>
   <!-- Bazaar -->
@@ -14,16 +14,37 @@
 		<Row>
 			<BuildingType>BUILDING_BAZAAR</BuildingType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>3</Yield>
+			<Yield>2</Yield>
 		</Row>
 	</Building_YieldChanges>
 	<Building_YieldChangesPerPop>
 		<Row>
 			<BuildingType>BUILDING_BAZAAR</BuildingType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>25</Yield>
+			<Yield>20</Yield>
 		</Row>
 	</Building_YieldChangesPerPop>
+	<!-- Market -->
+	<Building_ResourceYieldChanges>
+		<Row>
+			<BuildingType>BUILDING_BAZAAR</BuildingType>
+			<ResourceType>RESOURCE_SPICES</ResourceType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_BAZAAR</BuildingType>
+			<ResourceType>RESOURCE_SUGAR</ResourceType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_BAZAAR</BuildingType>
+			<ResourceType>RESOURCE_COCOA</ResourceType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+	</Building_ResourceYieldChanges>
 <!-- Hanse -->
 	<Building_YieldChangesPerPop>
 		<Row>
@@ -45,7 +66,7 @@
 		<Row>
 			<Type>BUILDING_INDUS_CANAL</Type>
 			<BuildingClass>BUILDINGCLASS_AQUEDUCT</BuildingClass>
-			<Cost>125</Cost>
+			<Cost>150</Cost>
 			<GoldMaintenance>2</GoldMaintenance>
 			<FreeStartEra>ERA_RENAISSANCE</FreeStartEra>
 			<PrereqTech>TECH_ENGINEERING</PrereqTech>
@@ -60,7 +81,7 @@
 			<ConquestProb>66</ConquestProb>
 			<HurryCostModifier>0</HurryCostModifier>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
-			<PortraitIndex>18</PortraitIndex>
+			<PortraitIndex>56</PortraitIndex>
 		</Row>
 	</Buildings>
 	<Building_Flavors>
@@ -92,12 +113,12 @@
 		<Row>
 			<BuildingType>BUILDING_INDUS_CANAL</BuildingType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Yield>2</Yield>
+			<Yield>1</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_INDUS_CANAL</BuildingType>
 			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>2</Yield>
+			<Yield>1</Yield>
 		</Row>
 	</Building_YieldChanges>
 	<Civilization_BuildingClassOverrides>
@@ -124,11 +145,11 @@
 	</Building_FeatureYieldChanges>
 	<Language_en_US>
 		<Row Tag="TXT_KEY_BUILDING_INDUS_CANAL">
-			<Text>Indus Canals</Text>
+			<Text>Harappan Reservoir</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CIV5_BUILDINGS_INDUS_CANAL_TEXT">
 			<Text>
-				The Indus civilization's economy appears to have depended significantly on trade, which was facilitated by major advances in transport technology. The Indus peoples may have been the first civilization to use wheeled transport. These advances may have included bullock carts that are identical to those seen throughout South Asia today, as well as boats. Most of these boats were probably small, flat-bottomed craft, perhaps driven by sail, similar to those one can see on the Indus River today; however, there is secondary evidence of sea-going craft. Archaeologists have discovered a massive, dredged canal and what they regard as a docking facility at the coastal city of Lothal in western India (Gujarat state). An extensive canal network, used for irrigation, has however also been discovered by H.-P. Francfort.
+				The ancient Harappan and Indus Valley Civilizations of Northwest South Asia, including Pakistan and parts of India, were prominent in hydraulic engineering, and had many water supply and sanitation devices that were the first of their kind. Among other things, they contained the world's earliest known system of flush toilets. These existed in many homes, and were connected to a common sewerage pipe. Most houses also had private wells. City walls functioned as a barrier against floods, and massive reservoirs were often constructed along these walls to collect this floodwater to save for droughts.
 			</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_INDUS_CANAL_HELP">
@@ -143,11 +164,12 @@
 		<Row>
 			<Type>BUILDING_DOJO</Type>
 			<BuildingClass>BUILDINGCLASS_ARMORY</BuildingClass>
-			<Cost>150</Cost>
+			<Cost>175</Cost>
 			<GoldMaintenance>3</GoldMaintenance>
 			<FreeStartEra>ERA_INDUSTRIAL</FreeStartEra>
 			<PrereqTech>TECH_CHIVALRY</PrereqTech>
 			<Help>TXT_KEY_BUILDING_DOJO_HELP</Help>
+			<DefenseHappinessChange>4</DefenseHappinessChange>
 			<Description>TXT_KEY_BUILDING_DOJO</Description>
 			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_DOJO_TEXT</Civilopedia>
 			<Strategy>TXT_KEY_BUILDING_DOJO_STRATEGY</Strategy>
@@ -226,10 +248,10 @@
 			</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_DOJO_HELP">
-			<Text>Unique Japanese replacement for the Armory. Grants +25 Experience to all military units trained in this city, and sources of [ICON_RES_IRON] Iron and [ICON_RES_HORSE] Horses near this city generate +1 [ICON_CULTURE] Culture.</Text>
+			<Text>Unique Japanese replacement for the Armory. Reduces [ICON_HAPPINESS_3] Disorder. Grants +25 Experience to all military units trained in this city, and sources of [ICON_RES_IRON] Iron and [ICON_RES_HORSE] Horses near this city generate +1 [ICON_CULTURE] Culture.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_DOJO_STRATEGY">
-			<Text>Build these unique Armories to produce dominant military units, and to generate additional mid-game Culture.</Text>
+			<Text>Build these unique Armories to produce dominant military units, and to generate additional Culture.</Text>
 		</Row>
 	</Language_en_US>
 	<!-- Odeon -->
@@ -246,7 +268,7 @@
 			<Strategy>TXT_KEY_BUILDING_ODEON_STRATEGY</Strategy>
 			<Help>TXT_KEY_BUILDING_ODEON_HELP</Help>
 			<ArtDefineTag>COLESSEUM</ArtDefineTag>
-			<TechEnhancedTourism>1</TechEnhancedTourism>
+			<TechEnhancedTourism>2</TechEnhancedTourism>
 			<EnhancedYieldTech>TECH_PHILOSOPHY</EnhancedYieldTech>
 			<ConquestProb>100</ConquestProb>
 			<MinAreaSize>-1</MinAreaSize>
@@ -313,7 +335,7 @@
 			<Type>BUILDING_TRIUMPHAL_ARCH</Type>
 			<BuildingClass>BUILDINGCLASS_MONUMENT</BuildingClass>
 			<FreeStartEra>ERA_MEDIEVAL</FreeStartEra>
-			<Cost>50</Cost>
+			<Cost>55</Cost>
 			<GoldMaintenance>1</GoldMaintenance>
 			<Description>TXT_KEY_BUILDING_TRIUMPHAL_ARCH</Description>
 			<Civilopedia>TXT_KEY_CIV5_BUILDING_TRIUMPHAL_ARCH_TEXT</Civilopedia>
@@ -393,8 +415,8 @@
 		<Row>
 			<Type>BUILDING_STEAM_MILL</Type>
 			<BuildingClass>BUILDINGCLASS_FACTORY</BuildingClass>
-			<Cost>350</Cost>
-			<GoldMaintenance>4</GoldMaintenance>
+			<Cost>400</Cost>
+			<GoldMaintenance>3</GoldMaintenance>
 			<PrereqTech>TECH_STEAM_POWER</PrereqTech>
 			<Help>TXT_KEY_BUILDING_STEAM_MILL_HELP</Help>
 			<Description>TXT_KEY_BUILDING_STEAM_MILL</Description>
@@ -428,6 +450,14 @@
 			<Flavor>10</Flavor>
 		</Row>
 	</Building_Flavors>
+	<Building_ResourceYieldChanges>
+		<Row>
+			<BuildingType>BUILDING_STEAM_MILL</BuildingType>
+			<ResourceType>RESOURCE_COAL</ResourceType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>1</Yield>
+		</Row>
+	</Building_ResourceYieldChanges>
 	<Civilization_BuildingClassOverrides>
 		<Row>
 			<CivilizationType>CIVILIZATION_ENGLAND</CivilizationType>
@@ -459,10 +489,10 @@
 			</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_STEAM_MILL_HELP">
-			<Text>+1 [ICON_PRODUCTION] Production for every 5 [ICON_CITIZEN] Citizens in the City. Does not require [ICON_RES_COAL] Coal.</Text>
+			<Text>+1 [ICON_PRODUCTION] Production for every 5 [ICON_CITIZEN] Citizens in the City. Each source of [ICON_RES_COAL] Coal worked by this City produces +1 [ICON_PRODUCTION] Production. [NEWLINE][NEWLINE]Does not require [ICON_RES_COAL] Coal.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_STEAM_MILL_STRATEGY">
-			<Text>Unique English replacement for the Factory. The Steam Mill is cheaper, requires no [ICON_RES_COAL] Coal, and is available earlier than the Factory, however it also generates slightly less Production. Since Steam Mills do not require Coal, you can use your Coal surplus to build a large, modern navy, or as a good to trade with your neighbors.</Text>
+			<Text>Unique English replacement for the Factory. The Steam Mill is cheaper, requires no [ICON_RES_COAL] Coal, is available earlier than the Factory, and provides additional Production to [ICON_RES_COAL] Coal worked by the City. Because it is cheaper, however, it also generates slightly less Production per [ICON_CITIZEN] Citizen. Since Steam Mills do not require Coal, you can use your Coal surplus to build a large, modern navy, or as a good to trade with your neighbors.</Text>
 		</Row>
 	</Language_en_US>
 	<!-- Siege Workshop -->
@@ -470,9 +500,9 @@
 		<Row>
 			<Type>BUILDING_SIEGE_WORKSHOP</Type>
 			<BuildingClass>BUILDINGCLASS_ARSENAL</BuildingClass>
-			<Cost>250</Cost>
+			<Cost>275</Cost>
 			<GoldMaintenance>3</GoldMaintenance>
-			<PrereqTech>TECH_METALLURGY</PrereqTech>
+			<PrereqTech>TECH_GUNPOWDER</PrereqTech>
 			<Help>TXT_KEY_BUILDING_SIEGE_WORKSHOP_HELP</Help>
 			<Description>TXT_KEY_BUILDING_SIEGE_WORKSHOP</Description>
 			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_SIEGE_WORKSHOP_TEXT</Civilopedia>
@@ -519,6 +549,11 @@
 			<FlavorType>FLAVOR_CITY_DEFENSE</FlavorType>
 			<Flavor>100</Flavor>
 		</Row>
+		<Row>
+			<BuildingType>BUILDING_SIEGE_WORKSHOP</BuildingType>
+			<FlavorType>FLAVOR_HAPPINESS</FlavorType>
+			<Flavor>25</Flavor>
+		</Row>
 	</Building_Flavors>
 	<Civilization_BuildingClassOverrides>
 		<Row>
@@ -540,7 +575,7 @@
 			<Text>City must have a Castle. +50% [ICON_PRODUCTION] Production towards Siege units. All Siege units trained in this City receive the [COLOR_POSITIVE_TEXT]Volley[ENDCOLOR] Promotion for free.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_SIEGE_WORKSHOP_STRATEGY">
-			<Text>Unique Ottoman replacement for the Arsenal. Produces Siege units much more quickly than normal, and grants them the [COLOR_POSITIVE_TEXT]Volley[ENDCOLOR] Promotion for free. Use these attributes to build a massive force of artillery to take down an enemy's walls and conquer their lands! City must have a Castle.</Text>
+			<Text>Unique Ottoman replacement for the Arsenal. Is available earlier than the Arsenal, and provides additional Production. Produces Siege units much more quickly than normal, and grants them the [COLOR_POSITIVE_TEXT]Volley[ENDCOLOR] Promotion for free. Use these attributes to build a massive force of artillery to take down an enemy's walls and conquer their lands! City must have a Castle.</Text>
 		</Row>
 	</Language_en_US>
 	<!-- Mud Pyramid Mosque -->
@@ -575,7 +610,7 @@
 		<Row>
 			<Type>BUILDING_RESORT</Type>
 			<BuildingClass>BUILDINGCLASS_HOTEL</BuildingClass>
-			<Cost>550</Cost>
+			<Cost>600</Cost>
 			<PrereqTech>TECH_REFRIGERATION</PrereqTech>
 			<Help>TXT_KEY_BUILDING_RESORT_HELP</Help>
 			<Description>TXT_KEY_BUILDING_RESORT</Description>

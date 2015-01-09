@@ -253,6 +253,21 @@ ALTER TABLE Buildings ADD COLUMN 'IsReformation' boolean default false;
 -- Allows for Building to be unlocked by a specific policy (not a branch)
 ALTER TABLE Buildings ADD COLUMN 'PolicyType' text default NULL;
 
+-- Allows for Building to be unlocked by a specific resource being owned (can be strategic or luxury)
+ALTER TABLE Buildings ADD COLUMN 'ResourceType' text default NULL;
+
+-- Allows for Unit to be unlocked by a specific resource being owned (can be strategic or luxury)
+ALTER TABLE Units ADD COLUMN 'ResourceType' text default NULL;
+
+-- Allows for Building to be purchased in puppet city
+ALTER TABLE Buildings ADD COLUMN 'PuppetPurchaseOverride' boolean default false;
+
+-- Allows for All Units/Buildings to be purchased in puppet city
+ALTER TABLE Buildings ADD COLUMN 'AllowsPuppetPurchase' boolean default false;
+
+-- Allows for Unit to be purchased in puppet city
+ALTER TABLE Units ADD COLUMN 'PuppetPurchaseOverride' boolean default false;
+
 -- New Goody Hut Additions
 ALTER TABLE GoodyHuts ADD COLUMN 'Production' integer default 0;
 ALTER TABLE GoodyHuts ADD COLUMN 'GoldenAge' integer default 0;

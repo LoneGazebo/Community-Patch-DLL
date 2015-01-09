@@ -14,25 +14,63 @@
 		<Row>
 			<BuildingType>BUILDING_ROYAL_LIBRARY</BuildingType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>2</Yield>
+			<Yield>1</Yield>
 		</Row>
 	</Building_YieldChanges>
  <!-- Kasbah -->
-	<Improvement_Yields>
+	<Improvement_TechYieldChanges>
 		<Row>
 			<ImprovementType>IMPROVEMENT_KASBAH</ImprovementType>
+			<TechType>TECH_CHEMISTRY</TechType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<ImprovementType>IMPROVEMENT_KASBAH</ImprovementType>
+			<TechType>TECH_INDUSTRIALIZATION</TechType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<ImprovementType>IMPROVEMENT_KASBAH</ImprovementType>
+			<TechType>TECH_RADIO</TechType>
 			<YieldType>YIELD_CULTURE</YieldType>
 			<Yield>1</Yield>
 		</Row>
-	</Improvement_Yields>
-<!-- Candi -->
-	<Building_GrowthExtraYield>
+	</Improvement_TechYieldChanges>
+	<!-- Garden-->
+	<Building_ResourceYieldChanges>
 		<Row>
 			<BuildingType>BUILDING_CANDI</BuildingType>
-			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>30</Yield>
+			<ResourceType>RESOURCE_CITRUS</ResourceType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>1</Yield>
 		</Row>
-	</Building_GrowthExtraYield>
+		<Row>
+			<BuildingType>BUILDING_CANDI</BuildingType>
+			<ResourceType>RESOURCE_WINE</ResourceType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_CANDI</BuildingType>
+			<ResourceType>RESOURCE_CLOVES</ResourceType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_CANDI</BuildingType>
+			<ResourceType>RESOURCE_PEPPER</ResourceType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_CANDI</BuildingType>
+			<ResourceType>RESOURCE_NUTMEG</ResourceType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+	</Building_ResourceYieldChanges>
 <!-- Ducal Stables -->
 	<Building_YieldChanges>
 		<Row>
@@ -41,4 +79,12 @@
 			<Yield>1</Yield>
 		</Row>
 	</Building_YieldChanges>
+<!-- Brazilwood Camp -->
+	<Improvement_Yields>
+		<Row>
+			<ImprovementType>IMPROVEMENT_BRAZILWOOD_CAMP</ImprovementType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>1</Yield>
+		</Row>
+	</Improvement_Yields>
 </GameData>

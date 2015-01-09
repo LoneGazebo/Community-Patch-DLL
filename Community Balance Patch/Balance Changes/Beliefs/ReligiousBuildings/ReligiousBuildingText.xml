@@ -12,7 +12,7 @@
 			<Text>A stupa is a mound-like or hemispherical structure containing Buddhist relics, typically the ashes of Buddhist monks, used by Buddhists as a place of meditation.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_STUPA_HELP">
-			<Text>+1 [ICON_TOURISM] Tourism once you have researched Theology.</Text>
+			<Text>+1 [ICON_TOURISM] Tourism once you have researched Theology. Reduces [ICON_HAPPINESS_3] Religious Division. Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 15%, and increases the city's resistance to conversion by 20%.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_CHURCH">
@@ -25,6 +25,11 @@
 			<Text>A church building, often simply called a church, is a building used for religious activities, particularly worship services. The term in its architectural sense is most often used by Christians to refer to their religious buildings but can be used by other religions. In traditional Christian architecture, the church is often arranged in the shape of a Christian cross. When viewed from plan view the longest part of a cross is represented by the aisle and the junction of the cross is located at the altar area.</Text>
 		</Row>
 
+		<Row Tag="TXT_KEY_BUILDING_CHURCH_HELP">
+			<Text>Reduces [ICON_HAPPINESS_3] Religious Division. Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 15%, and increases the city's resistance to conversion by 20%.</Text>
+		</Row>
+
+
 		<Row Tag="TXT_KEY_BUILDING_MANDIR">
 			<Text>Mandir</Text>
 		</Row>
@@ -34,6 +39,11 @@
 		<Row Tag="TXT_KEY_BUILDING_MANDIR_TEXT">
 			<Text>A Hindu temple is a house of god(s). It is a space and structure designed to bring human beings and gods together, infused with symbolism to express the ideas and beliefs of Hinduism.</Text>
 		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_MANDIR_HELP">
+			<Text>Reduces [ICON_HAPPINESS_3] Religious Division. Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 15%, and increases the city's resistance to conversion by 20%.</Text>
+		</Row>
+
 
 		<Row Tag="TXT_KEY_BUILDING_SYNAGOGUE">
 			<Text>Synagogue</Text>
@@ -45,6 +55,11 @@
 			<Text>A synagogue, also spelled synagog is a Jewish house of prayer. Synagogues have a large hall for prayer (the main sanctuary), and may also have smaller rooms for study and sometimes a social hall and offices. Some have a separate room for Torah study, called the beth midrash.</Text>
 		</Row>
 
+		<Row Tag="TXT_KEY_BUILDING_SYNAGOGUE_HELP">
+			<Text>Reduces [ICON_HAPPINESS_3] Religious Division. Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 15%, and increases the city's resistance to conversion by 20%.</Text>
+		</Row>
+
+
 		<Row Tag="TXT_KEY_BUILDING_ORDER">
 			<Text>Order</Text>
 		</Row>
@@ -52,10 +67,21 @@
 			<Text>Can only be built in cities following a religion with the Orders belief. Construct this building by purchasing it with [ICON_PEACE] Faith. Build the Order to gain Faith, +10 XP for Military units, and the Morale promotion for your land units. Reduces [ICON_HAPPINESS_3] Religious Division.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_ORDER_HELP">
-			<Text>+10 XP and the [COLOR_POSITIVE_TEXT]Morale[ENDCOLOR] promotion for Military units produced in this city. Reduces [ICON_HAPPINESS_3] Religious Division.</Text>
+			<Text>+10 XP and the [COLOR_POSITIVE_TEXT]Morale[ENDCOLOR] promotion for Military units produced in this city. Reduces [ICON_HAPPINESS_3] Religious Division. Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 15%, and increases the city's resistance to conversion by 20%.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_ORDER_TEXT">
 			<Text>A military order is any one of a variety of Christian societies of knights that were founded from the Middle Ages onwards for the purpose of crusading – propagating or defending the faith (originally Catholic, and after the Reformation sometimes Protestant), either in the Holy Land or against Islam (as, for example, during the Reconquista) or pagans (mainly in the Baltic region) in Europe. Many orders have, since the end of the Crusades and the Ottoman incursions, become secularized, and are usually represented by Roman Catholic ceremonial, missionary and charitable organizations in modern times.</Text>
+		</Row>
+		
+		<!-- Cathedral/Mosque/Pagoda-->
+		<Row Tag="TXT_KEY_BUILDING_CATHEDRAL_HELP">
+			<Text>Reduces [ICON_HAPPINESS_3] Religious Division. Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 15%, and increases the city's resistance to conversion by 20%.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_MOSQUE_HELP">
+			<Text>Reduces [ICON_HAPPINESS_3] Religious Division. Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 15%, and increases the city's resistance to conversion by 20%.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_PAGODA_HELP">
+			<Text>Reduces [ICON_HAPPINESS_3] Religious Division. Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 15%, and increases the city's resistance to conversion by 20%.</Text>
 		</Row>
 	</Language_en_US>
 </GameData>

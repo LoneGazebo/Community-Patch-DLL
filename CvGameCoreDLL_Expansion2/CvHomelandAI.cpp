@@ -2831,6 +2831,16 @@ void CvHomelandAI::ExecuteExplorerMoves()
 			if(!pEvalPlot || !IsValidExplorerEndTurnPlot(pUnit.pointer(), pEvalPlot))
 				continue;
 
+#if defined(MOD_BALANCE_CORE)
+			if(pEvalPlot->getNumUnits() > 0)
+			{
+				CvUnit* pUnit = pEvalPlot->getUnitByIndex(0);
+				if(!pUnit->IsCivilianUnit())
+				{
+					continue;
+				}
+			}
+#endif
 			DomainTypes eDomain = pUnit->getDomainType();
 			int iScoreBase = CvEconomicAI::ScoreExplorePlot(pEvalPlot, eTeam, iBaseSightRange, eDomain);
 
@@ -2838,7 +2848,17 @@ void CvHomelandAI::ExecuteExplorerMoves()
 			{
 				int iScoreBonus = pEvalPlot->GetExplorationBonus(m_pPlayer, pCurPlot);
 				int iScoreExtra = 0;
-
+				//If minor, let's not wander around if we don't have open borders.
+				if(pEvalPlot->getOwner() != NO_PLAYER)
+				{
+					if(GET_PLAYER(pEvalPlot->getOwner()).isMinorCiv())
+					{
+						if(!GET_PLAYER(pEvalPlot->getOwner()).GetMinorCivAI()->IsPlayerHasOpenBorders(m_pPlayer->GetID()))
+						{
+							iScoreExtra -= 200;
+						}
+					}
+				}
 				if (eDomain == DOMAIN_LAND)
 				{
 					if (pEvalPlot->isHills())

@@ -7324,6 +7324,16 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 						if (kPlayer.GetEspionage()->GetNumSpies() == 0)
 						{
 							int iNumTraitSpies = kPlayer.GetPlayerTraits()->GetExtraSpies();
+#if defined(MOD_BALANCE_CORE_SPIES)
+							if(MOD_BALANCE_CORE_SPIES && iNumTraitSpies > 0){
+								//Optional: Additional Trait Spies scaled for the number of City-States in the game.
+								int iNumMinor = ((GC.getGame().GetNumMinorCivsEver() * /*15*/ GC.getBALANCE_SPY_TO_MINOR_RATIO() * 2) / 100);
+								if((iNumMinor) > 0)
+								{
+									iNumTraitSpies += (iNumMinor);
+								}			
+							}
+#endif
 							for (int i = 0; i < iNumTraitSpies; i++)
 							{
 								kPlayer.GetEspionage()->CreateSpy();

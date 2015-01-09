@@ -105,7 +105,7 @@ CvUnitEntry::CvUnitEntry(void) :
 	m_bPillage(false),
 	m_bFound(false),
 	m_bFoundAbroad(false),
-#if defined(MOD_DIPLOMACY_CITYSTATES)
+#if defined(MOD_BALANCE_CORE)
 	m_bFoundMid(false),
 	m_bFoundLate(false),
 #endif
@@ -129,8 +129,10 @@ CvUnitEntry::CvUnitEntry(void) :
 	m_pbGreatPeoples(NULL),
 	m_pbBuildings(NULL),
 	m_pbBuildingClassRequireds(NULL),
-#if defined(MOD_DIPLOMACY_CITYSTATES)
+#if defined(MOD_BALANCE_CORE)
 	m_pbBuildOnFound(NULL),
+	m_iResourceType(NO_RESOURCE),
+	m_bPuppetPurchaseOverride(false),
 #endif
 	m_piPrereqAndTechs(NULL),
 	m_piResourceQuantityRequirements(NULL),
@@ -163,7 +165,7 @@ CvUnitEntry::~CvUnitEntry(void)
 	SAFE_DELETE_ARRAY(m_pbGreatPeoples);
 	SAFE_DELETE_ARRAY(m_pbBuildings);
 	SAFE_DELETE_ARRAY(m_pbBuildingClassRequireds);
-#if defined(MOD_DIPLOMACY_CITYSTATES)
+#if defined(MOD_BALANCE_CORE)
 	SAFE_DELETE_ARRAY(m_pbBuildOnFound);
 #endif
 	SAFE_DELETE_ARRAY(m_piPrereqAndTechs);
@@ -268,8 +270,8 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	m_bPillage = kResults.GetBool("Pillage");
 	m_bFound = kResults.GetBool("Found");
 	m_bFoundAbroad = kResults.GetBool("FoundAbroad");
-#if defined(MOD_DIPLOMACY_CITYSTATES)
-	if (MOD_DIPLOMACY_CITYSTATES) {
+#if defined(MOD_BALANCE_CORE)
+	if (MOD_BALANCE_CORE) {
 		m_bFoundMid = kResults.GetBool("FoundMid");
 		m_bFoundLate = kResults.GetBool("FoundLate");
 	}
@@ -313,6 +315,12 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	if (m_iUnitPromotionType == NO_UNITCOMBAT || !MOD_GLOBAL_PROMOTION_CLASSES) {
 		m_iUnitPromotionType = m_iUnitCombatType;
 	}
+#endif
+#if defined(MOD_BALANCE_CORE)
+	szTextVal = kResults.GetText("ResourceType");
+	m_iResourceType = GC.getInfoTypeForString(szTextVal, true);
+
+	m_bPuppetPurchaseOverride = kResults.GetBool("PuppetPurchaseOverride");
 #endif
 
 #if defined(MOD_EVENTS_CAN_MOVE_INTO)
@@ -382,8 +390,8 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	kUtility.PopulateArrayByExistence(m_pbGreatPeoples, "Specialists", "Unit_GreatPersons", "GreatPersonType", "UnitType", szUnitType);
 	kUtility.PopulateArrayByExistence(m_pbBuildings, "Buildings", "Unit_Buildings", "BuildingType", "UnitType", szUnitType);
 	kUtility.PopulateArrayByExistence(m_pbBuildingClassRequireds, "BuildingClasses", "Unit_BuildingClassRequireds", "BuildingClassType", "UnitType", szUnitType);
-#if defined(MOD_DIPLOMACY_CITYSTATES)
-	if (MOD_DIPLOMACY_CITYSTATES) {
+#if defined(MOD_BALANCE_CORE)
+	if (MOD_BALANCE_CORE) {
 		kUtility.PopulateArrayByExistence(m_pbBuildOnFound, "BuildingClasses", "Unit_BuildOnFound", "BuildingClassType", "UnitType", szUnitType);
 	}
 #endif
@@ -1230,7 +1238,7 @@ bool CvUnitEntry::GetBuildingClassRequireds(int i) const
 	return m_pbBuildingClassRequireds ? m_pbBuildingClassRequireds[i] : false;
 }
 
-#if defined(MOD_DIPLOMACY_CITYSTATES)
+#if defined(MOD_BALANCE_CORE)
 /// Does this Unit create something when it founds a city?
 bool CvUnitEntry::GetBuildOnFound(int i) const
 {
@@ -1314,6 +1322,16 @@ EraTypes CvUnitEntry::GetGreatPersonEra(int i) const
 	CvAssertMsg(i < GetNumUnitNames(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 	return (m_paeGreatPersonEra) ? m_paeGreatPersonEra[i] : NO_ERA;
+}
+/// Resource required for this unit
+int CvUnitEntry::GetResourceType() const
+{
+	return m_iResourceType;
+}
+/// Return art tag
+bool CvUnitEntry::IsPuppetPurchaseOverride() const
+{
+	return m_bPuppetPurchaseOverride;
 }
 #endif
 /// What flag icon to use

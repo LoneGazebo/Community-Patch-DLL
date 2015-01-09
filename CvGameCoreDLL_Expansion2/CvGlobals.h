@@ -7373,6 +7373,10 @@ public:
 	{
 		return m_fBALANCE_HAPPINESS_TECH_BASE_MODIFIER;
 	}
+	inline int getBALANCE_CITY_PURCHASE_MOD()
+	{
+		return m_iBALANCE_CITY_PURCHASE_MOD;
+	}
 #endif
 
 	// -- floats --
@@ -10522,6 +10526,7 @@ protected:
 	int m_iSETTLER_MOVE_ON_START;
 	int m_iBALANCE_HAPPINESS_CAPITAL_MODIFIER;
 	float m_fBALANCE_HAPPINESS_TECH_BASE_MODIFIER;
+	int m_iBALANCE_CITY_PURCHASE_MOD;
 #endif
 	// -- floats --
 

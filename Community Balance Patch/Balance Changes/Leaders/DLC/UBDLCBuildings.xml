@@ -6,7 +6,7 @@
 		<Row>
 			<Type>BUILDING_MISSION</Type>
 			<BuildingClass>BUILDINGCLASS_CASTLE</BuildingClass>
-			<Cost>125</Cost>
+			<Cost>150</Cost>
 			<PrereqTech>TECH_CHIVALRY</PrereqTech>
 			<FreeStartEra>ERA_INDUSTRIAL</FreeStartEra>
 			<Help>TXT_KEY_BUILDING_MISSION_HELP</Help>
@@ -15,9 +15,11 @@
 			<Strategy>TXT_KEY_BUILDING_MISSION_STRATEGY</Strategy>
 			<ArtDefineTag>CASTLE</ArtDefineTag>
 			<MinAreaSize>-1</MinAreaSize>
+			<ReligiousPressureModifier>25</ReligiousPressureModifier>
+			<ConversionModifier>-25</ConversionModifier>
 			<AllowsRangeStrike>true</AllowsRangeStrike>
-			<Defense>500</Defense>
-			<ExtraCityHitPoints>50</ExtraCityHitPoints>
+			<Defense>800</Defense>
+			<ExtraCityHitPoints>75</ExtraCityHitPoints>
 			<HurryCostModifier>20</HurryCostModifier>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
 			<PortraitIndex>16</PortraitIndex>
@@ -75,10 +77,10 @@
 			</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_MISSION_HELP">
-			<Text>Grants a large amount of [ICON_PEACE] Faith when it is constructed. Does not require Walls in order to be built.</Text>
+			<Text>Grants a large amount of [ICON_PEACE] Faith when constructed. Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 25%, and increases the city's resistance to conversion by 25%. Does not require Walls in order to be built.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_MISSION_STRATEGY">
-			<Text>Unique Spanish replacement for the Castle. It is cheaper and weaker than the Castle that it replaces, but grants +3 [ICON_PRODUCTION] Production and a large amount of [ICON_PEACE] Faith when it is constructed. Does not require Walls in order to be built. Build these unique Castles to quickly boost a City's productivity and defense, bypass the need for Walls, and to receive a large amount of faith.</Text>
+			<Text>Unique Spanish replacement for the Castle. It is cheaper than the Castle and does not require Walls in order to be built. Grants +2 Production and a large amount of Faith when it is constructed. Boosts the city's religious pressure by 25% and resistance to foreign conversion by 25%, thus making the city more effective at converting nearby cities and harder for others to convert! Build these unique Castles to quickly boost a City's productivity and defense, bypass the need for Walls, and to bolster your Religion.</Text>
 		</Row>
 	</Language_en_US>
 	<!-- Jelling Stones -->
@@ -161,7 +163,7 @@
 		<Row>
 			<Type>BUILDING_SEOWON</Type>
 			<BuildingClass>BUILDINGCLASS_UNIVERSITY</BuildingClass>
-			<Cost>175</Cost>
+			<Cost>200</Cost>
 			<GoldMaintenance>2</GoldMaintenance>
 			<PrereqTech>TECH_EDUCATION</PrereqTech>
 			<Help>TXT_KEY_BUILDING_SEOWON_HELP</Help>
@@ -173,7 +175,7 @@
 			<Strategy>TXT_KEY_BUILDING_SEOWON_STRATEGY</Strategy>
 			<ArtDefineTag>ART_DEF_BUILDING_UNIVERSITY</ArtDefineTag>
 			<SpecialistType>SPECIALIST_SCIENTIST</SpecialistType>
-			<GreatPeopleRateModifier>15</GreatPeopleRateModifier>
+			<GreatPeopleRateModifier>20</GreatPeopleRateModifier>
 			<SpecialistCount>2</SpecialistCount>
 			<MinAreaSize>-1</MinAreaSize>
 			<ConquestProb>66</ConquestProb>
@@ -200,12 +202,12 @@
 		<Row>
 			<BuildingType>BUILDING_SEOWON</BuildingType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>2</Yield>
+			<Yield>3</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_SEOWON</BuildingType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>1</Yield>
+			<Yield>2</Yield>
 		</Row>
 	</Building_YieldChanges>
 	<Building_GrowthExtraYield>
@@ -222,6 +224,12 @@
 			<YieldType>YIELD_SCIENCE</YieldType>
 			<Yield>1</Yield>
 		</Row>
+		<Row>
+			<BuildingType>BUILDING_SEOWON</BuildingType>
+			<FeatureType>FEATURE_FOREST</FeatureType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Yield>1</Yield>
+		</Row>
 	</Building_FeatureYieldChanges>
 	<Language_en_US>
 		<Row Tag="TXT_KEY_BUILDING_SEOWON">
@@ -233,7 +241,7 @@
 			</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_SEOWON_HELP">
-			<Text>+1 [ICON_RESEARCH] Science from Jungle tiles worked by this City, and 50 [ICON_RESEARCH] Science every time a new [ICON_CITIZEN] Citizen is born in this City. Reduces [ICON_HAPPINESS_3] Illiteracy. Allows Archaeologists to be built in this city. +15% [ICON_GREAT_PEOPLE] Great Person rate in this City. [NEWLINE][NEWLINE]City must have a Library.</Text>
+			<Text>+1 [ICON_RESEARCH] Science from Jungle and Forest tiles worked by this City, and 50 [ICON_RESEARCH] Science every time a new [ICON_CITIZEN] Citizen is born in this City. Reduces [ICON_HAPPINESS_3] Illiteracy. Allows Archaeologists to be built in this city. +20% [ICON_GREAT_PEOPLE] Great Person rate in this City. [NEWLINE][NEWLINE]City must have a Library.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_SEOWON_STRATEGY">
 			<Text>Unique Korean replacement for the University. Generates more Science than the University, and also generates Faith. The increased Great Person rate will help you produce Great People more quickly, thus helping you to maximize Korea's Unique Ability.</Text>
@@ -244,7 +252,7 @@
 		<Row>
 			<Type>BUILDING_YURT</Type>
 			<BuildingClass>BUILDINGCLASS_GRANARY</BuildingClass>
-			<Cost>50</Cost>
+			<Cost>55</Cost>
 			<FreeStartEra>ERA_RENAISSANCE</FreeStartEra>
 			<PrereqTech>TECH_POTTERY</PrereqTech>
 			<Help>TXT_KEY_BUILDING_YURT_HELP</Help>

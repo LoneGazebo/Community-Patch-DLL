@@ -83,8 +83,6 @@
 	</Trait_FreePromotionUnitCombats>
 
 	<!-- Egypt -->
-
-	<!-- Egypt -->
 	<Building_YieldFromVictory>
 		<Row>
 			<BuildingType>BUILDING_BURIAL_TOMB</BuildingType>
@@ -99,7 +97,13 @@
 			<Yield>25</Yield>
 		</Row>
 	</Building_InstantYield>
-	
+	<Trait_YieldChanges>
+		<Row>
+			<TraitType>TRAIT_WONDER_BUILDER</TraitType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>1</Yield>
+		</Row>
+	</Trait_YieldChanges>
 	<!-- Iroquois -->
 	<Trait_FreePromotionUnitCombats>
 		<Row>
@@ -143,12 +147,12 @@
 		<Row>
 			<TraitType>TRAIT_CONVERTS_SEA_BARBARIANS</TraitType>
 			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Yield>40</Yield>
+			<Yield>60</Yield>
 		</Row>
 		<Row>
 			<TraitType>TRAIT_CONVERTS_SEA_BARBARIANS</TraitType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>40</Yield>
+			<Yield>60</Yield>
 		</Row>
 	</Trait_TradeRouteStartYield>
 	<!-- Germany -->
@@ -156,9 +160,19 @@
 		<Row>
 			<TraitType>TRAIT_CONVERTS_LAND_BARBARIANS</TraitType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>3</Yield>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<TraitType>TRAIT_CONVERTS_LAND_BARBARIANS</TraitType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>1</Yield>
 		</Row>
 	</Trait_YieldFromCSAlly>
+	<Language_en_US>
+		<Row Tag="TXT_KEY_CULTURE_FROM_CS_ALLIANCE">
+			<Text>{1_Num} [ICON_CULTURE] from City-State Alliances</Text>
+		</Row>
+	</Language_en_US>
 	<!-- Greece -->
 	<Trait_YieldChanges>
 		<Row>
@@ -192,14 +206,22 @@
 		<Row>
 			<BuildingType>BUILDING_WAT</BuildingType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>75</Yield>
+			<Yield>100</Yield>
 		</Row>
 	</Building_GrowthExtraYield>
 	<Building_YieldChanges>
 		<Row>
 			<BuildingType>BUILDING_WAT</BuildingType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>1</Yield>
+			<Yield>3</Yield>
 		</Row>
 	</Building_YieldChanges>
+	<Building_FeatureYieldChanges>
+		<Row>
+			<BuildingType>BUILDING_WAT</BuildingType>
+			<FeatureType>FEATURE_FOREST</FeatureType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Yield>2</Yield>
+		</Row>
+	</Building_FeatureYieldChanges>
 </GameData>

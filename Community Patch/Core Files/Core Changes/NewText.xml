@@ -231,6 +231,9 @@
 		<Row Tag="TXT_KEY_GENERIC_EMBASSY_OFFER_3">
 			<Text>We would like to set up an embassy in your capital. Will you agree to this request?</Text>
 		</Row>
+		<Row Tag="TXT_KEY_GENERIC_EMBASSY_OFFER_4">
+			<Text>The sharing of embassies will faciliate greater cooperation between our peoples. Do you agree?</Text>
+		</Row>
 		<Row Tag="TXT_KEY_BULLIED_PROTECTED_CITY_STATE_3">
 			<Text>Your war against {@1_MinorCivName} is unacceptable. They are under my protection, and I will not tolerate such defiance.</Text>
 		</Row>
@@ -276,6 +279,9 @@
 		<Row Tag="TXT_KEY_GENERIC_RESPONSE_SHARE_INTRIGUE_DECEPTION_2">
 			<Text>I thought you would like to know that {1_PlayerName} is plotting against you. I always knew they were up to no good.</Text>
 		</Row>
+		<Row Tag="TXT_KEY_GENERIC_RESPONSE_SHARE_INTRIGUE_DECEPTION_3">
+			<Text>{1_PlayerName} is plotting against you. I hope this warning does not arrive too late.</Text>
+		</Row>
 		<Row Tag="TXT_KEY_GENERIC_RESPONSE_SHARE_INTRIGUE_ARMY_SNEAK_ATTACK_KNOWN_CITY_2">
 			<Text>I recently learned that {1_PlayerName} has an army headed towards your city of {2_CityName}. Consider this warning a favor, one that I hope you one day return.</Text>
 		</Row>
@@ -289,13 +295,13 @@
 			<Text>{1_PlayerName} is preparing for a naval sneak attack against you. I am sorry that I could not uncover more information than this.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GENERIC_KILLED_YOUR_SPY_2">
-			<Text>I hope your spy's death has taught you a valuable lesson about thievery. If not, go ahead and send another of your spies this way...we have plenty of bullets.</Text>
+			<Text>I hope your spy's death has taught you a valuable lesson about thievery. If not, go ahead and send another of your spies this way...we have plenty of ammunition.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GENERIC_KILLED_MY_SPY_2">
 			<Text>It is good that you captured and killed that rogue spy who claimed to be working for me. Wait, you don't believe me that he was rogue? Well, that's just foolish of you.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GENERIC_CONFRONT_YOU_KILLED_MY_SPY_2">
-			<Text>Greetings, old friend! Let's not discuss petty things like spying, or the fact that you killed one of my spies...please?</Text>
+			<Text>Greetings! Let's not discuss petty things like spying, or the fact that you killed one of my spies...please?</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GENERIC_SUSPECT_YOU_OF_SPYING_3">
 			<Text>My brightest minds have convinced me that you are likely responsible for our recent 'security incident' involving a foreign spy. If this is true, let's stop this now before things get ugly.</Text>
@@ -311,8 +317,14 @@
 		<Row Tag="TXT_KEY_GENERIC_RENEW_DEAL_2">
 			<Text>Cooperation and proper diplomacy are the hallmarks of civilization. Shall we continue to be an example to the rest of the world?</Text>
 		</Row>
+		<Row Tag="TXT_KEY_GENERIC_RENEW_DEAL_3">
+			<Text>This was a fine deal, and my advisors and I would be sad to see it end. Shall we renew this agreement?</Text>
+		</Row>
 		<Row Tag="TXT_KEY_GENERIC_WANT_MORE_RENEW_DEAL_2">
 			<Text>Our past agreements simply aren't what they used to be. If we're going to continue being friends, I'm going to need a bit more from you.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_WANT_MORE_RENEW_DEAL_3">
+			<Text>This was a great partnership, but is no longer. If you want to renew this deal, we expect a little bit more from you.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_GENERIC_STOP_CONVERSIONS_2">
@@ -639,7 +651,7 @@
 			<Text>Too many of our bravest have perished in this conflict. Let us make peace.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GENERIC_GREETING_AT_WAR_WANTS_PEACE_6">
-			<Text>The day of peace is night. Come, let us embrace it.</Text>
+			<Text>The day of peace is nigh. Come, let us embrace it.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GENERIC_GREETING_AT_WAR_HOSTILE_4">
 			<Text>Haven't I defeated you already?</Text>
@@ -692,8 +704,14 @@
 		<Row Tag="TXT_KEY_GENERIC_GREETING_FRIENDLY_STRONG_MILITARY_2">
 			<Text>Your empire is quite powerful. I do hope that you plan to only use such power for good.</Text>
 		</Row>
+		<Row Tag="TXT_KEY_GENERIC_GREETING_FRIENDLY_STRONG_MILITARY_3">
+			<Text>Your military is terrifying. I am glad to be on your good side.</Text>
+		</Row>
 		<Row Tag="TXT_KEY_GENERIC_GREETING_FRIENDLY_STRONG_ECONOMY_2">
 			<Text>Your caravans and cargo ships dominate the world's trade unlike anything I've ever seen before. Truly an impressive sight.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_GREETING_FRIENDLY_STRONG_ECONOMY_3">
+			<Text>Your people are wealthy and prosperous, and they have your wise leadership to thank for it.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GENERIC_GREETING_HOSTILE_HUMAN_FEW_CITIES_2">
 			<Text>I'm surprised to see you here. Shouldn't you be out settling new cities or something?</Text>
@@ -770,11 +788,20 @@
 		<Row Tag="TXT_KEY_HUMAN_DOFED_FRIEND_3">
 			<Text>Your friendship with {1_CivName} has reinforced my opinion that you are a wise and noble leader.</Text>
 		</Row>
+		<Row Tag="TXT_KEY_HUMAN_DOFED_FRIEND_4">
+			<Text>{1_CivName} and I agree that you are a worthwhile friend to have in this world.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_HUMAN_DOFED_FRIEND_5">
+			<Text>THe mutual friendship you and I share with {1_CivName} makes our friendship all the stronger.</Text>
+		</Row>
 		<Row Tag="TXT_KEY_HUMAN_DOFED_ENEMY_2">
 			<Text>{1_CivName} is nothing but trouble. If you seek an alliance with them, you will soon find yourself isolated on the world stage.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_HUMAN_DOFED_ENEMY_3">
 			<Text>I'm not sure what you see in {1_CivName}. Whatever it is, it reinforces my feeling that you are of dubious intellect.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_HUMAN_DOFED_ENEMY_4">
+			<Text>I would be careful around {1_CivName}. Sticking close to them will end badly for you.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_HUMAN_DENOUNCED_FRIEND_2">
 			<Text>Denouncing {1_CivName} was a big mistake. I, and others, will not stand idly by while you say such foolish and false things.</Text>
@@ -793,6 +820,9 @@
 		</Row>
 		<Row Tag="TXT_KEY_HUMAN_DOF_SO_AI_DOF_3">
 			<Text>It is good to know that {1_CivName} has friends like you. Together, I truly believe we can make the world a better place.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_HUMAN_DOF_SO_AI_DOF_4">
+			<Text>Your friendship with {1_CivName} is an example to us all, and I want to be a part of it. I hope that others will see the benefit of such cooperation.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_HUMAN_DENOUNCE_SO_AI_DENOUNCE_2">
 			<Text>{1_CivName} is terrible, and I'm glad you agree. Come, let us retire to my office so we can conspire against them.</Text>
@@ -1441,16 +1471,16 @@
 		<Row Tag="TXT_KEY_GENERIC_OPEN_BORDERS_OFFER_5">
 			<Text>Please consider my request for open borders.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_GENERIC_RENEW_DEAL_3">
+		<Row Tag="TXT_KEY_GENERIC_RENEW_DEAL_4">
 			<Text>We have both prospered greatly as a result of this deal. Shall we renew it?</Text>
 		</Row>
-		<Row Tag="TXT_KEY_GENERIC_RENEW_DEAL_4">
+		<Row Tag="TXT_KEY_GENERIC_RENEW_DEAL_5">
 			<Text>It is time to renew this deal. Shall we?</Text>
 		</Row>
-		<Row Tag="TXT_KEY_GENERIC_RENEW_DEAL_5">
+		<Row Tag="TXT_KEY_GENERIC_RENEW_DEAL_6">
 			<Text>I hope that you have benefited from this deal as much as I have. Do you want to continue this arrangement?</Text>
 		</Row>
-		<Row Tag="TXT_KEY_GENERIC_WANT_MORE_RENEW_DEAL_3">
+		<Row Tag="TXT_KEY_GENERIC_WANT_MORE_RENEW_DEAL_4">
 			<Text>Unfortunately, I'm not sure this deal is as beneficial to us as it once was. Perhaps you could sweeten the deal?</Text>
 		</Row>
 

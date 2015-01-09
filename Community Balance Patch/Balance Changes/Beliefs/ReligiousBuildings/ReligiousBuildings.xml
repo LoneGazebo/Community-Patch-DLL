@@ -30,6 +30,7 @@
 			<Description>TXT_KEY_BUILDING_CHURCH</Description>
 			<Civilopedia>TXT_KEY_BUILDING_CHURCH_TEXT</Civilopedia>
 			<Strategy>TXT_KEY_BUILDING_CHURCH_STRATEGY</Strategy>
+			<Help>TXT_KEY_BUILDING_CHURCH_HELP</Help>
 			<GreatWorkSlotType>GREAT_WORK_SLOT_MUSIC</GreatWorkSlotType>
 			<GreatWorkCount>1</GreatWorkCount>
 			<ConquestProb>100</ConquestProb>
@@ -51,6 +52,7 @@
 			<Description>TXT_KEY_BUILDING_MANDIR</Description>
 			<Civilopedia>TXT_KEY_BUILDING_MANDIR_TEXT</Civilopedia>
 			<Strategy>TXT_KEY_BUILDING_MANDIR_STRATEGY</Strategy>
+			<Help>TXT_KEY_BUILDING_MANDIR_HELP</Help>
 			<GreatWorkSlotType>GREAT_WORK_SLOT_MUSIC</GreatWorkSlotType>
 			<GreatWorkCount>1</GreatWorkCount>
 			<ConquestProb>100</ConquestProb>
@@ -74,6 +76,7 @@
 			<Strategy>TXT_KEY_BUILDING_SYNAGOGUE_STRATEGY</Strategy>
 			<GreatWorkSlotType>GREAT_WORK_SLOT_LITERATURE</GreatWorkSlotType>
 			<GreatWorkCount>1</GreatWorkCount>
+			<Help>TXT_KEY_BUILDING_SYNAGOGUE_HELP</Help>
 			<MinorityHappinessChange>2</MinorityHappinessChange>
 			<ConquestProb>100</ConquestProb>
 			<Cost>-1</Cost>

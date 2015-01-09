@@ -6283,11 +6283,14 @@ void CvDiplomacyAI::DoUpdateWarStates()
 				//If the war is going well, but it is an overseas fight and we're outnumbered at sea, let's pull back.
 				if(eWarState >= WAR_STATE_CALM)
 				{
-					if(GET_PLAYER(eLoopPlayer).getCapitalCity()->getArea() != GetPlayer()->getCapitalCity()->getArea())
+					if(GET_PLAYER(eLoopPlayer).getCapitalCity() != NULL)
 					{
-						if(GET_PLAYER(eLoopPlayer).GetMilitaryAI()->GetNavalDefenseState() < GetPlayer()->GetMilitaryAI()->GetNavalDefenseState())
+						if(GET_PLAYER(eLoopPlayer).getCapitalCity()->getArea() != GetPlayer()->getCapitalCity()->getArea())
 						{
-							iStateAllWars -= 1;
+							if(GET_PLAYER(eLoopPlayer).GetMilitaryAI()->GetNavalDefenseState() < GetPlayer()->GetMilitaryAI()->GetNavalDefenseState())
+							{
+								iStateAllWars -= 1;
+							}
 						}
 					}
 				}
@@ -10765,7 +10768,7 @@ int CvDiplomacyAI::GetOtherPlayerWarmongerAmount(PlayerTypes ePlayer)
 #if defined(MOD_API_EXTENSIONS)
 void CvDiplomacyAI::ChangeOtherPlayerWarmongerAmountTimes100(PlayerTypes ePlayer, int iChangeAmount)
 {
-	int iNewValue = m_paiOtherPlayerWarmongerAmountTimes100[ePlayer] + iChangeAmount;
+	int iNewValue = m_paiOtherPlayerWarmongerAmountTimes100[ePlayer] + (iChangeAmount * (GC.getEraInfo(GC.getGame().getCurrentEra())->getWarmongerPercent()) / 100);
 	iNewValue = max(0, iNewValue);
 	m_paiOtherPlayerWarmongerAmountTimes100[ePlayer] = iNewValue;
 }
@@ -18660,6 +18663,15 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 				strText = GetDiploStringForMessage(DIPLO_MESSAGE_DISAPPOINTED);
 				gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_BLANK_DISCUSSION, strText, LEADERHEAD_ANIM_NEGATIVE);
 			}
+#if defined(MOD_BALANCE_CORE)
+			//If player is offended, AI should take note as penalty to assistance.
+			if(iArg1 == 2)
+			{
+				CvFlavorManager* pFlavorManager = GetPlayer()->GetFlavorManager();
+				int iFlavorOffense = pFlavorManager->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_OFFENSE"));
+				GetPlayer()->GetDiplomacyAI()->ChangeRecentAssistValue(eFromPlayer, iFlavorOffense);
+			}
+#endif
 		}
 		// Human says "soon"
 		if(iArg1 == 3)
@@ -28370,6 +28382,7 @@ CvString CvDiplomacyAIHelpers::GetWarmongerPreviewString(PlayerTypes eCurrentOwn
 
 #if defined(MOD_CONFIG_AI_IN_XML)
 	int iWarmongerOffset = CvDiplomacyAIHelpers::GetWarmongerOffset(eCurrentOwner, bIsCapital);
+	iWarmongerOffset = iWarmongerOffset * GC.getEraInfo(GC.getGame().getCurrentEra())->getWarmongerPercent() / 100;
 #else
 	CvPlayer &kPlayer = GET_PLAYER(eCurrentOwner);
 	int iNumCities = max(kPlayer.getNumCities(), 1);
@@ -28403,6 +28416,7 @@ CvString CvDiplomacyAIHelpers::GetLiberationPreviewString(PlayerTypes eOriginalO
 
 #if defined(MOD_CONFIG_AI_IN_XML)
 	int iWarmongerOffset = CvDiplomacyAIHelpers::GetWarmongerOffset(eOriginalOwner, bIsCapital);
+	iWarmongerOffset = iWarmongerOffset * GC.getEraInfo(GC.getGame().getCurrentEra())->getWarmongerPercent() / 100;
 #else
 	CvPlayer &kPlayer = GET_PLAYER(eOriginalOwner);
 	int iNumCities = kPlayer.getNumCities() + 1;

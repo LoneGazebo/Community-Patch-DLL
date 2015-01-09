@@ -796,18 +796,18 @@ void CvPlayer::init(PlayerTypes eID)
 					CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
 #endif
 #if defined(MOD_BALANCE_CORE_SETTLER)
-					if(MOD_BALANCE_CORE_SETTLER && (NULL != pkUnitInfo) && pkUnitInfo->IsFoundMid())
+					if(MOD_BALANCE_CORE_SETTLER && (pkUnitInfo != NULL) && pkUnitInfo->IsFoundMid() && pkUnitInfo->IsFoodProduction())
 					{
 						if(iBuildingMid > 0)
 						{
-							setUnitExtraCost(eUnitClass, (20 * iBuildingMid));
+							setUnitExtraCost(eUnitClass, (40 * iBuildingMid));
 						}
 					}
-					else if(MOD_BALANCE_CORE_SETTLER && (NULL != pkUnitInfo) && pkUnitInfo->IsFoundLate())
+					else if(MOD_BALANCE_CORE_SETTLER && (pkUnitInfo != NULL) && pkUnitInfo->IsFoundLate() && pkUnitInfo->IsFoodProduction())
 					{
 						if(iBuildingLate > 0)
 						{
-							setUnitExtraCost(eUnitClass, (20 * iBuildingLate));
+							setUnitExtraCost(eUnitClass, (40 * iBuildingLate));
 						}
 					}
 					else
@@ -4062,6 +4062,11 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID)
 			{
 #if defined(MOD_CONFIG_AI_IN_XML)
 				int iWarmongerOffset = CvDiplomacyAIHelpers::GetWarmongerOffset(ePlayer, pNewCity->isCapital());
+				//Sanity check - should be positive!
+				if(iWarmongerOffset < 0)
+				{
+					iWarmongerOffset *= -1;
+				}
 				int iWarmongerModifier = 100;
 				GET_PLAYER(eMajor).GetDiplomacyAI()->ChangeOtherPlayerWarmongerAmountTimes100(GetID(), -iWarmongerOffset * iWarmongerModifier);
 #else
@@ -8208,6 +8213,16 @@ bool CvPlayer::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool
 			return false;
 		}
 	}
+#if defined(MOD_BALANCE_CORE)
+	ResourceTypes eResource = (ResourceTypes)pUnitInfo.GetResourceType();
+	if (eResource != NO_RESOURCE)
+	{
+		if (getNumResourceTotal(eResource, true) <= 0)
+		{
+			return false;
+		}
+	}
+#endif
 
 	// One City Challenge
 	if(pUnitInfo.IsFound() || pUnitInfo.IsFoundAbroad())
@@ -8519,6 +8534,16 @@ bool CvPlayer::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestV
 	if (ePolicy != NO_POLICY)
 	{
 		if (!GetPlayerPolicies()->HasPolicy(ePolicy))
+		{
+			return false;
+		}
+	}
+#endif
+#if defined(MOD_BALANCE_CORE)
+	ResourceTypes eResource = (ResourceTypes)pBuildingInfo.GetResourceType();
+	if (eResource != NO_RESOURCE)
+	{
+		if (getNumResourceTotal(eResource, true) <= 0)
 		{
 			return false;
 		}
@@ -9962,7 +9987,6 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 				if(pkBuilding)
 				{
 					iBuildingCount = pLoopCity->GetCityBuildings()->GetNumRealBuilding(eBuilding);
-
 					if(iBuildingCount > 0)
 					{
 #if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)

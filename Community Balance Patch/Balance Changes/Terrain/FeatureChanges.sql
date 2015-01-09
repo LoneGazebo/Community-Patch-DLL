@@ -123,6 +123,10 @@ AND NOT impBasic.Water = 1;
 INSERT INTO BuildFeatures (BuildType, FeatureType, PrereqTech, Time, Remove)
 VALUES ('BUILD_CAMP', 'FEATURE_MARSH', 'TECH_BRONZE_WORKING', '600', 1);
 
+UPDATE BuildFeatures
+SET Remove = '0'
+WHERE BuildType = 'BUILD_PLANTATION';
+
 -- Polder specific code lacking in the BuildFeatures table
 INSERT INTO BuildFeatures (BuildType, FeatureType, PrereqTech, Time, Production, Remove)
 VALUES ('BUILD_POLDER', 'FEATURE_JUNGLE', 'TECH_THE_WHEEL', '600', '',1);

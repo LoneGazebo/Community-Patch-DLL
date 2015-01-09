@@ -438,7 +438,7 @@
 		<Row>
 			<BuildingType>BUILDING_MAUSOLEUM</BuildingType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>15</Yield>
+			<Yield>30</Yield>
 		</Row>
 	</Building_YieldFromDeath>
 	<Building_Flavors>

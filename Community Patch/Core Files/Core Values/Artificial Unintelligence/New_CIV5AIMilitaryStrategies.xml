@@ -34,4 +34,5 @@
 			<Where AIMilitaryStrategyType="MILITARYAISTRATEGY_WAR_MOBILIZATION" FlavorType="FLAVOR_GROWTH" />
 		</Update>
 	</AIMilitaryStrategy_Player_Flavors>
+
 </GameData>

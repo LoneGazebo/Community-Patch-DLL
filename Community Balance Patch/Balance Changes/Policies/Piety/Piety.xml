@@ -18,7 +18,7 @@
 		<Row>
 			<PolicyType>POLICY_PIETY</PolicyType>
 			<BuildingClassType>BUILDINGCLASS_TEMPLE</BuildingClassType>
-			<CultureChange>2</CultureChange>
+			<CultureChange>1</CultureChange>
 		</Row>
 	</Policy_BuildingClassCultureChanges>
 	<Policy_BuildingClassYieldChanges>
@@ -52,19 +52,19 @@
 			<PolicyType>POLICY_MANDATE_OF_HEAVEN</PolicyType>
 			<BuildingClassType>BUILDINGCLASS_TEMPLE</BuildingClassType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<YieldMod>3</YieldMod>
+			<YieldMod>2</YieldMod>
 		</Row>
 	</Policy_ReligionBuildingYieldMod>
 	<Policy_ReligionYieldMod>
 		<Row>
 			<PolicyType>POLICY_THEOCRACY</PolicyType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>2</Yield>
+			<Yield>1</Yield>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_THEOCRACY</PolicyType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Yield>3</Yield>
+			<Yield>2</Yield>
 		</Row>
 	</Policy_ReligionYieldMod>
 	<Policy_SpecialistExtraYields>
@@ -78,7 +78,7 @@
 		<Row>
 			<BuildingType>BUILDING_MONASTERY</BuildingType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>2</Yield>
+			<Yield>1</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_MONASTERY</BuildingType>
@@ -117,6 +117,9 @@
 		</Row>
 		<Row Tag="TXT_KEY_FAITH_FROM_PIETY">
 			<Text>{1_Num} [ICON_PEACE] from Piety</Text>
+		</Row>
+		<Row Tag="TXT_KEY_FAITH_FROM_CS_ALLIANCE">
+			<Text>{1_Num} [ICON_PEACE] from City-State Alliances</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CULTURE_FROM_PIETY">
 			<Text>{1_Num} [ICON_CULTURE] from Piety</Text>

@@ -13,15 +13,20 @@
 	<Improvement_Yields>
 		<Row>
 			<ImprovementType>IMPROVEMENT_POLDER</ImprovementType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<ImprovementType>IMPROVEMENT_POLDER</ImprovementType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>2</Yield>
+			<Yield>1</Yield>
 		</Row>
 	</Improvement_Yields>
 <!-- Coffee House -->
 	<Building_YieldChanges>
 		<Row>
 			<BuildingType>BUILDING_COFFEE_HOUSE</BuildingType>
-			<YieldType>YIELD_PRODUCTION</YieldType>
+			<YieldType>YIELD_FOOD</YieldType>
 			<Yield>2</Yield>
 		</Row>
 	</Building_YieldChanges>
