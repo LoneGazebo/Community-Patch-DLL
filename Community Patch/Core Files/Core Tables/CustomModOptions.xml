@@ -799,7 +799,12 @@
 	<Row Class="6" Name="MOD_BALANCE_CORE_BARBARIAN_THEFT" Value="0"/>
 	<!-- Turn 0 Settler moves of MOD_COMMUNITY_PATCH -->
 	<Row Class="6" Name="MOD_BALANCE_CORE_SETTLER_MOVE" Value="0"/>
-
+	<!-- Resources given Flavor Value of MOD_COMMUNITY_PATCH -->
+	<Row Class="6" Name="MOD_BALANCE_CORE_RESOURCE_FLAVORS" Value="0"/>
+	<!-- Purchases Scale with # of Cities of MOD_COMMUNITY_PATCH -->
+	<Row Class="6" Name="MOD_BALANCE_CORE_PURCHASE_COST_INCREASE" Value="0"/>
+	<!-- Force Puppet Purchase in Cities of MOD_COMMUNITY_PATCH -->
+	<Row Class="6" Name="MOD_BALANCE_CORE_PUPPET_PURCHASE" Value="0"/>
   </CustomModOptions>
 
   <CustomModPostDefines>

@@ -3523,7 +3523,12 @@ function OnChoosePocketVote(iFromPlayer, iVoteIndex)
 		local iResolutionID = g_LeagueVoteList[iVoteIndex].ID;
 		local iVoteChoice = g_LeagueVoteList[iVoteIndex].VoteChoice;
 -- CBP EDIT
-		local iNumChooseVotes = pLeague:GetPotentialVotesForMember(g_iUs, g_iThem);
+		local iNumChooseVotes = 0;
+		if(iFromPlayer == g_iUs) then
+			iNumChooseVotes = pLeague:GetPotentialVotesForMember(g_iThem, g_iUs);
+		else
+			iNumChooseVotes = pLeague:GetPotentialVotesForMember(g_iUs, g_iThem);
+		end
 -- END	
 		local bRepeal = g_LeagueVoteList[iVoteIndex].Repeal;
 		print("==debug== Vote added to deal, ID=" .. iResolutionID .. ", VoteChoice=" .. iVoteChoice .. ", NumVotes=" .. iNumChooseVotes);

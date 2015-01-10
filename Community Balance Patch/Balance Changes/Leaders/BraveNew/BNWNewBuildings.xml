@@ -37,7 +37,7 @@
 		<Row>
 			<BuildingType>BUILDING_DOGE_PALACE</BuildingType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>5</Yield>
+			<Yield>7</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_DOGE_PALACE</BuildingType>
@@ -47,7 +47,7 @@
 		<Row>
 			<BuildingType>BUILDING_DOGE_PALACE</BuildingType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>5</Yield>
+			<Yield>6</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_DOGE_PALACE</BuildingType>

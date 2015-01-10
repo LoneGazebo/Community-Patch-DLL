@@ -32,14 +32,23 @@
 			<Where Name="MOD_BALANCE_CORE_SETTLER"/>
 			<Set Value="1"/>
 		</Update>
-		<!-- This affects the Deal AI -->
+		<!-- These affect the Deal AI -->
 		<Update>
 			<Where Name="MOD_BALANCE_CORE_DEALS"/>
+			<Set Value="1"/>
+		</Update>
+		<Update>
+			<Where Name="MOD_BALANCE_CORE_RESOURCE_FLAVORS"/>
 			<Set Value="1"/>
 		</Update>
 		<!-- This affects the AI's grand strategy guessing improvements.-->
 		<Update>
 			<Where Name="MOD_BALANCE_CORE_GRANDSTRATEGY_AI"/>
+			<Set Value="1"/>
+		</Update>
+		<!-- This affects the ability to purchase in puppet cities (certain units and buildings)-->
+		<Update>
+			<Where Name="MOD_BALANCE_CORE_PUPPET_PURCHASE"/>
 			<Set Value="1"/>
 		</Update>
 	</CustomModOptions>

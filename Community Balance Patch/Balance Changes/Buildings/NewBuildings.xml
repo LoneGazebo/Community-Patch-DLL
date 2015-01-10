@@ -22,8 +22,8 @@
 		<Row>
 			<Type>BUILDING_BATH</Type>
 			<BuildingClass>BUILDINGCLASS_BATH</BuildingClass>
-			<Cost>125</Cost>
-			<GoldMaintenance>2</GoldMaintenance>
+			<Cost>150</Cost>
+			<GoldMaintenance>1</GoldMaintenance>
 			<PrereqTech>TECH_METAL_CASTING</PrereqTech>
 			<Description>TXT_KEY_BUILDING_BATH</Description>
 			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_BATH_TEXT</Civilopedia>
@@ -42,8 +42,8 @@
 		<Row>
 			<Type>BUILDING_WELL</Type>
 			<BuildingClass>BUILDINGCLASS_WELL</BuildingClass>
-			<Cost>75</Cost>
-			<GoldMaintenance>1</GoldMaintenance>
+			<Cost>90</Cost>
+			<GoldMaintenance>2</GoldMaintenance>
 			<PrereqTech>TECH_MASONRY</PrereqTech>
 			<Description>TXT_KEY_BUILDING_WELL</Description>
 			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_WELL_TEXT</Civilopedia>
@@ -61,7 +61,7 @@
 		<Row>
 			<Type>BUILDING_WIND_PLANT</Type>
 			<BuildingClass>BUILDINGCLASS_WIND_PLANT</BuildingClass>
-			<Cost>550</Cost>
+			<Cost>600</Cost>
 			<GoldMaintenance>6</GoldMaintenance>
 			<PrereqTech>TECH_ELECTRONICS</PrereqTech>
 			<Description>TXT_KEY_BUILDING_WIND_PLANT</Description>
@@ -115,11 +115,17 @@
 			<Flavor>70</Flavor>
 		</Row>
 	</Building_Flavors>
+	<Building_ClassesNeededInCity>
+		<Row>
+			<BuildingType>BUILDING_BATH</BuildingType>
+			<BuildingClassType>BUILDINGCLASS_AQUEDUCT</BuildingClassType>
+		</Row>
+	</Building_ClassesNeededInCity>
 	<Building_YieldChanges>
 		<Row>
 			<BuildingType>BUILDING_WELL</BuildingType>
 			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>2</Yield>
+			<Yield>1</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_WELL</BuildingType>
@@ -131,6 +137,12 @@
 		<Row>
 			<BuildingType>BUILDING_WIND_PLANT</BuildingType>
 			<TerrainType>TERRAIN_GRASS</TerrainType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_WIND_PLANT</BuildingType>
+			<TerrainType>TERRAIN_PLAINS</TerrainType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
 			<Yield>1</Yield>
 		</Row>
@@ -160,22 +172,22 @@
 			<Text>Wind Plant</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_BATH_STRATEGY">
-			<Text>The Bath increases the speed at which [ICON_GREAT_PEOPLE] Great People are generated in the city by 25%, and increase the [ICON_FOOD] Food output of Citrus and Wine. Baths can be constructed only in cities not next to a river or lake. They are more expensive to build, and maintain, than Gardens.</Text>
+			<Text>The Bath increases the speed at which [ICON_GREAT_PEOPLE] Great People are generated in the city by 25%. Baths can be constructed only in cities not next to a river or lake. Requires an Aqueduct in order to be constructed.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_WELL_STRATEGY">
-			<Text>The Well can only be constructed in a city without access to fresh water. The Well increases the city's [ICON_FOOD] Food intake, however it costs more to construct than the Water Mill.</Text>
+			<Text>The Well can only be constructed in a city without access to fresh water. The Well increases the city's [ICON_FOOD] Food intake, but not as efficiently as a Water Mill.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_WIND_PLANT_STRATEGY">
-			<Text>The Wind Plant is a Modern-era building which can only be constructed in a city without access to fresh water. The Hydro Plant increases the [ICON_PRODUCTION] Production output of every Grassland tile the city works.</Text>
+			<Text>The Wind Plant is a Modern-era building which can only be constructed in a city without access to fresh water. The Wind Plant increases the [ICON_PRODUCTION] Production output of every Grassland and Plains tile the city works.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_WELL_HELP">
 			<Text>City must not be built next to a River. Cannot be built if the City already has a Watermill.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_BATH_HELP">
-			<Text>+25% [ICON_GREAT_PEOPLE] Great People generation in this City.[NEWLINE][NEWLINE]City must not be built next to a River. Cannot be built if the City already has a Garden.</Text>
+			<Text>+25% [ICON_GREAT_PEOPLE] Great People generation in this City.[NEWLINE][NEWLINE]City must not be built next to a River, and requires an Aqueduct. Cannot be built if the City already has a Garden.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_WIND_PLANT_HELP">
-			<Text>+1 [ICON_PRODUCTION] Production in every Grassland tile. [NEWLINE][NEWLINE]City must not be built next to a River. Cannot be built if the City already has a Hydro Plant.</Text>
+			<Text>+1 [ICON_PRODUCTION] Production on every Grassland and Plains tile. [NEWLINE][NEWLINE]City must not be built next to a River. Cannot be built if the City already has a Hydro Plant.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CIV5_BUILDINGS_BATH_TEXT">
 			<Text>Throughout history, societies devised systems to enable water to be brought to population centres. Ancient Greece utilized small bathtubs, wash basins, and foot baths for personal cleanliness. The earliest findings of baths date from the mid-2nd millennium BC in the palace complex at Knossos, Crete, and the luxurious alabaster bathtubs excavated in Akrotiri, Santorini. The Greeks established public baths and showers within gymnasiums for relaxation and personal hygiene. In fact, the word gymnasium comes from the Greek word gymnos, meaning naked. Ancient Rome developed a network of aqueducts to supply water to all large towns and population centres and had indoor plumbing, with pipes that terminated in homes and at public wells and fountains. The Roman public baths were called thermae. With the fall of the Roman Empire the aqueduct network fell into disrepair and most of it ceased to be used. In the Middle Ages, bathing commonly took place in public bathhouses. However, public nudity was frowned upon by liturgical factions of the period. Public baths were also havens for prostitution, which created opposition to the public baths. Rich people bathed at home, most likely in their bedroom, as 'bath' rooms were not common. Bathing was done in large, wooden tubs with a linen cloth laid in it to protect the bather from splinters. Additionally, during the Renaissance and Protestant Reformation, the quality and condition of the clothing (as opposed to the actual cleanliness of the body itself) were thought to reflect the soul of an individual. Clean clothing also reflected one's social status; clothes made the man or woman. Additionally, from the late Middle Ages through to the end of the 18th century, etiquette and medical manuals advised people to only wash the parts of the body that were visible to the public; for example, the ears, hands, feet, and face and neck. This did away with the public baths and left the cleaning of oneself to the privacy of one's home.</Text>

@@ -12,7 +12,7 @@
 <!-- Related to Policies-->
 		<Update>
 			<Where Name="POLICY_COST_EXPONENT"/>
-			<Set Value="1.95"/>
+			<Set Value="1.90"/>
 			<!-- 2.01 -->
 		</Update>
 		
@@ -36,17 +36,17 @@
 <!-- Related to cities and the economy -->
 		<Update>
 			<Where Name="GOLD_PURCHASE_GOLD_PER_PRODUCTION"/>
-			<Set Value="15"/>
+			<Set Value="22"/>
 			<!-- 30 -->
 		</Update>
 		<Update>
 			<Where Name="HURRY_GOLD_PRODUCTION_EXPONENT"/>
-			<Set Value="0.80"/>
+			<Set Value="0.65"/>
 			<!-- 0.75 -->
 		</Update>
 		<Update>
 			<Where Name="HURRY_GOLD_TECH_EXPONENT"/>
-			<Set Value="0.95"/>
+			<Set Value="1.2"/>
 			<!-- 1.1 -->
 		</Update>
 		<Update>
@@ -128,17 +128,17 @@
 		</Update>
 		<Update>
 			<Where Name="NEUTRAL_HEAL_RATE" />
-			<Set Value="15" />
+			<Set Value="10" />
 			<!-- 10 -->
 		</Update>
 		<Update>
 			<Where Name="FRIENDLY_HEAL_RATE" />
-			<Set Value="25" />
+			<Set Value="15" />
 			<!-- 20 -->
 		</Update>
 		<Update>
 			<Where Name="CITY_HEAL_RATE" />
-			<Set Value="30" />
+			<Set Value="20" />
 			<!-- 25 -->
 		</Update>
 		<Update>

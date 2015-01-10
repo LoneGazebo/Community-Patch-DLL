@@ -114,6 +114,11 @@ public:
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	int GetPolicyType() const;
 #endif
+#if defined(MOD_BALANCE_CORE)
+	int GetResourceType() const;
+	bool IsPuppetPurchaseOverride() const;
+	bool IsAllowsPuppetPurchase() const;
+#endif
 	int GetSpecialistType() const;
 	int GetSpecialistCount() const;
 	int GetSpecialistExtraCulture() const;
@@ -395,6 +400,11 @@ private:
 	int m_iPolicyBranchType;
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	int m_iPolicyType;
+#endif
+#if defined(MOD_BALANCE_CORE)
+	int m_iResourceType;
+	bool m_bPuppetPurchaseOverride;
+	bool m_bAllowsPuppetPurchase;
 #endif
 	int m_iSpecialistType;
 	int m_iSpecialistCount;

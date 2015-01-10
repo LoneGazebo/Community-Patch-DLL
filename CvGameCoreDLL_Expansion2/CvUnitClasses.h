@@ -161,6 +161,8 @@ public:
 	GreatWorkType GetGreatWorks(int i) const;
 #if defined(MOD_BALANCE_CORE)
 	EraTypes GetGreatPersonEra(int i) const;
+	int GetResourceType() const;
+	bool IsPuppetPurchaseOverride() const;
 #endif
 	// Accessor Functions (Arrays)
 	int GetPrereqAndTechs(int i) const;
@@ -180,7 +182,7 @@ public:
 	bool GetGreatPeoples(int i) const;
 	bool GetBuildings(int i) const;
 	bool GetBuildingClassRequireds(int i) const;
-#if defined(MOD_DIPLOMACY_CITYSTATES)
+#if defined(MOD_BALANCE_CORE)
 	bool GetBuildOnFound(int i) const;
 #endif
 	bool GetFreePromotions(int i) const;
@@ -289,9 +291,13 @@ private:
 	bool m_bPillage;
 	bool m_bFound;
 	bool m_bFoundAbroad;
-#if defined(MOD_DIPLOMACY_CITYSTATES)
+#if defined(MOD_BALANCE_CORE)
 	bool m_bFoundMid;
 	bool m_bFoundLate;
+#endif
+#if defined(MOD_BALANCE_CORE)
+	int m_iResourceType;
+	bool m_bPuppetPurchaseOverride;
 #endif
 	int m_iCultureBombRadius;
 	int m_iGoldenAgeTurns;
@@ -341,7 +347,7 @@ private:
 	bool* m_pbGreatPeoples;
 	bool* m_pbBuildings;
 	bool* m_pbBuildingClassRequireds;
-#if defined(MOD_DIPLOMACY_CITYSTATES)
+#if defined(MOD_BALANCE_CORE)
 	bool* m_pbBuildOnFound;
 #endif
 	bool* m_pbFreePromotions;

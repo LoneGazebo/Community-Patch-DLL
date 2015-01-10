@@ -51,7 +51,7 @@
 		<Row>
 			<BeliefType>BELIEF_PILGRIMAGE</BeliefType>
 			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Yield>50</Yield>
+			<Yield>30</Yield>
 		</Row>
 	</Belief_YieldFromSpread>
 

@@ -2,13 +2,14 @@
 <!-- Created by ModBuddy on 10/29/2014 1:14:36 AM -->
 <GameData>
   <!-- Polynesia -->
-	<Improvement_Yields>
+	<Improvement_TechYieldChanges>
 		<Row>
 			<ImprovementType>IMPROVEMENT_MOAI</ImprovementType>
+			<TechType>TECH_CONSTRUCTION</TechType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
 			<Yield>1</Yield>
 		</Row>
-	</Improvement_Yields>
+	</Improvement_TechYieldChanges>
 	<!-- Make Keshik a Medieval Unit -->
 	<UnitClasses>
 		<Row>

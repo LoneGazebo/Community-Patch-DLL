@@ -1,6 +1,6 @@
 -- Liberty Opener
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Liberty[ENDCOLOR] is best for civilizations which desire robust infrastructure.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting Liberty grants:[ENDCOLOR] [NEWLINE] [ICON_BULLET] 5 [ICON_CULTURE] Culture every time you research a Technology or construct a Building. [NEWLINE] [ICON_BULLET] +5% [ICON_PRODUCTION] Production towards buildings, and +2% [ICON_PRODUCTION] Production for every additional Liberty policy unlocked. [NEWLINE] [ICON_BULLET] Unlocks building the Parthenon.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting all policies in Liberty grants:[ENDCOLOR] [NEWLINE] [ICON_BULLET] A free [ICON_GREAT_PEOPLE] Great Person of your choice appears near the [ICON_CAPITAL] Capital. [NEWLINE] [ICON_BULLET] Allows for the purchase of [ICON_GREAT_WRITER] Great Writers with [ICON_PEACE] Faith starting in the Industrial Era.'
+SET Text = '[COLOR_POSITIVE_TEXT]Liberty[ENDCOLOR] is best for civilizations which desire robust infrastructure.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting Liberty grants:[ENDCOLOR] [NEWLINE] [ICON_BULLET] 5 [ICON_CULTURE] Culture every time you research a Technology or construct a Building. [NEWLINE] [ICON_BULLET] +5% [ICON_PRODUCTION] Production towards buildings.[NEWLINE] [ICON_BULLET] Unlocks building the Parthenon.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Each Liberty policy unlocked grants:[ENDCOLOR] [NEWLINE] [ICON_BULLET] +2% [ICON_PRODUCTION] Production towards buildings.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting all policies in Liberty grants:[ENDCOLOR] [NEWLINE] [ICON_BULLET] A free [ICON_GREAT_PEOPLE] Great Person of your choice appears near the [ICON_CAPITAL] Capital. [NEWLINE] [ICON_BULLET] Allows for the purchase of [ICON_GREAT_WRITER] Great Writers with [ICON_PEACE] Faith starting in the Industrial Era.'
 WHERE Tag = 'TXT_KEY_POLICY_BRANCH_LIBERTY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 -- Collective Rule (Now City Planning)
@@ -24,7 +24,7 @@ SET Text = 'Civil Engineers'
 WHERE Tag = 'TXT_KEY_POLICY_REPUBLIC' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Civil Engineers[ENDCOLOR][NEWLINE] +2 [ICON_PRODUCTION] Production in all cities. Road and Railroad [ICON_GOLD] Gold maintenance reduced by 50%.'
+SET Text = '[COLOR_POSITIVE_TEXT]Civil Engineers[ENDCOLOR][NEWLINE] +1 [ICON_PRODUCTION] Production in all cities. Road and Railroad [ICON_GOLD] Gold maintenance reduced by 50%.'
 WHERE Tag = 'TXT_KEY_POLICY_REPUBLIC_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US

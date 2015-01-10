@@ -105,6 +105,12 @@
 			<YieldType>YIELD_PRODUCTION</YieldType>
 			<Yield>1</Yield>
 		</Row>
+		<Row>
+			<ImprovementType>IMPROVEMENT_ENCAMPMENT</ImprovementType>
+			<TechType>TECH_RIFLING</TechType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>1</Yield>
+		</Row>
 	</Improvement_TechYieldChanges>
 	<Language_en_US>
 		<Row Tag="TXT_KEY_IMPROVEMENT_ENCAMPMENT_SHOSHONE">

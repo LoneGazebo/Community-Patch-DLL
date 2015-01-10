@@ -1,11 +1,11 @@
 -- Unit and Building Maintenance Modifiers	
 	
 	UPDATE Defines
-	SET Value = '6'
+	SET Value = '8'
 	WHERE Name = 'UNIT_MAINTENANCE_GAME_MULTIPLIER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Defines
-	SET Value = '9'
+	SET Value = '7'
 	WHERE Name = 'UNIT_MAINTENANCE_GAME_EXPONENT_DIVISOR' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 -- More cost for first GP - push founding date back slightly (give Piety more of an advantage)
@@ -26,7 +26,7 @@
 
 	-- Unit upgrades more expensive based on era and production needed
 	UPDATE Defines
-	SET Value = '3'
+	SET Value = '2'
 	WHERE Name = 'UNIT_UPGRADE_COST_PER_PRODUCTION' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Defines

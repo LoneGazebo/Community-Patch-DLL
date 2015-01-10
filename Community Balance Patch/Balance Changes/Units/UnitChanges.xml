@@ -125,6 +125,32 @@
 			<UnitType>UNIT_BAZOOKA</UnitType>
 			<PromotionType>PROMOTION_NAVAL_MISFIRE</PromotionType>
 		</Row>
+		<!-- Free Promotion for Siamese Elephant -->
+		<Row>
+			<UnitType>UNIT_SIAMESE_WARELEPHANT</UnitType>
+			<PromotionType>PROMOTION_FEARED_ELEPHANT</PromotionType>
+		</Row>
 	</Unit_FreePromotions>
-	
+	<Unit_AITypes>
+		<Row>
+			<UnitType>UNIT_GATLINGGUN</UnitType>
+			<UnitAIType>UNITAI_DEFENSE</UnitAIType>
+		</Row>
+		<Row>
+			<UnitType>UNIT_BAZOOKA</UnitType>
+			<UnitAIType>UNITAI_DEFENSE</UnitAIType>
+		</Row>
+		<Row>
+			<UnitType>UNIT_MACHINE_GUN</UnitType>
+			<UnitAIType>UNITAI_DEFENSE</UnitAIType>
+		</Row>
+		<Row>
+			<UnitType>UNIT_GATLINGGUN</UnitType>
+			<UnitAIType>UNITAI_RANGED</UnitAIType>
+		</Row>
+		<Row>
+			<UnitType>UNIT_BAZOOKA</UnitType>
+			<UnitAIType>UNITAI_RANGED</UnitAIType>
+		</Row>
+	</Unit_AITypes>
 </GameData>

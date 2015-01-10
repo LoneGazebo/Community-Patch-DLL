@@ -194,7 +194,7 @@
 		<Row>
 			<PolicyType>POLICY_TREASURE_FLEETS</PolicyType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>75</Yield>
+			<Yield>40</Yield>
 		</Row>
 	</Policy_ConquerorYield>
 	<!-- Merchant Navy -->

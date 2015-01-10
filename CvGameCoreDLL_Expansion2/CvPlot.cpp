@@ -2995,7 +2995,11 @@ int CvPlot::defenseModifier(TeamTypes eDefender, bool, bool bHelp) const
 {
 	CvCity* pCity;
 	ImprovementTypes eImprovement;
+#if defined(MOD_BALANCE_CORE)
+	int iModifier = 0;
+#else
 	int iModifier;
+#endif
 
 	CvAssertMsg(getTerrainType() != NO_TERRAIN, "TerrainType is not assigned a valid value");
 
@@ -3007,14 +3011,30 @@ int CvPlot::defenseModifier(TeamTypes eDefender, bool, bool bHelp) const
 		iModifier = /*25*/ GC.getHILLS_EXTRA_DEFENSE();
 	}
 	// Feature
+#if defined(MOD_BALANCE_CORE)
+	if(getFeatureType() != NO_FEATURE)
+#else
 	else if(getFeatureType() != NO_FEATURE)
+#endif
 	{
+#if defined(MOD_BALANCE_CORE)
+		iModifier += GC.getFeatureInfo(getFeatureType())->getDefenseModifier();
+#else
 		iModifier = GC.getFeatureInfo(getFeatureType())->getDefenseModifier();
+#endif
 	}
 	// Terrain
+#if defined(MOD_BALANCE_CORE)
+	if(MOD_BALANCE_CORE)
+#else
 	else
+#endif
 	{
+#if defined(MOD_BALANCE_CORE)
+		iModifier += GC.getTerrainInfo(getTerrainType())->getDefenseModifier();
+#else
 		iModifier = GC.getTerrainInfo(getTerrainType())->getDefenseModifier();
+#endif
 
 		// Flat land gives defensive PENALTY
 		if(!isWater())
@@ -8664,7 +8684,18 @@ int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay)
 			iYield += GET_PLAYER(getOwner()).GetPlayerTraits()->GetCoastalCityYieldChanges(eYield);
 #endif
 		}
-
+#if defined(MOD_BALANCE_CORE)
+		//Non-hill, non-freshwater city plots should make one extra gold
+		if(eYield == YIELD_GOLD && !isHills() && !isFreshWater())
+		{
+			iYield += 1;
+		}
+		//Non-hill, freshwater plots should make one extra food
+		if(eYield == YIELD_FOOD && !isHills() && isFreshWater())
+		{
+			iYield += 1;
+		}
+#endif
 		// Capital Mod
 		if(pCity->isCapital())
 		{

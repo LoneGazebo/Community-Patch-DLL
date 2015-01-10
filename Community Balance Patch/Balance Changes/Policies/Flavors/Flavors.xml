@@ -6,7 +6,7 @@
 		<Row>
 			<PolicyType>POLICY_LIBERTY</PolicyType>
 			<FlavorType>FLAVOR_INFRASTRUCTURE</FlavorType>
-			<Flavor>15</Flavor>
+			<Flavor>20</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_LIBERTY</PolicyType>
@@ -16,7 +16,7 @@
 		<Row>
 			<PolicyType>POLICY_LIBERTY</PolicyType>
 			<FlavorType>FLAVOR_TILE_IMPROVEMENT</FlavorType>
-			<Flavor>15</Flavor>
+			<Flavor>20</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_LIBERTY</PolicyType>
@@ -92,7 +92,7 @@
 		<Row>
 			<PolicyType>POLICY_TRADITION</PolicyType>
 			<FlavorType>FLAVOR_GROWTH</FlavorType>
-			<Flavor>25</Flavor>
+			<Flavor>30</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_TRADITION</PolicyType>
@@ -102,12 +102,12 @@
 		<Row>
 			<PolicyType>POLICY_TRADITION</PolicyType>
 			<FlavorType>FLAVOR_GOLD</FlavorType>
-			<Flavor>10</Flavor>
+			<Flavor>15</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_ARISTOCRACY</PolicyType>
 			<FlavorType>FLAVOR_GOLD</FlavorType>
-			<Flavor>15</Flavor>
+			<Flavor>20</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_OLIGARCHY</PolicyType>
@@ -122,7 +122,7 @@
 		<Row>
 			<PolicyType>POLICY_LEGALISM</PolicyType>
 			<FlavorType>FLAVOR_GROWTH</FlavorType>
-			<Flavor>20</Flavor>
+			<Flavor>25</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_LANDED_ELITE</PolicyType>
@@ -152,13 +152,13 @@
 		<Row>
 			<PolicyType>POLICY_MONARCHY</PolicyType>
 			<FlavorType>FLAVOR_GREAT_PEOPLE</FlavorType>
-			<Flavor>10</Flavor>
+			<Flavor>15</Flavor>
 		</Row>
 		<!-- Might -->
 		<Row>
 			<PolicyType>POLICY_HONOR</PolicyType>
 			<FlavorType>FLAVOR_OFFENSE</FlavorType>
-			<Flavor>10</Flavor>
+			<Flavor>15</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_HONOR</PolicyType>
@@ -168,12 +168,12 @@
 		<Row>
 			<PolicyType>POLICY_HONOR</PolicyType>
 			<FlavorType>FLAVOR_EXPANSION</FlavorType>
-			<Flavor>10</Flavor>
+			<Flavor>20</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_HONOR</PolicyType>
 			<FlavorType>FLAVOR_MILITARY_TRAINING</FlavorType>
-			<Flavor>10</Flavor>
+			<Flavor>15</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_HONOR</PolicyType>
@@ -249,17 +249,17 @@
 		<Row>
 			<PolicyType>POLICY_PIETY</PolicyType>
 			<FlavorType>FLAVOR_RELIGION</FlavorType>
-			<Flavor>20</Flavor>
+			<Flavor>30</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_PIETY</PolicyType>
 			<FlavorType>FLAVOR_CULTURE</FlavorType>
-			<Flavor>5</Flavor>
+			<Flavor>10</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_PIETY</PolicyType>
 			<FlavorType>FLAVOR_GOLD</FlavorType>
-			<Flavor>10</Flavor>
+			<Flavor>20</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_ORGANIZED_RELIGION</PolicyType>
