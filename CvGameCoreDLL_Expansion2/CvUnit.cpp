@@ -22815,6 +22815,17 @@ void CvUnit::PushMission(MissionTypes eMission, int iData1, int iData2, int iFla
 {
 	VALIDATE_OBJECT
 	CvUnitMission::PushMission(this, eMission, iData1, iData2, iFlags, bAppend, bManual, eMissionAI, pMissionAIPlot, pMissionAIUnit);
+
+#if defined(MOD_BALANCE_CORE_MILITARY_LOGGING)
+	if (GC.getLogging() && GC.getAILogging()) 
+	{
+		CvString info = CvString::format( "%03d;0x%08X;%s;id;0x%08X;owner;%02d;army;0x%08X;%s;arg1;%d;arg2;%d;flags;0x%08X\n", 
+			GC.getGame().getGameTurn(),this,this->getNameKey(),this->GetID(),this->getOwner(),this->getArmyID(),CvTypes::GetMissionName(eMission).c_str(),iData1,iData2,iFlags );
+		FILogFile* pLog=LOGFILEMGR.GetLog( "unit-missions.csv", FILogFile::kDontTimeStamp | FILogFile::kDontFlushOnWrite );
+		pLog->Msg( info.c_str() );
+	}
+#endif
+
 }
 
 //	--------------------------------------------------------------------------------

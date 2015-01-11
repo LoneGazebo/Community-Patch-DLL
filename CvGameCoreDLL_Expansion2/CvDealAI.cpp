@@ -1727,6 +1727,10 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 		iItemValue /= 200;	// 200 because we've added two mods together
 	}
 
+#if defined(MOD_BALANCE_CORE_DEALS)
+	OutputDebugString( CvString::format( "Deal value of %s for player %s is %d\n", pkResourceInfo->GetText(), GetPlayer()->getName(), iItemValue ).c_str() ); 
+#endif
+
 	return iItemValue;
 }
 
@@ -1903,6 +1907,10 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 		}
 	}
 
+#if defined(MOD_BALANCE_CORE_DEALS)
+	OutputDebugString( CvString::format( "Deal value of %s for player %s is %d\n", pCity->getName().c_str(), GetPlayer()->getName(), iItemValue ).c_str() ); 
+#endif
+
 	// Are we trying to find the middle point between what we think this item is worth and what another player thinks it's worth?
 	if(bUseEvenValue)
 	{
@@ -1926,11 +1934,11 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 			//Would this city cause us to become unhappy? It is worthless to us.
 			else if(iHappiness < pCity->getPopulation())
 			{
-				iItemValue = -1;
+				iItemValue /= 2;
 			}
 			else if(GetPlayer()->IsEmpireUnhappy())
 			{
-				iItemValue = -1;
+				iItemValue /= 3;
 			}
 		}
 		if(bFromMe)
