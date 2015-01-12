@@ -297,4 +297,10 @@
 			<Yield>15</Yield>
 		</Row>
 	</Policy_YieldFromBorderGrowth>
+	<Policy_PrereqPolicies>
+		<Row>
+			<PolicyType>POLICY_WARRIOR_CODE</PolicyType>
+			<PrereqPolicy>POLICY_MILITARY_TRADITION</PrereqPolicy>
+		</Row>
+	</Policy_PrereqPolicies>
 </GameData>

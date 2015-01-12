@@ -176,6 +176,9 @@ CvPlayer::CvPlayer() :
 	, m_iHappinessPerGarrisonedUnitCount("CvPlayer::m_iHappinessPerGarrisonedUnitCount", m_syncArchive)
 	, m_iHappinessPerTradeRouteCount("CvPlayer::m_iHappinessPerTradeRouteCount", m_syncArchive)
 	, m_iHappinessPerXPopulation(0)
+#if defined(MOD_BALANCE_CORE_POLICIES)
+	, m_iHappinessPerXPopulationGlobal(0)
+#endif
 	, m_iHappinessFromLeagues(0)
 	, m_iEspionageModifier(0)
 	, m_iSpyStartingRank(0)
@@ -1009,6 +1012,9 @@ void CvPlayer::uninit()
 	m_iHappinessPerGarrisonedUnitCount = 0;
 	m_iHappinessPerTradeRouteCount = 0;
 	m_iHappinessPerXPopulation = 0;
+#if defined(MOD_BALANCE_CORE_POLICIES)
+	m_iHappinessPerXPopulationGlobal = 0;
+#endif
 	m_iHappinessFromLeagues = 0;
 	m_iEspionageModifier = 0;
 	m_iSpyStartingRank = 0;
@@ -9692,6 +9698,13 @@ int CvPlayer::getBuildingClassPrereqBuilding(BuildingTypes eBuilding, BuildingCl
 	{
 		iPrereqs = std::min(1, iPrereqs);
 	}
+#if defined(MOD_BALANCE_CORE)
+	//Poor Venice got ignored here...
+	if(GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) || GET_PLAYER(GetID()).GetPlayerTraits()->IsNoAnnexing())
+	{
+		iPrereqs = std::min(1, iPrereqs);
+	}
+#endif
 
 	return iPrereqs;
 }
@@ -11780,7 +11793,7 @@ void CvPlayer::DoYieldsFromKill(UnitTypes eAttackingUnitType, UnitTypes eKilledU
 	for(int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
 	{
 #if defined(MOD_API_UNIFIED_YIELDS)
-		DoYieldBonusFromKill((YieldTypes)iYield, pAttackingUnit, eKilledUnitType, iX, iY, pDefendingUnit->isBarbarian(), iNumBonuses);
+		DoYieldBonusFromKill((YieldTypes)iYield, pAttackingUnit, eKilledUnitType, iX, iY, pDefendingUnit->isBarbarian(), iNumBonuses, pDefendingUnit);
 #else
 		DoYieldBonusFromKill((YieldTypes)iYield, eAttackingUnitType, eKilledUnitType, iX, iY, bWasBarbarian, iNumBonuses);
 #endif
@@ -11910,7 +11923,7 @@ void CvPlayer::DoYieldsFromKill(UnitTypes eAttackingUnitType, UnitTypes eKilledU
 /// Apply and show a yield bonus from a combat win
 /// If a bonus is applied, iNumBonuses must be incremented to stagger the UI text with other bonuses
 #if defined(MOD_API_UNIFIED_YIELDS)
-void CvPlayer::DoYieldBonusFromKill(YieldTypes eYield, CvUnit* pAttackingUnit, UnitTypes eKilledUnitType, int iX, int iY, bool bWasBarbarian, int &iNumBonuses)
+void CvPlayer::DoYieldBonusFromKill(YieldTypes eYield, CvUnit* pAttackingUnit, UnitTypes eKilledUnitType, int iX, int iY, bool bWasBarbarian, int &iNumBonuses, CvUnit* pDefendingUnit)
 #else
 void CvPlayer::DoYieldBonusFromKill(YieldTypes eYield, UnitTypes eAttackingUnitType, UnitTypes eKilledUnitType, int iX, int iY, bool bWasBarbarian, int &iNumBonuses)
 #endif
@@ -11924,6 +11937,16 @@ void CvPlayer::DoYieldBonusFromKill(YieldTypes eYield, UnitTypes eAttackingUnitT
 	if(pkKilledUnitInfo)
 	{
 		int iCombatStrength = max(pkKilledUnitInfo->GetCombat(), pkKilledUnitInfo->GetRangedCombat());
+#if defined(MOD_BALANCE_CORE)
+		if(pDefendingUnit != NULL)
+		{
+			int iGetBetterCombatStrength = pDefendingUnit->GetBaseCombatStrength();
+			if(iGetBetterCombatStrength > iCombatStrength)
+			{
+				iCombatStrength = iGetBetterCombatStrength;
+			}
+		}
+#endif
 		if(iCombatStrength > 0)
 		{	
 			switch(eYield)
@@ -12030,6 +12053,12 @@ void CvPlayer::DoYieldBonusFromKill(YieldTypes eYield, UnitTypes eAttackingUnitT
 					break;
 				case YIELD_CULTURE:
 					changeJONSCulture(iValue);
+#if defined(MOD_BALANCE_CORE)
+					if(GetPlayerTraits()->GetCultureFromKills() > 0)
+					{
+						getCapitalCity()->ChangeJONSCultureStored(iValue);
+					}
+#endif
 					break;
 				case YIELD_FAITH:
 					ChangeFaith(iValue);
@@ -13497,6 +13526,10 @@ int CvPlayer::GetHappinessFromPolicies() const
 	iHappiness += (getNumCities() * m_pPlayerPolicies->GetNumericModifier(POLICYMOD_EXTRA_HAPPINESS_PER_CITY));
 
 	int iHappinessPerXPopulation;
+#if defined(MOD_BALANCE_CORE_POLICIES)
+	int m_iHappinessPerXPopulationGlobal;
+	m_iHappinessPerXPopulationGlobal = GetHappinessPerXPopulationGlobal();
+#endif
 	iHappinessPerXPopulation = GetHappinessPerXPopulation();
 
 	if(iHappinessPerXPopulation > 0)
@@ -13513,6 +13546,17 @@ int CvPlayer::GetHappinessFromPolicies() const
 			}
 		}
 	}
+#if defined(MOD_BALANCE_CORE_POLICIES)
+	if(m_iHappinessPerXPopulationGlobal > 0)
+	{
+		int iTotalPop = getCurrentTotalPop();
+		if(iTotalPop > 0)
+		{
+			int iExtraHappinessGlobal = (iTotalPop / m_iHappinessPerXPopulationGlobal);
+			iHappiness += iExtraHappinessGlobal;
+		}
+	}
+#endif
 
 	return iHappiness;
 }
@@ -14992,7 +15036,28 @@ void CvPlayer::ChangeHappinessPerXPopulation(int iChange)
 {
 	SetHappinessPerXPopulation(m_iHappinessPerXPopulation + iChange);
 }
+#if defined(MOD_BALANCE_CORE_POLICIES)
+//	--------------------------------------------------------------------------------
+/// How much Happiness are we getting from large empires?
+int CvPlayer::GetHappinessPerXPopulationGlobal() const
+{
+	return m_iHappinessPerXPopulationGlobal;
+}
 
+//	--------------------------------------------------------------------------------
+/// Set the amount of Happiness we're getting from large empires
+void CvPlayer::SetHappinessPerXPopulationGlobal(int iValue)
+{
+	m_iHappinessPerXPopulationGlobal = iValue;
+}
+
+//	--------------------------------------------------------------------------------
+/// Change the amount of Happiness we're getting from large empires
+void CvPlayer::ChangeHappinessPerXPopulationGlobal(int iChange)
+{
+	SetHappinessPerXPopulationGlobal(m_iHappinessPerXPopulationGlobal + iChange);
+}
+#endif
 //	--------------------------------------------------------------------------------
 /// Happiness from Minors
 int CvPlayer::GetHappinessFromMinorCivs() const
@@ -27258,6 +27323,9 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	ChangeHappinessPerGarrisonedUnit(pPolicy->GetHappinessPerGarrisonedUnit() * iChange);
 	ChangeHappinessPerTradeRoute(pPolicy->GetHappinessPerTradeRoute() * iChange);
 	ChangeHappinessPerXPopulation(pPolicy->GetHappinessPerXPopulation() * iChange);
+#if defined(MOD_BALANCE_CORE_POLICIES)
+	ChangeHappinessPerXPopulationGlobal(pPolicy->GetHappinessPerXPopulationGlobal() * iChange);
+#endif
 	ChangeExtraHappinessPerLuxury(pPolicy->GetExtraHappinessPerLuxury() * iChange);
 	ChangeUnhappinessFromUnitsMod(pPolicy->GetUnhappinessFromUnitsMod() * iChange);
 	ChangeUnhappinessMod(pPolicy->GetUnhappinessMod() * iChange);
@@ -28571,6 +28639,9 @@ void CvPlayer::Read(FDataStream& kStream)
 	kStream >> m_iHappinessPerGarrisonedUnitCount;
 	kStream >> m_iHappinessPerTradeRouteCount;
 	kStream >> m_iHappinessPerXPopulation;
+#if defined(MOD_BALANCE_CORE_POLICIES)
+	MOD_SERIALIZE_READ(66, kStream, m_iHappinessPerXPopulationGlobal, 0);
+#endif
 	kStream >> m_iHappinessPerXPolicies;
 	if (uiVersion >= 8)
 	{
@@ -29271,6 +29342,9 @@ void CvPlayer::Write(FDataStream& kStream) const
 	kStream << m_iHappinessPerGarrisonedUnitCount;
 	kStream << m_iHappinessPerTradeRouteCount;
 	kStream << m_iHappinessPerXPopulation;
+#if defined(MOD_BALANCE_CORE_POLICIES)
+	MOD_SERIALIZE_WRITE(kStream, m_iHappinessPerXPopulationGlobal);
+#endif
 	kStream << m_iHappinessPerXPolicies;
 	kStream << m_iHappinessFromLeagues;
 	kStream << m_iEspionageModifier;

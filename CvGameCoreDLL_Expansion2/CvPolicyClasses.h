@@ -90,6 +90,10 @@ public:
 	int GetCulturePerGarrisonedUnit() const;
 	int GetHappinessPerTradeRoute() const;
 	int GetHappinessPerXPopulation() const;
+#if defined(MOD_BALANCE_CORE_POLICIES)
+	int GetHappinessPerXPopulationGlobal() const;
+	EraTypes GetPolicyEraUnlock() const;
+#endif
 	int GetExtraHappinessPerLuxury() const;
 	int GetUnhappinessFromUnitsMod() const;
 	int GetNumExtraBuilders() const;
@@ -366,6 +370,10 @@ private:
 	int m_iCulturePerGarrisonedUnit;
 	int m_iHappinessPerTradeRoute;
 	int m_iHappinessPerXPopulation;
+#if defined(MOD_BALANCE_CORE_POLICIES)
+	int m_iHappinessPerXPopulationGlobal;
+	EraTypes m_ePolicyEraUnlock;
+#endif
 	int m_iExtraHappinessPerLuxury;
 	int m_iUnhappinessFromUnitsMod;
 	int m_iNumExtraBuilders;

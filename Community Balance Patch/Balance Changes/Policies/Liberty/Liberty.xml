@@ -27,4 +27,32 @@
 			<Yield>50</Yield>
 		</Row>
 	</Policy_YieldGPExpend>
+	<Policy_YieldFromBirth>
+		<Row>
+			<PolicyType>POLICY_COLLECTIVE_RULE</PolicyType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>25</Yield>
+		</Row>
+	</Policy_YieldFromBirth>
+	<Policy_YieldFromBirthCapital>
+		<Row>
+			<PolicyType>POLICY_COLLECTIVE_RULE</PolicyType>
+			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
+			<Yield>50</Yield>
+		</Row>
+	</Policy_YieldFromBirthCapital>
+	<Policy_PrereqPolicies>
+		<Row>
+			<PolicyType>POLICY_CITIZENSHIP</PolicyType>
+			<PrereqPolicy>POLICY_REPUBLIC</PrereqPolicy>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_REPRESENTATION</PolicyType>
+			<PrereqPolicy>POLICY_COLLECTIVE_RULE</PrereqPolicy>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_MERITOCRACY</PolicyType>
+			<PrereqPolicy>POLICY_COLLECTIVE_RULE</PrereqPolicy>
+		</Row>
+	</Policy_PrereqPolicies>
 </GameData>
