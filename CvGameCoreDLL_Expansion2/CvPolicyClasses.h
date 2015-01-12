@@ -90,6 +90,10 @@ public:
 	int GetCulturePerGarrisonedUnit() const;
 	int GetHappinessPerTradeRoute() const;
 	int GetHappinessPerXPopulation() const;
+#if defined(MOD_BALANCE_CORE_POLICIES)
+	int GetHappinessPerXPopulationGlobal() const;
+	EraTypes GetPolicyEraUnlock() const;
+#endif
 	int GetExtraHappinessPerLuxury() const;
 	int GetUnhappinessFromUnitsMod() const;
 	int GetNumExtraBuilders() const;
@@ -238,6 +242,8 @@ public:
 	bool GetDoubleBorderGA() const;
 	bool GetDoubleQuestInfluence() const;
 	int GetCitadelBoost() const;
+	int GetPuppetProdMod() const;
+	int GetOccupiedProdMod() const;
 	int GetInternalTradeGold() const;
 	int GetFreeWCVotes() const;
 	int GetInfluenceGPExpend() const;
@@ -364,6 +370,10 @@ private:
 	int m_iCulturePerGarrisonedUnit;
 	int m_iHappinessPerTradeRoute;
 	int m_iHappinessPerXPopulation;
+#if defined(MOD_BALANCE_CORE_POLICIES)
+	int m_iHappinessPerXPopulationGlobal;
+	EraTypes m_ePolicyEraUnlock;
+#endif
 	int m_iExtraHappinessPerLuxury;
 	int m_iUnhappinessFromUnitsMod;
 	int m_iNumExtraBuilders;
@@ -517,6 +527,8 @@ private:
 	bool m_bNoUnhappyIsolation;
 	bool m_bDoubleBorderGA;
 	bool m_bDoubleQuestInfluence;
+	int m_iPuppetProdMod;
+	int m_iOccupiedProdMod;
 	int m_iCitadelBoost;
 	int m_iInternalTradeGold;
 	int m_iFreeWCVotes;

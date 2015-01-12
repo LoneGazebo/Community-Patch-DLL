@@ -520,6 +520,19 @@ function ScienceTipHandler( control )
 			strText = strText .. Locale.ConvertTextKey("TXT_KEY_SCIENCE_FUNDING_FROM_LEAGUE", iScienceFromLeague);
 		end
 
+-- CBP Science from Religion
+		local iScienceFromReligion = pPlayer:GetYieldPerTurnFromReligion(YieldTypes.YIELD_SCIENCE);
+		if (iScienceFromReligion ~= 0) then
+		
+			-- Add separator for non-initial entries
+			if (bFirstEntry) then
+				bFirstEntry = false;
+			else
+				strText = strText .. "[NEWLINE]";
+			end
+	
+			strText = strText .. Locale.ConvertTextKey("TXT_KEY_SCIENCE_FROM_RELIGION", iScienceFromReligion);
+		end
 -- COMMUNITY PATCH CHANGE
 		-- Science % lost from unhappiness
 		local iScienceChange = pPlayer:CalculateUnhappinessTooltip(YieldTypes.YIELD_SCIENCE);
@@ -846,8 +859,14 @@ function HappinessTipHandler( control )
 		strText = strText .. "[NEWLINE][NEWLINE]";
 		strText = strText .. "[COLOR:255:150:150:255]";
 		strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_UNHAPPINESS_TOTAL", iTotalUnhappiness);
+-- CBP
+		if (iUnhappinessFromCityCount ~= "0") then
+-- END
 		strText = strText .. "[NEWLINE]";
 		strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_UNHAPPINESS_CITY_COUNT", iUnhappinessFromCityCount);
+-- CBP
+		end
+-- END
 		if (iUnhappinessFromCapturedCityCount ~= "0") then
 			strText = strText .. "[NEWLINE]";
 			strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_UNHAPPINESS_CAPTURED_CITY_COUNT", iUnhappinessFromCapturedCityCount);

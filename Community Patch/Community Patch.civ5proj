@@ -7,9 +7,9 @@
     <Guid>d1b6328c-ff44-4b0d-aad7-c657f83610cd</Guid>
     <ModVersion>66</ModVersion>
     <Stability>Beta</Stability>
-    <Teaser>Unofficial DLL Bugfix and AI Patch for Civ 5 (v66.5)  - Updated 12/4</Teaser>
+    <Teaser>Unofficial DLL Bugfix and AI Patch for Civ 5 (v66.13.3)  - Updated 1/12</Teaser>
     <Description>Contains core AI improvements and bugfixes for the Civ 5 BNW DLL. Also contains support for Whoward's PNM Mods as well as the Community Balance Patch.</Description>
-    <Authors>whoward69, Gazebo</Authors>
+    <Authors>The Community Patch Team</Authors>
     <SpecialThanks>
     </SpecialThanks>
     <Categories>$Categories$</Categories>
@@ -82,17 +82,17 @@
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <FileName>Core Files/Core Values/CoreDefines.sql</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
         <FileName>Core Files/Core Tables/CoreTableAdditions.xml</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
         <FileName>Core Files/Core Tables/CoreTableEntries.sql</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>Core Files/Core Values/CoreDefines.sql</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
@@ -392,11 +392,6 @@
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <FileName>Core Files/Core Values/Artificial Unintelligence/New_CIV5AIGrandStrategies.xml</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
         <FileName>Core Files/Core Values/Artificial Unintelligence/New_CIV5AIMilitaryStrategies.xml</FileName>
       </Action>
       <Action>
@@ -408,11 +403,6 @@
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
         <FileName>Core Files/Core Values/Artificial Unintelligence/New_CIV5MultiUnitFormations.xml</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>Core Files/Core Values/Artificial Unintelligence/New_CIV5Units.xml</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
@@ -443,6 +433,11 @@
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
         <FileName>Core Files/Core Changes/NewWriters.xml</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>Core Files/Core Changes/NewText2.xml</FileName>
       </Action>
     </ModActions>
     <Homepage>
@@ -485,6 +480,7 @@
     <Folder Include="Core Files\PNM Mods DB\TRAITS\" />
     <Folder Include="Core Files\PNM Mods DB\UI\" />
     <Folder Include="CSDC4DFCompatibility" />
+    <Folder Include="LUA" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="CommunityOptions.sql">
@@ -511,6 +507,10 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
+    <Content Include="Core Files\Core Changes\NewText2.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
     <Content Include="Core Files\Core Changes\NewWriters.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
@@ -527,11 +527,11 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Core Files\Core Changes\GreatArt\ashurbanipal.dds">
+    <Content Include="Core Files\Core Changes\GreatArt\ashurbanipalstatue.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Core Files\Core Changes\GreatArt\augustus.dds">
+    <Content Include="Core Files\Core Changes\GreatArt\augustusstatue.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
@@ -607,10 +607,6 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
-    <Content Include="Core Files\Core Values\Artificial Unintelligence\New_CIV5AIGrandStrategies.xml">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
     <Content Include="Core Files\Core Values\Artificial Unintelligence\New_CIV5AIMilitaryStrategies.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
@@ -620,10 +616,6 @@
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
     <Content Include="Core Files\Core Values\Artificial Unintelligence\New_CIV5MultiUnitFormations.xml">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="Core Files\Core Values\Artificial Unintelligence\New_CIV5Units.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
@@ -648,6 +640,10 @@
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
     <Content Include="Core Files\Core Values\GoodyHuts.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="Core Files\CvGameCore_Expansion2.dll">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
@@ -880,6 +876,10 @@
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
     <Content Include="CvGameCore_Expansion2.dll">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="LUA\ProductionPopup.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>

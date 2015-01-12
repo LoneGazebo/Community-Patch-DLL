@@ -23,11 +23,6 @@
 			<Set Flavor="25" />
 			<Where CitySpecializationType="CITYSPECIALIZATION_GENERAL_ECONOMIC" FlavorType="FLAVOR_PRODUCTION" />
 		</Update>
-		<!-- Slight culture flavor decrease so it's at least level with science -->
-		<Update>
-			<Set Flavor="20" />
-			<Where CitySpecializationType="CITYSPECIALIZATION_GENERAL_ECONOMIC" FlavorType="FLAVOR_CULTURE" />
-		</Update>
 	</CitySpecialization_Flavors>
 	
 	<CitySpecialization_TargetYields>

@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Created by ModBuddy on 10/28/2014 1:01:30 PM -->
 <GameData>
+	<!-- America -->
+	<Trait_YieldFromTilePurchase>
+		<Row>
+			<TraitType>TRAIT_RIVER_EXPANSION</TraitType>
+			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
+			<Yield>25</Yield>
+		</Row>
+	</Trait_YieldFromTilePurchase>
 	<!-- Arabia -->
 	<UnitPromotions>
 		<!--Arabia Promotion-->
@@ -10,8 +18,8 @@
 			<Help>TXT_KEY_PROMOTION_DESERT_SHIPS_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<OrderPriority>99</OrderPriority>
-			<PortraitIndex>44</PortraitIndex>
-			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
+			<PortraitIndex>1</PortraitIndex>
+			<IconAtlas>EXPANSION2_PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_SHARED</PediaType>
 			<CannotBeChosen>true</CannotBeChosen>
 			<PediaEntry>TXT_KEY_PROMOTION_DESERT_SHIPS</PediaEntry>
@@ -24,6 +32,8 @@
 			<DoubleMove>true</DoubleMove>
 		</Row>
 	</UnitPromotions_Terrains>
+	
+	<!-- Arabia -->
 	<Language_en_US>
 		<Row Tag="TXT_KEY_PROMOTION_DESERT_SHIPS">
 			<Text>Ships of the Desert</Text>
@@ -37,6 +47,9 @@
 		</Row>
 		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_MEMBER_DETAILS_TRAIT_VOTES">
 			<Text>[NEWLINE][ICON_BULLET]{1_NumVotes} from Civilization Trait</Text>
+		</Row>
+		<Row Tag="TXT_KEY_YIELD_FROM_CONNECTION">
+			<Text>{1_Num} {2_IconString} from [ICON_CONNECTED] City Connections</Text>
 		</Row>
 	</Language_en_US>
 	<Trait_FreePromotionUnitCombats>
@@ -76,6 +89,29 @@
 			<PromotionType>PROMOTION_DESERT_SHIPS</PromotionType>
 		</Row>
 	</Trait_FreePromotionUnitCombats>
+
+	<!-- Egypt -->
+	<Building_YieldFromVictory>
+		<Row>
+			<BuildingType>BUILDING_BURIAL_TOMB</BuildingType>
+			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
+			<Yield>5</Yield>
+		</Row>
+	</Building_YieldFromVictory>
+	<Building_InstantYield>
+		<Row>
+			<BuildingType>BUILDING_BURIAL_TOMB</BuildingType>
+			<YieldType>YIELD_FAITH</YieldType>
+			<Yield>25</Yield>
+		</Row>
+	</Building_InstantYield>
+	<Trait_YieldChanges>
+		<Row>
+			<TraitType>TRAIT_WONDER_BUILDER</TraitType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>1</Yield>
+		</Row>
+	</Trait_YieldChanges>
 	<!-- Iroquois -->
 	<Trait_FreePromotionUnitCombats>
 		<Row>
@@ -119,12 +155,12 @@
 		<Row>
 			<TraitType>TRAIT_CONVERTS_SEA_BARBARIANS</TraitType>
 			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Yield>40</Yield>
+			<Yield>50</Yield>
 		</Row>
 		<Row>
 			<TraitType>TRAIT_CONVERTS_SEA_BARBARIANS</TraitType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>40</Yield>
+			<Yield>100</Yield>
 		</Row>
 	</Trait_TradeRouteStartYield>
 	<!-- Germany -->
@@ -132,17 +168,33 @@
 		<Row>
 			<TraitType>TRAIT_CONVERTS_LAND_BARBARIANS</TraitType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>3</Yield>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<TraitType>TRAIT_CONVERTS_LAND_BARBARIANS</TraitType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>1</Yield>
 		</Row>
 	</Trait_YieldFromCSAlly>
+	<Language_en_US>
+		<Row Tag="TXT_KEY_CULTURE_FROM_CS_ALLIANCE">
+			<Text>{1_Num} [ICON_CULTURE] from City-State Alliances</Text>
+		</Row>
+	</Language_en_US>
 	<!-- Greece -->
 	<Trait_YieldChanges>
 		<Row>
 			<TraitType>TRAIT_CITY_STATE_FRIENDSHIP</TraitType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>2</Yield>
+			<Yield>1</Yield>
 		</Row>
 	</Trait_YieldChanges>
+	<Unit_FreePromotions>
+		<Row>
+			<UnitType>UNIT_GREEK_HOPLITE</UnitType>
+			<PromotionType>PROMOTION_SPAWN_GENERALS_I</PromotionType>
+		</Row>
+	</Unit_FreePromotions>
 	<!-- India -->
 	<Civilization_UnitClassOverrides>
 		<Row>
@@ -162,7 +214,22 @@
 		<Row>
 			<BuildingType>BUILDING_WAT</BuildingType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>75</Yield>
+			<Yield>100</Yield>
 		</Row>
 	</Building_GrowthExtraYield>
+	<Building_YieldChanges>
+		<Row>
+			<BuildingType>BUILDING_WAT</BuildingType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Yield>3</Yield>
+		</Row>
+	</Building_YieldChanges>
+	<Building_FeatureYieldChanges>
+		<Row>
+			<BuildingType>BUILDING_WAT</BuildingType>
+			<FeatureType>FEATURE_FOREST</FeatureType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Yield>2</Yield>
+		</Row>
+	</Building_FeatureYieldChanges>
 </GameData>

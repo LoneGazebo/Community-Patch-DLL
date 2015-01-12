@@ -56,6 +56,7 @@ public:
 	int GetCultureBombRadius() const;
 #if defined(MOD_API_UNIFIED_YIELDS)
 	int GetYieldAdjacentSameType(YieldTypes eYield) const;
+	int GetYieldAdjacentTwoSameType(YieldTypes eYield) const;
 #else
 	int GetCultureAdjacentSameType() const;
 #endif
@@ -169,6 +170,9 @@ public:
 
 #if defined(MOD_API_UNIFIED_YIELDS)
 	int GetAdjacentSameTypeYield(int i) const;
+	int* GetAdjacentSameTypeYieldArray();
+	int GetAdjacentTwoSameTypeYield(int i) const;
+	int* GetAdjacentTwoSameTypeYieldArray();
 #endif
 
 	int GetTechYieldChanges(int i, int j) const;
@@ -288,6 +292,7 @@ protected:
 
 #if defined(MOD_API_UNIFIED_YIELDS)
 	int* m_piAdjacentSameTypeYield;
+	int* m_piAdjacentTwoSameTypeYield;
 #endif
 
 	int** m_ppiTechYieldChanges;

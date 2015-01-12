@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created by ModBuddy on 12/14/2014 8:42:49 PM -->
+<GameData>
+	<!-- Added to Who's Winning Popup -->
+	<Language_en_US>
+		<Row Tag="TXT_KEY_DUDE_8">
+			<Text>Herodotus</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DUDE_9">
+			<Text>Confucius</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DUDE_10">
+			<Text>Aristotle</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DUDE_11">
+			<Text>Aesop</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DUDE_12">
+			<Text>Ovid</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DUDE_13">
+			<Text>Sima Qian</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DUDE_14">
+			<Text>Ban Zhao</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DUDE_15">
+			<Text>Gibbon</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DUDE_16">
+			<Text>Nostradamus</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DUDE_17">
+			<Text>Scheherazade</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DUDE_18">
+			<Text>Hypatia</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DUDE_19">
+			<Text>Aguilar</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DUDE_20">
+			<Text>Pamphila</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DUDE_21">
+			<Text>Livy</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DUDE_22">
+			<Text>Plutarch</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DUDE_23">
+			<Text>Bede</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DUDE_24">
+			<Text>Nestor</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DUDE_25">
+			<Text>Nennius</Text>
+		</Row>
+<!-- Espionage Overview Screen -->
+		<Row Tag="TXT_KEY_CAPITAL_CBP_SPY">
+			<Text>{1_CityName} is the [ICON_CAPITAL] Capital of {@2_CivShortDesc}. You can send either [ICON_SPY] Spies or [ICON_DIPLOMAT] Diplomats to this City.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_YOUR_CAPITAL_CBP_SPY">
+			<Text>{1_CityName} is your [ICON_CAPITAL] Capital. It is a high priority target for enemy [ICON_SPY] Spies.</Text>
+		</Row>
+<!-- Great Work Gold (LUA)-->
+		<Row Tag="TXT_KEY_YIELD_FROM_ART_CBP">
+			<Text>{1_Num} {2_IconString} from Great Works</Text>
+		</Row>
+	</Language_en_US>
+  
+</GameData>

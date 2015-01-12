@@ -150,6 +150,14 @@ ALTER TABLE Policies ADD COLUMN 'MinorityHappinessModCapital' integer default 0;
 
 ALTER TABLE Policies ADD COLUMN 'PuppetUnhappinessModPolicy' integer default 0;
 
+-- Puppets and/or Occupied cities receive a % production modifier. Values should be positive to be good.
+ALTER TABLE Policies ADD COLUMN 'PuppetProdMod' integer default 0;
+ALTER TABLE Policies ADD COLUMN 'OccupiedProdMod' integer default 0;
+
+-- Global Happiness Based on # of Citizens in Empire
+
+ALTER TABLE Policies ADD COLUMN 'HappinessPerXPopulationGlobal' integer default 0;
+
 -- % boosts to city yield for happiness sources (traits) - Values should be positive to be good!
 ALTER TABLE Traits ADD COLUMN 'PovertyHappinessTraitMod' integer default 0;
 ALTER TABLE Traits ADD COLUMN 'DefenseHappinessTraitMod' integer default 0;
@@ -217,6 +225,10 @@ ALTER TABLE Policies ADD COLUMN 'InternalTradeGold' integer default 0;
 
 -- Boost Culture Bomb from Citadel
 ALTER TABLE Policies ADD COLUMN 'CitadelBoost' integer default 0;
+
+-- Unlock Era for Policy (Unlocks later eras earlier than normal)
+ALTER TABLE Policies ADD COLUMN 'UnlocksPolicyBranchEra' text default NULL;
+
 -- New Beliefs
 
 -- Combat bonus v. other religions in our lands
@@ -247,6 +259,21 @@ ALTER TABLE Buildings ADD COLUMN 'IsReformation' boolean default false;
 
 -- Allows for Building to be unlocked by a specific policy (not a branch)
 ALTER TABLE Buildings ADD COLUMN 'PolicyType' text default NULL;
+
+-- Allows for Building to be unlocked by a specific resource being owned (can be strategic or luxury)
+ALTER TABLE Buildings ADD COLUMN 'ResourceType' text default NULL;
+
+-- Allows for Unit to be unlocked by a specific resource being owned (can be strategic or luxury)
+ALTER TABLE Units ADD COLUMN 'ResourceType' text default NULL;
+
+-- Allows for Building to be purchased in puppet city
+ALTER TABLE Buildings ADD COLUMN 'PuppetPurchaseOverride' boolean default false;
+
+-- Allows for All Units/Buildings to be purchased in puppet city
+ALTER TABLE Buildings ADD COLUMN 'AllowsPuppetPurchase' boolean default false;
+
+-- Allows for Unit to be purchased in puppet city
+ALTER TABLE Units ADD COLUMN 'PuppetPurchaseOverride' boolean default false;
 
 -- New Goody Hut Additions
 ALTER TABLE GoodyHuts ADD COLUMN 'Production' integer default 0;

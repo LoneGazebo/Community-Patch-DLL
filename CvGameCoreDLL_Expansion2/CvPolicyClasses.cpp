@@ -79,6 +79,10 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iCulturePerGarrisonedUnit(0),
 	m_iHappinessPerTradeRoute(0),
 	m_iHappinessPerXPopulation(0),
+#if defined(MOD_BALANCE_CORE_POLICIES)
+	m_iHappinessPerXPopulationGlobal(0),
+	m_ePolicyEraUnlock(NO_ERA),
+#endif
 	m_iExtraHappinessPerLuxury(0),
 	m_iUnhappinessFromUnitsMod(0),
 	m_iNumExtraBuilders(0),
@@ -221,6 +225,8 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_bDoubleQuestInfluence(false),
 	m_iInternalTradeGold(0),
 	m_iCitadelBoost(0),
+	m_iPuppetProdMod(0),
+	m_iOccupiedProdMod(0),
 	m_iFreeWCVotes(0),
 	m_iInfluenceGPExpend(0),
 	m_iFreeTradeRoute(0),
@@ -396,6 +402,14 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iCulturePerGarrisonedUnit = kResults.GetInt("CulturePerGarrisonedUnit");
 	m_iHappinessPerTradeRoute = kResults.GetInt("HappinessPerTradeRoute");
 	m_iHappinessPerXPopulation = kResults.GetInt("HappinessPerXPopulation");
+#if defined(MOD_BALANCE_CORE_POLICIES)
+	m_iHappinessPerXPopulationGlobal = kResults.GetInt("HappinessPerXPopulationGlobal");
+	const char* szUnlockPolicyEra = kResults.GetText("UnlocksPolicyBranchEra");
+	if(szUnlockPolicyEra)
+	{
+		m_ePolicyEraUnlock = (EraTypes)GC.getInfoTypeForString(szUnlockPolicyEra, true);
+	}
+#endif
 	m_iExtraHappinessPerLuxury = kResults.GetInt("ExtraHappinessPerLuxury");
 	m_iUnhappinessFromUnitsMod = kResults.GetInt("UnhappinessFromUnitsMod");
 	m_iNumExtraBuilders = kResults.GetInt("NumExtraBuilders");
@@ -512,6 +526,8 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_bDoubleQuestInfluence = kResults.GetBool("DoubleQuestInfluence");
 	m_iInternalTradeGold = kResults.GetInt("InternalTradeGold");
 	m_iCitadelBoost = kResults.GetInt("CitadelBoost");
+	m_iPuppetProdMod = kResults.GetInt("PuppetProdMod");
+	m_iOccupiedProdMod = kResults.GetInt("OccupiedProdMod");
 	m_iFreeWCVotes = kResults.GetInt("FreeWCVotes");
 	m_iInfluenceGPExpend = kResults.GetInt("InfluenceGPExpend");
 	m_iFreeTradeRoute = kResults.GetInt("FreeTradeRoute");
@@ -1393,7 +1409,18 @@ int CvPolicyEntry::GetHappinessPerXPopulation() const
 {
 	return m_iHappinessPerXPopulation;
 }
-
+#if defined(MOD_BALANCE_CORE_POLICIES)
+/// Happiness from global city pop
+int CvPolicyEntry::GetHappinessPerXPopulationGlobal() const
+{
+	return m_iHappinessPerXPopulationGlobal;
+}
+/// Era Unlock for Policy Branch
+EraTypes CvPolicyEntry::GetPolicyEraUnlock() const
+{
+	return m_ePolicyEraUnlock;
+}
+#endif
 /// Happiness from each connected Luxury Resource
 int CvPolicyEntry::GetExtraHappinessPerLuxury() const
 {
@@ -2302,6 +2329,16 @@ bool CvPolicyEntry::GetDoubleQuestInfluence() const
 int CvPolicyEntry::GetCitadelBoost() const
 {
 	return m_iCitadelBoost;
+}
+/// Puppet Production Boost?
+int CvPolicyEntry::GetPuppetProdMod() const
+{
+	return m_iPuppetProdMod;
+}
+/// Occupied Production Boost?
+int CvPolicyEntry::GetOccupiedProdMod() const
+{
+	return m_iOccupiedProdMod;
 }
 /// Gold from internal trade routes?
 int CvPolicyEntry::GetInternalTradeGold() const
@@ -4043,10 +4080,33 @@ bool CvPlayerPolicies::CanUnlockPolicyBranch(PolicyBranchTypes eBranchType)
 		// Must be in the proper Era
 		if(ePrereqEra != NO_ERA)
 		{
+#if defined(MOD_BALANCE_CORE_POLICIES)
+			//If we've finished a policy branch, unlock the next set.
+			// Set Policies in this branch as blocked
+			bool bCanUnlockEarly = false;
+			for(int iPolicyLoop = 0; iPolicyLoop < GetPolicies()->GetNumPolicies(); iPolicyLoop++)
+			{
+				const PolicyTypes eLoopPolicy = static_cast<PolicyTypes>(iPolicyLoop);
+
+				CvPolicyEntry* pkLoopPolicyInfo = GC.getPolicyInfo(eLoopPolicy);
+				if(pkLoopPolicyInfo)
+				{
+					if(HasPolicy(eLoopPolicy) && (pkLoopPolicyInfo->GetPolicyEraUnlock() != NO_ERA) && (pkLoopPolicyInfo->GetPolicyEraUnlock() >= ePrereqEra))
+					{
+						bCanUnlockEarly = true;
+					}
+				}
+			}
+			if(!bCanUnlockEarly && GET_TEAM(GetPlayer()->getTeam()).GetCurrentEra() < ePrereqEra)
+			{
+				return false;
+			}
+#else
 			if(GET_TEAM(GetPlayer()->getTeam()).GetCurrentEra() < ePrereqEra)
 			{
 				return false;
 			}
+#endif
 		}
 	}
 

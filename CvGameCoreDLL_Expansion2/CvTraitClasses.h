@@ -196,6 +196,9 @@ public:
 	int GetPrereqTech() const;
 	int GetResourceQuantityModifier(int i) const;
 	int GetMovesChangeUnitCombat(const int unitCombatID) const;
+#if defined(MOD_BALANCE_CORE)
+	int GetMovesChangeUnitClass(const int unitClassID) const;
+#endif
 	int GetMaintenanceModifierUnitCombat(const int unitCombatID) const;
 	int GetImprovementYieldChanges(ImprovementTypes eIndex1, YieldTypes eIndex2) const;
 #if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
@@ -206,6 +209,7 @@ public:
 	int GetYieldFromRouteMovement(int i) const;
 	int GetYieldFromExport(int i) const;
 	int GetYieldFromImport(int i) const;
+	int GetYieldFromTilePurchase(int i) const;
 	int GetYieldFromCSAlly(int i) const;
 	int GetYieldFromSettle(int i) const;
 	int GetVotePerXCSAlliance() const;
@@ -238,6 +242,9 @@ public:
 	FreeResourceXCities GetFreeResourceXCities(ResourceTypes eResource) const;
 
 	bool IsFreePromotionUnitCombat(const int promotionID, const int unitCombatID) const;
+#if defined(MOD_BALANCE_CORE)
+	bool IsFreePromotionUnitClass(const int promotionID, const int unitClassID) const;
+#endif
 	bool IsObsoleteByTech(TeamTypes eTeam);
 	bool IsEnabledByTech(TeamTypes eTeam);
 
@@ -386,6 +393,9 @@ protected:
 	int* m_piStrategicResourceQuantityModifier;
 	int* m_piResourceQuantityModifiers;
 	int* m_piMovesChangeUnitCombats;
+#if defined(MOD_BALANCE_CORE)
+	int* m_piMovesChangeUnitClasses;
+#endif
 	int* m_piMaintenanceModifierUnitCombats;
 	int** m_ppiImprovementYieldChanges;
 #if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
@@ -396,6 +406,7 @@ protected:
 	int* m_piYieldFromRouteMovement;
 	int* m_piYieldFromExport;
 	int* m_piYieldFromImport;
+	int* m_piYieldFromTilePurchase;
 	int* m_piYieldFromCSAlly;
 	int* m_piYieldFromSettle;
 	int m_iVotePerXCSAlliance;
@@ -427,6 +438,9 @@ protected:
 	int** m_ppiUnimprovedFeatureYieldChanges;
 
 	std::multimap<int, int> m_FreePromotionUnitCombats;
+#if defined(MOD_BALANCE_CORE)
+	std::multimap<int, int> m_FreePromotionUnitClass;
+#endif
 	std::vector<FreeResourceXCities> m_aFreeResourceXCities;
 	std::vector<bool> m_abNoTrainUnitClass;
 
@@ -936,6 +950,9 @@ public:
 		return ((uint)eResource < m_aiResourceQuantityModifier.size())?m_aiResourceQuantityModifier[(int)eResource]:0;
 	};
 	int GetMovesChangeUnitCombat(const int unitCombatID) const;
+#if defined(MOD_BALANCE_CORE)
+	int GetMovesChangeUnitClass(const int unitClassID) const;
+#endif
 	int GetMaintenanceModifierUnitCombat(const int unitCombatID) const;
 	int GetImprovementYieldChange(ImprovementTypes eImprovement, YieldTypes eYield) const;
 #if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
@@ -957,6 +974,10 @@ public:
 	int GetYieldFromImport(YieldTypes eYield) const
 	{
 		return m_iYieldFromImport[(int)eYield];
+	};
+	int GetYieldFromTilePurchase(YieldTypes eYield) const
+	{
+		return m_iYieldFromTilePurchase[(int)eYield];
 	};
 	int GetYieldFromCSAlly(YieldTypes eYield) const
 	{
@@ -1026,6 +1047,9 @@ public:
 	FreeResourceXCities GetFreeResourceXCities(ResourceTypes eResource) const;
 
 	bool HasFreePromotionUnitCombat(const int promotionID, const int unitCombatID) const;
+#if defined(MOD_BALANCE_CORE)
+	bool HasFreePromotionUnitClass(const int promotionID, const int unitClassID) const;
+#endif
 
 	// Public functions to make trait-based game state changes
 	void AddUniqueLuxuries(CvCity *pCity);
@@ -1239,6 +1263,9 @@ private:
 
 	std::vector<int> m_paiMovesChangeUnitCombat;
 	std::vector<int> m_paiMaintenanceModifierUnitCombat;
+#if defined(MOD_BALANCE_CORE)
+	std::vector<int> m_paiMovesChangeUnitClass;
+#endif
 
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppaaiImprovementYieldChange;
 #if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
@@ -1249,6 +1276,7 @@ private:
 	int m_iYieldFromRouteMovement[NUM_YIELD_TYPES];
 	int m_iYieldFromExport[NUM_YIELD_TYPES];
 	int m_iYieldFromImport[NUM_YIELD_TYPES];
+	int m_iYieldFromTilePurchase[NUM_YIELD_TYPES];
 	int m_iYieldFromCSAlly[NUM_YIELD_TYPES];
 	int m_iYieldFromSettle[NUM_YIELD_TYPES];
 	int m_iVotePerXCSAlliance;

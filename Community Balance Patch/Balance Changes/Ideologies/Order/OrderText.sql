@@ -46,7 +46,7 @@ SET Text = 'Guerilla Warfare'
 WHERE Tag = 'TXT_KEY_POLICY_PATRIOTIC_WAR' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Guerilla Warfare[ENDCOLOR][NEWLINE]+15% attack bonus when fighting in friendly territory. 2 Infantry units spawn near your [ICON_CAPITAL] Capital.'
+SET Text = '[COLOR_POSITIVE_TEXT]Guerilla Warfare[ENDCOLOR][NEWLINE]+15% attack bonus and +50% Experience for all Military Units fighting in friendly territory.'
 WHERE Tag = 'TXT_KEY_POLICY_PATRIOTIC_WAR_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -65,7 +65,7 @@ SET Text = 'Communism'
 WHERE Tag = 'TXT_KEY_POLICY_SKYSCRAPERS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Communism[ENDCOLOR][NEWLINE][ICON_GOLD] Gold cost of purchasing buildings reduced by 33%. +10% [ICON_PRODUCTION] Production when building Wonders.'
+SET Text = '[COLOR_POSITIVE_TEXT]Communism[ENDCOLOR][NEWLINE][ICON_GOLD] Gold cost of purchasing buildings reduced by 33%. +20% [ICON_PRODUCTION] Production when building Wonders.'
 WHERE Tag = 'TXT_KEY_POLICY_SKYSCRAPERS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US

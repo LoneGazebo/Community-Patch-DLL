@@ -405,12 +405,17 @@
 			<DomainType>DOMAIN_LAND</DomainType>
 			<Modifier>15</Modifier>
 		</Row>
+		<Row>
+			<BuildingType>BUILDING_GREAT_ALTAR</BuildingType>
+			<DomainType>DOMAIN_AIR</DomainType>
+			<Modifier>15</Modifier>
+		</Row>
 	</Building_DomainProductionModifiers>
 	<Building_ThemingBonuses>
 		<Row>
 			<BuildingType>BUILDING_RELIQUARY</BuildingType>
 			<Description>TXT_KEY_THEMING_BONUS_RELIQUARY</Description>
-			<Bonus>4</Bonus>
+			<Bonus>8</Bonus>
 			<RequiresUniquePlayers>true</RequiresUniquePlayers>
 			<AIPriority>5</AIPriority>
 		</Row>
@@ -433,7 +438,7 @@
 		<Row>
 			<BuildingType>BUILDING_MAUSOLEUM</BuildingType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>15</Yield>
+			<Yield>30</Yield>
 		</Row>
 	</Building_YieldFromDeath>
 	<Building_Flavors>

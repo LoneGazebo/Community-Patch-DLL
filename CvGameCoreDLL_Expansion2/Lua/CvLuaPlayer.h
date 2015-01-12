@@ -296,6 +296,7 @@ protected:
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE_BELIEFS)
 	LUAAPIEXTN(GetCombatVersusOtherReligionOwnLands, int);
 	LUAAPIEXTN(GetCombatVersusOtherReligionTheirLands, int);
+	LUAAPIEXTN(GetYieldPerTurnFromReligion, int);
 #endif
 	static int lGetMinimumFaithNextGreatProphet(lua_State* L);
 	static int lHasReligionInMostCities(lua_State* L);

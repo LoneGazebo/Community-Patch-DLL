@@ -2,11 +2,94 @@
 <!-- Created by ModBuddy on 10/29/2014 1:14:36 AM -->
 <GameData>
   <!-- Polynesia -->
-	<Improvement_Yields>
+	<Improvement_TechYieldChanges>
 		<Row>
 			<ImprovementType>IMPROVEMENT_MOAI</ImprovementType>
+			<TechType>TECH_CONSTRUCTION</TechType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
 			<Yield>1</Yield>
 		</Row>
-	</Improvement_Yields>
+	</Improvement_TechYieldChanges>
+	<!-- Make Keshik a Medieval Unit -->
+	<UnitClasses>
+		<Row>
+			<Type>UNITCLASS_MOUNTED_BOWMAN</Type>
+			<Description>TXT_KEY_UNIT_MONGOLIAN_KESHIK</Description>
+			<DefaultUnit>UNIT_MONGOLIAN_KESHIK</DefaultUnit>
+		</Row>
+	</UnitClasses>
+	<!-- Mongols get faster Mounted Units -->
+	<Trait_MovesChangeUnitClass>
+		<Row>
+			<TraitType>TRAIT_TERROR</TraitType>
+			<UnitClassType>UNITCLASS_CHARIOT_ARCHER</UnitClassType>
+			<MovesChange>1</MovesChange>
+		</Row>
+		<Row>
+			<TraitType>TRAIT_TERROR</TraitType>
+			<UnitClassType>UNITCLASS_HORSE_ARCHER</UnitClassType>
+			<MovesChange>1</MovesChange>
+		</Row>
+		<Row>
+			<TraitType>TRAIT_TERROR</TraitType>
+			<UnitClassType>UNITCLASS_MOUNTED_BOWMAN</UnitClassType>
+			<MovesChange>1</MovesChange>
+		</Row>
+	</Trait_MovesChangeUnitClass>
+	<!-- Defense Happiness Flavors-->
+	<Building_Flavors>
+		<Row>
+			<BuildingType>BUILDING_WALLS_OF_BABYLON</BuildingType>
+			<FlavorType>FLAVOR_HAPPINESS</FlavorType>
+			<Flavor>40</Flavor>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_MISSION</BuildingType>
+			<FlavorType>FLAVOR_HAPPINESS</FlavorType>
+			<Flavor>40</Flavor>
+		</Row>
+	</Building_Flavors>
+	<!-- Boost to Denmark -->
+	<Trait_FreePromotionUnitCombats>
+		<Row>
+			<TraitType>TRAIT_VIKING_FURY</TraitType>
+			<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
+			<PromotionType>PROMOTION_DOUBLE_PLUNDER</PromotionType>
+		</Row>
+		<Row>
+			<TraitType>TRAIT_VIKING_FURY</TraitType>
+			<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
+			<PromotionType>PROMOTION_DOUBLE_PLUNDER</PromotionType>
+		</Row>
+		<Row>
+			<TraitType>TRAIT_VIKING_FURY</TraitType>
+			<UnitCombatType>UNITCOMBAT_RECON</UnitCombatType>
+			<PromotionType>PROMOTION_DOUBLE_PLUNDER</PromotionType>
+		</Row>
+		<Row>
+			<TraitType>TRAIT_VIKING_FURY</TraitType>
+			<UnitCombatType>UNITCOMBAT_ARMOR</UnitCombatType>
+			<PromotionType>PROMOTION_DOUBLE_PLUNDER</PromotionType>
+		</Row>
+		<Row>
+			<TraitType>TRAIT_VIKING_FURY</TraitType>
+			<UnitCombatType>UNITCOMBAT_NAVALMELEE</UnitCombatType>
+			<PromotionType>PROMOTION_DOUBLE_PLUNDER</PromotionType>
+		</Row>
+		<Row>
+			<TraitType>TRAIT_VIKING_FURY</TraitType>
+			<UnitCombatType>UNITCOMBAT_HELICOPTER</UnitCombatType>
+			<PromotionType>PROMOTION_DOUBLE_PLUNDER</PromotionType>
+		</Row>
+		<Row>
+			<TraitType>TRAIT_VIKING_FURY</TraitType>
+			<UnitCombatType>UNITCOMBAT_NAVALMELEE</UnitCombatType>
+			<PromotionType>PROMOTION_FREE_PILLAGE_MOVES</PromotionType>
+		</Row>
+		<Row>
+			<TraitType>TRAIT_VIKING_FURY</TraitType>
+			<UnitCombatType>UNITCOMBAT_HELICOPTER</UnitCombatType>
+			<PromotionType>PROMOTION_FREE_PILLAGE_MOVES</PromotionType>
+		</Row>
+	</Trait_FreePromotionUnitCombats>
 </GameData>

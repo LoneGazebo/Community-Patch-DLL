@@ -11,6 +11,7 @@
 				<Sound>AS2D_IF_LEVELUP</Sound>
 				<OrderPriority>2</OrderPriority>
 				<CombatPercent>10</CombatPercent>
+				<CityAttack>15</CityAttack>
 				<PortraitIndex>19</PortraitIndex>
 				<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 				<PediaType>PEDIA_MELEE</PediaType>
@@ -25,6 +26,7 @@
 				<OrderPriority>2</OrderPriority>
 				<CombatPercent>10</CombatPercent>
 				<PortraitIndex>20</PortraitIndex>
+				<CityAttack>20</CityAttack>
 				<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 				<PediaType>PEDIA_MELEE</PediaType>
 				<PediaEntry>TXT_KEY_PROMOTION_DRILL_2</PediaEntry>
@@ -41,6 +43,7 @@
 				<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 				<PediaType>PEDIA_MELEE</PediaType>
 				<PediaEntry>TXT_KEY_PROMOTION_DRILL_3</PediaEntry>
+				<CityAttack>25</CityAttack>
 			</Row>
 			<Row>
 				<Type>PROMOTION_ACCURACY_1</Type>
@@ -49,6 +52,7 @@
 				<Sound>AS2D_IF_LEVELUP</Sound>
 				<OrderPriority>1</OrderPriority>
 				<RangedAttackModifier>10</RangedAttackModifier>
+				<CityAttack>10</CityAttack>
 				<PortraitIndex>0</PortraitIndex>
 				<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 				<PediaType>PEDIA_RANGED</PediaType>
@@ -62,6 +66,7 @@
 				<PromotionPrereqOr1>PROMOTION_ACCURACY_1</PromotionPrereqOr1>
 				<OrderPriority>1</OrderPriority>
 				<RangedAttackModifier>10</RangedAttackModifier>
+				<CityAttack>10</CityAttack>
 				<PortraitIndex>1</PortraitIndex>
 				<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 				<PediaType>PEDIA_RANGED</PediaType>
@@ -74,6 +79,7 @@
 				<Sound>AS2D_IF_LEVELUP</Sound>
 				<PromotionPrereqOr1>PROMOTION_ACCURACY_2</PromotionPrereqOr1>
 				<OrderPriority>1</OrderPriority>
+				<CityAttack>10</CityAttack>
 				<RangedAttackModifier>10</RangedAttackModifier>
 				<PortraitIndex>2</PortraitIndex>
 				<IconAtlas>PROMOTION_ATLAS</IconAtlas>
@@ -86,6 +92,7 @@
 				<Help>TXT_KEY_PROMOTION_TARGETING_1_HELP</Help>
 				<Sound>AS2D_IF_LEVELUP</Sound>
 				<OrderPriority>1</OrderPriority>
+				<CityAttack>10</CityAttack>
 				<PortraitIndex>52</PortraitIndex>
 				<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 				<PediaType>PEDIA_NAVAL</PediaType>
@@ -98,6 +105,7 @@
 				<Sound>AS2D_IF_LEVELUP</Sound>
 				<PromotionPrereqOr1>PROMOTION_TARGETING_1</PromotionPrereqOr1>
 				<OrderPriority>1</OrderPriority>
+				<CityAttack>10</CityAttack>
 				<PortraitIndex>53</PortraitIndex>
 				<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 				<PediaType>PEDIA_NAVAL</PediaType>
@@ -110,6 +118,7 @@
 				<Sound>AS2D_IF_LEVELUP</Sound>
 				<PromotionPrereqOr1>PROMOTION_TARGETING_2</PromotionPrereqOr1>
 				<OrderPriority>1</OrderPriority>
+				<CityAttack>10</CityAttack>
 				<PortraitIndex>54</PortraitIndex>
 				<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 				<PediaType>PEDIA_NAVAL</PediaType>
@@ -832,6 +841,7 @@
 				<Description>TXT_KEY_PROMOTION_BOARDING_PARTY_1</Description>
 				<Help>TXT_KEY_PROMOTION_BOARDING_PARTY_1_HELP</Help>
 				<Sound>AS2D_IF_LEVELUP</Sound>
+				<CityAttack>10</CityAttack>
 				<PortraitIndex>0</PortraitIndex>
 				<IconAtlas>EXPANSION_PROMOTION_ATLAS</IconAtlas>
 				<PediaType>PEDIA_NAVAL</PediaType>
@@ -842,6 +852,7 @@
 				<Description>TXT_KEY_PROMOTION_BOARDING_PARTY_2</Description>
 				<Help>TXT_KEY_PROMOTION_BOARDING_PARTY_2_HELP</Help>
 				<Sound>AS2D_IF_LEVELUP</Sound>
+				<CityAttack>10</CityAttack>
 				<PromotionPrereqOr1>PROMOTION_BOARDING_PARTY_1</PromotionPrereqOr1>
 				<PortraitIndex>1</PortraitIndex>
 				<IconAtlas>EXPANSION_PROMOTION_ATLAS</IconAtlas>
@@ -853,6 +864,7 @@
 				<Description>TXT_KEY_PROMOTION_BOARDING_PARTY_3</Description>
 				<Help>TXT_KEY_PROMOTION_BOARDING_PARTY_3_HELP</Help>
 				<Sound>AS2D_IF_LEVELUP</Sound>
+				<CityAttack>10</CityAttack>
 				<PromotionPrereqOr1>PROMOTION_BOARDING_PARTY_2</PromotionPrereqOr1>
 				<PortraitIndex>2</PortraitIndex>
 				<IconAtlas>EXPANSION_PROMOTION_ATLAS</IconAtlas>
@@ -971,7 +983,7 @@
 				<Help>TXT_KEY_PROMOTION_MORALE_HELP</Help>
 				<Sound>AS2D_IF_LEVELUP</Sound>
 				<CannotBeChosen>true</CannotBeChosen>
-				<CombatPercent>5</CombatPercent>
+				<CombatPercent>10</CombatPercent>
 				<PortraitIndex>59</PortraitIndex>
 				<IconAtlas>ABILITY_ATLAS</IconAtlas>
 				<PediaType>PEDIA_SHARED</PediaType>
@@ -2497,7 +2509,63 @@
 				<PediaType>PEDIA_ATTRIBUTES</PediaType>
 				<PediaEntry>TXT_KEY_PROMOTION_UNWELCOME_EVANGELIST</PediaEntry>
 			</Row>
+			<Row>
+				<Type>PROMOTION_NAVAL_MISFIRE</Type>
+				<Description>TXT_KEY_PROMOTION_NAVAL_MISFIRE</Description>
+				<Help>TXT_KEY_PROMOTION_NAVAL_MISFIRE_HELP</Help>
+				<Sound>AS2D_IF_LEVELUP</Sound>
+				<CannotBeChosen>true</CannotBeChosen>
+				<OrderPriority>1</OrderPriority>
+				<LostWithUpgrade>true</LostWithUpgrade>
+				<PortraitIndex>57</PortraitIndex>
+				<IconAtlas>PROMOTION_ATLAS</IconAtlas>
+				<PediaType>PEDIA_RANGED</PediaType>
+				<PediaEntry>TXT_KEY_PROMOTION_NAVAL_MISFIRE</PediaEntry>
+			</Row>
+			<Row>
+				<Type>PROMOTION_MODERN_RANGED_PENALTY_I</Type>
+				<Description>TXT_KEY_PROMOTION_MODERN_RANGED_PENALTY_I</Description>
+				<Help>TXT_KEY_PROMOTION_MODERN_RANGED_PENALTY_I_HELP</Help>
+				<Sound>AS2D_IF_LEVELUP</Sound>
+				<CannotBeChosen>true</CannotBeChosen>
+				<AttackFortifiedMod>-50</AttackFortifiedMod>
+				<DefenseMod>20</DefenseMod>
+				<CityAttack>-50</CityAttack>
+				<NearbyEnemyCombatMod>-15</NearbyEnemyCombatMod>
+				<NearbyEnemyCombatRange>2</NearbyEnemyCombatRange>
+				<OrderPriority>1</OrderPriority>
+				<LostWithUpgrade>true</LostWithUpgrade>
+				<PortraitIndex>34</PortraitIndex>
+				<IconAtlas>PROMOTION_ATLAS</IconAtlas>
+				<PediaType>PEDIA_RANGED</PediaType>
+				<PediaEntry>TXT_KEY_PROMOTION_MODERN_RANGED_PENALTY_I</PediaEntry>
+			</Row>
+			<Row>
+				<Type>PROMOTION_MODERN_RANGED_PENALTY_II</Type>
+				<Description>TXT_KEY_PROMOTION_MODERN_RANGED_PENALTY_II</Description>
+				<Help>TXT_KEY_PROMOTION_MODERN_RANGED_PENALTY_II_HELP</Help>
+				<Sound>AS2D_IF_LEVELUP</Sound>
+				<CannotBeChosen>true</CannotBeChosen>
+				<AttackFortifiedMod>-25</AttackFortifiedMod>
+				<DefenseMod>10</DefenseMod>
+				<CityAttack>-25</CityAttack>
+				<NearbyEnemyCombatMod>-10</NearbyEnemyCombatMod>
+				<NearbyEnemyCombatRange>2</NearbyEnemyCombatRange>
+				<OrderPriority>1</OrderPriority>
+				<LostWithUpgrade>true</LostWithUpgrade>
+				<PortraitIndex>34</PortraitIndex>
+				<IconAtlas>PROMOTION_ATLAS</IconAtlas>
+				<PediaType>PEDIA_RANGED</PediaType>
+				<PediaEntry>TXT_KEY_PROMOTION_MODERN_RANGED_PENALTY_II</PediaEntry>
+			</Row>
 	</UnitPromotions>
+	<UnitPromotions_UnitCombatMods>
+		<Row>
+			<PromotionType>PROMOTION_MODERN_RANGED_PENALTY_I</PromotionType>
+			<UnitCombatType>UNITCOMBAT_ARMOR</UnitCombatType>
+			<Modifier>-25</Modifier>
+		</Row>
+	</UnitPromotions_UnitCombatMods>
 	<UnitPromotions_Domains>
 		<Row>
 			<PromotionType>PROMOTION_TARGETING_1</PromotionType>
@@ -2524,5 +2592,30 @@
 			<DomainType>DOMAIN_LAND</DomainType>
 			<Modifier>15</Modifier>
 		</Row>
+		<Row>
+			<PromotionType>PROMOTION_NAVAL_MISFIRE</PromotionType>
+			<DomainType>DOMAIN_SEA</DomainType>
+			<Modifier>-33</Modifier>
+		</Row>
 	</UnitPromotions_Domains>
+	<Language_en_US>
+		<Row Tag="TXT_KEY_PROMOTION_NAVAL_MISFIRE">
+			<Text>Difficult Target</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_NAVAL_MISFIRE_HELP">
+			<Text>-33% [ICON_RANGE_STRENGTH] Ranged Strength vs. Naval units.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_MODERN_RANGED_PENALTY_I">
+			<Text>Covering Fire I</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_MODERN_RANGED_PENALTY_I_HELP">
+			<Text>-50% [ICON_RANGE_STRENGTH] Ranged Strength vs. Armor Units, Fortified Units, and Cities. +20% [ICON_STRENGTH] Strength when defending, and enemy units within 2 tiles suffer -15% [ICON_STRENGTH] Strength.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_MODERN_RANGED_PENALTY_II">
+			<Text>Covering Fire II</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_MODERN_RANGED_PENALTY_II_HELP">
+			<Text>-25% [ICON_RANGE_STRENGTH] Ranged Strength vs. Fortified Units and Cities. +15% [ICON_STRENGTH] Strength when defending, and enemy units within 2 tiles suffer -10% [ICON_STRENGTH] Strength.</Text>
+		</Row>
+	</Language_en_US>
 </GameData>

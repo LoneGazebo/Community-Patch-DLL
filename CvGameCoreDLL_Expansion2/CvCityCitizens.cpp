@@ -1646,7 +1646,6 @@ void CvCityCitizens::SetWorkingPlot(CvPlot* pPlot, bool bNewValue, bool bUseUnas
 				//{
 				//	GetCity()->changeWorkingPopulation(1);
 				//}
-
 				for(iI = 0; iI < NUM_YIELD_TYPES; iI++)
 				{
 					GetCity()->ChangeBaseYieldRateFromTerrain(((YieldTypes)iI), pPlot->getYield((YieldTypes)iI));

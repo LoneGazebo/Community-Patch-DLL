@@ -5859,6 +5859,59 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 						if(pkEraInfo != NULL)
 						{
 							SetCurrentEra(nextEra);
+#if defined(MOD_BALANCE_CORE_BELIEFS)
+							for(int iI = 0; iI < MAX_PLAYERS; iI++)
+							{
+								const PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iI);
+								CvPlayerAI& kPlayer = GET_PLAYER(eLoopPlayer);
+								int iEra = kPlayer.GetCurrentEra();
+								if(iEra < 1)
+								{
+									iEra = 1;
+								}
+								if(kPlayer.isAlive() && kPlayer.getTeam() == GetID())
+								{
+									ReligionTypes eReligionFounded = kPlayer.GetReligions()->GetReligionCreatedByPlayer();
+									if(eReligionFounded > RELIGION_PANTHEON)
+									{
+										const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligionFounded, kPlayer.GetID());
+										if(pReligion)
+										{
+											if(pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_FAITH) > 0)
+											{
+												kPlayer.ChangeFaith(pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_FAITH) * iEra);
+											}
+											if(pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_GOLD) > 0)
+											{
+												kPlayer.GetTreasury()->ChangeGold(pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_GOLD) * iEra);
+											}
+											if(pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_CULTURE) > 0)
+											{
+												kPlayer.changeJONSCulture(pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_CULTURE) * iEra);
+											}
+											if(pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_SCIENCE) > 0)
+											{
+												TechTypes eCurrentTech = kPlayer.GetPlayerTechs()->GetCurrentResearch();
+												if(eCurrentTech == NO_TECH)
+												{
+													kPlayer.changeOverflowResearch(pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_SCIENCE) * iEra);
+												}
+												else
+												{
+													GET_TEAM(kPlayer.getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_SCIENCE) * iEra, kPlayer.GetID());
+												}
+											}
+#if defined(MOD_API_UNIFIED_YIELDS_GOLDEN_AGE)
+											if(pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_GOLDEN_AGE_POINTS) > 0)
+											{
+												kPlayer.ChangeGoldenAgeProgressMeter(pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_GOLDEN_AGE_POINTS) * iEra);
+											}
+#endif
+										}
+									}
+								}
+							}
+#endif
 						}
 					}
 
@@ -7271,6 +7324,16 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 						if (kPlayer.GetEspionage()->GetNumSpies() == 0)
 						{
 							int iNumTraitSpies = kPlayer.GetPlayerTraits()->GetExtraSpies();
+#if defined(MOD_BALANCE_CORE_SPIES)
+							if(MOD_BALANCE_CORE_SPIES && iNumTraitSpies > 0){
+								//Optional: Additional Trait Spies scaled for the number of City-States in the game.
+								int iNumMinor = ((GC.getGame().GetNumMinorCivsEver() * /*15*/ GC.getBALANCE_SPY_TO_MINOR_RATIO() * 2) / 100);
+								if((iNumMinor) > 0)
+								{
+									iNumTraitSpies += (iNumMinor);
+								}			
+							}
+#endif
 							for (int i = 0; i < iNumTraitSpies; i++)
 							{
 								kPlayer.GetEspionage()->CreateSpy();

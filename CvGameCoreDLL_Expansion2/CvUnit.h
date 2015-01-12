@@ -509,6 +509,9 @@ public:
 	int GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot, const CvUnit* pDefender) const;
 	int GetMaxDefenseStrength(const CvPlot* pInPlot, const CvUnit* pAttacker, bool bFromRangedAttack = false) const;
 	int GetEmbarkedUnitDefense() const;
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	int GetResistancePower(const CvUnit* pOtherUnit) const;
+#endif
 
 	bool canSiege(TeamTypes eTeam) const;
 

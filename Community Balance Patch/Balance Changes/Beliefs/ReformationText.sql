@@ -9,7 +9,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_CHARITABLE_MISSIONS_SHORT' AND EXISTS (SELECT * FROM
 
 -- Evangelism (Now Crusader Zeal)
 UPDATE Language_en_US
-SET Text = '+15% [ICON_STRENGTH] Combat Strength in enemy lands versus players that have founded an opposing Faith.'
+SET Text = '+15% [ICON_STRENGTH] Combat Strength in enemy lands versus players that follow an opposing Faith.'
 WHERE Tag = 'TXT_KEY_BELIEF_EVANGELISM' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -18,14 +18,14 @@ WHERE Tag = 'TXT_KEY_BELIEF_EVANGELISM_SHORT' AND EXISTS (SELECT * FROM COMMUNIT
 
 -- Defender Faith
 UPDATE Language_en_US
-SET Text = '+15% [ICON_STRENGTH] Combat Strength in own lands versus players that have founded an opposing Faith.'
+SET Text = '+15% [ICON_STRENGTH] Combat Strength in own lands versus players that follow an opposing Faith.'
 WHERE Tag = 'TXT_KEY_BELIEF_DEFENDER_FAITH' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Jesuit Education 
 
 -- Religious Fervor (Now The One True Faith)
 UPDATE Language_en_US
-SET Text = 'Receive 3 additional votes in the World Congress. Missionaries performing the Spread Religion action erode existing pressure from other religions.'
+SET Text = 'Receive 3 additional Delegates in the World Congress. Missionaries performing the Spread Religion action erode existing pressure from other religions.'
 WHERE Tag = 'TXT_KEY_BELIEF_RELIGIOUS_FERVOR' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US

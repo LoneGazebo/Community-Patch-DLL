@@ -70,29 +70,29 @@
 -- Replace Drill with +10% Combat Strength everywhere.
 
 	UPDATE Language_en_US
-	SET Text = '+10% [ICON_STRENGTH] Combat Strength.'
+	SET Text = '+10% [ICON_STRENGTH] Combat Strength, +15% vs Cities.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_DRILL_1_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Language_en_US
-	SET Text = '+10% [ICON_STRENGTH] Combat Strength.'
+	SET Text = '+10% [ICON_STRENGTH] Combat Strength, +20% vs Cities.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_DRILL_2_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Language_en_US
-	SET Text = '+10% [ICON_STRENGTH] Combat Strength.'
+	SET Text = '+10% [ICON_STRENGTH] Combat Strength, +25% vs Cities.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_DRILL_3_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 -- Replace Barrage and Accuracy with +10% Ranged Combat Strength everywhere.
 
 	UPDATE Language_en_US
-	SET Text = '+10% Ranged [ICON_RANGE_STRENGTH] Combat Strength.'
+	SET Text = '+10% Ranged [ICON_RANGE_STRENGTH] Combat Strength, +10% vs Cities.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_ACCURACY_1_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Language_en_US
-	SET Text = '+10% Ranged [ICON_RANGE_STRENGTH] Combat Strength.'
+	SET Text = '+10% Ranged [ICON_RANGE_STRENGTH] Combat Strength, +10% vs Cities.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_ACCURACY_2_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Language_en_US
-	SET Text = '+10% Ranged [ICON_RANGE_STRENGTH] Combat Strength.'
+	SET Text = '+10% Ranged [ICON_RANGE_STRENGTH] Combat Strength, +10% vs Cities.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_ACCURACY_3_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 -- Make Discipline a double-mod, weaken a bit.
@@ -125,15 +125,15 @@
 	WHERE PromotionType = 'PROMOTION_TARGETING_3' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Language_en_US
-	SET Text = '+10% [ICON_STRENGTH] Combat Strength versus Naval and Land Units.'
+	SET Text = '+10% [ICON_STRENGTH] Combat Strength versus Naval and Land Units, +10% versus Cities.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_TARGETING_1_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Language_en_US
-	SET Text = '+10% [ICON_STRENGTH] Combat Strength versus Naval and Land Units.'
+	SET Text = '+10% [ICON_STRENGTH] Combat Strength versus Naval and Land Units, +10% versus Cities.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_TARGETING_2_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Language_en_US
-	SET Text = '+10% [ICON_STRENGTH] Combat Strength versus Naval and Land Units.'
+	SET Text = '+10% [ICON_STRENGTH] Combat Strength versus Naval and Land Units, +10% versus Cities.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_TARGETING_3_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 -- Melee Ship promotions a little too high - let's tone down
@@ -150,15 +150,15 @@
 	WHERE PromotionType = 'PROMOTION_BOARDING_PARTY_3' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Language_en_US
-	SET Text = '+10% [ICON_STRENGTH] Combat Strength in melee attacks against [COLOR_POSITIVE_TEXT]Naval Units[ENDCOLOR]'
+	SET Text = '+10% [ICON_STRENGTH] Combat Strength in melee attacks against [COLOR_POSITIVE_TEXT]Naval Units[ENDCOLOR] and [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR]'
 	WHERE Tag = 'TXT_KEY_PROMOTION_BOARDING_PARTY_1_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Language_en_US
-	SET Text = '+10% [ICON_STRENGTH] Combat Strength in melee attacks against [COLOR_POSITIVE_TEXT]Naval Units[ENDCOLOR]'
+	SET Text = '+10% [ICON_STRENGTH] Combat Strength in melee attacks against [COLOR_POSITIVE_TEXT]Naval Units[ENDCOLOR] and [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR]'
 	WHERE Tag = 'TXT_KEY_PROMOTION_BOARDING_PARTY_2_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Language_en_US
-	SET Text = '+10% [ICON_STRENGTH] Combat Strength in melee attacks against [COLOR_POSITIVE_TEXT]Naval Units[ENDCOLOR]'
+	SET Text = '+10% [ICON_STRENGTH] Combat Strength in melee attacks against [COLOR_POSITIVE_TEXT]Naval Units[ENDCOLOR] and [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR]'
 	WHERE Tag = 'TXT_KEY_PROMOTION_BOARDING_PARTY_3_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Language_en_US
@@ -203,3 +203,41 @@
 	UPDATE Language_en_US
 	SET Text = '+15% [ICON_STRENGTH] Combat Strength versus Naval and Land Units.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_AIR_TARGETING_2_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+-- Siege Promotions -- Weaken them slightly
+
+	UPDATE UnitPromotions
+	SET CityAttack = '100'
+	WHERE Type = 'PROMOTION_CITY_SIEGE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	UPDATE Language_en_US
+	SET Text = '+100% Bonus vs Cities.'
+	WHERE Tag = 'TXT_KEY_PROMOTION_CITY_SIEGE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	UPDATE Language_en_US
+	SET Text = 'Bonus vs Cities (100)'
+	WHERE Tag = 'TXT_KEY_PROMOTION_CITY_SIEGE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	UPDATE UnitPromotions
+	SET CityAttack = '100'
+	WHERE Type = 'PROMOTION_CITY_SIEGE_II' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	UPDATE Language_en_US
+	SET Text = '+100% Bonus vs Cities.'
+	WHERE Tag = 'TXT_KEY_PROMOTION_CITY_SIEGE_II_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	UPDATE Language_en_US
+	SET Text = 'Bonus vs Cities (100)'
+	WHERE Tag = 'TXT_KEY_PROMOTION_CITY_SIEGE_II' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	UPDATE UnitPromotions
+	SET CityAttack = '150'
+	WHERE Type = 'PROMOTION_CITY_ASSAULT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	UPDATE Language_en_US
+	SET Text = 'Bonus vs Cities (150)'
+	WHERE Tag = 'TXT_KEY_PROMOTION_CITY_ASSUALT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	UPDATE Language_en_US
+	SET Text = '+150% Bonus vs Cities.'
+	WHERE Tag = 'TXT_KEY_PROMOTION_CITY_ASSUALT_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );

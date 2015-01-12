@@ -6,8 +6,8 @@
 		<Row>
 			<Type>BUILDING_SKOLA</Type>
 			<BuildingClass>BUILDINGCLASS_PUBLIC_SCHOOL</BuildingClass>
-			<Cost>275</Cost>
-			<GoldMaintenance>4</GoldMaintenance>
+			<Cost>350</Cost>
+			<GoldMaintenance>3</GoldMaintenance>
 			<PrereqTech>TECH_SCIENTIFIC_THEORY</PrereqTech>
 			<FaithCost>200</FaithCost>
 			<UnlockedByBelief>true</UnlockedByBelief>
@@ -17,7 +17,6 @@
 			<Strategy>TXT_KEY_BUILDING_SKOLA_STRATEGY</Strategy>
 			<ArtDefineTag>ART_DEF_BUILDING_SKOLA</ArtDefineTag>
 			<SpecialistType>SPECIALIST_SCIENTIST</SpecialistType>
-			<CultureRateModifier>25</CultureRateModifier>
 			<SpecialistCount>2</SpecialistCount>
 			<IlliteracyHappinessChange>1</IlliteracyHappinessChange>
 			<MinAreaSize>-1</MinAreaSize>
@@ -56,7 +55,7 @@
 		<Row>
 			<BuildingType>BUILDING_SKOLA</BuildingType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>50</Yield>
+			<Yield>25</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_SKOLA</BuildingType>
@@ -79,7 +78,7 @@
 			<Text>Unique Swedish replacement for the Public School. This building is cheaper and costs less maintenance than the building it replaces, and also boosts the city's [ICON_CULTURE] Culture.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_SKOLA_HELP">
-			<Text>Reduces [ICON_HAPPINESS_3] Illiteracy. +1 [ICON_CULTURE] Culture for every 5 [ICON_CITIZEN] Citizens, and +1 [ICON_RESEARCH] Science for every two [ICON_CITIZEN] Citizens in the City.</Text>
+			<Text>Reduces [ICON_HAPPINESS_3] Illiteracy. +1 [ICON_CULTURE] Culture for every 5 [ICON_CITIZEN] Citizens, and +1 [ICON_RESEARCH] Science for every 4 [ICON_CITIZEN] Citizens in the City.</Text>
 		</Row>
 	</Language_en_US>
 	<!-- Basilica -->
@@ -87,8 +86,8 @@
 		<Row>
 			<Type>BUILDING_BASILICA</Type>
 			<BuildingClass>BUILDINGCLASS_TEMPLE</BuildingClass>
-			<MaxStartEra>ERA_RENAISSANCE</MaxStartEra>
-			<Cost>100</Cost>
+			<FreeStartEra>ERA_RENAISSANCE</FreeStartEra>
+			<Cost>150</Cost>
 			<PrereqTech>TECH_PHILOSOPHY</PrereqTech>
 			<Description>TXT_KEY_BUILDING_BASILICA_DESC</Description>
 			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_BASILICA_TEXT</Civilopedia>
@@ -103,12 +102,6 @@
 			<PortraitIndex>33</PortraitIndex>
 		</Row>
 	</Buildings>
-	<Building_ClassesNeededInCity>
-		<Row>
-			<BuildingType>BUILDING_SKOLA</BuildingType>
-			<BuildingClassType>BUILDINGCLASS_UNIVERSITY</BuildingClassType>
-		</Row>
-	</Building_ClassesNeededInCity>
 	<Building_Flavors>
 		<Row>
 			<BuildingType>BUILDING_BASILICA</BuildingType>
@@ -132,7 +125,7 @@
 		<Row>
 			<BuildingType>BUILDING_BASILICA</BuildingType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>50</Yield>
+			<Yield>25</Yield>
 		</Row>
 	</Building_YieldChangesPerPop>
 	<Building_ResourceYieldChanges>
@@ -162,7 +155,7 @@
 			<Text>Unique Byzantine replacement for the Temple. This building does not require maintenance, and boosts the city's [ICON_PEACE] Faith output based on the number of [ICON_CITIZEN] Citizens in the city. Use this building to guarantee the establishment of a religion for Byzantium.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_BASILICA_HELP">
-			<Text>Reduces [ICON_HAPPINESS_3] Religious Unrest. +1 [ICON_PEACE] Culture from [ICON_RES_INCENSE] Incense and [ICON_RES_WINE] Wine, and +1 [ICON_PEACE] Faith for every two [ICON_CITIZEN] Citizens.</Text>
+			<Text>Reduces [ICON_HAPPINESS_3] Religious Unrest. +1 [ICON_PEACE] Culture from [ICON_RES_INCENSE] Incense and [ICON_RES_WINE] Wine, and +1 [ICON_PEACE] Faith for every 4 [ICON_CITIZEN] Citizens.</Text>
 		</Row>
 	</Language_en_US>
 	<!-- Great Cothon -->
@@ -182,7 +175,6 @@
 			<TradeRouteRecipientBonus>5</TradeRouteRecipientBonus>
 			<TradeRouteTargetBonus>3</TradeRouteTargetBonus>
 			<NationalPopRequired>25</NationalPopRequired>
-			<CityConnectionTradeRouteModifier>10</CityConnectionTradeRouteModifier>
 			<NumCityCostMod>30</NumCityCostMod>
 			<HurryCostModifier>-1</HurryCostModifier>
 			<MinAreaSize>-1</MinAreaSize>
@@ -225,10 +217,10 @@
 			</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_GREAT_COTHON_STRATEGY">
-			<Text>Unique Carthaginian replacement for the East India Company. Must have built a Market in the city, and have a National Population of at least 25. In addition to the normal bonuses provided by the East India Company, the Great Cothon provides additional gold for both recipient and target of trade routes from the city where it is built, provides two additional trade routes, and a slight boost to the value of city connections. Unlike the East India Company, the Great Cothon is made available in the Classical Era with the discovery of Currency.</Text>
+			<Text>Unique Carthaginian replacement for the East India Company. Must have built a Market in the city, and have a National Population of at least 25. In addition to the normal bonuses provided by the East India Company, the Great Cothon provides additional gold for both recipient and target of trade routes from the city where it is built, provides two additional trade routes. Unlike the East India Company, the Great Cothon is made available in the Classical Era with the discovery of Currency.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_GREAT_COTHON_HELP">
-			<Text>Must have built a Market in the city, and have a National Population of at least 25. The cost goes up the more cities there are in the empire.[NEWLINE][NEWLINE]Trade routes other players make to a city with the Great Cothon will generate an extra 5 [ICON_GOLD] Gold for the city owner and the trade route owner gains an additional 3 [ICON_GOLD] Gold for the trade route. Grants two additional [ICON_INTERNATIONAL_TRADE] Trade Routes and +10% [ICON_GOLD] Gold from [ICON_CONNECTED] City Connections.</Text>
+			<Text>Must have built a Market in the city, and have a National Population of at least 25. The cost goes up the more cities there are in the empire.[NEWLINE][NEWLINE]Trade routes other players make to a city with the Great Cothon will generate an extra 5 [ICON_GOLD] Gold for the city owner and the trade route owner gains an additional 3 [ICON_GOLD] Gold for the trade route. Grants two additional [ICON_INTERNATIONAL_TRADE] Trade Routes.</Text>
 		</Row>
 	</Language_en_US>
 </GameData>

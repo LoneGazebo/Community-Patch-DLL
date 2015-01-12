@@ -778,21 +778,6 @@ bool CvMinorCivQuest::IsRevoked()
 			return true;
 #endif
 	}
-	
-#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
-	if (MOD_DIPLOMACY_CITYSTATES_QUESTS) {
-		//No longer allies?
-		PlayerTypes eAlly = GET_PLAYER(m_eMinor).GetMinorCivAI()->GetAlly();
-		if(eAlly != NO_PLAYER)
-		{
-			if(!GET_PLAYER(GetMinor()).GetMinorCivAI()->IsAllies(eAlly))
-			{
-				if(m_eType == MINOR_CIV_QUEST_REBELLION)
-					return true;
-			}
-		}
-	}
-#endif
 
 	return false;
 }
@@ -1102,7 +1087,7 @@ bool CvMinorCivQuest::IsExpired()
 	// The Horde is still in the City-State's threat-radius - oh no!
 	else if(m_eType == MINOR_CIV_QUEST_HORDE)
 	{
-		if((GC.getGame().getGameTurn() == GetEndTurn()) && (GET_PLAYER(GetMinor()).GetMinorCivAI()->GetNumThreateningBarbarians() > 0))
+		if((GC.getGame().getGameTurn() == GetEndTurn()) && (GET_PLAYER(m_eMinor).GetMinorCivAI()->GetNumThreateningBarbarians() > 0))
 		{
 			return true;
 		}
@@ -1110,7 +1095,14 @@ bool CvMinorCivQuest::IsExpired()
 	//Are there still rebels milling about? You lose!
 	else if(m_eType == MINOR_CIV_QUEST_REBELLION)
 	{
-		if((GC.getGame().getGameTurn() == GetEndTurn()) && ((GET_PLAYER(GetMinor()).GetMinorCivAI()->GetNumThreateningBarbarians() > 0)))
+		PlayerTypes eAlly = GET_PLAYER(m_eMinor).GetMinorCivAI()->GetAlly();
+		PlayerTypes eOriginalAlly = (PlayerTypes) GetPrimaryData();
+		if((GC.getGame().getGameTurn() == GetEndTurn()) && (GET_PLAYER(m_eMinor).GetMinorCivAI()->GetNumThreateningBarbarians() > 0))
+		{
+			return true;
+		}
+		//No longer allies?
+		else if(eAlly != eOriginalAlly)
 		{
 			return true;
 		}
@@ -1642,6 +1634,7 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn)
 		PlayerTypes eMajor = pMinor->GetMinorCivAI()->GetAlly();
 		if(eMajor != NO_PLAYER)
 		{
+			m_iData1 = eMajor;
 			PolicyBranchTypes ePreferredIdeology = GET_PLAYER(eMajor).GetCulture()->GetPublicOpinionPreferredIdeology();
 			const char* strCivKey = GET_PLAYER(eMajor).getCivilizationShortDescriptionKey();
 
@@ -1671,12 +1664,20 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn)
 				strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_QUEST_REBELLION");
 				strSummary << strCivKey;
 			}
+			else
+			{
+				strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_QUEST_REBELLION_GENERAL_BLANK");
+				strMessage << iTurnsRemaining;
+				strMessage << strCivKey;
+				strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_QUEST_REBELLION_BLANK");
+				strSummary << strCivKey;
+			}
 		}
 		else
 		{
-			strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_QUEST_REBELLION_GENERAL_BLANK");
+			strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_QUEST_REBELLION_GENERAL_BLANK_RANDOM");
 			strMessage << iTurnsRemaining;
-			strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_QUEST_REBELLION_BLANK");
+			strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_QUEST_REBELLION_BLANK_RANDOM");
 		}
 
 		if(!pMinor->GetMinorCivAI()->IsRebellionActive())
@@ -2318,10 +2319,10 @@ bool CvMinorCivQuest::DoCancelQuest()
 		{
 			//City Defects! Don't ignore city-state quests!
 
-			PlayerTypes eMajor = pMinor->GetMinorCivAI()->GetAlly();
-			if(eMajor != NO_PLAYER)
+			PlayerTypes eAlly = (PlayerTypes) GetPrimaryData();
+			if(eAlly != NO_PLAYER)
 			{
-				const char* strCivKey = GET_PLAYER(eMajor).getCivilizationShortDescriptionKey();
+				const char* strCivKey = GET_PLAYER(eAlly).getCivilizationShortDescriptionKey();
 
 				strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_QUEST_ENDED_REBELLION");
 				strMessage << strCivKey;
@@ -6484,7 +6485,27 @@ PlayerTypes CvMinorCivAI::SpawnHorde()
 	}
 	else if(eCurrentEra > eRenaissance)
 	{
-		return NO_PLAYER;;
+		return NO_PLAYER;
+	}
+
+	//No hordes if isolated on islands (prevents barbarian overload).
+	bool bIsAlone = true;
+	PlayerTypes eLoopPlayer;
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+	{
+		eLoopPlayer = (PlayerTypes) iPlayerLoop;
+		if(eLoopPlayer != NO_PLAYER && GET_PLAYER(eLoopPlayer).isAlive() && !GET_PLAYER(eLoopPlayer).isMinorCiv() && GET_PLAYER(eLoopPlayer).getCapitalCity() != NULL)
+		{
+			if(GET_PLAYER(pActiveMinor).getCapitalCity()->getArea() == GET_PLAYER(eLoopPlayer).getCapitalCity()->getArea())
+			{
+				bIsAlone = false;
+				break;
+			}
+		}
+	}
+	if(bIsAlone)
+	{
+		return NO_PLAYER;
 	}
 
 	int iTarget = 0;
@@ -6603,6 +6624,11 @@ PlayerTypes CvMinorCivAI::SpawnRebels()
 
 	PlayerTypes pActiveMinor = GetPlayer()->GetID();
 	PlayerTypes ePlayer = GetPlayer()->GetMinorCivAI()->GetAlly();
+
+	if(ePlayer == NO_PLAYER)
+	{
+		return NO_PLAYER;
+	}
 
 	int iRebelBuildUp = 0;
 
@@ -6895,8 +6921,8 @@ bool CvMinorCivAI::IsValidRebellion()
 
 	int iMaxQuests = (iActiveRebellions / iActivePlayers);
 
-	//If there are more quests active than 50% of all civs, the quest should abort, as that's too many for the AI to handle.
-	if(iMaxQuests >= 5)
+	//If there are more quests active than 40% of all civs, the quest should abort, as that's too many for the AI to handle.
+	if(iMaxQuests >= 4)
 	{
 		return false;
 	}
@@ -6980,6 +7006,13 @@ ResourceTypes CvMinorCivAI::GetNearbyResourceForQuest(PlayerTypes ePlayer)
 			{
 				continue;
 			}
+#if defined(MOD_BALANCE_CORE)
+			// Can't give out a request for a resource we already (potentially) have access to.
+			if(GetPlayer()->getResourceInOwnedPlots(eResource) > 0)
+			{
+				continue;
+			}
+#endif
 
 			// Player can't already have this Resource
 			if(GET_PLAYER(ePlayer).getNumResourceTotal(eResource, /*bIncludeImport*/ true) > 0)
@@ -8371,6 +8404,40 @@ void CvMinorCivAI::SetAlly(PlayerTypes eNewAlly)
 		DoTestEndSkirmishes(eNewAlly);
 	}
 #endif
+#if defined(MOD_BALANCE_CORE)
+	//If we get a yield bonus in all cities because of CS alliance, this is a good place to change it.
+	if(MOD_BALANCE_CORE && eNewAlly != NO_PLAYER)
+	{
+		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+		{
+			YieldTypes eYield = (YieldTypes) iI;
+			if(GET_PLAYER(eNewAlly).GetPlayerTraits()->GetYieldFromCSAlly(eYield) > 0)
+			{
+				int iLoopCity;
+				for (CvCity* pLoopCity = GET_PLAYER(eNewAlly).firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = GET_PLAYER(eNewAlly).nextCity(&iLoopCity))
+				{
+					pLoopCity->ChangeBaseYieldRateFromCSAlliance(eYield, GET_PLAYER(eNewAlly).GetPlayerTraits()->GetYieldFromCSAlly(eYield));
+				}
+			}
+		}
+	}
+	//If we lose a yield bonus in all cities because of CS alliance, this is a good place to change it.
+	if(MOD_BALANCE_CORE && (eOldAlly != NO_PLAYER) && (eOldAlly != eNewAlly))
+	{
+		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+		{
+			YieldTypes eYield = (YieldTypes) iI;
+			if(GET_PLAYER(eOldAlly).GetPlayerTraits()->GetYieldFromCSAlly(eYield) > 0)
+			{
+				int iLoopCity;
+				for (CvCity* pLoopCity = GET_PLAYER(eOldAlly).firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = GET_PLAYER(eOldAlly).nextCity(&iLoopCity))
+				{
+					pLoopCity->ChangeBaseYieldRateFromCSAlliance(eYield, (GET_PLAYER(eOldAlly).GetPlayerTraits()->GetYieldFromCSAlly(eYield) * -1));
+				}
+			}
+		}
+	}
+#endif
 
 	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
 	if(pkScriptSystem)
@@ -8589,25 +8656,6 @@ void CvMinorCivAI::DoFriendshipChangeEffects(PlayerTypes ePlayer, int iOldFriend
 		bAdd = true;
 		bAllies = true;
 
-#if defined(MOD_BALANCE_CORE)
-		//If we get a yield bonus in all cities because of CS alliance, this is a good place to change it.
-		if(MOD_BALANCE_CORE)
-		{
-			for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
-			{
-				YieldTypes eYield = (YieldTypes) iI;
-				if(GET_PLAYER(ePlayer).GetPlayerTraits()->GetYieldFromCSAlly(eYield) > 0)
-				{
-					int iLoopCity;
-					for (CvCity* pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoopCity))
-					{
-						pLoopCity->ChangeBaseYieldRateFromCSAlliance(eYield, GET_PLAYER(ePlayer).GetPlayerTraits()->GetYieldFromCSAlly(eYield));
-					}
-				}
-			}
-		}
-#endif
-
 #if defined(MOD_EVENTS_MINORS)
 		if (MOD_EVENTS_MINORS) {
 			GAMEEVENTINVOKE_HOOK(GAMEEVENT_MinorAlliesChanged, m_pPlayer->GetID(), ePlayer, true, iOldFriendship, iNewFriendship);
@@ -8636,25 +8684,6 @@ void CvMinorCivAI::DoFriendshipChangeEffects(PlayerTypes ePlayer, int iOldFriend
 		bAdd = false;
 		bAllies = true;
 
-#if defined(MOD_BALANCE_CORE)
-		//If we lose a yield bonus in all cities because of CS alliance, this is a good place to change it.
-		if(MOD_BALANCE_CORE)
-		{
-			for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
-			{
-				YieldTypes eYield = (YieldTypes) iI;
-				if(GET_PLAYER(ePlayer).GetPlayerTraits()->GetYieldFromCSAlly(eYield) > 0)
-				{
-					int iLoopCity;
-					for (CvCity* pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoopCity))
-					{
-						pLoopCity->ChangeBaseYieldRateFromCSAlliance(eYield, (GET_PLAYER(ePlayer).GetPlayerTraits()->GetYieldFromCSAlly(eYield) * -1));
-					}
-				}
-			}
-		}
-#endif
-
 #if defined(MOD_EVENTS_MINORS)
 		if (MOD_EVENTS_MINORS) {
 			GAMEEVENTINVOKE_HOOK(GAMEEVENT_MinorAlliesChanged, m_pPlayer->GetID(), ePlayer, false, iOldFriendship, iNewFriendship);
@@ -8677,7 +8706,6 @@ void CvMinorCivAI::DoFriendshipChangeEffects(PlayerTypes ePlayer, int iOldFriend
 		}
 #endif
 	}
-
 	// Make changes to bonuses here. Only send notifications if this change is not related to quests (otherwise it is rolled into quest notification)
 	if(bFriends || bAllies)
 		DoSetBonus(ePlayer, bAdd, bFriends, bAllies, /*bSuppressNotifications*/ bFromQuest);
@@ -9077,14 +9105,30 @@ void CvMinorCivAI::DoIntrusion()
 void CvMinorCivAI::DoSack()
 {
 	CvPlot* pPlot = GetPlayer()->getCapitalCity()->plot();
-	CvGame& theGame = GC.getGame();
-	PlayerTypes eMinor = GetPlayer()->GetID();
+	if(pPlot != NULL)
+	{
+		CvGame& theGame = GC.getGame();
+		PlayerTypes eMinor = GetPlayer()->GetID();
 
-	UnitTypes eUnit = theGame.GetRandomSpawnUnitType(eMinor, /*bIncludeUUs*/ false, /*bIncludeRanged*/ true);
-	// Init unit
-	GET_PLAYER(BARBARIAN_PLAYER).initUnit(eUnit, pPlot->getX(), pPlot->getY());
+		UnitTypes eUnit = theGame.GetRandomSpawnUnitType(eMinor, /*bIncludeUUs*/ true, /*bIncludeRanged*/ true);
+		if(eUnit != NO_UNIT)
+		{
+			// Init unit
+			GET_PLAYER(BARBARIAN_PLAYER).initUnit(eUnit, pPlot->getX(), pPlot->getY());
+		}
+		else
+		{
+			UnitTypes eBarbUnit = theGame.GetRandomSpawnUnitType(BARBARIAN_PLAYER, /*bIncludeUUs*/ true, /*bIncludeRanged*/ true);
+			if(eBarbUnit)
+			{
+					// Init unit
+				GET_PLAYER(BARBARIAN_PLAYER).initUnit(eBarbUnit, pPlot->getX(), pPlot->getY());
+			}
+		}
 
-	SetSacked(false);
+
+		SetSacked(false);
+	}
 }
 //Do Defection
 void CvMinorCivAI::DoDefection()
@@ -10964,23 +11008,43 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 	int iLocalPowerScore = 0;
 	if(fLocalPowerRatio >= 3.0)
 	{
+#if defined(MOD_BALANCE_CORE_MINORS)
+		iLocalPowerScore += 150;
+#else
 		iLocalPowerScore += 125;
+#endif
 	}
 	else if(fLocalPowerRatio >= 2.0)
 	{
+#if defined(MOD_BALANCE_CORE_MINORS)
+		iLocalPowerScore += 120;
+#else
 		iLocalPowerScore += 100;
+#endif
 	}
 	else if(fLocalPowerRatio >= 1.5)
 	{
+#if defined(MOD_BALANCE_CORE_MINORS)
+		iLocalPowerScore += 90;
+#else
 		iLocalPowerScore += 75;
+#endif
 	}
 	else if(fLocalPowerRatio >= 1.0)
 	{
+#if defined(MOD_BALANCE_CORE_MINORS)
+		iLocalPowerScore += 60;
+#else
 		iLocalPowerScore += 50;
+#endif
 	}
 	else if(fLocalPowerRatio >= 0.5)
 	{
+#if defined(MOD_BALANCE_CORE_MINORS)
+		iLocalPowerScore += 40;
+#else
 		iLocalPowerScore += 25;
+#endif
 	}
 	iScore += iLocalPowerScore;
 	

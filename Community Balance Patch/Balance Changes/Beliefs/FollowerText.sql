@@ -1,6 +1,6 @@
 -- Cathedral
 UPDATE Language_en_US
-SET Text = 'Use [ICON_PEACE] Faith to purchase Cathedrals (+2 [ICON_PEACE] Faith, +2 [ICON_GOLD] Gold, 1 Great Work of Art slot)'
+SET Text = 'Use [ICON_PEACE] Faith to purchase Cathedrals (+2 [ICON_PEACE] Faith, +2 [ICON_GOLD] Gold, 1 [ICON_GREAT_WORK] Great Work of Art slot)'
 WHERE Tag = 'TXT_KEY_BELIEF_CATHEDRALS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Pagoda
@@ -15,7 +15,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_MOSQUES' AND EXISTS (SELECT * FROM COMMUNITY WHERE T
 
 -- Sword into Plowshare (Now Church)
 UPDATE Language_en_US
-SET Text = 'Use [ICON_PEACE] Faith to purchase Churches (+2 [ICON_PEACE] Faith, +1 [ICON_HAPPINESS_1] Happiness, 1 [ICON_GREAT_WORK] Great Work of Music Slot)'
+SET Text = 'Use [ICON_PEACE] Faith to purchase Churches (+3 [ICON_PEACE] Faith, 1 [ICON_GREAT_WORK] Great Work of Music Slot)'
 WHERE Tag = 'TXT_KEY_BELIEF_SWORD_PLOWSHARES' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -42,7 +42,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_HOLY_WARRIORS_SHORT' AND EXISTS (SELECT * FROM COMMU
 
 -- Monasteries (Now Stupa)
 UPDATE Language_en_US
-SET Text = 'Use [ICON_PEACE] Faith to purchase Stupas (+4 [ICON_PEACE] Faith, +1 [ICON_HAPPINESS_1] Happiness)'
+SET Text = 'Use [ICON_PEACE] Faith to purchase Stupas (+4 [ICON_PEACE] Faith, +1 [ICON_TOURISM] Tourism once you have researched Theology)'
 WHERE Tag = 'TXT_KEY_BELIEF_MONASTERIES' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -101,7 +101,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_ASCETISM' AND EXISTS (SELECT * FROM COMMUNITY WHERE 
 
 -- Religious Center (Now Order)
 UPDATE Language_en_US
-SET Text = 'Use [ICON_PEACE] Faith to purchase Orders (+2 [ICON_PEACE] Faith. +10 XP and the Morale promotion for Land Units built in the city.)'
+SET Text = 'Use [ICON_PEACE] Faith to purchase Orders (+3 [ICON_PEACE] Faith. +10 XP and the Morale promotion for Land Units built in the city.)'
 WHERE Tag = 'TXT_KEY_BELIEF_RELIGIOUS_CENTER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US

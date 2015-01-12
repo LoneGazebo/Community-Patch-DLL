@@ -12,15 +12,20 @@
 			<Yield>20</Yield>
 		</Row>
 		<Row>
-			<PolicyType>POLICY_MONARCHY</PolicyType>
+			<PolicyType>POLICY_OLIGARCHY</PolicyType>
 			<YieldType>YIELD_CULTURE</YieldType>
 			<Yield>20</Yield>
 		</Row>
 	</Policy_CapitalYieldPerPopChanges>
 	<Policy_CityYieldChanges>
 		<Row>
-			<PolicyType>POLICY_ARISTOCRACY</PolicyType>
+			<PolicyType>POLICY_OLIGARCHY</PolicyType>
 			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_ARISTOCRACY</PolicyType>
+			<YieldType>YIELD_CULTURE</YieldType>
 			<Yield>1</Yield>
 		</Row>
 		<Row>
@@ -36,18 +41,62 @@
 			<Count>1</Count>
 		</Row>
 	</Policy_FreeBuilding>
-	<Policy_YieldFromBirth>
+	<Policy_BuildingClassHappiness>
 		<Row>
-			<PolicyType>POLICY_OLIGARCHY</PolicyType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>20</Yield>
+			<PolicyType>POLICY_TRADITION_FINISHER</PolicyType>
+			<BuildingClassType>BUILDINGCLASS_NATIONAL_COLLEGE</BuildingClassType>
+			<Happiness>1</Happiness>
 		</Row>
-	</Policy_YieldFromBirth>
-	<Policy_YieldFromBirthCapital>
 		<Row>
-			<PolicyType>POLICY_OLIGARCHY</PolicyType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Yield>50</Yield>
+			<PolicyType>POLICY_TRADITION_FINISHER</PolicyType>
+			<BuildingClassType>BUILDINGCLASS_NATIONAL_EPIC</BuildingClassType>
+			<Happiness>1</Happiness>
 		</Row>
-	</Policy_YieldFromBirthCapital>
+		<Row>
+			<PolicyType>POLICY_TRADITION_FINISHER</PolicyType>
+			<BuildingClassType>BUILDINGCLASS_HEROIC_EPIC</BuildingClassType>
+			<Happiness>1</Happiness>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_TRADITION_FINISHER</PolicyType>
+			<BuildingClassType>BUILDINGCLASS_NATIONAL_TREASURY</BuildingClassType>
+			<Happiness>1</Happiness>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_TRADITION_FINISHER</PolicyType>
+			<BuildingClassType>BUILDINGCLASS_GRAND_TEMPLE</BuildingClassType>
+			<Happiness>1</Happiness>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_TRADITION_FINISHER</PolicyType>
+			<BuildingClassType>BUILDINGCLASS_OXFORD_UNIVERSITY</BuildingClassType>
+			<Happiness>1</Happiness>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_TRADITION_FINISHER</PolicyType>
+			<BuildingClassType>BUILDINGCLASS_CIRCUS_MAXIMUS</BuildingClassType>
+			<Happiness>1</Happiness>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_TRADITION_FINISHER</PolicyType>
+			<BuildingClassType>BUILDINGCLASS_IRONWORKS</BuildingClassType>
+			<Happiness>1</Happiness>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_TRADITION_FINISHER</PolicyType>
+			<BuildingClassType>BUILDINGCLASS_HERMITAGE</BuildingClassType>
+			<Happiness>1</Happiness>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_TRADITION_FINISHER</PolicyType>
+			<BuildingClassType>BUILDINGCLASS_INTELLIGENCE_AGENCY</BuildingClassType>
+			<Happiness>1</Happiness>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_TRADITION_FINISHER</PolicyType>
+			<BuildingClassType>BUILDINGCLASS_TOURIST_CENTER</BuildingClassType>
+			<Happiness>1</Happiness>
+		</Row>
+		
+	</Policy_BuildingClassHappiness>
 </GameData>

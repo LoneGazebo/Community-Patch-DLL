@@ -45,14 +45,6 @@
 			<Where Name="AI_GRAND_STRATEGY_OTHER_PLAYERS_GS_MULTIPLIER" />
 		</Update>
 		<Update>
-			<Set Value="20" />
-			<Where Name="AI_GRAND_STRATEGY_CONQUEST_AT_WAR_WEIGHT" />
-		</Update>
-		<Update>
-			<Set Value="40" />
-			<Where Name="AI_GS_CONQUEST_NOBODY_MET_FIRST_TURN" />
-		</Update>
-		<Update>
 			<Set Value="-100" />
 			<Where Name="AI_GRAND_STRATEGY_CONQUEST_NOBODY_MET_WEIGHT" />
 		</Update>
@@ -92,23 +84,23 @@
 		<!-- Builder Tasking Stuff -->
 		<!-- Values were increased for more granularity, and also to stop the AI from overvaluing cultural improvements -->
 		<Update>
-			<Set Value="6" />
+			<Set Value="5" />
 			<Where Name="BUILDER_TASKING_PLOT_EVAL_MULTIPLIER_FOOD" />
 		</Update>
 		<Update>
-			<Set Value="6" />
+			<Set Value="5" />
 			<Where Name="BUILDER_TASKING_PLOT_EVAL_MULTIPLIER_PRODUCTION" />
 		</Update>
 		<Update>
-			<Set Value="3" />
+			<Set Value="4" />
 			<Where Name="BUILDER_TASKING_PLOT_EVAL_MULTIPLIER_GOLD" />
 		</Update>
 		<Update>
-			<Set Value="3" />
+			<Set Value="4" />
 			<Where Name="BUILDER_TASKING_PLOT_EVAL_MULTIPLIER_SCIENCE" />
 		</Update>
 		<Update>
-			<Set Value="2" />
+			<Set Value="4" />
 			<Where Name="BUILDER_TASKING_PLOT_EVAL_MULTIPLIER_CULTURE" />
 		</Update>
 		
@@ -119,22 +111,6 @@
 				AI flexibility. -->
 			<Set Value="8" />
 			<Where Name="AI_CITY_SPECIALIZATION_REEVALUATION_INTERVAL" />
-		</Update>
-		<Update>
-			<Set Value="-25" />
-			<Where Name="AI_CITY_SPECIALIZATION_FOOD_WEIGHT_NUM_CITIES" />
-		</Update>
-		<Update>
-			<Set Value="1" />
-			<Where Name="AI_CITY_SPECIALIZATION_PRODUCTION_WEIGHT_NEXT_WONDER" />
-		</Update>
-		<Update>
-			<Set Value="40" />
-			<Where Name="AI_CITY_SPECIALIZATION_SCIENCE_WEIGHT_FLAVOR_SCIENCE" />
-		</Update>
-		<Update>
-			<Set Value="40" />
-			<Where Name="AI_CITY_SPECIALIZATION_SCIENCE_WEIGHT_FLAVOR_SPACESHIP" />
 		</Update>
 		
 		<!-- AI City Strategy Stuff -->
@@ -148,14 +124,14 @@
 		</Update>
 		<Update>
 			<!-- This was 0 by default, often resulting in perpetual bankruptcy -->
-			<Set Value="0.5" />
+			<Set Value="0.25" />
 			<Where Name="AI_CITYSTRATEGY_YIELD_DEFICIENT_GOLD" />
 		</Update>
 		
 		<!-- Citizen Management Stuff -->
 		<!-- These 3 make sure that science is not undervalued and culture is not overvalued. Production was a bit overvalued before -->
 		<Update>
-			<Set Value="7" />
+			<Set Value="8" />
 			<Where Name="AI_CITIZEN_VALUE_CULTURE" />
 		</Update>
 		<Update>
@@ -163,7 +139,7 @@
 			<Where Name="AI_CITIZEN_VALUE_SCIENCE" />
 		</Update>
 		<Update>
-			<Set Value="9" />
+			<Set Value="8" />
 			<Where Name="AI_CITIZEN_VALUE_PRODUCTION" />
 		</Update>
 		
@@ -217,10 +193,6 @@
 		
 		<!--Ideology Choice-->
 		<!-- Makes sure the AI doesn't disregard ideologies on the slightest priority advantage -->
-		<Update>
-			<Set Value="50" />
-			<Where Name="IDEOLOGY_PERCENT_CLEAR_VICTORY_PREF" />
-		</Update>
 		<!-- Following 4 mean that diplomatic relations also define ideologies, not just the other way around -->
 		<Update>
 			<Set Value="20" />

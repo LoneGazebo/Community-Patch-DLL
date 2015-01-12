@@ -8,27 +8,6 @@
 			<PrereqPolicy>POLICY_ORGANIZED_RELIGION</PrereqPolicy>
 		</Row>
 	</Policy_PrereqPolicies>
-	
-	<Policy_BuildingClassCultureChanges>
-		<Row>
-			<PolicyType>POLICY_PIETY</PolicyType>
-			<BuildingClassType>BUILDINGCLASS_SHRINE</BuildingClassType>
-			<CultureChange>1</CultureChange>
-		</Row>
-		<Row>
-			<PolicyType>POLICY_PIETY</PolicyType>
-			<BuildingClassType>BUILDINGCLASS_TEMPLE</BuildingClassType>
-			<CultureChange>2</CultureChange>
-		</Row>
-	</Policy_BuildingClassCultureChanges>
-	<Policy_BuildingClassYieldChanges>
-		<Row>
-			<PolicyType>POLICY_PIETY</PolicyType>
-			<BuildingClassType>BUILDINGCLASS_PALACE</BuildingClassType>
-			<YieldType>YIELD_FAITH</YieldType>
-			<YieldChange>1</YieldChange>
-		</Row>
-	</Policy_BuildingClassYieldChanges>
 	<Policy_BuildingClassProductionModifiers>
 		<Row>
 			<PolicyType>POLICY_ORGANIZED_RELIGION</PolicyType>
@@ -40,13 +19,51 @@
 			<BuildingClassType>BUILDINGCLASS_TEMPLE</BuildingClassType>
 			<ProductionModifier>100</ProductionModifier>
 		</Row>
-	</Policy_BuildingClassProductionModifiers>
+	</Policy_BuildingClassProductionModifiers\>
+	<Policy_BuildingClassCultureChanges>
+		<Row>
+			<PolicyType>POLICY_ORGANIZED_RELIGION</PolicyType>
+			<BuildingClassType>BUILDINGCLASS_SHRINE</BuildingClassType>
+			<CultureChange>2</CultureChange>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_ORGANIZED_RELIGION</PolicyType>
+			<BuildingClassType>BUILDINGCLASS_TEMPLE</BuildingClassType>
+			<CultureChange>2</CultureChange>
+		</Row>
+	</Policy_BuildingClassCultureChanges>
+	<Policy_BuildingClassYieldChanges>
+		<Row>
+			<PolicyType>POLICY_PIETY</PolicyType>
+			<BuildingClassType>BUILDINGCLASS_PALACE</BuildingClassType>
+			<YieldType>YIELD_FAITH</YieldType>
+			<YieldChange>5</YieldChange>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_ORGANIZED_RELIGION</PolicyType>
+			<BuildingClassType>BUILDINGCLASS_SHRINE</BuildingClassType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<YieldChange>2</YieldChange>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_ORGANIZED_RELIGION</PolicyType>
+			<BuildingClassType>BUILDINGCLASS_TEMPLE</BuildingClassType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<YieldChange>2</YieldChange>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_PIETY</PolicyType>
+			<BuildingClassType>BUILDINGCLASS_PALACE</BuildingClassType>
+			<YieldType>YIELD_FAITH</YieldType>
+			<YieldChange>4</YieldChange>
+		</Row>
+	</Policy_BuildingClassYieldChanges>
 	<Policy_ReligionBuildingYieldMod>
 		<Row>
 			<PolicyType>POLICY_MANDATE_OF_HEAVEN</PolicyType>
 			<BuildingClassType>BUILDINGCLASS_MARKET</BuildingClassType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<YieldMod>2</YieldMod>
+			<YieldMod>3</YieldMod>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_MANDATE_OF_HEAVEN</PolicyType>
@@ -64,7 +81,7 @@
 		<Row>
 			<PolicyType>POLICY_THEOCRACY</PolicyType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Yield>3</Yield>
+			<Yield>4</Yield>
 		</Row>
 	</Policy_ReligionYieldMod>
 	<Policy_SpecialistExtraYields>
@@ -117,6 +134,9 @@
 		</Row>
 		<Row Tag="TXT_KEY_FAITH_FROM_PIETY">
 			<Text>{1_Num} [ICON_PEACE] from Piety</Text>
+		</Row>
+		<Row Tag="TXT_KEY_FAITH_FROM_CS_ALLIANCE">
+			<Text>{1_Num} [ICON_PEACE] from City-State Alliances</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CULTURE_FROM_PIETY">
 			<Text>{1_Num} [ICON_CULTURE] from Piety</Text>

@@ -154,6 +154,7 @@ CvTraitEntry::CvTraitEntry() :
 	m_piYieldFromRouteMovement(NULL),
 	m_piYieldFromExport(NULL),
 	m_piYieldFromImport(NULL),
+	m_piYieldFromTilePurchase(NULL),
 	m_piYieldFromCSAlly(NULL),
 	m_piYieldFromSettle(NULL),
 	m_iVotePerXCSAlliance(0),
@@ -948,6 +949,10 @@ int CvTraitEntry::GetYieldFromImport(int i) const
 {
 	return m_piYieldFromImport ? m_piYieldFromImport[i] : -1;
 }
+int CvTraitEntry::GetYieldFromTilePurchase(int i) const
+{
+	return m_piYieldFromTilePurchase ? m_piYieldFromTilePurchase[i] : -1;
+}
 int CvTraitEntry::GetYieldFromCSAlly(int i) const
 {
 	return m_piYieldFromCSAlly ? m_piYieldFromCSAlly[i] : -1;
@@ -1111,6 +1116,16 @@ int CvTraitEntry::GetMovesChangeUnitCombat(const int unitCombatID) const
 
 	return m_piMovesChangeUnitCombats[unitCombatID];
 }
+#if defined(MOD_BALANCE_CORE)
+/// Accessor:: Additional moves for a class of combat unit
+int CvTraitEntry::GetMovesChangeUnitClass(const int unitClassID) const
+{
+	CvAssertMsg((unitClassID >= 0), "unitCombatID is less than zero");
+	CvAssertMsg((unitClassID < GC.getNumUnitClassInfos()), "unitCombatID exceeds number of combat classes");
+
+	return m_piMovesChangeUnitClasses[unitClassID];
+}
+#endif
 
 /// Accessor:: Maintenance Modifier for a class of combat unit
 int CvTraitEntry::GetMaintenanceModifierUnitCombat(const int unitCombatID) const
@@ -1160,6 +1175,29 @@ bool CvTraitEntry::IsFreePromotionUnitCombat(const int promotionID, const int un
 
 	return false;
 }
+#if defined(MOD_BALANCE_CORE)
+/// Accessor:: Does the civ get free promotions for a class?
+bool CvTraitEntry::IsFreePromotionUnitClass(const int promotionID, const int unitClassID) const
+{
+	std::multimap<int, int>::const_iterator it = m_FreePromotionUnitClass.find(promotionID);
+	if(it != m_FreePromotionUnitClass.end())
+	{
+		// get an iterator to the element that is one past the last element associated with key
+		std::multimap<int, int>::const_iterator lastElement = m_FreePromotionUnitClass.upper_bound(promotionID);
+
+		// for each element in the sequence [itr, lastElement)
+		for(; it != lastElement; ++it)
+		{
+			if(it->second == unitClassID)
+			{
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+#endif
 
 /// Has this trait become obsolete?
 bool CvTraitEntry::IsObsoleteByTech(TeamTypes eTeam)
@@ -1484,6 +1522,59 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 
 		pResults->Reset();
 	}
+#if defined(MOD_BALANCE_CORE)
+	//Populate m_MovesChangeUnitClass
+	{
+		const int iNumUnitClasses = kUtility.MaxRows("UnitClasses");
+		kUtility.InitializeArray(m_piMovesChangeUnitClasses, iNumUnitClasses, 0);
+
+		std::string sqlKey = "Trait_MovesChangeUnitClass";
+		Database::Results* pResults = kUtility.GetResults(sqlKey);
+		if(pResults == NULL)
+		{
+			const char* szSQL = "select UnitClasses.ID, MovesChange from Trait_MovesChangeUnitClass inner join UnitClasses on UnitClasses.Type = UnitClassType where TraitType = ?;";
+			pResults = kUtility.PrepareResults(sqlKey, szSQL);
+		}
+
+		pResults->Bind(1, szTraitType);
+
+		while(pResults->Step())
+		{
+			const int iUnitClassID = pResults->GetInt(0);
+			CvAssert(iUnitCombatID > -1 && iUnitCombatID < iNumUnitClasses);
+
+			const int iMovesChange = pResults->GetInt(1);
+			m_piMovesChangeUnitClasses[iUnitClassID] = iMovesChange;
+		}
+
+		pResults->Reset();
+	}
+	//Populate m_FreePromotionUnitClass
+	{
+		std::string sqlKey = "FreePromotionUnitClass";
+		Database::Results* pResults = kUtility.GetResults(sqlKey);
+		if(pResults == NULL)
+		{
+			const char* szSQL = "select UnitPromotions.ID, UnitClasses.ID from Trait_FreePromotionUnitClass, UnitPromotions, UnitClasses where TraitType = ? and PromotionType = UnitPromotions.Type and UnitClassType = UnitClasses.Type";
+			pResults = kUtility.PrepareResults(sqlKey, szSQL);
+		}
+
+		pResults->Bind(1, szTraitType);
+
+		while(pResults->Step())
+		{
+			const int unitPromotionID = pResults->GetInt(0);
+			const int unitClassInfoID = pResults->GetInt(1);
+
+			m_FreePromotionUnitClass.insert(std::pair<int, int>(unitPromotionID, unitClassInfoID));
+		}
+
+		pResults->Reset();
+
+		//Trim extra memory off container since this is mostly read-only.
+		std::multimap<int,int>(m_FreePromotionUnitClass).swap(m_FreePromotionUnitClass);
+	}
+#endif
 
 	//Populate m_MaintenanceModifierUnitCombats
 	{
@@ -1565,6 +1656,7 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	kUtility.SetYields(m_piYieldFromRouteMovement, "Trait_YieldFromRouteMovement", "TraitType", szTraitType);
 	kUtility.SetYields(m_piYieldFromExport, "Trait_YieldFromExport", "TraitType", szTraitType);
 	kUtility.SetYields(m_piYieldFromImport, "Trait_YieldFromImport", "TraitType", szTraitType);
+	kUtility.SetYields(m_piYieldFromTilePurchase, "Trait_YieldFromTilePurchase", "TraitType", szTraitType);
 	kUtility.SetYields(m_piYieldFromCSAlly, "Trait_YieldFromCSAlly", "TraitType", szTraitType);
 	kUtility.SetYields(m_piYieldFromSettle, "Trait_YieldFromSettle", "TraitType", szTraitType);
 	m_iVotePerXCSAlliance = kResults.GetInt("VotePerXCSAlliance");
@@ -2198,6 +2290,7 @@ void CvPlayerTraits::InitPlayerTraits()
 				m_iYieldFromRouteMovement[iYield] = trait->GetYieldFromRouteMovement(iYield);
 				m_iYieldFromExport[iYield] = trait->GetYieldFromExport(iYield);
 				m_iYieldFromImport[iYield] = trait->GetYieldFromImport(iYield);
+				m_iYieldFromTilePurchase[iYield] = trait->GetYieldFromTilePurchase(iYield);
 				m_iYieldFromCSAlly[iYield] = trait->GetYieldFromCSAlly(iYield);
 				m_iYieldFromSettle[iYield] = trait->GetYieldFromSettle(iYield);
 				m_iVotePerXCSAlliance = trait->GetVotePerXCSAlliance();
@@ -2342,6 +2435,13 @@ void CvPlayerTraits::InitPlayerTraits()
 				m_paiMovesChangeUnitCombat[jJ] += trait->GetMovesChangeUnitCombat(jJ);
 				m_paiMaintenanceModifierUnitCombat[jJ] += trait->GetMaintenanceModifierUnitCombat(jJ);
 			}
+#if defined(MOD_BALANCE_CORE)
+			int iNumUnitClasses = GC.getNumUnitClassInfos();
+			for(int jJ= 0; jJ < iNumUnitClasses; jJ++)
+			{
+				m_paiMovesChangeUnitClass[jJ] += trait->GetMovesChangeUnitClass(jJ);
+			}
+#endif
 
 			for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 			{
@@ -2361,6 +2461,9 @@ void CvPlayerTraits::Uninit()
 	m_aiResourceQuantityModifier.clear();
 	m_abNoTrain.clear();
 	m_paiMovesChangeUnitCombat.clear();
+#if defined(MOD_BALANCE_CORE)
+	m_paiMovesChangeUnitClass.clear();
+#endif
 	m_paiMaintenanceModifierUnitCombat.clear();
 	m_ppaaiImprovementYieldChange.clear();
 #if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
@@ -2566,6 +2669,7 @@ void CvPlayerTraits::Reset()
 		m_iYieldFromRouteMovement[iYield] = 0;
 		m_iYieldFromExport[iYield] = 0;
 		m_iYieldFromImport[iYield] = 0;
+		m_iYieldFromTilePurchase[iYield] = 0;
 		m_iYieldFromSettle[iYield] = 0;
 		m_iYieldFromCSAlly[iYield] = 0;
 		m_iVotePerXCSAlliance = 0;
@@ -2663,7 +2767,14 @@ void CvPlayerTraits::Reset()
 		m_paiMovesChangeUnitCombat[iI] = 0;
 		m_paiMaintenanceModifierUnitCombat[iI] = 0;
 	}
-
+#if defined(MOD_BALANCE_CORE)
+	m_paiMovesChangeUnitClass.clear();
+	m_paiMovesChangeUnitClass.resize(GC.getNumUnitClassInfos());
+	for (int iUnitClass = 0; iUnitClass < GC.getNumUnitClassInfos(); iUnitClass++)
+	{
+		m_paiMovesChangeUnitClass[iUnitClass] = 0;
+	}
+#endif
 	int iResourceLoop;
 	for(iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 	{
@@ -2756,6 +2867,20 @@ int CvPlayerTraits::GetMovesChangeUnitCombat(const int unitCombatID) const
 
 	return m_paiMovesChangeUnitCombat[unitCombatID];
 }
+#if defined(MOD_BALANCE_CORE)
+/// Bonus movement for this unit class
+int CvPlayerTraits::GetMovesChangeUnitClass(const int unitClassID) const
+{
+	CvAssertMsg(unitClassID < GC.getNumUnitClassInfos(),  "Invalid unitClassID parameter in call to CvPlayerTraits::GetMovesChangeUnitClass()");
+
+	if(unitClassID == NO_UNITCLASS)
+	{
+		return 0;
+	}
+
+	return m_paiMovesChangeUnitClass[unitClassID];
+}
+#endif
 
 /// Maintenance modifier for this combat class
 int CvPlayerTraits::GetMaintenanceModifierUnitCombat(const int unitCombatID) const
@@ -2951,6 +3076,30 @@ bool CvPlayerTraits::HasFreePromotionUnitCombat(const int promotionID, const int
 
 	return false;
 }
+#if defined(MOD_BALANCE_CORE)
+/// Do all new units of a certain class get a specific promotion?
+bool CvPlayerTraits::HasFreePromotionUnitClass(const int promotionID, const int unitClassID) const
+{
+	CvAssertMsg((promotionID >= 0), "promotionID is less than zero");
+	for(int iI = 0; iI < GC.getNumTraitInfos(); iI++)
+	{
+		const TraitTypes eTrait = static_cast<TraitTypes>(iI);
+		CvTraitEntry* pkTraitInfo = GC.getTraitInfo(eTrait);
+		if(pkTraitInfo)
+		{
+			if(HasTrait(eTrait))
+			{
+				if(pkTraitInfo->IsFreePromotionUnitClass(promotionID, unitClassID))
+				{
+					return true;
+				}
+			}
+		}
+	}
+
+	return false;
+}
+#endif
 
 /// Does each city get a free building?
 BuildingTypes CvPlayerTraits::GetFreeBuilding() const
@@ -4120,6 +4269,15 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 		m_aFreeTraitUnits.push_back(trait);
 	}
 
+#if defined(MOD_BALANCE_CORE)
+	kStream >> iNumEntries;
+	m_paiMovesChangeUnitClass.clear();
+	for (int iI = 0; iI < iNumEntries; iI++)
+	{
+		kStream >> m_paiMovesChangeUnitClass[iI];
+	}	
+#endif
+
 	kStream >> iNumEntries;
 	for(int iI = 0; iI < iNumEntries; iI++)
 	{
@@ -4141,7 +4299,6 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 			m_paiMaintenanceModifierUnitCombat[iI] = 0;
 		}
 	}
-
 	kStream >> m_ppaaiImprovementYieldChange;
 #if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
 	// MOD_SERIALIZE_READ - v57/v58/v59 broke the save format  couldn't be helped, but don't make a habit of it!!!
@@ -4156,6 +4313,8 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	kStream >> kYieldFromExportWrapper;
 	ArrayWrapper<int> kYieldFromImportWrapper(NUM_YIELD_TYPES, m_iYieldFromImport);
 	kStream >> kYieldFromImportWrapper;
+	ArrayWrapper<int> kYieldFromTilePurchaseWrapper(NUM_YIELD_TYPES, m_iYieldFromTilePurchase);
+	kStream >> kYieldFromTilePurchaseWrapper;
 	ArrayWrapper<int> kYieldFromSettleWrapper(NUM_YIELD_TYPES, m_iYieldFromSettle);
 	kStream >> kYieldFromSettleWrapper;
 	ArrayWrapper<int> kYieldFromCSAlly(NUM_YIELD_TYPES, m_iYieldFromCSAlly);
@@ -4389,7 +4548,13 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 		kStream << m_aFreeTraitUnits[ui].m_iFreeUnit;
 		kStream << m_aFreeTraitUnits[ui].m_ePrereqTech;
 	}
-
+#if defined(MOD_BALANCE_CORE)
+	kStream << 	m_paiMovesChangeUnitClass.size();
+	for(uint ui = 0; ui < m_paiMovesChangeUnitClass.size(); ui++)
+	{
+		kStream << m_paiMovesChangeUnitClass[ui];
+	}
+#endif
 	int iNumUnitCombatClassInfos = GC.getNumUnitCombatClassInfos();
 	kStream << 	iNumUnitCombatClassInfos;
 	for(int iI = 0; iI < iNumUnitCombatClassInfos; iI++)
@@ -4400,7 +4565,6 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	{
 		kStream << m_paiMaintenanceModifierUnitCombat[iI];
 	}
-
 	kStream << m_ppaaiImprovementYieldChange;
 #if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
 	// MOD_SERIALIZE_READ - v57/v58/v59 broke the save format  couldn't be helped, but don't make a habit of it!!!
@@ -4411,6 +4575,7 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iYieldFromRouteMovement);
 	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iYieldFromExport);
 	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iYieldFromImport);
+	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iYieldFromTilePurchase);
 	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iYieldFromSettle);
 	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iYieldFromCSAlly);
 	MOD_SERIALIZE_WRITE(kStream, m_bFreeGreatWorkOnConquest);

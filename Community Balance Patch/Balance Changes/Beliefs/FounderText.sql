@@ -1,6 +1,6 @@
 -- Peace Loving (Now Mandate of Heaven)
 UPDATE Language_en_US
-SET Text = 'Unlocks the Celestial Throne National Wonder (+2 [ICON_PEACE] Faith, [ICON_CULTURE] Culture, [ICON_FOOD] Food, [ICON_RESEARCH] Science, [ICON_GOLD] Gold, and [ICON_PRODUCTION] Production). Holy City produces +25% of its yields during a [ICON_GOLDEN_AGE] Golden Age.'
+SET Text = 'Unlocks the Celestial Throne National Wonder (+2 [ICON_PEACE] Faith, [ICON_CULTURE] Culture, [ICON_FOOD] Food, [ICON_RESEARCH] Science, [ICON_GOLD] Gold, and [ICON_PRODUCTION] Production). Holy City produces +20% of its yields during a [ICON_GOLDEN_AGE] Golden Age.'
 WHERE Tag = 'TXT_KEY_BELIEF_PEACE_LOVING' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -68,9 +68,14 @@ WHERE Tag = 'TXT_KEY_BELIEF_PILGRIMAGE_SHORT' AND EXISTS (SELECT * FROM COMMUNIT
 
 -- World Church (Now Theocratic Rule)
 UPDATE Language_en_US
-SET Text = 'Unlocks Grand Ossuary National Wonder (+7 [ICON_PEACE] Faith). We Love the King Day boosts the [ICON_PEACE] Faith, [ICON_CULTURE] Culture, [ICON_GOLD] Gold and [ICON_RESEARCH] Science output of a city by 25%.'
+SET Text = 'Unlocks Grand Ossuary National Wonder (+7 [ICON_PEACE] Faith). We Love the King Day boosts the [ICON_PEACE] Faith, [ICON_CULTURE] Culture, [ICON_GOLD] Gold and [ICON_RESEARCH] Science output of a city by 20%.'
 WHERE Tag = 'TXT_KEY_BELIEF_WORLD_CHURCH' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US
 SET Text = 'Theocratic Rule'
 WHERE Tag = 'TXT_KEY_BELIEF_WORLD_CHURCH_SHORT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
+
+-- Top Panel Tooltip Adjustment (make generic for more than just founder beliefs)
+UPDATE Language_en_US
+SET Text = '[ICON_BULLET][COLOR_POSITIVE_TEXT]+{1_Num}[ENDCOLOR] from Religion.'
+WHERE Tag = 'TXT_KEY_TP_FAITH_FROM_RELIGION' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );

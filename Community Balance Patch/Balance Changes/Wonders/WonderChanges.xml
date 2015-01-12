@@ -79,12 +79,12 @@
 		<Row>
 			<BuildingType>BUILDING_MOSQUE_OF_DJENNE</BuildingType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>2</Yield>
+			<Yield>1</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_MOSQUE_OF_DJENNE</BuildingType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>2</Yield>
+			<Yield>1</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_KREMLIN</BuildingType>
@@ -94,7 +94,7 @@
 		<Row>
 			<BuildingType>BUILDING_KREMLIN</BuildingType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>2</Yield>
+			<Yield>1</Yield>
 		</Row>
 	</Building_YieldChanges>
 	<Building_TerrainYieldChanges>

@@ -307,6 +307,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE_BELIEFS)
 	Method(GetCombatVersusOtherReligionOwnLands);
 	Method(GetCombatVersusOtherReligionTheirLands);
+	Method(GetYieldPerTurnFromReligion);
 #endif
 	Method(GetMinimumFaithNextGreatProphet);
 	Method(HasReligionInMostCities);
@@ -3059,22 +3060,16 @@ int CvLuaPlayer::lGetCombatVersusOtherReligionOwnLands(lua_State* L)
 	CvPlot* pkPlot = CvLuaPlot::GetInstance(L, 2);
 	if(pkPlot)
 	{
-		CvCity* pPlotCity = pkPlot->getWorkingCity();
-		if(pPlotCity)
+		CvGameReligions* pReligions = GC.getGame().GetGameReligions();
+		ReligionTypes eFoundedReligion = pReligions->GetFounderBenefitsReligion(pkPlayer->GetID());
+		if(eFoundedReligion != NO_RELIGION)
 		{
-			CvGameReligions* pReligions = GC.getGame().GetGameReligions();
-			ReligionTypes eReligion = pPlotCity->GetCityReligions()->GetReligiousMajority();
-			ReligionTypes eFoundedReligion = pReligions->GetFounderBenefitsReligion(pkPlayer->GetID());
-			if(eFoundedReligion != NO_RELIGION && eReligion == eFoundedReligion)
+			const CvReligion* pReligion = pReligions->GetReligion(eFoundedReligion, pkPlayer->GetID());
+			if(pReligion)
 			{
-				const CvReligion* pReligion = pReligions->GetReligion(eFoundedReligion, pkPlayer->GetID());
-				if(pReligion)
-				{
-					iRtnValue = pReligion->m_Beliefs.GetCombatVersusOtherReligionOwnLands();
-				}
+				iRtnValue = pReligion->m_Beliefs.GetCombatVersusOtherReligionOwnLands();
 			}
 		}
-
 	}
 	lua_pushinteger(L, iRtnValue);
 
@@ -3090,25 +3085,29 @@ int CvLuaPlayer::lGetCombatVersusOtherReligionTheirLands(lua_State* L)
 	CvPlot* pkPlot = CvLuaPlot::GetInstance(L, 2);
 	if(pkPlot)
 	{
-		CvCity* pPlotCity = pkPlot->getWorkingCity();
-		if(pPlotCity)
+		CvGameReligions* pReligions = GC.getGame().GetGameReligions();
+		ReligionTypes eFoundedReligion = pReligions->GetFounderBenefitsReligion(pkPlayer->GetID());
+		if(eFoundedReligion != NO_RELIGION)
 		{
-			CvGameReligions* pReligions = GC.getGame().GetGameReligions();
-			ReligionTypes eReligion = pPlotCity->GetCityReligions()->GetReligiousMajority();
-			ReligionTypes eFoundedReligion = pReligions->GetFounderBenefitsReligion(pkPlayer->GetID());
-			if(eFoundedReligion != NO_RELIGION && eReligion != eFoundedReligion && eReligion != NO_RELIGION)
+			const CvReligion* pReligion = pReligions->GetReligion(eFoundedReligion, pkPlayer->GetID());
+			if(pReligion)
 			{
-				const CvReligion* pReligion = pReligions->GetReligion(eFoundedReligion, pkPlayer->GetID());
-				if(pReligion)
-				{
-					iRtnValue = pReligion->m_Beliefs.GetCombatVersusOtherReligionTheirLands();
-				}
+				iRtnValue = pReligion->m_Beliefs.GetCombatVersusOtherReligionTheirLands();
 			}
 		}
-
 	}
 	lua_pushinteger(L, iRtnValue);
 
+	return 1;
+}
+// int GetYieldPerTurnFromReligion(YieldTypes eYield)
+int CvLuaPlayer::lGetYieldPerTurnFromReligion(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const YieldTypes eIndex2 = (YieldTypes)lua_tointeger(L, 2);
+
+	const int iResult = pkPlayer->GetYieldPerTurnFromReligion(eIndex2);
+	lua_pushinteger(L, iResult);
 	return 1;
 }
 #endif

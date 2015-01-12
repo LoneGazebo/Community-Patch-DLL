@@ -308,6 +308,11 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 			local localizedText = Locale.ConvertTextKey("TXT_KEY_PRODUCTION_BUILDING_TOURISM", iTourism);
 			table.insert(lines, localizedText);
 		end
+	-- CBP FIX
+		if(iTourism > 0 and pBuildingInfo.FaithCost > 0 and pBuildingInfo.PolicyType ~= nil and pBuildingInfo.Cost == -1) then
+			local localizedText = Locale.ConvertTextKey("TXT_KEY_PRODUCTION_BUILDING_TOURISM", iTourism);
+			table.insert(lines, localizedText);
+		end
 	end
 	
 	local iTechEnhancedTourism = pBuildingInfo.TechEnhancedTourism;
@@ -648,7 +653,20 @@ function GetCultureTooltip(pCity)
 			strCultureToolTip = strCultureToolTip .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_CULTURE_FROM_PIETY", iYieldFromPiety);
 		end
 -- END
-		
+-- CBP -- Yield Increase from CS Alliance
+		local iYieldFromCSAlliance = pCity:GetBaseYieldRateFromCSAlliance(YieldTypes.YIELD_CULTURE);
+		if ( iYieldFromCSAlliance ~= 0) then
+			
+			-- Spacing
+			if (bFirst) then
+				bFirst = false;
+			else
+				strCultureToolTip = strCultureToolTip .. "[NEWLINE]";
+			end
+			
+			strCultureToolTip = strCultureToolTip .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_CULTURE_FROM_CS_ALLIANCE", iYieldFromCSAlliance);
+		end
+-- END			
 		-- Culture from Leagues
 		local iCultureFromLeagues = pCity:GetJONSCulturePerTurnFromLeagues();
 		if ( iCultureFromLeagues ~= 0) then
@@ -792,6 +810,12 @@ function GetFaithTooltip(pCity)
 			table.insert(faithTips, "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_FAITH_FROM_PIETY", iYieldFromPiety));
 		end
 -- END
+-- CBP -- Yield Increase from CS Alliance
+		local iYieldFromCSAlliance = pCity:GetBaseYieldRateFromCSAlliance(YieldTypes.YIELD_FAITH);
+		if (iYieldFromCSAlliance ~= 0) then
+			table.insert(faithTips, "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_FAITH_FROM_CS_ALLIANCE", iYieldFromCSAlliance));
+		end
+-- END	
 		-- Faith from Terrain
 		local iFaithFromTerrain = pCity:GetBaseYieldRateFromTerrain(YieldTypes.YIELD_FAITH);
 		if (iFaithFromTerrain ~= 0) then
@@ -950,6 +974,23 @@ function GetYieldTooltip(pCity, iYieldType, iBase, iTotal, strIconString, strMod
 			strYieldBreakdown = strYieldBreakdown .. "[NEWLINE]";
 		end
 	end
+
+-- CBP Base Yield From City Connections
+	local iYieldFromConnection = pCity:GetYieldChangeTradeRoute(iYieldType);
+	if (iYieldFromConnection ~= 0) then
+		strYieldBreakdown = strYieldBreakdown .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_YIELD_FROM_CONNECTION", iYieldFromConnection, strIconString);
+		strYieldBreakdown = strYieldBreakdown .. "[NEWLINE]";
+	end
+
+-- CBP Gold from Great Works
+	local iGoldFromGreatWorks = pCity:GetBaseYieldRateFromGreatWorks(iYieldType);
+	if (iGoldFromGreatWorks ~= 0) then
+		if (iYieldType == YieldTypes.YIELD_GOLD) then
+		strYieldBreakdown = strYieldBreakdown .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_YIELD_FROM_ART_CBP", iGoldFromGreatWorks, strIconString);
+		strYieldBreakdown = strYieldBreakdown .. "[NEWLINE]";
+		end
+	end
+-- END
 
 	local strExtraBaseString = "";
 	

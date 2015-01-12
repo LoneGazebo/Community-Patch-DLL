@@ -6,7 +6,7 @@
 		<Row>
 			<BuildingType>BUILDING_FLOATING_GARDENS</BuildingType>
 			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>25</Yield>
+			<Yield>50</Yield>
 		</Row>
 	</Building_YieldChangesPerPop>
   <!-- Bazaar -->
@@ -14,22 +14,43 @@
 		<Row>
 			<BuildingType>BUILDING_BAZAAR</BuildingType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>3</Yield>
+			<Yield>2</Yield>
 		</Row>
 	</Building_YieldChanges>
 	<Building_YieldChangesPerPop>
 		<Row>
 			<BuildingType>BUILDING_BAZAAR</BuildingType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>25</Yield>
+			<Yield>20</Yield>
 		</Row>
 	</Building_YieldChangesPerPop>
+	<!-- Market -->
+	<Building_ResourceYieldChanges>
+		<Row>
+			<BuildingType>BUILDING_BAZAAR</BuildingType>
+			<ResourceType>RESOURCE_SPICES</ResourceType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_BAZAAR</BuildingType>
+			<ResourceType>RESOURCE_SUGAR</ResourceType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_BAZAAR</BuildingType>
+			<ResourceType>RESOURCE_COCOA</ResourceType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+	</Building_ResourceYieldChanges>
 <!-- Hanse -->
 	<Building_YieldChangesPerPop>
 		<Row>
 			<BuildingType>BUILDING_HANSE</BuildingType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>50</Yield>
+			<Yield>25</Yield>
 		</Row>
 	</Building_YieldChangesPerPop>
 <!-- Satrap -->
@@ -37,7 +58,7 @@
 		<Row>
 			<BuildingType>BUILDING_SATRAPS_COURT</BuildingType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>50</Yield>
+			<Yield>25</Yield>
 		</Row>
 	</Building_YieldChangesPerPop>
   <!-- Indus Sanitation -->
@@ -45,8 +66,9 @@
 		<Row>
 			<Type>BUILDING_INDUS_CANAL</Type>
 			<BuildingClass>BUILDINGCLASS_AQUEDUCT</BuildingClass>
-			<Cost>100</Cost>
+			<Cost>150</Cost>
 			<GoldMaintenance>1</GoldMaintenance>
+			<FreeStartEra>ERA_RENAISSANCE</FreeStartEra>
 			<PrereqTech>TECH_ENGINEERING</PrereqTech>
 			<Help>TXT_KEY_BUILDING_INDUS_CANAL_HELP</Help>
 			<Description>TXT_KEY_BUILDING_INDUS_CANAL</Description>
@@ -59,7 +81,7 @@
 			<ConquestProb>66</ConquestProb>
 			<HurryCostModifier>0</HurryCostModifier>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
-			<PortraitIndex>18</PortraitIndex>
+			<PortraitIndex>56</PortraitIndex>
 		</Row>
 	</Buildings>
 	<Building_Flavors>
@@ -91,12 +113,12 @@
 		<Row>
 			<BuildingType>BUILDING_INDUS_CANAL</BuildingType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Yield>2</Yield>
+			<Yield>1</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_INDUS_CANAL</BuildingType>
 			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>2</Yield>
+			<Yield>1</Yield>
 		</Row>
 	</Building_YieldChanges>
 	<Civilization_BuildingClassOverrides>
@@ -123,11 +145,11 @@
 	</Building_FeatureYieldChanges>
 	<Language_en_US>
 		<Row Tag="TXT_KEY_BUILDING_INDUS_CANAL">
-			<Text>Indus Canals</Text>
+			<Text>Harappan Reservoir</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CIV5_BUILDINGS_INDUS_CANAL_TEXT">
 			<Text>
-				The Indus civilization's economy appears to have depended significantly on trade, which was facilitated by major advances in transport technology. The Indus peoples may have been the first civilization to use wheeled transport. These advances may have included bullock carts that are identical to those seen throughout South Asia today, as well as boats. Most of these boats were probably small, flat-bottomed craft, perhaps driven by sail, similar to those one can see on the Indus River today; however, there is secondary evidence of sea-going craft. Archaeologists have discovered a massive, dredged canal and what they regard as a docking facility at the coastal city of Lothal in western India (Gujarat state). An extensive canal network, used for irrigation, has however also been discovered by H.-P. Francfort.
+				The ancient Harappan and Indus Valley Civilizations of Northwest South Asia, including Pakistan and parts of India, were prominent in hydraulic engineering, and had many water supply and sanitation devices that were the first of their kind. Among other things, they contained the world's earliest known system of flush toilets. These existed in many homes, and were connected to a common sewerage pipe. Most houses also had private wells. City walls functioned as a barrier against floods, and massive reservoirs were often constructed along these walls to collect this floodwater to save for droughts.
 			</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_INDUS_CANAL_HELP">
@@ -142,10 +164,12 @@
 		<Row>
 			<Type>BUILDING_DOJO</Type>
 			<BuildingClass>BUILDINGCLASS_ARMORY</BuildingClass>
-			<Cost>160</Cost>
-			<GoldMaintenance>1</GoldMaintenance>
+			<Cost>175</Cost>
+			<GoldMaintenance>2</GoldMaintenance>
+			<FreeStartEra>ERA_INDUSTRIAL</FreeStartEra>
 			<PrereqTech>TECH_CHIVALRY</PrereqTech>
 			<Help>TXT_KEY_BUILDING_DOJO_HELP</Help>
+			<DefenseHappinessChange>4</DefenseHappinessChange>
 			<Description>TXT_KEY_BUILDING_DOJO</Description>
 			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_DOJO_TEXT</Civilopedia>
 			<Strategy>TXT_KEY_BUILDING_DOJO_STRATEGY</Strategy>
@@ -224,10 +248,10 @@
 			</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_DOJO_HELP">
-			<Text>Unique Japanese replacement for the Armory. Grants +25 Experience to all military units trained in this city, and sources of [ICON_RES_IRON] Iron and [ICON_RES_HORSE] Horses near this city generate +1 [ICON_CULTURE] Culture.</Text>
+			<Text>Unique Japanese replacement for the Armory. Reduces [ICON_HAPPINESS_3] Disorder. Grants +25 Experience to all military units trained in this city, and sources of [ICON_RES_IRON] Iron and [ICON_RES_HORSE] Horses near this city generate +1 [ICON_CULTURE] Culture.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_DOJO_STRATEGY">
-			<Text>Build these unique Armories to produce dominant military units, and to generate additional mid-game Culture.</Text>
+			<Text>Build these unique Armories to produce dominant military units, and to generate additional Culture.</Text>
 		</Row>
 	</Language_en_US>
 	<!-- Odeon -->
@@ -236,7 +260,7 @@
 			<Type>BUILDING_ODEON</Type>
 			<BuildingClass>BUILDINGCLASS_AMPHITHEATER</BuildingClass>
 			<FreeStartEra>ERA_INDUSTRIAL</FreeStartEra>
-			<Cost>100</Cost>
+			<Cost>125</Cost>
 			<PrereqTech>TECH_DRAMA</PrereqTech>
 			<Description>TXT_KEY_BUILDING_ODEON</Description>
 			<GoldMaintenance>1</GoldMaintenance>
@@ -271,9 +295,16 @@
 		<Row>
 			<BuildingType>BUILDING_ODEON</BuildingType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>4</Yield>
+			<Yield>1</Yield>
 		</Row>
 	</Building_YieldChanges>
+	<Building_YieldChangesPerPop>
+		<Row>
+			<BuildingType>BUILDING_ODEON</BuildingType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>20</Yield>
+		</Row>
+	</Building_YieldChangesPerPop>
 	<Building_ResourceYieldChanges>
 		<Row>
 			<BuildingType>BUILDING_ODEON</BuildingType>
@@ -292,10 +323,10 @@
 			</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_ODEON_HELP">
-			<Text>Unique Greek replacement for the Amphitheater. Generates 4 [ICON_CULTURE] Culture, as well as +1 [ICON_CULTURE] Culture on nearby [ICON_RES_DYE] Dye resources. Contains no slot for a Great Work, however it produces +2 [ICON_TOURISM] Tourism once you research Philosophy.</Text>
+			<Text>+1 [ICON_CULTURE] Culture, and +1 [ICON_CULTURE] Culture for every 5 [ICON_CITIZEN] Citizens in the city. +1 [ICON_CULTURE] Culture on nearby [ICON_RES_DYE] Dye resources. [NEWLINE][NEWLINE]+2 [ICON_TOURISM] Tourism once you research Philosophy.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_ODEON_STRATEGY">
-			<Text>Build these unique Amphitheaters to boost your city's Culture, Tourism, and Gold.</Text>
+			<Text>Unique Greek replacement for the Amphitheater. Build these unique Amphitheaters to boost your city's Culture and Tourism. Contains no slot for a Great Work, however it produces +2 [ICON_TOURISM] Tourism once you research Philosophy.</Text>
 		</Row>
 	</Language_en_US>
 	<!-- Triumphal Arch -->
@@ -304,7 +335,7 @@
 			<Type>BUILDING_TRIUMPHAL_ARCH</Type>
 			<BuildingClass>BUILDINGCLASS_MONUMENT</BuildingClass>
 			<FreeStartEra>ERA_MEDIEVAL</FreeStartEra>
-			<Cost>40</Cost>
+			<Cost>55</Cost>
 			<GoldMaintenance>1</GoldMaintenance>
 			<Description>TXT_KEY_BUILDING_TRIUMPHAL_ARCH</Description>
 			<Civilopedia>TXT_KEY_CIV5_BUILDING_TRIUMPHAL_ARCH_TEXT</Civilopedia>
@@ -373,10 +404,178 @@
 			</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_TRIUMPHAL_ARCH_HELP">
-			<Text>Unique Roman replacement for the Monument. Generates +2 [ICON_CULTURE] Culture and +1 [ICON_PRODUCTION] Production. [NEWLINE][NEWLINE] Whenever you destroy an enemy unit, produce +3 [ICON_GREAT_GENERAL] Great General points and +3 [ICON_GOLDEN_AGE] Golden Age points.</Text>
+			<Text>Unique Roman replacement for the Monument. [NEWLINE][NEWLINE] Whenever you destroy an enemy unit, produce +3 [ICON_GREAT_GENERAL] Great General points and +3 [ICON_GOLDEN_AGE] Golden Age points.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_TRIUMPHAL_ARCH_STRATEGY">
 			<Text>Build these unique Monuments to boost your city's Culture growth and early Production, and to maximize your empire's gain from the victories of your conquering armies.</Text>
+		</Row>
+	</Language_en_US>
+	<!-- Steam Mill -->
+	<Buildings>
+		<Row>
+			<Type>BUILDING_STEAM_MILL</Type>
+			<BuildingClass>BUILDINGCLASS_FACTORY</BuildingClass>
+			<Cost>400</Cost>
+			<GoldMaintenance>3</GoldMaintenance>
+			<PrereqTech>TECH_STEAM_POWER</PrereqTech>
+			<Help>TXT_KEY_BUILDING_STEAM_MILL_HELP</Help>
+			<Description>TXT_KEY_BUILDING_STEAM_MILL</Description>
+			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_STEAM_MILL_TEXT</Civilopedia>
+			<Strategy>TXT_KEY_BUILDING_STEAM_MILL_STRATEGY</Strategy>
+			<ArtDefineTag>ART_DEF_BUILDING_FACTORY</ArtDefineTag>
+			<XBuiltTriggersIdeologyChoice>3</XBuiltTriggersIdeologyChoice>
+			<SpecialistType>SPECIALIST_ENGINEER</SpecialistType>
+			<SpecialistCount>2</SpecialistCount>
+			<MinAreaSize>-1</MinAreaSize>
+			<ConquestProb>66</ConquestProb>
+			<HurryCostModifier>0</HurryCostModifier>
+			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
+			<PortraitIndex>51</PortraitIndex>
+		</Row>
+	</Buildings>
+	<Building_Flavors>
+		<Row>
+			<BuildingType>BUILDING_STEAM_MILL</BuildingType>
+			<FlavorType>FLAVOR_PRODUCTION</FlavorType>
+			<Flavor>100</Flavor>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_STEAM_MILL</BuildingType>
+			<FlavorType>FLAVOR_SCIENCE</FlavorType>
+			<Flavor>30</Flavor>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_STEAM_MILL</BuildingType>
+			<FlavorType>FLAVOR_PRODUCTION</FlavorType>
+			<Flavor>10</Flavor>
+		</Row>
+	</Building_Flavors>
+	<Building_ResourceYieldChanges>
+		<Row>
+			<BuildingType>BUILDING_STEAM_MILL</BuildingType>
+			<ResourceType>RESOURCE_COAL</ResourceType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>1</Yield>
+		</Row>
+	</Building_ResourceYieldChanges>
+	<Civilization_BuildingClassOverrides>
+		<Row>
+			<CivilizationType>CIVILIZATION_ENGLAND</CivilizationType>
+			<BuildingClassType>BUILDINGCLASS_FACTORY</BuildingClassType>
+			<BuildingType>BUILDING_STEAM_MILL</BuildingType>
+		</Row>
+	</Civilization_BuildingClassOverrides>
+	<Building_YieldChanges>
+		<Row>
+			<BuildingType>BUILDING_STEAM_MILL</BuildingType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>1</Yield>
+		</Row>
+	</Building_YieldChanges>
+	<Building_YieldChangesPerPop>
+		<Row>
+			<BuildingType>BUILDING_STEAM_MILL</BuildingType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>20</Yield>
+		</Row>
+	</Building_YieldChangesPerPop>
+	<Language_en_US>
+		<Row Tag="TXT_KEY_BUILDING_STEAM_MILL">
+			<Text>Steam Mill</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_BUILDINGS_STEAM_MILL_TEXT">
+			<Text>
+				Stationary steam engines are fixed steam engines used for pumping or driving mills and factories, and for power generation. They are distinct from locomotive engines used on railways, traction engines for heavy steam haulage on roads, steam cars (and other motor vehicles), agricultural engines used for ploughing or threshing, marine engines, and the steam turbines used as the mechanism of power generation for most nuclear power plants. They were introduced during the 18th century and widely made for the whole of the 19th century and most of the first half of the 20th century, only declining as electricity supply and the internal combustion engine became more widespread.
+			</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_STEAM_MILL_HELP">
+			<Text>+1 [ICON_PRODUCTION] Production for every 5 [ICON_CITIZEN] Citizens in the City. Each source of [ICON_RES_COAL] Coal worked by this City produces +1 [ICON_PRODUCTION] Production. [NEWLINE][NEWLINE]Does not require [ICON_RES_COAL] Coal.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_STEAM_MILL_STRATEGY">
+			<Text>Unique English replacement for the Factory. The Steam Mill is cheaper, requires no [ICON_RES_COAL] Coal, is available earlier than the Factory, and provides additional Production to [ICON_RES_COAL] Coal worked by the City. Because it is cheaper, however, it also generates slightly less Production per [ICON_CITIZEN] Citizen. Since Steam Mills do not require Coal, you can use your Coal surplus to build a large, modern navy, or as a good to trade with your neighbors.</Text>
+		</Row>
+	</Language_en_US>
+	<!-- Siege Workshop -->
+	<Buildings>
+		<Row>
+			<Type>BUILDING_SIEGE_WORKSHOP</Type>
+			<BuildingClass>BUILDINGCLASS_ARSENAL</BuildingClass>
+			<Cost>275</Cost>
+			<GoldMaintenance>3</GoldMaintenance>
+			<PrereqTech>TECH_GUNPOWDER</PrereqTech>
+			<Help>TXT_KEY_BUILDING_SIEGE_WORKSHOP_HELP</Help>
+			<Description>TXT_KEY_BUILDING_SIEGE_WORKSHOP</Description>
+			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_SIEGE_WORKSHOP_TEXT</Civilopedia>
+			<Strategy>TXT_KEY_BUILDING_SIEGE_WORKSHOP_STRATEGY</Strategy>
+			<ArtDefineTag>ART_DEF_BUILDING_MILITARY_ACADEMY</ArtDefineTag>
+			<MinAreaSize>-1</MinAreaSize>
+			<TrainedFreePromotion>PROMOTION_VOLLEY</TrainedFreePromotion>
+			<AllowsRangeStrike>true</AllowsRangeStrike>
+			<Defense>1000</Defense>
+			<ExtraCityHitPoints>100</ExtraCityHitPoints>
+			<HurryCostModifier>25</HurryCostModifier>
+			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
+			<NeverCapture>true</NeverCapture>
+			<PortraitIndex>49</PortraitIndex>
+		</Row>
+	</Buildings>
+	<Building_UnitCombatProductionModifiers>
+		<Row>
+			<BuildingType>BUILDING_SIEGE_WORKSHOP</BuildingType>
+			<UnitCombatType>UNITCOMBAT_SIEGE</UnitCombatType>
+			<Modifier>50</Modifier>
+		</Row>
+	</Building_UnitCombatProductionModifiers>
+	<Building_YieldChanges>
+		<Row>
+			<BuildingType>BUILDING_SIEGE_WORKSHOP</BuildingType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>2</Yield>
+		</Row>
+	</Building_YieldChanges>
+	<Building_Flavors>
+		<Row>
+			<BuildingType>BUILDING_SIEGE_WORKSHOP</BuildingType>
+			<FlavorType>FLAVOR_MILITARY_TRAINING</FlavorType>
+			<Flavor>100</Flavor>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_SIEGE_WORKSHOP</BuildingType>
+			<FlavorType>FLAVOR_PRODUCTION</FlavorType>
+			<Flavor>20</Flavor>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_SIEGE_WORKSHOP</BuildingType>
+			<FlavorType>FLAVOR_CITY_DEFENSE</FlavorType>
+			<Flavor>100</Flavor>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_SIEGE_WORKSHOP</BuildingType>
+			<FlavorType>FLAVOR_HAPPINESS</FlavorType>
+			<Flavor>25</Flavor>
+		</Row>
+	</Building_Flavors>
+	<Civilization_BuildingClassOverrides>
+		<Row>
+			<CivilizationType>CIVILIZATION_OTTOMAN</CivilizationType>
+			<BuildingClassType>BUILDINGCLASS_ARSENAL</BuildingClassType>
+			<BuildingType>BUILDING_SIEGE_WORKSHOP</BuildingType>
+		</Row>
+	</Civilization_BuildingClassOverrides>
+	<Language_en_US>
+		<Row Tag="TXT_KEY_BUILDING_SIEGE_WORKSHOP">
+			<Text>Siege Foundry</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_BUILDINGS_SIEGE_WORKSHOP_TEXT">
+			<Text>
+				A foundry is a factory that produces metal castings. Metals are cast into shapes by melting them into a liquid, pouring the metal in a mold, and removing the mold material or casting after the metal has solidified as it cools. The most common metals processed are aluminium and cast iron. However, other metals, such as bronze, brass, steel, magnesium, and zinc, are also used to produce castings in foundries. In this process, parts of desired shapes and sizes can be formed. In the context of war, foundries were essential to the production of cannonry and other essential siege equipment.
+			</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_SIEGE_WORKSHOP_HELP">
+			<Text>City must have a Castle. +50% [ICON_PRODUCTION] Production towards Siege units. All Siege units trained in this City receive the [COLOR_POSITIVE_TEXT]Volley[ENDCOLOR] Promotion for free.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_SIEGE_WORKSHOP_STRATEGY">
+			<Text>Unique Ottoman replacement for the Arsenal. Is available earlier than the Arsenal, and provides additional Production. Produces Siege units much more quickly than normal, and grants them the [COLOR_POSITIVE_TEXT]Volley[ENDCOLOR] Promotion for free. Use these attributes to build a massive force of artillery to take down an enemy's walls and conquer their lands! City must have a Castle.</Text>
 		</Row>
 	</Language_en_US>
 	<!-- Mud Pyramid Mosque -->
@@ -406,4 +605,70 @@
 			<Yield>1</Yield>
 		</Row>
 	</Building_ResourceYieldChanges>
+	<!-- Resort -->
+	<Buildings>
+		<Row>
+			<Type>BUILDING_RESORT</Type>
+			<BuildingClass>BUILDINGCLASS_HOTEL</BuildingClass>
+			<Cost>600</Cost>
+			<PrereqTech>TECH_REFRIGERATION</PrereqTech>
+			<Help>TXT_KEY_BUILDING_RESORT_HELP</Help>
+			<Description>TXT_KEY_BUILDING_RESORT</Description>
+			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_RESORT_TEXT</Civilopedia>
+			<Strategy>TXT_KEY_BUILDING_RESORT_STRATEGY</Strategy>
+			<ArtDefineTag>ART_DEF_BUILDING_MILITARY_ACADEMY</ArtDefineTag>
+			<MinAreaSize>-1</MinAreaSize>
+			<Happiness>1</Happiness>
+			<LandmarksTourismPercent>50</LandmarksTourismPercent>
+			<GreatWorksTourismModifier>50</GreatWorksTourismModifier>
+			<HurryCostModifier>25</HurryCostModifier>
+			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
+			<PortraitIndex>20</PortraitIndex>
+		</Row>
+	</Buildings>
+	<Building_YieldChanges>
+		<Row>
+			<BuildingType>BUILDING_RESORT</BuildingType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_RESORT</BuildingType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>2</Yield>
+		</Row>
+	</Building_YieldChanges>
+	<Building_Flavors>
+		<Row>
+			<BuildingType>BUILDING_RESORT</BuildingType>
+			<FlavorType>FLAVOR_GOLD</FlavorType>
+			<Flavor>100</Flavor>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_RESORT</BuildingType>
+			<FlavorType>FLAVOR_CULTURE</FlavorType>
+			<Flavor>100</Flavor>
+		</Row>
+	</Building_Flavors>
+	<Civilization_BuildingClassOverrides>
+		<Row>
+			<CivilizationType>CIVILIZATION_AMERICA</CivilizationType>
+			<BuildingClassType>BUILDINGCLASS_HOTEL</BuildingClassType>
+			<BuildingType>BUILDING_RESORT</BuildingType>
+		</Row>
+	</Civilization_BuildingClassOverrides>
+	<Language_en_US>
+		<Row Tag="TXT_KEY_BUILDING_RESORT">
+			<Text>Resort</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_BUILDINGS_RESORT_TEXT">
+			<Text>A resort is a place used for relaxation or recreation, attracting visitors for vacations and/or tourism. Resorts are places, towns or sometimes commercial establishment operated by a single company. In North American English, the term "resort" is now also used for a self-contained commercial establishment which attempts to provide for most of a vacationer's wants while remaining on the premises, such as food, drink, lodging, sports, entertainment, and shopping. The term may be used to identify a hotel property that provides an array of amenities and typically includes entertainment and recreational activities. A hotel is frequently a central feature of a resort, such as the Grand Hotel at Mackinac Island, Michigan. A resort is not always a commercial establishment operated by a single company, although in the late twentieth century this sort of facility became more common.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_RESORT_HELP">
+			<Text>Unique American replacement for the Hotel. 50% of the [ICON_CULTURE] Culture from World Wonders, Natural Wonders, and Improvements (Landmarks, Moai, Chateau) is added to the [ICON_TOURISM] Tourism output of the city. [ICON_TOURISM] Tourism output from Great Works +50%.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_RESORT_STRATEGY">
+			<Text>Unique American replacement for the Hotel. Unlike the building it replaces, the Resort has no maintenance; instead, it produces both Gold and Culture. With a larger boost to Tourism than the Hotel, the Resort is an excellent choice for civilizations that are trying to achieve a Culture victory, or attempting to increase your ideological impact on other civilizations.</Text>
+		</Row>
+	</Language_en_US>
 </GameData>

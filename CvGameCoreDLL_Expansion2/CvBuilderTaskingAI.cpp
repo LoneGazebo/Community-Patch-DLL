@@ -51,7 +51,10 @@ void CvBuilderTaskingAI::Init(CvPlayer* pPlayer)
 	m_bKeepMarshes = false;
 	// special case code so Brazil doesn't remove jungle
 	m_bKeepJungle = false;
-
+#if defined(MOD_BALANCE_CORE)
+	// special case to evaluate plots adjacent to friendly
+	m_bEvaluateAdjacent = false;
+#endif
 	for(int i = 0; i < GC.getNumBuildInfos(); i++)
 	{
 		BuildTypes eBuild = (BuildTypes)i;
@@ -88,6 +91,16 @@ void CvBuilderTaskingAI::Init(CvPlayer* pPlayer)
 				}
 			}
 		}
+#if defined(MOD_BALANCE_CORE)
+		if(pkImprovementInfo->IsOutsideBorders())
+		{
+			m_bEvaluateAdjacent = true;
+		}
+		else if(pkImprovementInfo->IsInAdjacentFriendly())
+		{
+			m_bEvaluateAdjacent = true;
+		}
+#endif
 	}
 }
 
@@ -123,6 +136,9 @@ void CvBuilderTaskingAI::Read(FDataStream& kStream)
 	}
 
 	kStream >> m_bKeepMarshes;
+#if defined(MOD_BALANCE_CORE)
+	kStream >> m_bEvaluateAdjacent;
+#endif
 	if (uiVersion >= 2)
 	{
 		kStream >> m_bKeepJungle;
@@ -153,6 +169,9 @@ void CvBuilderTaskingAI::Write(FDataStream& kStream)
 	}
 
 	kStream << m_bKeepMarshes;
+#if defined(MOD_BALANCE_CORE)
+	kStream << m_bEvaluateAdjacent;
+#endif
 	kStream << m_bKeepJungle;
 }
 
@@ -799,6 +818,81 @@ bool CvBuilderTaskingAI::EvaluateBuilder(CvUnit* pUnit, BuilderDirective* paDire
 		//AddRepairDirectives(pUnit, pPlot, iMoveTurnsAway);
 		AddRouteDirectives(pUnit, pPlot, iMoveTurnsAway);
 	}
+#if defined(MOD_BALANCE_CORE)
+	// we need to evaluate the tiles adjacent to our territory 
+	if(m_bEvaluateAdjacent)
+	{
+		//Let's grab our territory.
+		for(uint uiPlotIndex = 0; uiPlotIndex < m_aiPlots.size(); uiPlotIndex++)
+		{
+			// when we encounter the first plot that is invalid, the rest of the list will be invalid
+			if(m_aiPlots[uiPlotIndex] == -1)
+			{
+				if(m_bLogging)
+				{
+					CvString strLog = "end of plot list";
+					LogInfo(strLog, m_pPlayer);
+				}
+				break;
+			}
+			CvPlot* pPlot = GC.getMap().plotByIndex(m_aiPlots[uiPlotIndex]);
+
+			CvAssertMsg(pPlot != NULL, "Plot should not be NULL");
+			if(!pPlot)
+				continue;
+
+			if(bOnlyEvaluateWorkersPlot)
+			{
+				if(pPlot != pUnit->plot())
+				{
+					continue;
+				}
+			}
+			//Let's look at non-owned plots next to owned plots.
+			CvPlot* pAdjacentPlot;
+			for(int iDirectionLoop = 0; iDirectionLoop < NUM_DIRECTION_TYPES; iDirectionLoop++)
+			{
+				pAdjacentPlot = plotDirection(pPlot->getX(), pPlot->getY(), ((DirectionTypes) iDirectionLoop));
+
+				if(pAdjacentPlot != NULL)
+				{
+					if(pAdjacentPlot->getOwner() != m_pPlayer->GetID())
+					{
+						if(!ShouldBuilderConsiderPlot(pUnit, pAdjacentPlot))
+						{
+							continue;
+						}
+						// distance weight
+						// find how many turns the plot is away
+#if defined(MOD_UNITS_LOCAL_WORKERS) || defined(MOD_AI_SECONDARY_WORKERS)
+						int iMoveTurnsAway = FindTurnsAway(pUnit, pAdjacentPlot, bLimit);
+#else
+						int iMoveTurnsAway = FindTurnsAway(pUnit, pPlot);
+#endif
+						if(iMoveTurnsAway < 0)
+						{
+							if(m_bLogging)
+							{
+								CvString strLog;
+								strLog.Format("unitx: %d unity: %d, plotx: %d ploty: %d, Evaluating out of territory plot, can't find path", pUnit->getX(), pUnit->getY(), pPlot->getX(), pPlot->getY());
+								LogInfo(strLog, m_pPlayer);
+							}
+
+							continue;
+						}
+						if(m_bLogging)
+						{
+							CvString strLog;
+							strLog.Format("x: %d y: %d, Evaluating out of territory plot for improvement", pPlot->getX(), pPlot->getY());
+							LogInfo(strLog, m_pPlayer);
+						}
+						AddImprovingPlotsDirectives(pUnit, pAdjacentPlot, iMoveTurnsAway);
+					}
+				}
+			}
+		}
+	}
+#endif
 
 	m_aDirectives.StableSortItems();
 
@@ -1046,13 +1140,18 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirectives(CvUnit* pUnit, CvPlot* pPlo
 	{
 		return;
 	}
-
+#if defined(MOD_BALANCE_CORE)
+	if(MOD_BALANCE_CORE && !m_bEvaluateAdjacent)
+	{
+#endif
 	// if it's not within a city radius
 	if(!pPlot->isWithinTeamCityRadius(pUnit->getTeam()))
 	{
 		return;
 	}
-
+#if defined(MOD_BALANCE_CORE)
+	}
+#endif
 	// check to see if a non-bonus resource is here. if so, bail out!
 	ResourceTypes eResource = pPlot->getResourceType(m_pPlayer->getTeam());
 	if(eResource != NO_RESOURCE)
@@ -1075,13 +1174,18 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirectives(CvUnit* pUnit, CvPlot* pPlo
 			}
 		}
 	}
-
+#if defined(MOD_BALANCE_CORE)
+	if(MOD_BALANCE_CORE && !m_bEvaluateAdjacent)
+	{
+#endif
 	CvCity* pCity = GetWorkingCity(pPlot);
 	if(!pCity)
 	{
 		return;
 	}
-
+#if defined(MOD_BALANCE_CORE)
+	}
+#endif
 	// loop through the build types to find one that we can use
 	BuildTypes eBuild;
 	BuildTypes eOriginalBuildType;
@@ -1227,6 +1331,13 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirectives(CvUnit* pUnit, CvPlot* pPlo
 
 		UpdateProjectedPlotYields(pPlot, eBuild);
 		int iScore = ScorePlot();
+#if defined(MOD_BALANCE_CORE)
+		//Great improvements are great!
+		if(pImprovement->IsCreatedByGreatPerson())
+		{
+			iScore *= 2;
+		}
+#endif
 
 		// if we're going backward, bail out!
 		if(iScore <= 0)
@@ -1256,10 +1367,15 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirectives(CvUnit* pUnit, CvPlot* pPlo
 				{
 					iWeight = GC.getBUILDER_TASKING_BASELINE_ADDS_CULTURE() * GC.getImprovementInfo(eImprovement)->GetYieldChange(iI);
 					int iAdjacentCulture = pImprovement->GetYieldAdjacentSameType(eYield);
+					int iAdjacentTwoCulture = pImprovement->GetYieldAdjacentTwoSameType(eYield);
 
 					if(iAdjacentCulture > 0)
 					{
 						iScore *= (1 + pPlot->ComputeYieldFromAdjacentImprovement(*pImprovement, eImprovement, eYield));
+					}
+					if(iAdjacentTwoCulture > 0)
+					{
+						iScore *= (1 + pPlot->ComputeYieldFromTwoAdjacentImprovement(*pImprovement, eImprovement, eYield));
 					}
 				}
 			}
@@ -1280,6 +1396,98 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirectives(CvUnit* pUnit, CvPlot* pPlo
 		int iBuildTimeWeight = GetBuildTimeWeight(pUnit, pPlot, eBuild, DoesBuildHelpRush(pUnit, pPlot, eBuild), iMoveTurnsAway);
 		iWeight += iBuildTimeWeight;
 		iWeight *= iScore;
+
+#if defined(MOD_BALANCE_CORE)
+		//Unique improvement? Let's give this a lot of weight!
+		if(pImprovement->IsSpecificCivRequired())
+		{
+			CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
+			if(pkImprovementInfo)
+			{
+				CivilizationTypes eCiv = pkImprovementInfo->GetRequiredCivilization();
+				if(eCiv == m_pPlayer->getCivilizationType())
+				{
+					if(m_bEvaluateAdjacent && pkImprovementInfo->IsInAdjacentFriendly() && (pPlot->getOwner() != m_pPlayer->GetID()))
+					{
+						bool bAdjacent = false;
+						bool bAdjacentDesire = false;
+						for(uint ui = 0; ui < NUM_YIELD_TYPES; ui++)
+						{
+							if(pkImprovementInfo->GetYieldAdjacentSameType((YieldTypes)ui) > 0)
+							{
+								bAdjacentDesire = true;
+								break;
+							}
+							else if(pkImprovementInfo->GetYieldAdjacentTwoSameType((YieldTypes)ui) > 0)
+							{
+								bAdjacentDesire = true;
+								break;
+							}
+						}
+						//If yield bonus is granted from it being adjacent...
+						CvPlot* pAdjacentPlot;
+						if(bAdjacentDesire)
+						{
+							for(int iDirectionLoop = 0; iDirectionLoop < NUM_DIRECTION_TYPES; iDirectionLoop++)
+							{
+								pAdjacentPlot = plotDirection(pPlot->getX(), pPlot->getY(), ((DirectionTypes) iDirectionLoop));
+
+								if(pAdjacentPlot != NULL)
+								{
+									if((pAdjacentPlot->getOwner() == m_pPlayer->GetID()) && (pAdjacentPlot->getImprovementType() == eImprovement))
+									{
+										//Is the plot outside our land, but we can build on it, and get an adjacency bonus? Let's capitalize on this.
+										iWeight = (iWeight * 3);
+										iWeight /= 2;
+										if(m_bLogging)
+										{
+											CvString strTemp;
+											strTemp.Format("Weight,Found a Tile outside our Territory for our UI with Adjacency Bonus,%s,%i,,,%i, %i", GC.getBuildInfo(eBuild)->GetType(), iScore, pPlot->getX(), pPlot->getY());
+											LogInfo(strTemp, m_pPlayer);
+										}
+										bAdjacent = true;
+										break;
+									}
+								}
+							}
+							if(!bAdjacent)
+							{
+								iWeight = (iWeight / 2);
+								if(m_bLogging)
+								{
+									CvString strTemp;
+									strTemp.Format("Weight,Found a Tile outside our Territory for our UI with Adjacency Bonus, but no adjacent tile yet... %s,%i,,,%i, %i", GC.getBuildInfo(eBuild)->GetType(), iScore, pPlot->getX(), pPlot->getY());
+									LogInfo(strTemp, m_pPlayer);
+								}
+							}
+
+						}
+						else
+						{
+							//Is the plot outside our land, but we can build on it? Let's do this after everything else.
+							iWeight = (iWeight / 3);
+							if(m_bLogging)
+							{
+								CvString strTemp;
+								strTemp.Format("Weight,Found a Tile outside our Territory for our UI,%s,%i,,,%i, %i", GC.getBuildInfo(eBuild)->GetType(), iScore, pPlot->getX(), pPlot->getY());
+								LogInfo(strTemp, m_pPlayer);
+							}
+						}
+					}
+					else
+					{
+						iWeight = (iWeight * 2);
+						if(m_bLogging)
+						{
+							CvString strTemp;
+							strTemp.Format("Weight,Found a Tile inside our Territory for our UI,%s,%i,,,%i, %i", GC.getBuildInfo(eBuild)->GetType(), iScore, pPlot->getX(), pPlot->getY());
+							LogInfo(strTemp, m_pPlayer);
+						}
+					}
+				}
+			}
+		}
+#endif
 
 		if(m_pPlayer->GetPlayerTraits()->IsMoveFriendlyWoodsAsRoad() && bWillRemoveForestOrJungle)
 		{
@@ -1743,12 +1951,43 @@ bool CvBuilderTaskingAI::ShouldBuilderConsiderPlot(CvUnit* pUnit, CvPlot* pPlot)
 		}
 		return false;
 	}
-
 	// can't build on plots others own (unless inside a minor)
 	PlayerTypes eOwner = pPlot->getOwner();
-	if(eOwner != NO_PLAYER && eOwner != m_pPlayer->GetID() && !GET_PLAYER(eOwner).isMinorCiv())
+#if defined(MOD_BALANCE_CORE)
+	bool bAdjacent = false;
+	//let's evaluate plots we don't own and see if we can build improvements that have the adjacent lands attribute
+	if(MOD_BALANCE_CORE && m_bEvaluateAdjacent && (eOwner != m_pPlayer->GetID()))
+	{
+		CvPlot* pAdjacentPlot;
+		for(int iDirectionLoop = 0; iDirectionLoop < NUM_DIRECTION_TYPES; iDirectionLoop++)
+		{
+			pAdjacentPlot = plotDirection(pPlot->getX(), pPlot->getY(), ((DirectionTypes) iDirectionLoop));
+
+			if(pAdjacentPlot != NULL)
+			{
+				if(pAdjacentPlot->getOwner() == m_pPlayer->GetID())
+				{
+					bAdjacent = true;
+					break;
+				}
+			}
+		}
+	}
+	if(eOwner == NO_PLAYER && !bAdjacent)
 	{
 		return false;
+	}
+#endif
+	if(eOwner != NO_PLAYER && eOwner != m_pPlayer->GetID() && !GET_PLAYER(eOwner).isMinorCiv())
+	{
+#if defined(MOD_BALANCE_CORE)
+		if(!bAdjacent)
+		{
+#endif
+		return false;
+#if defined(MOD_BALANCE_CORE)
+		}
+#endif
 	}
 	
 	// workers should not be able to work in plots that do not match their default domain
@@ -2103,6 +2342,46 @@ bool CvBuilderTaskingAI::IsImprovementBeneficial(CvPlot* pPlot, const CvBuildInf
 	{
 		return true;
 	}
+#if defined(MOD_BALANCE_CORE)
+	//If a unique improvement, then yes, always.
+	if(MOD_BALANCE_CORE && pkImprovementInfo->IsSpecificCivRequired())
+	{
+		CivilizationTypes eCiv = pkImprovementInfo->GetRequiredCivilization();
+		if(eCiv == m_pPlayer->getCivilizationType())
+		{
+			const ImprovementTypes eOldImprovement = pPlot->getImprovementType();
+			if(eOldImprovement == NO_IMPROVEMENT)
+			{
+				return true;
+			}
+			else
+			{
+				CvImprovementEntry* pkOldImprovementInfo = GC.getImprovementInfo(eOldImprovement);
+				if(pkOldImprovementInfo && !pkOldImprovementInfo->IsCreatedByGreatPerson() && !pkOldImprovementInfo->IsSpecificCivRequired())
+				{
+					return true;
+				}
+			}
+		}
+	}
+	//If great person, yes, but only if not replacing a GP improvement or unique improvement.
+	if(MOD_BALANCE_CORE && pkImprovementInfo->IsCreatedByGreatPerson())
+	{
+		const ImprovementTypes eOldImprovement = pPlot->getImprovementType();
+		if(eOldImprovement == NO_IMPROVEMENT)
+		{
+			return true;
+		}
+		else
+		{
+			CvImprovementEntry* pkOldImprovementInfo = GC.getImprovementInfo(eOldImprovement);
+			if(pkOldImprovementInfo && !pkOldImprovementInfo->IsCreatedByGreatPerson() && !pkOldImprovementInfo->IsSpecificCivRequired())
+			{
+				return true;
+			}
+		}
+	}
+#endif
 
 	for(uint ui = 0; ui < NUM_YIELD_TYPES; ui++)
 	{
@@ -2231,7 +2510,66 @@ int CvBuilderTaskingAI::ScorePlot()
 	{
 		return -1;
 	}
+#if defined(MOD_BALANCE_CORE)
+	int iScore = 0;
+	if(MOD_BALANCE_CORE && m_bEvaluateAdjacent)
+	{
+		CvCity* pCapitalCity = m_pPlayer->getCapitalCity();
+		CvCityStrategyAI* pCapitalCityStrategy = pCapitalCity->GetCityStrategyAI();
+		bool bAnyNegativeMultiplier = false;
+		YieldTypes eFocusYield = pCapitalCityStrategy->GetFocusYield();
+		if(!pCapitalCityStrategy)
+		{
+			return -1;
+		}
+		if(pCapitalCity != NULL)
+		{
+			for(uint ui = 0; ui < NUM_YIELD_TYPES; ui++)
+			{
+				int iMultiplier = pCapitalCityStrategy->GetYieldDeltaTimes100((YieldTypes)ui);
+				int iAbsMultiplier = abs(iMultiplier);
+				int iYieldDelta = m_aiProjectedPlotYields[ui] - m_aiCurrentPlotYields[ui];
 
+				// the multiplier being lower than zero means that we need more of this resource
+				if(iMultiplier < 0)
+				{
+					bAnyNegativeMultiplier = true;
+					if(iYieldDelta > 0)  // this would be an improvement to the yield
+					{
+						iScore += m_aiProjectedPlotYields[ui] * iAbsMultiplier;
+					}
+					else if(iYieldDelta < 0)  // the yield would go down
+					{
+						iScore += iYieldDelta * iAbsMultiplier;
+					}
+				}
+				else
+				{
+					if(iYieldDelta >= 0)
+					{
+						iScore += m_aiProjectedPlotYields[ui]; // provide a nominal score to plots that improve anything
+					}
+					else if(iYieldDelta < 0)
+					{
+						iScore += iYieldDelta * iAbsMultiplier;
+					}
+				}
+			}
+			if(!bAnyNegativeMultiplier && eFocusYield != NO_YIELD)
+			{
+				int iYieldDelta = m_aiProjectedPlotYields[eFocusYield] - m_aiCurrentPlotYields[eFocusYield];
+				if(iYieldDelta > 0)
+				{
+					iScore += m_aiProjectedPlotYields[eFocusYield] * 100;
+				}
+			}
+			//Because this evaluates territory outside of our base territory, let's cut this down a bit.
+			iScore /= 3;
+		}
+	}
+	else
+	{
+#endif
 	CvCity* pCity = m_pTargetPlot->getWorkingCity();
 	if(!pCity)
 	{
@@ -2243,8 +2581,9 @@ int CvBuilderTaskingAI::ScorePlot()
 	{
 		return -1;
 	}
-
+#if !defined(MOD_BALANCE_CORE)
 	int iScore = 0;
+#endif
 	bool bAnyNegativeMultiplier = false;
 	YieldTypes eFocusYield = pCityStrategy->GetFocusYield();
 	for(uint ui = 0; ui < NUM_YIELD_TYPES; ui++)
@@ -2296,7 +2635,9 @@ int CvBuilderTaskingAI::ScorePlot()
 	{
 		iScore *= 2;
 	}
-
+#if defined(MOD_BALANCE_CORE)
+	}
+#endif
 	return iScore;
 }
 
