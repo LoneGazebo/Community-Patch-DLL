@@ -36,30 +36,30 @@ DELETE FROM HandicapInfo_AIFreeTechs WHERE HandicapType IN ('HANDICAP_KING' , 'H
 AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='BALANCE_GLOBAL_DIFFICULTY_OPTION' AND Value= 1 );
 
 UPDATE HandicapInfos
-SET NumCitiesUnhappinessMod='100' , PopulationUnhappinessMod='100' , ProductionFreeUnits='8' , ProductionFreeUnitsPopulationPercent='50' , ProductionFreeUnitsPerCity='4' , RouteCostPercent='100' , UnitCostPercent='85' , BuildingCostPercent='85' , ResearchPercent='100' , PolicyPercent='100' , ImprovementCostPercent='90' , CityProductionNumOptionsConsidered='3' , TechNumOptionsConsidered='3' , PolicyNumOptionsConsidered='3' , AttitudeChange='-1' , NoTechTradeModifier='40' , BarbCampGold='100' , AIBarbarianBonus='50' , AIDeclareWarProb='200' , AIWorkRateModifier='20' ,  AIUnhappinessPercent='100' , AIGrowthPercent='100' , AITrainPercent='100' , AICreatePercent='100' , AIConstructPercent='100', AIBuildingCostPercent='100' , AIUnitCostPercent='100' , AIUnitSupplyPercent='50' , AIUnitUpgradePercent='50', AIAdvancedStartPercent='130', AIFreeXP='15' , AIFreeXPPercent='30'
+SET NumCitiesUnhappinessMod='100' , PopulationUnhappinessMod='100' , ProductionFreeUnits='8' , ProductionFreeUnitsPopulationPercent='50' , ProductionFreeUnitsPerCity='4' , RouteCostPercent='100' , UnitCostPercent='100' , BuildingCostPercent='100' , ResearchPercent='100' , PolicyPercent='100' , ImprovementCostPercent='100' , CityProductionNumOptionsConsidered='3' , TechNumOptionsConsidered='3' , PolicyNumOptionsConsidered='3' , AttitudeChange='-1' , NoTechTradeModifier='40' , BarbCampGold='100' , AIBarbarianBonus='50' , AIDeclareWarProb='100' , AIWorkRateModifier='20' ,  AIUnhappinessPercent='100' , AIGrowthPercent='100' , AITrainPercent='100' , AICreatePercent='100' , AIConstructPercent='100', AIBuildingCostPercent='90' , AIUnitCostPercent='90' , AIUnitSupplyPercent='50' , AIUnitUpgradePercent='50', AIAdvancedStartPercent='130', AIFreeXP='15' , AIFreeXPPercent='30'
 WHERE Type = 'HANDICAP_AI_DEFAULT'
 AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='BALANCE_GLOBAL_DIFFICULTY_OPTION' AND Value= 1 );
 
 UPDATE HandicapInfos
-SET AIPerEraModifier='-6' , HappinessDefault='6', Gold='250' , AIStartingDefenseUnits = '1'
+SET AIPerEraModifier='-6' , HappinessDefault='7', Gold='300' , AIStartingDefenseUnits = '1'
 WHERE Type = 'HANDICAP_AI_DEFAULT' 
 AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='BALANCE_GLOBAL_DIFFICULTY_LEVEL' AND Value= 1 )
 AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='BALANCE_GLOBAL_DIFFICULTY_OPTION' AND Value= 1 );
 
 UPDATE HandicapInfos
-SET AIPerEraModifier='-7' , HappinessDefault='7' , Gold='350' , AIStartingDefenseUnits = '2'
+SET AIPerEraModifier='-7' , HappinessDefault='9' , Gold='400' , AIStartingDefenseUnits = '2'
 WHERE Type = 'HANDICAP_AI_DEFAULT' 
 AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='BALANCE_GLOBAL_DIFFICULTY_LEVEL' AND Value= 2 )
 AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='BALANCE_GLOBAL_DIFFICULTY_OPTION' AND Value= 1 );
 
 UPDATE HandicapInfos
-SET AIPerEraModifier='-8' , HappinessDefault='8' , Gold='450' , AIStartingDefenseUnits = '3'
+SET AIPerEraModifier='-8' , HappinessDefault='11' , Gold='500' , AIStartingDefenseUnits = '3'
 WHERE Type = 'HANDICAP_AI_DEFAULT' 
 AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='BALANCE_GLOBAL_DIFFICULTY_LEVEL' AND Value= 3 )
 AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='BALANCE_GLOBAL_DIFFICULTY_OPTION' AND Value= 1 );
 
 UPDATE HandicapInfos
-SET AIPerEraModifier='-9' , HappinessDefault='10' , Gold='550', AIStartingDefenseUnits = '4'
+SET AIPerEraModifier='-9' , HappinessDefault='13' , Gold='600', AIStartingDefenseUnits = '4'
 WHERE Type = 'HANDICAP_AI_DEFAULT' 
 AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='BALANCE_GLOBAL_DIFFICULTY_LEVEL' AND Value= 4 )
 AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='BALANCE_GLOBAL_DIFFICULTY_OPTION' AND Value= 1 );
@@ -99,7 +99,7 @@ SET StartingMinorDefenseUnits = '3'
 WHERE Type = 'ERA_FUTURE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
 
 UPDATE HandicapInfos
-SET StartingMinorDefenseUnits = '0'
+SET StartingMinorDefenseUnits = '1'
 WHERE Type = 'HANDICAP_KING' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
 
 UPDATE HandicapInfos
@@ -113,3 +113,54 @@ WHERE Type = 'HANDICAP_IMMORTAL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type=
 UPDATE HandicapInfos
 SET StartingMinorDefenseUnits = '3'
 WHERE Type = 'HANDICAP_DEITY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
+
+-- Update World Size Tech/Policy city rate
+
+UPDATE Worlds
+SET NumCitiesPolicyCostMod = '18'
+WHERE Type = 'WORLDSIZE_DUEL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
+
+UPDATE Worlds
+SET NumCitiesPolicyCostMod = '16'
+WHERE Type = 'WORLDSIZE_TINY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
+
+UPDATE Worlds
+SET NumCitiesPolicyCostMod = '14'
+WHERE Type = 'WORLDSIZE_SMALL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
+
+UPDATE Worlds
+SET NumCitiesPolicyCostMod = '12'
+WHERE Type = 'WORLDSIZE_STANDARD' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
+
+UPDATE Worlds
+SET NumCitiesPolicyCostMod = '10'
+WHERE Type = 'WORLDSIZE_LARGE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
+
+UPDATE Worlds
+SET NumCitiesPolicyCostMod = '8'
+WHERE Type = 'WORLDSIZE_HUGE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
+
+
+UPDATE Worlds
+SET NumCitiesTechCostMod = '15'
+WHERE Type = 'WORLDSIZE_DUEL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
+
+UPDATE Worlds
+SET NumCitiesTechCostMod = '12'
+WHERE Type = 'WORLDSIZE_TINY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
+
+UPDATE Worlds
+SET NumCitiesTechCostMod = '10'
+WHERE Type = 'WORLDSIZE_SMALL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
+
+UPDATE Worlds
+SET NumCitiesTechCostMod = '8'
+WHERE Type = 'WORLDSIZE_STANDARD' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
+
+UPDATE Worlds
+SET NumCitiesTechCostMod = '6'
+WHERE Type = 'WORLDSIZE_LARGE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
+
+UPDATE Worlds
+SET NumCitiesTechCostMod = '4'
+WHERE Type = 'WORLDSIZE_HUGE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );

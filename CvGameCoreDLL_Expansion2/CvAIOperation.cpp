@@ -3941,9 +3941,7 @@ CvPlot* CvAIOperationAllyDefense::FindBestTarget()
 					{
 						eClosestProximity = GET_PLAYER(eMinor).GetProximityToPlayer(m_eOwner);
 						pCity = GET_PLAYER(eMinor).getCapitalCity();
-#if !defined(MOD_BALANCE_CORE)
 						pPlot = pCity->plot();
-#endif
 					}
 				}
 			}
@@ -3957,7 +3955,7 @@ CvPlot* CvAIOperationAllyDefense::FindBestTarget()
 	}
 #if defined(MOD_BALANCE_CORE)
 	//Let's find a target plot that isn't our ally's capital.
-	if(MOD_BALANCE_CORE && pCity != NULL)
+	if(MOD_BALANCE_CORE && pPlot != NULL)
 	{
 		int iTempWeight = 0;
 		

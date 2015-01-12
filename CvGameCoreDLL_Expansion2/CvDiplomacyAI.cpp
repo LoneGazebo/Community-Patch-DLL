@@ -6283,11 +6283,14 @@ void CvDiplomacyAI::DoUpdateWarStates()
 				//If the war is going well, but it is an overseas fight and we're outnumbered at sea, let's pull back.
 				if(eWarState >= WAR_STATE_CALM)
 				{
-					if(GET_PLAYER(eLoopPlayer).getCapitalCity()->getArea() != GetPlayer()->getCapitalCity()->getArea())
+					if(GET_PLAYER(eLoopPlayer).getCapitalCity() != NULL)
 					{
-						if(GET_PLAYER(eLoopPlayer).GetMilitaryAI()->GetNavalDefenseState() < GetPlayer()->GetMilitaryAI()->GetNavalDefenseState())
+						if(GET_PLAYER(eLoopPlayer).getCapitalCity()->getArea() != GetPlayer()->getCapitalCity()->getArea())
 						{
-							iStateAllWars -= 1;
+							if(GET_PLAYER(eLoopPlayer).GetMilitaryAI()->GetNavalDefenseState() < GetPlayer()->GetMilitaryAI()->GetNavalDefenseState())
+							{
+								iStateAllWars -= 1;
+							}
 						}
 					}
 				}
@@ -7237,28 +7240,6 @@ void CvDiplomacyAI::DoUpdateOnePlayerTargetValue(PlayerTypes ePlayer)
 	// If the player is expanding aggressively, bump things down a level
 	if(eTargetValue < TARGET_VALUE_SOFT && IsPlayerRecklessExpander(ePlayer))
 		eTargetValue = TargetValueTypes(eTargetValue + 1);
-
-#if defined(MOD_BALANCE_CORE_DIFFICULTY)
-	//Is human? Let's make them more ripe as targets. Only works on 'Emperor' and above.
-	if(MOD_BALANCE_CORE_DIFFICULTY && GC.getBALANCE_GAME_DIFFICULTY_MULTIPLIER() > 1)
-	{
-		if(GET_PLAYER(ePlayer).isHuman())
-		{
-			if(eTargetValue < TARGET_VALUE_SOFT)
-			{
-				int eBump = GC.getBALANCE_GAME_DIFFICULTY_MULTIPLIER() + eTargetValue;
-				if(eBump >= TARGET_VALUE_SOFT)
-				{
-					eTargetValue = TargetValueTypes(TARGET_VALUE_SOFT);
-				}
-				else
-				{
-					eTargetValue = TargetValueTypes(eBump);
-				}
-			}
-		}
-	}
-#endif
 
 	// If it's a city-state and we've been at war for a LONG time, bump things up
 	if(eTargetValue > TARGET_VALUE_IMPOSSIBLE && GetPlayerNumTurnsAtWar(ePlayer) > /*50*/ GC.getTARGET_INCREASE_WAR_TURNS())
@@ -10787,7 +10768,7 @@ int CvDiplomacyAI::GetOtherPlayerWarmongerAmount(PlayerTypes ePlayer)
 #if defined(MOD_API_EXTENSIONS)
 void CvDiplomacyAI::ChangeOtherPlayerWarmongerAmountTimes100(PlayerTypes ePlayer, int iChangeAmount)
 {
-	int iNewValue = m_paiOtherPlayerWarmongerAmountTimes100[ePlayer] + iChangeAmount;
+	int iNewValue = m_paiOtherPlayerWarmongerAmountTimes100[ePlayer] + (iChangeAmount * (GC.getEraInfo(GC.getGame().getCurrentEra())->getWarmongerPercent()) / 100);
 	iNewValue = max(0, iNewValue);
 	m_paiOtherPlayerWarmongerAmountTimes100[ePlayer] = iNewValue;
 }
@@ -15994,9 +15975,17 @@ void CvDiplomacyAI::DoVictoryCompetitionStatement(PlayerTypes ePlayer, DiploStat
 				if(iVictoryDisputeWeight >= /*50*/ GC.getVICTORY_DISPUTE_STRONG_THRESHOLD())
 				{						
 					//Conquered a capital? You are in our way!
-					if(IsGoingForWorldConquest() && GetPlayer()->GetNumCapitalCities() > 1)
+#if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
+					if(IsGoingForWorldConquest() && GetPlayer()->GetNumCapitalCities() > 0)
+#else
+					if(IsGoingForWorldConquest())
+#endif
 					{
-						if(GET_PLAYER(ePlayer).GetNumCapitalCities() > 1)
+#if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
+						if(GET_PLAYER(ePlayer).GetNumCapitalCities() > 0)
+#else
+						if(GET_PLAYER(ePlayer).isAlive())
+#endif
 						{
 							eTempStatement = DIPLO_STATEMENT_VICTORY_COMPETITION_ANNOUNCE_WORLD_CONQUEST;
 							if(GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
@@ -17096,6 +17085,35 @@ const char* CvDiplomacyAI::GetDiploStringForMessage(DiploMessageTypes eDiploMess
 		strText = GetDiploTextFromTag("RESPONSE_ATTACKED_MILITARY_PROMISE_BROKEN");
 		break;
 
+#if defined(MOD_BALANCE_CORE)
+			// AI DoW:  response
+	case DIPLO_MESSAGE_ATTACKED_STRONG_WARMONGER:
+		strText = GetDiploTextFromTag("RESPONSE_ATTACKED_STRONG_WARMONGER");
+		break;
+
+			// AI DoW:  response
+	case DIPLO_MESSAGE_ATTACKED_WEAK_WARMONGER:
+		strText = GetDiploTextFromTag("RESPONSE_ATTACKED_WEAK_WARMONGER");
+		break;
+
+			// AI DoW:  response
+	case DIPLO_MESSAGE_ATTACKED_WARMONGER:
+		strText = GetDiploTextFromTag("RESPONSE_ATTACKED_WARMONGER");
+		break;
+
+			// AI DoW:  response
+	case DIPLO_MESSAGE_ATTACKED_IDEOLOGY_DIFFERENCE:
+		strText = GetDiploTextFromTag("RESPONSE_ATTACKED_IDEOLOGY_DIFFERENCE");
+		break;
+
+			// AI DoW:  response
+	case DIPLO_MESSAGE_ATTACKED_IDEOLOGY_SAME:
+		strText = GetDiploTextFromTag("RESPONSE_ATTACKED_IDEOLOGY_SAME");
+		break;
+
+		
+#endif
+
 		//////////////////////////////////////////////////////////////
 		// AI is declaring war on human, what does he say?
 		//////////////////////////////////////////////////////////////
@@ -17114,6 +17132,28 @@ const char* CvDiplomacyAI::GetDiploStringForMessage(DiploMessageTypes eDiploMess
 	case DIPLO_MESSAGE_DOW_LAND:
 		strText = GetDiploTextFromTag("RESPONSE_DOW_LAND");
 		break;
+
+#if defined(MOD_BALANCE_CORE)
+	// AI DoW:  response
+	case DIPLO_MESSAGE_DOW_OLD_ENEMIES:
+		strText = GetDiploTextFromTag("RESPONSE_DOW_OLD_ENEMIES");
+		break;
+
+	// AI DoW:  response
+	case DIPLO_MESSAGE_DOW_WARMONGER:
+		strText = GetDiploTextFromTag("RESPONSE_DOW_WARMONGER");
+		break;
+
+	// AI DoW:  response
+	case DIPLO_MESSAGE_DOW_IDEOLOGY_DIFFERENCE:
+		strText = GetDiploTextFromTag("RESPONSE_DOW_IDEOLOGY_DIFFERENCE");
+		break;
+
+	// AI DoW:  response
+	case DIPLO_MESSAGE_DOW_IDEOLOGY_SAME:
+		strText = GetDiploTextFromTag("RESPONSE_DOW_IDEOLOGY_SAME");
+		break;
+#endif
 
 		// AI DoW:  response
 	case DIPLO_MESSAGE_DOW_WORLD_CONQUEST:
@@ -18623,6 +18663,15 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 				strText = GetDiploStringForMessage(DIPLO_MESSAGE_DISAPPOINTED);
 				gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_BLANK_DISCUSSION, strText, LEADERHEAD_ANIM_NEGATIVE);
 			}
+#if defined(MOD_BALANCE_CORE)
+			//If player is offended, AI should take note as penalty to assistance.
+			if(iArg1 == 2)
+			{
+				CvFlavorManager* pFlavorManager = GetPlayer()->GetFlavorManager();
+				int iFlavorOffense = pFlavorManager->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_OFFENSE"));
+				GetPlayer()->GetDiplomacyAI()->ChangeRecentAssistValue(eFromPlayer, iFlavorOffense);
+			}
+#endif
 		}
 		// Human says "soon"
 		if(iArg1 == 3)
@@ -19738,6 +19787,38 @@ const char* CvDiplomacyAI::GetAttackedByHumanMessage()
 		return GetDiploStringForMessage(DIPLO_MESSAGE_VASSALAGE_ATTACKED_VASSAL);
 #endif
 
+#if defined(MOD_BALANCE_CORE)
+	//Warmonger
+	//If this person is a major warmonger, we should not be surprised
+	if(MOD_BALANCE_CORE && GetWarmongerThreat(ePlayer) >= THREAT_MAJOR)
+	{
+		// They are WEAKER than us
+		if(eMilitaryStrengthComparedToUs <= STRENGTH_WEAK)
+			return GetDiploStringForMessage(DIPLO_MESSAGE_ATTACKED_STRONG_WARMONGER);
+
+		// They are STRONGER than us
+		else if(eMilitaryStrengthComparedToUs >= STRENGTH_POWERFUL)
+			return GetDiploStringForMessage(DIPLO_MESSAGE_ATTACKED_WEAK_WARMONGER);
+
+		// Average strength
+		return GetDiploStringForMessage(DIPLO_MESSAGE_ATTACKED_WARMONGER);
+	}
+
+	//Ideology
+	PolicyBranchTypes eMyBranch = m_pPlayer->GetPlayerPolicies()->GetLateGamePolicyTree();
+	PolicyBranchTypes eTheirBranch = GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree();
+	if(MOD_BALANCE_CORE && eMyBranch != NO_POLICY_BRANCH_TYPE && eTheirBranch != NO_POLICY_BRANCH_TYPE && eMyBranch != eTheirBranch)
+	{
+		// Average strength
+		return GetDiploStringForMessage(DIPLO_MESSAGE_ATTACKED_IDEOLOGY_DIFFERENCE);
+	}
+	if(MOD_BALANCE_CORE && eMyBranch != NO_POLICY_BRANCH_TYPE && eTheirBranch != NO_POLICY_BRANCH_TYPE && eMyBranch == eTheirBranch)
+	{
+		// Average strength
+		return GetDiploStringForMessage(DIPLO_MESSAGE_ATTACKED_IDEOLOGY_SAME);
+	}
+#endif
+
 	// Sad
 	// If we felt the other player was an Ally or Friend then we're just plain sad that they attacked us
 	if(eOpinion == MAJOR_CIV_OPINION_ALLY ||
@@ -19810,6 +19891,30 @@ const char* CvDiplomacyAI::GetWarMessage(PlayerTypes ePlayer)
 			else
 				return GetDiploStringForMessage(DIPLO_MESSAGE_DOW_BETRAYAL);
 		}
+#if defined(MOD_BALANCE_CORE)
+		// Old Enemies
+		// If we have gone to war in the past more than once, we're old enemies
+		if(MOD_BALANCE_CORE && GetNumWarsFought(ePlayer) > 1)
+			return GetDiploStringForMessage(DIPLO_MESSAGE_DOW_OLD_ENEMIES);
+
+		//Warmonger
+		//If this person is a major warmonger, we should tell them about it
+		if(MOD_BALANCE_CORE && GetWarmongerThreat(ePlayer) >= THREAT_MAJOR)
+			return GetDiploStringForMessage(DIPLO_MESSAGE_DOW_WARMONGER);
+
+		//Ideology
+		//If we're different ideologies, that's probably a big factor.
+		PolicyBranchTypes eMyBranch = m_pPlayer->GetPlayerPolicies()->GetLateGamePolicyTree();
+		PolicyBranchTypes eTheirBranch = GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree();
+		if(MOD_BALANCE_CORE && eMyBranch != NO_POLICY_BRANCH_TYPE && eTheirBranch != NO_POLICY_BRANCH_TYPE && eMyBranch != eTheirBranch)
+		{
+			return GetDiploStringForMessage(DIPLO_MESSAGE_DOW_IDEOLOGY_DIFFERENCE);
+		}
+		if(MOD_BALANCE_CORE && eMyBranch != NO_POLICY_BRANCH_TYPE && eTheirBranch != NO_POLICY_BRANCH_TYPE && eMyBranch == eTheirBranch)
+		{
+			return GetDiploStringForMessage(DIPLO_MESSAGE_DOW_IDEOLOGY_SAME);
+		}
+#endif
 
 		// Land Dispute
 		// If Land Dispute is Strong or higher then this is probably a strong contributer to the DoW
@@ -28277,6 +28382,7 @@ CvString CvDiplomacyAIHelpers::GetWarmongerPreviewString(PlayerTypes eCurrentOwn
 
 #if defined(MOD_CONFIG_AI_IN_XML)
 	int iWarmongerOffset = CvDiplomacyAIHelpers::GetWarmongerOffset(eCurrentOwner, bIsCapital);
+	iWarmongerOffset = iWarmongerOffset * GC.getEraInfo(GC.getGame().getCurrentEra())->getWarmongerPercent() / 100;
 #else
 	CvPlayer &kPlayer = GET_PLAYER(eCurrentOwner);
 	int iNumCities = max(kPlayer.getNumCities(), 1);
@@ -28310,6 +28416,7 @@ CvString CvDiplomacyAIHelpers::GetLiberationPreviewString(PlayerTypes eOriginalO
 
 #if defined(MOD_CONFIG_AI_IN_XML)
 	int iWarmongerOffset = CvDiplomacyAIHelpers::GetWarmongerOffset(eOriginalOwner, bIsCapital);
+	iWarmongerOffset = iWarmongerOffset * GC.getEraInfo(GC.getGame().getCurrentEra())->getWarmongerPercent() / 100;
 #else
 	CvPlayer &kPlayer = GET_PLAYER(eOriginalOwner);
 	int iNumCities = kPlayer.getNumCities() + 1;

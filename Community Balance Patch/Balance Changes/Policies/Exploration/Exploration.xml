@@ -192,9 +192,9 @@
 	<!-- Finisher -->
 	<Policy_ConquerorYield>
 		<Row>
-			<PolicyType>POLICY_EXPLORATION_FINISHER</PolicyType>
+			<PolicyType>POLICY_TREASURE_FLEETS</PolicyType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>75</Yield>
+			<Yield>40</Yield>
 		</Row>
 	</Policy_ConquerorYield>
 	<!-- Merchant Navy -->
@@ -275,17 +275,17 @@
 	</Policy_BuildingClassYieldChanges>
 	<Policy_BuildingClassCultureChanges>
 		<Row>
-			<PolicyType>POLICY_MERCANTILISM</PolicyType>
+			<PolicyType>POLICY_NAVAL_TRADITION</PolicyType>
 			<BuildingClassType>BUILDINGCLASS_BARRACKS</BuildingClassType>
 			<CultureChange>1</CultureChange>
 		</Row>
 		<Row>
-			<PolicyType>POLICY_MERCANTILISM</PolicyType>
+			<PolicyType>POLICY_NAVAL_TRADITION</PolicyType>
 			<BuildingClassType>BUILDINGCLASS_ARMORY</BuildingClassType>
 			<CultureChange>1</CultureChange>
 		</Row>
 		<Row>
-			<PolicyType>POLICY_MERCANTILISM</PolicyType>
+			<PolicyType>POLICY_NAVAL_TRADITION</PolicyType>
 			<BuildingClassType>BUILDINGCLASS_MILITARY_ACADEMY</BuildingClassType>
 			<CultureChange>1</CultureChange>
 		</Row>
@@ -296,6 +296,12 @@
 			<PolicyType>POLICY_EXPLORATION_FINISHER</PolicyType>
 			<PlotType>PLOT_OCEAN</PlotType>
 			<YieldType>YIELD_SCIENCE</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_EXPLORATION_FINISHER</PolicyType>
+			<PlotType>PLOT_OCEAN</PlotType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
 			<Yield>1</Yield>
 		</Row>
 	</Policy_PlotYieldChanges>

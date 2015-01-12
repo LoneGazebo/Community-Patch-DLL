@@ -78,22 +78,22 @@
 		<Row>
 			<BuildingType>BUILDING_BROADCAST_TOWER</BuildingType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>50</Yield>
+			<Yield>20</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_AMPHITHEATER</BuildingType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>20</Yield>
+			<Yield>10</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_OPERA_HOUSE</BuildingType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>25</Yield>
+			<Yield>15</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_MUSEUM</BuildingType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>33</Yield>
+			<Yield>15</Yield>
 		</Row>
 	</Building_YieldChangesPerPop>
 	<!-- Military Academy -->
@@ -104,6 +104,46 @@
 			<Modifier>15</Modifier>
 		</Row>
 	</Building_DomainProductionModifiers>
+	<!-- Colosseum/Zoo/Circus/Stadium -->
+	<Building_YieldChanges>
+		<Row>
+			<BuildingType>BUILDING_COLOSSEUM</BuildingType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>1</Yield>
+		</Row>
+	</Building_YieldChanges>
+	<Building_YieldChanges>
+		<Row>
+			<BuildingType>BUILDING_CIRCUS</BuildingType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>1</Yield>
+		</Row>
+	</Building_YieldChanges>
+	<Building_YieldChanges>
+		<Row>
+			<BuildingType>BUILDING_THEATRE</BuildingType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Yield>2</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_THEATRE</BuildingType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>1u</Yield>
+		</Row>
+	</Building_YieldChanges>
+	<Building_InstantYield>
+		<Row>
+			<BuildingType>BUILDING_STADIUM</BuildingType>
+			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
+			<Yield>300</Yield>
+		</Row>
+	</Building_InstantYield>
+	<Building_ClassesNeededInCity>
+		<Row>
+			<BuildingType>BUILDING_CIRCUS</BuildingType>
+			<BuildingClassType>BUILDINGCLASS_COLOSSEUM</BuildingClassType>
+		</Row>
+	</Building_ClassesNeededInCity>
 	<!-- Stables -->
 	<Building_YieldChanges>
 		<Row>
@@ -112,12 +152,28 @@
 			<Yield>1</Yield>
 		</Row>
 	</Building_YieldChanges>
+	<!-- Harbor -->
+	<Building_YieldChanges>
+		<Row>
+			<BuildingType>BUILDING_HARBOR</BuildingType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+	</Building_YieldChanges>
 	<!-- Seaport -->
 	<Building_YieldChanges>
 		<Row>
 			<BuildingType>BUILDING_SEAPORT</BuildingType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Yield>2</Yield>
+			<Yield>1</Yield>
+		</Row>
+	</Building_YieldChanges>
+	<!-- Caravansary -->
+	<Building_YieldChanges>
+		<Row>
+			<BuildingType>BUILDING_CARAVANSARY</BuildingType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>1</Yield>
 		</Row>
 	</Building_YieldChanges>
 	<!-- Market -->
@@ -134,24 +190,31 @@
 			<YieldType>YIELD_GOLD</YieldType>
 			<Yield>1</Yield>
 		</Row>
+		<Row>
+			<BuildingType>BUILDING_MARKET</BuildingType>
+			<ResourceType>RESOURCE_COCOA</ResourceType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>1</Yield>
+		</Row>
 	</Building_ResourceYieldChanges>
 	<Building_YieldChangesPerPop>
+	<!-- Market -->
 		<Row>
 			<BuildingType>BUILDING_MARKET</BuildingType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>25</Yield>
+			<Yield>15</Yield>
 		</Row>
 	<!-- Bank -->
 		<Row>
 			<BuildingType>BUILDING_BANK</BuildingType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>33</Yield>
+			<Yield>20</Yield>
 		</Row>
 	<!-- Stock Exchange -->
 		<Row>
 			<BuildingType>BUILDING_STOCK_EXCHANGE</BuildingType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>50</Yield>
+			<Yield>25</Yield>
 		</Row>
 	</Building_YieldChangesPerPop>
 	<!-- Mint -->
@@ -162,11 +225,12 @@
 			<YieldType>YIELD_GOLD</YieldType>
 			<Yield>2</Yield>
 		</Row>
+	<!-- Forge -->
 		<Row>
-			<BuildingType>BUILDING_MINT</BuildingType>
+			<BuildingType>BUILDING_FORGE</BuildingType>
 			<ResourceType>RESOURCE_COPPER</ResourceType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>2</Yield>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>1</Yield>
 		</Row>
 	<!-- Caravanserai -->
 		<Row>
@@ -191,26 +255,27 @@
 	<Building_LocalResourceOrs>
 		<Row>
 			<BuildingType>BUILDING_MINT</BuildingType>
-			<ResourceType>RESOURCE_COPPER</ResourceType>
-		</Row>
-		<Row>
-			<BuildingType>BUILDING_MINT</BuildingType>
 			<ResourceType>RESOURCE_GEMS</ResourceType>
 		</Row>
 	</Building_LocalResourceOrs>
-	<!-- Research Lab -->
+	<!-- University, Windmill, Research Lab -->
 	<Building_FeatureYieldChanges>
 		<Row>
-			<BuildingType>BUILDING_LABORATORY</BuildingType>
-			<FeatureType>FEATURE_JUNGLE</FeatureType>
+			<BuildingType>BUILDING_UNIVERSITY</BuildingType>
+			<FeatureType>FEATURE_FOREST</FeatureType>
 			<YieldType>YIELD_SCIENCE</YieldType>
 			<Yield>1</Yield>
 		</Row>
 	</Building_FeatureYieldChanges>
 	<Building_YieldChanges>
 		<Row>
-			<BuildingType>BUILDING_LABORATORY</BuildingType>
+			<BuildingType>BUILDING_UNIVERSITY</BuildingType>
 			<YieldType>YIELD_SCIENCE</YieldType>
+			<Yield>2</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_WINDMILL</BuildingType>
+			<YieldType>YIELD_FOOD</YieldType>
 			<Yield>2</Yield>
 		</Row>
 	</Building_YieldChanges>
@@ -218,7 +283,7 @@
 		<Row>
 			<BuildingType>BUILDING_LABORATORY</BuildingType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>50</Yield>
+			<Yield>20</Yield>
 		</Row>
 	</Building_YieldChangesPerPop>
 	<!-- Observatory-->
@@ -226,7 +291,7 @@
 		<Row>
 			<BuildingType>BUILDING_OBSERVATORY</BuildingType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>5</Yield>
+			<Yield>3</Yield>
 		</Row>
 	</Building_YieldChanges>
 	<!-- University -->
@@ -249,9 +314,9 @@
 		<Row>
 			<Type>BUILDING_STONE_WORKS</Type>
 			<BuildingClass>BUILDINGCLASS_STONE_WORKS</BuildingClass>
-			<Cost>75</Cost>
+			<Cost>50</Cost>
 			<GoldMaintenance>1</GoldMaintenance>
-			<PrereqTech>TECH_CALENDAR</PrereqTech>
+			<PrereqTech>TECH_MINING</PrereqTech>
 			<Help>TXT_KEY_BUILDING_STONE_WORKS_HELP</Help>
 			<Description>TXT_KEY_BUILDING_STONE_WORKS</Description>
 			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_STONE_WORKS_TEXT</Civilopedia>
@@ -264,12 +329,26 @@
 			<PortraitIndex>1</PortraitIndex>
 		</Row>
 	</Buildings>
+	<Building_ResourceYieldChanges>
+		<Row>
+			<BuildingType>BUILDING_STONE_WORKS</BuildingType>
+			<ResourceType>RESOURCE_SALT</ResourceType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>1</Yield>
+		</Row>
+	</Building_ResourceYieldChanges>
+	<Building_LocalResourceOrs>
+		<Row>
+			<BuildingType>BUILDING_STONE_WORKS</BuildingType>
+			<ResourceType>RESOURCE_SALT</ResourceType>
+		</Row>
+	</Building_LocalResourceOrs>
 	<!-- Forge -->
 	<Building_YieldChanges>
 		<Row>
 			<BuildingType>BUILDING_FORGE</BuildingType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Yield>2</Yield>
+			<Yield>1</Yield>
 		</Row>
 	</Building_YieldChanges>
 	<!-- Factory -->
@@ -277,7 +356,7 @@
 		<Row>
 			<BuildingType>BUILDING_FACTORY</BuildingType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Yield>50</Yield>
+			<Yield>25</Yield>
 		</Row>
 	</Building_YieldChangesPerPop>
 	<!-- Nuclear and Solar Plants -->
@@ -293,12 +372,47 @@
 			<Yield>15</Yield>
 		</Row>
 	</Building_YieldModifiers>
-	<!-- Zoo -->
-	<Building_ResourceQuantityRequirements>
+	<!-- Happiness Flavors -->
+	<Building_Flavors>
 		<Row>
-			<BuildingType>BUILDING_THEATRE</BuildingType>
-			<ResourceType>RESOURCE_HORSE</ResourceType>
-			<Cost>1</Cost>
+			<BuildingType>BUILDING_WALLS</BuildingType>
+			<FlavorType>FLAVOR_HAPPINESS</FlavorType>
+			<Flavor>30</Flavor>
 		</Row>
-	</Building_ResourceQuantityRequirements>
+		<Row>
+			<BuildingType>BUILDING_CASTLE</BuildingType>
+			<FlavorType>FLAVOR_HAPPINESS</FlavorType>
+			<Flavor>30</Flavor>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_ARSENAL</BuildingType>
+			<FlavorType>FLAVOR_HAPPINESS</FlavorType>
+			<Flavor>30</Flavor>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_MILITARY_BASE</BuildingType>
+			<FlavorType>FLAVOR_HAPPINESS</FlavorType>
+			<Flavor>30</Flavor>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_CONSTABLE</BuildingType>
+			<FlavorType>FLAVOR_HAPPINESS</FlavorType>
+			<Flavor>25</Flavor>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_POLICE_STATION</BuildingType>
+			<FlavorType>FLAVOR_HAPPINESS</FlavorType>
+			<Flavor>25</Flavor>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_CONSTABLE</BuildingType>
+			<FlavorType>FLAVOR_GROWTH</FlavorType>
+			<Flavor>25</Flavor>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_POLICE_STATION</BuildingType>
+			<FlavorType>FLAVOR_GROWTH</FlavorType>
+			<Flavor>25</Flavor>
+		</Row>
+	</Building_Flavors>
 </GameData>

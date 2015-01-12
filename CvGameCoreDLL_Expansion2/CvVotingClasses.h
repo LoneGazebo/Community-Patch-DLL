@@ -537,6 +537,9 @@ public:
 	bool CanEverVote(PlayerTypes ePlayer);
 	int GetRemainingVotesForMember(PlayerTypes ePlayer);
 	int GetSpentVotesForMember(PlayerTypes ePlayer);
+#if defined(MOD_BALANCE_CORE_DEALS)
+	int GetPotentialVotesForMember(PlayerTypes ePlayer, PlayerTypes eFromPlayer);
+#endif
 	int GetCoreVotesForMember(PlayerTypes ePlayer);
 	int CalculateStartingVotesForMember(PlayerTypes ePlayer, bool bForceUpdateSources = false);
 	bool CanPropose(PlayerTypes ePlayer);

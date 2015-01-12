@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created by ModBuddy on 12/17/2014 1:33:43 PM -->
+<GameData>
+	<Builds>
+		<Row>
+			<Type>BUILD_ENCAMPMENT</Type>
+			<Time>700</Time>
+			<ImprovementType>IMPROVEMENT_ENCAMPMENT</ImprovementType>
+			<PrereqTech>TECH_ARCHERY</PrereqTech>
+			<Description>TXT_KEY_BUILD_ENCAMPMENT</Description>
+			<Help>TXT_KEY_BUILD_ENCAMPMENT_HELP</Help>
+			<Recommendation>TXT_KEY_BUILD_ENCAMPMENT_REC</Recommendation>
+			<EntityEvent>ENTITY_EVENT_BUILD</EntityEvent>
+			<HotKey>KB_E</HotKey>
+			<OrderPriority>1</OrderPriority>
+			<IconIndex>0</IconIndex>
+			<IconAtlas>UNIT_ACTION_ENCAMPMENT</IconAtlas>
+		</Row>
+	</Builds>
+	<BuildFeatures>
+		<Row>
+			<BuildType>BUILD_ENCAMPMENT</BuildType>
+			<FeatureType>FEATURE_JUNGLE</FeatureType>
+			<PrereqTech>TECH_BRONZE_WORKING</PrereqTech>
+			<Time>700</Time>
+			<Production>15</Production>
+			<Remove>true</Remove>
+		</Row>
+		<Row>
+			<BuildType>BUILD_ENCAMPMENT</BuildType>
+			<FeatureType>FEATURE_FOREST</FeatureType>
+			<PrereqTech>TECH_MINING</PrereqTech>
+			<Time>400</Time>
+			<Production>20</Production>
+			<Remove>true</Remove>
+		</Row>
+	</BuildFeatures>
+	<Improvements>
+		<Row>
+			<Type>IMPROVEMENT_ENCAMPMENT</Type>
+			<Description>TXT_KEY_IMPROVEMENT_ENCAMPMENT_SHOSHONE</Description>
+			<Civilopedia>TXT_KEY_CIV5_IMPROVEMENTS_ENCAMPMENT_TEXT</Civilopedia>
+			<Help>TXT_KEY_CIV5_IMPROVEMENTS_ENCAMPMENT_HELP</Help>
+			<ArtDefineTag>ART_DEF_IMPROVEMENT_TIPIS</ArtDefineTag>
+			<SpecificCivRequired>true</SpecificCivRequired>
+			<CivilizationType>CIVILIZATION_SHOSHONE</CivilizationType>
+			<RequiresFlatlands>true</RequiresFlatlands>
+			<NoTwoAdjacent>true</NoTwoAdjacent>
+			<PortraitIndex>0</PortraitIndex>
+			<PillageGold>20</PillageGold>
+			<DefenseModifier>15</DefenseModifier>
+			<NearbyEnemyDamage>5</NearbyEnemyDamage>
+			<IconAtlas>TERRAIN_IMPROVEMENT_ENCAMPMENT</IconAtlas>
+		</Row>
+	</Improvements>
+	<Improvement_ValidTerrains>
+		<Row>
+			<ImprovementType>IMPROVEMENT_ENCAMPMENT</ImprovementType>
+			<TerrainType>TERRAIN_GRASS</TerrainType>
+		</Row>
+		<Row>
+			<ImprovementType>IMPROVEMENT_ENCAMPMENT</ImprovementType>
+			<TerrainType>TERRAIN_PLAINS</TerrainType>
+		</Row>
+		<Row>
+			<ImprovementType>IMPROVEMENT_ENCAMPMENT</ImprovementType>
+			<TerrainType>TERRAIN_TUNDRA</TerrainType>
+		</Row>
+		<Row>
+			<ImprovementType>IMPROVEMENT_ENCAMPMENT</ImprovementType>
+			<TerrainType>TERRAIN_SNOW</TerrainType>
+		</Row>
+		<Row>
+			<ImprovementType>IMPROVEMENT_ENCAMPMENT</ImprovementType>
+			<TerrainType>TERRAIN_DESERT</TerrainType>
+		</Row>
+	</Improvement_ValidTerrains>
+	<Improvement_Yields>
+		<Row>
+			<ImprovementType>IMPROVEMENT_ENCAMPMENT</ImprovementType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<ImprovementType>IMPROVEMENT_ENCAMPMENT</ImprovementType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<ImprovementType>IMPROVEMENT_ENCAMPMENT</ImprovementType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>1</Yield>
+		</Row>
+	</Improvement_Yields>
+	<Improvement_TechYieldChanges>
+		<Row>
+			<ImprovementType>IMPROVEMENT_ENCAMPMENT</ImprovementType>
+			<TechType>TECH_RIFLING</TechType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<ImprovementType>IMPROVEMENT_ENCAMPMENT</ImprovementType>
+			<TechType>TECH_RIFLING</TechType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<ImprovementType>IMPROVEMENT_ENCAMPMENT</ImprovementType>
+			<TechType>TECH_RIFLING</TechType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+	</Improvement_TechYieldChanges>
+	<Language_en_US>
+		<Row Tag="TXT_KEY_IMPROVEMENT_ENCAMPMENT_SHOSHONE">
+			<Text>Encampment</Text>
+			<Gender>neuter:an</Gender>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_IMPROVEMENTS_ENCAMPMENT_TEXT">
+			<Text>
+				A tipi is a conical tent, traditionally made of animal skins, and wooden poles. The tipi was used in the encampments of nomadic tribes of the Great Plains in North America. Tipis are stereotypically associated with Native Americans in the United States in general, however Native Americans from places other than the Great Plains mostly used different types of dwellings. The tipi is durable, provides warmth and comfort in winter, is cool in the heat of summer, and is dry during heavy rains. Tipis could be disassembled and packed away quickly when a tribe decided to move and could be reconstructed quickly upon settling in a new area. This portability was important to Plains Indians with their nomadic lifestyle. Modern tipi covers are usually made of canvas. Contemporary users of tipis include historical reenactors, back-to-the-land devotees, and Native American families attending powwows or encampments who wish to preserve and pass on a part of their heritage and tradition.
+			</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_IMPROVEMENTS_ENCAMPMENT_HELP">
+			<Text>An Encampment can only be built on flat tiles, and no two Encampments can be adjacent. It provides additional [ICON_FOOD] Food, [ICON_PRODUCTION] Production and [ICON_GOLD] Gold. Encampments provide a small defense modifier to units stationed on them, and also slightly damage nearby enemy units if they end their turn on or next to an Encampment. Must be built in Shoshone territory.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILD_ENCAMPMENT">
+			<Text>Construct an [LINK=IMPROVEMENT_ENCAMPMENT]Encampment[\LINK]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILD_ENCAMPMENT_HELP">
+			<Text>Constructs an Encampment, which increases the amount of [ICON_FOOD] Food, [ICON_PRODUCTION] Production, and [ICON_CULTURE] Culture provided by this tile. Removes any features on the tile. Provides a small defensive bonuse and lightly damages adjacent enemy units.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILD_ENCAMPMENT_REC">
+			<Text>It will increase the amount of [ICON_FOOD] Food, [ICON_PRODUCTION] Production, and [ICON_CULTURE] Culture provided by this tile. Removes any features on the tile. Provides a small defensive bonuse and lightly damages adjacent enemy units.</Text>
+		</Row>
+	</Language_en_US>
+	<Unit_Builds>
+		<Row>
+			<UnitType>UNIT_WORKER</UnitType>
+			<BuildType>BUILD_ENCAMPMENT</BuildType>
+		</Row>
+	</Unit_Builds>
+	<PostDefines>
+		<Row Name="TIPI_IMPROVEMENT">
+			<Key>IMPROVEMENT_ENCAMPMENT</Key>
+			<Table>Improvements</Table>
+		</Row>
+	</PostDefines>
+</GameData>

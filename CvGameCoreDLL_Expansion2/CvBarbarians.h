@@ -43,6 +43,9 @@ private:
 #endif
 
 	static short* m_aiPlotBarbCampSpawnCounter;
+#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
+	static short* m_aiPlotBarbCitySpawnCounter;
+#endif
 	static short* m_aiPlotBarbCampNumUnitsSpawned;
 	static FStaticVector<DirectionTypes, 6, true, c_eCiv5GameplayDLL, 0> m_aeValidBarbSpawnDirections;
 };

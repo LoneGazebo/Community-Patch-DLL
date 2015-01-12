@@ -2989,23 +2989,24 @@ int CvPlot::getUnitPower(PlayerTypes eOwner) const
 	return iCount;
 }
 
-#if defined(MOD_BALANCE_CORE_MILITARY)
+#if defined(MOD_BALANCE_CORE)
 
 //	--------------------------------------------------------------------------------
 int CvPlot::defenseModifier(TeamTypes eDefender, bool, bool bHelp) const
 {
-	// Plot type
 	int iModifier = 0;
+
+	// Plot type
 	if(isHills() || isMountain())
-		iModifier = /*25*/ GC.getHILLS_EXTRA_DEFENSE();
+		iModifier += /*25*/ GC.getHILLS_EXTRA_DEFENSE();
 
 	// Feature
 	if(getFeatureType() != NO_FEATURE)
-		iModifier = max( iModifier, GC.getFeatureInfo(getFeatureType())->getDefenseModifier() );
+		iModifier += GC.getFeatureInfo(getFeatureType())->getDefenseModifier();
 
 	// Terrain
 	if(getTerrainType() != NO_TERRAIN)
-		iModifier = max( iModifier, GC.getTerrainInfo(getTerrainType())->getDefenseModifier() );
+		iModifier += GC.getTerrainInfo(getTerrainType())->getDefenseModifier();
 
 	// Improvements count extra, but include them for tooltips only if the tile is revealed
 	ImprovementTypes eImprovement = bHelp ? getRevealedImprovementType(GC.getGame().getActiveTeam()) : getImprovementType();
@@ -4933,6 +4934,29 @@ int CvPlot::ComputeCultureFromAdjacentImprovement(CvImprovementEntry& kImproveme
 
 	return iRtnValue;
 }
+#if defined(MOD_API_UNIFIED_YIELDS)
+int CvPlot::ComputeYieldFromTwoAdjacentImprovement(CvImprovementEntry& kImprovement, ImprovementTypes eValue, YieldTypes eYield) const
+{
+	CvPlot* pAdjacentPlot;
+	int iRtnValue = 0;
+
+	if(kImprovement.GetYieldAdjacentTwoSameType(eYield) > 0)
+	{
+		for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+		{
+			pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
+			if(pAdjacentPlot && pAdjacentPlot->getImprovementType() == eValue)
+			{
+				iRtnValue += kImprovement.GetYieldAdjacentTwoSameType(eYield);
+			}
+		}
+	}
+
+	iRtnValue /= 2;
+
+	return iRtnValue;
+}
+#endif
 
 #if defined(MOD_GLOBAL_STACKING_RULES)
 //	--------------------------------------------------------------------------------
@@ -6690,6 +6714,17 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 					}
 				}
 #if defined(MOD_API_UNIFIED_YIELDS)
+				if(oldImprovementEntry.GetYieldAdjacentTwoSameType((YieldTypes) iI) > 0)
+				{
+					for(iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+					{
+						CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
+						if(pAdjacentPlot && pAdjacentPlot->getImprovementType() == eOldImprovement)
+						{
+							pAdjacentPlot->updateYield();
+						}
+					}
+				}
 			}
 #endif
 
@@ -6817,6 +6852,17 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 					}
 				}
 #if defined(MOD_API_UNIFIED_YIELDS)
+				if(newImprovementEntry.GetYieldAdjacentTwoSameType((YieldTypes) iYield) > 0)
+				{
+					for(iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+					{
+						CvPlot* pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
+						if(pAdjacentPlot && pAdjacentPlot->getImprovementType() == eNewValue)
+						{
+							pAdjacentPlot->updateYield();
+						}
+					}
+				}
 			}
 #endif
 
@@ -8354,19 +8400,15 @@ int CvPlot::calculateImprovementYieldChange(ImprovementTypes eImprovement, Yield
 			{
 #if defined(MOD_BALANCE_CORE_BELIEFS_RESOURCE)
 				int iReligionChange = 0;
-				if (MOD_BALANCE_CORE_BELIEFS_RESOURCE)
+				bool bRequiresResource = pReligion->m_Beliefs.RequiresResource();
+				if(pImprovement->IsCreatedByGreatPerson())
 				{
-					bool bRequiresResource = pReligion->m_Beliefs.RequiresResource();
-					if(pImprovement->IsCreatedByGreatPerson())
-					{
-						bRequiresResource = false;
-					}
-					if(bRequiresResource && (getResourceType() != NO_RESOURCE))
+					bRequiresResource = false;
+				}
+				if (MOD_BALANCE_CORE_BELIEFS_RESOURCE && bRequiresResource)
+				{	
+					if(bRequiresResource && (getResourceType(GET_PLAYER(pWorkingCity->getOwner()).getTeam()) != NO_RESOURCE))
 					{		
-						iReligionChange = pReligion->m_Beliefs.GetImprovementYieldChange(eImprovement, eYield);
-					}
-					else
-					{
 						iReligionChange = pReligion->m_Beliefs.GetImprovementYieldChange(eImprovement, eYield);
 					}
 				}
@@ -8381,15 +8423,15 @@ int CvPlot::calculateImprovementYieldChange(ImprovementTypes eImprovement, Yield
 				if (eSecondaryPantheon != NO_BELIEF)
 				{
 #if defined(MOD_BALANCE_CORE_BELIEFS_RESOURCE)
-					if (MOD_BALANCE_CORE_BELIEFS_RESOURCE)
+					bRequiresResource = GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->RequiresResource();
+					if(pImprovement->IsCreatedByGreatPerson())
 					{
-						bool bRequiresResource = GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->RequiresResource();
-						if(bRequiresResource && (getResourceType() != NO_RESOURCE))
+						bRequiresResource = false;
+					}
+					if (MOD_BALANCE_CORE_BELIEFS_RESOURCE && bRequiresResource)
+					{	
+						if(bRequiresResource && (getResourceType(GET_PLAYER(pWorkingCity->getOwner()).getTeam()) != NO_RESOURCE))
 						{		
-							iReligionChange += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetImprovementYieldChange(eImprovement, eYield);
-						}
-						else
-						{
 							iReligionChange += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetImprovementYieldChange(eImprovement, eYield);
 						}
 					}
@@ -8490,6 +8532,7 @@ int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay)
 			{
 #if defined(MOD_API_UNIFIED_YIELDS)
 				int iAdjacentCulture = pImprovement->GetYieldAdjacentSameType(eYield);
+				iAdjacentCulture += pImprovement->GetYieldAdjacentTwoSameType(eYield);
 #else
 				int iAdjacentCulture = pImprovement->GetCultureAdjacentSameType();
 #endif
@@ -8497,6 +8540,7 @@ int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay)
 				{
 #if defined(MOD_API_UNIFIED_YIELDS)
 					iYield += ComputeYieldFromAdjacentImprovement(*pImprovement, eImprovement, eYield);
+					iYield += ComputeYieldFromTwoAdjacentImprovement(*pImprovement, eImprovement, eYield);
 #else
 					iYield += ComputeCultureFromAdjacentImprovement(*pImprovement, eImprovement);
 #endif
@@ -8668,7 +8712,18 @@ int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay)
 			iYield += GET_PLAYER(getOwner()).GetPlayerTraits()->GetCoastalCityYieldChanges(eYield);
 #endif
 		}
-
+#if defined(MOD_BALANCE_CORE)
+		//Non-hill, non-freshwater city plots should make one extra gold
+		if(eYield == YIELD_GOLD && !isHills() && !isFreshWater())
+		{
+			iYield += 1;
+		}
+		//Non-hill, freshwater plots should make one extra food
+		if(eYield == YIELD_FOOD && !isHills() && isFreshWater())
+		{
+			iYield += 1;
+		}
+#endif
 		// Capital Mod
 		if(pCity->isCapital())
 		{
@@ -11408,6 +11463,7 @@ int CvPlot::getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUp
 			{
 #if defined(MOD_API_UNIFIED_YIELDS)
 				int iAdjacentCulture = pImprovement->GetYieldAdjacentSameType(eYield);
+				iAdjacentCulture += pImprovement->GetYieldAdjacentTwoSameType(eYield);
 #else
 				int iAdjacentCulture = pImprovement->GetCultureAdjacentSameType();
 #endif
@@ -11415,6 +11471,7 @@ int CvPlot::getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUp
 				{
 #if defined(MOD_API_UNIFIED_YIELDS)
 					iYield += ComputeYieldFromAdjacentImprovement(*pImprovement, eImprovement, eYield);
+					iYield += ComputeYieldFromTwoAdjacentImprovement(*pImprovement, eImprovement, eYield);
 #else
 					iYield += ComputeCultureFromAdjacentImprovement(*pImprovement, eImprovement);
 #endif

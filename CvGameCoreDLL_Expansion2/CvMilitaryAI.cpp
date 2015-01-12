@@ -2868,28 +2868,47 @@ void CvMilitaryAI::UpdateBaseData()
 	PlayerTypes eOtherPlayer;
 	int iNumParity = 0;
 	int iHighestParity = 0;
-	if(!m_pPlayer->isMinorCiv())
+	int iNumOwnedArmyUnits = 0;
+	int iNumTheirArmyUnits = 0;
+	if(MOD_BALANCE_CORE_MILITARY && !m_pPlayer->isMinorCiv())
 	{
+		for (int iUnitLoop = 0; iUnitLoop < GetPlayer()->getNumUnits(); iUnitLoop++)
+		{
+			CvUnit *pUnit = GetPlayer()->getUnit(iUnitLoop);
+			{
+				if (pUnit != NULL && pUnit->getDomainType() == DOMAIN_LAND && pUnit->IsCombatUnit())
+				{
+					iNumOwnedArmyUnits++;
+				}
+			}
+		}
 		for(int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
 		{
 			eOtherPlayer = (PlayerTypes) iMajorLoop;
 			if(eOtherPlayer != NO_PLAYER && !GET_PLAYER(eOtherPlayer).isMinorCiv() && (eOtherPlayer != m_pPlayer->GetID()))
 			{
-				if(GET_PLAYER(eOtherPlayer).GetProximityToPlayer(m_pPlayer->GetID()) >= PLAYER_PROXIMITY_CLOSE)
+				MajorCivApproachTypes eApproachType = GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(eOtherPlayer, false);
+				if((eApproachType <= MAJOR_CIV_APPROACH_GUARDED) || (GET_PLAYER(eOtherPlayer).GetProximityToPlayer(GetPlayer()->GetID()) == PLAYER_PROXIMITY_NEIGHBORS))
 				{
-					if(GET_PLAYER(eOtherPlayer).getNumMilitaryUnits() > m_pPlayer->getNumMilitaryUnits())
+					for (int iUnitLoop = 0; iUnitLoop < GET_PLAYER(eOtherPlayer).getNumUnits(); iUnitLoop++)
 					{
-						//Let's try to achieve military parity with the largest number of enemy units.
-						iNumParity = (GET_PLAYER(eOtherPlayer).getNumMilitaryUnits() - m_pPlayer->getNumMilitaryUnits());
-						if(iNumParity > iHighestParity)
+						CvUnit *pUnit = GET_PLAYER(eOtherPlayer).getUnit(iUnitLoop);
 						{
-							iHighestParity = iNumParity;
+							if (pUnit != NULL && pUnit->getDomainType() == DOMAIN_LAND && pUnit->IsCombatUnit())
+							{
+								iNumTheirArmyUnits++;
+							}
 						}
+					}
+					//Let's try to achieve military parity with the largest number of enemy units.
+					iNumParity = (iNumTheirArmyUnits - iNumOwnedArmyUnits);
+					if(iNumParity > iHighestParity)
+					{
+						iHighestParity = iNumParity;
 					}
 				}
 			}
 		}
-		m_iRecommendedMilitarySize += iHighestParity;
 	}
 #endif
 
@@ -2939,9 +2958,24 @@ void CvMilitaryAI::UpdateBaseData()
 		iNumUnitsWanted /= 3;
 		m_iMandatoryReserveSize *= 2;
 		m_iMandatoryReserveSize /= 3;
+#if defined(MOD_BALANCE_CORE_MILITARY)
+		iHighestParity *= 2;
+		iHighestParity /= 3;
+#endif
 	}
 
 	m_iRecommendedMilitarySize = m_iMandatoryReserveSize + iNumUnitsWanted;
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	if((m_iRecommendedMilitarySize + iHighestParity) <= GetPlayer()->GetNumUnitsSupplied())
+	{
+		m_iRecommendedMilitarySize += iHighestParity;
+	}
+	//We don't want to go over this, but we need every troop we can muster.
+	else
+	{
+		m_iRecommendedMilitarySize = GetPlayer()->GetNumUnitsSupplied();
+	}
+#endif
 }
 
 /// Update how we're doing on defensive units
@@ -5743,31 +5777,62 @@ int MilitaryAIHelpers::ComputeRecommendedNavySize(CvPlayer* pPlayer)
 		}
 	}
 #if defined(MOD_BALANCE_CORE_MILITARY)
-	if(MOD_BALANCE_CORE_MILITARY)
+	//Look at neighbors - if they're stronger than us, let's increase our amount.
+	PlayerTypes eOtherPlayer;
+	int iNumParity = 0;
+	int iHighestParity = 0;
+	int iNumOwnedNavalUnits = 0;
+	int iNumTheirNavalUnits = 0;
+	if(MOD_BALANCE_CORE_MILITARY && !pPlayer->isMinorCiv())
 	{
-		//Look at neighbors - if they have a lot of coastal cities, let's increase our amount.
-		PlayerTypes eOtherPlayer;
+		for (int iUnitLoop = 0; iUnitLoop < pPlayer->getNumUnits(); iUnitLoop++)
+		{
+			CvUnit *pUnit = pPlayer->getUnit(iUnitLoop);
+			{
+				if (pUnit != NULL && pUnit->getDomainType() == DOMAIN_SEA && pUnit->IsCombatUnit())
+				{
+					iNumOwnedNavalUnits++;
+				}
+			}
+		}
 		for(int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
 		{
 			eOtherPlayer = (PlayerTypes) iMajorLoop;
-			if(eOtherPlayer != NO_PLAYER && !GET_PLAYER(eOtherPlayer).isMinorCiv())
+			if(eOtherPlayer != NO_PLAYER && !GET_PLAYER(eOtherPlayer).isMinorCiv() && (eOtherPlayer != pPlayer->GetID()))
 			{
-				if(GET_PLAYER(eOtherPlayer).GetProximityToPlayer(pPlayer->GetID()) >= PLAYER_PROXIMITY_CLOSE)
+				MajorCivApproachTypes eApproachType = pPlayer->GetDiplomacyAI()->GetMajorCivApproach(eOtherPlayer, false);
+				if((eApproachType <= MAJOR_CIV_APPROACH_GUARDED) || (GET_PLAYER(eOtherPlayer).GetProximityToPlayer(pPlayer->GetID()) == PLAYER_PROXIMITY_NEIGHBORS))
 				{
-					CvCity* pLoopCity;
-					int iLoop;
-					for(pLoopCity = GET_PLAYER(eOtherPlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eOtherPlayer).nextCity(&iLoop))
+					for (int iUnitLoop = 0; iUnitLoop < GET_PLAYER(eOtherPlayer).getNumUnits(); iUnitLoop++)
 					{
-						if(pLoopCity != NULL)
+						CvUnit *pUnit = GET_PLAYER(eOtherPlayer).getUnit(iUnitLoop);
 						{
-							if(pLoopCity->isCoastal(GC.getMIN_WATER_SIZE_FOR_OCEAN()))
+							if (pUnit != NULL && pUnit->getDomainType() == DOMAIN_SEA && pUnit->IsCombatUnit())
 							{
-								iNumUnitsWanted++;
+								iNumTheirNavalUnits++;
 							}
 						}
 					}
+					//Let's try to achieve military parity with the largest number of enemy units.
+					iNumParity = (iNumTheirNavalUnits - iNumOwnedNavalUnits);
+					if(iNumParity > iHighestParity)
+					{
+						iHighestParity = iNumParity;
+					}
 				}
 			}
+		}
+	}
+	if(iHighestParity > 0)
+	{
+		if((iNumUnitsWanted + iNumOwnedNavalUnits + iHighestParity) <= pPlayer->GetNumUnitsSupplied())
+		{
+			return (iNumOwnedNavalUnits + iHighestParity + iNumUnitsWanted);
+		}
+		//We don't want to go over this, but we need every troop we can muster.
+		else
+		{
+			return pPlayer->GetNumUnitsSupplied();
 		}
 	}
 #endif

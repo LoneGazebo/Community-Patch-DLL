@@ -1304,14 +1304,15 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 			int iHappinessFromResource = pkResourceInfo->getHappiness();
 #if defined(MOD_BALANCE_CORE_HAPPINESS_LUXURY)
 			//Let's modify this value to make it more clearly pertain to current happiness for luxuries.
-			iHappinessFromResource = GetPlayer()->GetBaseLuxuryHappiness() + 1;
+			iHappinessFromResource = (GetPlayer()->GetBaseLuxuryHappiness() + 1);
 			if(iHappinessFromResource <= 0)
 			{
 				iHappinessFromResource = 2;
 			}
-#endif
+			iItemValue += (iResourceQuantity * iHappinessFromResource * iNumTurns);	// Ex: 1 Silk for 2 Happiness * 30 turns = 60
+#else
 			iItemValue += (iResourceQuantity * iHappinessFromResource * iNumTurns * 2);	// Ex: 1 Silk for 4 Happiness * 30 turns * 2 = 240
-
+#endif
 			// If we only have 1 of a Luxury then we value it much more
 			if(bFromMe)
 			{
@@ -1400,19 +1401,19 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 				switch(GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(eOtherPlayer))
 				{
 					case MAJOR_CIV_OPINION_ALLY:
-						iItemValue *= 85;
-						iItemValue /= 100;
-						break;
-					case MAJOR_CIV_OPINION_FRIEND:
 						iItemValue *= 90;
 						iItemValue /= 100;
 						break;
-					case MAJOR_CIV_OPINION_FAVORABLE:
+					case MAJOR_CIV_OPINION_FRIEND:
 						iItemValue *= 95;
 						iItemValue /= 100;
 						break;
-					case MAJOR_CIV_OPINION_NEUTRAL:
+					case MAJOR_CIV_OPINION_FAVORABLE:
 						iItemValue *= 100;
+						iItemValue /= 100;
+						break;
+					case MAJOR_CIV_OPINION_NEUTRAL:
+						iItemValue *= 105;
 						iItemValue /= 100;
 						break;
 					case MAJOR_CIV_OPINION_COMPETITOR:
@@ -1439,19 +1440,19 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 				switch(GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(eOtherPlayer))
 				{
 					case MAJOR_CIV_OPINION_ALLY:
-						iItemValue *= 120;
-						iItemValue /= 100;
-						break;
-					case MAJOR_CIV_OPINION_FRIEND:
 						iItemValue *= 115;
 						iItemValue /= 100;
 						break;
-					case MAJOR_CIV_OPINION_FAVORABLE:
+					case MAJOR_CIV_OPINION_FRIEND:
 						iItemValue *= 110;
 						iItemValue /= 100;
 						break;
-					case MAJOR_CIV_OPINION_NEUTRAL:
+					case MAJOR_CIV_OPINION_FAVORABLE:
 						iItemValue *= 105;
+						iItemValue /= 100;
+						break;
+					case MAJOR_CIV_OPINION_NEUTRAL:
+						iItemValue *= 100;
 						iItemValue /= 100;
 						break;
 					case MAJOR_CIV_OPINION_COMPETITOR:
@@ -1474,19 +1475,19 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 				switch(GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(eOtherPlayer))
 				{
 					case MAJOR_CIV_OPINION_ALLY:
-						iItemValue *= 80;
-						iItemValue /= 100;
-						break;
-					case MAJOR_CIV_OPINION_FRIEND:
 						iItemValue *= 85;
 						iItemValue /= 100;
 						break;
-					case MAJOR_CIV_OPINION_FAVORABLE:
+					case MAJOR_CIV_OPINION_FRIEND:
 						iItemValue *= 90;
 						iItemValue /= 100;
 						break;
-					case MAJOR_CIV_OPINION_NEUTRAL:
+					case MAJOR_CIV_OPINION_FAVORABLE:
 						iItemValue *= 95;
+						iItemValue /= 100;
+						break;
+					case MAJOR_CIV_OPINION_NEUTRAL:
+						iItemValue *= 100;
 						iItemValue /= 100;
 						break;
 					case MAJOR_CIV_OPINION_COMPETITOR:
@@ -1526,29 +1527,33 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 		if(!GET_TEAM(GetPlayer()->getTeam()).IsResourceObsolete(eResource))
 		{
 			iItemValue += (iResourceQuantity * iNumTurns * 150 / 100);	// Ex: 5 Iron for 30 turns * 2 = value of 300
+#if defined(MOD_BALANCE_CORE_DEALS)
+			if(!bFromMe)
+			{
+#endif
 #if defined(MOD_DIPLOMACY_CITYSTATES)
 			if (MOD_DIPLOMACY_CITYSTATES) {
-				//Paper is super important - don't give it away too easily!
+				//Paper is super important - value it more!
 				ResourceTypes ePaperResource = (ResourceTypes)GC.getInfoTypeForString("RESOURCE_PAPER", true);
 				if(eResource == ePaperResource)
 				{
-					iItemValue *= iResourceQuantity;
+					iItemValue *= 2;
 				}
 			}
 #endif
 #if defined(MOD_BALANCE_CORE_DEALS)
 			if (MOD_BALANCE_CORE_DEALS) 
 			{
-				//If they're stronger than us, do not give away strategic resources easily.
+				//If they're stronger than us, strategic resources are valuable.
 				if(GetPlayer()->GetMilitaryMight() < GET_PLAYER(eOtherPlayer).GetMilitaryMight())
 				{
-					iItemValue *= 15;
+					iItemValue *= 13;
 					iItemValue /= 10;
 				}
-				//Are they close, or far away? We should always be a bit more reluctant to give war resources to neighbors.
+				//Are they close, or far away? We should always be a bit more eager to buy war resources from neighbors.
 				if(GetPlayer()->GetProximityToPlayer(eOtherPlayer) >= PLAYER_PROXIMITY_CLOSE)
 				{
-					iItemValue *= 15;
+					iItemValue *= 13;
 					iItemValue /= 10;
 				}
 				//Are they going for science win? Buy their aluminum from them!
@@ -1560,10 +1565,13 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 						ResourceTypes eAluminumResource = (ResourceTypes)GC.getInfoTypeForString("RESOURCE_ALUMINUM", true);
 						if(eResource == eAluminumResource)
 						{
-							iItemValue *= 10;
+							iItemValue *= 3;
 						}
 					}
 				}
+			}
+#endif
+#if defined(MOD_BALANCE_CORE_DEALS)
 			}
 #endif
 		}
@@ -1588,16 +1596,16 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 			switch(GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(eOtherPlayer))
 			{
 			case MAJOR_CIV_OPINION_ALLY:
-				iModifier += 90;
-				break;
-			case MAJOR_CIV_OPINION_FRIEND:
 				iModifier += 95;
 				break;
-			case MAJOR_CIV_OPINION_FAVORABLE:
+			case MAJOR_CIV_OPINION_FRIEND:
 				iModifier += 98;
 				break;
-			case MAJOR_CIV_OPINION_NEUTRAL:
+			case MAJOR_CIV_OPINION_FAVORABLE:
 				iModifier += 100;
+				break;
+			case MAJOR_CIV_OPINION_NEUTRAL:
+				iModifier += 105;
 				break;
 			case MAJOR_CIV_OPINION_COMPETITOR:
 				iModifier = 130;
@@ -1658,7 +1666,7 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 #if defined(MOD_BALANCE_CORE_DEALS)
 		if (MOD_BALANCE_CORE_DEALS) 
 		{
-			iModifier += 90;	// Not forced value
+			iModifier += 125;	// Not forced value
 		}
 #else
 			iModifier = 200;	// Forced value
@@ -1668,7 +1676,7 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 #if defined(MOD_BALANCE_CORE_DEALS)
 		if (MOD_BALANCE_CORE_DEALS) 
 		{
-			iModifier += 95;	// Not forced value
+			iModifier += 100;	// Not forced value
 		}
 #else
 			iModifier = 200;	// Forced value
@@ -1689,7 +1697,7 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 			ResourceTypes ePaperResource = (ResourceTypes)GC.getInfoTypeForString("RESOURCE_PAPER", true);
 			if(eResource == ePaperResource)
 			{
-				iModifier *= iResourceQuantity;
+				iItemValue *= 2;
 			}
 		}
 #endif
@@ -1699,14 +1707,12 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 			//If they're stronger than us, do not give away strategic resources easily.
 			if(GetPlayer()->GetMilitaryMight() < GET_PLAYER(eOtherPlayer).GetMilitaryMight())
 			{
-				iItemValue *= 30;
-				iItemValue /= 10;
+				iItemValue *= 4;
 			}
 			//Are they close, or far away? We should always be a bit more reluctant to give war resources to neighbors.
 			if(GetPlayer()->GetProximityToPlayer(eOtherPlayer) >= PLAYER_PROXIMITY_CLOSE)
 			{
-				iItemValue *= 30;
-				iItemValue /= 10;
+				iItemValue *= 4;
 			}
 			//Are they going for science win? Don't give them aluminum!
 			ProjectTypes eApolloProgram = (ProjectTypes) GC.getInfoTypeForString("PROJECT_APOLLO_PROGRAM", true);
@@ -1717,7 +1723,7 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 					ResourceTypes eAluminumResource = (ResourceTypes)GC.getInfoTypeForString("RESOURCE_ALUMINUM", true);
 					if(eResource == eAluminumResource)
 					{
-						iItemValue = 0;
+						iItemValue *= 10;
 					}
 				}
 			}
@@ -1726,6 +1732,31 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 		iItemValue *= iModifier;
 		iItemValue /= 200;	// 200 because we've added two mods together
 	}
+#if defined(MOD_BALANCE_CORE_RESOURCE_FLAVORS)
+	int iResult = 0;
+	int iFlavors = 0;
+	if(MOD_BALANCE_CORE_RESOURCE_FLAVORS && eResource != NO_RESOURCE)
+	{
+		//Let's look at flavors for resources
+		for(int i = 0; i < GC.getNumFlavorTypes(); i++)
+		{
+			int iResourceFlavor = pkResourceInfo->getFlavorValue((FlavorTypes)i);
+			if(iResourceFlavor > 0)
+			{
+				int iPersonalityFlavorValue = GetPlayer()->GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)i);
+				//Has to be above average to affect price. Will usually result in a x2-x3 modifier
+				iResult += ((iResourceFlavor + iPersonalityFlavorValue) / 5);
+				iFlavors++;
+			}
+		}
+		if((iResult > 0) && (iFlavors > 0))
+		{
+			//Get the average mulitplier from the number of Flavors being considered.
+			iResult = (iResult / iFlavors);
+			iItemValue *= iResult;
+		}
+	}
+#endif
 
 #if defined(MOD_BALANCE_CORE_DEALS)
 	OutputDebugString( CvString::format( "Deal value of %s for player %s is %d\n", pkResourceInfo->GetText(), GetPlayer()->getName(), iItemValue ).c_str() ); 
@@ -2708,6 +2739,99 @@ int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int
 	// Giving our votes to them - Higher value for voting on things we dislike
 	if (bFromMe)
 	{
+#if defined(MOD_BALANCE_CORE_DEALS)
+		//If the votes we'd give would secure passage of this vote, let's see if we like them enough to do it.
+		CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
+		int iTheirVotes = 0;
+		int iVotesNeeded = 0;
+		if (pLeague != NULL)
+		{
+			iTheirVotes = pLeague->CalculateStartingVotesForMember(eOtherPlayer);
+			PlayerTypes eLoopPlayer;
+			for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+			{
+				eLoopPlayer = (PlayerTypes) iPlayerLoop;
+				if (GET_PLAYER(eLoopPlayer).isAlive() && !GET_PLAYER(eLoopPlayer).isMinorCiv() && pLeague->IsMember(eLoopPlayer))
+				{			
+					iVotesNeeded += pLeague->CalculateStartingVotesForMember(eLoopPlayer);
+				}
+			}
+		}
+		//If the total is more than a third of the total votes on the board...that probably means it'll pass.
+		if((pLeague != NULL) && ((iNumVotes + iTheirVotes) > (iVotesNeeded / 3)))
+		{
+			// Adjust based on LeagueAI
+			CvLeagueAI::DesireLevels eDesire = GetPlayer()->GetLeagueAI()->EvaluateVoteForTrade(iProposalID, iVoteChoice, iNumVotes, bRepeal);
+			switch(eDesire)
+			{
+			case CvLeagueAI::DESIRE_NEVER:
+			case CvLeagueAI::DESIRE_STRONG_DISLIKE:
+				iValue += 500000;
+				break;
+			case CvLeagueAI::DESIRE_DISLIKE:
+				iValue += 500;
+				break;
+			case CvLeagueAI::DESIRE_WEAK_DISLIKE:
+				iValue += 350;
+				break;
+			case CvLeagueAI::DESIRE_NEUTRAL:
+			case CvLeagueAI::DESIRE_WEAK_LIKE:
+			case CvLeagueAI::DESIRE_LIKE:
+				iValue += 250;
+				break;
+			case CvLeagueAI::DESIRE_STRONG_LIKE:
+			case CvLeagueAI::DESIRE_ALWAYS:
+				iValue += 100;
+				break;
+			default:
+				iValue += 500000;
+				break;
+			}
+			CvAssert(eOtherPlayer != NO_PLAYER);
+			if (eOtherPlayer != NO_PLAYER)
+			{
+				CvLeagueAI::AlignmentLevels eAlignment = GetPlayer()->GetLeagueAI()->EvaluateAlignment(eOtherPlayer);
+				switch (eAlignment)
+				{
+				case CvLeagueAI::ALIGNMENT_LIBERATOR:
+				case CvLeagueAI::ALIGNMENT_LEADER:
+					iValue += -25;
+					break;
+				case CvLeagueAI::ALIGNMENT_SELF:
+					CvAssertMsg(false, "ALIGNMENT_SELF found when evaluating a trade deal for delegates. Please send Anton your save file and version.");
+					break;
+				case CvLeagueAI::ALIGNMENT_ALLY:
+					iValue += -15;
+					break;
+				case CvLeagueAI::ALIGNMENT_CONFIDANT:
+				case CvLeagueAI::ALIGNMENT_FRIEND:
+					iValue += -5;
+					break;
+				case CvLeagueAI::ALIGNMENT_NEUTRAL:
+					break;
+				case CvLeagueAI::ALIGNMENT_RIVAL:
+					iValue += 50;
+					break;
+				case CvLeagueAI::ALIGNMENT_HATRED:
+					iValue += 200;
+					break;
+				case CvLeagueAI::ALIGNMENT_ENEMY:
+				case CvLeagueAI::ALIGNMENT_WAR:
+					iValue += 500000;
+					break;
+				default:
+					break;
+				}
+				MajorCivApproachTypes eOtherPlayerApproach = GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(eOtherPlayer, /*bHideTrueFeelings*/ false);
+				if (eOtherPlayerApproach == MAJOR_CIV_APPROACH_HOSTILE || eOtherPlayerApproach == MAJOR_CIV_APPROACH_WAR)
+				{
+					iValue += 500000;
+				}
+			}
+		}
+		else
+		{
+#endif
 		// Adjust based on LeagueAI
 		CvLeagueAI::DesireLevels eDesire = GetPlayer()->GetLeagueAI()->EvaluateVoteForTrade(iProposalID, iVoteChoice, iNumVotes, bRepeal);
 		switch(eDesire)
@@ -2779,10 +2903,64 @@ int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int
 				iValue += 100000;
 			}
 		}
+#if defined(MOD_BALANCE_CORE_DEALS)
+		}
+#endif
 	}
 	// Giving their votes to us - Higher value for voting on things we like
 	else
 	{
+#if defined(MOD_BALANCE_CORE_DEALS)
+		//If the votes we'd give would secure passage of this vote, these votes are worth a bit more.
+		CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
+		int iOurVotes = 0;
+		int iVotesNeeded = 0;
+		if (pLeague != NULL)
+		{
+			iOurVotes = pLeague->CalculateStartingVotesForMember(GetPlayer()->GetID());
+			PlayerTypes eLoopPlayer;
+			for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+			{
+				eLoopPlayer = (PlayerTypes) iPlayerLoop;
+				if (GET_PLAYER(eLoopPlayer).isAlive() && !GET_PLAYER(eLoopPlayer).isMinorCiv() && pLeague->IsMember(eLoopPlayer))
+				{			
+					iVotesNeeded += pLeague->CalculateStartingVotesForMember(eLoopPlayer);
+				}
+			}
+		}
+		//If the total is more than a third of the total votes on the board...that probably means it'll pass.
+		if((pLeague != NULL) && ((iNumVotes + iOurVotes) > (iVotesNeeded / 3)))
+		{
+			// Adjust based on LeagueAI
+			CvLeagueAI::DesireLevels eDesire = GetPlayer()->GetLeagueAI()->EvaluateVoteForTrade(iProposalID, iVoteChoice, iNumVotes, bRepeal);
+			switch(eDesire)
+			{
+			case CvLeagueAI::DESIRE_NEVER:
+			case CvLeagueAI::DESIRE_STRONG_DISLIKE:
+			case CvLeagueAI::DESIRE_WEAK_DISLIKE:
+			case CvLeagueAI::DESIRE_NEUTRAL:
+				iValue += -500000;
+				break;
+			case CvLeagueAI::DESIRE_WEAK_LIKE:
+				iValue += 100;
+				break;
+			case CvLeagueAI::DESIRE_LIKE:
+				iValue += 200;
+				break;
+			case CvLeagueAI::DESIRE_STRONG_LIKE:
+				iValue += 300;
+				break;
+			case CvLeagueAI::DESIRE_ALWAYS:
+				iValue += 400;
+				break;
+			default:
+				iValue += -500000;
+				break;
+			}
+		}
+		else
+		{
+#endif
 		// Adjust based on LeagueAI
 		CvLeagueAI::DesireLevels eDesire = GetPlayer()->GetLeagueAI()->EvaluateVoteForTrade(iProposalID, iVoteChoice, iNumVotes, bRepeal);
 		switch(eDesire)
@@ -2833,6 +3011,9 @@ int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int
 				}
 			}
 		}
+#if defined(MOD_BALANCE_CORE_DEALS)
+		}
+#endif
 	}
 
 	iValue = MAX(iValue, 0);

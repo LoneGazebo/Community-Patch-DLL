@@ -40,6 +40,11 @@ CvBuildingEntry::CvBuildingEntry(void):
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	m_iPolicyType(NO_POLICY),
 #endif
+#if defined(MOD_BALANCE_CORE)
+	m_iResourceType(NO_RESOURCE),
+	m_bPuppetPurchaseOverride(false),
+	m_bAllowsPuppetPurchase(false),
+#endif
 	m_iSpecialistType(NO_SPECIALIST),
 	m_iSpecialistCount(0),
 	m_iSpecialistExtraCulture(0),
@@ -569,6 +574,13 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	szTextVal = kResults.GetText("PolicyType");
 	m_iPolicyType = GC.getInfoTypeForString(szTextVal, true);
 #endif
+#if defined(MOD_BALANCE_CORE)
+	szTextVal = kResults.GetText("ResourceType");
+	m_iResourceType = GC.getInfoTypeForString(szTextVal, true);
+
+	m_bPuppetPurchaseOverride = kResults.GetBool("PuppetPurchaseOverride");
+	m_bAllowsPuppetPurchase = kResults.GetBool("AllowsPuppetPurchase");
+#endif
 
 	szTextVal = kResults.GetText("SpecialistType");
 	m_iSpecialistType = GC.getInfoTypeForString(szTextVal, true);
@@ -967,6 +979,23 @@ int CvBuildingEntry::GetPolicyBranchType() const
 int CvBuildingEntry::GetPolicyType() const
 {
 	return m_iPolicyType;
+}
+#endif
+#if defined(MOD_BALANCE_CORE)
+/// Resource required for this building
+int CvBuildingEntry::GetResourceType() const
+{
+	return m_iResourceType;
+}
+/// Is this building purchaseable in any city?
+bool CvBuildingEntry::IsPuppetPurchaseOverride() const
+{
+	return m_bPuppetPurchaseOverride;
+}
+/// Dpes this building unlock purchasing in any city?
+bool CvBuildingEntry::IsAllowsPuppetPurchase() const
+{
+	return m_bAllowsPuppetPurchase;
 }
 #endif
 /// What SpecialistType is allowed by this Building
@@ -3801,6 +3830,12 @@ int CvCityBuildings::GetNumBuildingsFromFaith() const
 						{
 							iRtnValue++;
 						}
+#if defined(MOD_BALANCE_CORE_POLICIES)
+						else if (pkEntry->GetFaithCost() > 0 && (pkEntry->GetPolicyType() != NULL) && pkEntry->GetProductionCost() == -1)
+						{
+							iRtnValue++;
+						}
+#endif
 					}
 				}
 			}

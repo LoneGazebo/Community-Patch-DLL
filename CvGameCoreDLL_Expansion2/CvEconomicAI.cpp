@@ -870,7 +870,11 @@ CvCity* CvEconomicAI::GetBestGreatWorkCity(CvPlot *pStartPlot, GreatWorkType eGr
 	{
 		for(pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 		{
+#if defined(MOD_BALANCE_CORE)
+			if (pLoopCity->getDamage() <= (pLoopCity->GetMaxHitPoints() / 2))
+#else
 			if (pLoopCity->getDamage() == 0)
+#endif
 			{
 				int iDistance = plotDistance(pStartPlot->getX(), pStartPlot->getY(), pLoopCity->getX(), pLoopCity->getY());
 				if(iDistance < iBestDistance)
@@ -1015,6 +1019,16 @@ int CvEconomicAI::ScoreExplorePlot(CvPlot* pPlot, TeamTypes eTeam, int iRange, D
 			{
 				continue;
 			}
+#if defined(MOD_BALANCE_CORE)
+			if(pEvalPlot->getNumUnits() > 0)
+			{
+				CvUnit* pUnit = pEvalPlot->getUnitByIndex(0);
+				if(!pUnit->IsCivilianUnit())
+				{
+					continue;
+				}
+			}
+#endif
 
 			if(pEvalPlot->isAdjacentRevealed(eTeam))
 			{

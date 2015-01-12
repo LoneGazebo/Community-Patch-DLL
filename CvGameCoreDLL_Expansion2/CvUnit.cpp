@@ -617,6 +617,21 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 			}
 		}
 	}
+#if defined(MOD_BALANCE_CORE)
+	const UnitClassTypes unitClassType = getUnitClassType();
+	if(unitClassType != NO_UNITCLASS)
+	{
+		// Any free Promotions to apply?
+		for(int iJ = 0; iJ < GC.getNumPromotionInfos(); iJ++)
+		{
+			const PromotionTypes promotionID = (PromotionTypes)iJ;
+			if(kPlayer.GetPlayerTraits()->HasFreePromotionUnitClass(promotionID, unitClassType))
+			{
+				setHasPromotion(promotionID, true);
+			}
+		}
+	}
+#endif
 
 	// Free Promotions from Policies, Techs, etc.
 	for(iI = 0; iI < GC.getNumPromotionInfos(); iI++)
@@ -2950,6 +2965,40 @@ TeamTypes CvUnit::GetDeclareWarMove(const CvPlot& plot) const
 				}
 			}
 		}
+#if defined(MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS)
+		if(MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS && plot.getNumUnits())
+		{
+			int iPeaceUnits = 0;
+			pUnit = NULL;
+			for(int iUnitLoop = 0; iUnitLoop < plot.getNumUnits(); iUnitLoop++)
+			{
+				CvUnit* loopUnit = plot.getUnitByIndex(iUnitLoop);
+
+				//If we're at war with a civ, and they've got a unit here, let's return that unit instead of the civilian unit on this space.
+				if(loopUnit && GET_TEAM(getTeam()).isAtWar(plot.getUnitByIndex(iUnitLoop)->getTeam()))
+				{
+					//There can be only one military unit on a tile, so one check is good enough.
+					if(!plot.getUnitByIndex(iUnitLoop)->IsCivilianUnit())
+					{
+						pUnit = plot.getUnitByIndex(iUnitLoop);
+					}
+				}
+				else if(loopUnit && !GET_TEAM(getTeam()).isAtWar(plot.getUnitByIndex(iUnitLoop)->getTeam()))
+				{
+					//Only need one to trigger.
+					if(plot.getUnitByIndex(iUnitLoop)->IsCivilianUnit())
+					{
+						iPeaceUnits++;
+					}
+				}
+			}
+			//If there's a civilian here, but we're at peace with that civilian, return NO_TEAM.
+			if((iPeaceUnits > 0) && (pUnit != NULL))
+			{
+				return NO_TEAM;
+			}
+		}
+#endif
 
 		if(plot.isActiveVisible(false))
 		{
@@ -8428,6 +8477,7 @@ bool CvUnit::DoSpreadReligion()
 #endif
 				}
 			}
+#endif
 #if defined(MOD_BALANCE_CORE_BELIEFS)
 #if defined(MOD_API_UNIFIED_YIELDS_GOLDEN_AGE)
 			float fDelay = GC.getPOST_COMBAT_TEXT_DELAY() * 2;
@@ -8492,7 +8542,6 @@ bool CvUnit::DoSpreadReligion()
  					}
 				}
 			}
-#endif
 #endif
 #endif
 
@@ -11477,6 +11526,10 @@ int CvUnit::baseMoves(DomainTypes eIntoDomain /* = NO_DOMAIN */) const
 
 	int iExtraUnitCombatTypeMoves = pTraits->GetMovesChangeUnitCombat((UnitCombatTypes)(m_pUnitInfo->GetUnitCombatType()));
 
+#if defined(MOD_BALANCE_CORE)
+	iExtraUnitCombatTypeMoves += pTraits->GetMovesChangeUnitClass((UnitClassTypes)(m_pUnitInfo->GetUnitClassType()));
+#endif
+
 	return (m_pUnitInfo->GetMoves() + getExtraMoves() + thisTeam.getExtraMoves(eDomain) + m_iExtraNavalMoves + iExtraGoldenAgeMoves + iExtraUnitCombatTypeMoves);
 }
 
@@ -12064,6 +12117,13 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 	if(kPlayer.isGoldenAge())
 		iModifier += kPlayer.GetPlayerTraits()->GetGoldenAgeCombatModifier();
 
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	//Domination Victory -- If a player owns more than one capital, your troops fight a % better as a result (% = % of global capitals owned).
+	if(MOD_BALANCE_CORE_MILITARY && pOtherUnit != NULL)
+	{
+		iModifier += GetResistancePower(pOtherUnit);
+	}			
+#endif
 	////////////////////////
 	// KNOWN BATTLE PLOT
 	////////////////////////
@@ -12096,7 +12156,7 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 #if defined(MOD_BALANCE_CORE_BELIEFS)
 		if(pOtherUnit != NULL)
 		{
-			if(!pOtherUnit->isBarbarian() && pOtherUnit->getOwner() != NO_PLAYER)
+			if(!pOtherUnit->isBarbarian() && !GET_PLAYER(pOtherUnit->getOwner()).isMinorCiv() && pOtherUnit->getOwner() != NO_PLAYER)
 			{
 				if(GET_PLAYER(pOtherUnit->getOwner()).GetReligions()->GetReligionInMostCities() != NO_RELIGION)
 				{
@@ -12104,26 +12164,20 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 					{
 						if(eFoundedReligion != NO_RELIGION)
 						{
-							const CvReligion* pReligion = pReligions->GetReligion(eFoundedReligion, NO_PLAYER);
+							const CvReligion* pReligion = pReligions->GetReligion(eFoundedReligion, getOwner());
 							if(pReligion)
 							{
 								// Bonus in own land
-								if(pReligion->m_Beliefs.GetCombatVersusOtherReligionOwnLands() > 0)
+								if((pReligion->m_Beliefs.GetCombatVersusOtherReligionOwnLands() > 0) && pBattlePlot->IsFriendlyTerritory(getOwner()))
 								{
-									if(pBattlePlot->IsFriendlyTerritory(getOwner()))
-									{
 										iTempModifier = pReligion->m_Beliefs.GetCombatVersusOtherReligionOwnLands();
 										iModifier += iTempModifier;
-									}
 								}
 								//Bonus in their land
-								if(pReligion->m_Beliefs.GetCombatVersusOtherReligionTheirLands() > 0)
+								else if((pReligion->m_Beliefs.GetCombatVersusOtherReligionTheirLands() > 0) && pBattlePlot->IsFriendlyTerritory(pOtherUnit->getOwner()))
 								{
-									if(pBattlePlot->IsFriendlyTerritory(pOtherUnit->getOwner()))
-									{
-										iTempModifier = pReligion->m_Beliefs.GetCombatVersusOtherReligionTheirLands();
-										iModifier += iTempModifier;
-									}
+									iTempModifier = pReligion->m_Beliefs.GetCombatVersusOtherReligionTheirLands();
+									iModifier += iTempModifier;
 								}
 							}
 						}
@@ -12640,7 +12694,40 @@ int CvUnit::GetEmbarkedUnitDefense() const
 
 	return iRtnValue;
 }
-
+#if defined(MOD_BALANCE_CORE_MILITARY)
+//	--------------------------------------------------------------------------------
+int CvUnit::GetResistancePower(const CvUnit* pOtherUnit) const
+{
+	int iResistancePower = 0;
+	if(!pOtherUnit->isBarbarian() && !GET_PLAYER(pOtherUnit->getOwner()).isMinorCiv() && pOtherUnit->getOwner() != NO_PLAYER)
+	{
+		int iNum = 0;
+		const CvCity* pLoopCity;
+		int iLoop;
+		for(pLoopCity = GET_PLAYER(pOtherUnit->getOwner()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(pOtherUnit->getOwner()).nextCity(&iLoop))
+		{
+			if(pLoopCity->IsOriginalMajorCapital() && !pLoopCity->isCapital())
+			{
+				iNum++;
+			}
+		}
+		if(iNum >= 1)
+		{
+			int iNumCivs = 0;
+			for (int iLoopPlayer = 0; iLoopPlayer < MAX_PLAYERS; iLoopPlayer++)
+			{
+				CvPlayer &kPlayer = GET_PLAYER((PlayerTypes)iLoopPlayer);
+				if (kPlayer.isEverAlive() && !kPlayer.isMinorCiv())
+				{
+					iNumCivs++;
+				}
+			}
+			iResistancePower = ((iNum * 50) / iNumCivs);
+		}
+	}
+	return iResistancePower;
+}
+#endif
 //	--------------------------------------------------------------------------------
 bool CvUnit::canSiege(TeamTypes eTeam) const
 {
@@ -23836,18 +23923,18 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	{
 		iExtra = getExtraCombatPercent();
 //Let's encourage getting all three tiers asap.
-		iTemp *= (100 + (iExtra * 50));
+		iTemp *= (100 + ((iExtra + 30) * 50));
 		iTemp /= 100;
 
-		iValue += iTemp + iFlavorOffense + iFlavorDefense * 10;
+		iValue += (iTemp + iFlavorOffense + iFlavorDefense) * 10;
 	}
 	iTemp = pkPromotionInfo->GetRangedAttackModifier();
 	if(iTemp != 0)
 	{
 		iExtra = GetRangedAttackModifier();
-		iTemp *= (100 + (iExtra * 50));
+		iTemp *= (100 + ((iExtra + 30) * 50));
 		iTemp /= 100;
-		iValue += iTemp + iFlavorOffense + iFlavorDefense * 10;
+		iValue += (iTemp + iFlavorOffense + iFlavorDefense) * 10;
 	}
 #endif
 

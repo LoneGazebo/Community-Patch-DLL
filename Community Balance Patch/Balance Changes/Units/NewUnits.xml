@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created by ModBuddy on 1/2/2015 2:32:31 PM -->
+<GameData>
+	<!-- Classical/Medieval Elephant -->
+	<UnitClasses>
+		<Row>
+			<Type>UNITCLASS_ELEPHANT_RIDER</Type>
+			<Description>TXT_KEY_UNIT_ELEPHANT_RIDER</Description>
+			<DefaultUnit>UNIT_ELEPHANT_RIDER</DefaultUnit>
+		</Row>
+	</UnitClasses>
+	<Units>
+		<Row>
+			<Class>UNITCLASS_ELEPHANT_RIDER</Class>
+			<Type>UNIT_ELEPHANT_RIDER</Type>
+			<PrereqTech>TECH_ARCHERY</PrereqTech>
+			<Combat>18</Combat>
+			<Cost>125</Cost>
+			<FaithCost>250</FaithCost>
+			<RequiresFaithPurchaseEnabled>true</RequiresFaithPurchaseEnabled>
+			<Moves>2</Moves>
+			<HurryCostModifier>20</HurryCostModifier>
+			<CombatClass>UNITCOMBAT_MOUNTED</CombatClass>
+			<Domain>DOMAIN_LAND</Domain>
+			<DefaultUnitAI>UNITAI_FAST_ATTACK</DefaultUnitAI>
+			<Description>TXT_KEY_UNIT_ELEPHANT_RIDER</Description>
+			<Civilopedia>TXT_KEY_UNIT_ELEPHANT_RIDER_TEXT</Civilopedia>
+			<Strategy>TXT_KEY_UNIT_ELEPHANT_RIDER_STRATEGY</Strategy>
+			<Help>TXT_KEY_UNIT_ELEPHANT_RIDER_HELP</Help>
+			<MilitarySupport>true</MilitarySupport>
+			<MilitaryProduction>true</MilitaryProduction>
+			<Pillage>true</Pillage>
+			<ResourceType>RESOURCE_IVORY</ResourceType>
+			<ObsoleteTech>TECH_CHIVALRY</ObsoleteTech>
+			<GoodyHutUpgradeUnitClass>UNITCLASS_KNIGHT</GoodyHutUpgradeUnitClass>
+			<AdvancedStartCost>20</AdvancedStartCost>
+			<XPValueAttack>3</XPValueAttack>
+			<XPValueDefense>3</XPValueDefense>
+			<UnitArtInfo>ART_DEF_UNIT_U_CARTHAGE_AFRICANFOREST_ELEPHANT</UnitArtInfo>
+			<UnitFlagAtlas>EXPANSION_UNIT_FLAG_ATLAS</UnitFlagAtlas>
+			<UnitFlagIconOffset>0</UnitFlagIconOffset>
+			<IconAtlas>EXPANSION_UNIT_ATLAS_1</IconAtlas>
+			<PortraitIndex>0</PortraitIndex>
+			<MoveRate>QUADRUPED</MoveRate>
+		</Row>
+	</Units>
+	<Unit_AITypes>
+		<Row>
+			<UnitType>UNIT_ELEPHANT_RIDER</UnitType>
+			<UnitAIType>UNITAI_DEFENSE</UnitAIType>
+		</Row>
+		<Row>
+			<UnitType>UNIT_ELEPHANT_RIDER</UnitType>
+			<UnitAIType>UNITAI_FAST_ATTACK</UnitAIType>
+		</Row>
+	</Unit_AITypes>
+	<Unit_ClassUpgrades>
+		<Row>
+			<UnitType>UNIT_ELEPHANT_RIDER</UnitType>
+			<UnitClassType>UNITCLASS_KNIGHT</UnitClassType>
+		</Row>
+	</Unit_ClassUpgrades>
+	<Unit_Flavors>
+		<Row>
+			<UnitType>UNIT_ELEPHANT_RIDER</UnitType>
+			<FlavorType>FLAVOR_OFFENSE</FlavorType>
+			<Flavor>6</Flavor>
+		</Row>
+		<Row>
+			<UnitType>UNIT_ELEPHANT_RIDER</UnitType>
+			<FlavorType>FLAVOR_DEFENSE</FlavorType>
+			<Flavor>6</Flavor>
+		</Row>
+	</Unit_Flavors>
+	<Unit_FreePromotions>
+		<Row>
+			<UnitType>UNIT_ELEPHANT_RIDER</UnitType>
+			<PromotionType>PROMOTION_NO_DEFENSIVE_BONUSES</PromotionType>
+		</Row>
+		<Row>
+			<UnitType>UNIT_ELEPHANT_RIDER</UnitType>
+			<PromotionType>PROMOTION_CAN_MOVE_AFTER_ATTACKING</PromotionType>
+		</Row>
+		<Row>
+			<UnitType>UNIT_ELEPHANT_RIDER</UnitType>
+			<PromotionType>PROMOTION_CITY_PENALTY</PromotionType>
+		</Row>
+		<Row>
+			<UnitType>UNIT_ELEPHANT_RIDER</UnitType>
+			<PromotionType>PROMOTION_FEARED_ELEPHANT</PromotionType>
+		</Row>
+	</Unit_FreePromotions>
+	<Unit_BuildingClassRequireds>
+		<Row>
+			<UnitType>UNIT_ELEPHANT_RIDER</UnitType>
+			<BuildingClassType>BUILDINGCLASS_STABLE</BuildingClassType>
+		</Row>
+	</Unit_BuildingClassRequireds>
+	<Language_en_US>
+		<Row Tag="TXT_KEY_UNIT_ELEPHANT_RIDER">
+			<Text>War Elephant</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UNIT_ELEPHANT_RIDER_STRATEGY">
+			<Text>War Elephants are more expensive and slower than the Horseman, but they are also much more powerful. They can move after attacking and strike fear into nearby enemy units, giving them a negative combat modifier. You must have a source of [ICON_RES_IVORY] Ivory to construct War Elephants, and the city where you wish to build them must have a Stable. Unlike other Military Units, War Elephants do not consume resources when constructed.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UNIT_ELEPHANT_RIDER_HELP">
+			<Text>Powerful early game Mounted Unit that is weak to Spearmen. This Unit has a higher [ICON_STRENGTH] Combat Strength than other Mounted Units and strikes fear into nearby enemy units. It is, however, much slower and more expensive than the Horseman. [NEWLINE][NEWLINE]You must have a source of [ICON_RES_IVORY] Ivory and a Stable in order to construct this unit.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UNIT_ELEPHANT_RIDER_TEXT">
+			<Text>A War Elephant was an elephant trained and guided by humans for combat. Their main use was to charge the enemy, breaking their ranks and instilling terror. Elephantry are military units with elephant-mounted troops. They were first employed in India, the practice spreading out across south-east Asia and westwards into the Mediterranean. Their most famous use in the West was by the Greek general Pyrrhus of Epirus and in significant numbers by the armies of Carthage, including briefly by Hannibal.</Text>
+		</Row>
+	</Language_en_US>
+</GameData>

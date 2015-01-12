@@ -96,7 +96,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_DESERT_FOLKLORE' AND EXISTS (SELECT * FROM COMMUNITY
 
 -- Sacred Path
 UPDATE Language_en_US
-SET Text = '+1 [ICON_PEACE] Faith and +1 [ICON_CULTURE] Culture from Jungle tiles'
+SET Text = '+1 [ICON_PEACE] Faith from Jungles, +1 [ICON_CULTURE] Culture from Forests'
 WHERE Tag = 'TXT_KEY_BELIEF_SACRED_PATH' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Goddess of Protection

@@ -1375,6 +1375,14 @@ public:
 	int GetCitadelBoost() const;
 	void changeCitadelBoost(int iChange);
 
+	bool IsPuppetProdMod() const;
+	int GetPuppetProdMod() const;
+	void changePuppetProdMod(int iChange);
+
+	bool IsOccupiedProdMod() const;
+	int GetOccupiedProdMod() const;
+	void changeOccupiedProdMod(int iChange);
+
 	bool IsGoldInternalTrade() const;
 	int GetGoldInternalTrade() const;
 	void changeGoldInternalTrade(int iChange);
@@ -2247,6 +2255,8 @@ protected:
 	int m_iDoubleBorderGA;
 	int m_iDoubleQuestInfluence;
 	int m_iCitadelBoost;
+	int m_iPuppetProdMod;
+	int m_iOccupiedProdMod;
 	int m_iGoldInternalTrade;
 	int m_iFreeWCVotes;
 	int m_iInfluenceGPExpend;

@@ -12,7 +12,9 @@
 			<ConquestProb>100</ConquestProb>
 			<ArtDefineTag>TEMPLE</ArtDefineTag>
 			<MinAreaSize>-1</MinAreaSize>
-			<Happiness>1</Happiness>
+			<Help>TXT_KEY_BUILDING_STUPA_HELP</Help>
+			<TechEnhancedTourism>1</TechEnhancedTourism>
+			<EnhancedYieldTech>TECH_THEOLOGY</EnhancedYieldTech>
 			<ReligiousPressureModifier>15</ReligiousPressureModifier>
 			<ConversionModifier>-20</ConversionModifier>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
@@ -28,6 +30,7 @@
 			<Description>TXT_KEY_BUILDING_CHURCH</Description>
 			<Civilopedia>TXT_KEY_BUILDING_CHURCH_TEXT</Civilopedia>
 			<Strategy>TXT_KEY_BUILDING_CHURCH_STRATEGY</Strategy>
+			<Help>TXT_KEY_BUILDING_CHURCH_HELP</Help>
 			<GreatWorkSlotType>GREAT_WORK_SLOT_MUSIC</GreatWorkSlotType>
 			<GreatWorkCount>1</GreatWorkCount>
 			<ConquestProb>100</ConquestProb>
@@ -35,7 +38,6 @@
 			<MinorityHappinessChange>2</MinorityHappinessChange>
 			<ConversionModifier>-20</ConversionModifier>
 			<MinAreaSize>-1</MinAreaSize>
-			<Happiness>1</Happiness>
 			<ReligiousPressureModifier>15</ReligiousPressureModifier>
 			<Cost>-1</Cost>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
@@ -50,6 +52,7 @@
 			<Description>TXT_KEY_BUILDING_MANDIR</Description>
 			<Civilopedia>TXT_KEY_BUILDING_MANDIR_TEXT</Civilopedia>
 			<Strategy>TXT_KEY_BUILDING_MANDIR_STRATEGY</Strategy>
+			<Help>TXT_KEY_BUILDING_MANDIR_HELP</Help>
 			<GreatWorkSlotType>GREAT_WORK_SLOT_MUSIC</GreatWorkSlotType>
 			<GreatWorkCount>1</GreatWorkCount>
 			<ConquestProb>100</ConquestProb>
@@ -73,6 +76,7 @@
 			<Strategy>TXT_KEY_BUILDING_SYNAGOGUE_STRATEGY</Strategy>
 			<GreatWorkSlotType>GREAT_WORK_SLOT_LITERATURE</GreatWorkSlotType>
 			<GreatWorkCount>1</GreatWorkCount>
+			<Help>TXT_KEY_BUILDING_SYNAGOGUE_HELP</Help>
 			<MinorityHappinessChange>2</MinorityHappinessChange>
 			<ConquestProb>100</ConquestProb>
 			<Cost>-1</Cost>
@@ -148,7 +152,7 @@
 		<Row>
 			<BuildingType>BUILDING_CHURCH</BuildingType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>2</Yield>
+			<Yield>3</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_MANDIR</BuildingType>
@@ -188,7 +192,7 @@
 		<Row>
 			<BuildingType>BUILDING_ORDER</BuildingType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>2</Yield>
+			<Yield>3</Yield>
 		</Row>
 	</Building_YieldChanges>
 	<Building_Flavors>
@@ -199,18 +203,13 @@
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_STUPA</BuildingType>
-			<FlavorType>FLAVOR_HAPPINESS</FlavorType>
-			<Flavor>4</Flavor>
+			<FlavorType>FLAVOR_CULTURE</FlavorType>
+			<Flavor>2</Flavor>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_CHURCH</BuildingType>
 			<FlavorType>FLAVOR_RELIGION</FlavorType>
-			<Flavor>4</Flavor>
-		</Row>
-		<Row>
-			<BuildingType>BUILDING_CHURCH</BuildingType>
-			<FlavorType>FLAVOR_HAPPINESS</FlavorType>
-			<Flavor>4</Flavor>
+			<Flavor>6</Flavor>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_CHURCH</BuildingType>
@@ -250,7 +249,7 @@
 		<Row>
 			<BuildingType>BUILDING_ORDER</BuildingType>
 			<FlavorType>FLAVOR_RELIGION</FlavorType>
-			<Flavor>4</Flavor>
+			<Flavor>6</Flavor>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_ORDER</BuildingType>

@@ -439,6 +439,8 @@ CvPlayer::CvPlayer() :
 	, m_iDoubleBorderGA(0)
 	, m_iDoubleQuestInfluence(0)
 	, m_iCitadelBoost(0)
+	, m_iPuppetProdMod(0)
+	, m_iOccupiedProdMod(0)
 	, m_iGoldInternalTrade(0)
 	, m_iFreeWCVotes(0)
 	, m_iInfluenceGPExpend(0)
@@ -739,7 +741,10 @@ void CvPlayer::init(PlayerTypes eID)
 		{
 			updateExtraYieldThreshold((YieldTypes)iI);
 		}
-
+#if defined(MOD_BALANCE_CORE_SETTLER)
+		int iBuildingMid = 0;
+		int iBuildingLate = 0;
+#endif
 		CvCivilizationInfo& playerCivilizationInfo = getCivilizationInfo();
 		for(iI = 0; iI < GC.getNumUnitClassInfos(); ++iI)
 		{
@@ -751,6 +756,62 @@ void CvPlayer::init(PlayerTypes eID)
 				if(NO_UNIT != eUnit)
 				{
 					CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
+#if defined(MOD_BALANCE_CORE_SETTLER)
+					for(int iJ = 0; iJ < GC.getNumBuildingClassInfos(); iJ++)
+					{
+						const BuildingClassTypes eBuildingClass = static_cast<BuildingClassTypes>(iJ);
+						CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
+						if(pkBuildingClassInfo)
+						{
+							const BuildingTypes eBuilding = ((BuildingTypes)(getCivilizationInfo().getCivilizationBuildings(iJ)));
+							if(NO_BUILDING != eBuilding)
+							{
+								CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+								if(pkBuildingInfo)
+								{
+									if(pkUnitInfo->GetBuildOnFound(iJ) && pkUnitInfo->IsFoundMid())
+									{
+										iBuildingMid++;
+									}
+									if(pkUnitInfo->GetBuildOnFound(iJ) && pkUnitInfo->IsFoundLate())
+									{
+										iBuildingLate++;
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		for(iI = 0; iI < GC.getNumUnitClassInfos(); ++iI)
+		{
+			const UnitClassTypes eUnitClass = static_cast<UnitClassTypes>(iI);
+			CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eUnitClass);
+			if(pkUnitClassInfo != NULL)
+			{
+				const UnitTypes eUnit = ((UnitTypes)(playerCivilizationInfo.getCivilizationUnits(iI)));
+				if(NO_UNIT != eUnit)
+				{
+					CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
+#endif
+#if defined(MOD_BALANCE_CORE_SETTLER)
+					if(MOD_BALANCE_CORE_SETTLER && (pkUnitInfo != NULL) && pkUnitInfo->IsFoundMid() && pkUnitInfo->IsFoodProduction())
+					{
+						if(iBuildingMid > 0)
+						{
+							setUnitExtraCost(eUnitClass, (40 * iBuildingMid));
+						}
+					}
+					else if(MOD_BALANCE_CORE_SETTLER && (pkUnitInfo != NULL) && pkUnitInfo->IsFoundLate() && pkUnitInfo->IsFoodProduction())
+					{
+						if(iBuildingLate > 0)
+						{
+							setUnitExtraCost(eUnitClass, (40 * iBuildingLate));
+						}
+					}
+					else
+#endif
 					if(NULL != pkUnitInfo && pkUnitInfo->IsFound())
 					{
 						setUnitExtraCost(eUnitClass, getNewCityProductionValue());
@@ -1137,6 +1198,8 @@ void CvPlayer::uninit()
 	m_iDoubleBorderGA = 0;
 	m_iDoubleQuestInfluence = 0;
 	m_iCitadelBoost = 0;
+	m_iPuppetProdMod = 0;
+	m_iOccupiedProdMod = 0;
 	m_iGoldInternalTrade = 0;
 	m_iFreeWCVotes = 0;
 	m_iInfluenceGPExpend = 0;
@@ -2894,7 +2957,9 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 
 		iPopulation = max(1, iPopulation * iPercentPopulationRetained / 100);
 	}
-
+#if defined(MOD_BALANCE_CORE)
+	AwardFreeBuildings(pNewCity);
+#endif
 	pNewCity->setPopulation(iPopulation);
 	pNewCity->setHighestPopulation(iHighestPopulation);
 	pNewCity->setName(strName);
@@ -3997,6 +4062,11 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID)
 			{
 #if defined(MOD_CONFIG_AI_IN_XML)
 				int iWarmongerOffset = CvDiplomacyAIHelpers::GetWarmongerOffset(ePlayer, pNewCity->isCapital());
+				//Sanity check - should be positive!
+				if(iWarmongerOffset < 0)
+				{
+					iWarmongerOffset *= -1;
+				}
 				int iWarmongerModifier = 100;
 				GET_PLAYER(eMajor).GetDiplomacyAI()->ChangeOtherPlayerWarmongerAmountTimes100(GetID(), -iWarmongerOffset * iWarmongerModifier);
 #else
@@ -5003,16 +5073,34 @@ void CvPlayer::doTurn()
 		ChangeTurnsSinceSettledLastCity(1);
 
 	setConscriptCount(0);
-
+#if defined(MOD_BALANCE_CORE)
+	if(!isMinorCiv() && !isBarbarian())
+	{
+#endif
 	DoUpdateCramped();
 
 	DoUpdateUprisings();
 	DoUpdateCityRevolts();
-
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	if(MOD_BALANCE_CORE_HAPPINESS)
 	{
 		CalculateHappiness();
+		if(GC.getLogging() && GC.getAILogging())
+		{
+			CvString playerName;
+			FILogFile* pLog;
+			CvString strBaseString;
+			CvString strOutBuf;
+			CvString strFileName = "CustomMods.csv";
+			playerName = getCivilizationShortDescription();
+			pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
+			strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+			strBaseString += playerName + ", ";
+			strOutBuf.Format("Happiness: %d, Gold: %d, Defense: %d, Science: %d, Culture: %d", (GetHappiness() - GetSetUnhappiness()) , getUnhappinessFromCityGold(), getUnhappinessFromCityDefense(), getUnhappinessFromCityScience(), getUnhappinessFromCityCulture());
+			strBaseString += strOutBuf;
+			pLog->Msg(strBaseString);
+		}
+
 	}
 #endif
 
@@ -5020,7 +5108,9 @@ void CvPlayer::doTurn()
 	{
 		ChangeNumMayaBoosts(1);
 	}
-
+#if defined(MOD_BALANCE_CORE)
+	}
+#endif
 	bool bHasActiveDiploRequest = false;
 	if(isAlive())
 	{
@@ -5085,7 +5175,7 @@ void CvPlayer::doTurnPostDiplomacy()
 
 			UpdatePlots();
 #if defined(MOD_BALANCE_CORE)
-		UpdateDangerPlots();
+			UpdateDangerPlots();
 #else
 			m_pDangerPlots->UpdateDanger();
 #endif
@@ -5095,10 +5185,17 @@ void CvPlayer::doTurnPostDiplomacy()
 		{
 			GetEconomicAI()->DoTurn();
 			GetMilitaryAI()->DoTurn();
+#if defined(MOD_BALANCE_CORE)
+			if(!isMinorCiv())
+			{
+#endif
 			GetReligionAI()->DoTurn();
 			GetTradeAI()->DoTurn();
 			GetCitySpecializationAI()->DoTurn();
 			GetLeagueAI()->DoTurn();
+#if defined(MOD_BALANCE_CORE)
+			}
+#endif
 		}
 
 		if(isMinorCiv())
@@ -5241,7 +5338,10 @@ void CvPlayer::doTurnPostDiplomacy()
 	doResearch();
 
 	GetEspionage()->DoTurn();
-
+#if defined(MOD_BALANCE_CORE)
+	if(!isMinorCiv())
+	{
+#endif
 	// Faith
 	CvGameReligions* pGameReligions = kGame.GetGameReligions();
 	pGameReligions->DoPlayerTurn(*this);
@@ -5253,7 +5353,9 @@ void CvPlayer::doTurnPostDiplomacy()
 	// Anarchy counter
 	if(GetAnarchyNumTurns() > 0)
 		ChangeAnarchyNumTurns(-1);
-
+#if defined(MOD_BALANCE_CORE)
+	}
+#endif
 	DoIncomingUnits();
 
 	const int iGameTurn = kGame.getGameTurn();
@@ -8111,6 +8213,16 @@ bool CvPlayer::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool
 			return false;
 		}
 	}
+#if defined(MOD_BALANCE_CORE)
+	ResourceTypes eResource = (ResourceTypes)pUnitInfo.GetResourceType();
+	if (eResource != NO_RESOURCE)
+	{
+		if (getNumResourceTotal(eResource, true) <= 0)
+		{
+			return false;
+		}
+	}
+#endif
 
 	// One City Challenge
 	if(pUnitInfo.IsFound() || pUnitInfo.IsFoundAbroad())
@@ -8422,6 +8534,16 @@ bool CvPlayer::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestV
 	if (ePolicy != NO_POLICY)
 	{
 		if (!GetPlayerPolicies()->HasPolicy(ePolicy))
+		{
+			return false;
+		}
+	}
+#endif
+#if defined(MOD_BALANCE_CORE)
+	ResourceTypes eResource = (ResourceTypes)pBuildingInfo.GetResourceType();
+	if (eResource != NO_RESOURCE)
+	{
+		if (getNumResourceTotal(eResource, true) <= 0)
 		{
 			return false;
 		}
@@ -9865,7 +9987,6 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 				if(pkBuilding)
 				{
 					iBuildingCount = pLoopCity->GetCityBuildings()->GetNumRealBuilding(eBuilding);
-
 					if(iBuildingCount > 0)
 					{
 #if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
@@ -11671,7 +11792,7 @@ void CvPlayer::DoYieldsFromKill(UnitTypes eAttackingUnitType, UnitTypes eKilledU
 		float fDelay = 0.0f;
 		for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 		{
-			if(pLoopCity && pLoopCity->getOwner() == GetID())
+			if(pLoopCity)
 			{
 				int iYieldFromVictory = pLoopCity->GetYieldFromVictory((YieldTypes)iYield);
 				if (iYieldFromVictory > 0)
@@ -12204,13 +12325,13 @@ void CvPlayer::DoFreeGreatWorkOnConquest(PlayerTypes ePlayer, CvCity* pCity)
 			}
 			else
 			{
-				ChangeCultureBonusTurns(pCity->getPopulation());
+				ChangeCultureBonusTurns(pCity->getPopulation() / 2);
 				if(GetID() == GC.getGame().getActivePlayer())
 				{
 					Localization::String strMessage;
 					Localization::String strSummary;
 					strMessage = Localization::Lookup("TXT_KEY_CULTURE_BOOST_ART");
-					strMessage << pCity->getPopulation();
+					strMessage << (pCity->getPopulation() / 2);
 					strMessage << strTargetNameKey;
 					strSummary = Localization::Lookup("TXT_KEY_CULTURE_BOOST_ART_SUMMARY");
 
@@ -12224,13 +12345,13 @@ void CvPlayer::DoFreeGreatWorkOnConquest(PlayerTypes ePlayer, CvCity* pCity)
 		}
 		else
 		{
-			ChangeCultureBonusTurns(pCity->getPopulation());
+			ChangeCultureBonusTurns(pCity->getPopulation() / 2);
 			if(GetID() == GC.getGame().getActivePlayer())
 			{
 				Localization::String strMessage;
 				Localization::String strSummary;
 				strMessage = Localization::Lookup("TXT_KEY_CULTURE_BOOST_ART");
-				strMessage << pCity->getPopulation();
+				strMessage << (pCity->getPopulation() / 2);
 				strMessage << strTargetNameKey;
 				strSummary = Localization::Lookup("TXT_KEY_CULTURE_BOOST_ART_SUMMARY");
 
@@ -12244,13 +12365,13 @@ void CvPlayer::DoFreeGreatWorkOnConquest(PlayerTypes ePlayer, CvCity* pCity)
 	}
 	else
 	{
-		ChangeCultureBonusTurns(pCity->getPopulation());
+		ChangeCultureBonusTurns(pCity->getPopulation() / 2);
 		if(GetID() == GC.getGame().getActivePlayer())
 		{
 			Localization::String strMessage;
 			Localization::String strSummary;
 			strMessage = Localization::Lookup("TXT_KEY_CULTURE_BOOST_ART");
-			strMessage << pCity->getPopulation();
+			strMessage << (pCity->getPopulation() / 2);
 			strMessage << strTargetNameKey;
 			strSummary = Localization::Lookup("TXT_KEY_CULTURE_BOOST_ART_SUMMARY");
 
@@ -12913,7 +13034,12 @@ bool CvPlayer::IsEmpireSuperUnhappy() const
 /// Uprisings pop up if the empire is Very Unhappy
 void CvPlayer::DoUpdateUprisings()
 {
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+	//Revolts only happen if super unhappy.
+	if(IsEmpireSuperUnhappy())
+#else
 	if(IsEmpireVeryUnhappy())
+#endif
 	{
 		// If we're very unhappy, make the counter wind down
 		if(GetUprisingCounter() > 0)
@@ -21895,6 +22021,51 @@ void CvPlayer::changeCitadelBoost(int iChange)
 		m_iCitadelBoost += iChange;
 	}
 }
+
+//Puppet Prod Boost
+//	--------------------------------------------------------------------------------
+bool CvPlayer::IsPuppetProdMod() const
+{
+	return GetPuppetProdMod() > 0;
+}
+
+//	--------------------------------------------------------------------------------
+int CvPlayer::GetPuppetProdMod() const
+{
+	return m_iPuppetProdMod;
+}
+
+//	--------------------------------------------------------------------------------
+void CvPlayer::changePuppetProdMod(int iChange)
+{
+	if(iChange != 0)
+	{
+		m_iPuppetProdMod += iChange;
+	}
+}
+
+//Occupied Prod Boost
+//	--------------------------------------------------------------------------------
+bool CvPlayer::IsOccupiedProdMod() const
+{
+	return GetOccupiedProdMod() > 0;
+}
+
+//	--------------------------------------------------------------------------------
+int CvPlayer::GetOccupiedProdMod() const
+{
+	return m_iOccupiedProdMod;
+}
+
+//	--------------------------------------------------------------------------------
+void CvPlayer::changeOccupiedProdMod(int iChange)
+{
+	if(iChange != 0)
+	{
+		m_iOccupiedProdMod += iChange;
+	}
+}
+
 //Free Gold from Internal Trade Routes
 //	--------------------------------------------------------------------------------
 bool CvPlayer::IsGoldInternalTrade() const
@@ -27172,6 +27343,8 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 		changeFreeWCVotes(pPolicy->GetFreeWCVotes() * iChange);
 		changeDoubleQuestInfluence(pPolicy->GetDoubleQuestInfluence() * iChange);
 		changeCitadelBoost(pPolicy->GetCitadelBoost() * iChange);
+		changePuppetProdMod(pPolicy->GetPuppetProdMod() * iChange);
+		changeOccupiedProdMod(pPolicy->GetOccupiedProdMod() * iChange);
 		changeGoldInternalTrade(pPolicy->GetInternalTradeGold() * iChange);
 		changeInfluenceGPExpend(pPolicy->GetInfluenceGPExpend() * iChange);
 		changeFreeTradeRoute(pPolicy->GetFreeTradeRoute() * iChange);
@@ -28769,6 +28942,9 @@ void CvPlayer::Read(FDataStream& kStream)
 	MOD_SERIALIZE_READ(60, kStream, m_iNoUnhappyIsolation, 0);
 	MOD_SERIALIZE_READ(60, kStream, m_iDoubleBorderGA, 0);
 	MOD_SERIALIZE_READ(66, kStream, m_iDoubleQuestInfluence, 0);
+	MOD_SERIALIZE_READ(66, kStream, m_iCitadelBoost, 0);
+	MOD_SERIALIZE_READ(66, kStream, m_iPuppetProdMod, 0);
+	MOD_SERIALIZE_READ(66, kStream, m_iOccupiedProdMod, 0);
 	MOD_SERIALIZE_READ(66, kStream, m_iGoldInternalTrade, 0);
 	MOD_SERIALIZE_READ(66, kStream, m_iFreeWCVotes, 0);
 	MOD_SERIALIZE_READ(66, kStream, m_iInfluenceGPExpend, 0);
@@ -29386,6 +29562,9 @@ void CvPlayer::Write(FDataStream& kStream) const
 	MOD_SERIALIZE_WRITE(kStream, m_iNoUnhappyIsolation);
 	MOD_SERIALIZE_WRITE(kStream, m_iDoubleBorderGA);
 	MOD_SERIALIZE_WRITE(kStream, m_iDoubleQuestInfluence);
+	MOD_SERIALIZE_WRITE(kStream, m_iCitadelBoost);
+	MOD_SERIALIZE_WRITE(kStream, m_iPuppetProdMod);
+	MOD_SERIALIZE_WRITE(kStream, m_iOccupiedProdMod);
 	MOD_SERIALIZE_WRITE(kStream, m_iGoldInternalTrade);
 	MOD_SERIALIZE_WRITE(kStream, m_iFreeWCVotes);
 	MOD_SERIALIZE_WRITE(kStream, m_iInfluenceGPExpend);
@@ -32336,8 +32515,12 @@ bool CvPlayer::IsAtPeaceWith(PlayerTypes iPlayer) const
 
 bool CvPlayer::IsAtWar() const
 {
+#if defined(MOD_BALANCE_CORE)
 	//reference is important! otherwise the destructor will be called!
 	CvTeam& kTeam = GET_TEAM(getTeam());
+#else
+	CvTeam kTeam = GET_TEAM(getTeam());
+#endif
 
 	for (int iTeam = 0; iTeam < (MAX_TEAMS-1); iTeam++) {
 		if (GET_TEAM((TeamTypes)iTeam).isAlive() && kTeam.isAtWar((TeamTypes)iTeam)) {
@@ -32350,8 +32533,12 @@ bool CvPlayer::IsAtWar() const
 
 bool CvPlayer::IsAtWarAnyMajor() const
 {
+#if defined(MOD_BALANCE_CORE)
 	//reference is important! otherwise the destructor will be called!
 	CvTeam& kTeam = GET_TEAM(getTeam());
+#else
+	CvTeam kTeam = GET_TEAM(getTeam());
+#endif
 
 	for (int iTeam = 0; iTeam < (MAX_TEAMS-1); iTeam++) {
 		if (GET_TEAM((TeamTypes)iTeam).isAlive() && GET_TEAM((TeamTypes)iTeam).isMajorCiv() && kTeam.isAtWar((TeamTypes)iTeam)) {
@@ -32364,8 +32551,12 @@ bool CvPlayer::IsAtWarAnyMajor() const
 
 bool CvPlayer::IsAtWarAnyMinor() const
 {
+#if defined(MOD_BALANCE_CORE)
 	//reference is important! otherwise the destructor will be called!
 	CvTeam& kTeam = GET_TEAM(getTeam());
+#else
+	CvTeam kTeam = GET_TEAM(getTeam());
+#endif
 
 	for (int iTeam = 0; iTeam < (MAX_TEAMS-1); iTeam++) {
 		if (GET_TEAM((TeamTypes)iTeam).isAlive() && GET_TEAM((TeamTypes)iTeam).isMinorCiv() && kTeam.isAtWar((TeamTypes)iTeam)) {

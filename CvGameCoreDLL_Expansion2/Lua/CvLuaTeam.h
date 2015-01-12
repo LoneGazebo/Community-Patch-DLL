@@ -132,6 +132,9 @@ protected:
 	static int lGetPermanentAllianceTradingCount(lua_State* L);
 	static int lIsPermanentAllianceTrading(lua_State* L);
 	static int lChangePermanentAllianceTradingCount(lua_State* L);
+#if defined(MOD_BALANCE_CORE)
+	LUAAPIEXTN(SetOpenBorders, int);
+#endif
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_TECHS_CITY_WORKING)
 	LUAAPIEXTN(GetCityWorkingChange, int);
 	LUAAPIEXTN(IsCityWorkingChange, bool);

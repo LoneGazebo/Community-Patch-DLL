@@ -150,6 +150,7 @@ CvImprovementEntry::CvImprovementEntry(void):
 	m_pbImprovementMakesValid(NULL),
 #if defined(MOD_API_UNIFIED_YIELDS)
 	m_piAdjacentSameTypeYield(NULL),
+	m_piAdjacentTwoSameTypeYield(NULL),
 #endif
 	m_ppiTechYieldChanges(NULL),
 	m_ppiTechNoFreshWaterYieldChanges(NULL),
@@ -178,6 +179,7 @@ CvImprovementEntry::~CvImprovementEntry(void)
 	SAFE_DELETE_ARRAY(m_pbImprovementMakesValid);
 #if defined(MOD_API_UNIFIED_YIELDS)
 	SAFE_DELETE_ARRAY(m_piAdjacentSameTypeYield);
+	SAFE_DELETE_ARRAY(m_piAdjacentTwoSameTypeYield);
 #endif
 
 	if(m_paImprovementResource != NULL)
@@ -336,7 +338,8 @@ bool CvImprovementEntry::CacheResults(Database::Results& kResults, CvDatabaseUti
 							          szImprovementType);
 
 #if defined(MOD_API_UNIFIED_YIELDS)
-	kUtility.PopulateArrayByValue(m_piAdjacentSameTypeYield, "Yields", "Improvement_YieldAdjacentSameType", "YieldType", "ImprovementType", szImprovementType, "Yield");
+	kUtility.SetYields(m_piAdjacentSameTypeYield, "Improvement_YieldAdjacentSameType", "ImprovementType", szImprovementType);
+	kUtility.SetYields(m_piAdjacentTwoSameTypeYield, "Improvement_YieldAdjacentTwoSameType", "ImprovementType", szImprovementType);
 #endif
 
 	kUtility.SetYields(m_piYieldChange, "Improvement_Yields", "ImprovementType", szImprovementType);
@@ -576,6 +579,13 @@ int CvImprovementEntry::GetYieldAdjacentSameType(YieldTypes eYield) const
 		iYield += m_iCultureAdjacentSameType;
 	}
 	
+	return iYield;
+}
+/// Bonus yield if another Improvement of same type is adjacent
+int CvImprovementEntry::GetYieldAdjacentTwoSameType(YieldTypes eYield) const
+{
+	int iYield = GetAdjacentTwoSameTypeYield(eYield);
+
 	return iYield;
 }
 #else
@@ -1070,7 +1080,22 @@ int CvImprovementEntry::GetAdjacentSameTypeYield(int i) const
 {
 	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
-	return m_piAdjacentSameTypeYield ? m_piAdjacentSameTypeYield[i] : false;
+	return m_piAdjacentSameTypeYield ? m_piAdjacentSameTypeYield[i] : 0;
+}
+int* CvImprovementEntry::GetAdjacentSameTypeYieldArray()
+{
+	return m_piAdjacentSameTypeYield;
+}
+/// If this improvement requires a terrain type to be valid
+int CvImprovementEntry::GetAdjacentTwoSameTypeYield(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piAdjacentTwoSameTypeYield ? m_piAdjacentTwoSameTypeYield[i] : 0;
+}
+int* CvImprovementEntry::GetAdjacentTwoSameTypeYieldArray()
+{
+	return m_piAdjacentTwoSameTypeYield;
 }
 #endif
 

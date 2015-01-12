@@ -1974,7 +1974,13 @@ void CvTeamTechs::SetResearchProgressTimes100(TechTypes eIndex, int iNewValue, P
 	CvAssertMsg(eIndex < GC.getNumTechInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	CvAssertMsg(ePlayer >= 0, "eIndex is expected to be non-negative (invalid Index)");
 	CvAssertMsg(ePlayer < MAX_PLAYERS, "ePlayer is expected to be within maximum bounds (invalid Index)");
-
+#if defined(MOD_BALANCE_CORE)
+	//Crash failsafe.
+	if(ePlayer == NO_PLAYER || eIndex == -1)
+	{
+		return;
+	}
+#endif
 	if(GetResearchProgressTimes100(eIndex) != iNewValue)
 	{
 		m_paiResearchProgress[eIndex] = iNewValue;
@@ -1985,15 +1991,10 @@ void CvTeamTechs::SetResearchProgressTimes100(TechTypes eIndex, int iNewValue, P
 			GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
 			GC.GetEngineUserInterface()->setDirty(Score_DIRTY_BIT, true);
 		}
-
 		int iResearchProgress = GetResearchProgressTimes100(eIndex);
 		int iResearchCost = GetResearchCost(eIndex) * 100;
 
 		// Player modifiers to cost
-#if defined(MOD_BALANCE_CORE)
-		if(ePlayer != NO_PLAYER)
-		{
-#endif
 		int iResearchMod = std::max(1, GET_PLAYER(ePlayer).calculateResearchModifier(eIndex));
 		iResearchCost = (iResearchCost * 100) / iResearchMod;
 		int iNumCitiesMod = GC.getMap().getWorldInfo().GetNumCitiesTechCostMod();	// Default is 40, gets smaller on larger maps
@@ -2001,7 +2002,6 @@ void CvTeamTechs::SetResearchProgressTimes100(TechTypes eIndex, int iNewValue, P
 		iResearchCost = iResearchCost * (100 + iNumCitiesMod) / 100;
 		
 		int iOverflow = iResearchProgress - iResearchCost;
-
 #if defined(MOD_BUGFIX_RESEARCH_OVERFLOW)
 		if (!MOD_BUGFIX_RESEARCH_OVERFLOW) {
 #endif
@@ -2015,7 +2015,6 @@ void CvTeamTechs::SetResearchProgressTimes100(TechTypes eIndex, int iNewValue, P
 #if defined(MOD_BUGFIX_RESEARCH_OVERFLOW)
 		}
 #endif
-
 		if(iOverflow >= 0)
 		{
 #if defined(MOD_BUGFIX_RESEARCH_OVERFLOW)
@@ -2056,9 +2055,6 @@ void CvTeamTechs::SetResearchProgressTimes100(TechTypes eIndex, int iNewValue, P
 				}
 			}
 		}
-#if defined(MOD_BALANCE_CORE)
-		}
-#endif
 	}
 }
 

@@ -79,7 +79,9 @@ protected:
 	LUAAPIEXTN(GetSpaceShipProductionMod, int);
 	LUAAPIEXTN(GetSpaceShipPurchaseMod, int);
 #endif
-
+#if defined(MOD_BALANCE_CORE_DEALS)
+	LUAAPIEXTN(GetPotentialVotesForMember, int);
+#endif
 	static int lGetResolutionName(lua_State* L);
 	static int lGetResolutionDetails(lua_State* L);
 	static int lGetMemberDetails(lua_State* L);

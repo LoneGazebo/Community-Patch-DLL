@@ -13,7 +13,7 @@
 		<Row>
 			<BuildingType>BUILDING_HERMITAGE</BuildingType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>50</Yield>
+			<Yield>25</Yield>
 		</Row>
 	</Building_YieldChangesPerPop>
 </GameData>

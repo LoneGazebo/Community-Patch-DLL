@@ -140,7 +140,7 @@
 		<Row>
 			<BuildingType>BUILDING_MOTHERLAND_STATUE</BuildingType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>2</Yield>
+			<Yield>1</Yield>
 		</Row>
 	</Building_YieldChanges>
 	<Language_en_US>
@@ -241,78 +241,115 @@
 	<!-- Bretton Woods -->
 	<BuildingClasses>
 		<Row>
-			<Type>BUILDINGCLASS_BRETTON_WOODS</Type>
-			<DefaultBuilding>BUILDING_BRETTON_WOODS</DefaultBuilding>
-			<Description>TXT_KEY_BUILDING_BRETTON_WOODS</Description>
+			<Type>BUILDINGCLASS_EMPIRE_STATE_BUILDING</Type>
+			<DefaultBuilding>BUILDING_EMPIRE_STATE_BUILDING</DefaultBuilding>
+			<Description>TXT_KEY_BUILDING_EMPIRE_STATE_BUILDING</Description>
 			<MaxGlobalInstances>1</MaxGlobalInstances>
 		</Row>
 	</BuildingClasses>
 	<Buildings>
 		<Row>
-			<Type>BUILDING_BRETTON_WOODS</Type>
-			<BuildingClass>BUILDINGCLASS_BRETTON_WOODS</BuildingClass>
-			<Cost>1350</Cost>
-			<PrereqTech>TECH_ELECTRONICS</PrereqTech>
-			<Description>TXT_KEY_BUILDING_BRETTON_WOODS</Description>
-			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_BRETTON_WOODS_TEXT</Civilopedia>
-			<Help>TXT_KEY_BUILDING_BRETTON_WOODS_HELP</Help>
-			<Quote>TXT_KEY_WONDER_BRETTON_WOODS_QUOTE</Quote>
+			<Type>BUILDING_EMPIRE_STATE_BUILDING</Type>
+			<BuildingClass>BUILDINGCLASS_EMPIRE_STATE_BUILDING</BuildingClass>
+			<Cost>950</Cost>
+			<PrereqTech>TECH_ELECTRICITY</PrereqTech>
+			<Description>TXT_KEY_BUILDING_EMPIRE_STATE_BUILDING</Description>
+			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_EMPIRE_STATE_BUILDING_TEXT</Civilopedia>
+			<Help>TXT_KEY_BUILDING_EMPIRE_STATE_BUILDING_HELP</Help>
+			<Quote>TXT_KEY_WONDER_EMPIRE_STATE_BUILDING_QUOTE</Quote>
 			<ArtDefineTag>ART_DEF_BUILDING_FACTORY</ArtDefineTag>
 			<NukeImmune>true</NukeImmune>
 			<HurryCostModifier>-1</HurryCostModifier>
 			<MinAreaSize>-1</MinAreaSize>
 			<ConquestProb>100</ConquestProb>
-			<FreeBuildingThisCity>BUILDINGCLASS_HOTEL</FreeBuildingThisCity>
+			<FreeBuildingThisCity>BUILDINGCLASS_STOCK_EXCHANGE</FreeBuildingThisCity>
 			<FreeGreatPeople>1</FreeGreatPeople>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
-			<EnhancedYieldTech>TECH_COMPUTERS</EnhancedYieldTech>
-			<TechEnhancedTourism>5</TechEnhancedTourism>
-			<WonderSplashImage>brettonsplash.dds</WonderSplashImage>
-			<PortraitIndex>45</PortraitIndex>
+			<WonderSplashImage>empiresplash.dds</WonderSplashImage>
+			<PortraitIndex>48</PortraitIndex>
 		</Row>
 	</Buildings>
 	<Building_Flavors>
 		<Row>
-			<BuildingType>BUILDING_BRETTON_WOODS</BuildingType>
+			<BuildingType>BUILDING_EMPIRE_STATE_BUILDING</BuildingType>
 			<FlavorType>FLAVOR_GREAT_PEOPLE</FlavorType>
 			<Flavor>50</Flavor>
 		</Row>
 		<Row>
-			<BuildingType>BUILDING_BRETTON_WOODS</BuildingType>
-			<FlavorType>FLAVOR_CULTURE</FlavorType>
+			<BuildingType>BUILDING_EMPIRE_STATE_BUILDING</BuildingType>
+			<FlavorType>FLAVOR_GOLD</FlavorType>
 			<Flavor>30</Flavor>
 		</Row>
 		<Row>
-			<BuildingType>BUILDING_BRETTON_WOODS</BuildingType>
+			<BuildingType>BUILDING_EMPIRE_STATE_BUILDING</BuildingType>
 			<FlavorType>FLAVOR_WONDER</FlavorType>
 			<Flavor>30</Flavor>
 		</Row>
 	</Building_Flavors>
 	<Building_YieldChanges>
 		<Row>
-			<BuildingType>BUILDING_BRETTON_WOODS</BuildingType>
+			<BuildingType>BUILDING_EMPIRE_STATE_BUILDING</BuildingType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>2</Yield>
-		</Row>
-		<Row>
-			<BuildingType>BUILDING_BRETTON_WOODS</BuildingType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>10</Yield>
+			<Yield>1</Yield>
 		</Row>
 	</Building_YieldChanges>
+	<Building_SpecialistYieldChanges>
+		<Row>
+			<BuildingType>BUILDING_EMPIRE_STATE_BUILDING</BuildingType>
+			<SpecialistType>SPECIALIST_CITIZEN</SpecialistType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_EMPIRE_STATE_BUILDING</BuildingType>
+			<SpecialistType>SPECIALIST_ARTIST</SpecialistType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_EMPIRE_STATE_BUILDING</BuildingType>
+			<SpecialistType>SPECIALIST_SCIENTIST</SpecialistType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_EMPIRE_STATE_BUILDING</BuildingType>
+			<SpecialistType>SPECIALIST_MERCHANT</SpecialistType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_EMPIRE_STATE_BUILDING</BuildingType>
+			<SpecialistType>SPECIALIST_ENGINEER</SpecialistType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_EMPIRE_STATE_BUILDING</BuildingType>
+			<SpecialistType>SPECIALIST_WRITER</SpecialistType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_EMPIRE_STATE_BUILDING</BuildingType>
+			<SpecialistType>SPECIALIST_MUSICIAN</SpecialistType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+	</Building_SpecialistYieldChanges>
 	<Language_en_US>
-		<Row Tag="TXT_KEY_BUILDING_BRETTON_WOODS">
-			<Text>Bretton Woods</Text>
+		<Row Tag="TXT_KEY_BUILDING_EMPIRE_STATE_BUILDING">
+			<Text>Empire State Building</Text>
 		</Row>
-		<Row Tag="TXT_KEY_BUILDING_BRETTON_WOODS_HELP">
-			<Text>Receive a free Hotel in the city where it is built, and a free Great Person of your choice. Grants 5 [ICON_TOURISM] Tourism, and a large amount of [ICON_GOLD] Gold.</Text>
+		<Row Tag="TXT_KEY_BUILDING_EMPIRE_STATE_BUILDING_HELP">
+			<Text>Receive a free Stock Exchange in the city where it is built, and a free Great Person of your choice. Specialists in all cities produce +1 [ICON_GOLD] Gold.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_CIV5_BUILDINGS_BRETTON_WOODS_TEXT">
+		<Row Tag="TXT_KEY_CIV5_BUILDINGS_EMPIRE_STATE_BUILDING_TEXT">
 			<Text>
-				The Bretton Woods Conference, formally known as the United Nations Monetary and Financial Conference, was the gathering of 730 delegates from all 44 Allied nations at the Mount Washington Hotel, situated in Bretton Woods, New Hampshire, United States, to regulate the international monetary and financial order after the conclusion of World War II. The conference was held from the 1st to 22nd of July, 1944. Agreements were executed that later established the International Bank for Reconstruction and Development (IBRD, which is part of today's World Bank Group) and the International Monetary Fund (IMF).
+				The Empire State Building is a 103-story skyscraper located in Midtown Manhattan, New York City, at the intersection of Fifth Avenue and West 34th Street. It has a roof height of 1,250 feet (380 m), and with its antenna spire included, it stands a total of 1,454 feet (443 m) high.[6] Its name is derived from the nickname for New York, the Empire State. It stood as the world's tallest building for nearly 40 years, from its completion in early 1931 until the topping out of the original World Trade Center's North Tower in late 1970. Following the September 11 attacks in 2001, the Empire State Building was again the tallest building in New York (although it was no longer the tallest in the US or the world), until One World Trade Center reached a greater height on April 30, 2012. The Empire State Building is currently the fourth-tallest completed skyscraper in the United States (after the One World Trade Center, the Willis Tower and Trump International Hotel and Tower, both in Chicago), and the 25th-tallest in the world (the tallest now is Burj Khalifa, located in Dubai). It is also the fifth-tallest freestanding structure in the Americas.
 			</Text>
 		</Row>
-		<Row Tag="TXT_KEY_WONDER_BRETTON_WOODS_QUOTE">
+		<Row Tag="TXT_KEY_WONDER_EMPIRE_STATE_BUILDING_QUOTE">
 			<Text>
 				[NEWLINE][TAB][TAB]"The importance of money flows from it being a link between the present and the future."[NEWLINE][TAB][TAB] - John Maynard Keynes[NEWLINE][TAB]
 			</Text>
@@ -364,7 +401,7 @@
 		<Row>
 			<BuildingType>BUILDING_CERN</BuildingType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>15</Yield>
+			<Yield>10</Yield>
 		</Row>
 	</Building_YieldChanges>
 	<Building_InstantYield>

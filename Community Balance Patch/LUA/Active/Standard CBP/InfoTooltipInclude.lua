@@ -308,6 +308,11 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 			local localizedText = Locale.ConvertTextKey("TXT_KEY_PRODUCTION_BUILDING_TOURISM", iTourism);
 			table.insert(lines, localizedText);
 		end
+	-- CBP FIX
+		if(iTourism > 0 and pBuildingInfo.FaithCost > 0 and pBuildingInfo.PolicyType ~= nil and pBuildingInfo.Cost == -1) then
+			local localizedText = Locale.ConvertTextKey("TXT_KEY_PRODUCTION_BUILDING_TOURISM", iTourism);
+			table.insert(lines, localizedText);
+		end
 	end
 	
 	local iTechEnhancedTourism = pBuildingInfo.TechEnhancedTourism;
@@ -648,7 +653,20 @@ function GetCultureTooltip(pCity)
 			strCultureToolTip = strCultureToolTip .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_CULTURE_FROM_PIETY", iYieldFromPiety);
 		end
 -- END
-		
+-- CBP -- Yield Increase from CS Alliance
+		local iYieldFromCSAlliance = pCity:GetBaseYieldRateFromCSAlliance(YieldTypes.YIELD_CULTURE);
+		if ( iYieldFromCSAlliance ~= 0) then
+			
+			-- Spacing
+			if (bFirst) then
+				bFirst = false;
+			else
+				strCultureToolTip = strCultureToolTip .. "[NEWLINE]";
+			end
+			
+			strCultureToolTip = strCultureToolTip .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_CULTURE_FROM_CS_ALLIANCE", iYieldFromCSAlliance);
+		end
+-- END		
 		-- Culture from Leagues
 		local iCultureFromLeagues = pCity:GetJONSCulturePerTurnFromLeagues();
 		if ( iCultureFromLeagues ~= 0) then
@@ -721,6 +739,20 @@ function GetCultureTooltip(pCity)
 				strCultureToolTip = strCultureToolTip .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_CULTURE_WONDER_BONUS", iAmount);
 			end
 		end
+
+		-- CBP
+		local iAmount = pCity:GetModFromWLTKD(YieldTypes.YIELD_CULTURE);
+		if (iAmount ~= 0) then
+			strCultureToolTip = strCultureToolTip .. "[NEWLINE][NEWLINE]";
+			strCultureToolTip = strCultureToolTip .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_CULTURE_GOLDEN_AGE", iAmount);
+		end
+
+		local iAmount = pCity:GetModFromGoldenAge(YieldTypes.YIELD_CULTURE);
+		if (iAmount ~= 0) then
+			strCultureToolTip = strCultureToolTip .. "[NEWLINE][NEWLINE]";
+			strCultureToolTip = strCultureToolTip .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_CULTURE_WLTKD", iAmount);
+		end
+		-- END
 		
 		-- Puppet modifier
 		if (pCity:IsPuppet()) then
@@ -799,6 +831,12 @@ function GetFaithTooltip(pCity)
 			table.insert(faithTips, "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_FAITH_FROM_PIETY", iYieldFromPiety));
 		end
 -- END
+-- CBP -- Yield Increase from CS Alliance
+		local iYieldFromCSAlliance = pCity:GetBaseYieldRateFromCSAlliance(YieldTypes.YIELD_FAITH);
+		if (iYieldFromCSAlliance ~= 0) then
+			table.insert(faithTips, "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_FAITH_FROM_CS_ALLIANCE", iYieldFromCSAlliance));
+		end
+-- END		
 		-- Faith from Terrain
 		local iFaithFromTerrain = pCity:GetBaseYieldRateFromTerrain(YieldTypes.YIELD_FAITH);
 		if (iFaithFromTerrain ~= 0) then
@@ -819,6 +857,18 @@ function GetFaithTooltip(pCity)
 				
 			table.insert(faithTips, "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_FAITH_FROM_RELIGION", iFaithFromReligion));
 		end
+
+		-- CBP
+		local iFaithWLTKDMod = pCity:GetModFromWLTKD(YieldTypes.YIELD_FAITH);
+		if (iFaithWLTKDMod ~= 0) then
+			table.insert(faithTips, "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_FAITH_FROM_WLTKD", iFaithWLTKDMod));
+		end
+
+		local iFaithGoldenAgeMod = pCity:GetModFromGoldenAge(YieldTypes.YIELD_FAITH);
+		if (iFaithGoldenAgeMod ~= 0) then
+			table.insert(faithTips, "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_FAITH_FROM_GOLDEN_AGE", iFaithGoldenAgeMod));
+		end
+		-- END
 		
 		-- Puppet modifier
 		if (pCity:IsPuppet()) then
@@ -958,6 +1008,14 @@ function GetYieldTooltip(pCity, iYieldType, iBase, iTotal, strIconString, strMod
 		end
 	end
 
+	-- CBP Base Yield From City Connections
+	local iYieldFromConnection = pCity:GetYieldChangeTradeRoute(iYieldType);
+	if (iYieldFromConnection ~= 0) then
+		strYieldBreakdown = strYieldBreakdown .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_YIELD_FROM_CONNECTION", iYieldFromConnection, strIconString);
+		strYieldBreakdown = strYieldBreakdown .. "[NEWLINE]";
+	end
+	-- END
+
 	-- Base Yield from League Art (CSD)
 	local iYieldFromLeague = pCity:GetBaseYieldRateFromLeague(iYieldType);
 	if (iYieldFromLeague ~= 0) then
@@ -967,20 +1025,33 @@ function GetYieldTooltip(pCity, iYieldType, iBase, iTotal, strIconString, strMod
 		end
 	end
 
+-- CBP Gold from Great Works
+	local iGoldFromGreatWorks = pCity:GetBaseYieldRateFromGreatWorks(iYieldType);
+	if (iGoldFromGreatWorks ~= 0) then
+		if (iYieldType == YieldTypes.YIELD_GOLD) then
+		strYieldBreakdown = strYieldBreakdown .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_YIELD_FROM_ART_CBP", iGoldFromGreatWorks, strIconString);
+		strYieldBreakdown = strYieldBreakdown .. "[NEWLINE]";
+		end
+	end
+-- END
+
 	local strExtraBaseString = "";
-	
+
+-- CBP Changes -- made YieldRateTimes100	
 	-- Food eaten by pop
 	local iYieldEaten = 0;
 	if (iYieldType == YieldTypes.YIELD_FOOD) then
+		local iFoodYield = (pCity:GetYieldRateTimes100(YieldTypes.YIELD_FOOD, false) / 100);
 		iYieldEaten = pCity:FoodConsumption(true, 0);
 		if (iYieldEaten ~= 0) then
 			--strModifiers = strModifiers .. "[NEWLINE]";
 			--strModifiers = strModifiers .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_YIELD_EATEN_BY_POP", iYieldEaten, "[ICON_FOOD]");
 			--strModifiers = strModifiers .. "[NEWLINE]----------------[NEWLINE]";			
-			strExtraBaseString = strExtraBaseString .. "   " .. Locale.ConvertTextKey("TXT_KEY_FOOD_USAGE", pCity:GetYieldRate(YieldTypes.YIELD_FOOD, false), iYieldEaten);
+			strExtraBaseString = strExtraBaseString .. "   " .. Locale.ConvertTextKey("TXT_KEY_FOOD_USAGE", iFoodYield, iYieldEaten);
 			
-			local iFoodSurplus = pCity:GetYieldRate(YieldTypes.YIELD_FOOD, false) - iYieldEaten;
+			local iFoodSurplus = iFoodYield - iYieldEaten;
 			iBase = iFoodSurplus;
+-- END
 			
 			--if (iFoodSurplus >= 0) then
 				--strModifiers = strModifiers .. Locale.ConvertTextKey("TXT_KEY_YIELD_AFTER_EATEN", iFoodSurplus, "[ICON_FOOD]");

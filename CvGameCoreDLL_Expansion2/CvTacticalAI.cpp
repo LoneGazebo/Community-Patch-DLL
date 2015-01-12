@@ -2617,6 +2617,27 @@ void CvTacticalAI::PlotOperationalArmyMoves()
 	{
 		if(nextOp->GetLastTurnMoved() < GC.getGame().getGameTurn())
 		{
+#if defined(MOD_BALANCE_CORE_MILITARY)
+			switch (nextOp->GetMoveType())
+			{
+			case AI_OPERATION_MOVETYPE_SINGLE_HEX:
+				PlotSingleHexOperationMoves((CvAIEscortedOperation*)nextOp);
+				break;
+
+			case AI_OPERATION_MOVETYPE_ENEMY_TERRITORY:
+				PlotEnemyTerritoryOperationMoves((CvAIEnemyTerritoryOperation*)nextOp);
+				break;
+
+			case AI_OPERATION_MOVETYPE_NAVAL_ESCORT:
+				PlotNavalEscortOperationMoves((CvAINavalEscortedOperation*)nextOp);
+				break;
+
+			case AI_OPERATION_MOVETYPE_FREEFORM_NAVAL:
+				PlotFreeformNavalOperationMoves((CvAINavalOperation*)nextOp);
+				break;
+			}
+			nextOp->CheckOnTarget();
+#endif
 			switch(nextOp->GetMoveType())
 			{
 			case AI_OPERATION_MOVETYPE_SINGLE_HEX:
@@ -3061,8 +3082,10 @@ void CvTacticalAI::PlotCampDefenseMoves()
 				}
 			}
 		}
-#endif
+		if(FindUnitsWithinStrikingDistance(pPlot, 1, 0, false /* bNoRangedUnits */, false /*bNavalOnly*/, false /*bMustMoveThrough*/))
+#else
 		if(FindUnitsWithinStrikingDistance(pPlot, 1, 0, true /* bNoRangedUnits */, false /*bNavalOnly*/, false /*bMustMoveThrough*/))
+#endif
 		{
 			ExecuteMoveToPlot(pPlot);
 			if(GC.getLogging() && GC.getAILogging())
@@ -7582,7 +7605,6 @@ void CvTacticalAI::ExecuteMoveToPlot(UnitHandle pUnit, CvPlot* pTarget, bool bSa
 
 	UnitProcessed(pUnit->GetID(), pUnit->IsCombatUnit());
 }
-
 /// Find an adjacent hex to move a blocking unit to
 bool CvTacticalAI::ExecuteMoveOfBlockingUnit(UnitHandle pBlockingUnit)
 {
@@ -8783,6 +8805,59 @@ void CvTacticalAI::ExecuteEscortEmbarkedMoves()
 			if (pBestTarget)
 			{
 				ExecuteMoveToPlot(pUnit, pBestTarget);
+#if defined(MOD_BALANCE_CORE)
+				//If we can shoot while doing this, do it!
+				if(pUnit && pUnit->IsCanAttackRanged() && !pUnit->isOutOfAttacks())
+				{
+					int iRange = pUnit->GetRange();
+					if(iRange > 0)
+					{
+						for(int iX = -iRange; iX <= iRange; iX++)
+						{
+							for(int iY = -iRange; iY <= iRange; iY++)
+							{
+								CvPlot* pConsiderPlot = plotXYWithRangeCheck(pUnit->getX(), pUnit->getY(), iX, iY, iRange);
+								if(pConsiderPlot != NULL)
+								{
+									if(pConsiderPlot->isCity() && GET_TEAM(GET_PLAYER(pConsiderPlot->getOwner()).getTeam()).isAtWar(GET_PLAYER(pUnit->getOwner()).getTeam()) && pUnit->canEverRangeStrikeAt(pConsiderPlot->getX(), pConsiderPlot->getY()))
+									{
+										pUnit->PushMission(CvTypes::getMISSION_RANGE_ATTACK(), pConsiderPlot->getX(), pConsiderPlot->getY());
+										if(GC.getLogging() && GC.getAILogging())
+										{
+											CvString strLogString;
+											strLogString.Format("%s escort bombarded city at, Current X: %d, Current Y: %d", pUnit->getName().GetCString(), pUnit->getX(), pUnit->getY());
+											LogTacticalMessage(strLogString, false);
+										}
+										break;
+									}
+									else if(pConsiderPlot->getNumUnits() > 0 && !pConsiderPlot->isWater() && (GET_TEAM(GET_PLAYER(pConsiderPlot->getUnitByIndex(0)->getOwner()).getTeam()).isAtWar(GET_PLAYER(pUnit->getOwner()).getTeam())) && (pUnit->canEverRangeStrikeAt(pConsiderPlot->getX(), pConsiderPlot->getY())))
+									{
+										pUnit->PushMission(CvTypes::getMISSION_RANGE_ATTACK(), pConsiderPlot->getX(), pConsiderPlot->getY());
+										if(GC.getLogging() && GC.getAILogging())
+										{
+											CvString strLogString;
+											strLogString.Format("%s escort bombarded land unit at, Current X: %d, Current Y: %d", pUnit->getName().GetCString(), pUnit->getX(), pUnit->getY());
+											LogTacticalMessage(strLogString, false);
+										}
+										break;
+									}
+									else if(pConsiderPlot->getNumUnits() > 0 && pConsiderPlot->isWater() && (GET_TEAM(GET_PLAYER(pConsiderPlot->getUnitByIndex(0)->getOwner()).getTeam()).isAtWar(GET_PLAYER(pUnit->getOwner()).getTeam())) && (pUnit->canEverRangeStrikeAt(pConsiderPlot->getX(), pConsiderPlot->getY())))
+									{
+										pUnit->PushMission(CvTypes::getMISSION_RANGE_ATTACK(), pConsiderPlot->getX(), pConsiderPlot->getY());
+										if(GC.getLogging() && GC.getAILogging())
+										{
+											CvString strLogString;
+											strLogString.Format("%s escort bombarded water unit at, Current X: %d, Current Y: %d", pUnit->getName().GetCString(), pUnit->getX(), pUnit->getY());
+											LogTacticalMessage(strLogString, false);
+										}
+										break;
+									}
+								}
+							}
+						}
+					}		
+				}
+#endif
 				UnitProcessed(m_CurrentMoveUnits[iI].GetID());
 
 				if(GC.getLogging() && GC.getAILogging())
@@ -11375,7 +11450,7 @@ int CvTacticalAI::ScoreGreatGeneralPlot(UnitHandle pGeneral, CvPlot* pTarget, Cv
 	{	
 #if defined(MOD_BALANCE_CORE_MILITARY)
 		//GGs should never go alone if possible.
-		iDangerDivisor = 10000;
+		return 0;
 #else
 		iDangerDivisor = 1000;
 #endif
@@ -11414,7 +11489,18 @@ int CvTacticalAI::ScoreGreatGeneralPlot(UnitHandle pGeneral, CvPlot* pTarget, Cv
 	// Moving to an empty tile
 	else
 	{
+#if defined(MOD_BALANCE_CORE_MILITARY)
+		if(iDangerValue <= 0)
+		{
+#endif
 		iScore = 10;
+#if defined(MOD_BALANCE_CORE_MILITARY)
+		}
+		else
+		{
+			return 0;
+		}
+#endif
 	}
 
 	if(iNearbyQueuedAttacks > 0)

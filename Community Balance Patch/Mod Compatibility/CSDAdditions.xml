@@ -8,7 +8,20 @@
 			<UnitClassType>UNITCLASS_GREAT_DIPLOMAT</UnitClassType>
 		</Row>
 	</Policy_FaithPurchaseUnitClasses>
-	
+	<Building_SpecialistYieldChanges>
+		<Row>
+			<BuildingType>BUILDING_STATUE_OF_LIBERTY</BuildingType>
+			<SpecialistType>SPECIALIST_CIVIL_SERVANT</SpecialistType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_EMPIRE_STATE_BUILDING</BuildingType>
+			<SpecialistType>SPECIALIST_CIVIL_SERVANT</SpecialistType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+	</Building_SpecialistYieldChanges>
 	<GreatPersons>
 		<Row>
 			<Type>GREATPERSON_DIPLOMAT</Type>
@@ -120,7 +133,7 @@
 			<Help>TXT_KEY_PROMOTION_NOBEL_LAUREATE_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<OrderPriority>3</OrderPriority>
-			<TradeMissionInfluenceModifier>10</TradeMissionInfluenceModifier>
+			<TradeMissionInfluenceModifier>15</TradeMissionInfluenceModifier>
 			<CannotBeChosen>true</CannotBeChosen>
 			<PortraitIndex>8</PortraitIndex>
 			<IconAtlas>EXPANSION2_PROMOTION_ATLAS</IconAtlas>
