@@ -459,7 +459,7 @@ public:
 
 #if defined(MOD_API_UNIFIED_YIELDS)
 	void DoYieldsFromKill(CvUnit* pAttackingUnit, CvUnit* pDefendingUnit, int iX, int iY, int iExistingDelay);
-	void DoYieldBonusFromKill(YieldTypes eYield, CvUnit* pAttackingUnit, UnitTypes eKilledUnitType, int iX, int iY, bool bWasBarbarian, int &iNumBonuses);
+	void DoYieldBonusFromKill(YieldTypes eYield, CvUnit* pAttackingUnit, UnitTypes eKilledUnitType, int iX, int iY, bool bWasBarbarian, int &iNumBonuses, CvUnit* pDefendingUnit);
 #else
 	void DoYieldsFromKill(UnitTypes eAttackingUnitType, UnitTypes eKilledUnitType, int iX, int iY, bool bWasBarbarian, int iExistingDelay);
 	void DoYieldBonusFromKill(YieldTypes eYield, UnitTypes eAttackingUnitType, UnitTypes eKilledUnitType, int iX, int iY, bool bWasBarbarian, int &iNumBonuses);
@@ -608,6 +608,12 @@ public:
 	int GetHappinessPerXPopulation() const;
 	void SetHappinessPerXPopulation(int iValue);
 	void ChangeHappinessPerXPopulation(int iChange);
+
+#if defined(MOD_BALANCE_CORE_POLICIES)
+	int GetHappinessPerXPopulationGlobal() const;
+	void SetHappinessPerXPopulationGlobal(int iValue);
+	void ChangeHappinessPerXPopulationGlobal(int iChange);
+#endif
 
 	int GetHappinessFromMinorCivs() const;
 	int GetHappinessFromMinor(PlayerTypes eMinor) const;
@@ -2128,6 +2134,9 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iHappinessPerGarrisonedUnitCount;
 	FAutoVariable<int, CvPlayer> m_iHappinessPerTradeRouteCount;
 	int m_iHappinessPerXPopulation;
+#if defined(MOD_BALANCE_CORE_POLICIES)
+	int m_iHappinessPerXPopulationGlobal;
+#endif
 	int m_iHappinessFromLeagues;
 	FAutoVariable<int, CvPlayer> m_iSpecialPolicyBuildingHappiness;  //unused
 	FAutoVariable<int, CvPlayer> m_iWoundedUnitDamageMod;

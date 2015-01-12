@@ -154,6 +154,9 @@ ALTER TABLE Policies ADD COLUMN 'PuppetUnhappinessModPolicy' integer default 0;
 ALTER TABLE Policies ADD COLUMN 'PuppetProdMod' integer default 0;
 ALTER TABLE Policies ADD COLUMN 'OccupiedProdMod' integer default 0;
 
+-- Global Happiness Based on # of Citizens in Empire
+
+ALTER TABLE Policies ADD COLUMN 'HappinessPerXPopulationGlobal' integer default 0;
 
 -- % boosts to city yield for happiness sources (traits) - Values should be positive to be good!
 ALTER TABLE Traits ADD COLUMN 'PovertyHappinessTraitMod' integer default 0;
@@ -222,6 +225,10 @@ ALTER TABLE Policies ADD COLUMN 'InternalTradeGold' integer default 0;
 
 -- Boost Culture Bomb from Citadel
 ALTER TABLE Policies ADD COLUMN 'CitadelBoost' integer default 0;
+
+-- Unlock Era for Policy (Unlocks later eras earlier than normal)
+ALTER TABLE Policies ADD COLUMN 'UnlocksPolicyBranchEra' text default NULL;
+
 -- New Beliefs
 
 -- Combat bonus v. other religions in our lands

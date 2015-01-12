@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Created by ModBuddy on 10/28/2014 1:01:30 PM -->
 <GameData>
+	<!-- America -->
+	<Trait_YieldFromTilePurchase>
+		<Row>
+			<TraitType>TRAIT_RIVER_EXPANSION</TraitType>
+			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
+			<Yield>25</Yield>
+		</Row>
+	</Trait_YieldFromTilePurchase>
 	<!-- Arabia -->
 	<UnitPromotions>
 		<!--Arabia Promotion-->
@@ -147,12 +155,12 @@
 		<Row>
 			<TraitType>TRAIT_CONVERTS_SEA_BARBARIANS</TraitType>
 			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Yield>60</Yield>
+			<Yield>50</Yield>
 		</Row>
 		<Row>
 			<TraitType>TRAIT_CONVERTS_SEA_BARBARIANS</TraitType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>60</Yield>
+			<Yield>100</Yield>
 		</Row>
 	</Trait_TradeRouteStartYield>
 	<!-- Germany -->

@@ -1472,7 +1472,10 @@ void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade)
 	CvPlot* pPlot;
 
 	pPlot = plot();
-
+#if defined(MOD_BALANCE_CORE)
+	int iLostPromotions = 0;
+	bool bFree = false;
+#endif
 	// Transfer Promotions over
 	for(int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
 	{
@@ -1492,6 +1495,9 @@ void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade)
 			else if(getUnitInfo().GetFreePromotions(ePromotion) && (!bIsUpgrade || !pkPromotionInfo->IsNotWithUpgrade()))
 			{
 				bGivePromotion = true;
+#if defined(MOD_BALANCE_CORE)
+				bFree = true;
+#endif
 			}
 
 			// if we get this due to a policy or wonder
@@ -1499,12 +1505,48 @@ void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade)
 			            ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForCivilianUnitType(ePromotion, getUnitType())))
 			{
 				bGivePromotion = true;
+#if defined(MOD_BALANCE_CORE)
+				bFree = true;
+#endif
 			}
+#if defined(MOD_BALANCE_CORE)
+			if(pUnit->getUnitCombatType() != getUnitCombatType())
+			{
+				bool bRanged = false;
+				if((pkPromotionInfo->GetRangedAttackModifier() > 0) || (pkPromotionInfo->GetRangeChange() > 0) || (pkPromotionInfo->GetRangedAttackModifier() > 0) || (pkPromotionInfo->IsRangeAttackIgnoreLOS()) || (pkPromotionInfo->GetOpenRangedAttackMod() > 0) || (pkPromotionInfo->GetRoughRangedAttackMod() > 0))
+				{
+					bRanged = true;
+				}
+				//If we're losing standard promotions because of a combatclass change, let's replace with some experience.
+				if(!isRanged() && pUnit->HasPromotion(ePromotion) && pUnit->isRanged() && bRanged && !bFree)
+				{
+					iLostPromotions++;
+					bGivePromotion = false;
+				}
+				//Naval Misfire Promotion Catch (sorry for hardcode)
+				else if(!isRanged() && pUnit->HasPromotion(ePromotion) && pUnit->isRanged() && (pkPromotionInfo->GetDomainModifierPercent(DOMAIN_SEA) < 0) && (getDomainType() == DOMAIN_LAND))
+				{
+					iLostPromotions++;
+					bGivePromotion = false;
+				}
+			}
+#endif
 
 			setHasPromotion(ePromotion, bGivePromotion);
 		}
 	}
-
+#if defined(MOD_BALANCE_CORE)
+	//20 xp per lost 'good' promotion (plus level).
+	if(iLostPromotions > 0)
+	{
+		int iLevel = pUnit->getLevel();
+		if(iLevel <= 0)
+		{
+			iLevel = 1;
+		}
+		changeExperience(20 * iLostPromotions * iLevel);
+	}
+#endif
 	setGameTurnCreated(pUnit->getGameTurnCreated());
 	setLastMoveTurn(pUnit->getLastMoveTurn());
 	setDamage(pUnit->getDamage());

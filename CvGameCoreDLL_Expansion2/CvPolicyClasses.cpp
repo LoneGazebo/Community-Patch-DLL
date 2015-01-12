@@ -79,6 +79,10 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iCulturePerGarrisonedUnit(0),
 	m_iHappinessPerTradeRoute(0),
 	m_iHappinessPerXPopulation(0),
+#if defined(MOD_BALANCE_CORE_POLICIES)
+	m_iHappinessPerXPopulationGlobal(0),
+	m_ePolicyEraUnlock(NO_ERA),
+#endif
 	m_iExtraHappinessPerLuxury(0),
 	m_iUnhappinessFromUnitsMod(0),
 	m_iNumExtraBuilders(0),
@@ -398,6 +402,14 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iCulturePerGarrisonedUnit = kResults.GetInt("CulturePerGarrisonedUnit");
 	m_iHappinessPerTradeRoute = kResults.GetInt("HappinessPerTradeRoute");
 	m_iHappinessPerXPopulation = kResults.GetInt("HappinessPerXPopulation");
+#if defined(MOD_BALANCE_CORE_POLICIES)
+	m_iHappinessPerXPopulationGlobal = kResults.GetInt("HappinessPerXPopulationGlobal");
+	const char* szUnlockPolicyEra = kResults.GetText("UnlocksPolicyBranchEra");
+	if(szUnlockPolicyEra)
+	{
+		m_ePolicyEraUnlock = (EraTypes)GC.getInfoTypeForString(szUnlockPolicyEra, true);
+	}
+#endif
 	m_iExtraHappinessPerLuxury = kResults.GetInt("ExtraHappinessPerLuxury");
 	m_iUnhappinessFromUnitsMod = kResults.GetInt("UnhappinessFromUnitsMod");
 	m_iNumExtraBuilders = kResults.GetInt("NumExtraBuilders");
@@ -1397,7 +1409,18 @@ int CvPolicyEntry::GetHappinessPerXPopulation() const
 {
 	return m_iHappinessPerXPopulation;
 }
-
+#if defined(MOD_BALANCE_CORE_POLICIES)
+/// Happiness from global city pop
+int CvPolicyEntry::GetHappinessPerXPopulationGlobal() const
+{
+	return m_iHappinessPerXPopulationGlobal;
+}
+/// Era Unlock for Policy Branch
+EraTypes CvPolicyEntry::GetPolicyEraUnlock() const
+{
+	return m_ePolicyEraUnlock;
+}
+#endif
 /// Happiness from each connected Luxury Resource
 int CvPolicyEntry::GetExtraHappinessPerLuxury() const
 {
@@ -4057,10 +4080,33 @@ bool CvPlayerPolicies::CanUnlockPolicyBranch(PolicyBranchTypes eBranchType)
 		// Must be in the proper Era
 		if(ePrereqEra != NO_ERA)
 		{
+#if defined(MOD_BALANCE_CORE_POLICIES)
+			//If we've finished a policy branch, unlock the next set.
+			// Set Policies in this branch as blocked
+			bool bCanUnlockEarly = false;
+			for(int iPolicyLoop = 0; iPolicyLoop < GetPolicies()->GetNumPolicies(); iPolicyLoop++)
+			{
+				const PolicyTypes eLoopPolicy = static_cast<PolicyTypes>(iPolicyLoop);
+
+				CvPolicyEntry* pkLoopPolicyInfo = GC.getPolicyInfo(eLoopPolicy);
+				if(pkLoopPolicyInfo)
+				{
+					if(HasPolicy(eLoopPolicy) && (pkLoopPolicyInfo->GetPolicyEraUnlock() != NO_ERA) && (pkLoopPolicyInfo->GetPolicyEraUnlock() >= ePrereqEra))
+					{
+						bCanUnlockEarly = true;
+					}
+				}
+			}
+			if(!bCanUnlockEarly && GET_TEAM(GetPlayer()->getTeam()).GetCurrentEra() < ePrereqEra)
+			{
+				return false;
+			}
+#else
 			if(GET_TEAM(GetPlayer()->getTeam()).GetCurrentEra() < ePrereqEra)
 			{
 				return false;
 			}
+#endif
 		}
 	}
 

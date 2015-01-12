@@ -154,6 +154,7 @@ CvTraitEntry::CvTraitEntry() :
 	m_piYieldFromRouteMovement(NULL),
 	m_piYieldFromExport(NULL),
 	m_piYieldFromImport(NULL),
+	m_piYieldFromTilePurchase(NULL),
 	m_piYieldFromCSAlly(NULL),
 	m_piYieldFromSettle(NULL),
 	m_iVotePerXCSAlliance(0),
@@ -948,6 +949,10 @@ int CvTraitEntry::GetYieldFromImport(int i) const
 {
 	return m_piYieldFromImport ? m_piYieldFromImport[i] : -1;
 }
+int CvTraitEntry::GetYieldFromTilePurchase(int i) const
+{
+	return m_piYieldFromTilePurchase ? m_piYieldFromTilePurchase[i] : -1;
+}
 int CvTraitEntry::GetYieldFromCSAlly(int i) const
 {
 	return m_piYieldFromCSAlly ? m_piYieldFromCSAlly[i] : -1;
@@ -1651,6 +1656,7 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	kUtility.SetYields(m_piYieldFromRouteMovement, "Trait_YieldFromRouteMovement", "TraitType", szTraitType);
 	kUtility.SetYields(m_piYieldFromExport, "Trait_YieldFromExport", "TraitType", szTraitType);
 	kUtility.SetYields(m_piYieldFromImport, "Trait_YieldFromImport", "TraitType", szTraitType);
+	kUtility.SetYields(m_piYieldFromTilePurchase, "Trait_YieldFromTilePurchase", "TraitType", szTraitType);
 	kUtility.SetYields(m_piYieldFromCSAlly, "Trait_YieldFromCSAlly", "TraitType", szTraitType);
 	kUtility.SetYields(m_piYieldFromSettle, "Trait_YieldFromSettle", "TraitType", szTraitType);
 	m_iVotePerXCSAlliance = kResults.GetInt("VotePerXCSAlliance");
@@ -2284,6 +2290,7 @@ void CvPlayerTraits::InitPlayerTraits()
 				m_iYieldFromRouteMovement[iYield] = trait->GetYieldFromRouteMovement(iYield);
 				m_iYieldFromExport[iYield] = trait->GetYieldFromExport(iYield);
 				m_iYieldFromImport[iYield] = trait->GetYieldFromImport(iYield);
+				m_iYieldFromTilePurchase[iYield] = trait->GetYieldFromTilePurchase(iYield);
 				m_iYieldFromCSAlly[iYield] = trait->GetYieldFromCSAlly(iYield);
 				m_iYieldFromSettle[iYield] = trait->GetYieldFromSettle(iYield);
 				m_iVotePerXCSAlliance = trait->GetVotePerXCSAlliance();
@@ -2662,6 +2669,7 @@ void CvPlayerTraits::Reset()
 		m_iYieldFromRouteMovement[iYield] = 0;
 		m_iYieldFromExport[iYield] = 0;
 		m_iYieldFromImport[iYield] = 0;
+		m_iYieldFromTilePurchase[iYield] = 0;
 		m_iYieldFromSettle[iYield] = 0;
 		m_iYieldFromCSAlly[iYield] = 0;
 		m_iVotePerXCSAlliance = 0;
@@ -4305,6 +4313,8 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	kStream >> kYieldFromExportWrapper;
 	ArrayWrapper<int> kYieldFromImportWrapper(NUM_YIELD_TYPES, m_iYieldFromImport);
 	kStream >> kYieldFromImportWrapper;
+	ArrayWrapper<int> kYieldFromTilePurchaseWrapper(NUM_YIELD_TYPES, m_iYieldFromTilePurchase);
+	kStream >> kYieldFromTilePurchaseWrapper;
 	ArrayWrapper<int> kYieldFromSettleWrapper(NUM_YIELD_TYPES, m_iYieldFromSettle);
 	kStream >> kYieldFromSettleWrapper;
 	ArrayWrapper<int> kYieldFromCSAlly(NUM_YIELD_TYPES, m_iYieldFromCSAlly);
@@ -4565,6 +4575,7 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iYieldFromRouteMovement);
 	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iYieldFromExport);
 	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iYieldFromImport);
+	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iYieldFromTilePurchase);
 	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iYieldFromSettle);
 	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iYieldFromCSAlly);
 	MOD_SERIALIZE_WRITE(kStream, m_bFreeGreatWorkOnConquest);
