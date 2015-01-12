@@ -23,6 +23,10 @@ WHERE UnitType = 'UNIT_AMERICAN_B17' AND EXISTS (SELECT * FROM COMMUNITY WHERE T
 DELETE FROM UnitGameplay2DScripts
 WHERE UnitType = 'UNIT_AMERICAN_B17' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
+UPDATE Language_en_US
+SET Text = 'All land military units have +1 sight. 50% discount when purchasing tiles. Receive 25 [ICON_GOLDEN_AGE] Golden Age Points when you purchase a tile.'
+WHERE Tag = 'TXT_KEY_TRAIT_RIVER_EXPANSION' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
 -- Arabia -- Faith Instead of Luxury Doubling from Bazaar -- Units move faster in Desert -- Boosted Religion over Trade route spread.
 UPDATE Buildings
 SET ExtraLuxuries = 'false'
@@ -278,7 +282,7 @@ SET IsNoReligiousStrife = 'true'
 WHERE Type = 'TRAIT_POPULATION_GROWTH' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Cannot build Missionaries or gain [ICON_HAPPINESS_3] Unhappiness from Religious Strife. Pressure for your majority Religion increases in owned cities based on the number of [ICON_CITIZEN] Followers in them. Starts with enough [ICON_PEACE] Faith for a Pantheon.'
+SET Text = 'Cannot build Missionaries or receive [ICON_HAPPINESS_3] Unhappiness from Religious Strife. Pressure for your majority Religion increases in owned cities based on the number of [ICON_CITIZEN] Followers in them. Starts with enough [ICON_PEACE] Faith for a Pantheon.'
 WHERE Tag = 'TXT_KEY_TRAIT_POPULATION_GROWTH' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -296,11 +300,11 @@ SET Text = 'A terrifying sight on the battlefield, often as dangerous to its own
 WHERE Tag = 'TXT_KEY_CIV5_ANTIQUITY_INDIANWARELEPHANT_TEXT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'A [ponderous, mounted Ranged Unit highly effective on flat ground. Only the Indians may build it. This Unit has a higher [ICON_STRENGTH] Combat and Ranged Strength than the Horse Archer, which it replaces, but a lower Movement speed.'
+SET Text = 'A [ponderous, mounted Ranged Unit highly effective on flat ground. Only the Indians may build it. This Unit has a higher [ICON_STRENGTH] Combat and Ranged Strength than the Horse Archer, which it replaces, but a lower Movement speed. Does not require [ICON_RES_HORSE] Horses.'
 WHERE Tag = 'TXT_KEY_UNIT_HELP_INDIAN_WAR_ELEPHANT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'The Naga-Malla (Fighting Elephant) is the Indian unique unit, replacing the Horse Archer. It is more powerful (if slower) than the Horse Archer and can move through any terrain without penalty. A mounted unit, the Naga-Malla is quite vulnerable to the Spearman.'
+SET Text = 'The Naga-Malla (Fighting Elephant) is the Indian unique unit, replacing the Horse Archer. It is more powerful (if slower) than the Horse Archer and can move through any terrain without penalty. Does not require Horses. A mounted unit, the Naga-Malla is quite vulnerable to the Spearman.'
 WHERE Tag = 'TXT_KEY_UNIT_INDIAN_WARELEPHANT_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 -- Iroquois -- All units receive Woodsman promotion
@@ -309,11 +313,7 @@ SET Text = 'Units move through Forest and Jungle in friendly territory as if it 
 WHERE Tag = 'TXT_KEY_TRAIT_IGNORE_TERRAIN_IN_FOREST' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Building_YieldChanges
-SET Yield = '4'
-WHERE BuildingType = 'BUILDING_LONGHOUSE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
-
-UPDATE Building_YieldChanges
-SET Yield = '4'
+SET Yield = '3'
 WHERE BuildingType = 'BUILDING_LONGHOUSE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Buildings
@@ -434,7 +434,7 @@ SET Text = 'Innovation Through Commerce'
 WHERE Tag = 'TXT_KEY_TRAIT_CONVERTS_SEA_BARBARIANS_SHORT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Receive 60 [ICON_RESEARCH] Science and [ICON_GOLDEN_AGE] Golden Age Points every time you complete an [ICON_INTERNATIONAL_TRADE] International Trade Route, and a free Caravansary in every city.'
+SET Text = 'Receive 100 [ICON_RESEARCH] Science and 50 [ICON_GOLDEN_AGE] Golden Age Points every time you complete an [ICON_INTERNATIONAL_TRADE] International Trade Route. Receive a free Caravansary in every city.'
 WHERE Tag = 'TXT_KEY_TRAIT_CONVERTS_SEA_BARBARIANS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Units

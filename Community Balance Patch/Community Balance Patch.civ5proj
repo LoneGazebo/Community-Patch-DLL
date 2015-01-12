@@ -7,7 +7,7 @@
     <Guid>8411a7a8-dad3-4622-a18e-fcc18324c799</Guid>
     <ModVersion>13</ModVersion>
     <Stability>Beta</Stability>
-    <Teaser>The Complete Civ 5 Experience (v. 13.4.2)  - Updated 1/9</Teaser>
+    <Teaser>The Complete Civ 5 Experience (v. 13.4.5)  - Updated 1/12</Teaser>
     <Description>Community Balance Patch - Contains balance changes and gameplay improvements to make Civ V a more enjoyable and exciting game.</Description>
     <Authors>Civfanatics Community Balance Team</Authors>
     <SpecialThanks>
@@ -125,11 +125,6 @@
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
         <FileName>Balance Changes/Barbarians/BarbarianChanges.xml</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>Balance Changes/Difficulty/DifficultyMod.sql</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
@@ -299,12 +294,12 @@
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <FileName>Balance Changes/Policies/Liberty/Liberty.xml</FileName>
+        <FileName>Balance Changes/Policies/Liberty/LibertyText.sql</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <FileName>Balance Changes/Policies/Liberty/LibertyText.sql</FileName>
+        <FileName>Balance Changes/Policies/Liberty/Liberty.xml</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
@@ -494,17 +489,17 @@
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <FileName>Balance Changes/Leaders/DLC/DLCChanges.xml</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
         <FileName>Balance Changes/Leaders/DLC/DLCChanges.sql</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
         <FileName>Balance Changes/Leaders/DLC/UBDLCBuildings.xml</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>Balance Changes/Leaders/DLC/DLCChanges.xml</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
@@ -575,6 +570,11 @@
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
         <FileName>Balance Changes/AI/Flavors/TechFlavors.sql</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>Balance Changes/Difficulty/DifficultyMod.sql</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
@@ -806,6 +806,7 @@
     <Folder Include="Balance Changes\Barbarians" />
     <Folder Include="Balance Changes\Beliefs\ReligiousBuildings" />
     <Folder Include="Balance Changes\Beliefs\ReligiousNW" />
+    <Folder Include="Balance Changes\Difficulty\" />
     <Folder Include="Balance Changes\Ideologies\Autocracy" />
     <Folder Include="Balance Changes\Ideologies\Freedom" />
     <Folder Include="Balance Changes\Ideologies\Order" />
@@ -814,7 +815,6 @@
     <Folder Include="Balance Changes\Leaders\DLC" />
     <Folder Include="Balance Changes\Leaders\Vanilla" />
     <Folder Include="Balance Changes\Minors" />
-    <Folder Include="Balance Changes\Difficulty" />
     <Folder Include="Balance Changes\Beliefs" />
     <Folder Include="Balance Changes\Leaders" />
     <Folder Include="Balance Changes\Buildings" />
@@ -1176,11 +1176,11 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
-    <Content Include="Balance Changes\Difficulty\DifficultyMod.sql">
+    <Content Include="Balance Changes\CoreDefines.sql">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
-    <Content Include="Balance Changes\CoreDefines.sql">
+    <Content Include="Balance Changes\Difficulty\DifficultyMod.sql">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
@@ -1352,15 +1352,15 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
+    <Content Include="Balance Changes\Policies\Liberty\Liberty.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
     <Content Include="Balance Changes\Policies\Liberty\LibertyText.sql">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
     <Content Include="Balance Changes\Policies\Liberty\Liberty.sql">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="Balance Changes\Policies\Liberty\Liberty.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
@@ -1589,6 +1589,10 @@
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
     <Content Include="LUA\Active\Standard CBP\ResourceTooltipGenerator.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="LUA\Active\Standard CBP\SocialPolicyPopup.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>

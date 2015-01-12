@@ -7,7 +7,7 @@
 			<Type>BUILDING_SKOLA</Type>
 			<BuildingClass>BUILDINGCLASS_PUBLIC_SCHOOL</BuildingClass>
 			<Cost>350</Cost>
-			<GoldMaintenance>5</GoldMaintenance>
+			<GoldMaintenance>3</GoldMaintenance>
 			<PrereqTech>TECH_SCIENTIFIC_THEORY</PrereqTech>
 			<FaithCost>200</FaithCost>
 			<UnlockedByBelief>true</UnlockedByBelief>

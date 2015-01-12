@@ -209,6 +209,7 @@ public:
 	int GetYieldFromRouteMovement(int i) const;
 	int GetYieldFromExport(int i) const;
 	int GetYieldFromImport(int i) const;
+	int GetYieldFromTilePurchase(int i) const;
 	int GetYieldFromCSAlly(int i) const;
 	int GetYieldFromSettle(int i) const;
 	int GetVotePerXCSAlliance() const;
@@ -405,6 +406,7 @@ protected:
 	int* m_piYieldFromRouteMovement;
 	int* m_piYieldFromExport;
 	int* m_piYieldFromImport;
+	int* m_piYieldFromTilePurchase;
 	int* m_piYieldFromCSAlly;
 	int* m_piYieldFromSettle;
 	int m_iVotePerXCSAlliance;
@@ -973,6 +975,10 @@ public:
 	{
 		return m_iYieldFromImport[(int)eYield];
 	};
+	int GetYieldFromTilePurchase(YieldTypes eYield) const
+	{
+		return m_iYieldFromTilePurchase[(int)eYield];
+	};
 	int GetYieldFromCSAlly(YieldTypes eYield) const
 	{
 		return m_iYieldFromCSAlly[(int)eYield];
@@ -1270,6 +1276,7 @@ private:
 	int m_iYieldFromRouteMovement[NUM_YIELD_TYPES];
 	int m_iYieldFromExport[NUM_YIELD_TYPES];
 	int m_iYieldFromImport[NUM_YIELD_TYPES];
+	int m_iYieldFromTilePurchase[NUM_YIELD_TYPES];
 	int m_iYieldFromCSAlly[NUM_YIELD_TYPES];
 	int m_iYieldFromSettle[NUM_YIELD_TYPES];
 	int m_iVotePerXCSAlliance;

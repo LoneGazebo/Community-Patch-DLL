@@ -22,6 +22,38 @@
 			<Yield>1</Yield>
 		</Row>
 	</Building_SpecialistYieldChanges>
+	<Policy_BuildingClassHappiness>
+		<Row>
+			<PolicyType>POLICY_TRADITION_FINISHER</PolicyType>
+			<BuildingClassType>BUILDINGCLASS_COURT_SCRIBE</BuildingClassType>
+			<Happiness>1</Happiness>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_TRADITION_FINISHER</PolicyType>
+			<BuildingClassType>BUILDINGCLASS_PRINTING_PRESS</BuildingClassType>
+			<Happiness>1</Happiness>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_TRADITION_FINISHER</PolicyType>
+			<BuildingClassType>BUILDINGCLASS_FOREIGN_OFFICE</BuildingClassType>
+			<Happiness>1</Happiness>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_TRADITION_FINISHER</PolicyType>
+			<BuildingClassType>BUILDINGCLASS_PALACE_SCIENCE_CULTURE</BuildingClassType>
+			<Happiness>1</Happiness>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_TRADITION_FINISHER</PolicyType>
+			<BuildingClassType>BUILDINGCLASS_FINANCE_CENTER</BuildingClassType>
+			<Happiness>1</Happiness>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_TRADITION_FINISHER</PolicyType>
+			<BuildingClassType>BUILDINGCLASS_EHRENHALLE</BuildingClassType>
+			<Happiness>1</Happiness>
+		</Row>
+	</Policy_BuildingClassHappiness>
 	<GreatPersons>
 		<Row>
 			<Type>GREATPERSON_DIPLOMAT</Type>

@@ -643,11 +643,6 @@
 	SET ResourceType = 'RESOURCE_IRON'
 	WHERE UnitType = 'UNIT_WWI_TANK' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
-	-- Make Destroyer cost coal
-	INSERT INTO Unit_ResourceQuantityRequirements (UnitType, ResourceType, Cost)
-	SELECT 'UNIT_DESTROYER', 'RESOURCE_COAL', '1'
-	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
-
 	-- Submarines and Missile Cruiser should cost Iron
 	INSERT INTO Unit_ResourceQuantityRequirements (UnitType, ResourceType, Cost)
 	SELECT 'UNIT_MISSILE_CRUISER', 'RESOURCE_IRON', '1'

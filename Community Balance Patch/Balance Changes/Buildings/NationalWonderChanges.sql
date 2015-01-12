@@ -1,4 +1,5 @@
 -- NATIONAL WONDERS
+
 -- National Epic -- Change Name, give art
 UPDATE Buildings
 SET GreatWorkSlotType = 'GREAT_WORK_SLOT_ART_ARTIFACT'
