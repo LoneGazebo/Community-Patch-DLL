@@ -330,6 +330,10 @@ public:
 	void SetWarmongerThreat(PlayerTypes ePlayer, ThreatTypes eWarmongerThreat);
 	void DoUpdateWarmongerThreats();
 
+#if defined(MOD_BALANCE_CORE_DEALS)
+	int GetNumberOfThreatenedCities(PlayerTypes eEnemy);
+#endif
+
 	/////////////////////////////////////////////////////////
 	// Planning Exchanges
 	/////////////////////////////////////////////////////////

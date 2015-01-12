@@ -2523,6 +2523,29 @@ void CvCity::chooseProduction(UnitTypes eTrainUnit, BuildingTypes eConstructBuil
 	}
 }
 
+#if defined(MOD_BALANCE_CORE)
+int CvCity::getEconomicValueTimes100(PlayerTypes /*ePlayer*/) const
+{
+	//todo: take into account player personality
+
+	int iEcoValue = 0;
+	iEcoValue += getYieldRateTimes100(YIELD_FOOD, false);
+	iEcoValue += getYieldRateTimes100(YIELD_PRODUCTION, false) * 2;
+	iEcoValue += getYieldRateTimes100(YIELD_SCIENCE, false);
+	iEcoValue += getYieldRateTimes100(YIELD_GOLD, false);
+	iEcoValue += getYieldRateTimes100(YIELD_CULTURE, false);
+	iEcoValue += getYieldRateTimes100(YIELD_FAITH, false);
+#if defined(MOD_API_UNIFIED_YIELDS_TOURISM)
+	iEcoValue += getYieldRateTimes100(YIELD_TOURISM, false);
+#endif
+#if defined(MOD_API_UNIFIED_YIELDS_GOLDEN_AGE)
+	iEcoValue += getYieldRateTimes100(YIELD_GOLDEN_AGE_POINTS, false);
+#endif
+
+	return iEcoValue;
+}
+#endif
+
 #if defined(MOD_GLOBAL_CITY_WORKING)
 //	--------------------------------------------------------------------------------
 /// How far out this city may buy plots

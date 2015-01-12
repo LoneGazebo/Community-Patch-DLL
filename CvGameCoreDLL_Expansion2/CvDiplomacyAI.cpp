@@ -6432,7 +6432,17 @@ void CvDiplomacyAI::DoUpdateWarProjections()
 				else if(iWarScore >= /*25*/ GC.getWAR_PROJECTION_THRESHOLD_GOOD())
 					eWarProjection = WAR_PROJECTION_GOOD;
 				else if(iWarScore <= /*-100*/ GC.getWAR_PROJECTION_THRESHOLD_DESTRUCTION())
+#if defined(MOD_BALANCE_CORE_DEALS)
+				{
+					// can't be imminent destruction if none of our cities is in danger at the moment
+					if ( GetNumberOfThreatenedCities(eLoopPlayer) == 0 )
+						eWarProjection = WAR_PROJECTION_DEFEAT;
+					else
+						eWarProjection = WAR_PROJECTION_DESTRUCTION;
+				}
+#else
 					eWarProjection = WAR_PROJECTION_DESTRUCTION;
+#endif
 				else if(iWarScore <= /*-25*/ GC.getWAR_PROJECTION_THRESHOLD_DEFEAT())
 					eWarProjection = WAR_PROJECTION_DEFEAT;
 				else if(iWarScore <= /*0*/ GC.getWAR_PROJECTION_THRESHOLD_STALEMATE())
@@ -30959,5 +30969,86 @@ bool CvDiplomacyAI::IsTooSoonForMoveTroopsRequest(PlayerTypes ePlayer) const
 	}
 
 	return false;
+}
+#endif
+
+#if defined(MOD_BALANCE_CORE_DEALS)
+int CvDiplomacyAI::GetNumberOfThreatenedCities(PlayerTypes ePlayer)
+{
+	CvPlayer &kEnemy = GET_PLAYER(ePlayer);
+
+	int iCityLoop;
+	int iUnitLoop;
+
+	int iCountCitiesInDanger = 0;
+	int iRange = 4;
+
+	// Estimate the relative strength of units near our cities and near their cities (can't use TacticalAnalysisMap because we may not be at war - and that it isn't current if we are calling this from the DiploAI)
+	for (const CvCity* pFriendlyCity = GetPlayer()->firstCity(&iCityLoop); pFriendlyCity != NULL; pFriendlyCity = GetPlayer()->nextCity(&iCityLoop))
+	{
+		CvPlot* pPlot = pFriendlyCity->plot();
+		int iX = pPlot->getX();
+		int iY = pPlot->getY();
+		bool bFriendlyGeneralInTheVicinity = false;
+		bool bEnemyGeneralInTheVicinity = false;
+
+		int iFriendlyPower = pFriendlyCity->GetPower();
+		int iEnemyPower = 0;
+
+		for (const CvUnit* pLoopUnit = GetPlayer()->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = GetPlayer()->nextUnit(&iUnitLoop))
+		{
+			if (pLoopUnit->IsCombatUnit())
+			{
+				int iDistance = plotDistance(pLoopUnit->getX(), pLoopUnit->getY(), iX, iY);
+				if (iDistance <= iRange)
+				{
+					iFriendlyPower += pLoopUnit->GetPower();
+				}
+			}
+			if (!bFriendlyGeneralInTheVicinity && pLoopUnit->IsGreatGeneral())
+			{
+				int iDistance = plotDistance(pLoopUnit->getX(), pLoopUnit->getY(), iX, iY);
+				if (iDistance <= iRange)
+				{
+					bFriendlyGeneralInTheVicinity = true;
+				}
+			}
+		}
+		if (bFriendlyGeneralInTheVicinity)
+		{
+			iFriendlyPower *= 11;
+			iFriendlyPower /= 10;
+		}
+
+		for (const CvUnit* pLoopUnit = kEnemy.firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = kEnemy.nextUnit(&iUnitLoop))
+		{
+			if (pLoopUnit->IsCombatUnit())
+			{
+				int iDistance = plotDistance(pLoopUnit->getX(), pLoopUnit->getY(), iX, iY);
+				if (iDistance <= iRange)
+				{
+					iEnemyPower += pLoopUnit->GetPower();
+				}
+			}
+			if (!bEnemyGeneralInTheVicinity && pLoopUnit->IsGreatGeneral())
+			{
+				int iDistance = plotDistance(pLoopUnit->getX(), pLoopUnit->getY(), iX, iY);
+				if (iDistance <= iRange)
+				{
+					bEnemyGeneralInTheVicinity = true;
+				}
+			}
+		}
+		if (bEnemyGeneralInTheVicinity)
+		{
+			iEnemyPower *= 11;
+			iEnemyPower /= 10;
+		}
+
+		if (iEnemyPower>iFriendlyPower)
+			iCountCitiesInDanger++;
+	}
+
+	return iCountCitiesInDanger;
 }
 #endif

@@ -1791,20 +1791,7 @@ int CvMilitaryAI::ScoreTarget(CvMilitaryTarget& target, AIOperationTypes eAIOper
 #endif
 
 	// Economic value of target
-	float fEconomicValue = 1;
-	fEconomicValue += target.m_pTargetCity->getYieldRateTimes100(YIELD_FOOD, false);
-	fEconomicValue += target.m_pTargetCity->getYieldRateTimes100(YIELD_PRODUCTION, false) * 2;
-	fEconomicValue += target.m_pTargetCity->getYieldRateTimes100(YIELD_SCIENCE, false);
-	fEconomicValue += target.m_pTargetCity->getYieldRateTimes100(YIELD_GOLD, false);
-	fEconomicValue += target.m_pTargetCity->getYieldRateTimes100(YIELD_CULTURE, false);
-	fEconomicValue += target.m_pTargetCity->getYieldRateTimes100(YIELD_FAITH, false);
-#if defined(MOD_API_UNIFIED_YIELDS_TOURISM)
-	fEconomicValue += target.m_pTargetCity->getYieldRateTimes100(YIELD_TOURISM, false);
-#endif
-#if defined(MOD_API_UNIFIED_YIELDS_GOLDEN_AGE)
-	fEconomicValue += target.m_pTargetCity->getYieldRateTimes100(YIELD_GOLDEN_AGE_POINTS, false);
-#endif
-
+	float fEconomicValue = target.m_pTargetCity->getEconomicValueTimes100( GetPlayer()->GetID() );
 	fEconomicValue = sqrt(fEconomicValue/100);
 
 	//everything together now
