@@ -7252,6 +7252,70 @@ bool CvUnit::sellExoticGoods()
 #endif
 
 		changeNumExoticGoods(-1);
+#if defined(MOD_BALANCE_CORE)
+		PlayerTypes ePlotOwner = NO_PLAYER;
+		for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+		{
+			CvPlot* pLoopPlotSearch = plotDirection(plot()->getX(), plot()->getY(), ((DirectionTypes)iI));
+			if (pLoopPlotSearch != NULL)
+			{
+				PlayerTypes eLoopPlotOwner = pLoopPlotSearch->getOwner();
+				if (eLoopPlotOwner != getOwner() && eLoopPlotOwner != NO_PLAYER)
+				{
+					if (!GET_TEAM(getTeam()).isAtWar(GET_PLAYER(eLoopPlotOwner).getTeam()))
+					{
+						if(GET_PLAYER(eLoopPlotOwner).isMinorCiv())
+						{
+							ePlotOwner = eLoopPlotOwner;
+							break;
+						}
+					}
+				}
+			}
+		}
+		if(ePlotOwner != NO_PLAYER)
+		{
+			bool bAlreadyHere = false;
+			CvPlot* pBestPlot = NULL;
+			CvCity* pCity = GET_PLAYER(ePlotOwner).getCapitalCity();
+			if(pCity != NULL)
+			{
+#if defined(MOD_GLOBAL_CITY_WORKING)
+				for (int iCityPlotLoop = 0; iCityPlotLoop < pCity->GetNumWorkablePlots(); iCityPlotLoop++)
+#else
+				for (int iCityPlotLoop = 0; iCityPlotLoop < NUM_CITY_PLOTS; iCityPlotLoop++)
+#endif
+				{
+					CvPlot* pLoopPlot = pCity->GetCityCitizens()->GetCityPlotFromIndex(iCityPlotLoop);
+					if(pLoopPlot != NULL && (pLoopPlot->getOwner() == ePlotOwner) && !pLoopPlot->isWater() && !pLoopPlot->isMountain() && !pLoopPlot->IsNaturalWonder() && pLoopPlot->isCoastalLand() && (pLoopPlot->getResourceType(NO_TEAM) == NO_RESOURCE))
+					{
+						if(pLoopPlot->getImprovementType() != NO_IMPROVEMENT)
+						{
+							CvImprovementEntry* pImprovementInfo = GC.getImprovementInfo(pLoopPlot->getImprovementType());
+							if(pImprovementInfo && pImprovementInfo->IsOnlyCityStateTerritory() && pImprovementInfo->IsSpecificCivRequired())
+							{
+								bAlreadyHere = true;
+								break;
+							}
+
+						}
+						else if(pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
+						{
+							pBestPlot = pLoopPlot;
+						}
+					}
+				}
+				if(pBestPlot != NULL && !bAlreadyHere)
+				{
+					ImprovementTypes eFeitoria = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_FEITORIA");
+					if (eFeitoria != NO_IMPROVEMENT)
+					{
+						pBestPlot->setImprovementType(eFeitoria, getOwner());
+					}
+				}
+			}
+		}				
+#endif
 	}
 	return false;
 }
@@ -22944,6 +23008,17 @@ void CvUnit::PushMission(MissionTypes eMission, int iData1, int iData2, int iFla
 {
 	VALIDATE_OBJECT
 	CvUnitMission::PushMission(this, eMission, iData1, iData2, iFlags, bAppend, bManual, eMissionAI, pMissionAIPlot, pMissionAIUnit);
+
+#if defined(MOD_BALANCE_CORE_MILITARY_LOGGING)
+	if (GC.getLogging() && GC.getAILogging()) 
+	{
+		CvString info = CvString::format( "%03d;0x%08X;%s;id;0x%08X;owner;%02d;army;0x%08X;%s;arg1;%d;arg2;%d;flags;0x%08X\n", 
+			GC.getGame().getGameTurn(),this,this->getNameKey(),this->GetID(),this->getOwner(),this->getArmyID(),CvTypes::GetMissionName(eMission).c_str(),iData1,iData2,iFlags );
+		FILogFile* pLog=LOGFILEMGR.GetLog( "unit-missions.csv", FILogFile::kDontTimeStamp | FILogFile::kDontFlushOnWrite );
+		pLog->Msg( info.c_str() );
+	}
+#endif
+
 }
 
 //	--------------------------------------------------------------------------------

@@ -2060,6 +2060,13 @@ void CvPlayerTrade::MoveUnits (void)
 
 #if defined(MOD_BALANCE_CORE)
 				//Free lump resource when you complete an international trade route.
+				CvPlot* pPlot = GC.getMap().plot(iOriginX, iOriginY);
+				
+				CvCity* pCity = NULL;
+				if(pPlot != NULL)
+				{
+					pCity = pPlot->getPlotCity();
+				}
 				if(pTradeConnection->m_eConnectionType == TRADE_CONNECTION_INTERNATIONAL)
 				{
 					TechTypes eCurrentTech = GET_PLAYER(pTradeConnection->m_eOriginOwner).GetPlayerTechs()->GetCurrentResearch();
@@ -2071,8 +2078,38 @@ void CvPlayerTrade::MoveUnits (void)
 						{
 							switch(iYield)
 							{
+								case YIELD_PRODUCTION:
+									if(pCity != NULL)
+									{
+										pCity->changeProduction(iYieldFromStartingRoute);
+										if(pTradeConnection->m_eOriginOwner == GC.getGame().getActivePlayer())
+										{
+											char text[256] = {0};
+											fDelay += 0.5f;
+											sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_PRODUCTION]", iYieldFromStartingRoute);
+											DLLUI->AddPopupText(iOriginX ,iOriginY, text, fDelay);
+										}
+									}
+									break;
+								case YIELD_FOOD:
+									if(pCity != NULL)
+									{
+										pCity->changeFood(iYieldFromStartingRoute);
+										if(pTradeConnection->m_eOriginOwner == GC.getGame().getActivePlayer())
+										{
+											char text[256] = {0};
+											fDelay += 0.5f;
+											sprintf_s(text, "[COLOR_GREEN]+%d[ENDCOLOR][ICON_FOOD]", iYieldFromStartingRoute);
+											DLLUI->AddPopupText(iOriginX ,iOriginY, text, fDelay);
+										}
+									}
+									break;
 								case YIELD_CULTURE:
 									GET_PLAYER(pTradeConnection->m_eOriginOwner).changeJONSCulture(iYieldFromStartingRoute);
+									if(pCity != NULL)
+									{
+										pCity->ChangeJONSCultureStored(iYieldFromStartingRoute);
+									}
 									if(pTradeConnection->m_eOriginOwner == GC.getGame().getActivePlayer())
 									{
 										char text[256] = {0};

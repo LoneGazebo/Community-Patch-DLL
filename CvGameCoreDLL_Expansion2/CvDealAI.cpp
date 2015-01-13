@@ -1758,6 +1758,11 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 	}
 #endif
 
+#if defined(MOD_BALANCE_CORE_DEALS)
+	//interesting but too much spam
+	//OutputDebugString( CvString::format( "Deal value of %s for %s to %s is %d\n", pkResourceInfo->GetText(), GetPlayer()->getName(), GET_PLAYER(eOtherPlayer).getName(), iItemValue ).c_str() ); 
+#endif
+
 	return iItemValue;
 }
 
@@ -1795,10 +1800,15 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 				{
 					iGoldValueOfPlots += goldPerPlot; // this is a bargain, but at least it's in the ballpark
 				}
+#if !defined(MOD_BALANCE_CORE_DEALS)
 				if(pLoopPlot->getImprovementType() != NO_IMPROVEMENT)
 				{
 					iGoldValueOfImprovedPlots += goldPerPlot * 25;
 				}
+#else
+				//we don't care about improved plots but about yields
+				//todo: add something for currently unworked plots (future potential)
+#endif
 				ResourceTypes eResource = pLoopPlot->getNonObsoleteResourceType(GetPlayer()->getTeam());
 				if(eResource != NO_RESOURCE)
 				{
@@ -1828,6 +1838,10 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 						{
 							int iNumTurns = 60; // okay, this is a reasonable estimate
 							iGoldValueOfResourcePlots += (iResourceQuantity * iNumTurns * 150 / 100);
+
+#if defined(MOD_BALANCE_CORE_DEALS)
+							//todo: take into account how much of the resource the old and the new owner have
+#endif
 						}
 					}
 				}
@@ -1836,6 +1850,11 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 		iGoldValueOfImprovedPlots /= 100;
 
 		iItemValue = iItemValue + iGoldValueOfPlots + iGoldValueOfImprovedPlots + iGoldValueOfResourcePlots;
+
+#if defined(MOD_BALANCE_CORE_DEALS)
+		// check the city's yields
+		iItemValue += pCity->getEconomicValueTimes100( GetPlayer()->GetID() );
+#endif
 
 		// add in the (gold) value of the buildings (Or should we?  Will they transfer?)
 
@@ -1934,6 +1953,10 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 		}
 	}
 
+#if defined(MOD_BALANCE_CORE_DEALS)
+	OutputDebugString( CvString::format( "Deal value of %s for %s to %s is %d\n", pCity->getName().c_str(), GetPlayer()->getName(), GET_PLAYER(eOtherPlayer).getName(), iItemValue ).c_str() ); 
+#endif
+
 	// Are we trying to find the middle point between what we think this item is worth and what another player thinks it's worth?
 	if(bUseEvenValue)
 	{
@@ -1957,20 +1980,11 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 			//Would this city cause us to become unhappy? It is worthless to us.
 			else if(iHappiness < pCity->getPopulation())
 			{
-				iItemValue = -1;
+				iItemValue /= 2;
 			}
 			else if(GetPlayer()->IsEmpireUnhappy())
 			{
-				iItemValue = -1;
-			}
-		}
-		if(bFromMe)
-		{
-			//Are we trading away one of our core 3 cities? Bad idea.
-			int iNumCities = GetPlayer()->getNumCities();
-			if(iNumCities <= 3)
-			{
-				iItemValue *= 20;
+				iItemValue /= 3;
 			}
 		}
 	}

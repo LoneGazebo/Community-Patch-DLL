@@ -12042,7 +12042,9 @@ void CvPlayer::DoYieldBonusFromKill(YieldTypes eYield, UnitTypes eAttackingUnitT
 #endif
 				}
 			}
-
+#if defined(MOD_BALANCE_CORE)
+			CvCity* pCity = getCapitalCity();
+#endif
 			iValue = (iValue * iCombatStrength) / 100;
 			if(iValue > 0)
 			{
@@ -12066,6 +12068,14 @@ void CvPlayer::DoYieldBonusFromKill(YieldTypes eYield, UnitTypes eAttackingUnitT
 #if defined(MOD_API_UNIFIED_YIELDS)
 				case YIELD_GOLDEN_AGE_POINTS:
 					ChangeGoldenAgeProgressMeter(iValue);
+					break;
+#endif
+#if defined(MOD_BALANCE_CORE)
+				case YIELD_PRODUCTION:
+					if(pCity != NULL)
+					{
+						pCity->changeProduction(iValue);
+					}
 					break;
 #endif
 				case YIELD_SCIENCE:
@@ -17230,6 +17240,81 @@ void CvPlayer::DoGreatPersonExpended(UnitTypes eGreatPersonUnit)
 				{
 					iYieldBonus += pReligion->m_Beliefs.GetGreatPersonExpendedFaith();
 				}
+#if defined(MOD_BALANCE_CORE_BELIEFS)
+				int iEra = GetCurrentEra();
+				if(iEra < 1)
+				{
+					iEra = 1;
+				}
+				int iCulture = pReligion->m_Beliefs.GetYieldFromGPUse(YIELD_CULTURE) * iEra;
+				if(iCulture > 0)
+				{
+					changeJONSCulture(iCulture);
+					if(GetID() == GC.getGame().getActivePlayer())
+					{
+						char text[256] = {0};
+						fDelay += 0.5f;
+						sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", iCulture);
+						DLLUI->AddPopupText(pGreatPersonUnit->getX(),pGreatPersonUnit->getY(), text, fDelay);
+					}
+				}
+				int iFaith2 = pReligion->m_Beliefs.GetYieldFromGPUse(YIELD_FAITH) * iEra;
+				if(iFaith2 > 0)
+				{
+					ChangeFaith(iFaith2);
+					if(GetID() == GC.getGame().getActivePlayer())
+					{
+						char text[256] = {0};
+						fDelay += 0.5f;
+						sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", iFaith2);
+						DLLUI->AddPopupText(pGreatPersonUnit->getX(),pGreatPersonUnit->getY(), text, fDelay);
+					}
+				}
+				int iGold = pReligion->m_Beliefs.GetYieldFromGPUse(YIELD_GOLD) * iEra;
+				if(iGold > 0)
+				{
+					GetTreasury()->ChangeGold(iGold);
+					if(GetID() == GC.getGame().getActivePlayer())
+					{
+						char text[256] = {0};
+						fDelay += 0.5f;
+						sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]", iGold);
+						DLLUI->AddPopupText(pGreatPersonUnit->getX(),pGreatPersonUnit->getY(), text, fDelay);
+					}
+				}
+				int iScience = pReligion->m_Beliefs.GetYieldFromGPUse(YIELD_SCIENCE) * iEra;
+				if(iScience > 0)
+				{
+					TechTypes eCurrentTech = GetPlayerTechs()->GetCurrentResearch();
+					if(eCurrentTech == NO_TECH)
+					{
+						changeOverflowResearch(iScience);
+					}
+					else
+					{
+						GET_TEAM(GET_PLAYER(GetID()).getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iScience, GetID());
+					}
+					if(GetID() == GC.getGame().getActivePlayer())
+					{
+						char text[256] = {0};
+						fDelay += 0.5f;
+						sprintf_s(text, "[COLOR_BLUE]+%d[ENDCOLOR][ICON_RESEARCH]", iScience);
+						DLLUI->AddPopupText(pGreatPersonUnit->getX(),pGreatPersonUnit->getY(), text, fDelay);
+					}
+				}
+				int iGA = pReligion->m_Beliefs.GetYieldFromGPUse(YIELD_GOLDEN_AGE_POINTS) * iEra;
+				if(iGA > 0)
+				{
+					ChangeGoldenAgeProgressMeter(iGA);
+					if(GetID() == GC.getGame().getActivePlayer())
+					{
+						char text[256] = {0};
+						fDelay += 0.5f;
+						sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GOLDEN_AGE]", iGA);
+						DLLUI->AddPopupText(pGreatPersonUnit->getX(),pGreatPersonUnit->getY(), text, fDelay);
+					}
+				}
+#endif
 			}
 
 			if (iYieldBonus > 0)
@@ -31128,6 +31213,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, bool bEscorted, int iTa
 		std::stringstream ss;
 		ss << "CitySites_" << getCivilizationAdjective() << "_" << std::setfill('0') << std::setw(3) << GC.getGame().getGameTurn() << ".txt";
 		FILogFile* pLog=LOGFILEMGR.GetLog( ss.str().c_str(), FILogFile::kDontTimeStamp );
+		pLog->Msg( "#x,y,terrain,plotype,feature,owner,area,revealed,danger,fertility,distancescale,value,comments\n" );
 		pLog->Msg( dump.str().c_str() );
 		pLog->Close();
 	}
@@ -32589,6 +32675,7 @@ bool CvPlayer::IsAtPeaceWith(PlayerTypes iPlayer) const
 bool CvPlayer::IsAtWar() const
 {
 #if defined(MOD_BALANCE_CORE)
+	//reference is important! otherwise the destructor will be called!
 	CvTeam& kTeam = GET_TEAM(getTeam());
 #else
 	CvTeam kTeam = GET_TEAM(getTeam());
@@ -32606,10 +32693,12 @@ bool CvPlayer::IsAtWar() const
 bool CvPlayer::IsAtWarAnyMajor() const
 {
 #if defined(MOD_BALANCE_CORE)
+	//reference is important! otherwise the destructor will be called!
 	CvTeam& kTeam = GET_TEAM(getTeam());
 #else
 	CvTeam kTeam = GET_TEAM(getTeam());
 #endif
+
 	for (int iTeam = 0; iTeam < (MAX_TEAMS-1); iTeam++) {
 		if (GET_TEAM((TeamTypes)iTeam).isAlive() && GET_TEAM((TeamTypes)iTeam).isMajorCiv() && kTeam.isAtWar((TeamTypes)iTeam)) {
 			return true;
@@ -32622,10 +32711,12 @@ bool CvPlayer::IsAtWarAnyMajor() const
 bool CvPlayer::IsAtWarAnyMinor() const
 {
 #if defined(MOD_BALANCE_CORE)
+	//reference is important! otherwise the destructor will be called!
 	CvTeam& kTeam = GET_TEAM(getTeam());
 #else
 	CvTeam kTeam = GET_TEAM(getTeam());
 #endif
+
 	for (int iTeam = 0; iTeam < (MAX_TEAMS-1); iTeam++) {
 		if (GET_TEAM((TeamTypes)iTeam).isAlive() && GET_TEAM((TeamTypes)iTeam).isMinorCiv() && kTeam.isAtWar((TeamTypes)iTeam)) {
 			return true;

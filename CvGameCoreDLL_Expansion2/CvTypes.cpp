@@ -84,6 +84,22 @@ MissionTypes s_eMISSION_ONE_SHOT_TOURISM = NO_MISSION;
 MissionTypes s_eMISSION_CHANGE_ADMIRAL_PORT = NO_MISSION;
 unsigned int s_uiNUM_MISSION_TYPES = 0;
 
+#if defined(MOD_BALANCE_CORE_MILITARY_LOGGING)
+
+std::tr1::unordered_map<MissionTypes, std::string> CvTypes::MissionNameLookup;
+std::string defaultMissionName("UNKNOWN_MISSION");
+
+const std::string& CvTypes::GetMissionName(MissionTypes eMission)
+{
+	std::tr1::unordered_map<MissionTypes, std::string>::const_iterator it = MissionNameLookup.find(eMission);
+	if (it!=MissionNameLookup.end())
+		return it->second;
+	else
+		return defaultMissionName;
+}
+
+#endif
+
 void CvTypes::AcquireTypes(Database::Connection& db)
 {
 
@@ -233,6 +249,10 @@ void CvTypes::AcquireTypes(Database::Connection& db)
 				if(it != kMissionTypesLookupTable.end())
 				{
 					(*it->second) = static_cast<MissionTypes>(kResults.GetInt(1));
+
+#if defined(MOD_BALANCE_CORE_MILITARY_LOGGING)
+					MissionNameLookup.insert( make_pair( (MissionTypes)kResults.GetInt(1),kResults.GetText(0) ) );
+#endif
 				}
 			}
 		}

@@ -14,6 +14,7 @@
 
 #include "LintFree.h"
 
+
 //=====================================
 // CvTacticalAnalysisCell
 //=====================================
@@ -261,6 +262,7 @@ void CvTacticalAnalysisMap::RefreshDataForNextPlayer(CvPlayer* pPlayer)
 				CalculateMilitaryStrengths();
 				PrioritizeZones();
 				LogZones();
+
 				BuildEnemyUnitList();
 				MarkCellsNearEnemy();
 
@@ -356,6 +358,10 @@ void CvTacticalAnalysisMap::MarkCellsNearEnemy()
 					// Check adjacent plots for enemy citadels
 					if(!m_pPlots[iI].IsSubjectToAttack())
 					{
+#if defined(MOD_BALANCE_CORE)
+						if ( pPlot->GetDamageFromNearByFeatures( m_pPlayer->GetID() ) )
+								m_pPlots[iI].SetSubjectToAttack(true);
+#else
 						CvPlot* pAdjacentPlot;
 						for(int jJ = 0; jJ < NUM_DIRECTION_TYPES; jJ++)
 						{
@@ -373,6 +379,7 @@ void CvTacticalAnalysisMap::MarkCellsNearEnemy()
 								}
 							}
 						}
+#endif
 					}
 				}
 			}
@@ -1214,3 +1221,29 @@ eTacticalDominanceFlags CvTacticalAnalysisMap::ComputeDominance(CvTacticalDomina
 	return pZone->GetDominanceFlag();
 }
 
+#if defined(MOD_BALANCE_CORE_MILITARY_LOGGING)
+void CvTacticalAnalysisMap::Dump()
+{
+	if (m_pPlayer==NULL)
+		return;
+
+	bool bLogging = GC.getLogging() && GC.getAILogging() && m_pPlayer->isMajorCiv();
+	if (bLogging)
+	{
+		CvString fname = CvString::format( "TacticalCells_%s_%03d.txt", m_pPlayer->getCivilizationAdjective(), GC.getGame().getGameTurn() );
+		FILogFile* pLog=LOGFILEMGR.GetLog( fname.c_str(), FILogFile::kDontTimeStamp );
+		pLog->Msg( "#x,y,visible,terrain,enemy,defensemod,targettype,deployscore,deploysafe,underattack,intargetrange,flankbonus\n" );
+		for (int i=0; i<m_iNumPlots; i++)
+		{
+			CvTacticalAnalysisCell* pCell = GetCell(i);
+			CvString dump = CvString::format( "%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\n", 
+				GC.getMap().plotByIndex(i)->getX(), GC.getMap().plotByIndex(i)->getY(),
+				pCell->IsVisible(), GC.getMap().plotByIndex(i)->getTerrainType(), pCell->IsEnemyTerritory(),
+				pCell->GetDefenseModifier(), pCell->GetTargetType(), pCell->GetDeploymentScore(), pCell->IsSafeForDeployment(), pCell->IsSubjectToAttack(), 
+				pCell->IsWithinRangeOfTarget(), pCell->IsHelpsProvidesFlankBonus() );
+			pLog->Msg( dump.c_str() );
+		}
+		pLog->Close();
+	}
+}
+#endif

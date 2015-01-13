@@ -451,6 +451,14 @@ protected:
 	static int lGetGoldenAgeGreatWriterRateModifier(lua_State* L);
 	static int lGetGoldenAgeGreatArtistRateModifier(lua_State* L);
 	static int lGetGoldenAgeGreatMusicianRateModifier(lua_State* L);
+#if defined(MOD_BALANCE_CORE)
+	LUAAPIEXTN(GetGoldenAgeGreatScientistRateModifier, int);
+	LUAAPIEXTN(GetGoldenAgeGreatEngineerRateModifier, int);
+	LUAAPIEXTN(GetGoldenAgeGreatMerchantRateModifier, int);
+#endif
+#if defined(MOD_DIPLOMACY_CITYSTATES) && defined(MOD_API_UNIFIED_YIELDS)
+	LUAAPIEXTN(GetGoldenAgeGreatDiplomatRateModifier, int);
+#endif
 
 	static int lGetHurryModifier(lua_State* L);
 

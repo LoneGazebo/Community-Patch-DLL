@@ -14,14 +14,14 @@
 		<Row>
 			<BuildingType>BUILDING_BAZAAR</BuildingType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>2</Yield>
+			<Yield>3</Yield>
 		</Row>
 	</Building_YieldChanges>
 	<Building_YieldChangesPerPop>
 		<Row>
 			<BuildingType>BUILDING_BAZAAR</BuildingType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>20</Yield>
+			<Yield>25</Yield>
 		</Row>
 	</Building_YieldChangesPerPop>
 	<!-- Market -->

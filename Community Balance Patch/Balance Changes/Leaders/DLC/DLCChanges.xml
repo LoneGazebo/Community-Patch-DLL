@@ -92,4 +92,11 @@
 			<PromotionType>PROMOTION_FREE_PILLAGE_MOVES</PromotionType>
 		</Row>
 	</Trait_FreePromotionUnitCombats>
+	<!-- Incan Slinger -->
+	<Unit_FreePromotions>
+		<Row>
+			<UnitType>UNIT_INCAN_SLINGER</UnitType>
+			<PromotionType>PROMOTION_SECOND_ATTACK</PromotionType>
+		</Row>
+	</Unit_FreePromotions>
 </GameData>

@@ -2558,7 +2558,32 @@
 				<PediaType>PEDIA_RANGED</PediaType>
 				<PediaEntry>TXT_KEY_PROMOTION_MODERN_RANGED_PENALTY_II</PediaEntry>
 			</Row>
-	</UnitPromotions>
+			<Row>
+				<Type>PROMOTION_ENSLAVEMENT</Type>
+				<Description>TXT_KEY_PROMOTION_ENSLAVEMENT</Description>
+				<Help>TXT_KEY_PROMOTION_ENSLAVEMENT_HELP</Help>
+				<Sound>AS2D_IF_LEVELUP</Sound>
+				<PortraitIndex>6</PortraitIndex>
+				<IconAtlas>KRIS_SWORDSMAN_PROMOTION_ATLAS</IconAtlas>
+				<PediaType>PEDIA_ATTRIBUTES</PediaType>
+				<PediaEntry>TXT_KEY_PROMOTION_ENSLAVEMENT</PediaEntry>
+				<CannotBeChosen>true</CannotBeChosen>
+			</Row>
+			<Row>
+				<Type>PROMOTION_RAIDER</Type>
+				<Description>TXT_KEY_PROMOTION_RAIDER</Description>
+				<Help>TXT_KEY_PROMOTION_RAIDER_HELP</Help>
+				<Sound>AS2D_IF_LEVELUP</Sound>
+				<PortraitIndex>3</PortraitIndex>
+				<IconAtlas>EXPANSION_PROMOTION_ATLAS</IconAtlas>
+				<EnemyRoute>true</EnemyRoute>
+				<PediaType>PEDIA_ATTRIBUTES</PediaType>
+				<PediaEntry>TXT_KEY_PROMOTION_RAIDER</PediaEntry>
+				<CannotBeChosen>true</CannotBeChosen>
+				<FlankAttackModifier>200</FlankAttackModifier>
+				<CityAttackPlunderModifier>50</CityAttackPlunderModifier>
+			</Row>
+		</UnitPromotions>
 	<UnitPromotions_UnitCombatMods>
 		<Row>
 			<PromotionType>PROMOTION_MODERN_RANGED_PENALTY_I</PromotionType>
@@ -2598,6 +2623,13 @@
 			<Modifier>-33</Modifier>
 		</Row>
 	</UnitPromotions_Domains>
+	<UnitPromotions_YieldFromKills>
+		<Row>
+			<PromotionType>PROMOTION_ENSLAVEMENT</PromotionType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>15</Yield>
+		</Row>
+	</UnitPromotions_YieldFromKills>
 	<Language_en_US>
 		<Row Tag="TXT_KEY_PROMOTION_NAVAL_MISFIRE">
 			<Text>Difficult Target</Text>
@@ -2616,6 +2648,18 @@
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_MODERN_RANGED_PENALTY_II_HELP">
 			<Text>-25% [ICON_RANGE_STRENGTH] Ranged Strength vs. Fortified Units and Cities. +15% [ICON_STRENGTH] Strength when defending, and enemy units within 2 tiles suffer -10% [ICON_STRENGTH] Strength.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_ENSLAVEMENT">
+			<Text>Forced Labor</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_ENSLAVEMENT_HELP">
+			<Text>Receive [ICON_PRODUCTION] Production in your Capital when you defeat an enemy unit.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_RAIDER">
+			<Text>Raider</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_RAIDER_HELP">
+			<Text>Flank attack bonus increased by 100%. Steal gold equal to 50% of the damage inflicted on a city. Is able to use enemy roads.</Text>
 		</Row>
 	</Language_en_US>
 </GameData>

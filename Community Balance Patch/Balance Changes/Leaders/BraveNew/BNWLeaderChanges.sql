@@ -7,6 +7,10 @@ UPDATE Language_en_US
 SET Text = 'Receives +3 Gold [ICON_GOLD], +1 [ICON_CULTURE] Culture, and +2 [ICON_GOLDEN_AGE] Golden Age Points for each Trade Route with a different civ or City-State. The Trade Route owners receive +2 [ICON_GOLD] Gold for each Trade Route sent to Morocco.'
 WHERE Tag = 'TXT_KEY_TRAIT_GATEWAY_AFRICA' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
+UPDATE Language_en_US
+SET Text = 'Mounted unit that specializes in Desert warfare and protecting Moroccan lands. Receives combat bonuses when fighting both in Desert tiles and Moroccan territory. Moves twice as fast in Deserts. May only be built by Morocco.'
+WHERE Tag = 'TXT_KEY_UNIT_HELP_BERBER_CAVALRY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
+
 -- Ashurbanipal -- Boost Royal Library
 UPDATE Building_DomainFreeExperiencePerGreatWork
 SET Experience = '15'
@@ -114,6 +118,19 @@ UPDATE Language_en_US
 SET Text = 'Appears as a unique luxury good in or near an Indonesian city.'
 WHERE Tag = 'TXT_KEY_RESOURCE_PEPPER_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
+-- Maria I
+UPDATE Language_en_US
+SET Text = 'Melee naval unit which excels at sea exploration. It has more [ICON_MOVES] Movement than the Caravel, which it replaces, and can perform a one-time ability next to foreign lands to earn [ICON_GOLD] Gold and XP. May only be built by the Portuguese. [NEWLINE][NEWLINE]If the Nau sells its Exotic Cargo next to a City-State, a Feitoria is [COLOR_POSITIVE_TEXT]automatically created[ENDCOLOR] in its territory (if there is not already a Feitoria).'
+WHERE Tag = 'TXT_KEY_UNIT_HELP_PORTUGUESE_NAU' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
+UPDATE Language_en_US
+SET Text = 'Resource diversity grants twice as much [ICON_GOLD] Gold for Portugal in Trade Routes. +3 [ICON_FOOD] Food in coastal Cities.'
+WHERE Tag = 'TXT_KEY_TRAIT_EXTRA_TRADE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
+UPDATE Language_en_US
+SET Text = 'May Sell Exotic Goods when adjacent to a foreign tile to gain [ICON_GOLD] Gold and XP based on distance from capital, but only once. [NEWLINE][NEWLINE]If the Nau sells its Exotic Cargo next to a City-State, a Feitoria is [COLOR_POSITIVE_TEXT]automatically created[ENDCOLOR] in its territory (if there is not already a Feitoria).'
+WHERE Tag = 'TXT_KEY_PROMOTION_SELL_EXOTIC_GOODS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
 -- Shoshone
 
 UPDATE Units
@@ -161,17 +178,25 @@ UPDATE Language_en_US
 SET Text = 'Unique Polish Stable replacement. +15% [ICON_PRODUCTION] Production and  +15 XP for Mounted Units.[NEWLINE][NEWLINE]Each Pasture worked by this City produces +1 [ICON_PRODUCTION] Production and +1 [ICON_GOLD] Gold, and the City itself produces +1 [ICON_PRODUCTION] Production.'
 WHERE Tag = 'TXT_KEY_BUILDING_DUCAL_STABLE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
--- Pedro -- Improve Brazilwood Camp, increase GP production during GA
+-- Pedro -- Improve Brazilwood Camp, increase all GP production during GA
+UPDATE Language_en_US
+SET Text = 'Tourism [ICON_TOURISM] output is +100% during their Golden Ages. Earn all Great People 50% faster during their Golden Ages.'
+WHERE Tag = 'TXT_KEY_TRAIT_CARNIVAL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
-UPDATE Traits
-SET GoldenAgeGreatArtistRateModifier = '100'
-WHERE Type = 'TRAIT_CARNIVAL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+UPDATE Language_en_US
+SET Text = 'Because of your unique Carnival bonus, Tourism output is currently +100% with all civilizations and you are earning Great People 50% faster.</Text>'
+WHERE Tag = 'TXT_KEY_TP_CARNIVAL_EFFECT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
-UPDATE Traits
-SET GoldenAgeGreatMusicianRateModifier = '100'
-WHERE Type = 'TRAIT_CARNIVAL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+UPDATE Language_en_US
+SET Text = 'Modern Era infantry unit that earns points toward a [ICON_GOLDEN_AGE] Golden Age when it defeats an enemy. Starts with Survivalism I. May only be built by Brazil.'
+WHERE Tag = 'TXT_KEY_UNIT_HELP_BRAZILIAN_PRACINHA' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
-UPDATE Traits
-SET GoldenAgeGreatWriterRateModifier = '100'
-WHERE Type = 'TRAIT_CARNIVAL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+-- Zulu -- Ikanda gives promotions to all melee infantry
 
+UPDATE Language_en_US
+SET Text = 'Unique Zulu Barracks replacement. Grants unique promotions to all melee units.'
+WHERE Tag = 'TXT_KEY_BUILDING_IKANDA_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
+UPDATE Language_en_US
+SET Text = 'In addition to the regular abilities of the Barracks which it replaces, the Ikanda grants a unique set of promotions to all melee units created within the city. These include faster movement, and greater combat strength. Only the Zulu may build it'
+WHERE Tag = 'TXT_KEY_BUILDING_IKANDA_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
