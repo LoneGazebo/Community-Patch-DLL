@@ -4121,7 +4121,7 @@ int TradeRouteLandValid(CvAStarNode* parent, CvAStarNode* node, int data, const 
 		return FALSE;
 	}
 #if defined(MOD_BALANCE_CORE)
-	if(pNewPlot->isMountain())
+	if(pNewPlot->isImpassable())
 #else
 	if(pNewPlot->isMountain() || pNewPlot->isImpassable())
 #endif

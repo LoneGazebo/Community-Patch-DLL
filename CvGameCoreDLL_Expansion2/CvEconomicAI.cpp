@@ -23,7 +23,6 @@
 // must be included after all other headers
 #include "LintFree.h"
 
-
 //=====================================
 // CvEconomicAIStrategyXMLEntry
 //=====================================
@@ -2709,6 +2708,7 @@ void CvEconomicAI::UpdatePlots()
 		m_aiGoodyHutUnitAssignments[ui].Clear();
 	}
 
+	/*
 	// find the center of all the cities
 	int iTotalX = 0;
 	int iTotalY = 0;
@@ -2729,10 +2729,15 @@ void CvEconomicAI::UpdatePlots()
 		iCivCenterX = iTotalX / iCityCount;
 		iCivCenterY = iTotalY / iCityCount;
 	}
+	*/
 
 	uint uiExplorationPlotIndex = 0;
 	uint uiGoodyHutPlotIndex = 0;
 	TeamTypes ePlayerTeam = m_pPlayer->getTeam();
+
+#if defined(MOD_BALANCE_CORE_MILITARY_LOGGING)
+	std::vector<SPlotWithScore> result;
+#endif
 
 	CvPlot* pPlot;
 	for(int i = 0; i < GC.getMap().numPlots(); i++)
@@ -2781,6 +2786,11 @@ void CvEconomicAI::UpdatePlots()
 		}
 
 		int iScore = ScoreExplorePlot(pPlot, ePlayerTeam, 1, eDomain);
+
+#if defined(MOD_BALANCE_CORE_MILITARY_LOGGING)
+		result.push_back( SPlotWithScore(pPlot, iScore) );
+#endif
+
 		if(iScore <= 0)
 		{
 			continue;
@@ -2797,6 +2807,26 @@ void CvEconomicAI::UpdatePlots()
 		m_aiExplorationPlotRatings[uiExplorationPlotIndex] = iScore;
 		uiExplorationPlotIndex++;
 	}
+
+#if defined(MOD_BALANCE_CORE_MILITARY_LOGGING)
+	//bool bLogging = GC.getLogging() && GC.getAILogging() && m_pPlayer->isMajorCiv();
+	bool bLogging = false;
+	if (bLogging) 
+	{
+		CvString fname = CvString::format( "ExplorePlots_%s_%03d.txt", m_pPlayer->getCivilizationAdjective(), GC.getGame().getGameTurn() );
+		FILogFile* pLog=LOGFILEMGR.GetLog( fname.c_str(), FILogFile::kDontTimeStamp );
+		pLog->Msg( "#x,y,revealed,terrain,owner,score\n" );
+		for (size_t i=0; i<result.size(); i++)
+		{
+			CvString dump = CvString::format( "%d,%d,%d,%d,%d,%d\n", 
+				result[i].pPlot->getX(), result[i].pPlot->getY(),
+				result[i].pPlot->isRevealed(m_pPlayer->getTeam()), result[i].pPlot->getTerrainType(), result[i].pPlot->getOwner(),
+				result[i].score );
+			pLog->Msg( dump.c_str() );
+		}
+		pLog->Close();
+	}
+#endif
 
 	// assign explorers to goody huts
 

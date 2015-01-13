@@ -31128,6 +31128,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, bool bEscorted, int iTa
 		std::stringstream ss;
 		ss << "CitySites_" << getCivilizationAdjective() << "_" << std::setfill('0') << std::setw(3) << GC.getGame().getGameTurn() << ".txt";
 		FILogFile* pLog=LOGFILEMGR.GetLog( ss.str().c_str(), FILogFile::kDontTimeStamp );
+		pLog->Msg( "#x,y,terrain,plotype,feature,owner,area,revealed,danger,fertility,distancescale,value,comments\n" );
 		pLog->Msg( dump.str().c_str() );
 		pLog->Close();
 	}
@@ -32589,6 +32590,7 @@ bool CvPlayer::IsAtPeaceWith(PlayerTypes iPlayer) const
 bool CvPlayer::IsAtWar() const
 {
 #if defined(MOD_BALANCE_CORE)
+	//reference is important! otherwise the destructor will be called!
 	CvTeam& kTeam = GET_TEAM(getTeam());
 #else
 	CvTeam kTeam = GET_TEAM(getTeam());
@@ -32606,10 +32608,12 @@ bool CvPlayer::IsAtWar() const
 bool CvPlayer::IsAtWarAnyMajor() const
 {
 #if defined(MOD_BALANCE_CORE)
+	//reference is important! otherwise the destructor will be called!
 	CvTeam& kTeam = GET_TEAM(getTeam());
 #else
 	CvTeam kTeam = GET_TEAM(getTeam());
 #endif
+
 	for (int iTeam = 0; iTeam < (MAX_TEAMS-1); iTeam++) {
 		if (GET_TEAM((TeamTypes)iTeam).isAlive() && GET_TEAM((TeamTypes)iTeam).isMajorCiv() && kTeam.isAtWar((TeamTypes)iTeam)) {
 			return true;
@@ -32622,10 +32626,12 @@ bool CvPlayer::IsAtWarAnyMajor() const
 bool CvPlayer::IsAtWarAnyMinor() const
 {
 #if defined(MOD_BALANCE_CORE)
+	//reference is important! otherwise the destructor will be called!
 	CvTeam& kTeam = GET_TEAM(getTeam());
 #else
 	CvTeam kTeam = GET_TEAM(getTeam());
 #endif
+
 	for (int iTeam = 0; iTeam < (MAX_TEAMS-1); iTeam++) {
 		if (GET_TEAM((TeamTypes)iTeam).isAlive() && GET_TEAM((TeamTypes)iTeam).isMinorCiv() && kTeam.isAtWar((TeamTypes)iTeam)) {
 			return true;

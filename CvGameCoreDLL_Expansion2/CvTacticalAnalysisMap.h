@@ -683,6 +683,10 @@ public:
 	// Range variable to keep dominance zones and tactical AI in sync
 	int GetTacticalRange() const {return m_iTacticalRange;};
 
+#if defined(MOD_BALANCE_CORE_MILITARY_LOGGING)
+	void Dump();
+#endif
+
 protected:
 	void AddTemporaryZones();
 	bool PopulateCell(int iIndex, CvPlot* pPlot);

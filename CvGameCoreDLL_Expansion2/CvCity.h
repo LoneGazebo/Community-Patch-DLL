@@ -670,6 +670,10 @@ public:
 	int getBasicYieldRateTimes100(YieldTypes eIndex, bool bIgnoreTrade) const;
 #endif
 
+#if defined(MOD_BALANCE_CORE)
+	int getEconomicValueTimes100(PlayerTypes ePlayer = NO_PLAYER) const;
+#endif
+
 	// Base Yield
 	int getBaseYieldRate(YieldTypes eIndex) const;
 

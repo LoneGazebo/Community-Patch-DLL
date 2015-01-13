@@ -1089,4 +1089,13 @@ void SyncPlots();
 void ClearPlotDeltas();
 }
 
+#if defined(MOD_BALANCE_CORE_MILITARY_LOGGING)
+struct SPlotWithScore
+{
+	SPlotWithScore(const CvPlot* pPlot_, int score_) : pPlot(pPlot_), score(score_) {}
+	const CvPlot* pPlot;
+	int score;
+};
+#endif
+
 #endif

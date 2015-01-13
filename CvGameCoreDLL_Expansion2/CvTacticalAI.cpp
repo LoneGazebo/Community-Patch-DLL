@@ -1584,6 +1584,13 @@ void CvTacticalAI::FindTacticalTargets()
 
 	// Sort remaining targets by aux data (if used for that target type)
 	std::stable_sort(m_AllTargets.begin(), m_AllTargets.end());
+
+#if defined(MOD_BALANCE_CORE_MILITARY_LOGGING)
+	// mark the targets in the tactical map
+	for (TacticalList::const_iterator i=m_AllTargets.begin(); i!=m_AllTargets.end(); ++i)
+		m_pMap->GetCell( GC.getMap().plotNum( i->GetTargetX(), i->GetTargetY() ) )->SetTargetType( i->GetTargetType() ); 
+#endif
+
 }
 
 void CvTacticalAI::ProcessDominanceZones()
@@ -1708,6 +1715,11 @@ void CvTacticalAI::ProcessDominanceZones()
 				}
 			}
 		}
+
+#if defined(MOD_BALANCE_CORE_MILITARY_LOGGING)
+		m_pMap->Dump();
+#endif
+
 	}
 }
 
@@ -3156,7 +3168,7 @@ void CvTacticalAI::PlotGuardImprovementMoves(int iNumTurnsAway)
 	{
 		// Grab units that make sense for this move type
 		CvPlot* pPlot = GC.getMap().plot(pTarget->GetTargetX(), pTarget->GetTargetY());
-		FindUnitsForThisMove((TacticalAIMoveTypes)m_CachedInfoTypes[eTACTICAL_BASTION_ALREADY_THERE], pPlot, iNumTurnsAway);
+		FindUnitsForThisMove((TacticalAIMoveTypes)m_CachedInfoTypes[eTACTICAL_GUARD_IMPROVEMENT_ALREADY_THERE], pPlot, iNumTurnsAway);
 
 		if(m_CurrentMoveHighPriorityUnits.size() + m_CurrentMoveUnits.size() > 0)
 		{
@@ -5488,6 +5500,10 @@ bool CvTacticalAI::ScoreDeploymentPlots(CvPlot* pTarget, CvArmyAI* pArmy, int iN
 						}
 
 						m_TempTargets.push_back(target);
+
+#if defined(MOD_BALANCE_CORE_MILITARY_LOGGING)
+						pCell->SetTargetType( target.GetTargetType() );
+#endif
 					}
 				}
 			}
@@ -5635,7 +5651,13 @@ bool CvTacticalAI::ScoreFormationPlots(CvArmyAI* pArmy, CvPlot* pForwardTarget, 
 						{
 							target.SetTargetType(AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT);
 						}
+
 						m_TempTargets.push_back(target);
+
+#if defined(MOD_BALANCE_CORE_MILITARY_LOGGING)
+						pCell->SetTargetType( target.GetTargetType() );
+#endif
+
 					}
 				}
 			}
@@ -11213,6 +11235,10 @@ int CvTacticalAI::ScoreCloseOnPlots(CvPlot* pTarget, bool bLandOnly)
 					}
 
 					m_TempTargets.push_back(target);
+
+#if defined(MOD_BALANCE_CORE_MILITARY_LOGGING)
+					pCell->SetTargetType( target.GetTargetType() );
+#endif
 				}
 			}
 		}
@@ -11301,6 +11327,11 @@ void CvTacticalAI::ScoreHedgehogPlots(CvPlot* pTarget)
 				}
 
 				m_TempTargets.push_back(target);
+
+#if defined(MOD_BALANCE_CORE_MILITARY_LOGGING)
+				pCell->SetTargetType( target.GetTargetType() );
+#endif
+
 			}
 		}
 	}
@@ -11706,7 +11737,7 @@ void CvTacticalAI::LogTacticalMessage(CvString& strMsg, bool bSkipLogDominanceZo
 		FILogFile* pLog;
 
 		strPlayerName = m_pPlayer->getCivilizationShortDescription();
-		pLog = LOGFILEMGR.GetLog(GetLogFileName(strPlayerName), FILogFile::kDontTimeStamp);
+		pLog = LOGFILEMGR.GetLog(GetLogFileName(strPlayerName), FILogFile::kDontTimeStamp | FILogFile::kDontFlushOnWrite );
 
 		// Get the leading info for this line
 		strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
