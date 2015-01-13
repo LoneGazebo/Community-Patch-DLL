@@ -124,5 +124,8 @@
 			<Text>[ENDCOLOR]To increase the [ICON_HAPPINESS_1] Happiness value of your Luxury Resources, your empire's population must reach [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR]. Your empire's current population is [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR]. The target value increases with every Era, and for every owned City.</Text>
 		</Row>
 		
+		<Row Tag="TXT_KEY_EO_CITY_CONNECTED">
+			<Text>[COLOR_POSITIVE_TEXT]Connected[ENDCOLOR]</Text>
+		</Row>
 	</Language_en_US>
 </GameData>

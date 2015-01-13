@@ -7252,6 +7252,70 @@ bool CvUnit::sellExoticGoods()
 #endif
 
 		changeNumExoticGoods(-1);
+#if defined(MOD_BALANCE_CORE)
+		PlayerTypes ePlotOwner = NO_PLAYER;
+		for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+		{
+			CvPlot* pLoopPlotSearch = plotDirection(plot()->getX(), plot()->getY(), ((DirectionTypes)iI));
+			if (pLoopPlotSearch != NULL)
+			{
+				PlayerTypes eLoopPlotOwner = pLoopPlotSearch->getOwner();
+				if (eLoopPlotOwner != getOwner() && eLoopPlotOwner != NO_PLAYER)
+				{
+					if (!GET_TEAM(getTeam()).isAtWar(GET_PLAYER(eLoopPlotOwner).getTeam()))
+					{
+						if(GET_PLAYER(eLoopPlotOwner).isMinorCiv())
+						{
+							ePlotOwner = eLoopPlotOwner;
+							break;
+						}
+					}
+				}
+			}
+		}
+		if(ePlotOwner != NO_PLAYER)
+		{
+			bool bAlreadyHere = false;
+			CvPlot* pBestPlot = NULL;
+			CvCity* pCity = GET_PLAYER(ePlotOwner).getCapitalCity();
+			if(pCity != NULL)
+			{
+#if defined(MOD_GLOBAL_CITY_WORKING)
+				for (int iCityPlotLoop = 0; iCityPlotLoop < pCity->GetNumWorkablePlots(); iCityPlotLoop++)
+#else
+				for (int iCityPlotLoop = 0; iCityPlotLoop < NUM_CITY_PLOTS; iCityPlotLoop++)
+#endif
+				{
+					CvPlot* pLoopPlot = pCity->GetCityCitizens()->GetCityPlotFromIndex(iCityPlotLoop);
+					if(pLoopPlot != NULL && (pLoopPlot->getOwner() == ePlotOwner) && !pLoopPlot->isWater() && !pLoopPlot->isMountain() && !pLoopPlot->IsNaturalWonder() && pLoopPlot->isCoastalLand() && (pLoopPlot->getResourceType(NO_TEAM) == NO_RESOURCE))
+					{
+						if(pLoopPlot->getImprovementType() != NO_IMPROVEMENT)
+						{
+							CvImprovementEntry* pImprovementInfo = GC.getImprovementInfo(pLoopPlot->getImprovementType());
+							if(pImprovementInfo && pImprovementInfo->IsOnlyCityStateTerritory() && pImprovementInfo->IsSpecificCivRequired())
+							{
+								bAlreadyHere = true;
+								break;
+							}
+
+						}
+						else if(pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
+						{
+							pBestPlot = pLoopPlot;
+						}
+					}
+				}
+				if(pBestPlot != NULL && !bAlreadyHere)
+				{
+					ImprovementTypes eFeitoria = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_FEITORIA");
+					if (eFeitoria != NO_IMPROVEMENT)
+					{
+						pBestPlot->setImprovementType(eFeitoria, getOwner());
+					}
+				}
+			}
+		}				
+#endif
 	}
 	return false;
 }

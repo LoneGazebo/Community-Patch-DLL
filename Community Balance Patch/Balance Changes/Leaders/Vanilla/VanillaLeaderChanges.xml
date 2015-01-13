@@ -112,6 +112,12 @@
 			<Yield>1</Yield>
 		</Row>
 	</Trait_YieldChanges>
+	<Unit_FreePromotions>
+		<Row>
+			<UnitType>UNIT_EGYPTIAN_WARCHARIOT</UnitType>
+			<PromotionType>PROMOTION_ENSLAVEMENT</PromotionType>
+		</Row>
+	</Unit_FreePromotions>
 	<!-- Iroquois -->
 	<Trait_FreePromotionUnitCombats>
 		<Row>
@@ -154,13 +160,18 @@
 	<Trait_TradeRouteStartYield>
 		<Row>
 			<TraitType>TRAIT_CONVERTS_SEA_BARBARIANS</TraitType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
 			<Yield>50</Yield>
 		</Row>
 		<Row>
 			<TraitType>TRAIT_CONVERTS_SEA_BARBARIANS</TraitType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>100</Yield>
+			<Yield>50</Yield>
+		</Row>
+		<Row>
+			<TraitType>TRAIT_CONVERTS_SEA_BARBARIANS</TraitType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>50</Yield>
 		</Row>
 	</Trait_TradeRouteStartYield>
 	<!-- Germany -->
@@ -232,4 +243,11 @@
 			<Yield>2</Yield>
 		</Row>
 	</Building_FeatureYieldChanges>
+	<!-- Askia -->
+	<Unit_FreePromotions>
+		<Row>
+			<UnitType>UNIT_SONGHAI_MUSLIMCAVALRY</UnitType>
+			<PromotionType>PROMOTION_RAIDER</PromotionType>
+		</Row>
+	</Unit_FreePromotions>
 </GameData>

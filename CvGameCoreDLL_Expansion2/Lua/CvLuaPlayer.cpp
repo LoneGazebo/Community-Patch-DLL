@@ -465,6 +465,14 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
     Method(GetGoldenAgeGreatWriterRateModifier);
     Method(GetGoldenAgeGreatArtistRateModifier);
     Method(GetGoldenAgeGreatMusicianRateModifier);
+#if defined(MOD_BALANCE_CORE)
+	Method(GetGoldenAgeGreatScientistRateModifier);
+	Method(GetGoldenAgeGreatEngineerRateModifier);
+	Method(GetGoldenAgeGreatMerchantRateModifier);
+#endif
+#if defined(MOD_DIPLOMACY_CITYSTATES) && defined(MOD_API_UNIFIED_YIELDS)
+	Method(GetGoldenAgeGreatDiplomatRateModifier);
+#endif
 
 	Method(GetHurryModifier);
 
@@ -5724,6 +5732,62 @@ int CvLuaPlayer::lGetGoldenAgeGreatMusicianRateModifier(lua_State* L)
 	lua_pushinteger(L, iResult);
 	return 1;
 }
+#if defined(MOD_BALANCE_CORE)
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lGetGoldenAgeGreatScientistRateModifier(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	GreatPersonTypes eGreatPerson = GetGreatPersonFromUnitClass((UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_SCIENTIST"));
+	int iResult = 0;
+	if (eGreatPerson != NO_GREATPERSON)
+	{
+		iResult = pkPlayer->GetPlayerTraits()->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
+	}
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lGetGoldenAgeGreatEngineerRateModifier(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	GreatPersonTypes eGreatPerson = GetGreatPersonFromUnitClass((UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_ENGINEER"));
+	int iResult = 0;
+	if (eGreatPerson != NO_GREATPERSON)
+	{
+		iResult = pkPlayer->GetPlayerTraits()->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
+	}
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lGetGoldenAgeGreatMerchantRateModifier(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	GreatPersonTypes eGreatPerson = GetGreatPersonFromUnitClass((UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_MERCHANT"));
+	int iResult = 0;
+	if (eGreatPerson != NO_GREATPERSON)
+	{
+		iResult = pkPlayer->GetPlayerTraits()->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
+	}
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+#endif
+#if defined(MOD_DIPLOMACY_CITYSTATES) && defined(MOD_API_UNIFIED_YIELDS)
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lGetGoldenAgeGreatDiplomatRateModifier(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	GreatPersonTypes eGreatPerson = GetGreatPersonFromUnitClass((UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_GREAT_DIPLOMAT"));
+	int iResult = 0;
+	if (eGreatPerson != NO_GREATPERSON)
+	{
+		iResult = pkPlayer->GetPlayerTraits()->GetGoldenAgeGreatPersonRateModifier(eGreatPerson);
+	}
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+#endif
 //------------------------------------------------------------------------------
 //int getHurryModifier(HurryTypes  eHurry);
 int CvLuaPlayer::lGetHurryModifier(lua_State* L)

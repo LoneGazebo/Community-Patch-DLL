@@ -2797,6 +2797,36 @@ void CvHomelandAI::ExecuteExplorerMoves()
 		{
 			// Far enough from home to get a good reward?
 			float fRewardFactor = pUnit->calculateExoticGoodsDistanceFactor(pUnit->plot());
+#if defined(MOD_BALANCE_CORE)
+			PlayerTypes ePlotOwner = NO_PLAYER;
+			for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+			{
+				CvPlot* pLoopPlotSearch = plotDirection(pUnit->plot()->getX(), pUnit->plot()->getY(), ((DirectionTypes)iI));
+				if (pLoopPlotSearch != NULL)
+				{
+					PlayerTypes eLoopPlotOwner = pLoopPlotSearch->getOwner();
+					if (eLoopPlotOwner != NO_PLAYER)
+					{
+						if (!GET_TEAM(pUnit->getTeam()).isAtWar(GET_PLAYER(eLoopPlotOwner).getTeam()))
+						{
+							if(GET_PLAYER(eLoopPlotOwner).isMinorCiv())
+							{
+								ePlotOwner = eLoopPlotOwner;
+								break;
+							}
+						}
+					}
+				}
+			}
+			if(ePlotOwner != NO_PLAYER)
+			{
+				fRewardFactor *= 100;
+			}
+			else
+			{
+				fRewardFactor /= 10;
+			}
+#endif
 			if (fRewardFactor >= 0.5f)
 			{
 				pUnit->PushMission(CvTypes::getMISSION_SELL_EXOTIC_GOODS());

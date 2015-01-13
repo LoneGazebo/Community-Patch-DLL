@@ -1305,23 +1305,43 @@ function OnCityViewUpdate()
 							if (pWorldCongress ~= nil and pWorldCongress:GetScienceyGreatPersonRateModifier() ~= 0) then
 								iWorldCongressMod = iWorldCongressMod + pWorldCongress:GetScienceyGreatPersonRateModifier();
 							end
+							--CBP
+							if (bGoldenAge and pPlayer:GetGoldenAgeGreatScientistRateModifier() > 0) then
+								iGoldenAgeMod = iGoldenAgeMod + pPlayer:GetGoldenAgeGreatScientistRateModifier();
+							end
+							--END
 						elseif (pSpecialistInfo.GreatPeopleUnitClass == "UNITCLASS_MERCHANT") then
 							iPlayerMod = iPlayerMod + pPlayer:GetGreatMerchantRateModifier();
 							iPolicyMod = iPolicyMod + pPlayer:GetPolicyGreatMerchantRateModifier();
 							if (pWorldCongress ~= nil and pWorldCongress:GetScienceyGreatPersonRateModifier() ~= 0) then
 								iWorldCongressMod = iWorldCongressMod + pWorldCongress:GetScienceyGreatPersonRateModifier();
 							end
+							--CBP
+							if (bGoldenAge and pPlayer:GetGoldenAgeGreatMerchantRateModifier() > 0) then
+								iGoldenAgeMod = iGoldenAgeMod + pPlayer:GetGoldenAgeGreatMerchantRateModifier();
+							end
+							--END
 						elseif (pSpecialistInfo.GreatPeopleUnitClass == "UNITCLASS_ENGINEER") then
 							iPlayerMod = iPlayerMod + pPlayer:GetGreatEngineerRateModifier();
 							iPolicyMod = iPolicyMod + pPlayer:GetPolicyGreatEngineerRateModifier();
 							if (pWorldCongress ~= nil and pWorldCongress:GetScienceyGreatPersonRateModifier() ~= 0) then
 								iWorldCongressMod = iWorldCongressMod + pWorldCongress:GetScienceyGreatPersonRateModifier();
 							end
+							--CBP
+							if (bGoldenAge and pPlayer:GetGoldenAgeGreatEngineerRateModifier() > 0) then
+								iGoldenAgeMod = iGoldenAgeMod + pPlayer:GetGoldenAgeGreatEngineerRateModifier();
+							end
+							--END
 						elseif (pSpecialistInfo.GreatPeopleUnitClass == "UNITCLASS_GREAT_DIPLOMAT") then
 							iPlayerMod = iPlayerMod + pPlayer:GetGreatDiplomatRateModifier();
 							if (pWorldCongress ~= nil and pWorldCongress:GetScienceyGreatPersonRateModifier() ~= 0) then
 								iWorldCongressMod = 0;
 							end
+							--CBP
+							if (bGoldenAge and pPlayer:GetGoldenAgeGreatDiplomatRateModifier() > 0) then
+								iGoldenAgeMod = iGoldenAgeMod + pPlayer:GetGoldenAgeGreatDiplomatRateModifier();
+							end
+							--END
 						end
 						
 						-- Player mod actually includes policy mod and World Congress mod, so separate them for tooltip
