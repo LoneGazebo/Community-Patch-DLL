@@ -68,6 +68,14 @@
 			<Tourism>250</Tourism>
 		</Row>
 	</Policy_TourismOnUnitCreation>
+	<!-- Brazil -->
+	<Trait_GoldenAgeGreatPersonRateModifier>
+		<Row>
+			<TraitType>TRAIT_CARNIVAL</TraitType>
+			<GreatPersonType>GREATPERSON_DIPLOMAT</GreatPersonType>
+			<Modifier>50</Modifier>
+		</Row>
+	</Trait_GoldenAgeGreatPersonRateModifier>
 	<!-- CSD Promotions (here as failsafe)-->
 	<!-- Standard Promotions -->
 	<UnitPromotions>

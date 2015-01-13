@@ -99,4 +99,11 @@
 			<PromotionType>PROMOTION_WITHDRAW_BEFORE_MELEE</PromotionType>
 		</Row>
 	</Trait_FreePromotionUnitClass>
+	<!-- Pacal -->
+	<Unit_FreePromotions>
+		<Row>
+			<UnitType>UNIT_MAYAN_ATLATLIST</UnitType>
+			<PromotionType>PROMOTION_SECOND_ATTACK</PromotionType>
+		</Row>
+	</Unit_FreePromotions>
 </GameData>

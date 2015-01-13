@@ -3214,7 +3214,7 @@ void CvPlayerTraits::AddUniqueLuxuriesAround(CvCity *pCity)
 				pLoopPlot = plotCity(pCity->getX(), pCity->getY(), iCityPlotLoop);
 				if(pLoopPlot != NULL && !pLoopPlot->isCity() && !pLoopPlot->isImpassable() && !pLoopPlot->isWater() && !pLoopPlot->isMountain() && !pLoopPlot->IsNaturalWonder())
 				{
-					if((pLoopPlot->getFeatureType() != FEATURE_FOREST) && pLoopPlot->HasResource(NO_RESOURCE) && pLoopPlot->HasImprovement(NO_IMPROVEMENT))
+					if(pLoopPlot->HasResource(NO_RESOURCE) && pLoopPlot->HasImprovement(NO_IMPROVEMENT))
 					{
 						pLoopPlot->setResourceType(NO_RESOURCE, 0, false);
 						pLoopPlot->setResourceType(eResourceToGive, 1, false);

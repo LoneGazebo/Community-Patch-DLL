@@ -9,6 +9,12 @@
 			<Yield>2</Yield>
 		</Row>
 	</Trait_YieldChangesPerTradePartner>
+	<Unit_FreePromotions>
+		<Row>
+			<UnitType>UNIT_BERBER_CAVALRY</UnitType>
+			<PromotionType>PROMOTION_DESERT_SHIPS</PromotionType>
+		</Row>
+	</Unit_FreePromotions>
 <!-- Ashurbanipal -->
 	<Building_YieldChanges>
 		<Row>
@@ -87,4 +93,51 @@
 			<Yield>1</Yield>
 		</Row>
 	</Improvement_Yields>
+	<Unit_FreePromotions>
+		<Row>
+			<UnitType>UNIT_BRAZILIAN_PRACINHA</UnitType>
+			<PromotionType>PROMOTION_SURVIVALISM_1</PromotionType>
+		</Row>
+	</Unit_FreePromotions>
+	<!-- Brazil UA -->
+	<Trait_GoldenAgeGreatPersonRateModifier>
+		<Row>
+			<TraitType>TRAIT_CARNIVAL</TraitType>
+			<GreatPersonType>GREATPERSON_ENGINEER</GreatPersonType>
+			<Modifier>50</Modifier>
+		</Row>
+		<Row>
+			<TraitType>TRAIT_CARNIVAL</TraitType>
+			<GreatPersonType>GREATPERSON_SCIENTIST</GreatPersonType>
+			<Modifier>50</Modifier>
+		</Row>
+		<Row>
+			<TraitType>TRAIT_CARNIVAL</TraitType>
+			<GreatPersonType>GREATPERSON_MERCHANT</GreatPersonType>
+			<Modifier>50</Modifier>
+		</Row>
+	</Trait_GoldenAgeGreatPersonRateModifier>
+	<!-- Portugal UA -->
+	<Trait_CoastalCityYieldChanges>
+		<Row>
+			<TraitType>TRAIT_EXTRA_TRADE</TraitType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>3</Yield>
+		</Row>
+	</Trait_CoastalCityYieldChanges>
+	<!-- Zulu -->
+	<UnitPromotions_UnitCombats>
+		<Row>
+			<PromotionType>PROMOTION_BUFFALO_HORNS</PromotionType>
+			<UnitCombatType>UNITCOMBAT_GUN</UnitCombatType>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_BUFFALO_CHEST</PromotionType>
+			<UnitCombatType>UNITCOMBAT_GUN</UnitCombatType>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_BUFFALO_LOINS</PromotionType>
+			<UnitCombatType>UNITCOMBAT_GUN</UnitCombatType>
+		</Row>
+	</UnitPromotions_UnitCombats>
 </GameData>

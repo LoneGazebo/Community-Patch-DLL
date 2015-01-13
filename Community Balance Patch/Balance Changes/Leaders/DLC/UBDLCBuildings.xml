@@ -80,7 +80,7 @@
 			<Text>Grants a large amount of [ICON_PEACE] Faith when constructed. Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 25%, and increases the city's resistance to conversion by 25%. Does not require Walls in order to be built.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_MISSION_STRATEGY">
-			<Text>Unique Spanish replacement for the Castle. It is cheaper than the Castle and does not require Walls in order to be built. Grants +2 Production and a large amount of Faith when it is constructed. Boosts the city's religious pressure by 25% and resistance to foreign conversion by 25%, thus making the city more effective at converting nearby cities and harder for others to convert! Build these unique Castles to quickly boost a City's productivity and defense, bypass the need for Walls, and to bolster your Religion.</Text>
+			<Text>Unique Spanish replacement for the Castle. It is cheaper than the Castle, has no maintenance, and does not require Walls in order to be built. Grants +2 Production and a large amount of Faith when it is constructed. Boosts the city's religious pressure by 25% and resistance to foreign conversion by 25%, thus making the city more effective at converting nearby cities and harder for others to convert! Build these unique Castles to quickly boost a City's productivity and defense, bypass the need for Walls, and to bolster your Religion.</Text>
 		</Row>
 	</Language_en_US>
 	<!-- Jelling Stones -->
@@ -352,7 +352,7 @@
 			<Text>Each source of [ICON_RES_COW] Cows [ICON_RES_SHEEP] Sheep and [ICON_RES_HORSE] Horses worked by this City produce +2 [ICON_FOOD] Food.[NEWLINE][NEWLINE]Allows [ICON_FOOD] Food to be moved from this city along trade routes inside your civilization.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_YURT_STRATEGY">
-			<Text>Unique Mongolian replacement for the Granary. Unlike the Granary, the Ger provides additional Food from livestock, as well as a small amount of Faith. Build Gers in your cities to maximize their growth, and to get an early Pantheon.</Text>
+			<Text>Unique Mongolian replacement for the Granary. Unlike the Granary, the Ger provides additional Food from livestock, as well as a small amount of Faith, and has no maintenance. Build Gers in your cities to maximize their growth, and to get an early Pantheon.</Text>
 		</Row>
 	</Language_en_US>
 </GameData>
