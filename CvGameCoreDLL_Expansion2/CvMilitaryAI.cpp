@@ -1791,7 +1791,7 @@ int CvMilitaryAI::ScoreTarget(CvMilitaryTarget& target, AIOperationTypes eAIOper
 #endif
 
 	// Economic value of target
-	float fEconomicValue = target.m_pTargetCity->getEconomicValueTimes100( GetPlayer()->GetID() );
+	float fEconomicValue = (float)target.m_pTargetCity->getEconomicValue( GetPlayer()->GetID(), 100 );
 	fEconomicValue = sqrt(fEconomicValue/100);
 
 	//everything together now
