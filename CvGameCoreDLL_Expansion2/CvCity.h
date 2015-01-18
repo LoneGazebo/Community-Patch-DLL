@@ -66,7 +66,11 @@ public:
 #endif
 	void PostKill(bool bCapital, CvPlot* pPlot, PlayerTypes eOwner);
 
+#if defined(MOD_BALANCE_CORE)
+	CvPlayer* GetPlayer() const;
+#else
 	CvPlayer* GetPlayer();
+#endif
 
 	void doTurn();
 
@@ -671,7 +675,7 @@ public:
 #endif
 
 #if defined(MOD_BALANCE_CORE)
-	int getEconomicValueTimes100(PlayerTypes ePlayer = NO_PLAYER) const;
+	int getEconomicValue(PlayerTypes ePossibleNewOwner = NO_PLAYER, int iNumTurnsForDepreciation = 100) const;
 #endif
 
 	// Base Yield
@@ -896,6 +900,10 @@ public:
 	int GetAirStrikeDefenseDamage(const CvUnit* pAttacker, bool bIncludeRand = true) const;
 
 	void DoNearbyEnemy();
+
+#if defined(MOD_BALANCE_CORE_DEALS)
+	bool IsInDanger(PlayerTypes eEnemy) const;
+#endif
 
 	void IncrementUnitStatCount(CvUnit* pUnit);
 	void CheckForAchievementBuilding(BuildingTypes eBuilding);
