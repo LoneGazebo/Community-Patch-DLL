@@ -40,31 +40,31 @@
 			<PolicyType>POLICY_MOBILIZATION</PolicyType>
 			<BuildingClassType>BUILDINGCLASS_WALLS</BuildingClassType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<YieldChange>2</YieldChange>
+			<YieldChange>1</YieldChange>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_MOBILIZATION</PolicyType>
 			<BuildingClassType>BUILDINGCLASS_CASTLE</BuildingClassType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<YieldChange>2</YieldChange>
+			<YieldChange>1</YieldChange>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_MOBILIZATION</PolicyType>
 			<BuildingClassType>BUILDINGCLASS_ARSENAL</BuildingClassType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<YieldChange>2</YieldChange>
+			<YieldChange>1</YieldChange>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_MOBILIZATION</PolicyType>
 			<BuildingClassType>BUILDINGCLASS_MILITARY_BASE</BuildingClassType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<YieldChange>2</YieldChange>
+			<YieldChange>1</YieldChange>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_MOBILIZATION</PolicyType>
 			<BuildingClassType>BUILDINGCLASS_BOMB_SHELTER</BuildingClassType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<YieldChange>2</YieldChange>
+			<YieldChange>1</YieldChange>
 		</Row>
 	</Policy_BuildingClassYieldChanges>
 	<Policy_ImprovementYieldChanges>
@@ -72,7 +72,7 @@
 			<PolicyType>POLICY_MOBILIZATION</PolicyType>
 			<ImprovementType>IMPROVEMENT_CITADEL</ImprovementType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>2</Yield>
+			<Yield>1</Yield>
 		</Row>
 	</Policy_ImprovementYieldChanges>
 	<!-- Fortified Borders -->
@@ -155,4 +155,55 @@
 			<Text>Autarky is the quality of being self-sufficient. Usually the term is applied to political states or their economic systems. Autarky exists whenever an entity can survive or continue its activities without external assistance or international trade. If a self-sufficient economy also refuses all trade with the outside world then it is called a closed economy. Autarky is not necessarily an economic phenomenon; for example, a military autarky would be a state that could defend itself without help from another country. Autarky can be said to be the policy of a state or other entity when it seeks to be self-sufficient as a whole, but also can be limited to a narrow field such as possession of a key raw material.</Text>
 		</Row>
 	</Language_en_US>
+	<!-- Military-Industrial Complex -->
+	<Policy_ImprovementYieldChanges>
+		<Row>
+			<PolicyType>POLICY_MOBILIZATION</PolicyType>
+			<ImprovementType>IMPROVEMENT_TERRACE_FARM</ImprovementType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_MOBILIZATION</PolicyType>
+			<ImprovementType>IMPROVEMENT_EKI</ImprovementType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_MOBILIZATION</PolicyType>
+			<ImprovementType>IMPROVEMENT_ENCAMPMENT</ImprovementType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_MOBILIZATION</PolicyType>
+			<ImprovementType>IMPROVEMENT_POLDER</ImprovementType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_MOBILIZATION</PolicyType>
+			<ImprovementType>IMPROVEMENT_CHATEAU</ImprovementType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_MOBILIZATION</PolicyType>
+			<ImprovementType>IMPROVEMENT_KASBAH</ImprovementType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_MOBILIZATION</PolicyType>
+			<ImprovementType>IMPROVEMENT_BRAZILWOOD_CAMP</ImprovementType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_MOBILIZATION</PolicyType>
+			<ImprovementType>IMPROVEMENT_MOAI</ImprovementType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Yield>1</Yield>
+		</Row>
+	</Policy_ImprovementYieldChanges>
 </GameData>

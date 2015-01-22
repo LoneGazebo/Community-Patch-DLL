@@ -272,8 +272,23 @@ ALTER TABLE Buildings ADD COLUMN 'PuppetPurchaseOverride' boolean default false;
 -- Allows for All Units/Buildings to be purchased in puppet city
 ALTER TABLE Buildings ADD COLUMN 'AllowsPuppetPurchase' boolean default false;
 
+-- Creates a resource unique to this civ (i.e. Indonesian Candi) in the territory around the city. To make this work with a civ, you'll need to create a new resource modelled on the Indonesian resources and assign them to the civ. Value is indicative of the number of resources that will be granted.
+ALTER TABLE Buildings ADD COLUMN 'GrantsRandomResourceTerritory' integer default 0;
+
+-- Allows you to define a building needed by this building (similar to BuildingClassNeeded) -->
+ALTER TABLE Buildings ADD COLUMN 'NeedBuildingThisCity' text default NULL;
+
 -- Allows for Unit to be purchased in puppet city
 ALTER TABLE Units ADD COLUMN 'PuppetPurchaseOverride' boolean default false;
+
+-- Grants resource to improvement
+ALTER TABLE Improvements ADD COLUMN 'ImprovementResource' text default NULL;
+
+-- Grants obsoletion tech to build (tie to improvement below for function)
+ALTER TABLE Builds ADD COLUMN 'ObsoleteTech' text default NULL;
+
+-- Grants obsoletion tech to improvement (tie to build above for AI)
+ALTER TABLE Improvements ADD COLUMN 'ObsoleteTech' text default NULL;
 
 -- New Goody Hut Additions
 ALTER TABLE GoodyHuts ADD COLUMN 'Production' integer default 0;

@@ -50,5 +50,5 @@ WHERE Tag = 'TXT_KEY_POLICY_UNIVERSAL_SUFFRAGE_HELP' AND EXISTS (SELECT * FROM C
 -- Urbanization
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Urbanization[ENDCOLOR][NEWLINE]Farms, Plantations and Camps produce +1 [ICON_FOOD] Food.'
+SET Text = '[COLOR_POSITIVE_TEXT]Urbanization[ENDCOLOR][NEWLINE]Farms, Plantations, Camps, and all Unique Improvements produce +1 [ICON_FOOD] Food.'
 WHERE Tag = 'TXT_KEY_POLICY_URBANIZATION_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );

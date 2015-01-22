@@ -90,6 +90,9 @@ CvImprovementEntry::CvImprovementEntry(void):
 #if defined(MOD_DIPLOMACY_CITYSTATES)
 	m_iImprovementLeagueVotes(0),
 #endif
+#if defined(MOD_BALANCE_CORE)
+	m_iImprovementResource(0),
+#endif
 	m_iImprovementPillage(NO_IMPROVEMENT),
 	m_iImprovementUpgrade(NO_IMPROVEMENT),
 	m_bHillsMakesValid(false),
@@ -125,6 +128,9 @@ CvImprovementEntry::CvImprovementEntry(void):
 	m_bOnlyCityStateTerritory(false),
 #if defined(MOD_DIPLOMACY_CITYSTATES)
 	m_bIsEmbassy(false),
+#endif
+#if defined(MOD_BALANCE_CORE)
+	m_iGetObsoleteTech(NO_TECH),
 #endif
 	m_bNoTwoAdjacent(false),
 	m_bAdjacentLuxury(false),
@@ -278,6 +284,10 @@ bool CvImprovementEntry::CacheResults(Database::Results& kResults, CvDatabaseUti
 	m_bIsEmbassy = kResults.GetBool("IsEmbassy");
 	}
 #endif
+#if defined(MOD_BALANCE_CORE)
+	const char* szObsoleteTech = kResults.GetText("ObsoleteTech");
+	m_iGetObsoleteTech = (CivilizationTypes)GC.getInfoTypeForString(szObsoleteTech, true);
+#endif
 	m_bNoTwoAdjacent = kResults.GetBool("NoTwoAdjacent");
 	m_bAdjacentLuxury = kResults.GetBool("AdjacentLuxury");
 	m_bAllowsWalkWater = kResults.GetBool("AllowsWalkWater");
@@ -293,7 +303,10 @@ bool CvImprovementEntry::CacheResults(Database::Results& kResults, CvDatabaseUti
 
 	const char* szCivilizationType = kResults.GetText("CivilizationType");
 	m_eRequiredCivilization = (CivilizationTypes)GC.getInfoTypeForString(szCivilizationType, true);
-
+#if defined(MOD_BALANCE_CORE)
+	const char* szImprovementResource = kResults.GetText("ImprovementResource");
+	m_iImprovementResource = (ResourceTypes)GC.getInfoTypeForString(szImprovementResource, true);
+#endif
 	//References
 	const char* szWorldsoundscapeAudioScript = kResults.GetText("WorldSoundscapeAudioScript");
 	if(szWorldsoundscapeAudioScript != NULL)
@@ -681,7 +694,13 @@ int CvImprovementEntry::GetCityStateExtraVote() const
 	return m_iImprovementLeagueVotes;
 }
 #endif
-
+#if defined(MOD_BALANCE_CORE)
+// Does this improvement create a resource when construced?
+int CvImprovementEntry::GetResourceFromImprovement() const
+{
+	return m_iImprovementResource;
+}
+#endif
 /// Returns the type of improvement that results from this improvement being pillaged
 int CvImprovementEntry::GetImprovementPillage() const
 {
@@ -861,6 +880,12 @@ bool CvImprovementEntry::IsOnlyCityStateTerritory() const
 bool CvImprovementEntry::IsEmbassy() const
 {
 	return m_bIsEmbassy;
+}
+#endif
+#if defined(MOD_BALANCE_CORE)
+int CvImprovementEntry:: GetObsoleteTech() const
+{
+	return m_iGetObsoleteTech;
 }
 #endif
 /// Can this improvement not be built adjacent to another one of the same type?

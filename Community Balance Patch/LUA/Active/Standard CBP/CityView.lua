@@ -1,3 +1,5 @@
+print("This is the modded CityView from CBP")
+
 -------------------------------------------------
 -- Game View 
 -------------------------------------------------
@@ -196,9 +198,6 @@ local merchantTexture = "citizenMerchant.dds";
 local scientistTexture = "citizenScientist.dds";
 local unemployedTexture = "citizenUnemployed.dds";
 local workerTexture = "citizenWorker.dds";
---added by Gazebo
-local civilservantTexture = "citizenCivilServant.dds";
---end addition
 local emptySlotString = Locale.ConvertTextKey("TXT_KEY_CITYVIEW_EMPTY_SLOT");
 
 ---------------------------------------------------------------------------------------------------
@@ -545,10 +544,6 @@ function AddBuildingButton( pCity, building )
 				controlTable.BuildingFilledSpecialistSlot1:SetTexture(engineerTexture);
 				controlTable.BuildingFilledSpecialistSlot2:SetTexture(engineerTexture);
 				controlTable.BuildingFilledSpecialistSlot3:SetTexture(engineerTexture);
-			elseif building.SpecialistType == "SPECIALIST_CIVIL_SERVANT" then
-				controlTable.BuildingFilledSpecialistSlot1:SetTexture(civilservantTexture);
-				controlTable.BuildingFilledSpecialistSlot2:SetTexture(civilservantTexture);
-				controlTable.BuildingFilledSpecialistSlot3:SetTexture(civilservantTexture);
 			else
 				controlTable.BuildingFilledSpecialistSlot1:SetTexture(workerTexture);
 				controlTable.BuildingFilledSpecialistSlot2:SetTexture(workerTexture);
@@ -1330,16 +1325,6 @@ function OnCityViewUpdate()
 							--CBP
 							if (bGoldenAge and pPlayer:GetGoldenAgeGreatEngineerRateModifier() > 0) then
 								iGoldenAgeMod = iGoldenAgeMod + pPlayer:GetGoldenAgeGreatEngineerRateModifier();
-							end
-							--END
-						elseif (pSpecialistInfo.GreatPeopleUnitClass == "UNITCLASS_GREAT_DIPLOMAT") then
-							iPlayerMod = iPlayerMod + pPlayer:GetGreatDiplomatRateModifier();
-							if (pWorldCongress ~= nil and pWorldCongress:GetScienceyGreatPersonRateModifier() ~= 0) then
-								iWorldCongressMod = 0;
-							end
-							--CBP
-							if (bGoldenAge and pPlayer:GetGoldenAgeGreatDiplomatRateModifier() > 0) then
-								iGoldenAgeMod = iGoldenAgeMod + pPlayer:GetGoldenAgeGreatDiplomatRateModifier();
 							end
 							--END
 						end
@@ -2891,5 +2876,3 @@ function OnEventActivePlayerChanged( iActivePlayer, iPrevActivePlayer )
 	end
 end
 Events.GameplaySetActivePlayer.Add(OnEventActivePlayerChanged);
-
-print("CBP CityView.lua")

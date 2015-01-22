@@ -13,6 +13,11 @@
 			<Description>TXT_KEY_BUILDING_BATH</Description>
 		</Row>
 		<Row>
+			<Type>BUILDINGCLASS_GROCER</Type>
+			<DefaultBuilding>BUILDING_GROCER</DefaultBuilding>
+			<Description>TXT_KEY_BUILDING_GROCER</Description>
+		</Row>
+		<Row>
 			<Type>BUILDINGCLASS_WIND_PLANT</Type>
 			<DefaultBuilding>BUILDING_WIND_PLANT</DefaultBuilding>
 			<Description>TXT_KEY_BUILDING_WIND_PLANT</Description>
@@ -23,7 +28,7 @@
 			<Type>BUILDING_BATH</Type>
 			<BuildingClass>BUILDINGCLASS_BATH</BuildingClass>
 			<Cost>150</Cost>
-			<GoldMaintenance>1</GoldMaintenance>
+			<GoldMaintenance>2</GoldMaintenance>
 			<PrereqTech>TECH_METAL_CASTING</PrereqTech>
 			<Description>TXT_KEY_BUILDING_BATH</Description>
 			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_BATH_TEXT</Civilopedia>
@@ -34,7 +39,7 @@
 			<MutuallyExclusiveGroup>2</MutuallyExclusiveGroup>
 			<ConquestProb>66</ConquestProb>
 			<IsNoWater>true</IsNoWater>
-			<GreatPeopleRateModifier>25</GreatPeopleRateModifier>
+			<GreatPeopleRateModifier>20</GreatPeopleRateModifier>
 			<HurryCostModifier>25</HurryCostModifier>
 			<IconAtlas>EXPANSION2_BUILDING_ATLAS</IconAtlas>
 			<PortraitIndex>11</PortraitIndex>
@@ -43,7 +48,7 @@
 			<Type>BUILDING_WELL</Type>
 			<BuildingClass>BUILDINGCLASS_WELL</BuildingClass>
 			<Cost>90</Cost>
-			<GoldMaintenance>1</GoldMaintenance>
+			<GoldMaintenance>2</GoldMaintenance>
 			<PrereqTech>TECH_MASONRY</PrereqTech>
 			<Description>TXT_KEY_BUILDING_WELL</Description>
 			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_WELL_TEXT</Civilopedia>
@@ -59,9 +64,28 @@
 			<PortraitIndex>1</PortraitIndex>
 		</Row>
 		<Row>
+			<Type>BUILDING_GROCER</Type>
+			<BuildingClass>BUILDINGCLASS_GROCER</BuildingClass>
+			<Cost>300</Cost>
+			<GoldMaintenance>3</GoldMaintenance>
+			<PrereqTech>TECH_CHEMISTRY</PrereqTech>
+			<Description>TXT_KEY_BUILDING_GROCER</Description>
+			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_GROCER_TEXT</Civilopedia>
+			<Strategy>TXT_KEY_BUILDING_GROCER_STRATEGY</Strategy>
+			<Help>TXT_KEY_BUILDING_GROCER_HELP</Help>
+			<ArtDefineTag>ART_DEF_BUILDING_GARDEN</ArtDefineTag>
+			<MinAreaSize>-1</MinAreaSize>
+			<FoodKept>25</FoodKept>
+			<PovertyHappinessChange>4</PovertyHappinessChange>
+			<ConquestProb>66</ConquestProb>
+			<HurryCostModifier>25</HurryCostModifier>
+			<IconAtlas>BW_ATLAS_1</IconAtlas>
+			<PortraitIndex>41</PortraitIndex>
+		</Row>
+		<Row>
 			<Type>BUILDING_WIND_PLANT</Type>
 			<BuildingClass>BUILDINGCLASS_WIND_PLANT</BuildingClass>
-			<Cost>600</Cost>
+			<Cost>700</Cost>
 			<GoldMaintenance>5</GoldMaintenance>
 			<PrereqTech>TECH_ELECTRONICS</PrereqTech>
 			<Description>TXT_KEY_BUILDING_WIND_PLANT</Description>
@@ -88,6 +112,16 @@
 			<BuildingType>BUILDING_BATH</BuildingType>
 			<FlavorType>FLAVOR_GROWTH</FlavorType>
 			<Flavor>15</Flavor>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_GROCER</BuildingType>
+			<FlavorType>FLAVOR_GROWTH</FlavorType>
+			<Flavor>25</Flavor>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_GROCER</BuildingType>
+			<FlavorType>FLAVOR_HAPPINESS</FlavorType>
+			<Flavor>10</Flavor>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_WELL</BuildingType>
@@ -120,12 +154,35 @@
 			<BuildingType>BUILDING_BATH</BuildingType>
 			<BuildingClassType>BUILDINGCLASS_AQUEDUCT</BuildingClassType>
 		</Row>
+		<Row>
+			<BuildingType>BUILDING_GROCER</BuildingType>
+			<BuildingClassType>BUILDINGCLASS_AQUEDUCT</BuildingClassType>
+		</Row>
 	</Building_ClassesNeededInCity>
+	<Building_ResourceYieldChanges>
+		<Row>
+			<BuildingType>BUILDING_BATH</BuildingType>
+			<ResourceType>RESOURCE_CITRUS</ResourceType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_BATH</BuildingType>
+			<ResourceType>RESOURCE_WINE</ResourceType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+	</Building_ResourceYieldChanges>
 	<Building_YieldChanges>
 		<Row>
 			<BuildingType>BUILDING_WELL</BuildingType>
 			<YieldType>YIELD_FOOD</YieldType>
 			<Yield>2</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_GROCER</BuildingType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>3</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_WELL</BuildingType>
@@ -172,19 +229,25 @@
 			<Text>Wind Plant</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_BATH_STRATEGY">
-			<Text>The Bath increases the speed at which [ICON_GREAT_PEOPLE] Great People are generated in the city by 25%. Baths can be constructed only in cities not next to a river or lake. Requires an Aqueduct in order to be constructed.</Text>
+			<Text>The Bath increases the speed at which Great People are generated in the city by 20% (5% less than the Garden), and boosts the yields of Citrus and Wine resources. Baths can be constructed only in cities not next to a river or lake. Requires an Aqueduct in order to be constructed.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_WELL_STRATEGY">
-			<Text>The Well can only be constructed in a city without access to fresh water. The Well increases the city's [ICON_FOOD] Food intake, but not as efficiently as a Water Mill.</Text>
+			<Text>The Well can only be constructed in a city without access to fresh water. The Well increases the city's Food and Production, but has a higher maintenance cost than a Water Mill.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_WIND_PLANT_STRATEGY">
-			<Text>The Wind Plant is a Modern-era building which can only be constructed in a city without access to fresh water. The Wind Plant increases the [ICON_PRODUCTION] Production output of every Grassland and Plains tile the city works.</Text>
+			<Text>The Wind Plant is a Modern-era building which can only be constructed in a city without access to fresh water. The Wind Plant increases the Production output of every Grassland and Plains tile the city works.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_GROCER_STRATEGY">
+			<Text>The Grocer is a Renaissance-era building which can only be constructed if you have already built an Aqueduct in the City. The Grocer helps your City grow more quickly, and combats Poverty.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_WELL_HELP">
 			<Text>City must not be built next to a River. Cannot be built if the City already has a Watermill.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_BATH_HELP">
-			<Text>+25% [ICON_GREAT_PEOPLE] Great People generation in this City.[NEWLINE][NEWLINE]City must not be built next to a River, and requires an Aqueduct. Cannot be built if the City already has a Garden.</Text>
+			<Text>+20% [ICON_GREAT_PEOPLE] Great People generation in this City. +1 [ICON_FOOD] Food from [ICON_RES_CITRUS] Citrus and [ICON_RES_WINE] Wine. [NEWLINE][NEWLINE]City must not be built next to a River, and requires an Aqueduct. Cannot be built if the City already has a Garden.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_GROCER_HELP">
+			<Text>Carries over 25% of [ICON_FOOD] Food after City growth (effect stacks with Aqueduct). Reduces [ICON_HAPPINESS_3] Poverty.[NEWLINE][NEWLINE]Requires an Aqueduct in the City.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_WIND_PLANT_HELP">
 			<Text>+1 [ICON_PRODUCTION] Production on every Grassland and Plains tile. [NEWLINE][NEWLINE]City must not be built next to a River. Cannot be built if the City already has a Hydro Plant.</Text>
@@ -193,14 +256,13 @@
 			<Text>Throughout history, societies devised systems to enable water to be brought to population centres. Ancient Greece utilized small bathtubs, wash basins, and foot baths for personal cleanliness. The earliest findings of baths date from the mid-2nd millennium BC in the palace complex at Knossos, Crete, and the luxurious alabaster bathtubs excavated in Akrotiri, Santorini. The Greeks established public baths and showers within gymnasiums for relaxation and personal hygiene. In fact, the word gymnasium comes from the Greek word gymnos, meaning naked. Ancient Rome developed a network of aqueducts to supply water to all large towns and population centres and had indoor plumbing, with pipes that terminated in homes and at public wells and fountains. The Roman public baths were called thermae. With the fall of the Roman Empire the aqueduct network fell into disrepair and most of it ceased to be used. In the Middle Ages, bathing commonly took place in public bathhouses. However, public nudity was frowned upon by liturgical factions of the period. Public baths were also havens for prostitution, which created opposition to the public baths. Rich people bathed at home, most likely in their bedroom, as 'bath' rooms were not common. Bathing was done in large, wooden tubs with a linen cloth laid in it to protect the bather from splinters. Additionally, during the Renaissance and Protestant Reformation, the quality and condition of the clothing (as opposed to the actual cleanliness of the body itself) were thought to reflect the soul of an individual. Clean clothing also reflected one's social status; clothes made the man or woman. Additionally, from the late Middle Ages through to the end of the 18th century, etiquette and medical manuals advised people to only wash the parts of the body that were visible to the public; for example, the ears, hands, feet, and face and neck. This did away with the public baths and left the cleaning of oneself to the privacy of one's home.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CIV5_BUILDINGS_WELL_TEXT">
-			<Text>
-				Wood-lined wells are known from the early Neolithic Linear Pottery culture, for example in Kückhoven (an outlying centre of Erkelenz), dated 5090 BC and Eythra, dated 5200 BC in Schletz (an outlying centre of Asparn an der Zaya) in Austria. Australian Aborigines relied on wells to survive the harsh Australian desert. They would dig down, scooping out sand and mud to reach clean water, then cover the source with spinifex to prevent spoilage. Non-Aborigines call these native wells, soaks or soakages. Stepwells are common in the west of India. In these wells, the water may be reached by descending a set of steps. They may be covered and are often of architectural significance. Many stepwells were also used for leisure, providing relief from the daytime heat. A qanat is an ancient water collection system made up of a series of wells and linked underground water channels that collects flowing water from a source usually a distance away, stores it, and then brings the water to the surface using gravity. Much of the population of Iran and other arid countries in Asia and North Africa historically depended upon the water from qanats; the areas of population corresponded closely to the areas where qanats are possible. In Egypt, shadoofs and sakiehs are used. When compared to each other however, the Sakkieh is much more efficient, as it can bring up water from a depth of 10 metres (versus the 3 metres of the shadoof). The Sakieh is the Egyptian version of the Noria. From the Iron Age onwards, wells are common archaeological features, both with wooden shafts and shaft linings made from wickerwork. The world's oldest known wells, located in Cyprus, date to 7500 BC. Two wells from the Neolithic period, around 6500 BC, have been discovered in Israel. One is in Atlit, on the northern coast of Israel, and the other is the Jezreel Valley.
-			</Text>
+			<Text>Wood-lined wells are known from the early Neolithic Linear Pottery culture, for example in Kückhoven (an outlying centre of Erkelenz), dated 5090 BC and Eythra, dated 5200 BC in Schletz (an outlying centre of Asparn an der Zaya) in Austria. Australian Aborigines relied on wells to survive the harsh Australian desert. They would dig down, scooping out sand and mud to reach clean water, then cover the source with spinifex to prevent spoilage. Non-Aborigines call these native wells, soaks or soakages. Stepwells are common in the west of India. In these wells, the water may be reached by descending a set of steps. They may be covered and are often of architectural significance. Many stepwells were also used for leisure, providing relief from the daytime heat. A qanat is an ancient water collection system made up of a series of wells and linked underground water channels that collects flowing water from a source usually a distance away, stores it, and then brings the water to the surface using gravity. Much of the population of Iran and other arid countries in Asia and North Africa historically depended upon the water from qanats; the areas of population corresponded closely to the areas where qanats are possible. In Egypt, shadoofs and sakiehs are used. When compared to each other however, the Sakkieh is much more efficient, as it can bring up water from a depth of 10 metres (versus the 3 metres of the shadoof). The Sakieh is the Egyptian version of the Noria. From the Iron Age onwards, wells are common archaeological features, both with wooden shafts and shaft linings made from wickerwork. The world's oldest known wells, located in Cyprus, date to 7500 BC. Two wells from the Neolithic period, around 6500 BC, have been discovered in Israel. One is in Atlit, on the northern coast of Israel, and the other is the Jezreel Valley.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_BUILDINGS_GROCER_TEXT">
+			<Text>Beginning as early as the 14th century, a grocer (or "purveyor") was a dealer in comestible dry goods such as spices, peppers, sugar, and (later) cocoa, tea and coffee. These items were bought in bulk, hence the term grocer from the French "grossier" meaning wholesaler, this term derived from Medieval Latin "grossarius" from which we also derive the word gross (meaning a quantity of twelve dozen, or 144). As increasing numbers of staple foodstuffs became available in cans and other less-perishable packaging, the trade expanded its province. Today, grocers deal in a wide range of staple food-stuffs including such perishables as meats, produce and dairy products. Such goods are, hence, groceries.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CIV5_BUILDINGS_WIND_PLANT_TEXT">
-			<Text>
-				Wind power is the conversion of wind energy into a useful form of energy, such as using wind turbines to produce electrical power, windmills for mechanical power, windpumps for water pumping or drainage, or sails to propel ships. Large wind farms consist of hundreds of individual wind turbines which are connected to the electric power transmission network. For new constructions, onshore wind is an inexpensive source of electricity, competitive with or in many places cheaper than fossil fuel plants. Small onshore wind farms provide electricity to isolated locations. Utility companies increasingly buy surplus electricity produced by small domestic wind turbines. Offshore wind is steadier and stronger than on land, and offshore farms have less visual impact, but construction and maintenance costs are considerably higher. Wind power, as an alternative to fossil fuels, is plentiful, renewable, widely distributed, clean, produces no greenhouse gas emissions during operation and uses little land. The effects on the environment are generally less problematic than those from other power sources. As of 2011, Denmark is generating more than a quarter of its electricity from wind and 83 countries around the world are using wind power to supply the electricity grid. In 2010 wind energy production was over 2.5% of total worldwide electricity usage, and growing rapidly at more than 25% per annum. Wind power is very consistent from year to year but has significant variation over shorter time scales. As the proportion of windpower in a region increases, a need to upgrade the grid, and a lowered ability to supplant conventional production can occur. Power management techniques such as having excess capacity storage, geographically distributed turbines, dispatchable backing sources, storage such as pumped-storage hydroelectricity, exporting and importing power to neighboring areas or reducing demand when wind production is low, can greatly mitigate these problems.
-			</Text>
+			<Text>Wind power is the conversion of wind energy into a useful form of energy, such as using wind turbines to produce electrical power, windmills for mechanical power, windpumps for water pumping or drainage, or sails to propel ships. Large wind farms consist of hundreds of individual wind turbines which are connected to the electric power transmission network. For new constructions, onshore wind is an inexpensive source of electricity, competitive with or in many places cheaper than fossil fuel plants. Small onshore wind farms provide electricity to isolated locations. Utility companies increasingly buy surplus electricity produced by small domestic wind turbines. Offshore wind is steadier and stronger than on land, and offshore farms have less visual impact, but construction and maintenance costs are considerably higher. Wind power, as an alternative to fossil fuels, is plentiful, renewable, widely distributed, clean, produces no greenhouse gas emissions during operation and uses little land. The effects on the environment are generally less problematic than those from other power sources. As of 2011, Denmark is generating more than a quarter of its electricity from wind and 83 countries around the world are using wind power to supply the electricity grid. In 2010 wind energy production was over 2.5% of total worldwide electricity usage, and growing rapidly at more than 25% per annum. Wind power is very consistent from year to year but has significant variation over shorter time scales. As the proportion of windpower in a region increases, a need to upgrade the grid, and a lowered ability to supplant conventional production can occur. Power management techniques such as having excess capacity storage, geographically distributed turbines, dispatchable backing sources, storage such as pumped-storage hydroelectricity, exporting and importing power to neighboring areas or reducing demand when wind production is low, can greatly mitigate these problems.</Text>
 		</Row>
 	</Language_en_US>
 </GameData>

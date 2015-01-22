@@ -31,9 +31,9 @@
 				<ConquestProb>100</ConquestProb>
 				<FreeBuildingThisCity>BUILDINGCLASS_FACTORY</FreeBuildingThisCity>
 				<DisplayPosition>1</DisplayPosition>
-				<IconAtlas>BW_ATLAS_1</IconAtlas>
+				<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
 				<WonderSplashImage>SlaterSplash.dds</WonderSplashImage>
-				<PortraitIndex>4</PortraitIndex>
+				<PortraitIndex>57</PortraitIndex>
 			</Row>
 		</Buildings>
 		<Building_Flavors>

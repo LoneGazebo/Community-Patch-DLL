@@ -66,7 +66,7 @@ SET Text = 'Military-Industrial Complex'
 WHERE Tag = 'TXT_KEY_POLICY_MOBILIZATION' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Military-Industrial Complex[ENDCOLOR][NEWLINE][ICON_GOLD] Gold cost of purchasing and upgrading units reduced by 33%. [ICON_STRENGTH] Defense buildings and Citadels produce +2 [ICON_RESEARCH] Science.'
+SET Text = '[COLOR_POSITIVE_TEXT]Military-Industrial Complex[ENDCOLOR][NEWLINE][ICON_GOLD] Gold cost of purchasing/upgrading units reduced by 33%. [ICON_STRENGTH] Defense Buildings, Citadels, and Unique Improvements produce +1 [ICON_RESEARCH] Science.'
 WHERE Tag = 'TXT_KEY_POLICY_MOBILIZATION_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US

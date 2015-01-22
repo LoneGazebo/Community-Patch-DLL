@@ -1,3 +1,4 @@
+print("This is the modded CultureOverview from CBP")
 local isUsingFlagsPlus = false
 
 local FlagsPlusModId = "e1ccf71a-f248-498c-8f30-5ca6d851079d"

@@ -189,7 +189,7 @@ void CvBarbarians::BeginTurn()
 		CvPlot* pPlot = kMap.plotByIndex(iPlotLoop);
 		if(MOD_DIPLOMACY_CITYSTATES_QUESTS && (pPlot->getPlotCity() != NULL) && (pPlot->getOwner() == BARBARIAN_PLAYER))
 		{
-			if((m_aiPlotBarbCitySpawnCounter[iPlotLoop] + (m_aiPlotBarbCampNumUnitsSpawned[iPlotLoop] * 2)) > 10)
+			if(m_aiPlotBarbCitySpawnCounter[iPlotLoop] > (10 + m_aiPlotBarbCampNumUnitsSpawned[iPlotLoop]))
 			{
 				DoSpawnBarbarianUnit(pPlot, false, false);
 				m_aiPlotBarbCitySpawnCounter[iPlotLoop] = 0;
@@ -722,19 +722,6 @@ void CvBarbarians::DoUnits()
 				DoCampActivationNotice(pLoopPlot);
 			}
 		}
-#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
-		if(pLoopPlot->getPlotCity() != NULL)
-		{
-			if(pLoopPlot->getOwner() == BARBARIAN_PLAYER)
-			{
-				if(ShouldSpawnBarbFromCamp(pLoopPlot))
-				{
-					DoSpawnBarbarianUnit(pLoopPlot, false, false);
-					DoCampActivationNotice(pLoopPlot);
-				}
-			}
-		}
-#endif
 #if defined(MOD_BALANCE_CORE_MILITARY)
 		if(MOD_BALANCE_CORE_MILITARY && (GC.getBALANCE_BARBARIAN_HEAL_RATE() != 0) && pLoopPlot != NULL && pLoopPlot->getNumUnits() > 0)
 		{

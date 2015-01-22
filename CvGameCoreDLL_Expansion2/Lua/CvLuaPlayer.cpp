@@ -10512,7 +10512,59 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_MINOR_CIV_DISPUTE");
 			aOpinions.push_back(kOpinion);
 		}
+#if defined(MOD_BALANCE_CORE)
+		// victory dispute
+		iValue = pDiploAI->GetVictoryDisputeLevelScore(eWithPlayer);
+		if (iValue != 0)
+		{
+			Opinion kOpinion;
+			kOpinion.m_iValue = iValue;
+			CvString str;
+			
+			if (pDiploAI->GetVictoryDisputeLevel(eWithPlayer) == DISPUTE_LEVEL_FIERCE)
+			{
+				str = Localization::Lookup("TXT_KEY_DIPLO_VICTORY_DISPUTE_CBP_FIERCE").toUTF8();
+			}
+			else if (pDiploAI->GetVictoryDisputeLevel(eWithPlayer) == DISPUTE_LEVEL_STRONG)
+			{
+				str = Localization::Lookup("TXT_KEY_DIPLO_VICTORY_DISPUTE_CBP_STRONG").toUTF8();
+			}
+			else if (pDiploAI->GetVictoryDisputeLevel(eWithPlayer) == DISPUTE_LEVEL_WEAK)
+			{
+				str = Localization::Lookup("TXT_KEY_DIPLO_VICTORY_DISPUTE_CBP_WEAK").toUTF8();
+			}
 
+			kOpinion.m_str = str;
+
+			aOpinions.push_back(kOpinion);
+		}
+
+		// victory block dispute
+		iValue = pDiploAI->GetVictoryBlockLevelScore(eWithPlayer);
+		if (iValue != 0)
+		{
+			Opinion kOpinion;
+			kOpinion.m_iValue = iValue;
+			CvString str;
+			
+			if (pDiploAI->GetVictoryBlockLevel(eWithPlayer) == BLOCK_LEVEL_FIERCE)
+			{
+				str = Localization::Lookup("TXT_KEY_DIPLO_VICTORY_BLOCK_FIERCE").toUTF8();
+			}
+			else if (pDiploAI->GetVictoryBlockLevel(eWithPlayer) == BLOCK_LEVEL_STRONG)
+			{
+				str = Localization::Lookup("TXT_KEY_DIPLO_VICTORY_BLOCK_STRONG").toUTF8();
+			}
+			else if (pDiploAI->GetVictoryBlockLevel(eWithPlayer) == BLOCK_LEVEL_WEAK)
+			{
+				str = Localization::Lookup("TXT_KEY_DIPLO_VICTORY_BLOCK_WEAK").toUTF8();
+			}
+
+			kOpinion.m_str = str;
+
+			aOpinions.push_back(kOpinion);
+		}
+#endif
 		// warmonger dispute
 		iValue = pDiploAI->GetWarmongerThreatScore(eWithPlayer);
 		if (iValue != 0)

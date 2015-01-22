@@ -1,3 +1,4 @@
+print("This is the modded LeagueOverview from CBP")
 --------------------------------------------------------------
 -- LeagueOverview.lua
 -- Author: Anton Strenger

@@ -95,3 +95,9 @@ WHERE Tag = 'TXT_KEY_POLICY_YOUNG_PIONEERS_HELP' AND EXISTS (SELECT * FROM COMMU
 UPDATE Language_en_US
 SET Text = 'The Great Leap Forward of China was an economic and social campaign by the Communist Party of China (CPC) from 1958 to 1961. The campaign was led by Mao Zedong and aimed to rapidly transform the country from an agrarian economy into a communist society through rapid industrialization and collectivization.'
 WHERE Tag = 'TXT_KEY_POLICY_YOUNG_PIONEERS_TEXT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
+
+-- Five Year Plan
+
+UPDATE Language_en_US
+SET Text = '[COLOR_POSITIVE_TEXT]Five-Year Plan[ENDCOLOR][NEWLINE]+2 [ICON_PRODUCTION] Production per City and +1 [ICON_PRODUCTION] Production on every Mine, Quarry and Unique Improvement.'
+WHERE Tag = 'TXT_KEY_POLICY_FIVE_YEAR_PLAN_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );

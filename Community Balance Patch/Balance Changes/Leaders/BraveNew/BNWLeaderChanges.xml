@@ -44,7 +44,7 @@
 			<Yield>1</Yield>
 		</Row>
 	</Improvement_TechYieldChanges>
-	<!-- Garden-->
+	<!-- Candi-->
 	<Building_ResourceYieldChanges>
 		<Row>
 			<BuildingType>BUILDING_CANDI</BuildingType>
@@ -58,25 +58,14 @@
 			<YieldType>YIELD_FOOD</YieldType>
 			<Yield>1</Yield>
 		</Row>
-		<Row>
-			<BuildingType>BUILDING_CANDI</BuildingType>
-			<ResourceType>RESOURCE_CLOVES</ResourceType>
-			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>1</Yield>
-		</Row>
-		<Row>
-			<BuildingType>BUILDING_CANDI</BuildingType>
-			<ResourceType>RESOURCE_PEPPER</ResourceType>
-			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>1</Yield>
-		</Row>
-		<Row>
-			<BuildingType>BUILDING_CANDI</BuildingType>
-			<ResourceType>RESOURCE_NUTMEG</ResourceType>
-			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>1</Yield>
-		</Row>
 	</Building_ResourceYieldChanges>
+	<Building_Flavors>
+		<Row>
+			<BuildingType>BUILDING_CANDI</BuildingType>
+			<FlavorType>FLAVOR_HAPPINESS</FlavorType>
+			<Flavor>50</Flavor>
+		</Row>
+	</Building_Flavors>
 <!-- Ducal Stables -->
 	<Building_YieldChanges>
 		<Row>

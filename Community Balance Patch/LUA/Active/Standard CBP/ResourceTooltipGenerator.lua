@@ -1,3 +1,4 @@
+print("This is the modded ResourceTooltipGenerator from CBP")
 -------------------------------------------------
 -- Resource Tooltip Generator
 -------------------------------------------------

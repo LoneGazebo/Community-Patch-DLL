@@ -23,6 +23,11 @@ UPDATE Policies
 SET GreatPeopleRateModifier = '33'
 WHERE Type = 'POLICY_OPEN_SOCIETY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
+-- New Deal
+
+UPDATE Policy_ImprovementYieldChanges
+SET Yield = '2'
+WHERE PolicyType = 'POLICY_NEW_DEAL' AND YieldType = 'YIELD_GOLD' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 -- Creative Expression
 

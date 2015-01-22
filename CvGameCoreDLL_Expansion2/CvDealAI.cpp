@@ -1766,6 +1766,139 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 	return iItemValue;
 }
 
+#if defined(MOD_BALANCE_CORE_DEALS)
+/// How much is a City worth?
+int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlayer, bool bUseEvenValue)
+{
+	CvAssertMsg(GetPlayer()->GetID() != eOtherPlayer, "DEAL_AI: Trying to check value of City with oneself.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+
+	int iItemValue = 400; //just some base value
+
+	CvCity* pCity = GC.getMap().plot(iX, iY)->getPlotCity();
+
+	if(pCity != NULL)
+	{
+		int goldPerPlot = GetPlayer()->GetBuyPlotCost(); // this is how much ANY plot is worth to me right now
+
+		//first some amount for the pure territory
+#if defined(MOD_GLOBAL_CITY_WORKING)
+		for(int iI = 0; iI < pCity->GetNumWorkablePlots(); iI++)
+#else
+		for(int iI = 0; iI < NUM_CITY_PLOTS; iI++)
+#endif
+		{
+			CvPlot* pLoopPlot = pCity->GetCityCitizens()->GetCityPlotFromIndex(iI);
+			if(NULL != pLoopPlot && pCity->GetID() == pLoopPlot->GetCityPurchaseID())
+				if(iI > 6)
+					iItemValue += goldPerPlot; // this is a bargain, but at least it's in the ballpark
+		}
+
+		// check the city's yields and resources
+		iItemValue += pCity->getEconomicValue( GetPlayer()->GetID() );
+
+		// From this player - add extra weight (don't want the human giving the AI a bit of gold for good cities)
+		if(bFromMe)
+		{
+			// Adjust for how well a war against this player would go (or is going)
+			switch(GetPlayer()->GetDiplomacyAI()->GetWarProjection(eOtherPlayer))
+			{
+			case WAR_PROJECTION_DESTRUCTION:
+				iItemValue *= 100;
+				break;
+			case WAR_PROJECTION_DEFEAT:
+				iItemValue *= 210;
+				break;
+			case WAR_PROJECTION_STALEMATE:
+				iItemValue *= 240;
+				break;
+			case WAR_PROJECTION_UNKNOWN:
+				iItemValue *= 275;
+				break;
+			case WAR_PROJECTION_GOOD:
+				iItemValue *= 450;
+				break;
+			case WAR_PROJECTION_VERY_GOOD:
+				iItemValue *= 550;
+				break;
+			default:
+				CvAssertMsg(false, "DEAL_AI: AI player has no valid War Projection for City valuation.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.")
+				iItemValue *= 300;
+				break;
+			}
+			iItemValue /= 100;
+
+			// AI players should be less willing to trade cities when not at war
+			if(!GET_TEAM(GetTeam()).isAtWar(GET_PLAYER(eOtherPlayer).getTeam()))
+			{
+				iItemValue *= 2;
+			}
+		}	// END bFromMe
+		else
+		{
+			CvPlayerAI& theOtherPlayer = GET_PLAYER(eOtherPlayer);
+			if(!GET_TEAM(GetTeam()).isAtWar(theOtherPlayer.getTeam()))
+			{
+				if(theOtherPlayer.isHuman())  // he is obviously trying to trick us
+				{
+					CvCity* pLoopCity;
+					int iCityLoop;
+					int iBestDistance = 99;
+					for(pLoopCity = m_pPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iCityLoop))
+					{
+						int iDistFromThisCity = plotDistance(iX, iY, pLoopCity->getX(), pLoopCity->getY());
+						if(iDistFromThisCity < iBestDistance)
+						{
+							iBestDistance = iDistFromThisCity;
+						}
+					}
+					iBestDistance = (iBestDistance > 4) ? iBestDistance : 5;
+					iItemValue /= iBestDistance - 4;
+					iItemValue = (iItemValue >= 100) ? iItemValue : 100;
+				}
+			}
+		}
+
+		// slewis - Due to rule changes, value of major capitals should go up quite a bit because someone can win the game by owning them
+		if (pCity->IsOriginalMajorCapital())
+		{
+			iItemValue *= 2;
+		}
+	}
+
+	// Are we trying to find the middle point between what we think this item is worth and what another player thinks it's worth?
+	if(bUseEvenValue)
+	{
+		iItemValue += GET_PLAYER(eOtherPlayer).GetDealAI()->GetCityValue(iX, iY, !bFromMe, GetPlayer()->GetID(), /*bUseEvenValue*/ false);
+
+		iItemValue /= 2;
+	}
+
+	if(!bFromMe)
+	{
+		int iHappiness = GetPlayer()->GetExcessHappiness();
+
+		//Did we build this city? We want our people back!
+		if(pCity->getOriginalOwner() == GetPlayer()->GetID())
+		{
+			iItemValue *= 2;
+		}
+		//Would this city cause us to become unhappy? It is worth less to us.
+		else if(iHappiness < pCity->getPopulation())
+		{
+			iItemValue /= 2;
+		}
+		else if(GetPlayer()->IsEmpireUnhappy())
+		{
+			iItemValue /= 3;
+		}
+	}
+
+	//OutputDebugString( CvString::format( "Final Deal value of %s for %s to %s is %d\n", pCity->getName().c_str(), GetPlayer()->getName(), GET_PLAYER(eOtherPlayer).getName(), iItemValue ).c_str() ); 
+	return iItemValue;
+}
+
+#else
+
 /// How much is a City worth?
 int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlayer, bool bUseEvenValue)
 {
@@ -1800,15 +1933,6 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 				{
 					iGoldValueOfPlots += goldPerPlot; // this is a bargain, but at least it's in the ballpark
 				}
-#if !defined(MOD_BALANCE_CORE_DEALS)
-				if(pLoopPlot->getImprovementType() != NO_IMPROVEMENT)
-				{
-					iGoldValueOfImprovedPlots += goldPerPlot * 25;
-				}
-#else
-				//we don't care about improved plots but about yields
-				//todo: add something for currently unworked plots (future potential)
-#endif
 				ResourceTypes eResource = pLoopPlot->getNonObsoleteResourceType(GetPlayer()->getTeam());
 				if(eResource != NO_RESOURCE)
 				{
@@ -1838,10 +1962,6 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 						{
 							int iNumTurns = 60; // okay, this is a reasonable estimate
 							iGoldValueOfResourcePlots += (iResourceQuantity * iNumTurns * 150 / 100);
-
-#if defined(MOD_BALANCE_CORE_DEALS)
-							//todo: take into account how much of the resource the old and the new owner have
-#endif
 						}
 					}
 				}
@@ -1850,11 +1970,6 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 		iGoldValueOfImprovedPlots /= 100;
 
 		iItemValue = iItemValue + iGoldValueOfPlots + iGoldValueOfImprovedPlots + iGoldValueOfResourcePlots;
-
-#if defined(MOD_BALANCE_CORE_DEALS)
-		// check the city's yields
-		iItemValue += pCity->getEconomicValueTimes100( GetPlayer()->GetID() );
-#endif
 
 		// add in the (gold) value of the buildings (Or should we?  Will they transfer?)
 
@@ -1868,26 +1983,6 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 			// Adjust for how well a war against this player would go (or is going)
 			switch(GetPlayer()->GetDiplomacyAI()->GetWarProjection(eOtherPlayer))
 			{
-#if defined(MOD_BALANCE_CORE_DEALS)
-			case WAR_PROJECTION_DESTRUCTION:
-				iItemValue *= 100;
-				break;
-			case WAR_PROJECTION_DEFEAT:
-				iItemValue *= 210;
-				break;
-			case WAR_PROJECTION_STALEMATE:
-				iItemValue *= 240;
-				break;
-			case WAR_PROJECTION_UNKNOWN:
-				iItemValue *= 275;
-				break;
-			case WAR_PROJECTION_GOOD:
-				iItemValue *= 450;
-				break;
-			case WAR_PROJECTION_VERY_GOOD:
-				iItemValue *= 550;
-				break;
-#else
 			case WAR_PROJECTION_DESTRUCTION:
 				iItemValue *= 100;
 				break;
@@ -1906,7 +2001,6 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 			case WAR_PROJECTION_VERY_GOOD:
 				iItemValue *= 400;
 				break;
-#endif
 			default:
 				CvAssertMsg(false, "DEAL_AI: AI player has no valid War Projection for City valuation.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.")
 				iItemValue *= 300;
@@ -1953,10 +2047,6 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 		}
 	}
 
-#if defined(MOD_BALANCE_CORE_DEALS)
-	OutputDebugString( CvString::format( "Deal value of %s for %s to %s is %d\n", pCity->getName().c_str(), GetPlayer()->getName(), GET_PLAYER(eOtherPlayer).getName(), iItemValue ).c_str() ); 
-#endif
-
 	// Are we trying to find the middle point between what we think this item is worth and what another player thinks it's worth?
 	if(bUseEvenValue)
 	{
@@ -1965,32 +2055,10 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 		iItemValue /= 2;
 	}
 
-#if defined(MOD_BALANCE_CORE_DEALS)
-	if (MOD_BALANCE_CORE_DEALS) 
-	{
-		if(!bFromMe)
-		{
-			int iHappiness = GetPlayer()->GetExcessHappiness();
-
-			//Did we build this city? We want our people back!
-			if(pCity->getOriginalOwner() == GetPlayer()->GetID())
-			{
-				iItemValue *= 2;
-			}
-			//Would this city cause us to become unhappy? It is worthless to us.
-			else if(iHappiness < pCity->getPopulation())
-			{
-				iItemValue /= 2;
-			}
-			else if(GetPlayer()->IsEmpireUnhappy())
-			{
-				iItemValue /= 3;
-			}
-		}
-	}
-#endif
 	return iItemValue;
 }
+
+#endif
 
 // How much is an embassy worth?
 int CvDealAI::GetEmbassyValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUseEvenValue)
@@ -4055,6 +4123,10 @@ void CvDealAI::DoAddItemsToDealForPeaceTreaty(PlayerTypes eOtherPlayer, CvDeal* 
 
 	case PEACE_TREATY_SURRENDER:
 		bGiveOnlyOneCity = true;
+#if defined(MOD_BALANCE_CORE_DEALS)
+		iPercentGoldToGive = 10;
+		iPercentCitiesGiveUp = 10;
+#endif
 		break;
 
 	case PEACE_TREATY_CESSION:
@@ -4203,7 +4275,77 @@ void CvDealAI::DoAddItemsToDealForPeaceTreaty(PlayerTypes eOtherPlayer, CvDeal* 
 			}
 		}
 	}
+#if defined(MOD_BALANCE_CORE_DEALS)
+	// If the player only has one city then we can't get any more from him
+	else if (iPercentCitiesGiveUp > 0 && pLosingPlayer->getNumCities() > 1)
+	{
+		int iTotalCityValue = 0;
+		int iCityDistanceFromWinnersCapital = 0;
+		int iWinnerCapitalX = -1, iWinnerCapitalY = -1;
 
+		// If winner has no capital then we can't use proximity - it will stay at 0
+		CvCity* pWinnerCapital = pWinningPlayer->getCapitalCity();
+		if(pWinnerCapital != NULL)
+		{
+			iWinnerCapitalX = pWinnerCapital->getX();
+			iWinnerCapitalY = pWinnerCapital->getY();
+		}
+
+		// Create vector of the losing players' Cities so we can see which are the closest to the winner
+		CvWeightedVector<int> viCityProximities;
+
+		// Loop through all of the loser's Cities
+		for(pLoopCity = pLosingPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = pLosingPlayer->nextCity(&iCityLoop))
+		{
+			int iCurrentCityValue = GetCityValue(pLoopCity->getX(), pLoopCity->getY(), bMeSurrendering, eOtherPlayer, /*bUseEvenValue*/ true);
+
+			// Get total city value of the loser
+			iTotalCityValue += iCurrentCityValue;
+
+			// If winner has no capital, Distance defaults to 0
+			if(pWinnerCapital != NULL)
+				iCityDistanceFromWinnersCapital = plotDistance(iWinnerCapitalX, iWinnerCapitalY, pLoopCity->getX(), pLoopCity->getY());
+
+			// Divide the distance by three if the city was originally owned by the winning player to make these cities more likely
+			if (pLoopCity->getOriginalOwner() == eWinningPlayer)
+				iCityDistanceFromWinnersCapital /= 3;
+
+			// If the city is currently threatened, it's also a prime candidate for the deal
+			if ( pLoopCity->IsInDanger( eWinningPlayer ) )
+				iCityDistanceFromWinnersCapital /= 3;
+
+			// Don't include the capital in the list of Cities the winner can receive
+			if(!pLoopCity->isCapital())
+				viCityProximities.push_back(pLoopCity->GetID(), iCityDistanceFromWinnersCapital);
+		}
+
+		// Sort the vector based on distance from winner's capital
+		viCityProximities.SortItems();
+		int iSortedCityID;
+
+		// Determine the value of Cities to be given up
+		int iCityValueToSurrender = iTotalCityValue * iPercentCitiesGiveUp / 100;
+
+		// Loop through sorted Cities and add them to the deal if they're under the amount to give up - start from the back of the list, because that's where the CLOSEST cities are
+		for(int iSortedCityIndex = viCityProximities.size() - 1; iSortedCityIndex > -1 ; iSortedCityIndex--)
+		{
+			iSortedCityID = viCityProximities.GetElement(iSortedCityIndex);
+			pLoopCity = pLosingPlayer->getCity(iSortedCityID);
+
+			int iCurrentCityValue = GetCityValue(pLoopCity->getX(), pLoopCity->getY(), bMeSurrendering, eOtherPlayer, /*bUseEvenValue*/ true);
+
+			// City is worth less than what is left to be added to the deal, so add it
+			if(iCurrentCityValue < iCityValueToSurrender && iCurrentCityValue > 0)
+			{
+				if(pDeal->IsPossibleToTradeItem(eLosingPlayer, eWinningPlayer, TRADE_ITEM_CITIES, pLoopCity->getX(), pLoopCity->getY()))
+				{
+					pDeal->AddCityTrade(eLosingPlayer, iSortedCityID);
+					iCityValueToSurrender -= iCurrentCityValue;
+				}
+			}
+		}
+	}
+#else
 	// If the player only has 1 City then we can't get any more from him
 	else if (iPercentCitiesGiveUp > 0 || bGiveOnlyOneCity && pLosingPlayer->getNumCities() > 1)
 	{
@@ -4254,6 +4396,10 @@ void CvDealAI::DoAddItemsToDealForPeaceTreaty(PlayerTypes eOtherPlayer, CvDeal* 
 		// Just one city?
 		if (bGiveOnlyOneCity)
 		{
+#if defined(MOD_BALANCE_CORE_DEALS)
+			//todo: check if city is in danger?
+			//todo: look at city value also, not only proximity
+#endif
 			iSortedCityID = viCityProximities.GetElement(viCityProximities.size() - 1);
 			pDeal->AddCityTrade(eLosingPlayer, iSortedCityID);
 		}
@@ -4291,6 +4437,7 @@ void CvDealAI::DoAddItemsToDealForPeaceTreaty(PlayerTypes eOtherPlayer, CvDeal* 
 			}
 		}
 	}
+#endif
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	if(MOD_DIPLOMACY_CIV4_FEATURES && bBecomeMyVassal)
@@ -4639,6 +4786,11 @@ void CvDealAI::DoTradeScreenOpened()
 			pDeal->ClearItems();
 			pDeal->SetFromPlayer(eActivePlayer);	// The order of these is very important!
 			pDeal->SetToPlayer(eMyPlayer);	// The order of these is very important!
+
+#if defined(MOD_BALANCE_CORE_DEALS)
+			//assume a white peace to allow gold trading
+			pDeal->SetPeaceTreatyType(PEACE_TREATY_WHITE_PEACE);
+#endif
 
 			// AI is surrendering
 			if(ePeaceTreatyImWillingToOffer > PEACE_TREATY_WHITE_PEACE)

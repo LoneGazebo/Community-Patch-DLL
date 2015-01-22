@@ -1,4 +1,4 @@
--- Buff Engineers a bit
+-- Buff Engineers
 
 UPDATE SpecialistYields
 SET Yield = '3'
@@ -9,3 +9,17 @@ WHERE SpecialistType = 'SPECIALIST_ENGINEER' AND EXISTS (SELECT * FROM COMMUNITY
 UPDATE SpecialistYields
 SET Yield = '3'
 WHERE SpecialistType = 'SPECIALIST_MERCHANT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+-- Buff Scientists
+
+UPDATE SpecialistYields
+SET Yield = '4'
+WHERE SpecialistType = 'SPECIALIST_SCIENTIST' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+-- Buff Citizens
+
+UPDATE SpecialistYields
+SET Yield = '2'
+WHERE SpecialistType = 'SPECIALIST_CITIZEN' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+

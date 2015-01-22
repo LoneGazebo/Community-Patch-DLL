@@ -42,6 +42,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 #endif
 #if defined(MOD_BALANCE_CORE)
 	m_iResourceType(NO_RESOURCE),
+	m_iGrantsRandomResourceTerritory(0),
 	m_bPuppetPurchaseOverride(false),
 	m_bAllowsPuppetPurchase(false),
 #endif
@@ -221,6 +222,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 #endif
 #if defined(MOD_BALANCE_CORE)
 	m_piYieldFromVictory(NULL),
+	m_iNeedBuildingThisCity(NO_BUILDING),
 #endif
 	m_piYieldChange(NULL),
 	m_piYieldChangePerPop(NULL),
@@ -577,7 +579,9 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 #if defined(MOD_BALANCE_CORE)
 	szTextVal = kResults.GetText("ResourceType");
 	m_iResourceType = GC.getInfoTypeForString(szTextVal, true);
-
+	szTextVal = kResults.GetText("NeedBuildingThisCity");
+	m_iNeedBuildingThisCity = GC.getInfoTypeForString(szTextVal, true);
+	m_iGrantsRandomResourceTerritory = kResults.GetInt("GrantsRandomResourceTerritory");
 	m_bPuppetPurchaseOverride = kResults.GetBool("PuppetPurchaseOverride");
 	m_bAllowsPuppetPurchase = kResults.GetBool("AllowsPuppetPurchase");
 #endif
@@ -986,6 +990,11 @@ int CvBuildingEntry::GetPolicyType() const
 int CvBuildingEntry::GetResourceType() const
 {
 	return m_iResourceType;
+}
+/// Does this building grant a random resource around the territory?
+int CvBuildingEntry::GrantsRandomResourceTerritory() const
+{
+	return m_iGrantsRandomResourceTerritory;
 }
 /// Is this building purchaseable in any city?
 bool CvBuildingEntry::IsPuppetPurchaseOverride() const
@@ -1930,6 +1939,13 @@ int* CvBuildingEntry::GetGrowthExtraYieldArray() const
 {
 	return m_piGrowthExtraYield;
 }
+
+/// Need building in the city
+int CvBuildingEntry::GetNeedBuildingThisCity() const
+{
+	return m_iNeedBuildingThisCity;
+}
+
 #endif
 #if defined(MOD_BALANCE_CORE_POLICIES)
 /// Change to yield by type if unit defeated in battle

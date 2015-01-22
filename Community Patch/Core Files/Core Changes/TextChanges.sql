@@ -42,4 +42,39 @@ UPDATE Language_en_US
 SET Text = '[COLOR_POSITIVE_TEXT]We are trade partners.[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_DIPLO_TRADE_PARTNER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
 
+-- Diplo Text for DoF changed
+UPDATE Language_en_US
+SET Text = 'Our Declaration of Friendship must end.'
+WHERE Tag = 'TXT_KEY_DIPLO_DISCUSS_MESSAGE_END_WORK_WITH_US' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
 
+UPDATE Language_en_US
+SET Text = 'I did not want things to end up like this, but I cannot overlook your warmongering. Consider our Declaration of Friendship ended.'
+WHERE Tag = 'TXT_KEY_END_WORK_WITH_US_WARMONGER_1' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
+
+UPDATE Language_en_US
+SET Text = 'Your dealings with city-states in my sphere of influence is unacceptable. Consider our Declaration of Friendship ended.'
+WHERE Tag = 'TXT_KEY_END_WORK_WITH_US_MINORS_1' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
+
+UPDATE Language_en_US
+SET Text = 'I fear that our close proximity was destined to poison our relationship. Consider our Declaration of Friendship ended.'
+WHERE Tag = 'TXT_KEY_END_WORK_WITH_US_LAND_1' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
+
+UPDATE Language_en_US
+SET Text = 'Your continued greed in collecting wonders of the world has become a major issue. Consider our Declaration of Friendship ended.'
+WHERE Tag = 'TXT_KEY_END_WORK_WITH_US_WONDERS_1' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
+
+UPDATE Language_en_US
+SET Text = 'It is clear to me now that the paths we are traveling must ultimately drive us apart. Consider our Declaration of Friendship ended.'
+WHERE Tag = 'TXT_KEY_END_WORK_WITH_US_VICTORY_1' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
+
+UPDATE Language_en_US
+SET Text = 'Circumstances have changed, and I believe there is no longer a need for our Declaration of Friendship to continue. I hope you can understand.'
+WHERE Tag = 'TXT_KEY_END_WORK_WITH_US_DEFAULT_1' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
+
+UPDATE Language_en_US
+SET Text = 'I am sorry, but it is time for our Declaration of Friendship to end.'
+WHERE Tag = 'TXT_KEY_END_WORK_WITH_US_DEFAULT_2' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
+
+UPDATE Language_en_US
+SET Text = '[COLOR_NEGATIVE_TEXT]You betrayed their Declaration of Friendship![ENDCOLOR]'
+WHERE Tag = 'TXT_KEY_DIPLO_REFUSED_REQUESTS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );

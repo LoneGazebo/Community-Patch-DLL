@@ -6,7 +6,7 @@
 		<Row>
 			<Type>BUILDING_MISSION</Type>
 			<BuildingClass>BUILDINGCLASS_CASTLE</BuildingClass>
-			<Cost>150</Cost>
+			<Cost>175</Cost>
 			<PrereqTech>TECH_CHIVALRY</PrereqTech>
 			<FreeStartEra>ERA_INDUSTRIAL</FreeStartEra>
 			<Help>TXT_KEY_BUILDING_MISSION_HELP</Help>
@@ -20,7 +20,7 @@
 			<AllowsRangeStrike>true</AllowsRangeStrike>
 			<Defense>800</Defense>
 			<ExtraCityHitPoints>75</ExtraCityHitPoints>
-			<HurryCostModifier>20</HurryCostModifier>
+			<HurryCostModifier>33</HurryCostModifier>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
 			<PortraitIndex>16</PortraitIndex>
 			<ArtInfoCulturalVariation>true</ArtInfoCulturalVariation>
@@ -163,7 +163,7 @@
 		<Row>
 			<Type>BUILDING_SEOWON</Type>
 			<BuildingClass>BUILDINGCLASS_UNIVERSITY</BuildingClass>
-			<Cost>200</Cost>
+			<Cost>225</Cost>
 			<GoldMaintenance>2</GoldMaintenance>
 			<PrereqTech>TECH_EDUCATION</PrereqTech>
 			<Help>TXT_KEY_BUILDING_SEOWON_HELP</Help>

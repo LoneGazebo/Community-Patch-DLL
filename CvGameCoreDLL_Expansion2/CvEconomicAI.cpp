@@ -4130,6 +4130,16 @@ bool EconomicAIHelpers::IsTestStrategy_NeedImprovement(CvPlayer* pPlayer, YieldT
 					continue;
 				}
 			}
+#if defined(MOD_BALANCE_CORE)
+			if(pkBuildInfo->getTechObsolete() != NO_TECH)
+			{
+				if((GET_TEAM(pPlayer->getTeam()).GetTeamTechs()->HasTech((TechTypes)GC.getBuildInfo(eBuild)->getTechObsolete())))
+				{
+					// don'have the tech that obsoletes this build, so look at the next one
+					continue;
+				}
+			}
+#endif
 
 			ImprovementTypes eImprovement = (ImprovementTypes)GC.getBuildInfo(eBuild)->getImprovement();
 			if(eImprovement == NO_IMPROVEMENT)

@@ -1,3 +1,4 @@
+print("This is the modded TradeRouteHelpers from CBP")
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
 function BuildTradeRouteGoldToolTipString (pOriginCity, pTargetCity, eDomain)

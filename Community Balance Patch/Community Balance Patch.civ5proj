@@ -7,7 +7,7 @@
     <Guid>8411a7a8-dad3-4622-a18e-fcc18324c799</Guid>
     <ModVersion>13</ModVersion>
     <Stability>Beta</Stability>
-    <Teaser>The Complete Civ 5 Experience (v. 13.4.6)  - Updated 1/13</Teaser>
+    <Teaser>The Complete Civ 5 Experience (v. 13.5.1)  - Updated 1/21</Teaser>
     <Description>Community Balance Patch - Contains balance changes and gameplay improvements to make Civ V a more enjoyable and exciting game.</Description>
     <Authors>Civfanatics Community Balance Team</Authors>
     <SpecialThanks>
@@ -60,11 +60,6 @@
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
         <FileName>Balance Changes/Units/PromotionNuke.sql</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>Mod Compatibility/CSDAdditions.xml</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
@@ -629,16 +624,6 @@
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <FileName>Mod Compatibility/EventsandDecisions.sql</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>Mod Compatibility/HealthandPlague.sql</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
         <FileName>Balance Changes/Ideologies/TourismChanges.sql</FileName>
       </Action>
       <Action>
@@ -744,16 +729,6 @@
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <FileName>Mod Compatibility/MoreLuxuries.sql</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>Mod Compatibility/CSDChanges.sql</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
         <FileName>Balance Changes/Units/NewUnits.xml</FileName>
       </Action>
     </ModActions>
@@ -780,6 +755,12 @@
         <Name>GlobalCityBombardRange</Name>
         <Description>GlobalCityBombardRange</Description>
         <FileName>LUA/Other/GlobalCityBombardRange.lua</FileName>
+      </Content>
+      <Content>
+        <Type>MapScript</Type>
+        <Name>Communitas</Name>
+        <Description>LUA/Active/Communitas.lua</Description>
+        <FileName>LUA/Active/Standard CBP/Communitas.lua</FileName>
       </Content>
     </ModContent>
   </PropertyGroup>
@@ -842,12 +823,7 @@
     <Folder Include="LUA\" />
     <Folder Include="LUA\Active" />
     <Folder Include="LUA\Active\Standard CBP" />
-    <Folder Include="LUA\Inactive" />
-    <Folder Include="LUA\Inactive\HealthandPlague + CSD" />
-    <Folder Include="LUA\Inactive\NoCiv4DF" />
-    <Folder Include="LUA\Inactive\NoCSD" />
     <Folder Include="LUA\Other" />
-    <Folder Include="Mod Compatibility" />
     <Folder Include="Modular Elements" />
     <Folder Include="Modular Elements\Happiness Mod" />
     <Folder Include="Modular Elements\SpiceIslands" />
@@ -972,11 +948,11 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Art\Splash\empiresplash.dds">
+    <Content Include="Art\Splash\CernSplash.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Art\Splash\CernSplash.dds">
+    <Content Include="Art\Splash\empiresplash.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
@@ -1548,11 +1524,23 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
+    <Content Include="LUA\Active\Standard CBP\Communitas.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
     <Content Include="LUA\Active\Standard CBP\CultureOverview.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
     <Content Include="LUA\Active\Standard CBP\CultureOverview.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="LUA\Active\Standard CBP\DiscussionDialog.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="LUA\Active\Standard CBP\DiscussionDialog.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
@@ -1608,59 +1596,11 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="LUA\Inactive\HealthandPlague + CSD\CityBannerManager.lua">
+    <Content Include="LUA\Active\Standard CBP\WhosWinningPopup.lua">
       <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="LUA\Inactive\HealthandPlague + CSD\CityView.lua">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="LUA\Inactive\HealthandPlague + CSD\TopPanel.lua">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="LUA\Inactive\NoCiv4DF\TradeLogic.lua">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="LUA\Inactive\NoCSD\CityStateStatusHelper.lua">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="LUA\Inactive\NoCSD\CityView.lua">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="LUA\Inactive\NoCSD\InfoTooltipInclude.lua">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="LUA\Inactive\NoCSD\TopPanel.lua">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
+      <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
     <Content Include="LUA\Other\GlobalCityBombardRange.lua">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="Mod Compatibility\CSDChanges.sql">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="Mod Compatibility\EventsandDecisions.sql">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="Mod Compatibility\CSDAdditions.xml">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="Mod Compatibility\MoreLuxuries.sql">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="Mod Compatibility\HealthandPlague.sql">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>

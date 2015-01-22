@@ -34,7 +34,7 @@
 	WHERE Type = 'GAMESPEED_EPIC' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 	UPDATE GameSpeeds
-	SET StartingHappiness = '1'
+	SET StartingHappiness = '0'
 	WHERE Type = 'GAMESPEED_STANDARD' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 	-- DEFINES FOR CITY HAPPINESS
@@ -83,7 +83,7 @@
 
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_HAPPINESS_TECH_BASE_CITY_COUNT', '-5'
+	SELECT 'BALANCE_HAPPINESS_TECH_BASE_CITY_COUNT', '-10'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 	
 -- Value by which yield/threshold difference is divded. 40 = 1 point of unhappiness for every 0.40 difference between city yield and global average (after the first .4).

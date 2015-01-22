@@ -107,11 +107,11 @@
     
     <!-- Units attacking from cities, forts or citadels will not follow-up if they kill the defender (v19) -->
     <!-- See also: "Global - No Followup From Cities" -->
-    <Row Class="6" Name="GLOBAL_NO_FOLLOWUP_FROM_CITIES" Value="0"/>
+    <Row Class="6" Name="GLOBAL_NO_FOLLOWUP_FROM_CITIES" Value="1"/>
 
     <!-- Units that can move after attacking can also capture civilian units (eg workers in empty barbarian camps) (v32) -->
     <!-- See also: "Global - No Followup From Cities" -->
-    <Row Class="5" Name="GLOBAL_CAPTURE_AFTER_ATTACKING" Value="0"/>
+    <Row Class="5" Name="GLOBAL_CAPTURE_AFTER_ATTACKING" Value="1"/>
 
     <!-- Trade routes can't be plundered on ocean tiles - too much sea to hide in, too many directions to escape in (v39) -->
     <!-- See also: "Global - No Ocean Plundering" -->

@@ -434,7 +434,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 		if(MOD_GLOBAL_CITY_FOREST_BONUS && eBuildRemoveForest != -1 && !owningPlayer.isMinorCiv() && eFeature == FEATURE_FOREST)
 		{
 			// Don't do this for the AI capitals - it's just too much of an initial boost!
-			if (owningPlayer.isHuman() || owningPlayer.getCapitalCity() != NULL) {
+			if (owningPlayer.getCapitalCity() != NULL) {
 				TechTypes iRequiredTech = (TechTypes) gCustomMods.getOption("GLOBAL_CITY_FOREST_BONUS_TECH", -1);
 				bClearedForest = (iRequiredTech == -1 || GET_TEAM(owningPlayer.getTeam()).GetTeamTechs()->HasTech(iRequiredTech));
 			}
@@ -595,9 +595,9 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 			}
 		}
 #if defined(MOD_BALANCE_CORE)
-		if(!owningPlayer.isMinorCiv())
+		if(!owningPlayer.isMinorCiv() && (owningPlayer.GetPlayerTraits()->GetUniqueLuxuryQuantity() > 0))
 		{
-			owningPlayer.GetPlayerTraits()->AddUniqueLuxuriesAround(this);
+			owningPlayer.GetPlayerTraits()->AddUniqueLuxuriesAround(this, owningPlayer.GetPlayerTraits()->GetUniqueLuxuryQuantity());
 		}
 		else
 		{
@@ -2000,7 +2000,11 @@ void CvCity::kill()
 }
 
 //	--------------------------------------------------------------------------------
+#if defined(MOD_BALANCE_CORE)
+CvPlayer* CvCity::GetPlayer() const
+#else
 CvPlayer* CvCity::GetPlayer()
+#endif
 {
 	VALIDATE_OBJECT
 	return &GET_PLAYER(getOwner());
@@ -2524,26 +2528,90 @@ void CvCity::chooseProduction(UnitTypes eTrainUnit, BuildingTypes eConstructBuil
 }
 
 #if defined(MOD_BALANCE_CORE)
-int CvCity::getEconomicValueTimes100(PlayerTypes /*ePlayer*/) const
+int CvCity::getEconomicValue(PlayerTypes ePossibleOwner, int iNumTurnsForDepreciation) const
 {
 	//todo: take into account player personality
 
-	int iEcoValue = 0;
-	iEcoValue += getYieldRateTimes100(YIELD_FOOD, false);
-	iEcoValue += getYieldRateTimes100(YIELD_PRODUCTION, false) * 2;
-	iEcoValue += getYieldRateTimes100(YIELD_SCIENCE, false);
-	iEcoValue += getYieldRateTimes100(YIELD_GOLD, false);
-	iEcoValue += getYieldRateTimes100(YIELD_CULTURE, false);
-	iEcoValue += getYieldRateTimes100(YIELD_FAITH, false);
+	int iYieldValue = 0;
+	int iResourceValue = 0;
+
+	//notes:
+	//- economic value is in gold, so use a rough conversion factor for the others
+	//- for food and gold only surplus is interesting, rest is converted to other yields already
+	//- ignore trade, as the city might the change owner
+	iYieldValue += (getYieldRateTimes100(YIELD_FOOD, true) - foodConsumption() * 100) * 3;
+	iYieldValue += getYieldRateTimes100(YIELD_PRODUCTION, true) * 4;
+	iYieldValue += getYieldRateTimes100(YIELD_SCIENCE, true) * 3;
+	iYieldValue += (getYieldRateTimes100(YIELD_GOLD, true) - GetCityBuildings()->GetTotalBaseBuildingMaintenance() * 100) * 1; 
+	iYieldValue += getYieldRateTimes100(YIELD_CULTURE, true) * 3;
+	iYieldValue += getYieldRateTimes100(YIELD_FAITH, true) * 3;
+
 #if defined(MOD_API_UNIFIED_YIELDS_TOURISM)
-	iEcoValue += getYieldRateTimes100(YIELD_TOURISM, false);
+	iYieldValue += getYieldRateTimes100(YIELD_TOURISM, true) * 3;
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS_GOLDEN_AGE)
-	iEcoValue += getYieldRateTimes100(YIELD_GOLDEN_AGE_POINTS, false);
+	iYieldValue += getYieldRateTimes100(YIELD_GOLDEN_AGE_POINTS, true) * 3;
 #endif
 
-	return iEcoValue;
+	//divide by avg conversion factor
+	iYieldValue /= 3;
+
+	//now check access to resources
+	//todo: call CvDealAI::GetResourceValue() for each resource
+
+#if defined(MOD_GLOBAL_CITY_WORKING)
+	for(int iI = 0; iI < GetNumWorkablePlots(); iI++)
+#else
+	for(int iI = 0; iI < NUM_CITY_PLOTS; iI++)
+#endif
+	{
+		CvPlot* pLoopPlot = GetCityCitizens()->GetCityPlotFromIndex(iI);
+		//for plots owned by this city
+		if(NULL != pLoopPlot && GetID() == pLoopPlot->GetCityPurchaseID())
+		{
+			//todo: add something for currently unworked plots (future potential)
+			ResourceTypes eResource = pLoopPlot->getNonObsoleteResourceType( GET_PLAYER(ePossibleOwner).getTeam() );
+			if(eResource == NO_RESOURCE)
+				continue;
+
+			const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
+			if (!pkResourceInfo)
+				continue;
+
+			ResourceUsageTypes eUsage = pkResourceInfo->getResourceUsage();
+			int iResourceQuantity = pLoopPlot->getNumResource();
+			// Luxury Resource
+			if(eUsage == RESOURCEUSAGE_LUXURY)
+			{
+				if (GC.getGame().GetGameLeagues()->IsLuxuryHappinessBanned(ePossibleOwner, eResource))
+					continue;
+
+				int iValue = 200;
+
+				// If the new owner doesn't have it or the old owner would lose it completely, it's worth more
+				if ( (GET_PLAYER(ePossibleOwner).getNumResourceAvailable(eResource) == 0) || ( GET_PLAYER( getOwner() ).getNumResourceAvailable(eResource) == iResourceQuantity) )
+						iValue = 600;
+
+				int iHappinessFromResource = pkResourceInfo->getHappiness();
+				iResourceValue += iResourceQuantity * iHappinessFromResource * iValue;
+			}
+			// Strategic Resource
+			else if(eUsage == RESOURCEUSAGE_STRATEGIC)
+			{
+				int iValue = 400;
+
+				// If the new owner doesn't have it or the old owner would lose it completely, it's worth more
+				if ( (GET_PLAYER(ePossibleOwner).getNumResourceAvailable(eResource) == 0) || ( GET_PLAYER( getOwner() ).getNumResourceAvailable(eResource) == iResourceQuantity) )
+						iValue = 800;
+
+				iResourceValue += iResourceQuantity * iValue;
+			}
+		} //owned plots
+	} //all plots
+
+	return (iYieldValue + iResourceValue) * iNumTurnsForDepreciation / 100;
 }
+
 #endif
 
 #if defined(MOD_GLOBAL_CITY_WORKING)
@@ -3232,6 +3300,16 @@ bool CvCity::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestVis
 			}
 		}
 	}
+#if defined(MOD_BALANCE_CORE)
+	if(pkBuildingInfo->GetNeedBuildingThisCity() != NO_BUILDING)
+	{
+		BuildingTypes ePrereqBuilding = (BuildingTypes)pkBuildingInfo->GetNeedBuildingThisCity();
+		if(m_pCityBuildings->GetNumBuilding(ePrereqBuilding) <= 0)
+		{
+			return false;
+		}
+	}
+#endif
 
 	///////////////////////////////////////////////////////////////////////////////////
 	// Everything above this is what is checked to see if Building shows up in the list of construction items
@@ -7391,6 +7469,10 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 		if(MOD_BALANCE_CORE && pBuildingInfo->IsReformation())
 		{
 			GET_PLAYER(getOwner()).SetReformation(true);
+		}
+		if(MOD_BALANCE_CORE && (pBuildingInfo->GrantsRandomResourceTerritory() > 0))
+		{
+			GET_PLAYER(getOwner()).GetPlayerTraits()->AddUniqueLuxuriesAround(this, pBuildingInfo->GrantsRandomResourceTerritory());
 		}
 #endif
 
@@ -19908,6 +19990,75 @@ void CvCity::DoNearbyEnemy()
 			break;
 	}
 }
+
+#if defined(MOD_BALANCE_CORE_DEALS)
+bool CvCity::IsInDanger(PlayerTypes eEnemy) const
+{
+	int iRange = 4;
+	int iFriendlyPower = GetPower()*2;
+	int iEnemyPower = 0;
+
+	CvPlayer &kEnemy = GET_PLAYER(eEnemy);
+
+	int iX = this->plot()->getX();
+	int iY = this->plot()->getY();
+	bool bFriendlyGeneralInTheVicinity = false;
+	bool bEnemyGeneralInTheVicinity = false;
+
+	int iUnitLoop;
+	for (const CvUnit* pLoopUnit = GetPlayer()->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = GetPlayer()->nextUnit(&iUnitLoop))
+	{
+		if (pLoopUnit->IsCombatUnit())
+		{
+			int iDistance = plotDistance(pLoopUnit->getX(), pLoopUnit->getY(), iX, iY);
+			if (iDistance <= iRange)
+			{
+				iFriendlyPower += pLoopUnit->GetPower();
+			}
+		}
+		if (!bFriendlyGeneralInTheVicinity && pLoopUnit->IsGreatGeneral())
+		{
+			int iDistance = plotDistance(pLoopUnit->getX(), pLoopUnit->getY(), iX, iY);
+			if (iDistance <= iRange)
+			{
+				bFriendlyGeneralInTheVicinity = true;
+			}
+		}
+	}
+	if (bFriendlyGeneralInTheVicinity)
+	{
+		iFriendlyPower *= 11;
+		iFriendlyPower /= 10;
+	}
+
+	for (const CvUnit* pLoopUnit = kEnemy.firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = kEnemy.nextUnit(&iUnitLoop))
+	{
+		if (pLoopUnit->IsCombatUnit())
+		{
+			int iDistance = plotDistance(pLoopUnit->getX(), pLoopUnit->getY(), iX, iY);
+			if (iDistance <= iRange)
+			{
+				iEnemyPower += pLoopUnit->GetPower();
+			}
+		}
+		if (!bEnemyGeneralInTheVicinity && pLoopUnit->IsGreatGeneral())
+		{
+			int iDistance = plotDistance(pLoopUnit->getX(), pLoopUnit->getY(), iX, iY);
+			if (iDistance <= iRange)
+			{
+				bEnemyGeneralInTheVicinity = true;
+			}
+		}
+	}
+	if (bEnemyGeneralInTheVicinity)
+	{
+		iEnemyPower *= 11;
+		iEnemyPower /= 10;
+	}
+
+	return (iEnemyPower>iFriendlyPower);
+}
+#endif
 
 //	--------------------------------------------------------------------------------
 void CvCity::CheckForAchievementBuilding(BuildingTypes eBuilding)

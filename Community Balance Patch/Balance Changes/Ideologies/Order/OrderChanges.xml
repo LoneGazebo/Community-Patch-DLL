@@ -51,4 +51,55 @@
 			<Text>The phrase 'Peace, Land, Bread,' popularized by Lenin and others during the early days of the Soviet Revolution, highlighted their desire to focus on the needs of the impoverished Russian peasantry. The Bolshevik Initial Decrees of the 1910-20s were announced as soon as the Bolsheviks declared their success in the October Revolution (October 26, 1917). The decrees conformed to the popular Bolshevik slogan "Peace, Bread, and Land", taken up by the masses during the July Days (July 1917), an uprising of workers and military forces.</Text>
 		</Row>
 	</Language_en_US>
+	<!-- Five Year Plan -->
+	<Policy_ImprovementYieldChanges>
+		<Row>
+			<PolicyType>POLICY_URBANIZATION</PolicyType>
+			<ImprovementType>IMPROVEMENT_TERRACE_FARM</ImprovementType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_URBANIZATION</PolicyType>
+			<ImprovementType>IMPROVEMENT_EKI</ImprovementType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_URBANIZATION</PolicyType>
+			<ImprovementType>IMPROVEMENT_ENCAMPMENT</ImprovementType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_URBANIZATION</PolicyType>
+			<ImprovementType>IMPROVEMENT_POLDER</ImprovementType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_URBANIZATION</PolicyType>
+			<ImprovementType>IMPROVEMENT_CHATEAU</ImprovementType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_URBANIZATION</PolicyType>
+			<ImprovementType>IMPROVEMENT_KASBAH</ImprovementType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_URBANIZATION</PolicyType>
+			<ImprovementType>IMPROVEMENT_BRAZILWOOD_CAMP</ImprovementType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_URBANIZATION</PolicyType>
+			<ImprovementType>IMPROVEMENT_MOAI</ImprovementType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>1</Yield>
+		</Row>
+	</Policy_ImprovementYieldChanges>
 </GameData>

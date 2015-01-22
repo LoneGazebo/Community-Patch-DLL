@@ -101,8 +101,89 @@
 			<ResponseType>RESPONSE_DOW_IDEOLOGY_SAME</ResponseType>
 			<Response>TXT_KEY_GENERIC_DOW_IDEOLOGY_SAME%</Response>
 		</Row>
+		<!-- End DOF Explanations -->
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_END_WORK_WITH_US_BLOCK_VICTORY</ResponseType>
+			<Response>TXT_KEY_END_WORK_WITH_US_BLOCK%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_END_WORK_WITH_US_IDEOLOGY</ResponseType>
+			<Response>TXT_KEY_END_WORK_WITH_US_IDEOLOGY%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_END_WORK_WITH_US_FAITH</ResponseType>
+			<Response>TXT_KEY_END_WORK_WITH_US_FAITH%</Response>
+		</Row>
+		
+		<!-- Victory Block Diplomacy Statements -->
+		<Row LeaderType="GENERIC">
+			<ResponseType>DIPLO_MESSAGE_VICTORY_BLOCK_ANNOUNCE_WORLD_CONQUEST</ResponseType>
+			<Response>TXT_KEY_GENERIC_COMPETITION_BLOCK_WORLD_CONQUEST%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>DIPLO_MESSAGE_VICTORY_BLOCK_ANNOUNCE_WORLD_CONGRESS</ResponseType>
+			<Response>TXT_KEY_GENERIC_BLOCK_ANNOUNCE_WORLD_CONGRESS%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>DIPLO_MESSAGE_VICTORY_BLOCK_ANNOUNCE_CULTURE</ResponseType>
+			<Response>TXT_KEY_GENERIC_BLOCK_ANNOUNCE_CULTURE%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>DIPLO_MESSAGE_VICTORY_BLOCK_ANNOUNCE_SPACESHIP</ResponseType>
+			<Response>TXT_KEY_GENERIC_BLOCK_ANNOUNCE_SPACESHIP%</Response>
+		</Row>
+		<!-- Insulted -->
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_WAR_DEMAND_INSULTED</ResponseType>
+			<Response>TXT_KEY_WAR_DEMAND_INSULTED%</Response>
+		</Row>
 	</Diplomacy_Responses>
 	<Language_en_US>
+		<!-- Insulted -->
+		<Row Tag="TXT_KEY_WAR_DEMAND_INSULTED_1">
+			<Text>Your words are sharp, but our swords are sharper. I shall cut out your vile tongue myself!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WAR_DEMAND_INSULTED_2">
+			<Text>I will not sit idly and take such insults. Prepare for war!</Text>
+		</Row>
+		<!-- Diplo Modifier Texts-->
+		<Row Tag="TXT_KEY_DIPLO_DISCUSS_MESSAGE_END_DEC_FRIENDSHIP_TT">
+			<Text>This action cancels your current Declaration of Friendship, and may severe diplomatic repercussions.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_DOF_BROKEN">
+			<Text>{1_CivName:textkey} and {2_CivName:textkey} have made [COLOR_NEGATIVE_TEXT]broken[ENDCOLOR] their public Declaration of Friendship, citing diplomatic tension as the cause.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_DOF_S_BROKEN">
+			<Text>{1_CivName:textkey} and {2_CivName:textkey} are no longer Friends!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_VICTORY_DISPUTE_CBP_WEAK">
+			<Text>[COLOR_NEGATIVE_TEXT]They fear you are competing with them.[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_VICTORY_DISPUTE_CBP_STRONG">
+			<Text>[COLOR_NEGATIVE_TEXT]They suspect you are competing with them.[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_VICTORY_DISPUTE_CBP_FIERCE">
+			<Text>[COLOR_NEGATIVE_TEXT]They know you are competing with them, and they hate it![ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_VICTORY_BLOCK_FIERCE">
+			<Text>[COLOR_NEGATIVE_TEXT]Your behavior infuriates them.[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_VICTORY_BLOCK_STRONG">
+			<Text>[COLOR_NEGATIVE_TEXT]Your behavior angers them.[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_VICTORY_BLOCK_WEAK">
+			<Text>[COLOR_NEGATIVE_TEXT]Your behavior worries them.[ENDCOLOR]</Text>
+		</Row>
+		<!-- END DOF Texts -->
+		<Row Tag="TXT_KEY_END_WORK_WITH_US_BLOCK_1">
+			<Text>Our paths have diverged, and I see now that you desire some grand goal more than our relationship. Consider our Declaration of Friendship ended.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_END_WORK_WITH_US_IDEOLOGY_1">
+			<Text>Our ideological differences are simply too great. I cannot stand by our Declaration of Friendship any longer.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_END_WORK_WITH_US_FAITH_1">
+			<Text>Your religious views no longer mesh with mine. As such, I must end our Declaration of Friendship.</Text>
+		</Row>
 		<!-- Human over AI -->
 		<Row Tag="TXT_KEY_GENERIC_INFLUENTIAL_ON_AI_CLASSICAL_1">
 			<Text>Your culture has overawed my coarse and barbaric people. Our culture will be ground to dust under the weight of your mighty influence, however others surely remain who will contest your dominance.</Text>
@@ -155,7 +236,21 @@
 		<Row Tag="TXT_KEY_GENERIC_COMPETITION_ANNOUNCE_CONFUSED_2">
 			<Text>One of my historians came by the other day to ask me about you and your impact on world history. Do you want to know what I told him? Nothing, and not for a lack of trying. What are you doing over there, anyway? Feeling a bit listless, maybe?</Text>
 		</Row>
-
+		
+		<!-- Only made if AI is sure that a human player is headed towards a victory condition that isn't the AI's. -->
+		<Row Tag="TXT_KEY_GENERIC_BLOCK_ANNOUNCE_WORLD_CONQUEST_1">
+			<Text>Your armies are a blight on the land. You are the bringer of destruction, not unity. I will not stand idly by to watch you take everything for your own!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_BLOCK_ANNOUNCE_WORLD_CONGRES_1">
+			<Text>Your machinations in the World Congress are pathetic. A true hero fights his battles with swords, not coins and silver tongues.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_BLOCK_ANNOUNCE_CULTURE_1">
+			<Text>Your culture washes over the earth light a carless child, tossing aside anything that does not suit your fancy. Your influence will wane soon enough.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_BLOCK_ANNOUNCE_SPACESHIP_1">
+			<Text>Your quest for science will bring you nothing but ruin. While you look to the stars, I and others look at your lands.</Text>
+		</Row>
+		
 		<!-- AI DOW Multiple Wars in Past -->
 		<Row Tag="TXT_KEY_GENERIC_DOW_OLD_ENEMIES_1">
 			<Text>Once more our armies shall meet on the battlefield. We might have been friends once, but there is too much bad blood now for that.</Text>

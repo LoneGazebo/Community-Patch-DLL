@@ -7287,7 +7287,7 @@ bool CvUnit::sellExoticGoods()
 #endif
 				{
 					CvPlot* pLoopPlot = pCity->GetCityCitizens()->GetCityPlotFromIndex(iCityPlotLoop);
-					if(pLoopPlot != NULL && (pLoopPlot->getOwner() == ePlotOwner) && !pLoopPlot->isWater() && !pLoopPlot->isMountain() && !pLoopPlot->IsNaturalWonder() && pLoopPlot->isCoastalLand() && (pLoopPlot->getResourceType(NO_TEAM) == NO_RESOURCE))
+					if(pLoopPlot != NULL && (pLoopPlot->getOwner() == ePlotOwner) && !pLoopPlot->isCity() && !pLoopPlot->isWater() && !pLoopPlot->isMountain() && !pLoopPlot->IsNaturalWonder() && pLoopPlot->isCoastalLand() && (pLoopPlot->getResourceType(NO_TEAM) == NO_RESOURCE))
 					{
 						if(pLoopPlot->getImprovementType() != NO_IMPROVEMENT)
 						{
@@ -11747,6 +11747,12 @@ bool CvUnit::canBuildRoute() const
 				{
 					return true;
 				}
+#if defined(MOD_BALANCE_CORE)
+				if(thisBuildInfo->getTechObsolete() != NO_TECH && !pTeamTechs->HasTech((TechTypes)(thisBuildInfo->getTechObsolete())))
+				{
+					return true;
+				}
+#endif
 			}
 		}
 	}
@@ -24218,11 +24224,19 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 		if((AI_getUnitAIType() == UNITAI_FAST_ATTACK) ||
 		        (AI_getUnitAIType() == UNITAI_ATTACK))
 		{
+#if defined(MOD_BALANCE_CORE_MILITARY)
+			iValue += 50 + iFlavorOffense * 2;
+#else
 			iValue += 40 + iFlavorOffense * 2;
+#endif
 		}
 		else
 		{
+#if defined(MOD_BALANCE_CORE_MILITARY)
+			iValue += 30 + iFlavorOffense * 2;
+#else
 			iValue += 10 + iFlavorOffense * 2;
+#endif
 		}
 	}
 
@@ -24231,11 +24245,19 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 		if((AI_getUnitAIType() == UNITAI_FAST_ATTACK) ||
 		        (AI_getUnitAIType() == UNITAI_ATTACK))
 		{
+#if defined(MOD_BALANCE_CORE_MILITARY)
+			iValue += 50 + iFlavorOffense * 2;
+#else
 			iValue += 40 + iFlavorOffense * 2;
+#endif
 		}
 		else
 		{
+#if defined(MOD_BALANCE_CORE_MILITARY)
+			iValue += 30 + iFlavorOffense * 2;
+#else
 			iValue += 10 + iFlavorOffense * 2;
+#endif
 		}
 	}
 

@@ -2618,7 +2618,11 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 	// slewis - warmonger calculations
 	if (bConquest)
 	{
+#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
+		if(!isMinorCiv() && !isBarbarian())
+#else
 		if(!isMinorCiv())
+#endif
 		{
 			bool bDoWarmonger = true;
 
@@ -2627,6 +2631,13 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 			{
 				bDoWarmonger = false;
 			}
+#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
+			//Captured a city from barbs? Everyone likes that!
+			if(GET_PLAYER(pOldCity->getOwner()).isBarbarian())
+			{
+				bDoWarmonger = false;
+			}
+#endif
 
 			if (bDoWarmonger)
 			{
@@ -10090,6 +10101,16 @@ bool CvPlayer::canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestEra, b
 			}
 		}
 	}
+#if defined(MOD_BALANCE_CORE)
+	if(GC.getBuildInfo(eBuild)->getTechObsolete() != NO_TECH)
+	{
+		if((GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes)GC.getBuildInfo(eBuild)->getTechObsolete())))
+		{
+			return false;
+		}
+	}
+#endif
+
 
 	// Is this an improvement that is only useable by a specific civ?
 	ImprovementTypes eImprovement = (ImprovementTypes)GC.getBuildInfo(eBuild)->getImprovement();
@@ -10231,13 +10252,30 @@ RouteTypes CvPlayer::getBestRoute(CvPlot* pPlot) const
 				{
 					if((pPlot != NULL) ? ((pPlot->getRouteType() == eRoute) || canBuild(pPlot, eBuild)) : GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes)(pkBuildInfo->getTechPrereq())))
 					{
+#if defined(MOD_BALANCE_CORE)
+						if(pkBuildInfo->getTechObsolete() == NO_TECH)
+						{
+#endif
 						iValue = pkRouteInfo->getValue();
-
+#if defined(MOD_BALANCE_CORE)
+						}
+#endif
+#if defined(MOD_BALANCE_CORE)
+						else if(!GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes)(pkBuildInfo->getTechObsolete())))
+						{
+							iValue = pkRouteInfo->getValue();
+						}
+						else
+						{
+							iValue = 0;
+						}
+#endif
 						if(iValue > iBestValue)
 						{
 							iBestValue = iValue;
 							eBestRoute = eRoute;
 						}
+
 					}
 				}
 			}
@@ -17240,81 +17278,6 @@ void CvPlayer::DoGreatPersonExpended(UnitTypes eGreatPersonUnit)
 				{
 					iYieldBonus += pReligion->m_Beliefs.GetGreatPersonExpendedFaith();
 				}
-#if defined(MOD_BALANCE_CORE_BELIEFS)
-				int iEra = GetCurrentEra();
-				if(iEra < 1)
-				{
-					iEra = 1;
-				}
-				int iCulture = pReligion->m_Beliefs.GetYieldFromGPUse(YIELD_CULTURE) * iEra;
-				if(iCulture > 0)
-				{
-					changeJONSCulture(iCulture);
-					if(GetID() == GC.getGame().getActivePlayer())
-					{
-						char text[256] = {0};
-						fDelay += 0.5f;
-						sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", iCulture);
-						DLLUI->AddPopupText(pGreatPersonUnit->getX(),pGreatPersonUnit->getY(), text, fDelay);
-					}
-				}
-				int iFaith2 = pReligion->m_Beliefs.GetYieldFromGPUse(YIELD_FAITH) * iEra;
-				if(iFaith2 > 0)
-				{
-					ChangeFaith(iFaith2);
-					if(GetID() == GC.getGame().getActivePlayer())
-					{
-						char text[256] = {0};
-						fDelay += 0.5f;
-						sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", iFaith2);
-						DLLUI->AddPopupText(pGreatPersonUnit->getX(),pGreatPersonUnit->getY(), text, fDelay);
-					}
-				}
-				int iGold = pReligion->m_Beliefs.GetYieldFromGPUse(YIELD_GOLD) * iEra;
-				if(iGold > 0)
-				{
-					GetTreasury()->ChangeGold(iGold);
-					if(GetID() == GC.getGame().getActivePlayer())
-					{
-						char text[256] = {0};
-						fDelay += 0.5f;
-						sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]", iGold);
-						DLLUI->AddPopupText(pGreatPersonUnit->getX(),pGreatPersonUnit->getY(), text, fDelay);
-					}
-				}
-				int iScience = pReligion->m_Beliefs.GetYieldFromGPUse(YIELD_SCIENCE) * iEra;
-				if(iScience > 0)
-				{
-					TechTypes eCurrentTech = GetPlayerTechs()->GetCurrentResearch();
-					if(eCurrentTech == NO_TECH)
-					{
-						changeOverflowResearch(iScience);
-					}
-					else
-					{
-						GET_TEAM(GET_PLAYER(GetID()).getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iScience, GetID());
-					}
-					if(GetID() == GC.getGame().getActivePlayer())
-					{
-						char text[256] = {0};
-						fDelay += 0.5f;
-						sprintf_s(text, "[COLOR_BLUE]+%d[ENDCOLOR][ICON_RESEARCH]", iScience);
-						DLLUI->AddPopupText(pGreatPersonUnit->getX(),pGreatPersonUnit->getY(), text, fDelay);
-					}
-				}
-				int iGA = pReligion->m_Beliefs.GetYieldFromGPUse(YIELD_GOLDEN_AGE_POINTS) * iEra;
-				if(iGA > 0)
-				{
-					ChangeGoldenAgeProgressMeter(iGA);
-					if(GetID() == GC.getGame().getActivePlayer())
-					{
-						char text[256] = {0};
-						fDelay += 0.5f;
-						sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GOLDEN_AGE]", iGA);
-						DLLUI->AddPopupText(pGreatPersonUnit->getX(),pGreatPersonUnit->getY(), text, fDelay);
-					}
-				}
-#endif
 			}
 
 			if (iYieldBonus > 0)
@@ -17369,6 +17332,84 @@ void CvPlayer::DoGreatPersonExpended(UnitTypes eGreatPersonUnit)
 				}
 			}
 		}
+#if defined(MOD_BALANCE_CORE_BELIEFS)
+		if(pReligion)
+		{
+			int iEra = GetCurrentEra();
+			if(iEra < 1)
+			{
+				iEra = 1;
+			}
+			int iCulture = pReligion->m_Beliefs.GetYieldFromGPUse(YIELD_CULTURE) * iEra;
+			if(iCulture > 0)
+			{
+				changeJONSCulture(iCulture);
+				if(GetID() == GC.getGame().getActivePlayer())
+				{
+					char text[256] = {0};
+					fDelay += 0.5f;
+					sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", iCulture);
+					DLLUI->AddPopupText(pGreatPersonUnit->getX(),pGreatPersonUnit->getY(), text, fDelay);
+				}
+			}
+			int iFaith2 = pReligion->m_Beliefs.GetYieldFromGPUse(YIELD_FAITH) * iEra;
+			if(iFaith2 > 0)
+			{
+				ChangeFaith(iFaith2);
+				if(GetID() == GC.getGame().getActivePlayer())
+				{
+					char text[256] = {0};
+					fDelay += 0.5f;
+					sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", iFaith2);
+					DLLUI->AddPopupText(pGreatPersonUnit->getX(),pGreatPersonUnit->getY(), text, fDelay);
+				}
+			}
+			int iGold = pReligion->m_Beliefs.GetYieldFromGPUse(YIELD_GOLD) * iEra;
+			if(iGold > 0)
+			{
+				GetTreasury()->ChangeGold(iGold);
+				if(GetID() == GC.getGame().getActivePlayer())
+				{
+					char text[256] = {0};
+					fDelay += 0.5f;
+					sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]", iGold);
+					DLLUI->AddPopupText(pGreatPersonUnit->getX(),pGreatPersonUnit->getY(), text, fDelay);
+				}
+			}
+			int iScience = pReligion->m_Beliefs.GetYieldFromGPUse(YIELD_SCIENCE) * iEra;
+			if(iScience > 0)
+			{
+				TechTypes eCurrentTech = GetPlayerTechs()->GetCurrentResearch();
+				if(eCurrentTech == NO_TECH)
+				{
+					changeOverflowResearch(iScience);
+				}
+				else
+				{
+					GET_TEAM(GET_PLAYER(GetID()).getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iScience, GetID());
+				}
+				if(GetID() == GC.getGame().getActivePlayer())
+				{
+					char text[256] = {0};
+					fDelay += 0.5f;
+					sprintf_s(text, "[COLOR_BLUE]+%d[ENDCOLOR][ICON_RESEARCH]", iScience);
+					DLLUI->AddPopupText(pGreatPersonUnit->getX(),pGreatPersonUnit->getY(), text, fDelay);
+				}
+			}
+			int iGA = pReligion->m_Beliefs.GetYieldFromGPUse(YIELD_GOLDEN_AGE_POINTS) * iEra;
+			if(iGA > 0)
+			{
+				ChangeGoldenAgeProgressMeter(iGA);
+				if(GetID() == GC.getGame().getActivePlayer())
+				{
+					char text[256] = {0};
+					fDelay += 0.5f;
+					sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GOLDEN_AGE]", iGA);
+					DLLUI->AddPopupText(pGreatPersonUnit->getX(),pGreatPersonUnit->getY(), text, fDelay);
+				}
+			}
+		}
+#endif
 	}
 #else
 	// Faith gained
@@ -27030,6 +27071,12 @@ int CvPlayer::getAdvancedStartRouteCost(RouteTypes eRoute, bool bAdd, CvPlot* pP
 				{
 					return -1;
 				}
+#if defined(MOD_BALANCE_CORE)
+				else if(pkBuildInfo->getTechObsolete() != NO_TECH && (GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes)pkBuildInfo->getTechObsolete())))
+				{
+					return -1;
+				}
+#endif
 			}
 		}
 	}
@@ -27142,6 +27189,12 @@ int CvPlayer::getAdvancedStartImprovementCost(ImprovementTypes eImprovement, boo
 			{
 				return -1;
 			}
+#if defined(MOD_BALANCE_CORE)
+			else if(pkBuildInfo->getTechObsolete() != NO_TECH && (GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes)pkBuildInfo->getTechObsolete())))
+			{
+				return -1;
+			}
+#endif
 		}
 	}
 

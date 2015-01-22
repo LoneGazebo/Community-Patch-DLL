@@ -81,6 +81,9 @@ public:
 #if defined(MOD_DIPLOMACY_CITYSTATES)
 	int GetCityStateExtraVote() const;
 #endif
+#if defined(MOD_BALANCE_CORE)
+	int GetResourceFromImprovement() const;
+#endif
 	int GetImprovementPillage() const;
 	void SetImprovementPillage(int i);
 	int GetImprovementUpgrade() const;
@@ -123,6 +126,9 @@ public:
 	bool IsOnlyCityStateTerritory() const;
 #if defined(MOD_DIPLOMACY_CITYSTATES)
 	bool IsEmbassy() const;
+#endif
+#if defined(MOD_BALANCE_CORE)
+	int GetObsoleteTech() const;
 #endif
 	bool IsNoTwoAdjacent() const;
 	bool IsAdjacentLuxury() const;
@@ -219,6 +225,9 @@ protected:
 #if defined(MOD_DIPLOMACY_CITYSTATES)
 	int m_iImprovementLeagueVotes;
 #endif
+#if defined(MOD_BALANCE_CORE)
+	int m_iImprovementResource;
+#endif
 	int m_iImprovementPillage;
 	int m_iImprovementUpgrade;
 	int m_iRequiresXAdjacentLand;
@@ -259,6 +268,9 @@ protected:
 	bool m_bOnlyCityStateTerritory;
 #if defined(MOD_DIPLOMACY_CITYSTATES)
 	bool m_bIsEmbassy;
+#endif
+#if defined(MOD_BALANCE_CORE)
+	int m_iGetObsoleteTech;
 #endif
 	bool m_bNoTwoAdjacent;
     bool m_bAdjacentLuxury;

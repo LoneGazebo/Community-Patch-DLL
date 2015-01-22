@@ -164,3 +164,21 @@ WHERE Type = 'WORLDSIZE_LARGE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='C
 UPDATE Worlds
 SET NumCitiesTechCostMod = '4'
 WHERE Type = 'WORLDSIZE_HUGE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
+
+-- Goody Hut Payout
+
+UPDATE GoodyHuts
+SET GoldRandAmount = '20'
+WHERE Type = 'GOODY_GOLD';
+
+UPDATE GoodyHuts
+SET GoldRandAmount = '20'
+WHERE Type = 'GOODY_LOW_GOLD';
+
+UPDATE GoodyHuts
+SET GoldRandAmount = '20'
+WHERE Type = 'GOODY_HIGH_GOLD';
+
+UPDATE GoodyHuts
+SET Experience = '20'
+WHERE Type = 'GOODY_EXPERIENCE';

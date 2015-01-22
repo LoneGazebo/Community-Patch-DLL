@@ -186,7 +186,7 @@
 		</Update>
 		<Update>
 			<Where ImprovementType="IMPROVEMENT_TRADING_POST" YieldType="YIELD_GOLD" />
-			<Set Yield="1" />
+			<Set Yield="2" />
 		</Update>
 		
 		<Update>
@@ -245,7 +245,7 @@
 			<ImprovementType>IMPROVEMENT_CHATEAU</ImprovementType>
 			<TechType>TECH_PRINTING_PRESS</TechType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>1</Yield>
+			<Yield>2</Yield>
 		</Row>
 		<Row>
 			<ImprovementType>IMPROVEMENT_CHATEAU</ImprovementType>
@@ -263,7 +263,7 @@
 			<ImprovementType>IMPROVEMENT_MANUFACTORY</ImprovementType>
 			<TechType>TECH_FERTILIZER</TechType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Yield>1</Yield>
+			<Yield>2</Yield>
 		</Row>
 		<Row>
 			<ImprovementType>IMPROVEMENT_MANUFACTORY</ImprovementType>
@@ -275,37 +275,37 @@
 			<ImprovementType>IMPROVEMENT_ACADEMY</ImprovementType>
 			<TechType>TECH_SCIENTIFIC_THEORY</TechType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>1</Yield>
+			<Yield>2</Yield>
 		</Row>
 		<Row>
 			<ImprovementType>IMPROVEMENT_ACADEMY</ImprovementType>
 			<TechType>TECH_BALLISTICS</TechType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>1</Yield>
+			<Yield>2</Yield>
 		</Row>
 		<Row>
 			<ImprovementType>IMPROVEMENT_ACADEMY</ImprovementType>
 			<TechType>TECH_SATELLITES</TechType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>1</Yield>
+			<Yield>2</Yield>
 		</Row>
 		<Row>
 			<ImprovementType>IMPROVEMENT_CUSTOMS_HOUSE</ImprovementType>
 			<TechType>TECH_RAILROAD</TechType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>1</Yield>
+			<Yield>2</Yield>
 		</Row>
 		<Row>
 			<ImprovementType>IMPROVEMENT_CUSTOMS_HOUSE</ImprovementType>
 			<TechType>TECH_ARCHITECTURE</TechType>
 			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>1</Yield>
+			<Yield>2</Yield>
 		</Row>
 		<Row>
 			<ImprovementType>IMPROVEMENT_CUSTOMS_HOUSE</ImprovementType>
 			<TechType>TECH_REFRIGERATION</TechType>
 			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>1</Yield>
+			<Yield>2</Yield>
 		</Row>
 		<Row>
 			<ImprovementType>IMPROVEMENT_CITADEL</ImprovementType>
@@ -317,13 +317,13 @@
 			<ImprovementType>IMPROVEMENT_CITADEL</ImprovementType>
 			<TechType>TECH_ADVANCED_BALLISTICS</TechType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>1</Yield>
+			<Yield>2</Yield>
 		</Row>
 		<Row>
 			<ImprovementType>IMPROVEMENT_CITADEL</ImprovementType>
 			<TechType>TECH_MOBILE_TACTICS</TechType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Yield>1</Yield>
+			<Yield>2</Yield>
 		</Row>
 		<Row>
 			<ImprovementType>IMPROVEMENT_LANDMARK</ImprovementType>

@@ -1146,6 +1146,9 @@ public:
 	int getCost() const;
 	int getCostIncreasePerImprovement() const;
 	int getTechPrereq() const;
+#if defined(MOD_BALANCE_CORE)
+	int getTechObsolete() const;
+#endif
 	int getImprovement() const;
 	int getRoute() const;
 	int getEntityEvent() const;
@@ -1178,6 +1181,9 @@ protected:
 	int m_iCost;
 	int m_iCostIncreasePerImprovement;
 	int m_iTechPrereq;
+#if defined(MOD_BALANCE_CORE)
+	int m_iTechObsolete;
+#endif
 	int m_iImprovement;
 	int m_iRoute;
 	int m_iEntityEvent;
