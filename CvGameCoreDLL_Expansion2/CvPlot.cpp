@@ -5466,6 +5466,15 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 						}
 					}
 #endif
+#if defined(MOD_BALANCE_CORE)
+					//Resource from improvement - change ownership if needed.
+					ResourceTypes eResourceFromImprovement = (ResourceTypes)pImprovementInfo->GetResourceFromImprovement();
+
+					if(eOldOwner != NO_PLAYER && eResourceFromImprovement != NO_IMPROVEMENT)
+					{
+						GET_PLAYER(eOldOwner).changeNumResourceTotal(eResourceFromImprovement, -1, true);
+					}
+#endif
 					// Maintenance change!
 					if(MustPayMaintenanceHere(getOwner()))
 					{
@@ -5630,7 +5639,16 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 							}
 						}
 					}
+#if defined(MOD_BALANCE_CORE)
+					//Resource from improvement - change ownership if needed.
+					ResourceTypes eResourceFromImprovement = (ResourceTypes)pImprovementInfo->GetResourceFromImprovement();
 
+					if(eResourceFromImprovement != NO_RESOURCE)
+					{
+						GET_PLAYER(eNewValue).changeNumResourceTotal(eResourceFromImprovement, 1, true);
+
+					}
+#endif
 					// Maintenance change!
 					if(MustPayMaintenanceHere(eNewValue))
 					{
@@ -6753,6 +6771,15 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 						GET_PLAYER(eOldBuilder).changeSiphonLuxuryCount(owningPlayerID, -1 * oldImprovementEntry.GetLuxuryCopiesSiphonedFromMinor());
 					}
 				}
+#if defined(MOD_BALANCE_CORE)
+				//Resource from improvement - change ownership if needed.
+				ResourceTypes eResourceFromImprovement = (ResourceTypes)oldImprovementEntry.GetResourceFromImprovement();
+
+				if(eResourceFromImprovement != NO_RESOURCE)
+				{
+					GET_PLAYER(eOldBuilder).changeNumResourceTotal(eResourceFromImprovement, -1, true);
+				}
+#endif
 
 				// Update the amount of a Resource used up by the previous Improvement that is being removed
 				int iNumResourceInfos= GC.getNumResourceInfos();
@@ -6917,6 +6944,15 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 						GET_PLAYER(eBuilder).changeSiphonLuxuryCount(owningPlayerID, newImprovementEntry.GetLuxuryCopiesSiphonedFromMinor());
 					}
 				}
+#if defined(MOD_BALANCE_CORE)
+				//Resource from improvement - change ownership if needed.
+				ResourceTypes eResourceFromImprovement = (ResourceTypes)newImprovementEntry.GetResourceFromImprovement();
+
+				if(eResourceFromImprovement != NO_RESOURCE)
+				{
+					owningPlayer.changeNumResourceTotal(eResourceFromImprovement, 1, true);
+				}
+#endif
 
 				// Add Resource Quantity to total
 				if(getResourceType() != NO_RESOURCE)
@@ -7146,6 +7182,23 @@ void CvPlot::SetImprovementPillaged(bool bPillaged)
 				}
 			}
 		}
+#if defined(MOD_BALANCE_CORE)
+		// Quantified Resource changes for improvements
+		if(getImprovementType() != NO_IMPROVEMENT)
+		{
+			//Resource from improvement - change ownership if needed.
+			ResourceTypes eResourceFromImprovement = (ResourceTypes)GC.getImprovementInfo(getImprovementType())->GetResourceFromImprovement();
+
+			if(bPillaged && (eResourceFromImprovement != NO_RESOURCE))
+			{
+				GET_PLAYER(getOwner()).changeNumResourceTotal(eResourceFromImprovement, -1, true);
+			}
+			else if(!bPillaged && (eResourceFromImprovement != NO_RESOURCE))
+			{
+				GET_PLAYER(getOwner()).changeNumResourceTotal(eResourceFromImprovement, 1, true);
+			}
+		}
+#endif
 		
 #if defined(MOD_EVENTS_TILE_IMPROVEMENTS)
 		if (bEvents && MOD_EVENTS_TILE_IMPROVEMENTS) {

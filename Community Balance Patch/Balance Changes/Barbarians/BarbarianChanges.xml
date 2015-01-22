@@ -58,7 +58,7 @@
 			<Text>Marsh Walkers</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_MARSH_WALKER_HELP">
-			<Text>Double movement on Marshe and Flood Plain tiles.</Text>
+			<Text>Double movement on Marsh and Flood Plain tiles.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_WHITE_WALKER">
 			<Text>White Walkers</Text>
@@ -66,18 +66,36 @@
 		<Row Tag="TXT_KEY_PROMOTION_WHITE_WALKER_HELP">
 			<Text>Double movement on Snow and Tundra tiles.</Text>
 		</Row>
-		<!-- Barbarian Gold Theft Text-->
+		<!-- Barbarian Theft Text-->
 		<Row Tag="TXT_KEY_BARBARIAN_GOLD_THEFT_CITY_DETAILED">
-			<Text>Barbarians near the city of {2_City} looted the surrounding countryside, stealing {1_Gold} [ICON_GOLD] Gold![NEWLINE]Destroy these Barbarians before they steal more [ICON_GOLD] Gold!</Text>
+			<Text>Barbarians looted {2_City}, stealing treasures worth {1_Gold} [ICON_GOLD] Gold![NEWLINE]Destroy these Barbarians before they steal more stuff!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BARBARIAN_GOLD_THEFT_CITY">
-			<Text>Barbarians looted the city of {1_City}!</Text>
+			<Text>Barbarians looting {1_City}!</Text>
 		</Row>
-		<Row Tag="TXT_KEY_BARBARIAN_GOLD_THEFT_DETAILED">
-			<Text>Barbarians looted your countryside, stealing {1_Gold} [ICON_GOLD] Gold![NEWLINE]Destroy these Barbarians before they steal more [ICON_GOLD] Gold!</Text>
+		<Row Tag="TXT_KEY_BARBARIAN_CULTURE_THEFT_CITY_DETAILED">
+			<Text>Barbarians raided {2_City}, destroying relics worth {1_Culture} [ICON_CULTURE] Culture![NEWLINE]Destroy these Barbarians before they break more stuff!</Text>
 		</Row>
-		<Row Tag="TXT_KEY_BARBARIAN_GOLD_THEFT">
-			<Text>Barbarians looted your countryside!</Text>
+		<Row Tag="TXT_KEY_BARBARIAN_CULTURE_THEFT_CITY">
+			<Text>Barbarians raiding {1_City}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BARBARIAN_SCIENCE_THEFT_CITY_DETAILED">
+			<Text>Barbarians assaulted {2_City}, destroying research materials worth {1_Science} [ICON_RESEARCH] Science![NEWLINE]Destroy these Barbarians before they burn more things!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BARBARIAN_SCIENCE_THEFT_CITY">
+			<Text>Barbarians assaulting {1_City}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BARBARIAN_FOOD_THEFT_CITY_DETAILED">
+			<Text>Barbarians pillaged the stores of {2_City}, taking {1_Food} [ICON_FOOD] Food![NEWLINE]Destroy these Barbarians before they take more stuff!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BARBARIAN_FOOD_THEFT_CITY">
+			<Text>Barbarians stealing from {1_City}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BARBARIAN_PRODUCTION_THEFT_CITY_DETAILED">
+			<Text>Barbarians kidnapped citizens from {2_City}, costing the city {1_Production} [ICON_PRODUCTION] Production![NEWLINE]Destroy these Barbarians before they cause more panic!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BARBARIAN_PRODUCTION_THEFT_CITY">
+			<Text>Barbarians terrorizing {1_City}!</Text>
 		</Row>
 	</Language_en_US>
 </GameData>

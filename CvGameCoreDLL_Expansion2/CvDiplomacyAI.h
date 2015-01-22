@@ -429,6 +429,13 @@ public:
 	void SetPlotBuyingAggressivePosture(PlayerTypes ePlayer, AggressivePostureTypes ePosture);
 	void DoUpdatePlotBuyingAggressivePosture();
 
+#if defined(MOD_BALANCE_CORE)
+	// Victory Block
+	BlockLevelTypes GetVictoryBlockLevel(PlayerTypes ePlayer) const;
+	void SetVictoryBlockLevel(PlayerTypes ePlayer, BlockLevelTypes eBlockLevel);
+	void DoUpdateVictoryBlockLevels();
+#endif
+
 	// Victory Dispute
 	DisputeLevelTypes GetVictoryDisputeLevel(PlayerTypes ePlayer) const;
 	void SetVictoryDisputeLevel(PlayerTypes ePlayer, DisputeLevelTypes eDisputeLevel);
@@ -601,6 +608,9 @@ public:
 	void DoDugUpMyYardStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
 
 	void DoDoFStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
+#if defined(MOD_BALANCE_CORE)
+	void DoEndDoFStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
+#endif
 	void DoDenounceFriendStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
 	void DoDenounceStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
 	void DoRequestFriendDenounceStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement, int& iData1);
@@ -640,6 +650,7 @@ public:
 	void DoIdeologicalStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
 #if defined(MOD_BALANCE_CORE)
 	void DoVictoryCompetitionStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
+	void DoVictoryBlockStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
 #endif
 
 	void DoWeLikedTheirProposal(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
@@ -754,6 +765,10 @@ public:
 	bool IsDoFRejected(PlayerTypes ePlayer) const;
 	bool IsDoFAccepted(PlayerTypes ePlayer) const;
 	void SetDoFAccepted(PlayerTypes ePlayer, bool bValue);
+#if defined(MOD_BALANCE_CORE)
+	bool IsDoFBroken(PlayerTypes ePlayer) const;
+	void SetDoFBroken(PlayerTypes ePlayer, bool bValue);
+#endif
 
 	short GetDoFCounter(PlayerTypes ePlayer) const;
 	void SetDoFCounter(PlayerTypes ePlayer, int iValue);
@@ -1064,6 +1079,10 @@ public:
 	int GetLandDisputeLevelScore(PlayerTypes ePlayer);
 	int GetWonderDisputeLevelScore(PlayerTypes ePlayer);
 	int GetMinorCivDisputeLevelScore(PlayerTypes ePlayer);
+#if defined(MOD_BALANCE_CORE)
+	int GetVictoryDisputeLevelScore(PlayerTypes ePlayer);
+	int GetVictoryBlockLevelScore(PlayerTypes ePlayer);
+#endif
 	int GetWarmongerThreatScore(PlayerTypes ePlayer);
 	int GetCiviliansReturnedToMeScore(PlayerTypes ePlayer);
 	int GetLandmarksBuiltForMeScore(PlayerTypes ePlayer);
@@ -1212,6 +1231,9 @@ private:
 	void LogWarDeclaration(PlayerTypes ePlayer, int iTotalWarWeight = -1);
 	void LogPeaceMade(PlayerTypes ePlayer);
 	void LogDoF(PlayerTypes ePlayer);
+#if defined(MOD_BALANCE_CORE)
+	void LogBrokenDoF(PlayerTypes ePlayer);
+#endif
 	void LogDenounce(PlayerTypes ePlayer, bool bBackstab = false, bool bRefusal = false);
 	void LogFriendRequestDenounce(PlayerTypes ePlayer, PlayerTypes eAgainstPlayer, bool bAgreed);
 	void LogCoopWar(PlayerTypes ePlayer, PlayerTypes eAgainstPlayer, CoopWarStates eAcceptedState);
@@ -1250,6 +1272,9 @@ private:
 	void LogPlotBuyingAggressivePosture(CvString& strString, PlayerTypes ePlayer);
 	void LogLandDispute(CvString& strString, PlayerTypes ePlayer);
 	void LogVictoryDispute(CvString& strString, PlayerTypes ePlayer);
+#if defined(MOD_BALANCE_CORE)
+	void LogVictoryBlock(CvString& strString, PlayerTypes ePlayer);
+#endif
 	void LogWonderDispute(CvString& strString, PlayerTypes ePlayer);
 	void LogMinorCivDispute(CvString& strString, PlayerTypes ePlayer);
 	void LogProximity(CvString& strString, PlayerTypes ePlayer);
@@ -1303,6 +1328,9 @@ private:
 		char m_aePlayerLandDisputeLevel[REALLY_MAX_PLAYERS];
 		char m_aePlayerLastTurnLandDisputeLevel[REALLY_MAX_PLAYERS];
 		char m_aePlayerVictoryDisputeLevel[REALLY_MAX_PLAYERS];
+#if defined(MOD_BALANCE_CORE)
+		char m_paePlayerVictoryBlockLevel[REALLY_MAX_PLAYERS];
+#endif
 		char m_aePlayerWonderDisputeLevel[REALLY_MAX_PLAYERS];
 		char m_aePlayerMinorCivDisputeLevel[REALLY_MAX_PLAYERS];
 		char m_aeMilitaryAggressivePosture[REALLY_MAX_PLAYERS];
@@ -1329,6 +1357,9 @@ private:
 		short m_aiDemandTooSoonNumTurns[MAX_MAJOR_CIVS];
 
 		bool m_abDoFAccepted[MAX_MAJOR_CIVS];
+#if defined(MOD_BALANCE_CORE)
+		bool m_abDoFBroken[MAX_MAJOR_CIVS];
+#endif
 		short m_aiDoFCounter[MAX_MAJOR_CIVS];
 
 		bool m_abDenouncedPlayer[MAX_MAJOR_CIVS];
@@ -1572,6 +1603,9 @@ private:
 	char* m_paePlayerLandDisputeLevel;
 	char* m_paePlayerLastTurnLandDisputeLevel;
 	char* m_paePlayerVictoryDisputeLevel;
+#if defined(MOD_BALANCE_CORE)
+	char* m_paePlayerVictoryBlockLevel;
+#endif
 	char* m_paePlayerWonderDisputeLevel;
 	char* m_paePlayerMinorCivDisputeLevel;
 	char** m_ppaaeOtherPlayerLandDisputeLevel;
@@ -1594,6 +1628,9 @@ private:
 	short* m_paiDemandTooSoonNumTurns;
 
 	bool* m_pabDoFAccepted;
+#if defined(MOD_BALANCE_CORE)
+	bool* m_pabDoFBroken;
+#endif
 	short* m_paiDoFCounter;
 
 	bool* m_pabDenouncedPlayer;

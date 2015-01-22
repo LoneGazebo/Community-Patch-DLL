@@ -1,3 +1,4 @@
+print("This is the modded TopPanel from CBP")
 -------------------------------
 -- TopPanel.lua
 -------------------------------
@@ -490,34 +491,6 @@ function ScienceTipHandler( control )
 			end
 	
 			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_SCIENCE_FROM_RESEARCH_AGREEMENTS", iScienceFromRAs / 100);
-		end
-
-		-- Science from Allies (CSD MOD)
-		local iScienceFromAllies = pPlayer:GetScienceRateFromMinorAllies();
-		if (iScienceFromAllies ~= 0) then
-		
-			-- Add separator for non-initial entries
-			if (bFirstEntry) then
-				bFirstEntry = false;
-			else
-				strText = strText .. "[NEWLINE]";
-			end
-	
-			strText = strText .. Locale.ConvertTextKey("TXT_KEY_MINOR_SCIENCE_FROM_LEAGUE_ALLIES", iScienceFromAllies);
-		end
-
-		-- Science from Funding from League (CSD MOD)
-		local iScienceFromLeague = pPlayer:GetScienceRateFromLeagueAid();
-		if (iScienceFromLeague ~= 0) then
-		
-			-- Add separator for non-initial entries
-			if (bFirstEntry) then
-				bFirstEntry = false;
-			else
-				strText = strText .. "[NEWLINE]";
-			end
-	
-			strText = strText .. Locale.ConvertTextKey("TXT_KEY_SCIENCE_FUNDING_FROM_LEAGUE", iScienceFromLeague);
 		end
 
 -- CBP Science from Religion

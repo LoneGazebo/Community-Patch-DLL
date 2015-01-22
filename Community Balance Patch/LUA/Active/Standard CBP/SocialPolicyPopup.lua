@@ -1,4 +1,4 @@
-
+print("This is the modded SocialPolicyPopup from CBP")
 -------------------------------------------------
 -- SocialPolicy Chooser Popup
 -------------------------------------------------
@@ -338,6 +338,13 @@ function UpdateDisplay()
 			else
 				--thisEraLabel:SetHide(true);
 			end
+-- CBP
+			if (iEraPrereq ~= nil and pTeam:GetCurrentEra() >= iEraPrereq) then
+				bEraLock = false;
+			elseif player:IsPolicyBranchUnlocked ( i ) then
+				bEraLock = false;
+			end
+--END
 			
 			local lockName = "Lock"..numString;
 			local thisLock = Controls[lockName];

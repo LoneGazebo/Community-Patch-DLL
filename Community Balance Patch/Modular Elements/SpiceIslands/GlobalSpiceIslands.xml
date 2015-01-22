@@ -95,7 +95,7 @@
 			<ImprovementType>IMPROVEMENT_PLANTATION</ImprovementType>
 			<ResourceType>RESOURCE_NUTMEG</ResourceType>
 			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>1</Yield>
+			<Yield>2</Yield>
 		</Row>
 		<Row>
 			<ImprovementType>IMPROVEMENT_PLANTATION</ImprovementType>
@@ -107,7 +107,7 @@
 			<ImprovementType>IMPROVEMENT_PLANTATION</ImprovementType>
 			<ResourceType>RESOURCE_CLOVES</ResourceType>
 			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>1</Yield>
+			<Yield>2</Yield>
 		</Row>
 		<Row>
 			<ImprovementType>IMPROVEMENT_PLANTATION</ImprovementType>
@@ -119,7 +119,7 @@
 			<ImprovementType>IMPROVEMENT_PLANTATION</ImprovementType>
 			<ResourceType>RESOURCE_PEPPER</ResourceType>
 			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>1</Yield>
+			<Yield>2</Yield>
 		</Row>
 	</Improvement_ResourceType_Yields>
 </GameData>

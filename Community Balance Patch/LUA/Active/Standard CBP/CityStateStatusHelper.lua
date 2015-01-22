@@ -1,3 +1,4 @@
+print("This is the modded CityStateStatusHelper from CBP")
 ------------------------------------------------------
 -- CityStateStatusHelper.lua
 -- Author: Anton Strenger
@@ -25,17 +26,12 @@ ktQuestsDisplayOrder = {
 	MinorCivQuestTypes.MINOR_CIV_QUEST_CONTEST_FAITH,
 	MinorCivQuestTypes.MINOR_CIV_QUEST_CONTEST_TECHS,
 	MinorCivQuestTypes.MINOR_CIV_QUEST_INVEST,
-	MinorCivQuestTypes.MINOR_CIV_QUEST_CONTEST_TOURISM,
 	MinorCivQuestTypes.MINOR_CIV_QUEST_INFLUENCE,
 	MinorCivQuestTypes.MINOR_CIV_QUEST_KILL_CAMP,
-	MinorCivQuestTypes.MINOR_CIV_QUEST_HORDE,
-	MinorCivQuestTypes.MINOR_CIV_QUEST_REBELLION,
 	-- Then personal support quests
 	MinorCivQuestTypes.MINOR_CIV_QUEST_GIVE_GOLD,
 	MinorCivQuestTypes.MINOR_CIV_QUEST_PLEDGE_TO_PROTECT,
 	MinorCivQuestTypes.MINOR_CIV_QUEST_DENOUNCE_MAJOR,
-	MinorCivQuestTypes.MINOR_CIV_QUEST_WAR,
-	MinorCivQuestTypes.MINOR_CIV_QUEST_LIBERATION,
 	-- Then other pesonal quests
 	MinorCivQuestTypes.MINOR_CIV_QUEST_TRADE_ROUTE,
 	MinorCivQuestTypes.MINOR_CIV_QUEST_SPREAD_RELIGION,
@@ -43,14 +39,10 @@ ktQuestsDisplayOrder = {
 	MinorCivQuestTypes.MINOR_CIV_QUEST_FIND_NATURAL_WONDER,
 	MinorCivQuestTypes.MINOR_CIV_QUEST_FIND_PLAYER,
 	MinorCivQuestTypes.MINOR_CIV_QUEST_KILL_CITY_STATE,
-	MinorCivQuestTypes.MINOR_CIV_QUEST_FIND_CITY_STATE,
 	MinorCivQuestTypes.MINOR_CIV_QUEST_GREAT_PERSON,
 	MinorCivQuestTypes.MINOR_CIV_QUEST_CONSTRUCT_WONDER,
-	MinorCivQuestTypes.MINOR_CIV_QUEST_CONSTRUCT_NATIONAL_WONDER,
 	MinorCivQuestTypes.MINOR_CIV_QUEST_CONNECT_RESOURCE,
 	MinorCivQuestTypes.MINOR_CIV_QUEST_ROUTE,
-	MinorCivQuestTypes.MINOR_CIV_QUEST_ARCHAEOLOGY,
-	MinorCivQuestTypes.MINOR_CIV_QUEST_CIRCUMNAVIGATION,
 }
 
 ------------------------------------------------------
@@ -241,7 +233,7 @@ function GetCityStateStatusToolTip(iMajor, iMinor, bFullInfo)
 	local iInfluenceAnchor = pMinor:GetMinorCivFriendshipAnchorWithMajor(iMajor);
 	--COMMUNITY
 	local iJerk = pMinor:GetJerk(iMajorTeam);
-	--END
+	
 	local strStatusTT = "";
 	
 	-- Status and Influence
@@ -527,26 +519,6 @@ function GetActiveQuestText(iMajor, iMinor)
 				sIconText = sIconText .. GameInfo.Religions[iQuestData1].IconString;
 			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_TRADE_ROUTE) then
 				sIconText = sIconText .. "[ICON_INTERNATIONAL_TRADE]";
-			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_WAR) then
-				sIconText = sIconText .. "[ICON_SILVER_FIST]";
-			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_CONSTRUCT_NATIONAL_WONDER) then
-				sIconText = sIconText .. "[ICON_TRADE_WHITE]";
-			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_FIND_CITY_STATE) then
-				sIconText = sIconText .. "[ICON_CITY_STATE]";
-			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_INFLUENCE) then
-				sIconText = sIconText .. "[ICON_INFLUENCE]";
-			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_CONTEST_TOURISM) then
-				sIconText = sIconText .. "[ICON_TOURISM]";
-			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_ARCHAEOLOGY) then
-				sIconText = sIconText .. "[ICON_RES_ARTIFACTS]";
-			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_CIRCUMNAVIGATION) then
-				sIconText = sIconText .. "[ICON_TURNS_REMAINING]";
-			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_LIBERATION) then
-				sIconText = sIconText .. "[ICON_OCCUPIED]";
-			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_HORDE) then
-				sIconText = sIconText .. "[ICON_HAPPINESS_3]";
-			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_REBELLION) then
-				sIconText = sIconText .. "[ICON_HAPPINESS_4]";
 			end
 		end
 	end
@@ -591,8 +563,6 @@ function GetGreatPersonQuestIconText(iUnitType)
 		sIconText = "[ICON_GREAT_ADMIRAL]";
 	elseif (GameInfo.Units["UNIT_PROPHET"] ~= nil and GameInfo.Units["UNIT_PROPHET"].ID == iUnitType) then
 		sIconText = "[ICON_PROPHET]";
-	elseif (GameInfo.Units["UNIT_GREAT_DIPLOMAT"] ~= nil and GameInfo.Units["UNIT_GREAT_DIPLOMAT"].ID == iUnitType) then
-		sIconText = "[ICON_DIPLOMAT]";
 	end
 	
 	return sIconText;
@@ -667,14 +637,6 @@ function GetActiveQuestToolTip(iMajor, iMinor)
 				else
 					sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_CONTEST_TECHS_LOSING_FORMAL", iLeaderScore, iMajorScore );
 				end
-			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_CONTEST_TOURISM) then
-				local iLeaderScore = pMinor:GetMinorCivContestValueForLeader(MinorCivQuestTypes.MINOR_CIV_QUEST_CONTEST_TOURISM);
-				local iMajorScore = pMinor:GetMinorCivContestValueForPlayer(iMajor, MinorCivQuestTypes.MINOR_CIV_QUEST_CONTEST_TOURISM);
-				if (pMinor:IsMinorCivContestLeader(iMajor, MinorCivQuestTypes.MINOR_CIV_QUEST_CONTEST_TOURISM)) then
-					sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_CONTEST_TOURISM_WINNING_FORMAL", iMajorScore );
-				else
-					sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_CONTEST_TOURISM_LOSING_FORMAL", iLeaderScore, iMajorScore );
-				end
 			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_INVEST) then
 				sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_INVEST_FORMAL" );
 			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_BULLY_CITY_STATE) then
@@ -685,25 +647,6 @@ function GetActiveQuestToolTip(iMajor, iMinor)
 				sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_SPREAD_RELIGION_FORMAL", Game.GetReligionName(iQuestData1) );
 			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_TRADE_ROUTE) then
 				sToolTipText = sToolTipText .. Locale.Lookup("TXT_KEY_CITY_STATE_QUEST_TRADE_ROUTE_FORMAL");
-			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_WAR) then
-				sToolTipText = sToolTipText .. Locale.Lookup("TXT_KEY_CITY_STATE_QUEST_WAR_FORMAL", Players[iQuestData1]:GetCivilizationShortDescriptionKey() );
-			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_CONSTRUCT_NATIONAL_WONDER) then
-				sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_CONSTRUCT_NATIONAL_WONDER_FORMAL", GameInfo.Buildings[iQuestData1].Description );
-			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_FIND_CITY_STATE) then
-				sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_FIND_CITY_STATE_FORMAL", Players[iQuestData1]:GetNameKey() );
-			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_INFLUENCE) then
-				sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_INFLUENCE_FORMAL" );
-			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_ARCHAEOLOGY) then
-				sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_ARCHAEOLOGY_FORMAL" );
-			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_CIRCUMNAVIGATION) then
-				sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_CIRCUMNAVIGATION_FORMAL" );
-			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_LIBERATION) then
-				sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_LIBERATION_FORMAL", Players[iQuestData1]:GetNameKey() );
-			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_HORDE) then
-				sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_HORDE_FORMAL" );
-			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_REBELLION) then
-				sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_REBELLION_FORMAL" );
-
 			end
 			
 			if (iTurnsRemaining >= 0) then

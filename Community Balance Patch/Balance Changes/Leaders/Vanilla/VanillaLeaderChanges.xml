@@ -250,4 +250,10 @@
 			<PromotionType>PROMOTION_RAIDER</PromotionType>
 		</Row>
 	</Unit_FreePromotions>
+	<Civilization_Start_Along_River>
+		<Row>
+			<CivilizationType>CIVILIZATION_SONGHAI</CivilizationType>
+			<StartAlongRiver>true</StartAlongRiver>
+		</Row>
+	</Civilization_Start_Along_River>
 </GameData>

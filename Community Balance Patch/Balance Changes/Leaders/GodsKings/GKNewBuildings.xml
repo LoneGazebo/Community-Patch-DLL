@@ -6,7 +6,7 @@
 		<Row>
 			<Type>BUILDING_SKOLA</Type>
 			<BuildingClass>BUILDINGCLASS_PUBLIC_SCHOOL</BuildingClass>
-			<Cost>350</Cost>
+			<Cost>400</Cost>
 			<GoldMaintenance>3</GoldMaintenance>
 			<PrereqTech>TECH_SCIENTIFIC_THEORY</PrereqTech>
 			<FaithCost>200</FaithCost>
@@ -55,7 +55,7 @@
 		<Row>
 			<BuildingType>BUILDING_SKOLA</BuildingType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>25</Yield>
+			<Yield>33</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_SKOLA</BuildingType>
@@ -78,7 +78,7 @@
 			<Text>Unique Swedish replacement for the Public School. This building is cheaper and costs less maintenance than the building it replaces, and also boosts the city's [ICON_CULTURE] Culture.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_SKOLA_HELP">
-			<Text>Reduces [ICON_HAPPINESS_3] Illiteracy. +1 [ICON_CULTURE] Culture for every 5 [ICON_CITIZEN] Citizens, and +1 [ICON_RESEARCH] Science for every 4 [ICON_CITIZEN] Citizens in the City.</Text>
+			<Text>Reduces [ICON_HAPPINESS_3] Illiteracy. +1 [ICON_CULTURE] Culture for every 5 [ICON_CITIZEN] Citizens, and +1 [ICON_RESEARCH] Science for every 3 [ICON_CITIZEN] Citizens in the City.</Text>
 		</Row>
 	</Language_en_US>
 	<!-- Basilica -->
@@ -125,7 +125,7 @@
 		<Row>
 			<BuildingType>BUILDING_BASILICA</BuildingType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>25</Yield>
+			<Yield>50</Yield>
 		</Row>
 	</Building_YieldChangesPerPop>
 	<Building_ResourceYieldChanges>
@@ -155,7 +155,7 @@
 			<Text>Unique Byzantine replacement for the Temple. This building does not require maintenance, and boosts the city's [ICON_PEACE] Faith output based on the number of [ICON_CITIZEN] Citizens in the city. Use this building to guarantee the establishment of a religion for Byzantium.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_BASILICA_HELP">
-			<Text>Reduces [ICON_HAPPINESS_3] Religious Unrest. +1 [ICON_PEACE] Culture from [ICON_RES_INCENSE] Incense and [ICON_RES_WINE] Wine, and +1 [ICON_PEACE] Faith for every 4 [ICON_CITIZEN] Citizens.</Text>
+			<Text>Reduces [ICON_HAPPINESS_3] Religious Unrest. +1 [ICON_PEACE] Culture from [ICON_RES_INCENSE] Incense and [ICON_RES_WINE] Wine, and +1 [ICON_PEACE] Faith for every 2 [ICON_CITIZEN] Citizens.</Text>
 		</Row>
 	</Language_en_US>
 	<!-- Great Cothon -->

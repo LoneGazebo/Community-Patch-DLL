@@ -13,6 +13,15 @@ void CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlo
 	bool bFasterAlongRiver = pTraits->IsFasterAlongRiver();
 	bool bFasterInHills = pTraits->IsFasterInHills();
 	bool bIgnoreTerrainCost = pUnit->ignoreTerrainCost();
+#if defined(MOD_BALANCE_CORE)
+	bool bAmphibious = false;
+	bool bSuperAmphibious = false;
+	if(pUnit != NULL)
+	{
+		bSuperAmphibious = pUnit->isRiverCrossingNoPenalty() && pTraits->IsFasterAlongRiver();
+		bAmphibious = pUnit->isRiverCrossingNoPenalty();
+	}
+#endif
 	//int iBaseMoves = pUnit->baseMoves(isWater()?DOMAIN_SEA:NO_DOMAIN);
 	TeamTypes eUnitTeam = pUnit->getTeam();
 	CvTeam& kUnitTeam = GET_TEAM(eUnitTeam);
@@ -77,8 +86,11 @@ void CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlo
 	}
 
 	iRegularCost = std::min(iRegularCost, (iBaseMoves * iMoveDenominator));
-
+#if defined(MOD_BALANCE_CORE)
+	if(pFromPlot->isValidRoute(pUnit) && pToPlot->isValidRoute(pUnit) && ((kUnitTeam.isBridgeBuilding() || bAmphibious || !(pFromPlot->isRiverCrossing(directionXY(pFromPlot, pToPlot))))))
+#else
 	if(pFromPlot->isValidRoute(pUnit) && pToPlot->isValidRoute(pUnit) && ((kUnitTeam.isBridgeBuilding() || !(pFromPlot->isRiverCrossing(directionXY(pFromPlot, pToPlot))))))
+#endif
 	{
 		CvRouteInfo* pFromRouteInfo = GC.getRouteInfo(pFromPlot->getRouteType());
 		CvAssert(pFromRouteInfo != NULL);
@@ -101,6 +113,20 @@ void CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlo
 		iRouteCost = pRoadInfo->getMovementCost();
 		iRouteFlatCost = pRoadInfo->getFlatMovementCost() * iBaseMoves;
 	}
+#if defined(MOD_BALANCE_CORE)
+	else if(MOD_BALANCE_CORE && bSuperAmphibious && pFromPlot->isRiverCrossing(directionXY(pFromPlot, pToPlot)))
+	{
+		CvRouteInfo* pRoadInfo = GC.getRouteInfo(ROUTE_ROAD);
+		iRouteCost = pRoadInfo->getMovementCost();
+		iRouteFlatCost = (pRoadInfo->getFlatMovementCost() * iBaseMoves);
+	}
+	else if(MOD_BALANCE_CORE && bAmphibious && !bSuperAmphibious && pFromPlot->isRiverCrossing(directionXY(pFromPlot, pToPlot)))
+	{
+		CvRouteInfo* pRoadInfo = GC.getRouteInfo(ROUTE_ROAD);
+		iRouteCost = pRoadInfo->getMovementCost() * 2;
+		iRouteFlatCost = (pRoadInfo->getFlatMovementCost() * iBaseMoves) * 2;
+	}
+#endif
 	else
 	{
 		iRouteCost = INT_MAX;

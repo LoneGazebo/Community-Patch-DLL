@@ -1,3 +1,4 @@
+print("This is the modded HappinessInfo from CBP")
 -------------------------------------------------
 -- Happiness Info
 -------------------------------------------------

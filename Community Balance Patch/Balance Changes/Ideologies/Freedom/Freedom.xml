@@ -61,6 +61,61 @@
 			<YieldType>YIELD_FOOD</YieldType>
 			<Yield>1</Yield>
 		</Row>
+		<Row>
+			<PolicyType>POLICY_URBANIZATION</PolicyType>
+			<ImprovementType>IMPROVEMENT_TERRACE_FARM</ImprovementType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_URBANIZATION</PolicyType>
+			<ImprovementType>IMPROVEMENT_EKI</ImprovementType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_URBANIZATION</PolicyType>
+			<ImprovementType>IMPROVEMENT_ENCAMPMENT</ImprovementType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_URBANIZATION</PolicyType>
+			<ImprovementType>IMPROVEMENT_POLDER</ImprovementType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_URBANIZATION</PolicyType>
+			<ImprovementType>IMPROVEMENT_CHATEAU</ImprovementType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_URBANIZATION</PolicyType>
+			<ImprovementType>IMPROVEMENT_KASBAH</ImprovementType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_URBANIZATION</PolicyType>
+			<ImprovementType>IMPROVEMENT_BRAZILWOOD_CAMP</ImprovementType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_URBANIZATION</PolicyType>
+			<ImprovementType>IMPROVEMENT_MOAI</ImprovementType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<!-- New Deal -->
+		<Row>
+			<PolicyType>POLICY_NEW_DEAL</PolicyType>
+			<ImprovementType>IMPROVEMENT_CUSTOMS_HOUSE</ImprovementType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>2</Yield>
+		</Row>
 	</Policy_ImprovementYieldChanges>
 	<!-- Universal Healthcare -->
 	<Policy_FreeBuilding>

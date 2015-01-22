@@ -604,6 +604,16 @@ void CvBuilderTaskingAI::UpdateRoutePlots(void)
 				continue;
 			}
 		}
+#if defined(MOD_BALANCE_CORE)
+		if(GC.getBuildInfo(eBuild)->getTechObsolete() != NO_TECH)
+		{
+			bool bHasTech = GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->HasTech((TechTypes)GC.getBuildInfo(eBuild)->getTechObsolete());
+			if(bHasTech)
+			{
+				continue;
+			}
+		}
+#endif
 
 		for(uint uiFirstCityIndex = 0; uiFirstCityIndex < pCityConnections->m_aiCityPlotIDs.size(); uiFirstCityIndex++)
 		{
@@ -1335,7 +1345,17 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirectives(CvUnit* pUnit, CvPlot* pPlo
 		//Great improvements are great!
 		if(pImprovement->IsCreatedByGreatPerson())
 		{
+			iScore += 1;
 			iScore *= 2;
+		}
+		//If our plot obsoletes, let's half them, so that the potential replacement is stronger.
+		if(pPlot->getImprovementType() != NO_IMPROVEMENT)
+		{
+			CvImprovementEntry* pOldImprovement = GC.getImprovementInfo(pPlot->getImprovementType());
+			if((pOldImprovement->GetObsoleteTech() != NO_TECH) && GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->HasTech((TechTypes)pOldImprovement->GetObsoleteTech()))
+			{
+				iScore /= 2;
+			}
 		}
 #endif
 
@@ -1398,6 +1418,26 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirectives(CvUnit* pUnit, CvPlot* pPlo
 		iWeight *= iScore;
 
 #if defined(MOD_BALANCE_CORE)
+		//Improvement grants resource? Let's weight this based on flavors.
+		ResourceTypes eResourceFromImprovement = (ResourceTypes)pImprovement->GetResourceFromImprovement();
+		if(eResourceFromImprovement != NO_IMPROVEMENT)
+		{
+			CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
+			if(pkResource != NULL)
+			{
+				for(int i = 0; i < GC.getNumFlavorTypes(); i++)
+				{
+					int iResourceFlavor = pkResource->getFlavorValue((FlavorTypes)i);
+					int iPersonalityFlavorValue = m_pPlayer->GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)i);
+					int iResult = iResourceFlavor * iPersonalityFlavorValue;
+
+					if(iResult > 0)
+					{
+						iWeight += iResult;
+					}
+				}
+			}
+		}
 		//Unique improvement? Let's give this a lot of weight!
 		if(pImprovement->IsSpecificCivRequired())
 		{

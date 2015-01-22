@@ -12,6 +12,13 @@
 		</Row>
 	</Building_ResourceYieldChanges>
 	<!-- Aqueduct-->
+	<Building_YieldChanges>
+		<Row>
+			<BuildingType>BUILDING_AQUEDUCT</BuildingType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+	</Building_YieldChanges>
 	<Building_LakePlotYieldChanges>
 		<Row>
 			<BuildingType>BUILDING_AQUEDUCT</BuildingType>
@@ -78,12 +85,12 @@
 		<Row>
 			<BuildingType>BUILDING_BROADCAST_TOWER</BuildingType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>20</Yield>
+			<Yield>25</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_AMPHITHEATER</BuildingType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>10</Yield>
+			<Yield>15</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_OPERA_HOUSE</BuildingType>
@@ -93,7 +100,7 @@
 		<Row>
 			<BuildingType>BUILDING_MUSEUM</BuildingType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>15</Yield>
+			<Yield>20</Yield>
 		</Row>
 	</Building_YieldChangesPerPop>
 	<!-- Military Academy -->
@@ -116,7 +123,7 @@
 		<Row>
 			<BuildingType>BUILDING_CIRCUS</BuildingType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>1</Yield>
+			<Yield>2</Yield>
 		</Row>
 	</Building_YieldChanges>
 	<Building_YieldChanges>
@@ -128,7 +135,7 @@
 		<Row>
 			<BuildingType>BUILDING_THEATRE</BuildingType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>1u</Yield>
+			<Yield>2</Yield>
 		</Row>
 	</Building_YieldChanges>
 	<Building_InstantYield>
@@ -223,7 +230,7 @@
 			<BuildingType>BUILDING_MINT</BuildingType>
 			<ResourceType>RESOURCE_GEMS</ResourceType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>2</Yield>
+			<Yield>3</Yield>
 		</Row>
 	<!-- Forge -->
 		<Row>
@@ -273,17 +280,12 @@
 			<YieldType>YIELD_SCIENCE</YieldType>
 			<Yield>2</Yield>
 		</Row>
-		<Row>
-			<BuildingType>BUILDING_WINDMILL</BuildingType>
-			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>2</Yield>
-		</Row>
 	</Building_YieldChanges>
 	<Building_YieldChangesPerPop>
 		<Row>
 			<BuildingType>BUILDING_LABORATORY</BuildingType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>20</Yield>
+			<Yield>25</Yield>
 		</Row>
 	</Building_YieldChangesPerPop>
 	<!-- Observatory-->
@@ -291,9 +293,17 @@
 		<Row>
 			<BuildingType>BUILDING_OBSERVATORY</BuildingType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>3</Yield>
+			<Yield>5</Yield>
 		</Row>
 	</Building_YieldChanges>
+	<Building_PlotYieldChanges>
+		<Row>
+			<BuildingType>BUILDING_OBSERVATORY</BuildingType>
+			<PlotType>PLOT_MOUNTAIN</PlotType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Yield>2</Yield>
+		</Row>
+	</Building_PlotYieldChanges>
 	<!-- University -->
 	<Building_GrowthExtraYield>
 		<Row>

@@ -2478,7 +2478,15 @@ int RouteValid(CvAStarNode* parent, CvAStarNode* node, int data, const void* poi
 			}
 		}
 	}
-
+#if defined(MOD_BALANCE_CORE)
+	if(kPlayer.GetPlayerTraits()->IsRiverTradeRoad())
+	{
+		if(pNewPlot->isRiver())
+		{
+			return TRUE;
+		}
+	}
+#endif
 	RouteTypes eRouteType = pNewPlot->getRouteType();
 	if(eRouteType == NO_ROUTE)
 	{

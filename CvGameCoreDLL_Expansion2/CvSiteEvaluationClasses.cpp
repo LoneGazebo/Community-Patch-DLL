@@ -622,6 +622,15 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, YieldT
 	if (pPlot->isRiver())
 	{
 		iValueModifier += (int)iTotalPlotValue * /*15*/ GC.getBUILD_ON_RIVER_PERCENT() / 100;
+#if defined(MOD_BALANCE_CORE)
+		if(pPlayer != NULL)
+		{
+			if(pPlayer->GetPlayerTraits()->IsRiverTradeRoad())
+			{
+				iValueModifier *= 4;
+			}
+		}
+#endif
 		vQualifiersPositive.push_back("(V) river");
 	}
 
@@ -2015,6 +2024,15 @@ int CvSiteEvaluatorForStart::PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, Yi
 	if(pPlot->isRiver())
 	{
 		rtnValue += rtnValue * GC.getBUILD_ON_RIVER_PERCENT() / 100;
+#if defined(MOD_BALANCE_CORE)
+		if(pPlayer != NULL)
+		{
+			if(pPlayer->GetPlayerTraits()->IsRiverTradeRoad())
+			{
+				rtnValue *= 2;
+			}
+		}
+#endif
 	}
 
 	if(pPlot->isCoastalLand())

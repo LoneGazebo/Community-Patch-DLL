@@ -116,6 +116,7 @@ public:
 #endif
 #if defined(MOD_BALANCE_CORE)
 	int GetResourceType() const;
+	int GrantsRandomResourceTerritory() const;
 	bool IsPuppetPurchaseOverride() const;
 	bool IsAllowsPuppetPurchase() const;
 #endif
@@ -304,6 +305,7 @@ public:
 #if defined(MOD_DIPLOMACY_CITYSTATES) || defined(MOD_BALANCE_CORE)
 	int GetGrowthExtraYield(int i) const;
 	int* GetGrowthExtraYieldArray() const;
+	int GetNeedBuildingThisCity() const;
 #endif
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	int GetYieldFromDeath(int i) const;
@@ -403,6 +405,7 @@ private:
 #endif
 #if defined(MOD_BALANCE_CORE)
 	int m_iResourceType;
+	int m_iGrantsRandomResourceTerritory;
 	bool m_bPuppetPurchaseOverride;
 	bool m_bAllowsPuppetPurchase;
 #endif
@@ -603,6 +606,7 @@ private:
 	int* m_piSeaResourceYieldChange;
 #if defined(MOD_DIPLOMACY_CITYSTATES) || defined(MOD_BALANCE_CORE)
 	int* m_piGrowthExtraYield;
+	int m_iNeedBuildingThisCity;
 #endif
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	int* m_piYieldFromDeath;

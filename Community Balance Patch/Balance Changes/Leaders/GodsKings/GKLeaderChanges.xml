@@ -22,14 +22,6 @@
 			<Yield>1</Yield>
 		</Row>
 	</Improvement_Yields>
-<!-- Coffee House -->
-	<Building_YieldChanges>
-		<Row>
-			<BuildingType>BUILDING_COFFEE_HOUSE</BuildingType>
-			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>2</Yield>
-		</Row>
-	</Building_YieldChanges>
 	<!-- William -->
 	<Trait_YieldFromImport>
 		<Row>

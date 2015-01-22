@@ -9391,7 +9391,11 @@ bool CvMinorCivAI::CanMajorWithdrawProtection(PlayerTypes eMajor)
 	// Pledge is locked in for a certain time
 	int iCurrentTurn = GC.getGame().getGameTurn();
 	int iLastPledgeTurn = GetTurnLastPledgedProtectionByMajor(eMajor);
+#if defined(MOD_BALANCE_CORE)
+	const int iGracePeriod = 75; //antonjs: todo: xml
+#else
 	const int iGracePeriod = 10; //antonjs: todo: xml
+#endif
 	if (iLastPledgeTurn >= 0 && iLastPledgeTurn + iGracePeriod > iCurrentTurn)
 		return false;
 

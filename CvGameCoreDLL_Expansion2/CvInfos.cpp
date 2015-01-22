@@ -3776,6 +3776,9 @@ CvBuildInfo::CvBuildInfo() :
 	m_iCost(0),
 	m_iCostIncreasePerImprovement(0),
 	m_iTechPrereq(NO_TECH),
+#if defined(MOD_BALANCE_CORE)
+	m_iTechObsolete(NO_TECH),
+#endif
 	m_iImprovement(NO_IMPROVEMENT),
 	m_iRoute(NO_ROUTE),
 	m_iEntityEvent(ENTITY_EVENT_NONE),
@@ -3831,6 +3834,14 @@ int CvBuildInfo::getTechPrereq() const
 {
 	return m_iTechPrereq;
 }
+
+#if defined(MOD_BALANCE_CORE)
+//------------------------------------------------------------------------------
+int CvBuildInfo::getTechObsolete() const
+{
+	return m_iTechObsolete;
+}
+#endif
 //------------------------------------------------------------------------------
 int CvBuildInfo::getImprovement() const
 {
@@ -3957,6 +3968,11 @@ bool CvBuildInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 
 	const char* szPrereqTech = kResults.GetText("PrereqTech");
 	m_iTechPrereq = GC.getInfoTypeForString(szPrereqTech, true);
+
+#if defined(MOD_BALANCE_CORE)
+	const char* szObsoleteTech = kResults.GetText("ObsoleteTech");
+	m_iTechObsolete = GC.getInfoTypeForString(szObsoleteTech, true);
+#endif
 
 	const char* szImprovementType = kResults.GetText("ImprovementType");
 	m_iImprovement = GC.getInfoTypeForString(szImprovementType, true);

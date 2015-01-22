@@ -241,3 +241,9 @@
 	UPDATE Language_en_US
 	SET Text = '+150% Bonus vs Cities.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_CITY_ASSUALT_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	-- Amphibious Change
+
+	UPDATE Language_en_US
+	SET Text = 'Eliminates combat penalties for attacking from the sea or over a river, and grants a movement bonus when moving along rivers.'
+	WHERE Tag = 'TXT_KEY_PROMOTION_AMPHIBIOUS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );

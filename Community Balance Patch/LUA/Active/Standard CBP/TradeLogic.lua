@@ -1,3 +1,4 @@
+print("This is the modded TradeLogic from CBP")
 ----------------------------------------------------------------        
 ----------------------------------------------------------------        
 include( "IconSupport" );
@@ -16,10 +17,6 @@ local g_ThemPocketVoteIM	= InstanceManager:new( "PocketVote", "Button", Controls
 local g_bAlwaysWar = Game.IsOption( GameOptionTypes.GAMEOPTION_ALWAYS_WAR );
 local g_bAlwaysPeace = Game.IsOption( GameOptionTypes.GAMEOPTION_ALWAYS_PEACE );
 local g_bNoChangeWar = Game.IsOption( GameOptionTypes.GAMEOPTION_NO_CHANGING_WAR_PEACE );
-
--- Putmalk
-local g_bAllowResearchAgreements = Game.IsOption("GAMEOPTION_RESEARCH_AGREEMENTS");
-local g_bDisableTechTrading = Game.IsOption("GAMEOPTION_NO_TECH_TRADING");
 
 ----------------------------------------------------------------        
 -- local storage
@@ -51,11 +48,6 @@ local g_UsTableResources    = {};
 local g_ThemTableResources  = {};
 local g_LuxuryList          = {};
 local g_LeagueVoteList		= {};
--- Putmalk: Init our arrays
-local g_UsPocketTechs 		= {};
-local g_ThemPocketTechs 	= {};
-local g_UsTableTechs 		= {};
-local g_ThemTableTechs 		= {};
 
 local g_bMessageFromDiploAI = false;
 local g_bAIMakingOffer = false;
@@ -138,9 +130,6 @@ function LeaderMessageHandler( iPlayer, iDiploUIState, szLeaderMessage, iAnimati
 		bMyMode = true;
 	elseif (iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_HUMAN_DEMAND) then
 		bMyMode = true;
-	-- Putmalk: Open trade window when AI is giving the player a gift
-	elseif (iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_TRADE_AI_MAKES_GENEROUS_OFFER) then
-		bMyMode = true;
 	end
 	
 	if (bMyMode) then
@@ -174,13 +163,6 @@ function LeaderMessageHandler( iPlayer, iDiploUIState, szLeaderMessage, iAnimati
 			
 		elseif (g_iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_TRADE_AI_MAKES_REQUEST) then
 			--print("DiploUIState: AI making Request");
-			bClearTableAndDisplayDeal = true;
-			
-			DoDemandState(true);
-			
-		-- Putmalk: Open Trade window when AI is giving a gift and set it to the demand state
-		elseif (g_iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_TRADE_AI_MAKES_GENEROUS_OFFER) then
-			--print("DiploUIState: AI making Offer");
 			bClearTableAndDisplayDeal = true;
 			
 			DoDemandState(true);
@@ -382,8 +364,7 @@ function OnBack( iType )
 		
     	-- Human refused to give into an AI demand - this button doubles as the Demand "Refuse" option
     	if (g_iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_TRADE_AI_MAKES_DEMAND or
-    		g_iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_TRADE_AI_MAKES_REQUEST or
-			g_iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_TRADE_AI_MAKES_GENEROUS_OFFER) then
+    		g_iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_TRADE_AI_MAKES_REQUEST) then
     		
     		--print("Human refused demand!");
     		
@@ -400,14 +381,6 @@ function OnBack( iType )
 					iDealValue = g_pUs:GetDealMyValue(g_Deal);
 				end
     			Game.DoFromUIDiploEvent( FromUIDiploEventTypes.FROM_UI_DIPLO_EVENT_REQUEST_HUMAN_REFUSAL, g_iThem, iDealValue, 0 );
-			-- Putmalk: What happened when human refused the request?
-			elseif (g_iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_TRADE_AI_MAKES_GENEROUS_OFFER) then
-				print("refused: generous offer");
-				local iDealValue = 0;
-				if (g_Deal) then
-					iDealValue = g_pThem:GetDealMyValue(g_Deal);
-				end
-				Game.DoFromUIDiploEvent( FromUIDiploEventTypes.FROM_UI_DIPLO_EVENT_REQUEST_HUMAN_REFUSAL, g_iThem, iDealValue, 0 );
     		end
     		
     		g_iDiploUIState = DiploUIStateTypes.DIPLO_UI_STATE_TRADE;
@@ -489,8 +462,6 @@ function OnShowHide( isHide, bIsInit )
             Controls.ThemPocketStrategicStack:SetHide( true );
             Controls.UsPocketLuxuryStack:SetHide( true );
             Controls.ThemPocketLuxuryStack:SetHide( true );
-			 Controls.UsPocketTechnologyStack:SetHide( true );	-- Putmalk
-            Controls.ThemPocketTechnologyStack:SetHide( true );
             Controls.UsPocketVoteStack:SetHide( true );
             Controls.ThemPocketVoteStack:SetHide( true );
             
@@ -556,8 +527,7 @@ function InputHandler( uiMsg, wParam, lParam )
         
 			-- Don't allow any keys to exit screen when AI is asking for something - want to make sure the human has to click something
     		if (g_iDiploUIState ~= DiploUIStateTypes.DIPLO_UI_STATE_TRADE_AI_MAKES_DEMAND and
-    			g_iDiploUIState ~= DiploUIStateTypes.DIPLO_UI_STATE_TRADE_AI_MAKES_REQUEST and
-				g_iDiploUIState ~= DiploUIStateTypes.DIPLO_UI_STATE_TRADE_AI_MAKES_GENEROUS_OFFER) then		-- Putmalk
+    			g_iDiploUIState ~= DiploUIStateTypes.DIPLO_UI_STATE_TRADE_AI_MAKES_REQUEST) then
     				    		
 				OnBack();		
 			end
@@ -632,16 +602,7 @@ function DoUpdateButtons()
 		
 		-- Human is making a demand
         if( g_iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_HUMAN_DEMAND ) then
-            ---------------------------------------------------------------
-			-- Putmalk
-			local strProposeButton = "TXT_KEY_DIPLO_DEMAND_BUTTON";
-			
-			if(g_pThem:IsDoF(pActivePlayer)) then
-				strProposeButton = "TXT_KEY_DIPLO_REQUEST_HELP_BUTTON";
-			end
-			---------------------------------------------------------------
-			
-			Controls.ProposeButton:SetText( Locale.ToUpper(Locale.ConvertTextKey( strProposeButton )));
+            Controls.ProposeButton:SetText( Locale.ToUpper(Locale.ConvertTextKey( "TXT_KEY_DIPLO_DEMAND_BUTTON" )));
             Controls.CancelButton:SetText( Locale.ConvertTextKey( "TXT_KEY_DIPLO_CANCEL" ));
             
     	-- If the AI made an offer change what buttons are visible for the human to respond with
@@ -651,8 +612,7 @@ function DoUpdateButtons()
     		
     	-- AI is making a demand or Request
     	elseif (	g_iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_TRADE_AI_MAKES_DEMAND or 
-    				g_iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_TRADE_AI_MAKES_REQUEST or
-					g_iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_TRADE_AI_MAKES_GENEROUS_OFFER) then		-- Putmalk
+    				g_iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_TRADE_AI_MAKES_REQUEST) then
     				
     		Controls.ProposeButton:SetText( Locale.ConvertTextKey( "TXT_KEY_DIPLO_ACCEPT" ));
     		Controls.CancelButton:SetText( Locale.ConvertTextKey( "TXT_KEY_DIPLO_REFUSE" ));
@@ -681,8 +641,7 @@ function DoUpdateButtons()
 			elseif (	g_iDiploUIState ~= DiploUIStateTypes.DIPLO_UI_STATE_TRADE_AI_MAKES_DEMAND and
 						g_iDiploUIState ~= DiploUIStateTypes.DIPLO_UI_STATE_TRADE_AI_MAKES_REQUEST and
 						g_iDiploUIState ~= DiploUIStateTypes.DIPLO_UI_STATE_HUMAN_DEMAND and
-						g_iDiploUIState ~= DiploUIStateTypes.DIPLO_UI_STATE_TRADE_AI_MAKES_OFFER and
-						g_iDiploUIState ~= DiploUIStateTypes.DIPLO_UI_STATE_TRADE_AI_MAKES_GENEROUS_OFFER) then		-- Putmalk
+						g_iDiploUIState ~= DiploUIStateTypes.DIPLO_UI_STATE_TRADE_AI_MAKES_OFFER) then
 				
 				-- Loop through deal items to see what the situation is
 				local iNumItemsFromUs = 0;
@@ -814,19 +773,6 @@ if (not Game.IsOption("GAMEOPTION_NO_LEAGUES")) then
 	Controls.UsPocketVote:SetVoid1( 1 );
 end
 
--------------------------------------------------------
--- Putmalk
-if( not Game.IsOption("GAMEOPTION_NO_TECH_TRADING")) then
-	g_SubStacks[ tostring( Controls.UsPocketTechnology      ) ] = Controls.UsPocketTechnologyStack;
-	g_SubStacks[ tostring( Controls.ThemPocketTechnology    ) ] = Controls.ThemPocketTechnologyStack;
-
-	g_SubLabels[ tostring( Controls.UsPocketTechnology      ) ] = Locale.ConvertTextKey( "TXT_KEY_DIPLO_ITEMS_TECHNOLOGIES" );
-	g_SubLabels[ tostring( Controls.ThemPocketTechnology    ) ] = Locale.ConvertTextKey( "TXT_KEY_DIPLO_ITEMS_TECHNOLOGIES" );
-
-	Controls.UsPocketTechnology:SetVoid1( 1 );
-end
--------------------------------------------------------
-
 function SubStackHandler( bIsUs, none, control )
     local stack = g_SubStacks[ tostring( control ) ];
     local label = g_SubLabels[ tostring( control ) ];
@@ -856,13 +802,6 @@ Controls.UsPocketStrategic:RegisterCallback( Mouse.eLClick, SubStackHandler );
 Controls.ThemPocketStrategic:RegisterCallback( Mouse.eLClick, SubStackHandler );
 Controls.UsPocketLuxury:RegisterCallback( Mouse.eLClick, SubStackHandler );
 Controls.ThemPocketLuxury:RegisterCallback( Mouse.eLClick, SubStackHandler );
-
----[[ Putmalk
-if	(not g_bDisableTechTrading) then
-	Controls.UsPocketTechnology:RegisterCallback( Mouse.eLClick, SubStackHandler );
-	Controls.ThemPocketTechnology:RegisterCallback( Mouse.eLClick, SubStackHandler );
-end
---]]
 
 if (not Game.IsOption("GAMEOPTION_NO_LEAGUES")) then
 	function VoteStackHandler( bIsUs, none, control )
@@ -898,6 +837,9 @@ function OnPropose( iType )
     if( g_bPVPTrade ) then
         
         if( iType == PROPOSE_TYPE ) then
+			-- Set the from/to players in the deal.  We do this because we might have not done this already.
+			g_Deal:SetFromPlayer(g_iUs);
+			g_Deal:SetToPlayer(g_iThem);
         	UI.DoProposeDeal();
         	
         elseif( iType == WITHDRAW_TYPE ) then
@@ -922,6 +864,9 @@ function OnPropose( iType )
     		
     	-- Trade offer
     	else
+    		-- Set the from/to players in the deal.  We do this because we might have not done this already.
+			g_Deal:SetFromPlayer(g_iUs);
+			g_Deal:SetToPlayer(g_iThem);
     		UI.DoProposeDeal();
     	end
         
@@ -994,16 +939,12 @@ function ResetDisplay()
     Controls.ThemPocketGoldPerTurn:SetHide( false );
     Controls.UsPocketAllowEmbassy:SetHide( false );
     Controls.ThemPocketAllowEmbassy:SetHide( false );
-	Controls.UsPocketVassalage:SetHide( false );		-- Putmalk
-	Controls.ThemPocketVassalage:SetHide( false );		-- Putmalk
-	Controls.UsPocketTradeMap:SetHide( false );			-- Putmalk
-	Controls.ThemPocketTradeMap:SetHide( false );		-- Putmalk
     Controls.UsPocketOpenBorders:SetHide( false );
     Controls.ThemPocketOpenBorders:SetHide( false );
     Controls.UsPocketDefensivePact:SetHide( false );
     Controls.ThemPocketDefensivePact:SetHide( false );
-	Controls.UsPocketResearchAgreement:SetHide( not g_bAllowResearchAgreements );	-- Putmalk
-	Controls.ThemPocketResearchAgreement:SetHide( not g_bAllowResearchAgreements );	-- Putmalk
+    Controls.UsPocketResearchAgreement:SetHide( false );
+    Controls.ThemPocketResearchAgreement:SetHide( false );
     --Controls.UsPocketTradeAgreement:SetHide( false );		Trade agreement disabled for now
     --Controls.ThemPocketTradeAgreement:SetHide( false );		Trade agreement disabled for now
     if (Controls.UsPocketDoF ~= nil) then
@@ -1336,80 +1277,73 @@ function ResetDisplay()
 		Controls.ThemPocketDefensivePact:GetTextControl():SetColorByName("Beige_Black");
     end
         
-     ---------------------------------------------------------------------------------- 
+    ---------------------------------------------------------------------------------- 
     -- pocket Research Agreement
     ---------------------------------------------------------------------------------- 
     
-	-- Putmalk: I added a new game option in the game, therefore we have to update this
-	if(g_bAllowResearchAgreements) then
-	
-		local bResearchAgreementAllowed = g_Deal:IsPossibleToTradeItem(g_iUs, g_iThem, TradeableItems.TRADE_ITEM_RESEARCH_AGREEMENT, g_iDealDuration);
-		
-		local iCost = Game.GetResearchAgreementCost(g_iThem, g_iUs);
-		
-		-- Are we not allowed to give RA? (don't have tech, or are already providing it to them)
-		strTooltip = Locale.ConvertTextKey( "TXT_KEY_DIPLO_RESCH_AGREEMENT_TT", iCost, g_iDealDuration );
-		if (not bResearchAgreementAllowed) then
-			local strDisabledTT = "";
+    local bResearchAgreementAllowed = g_Deal:IsPossibleToTradeItem(g_iUs, g_iThem, TradeableItems.TRADE_ITEM_RESEARCH_AGREEMENT, g_iDealDuration);
+    
+    local iCost = Game.GetResearchAgreementCost(g_iThem, g_iUs);
+    
+    -- Are we not allowed to give RA? (don't have tech, or are already providing it to them)
+    strTooltip = Locale.ConvertTextKey( "TXT_KEY_DIPLO_RESCH_AGREEMENT_TT", iCost, g_iDealDuration );
+    if (not bResearchAgreementAllowed) then
+		local strDisabledTT = "";
 
-			local pUsTeamTechs = g_pUsTeam:GetTeamTechs();
-			local pTheirTeam = Teams[g_iThem];
-			local pTheirTeamTechs = pTheirTeam:GetTeamTechs();
+		local pUsTeamTechs = g_pUsTeam:GetTeamTechs();
+		local pTheirTeam = Teams[g_iThem];
+		local pTheirTeamTechs = pTheirTeam:GetTeamTechs();
 
-			if (Game.IsOption(GameOptionTypes.GAMEOPTION_NO_SCIENCE)) then
-				strDisabledTT = strDisabledTT .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_RESCH_AGREEMENT_SCIENCE_OFF" );
-			elseif (pUsTeamTechs:HasResearchedAllTechs() or pTheirTeamTechs:HasResearchedAllTechs()) then
-				strDisabledTT = strDisabledTT .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_RESCH_AGREEMENT_ALL_TECHS_RESEARCHED" ) ;
-			elseif (g_pUsTeam:IsHasResearchAgreement(g_iThemTeam)) then
-				strDisabledTT = strDisabledTT .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_RESCH_AGREEMENT_EXISTS" ) ;
-			else
-				local bEmptyTT = true;
-				if (not g_pUsTeam:IsResearchAgreementTradingAllowed() and not g_pThemTeam:IsResearchAgreementTradingAllowed()) then
-					strDisabledTT = strDisabledTT .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_RESCH_AGREEMENT_NO_TECH" ) ;
-					bEmptyTT = false;
-				end
-				if (not g_pUsTeam:HasEmbassyAtTeam(g_iThemTeam) or not g_pThemTeam:HasEmbassyAtTeam(g_iUsTeam)) then
-					strDisabledTT = strDisabledTT .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_BOTH_NEED_EMBASSY_TT" ) ;
-					bEmptyTT = false;
-				end
-				if (not g_pUs:IsDoF(g_iThem) or not g_pThem:IsDoF(g_iUs)) then
-					strDisabledTT = strDisabledTT .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_NEED_DOF_TT" ) ;
-					bEmptyTT = false;
-				end
-				if (Players[g_iUs]:GetGold() < iCost or Players[g_iThem]:GetGold() < iCost or bEmptyTT) then
-					strDisabledTT = strDisabledTT .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_RESCH_AGREEMENT_NO_AGREEMENT" ) ;
-				end
+		if (Game.IsOption(GameOptionTypes.GAMEOPTION_NO_SCIENCE)) then
+			strDisabledTT = strDisabledTT .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_RESCH_AGREEMENT_SCIENCE_OFF" );
+		elseif (pUsTeamTechs:HasResearchedAllTechs() or pTheirTeamTechs:HasResearchedAllTechs()) then
+			strDisabledTT = strDisabledTT .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_RESCH_AGREEMENT_ALL_TECHS_RESEARCHED" ) ;
+		elseif (g_pUsTeam:IsHasResearchAgreement(g_iThemTeam)) then
+			strDisabledTT = strDisabledTT .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_RESCH_AGREEMENT_EXISTS" ) ;
+		else
+			local bEmptyTT = true;
+			if (not g_pUsTeam:IsResearchAgreementTradingAllowed() and not g_pThemTeam:IsResearchAgreementTradingAllowed()) then
+				strDisabledTT = strDisabledTT .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_RESCH_AGREEMENT_NO_TECH" ) ;
+				bEmptyTT = false;
 			end
-			
-			strDisabledTT = "[COLOR_WARNING_TEXT]" .. strDisabledTT .. "[ENDCOLOR]";
-			strTooltip = strTooltip .. strDisabledTT;
+			if (not g_pUsTeam:HasEmbassyAtTeam(g_iThemTeam) or not g_pThemTeam:HasEmbassyAtTeam(g_iUsTeam)) then
+				strDisabledTT = strDisabledTT .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_BOTH_NEED_EMBASSY_TT" ) ;
+				bEmptyTT = false;
+			end
+			if (not g_pUs:IsDoF(g_iThem) or not g_pThem:IsDoF(g_iUs)) then
+				strDisabledTT = strDisabledTT .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_NEED_DOF_TT" ) ;
+				bEmptyTT = false;
+			end
+			if (Players[g_iUs]:GetGold() < iCost or Players[g_iThem]:GetGold() < iCost or bEmptyTT) then
+				strDisabledTT = strDisabledTT .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_RESCH_AGREEMENT_NO_AGREEMENT" ) ;
+			end
 		end
-
-		Controls.UsPocketResearchAgreement:SetToolTipString(strTooltip);
-		Controls.ThemPocketResearchAgreement:SetToolTipString(strTooltip);
 		
-		if (not bResearchAgreementAllowed) then
-			Controls.UsPocketResearchAgreement:SetDisabled(true);
-			Controls.UsPocketResearchAgreement:GetTextControl():SetColorByName("Gray_Black");
-		else
-			Controls.UsPocketResearchAgreement:SetDisabled(false);
-			Controls.UsPocketResearchAgreement:GetTextControl():SetColorByName("Beige_Black");
-		end
-
-		bResearchAgreementAllowed = g_Deal:IsPossibleToTradeItem(g_iThem, g_iUs, TradeableItems.TRADE_ITEM_RESEARCH_AGREEMENT, g_iDealDuration);
-		
-		-- Are they not allowed to give RA? (don't have tech, or are already providing it to us)
-		if (not bResearchAgreementAllowed) then
-			Controls.ThemPocketResearchAgreement:SetDisabled(true);
-			Controls.ThemPocketResearchAgreement:GetTextControl():SetColorByName("Gray_Black");
-		else
-			Controls.ThemPocketResearchAgreement:SetDisabled(false);
-			Controls.ThemPocketResearchAgreement:GetTextControl():SetColorByName("Beige_Black");
-		end
-	else
-		Controls.UsPocketResearchAgreement:SetHide(true);
-		Controls.ThemPocketResearchAgreement:SetHide(true);
+		strDisabledTT = "[COLOR_WARNING_TEXT]" .. strDisabledTT .. "[ENDCOLOR]";
+		strTooltip = strTooltip .. strDisabledTT;
 	end
+
+	Controls.UsPocketResearchAgreement:SetToolTipString(strTooltip);
+	Controls.ThemPocketResearchAgreement:SetToolTipString(strTooltip);
+	
+	if (not bResearchAgreementAllowed) then
+		Controls.UsPocketResearchAgreement:SetDisabled(true);
+		Controls.UsPocketResearchAgreement:GetTextControl():SetColorByName("Gray_Black");
+	else
+		Controls.UsPocketResearchAgreement:SetDisabled(false);
+		Controls.UsPocketResearchAgreement:GetTextControl():SetColorByName("Beige_Black");
+    end
+
+    bResearchAgreementAllowed = g_Deal:IsPossibleToTradeItem(g_iThem, g_iUs, TradeableItems.TRADE_ITEM_RESEARCH_AGREEMENT, g_iDealDuration);
+    
+    -- Are they not allowed to give RA? (don't have tech, or are already providing it to us)
+    if (not bResearchAgreementAllowed) then
+		Controls.ThemPocketResearchAgreement:SetDisabled(true);
+		Controls.ThemPocketResearchAgreement:GetTextControl():SetColorByName("Gray_Black");
+	else
+		Controls.ThemPocketResearchAgreement:SetDisabled(false);
+		Controls.ThemPocketResearchAgreement:GetTextControl():SetColorByName("Beige_Black");
+    end
         
     ---------------------------------------------------------------------------------- 
     -- pocket Trade Agreement
@@ -1758,357 +1692,6 @@ function ResetDisplay()
 		Controls.ThemPocketVote:SetHide(true);
     end 
 	
-	---------------------------------------------------------------------------------- 
-    -- pocket Map Trading
-    ---------------------------------------------------------------------------------- 
-
-	local bMapTradingAllowed = g_Deal:IsPossibleToTradeItem(g_iUs, g_iThem, TradeableItems.TRADE_ITEM_MAPS, g_iDealDuration);
-    
-    -- Are we not allowed to give World Map? (already providing it to them?)
-    strTooltip = Locale.ConvertTextKey("TXT_KEY_DIPLO_TRADE_MAP_TT", g_iDealDuration);
-    
-    local strOurTooltip = strTooltip;
-    local strTheirTooltip = strTooltip;
-    
-	-- They don't have tech
-    if (not bMapTradingAllowed) then
-		if (not g_pUsTeam:IsMapTrading()) then
-			strOurTooltip = strOurTooltip .. " [COLOR_WARNING_TEXT]" .. Locale.ConvertTextKey("TXT_KEY_DIPLO_TRADE_MAPS_NO_TECH_PLAYER" ) .. "[ENDCOLOR]";
-		end
-	end
-    
-    -- Are we not allowed to give World Map?
-    if (not bMapTradingAllowed) then
-		Controls.UsPocketTradeMap:SetDisabled(true);
-		Controls.UsPocketTradeMap:GetTextControl():SetColorByName("Gray_Black");
-
-		if (not g_pUsTeam:HasEmbassyAtTeam(g_iThemTeam)) then
-			strOurTooltip = strOurTooltip .. " [COLOR_WARNING_TEXT]" .. Locale.ConvertTextKey("TXT_KEY_DIPLO_YOU_NEED_EMBASSY_TT" ) .. "[ENDCOLOR]";
-		end
-	else
-		Controls.UsPocketTradeMap:SetDisabled(false);
-		Controls.UsPocketTradeMap:GetTextControl():SetColorByName("Beige_Black");
-    end
-    
-    Controls.UsPocketTradeMap:SetToolTipString(strOurTooltip);
-    
-    bMapTradingAllowed = g_Deal:IsPossibleToTradeItem(g_iThem, g_iUs, TradeableItems.TRADE_ITEM_MAPS, g_iDealDuration);
-
-	-- We don't have tech
-    if (not bMapTradingAllowed) then
-		if (not g_pThemTeam:IsMapTrading()) then
-			strTheirTooltip = strTheirTooltip .. " [COLOR_WARNING_TEXT]" .. Locale.ConvertTextKey("TXT_KEY_DIPLO_TRADE_MAPS_NO_TECH_OTHER_PLAYER" ) .. "[ENDCOLOR]";
-		end
-	end
-    
-    -- Are they not allowed to give World Map?
-    if (not bMapTradingAllowed) then
-		Controls.ThemPocketTradeMap:SetDisabled(true);
-		Controls.ThemPocketTradeMap:GetTextControl(): SetColorByName("Gray_Black");
-		
-		if (not g_pThemTeam:HasEmbassyAtTeam(g_iUsTeam)) then
-			strTheirTooltip = strTheirTooltip .. " [COLOR_WARNING_TEXT]" .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_THEY_NEED_EMBASSY_TT" );
-		end
-	else
-		Controls.ThemPocketTradeMap:SetDisabled(false);
-		Controls.ThemPocketTradeMap:GetTextControl():SetColorByName("Beige_Black");
-	end
-    
-    Controls.ThemPocketTradeMap:SetToolTipString(strTheirTooltip);
-	
-	---------------------------------------------------------------------------------- 
-	-- pocket Vassalage
-	---------------------------------------------------------------------------------- 
-	-- If Vassalage isn't even enabled, let's ignore it.
-	if(not Game.IsOption("GAMEOPTION_NO_VASSALAGE")) then
-
-		local strBaseTooltip;
-		local strName;
-		local iMinVassalTurns;
-		
-		-- Are we at war?
-		if(not g_pUsTeam:IsAtWar( g_iThemTeam )) then
-			iMinVassalTurns = Game.GetMinimumVoluntaryVassalTurns();
-			strName = Locale.ConvertTextKey("TXT_KEY_DIPLO_VASSALAGE_PEACE");
-			strBaseTooltip = Locale.ConvertTextKey("TXT_KEY_DIPLO_VASSALAGE_PEACE_TT", iMinVassalTurns);
-		else
-			iMinVassalTurns = Game.GetMinimumVassalTurns();
-			strName = Locale.ConvertTextKey("TXT_KEY_DIPLO_VASSALAGE");
-			strBaseTooltip = Locale.ConvertTextKey("TXT_KEY_DIPLO_VASSALAGE_TT", iMinVassalTurns);
-		end
-
-		Controls.UsPocketVassalage:SetText(strName);
-		Controls.ThemPocketVassalage:SetText(strName);
-		Controls.UsTableVassalage:SetText(strName);
-		Controls.ThemTableVassalage:SetText(strName);
-
-		-- Us
-		
-		local bVassalageAllowed = g_Deal:IsPossibleToTradeItem(g_iUs, g_iThem, TradeableItems.TRADE_ITEM_VASSALAGE, g_iDealDuration);
-		local bUsCan, bTheyCan;
-
-		strOurTooltip = strBaseTooltip;
-		
-		if (not bVassalageAllowed) then
-			Controls.UsPocketVassalage:SetDisabled(true);
-			Controls.UsPocketVassalage:GetTextControl():SetColorByName("Gray_Black");
-		
-			bTheyCan = g_pThemTeam:CanBecomeVassal(g_iUsTeam);
-			--print("bTheyCan = " .. tostring(bTheyCan));
-
-			-- They haven't reached the Medieval Era yet
-			if (not g_pThemTeam:IsVassalageTradingAllowed()) then
-				--print("Don't have vassal tech.");
-				strOurTooltip = strOurTooltip .. " [COLOR_WARNING_TEXT]" .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_VASSAL_NOT_YET_ENABLED_OTHER_PLAYER" ) .. "[ENDCOLOR]";
-			end
-
-			-- Already have a vassal
-			if (g_pUsTeam:IsVassalOfSomeone()) then
-				-- Who is the master?
-				local iMasterTeam = g_pUsTeam:GetMaster();
-				local pMasterTeam = Teams[ iMasterTeam ];
-				local masterName;
-				
-				if (pMasterTeam == g_iUsTeam) then
-					masterName = "TXT_KEY_YOUR_CIV";
-				else
-					masterName = pMasterTeam:GetName();
-				end
-				-- Is someone's vassal already
-				strOurTooltip = strOurTooltip .. " [COLOR_WARNING_TEXT]" .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_VASSAL_YOU_HAVE", masterName ) .. "[ENDCOLOR]";
-			end
-
-			print("Num turns between vassals: " .. tostring(Game.GetNumTurnsBetweenVassals()));
-			print("last vassal ended turns: " .. tostring(g_pUsTeam:GetNumTurnsSinceVassalEnded(g_iThemTeam)));
-
-			if(g_pUsTeam:IsTooSoonForVassal(g_pThemTeam)) then
-				local iLockedCapitulationTurns = Game.GetNumTurnsBetweenVassals() - g_pUsTeam:GetNumTurnsSinceVassalEnded(g_iThemTeam);
-				--print("Locked cap. turns: " .. tostring(iLockedCapitulationTurns));
-				strOurTooltip = strOurTooltip .. " [COLOR_WARNING_TEXT]" .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_VASSAL_YOU_TOO_SOON", iLockedCapitulationTurns) .. "[ENDCOLOR]";
-			end
-
-			-- Human vassals are disabled
-			if (not Game.IsOption("GAMEOPTION_HUMAN_VASSALS")) then
-				strOurTooltip = strOurTooltip .. " [COLOR_WARNING_TEXT]" .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_VASSAL_HUMAN_DISABLED" ) .. "[ENDCOLOR]";
-			end
-			
-			-- We have no cities or population
-			if (g_pUsTeam:GetNumCities() == 0 or g_pUsTeam:GetTotalPopulation() == 0) then
-				strOurTooltip = strOurTooltip .. " [COLOR_WARNING_TEXT]" .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_VASSAL_NO_POPULATION" ) .. "[ENDCOLOR]";
-			end
-		else
-			Controls.UsPocketVassalage:SetDisabled(false);
-			Controls.UsPocketVassalage:GetTextControl():SetColorByName("Beige_Black");
-		end
-		
-		Controls.UsPocketVassalage:SetToolTipString(strOurTooltip);
-
-		-- Them
-
-		bVassalageAllowed = g_Deal:IsPossibleToTradeItem(g_iThem, g_iUs, TradeableItems.TRADE_ITEM_VASSALAGE, g_iDealDuration);
-
-		strTooltip = strBaseTooltip;
-
-		local strTheirTooltip = strTooltip;
-
-		if (not bVassalageAllowed) then
-			Controls.ThemPocketVassalage:SetDisabled(true);
-			Controls.ThemPocketVassalage:GetTextControl():SetColorByName("Gray_Black");
-
-			bUsCan = g_pUsTeam:CanBecomeVassal(g_iThemTeam);
-			print("bUsCan = " .. tostring(bUsCan));
-
-			-- We haven't reached the Medieval Era yet
-			if (not g_pUsTeam:IsVassalageTradingAllowed()) then
-				--print("Don't have vassal tech.");
-				strTheirTooltip = strTheirTooltip .. " [COLOR_WARNING_TEXT]" .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_VASSAL_NOT_YET_ENABLED" ) .. "[ENDCOLOR]";
-			end
-
-			-- Already have a vassal
-			if (g_pThemTeam:IsVassalOfSomeone()) then
-				-- Who is the master?
-				local iMasterTeam = g_pThemTeam:GetMaster();
-				local pMasterTeam = Teams[ iMasterTeam ];
-				local masterName;
-				
-				if (pMasterTeam == g_iUsTeam) then
-					masterName = "TXT_KEY_YOUR_CIV";
-				else
-					masterName = pMasterTeam:GetName();
-				end
-				-- Is someone's vassal already
-				strTheirTooltip = strTheirTooltip .. " [COLOR_WARNING_TEXT]" .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_VASSAL_THEY_HAVE", masterName ) .. "[ENDCOLOR]";
-			end
-
-			print("Num turns between vassals: " .. tostring(Game.GetNumTurnsBetweenVassals()));
-			print("last vassal ended turns: " .. tostring(g_pThemTeam:GetNumTurnsSinceVassalEnded(g_iUsTeam)));
-
-			if(g_pThemTeam:IsTooSoonForVassal(g_pUsTeam)) then
-				local iLockedCapitulationTurns = Game.GetNumTurnsBetweenVassals() - g_pThemTeam:GetNumTurnsSinceVassalEnded(g_iUsTeam);
-				--print("Locked cap. turns: " .. tostring(iLockedCapitulationTurns));
-				strTheirTooltip = strTheirTooltip .. " [COLOR_WARNING_TEXT]" .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_VASSAL_TOO_SOON", iLockedCapitulationTurns) .. "[ENDCOLOR]";
-			end
-			
-			-- We have no cities or population
-			if (g_pThemTeam:GetNumCities() == 0 or g_pThemTeam:GetTotalPopulation() == 0) then
-				strTheirTooltip = strTheirTooltip .. " [COLOR_WARNING_TEXT]" .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_VASSAL_THEY_NO_POPULATION" ) .. "[ENDCOLOR]";
-			end
-		else
-			Controls.ThemPocketVassalage:SetDisabled(false);
-			Controls.ThemPocketVassalage:GetTextControl():SetColorByName("Beige_Black");
-		end
-
-		-- Called down here because even if it's technically acceptable they might not want to give it up...greedy bastard!
-		-- Update: No longer get an error if they don't want to capitulate...instead, they just refuse to trade it
-		--[[
-		if (not g_pThem:IsVassalageAcceptable(g_pUs) and not g_pUsTeam:IsAtWar( g_iThemTeam )) then
-			Controls.ThemPocketVassalage:SetDisabled(true);
-			Controls.ThemPocketVassalage:GetTextControl():SetColorByName("Gray_Black");
-			strTheirTooltip = strTheirTooltip .. " [COLOR_WARNING_TEXT]" .. Locale.ConvertTextKey("TXT_KEY_DIPLO_VASSAL_THEY_DONT_WANT_TT" ) .. "[ENDCOLOR]";
-		end
-		--]]
-
-		Controls.ThemPocketVassalage:SetToolTipString(strTheirTooltip);
-	else
-		Controls.UsPocketVassalage:SetHide(true);
-		Controls.ThemPocketVassalage:SetHide(true);
-	end
-	---------------------------------------------------------------------------------- 
-    -- pocket technology for us
-    ----------------------------------------------------------------------------------
-	-- Is Tech Trading enabled?
-	if(not Game.IsOption("GAMEOPTION_NO_TECH_TRADING")) then
-		local bFoundTech = false;
-		local pTech;
-		local strString;
-		local strTooltip;
-		
-		-- loop over technologies
-		if( g_iUs == -1 ) then
-			for techType, instance in pairs( g_UsPocketTechs ) do
-				instance.Button:SetHide( false );
-			end
-			bFoundTech = true;
-		else
-			local bCanTradeTech;
-			
-			for techType, instance in pairs( g_UsPocketTechs ) do
-				
-				bCanTradeTech = g_Deal:IsPossibleToTradeItem(g_iUs, g_iThem, TradeableItems.TRADE_ITEM_TECHS, techType);
-				
-				if (bCanTradeTech) then
-					bFoundTech = true;
-					instance.Button:SetHide( false );
-					pTech = GameInfo.Technologies[techType];
-					strString = Locale.ConvertTextKey(pTech.Description);
-					instance.Button:SetText( strString );
-					instance.Button:SetToolTipString( GetHelpTextForTech( techType, true, 1 ) );
-				else
-					instance.Button:SetHide( true );
-				end
-			end
-		end
-		
-		-- if bFoundTech is false, disable the button
-		Controls.UsPocketTechnology:SetDisabled( not bFoundTech )
-		
-		-- Didn't find an eligible tech? Cool!
-		if (bFoundTech) then
-			--print("Found tech!");
-			Controls.UsPocketTechnology:GetTextControl():SetColorByName("Beige_Black");
-			Controls.UsPocketTechnology:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_TO_TRADE_TECHNOLOGIES_TRADE_YES" ));
-			if( Controls.UsPocketTechnologyStack:IsHidden() ) then
-				Controls.UsPocketTechnology:SetText( "[ICON_PLUS]" .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_ITEMS_TECHNOLOGIES" ) );
-			else
-				Controls.UsPocketTechnology:SetText( "[ICON_MINUS]" .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_ITEMS_TECHNOLOGIES" ) );
-			end
-		-- Can't find an eligible tech? Find out why and relay info to player
-		else
-			--print("Didn't find tech. :( ");
-			-- The defaults, in case no special case arouses
-			Controls.UsPocketTechnology:GetTextControl():SetColorByName("Gray_Black");
-			strTooltip = Locale.ConvertTextKey( "TXT_KEY_DIPLO_TO_TRADE_TECHNOLOGIES_TRADE_NO" );
-			Controls.UsPocketTechnology:SetText( Locale.ConvertTextKey( "TXT_KEY_DIPLO_ITEMS_TECHNOLOGIES" ) );
-			
-			-- No tech?
-			if (not g_pUsTeam:IsTechTrading()) then
-				strTooltip = strTooltip .. " [COLOR_WARNING_TEXT]" .. Locale.ConvertTextKey("TXT_KEY_DIPLO_TRADE_TECHNOLOGIES_NO_TECH_PLAYER" ) .. "[ENDCOLOR]";
-			end
-			
-			-- No embassy?
-			if (not g_pUsTeam:HasEmbassyAtTeam(g_iThemTeam)) then
-				strTooltip = strTooltip .. " [COLOR_WARNING_TEXT]" .. Locale.ConvertTextKey("TXT_KEY_DIPLO_YOU_NEED_EMBASSY_TT" ) .. "[ENDCOLOR]";
-			end
-			
-			-- Display final tooltip
-			--print(strTooltip);
-			Controls.UsPocketTechnology:SetToolTipString(strTooltip);
-		end
-		---------------------------------------------------------------------------------- 
-		-- pocket technologies for them
-		----------------------------------------------------------------------------------n
-		bFoundTech = false;
-		
-		if( g_iThem == -1 ) then
-			for techType, instance in pairs( g_ThemPocketTechs ) do
-				instance.Button:SetHide( false );
-			end
-			bFoundTech = true;
-		else
-			
-			local bCanTradeTech;
-			
-			for techType, instance in pairs( g_ThemPocketTechs ) do
-				
-				bCanTradeTech = g_Deal:IsPossibleToTradeItem(g_iThem, g_iUs, TradeableItems.TRADE_ITEM_TECHS, techType);
-				
-				if (bCanTradeTech) then
-					bFoundTech = true;
-					instance.Button:SetHide( false );
-					
-					pTech = GameInfo.Technologies[techType];
-					strString = Locale.ConvertTextKey(pTech.Description);
-					instance.Button:SetText( strString );
-					instance.Button:SetToolTipString( GetHelpTextForTech( techType, true, 0 ) );
-				else
-					instance.Button:SetHide( true );
-				end
-			end
-		end
-		
-		Controls.ThemPocketTechnology:SetDisabled( not bFoundTech);
-		
-		if (bFoundTech) then
-			Controls.ThemPocketTechnology:GetTextControl():SetColorByName("Beige_Black");
-			Controls.ThemPocketTechnology:SetToolTipString( Locale.ConvertTextKey( "TXT_KEY_DIPLO_TO_TRADE_TECHNOLOGIES_TRADE_YES_THEM" ));
-			if( Controls.ThemPocketTechnologyStack:IsHidden() ) then
-				Controls.ThemPocketTechnology:SetText( "[ICON_PLUS]" .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_ITEMS_TECHNOLOGIES" ) );
-			else
-				Controls.ThemPocketTechnology:SetText( "[ICON_MINUS]" .. Locale.ConvertTextKey( "TXT_KEY_DIPLO_ITEMS_TECHNOLOGIES" ) );
-			end
-		else
-			-- The defaults, in case no special case arouses
-			Controls.ThemPocketTechnology:GetTextControl():SetColorByName("Gray_Black");
-			strTooltip = Locale.ConvertTextKey( "TXT_KEY_DIPLO_TO_TRADE_TECHNOLOGIES_TRADE_NO_THEM" );
-			Controls.ThemPocketTechnology:SetText( Locale.ConvertTextKey( "TXT_KEY_DIPLO_ITEMS_TECHNOLOGIES" ) );
-			
-			-- No tech?
-			if (not g_pThemTeam:IsTechTrading()) then
-				strTooltip = strTooltip .. " [COLOR_WARNING_TEXT]" .. Locale.ConvertTextKey("TXT_KEY_DIPLO_TRADE_TECHNOLOGIES_NO_TECH_OTHER_PLAYER" ) .. "[ENDCOLOR]";
-			end
-			
-			-- No embassy?
-			if (not g_pThemTeam:HasEmbassyAtTeam(g_iUsTeam)) then
-				strTooltip = strTooltip .. " [COLOR_WARNING_TEXT]" .. Locale.ConvertTextKey("TXT_KEY_DIPLO_THEY_NEED_EMBASSY_TT" ) .. "[ENDCOLOR]";
-			end
-			
-			-- Display final tooltip
-			Controls.ThemPocketTechnology:SetToolTipString(strTooltip);
-		end
-	else
-		Controls.UsPocketTechnology:SetHide(true);
-		Controls.ThemPocketTechnology:SetHide(true);
-	end
    
 	-- Hide things inappropriate for teammates
 	if (g_iUsTeam == g_iThemTeam) then
@@ -2123,13 +1706,6 @@ function ResetDisplay()
 		Controls.ThemPocketDefensivePact:SetHide(true);
 		Controls.ThemPocketResearchAgreement:SetHide(true);
 		Controls.ThemPocketOtherPlayer:SetHide(true);
-		
-		---[[ Putmalk
-		Controls.UsPocketTradeMap:SetHide(true);
-		Controls.UsPocketVassalage:SetHide(true);
-		Controls.ThemPocketTradeMap:SetHide(true);
-		Controls.ThemPocketVassalage:SetHide(true);
-		--]]
 	else
 		--print("Teams DO NOT match!");
 		Controls.UsPocketAllowEmbassy:SetHide(false);
@@ -2142,15 +1718,6 @@ function ResetDisplay()
 		Controls.ThemPocketDefensivePact:SetHide(false);
 		Controls.ThemPocketResearchAgreement:SetHide(false);
 		Controls.ThemPocketOtherPlayer:SetHide(false);
-		
-		---[[ Putmalk
-		Controls.UsPocketResearchAgreement:SetHide(not g_bAllowResearchAgreements);
-		Controls.ThemPocketResearchAgreement:SetHide(not g_bAllowResearchAgreements);
-		Controls.UsPocketVassalage:SetHide(false);
-		Controls.UsPocketTradeMap:SetHide(false);
-		Controls.ThemPocketVassalage:SetHide(false);
-		Controls.ThemPocketTradeMap:SetHide(false);
-		--]]
 	end
 
     
@@ -2189,20 +1756,12 @@ function DoClearTable()
 	Controls.UsTableLuxuryStack:SetHide( true );
 	Controls.ThemTableLuxuryStack:SetHide( true );
 	Controls.UsTableVoteStack:SetHide( true );
-	Controls.ThemTableVoteStack:SetHide( true );	
+	Controls.ThemTableVoteStack:SetHide( true );
+	
 	Controls.UsTableMakePeaceStack:SetHide( true );
 	Controls.ThemTableMakePeaceStack:SetHide( true );
 	Controls.UsTableDeclareWarStack:SetHide( true );
 	Controls.ThemTableDeclareWarStack:SetHide( true );
-	
-	---[[ Putmalk
-	Controls.UsTableTradeMap:SetHide( true );
-	Controls.ThemTableTradeMap:SetHide( true );
-	Controls.UsTableVassalage:SetHide( true );
-	Controls.ThemTableVassalage:SetHide( true );
-	Controls.UsTableTechnologyStack:SetHide( true );
-	Controls.ThemTableTechnologyStack:SetHide( true );
-	--]]
 	
 	for n, table in pairs( g_OtherPlayersButtons ) do
 	    table.UsTableWar.Button:SetHide( true );
@@ -2218,15 +1777,6 @@ function DoClearTable()
 	for n, instance in pairs( g_ThemTableResources ) do
 		instance.Container:SetHide( true );
 	end
-	
-	---[[ Putmalk
-	for n, instance in pairs( g_UsTableTechs ) do
-		instance.Container:SetHide( true );
-	end
-	for n, instance in pairs( g_ThemTableTechs ) do
-		instance.Container:SetHide( true );
-	end
-	--]]
 	
     if (Controls.UsTableDoF ~= nil) then
 		Controls.UsTableDoF:SetHide(true);
@@ -2251,12 +1801,6 @@ function ResizeStacks()
     Controls.ThemPocketStrategicStack:CalculateSize();
     Controls.UsTableStrategicStack:CalculateSize();
     Controls.ThemTableStrategicStack:CalculateSize();
-
-	-- Putmalk
-	Controls.UsPocketTechnologyStack:CalculateSize();
-    Controls.ThemPocketTechnologyStack:CalculateSize();
-	Controls.UsTableTechnologyStack:CalculateSize();
-    Controls.ThemTableTechnologyStack:CalculateSize();
 
     Controls.UsPocketLuxuryStack:CalculateSize();
     Controls.ThemPocketLuxuryStack:CalculateSize();
@@ -2576,38 +2120,6 @@ function DisplayDeal()
 					print("SCRIPTING ERROR: Could not find League when displaying a trade deal with a Vote Commitment");
 				end
 			end
-		-- Putmalk: Display the items on the table?
-		elseif( TradeableItems.TRADE_ITEM_MAPS == itemType ) then
-			
-			if( bFromUs ) then
-				Controls.UsPocketTradeMap:SetHide( true );
-				Controls.UsTableTradeMap:SetHide( false );
-			else
-				Controls.ThemPocketTradeMap:SetHide( true );
-				Controls.ThemTableTradeMap:SetHide( false );
-			end
-		elseif( TradeableItems.TRADE_ITEM_VASSALAGE == itemType ) then
-			print("Found Vassalage");
-			-- Human can't capitulate...
-			if( bFromUs ) then
-				Controls.UsPocketVassalage:SetHide( true );
-			 	Controls.UsTableVassalage:SetHide( false );
-				--print("Why the hell are we trying to add Vassalage to the Player side of the trade table? Something has gone horribly wrong!");
-			else
-				Controls.ThemPocketVassalage:SetHide( true );
-				Controls.ThemTableVassalage:SetHide( false );
-			end
-		elseif( TradeableItems.TRADE_ITEM_TECHS == itemType ) then
-			if ( bFromUs ) then
-				g_UsTableTechs[ data1 ].Container:SetHide( false );
-				Controls.UsTableTechnologyStack:SetHide( false );
-			else
-				g_ThemTableTechs[ data1 ].Container:SetHide( false );
-				Controls.ThemTableTechnologyStack:SetHide( false );
-			end
-			
-			g_UsPocketTechs[ data1 ].Button:SetHide( true );
-			g_ThemPocketTechs[ data1 ].Button:SetHide( true );
         end
         itemType, duration, finalTurn, data1, data2, data3, flag1, fromPlayer = g_Deal:GetNextItem();
     until( itemType == nil )
@@ -3182,81 +2694,6 @@ function AddTableLuxury( row, isUs, stack )
     g_LuxuryList[ row.ID ] = true;
 end
 
------------------------------------------------------------------------------------------------------------------------
--- Map Trading Handlers						-- Putmalk
------------------------------------------------------------------------------------------------------------------------
-function PocketTradeMapHandler( isUs )
-	print("PocketTradeMapHandler");
-	if (isUs == 1 ) then
-		g_Deal:AddMapTrade(g_iUs);
-	else
-		g_Deal:AddMapTrade(g_iThem);
-	end
-	DisplayDeal();
-	DoUIDealChangedByHuman();
-end
-Controls.UsPocketTradeMap:RegisterCallback( Mouse.eLClick, PocketTradeMapHandler );
-Controls.UsPocketTradeMap:SetVoid1( 1 );
-Controls.ThemPocketTradeMap:RegisterCallback( Mouse.eLClick, PocketTradeMapHandler );
-Controls.ThemPocketTradeMap:SetVoid1( 0 );
-
-function TableMapHandler( isUs )
-	print("TableTradeMapHandler");
-	if( isUs == 1 ) then
-		print( "remove: us " .. g_iUs );
-		g_Deal:RemoveByType( TradeableItems.TRADE_ITEM_MAPS, g_iUs );
-	else
-		print( "remove: them " .. g_iThem );
-		g_Deal:RemoveByType( TradeableItems.TRADE_ITEM_MAPS, g_iThem );
-	end
-	
-	DoClearTable();
-	DisplayDeal();
-	DoUIDealChangedByHuman();
-end
-Controls.UsTableTradeMap:RegisterCallback( Mouse.eLClick, TableMapHandler );
-Controls.UsTableTradeMap:SetVoid1( 1 );
-Controls.ThemTableTradeMap:RegisterCallback( Mouse.eLClick, TableMapHandler );
-Controls.ThemTableTradeMap:SetVoid1( 0 );
------------------------------------------------------------------------------------------------------------------------
--- Vassalage Handlers
------------------------------------------------------------------------------------------------------------------------
-function PocketVassalageHandler( isUs )
-	print("PocketVassalageHandler");
-	if(isUs == 1) then
-		g_Deal:AddVassalageTrade(g_iUs);
-		g_Deal:RemoveByType( TradeableItems.TRADE_ITEM_VASSALAGE, g_iThem );
-		--print("Calling PocketVassalageHandler with isUs = 1. WHY YOU DO THIS GAME.");
-	else
-		g_Deal:AddVassalageTrade(g_iThem);
-		g_Deal:RemoveByType( TradeableItems.TRADE_ITEM_VASSALAGE, g_iUs );
-	end
-	DisplayDeal();
-	DoUIDealChangedByHuman();
-end
-Controls.UsPocketVassalage:RegisterCallback( Mouse.eLClick, PocketVassalageHandler );
-Controls.UsPocketVassalage:SetVoid1( 1 );
-Controls.ThemPocketVassalage:RegisterCallback( Mouse.eLClick, PocketVassalageHandler );
-Controls.ThemPocketVassalage:SetVoid1( 0 );
-
-function TableVassalageHandler( isUs )
-	print("TableVassalageHandler");
-	if(isUs == 1) then
-		print("remove: us " .. g_iUs );
-		g_Deal:RemoveByType( TradeableItems.TRADE_ITEM_VASSALAGE, g_iUs );
-	else
-		print("remove: them " .. g_iThem );
-		g_Deal:RemoveByType( TradeableItems.TRADE_ITEM_VASSALAGE, g_iThem );
-	end
-	
-	DoClearTable();
-	DisplayDeal();
-	DoUIDealChangedByHuman();
-end
-Controls.UsTableVassalage:RegisterCallback( Mouse.eLClick, TableVassalageHandler );
-Controls.UsTableVassalage:SetVoid1( 1 );
-Controls.ThemTableVassalage:RegisterCallback( Mouse.eLClick, TableVassalageHandler );
-Controls.ThemTableVassalage:SetVoid1( 0 );
 
 -------------------------------------------------------------------
 -------------------------------------------------------------------
@@ -3294,143 +2731,6 @@ function ChangeResourceAmount( string, control )
     end
 end
 
------------------------------------------------------------------------------------------------------------------------
--- Handle the techs
------------------------------------------------------------------------------------------------------------------------
-function PocketTechHandler( isUs, techId )
-	if( isUs == 1 ) then
-		g_Deal:AddTechTrade( g_iUs, techId );
-	else
-		g_Deal:AddTechTrade( g_iThem, techId );
-	end
-	
-	DisplayDeal();
-	DoUIDealChangedByHuman();
-end
-
-function TableTechHandler( isUs, techId )
-	g_Deal:RemoveTechTrade(techId);
-    DoClearTable();
-    DisplayDeal();
-    DoUIDealChangedByHuman();
-end
-
-function AddPocketTech( row, isUs, stack )
-    local controlTable = {};
-    ContextPtr:BuildInstanceForControl( "PocketTechnology", controlTable, stack );
-       
-	controlTable.Button:SetText( " " );
-	controlTable.Button:SetVoids( isUs, row.ID );
-    controlTable.Button:RegisterCallback( Mouse.eLClick, PocketTechHandler );
-    
-    if( isUs == 1 ) then
-        g_UsPocketTechs[ row.ID ] = controlTable;
-    else
-        g_ThemPocketTechs[ row.ID ] = controlTable;
-    end
-end
-
- 
-function AddTableTech( row, isUs, stack )
-    local controlTable = {};
-    ContextPtr:BuildInstanceForControl( "TableTechnology", controlTable, stack );
-    
-    local strString = Locale.ConvertTextKey(row.Description);
-    controlTable.Button:SetText( strString );
-    controlTable.Button:SetVoids( isUs, row.ID );
-    controlTable.Button:RegisterCallback( Mouse.eLClick, TableTechHandler );
-    
-    if( isUs == 1 ) then
-        g_UsTableTechs[ row.ID ] = controlTable;
-    else
-        g_ThemTableTechs[ row.ID ] = controlTable;
-    end
-end
--------------------------------------------------
--- Help text for techs
--------------------------------------------------
--- Putmalk: We need custom tooltip for techs, because when we hover over our techs, we don't know their progress
--- to-do: know their progress if we have a spy in one of their cities???
-
-
-function GetHelpTextForTech( iTechID, bShowProgress, isUs)
-	local pTechInfo = GameInfo.Technologies[iTechID];
-	
-
-
-	local pActiveTeam = Teams[Game.GetActiveTeam()];
-	local pActivePlayer = Players[Game.GetActivePlayer()];
-	local pTeamTechs = pActiveTeam:GetTeamTechs();
-	local iTechCost = pActivePlayer:GetResearchCost(iTechID);
-	
-	local strHelpText = "";
-
-	-- Name
-	strHelpText = strHelpText .. Locale.ToUpper(Locale.ConvertTextKey( pTechInfo.Description ));
-
-	-- Do we have this tech?
-	if (pTeamTechs:HasTech(iTechID)) then
-		strHelpText = strHelpText .. " [COLOR_POSITIVE_TEXT](" .. Locale.ConvertTextKey("TXT_KEY_RESEARCHED") .. ")[ENDCOLOR]";
-	end
-
-	-- Cost/Progress
-	strHelpText = strHelpText .. "[NEWLINE]-------------------------[NEWLINE]";
-	
-	local iProgress = pActivePlayer:GetResearchProgress(iTechID);
-	
-	-- Don't show progress for other civ
-	if (isUs == 1) then
-		bShowProgress = false;
-		
-		-- TO-DO: Add logic if we have spy in their city, show progress
-	else
-		bShowProgress = true;
-	end
-
-	-- Don't show progres if we have 0 or we're done with the tech
-	if (iProgress == 0 or pTeamTechs:HasTech(iTechID)) then
-		bShowProgress = false;
-	end
-	
-	if (bShowProgress) then
-		strHelpText = strHelpText .. Locale.ConvertTextKey("TXT_KEY_TECH_HELP_COST_WITH_PROGRESS", iProgress, iTechCost);
-	else
-		strHelpText = strHelpText .. Locale.ConvertTextKey("TXT_KEY_TECH_HELP_COST", iTechCost);
-	end
-	
-	-- Leads to...
-	local strLeadsTo = "";
-	local bFirstLeadsTo = true;
-	for row in GameInfo.Technology_PrereqTechs() do
-		local pPrereqTech = GameInfo.Technologies[row.PrereqTech];
-		local pLeadsToTech = GameInfo.Technologies[row.TechType];
-		
-		if (pPrereqTech and pLeadsToTech) then
-			if (pTechInfo.ID == pPrereqTech.ID) then
-				
-				-- If this isn't the first leads-to tech, then add a comma to separate
-				if (bFirstLeadsTo) then
-					bFirstLeadsTo = false;
-				else
-					strLeadsTo = strLeadsTo .. ", ";
-				end
-				
-				strLeadsTo = strLeadsTo .. "[COLOR_POSITIVE_TEXT]" .. Locale.ConvertTextKey( pLeadsToTech.Description ) .. "[ENDCOLOR]";
-			end
-		end
-	end
-	
-	if (strLeadsTo ~= "") then
-		strHelpText = strHelpText .. "[NEWLINE]";
-		strHelpText = strHelpText .. Locale.ConvertTextKey("TXT_KEY_TECH_HELP_LEADS_TO", strLeadsTo);
-	end
-
-	-- Pre-written help text
-	strHelpText = strHelpText .. "[NEWLINE]-------------------------[NEWLINE]";
-	strHelpText = strHelpText .. Locale.ConvertTextKey( pTechInfo.Help );
-	
-	return strHelpText;
-end
 
 -------------------------------------------------------------------
 -- Populate the lists
@@ -3453,18 +2753,6 @@ do
     AddTableLuxury(    row, 0, Controls.ThemTableLuxuryStack  );
 end 
 
--- Populate the technology list
--- Putmalk
-if( not g_bDisableTechTrading) then
-	for row in GameInfo.Technologies( )
-	do
-		--print( "adding tech: " .. row.Type );
-		AddPocketTech( 	row, 1, Controls.UsPocketTechnologyStack );
-		AddPocketTech( 	row, 0, Controls.ThemPocketTechnologyStack );
-		AddTableTech(	row, 1, Controls.UsTableTechnologyStack );
-		AddTableTech( 	row, 0, Controls.ThemTableTechnologyStack );
-	end
-end
 
 -----------------------------------------------------------------------------------------------------------------------
 -- Handle votes
@@ -3855,14 +3143,19 @@ function ShowOtherPlayerChooser( isUs, type )
 			local strToolTip = "";
 			local iFromTeam = Players[iFromPlayer]:GetTeam();
 			
-    		if( g_iUsTeam ~= iLoopTeam and g_iThemTeam ~= iLoopTeam and
-    		    g_pUsTeam:IsHasMet( iLoopTeam ) and g_pThemTeam:IsHasMet( iLoopTeam ) and
-                g_Deal:IsPossibleToTradeItem( iFromPlayer, iToPlayer, tradeType, iLoopTeam ) ) then
+     		if( g_iUsTeam == iLoopTeam or g_iThemTeam == iLoopTeam or
+    		    not g_pUsTeam:IsHasMet( iLoopTeam ) or not g_pThemTeam:IsHasMet( iLoopTeam ) ) then
+    		    
+    		    otherPlayerButtonSubTableNameButton:SetHide( true );
+
+   		    elseif( g_Deal:IsPossibleToTradeItem( iFromPlayer, iToPlayer, tradeType, iLoopTeam ) ) then
                 
-    		    otherPlayerButtonSubTableNameButton:SetDisabled( false );
+     		    otherPlayerButtonSubTableNameButton:SetHide( false );
+   				otherPlayerButtonSubTableNameButton:SetDisabled( false );
     		    otherPlayerButtonSubTableNameButton:SetAlpha( 1 );
             else
                         
+     		    otherPlayerButtonSubTableNameButton:SetHide( false );
     		    otherPlayerButtonSubTableNameButton:SetDisabled( true );
     		    otherPlayerButtonSubTableNameButton:SetAlpha( 0.5 );
     		    

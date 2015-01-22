@@ -4,13 +4,8 @@
 	<Defines>
 		<!-- Base Defines Stuff -->
 		<Update>
-			<!-- 15 was a bit too high for this value, 5 affords the AI a lot more flexibility -->
-			<Set Value="5" />
-			<Where Name="AI_ATTEMPT_RUSH_OVER_X_TURNS_TO_BUILD" />
-		</Update>
-		<Update>
 			<!-- 15 is enough to push the AI to max out tech branching just to get its unique; 5 wasn't enough -->
-			<Set Value="7" />
+			<Set Value="6" />
 			<Where Name="TECH_PRIORITY_UNIQUE_ITEM" />
 		</Update>
 		<!-- This one actually can both add and subtract from flavor, so it actually ranges from -2 to 2;
@@ -33,15 +28,15 @@
 		</Update>
 		<Update>
 			<!-- Random values are given to all grand strategies during a reroll; values range from 0-X, where X is value below -->
-			<Set Value="13" />
+			<Set Value="30" />
 			<Where Name="AI_GS_RAND_ROLL" />
 		</Update>
 		<Update>
-			<Set Value="50" />
+			<Set Value="60" />
 			<Where Name="AI_GRAND_STRATEGY_CURRENT_STRATEGY_WEIGHT" />
 		</Update>
 		<Update>
-			<Set Value="10" />
+			<Set Value="20" />
 			<Where Name="AI_GRAND_STRATEGY_OTHER_PLAYERS_GS_MULTIPLIER" />
 		</Update>
 		<Update>
@@ -50,18 +45,18 @@
 		</Update>
 		<!-- Culture is defensive and can be used for policies, while Tourism is offensive and is only used for victory -->
 		<Update>
-			<Set Value="50" />
+			<Set Value="60" />
 			<Where Name="AI_GS_CULTURE_RATIO_MULTIPLIER" />
 		</Update>
 		<Update>
-			<Set Value="100" />
+			<Set Value="80" />
 			<Where Name="AI_GS_TOURISM_RATIO_MULTIPLIER" />
 		</Update>
 		
 		<!-- Economic AI Stuff -->
 		<Update>
 			<!-- Was 50% before, making the AI miss out on possible good city spots, especially for colonization -->
-			<Set Value="75" />
+			<Set Value="60" />
 			<Where Name="AI_STRATEGY_AREA_IS_FULL_PERCENT" />
 		</Update>
 		<Update>
@@ -84,23 +79,23 @@
 		<!-- Builder Tasking Stuff -->
 		<!-- Values were increased for more granularity, and also to stop the AI from overvaluing cultural improvements -->
 		<Update>
-			<Set Value="5" />
+			<Set Value="3" />
 			<Where Name="BUILDER_TASKING_PLOT_EVAL_MULTIPLIER_FOOD" />
 		</Update>
 		<Update>
-			<Set Value="5" />
+			<Set Value="2" />
 			<Where Name="BUILDER_TASKING_PLOT_EVAL_MULTIPLIER_PRODUCTION" />
 		</Update>
 		<Update>
-			<Set Value="4" />
+			<Set Value="1" />
 			<Where Name="BUILDER_TASKING_PLOT_EVAL_MULTIPLIER_GOLD" />
 		</Update>
 		<Update>
-			<Set Value="4" />
+			<Set Value="2" />
 			<Where Name="BUILDER_TASKING_PLOT_EVAL_MULTIPLIER_SCIENCE" />
 		</Update>
 		<Update>
-			<Set Value="4" />
+			<Set Value="2" />
 			<Where Name="BUILDER_TASKING_PLOT_EVAL_MULTIPLIER_CULTURE" />
 		</Update>
 		
@@ -109,13 +104,13 @@
 			<!-- This seems to be drastically low, but it doesn't actually hurt the AI (worst case is that end turns are bit slower)
 				In fact, this pretty much means the AI reevaluates city spec after completing its current production, which improves
 				AI flexibility. -->
-			<Set Value="8" />
+			<Set Value="30" />
 			<Where Name="AI_CITY_SPECIALIZATION_REEVALUATION_INTERVAL" />
 		</Update>
 		
 		<!-- AI City Strategy Stuff -->
 		<Update>
-			<Set Value="6" />
+			<Set Value="7" />
 			<Where Name="AI_CITYSTRATEGY_MEDIUM_CITY_POP_THRESHOLD" />
 		</Update>
 		<Update>
@@ -124,33 +119,37 @@
 		</Update>
 		<Update>
 			<!-- This was 0 by default, often resulting in perpetual bankruptcy -->
-			<Set Value="0.25" />
+			<Set Value="0.15" />
 			<Where Name="AI_CITYSTRATEGY_YIELD_DEFICIENT_GOLD" />
 		</Update>
 		
 		<!-- Citizen Management Stuff -->
 		<!-- These 3 make sure that science is not undervalued and culture is not overvalued. Production was a bit overvalued before -->
 		<Update>
-			<Set Value="8" />
+			<Set Value="12" />
 			<Where Name="AI_CITIZEN_VALUE_CULTURE" />
 		</Update>
 		<Update>
-			<Set Value="8" />
+			<Set Value="10" />
 			<Where Name="AI_CITIZEN_VALUE_SCIENCE" />
 		</Update>
 		<Update>
-			<Set Value="8" />
+			<Set Value="11" />
 			<Where Name="AI_CITIZEN_VALUE_PRODUCTION" />
+		</Update>
+		<Update>
+			<Set Value="9" />
+			<Where Name="AI_CITIZEN_VALUE_GOLD" />
 		</Update>
 		
 		<!-- Danger Value Stuff -->
 		<!-- Danger values were quite wonky before, this makes them a lot more logical -->
 		<Update>
-			<Set Value="0.4" />
+			<Set Value="0.3" />
 			<Where Name="AI_DANGER_MAJOR_APPROACH_DECEPTIVE" />
 		</Update>
 		<Update>
-			<Set Value="0.8" />
+			<Set Value="0.6" />
 			<Where Name="AI_DANGER_MAJOR_APPROACH_HOSTILE" />
 		</Update>
 		<Update>
@@ -161,7 +160,7 @@
 		<!-- Religion -->
 		<Update>
 			<!-- Unowned but in range more valuable than before to make sure AI knows it's in a good position -->
-			<Set Value="5" />
+			<Set Value="4" />
 			<Where Name="RELIGION_BELIEF_SCORE_UNOWNED_PLOT_MULTIPLIER" />
 		</Update>
 		<Update>
@@ -171,7 +170,7 @@
 		</Update>
 		<Update>
 			<!-- Owned and worked should have no difference since citizen management will compensate anyway -->
-			<Set Value="6" />
+			<Set Value="10" />
 			<Where Name="RELIGION_BELIEF_SCORE_WORKED_PLOT_MULTIPLIER" />
 		</Update>
 		<Update>
@@ -181,46 +180,37 @@
 		</Update>
 		
 		<!-- City annex -->
-		<!-- AI is lot more likely to leave as puppet, because puppets are fairly powerful -->
-		<Update>
-			<Set Value="0.4" />
-			<Where Name="NORMAL_ANNEX" />
-		</Update>
-		<Update>
-			<Set Value="0.8" />
-			<Where Name="AGGRESSIVE_ANNEX" />
-		</Update>
 		
 		<!--Ideology Choice-->
 		<!-- Makes sure the AI doesn't disregard ideologies on the slightest priority advantage -->
 		<!-- Following 4 mean that diplomatic relations also define ideologies, not just the other way around -->
 		<Update>
-			<Set Value="20" />
+			<Set Value="10" />
 			<Where Name="IDEOLOGY_SCORE_HOSTILE" />
 		</Update>
 		<Update>
-			<Set Value="10" />
+			<Set Value="6" />
 			<Where Name="IDEOLOGY_SCORE_GUARDED" />
 		</Update>
 		<Update>
-			<Set Value="10" />
+			<Set Value="8" />
 			<Where Name="IDEOLOGY_SCORE_AFRAID" />
 		</Update>
 		<Update>
-			<Set Value="20" />
+			<Set Value="14" />
 			<Where Name="IDEOLOGY_SCORE_FRIENDLY" />
 		</Update>
 		<!-- Makes sure the AI is actually likely to voluntarily switch ideologies if it suits their goals -->
 		<Update>
-			<Set Value="5" />
+			<Set Value="6" />
 			<Where Name="IDEOLOGY_SCORE_HAPPINESS" />
 		</Update>
 		<Update>
-			<Set Value="40" />
+			<Set Value="60" />
 			<Where Name="IDEOLOGY_SCORE_PER_FREE_TENET" />
 		</Update>
 		<Update>
-			<Set Value="400" />
+			<Set Value="325" />
 			<Where Name="IDEOLOGY_SCORE_GRAND_STRATS" />
 		</Update>
 	</Defines>

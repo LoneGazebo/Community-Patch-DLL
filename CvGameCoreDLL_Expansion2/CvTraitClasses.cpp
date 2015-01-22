@@ -3169,29 +3169,32 @@ BuildingTypes CvPlayerTraits::GetFreeBuildingOnConquest() const
 }
 #if defined(MOD_BALANCE_CORE)
 /// Should unique luxuries appear around this tile?
-void CvPlayerTraits::AddUniqueLuxuriesAround(CvCity *pCity)
+void CvPlayerTraits::AddUniqueLuxuriesAround(CvCity *pCity, int iNumResource)
 {
 	// Still have more of these cities to award?
 	if (m_iUniqueLuxuryCities > m_iUniqueLuxuryCitiesPlaced)
 	{
 		m_iUniqueLuxuryCitiesPlaced++;   // One less to give out
-		m_aUniqueLuxuryAreas.push_back(m_iUniqueLuxuryCitiesPlaced);  		// Store area
-		int iNumUniqueResourcesGiven = m_aUniqueLuxuryAreas.size();
-
+		
 		// Loop through all resources and see if we can find this many unique ones
 		ResourceTypes eResourceToGive = NO_RESOURCE;
-		int iNumUniquesFound = 0;
+		int iBestFlavor = 0;
 		for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 		{
 			ResourceTypes eResource = (ResourceTypes) iResourceLoop;
 			CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
 			if (pkResource != NULL && pkResource->GetRequiredCivilization() == m_pPlayer->getCivilizationType())
 			{
-				iNumUniquesFound++;
-				if (iNumUniquesFound == iNumUniqueResourcesGiven)
+				int iRandomFlavor = GC.getGame().getJonRandNum(100, "Resource Flavor");
+				//If we've already got this resource, divide the value by the amount.
+				if(m_pPlayer->getNumResourceTotal(eResource, false) > 0)
+				{
+					iRandomFlavor /= m_pPlayer->getNumResourceTotal(eResource, false);
+				}
+				if(iRandomFlavor > iBestFlavor)
 				{
 					eResourceToGive = eResource;
-					break;
+					iBestFlavor = iRandomFlavor;
 				}
 			}
 		}
@@ -3199,11 +3202,7 @@ void CvPlayerTraits::AddUniqueLuxuriesAround(CvCity *pCity)
 		if (eResourceToGive != NO_RESOURCE)
 		{
 			int iNumResourceGiven = 0;
-			int iNumResourceTotal = m_iUniqueLuxuryQuantity;
-			if(((m_pPlayer->GetNumCitiesFounded() <= 1) || (m_pPlayer->getCapitalCity() != NULL && (m_pPlayer->getCapitalCity()->getArea() != pCity->getArea()))))
-			{
-				iNumResourceTotal += m_iUniqueLuxuryQuantity;
-			}
+			int iNumResourceTotal = iNumResource;
 			CvPlot* pLoopPlot;
 #if defined(MOD_GLOBAL_CITY_WORKING)
 			for(int iCityPlotLoop = 0; iCityPlotLoop < pCity->GetNumWorkablePlots(); iCityPlotLoop++)
@@ -3212,7 +3211,7 @@ void CvPlayerTraits::AddUniqueLuxuriesAround(CvCity *pCity)
 #endif
 			{
 				pLoopPlot = plotCity(pCity->getX(), pCity->getY(), iCityPlotLoop);
-				if(pLoopPlot != NULL && !pLoopPlot->isCity() && !pLoopPlot->isImpassable() && !pLoopPlot->isWater() && !pLoopPlot->isMountain() && !pLoopPlot->IsNaturalWonder())
+				if(pLoopPlot != NULL && pLoopPlot->getOwner() == m_pPlayer->GetID() && !pLoopPlot->isCity() && !pLoopPlot->isImpassable() && !pLoopPlot->isWater() && !pLoopPlot->isMountain() && !pLoopPlot->IsNaturalWonder() && (pLoopPlot->getFeatureType() != FEATURE_OASIS))
 				{
 					if(pLoopPlot->HasResource(NO_RESOURCE) && pLoopPlot->HasImprovement(NO_IMPROVEMENT))
 					{
@@ -3222,6 +3221,30 @@ void CvPlayerTraits::AddUniqueLuxuriesAround(CvCity *pCity)
 						if(iNumResourceGiven >= iNumResourceTotal)
 						{
 							break;
+						}
+					}
+				}
+			}
+			if(iNumResourceGiven < iNumResourceTotal)
+			{
+#if defined(MOD_GLOBAL_CITY_WORKING)
+				for(int iCityPlotLoop = 0; iCityPlotLoop < pCity->GetNumWorkablePlots(); iCityPlotLoop++)
+#else
+				for(int iCityPlotLoop = 0; iCityPlotLoop < NUM_CITY_PLOTS; iCityPlotLoop++)
+#endif
+				{
+					pLoopPlot = plotCity(pCity->getX(), pCity->getY(), iCityPlotLoop);
+					if(pLoopPlot != NULL && !pLoopPlot->isCity() && (pLoopPlot->getOwner() == NO_PLAYER) && !pLoopPlot->isImpassable() && !pLoopPlot->isWater() && !pLoopPlot->isMountain() && !pLoopPlot->IsNaturalWonder() && (pLoopPlot->getFeatureType() != FEATURE_OASIS))
+					{
+						if(pLoopPlot->HasResource(NO_RESOURCE) && pLoopPlot->HasImprovement(NO_IMPROVEMENT))
+						{
+							pLoopPlot->setResourceType(NO_RESOURCE, 0, false);
+							pLoopPlot->setResourceType(eResourceToGive, 1, false);
+							iNumResourceGiven++;
+							if(iNumResourceGiven >= iNumResourceTotal)
+							{
+								break;
+							}
 						}
 					}
 				}

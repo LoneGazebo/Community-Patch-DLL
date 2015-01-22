@@ -75,11 +75,11 @@
 			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_INDUS_CANAL_TEXT</Civilopedia>
 			<Strategy>TXT_KEY_BUILDING_INDUS_CANAL_STRATEGY</Strategy>
 			<ArtDefineTag>ART_DEF_BUILDING_HOSPITAL</ArtDefineTag>
-			<FoodKept>50</FoodKept>
-			<PovertyHappinessChange>1</PovertyHappinessChange>
+			<FoodKept>30</FoodKept>
+			<PovertyHappinessChange>2</PovertyHappinessChange>
 			<MinAreaSize>-1</MinAreaSize>
 			<ConquestProb>66</ConquestProb>
-			<HurryCostModifier>0</HurryCostModifier>
+			<HurryCostModifier>15</HurryCostModifier>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
 			<PortraitIndex>56</PortraitIndex>
 		</Row>
@@ -118,7 +118,7 @@
 		<Row>
 			<BuildingType>BUILDING_INDUS_CANAL</BuildingType>
 			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>1</Yield>
+			<Yield>2</Yield>
 		</Row>
 	</Building_YieldChanges>
 	<Civilization_BuildingClassOverrides>
@@ -153,7 +153,7 @@
 			</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_INDUS_CANAL_HELP">
-			<Text>Unique Indian replacement for the Aqueduct. Carries over 50% of [ICON_FOOD] Food after City growth. Grants +1 [ICON_FOOD] Food on Oases, Lakes, and Flood Plains. Receive +2 [ICON_PRODUCTION] Production and +2 [ICON_FOOD] Food in the City where it is built. Reduces [ICON_HAPPINESS_3] Poverty slightly.</Text>
+			<Text>Unique Indian replacement for the Aqueduct. Carries over 30% of [ICON_FOOD] Food after City growth. Grants +1 [ICON_FOOD] Food on Oases, Lakes, and Flood Plains. Receive +2 [ICON_PRODUCTION] Production and +2 [ICON_FOOD] Food in the City where it is built. Reduces [ICON_HAPPINESS_3] Poverty slightly.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_INDUS_CANAL_STRATEGY">
 			<Text>Build these unique Aqueducts to rapidly increase your city's population size, and to boost the City's productivity.</Text>
@@ -164,7 +164,7 @@
 		<Row>
 			<Type>BUILDING_DOJO</Type>
 			<BuildingClass>BUILDINGCLASS_ARMORY</BuildingClass>
-			<Cost>175</Cost>
+			<Cost>200</Cost>
 			<GoldMaintenance>2</GoldMaintenance>
 			<FreeStartEra>ERA_INDUSTRIAL</FreeStartEra>
 			<PrereqTech>TECH_CHIVALRY</PrereqTech>
@@ -343,7 +343,7 @@
 			<Help>TXT_KEY_BUILDING_TRIUMPHAL_ARCH_HELP</Help>
 			<ArtDefineTag>MONUMENT</ArtDefineTag>
 			<MinAreaSize>-1</MinAreaSize>
-			<HurryCostModifier>40</HurryCostModifier>
+			<HurryCostModifier>25</HurryCostModifier>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
 			<PortraitIndex>35</PortraitIndex>
 			<NeverCapture>true</NeverCapture>
@@ -415,7 +415,7 @@
 		<Row>
 			<Type>BUILDING_STEAM_MILL</Type>
 			<BuildingClass>BUILDINGCLASS_FACTORY</BuildingClass>
-			<Cost>400</Cost>
+			<Cost>450</Cost>
 			<GoldMaintenance>3</GoldMaintenance>
 			<PrereqTech>TECH_STEAM_POWER</PrereqTech>
 			<Help>TXT_KEY_BUILDING_STEAM_MILL_HELP</Help>
@@ -428,7 +428,7 @@
 			<SpecialistCount>2</SpecialistCount>
 			<MinAreaSize>-1</MinAreaSize>
 			<ConquestProb>66</ConquestProb>
-			<HurryCostModifier>0</HurryCostModifier>
+			<HurryCostModifier>33</HurryCostModifier>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
 			<PortraitIndex>51</PortraitIndex>
 		</Row>
@@ -469,7 +469,7 @@
 		<Row>
 			<BuildingType>BUILDING_STEAM_MILL</BuildingType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Yield>1</Yield>
+			<Yield>3</Yield>
 		</Row>
 	</Building_YieldChanges>
 	<Building_YieldChangesPerPop>
@@ -500,7 +500,7 @@
 		<Row>
 			<Type>BUILDING_SIEGE_WORKSHOP</Type>
 			<BuildingClass>BUILDINGCLASS_ARSENAL</BuildingClass>
-			<Cost>275</Cost>
+			<Cost>350</Cost>
 			<GoldMaintenance>3</GoldMaintenance>
 			<PrereqTech>TECH_GUNPOWDER</PrereqTech>
 			<Help>TXT_KEY_BUILDING_SIEGE_WORKSHOP_HELP</Help>
@@ -610,7 +610,7 @@
 		<Row>
 			<Type>BUILDING_RESORT</Type>
 			<BuildingClass>BUILDINGCLASS_HOTEL</BuildingClass>
-			<Cost>600</Cost>
+			<Cost>700</Cost>
 			<PrereqTech>TECH_REFRIGERATION</PrereqTech>
 			<Help>TXT_KEY_BUILDING_RESORT_HELP</Help>
 			<Description>TXT_KEY_BUILDING_RESORT</Description>

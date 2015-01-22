@@ -1,3 +1,4 @@
+print("This is the modded EconomicGeneralInfo from CBP")
 -------------------------------------------------
 -- Economic
 -------------------------------------------------

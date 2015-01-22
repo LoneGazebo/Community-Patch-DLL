@@ -1,3 +1,5 @@
+print("This is the modded CityBannerManager from CBP")
+
 ------------------------------------------------- 
 -- CityBannerManager
 -------------------------------------------------

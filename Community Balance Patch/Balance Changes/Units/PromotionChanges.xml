@@ -206,7 +206,7 @@
 				<Description>TXT_KEY_PROMOTION_AMPHIBIOUS</Description>
 				<Help>TXT_KEY_PROMOTION_AMPHIBIOUS_HELP</Help>
 				<Sound>AS2D_IF_LEVELUP</Sound>
-				<PromotionPrereqOr1>PROMOTION_DRILL_1</PromotionPrereqOr1>
+				<PromotionPrereqOr1>PROMOTION_DRILL_2</PromotionPrereqOr1>
 				<OrderPriority>4</OrderPriority>
 				<Amphib>true</Amphib>
 				<River>true</River>

@@ -7,7 +7,7 @@
     <Guid>d1b6328c-ff44-4b0d-aad7-c657f83610cd</Guid>
     <ModVersion>66</ModVersion>
     <Stability>Beta</Stability>
-    <Teaser>Unofficial DLL Bugfix and AI Patch for Civ 5 (v66.13.4)  - Updated 1/13</Teaser>
+    <Teaser>Unofficial DLL Bugfix and AI Patch for Civ 5 (v66.14.1)  - Updated 1/21</Teaser>
     <Description>Contains core AI improvements and bugfixes for the Civ 5 BNW DLL. Also contains support for Whoward's PNM Mods as well as the Community Balance Patch.</Description>
     <Authors>The Community Patch Team</Authors>
     <SpecialThanks>
@@ -77,11 +77,6 @@
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <FileName>CSDC4DFCompatibility/ModCompatibility.sql</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
         <FileName>Core Files/Core Tables/CoreTableAdditions.xml</FileName>
       </Action>
       <Action>
@@ -98,11 +93,6 @@
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
         <FileName>Core Files/Core Changes/CoreChanges.sql</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>Core Files/Core Changes/TextChanges.sql</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
@@ -397,11 +387,6 @@
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <FileName>Core Files/Core Values/Artificial Unintelligence/New_CIV5CitySpecializations.xml</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
         <FileName>Core Files/Core Values/Artificial Unintelligence/New_CIV5MultiUnitFormations.xml</FileName>
       </Action>
       <Action>
@@ -438,6 +423,11 @@
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
         <FileName>Core Files/Core Changes/NewText2.xml</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>Core Files/Core Changes/TextChanges.sql</FileName>
       </Action>
     </ModActions>
     <Homepage>
@@ -479,7 +469,6 @@
     <Folder Include="Core Files\PNM Mods DB\TRADE\" />
     <Folder Include="Core Files\PNM Mods DB\TRAITS\" />
     <Folder Include="Core Files\PNM Mods DB\UI\" />
-    <Folder Include="CSDC4DFCompatibility" />
     <Folder Include="LUA" />
   </ItemGroup>
   <ItemGroup>
@@ -504,14 +493,6 @@
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
     <Content Include="Core Files\Core Changes\EraSpecificMusicians.sql">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="Core Files\Core Changes\NewText2.xml">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="Core Files\Core Changes\NewWriters.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
@@ -575,6 +556,14 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
+    <Content Include="Core Files\Core Changes\NewText2.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="Core Files\Core Changes\NewWriters.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
     <Content Include="Core Files\Core Changes\NewArtists.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
@@ -611,10 +600,6 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
-    <Content Include="Core Files\Core Values\Artificial Unintelligence\New_CIV5CitySpecializations.xml">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
     <Content Include="Core Files\Core Values\Artificial Unintelligence\New_CIV5MultiUnitFormations.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
@@ -640,10 +625,6 @@
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
     <Content Include="Core Files\Core Values\GoodyHuts.xml">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="Core Files\CvGameCore_Expansion2.dll">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
@@ -871,13 +852,17 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
-    <Content Include="CSDC4DFCompatibility\ModCompatibility.sql">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
     <Content Include="CvGameCore_Expansion2.dll">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="LUA\DiscussionDialog.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="LUA\DiscussionDialog.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
     <Content Include="LUA\ProductionPopup.lua">
       <SubType>Lua</SubType>

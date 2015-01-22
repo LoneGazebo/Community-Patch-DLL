@@ -18,7 +18,7 @@
 		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer" default="0"/>
 	</Table>
-
+	
 	<!-- PANTHEON: Allows you to define any belief to grant 1 yield per X pop, where X is the number below. (FAITH ONLY)-->
 	<Table name="Belief_YieldPerPop">
 		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>

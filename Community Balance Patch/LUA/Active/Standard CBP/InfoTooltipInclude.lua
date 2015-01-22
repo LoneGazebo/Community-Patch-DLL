@@ -1,3 +1,4 @@
+print("This is the modded InfoTooltipInclude from CBP")
 -------------------------------------------------
 -- Help text for Info Objects (Units, Buildings, etc.)
 -------------------------------------------------
@@ -722,13 +723,6 @@ function GetCultureTooltip(pCity)
 			strCultureToolTip = strCultureToolTip .. "[NEWLINE][NEWLINE]";
 			strCultureToolTip = strCultureToolTip .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_CULTURE_CITY_MOD", iAmount);
 		end
-
-		-- City Culture League modifier (CSD)
-		local iAmount = Players[pCity:GetOwner()]:GetLeagueCultureCityModifier();
-		if (iAmount ~= 0) then
-			strCultureToolTip = strCultureToolTip .. "[NEWLINE][NEWLINE]";
-			strCultureToolTip = strCultureToolTip .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_CULTURE_LEAGUE_MOD", iAmount);
-		end
 		
 		-- Culture Wonders modifier
 		if (pCity:GetNumWorldWonders() > 0) then
@@ -1013,16 +1007,6 @@ function GetYieldTooltip(pCity, iYieldType, iBase, iTotal, strIconString, strMod
 	if (iYieldFromConnection ~= 0) then
 		strYieldBreakdown = strYieldBreakdown .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_YIELD_FROM_CONNECTION", iYieldFromConnection, strIconString);
 		strYieldBreakdown = strYieldBreakdown .. "[NEWLINE]";
-	end
-	-- END
-
-	-- Base Yield from League Art (CSD)
-	local iYieldFromLeague = pCity:GetBaseYieldRateFromLeague(iYieldType);
-	if (iYieldFromLeague ~= 0) then
-		if (iYieldType == YieldTypes.YIELD_SCIENCE) then
-		strYieldBreakdown = strYieldBreakdown .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_SCIENCE_YIELD_FROM_LEAGUE_ART", iYieldFromLeague, strIconString);
-		strYieldBreakdown = strYieldBreakdown .. "[NEWLINE]";
-		end
 	end
 
 -- CBP Gold from Great Works

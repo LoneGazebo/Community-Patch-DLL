@@ -199,7 +199,21 @@ enum DisputeLevelTypes
 
     NUM_DISPUTE_LEVELS,
 };
+#if defined(MOD_BALANCE_CORE)
+enum BlockLevelTypes
+{
+    NO_BLOCK_LEVEL = -1,
 
+    // WARNING: the order of these values is very important, do not change unless you know what you're doing!
+    BLOCK_LEVEL_NONE,
+    BLOCK_LEVEL_WEAK,
+    BLOCK_LEVEL_STRONG,
+    BLOCK_LEVEL_FIERCE,
+    // WARNING: the order of these values is very important, do not change unless you know what you're doing!
+
+    NUM_BLOCK_LEVELS,
+};
+#endif
 enum AgreementLevelTypes
 {
     NO_AGREEMENT_LEVEL = -1,
