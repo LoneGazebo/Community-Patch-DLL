@@ -31086,7 +31086,7 @@ int CvDiplomacyAI::GetNumberOfThreatenedCities(PlayerTypes ePlayer)
 
 	int iCityLoop;
 	for (const CvCity* pFriendlyCity = GetPlayer()->firstCity(&iCityLoop); pFriendlyCity != NULL; pFriendlyCity = GetPlayer()->nextCity(&iCityLoop))
-		if ( pFriendlyCity->IsInDanger( ePlayer ) )
+		if ( pFriendlyCity && pFriendlyCity->IsInDanger( ePlayer ) )
 			iCountCitiesInDanger++;
 
 	return iCountCitiesInDanger;

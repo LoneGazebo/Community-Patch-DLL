@@ -1996,10 +1996,13 @@ CityAttackApproaches CvMilitaryAI::EvaluateMilitaryApproaches(CvCity* pCity, boo
 	int iNumBlocked = 0;
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
+	//this returns the _largest_ water area
+	CvArea* pCityOcean = pCity->plot()->waterArea();
+	CvArea* pCityContinent = pCity->plot()->area();
+
 	//Expanded to look at three hexes around each city - will give a better understanding of approach.
 	int iNumPlots = 0;
 	int iNumTough = 0;
-	int iPlotDivisor = 0;
 	int iTotal = 0;
 	int iDX = 0;
 	int iDY = 0;
@@ -2009,81 +2012,76 @@ CityAttackApproaches CvMilitaryAI::EvaluateMilitaryApproaches(CvCity* pCity, boo
 		for(iDY = -(iRange); iDY <= iRange; iDY++)
 		{
 			pLoopPlot = plotXYWithRangeCheck(pCity->getX(), pCity->getY(), iDX, iDY, iRange);
+			iNumPlots++;
+
 			// Blocked if edge of map
 			if(pLoopPlot == NULL)
 			{
 				iNumBlocked++;
+				continue;
 			}
-			else
-			{
-				if(bAttackByLand)
-				{
-					if(pLoopPlot->isHills())
-					{
-						iNumTough++;
-					}
-					if(pLoopPlot->IsRoughFeature())
-					{
-						iNumTough++;
-					}
-					if(pLoopPlot->isRiver())
-					{
-						iNumTough++;
-					}
-					if(pLoopPlot->isLake())
-					{
-						iNumTough++;
-					}
-					if(pLoopPlot->isImpassable())
-					{
-						iNumBlocked++;
-					}
-					if(pLoopPlot->isWater())
-					{
-						iNumTough++;
-					}
-				}
-				else if(bAttackBySea)
-				{
-					if(!pLoopPlot->isWater())
-					{
-						iNumBlocked++;
-					}
-				}
-			}
-			iNumPlots++;
+
+			bool bBlocked = false;
+			bool bHarmful = false;
+			bool bTough = false;
+
+			//cannot go here
+			if(pLoopPlot->isImpassable() || pLoopPlot->isCity())
+				bBlocked = true;
+
+			//should not go here
+			if ( pLoopPlot->GetDamageFromNearByFeatures( GetPlayer()->GetID() ) > 0 )
+				bHarmful = true;
+
+			//makes us slow
+			if(	pLoopPlot->isHills()		|| 
+				pLoopPlot->IsRoughFeature()	||
+				pLoopPlot->isRiver() )
+				bTough = true;
+
+			//other continent?
+			if ( !pLoopPlot->isWater() && pLoopPlot->area() != pCityContinent )
+				bBlocked = true;
+
+			//other ocean/lake?
+			if ( pLoopPlot->isWater() && pLoopPlot->area() != pCityOcean )
+				bBlocked = true;
+
+			if(bAttackByLand && !bAttackBySea)
+				//siege weapons cannot set up here
+				if(	pLoopPlot->isWater() )
+					bBlocked = true;
+
+			if(bAttackBySea && !bAttackByLand)
+				//ships cannot go here
+				if( !pLoopPlot->isWater() )
+					bBlocked = true;
+
+			//todo: what about air attack?
+
+			if (bBlocked)
+				iNumBlocked++;
+			else if (bHarmful)
+				iNumTough+=2;
+			else if (bTough)
+				iNumTough++;
 		}
 	}
 	iNumBlocked = (iNumTough / 6) + iNumBlocked;
 	iTotal = (iNumBlocked * 100) / /*36*/ iNumPlots;
-	iPlotDivisor = iTotal;
 	//We want a number between 0 and 100
-	switch(iPlotDivisor)
-	{
-	case 0:
-	case 10:
+	if (iTotal<10)
 		eRtnValue = ATTACK_APPROACH_UNRESTRICTED;
-		break;
-	case 20:
-	case 30:
+	else if (iTotal<30)
 		eRtnValue = ATTACK_APPROACH_OPEN;
-		break;
-	case 40:
-	case 50:
+	else if (iTotal<50)
 		eRtnValue = ATTACK_APPROACH_NEUTRAL;
-		break;
-	case 60:
-	case 70:
+	else if (iTotal<70)
 		eRtnValue = ATTACK_APPROACH_LIMITED;
-		break;
-	case 80:
-	case 90:
+	else if (iTotal<90)
 		eRtnValue = ATTACK_APPROACH_RESTRICTED;
-		break;
-	case 100:
+	else
 		eRtnValue = ATTACK_APPROACH_NONE;
-		break;
-	}	
 #else
 	// Look at each of the six plots around the city
 	for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
