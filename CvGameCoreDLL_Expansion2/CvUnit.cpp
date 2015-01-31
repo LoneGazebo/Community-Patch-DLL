@@ -18690,6 +18690,12 @@ int CvUnit::GetNearbyImprovementModifier()const
 bool CvUnit::IsGreatGeneral() const
 {
 	VALIDATE_OBJECT
+
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	if( AI_getUnitAIType() == UNITAI_GENERAL )
+		return true;
+#endif
+
 	return GetGreatGeneralCount() > 0;
 }
 
@@ -18711,6 +18717,12 @@ void CvUnit::ChangeGreatGeneralCount(int iChange)
 bool CvUnit::IsGreatAdmiral() const
 {
 	VALIDATE_OBJECT
+
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	if( AI_getUnitAIType() == UNITAI_ADMIRAL )
+		return true;
+#endif
+
 	return GetGreatAdmiralCount() > 0;
 }
 
@@ -22948,8 +22960,8 @@ void CvUnit::PushMission(MissionTypes eMission, int iData1, int iData2, int iFla
 #if defined(MOD_BALANCE_CORE_MILITARY_LOGGING)
 	if (GC.getLogging() && GC.getAILogging()) 
 	{
-		CvString info = CvString::format( "%03d;0x%08X;%s;id;0x%08X;owner;%02d;army;0x%08X;%s;arg1;%d;arg2;%d;flags;0x%08X\n", 
-			GC.getGame().getGameTurn(),this,this->getNameKey(),this->GetID(),this->getOwner(),this->getArmyID(),CvTypes::GetMissionName(eMission).c_str(),iData1,iData2,iFlags );
+		CvString info = CvString::format( "%03d;0x%08X;%s;id;0x%08X;owner;%02d;army;0x%08X;%s;arg1;%d;arg2;%d;flags;0x%08X;at;%d;%d\n", 
+			GC.getGame().getGameTurn(),this,this->getNameKey(),this->GetID(),this->getOwner(),this->getArmyID(),CvTypes::GetMissionName(eMission).c_str(),iData1,iData2,iFlags, plot()->getX(), plot()->getY() );
 		FILogFile* pLog=LOGFILEMGR.GetLog( "unit-missions.csv", FILogFile::kDontTimeStamp | FILogFile::kDontFlushOnWrite );
 		pLog->Msg( info.c_str() );
 	}

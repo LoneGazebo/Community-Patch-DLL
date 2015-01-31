@@ -2212,8 +2212,8 @@ void CvEconomicAI::DoReconState()
 		int iLastFoundValue = GetPlayer()->GetFoundValueOfLastSettledCity();
 		if (iBestFoundValue < 0.5f * iLastFoundValue )
 		{
-			OutputDebugString( CvString::format("%s - no good settle plot: ratio %.2f (%08d vs %08d) - need more recon\n", 
-				GetPlayer()->getCivilizationDescription(), iBestFoundValue/(float)iLastFoundValue, iBestFoundValue, iLastFoundValue) );
+			//OutputDebugString( CvString::format("%s - no good settle plot: ratio %.2f (%08d vs %08d) - need more recon\n", 
+			//	GetPlayer()->getCivilizationDescription(), iBestFoundValue/(float)iLastFoundValue, iBestFoundValue, iLastFoundValue) );
 
 			m_eReconState = RECON_STATE_NEEDED;
 			m_eNavalReconState = RECON_STATE_NEEDED;

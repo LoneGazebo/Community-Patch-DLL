@@ -2224,7 +2224,11 @@ void CvHomelandAI::PlotGeneralMoves()
 		UnitHandle pUnit = m_pPlayer->getUnit(*it);
 		if(pUnit)
 		{
+#if defined(MOD_BALANCE_CORE_MILITARY)
+			if(pUnit->IsGreatGeneral())
+#else
 			if(pUnit->AI_getUnitAIType() == UNITAI_GENERAL)
+#endif
 			{
 				CvHomelandUnit unit;
 				unit.SetID(pUnit->GetID());
@@ -2250,7 +2254,11 @@ void CvHomelandAI::PlotAdmiralMoves()
 		UnitHandle pUnit = m_pPlayer->getUnit(*it);
 		if(pUnit)
 		{
+#if defined(MOD_BALANCE_CORE_MILITARY)
+			if(pUnit->IsGreatAdmiral())
+#else
 			if(pUnit->AI_getUnitAIType() == UNITAI_ADMIRAL)
+#endif
 			{
 				CvHomelandUnit unit;
 				unit.SetID(pUnit->GetID());
@@ -4980,7 +4988,11 @@ void CvHomelandAI::ExecuteGeneralMoves()
 		if (pUnit->GetGreatPeopleDirective() == GREAT_PEOPLE_DIRECTIVE_USE_POWER)
 		{
 			int iValue = 0;
+#if defined(MOD_BALANCE_CORE_MILITARY)
+			CvPlot* pTargetPlot = GET_PLAYER(m_pPlayer->GetID()).FindBestGreatGeneralTargetPlot(pUnit.pointer(), iValue);
+#else
 			CvPlot* pTargetPlot = GET_PLAYER(m_pPlayer->GetID()).FindBestArtistTargetPlot(pUnit.pointer(), iValue);
+#endif
 			if(pTargetPlot)
 			{
 				if(pUnit->plot() == pTargetPlot)
@@ -5026,7 +5038,8 @@ void CvHomelandAI::ExecuteGeneralMoves()
 					if(GC.getLogging() && GC.getAILogging())
 					{
 						CvString strLogString;
-						strLogString.Format("Great general moving to culture bomb/citadel at, X: %d, Y: %d", pUnit->getX(), pUnit->getY());
+						strLogString.Format("Great general moving to culture bomb/citadel at, X: %d, Y: %d, current location, X: %d, Y: %d", 
+							pTargetPlot->getX(), pTargetPlot->getY(), pUnit->getX(), pUnit->getY());
 						LogHomelandMessage(strLogString);
 					}
 				}
@@ -5040,6 +5053,12 @@ void CvHomelandAI::ExecuteGeneralMoves()
 			ExecuteGoldenAgeMove(pUnit.pointer());
 			continue;
 		}
+
+#if defined(MOD_BALANCE_CORE_MILITARY)
+		//if he's a commander but not in an army, put him up in a city for a while
+		if(pUnit->GetGreatPeopleDirective() == GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND && pUnit->getArmyID()==-1)
+		{
+#endif
 
 		// if we already built the Apollo Program we don't want the general in the capital because it'll block spaceship parts
 
@@ -5080,6 +5099,18 @@ void CvHomelandAI::ExecuteGeneralMoves()
 				CvPlot* pTarget = pLoopCity->plot();
 				for(int iUnitLoop = 0; iUnitLoop < pTarget->getNumUnits(); iUnitLoop++)
 				{
+#if defined(MOD_BALANCE_CORE_MILITARY)
+					if(pTarget->getUnitByIndex(iUnitLoop)->IsGreatGeneral())
+					{
+						bSkipCity = true;
+						break;
+					}
+					else if(pTarget->getUnitByIndex(iUnitLoop)->IsGreatAdmiral())
+					{
+						bSkipCity = true;
+						break;
+					}
+#else
 					// Don't go here if a general or admiral is already present
 					if(pTarget->getUnitByIndex(iUnitLoop)->AI_getUnitAIType() == UNITAI_GENERAL)
 					{
@@ -5091,6 +5122,7 @@ void CvHomelandAI::ExecuteGeneralMoves()
 						bSkipCity = true;
 						break;
 					}
+#endif
 				}
 
 				if(!bSkipCity)
@@ -5127,6 +5159,10 @@ void CvHomelandAI::ExecuteGeneralMoves()
 				}
 			}
 		}
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	}
+#endif
+		
 	}
 }
 
@@ -5177,6 +5213,12 @@ void CvHomelandAI::ExecuteAdmiralMoves()
 			continue;
 		}
 
+#if defined(MOD_BALANCE_CORE_MILITARY)
+		//if he's a commander but not in an army, put him up in a city for a while
+		if(pUnit->GetGreatPeopleDirective() == GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND && pUnit->getArmyID()==-1)
+		{
+#endif
+
 		bool bNotAtFriendlyCity = !pUnit->plot()->isCity() || pUnit->plot()->getOwner() != pUnit->getOwner();
 
 			// Score cities to move to
@@ -5206,6 +5248,18 @@ void CvHomelandAI::ExecuteAdmiralMoves()
 			for(int iUnitLoop = 0; iUnitLoop < pTarget->getNumUnits(); iUnitLoop++)
 			{
 				CvUnit *pLoopUnit = pTarget->getUnitByIndex(iUnitLoop);
+#if defined(MOD_BALANCE_CORE_MILITARY)
+				if(pLoopUnit->IsGreatGeneral() && pLoopUnit->GetID() != pUnit->GetID())
+				{
+					bSkipCity = true;
+					break;
+				}
+				else if(pUnit->IsGreatAdmiral() && pLoopUnit->GetID() != pUnit->GetID())
+				{
+					bSkipCity = true;
+					break;
+				}
+#else
 				if(pLoopUnit->AI_getUnitAIType() == UNITAI_GENERAL && pLoopUnit->GetID() != pUnit->GetID())
 				{
 					bSkipCity = true;
@@ -5216,6 +5270,7 @@ void CvHomelandAI::ExecuteAdmiralMoves()
 					bSkipCity = true;
 					break;
 				}
+#endif
 			}
 			if(bSkipCity)
 			{
@@ -5312,6 +5367,9 @@ void CvHomelandAI::ExecuteAdmiralMoves()
 				LogHomelandMessage(strLogString);
 			}
 		}
+#if defined(MOD_BALANCE_CORE_MILITARY)
+		}
+#endif
 	}
 }
 

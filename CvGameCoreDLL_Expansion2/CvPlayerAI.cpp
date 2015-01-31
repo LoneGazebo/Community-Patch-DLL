@@ -34,6 +34,10 @@
 // Include this after all other headers.
 #include "LintFree.h"
 
+#if defined(MOD_BALANCE_CORE_MILITARY)
+#include <queue>
+#endif
+
 #define DANGER_RANGE				(6)
 
 // statics
@@ -1372,6 +1376,49 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveScientist(CvUnit* /*pGreatScie
 	return eDirective;
 }
 
+#if defined(MOD_BALANCE_CORE_MILITARY)
+GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveGeneral(CvUnit* pGreatGeneral)
+{
+	GreatPeopleDirectiveTypes eDirective = NO_GREAT_PEOPLE_DIRECTIVE_TYPE;
+
+	SpecialUnitTypes eSpecialUnitGreatPerson = (SpecialUnitTypes) GC.getInfoTypeForString("SPECIALUNIT_PEOPLE");
+
+	int iGreatGeneralCount = 0;
+
+	//count how many generals we have in total
+	int iLoop;
+	for(CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit; pLoopUnit = nextUnit(&iLoop))
+	{
+		if(pLoopUnit->getSpecialUnitType() != eSpecialUnitGreatPerson)
+			continue;
+
+		if(pLoopUnit->IsGreatGeneral())
+		{
+			iGreatGeneralCount++;
+		}
+	}
+
+	//if this is an idle one, what we want it to do depends on the number we have
+	if( pGreatGeneral->GetGreatPeopleDirective() == NO_GREAT_PEOPLE_DIRECTIVE_TYPE )
+	{
+		assert( pGreatGeneral->plot()->getOwner() == pGreatGeneral->getOwner() );
+
+		if( iGreatGeneralCount < 3 )
+			//accompany an army
+			eDirective = GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
+		else
+			//build a citadel
+			eDirective = GREAT_PEOPLE_DIRECTIVE_USE_POWER;
+
+		return eDirective;
+	}
+	else
+		// he should keep doing what he's doing
+		return pGreatGeneral->GetGreatPeopleDirective();
+}
+
+#else
+
 GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveGeneral(CvUnit* pGreatGeneral)
 {
 	GreatPeopleDirectiveTypes eDirective = NO_GREAT_PEOPLE_DIRECTIVE_TYPE;
@@ -1394,7 +1441,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveGeneral(CvUnit* pGreatGeneral)
 		}
 	}
 
-	if(iGreatGeneralCount > 2 && pGreatGeneral->plot()->getOwner() == pGreatGeneral->getOwner())
+	if( iGreatGeneralCount > 2 && pGreatGeneral->plot()->getOwner() == pGreatGeneral->getOwner() )
 	{
 		// we're using a power at this point because constructing the improvement goes through different code
 		eDirective = GREAT_PEOPLE_DIRECTIVE_USE_POWER;
@@ -1402,6 +1449,8 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveGeneral(CvUnit* pGreatGeneral)
 
 	return eDirective;
 }
+
+#endif
 
 GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveProphet(CvUnit*)
 {
@@ -1475,12 +1524,26 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveProphet(CvUnit*)
 	return eDirective;
 }
 
+#if defined(MOD_BALANCE_CORE_MILITARY)
+GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveAdmiral(CvUnit* pGreatAdmiral)
+{
+	if( pGreatAdmiral->GetGreatPeopleDirective() == NO_GREAT_PEOPLE_DIRECTIVE_TYPE )
+		// idle ones become commanders
+		return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
+	else
+		// he should keep doing what he's doing
+		return pGreatAdmiral->GetGreatPeopleDirective();
+}
+
+#else
+
 GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveAdmiral(CvUnit* /*pGreatAdmiral*/)
 {
 	GreatPeopleDirectiveTypes eDirective = NO_GREAT_PEOPLE_DIRECTIVE_TYPE;
 
 	return eDirective;
 }
+#endif
 
 #if defined(MOD_DIPLOMACY_CITYSTATES)
 GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveDiplomat(CvUnit* pGreatDiplomat)
@@ -2335,6 +2398,244 @@ CvPlot* CvPlayerAI::FindBestMusicianTargetPlot(CvUnit* pGreatMusician, bool bOnl
 	return pBestTargetPlot;
 }
 
+#if defined(MOD_BALANCE_CORE_MILITARY)
+CvPlot* CvPlayerAI::FindBestGreatGeneralTargetPlot(CvUnit* pGeneral, int& iResultScore)
+{
+	iResultScore = 0;
+	if(!pGeneral)
+		return NULL;
+
+	// we may build in one of our border tiles or in enemy tiles adjacent to them
+	std::set<CvPlot*> setCandidates;
+
+	// loop through plots and wipe out ones that are invalid
+	CvPlotsVector& m_aiPlots = GetPlots();
+	const uint nPlots = m_aiPlots.size();
+	for(uint ui = 0; ui < nPlots; ui++)
+	{
+		if(m_aiPlots[ui] == -1)
+			continue;
+
+		CvPlot* pPlot = GC.getMap().plotByIndex(m_aiPlots[ui]);
+
+		if(!pPlot->IsAdjacentOwnedByOtherTeam(getTeam()))
+			continue;
+
+		bool bGoodCandidate = true;
+		std::vector<CvPlot*> vPossibleCitadelTiles;
+
+		//watch this! plotDirection[NUM_DIRECTION_TYPES] is the plot itself
+		//we need to include it as it may belong to us or the enemy
+		for(int iI = 0; iI < NUM_DIRECTION_TYPES+1; ++iI)
+		{
+			CvPlot* pAdjacentPlot = plotDirection(pPlot->getX(), pPlot->getY(), ((DirectionTypes)iI));
+			if(pAdjacentPlot == NULL)
+				continue;
+
+			// can't build on some plots
+			if(pAdjacentPlot->getPlotCity() || pAdjacentPlot->isWater() || pAdjacentPlot->isImpassable() )
+				continue;
+
+			// don't build right next door to an existing citadel
+			ImprovementTypes eImprovement = (ImprovementTypes)pAdjacentPlot->getImprovementType();
+			if (eImprovement != NO_IMPROVEMENT)
+			{
+				CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
+				if(pkImprovementInfo && pkImprovementInfo->GetCultureBombRadius() > 0)
+				{
+					bGoodCandidate = false;
+					break;
+				}
+				//don't remove existing great people improvements
+				if(pkImprovementInfo && pkImprovementInfo->IsCreatedByGreatPerson())
+					continue;
+			}
+
+			// don't build over luxury resources
+			ResourceTypes eResource = pPlot->getResourceType();
+			if(eResource != NO_RESOURCE)
+			{
+				CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
+				if(pkResource != NULL && pkResource->getResourceUsage() == RESOURCEUSAGE_LUXURY)
+					continue;
+			}
+
+			// if no improvement can be built on this plot, then don't consider it
+			FeatureTypes eFeature = pPlot->getFeatureType();
+			if (eFeature != NO_FEATURE && GC.getFeatureInfo(eFeature)->isNoImprovement())
+				continue;
+
+			// make sure we don't step on the wrong toes
+			const PlayerTypes eOwner = pAdjacentPlot->getOwner();
+			if (eOwner != NO_PLAYER && eOwner != m_eID )
+			{
+				if(GET_PLAYER(eOwner).isMinorCiv())
+				{
+					MinorCivApproachTypes eMinorApproach = GetDiplomacyAI()->GetMinorCivApproach(eOwner);
+					// if we're friendly or protective, don't be a jerk
+					if(eMinorApproach != MINOR_CIV_APPROACH_CONQUEST && eMinorApproach != MINOR_CIV_APPROACH_IGNORE)
+					{
+						bGoodCandidate = false;
+						break;
+					}
+				}
+				else
+				{
+					MajorCivApproachTypes eMajorApproach = GetDiplomacyAI()->GetMajorCivApproach(eOwner, true);
+					DisputeLevelTypes eLandDisputeLevel = GetDiplomacyAI()->GetLandDisputeLevel(eOwner);
+
+					bool bTicked = (eMajorApproach == MAJOR_CIV_APPROACH_HOSTILE) || (eMajorApproach == MAJOR_CIV_APPROACH_WAR);
+					bool bTickedAboutLand = (eMajorApproach == MAJOR_CIV_APPROACH_NEUTRAL) && (eLandDisputeLevel == DISPUTE_LEVEL_STRONG || eLandDisputeLevel == DISPUTE_LEVEL_FIERCE);
+
+					// only bomb if we're hostile
+					if(!bTicked && !bTickedAboutLand)
+					{
+						bGoodCandidate = false;
+						break;
+					}
+				}
+			}
+
+			vPossibleCitadelTiles.push_back(pAdjacentPlot);
+		}
+
+		if (bGoodCandidate)
+			setCandidates.insert( vPossibleCitadelTiles.begin(), vPossibleCitadelTiles.end() );
+	}
+
+	std::priority_queue<SPlotWithScore> goodPlots;
+
+	//now that we have a number of possible plots, score each
+	for (std::set<CvPlot*>::iterator it = setCandidates.begin(); it != setCandidates.end(); ++it)
+	{
+		CvPlot* pPlot = *it;
+		int iScore = 0;
+
+		//watch this! plotDirection[NUM_DIRECTION_TYPES] is the plot itself
+		//we need to include it as it may belong to us or the enemy
+		for(int iI = 0; iI < NUM_DIRECTION_TYPES+1; ++iI)
+		{
+			CvPlot* pAdjacentPlot = plotDirection(pPlot->getX(), pPlot->getY(), ((DirectionTypes)iI));
+
+			// if the plot is ours already, ignore it
+			if(pAdjacentPlot == NULL || pAdjacentPlot->getTeam() == getTeam())
+				continue;
+
+			// don't evaluate city plots since we don't get ownership of them with the bomb
+			if(pAdjacentPlot->getPlotCity())
+				continue;
+
+			int iWeightFactor = 1;
+			// choke points are good, even if only adjacent to the citadel
+			if(pAdjacentPlot->IsChokePoint())
+				iWeightFactor = 2;
+
+			const PlayerTypes eOtherPlayer = pAdjacentPlot->getOwner();
+			if (eOtherPlayer != NO_PLAYER)
+			{
+				if(GET_PLAYER(eOtherPlayer).isMinorCiv())
+				{
+					MinorCivApproachTypes eMinorApproach = GetDiplomacyAI()->GetMinorCivApproach(eOtherPlayer);
+					// if we're friendly or protective, don't count the tile (but accept it as collateral damage)
+					if(eMinorApproach == MINOR_CIV_APPROACH_FRIENDLY || eMinorApproach == MINOR_CIV_APPROACH_PROTECTIVE)
+						continue;
+					else
+						// grabbing tiles away from minors is nice
+						iWeightFactor = 3;
+				}
+				else
+				{
+					MajorCivApproachTypes eMajorApproach = GetDiplomacyAI()->GetMajorCivApproach(eOtherPlayer, true);
+					DisputeLevelTypes eLandDisputeLevel = GetDiplomacyAI()->GetLandDisputeLevel(eOtherPlayer);
+
+					bool bTicked = (eMajorApproach == MAJOR_CIV_APPROACH_HOSTILE) || (eMajorApproach == MAJOR_CIV_APPROACH_WAR);
+					bool bTickedAboutLand = (eMajorApproach == MAJOR_CIV_APPROACH_NEUTRAL || eMajorApproach == MAJOR_CIV_APPROACH_DECEPTIVE) 
+												&& (eLandDisputeLevel == DISPUTE_LEVEL_STRONG || eLandDisputeLevel == DISPUTE_LEVEL_FIERCE);
+
+					// don't count the tile if we're not hostile (but accept it as collateral damage)
+					if(!bTicked && !bTickedAboutLand)
+						continue;
+					else
+						// grabbing tiles away from majors is really nice
+						iWeightFactor = 6;
+				}
+			}
+	
+			// score resource
+			ResourceTypes eResource = pAdjacentPlot->getResourceType();
+			if(eResource != NO_RESOURCE)
+				iScore += GetBuilderTaskingAI()->GetResourceWeight(eResource, NO_IMPROVEMENT, pAdjacentPlot->getNumResource());
+
+			// score yield
+			for(int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
+				iScore += pAdjacentPlot->getYield((YieldTypes)iYield) * iWeightFactor;
+		}
+
+		//require a certain minimum score ...
+		if(iScore > 23)
+		{
+			//we don't need an escort as the target is right on our border, but check for enemies nevertheless
+			bool bSafe = true;
+			int iRange = 2;
+			for(int iX = -iRange; iX <= iRange; iX++)
+			{
+				for(int iY = -iRange; iY <= iRange; iY++)
+				{
+					CvPlot* pEvalPlot = NULL;
+					pEvalPlot = plotXYWithRangeCheck(pGeneral->getX(), pGeneral->getY(), iX, iY, iRange);
+					if(pEvalPlot && pEvalPlot->isVisibleEnemyUnit( m_eID ))
+						bSafe = false;
+				}
+			}
+
+			if (bSafe)
+			{
+				if (goodPlots.empty())
+					goodPlots.push( SPlotWithScore(pPlot,iScore) );
+				else if (iScore > goodPlots.top().score * 0.8f )
+					//don't even keep it if it's much worse than the current best
+					goodPlots.push( SPlotWithScore(pPlot,iScore) );
+			}
+		}
+	}
+
+	if ( goodPlots.size()==0 )
+		return NULL;
+	else if ( goodPlots.size()==1 )
+	{
+		iResultScore = goodPlots.top().score;
+		return goodPlots.top().pPlot;
+	}
+	else
+	{
+		//look at the top two and take the closer one
+		SPlotWithScore nr1 = goodPlots.top(); goodPlots.pop();
+		SPlotWithScore nr2 = goodPlots.top(); goodPlots.pop();
+		if (nr2.score < nr1.score * 0.8f)
+		{
+			iResultScore = nr1.score;
+			return nr1.pPlot;
+		}
+		else
+		{
+			int iTurns1 = TurnsToReachTarget(pGeneral, nr1.pPlot, true /*bReusePaths*/, true);
+			int iTurns2 = TurnsToReachTarget(pGeneral, nr2.pPlot, true /*bReusePaths*/, true);
+			if (iTurns2*nr1.score < iTurns1*nr2.score )
+			{
+				iResultScore = nr2.score;
+				return nr2.pPlot;
+			}
+			else
+			{
+				iResultScore = nr1.score;
+				return nr1.pPlot;
+			}
+		}
+	}
+
+	return NULL;
+}
+#else
 CvPlot* CvPlayerAI::FindBestArtistTargetPlot(CvUnit* pGreatArtist, int& iResultScore)
 {
 	CvAssertMsg(pGreatArtist, "pGreatArtist is null");
@@ -2480,4 +2781,5 @@ CvPlot* CvPlayerAI::FindBestArtistTargetPlot(CvUnit* pGreatArtist, int& iResultS
 	iResultScore = iBestScore;
 	return pBestPlot;
 }
+#endif
 

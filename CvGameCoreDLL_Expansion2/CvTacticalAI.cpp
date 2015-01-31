@@ -381,13 +381,28 @@ void CvTacticalAI::CommandeerUnits()
 		}
 
 		// Now down to land and sea units ... in these groups our unit must have a base combat strength ... or be a great general
+#if defined(MOD_BALANCE_CORE_MILITARY)
+		else if( !pLoopUnit->IsCombatUnit() && !pLoopUnit->IsGreatGeneral() && !pLoopUnit->IsGreatAdmiral() )
+		{
+			continue;
+		}
+		else
+		{
+			 //if it's a general or admiral and not a field commander, we don't want it
+			if( pLoopUnit->IsGreatGeneral() || pLoopUnit->IsGreatAdmiral() )
+			{
+				GreatPeopleDirectiveTypes eDirective = pLoopUnit->GetGreatPeopleDirective();
+				if (eDirective != GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND)
+					continue;
+			}
+#else
 		else if(!pLoopUnit->IsCombatUnit() && !pLoopUnit->IsGreatGeneral())
 		{
 			continue;
 		}
-
 		else
 		{
+#endif
 			// Is this one in an operation we can't interrupt?
 			int iArmyID = pLoopUnit->getArmyID();
 			const CvArmyAI* army = m_pPlayer->getArmyAI(iArmyID);
@@ -10178,7 +10193,12 @@ CvPlot* CvTacticalAI::FindBarbarianExploreTarget(UnitHandle pUnit)
 				continue;
 			}
 
+#if defined(MOD_BALANCE_CORE_MILITARY)
+			//allow embarking and disembarking to/from lakes
+			if( (pPlot->area() != pUnit->area() ) && !pUnit->plot()->isLake() && !pPlot->isLake() )
+#else
 			if(pPlot->area() != pUnit->area())
+#endif
 			{
 				continue;
 			}
@@ -11583,7 +11603,11 @@ bool CvTacticalAI::IsVeryHighPriorityCivilianTarget(CvTacticalTarget* pTarget)
 	CvUnit* pUnit = (CvUnit*)pTarget->GetAuxData();
 	if(pUnit)
 	{
+#if defined(MOD_BALANCE_CORE_MILITARY)
+		if(pUnit->IsGreatGeneral() || pUnit->IsGreatAdmiral())
+#else
 		if(pUnit->AI_getUnitAIType() == UNITAI_GENERAL || pUnit->AI_getUnitAIType() == UNITAI_ADMIRAL)
+#endif
 		{
 			bRtnValue = true;
 		}
