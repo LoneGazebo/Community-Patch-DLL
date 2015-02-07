@@ -171,7 +171,7 @@
 		</Row>
 		<Row>
 			<PolicyType>POLICY_MOBILIZATION</PolicyType>
-			<ImprovementType>IMPROVEMENT_ENCAMPMENT</ImprovementType>
+			<ImprovementType>IMPROVEMENT_ENCAMPMENT_SHOSHONE</ImprovementType>
 			<YieldType>YIELD_SCIENCE</YieldType>
 			<Yield>1</Yield>
 		</Row>

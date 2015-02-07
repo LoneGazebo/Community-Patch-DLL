@@ -337,12 +337,20 @@ void CvTacticalAnalysisMap::MarkCellsNearEnemy()
 								bMarkedIt = true;
 							}
 
-							// TEMPORARY OPTIMIZATION: Assumes can't use roads or RR
+							// FIXME - TEMPORARY OPTIMIZATION: Assumes can't use roads or RR
+#if defined(MOD_BALANCE_CORE)
+							else if(iDistance <= pUnit->GetRangeWithMovement() )
+#else
 							else if(iDistance <= pUnit->baseMoves())
+#endif
 							{
 								int iTurnsToReach;
 								iTurnsToReach = TurnsToReachTarget(pUnit, pPlot, true /*bReusePaths*/, true /*bIgnoreUnits*/);	// Its ok to reuse paths because when ignoring units, we don't use the tactical analysis map (which we are building)
+#if defined(MOD_BALANCE_CORE)
+								if (iTurnsToReach <= 1 || (pUnit->isRanged() && iTurnsToReach <= 2))
+#else
 								if(iTurnsToReach <= 1)
+#endif
 								{
 									m_pPlots[iI].SetSubjectToAttack(true);
 								}

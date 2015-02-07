@@ -66,30 +66,30 @@
 			<Yield>1</Yield>
 		</Row>
 	</Policy_GreatWorkYieldChanges>
-	<!-- Finisher -->
+	<!-- Artistic Genius -->
 	<Policy_ImprovementCultureChanges>
 		<Row>
-			<PolicyType>POLICY_AESTHETICS_FINISHER</PolicyType>
+			<PolicyType>POLICY_ARTISTIC_GENIUS</PolicyType>
 			<ImprovementType>IMPROVEMENT_HOLY_SITE</ImprovementType>
 			<CultureChange>1</CultureChange>
 		</Row>
 		<Row>
-			<PolicyType>POLICY_AESTHETICS_FINISHER</PolicyType>
+			<PolicyType>POLICY_ARTISTIC_GENIUS</PolicyType>
 			<ImprovementType>IMPROVEMENT_ACADEMY</ImprovementType>
 			<CultureChange>1</CultureChange>
 		</Row>
 		<Row>
-			<PolicyType>POLICY_AESTHETICS_FINISHER</PolicyType>
+			<PolicyType>POLICY_ARTISTIC_GENIUS</PolicyType>
 			<ImprovementType>IMPROVEMENT_CUSTOMS_HOUSE</ImprovementType>
 			<CultureChange>1</CultureChange>
 		</Row>
 		<Row>
-			<PolicyType>POLICY_AESTHETICS_FINISHER</PolicyType>
+			<PolicyType>POLICY_ARTISTIC_GENIUS</PolicyType>
 			<ImprovementType>IMPROVEMENT_MANUFACTORY</ImprovementType>
 			<CultureChange>1</CultureChange>
 		</Row>
 		<Row>
-			<PolicyType>POLICY_AESTHETICS_FINISHER</PolicyType>
+			<PolicyType>POLICY_ARTISTIC_GENIUS</PolicyType>
 			<ImprovementType>IMPROVEMENT_CITADEL</ImprovementType>
 			<CultureChange>1</CultureChange>
 		</Row>

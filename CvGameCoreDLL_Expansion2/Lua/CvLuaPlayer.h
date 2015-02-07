@@ -248,6 +248,7 @@ protected:
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE)
 	LUAAPIEXTN(GetInfluenceTradeRouteGoldBonus, int);
 	LUAAPIEXTN(GetWoundedUnitDamageMod, int);
+	LUAAPIEXTN(SetCapitalCity, void);
 #endif
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE_POLICIES)
 	LUAAPIEXTN(GetNoUnhappinessExpansion, int);
@@ -366,7 +367,7 @@ protected:
 	static int lSetBarbarianCombatBonus(lua_State* L);
 	static int lChangeBarbarianCombatBonus(lua_State* L);
 #if defined(MOD_BALANCE_CORE)
-	static int lGetCombatBonusVsHigherPop(lua_State* L);
+	LUAAPIEXTN(GetCombatBonusVsHigherPop, int);
 #endif
 	static int lGetCombatBonusVsHigherTech(lua_State* L);
 	static int lGetCombatBonusVsLargerCiv(lua_State* L);

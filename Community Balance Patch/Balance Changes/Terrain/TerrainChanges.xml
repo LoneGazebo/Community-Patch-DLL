@@ -164,10 +164,6 @@
 			<Set NearbyEnemyDamage="30" />
 		</Update>
 		<Update>
-			<Where Type="IMPROVEMENT_FORT" />
-			<Set NearbyEnemyDamage="10" GoldMaintenance="2" />
-		</Update>
-		<Update>
 			<Where Type="IMPROVEMENT_OFFSHORE_PLATFORM" />
 			<Set Permanent="true"
 				 DestroyedWhenPillaged="false"
@@ -191,7 +187,7 @@
 		
 		<Update>
 			<Where ImprovementType="IMPROVEMENT_ACADEMY" YieldType="YIELD_SCIENCE" />
-			<Set Yield="5" />
+			<Set Yield="6" />
 		</Update>
 		<Update>
 			<Where ImprovementType="IMPROVEMENT_CUSTOMS_HOUSE" YieldType="YIELD_GOLD" />
@@ -377,7 +373,7 @@
 	<Improvement_TechFreshWaterYieldChanges>
 		<Row>
 			<ImprovementType>IMPROVEMENT_TRADING_POST</ImprovementType>
-			<TechType>TECH_GUILDS</TechType>
+			<TechType>TECH_CURRENCY</TechType>
 			<YieldType>YIELD_GOLD</YieldType>
 			<Yield>1</Yield>
 		</Row>

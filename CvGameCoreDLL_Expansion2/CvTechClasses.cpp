@@ -61,6 +61,10 @@ CvTechEntry::CvTechEntry(void):
 	m_iCityWorkingChange(0),
 #endif
 	m_bBridgeBuilding(false),
+#if defined(MOD_BALANCE_CORE_EMBARK_CITY_NO_COST)
+	m_bCityLessEmbarkCost(false),
+	m_bCityNoEmbarkCost(false),
+#endif
 	m_bWaterWork(false),
 	m_bTriggersArchaeologicalSites(false),
 	m_bAllowsWorldCongress(false),
@@ -133,6 +137,10 @@ bool CvTechEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	m_iCityWorkingChange = kResults.GetInt("CityWorkingChange");
 #endif
 	m_bBridgeBuilding = kResults.GetBool("BridgeBuilding");
+#if defined(MOD_BALANCE_CORE_EMBARK_CITY_NO_COST)
+	m_bCityLessEmbarkCost = kResults.GetBool("CityLessEmbarkCost");
+	m_bCityNoEmbarkCost = kResults.GetBool("CityNoEmbarkCost");
+#endif
 	m_bWaterWork = kResults.GetBool("WaterWork");
 	m_iGridX = kResults.GetInt("GridX");
 	m_iGridY = kResults.GetInt("GridY");
@@ -471,6 +479,19 @@ bool CvTechEntry::IsBridgeBuilding() const
 {
 	return m_bBridgeBuilding;
 }
+
+#if defined(MOD_BALANCE_CORE_EMBARK_CITY_NO_COST)
+/// Do cities cost less embark movement?
+bool CvTechEntry::IsCityLessEmbarkCost() const
+{
+	return m_bCityLessEmbarkCost;
+}
+/// Do cities no longer cost embark movement?
+bool CvTechEntry::IsCityNoEmbarkCost() const
+{
+	return m_bCityNoEmbarkCost;
+}
+#endif
 
 /// Enable working of water tiles?
 bool CvTechEntry::IsWaterWork() const

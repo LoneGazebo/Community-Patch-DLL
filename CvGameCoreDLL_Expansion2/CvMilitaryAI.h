@@ -285,6 +285,9 @@ public:
 	void LogDeficitScrapUnit(UnitHandle pUnit);
 	void LogMilitarySummaryMessage(const CvString& strMsg);
 
+#if defined(MOD_BALANCE_CORE)
+	void MinorAttackTest();
+#endif
 private:
 
 	// Functions to process a turn

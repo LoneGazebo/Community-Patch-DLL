@@ -214,6 +214,16 @@ public:
 	bool isBridgeBuilding() const;
 	void changeBridgeBuildingCount(int iChange);
 
+#if defined(MOD_BALANCE_CORE_EMBARK_CITY_NO_COST)
+	int getCityLessEmbarkCost() const;
+	bool isCityLessEmbarkCost() const;
+	void changeCityLessEmbarkCost(int iChange);
+
+	int getCityNoEmbarkCost() const;
+	bool isCityNoEmbarkCost() const;
+	void changeCityNoEmbarkCost(int iChange);
+#endif
+
 	int getWaterWorkCount() const;
 	bool isWaterWork() const;
 	void changeWaterWorkCount(int iChange);
@@ -511,6 +521,10 @@ protected:
 	int m_iCityWorkingChange;
 #endif
 	int m_iBridgeBuildingCount;
+#if defined(MOD_BALANCE_CORE_EMBARK_CITY_NO_COST)
+	int m_iCityLessEmbarkCost;
+	int m_iCityNoEmbarkCost;
+#endif
 	int m_iWaterWorkCount;
 	int m_iRiverTradeCount;
 	int m_iBorderObstacleCount;

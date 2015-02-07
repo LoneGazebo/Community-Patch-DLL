@@ -179,6 +179,9 @@ ALTER TABLE Traits ADD COLUMN 'VotePerXCSAlliance' integer default 0;
 -- New Traits - Golden Age received from favorable peace treaty
 ALTER TABLE Traits ADD COLUMN 'GoldenAgeFromVictory' integer default 0;
 
+-- New Traits - Can buy owned plots with gold
+ALTER TABLE Traits ADD COLUMN 'BuyOwnedTiles' boolean default false;
+
 -- New Policies
 
 -- Reduces unhappiness in occupied cities w/ Garrison. Negative = reduction.
@@ -199,16 +202,16 @@ ALTER TABLE Policies ADD COLUMN 'DoubleBorderGA' boolean default false;
 -- Free Population
 ALTER TABLE Policies ADD COLUMN 'FreePopulation' integer default 0;
 
--- Citizen movement Rate
+-- Extra Votes
 ALTER TABLE Policies ADD COLUMN 'ExtraMoves' integer default 0;
 
 -- Religious Pressure Mod Trade Route
 ALTER TABLE Policies ADD COLUMN 'TradeReligionModifier' integer default 0;
 
--- Free Votes
-ALTER TABLE Policies ADD COLUMN 'DoubleQuestInfluence' boolean default false;
+-- Increased Quest Influence
+ALTER TABLE Policies ADD COLUMN 'IncreasedQuestInfluence' boolean default false;
 
--- Double XP from Quests
+-- Free Votes in WC
 ALTER TABLE Policies ADD COLUMN 'FreeWCVotes' integer default 0;
 
 -- GP Expend Influence Boost
@@ -228,6 +231,9 @@ ALTER TABLE Policies ADD COLUMN 'CitadelBoost' integer default 0;
 
 -- Unlock Era for Policy (Unlocks later eras earlier than normal)
 ALTER TABLE Policies ADD COLUMN 'UnlocksPolicyBranchEra' text default NULL;
+
+-- Points towards ideologies
+ALTER TABLE Policies ADD COLUMN 'IdeologyPoint' integer default 0;
 
 -- New Beliefs
 
@@ -290,6 +296,22 @@ ALTER TABLE Builds ADD COLUMN 'ObsoleteTech' text default NULL;
 -- Grants obsoletion tech to improvement (tie to build above for AI)
 ALTER TABLE Improvements ADD COLUMN 'ObsoleteTech' text default NULL;
 
+-- Improvements can be made valid by being adjacent to a lake
+ALTER TABLE Improvements ADD COLUMN 'Lakeside' boolean default false;
+
 -- New Goody Hut Additions
 ALTER TABLE GoodyHuts ADD COLUMN 'Production' integer default 0;
 ALTER TABLE GoodyHuts ADD COLUMN 'GoldenAge' integer default 0;
+
+-- Tech Additions
+ALTER TABLE Technologies ADD COLUMN 'CityLessEmbarkCost' boolean;
+ALTER TABLE Technologies ADD COLUMN 'CityNoEmbarkCost' boolean;
+
+-- Promotions
+
+ALTER TABLE UnitPromotions ADD 'ReconChange' integer default 0;
+
+ALTER TABLE UnitPromotions ADD 'GainsXPFromScouting' boolean default false;
+
+-- Unit stuff for minor civs
+ALTER TABLE Units ADD COLUMN 'MinorCivGift' boolean default false;

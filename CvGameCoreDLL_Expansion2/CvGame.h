@@ -499,7 +499,11 @@ public:
 	UnitTypes GetCsGiftSpawnUnitType(PlayerTypes ePlayer);
 #endif
 #endif
+#if defined(MOD_BALANCE_CORE)
+	UnitTypes GetRandomUniqueUnitType(bool bIncludeCivsInGame, bool bIncludeStartEra, bool bIncludeOldEras, bool bIncludeRanged, bool bCoastal);
+#else
 	UnitTypes GetRandomUniqueUnitType(bool bIncludeCivsInGame, bool bIncludeStartEra, bool bIncludeOldEras, bool bIncludeRanged);
+#endif
 
 	CvSiteEvaluatorForSettler* GetSettlerSiteEvaluator();
 	CvSiteEvaluatorForStart* GetStartSiteEvaluator();

@@ -16,7 +16,7 @@
 			<NukeImmune>true</NukeImmune>
 			<MinAreaSize>-1</MinAreaSize>
 			<Defense>800</Defense>
-			<TechEnhancedTourism>6</TechEnhancedTourism>
+			<TechEnhancedTourism>5</TechEnhancedTourism>
 			<EnhancedYieldTech>TECH_GUILDS</EnhancedYieldTech>
 			<ArtInfoCulturalVariation>true</ArtInfoCulturalVariation>
 			<DisplayPosition>32</DisplayPosition>

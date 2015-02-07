@@ -16,7 +16,7 @@
 	WHERE Tag = 'TXT_KEY_NUMBER_OF_OCCUPIED_CITIES_TT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 	UPDATE Language_en_US
-	SET Text = 'Every [ICON_CITIZEN] Citizen in an [ICON_OCCUPIED] Occupied City produces 1.25 [ICON_HAPPINESS_3] Unhappiness'
+	SET Text = 'Every [ICON_CITIZEN] Citizen in an [ICON_OCCUPIED] Occupied City produces 1 [ICON_HAPPINESS_3] Unhappiness'
 	WHERE Tag = 'TXT_KEY_OCCUPIED_POP_UNHAPPINESS_TT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 	UPDATE Language_en_US
@@ -26,15 +26,15 @@
 	-- FREE HAPPINESS FROM GAME SPEED
 
 	UPDATE GameSpeeds
-	SET StartingHappiness = '9'
+	SET StartingHappiness = '10'
 	WHERE Type = 'GAMESPEED_MARATHON' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 	UPDATE GameSpeeds
-	SET StartingHappiness = '5'
+	SET StartingHappiness = '6'
 	WHERE Type = 'GAMESPEED_EPIC' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 	UPDATE GameSpeeds
-	SET StartingHappiness = '0'
+	SET StartingHappiness = '1'
 	WHERE Type = 'GAMESPEED_STANDARD' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 	-- DEFINES FOR CITY HAPPINESS
@@ -44,7 +44,7 @@
 	WHERE Name = 'UNHAPPINESS_PER_POPULATION' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 	UPDATE Defines
-	SET Value = '1.25'
+	SET Value = '1.00'
 	WHERE Name = 'UNHAPPINESS_PER_OCCUPIED_POPULATION' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 		
 	UPDATE Defines
@@ -61,25 +61,25 @@
 	SELECT 'BALANCE_UNHAPPINESS_PER_SPECIALIST', '30'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
--- Base reduction of unhappiness threshold for Puppet cities. -15% is default.
+-- Base reduction of unhappiness threshold for Puppet cities. -20% is default.
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_HAPPINESS_PUPPET_THRESHOLD_MOD', '-15'
+	SELECT 'BALANCE_HAPPINESS_PUPPET_THRESHOLD_MOD', '-20'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 -- Base Modifier for Capital Thresholds. Offsets boost from Palace, helps make Capital a source of Unhappiness early on. 20% is default. Capital needs higher because it is the capital, silly.
 		INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_HAPPINESS_CAPITAL_MODIFIER', '20'
+	SELECT 'BALANCE_HAPPINESS_CAPITAL_MODIFIER', '15'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
--- 	Base Value of Test - Modifier to tech % cost. 2.20 is default.
+-- 	Base Value of Test - Modifier to tech % cost. 2.25 is default.
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_HAPPINESS_TECH_BASE_MODIFIER', '2.20'
+	SELECT 'BALANCE_HAPPINESS_TECH_BASE_MODIFIER', '2.25'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
--- Base increase of threshold values based on # of techs (ignore 'City' part). Increases the Global Averages as you research techs. Higher values are more difficult. -5 is default.
+-- Base increase of threshold values based on # of techs (ignore 'City' part). Increases the Global Averages as you research techs. Higher values are more difficult. -10 is default.
 
 	INSERT INTO Defines (
 	Name, Value)

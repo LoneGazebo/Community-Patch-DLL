@@ -1,3 +1,13 @@
+-- Caravans moved to Pottery
+	UPDATE Units
+	SET PrereqTech = 'TECH_POTTERY'
+	WHERE Type = 'UNIT_CARAVAN' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+-- Settler moved to Pottery
+	UPDATE Units
+	SET PrereqTech = 'TECH_POTTERY'
+	WHERE Type = 'UNIT_SETTLER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
 -- Workers Reduced Work Rate to slow down early growth
 	UPDATE Units
 	SET WorkRate = '90'
@@ -74,11 +84,6 @@
 	WHERE Type = 'UNIT_GALLEASS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 -- LAND
-	-- Impi
-	UPDATE Units
-	SET Combat = '18'
-	WHERE Type = 'UNIT_ZULU_IMPI' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
-
 	-- Samurai
 	UPDATE Units
 	SET Combat = '28'
@@ -109,13 +114,17 @@
 	SET Combat = '9'
 	WHERE Type = 'UNIT_CROSSBOWMAN' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
+	UPDATE Units
+	SET ObsoleteTech = 'TECH_RIFLING'
+	WHERE Type = 'UNIT_CROSSBOWMAN' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
 	-- Chu-Ko-Nu (13)
 	UPDATE Units
 	SET Combat = '9'
 	WHERE Type = 'UNIT_CHINESE_CHUKONU' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Units
-	SET RangedCombat = '17'
+	SET RangedCombat = '19'
 	WHERE Type = 'UNIT_CHINESE_CHUKONU' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	-- Catapult (7)
@@ -129,12 +138,16 @@
 	WHERE Type = 'UNIT_CHARIOT_ARCHER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Units
-	SET RangedCombat = '8'
+	SET RangedCombat = '7'
 	WHERE Type = 'UNIT_CHARIOT_ARCHER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 	
 	-- Egyptian Chariot (6)
 	UPDATE Units
 	SET Combat = '5'
+	WHERE Type = 'UNIT_EGYPTIAN_WARCHARIOT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	UPDATE Units
+	SET RangedCombat = '8'
 	WHERE Type = 'UNIT_EGYPTIAN_WARCHARIOT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	-- Indian Elephant (9)
@@ -217,32 +230,6 @@
 	SET Combat = '38'
 	WHERE Type = 'UNIT_ROCKET_ARTILLERY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
-	-- Delete Anti-Tank Gun, combine stats with Bazooka and Missile Pod (help AI)
-
-	DELETE FROM Units
-	Where Type = 'UNIT_ANTI_TANK_GUN' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
-
-	DELETE FROM Civilization_UnitClassOverrides
-	WHERE UnitType = 'UNIT_ANTI_TANK_GUN' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
-
-	DELETE FROM Unit_AITypes
-	WHERE UnitType = 'UNIT_ANTI_TANK_GUN' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
-
-	DELETE FROM Unit_ClassUpgrades
-	WHERE UnitType = 'UNIT_ANTI_TANK_GUN' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
-
-	DELETE FROM Unit_FreePromotions
-	WHERE UnitType = 'UNIT_ANTI_TANK_GUN' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
-
-	DELETE FROM Unit_Flavors
-	WHERE UnitType = 'UNIT_ANTI_TANK_GUN' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
-
-	DELETE FROM Unit_ResourceQuantityRequirements
-	WHERE UnitType = 'UNIT_ANTI_TANK_GUN' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
-
-	DELETE FROM UnitGameplay2DScripts
-	WHERE UnitType = 'UNIT_ANTI_TANK_GUN' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
-
 	-- Update Lancers to become Cavalry, and all UUs
 
 	UPDATE Unit_ClassUpgrades
@@ -264,6 +251,14 @@
 	UPDATE Units
 	SET PrereqTech = 'TECH_GUNPOWDER'
 	WHERE Type = 'UNIT_OTTOMAN_SIPAHI' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	UPDATE Units
+	SET GoodyHutUpgradeUnitClass = 'UNITCLASS_CAVALRY'
+	WHERE Type = 'UNIT_LANCER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	UPDATE Units
+	SET GoodyHutUpgradeUnitClass = 'UNITCLASS_CAVALRY'
+	WHERE Type = 'UNIT_POLISH_WINGED_HUSSAR' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	-- Change Name of Great War Infantry/Bomber to be more 'generic'
 	UPDATE Language_en_US
@@ -393,10 +388,6 @@
 	SET UnitClassType = 'UNITCLASS_MUSKETMAN'
 	WHERE UnitType = 'UNIT_GERMAN_LANDSKNECHT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
-	UPDATE Unit_ClassUpgrades
-	SET UnitClassType = 'UNITCLASS_MUSKETMAN'
-	WHERE UnitType = 'UNIT_ZULU_IMPI' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
-
 	-- Frigate Upgrade into Cruiser
 	UPDATE Unit_ClassUpgrades
 	SET UnitClassType = 'UNITCLASS_CRUISER'
@@ -436,7 +427,7 @@
 	WHERE Tag = 'TXT_KEY_UNIT_HELP_CARAVEL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 	
 	UPDATE Units
-	SET ObsoleteTech = 'TECH_ASTRONOMY'
+	SET ObsoleteTech = 'TECH_NAVIGATION'
 	WHERE Type = 'UNIT_CARAVEL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Units
@@ -452,6 +443,10 @@
 
 	UPDATE Units
 	SET PrereqTech = 'TECH_COMPASS'
+	WHERE Type = 'UNIT_PORTUGUESE_NAU' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	UPDATE Units
+	SET ObsoleteTech = 'TECH_COMBUSTION'
 	WHERE Type = 'UNIT_PORTUGUESE_NAU' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Units
@@ -473,12 +468,16 @@
 
 	-- Move Privateer to Astronomy, make Caravel upgrade into it, rename Corvette
 	UPDATE Units
-	SET PrereqTech = 'TECH_ASTRONOMY'
+	SET PrereqTech = 'TECH_NAVIGATION'
 	WHERE Type = 'UNIT_PRIVATEER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Units
 	SET PrereqTech = 'TECH_ASTRONOMY'
 	WHERE Type = 'UNIT_DUTCH_SEA_BEGGAR' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	UPDATE Language_en_US
+	SET Text = 'Naval Unit that specializes in attacking coastal cities to earn gold and capturing enemy ships. Available earlier than the Corvette, which it replaces. Only the Dutch can build it.'
+	WHERE Tag = 'TXT_KEY_UNIT_HELP_SEA_BEGGAR' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 	UPDATE Language_en_US
 	SET Text = 'Corvette'
@@ -489,11 +488,11 @@
 	WHERE Tag = 'TXT_KEY_UNIT_HELP_PRIVATEER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 	UPDATE Language_en_US
-	SET Text = 'Naval Unit that attacks as a melee unit. Though it comes quickly after the Caravel, it is significantly stronger and faster than the Caravel.'
+	SET Text = 'Naval Unit that attacks as a melee unit. It is significantly stronger and faster than the Caravel.'
 	WHERE Tag = 'TXT_KEY_UNIT_PRIVATEER_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 	UPDATE Units
-	SET ObsoleteTech = 'TECH_STEAM_POWER'
+	SET ObsoleteTech = 'TECH_COMBUSTION'
 	WHERE Type = 'UNIT_PRIVATEER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Units
@@ -560,6 +559,10 @@
 	
 	UPDATE Units
 	SET PrereqTech = 'TECH_OPTICS'
+	WHERE Type = 'UNIT_TRIREME' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	UPDATE Units
+	SET ObsoleteTech = 'TECH_COMPASS'
 	WHERE Type = 'UNIT_TRIREME' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Units
@@ -647,6 +650,16 @@
 	UPDATE Unit_ResourceQuantityRequirements
 	SET ResourceType = 'RESOURCE_IRON'
 	WHERE UnitType = 'UNIT_WWI_TANK' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	-- Make Modern Armor cost oil, not aluminum:
+	UPDATE Unit_ResourceQuantityRequirements
+	SET ResourceType = 'RESOURCE_OIL'
+	WHERE UnitType = 'UNIT_MODERN_ARMOR' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	-- Make Rocket Artillery cost oil, not aluminum:
+	UPDATE Unit_ResourceQuantityRequirements
+	SET ResourceType = 'RESOURCE_OIL'
+	WHERE UnitType = 'UNIT_ROCKET_ARTILLERY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	-- Submarines and Missile Cruiser should cost Iron
 	INSERT INTO Unit_ResourceQuantityRequirements (UnitType, ResourceType, Cost)
@@ -792,10 +805,10 @@
 	SET ObsoleteTech = 'TECH_NANOTECHNOLOGY'
 	WHERE Type = 'UNIT_PARATROOPER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
-	-- Scout Obsolete at Optics
+	-- Scout Obsolete at Astronomy
 
 	UPDATE Units
-	SET ObsoleteTech = 'TECH_OPTICS'
+	SET ObsoleteTech = 'TECH_ASTRONOMY'
 	WHERE Type = 'UNIT_SCOUT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	-- Warrior and Brute Upgrade into Spearman
@@ -911,5 +924,75 @@
 	UPDATE Units
 	SET Combat = '42'
 	WHERE Type = 'UNIT_AUSTRIAN_HUSSAR' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+
+	-- Changes to Zero, B17, and Ski Infantry
+	UPDATE Language_en_US
+	SET Text = 'Ski Infantry'
+	WHERE Tag = 'TXT_KEY_UNIT_DANISH_SKI_INFANTRY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	UPDATE Language_en_US
+	SET Text = 'Ski troops played a key role in the successes of the Finnish war effort against the Soviet Union during the Winter War in 1939, and, as such, have become symbolic of the ferocious defense of the Finnish homeland against Soviet Aggression. Forested, rural terrain with no roads was used by Finnish ski troops with great success against the advancing mechanized Soviet troops. Most notably, in Battle of Suomussalmi, two Soviet mechanized divisions (45,000 men) were annihilated by three Finnish regiments (11,000 men). Perhaps learning from the Finns, the Soviet Union deployed several ski battalions during World War II, notably in their 1941 counterattack in the Battle of Moscow. The most common transportation for Norwegian soldiers during the Norwegian Campaign in 1940 was skis and sleds, and in Operation Gunnerside, paradropped Norwegian commandos covered a large distance using skis in order to reach and destroy a heavy water plant Vemork at Rjukan in Telemark, Norway, which was being used by the Germans as part of their nuclear research programme. Ski warfare even extended to the Middle East where the Australian Ski Corps were deployed against Vichy French forces in the mountains of Lebanon. Also during WWII, the United States Army 10th Mountain Division was established and trained for ski combat. They were deployed in Italy.'
+	WHERE Tag = 'TXT_KEY_CIV5_DENMARK_SKI_INFANTRY_TEXT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	UPDATE Language_en_US
+	SET Text = 'Strong, front-line land Unit of the late-game that specializes in operating in Snow, Tundra and Hills. Requires Order.'
+	WHERE Tag = 'TXT_KEY_CIV5_DENMARK_SKI_INFANTRY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	UPDATE Language_en_US
+	SET Text = 'The Ski Infantry is unique to the Order Ideology. This Unit moves through Snow, Tundra, or Hill at double speed. It also has a +25% combat bonus in Snow, Tundra or Hill terrain if neither Forest nor Jungle is present.'
+	WHERE Tag = 'TXT_KEY_CIV5_DENMARK_SKI_INFANTRY_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	UPDATE Language_en_US
+	SET Text = 'The B17 Bomber is unique to the Freedom Ideology. It is similar to the bomber, but it is more difficult for enemy anti-aircraft and fighters to target. The B17 also receives a bonus when attacking enemy cities. Like the bomber, its range is 10. See the rules on Aircraft for more details.'
+	WHERE Tag = 'TXT_KEY_UNIT_AMERICAN_B17_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	UPDATE Language_en_US
+	SET Text = 'Air Unit that rains death from above onto enemy Units and Cities. This Unit has a chance of evading interception, and does additional damage to Cities compared to the Bomber. Requires Freedom.'
+	WHERE Tag = 'TXT_KEY_UNIT_HELP_B17' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	UPDATE Language_en_US
+	SET Text = 'Air Unit designed to wrest control of the skies and intercept incoming enemy aircraft. This Unit has a bonus against other Fighters and does not require Oil. Requires Autocracy.'
+	WHERE Tag = 'TXT_KEY_UNIT_HELP_ZERO' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	UPDATE Language_en_US
+	SET Text = 'The Zero is unique to the Autocracy Ideology. The Zero is a moderately-powerful air unit. It is like the standard fighter, except that it gets a significant combat bonus when battling other fighters and [COLOR_POSITIVE_TEXT]does not require the Oil resource[ENDCOLOR]. It can be based in any city you own or aboard an aircraft carrier. It can move from city to city (or carrier) and can perform "missions" within its range of 8 tiles. See the rules on Aircraft for more information.'
+	WHERE Tag = 'TXT_KEY_UNIT_JAPANESE_ZERO_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	-- Text for UU for CSs
+	UPDATE Language_en_US
+	SET Text = 'The Longbowman can only be gifted by Minor Civilizations.'
+	WHERE Tag = 'TXT_KEY_UNIT_HELP_LONGBOWMAN' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	UPDATE Language_en_US
+	SET Text = 'The Companion Cavalry can only be gifted by Minor Civilizations.'
+	WHERE Tag = 'TXT_KEY_UNIT_HELP_COMPANION_CAVALRY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	UPDATE Language_en_US
+	SET Text = 'The Sipahi can only be gifted by Minor Civilizations.'
+	WHERE Tag = 'TXT_KEY_UNIT_HELP_SIPAHI' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	UPDATE Language_en_US
+	SET Text = 'The Ballista can only be gifted by Minor Civilizations.'
+	WHERE Tag = 'TXT_KEY_UNIT_HELP_BALLISTA' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	UPDATE Language_en_US
+	SET Text = 'The Tercio can only be gifted by Minor Civilizations.'
+	WHERE Tag = 'TXT_KEY_CIV5_SPAIN_TERCIO_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	UPDATE Language_en_US
+	SET Text = 'The Hakkapeliitta can only be gifted by Minor Civilizations.'
+	WHERE Tag = 'TXT_KEY_UNIT_HELP_SWEDISH_HAKKAPELIITTA' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	UPDATE Language_en_US
+	SET Text = 'The Comanche Rider can only be gifted by Minor Civilizations.'
+	WHERE Tag = 'TXT_KEY_UNIT_HELP_SHOSHONE_COMANCHE_RIDERS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+	
+
+	
+
+	
+
+	
 
 	

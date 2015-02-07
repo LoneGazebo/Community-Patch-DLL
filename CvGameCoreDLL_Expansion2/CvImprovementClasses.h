@@ -129,6 +129,7 @@ public:
 #endif
 #if defined(MOD_BALANCE_CORE)
 	int GetObsoleteTech() const;
+	bool IsAdjacentLake() const;
 #endif
 	bool IsNoTwoAdjacent() const;
 	bool IsAdjacentLuxury() const;
@@ -271,6 +272,7 @@ protected:
 #endif
 #if defined(MOD_BALANCE_CORE)
 	int m_iGetObsoleteTech;
+	int m_bAdjacentLake;
 #endif
 	bool m_bNoTwoAdjacent;
     bool m_bAdjacentLuxury;

@@ -29,6 +29,11 @@ UPDATE Language_en_US
 SET Text = 'You are at war with {1_CityStateName:textkey}. Unless they are allied with another player you are at war with, you may make peace once [COLOR_NEGATIVE_TEXT]{2_JerkRate}[ENDCOLOR] or more turns have expired. While at war, your [ICON_INFLUENCE] Influence is locked at -60.'
 WHERE Tag = 'TXT_KEY_WAR_CSTATE_TT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_MINORS' AND Value= 1 );
 
+-- CS Protection Tooltip for new influence perk
+UPDATE Language_en_US
+SET Text = 'Pledging to protect a City-State lets the other major powers in the game know that you will protect the City-State from attacks and tribute demands. The City-State will expect you to take its side when it is attacked or bullied.[NEWLINE][NEWLINE]During protection, your resting point for [ICON_INFLUENCE] Influence with this City-State is increased by {1_InfluenceMinimum}, and you will earn [COLOR_POSITIVE_TEXT]{3_InfluenceBoost}%[ENDCOLOR] [ICON_INFLUENCE] Influence from quests completed for this City-State. Protection cannot be revoked until {2_TurnsMinimum} turns after the pledge is made.'
+WHERE Tag = 'TXT_KEY_POP_CSTATE_PLEDGE_TT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
+
 -- Quest values
 
 

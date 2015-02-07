@@ -98,4 +98,11 @@
 			<Text>Barbarians terrorizing {1_City}!</Text>
 		</Row>
 	</Language_en_US>
+	<Civilization_UnitClassOverrides>
+		<Row>
+			<CivilizationType>CIVILIZATION_BARBARIAN</CivilizationType>
+			<UnitClassType>UNITCLASS_EXPLORER</UnitClassType>
+			<UnitType/>
+		</Row>
+	</Civilization_UnitClassOverrides>
 </GameData>

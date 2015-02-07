@@ -613,6 +613,10 @@ public:
 	int GetHappinessPerXPopulationGlobal() const;
 	void SetHappinessPerXPopulationGlobal(int iValue);
 	void ChangeHappinessPerXPopulationGlobal(int iChange);
+
+	int GetIdeologyPoint() const;
+	void SetIdeologyPoint(int iValue);
+	void ChangeIdeologyPoint(int iChange);
 #endif
 
 	int GetHappinessFromMinorCivs() const;
@@ -1373,9 +1377,9 @@ public:
 	int GetDoubleBorderGA() const;
 	void ChangeDoubleBorderGA(int iChange);
 
-	bool IsDoubleQuestInfluence() const;
-	int GetDoubleQuestInfluence() const;
-	void changeDoubleQuestInfluence(int iChange);
+	bool IsIncreasedQuestInfluence() const;
+	int GetIncreasedQuestInfluence() const;
+	void ChangeIncreasedQuestInfluence(int iChange);
 
 	bool IsCitadelBoost() const;
 	int GetCitadelBoost() const;
@@ -2136,6 +2140,7 @@ protected:
 	int m_iHappinessPerXPopulation;
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	int m_iHappinessPerXPopulationGlobal;
+	int m_iIdeologyPoint;
 #endif
 	int m_iHappinessFromLeagues;
 	FAutoVariable<int, CvPlayer> m_iSpecialPolicyBuildingHappiness;  //unused
@@ -2262,7 +2267,7 @@ protected:
 	int m_iNoUnhappinessExpansion;
 	int m_iNoUnhappyIsolation;
 	int m_iDoubleBorderGA;
-	int m_iDoubleQuestInfluence;
+	int m_iIncreasedQuestInfluence;
 	int m_iCitadelBoost;
 	int m_iPuppetProdMod;
 	int m_iOccupiedProdMod;

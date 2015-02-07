@@ -1778,10 +1778,103 @@ void CvCityStrategyAI::UpdateBestYields()
 					}
 				}
 			}
-
 			iYieldSum += iCityYieldSum * 100;
 		}
+#if defined(MOD_BALANCE_CORE)
+		// add in additional gold from the city plot and the city buildings that provide food
+		if(iYield == YIELD_GOLD)
+		{
+			int iCityYieldSum = 0;
+			iCityYieldSum = m_pCity->plot()->getYield(YIELD_GOLD);
+			CvYieldInfo* pYield = GC.getYieldInfo(YIELD_GOLD);
+			if(pYield)
+			{
+				iCityYieldSum -= pYield->getMinCity();
+			}
 
+			CvCityBuildings* pCityBuildings = m_pCity->GetCityBuildings();
+			BuildingTypes eBuilding;
+			for(int iI = 0; iI < GC.getNumBuildingInfos(); iI++)
+			{
+				eBuilding = (BuildingTypes) iI;
+				CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+				if(pkBuildingInfo)
+				{
+					if(pCityBuildings->GetNumBuilding(eBuilding) > 0)
+					{
+#if defined(MOD_BUGFIX_MINOR)
+						iCityYieldSum += pkBuildingInfo->GetYieldChange(iYield) * pCityBuildings->GetNumBuilding(eBuilding);
+#else
+						iCityYieldSum += pkBuildingInfo->GetYieldChange(iYield);
+#endif
+					}
+				}
+			}
+			iYieldSum += iCityYieldSum * 100;
+		}
+		// add in additional production from the city plot and the city buildings that provide food
+		if(iYield == YIELD_PRODUCTION)
+		{
+			int iCityYieldSum = 0;
+			iCityYieldSum = m_pCity->plot()->getYield(YIELD_PRODUCTION);
+			CvYieldInfo* pYield = GC.getYieldInfo(YIELD_PRODUCTION);
+			if(pYield)
+			{
+				iCityYieldSum -= pYield->getMinCity();
+			}
+
+			CvCityBuildings* pCityBuildings = m_pCity->GetCityBuildings();
+			BuildingTypes eBuilding;
+			for(int iI = 0; iI < GC.getNumBuildingInfos(); iI++)
+			{
+				eBuilding = (BuildingTypes) iI;
+				CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+				if(pkBuildingInfo)
+				{
+					if(pCityBuildings->GetNumBuilding(eBuilding) > 0)
+					{
+#if defined(MOD_BUGFIX_MINOR)
+						iCityYieldSum += pkBuildingInfo->GetYieldChange(iYield) * pCityBuildings->GetNumBuilding(eBuilding);
+#else
+						iCityYieldSum += pkBuildingInfo->GetYieldChange(iYield);
+#endif
+					}
+				}
+			}
+			iYieldSum += iCityYieldSum * 100;
+		}
+		// add in additional science from the city plot and the city buildings that provide food
+		if(iYield == YIELD_SCIENCE)
+		{
+			int iCityYieldSum = 0;
+			iCityYieldSum = m_pCity->plot()->getYield(YIELD_SCIENCE);
+			CvYieldInfo* pYield = GC.getYieldInfo(YIELD_SCIENCE);
+			if(pYield)
+			{
+				iCityYieldSum -= pYield->getMinCity();
+			}
+
+			CvCityBuildings* pCityBuildings = m_pCity->GetCityBuildings();
+			BuildingTypes eBuilding;
+			for(int iI = 0; iI < GC.getNumBuildingInfos(); iI++)
+			{
+				eBuilding = (BuildingTypes) iI;
+				CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+				if(pkBuildingInfo)
+				{
+					if(pCityBuildings->GetNumBuilding(eBuilding) > 0)
+					{
+#if defined(MOD_BUGFIX_MINOR)
+						iCityYieldSum += pkBuildingInfo->GetYieldChange(iYield) * pCityBuildings->GetNumBuilding(eBuilding);
+#else
+						iCityYieldSum += pkBuildingInfo->GetYieldChange(iYield);
+#endif
+					}
+				}
+			}
+			iYieldSum += iCityYieldSum * 100;
+		}
+#endif
 		m_asBestYieldAverageTimes100[iYield] = iYieldSum / iSlotsToEvaluate;
 
 		CvAssertMsg(m_asBestYieldAverageTimes100[iYield] < 750, "Crazy high yield");
@@ -1804,6 +1897,14 @@ void CvCityStrategyAI::UpdateBestYields()
 			case CITY_AI_FOCUS_TYPE_GOLD:
 				strLookup = "CITYSPECIALIZATION_COMMERCE";
 				break;
+#if defined(MOD_BALANCE_CORE)
+			case CITY_AI_FOCUS_TYPE_PRODUCTION:
+				strLookup = "CITYSPECIALIZATION_MILITARY_TRAINING";
+				break;
+			case CITY_AI_FOCUS_TYPE_SCIENCE:
+				strLookup = "CITYSPECIALIZATION_SCIENCE";
+				break;
+#endif
 			}
 
 			if(!strLookup.IsEmpty())

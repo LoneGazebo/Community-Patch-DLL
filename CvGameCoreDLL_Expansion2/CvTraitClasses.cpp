@@ -72,6 +72,7 @@ CvTraitEntry::CvTraitEntry() :
 	m_iCultureBuildingYieldChange(0),
 #if defined(MOD_BALANCE_CORE)
 	m_iCombatBonusVsHigherPop(0),
+	m_bBuyOwnedTiles(0),
 #endif
 	m_iCombatBonusVsHigherTech(0),
 	m_iCombatBonusVsLargerCiv(0),
@@ -492,6 +493,10 @@ int CvTraitEntry::GetCultureBuildingYieldChange() const
 int CvTraitEntry::GetCombatBonusVsHigherPop() const
 {
 	return m_iCombatBonusVsHigherPop;
+}
+bool CvTraitEntry::IsBuyOwnedTiles() const
+{
+	return m_bBuyOwnedTiles;
 }
 #endif
 
@@ -1299,6 +1304,7 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	m_iCultureBuildingYieldChange			= kResults.GetInt("CultureBuildingYieldChange");
 #if defined(MOD_BALANCE_CORE)
 	m_iCombatBonusVsHigherPop				= kResults.GetInt("CombatBonusVsHigherPop");
+	m_bBuyOwnedTiles						= kResults.GetBool("BuyOwnedTiles");
 #endif
 	m_iCombatBonusVsHigherTech				= kResults.GetInt("CombatBonusVsHigherTech");
 	m_iCombatBonusVsLargerCiv				= kResults.GetInt("CombatBonusVsLargerCiv");
@@ -2088,6 +2094,10 @@ void CvPlayerTraits::InitPlayerTraits()
 			m_iCultureBuildingYieldChange += trait->GetCultureBuildingYieldChange();
 #if defined(MOD_BALANCE_CORE)
 			m_iCombatBonusVsHigherPop += trait->GetCombatBonusVsHigherPop();
+			if(trait->IsBuyOwnedTiles())
+			{
+				m_bBuyOwnedTiles = true;
+			}
 #endif
 			m_iCombatBonusVsHigherTech += trait->GetCombatBonusVsHigherTech();
 			m_iCombatBonusVsLargerCiv += trait->GetCombatBonusVsLargerCiv();
@@ -2540,6 +2550,7 @@ void CvPlayerTraits::Reset()
 	m_iCultureBuildingYieldChange = 0;
 #if defined(MOD_BALANCE_CORE)
 	m_iCombatBonusVsHigherPop = 0;
+	m_bBuyOwnedTiles = false;
 #endif
 	m_iCombatBonusVsHigherTech = 0;
 	m_iCombatBonusVsLargerCiv = 0;
@@ -4019,7 +4030,8 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	kStream >> m_iCultureBuildingYieldChange;
 
 #if defined(MOD_BALANCE_CORE)
-	kStream >> m_iCombatBonusVsHigherPop;
+	MOD_SERIALIZE_READ(66, kStream, m_iCombatBonusVsHigherPop, 0);
+	MOD_SERIALIZE_READ(66, kStream, m_bBuyOwnedTiles, false);
 #endif
 
 	kStream >> m_iCombatBonusVsHigherTech;
@@ -4467,7 +4479,8 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	kStream << m_iNearbyImprovementBonusRange;
 	kStream << m_iCultureBuildingYieldChange;
 #if defined(MOD_BALANCE_CORE)
-	kStream << m_iCombatBonusVsHigherPop;
+	MOD_SERIALIZE_WRITE(kStream, m_iCombatBonusVsHigherPop);
+	MOD_SERIALIZE_WRITE(kStream, m_bBuyOwnedTiles);
 #endif
 	kStream << m_iCombatBonusVsHigherTech;
 	kStream << m_iCombatBonusVsLargerCiv;

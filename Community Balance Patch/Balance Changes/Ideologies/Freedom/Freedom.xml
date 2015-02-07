@@ -34,13 +34,6 @@
 		</Row>
 	</Policy_BuildingClassHappiness>
 	<!-- Finest Hour -->
-	<Policy_FreeUnitClasses>
-		<Row>
-			<PolicyType>POLICY_THEIR_FINEST_HOUR</PolicyType>
-			<UnitClassType>UNITCLASS_GREAT_GENERAL</UnitClassType>
-			<Count>1</Count>
-		</Row>
-	</Policy_FreeUnitClasses>
 	<!--Urbanization -->
 	<Policy_ImprovementYieldChanges>
 		<Row>
@@ -75,7 +68,7 @@
 		</Row>
 		<Row>
 			<PolicyType>POLICY_URBANIZATION</PolicyType>
-			<ImprovementType>IMPROVEMENT_ENCAMPMENT</ImprovementType>
+			<ImprovementType>IMPROVEMENT_ENCAMPMENT_SHOSHONE</ImprovementType>
 			<YieldType>YIELD_FOOD</YieldType>
 			<Yield>1</Yield>
 		</Row>

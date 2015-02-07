@@ -163,6 +163,7 @@ public:
 	EraTypes GetGreatPersonEra(int i) const;
 	int GetResourceType() const;
 	bool IsPuppetPurchaseOverride() const;
+	bool IsMinorCivGift() const;
 #endif
 	// Accessor Functions (Arrays)
 	int GetPrereqAndTechs(int i) const;
@@ -298,6 +299,7 @@ private:
 #if defined(MOD_BALANCE_CORE)
 	int m_iResourceType;
 	bool m_bPuppetPurchaseOverride;
+	bool m_bMinorCivGift;
 #endif
 	int m_iCultureBombRadius;
 	int m_iGoldenAgeTurns;

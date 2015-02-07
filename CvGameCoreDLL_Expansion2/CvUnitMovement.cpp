@@ -36,6 +36,12 @@ void CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlo
 	{
 		iRegularCost = 1;
 	}
+#if defined(MOD_BALANCE_CORE)
+	else if(pToPlot->isCity() && (pTerrainInfo->getMovementCost() > 1))
+	{
+		iRegularCost = 1;
+	}
+#endif
 	else
 	{
 		iRegularCost = ((eFeature == NO_FEATURE) ? (pTerrainInfo ? pTerrainInfo->getMovementCost() : 0) : (pFeatureInfo ? pFeatureInfo->getMovementCost() : 0));
@@ -263,6 +269,51 @@ bool CvUnitMovement::ConsumesAllMoves(const CvUnit* pUnit, const CvPlot* pFromPl
 	if(pToPlot->isWater() != pFromPlot->isWater() && pUnit->CanEverEmbark())
 #endif
 	{
+#if defined(MOD_BALANCE_CORE_EMBARK_CITY_NO_COST)
+		bool bCanMoveFreely = false;
+		TeamTypes eUnitTeam = pUnit->getTeam();
+		CvTeam& kUnitTeam = GET_TEAM(eUnitTeam);
+#if defined(MOD_PATHFINDER_TERRAFIRMA)
+		if(!bToWater && bFromWater && pUnit->isEmbarked() && GET_PLAYER(pUnit->getOwner()).GetPlayerTraits()->IsEmbarkedToLandFlatCost())
+		{
+			bCanMoveFreely = true;
+		}
+#else
+		if(!pToPlot->isWater() && pFromPlot->isWater() && pUnit->isEmbarked() && GET_PLAYER(pUnit->getOwner()).GetPlayerTraits()->IsEmbarkedToLandFlatCost())
+		{
+			bCanMoveFreely = true;
+		}
+#endif
+		if(!pToPlot->isWater() && pFromPlot->isWater() && pUnit->isEmbarked())
+		{
+			//If city, and player has disembark to city at no cost...
+			if(pToPlot->isCity() && (pToPlot->getOwner() == pUnit->getOwner()) && kUnitTeam.isCityNoEmbarkCost())
+			{
+				bCanMoveFreely = true;
+			}
+			else if(pToPlot->isCity() && (pToPlot->getOwner() == pUnit->getOwner()) && kUnitTeam.isCityLessEmbarkCost())
+			{
+				bCanMoveFreely = true;
+			}
+		}
+		if(pToPlot->isWater() && !pFromPlot->isWater() && !pUnit->isEmbarked())
+		{
+			//If city, and player has embark from city at no cost...
+			if(pFromPlot->isCity() && (pFromPlot->getOwner() == pUnit->getOwner()) && kUnitTeam.isCityNoEmbarkCost())
+			{
+				bCanMoveFreely = true;
+			}
+			//If city, and player has embark from city at reduced cost...
+			else if(pFromPlot->isCity() && (pFromPlot->getOwner() == pUnit->getOwner()) && kUnitTeam.isCityLessEmbarkCost())
+			{
+				bCanMoveFreely = true;
+			}
+		}
+		if(bCanMoveFreely)
+		{
+			return false;
+		}
+#else
 		// Is the unit from a civ that can disembark for just 1 MP?
 #if defined(MOD_PATHFINDER_TERRAFIRMA)
 		if(!bToWater && bFromWater && pUnit->isEmbarked() && GET_PLAYER(pUnit->getOwner()).GetPlayerTraits()->IsEmbarkedToLandFlatCost())
@@ -272,7 +323,7 @@ bool CvUnitMovement::ConsumesAllMoves(const CvUnit* pUnit, const CvPlot* pFromPl
 		{
 			return false;	// Then no, it does not.
 		}
-
+#endif
 		if(!pUnit->canMoveAllTerrain())
 		{
 			return true;
@@ -304,6 +355,37 @@ bool CvUnitMovement::CostsOnlyOne(const CvUnit* pUnit, const CvPlot* pFromPlot, 
 	{
 		return true;
 	}
+#if defined(MOD_BALANCE_CORE_EMBARK_CITY_NO_COST)
+	TeamTypes eUnitTeam = pUnit->getTeam();
+	CvTeam& kUnitTeam = GET_TEAM(eUnitTeam);
+	if(!pToPlot->isWater() && pFromPlot->isWater() && pUnit->isEmbarked())
+	{
+		//If city, and player has disembark to city at reduced cost...
+		if(pToPlot->isCity() && (pToPlot->getOwner() == pUnit->getOwner()) && kUnitTeam.isCityNoEmbarkCost())
+		{
+			return true;
+		}
+		//If city, and player has disembark to city at reduced cost...
+		else if(pToPlot->isCity() && (pToPlot->getOwner() == pUnit->getOwner()) && kUnitTeam.isCityLessEmbarkCost())
+		{
+			return true;
+		}
+	}
+	if(pToPlot->isWater() && !pFromPlot->isWater() && !pUnit->isEmbarked())
+	{
+		//If city, and player has disembark to city at reduced cost...
+		if(pFromPlot->isCity() && (pFromPlot->getOwner() == pUnit->getOwner()) && kUnitTeam.isCityNoEmbarkCost())
+		{
+			return true;
+		}
+		//If city, and player has disembark to city at reduced cost...
+		if(pFromPlot->isCity() && (pFromPlot->getOwner() == pUnit->getOwner()) && kUnitTeam.isCityLessEmbarkCost())
+		{
+			return true;
+		}
+	}
+			
+#endif
 
 	return false;
 }

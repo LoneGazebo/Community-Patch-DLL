@@ -53,7 +53,7 @@ SET Text = 'Air Supremacy'
 WHERE Tag = 'TXT_KEY_POLICY_MILITARISM' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Air Supremacy[ENDCOLOR][NEWLINE]Receive a free Airport in every City. +25% [ICON_PRODUCTION] Production when building Air units.'
+SET Text = '[COLOR_POSITIVE_TEXT]Air Supremacy[ENDCOLOR][NEWLINE]Receive a free Airport in every City. +25% [ICON_PRODUCTION] Production when building Air units. Can build [COLOR_POSITIVE_TEXT]Zeroes[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_POLICY_MILITARISM_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US

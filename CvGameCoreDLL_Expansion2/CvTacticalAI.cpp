@@ -381,13 +381,28 @@ void CvTacticalAI::CommandeerUnits()
 		}
 
 		// Now down to land and sea units ... in these groups our unit must have a base combat strength ... or be a great general
+#if defined(MOD_BALANCE_CORE_MILITARY)
+		else if( !pLoopUnit->IsCombatUnit() && !pLoopUnit->IsGreatGeneral() && !pLoopUnit->IsGreatAdmiral() )
+		{
+			continue;
+		}
+		else
+		{
+			 //if it's a general or admiral and not a field commander, we don't want it
+			if( pLoopUnit->IsGreatGeneral() || pLoopUnit->IsGreatAdmiral() )
+			{
+				GreatPeopleDirectiveTypes eDirective = pLoopUnit->GetGreatPeopleDirective();
+				if (eDirective != GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND)
+					continue;
+			}
+#else
 		else if(!pLoopUnit->IsCombatUnit() && !pLoopUnit->IsGreatGeneral())
 		{
 			continue;
 		}
-
 		else
 		{
+#endif
 			// Is this one in an operation we can't interrupt?
 			int iArmyID = pLoopUnit->getArmyID();
 			const CvArmyAI* army = m_pPlayer->getArmyAI(iArmyID);
@@ -3069,6 +3084,48 @@ void CvTacticalAI::PlotCampDefenseMoves()
 												{
 													CvString strLogString;
 													strLogString.Format("Ranged unit attacking nearby enemy to protect camp, X: %d, Y: %d", pTarget->GetTargetX(), pTarget->GetTargetY());
+													LogTacticalMessage(strLogString);
+												}
+												break;
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		else if(MOD_BALANCE_CORE_MILITARY && pPlot->isCity())
+		{
+			if(pPlot->getNumUnits() > 0)
+			{
+				CvUnit* pUnit = pPlot->getUnitByIndex(0);
+				if(pUnit->IsCanAttackRanged())
+				{
+					int iRange = pUnit->GetRange();
+					if(iRange > 0)
+					{
+						for(int iX = -iRange; iX <= iRange; iX++)
+						{
+							for(int iY = -iRange; iY <= iRange; iY++)
+							{
+								CvPlot* pConsiderPlot = plotXYWithRangeCheck(pUnit->getX(), pUnit->getY(), iX, iY, iRange);
+								if(pConsiderPlot != NULL)
+								{
+									if(pConsiderPlot->getNumUnits() > 0)
+									{
+										if(pConsiderPlot->getUnitByIndex(0)->getOwner() != pUnit->getOwner())
+										{
+											if(pUnit->canEverRangeStrikeAt(pConsiderPlot->getX(), pConsiderPlot->getY()))
+											{
+												pUnit->PushMission(CvTypes::getMISSION_RANGE_ATTACK(), pConsiderPlot->getX(), pConsiderPlot->getY());
+												UnitProcessed(pUnit->GetID());
+												if(GC.getLogging() && GC.getAILogging())
+												{
+													CvString strLogString;
+													strLogString.Format("Ranged unit attacking nearby enemy to protect conquered city, X: %d, Y: %d", pTarget->GetTargetX(), pTarget->GetTargetY());
 													LogTacticalMessage(strLogString);
 												}
 												break;
@@ -7249,144 +7306,6 @@ void CvTacticalAI::ExecuteBarbarianMoves(bool bAggressive)
 						}
 					}
 				}
-#if defined(MOD_BALANCE_CORE_BARBARIAN_THEFT)
-				//Let's make Barbs scarier. If they end their move next to a city, let's have them pillage some Gold from the City. If they end their turn in owned land, let's give them a smaller chance to do so.
-				if(pUnit && MOD_BALANCE_CORE_BARBARIAN_THEFT)
-				{	
-					int iBarbStrength = 0;
-					int iCityStrength = 0;
-					if(pUnit->plot()->GetAdjacentCity() != NULL)
-					{
-						CvCity* pCity = pUnit->plot()->GetAdjacentCity();
-						if(pCity && pCity->getOwner() != NO_PLAYER && !GET_PLAYER(pCity->getOwner()).isMinorCiv() && !GET_PLAYER(pCity->getOwner()).isBarbarian())
-						{
-							iCityStrength = pCity->getStrengthValue(false);
-							iCityStrength += GC.getGame().getJonRandNum(pCity->getStrengthValue(false), "Barbarian Random Strength Bump");
-							iCityStrength /= 100;
-							iBarbStrength = (pUnit->GetBaseCombatStrength(true) * 2);
-							iBarbStrength += GC.getGame().getJonRandNum(pUnit->GetBaseCombatStrength(), "Barbarian Random Strength Bump");
-							if(iBarbStrength > iCityStrength)
-							{
-								int iTheft = (iBarbStrength - iCityStrength);
-
-								if(iTheft > 0)
-								{
-									pCity->changeDamage((iTheft / 2));
-									int iYield = GC.getGame().getJonRandNum(10, "Barbarian Theft Value");
-									if(iYield <= 2)
-									{
-										int iGold = ((GET_PLAYER(pCity->getOwner()).GetTreasury()->GetGold() * iTheft) / 100);
-										if(iGold > 0)
-										{
-											GET_PLAYER(pCity->getOwner()).GetTreasury()->ChangeGold(-iGold);
-
-											Localization::String strMessage = Localization::Lookup("TXT_KEY_BARBARIAN_GOLD_THEFT_CITY_DETAILED");
-											strMessage << iGold;
-											strMessage << pCity->getNameKey();
-											Localization::String strSummary = Localization::Lookup("TXT_KEY_BARBARIAN_GOLD_THEFT_CITY");
-											strSummary << pCity->getNameKey();
-
-											CvNotifications* pNotification = GET_PLAYER(pCity->getOwner()).GetNotifications();
-											if(pNotification)
-											{
-												pNotification->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), pCity->getX(), pCity->getY(), pCity->getOwner());
-											}
-										}
-									}
-									else if(iYield <= 4)
-									{
-										int iCulture = ((GET_PLAYER(pCity->getOwner()).getJONSCulture() * iTheft) / 100);
-										if(iCulture > 0)
-										{
-											GET_PLAYER(pCity->getOwner()).changeJONSCulture(-iCulture);
-
-											Localization::String strMessage = Localization::Lookup("TXT_KEY_BARBARIAN_CULTURE_THEFT_CITY_DETAILED");
-											strMessage << iCulture;
-											strMessage << pCity->getNameKey();
-											Localization::String strSummary = Localization::Lookup("TXT_KEY_BARBARIAN_CULTURE_THEFT_CITY");
-											strSummary << pCity->getNameKey();
-
-											CvNotifications* pNotification = GET_PLAYER(pCity->getOwner()).GetNotifications();
-											if(pNotification)
-											{
-												pNotification->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), pCity->getX(), pCity->getY(), pCity->getOwner());
-											}
-										}
-									}
-									else if(iYield <= 6)
-									{
-										TechTypes eCurrentTech = GET_PLAYER(pCity->getOwner()).GetPlayerTechs()->GetCurrentResearch();
-										int iScience = 0;
-										if(eCurrentTech != NO_TECH)
-										{
-											iScience = ((GET_PLAYER(pCity->getOwner()).GetPlayerTechs()->GetResearchProgress(eCurrentTech) * iTheft) / 100);
-											if(iScience > 0)
-											{
-												GET_TEAM(GET_PLAYER(pCity->getOwner()).getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, -iScience, pCity->getOwner());
-
-												Localization::String strMessage = Localization::Lookup("TXT_KEY_BARBARIAN_SCIENCE_THEFT_CITY_DETAILED");
-												strMessage << iScience;
-												strMessage << pCity->getNameKey();
-												Localization::String strSummary = Localization::Lookup("TXT_KEY_BARBARIAN_SCIENCE_THEFT_CITY");
-												strSummary << pCity->getNameKey();
-
-												CvNotifications* pNotification = GET_PLAYER(pCity->getOwner()).GetNotifications();
-												if(pNotification)
-												{
-													pNotification->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), pCity->getX(), pCity->getY(), pCity->getOwner());
-												}
-											}
-										}
-									}
-									else if(iYield <= 8)
-									{
-										int iFood = ((pCity->getFood() * iTheft) / 100);
-										if(iFood > 0)
-										{
-											pCity->changeFood(-iFood);
-
-											Localization::String strMessage = Localization::Lookup("TXT_KEY_BARBARIAN_FOOD_THEFT_CITY_DETAILED");
-											strMessage << iFood;
-											strMessage << pCity->getNameKey();
-											Localization::String strSummary = Localization::Lookup("TXT_KEY_BARBARIAN_FOOD_THEFT_CITY");
-											strSummary << pCity->getNameKey();
-
-											CvNotifications* pNotification = GET_PLAYER(pCity->getOwner()).GetNotifications();
-											if(pNotification)
-											{
-												pNotification->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), pCity->getX(), pCity->getY(), pCity->getOwner());
-											}
-										}
-									}
-									else if(iYield <= 10)
-									{
-										if((pCity->getProduction() > 0) && (pCity->getProductionTurnsLeft() >= 2) && (pCity->getProductionTurnsLeft() != INT_MAX))
-										{
-											int iProduction = ((pCity->getProduction() * iTheft) / 100);
-											if(iProduction > 0)
-											{
-												pCity->changeProduction(-iProduction);
-
-												Localization::String strMessage = Localization::Lookup("TXT_KEY_BARBARIAN_PRODUCTION_THEFT_CITY_DETAILED");
-												strMessage << iProduction;
-												strMessage << pCity->getNameKey();
-												Localization::String strSummary = Localization::Lookup("TXT_KEY_BARBARIAN_PRODUCTION_THEFT_CITY");
-												strSummary << pCity->getNameKey();
-
-												CvNotifications* pNotification = GET_PLAYER(pCity->getOwner()).GetNotifications();
-												if(pNotification)
-												{
-													pNotification->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), pCity->getX(), pCity->getY(), pCity->getOwner());
-												}
-											}
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-#endif
 			}
 		}
 	}
@@ -9839,7 +9758,28 @@ bool CvTacticalAI::IsExpectedToDamageWithRangedAttack(UnitHandle pAttacker, CvPl
 bool CvTacticalAI::MoveToEmptySpaceNearTarget(UnitHandle pUnit, CvPlot* pTarget, bool bLand)
 {
 	CvPlot* pLoopPlot;
-
+#if defined(MOD_BALANCE_CORE)
+	if(pUnit->isBarbarian() && (pUnit->plot() != NULL) && (pUnit->plot()->getImprovementType() == GC.getBARBARIAN_CAMP_IMPROVEMENT()))
+	{
+		if(GC.getLogging() && GC.getAILogging())
+		{
+			CvString strLogString;
+			strLogString.Format("%s wanted to move to empty space, but was asked to stay in camp. Current X: %d, Current Y: %d", pUnit->getName().GetCString(), pUnit->getX(), pUnit->getY());
+			LogTacticalMessage(strLogString);
+		}
+		return false;
+	}
+	else if(pUnit->isBarbarian() && (pUnit->plot() != NULL) && (pUnit->plot()->isCity()))
+	{
+		if(GC.getLogging() && GC.getAILogging())
+		{
+			CvString strLogString;
+			strLogString.Format("%s wanted to move to empty space, but was asked to stay in conquered city. Current X: %d, Current Y: %d", pUnit->getName().GetCString(), pUnit->getX(), pUnit->getY());
+			LogTacticalMessage(strLogString);
+		}
+		return false;
+	}	
+#endif
 	// Look at spaces adjacent to target
 	for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
 	{
@@ -10016,7 +9956,16 @@ bool CvTacticalAI::MoveToUsingSafeEmbark(UnitHandle pUnit, CvPlot* pTargetPlot, 
 CvPlot* CvTacticalAI::FindBestBarbarianLandMove(UnitHandle pUnit)
 {
 	CvPlot* pBestMovePlot = FindNearbyTarget(pUnit, m_iLandBarbarianRange);
-	
+#if defined(MOD_BALANCE_CORE)
+	if(pUnit->plot() != NULL && (pUnit->plot()->getImprovementType() == GC.getBARBARIAN_CAMP_IMPROVEMENT()))
+	{
+		return pUnit->plot();
+	}
+	else if((pUnit->plot() != NULL) && (pUnit->plot()->isCity()))
+	{
+		return pUnit->plot();
+	}
+#endif
 	// move toward trade routes
 	if (pBestMovePlot == NULL)
 	{
@@ -10041,7 +9990,16 @@ CvPlot* CvTacticalAI::FindPassiveBarbarianLandMove(UnitHandle pUnit)
 
 	iBestValue = MAX_INT;
 	pBestMovePlot = NULL;
-
+#if defined(MOD_BALANCE_CORE)
+	if(pUnit->plot() != NULL && (pUnit->plot()->getImprovementType() == GC.getBARBARIAN_CAMP_IMPROVEMENT()))
+	{
+		return pUnit->plot();
+	}
+	else if((pUnit->plot() != NULL) && (pUnit->plot()->isCity()))
+	{
+		return pUnit->plot();
+	}
+#endif
 	for(unsigned int iI = 0; iI < m_AllTargets.size(); iI++)
 	{
 		// Is this target a camp?
@@ -10233,6 +10191,16 @@ CvPlot* CvTacticalAI::FindBarbarianExploreTarget(UnitHandle pUnit)
 	CvPlot* pBestMovePlot = NULL;
 	int iBestValue;
 	int iValue;
+#if defined(MOD_BALANCE_CORE)
+	if(pUnit->plot() != NULL && (pUnit->plot()->getImprovementType() == GC.getBARBARIAN_CAMP_IMPROVEMENT()))
+	{
+		return pUnit->plot();
+	}
+	else if((pUnit->plot() != NULL) && (pUnit->plot()->isCity()))
+	{
+		return pUnit->plot();
+	}
+#endif
 
 	// Now looking for BEST score
 	iBestValue = 0;
@@ -10257,7 +10225,12 @@ CvPlot* CvTacticalAI::FindBarbarianExploreTarget(UnitHandle pUnit)
 				continue;
 			}
 
+#if defined(MOD_BALANCE_CORE_MILITARY)
+			//allow embarking and disembarking to/from lakes
+			if( (pPlot->area() != pUnit->area() ) && !pUnit->plot()->isLake() && !pPlot->isLake() )
+#else
 			if(pPlot->area() != pUnit->area())
+#endif
 			{
 				continue;
 			}
@@ -11357,7 +11330,12 @@ void CvTacticalAI::ScoreHedgehogPlots(CvPlot* pTarget)
 
 			if(pCell->CanUseForOperationGatheringCheckWater(false /*bWater*/))
 			{
+#if defined(MOD_BALANCE_CORE_MILITARY)
+				//The best defenses aren't necessarily right next to the city.
+				iScore = 500 - (iPlotDistance * 25);
+#else
 				iScore = 600 - (iPlotDistance * 150);
+#endif
 
 				if(pCell->IsSubjectToAttack())
 				{
@@ -11380,7 +11358,11 @@ void CvTacticalAI::ScoreHedgehogPlots(CvPlot* pTarget)
 				}
 				else
 				{
+#if defined(MOD_BALANCE_CORE_MILITARY)
+					iScore += pCell->GetDefenseModifier() * 25;
+#else
 					iScore += pCell->GetDefenseModifier() * 4;
+#endif
 				}
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
@@ -11662,7 +11644,11 @@ bool CvTacticalAI::IsVeryHighPriorityCivilianTarget(CvTacticalTarget* pTarget)
 	CvUnit* pUnit = (CvUnit*)pTarget->GetAuxData();
 	if(pUnit)
 	{
+#if defined(MOD_BALANCE_CORE_MILITARY)
+		if(pUnit->IsGreatGeneral() || pUnit->IsGreatAdmiral())
+#else
 		if(pUnit->AI_getUnitAIType() == UNITAI_GENERAL || pUnit->AI_getUnitAIType() == UNITAI_ADMIRAL)
+#endif
 		{
 			bRtnValue = true;
 		}

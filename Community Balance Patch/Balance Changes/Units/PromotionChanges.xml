@@ -180,6 +180,7 @@
 				<PromotionPrereqOr2>PROMOTION_SCOUTING_2</PromotionPrereqOr2>
 				<PromotionPrereqOr3>PROMOTION_SURVIVALISM_2</PromotionPrereqOr3>
 				<OrderPriority>3</OrderPriority>
+				<SameTileHealChange>5</SameTileHealChange>
 				<AdjacentTileHealChange>5</AdjacentTileHealChange>
 				<PortraitIndex>32</PortraitIndex>
 				<IconAtlas>PROMOTION_ATLAS</IconAtlas>
@@ -194,6 +195,7 @@
 				<PromotionPrereqOr1>PROMOTION_MEDIC</PromotionPrereqOr1>
 				<OrderPriority>3</OrderPriority>
 				<AdjacentTileHealChange>5</AdjacentTileHealChange>
+				<SameTileHealChange>5</SameTileHealChange>
 				<EnemyHealChange>5</EnemyHealChange>
 				<NeutralHealChange>5</NeutralHealChange>
 				<PortraitIndex>32</PortraitIndex>
@@ -1906,9 +1908,9 @@
 				<Help>TXT_KEY_PROMOTION_FASTER_HEAL</Help>
 				<Sound>AS2D_IF_LEVELUP</Sound>
 				<CannotBeChosen>true</CannotBeChosen>
-				<EnemyHealChange>10</EnemyHealChange>
-				<NeutralHealChange>10</NeutralHealChange>
-				<FriendlyHealChange>10</FriendlyHealChange>
+				<EnemyHealChange>15</EnemyHealChange>
+				<NeutralHealChange>15</NeutralHealChange>
+				<FriendlyHealChange>15</FriendlyHealChange>
 				<PortraitIndex>59</PortraitIndex>
 				<IconAtlas>ABILITY_ATLAS</IconAtlas>
 				<PediaType>PEDIA_ATTRIBUTES</PediaType>
@@ -2583,7 +2585,56 @@
 				<FlankAttackModifier>200</FlankAttackModifier>
 				<CityAttackPlunderModifier>50</CityAttackPlunderModifier>
 			</Row>
+			<Row>
+				<Type>PROMOTION_FALLOUT_REDUCTION</Type>
+				<Description>TXT_KEY_PROMOTION_FALLOUT_REDUCTION</Description>
+				<Help>TXT_KEY_PROMOTION_FALLOUT_REDUCTION_HELP</Help>
+				<Sound>AS2D_IF_LEVELUP</Sound>
+				<ExtraFeatureDamage>1</ExtraFeatureDamage>
+				<PortraitIndex>4</PortraitIndex>
+				<IconAtlas>KRIS_SWORDSMAN_PROMOTION_ATLAS</IconAtlas>
+				<PediaType>PEDIA_ATTRIBUTES</PediaType>
+				<TechPrereq>TECH_PENICILIN</TechPrereq>
+				<PediaEntry>TXT_KEY_PROMOTION_FALLOUT_REDUCTION</PediaEntry>
+				<CannotBeChosen>true</CannotBeChosen>
+			</Row>
+			<Row>
+				<Type>PROMOTION_FALLOUT_IMMUNITY</Type>
+				<Description>TXT_KEY_PROMOTION_FALLOUT_IMMUNITY</Description>
+				<Help>TXT_KEY_PROMOTION_FALLOUT_IMMUNITY_HELP</Help>
+				<Sound>AS2D_IF_LEVELUP</Sound>
+				<PortraitIndex>4</PortraitIndex>
+				<IconAtlas>KRIS_SWORDSMAN_PROMOTION_ATLAS</IconAtlas>
+				<TechPrereq>TECH_NANOTECHNOLOGY</TechPrereq>
+				<IgnoreFeatureDamage>1</IgnoreFeatureDamage>
+				<PediaType>PEDIA_ATTRIBUTES</PediaType>
+				<PediaEntry>TXT_KEY_PROMOTION_FALLOUT_IMMUNITY</PediaEntry>
+				<CannotBeChosen>true</CannotBeChosen>
+			</Row>
+			<Row>
+				<Type>PROMOTION_RECON_EXPERIENCE</Type>
+				<Description>TXT_KEY_PROMOTION_RECON_EXPERIENCE</Description>
+				<Help>TXT_KEY_PROMOTION_RECON_EXPERIENCE_HELP</Help>
+				<Sound>AS2D_IF_LEVELUP</Sound>
+				<PortraitIndex>43</PortraitIndex>
+				<IconAtlas>PROMOTION_ATLAS</IconAtlas>
+				<GainsXPFromScouting>true</GainsXPFromScouting>
+				<PediaType>PEDIA_SCOUTING</PediaType>
+				<PediaEntry>TXT_KEY_PROMOTION_RECON_EXPERIENCE</PediaEntry>
+				<CannotBeChosen>true</CannotBeChosen>
+			</Row>
+			
 		</UnitPromotions>
+	<UnitPromotions_CivilianUnitType>
+		<Row>
+			<PromotionType>PROMOTION_FALLOUT_REDUCTION</PromotionType>
+			<UnitType>UNIT_WORKER</UnitType>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_FALLOUT_IMMUNITY</PromotionType>
+			<UnitType>UNIT_WORKER</UnitType>
+		</Row>
+	</UnitPromotions_CivilianUnitType>
 	<UnitPromotions_UnitCombatMods>
 		<Row>
 			<PromotionType>PROMOTION_MODERN_RANGED_PENALTY_I</PromotionType>
@@ -2627,7 +2678,7 @@
 		<Row>
 			<PromotionType>PROMOTION_ENSLAVEMENT</PromotionType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Yield>15</Yield>
+			<Yield>50</Yield>
 		</Row>
 	</UnitPromotions_YieldFromKills>
 	<Language_en_US>
@@ -2660,6 +2711,27 @@
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_RAIDER_HELP">
 			<Text>Flank attack bonus increased by 100%. Steal gold equal to 50% of the damage inflicted on a city. Is able to use enemy roads.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_FALLOUT_REDUCTION">
+			<Text>Fallout Resistance</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_FALLOUT_REDUCTION_HELP">
+			<Text>Damage from Fallout reduced by 10.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_FALLOUT_IMMUNITY">
+			<Text>Fallout Immunity</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_FALLOUT_IMMUNITY_HELP">
+			<Text>Ignores damage from Fallout.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_RECON_EXPERIENCE">
+			<Text>Reconnaissance</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_RECON_EXPERIENCE_HELP">
+			<Text>Gains XP from revealing tiles</Text>
 		</Row>
 	</Language_en_US>
 </GameData>

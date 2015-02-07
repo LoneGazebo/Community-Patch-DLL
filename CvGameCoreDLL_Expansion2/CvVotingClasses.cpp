@@ -3961,6 +3961,16 @@ int CvLeague::CalculateStartingVotesForMember(PlayerTypes ePlayer, bool bForceUp
 
 		// Wonders
 		int iWonderVotes = GET_PLAYER(ePlayer).GetExtraLeagueVotes();
+#if defined(MOD_BALANCE_CORE)
+		if(iWonderVotes > 0)
+		{
+			int iNumMinor = (GC.getGame().GetNumMinorCivsEver() / 8);
+			if((iNumMinor) > 0)
+			{
+				iWonderVotes = (iWonderVotes * iNumMinor);
+			}
+		}
+#endif
 		iVotes += iWonderVotes;
 
 #if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
@@ -3997,8 +4007,21 @@ int CvLeague::CalculateStartingVotesForMember(PlayerTypes ePlayer, bool bForceUp
 				{
 					if(pReligion->m_Beliefs.GetExtraVotes() > 0)
 					{
-						iReligionVotes = pReligion->m_Beliefs.GetExtraVotes();
-						iVotes += iReligionVotes;
+						CvPlot* pHolyCityPlot = GC.getMap().plot(pReligion->m_iHolyCityX, pReligion->m_iHolyCityY);
+						if (pHolyCityPlot)
+						{
+							CvCity* pHolyCity = pHolyCityPlot->getPlotCity();
+
+							if (pHolyCity && (pHolyCity->getOwner() == ePlayer))
+							{
+								int iNumMinor = (GC.getGame().GetNumMinorCivsEver() / 8);
+								if((iNumMinor) > 0)
+								{
+									iReligionVotes = (pReligion->m_Beliefs.GetExtraVotes() * iNumMinor);
+								}
+								iVotes += iReligionVotes;
+							}
+						}
 					}
 				}
 			}
@@ -4009,7 +4032,12 @@ int CvLeague::CalculateStartingVotesForMember(PlayerTypes ePlayer, bool bForceUp
 		if(MOD_BALANCE_CORE_POLICIES)
 		{
 			iPolicyVotes = GET_PLAYER(ePlayer).GetFreeWCVotes();
-			iVotes += iPolicyVotes;
+			//1 vote per 8 CS in game.
+			int iNumMinor = (GC.getGame().GetNumMinorCivsEver() / 8);
+			if((iNumMinor) > 0)
+			{
+				iVotes += (iPolicyVotes * iNumMinor);
+			}	
 		}
 #endif
 #if defined(MOD_BALANCE_CORE)
@@ -10435,7 +10463,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 			//If FLAVOR_DIPLOMACY is 6+...
 			if(iFlavorDiplo - 5 > 0)
 			{
-				iScore += 40 * iFlavorDiplo;
+				iScore += 50 * iFlavorDiplo;
 			}
 			if(iNeededVotes > 0)
 			{
@@ -10446,16 +10474,16 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 				}
 				else if(iVoteRatio >= 50)
 				{
-					iScore += 100;
+					iScore += 200;
 				}
 				else
 				{
-					iScore += 25;
+					iScore += 30;
 				}
 			}
 			else
 			{
-				iScore += 10;
+				iScore += 15;
 			}
 		}
 #endif

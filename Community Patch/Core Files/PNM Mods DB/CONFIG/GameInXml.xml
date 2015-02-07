@@ -28,5 +28,9 @@
 			<Key>ERA_INDUSTRIAL</Key>
 			<Table>Eras</Table>
 		</Row>
+		<Row Name="IDEOLOGY_PREREQ_ERA">
+			<Key>ERA_INDUSTRIAL</Key>
+			<Table>Eras</Table>
+		</Row>
 	</PostDefines>
 </GameData>

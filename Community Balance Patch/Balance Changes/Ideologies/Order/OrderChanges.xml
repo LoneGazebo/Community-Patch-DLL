@@ -54,49 +54,49 @@
 	<!-- Five Year Plan -->
 	<Policy_ImprovementYieldChanges>
 		<Row>
-			<PolicyType>POLICY_URBANIZATION</PolicyType>
+			<PolicyType>POLICY_FIVE_YEAR_PLAN</PolicyType>
 			<ImprovementType>IMPROVEMENT_TERRACE_FARM</ImprovementType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
 			<Yield>1</Yield>
 		</Row>
 		<Row>
-			<PolicyType>POLICY_URBANIZATION</PolicyType>
+			<PolicyType>POLICY_FIVE_YEAR_PLAN</PolicyType>
 			<ImprovementType>IMPROVEMENT_EKI</ImprovementType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
 			<Yield>1</Yield>
 		</Row>
 		<Row>
-			<PolicyType>POLICY_URBANIZATION</PolicyType>
-			<ImprovementType>IMPROVEMENT_ENCAMPMENT</ImprovementType>
+			<PolicyType>POLICY_FIVE_YEAR_PLAN</PolicyType>
+			<ImprovementType>IMPROVEMENT_ENCAMPMENT_SHOSHONE</ImprovementType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
 			<Yield>1</Yield>
 		</Row>
 		<Row>
-			<PolicyType>POLICY_URBANIZATION</PolicyType>
+			<PolicyType>POLICY_FIVE_YEAR_PLAN</PolicyType>
 			<ImprovementType>IMPROVEMENT_POLDER</ImprovementType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
 			<Yield>1</Yield>
 		</Row>
 		<Row>
-			<PolicyType>POLICY_URBANIZATION</PolicyType>
+			<PolicyType>POLICY_FIVE_YEAR_PLAN</PolicyType>
 			<ImprovementType>IMPROVEMENT_CHATEAU</ImprovementType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
 			<Yield>1</Yield>
 		</Row>
 		<Row>
-			<PolicyType>POLICY_URBANIZATION</PolicyType>
+			<PolicyType>POLICY_FIVE_YEAR_PLAN</PolicyType>
 			<ImprovementType>IMPROVEMENT_KASBAH</ImprovementType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
 			<Yield>1</Yield>
 		</Row>
 		<Row>
-			<PolicyType>POLICY_URBANIZATION</PolicyType>
+			<PolicyType>POLICY_FIVE_YEAR_PLAN</PolicyType>
 			<ImprovementType>IMPROVEMENT_BRAZILWOOD_CAMP</ImprovementType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
 			<Yield>1</Yield>
 		</Row>
 		<Row>
-			<PolicyType>POLICY_URBANIZATION</PolicyType>
+			<PolicyType>POLICY_FIVE_YEAR_PLAN</PolicyType>
 			<ImprovementType>IMPROVEMENT_MOAI</ImprovementType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
 			<Yield>1</Yield>

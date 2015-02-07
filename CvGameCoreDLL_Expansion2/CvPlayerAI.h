@@ -92,7 +92,12 @@ public:
 	int ScoreCityForMessenger(CvCity* pCity, UnitHandle pUnit);
 	CvPlot* ChooseMessengerTargetPlot(UnitHandle pUnit, int* piTurns = NULL);
 #endif
+
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	CvPlot* FindBestGreatGeneralTargetPlot(CvUnit* pGeneral, int& iScore);
+#else
 	CvPlot* FindBestArtistTargetPlot(CvUnit* pGreatArtist, int& iScore);
+#endif
 	CvPlot* FindBestMusicianTargetPlot(CvUnit* pGreatMerchant, bool bOnlySafePaths);
 
 	// this are used by a city AI to signal that it is committing to build a unit for one of my operations

@@ -110,4 +110,98 @@
 			<Text>A War Elephant was an elephant trained and guided by humans for combat. Their main use was to charge the enemy, breaking their ranks and instilling terror. Elephantry are military units with elephant-mounted troops. They were first employed in India, the practice spreading out across south-east Asia and westwards into the Mediterranean. Their most famous use in the West was by the Greek general Pyrrhus of Epirus and in significant numbers by the armies of Carthage, including briefly by Hannibal.</Text>
 		</Row>
 	</Language_en_US>
+	<!-- Explorer -->
+	<UnitClasses>
+		<Row>
+			<Type>UNITCLASS_EXPLORER</Type>
+			<Description>TXT_KEY_UNIT_EXPLORER</Description>
+			<DefaultUnit>UNIT_EXPLORER</DefaultUnit>
+		</Row>
+	</UnitClasses>
+	<Units>
+		<Row>
+			<Class>UNITCLASS_EXPLORER</Class>
+			<Type>UNIT_EXPLORER</Type>
+			<Combat>16</Combat>
+			<Cost>180</Cost>
+			<FaithCost>360</FaithCost>
+			<Moves>3</Moves>
+			<PrereqTech>TECH_ASTRONOMY</PrereqTech>
+			<ObsoleteTech>TECH_SATELLITES</ObsoleteTech>
+			<CombatClass>UNITCOMBAT_RECON</CombatClass>
+			<Domain>DOMAIN_LAND</Domain>
+			<NoBadGoodies>true</NoBadGoodies>
+			<DefaultUnitAI>UNITAI_EXPLORE</DefaultUnitAI>
+			<Description>TXT_KEY_UNIT_EXPLORER_CBP</Description>
+			<Civilopedia>TXT_KEY_CIV5_EXPLORER_TEXT_CBP</Civilopedia>
+			<Strategy>TXT_KEY_UNIT_EXPLORER_STRATEGY_CBP</Strategy>
+			<Help>TXT_KEY_UNIT_HELP_EXPLORER_CBP</Help>
+			<Pillage>true</Pillage>
+			<MilitarySupport>true</MilitarySupport>
+			<MilitaryProduction>true</MilitaryProduction>
+			<AdvancedStartCost>30</AdvancedStartCost>
+			<XPValueAttack>3</XPValueAttack>
+			<XPValueDefense>3</XPValueDefense>
+			<UnitArtInfo>ART_DEF_UNIT_EXPLORER</UnitArtInfo>
+			<UnitFlagAtlas>EXPANSION2_UNIT_FLAG_ATLAS</UnitFlagAtlas>
+			<UnitFlagIconOffset>5</UnitFlagIconOffset>
+			<PortraitIndex>58</PortraitIndex>
+			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
+		</Row>
+	</Units>
+	<Unit_AITypes>
+		<Row>
+			<UnitType>UNIT_EXPLORER</UnitType>
+			<UnitAIType>UNITAI_EXPLORE</UnitAIType>
+		</Row>
+	</Unit_AITypes>
+	<Unit_ClassUpgrades>
+		<Row>
+			<UnitType>UNIT_SCOUT</UnitType>
+			<UnitClassType>UNITCLASS_EXPLORER</UnitClassType>
+		</Row>
+		<Row>
+			<UnitType>UNIT_SHOSHONE_PATHFINDER</UnitType>
+			<UnitClassType>UNITCLASS_EXPLORER</UnitClassType>
+		</Row>
+	</Unit_ClassUpgrades>
+	<Unit_Flavors>
+		<Row>
+			<UnitType>UNIT_EXPLORER</UnitType>
+			<FlavorType>FLAVOR_RECON</FlavorType>
+			<Flavor>25</Flavor>
+		</Row>
+	</Unit_Flavors>
+	<Unit_FreePromotions>
+		<Row>
+			<UnitType>UNIT_EXPLORER</UnitType>
+			<PromotionType>PROMOTION_DEFENSIVE_EMBARKATION</PromotionType>
+		</Row>
+		<Row>
+			<UnitType>UNIT_EXPLORER</UnitType>
+			<PromotionType>PROMOTION_ALLWATER_EMBARKATION</PromotionType>
+		</Row>
+		<Row>
+			<UnitType>UNIT_EXPLORER</UnitType>
+			<PromotionType>PROMOTION_IGNORE_TERRAIN_COST</PromotionType>
+		</Row>
+		<Row>
+			<UnitType>UNIT_EXPLORER</UnitType>
+			<PromotionType>PROMOTION_RECON_EXPERIENCE</PromotionType>
+		</Row>
+	</Unit_FreePromotions>
+	<Language_en_US>
+		<Row Tag="TXT_KEY_UNIT_EXPLORER_CBP">
+			<Text>Explorer</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UNIT_EXPLORER_STRATEGY_CBP">
+			<Text>Explorers are a useful counterpart to Caravels when setting out to explore across the ocean during the Renaissance and Industrial periods. They are fairly weak and, therefore, are easily defeated by contemporary military units, however their reconaissance abilities are unparalleled.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UNIT_HELP_EXPLORER_CBP">
+			<Text>Mid-game exploration unit that is stronger while embarked, and can cross Oceans. Use these units to discover new lands.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_EXPLORER_TEXT_CBP">
+			<Text>Exploration is the act of searching for the purpose of discovery of information or resources. Exploration occurs in all non-sessile animal species, including humans. In human history, its most dramatic rise was during the Age of Discovery when European explorers sailed and charted much of the rest of the world, largely in a pursuit of material wealth. Since then, major explorations after the Age of Discovery have occurred for reasons mostly aimed at information discovery.</Text>
+		</Row>
+	</Language_en_US>
 </GameData>

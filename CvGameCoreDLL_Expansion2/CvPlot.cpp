@@ -2216,8 +2216,51 @@ bool CvPlot::canHaveImprovement(ImprovementTypes eImprovement, TeamTypes eTeam, 
 
 	if(pkImprovementInfo->IsRequiresFeature() && (getFeatureType() == NO_FEATURE))
 	{
+#if defined(MOD_BALANCE_CORE)
+		//Polder-specific code for lakes
+		bool bLake = false;
+		if(MOD_BALANCE_CORE && pkImprovementInfo->IsAdjacentLake())
+		{
+			for(iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
+			{
+				pLoopPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
+
+				if(pLoopPlot != NULL)
+				{
+					if(pLoopPlot->isLake())
+					{
+						bLake = true;
+						break;
+					}
+				}
+			}
+		}
+		if(!bLake)
+		{
+#endif
 		return false;
+#if defined(MOD_BALANCE_CORE)
+		}
+#endif
 	}
+#if defined(MOD_BALANCE_CORE)
+	if(MOD_BALANCE_CORE && pkImprovementInfo->IsAdjacentLake())
+	{
+		for(iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
+		{
+			pLoopPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
+
+			if(pLoopPlot != NULL)
+			{
+				if(pLoopPlot->isLake())
+				{
+					bValid = true;
+					break;
+				}
+			}
+		}
+	}
+#endif
 
 	if(pkImprovementInfo->IsRequiresImprovement())
 	{
@@ -7951,6 +7994,12 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, TeamTypes eTeam, bool bIgnor
 	int iYield;
 	ReligionTypes eMajority = NO_RELIGION;
 	BeliefTypes eSecondaryPantheon = NO_BELIEF;
+#if defined(MOD_BALANCE_CORE)
+	if((YieldTypes)eYield > YIELD_FAITH)
+	{
+		return 0;
+	}
+#endif
 
 #if !defined(MOD_RELIGION_PLOT_YIELDS) && !defined(MOD_API_PLOT_YIELDS)
 	if(isImpassable() || isMountain())
@@ -8289,6 +8338,13 @@ int CvPlot::calculateImprovementYieldChange(ImprovementTypes eImprovement, Yield
 	if (!pImprovement)
 		return 0;
 
+#if defined(MOD_BALANCE_CORE)
+	if((YieldTypes)eYield > YIELD_FAITH)
+	{
+		return 0;
+	}
+#endif
+
 	iYield = pImprovement->GetYieldChange(eYield);
 
 	int iYieldChangePerEra = pImprovement->GetYieldChangePerEra(eYield);
@@ -8380,7 +8436,50 @@ int CvPlot::calculateImprovementYieldChange(ImprovementTypes eImprovement, Yield
 
 		if(eRouteType != NO_ROUTE)
 		{
+#if defined(MOD_BALANCE_CORE_YIELDS)
+			CvGameTrade* pTrade = GC.getGame().GetGameTrade();
+			bool bTrade = false;
+			for (uint uiConnection = 0; uiConnection < pTrade->m_aTradeConnections.size(); uiConnection++)
+			{
+				TradeConnection* pConnection = &(pTrade->m_aTradeConnections[uiConnection]);
+				if (pTrade->IsTradeRouteIndexEmpty(uiConnection))
+				{
+					continue;
+				}
+				for (uint ui = 0; ui < pConnection->m_aPlotList.size(); ui++)
+				{
+					if (pConnection->m_aPlotList[ui].m_iX == getX() && pConnection->m_aPlotList[ui].m_iY == getY())
+					{
+						bTrade = true;
+						break;
+					}
+				}
+			}
+			if(IsTradeRoute(ePlayer))
+			{
+				if(IsRouteRailroad())
+				{
+					iYield += GC.getImprovementInfo(eImprovement)->GetRouteYieldChanges(ROUTE_RAILROAD, eYield);
+				}
+				else if(IsRouteRoad())
+				{
+					iYield += GC.getImprovementInfo(eImprovement)->GetRouteYieldChanges(ROUTE_ROAD, eYield);
+				}
+			}
+			if(bTrade)
+			{
+				if(IsRouteRailroad())
+				{
+					iYield += GC.getImprovementInfo(eImprovement)->GetRouteYieldChanges(ROUTE_RAILROAD, eYield);
+				}
+				else if(IsRouteRoad())
+				{
+					iYield += GC.getImprovementInfo(eImprovement)->GetRouteYieldChanges(ROUTE_ROAD, eYield);
+				}
+#else
 			iYield += pImprovement->GetRouteYieldChanges(eRouteType, eYield);
+#endif
+			}
 		}
 	}
 
@@ -8533,6 +8632,12 @@ int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay)
 		return 0;
 	}
 
+#if defined(MOD_BALANCE_CORE)
+	if((YieldTypes)eYield > YIELD_FAITH)
+	{
+		return 0;
+	}
+#endif
 	bCity = false;
 
 	if(bDisplay)
@@ -11559,6 +11664,69 @@ int CvPlot::getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUp
 		eImprovement = getImprovementType();
 		if(eImprovement != NO_IMPROVEMENT)
 		{
+#if defined(MOD_BALANCE_CORE)
+			int iRouteYield = 0;
+			CvGameTrade* pTrade = GC.getGame().GetGameTrade();
+			bool bTrade = false;
+			for (uint uiConnection = 0; uiConnection < pTrade->m_aTradeConnections.size(); uiConnection++)
+			{
+				TradeConnection* pConnection = &(pTrade->m_aTradeConnections[uiConnection]);
+				if (pTrade->IsTradeRouteIndexEmpty(uiConnection))
+				{
+					continue;
+				}
+				for (uint ui = 0; ui < pConnection->m_aPlotList.size(); ui++)
+				{
+					if (pConnection->m_aPlotList[ui].m_iX == getX() && pConnection->m_aPlotList[ui].m_iY == getY())
+					{
+						bTrade = true;
+						break;
+					}
+				}
+			}
+			if(IsTradeRoute(ePlayer))
+			{
+				if(IsRouteRailroad())
+				{
+					iRouteYield += GC.getImprovementInfo(eImprovement)->GetRouteYieldChanges(ROUTE_RAILROAD, eYield);
+					if(getRouteType() != NO_ROUTE)
+					{
+						iRouteYield -= GC.getImprovementInfo(eImprovement)->GetRouteYieldChanges(ROUTE_RAILROAD, eYield);
+					}
+				}
+				else if(IsRouteRoad())
+				{
+					iRouteYield += GC.getImprovementInfo(eImprovement)->GetRouteYieldChanges(ROUTE_ROAD, eYield);
+					if(getRouteType() != NO_ROUTE)
+					{
+						iRouteYield -= GC.getImprovementInfo(eImprovement)->GetRouteYieldChanges(ROUTE_ROAD, eYield);
+					}
+				}
+			}
+			if(bTrade)
+			{
+				if(IsRouteRailroad())
+				{
+					iRouteYield += GC.getImprovementInfo(eImprovement)->GetRouteYieldChanges(ROUTE_RAILROAD, eYield);
+					if(getRouteType() != NO_ROUTE)
+					{
+						iRouteYield -= GC.getImprovementInfo(eImprovement)->GetRouteYieldChanges(ROUTE_RAILROAD, eYield);
+					}
+				}
+				else if(IsRouteRoad())
+				{
+					iRouteYield += GC.getImprovementInfo(eImprovement)->GetRouteYieldChanges(ROUTE_ROAD, eYield);
+					if(getRouteType() != NO_ROUTE)
+					{
+						iRouteYield -= GC.getImprovementInfo(eImprovement)->GetRouteYieldChanges(ROUTE_ROAD, eYield);
+					}
+				}
+			}
+			if(iRouteYield > 0)
+			{
+				iYield += iRouteYield;
+			}
+#else
 			for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 			{
 				iYield += GC.getImprovementInfo(eImprovement)->GetRouteYieldChanges(eRoute, iI);
@@ -11567,6 +11735,7 @@ int CvPlot::getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUp
 					iYield -= GC.getImprovementInfo(eImprovement)->GetRouteYieldChanges(getRouteType(), iI);
 				}
 			}
+#endif
 		}
 	}
 
@@ -12464,5 +12633,136 @@ bool CvPlot::IsWithinDistanceOfTerrain(TerrainTypes iTerrainType, int iDistance)
 	}
 
 	return false;
+}
+#endif
+#if defined(MOD_BALANCE_CORE)
+int CvPlot::GetDefenseBuildValue()
+{
+	TeamTypes eTeam = getTeam();
+	if(eTeam == NO_TEAM)
+	{
+		return 0;
+	}
+	// See how many outside plots are nearby to monitor
+	int iAdjacentUSowned = 0;
+	int iAdjacentUnowned = 0;
+	int iNearbyOwned = 0;
+	int iNearbyCloseOwned = 0;
+	int iRange = 4;
+	int iNearbyForts = 0;
+	int iScore = 0;
+	for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+	{
+		CvPlot* pLoopAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
+
+		//Don't want them adjacent to cities, but we do want to check for plot ownership.
+		if (pLoopAdjacentPlot != NULL)
+		{	
+			if(pLoopAdjacentPlot->isCity())
+			{
+				//Adjacent to city? Break!
+				return iScore;
+			}
+			else if(pLoopAdjacentPlot->getOwner() == getOwner())
+			{
+				iAdjacentUSowned++;
+			}
+			else if(pLoopAdjacentPlot->getOwner() == NO_PLAYER)
+			{
+				iAdjacentUnowned++;
+			}
+			//If someone owns a neighboring plot, ramp up the value.
+			else if((pLoopAdjacentPlot->getOwner() != NO_PLAYER) && (pLoopAdjacentPlot->getOwner() != getOwner()) && !(GET_PLAYER(pLoopAdjacentPlot->getOwner()).isMinorCiv()))
+			{
+				iNearbyCloseOwned++;
+			}
+		}
+	}
+	//If there are three or more unowned plots adjacent, someone else owns an adjacent plot, and there are less than or equal to 5 owned plots adjacent, this is a nice 'frontier' position.
+	if(((iAdjacentUnowned > 2) || iNearbyCloseOwned > 0) && (iAdjacentUSowned <= 5))
+	{
+		//Range 4 loop test for forts, owned plots and unowned plots
+		for(int iX = -iRange; iX <= iRange; iX++)
+		{
+			for(int iY = -iRange; iY <= iRange; iY++)
+			{
+				CvPlot* pLoopNearbyPlot = plotXYWithRangeCheck(getX(), getY(), iX, iY, iRange);
+
+				//Don't want them adjacent to cities, but we do want to check for plot ownership.
+				if (pLoopNearbyPlot != NULL && pLoopNearbyPlot->isRevealed(eTeam) && (this != pLoopNearbyPlot))
+				{
+					if((pLoopNearbyPlot->getOwner() != getOwner()) && (pLoopNearbyPlot->getOwner() != NO_PLAYER) && !(GET_PLAYER(pLoopNearbyPlot->getOwner()).isMinorCiv()))
+					{
+						iNearbyOwned++;
+					}
+					ImprovementTypes eFort = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_FORT");
+					if (eFort != NO_IMPROVEMENT)
+					{
+						//Let's check for nearby forts as well
+						if(pLoopNearbyPlot->getImprovementType() != NO_IMPROVEMENT)
+						{
+							if(eFort == pLoopNearbyPlot->getImprovementType())
+							{
+								iNearbyForts++;
+							}
+						}
+					}
+				}
+			}
+		}
+		if(iNearbyOwned > 0)
+		{
+			//Seed the score.
+			iScore += 1;
+
+			// Get score for this sentry point (defense and danger)
+			iScore += GET_PLAYER(getOwner()).GetPlotDanger(*this);
+
+			iScore += defenseModifier(eTeam, true);
+
+			iScore += iAdjacentUnowned;
+
+			//Hills bonus
+			if(isHills())
+			{
+				iScore += 10;
+			}
+			//Bonus if on river.
+			if(isRiver())
+			{
+				iScore += 10;
+			}
+			//Big bonus if chokepoint
+			if(IsChokePoint())
+			{
+				iScore += 50;
+			}
+			if(iNearbyCloseOwned > 0)
+			{
+				//Big Bonus if adjacent to enemy territory.
+				iScore *= iNearbyCloseOwned;
+			}
+
+			//Bonus if near enemy territory.
+			iScore *= iNearbyOwned;
+
+			//Penalty if coastal
+			if(isCoastalLand())
+			{
+				iScore -= 25;
+			}
+			//Reduction if forts nearby.
+			if(iNearbyForts > 0)
+			{
+				iScore /= iNearbyForts;
+			}
+			//Help score compete with deltas
+			if(iScore > 0)
+			{
+				iScore *= 100;
+			}	
+		}
+	}
+	return iScore;
 }
 #endif

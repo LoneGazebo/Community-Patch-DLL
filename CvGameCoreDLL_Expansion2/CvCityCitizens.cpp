@@ -547,8 +547,11 @@ bool CvCityCitizens::IsAvoidGrowth()
 	{
 		return false;
 	}
-
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+	if(GetPlayer()->IsEmpireSuperUnhappy())
+#else
 	if(GetPlayer()->GetExcessHappiness() < 0)
+#endif
 	{
 		return true;
 	}
@@ -1308,17 +1311,6 @@ bool CvCityCitizens::DoAddBestCitizenFromUnassigned()
 	CvPlot* pBestPlot = GetBestCityPlotWithValue(iBestPlotValue, /*bBest*/ true, /*bWorked*/ false);
 
 	bool bSpecialistBetterThanPlot = (eBestSpecialistBuilding != NO_BUILDING && iSpecialistValue >= iBestPlotValue);
-
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-	if(MOD_BALANCE_CORE_HAPPINESS)
-	{
-		//If we're unhappy, no specialists.
-		if(GET_PLAYER(GetOwner()).IsEmpireUnhappy() && !GET_PLAYER(GetOwner()).isHuman())
-		{
-			bSpecialistBetterThanPlot = false;
-		}
-	}
-#endif
 	
 	// Is there a Specialist we can assign?
 	if (bSpecialistBetterThanPlot && bBetterThanSlacker)

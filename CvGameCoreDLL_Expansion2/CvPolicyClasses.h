@@ -93,6 +93,7 @@ public:
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	int GetHappinessPerXPopulationGlobal() const;
 	EraTypes GetPolicyEraUnlock() const;
+	int GetIdeologyPoint() const;
 #endif
 	int GetExtraHappinessPerLuxury() const;
 	int GetUnhappinessFromUnitsMod() const;
@@ -240,7 +241,7 @@ public:
 	bool GetNoUnhappinessExpansion() const;
 	bool GetNoUnhappyIsolation() const;
 	bool GetDoubleBorderGA() const;
-	bool GetDoubleQuestInfluence() const;
+	bool GetIncreasedQuestInfluence() const;
 	int GetCitadelBoost() const;
 	int GetPuppetProdMod() const;
 	int GetOccupiedProdMod() const;
@@ -373,6 +374,7 @@ private:
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	int m_iHappinessPerXPopulationGlobal;
 	EraTypes m_ePolicyEraUnlock;
+	int m_iIdeologyPoint;
 #endif
 	int m_iExtraHappinessPerLuxury;
 	int m_iUnhappinessFromUnitsMod;
@@ -526,7 +528,7 @@ private:
 	bool m_bNoUnhappinessExpansion;
 	bool m_bNoUnhappyIsolation;
 	bool m_bDoubleBorderGA;
-	bool m_bDoubleQuestInfluence;
+	bool m_bIncreasedQuestInfluence;
 	int m_iPuppetProdMod;
 	int m_iOccupiedProdMod;
 	int m_iCitadelBoost;

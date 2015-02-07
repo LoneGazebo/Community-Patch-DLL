@@ -1537,7 +1537,8 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 				ResourceTypes ePaperResource = (ResourceTypes)GC.getInfoTypeForString("RESOURCE_PAPER", true);
 				if(eResource == ePaperResource)
 				{
-					iItemValue *= 2;
+					iItemValue *= 3;
+					iItemValue /= 2;
 				}
 			}
 #endif
@@ -1547,13 +1548,13 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 				//If they're stronger than us, strategic resources are valuable.
 				if(GetPlayer()->GetMilitaryMight() < GET_PLAYER(eOtherPlayer).GetMilitaryMight())
 				{
-					iItemValue *= 13;
+					iItemValue *= 12;
 					iItemValue /= 10;
 				}
 				//Are they close, or far away? We should always be a bit more eager to buy war resources from neighbors.
 				if(GetPlayer()->GetProximityToPlayer(eOtherPlayer) >= PLAYER_PROXIMITY_CLOSE)
 				{
-					iItemValue *= 13;
+					iItemValue *= 12;
 					iItemValue /= 10;
 				}
 				//Are they going for science win? Buy their aluminum from them!
@@ -1587,11 +1588,7 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 		int iModifier = 0;
 #if defined(MOD_BALANCE_CORE_DEALS)
 		if (MOD_BALANCE_CORE_DEALS) 
-		{
-			//Lets use our DoF willingness to determine these values - introduce some variability.
-			iModifier = GetPlayer()->GetDiplomacyAI()->GetDoFWillingness();
-			iModifier *= -4;
-			
+		{	
 			// Opinion also matters
 			switch(GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(eOtherPlayer))
 			{
@@ -1621,6 +1618,8 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 				iModifier = 100;
 				break;
 			}
+			//Lets use our DoF willingness to determine these values - introduce some variability.
+			iModifier -= GetPlayer()->GetDiplomacyAI()->GetDoFWillingness();
 		}
 #else
 		// Opinion also matters
@@ -1697,7 +1696,8 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 			ResourceTypes ePaperResource = (ResourceTypes)GC.getInfoTypeForString("RESOURCE_PAPER", true);
 			if(eResource == ePaperResource)
 			{
-				iItemValue *= 2;
+				iItemValue *= 3;
+				iItemValue /= 2;
 			}
 		}
 #endif
@@ -1707,12 +1707,12 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 			//If they're stronger than us, do not give away strategic resources easily.
 			if(GetPlayer()->GetMilitaryMight() < GET_PLAYER(eOtherPlayer).GetMilitaryMight())
 			{
-				iItemValue *= 4;
+				iItemValue *= 3;
 			}
 			//Are they close, or far away? We should always be a bit more reluctant to give war resources to neighbors.
 			if(GetPlayer()->GetProximityToPlayer(eOtherPlayer) >= PLAYER_PROXIMITY_CLOSE)
 			{
-				iItemValue *= 4;
+				iItemValue *= 3;
 			}
 			//Are they going for science win? Don't give them aluminum!
 			ProjectTypes eApolloProgram = (ProjectTypes) GC.getInfoTypeForString("PROJECT_APOLLO_PROGRAM", true);
@@ -1723,7 +1723,7 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 					ResourceTypes eAluminumResource = (ResourceTypes)GC.getInfoTypeForString("RESOURCE_ALUMINUM", true);
 					if(eResource == eAluminumResource)
 					{
-						iItemValue *= 10;
+						iItemValue *= 5;
 					}
 				}
 			}

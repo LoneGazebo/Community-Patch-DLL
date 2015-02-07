@@ -1560,8 +1560,18 @@ void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade)
 	{
 		setNumExoticGoods(pUnit->getNumExoticGoods());
 	}
-
+#if defined(MOD_BALANCE_CORE)
+	if(pUnit->getUnitCombatType() != getUnitCombatType() && (iLostPromotions > 0))
+	{
+		setLevel(1);
+	}
+	else
+	{
+#endif
 	setLevel(pUnit->getLevel());
+#if defined(MOD_BALANCE_CORE)
+	}
+#endif
 	int iOldModifier = std::max(1, 100 + GET_PLAYER(pUnit->getOwner()).getLevelExperienceModifier());
 	int iOurModifier = std::max(1, 100 + GET_PLAYER(getOwner()).getLevelExperienceModifier());
 	setExperience(std::max(0, (pUnit->getExperience() * iOurModifier) / iOldModifier));
@@ -2180,7 +2190,14 @@ void CvUnit::doTurn()
 		{
 			if(0 != GC.getFeatureInfo(eFeature)->getTurnDamage())
 			{
+#if defined(MOD_API_PLOT_BASED_DAMAGE)
+				if(GC.getFeatureInfo(eFeature)->getTurnDamage() > 0)
+				{
+#endif
 				changeDamage(GC.getFeatureInfo(eFeature)->getTurnDamage(), NO_PLAYER);
+#if defined(MOD_API_PLOT_BASED_DAMAGE)
+				}
+#endif
 			}
 		}
 #if defined(MOD_API_PLOT_BASED_DAMAGE)
@@ -3667,6 +3684,19 @@ void CvUnit::move(CvPlot& targetPlot, bool bShow)
 					PublishQueuedVisualizationMoves();
 
 				disembark(pOldPlot);
+#if defined(MOD_BALANCE_CORE_EMBARK_CITY_NO_COST)
+				TeamTypes eUnitTeam = getTeam();
+				CvTeam& kUnitTeam = GET_TEAM(eUnitTeam);
+				UnitHandle pUnit = GET_PLAYER(getOwner()).getUnit(GetID());
+				//If city, and player has disembark to city at reduced cost...
+				if(MOD_BALANCE_CORE_EMBARK_CITY_NO_COST && targetPlot.isCity() && (targetPlot.getOwner() == getOwner()) && kUnitTeam.isCityNoEmbarkCost())
+				{
+				}
+				if(MOD_BALANCE_CORE_EMBARK_CITY_NO_COST && targetPlot.isCity() && (targetPlot.getOwner() == getOwner()) && kUnitTeam.isCityLessEmbarkCost())
+				{
+					changeMoves(-iMoveCost);
+				}
+#endif
 			}
 		}
 		else
@@ -3677,11 +3707,84 @@ void CvUnit::move(CvPlot& targetPlot, bool bShow)
 					PublishQueuedVisualizationMoves();
 
 				embark(pOldPlot);
+#if defined(MOD_BALANCE_CORE_EMBARK_CITY_NO_COST)
+				TeamTypes eUnitTeam = getTeam();
+				CvTeam& kUnitTeam = GET_TEAM(eUnitTeam);
+				UnitHandle pUnit = GET_PLAYER(getOwner()).getUnit(GetID());
+				//If city, and player has disembark to city at reduced cost...
+				if(MOD_BALANCE_CORE_EMBARK_CITY_NO_COST && pOldPlot->isCity() && (pOldPlot->getOwner() == getOwner()) && kUnitTeam.isCityNoEmbarkCost())
+				{
+				}
+				else if(MOD_BALANCE_CORE_EMBARK_CITY_NO_COST && pOldPlot->isCity() && (pOldPlot->getOwner() == getOwner()) && kUnitTeam.isCityLessEmbarkCost())
+				{
+					changeMoves(-iMoveCost);
+				}
+				else
+				{
+#endif
 				finishMoves();
+#if defined(MOD_BALANCE_CORE_EMBARK_CITY_NO_COST)
+				}
+#endif
 				bShouldDeductCost = false;
 			}
 		}
 	}
+#if defined(MOD_BALANCE_CORE)
+	bool bScout = false;
+	for(int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
+	{
+		const PromotionTypes ePromotion = static_cast<PromotionTypes>(iI);
+		CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(ePromotion);
+		if(pkPromotionInfo)
+		{
+			if(isHasPromotion(ePromotion) && pkPromotionInfo->IsGainsXPFromScouting())
+			{
+				bScout = true;
+				break;
+			}
+		}
+	}
+	if(bScout)
+	{
+		int iExperience = GC.getBALANCE_SCOUT_XP_BASE();
+		int iVisRange = visibilityRange();
+		TeamTypes eTeam = getTeam();
+		int iReveal = false;
+		int iRange = iVisRange;
+		for (int i = -iRange; i <= iRange; ++i)
+		{
+			for (int j = -iRange; j <= iRange; ++j)
+			{
+				CvPlot* pLoopPlot = ::plotXYWithRangeCheck(targetPlot.getX(), targetPlot.getY(), i, j, iRange);
+				if (NULL != pLoopPlot)
+				{
+					if (!pLoopPlot->isRevealed(eTeam) && targetPlot.canSeePlot(pLoopPlot, eTeam, iVisRange, NO_DIRECTION))
+					{
+						if(pLoopPlot->IsNaturalWonder())
+						{
+							iExperience = GC.getBALANCE_SCOUT_XP_NATURAL_WONDER();
+							iReveal += GC.getBALANCE_SCOUT_XP_RANDOM_VALUE();
+						}
+						else
+						{
+							iReveal++;
+						}
+					}
+				}
+			}
+		}
+		if(iReveal >= GC.getGame().getJonRandNum(GC.getBALANCE_SCOUT_XP_RANDOM_VALUE(), "reveal amount from exploration"))
+		{
+			//Up to max barb value - rest has to come through combat!
+			if(getExperience() < GC.getBALANCE_SCOUT_XP_MAXIMUM())
+			{
+				changeExperience(iExperience, -1, false, false, false);
+			}
+		}
+	}
+#endif
+
 
 	if(bShouldDeductCost)
 		changeMoves(-iMoveCost);
@@ -7254,67 +7357,93 @@ bool CvUnit::sellExoticGoods()
 		changeNumExoticGoods(-1);
 #if defined(MOD_BALANCE_CORE)
 		PlayerTypes ePlotOwner = NO_PLAYER;
-		for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+		ImprovementTypes eFeitoria = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_FEITORIA");
+		if (eFeitoria != NO_IMPROVEMENT)
 		{
-			CvPlot* pLoopPlotSearch = plotDirection(plot()->getX(), plot()->getY(), ((DirectionTypes)iI));
-			if (pLoopPlotSearch != NULL)
+			for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
 			{
-				PlayerTypes eLoopPlotOwner = pLoopPlotSearch->getOwner();
-				if (eLoopPlotOwner != getOwner() && eLoopPlotOwner != NO_PLAYER)
+				CvPlot* pLoopPlotSearch = plotDirection(plot()->getX(), plot()->getY(), ((DirectionTypes)iI));
+				if (pLoopPlotSearch != NULL)
 				{
-					if (!GET_TEAM(getTeam()).isAtWar(GET_PLAYER(eLoopPlotOwner).getTeam()))
+					PlayerTypes eLoopPlotOwner = pLoopPlotSearch->getOwner();
+					if (eLoopPlotOwner != getOwner() && eLoopPlotOwner != NO_PLAYER)
 					{
-						if(GET_PLAYER(eLoopPlotOwner).isMinorCiv())
+						if (!GET_TEAM(getTeam()).isAtWar(GET_PLAYER(eLoopPlotOwner).getTeam()))
 						{
-							ePlotOwner = eLoopPlotOwner;
-							break;
+							if(GET_PLAYER(eLoopPlotOwner).isMinorCiv())
+							{
+								ePlotOwner = eLoopPlotOwner;
+								break;
+							}
 						}
 					}
 				}
 			}
-		}
-		if(ePlotOwner != NO_PLAYER)
-		{
-			bool bAlreadyHere = false;
-			CvPlot* pBestPlot = NULL;
-			CvCity* pCity = GET_PLAYER(ePlotOwner).getCapitalCity();
-			if(pCity != NULL)
+			if(ePlotOwner != NO_PLAYER)
 			{
-#if defined(MOD_GLOBAL_CITY_WORKING)
-				for (int iCityPlotLoop = 0; iCityPlotLoop < pCity->GetNumWorkablePlots(); iCityPlotLoop++)
-#else
-				for (int iCityPlotLoop = 0; iCityPlotLoop < NUM_CITY_PLOTS; iCityPlotLoop++)
-#endif
+				bool bAlreadyHere = false;
+				CvPlot* pBestPlot = NULL;
+				CvCity* pCity = GET_PLAYER(ePlotOwner).getCapitalCity();
+				if(pCity != NULL)
 				{
-					CvPlot* pLoopPlot = pCity->GetCityCitizens()->GetCityPlotFromIndex(iCityPlotLoop);
-					if(pLoopPlot != NULL && (pLoopPlot->getOwner() == ePlotOwner) && !pLoopPlot->isCity() && !pLoopPlot->isWater() && !pLoopPlot->isMountain() && !pLoopPlot->IsNaturalWonder() && pLoopPlot->isCoastalLand() && (pLoopPlot->getResourceType(NO_TEAM) == NO_RESOURCE))
+#if defined(MOD_GLOBAL_CITY_WORKING)
+					for (int iCityPlotLoop = 0; iCityPlotLoop < pCity->GetNumWorkablePlots(); iCityPlotLoop++)
+#else
+					for (int iCityPlotLoop = 0; iCityPlotLoop < NUM_CITY_PLOTS; iCityPlotLoop++)
+#endif
 					{
-						if(pLoopPlot->getImprovementType() != NO_IMPROVEMENT)
+						
+						CvPlot* pLoopPlot = pCity->GetCityCitizens()->GetCityPlotFromIndex(iCityPlotLoop);
+						if(pLoopPlot != NULL && (pLoopPlot->getOwner() == ePlotOwner) && !pLoopPlot->isCity() && !pLoopPlot->isWater() && !pLoopPlot->isMountain() && !pLoopPlot->IsNaturalWonder() && pLoopPlot->isCoastalLand() && (pLoopPlot->getResourceType(NO_TEAM) == NO_RESOURCE))
 						{
-							CvImprovementEntry* pImprovementInfo = GC.getImprovementInfo(pLoopPlot->getImprovementType());
-							if(pImprovementInfo && pImprovementInfo->IsOnlyCityStateTerritory() && pImprovementInfo->IsSpecificCivRequired())
+							if(pLoopPlot->getImprovementType() != NO_IMPROVEMENT)
 							{
-								bAlreadyHere = true;
-								break;
-							}
+								if(pLoopPlot->getImprovementType() == eFeitoria)
+								{
+									bAlreadyHere = true;
+									break;
+								}
 
-						}
-						else if(pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
-						{
-							pBestPlot = pLoopPlot;
+							}
 						}
 					}
-				}
-				if(pBestPlot != NULL && !bAlreadyHere)
-				{
-					ImprovementTypes eFeitoria = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_FEITORIA");
-					if (eFeitoria != NO_IMPROVEMENT)
+					if(!bAlreadyHere)
 					{
+#if defined(MOD_GLOBAL_CITY_WORKING)			
+						for (int iCityPlotLoop = 0; iCityPlotLoop < pCity->GetNumWorkablePlots(); iCityPlotLoop++)
+#else
+						for (int iCityPlotLoop = 0; iCityPlotLoop < NUM_CITY_PLOTS; iCityPlotLoop++)
+#endif
+						{
+							CvPlot* pLoopPlot = pCity->GetCityCitizens()->GetCityPlotFromIndex(iCityPlotLoop);
+							if(pLoopPlot != NULL && (pLoopPlot->getOwner() == ePlotOwner) && !pLoopPlot->isCity() && !pLoopPlot->isWater() && !pLoopPlot->isMountain() && !pLoopPlot->IsNaturalWonder() && pLoopPlot->isCoastalLand() && (pLoopPlot->getResourceType(NO_TEAM) == NO_RESOURCE))
+							{
+								//If we can build on an empty spot, do so.
+								if(pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
+								{
+									pBestPlot = pLoopPlot;
+									break;
+								}
+								//If not, let's clear a basic improvement off.
+								else
+								{
+									CvImprovementEntry* pImprovementInfo = GC.getImprovementInfo(pLoopPlot->getImprovementType());
+									if(pImprovementInfo && !pImprovementInfo->IsPermanent() && !pImprovementInfo->IsCreatedByGreatPerson())
+									{
+										pBestPlot = pLoopPlot;
+									}
+								}
+							}
+						}
+					}
+					if(pBestPlot != NULL && !bAlreadyHere)
+					{
+						pBestPlot->setImprovementType(NO_IMPROVEMENT);
 						pBestPlot->setImprovementType(eFeitoria, getOwner());
 					}
 				}
 			}
-		}				
+		}
 #endif
 	}
 	return false;
@@ -18662,7 +18791,11 @@ int CvUnit::GetReverseGreatGeneralModifier()const
 							if(iMod != 0)
 							{
 								// Same domain
+#if defined(MOD_BALANCE_CORE)
+								if(((pLoopUnit->getDomainType() == getDomainType()) && (pLoopUnit->getDomainType() == DOMAIN_LAND) && !pLoopUnit->isEmbarked()) || ((pLoopUnit->getDomainType() == getDomainType()) && (pLoopUnit->getDomainType() == DOMAIN_SEA)))
+#else
 								if(pLoopUnit->getDomainType() == getDomainType())
+#endif
 								{
 									// Within range?
 									int iRange = pLoopUnit->getNearbyEnemyCombatRange();
@@ -18760,6 +18893,12 @@ int CvUnit::GetNearbyImprovementModifier()const
 bool CvUnit::IsGreatGeneral() const
 {
 	VALIDATE_OBJECT
+
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	if( AI_getUnitAIType() == UNITAI_GENERAL )
+		return true;
+#endif
+
 	return GetGreatGeneralCount() > 0;
 }
 
@@ -18781,6 +18920,12 @@ void CvUnit::ChangeGreatGeneralCount(int iChange)
 bool CvUnit::IsGreatAdmiral() const
 {
 	VALIDATE_OBJECT
+
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	if( AI_getUnitAIType() == UNITAI_ADMIRAL )
+		return true;
+#endif
+
 	return GetGreatAdmiralCount() > 0;
 }
 
@@ -23018,8 +23163,8 @@ void CvUnit::PushMission(MissionTypes eMission, int iData1, int iData2, int iFla
 #if defined(MOD_BALANCE_CORE_MILITARY_LOGGING)
 	if (GC.getLogging() && GC.getAILogging()) 
 	{
-		CvString info = CvString::format( "%03d;0x%08X;%s;id;0x%08X;owner;%02d;army;0x%08X;%s;arg1;%d;arg2;%d;flags;0x%08X\n", 
-			GC.getGame().getGameTurn(),this,this->getNameKey(),this->GetID(),this->getOwner(),this->getArmyID(),CvTypes::GetMissionName(eMission).c_str(),iData1,iData2,iFlags );
+		CvString info = CvString::format( "%03d;0x%08X;%s;id;0x%08X;owner;%02d;army;0x%08X;%s;arg1;%d;arg2;%d;flags;0x%08X;at;%d;%d\n", 
+			GC.getGame().getGameTurn(),this,this->getNameKey(),this->GetID(),this->getOwner(),this->getArmyID(),CvTypes::GetMissionName(eMission).c_str(),iData1,iData2,iFlags, plot()->getX(), plot()->getY() );
 		FILogFile* pLog=LOGFILEMGR.GetLog( "unit-missions.csv", FILogFile::kDontTimeStamp | FILogFile::kDontFlushOnWrite );
 		pLog->Msg( info.c_str() );
 	}

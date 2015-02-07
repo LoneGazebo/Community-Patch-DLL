@@ -82,6 +82,7 @@ CvPolicyEntry::CvPolicyEntry(void):
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	m_iHappinessPerXPopulationGlobal(0),
 	m_ePolicyEraUnlock(NO_ERA),
+	m_iIdeologyPoint(0),
 #endif
 	m_iExtraHappinessPerLuxury(0),
 	m_iUnhappinessFromUnitsMod(0),
@@ -222,7 +223,7 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_bNoUnhappinessExpansion(false),
 	m_bNoUnhappyIsolation(false),
 	m_bDoubleBorderGA(false),
-	m_bDoubleQuestInfluence(false),
+	m_bIncreasedQuestInfluence(false),
 	m_iInternalTradeGold(0),
 	m_iCitadelBoost(0),
 	m_iPuppetProdMod(0),
@@ -409,6 +410,7 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	{
 		m_ePolicyEraUnlock = (EraTypes)GC.getInfoTypeForString(szUnlockPolicyEra, true);
 	}
+	m_iIdeologyPoint = kResults.GetInt("IdeologyPoint");
 #endif
 	m_iExtraHappinessPerLuxury = kResults.GetInt("ExtraHappinessPerLuxury");
 	m_iUnhappinessFromUnitsMod = kResults.GetInt("UnhappinessFromUnitsMod");
@@ -523,7 +525,7 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_bNoUnhappinessExpansion = kResults.GetBool("NoUnhappinessExpansion");
 	m_bNoUnhappyIsolation = kResults.GetBool("NoUnhappyIsolation");
 	m_bDoubleBorderGA = kResults.GetBool("DoubleBorderGA");
-	m_bDoubleQuestInfluence = kResults.GetBool("DoubleQuestInfluence");
+	m_bIncreasedQuestInfluence = kResults.GetBool("IncreasedQuestInfluence");
 	m_iInternalTradeGold = kResults.GetInt("InternalTradeGold");
 	m_iCitadelBoost = kResults.GetInt("CitadelBoost");
 	m_iPuppetProdMod = kResults.GetInt("PuppetProdMod");
@@ -1419,6 +1421,11 @@ int CvPolicyEntry::GetHappinessPerXPopulationGlobal() const
 EraTypes CvPolicyEntry::GetPolicyEraUnlock() const
 {
 	return m_ePolicyEraUnlock;
+}
+/// Ideology points towards picking an ideology
+int CvPolicyEntry::GetIdeologyPoint() const
+{
+	return m_iIdeologyPoint;
 }
 #endif
 /// Happiness from each connected Luxury Resource
@@ -2320,10 +2327,10 @@ bool CvPolicyEntry::GetDoubleBorderGA() const
 {
 	return m_bDoubleBorderGA;
 }
-/// Double influence from quests?
-bool CvPolicyEntry::GetDoubleQuestInfluence() const
+/// Increased influence from quests?
+bool CvPolicyEntry::GetIncreasedQuestInfluence() const
 {
-	return m_bDoubleQuestInfluence;
+	return m_bIncreasedQuestInfluence;
 }
 /// Citadel Boost?
 int CvPolicyEntry::GetCitadelBoost() const
@@ -4916,7 +4923,15 @@ bool CvPlayerPolicies::IsTimeToChooseIdeology() const
 	{
 		return false;
 	}
-
+#if defined(MOD_BALANCE_CORE_IDEOLOGY_START)
+	if(MOD_BALANCE_CORE_IDEOLOGY_START && m_pPlayer->GetIdeologyPoint() >= GC.getBALANCE_MOD_POLICY_BRANCHES_NEEDED_IDEOLOGY())
+	{
+		if (m_pPlayer->GetCurrentEra() >= GD_INT_GET(IDEOLOGY_PREREQ_ERA))
+		{
+			return true;
+		}
+	}
+#endif
 #if defined(MOD_CONFIG_GAME_IN_XML)
 	if (m_pPlayer->GetCurrentEra() > GD_INT_GET(IDEOLOGY_START_ERA))
 #else
@@ -4957,7 +4972,6 @@ bool CvPlayerPolicies::IsTimeToChooseIdeology() const
 			}
 		}
 	}
-
 	return false;
 }
 

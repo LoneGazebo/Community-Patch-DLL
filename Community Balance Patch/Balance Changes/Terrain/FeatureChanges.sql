@@ -16,13 +16,25 @@ UPDATE Features
 SET Defense = '5'
 WHERE Type = 'FEATURE_FALLOUT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_TERRAIN' AND Value= 1 );
 
---
+-- Fallout 
 
+UPDATE Features
+SET TurnDamage = '15'
+WHERE Type = 'FEATURE_FALLOUT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_TERRAIN' AND Value= 1 );
 
+UPDATE Features
+SET ExtraTurnDamage = '-10'
+WHERE Type = 'FEATURE_FALLOUT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_TERRAIN' AND Value= 1 );
 
---
+UPDATE BuildFeatures
+SET Time = '400'
+WHERE BuildType = 'BUILD_SCRUB_FALLOUT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_TERRAIN' AND Value= 1 );
+
+UPDATE Language_en_US
+SET Text = '[COLOR_NEGATIVE_TEXT]Fallout deals 15 Damage to Units that end their turn on a tile with Fallout.[ENDCOLOR][NEWLINE][NEWLINE]Fallout is the residual radiation left over following a nuclear explosion. The fallout "falls out" of the air as a layer of radioactive particles which are highly dangerous to plants and animals, killing them immediately or damaging their DNA, giving them cancer, other diseases, or unfortunate mutations. Depending upon the type of nuclear explosion, the land may remain poisoned for decades, possibly centuries. Cleanup requires the replacement of the contaminated buildings, soil and vegetation.'
+WHERE Tag = 'TXT_KEY_FEATURE_FALLOUT_PEDIA' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
 -- General data
---
 
 UPDATE Features SET Impassable=0, Movement=2, Defense=10 WHERE Type IN (
 	'FEATURE_CRATER'			,
@@ -66,20 +78,6 @@ UPDATE Natural_Wonder_Placement SET OccurrenceFrequency = 20 WHERE NaturalWonder
 	'FEATURE_FOUNTAIN_YOUTH',
 	'FEATURE_LAKE_VICTORIA'	
 );
-
-
--- Great Improvements and Unique Improvements can build on resources, and recieve yields like the basic improvement they replace
-
-/*
-INSERT OR REPLACE INTO Improvement_ResourceTypes(ImprovementType, ResourceType) 
-SELECT improve.Type, res.Type
-FROM Improvements improve, Resources res
-WHERE (
-	improve.SpecificCivRequired = 1
-	AND NOT res.TechCityTrade = 'TECH_SAILING'
-	AND NOT improve.Type = 'IMPROVEMENT_POLDER'
-);
-*/
 
 INSERT OR REPLACE INTO Improvement_ResourceTypes(ImprovementType, ResourceType) 
 SELECT improve.Type, res.Type
