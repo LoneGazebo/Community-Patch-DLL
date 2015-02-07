@@ -31,7 +31,7 @@ UPDATE Leaders SET Personality='PERSONALITY_COALITION'    , WonderCompetitivenes
 UPDATE Leaders SET Personality='PERSONALITY_COALITION'    , WonderCompetitiveness=4, MinorCivCompetitiveness=6, Boldness=8, WarmongerHate=0, DenounceWillingness=6, DoFWillingness=6, VictoryCompetitiveness=4, DiploBalance=4, Loyalty=6, Neediness=4, Forgiveness=8, Chattiness=4, Meanness=4 WHERE Type = 'LEADER_GAJAH_MADA';
 UPDATE Leaders SET Personality='PERSONALITY_COALITION'    , WonderCompetitiveness=4, MinorCivCompetitiveness=6, Boldness=8, WarmongerHate=0, DenounceWillingness=6, DoFWillingness=6, VictoryCompetitiveness=6, DiploBalance=4, Loyalty=6, Neediness=4, Forgiveness=8, Chattiness=4, Meanness=4 WHERE Type = 'LEADER_CASIMIR';
 UPDATE Leaders SET Personality='PERSONALITY_COALITION'    , WonderCompetitiveness=4, MinorCivCompetitiveness=6, Boldness=8, WarmongerHate=0, DenounceWillingness=7, DoFWillingness=5, VictoryCompetitiveness=6, DiploBalance=8, Loyalty=6, Neediness=4, Forgiveness=4, Chattiness=8, Meanness=8 WHERE Type = 'LEADER_CATHERINE';
-UPDATE Leaders SET Personality='PERSONALITY_COALITION'    , WonderCompetitiveness=4, MinorCivCompetitiveness=6, Boldness=8, WarmongerHate=0, DenounceWillingness=7, DoFWillingness=5, VictoryCompetitiveness=6, DiploBalance=8, Loyalty=6, Neediness=4, Forgiveness=4, Chattiness=8, Meanness=8 WHERE Type = 'LEADER_GUSTAVUS_ADOLPHUS';
+UPDATE Leaders SET Personality='PERSONALITY_COALITION'    , WonderCompetitiveness=4, MinorCivCompetitiveness=6, Boldness=4, WarmongerHate=4, DenounceWillingness=3, DoFWillingness=10, VictoryCompetitiveness=5, DiploBalance=10, Loyalty=8, Neediness=4, Forgiveness=6, Chattiness=8, Meanness=4 WHERE Type = 'LEADER_GUSTAVUS_ADOLPHUS';
 
 UPDATE Leaders SET Personality='PERSONALITY_DIPLOMAT'     , WonderCompetitiveness=5, MinorCivCompetitiveness=8, Boldness=2, WarmongerHate=4, DenounceWillingness=4, DoFWillingness=5, VictoryCompetitiveness=8, DiploBalance=8, Loyalty=6, Neediness=4, Forgiveness=0, Chattiness=8, Meanness=4 WHERE Type = 'LEADER_MARIA';
 UPDATE Leaders SET Personality='PERSONALITY_DIPLOMAT'     , WonderCompetitiveness=5, MinorCivCompetitiveness=6, Boldness=2, WarmongerHate=4, DenounceWillingness=3, DoFWillingness=6, VictoryCompetitiveness=8, DiploBalance=4, Loyalty=8, Neediness=0, Forgiveness=4, Chattiness=4, Meanness=0 WHERE Type = 'LEADER_PEDRO';
@@ -186,12 +186,12 @@ UPDATE Leader_MajorCivApproachBiases SET Bias =    6 WHERE LeaderType = 'LEADER_
 UPDATE Leader_MajorCivApproachBiases SET Bias =    4 WHERE LeaderType = 'LEADER_CATHERINE'            AND MajorCivApproachType = 'MAJOR_CIV_APPROACH_AFRAID';
 UPDATE Leader_MajorCivApproachBiases SET Bias =    6 WHERE LeaderType = 'LEADER_CATHERINE'            AND MajorCivApproachType = 'MAJOR_CIV_APPROACH_FRIENDLY';
 UPDATE Leader_MajorCivApproachBiases SET Bias =    4 WHERE LeaderType = 'LEADER_CATHERINE'            AND MajorCivApproachType = 'MAJOR_CIV_APPROACH_NEUTRAL';
-UPDATE Leader_MajorCivApproachBiases SET Bias =    9 WHERE LeaderType = 'LEADER_GUSTAVUS_ADOLPHUS'    AND MajorCivApproachType = 'MAJOR_CIV_APPROACH_WAR';
-UPDATE Leader_MajorCivApproachBiases SET Bias =    4 WHERE LeaderType = 'LEADER_GUSTAVUS_ADOLPHUS'    AND MajorCivApproachType = 'MAJOR_CIV_APPROACH_HOSTILE';
+UPDATE Leader_MajorCivApproachBiases SET Bias =    5 WHERE LeaderType = 'LEADER_GUSTAVUS_ADOLPHUS'    AND MajorCivApproachType = 'MAJOR_CIV_APPROACH_WAR';
+UPDATE Leader_MajorCivApproachBiases SET Bias =    2 WHERE LeaderType = 'LEADER_GUSTAVUS_ADOLPHUS'    AND MajorCivApproachType = 'MAJOR_CIV_APPROACH_HOSTILE';
 UPDATE Leader_MajorCivApproachBiases SET Bias =    0 WHERE LeaderType = 'LEADER_GUSTAVUS_ADOLPHUS'    AND MajorCivApproachType = 'MAJOR_CIV_APPROACH_DECEPTIVE';
 UPDATE Leader_MajorCivApproachBiases SET Bias =    6 WHERE LeaderType = 'LEADER_GUSTAVUS_ADOLPHUS'    AND MajorCivApproachType = 'MAJOR_CIV_APPROACH_GUARDED';
 UPDATE Leader_MajorCivApproachBiases SET Bias =    4 WHERE LeaderType = 'LEADER_GUSTAVUS_ADOLPHUS'    AND MajorCivApproachType = 'MAJOR_CIV_APPROACH_AFRAID';
-UPDATE Leader_MajorCivApproachBiases SET Bias =    6 WHERE LeaderType = 'LEADER_GUSTAVUS_ADOLPHUS'    AND MajorCivApproachType = 'MAJOR_CIV_APPROACH_FRIENDLY';
+UPDATE Leader_MajorCivApproachBiases SET Bias =    8 WHERE LeaderType = 'LEADER_GUSTAVUS_ADOLPHUS'    AND MajorCivApproachType = 'MAJOR_CIV_APPROACH_FRIENDLY';
 UPDATE Leader_MajorCivApproachBiases SET Bias =    4 WHERE LeaderType = 'LEADER_GUSTAVUS_ADOLPHUS'    AND MajorCivApproachType = 'MAJOR_CIV_APPROACH_NEUTRAL';
 UPDATE Leader_MajorCivApproachBiases SET Bias =    2 WHERE LeaderType = 'LEADER_DIPLOMAT'             AND MajorCivApproachType = 'MAJOR_CIV_APPROACH_WAR';
 UPDATE Leader_MajorCivApproachBiases SET Bias =    0 WHERE LeaderType = 'LEADER_DIPLOMAT'             AND MajorCivApproachType = 'MAJOR_CIV_APPROACH_HOSTILE';

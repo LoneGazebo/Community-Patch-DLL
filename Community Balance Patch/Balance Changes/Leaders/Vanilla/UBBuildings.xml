@@ -291,6 +291,12 @@
 			<BuildingType>BUILDING_ODEON</BuildingType>
 		</Row>
 	</Civilization_BuildingClassOverrides>
+	<Building_ClassesNeededInCity>
+		<Row>
+			<BuildingType>BUILDING_ODEON</BuildingType>
+			<BuildingClassType>BUILDINGCLASS_MONUMENT</BuildingClassType>
+		</Row>
+	</Building_ClassesNeededInCity>
 	<Building_YieldChanges>
 		<Row>
 			<BuildingType>BUILDING_ODEON</BuildingType>
@@ -343,6 +349,7 @@
 			<Help>TXT_KEY_BUILDING_TRIUMPHAL_ARCH_HELP</Help>
 			<ArtDefineTag>MONUMENT</ArtDefineTag>
 			<MinAreaSize>-1</MinAreaSize>
+			<PlotCultureCostModifier>-25</PlotCultureCostModifier>
 			<HurryCostModifier>25</HurryCostModifier>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
 			<PortraitIndex>35</PortraitIndex>
@@ -404,10 +411,10 @@
 			</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_TRIUMPHAL_ARCH_HELP">
-			<Text>Unique Roman replacement for the Monument. [NEWLINE][NEWLINE] Whenever you destroy an enemy unit, produce +3 [ICON_GREAT_GENERAL] Great General points and +3 [ICON_GOLDEN_AGE] Golden Age points.</Text>
+			<Text>[ICON_CULTURE] Culture costs of acquiring new tiles reduced by 25% in this city. [NEWLINE][NEWLINE] Whenever you destroy an enemy unit, produce +3 [ICON_GREAT_GENERAL] Great General points and +3 [ICON_GOLDEN_AGE] Golden Age points.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_TRIUMPHAL_ARCH_STRATEGY">
-			<Text>Build these unique Monuments to boost your city's Culture growth and early Production, and to maximize your empire's gain from the victories of your conquering armies.</Text>
+			<Text>Unique Roman replacement for the Monument. Build the Triumphal Arch to boost your city's Culture growth and early Production, and to maximize your empire's gain from the victories of your conquering armies.</Text>
 		</Row>
 	</Language_en_US>
 	<!-- Steam Mill -->
@@ -479,6 +486,12 @@
 			<Yield>20</Yield>
 		</Row>
 	</Building_YieldChangesPerPop>
+	<Building_ClassesNeededInCity>
+		<Row>
+			<BuildingType>BUILDING_STEAM_MILL</BuildingType>
+			<BuildingClassType>BUILDINGCLASS_WORKSHOP</BuildingClassType>
+		</Row>
+	</Building_ClassesNeededInCity>
 	<Language_en_US>
 		<Row Tag="TXT_KEY_BUILDING_STEAM_MILL">
 			<Text>Steam Mill</Text>
@@ -489,10 +502,10 @@
 			</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_STEAM_MILL_HELP">
-			<Text>+1 [ICON_PRODUCTION] Production for every 5 [ICON_CITIZEN] Citizens in the City. Each source of [ICON_RES_COAL] Coal worked by this City produces +1 [ICON_PRODUCTION] Production. [NEWLINE][NEWLINE]Does not require [ICON_RES_COAL] Coal.</Text>
+			<Text>+1 [ICON_PRODUCTION] Production for every 5 [ICON_CITIZEN] Citizens in the City. Each source of [ICON_RES_COAL] Coal worked by this City produces +1 [ICON_PRODUCTION] Production. [NEWLINE][NEWLINE]Does not require [ICON_RES_COAL] Coal. [NEWLINE][NEWLINE]If your Empire contains at least 3 Steam Mills, you may choose an Ideology.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_STEAM_MILL_STRATEGY">
-			<Text>Unique English replacement for the Factory. The Steam Mill is cheaper, requires no [ICON_RES_COAL] Coal, is available earlier than the Factory, and provides additional Production to [ICON_RES_COAL] Coal worked by the City. Because it is cheaper, however, it also generates slightly less Production per [ICON_CITIZEN] Citizen. Since Steam Mills do not require Coal, you can use your Coal surplus to build a large, modern navy, or as a good to trade with your neighbors.</Text>
+			<Text>Unique English replacement for the Factory. The Steam Mill is cheaper, requires no [ICON_RES_COAL] Coal, is available earlier than the Factory, and provides additional Production to [ICON_RES_COAL] Coal worked by the City. Because it is cheaper, however, it also generates slightly less Production per [ICON_CITIZEN] Citizen. Since Steam Mills do not require Coal, you can use your Coal surplus to build a large, modern navy, or trade it away for a large amount of gold. Lastly, if you have at least three Steam Mills in your empire, you will be allowed to choose an ideology. This ability is not available to other civilizations.</Text>
 		</Row>
 	</Language_en_US>
 	<!-- Siege Workshop -->
@@ -562,6 +575,12 @@
 			<BuildingType>BUILDING_SIEGE_WORKSHOP</BuildingType>
 		</Row>
 	</Civilization_BuildingClassOverrides>
+	<Building_ClassesNeededInCity>
+		<Row>
+			<BuildingType>BUILDING_SIEGE_WORKSHOP</BuildingType>
+			<BuildingClassType>BUILDINGCLASS_CASTLE</BuildingClassType>
+		</Row>
+	</Building_ClassesNeededInCity>
 	<Language_en_US>
 		<Row Tag="TXT_KEY_BUILDING_SIEGE_WORKSHOP">
 			<Text>Siege Foundry</Text>

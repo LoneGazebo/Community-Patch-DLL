@@ -92,13 +92,22 @@ void CvBuilderTaskingAI::Init(CvPlayer* pPlayer)
 			}
 		}
 #if defined(MOD_BALANCE_CORE)
-		if(pkImprovementInfo->IsOutsideBorders())
+		if(pkImprovementInfo->IsInAdjacentFriendly())
 		{
-			m_bEvaluateAdjacent = true;
-		}
-		else if(pkImprovementInfo->IsInAdjacentFriendly())
-		{
-			m_bEvaluateAdjacent = true;
+			//Is this required by a civ? If so, block it to all others.
+			if(pkImprovementInfo->IsSpecificCivRequired())
+			{
+				CivilizationTypes eCiv = pkImprovementInfo->GetRequiredCivilization();
+				if(eCiv == pPlayer->getCivilizationType())
+				{
+					m_bEvaluateAdjacent = true;
+				}
+			}
+			//Is this created by a GP? If so, block it to workers (GPs have their own tests for this kind of thing).
+			else if(!pkImprovementInfo->IsCreatedByGreatPerson())
+			{
+				m_bEvaluateAdjacent = true;
+			}
 		}
 #endif
 	}
@@ -907,7 +916,6 @@ bool CvBuilderTaskingAI::EvaluateBuilder(CvUnit* pUnit, BuilderDirective* paDire
 	m_aDirectives.StableSortItems();
 
 	int iBestWeight = 0;
-
 	int iAssignIndex = 0;
 	for(int i = 0; i < m_aDirectives.size(); i++)
 	{
@@ -928,7 +936,6 @@ bool CvBuilderTaskingAI::EvaluateBuilder(CvUnit* pUnit, BuilderDirective* paDire
 				continue;
 			}
 		}
-
 		if(iBestWeight == 0)
 		{
 			iBestWeight = m_aDirectives.GetWeight(i);
@@ -942,7 +949,6 @@ bool CvBuilderTaskingAI::EvaluateBuilder(CvUnit* pUnit, BuilderDirective* paDire
 				break;
 			}
 		}
-
 		BuilderDirective directive = m_aDirectives.GetElement(i);
 		paDirectives[iAssignIndex] = directive;
 		iAssignIndex++;
@@ -1346,7 +1352,7 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirectives(CvUnit* pUnit, CvPlot* pPlo
 		if(pImprovement->IsCreatedByGreatPerson())
 		{
 			iScore += 1;
-			iScore *= 2;
+			iScore *= 5;
 		}
 		//If our plot obsoletes, let's half them, so that the potential replacement is stronger.
 		if(pPlot->getImprovementType() != NO_IMPROVEMENT)
@@ -1355,6 +1361,69 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirectives(CvUnit* pUnit, CvPlot* pPlo
 			if((pOldImprovement->GetObsoleteTech() != NO_TECH) && GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->HasTech((TechTypes)pOldImprovement->GetObsoleteTech()))
 			{
 				iScore /= 2;
+			}
+		}
+		int iDefense = 0;
+		//Fort test.
+		ImprovementTypes eFort = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_FORT");
+		if (eFort != NO_IMPROVEMENT)
+		{
+			if(eImprovement == eFort)
+			{
+				//Is this a good spot for a defensive building?
+				if(eResource == NO_RESOURCE)
+				{
+					if(pPlot->getOwner() == m_pPlayer->GetID())
+					{
+						iScore = pPlot->GetDefenseBuildValue();
+					}
+				}
+			}
+			//Looking to build something else on top of a fort? It'd better be good.
+			else if((eImprovement != eFort) && (pPlot->getImprovementType() != NO_IMPROVEMENT))
+			{
+				if(pPlot->getImprovementType() == eFort)
+				{
+					iDefense = pPlot->GetDefenseBuildValue();
+				}
+				if(iDefense > 0)
+				{
+					continue;
+				}
+			}
+		}
+		//Does this improvement connect a resource? Increase the score!
+		if(eResource != NO_RESOURCE)
+		{
+			if(pImprovement->IsImprovementResourceMakesValid(eResource))
+			{
+				iScore *= 10;
+			}
+		}
+		//Do we have unimproved plots nearby? If so, let's not worry about replacing improvements right now.
+		if(pPlot->getImprovementType() != NO_IMPROVEMENT)
+		{
+			int iNumUnimprovedPlots = 0;
+			// Look around this Unit to see if there's an adjacent Citadel
+			int iRange = 3;
+			for(int iX = -iRange; iX <= iRange; iX++)
+			{
+				for(int iY = -iRange; iY <= iRange; iY++)
+				{
+					CvPlot* pLoopPlot = plotXYWithRangeCheck(pPlot->getX(), pPlot->getY(), iX, iY, iRange);
+
+					if(pLoopPlot != NULL && !pLoopPlot->isWater() && !pLoopPlot->isImpassable() && pLoopPlot->isCity())
+					{
+						if(pLoopPlot->getOwner() == m_pPlayer->GetID() && pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
+						{
+							iNumUnimprovedPlots++;
+						}
+					}
+				}
+			}
+			if(iNumUnimprovedPlots > 1)
+			{
+				iScore /= 20;
 			}
 		}
 #endif
@@ -1385,7 +1454,29 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirectives(CvUnit* pUnit, CvPlot* pPlo
 				YieldTypes eYield = (YieldTypes) iI;
 				if(pImprovement->GetYieldChange(iI) > 0)
 				{
-					iWeight = GC.getBUILDER_TASKING_BASELINE_ADDS_CULTURE() * GC.getImprovementInfo(eImprovement)->GetYieldChange(iI);
+
+					switch(eYield)
+					{
+						case YIELD_FOOD:
+							iWeight = GC.getBUILDER_TASKING_BASELINE_ADDS_FOOD() * GC.getImprovementInfo(eImprovement)->GetYieldChange(iI);
+							break;
+						case YIELD_PRODUCTION:
+							iWeight = GC.getBUILDER_TASKING_BASELINE_ADDS_PRODUCTION() * GC.getImprovementInfo(eImprovement)->GetYieldChange(iI);
+							break;
+						case YIELD_GOLD:
+							iWeight = GC.getBUILDER_TASKING_BASELINE_ADDS_GOLD() * GC.getImprovementInfo(eImprovement)->GetYieldChange(iI);
+							break;
+						case YIELD_SCIENCE:
+							iWeight = GC.getBUILDER_TASKING_BASELINE_ADDS_SCIENCE() * GC.getImprovementInfo(eImprovement)->GetYieldChange(iI);
+							break;
+						case YIELD_CULTURE:
+							iWeight = GC.getBUILDER_TASKING_BASELINE_ADDS_CULTURE() * GC.getImprovementInfo(eImprovement)->GetYieldChange(iI);
+							break;
+						case YIELD_FAITH:
+							iWeight = GC.getBUILDER_TASKING_BASELINE_ADDS_FAITH() * GC.getImprovementInfo(eImprovement)->GetYieldChange(iI);
+							break;
+					}
+
 					int iAdjacentCulture = pImprovement->GetYieldAdjacentSameType(eYield);
 					int iAdjacentTwoCulture = pImprovement->GetYieldAdjacentTwoSameType(eYield);
 
@@ -1423,17 +1514,25 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirectives(CvUnit* pUnit, CvPlot* pPlo
 		if(eResourceFromImprovement != NO_IMPROVEMENT)
 		{
 			CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
+			int iResourceFlavor = 0;
+			int iPersonalityFlavorValue = 0;
+			int iResult = 0;
 			if(pkResource != NULL)
 			{
 				for(int i = 0; i < GC.getNumFlavorTypes(); i++)
 				{
-					int iResourceFlavor = pkResource->getFlavorValue((FlavorTypes)i);
-					int iPersonalityFlavorValue = m_pPlayer->GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)i);
-					int iResult = iResourceFlavor * iPersonalityFlavorValue;
-
+					iResourceFlavor = pkResource->getFlavorValue((FlavorTypes)i);
+					if(iResourceFlavor > 0)
+					{
+						iPersonalityFlavorValue = m_pPlayer->GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)i);
+						if(iPersonalityFlavorValue > 0)
+						{
+							iResult = iResourceFlavor * iPersonalityFlavorValue;
+						}
+					}
 					if(iResult > 0)
 					{
-						iWeight += iResult;
+						iWeight *= iResult;
 					}
 				}
 			}
@@ -1477,8 +1576,8 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirectives(CvUnit* pUnit, CvPlot* pPlo
 									if((pAdjacentPlot->getOwner() == m_pPlayer->GetID()) && (pAdjacentPlot->getImprovementType() == eImprovement))
 									{
 										//Is the plot outside our land, but we can build on it, and get an adjacency bonus? Let's capitalize on this.
-										iWeight = (iWeight * 3);
-										iWeight /= 2;
+										iWeight = (iWeight * 4);
+										iWeight /= 3;
 										if(m_bLogging)
 										{
 											CvString strTemp;
@@ -1492,7 +1591,8 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirectives(CvUnit* pUnit, CvPlot* pPlo
 							}
 							if(!bAdjacent)
 							{
-								iWeight = (iWeight / 2);
+								iWeight = (iWeight * 3);
+								iWeight /= 2;
 								if(m_bLogging)
 								{
 									CvString strTemp;
@@ -1505,7 +1605,7 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirectives(CvUnit* pUnit, CvPlot* pPlo
 						else
 						{
 							//Is the plot outside our land, but we can build on it? Let's do this after everything else.
-							iWeight = (iWeight / 3);
+							iWeight = (iWeight / 2);
 							if(m_bLogging)
 							{
 								CvString strTemp;
@@ -1972,7 +2072,6 @@ void CvBuilderTaskingAI::AddScrubFalloutDirectives(CvUnit* pUnit, CvPlot* pPlot,
 	}
 }
 
-
 /// Evaluates all the circumstances to determine if the builder can and should evaluate the given plot
 bool CvBuilderTaskingAI::ShouldBuilderConsiderPlot(CvUnit* pUnit, CvPlot* pPlot)
 {
@@ -2013,15 +2112,21 @@ bool CvBuilderTaskingAI::ShouldBuilderConsiderPlot(CvUnit* pUnit, CvPlot* pPlot)
 			}
 		}
 	}
-	if(eOwner == NO_PLAYER && !bAdjacent)
+	if(m_bEvaluateAdjacent && (eOwner == NO_PLAYER) && !bAdjacent)
 	{
+		if(m_bLogging)
+		{
+			CvString strLog;
+			strLog.Format("x: %d y: %d,, Adjacency test failed. Toss out", pPlot->getX(), pPlot->getY());
+			LogInfo(strLog, m_pPlayer);
+		}
 		return false;
 	}
 #endif
 	if(eOwner != NO_PLAYER && eOwner != m_pPlayer->GetID() && !GET_PLAYER(eOwner).isMinorCiv())
 	{
 #if defined(MOD_BALANCE_CORE)
-		if(!bAdjacent)
+		if(m_bEvaluateAdjacent && !bAdjacent)
 		{
 #endif
 		return false;
@@ -2113,6 +2218,20 @@ bool CvBuilderTaskingAI::ShouldBuilderConsiderPlot(CvUnit* pUnit, CvPlot* pPlot)
 
 	if(m_pPlayer->GetPlotDanger(*pPlot) > 0)
 	{
+#if defined(MOD_BALANCE_CORE)
+		if(pPlot->getFeatureType() == FEATURE_FALLOUT && (!pUnit->ignoreFeatureDamage() || (pUnit->getDamage() > (pUnit->GetMaxHitPoints() / 2))))
+		{
+			if(m_bLogging)
+			{
+				CvString strLog;
+				strLog.Format("plotX: %d plotY: %d, danger: %d,, bailing due to fallout", pPlot->getX(), pPlot->getY(), m_pPlayer->GetPlotDanger(*pPlot));
+				LogInfo(strLog, m_pPlayer, true);
+			}
+			return false;
+		}
+		else if(pPlot->getFeatureType() != FEATURE_FALLOUT)
+		{
+#endif
 		if(m_bLogging)
 		{
 			CvString strLog;
@@ -2121,6 +2240,9 @@ bool CvBuilderTaskingAI::ShouldBuilderConsiderPlot(CvUnit* pUnit, CvPlot* pPlot)
 		}
 
 		return false;
+#if defined(MOD_BALANCE_CORE)
+		}
+#endif
 	}
 
 #if defined(MOD_GLOBAL_STACKING_RULES)
@@ -2971,6 +3093,10 @@ void CvBuilderTaskingAI::UpdateCurrentPlotYields(CvPlot* pPlot)
 	m_pTargetPlot = pPlot;
 	for(uint ui = 0; ui < NUM_YIELD_TYPES; ui++)
 	{
+#if defined(MOD_BALANCE_CORE)
+		if((YieldTypes)ui <= YIELD_FAITH)
+		{
+#endif
 		m_aiCurrentPlotYields[ui] = pPlot->getYield((YieldTypes)ui);
 
 		if(m_bLogging){
@@ -2979,6 +3105,9 @@ void CvBuilderTaskingAI::UpdateCurrentPlotYields(CvPlot* pPlot)
 			strLog.Format("Plot Yield Update, %s, %i, %i, %i", FSerialization::toString(yield).c_str(), m_aiCurrentPlotYields[ui], pPlot->getX(), pPlot->getY());
 			LogYieldInfo(strLog, m_pPlayer);
 		}
+#if defined(MOD_BALANCE_CORE)
+		}
+#endif
 	}
 }
 
@@ -2992,6 +3121,10 @@ void CvBuilderTaskingAI::UpdateProjectedPlotYields(CvPlot* pPlot, BuildTypes eBu
 
 	for(uint ui = 0; ui < NUM_YIELD_TYPES; ui++)
 	{
+#if defined(MOD_BALANCE_CORE)
+		if((YieldTypes)ui <= YIELD_FAITH)
+		{
+#endif
 		m_aiProjectedPlotYields[ui] = pPlot->getYieldWithBuild(eBuild, (YieldTypes)ui, false, m_pPlayer->GetID());
 		m_aiProjectedPlotYields[ui] = max(m_aiProjectedPlotYields[ui], 0);
 
@@ -3001,5 +3134,8 @@ void CvBuilderTaskingAI::UpdateProjectedPlotYields(CvPlot* pPlot, BuildTypes eBu
 			strLog.Format("Plot Projected Yield Update, %s, %i, %i, %i", FSerialization::toString(yield).c_str(), m_aiProjectedPlotYields[ui], pPlot->getX(), pPlot->getY());
 			LogYieldInfo(strLog, m_pPlayer);
 		}
+#if defined(MOD_BALANCE_CORE)
+		}
+#endif
 	}
 }

@@ -7,7 +7,7 @@
     <Guid>0cdeb9c8-1e2e-49f3-bbd0-2acb8833ec8d</Guid>
     <ModVersion>1</ModVersion>
     <Stability>Beta</Stability>
-    <Teaser>Compatibility Files for CSD-CBP (1/21)</Teaser>
+    <Teaser>Compatibility Files for CSD-CBP (2/6)</Teaser>
     <Description>File updates CSD to be compatible with the Community Balance Patch</Description>
     <Authors>Gazebo</Authors>
     <SpecialThanks>
@@ -30,6 +30,11 @@
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
         <FileName>CSDCompatibility.sql</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>DE/CSDCompatibilityDE.sql</FileName>
       </Action>
     </ModActions>
     <Homepage>
@@ -57,6 +62,13 @@
         <MinVersion>0</MinVersion>
         <MaxVersion>999</MaxVersion>
       </Association>
+      <Association>
+        <Type>Mod</Type>
+        <Name>Community Patch</Name>
+        <Id>d1b6328c-ff44-4b0d-aad7-c657f83610cd</Id>
+        <MinVersion>0</MinVersion>
+        <MaxVersion>999</MaxVersion>
+      </Association>
     </ModDependencies>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Default' ">
@@ -76,6 +88,14 @@
     <Content Include="CSDCompatibility.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="DE\CSDCompatibilityDE.sql">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="LUA\CityStateDiploPopup.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
     <Content Include="LUA\CityStateStatusHelper.lua">
       <SubType>Lua</SubType>
@@ -100,6 +120,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="LUA" />
+    <Folder Include="DE" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Firaxis\ModBuddy\Civ5Mod.targets" />
 </Project>

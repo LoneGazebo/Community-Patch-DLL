@@ -1,0 +1,1 @@
+DELETE FROM Technology_Flavors;

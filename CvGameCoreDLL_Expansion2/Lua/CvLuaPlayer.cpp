@@ -258,6 +258,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE)
 	Method(GetInfluenceTradeRouteGoldBonus);
 	Method(GetWoundedUnitDamageMod);
+	Method(SetCapitalCity);
 #endif
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE_POLICIES)
 	Method(GetNoUnhappinessExpansion);
@@ -2643,6 +2644,15 @@ int CvLuaPlayer::lGetWoundedUnitDamageMod(lua_State* L)
 	const int iResult = pkPlayer->GetWoundedUnitDamageMod();
 	lua_pushinteger(L, iResult);
 	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lSetCapitalCity(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	CvCity* pkCity = CvLuaCity::GetInstance(L, 2);
+	
+	pkPlayer->setCapitalCity(pkCity);
+	return 0;
 }
 #endif
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE_POLICIES)
@@ -10515,7 +10525,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 #if defined(MOD_BALANCE_CORE)
 		// victory dispute
 		iValue = pDiploAI->GetVictoryDisputeLevelScore(eWithPlayer);
-		if (iValue != 0)
+		if (iValue > 0)
 		{
 			Opinion kOpinion;
 			kOpinion.m_iValue = iValue;
@@ -10541,7 +10551,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 
 		// victory block dispute
 		iValue = pDiploAI->GetVictoryBlockLevelScore(eWithPlayer);
-		if (iValue != 0)
+		if (iValue > 0)
 		{
 			Opinion kOpinion;
 			kOpinion.m_iValue = iValue;

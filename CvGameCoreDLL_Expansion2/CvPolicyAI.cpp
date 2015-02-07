@@ -204,10 +204,12 @@ int CvPolicyAI::ChooseNextPolicy(CvPlayer* pPlayer)
 			}
 		}
 	}
-
+#if defined(MOD_BALANCE_CORE)
+						//Leftover from Vanilla victory
+#else
 	AIGrandStrategyTypes eCultureGrandStrategy = (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_CULTURE");
 	AIGrandStrategyTypes eCurrentGrandStrategy = pPlayer->GetGrandStrategyAI()->GetActiveGrandStrategy();
-
+#endif
 	// Loop though the branches adding each as another possibility
 	if (!bMustChooseTenet)
 	{
@@ -233,22 +235,14 @@ int CvPolicyAI::ChooseNextPolicy(CvPlayer* pPlayer)
 
 						iBranchWeight *= (100 - m_iPolicyWeightPercentDropNewBranch);
 						iBranchWeight /= 100;
-						
-#if defined(MOD_AI_SMART_POLICY_CHOICE)
-						if (MOD_AI_SMART_POLICY_CHOICE) {
-							// Rate a bit lower all starting branches as they have policies only useful at the beginning.
-							if (!pPlayer->GetPlayerPolicies()->IsEraPrereqBranch(ePolicyBranch))
-							{
-								iBranchWeight *= 80;
-								iBranchWeight /= 100;
-							}
-						}
-#endif
-
+#if defined(MOD_BALANCE_CORE)
+						//Leftover from Vanilla victory
+#else
 						if(eCurrentGrandStrategy == eCultureGrandStrategy)
 						{
 							iBranchWeight /= 3;
 						}
+#endif
 					}
 
 					m_AdoptablePolicies.push_back(iBranchLoop, iBranchWeight);

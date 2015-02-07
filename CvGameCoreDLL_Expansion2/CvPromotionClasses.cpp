@@ -98,6 +98,9 @@ CvPromotionEntry::CvPromotionEntry():
 	m_iReligiousStrengthLossRivalTerritory(0),
 	m_iTradeMissionInfluenceModifier(0),
 	m_iTradeMissionGoldModifier(0),
+#if defined(MOD_BALANCE_CORE)
+	m_bGainsXPFromScouting(false),
+#endif
 	m_bCannotBeChosen(false),
 	m_bLostWithUpgrade(false),
 	m_bNotWithUpgrade(false),
@@ -240,6 +243,9 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	SetSound(kResults.GetText("Sound"));
 
 	//Basic Properties
+#if defined(MOD_BALANCE_CORE)
+	m_bGainsXPFromScouting = kResults.GetBool("GainsXPFromScouting");
+#endif
 	m_bCannotBeChosen = kResults.GetBool("CannotBeChosen");
 	m_bLostWithUpgrade = kResults.GetBool("LostWithUpgrade");
 	m_bNotWithUpgrade = kResults.GetBool("NotWithUpgrade");
@@ -1329,7 +1335,13 @@ int CvPromotionEntry::GetTradeMissionGoldModifier() const
 {
 	return m_iTradeMissionGoldModifier;
 }
-
+#if defined(MOD_BALANCE_CORE)
+/// Accessor: Can this Promotion grant XP from scouting?
+bool CvPromotionEntry::IsGainsXPFromScouting() const
+{
+	return m_bGainsXPFromScouting;
+}
+#endif
 /// Accessor: Can this Promotion be earned through normal leveling?
 bool CvPromotionEntry::IsCannotBeChosen() const
 {

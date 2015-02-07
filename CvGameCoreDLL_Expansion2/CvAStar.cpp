@@ -31,7 +31,7 @@
 #define PATH_STEP_WEIGHT										(2)
 #define PATH_STRAIGHT_WEIGHT									(1)
 #define PATH_PARTIAL_MOVE_WEIGHT								(500)
-#define PATH_THROUGH_WATER										(1000)
+#define PATH_THROUGH_WATER										(10000)
 #define PATH_STACKING_WEIGHT									(1000000)
 #define PATH_CITY_AVOID_WEIGHT									(0) // slewis - reduced this to zero because we shouldn't avoid cities any more due to new garrison rules
 #define	PATH_EXPLORE_NON_HILL_WEIGHT							(300)
@@ -4212,8 +4212,19 @@ int TradeRouteWaterValid(CvAStarNode* parent, CvAStarNode* node, int data, const
 
 	CvMap& kMap = GC.getMap();
 	CvPlot* pNewPlot = kMap.plotUnchecked(node->m_iX, node->m_iY);
-
+#if defined(MOD_GLOBAL_PASSABLE_FORTS)
+	ImprovementTypes eImprovement = pNewPlot->getImprovementType();
+	CvImprovementEntry* pkImprovementInfo = NULL;
+	if(eImprovement != NO_IMPROVEMENT)
+	{
+		pkImprovementInfo = GC.getImprovementInfo(eImprovement);
+	}
+	bool bIsPassable = MOD_GLOBAL_PASSABLE_FORTS && pkImprovementInfo != NULL && pkImprovementInfo->IsMakesPassable();
+	bool bIsCityOrPassable = pNewPlot->isCity() || bIsPassable;
+	if(!bIsCityOrPassable)
+#else
 	if (!pNewPlot->isCity())
+#endif
 	{
 		if (!pNewPlot->isWater())
 		{

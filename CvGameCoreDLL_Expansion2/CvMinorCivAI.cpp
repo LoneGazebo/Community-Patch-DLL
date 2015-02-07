@@ -863,14 +863,6 @@ bool CvMinorCivQuest::IsExpired()
 				{
 					return true;
 				}
-				else if(pPlot->GetPlayerThatClearedDigHere() == NO_PLAYER)
-				{
-					return true;
-				}
-				else if(pPlot->GetPlayerThatClearedDigHere() != m_eAssignedPlayer)
-				{
-					return true;
-				}
 			}
 		}
 	}
@@ -1826,15 +1818,33 @@ bool CvMinorCivQuest::DoFinishQuest()
 	PlayerTypes eOldAlly = pMinor->GetMinorCivAI()->GetAlly();
 	int iOldInf = pMinor->GetMinorCivAI()->GetEffectiveFriendshipWithMajor(m_eAssignedPlayer);
 
+#if defined(MOD_BALANCE_CORE_POLICIES)
+	int iInfluence = GetInfluenceReward();
+	if(GET_PLAYER(m_eAssignedPlayer).GetIncreasedQuestInfluence() > 0)
+	{
+		iInfluence *= (/*33 */ GC.getBALANCE_INFLUENCE_BOOST_PATRONAGE_POLICY() + 100);
+		iInfluence /= 100;
+	}
+#if defined(MOD_BALANCE_CORE)
+	if(pMinor->GetMinorCivAI()->IsProtectedByMajor(m_eAssignedPlayer))
+	{
+		iInfluence *= (/*15 */ GC.getBALANCE_INFLUENCE_BOOST_PROTECTION_MINOR() + 100);
+		iInfluence /= 100;
+	}
+	pMinor->GetMinorCivAI()->ChangeFriendshipWithMajor(m_eAssignedPlayer, iInfluence, /*bFromQuest*/ true);
+#endif
+#else
 #if defined(MOD_BALANCE_CORE)
 	int iInfluence = GetInfluenceReward();
-	if(GET_PLAYER(m_eAssignedPlayer).GetDoubleQuestInfluence() > 0)
+	if(pMinor->GetMinorCivAI()->IsProtectedByMajor(m_eAssignedPlayer))
 	{
-		iInfluence *= 2;
+		iInfluence *= (/*15 */ GC.getBALANCE_INFLUENCE_BOOST_PROTECTION_MINOR() + 100);
+		iInfluence /= 100;
 	}
 	pMinor->GetMinorCivAI()->ChangeFriendshipWithMajor(m_eAssignedPlayer, iInfluence, /*bFromQuest*/ true);
 #else
 	pMinor->GetMinorCivAI()->ChangeFriendshipWithMajor(m_eAssignedPlayer, GetInfluenceReward(), /*bFromQuest*/ true);
+#endif
 #endif
 	
 	bool bNowFriends = pMinor->GetMinorCivAI()->IsFriends(m_eAssignedPlayer);
@@ -2871,7 +2881,51 @@ void CvMinorCivAI::DoPickUniqueUnit()
 	if (GetTrait() == MINOR_CIV_TRAIT_MILITARISTIC)
 	{
 		// Units from our starting era or before would be no fun because players won't get the chance to use them
+#if defined(MOD_BALANCE_CORE)
+		int iCoastal = 0;
+		int iPlayers = 0;
+		bool bCoastal = false;
+		if(GetPlayer()->getStartingPlot() != NULL)
+		{
+			if(GetPlayer()->getStartingPlot()->isCoastalLand(GC.getMIN_WATER_SIZE_FOR_OCEAN()))
+			{
+				if((GC.getMap().GetAIMapHint() & 4) || (GC.getMap().GetAIMapHint() & 1))
+				{
+					bCoastal = true;
+				}
+				else
+				{
+					for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+					{
+						PlayerTypes ePlayer = (PlayerTypes) iPlayerLoop;
+						if(GET_PLAYER(ePlayer).isAlive())
+						{
+							if(GET_PLAYER(ePlayer).getStartingPlot() != NULL && GET_PLAYER(ePlayer).getStartingPlot()->isCoastalLand(GC.getMIN_WATER_SIZE_FOR_OCEAN()))
+							{
+								iCoastal++;
+							}
+							iPlayers++;
+						}
+					}
+					//If more than half of all players are on the coast, we should give out boats too.
+					if(iCoastal > (iPlayers / 2))
+					{
+						bCoastal = true;
+					}
+				}
+			}
+		}
+		if(bCoastal)
+		{
+			m_eUniqueUnit = GC.getGame().GetRandomUniqueUnitType(/*bIncludeCivsInGame*/false, /*bIncludeStartEraUnits*/false, /*bIncludeOldEras*/false, /*bIncludeRanged*/true, /*bCoastal*/true);
+		}
+		else
+		{
+			m_eUniqueUnit = GC.getGame().GetRandomUniqueUnitType(/*bIncludeCivsInGame*/false, /*bIncludeStartEraUnits*/false, /*bIncludeOldEras*/false, /*bIncludeRanged*/true , /*bCoastal*/false);
+		}
+#else
 		m_eUniqueUnit = GC.getGame().GetRandomUniqueUnitType(/*bIncludeCivsInGame*/false, /*bIncludeStartEraUnits*/false, /*bIncludeOldEras*/false, /*bIncludeRanged*/true);
+#endif
 	}
 }
 
@@ -2926,10 +2980,14 @@ void CvMinorCivAI::DoTurn()
 				|| (iRebellionSpawn == /*8*/ (GC.getMINOR_QUEST_REBELLION_TIMER() * 40) / 100)
 				|| (iRebellionSpawn == /*4*/ (GC.getMINOR_QUEST_REBELLION_TIMER() * 20) / 100))
 				{
-					GetPlayer()->GetMinorCivAI()->DoRebellion();
+					DoRebellion();
 				}
 			}
 		}
+#endif
+#if defined(MOD_BALANCE_CORE)
+	//Let's see if we can launch a military action.
+	GetPlayer()->GetMilitaryAI()->MinorAttackTest();
 #endif
 #if defined(MOD_BALANCE_CORE_MINORS) || defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 	if (MOD_BALANCE_CORE_MINORS || MOD_DIPLOMACY_CITYSTATES_QUESTS) 
@@ -9108,25 +9166,12 @@ void CvMinorCivAI::DoSack()
 	if(pPlot != NULL)
 	{
 		CvGame& theGame = GC.getGame();
-		PlayerTypes eMinor = GetPlayer()->GetID();
-
-		UnitTypes eUnit = theGame.GetRandomSpawnUnitType(eMinor, /*bIncludeUUs*/ true, /*bIncludeRanged*/ true);
+		UnitTypes eUnit = theGame.GetRandomSpawnUnitType(BARBARIAN_PLAYER, /*bIncludeUUs*/ true, /*bIncludeRanged*/ true);
 		if(eUnit != NO_UNIT)
 		{
 			// Init unit
 			GET_PLAYER(BARBARIAN_PLAYER).initUnit(eUnit, pPlot->getX(), pPlot->getY());
 		}
-		else
-		{
-			UnitTypes eBarbUnit = theGame.GetRandomSpawnUnitType(BARBARIAN_PLAYER, /*bIncludeUUs*/ true, /*bIncludeRanged*/ true);
-			if(eBarbUnit)
-			{
-					// Init unit
-				GET_PLAYER(BARBARIAN_PLAYER).initUnit(eBarbUnit, pPlot->getX(), pPlot->getY());
-			}
-		}
-
-
 		SetSacked(false);
 	}
 }
@@ -9391,10 +9436,16 @@ bool CvMinorCivAI::CanMajorWithdrawProtection(PlayerTypes eMajor)
 	// Pledge is locked in for a certain time
 	int iCurrentTurn = GC.getGame().getGameTurn();
 	int iLastPledgeTurn = GetTurnLastPledgedProtectionByMajor(eMajor);
-#if defined(MOD_BALANCE_CORE)
-	const int iGracePeriod = 75; //antonjs: todo: xml
+#if defined(MOD_BALANCE_CORE_MINOR_PROTECTION)
+	int iGracePeriod = 10; //antonjs: todo: xml
 #else
 	const int iGracePeriod = 10; //antonjs: todo: xml
+#endif
+#if defined(MOD_BALANCE_CORE_MINOR_PROTECTION)
+	if(MOD_BALANCE_CORE_MINOR_PROTECTION)
+	{
+		iGracePeriod = /*50*/ GC.getBALANCE_MINOR_PROTECTION_MINIMUM_DURATION();
+	}
 #endif
 	if (iLastPledgeTurn >= 0 && iLastPledgeTurn + iGracePeriod > iCurrentTurn)
 		return false;

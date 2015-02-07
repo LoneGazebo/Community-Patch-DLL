@@ -68,6 +68,9 @@
 		<Row Tag="TXT_KEY_YIELD_FROM_ART_CBP">
 			<Text>{1_Num} {2_IconString} from Great Works</Text>
 		</Row>
+		<!-- Resource Wonder Improvement -->
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_RESOURCE_WONDER_MOD_LATE">
+			<Text>{2_ResourceName:textkey} is now available in {1_CityName:textkey}! This increases [ICON_PRODUCTION] Production when building pre-Industrial Era Wonders in this city by {3_Num}%!</Text>
+		</Row>
 	</Language_en_US>
-  
 </GameData>

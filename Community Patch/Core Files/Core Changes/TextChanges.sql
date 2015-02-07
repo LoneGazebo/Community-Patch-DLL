@@ -76,5 +76,5 @@ SET Text = 'I am sorry, but it is time for our Declaration of Friendship to end.
 WHERE Tag = 'TXT_KEY_END_WORK_WITH_US_DEFAULT_2' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '[COLOR_NEGATIVE_TEXT]You betrayed their Declaration of Friendship![ENDCOLOR]'
+SET Text = '[COLOR_NEGATIVE_TEXT]You insulted them.[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_DIPLO_REFUSED_REQUESTS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );

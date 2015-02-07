@@ -133,6 +133,7 @@ CvUnitEntry::CvUnitEntry(void) :
 	m_pbBuildOnFound(NULL),
 	m_iResourceType(NO_RESOURCE),
 	m_bPuppetPurchaseOverride(false),
+	m_bMinorCivGift(false),
 #endif
 	m_piPrereqAndTechs(NULL),
 	m_piResourceQuantityRequirements(NULL),
@@ -321,6 +322,7 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	m_iResourceType = GC.getInfoTypeForString(szTextVal, true);
 
 	m_bPuppetPurchaseOverride = kResults.GetBool("PuppetPurchaseOverride");
+	m_bMinorCivGift = kResults.GetBool("MinorCivGift");
 #endif
 
 #if defined(MOD_EVENTS_CAN_MOVE_INTO)
@@ -1328,10 +1330,15 @@ int CvUnitEntry::GetResourceType() const
 {
 	return m_iResourceType;
 }
-/// Return art tag
+/// Can be bough in a puppet city.
 bool CvUnitEntry::IsPuppetPurchaseOverride() const
 {
 	return m_bPuppetPurchaseOverride;
+}
+/// Is a Minor Civ Gift Unit
+bool CvUnitEntry::IsMinorCivGift() const
+{
+	return m_bMinorCivGift;
 }
 #endif
 /// What flag icon to use

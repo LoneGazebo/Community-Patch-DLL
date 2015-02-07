@@ -121,13 +121,6 @@
 	</Building_YieldChanges>
 	<Building_YieldChanges>
 		<Row>
-			<BuildingType>BUILDING_CIRCUS</BuildingType>
-			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>2</Yield>
-		</Row>
-	</Building_YieldChanges>
-	<Building_YieldChanges>
-		<Row>
 			<BuildingType>BUILDING_THEATRE</BuildingType>
 			<YieldType>YIELD_SCIENCE</YieldType>
 			<Yield>2</Yield>
@@ -309,7 +302,7 @@
 		<Row>
 			<BuildingType>BUILDING_UNIVERSITY</BuildingType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>50</Yield>
+			<Yield>33</Yield>
 		</Row>
 	</Building_GrowthExtraYield>
 	<!-- Hydro Plant-->
@@ -324,9 +317,9 @@
 		<Row>
 			<Type>BUILDING_STONE_WORKS</Type>
 			<BuildingClass>BUILDINGCLASS_STONE_WORKS</BuildingClass>
-			<Cost>50</Cost>
+			<Cost>85</Cost>
 			<GoldMaintenance>1</GoldMaintenance>
-			<PrereqTech>TECH_MINING</PrereqTech>
+			<PrereqTech>TECH_MASONRY</PrereqTech>
 			<Help>TXT_KEY_BUILDING_STONE_WORKS_HELP</Help>
 			<Description>TXT_KEY_BUILDING_STONE_WORKS</Description>
 			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_STONE_WORKS_TEXT</Civilopedia>
@@ -353,6 +346,18 @@
 			<ResourceType>RESOURCE_SALT</ResourceType>
 		</Row>
 	</Building_LocalResourceOrs>
+	<Building_ClassesNeededInCity>
+		<Row>
+			<BuildingType>BUILDING_WORKSHOP</BuildingType>
+			<BuildingClassType>BUILDINGCLASS_FORGE</BuildingClassType>
+		</Row>
+	</Building_ClassesNeededInCity>
+	<Building_ClassesNeededInCity>
+		<Row>
+			<BuildingType>BUILDING_LONGHOUSE</BuildingType>
+			<BuildingClassType>BUILDINGCLASS_FORGE</BuildingClassType>
+		</Row>
+	</Building_ClassesNeededInCity>
 	<!-- Forge -->
 	<Building_YieldChanges>
 		<Row>

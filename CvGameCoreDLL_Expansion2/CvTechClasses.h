@@ -78,6 +78,10 @@ public:
 	int GetCityWorkingChange() const;
 #endif
 	bool IsBridgeBuilding() const;
+#if defined(MOD_BALANCE_CORE_EMBARK_CITY_NO_COST)
+	bool IsCityLessEmbarkCost() const;
+	bool IsCityNoEmbarkCost() const;
+#endif
 	bool IsWaterWork() const;
 	int IsFreePromotion(int i) const;
 	bool IsTriggersArchaeologicalSites() const;
@@ -150,6 +154,10 @@ private:
 	int m_iCityWorkingChange;
 #endif
 	bool m_bBridgeBuilding;
+#if defined(MOD_BALANCE_CORE_EMBARK_CITY_NO_COST)
+	bool m_bCityLessEmbarkCost;
+	bool m_bCityNoEmbarkCost;
+#endif
 	bool m_bWaterWork;
 	bool m_bTriggersArchaeologicalSites;
 	bool m_bAllowsWorldCongress;

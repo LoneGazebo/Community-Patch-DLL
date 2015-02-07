@@ -28,15 +28,15 @@
 		</Update>
 		<Update>
 			<!-- Random values are given to all grand strategies during a reroll; values range from 0-X, where X is value below -->
-			<Set Value="30" />
+			<Set Value="10" />
 			<Where Name="AI_GS_RAND_ROLL" />
 		</Update>
 		<Update>
-			<Set Value="60" />
+			<Set Value="75" />
 			<Where Name="AI_GRAND_STRATEGY_CURRENT_STRATEGY_WEIGHT" />
 		</Update>
 		<Update>
-			<Set Value="20" />
+			<Set Value="25" />
 			<Where Name="AI_GRAND_STRATEGY_OTHER_PLAYERS_GS_MULTIPLIER" />
 		</Update>
 		<Update>
@@ -77,7 +77,6 @@
 		</Update>
 		
 		<!-- Builder Tasking Stuff -->
-		<!-- Values were increased for more granularity, and also to stop the AI from overvaluing cultural improvements -->
 		<Update>
 			<Set Value="3" />
 			<Where Name="BUILDER_TASKING_PLOT_EVAL_MULTIPLIER_FOOD" />
@@ -87,7 +86,7 @@
 			<Where Name="BUILDER_TASKING_PLOT_EVAL_MULTIPLIER_PRODUCTION" />
 		</Update>
 		<Update>
-			<Set Value="1" />
+			<Set Value="2" />
 			<Where Name="BUILDER_TASKING_PLOT_EVAL_MULTIPLIER_GOLD" />
 		</Update>
 		<Update>
@@ -95,7 +94,7 @@
 			<Where Name="BUILDER_TASKING_PLOT_EVAL_MULTIPLIER_SCIENCE" />
 		</Update>
 		<Update>
-			<Set Value="2" />
+			<Set Value="3" />
 			<Where Name="BUILDER_TASKING_PLOT_EVAL_MULTIPLIER_CULTURE" />
 		</Update>
 		

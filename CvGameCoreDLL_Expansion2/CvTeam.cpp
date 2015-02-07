@@ -179,6 +179,10 @@ void CvTeam::uninit()
 	m_iCityWorkingChange = 0;
 #endif
 	m_iBridgeBuildingCount = 0;
+#if defined(MOD_BALANCE_CORE_EMBARK_CITY_NO_COST)
+	m_iCityLessEmbarkCost = 0;
+	m_iCityNoEmbarkCost = 0;
+#endif
 	m_iWaterWorkCount = 0;
 	m_iRiverTradeCount = 0;
 	m_iBorderObstacleCount = 0;
@@ -3313,8 +3317,46 @@ void CvTeam::changeBridgeBuildingCount(int iChange)
 		}
 	}
 }
-
-
+#if defined(MOD_BALANCE_CORE_EMBARK_CITY_NO_COST)
+//	--------------------------------------------------------------------------------
+int CvTeam::getCityLessEmbarkCost() const
+{
+	return m_iCityLessEmbarkCost;
+}
+//	--------------------------------------------------------------------------------
+bool CvTeam::isCityLessEmbarkCost()	const
+{
+	return (getCityLessEmbarkCost() > 0);
+}
+//	--------------------------------------------------------------------------------
+void CvTeam::changeCityLessEmbarkCost(int iChange)
+{
+	if(iChange != 0)
+	{
+		m_iCityLessEmbarkCost = (m_iCityLessEmbarkCost + iChange);
+		CvAssert(getCityLessEmbarkCost() >= 0);
+	}
+}
+//	--------------------------------------------------------------------------------
+int CvTeam::getCityNoEmbarkCost() const
+{
+	return m_iCityNoEmbarkCost;
+}
+//	--------------------------------------------------------------------------------
+bool CvTeam::isCityNoEmbarkCost()	const
+{
+	return (getCityNoEmbarkCost() > 0);
+}
+//	--------------------------------------------------------------------------------
+void CvTeam::changeCityNoEmbarkCost(int iChange)
+{
+	if(iChange != 0)
+	{
+		m_iCityNoEmbarkCost = (m_iCityNoEmbarkCost + iChange);
+		CvAssert(getCityNoEmbarkCost() >= 0);
+	}
+}
+#endif
 //	--------------------------------------------------------------------------------
 int CvTeam::getWaterWorkCount() const
 {
@@ -6725,6 +6767,16 @@ void CvTeam::processTech(TechTypes eTech, int iChange)
 	{
 		changeBridgeBuildingCount(iChange);
 	}
+#if defined(MOD_BALANCE_CORE_EMBARK_CITY_NO_COST)
+	if(pTech->IsCityLessEmbarkCost())
+	{
+		changeCityLessEmbarkCost(iChange);
+	}
+	if(pTech->IsCityNoEmbarkCost())
+	{
+		changeCityNoEmbarkCost(iChange);
+	}
+#endif
 
 	if(pTech->IsWaterWork())
 	{
@@ -6841,8 +6893,38 @@ void CvTeam::processTech(TechTypes eTech, int iChange)
 			for(int iPromotion = 0; iPromotion < GC.getNumPromotionInfos(); iPromotion++)
 			{
 				PromotionTypes ePromotion = (PromotionTypes) iPromotion;
+#if defined(MOD_BALANCE_CORE)
+				if(pTech->IsFreePromotion(ePromotion))
+				{
+					kPlayer.ChangeFreePromotionCount(ePromotion, iChange);
+
+					//For civilians
+					int iLoop;
+					CvUnit* pLoopUnit;
+					// Loop through existing units, because they have no way to earn it later
+					for(int iI = 0; iI < MAX_PLAYERS; iI++)
+					{
+						if(GET_PLAYER((PlayerTypes)iI).isAlive() && GET_PLAYER((PlayerTypes)iI).getTeam() == GetID())
+						{
+							for(pLoopUnit = GET_PLAYER((PlayerTypes)iI).firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = GET_PLAYER((PlayerTypes)iI).nextUnit(&iLoop))
+							{
+								// If we're in friendly territory and we can embark, give the promotion for free
+								if(pLoopUnit->plot()->IsFriendlyTerritory((PlayerTypes)iI))
+								{
+									// Civilian unit or the unit can acquire this promotion
+									if(IsPromotionValidForUnitCombatType(ePromotion, pLoopUnit->getUnitType()) || IsPromotionValidForCivilianUnitType(ePromotion, pLoopUnit->getUnitType()))
+									{
+										pLoopUnit->setHasPromotion(ePromotion, true);
+									}
+								}
+							}
+						}
+					}
+				}
+#else
 				if(pTech->IsFreePromotion(ePromotion))
 					kPlayer.ChangeFreePromotionCount(ePromotion, iChange);
+#endif
 			}
 
 			// Update our traits (some may have become obsolete)
@@ -6893,40 +6975,46 @@ void CvTeam::processTech(TechTypes eTech, int iChange)
 			// Free buildings (once unlocked via tech)
 			CvCity* pLoopCity;
 			CvCivilizationInfo& thisCiv = kPlayer.getCivilizationInfo();
-			for(iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
+			if(kPlayer.GetPlayerTraits()->GetFreeBuildingPrereqTech() == eTech)
 			{
-				CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo((BuildingClassTypes)iI);
-				if(!pkBuildingClassInfo)
+				for(iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
 				{
-					continue;
-				}
-				
-				if(kPlayer.GetNumCitiesFreeChosenBuilding((BuildingClassTypes)iI) > 0)
-				{
-					BuildingTypes eBuilding = ((BuildingTypes)(thisCiv.getCivilizationBuildings(iI)));
-
-					if(eBuilding != NO_BUILDING)
+					CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo((BuildingClassTypes)iI);
+					if(!pkBuildingClassInfo)
 					{
-						CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
-						if(pkBuildingInfo)
+						continue;
+					}
+					
+					if(kPlayer.GetNumCitiesFreeChosenBuilding((BuildingClassTypes)iI) > 0)
+					{
+						BuildingTypes eBuilding = ((BuildingTypes)(thisCiv.getCivilizationBuildings(iI)));
+
+						if(eBuilding != NO_BUILDING)
 						{
-							int iLoop;
-							for(pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
+							CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+							if(pkBuildingInfo)
 							{
-								if(pLoopCity->isValidBuildingLocation(eBuilding))
+								int iLoop;
+								for(pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
 								{
-									if(kPlayer.GetNumCitiesFreeChosenBuilding((BuildingClassTypes)iI) > 0)
+									if(pLoopCity->isValidBuildingLocation(eBuilding))
 									{
-										pLoopCity->GetCityBuildings()->SetNumFreeBuilding(eBuilding, 1);
-										if(pLoopCity->GetCityBuildings()->GetNumFreeBuilding(eBuilding) > 0)
+										if(kPlayer.GetNumCitiesFreeChosenBuilding((BuildingClassTypes)iI) > 0)
 										{
-											kPlayer.ChangeNumCitiesFreeChosenBuilding((BuildingClassTypes)iI, -1);
-										}
-										if(pLoopCity->getFirstBuildingOrder(eBuilding) == 0)
-										{
-											pLoopCity->clearOrderQueue();
-											pLoopCity->chooseProduction();
-											// Send a notification to the user that what they were building was given to them, and they need to produce something else.
+											if(pLoopCity->GetCityBuildings()->GetNumFreeBuilding(eBuilding) <= 0)
+											{
+												pLoopCity->GetCityBuildings()->SetNumFreeBuilding(eBuilding, 1);
+												if(pLoopCity->GetCityBuildings()->GetNumFreeBuilding(eBuilding) > 0)
+												{
+													kPlayer.ChangeNumCitiesFreeChosenBuilding((BuildingClassTypes)iI, -1);
+												}
+												if(pLoopCity->getFirstBuildingOrder(eBuilding) == 0)
+												{
+													pLoopCity->clearOrderQueue();
+													pLoopCity->chooseProduction();
+													// Send a notification to the user that what they were building was given to them, and they need to produce something else.
+												}
+											}
 										}
 									}
 								}
@@ -6940,6 +7028,10 @@ void CvTeam::processTech(TechTypes eTech, int iChange)
 			if(kPlayer.getYieldFromTech(YIELD_CULTURE) > 0)
 			{
 				kPlayer.changeJONSCulture(kPlayer.getYieldFromTech(YIELD_CULTURE));
+				if(kPlayer.getCapitalCity() != NULL)
+				{
+					kPlayer.getCapitalCity()->ChangeJONSCultureStored(kPlayer.getYieldFromTech(YIELD_CULTURE));
+				}
 				if(kPlayer.GetID() == GC.getGame().getActivePlayer())
 				{
 					char text[256] = {0};
@@ -7838,6 +7930,10 @@ void CvTeam::Read(FDataStream& kStream)
 	MOD_SERIALIZE_READ(23, kStream, m_iCityWorkingChange, 0);
 #endif
 	kStream >> m_iBridgeBuildingCount;
+#if defined(MOD_BALANCE_CORE_EMBARK_CITY_NO_COST)
+	MOD_SERIALIZE_READ(66, kStream, m_iCityLessEmbarkCost, 0);
+	MOD_SERIALIZE_READ(66, kStream, m_iCityNoEmbarkCost, 0);
+#endif
 	kStream >> m_iWaterWorkCount;
 	kStream >> m_iRiverTradeCount;
 	kStream >> m_iBorderObstacleCount;
@@ -8038,6 +8134,10 @@ void CvTeam::Write(FDataStream& kStream) const
 	MOD_SERIALIZE_WRITE(kStream, m_iCityWorkingChange);
 #endif
 	kStream << m_iBridgeBuildingCount;
+#if defined(MOD_BALANCE_CORE_EMBARK_CITY_NO_COST)
+	MOD_SERIALIZE_WRITE(kStream, m_iCityLessEmbarkCost);
+	MOD_SERIALIZE_WRITE(kStream, m_iCityNoEmbarkCost);
+#endif
 	kStream << m_iWaterWorkCount;
 	kStream << m_iRiverTradeCount;
 	kStream << m_iBorderObstacleCount;

@@ -9090,7 +9090,10 @@ void CvDiplomacyAI::SetVictoryBlockLevel(PlayerTypes ePlayer, BlockLevelTypes eB
 void CvDiplomacyAI::DoUpdateVictoryBlockLevels()
 {
 	AIGrandStrategyTypes eMyGrandStrategy = GetPlayer()->GetGrandStrategyAI()->GetActiveGrandStrategy();
-
+	AIGrandStrategyTypes eConquestGrandStrategy = (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_CONQUEST");
+	AIGrandStrategyTypes eCultureGrandStrategy = (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_CULTURE");
+	AIGrandStrategyTypes eUNGrandStrategy = (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_UNITED_NATIONS");
+	AIGrandStrategyTypes eSpaceshipGrandStrategy = (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_SPACESHIP");
 	if(eMyGrandStrategy == NO_AIGRANDSTRATEGY)
 	{
 		return;
@@ -9110,7 +9113,43 @@ void CvDiplomacyAI::DoUpdateVictoryBlockLevels()
 		if(IsPlayerValid(ePlayer))
 		{
 			eBlockLevel = BLOCK_LEVEL_NONE;
-
+			bool bLeagueCompetitor = false;
+			bool bSpaceRace = false;
+			bool bCulture = false;
+			bool bWar = false;
+			int iVotes = 0;
+			int iNeededVotes = 0;
+			CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
+			if(pLeague != NULL)
+			{
+				iVotes = pLeague->CalculateStartingVotesForMember(ePlayer);
+				iNeededVotes = GC.getGame().GetVotesNeededForDiploVictory();
+				if(iNeededVotes > 0)
+				{
+					// 33% there? Close!
+					if(iVotes >= (iNeededVotes / 3))
+					{
+						bLeagueCompetitor = true;
+					}
+				}
+			}
+			ProjectTypes eApolloProgram = (ProjectTypes) GC.getInfoTypeForString("PROJECT_APOLLO_PROGRAM", true);
+			if(eApolloProgram != NO_PROJECT)
+			{
+				//You've built the Apollo? Close!
+				if(GET_TEAM(GET_PLAYER(ePlayer).getTeam()).getProjectCount(eApolloProgram) > 0)
+				{
+					bSpaceRace = true;
+				}
+			}
+			if(GetWarmongerThreat(ePlayer) >= THREAT_SEVERE)
+			{
+				bWar = true;
+			}
+			if(GET_PLAYER(ePlayer).GetCulture()->GetNumCivsInfluentialOn() > 0)
+			{
+				bCulture = true;
+			}
 			// Minors can't really be an issue with Victory!
 			if(!GET_PLAYER(ePlayer).isMinorCiv() && !GET_PLAYER(ePlayer).isBarbarian())
 			{
@@ -9123,12 +9162,28 @@ void CvDiplomacyAI::DoUpdateVictoryBlockLevels()
 				{
 					bSkip = true;
 				}
-				if(eApproach == MAJOR_CIV_APPROACH_FRIENDLY)
+				if(!bSkip && eApproach == MAJOR_CIV_APPROACH_FRIENDLY)
 				{
 					bSkip = true;
 				}
 				AIGrandStrategyTypes eTheirGrandStrategy = GetPlayer()->GetGrandStrategyAI()->GetGuessOtherPlayerActiveGrandStrategy(ePlayer);
-				if(eTheirGrandStrategy == NO_AIGRANDSTRATEGY)
+				if(!bSkip && (eTheirGrandStrategy == NO_AIGRANDSTRATEGY))
+				{
+					bSkip = true;
+				}
+				if(!bSkip && (eConquestGrandStrategy == eTheirGrandStrategy) && !bWar)
+				{
+					bSkip = true;
+				}
+				if(!bSkip && (eCultureGrandStrategy == eTheirGrandStrategy) && !bCulture)
+				{
+					bSkip = true;
+				}
+				if(!bSkip && (eUNGrandStrategy == eTheirGrandStrategy) && !bLeagueCompetitor)
+				{
+					bSkip = true;
+				}
+				if(!bSkip && (eSpaceshipGrandStrategy == eTheirGrandStrategy) && !bSpaceRace)
 				{
 					bSkip = true;
 				}
@@ -9208,6 +9263,10 @@ void CvDiplomacyAI::DoUpdateVictoryDisputeLevels()
 	int iVictoryDisputeWeight;
 
 #if defined(MOD_BALANCE_CORE)
+	AIGrandStrategyTypes eConquestGrandStrategy = (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_CONQUEST");
+	AIGrandStrategyTypes eCultureGrandStrategy = (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_CULTURE");
+	AIGrandStrategyTypes eUNGrandStrategy = (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_UNITED_NATIONS");
+	AIGrandStrategyTypes eSpaceshipGrandStrategy = (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_SPACESHIP");
 	if(eMyGrandStrategy == NO_AIGRANDSTRATEGY)
 	{
 		return;
@@ -9228,9 +9287,81 @@ void CvDiplomacyAI::DoUpdateVictoryDisputeLevels()
 			{
 				iVictoryDisputeWeight = 0;
 #if defined(MOD_BALANCE_CORE)
+				bool bSkip = false;
 				AIGrandStrategyTypes eTheirGrandStrategy = GetPlayer()->GetGrandStrategyAI()->GetGuessOtherPlayerActiveGrandStrategy(ePlayer);
-				if(eTheirGrandStrategy != NO_AIGRANDSTRATEGY)
+				if(eTheirGrandStrategy == NO_AIGRANDSTRATEGY)
 				{
+					bSkip = true;
+				}
+				bool bLeagueCompetitor = false;
+				bool bSpaceRace = false;
+				bool bCulture = false;
+				bool bWar = false;
+				int iVotes = 0;
+				int iNeededVotes = 0;
+				CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
+				if(!bSkip && pLeague != NULL)
+				{
+					iVotes = pLeague->CalculateStartingVotesForMember(ePlayer);
+					iNeededVotes = GC.getGame().GetVotesNeededForDiploVictory();
+					if(iNeededVotes > 0)
+					{
+						// 33% there? Close!
+						if(iVotes >= (iNeededVotes / 3))
+						{
+							bLeagueCompetitor = true;
+						}
+					}
+				}
+				ProjectTypes eApolloProgram = (ProjectTypes) GC.getInfoTypeForString("PROJECT_APOLLO_PROGRAM", true);
+				if(!bSkip && eApolloProgram != NO_PROJECT)
+				{
+					//You've built the Apollo? Close!
+					if(GET_TEAM(GET_PLAYER(ePlayer).getTeam()).getProjectCount(eApolloProgram) > 0)
+					{
+						bSpaceRace = true;
+					}
+				}
+				if(!bSkip && GetWarmongerThreat(ePlayer) >= THREAT_SEVERE)
+				{
+					bWar = true;
+				}
+				if(!bSkip && GET_PLAYER(ePlayer).GetCulture()->GetNumCivsInfluentialOn() > 0)
+				{
+					bCulture = true;
+				}
+				MajorCivApproachTypes eApproach;
+				MajorCivOpinionTypes eOpinion;
+				eOpinion = GetMajorCivOpinion(ePlayer);
+				eApproach = GetMajorCivApproach(ePlayer, /*bHideTrueFeelings*/ false);
+				if(!bSkip && eOpinion > MAJOR_CIV_OPINION_FAVORABLE)
+				{
+					bSkip = true;
+				}
+				if(!bSkip && eApproach == MAJOR_CIV_APPROACH_FRIENDLY)
+				{
+					bSkip = true;
+				}
+				if(!bSkip && (eConquestGrandStrategy == eTheirGrandStrategy) && !bWar)
+				{
+					bSkip = true;
+				}
+				if(!bSkip && (eCultureGrandStrategy == eTheirGrandStrategy) && !bCulture)
+				{
+					bSkip = true;
+				}
+				if(!bSkip && (eUNGrandStrategy == eTheirGrandStrategy) && !bLeagueCompetitor)
+				{
+					bSkip = true;
+				}
+				if(!bSkip && (eSpaceshipGrandStrategy == eTheirGrandStrategy) && !bSpaceRace)
+				{
+					bSkip = true;
+				}
+				if(bSkip)
+				{
+					continue;
+				}
 #endif
 
 				// Does the other player's (estimated) Grand Strategy match our own?
@@ -9272,9 +9403,6 @@ void CvDiplomacyAI::DoUpdateVictoryDisputeLevels()
 					eDisputeLevel = DISPUTE_LEVEL_STRONG;
 				else if(iVictoryDisputeWeight >= /*30*/ GC.getVICTORY_DISPUTE_WEAK_THRESHOLD())
 					eDisputeLevel = DISPUTE_LEVEL_WEAK;
-#if defined(MOD_BALANCE_CORE)
-				}
-#endif
 			}
 
 			// Actually set the Level
@@ -18475,7 +18603,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 		bool bDeclareWar = false;
 
 #if defined(MOD_BALANCE_CORE)
-		if(GC.getGame().getJonRandNum(100, "Human demand refusal war rand.") < (50 - GetMeanness() - GetBoldness()))
+		if(GC.getGame().getJonRandNum(100, "Human demand refusal war rand.") > (60 - GetMeanness() - GetBoldness()))
 #else
 		if(GC.getGame().getJonRandNum(100, "Human demand refusal war rand.") < 50)
 #endif
@@ -18934,9 +19062,24 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 			// Does the AI declare war?
 			bool bDeclareWar = false;
 
-			if(GC.getGame().getJonRandNum(100, "Human rude response war rand.") < (75 - GetMeanness() - GetBoldness()))
+			if(GC.getGame().getJonRandNum(100, "Human rude response war rand.") > (60 - GetMeanness() - GetBoldness()))
 			{
 				bDeclareWar = true;
+			}
+			if(bDeclareWar)
+			{
+				int iPeaceTreatyTurn = GET_TEAM(GetTeam()).GetTurnMadePeaceTreatyWithTeam(GET_PLAYER(eFromPlayer).getTeam());
+				if(iPeaceTreatyTurn != -1)
+				{
+					int iTurnsSincePeace = GC.getGame().getElapsedGameTurns() - iPeaceTreatyTurn;
+					if (iTurnsSincePeace < GC.getPEACE_TREATY_LENGTH())
+					{
+						bDeclareWar = false;
+					}
+				}
+			}
+			if(bDeclareWar)
+			{
 
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
 				GET_TEAM(GetTeam()).declareWar(GET_PLAYER(eFromPlayer).getTeam(), false, GetPlayer()->GetID());
@@ -18947,6 +19090,13 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 				LogWarDeclaration(eFromPlayer);
 
 				GetPlayer()->GetMilitaryAI()->RequestBasicAttack(eFromPlayer, 3);
+			}
+			else
+			{
+				if(GetMajorCivApproach(eFromPlayer, true) <= MAJOR_CIV_APPROACH_GUARDED)
+				{
+					SetMajorCivApproach(eFromPlayer, MAJOR_CIV_APPROACH_NEUTRAL);
+				}
 			}
 			if(bActivePlayer)
 			{
@@ -19135,7 +19285,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 			{
 				CvFlavorManager* pFlavorManager = GetPlayer()->GetFlavorManager();
 				int iFlavorOffense = pFlavorManager->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_OFFENSE"));
-				GetPlayer()->GetDiplomacyAI()->ChangeRecentAssistValue(eFromPlayer, iFlavorOffense);
+				GetPlayer()->GetDiplomacyAI()->ChangeRecentAssistValue(eFromPlayer, (iFlavorOffense * 10));
 			}
 #endif
 		}
@@ -23737,18 +23887,20 @@ int CvDiplomacyAI::GetMinorCivDisputeLevelScore(PlayerTypes ePlayer)
 int CvDiplomacyAI::GetVictoryDisputeLevelScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
-	iOpinionWeight += GetPlayer()->GetCurrentEra();
 	// Look at Minor Civ Friendship Dispute
 	switch(GetVictoryDisputeLevel(ePlayer))
 	{
 	case DISPUTE_LEVEL_FIERCE:
-		iOpinionWeight += 30;
+		iOpinionWeight += 40;
+		iOpinionWeight += GetPlayer()->GetCurrentEra();
 		break;
 	case DISPUTE_LEVEL_STRONG:
-		iOpinionWeight += 20;
+		iOpinionWeight += 30;
+		iOpinionWeight += GetPlayer()->GetCurrentEra();
 		break;
 	case DISPUTE_LEVEL_WEAK:
-		iOpinionWeight += 10;
+		iOpinionWeight += 20;
+		iOpinionWeight += GetPlayer()->GetCurrentEra();
 		break;
 	case DISPUTE_LEVEL_NONE:
 		iOpinionWeight = 0;
@@ -23760,18 +23912,20 @@ int CvDiplomacyAI::GetVictoryDisputeLevelScore(PlayerTypes ePlayer)
 int CvDiplomacyAI::GetVictoryBlockLevelScore(PlayerTypes ePlayer)
 {
 	int iOpinionWeight = 0;
-	iOpinionWeight += GetPlayer()->GetCurrentEra();
 	// Look at Minor Civ Friendship Dispute
 	switch(GetVictoryBlockLevel(ePlayer))
 	{
 	case BLOCK_LEVEL_FIERCE:
-		iOpinionWeight += 20;
+		iOpinionWeight += 30;
+		iOpinionWeight += GetPlayer()->GetCurrentEra();
 		break;
 	case BLOCK_LEVEL_STRONG:
-		iOpinionWeight += 15;
+		iOpinionWeight += 20;
+		iOpinionWeight += GetPlayer()->GetCurrentEra();
 		break;
 	case BLOCK_LEVEL_WEAK:
 		iOpinionWeight += 10;
+		iOpinionWeight += GetPlayer()->GetCurrentEra();
 		break;
 	case BLOCK_LEVEL_NONE:
 		iOpinionWeight = 0;

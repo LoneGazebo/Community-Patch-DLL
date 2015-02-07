@@ -139,6 +139,13 @@
 		</Row>
 	</Diplomacy_Responses>
 	<Language_en_US>
+		<!-- Embark String for LessNo City Cost-->
+		<Row Tag="TXT_KEY_ABLTY_CITY_LESS_EMBARK_COST_STRING">
+			<Text>Units embarking/disembarking in owned cities expend just 1 Movement.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ABLTY_CITY_NO_EMBARK_COST_STRING">
+			<Text>Units embarking/disembarking in owned cities expend no Movement.</Text>
+		</Row>
 		<!-- Insulted -->
 		<Row Tag="TXT_KEY_WAR_DEMAND_INSULTED_1">
 			<Text>Your words are sharp, but our swords are sharper. I shall cut out your vile tongue myself!</Text>

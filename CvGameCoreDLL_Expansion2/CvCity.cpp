@@ -422,7 +422,9 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 
 #if defined(MOD_GLOBAL_CITY_FOREST_BONUS)
 	static BuildTypes eBuildRemoveForest = (BuildTypes)GC.getInfoTypeForString("BUILD_REMOVE_FOREST");
+	static BuildTypes eBuildRemoveJungle = (BuildTypes)GC.getInfoTypeForString("BUILD_REMOVE_JUNGLE");
 	bool bClearedForest = false;
+	bool bClearedJungle = false;
 	FeatureTypes eFeature = pPlot->getFeatureType();
 #endif
 
@@ -431,13 +433,17 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	{
 #if defined(MOD_GLOBAL_CITY_FOREST_BONUS)
 		// Only for major civs building on a forest
-		if(MOD_GLOBAL_CITY_FOREST_BONUS && eBuildRemoveForest != -1 && !owningPlayer.isMinorCiv() && eFeature == FEATURE_FOREST)
+		if(MOD_GLOBAL_CITY_FOREST_BONUS && eBuildRemoveForest != -1 && !owningPlayer.isMinorCiv() && (eFeature == FEATURE_FOREST))
 		{
 			// Don't do this for the AI capitals - it's just too much of an initial boost!
-			if (owningPlayer.getCapitalCity() != NULL) {
-				TechTypes iRequiredTech = (TechTypes) gCustomMods.getOption("GLOBAL_CITY_FOREST_BONUS_TECH", -1);
-				bClearedForest = (iRequiredTech == -1 || GET_TEAM(owningPlayer.getTeam()).GetTeamTechs()->HasTech(iRequiredTech));
-			}
+			TechTypes iRequiredTech = (TechTypes) gCustomMods.getOption("GLOBAL_CITY_FOREST_BONUS_TECH", -1);
+			bClearedForest = (iRequiredTech == -1 || GET_TEAM(owningPlayer.getTeam()).GetTeamTechs()->HasTech(iRequiredTech));
+		}
+		// OR only for major civs building on a jungle
+		else if(MOD_GLOBAL_CITY_FOREST_BONUS && (eBuildRemoveJungle != -1) && (!owningPlayer.isMinorCiv()) && (eFeature == FEATURE_JUNGLE))
+		{
+			TechTypes iRequiredTech = (TechTypes) gCustomMods.getOption("GLOBAL_CITY_FOREST_BONUS_TECH", -1);
+			bClearedJungle = (iRequiredTech == -1 || GET_TEAM(owningPlayer.getTeam()).GetTeamTechs()->HasTech(iRequiredTech));
 		}
 #endif
 					
@@ -479,6 +485,51 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 			}
 		}
 	}
+#if defined(MOD_BALANCE_CORE)
+	// Free Buildings
+	BuildingClassTypes eFreeBuildingClass = NO_BUILDINGCLASS;
+	BuildingTypes eBuilding = NO_BUILDING;
+	for(int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
+	{
+		CvCivilizationInfo& thisCiv = getCivilizationInfo();
+		CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo((BuildingClassTypes)iI);
+		if(!pkBuildingClassInfo)
+		{
+			continue;
+		}
+	
+		eBuilding = ((BuildingTypes)(thisCiv.getCivilizationBuildings(iI)));
+
+		if(eBuilding != NO_BUILDING)
+		{
+			eFreeBuildingClass = (BuildingClassTypes)iI;
+			if(GET_PLAYER(getOwner()).GetNumCitiesFreeChosenBuilding(eFreeBuildingClass) > 0)
+			{		
+				CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+				if(pkBuildingInfo)
+				{
+					if(isValidBuildingLocation(eBuilding))
+					{
+						if(GetCityBuildings()->GetNumFreeBuilding(eBuilding) <= 0)
+						{
+							GetCityBuildings()->SetNumFreeBuilding(eBuilding, 1);
+							if(GetCityBuildings()->GetNumFreeBuilding(eBuilding) > 0)
+							{
+								GET_PLAYER(getOwner()).ChangeNumCitiesFreeChosenBuilding(eFreeBuildingClass, -1);
+							}
+							if(getFirstBuildingOrder(eBuilding) == 0)
+							{
+								clearOrderQueue();
+								chooseProduction();
+								// Send a notification to the user that what they were building was given to them, and they need to produce something else.
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+#endif
 
 	area()->changeCitiesPerPlayer(getOwner(), 1);
 #if defined(MOD_CORE_RIPARIAN_CITIES)
@@ -836,9 +887,12 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 				if(owningPlayer.GetPlayerTraits()->GetCapitalFreeBuildingPrereqTech() == NO_TECH)
 				{
 					BuildingTypes eBuilding = owningPlayer.GetPlayerTraits()->GetFreeCapitalBuilding();
-					if(isValidBuildingLocation(eBuilding))
+					if(eBuilding != NO_BUILDING)
 					{
-						m_pCityBuildings->SetNumFreeBuilding(eBuilding, 1);
+						if(isValidBuildingLocation(eBuilding))
+						{
+							m_pCityBuildings->SetNumFreeBuilding(eBuilding, 1);
+						}
 					}
 				}
 			}
@@ -902,14 +956,22 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	}
 
 #if defined(MOD_GLOBAL_CITY_FOREST_BONUS)
-	if (bClearedForest) {
-		int iProduction;
+	if (bClearedForest || bClearedJungle) 
+	{
+		int iProduction = 0;
 
 		// Base value
-		if (GET_PLAYER(getOwner()).GetAllFeatureProduction() > 0) {
+		if (GET_PLAYER(getOwner()).GetAllFeatureProduction() > 0) 
+		{
 			iProduction = GET_PLAYER(getOwner()).GetAllFeatureProduction();
-		} else {
+		}
+		else if(bClearedForest)
+		{
 			iProduction = GC.getBuildInfo(eBuildRemoveForest)->getFeatureProduction(FEATURE_FOREST);
+		}
+		else if(bClearedJungle)
+		{
+			iProduction = GC.getBuildInfo(eBuildRemoveJungle)->getFeatureProduction(FEATURE_JUNGLE);
 		}
 
 		iProduction *= std::max(0, (GET_PLAYER(getOwner()).getFeatureProductionModifier() + 100));
@@ -918,17 +980,26 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 		iProduction *= GC.getGame().getGameSpeedInfo().getFeatureProductionPercent();
 		iProduction /= 100;
 
-		if (iProduction > 0) {
+		if (iProduction > 0) 
+		{
 			// Make the production higher than a "ring-1 chop"
 			iProduction *= gCustomMods.getOption("GLOBAL_CITY_FOREST_BONUS_PERCENT", 125);
 			iProduction /= 100;
 
 			changeFeatureProduction(iProduction);
-			CUSTOMLOG("Founding of %s on a forest created %d initial production", getName().GetCString(), iProduction);
+			if(bClearedForest)
+			{
+				CUSTOMLOG("Founding of %s on a forest created %d initial production", getName().GetCString(), iProduction);
+			}
+			else if(bClearedJungle)
+			{
+				CUSTOMLOG("Founding of %s on a jungle created %d initial production", getName().GetCString(), iProduction);
+			}
 
-			if (getOwner() == GC.getGame().getActivePlayer()) {
-				CvString strBuffer = GetLocalizedText("TXT_KEY_MISC_CLEARING_FEATURE_RESOURCE", GC.getFeatureInfo(eFeature)->GetTextKey(), iProduction, getNameKey());
-				GC.GetEngineUserInterface()->AddCityMessage(0, GetIDInfo(), getOwner(), false, GC.getEVENT_MESSAGE_TIME(), strBuffer);
+			if (getOwner() == GC.getGame().getActivePlayer())
+			{
+					CvString strBuffer = GetLocalizedText("TXT_KEY_MISC_CLEARING_FEATURE_RESOURCE", GC.getFeatureInfo(eFeature)->GetTextKey(), iProduction, getNameKey());
+					GC.GetEngineUserInterface()->AddCityMessage(0, GetIDInfo(), getOwner(), false, GC.getEVENT_MESSAGE_TIME(), strBuffer);
 			}
 		}
 	}
@@ -3813,6 +3884,10 @@ void CvCity::ChangeNumResourceLocal(ResourceTypes eResource, int iChange)
 				int iWonderMod = GC.getResourceInfo(eResource)->getWonderProductionMod();
 				if(iWonderMod != 0)
 				{
+#if defined(MOD_BALANCE_CORE_RESOURCE_FLAVORS)
+					if(GC.getResourceInfo(eResource)->getWonderProductionModObsoleteEra() == GC.getInfoTypeForString("ERA_MEDIEVAL", true /*bHideAssert*/))
+					{
+#endif
 					CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
 					if(pNotifications)
 					{
@@ -3822,6 +3897,21 @@ void CvCity::ChangeNumResourceLocal(ResourceTypes eResource, int iChange)
 						strSummary << getNameKey() << GC.getResourceInfo(eResource)->GetTextKey();
 						pNotifications->Add(NOTIFICATION_DISCOVERED_BONUS_RESOURCE, strText.toUTF8(), strSummary.toUTF8(), getX(), getY(), eResource);
 					}
+#if defined(MOD_BALANCE_CORE_RESOURCE_FLAVORS)
+					}
+					else if(GC.getResourceInfo(eResource)->getWonderProductionModObsoleteEra() == GC.getInfoTypeForString("ERA_INDUSTRIAL", true /*bHideAssert*/))
+					{
+						CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
+						if(pNotifications)
+						{
+							Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_RESOURCE_WONDER_MOD_LATE");
+							strText << getNameKey() << GC.getResourceInfo(eResource)->GetTextKey() << iWonderMod;
+							Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_RESOURCE_WONDER_MOD_SUMMARY");
+							strSummary << getNameKey() << GC.getResourceInfo(eResource)->GetTextKey();
+							pNotifications->Add(NOTIFICATION_DISCOVERED_BONUS_RESOURCE, strText.toUTF8(), strSummary.toUTF8(), getX(), getY(), eResource);
+						}
+					}
+#endif
 				}
 			}
 			else
@@ -5457,6 +5547,15 @@ int CvCity::GetPurchaseCost(UnitTypes eUnit)
 			iCost /= 100;
 		}
 	}
+
+	//Increase cost based on # of techs researched.
+	int iTechProgress = (GET_TEAM(getTeam()).GetTeamTechs()->GetNumTechsKnown() * 100) / GC.getNumTechInfos();
+	iTechProgress /= 2;
+	if(iTechProgress > 0)
+	{
+		iCost *= (100 + iTechProgress);
+		iCost /= 100;
+	}
 #endif
 
 	// Make the number not be funky
@@ -5753,6 +5852,14 @@ int CvCity::GetPurchaseCost(BuildingTypes eBuilding)
 			iCost *= (100 + iCityExponent);
 			iCost /= 100;
 		}
+	}
+	//Increase cost based on # of techs researched.
+	int iTechProgress = (GET_TEAM(getTeam()).GetTeamTechs()->GetNumTechsKnown() * 100) / GC.getNumTechInfos();
+	iTechProgress /= 2;
+	if(iTechProgress > 0)
+	{
+		iCost *= (100 + iTechProgress);
+		iCost /= 100;
 	}
 #endif
 
@@ -7285,7 +7392,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			}
 			// END TERRA COTTA AWESOME
 #if defined(MOD_BALANCE_CORE_BUILDING_INSTANT_YIELD)
-			if(MOD_BALANCE_CORE_BUILDING_INSTANT_YIELD)
+			if(MOD_BALANCE_CORE_BUILDING_INSTANT_YIELD && (iChange > 0))
 			{
 				if(pBuildingInfo->GetInstantYield(YIELD_CULTURE_LOCAL) > 0)
 				{
@@ -7805,108 +7912,70 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	float fDelay = 0.0f;
-	if(owningPlayer.getYieldFromConstruction(YIELD_CULTURE) > 0)
+	if(iChange > 0)
 	{
-		owningPlayer.changeJONSCulture(owningPlayer.getYieldFromConstruction(YIELD_CULTURE));
-		if(getOwner() == GC.getGame().getActivePlayer())
+		if(owningPlayer.getYieldFromConstruction(YIELD_CULTURE) > 0)
 		{
-			char text[256] = {0};
-			fDelay += 0.5f;
-			sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", owningPlayer.getYieldFromConstruction(YIELD_CULTURE));
-			DLLUI->AddPopupText(getX(),getY(), text, fDelay);
+			owningPlayer.changeJONSCulture(owningPlayer.getYieldFromConstruction(YIELD_CULTURE));
+			ChangeJONSCultureStored(owningPlayer.getYieldFromConstruction(YIELD_CULTURE));
+			if(getOwner() == GC.getGame().getActivePlayer())
+			{
+				char text[256] = {0};
+				fDelay += 0.5f;
+				sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", owningPlayer.getYieldFromConstruction(YIELD_CULTURE));
+				DLLUI->AddPopupText(getX(),getY(), text, fDelay);
+			}
 		}
-	}
-	if(owningPlayer.getYieldFromConstruction(YIELD_GOLD) > 0)
-	{
-		owningPlayer.GetTreasury()->ChangeGold(owningPlayer.getYieldFromConstruction(YIELD_GOLD));
-		if(getOwner() == GC.getGame().getActivePlayer())
+		if(owningPlayer.getYieldFromConstruction(YIELD_GOLD) > 0)
 		{
-			char text[256] = {0};
-			fDelay += 0.5f;
-			sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]", owningPlayer.getYieldFromConstruction(YIELD_GOLD));
-			DLLUI->AddPopupText(getX(),getY(), text, fDelay);
+			owningPlayer.GetTreasury()->ChangeGold(owningPlayer.getYieldFromConstruction(YIELD_GOLD));
+			if(getOwner() == GC.getGame().getActivePlayer())
+			{
+				char text[256] = {0};
+				fDelay += 0.5f;
+				sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]", owningPlayer.getYieldFromConstruction(YIELD_GOLD));
+				DLLUI->AddPopupText(getX(),getY(), text, fDelay);
+			}
 		}
-	}
-	if(owningPlayer.getYieldFromConstruction(YIELD_FAITH) > 0)
-	{
-		owningPlayer.ChangeFaith(owningPlayer.getYieldFromConstruction(YIELD_FAITH));
-		if(getOwner() == GC.getGame().getActivePlayer())
+		if(owningPlayer.getYieldFromConstruction(YIELD_FAITH) > 0)
 		{
-			char text[256] = {0};
-			fDelay += 0.5f;
-			sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", owningPlayer.getYieldFromConstruction(YIELD_FAITH));
-			DLLUI->AddPopupText(getX(),getY(), text, fDelay);
+			owningPlayer.ChangeFaith(owningPlayer.getYieldFromConstruction(YIELD_FAITH));
+			if(getOwner() == GC.getGame().getActivePlayer())
+			{
+				char text[256] = {0};
+				fDelay += 0.5f;
+				sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", owningPlayer.getYieldFromConstruction(YIELD_FAITH));
+				DLLUI->AddPopupText(getX(),getY(), text, fDelay);
+			}
 		}
-	}
-	if(owningPlayer.getYieldFromConstruction(YIELD_FOOD) > 0)
-	{
-		changeFood(owningPlayer.getYieldFromConstruction(YIELD_FOOD));
-		if(getOwner() == GC.getGame().getActivePlayer())
+		if(owningPlayer.getYieldFromConstruction(YIELD_FOOD) > 0)
 		{
-			char text[256] = {0};
-			fDelay += 0.5f;
-			sprintf_s(text, "[COLOR_GREEN]+%d[ENDCOLOR][ICON_FOOD]", owningPlayer.getYieldFromConstruction(YIELD_FOOD));
-			DLLUI->AddPopupText(getX(),getY(), text, fDelay);
+			changeFood(owningPlayer.getYieldFromConstruction(YIELD_FOOD));
+			if(getOwner() == GC.getGame().getActivePlayer())
+			{
+				char text[256] = {0};
+				fDelay += 0.5f;
+				sprintf_s(text, "[COLOR_GREEN]+%d[ENDCOLOR][ICON_FOOD]", owningPlayer.getYieldFromConstruction(YIELD_FOOD));
+				DLLUI->AddPopupText(getX(),getY(), text, fDelay);
+			}
 		}
-	}
-	if(owningPlayer.getYieldFromConstruction(YIELD_SCIENCE) > 0)
-	{
-		TechTypes eCurrentTech = GET_PLAYER(getOwner()).GetPlayerTechs()->GetCurrentResearch();
-		if(eCurrentTech == NO_TECH)
+		if(owningPlayer.getYieldFromConstruction(YIELD_SCIENCE) > 0)
 		{
-			GET_PLAYER(getOwner()).changeOverflowResearch(owningPlayer.getYieldFromConstruction(YIELD_SCIENCE));
-		}
-		else
-		{
-			GET_TEAM(GET_PLAYER(getOwner()).getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, owningPlayer.getYieldFromConstruction(YIELD_SCIENCE), getOwner());
-		}
-		if(getOwner() == GC.getGame().getActivePlayer())
-		{
-			char text[256] = {0};
-			fDelay += 0.5f;
-			sprintf_s(text, "[COLOR_BLUE]+%d[ENDCOLOR][ICON_RESEARCH]", owningPlayer.getYieldFromConstruction(YIELD_SCIENCE));
-			DLLUI->AddPopupText(getX(),getY(), text, fDelay);
-		}
-	}
-#endif
-#if defined(MOD_BALANCE_CORE)
-	// Building modifiers
-	BuildingClassTypes eFreeBuildingClass = NO_BUILDINGCLASS;
-	BuildingTypes eFreeBuilding = NO_BUILDING;
-	for(int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
-	{
-		CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo((BuildingClassTypes)iI);
-		if(!pkBuildingClassInfo)
-		{
-			continue;
-		}
-	
-		eBuilding = ((BuildingTypes)(thisCiv.getCivilizationBuildings(iI)));
-
-		if(eBuilding != NO_BUILDING)
-		{
-			eFreeBuildingClass = (BuildingClassTypes)iI;
-			eFreeBuilding = eBuilding;
-			if(GET_PLAYER(getOwner()).GetNumCitiesFreeChosenBuilding(eFreeBuildingClass) > 0)
-			{		
-				CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eFreeBuilding);
-				if(pkBuildingInfo)
-				{
-					if(isValidBuildingLocation(eFreeBuilding))
-					{
-						GetCityBuildings()->SetNumFreeBuilding(eFreeBuilding, 1);
-						if(GetCityBuildings()->GetNumFreeBuilding(eFreeBuilding) > 0)
-						{
-							GET_PLAYER(getOwner()).ChangeNumCitiesFreeChosenBuilding(eFreeBuildingClass, -1);
-						}
-						if(getFirstBuildingOrder(eFreeBuilding) == 0)
-						{
-							clearOrderQueue();
-							chooseProduction();
-							// Send a notification to the user that what they were building was given to them, and they need to produce something else.
-						}
-					}
-				}
+			TechTypes eCurrentTech = GET_PLAYER(getOwner()).GetPlayerTechs()->GetCurrentResearch();
+			if(eCurrentTech == NO_TECH)
+			{
+				GET_PLAYER(getOwner()).changeOverflowResearch(owningPlayer.getYieldFromConstruction(YIELD_SCIENCE));
+			}
+			else
+			{
+				GET_TEAM(GET_PLAYER(getOwner()).getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, owningPlayer.getYieldFromConstruction(YIELD_SCIENCE), getOwner());
+			}
+			if(getOwner() == GC.getGame().getActivePlayer())
+			{
+				char text[256] = {0};
+				fDelay += 0.5f;
+				sprintf_s(text, "[COLOR_BLUE]+%d[ENDCOLOR][ICON_RESEARCH]", owningPlayer.getYieldFromConstruction(YIELD_SCIENCE));
+				DLLUI->AddPopupText(getX(),getY(), text, fDelay);
 			}
 		}
 	}
@@ -8061,14 +8130,14 @@ void CvCity::UpdateReligion(ReligionTypes eNewMajority)
 				{
 					iReligionYieldChange += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetCityYieldChange((YieldTypes)iYield);
 #if defined(MOD_BALANCE_CORE_BELIEFS)
-					if((getPopulation() > 0) && (pReligion->m_Beliefs.GetYieldPerPop((YieldTypes)iYield) > 0))
+					if((getPopulation() > 0) && (GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetYieldPerPop((YieldTypes)iYield) > 0))
 					{
-						int iFaithPerPop = (getPopulation() / pReligion->m_Beliefs.GetYieldPerPop((YieldTypes)iYield));
+						int iFaithPerPop = (getPopulation() / GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetYieldPerPop((YieldTypes)iYield));
 						if(iFaithPerPop != 0)
 						{
 							iReligionYieldChange += iFaithPerPop;
 						}
-					}	
+					}
 #endif
 #if defined(MOD_API_UNIFIED_YIELDS)
 					if (isCapital()) {
@@ -9117,99 +9186,116 @@ void CvCity::setPopulation(int iNewValue, bool bReassignPop /* = true */)
 			//% boost to yield when new citizen is born
 			if(MOD_DIPLOMACY_CITYSTATES || MOD_BALANCE_CORE)
 			{
+				float fDelay = 0.0f;
 				//Gold
 				if(GetGrowthExtraYield(YIELD_GOLD) > 0)
 				{
 					int iGoldBoost = ((getYieldRate(YIELD_GOLD, false) * GetGrowthExtraYield(YIELD_GOLD)) / 100);
-					if (iGoldBoost > 0)
+					if(iGoldBoost <= 0)
 					{
-						GET_PLAYER(getOwner()).GetTreasury()->ChangeGold(iGoldBoost);
+						iGoldBoost = 1;
 					}
-					if (iGoldBoost <= 0)
+					GET_PLAYER(getOwner()).GetTreasury()->ChangeGold(iGoldBoost);
+					if(getOwner() == GC.getGame().getActivePlayer())
 					{
-						GET_PLAYER(getOwner()).GetTreasury()->ChangeGold(1);
+						char text[256] = {0};
+						fDelay += 0.5f;
+						sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]", iGoldBoost);
+						DLLUI->AddPopupText(getX(), getY(), text, fDelay);
 					}
 				}
 				//Production
 				if(GetGrowthExtraYield(YIELD_PRODUCTION) > 0)
 				{
 					int iProductionBoost = ((getYieldRate(YIELD_PRODUCTION, false) * GetGrowthExtraYield(YIELD_PRODUCTION)) / 100);
-					if (iProductionBoost > 0)
+					if(iProductionBoost <= 0)
 					{
-						changeProduction(iProductionBoost);
+						iProductionBoost = 1;
 					}
-					if (iProductionBoost <= 0)
+					changeProduction(iProductionBoost);
+					if(getOwner() == GC.getGame().getActivePlayer())
 					{
-						changeProduction(1);
+						char text[256] = {0};
+						fDelay += 0.5f;
+						sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_PRODUCTION]", iProductionBoost);
+						DLLUI->AddPopupText(getX(), getY(), text, fDelay);
 					}
-
 				}
 				//Culture
 				if(GetGrowthExtraYield(YIELD_CULTURE) > 0)
 				{
 					int iCultureBoost = ((getJONSCulturePerTurn() * GetGrowthExtraYield(YIELD_CULTURE)) / 100);
-					if (iCultureBoost > 0)
+					if(iCultureBoost <= 0)
 					{
-						GET_PLAYER(getOwner()).changeJONSCulture(iCultureBoost);
+						iCultureBoost = 1;
 					}
-					if (iCultureBoost <= 0)
+					ChangeJONSCultureStored(iCultureBoost);
+					GET_PLAYER(getOwner()).changeJONSCulture(iCultureBoost);
+					if(getOwner() == GC.getGame().getActivePlayer())
 					{
-						GET_PLAYER(getOwner()).changeJONSCulture(1);
+						char text[256] = {0};
+						fDelay += 0.5f;
+						sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", iCultureBoost);
+						DLLUI->AddPopupText(getX(), getY(), text, fDelay);
 					}
-
 				}
 				//Food
 				if(GetGrowthExtraYield(YIELD_FOOD) > 0)
 				{
-					int iFoodBoost = ((getFood() * GetGrowthExtraYield(YIELD_FOOD)) / 100);
-					if (iFoodBoost > 0)
+					int iFoodBoost = ((getYieldRate(YIELD_FOOD, false) * GetGrowthExtraYield(YIELD_FOOD)) / 100);
+					if(iFoodBoost <= 0)
 					{
-						changeFood(iFoodBoost);
+						iFoodBoost = 1;
 					}
-					if (iFoodBoost <= 0)
+					changeFood(iFoodBoost);
+					if(getOwner() == GC.getGame().getActivePlayer())
 					{
-						changeFood(1);
+						char text[256] = {0};
+						fDelay += 0.5f;
+						sprintf_s(text, "[COLOR_GREEN]+%d[ENDCOLOR][ICON_FOOD]", iFoodBoost);
+						DLLUI->AddPopupText(getX(), getY(), text, fDelay);
 					}
 				}	
 				//Faith
 				if(GetGrowthExtraYield(YIELD_FAITH) > 0)
 				{
 					int iFaithBoost = ((GetFaithPerTurn() * GetGrowthExtraYield(YIELD_FAITH)) / 100);
-					if (iFaithBoost > 0)
+					if(iFaithBoost <= 0)
 					{
-						GET_PLAYER(getOwner()).ChangeFaith(iFaithBoost);
+						iFaithBoost = 1;
 					}
-					if (iFaithBoost <= 0)
+					GET_PLAYER(getOwner()).ChangeFaith(iFaithBoost);
+					if(getOwner() == GC.getGame().getActivePlayer())
 					{
-						GET_PLAYER(getOwner()).ChangeFaith(1);
+						char text[256] = {0};
+						fDelay += 0.5f;
+						sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", iFaithBoost);
+						DLLUI->AddPopupText(getX(), getY(), text, fDelay);
 					}
 				}
 				//Science
 				if(GetGrowthExtraYield(YIELD_SCIENCE) > 0)
 				{
-					int iScienceBoost = ((getYieldRate(YIELD_SCIENCE, false) * GetGrowthExtraYield(YIELD_FAITH)) / 100);
-					TechTypes eCurrentTech = GET_PLAYER(getOwner()).GetPlayerTechs()->GetCurrentResearch();
-					if (iScienceBoost > 0)
-					{		
-						if(eCurrentTech == NO_TECH)
-						{
-							GET_PLAYER(getOwner()).changeOverflowResearch(iScienceBoost);
-						}
-						else
-						{
-							GET_TEAM(GET_PLAYER(getOwner()).getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iScienceBoost, getOwner());
-						}
-					}
-					if (iScienceBoost <= 0)
+					int iScienceBoost = ((getYieldRate(YIELD_SCIENCE, false) * GetGrowthExtraYield(YIELD_SCIENCE)) / 100);
+					if(iScienceBoost <= 0)
 					{
-						if(eCurrentTech == NO_TECH)
-						{
-							GET_PLAYER(getOwner()).changeOverflowResearch(1);
-						}
-						else
-						{
-							GET_TEAM(GET_PLAYER(getOwner()).getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, 1, getOwner());
-						}
+						iScienceBoost = 1;
+					}
+					TechTypes eCurrentTech = GET_PLAYER(getOwner()).GetPlayerTechs()->GetCurrentResearch();
+					if(eCurrentTech == NO_TECH)
+					{
+						GET_PLAYER(getOwner()).changeOverflowResearch(iScienceBoost);
+					}
+					else
+					{
+						GET_TEAM(GET_PLAYER(getOwner()).getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iScienceBoost, getOwner());
+					}
+					if(getOwner() == GC.getGame().getActivePlayer())
+					{
+						char text[256] = {0};
+						fDelay += 0.5f;
+						sprintf_s(text, "[COLOR_BLUE]+%d[ENDCOLOR][ICON_RESEARCH]", iScienceBoost);
+						DLLUI->AddPopupText(getX(), getY(), text, fDelay);
 					}
 				}
 			}
@@ -14915,7 +15001,21 @@ bool CvCity::CanBuyPlot(int iPlotX, int iPlotY, bool bIgnoreCost)
 	// if this plot belongs to someone, bail!
 	if(pTargetPlot->getOwner() != NO_PLAYER)
 	{
+#if defined(MOD_BALANCE_CORE)
+		if(MOD_BALANCE_CORE && GET_PLAYER(getOwner()).GetPlayerTraits()->IsBuyOwnedTiles())
+		{
+			if(pTargetPlot->getOwner() == getOwner())
+			{
+				return false;
+			}
+		}
+		else
+		{
+#endif
 		return false;
+#if defined(MOD_BALANCE_CORE)
+		}
+#endif
 	}
 
 	// Must be adjacent to a plot owned by this city
@@ -15121,7 +15221,21 @@ void CvCity::GetBuyablePlotList(std::vector<int>& aiPlotList)
 			{
 				if (pLoopPlot->getOwner() != NO_PLAYER)
 				{
+#if defined(MOD_BALANCE_CORE)
+					if(MOD_BALANCE_CORE && GET_PLAYER(getOwner()).GetPlayerTraits()->IsBuyOwnedTiles())
+					{
+						if(pLoopPlot->getOwner() == getOwner())
+						{
+							continue;
+						}
+					}
+					else
+					{
+#endif
 					continue;
+#if defined(MOD_BALANCE_CORE)
+					}
+#endif
 				}
 
 #if defined(MOD_EVENTS_CITY_BORDERS)
@@ -15231,6 +15345,16 @@ void CvCity::GetBuyablePlotList(std::vector<int>& aiPlotList)
 						iInfluenceCost += iPLOT_INFLUENCE_NW_COST;
 					}
 
+#if defined(MOD_BALANCE_CORE)
+					//If we can buy/acquire already-owned plots, that's good, but let's rate them lower to limit diplomatic impact.
+					if(MOD_BALANCE_CORE && GET_PLAYER(getOwner()).GetPlayerTraits()->IsBuyOwnedTiles())
+					{
+						if(pLoopPlot->getOwner() != getOwner())
+						{
+							iInfluenceCost *= 2;
+						}
+					}
+#endif
 					// More Yield == more desirable
 					for (iYieldLoop = 0; iYieldLoop < NUM_YIELD_TYPES; iYieldLoop++)
 					{
@@ -15307,7 +15431,6 @@ void CvCity::GetBuyablePlotList(std::vector<int>& aiPlotList)
 					iInfluenceCost /= iDivisor;
 					iInfluenceCost *= iDivisor;
 #endif
-
 					// Are we cheap enough to get picked next?
 					if (iInfluenceCost < iLowestCost)
 					{
@@ -15390,6 +15513,17 @@ int CvCity::GetBuyPlotCost(int iPlotX, int iPlotY) const
 	}
 #endif
 
+#if defined(MOD_BALANCE_CORE)
+	//Owned by someone? Much more expensive!
+	if(MOD_BALANCE_CORE && GET_PLAYER(getOwner()).GetPlayerTraits()->IsBuyOwnedTiles())
+	{
+		if((pPlot->getOwner() != NO_PLAYER) && (pPlot->getOwner() != getOwner()))
+		{
+			iCost *= 3;
+		}
+	}
+#endif
+
 	// Game Speed Mod
 	iCost *= GC.getGame().getGameSpeedInfo().getGoldPercent();
 	iCost /= 100;
@@ -15458,6 +15592,24 @@ void CvCity::BuyPlot(int iPlotX, int iPlotY)
 					if(pNearbyCity->getOwner() != getOwner())
 					{
 						pNearbyCity->AI_ChangeNumPlotsAcquiredByOtherPlayer(getOwner(), 1);
+#if defined(MOD_BALANCE_CORE)
+						//Did we buy this plot from someone? Oh no!
+						CvPlot* pBoughtPlot = GC.getMap().plot(iPlotX, iPlotY);
+						if(pBoughtPlot->getOwner() != NO_PLAYER)
+						{
+							if(MOD_BALANCE_CORE && !GET_PLAYER(pBoughtPlot->getOwner()).isHuman() && (pPlot->getOwner() != getOwner()))
+							{
+								if(!GET_PLAYER(pBoughtPlot->getOwner()).isMinorCiv())
+								{
+									GET_PLAYER(pBoughtPlot->getOwner()).GetDiplomacyAI()->ChangeNumTimesCultureBombed(getOwner(), 1);
+								}
+								else if(GET_PLAYER(pBoughtPlot->getOwner()).isMinorCiv())
+								{
+									GET_PLAYER(pBoughtPlot->getOwner()).GetMinorCivAI()->ChangeFriendshipWithMajor(getOwner(), -20);
+								}
+							}
+						}
+#endif
 					}
 				}
 			}
@@ -17779,6 +17931,96 @@ void CvCity::doGrowth()
 						DLLUI->AddPopupText(getX(),getY(), text, fDelay);
 					}
 				}
+				BeliefTypes eSecondaryPantheon = GetCityReligions()->GetSecondaryReligionPantheonBelief();
+				if (eSecondaryPantheon != NO_BELIEF && getPopulation() >= GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetMinPopulation())
+				{
+					if(GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetYieldPerBirth(YIELD_FOOD) > 0)
+					{
+						changeFood(GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetYieldPerBirth(YIELD_FOOD) * iEra);
+						if(getOwner() == GC.getGame().getActivePlayer())
+						{
+							char text[256] = {0};
+							fDelay += 0.5f;
+							sprintf_s(text, "[COLOR_GREEN]+%d[ENDCOLOR][ICON_FOOD]", GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetYieldPerBirth(YIELD_FOOD) * iEra);
+							DLLUI->AddPopupText(getX(),getY(), text, fDelay);
+						}
+					}
+					if(GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetYieldPerBirth(YIELD_PRODUCTION) > 0)
+					{
+						changeProduction(GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetYieldPerBirth(YIELD_PRODUCTION) * iEra);
+						if(getOwner() == GC.getGame().getActivePlayer())
+						{
+							char text[256] = {0};
+							fDelay += 0.5f;
+							sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_PRODUCTION]", GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetYieldPerBirth(YIELD_PRODUCTION) * iEra);
+							DLLUI->AddPopupText(getX(),getY(), text, fDelay);
+						}
+					}
+					if(GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetYieldPerBirth(YIELD_GOLD) > 0)
+					{
+						GET_PLAYER(getOwner()).GetTreasury()->ChangeGold(GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetYieldPerBirth(YIELD_GOLD) * iEra);
+						if(getOwner() == GC.getGame().getActivePlayer())
+						{
+							char text[256] = {0};
+							fDelay += 0.5f;
+							sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]", GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetYieldPerBirth(YIELD_GOLD) * iEra);
+							DLLUI->AddPopupText(getX(),getY(), text, fDelay);
+						}
+					}
+					if(GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetYieldPerBirth(YIELD_SCIENCE) > 0)
+					{
+						TechTypes eCurrentTech = GET_PLAYER(getOwner()).GetPlayerTechs()->GetCurrentResearch();
+						if(eCurrentTech == NO_TECH)
+						{
+							GET_PLAYER(getOwner()).changeOverflowResearch(GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetYieldPerBirth(YIELD_SCIENCE) * iEra);
+						}
+						else
+						{
+							GET_TEAM(GET_PLAYER(getOwner()).getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetYieldPerBirth(YIELD_SCIENCE), getOwner());
+						}
+						if(getOwner() == GC.getGame().getActivePlayer())
+						{
+							char text[256] = {0};
+							fDelay += 0.5f;
+							sprintf_s(text, "[COLOR_BLUE]+%d[ENDCOLOR][ICON_RESEARCH]", GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetYieldPerBirth(YIELD_SCIENCE) * iEra);
+							DLLUI->AddPopupText(getX(),getY(), text, fDelay);
+						}
+					}
+					if(GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetYieldPerBirth(YIELD_CULTURE) > 0)
+					{
+						GET_PLAYER(getOwner()).changeJONSCulture(GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetYieldPerBirth(YIELD_CULTURE) * iEra);
+						ChangeJONSCultureStored(GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetYieldPerBirth(YIELD_CULTURE) * iEra);
+						if(getOwner() == GC.getGame().getActivePlayer())
+						{
+							char text[256] = {0};
+							fDelay += 0.5f;
+							sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetYieldPerBirth(YIELD_CULTURE) * iEra);
+							DLLUI->AddPopupText(getX(),getY(), text, fDelay);
+						}
+					}
+					if(GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetYieldPerBirth(YIELD_FAITH) > 0)
+					{
+						GET_PLAYER(getOwner()).ChangeFaith(GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetYieldPerBirth(YIELD_FAITH));
+						if(getOwner() == GC.getGame().getActivePlayer())
+						{
+							char text[256] = {0};
+							fDelay += 0.5f;
+							sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetYieldPerBirth(YIELD_FAITH) * iEra);
+							DLLUI->AddPopupText(getX(),getY(), text, fDelay);
+						}
+					}
+					if(GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetYieldPerBirth(YIELD_GOLDEN_AGE_POINTS) > 0)
+					{
+						GET_PLAYER(getOwner()).ChangeGoldenAgeProgressMeter(GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetYieldPerBirth(YIELD_GOLDEN_AGE_POINTS) * iEra);
+						if(getOwner() == GC.getGame().getActivePlayer())
+						{
+							char text[256] = {0};
+							fDelay += 0.5f;
+							sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GOLDEN_AGE]", GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetYieldPerBirth(YIELD_GOLDEN_AGE_POINTS) * iEra);
+							DLLUI->AddPopupText(getX(),getY(), text, fDelay);
+						}
+					}
+				}	
 			}
 #endif
 #if defined(MOD_BALANCE_CORE_POLICIES)

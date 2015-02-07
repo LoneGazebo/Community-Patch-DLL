@@ -8157,7 +8157,11 @@ UnitTypes CvGame::GetCsGiftSpawnUnitType(PlayerTypes ePlayer)
 #endif
 
 //	--------------------------------------------------------------------------------
+#if defined(MOD_BALANCE_CORE)
+UnitTypes CvGame::GetRandomUniqueUnitType(bool bIncludeCivsInGame, bool bIncludeStartEra, bool bIncludeOldEras, bool bIncludeRanged, bool bCoastal)
+#else
 UnitTypes CvGame::GetRandomUniqueUnitType(bool bIncludeCivsInGame, bool bIncludeStartEra, bool bIncludeOldEras, bool bIncludeRanged)
+#endif
 {
 	// Find the unique units that have already been assigned
 	std::set<UnitTypes> setUniquesAlreadyAssigned;
@@ -8231,11 +8235,23 @@ UnitTypes CvGame::GetRandomUniqueUnitType(bool bIncludeCivsInGame, bool bInclude
 
 		// We only want unique units
 		if(eLoopUnit == pkUnitClassInfo->getDefaultUnitIndex())
+#if defined(MOD_BALANCE_CORE)
+			//Unless they are minor civ gifts only.
+			if(!pkUnitInfo->IsMinorCivGift())
+			{
+#endif
 			continue;
+#if defined(MOD_BALANCE_CORE)
+			}
+#endif
 
 		// Is it a unique unit from a civ that is in our game?
 		if (!bIncludeCivsInGame)
 		{
+#if defined(MOD_BALANCE_CORE)
+			if(!pkUnitInfo->IsMinorCivGift())
+			{
+#endif
 			for(int iMajorLoop = 0; iMajorLoop < MAX_PLAYERS; iMajorLoop++)  // MAX_PLAYERS so that we look at Barbarian UUs (ie. Brute) as well
 			{
 				PlayerTypes eMajorLoop = (PlayerTypes) iMajorLoop;
@@ -8249,6 +8265,9 @@ UnitTypes CvGame::GetRandomUniqueUnitType(bool bIncludeCivsInGame, bool bInclude
 					}
 				}
 			}
+#if defined(MOD_BALANCE_CORE)
+			}
+#endif
 		}
 		if(!bValid)
 			continue;
@@ -8260,11 +8279,16 @@ UnitTypes CvGame::GetRandomUniqueUnitType(bool bIncludeCivsInGame, bool bInclude
 		// No Ranged units?
 		if(!bIncludeRanged && pkUnitInfo->GetRangedCombat() > 0)
 			continue;
-
+#if defined(MOD_BALANCE_CORE)
+		if(!bCoastal)
+		{
+#endif
 		// Must be land Unit
 		if(pkUnitInfo->GetDomainType() != DOMAIN_LAND)
 			continue;
-
+#if defined(MOD_BALANCE_CORE)
+		}
+#endif
 		// Technology level
 		TechTypes ePrereqTech = (TechTypes) pkUnitInfo->GetPrereqAndTech();
 		EraTypes ePrereqEra = NO_ERA;

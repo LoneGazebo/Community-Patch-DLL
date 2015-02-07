@@ -12,7 +12,7 @@
 <!-- Related to Policies-->
 		<Update>
 			<Where Name="POLICY_COST_EXPONENT"/>
-			<Set Value="2.02"/>
+			<Set Value="1.80"/>
 			<!-- 2.01 -->
 		</Update>
 		
@@ -36,12 +36,12 @@
 <!-- Related to cities and the economy -->
 		<Update>
 			<Where Name="GOLD_PURCHASE_GOLD_PER_PRODUCTION"/>
-			<Set Value="22"/>
+			<Set Value="30"/>
 			<!-- 30 -->
 		</Update>
 		<Update>
 			<Where Name="HURRY_GOLD_PRODUCTION_EXPONENT"/>
-			<Set Value="0.68"/>
+			<Set Value="0.65"/>
 			<!-- 0.75 -->
 		</Update>	
 		<Update>

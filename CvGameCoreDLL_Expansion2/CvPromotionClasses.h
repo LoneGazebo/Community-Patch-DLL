@@ -126,7 +126,9 @@ public:
 	
 	int GetTradeMissionInfluenceModifier() const;
 	int GetTradeMissionGoldModifier() const;
-
+#if defined(MOD_BALANCE_CORE)
+	bool IsGainsXPFromScouting() const;
+#endif
 	bool IsCannotBeChosen() const;
 	bool IsLostWithUpgrade() const;
 	bool IsNotWithUpgrade() const;
@@ -319,6 +321,9 @@ protected:
 	int m_iTradeMissionInfluenceModifier;
 	int m_iTradeMissionGoldModifier;
 
+#if defined(MOD_BALANCE_CORE)
+	bool m_bGainsXPFromScouting;
+#endif
 	bool m_bCannotBeChosen;
 	bool m_bLostWithUpgrade;
 	bool m_bNotWithUpgrade;

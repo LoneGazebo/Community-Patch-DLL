@@ -103,6 +103,7 @@ public:
 	int GetCultureBuildingYieldChange() const;
 #if defined(MOD_BALANCE_CORE)
 	int GetCombatBonusVsHigherPop() const;
+	bool IsBuyOwnedTiles() const;
 #endif
 	int GetCombatBonusVsHigherTech() const;
 	int GetCombatBonusVsLargerCiv() const;
@@ -305,6 +306,7 @@ protected:
 	int m_iCultureBuildingYieldChange;
 #if defined(MOD_BALANCE_CORE)
 	int m_iCombatBonusVsHigherPop;
+	bool m_bBuyOwnedTiles;
 #endif
 	int m_iCombatBonusVsHigherTech;
 	int m_iCombatBonusVsLargerCiv;
@@ -692,6 +694,10 @@ public:
 	int GetCombatBonusVsHigherPop() const
 	{
 		return m_iCombatBonusVsHigherPop;
+	};
+	bool IsBuyOwnedTiles() const
+	{
+		return m_bBuyOwnedTiles;
 	};
 #endif
 	int GetCombatBonusVsHigherTech() const
@@ -1162,6 +1168,7 @@ private:
 	int m_iCultureBuildingYieldChange;
 #if defined(MOD_BALANCE_CORE)
 	int m_iCombatBonusVsHigherPop;
+	bool m_bBuyOwnedTiles;
 #endif
 	int m_iCombatBonusVsHigherTech;
 	int m_iCombatBonusVsLargerCiv;

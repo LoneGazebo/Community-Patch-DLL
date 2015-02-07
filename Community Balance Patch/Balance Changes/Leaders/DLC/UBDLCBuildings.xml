@@ -231,6 +231,12 @@
 			<Yield>1</Yield>
 		</Row>
 	</Building_FeatureYieldChanges>
+	<Building_ClassesNeededInCity>
+		<Row>
+			<BuildingType>BUILDING_SEOWON</BuildingType>
+			<BuildingClassType>BUILDINGCLASS_LIBRARY</BuildingClassType>
+		</Row>
+	</Building_ClassesNeededInCity>
 	<Language_en_US>
 		<Row Tag="TXT_KEY_BUILDING_SEOWON">
 			<Text>Seowon</Text>
@@ -241,7 +247,7 @@
 			</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_SEOWON_HELP">
-			<Text>+1 [ICON_RESEARCH] Science from Jungle and Forest tiles worked by this City, and 50 [ICON_RESEARCH] Science every time a new [ICON_CITIZEN] Citizen is born in this City. Reduces [ICON_HAPPINESS_3] Illiteracy. Allows Archaeologists to be built in this city. +20% [ICON_GREAT_PEOPLE] Great Person rate in this City. [NEWLINE][NEWLINE]City must have a Library.</Text>
+			<Text>+20% [ICON_GREAT_PEOPLE] Great Person rate in this City. +1 [ICON_RESEARCH] Science from Jungle and Forest tiles worked by this City. Gain 50% of the [ICON_RESEARCH] Science output of the City as an instant boost to your current Research when a [ICON_CITIZEN] Citizen is born in this City. Reduces [ICON_HAPPINESS_3] Illiteracy.[NEWLINE][NEWLINE] Allows Archaeologists to be built in this city. [NEWLINE][NEWLINE]City must have a Library.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_SEOWON_STRATEGY">
 			<Text>Unique Korean replacement for the University. Generates more Science than the University, and also generates Faith. The increased Great Person rate will help you produce Great People more quickly, thus helping you to maximize Korea's Unique Ability.</Text>

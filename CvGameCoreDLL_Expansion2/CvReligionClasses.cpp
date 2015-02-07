@@ -6999,6 +6999,7 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry)
 #if defined(MOD_BALANCE_CORE_BELIEFS)
 	int iFlavorReligion = pFlavorManager->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RELIGION"));
 	int iFlavorGrowth = pFlavorManager->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GROWTH"));
+	int iFlavorEspionage = pFlavorManager->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_ESPIONAGE"));
 #endif
 #if defined(MOD_BALANCE_CORE)
 	bool bIndia = m_pPlayer->GetPlayerTraits()->IsPopulationBoostReligion();
@@ -7149,11 +7150,11 @@ BuildingClassTypes eFaithBuildingClass = NO_BUILDINGCLASS;
 		}
 		if (pEntry->GetYieldPerBirth(iI) > 0)
 		{
-			iRtnValue += (pEntry->GetYieldPerBirth(iI) * iFlavorGrowth);
+			iRtnValue += ((pEntry->GetYieldPerBirth(iI) * iFlavorGrowth) / 3);
 		}
 		if (pEntry->GetYieldPerBorderGrowth(iI) > 0)
 		{
-			iRtnValue += (pEntry->GetYieldPerBorderGrowth(iI) * iFlavorExpansion);
+			iRtnValue += ((pEntry->GetYieldPerBorderGrowth(iI) * iFlavorExpansion) / 3);
 		}
 		if (pEntry->GetYieldPerHeal(iI) > 0)
 		{
@@ -7161,7 +7162,7 @@ BuildingClassTypes eFaithBuildingClass = NO_BUILDINGCLASS;
 		}
 		if (pEntry->GetYieldPerScience(iI) > 0)
 		{
-			iRtnValue += (pEntry->GetYieldPerScience(iI) * iFlavorScience);
+			iRtnValue += ((pEntry->GetYieldPerScience(iI) * iFlavorScience) / 2);
 		}
 		if (pEntry->GetMaxYieldPerFollower(iI) > 0)
 		{
@@ -7174,6 +7175,10 @@ BuildingClassTypes eFaithBuildingClass = NO_BUILDINGCLASS;
 		if (pEntry->GetYieldBonusGoldenAge(iI) > 0)
 		{
 			iRtnValue += (pEntry->GetYieldBonusGoldenAge(iI) * iFlavorHappiness);
+			if(m_pPlayer->GetPlayerTraits()->GetGoldenAgeDurationModifier() > 0)
+			{
+				iRtnValue *= 10;
+			}
 		}
 		if (pEntry->GetYieldFromSpread(iI) > 0)
 		{
@@ -7182,12 +7187,10 @@ BuildingClassTypes eFaithBuildingClass = NO_BUILDINGCLASS;
 		if (pEntry->GetYieldFromForeignSpread(iI) > 0)
 		{
 			iRtnValue += (pEntry->GetYieldFromForeignSpread(iI) * iFlavorReligion);
-#if defined(MOD_BALANCE_CORE)
 			if(bIndia)
 			{
 				iRtnValue /= 5;
 			}
-#endif
 		}
 		if (pEntry->GetYieldFromConquest(iI) > 0)
 		{
@@ -7196,6 +7199,10 @@ BuildingClassTypes eFaithBuildingClass = NO_BUILDINGCLASS;
 		if (pEntry->GetYieldFromPolicyUnlock(iI) > 0)
 		{
 			iRtnValue += (pEntry->GetYieldFromPolicyUnlock(iI) * iFlavorCulture);
+			if(m_pPlayer->GetPlayerTraits()->GetFreeSocialPoliciesPerEra() > 0)
+			{
+				iRtnValue *= 10;
+			}
 		}
 		if (pEntry->GetYieldFromEraUnlock(iI) > 0)
 		{
@@ -7206,12 +7213,10 @@ BuildingClassTypes eFaithBuildingClass = NO_BUILDINGCLASS;
 		if (pEntry->GetYieldFromConversion(iI) > 0)
 		{
 			iRtnValue += (pEntry->GetYieldFromConversion(iI) * iFlavorReligion);
-#if defined(MOD_BALANCE_CORE)
 			if(bIndia)
 			{
 				iRtnValue /= 5;
 			}
-#endif
 		}
 		if (pEntry->GetYieldFromWLTKD(iI) > 0)
 		{
@@ -7406,7 +7411,7 @@ BuildingClassTypes eFaithBuildingClass = NO_BUILDINGCLASS;
 	if (pEntry->GetSpyPressure() > 0)
 	{
 #if defined(MOD_BALANCE_CORE)
-		iRtnValue += (pEntry->GetSpyPressure() * iFlavorDiplomacy);
+		iRtnValue += (pEntry->GetSpyPressure() * iFlavorDiplomacy * iFlavorEspionage);
 #else
 		iRtnValue += (pEntry->GetSpyPressure()* 5);
 #endif
@@ -7434,7 +7439,7 @@ BuildingClassTypes eFaithBuildingClass = NO_BUILDINGCLASS;
 	}
 	if (pEntry->GetExtraVotes() > 0)
 	{
-		iRtnValue += (pEntry->GetExtraVotes() * (iFlavorDiplomacy * 2));
+		iRtnValue += (pEntry->GetExtraVotes() * (iFlavorDiplomacy * 10));
 	}
 	if (pEntry->GetHappinessPerPantheon() > 0)
 	{
@@ -7450,7 +7455,7 @@ BuildingClassTypes eFaithBuildingClass = NO_BUILDINGCLASS;
 				}
 			}
 		}
-		iRtnValue += (pEntry->GetHappinessPerPantheon() * iPantheons);			
+		iRtnValue += (pEntry->GetHappinessPerPantheon() * iPantheons * iFlavorReligion);			
 	}
 #endif
 #if defined(MOD_BALANCE_CORE)
