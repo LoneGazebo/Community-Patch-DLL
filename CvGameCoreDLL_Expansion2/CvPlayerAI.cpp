@@ -2632,8 +2632,6 @@ CvPlot* CvPlayerAI::FindBestGreatGeneralTargetPlot(CvUnit* pGeneral, int& iResul
 			}
 		}
 	}
-
-	return NULL;
 }
 #else
 CvPlot* CvPlayerAI::FindBestArtistTargetPlot(CvUnit* pGreatArtist, int& iResultScore)
