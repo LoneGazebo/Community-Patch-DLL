@@ -7670,7 +7670,7 @@ void CvGame::addGreatPersonBornName(const CvString& szName)
 void CvGame::doTurn()
 {
 #if defined(MOD_BALANCE_CORE)
-	OutputDebugString(CvString::format("Turn \t%03i\tTime \t%012d\n", getGameTurn(), GetTickCount()));
+	OutputDebugString(CvString::format("Turn \t%03i\tTime \t%012u\n", getGameTurn(), GetTickCount()));
 #else
 #ifndef FINAL_RELEASE
 	char temp[256];

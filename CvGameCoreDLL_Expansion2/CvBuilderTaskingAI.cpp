@@ -1386,7 +1386,7 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirectives(CvUnit* pUnit, CvPlot* pPlo
 				{
 					iDefense = pPlot->GetDefenseBuildValue();
 				}
-				if(iDefense > 0)
+				if(iDefense-iScore > 0)
 				{
 					continue;
 				}
@@ -3107,6 +3107,9 @@ void CvBuilderTaskingAI::UpdateCurrentPlotYields(CvPlot* pPlot)
 		}
 #if defined(MOD_BALANCE_CORE)
 		}
+		else
+			//zero it
+			m_aiCurrentPlotYields[ui] = 0;
 #endif
 	}
 }
@@ -3136,6 +3139,9 @@ void CvBuilderTaskingAI::UpdateProjectedPlotYields(CvPlot* pPlot, BuildTypes eBu
 		}
 #if defined(MOD_BALANCE_CORE)
 		}
+		else
+			//zero it!
+			m_aiProjectedPlotYields[ui] = 0;
 #endif
 	}
 }
