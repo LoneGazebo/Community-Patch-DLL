@@ -255,6 +255,17 @@ void CvDealAI::DoAcceptedDeal(PlayerTypes eFromPlayer, const CvDeal& kDeal, int 
 
 		eUIState = DIPLO_UI_STATE_BLANK_DISCUSSION;
 
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+		// We're offering help to a player
+		if (MOD_DIPLOMACY_CIV4_FEATURES && GetPlayer()->GetDiplomacyAI()->IsOfferingGift(eFromPlayer))
+		{
+			//End the gift exchange after this.
+			GetPlayer()->GetDiplomacyAI()->SetOfferingGift(eFromPlayer, false);
+			szText = GetPlayer()->GetDiplomacyAI()->GetDiploStringForMessage(DIPLO_MESSAGE_TRADE_ACCEPT_AI_DEMAND);
+			eAnimation = LEADERHEAD_ANIM_YES;
+		}
+		else
+#endif
 		// Good deal for us
 		if(iDealValueToMe >= 100 ||
 		        iValueTheyreOffering > (iValueImOffering * 5))	// A deal can be generous if we're getting a lot overall, OR a lot more than we're giving up
@@ -547,7 +558,13 @@ bool CvDealAI::IsDealWithHumanAcceptable(CvDeal* pDeal, PlayerTypes eOtherPlayer
 	int iPercentUnderWeWillOffer;
 
 	bCantMatchOffer = false;
-
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	// We're offering help to a player
+	if (MOD_DIPLOMACY_CIV4_FEATURES && GetPlayer()->GetDiplomacyAI()->IsOfferingGift(eOtherPlayer))
+	{
+		return true;
+	}
+#endif
 	// Deal leeway with human
 	iPercentOverWeWillRequest = GetDealPercentLeewayWithHuman();
 	iPercentUnderWeWillOffer = 0;
@@ -591,13 +608,6 @@ bool CvDealAI::IsDealWithHumanAcceptable(CvDeal* pDeal, PlayerTypes eOtherPlayer
 			return true;
 		}
 	}
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	// We're offering help to a player
-	else if (MOD_DIPLOMACY_CIV4_FEATURES && pDeal->GetOfferingPlayer() == GetPlayer()->GetID())
-	{
-		return true;
-	}
-#endif
 
 	// Peace deal where we're not surrendering, value must equal cached value
 	else if (pDeal->IsPeaceTreatyTrade(eOtherPlayer))

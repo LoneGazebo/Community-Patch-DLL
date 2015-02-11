@@ -1609,7 +1609,7 @@
 			<Text>Wonderful.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GENERIC_TRADE_ACCEPT_AI_DEMAND_4">
-			<Text>That wasn't so bad, was it?</Text>
+			<Text>You made a wise decision.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GENERIC_TRADE_ACCEPT_HUMAN_CONCESSIONS_3">
 			<Text>That was a wise move.</Text>

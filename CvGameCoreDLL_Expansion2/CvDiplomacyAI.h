@@ -828,6 +828,9 @@ public:
 	void DoTechOffer(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
 	void DoGenerousOffer(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
 
+	bool IsOfferingGift(PlayerTypes ePlayer) const;	// We're offering a gift!
+	void SetOfferingGift(PlayerTypes ePlayer, bool bValue);
+
 	// Requests
 	bool IsTechRequest(PlayerTypes ePlayer, CvDeal* pDeal, int& iWeightBias);
 
@@ -1364,6 +1367,9 @@ private:
 
 		bool m_abDenouncedPlayer[MAX_MAJOR_CIVS];
 		bool m_abFriendDenouncedUs[MAX_MAJOR_CIVS];
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+		bool m_abOfferingGift[MAX_MAJOR_CIVS];
+#endif
 		bool m_abFriendDeclaredWarOnUs[MAX_MAJOR_CIVS];
 		short m_aiDenouncedPlayerCounter[MAX_MAJOR_CIVS];
 
@@ -1637,7 +1643,9 @@ private:
 	bool* m_pabFriendDenouncedUs;
 	bool* m_pabFriendDeclaredWarOnUs;
 	short* m_paiDenouncedPlayerCounter;
-
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	bool* m_pabOfferingGift;
+#endif
 	short* m_paiNumRequestsRefused;
 
 	short* m_paiNumCiviliansReturnedToMe;

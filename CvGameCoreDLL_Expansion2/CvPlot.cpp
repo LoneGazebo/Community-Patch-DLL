@@ -12644,6 +12644,7 @@ int CvPlot::GetDefenseBuildValue()
 		return 0;
 	}
 	ImprovementTypes eFort = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_FORT");
+	ImprovementTypes eCitadel = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_CITADEL");
 
 	// See how many outside plots are nearby to monitor
 	int iAdjacentUnowned = 0;
@@ -12655,48 +12656,39 @@ int CvPlot::GetDefenseBuildValue()
 	{
 		CvPlot* pLoopAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
 
-		//check some preconditions
+		//Don't want them adjacent to cities, but we do want to check for plot ownership.
 		if (pLoopAdjacentPlot != NULL)
 		{	
-			// don't build next to cities
 			if(pLoopAdjacentPlot->isCity())
 			{
+				//Adjacent to city? Break!
 				return 0;
 			}
-			
-			// don't build next to citadel either
-			ImprovementTypes eImprovement = pLoopAdjacentPlot->getImprovementType();
-			if(eImprovement != NO_IMPROVEMENT && !pLoopAdjacentPlot->IsImprovementPillaged())
-			{
-				int iDamage = GC.getImprovementInfo(eImprovement)->GetNearbyEnemyDamage();
-				if(iDamage != 0)
-					return 0;
-			}
-
-			if(pLoopAdjacentPlot->isImpassable() || pLoopAdjacentPlot->isWater())
+			else if(pLoopAdjacentPlot->isImpassable() || pLoopAdjacentPlot->isWater())
 			{
 				//don't consider impassable and water plots
 				continue;
 			}
-			else if(pLoopAdjacentPlot->getOwner()==NO_PLAYER)
+			else if(pLoopAdjacentPlot->getOwner() == NO_PLAYER)
 			{
 				iAdjacentUnowned++;
 			}
-			else if(pLoopAdjacentPlot->getOwner()!=getOwner() && !(GET_PLAYER(pLoopAdjacentPlot->getOwner()).isMinorCiv()))
+			else if(pLoopAdjacentPlot->getOwner() != getOwner() && !(GET_PLAYER(pLoopAdjacentPlot->getOwner()).isMinorCiv()))
 			{
 				iAdjacentOwned++;
 			}
-
 			//Let's check for adjacent forts as well
-			if(eFort != NO_IMPROVEMENT && pLoopAdjacentPlot->getImprovementType() == eFort)
+			if(eFort != NO_IMPROVEMENT)
 			{
-				iAdjacentForts++;
+				if((pLoopAdjacentPlot->getImprovementType() == eFort) || (pLoopAdjacentPlot->getImprovementType() == eCitadel))
+				{
+					iAdjacentForts++;
+				}
 			}
 		}
 	}
-
 	//If there are unowned or enemy tiles, this is a nice 'frontier' position.
-	if( (iAdjacentUnowned > 2) || (iAdjacentOwned > 0) )
+	if( (iAdjacentUnowned > 3) || (iAdjacentOwned > 0) )
 	{
 		//check the wider area for enemy tiles. may also be on another landmass
 		for(int iX = -iRange; iX <= iRange; iX++)
@@ -12712,28 +12704,47 @@ int CvPlot::GetDefenseBuildValue()
 					{
 						iNearbyOwned++;
 					}
+					if ((eFort != NO_IMPROVEMENT) && (eCitadel != NO_IMPROVEMENT))
+					{
+						//Let's check for nearby forts as well
+						if(pLoopNearbyPlot->getImprovementType() != NO_IMPROVEMENT)
+						{
+							if((eFort == pLoopNearbyPlot->getImprovementType()) || (eCitadel == pLoopNearbyPlot->getImprovementType()))
+							{
+								iAdjacentForts++;
+							}
+						}
+					}
 				}
 			}
 		}
 
 		//only build a fort if it's somewhat close to the enemy
-		if (iNearbyOwned==0)
+		if (iNearbyOwned == 0)
+		{
 			return 0;
+		}
 
 		// Get score for this sentry point (defense and danger)
 		int iScore = GET_PLAYER(getOwner()).GetPlotDanger(*this);
 
 		iScore += defenseModifier(eTeam, true);
 		iScore += iAdjacentUnowned;
-		//Reduction if forts nearby.
-		iScore -= iAdjacentForts*20;
+
+		//Bonus for nearby owned tiles
+		iScore += iNearbyOwned * 5;
+		
 		//Big Bonus if adjacent to enemy territory.
-		iScore += iNearbyOwned;
-		iScore += (iAdjacentOwned*10);
+		iScore += (iAdjacentOwned * 50);
 
 		//Big bonus if chokepoint
 		if(IsChokePoint())
+		{
 			iScore += 50;
+		}
+		
+		//Reduction if forts nearby.
+		iScore -= iAdjacentForts * 25;
 
 		return iScore;
 	}

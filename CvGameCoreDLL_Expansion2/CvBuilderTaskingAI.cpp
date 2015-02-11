@@ -1374,7 +1374,11 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirectives(CvUnit* pUnit, CvPlot* pPlo
 				{
 					if(pPlot->getOwner() == m_pPlayer->GetID())
 					{
-						iScore = pPlot->GetDefenseBuildValue();
+						int iDefense = pPlot->GetDefenseBuildValue();
+						if(iDefense > iScore)
+						{
+							iScore = iDefense;
+						}
 					}
 				}
 			}

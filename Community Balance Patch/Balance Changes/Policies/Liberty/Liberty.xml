@@ -31,14 +31,14 @@
 		<Row>
 			<PolicyType>POLICY_COLLECTIVE_RULE</PolicyType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>25</Yield>
+			<Yield>20</Yield>
 		</Row>
 	</Policy_YieldFromBirth>
 	<Policy_YieldFromBirthCapital>
 		<Row>
 			<PolicyType>POLICY_COLLECTIVE_RULE</PolicyType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Yield>50</Yield>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>20</Yield>
 		</Row>
 	</Policy_YieldFromBirthCapital>
 	<Policy_PrereqPolicies>

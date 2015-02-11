@@ -251,9 +251,9 @@
 	</Policy_UnitCombatProductionModifiers>
 	<Policy_ConquerorYield>
 		<Row>
-			<PolicyType>POLICY_HONOR</PolicyType>
+			<PolicyType>POLICY_HONOR_FINISHER</PolicyType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>20</Yield>
+			<Yield>10</Yield>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_HONOR_FINISHER</PolicyType>
@@ -288,13 +288,13 @@
 	<Policy_YieldFromBorderGrowth>
 		<Row>
 			<PolicyType>POLICY_DISCIPLINE</PolicyType>
-			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>10</Yield>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>5</Yield>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_DISCIPLINE</PolicyType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>15</Yield>
+			<Yield>10</Yield>
 		</Row>
 	</Policy_YieldFromBorderGrowth>
 	<Policy_PrereqPolicies>
