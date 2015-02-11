@@ -7,7 +7,7 @@
     <Guid>45ebbd48-b1ec-4065-8bdb-ad4f14f33674</Guid>
     <ModVersion>1</ModVersion>
     <Stability>Beta</Stability>
-    <Teaser>Compatibility files for Health and Plague and CBP (2/6)</Teaser>
+    <Teaser>Compatibility files for Health and Plague and CBP (2/10)</Teaser>
     <Description>Includes files to make Health and Plague and the CBP work together. Requires CSD as well in order to function.</Description>
     <Authors>Gazebo</Authors>
     <SpecialThanks>

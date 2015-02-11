@@ -6888,24 +6888,23 @@ bool CvHomelandAI::FindUnitsForThisMove(AIHomelandMove eMove, bool bFirstTime)
 				case AI_HOMELAND_MOVE_SENTRY:
 					// No ranged units as sentries
 #if defined(MOD_BALANCE_CORE)
-					if(pLoopUnit->isFortifyable() && !pLoopUnit->noDefensiveBonus())
+					if(pLoopUnit->isFortifyable() && !pLoopUnit->noDefensiveBonus() && pLoopUnit->AI_getUnitAIType() != UNITAI_EXPLORE)
 #else
 					if(!pLoopUnit->isRanged() && !pLoopUnit->noDefensiveBonus())
 #endif
 					{
 						bSuitableUnit = true;
 
+						
+#if defined(MOD_BALANCE_CORE)
+						// Units with extra defense are especially valuable
+						if((pLoopUnit->getDefenseModifier() > 0) || (pLoopUnit->getExtraRangedDefenseModifier() > 0))
+#else
 						// Units with extra sight are especially valuable
 						if(pLoopUnit->getExtraVisibilityRange() > 0)
+#endif
 						{
-#if defined(MOD_BALANCE_CORE)
-							if(pLoopUnit->AI_getUnitAIType() != UNITAI_EXPLORE)
-							{
-#endif
 							bHighPriority = true;
-#if defined(MOD_BALANCE_CORE)
-							}
-#endif
 						}
 					}
 #if defined(MOD_BALANCE_CORE)

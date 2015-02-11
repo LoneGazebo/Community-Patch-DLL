@@ -5842,7 +5842,11 @@ int CvUnit::healRate(const CvPlot* pPlot) const
 
 	const IDInfo* pUnitNode;
 	CvCity* pCity = pPlot->getPlotCity();
+
+#if defined(MOD_BALANCE_CORE_BELIEFS)
+#else
 	CvCity* pClosestCity = NULL;
+#endif
 	const CvUnit* pLoopUnit;
 	CvPlot* pLoopPlot;
 
@@ -5850,7 +5854,27 @@ int CvUnit::healRate(const CvPlot* pPlot) const
 	int iExtraFriendlyHeal = getExtraFriendlyHeal();
 	int iExtraNeutralHeal = getExtraNeutralHeal();
 	int iExtraEnemyHeal = getExtraEnemyHeal();
-
+#if defined(MOD_BALANCE_CORE_BELIEFS)
+	int iReligionMod = 0;
+	if(GET_PLAYER(getOwner()).getCapitalCity() != NULL)
+	{
+		ReligionTypes eMajority = GET_PLAYER(getOwner()).getCapitalCity()->GetCityReligions()->GetReligiousMajority();
+		if(eMajority != NO_RELIGION)
+		{
+			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, getOwner());
+			if(pReligion)
+			{
+				iReligionMod = pReligion->m_Beliefs.GetFriendlyHealChange();
+				BeliefTypes eSecondaryPantheon = GET_PLAYER(getOwner()).getCapitalCity()->GetCityReligions()->GetSecondaryReligionPantheonBelief();
+				if (eSecondaryPantheon != NO_BELIEF)
+				{
+					iReligionMod += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetFriendlyHealChange();
+				}
+				iExtraFriendlyHeal += iReligionMod;
+			}
+		}
+	}
+#else
 	// Heal from religion
 	int iReligionMod = 0;
 	if(!pCity)
@@ -5879,7 +5903,7 @@ int CvUnit::healRate(const CvPlot* pPlot) const
 			}
 		}
 	}
-
+#endif
 	// Heal from units
 	int iBestHealFromUnits = 0;
 	pUnitNode = pPlot->headUnitNode();
@@ -6015,20 +6039,9 @@ void CvUnit::doHeal()
 	{
 		changeDamage(-(healRate(plot())));
 #if defined(MOD_BALANCE_CORE_BELIEFS)
-		CvCity* pCity = plot()->getPlotCity();
-		CvCity* pClosestCity = NULL;
-		// Faith from religion heal
-		if(!pCity)
+		if(GET_PLAYER(getOwner()).getCapitalCity() != NULL)
 		{
-			pClosestCity = plot()->GetAdjacentFriendlyCity(getTeam());
-		}
-		else
-		{
-			pClosestCity = pCity;
-		}
-		if(pClosestCity && pClosestCity->getOwner() == getOwner())
-		{
-			ReligionTypes eMajority = pClosestCity->GetCityReligions()->GetReligiousMajority();
+			ReligionTypes eMajority = GET_PLAYER(getOwner()).getCapitalCity()->GetCityReligions()->GetReligiousMajority();
 			if(eMajority != NO_RELIGION)
 			{
 				const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, getOwner());
@@ -6050,7 +6063,7 @@ void CvUnit::doHeal()
 							DLLUI->AddPopupText(getX(),getY(), text, fDelay);
 						}
 					}
-					BeliefTypes eSecondaryPantheon = pClosestCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
+					BeliefTypes eSecondaryPantheon = GET_PLAYER(getOwner()).getCapitalCity()->GetCityReligions()->GetSecondaryReligionPantheonBelief();
 					if (eSecondaryPantheon != NO_BELIEF)
 					{
 						if(GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetYieldPerHeal(YIELD_FAITH) > 0)
@@ -6067,7 +6080,7 @@ void CvUnit::doHeal()
 					}
 				}
 			}
-		}	
+		}
 #endif
 	}
 }
@@ -16397,15 +16410,10 @@ if (!bDoEvade)
 						kPlayer.GetTreasury()->ChangeGold(iNumGold);
 
 #if defined(MOD_BALANCE_CORE_POLICIES)
-						int iEra = GET_PLAYER(getOwner()).GetCurrentEra();
-						if(iEra < 1)
-						{
-							iEra = 1;
-						}
 						float fDelay = 0.5f;
 						if(GET_PLAYER(getOwner()).getConquerorYield(YIELD_CULTURE) > 0)
 						{	
-							int iCulturePoints = (GET_PLAYER(getOwner()).getConquerorYield(YIELD_CULTURE) * iEra);
+							int iCulturePoints = (GET_PLAYER(getOwner()).getConquerorYield(YIELD_CULTURE));
 							GET_PLAYER(getOwner()).changeJONSCulture(iCulturePoints);
 							if(GET_PLAYER(getOwner()).GetID() == GC.getGame().getActivePlayer())
 							{

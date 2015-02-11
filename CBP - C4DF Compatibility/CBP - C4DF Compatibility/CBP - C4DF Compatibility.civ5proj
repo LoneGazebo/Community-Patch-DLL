@@ -7,7 +7,7 @@
     <Guid>c3b17db8-aaa5-46d2-8ec7-0ed0aa0780ea</Guid>
     <ModVersion>1</ModVersion>
     <Stability>Beta</Stability>
-    <Teaser>Compatibility Files for Civ IV Diplomatic Features (2/6)</Teaser>
+    <Teaser>Compatibility Files for Civ IV Diplomatic Features (2/10)</Teaser>
     <Description>Updates the CBP to be compatible with Civ IV DIplomatic Features.</Description>
     <Authors>Gazebo</Authors>
     <SpecialThanks>
@@ -35,6 +35,13 @@
       </Association>
       <Association>
         <Type>Mod</Type>
+        <Name>CP- C4DF Compatibility</Name>
+        <Id>46352714-87cd-4a8a-bb26-32df84021615</Id>
+        <MinVersion>0</MinVersion>
+        <MaxVersion>999</MaxVersion>
+      </Association>
+      <Association>
+        <Type>Mod</Type>
         <Name>Community Balance Patch</Name>
         <Id>8411a7a8-dad3-4622-a18e-fcc18324c799</Id>
         <MinVersion>0</MinVersion>
@@ -42,8 +49,8 @@
       </Association>
       <Association>
         <Type>Mod</Type>
-        <Name>CP- C4DF Compatibility</Name>
-        <Id>46352714-87cd-4a8a-bb26-32df84021615</Id>
+        <Name>Community Patch</Name>
+        <Id>d1b6328c-ff44-4b0d-aad7-c657f83610cd</Id>
         <MinVersion>0</MinVersion>
         <MaxVersion>999</MaxVersion>
       </Association>

@@ -2537,7 +2537,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 			float fDelay = 3.0f;
 			if(getConquerorYield(YIELD_GOLDEN_AGE_POINTS) > 0)
 			{	
-				int iGoldenAgePoints = (getConquerorYield(YIELD_GOLDEN_AGE_POINTS) * pOldCity->getPopulation() * iEra);
+				int iGoldenAgePoints = (getConquerorYield(YIELD_GOLDEN_AGE_POINTS) * iEra);
 				if(pOldCity->isCapital())
 				{
 					iGoldenAgePoints *= 2;
@@ -2553,7 +2553,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 			}
 			if(getConquerorYield(YIELD_CULTURE) > 0)
 			{	
-				int iCulturePoints = (getConquerorYield(YIELD_CULTURE) * pOldCity->getPopulation() * iEra);
+				int iCulturePoints = (getConquerorYield(YIELD_CULTURE) * iEra);
 				if(pOldCity->isCapital())
 				{
 					iCulturePoints *= 2;
@@ -2573,7 +2573,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 			}
 			if(getConquerorYield(YIELD_GOLD) > 0)
 			{	
-				int iGoldPoints = (getConquerorYield(YIELD_GOLD) * pOldCity->getPopulation() * iEra);
+				int iGoldPoints = (getConquerorYield(YIELD_GOLD) * iEra);
 				if(pOldCity->isCapital())
 				{
 					iGoldPoints *= 2;
@@ -2589,7 +2589,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 			}
 			if(getConquerorYield(YIELD_SCIENCE) > 0)
 			{	
-				int iSciencePoints = (getConquerorYield(YIELD_SCIENCE) * pOldCity->getPopulation() * iEra);
+				int iSciencePoints = (getConquerorYield(YIELD_SCIENCE) * iEra);
 				if(pOldCity->isCapital())
 				{
 					iSciencePoints *= 2;
@@ -2613,7 +2613,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 			}
 			if(getConquerorYield(YIELD_FAITH) > 0)
 			{	
-				int iFaithPoints = (getConquerorYield(YIELD_FAITH) * pOldCity->getPopulation() * iEra);
+				int iFaithPoints = (getConquerorYield(YIELD_FAITH) * iEra);
 				if(pOldCity->isCapital())
 				{
 					iFaithPoints *= 2;
@@ -15185,6 +15185,10 @@ int CvPlayer::GetUnhappinessFromOccupiedCities(CvCity* pAssumeCityAnnexed, CvCit
 		// Occupied Cities
 		else if(pLoopCity->IsOccupied() && !pLoopCity->IsNoOccupiedUnhappiness())
 			bCityValid = true;
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+		if(pLoopCity->IsResistance() || pLoopCity->IsRazing())
+			bCityValid = true;
+#endif
 
 		if(bCityValid)
 		{

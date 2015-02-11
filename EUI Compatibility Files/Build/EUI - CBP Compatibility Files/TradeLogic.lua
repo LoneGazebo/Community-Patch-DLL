@@ -1,3 +1,4 @@
+print("This is the modded TradeLogic from EUI - CBP- C4DF")
 -- modified by bc1 from 1.0.3.276 brave new world code
 -- code is common using gk_mode and bnw_mode switches
 -- show missing cash for trade agreements

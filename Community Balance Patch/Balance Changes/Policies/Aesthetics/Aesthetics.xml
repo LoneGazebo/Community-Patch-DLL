@@ -6,7 +6,7 @@
 		<Row>
 			<PolicyType>POLICY_AESTHETICS</PolicyType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>100</Yield>
+			<Yield>30</Yield>
 		</Row>
 	</Policy_YieldGPExpend>
 	<!-- Cultural Centers -->
@@ -15,83 +15,100 @@
 			<PolicyType>POLICY_CULTURAL_CENTERS</PolicyType>
 			<BuildingClassType>BUILDINGCLASS_AMPHITHEATER</BuildingClassType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<YieldChange>1</YieldChange>
+			<YieldChange>3</YieldChange>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_CULTURAL_CENTERS</PolicyType>
 			<BuildingClassType>BUILDINGCLASS_OPERA_HOUSE</BuildingClassType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<YieldChange>1</YieldChange>
+			<YieldChange>3</YieldChange>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_CULTURAL_CENTERS</PolicyType>
 			<BuildingClassType>BUILDINGCLASS_MUSEUM</BuildingClassType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<YieldChange>1</YieldChange>
+			<YieldChange>3</YieldChange>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_CULTURAL_CENTERS</PolicyType>
 			<BuildingClassType>BUILDINGCLASS_BROADCAST_TOWER</BuildingClassType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<YieldChange>1</YieldChange>
+			<YieldChange>3</YieldChange>
 		</Row>
 	</Policy_BuildingClassYieldChanges>
-	<Policy_BuildingClassCultureChanges>
-		<Row>
-			<PolicyType>POLICY_CULTURAL_CENTERS</PolicyType>
-			<BuildingClassType>BUILDINGCLASS_AMPHITHEATER</BuildingClassType>
-			<CultureChange>1</CultureChange>
-		</Row>
-		<Row>
-			<PolicyType>POLICY_CULTURAL_CENTERS</PolicyType>
-			<BuildingClassType>BUILDINGCLASS_OPERA_HOUSE</BuildingClassType>
-			<CultureChange>1</CultureChange>
-		</Row>
-		<Row>
-			<PolicyType>POLICY_CULTURAL_CENTERS</PolicyType>
-			<BuildingClassType>BUILDINGCLASS_MUSEUM</BuildingClassType>
-			<CultureChange>1</CultureChange>
-		</Row>
-		<Row>
-			<PolicyType>POLICY_CULTURAL_CENTERS</PolicyType>
-			<BuildingClassType>BUILDINGCLASS_BROADCAST_TOWER</BuildingClassType>
-			<CultureChange>1</CultureChange>
-		</Row>
-	</Policy_BuildingClassCultureChanges>
-	<!-- Fine Art -->
 	<Policy_GreatWorkYieldChanges>
 		<Row>
-			<PolicyType>POLICY_FINE_ARTS</PolicyType>
+			<PolicyType>POLICY_CULTURAL_CENTERS</PolicyType>
 			<YieldType>YIELD_GOLD</YieldType>
 			<Yield>1</Yield>
 		</Row>
 	</Policy_GreatWorkYieldChanges>
+	<!-- Fine Art -->
+	<Policy_BuildingClassHappiness>
+		<Row>
+			<PolicyType>POLICY_FINE_ARTS</PolicyType>
+			<BuildingClassType>BUILDINGCLASS_MUSEUM</BuildingClassType>
+			<Happiness>1</Happiness>
+		</Row>
+	</Policy_BuildingClassHappiness>
 	<!-- Artistic Genius -->
 	<Policy_ImprovementCultureChanges>
 		<Row>
 			<PolicyType>POLICY_ARTISTIC_GENIUS</PolicyType>
 			<ImprovementType>IMPROVEMENT_HOLY_SITE</ImprovementType>
-			<CultureChange>1</CultureChange>
+			<CultureChange>2</CultureChange>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_ARTISTIC_GENIUS</PolicyType>
 			<ImprovementType>IMPROVEMENT_ACADEMY</ImprovementType>
-			<CultureChange>1</CultureChange>
+			<CultureChange>2</CultureChange>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_ARTISTIC_GENIUS</PolicyType>
 			<ImprovementType>IMPROVEMENT_CUSTOMS_HOUSE</ImprovementType>
-			<CultureChange>1</CultureChange>
+			<CultureChange>2</CultureChange>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_ARTISTIC_GENIUS</PolicyType>
 			<ImprovementType>IMPROVEMENT_MANUFACTORY</ImprovementType>
-			<CultureChange>1</CultureChange>
+			<CultureChange>2</CultureChange>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_ARTISTIC_GENIUS</PolicyType>
 			<ImprovementType>IMPROVEMENT_CITADEL</ImprovementType>
-			<CultureChange>1</CultureChange>
+			<CultureChange>2</CultureChange>
 		</Row>
-	</Policy_ImprovementCultureChanges>	
+	</Policy_ImprovementCultureChanges>
+	<Policy_ImprovementYieldChanges>
+		<Row>
+			<PolicyType>POLICY_ARTISTIC_GENIUS</PolicyType>
+			<ImprovementType>IMPROVEMENT_HOLY_SITE</ImprovementType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_ARTISTIC_GENIUS</PolicyType>
+			<ImprovementType>IMPROVEMENT_ACADEMY</ImprovementType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_ARTISTIC_GENIUS</PolicyType>
+			<ImprovementType>IMPROVEMENT_CUSTOMS_HOUSE</ImprovementType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_ARTISTIC_GENIUS</PolicyType>
+			<ImprovementType>IMPROVEMENT_MANUFACTORY</ImprovementType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_ARTISTIC_GENIUS</PolicyType>
+			<ImprovementType>IMPROVEMENT_CITADEL</ImprovementType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>1</Yield>
+		</Row>
+	</Policy_ImprovementYieldChanges>
 </GameData>
