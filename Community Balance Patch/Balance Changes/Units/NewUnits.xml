@@ -125,6 +125,7 @@
 			<Combat>16</Combat>
 			<Cost>180</Cost>
 			<FaithCost>360</FaithCost>
+			<RequiresFaithPurchaseEnabled>true</RequiresFaithPurchaseEnabled>
 			<Moves>3</Moves>
 			<PrereqTech>TECH_ASTRONOMY</PrereqTech>
 			<ObsoleteTech>TECH_SATELLITES</ObsoleteTech>

@@ -659,10 +659,6 @@
 	SET ResourceType = 'RESOURCE_IRON'
 	WHERE UnitType = 'UNIT_WWI_TANK' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
-	UPDATE Units
-	SET RequiresFaithPurchaseEnabled = 'true'
-	WHERE Type = 'UNIT_WWI_TANK' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
-
 	-- Make Modern Armor cost oil, not aluminum:
 	UPDATE Unit_ResourceQuantityRequirements
 	SET ResourceType = 'RESOURCE_OIL'
