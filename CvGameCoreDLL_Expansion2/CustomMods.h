@@ -31,9 +31,6 @@
 // Comment out this line to include all the achievements code (which don't work in modded games, so we don't need the code!)
 #define NO_ACHIEVEMENTS
 
-// Coastal cities are assigned to the water body as well as the land area they are on
-#define MOD_CORE_RIPARIAN_CITIES
-
 #define MOD_BALANCE_CORE_MILITARY_LOGGING
 
 // unhappiness from public opinion scales linearly with dissatisfaction

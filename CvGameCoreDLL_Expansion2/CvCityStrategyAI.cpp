@@ -968,6 +968,10 @@ void CvCityStrategyAI::ChooseProduction(bool bUseAsyncRandom, BuildingTypes eIgn
 					}
 				}
 
+#if defined(MOD_BALANCE_CORE)
+				if ( GetUnitProductionAI()->CheckUnitBuildSanity((UnitTypes)iUnitLoop) )
+					m_Buildables.push_back(buildable, iTempWeight);
+#else
 				// sanity check for building ships on small inland seas (not lakes)
 				if (pkUnitEntry)
 				{
@@ -979,19 +983,10 @@ void CvCityStrategyAI::ChooseProduction(bool bUseAsyncRandom, BuildingTypes eIgn
 						{
 							int iWaterTiles = pBiggestNearbyBodyOfWater->getNumTiles();
 							int iNumUnitsofMine = pBiggestNearbyBodyOfWater->getUnitsPerPlayer(m_pCity->getOwner());
-#if defined(MOD_CORE_RIPARIAN_CITIES)
-							int iNumUnitsOther = pBiggestNearbyBodyOfWater->getNumUnits()-iNumUnitsofMine;
-							int iNumCitiesofMine = pBiggestNearbyBodyOfWater->getCitiesPerPlayer(m_pCity->getOwner());
-							int iNumCitiesOther = pBiggestNearbyBodyOfWater->getNumCities()-iNumCitiesofMine;
-#endif
 
 #if defined(MOD_CONFIG_AI_IN_XML)
 							int iFactor = GC.getAI_CONFIG_MILITARY_TILES_PER_SHIP();
-	#if defined(MOD_CORE_RIPARIAN_CITIES)
-							if (iNumUnitsofMine * iFactor > iWaterTiles || (iNumUnitsOther==0 && iNumCitiesOther==0) )
-	#else
 							if (iNumUnitsofMine * iFactor > iWaterTiles)
-	#endif
 #else
 							if (iNumUnitsofMine * 5 > iWaterTiles)
 #endif
@@ -1006,9 +1001,9 @@ void CvCityStrategyAI::ChooseProduction(bool bUseAsyncRandom, BuildingTypes eIgn
 					}
 				}
 
-
 				if(iTempWeight > 0)
 					m_Buildables.push_back(buildable, iTempWeight);
+#endif
 			}
 		}
 

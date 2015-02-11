@@ -12655,15 +12655,25 @@ int CvPlot::GetDefenseBuildValue()
 	{
 		CvPlot* pLoopAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
 
-		//Don't want them adjacent to cities, but we do want to check for plot ownership.
+		//check some preconditions
 		if (pLoopAdjacentPlot != NULL)
 		{	
+			// don't build next to cities
 			if(pLoopAdjacentPlot->isCity())
 			{
-				//Adjacent to city? Break!
 				return 0;
 			}
-			else if(pLoopAdjacentPlot->isImpassable() || pLoopAdjacentPlot->isWater())
+			
+			// don't build next to citadel either
+			ImprovementTypes eImprovement = pLoopAdjacentPlot->getImprovementType();
+			if(eImprovement != NO_IMPROVEMENT && !pLoopAdjacentPlot->IsImprovementPillaged())
+			{
+				int iDamage = GC.getImprovementInfo(eImprovement)->GetNearbyEnemyDamage();
+				if(iDamage != 0)
+					return 0;
+			}
+
+			if(pLoopAdjacentPlot->isImpassable() || pLoopAdjacentPlot->isWater())
 			{
 				//don't consider impassable and water plots
 				continue;
@@ -12684,6 +12694,7 @@ int CvPlot::GetDefenseBuildValue()
 			}
 		}
 	}
+
 	//If there are unowned or enemy tiles, this is a nice 'frontier' position.
 	if( (iAdjacentUnowned > 2) || (iAdjacentOwned > 0) )
 	{
