@@ -2012,6 +2012,8 @@
 				<PediaEntry>TXT_KEY_PROMOTION_BUFFALO_CHEST</PediaEntry>
 				<OpenAttack>10</OpenAttack>
 				<OpenDefense>10</OpenDefense>
+				<RoughDefense>10</RoughDefense>
+				<RoughAttack>10</RoughAttack>
 				<FlankAttackModifier>25</FlankAttackModifier>
 				<RangedDefenseMod>10</RangedDefenseMod>
 			</Row>
@@ -2025,12 +2027,12 @@
 				<IconAtlas>EXPANSION2_PROMOTION_ATLAS</IconAtlas>
 				<PediaType>PEDIA_ATTRIBUTES</PediaType>
 				<PediaEntry>TXT_KEY_PROMOTION_BUFFALO_LOINS</PediaEntry>
-				<OpenAttack>10</OpenAttack>
-				<OpenDefense>10</OpenDefense>
-				<RoughDefense>10</RoughDefense>
-				<RoughAttack>10</RoughAttack>
-				<FlankAttackModifier>25</FlankAttackModifier>
-				<RangedDefenseMod>10</RangedDefenseMod>
+				<OpenAttack>15</OpenAttack>
+				<OpenDefense>15</OpenDefense>
+				<RoughDefense>15</RoughDefense>
+				<RoughAttack>15</RoughAttack>
+				<FlankAttackModifier>50</FlankAttackModifier>
+				<RangedDefenseMod>15</RangedDefenseMod>
 			</Row>
 			<!-- Entries below this are intrinsic special Unit abilities, and never awarded for gaining XP/levels -->
 			<Row>
@@ -2494,6 +2496,7 @@
 				<Help>TXT_KEY_PROMOTION_GREAT_ADMIRAL_HELP</Help>
 				<Sound>AS2D_IF_LEVELUP</Sound>
 				<GreatAdmiral>true</GreatAdmiral>
+				<MovesChange>1</MovesChange>
 				<PortraitIndex>59</PortraitIndex>
 				<IconAtlas>ABILITY_ATLAS</IconAtlas>
 				<PediaType>PEDIA_ATTRIBUTES</PediaType>

@@ -87,7 +87,7 @@ WHERE BeliefType = 'BELIEF_SACRED_PATH' AND FeatureType = 'FEATURE_JUNGLE' AND E
 
 -- Faith Healers
 UPDATE Beliefs
-SET FriendlyHealChange = '20'
+SET FriendlyHealChange = '10'
 WHERE Type = 'BELIEF_FAITH_HEALERS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Monuments to the Gods

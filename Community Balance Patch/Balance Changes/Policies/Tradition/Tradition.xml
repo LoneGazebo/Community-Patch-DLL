@@ -9,12 +9,12 @@
 		<Row>
 			<PolicyType>POLICY_ARISTOCRACY</PolicyType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>20</Yield>
+			<Yield>25</Yield>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_OLIGARCHY</PolicyType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>20</Yield>
+			<Yield>25</Yield>
 		</Row>
 	</Policy_CapitalYieldPerPopChanges>
 	<Policy_CityYieldChanges>
@@ -97,6 +97,5 @@
 			<BuildingClassType>BUILDINGCLASS_TOURIST_CENTER</BuildingClassType>
 			<Happiness>1</Happiness>
 		</Row>
-		
 	</Policy_BuildingClassHappiness>
 </GameData>

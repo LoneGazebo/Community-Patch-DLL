@@ -20,53 +20,60 @@
 			<YieldType>YIELD_FOOD</YieldType>
 			<Yield>1</Yield>
 		</Row>
+		<Row>
+			<BeliefType>BELIEF_SUN_GOD</BeliefType>
+			<ImprovementType>IMPROVEMENT_FARM</ImprovementType>
+			<YieldType>YIELD_FAITH</YieldType>
+			<Yield>1</Yield>
+		</Row>
 	</Belief_ImprovementYieldChanges>
+	<Belief_CoastalCityYieldChanges>
+		<Row>
+			<BeliefType>BELIEF_GOD_SEA</BeliefType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>2</Yield>
+		</Row>
+	</Belief_CoastalCityYieldChanges>
 	<Belief_BuildingClassYieldChanges>
 		<Row>
 			<BeliefType>BELIEF_FERTILITY_RITES</BeliefType>
 			<BuildingClassType>BUILDINGCLASS_GRANARY</BuildingClassType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<YieldChange>1</YieldChange>
+			<YieldChange>2</YieldChange>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_EARTH_MOTHER</BeliefType>
-			<BuildingClassType>BUILDINGCLASS_WALLS</BuildingClassType>
+			<BuildingClassType>BUILDINGCLASS_SHRINE</BuildingClassType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<YieldChange>2</YieldChange>
+			<YieldChange>3</YieldChange>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_OPEN_SKY</BeliefType>
 			<BuildingClassType>BUILDINGCLASS_STABLE</BuildingClassType>
-			<YieldType>YIELD_CULTURE</YieldType>
-			<YieldChange>2</YieldChange>
-		</Row>
-		<Row>
-			<BeliefType>BELIEF_GOD_SEA</BeliefType>
-			<BuildingClassType>BUILDINGCLASS_LIGHTHOUSE</BuildingClassType>
-			<YieldType>YIELD_PRODUCTION</YieldType>
+			<YieldType>YIELD_FOOD</YieldType>
 			<YieldChange>2</YieldChange>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_GOD_WAR</BeliefType>
-			<BuildingClassType>BUILDINGCLASS_COLOSSEUM</BuildingClassType>
-			<YieldType>YIELD_CULTURE</YieldType>
+			<BuildingClassType>BUILDINGCLASS_BARRACKS</BuildingClassType>
+			<YieldType>YIELD_SCIENCE</YieldType>
 			<YieldChange>2</YieldChange>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_GODDESS_STRATEGY</BeliefType>
-			<BuildingClassType>BUILDINGCLASS_BARRACKS</BuildingClassType>
+			<BuildingClassType>BUILDINGCLASS_WALLS</BuildingClassType>
 			<YieldType>YIELD_FAITH</YieldType>
 			<YieldChange>2</YieldChange>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_STONE_CIRCLES</BeliefType>
 			<BuildingClassType>BUILDINGCLASS_STONE_WORKS</BuildingClassType>
-			<YieldType>YIELD_CULTURE</YieldType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
 			<YieldChange>2</YieldChange>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_ORAL_TRADITION</BeliefType>
-			<BuildingClassType>BUILDINGCLASS_AMPHITHEATER</BuildingClassType>
+			<BuildingClassType>BUILDINGCLASS_MARKET</BuildingClassType>
 			<YieldType>YIELD_CULTURE</YieldType>
 			<YieldChange>2</YieldChange>
 		</Row>
@@ -101,12 +108,12 @@
 		<Row>
 			<BeliefType>BELIEF_GODDESS_LOVE</BeliefType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>10</Yield>
+			<Yield>5</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_GODDESS_LOVE</BeliefType>
 			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Yield>5</Yield>
+			<Yield>3</Yield>
 		</Row>
 	</Belief_YieldPerBirth>
 	<Belief_YieldChangeTradeRoute>
@@ -153,21 +160,21 @@
 			<BeliefType>BELIEF_ANCESTOR_WORSHIP</BeliefType>
 			<BuildingClassType>BUILDINGCLASS_PALACE</BuildingClassType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
-			<YieldChange>1</YieldChange>
+			<YieldChange>2</YieldChange>
 		</Row>
 	</Belief_BuildingClassYieldChanges>
 	<Belief_YieldPerBorderGrowth>
 		<Row>
 			<BeliefType>BELIEF_RELIGIOUS_SETTLEMENTS</BeliefType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>10</Yield>
+			<Yield>5</Yield>
 		</Row>
 	</Belief_YieldPerBorderGrowth>
 	<Belief_YieldPerHeal>
 		<Row>
 			<BeliefType>BELIEF_FAITH_HEALERS</BeliefType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>10</Yield>
+			<Yield>2</Yield>
 		</Row>
 	</Belief_YieldPerHeal>
 	<Belief_FeatureYieldChanges>

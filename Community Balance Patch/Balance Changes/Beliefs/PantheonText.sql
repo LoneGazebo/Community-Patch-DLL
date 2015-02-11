@@ -7,27 +7,27 @@ WHERE Tag = 'TXT_KEY_BELIEF_GODDESS_HUNT' AND EXISTS (SELECT * FROM COMMUNITY WH
 
 -- Fertility Rites
 UPDATE Language_en_US
-SET Text = '+1 [ICON_PEACE] Faith from Granaries, and 10% faster [ICON_FOOD] Growth Rate'
+SET Text = '+2 [ICON_PEACE] Faith from Granaries, and 10% faster [ICON_FOOD] Growth Rate'
 WHERE Tag = 'TXT_KEY_BELIEF_FERTILITY_RITES' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- God of Craftsmen
 UPDATE Language_en_US
-SET Text = '+1 [ICON_PEACE] Faith for every 10 [ICON_GOLD] Gold per turn, and +1 [ICON_PRODUCTION] Production in cities with population of 3+'
+SET Text = '+1 [ICON_PEACE] Faith for every 10 [ICON_GOLD] Gold per turn, and +1 [ICON_PRODUCTION] Production in Cities with population of 3+'
 WHERE Tag = 'TXT_KEY_BELIEF_GOD_CRAFTSMEN' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- God of the Sea
 UPDATE Language_en_US
-SET Text = '+1 [ICON_PEACE] Faith from Fishing Boats and +2 [ICON_PRODUCTION] Production from Lighthouses'
+SET Text = '+1 [ICON_PEACE] Faith from Fishing Boats and +2 [ICON_PRODUCTION] Production in coastal Cities'
 WHERE Tag = 'TXT_KEY_BELIEF_GOD_SEA' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- God of the Open Sky
 UPDATE Language_en_US
-SET Text = '+1 [ICON_PEACE] Faith from Pastures and +2 [ICON_CULTURE] Culture from Stables'
+SET Text = '+1 [ICON_PEACE] Faith from Pastures and +2 [ICON_FOOD] Food from Stables'
 WHERE Tag = 'TXT_KEY_BELIEF_OPEN_SKY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Messenger of the Gods
 UPDATE Language_en_US
-SET Text = '+2 [ICON_PEACE] Faith and +2 [ICON_RESEARCH] Science in cities with a [ICON_CONNECTED] City Connection'
+SET Text = '+2 [ICON_PEACE] Faith and +2 [ICON_RESEARCH] Science in Cities with a [ICON_CONNECTED] City Connection'
 WHERE Tag = 'TXT_KEY_BELIEF_MESSENGER_GODS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- One With Nature
@@ -46,12 +46,12 @@ WHERE Tag = 'TXT_KEY_BELIEF_FORMAL_LITURGY_SHORT' AND EXISTS (SELECT * FROM COMM
 
 -- Stone Circles
 UPDATE Language_en_US
-SET Text = '+1 [ICON_PEACE] Faith from Quarries, and +2 [ICON_CULTURE] Culture from Stone Works'
+SET Text = '+2 [ICON_PEACE] Faith from Quarries, and +2 [ICON_PRODUCTION] Production from Stone Works'
 WHERE Tag = 'TXT_KEY_BELIEF_STONE_CIRCLES' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- God of War
 UPDATE Language_en_US
-SET Text = '+2 [ICON_CULTURE] Culture from Colosseums, and gain [ICON_PEACE] Faith if you win a battle'
+SET Text = '+2 [ICON_RESEARCH] Science from Barracks, and gain [ICON_PEACE] Faith if you win a battle'
 WHERE Tag = 'TXT_KEY_BELIEF_GOD_WAR' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Sacred Waters
@@ -60,17 +60,17 @@ SET Text = 'Places of Power'
 WHERE Tag = 'TXT_KEY_BELIEF_SACRED_WATERS_SHORT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '+2 [ICON_PEACE] Faith from Mountains, Oases, and Atolls, and +1 [ICON_HAPPINESS_1] Happiness from cities on rivers'
+SET Text = '+2 [ICON_PEACE] Faith from Mountains, Oases, and Atolls, and +1 [ICON_HAPPINESS_1] Happiness from Cities on rivers'
 WHERE Tag = 'TXT_KEY_BELIEF_SACRED_WATERS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Goddess of Love
 UPDATE Language_en_US
-SET Text = 'Gain 10 [ICON_PEACE] Faith and 5 [ICON_GOLDEN_AGE] Golden Age Points every time a [ICON_CITIZEN] Citizen is born. Bonus scales with Era'
+SET Text = 'Gain 5 [ICON_PEACE] Faith and 3 [ICON_GOLDEN_AGE] Golden Age Points every time a [ICON_CITIZEN] Citizen is born. Bonus scales with Era'
 WHERE Tag = 'TXT_KEY_BELIEF_GODDESS_LOVE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Religious Settlements
 UPDATE Language_en_US
-SET Text = '+10% faster border growth, and gain 10 [ICON_PEACE] Faith every time a city expands its borders. Bonus scales with Era'
+SET Text = '+10% faster border growth, and gain 5 [ICON_PEACE] Faith every time a city expands its borders. Bonus scales with Era'
 WHERE Tag = 'TXT_KEY_BELIEF_RELIGIOUS_SETTLEMENTS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- God of Festivals
@@ -80,12 +80,12 @@ WHERE Tag = 'TXT_KEY_BELIEF_GOD_FESTIVALS' AND EXISTS (SELECT * FROM COMMUNITY W
 
 -- Oral Tradition
 UPDATE Language_en_US
-SET Text = '+1 [ICON_PEACE] Faith from Plantations, and +2 [ICON_CULTURE] Culture from Amphitheaters'
+SET Text = '+1 [ICON_PEACE] Faith from Plantations, and +2 [ICON_CULTURE] Culture from Markets'
 WHERE Tag = 'TXT_KEY_BELIEF_ORAL_TRADITION' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Ancestor Worship
 UPDATE Language_en_US
-SET Text = '+1 [ICON_PEACE] Faith for every 5 [ICON_CITIZEN] Citizens in a city, and +1 [ICON_PRODUCTION] Production in [ICON_CAPITAL] Capital'
+SET Text = '+1 [ICON_PEACE] Faith for every 5 [ICON_CITIZEN] Citizens in a city, and +2 [ICON_PRODUCTION] Production in [ICON_CAPITAL] Capital'
 WHERE Tag = 'TXT_KEY_BELIEF_ANCESTOR_WORSHIP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Desert Folklore
@@ -101,12 +101,12 @@ WHERE Tag = 'TXT_KEY_BELIEF_SACRED_PATH' AND EXISTS (SELECT * FROM COMMUNITY WHE
 
 -- Goddess of Protection
 UPDATE Language_en_US
-SET Text = '+30% increase in city [ICON_RANGE_STRENGTH] Ranged Combat Strength, and +2 [ICON_PEACE] Faith from Barracks'
+SET Text = '+30% increase in city [ICON_RANGE_STRENGTH] Ranged Combat Strength, and +2 [ICON_PEACE] Faith from Walls'
 WHERE Tag = 'TXT_KEY_BELIEF_GODDESS_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Faith Healers
 UPDATE Language_en_US
-SET Text = '+15 HP healed per turn if adjacent to a friendly city. Gain 10 [ICON_PEACE] Faith when healed this way. Bonus scales with Era'
+SET Text = '+10 HP healed per turn in friendly territory. Gain 2 [ICON_PEACE] Faith when healed this way. Bonus scales with Era'
 WHERE Tag = 'TXT_KEY_BELIEF_FAITH_HEALERS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Monuments to the Gods
@@ -130,7 +130,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_TEARS_OF_GODS_SHORT' AND EXISTS (SELECT * FROM COMMU
 
 -- Earth Mother
 UPDATE Language_en_US
-SET Text = '+1 [ICON_PEACE] Faith from Mines on improved resources, and +2 [ICON_GOLD] Gold from Walls'
+SET Text = '+1 [ICON_PEACE] Faith from Mines on improved resources, and +3 [ICON_GOLD] Gold from Shrines'
 WHERE Tag = 'TXT_KEY_BELIEF_EARTH_MOTHER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- God-King
@@ -140,5 +140,5 @@ WHERE Tag = 'TXT_KEY_BELIEF_GOD_KING' AND EXISTS (SELECT * FROM COMMUNITY WHERE 
 
 -- Sun God
 UPDATE Language_en_US
-SET Text = '+1 [ICON_FOOD] Food from Farms on improved resources, and +2 [ICON_PEACE] Faith in the [ICON_CAPITAL] Capital'
+SET Text = '+1 [ICON_FOOD] Food and +1 [ICON_PEACE] Faith from Farms on improved resources, and +2 [ICON_PEACE] Faith in the [ICON_CAPITAL] Capital'
 WHERE Tag = 'TXT_KEY_BELIEF_SUN_GOD' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );

@@ -117,6 +117,6 @@ WHERE Tag = 'TXT_KEY_BUILDING_GRAND_OSSUARY_HELP';
 -- Sweden Trait 
 
 --Sweden Trait (Bonus Text)
-UPDATE Language_en_US
+UPDATE Language_de_DE
 SET Text = 'Alle Diplomatischen Einheiten starten mit der Nobelpreisträger Beförderung, welche +25% [ICON_INFLUENCE] Einfluss für Diplomatische Missionen gewährt. Wenn eine Freundschaftserklärung vereinbart wird, erlangt Schweden und sein Freund +10% auf die Generierung von Großen Persönlichkeiten.'
 WHERE Tag = 'TXT_KEY_TRAIT_DIPLOMACY_GREAT_PEOPLE';

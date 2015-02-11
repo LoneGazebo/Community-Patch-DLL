@@ -78,6 +78,9 @@ CvDiplomacyAI::DiplomacyAIData::DiplomacyAIData() :
 	, m_aiDoFCounter()
 	, m_abDenouncedPlayer()
 	, m_abFriendDenouncedUs()
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	, m_abOfferingGift()
+#endif
 	, m_abFriendDeclaredWarOnUs()
 	, m_aiDenouncedPlayerCounter()
 	, m_aiNumRequestsRefused()
@@ -262,6 +265,9 @@ CvDiplomacyAI::CvDiplomacyAI():
 	m_pabFriendDenouncedUs(NULL),
 	m_pabFriendDeclaredWarOnUs(NULL),
 	m_paiDenouncedPlayerCounter(NULL),
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	m_pabOfferingGift(NULL),
+#endif
 
 	m_paiNumRequestsRefused(NULL),
 
@@ -481,6 +487,9 @@ void CvDiplomacyAI::Init(CvPlayer* pPlayer)
 	m_pabFriendDenouncedUs = &m_pDiploData->m_abFriendDenouncedUs[0];
 	m_pabFriendDeclaredWarOnUs = &m_pDiploData->m_abFriendDeclaredWarOnUs[0];
 	m_paiDenouncedPlayerCounter = &m_pDiploData->m_aiDenouncedPlayerCounter[0];
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	m_pabOfferingGift = &m_pDiploData->m_abOfferingGift[0];
+#endif
 
 	m_paiNumRequestsRefused = &m_pDiploData->m_aiNumRequestsRefused[0];
 
@@ -754,7 +763,9 @@ void CvDiplomacyAI::Uninit()
 	m_pabFriendDenouncedUs = NULL;
 	m_pabFriendDeclaredWarOnUs = NULL;
 	m_paiDenouncedPlayerCounter = NULL;
-
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	m_pabOfferingGift = NULL;
+#endif
 	m_paiNumRequestsRefused = NULL;
 
 	m_paiNumCiviliansReturnedToMe = NULL;
@@ -969,7 +980,9 @@ void CvDiplomacyAI::Reset()
 		m_pabFriendDenouncedUs[iI] = false;
 		m_pabFriendDeclaredWarOnUs[iI] = false;
 		m_paiDenouncedPlayerCounter[iI] = -1;
-
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+		m_pabOfferingGift[iI] = false;
+#endif
 		m_paiNumRequestsRefused[iI] = 0;
 
 		m_paiNumCiviliansReturnedToMe[iI] = 0;
@@ -1382,6 +1395,11 @@ void CvDiplomacyAI::Read(FDataStream& kStream)
 
 	ArrayWrapper<short> wrapm_paiNumRequestsRefused(MAX_MAJOR_CIVS, m_paiNumRequestsRefused);
 	kStream >> wrapm_paiNumRequestsRefused;
+
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	ArrayWrapper<bool> wrapm_pabOfferingGift(MAX_MAJOR_CIVS, m_pabOfferingGift);
+	kStream >> wrapm_pabOfferingGift;
+#endif
 
 	ArrayWrapper<short> wrapm_paiNumCiviliansReturnedToMe(MAX_MAJOR_CIVS, m_paiNumCiviliansReturnedToMe);
 	kStream >> wrapm_paiNumCiviliansReturnedToMe;
@@ -1812,6 +1830,10 @@ void CvDiplomacyAI::Write(FDataStream& kStream) const
 	kStream << ArrayWrapper<bool>(MAX_MAJOR_CIVS, m_pabFriendDeclaredWarOnUs);
 
 	kStream << ArrayWrapper<short>(MAX_MAJOR_CIVS, m_paiNumRequestsRefused);
+
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	kStream << ArrayWrapper<bool>(MAX_MAJOR_CIVS, m_pabOfferingGift);
+#endif
 
 	kStream << ArrayWrapper<short>(MAX_MAJOR_CIVS, m_paiNumCiviliansReturnedToMe);
 	kStream << ArrayWrapper<short>(MAX_MAJOR_CIVS, m_paiNumLandmarksBuiltForMe);
@@ -16386,107 +16408,110 @@ void CvDiplomacyAI::DoVictoryCompetitionStatement(PlayerTypes ePlayer, DiploStat
 	{
 		return;
 	}
-	int iVictoryDisputeWeight;
-	EraTypes eModern = (EraTypes) GC.getInfoTypeForString("ERA_MODERN", true);
-	iVictoryDisputeWeight = 9;
-	iVictoryDisputeWeight *= GetVictoryCompetitiveness();
-	bool bSkip = false;
-	bool bLeagueCompetitor = false;
-	bool bSpaceRace = false;
-	int iVotes = 0;
-	int iNeededVotes = 0;
-	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
-	if(pLeague != NULL)
+	if(eStatement == NO_DIPLO_STATEMENT_TYPE)
 	{
-		iVotes = pLeague->CalculateStartingVotesForMember(ePlayer);
-		iNeededVotes = GC.getGame().GetVotesNeededForDiploVictory();
-		if(iNeededVotes > 0)
+		int iVictoryDisputeWeight;
+		EraTypes eModern = (EraTypes) GC.getInfoTypeForString("ERA_MODERN", true);
+		iVictoryDisputeWeight = 9;
+		iVictoryDisputeWeight *= GetVictoryCompetitiveness();
+		bool bSkip = false;
+		bool bLeagueCompetitor = false;
+		bool bSpaceRace = false;
+		int iVotes = 0;
+		int iNeededVotes = 0;
+		CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
+		if(pLeague != NULL)
 		{
-			// 33% there? Competitor!
-			if(iVotes >= (iNeededVotes / 3))
+			iVotes = pLeague->CalculateStartingVotesForMember(ePlayer);
+			iNeededVotes = GC.getGame().GetVotesNeededForDiploVictory();
+			if(iNeededVotes > 0)
 			{
-				bLeagueCompetitor = true;
+				// 33% there? Competitor!
+				if(iVotes >= (iNeededVotes / 3))
+				{
+					bLeagueCompetitor = true;
+				}
 			}
 		}
-	}
-	ProjectTypes eApolloProgram = (ProjectTypes) GC.getInfoTypeForString("PROJECT_APOLLO_PROGRAM", true);
-	if(eApolloProgram != NO_PROJECT)
-	{
-		if(GET_TEAM(GetPlayer()->getTeam()).getProjectCount(eApolloProgram) > 0)
+		ProjectTypes eApolloProgram = (ProjectTypes) GC.getInfoTypeForString("PROJECT_APOLLO_PROGRAM", true);
+		if(eApolloProgram != NO_PROJECT)
 		{
-			//We've both built the Apollo? Competitor!
-			if(GET_TEAM(GET_PLAYER(ePlayer).getTeam()).getProjectCount(eApolloProgram) > 0)
+			if(GET_TEAM(GetPlayer()->getTeam()).getProjectCount(eApolloProgram) > 0)
 			{
-				bSpaceRace = true;
+				//We've both built the Apollo? Competitor!
+				if(GET_TEAM(GET_PLAYER(ePlayer).getTeam()).getProjectCount(eApolloProgram) > 0)
+				{
+					bSpaceRace = true;
+				}
 			}
 		}
-	}
-	MajorCivOpinionTypes eOpinion = GetMajorCivOpinion(ePlayer);
-	if(eOpinion >= MAJOR_CIV_OPINION_FAVORABLE)
-	{
-		bSkip = true;
-	}
-	if(eStatement == NO_DIPLO_STATEMENT_TYPE && !bSkip)
-	{
-		DiploStatementTypes eTempStatement;
+		MajorCivOpinionTypes eOpinion = GetMajorCivOpinion(ePlayer);
+		if(eOpinion >= MAJOR_CIV_OPINION_FAVORABLE)
+		{
+			bSkip = true;
+		}
+		if(!bSkip)
+		{
+			DiploStatementTypes eTempStatement;
 
-		if(GetPlayer()->GetGrandStrategyAI()->GetGuessOtherPlayerActiveGrandStrategy(ePlayer) == eMyGrandStrategy)
-		{
-			if(GetPlayer()->GetGrandStrategyAI()->GetGuessOtherPlayerActiveGrandStrategyConfidence(ePlayer) >= GUESS_CONFIDENCE_LIKELY)
+			if(GetPlayer()->GetGrandStrategyAI()->GetGuessOtherPlayerActiveGrandStrategy(ePlayer) == eMyGrandStrategy)
 			{
-				if(iVictoryDisputeWeight >= 50)
-				{						
-					//Conquered a capital? You are in our way!
+				if(GetPlayer()->GetGrandStrategyAI()->GetGuessOtherPlayerActiveGrandStrategyConfidence(ePlayer) >= GUESS_CONFIDENCE_LIKELY)
+				{
+					if(iVictoryDisputeWeight >= 50)
+					{						
+						//Conquered a capital? You are in our way!
 #if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
-					if(IsGoingForWorldConquest() && (GetPlayer()->GetNumCapitalCities() > 0))
+						if(IsGoingForWorldConquest() && (GetPlayer()->GetNumCapitalCities() > 0))
 #else
-					if(IsGoingForWorldConquest())
+						if(IsGoingForWorldConquest())
 #endif
-					{			
-						eTempStatement = DIPLO_STATEMENT_VICTORY_COMPETITION_ANNOUNCE_WORLD_CONQUEST;
-						if(GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
-						{
-							eStatement = eTempStatement;
-							return;
+						{			
+							eTempStatement = DIPLO_STATEMENT_VICTORY_COMPETITION_ANNOUNCE_WORLD_CONQUEST;
+							if(GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
+							{
+								eStatement = eTempStatement;
+								return;
+							}
 						}
-					}
-					else if(IsGoingForDiploVictory() && bLeagueCompetitor)
-					{
-						
-						eTempStatement = DIPLO_STATEMENT_VICTORY_COMPETITION_ANNOUNCE_WORLD_CONGRESS;
-						if(GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
+						else if(IsGoingForDiploVictory() && bLeagueCompetitor)
 						{
-							eStatement = eTempStatement;
-							return;
+							
+							eTempStatement = DIPLO_STATEMENT_VICTORY_COMPETITION_ANNOUNCE_WORLD_CONGRESS;
+							if(GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
+							{
+								eStatement = eTempStatement;
+								return;
+							}
 						}
-					}
-					else if(IsGoingForCultureVictory() && (GET_PLAYER(ePlayer).GetCulture()->GetNumCivsInfluentialOn() > 0))
-					{
-						//We've both influenced someone? Competitor!
-						eTempStatement = DIPLO_STATEMENT_VICTORY_COMPETITION_ANNOUNCE_CULTURE;
-						if(GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
+						else if(IsGoingForCultureVictory() && (GET_PLAYER(ePlayer).GetCulture()->GetNumCivsInfluentialOn() > 0))
 						{
-							eStatement = eTempStatement;
-							return;
+							//We've both influenced someone? Competitor!
+							eTempStatement = DIPLO_STATEMENT_VICTORY_COMPETITION_ANNOUNCE_CULTURE;
+							if(GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
+							{
+								eStatement = eTempStatement;
+								return;
+							}
 						}
-					}
-					else if(IsGoingForSpaceshipVictory() && bSpaceRace)
-					{
-						eTempStatement = DIPLO_STATEMENT_VICTORY_COMPETITION_ANNOUNCE_SPACESHIP;
-						if(GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
+						else if(IsGoingForSpaceshipVictory() && bSpaceRace)
 						{
-							eStatement = eTempStatement;
-							return;
+							eTempStatement = DIPLO_STATEMENT_VICTORY_COMPETITION_ANNOUNCE_SPACESHIP;
+							if(GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
+							{
+								eStatement = eTempStatement;
+								return;
+							}
 						}
-					}
-					//Don't have it figured out, but we're competitive? Grr!
-					else if(GetPlayer()->GetCurrentEra() > eModern)
-					{
-						eTempStatement = DIPLO_STATEMENT_VICTORY_COMPETITION_ANNOUNCE_CONFUSED;
-						if(GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
+						//Don't have it figured out, but we're competitive? Grr!
+						else if(GetPlayer()->GetCurrentEra() > eModern)
 						{
-							eStatement = eTempStatement;
-							return;
+							eTempStatement = DIPLO_STATEMENT_VICTORY_COMPETITION_ANNOUNCE_CONFUSED;
+							if(GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
+							{
+								eStatement = eTempStatement;
+								return;
+							}
 						}
 					}
 				}
@@ -18644,7 +18669,14 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 	case FROM_UI_DIPLO_EVENT_REQUEST_HUMAN_REFUSAL:
 	{
 		GetPlayer()->GetDiplomacyAI()->ChangeRecentAssistValue(eFromPlayer, iArg1);
-
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+		// We're offering help to a player
+		if (MOD_DIPLOMACY_CIV4_FEATURES && GetPlayer()->GetDiplomacyAI()->IsOfferingGift(eFromPlayer))
+		{
+			//End the gift exchange after this.
+			GetPlayer()->GetDiplomacyAI()->SetOfferingGift(eFromPlayer, false);
+		}
+#endif
 		if(bActivePlayer)
 		{
 			strText = GetDiploStringForMessage(DIPLO_MESSAGE_DISAPPOINTED);
@@ -30071,11 +30103,12 @@ void CvDiplomacyAI::DoGenerousOffer(PlayerTypes ePlayer, DiploStatementTypes& eS
 			if(bMakeGenerousOffer)
 			{
 				eStatement = eTempStatement;
-				pDeal->SetOfferingPlayer(GetPlayer()->GetID());
+				SetOfferingGift(ePlayer, true);
 			}
-
 			else
+			{
 				pDeal->ClearItems();
+			}
 			
 			// Add this statement to the log so we don't evaluate it again until 15 turns has come back around
 			if(!bRandPassed)
@@ -30083,7 +30116,23 @@ void CvDiplomacyAI::DoGenerousOffer(PlayerTypes ePlayer, DiploStatementTypes& eS
 		}
 	}
 }
+bool CvDiplomacyAI::IsOfferingGift(PlayerTypes ePlayer) const
+{
+	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	return m_pabOfferingGift[ePlayer];
+}
 
+void CvDiplomacyAI::SetOfferingGift(PlayerTypes ePlayer, bool bValue)
+{
+	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+
+	if(bValue != IsOfferingGift(ePlayer))
+	{
+		m_pabOfferingGift[ePlayer] = bValue;
+	}
+}
 /// Does this AI want something?
 bool CvDiplomacyAI::IsTechRequest(PlayerTypes ePlayer, CvDeal* pDeal, int& iWeightBias)
 {

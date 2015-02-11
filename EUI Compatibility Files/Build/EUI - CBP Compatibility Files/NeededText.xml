@@ -5,5 +5,8 @@
 		<Row Tag="TXT_KEY_DEBUG_X_Y">
 			<Text>X: {1_Num} / Y: {2_Num}</Text>
 		</Row>
+		<Row Tag="TXT_KEY_TRAIT_POPULATION_GROWTH_NEW">
+			<Text>Population Growth</Text>
+		</Row>
 	</Language_en_US>
 </GameData>
