@@ -313,6 +313,16 @@ void CvHomelandAI::EstablishHomelandPriorities()
 		{
 			iFlavorCulture = m_pPlayer->GetFlavorManager()->GetIndividualFlavor((FlavorTypes)iFlavorLoop);
 		}
+#ifdef AUI_HOMELAND_FIX_ESTABLISH_HOMELAND_PRIORITIES_MISSING_FLAVORS
+		else if (GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_TILE_IMPROVEMENT")
+		{
+			iFlavorImprove = m_pPlayer->GetFlavorManager()->GetIndividualFlavor((FlavorTypes)iFlavorLoop);
+		}
+		else if (GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_NAVAL_TILE_IMPROVEMENT")
+		{
+			iFlavorNavalImprove = m_pPlayer->GetFlavorManager()->GetIndividualFlavor((FlavorTypes)iFlavorLoop);
+		}
+#endif // AUI_HOMELAND_FIX_ESTABLISH_HOMELAND_PRIORITIES_MISSING_FLAVORS
 	}
 
 	// Loop through each possible homeland move (other than "none" or "unassigned")
@@ -6843,11 +6853,13 @@ bool CvHomelandAI::FindUnitsForThisMove(AIHomelandMove eMove, bool bFirstTime)
 					continue;
 				}
 
+#ifndef AUI_HOMELAND_ALWAYS_MOVE_SCOUTS
 				// Scouts aren't useful unless recon is entirely shut off
 				if(pLoopUnit->AI_getUnitAIType() == UNITAI_EXPLORE && m_pPlayer->GetEconomicAI()->GetReconState() != RECON_STATE_ENOUGH)
 				{
 					continue;
 				}
+#endif // AUI_HOMELAND_ALWAYS_MOVE_SCOUTS
 
 				bool bSuitableUnit = false;
 				bool bHighPriority = false;

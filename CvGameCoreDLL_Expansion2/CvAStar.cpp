@@ -956,6 +956,7 @@ int PathDestValid(int iToX, int iToY, const void* pointer, CvAStar* finder)
 
 	if(bAIControl)
 	{
+#ifndef AUI_ASTAR_FIX_CONSIDER_DANGER_ONLY_PATH
 		if(!(finder->GetInfo() & MOVE_UNITS_IGNORE_DANGER))
 		{
 			if(!pUnit->IsCombatUnit() || pUnit->getArmyID() == FFreeList::INVALID_INDEX)
@@ -966,6 +967,7 @@ int PathDestValid(int iToX, int iToY, const void* pointer, CvAStar* finder)
 				}
 			}
 		}
+#endif // AUI_ASTAR_FIX_CONSIDER_DANGER_ONLY_PATH
 
 		if(pCacheData->getDomainType() == DOMAIN_LAND)
 		{
@@ -1578,7 +1580,11 @@ int PathValid(CvAStarNode* parent, CvAStarNode* node, int data, const void* poin
 			{
 				if(!bUnitIsCombat || pUnit->getArmyID() == FFreeList::INVALID_INDEX)
 				{
+#ifdef AUI_ASTAR_FIX_CONSIDER_DANGER_USES_COMBAT_STRENGTH
+					if(GET_PLAYER(unit_owner).GetPlotDanger(*pFromPlot) > pUnit->GetBaseCombatStrengthConsideringDamage() * AUI_ASTAR_FIX_CONSIDER_DANGER_USES_COMBAT_STRENGTH)
+#else
 					if(GET_PLAYER(unit_owner).GetPlotDanger(*pFromPlot) > 0)
+#endif // AUI_ASTAR_FIX_CONSIDER_DANGER_USES_COMBAT_STRENGTH
 					{
 						return FALSE;
 					}
@@ -3777,7 +3783,11 @@ int TacticalAnalysisMapPathValid(CvAStarNode* parent, CvAStarNode* node, int dat
 			{
 				if(!bUnitIsCombat || pUnit->getArmyID() == FFreeList::INVALID_INDEX)
 				{
+#ifdef AUI_ASTAR_FIX_CONSIDER_DANGER_USES_COMBAT_STRENGTH
+					if(GET_PLAYER(unit_owner).GetPlotDanger(*pFromPlot) > pUnit->GetBaseCombatStrengthConsideringDamage() * AUI_ASTAR_FIX_CONSIDER_DANGER_USES_COMBAT_STRENGTH)
+#else
 					if(GET_PLAYER(unit_owner).GetPlotDanger(*pFromPlot) > 0)
+#endif // AUI_ASTAR_FIX_CONSIDER_DANGER_USES_COMBAT_STRENGTH
 					{
 						return FALSE;
 					}
@@ -3840,6 +3850,13 @@ int FindValidDestinationDest(int iToX, int iToY, const void* pointer, CvAStar* f
 //	--------------------------------------------------------------------------------
 int FindValidDestinationPathValid(CvAStarNode* parent, CvAStarNode* node, int data, const void* pointer, CvAStar* finder)
 {
+#ifdef AUI_ASTAR_FIX_FASTER_CHECKS
+	if (node->m_iData2 > 3)
+	{
+		return FALSE;
+	}
+#endif // AUI_ASTAR_FIX_FASTER_CHECKS
+
 	CvUnit* pUnit = ((CvUnit*)pointer);
 	CvPlot* pToPlot = GC.getMap().plotUnchecked(node->m_iX, node->m_iY);
 

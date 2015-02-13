@@ -173,9 +173,12 @@ TechTypes CvTechAI::ChooseNextTech(CvPlayer *pPlayer, bool bFreeTech)
 		}
 	}
 
-	// Reweight our possible choices by their cost, but only if cost is actually a factor!
+#ifdef AUI_TECHAI_CHOOSE_NEXT_TECH_FREE_TECH_WANTS_EXPENSIVE
+	ReweightByCost(pPlayer, bFreeTech);
+#else
 	if(!bFreeTech)
 		ReweightByCost(pPlayer);
+#endif // AUI_TECHAI_CHOOSE_NEXT_TECH_FREE_TECH_WANTS_EXPENSIVE
 
 	m_ResearchableTechs.SortItems();
 	LogPossibleResearch();
@@ -348,12 +351,21 @@ void CvTechAI::PropagateWeights(int iTech, int iWeight, int iPropagationPercent,
 }
 
 /// Recompute weights taking into account tech cost
+#ifdef AUI_TECHAI_CHOOSE_NEXT_TECH_FREE_TECH_WANTS_EXPENSIVE
+void CvTechAI::ReweightByCost(CvPlayer *pPlayer, bool bWantsExpensive)
+#else
 void CvTechAI::ReweightByCost(CvPlayer *pPlayer)
+#endif // AUI_TECHAI_CHOOSE_NEXT_TECH_FREE_TECH_WANTS_EXPENSIVE
 {
 	TechTypes eTech;
 
 	// April 2014 Balance Patch: if lots of science overflow, want to pick an expensive tech
 	bool bNeedExpensiveTechs = pPlayer->getOverflowResearchTimes100() > (pPlayer->GetScienceTimes100() * 2);
+
+#ifdef AUI_TECHAI_CHOOSE_NEXT_TECH_FREE_TECH_WANTS_EXPENSIVE
+	if (bWantsExpensive)
+		bNeedExpensiveTechs = true;
+#endif // AUI_TECHAI_CHOOSE_NEXT_TECH_FREE_TECH_WANTS_EXPENSIVE
 
 	for(int iI = 0; iI < m_ResearchableTechs.size(); iI++)
 	{

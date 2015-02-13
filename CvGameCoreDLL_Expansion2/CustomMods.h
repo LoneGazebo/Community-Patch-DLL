@@ -33,6 +33,78 @@
 
 #define MOD_BALANCE_CORE_MILITARY_LOGGING
 
+/// Enables the Binomial Random Number Generator
+#define AUI_BINOM_RNG
+/// Reorders some checks to make sure ones that process faster get executed first (if they fail, then the function skips checking the slower ones)
+#define AUI_ASTAR_FIX_FASTER_CHECKS
+/// Gets the last node before the parent (used for planning melee attacks to know where they'd attack from)
+#define AUI_ASTAR_GET_PENULTIMATE_NODE
+/// The danger of a tile will only be considered when checking path nodes, not when checking the destination (stops units from freezing in panic)
+#define AUI_ASTAR_FIX_CONSIDER_DANGER_ONLY_PATH
+/// If the pathfinder does not ignore danger, use the unit's combat strength times this value as the danger limit instead of 0 (important for combat units)
+#define AUI_ASTAR_FIX_CONSIDER_DANGER_USES_COMBAT_STRENGTH (4)
+/// Flavors that weren't previously fetched but were still (attempted to be) used in processing later are now fetched
+#define AUI_HOMELAND_FIX_ESTABLISH_HOMELAND_PRIORITIES_MISSING_FLAVORS
+/// Disables the code that would start fortifying scouts if recon state was set as "enough"
+#define AUI_HOMELAND_ALWAYS_MOVE_SCOUTS
+/// Fixes the code that checks for cramped status (it always triggered originally, now it only triggers if we really are cramped)
+#define AUI_GS_CONQUEST_FIX_CRAMPED
+/// Removes the check for a cultural grand strategy that's a holdover from pre-BNW when cultural victories were won through policies, not tourism
+#define AUI_ECONOMIC_FIX_EXPAND_LIKE_CRAZY_REMOVE_HOLDOVER_CULTURE_CHECK
+/// Early Expansion strategy is always active if the AI is the only player on a continent (well, until the good settling plots run out)
+#define AUI_ECONOMIC_EARLY_EXPANSION_ALWAYS_ACTIVE_IF_ALONE
+/// Priorities for sneak attack military units are no longer artificially inflated at the highest difficulty levels
+#define AUI_CITYSTRATEGY_CHOOSE_PRODUCTION_NO_HIGH_DIFFICULTY_SKEW
+/// The AI wants an expensive tech if it's selecting a free tech
+#define AUI_TECHAI_CHOOSE_NEXT_TECH_FREE_TECH_WANTS_EXPENSIVE
+/// Buildings that contribute towards getting an ideology act as a unique building for the purposes of tech scoring
+#define AUI_PLAYERTECHS_RESET_IDEOLOGY_UNLOCKERS_COUNT_AS_UNIQUE
+
+/// The filter to filter out scouting units only applies to units whose default AI is scouting
+#define AUI_OPERATION_FIX_FIND_BEST_FIT_RESERVE_CONSIDER_SCOUTING_NONSCOUTS
+/// If a civilian retargets and an escort cannot get to the new target (ignoring units), then the operation is aborted
+#define AUI_OPERATION_FIX_RETARGET_CIVILIAN_ABORT_IF_UNREACHABLE_ESCORT
+/// GetClosestUnit() will now consider whether a unit can paradrop to the target location
+#define AUI_OPERATION_GET_CLOSEST_UNIT_PARADROP
+/// GetClosestUnit() will no longer terminate early after finding a single unit with "good enough" range (very important once roads start being used)
+#define AUI_OPERATION_GET_CLOSEST_UNIT_NO_EARLY_BREAK
+/// If two units have the same path distance in GetClosestUnit(), the one with the higher current strength wins (most effective when paired up with no early break)
+#define AUI_OPERATION_GET_CLOSEST_UNIT_GET_STRONGEST
+
+/// When calculating the expected damage on a target from a melee unit, the AI will now use pTargetPlot and pDefender parameters when appropriate (instead of having them as NULL)
+#define AUI_TACTICAL_FIX_FIND_UNITS_WITHIN_STRIKING_DISTANCE_MELEE_STRENGTH
+/// When calculating the expected damage on a target from a melee unit, the AI will now use pDefender and pCity parameters when appropriate (instead of having them as NULL)
+#define AUI_TACTICAL_FIX_FIND_UNITS_WITHIN_STRIKING_DISTANCE_RANGED_STRENGTH
+/// When calculating the expected damage on a target from a melee unit, the AI will now use pTargetPlot and pDefender parameters when appropriate (instead of having them as NULL)
+#define AUI_TACTICAL_FIX_FIND_PARATROOPER_WITHIN_STRIKING_DISTANCE_MELEE_STRENGTH
+/// When calculating the expected damage on a target from a melee unit, the AI will now use pFromPlot and pDefender parameters when appropriate (instead of having them as NULL)
+#define AUI_TACTICAL_FIX_COMPUTE_EXPECTED_DAMAGE_MELEE
+/// Air units will now properly factor in possible interceptions made at the tile
+#define AUI_TACTICAL_FIX_COMPUTE_EXPECTED_DAMAGE_AIR_UNITS
+/// Units that cannot caputre cities will not attempt to do so
+#define AUI_TACTICAL_FIX_NO_CAPTURE
+/// Fixes poor placement of ranged units with a range of 1 (eg. machine guns)
+#define AUI_TACTICAL_FIX_CLOSE_ON_TARGET_MELEE_RANGE
+/// When checking the embark safety of a plot, use the plot the unit will be moving to instead of the target plot
+#define AUI_TACTICAL_FIX_MOVE_TO_USING_SAFE_EMBARK_CORRECT_PLOT
+/// When choosing a plot to move to, the plot's score no longer needs to be positive, it just needs to be more than the great general's current plot score
+#define AUI_TACTICAL_MOVE_GREAT_GENERAL_ONLY_REQUIRE_POSITIVE_DELTA
+/// Fixes the incorrect logic behind determining whether a unit could make it to an operation's next muster point in time
+#define AUI_TACTICAL_FIX_ALL_OPERATION_MOVES_CATCH_UP_TURNS
+/// When finding naval units to move to a target, the AI no longer ignores units for its pathfinder portion (so it now essentially works the same way as the land-based one)
+#define AUI_TACTICAL_FIX_FIND_CLOSEST_NAVAL_OPERATION_UNIT_DOESNT_IGNORE_UNITS
+/// Uses the unit's in-game movement range for plot search heuristic instead of relying on the unit's info's pre-determined movement range
+#define AUI_TACTICAL_FIX_EXECUTE_MOVES_TO_SAFEST_PLOT_USE_GAME_MOVEMENT_RANGE
+/// Distance dropoff only starts taking place at 4 tile range instead of immediately
+#define AUI_TACTICAL_ANALYSIS_MAP_CALCULATE_MILITARY_STRENGTHS_LIMITED_DISTANCE_DROPOFF
+/// Uses pathfinding turns instead of raw distance for strength multipliers
+#define AUI_TACTICAL_ANALYSIS_MAP_CALCULATE_MILITARY_STRENGTHS_USE_PATHFINDER
+/// If a barbarian is already at the targetted plot, patrol around the target instead
+#define AUI_TACTICAL_EXECUTE_BARBARIAN_MOVES_PATROL_IF_ON_TARGET
+/// Civilians that are not moved with BarbarianCivilianEscortMove now move using passive barbarian move
+#define AUI_TACTICAL_EXECUTE_BARBARIAN_MOVES_CIVILIANS_MOVE_PASSIVELY
+
+
 // unhappiness from public opinion scales linearly with dissatisfaction
 #define MOD_CORE_SMOOTH_PUBLIC_OPINION
 

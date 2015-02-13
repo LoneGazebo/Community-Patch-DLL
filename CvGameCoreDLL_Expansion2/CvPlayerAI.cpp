@@ -218,7 +218,11 @@ void CvPlayerAI::AI_updateFoundValues(bool bStartingLoc)
 					CvArea* pLoopArea = GC.getMap().getArea(pLoopPlot->getArea());
 					if(pLoopArea && !pLoopArea->isWater())
 					{
+#if defined(MOD_BALANCE_CORE_SETTLER)
+						pLoopArea->setTotalFoundValue( MAX(pLoopArea->getTotalFoundValue(),iValue) );
+#else
 						pLoopArea->setTotalFoundValue(pLoopArea->getTotalFoundValue() + iValue);
+#endif
 					}
 				}
 			}

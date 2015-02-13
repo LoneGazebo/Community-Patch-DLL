@@ -8927,14 +8927,28 @@ bool CvCity::at(CvPlot* pPlot) const
 int CvCity::getArea() const
 {
 	VALIDATE_OBJECT
+#if defined(AUI_ECONOMIC_EARLY_EXPANSION_ALWAYS_ACTIVE_IF_ALONE)
+	if (plot())
+		return plot()->getArea();
+	else
+		return -1;
+#else
 	return plot()->getArea();
+#endif
 }
 
 //	--------------------------------------------------------------------------------
 CvArea* CvCity::area() const
 {
 	VALIDATE_OBJECT
+#if defined(AUI_ECONOMIC_EARLY_EXPANSION_ALWAYS_ACTIVE_IF_ALONE)
+	if (plot())
+		return plot()->area();
+	else
+		return NULL;
+#else
 	return plot()->area();
+#endif
 }
 
 
