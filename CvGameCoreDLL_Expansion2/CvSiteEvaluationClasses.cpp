@@ -276,14 +276,14 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, YieldT
 {
 	CvAssert(pPlot);
 	if(!pPlot)
-		return 0;
+		return -1;
 
 	// Make sure this player can even build a city here
 	if(!CanFound(pPlot, pPlayer, false))
 	{
 		if(pDebug)
-			pDebug->format("cannot found");
-		return 0;
+			*pDebug = "cannot found";
+		return -1;
 	}
 
 	//for debugging
@@ -312,10 +312,6 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, YieldT
 	int iNaturalWonderCount = 0;
 	int iDesertCount = 0;
 	int iWetlandsCount = 0;
-
-	int iWaterPlot = 0;
-	int iBadPlot = 0;
-	int iLoopPlots = 0;
 
 	//currently just for debugging
 	int iTotalFoodValue = 0;
@@ -436,7 +432,7 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, YieldT
 							// lower value a lot if we already own this tile
 							if (iPlotValue > 0 && pLoopPlot->getOwner() == pPlayer->GetID())
 							{
-								iPlotValue = (iPlotValue * 50)/100;
+								iPlotValue /= 2;
 							}
 
 							// add this plot into the total
@@ -528,15 +524,10 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, YieldT
 									
 								}
 							}
-							if(pLoopPlot->isWater() && pLoopPlot->HasResource(NO_RESOURCE))
-								iWaterPlot++;
-							if(iPlotValue==0)
-								iBadPlot++;
 						}
 					}
 				}
 			}
-			iLoopPlots++;
 		}
 	}
 
@@ -627,7 +618,7 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, YieldT
 		{
 			if(pPlayer->GetPlayerTraits()->IsRiverTradeRoad())
 			{
-				iValueModifier *= 4;
+				iValueModifier += (int)iTotalPlotValue * /*15*/ GC.getBUILD_ON_RIVER_PERCENT() / 100 * 2;
 			}
 		}
 #endif
@@ -655,19 +646,6 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, YieldT
 	{
 		iStratModifier += (iTotalPlotValue * /*100*/ GC.getBALANCE_CHOKEPOINT_STRATEGIC_VALUE()) / 100;
 		vQualifiersPositive.push_back("(S) chokepoint");
-	}
-
-	//Too many bad plots?
-	if(iBadPlot > (iLoopPlots / 3))
-	{
-		iValueModifier -= (iTotalPlotValue*2)/3;
-		vQualifiersNegative.push_back("(V) badlands");
-	}
-	//Too much empty water?
-	if(iWaterPlot > (2 * iLoopPlots / 3))
-	{
-		iValueModifier -= (iTotalPlotValue*1)/3;
-		vQualifiersNegative.push_back("(V) too much water");
 	}
 
 	//Check for strategic landgrab
@@ -1484,12 +1462,6 @@ int CvCitySiteEvaluator::ComputeFoodValue(CvPlot* pPlot, CvPlayer* pPlayer)
 		}
 	}
 
-#if defined(MOD_BALANCE_CORE_SETTLER)
-	//assume a lighthouse for coast
-	if (pPlot->IsTerrainCoast())
-		rtnValue += 1;
-#endif
-
 	return rtnValue * m_iFlavorMultiplier[YIELD_FOOD];
 }
 
@@ -1819,12 +1791,8 @@ CvSiteEvaluatorForSettler::~CvSiteEvaluatorForSettler(void)
 int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, YieldTypes eYield, bool bCoastOnly, CvString* pDebug)
 {
 	CvAssert(pPlot);
-	if(!pPlot) return 0;
-
-	if(!CanFound(pPlot, pPlayer, true))
-	{
+	if(!pPlot) 
 		return 0;
-	}
 
 	// Is there any reason this site doesn't work for a settler?
 	//
@@ -1832,12 +1800,12 @@ int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, 
 	bool bIsCoastal = pPlot->isCoastalLand(GC.getMIN_WATER_SIZE_FOR_OCEAN());
 	CvArea* pArea = pPlot->area();
 	CvAssert(pArea);
-	if(!pArea) return 0;
+	if(!pArea) 
+		return 0;
+
 	int iNumAreaCities = pArea->getCitiesPerPlayer(pPlayer->GetID());
 	if(bCoastOnly && !bIsCoastal && iNumAreaCities == 0)
-	{
 		return 0;
-	}
 
 	// Seems okay for a settler, use base class to determine exact value
 	else
