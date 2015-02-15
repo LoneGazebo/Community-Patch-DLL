@@ -1268,7 +1268,7 @@ void CvTacticalAnalysisMap::Dump()
 	if (m_pPlayer==NULL)
 		return;
 
-	bool bLogging = GC.getLogging() && GC.getAILogging() && m_pPlayer->isMajorCiv();
+	bool bLogging = false; //GC.getLogging() && GC.getAILogging() && m_pPlayer->isMajorCiv();
 	if (bLogging)
 	{
 		CvString fname = CvString::format( "TacticalCells_%s_%03d.txt", m_pPlayer->getCivilizationAdjective(), GC.getGame().getGameTurn() );

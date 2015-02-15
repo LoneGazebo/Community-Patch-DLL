@@ -9690,8 +9690,35 @@ int CvLeagueAI::EvaluateVoteForOtherPlayerKnowledge(CvLeague* pLeague, PlayerTyp
 CvLeagueAI::DiplomatUsefulnessLevels CvLeagueAI::GetDiplomatUsefulnessAtCiv(PlayerTypes ePlayer)
 {
 	DiplomatUsefulnessLevels eUsefulness = DIPLOMAT_USEFULNESS_NONE;
-
 	int iScore = 0;
+
+#ifdef AUI_VOTING_TWEAKED_DIPLOMAT_USEFULNESS
+	if (EvaluateAlignment(ePlayer) >= ALIGNMENT_NEUTRAL)
+	{
+		iScore += 1;
+	}
+	if (GetPlayer()->GetDiplomacyAI()->IsGoingForCultureVictory())
+	{
+		iScore += 1;
+	}
+	if (GetExtraVotesPerDiplomat() > 0)
+	{
+		iScore = 3;
+	}
+
+	if (iScore >= 3)
+	{
+		eUsefulness = DIPLOMAT_USEFULNESS_HIGH;
+	}
+	else if (iScore >= 2)
+	{
+		eUsefulness = DIPLOMAT_USEFULNESS_MEDIUM;
+	}
+	else if (iScore >= 1)
+	{
+		eUsefulness = DIPLOMAT_USEFULNESS_LOW;
+	}
+#else
 	if (GetExtraVotesPerDiplomat() > 0)
 	{
 		iScore += 1;
@@ -9709,7 +9736,8 @@ CvLeagueAI::DiplomatUsefulnessLevels CvLeagueAI::GetDiplomatUsefulnessAtCiv(Play
 	{
 		eUsefulness = DIPLOMAT_USEFULNESS_LOW;
 	}
-	
+#endif // AUI_VOTING_TWEAKED_DIPLOMAT_USEFULNESS
+
 	return eUsefulness;
 }
 
@@ -11040,6 +11068,19 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 						iScore += 30;
 					}
 				}
+#ifdef AUI_VOTING_TWEAKED_WORLD_RELIGION
+				else
+				{
+					// Don't let someone going for culture get away with a world religion easily
+					if (GetPlayer()->GetGrandStrategyAI()->GetGuessOtherPlayerActiveGrandStrategyConfidence(pHolyCity->getOwner()) > GUESS_CONFIDENCE_UNSURE)
+					{
+						if (GC.getInfoTypeForString("AIGRANDSTRATEGY_CULTURE") == GetPlayer()->GetGrandStrategyAI()->GetGuessOtherPlayerActiveGrandStrategy(pHolyCity->getOwner()))
+						{
+							iScore -= 40;
+						}
+					}
+				}
+#endif // AUI_VOTING_TWEAKED_WORLD_RELIGION
 			}
 		}
 
@@ -11058,6 +11099,75 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 	{
 		CvAssertMsg(eTargetIdeology != NO_POLICY_BRANCH_TYPE, "Evaluating World Ideology for NO_POLICY_BRANCH_TYPE. Please send Anton your save file and version.");
 		PolicyBranchTypes eOurIdeology = GetPlayer()->GetPlayerPolicies()->GetLateGamePolicyTree();
+
+#ifdef AUI_VOTING_TWEAKED_WORLD_IDEOLOGY
+		int iPublicOpinionUnhappiness = GetPlayer()->GetCulture()->GetPublicOpinionType();
+		if (eOurIdeology != NO_POLICY_BRANCH_TYPE)
+		{
+			if (eOurIdeology == eTargetIdeology)
+			{
+				iScore += 50 + 25 * iPublicOpinionUnhappiness;
+				if (bSeekingDiploVictory)
+				{
+#if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
+					if (MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS) 
+						iScore += 300;
+					else
+#endif
+					iScore += 25;
+				}
+			}
+			else
+			{
+				iScore += -50 - 25 * (iPublicOpinionUnhappiness + 1);
+				if (bSeekingDiploVictory)
+				{
+#if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
+					if (MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS) 
+						iScore += 300;
+					else
+#endif
+					iScore += -25;
+				}
+			}
+		}
+		else
+		{
+			int iPressure = 0;
+			int iCivCount = 1;
+			int iWithoutIdeologyCount = 1;
+			// Look at each civ
+			for (int iLoopPlayer = 0; iLoopPlayer < MAX_MAJOR_CIVS; iLoopPlayer++)
+			{
+				CvPlayer &kPlayer = GET_PLAYER((PlayerTypes)iLoopPlayer);
+				if (iLoopPlayer != m_pPlayer->GetID() && kPlayer.isAlive() && !kPlayer.isMinorCiv())
+				{
+					iCivCount++;
+					PolicyBranchTypes eOtherCivIdeology = kPlayer.GetPlayerPolicies()->GetLateGamePolicyTree();
+					if (eOtherCivIdeology != NO_POLICY_BRANCH_TYPE)
+					{
+						int iCulturalDominanceOverUs = kPlayer.GetCulture()->GetInfluenceLevel(m_pPlayer->GetID()) - m_pPlayer->GetCulture()->GetInfluenceLevel((PlayerTypes)iLoopPlayer);
+						if (iCulturalDominanceOverUs > 0)
+						{
+							if (eOtherCivIdeology == eTargetIdeology)
+							{
+								iPressure += iCulturalDominanceOverUs;
+							}
+							else
+							{
+								iPressure -= iCulturalDominanceOverUs;
+							}
+						}
+					}
+					else
+					{
+						iWithoutIdeologyCount++;
+					}
+				}
+			}
+			iScore += MAX(-50, MIN(50, (10 * iPressure * iWithoutIdeologyCount) / iCivCount));
+		}
+#else
 		bool bPublicOpinionUnhappiness = GetPlayer()->GetCulture()->GetPublicOpinionUnhappiness() > 0;
 		if (eOurIdeology != NO_POLICY_BRANCH_TYPE)
 		{
@@ -11071,7 +11181,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 						iScore += 300;
 					else
 #endif
-						iScore += 25;
+					iScore += 25;
 				}
 				if (bPublicOpinionUnhappiness)
 				{
@@ -11087,8 +11197,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 					if (MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS) 
 						iScore += -200;
 					else
-#endif
-						iScore += -25;
+#endif					iScore += -25;
 				}
 				if (bPublicOpinionUnhappiness)
 				{
@@ -11096,6 +11205,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 				}
 			}
 		}
+#endif // AUI_VOTING_TWEAKED_WORLD_IDEOLOGY
 	}
 	// Arts Funding
 	if (pProposal->GetEffects()->iArtsyGreatPersonRateMod > 0 ||

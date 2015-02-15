@@ -104,6 +104,76 @@
 /// Civilians that are not moved with BarbarianCivilianEscortMove now move using passive barbarian move
 #define AUI_TACTICAL_EXECUTE_BARBARIAN_MOVES_CIVILIANS_MOVE_PASSIVELY
 
+/// Adds a minimum danger amount for each plot, to discourage long routes
+#define AUI_TRADE_SCORE_TRADE_ROUTE_BASE_DANGER (1)
+/// When scoring trade routes, divides by the base-(value) log of the total danger instead of by the actual total danger
+#define AUI_TRADE_SCORE_TRADE_ROUTE_DIVIDE_BY_LOG_TOTAL_DANGER (2.0)
+/// If the international trade route would be to a minor, the gold and tech received by the minor do not count
+#define AUI_TRADE_SCORE_INTERNATIONAL_MAX_DELTA_WITH_MINORS
+/// Score for a trade route from beakers is now relative to how much beakers we get from other sources
+#define AUI_TRADE_SCORE_INTERNATIONAL_RELATIVE_TECH_SCORING
+/// Score for a trade route from religious pressure is now relative to how much pressure there already is at the city
+#define AUI_TRADE_SCORE_INTERNATIONAL_RELATIVE_RELIGION_SCORING
+/// Instead of simply doubling score if we want the tourism boost, the multiplier is based on our grand strategy
+#define AUI_TRADE_SCORE_INTERNATIONAL_TOURISM_SCORE_USES_GRAND_STRATEGY
+/// When prioritizing trade routes, the actual trade value of all three possible route types will be considered instead of prioritizing food > production > international
+#define AUI_TRADE_UNBIASED_PRIORITIZE
+
+/// Uses slightly modified algorithm for determining Diplomat Usefulness levels
+#define AUI_VOTING_TWEAKED_DIPLOMAT_USEFULNESS
+/// Uses a different algorithm for scoring voting on world ideology
+#define AUI_VOTING_TWEAKED_WORLD_IDEOLOGY
+/// Uses a different algorithm for scoring voting on world religion
+#define AUI_VOTING_TWEAKED_WORLD_RELIGION
+
+/// Checks all of player's cities for whether or not a city is within conversion target range, not just the player's capital
+#define AUI_RELIGION_CONVERSION_TARGET_NOT_JUST_CAPITAL
+/// Weighs different yield types differently depending on flavor and citizen value
+#define AUI_RELIGION_SCORE_BELIEF_AT_PLOT_FLAVOR_YIELDS
+/// When adding the terrain yield change of a belief, only do so if the current feature on the plot is additive (so eg. Dance with the Aurora won't be overvalued)
+#define AUI_RELIGION_SCORE_BELIEF_AT_PLOT_SCORE_TERRAIN_CONSIDER_FEATURE
+/// Weighs different yield types differently depending on flavor and citizen value
+#define AUI_RELIGION_SCORE_BELIEF_AT_CITY_FLAVOR_YIELDS
+/// Considers grand strategies when scoring things like beliefs that only function when at peace
+#define AUI_RELIGION_SCORE_BELIEF_AT_CITY_CONSIDER_GRAND_STRATEGY
+/// River happiness score will only be applied if the city being scored is actually on a river
+#define AUI_RELIGION_FIX_SCORE_BELIEF_AT_CITY_RIVER_HAPPINESS
+/// If a building for which yield improvement is being calculated is a wonder of any kind, divide the yield by the city count (so there's effective only one instance being scored in the civ)
+#define AUI_RELIGION_SCORE_BELIEF_AT_CITY_YIELDS_FROM_WONDERS_COUNT_ONCE
+/// When scoring a belief that unlocks faith purchases of units, disregard eras that have already passed
+#define AUI_RELIGION_FIX_SCORE_BELIEF_FOR_PLAYER_UNLOCKS_UNITS_DISREGARD_OLD_ERAS
+/// Divides a city's targetting score for missionaries by this value if passive pressure is enough to eventually convert the city
+#define AUI_RELIGION_SCORE_CITY_FOR_MISSIONARY_DIVIDER_IF_PASSIVE_PRESSURE_ENOUGH (10)
+/// When finding a nearby conversion target, cities that will convert to the AI's religion passively are ignored
+#define AUI_RELIGION_HAVE_NEARBY_CONVERSION_TARGET_IGNORE_TARGET_THAT_WILL_CONVERT_PASSIVELY
+/// Scales the non-spaceship scoring of Great Engineers with Wonder Competitiveness
+#define AUI_RELIGION_GET_DESIRED_FAITH_GREAT_PERSON_ENGINEER_USES_WONDER_COMPETITIVENESS (1000.0 / 3.0)
+/// Fixes the bug where the AI scores inquisitors if it already has enough, not when it needs them
+#define AUI_RELIGION_FIX_GET_DESIRED_FAITH_GREAT_PERSON_INQUISITOR_CHECK
+/// When comparing the final score for beliefs, the score of the lowest scored belief will be subtracted from all beliefs
+#define AUI_RELIGION_RELATIVE_BELIEF_SCORE
+/// Enhance score for prophet purchase if religion is not enhanced yet
+#define AUI_RELIGION_FIX_DO_FAITH_PURCHASES_ENHANCE_RELIGION
+/// Since Venice can purchase stuff at puppets, the function will no longer treat Venice's puppets as ordinary puppets
+#define AUI_RELIGION_FIX_ARE_ALL_OUR_CITIES_HAVE_FAITH_BUILDING_VENICE_PUPPETS
+/// If the first adjusted value is out of bounds, keep rerolling with the amount with which it is out of bounds until we remain in bounds
+#define AUI_DIPLOMACY_GET_RANDOM_PERSONALITY_WEIGHT_USE_REROLLS
+#ifdef AUI_BINOM_RNG
+	/// When modifying a personality value (eg. Boldness, Wonder Competitiveness), the AI will use the binomial RNG for a normal distribution instead of a flat one
+	#define AUI_DIPLOMACY_GET_RANDOM_PERSONALITY_WEIGHT_USES_BINOM_RNG
+	/// When rolling about whether to contact a player with a statement or not, the AI will use the binomial RNG for a normal distribution instead of a flat one
+	#define AUI_DIPLOMACY_DO_STATEMENT_USES_BINOM_RNG (7)
+	/// When adding an extra, random value to the score of a possible cooperative war, the maximum value added will be the AI's boldness instead of a set number
+	#define AUI_DIPLOMACY_GET_COOP_WAR_SCORE_MAX_RANDOM_VALUE_IS_BOLDNESS
+	/// When adding an extra, random value to the turns the AI will wait before submitting to another demand, the AI will use the binomial RNG for a normal distribution instead of a flat one
+	#define AUI_DIPLOMACY_DO_DEMAND_MADE_USES_BINOM_RNG
+	/// When adding an extra, random value to the score of whether a request not to settle near lands is acceptable, the AI will use the binomial RNG for a normal distribution instead of a flat one
+	#define AUI_DIPLOMACY_IS_DONT_SETTLE_ACCEPTABLE_USES_BINOM_RNG
+	/// When adding an extra, random value to the score of whether a DoF is acceptable, the AI will use the binomial RNG for a normal distribution instead of a flat one
+	#define AUI_DIPLOMACY_IS_DOF_ACCEPTABLE_USES_BINOM_RNG (5)
+	/// When adding an extra, random value to the score of whether to denounce a player, the AI will use the binomial RNG for a normal distribution instead of a flat one
+	#define AUI_DIPLOMACY_GET_DENOUNCE_WEIGHT_USES_BINOM_RNG (5)
+#endif
 
 // unhappiness from public opinion scales linearly with dissatisfaction
 #define MOD_CORE_SMOOTH_PUBLIC_OPINION

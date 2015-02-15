@@ -24821,7 +24821,11 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 
 	if(iValue > 0)
 	{
+#ifdef AUI_BINOM_RNG
+		iValue += GC.getGame().getJonRandNumBinom(15, "AI Promote");
+#else
 		iValue += GC.getGame().getJonRandNum(15, "AI Promote");
+#endif // AUI_BINOM_RNG
 	}
 
 	return iValue;
