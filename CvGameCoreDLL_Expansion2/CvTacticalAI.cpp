@@ -2433,19 +2433,27 @@ void CvTacticalAI::PlotMovesToSafety(bool bCombatUnits)
 							}
 						}
 
-						// Everyone else flees if under enemy fire or if at less than or equal to 50% combat strength
-						else if (pUnit->IsUnderEnemyRangedAttack() || pUnit->GetBaseCombatStrengthConsideringDamage() * 2 <= pUnit->GetBaseCombatStrength())
+#if defined(MOD_AI_SMART_FLEE_FROM_DANGER)
+						// Everyone else flees at more than 70% damage
+						else if(MOD_AI_SMART_FLEE_FROM_DANGER && (((pUnit->getDamage()*100)/pUnit->GetMaxHitPoints())>70) )
 						{
 							bAddUnit = true;
 						}
-#if defined(MOD_BALANCE_CORE_MILITARY)
-						else if(MOD_BALANCE_CORE_MILITARY && pUnit->isEmbarked())
+						// Everyone else flees at less than or equal to 50% combat strength
+						else if(pUnit->GetBaseCombatStrengthConsideringDamage() * 2 <= pUnit->GetBaseCombatStrength())
 						{
-							//Are you embarked, and 50% injured, and alone, and in enemy territory? Bail out!
-							if(pUnit->plot()->getOwner() != pUnit->getOwner() && !pUnit->IsFriendlyUnitAdjacent(true) && (pUnit->GetCurrHitPoints() <= (pUnit->GetMaxHitPoints() / 2)))
-							{
-								bAddUnit = true;
-							}
+							bAddUnit = true;
+						}
+						// Everyone flees under (heavy) enemy fire
+						else if(pUnit->IsUnderEnemyRangedAttack())
+						{
+							bAddUnit = true;
+						}
+#else
+						// Everyone else flees at less than or equal to 50% combat strength
+						else if(pUnit->IsUnderEnemyRangedAttack() || pUnit->GetBaseCombatStrengthConsideringDamage() * 2 <= pUnit->GetBaseCombatStrength())
+						{
+							bAddUnit = true;
 						}
 #endif
 					}
@@ -3017,8 +3025,24 @@ void CvTacticalAI::PlotHealMoves()
 		UnitHandle pUnit = m_pPlayer->getUnit(*it);
 		if(pUnit)
 		{
-			// Am I under 100% health and not embarked or already in a city?
+
+#if defined(MOD_AI_SMART_HEALING)
+			int iHealingLimit = pUnit->GetMaxHitPoints() * 9 / 10;
+
+			if (MOD_AI_SMART_HEALING) {
+				CvPlot* unitPlot = pUnit->plot();
+				if (m_pPlayer->GetPlotDanger(*unitPlot) > 0)
+					iHealingLimit = 0;
+			}
+#endif
+
+#if defined(MOD_AI_SMART_HEALING)
+			// Am I under my health limit and not at sea or already in a city?
+			if(pUnit->GetCurrHitPoints() < iHealingLimit && !pUnit->isEmbarked() && !pUnit->plot()->isCity())
+#else
+			// Am I under 100% health and not at sea or already in a city?
 			if(pUnit->GetCurrHitPoints() < pUnit->GetMaxHitPoints() && !pUnit->isEmbarked() && !pUnit->plot()->isCity())
+#endif
 			{
 				// If I'm a naval unit I need to be in friendly territory
 				if(pUnit->getDomainType() != DOMAIN_SEA || pUnit->plot()->IsFriendlyTerritory(m_pPlayer->GetID()))

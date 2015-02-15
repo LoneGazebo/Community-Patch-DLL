@@ -53,6 +53,12 @@ void CvCitySiteEvaluator::Init()
 	m_iMorrocoMultiplier = 1000; //fertility boost from desert
 	m_iNetherlandsMultiplier = 2000; //fertility boost from marshes and flood plains
 	m_iIncaMultiplier = 500; //fertility boost for hill tiles surrounded my mountains
+
+#if defined(MOD_BALANCE_CORE_SETTLER)
+	for (int i=0; i<NUM_SITE_EVALUATION_FACTORS; i++)
+		m_iFlavorMultiplier[i]=1;
+#endif
+
 }
 
 /// Is it valid for this player to found a city here?
@@ -331,27 +337,36 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, YieldT
 	bool bIsInca = false;
 	int iAdjacentMountains = 0;
 
-	if ( pPlayer->getCapitalCity() )
-		iCapitalArea = pPlayer->getCapitalCity()->getArea();
+	TeamTypes eTeam = pPlayer ? pPlayer->getTeam() : NO_TEAM;
+	PlayerTypes ePlayer = pPlayer ? pPlayer->GetID() : NO_PLAYER;
 
-	// Custom code for Inca ideal terrace farm locations
-	ImprovementTypes eIncaImprovement = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_TERRACE_FARM", true);  
-	if(eIncaImprovement != NO_IMPROVEMENT)
+	if (pPlayer)
 	{
-		CvImprovementEntry* pkEntry = GC.getImprovementInfo(eIncaImprovement);
-		if(pkEntry != NULL && pkEntry->IsSpecificCivRequired())
+		if ( pPlayer->getCapitalCity() )
+			iCapitalArea = pPlayer->getCapitalCity()->getArea();
+
+		// Custom code for Inca ideal terrace farm locations
+		ImprovementTypes eIncaImprovement = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_TERRACE_FARM", true);  
+		if(eIncaImprovement != NO_IMPROVEMENT)
 		{
-			CivilizationTypes eCiv = pkEntry->GetRequiredCivilization();
-			if(eCiv == pPlayer->getCivilizationType())
+			CvImprovementEntry* pkEntry = GC.getImprovementInfo(eIncaImprovement);
+			if(pkEntry != NULL && pkEntry->IsSpecificCivRequired())
 			{
-				bIsInca = true;
+				CivilizationTypes eCiv = pkEntry->GetRequiredCivilization();
+				if(eCiv == pPlayer->getCivilizationType())
+				{
+					bIsInca = true;
+				}
 			}
 		}
 	}
 
-	int iRange = pPlayer->getWorkPlotDistance();
+#if defined(MOD_GLOBAL_CITY_WORKING)
+	int iRange = pPlayer ? pPlayer->getWorkPlotDistance() : 3;
+#else
+	int iRange = NUM_CITY_RINGS;
+#endif
 
-	CvString strMsg;
 	for (int iDX = -iRange; iDX <= iRange; iDX++)
 	{
 		for (int iDY = -iRange; iDY <= iRange; iDY++)
@@ -364,10 +379,10 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, YieldT
 
 				if (iDistance <= iRange)
 				{
-					if ((pLoopPlot->getOwner() == NO_PLAYER) || (pLoopPlot->getOwner() == pPlayer->GetID()))
+					if ((pLoopPlot->getOwner() == NO_PLAYER) || (pLoopPlot->getOwner() == ePlayer))
 					{
 						//count the tile only if it's not being worked by another city or too close to it (so it will be worked sooner or later)
-						if ( pLoopPlot->getWorkingCity()==NULL && pPlayer->GetCityDistance(pLoopPlot)>2 )
+						if ( pLoopPlot->getWorkingCity()==NULL && (!pPlayer || pPlayer->GetCityDistance(pLoopPlot)>2) )
 						{
 							int iRingModifier = m_iRingModifier[iDistance];
 
@@ -420,20 +435,12 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, YieldT
 							int iPlotValue = iFoodValue + iHappinessValue + iProductionValue + iGoldValue + iScienceValue + iFaithValue + iResourceValue + iStrategicValue;
 
 							// if this tile is a NW boost the value just so that we force the AI to claim them (if we can work it)
-#if defined(MOD_GLOBAL_CITY_WORKING)
 							if (pLoopPlot->IsNaturalWonder())
-#else	
-							if (pLoopPlot->IsNaturalWonder() && iDistance > 0 && iDistance <= NUM_CITY_RINGS)
-#endif
-							{
 								iPlotValue *= 2;
-							}
 
 							// lower value a lot if we already own this tile
-							if (iPlotValue > 0 && pLoopPlot->getOwner() == pPlayer->GetID())
-							{
+							if (iPlotValue > 0 && pLoopPlot->getOwner() == ePlayer && ePlayer != NO_PLAYER)
 								iPlotValue /= 2;
-							}
 
 							// add this plot into the total
 							iTotalPlotValue += iPlotValue;
@@ -449,52 +456,30 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, YieldT
 								{
 									++iIroquoisForestCount;
 									if (iDistance == 1)
-									{
 										if (ePlotImprovement == NO_IMPROVEMENT)
-										{
 											++iCelticForestCount;
-										}
-									}
 								}
 							}
 							else if (ePlotFeature == FEATURE_JUNGLE)
 							{
-#if defined(MOD_GLOBAL_CITY_WORKING)
-								if (iDistance <= pPlayer->getWorkPlotDistance())
-#else	
-								if (iDistance <= NUM_CITY_RINGS)
-#endif
-								{
+								if (iDistance <= iRange)
 									++iBrazilJungleCount;
-								}
 							}
 							else if (ePlotFeature == FEATURE_MARSH || ePlotFeature == FEATURE_FLOOD_PLAINS)
 							{
-#if defined(MOD_GLOBAL_CITY_WORKING)
-								if (iDistance <= pPlayer->getWorkPlotDistance())
-#else	
-								if (iDistance <= NUM_CITY_RINGS)
-#endif
-								{
+								if (iDistance <= iRange)
 									++iWetlandsCount;
-								}
 							}
 
 							if (pLoopPlot->IsNaturalWonder())
 							{
-								if (iDistance <= 1)
-								{
+								if (iDistance <= iRange)
 									++iNaturalWonderCount;
-								}
 							}
 
 							if (pLoopPlot->getTerrainType() == TERRAIN_DESERT)
 							{
-#if defined(MOD_GLOBAL_CITY_WORKING)
-								if (iDistance <= pPlayer->getWorkPlotDistance())
-#else	
-								if (iDistance <= NUM_CITY_RINGS)
-#endif
+								if (iDistance <= iRange)
 								{
 									if (ePlotResource == NO_RESOURCE)
 									{
@@ -505,23 +490,15 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, YieldT
 
 							if (bIsInca)
 							{
-								if (pLoopPlot->isHills())
+								if (pLoopPlot->isHills() && iDistance <= iRange)
 								{
-#if defined(MOD_GLOBAL_CITY_WORKING)
-								if (iDistance <= pPlayer->getWorkPlotDistance())
-#else	
-								if (iDistance <= NUM_CITY_RINGS)
-#endif
+									iAdjacentMountains = pLoopPlot->GetNumAdjacentMountains();
+									if (iAdjacentMountains > 0 && iAdjacentMountains < 6)
 									{
-										iAdjacentMountains = pLoopPlot->GetNumAdjacentMountains();
-										if (iAdjacentMountains > 0 && iAdjacentMountains < 6)
-										{
-											//give the bonus if it's hills, with additional if bordered by mountains
-											iCivModifier += (iAdjacentMountains+1) * m_iIncaMultiplier;
-											vQualifiersPositive.push_back("(C) incan hills");
-										}
+										//give the bonus if it's hills, with additional if bordered by mountains
+										iCivModifier += (iAdjacentMountains+1) * m_iIncaMultiplier;
+										vQualifiersPositive.push_back("(C) incan hills");
 									}
-									
 								}
 							}
 						}
@@ -531,80 +508,84 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, YieldT
 		}
 	}
 
-	if (pPlayer->GetPlayerTraits()->IsFaithFromUnimprovedForest())
+	//civ-specific bonuses
+	if (pPlayer)
 	{
-		if (iCelticForestCount >= 3)
+		if (pPlayer->GetPlayerTraits()->IsFaithFromUnimprovedForest())
 		{
-			iCivModifier += 2 * 1000 * m_iFlavorMultiplier[YIELD_FAITH];
-			vQualifiersPositive.push_back("(C) much forest");
-		}
-		else if (iCelticForestCount >= 1)
-		{
-			iCivModifier += 1 * 1000 * m_iFlavorMultiplier[YIELD_FAITH];
-			vQualifiersPositive.push_back("(C) some forest");
-		}
-	}
-	else if (pPlayer->GetPlayerTraits()->IsMoveFriendlyWoodsAsRoad())
-	{
-		iCivModifier += iIroquoisForestCount * 10;	
-		vQualifiersPositive.push_back("(C) forested");
-	}
-	else if (pPlayer->GetPlayerTraits()->GetNaturalWonderYieldModifier() > 0)	//ie: Spain
-	{
-		iCivModifier += iNaturalWonderCount * m_iSpainMultiplier;	
-		vQualifiersPositive.push_back("(C) natural wonders");
-	}
-
-	// Custom code for Brazil
-	ImprovementTypes eBrazilImprovement = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_BRAZILWOOD_CAMP", true);  
-	if(eBrazilImprovement != NO_IMPROVEMENT)
-	{
-		CvImprovementEntry* pkEntry = GC.getImprovementInfo(eBrazilImprovement);
-		if(pkEntry != NULL && pkEntry->IsSpecificCivRequired())
-		{
-			CivilizationTypes eCiv = pkEntry->GetRequiredCivilization();
-			if(eCiv == pPlayer->getCivilizationType())
+			if (iCelticForestCount >= 3)
 			{
-				iCivModifier += iBrazilJungleCount * m_iBrazilMultiplier;
-				vQualifiersPositive.push_back("(C) jungle");
+				iCivModifier += 2 * 1000 * m_iFlavorMultiplier[YIELD_FAITH];
+				vQualifiersPositive.push_back("(C) much forest");
+			}
+			else if (iCelticForestCount >= 1)
+			{
+				iCivModifier += 1 * 1000 * m_iFlavorMultiplier[YIELD_FAITH];
+				vQualifiersPositive.push_back("(C) some forest");
+			}
+		}
+		else if (pPlayer->GetPlayerTraits()->IsMoveFriendlyWoodsAsRoad())
+		{
+			iCivModifier += iIroquoisForestCount * 10;	
+			vQualifiersPositive.push_back("(C) forested");
+		}
+		else if (pPlayer->GetPlayerTraits()->GetNaturalWonderYieldModifier() > 0)	//ie: Spain
+		{
+			iCivModifier += iNaturalWonderCount * m_iSpainMultiplier;	
+			vQualifiersPositive.push_back("(C) natural wonders");
+		}
+
+		// Custom code for Brazil
+		ImprovementTypes eBrazilImprovement = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_BRAZILWOOD_CAMP", true);  
+		if(eBrazilImprovement != NO_IMPROVEMENT)
+		{
+			CvImprovementEntry* pkEntry = GC.getImprovementInfo(eBrazilImprovement);
+			if(pkEntry != NULL && pkEntry->IsSpecificCivRequired())
+			{
+				CivilizationTypes eCiv = pkEntry->GetRequiredCivilization();
+				if(eCiv == pPlayer->getCivilizationType())
+				{
+					iCivModifier += iBrazilJungleCount * m_iBrazilMultiplier;
+					vQualifiersPositive.push_back("(C) jungle");
+				}
+			}
+		}
+
+		// Custom code for Morocco
+		ImprovementTypes eMoroccoImprovement = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_KASBAH", true);  
+		if(eMoroccoImprovement != NO_IMPROVEMENT)
+		{
+			CvImprovementEntry* pkEntry = GC.getImprovementInfo(eMoroccoImprovement);
+			if(pkEntry != NULL && pkEntry->IsSpecificCivRequired())
+			{
+				CivilizationTypes eCiv = pkEntry->GetRequiredCivilization();
+				if(eCiv == pPlayer->getCivilizationType())
+				{
+					iCivModifier += iDesertCount * m_iMorrocoMultiplier;
+					vQualifiersPositive.push_back("(C) desert");
+				}
+			}
+		}
+
+		//Custom code for Netherlands
+		ImprovementTypes ePolderImprovement = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_POLDER", true);  
+		if(ePolderImprovement != NO_IMPROVEMENT)
+		{
+			CvImprovementEntry* pkEntry = GC.getImprovementInfo(ePolderImprovement);
+			if(pkEntry != NULL && pkEntry->IsSpecificCivRequired())
+			{
+				CivilizationTypes eCiv = pkEntry->GetRequiredCivilization();
+				if(eCiv == pPlayer->getCivilizationType())
+				{
+					iCivModifier += iWetlandsCount * m_iNetherlandsMultiplier;
+					vQualifiersPositive.push_back("(C) wetlands");
+				}
 			}
 		}
 	}
 
-	// Custom code for Morocco
-	ImprovementTypes eMoroccoImprovement = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_KASBAH", true);  
-	if(eMoroccoImprovement != NO_IMPROVEMENT)
-	{
-		CvImprovementEntry* pkEntry = GC.getImprovementInfo(eMoroccoImprovement);
-		if(pkEntry != NULL && pkEntry->IsSpecificCivRequired())
-		{
-			CivilizationTypes eCiv = pkEntry->GetRequiredCivilization();
-			if(eCiv == pPlayer->getCivilizationType())
-			{
-				iCivModifier += iDesertCount * m_iMorrocoMultiplier;
-				vQualifiersPositive.push_back("(C) desert");
-			}
-		}
-	}
-
-	//Custom code for Netherlands
-	ImprovementTypes ePolderImprovement = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_POLDER", true);  
-	if(ePolderImprovement != NO_IMPROVEMENT)
-	{
-		CvImprovementEntry* pkEntry = GC.getImprovementInfo(ePolderImprovement);
-		if(pkEntry != NULL && pkEntry->IsSpecificCivRequired())
-		{
-			CivilizationTypes eCiv = pkEntry->GetRequiredCivilization();
-			if(eCiv == pPlayer->getCivilizationType())
-			{
-				iCivModifier += iWetlandsCount * m_iNetherlandsMultiplier;
-				vQualifiersPositive.push_back("(C) wetlands");
-			}
-		}
-	}
-
-	// Finally, look at the city plot itself and use it as an overall multiplier
-	if (pPlot->getResourceType(pPlayer->getTeam()) != NO_RESOURCE)
+	// Finally, look at the city plot itself
+	if (pPlot->getResourceType(eTeam) != NO_RESOURCE)
 	{
 		iValueModifier += (int)iTotalPlotValue * /*-50*/ GC.getBUILD_ON_RESOURCE_PERCENT() / 100;
 		vQualifiersNegative.push_back("(V) city on resource");
@@ -613,15 +594,8 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, YieldT
 	if (pPlot->isRiver())
 	{
 		iValueModifier += (int)iTotalPlotValue * /*15*/ GC.getBUILD_ON_RIVER_PERCENT() / 100;
-#if defined(MOD_BALANCE_CORE)
-		if(pPlayer != NULL)
-		{
-			if(pPlayer->GetPlayerTraits()->IsRiverTradeRoad())
-			{
-				iValueModifier += (int)iTotalPlotValue * /*15*/ GC.getBUILD_ON_RIVER_PERCENT() / 100 * 2;
-			}
-		}
-#endif
+		if(pPlayer && pPlayer->GetPlayerTraits()->IsRiverTradeRoad())
+			iValueModifier += (int)iTotalPlotValue * /*15*/ GC.getBUILD_ON_RIVER_PERCENT() / 100 * 2;
 		vQualifiersPositive.push_back("(V) river");
 	}
 
@@ -630,14 +604,17 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, YieldT
 		iValueModifier += (iTotalPlotValue * /*40*/ GC.getSETTLER_BUILD_ON_COAST_PERCENT()) / 100;
 		vQualifiersPositive.push_back("(V) coast");
 
-		int iNavalFlavor = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)m_iNavalIndex);
-		if (iNavalFlavor > 7)
+		if (pPlayer)
 		{
-			iValueModifier += (iTotalPlotValue * /*40*/ GC.getSETTLER_BUILD_ON_COAST_PERCENT()) / 100;
-		}
-		if (pPlayer->getCivilizationInfo().isCoastalCiv()) // we really like the coast (England, Norway, Polynesia, Carthage, etc.)
-		{
-			iValueModifier += iTotalPlotValue/2;
+			int iNavalFlavor = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)m_iNavalIndex);
+			if (iNavalFlavor > 7)
+			{
+				iValueModifier += (iTotalPlotValue * /*40*/ GC.getSETTLER_BUILD_ON_COAST_PERCENT()) / 100;
+			}
+			if (pPlayer->getCivilizationInfo().isCoastalCiv()) // we really like the coast (England, Norway, Polynesia, Carthage, etc.)
+			{
+				iValueModifier += iTotalPlotValue/2;
+			}
 		}
 	}
 
@@ -714,77 +691,77 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, YieldT
 				}
 			}
 		}
-	}
 
-	// Nearby Cities?
-	iClosestCityOfMine = pPlayer->GetCityDistance(pPlot);
+		// Nearby Cities?
+		iClosestCityOfMine = pPlayer->GetCityDistance(pPlot);
 
-	// Human
-	if (pPlayer != NULL && pPlayer->isHuman())
-	{
-		if (iClosestCityOfMine == 3)
+		// Human
+		if (pPlayer->isHuman())
 		{
-			iValueModifier -= iTotalPlotValue/2;
-			vQualifiersNegative.push_back("(V) too close to existing cities");
-		}
-	}
-	// AI
-	else
-	{
-		int iGrowthFlavor = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)m_iGrowthIndex);
-		int iExpansionFlavor = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)m_iExpansionIndex);
-
-		int iSweetMin = 5, iSweetMax = 6;
-		if (iGrowthFlavor > 7) iSweetMin++;
-		if (iExpansionFlavor > 7) iSweetMax++;
-		if (iGrowthFlavor < 4) iSweetMin--;
-		if (iExpansionFlavor < 4) iSweetMax--;
-
-		if ((iClosestCityOfMine >= iSweetMin) && (iClosestCityOfMine <= iSweetMax)) 
-		{
-			iValueModifier += (iTotalPlotValue*10)/100; //make this a small bonus, there is a separate distance check anyway
-			vQualifiersPositive.push_back("(V) optimal distance to existing cities");
-		}
-
-		// use boldness to decide if we want to push close to enemies
-		int iBoldness = pPlayer->GetDiplomacyAI()->GetBoldness();
-		if (iBoldness < 4)
-		{
-			if (iClosestEnemyCity <= 4)
+			if (iClosestCityOfMine == 3)
 			{
-				iStratModifier -= (iTotalPlotValue*75)/100;
-				vQualifiersNegative.push_back("(S) too close to enemy");
-			}
-			else if (iClosestEnemyCity == 5)
-			{
-				iStratModifier -= (iTotalPlotValue*50)/100;
-				vQualifiersNegative.push_back("(S) too close to enemy");
+				iValueModifier -= iTotalPlotValue/2;
+				vQualifiersNegative.push_back("(V) too close to existing cities");
 			}
 		}
-		else if (iBoldness > 7)
-		{
-			if (iClosestEnemyCity <= 5 && iClosestCityOfMine < 8)
-			{
-				iStratModifier += (iTotalPlotValue*50)/100;
-				vQualifiersPositive.push_back("(S) close to enemy and but not far from home");
-			}
-		}
+		// AI
 		else
 		{
-			if (iClosestEnemyCity < 5)
-			{
-				iStratModifier -= (iTotalPlotValue*33)/100;
-				vQualifiersNegative.push_back("(S) too close to enemy");
-			}
-		}
+			int iGrowthFlavor = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)m_iGrowthIndex);
+			int iExpansionFlavor = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)m_iExpansionIndex);
 
-		// if we are offshore, pull cities in tighter
-		if (iCapitalArea != pPlot->getArea())
-		{
-			if (iClosestCityOfMine < 7)
+			int iSweetMin = 5, iSweetMax = 6;
+			if (iGrowthFlavor > 7) iSweetMin++;
+			if (iExpansionFlavor > 7) iSweetMax++;
+			if (iGrowthFlavor < 4) iSweetMin--;
+			if (iExpansionFlavor < 4) iSweetMax--;
+
+			if ((iClosestCityOfMine >= iSweetMin) && (iClosestCityOfMine <= iSweetMax)) 
 			{
-				iValueModifier += (iTotalPlotValue*50)/100;
-				vQualifiersPositive.push_back("(V) too far from home");
+				iValueModifier += (iTotalPlotValue*10)/100; //make this a small bonus, there is a separate distance check anyway
+				vQualifiersPositive.push_back("(V) optimal distance to existing cities");
+			}
+
+			// use boldness to decide if we want to push close to enemies
+			int iBoldness = pPlayer->GetDiplomacyAI()->GetBoldness();
+			if (iBoldness < 4)
+			{
+				if (iClosestEnemyCity <= 4)
+				{
+					iStratModifier -= (iTotalPlotValue*75)/100;
+					vQualifiersNegative.push_back("(S) too close to enemy");
+				}
+				else if (iClosestEnemyCity == 5)
+				{
+					iStratModifier -= (iTotalPlotValue*50)/100;
+					vQualifiersNegative.push_back("(S) too close to enemy");
+				}
+			}
+			else if (iBoldness > 7)
+			{
+				if (iClosestEnemyCity <= 5 && iClosestCityOfMine < 8)
+				{
+					iStratModifier += (iTotalPlotValue*50)/100;
+					vQualifiersPositive.push_back("(S) close to enemy and but not far from home");
+				}
+			}
+			else
+			{
+				if (iClosestEnemyCity < 5)
+				{
+					iStratModifier -= (iTotalPlotValue*33)/100;
+					vQualifiersNegative.push_back("(S) too close to enemy");
+				}
+			}
+
+			// if we are offshore, pull cities in tighter
+			if (iCapitalArea != pPlot->getArea())
+			{
+				if (iClosestCityOfMine > 7)
+				{
+					iValueModifier -= (iTotalPlotValue*33)/100;
+					vQualifiersNegative.push_back("(V) too far from home");
+				}
 			}
 		}
 	}
@@ -1883,6 +1860,14 @@ void CvSiteEvaluatorForStart::ComputeFlavorMultipliers(CvPlayer*)
 	}
 }
 
+#if defined(MOD_BALANCE_CORE_SETTLER)
+int CvSiteEvaluatorForStart::PlotFoundValue(CvPlot* pPlot, CvPlayer*, YieldTypes, bool)
+{
+	return CvCitySiteEvaluator::PlotFoundValue(pPlot,NULL);
+}
+
+#else
+
 #if defined(MOD_GLOBAL_CITY_WORKING)
 // *****
 // ***** WARNING!!!
@@ -2010,3 +1995,5 @@ int CvSiteEvaluatorForStart::PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, Yi
 
 	return rtnValue;
 }
+
+#endif

@@ -3233,16 +3233,22 @@ void CvAIOperationFoundCity::Init(int iID, PlayerTypes eOwner, PlayerTypes /*eEn
 				{
 					// There was no escort immediately available.  Let's look for a "safe" city site instead
 #if defined(MOD_BALANCE_CORE_SETTLER)
-					if (eOwner == -1 || GET_PLAYER(eOwner).getNumCities() > 1 || GET_PLAYER(eOwner).GetDiplomacyAI()->GetBoldness() > 7) // unless we'd rather play it safe
+					if (eOwner == -1 || GET_PLAYER(eOwner).getNumCities() > 2 || GET_PLAYER(eOwner).GetDiplomacyAI()->GetBoldness() > 7) // unless we'd rather play it safe
+					{
+						pNewTarget = FindBestTarget(pOurCivilian, true);
+					}
+
+					// if no safe target or the safe target is much worse than the unsafe target we need an escort
+					if( pNewTarget==NULL || pNewTarget->getFoundValue(eOwner)<pTargetSite->getFoundValue(eOwner)*0.8 )
 #else
 					if (eOwner == -1 || GET_PLAYER(eOwner).getNumCities() > 1 || GET_PLAYER(eOwner).GetDiplomacyAI()->GetBoldness() > 5) // unless we'd rather play it safe
-#endif
 					{
 						pNewTarget = FindBestTarget(pOurCivilian, true);
 					}
 
 					// If no better target, we'll wait it out for an escort
 					if(pNewTarget == NULL)
+#endif
 					{
 						// Need to add it back in to list of what to build (was cleared before since marked optional)
 						m_viListOfUnitsWeStillNeedToBuild.clear();
@@ -3386,18 +3392,18 @@ bool CvAIOperationFoundCity::ArmyInPosition(CvArmyAI* pArmy)
 			else if(pSettler->plot() == GetTargetPlot() && pSettler->canMove() && pSettler->canFound(pSettler->plot()))
 			{
 				CvPlot* pCityPlot = pSettler->plot();
-				int iPlotValue = GC.getGame().GetSettlerSiteEvaluator()->PlotFoundValue(pCityPlot, &GET_PLAYER(m_eOwner), NO_YIELD, false);
+				int iPlotValue = pCityPlot->getFoundValue(m_eOwner);
 
 #if defined(MOD_BALANCE_CORE)
 				//now that the neighboring tiles are guaranteed to be revealed, recheck if we are at the best plot
 				//minor twist: the nearby plots are already targeted for a city. so we need to ignore this very operation when checking the plots
 				CvPlot* pAltPlot = GET_PLAYER(m_eOwner).GetBestSettlePlot(pSettler, m_bEscorted, m_iTargetArea, this);
-				int iAltValue = GC.getGame().GetSettlerSiteEvaluator()->PlotFoundValue(pAltPlot, &GET_PLAYER(m_eOwner), NO_YIELD, false);
+				int iAltValue = pAltPlot->getFoundValue(m_eOwner);
 
 				int iDelta = 0; //our distance to the current best location
 				if (pAltPlot)
 					iDelta = ::plotDistance(pCityPlot->getX(),pCityPlot->getY(),pAltPlot->getX(),pAltPlot->getY());
-				if (iDelta==0 || iDelta>3 || m_iRetargetCount>1)
+				if (iDelta==0 || iDelta>2 || m_iRetargetCount>1)
 				{
 					pSettler->PushMission(CvTypes::getMISSION_FOUND());
 

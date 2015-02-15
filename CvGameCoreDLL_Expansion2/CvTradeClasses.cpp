@@ -5371,7 +5371,6 @@ void CvTradeAI::PrioritizeTradeRoutes(TradeConnectionList& aTradeConnectionList)
 		}
 	}
 	std::stable_sort(aGoldSortedTR.begin(), aGoldSortedTR.end(), SortTR());
-	uint uiNumInternationalTradesToAdd = 2;
 
 	// clear list
 	aTradeConnectionList.clear();
@@ -5441,6 +5440,7 @@ void CvTradeAI::PrioritizeTradeRoutes(TradeConnectionList& aTradeConnectionList)
 	}
 
 	// add all the gold trs
+	uint uiNumInternationalTradesToAdd = 2;
 	for (uint ui = uiNumInternationalTradesToAdd; ui < aGoldSortedTR.size(); ui++)
 	{
 		aTradeConnectionList.push_back(aGoldSortedTR[ui].m_kTradeConnection);

@@ -97,8 +97,8 @@
 #define AUI_TACTICAL_FIX_EXECUTE_MOVES_TO_SAFEST_PLOT_USE_GAME_MOVEMENT_RANGE
 /// Distance dropoff only starts taking place at 4 tile range instead of immediately
 #define AUI_TACTICAL_ANALYSIS_MAP_CALCULATE_MILITARY_STRENGTHS_LIMITED_DISTANCE_DROPOFF
-/// Uses pathfinding turns instead of raw distance for strength multipliers
-#define AUI_TACTICAL_ANALYSIS_MAP_CALCULATE_MILITARY_STRENGTHS_USE_PATHFINDER
+/// Uses pathfinding turns instead of raw distance for strength multipliers - extremely slow!
+//#define AUI_TACTICAL_ANALYSIS_MAP_CALCULATE_MILITARY_STRENGTHS_USE_PATHFINDER
 /// If a barbarian is already at the targetted plot, patrol around the target instead
 #define AUI_TACTICAL_EXECUTE_BARBARIAN_MOVES_PATROL_IF_ON_TARGET
 /// Civilians that are not moved with BarbarianCivilianEscortMove now move using passive barbarian move
