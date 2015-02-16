@@ -100,7 +100,6 @@ void CvPlayerAI::AI_doTurnPre()
 	}
 
 	AI_updateFoundValues();
-
 	AI_doResearch();
 	AI_considerAnnex();
 }

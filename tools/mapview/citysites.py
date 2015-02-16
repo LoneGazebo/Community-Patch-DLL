@@ -59,6 +59,13 @@ blocked_reason = {
 	-6: "not in target area",
 }
 
+def is_number(s):
+    try:
+        float(s)
+        return True
+    except ValueError:
+        return False
+
 class CityPlot(Plot):
 	def __init__(self,x,y,terrain,ptype,feature,owner,area,visible,values,hints,scale):
 		Plot.__init__(self,x,y,visible,terrain,owner);
@@ -100,7 +107,8 @@ class CityPlot(Plot):
 			self.area))
 
 		if (layer_description):
-			for pair in zip( self.values, layer_description.values() ):
+			#trim owner and area from layer description ... they are handled above
+			for pair in zip( self.values, layer_description.values()[2:] ):
 				print("%s:\t%d" % (pair[1],pair[0]) )
 
 		#special treatment for negative total
@@ -131,7 +139,7 @@ if __name__ == "__main__":
 		if (line[0]=='#'):
 			continue
 		data_string = line.split(",")
-		data = map(int,data_string[:expected_columns])
+		data = map(int,[s for s in data_string[:expected_columns] if is_number(s)])
 
 		while len(scale)<len(data):
 			scale.append(1)
@@ -146,8 +154,10 @@ if __name__ == "__main__":
 	scale = scale[3:] + scale[:3]
 
 	for line in open(sys.argv[1],"r"):
+		if (line[0]=='#'):
+			continue
 		data_string = line.split(",")
-		data = map(int,data_string[:expected_columns])
+		data = map(int,[x for x in data_string[:expected_columns] if is_number(x)])
 		#pad with zeros
 		while len(data)<expected_columns:
 			data.append(0)
@@ -156,8 +166,8 @@ if __name__ == "__main__":
 		values = data[n_properties:n_properties+n_values]
 		#little hack so total value comes first
 		values = values[3:] + values[:3]
-		hints = data[n_properties+n_values:]
-
+		
+		hints = [s for s in data_string if not is_number(s)]
 		plots.append( CityPlot(x,y,terrain,ptype,feature,owner,area,visible,values,hints,scale) )
 	
 	run_it.main_loop()
