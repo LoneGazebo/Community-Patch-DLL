@@ -11632,7 +11632,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 			GET_PLAYER(ePlayer).GetDiplomacyAI()->SetDoFAccepted(GetPlayer()->GetID(), false);
 			GET_PLAYER(ePlayer).GetDiplomacyAI()->SetDoFCounter(GetPlayer()->GetID(), -666);
 #if defined(MOD_BALANCE_CORE)
-			GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeRecentAssistValue(GetPlayer()->GetID(), 60);
+			GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeRecentAssistValue(GetPlayer()->GetID(), 80);
 
 			GET_PLAYER(ePlayer).GetDiplomacyAI()->SetDoFBroken(GetPlayer()->GetID(), true);
 			LogBrokenDoF(ePlayer);
@@ -14224,11 +14224,25 @@ void CvDiplomacyAI::DoBulliedCityStateStatement(PlayerTypes ePlayer, DiploStatem
 			{
 				// We don't even want to bother with you again, so do nothing
 #if defined(MOD_DIPLOMACY_CITYSTATES)
-				if (MOD_DIPLOMACY_CITYSTATES) {
-					// WAR! You've broken too many promises, jerk. 
-					//AI declaration
-					DeclareWar(ePlayer);
-					GetPlayer()->GetMilitaryAI()->RequestBasicAttack(ePlayer, 1);
+				if (MOD_DIPLOMACY_CITYSTATES) 
+				{
+					const char* strText;
+					bool bActivePlayer = GC.getGame().getActivePlayer() == ePlayer;
+					if(GET_TEAM(GetPlayer()->getTeam()).canDeclareWar(GET_PLAYER(ePlayer).getTeam(), GetPlayer()->GetID()))
+					{
+						// WAR! You've broken too many promises, jerk. 
+						//AI declaration
+						m_pPlayer->GetCitySpecializationAI()->SetSpecializationsDirty(SPECIALIZATION_UPDATE_NOW_AT_WAR);
+						LogWarDeclaration(ePlayer);
+
+						GetPlayer()->GetMilitaryAI()->RequestBasicAttack(ePlayer, 1);
+
+						if(bActivePlayer)
+						{
+							strText = GetDiploStringForMessage(DIPLO_MESSAGE_ATTACKED_WARMONGER);
+							gDLL->GameplayDiplomacyAILeaderMessage(ePlayer, DIPLO_UI_STATE_BLANK_DISCUSSION, strText, LEADERHEAD_ANIM_HATE_NEGATIVE);
+						}
+					}
 				}
 #endif
 			}
@@ -18735,7 +18749,14 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 	// *********************************************
 	case FROM_UI_DIPLO_EVENT_REQUEST_HUMAN_REFUSAL:
 	{
+#if defined(MOD_BALANCE_CORE)
+		//If player is offended, AI should take note as penalty to assistance.
+		CvFlavorManager* pFlavorManager = GetPlayer()->GetFlavorManager();
+		int iFlavorOffense = pFlavorManager->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_OFFENSE"));
+		GetPlayer()->GetDiplomacyAI()->ChangeRecentAssistValue(eFromPlayer, (iFlavorOffense * 30));
+#else
 		GetPlayer()->GetDiplomacyAI()->ChangeRecentAssistValue(eFromPlayer, iArg1);
+#endif
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 		// We're offering help to a player
 		if (MOD_DIPLOMACY_CIV4_FEATURES && GetPlayer()->GetDiplomacyAI()->IsOfferingGift(eFromPlayer))
@@ -19139,7 +19160,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 		SetDoFAccepted(eFromPlayer, false);
 		GET_PLAYER(eFromPlayer).GetDiplomacyAI()->SetDoFAccepted(eMyPlayer, false);
 
-		ChangeRecentAssistValue(eFromPlayer, 60);
+		ChangeRecentAssistValue(eFromPlayer, 80);
 
 		SetDoFBroken(eFromPlayer, true);
 
@@ -19160,20 +19181,22 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 		{
 			// Does the AI declare war?
 			bool bDeclareWar = false;
-
-			if(GC.getGame().getJonRandNum(100, "Human rude response war rand.") > (60 - GetMeanness() - GetBoldness()))
+			if(GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(eFromPlayer).getTeam(), GetPlayer()->GetID()))
 			{
-				bDeclareWar = true;
-			}
-			if(bDeclareWar)
-			{
-				int iPeaceTreatyTurn = GET_TEAM(GetTeam()).GetTurnMadePeaceTreatyWithTeam(GET_PLAYER(eFromPlayer).getTeam());
-				if(iPeaceTreatyTurn != -1)
+				if(GC.getGame().getJonRandNum(100, "Human rude response war rand.") > (70 - GetMeanness() - GetBoldness()))
 				{
-					int iTurnsSincePeace = GC.getGame().getElapsedGameTurns() - iPeaceTreatyTurn;
-					if (iTurnsSincePeace < GC.getPEACE_TREATY_LENGTH())
+					bDeclareWar = true;
+				}
+				if(bDeclareWar)
+				{
+					int iPeaceTreatyTurn = GET_TEAM(GetTeam()).GetTurnMadePeaceTreatyWithTeam(GET_PLAYER(eFromPlayer).getTeam());
+					if(iPeaceTreatyTurn != -1)
 					{
-						bDeclareWar = false;
+						int iTurnsSincePeace = GC.getGame().getElapsedGameTurns() - iPeaceTreatyTurn;
+						if (iTurnsSincePeace < GC.getPEACE_TREATY_LENGTH())
+						{
+							bDeclareWar = false;
+						}
 					}
 				}
 			}
@@ -19196,6 +19219,10 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 				{
 					SetMajorCivApproach(eFromPlayer, MAJOR_CIV_APPROACH_NEUTRAL);
 				}
+				//If player is offended, AI should take note as penalty to assistance.
+				CvFlavorManager* pFlavorManager = GetPlayer()->GetFlavorManager();
+				int iFlavorOffense = pFlavorManager->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_OFFENSE"));
+				GetPlayer()->GetDiplomacyAI()->ChangeRecentAssistValue(eFromPlayer, (iFlavorOffense * 10));
 			}
 			if(bActivePlayer)
 			{
@@ -19384,7 +19411,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 			{
 				CvFlavorManager* pFlavorManager = GetPlayer()->GetFlavorManager();
 				int iFlavorOffense = pFlavorManager->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_OFFENSE"));
-				GetPlayer()->GetDiplomacyAI()->ChangeRecentAssistValue(eFromPlayer, (iFlavorOffense * 10));
+				GetPlayer()->GetDiplomacyAI()->ChangeRecentAssistValue(eFromPlayer, (iFlavorOffense * 20));
 			}
 #endif
 		}

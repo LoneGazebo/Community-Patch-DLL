@@ -6,7 +6,7 @@
 		<Row>
 			<PolicyType>POLICY_AESTHETICS</PolicyType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>30</Yield>
+			<Yield>100</Yield>
 		</Row>
 	</Policy_YieldGPExpend>
 	<!-- Cultural Centers -->

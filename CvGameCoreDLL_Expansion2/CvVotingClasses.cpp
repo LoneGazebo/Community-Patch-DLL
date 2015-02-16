@@ -3965,7 +3965,7 @@ int CvLeague::CalculateStartingVotesForMember(PlayerTypes ePlayer, bool bForceUp
 		if(iWonderVotes > 0)
 		{
 			int iNumMinor = (GC.getGame().GetNumMinorCivsEver() / 8);
-			if((iNumMinor) > 0)
+			if(iNumMinor > 0)
 			{
 				iWonderVotes = (iWonderVotes * iNumMinor);
 			}
@@ -4032,12 +4032,16 @@ int CvLeague::CalculateStartingVotesForMember(PlayerTypes ePlayer, bool bForceUp
 		if(MOD_BALANCE_CORE_POLICIES)
 		{
 			iPolicyVotes = GET_PLAYER(ePlayer).GetFreeWCVotes();
-			//1 vote per 8 CS in game.
-			int iNumMinor = (GC.getGame().GetNumMinorCivsEver() / 8);
-			if((iNumMinor) > 0)
+			if(iPolicyVotes > 0)
 			{
-				iVotes += (iPolicyVotes * iNumMinor);
-			}	
+				//1 vote per 8 CS in game.
+				int iNumMinor = (GC.getGame().GetNumMinorCivsEver() / 8);
+				if((iNumMinor) > 0)
+				{
+					 iPolicyVotes = (iPolicyVotes * iNumMinor);
+				}
+				iVotes += iPolicyVotes;
+			}
 		}
 #endif
 #if defined(MOD_BALANCE_CORE)
@@ -9727,6 +9731,22 @@ CvLeagueAI::DiplomatUsefulnessLevels CvLeagueAI::GetDiplomatUsefulnessAtCiv(Play
 	{
 		iScore += 1;
 	}
+#if defined(MOD_BALANCE_CORE)
+	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
+	if(pLeague != NULL)
+	{
+		int iLeague = pLeague->GetPotentialVotesForMember(m_pPlayer->GetID(), ePlayer);
+		if(iLeague > pLeague->GetCoreVotesForMember(ePlayer))
+		{
+			iScore += 1;
+		}
+	}
+	if (iScore >= 3)
+	{
+		eUsefulness = DIPLOMAT_USEFULNESS_HIGH;
+	}
+	else
+#endif
 
 	if (iScore >= 2)
 	{

@@ -115,8 +115,16 @@
 	WHERE Type = 'UNIT_CROSSBOWMAN' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Units
-	SET ObsoleteTech = 'TECH_RIFLING'
+	SET ObsoleteTech = 'TECH_METALLURGY'
 	WHERE Type = 'UNIT_CROSSBOWMAN' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	UPDATE Units
+	SET GoodyHutUpgradeUnitClass = 'UNITCLASS_VOLLEY_GUN'
+	WHERE Type = 'UNIT_CROSSBOWMAN' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	UPDATE Unit_ClassUpgrades
+	SET UnitClassType = 'UNITCLASS_VOLLEY_GUN'
+	WHERE UnitType = 'UNIT_CROSSBOWMAN' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	-- Chu-Ko-Nu (13)
 	UPDATE Units
@@ -126,6 +134,14 @@
 	UPDATE Units
 	SET RangedCombat = '19'
 	WHERE Type = 'UNIT_CHINESE_CHUKONU' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	UPDATE Units
+	SET GoodyHutUpgradeUnitClass = 'UNITCLASS_VOLLEY_GUN'
+	WHERE Type = 'UNIT_CHINESE_CHUKONU' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	UPDATE Unit_ClassUpgrades
+	SET UnitClassType = 'UNITCLASS_VOLLEY_GUN'
+	WHERE UnitType = 'UNIT_CHINESE_CHUKONU' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	-- Catapult (7)
 	UPDATE Units
@@ -160,7 +176,7 @@
 	WHERE Type = 'UNIT_INDIAN_WARELEPHANT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 	
 	UPDATE Units
-	SET ObsoleteTech = 'TECH_GUNPOWDER'
+	SET ObsoleteTech = 'TECH_METALLURGY'
 	WHERE Type = 'UNIT_INDIAN_WARELEPHANT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Units
@@ -217,11 +233,11 @@
 
 	-- Gatling Gun (30)
 	UPDATE Units
-	SET Combat = '25'
+	SET Combat = '30'
 	WHERE Type = 'UNIT_GATLINGGUN' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Units
-	SET RangedCombat = '25'
+	SET RangedCombat = '30'
 	WHERE Type = 'UNIT_GATLINGGUN' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	-- Bazooka (85)
@@ -253,11 +269,11 @@
 	WHERE UnitType = 'UNIT_LANCER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Units
-	SET PrereqTech = 'TECH_GUNPOWDER'
+	SET PrereqTech = 'TECH_METALLURGY'
 	WHERE Type = 'UNIT_POLISH_WINGED_HUSSAR' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Units
-	SET PrereqTech = 'TECH_GUNPOWDER'
+	SET PrereqTech = 'TECH_METALLURGY'
 	WHERE Type = 'UNIT_OTTOMAN_SIPAHI' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Units
@@ -340,7 +356,7 @@
 
 	-- Lancer -- Moved to Gunpowder, Cheaper
 	UPDATE Units
-	SET PrereqTech = 'TECH_GUNPOWDER'
+	SET PrereqTech = 'TECH_METALLURGY'
 	WHERE Type = 'UNIT_LANCER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Units
@@ -360,7 +376,7 @@
 	WHERE UnitType = 'UNIT_KNIGHT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Units
-	SET ObsoleteTech = 'TECH_GUNPOWDER'
+	SET ObsoleteTech = 'TECH_METALLURGY'
 	WHERE Type = 'UNIT_KNIGHT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Unit_ClassUpgrades
@@ -588,12 +604,12 @@
 	WHERE Type = 'UNIT_CARTHAGINIAN_QUINQUEREME' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Language_en_US
-	SET Text = 'Strong Ancient Era Naval Unit, available earlier than the Trieme, that is used to dominate the seas through melee attacks on naval units and cities. Receives the [COLOR_POSITIVE_TEXT]Coastal Raider I[ENDCOLOR] Promotion for free. Only the Carthaginians may build it.'
+	SET Text = 'Strong Ancient Era Naval Unit, available earlier than the Trieme, that is used to dominate the seas through melee attacks on naval units and cities. Receives the [COLOR_POSITIVE_TEXT]Reconnaissance[ENDCOLOR] Promotion for free, allowing it to gain experience from exploration. Only the Carthaginians may build it.'
 	WHERE Tag = 'TXT_KEY_UNIT_HELP_CARTHAGINIAN_QUINQUEREME' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 	
-	-- Gatling Gun -- Moved to Rifling
+	-- Gatling Gun -- Moved to Dynamite
 	UPDATE Units
-	SET PrereqTech = 'TECH_RIFLING'
+	SET PrereqTech = 'TECH_DYNAMITE'
 	WHERE Type = 'UNIT_GATLINGGUN' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	-- Gatling Gun, Machine Gun, Bazooka - make Range 2 (instead of 1) to help AI
@@ -607,7 +623,7 @@
 	WHERE Tag = 'TXT_KEY_UNIT_HELP_GATLINGGUN' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Language_en_US
-	SET Text = 'The Gatling Gun is a mid-game non-siege ranged unit that can lay down a terrifying hail of bullets. It is much more powerful than earlier ranged units like the Crossbowman, but it is much weaker than other military units of its era. As such, it should be used as a source of attrition. It weakens nearby enemy units, and gains bonus strength when defending. When attacking, the Gatling Gun deals less damage to Armored or fortified Units, as well as cities. Put Gatling Guns in your cities or on chokepoints for optimal defensive power.'
+	SET Text = 'The Gatling Gun is a mid-game non-siege ranged unit that can lay down a terrifying hail of bullets. It is much more powerful than earlier ranged units like the Volley Gun, but it is much weaker than other military units of its era. As such, it should be used as a source of attrition. It weakens nearby enemy units, and gains bonus strength when defending. When attacking, the Gatling Gun deals less damage to Armored or fortified Units, as well as cities. Put Gatling Guns in your cities or on chokepoints for optimal defensive power.'
 	WHERE Tag = 'TXT_KEY_UNIT_GATLINGGUN_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Units
@@ -701,7 +717,7 @@
 
 	-- Move Cannon Up
 	UPDATE Units
-	SET ObsoleteTech = 'TECH_METALLURGY'
+	SET ObsoleteTech = 'TECH_GUNPOWDER'
 	WHERE Type = 'UNIT_TREBUCHET' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Units
@@ -709,7 +725,7 @@
 	WHERE Type = 'UNIT_KOREAN_HWACHA' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Units
-	SET PrereqTech = 'TECH_METALLURGY'
+	SET PrereqTech = 'TECH_GUNPOWDER'
 	WHERE Type = 'UNIT_CANNON' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Language_en_US

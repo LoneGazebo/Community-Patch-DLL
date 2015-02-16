@@ -123,6 +123,9 @@ public:
 
 	CvUnit* initUnit(UnitTypes eUnit, int iX, int iY, UnitAITypes eUnitAI = NO_UNITAI, DirectionTypes eFacingDirection = NO_DIRECTION, bool bNoMove=false, bool bSetupGraphical=true, int iMapLayer = 0, int iNumGoodyHutsPopped = 0);
 	CvUnit* initUnitWithNameOffset(UnitTypes eUnit, int nameOffset, int iX, int iY, UnitAITypes eUnitAI = NO_UNITAI, DirectionTypes eFacingDirection = NO_DIRECTION, bool bNoMove = false, bool bSetupGraphical = true, int iMapLayer = 0, int iNumGoodyHutsPopped = 0);
+#if defined(MOD_BALANCE_CORE)
+	CvUnit* initNamedUnit(UnitTypes eUnit, int iName, int iX, int iY, UnitAITypes eUnitAI = NO_UNITAI, DirectionTypes eFacingDirection = NO_DIRECTION, bool bNoMove = false, bool bSetupGraphical = true, int iMapLayer = 0, int iNumGoodyHutsPopped = 0);
+#endif
 
 	void disbandUnit(bool bAnnounce);
 	void killUnits();
@@ -1169,7 +1172,9 @@ public:
 
 	int GetOriginalCapitalX() const;
 	int GetOriginalCapitalY() const;
-
+#if defined(MOD_BALANCE_CORE)
+	void setOriginalCapitalXY(CvCity* pCapitalCity);
+#endif
 	bool IsHasLostCapital() const;
 	void SetHasLostCapital(bool bValue, PlayerTypes eConqueror);
 #if defined(MOD_GLOBAL_NO_CONQUERED_SPACESHIPS)

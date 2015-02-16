@@ -241,6 +241,10 @@ CvCity::CvCity() :
 	, m_aiChangeYieldFromVictory("CvCity::m_aiChangeYieldFromVictory", m_syncArchive)
 	, m_aiBaseYieldRateFromCSAlliance("CvCity::m_aiChangeGrowthExtraYield", m_syncArchive)
 #endif
+#if defined(MOD_BALANCE_CORE_SPIES)
+	, m_iCityRank(0)
+	, m_iTurnsSinceRankAnnouncement(0)
+#endif
 	, m_aiYieldRateModifier("CvCity::m_aiYieldRateModifier", m_syncArchive)
 	, m_aiYieldPerPop("CvCity::m_aiYieldPerPop", m_syncArchive)
 	, m_aiPowerYieldRateModifier("CvCity::m_aiPowerYieldRateModifier", m_syncArchive)
@@ -1277,6 +1281,10 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 #if defined(MOD_BALANCE_CORE)
 	m_iUnhappyCitizen = 0;
 	m_aiChangeYieldFromVictory.resize(NUM_YIELD_TYPES);
+#endif
+#if defined(MOD_BALANCE_CORE_SPIES)
+	m_iCityRank = 0;
+	m_iTurnsSinceRankAnnouncement = 0;
 #endif
 	m_aiBaseYieldRateFromReligion.resize(NUM_YIELD_TYPES);
 #if defined(MOD_BALANCE_CORE)
@@ -2684,7 +2692,35 @@ int CvCity::getEconomicValue(PlayerTypes ePossibleOwner, int iNumTurnsForDepreci
 }
 
 #endif
-
+#if defined(MOD_BALANCE_CORE_SPIES)
+void CvCity::SetRank(int iRank)
+{
+	VALIDATE_OBJECT
+	m_iCityRank = iRank;
+	CvAssert(GetRank() >= 0);
+}
+int CvCity::GetRank() const
+{
+	VALIDATE_OBJECT
+	return m_iCityRank;
+}
+void CvCity::SetTurnsSinceLastRankMessage(int iTurns)
+{
+	VALIDATE_OBJECT
+	m_iTurnsSinceRankAnnouncement = iTurns;
+	CvAssert(GetTurnsSinceLastRankMessage() >= 0);
+}
+int CvCity::GetTurnsSinceLastRankMessage() const
+{
+	VALIDATE_OBJECT
+	return m_iTurnsSinceRankAnnouncement;
+}
+void CvCity::ChangeTurnsSinceLastRankMessage(int iTurns)
+{
+	VALIDATE_OBJECT
+	SetTurnsSinceLastRankMessage(GetTurnsSinceLastRankMessage() + iTurns);
+}
+#endif
 #if defined(MOD_GLOBAL_CITY_WORKING)
 //	--------------------------------------------------------------------------------
 /// How far out this city may buy plots
@@ -5855,7 +5891,6 @@ int CvCity::GetPurchaseCost(BuildingTypes eBuilding)
 	}
 	//Increase cost based on # of techs researched.
 	int iTechProgress = (GET_TEAM(getTeam()).GetTeamTechs()->GetNumTechsKnown() * 100) / GC.getNumTechInfos();
-	iTechProgress /= 2;
 	if(iTechProgress > 0)
 	{
 		iCost *= (100 + iTechProgress);
@@ -18852,6 +18887,10 @@ void CvCity::read(FDataStream& kStream)
 	MOD_SERIALIZE_READ(66, kStream, m_iUnhappyCitizen, 0);
 	MOD_SERIALIZE_READ_AUTO(66, kStream, m_aiBaseYieldRateFromCSAlliance, NUM_YIELD_TYPES, 0);
 #endif
+#if defined(MOD_BALANCE_CORE_SPIES)
+	MOD_SERIALIZE_READ(66, kStream, m_iCityRank, 0);
+	MOD_SERIALIZE_READ(66, kStream, m_iTurnsSinceRankAnnouncement, 0);
+#endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 	MOD_SERIALIZE_READ(53, kStream, m_iChangePovertyUnhappiness, 0);
 	MOD_SERIALIZE_READ(53, kStream, m_iChangeDefenseUnhappiness, 0);
@@ -19239,6 +19278,10 @@ void CvCity::write(FDataStream& kStream) const
 	MOD_SERIALIZE_WRITE_AUTO(kStream, m_aiChangeYieldFromVictory);
 	MOD_SERIALIZE_WRITE(kStream, m_iUnhappyCitizen);
 	MOD_SERIALIZE_WRITE_AUTO(kStream, m_aiBaseYieldRateFromCSAlliance);
+#endif
+#if defined(MOD_BALANCE_CORE_SPIES)
+	MOD_SERIALIZE_WRITE(kStream, m_iCityRank);
+	MOD_SERIALIZE_WRITE(kStream, m_iTurnsSinceRankAnnouncement);
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 	MOD_SERIALIZE_WRITE(kStream, m_iChangePovertyUnhappiness);

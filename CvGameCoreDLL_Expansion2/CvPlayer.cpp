@@ -4236,7 +4236,29 @@ CvUnit* CvPlayer::initUnitWithNameOffset(UnitTypes eUnit, int nameOffset, int iX
 
 	return pUnit;
 }
+#if defined(MOD_BALANCE_CORE)
+//	--------------------------------------------------------------------------------
+CvUnit* CvPlayer::initNamedUnit(UnitTypes eUnit, int iName, int iX, int iY, UnitAITypes eUnitAI, DirectionTypes eFacingDirection, bool bNoMove, bool bSetupGraphical, int iMapLayer /* = 0 */, int iNumGoodyHutsPopped)
+{
+	CvAssertMsg(eUnit != NO_UNIT, "Unit is not assigned a valid value");
+	if (eUnit == NO_UNIT)
+		return NULL;
 
+	CvUnitEntry* pkUnitDef = GC.getUnitInfo(eUnit);
+	CvAssertFmt(pkUnitDef != NULL, "Trying to create unit of type %d, which does not exist", eUnit);
+	if (pkUnitDef == NULL)
+		return NULL;
+
+	CvUnit* pUnit = addUnit();
+	CvAssertMsg(pUnit != NULL, "Unit is not assigned a valid value");
+	if(NULL != pUnit)
+	{
+		pUnit->initWithSpecificName(pUnit->GetID(), eUnit, iName, ((eUnitAI == NO_UNITAI) ? ((UnitAITypes)(pkUnitDef->GetDefaultUnitAIType())) : eUnitAI), GetID(), iX, iY, eFacingDirection, bNoMove, bSetupGraphical, iMapLayer, iNumGoodyHutsPopped);
+	}
+
+	return pUnit;
+}
+#endif
 //	--------------------------------------------------------------------------------
 void CvPlayer::disbandUnit(bool)
 {
@@ -9571,6 +9593,60 @@ int CvPlayer::getProductionNeeded(BuildingTypes eBuilding) const
 	{
 		iProductionNeeded += (pkBuildingInfo->GetNumCityCostMod() * getNumCities());
 	}
+#if defined(MOD_BALANCE_CORE_WONDER_COST_INCREASE)
+	if(MOD_BALANCE_CORE_WONDER_COST_INCREASE && isWorldWonderClass(pkBuildingInfo->GetBuildingClassInfo()))
+	{
+		int iNumWorldWonderPercent = 0;
+		const CvCity* pLoopCity;
+		int iLoop;
+		for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+		{
+			if(pLoopCity->getNumWorldWonders() > 0)
+			{
+				for(int iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
+				{
+					const BuildingTypes eBuilding = static_cast<BuildingTypes>(iBuildingLoop);
+					CvBuildingEntry* pkeBuildingInfo = GC.getBuildingInfo(eBuilding);
+				
+					// Has this Building
+					if(pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
+					{
+						if(isWorldWonderClass(pkeBuildingInfo->GetBuildingClassInfo()))
+						{
+							if(pkeBuildingInfo->GetPrereqAndTech() != NO_TECH)
+							{
+								CvTechEntry* pkTechInfo = GC.getTechInfo((TechTypes)pkeBuildingInfo->GetPrereqAndTech());
+								if(pkTechInfo)
+								{
+									// Loop through all eras and apply Building production mod based on how much time has passed
+									EraTypes eBuildingUnlockedEra = (EraTypes) pkTechInfo->GetEra();
+
+									if(eBuildingUnlockedEra == GetCurrentEra())
+									{
+										iNumWorldWonderPercent += GC.getBALANCE_CORE_WORLD_WONDER_SAME_ERA_COST_MODIFIER();
+									}
+									else if((GetCurrentEra() - eBuildingUnlockedEra) == 1)
+									{
+										iNumWorldWonderPercent += GC.getBALANCE_CORE_WORLD_WONDER_PREVIOUS_ERA_COST_MODIFIER();
+									}
+									else if((GetCurrentEra() - eBuildingUnlockedEra) > 1)
+									{
+										iNumWorldWonderPercent += GC.getBALANCE_CORE_WORLD_WONDER_EARLIER_ERA_COST_MODIFIER();
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		if(iNumWorldWonderPercent > 0)
+		{
+			iProductionNeeded *= (100 + iNumWorldWonderPercent);
+			iProductionNeeded /= 100;
+		}
+	}
+#endif
 
 	if(isMinorCiv())
 	{
@@ -19974,7 +20050,17 @@ int CvPlayer::GetOriginalCapitalY() const
 {
 	return m_iOriginalCapitalY;
 }
-
+#if defined(MOD_BALANCE_CORE)
+//	--------------------------------------------------------------------------------
+void CvPlayer::setOriginalCapitalXY(CvCity* pCapitalCity)
+{
+	if(pCapitalCity != NULL)
+	{
+		m_iOriginalCapitalX = pCapitalCity->getX();
+		m_iOriginalCapitalY = pCapitalCity->getY();
+	}
+}
+#endif
 //	--------------------------------------------------------------------------------
 /// Have we lost our capital in war?
 bool CvPlayer::IsHasLostCapital() const

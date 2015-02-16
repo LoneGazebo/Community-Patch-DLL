@@ -83,6 +83,7 @@ public:
 #endif
 #if defined(MOD_BALANCE_CORE)
 	int GetResourceFromImprovement() const;
+	int GetResourceQuantityFromImprovement() const;
 #endif
 	int GetImprovementPillage() const;
 	void SetImprovementPillage(int i);
@@ -228,6 +229,7 @@ protected:
 #endif
 #if defined(MOD_BALANCE_CORE)
 	int m_iImprovementResource;
+	int m_iImprovementResourceQuantity;
 #endif
 	int m_iImprovementPillage;
 	int m_iImprovementUpgrade;

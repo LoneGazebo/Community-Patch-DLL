@@ -12,8 +12,13 @@
 <!-- Related to Policies-->
 		<Update>
 			<Where Name="POLICY_COST_EXPONENT"/>
-			<Set Value="1.82"/>
+			<Set Value="1.85"/>
 			<!-- 2.01 -->
+		</Update>
+		<Update>
+			<Where Name="POLICY_COST_INCREASE_TO_BE_EXPONENTED"/>
+			<Set Value="4"/>
+			<!-- 3 -->
 		</Update>
 		
 <!-- Related to movement -->
