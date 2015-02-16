@@ -42,6 +42,7 @@ public:
 
 	// Recommend highest-weighted unit
 #if defined(MOD_BALANCE_CORE)
+	bool CheckUnitBuildSanity(UnitTypes eUnit);
 	UnitTypes RecommendUnit(UnitAITypes eUnitAIType, bool bUsesStrategicResource);
 #else
 	UnitTypes RecommendUnit(UnitAITypes eUnitAIType = NO_UNITAI);

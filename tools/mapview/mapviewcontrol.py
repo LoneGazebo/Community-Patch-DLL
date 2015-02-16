@@ -207,7 +207,7 @@ class PlotViewer(object):
 		# TODO
 
 	def handle_click(self,plot_idx):
-		self.plots[plot_idx].show_details()
+		self.plots[plot_idx].show_details(self.layer_names)
 
 	def draw_plots(self):
 		for p in self.plots:

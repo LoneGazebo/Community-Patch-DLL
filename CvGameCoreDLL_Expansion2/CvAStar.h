@@ -90,6 +90,14 @@ public:
 		return m_pBest;
 	}
 
+#ifdef AUI_ASTAR_GET_PENULTIMATE_NODE
+	// Gets the node before the last node in the path (from the origin)
+	inline CvAStarNode* GetPenultimateNode()
+	{
+		return m_pBest->m_pParent;
+	}
+#endif
+
 	inline bool IsPathStart(int iX, int iY)
 	{
 		return ((m_iXstart == iX) && (m_iYstart == iY));

@@ -174,6 +174,77 @@ unsigned short CvRandom::get(unsigned short usNum, const char* pszLog)
 	return us;
 }
 
+#ifdef AUI_BINOM_RNG
+#define BINOM_SHIFT (30)
+unsigned short CvRandom::getBinom(unsigned short usNum, const char* pszLog)
+{
+	recordCallStack();
+	m_ulCallCount++;
+	
+	unsigned short usRet = 0;
+	unsigned long ulNewSeed = (RANDOM_A * m_ulRandomSeed) + RANDOM_C;
+	unsigned short usCounter;
+	for (usCounter = 1; usCounter < usNum; usCounter++) // starts at 1 because the generation is not inclusive (so we need one less cycle than normal)
+	{
+		// no need to worry about masking with MAX_UNSIGNED_SHORT, max cycle number takes care of it
+		usRet += (ulNewSeed >> BINOM_SHIFT) & 1; // need the shift so results only repeat after 2^BINOM_SHIFT iterations
+		ulNewSeed = (RANDOM_A * ulNewSeed) + RANDOM_C;
+	}
+
+	if (GC.getLogging())
+	{
+		int iRandLogging = GC.getRandLogging();
+		if (iRandLogging > 0 && (m_bSynchronous || (iRandLogging & RAND_LOGGING_ASYNCHRONOUS_FLAG) != 0))
+		{
+#if !defined(FINAL_RELEASE)
+			if (!gDLL->IsGameCoreThread() && gDLL->IsGameCoreExecuting() && m_bSynchronous)
+			{
+				CvAssertMsg(0, "App side is accessing the synchronous random number generator while the game core is running.");
+			}
+#endif
+			CvGame& kGame = GC.getGame();
+			if (kGame.getTurnSlice() > 0 || ((iRandLogging & RAND_LOGGING_PREGAME_FLAG) != 0))
+			{
+				FILogFile* pLog = LOGFILEMGR.GetLog("RandCalls.csv", FILogFile::kDontTimeStamp, "Game Turn, Turn Slice, Range, Value, Seed, Instance, Type, Location\n");
+				if (pLog)
+				{
+					char szOut[1024] = { 0 };
+					sprintf_s(szOut, "%d, %d, %u, %u, %u, %8x, %s, %s\n", kGame.getGameTurn(), kGame.getTurnSlice(), (uint)usNum, (uint)usRet, getSeed(), (uint)this, m_bSynchronous ? "sync" : "async", (pszLog != NULL) ? pszLog : "Unknown");
+					pLog->Msg(szOut);
+
+#if !defined(FINAL_RELEASE)
+					if ((iRandLogging & RAND_LOGGING_CALLSTACK_FLAG) != 0)
+					{
+#ifdef _DEBUG
+						if (m_bExtendedCallStackDebugging)
+						{
+							// Use the callstack from the extended callstack debugging system
+							const FCallStack& callStack = m_kCallStacks.back();
+							std::string stackTrace = callStack.toString(true, 6);
+							pLog->Msg(stackTrace.c_str());
+						}
+						else
+#endif
+						{
+#ifdef WIN32
+							// Get callstack directly
+							FCallStack callStack;
+							FDebugHelper::GetInstance().GetCallStack(&callStack, 0, 8);
+							std::string stackTrace = callStack.toString(true, 6);
+							pLog->Msg(stackTrace.c_str());
+#endif
+						}
+					}
+#endif
+				}
+			}
+		}
+	}
+
+	m_ulRandomSeed = ulNewSeed;
+	return usRet;
+}
+#endif // AUI_BINOM_RNG
 
 float CvRandom::getFloat()
 {

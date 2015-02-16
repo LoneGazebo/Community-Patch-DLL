@@ -100,7 +100,6 @@ void CvPlayerAI::AI_doTurnPre()
 	}
 
 	AI_updateFoundValues();
-
 	AI_doResearch();
 	AI_considerAnnex();
 }
@@ -165,15 +164,51 @@ void CvPlayerAI::AI_doTurnUnitsPost()
 	}
 }
 
-void CvPlayerAI::AI_updateFoundValues(bool bStartingLoc)
-{
 #if defined(MOD_BALANCE_CORE)
+void CvPlayerAI::AI_updateFoundValues(bool /*unused*/)
+{
 	//speed optimization: do this only if we want to expand
 	//any other safe checks we could do?
 	bool bVenice = GetPlayerTraits()->IsNoAnnexing();
 	if (isMinorCiv() || isBarbarian() || bVenice)
 		return;
-#endif
+
+	// important preparation
+	GC.getGame().GetSettlerSiteEvaluator()->ComputeFlavorMultipliers(this);
+
+	const PlayerTypes eID = GetID();
+
+	// reset the areas
+	int iLoop=0;
+	for(CvArea* pLoopArea = GC.getMap().firstArea(&iLoop); pLoopArea != NULL; pLoopArea = GC.getMap().nextArea(&iLoop))
+		pLoopArea->setTotalFoundValue(0);
+
+	// calculate new score
+	int iGoodEnoughToBeWorthOurTime = GC.getAI_STRATEGY_MINIMUM_SETTLE_FERTILITY();
+	const int iNumPlots = GC.getMap().numPlots();
+	for (int iI = 0; iI < iNumPlots; iI++)
+	{
+		CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(iI);
+		int iValue = GC.getGame().GetSettlerSiteEvaluator()->PlotFoundValue(pLoopPlot, this, NO_YIELD, false);
+		
+		//cache the result
+		pLoopPlot->setFoundValue(eID, iValue);
+
+		if (iValue >= iGoodEnoughToBeWorthOurTime)
+		{
+			CvArea* pLoopArea = GC.getMap().getArea(pLoopPlot->getArea());
+			if(pLoopArea && !pLoopArea->isWater())
+				//add the square so smaller landmasses have a chance too (scale by 1e6 to avoid overflow)
+				//sum is too biased to large areas, max is too biased for small areas
+				pLoopArea->setTotalFoundValue( pLoopArea->getTotalFoundValue() + iValue*iValue/1000000 );
+		}
+	}
+}
+
+#else
+
+void CvPlayerAI::AI_updateFoundValues(bool bStartingLoc)
+{
 	int iGoodEnoughToBeWorthOurTime = GC.getAI_STRATEGY_MINIMUM_SETTLE_FERTILITY();
 	int iLoop;
 	const int iNumPlots = GC.getMap().numPlots();
@@ -187,13 +222,7 @@ void CvPlayerAI::AI_updateFoundValues(bool bStartingLoc)
 	{
 		for(int iI = 0; iI < iNumPlots; iI++)
 		{
-#if defined(MOD_BALANCE_CORE)
-			CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(iI);
-			const int iValue = GC.getGame().GetSettlerSiteEvaluator()->PlotFoundValue(pLoopPlot, this, NO_YIELD, false);
-			pLoopPlot->setFoundValue(eID, iValue);
-#else
 			GC.getMap().plotByIndexUnchecked(iI)->setFoundValue(eID, -1);
-#endif
 		}
 	}
 	else
@@ -203,14 +232,8 @@ void CvPlayerAI::AI_updateFoundValues(bool bStartingLoc)
 		for (int iI = 0; iI < iNumPlots; iI++)
 		{
 			CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(iI);
-#if defined(MOD_BALANCE_CORE_SETTLER)
-			//consider only known tiles which don't belong to another player
-			if (MOD_BALANCE_CORE_SETTLER && pLoopPlot->isRevealed(eTeam) && ( (pLoopPlot->getOwner() == NO_PLAYER) || (pLoopPlot->getOwner() == GetID())))
-			{
-#else
 			if (pLoopPlot->isRevealed(eTeam))
 			{	
-#endif
 				const int iValue = GC.getGame().GetSettlerSiteEvaluator()->PlotFoundValue(pLoopPlot, this, NO_YIELD, false);
 				pLoopPlot->setFoundValue(eID, iValue);
 				if (iValue >= iGoodEnoughToBeWorthOurTime)
@@ -229,6 +252,7 @@ void CvPlayerAI::AI_updateFoundValues(bool bStartingLoc)
 		}
 	}
 }
+#endif
 
 //	---------------------------------------------------------------------------
 void CvPlayerAI::AI_unitUpdate()

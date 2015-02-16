@@ -503,9 +503,15 @@ bool CvAIOperation::GrabUnitsFromTheReserves(CvPlot* pMusterPlot, CvPlot* pTarge
 bool CvAIOperation::CheckOnTarget()
 {
 	int iUnitID;
+#if defined(MOD_BALANCE_CORE_SETTLER)
+	CvUnit* pCivilian = NULL;
+	CvPlot* pCivilianPlot = NULL;
+	CvPlot* pEscortPlot = NULL;
+#else
 	CvUnit* pCivilian;
 	CvPlot* pCivilianPlot = NULL;
 	CvPlot* pEscortPlot;
+#endif
 
 	if(GetFirstArmyID() == -1)
 	{
@@ -551,6 +557,18 @@ bool CvAIOperation::CheckOnTarget()
 						}
 					}
 				}
+#ifdef MOD_BALANCE_CORE_SETTLER
+				else if (pCivilian && m_eCurrentState == AI_OPERATION_STATE_RECRUITING_UNITS)
+				{
+					// try to get the escort from existing units that are waiting around
+					GrabUnitsFromTheReserves(pCivilianPlot, GC.getMap().plot(m_iTargetX, m_iTargetY));
+					if (pThisArmy->GetNumSlotsFilled() > 1)
+					{
+						pThisArmy->SetArmyAIState(ARMYAISTATE_WAITING_FOR_UNITS_TO_CATCH_UP);
+						m_eCurrentState = AI_OPERATION_STATE_GATHERING_FORCES;
+					}
+				}
+#endif
 			}
 			else
 			{
@@ -1608,6 +1626,9 @@ static CvUnit* GetClosestUnit(CvOperationSearchUnitList& kSearchList, CvPlot* pk
 		std::stable_sort(kSearchList.begin(), kSearchList.end());
 
 		int iBestDistance = MAX_INT;
+#ifdef AUI_OPERATION_GET_CLOSEST_UNIT_GET_STRONGEST
+		int iBestStrength = 0;
+#endif // AUI_OPERATION_GET_CLOSEST_UNIT_GET_STRONGEST
 		CvIgnoreUnitsPathFinder& kPathFinder = GC.getIgnoreUnitsPathFinder();
 		for (CvOperationSearchUnitList::iterator itr = kSearchList.begin(); itr != kSearchList.end(); ++itr)
 		{
@@ -1633,21 +1654,117 @@ static CvUnit* GetClosestUnit(CvOperationSearchUnitList& kSearchList, CvPlot* pk
 					iPathDistance = kPathFinder.GetPathLength();
 			}
 
+#ifdef AUI_OPERATION_GET_CLOSEST_UNIT_PARADROP
+			if (pkLoopUnit->getDropRange() > 0)
+			{
+				if (pkMusterPlot != NULL && plotDistance(pkLoopUnit->getX(), pkLoopUnit->getY(), pkMusterPlot->getX(), pkMusterPlot->getY()) <= pkLoopUnit->getDropRange())
+				{
+					if (pkLoopUnit->canParadropAt(pkMusterPlot, pkMusterPlot->getX(), pkMusterPlot->getY()))
+					{
+						iPathDistance = 0;
+					}
+					else
+					{
+						CvPlot* pAdjacentPlot;
+						for (int jJ = 0; jJ < NUM_DIRECTION_TYPES; jJ++)
+						{
+							pAdjacentPlot = plotDirection(pkMusterPlot->getX(), pkMusterPlot->getY(), ((DirectionTypes)jJ));
+							if (pAdjacentPlot != NULL)
+							{
+								if (pkLoopUnit->canParadropAt(pAdjacentPlot, pAdjacentPlot->getX(), pAdjacentPlot->getY()))
+								{
+									iPathDistance = MIN(1, iPathDistance);
+									break;
+								}
+							}
+						}
+					}
+				}
+				else if (pkMusterPlot == NULL && pkTarget != NULL && plotDistance(pkLoopUnit->getX(), pkLoopUnit->getY(), pkTarget->getX(), pkTarget->getY()) <= pkLoopUnit->getDropRange())
+				{
+					if (pkLoopUnit->canParadropAt(pkTarget, pkTarget->getX(), pkTarget->getY()))
+					{
+						iPathDistance = 0;
+					}
+					else
+					{
+						CvPlot* pAdjacentPlot;
+						for (int jJ = 0; jJ < NUM_DIRECTION_TYPES; jJ++)
+						{
+							pAdjacentPlot = plotDirection(pkTarget->getX(), pkTarget->getY(), ((DirectionTypes)jJ));
+							if (pAdjacentPlot != NULL)
+							{
+								if (pkLoopUnit->canParadropAt(pAdjacentPlot, pAdjacentPlot->getX(), pAdjacentPlot->getY()))
+								{
+									iPathDistance = MIN(1, iPathDistance);
+									break;
+								}
+							}
+						}
+					}
+				}
+			}
+#endif // AUI_OPERATION_GET_CLOSEST_UNIT_PARADROP
+
+#ifndef AUI_OPERATION_GET_CLOSEST_UNIT_NO_EARLY_BREAK
 			// Reasonably close?
+#ifdef AUI_OPERATION_GET_CLOSEST_UNIT_PARADROP
+			if (iPathDistance <= iDistance && iPathDistance <= iBestDistance && pkLoopUnit->getDropRange() == 0)
+#else
 			if (iPathDistance <= iDistance && iPathDistance <= iBestDistance)
+#endif // AUI_OPERATION_GET_CLOSEST_UNIT_PARADROP
 			{
 				pkBestUnit = pkLoopUnit;
 				break;
 			}
+#endif // AUI_OPERATION_GET_CLOSEST_UNIT_NO_EARLY_BREAK
 
 			if (iPathDistance < iBestDistance)
 			{
 				pkBestUnit = pkLoopUnit;
 				iBestDistance = iPathDistance;
+#ifdef AUI_OPERATION_GET_CLOSEST_UNIT_GET_STRONGEST
+				iBestStrength = pkLoopUnit->GetBaseCombatStrengthConsideringDamage();
+#endif // AUI_OPERATION_GET_CLOSEST_UNIT_GET_STRONGEST
 			}
+#ifdef AUI_OPERATION_GET_CLOSEST_UNIT_GET_STRONGEST
+			else if (iPathDistance == iBestDistance)
+			{
+				if (pkBestUnit)
+				{
+					// Civilian units compare HP
+					if (!pkBestUnit->IsCombatUnit() && !pkLoopUnit->IsCombatUnit())
+					{
+						if (pkLoopUnit->GetCurrHitPoints() > pkBestUnit->GetCurrHitPoints())
+						{
+							pkBestUnit = pkLoopUnit;
+						}
+					}
+					// Military units compare strength
+					else
+					{
+						int iLoopStrength = pkLoopUnit->GetBaseCombatStrengthConsideringDamage();
+						if (iLoopStrength > iBestStrength)
+						{
+							pkBestUnit = pkLoopUnit;
+							iBestStrength = iLoopStrength;
+						}
+					}
+				}
+				else
+				{
+					pkBestUnit = pkLoopUnit;
+					iBestStrength = pkLoopUnit->GetBaseCombatStrengthConsideringDamage();
+				}
+			}
+#endif // AUI_OPERATION_GET_CLOSEST_UNIT_GET_STRONGEST
 
 			// Were we far away?  If so, this is probably the best we are going to do
+#ifdef AUI_OPERATION_GET_CLOSEST_UNIT_PARADROP
+			if (iDistance >= GC.getAI_HOMELAND_ESTIMATE_TURNS_DISTANCE() && pkLoopUnit->getDropRange() == 0)
+#else
 			if (iDistance >= GC.getAI_HOMELAND_ESTIMATE_TURNS_DISTANCE())
+#endif // #ifdef AUI_OPERATION_GET_CLOSEST_UNIT_PARADROP
 				break;
 		}
 	}
@@ -1687,10 +1804,18 @@ bool CvAIOperation::FindBestFitReserveUnit(OperationSlot thisOperationSlot, CvPl
 			for(CvUnit* pLoopUnit = ownerPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = ownerPlayer.nextUnit(&iLoop))
 			{
 				const UnitAITypes eLoopUnitAIType = pLoopUnit->AI_getUnitAIType();
+#ifdef AUI_OPERATION_FIX_FIND_BEST_FIT_RESERVE_CONSIDER_SCOUTING_NONSCOUTS
+				const UnitAITypes eLoopUnitDefaultAIType = (UnitAITypes)pLoopUnit->getUnitInfo().GetDefaultUnitAIType();
+#endif // AUI_OPERATION_FIX_FIND_BEST_FIT_RESERVE_CONSIDER_SCOUTING_NONSCOUTS
 
 				// Make sure he's not needed by the tactical AI or already in an army or scouting
 				if(pLoopUnit->canRecruitFromTacticalAI() && pLoopUnit->getArmyID() == FFreeList::INVALID_INDEX &&
-				        eLoopUnitAIType != UNITAI_EXPLORE && eLoopUnitAIType != UNITAI_EXPLORE_SEA && pLoopUnit->getDropRange() == 0 /* no paratroopers */)
+#ifdef AUI_OPERATION_FIX_FIND_BEST_FIT_RESERVE_CONSIDER_SCOUTING_NONSCOUTS
+					(eLoopUnitAIType != UNITAI_EXPLORE || eLoopUnitDefaultAIType != UNITAI_EXPLORE) &&
+					(eLoopUnitAIType != UNITAI_EXPLORE_SEA || eLoopUnitDefaultAIType != UNITAI_EXPLORE_SEA) )
+#else
+					eLoopUnitAIType != UNITAI_EXPLORE && eLoopUnitAIType != UNITAI_EXPLORE_SEA && pLoopUnit->getDropRange() == 0 /* no paratroopers */)
+#endif // AUI_OPERATION_FIX_FIND_BEST_FIT_RESERVE_CONSIDER_SCOUTING_NONSCOUTS
 				{
 					// Is this unit one of the requested types?
 					CvUnitEntry* unitInfo = GC.getUnitInfo(pLoopUnit->getUnitType());
@@ -1717,8 +1842,13 @@ bool CvAIOperation::FindBestFitReserveUnit(OperationSlot thisOperationSlot, CvPl
 										if(pMusterPlot != NULL)
 										{
 											iDistance = plotDistance(pkLoopUnitPlot->getX(), pkLoopUnitPlot->getY(), pMusterPlot->getX(), pMusterPlot->getY());
+#ifdef AUI_OPERATION_GET_CLOSEST_UNIT_PARADROP
+											// Double the distance if this is a land unit on a different landmass (it's dangerous to go over water!)
+											if(pMusterPlot != NULL && pLoopUnit->getDomainType() == DOMAIN_LAND && pkLoopUnitPlot->getArea() != pMusterPlot->getArea() && pLoopUnit->getDropRange() == 0)
+#else
 											// Double the distance if this is a land unit on a different landmass (it's dangerous to go over water!)
 											if(pMusterPlot != NULL && pLoopUnit->getDomainType() == DOMAIN_LAND && pkLoopUnitPlot->getArea() != pMusterPlot->getArea())
+#endif // AUI_OPERATION_GET_CLOSEST_UNIT_PARADROP
 											{
 												iDistance *= 2;
 											}
@@ -1748,6 +1878,10 @@ bool CvAIOperation::FindBestFitReserveUnit(OperationSlot thisOperationSlot, CvPl
 			// Did we find one?
 			if(pBestUnit != NULL)
 			{
+#ifdef AUI_OPERATION_FIX_FIND_BEST_FIT_RESERVE_CONSIDER_SCOUTING_NONSCOUTS
+				if (pBestUnit->AI_getUnitAIType() != thisSlotEntry.m_primaryUnitType)
+					pBestUnit->AI_setUnitAIType((UnitAITypes)thisSlotEntry.m_primaryUnitType);
+#endif // AUI_OPERATION_FIX_FIND_BEST_FIT_RESERVE_CONSIDER_SCOUTING_NONSCOUTS
 				pThisArmy->AddUnit(pBestUnit->GetID(), thisOperationSlot.m_iSlotID);
 				return true;
 			}
@@ -1765,10 +1899,18 @@ bool CvAIOperation::FindBestFitReserveUnit(OperationSlot thisOperationSlot, CvPl
 			for(CvUnit* pLoopUnit = ownerPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = ownerPlayer.nextUnit(&iLoop))
 			{
 				const UnitAITypes eLoopUnitAIType = pLoopUnit->AI_getUnitAIType();
+#ifdef AUI_OPERATION_FIX_FIND_BEST_FIT_RESERVE_CONSIDER_SCOUTING_NONSCOUTS
+				const UnitAITypes eLoopUnitDefaultAIType = (UnitAITypes)pLoopUnit->getUnitInfo().GetDefaultUnitAIType();
+#endif // AUI_OPERATION_FIX_FIND_BEST_FIT_RESERVE_CONSIDER_SCOUTING_NONSCOUTS
 
 				// Make sure he's not needed by the tactical AI or already in an army or scouting
 				if(pLoopUnit->canRecruitFromTacticalAI() && pLoopUnit->getArmyID() == FFreeList::INVALID_INDEX &&
+#ifdef AUI_OPERATION_FIX_FIND_BEST_FIT_RESERVE_CONSIDER_SCOUTING_NONSCOUTS
+					(eLoopUnitAIType != UNITAI_EXPLORE || eLoopUnitDefaultAIType != UNITAI_EXPLORE) &&
+					(eLoopUnitAIType != UNITAI_EXPLORE_SEA || eLoopUnitDefaultAIType != UNITAI_EXPLORE_SEA) )
+#else
 				        eLoopUnitAIType != UNITAI_EXPLORE && eLoopUnitAIType != UNITAI_EXPLORE_SEA && pLoopUnit->getDropRange() == 0 /* no paratroopers */)
+#endif // AUI_OPERATION_FIX_FIND_BEST_FIT_RESERVE_CONSIDER_SCOUTING_NONSCOUTS
 				{
 					// Is this unit one of the requested types?
 					CvUnitEntry* unitInfo = GC.getUnitInfo(pLoopUnit->getUnitType());
@@ -1796,7 +1938,14 @@ bool CvAIOperation::FindBestFitReserveUnit(OperationSlot thisOperationSlot, CvPl
 										{
 											iDistance = plotDistance(pkLoopUnitPlot->getX(), pkLoopUnitPlot->getY(), pMusterPlot->getX(), pMusterPlot->getY());
 											// Double the distance if this is a land unit on a different landmass (it's dangerous to go over water!)
+// This define is needed because iDistance feeds into GetClosestUnit
+#ifdef AUI_OPERATION_GET_CLOSEST_UNIT_PARADROP
+											// Double the distance if this is a land unit on a different landmass (it's dangerous to go over water!)
+											if (pMusterPlot != NULL && pLoopUnit->getDomainType() == DOMAIN_LAND && pkLoopUnitPlot->getArea() != pMusterPlot->getArea() && pLoopUnit->getDropRange() == 0)
+#else
+											// Double the distance if this is a land unit on a different landmass (it's dangerous to go over water!)
 											if(pMusterPlot != NULL && pLoopUnit->getDomainType() == DOMAIN_LAND && pkLoopUnitPlot->getArea() != pMusterPlot->getArea())
+#endif // AUI_OPERATION_GET_CLOSEST_UNIT_PARADROP
 											{
 												iDistance *= 2;
 											}
@@ -1826,6 +1975,10 @@ bool CvAIOperation::FindBestFitReserveUnit(OperationSlot thisOperationSlot, CvPl
 			// Did we find one?
 			if(pBestUnit != NULL)
 			{
+#ifdef AUI_OPERATION_FIX_FIND_BEST_FIT_RESERVE_CONSIDER_SCOUTING_NONSCOUTS
+				if (pBestUnit->AI_getUnitAIType() != thisSlotEntry.m_primaryUnitType)
+					pBestUnit->AI_setUnitAIType((UnitAITypes)thisSlotEntry.m_primaryUnitType);
+#endif // AUI_OPERATION_FIX_FIND_BEST_FIT_RESERVE_CONSIDER_SCOUTING_NONSCOUTS
 				pThisArmy->AddUnit(pBestUnit->GetID(), thisOperationSlot.m_iSlotID);
 				return true;
 			}
@@ -2970,6 +3123,22 @@ bool CvAIEscortedOperation::RetargetCivilian(CvUnit* pCivilian, CvArmyAI* pArmy)
 	// If this is a new target, switch to it
 	else if(pBetterTarget != GetTargetPlot())
 	{
+#ifdef AUI_OPERATION_FIX_RETARGET_CIVILIAN_ABORT_IF_UNREACHABLE_ESCORT
+		std::vector<int> aiUnitsToRemove;
+		for (UnitHandle pUnit = pArmy->GetFirstUnit(); pUnit.pointer(); pUnit = pArmy->GetNextUnit())
+		{
+			if (TurnsToReachTarget(pUnit, pBetterTarget) == MAX_INT)
+			{
+				aiUnitsToRemove.push_back(pUnit->GetID());
+			}
+		}
+		for (std::vector<int>::iterator it = aiUnitsToRemove.begin(); it != aiUnitsToRemove.end(); ++it)
+		{
+			pArmy->RemoveUnit((*it));
+		}
+		if ((m_eCurrentState) == AI_OPERATION_STATE_ABORTED)
+			return false;
+#endif // AUI_OPERATION_FIX_RETARGET_CIVILIAN_ABORT_IF_UNREACHABLE_ESCORT
 		SetTargetPlot(pBetterTarget);
 		pArmy->SetGoalPlot(pBetterTarget);
 	}
@@ -3064,16 +3233,22 @@ void CvAIOperationFoundCity::Init(int iID, PlayerTypes eOwner, PlayerTypes /*eEn
 				{
 					// There was no escort immediately available.  Let's look for a "safe" city site instead
 #if defined(MOD_BALANCE_CORE_SETTLER)
-					if (eOwner == -1 || GET_PLAYER(eOwner).getNumCities() > 1 || GET_PLAYER(eOwner).GetDiplomacyAI()->GetBoldness() > 7) // unless we'd rather play it safe
+					if (eOwner == -1 || GET_PLAYER(eOwner).getNumCities() > 2 || GET_PLAYER(eOwner).GetDiplomacyAI()->GetBoldness() > 7) // unless we'd rather play it safe
+					{
+						pNewTarget = FindBestTarget(pOurCivilian, true);
+					}
+
+					// if no safe target or the safe target is much worse than the unsafe target we need an escort
+					if( pNewTarget==NULL || pNewTarget->getFoundValue(eOwner)<pTargetSite->getFoundValue(eOwner)*0.8 )
 #else
 					if (eOwner == -1 || GET_PLAYER(eOwner).getNumCities() > 1 || GET_PLAYER(eOwner).GetDiplomacyAI()->GetBoldness() > 5) // unless we'd rather play it safe
-#endif
 					{
 						pNewTarget = FindBestTarget(pOurCivilian, true);
 					}
 
 					// If no better target, we'll wait it out for an escort
 					if(pNewTarget == NULL)
+#endif
 					{
 						// Need to add it back in to list of what to build (was cleared before since marked optional)
 						m_viListOfUnitsWeStillNeedToBuild.clear();
@@ -3217,18 +3392,18 @@ bool CvAIOperationFoundCity::ArmyInPosition(CvArmyAI* pArmy)
 			else if(pSettler->plot() == GetTargetPlot() && pSettler->canMove() && pSettler->canFound(pSettler->plot()))
 			{
 				CvPlot* pCityPlot = pSettler->plot();
-				int iPlotValue = GC.getGame().GetSettlerSiteEvaluator()->PlotFoundValue(pCityPlot, &GET_PLAYER(m_eOwner), NO_YIELD, false);
+				int iPlotValue = pCityPlot->getFoundValue(m_eOwner);
 
 #if defined(MOD_BALANCE_CORE)
 				//now that the neighboring tiles are guaranteed to be revealed, recheck if we are at the best plot
 				//minor twist: the nearby plots are already targeted for a city. so we need to ignore this very operation when checking the plots
 				CvPlot* pAltPlot = GET_PLAYER(m_eOwner).GetBestSettlePlot(pSettler, m_bEscorted, m_iTargetArea, this);
-				int iAltValue = GC.getGame().GetSettlerSiteEvaluator()->PlotFoundValue(pAltPlot, &GET_PLAYER(m_eOwner), NO_YIELD, false);
+				int iAltValue = pAltPlot->getFoundValue(m_eOwner);
 
 				int iDelta = 0; //our distance to the current best location
 				if (pAltPlot)
 					iDelta = ::plotDistance(pCityPlot->getX(),pCityPlot->getY(),pAltPlot->getX(),pAltPlot->getY());
-				if (iDelta==0 || iDelta>3 || m_iRetargetCount>1)
+				if (iDelta==0 || iDelta>2 || m_iRetargetCount>1)
 				{
 					pSettler->PushMission(CvTypes::getMISSION_FOUND());
 

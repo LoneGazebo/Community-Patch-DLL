@@ -31,10 +31,149 @@
 // Comment out this line to include all the achievements code (which don't work in modded games, so we don't need the code!)
 #define NO_ACHIEVEMENTS
 
-// Coastal cities are assigned to the water body as well as the land area they are on
-#define MOD_CORE_RIPARIAN_CITIES
+#define MOD_BALANCE_CORE_MILITARY_LOGGING
 
-//#define MOD_BALANCE_CORE_MILITARY_LOGGING
+/// Enables the Binomial Random Number Generator
+#define AUI_BINOM_RNG
+/// Reorders some checks to make sure ones that process faster get executed first (if they fail, then the function skips checking the slower ones)
+#define AUI_ASTAR_FIX_FASTER_CHECKS
+/// Gets the last node before the parent (used for planning melee attacks to know where they'd attack from)
+#define AUI_ASTAR_GET_PENULTIMATE_NODE
+/// The danger of a tile will only be considered when checking path nodes, not when checking the destination (stops units from freezing in panic)
+#define AUI_ASTAR_FIX_CONSIDER_DANGER_ONLY_PATH
+/// If the pathfinder does not ignore danger, use the unit's combat strength times this value as the danger limit instead of 0 (important for combat units)
+#define AUI_ASTAR_FIX_CONSIDER_DANGER_USES_COMBAT_STRENGTH (4)
+/// Flavors that weren't previously fetched but were still (attempted to be) used in processing later are now fetched
+#define AUI_HOMELAND_FIX_ESTABLISH_HOMELAND_PRIORITIES_MISSING_FLAVORS
+/// Disables the code that would start fortifying scouts if recon state was set as "enough"
+#define AUI_HOMELAND_ALWAYS_MOVE_SCOUTS
+/// Fixes the code that checks for cramped status (it always triggered originally, now it only triggers if we really are cramped)
+#define AUI_GS_CONQUEST_FIX_CRAMPED
+/// Removes the check for a cultural grand strategy that's a holdover from pre-BNW when cultural victories were won through policies, not tourism
+#define AUI_ECONOMIC_FIX_EXPAND_LIKE_CRAZY_REMOVE_HOLDOVER_CULTURE_CHECK
+/// Early Expansion strategy is always active if the AI is the only player on a continent (well, until the good settling plots run out)
+#define AUI_ECONOMIC_EARLY_EXPANSION_ALWAYS_ACTIVE_IF_ALONE
+/// Priorities for sneak attack military units are no longer artificially inflated at the highest difficulty levels
+#define AUI_CITYSTRATEGY_CHOOSE_PRODUCTION_NO_HIGH_DIFFICULTY_SKEW
+/// The AI wants an expensive tech if it's selecting a free tech
+#define AUI_TECHAI_CHOOSE_NEXT_TECH_FREE_TECH_WANTS_EXPENSIVE
+/// Buildings that contribute towards getting an ideology act as a unique building for the purposes of tech scoring
+#define AUI_PLAYERTECHS_RESET_IDEOLOGY_UNLOCKERS_COUNT_AS_UNIQUE
+
+/// The filter to filter out scouting units only applies to units whose default AI is scouting
+#define AUI_OPERATION_FIX_FIND_BEST_FIT_RESERVE_CONSIDER_SCOUTING_NONSCOUTS
+/// If a civilian retargets and an escort cannot get to the new target (ignoring units), then the operation is aborted
+#define AUI_OPERATION_FIX_RETARGET_CIVILIAN_ABORT_IF_UNREACHABLE_ESCORT
+/// GetClosestUnit() will now consider whether a unit can paradrop to the target location
+#define AUI_OPERATION_GET_CLOSEST_UNIT_PARADROP
+/// GetClosestUnit() will no longer terminate early after finding a single unit with "good enough" range (very important once roads start being used)
+#define AUI_OPERATION_GET_CLOSEST_UNIT_NO_EARLY_BREAK
+/// If two units have the same path distance in GetClosestUnit(), the one with the higher current strength wins (most effective when paired up with no early break)
+#define AUI_OPERATION_GET_CLOSEST_UNIT_GET_STRONGEST
+
+/// When calculating the expected damage on a target from a melee unit, the AI will now use pTargetPlot and pDefender parameters when appropriate (instead of having them as NULL)
+#define AUI_TACTICAL_FIX_FIND_UNITS_WITHIN_STRIKING_DISTANCE_MELEE_STRENGTH
+/// When calculating the expected damage on a target from a melee unit, the AI will now use pDefender and pCity parameters when appropriate (instead of having them as NULL)
+#define AUI_TACTICAL_FIX_FIND_UNITS_WITHIN_STRIKING_DISTANCE_RANGED_STRENGTH
+/// When calculating the expected damage on a target from a melee unit, the AI will now use pTargetPlot and pDefender parameters when appropriate (instead of having them as NULL)
+#define AUI_TACTICAL_FIX_FIND_PARATROOPER_WITHIN_STRIKING_DISTANCE_MELEE_STRENGTH
+/// When calculating the expected damage on a target from a melee unit, the AI will now use pFromPlot and pDefender parameters when appropriate (instead of having them as NULL)
+#define AUI_TACTICAL_FIX_COMPUTE_EXPECTED_DAMAGE_MELEE
+/// Air units will now properly factor in possible interceptions made at the tile
+#define AUI_TACTICAL_FIX_COMPUTE_EXPECTED_DAMAGE_AIR_UNITS
+/// Units that cannot caputre cities will not attempt to do so
+#define AUI_TACTICAL_FIX_NO_CAPTURE
+/// Fixes poor placement of ranged units with a range of 1 (eg. machine guns)
+#define AUI_TACTICAL_FIX_CLOSE_ON_TARGET_MELEE_RANGE
+/// When checking the embark safety of a plot, use the plot the unit will be moving to instead of the target plot
+#define AUI_TACTICAL_FIX_MOVE_TO_USING_SAFE_EMBARK_CORRECT_PLOT
+/// When choosing a plot to move to, the plot's score no longer needs to be positive, it just needs to be more than the great general's current plot score
+#define AUI_TACTICAL_MOVE_GREAT_GENERAL_ONLY_REQUIRE_POSITIVE_DELTA
+/// Fixes the incorrect logic behind determining whether a unit could make it to an operation's next muster point in time
+#define AUI_TACTICAL_FIX_ALL_OPERATION_MOVES_CATCH_UP_TURNS
+/// When finding naval units to move to a target, the AI no longer ignores units for its pathfinder portion (so it now essentially works the same way as the land-based one)
+#define AUI_TACTICAL_FIX_FIND_CLOSEST_NAVAL_OPERATION_UNIT_DOESNT_IGNORE_UNITS
+/// Uses the unit's in-game movement range for plot search heuristic instead of relying on the unit's info's pre-determined movement range
+#define AUI_TACTICAL_FIX_EXECUTE_MOVES_TO_SAFEST_PLOT_USE_GAME_MOVEMENT_RANGE
+/// Distance dropoff only starts taking place at 4 tile range instead of immediately
+#define AUI_TACTICAL_ANALYSIS_MAP_CALCULATE_MILITARY_STRENGTHS_LIMITED_DISTANCE_DROPOFF
+/// Uses pathfinding turns instead of raw distance for strength multipliers - extremely slow!
+//#define AUI_TACTICAL_ANALYSIS_MAP_CALCULATE_MILITARY_STRENGTHS_USE_PATHFINDER
+/// If a barbarian is already at the targetted plot, patrol around the target instead
+#define AUI_TACTICAL_EXECUTE_BARBARIAN_MOVES_PATROL_IF_ON_TARGET
+/// Civilians that are not moved with BarbarianCivilianEscortMove now move using passive barbarian move
+#define AUI_TACTICAL_EXECUTE_BARBARIAN_MOVES_CIVILIANS_MOVE_PASSIVELY
+
+/// Adds a minimum danger amount for each plot, to discourage long routes
+#define AUI_TRADE_SCORE_TRADE_ROUTE_BASE_DANGER (1)
+/// When scoring trade routes, divides by the base-(value) log of the total danger instead of by the actual total danger
+#define AUI_TRADE_SCORE_TRADE_ROUTE_DIVIDE_BY_LOG_TOTAL_DANGER (2.0)
+/// If the international trade route would be to a minor, the gold and tech received by the minor do not count
+#define AUI_TRADE_SCORE_INTERNATIONAL_MAX_DELTA_WITH_MINORS
+/// Score for a trade route from beakers is now relative to how much beakers we get from other sources
+#define AUI_TRADE_SCORE_INTERNATIONAL_RELATIVE_TECH_SCORING
+/// Score for a trade route from religious pressure is now relative to how much pressure there already is at the city
+#define AUI_TRADE_SCORE_INTERNATIONAL_RELATIVE_RELIGION_SCORING
+/// Instead of simply doubling score if we want the tourism boost, the multiplier is based on our grand strategy
+#define AUI_TRADE_SCORE_INTERNATIONAL_TOURISM_SCORE_USES_GRAND_STRATEGY
+/// When prioritizing trade routes, the actual trade value of all three possible route types will be considered instead of prioritizing food > production > international
+#define AUI_TRADE_UNBIASED_PRIORITIZE
+
+/// Uses slightly modified algorithm for determining Diplomat Usefulness levels
+#define AUI_VOTING_TWEAKED_DIPLOMAT_USEFULNESS
+/// Uses a different algorithm for scoring voting on world ideology
+#define AUI_VOTING_TWEAKED_WORLD_IDEOLOGY
+/// Uses a different algorithm for scoring voting on world religion
+#define AUI_VOTING_TWEAKED_WORLD_RELIGION
+
+/// Checks all of player's cities for whether or not a city is within conversion target range, not just the player's capital
+#define AUI_RELIGION_CONVERSION_TARGET_NOT_JUST_CAPITAL
+/// Weighs different yield types differently depending on flavor and citizen value
+#define AUI_RELIGION_SCORE_BELIEF_AT_PLOT_FLAVOR_YIELDS
+/// When adding the terrain yield change of a belief, only do so if the current feature on the plot is additive (so eg. Dance with the Aurora won't be overvalued)
+#define AUI_RELIGION_SCORE_BELIEF_AT_PLOT_SCORE_TERRAIN_CONSIDER_FEATURE
+/// Weighs different yield types differently depending on flavor and citizen value
+#define AUI_RELIGION_SCORE_BELIEF_AT_CITY_FLAVOR_YIELDS
+/// Considers grand strategies when scoring things like beliefs that only function when at peace
+#define AUI_RELIGION_SCORE_BELIEF_AT_CITY_CONSIDER_GRAND_STRATEGY
+/// River happiness score will only be applied if the city being scored is actually on a river
+#define AUI_RELIGION_FIX_SCORE_BELIEF_AT_CITY_RIVER_HAPPINESS
+/// If a building for which yield improvement is being calculated is a wonder of any kind, divide the yield by the city count (so there's effective only one instance being scored in the civ)
+#define AUI_RELIGION_SCORE_BELIEF_AT_CITY_YIELDS_FROM_WONDERS_COUNT_ONCE
+/// When scoring a belief that unlocks faith purchases of units, disregard eras that have already passed
+#define AUI_RELIGION_FIX_SCORE_BELIEF_FOR_PLAYER_UNLOCKS_UNITS_DISREGARD_OLD_ERAS
+/// Divides a city's targetting score for missionaries by this value if passive pressure is enough to eventually convert the city
+#define AUI_RELIGION_SCORE_CITY_FOR_MISSIONARY_DIVIDER_IF_PASSIVE_PRESSURE_ENOUGH (10)
+/// When finding a nearby conversion target, cities that will convert to the AI's religion passively are ignored
+#define AUI_RELIGION_HAVE_NEARBY_CONVERSION_TARGET_IGNORE_TARGET_THAT_WILL_CONVERT_PASSIVELY
+/// Scales the non-spaceship scoring of Great Engineers with Wonder Competitiveness
+#define AUI_RELIGION_GET_DESIRED_FAITH_GREAT_PERSON_ENGINEER_USES_WONDER_COMPETITIVENESS (1000.0 / 3.0)
+/// Fixes the bug where the AI scores inquisitors if it already has enough, not when it needs them
+#define AUI_RELIGION_FIX_GET_DESIRED_FAITH_GREAT_PERSON_INQUISITOR_CHECK
+/// When comparing the final score for beliefs, the score of the lowest scored belief will be subtracted from all beliefs
+#define AUI_RELIGION_RELATIVE_BELIEF_SCORE
+/// Enhance score for prophet purchase if religion is not enhanced yet
+#define AUI_RELIGION_FIX_DO_FAITH_PURCHASES_ENHANCE_RELIGION
+/// Since Venice can purchase stuff at puppets, the function will no longer treat Venice's puppets as ordinary puppets
+#define AUI_RELIGION_FIX_ARE_ALL_OUR_CITIES_HAVE_FAITH_BUILDING_VENICE_PUPPETS
+/// If the first adjusted value is out of bounds, keep rerolling with the amount with which it is out of bounds until we remain in bounds
+#define AUI_DIPLOMACY_GET_RANDOM_PERSONALITY_WEIGHT_USE_REROLLS
+#ifdef AUI_BINOM_RNG
+	/// When modifying a personality value (eg. Boldness, Wonder Competitiveness), the AI will use the binomial RNG for a normal distribution instead of a flat one
+	#define AUI_DIPLOMACY_GET_RANDOM_PERSONALITY_WEIGHT_USES_BINOM_RNG
+	/// When rolling about whether to contact a player with a statement or not, the AI will use the binomial RNG for a normal distribution instead of a flat one
+	#define AUI_DIPLOMACY_DO_STATEMENT_USES_BINOM_RNG (7)
+	/// When adding an extra, random value to the score of a possible cooperative war, the maximum value added will be the AI's boldness instead of a set number
+	#define AUI_DIPLOMACY_GET_COOP_WAR_SCORE_MAX_RANDOM_VALUE_IS_BOLDNESS
+	/// When adding an extra, random value to the turns the AI will wait before submitting to another demand, the AI will use the binomial RNG for a normal distribution instead of a flat one
+	#define AUI_DIPLOMACY_DO_DEMAND_MADE_USES_BINOM_RNG
+	/// When adding an extra, random value to the score of whether a request not to settle near lands is acceptable, the AI will use the binomial RNG for a normal distribution instead of a flat one
+	#define AUI_DIPLOMACY_IS_DONT_SETTLE_ACCEPTABLE_USES_BINOM_RNG
+	/// When adding an extra, random value to the score of whether a DoF is acceptable, the AI will use the binomial RNG for a normal distribution instead of a flat one
+	#define AUI_DIPLOMACY_IS_DOF_ACCEPTABLE_USES_BINOM_RNG (5)
+	/// When adding an extra, random value to the score of whether to denounce a player, the AI will use the binomial RNG for a normal distribution instead of a flat one
+	#define AUI_DIPLOMACY_GET_DENOUNCE_WEIGHT_USES_BINOM_RNG (5)
+#endif
 
 // unhappiness from public opinion scales linearly with dissatisfaction
 #define MOD_CORE_SMOOTH_PUBLIC_OPINION

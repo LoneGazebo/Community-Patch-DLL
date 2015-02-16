@@ -194,6 +194,9 @@ UnitTypes CvUnitProductionAI::RecommendUnit(UnitAITypes eUnitAIType)
 					}
 				}
 			}
+
+			if(!CheckUnitBuildSanity(eUnit))
+				continue;
 #endif
 			// Make sure this unit can be built now
 			if(m_pCity->canTrain(eUnit))
@@ -225,6 +228,46 @@ UnitTypes CvUnitProductionAI::RecommendUnit(UnitAITypes eUnitAIType)
 		return NO_UNIT;
 	}
 }
+
+#if defined(MOD_BALANCE_CORE)
+bool CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit)
+{
+	CvUnitEntry* pkUnitEntry = GC.getUnitInfo(eUnit);
+	if (!pkUnitEntry)
+		return false;
+
+	// sanity check for building ships on small inland seas (not lakes)
+	DomainTypes eDomain = (DomainTypes) pkUnitEntry->GetDomainType();
+	if (eDomain == DOMAIN_SEA && pkUnitEntry->GetDefaultUnitAIType() != UNITAI_WORKER_SEA) // if needed allow workboats...
+	{
+		CvArea* pBiggestNearbyBodyOfWater = m_pCity->waterArea();
+		if (pBiggestNearbyBodyOfWater)
+		{
+			int iWaterTiles = pBiggestNearbyBodyOfWater->getNumTiles();
+			int iNumUnitsofMine = pBiggestNearbyBodyOfWater->getUnitsPerPlayer(m_pCity->getOwner());
+			int iNumUnitsOther = pBiggestNearbyBodyOfWater->getNumUnits()-iNumUnitsofMine;
+			int iNumCitiesofMine = pBiggestNearbyBodyOfWater->getCitiesPerPlayer(m_pCity->getOwner());
+			int iNumCitiesOther = pBiggestNearbyBodyOfWater->getNumCities()-iNumCitiesofMine;
+
+#if defined(MOD_CONFIG_AI_IN_XML)
+			int iFactor = GC.getAI_CONFIG_MILITARY_TILES_PER_SHIP();
+#else
+			int iFactor = 5;
+#endif
+
+			if (iNumUnitsofMine * iFactor > iWaterTiles || (iNumUnitsOther==0 && iNumCitiesOther==0) )
+				return false;
+		}
+		else // this should never happen, but...
+			return false;
+	}
+
+	// todo: add other sanity checks
+
+	return true;
+}
+#endif
+
 
 /// Log all potential builds
 void CvUnitProductionAI::LogPossibleBuilds(UnitAITypes eUnitAIType)

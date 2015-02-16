@@ -824,8 +824,14 @@ void CvCityStrategyAI::ChooseProduction(bool bUseAsyncRandom, BuildingTypes eIgn
 		buildable.m_iTurnsToConstruct = GetCity()->getProductionTurnsLeft(eUnitForArmy, 0);
 		iTempWeight = GC.getAI_CITYSTRATEGY_ARMY_UNIT_BASE_WEIGHT();
 		int iOffenseFlavor = kPlayer.GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_OFFENSE"));
+
+#ifdef AUI_CITYSTRATEGY_CHOOSE_PRODUCTION_NO_HIGH_DIFFICULTY_SKEW
+		iTempWeight += (GC.getAI_CITYSTRATEGY_OPERATION_UNIT_FLAVOR_MULTIPLIER() * iOffenseFlavor);
+#else
 		int iBonusMultiplier = max(1,GC.getGame().getHandicapInfo().GetID() - 5); // more at the higher difficulties
 		iTempWeight += (GC.getAI_CITYSTRATEGY_OPERATION_UNIT_FLAVOR_MULTIPLIER() * iOffenseFlavor * iBonusMultiplier);
+#endif // AUI_CITYSTRATEGY_CHOOSE_PRODUCTION_NO_HIGH_DIFFICULTY_SKEW
+
 		// add in the weight of this unit as if I were deciding to build it without having a reason
 		iTempWeight += m_pUnitProductionAI->GetWeight(eUnitForArmy);
 
@@ -968,6 +974,10 @@ void CvCityStrategyAI::ChooseProduction(bool bUseAsyncRandom, BuildingTypes eIgn
 					}
 				}
 
+#if defined(MOD_BALANCE_CORE)
+				if ( GetUnitProductionAI()->CheckUnitBuildSanity((UnitTypes)iUnitLoop) )
+					m_Buildables.push_back(buildable, iTempWeight);
+#else
 				// sanity check for building ships on small inland seas (not lakes)
 				if (pkUnitEntry)
 				{
@@ -979,19 +989,10 @@ void CvCityStrategyAI::ChooseProduction(bool bUseAsyncRandom, BuildingTypes eIgn
 						{
 							int iWaterTiles = pBiggestNearbyBodyOfWater->getNumTiles();
 							int iNumUnitsofMine = pBiggestNearbyBodyOfWater->getUnitsPerPlayer(m_pCity->getOwner());
-#if defined(MOD_CORE_RIPARIAN_CITIES)
-							int iNumUnitsOther = pBiggestNearbyBodyOfWater->getNumUnits()-iNumUnitsofMine;
-							int iNumCitiesofMine = pBiggestNearbyBodyOfWater->getCitiesPerPlayer(m_pCity->getOwner());
-							int iNumCitiesOther = pBiggestNearbyBodyOfWater->getNumCities()-iNumCitiesofMine;
-#endif
 
 #if defined(MOD_CONFIG_AI_IN_XML)
 							int iFactor = GC.getAI_CONFIG_MILITARY_TILES_PER_SHIP();
-	#if defined(MOD_CORE_RIPARIAN_CITIES)
-							if (iNumUnitsofMine * iFactor > iWaterTiles || (iNumUnitsOther==0 && iNumCitiesOther==0) )
-	#else
 							if (iNumUnitsofMine * iFactor > iWaterTiles)
-	#endif
 #else
 							if (iNumUnitsofMine * 5 > iWaterTiles)
 #endif
@@ -1006,9 +1007,9 @@ void CvCityStrategyAI::ChooseProduction(bool bUseAsyncRandom, BuildingTypes eIgn
 					}
 				}
 
-
 				if(iTempWeight > 0)
 					m_Buildables.push_back(buildable, iTempWeight);
+#endif
 			}
 		}
 
@@ -1211,8 +1212,14 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry()
 		buildable.m_iTurnsToConstruct = GetCity()->getProductionTurnsLeft(eUnitForArmy, 0);
 		iTempWeight = GC.getAI_CITYSTRATEGY_ARMY_UNIT_BASE_WEIGHT();
 		int iOffenseFlavor = kPlayer.GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_OFFENSE"));
+
+#ifdef AUI_CITYSTRATEGY_CHOOSE_PRODUCTION_NO_HIGH_DIFFICULTY_SKEW
+		iTempWeight += (GC.getAI_CITYSTRATEGY_OPERATION_UNIT_FLAVOR_MULTIPLIER() * iOffenseFlavor);
+#else
 		int iBonusMultiplier = max(1,GC.getGame().getHandicapInfo().GetID() - 5); // more at the higher difficulties
 		iTempWeight += (GC.getAI_CITYSTRATEGY_OPERATION_UNIT_FLAVOR_MULTIPLIER() * iOffenseFlavor * iBonusMultiplier);
+#endif // AUI_CITYSTRATEGY_CHOOSE_PRODUCTION_NO_HIGH_DIFFICULTY_SKEW
+
 		// add in the weight of this unit as if I were deciding to build it without having a reason
 		iTempWeight += m_pUnitProductionAI->GetWeight(eUnitForArmy);
 

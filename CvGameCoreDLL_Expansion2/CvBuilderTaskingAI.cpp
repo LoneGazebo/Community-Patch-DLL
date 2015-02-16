@@ -1363,7 +1363,6 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirectives(CvUnit* pUnit, CvPlot* pPlo
 				iScore /= 2;
 			}
 		}
-		int iDefense = 0;
 		//Fort test.
 		ImprovementTypes eFort = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_FORT");
 		if (eFort != NO_IMPROVEMENT)
@@ -1375,7 +1374,7 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirectives(CvUnit* pUnit, CvPlot* pPlo
 				{
 					if(pPlot->getOwner() == m_pPlayer->GetID())
 					{
-						iDefense = pPlot->GetDefenseBuildValue();
+						int iDefense = pPlot->GetDefenseBuildValue();
 						if(iDefense > iScore)
 						{
 							iScore = iDefense;
@@ -1388,11 +1387,9 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirectives(CvUnit* pUnit, CvPlot* pPlo
 			{
 				if(pPlot->getImprovementType() == eFort)
 				{
-					iDefense = pPlot->GetDefenseBuildValue();
-				}
-				if(iDefense > iScore)
-				{
-					continue;
+					int iDefense = pPlot->GetDefenseBuildValue();
+					if(iDefense > iScore)
+						continue;
 				}
 			}
 		}

@@ -23172,7 +23172,8 @@ void CvUnit::PushMission(MissionTypes eMission, int iData1, int iData2, int iFla
 	if (GC.getLogging() && GC.getAILogging()) 
 	{
 		CvString info = CvString::format( "%03d;0x%08X;%s;id;0x%08X;owner;%02d;army;0x%08X;%s;arg1;%d;arg2;%d;flags;0x%08X;at;%d;%d\n", 
-			GC.getGame().getGameTurn(),this,this->getNameKey(),this->GetID(),this->getOwner(),this->getArmyID(),CvTypes::GetMissionName(eMission).c_str(),iData1,iData2,iFlags, plot()->getX(), plot()->getY() );
+			GC.getGame().getGameTurn(),this,this->getNameKey(),this->GetID(),this->getOwner(),this->getArmyID(),CvTypes::GetMissionName(eMission).c_str(),iData1,iData2,iFlags, 
+			plot() ? plot()->getX() : -1, plot() ? plot()->getY() : -1 );
 		FILogFile* pLog=LOGFILEMGR.GetLog( "unit-missions.csv", FILogFile::kDontTimeStamp | FILogFile::kDontFlushOnWrite );
 		pLog->Msg( info.c_str() );
 	}
@@ -24820,7 +24821,11 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 
 	if(iValue > 0)
 	{
+#ifdef AUI_BINOM_RNG
+		iValue += GC.getGame().getJonRandNumBinom(15, "AI Promote");
+#else
 		iValue += GC.getGame().getJonRandNum(15, "AI Promote");
+#endif // AUI_BINOM_RNG
 	}
 
 	return iValue;
