@@ -657,6 +657,14 @@ bool CvStartPositioner::AddCivToRegion(int iPlayerIndex, CvStartRegion region, b
 				        || (bIsMinorCiv && MeetsFoodRequirement(pLoopPlot, eTeam, iMinorFoodReq))
 				        || MeetsFoodRequirement(pLoopPlot, eTeam, iMajorFoodReq))
 				{
+#ifdef MOD_BALANCE_CORE_SETTLER
+					// Plot found values are now calculated for each player to account for flavoring
+					uiPlotFoundValue = m_pSiteEvaluator->PlotFoundValue(pLoopPlot, &(GET_PLAYER((PlayerTypes)iPlayerIndex)));
+
+					if ((bIsMinorCiv && GC.getMinorCivInfo(eMinorCivType)->GetMinorCivTrait() == MINOR_CIV_TRAIT_MARITIME) ||
+						(!bIsMinorCiv && GC.getCivilizationInfo(GET_PLAYER((PlayerTypes)iPlayerIndex).getCivilizationType())->isCoastalCiv()))
+					{
+#else
 					// Retrieve from player 1's found value slot
 					//   (Normally shouldn't be using a hard-coded player reference, but here in the pre-game initialization it is safe to do so.
 					//    Allows us to reuse this data storage instead of jamming even more data into the CvPlot class that will never be used at run-time).
@@ -666,6 +674,7 @@ bool CvStartPositioner::AddCivToRegion(int iPlayerIndex, CvStartRegion region, b
 					if(bIsMinorCiv)
 					{
 						if(GC.getMinorCivInfo(eMinorCivType)->GetMinorCivTrait() == MINOR_CIV_TRAIT_MARITIME)
+#endif // MOD_BALANCE_CORE_SETTLER
 						{
 							if(!pLoopPlot->isCoastalLand(GC.getLAKE_MAX_AREA_SIZE()))
 							{

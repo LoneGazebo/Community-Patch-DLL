@@ -91,7 +91,8 @@ CvImprovementEntry::CvImprovementEntry(void):
 	m_iImprovementLeagueVotes(0),
 #endif
 #if defined(MOD_BALANCE_CORE)
-	m_iImprovementResource(0),
+	m_iImprovementResource(NO_RESOURCE),
+	m_iImprovementResourceQuantity(0),
 #endif
 	m_iImprovementPillage(NO_IMPROVEMENT),
 	m_iImprovementUpgrade(NO_IMPROVEMENT),
@@ -308,6 +309,7 @@ bool CvImprovementEntry::CacheResults(Database::Results& kResults, CvDatabaseUti
 #if defined(MOD_BALANCE_CORE)
 	const char* szImprovementResource = kResults.GetText("ImprovementResource");
 	m_iImprovementResource = (ResourceTypes)GC.getInfoTypeForString(szImprovementResource, true);
+	m_iImprovementResourceQuantity = kResults.GetInt("ImprovementResourceQuantity");
 #endif
 	//References
 	const char* szWorldsoundscapeAudioScript = kResults.GetText("WorldSoundscapeAudioScript");
@@ -701,6 +703,11 @@ int CvImprovementEntry::GetCityStateExtraVote() const
 int CvImprovementEntry::GetResourceFromImprovement() const
 {
 	return m_iImprovementResource;
+}
+// Does this improvement create a resource when construced?
+int CvImprovementEntry::GetResourceQuantityFromImprovement() const
+{
+	return m_iImprovementResourceQuantity;
 }
 #endif
 /// Returns the type of improvement that results from this improvement being pillaged

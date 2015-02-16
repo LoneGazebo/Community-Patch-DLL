@@ -1296,6 +1296,18 @@
 				<PediaEntry>TXT_KEY_SMALL_PROMOTION_CITY_PENALTY</PediaEntry>
 			</Row>
 			<Row>
+				<Type>PROMOTION_BIG_CITY_PENALTY</Type>
+				<Description>TXT_KEY_PROMOTION_BIG_CITY_PENALTY</Description>
+				<Help>TXT_KEY_PROMOTION_BIG_CITY_PENALTY_HELP</Help>
+				<Sound>AS2D_IF_LEVELUP</Sound>
+				<CannotBeChosen>true</CannotBeChosen>
+				<CityAttack>-75</CityAttack>
+				<PortraitIndex>57</PortraitIndex>
+				<IconAtlas>ABILITY_ATLAS</IconAtlas>
+				<PediaType>PEDIA_ATTRIBUTES</PediaType>
+				<PediaEntry>TXT_KEY_PROMOTION_BIG_CITY_PENALTY</PediaEntry>
+			</Row>
+			<Row>
 				<Type>PROMOTION_INTERCEPTION_I</Type>
 				<Description>TXT_KEY_PROMOTION_INTERCEPTION_I</Description>
 				<Help>TXT_KEY_PROMOTION_INTERCEPTION_I</Help>
@@ -2735,6 +2747,13 @@
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_RECON_EXPERIENCE_HELP">
 			<Text>Gains XP from revealing tiles</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_BIG_CITY_PENALTY">
+			<Text>Major Penalty Attacking Cities (75)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_BIG_CITY_PENALTY_HELP">
+			<Text>75% Penalty Attacking Cities</Text>
 		</Row>
 	</Language_en_US>
 </GameData>

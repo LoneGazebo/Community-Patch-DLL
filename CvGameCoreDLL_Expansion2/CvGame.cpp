@@ -9328,6 +9328,16 @@ int CvGame::getJonRandNum(int iNum, const char* pszLog)
 	return m_jonRand.get(iNum, pszLog);
 }
 
+#ifdef AUI_BINOM_RNG
+//	--------------------------------------------------------------------------------
+/// Get a synchronous random number in the range of 0...iNum-1 with binomial distribution
+/// Allows for logging.
+int CvGame::getJonRandNumBinom(int iNum, const char* pszLog)
+{
+	return m_jonRand.getBinom(iNum, pszLog);
+}
+#endif // AUI_BINOM_RNG
+
 //	--------------------------------------------------------------------------------
 /// Get a synchronous random number in the range of 0...iNum-1
 /// Allows for logging.

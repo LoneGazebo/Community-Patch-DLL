@@ -3961,11 +3961,33 @@ int CvPlayerCulture::ComputeHypotheticalPublicOpinionUnhappiness(PolicyBranchTyp
 bool CvPlayerCulture::WantsDiplomatDoingPropaganda(PlayerTypes eTargetPlayer) const
 {
 	// only return the top two
+#if defined(MOD_BALANCE_CORE_SPIES)
+	if (eTargetPlayer == m_pPlayer->GetID())
+	{
+		return false;
+	}
+
+	if (!GET_PLAYER(eTargetPlayer).isAlive())
+	{
+		return false;
+	}
+
+	if(GET_TEAM(GET_PLAYER(eTargetPlayer).getTeam()).isAtWar(m_pPlayer->getTeam()))
+	{
+		return false;
+	}
+
+	int iInfluenceLevel = GetInfluenceLevel(eTargetPlayer);
+	if (iInfluenceLevel > INFLUENCE_LEVEL_EXOTIC)
+	{
+		return true;
+	}
+	return false;
+#else
 	int iFirstValue = NO_INFLUENCE_LEVEL;
 	int iSecondValue = NO_INFLUENCE_LEVEL;
 	PlayerTypes eFirstPlayer = NO_PLAYER;
 	PlayerTypes eSecondPlayer = NO_PLAYER;
-
 	// only do this if everybody is exotic
 	for (uint ui = 0; ui < MAX_MAJOR_CIVS; ui++)
 	{
@@ -3998,8 +4020,8 @@ bool CvPlayerCulture::WantsDiplomatDoingPropaganda(PlayerTypes eTargetPlayer) co
 			eSecondPlayer = ePlayer;
 		}
 	}
-
 	return (eFirstPlayer == eTargetPlayer || eSecondPlayer == eTargetPlayer);
+#endif
 }
 
 /// How many diplomats could I possibly want now?

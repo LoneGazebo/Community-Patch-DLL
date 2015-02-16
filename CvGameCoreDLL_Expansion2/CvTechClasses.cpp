@@ -740,6 +740,19 @@ void CvPlayerTechs::Reset()
 							m_peCivTechUniqueBuildings[iTech] = eBuilding;
 						}
 					}
+
+#ifdef AUI_PLAYERTECHS_RESET_IDEOLOGY_UNLOCKERS_COUNT_AS_UNIQUE
+					// Does this building unlock an ideology?
+					if (pkBuildingInfo->GetXBuiltTriggersIdeologyChoice() > 0)
+					{
+						int iTech = pkBuildingInfo->GetPrereqAndTech();
+						if (iTech != NO_TECH)
+						{
+							m_piCivTechPriority[iTech] *= GC.getTECH_PRIORITY_UNIQUE_ITEM();
+						}
+					}
+#endif // AUI_PLAYERTECHS_RESET_IDEOLOGY_UNLOCKERS_COUNT_AS_UNIQUE
+
 				}
 			}
 

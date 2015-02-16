@@ -92,6 +92,15 @@ public:
 #if defined(MOD_API_ESPIONAGE)
 	bool m_bPassive;
 #endif
+#if defined(MOD_BALANCE_CORE_SPIES)
+	void SetSpyActiveTurn(int iGameTurn);
+	int GetSpyActiveTurn();
+	void ChangeAdvancedActions(int iValue);
+	void SetAdvancedActions(int iValue);
+	int GetAdvancedActions();
+	int m_iTurnActivated;
+	int m_iActionsDone;
+#endif
 };
 
 FDataStream& operator>>(FDataStream&, CvEspionageSpy&);
@@ -122,6 +131,7 @@ struct SpyNotificationMessage
 	UnitTypes m_eDamagedUnit;
 	bool m_bDamagedCity;
 	int m_iGold;
+	int m_iScience;
 	bool m_bRebellion;
 #endif
 };
@@ -161,7 +171,10 @@ public:
 	void CreateSpy(void);
 	void ProcessSpy(uint uiSpyIndex);
 #if defined(MOD_BALANCE_CORE_SPIES)
-	void DoAdvancedAction(uint uiSpyIndex, bool bDebug);
+	void SetHighestPotential();
+	void SetEspionageRanking(CvCity* pCity);
+	void DoAdvancedAction(uint uiSpyIndex);
+	void DoRankIncreaseWarning(CvCity* pCity, int iRank);
 #endif
 	void UncoverIntrigue(uint uiSpyIndex);
 #if defined(MOD_BUGFIX_SPY_NAMES)
@@ -220,7 +233,7 @@ public:
 	bool IsOtherDiplomatVisitingMe(PlayerTypes ePlayer);
 
 #if defined(MOD_BALANCE_CORE_SPIES)
-	void AddSpyMessage(int iCityX, int iCityY, PlayerTypes ePlayer, int iSpyResult, TechTypes eStolenTech, BuildingTypes eBuilding, UnitTypes eUnit, bool bUnrest, int iValue, bool bRebel);
+	void AddSpyMessage(int iCityX, int iCityY, PlayerTypes ePlayer, int iSpyResult, TechTypes eStolenTech, BuildingTypes eBuilding, UnitTypes eUnit, bool bUnrest, int iValue, int iScienceValue, bool bRebel);
 #else
 	void AddSpyMessage(int iCityX, int iCityY, PlayerTypes ePlayer, int iSpyResult, TechTypes eStolenTech);
 #endif
@@ -241,6 +254,9 @@ public:
 	SpyList m_aSpyList;
 	std::vector<int> m_aiSpyListNameOrder;
 	int m_iSpyListNameOrderIndex;
+#if defined(MOD_BALANCE_CORE_SPIES)
+	int m_iLargestBasePotential;
+#endif
 	PlayerTechList m_aaPlayerStealableTechList;
 	NumTechsToStealList m_aiNumTechsToStealList;
 	MaxTechCost m_aiMaxTechCost;

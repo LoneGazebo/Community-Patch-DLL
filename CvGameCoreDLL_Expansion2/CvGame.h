@@ -425,6 +425,10 @@ public:
 	int getJonRandNumVA(int iNum, const char* pszLog, ...);
 	int getAsyncRandNum(int iNum, const char* pszLog);
 
+#ifdef AUI_BINOM_RNG
+	int getJonRandNumBinom(int iNum, const char* pszLog);
+#endif
+
 	int calculateSyncChecksum();
 	int calculateOptionsChecksum();
 

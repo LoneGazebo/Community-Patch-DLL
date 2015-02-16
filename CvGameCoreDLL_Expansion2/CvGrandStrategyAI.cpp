@@ -402,7 +402,11 @@ void CvGrandStrategyAI::DoTurn()
 		}
 
 		// Random element
+#ifdef AUI_BINOM_RNG
+		iPriority += GC.getGame().getJonRandNumBinom(/*50*/ GC.getAI_GS_RAND_ROLL(), "Grand Strategy AI: GS rand roll.");
+#else
 		iPriority += GC.getGame().getJonRandNum(/*50*/ GC.getAI_GS_RAND_ROLL(), "Grand Strategy AI: GS rand roll.");
+#endif
 
 		// Give a boost to the current strategy so that small fluctuation doesn't cause a big change
 		if(GetActiveGrandStrategy() == eGrandStrategy && GetActiveGrandStrategy() != NO_AIGRANDSTRATEGY)
@@ -635,7 +639,11 @@ int CvGrandStrategyAI::GetConquestPriority()
 
 			if(iTotalLandMe > 0)
 			{
+#ifdef AUI_GS_CONQUEST_FIX_CRAMPED
+				if(iTotalLandPlayersMet / iTotalLandMe > 1)
+#else
 				if(iTotalLandPlayersMet / iTotalLandMe > 0)
+#endif // AUI_GS_CONQUEST_FIX_CRAMPED
 				{
 					iPriority += /*20*/ GC.getAI_GRAND_STRATEGY_CONQUEST_CRAMPED_WEIGHT();
 				}

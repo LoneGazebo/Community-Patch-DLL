@@ -41,16 +41,16 @@
 		</Row>
 		<Row>
 			<UnitType>UNIT_SUBMARINE</UnitType>
-			<PromotionType>PROMOTION_CITY_PENALTY</PromotionType>
+			<PromotionType>PROMOTION_BIG_CITY_PENALTY</PromotionType>
 		</Row>
 		<Row>
 			<UnitType>UNIT_NUCLEAR_SUBMARINE</UnitType>
-			<PromotionType>PROMOTION_CITY_PENALTY</PromotionType>
+			<PromotionType>PROMOTION_BIG_CITY_PENALTY</PromotionType>
 		</Row>
 		<!-- Buff Quinqureme -->
 		<Row>
 			<UnitType>UNIT_CARTHAGINIAN_QUINQUEREME</UnitType>
-			<PromotionType>PROMOTION_COASTAL_RAIDER_1</PromotionType>
+			<PromotionType>PROMOTION_RECON_EXPERIENCE</PromotionType>
 		</Row>
 		<!-- Ranged Units penalty when attacking naval units -->
 		<Row>
@@ -114,6 +114,10 @@
 			<PromotionType>PROMOTION_NAVAL_MISFIRE</PromotionType>
 		</Row>
 		<Row>
+			<UnitType>UNIT_VOLLEY_GUN</UnitType>
+			<PromotionType>PROMOTION_NAVAL_MISFIRE</PromotionType>
+		</Row>
+		<Row>
 			<UnitType>UNIT_GATLINGGUN</UnitType>
 			<PromotionType>PROMOTION_NAVAL_MISFIRE</PromotionType>
 		</Row>
@@ -141,6 +145,10 @@
 		</Row>
 	</Unit_FreePromotions>
 	<Unit_AITypes>
+		<Row>
+			<UnitType>UNIT_VOLLEY_GUN</UnitType>
+			<UnitAIType>UNITAI_DEFENSE</UnitAIType>
+		</Row>
 		<Row>
 			<UnitType>UNIT_GATLINGGUN</UnitType>
 			<UnitAIType>UNITAI_DEFENSE</UnitAIType>

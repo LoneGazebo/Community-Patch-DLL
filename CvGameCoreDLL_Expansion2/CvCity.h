@@ -677,7 +677,14 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	int getEconomicValue(PlayerTypes ePossibleNewOwner = NO_PLAYER, int iNumTurnsForDepreciation = 100) const;
 #endif
+#if defined(MOD_BALANCE_CORE_SPIES)
+	void SetRank(int iRank);
+	int GetRank() const;
 
+	void SetTurnsSinceLastRankMessage(int iTurns);
+	void ChangeTurnsSinceLastRankMessage(int iTurns);
+	int GetTurnsSinceLastRankMessage() const;
+#endif
 	// Base Yield
 	int getBaseYieldRate(YieldTypes eIndex) const;
 
@@ -1184,6 +1191,10 @@ protected:
 #if defined(MOD_BALANCE_CORE)
 	FAutoVariable<std::vector<int>, CvCity> m_aiChangeYieldFromVictory;
 	int m_iUnhappyCitizen;
+#endif
+#if defined(MOD_BALANCE_CORE_SPIES)
+	int m_iCityRank;
+	int m_iTurnsSinceRankAnnouncement;
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 	int m_iChangePovertyUnhappiness;

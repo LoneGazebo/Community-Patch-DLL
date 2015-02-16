@@ -596,6 +596,10 @@ WHERE Tag = 'TXT_KEY_BUILDING_CASTLE_STRATEGY' AND EXISTS (SELECT * FROM COMMUNI
 
 -- Arsenal
 UPDATE Buildings
+SET PrereqTech = 'TECH_RIFLING'
+WHERE Type = 'BUILDING_ARSENAL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
+
+UPDATE Buildings
 SET ExtraCityHitPoints = '100'
 WHERE Type = 'BUILDING_ARSENAL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
@@ -604,7 +608,7 @@ SET Defense = '1000'
 WHERE Type = 'BUILDING_ARSENAL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'The Arsenal is a mid-game military building that increases Defense Strength by 10 and Hit Points by 100, making the city more difficult to capture. The city must possess a Castle before it can construct an Arsenal.'
+SET Text = 'The Arsenal is an Industrial-era military building that increases Defense Strength by 10 and Hit Points by 100, making the city more difficult to capture. The city must possess a Castle before it can construct an Arsenal.'
 WHERE Tag = 'TXT_KEY_BUILDING_ARSENAL_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 -- Military Base

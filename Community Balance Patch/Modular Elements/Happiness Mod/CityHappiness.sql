@@ -55,10 +55,10 @@
 	SET Value = '1'
 	WHERE Name = 'UNHAPPINESS_PER_CAPTURED_CITY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
--- 30 = 0.30 unhappiness per specialist. Unemployed citizens are worth 0.15 unhappiness per citizen.
+-- 40 = 0.40 unhappiness per specialist. Unemployed citizens are worth 0.2 unhappiness per citizen.
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_UNHAPPINESS_PER_SPECIALIST', '30'
+	SELECT 'BALANCE_UNHAPPINESS_PER_SPECIALIST', '40'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 -- Base reduction of unhappiness threshold for Puppet cities. -20% is default.
@@ -73,10 +73,10 @@
 	SELECT 'BALANCE_HAPPINESS_CAPITAL_MODIFIER', '15'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
--- 	Base Value of Test - Modifier to tech % cost. 2.30 is default.
+-- 	Base Value of Test - Modifier to tech % cost. 2.50 is default.
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_HAPPINESS_TECH_BASE_MODIFIER', '2.35'
+	SELECT 'BALANCE_HAPPINESS_TECH_BASE_MODIFIER', '2.50'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 -- Base increase of threshold values based on # of techs (ignore 'City' part). Increases the Global Averages as you research techs. Higher values are more difficult. -10 is default.

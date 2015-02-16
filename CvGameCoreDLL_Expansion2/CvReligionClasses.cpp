@@ -5128,15 +5128,26 @@ BeliefTypes CvReligionAI::ChoosePantheonBelief()
 
 	// Choose from weighted vector
 	beliefChoices.SortItems();
-#if defined(MOD_BALANCE_CORE)
-	//Removed some randomness - the #1 choice was often scored much higher, but only chosen 33% of the time!
-	int iNumChoices = MIN(beliefChoices.size(),2);   // Throw out two-thirds of the choices -- this was way too loose as choices way down were being selected now only top 2
-#else
 	int iNumChoices = MIN(beliefChoices.size(),3);   // Throw out two-thirds of the choices -- this was way too loose as choices way down were being selected now only top 3
-#endif
+
+#if defined(MOD_BALANCE_CORE)
+	BeliefTypes rtnValue = NO_BELIEF;
+	if (beliefChoices.size() > 0)
+	{
+#ifdef AUI_RELIGION_RELATIVE_BELIEF_SCORE
+		if ( beliefChoices.GetWeight(0) - beliefChoices.GetWeight(beliefChoices.size()-1) != 0)
+			for (int iI = 0; iI < beliefChoices.size(); iI++)
+				beliefChoices.IncreaseWeight(iI, -beliefChoices.GetWeight(beliefChoices.size()-1));
+#endif // AUI_RELIGION_RELATIVE_BELIEF_SCORE
+		RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
+		rtnValue = beliefChoices.ChooseFromTopChoices(iNumChoices, &fcn, "Choosing belief from Top Choices");
+		LogBeliefChoices(beliefChoices, rtnValue);
+	}
+#else
 	RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
 	BeliefTypes rtnValue = beliefChoices.ChooseFromTopChoices(iNumChoices, &fcn, "Choosing belief from Top Choices");
 	LogBeliefChoices(beliefChoices, rtnValue);
+#endif
 
 	return rtnValue;
 }
@@ -5178,15 +5189,26 @@ BeliefTypes CvReligionAI::ChooseFounderBelief()
 
 	// Choose from weighted vector
 	beliefChoices.SortItems();
-#if defined(MOD_BALANCE_CORE)
-	//Removed some randomness - the #1 choice was often scored much higher, but only chosen 33% of the time!
-	int iNumChoices = MIN(beliefChoices.size(),2);   // Throw out two-thirds of the choices -- this was way too loose as choices way down were being selected now only top 2
-#else
 	int iNumChoices = MIN(beliefChoices.size(),3);   // Throw out two-thirds of the choices -- this was way too loose as choices way down were being selected now only top 3
-#endif
+
+#if defined(MOD_BALANCE_CORE)
+	BeliefTypes rtnValue = NO_BELIEF;
+	if (beliefChoices.size() > 0)
+	{
+#ifdef AUI_RELIGION_RELATIVE_BELIEF_SCORE
+		if ( beliefChoices.GetWeight(0) - beliefChoices.GetWeight(beliefChoices.size()-1) != 0)
+			for (int iI = 0; iI < beliefChoices.size(); iI++)
+				beliefChoices.IncreaseWeight(iI, -beliefChoices.GetWeight(beliefChoices.size()-1));
+#endif // AUI_RELIGION_RELATIVE_BELIEF_SCORE
+		RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
+		rtnValue = beliefChoices.ChooseFromTopChoices(iNumChoices, &fcn, "Choosing belief from Top Choices");
+		LogBeliefChoices(beliefChoices, rtnValue);
+	}
+#else
 	RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
 	BeliefTypes rtnValue = beliefChoices.ChooseFromTopChoices(iNumChoices, &fcn, "Choosing belief from Top Choices");
 	LogBeliefChoices(beliefChoices, rtnValue);
+#endif
 
 	return rtnValue;
 }
@@ -5228,15 +5250,26 @@ BeliefTypes CvReligionAI::ChooseFollowerBelief()
 
 	// Choose from weighted vector
 	beliefChoices.SortItems();
-#if defined(MOD_BALANCE_CORE)
-	//Removed some randomness - the #1 choice was often scored much higher, but only chosen 33% of the time!
-	int iNumChoices = MIN(beliefChoices.size(),2);   // Throw out two-thirds of the choices -- this was way too loose as choices way down were being selected now only top 2
-#else
 	int iNumChoices = MIN(beliefChoices.size(),3);   // Throw out two-thirds of the choices -- this was way too loose as choices way down were being selected now only top 3
-#endif
+
+#if defined(MOD_BALANCE_CORE)
+	BeliefTypes rtnValue = NO_BELIEF;
+	if (beliefChoices.size() > 0)
+	{
+#ifdef AUI_RELIGION_RELATIVE_BELIEF_SCORE
+		if ( beliefChoices.GetWeight(0) - beliefChoices.GetWeight(beliefChoices.size()-1) != 0)
+			for (int iI = 0; iI < beliefChoices.size(); iI++)
+				beliefChoices.IncreaseWeight(iI, -beliefChoices.GetWeight(beliefChoices.size()-1));
+#endif // AUI_RELIGION_RELATIVE_BELIEF_SCORE
+		RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
+		rtnValue = beliefChoices.ChooseFromTopChoices(iNumChoices, &fcn, "Choosing belief from Top Choices");
+		LogBeliefChoices(beliefChoices, rtnValue);
+	}
+#else
 	RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
 	BeliefTypes rtnValue = beliefChoices.ChooseFromTopChoices(iNumChoices, &fcn, "Choosing belief from Top Choices");
 	LogBeliefChoices(beliefChoices, rtnValue);
+#endif
 
 	return rtnValue;
 }
@@ -5278,15 +5311,26 @@ BeliefTypes CvReligionAI::ChooseEnhancerBelief()
 
 	// Choose from weighted vector
 	beliefChoices.SortItems();
-#if defined(MOD_BALANCE_CORE)
-	//Removed some randomness - the #1 choice was often scored much higher, but only chosen 33% of the time!
-	int iNumChoices = MIN(beliefChoices.size(),2);   // Throw out two-thirds of the choices -- this was way too loose as choices way down were being selected now only top 2
-#else
 	int iNumChoices = MIN(beliefChoices.size(),3);   // Throw out two-thirds of the choices -- this was way too loose as choices way down were being selected now only top 3
-#endif
+
+#if defined(MOD_BALANCE_CORE)
+	BeliefTypes rtnValue = NO_BELIEF;
+	if (beliefChoices.size() > 0)
+	{
+#ifdef AUI_RELIGION_RELATIVE_BELIEF_SCORE
+		if ( beliefChoices.GetWeight(0) - beliefChoices.GetWeight(beliefChoices.size()-1) != 0)
+			for (int iI = 0; iI < beliefChoices.size(); iI++)
+				beliefChoices.IncreaseWeight(iI, -beliefChoices.GetWeight(beliefChoices.size()-1));
+#endif // AUI_RELIGION_RELATIVE_BELIEF_SCORE
+		RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
+		rtnValue = beliefChoices.ChooseFromTopChoices(iNumChoices, &fcn, "Choosing belief from Top Choices");
+		LogBeliefChoices(beliefChoices, rtnValue);
+	}
+#else
 	RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
 	BeliefTypes rtnValue = beliefChoices.ChooseFromTopChoices(iNumChoices, &fcn, "Choosing belief from Top Choices");
 	LogBeliefChoices(beliefChoices, rtnValue);
+#endif
 
 	return rtnValue;
 }
@@ -5331,15 +5375,26 @@ BeliefTypes CvReligionAI::ChooseBonusBelief(int iExcludeBelief1, int iExcludeBel
 
 	// Choose from weighted vector
 	beliefChoices.SortItems();
-#if defined(MOD_BALANCE_CORE)
-	//Removed some randomness - the #1 choice was often scored much higher, but only chosen 33% of the time!
-	int iNumChoices = MIN(beliefChoices.size(),2);   // Throw out two-thirds of the choices -- this was way too loose as choices way down were being selected now only top 2
-#else
 	int iNumChoices = MIN(beliefChoices.size(),3);   // Throw out two-thirds of the choices -- this was way too loose as choices way down were being selected now only top 3
-#endif
+
+#if defined(MOD_BALANCE_CORE)
+	BeliefTypes rtnValue = NO_BELIEF;
+	if (beliefChoices.size() > 0)
+	{
+#ifdef AUI_RELIGION_RELATIVE_BELIEF_SCORE
+		if ( beliefChoices.GetWeight(0) - beliefChoices.GetWeight(beliefChoices.size()-1) != 0)
+			for (int iI = 0; iI < beliefChoices.size(); iI++)
+				beliefChoices.IncreaseWeight(iI, -beliefChoices.GetWeight(beliefChoices.size()-1));
+#endif // AUI_RELIGION_RELATIVE_BELIEF_SCORE
+		RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
+		rtnValue = beliefChoices.ChooseFromTopChoices(iNumChoices, &fcn, "Choosing belief from Top Choices");
+		LogBeliefChoices(beliefChoices, rtnValue);
+	}
+#else
 	RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
 	BeliefTypes rtnValue = beliefChoices.ChooseFromTopChoices(iNumChoices, &fcn, "Choosing belief from Top Choices");
 	LogBeliefChoices(beliefChoices, rtnValue);
+#endif
 
 	return rtnValue;
 }
@@ -5381,15 +5436,26 @@ BeliefTypes CvReligionAI::ChooseReformationBelief()
 
 	// Choose from weighted vector
 	beliefChoices.SortItems();
-#if defined(MOD_BALANCE_CORE)
-	//Removed some randomness - the #1 choice was often scored much higher, but only chosen 33% of the time!
-	int iNumChoices = MIN(beliefChoices.size(),2);   // Throw out two-thirds of the choices -- this was way too loose as choices way down were being selected now only top 2
-#else
 	int iNumChoices = MIN(beliefChoices.size(),3);   // Throw out two-thirds of the choices -- this was way too loose as choices way down were being selected now only top 3
-#endif
+
+#if defined(MOD_BALANCE_CORE)
+	BeliefTypes rtnValue = NO_BELIEF;
+	if (beliefChoices.size() > 0)
+	{
+#ifdef AUI_RELIGION_RELATIVE_BELIEF_SCORE
+		if ( beliefChoices.GetWeight(0) - beliefChoices.GetWeight(beliefChoices.size()-1) != 0)
+			for (int iI = 0; iI < beliefChoices.size(); iI++)
+				beliefChoices.IncreaseWeight(iI, -beliefChoices.GetWeight(beliefChoices.size()-1));
+#endif // AUI_RELIGION_RELATIVE_BELIEF_SCORE
+		RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
+		rtnValue = beliefChoices.ChooseFromTopChoices(iNumChoices, &fcn, "Choosing belief from Top Choices");
+		LogBeliefChoices(beliefChoices, rtnValue);
+	}
+#else
 	RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
 	BeliefTypes rtnValue = beliefChoices.ChooseFromTopChoices(iNumChoices, &fcn, "Choosing belief from Top Choices");
 	LogBeliefChoices(beliefChoices, rtnValue);
+#endif
 
 	return rtnValue;
 }
@@ -6705,11 +6771,48 @@ int CvReligionAI::ScoreBeliefAtPlot(CvBeliefEntry* pEntry, CvPlot* pPlot)
 {
 	int iRtnValue = 0;
 
+#ifdef AUI_RELIGION_SCORE_BELIEF_AT_PLOT_FLAVOR_YIELDS
+	int iTotalRtnValue = 0;
+#endif
+
 	for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 	{
+#ifdef AUI_RELIGION_SCORE_BELIEF_AT_PLOT_FLAVOR_YIELDS
+		int iFlavor = 1;
+		CvFlavorManager* pFlavorManager = m_pPlayer->GetFlavorManager();
+		switch (iI)
+		{
+		case YIELD_FOOD:
+			iFlavor = pFlavorManager->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GROWTH"));
+			break;
+		case YIELD_PRODUCTION:
+			iFlavor = pFlavorManager->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_PRODUCTION"));
+			break;
+		case YIELD_GOLD:
+			iFlavor = pFlavorManager->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GOLD"));
+			break;
+		case YIELD_SCIENCE:
+			iFlavor = pFlavorManager->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SCIENCE"));
+			break;
+		case YIELD_CULTURE:
+			iFlavor = pFlavorManager->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_CULTURE"));
+			break;
+		case YIELD_FAITH:
+			iFlavor = pFlavorManager->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RELIGION"));
+			break;
+		}
+
+		iRtnValue = 0;
+#endif
+
 		// Terrain
 		TerrainTypes eTerrain = pPlot->getTerrainType();
+#ifdef AUI_RELIGION_SCORE_BELIEF_AT_PLOT_SCORE_TERRAIN_CONSIDER_FEATURE
+		FeatureTypes eFeature = pPlot->getFeatureType();
+		if(eTerrain != NO_TERRAIN && (eFeature == NO_FEATURE || !GC.getFeatureInfo(eFeature)->isYieldNotAdditive()))
+#else
 		if(eTerrain != NO_TERRAIN)
+#endif // AUI_RELIGION_SCORE_BELIEF_AT_PLOT_SCORE_TERRAIN_CONSIDER_FEATURE
 		{
 #if defined(MOD_BALANCE_CORE_BELIEFS)
 			//We only want to check for resources, as all Pantheons need a resource for their bonuses.
@@ -6735,7 +6838,9 @@ int CvReligionAI::ScoreBeliefAtPlot(CvBeliefEntry* pEntry, CvPlot* pPlot)
 #endif
 
 		// Feature
+#ifndef AUI_RELIGION_SCORE_BELIEF_AT_PLOT_SCORE_TERRAIN_CONSIDER_FEATURE
 		FeatureTypes eFeature = pPlot->getFeatureType();
+#endif
 		if(eFeature != NO_FEATURE)
 		{
 			iRtnValue += pEntry->GetFeatureYieldChange(eFeature, iI);
@@ -6769,9 +6874,18 @@ int CvReligionAI::ScoreBeliefAtPlot(CvBeliefEntry* pEntry, CvPlot* pPlot)
 #endif
 			}
 		}
+
+#ifdef AUI_RELIGION_SCORE_BELIEF_AT_PLOT_FLAVOR_YIELDS
+		iTotalRtnValue += iRtnValue*iFlavor;
+#endif
+
 	}
 
+#ifdef AUI_RELIGION_SCORE_BELIEF_AT_PLOT_FLAVOR_YIELDS
+	return iTotalRtnValue;
+#else
 	return iRtnValue;
+#endif
 }
 
 /// AI's evaluation of this belief's usefulness at this one plot
@@ -6806,7 +6920,11 @@ int CvReligionAI::ScoreBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity)
 	iRtnValue += pEntry->GetCityGrowthModifier() / 3;
 	if(pEntry->RequiresPeace())
 	{
+#ifdef AUI_RELIGION_SCORE_BELIEF_AT_CITY_CONSIDER_GRAND_STRATEGY
+		iRtnValue /= 2 + (m_pPlayer->GetGrandStrategyAI()->GetActiveGrandStrategy() == (AIGrandStrategyTypes)GC.getInfoTypeForString("AIGRANDSTRATEGY_CONQUEST") ? 1 : -1);
+#else
 		iRtnValue /= 2;
+#endif
 	}
 	iRtnValue += (-pEntry->GetPlotCultureCostModifier() * 2) / 10;
 #if defined(MOD_BALANCE_CORE_BELIEFS)
@@ -6830,6 +6948,10 @@ int CvReligionAI::ScoreBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity)
 	}
 
 	// River happiness
+#ifdef AUI_RELIGION_FIX_SCORE_BELIEF_AT_CITY_RIVER_HAPPINESS
+	if (pCity->plot()->isRiver())
+	{
+#endif
 	iTempValue = pEntry->GetRiverHappiness() * iHappinessMultiplier;
 	if(iMinPop > 0)
 	{
@@ -6839,6 +6961,9 @@ int CvReligionAI::ScoreBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity)
 		}
 	}
 	iRtnValue += iTempValue;
+#ifdef AUI_RELIGION_FIX_SCORE_BELIEF_AT_CITY_RIVER_HAPPINESS
+	}
+#endif
 
 	// Happiness per city
 	iTempValue = pEntry->GetHappinessPerCity() * iHappinessMultiplier;
@@ -6865,8 +6990,15 @@ int CvReligionAI::ScoreBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity)
 		iRtnValue += iTempValue;
 	}
 
+#ifdef AUI_RELIGION_SCORE_BELIEF_AT_CITY_FLAVOR_YIELDS
+	int iTotalRtnValue = iRtnValue;
+#endif
+
 	for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 	{
+#ifdef AUI_RELIGION_SCORE_BELIEF_AT_CITY_FLAVOR_YIELDS
+		iRtnValue = 0;
+#endif
 		// City yield change
 		iTempValue = pEntry->GetCityYieldChange(iI);
 		if(iMinPop > 0)
@@ -6956,7 +7088,11 @@ int CvReligionAI::ScoreBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity)
 
 			if(pkBuildingClassInfo->getMaxPlayerInstances() == 1)
 			{
+#if defined(AUI_RELIGION_SCORE_BELIEF_AT_CITY_YIELDS_FROM_WONDERS_COUNT_ONCE)
+				iTempValue /= MAX(1,MIN(iTempValue,m_pPlayer->getNumCities()));
+#else
 				iTempValue /= 2;
+#endif
 			}
 
 			iRtnValue += iTempValue;
@@ -6972,9 +7108,41 @@ int CvReligionAI::ScoreBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity)
 			iTempValue /= 2;
 			iRtnValue += iTempValue;
 		}
+
+#ifdef AUI_RELIGION_SCORE_BELIEF_AT_CITY_FLAVOR_YIELDS
+		int iFlavor = 1;
+		CvFlavorManager* pFlavorManager = m_pPlayer->GetFlavorManager();
+		switch (iI)
+		{
+		case YIELD_FOOD:
+			iFlavor = pFlavorManager->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GROWTH"));
+			break;
+		case YIELD_PRODUCTION:
+			iFlavor = pFlavorManager->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_PRODUCTION"));
+			break;
+		case YIELD_GOLD:
+			iFlavor = pFlavorManager->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GOLD"));
+			break;
+		case YIELD_SCIENCE:
+			iFlavor = pFlavorManager->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SCIENCE"));
+			break;
+		case YIELD_CULTURE:
+			iFlavor = pFlavorManager->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_CULTURE"));
+			break;
+		case YIELD_FAITH:
+			iFlavor = pFlavorManager->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RELIGION"));
+			break;
+		}
+
+		iTotalRtnValue += iRtnValue*iFlavor;
+#endif
 	}
 
+#ifdef AUI_RELIGION_SCORE_BELIEF_AT_CITY_FLAVOR_YIELDS
+	return iTotalRtnValue;
+#else
 	return iRtnValue;
+#endif
 }
 
 /// AI's evaluation of this belief's usefulness to this player
@@ -7083,7 +7251,11 @@ BuildingClassTypes eFaithBuildingClass = NO_BUILDINGCLASS;
 	}
 
 	// Unlocks units?	
+#ifdef AUI_RELIGION_FIX_SCORE_BELIEF_FOR_PLAYER_UNLOCKS_UNITS_DISREGARD_OLD_ERAS
+	for (int i = (int)m_pPlayer->GetCurrentEra(); i < GC.getNumEraInfos(); i++)
+#else
 	for(int i = 0; i < GC.getNumEraInfos(); i++)
+#endif // AUI_RELIGION_FIX_SCORE_BELIEF_FOR_PLAYER_UNLOCKS_UNITS_DISREGARD_OLD_ERAS
 	{
 		// Add in for each era enabled
 		if (pEntry->IsFaithUnitPurchaseEra(i))
@@ -7521,6 +7693,13 @@ int CvReligionAI::ScoreCityForMissionary(CvCity* pCity, UnitHandle pUnit)
 	if(ShouldBecomeNewMajority(pCity, eMyReligion, pUnit->GetReligionData()->GetReligiousStrength() * GC.getRELIGION_MISSIONARY_PRESSURE_MULTIPLIER()))
 	{
 		iScore *= 2;
+#ifdef AUI_RELIGION_SCORE_CITY_FOR_MISSIONARY_DIVIDER_IF_PASSIVE_PRESSURE_ENOUGH
+		// We don't actually need a missionary if passive pressure is enough to convert the city
+		if (ShouldBecomeNewMajority(pCity, eMyReligion, 0))
+		{
+			iScore /= AUI_RELIGION_SCORE_CITY_FOR_MISSIONARY_DIVIDER_IF_PASSIVE_PRESSURE_ENOUGH;
+		}
+#endif // AUI_RELIGION_SCORE_CITY_FOR_MISSIONARY_DIVIDER_IF_PASSIVE_PRESSURE_ENOUGH
 	}
 
 	if (!GET_PLAYER(pCity->getOwner()).isMinorCiv())
@@ -7561,11 +7740,13 @@ int CvReligionAI::ScoreCityForMissionary(CvCity* pCity, UnitHandle pUnit)
 	// Then subtract distance
 	iScore -= plotDistance(pUnit->getX(), pUnit->getY(), pCity->getX(), pCity->getY());
 
+#if !defined(MOD_BALANCE_CORE)
 	// Multiplier by how safe it is
 	if(!atWar(m_pPlayer->getTeam(), kCityPlayer.getTeam()))
 	{
 		iScore *= 2;
 	}
+#endif
 
 	// Holy city will anger folks, let's not do that one right away
 	ReligionTypes eCityOwnersReligion = kCityPlayer.GetReligions()->GetReligionCreatedByPlayer();
@@ -7645,6 +7826,11 @@ bool CvReligionAI::AreAllOurCitiesConverted(ReligionTypes eReligion, bool bInclu
 /// Do all of our own cities have this religion's faith building if possible?
 bool CvReligionAI::AreAllOurCitiesHaveFaithBuilding(ReligionTypes eReligion, bool bIncludePuppets) const
 {
+#ifdef AUI_RELIGION_FIX_ARE_ALL_OUR_CITIES_HAVE_FAITH_BUILDING_VENICE_PUPPETS
+	if (m_pPlayer->GetPlayerTraits()->IsNoAnnexing())
+		bIncludePuppets = true;
+#endif // AUI_RELIGION_FIX_ARE_ALL_OUR_CITIES_HAVE_FAITH_BUILDING_VENICE_PUPPETS
+
 	bool bRtnValue = true;
 	BuildingClassTypes eFaithBuildingClass = FaithBuildingAvailable(eReligion);
 	BuildingTypes eFaithBuilding = (BuildingTypes)m_pPlayer->getCivilizationInfo().getCivilizationBuildings(eFaithBuildingClass);
@@ -7739,15 +7925,68 @@ bool CvReligionAI::HaveNearbyConversionTarget(ReligionTypes eReligion, bool bCan
 			{
 				for(CvCity* pCity = kPlayer.firstCity(&iLoop); pCity != NULL; pCity = kPlayer.nextCity(&iLoop))
 				{
+#ifdef AUI_RELIGION_HAVE_NEARBY_CONVERSION_TARGET_IGNORE_TARGET_THAT_WILL_CONVERT_PASSIVELY
+					ReligionTypes eMajorityReligion = pCity->GetCityReligions()->GetReligiousMajority();
+					// Revealed, not at war, not currently our religion
+					if (pCity->isRevealed(eTeam, false) && !GET_TEAM(m_pPlayer->getTeam()).isAtWar(GET_PLAYER(pCity->getOwner()).getTeam())
+						&& eMajorityReligion != eReligion)
+					{
+						CvCityReligions* pCityReligions = pCity->GetCityReligions();
+						// Religion wouldn't take over city passively
+						if ((pCityReligions->GetPressure(eMajorityReligion) > pCityReligions->GetPressure(eReligion))
+							|| ((pCityReligions->GetPressure(eMajorityReligion) == pCityReligions->GetPressure(eReligion)) &&
+							(pCityReligions->GetNumFollowers(eMajorityReligion) >= pCityReligions->GetNumFollowers(eReligion))))
+						{
+#ifdef AUI_RELIGION_CONVERSION_TARGET_NOT_JUST_CAPITAL
+							int iLoop;
+							CvCity* pLoopCity;
+							for(pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
+							{
+								if (!pLoopCity->IsPuppet() || m_pPlayer->GetPlayerTraits()->IsNoAnnexing())
+								{
+									// Within 8 times Missionary movement allowance of one of our non-puppet cities
+									if (plotDistance(pLoopCity->getX(), pLoopCity->getY(), pCity->getX(), pCity->getY()) <= (iMissionaryMoves * GC.getRELIGION_MISSIONARY_RANGE_IN_TURNS()))
+									{
+										return true;
+									}
+								}
+							}
+#else
+							// Within 8 times Missionary movement allowance of our capital
+							if (plotDistance(pCapital->getX(), pCapital->getY(), pCity->getX(), pCity->getY()) <= (iMissionaryMoves * GC.getRELIGION_MISSIONARY_RANGE_IN_TURNS()))
+							{
+								return true;
+							}
+#endif // AUI_RELIGION_CONVERSION_TARGET_NOT_JUST_CAPITAL
+						}
+					}
+#else
 					// Revealed and not currently our religion
 					if(pCity->isRevealed(eTeam, false) && pCity->GetCityReligions()->GetReligiousMajority() != eReligion)
 					{
+#ifdef AUI_RELIGION_CONVERSION_TARGET_NOT_JUST_CAPITAL
+						int iLoop;
+						CvCity* pLoopCity;
+						for(pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
+						{
+							if (!pLoopCity->IsPuppet() || m_pPlayer->GetPlayerTraits()->IsNoAnnexing())
+							{
+								// Within 8 times Missionary movement allowance of one of our non-puppet cities
+								if (plotDistance(pLoopCity->getX(), pLoopCity->getY(), pCity->getX(), pCity->getY()) <= (iMissionaryMoves * GC.getRELIGION_MISSIONARY_RANGE_IN_TURNS()))
+								{
+									return true;
+								}
+							}
+						}
+#else
 						// Within 10 times Missionary movement allowance of our
 						if(plotDistance(pCapital->getX(), pCapital->getY(), pCity->getX(), pCity->getY()) <= (iMissionaryMoves * GC.getRELIGION_MISSIONARY_RANGE_IN_TURNS()))
 						{
 							return true;
 						}
+#endif // AUI_RELIGION_CONVERSION_TARGET_NOT_JUST_CAPITAL
 					}
+#endif // AUI_RELIGION_HAVE_NEARBY_CONVERSION_TARGET_IGNORE_TARGET_THAT_WILL_CONVERT_PASSIVELY
 				}
 			}
 		}
@@ -7793,6 +8032,10 @@ BuildingClassTypes CvReligionAI::FaithBuildingAvailable(ReligionTypes eReligion)
 	CvGameReligions* pReligions = GC.getGame().GetGameReligions();
 	const CvReligion* pMyReligion = pReligions->GetReligion(eReligion, m_pPlayer->GetID());
 
+#if defined(MOD_BALANCE_CORE_BELIEFS)
+	std::vector<BuildingClassTypes> choices;
+#endif
+
 	if (pMyReligion)
 	{
 		for (int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
@@ -7808,17 +8051,23 @@ BuildingClassTypes CvReligionAI::FaithBuildingAvailable(ReligionTypes eReligion)
 #if defined(MOD_BALANCE_CORE_BELIEFS)
 						//Let's not do this for the national wonders, okay?
 						if(!pBuildingEntry->IsReformation())
-						{
-#endif
+							choices.push_back((BuildingClassTypes)iI);
+#else
 						return (BuildingClassTypes)iI;
-#if defined(MOD_BALANCE_CORE_BELIEFS)
-						}
 #endif
 					}
 				}
 			}
 		}
 	}
+
+#if defined(MOD_BALANCE_CORE_BELIEFS)
+	//pick a random building class
+	if (choices.size()>1)
+		return choices[ GC.getGame().getJonRandNum(choices.size(),"Faith Building Class") ];
+	else if (choices.size()==1)
+		return choices[0];
+#endif
 
 	return NO_BUILDINGCLASS;
 }
@@ -7947,6 +8196,11 @@ UnitTypes CvReligionAI::GetDesiredFaithGreatPerson() const
 #else
 						iScore /= (1+ m_pPlayer->GetReligions()->GetNumProphetsSpawned());
 #endif
+#ifdef AUI_RELIGION_FIX_DO_FAITH_PURCHASES_ENHANCE_RELIGION
+						const CvReligion* pMyReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, m_pPlayer->GetID());
+						if (pMyReligion && !pMyReligion->m_bEnhanced)
+							iScore *= 2;
+#endif
 					}
 				}
 				else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_WRITER"))
@@ -8019,7 +8273,11 @@ UnitTypes CvReligionAI::GetDesiredFaithGreatPerson() const
 					}
 					else
 					{
+#ifdef AUI_RELIGION_GET_DESIRED_FAITH_GREAT_PERSON_ENGINEER_USES_WONDER_COMPETITIVENESS
+						iScore = MAX(2000, int(AUI_RELIGION_GET_DESIRED_FAITH_GREAT_PERSON_ENGINEER_USES_WONDER_COMPETITIVENESS * m_pPlayer->GetDiplomacyAI()->GetWonderCompetitiveness() + 0.5));
+#else
 						iScore = 500;
+#endif // AUI_RELIGION_GET_DESIRED_FAITH_GREAT_PERSON_ENGINEER_USES_WONDER_COMPETITIVENESS
 					}
 					iScore /= (1+ m_pPlayer->getEngineersFromFaith());
 				}
@@ -8056,7 +8314,11 @@ UnitTypes CvReligionAI::GetDesiredFaithGreatPerson() const
 				}
 				else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_INQUISITOR"))
 				{
+#ifdef AUI_RELIGION_FIX_GET_DESIRED_FAITH_GREAT_PERSON_INQUISITOR_CHECK
+					if (!HaveEnoughInquisitors(eReligion))
+#else
 					if (HaveEnoughInquisitors(eReligion))
+#endif // AUI_RELIGION_FIX_GET_DESIRED_FAITH_GREAT_PERSON_INQUISITOR_CHECK
 					{
 						iScore = 1000 / (m_pPlayer->GetNumUnitsWithUnitAI(UNITAI_INQUISITOR) + 1);
 					}
