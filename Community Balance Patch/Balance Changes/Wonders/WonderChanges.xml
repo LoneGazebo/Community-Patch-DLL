@@ -5,7 +5,7 @@
 		<Row>
 			<Type>BUILDING_MOSQUE_OF_DJENNE</Type>
 			<BuildingClass>BUILDINGCLASS_MOSQUE_OF_DJENNE</BuildingClass>
-			<Cost>400</Cost>
+			<Cost>300</Cost>
 			<PrereqTech>TECH_EDUCATION</PrereqTech>
 			<Help>TXT_KEY_WONDER_MOSQUE_OF_DJENNE_HELP</Help>
 			<Description>TXT_KEY_BUILDING_MOSQUE_OF_DJENNE</Description>
@@ -98,6 +98,29 @@
 			<WonderSplashImage>WonderConceptLouvre.dds</WonderSplashImage>
 			<WonderSplashAudio>AS2D_WONDER_SPEECH_THE_LOUVRE</WonderSplashAudio>
 		</Row>
+		<Row>
+			<Type>BUILDING_STATUE_ZEUS</Type>
+			<BuildingClass>BUILDINGCLASS_STATUE_ZEUS</BuildingClass>
+			<Cost>185</Cost>
+			<PrereqTech>TECH_BRONZE_WORKING</PrereqTech>
+			<Help>TXT_KEY_WONDER_STATUE_ZEUS_HELP</Help>
+			<Description>TXT_KEY_BUILDING_STATUE_ZEUS</Description>
+			<Civilopedia>TXT_KEY_WONDER_STATUE_ZEUS_DESC</Civilopedia>
+			<Quote>TXT_KEY_WONDER_STATUE_ZEUS_QUOTE</Quote>
+			<ArtDefineTag>STATUE ZEUS</ArtDefineTag>
+			<MaxStartEra>ERA_CLASSICAL</MaxStartEra>
+			<DefenseHappinessChangeGlobal>2</DefenseHappinessChangeGlobal>
+			<NukeImmune>true</NukeImmune>
+			<HurryCostModifier>-1</HurryCostModifier>
+			<MinAreaSize>-1</MinAreaSize>
+			<ConquestProb>100</ConquestProb>
+			<FreePromotion>PROMOTION_STATUE_ZEUS</FreePromotion>
+			<DisplayPosition>4</DisplayPosition>
+			<IconAtlas>WONDERS_DLC_ATLAS</IconAtlas>
+			<PortraitIndex>2</PortraitIndex>
+			<WonderSplashImage>WonderConceptTempleZues.dds</WonderSplashImage>
+			<WonderSplashAudio>AS2D_WONDER_SPEECH_STATUE_OF_ZEUS</WonderSplashAudio>
+		</Row>
 	</Buildings>
 	<Building_YieldChanges>
 		<Row>
@@ -117,6 +140,11 @@
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_KREMLIN</BuildingType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_STATUE_ZEUS</BuildingType>
 			<YieldType>YIELD_CULTURE</YieldType>
 			<Yield>1</Yield>
 		</Row>

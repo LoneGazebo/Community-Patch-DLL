@@ -9694,35 +9694,8 @@ int CvLeagueAI::EvaluateVoteForOtherPlayerKnowledge(CvLeague* pLeague, PlayerTyp
 CvLeagueAI::DiplomatUsefulnessLevels CvLeagueAI::GetDiplomatUsefulnessAtCiv(PlayerTypes ePlayer)
 {
 	DiplomatUsefulnessLevels eUsefulness = DIPLOMAT_USEFULNESS_NONE;
+
 	int iScore = 0;
-
-#ifdef AUI_VOTING_TWEAKED_DIPLOMAT_USEFULNESS
-	if (EvaluateAlignment(ePlayer) >= ALIGNMENT_NEUTRAL)
-	{
-		iScore += 1;
-	}
-	if (GetPlayer()->GetDiplomacyAI()->IsGoingForCultureVictory())
-	{
-		iScore += 1;
-	}
-	if (GetExtraVotesPerDiplomat() > 0)
-	{
-		iScore = 3;
-	}
-
-	if (iScore >= 3)
-	{
-		eUsefulness = DIPLOMAT_USEFULNESS_HIGH;
-	}
-	else if (iScore >= 2)
-	{
-		eUsefulness = DIPLOMAT_USEFULNESS_MEDIUM;
-	}
-	else if (iScore >= 1)
-	{
-		eUsefulness = DIPLOMAT_USEFULNESS_LOW;
-	}
-#else
 	if (GetExtraVotesPerDiplomat() > 0)
 	{
 		iScore += 1;
@@ -9756,8 +9729,7 @@ CvLeagueAI::DiplomatUsefulnessLevels CvLeagueAI::GetDiplomatUsefulnessAtCiv(Play
 	{
 		eUsefulness = DIPLOMAT_USEFULNESS_LOW;
 	}
-#endif // AUI_VOTING_TWEAKED_DIPLOMAT_USEFULNESS
-
+	
 	return eUsefulness;
 }
 

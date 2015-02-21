@@ -828,8 +828,17 @@ void CvEconomicAI::DoTurn()
 
 	if(!m_pPlayer->isHuman())
 	{
+#if defined(MOD_BALANCE_CORE)
+		int iLoop;
+		//Redundancy to help the AI use all of its gold.
+		for(CvCity* pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
+		{
+#endif
 		DoHurry();
 		DoPlotPurchases();
+#if defined(MOD_BALANCE_CORE)
+		}
+#endif
 		DisbandExtraWorkers();
 		DisbandExtraArchaeologists();
 #if defined(MOD_AI_SMART_DISBAND)
@@ -1811,12 +1820,18 @@ void CvEconomicAI::DoHurry()
 	int iLoop = 0;
 
 #if defined(MOD_DIPLOMACY_CITYSTATES_HURRY) || defined(MOD_BALANCE_CORE)
-  if (MOD_DIPLOMACY_CITYSTATES_HURRY || MOD_BALANCE_CORE) {
+  if (MOD_DIPLOMACY_CITYSTATES_HURRY || MOD_BALANCE_CORE) 
+  {
 	//Let's give the AI a treasury cushion ...
 	int iTreasuryBuffer = /*500*/ GC.getAI_GOLD_TREASURY_BUFFER();
 	// ... modified by gamespeed
 	iTreasuryBuffer *= GC.getGame().getGameSpeedInfo().getGoldPercent();
 	iTreasuryBuffer /= 100;
+
+	if(IsSavingForThisPurchase(PURCHASE_TYPE_UNIT_UPGRADE) || IsSavingForThisPurchase(PURCHASE_TYPE_TILE) || IsSavingForThisPurchase(PURCHASE_TYPE_MINOR_CIV_GIFT))
+	{
+		return;
+	}
 	
 	//Let's check our average income over five-turn periods
 	int iInterval = 5;
@@ -2207,7 +2222,7 @@ void CvEconomicAI::DoReconState()
 	if (!bIsVenice)
 	{
 		// Need recon if there are no good plots to settle
-		CvPlot* pBestSettlePlot = GetPlayer()->GetBestSettlePlot(NULL,true,-1,NULL);
+		CvPlot* pBestSettlePlot = GetPlayer()->GetBestSettlePlot( NULL, true, -1, NULL);
 		int iBestFoundValue = pBestSettlePlot ? pBestSettlePlot->getFoundValue( GetPlayer()->GetID() ) : 0;
 		int iLastFoundValue = GetPlayer()->GetFoundValueOfLastSettledCity();
 		if (iBestFoundValue < 0.5f * iLastFoundValue )
@@ -3539,7 +3554,7 @@ bool EconomicAIHelpers::IsTestStrategy_EarlyExpansion(CvPlayer* pPlayer)
 		}
 	}
 
-#ifdef AUI_ECONOMIC_EARLY_EXPANSION_ALWAYS_ACTIVE_IF_ALONE
+#if defined(AUI_ECONOMIC_EARLY_EXPANSION_ALWAYS_ACTIVE_IF_ALONE)
 	// If we're the only ones on our continent, we use completely different logic
 	// to: check if we have met somebody else instead?
 	bool bAloneInArea = true;
@@ -3853,9 +3868,11 @@ bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes /*eStra
 	int iArea = -1;
 
 #if defined(MOD_BALANCE_CORE_SETTLER)
-	// Never run this strategy for a human player, barbarians or minor civs
-	if (pPlayer->isBarbarian() || pPlayer->isMinorCiv() || pPlayer->isHuman())
+	// Never run this strategy for OCC, barbarians or minor civs
+	if (GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) || pPlayer->isBarbarian() || pPlayer->isMinorCiv())
+	{
 		return false;
+	}
 #else
 	if(GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && pPlayer->isHuman())
 	{

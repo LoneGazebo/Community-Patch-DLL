@@ -3032,7 +3032,7 @@ void CvTacticalAI::PlotHealMoves()
 			if (MOD_AI_SMART_HEALING) 
 			{
 				CvPlot* unitPlot = pUnit->plot();
-				if (!unitPlot->isCity() && m_pPlayer->GetPlotDanger(*unitPlot) > 0)
+				if (!unitPlot->isCity() && (unitPlot->getOwner() != pUnit->getOwner()) && m_pPlayer->GetPlotDanger(*unitPlot) > 0)
 				{
 					iHealingLimit = 0;
 				}

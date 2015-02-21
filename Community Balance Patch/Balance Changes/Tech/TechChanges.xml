@@ -152,7 +152,7 @@
 			<Where Type="TECH_CIVIL_SERVICE" />
 		</Update>
 		<Update>
-			<Set GridY="5" />
+			<Set GridX="6" GridY="4" />
 			<Where Type="TECH_GUILDS" />
 		</Update>
 		<Update>
@@ -164,11 +164,11 @@
 			<Where Type="TECH_COMPASS" />
 		</Update>
 		<Update>
-			<Set GridY="4" />
+			<Set GridX="5" GridY="1" />
 			<Where Type="TECH_EDUCATION" />
 		</Update>
 		<Update>
-			<Set GridX="5" GridY="1" />
+			<Set GridX="5" GridY="5" />
 			<Where Type="TECH_CHIVALRY" />
 		</Update>
 		<Update>
@@ -760,11 +760,11 @@
 		</Row>
 		<Row>
 			<TechType>TECH_PRINTING_PRESS</TechType>
-			<PrereqTech>TECH_EDUCATION</PrereqTech>
+			<PrereqTech>TECH_GUILDS</PrereqTech>
 		</Row>
 		<Row>
 			<TechType>TECH_ASTRONOMY</TechType>
-			<PrereqTech>TECH_EDUCATION</PrereqTech>
+			<PrereqTech>TECH_GUILDS</PrereqTech>
 		</Row>
 		<Row>
 			<TechType>TECH_ASTRONOMY</TechType>
@@ -789,15 +789,15 @@
 		</Row>
 		<Row>
 			<TechType>TECH_CIVIL_SERVICE</TechType>
-			<PrereqTech>TECH_CHIVALRY</PrereqTech>
+			<PrereqTech>TECH_EDUCATION</PrereqTech>
 		</Row>
 		<Row>
-			<TechType>TECH_EDUCATION</TechType>
+			<TechType>TECH_GUILDS</TechType>
 			<PrereqTech>TECH_THEOLOGY</PrereqTech>
 		</Row>
 		<Row>
-			<TechType>TECH_EDUCATION</TechType>
-			<PrereqTech>TECH_GUILDS</PrereqTech>
+			<TechType>TECH_GUILDS</TechType>
+			<PrereqTech>TECH_CHIVALRY</PrereqTech>
 		</Row>
 		<Row>
 			<TechType>TECH_COMPASS</TechType>
@@ -805,7 +805,7 @@
 		</Row>
 		<Row>
 			<TechType>TECH_COMPASS</TechType>
-			<PrereqTech>TECH_GUILDS</PrereqTech>
+			<PrereqTech>TECH_CHIVALRY</PrereqTech>
 		</Row>
 		<Row>
 			<TechType>TECH_MACHINERY</TechType>
@@ -816,11 +816,11 @@
 			<PrereqTech>TECH_PHYSICS</PrereqTech>
 		</Row>
 		<Row>
-			<TechType>TECH_CHIVALRY</TechType>
+			<TechType>TECH_EDUCATION</TechType>
 			<PrereqTech>TECH_DRAMA</PrereqTech>
 		</Row>
 		<Row>
-			<TechType>TECH_CHIVALRY</TechType>
+			<TechType>TECH_EDUCATION</TechType>
 			<PrereqTech>TECH_PHILOSOPHY</PrereqTech>
 		</Row>
 		<Row>
@@ -832,17 +832,17 @@
 			<PrereqTech>TECH_DRAMA</PrereqTech>
 		</Row>
 		<Row>
-			<TechType>TECH_GUILDS</TechType>
-			<PrereqTech>TECH_CURRENCY</PrereqTech>
-		</Row>
-		<Row>
-			<TechType>TECH_GUILDS</TechType>
+			<TechType>TECH_CHIVALRY</TechType>
 			<PrereqTech>TECH_ENGINEERING</PrereqTech>
 		</Row>
 		<Row>
-			<TechType>TECH_GUILDS</TechType>
-			<PrereqTech>TECH_PHILOSOPHY</PrereqTech>
+			<TechType>TECH_CHIVALRY</TechType>
+			<PrereqTech>TECH_CURRENCY</PrereqTech>
 		</Row>
+		<Row>
+			<TechType>TECH_CHIVALRY</TechType>
+			<PrereqTech>TECH_PHILOSOPHY</PrereqTech>
+		</Row>	
 		<Row>
 			<TechType>TECH_PHYSICS</TechType>
 			<PrereqTech>TECH_ENGINEERING</PrereqTech>
@@ -1037,7 +1037,7 @@
 		<Row>
 			<TechType>TECH_POTTERY</TechType>
 			<FlavorType>FLAVOR_EXPANSION</FlavorType>
-			<Flavor>12</Flavor>
+			<Flavor>25</Flavor>
 		</Row>
 		<Row>
 			<TechType>TECH_POTTERY</TechType>

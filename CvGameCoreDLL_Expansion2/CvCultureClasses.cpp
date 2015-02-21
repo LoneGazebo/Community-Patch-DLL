@@ -3006,7 +3006,8 @@ int CvPlayerCulture::GetInfluenceTradeRouteScienceBonus(PlayerTypes ePlayer) con
 		{
 		case INFLUENCE_LEVEL_FAMILIAR:
 			iRtnValue = 1;
-#if defined(MOD_BALANCE_CORE)
+#if defined(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
+			if(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
 			{
 				iRtnValue += GC.getBALANCE_SCIENCE_INFLUENCE_LEVEL_FAMILIAR();
 			}
@@ -3014,7 +3015,8 @@ int CvPlayerCulture::GetInfluenceTradeRouteScienceBonus(PlayerTypes ePlayer) con
 			break;
 		case INFLUENCE_LEVEL_POPULAR:
 			iRtnValue = 2;
-#if defined(MOD_BALANCE_CORE)
+#if defined(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
+			if(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
 			{
 				iRtnValue += GC.getBALANCE_SCIENCE_INFLUENCE_LEVEL_POPULAR();
 			}
@@ -3022,7 +3024,8 @@ int CvPlayerCulture::GetInfluenceTradeRouteScienceBonus(PlayerTypes ePlayer) con
 			break;
 		case INFLUENCE_LEVEL_INFLUENTIAL:
 			iRtnValue = 3;
-#if defined(MOD_BALANCE_CORE)
+#if defined(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
+			if(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
 			{
 				iRtnValue += GC.getBALANCE_SCIENCE_INFLUENCE_LEVEL_INFLUENTIAL();
 			}
@@ -3030,13 +3033,20 @@ int CvPlayerCulture::GetInfluenceTradeRouteScienceBonus(PlayerTypes ePlayer) con
 			break;
 		case INFLUENCE_LEVEL_DOMINANT:
 			iRtnValue = 4;
-#if defined(MOD_BALANCE_CORE)
+#if defined(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
+			if(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
 			{
 				iRtnValue += GC.getBALANCE_SCIENCE_INFLUENCE_LEVEL_DOMINANT();
 			}
 #endif
 			break;
 		}
+#if defined(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
+		if(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED && iRtnValue > 0 && m_pPlayer->GetCurrentEra() > 0)
+		{
+			iRtnValue *= m_pPlayer->GetCurrentEra();
+		}
+#endif
 	}
 
 	return iRtnValue;
@@ -4995,6 +5005,22 @@ CvString CvCityCulture::GetTourismTooltip()
 			}
 		}
 	}
+#if defined(MOD_BALANCE_CORE)
+	//Buildings with Tourism
+	int iTourismFromWW = kCityPlayer.GetYieldChangeWorldWonder(YIELD_TOURISM);
+	if(iTourismFromWW > 0)
+	{
+		iTourismFromWW *= m_pCity->getNumWorldWonders();
+		if(iTourismFromWW > 0)
+		{
+			if (szRtnValue.length() > 0)
+			{
+				szRtnValue += "[NEWLINE][NEWLINE]";
+			}
+			szRtnValue += GetLocalizedText("TXT_KEY_CO_CITY_TOURISM_POLICY_AESTHETICS", iTourismFromWW);
+		}
+	}
+#endif
 
 	int iBuildingMod = 0;
 	for(int iBuildingClassLoop = 0; iBuildingClassLoop < GC.getNumBuildingClassInfos(); iBuildingClassLoop++)

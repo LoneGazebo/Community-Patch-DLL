@@ -253,12 +253,12 @@
 		<Row>
 			<PolicyType>POLICY_HONOR_FINISHER</PolicyType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>10</Yield>
+			<Yield>100</Yield>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_HONOR_FINISHER</PolicyType>
 			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Yield>10</Yield>
+			<Yield>50</Yield>
 		</Row>
 	</Policy_ConquerorYield>
 	<Policy_FreeUnitClasses>

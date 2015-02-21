@@ -389,7 +389,7 @@ void CvUnit::init(int iID, UnitTypes eUnit, UnitAITypes eUnitAI, PlayerTypes eOw
 // ---------------------------------------------------------------------------------
 #if defined(MOD_BALANCE_CORE)
 //	--------------------------------------------------------------------------------
-void CvUnit::initWithSpecificName(int iID, UnitTypes eUnit, int iName, UnitAITypes eUnitAI, PlayerTypes eOwner, int iX, int iY, DirectionTypes eFacingDirection, bool bNoMove, bool bSetupGraphical, int iMapLayer, int iNumGoodyHutsPopped)
+void CvUnit::initWithSpecificName(int iID, UnitTypes eUnit, const char* strKey, UnitAITypes eUnitAI, PlayerTypes eOwner, int iX, int iY, DirectionTypes eFacingDirection, bool bNoMove, bool bSetupGraphical, int iMapLayer, int iNumGoodyHutsPopped)
 {
 	VALIDATE_OBJECT
 	CvString strBuffer;
@@ -444,12 +444,22 @@ void CvUnit::initWithSpecificName(int iID, UnitTypes eUnit, int iName, UnitAITyp
 
 	SetGreatWork(NO_GREAT_WORK);
 
-	if(iName != -1)
+
+	if(strKey != NULL)
 	{
-		CvString strName = getUnitInfo().GetUnitNames(iName);
-		setName(strName);
-		SetGreatWork(getUnitInfo().GetGreatWorks(iName));
-		GC.getGame().addGreatPersonBornName(strName);
+		int iNumNames = getUnitInfo().GetNumUnitNames();
+		//Look for units from previous and current eras.
+		for(iI = 0; iI < iNumNames; iI++)
+		{
+			if(getUnitInfo().GetUnitNames(iI) == strKey)
+			{
+				CvString strName = getUnitInfo().GetUnitNames(iI);	
+				setName(strName);
+				SetGreatWork(getUnitInfo().GetGreatWorks(iI));
+				GC.getGame().addGreatPersonBornName(strName);
+				break;
+			}
+		}
 	}
 	else
 	{
@@ -971,17 +981,6 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 	iUnitName = GC.getGame().getUnitCreatedCount(getUnitType());
 	int iNumNames = getUnitInfo().GetNumUnitNames();
 #if defined(MOD_BALANCE_CORE)
-	if(iNameOffset != -1)
-	{
-		CvString strName = getUnitInfo().GetUnitNames(iNameOffset);
-		setName(strName);
-		SetGreatWork(getUnitInfo().GetGreatWorks(iNameOffset));
-		GC.getGame().addGreatPersonBornName(strName);
-	}
-	if(iNameOffset == -1)
-	{
-#endif
-#if defined(MOD_BALANCE_CORE)
 	std::vector<int> vfPossibleUnits;
 #endif
 	if(iUnitName < iNumNames)
@@ -1073,9 +1072,6 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 		}
 #endif
 	}
-#if defined(MOD_BALANCE_CORE)
-	}
-#endif
 	setGameTurnCreated(GC.getGame().getGameTurn());
 
 	GC.getGame().incrementUnitCreatedCount(getUnitType());
@@ -1418,9 +1414,40 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 				GetReligionData()->SetReligiousStrength(getUnitInfo().GetReligiousStrength());
 			}
 		}
+#if defined(MOD_GLOBAL_RELIGIOUS_SETTLERS) && defined(MOD_BALANCE_CORE_SETTLER_ADVANCED)
+	}
+	else if (MOD_GLOBAL_RELIGIOUS_SETTLERS && MOD_BALANCE_CORE_SETTLER_ADVANCED && (getUnitInfo().IsFound() || getUnitInfo().IsFoundAbroad() || getUnitInfo().IsFoundMid() || getUnitInfo().IsFoundLate()))
+	{
+		ReligionTypes eReligion = RELIGION_PANTHEON;
+
+		CvCity *pPlotCity = plot()->getPlotCity();
+		if (pPlotCity)
+		{
+			CvCityReligions *pCityReligions = pPlotCity->GetCityReligions();
+
+			int totalFollowers = pPlotCity->getPopulation();
+			int randFollower = GC.getGame().getJonRandNum(totalFollowers, "Religious Settlers: Picking a random religion for the settler") + 1;
+
+			for (int i = RELIGION_PANTHEON; i < GC.getNumReligionInfos(); i++)
+			{
+				int theseFollowers = pCityReligions->GetNumFollowers((ReligionTypes) i);
+
+				if (randFollower <= theseFollowers)
+				{
+					eReligion = (ReligionTypes) i;
+					break;
+				}
+
+				randFollower = randFollower - theseFollowers;
+				if (randFollower < 0) break;
+			}
+		}
+
+		GetReligionData()->SetReligion(eReligion);
+#endif
 #if defined(MOD_GLOBAL_RELIGIOUS_SETTLERS)
 	}
-	else if (MOD_GLOBAL_RELIGIOUS_SETTLERS && (getUnitInfo().IsFound() || getUnitInfo().IsFoundAbroad() || getUnitInfo().IsFoundMid() || getUnitInfo().IsFoundLate()))
+	else if (MOD_GLOBAL_RELIGIOUS_SETTLERS && (getUnitInfo().IsFound() || getUnitInfo().IsFoundAbroad()))
 	{
 		ReligionTypes eReligion = RELIGION_PANTHEON;
 
@@ -4286,10 +4313,9 @@ void CvUnit::move(CvPlot& targetPlot, bool bShow)
 	if(bScout)
 	{
 		int iExperience = GC.getBALANCE_SCOUT_XP_BASE();
-		int iVisRange = visibilityRange();
+		int iRange = visibilityRange();
 		TeamTypes eTeam = getTeam();
 		int iReveal = 0;
-		int iRange = iVisRange;
 		for (int i = -iRange; i <= iRange; ++i)
 		{
 			for (int j = -iRange; j <= iRange; ++j)
@@ -4297,13 +4323,12 @@ void CvUnit::move(CvPlot& targetPlot, bool bShow)
 				CvPlot* pLoopPlot = ::plotXYWithRangeCheck(targetPlot.getX(), targetPlot.getY(), i, j, iRange);
 				if (NULL != pLoopPlot)
 				{
-					if (!pLoopPlot->isRevealed(eTeam) && targetPlot.canSeePlot(pLoopPlot, eTeam, iVisRange, NO_DIRECTION))
+					if (!pLoopPlot->isRevealed(eTeam) && targetPlot.canSeePlot(pLoopPlot, eTeam, iRange, NO_DIRECTION))
 					{
 						if(pLoopPlot->IsNaturalWonder())
 						{
 							iExperience += GC.getBALANCE_SCOUT_XP_NATURAL_WONDER();
 							iReveal += GC.getBALANCE_SCOUT_XP_RANDOM_VALUE() + 1;
-							break;
 						}
 						else
 						{
@@ -8585,12 +8610,12 @@ bool CvUnit::found()
 #endif
 	}
 
-#if defined(MOD_BALANCE_CORE_SETTLER)
-	if(MOD_BALANCE_CORE_SETTLER && m_pUnitInfo->IsFoundMid())
+#if defined(MOD_BALANCE_CORE_SETTLER_ADVANCED)
+	if(MOD_BALANCE_CORE_SETTLER_ADVANCED && m_pUnitInfo->IsFoundMid())
 	{
 		kPlayer.cityBoost(getX(), getY(), m_pUnitInfo, GC.getPIONEER_EXTRA_PLOTS(), GC.getPIONEER_POPULATION_CHANGE(), GC.getPIONEER_FOOD_PERCENT());
 	}
-	if(MOD_DIPLOMACY_CITYSTATES && m_pUnitInfo->IsFoundLate())
+	if(MOD_BALANCE_CORE_SETTLER_ADVANCED && m_pUnitInfo->IsFoundLate())
 	{
 		kPlayer.cityBoost(getX(), getY(), m_pUnitInfo, GC.getCOLONIST_EXTRA_PLOTS(), GC.getCOLONIST_POPULATION_CHANGE(), GC.getCOLONIST_FOOD_PERCENT());
 	}
@@ -11408,9 +11433,12 @@ void CvUnit::promote(PromotionTypes ePromotion, int iLeaderUnitId)
 	{
 		setHasPromotion(ePromotion, true);
 
-#if defined(MOD_BALANCE_CORE_MILITARY)
-		//Insta-heal removed, gain health with each promotion instead.
-		changeDamage((-GC.getINSTA_HEAL_RATE() / 5));
+#if defined(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
+		if(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
+		{
+			//Insta-heal removed, gain health with each promotion instead.
+			changeDamage((-GC.getINSTA_HEAL_RATE() / 5));
+		}
 #endif
 
 #if defined(MOD_EVENTS_UNIT_UPGRADES)
@@ -12552,7 +12580,7 @@ bool CvUnit::IsFoundAbroad() const
 	return m_pUnitInfo->IsFoundAbroad();
 }
 
-#if defined(MOD_BALANCE_CORE_SETTLER)
+#if defined(MOD_BALANCE_CORE_SETTLER_ADVANCED)
 //	--------------------------------------------------------------------------------
 bool CvUnit::IsFoundMid() const
 {
@@ -12910,9 +12938,9 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 	if(kPlayer.isGoldenAge())
 		iModifier += kPlayer.GetPlayerTraits()->GetGoldenAgeCombatModifier();
 
-#if defined(MOD_BALANCE_CORE_MILITARY)
+#if defined(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
 	//Domination Victory -- If a player owns more than one capital, your troops fight a % better as a result (% = % of global capitals owned).
-	if(MOD_BALANCE_CORE_MILITARY && pOtherUnit != NULL)
+	if(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED && pOtherUnit != NULL)
 	{
 		iModifier += GetResistancePower(pOtherUnit);
 	}			
@@ -12947,7 +12975,7 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 		}
 
 #if defined(MOD_BALANCE_CORE_BELIEFS)
-		if(pOtherUnit != NULL)
+		if(MOD_BALANCE_CORE_BELIEFS && pOtherUnit != NULL)
 		{
 			if(!pOtherUnit->isBarbarian() && !GET_PLAYER(pOtherUnit->getOwner()).isMinorCiv() && pOtherUnit->getOwner() != NO_PLAYER)
 			{
@@ -13032,7 +13060,7 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 #if defined(MOD_BALANCE_CORE)
 		// Trait (player level) bonus against more populated civs
 		iTempModifier = GET_PLAYER(getOwner()).GetPlayerTraits()->GetCombatBonusVsHigherPop();
-		if(iTempModifier > 0)
+		if(MOD_BALANCE_CORE && iTempModifier > 0)
 		{
 			if(pOtherUnit && pOtherUnit->IsHigherPopThan(this))
 			{
@@ -13184,9 +13212,9 @@ int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot,
 		iModifier += iTempModifier;
 	}
 
-#if defined(MOD_BALANCE_CORE)
+#if defined(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
 	//If Japan, you should get stronger as you lose health.
-	if(GET_PLAYER(getOwner()).GetPlayerTraits()->IsFightWellDamaged())
+	if(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED && GET_PLAYER(getOwner()).GetPlayerTraits()->IsFightWellDamaged())
 	{
 		iModifier += (getDamage() / 5);
 	}
@@ -13355,9 +13383,9 @@ int CvUnit::GetMaxDefenseStrength(const CvPlot* pInPlot, const CvUnit* pAttacker
 	if(bFromRangedAttack)
 		iModifier += rangedDefenseModifier();
 
-#if defined(MOD_BALANCE_CORE)
+#if defined(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
 	//If Japan, you should get stronger as you lose health.
-	if(GET_PLAYER(getOwner()).GetPlayerTraits()->IsFightWellDamaged())
+	if(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED && GET_PLAYER(getOwner()).GetPlayerTraits()->IsFightWellDamaged())
 	{
 		iModifier += (getDamage() / 5);
 	}
@@ -13477,8 +13505,8 @@ int CvUnit::GetEmbarkedUnitDefense() const
 		iRtnValue = iRtnValue * (100 + iModifier);
 		iRtnValue /= 100;
 	}
-#if defined(MOD_BALANCE_CORE_MILITARY)
-	if(MOD_BALANCE_CORE_MILITARY && !kPlayer.isHuman())
+#if defined(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
+	if(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED && !kPlayer.isHuman())
 	{
 		//25% of defense added in. This is largely to help the AI.
 		iRtnValue += (GetBaseCombatStrength(true) / max(1,GC.getBALANCE_EMBARK_DEFENSE_DIVISOR() ) );
@@ -13651,9 +13679,9 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 	if(kPlayer.isGoldenAge())
 		iModifier += pTraits->GetGoldenAgeCombatModifier();
 
-#if defined(MOD_BALANCE_CORE)
+#if defined(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
 	//If Japan, you should get stronger as you lose health.
-	if(GET_PLAYER(getOwner()).GetPlayerTraits()->IsFightWellDamaged())
+	if(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED && GET_PLAYER(getOwner()).GetPlayerTraits()->IsFightWellDamaged())
 	{
 		iModifier += (getDamage() / 5);
 	}
@@ -22017,15 +22045,15 @@ bool CvUnit::canEverRangeStrikeAtFromPlot(int iX, int iY, CvPlot* pSourcePlot) c
 	{
 		if(!pTargetPlot->isValidDomainForAction(*this))
 		{
-#if defined(MOD_BALANCE_CORE_MILITARY)
+#if defined(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
 			//Subs should be able to attack cities (they're on the coast, they've got ports, etc.). This will help the AI.
-			if(!pTargetPlot->isCity() && !pTargetPlot->isCoastalLand())
+			if(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED && !pTargetPlot->isCity() && !pTargetPlot->isCoastalLand())
 			{
 #endif
 				return false;
 #if defined(MOD_BALANCE_CORE_MILITARY)
 			}
-			else if(pTargetPlot->isCoastalLand() && !pTargetPlot->isCity())
+			else if(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED && pTargetPlot->isCoastalLand() && !pTargetPlot->isCity())
 			{
 				return false;
 			}
@@ -22035,15 +22063,15 @@ bool CvUnit::canEverRangeStrikeAtFromPlot(int iX, int iY, CvPlot* pSourcePlot) c
 		// preventing submarines from shooting into lakes.
 		if (pSourcePlot->getArea() != pTargetPlot->getArea())
 		{
-#if defined(MOD_BALANCE_CORE_MILITARY)
+#if defined(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
 			//Subs should be able to attack cities (they're on the coast, they've got ports, etc.). This will help the AI.
-			if(!pTargetPlot->isCity() && !pTargetPlot->isCoastalLand())
+			if(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED && !pTargetPlot->isCity() && !pTargetPlot->isCoastalLand())
 			{
 #endif
 			return false;
-#if defined(MOD_BALANCE_CORE_MILITARY)
+#if defined(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
 			}
-			else if(pTargetPlot->isCoastalLand() && !pTargetPlot->isCity())
+			else if(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED && pTargetPlot->isCoastalLand() && !pTargetPlot->isCity())
 			{
 				return false;
 			}
@@ -24722,9 +24750,9 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 		}
 	}
 
-#if defined(MOD_BALANCE_CORE_MILITARY)
+#if defined(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
 	iTemp = pkPromotionInfo->GetCombatPercent();
-	if(iTemp != 0)
+	if(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED && iTemp != 0)
 	{
 		iExtra = getExtraCombatPercent();
 //Let's encourage getting all three tiers asap.
@@ -24917,7 +24945,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 		if((AI_getUnitAIType() == UNITAI_FAST_ATTACK) ||
 		        (AI_getUnitAIType() == UNITAI_ATTACK))
 		{
-#if defined(MOD_BALANCE_CORE_MILITARY)
+#if defined(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
 			iValue += 50 + iFlavorOffense * 2;
 #else
 			iValue += 40 + iFlavorOffense * 2;

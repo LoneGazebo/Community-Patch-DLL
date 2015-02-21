@@ -153,7 +153,7 @@ bool CvCitySiteEvaluator::CanFound(CvPlot* pPlot, const CvPlayer* pPlayer, bool 
 		return false;
 	}
 #if defined(MOD_BALANCE_CORE)
-if(!bTestVisible)
+	if(!bTestVisible)
 	{
 		// look at same land mass
 		iRange = GC.getMIN_CITY_RANGE();
@@ -698,9 +698,9 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, YieldT
 		// Human
 		if (pPlayer->isHuman())
 		{
-			if (iClosestCityOfMine == 3)
+			if (iClosestCityOfMine == GC.getMIN_CITY_RANGE())
 			{
-				iValueModifier -= iTotalPlotValue/2;
+				iValueModifier -= iTotalPlotValue / 2;
 				vQualifiersNegative.push_back("(V) too close to existing cities");
 			}
 		}
@@ -782,7 +782,7 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, YieldT
 		}
 	}
 
-	return max(0,iTotalPlotValue+iValueModifier+iStratModifier+iCivModifier);
+	return max(0,iTotalPlotValue + iValueModifier + iStratModifier + iCivModifier);
 }
 #else
 
@@ -1768,8 +1768,10 @@ CvSiteEvaluatorForSettler::~CvSiteEvaluatorForSettler(void)
 int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, YieldTypes eYield, bool bCoastOnly, CvString* pDebug)
 {
 	CvAssert(pPlot);
-	if(!pPlot) 
+	if(!pPlot)
+	{
 		return 0;
+	}
 
 	// Is there any reason this site doesn't work for a settler?
 	//
@@ -1778,20 +1780,28 @@ int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, 
 	CvArea* pArea = pPlot->area();
 	CvAssert(pArea);
 	if(!pArea) 
+	{
 		return 0;
+	}
 
 	int iNumAreaCities = pArea->getCitiesPerPlayer(pPlayer->GetID());
 	if(bCoastOnly && !bIsCoastal && iNumAreaCities == 0)
+	{
 		return 0;
+	}
 
 	// Seems okay for a settler, use base class to determine exact value
 	else
 	{
 		// if the civ gets a benefit from settling on a new continent (ie: Indonesia) double the fertility of that plot
 		if (pPlayer->GetPlayerTraits()->WillGetUniqueLuxury(pArea))
+		{
 			return CvCitySiteEvaluator::PlotFoundValue(pPlot, pPlayer, eYield, bCoastOnly, pDebug) * 2;
+		}
 		else
+		{
 			return CvCitySiteEvaluator::PlotFoundValue(pPlot, pPlayer, eYield, bCoastOnly, pDebug);
+		}
 	}
 }
 #else
@@ -1863,7 +1873,7 @@ void CvSiteEvaluatorForStart::ComputeFlavorMultipliers(CvPlayer*)
 #if defined(MOD_BALANCE_CORE_SETTLER)
 int CvSiteEvaluatorForStart::PlotFoundValue(CvPlot* pPlot, CvPlayer*, YieldTypes, bool)
 {
-	return CvCitySiteEvaluator::PlotFoundValue(pPlot,NULL);
+	return CvCitySiteEvaluator::PlotFoundValue(pPlot, NULL);
 }
 
 #else

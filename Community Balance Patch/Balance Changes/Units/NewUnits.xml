@@ -31,7 +31,7 @@
 			<MilitaryProduction>true</MilitaryProduction>
 			<Pillage>true</Pillage>
 			<ResourceType>RESOURCE_IVORY</ResourceType>
-			<ObsoleteTech>TECH_CHIVALRY</ObsoleteTech>
+			<ObsoleteTech>TECH_GUILDS</ObsoleteTech>
 			<GoodyHutUpgradeUnitClass>UNITCLASS_KNIGHT</GoodyHutUpgradeUnitClass>
 			<AdvancedStartCost>20</AdvancedStartCost>
 			<XPValueAttack>3</XPValueAttack>
@@ -128,7 +128,7 @@
 			<RequiresFaithPurchaseEnabled>true</RequiresFaithPurchaseEnabled>
 			<Moves>3</Moves>
 			<PrereqTech>TECH_ASTRONOMY</PrereqTech>
-			<ObsoleteTech>TECH_SATELLITES</ObsoleteTech>
+			<ObsoleteTech>TECH_COMBINED_ARMS</ObsoleteTech>
 			<CombatClass>UNITCOMBAT_RECON</CombatClass>
 			<Domain>DOMAIN_LAND</Domain>
 			<NoBadGoodies>true</NoBadGoodies>
@@ -139,6 +139,7 @@
 			<Help>TXT_KEY_UNIT_HELP_EXPLORER_CBP</Help>
 			<Pillage>true</Pillage>
 			<MilitarySupport>true</MilitarySupport>
+			<GoodyHutUpgradeUnitClass>UNITCLASS_VOLLEY_GUN</GoodyHutUpgradeUnitClass>
 			<MilitaryProduction>true</MilitaryProduction>
 			<AdvancedStartCost>30</AdvancedStartCost>
 			<XPValueAttack>3</XPValueAttack>
@@ -164,6 +165,10 @@
 		<Row>
 			<UnitType>UNIT_SHOSHONE_PATHFINDER</UnitType>
 			<UnitClassType>UNITCLASS_EXPLORER</UnitClassType>
+		</Row>
+		<Row>
+			<UnitType>UNIT_EXPLORER</UnitType>
+			<UnitClassType>UNITCLASS_PARATROOPER</UnitClassType>
 		</Row>
 	</Unit_ClassUpgrades>
 	<Unit_Flavors>

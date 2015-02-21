@@ -449,6 +449,9 @@ public:
 	int GetGlobalPopulation() const;
 	void SetGlobalPopulation(int iValue);
 #endif
+#if defined(MOD_BALANCE_CORE_SPIES)
+	void SetHighestPotential();
+#endif
 	void Read(FDataStream& kStream);
 	void Write(FDataStream& kStream) const;
 	void ReadSupportingClassData(FDataStream& kStream);
@@ -630,6 +633,9 @@ public:
 
 	//Function to determine city size from city population
 	unsigned int GetVariableCitySizeFromPopulation(unsigned int nPopulation);
+#if defined(MOD_BALANCE_CORE_SPIES)
+	int m_iLargestBasePotential;
+#endif
 
 	//------------------------------------------------------------
 	//------------------------------------------------------------

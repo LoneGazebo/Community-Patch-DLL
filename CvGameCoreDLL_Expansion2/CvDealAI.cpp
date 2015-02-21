@@ -115,15 +115,15 @@ DealOfferResponseTypes CvDealAI::DoHumanOfferDealToThisAI(CvDeal* pDeal)
 	{
 		if(!pDeal->IsPeaceTreatyTrade(eFromPlayer) && iValueTheyreOffering > iValueImOffering)
 		{
-#if defined(MOD_BALANCE_CORE_DEALS)
-			if (MOD_BALANCE_CORE_DEALS) 
+#if defined(MOD_BALANCE_CORE_DEALS_ADVANCED)
+			if (MOD_BALANCE_CORE_DEALS_ADVANCED) 
 			{
 				//If there is a city in this deal...let's refuse. It is probably a trap.
 				if(!pDeal->ContainsItemType(TRADE_ITEM_CITIES, eFromPlayer))
 				{
 #endif
 			bDealAcceptable = true;
-#if defined(MOD_BALANCE_CORE_DEALS)
+#if defined(MOD_BALANCE_CORE_DEALS_ADVANCED)
 				}
 			}
 #endif
@@ -579,12 +579,12 @@ bool CvDealAI::IsDealWithHumanAcceptable(CvDeal* pDeal, PlayerTypes eOtherPlayer
 		int iDiff = abs(iValueTheyreOffering - iValueImOffering);
 		if (iDiff < iOneGPT)
 		{
-#if defined(MOD_BALANCE_CORE_DEALS)
-			if(!pDeal->ContainsItemType(TRADE_ITEM_CITIES))
+#if defined(MOD_BALANCE_CORE_DEALS_ADVANCED)
+			if(MOD_BALANCE_CORE_DEALS_ADVANCED && !pDeal->ContainsItemType(TRADE_ITEM_CITIES))
 			{
 #endif
 			return true;
-#if defined(MOD_BALANCE_CORE_DEALS)
+#if defined(MOD_BALANCE_CORE_DEALS_ADVANCED)
 			}
 #endif
 		}
@@ -617,9 +617,9 @@ bool CvDealAI::IsDealWithHumanAcceptable(CvDeal* pDeal, PlayerTypes eOtherPlayer
 			return true;
 		}
 	}
-#if defined(MOD_BALANCE_CORE_DEALS)
+#if defined(MOD_BALANCE_CORE_DEALS_ADVANCED)
 	//Does the offer contain a city and we're unhappy? Abort.
-	else if (pDeal->ContainsItemType(TRADE_ITEM_CITIES))
+	else if (MOD_BALANCE_CORE_DEALS_ADVANCED && pDeal->ContainsItemType(TRADE_ITEM_CITIES))
 	{
 		if(!pDeal->IsPeaceTreatyTrade(eOtherPlayer))
 		{
@@ -1312,7 +1312,9 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 		else
 		{
 			int iHappinessFromResource = pkResourceInfo->getHappiness();
-#if defined(MOD_BALANCE_CORE_HAPPINESS_LUXURY)
+#if defined(MOD_BALANCE_CORE_DEALS_ADVANCED)
+			if(MOD_BALANCE_CORE_DEALS_ADVANCED)
+			{
 			//Let's modify this value to make it more clearly pertain to current happiness for luxuries.
 			iHappinessFromResource = (GetPlayer()->GetBaseLuxuryHappiness() + 1);
 			if(iHappinessFromResource <= 0)
@@ -1320,9 +1322,11 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 				iHappinessFromResource = 2;
 			}
 			iItemValue += (iResourceQuantity * iHappinessFromResource * iNumTurns);	// Ex: 1 Silk for 2 Happiness * 30 turns = 60
-#else
-			iItemValue += (iResourceQuantity * iHappinessFromResource * iNumTurns * 2);	// Ex: 1 Silk for 4 Happiness * 30 turns * 2 = 240
+			}
+			else
+			{
 #endif
+			iItemValue += (iResourceQuantity * iHappinessFromResource * iNumTurns * 2);	// Ex: 1 Silk for 4 Happiness * 30 turns * 2 = 240
 			// If we only have 1 of a Luxury then we value it much more
 			if(bFromMe)
 			{
@@ -1331,8 +1335,8 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 					iItemValue *= 3;
 					if(GetPlayer()->GetPlayerTraits()->GetLuxuryHappinessRetention() > 0)
 					{
-#if defined(MOD_BALANCE_CORE_DEALS)
-						if (MOD_BALANCE_CORE_DEALS) 
+#if defined(MOD_BALANCE_CORE_DEALS_ADVANCED)
+						if (MOD_BALANCE_CORE_DEALS_ADVANCED) 
 						{
 							iItemValue /= 4;
 						}
@@ -1342,9 +1346,12 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 					}
 				}
 			}
+#if defined(MOD_BALANCE_CORE_DEALS_ADVANCED)
+			}
+#endif
 		}
-#if defined(MOD_BALANCE_CORE_DEALS)
-	if (MOD_BALANCE_CORE_DEALS) 
+#if defined(MOD_BALANCE_CORE_DEALS_ADVANCED)
+	if (MOD_BALANCE_CORE_DEALS_ADVANCED) 
 	{
 		CvCity* pLoopCity;
 		int iCityLoop;
@@ -1537,8 +1544,8 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 		if(!GET_TEAM(GetPlayer()->getTeam()).IsResourceObsolete(eResource))
 		{
 			iItemValue += (iResourceQuantity * iNumTurns * 150 / 100);	// Ex: 5 Iron for 30 turns * 2 = value of 300
-#if defined(MOD_BALANCE_CORE_DEALS)
-			if(!bFromMe)
+#if defined(MOD_BALANCE_CORE_DEALS_ADVANCED)
+			if(MOD_BALANCE_CORE_DEALS_ADVANCED && !bFromMe)
 			{
 #endif
 #if defined(MOD_DIPLOMACY_CITYSTATES)
@@ -1552,8 +1559,8 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 				}
 			}
 #endif
-#if defined(MOD_BALANCE_CORE_DEALS)
-			if (MOD_BALANCE_CORE_DEALS) 
+#if defined(MOD_BALANCE_CORE_DEALS_ADVANCED)
+			if (MOD_BALANCE_CORE_DEALS_ADVANCED) 
 			{
 				//If they're stronger than us, strategic resources are valuable.
 				if(GetPlayer()->GetMilitaryMight() < GET_PLAYER(eOtherPlayer).GetMilitaryMight())
@@ -1582,7 +1589,7 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 				}
 			}
 #endif
-#if defined(MOD_BALANCE_CORE_DEALS)
+#if defined(MOD_BALANCE_CORE_DEALS_ADVANCED)
 			}
 #endif
 		}
@@ -1596,8 +1603,8 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 	if(bFromMe)
 	{
 		int iModifier = 0;
-#if defined(MOD_BALANCE_CORE_DEALS)
-		if (MOD_BALANCE_CORE_DEALS) 
+#if defined(MOD_BALANCE_CORE_DEALS_ADVANCED)
+		if (MOD_BALANCE_CORE_DEALS_ADVANCED) 
 		{	
 			// Opinion also matters
 			switch(GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(eOtherPlayer))
@@ -1672,8 +1679,8 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 			iModifier += 150;
 			break;
 		case MAJOR_CIV_APPROACH_AFRAID:
-#if defined(MOD_BALANCE_CORE_DEALS)
-		if (MOD_BALANCE_CORE_DEALS) 
+#if defined(MOD_BALANCE_CORE_DEALS_ADVANCED)
+		if (MOD_BALANCE_CORE_DEALS_ADVANCED) 
 		{
 			iModifier += 125;	// Not forced value
 		}
@@ -1682,8 +1689,8 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 #endif
 			break;
 		case MAJOR_CIV_APPROACH_FRIENDLY:
-#if defined(MOD_BALANCE_CORE_DEALS)
-		if (MOD_BALANCE_CORE_DEALS) 
+#if defined(MOD_BALANCE_CORE_DEALS_ADVANCED)
+		if (MOD_BALANCE_CORE_DEALS_ADVANCED) 
 		{
 			iModifier += 100;	// Not forced value
 		}
@@ -1711,8 +1718,8 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 			}
 		}
 #endif
-#if defined(MOD_BALANCE_CORE_DEALS)
-		if (MOD_BALANCE_CORE_DEALS && eUsage == RESOURCEUSAGE_STRATEGIC) 
+#if defined(MOD_BALANCE_CORE_DEALS_ADVANCED)
+		if (MOD_BALANCE_CORE_DEALS_ADVANCED && eUsage == RESOURCEUSAGE_STRATEGIC) 
 		{
 			//If they're stronger than us, do not give away strategic resources easily.
 			if(GetPlayer()->GetMilitaryMight() < GET_PLAYER(eOtherPlayer).GetMilitaryMight())
@@ -1768,7 +1775,7 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 	}
 #endif
 
-#if defined(MOD_BALANCE_CORE_DEALS)
+#if defined(MOD_BALANCE_CORE_DEALS_ADVANCED)
 	//interesting but too much spam
 	//OutputDebugString( CvString::format( "Deal value of %s for %s to %s is %d\n", pkResourceInfo->GetText(), GetPlayer()->getName(), GET_PLAYER(eOtherPlayer).getName(), iItemValue ).c_str() ); 
 #endif
@@ -2823,12 +2830,12 @@ int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int
 	// Giving our votes to them - Higher value for voting on things we dislike
 	if (bFromMe)
 	{
-#if defined(MOD_BALANCE_CORE_DEALS)
+#if defined(MOD_BALANCE_CORE_DEALS_ADVANCED)
 		//If the votes we'd give would secure passage of this vote, let's see if we like them enough to do it.
 		CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
 		int iTheirVotes = 0;
 		int iVotesNeeded = 0;
-		if (pLeague != NULL)
+		if (MOD_BALANCE_CORE_DEALS_ADVANCED && pLeague != NULL)
 		{
 			iTheirVotes = pLeague->CalculateStartingVotesForMember(eOtherPlayer);
 			PlayerTypes eLoopPlayer;
@@ -2842,7 +2849,7 @@ int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int
 			}
 		}
 		//If the total is more than a third of the total votes on the board...that probably means it'll pass.
-		if((pLeague != NULL) && ((iNumVotes + iTheirVotes) > (iVotesNeeded / 3)))
+		if(MOD_BALANCE_CORE_DEALS_ADVANCED && (pLeague != NULL) && ((iNumVotes + iTheirVotes) > (iVotesNeeded / 3)))
 		{
 			// Adjust based on LeagueAI
 			CvLeagueAI::DesireLevels eDesire = GetPlayer()->GetLeagueAI()->EvaluateVoteForTrade(iProposalID, iVoteChoice, iNumVotes, bRepeal);
@@ -2994,12 +3001,12 @@ int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int
 	// Giving their votes to us - Higher value for voting on things we like
 	else
 	{
-#if defined(MOD_BALANCE_CORE_DEALS)
+#if defined(MOD_BALANCE_CORE_DEALS_ADVANCED)
 		//If the votes we'd give would secure passage of this vote, these votes are worth a bit more.
 		CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
 		int iOurVotes = 0;
 		int iVotesNeeded = 0;
-		if (pLeague != NULL)
+		if (MOD_BALANCE_CORE_DEALS_ADVANCED && pLeague != NULL)
 		{
 			iOurVotes = pLeague->CalculateStartingVotesForMember(GetPlayer()->GetID());
 			PlayerTypes eLoopPlayer;
@@ -3013,7 +3020,7 @@ int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int
 			}
 		}
 		//If the total is more than a third of the total votes on the board...that probably means it'll pass.
-		if((pLeague != NULL) && ((iNumVotes + iOurVotes) > (iVotesNeeded / 3)))
+		if(MOD_BALANCE_CORE_DEALS_ADVANCED && (pLeague != NULL) && ((iNumVotes + iOurVotes) > (iVotesNeeded / 3)))
 		{
 			// Adjust based on LeagueAI
 			CvLeagueAI::DesireLevels eDesire = GetPlayer()->GetLeagueAI()->EvaluateVoteForTrade(iProposalID, iVoteChoice, iNumVotes, bRepeal);
@@ -3095,7 +3102,7 @@ int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int
 				}
 			}
 		}
-#if defined(MOD_BALANCE_CORE_DEALS)
+#if defined(MOD_BALANCE_CORE_DEALS_ADVANCED)
 		}
 #endif
 	}
@@ -4285,9 +4292,9 @@ void CvDealAI::DoAddItemsToDealForPeaceTreaty(PlayerTypes eOtherPlayer, CvDeal* 
 			}
 		}
 	}
-#if defined(MOD_BALANCE_CORE_DEALS)
+#if defined(MOD_BALANCE_CORE_DEALS_ADVANCED)
 	// If the player only has one city then we can't get any more from him
-	else if (iPercentCitiesGiveUp > 0 && pLosingPlayer->getNumCities() > 1)
+	else if (MOD_BALANCE_CORE_DEALS_ADVANCED && iPercentCitiesGiveUp > 0 && pLosingPlayer->getNumCities() > 1)
 	{
 		int iTotalCityValue = 0;
 		int iCityDistanceFromWinnersCapital = 0;
@@ -4406,7 +4413,7 @@ void CvDealAI::DoAddItemsToDealForPeaceTreaty(PlayerTypes eOtherPlayer, CvDeal* 
 		// Just one city?
 		if (bGiveOnlyOneCity)
 		{
-#if defined(MOD_BALANCE_CORE_DEALS)
+#if defined(MOD_BALANCE_CORE_DEALS_ADVANCED)
 			//todo: check if city is in danger?
 			//todo: look at city value also, not only proximity
 #endif
@@ -4430,8 +4437,8 @@ void CvDealAI::DoAddItemsToDealForPeaceTreaty(PlayerTypes eOtherPlayer, CvDeal* 
 				// City is worth less than what is left to be added to the deal, so add it
 				if(iCityValue < iCityValueToSurrender)
 				{
-#if defined(MOD_BALANCE_CORE_DEALS)
-					if (MOD_BALANCE_CORE_DEALS && iCityValue != -1)
+#if defined(MOD_BALANCE_CORE_DEALS_ADVANCED)
+					if (MOD_BALANCE_CORE_DEALS_ADVANCED && iCityValue != -1)
 					{
 #endif
 					if(pDeal->IsPossibleToTradeItem(eLosingPlayer, eWinningPlayer, TRADE_ITEM_CITIES, pLoopCity->getX(), pLoopCity->getY()))
@@ -4439,7 +4446,7 @@ void CvDealAI::DoAddItemsToDealForPeaceTreaty(PlayerTypes eOtherPlayer, CvDeal* 
 						pDeal->AddCityTrade(eLosingPlayer, iSortedCityID);
 						iCityValueToSurrender -= iCityValue;
 					}
-#if defined(MOD_BALANCE_CORE_DEALS)
+#if defined(MOD_BALANCE_CORE_DEALS_ADVANCED)
 					}
 #endif
 
@@ -4797,9 +4804,12 @@ void CvDealAI::DoTradeScreenOpened()
 			pDeal->SetFromPlayer(eActivePlayer);	// The order of these is very important!
 			pDeal->SetToPlayer(eMyPlayer);	// The order of these is very important!
 
-#if defined(MOD_BALANCE_CORE_DEALS)
-			//assume a white peace to allow gold trading
-			pDeal->SetPeaceTreatyType(PEACE_TREATY_WHITE_PEACE);
+#if defined(MOD_BALANCE_CORE_DEALS_ADVANCED)
+			if(MOD_BALANCE_CORE_DEALS_ADVANCED)
+			{
+				//assume a white peace to allow gold trading
+				pDeal->SetPeaceTreatyType(PEACE_TREATY_WHITE_PEACE);
+			}
 #endif
 
 			// AI is surrendering
