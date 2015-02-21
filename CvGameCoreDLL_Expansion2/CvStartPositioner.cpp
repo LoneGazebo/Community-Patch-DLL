@@ -657,7 +657,7 @@ bool CvStartPositioner::AddCivToRegion(int iPlayerIndex, CvStartRegion region, b
 				        || (bIsMinorCiv && MeetsFoodRequirement(pLoopPlot, eTeam, iMinorFoodReq))
 				        || MeetsFoodRequirement(pLoopPlot, eTeam, iMajorFoodReq))
 				{
-#ifdef MOD_BALANCE_CORE_SETTLER
+#if defined(MOD_BALANCE_CORE_SETTLER)
 					// Plot found values are now calculated for each player to account for flavoring
 					uiPlotFoundValue = m_pSiteEvaluator->PlotFoundValue(pLoopPlot, &(GET_PLAYER((PlayerTypes)iPlayerIndex)));
 

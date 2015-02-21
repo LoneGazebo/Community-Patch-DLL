@@ -649,8 +649,8 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 				}
 			}
 		}
-#if defined(MOD_BALANCE_CORE)
-		if(!owningPlayer.isMinorCiv() && (owningPlayer.GetPlayerTraits()->GetUniqueLuxuryQuantity() > 0))
+#if defined(MOD_BALANCE_CORE_LUXURIES_TRAIT)
+		if(MOD_BALANCE_CORE_LUXURIES_TRAIT && !owningPlayer.isMinorCiv() && (owningPlayer.GetPlayerTraits()->GetUniqueLuxuryQuantity() > 0))
 		{
 			owningPlayer.GetPlayerTraits()->AddUniqueLuxuriesAround(this, owningPlayer.GetPlayerTraits()->GetUniqueLuxuryQuantity());
 		}
@@ -658,7 +658,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 		{
 #endif
 		owningPlayer.GetPlayerTraits()->AddUniqueLuxuries(this);
-#if defined(MOD_BALANCE_CORE)
+#if defined(MOD_BALANCE_CORE_LUXURIES_TRAIT)
 		}
 #endif
 		if(owningPlayer.isMinorCiv())
@@ -1112,7 +1112,7 @@ void CvCity::uninit()
 	SAFE_DELETE_ARRAY(m_ppaiPlotYieldChange);
 #endif
 #if defined(MOD_BALANCE_CORE_POLICIES)
-	if(m_ppaiReligionBuildingYieldRateModifier)
+	if(MOD_BALANCE_CORE_POLICIES && m_ppaiReligionBuildingYieldRateModifier)
 	{
 		for(int i=0; i < GC.getNumBuildingClassInfos(); i++)
 		{
@@ -2720,6 +2720,102 @@ void CvCity::ChangeTurnsSinceLastRankMessage(int iTurns)
 	VALIDATE_OBJECT
 	SetTurnsSinceLastRankMessage(GetTurnsSinceLastRankMessage() + iTurns);
 }
+void CvCity::SetEspionageRanking(int iPotential)
+{
+	int iRank = 0;
+
+	//Don't want to divide by zero!
+	if(GC.getGame().m_iLargestBasePotential > 0)
+	{
+		iRank = ((iPotential * 100) / GC.getGame().m_iLargestBasePotential);
+		//Rank time - 10 is worst, 1 is best
+		if(iRank == 100)
+		{
+			iRank = 10;
+		}
+		else if(iRank >= 90)
+		{
+			iRank = 9;
+		}
+		else if(iRank >= 80)
+		{
+			iRank = 8;
+		}
+		else if(iRank >= 70)
+		{
+			iRank = 7;
+		}
+		else if(iRank >= 60)
+		{
+			iRank = 6;
+		}
+		else if(iRank >= 50)
+		{
+			iRank = 5;
+		}
+		else if(iRank >= 40)
+		{
+			iRank = 4;
+		}
+		else if(iRank >= 30)
+		{
+			iRank = 3;
+		}
+		else if(iRank >= 20)
+		{
+			iRank = 2;
+		}
+		else if(iRank > 10)
+		{
+			iRank = 1;
+		}
+		else
+		{
+			iRank = 0;
+		}
+	}
+	//Seed rank warning and update rank.
+	DoRankIncreaseWarning(iRank);
+}
+void CvCity::DoRankIncreaseWarning(int iRank)
+{
+	if(GetTurnsSinceLastRankMessage() >= (GC.getBALANCE_SPY_SABOTAGE_RATE() * 2))
+	{
+		if((iRank > GetRank()) && (GetRank() > 4))
+		{
+			CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
+			if(pNotifications)
+			{
+				Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_RANK_INCREASING_SUMMARY");
+				strSummary <<  getNameKey();
+				Localization::String strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_RANK_INCREASING");
+				strNotification <<  getNameKey();
+				strNotification <<  iRank;
+				pNotifications->Add(NOTIFICATION_SPY_YOU_STAGE_COUP_FAILURE, strNotification.toUTF8(), strSummary.toUTF8(), getX(), getY(), -1);
+			}
+			if(GC.getLogging())
+			{
+				CvString strMsg;
+				strMsg.Format("Advanced Action: Sent out Rank warning. Rank: %d,", iRank);
+				strMsg += " , ";
+				strMsg += GET_PLAYER(getOwner()).getCivilizationShortDescription();
+				strMsg += " , ";
+				strMsg += getName();
+				GET_PLAYER(getOwner()).GetEspionage()->LogEspionageMsg(strMsg);
+			}
+			SetTurnsSinceLastRankMessage(0);
+		}
+	}
+	else
+	{
+		if(GetTurnsSinceLastRankMessage() <= 0)
+		{
+			SetTurnsSinceLastRankMessage(0);
+		}
+		ChangeTurnsSinceLastRankMessage(1);
+	}
+	SetRank(iRank);
+}
 #endif
 #if defined(MOD_GLOBAL_CITY_WORKING)
 //	--------------------------------------------------------------------------------
@@ -3408,7 +3504,7 @@ bool CvCity::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestVis
 		}
 	}
 #if defined(MOD_BALANCE_CORE)
-	if(pkBuildingInfo->GetNeedBuildingThisCity() != NO_BUILDING)
+	if(MOD_BALANCE_CORE && pkBuildingInfo->GetNeedBuildingThisCity() != NO_BUILDING)
 	{
 		BuildingTypes ePrereqBuilding = (BuildingTypes)pkBuildingInfo->GetNeedBuildingThisCity();
 		if(m_pCityBuildings->GetNumBuilding(ePrereqBuilding) <= 0)
@@ -3921,7 +4017,31 @@ void CvCity::ChangeNumResourceLocal(ResourceTypes eResource, int iChange)
 				if(iWonderMod != 0)
 				{
 #if defined(MOD_BALANCE_CORE_RESOURCE_FLAVORS)
-					if(GC.getResourceInfo(eResource)->getWonderProductionModObsoleteEra() == GC.getInfoTypeForString("ERA_MEDIEVAL", true /*bHideAssert*/))
+					if(MOD_BALANCE_CORE_RESOURCE_FLAVORS && GC.getResourceInfo(eResource)->getWonderProductionModObsoleteEra() == GC.getInfoTypeForString("ERA_MEDIEVAL", true /*bHideAssert*/))
+					{
+						CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
+						if(pNotifications)
+						{
+							Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_RESOURCE_WONDER_MOD");
+							strText << getNameKey() << GC.getResourceInfo(eResource)->GetTextKey() << iWonderMod;
+							Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_RESOURCE_WONDER_MOD_SUMMARY");
+							strSummary << getNameKey() << GC.getResourceInfo(eResource)->GetTextKey();
+							pNotifications->Add(NOTIFICATION_DISCOVERED_BONUS_RESOURCE, strText.toUTF8(), strSummary.toUTF8(), getX(), getY(), eResource);
+						}
+					}
+					else if(MOD_BALANCE_CORE_RESOURCE_FLAVORS && GC.getResourceInfo(eResource)->getWonderProductionModObsoleteEra() == GC.getInfoTypeForString("ERA_INDUSTRIAL", true /*bHideAssert*/))
+					{
+						CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
+						if(pNotifications)
+						{
+							Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_RESOURCE_WONDER_MOD_LATE");
+							strText << getNameKey() << GC.getResourceInfo(eResource)->GetTextKey() << iWonderMod;
+							Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_RESOURCE_WONDER_MOD_SUMMARY");
+							strSummary << getNameKey() << GC.getResourceInfo(eResource)->GetTextKey();
+							pNotifications->Add(NOTIFICATION_DISCOVERED_BONUS_RESOURCE, strText.toUTF8(), strSummary.toUTF8(), getX(), getY(), eResource);
+						}
+					}
+					else
 					{
 #endif
 					CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
@@ -3934,18 +4054,6 @@ void CvCity::ChangeNumResourceLocal(ResourceTypes eResource, int iChange)
 						pNotifications->Add(NOTIFICATION_DISCOVERED_BONUS_RESOURCE, strText.toUTF8(), strSummary.toUTF8(), getX(), getY(), eResource);
 					}
 #if defined(MOD_BALANCE_CORE_RESOURCE_FLAVORS)
-					}
-					else if(GC.getResourceInfo(eResource)->getWonderProductionModObsoleteEra() == GC.getInfoTypeForString("ERA_INDUSTRIAL", true /*bHideAssert*/))
-					{
-						CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
-						if(pNotifications)
-						{
-							Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_RESOURCE_WONDER_MOD_LATE");
-							strText << getNameKey() << GC.getResourceInfo(eResource)->GetTextKey() << iWonderMod;
-							Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_RESOURCE_WONDER_MOD_SUMMARY");
-							strSummary << getNameKey() << GC.getResourceInfo(eResource)->GetTextKey();
-							pNotifications->Add(NOTIFICATION_DISCOVERED_BONUS_RESOURCE, strText.toUTF8(), strSummary.toUTF8(), getX(), getY(), eResource);
-						}
 					}
 #endif
 				}
@@ -5574,23 +5682,26 @@ int CvCity::GetPurchaseCost(UnitTypes eUnit)
 #if defined(MOD_BALANCE_CORE_PURCHASE_COST_INCREASE)
 	//Increase cost based on # of cities in empire (helps Tall empires)
 	int iNumCities = GET_PLAYER(getOwner()).getNumCities();
-	if(iNumCities > 0 && MOD_BALANCE_CORE_PURCHASE_COST_INCREASE)
+	if(MOD_BALANCE_CORE_PURCHASE_COST_INCREASE)
 	{
-		int iCityExponent = (iNumCities * GC.getBALANCE_CITY_PURCHASE_MOD() /*5*/);
-		if(iCityExponent > 0)
+		if(iNumCities > 0 && MOD_BALANCE_CORE_PURCHASE_COST_INCREASE)
 		{
-			iCost *= (100 + iCityExponent);
+			int iCityExponent = (iNumCities * GC.getBALANCE_CITY_PURCHASE_MOD() /*5*/);
+			if(iCityExponent > 0)
+			{
+				iCost *= (100 + iCityExponent);
+				iCost /= 100;
+			}
+		}
+
+		//Increase cost based on # of techs researched.
+		int iTechProgress = (GET_TEAM(getTeam()).GetTeamTechs()->GetNumTechsKnown() * 100) / GC.getNumTechInfos();
+		iTechProgress /= 2;
+		if(iTechProgress > 0)
+		{
+			iCost *= (100 + iTechProgress);
 			iCost /= 100;
 		}
-	}
-
-	//Increase cost based on # of techs researched.
-	int iTechProgress = (GET_TEAM(getTeam()).GetTeamTechs()->GetNumTechsKnown() * 100) / GC.getNumTechInfos();
-	iTechProgress /= 2;
-	if(iTechProgress > 0)
-	{
-		iCost *= (100 + iTechProgress);
-		iCost /= 100;
 	}
 #endif
 
@@ -5825,13 +5936,16 @@ int CvCity::GetFaithPurchaseCost(UnitTypes eUnit, bool bIncludeBeliefDiscounts)
 #if defined(MOD_BALANCE_CORE_PURCHASE_COST_INCREASE)
 	//Increase cost based on # of cities in empire (helps Tall empires)
 	int iNumCities = GET_PLAYER(getOwner()).getNumCities();
-	if(iNumCities > 0 && MOD_BALANCE_CORE_PURCHASE_COST_INCREASE)
+	if(MOD_BALANCE_CORE_PURCHASE_COST_INCREASE)
 	{
-		int iCityExponent = (iNumCities * GC.getBALANCE_CITY_PURCHASE_MOD() /*5*/);
-		if(iCityExponent > 0)
+		if(iNumCities > 0 && MOD_BALANCE_CORE_PURCHASE_COST_INCREASE)
 		{
-			iCost *= (100 + iCityExponent);
-			iCost /= 100;
+			int iCityExponent = (iNumCities * GC.getBALANCE_CITY_PURCHASE_MOD() /*5*/);
+			if(iCityExponent > 0)
+			{
+				iCost *= (100 + iCityExponent);
+				iCost /= 100;
+			}
 		}
 	}
 #endif
@@ -5878,23 +5992,26 @@ int CvCity::GetPurchaseCost(BuildingTypes eBuilding)
 	iCost /= 100;
 
 #if defined(MOD_BALANCE_CORE_PURCHASE_COST_INCREASE)
-	//Increase cost based on # of cities in empire (helps Tall empires)
-	int iNumCities = GET_PLAYER(getOwner()).getNumCities();
-	if(iNumCities > 0 && MOD_BALANCE_CORE_PURCHASE_COST_INCREASE)
+	if(MOD_BALANCE_CORE_PURCHASE_COST_INCREASE)
 	{
-		int iCityExponent = (iNumCities * GC.getBALANCE_CITY_PURCHASE_MOD() /*5*/);
-		if(iCityExponent > 0)
+		//Increase cost based on # of cities in empire (helps Tall empires)
+		int iNumCities = GET_PLAYER(getOwner()).getNumCities();
+		if(iNumCities > 0 && MOD_BALANCE_CORE_PURCHASE_COST_INCREASE)
 		{
-			iCost *= (100 + iCityExponent);
+			int iCityExponent = (iNumCities * GC.getBALANCE_CITY_PURCHASE_MOD() /*5*/);
+			if(iCityExponent > 0)
+			{
+				iCost *= (100 + iCityExponent);
+				iCost /= 100;
+			}
+		}
+		//Increase cost based on # of techs researched.
+		int iTechProgress = (GET_TEAM(getTeam()).GetTeamTechs()->GetNumTechsKnown() * 100) / GC.getNumTechInfos();
+		if(iTechProgress > 0)
+		{
+			iCost *= (100 + iTechProgress);
 			iCost /= 100;
 		}
-	}
-	//Increase cost based on # of techs researched.
-	int iTechProgress = (GET_TEAM(getTeam()).GetTeamTechs()->GetNumTechsKnown() * 100) / GC.getNumTechInfos();
-	if(iTechProgress > 0)
-	{
-		iCost *= (100 + iTechProgress);
-		iCost /= 100;
 	}
 #endif
 
@@ -5937,15 +6054,18 @@ int CvCity::GetFaithPurchaseCost(BuildingTypes eBuilding)
 		iCost /= 100;
 	}
 #if defined(MOD_BALANCE_CORE_PURCHASE_COST_INCREASE)
-	//Increase cost based on # of cities in empire (helps Tall empires)
-	int iNumCities = GET_PLAYER(getOwner()).getNumCities();
-	if(iNumCities > 0 && MOD_BALANCE_CORE_PURCHASE_COST_INCREASE)
+	if(MOD_BALANCE_CORE_PURCHASE_COST_INCREASE)
 	{
-		int iCityExponent = (iNumCities * GC.getBALANCE_CITY_PURCHASE_MOD() /*5*/);
-		if(iCityExponent > 0)
+		//Increase cost based on # of cities in empire (helps Tall empires)
+		int iNumCities = GET_PLAYER(getOwner()).getNumCities();
+		if(iNumCities > 0 && MOD_BALANCE_CORE_PURCHASE_COST_INCREASE)
 		{
-			iCost *= (100 + iCityExponent);
-			iCost /= 100;
+			int iCityExponent = (iNumCities * GC.getBALANCE_CITY_PURCHASE_MOD() /*5*/);
+			if(iCityExponent > 0)
+			{
+				iCost *= (100 + iCityExponent);
+				iCost /= 100;
+			}
 		}
 	}
 #endif
@@ -6150,7 +6270,7 @@ int CvCity::getGeneralProductionModifiers(CvString* toolTipSink) const
 
 	// Railroad to capital?
 #if defined(MOD_BALANCE_CORE)
-	if(isCapital())
+	if(MOD_BALANCE_CORE && isCapital())
 	{
 		CvCity* pLoopCity;
 		int iLoop;
@@ -7792,7 +7912,10 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 #endif
 #if defined(MOD_BALANCE_CORE_POLICIES)
 			//Policy-Religion Fusion Yield Changes
-			changeReligionBuildingYieldRateModifier(eBuildingClass, eYield, (pPolicies->GetReligionBuildingClassYieldModifier(eBuildingClass, eYield) * iChange));
+			if(MOD_BALANCE_CORE_POLICIES)
+			{
+				changeReligionBuildingYieldRateModifier(eBuildingClass, eYield, (pPolicies->GetReligionBuildingClassYieldModifier(eBuildingClass, eYield) * iChange));
+			}
 #endif
 
 #if defined(MOD_API_UNIFIED_YIELDS)
@@ -8177,8 +8300,11 @@ void CvCity::UpdateReligion(ReligionTypes eNewMajority)
 #endif
 				}
 #if defined(MOD_BALANCE_CORE)
-				//Update for specialist changes.
-				updateExtraSpecialistYield();
+				if(MOD_BALANCE_CORE)
+				{
+					//Update for specialist changes.
+					updateExtraSpecialistYield();
+				}
 #endif
 
 				// Buildings
@@ -9665,7 +9791,7 @@ void CvCity::DoJONSCultureLevelIncrease()
 		CvGameReligions* pReligions = GC.getGame().GetGameReligions();
 
 		ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
-		if(eMajority != NO_RELIGION)
+		if(MOD_BALANCE_CORE_BELIEFS && eMajority != NO_RELIGION)
 		{
 			BeliefTypes eSecondaryPantheon = GetCityReligions()->GetSecondaryReligionPantheonBelief();
 
@@ -9981,7 +10107,7 @@ int CvCity::GetBaseJONSCulturePerTurn() const
 #endif
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
-	if(eMajority != NO_RELIGION && eMajority > RELIGION_PANTHEON)
+	if(MOD_BALANCE_CORE_POLICIES && eMajority != NO_RELIGION && eMajority > RELIGION_PANTHEON)
 	{
 		if(GET_PLAYER(getOwner()).GetReligions()->GetReligionInMostCities() == eMajority)
 		{	
@@ -10149,7 +10275,7 @@ int CvCity::GetFaithPerTurn() const
 #endif
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
-	if(eMajority != NO_RELIGION && eMajority > RELIGION_PANTHEON)
+	if(MOD_BALANCE_CORE_POLICIES && eMajority != NO_RELIGION && eMajority > RELIGION_PANTHEON)
 	{
 		if(GET_PLAYER(getOwner()).GetReligions()->GetReligionInMostCities() == eMajority)
 		{	
@@ -12961,7 +13087,7 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 
 #if defined(MOD_BALANCE_CORE_BELIEFS)
 	ReligionTypes eReligionFounded = GET_PLAYER(getOwner()).GetReligions()->GetReligionCreatedByPlayer();
-	if(eReligionFounded > RELIGION_PANTHEON)
+	if(MOD_BALANCE_CORE_BELIEFS && eReligionFounded > RELIGION_PANTHEON)
 	{
 		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligionFounded, getOwner());
 		if(pReligion)
@@ -13351,7 +13477,7 @@ int CvCity::GetBaseYieldRateFromBuildings(YieldTypes eIndex) const
 	int iMod = 0;
 	ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
 	CvCivilizationInfo& thisCivInfo = getCivilizationInfo();
-	if(eMajority != NO_RELIGION && eMajority > RELIGION_PANTHEON)
+	if(MOD_BALANCE_CORE_POLICIES && eMajority != NO_RELIGION && eMajority > RELIGION_PANTHEON)
 	{
 		if(GET_PLAYER(getOwner()).GetReligions()->GetReligionInMostCities() == eMajority)
 		{

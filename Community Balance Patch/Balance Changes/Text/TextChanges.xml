@@ -72,5 +72,9 @@
 		<Row Tag="TXT_KEY_NOTIFICATION_CITY_RESOURCE_WONDER_MOD_LATE">
 			<Text>{2_ResourceName:textkey} is now available in {1_CityName:textkey}! This increases [ICON_PRODUCTION] Production when building pre-Industrial Era Wonders in this city by {3_Num}%!</Text>
 		</Row>
+<!-- Aesthetics -->
+		<Row Tag="TXT_KEY_CO_CITY_TOURISM_POLICY_AESTHETICS">
+			<Text>{1_Num} [ICON_TOURISM] Tourism from World Wonders</Text>
+		</Row>
 	</Language_en_US>
 </GameData>

@@ -171,10 +171,7 @@ public:
 	void CreateSpy(void);
 	void ProcessSpy(uint uiSpyIndex);
 #if defined(MOD_BALANCE_CORE_SPIES)
-	void SetHighestPotential();
-	void SetEspionageRanking(CvCity* pCity);
 	void DoAdvancedAction(uint uiSpyIndex);
-	void DoRankIncreaseWarning(CvCity* pCity, int iRank);
 #endif
 	void UncoverIntrigue(uint uiSpyIndex);
 #if defined(MOD_BUGFIX_SPY_NAMES)
@@ -254,9 +251,7 @@ public:
 	SpyList m_aSpyList;
 	std::vector<int> m_aiSpyListNameOrder;
 	int m_iSpyListNameOrderIndex;
-#if defined(MOD_BALANCE_CORE_SPIES)
-	int m_iLargestBasePotential;
-#endif
+
 	PlayerTechList m_aaPlayerStealableTechList;
 	NumTechsToStealList m_aiNumTechsToStealList;
 	MaxTechCost m_aiMaxTechCost;

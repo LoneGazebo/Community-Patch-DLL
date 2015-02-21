@@ -809,10 +809,29 @@
 	<Row Class="6" Name="BALANCE_CORE_EMBARK_CITY_NO_COST" Value="0"/>
 	<!-- Pushed PtP minimum to XML - COMMUNITY_PATCH -->
 	<Row Class="6" Name="BALANCE_CORE_MINOR_PROTECTION" Value="0"/>
-	  <!-- Pushed Ideology start date to XML - COMMUNITY_PATCH -->
-	  <Row Class="6" Name="BALANCE_CORE_IDEOLOGY_START" Value="0"/>
-	  <!-- Pushed PtP minimum to XML - COMMUNITY_PATCH -->
-	  <Row Class="6" Name="BALANCE_CORE_WONDER_COST_INCREASE" Value="0"/>
+	<!-- Pushed Ideology start date to XML - COMMUNITY_PATCH -->
+	<Row Class="6" Name="BALANCE_CORE_IDEOLOGY_START" Value="0"/>
+	<!-- Wonder Costs increase as more are built - COMMUNITY_PATCH -->
+	<Row Class="6" Name="BALANCE_CORE_WONDER_COST_INCREASE" Value="0"/>
+	<!-- Specify units that can only be granted by CSs as gifted units - COMMUNITY_PATCH -->
+	<Row Class="6" Name="BALANCE_CORE_MINOR_CIV_GIFT" Value="0"/>
+	<!-- Changes to Civ Diplo AI - COMMUNITY_PATCH -->
+	<Row Class="6" Name="BALANCE_CORE_DIPLOMACY" Value="0"/>
+	<!-- Allows for advanced settlers - COMMUNITY_PATCH -->
+	<Row Class="6" Name="BALANCE_CORE_SETTLER_ADVANCED" Value="0"/>
+	<!-- Advanced changes to CBP AI - COMMUNITY_PATCH -->
+	<Row Class="6" Name="BALANCE_CORE_DIPLOMACY_ADVANCED" Value="0"/>
+	<!-- Advanced military changes (promotions) - COMMUNITY_PATCH -->
+	<Row Class="6" Name="BALANCE_CORE_MILITARY_PROMOTION_ADVANCED" Value="0"/>
+	<!-- Luxury Trait change (indonesia) - COMMUNITY_PATCH -->
+	<Row Class="6" Name="BALANCE_CORE_LUXURIES_TRAIT" Value="0"/>
+	<!-- Advanced Spy actions - COMMUNITY_PATCH -->
+	<Row Class="6" Name="BALANCE_CORE_SPIES_ADVANCED" Value="0"/>
+	<!-- Advanced Deal AI CBP - COMMUNITY_PATCH -->
+	<Row Class="6" Name="BALANCE_CORE_DEALS_ADVANCED" Value="0"/>
+	<!-- Military and City logging for CP - COMMUNITY_PATCH -->
+	<Row Class="6" Name="BALANCE_CORE_MILITARY_LOGGING" Value="0"/>
+
   </CustomModOptions>
 
   <CustomModPostDefines>

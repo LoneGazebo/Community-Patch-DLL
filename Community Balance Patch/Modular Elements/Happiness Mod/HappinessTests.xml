@@ -62,67 +62,67 @@
 		<Row>
 			<AICityStrategyType>AICITYSTRATEGY_NEED_HAPPINESS_DEFENSE</AICityStrategyType>
 			<FlavorType>FLAVOR_DEFENSE</FlavorType>
-			<Flavor>20</Flavor>
+			<Flavor>30</Flavor>
 		</Row>
 		<Row>
 			<AICityStrategyType>AICITYSTRATEGY_NEED_HAPPINESS_GOLD</AICityStrategyType>
 			<FlavorType>FLAVOR_GOLD</FlavorType>
-			<Flavor>65</Flavor>
+			<Flavor>80</Flavor>
 		</Row>
 		<Row>
 			<AICityStrategyType>AICITYSTRATEGY_NEED_HAPPINESS_GOLD</AICityStrategyType>
 			<FlavorType>FLAVOR_I_LAND_TRADE_ROUTE</FlavorType>
-			<Flavor>25</Flavor>
+			<Flavor>40</Flavor>
 		</Row>
 		<Row>
 			<AICityStrategyType>AICITYSTRATEGY_NEED_HAPPINESS_GOLD</AICityStrategyType>
 			<FlavorType>FLAVOR_I_SEA_TRADE_ROUTE</FlavorType>
-			<Flavor>25</Flavor>
+			<Flavor>40</Flavor>
 		</Row>
 		<Row>
 			<AICityStrategyType>AICITYSTRATEGY_NEED_HAPPINESS_CONNECTION</AICityStrategyType>
 			<FlavorType>FLAVOR_INFRASTRUCTURE</FlavorType>
-			<Flavor>20</Flavor>
+			<Flavor>30</Flavor>
 		</Row>
 		<Row>
 			<AICityStrategyType>AICITYSTRATEGY_NEED_HAPPINESS_CONNECTION</AICityStrategyType>
 			<FlavorType>FLAVOR_TILE_IMPROVEMENT</FlavorType>
-			<Flavor>10</Flavor>
+			<Flavor>20</Flavor>
 		</Row>
 		<Row>
 			<AICityStrategyType>AICITYSTRATEGY_NEED_HAPPINESS_CONNECTION</AICityStrategyType>
 			<FlavorType>FLAVOR_WATER_CONNECTION</FlavorType>
-			<Flavor>20</Flavor>
+			<Flavor>30</Flavor>
 		</Row>
 		<Row>
 			<AICityStrategyType>AICITYSTRATEGY_NEED_HAPPINESS_PILLAGE</AICityStrategyType>
 			<FlavorType>FLAVOR_TILE_IMPROVEMENT</FlavorType>
-			<Flavor>50</Flavor>
+			<Flavor>60</Flavor>
 		</Row>
 		<Row>
 			<AICityStrategyType>AICITYSTRATEGY_NEED_HAPPINESS_PILLAGE</AICityStrategyType>
 			<FlavorType>FLAVOR_DEFENSE</FlavorType>
-			<Flavor>25</Flavor>
+			<Flavor>35</Flavor>
 		</Row>
 		<Row>
 			<AICityStrategyType>AICITYSTRATEGY_NEED_HAPPINESS_PILLAGE</AICityStrategyType>
 			<FlavorType>FLAVOR_CITY_DEFENSE</FlavorType>
-			<Flavor>15</Flavor>
+			<Flavor>20</Flavor>
 		</Row>
 		<Row>
 			<AICityStrategyType>AICITYSTRATEGY_NEED_HAPPINESS_RELIGION</AICityStrategyType>
 			<FlavorType>FLAVOR_RELIGION</FlavorType>
-			<Flavor>35</Flavor>
+			<Flavor>40</Flavor>
 		</Row>
 		<Row>
 			<AICityStrategyType>AICITYSTRATEGY_NEED_HAPPINESS_STARVE</AICityStrategyType>
 			<FlavorType>FLAVOR_TILE_IMPROVEMENT</FlavorType>
-			<Flavor>35</Flavor>
+			<Flavor>40</Flavor>
 		</Row>
 		<Row>
 			<AICityStrategyType>AICITYSTRATEGY_NEED_HAPPINESS_STARVE</AICityStrategyType>
 			<FlavorType>FLAVOR_NAVAL_GROWTH</FlavorType>
-			<Flavor>25</Flavor>
+			<Flavor>40</Flavor>
 		</Row>
 		<Row>
 			<AICityStrategyType>AICITYSTRATEGY_NEED_HAPPINESS_STARVE</AICityStrategyType>

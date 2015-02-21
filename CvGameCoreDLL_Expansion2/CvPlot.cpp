@@ -9048,7 +9048,11 @@ int CvPlot::getFoundValue(PlayerTypes eIndex)
 
 	if(m_aiFoundValue[eIndex] == -1)
 	{
+#ifdef MOD_BALANCE_CORE_SETTLER
+		m_aiFoundValue[eIndex] = GET_PLAYER(eIndex).AI_foundValue(getX(), getY() );
+#else
 		m_aiFoundValue[eIndex] = GET_PLAYER(eIndex).AI_foundValue(getX(), getY(), -1, true);
+#endif
 	}
 
 	return m_aiFoundValue[eIndex];

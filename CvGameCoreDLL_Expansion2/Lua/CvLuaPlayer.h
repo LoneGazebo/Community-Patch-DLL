@@ -997,6 +997,10 @@ protected:
 
 	static int lGetExtraBuildingHappinessFromPolicies(lua_State* L);
 
+#if defined(MOD_BALANCE_CORE_POLICIES)
+	static int lGetExtraYieldWorldWonder(lua_State* L);
+#endif
+
 	static int lGetPrevCity(lua_State* L);
 	static int lGetNextCity(lua_State* L);
 
