@@ -505,8 +505,8 @@ bool CvAIOperation::CheckOnTarget()
 	int iUnitID;
 #if defined(MOD_BALANCE_CORE_SETTLER)
 	CvUnit* pCivilian = NULL;
+	CvUnit* pEscort = NULL;
 	CvPlot* pCivilianPlot = NULL;
-	CvPlot* pEscortPlot = NULL;
 #else
 	CvUnit* pCivilian;
 	CvPlot* pCivilianPlot = NULL;
@@ -532,15 +532,13 @@ bool CvAIOperation::CheckOnTarget()
 #if defined(MOD_BALANCE_CORE_SETTLER)
 					if(pCivilian != NULL)
 					{
-#endif
-					pCivilianPlot = pCivilian->plot();
-#if defined(MOD_BALANCE_CORE_SETTLER)
+						pCivilianPlot = pCivilian->plot();
 					}
-#endif
 				}
-#if defined(MOD_BALANCE_CORE_SETTLER)
 				if(pCivilianPlot != NULL && (m_eCurrentState==AI_OPERATION_STATE_MOVING_TO_TARGET || m_eCurrentState==AI_OPERATION_STATE_AT_TARGET) && pCivilianPlot == GetTargetPlot())
 #else
+					pCivilianPlot = pCivilian->plot();
+				}
 				if( m_eCurrentState == AI_OPERATION_STATE_MOVING_TO_TARGET && pCivilianPlot == GetTargetPlot())
 #endif
 				{
@@ -556,8 +554,13 @@ bool CvAIOperation::CheckOnTarget()
 					}
 					else
 					{
+#ifdef MOD_BALANCE_CORE_SETTLER
+						pEscort = GET_PLAYER(m_eOwner).getUnit(pThisArmy->GetNextUnitID());
+						if (pEscort && pCivilianPlot == pEscort->plot())
+#else
 						pEscortPlot = GET_PLAYER(m_eOwner).getUnit(pThisArmy->GetNextUnitID())->plot();
 						if(pCivilianPlot == pEscortPlot)
+#endif
 						{
 							ArmyInPosition(pThisArmy);
 							return true;

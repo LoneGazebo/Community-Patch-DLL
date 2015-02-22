@@ -700,7 +700,6 @@ void CvCityStrategyAI::PrecalcYieldAverages()
 			iYieldAmount += pPlot->calculateYield(eYield);
 		}
 
-		double dRatio = 0.0;
 		if(iTilesWorked > 0)
 			m_adYieldAvg[iI] = iYieldAmount / (double)iTilesWorked;
 		else

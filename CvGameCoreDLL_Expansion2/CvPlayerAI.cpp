@@ -2296,6 +2296,7 @@ CvPlot* CvPlayerAI::ChooseDiplomatTargetPlot(UnitHandle pUnit, int* piTurns)
 			iTurns = TurnsToReachTarget(pUnit, pLoopPlot, false /* bReusePaths */, iBestNumTurns);
 			if(iTurns < MAX_INT)
 			{
+				iDistance = plotDistance(pUnit->getX(), pUnit->getY(), pLoopPlot->getX(), pLoopPlot->getY());
 #else
 			iTurns = TurnsToReachTarget(pUnit, pLoopPlot, false /* bReusePaths */);
 			if(iTurns < MAX_INT)

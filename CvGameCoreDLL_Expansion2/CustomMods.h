@@ -105,6 +105,8 @@
 #define AUI_TACTICAL_EXECUTE_BARBARIAN_MOVES_PATROL_IF_ON_TARGET
 /// Civilians that are not moved with BarbarianCivilianEscortMove now move using passive barbarian move
 #define AUI_TACTICAL_EXECUTE_BARBARIAN_MOVES_CIVILIANS_MOVE_PASSIVELY
+/// Some robustness fixes
+#define AUI_TACTICAL_FIX_PLOT_NAVAL_ESCORT_OPERATION_MOVES_POSSIBLE_NULL_POINTER
 
 /// Adds a minimum danger amount for each plot, to discourage long routes
 #define AUI_TRADE_SCORE_TRADE_ROUTE_BASE_DANGER (1)

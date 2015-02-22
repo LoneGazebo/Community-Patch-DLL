@@ -4617,7 +4617,16 @@ void CvTacticalAI::PlotNavalEscortOperationMoves(CvAINavalEscortedOperation* pOp
 	{
 		pCivilian = m_pPlayer->getUnit(iUnitID);
 
-		iUnitID = pThisArmy->GetNextUnitID();
+#ifdef AUI_TACTICAL_FIX_PLOT_NAVAL_ESCORT_OPERATION_MOVES_POSSIBLE_NULL_POINTER
+		while (iUnitID != -1 && pEscort == NULL)
+		{
+			pEscort = m_pPlayer->getUnit(iUnitID);
+			if (pEscort && pEscort->getDomainType() != DOMAIN_LAND)
+			{
+				pEscort = NULL;   // This unit wasn't the escort
+			}
+			iUnitID = pThisArmy->GetNextUnitID();
+#else
 		if(iUnitID != -1)
 		{
 			pEscort = m_pPlayer->getUnit(iUnitID);
@@ -4625,6 +4634,7 @@ void CvTacticalAI::PlotNavalEscortOperationMoves(CvAINavalEscortedOperation* pOp
 			{
 				pEscort = NULL;   // Second unit wasn't the escort
 			}
+#endif // AUI_TACTICAL_FIX_PLOT_NAVAL_ESCORT_OPERATION_MOVES_POSSIBLE_NULL_POINTER
 		}
 	}
 
@@ -10245,7 +10255,11 @@ CvPlot* CvTacticalAI::FindBestBarbarianSeaMove(UnitHandle pUnit)
 	CvPlot* pBestMovePlot = NULL;
 	int iBestValue;
 	int iValue;
+#ifdef AUI_TACTICAL_FIX_FIND_BEST_BARBARIAN_SEA_MOVE_POSSIBLE_NULL_POINTER
+	CvPlot* pPlot = NULL;
+#else
 	CvPlot* pPlot;
+#endif // AUI_TACTICAL_FIX_FIND_BEST_BARBARIAN_SEA_MOVE_POSSIBLE_NULL_POINTER
 	CvTacticalTarget* pTarget;
 	int iMovementRate;
 
@@ -10261,9 +10275,17 @@ CvPlot* CvTacticalAI::FindBestBarbarianSeaMove(UnitHandle pUnit)
 		if(plotDistance(pUnit->getX(), pUnit->getY(), pTarget->GetTargetX(), pTarget->GetTargetY()) < m_iSeaBarbarianRange)
 		{
 			pPlot = GC.getMap().plot(pTarget->GetTargetX(), pTarget->GetTargetY());
+#ifdef AUI_TACTICAL_FIX_FIND_BEST_BARBARIAN_SEA_MOVE_POSSIBLE_NULL_POINTER
+			if (pPlot && pUnit->getArea() == pPlot->getArea())
+#else
 			if(pUnit->getArea() == pPlot->getArea())
+#endif // AUI_TACTICAL_FIX_FIND_BEST_BARBARIAN_SEA_MOVE_POSSIBLE_NULL_POINTER
 			{
+#ifdef AUI_ASTAR_TURN_LIMITER
+				iValue = TurnsToReachTarget(pUnit, pPlot, true /*bReusePaths*/, false, false, iBestValue);
+#else
 				iValue = TurnsToReachTarget(pUnit, pPlot, true /*bReusePaths*/);
+#endif // AUI_ASTAR_TURN_LIMITER
 				if(iValue < iBestValue)
 				{
 					iBestValue = iValue;
