@@ -5512,10 +5512,15 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 #if defined(MOD_BALANCE_CORE)
 					//Resource from improvement - change ownership if needed.
 					ResourceTypes eResourceFromImprovement = (ResourceTypes)pImprovementInfo->GetResourceFromImprovement();
+					int iQuantity = pImprovementInfo->GetResourceQuantityFromImprovement();
+					if(iQuantity <= 0)
+					{
+						iQuantity = 1;
+					}
 
 					if(eOldOwner != NO_PLAYER && eResourceFromImprovement != NO_IMPROVEMENT)
 					{
-						GET_PLAYER(eOldOwner).changeNumResourceTotal(eResourceFromImprovement, -1, true);
+						GET_PLAYER(eOldOwner).changeNumResourceTotal(eResourceFromImprovement, (-1 * iQuantity), true);
 					}
 #endif
 					// Maintenance change!
@@ -5685,10 +5690,15 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 #if defined(MOD_BALANCE_CORE)
 					//Resource from improvement - change ownership if needed.
 					ResourceTypes eResourceFromImprovement = (ResourceTypes)pImprovementInfo->GetResourceFromImprovement();
+					int iQuantity = pImprovementInfo->GetResourceQuantityFromImprovement();
+					if(iQuantity <= 0)
+					{
+						iQuantity = 1;
+					}
 
 					if(eResourceFromImprovement != NO_RESOURCE)
 					{
-						GET_PLAYER(eNewValue).changeNumResourceTotal(eResourceFromImprovement, 1, true);
+						GET_PLAYER(eNewValue).changeNumResourceTotal(eResourceFromImprovement, iQuantity, true);
 
 					}
 #endif
@@ -6817,10 +6827,14 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 #if defined(MOD_BALANCE_CORE)
 				//Resource from improvement - change ownership if needed.
 				ResourceTypes eResourceFromImprovement = (ResourceTypes)oldImprovementEntry.GetResourceFromImprovement();
-
+				int iQuantity = oldImprovementEntry.GetResourceQuantityFromImprovement();
+				if(iQuantity <= 0)
+				{
+					iQuantity = 1;
+				}
 				if(eResourceFromImprovement != NO_RESOURCE)
 				{
-					GET_PLAYER(eOldBuilder).changeNumResourceTotal(eResourceFromImprovement, -1, true);
+					GET_PLAYER(eOldBuilder).changeNumResourceTotal(eResourceFromImprovement, (-1 * iQuantity), true);
 				}
 #endif
 
@@ -6990,10 +7004,14 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 #if defined(MOD_BALANCE_CORE)
 				//Resource from improvement - change ownership if needed.
 				ResourceTypes eResourceFromImprovement = (ResourceTypes)newImprovementEntry.GetResourceFromImprovement();
-
+				int iQuantity = newImprovementEntry.GetResourceQuantityFromImprovement();
+				if(iQuantity <= 0)
+				{
+					iQuantity = 1;
+				}
 				if(eResourceFromImprovement != NO_RESOURCE)
 				{
-					owningPlayer.changeNumResourceTotal(eResourceFromImprovement, 1, true);
+					owningPlayer.changeNumResourceTotal(eResourceFromImprovement, iQuantity, true);
 				}
 #endif
 
@@ -7231,14 +7249,19 @@ void CvPlot::SetImprovementPillaged(bool bPillaged)
 		{
 			//Resource from improvement - change ownership if needed.
 			ResourceTypes eResourceFromImprovement = (ResourceTypes)GC.getImprovementInfo(getImprovementType())->GetResourceFromImprovement();
+			int iQuantity = GC.getImprovementInfo(getImprovementType())->GetResourceQuantityFromImprovement();
+			if(iQuantity <= 0)
+			{
+				iQuantity = 1;
+			}
 
 			if(bPillaged && (eResourceFromImprovement != NO_RESOURCE))
 			{
-				GET_PLAYER(getOwner()).changeNumResourceTotal(eResourceFromImprovement, -1, true);
+				GET_PLAYER(getOwner()).changeNumResourceTotal(eResourceFromImprovement, (-1 * iQuantity), true);
 			}
 			else if(!bPillaged && (eResourceFromImprovement != NO_RESOURCE))
 			{
-				GET_PLAYER(getOwner()).changeNumResourceTotal(eResourceFromImprovement, 1, true);
+				GET_PLAYER(getOwner()).changeNumResourceTotal(eResourceFromImprovement, iQuantity, true);
 			}
 		}
 #endif
@@ -9025,7 +9048,11 @@ int CvPlot::getFoundValue(PlayerTypes eIndex)
 
 	if(m_aiFoundValue[eIndex] == -1)
 	{
+#ifdef MOD_BALANCE_CORE_SETTLER
+		m_aiFoundValue[eIndex] = GET_PLAYER(eIndex).AI_foundValue(getX(), getY() );
+#else
 		m_aiFoundValue[eIndex] = GET_PLAYER(eIndex).AI_foundValue(getX(), getY(), -1, true);
+#endif
 	}
 
 	return m_aiFoundValue[eIndex];

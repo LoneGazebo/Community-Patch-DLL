@@ -55,6 +55,9 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 
 	Method(InitUnit);
 	Method(InitUnitWithNameOffset);
+#if defined(MOD_BALANCE_CORE)
+	Method(InitNamedUnit);
+#endif
 	Method(DisbandUnit);
 	Method(AddFreeUnit);
 
@@ -259,6 +262,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetInfluenceTradeRouteGoldBonus);
 	Method(GetWoundedUnitDamageMod);
 	Method(SetCapitalCity);
+	Method(SetOriginalCapitalXY);
 #endif
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE_POLICIES)
 	Method(GetNoUnhappinessExpansion);
@@ -991,6 +995,10 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 
 	Method(GetExtraBuildingHappinessFromPolicies);
 
+#if defined(MOD_BALANCE_CORE_POLICIES)
+	Method(GetExtraYieldWorldWonder);
+#endif
+
 	Method(GetNextCity);
 	Method(GetPrevCity);
 
@@ -1300,6 +1308,23 @@ int CvLuaPlayer::lInitUnitWithNameOffset(lua_State* L)
 	CvLuaUnit::Push(L, pkUnit);
 	return 1;
 }
+#if defined(MOD_BALANCE_CORE)
+//CvUnit* CvPlayer::initNamedUnit(UnitTypes eUnit, const char* strKey, int iX, int iY, UnitAITypes eUnitAI = NO_UNITAI, DirectionTypes eFacingDirection = NO_DIRECTION);
+int CvLuaPlayer::lInitNamedUnit(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const UnitTypes eUnit = (UnitTypes)lua_tointeger(L, 2);
+	const char* strKey = lua_tostring(L, 3);
+	const int x = lua_tointeger(L, 4);
+	const int y = lua_tointeger(L, 5);
+	const UnitAITypes eUnitAI = (UnitAITypes)luaL_optint(L, 6, NO_UNITAI);
+	const DirectionTypes eFacingDirection = (DirectionTypes)luaL_optint(L, 7, NO_DIRECTION);
+
+	CvUnit* pkUnit = pkPlayer->initNamedUnit(eUnit, strKey, x, y, eUnitAI, eFacingDirection);
+	CvLuaUnit::Push(L, pkUnit);
+	return 1;
+}
+#endif
 //------------------------------------------------------------------------------
 //void disbandUnit(bool bAnnounce);
 int CvLuaPlayer::lDisbandUnit(lua_State* L)
@@ -2652,6 +2677,15 @@ int CvLuaPlayer::lSetCapitalCity(lua_State* L)
 	CvCity* pkCity = CvLuaCity::GetInstance(L, 2);
 	
 	pkPlayer->setCapitalCity(pkCity);
+	return 0;
+}
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lSetOriginalCapitalXY(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	CvCity* pkCity = CvLuaCity::GetInstance(L, 2);
+	
+	pkPlayer->setOriginalCapitalXY(pkCity);
 	return 0;
 }
 #endif
@@ -10110,7 +10144,48 @@ int CvLuaPlayer::lGetExtraBuildingHappinessFromPolicies(lua_State* L)
 	lua_pushinteger(L, -1);
 	return 0;
 }
+#if defined(MOD_BALANCE_CORE_POLICIES)
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lGetExtraYieldWorldWonder(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	if(pkPlayer)
+	{
 
+		int iExtraYield = 0;
+		const BuildingTypes eBuilding = (BuildingTypes) lua_tointeger(L, 2);
+		const YieldTypes eYieldType = (YieldTypes)luaL_checkint(L, 3);
+		CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+		if(pkBuildingInfo)
+		{
+			if(::isWorldWonderClass(pkBuildingInfo->GetBuildingClassInfo()))
+			{
+				
+
+				for(int iPolicyLoop = 0; iPolicyLoop < GC.getNumPolicyInfos(); iPolicyLoop++)
+				{
+					const PolicyTypes ePolicy = static_cast<PolicyTypes>(iPolicyLoop);
+					CvPolicyEntry* pkPolicyInfo = GC.getPolicyInfo(ePolicy);
+					if(pkPolicyInfo)
+					{
+						if(pkPlayer->GetPlayerPolicies()->HasPolicy(ePolicy) && !pkPlayer->GetPlayerPolicies()->IsPolicyBlocked(ePolicy))
+						{
+							iExtraYield += pkPolicyInfo->GetYieldChangeWorldWonder(eYieldType);
+						}
+					}
+				}
+			}
+
+			lua_pushinteger(L, iExtraYield);
+			return 1;
+		}
+	}
+
+	//BUG: This can't be right...
+	lua_pushinteger(L, -1);
+	return 0;
+}
+#endif
 
 //------------------------------------------------------------------------------
 int CvLuaPlayer::lGetNextCity(lua_State* L)
@@ -11490,7 +11565,8 @@ int CvLuaPlayer::lGetEspionageCityStatus(lua_State* L)
 
 	lua_createtable(L, 0, 0);
 	int index = 1;
-
+#if defined(MOD_BALANCE_CORE_SPIES_ADVANCED)
+#else
 	// first pass to get the largest base potential available
 	int iLargestBasePotential = 0;
 	for(int i = 0; i < MAX_PLAYERS; ++i)
@@ -11526,7 +11602,7 @@ int CvLuaPlayer::lGetEspionageCityStatus(lua_State* L)
 			}
 		}
 	}
-
+#endif
 	// second pass to set the values
 	for(int i = 0; i < MAX_PLAYERS; ++i)
 	{
@@ -11543,7 +11619,10 @@ int CvLuaPlayer::lGetEspionageCityStatus(lua_State* L)
 		{
 			if(pkPlayerEspionage->CanEverMoveSpyTo(pCity))
 			{
+#if defined(MOD_BALANCE_CORE_SPIES_ADVANCED)
+#else
 				CvCityEspionage* pCityEspionage = pCity->GetCityEspionage();
+#endif
 				lua_createtable(L, 0, 0);
 				const int t = lua_gettop(L);
 
@@ -11571,7 +11650,17 @@ int CvLuaPlayer::lGetEspionageCityStatus(lua_State* L)
 
 				lua_pushinteger(L, pCity->getPopulation());
 				lua_setfield(L, t, "Population");
+#if defined(MOD_BALANCE_CORE_SPIES_ADVANCED)
+				int iRate = pCity->GetRank();
+				lua_pushinteger(L, iRate);
+				lua_setfield(L, t, "Potential");
 
+				lua_pushinteger(L, iRate);
+				lua_setfield(L, t, "BasePotential");
+
+				lua_pushinteger(L, 10);
+				lua_setfield(L, t, "LargestBasePotential");
+#else
 				if(pCity->getOwner() == pkThisPlayer->GetID())
 				{
 					int iRate = pkPlayerEspionage->CalcPerTurn(SPY_STATE_GATHERING_INTEL, pCity, -1);
@@ -11595,7 +11684,7 @@ int CvLuaPlayer::lGetEspionageCityStatus(lua_State* L)
 
 				lua_pushinteger(L, iLargestBasePotential);
 				lua_setfield(L, t, "LargestBasePotential");
-
+#endif
 				lua_rawseti(L, -2, index++);
 			}
 		}

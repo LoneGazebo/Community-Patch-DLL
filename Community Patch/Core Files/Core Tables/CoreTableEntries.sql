@@ -290,6 +290,9 @@ ALTER TABLE Units ADD COLUMN 'PuppetPurchaseOverride' boolean default false;
 -- Grants resource to improvement
 ALTER TABLE Improvements ADD COLUMN 'ImprovementResource' text default NULL;
 
+-- Grants resource number for improvement
+ALTER TABLE Improvements ADD COLUMN 'ImprovementResourceQuantity' integer default 0;
+
 -- Grants obsoletion tech to build (tie to improvement below for function)
 ALTER TABLE Builds ADD COLUMN 'ObsoleteTech' text default NULL;
 

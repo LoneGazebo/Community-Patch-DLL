@@ -3029,10 +3029,13 @@ void CvTacticalAI::PlotHealMoves()
 #if defined(MOD_AI_SMART_HEALING)
 			int iHealingLimit = pUnit->GetMaxHitPoints() * 9 / 10;
 
-			if (MOD_AI_SMART_HEALING) {
+			if (MOD_AI_SMART_HEALING) 
+			{
 				CvPlot* unitPlot = pUnit->plot();
-				if (m_pPlayer->GetPlotDanger(*unitPlot) > 0)
+				if (!unitPlot->isCity() && (unitPlot->getOwner() != pUnit->getOwner()) && m_pPlayer->GetPlotDanger(*unitPlot) > 0)
+				{
 					iHealingLimit = 0;
+				}
 			}
 #endif
 

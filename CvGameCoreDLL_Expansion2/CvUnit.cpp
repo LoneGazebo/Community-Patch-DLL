@@ -387,6 +387,541 @@ void CvUnit::init(int iID, UnitTypes eUnit, UnitAITypes eUnitAI, PlayerTypes eOw
 }
 
 // ---------------------------------------------------------------------------------
+#if defined(MOD_BALANCE_CORE)
+//	--------------------------------------------------------------------------------
+void CvUnit::initWithSpecificName(int iID, UnitTypes eUnit, const char* strKey, UnitAITypes eUnitAI, PlayerTypes eOwner, int iX, int iY, DirectionTypes eFacingDirection, bool bNoMove, bool bSetupGraphical, int iMapLayer, int iNumGoodyHutsPopped)
+{
+	VALIDATE_OBJECT
+	CvString strBuffer;
+	int iI;
+
+	CvAssert(NO_UNIT != eUnit);
+
+	initPromotions();
+	m_pReligion->Init();
+
+	//--------------------------------
+	// Init saved data
+	reset(iID, eUnit, eOwner);
+
+	if(eFacingDirection == NO_DIRECTION)
+		m_eFacingDirection = DIRECTION_SOUTHEAST;
+	else
+		m_eFacingDirection = eFacingDirection;
+
+	// If this is a hovering unit, we must add that promotion before setting XY, or else it'll get the embark promotion (which we don't want)
+	PromotionTypes ePromotion;
+	for(iI = 0; iI < GC.getNumPromotionInfos(); iI++)
+	{
+		if(getUnitInfo().GetFreePromotions(iI))
+		{
+			ePromotion = (PromotionTypes) iI;
+
+			if(GC.getPromotionInfo(ePromotion)->IsHoveringUnit())
+				setHasPromotion(ePromotion, true);
+		}
+	}
+
+	// Set the layer of the map the unit resides
+	m_iMapLayer = iMapLayer;
+	
+	// Set num goody huts popped
+	m_iNumGoodyHutsPopped = iNumGoodyHutsPopped;
+
+	//--------------------------------
+	// Init containers
+
+	//--------------------------------
+	// Init pre-setup() data
+	setXY(iX, iY, false, false, false, false, bNoMove);
+
+	//--------------------------------
+	// Init non-saved data
+
+	//--------------------------------
+	// Init other game data
+	plot()->updateCenterUnit();
+
+	SetGreatWork(NO_GREAT_WORK);
+
+
+	if(strKey != NULL)
+	{
+		int iNumNames = getUnitInfo().GetNumUnitNames();
+		//Look for units from previous and current eras.
+		for(iI = 0; iI < iNumNames; iI++)
+		{
+			if(getUnitInfo().GetUnitNames(iI) == strKey)
+			{
+				CvString strName = getUnitInfo().GetUnitNames(iI);	
+				setName(strName);
+				SetGreatWork(getUnitInfo().GetGreatWorks(iI));
+				GC.getGame().addGreatPersonBornName(strName);
+				break;
+			}
+		}
+	}
+	else
+	{
+		return;
+	}
+	setGameTurnCreated(GC.getGame().getGameTurn());
+
+	GC.getGame().incrementUnitCreatedCount(getUnitType());
+
+	CvPlayer& kPlayer = GET_PLAYER(getOwner());
+
+	GC.getGame().incrementUnitClassCreatedCount((UnitClassTypes)(getUnitInfo().GetUnitClassType()));
+	GET_TEAM(getTeam()).changeUnitClassCount(((UnitClassTypes)(getUnitInfo().GetUnitClassType())), 1);
+	kPlayer.changeUnitClassCount(((UnitClassTypes)(getUnitInfo().GetUnitClassType())), 1);
+
+	// Builder Limit
+	if(getUnitInfo().GetWorkRate() > 0 && getUnitInfo().GetDomainType() == DOMAIN_LAND)
+	{
+		kPlayer.ChangeNumBuilders(1);
+	}
+
+	// Units can add Unhappiness
+	if(GC.getUnitInfo(getUnitType())->GetUnhappiness() != 0)
+	{
+		kPlayer.ChangeUnhappinessFromUnits(GC.getUnitInfo(getUnitType())->GetUnhappiness());
+	}
+
+	kPlayer.changeExtraUnitCost(getUnitInfo().GetExtraMaintenanceCost());
+
+	// Add Resource Quantity to Used
+	for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+	{
+		if(getUnitInfo().GetResourceQuantityRequirement(iResourceLoop) > 0)
+		{
+			kPlayer.changeNumResourceUsed((ResourceTypes) iResourceLoop, GC.getUnitInfo(getUnitType())->GetResourceQuantityRequirement(iResourceLoop));
+		}
+	}
+
+	if(getUnitInfo().GetNukeDamageLevel() != -1)
+	{
+		kPlayer.changeNumNukeUnits(1);
+	}
+
+	if(getUnitInfo().IsMilitarySupport())
+	{
+		kPlayer.changeNumMilitaryUnits(1);
+	}
+
+	// Free Promotions from Unit XML
+	for(iI = 0; iI < GC.getNumPromotionInfos(); iI++)
+	{
+		if(getUnitInfo().GetFreePromotions(iI))
+		{
+			ePromotion = (PromotionTypes) iI;
+
+			if(!GC.getPromotionInfo(ePromotion)->IsHoveringUnit())	// Hovering units handled above
+				setHasPromotion(ePromotion, true);
+		}
+	}
+
+	const UnitCombatTypes unitCombatType = getUnitCombatType();
+	if(unitCombatType != NO_UNITCOMBAT)
+	{
+		// Any free Promotions to apply?
+		for(int iJ = 0; iJ < GC.getNumPromotionInfos(); iJ++)
+		{
+			const PromotionTypes promotionID = (PromotionTypes)iJ;
+			if(kPlayer.GetPlayerTraits()->HasFreePromotionUnitCombat(promotionID, unitCombatType))
+			{
+				setHasPromotion(promotionID, true);
+			}
+		}
+	}
+	const UnitClassTypes unitClassType = getUnitClassType();
+	if(unitClassType != NO_UNITCLASS)
+	{
+		// Any free Promotions to apply?
+		for(int iJ = 0; iJ < GC.getNumPromotionInfos(); iJ++)
+		{
+			const PromotionTypes promotionID = (PromotionTypes)iJ;
+			if(kPlayer.GetPlayerTraits()->HasFreePromotionUnitClass(promotionID, unitClassType))
+			{
+				setHasPromotion(promotionID, true);
+			}
+		}
+	}
+
+	// Free Promotions from Policies, Techs, etc.
+	for(iI = 0; iI < GC.getNumPromotionInfos(); iI++)
+	{
+		ePromotion = (PromotionTypes) iI;
+
+		if(kPlayer.IsFreePromotion(ePromotion))
+		{
+			// Valid Promotion for this Unit?
+			if(::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()))
+			{
+				setHasPromotion(ePromotion, true);
+			}
+
+			else if(::IsPromotionValidForCivilianUnitType(ePromotion, getUnitType()))
+			{
+				setHasPromotion(ePromotion, true);
+			}
+
+		}
+	}
+	// Feature that provides free promotion for spawn?
+	FeatureTypes eFeature = plot()->getFeatureType();
+	if(eFeature != NO_FEATURE)
+	{
+		PromotionTypes ePromotion = (PromotionTypes)GC.getFeatureInfo(eFeature)->getSpawnLocationUnitFreePromotion();
+		if(ePromotion != NO_PROMOTION)
+		{
+			if(GC.getFeatureInfo(eFeature)->isBarbarianOnly())
+			{
+				// Is this a valid Promotion for the UnitCombatType?
+				if(GET_PLAYER(getOwner()).isBarbarian())
+				{
+					if(m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT &&
+							(::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
+					{
+						setHasPromotion(ePromotion, true);
+					}
+				}
+			}
+			if(GC.getFeatureInfo(eFeature)->isCityStateOnly())
+			{
+				// Is this a valid Promotion for the UnitCombatType?
+				if(GET_PLAYER(getOwner()).isMinorCiv())
+				{
+					if(m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT &&
+							(::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
+					{
+						setHasPromotion(ePromotion, true);
+					}
+				}
+			}
+			else if(!GC.getFeatureInfo(eFeature)->isBarbarianOnly() && !GC.getFeatureInfo(eFeature)->isCityStateOnly())
+			{
+				// Is this a valid Promotion for the UnitCombatType?
+				if(m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT &&
+						(::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
+				{
+					setHasPromotion(ePromotion, true);
+				}
+			}
+		}
+	}
+	// Starting terrain that provides free promotions?
+	TerrainTypes eTerrain = plot()->getTerrainType();
+	if(eTerrain != NO_TERRAIN)
+	{
+		PromotionTypes ePromotion = (PromotionTypes)GC.getTerrainInfo(eTerrain)->getSpawnLocationUnitFreePromotion();
+		if(ePromotion != NO_PROMOTION)
+		{
+			if(GC.getTerrainInfo(eTerrain)->isBarbarianOnly())
+			{
+				// Is this a valid Promotion for the UnitCombatType?
+				if(GET_PLAYER(getOwner()).isBarbarian())
+				{
+					if(m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT &&
+							(::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
+					{
+						setHasPromotion(ePromotion, true);
+					}
+				}
+			}
+			if(GC.getTerrainInfo(eTerrain)->isCityStateOnly())
+			{
+				// Is this a valid Promotion for the UnitCombatType?
+				if(GET_PLAYER(getOwner()).isMinorCiv())
+				{
+					if(m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT &&
+							(::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
+					{
+						setHasPromotion(ePromotion, true);
+					}
+				}
+			}
+			else if(!GC.getTerrainInfo(eTerrain)->isBarbarianOnly() && !GC.getTerrainInfo(eTerrain)->isCityStateOnly())
+			{
+				// Is this a valid Promotion for the UnitCombatType?
+				if(m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT &&
+						(::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
+				{
+					setHasPromotion(ePromotion, true);
+				}
+			}
+		}
+	}
+	// Adjacent terrain that provides free promotions?
+	CvPlot* pAdjacentPlot;
+	for(iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
+	{
+		pAdjacentPlot = plotDirection(plot()->getX(), plot()->getY(), ((DirectionTypes)iI));
+
+		if(pAdjacentPlot != NULL)
+		{
+			FeatureTypes eFeature = pAdjacentPlot->getFeatureType();
+			if(eFeature != NO_FEATURE)
+			{
+				PromotionTypes ePromotion = (PromotionTypes)GC.getTerrainInfo(eTerrain)->getAdjacentUnitFreePromotion();
+				if(ePromotion != NO_PROMOTION)
+				{
+					if(GC.getTerrainInfo(eTerrain)->isBarbarianOnly())
+					{
+						// Is this a valid Promotion for the UnitCombatType?
+						if(GET_PLAYER(getOwner()).isBarbarian())
+						{
+							if(m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT &&
+									(::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
+							{
+								setHasPromotion(ePromotion, true);
+							}
+						}
+					}
+					if(GC.getTerrainInfo(eTerrain)->isCityStateOnly())
+					{
+						// Is this a valid Promotion for the UnitCombatType?
+						if(GET_PLAYER(getOwner()).isMinorCiv())
+						{
+							if(m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT &&
+									(::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
+							{
+								setHasPromotion(ePromotion, true);
+							}
+						}
+					}
+					else if(!GC.getTerrainInfo(eTerrain)->isBarbarianOnly() && !GC.getTerrainInfo(eTerrain)->isCityStateOnly())
+					{
+						// Is this a valid Promotion for the UnitCombatType?
+						if(m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT &&
+								(::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
+						{
+							setHasPromotion(ePromotion, true);
+						}
+					}
+				}
+			}
+		}
+	}
+
+	// Give embark promotion for free?
+	if(GET_TEAM(getTeam()).canEmbark() || kPlayer.GetPlayerTraits()->IsEmbarkedAllWater())
+	{
+		PromotionTypes ePromotionEmbarkation = kPlayer.GetEmbarkationPromotion();
+
+		bool bGivePromotion = false;
+
+		// Civilians get it for free
+		if(getDomainType() == DOMAIN_LAND)
+		{
+			if(!IsCombatUnit())
+				bGivePromotion = true;
+		}
+
+		// Can the unit get this? (handles water units and such)
+		if(!bGivePromotion && ::IsPromotionValidForUnitCombatType(ePromotionEmbarkation, getUnitType()))
+			bGivePromotion = true;
+
+		// Some case that gives us the promotion?
+		if(bGivePromotion)
+			setHasPromotion(ePromotionEmbarkation, true);
+	}
+	
+#if defined(MOD_PROMOTIONS_DEEP_WATER_EMBARKATION)
+	// Flip Deep Water Embarkation to Defensive Deep Water Embarkation if the player has the required trait
+	if (IsEmbarkDeepWater()) {
+		setHasPromotion((PromotionTypes)GC.getPROMOTION_DEEPWATER_EMBARKATION(), false);
+		setHasPromotion(kPlayer.GetDeepWaterEmbarkationPromotion(), true);
+	}
+#endif
+
+	// Strip off Ocean Impassable promotion because of trait?
+	if(kPlayer.GetPlayerTraits()->IsEmbarkedAllWater())
+	{
+		PromotionTypes ePromotionOceanImpassable = (PromotionTypes)GC.getPROMOTION_OCEAN_IMPASSABLE();
+		if(isHasPromotion(ePromotionOceanImpassable))
+		{
+			setHasPromotion(ePromotionOceanImpassable, false);
+		}
+		PromotionTypes ePromotionOceanImpassableUntilAstronomy = (PromotionTypes)GC.getPROMOTION_OCEAN_IMPASSABLE_UNTIL_ASTRONOMY();
+		if(isHasPromotion(ePromotionOceanImpassableUntilAstronomy))
+		{
+			setHasPromotion(ePromotionOceanImpassableUntilAstronomy, false);
+		}
+	}
+
+	// Any exotic goods that can be sold? (Portuguese unique unit mission)
+	if (getUnitInfo().GetNumExoticGoods() > 0)
+	{
+		changeNumExoticGoods(getUnitInfo().GetNumExoticGoods());
+	}
+
+	// free XP from handicap?
+	int iXP = GC.getGame().getHandicapInfo().getAIFreeXP();
+	if (iXP && !kPlayer.isHuman() && /*kPlayer.GetID() < MAX_MAJOR_CIVS &&*/ canAcquirePromotionAny())
+	{
+		changeExperience(iXP);
+	}
+
+	// bonus xp in combat from handicap?
+	int iXPPercent = GC.getGame().getHandicapInfo().getAIFreeXPPercent();
+	if (iXPPercent && !kPlayer.isHuman() && /*kPlayer.GetID() < MAX_MAJOR_CIVS &&*/ canAcquirePromotionAny())
+	{
+		changeExperiencePercent(iXPPercent);
+	}
+
+
+	// Is this Unit immobile?
+	if(getUnitInfo().IsImmobile())
+	{
+		SetImmobile(true);
+	}
+
+	setMoves(maxMoves());
+
+	// Religious unit? If so takes religion from city
+	if (getUnitInfo().IsSpreadReligion() || getUnitInfo().IsRemoveHeresy())
+	{
+		CvCity *pPlotCity = plot()->getPlotCity();
+		if (pPlotCity)
+		{
+			ReligionTypes eReligion = pPlotCity->GetCityReligions()->GetReligiousMajority();
+			if (eReligion > RELIGION_PANTHEON)
+			{
+				GetReligionData()->SetReligion(eReligion);
+				GetReligionData()->SetSpreadsLeft(getUnitInfo().GetReligionSpreads() + pPlotCity->GetCityBuildings()->GetMissionaryExtraSpreads());
+				GetReligionData()->SetReligiousStrength(getUnitInfo().GetReligiousStrength());
+			}
+		}
+#if defined(MOD_GLOBAL_RELIGIOUS_SETTLERS)
+	}
+	else if (MOD_GLOBAL_RELIGIOUS_SETTLERS && (getUnitInfo().IsFound() || getUnitInfo().IsFoundAbroad() || getUnitInfo().IsFoundMid() || getUnitInfo().IsFoundLate()))
+	{
+		ReligionTypes eReligion = RELIGION_PANTHEON;
+
+		CvCity *pPlotCity = plot()->getPlotCity();
+		if (pPlotCity)
+		{
+			CvCityReligions *pCityReligions = pPlotCity->GetCityReligions();
+
+			int totalFollowers = pPlotCity->getPopulation();
+			int randFollower = GC.getGame().getJonRandNum(totalFollowers, "Religious Settlers: Picking a random religion for the settler") + 1;
+
+			for (int i = RELIGION_PANTHEON; i < GC.getNumReligionInfos(); i++)
+			{
+				int theseFollowers = pCityReligions->GetNumFollowers((ReligionTypes) i);
+
+				if (randFollower <= theseFollowers)
+				{
+					eReligion = (ReligionTypes) i;
+					break;
+				}
+
+				randFollower = randFollower - theseFollowers;
+				if (randFollower < 0) break;
+			}
+		}
+
+		GetReligionData()->SetReligion(eReligion);
+#endif
+	}
+	if (getUnitInfo().GetOneShotTourism() > 0)
+	{
+		SetTourismBlastStrength(kPlayer.GetCulture()->GetTourismBlastStrength(getUnitInfo().GetOneShotTourism()));
+	}
+
+	int iTourism = kPlayer.GetPlayerPolicies()->GetTourismFromUnitCreation((UnitClassTypes)(getUnitInfo().GetUnitClassType()));
+	if (iTourism > 0)
+	{
+		kPlayer.GetCulture()->AddTourismAllKnownCivs(iTourism);
+	}
+
+	// Recon unit? If so, he sees what's around him
+	if(IsRecon())
+	{
+		setReconPlot(plot());
+	}
+
+	if(getDomainType() == DOMAIN_LAND)
+	{
+		if(IsCombatUnit())
+		{
+			if((GC.getGame().getBestLandUnit() == NO_UNIT) || (GetBaseCombatStrength() > GC.getGame().getBestLandUnitCombat()))
+			{
+				GC.getGame().setBestLandUnit(getUnitType());
+			}
+		}
+	}
+
+	// Update UI
+	if(getOwner() == GC.getGame().getActivePlayer())
+	{
+		DLLUI->setDirty(GameData_DIRTY_BIT, true);
+
+		kPlayer.GetUnitCycler().AddUnit( GetID() );
+	}
+
+	// Message for World Unit being born
+	if(isWorldUnitClass((UnitClassTypes)(getUnitInfo().GetUnitClassType())))
+	{
+		for(iI = 0; iI < MAX_PLAYERS; iI++)
+		{
+			if(GET_PLAYER((PlayerTypes)iI).isAlive() && GC.getGame().getActivePlayer())
+			{
+				if(GET_TEAM(getTeam()).isHasMet(GET_PLAYER((PlayerTypes)iI).getTeam()))
+				{
+					strBuffer = GetLocalizedText("TXT_KEY_MISC_SOMEONE_CREATED_UNIT", kPlayer.getNameKey(), getNameKey());
+					DLLUI->AddMessage(0, ((PlayerTypes)iI), false, GC.getEVENT_MESSAGE_TIME(), strBuffer/*, "AS2D_WONDER_UNIT_BUILD", MESSAGE_TYPE_MAJOR_EVENT, getUnitInfo().GetButton(), (ColorTypes)GC.getInfoTypeForString("COLOR_UNIT_TEXT"), getX(), getY(), true, true*/);
+				}
+				else
+				{
+					strBuffer = GetLocalizedText("TXT_KEY_MISC_UNKNOWN_CREATED_UNIT", getNameKey());
+					DLLUI->AddMessage(0, ((PlayerTypes)iI), false, GC.getEVENT_MESSAGE_TIME(), strBuffer/*, "AS2D_WONDER_UNIT_BUILD", MESSAGE_TYPE_MAJOR_EVENT, getUnitInfo().GetButton(), (ColorTypes)GC.getInfoTypeForString("COLOR_UNIT_TEXT")*/);
+				}
+			}
+		}
+
+		strBuffer = GetLocalizedText("TXT_KEY_MISC_SOMEONE_CREATED_UNIT", kPlayer.getNameKey(), getNameKey());
+		GC.getGame().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, getOwner(), strBuffer, getX(), getY());
+	}
+
+	// Update City Strength
+	if(plot()->isCity())
+	{
+		plot()->getPlotCity()->updateStrengthValue();
+	}
+
+	m_iArmyId = FFreeList::INVALID_INDEX;
+
+	m_eUnitAIType = eUnitAI;
+
+	// Update Unit Production Maintenance
+	kPlayer.UpdateUnitProductionMaintenanceMod();
+
+	// Minor Civ quest
+	if(!kPlayer.isMinorCiv() && !isBarbarian())
+	{
+		PlayerTypes eMinor;
+		for(int iMinorCivLoop = MAX_MAJOR_CIVS; iMinorCivLoop < MAX_CIV_PLAYERS; iMinorCivLoop++)
+		{
+			eMinor = (PlayerTypes) iMinorCivLoop;
+			if(GET_PLAYER(eMinor).isAlive())
+			{
+				// Does this Minor want us to spawn a Unit?
+				GET_PLAYER(eMinor).GetMinorCivAI()->DoTestActiveQuestsForPlayer(getOwner(), /*bTestComplete*/ true, /*bTestObsolete*/ false, MINOR_CIV_QUEST_GREAT_PERSON);
+			}
+		}
+	}
+
+	if(bSetupGraphical)
+		setupGraphical();
+		
+#if defined(MOD_EVENTS_UNIT_CREATED)
+	if (MOD_EVENTS_UNIT_CREATED) {
+		GAMEEVENTINVOKE_HOOK(GAMEEVENT_UnitCreated, getOwner(), GetID(), getUnitType(), getX(), getY());
+	}
+#endif
+}
+#endif
 //	--------------------------------------------------------------------------------
 void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitAITypes eUnitAI, PlayerTypes eOwner, int iX, int iY, DirectionTypes eFacingDirection, bool bNoMove, bool bSetupGraphical, int iMapLayer, int iNumGoodyHutsPopped)
 {
@@ -537,7 +1072,6 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 		}
 #endif
 	}
-
 	setGameTurnCreated(GC.getGame().getGameTurn());
 
 	GC.getGame().incrementUnitCreatedCount(getUnitType());
@@ -880,9 +1414,40 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 				GetReligionData()->SetReligiousStrength(getUnitInfo().GetReligiousStrength());
 			}
 		}
+#if defined(MOD_GLOBAL_RELIGIOUS_SETTLERS) && defined(MOD_BALANCE_CORE_SETTLER_ADVANCED)
+	}
+	else if (MOD_GLOBAL_RELIGIOUS_SETTLERS && MOD_BALANCE_CORE_SETTLER_ADVANCED && (getUnitInfo().IsFound() || getUnitInfo().IsFoundAbroad() || getUnitInfo().IsFoundMid() || getUnitInfo().IsFoundLate()))
+	{
+		ReligionTypes eReligion = RELIGION_PANTHEON;
+
+		CvCity *pPlotCity = plot()->getPlotCity();
+		if (pPlotCity)
+		{
+			CvCityReligions *pCityReligions = pPlotCity->GetCityReligions();
+
+			int totalFollowers = pPlotCity->getPopulation();
+			int randFollower = GC.getGame().getJonRandNum(totalFollowers, "Religious Settlers: Picking a random religion for the settler") + 1;
+
+			for (int i = RELIGION_PANTHEON; i < GC.getNumReligionInfos(); i++)
+			{
+				int theseFollowers = pCityReligions->GetNumFollowers((ReligionTypes) i);
+
+				if (randFollower <= theseFollowers)
+				{
+					eReligion = (ReligionTypes) i;
+					break;
+				}
+
+				randFollower = randFollower - theseFollowers;
+				if (randFollower < 0) break;
+			}
+		}
+
+		GetReligionData()->SetReligion(eReligion);
+#endif
 #if defined(MOD_GLOBAL_RELIGIOUS_SETTLERS)
 	}
-	else if (MOD_GLOBAL_RELIGIOUS_SETTLERS && (getUnitInfo().IsFound() || getUnitInfo().IsFoundAbroad() || getUnitInfo().IsFoundMid() || getUnitInfo().IsFoundLate()))
+	else if (MOD_GLOBAL_RELIGIOUS_SETTLERS && (getUnitInfo().IsFound() || getUnitInfo().IsFoundAbroad()))
 	{
 		ReligionTypes eReligion = RELIGION_PANTHEON;
 
@@ -3748,10 +4313,9 @@ void CvUnit::move(CvPlot& targetPlot, bool bShow)
 	if(bScout)
 	{
 		int iExperience = GC.getBALANCE_SCOUT_XP_BASE();
-		int iVisRange = visibilityRange();
+		int iRange = visibilityRange();
 		TeamTypes eTeam = getTeam();
-		int iReveal = false;
-		int iRange = iVisRange;
+		int iReveal = 0;
 		for (int i = -iRange; i <= iRange; ++i)
 		{
 			for (int j = -iRange; j <= iRange; ++j)
@@ -3759,12 +4323,12 @@ void CvUnit::move(CvPlot& targetPlot, bool bShow)
 				CvPlot* pLoopPlot = ::plotXYWithRangeCheck(targetPlot.getX(), targetPlot.getY(), i, j, iRange);
 				if (NULL != pLoopPlot)
 				{
-					if (!pLoopPlot->isRevealed(eTeam) && targetPlot.canSeePlot(pLoopPlot, eTeam, iVisRange, NO_DIRECTION))
+					if (!pLoopPlot->isRevealed(eTeam) && targetPlot.canSeePlot(pLoopPlot, eTeam, iRange, NO_DIRECTION))
 					{
 						if(pLoopPlot->IsNaturalWonder())
 						{
-							iExperience = GC.getBALANCE_SCOUT_XP_NATURAL_WONDER();
-							iReveal += GC.getBALANCE_SCOUT_XP_RANDOM_VALUE();
+							iExperience += GC.getBALANCE_SCOUT_XP_NATURAL_WONDER();
+							iReveal += GC.getBALANCE_SCOUT_XP_RANDOM_VALUE() + 1;
 						}
 						else
 						{
@@ -3779,7 +4343,7 @@ void CvUnit::move(CvPlot& targetPlot, bool bShow)
 			//Up to max barb value - rest has to come through combat!
 			if(getExperience() < GC.getBALANCE_SCOUT_XP_MAXIMUM())
 			{
-				changeExperience(iExperience, -1, false, false, false);
+				changeExperience(iExperience);
 			}
 		}
 	}
@@ -8046,12 +8610,12 @@ bool CvUnit::found()
 #endif
 	}
 
-#if defined(MOD_BALANCE_CORE_SETTLER)
-	if(MOD_BALANCE_CORE_SETTLER && m_pUnitInfo->IsFoundMid())
+#if defined(MOD_BALANCE_CORE_SETTLER_ADVANCED)
+	if(MOD_BALANCE_CORE_SETTLER_ADVANCED && m_pUnitInfo->IsFoundMid())
 	{
 		kPlayer.cityBoost(getX(), getY(), m_pUnitInfo, GC.getPIONEER_EXTRA_PLOTS(), GC.getPIONEER_POPULATION_CHANGE(), GC.getPIONEER_FOOD_PERCENT());
 	}
-	if(MOD_DIPLOMACY_CITYSTATES && m_pUnitInfo->IsFoundLate())
+	if(MOD_BALANCE_CORE_SETTLER_ADVANCED && m_pUnitInfo->IsFoundLate())
 	{
 		kPlayer.cityBoost(getX(), getY(), m_pUnitInfo, GC.getCOLONIST_EXTRA_PLOTS(), GC.getCOLONIST_POPULATION_CHANGE(), GC.getCOLONIST_FOOD_PERCENT());
 	}
@@ -10869,9 +11433,12 @@ void CvUnit::promote(PromotionTypes ePromotion, int iLeaderUnitId)
 	{
 		setHasPromotion(ePromotion, true);
 
-#if defined(MOD_BALANCE_CORE_MILITARY)
-		//Insta-heal removed, gain health with each promotion instead.
-		changeDamage((-GC.getINSTA_HEAL_RATE() / 5));
+#if defined(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
+		if(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
+		{
+			//Insta-heal removed, gain health with each promotion instead.
+			changeDamage((-GC.getINSTA_HEAL_RATE() / 5));
+		}
 #endif
 
 #if defined(MOD_EVENTS_UNIT_UPGRADES)
@@ -12013,7 +12580,7 @@ bool CvUnit::IsFoundAbroad() const
 	return m_pUnitInfo->IsFoundAbroad();
 }
 
-#if defined(MOD_BALANCE_CORE_SETTLER)
+#if defined(MOD_BALANCE_CORE_SETTLER_ADVANCED)
 //	--------------------------------------------------------------------------------
 bool CvUnit::IsFoundMid() const
 {
@@ -12371,9 +12938,9 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 	if(kPlayer.isGoldenAge())
 		iModifier += kPlayer.GetPlayerTraits()->GetGoldenAgeCombatModifier();
 
-#if defined(MOD_BALANCE_CORE_MILITARY)
+#if defined(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
 	//Domination Victory -- If a player owns more than one capital, your troops fight a % better as a result (% = % of global capitals owned).
-	if(MOD_BALANCE_CORE_MILITARY && pOtherUnit != NULL)
+	if(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED && pOtherUnit != NULL)
 	{
 		iModifier += GetResistancePower(pOtherUnit);
 	}			
@@ -12408,7 +12975,7 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 		}
 
 #if defined(MOD_BALANCE_CORE_BELIEFS)
-		if(pOtherUnit != NULL)
+		if(MOD_BALANCE_CORE_BELIEFS && pOtherUnit != NULL)
 		{
 			if(!pOtherUnit->isBarbarian() && !GET_PLAYER(pOtherUnit->getOwner()).isMinorCiv() && pOtherUnit->getOwner() != NO_PLAYER)
 			{
@@ -12493,7 +13060,7 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 #if defined(MOD_BALANCE_CORE)
 		// Trait (player level) bonus against more populated civs
 		iTempModifier = GET_PLAYER(getOwner()).GetPlayerTraits()->GetCombatBonusVsHigherPop();
-		if(iTempModifier > 0)
+		if(MOD_BALANCE_CORE && iTempModifier > 0)
 		{
 			if(pOtherUnit && pOtherUnit->IsHigherPopThan(this))
 			{
@@ -12645,9 +13212,9 @@ int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot,
 		iModifier += iTempModifier;
 	}
 
-#if defined(MOD_BALANCE_CORE)
+#if defined(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
 	//If Japan, you should get stronger as you lose health.
-	if(GET_PLAYER(getOwner()).GetPlayerTraits()->IsFightWellDamaged())
+	if(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED && GET_PLAYER(getOwner()).GetPlayerTraits()->IsFightWellDamaged())
 	{
 		iModifier += (getDamage() / 5);
 	}
@@ -12816,9 +13383,9 @@ int CvUnit::GetMaxDefenseStrength(const CvPlot* pInPlot, const CvUnit* pAttacker
 	if(bFromRangedAttack)
 		iModifier += rangedDefenseModifier();
 
-#if defined(MOD_BALANCE_CORE)
+#if defined(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
 	//If Japan, you should get stronger as you lose health.
-	if(GET_PLAYER(getOwner()).GetPlayerTraits()->IsFightWellDamaged())
+	if(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED && GET_PLAYER(getOwner()).GetPlayerTraits()->IsFightWellDamaged())
 	{
 		iModifier += (getDamage() / 5);
 	}
@@ -12938,8 +13505,8 @@ int CvUnit::GetEmbarkedUnitDefense() const
 		iRtnValue = iRtnValue * (100 + iModifier);
 		iRtnValue /= 100;
 	}
-#if defined(MOD_BALANCE_CORE_MILITARY)
-	if(MOD_BALANCE_CORE_MILITARY && !kPlayer.isHuman())
+#if defined(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
+	if(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED && !kPlayer.isHuman())
 	{
 		//25% of defense added in. This is largely to help the AI.
 		iRtnValue += (GetBaseCombatStrength(true) / max(1,GC.getBALANCE_EMBARK_DEFENSE_DIVISOR() ) );
@@ -13112,9 +13679,9 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 	if(kPlayer.isGoldenAge())
 		iModifier += pTraits->GetGoldenAgeCombatModifier();
 
-#if defined(MOD_BALANCE_CORE)
+#if defined(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
 	//If Japan, you should get stronger as you lose health.
-	if(GET_PLAYER(getOwner()).GetPlayerTraits()->IsFightWellDamaged())
+	if(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED && GET_PLAYER(getOwner()).GetPlayerTraits()->IsFightWellDamaged())
 	{
 		iModifier += (getDamage() / 5);
 	}
@@ -16411,9 +16978,9 @@ if (!bDoEvade)
 
 #if defined(MOD_BALANCE_CORE_POLICIES)
 						float fDelay = 0.5f;
-						if(GET_PLAYER(getOwner()).getConquerorYield(YIELD_CULTURE) > 0)
+						if(GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CULTURE_FROM_BARBARIAN_KILLS) > 0)
 						{	
-							int iCulturePoints = (GET_PLAYER(getOwner()).getConquerorYield(YIELD_CULTURE));
+							int iCulturePoints = (GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CULTURE_FROM_BARBARIAN_KILLS) / 5);
 							GET_PLAYER(getOwner()).changeJONSCulture(iCulturePoints);
 							if(GET_PLAYER(getOwner()).GetID() == GC.getGame().getActivePlayer())
 							{
@@ -21478,15 +22045,15 @@ bool CvUnit::canEverRangeStrikeAtFromPlot(int iX, int iY, CvPlot* pSourcePlot) c
 	{
 		if(!pTargetPlot->isValidDomainForAction(*this))
 		{
-#if defined(MOD_BALANCE_CORE_MILITARY)
+#if defined(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
 			//Subs should be able to attack cities (they're on the coast, they've got ports, etc.). This will help the AI.
-			if(!pTargetPlot->isCity() && !pTargetPlot->isCoastalLand())
+			if(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED && !pTargetPlot->isCity() && !pTargetPlot->isCoastalLand())
 			{
 #endif
 				return false;
 #if defined(MOD_BALANCE_CORE_MILITARY)
 			}
-			else if(pTargetPlot->isCoastalLand() && !pTargetPlot->isCity())
+			else if(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED && pTargetPlot->isCoastalLand() && !pTargetPlot->isCity())
 			{
 				return false;
 			}
@@ -21496,15 +22063,15 @@ bool CvUnit::canEverRangeStrikeAtFromPlot(int iX, int iY, CvPlot* pSourcePlot) c
 		// preventing submarines from shooting into lakes.
 		if (pSourcePlot->getArea() != pTargetPlot->getArea())
 		{
-#if defined(MOD_BALANCE_CORE_MILITARY)
+#if defined(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
 			//Subs should be able to attack cities (they're on the coast, they've got ports, etc.). This will help the AI.
-			if(!pTargetPlot->isCity() && !pTargetPlot->isCoastalLand())
+			if(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED && !pTargetPlot->isCity() && !pTargetPlot->isCoastalLand())
 			{
 #endif
 			return false;
-#if defined(MOD_BALANCE_CORE_MILITARY)
+#if defined(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
 			}
-			else if(pTargetPlot->isCoastalLand() && !pTargetPlot->isCity())
+			else if(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED && pTargetPlot->isCoastalLand() && !pTargetPlot->isCity())
 			{
 				return false;
 			}
@@ -24183,9 +24750,9 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 		}
 	}
 
-#if defined(MOD_BALANCE_CORE_MILITARY)
+#if defined(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
 	iTemp = pkPromotionInfo->GetCombatPercent();
-	if(iTemp != 0)
+	if(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED && iTemp != 0)
 	{
 		iExtra = getExtraCombatPercent();
 //Let's encourage getting all three tiers asap.
@@ -24378,7 +24945,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 		if((AI_getUnitAIType() == UNITAI_FAST_ATTACK) ||
 		        (AI_getUnitAIType() == UNITAI_ATTACK))
 		{
-#if defined(MOD_BALANCE_CORE_MILITARY)
+#if defined(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
 			iValue += 50 + iFlavorOffense * 2;
 #else
 			iValue += 40 + iFlavorOffense * 2;

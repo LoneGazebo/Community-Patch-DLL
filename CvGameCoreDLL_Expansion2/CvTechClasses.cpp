@@ -741,7 +741,7 @@ void CvPlayerTechs::Reset()
 						}
 					}
 
-#ifdef AUI_PLAYERTECHS_RESET_IDEOLOGY_UNLOCKERS_COUNT_AS_UNIQUE
+#if defined(AUI_PLAYERTECHS_RESET_IDEOLOGY_UNLOCKERS_COUNT_AS_UNIQUE)
 					// Does this building unlock an ideology?
 					if (pkBuildingInfo->GetXBuiltTriggersIdeologyChoice() > 0)
 					{

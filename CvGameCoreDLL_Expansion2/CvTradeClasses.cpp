@@ -2246,11 +2246,18 @@ int CvPlayerTrade::GetTradeConnectionBaseValueTimes100(const TradeConnection& kT
 #else
 					int iCeilTechDifference = (int)ceil(iTechDifference / 2.0f);
 #endif
+#if defined(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
+					if(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED && iCeilTechDifference > 0 && (GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCurrentEra() > 0))
+					{
+						iCeilTechDifference *= GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCurrentEra();
+					}
+#endif
 					iAdjustedTechDifference = max(iCeilTechDifference, 1);
 				}
 
 				// Cultural influence bump
 				int iInfluenceBoost = GET_PLAYER(kTradeConnection.m_eOriginOwner).GetCulture()->GetInfluenceTradeRouteScienceBonus(kTradeConnection.m_eDestOwner);
+
 				iAdjustedTechDifference += iInfluenceBoost;
 
 				return iAdjustedTechDifference * 100;

@@ -330,7 +330,7 @@ public:
 	void SetWarmongerThreat(PlayerTypes ePlayer, ThreatTypes eWarmongerThreat);
 	void DoUpdateWarmongerThreats();
 
-#if defined(MOD_BALANCE_CORE_DEALS)
+#if defined(MOD_BALANCE_CORE_DIPLOMACY)
 	int GetNumberOfThreatenedCities(PlayerTypes eEnemy);
 #endif
 
@@ -429,7 +429,7 @@ public:
 	void SetPlotBuyingAggressivePosture(PlayerTypes ePlayer, AggressivePostureTypes ePosture);
 	void DoUpdatePlotBuyingAggressivePosture();
 
-#if defined(MOD_BALANCE_CORE)
+#if defined(MOD_BALANCE_CORE_DIPLOMACY)
 	// Victory Block
 	BlockLevelTypes GetVictoryBlockLevel(PlayerTypes ePlayer) const;
 	void SetVictoryBlockLevel(PlayerTypes ePlayer, BlockLevelTypes eBlockLevel);
@@ -608,7 +608,7 @@ public:
 	void DoDugUpMyYardStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
 
 	void DoDoFStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
-#if defined(MOD_BALANCE_CORE)
+#if defined(MOD_BALANCE_CORE_DIPLOMACY)
 	void DoEndDoFStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
 #endif
 	void DoDenounceFriendStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
@@ -648,7 +648,7 @@ public:
 	void DoFYIBefriendedHumanFriend(PlayerTypes ePlayer, DiploStatementTypes& eStatement, int& iData1);
 	void DoHappySamePolicyTree(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
 	void DoIdeologicalStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
-#if defined(MOD_BALANCE_CORE)
+#if defined(MOD_BALANCE_CORE_DIPLOMACY)
 	void DoVictoryCompetitionStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
 	void DoVictoryBlockStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement);
 #endif
@@ -765,7 +765,7 @@ public:
 	bool IsDoFRejected(PlayerTypes ePlayer) const;
 	bool IsDoFAccepted(PlayerTypes ePlayer) const;
 	void SetDoFAccepted(PlayerTypes ePlayer, bool bValue);
-#if defined(MOD_BALANCE_CORE)
+#if defined(MOD_BALANCE_CORE_DIPLOMACY)
 	bool IsDoFBroken(PlayerTypes ePlayer) const;
 	void SetDoFBroken(PlayerTypes ePlayer, bool bValue);
 #endif
@@ -778,7 +778,7 @@ public:
 #if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
 	int GetNumRA();
 #endif
-#if defined(MOD_BALANCE_CORE)
+#if defined(MOD_BALANCE_CORE_DIPLOMACY)
 	int GetNumDenouncements();
 	int GetNumDenouncementsOfPlayer();
 #endif
@@ -1082,7 +1082,7 @@ public:
 	int GetLandDisputeLevelScore(PlayerTypes ePlayer);
 	int GetWonderDisputeLevelScore(PlayerTypes ePlayer);
 	int GetMinorCivDisputeLevelScore(PlayerTypes ePlayer);
-#if defined(MOD_BALANCE_CORE)
+#if defined(MOD_BALANCE_CORE_DIPLOMACY)
 	int GetVictoryDisputeLevelScore(PlayerTypes ePlayer);
 	int GetVictoryBlockLevelScore(PlayerTypes ePlayer);
 #endif
@@ -1234,7 +1234,7 @@ private:
 	void LogWarDeclaration(PlayerTypes ePlayer, int iTotalWarWeight = -1);
 	void LogPeaceMade(PlayerTypes ePlayer);
 	void LogDoF(PlayerTypes ePlayer);
-#if defined(MOD_BALANCE_CORE)
+#if defined(MOD_BALANCE_CORE_DIPLOMACY)
 	void LogBrokenDoF(PlayerTypes ePlayer);
 #endif
 	void LogDenounce(PlayerTypes ePlayer, bool bBackstab = false, bool bRefusal = false);
@@ -1275,7 +1275,7 @@ private:
 	void LogPlotBuyingAggressivePosture(CvString& strString, PlayerTypes ePlayer);
 	void LogLandDispute(CvString& strString, PlayerTypes ePlayer);
 	void LogVictoryDispute(CvString& strString, PlayerTypes ePlayer);
-#if defined(MOD_BALANCE_CORE)
+#if defined(MOD_BALANCE_CORE_DIPLOMACY)
 	void LogVictoryBlock(CvString& strString, PlayerTypes ePlayer);
 #endif
 	void LogWonderDispute(CvString& strString, PlayerTypes ePlayer);
@@ -1331,7 +1331,7 @@ private:
 		char m_aePlayerLandDisputeLevel[REALLY_MAX_PLAYERS];
 		char m_aePlayerLastTurnLandDisputeLevel[REALLY_MAX_PLAYERS];
 		char m_aePlayerVictoryDisputeLevel[REALLY_MAX_PLAYERS];
-#if defined(MOD_BALANCE_CORE)
+#if defined(MOD_BALANCE_CORE_DIPLOMACY)
 		char m_paePlayerVictoryBlockLevel[REALLY_MAX_PLAYERS];
 #endif
 		char m_aePlayerWonderDisputeLevel[REALLY_MAX_PLAYERS];
@@ -1360,7 +1360,7 @@ private:
 		short m_aiDemandTooSoonNumTurns[MAX_MAJOR_CIVS];
 
 		bool m_abDoFAccepted[MAX_MAJOR_CIVS];
-#if defined(MOD_BALANCE_CORE)
+#if defined(MOD_BALANCE_CORE_DIPLOMACY)
 		bool m_abDoFBroken[MAX_MAJOR_CIVS];
 #endif
 		short m_aiDoFCounter[MAX_MAJOR_CIVS];
@@ -1609,7 +1609,7 @@ private:
 	char* m_paePlayerLandDisputeLevel;
 	char* m_paePlayerLastTurnLandDisputeLevel;
 	char* m_paePlayerVictoryDisputeLevel;
-#if defined(MOD_BALANCE_CORE)
+#if defined(MOD_BALANCE_CORE_DIPLOMACY)
 	char* m_paePlayerVictoryBlockLevel;
 #endif
 	char* m_paePlayerWonderDisputeLevel;
@@ -1634,7 +1634,7 @@ private:
 	short* m_paiDemandTooSoonNumTurns;
 
 	bool* m_pabDoFAccepted;
-#if defined(MOD_BALANCE_CORE)
+#if defined(MOD_BALANCE_CORE_DIPLOMACY)
 	bool* m_pabDoFBroken;
 #endif
 	short* m_paiDoFCounter;

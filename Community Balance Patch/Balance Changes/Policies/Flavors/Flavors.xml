@@ -396,7 +396,7 @@
 		<Row>
 			<PolicyType>POLICY_AESTHETICS</PolicyType>
 			<FlavorType>FLAVOR_CULTURE</FlavorType>
-			<Flavor>30</Flavor>
+			<Flavor>40</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_AESTHETICS</PolicyType>
@@ -426,12 +426,17 @@
 		<Row>
 			<PolicyType>POLICY_FLOURISHING_OF_ARTS</PolicyType>
 			<FlavorType>FLAVOR_CULTURE</FlavorType>
-			<Flavor>30</Flavor>
+			<Flavor>50</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_FLOURISHING_OF_ARTS</PolicyType>
 			<FlavorType>FLAVOR_WONDER</FlavorType>
 			<Flavor>30</Flavor>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_ARTISTIC_GENIUS</PolicyType>
+			<FlavorType>FLAVOR_TILE_IMPROVEMENT</FlavorType>
+			<Flavor>20</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_ARTISTIC_GENIUS</PolicyType>
@@ -497,11 +502,6 @@
 		<Row>
 			<PolicyType>POLICY_PROTECTIONISM</PolicyType>
 			<FlavorType>FLAVOR_I_SEA_TRADE_ROUTE</FlavorType>
-			<Flavor>35</Flavor>
-		</Row>
-		<Row>
-			<PolicyType>POLICY_PROTECTIONISM</PolicyType>
-			<FlavorType>FLAVOR_OFFENSE</FlavorType>
 			<Flavor>35</Flavor>
 		</Row>
 		<!-- Imperialism -->

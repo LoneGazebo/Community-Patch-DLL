@@ -31,12 +31,12 @@ WHERE Tag = 'TXT_KEY_POLICY_FINE_ARTS_TEXT' AND EXISTS (SELECT * FROM COMMUNITY 
 
 -- Flourishing of the Arts
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Flourishing of the Arts[ENDCOLOR][NEWLINE]+1 [ICON_CULTURE] Culture in every City, and all World Wonders produce an additional +5 [ICON_CULTURE] Culture. The empire immediately enters a [ICON_GOLDEN_AGE] Golden Age.'
+SET Text = '[COLOR_POSITIVE_TEXT]Flourishing of the Arts[ENDCOLOR][NEWLINE]All World Wonders produce +2 [ICON_TOURISM] Tourism. The empire immediately enters a [ICON_GOLDEN_AGE] Golden Age.'
 WHERE Tag = 'TXT_KEY_POLICY_FLOURISHING_OF_ARTS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 -- Artistic Genius
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]National Treasure[ENDCOLOR][NEWLINE]A [ICON_GREAT_PEOPLE] Great Person of your choice appears near your [ICON_CAPITAL] Capital. +1 [ICON_CULTURE] Culture and +1 [ICON_PRODUCTION] Production from [ICON_GREAT_PEOPLE] Great Person Improvements.'
+SET Text = '[COLOR_POSITIVE_TEXT]National Treasure[ENDCOLOR][NEWLINE]A [ICON_GREAT_PEOPLE] Great Person of your choice appears near your [ICON_CAPITAL] Capital. +2 [ICON_CULTURE] Culture from [ICON_GREAT_PEOPLE] Great Person Improvements.'
 WHERE Tag = 'TXT_KEY_POLICY_ARTISTIC_GENIUS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US

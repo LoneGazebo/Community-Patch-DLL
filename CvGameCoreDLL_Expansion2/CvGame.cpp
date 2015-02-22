@@ -1052,6 +1052,10 @@ void CvGame::uninit()
 	m_iGoldAverage = 0;
 	m_iGlobalPopulation = 0;
 #endif
+#if defined(MOD_BALANCE_CORE_SPIES)
+	m_iLargestBasePotential = 0;
+#endif
+
 
 	m_strScriptData = "";
 	m_iEarliestBarbarianReleaseTurn = 0;
@@ -7736,6 +7740,12 @@ void CvGame::doTurn()
 		getGlobalAverage();
 	}
 #endif
+#if defined(MOD_BALANCE_CORE_SPIES)
+	if(MOD_BALANCE_CORE_SPIES_ADVANCED)
+	{
+		SetHighestPotential();
+	}
+#endif
 
 	GC.GetEngineUserInterface()->setCanEndTurn(false);
 	GC.GetEngineUserInterface()->setHasMovedUnit(false);
@@ -8235,9 +8245,9 @@ UnitTypes CvGame::GetRandomUniqueUnitType(bool bIncludeCivsInGame, bool bInclude
 
 		// We only want unique units
 		if(eLoopUnit == pkUnitClassInfo->getDefaultUnitIndex())
-#if defined(MOD_BALANCE_CORE)
+#if defined(MOD_BALANCE_CORE_MINOR_CIV_GIFT)
 			//Unless they are minor civ gifts only.
-			if(!pkUnitInfo->IsMinorCivGift())
+			if(MOD_BALANCE_CORE_MINOR_CIV_GIFT && !pkUnitInfo->IsMinorCivGift())
 			{
 #endif
 			continue;
@@ -8249,7 +8259,7 @@ UnitTypes CvGame::GetRandomUniqueUnitType(bool bIncludeCivsInGame, bool bInclude
 		if (!bIncludeCivsInGame)
 		{
 #if defined(MOD_BALANCE_CORE)
-			if(!pkUnitInfo->IsMinorCivGift())
+			if(MOD_BALANCE_CORE_MINOR_CIV_GIFT && !pkUnitInfo->IsMinorCivGift())
 			{
 #endif
 			for(int iMajorLoop = 0; iMajorLoop < MAX_PLAYERS; iMajorLoop++)  // MAX_PLAYERS so that we look at Barbarian UUs (ie. Brute) as well
@@ -9328,7 +9338,7 @@ int CvGame::getJonRandNum(int iNum, const char* pszLog)
 	return m_jonRand.get(iNum, pszLog);
 }
 
-#ifdef AUI_BINOM_RNG
+#if defined(AUI_BINOM_RNG)
 //	--------------------------------------------------------------------------------
 /// Get a synchronous random number in the range of 0...iNum-1 with binomial distribution
 /// Allows for logging.
@@ -9673,7 +9683,55 @@ int CvGame::GetGlobalPopulation() const
 	return m_iGlobalPopulation;
 }	
 #endif
+#if defined(MOD_BALANCE_CORE_SPIES)
+void CvGame::SetHighestPotential()
+{
+	m_iLargestBasePotential = 0;
+	int iPotential = 0;	
 
+	// first pass to get the largest base potential available
+	for(int iPlayer = 0; iPlayer < MAX_PLAYERS; ++iPlayer)
+	{
+		CvPlayer& kLoopPlayer = GET_PLAYER((PlayerTypes)iPlayer);
+
+		if(!kLoopPlayer.isAlive() || kLoopPlayer.isBarbarian() || kLoopPlayer.isMinorCiv() || (kLoopPlayer.GetEspionageAI()->m_iTurnEspionageStarted == -1))
+		{
+			continue;
+		}
+
+		int iLoop = 0;
+		for(CvCity* pLoopCity = kLoopPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kLoopPlayer.nextCity(&iLoop))
+		{				
+			iPotential = kLoopPlayer.GetEspionage()->CalcPerTurn(SPY_STATE_GATHERING_INTEL, pLoopCity, -1);;
+
+			if (iPotential > m_iLargestBasePotential)
+			{
+				m_iLargestBasePotential = iPotential;
+			}
+		}
+	}
+	// second pass to set the base potential for each city
+	if(m_iLargestBasePotential > 0)
+	{
+		for(int iPlayer = 0; iPlayer < MAX_PLAYERS; ++iPlayer)
+		{
+			CvPlayer& kLoopPlayer = GET_PLAYER((PlayerTypes)iPlayer);
+
+			if(!kLoopPlayer.isAlive() || kLoopPlayer.isBarbarian() || kLoopPlayer.isMinorCiv() || (kLoopPlayer.GetEspionageAI()->m_iTurnEspionageStarted == -1))
+			{
+				continue;
+			}
+
+			int iLoop = 0;
+			for(CvCity* pLoopCity = kLoopPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kLoopPlayer.nextCity(&iLoop))
+			{				
+				iPotential = kLoopPlayer.GetEspionage()->CalcPerTurn(SPY_STATE_GATHERING_INTEL, pLoopCity, -1);;
+				pLoopCity->SetEspionageRanking(iPotential);
+			}
+		}
+	}
+}
+#endif
 //	--------------------------------------------------------------------------------
 const CvReplayMessage* CvGame::getReplayMessage(uint i) const
 {
@@ -9778,6 +9836,9 @@ void CvGame::Read(FDataStream& kStream)
 	MOD_SERIALIZE_READ(55, kStream, m_iDefenseAverage, 0);
 	MOD_SERIALIZE_READ(55, kStream, m_iGoldAverage, 0);
 	MOD_SERIALIZE_READ(55, kStream, m_iGlobalPopulation, 0);
+#endif
+#if defined(MOD_BALANCE_CORE_SPIES)
+	MOD_SERIALIZE_READ(66, kStream, m_iLargestBasePotential, 0);
 #endif
 
 	kStream >> m_strScriptData;
@@ -10024,6 +10085,10 @@ void CvGame::Write(FDataStream& kStream) const
 	MOD_SERIALIZE_WRITE(kStream, m_iGoldAverage);
 	MOD_SERIALIZE_WRITE(kStream, m_iGlobalPopulation);
 #endif
+#if defined(MOD_BALANCE_CORE_SPIES)
+	MOD_SERIALIZE_WRITE(kStream, m_iLargestBasePotential);
+#endif
+
 
 
 	kStream << m_strScriptData;

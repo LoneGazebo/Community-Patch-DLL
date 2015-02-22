@@ -22,6 +22,11 @@
 			<Where Name="BALANCE_CORE_SPIES"/>
 			<Set Value="1"/>
 		</Update>
+		<!-- This affects basic diplomacy AI.-->
+		<Update>
+			<Where Name="BALANCE_CORE_DIPLOMACY"/>
+			<Set Value="1"/>
+		</Update>
 		<!-- This affects AI Tactical and Military Performance-->
 		<Update>
 			<Where Name="BALANCE_CORE_MILITARY"/>
@@ -35,10 +40,6 @@
 		<!-- These affect the Deal AI -->
 		<Update>
 			<Where Name="BALANCE_CORE_DEALS"/>
-			<Set Value="1"/>
-		</Update>
-		<Update>
-			<Where Name="BALANCE_CORE_RESOURCE_FLAVORS"/>
 			<Set Value="1"/>
 		</Update>
 		<!-- This affects the AI's grand strategy guessing improvements.-->

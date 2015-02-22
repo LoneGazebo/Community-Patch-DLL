@@ -100,6 +100,7 @@ void CvPlayerAI::AI_doTurnPre()
 	}
 
 	AI_updateFoundValues();
+
 	AI_doResearch();
 	AI_considerAnnex();
 }
@@ -171,7 +172,9 @@ void CvPlayerAI::AI_updateFoundValues(bool /*unused*/)
 	//any other safe checks we could do?
 	bool bVenice = GetPlayerTraits()->IsNoAnnexing();
 	if (isMinorCiv() || isBarbarian() || bVenice)
+	{
 		return;
+	}
 
 	// important preparation
 	GC.getGame().GetSettlerSiteEvaluator()->ComputeFlavorMultipliers(this);
@@ -179,9 +182,11 @@ void CvPlayerAI::AI_updateFoundValues(bool /*unused*/)
 	const PlayerTypes eID = GetID();
 
 	// reset the areas
-	int iLoop=0;
+	int iLoop = 0;
 	for(CvArea* pLoopArea = GC.getMap().firstArea(&iLoop); pLoopArea != NULL; pLoopArea = GC.getMap().nextArea(&iLoop))
+	{
 		pLoopArea->setTotalFoundValue(0);
+	}
 
 	// calculate new score
 	int iGoodEnoughToBeWorthOurTime = GC.getAI_STRATEGY_MINIMUM_SETTLE_FERTILITY();
@@ -189,18 +194,27 @@ void CvPlayerAI::AI_updateFoundValues(bool /*unused*/)
 	for (int iI = 0; iI < iNumPlots; iI++)
 	{
 		CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(iI);
-		int iValue = GC.getGame().GetSettlerSiteEvaluator()->PlotFoundValue(pLoopPlot, this, NO_YIELD, false);
-		
-		//cache the result
-		pLoopPlot->setFoundValue(eID, iValue);
-
-		if (iValue >= iGoodEnoughToBeWorthOurTime)
+		const TeamTypes eTeam = getTeam();
+		if (pLoopPlot->isRevealed(eTeam))
 		{
-			CvArea* pLoopArea = GC.getMap().getArea(pLoopPlot->getArea());
-			if(pLoopArea && !pLoopArea->isWater())
-				//add the square so smaller landmasses have a chance too (scale by 1000 to avoid overflow)
-				//sum is too biased to large areas, max is too biased for small areas
-				pLoopArea->setTotalFoundValue( pLoopArea->getTotalFoundValue() + iValue*iValue/1000 );
+			const int iValue = GC.getGame().GetSettlerSiteEvaluator()->PlotFoundValue(pLoopPlot, this, NO_YIELD, false);
+			
+			//cache the result
+			pLoopPlot->setFoundValue(eID, iValue);
+
+			if (iValue >= iGoodEnoughToBeWorthOurTime)
+			{
+				CvArea* pLoopArea = GC.getMap().getArea(pLoopPlot->getArea());
+				if(pLoopArea && !pLoopArea->isWater() && (pLoopArea->getNumTiles() > 0))
+				{
+					//use the square found value to give smaller areas a chance. normalize by the minimum fertility to avoid overflow
+					pLoopArea->setTotalFoundValue( pLoopArea->getTotalFoundValue() + iValue * iValue / iGoodEnoughToBeWorthOurTime );
+				}
+			}
+		}
+		else
+		{
+			pLoopPlot->setFoundValue(eID, -1);
 		}
 	}
 }

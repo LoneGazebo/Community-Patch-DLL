@@ -50,6 +50,9 @@ protected:
 
 	static int lInitUnit(lua_State* L);
 	static int lInitUnitWithNameOffset(lua_State* L);
+#if defined(MOD_BALANCE_CORE)
+	static int lInitNamedUnit(lua_State* L);
+#endif
 	static int lDisbandUnit(lua_State* L);
 	static int lAddFreeUnit(lua_State* L);
 
@@ -249,6 +252,7 @@ protected:
 	LUAAPIEXTN(GetInfluenceTradeRouteGoldBonus, int);
 	LUAAPIEXTN(GetWoundedUnitDamageMod, int);
 	LUAAPIEXTN(SetCapitalCity, void);
+	LUAAPIEXTN(SetOriginalCapitalXY, void);
 #endif
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE_POLICIES)
 	LUAAPIEXTN(GetNoUnhappinessExpansion, int);
@@ -992,6 +996,10 @@ protected:
 	static int lGetMayaCalendarLongString(lua_State* L);
 
 	static int lGetExtraBuildingHappinessFromPolicies(lua_State* L);
+
+#if defined(MOD_BALANCE_CORE_POLICIES)
+	static int lGetExtraYieldWorldWonder(lua_State* L);
+#endif
 
 	static int lGetPrevCity(lua_State* L);
 	static int lGetNextCity(lua_State* L);

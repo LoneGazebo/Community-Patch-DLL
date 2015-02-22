@@ -313,7 +313,7 @@ void CvHomelandAI::EstablishHomelandPriorities()
 		{
 			iFlavorCulture = m_pPlayer->GetFlavorManager()->GetIndividualFlavor((FlavorTypes)iFlavorLoop);
 		}
-#ifdef AUI_HOMELAND_FIX_ESTABLISH_HOMELAND_PRIORITIES_MISSING_FLAVORS
+#if defined(AUI_HOMELAND_FIX_ESTABLISH_HOMELAND_PRIORITIES_MISSING_FLAVORS)
 		else if (GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_TILE_IMPROVEMENT")
 		{
 			iFlavorImprove = m_pPlayer->GetFlavorManager()->GetIndividualFlavor((FlavorTypes)iFlavorLoop);
@@ -1150,10 +1150,13 @@ void CvHomelandAI::PlotHealMoves()
 #if defined(MOD_AI_SMART_HEALING)
 			int iHealingLimit = pUnit->GetMaxHitPoints() * 9 / 10;
 
-			if (MOD_AI_SMART_HEALING) {
+			if (MOD_AI_SMART_HEALING) 
+			{
 				CvPlot* unitPlot = pUnit->plot();
-				if (m_pPlayer->GetPlotDanger(*unitPlot) > 0)
+				if (!unitPlot->isCity() && (unitPlot->getOwner() != pUnit->getOwner()) && m_pPlayer->GetPlotDanger(*unitPlot) > 0)
+				{
 					iHealingLimit = 0;
+				}
 			}
 #endif
 
@@ -1815,8 +1818,12 @@ void CvHomelandAI::PlotUpgradeMoves()
 				iFlavorMilitaryTraining = m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)iFlavorLoop);
 			}
 		}
-
+#if defined(MOD_BALANCE_CORE)
+		//Why 1/3?
+		iFlavorMilitaryTraining = max(1 , iFlavorMilitaryTraining);
+#else
 		iFlavorMilitaryTraining = max(1,iFlavorMilitaryTraining/3);
+#endif
 		int iBonusUpgrades = max(0,GC.getGame().getHandicapInfo().GetID() - 5); // more at the higher difficulties (the AI should have more money to spend)
 		iFlavorMilitaryTraining += iBonusUpgrades;
 
@@ -1848,8 +1855,11 @@ void CvHomelandAI::PlotUpgradeMoves()
 				}
 			}
 		}
-
+#if defined(MOD_BALANCE_CORE)
+		if(iNumUpgraded > iFlavorMilitaryTraining)
+#else
 		if(iNumUpgraded > 0)
+#endif
 		{
 			return;
 		}
@@ -1871,6 +1881,12 @@ void CvHomelandAI::PlotUpgradeMoves()
 				{
 					iCurrentFlavorMilitaryTraining = m_pPlayer->GetFlavorManager()->GetIndividualFlavor((FlavorTypes)iFlavorLoop);
 				}
+#if defined(MOD_BALANCE_CORE)
+				if(m_pPlayer->IsAtWar())
+				{
+					iCurrentFlavorMilitaryTraining *= 10;
+				}
+#endif
 			}
 			iGoldPriority = GC.getAI_GOLD_PRIORITY_UPGRADE_BASE();
 			iGoldPriority += GC.getAI_GOLD_PRIORITY_UPGRADE_PER_FLAVOR_POINT() * iCurrentFlavorMilitaryTraining;
@@ -2579,7 +2595,7 @@ void CvHomelandAI::ReviewUnassignedUnits()
 		if(pUnit)
 		{
 #if defined(MOD_BALANCE_CORE)
-			if(pUnit->getDomainType() == DOMAIN_LAND)
+			if(pUnit->getDomainType() == DOMAIN_LAND && !pUnit->IsCivilianUnit())
 			{
 				if(pUnit->plot()->getOwner() == pUnit->getOwner())
 				{
@@ -2595,7 +2611,7 @@ void CvHomelandAI::ReviewUnassignedUnits()
 						{
 							strTemp = pkUnitInfo->GetDescription();
 							CvString strLogString;
-							strLogString.Format("Unassigned %s still fortified at home at, X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY());
+							strLogString.Format("Unassigned %s still fortified at home, at X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY());
 							LogHomelandMessage(strLogString);
 						}
 					}
@@ -2611,7 +2627,7 @@ void CvHomelandAI::ReviewUnassignedUnits()
 						{
 							strTemp = pkUnitInfo->GetDescription();
 							CvString strLogString;
-							strLogString.Format("Unassigned %s fortified at home at, X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY());
+							strLogString.Format("Unassigned %s fortified at home, at X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY());
 							LogHomelandMessage(strLogString);
 						}
 					}
@@ -2626,14 +2642,14 @@ void CvHomelandAI::ReviewUnassignedUnits()
 						{
 							strTemp = pkUnitInfo->GetDescription();
 							CvString strLogString;
-							strLogString.Format("Unassigned %s at home at, X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY());
+							strLogString.Format("Unassigned %s at home, at X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY());
 							LogHomelandMessage(strLogString);
 						}
 					}
 					else
 					{
-						//We really need to do something with this unit - let's bring it home. If it is too far away (5 hexes)...that's just too bad.
-						int iSearchRange = 5;
+						//We really need to do something with this unit - let's bring it home. If it is too far away (10 hexes)...that's just too bad.
+						int iSearchRange = 10;
 						CvPlot* pMovePlot = NULL;
 						for(int iDX = -(iSearchRange); iDX <= iSearchRange; iDX++)
 						{
@@ -2666,7 +2682,7 @@ void CvHomelandAI::ReviewUnassignedUnits()
 							{
 								strTemp = pkUnitInfo->GetDescription();
 								CvString strLogString;
-								strLogString.Format("Unassigned %s wandering around at home, at, X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY());
+								strLogString.Format("Unassigned %s wandering around at home, at X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY());
 								LogHomelandMessage(strLogString);
 							}
 						}
@@ -2680,7 +2696,7 @@ void CvHomelandAI::ReviewUnassignedUnits()
 							{
 								strTemp = pkUnitInfo->GetDescription();
 								CvString strLogString;
-								strLogString.Format("Unassigned %s stuck, but in home territory at, X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY());
+								strLogString.Format("Unassigned %s stuck, but in home territory, at X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY());
 								LogHomelandMessage(strLogString);
 							}
 						}
@@ -2688,8 +2704,8 @@ void CvHomelandAI::ReviewUnassignedUnits()
 				}
 				else
 				{
-					//We really need to do something with this unit - let's bring it home. If it is too far away (15 hexes)...that's just too bad.
-					int iSearchRange = 15;
+					//We really need to do something with this unit - let's bring it home. If it is too far away (30 hexes)...that's just too bad.
+					int iSearchRange = 30;
 					CvPlot* pMovePlot = NULL;
 					for(int iDX = -(iSearchRange); iDX <= iSearchRange; iDX++)
 					{
@@ -2736,13 +2752,13 @@ void CvHomelandAI::ReviewUnassignedUnits()
 						{
 							strTemp = pkUnitInfo->GetDescription();
 							CvString strLogString;
-							strLogString.Format("Unassigned %s stuck away from home at, X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY());
+							strLogString.Format("Unassigned %s stuck away from home, at X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY());
 							LogHomelandMessage(strLogString);
 						}
 					}
 				}
 			}
-			else if(pUnit->getDomainType() == DOMAIN_SEA)
+			else if(pUnit->getDomainType() == DOMAIN_SEA && !pUnit->IsCivilianUnit())
 			{
 				if(pUnit->plot()->getOwner() == pUnit->getOwner())
 				{
@@ -2755,14 +2771,14 @@ void CvHomelandAI::ReviewUnassignedUnits()
 					{
 						strTemp = pkUnitInfo->GetDescription();
 						CvString strLogString;
-						strLogString.Format("Unassigned %s at home at, X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY());
+						strLogString.Format("Unassigned %s at home, at X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY());
 						LogHomelandMessage(strLogString);
 					}
 				}
 				else
 				{
-					//We really need to do something with this unit - let's bring it home. If it is too far away (5 hexes)...that's just too bad.
-					int iSearchRange = 5;
+					//We really need to do something with this unit - let's bring it home. If it is too far away (30 hexes)...that's just too bad.
+					int iSearchRange = 30;
 					CvPlot* pMovePlot = NULL;
 					for(int iDX = -(iSearchRange); iDX <= iSearchRange; iDX++)
 					{
@@ -2795,7 +2811,7 @@ void CvHomelandAI::ReviewUnassignedUnits()
 						{
 							strTemp = pkUnitInfo->GetDescription();
 							CvString strLogString;
-							strLogString.Format("Unassigned %s wandering home, at, X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY());
+							strLogString.Format("Unassigned %s wandering home, at X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY());
 							LogHomelandMessage(strLogString);
 						}
 					}
@@ -2809,10 +2825,28 @@ void CvHomelandAI::ReviewUnassignedUnits()
 						{
 							strTemp = pkUnitInfo->GetDescription();
 							CvString strLogString;
-							strLogString.Format("Unassigned %s stuck at, X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY());
+							strLogString.Format("Unassigned %s stuck, at X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY());
 							LogHomelandMessage(strLogString);
 						}
 					}
+				}
+			}
+			else if(pUnit->IsCivilianUnit())
+			{
+				if(pUnit->isFound())
+				{
+					pUnit->setArmyID(FFreeList::INVALID_INDEX);
+				}
+				pUnit->PushMission(CvTypes::getMISSION_SKIP());
+				pUnit->SetTurnProcessed(true);
+				CvString strTemp;
+				CvUnitEntry* pkUnitInfo = GC.getUnitInfo(pUnit->getUnitType());
+				if(pkUnitInfo)
+				{
+					strTemp = pkUnitInfo->GetDescription();
+					CvString strLogString;
+					strLogString.Format("Unassigned CIVILIAN %s inactive, Army value reset to -1, at X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY());
+					LogHomelandMessage(strLogString);
 				}
 			}
 #else
@@ -2843,7 +2877,7 @@ void CvHomelandAI::ExecuteFirstTurnSettlerMoves()
 		if(pUnit)
 		{
 #if defined(MOD_BALANCE_CORE_SETTLER_MOVE)
-			if(GC.getSETTLER_MOVE_ON_START() <= 0)
+			if(MOD_BALANCE_CORE_SETTLER_MOVE && GC.getSETTLER_MOVE_ON_START() <= 0)
 			{
 				pUnit->PushMission(CvTypes::getMISSION_FOUND());
 				UnitProcessed(pUnit->GetID());
@@ -2871,7 +2905,7 @@ void CvHomelandAI::ExecuteFirstTurnSettlerMoves()
 						LogHomelandMessage(strLogString);
 					}
 				}
-				else
+				else if(!pUnit->plot()->isFreshWater() || !pUnit->plot()->isCoastalLand() || (pUnit->plot()->GetNumAdjacentMountains() <= 0))
 				{
 					iInitialPlotValue = pUnit->plot()->getFoundValue(m_pPlayer->GetID());
 
@@ -2931,6 +2965,105 @@ void CvHomelandAI::ExecuteFirstTurnSettlerMoves()
 							LogHomelandMessage(strLogString);
 						}
 					}
+				}
+			}
+			else if(MOD_BALANCE_CORE_SETTLER_MOVE && !pUnit->TurnProcessed())
+			{
+				int iInitialPlotValue = 0;
+				int iAdjacentValue = 0;
+				CvPlot* pBestAdjacentPlot = NULL;
+				if(pUnit->canFound(pUnit->plot()))
+				{
+					pUnit->PushMission(CvTypes::getMISSION_FOUND());
+					UnitProcessed(pUnit->GetID());
+					if(GC.getLogging() && GC.getAILogging())
+					{
+						CvString strLogString;
+						strLogString.Format("Founded city because we are out of time, X: %d, Y: %d", pUnit->getX(), pUnit->getY());
+						LogHomelandMessage(strLogString);
+					}
+				}
+				else
+				{
+					iInitialPlotValue = GC.getGame().GetSettlerSiteEvaluator()->PlotFoundValue(pUnit->plot(), m_pPlayer, NO_YIELD, false);
+
+					for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+					{
+						CvPlot* pAdjacentPlot = plotDirection(pUnit->getX(), pUnit->getY(), ((DirectionTypes)iI));
+						if(pAdjacentPlot != NULL)
+						{
+							iAdjacentValue = GC.getGame().GetSettlerSiteEvaluator()->PlotFoundValue(pAdjacentPlot, m_pPlayer, NO_YIELD, false);
+							if(iAdjacentValue > iInitialPlotValue)
+							{
+								iInitialPlotValue = iAdjacentValue;
+								pBestAdjacentPlot = pAdjacentPlot;
+							}
+						}
+					}
+					if(pBestAdjacentPlot != NULL)
+					{
+						pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestAdjacentPlot->getX(), pBestAdjacentPlot->getY());
+						if(pUnit->plot() == pBestAdjacentPlot && (pUnit->getMoves() > 0))
+						{
+							if(pUnit->canFound(pBestAdjacentPlot))
+							{
+								pUnit->PushMission(CvTypes::getMISSION_FOUND());
+								UnitProcessed(pUnit->GetID());
+								if(GC.getLogging() && GC.getAILogging())
+								{
+									CvString strLogString;
+									strLogString.Format("Founded city at adjacent site, as we are out of time. X: %d, Y: %d", pUnit->getX(), pUnit->getY());
+									LogHomelandMessage(strLogString);
+								}
+							}
+							else
+							{
+								UnitProcessed(pUnit->GetID());
+								if(GC.getLogging() && GC.getAILogging())
+								{
+									CvString strLogString;
+									strLogString.Format("Moved to superior starting site. Trying to hurry! X: %d, Y: %d", pUnit->getX(), pUnit->getY());
+									LogHomelandMessage(strLogString);
+								}
+							}
+						}
+					}
+					else
+					{
+						//apparently no good plot around. move in a random direction to explore
+						CvPlot* pAdjacentPlot = NULL;
+							
+						int iCount = 0;
+						while(iCount < 10)
+						{
+							iCount++;
+							int iDir = GC.getGame().getJonRandNum(NUM_DIRECTION_TYPES, "Roll to see where to move!");
+							pAdjacentPlot = plotDirection(pUnit->getX(), pUnit->getY(), ((DirectionTypes)iDir));
+							if(pAdjacentPlot != NULL && !pAdjacentPlot->isWater() && !pAdjacentPlot->isImpassable())
+							{
+								pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pAdjacentPlot->getX(), pAdjacentPlot->getY());
+								UnitProcessed(pUnit->GetID());
+								if(GC.getLogging() && GC.getAILogging())
+								{
+									CvString strLogString;
+									strLogString.Format("Things aren't looking good for us! Scramble to X: %d, Y: %d", pUnit->getX(), pUnit->getY());
+									LogHomelandMessage(strLogString);
+								}
+								break;
+							}
+						}
+					}
+				}
+			}
+			else
+			{
+				pUnit->PushMission(CvTypes::getMISSION_FOUND());
+				UnitProcessed(pUnit->GetID());
+				if(GC.getLogging() && GC.getAILogging())
+				{
+					CvString strLogString;
+					strLogString.Format("Founded city at, X: %d, Y: %d", pUnit->getX(), pUnit->getY());
+					LogHomelandMessage(strLogString);
 				}
 			}
 #else

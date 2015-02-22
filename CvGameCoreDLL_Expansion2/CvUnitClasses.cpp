@@ -1014,7 +1014,7 @@ bool CvUnitEntry::IsFoundAbroad() const
 	return m_bFoundAbroad;
 }
 
-#if defined(MOD_BALANCE_CORE_SETTLER)
+#if defined(MOD_BALANCE_CORE_SETTLER_ADVANCED)
 /// Can it start a city in the mid game?
 bool CvUnitEntry::IsFoundMid() const
 {
