@@ -272,7 +272,11 @@ public:
 	void processProcess(ProcessTypes eProcess, int iChange);
 	void processSpecialist(SpecialistTypes eSpecialist, int iChange);
 
+#if defined(MOD_BALANCE_CORE)
+	void UpdateReligion(ReligionTypes eNewMajority, bool bRecalcPlotYields=true);
+#else
 	void UpdateReligion(ReligionTypes eNewMajority);
+#endif
 
 	int GetCultureFromSpecialist(SpecialistTypes eSpecialist) const;
 

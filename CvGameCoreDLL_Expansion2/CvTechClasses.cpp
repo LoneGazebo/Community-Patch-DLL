@@ -2242,3 +2242,4 @@ bool CvTechEntry::IsVassalageTradingAllowed() const
 	return m_bVassalageTradingAllowed;
 }
 #endif
+

@@ -16,6 +16,10 @@
 #include "CvDllPlot.h"
 #include "CvInfosSerializationHelper.h"
 
+#if defined(MOD_BALANCE_CORE)
+	#include <algorithm>
+#endif
+
 // include after all other headers
 #include "LintFree.h"
 
@@ -2631,6 +2635,11 @@ void CvCityBuildings::Reset()
 		m_paiNumRealBuilding[iI] = 0;
 		m_paiNumFreeBuilding[iI] = 0;
 	}
+
+#if defined(MOD_BALANCE_CORE)
+	m_buildingsThatExistAtLeastOnce.clear();
+#endif
+
 }
 
 /// Serialization read
@@ -2662,6 +2671,13 @@ void CvCityBuildings::Read(FDataStream& kStream)
 
 	kStream >> m_aBuildingYieldChange;
 	kStream >> m_aBuildingGreatWork;
+
+#if defined(MOD_BALANCE_CORE)
+	for (int i=0; i<m_iNumBuildings; i++)
+		if (m_paiNumRealBuilding[i]>0 || m_paiNumFreeBuilding[i]>0)
+			m_buildingsThatExistAtLeastOnce.push_back( (BuildingTypes)i );
+#endif
+
 }
 
 /// Serialization write
@@ -3025,6 +3041,21 @@ void CvCityBuildings::SetNumRealBuildingTimed(BuildingTypes eIndex, int iNewValu
 
 		m_paiNumRealBuilding[eIndex] = iNewValue;
 
+#if defined(MOD_BALANCE_CORE)
+		if (iNewValue>0)
+		{
+			if ( std::find( m_buildingsThatExistAtLeastOnce.begin(), m_buildingsThatExistAtLeastOnce.end(), eIndex ) == m_buildingsThatExistAtLeastOnce.end() )
+				m_buildingsThatExistAtLeastOnce.push_back(eIndex);
+		}
+		else if (GetNumFreeBuilding(eIndex)==0)
+		{
+			//we care about iteration speed, so erasing something can be cumbersome
+			std::vector<BuildingTypes>::iterator pos = std::find( m_buildingsThatExistAtLeastOnce.begin(), m_buildingsThatExistAtLeastOnce.end(), eIndex );
+			if ( pos != m_buildingsThatExistAtLeastOnce.end() )
+				m_buildingsThatExistAtLeastOnce.erase(pos);
+		}
+#endif
+
 		if(GetNumRealBuilding(eIndex) > 0)
 		{
 			SetBuildingOriginalOwner(eIndex, eOriginalOwner);
@@ -3256,6 +3287,21 @@ void CvCityBuildings::SetNumFreeBuilding(BuildingTypes eIndex, int iNewValue)
 
 	if(GetNumFreeBuilding(eIndex) != iNewValue)
 	{
+#if defined(MOD_BALANCE_CORE)
+		if (iNewValue>0)
+		{
+			if ( std::find( m_buildingsThatExistAtLeastOnce.begin(), m_buildingsThatExistAtLeastOnce.end(), eIndex ) == m_buildingsThatExistAtLeastOnce.end() )
+				m_buildingsThatExistAtLeastOnce.push_back(eIndex);
+		}
+		else if (GetNumRealBuilding(eIndex)==0)
+		{
+			//we care about iteration speed, so erasing something can be cumbersome
+			std::vector<BuildingTypes>::iterator pos = std::find( m_buildingsThatExistAtLeastOnce.begin(), m_buildingsThatExistAtLeastOnce.end(), eIndex );
+			if ( pos != m_buildingsThatExistAtLeastOnce.end() )
+				m_buildingsThatExistAtLeastOnce.erase(pos);
+		}
+#endif
+
 #if defined(MOD_BUGFIX_MINOR)
 		// This condensed logic comes from SetNumRealBuilding()
 		int iChangeNumFreeBuilding = iNewValue - GetNumFreeBuilding(eIndex);
@@ -3792,6 +3838,24 @@ int CvCityBuildings::GetThemingBonuses() const
 {
 	int iBonus = 0;
 
+#if defined(MOD_BALANCE_CORE)
+	for(std::vector<BuildingTypes>::const_iterator iI=m_buildingsThatExistAtLeastOnce.begin(); iI!=m_buildingsThatExistAtLeastOnce.end(); ++iI)
+	{
+#if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
+		CvBuildingEntry *pkInfo = GC.getBuildingInfo(*iI);
+		if (pkInfo)
+		{
+			if (pkInfo->GetGreatWorkYieldType() == eYield)
+			{
+				iBonus += m_pCity->GetCityCulture()->GetThemingBonus( (BuildingClassTypes)pkInfo->GetBuildingClassType() );
+			}
+		}
+#else
+		iBonus += m_pCity->GetCityCulture()->GetThemingBonus(eLoopBuildingClass);
+#endif
+	}
+
+#else
 	for(int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
 	{
 		BuildingClassTypes eLoopBuildingClass = (BuildingClassTypes) iI;
@@ -3819,6 +3883,7 @@ int CvCityBuildings::GetThemingBonuses() const
 			}
 		}
 	}
+#endif
 
 	return iBonus;
 }

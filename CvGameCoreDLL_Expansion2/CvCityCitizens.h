@@ -37,7 +37,11 @@ public:
 	void DoFoundCity();
 	void DoTurn();
 
+#if defined(MOD_BALANCE_CORE)
+	int GetPlotValue(CvPlot* pPlot, bool bUseAllowGrowthFlag, int iExcessFoodTimes100);
+#else
 	int GetPlotValue(CvPlot* pPlot, bool bUseAllowGrowthFlag);
+#endif
 
 	// Are this City's Citizens automated? (always true for AI civs)
 	bool IsAutomated() const;

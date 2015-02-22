@@ -198,9 +198,9 @@ void CvPlayerAI::AI_updateFoundValues(bool /*unused*/)
 		{
 			CvArea* pLoopArea = GC.getMap().getArea(pLoopPlot->getArea());
 			if(pLoopArea && !pLoopArea->isWater())
-				//add the square so smaller landmasses have a chance too (scale by 1e6 to avoid overflow)
+				//add the square so smaller landmasses have a chance too (scale by 1000 to avoid overflow)
 				//sum is too biased to large areas, max is too biased for small areas
-				pLoopArea->setTotalFoundValue( pLoopArea->getTotalFoundValue() + iValue*iValue/1000000 );
+				pLoopArea->setTotalFoundValue( pLoopArea->getTotalFoundValue() + iValue*iValue/1000 );
 		}
 	}
 }

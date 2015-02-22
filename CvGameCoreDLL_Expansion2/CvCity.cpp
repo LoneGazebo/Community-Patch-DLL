@@ -2411,7 +2411,11 @@ void CvCity::SetRouteToCapitalConnected(bool bValue)
 
 	if(bUpdateReligion)
 	{
+#if defined(MOD_BALANCE_CORE)
+		UpdateReligion(GetCityReligions()->GetReligiousMajority(),false);
+#else
 		UpdateReligion(GetCityReligions()->GetReligiousMajority());
+#endif
 	}
 
 	if(GC.getGame().getGameTurn() == 0)
@@ -7980,9 +7984,17 @@ void CvCity::processSpecialist(SpecialistTypes eSpecialist, int iChange)
 
 //	--------------------------------------------------------------------------------
 /// Process the majority religion changing for a city
+#if defined(MOD_BALANCE_CORE)
+void CvCity::UpdateReligion(ReligionTypes eNewMajority, bool bRecalcPlotYields)
+{
+	//avoid this expensive call if only a specialist was added/removed
+	if (bRecalcPlotYields)
+		updateYield();
+#else
 void CvCity::UpdateReligion(ReligionTypes eNewMajority)
 {
 	updateYield();
+#endif
 
 	// Reset city level yields
 #if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)

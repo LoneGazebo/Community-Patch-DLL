@@ -821,6 +821,10 @@ private:
 	int* m_paiNumRealBuilding;
 	int* m_paiNumFreeBuilding;
 
+#if defined(MOD_BALANCE_CORE)
+	std::vector<BuildingTypes> m_buildingsThatExistAtLeastOnce;
+#endif
+
 	std::vector<BuildingYieldChange> m_aBuildingYieldChange;
 	std::vector<BuildingGreatWork> m_aBuildingGreatWork;
 

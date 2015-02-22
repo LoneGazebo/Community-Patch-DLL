@@ -4820,15 +4820,7 @@ int CvTradeAI::ScoreInternationalTR (const TradeConnection& kTradeConnection)
 		iTechDifferenceP2fromP1 = 0;
 #endif // AUI_TRADE_SCORE_INTERNATIONAL_MAX_DELTA_WITH_MINORS
 
-#ifdef AUI_TRADE_SCORE_INTERNATIONAL_RELATIVE_TECH_SCORING
-	double dTechModP1 = log(MAX((m_pPlayer->GetScienceTimes100() + 200.0 * iTechDifferenceP1fromP2), 1.0) / (double)MAX(m_pPlayer->GetScienceTimes100(), 1)) / log(2.);
-	double dTechModP2 = log(MAX((GET_PLAYER(kTradeConnection.m_eDestOwner).GetScienceTimes100() + 200.0 * iTechDifferenceP2fromP1), 1.0) /
-		(double)MAX(GET_PLAYER(kTradeConnection.m_eDestOwner).GetScienceTimes100(), 1)) / log(2.);
-
-	int iTechDelta = (int)(iTechDifferenceP1fromP2 * dTechModP1 - iTechDifferenceP2fromP1 * dTechModP2 + 0.5);
-#else
 	int iTechDelta = iTechDifferenceP1fromP2 - iTechDifferenceP2fromP1;
-#endif
 
 	// religion
 	ReligionTypes eOwnerFoundedReligion = GC.getGame().GetGameReligions()->GetReligionCreatedByPlayer(m_pPlayer->GetID());

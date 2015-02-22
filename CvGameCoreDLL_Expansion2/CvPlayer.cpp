@@ -22179,7 +22179,15 @@ void CvPlayer::setTeam(TeamTypes eTeam)
 	GET_TEAM(getTeam()).changeTotalPopulation(-(getTotalPopulation()));
 	GET_TEAM(getTeam()).changeTotalLand(-(getTotalLand()));
 
+#if defined(MOD_BALANCE_CORE)
+	GET_TEAM(getTeam()).removePlayer(GetID());
+#endif
+
 	CvPreGame::setTeamType(GetID(), eTeam);
+
+#if defined(MOD_BALANCE_CORE)
+	GET_TEAM(getTeam()).addPlayer(GetID());
+#endif
 
 	GET_TEAM(getTeam()).changeNumMembers(1);
 	if(isAlive())
@@ -22879,7 +22887,13 @@ int CvPlayer::GetScienceTimes100() const
 #endif
 
 	// Science from other players!
+#if defined(MOD_BALANCE_CORE)
+	if (!isMinorCiv())
+		//avoid pointless recursion
+		iValue += GetScienceFromOtherPlayersTimes100();
+#else
 	iValue += GetScienceFromOtherPlayersTimes100();
+#endif
 
 	// Happiness converted to Science? (Policies, etc.)
 	iValue += GetScienceFromHappinessTimes100();

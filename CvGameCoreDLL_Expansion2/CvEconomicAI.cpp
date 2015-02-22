@@ -2324,7 +2324,11 @@ void CvEconomicAI::DoReconState()
 			bool bSkipFirst = GC.getGame().getGameTurn() < 100;
 			for(pLoopUnit = m_pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iUnitLoop))
 			{
+#if defined(MOD_BALANCE_CORE_MILITARY)
+				if(pLoopUnit->AI_getUnitAIType() == UNITAI_EXPLORE && pLoopUnit->getUnitInfo().GetDefaultUnitAIType() != UNITAI_EXPLORE)
+#else
 				if(pLoopUnit->AI_getUnitAIType() == UNITAI_EXPLORE && pLoopUnit->getUnitInfo().GetUnitAIType(UNITAI_ATTACK))
+#endif
 				{
 					if(bSkipFirst)
 					{

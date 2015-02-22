@@ -238,11 +238,6 @@ void CvTeam::uninit()
 		m_abForcePeace[i] = false;
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-		m_abIsVassal[i] = false;
-		m_abIsVoluntaryVassal[i] = false;
-		m_aiNumTurnsIsVassal[i] = -1;
-		m_aiNumCitiesWhenVassalMade[i] = 0;
-		m_aiTotalPopulationWhenVassalMade[i] = 0;
 		m_aiNumTurnsSinceVassalEnded[i] = -1;
 #endif
 	}
@@ -253,6 +248,14 @@ void CvTeam::uninit()
 	}
 
 	m_eID = NO_TEAM;
+
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	m_bIsVoluntaryVassal = false;
+	m_iNumTurnsIsVassal = -1;
+	m_iNumCitiesWhenVassalMade = 0;
+	m_iTotalPopulationWhenVassalMade = 0;
+	m_eMaster = NO_TEAM;
+#endif
 }
 
 
@@ -839,21 +842,15 @@ void CvTeam::doTurn()
 
 			if(GetNumTurnsLockedIntoWar(eTeam) > 0)
 				ChangeNumTurnsLockedIntoWar(eTeam, -1);
-		
+
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-			if (MOD_DIPLOMACY_CIV4_FEATURES) {
-				if(!GET_TEAM(eTeam).isBarbarian())
-				{
-					if(IsVassal(eTeam))
-					{
-						ChangeNumTurnsIsVassal(eTeam, 1);
-					}
-					else
-						SetNumTurnsIsVassal(eTeam, 0);
-				}
+			if (MOD_DIPLOMACY_CIV4_FEATURES)
+			{
+				if(IsVassalOfSomeone())
+					ChangeNumTurnsIsVassal(1);
 
 				if(GetNumTurnsSinceVassalEnded(eTeam) > -1)
-					ChangeNumTurnsSinceVassalEnded(eTeam, 1);
+					ChangeNumTurnsSinceVassalEnded(eTeam,1);
 			}
 #endif
 		}
@@ -2542,14 +2539,17 @@ bool CvTeam::isBarbarian() const
 //	--------------------------------------------------------------------------------
 bool CvTeam::isMinorCiv() const
 {
-	bool bValid;
-	int iI;
+	bool bValid = false;
 
-	bValid = false;
-
-	for(iI = MAX_MAJOR_CIVS; iI < MAX_PLAYERS; iI++)
+#if defined(MOD_BALANCE_CORE)
+	for(std::set<PlayerTypes>::const_iterator iI = m_members.begin(); iI != m_members.end(); ++iI)
+	{
+		CvPlayer& kPlayer = GET_PLAYER(*iI);
+#else
+	for(int iI = MAX_MAJOR_CIVS; iI < MAX_PLAYERS; iI++)
 	{
 		CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)iI);
+#endif
 		if(kPlayer.isAlive())
 		{
 			if(kPlayer.getTeam() == GetID())
@@ -2849,6 +2849,17 @@ void CvTeam::changeNumMembers(int iChange)
 	CvAssert(getNumMembers() >= 0);
 }
 
+#if defined(MOD_BALANCE_CORE)
+void CvTeam::addPlayer(PlayerTypes eID)
+{
+	m_members.insert(eID);
+}
+
+void CvTeam::removePlayer(PlayerTypes eID)
+{
+	m_members.erase(eID);
+}
+#endif
 
 //	--------------------------------------------------------------------------------
 int CvTeam::getAliveCount() const
@@ -8085,11 +8096,13 @@ void CvTeam::Read(FDataStream& kStream)
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	MOD_SERIALIZE_READ(36, kStream, m_iVassalageTradingAllowedCount, 0);
-	MOD_SERIALIZE_READ_ARRAY(36, kStream, &m_abIsVassal[0], bool, MAX_TEAMS, false);
-	MOD_SERIALIZE_READ_ARRAY(36, kStream, &m_abIsVoluntaryVassal[0], bool, MAX_TEAMS, false);
-	MOD_SERIALIZE_READ_ARRAY(36, kStream, &m_aiNumTurnsIsVassal[0], int, MAX_TEAMS, -1);
-	MOD_SERIALIZE_READ_ARRAY(36, kStream, &m_aiNumCitiesWhenVassalMade[0], int, MAX_TEAMS, 0);
-	MOD_SERIALIZE_READ_ARRAY(36, kStream, &m_aiTotalPopulationWhenVassalMade[0], int, MAX_TEAMS, 0);
+	int temp;
+	MOD_SERIALIZE_READ(36, kStream, temp, -1);
+	m_eMaster = (TeamTypes)temp;
+	MOD_SERIALIZE_READ(36, kStream, m_bIsVoluntaryVassal, false);
+	MOD_SERIALIZE_READ(36, kStream, m_iNumTurnsIsVassal, -1);
+	MOD_SERIALIZE_READ(36, kStream, m_iNumCitiesWhenVassalMade, 0);
+	MOD_SERIALIZE_READ(36, kStream, m_iTotalPopulationWhenVassalMade, 0);
 	MOD_SERIALIZE_READ_ARRAY(36, kStream, &m_aiNumTurnsSinceVassalEnded[0], int, MAX_TEAMS, -1);
 #endif
 
@@ -8239,11 +8252,11 @@ void CvTeam::Write(FDataStream& kStream) const
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	MOD_SERIALIZE_WRITE(kStream, m_iVassalageTradingAllowedCount);
-	MOD_SERIALIZE_WRITE_CONSTARRAY(kStream, &m_abIsVassal[0], bool, MAX_TEAMS);
-	MOD_SERIALIZE_WRITE_CONSTARRAY(kStream, &m_abIsVoluntaryVassal[0], bool, MAX_TEAMS);
-	MOD_SERIALIZE_WRITE_CONSTARRAY(kStream, &m_aiNumTurnsIsVassal[0], int, MAX_TEAMS);
-	MOD_SERIALIZE_WRITE_CONSTARRAY(kStream, &m_aiNumCitiesWhenVassalMade[0], int, MAX_TEAMS);
-	MOD_SERIALIZE_WRITE_CONSTARRAY(kStream, &m_aiTotalPopulationWhenVassalMade[0], int, MAX_TEAMS);
+	MOD_SERIALIZE_WRITE(kStream, m_eMaster);
+	MOD_SERIALIZE_WRITE(kStream, m_bIsVoluntaryVassal);
+	MOD_SERIALIZE_WRITE(kStream, m_iNumTurnsIsVassal);
+	MOD_SERIALIZE_WRITE(kStream, m_iNumCitiesWhenVassalMade);
+	MOD_SERIALIZE_WRITE(kStream, m_iTotalPopulationWhenVassalMade);
 	MOD_SERIALIZE_WRITE_CONSTARRAY(kStream, &m_aiNumTurnsSinceVassalEnded[0], int, MAX_TEAMS);
 #endif
 }
@@ -8343,70 +8356,39 @@ void CvTeam::changeVassalageTradingAllowedCount(int iChange)
 // Find out who we're a vassal of
 TeamTypes CvTeam::GetMaster() const
 {
-	TeamTypes eOtherTeam;
-	for(int iTeamLoop = 0; iTeamLoop < MAX_TEAMS; iTeamLoop++)
-	{
-		eOtherTeam = (TeamTypes) iTeamLoop;
-
-		// We're the vassal of this team
-		if(IsVassal(eOtherTeam))
-		{
-			return eOtherTeam;
-		}
-	}
-
-	return NO_TEAM;
+	return m_eMaster;
 }
 //	--------------------------------------------------------------------------------
 // We're a vassal of somebody (doesn't matter who)
 bool CvTeam::IsVassalOfSomeone() const
 {
-	TeamTypes eOtherTeam;
-	for(int iTeamLoop = 0; iTeamLoop < MAX_TEAMS; iTeamLoop++)
-	{
-		eOtherTeam = (TeamTypes) iTeamLoop;
-		
-		// We're the vassal of eOtherTeam
-		if(IsVassal(eOtherTeam))
-		{
-			return true;
-		}
-	}
-	
-	// We didn't find a vassal
-	return false;
+	return m_eMaster!=NO_TEAM;
 }
 //	--------------------------------------------------------------------------------
 bool CvTeam::IsVoluntaryVassal(TeamTypes eIndex) const
 {
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
-	return m_abIsVoluntaryVassal[eIndex];
+	return m_bIsVoluntaryVassal && IsVassal(eIndex);
 }
 //	--------------------------------------------------------------------------------
 void CvTeam::setVoluntaryVassal(TeamTypes eIndex, bool bNewValue)
 {
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
-	CvAssertMsg(eIndex != GetID() || bNewValue == false, "Team is setting vassal with itself!");
-	if(eIndex != GetID() || bNewValue == false)
-		m_abIsVoluntaryVassal[eIndex] = bNewValue;
+	setVassal(eIndex,bNewValue);
+	m_bIsVoluntaryVassal = true;
 }
 //	--------------------------------------------------------------------------------
 bool CvTeam::IsVassal(TeamTypes eIndex) const
 {
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
-	return m_abIsVassal[eIndex];
+	return eIndex!=NO_TEAM && eIndex==m_eMaster;
 }
 //	--------------------------------------------------------------------------------
 void CvTeam::setVassal(TeamTypes eIndex, bool bNewValue)
 {
-	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
-	CvAssertMsg(eIndex != GetID() || bNewValue == false, "Team is setting vassal with itself!");
-	if(eIndex != GetID() || bNewValue == false)
-		m_abIsVassal[eIndex] = bNewValue;
+	//can't be our own master
+	if(eIndex==GetID())
+		return;
+
+	m_eMaster = bNewValue ? (TeamTypes)eIndex : NO_TEAM;
+	m_bIsVoluntaryVassal = false;
 }
 
 //	-----------------------------------------------------------------------------------------------
@@ -8438,7 +8420,7 @@ bool CvTeam::canEndVassal(TeamTypes eTeam) const
 	// Too soon to end our vassalage with ePlayer
 	iMinTurns = IsVoluntaryVassal(eTeam) ? /*10*/ GC.getGame().getGameSpeedInfo().getMinimumVoluntaryVassalTurns() : /*50*/ GC.getGame().getGameSpeedInfo().getMinimumVassalTurns();
 
-	if(GetNumTurnsIsVassal(eTeam) < iMinTurns)
+	if(GetNumTurnsIsVassal() < iMinTurns)
 	{
 		return false;
 	}
@@ -8471,19 +8453,14 @@ bool CvTeam::canEndVassal(TeamTypes eTeam) const
 
 	// Number of cities
 	bool bAbleToEndVassalage = false;
-	
-	// Don't divide by zero, please!
-	// What is this doing at 0?
-	CvAssertMsg(getNumCitiesWhenVassalMade(eTeam) > 0, "Trying to evaluate the number of cities we had when vassal was signed, but it's 0.");
-	CvAssertMsg(getTotalPopulationWhenVassalMade(eTeam) > 0, "Trying to evaluate the total population we had when vassalage was signed, but it's 0");
 
 	int iCityPercent = 0;
 	int iPopPercent = 0;
 
-	if(getNumCitiesWhenVassalMade(eTeam) > 0 && getTotalPopulationWhenVassalMade(eTeam) > 0)
+	if(getNumCitiesWhenVassalMade() > 0 && getTotalPopulationWhenVassalMade() > 0)
 	{
-		iCityPercent = getNumCities() * 100 / getNumCitiesWhenVassalMade(eTeam);
-		iPopPercent = getTotalPopulation() * 100 / getTotalPopulationWhenVassalMade(eTeam);
+		iCityPercent = getNumCities() * 100 / getNumCitiesWhenVassalMade();
+		iPopPercent = getTotalPopulation() * 100 / getTotalPopulationWhenVassalMade();
 	}
 	else
 	{
@@ -8548,7 +8525,7 @@ void CvTeam::DoEndVassal(TeamTypes eTeam, bool bPeaceful, bool bSuppressNotifica
 
 		// reset counters
 		SetNumTurnsSinceVassalEnded(eTeam, 0);
-		SetNumTurnsIsVassal(eTeam, -666);
+		SetNumTurnsIsVassal(-1);
 
 		// Not peaceful end of vassalage? Declare war!
 		if(!bPeaceful)
@@ -8826,12 +8803,12 @@ void CvTeam::DoBecomeVassal(TeamTypes eTeam, bool bVoluntary)
 	GET_TEAM(eTeam).AcquireMap(GetID(), /*bTerritoryOnly*/ true);	// eTeam acquires our territory map
 
 	// Let's save some stuff
-	setNumCitiesWhenVassalMade(eTeam, getNumCities());
-	setTotalPopulationWhenVassalMade(eTeam, getTotalPopulation());
+	setNumCitiesWhenVassalMade(getNumCities());
+	setTotalPopulationWhenVassalMade(getTotalPopulation());
 
 	// reset counters
-	SetNumTurnsSinceVassalEnded(eTeam, -666);
-	SetNumTurnsIsVassal(eTeam, 0);
+	SetNumTurnsSinceVassalEnded(eTeam,-1);
+	SetNumTurnsIsVassal(0);
 
 	// If we haven't met the guy, meet him
 	if(!isHasMet(eTeam))
@@ -8962,59 +8939,41 @@ bool CvTeam::IsVassalLockedIntoWar(TeamTypes eOtherTeam) const
 	return false;
 }
 //	--------------------------------------------------------------------------------
-int CvTeam::getNumCitiesWhenVassalMade(TeamTypes eTeam) const
+int CvTeam::getNumCitiesWhenVassalMade() const
 {
-	CvAssertMsg(eTeam >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eTeam < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
-	return m_aiNumCitiesWhenVassalMade[eTeam];
+	return m_iNumCitiesWhenVassalMade;
 }
 //	--------------------------------------------------------------------------------
-void CvTeam::setNumCitiesWhenVassalMade(TeamTypes eTeam, int iValue)
+void CvTeam::setNumCitiesWhenVassalMade(int iValue)
 {
-	CvAssertMsg(eTeam >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eTeam < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
-	CvAssertMsg(eTeam != GetID() || iValue == 0, "Team is setting war turns with itself!");
-	if(eTeam != GetID() || iValue == 0)
-		m_aiNumCitiesWhenVassalMade[eTeam] = iValue;
+	m_iNumCitiesWhenVassalMade = iValue;
 }
 //	--------------------------------------------------------------------------------
-int CvTeam::getTotalPopulationWhenVassalMade(TeamTypes eTeam) const
+int CvTeam::getTotalPopulationWhenVassalMade() const
 {
-	CvAssertMsg(eTeam >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eTeam < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
-	return m_aiTotalPopulationWhenVassalMade[eTeam];
+	return m_iTotalPopulationWhenVassalMade;
 }
 //	--------------------------------------------------------------------------------
-void CvTeam::setTotalPopulationWhenVassalMade(TeamTypes eTeam, int iValue)
+void CvTeam::setTotalPopulationWhenVassalMade(int iValue)
 {
-	CvAssertMsg(eTeam >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eTeam < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
-	CvAssertMsg(eTeam != GetID() || iValue == 0, "Team is setting war turns with itself!");
-	if(eTeam != GetID() || iValue == 0)
-		m_aiTotalPopulationWhenVassalMade[eTeam] = iValue;
+	m_iTotalPopulationWhenVassalMade = iValue;
 }
 //	--------------------------------------------------------------------------------
-int CvTeam::GetNumTurnsIsVassal(TeamTypes eTeam) const
+int CvTeam::GetNumTurnsIsVassal() const
 {
-	CvAssertMsg(eTeam >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eTeam < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
-	return m_aiNumTurnsIsVassal[eTeam];
+	return m_iNumTurnsIsVassal;
 }
 
 //	--------------------------------------------------------------------------------
-void CvTeam::SetNumTurnsIsVassal(TeamTypes eTeam, int iValue)
+void CvTeam::SetNumTurnsIsVassal(int iValue)
 {
-	CvAssertMsg(eTeam >= 0, "eIndex is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eTeam < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
-	CvAssertMsg(eTeam != GetID() || iValue == 0, "Team is setting vassal turns with itself!");
-	if(eTeam != GetID() || iValue == 0)
-		m_aiNumTurnsIsVassal[eTeam] = iValue;
+	m_iNumTurnsIsVassal = iValue;
 }
 
 //	--------------------------------------------------------------------------------
-void CvTeam::ChangeNumTurnsIsVassal(TeamTypes eTeam, int iChange)
+void CvTeam::ChangeNumTurnsIsVassal(int iChange)
 {
-	SetNumTurnsIsVassal(eTeam, GetNumTurnsIsVassal(eTeam) + iChange);
+	SetNumTurnsIsVassal(GetNumTurnsIsVassal() + iChange);
 }
 //	--------------------------------------------------------------------------------
 int CvTeam::GetNumTurnsSinceVassalEnded(TeamTypes eTeam) const

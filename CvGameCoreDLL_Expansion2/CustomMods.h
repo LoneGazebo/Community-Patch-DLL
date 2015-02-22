@@ -110,8 +110,6 @@
 #define AUI_TRADE_SCORE_TRADE_ROUTE_DIVIDE_BY_LOG_TOTAL_DANGER (2.0)
 /// If the international trade route would be to a minor, the gold and tech received by the minor do not count
 #define AUI_TRADE_SCORE_INTERNATIONAL_MAX_DELTA_WITH_MINORS
-/// Score for a trade route from beakers is now relative to how much beakers we get from other sources
-#define AUI_TRADE_SCORE_INTERNATIONAL_RELATIVE_TECH_SCORING
 /// Score for a trade route from religious pressure is now relative to how much pressure there already is at the city
 #define AUI_TRADE_SCORE_INTERNATIONAL_RELATIVE_RELIGION_SCORING
 /// Instead of simply doubling score if we want the tourism boost, the multiplier is based on our grand strategy

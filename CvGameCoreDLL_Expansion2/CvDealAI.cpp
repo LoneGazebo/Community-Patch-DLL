@@ -5636,11 +5636,17 @@ bool CvDealAI::IsMakeOfferForTech(PlayerTypes eOtherPlayer, CvDeal* pDeal)
 			continue;
 		}
 
+#if defined(MOD_BALANCE_CORE)
+		// don't do the expensive turn calculation for techs that can't be traded anyway
+		if(! GetPlayer()->GetPlayerTechs()->CanResearch(eTech) )
+			continue;
+#else
 		// Don't ask for a tech that costs 15 or more turns to research
 		if(GetPlayer()->GetPlayerTechs()->GetResearchTurnsLeft(eTech, true) > 15)
 		{
 			continue;
 		}
+#endif
 
 		// Can they sell that tech?
 		if(pDeal->IsPossibleToTradeItem(eOtherPlayer, GetPlayer()->GetID(), TRADE_ITEM_TECHS, eTech))
