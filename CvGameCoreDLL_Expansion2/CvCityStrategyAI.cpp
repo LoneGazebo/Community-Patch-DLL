@@ -319,6 +319,11 @@ void CvCityStrategyAI::Reset()
 	m_pUnitProductionAI->Reset();
 	m_pProjectProductionAI->Reset();
 	m_pProcessProductionAI->Reset();
+
+#if defined(MOD_BALANCE_CORE)
+	for(iI = 0; iI < NUM_YIELD_TYPES; iI++)
+		m_adYieldAvg[iI] = 0;
+#endif
 }
 
 /// Serialization read
@@ -664,6 +669,52 @@ YieldTypes CvCityStrategyAI::GetDeficientYield(void)
 	return NO_YIELD;
 }
 
+#if defined(MOD_BALANCE_CORE)
+/// Get the average value of the yield for this city
+void CvCityStrategyAI::PrecalcYieldAverages()
+{
+	CvPlayer* pPlayer = &GET_PLAYER(m_pCity->getOwner());
+	CvPlotsVector& aiPlots = pPlayer->GetPlots();
+
+	for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+	{
+		YieldTypes eYield = (YieldTypes) iI;
+
+		int iTilesWorked = 0;
+		int iYieldAmount = 0;
+		for(uint ui = 0; ui < aiPlots.size(); ui++)
+		{
+			// at the end of the plot list
+			if(aiPlots[ui] == -1)
+			{
+				break;
+			}
+
+			CvPlot* pPlot = GC.getMap().plotByIndex(aiPlots[ui]);
+			if(!m_pCity->GetCityCitizens()->IsWorkingPlot(pPlot))
+			{
+				continue;
+			}
+
+			iTilesWorked++;
+			iYieldAmount += pPlot->calculateYield(eYield);
+		}
+
+		double dRatio = 0.0;
+		if(iTilesWorked > 0)
+			m_adYieldAvg[iI] = iYieldAmount / (double)iTilesWorked;
+		else
+			m_adYieldAvg[iI] = 0;
+	}
+}
+
+double CvCityStrategyAI::GetYieldAverage(YieldTypes eYieldType)
+{
+	return m_adYieldAvg[eYieldType];
+}
+
+#else
+
 /// Get the average value of the yield for this city
 double CvCityStrategyAI::GetYieldAverage(YieldTypes eYieldType)
 {
@@ -698,6 +749,8 @@ double CvCityStrategyAI::GetYieldAverage(YieldTypes eYieldType)
 
 	return fRatio;
 }
+#endif
+
 
 /// Get the deficient value of the yield for this city
 double CvCityStrategyAI::GetDeficientYieldValue(YieldTypes eYieldType)
@@ -1347,6 +1400,10 @@ void CvCityStrategyAI::DoTurn()
 	AI_PERF_FORMAT("City-AI-perf.csv", ("CvCityStrategyAI::DoTurn, Turn %03d, %s, %s", GC.getGame().getElapsedGameTurns(), m_pCity->GetPlayer()->getCivilizationShortDescription(), m_pCity->getName().c_str()) );
 
 	int iCityStrategiesLoop = 0;
+
+#if defined(MOD_BALANCE_CORE)
+	PrecalcYieldAverages();
+#endif
 
 	// Loop through all CityStrategies
 	for(iCityStrategiesLoop = 0; iCityStrategiesLoop < GetAICityStrategies()->GetNumAICityStrategies(); iCityStrategiesLoop++)
