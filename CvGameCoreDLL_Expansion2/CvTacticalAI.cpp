@@ -7027,6 +7027,11 @@ void CvTacticalAI::ExecuteMovesToSafestPlot()
 #else
 			int iRange = pUnit->getUnitInfo().GetMoves();
 #endif
+
+#ifdef AUI_ASTAR_ROAD_RANGE
+			IncreaseMoveRangeForRoads(pUnit.pointer(), iRange);
+#endif
+
 #if !defined(PATH_PLAN_LAST)
 			int iLowestDanger = MAX_INT;
 			bool bResultHasZeroDangerMove = false;
@@ -9156,11 +9161,18 @@ bool CvTacticalAI::FindUnitsForThisMove(TacticalAIMoveTypes eMove, CvPlot* pTarg
 				if(pLoopUnit->maxMoves() > 0)
 				{
 					int iMovesPerTurn = pLoopUnit->maxMoves() / GC.getMOVE_DENOMINATOR();
+#ifdef AUI_ASTAR_ROAD_RANGE
+					IncreaseMoveRangeForRoads(pLoopUnit.pointer(), iMovesPerTurn);
+#endif
 					int iLeastTurns = (iDistance + iMovesPerTurn - 1) / iMovesPerTurn;
 					if(iNumTurnsAway == -1 || iLeastTurns <= iNumTurnsAway)
 					{
+#ifdef AUI_ASTAR_TURN_LIMITER
+						int iMoves = TurnsToReachTarget(pLoopUnit, pTarget, false, false, false, (iNumTurnsAway == -1 ? MAX_INT : iNumTurnsAway));
+#else
 						// If unit was suitable, and close enough, add it to the proper list
 						int iMoves = TurnsToReachTarget(pLoopUnit, pTarget);
+#endif // AUI_ASTAR_TURN_LIMITER
 						if(iMoves != MAX_INT && (iNumTurnsAway == -1 ||
 						                         (iNumTurnsAway == 0 && pLoopUnit->plot() == pTarget) || iMoves <= iNumTurnsAway))
 						{
@@ -9557,7 +9569,11 @@ bool CvTacticalAI::FindClosestUnit(CvPlot* pTarget, int iNumTurnsAway, bool bMus
 
 			if(bValidUnit)
 			{
+#ifdef AUI_ASTAR_TURN_LIMITER
+				int iTurns = TurnsToReachTarget(pLoopUnit, pTarget, false /*bReusePaths*/, bIgnoreUnits, (iNumTurnsAway==0), iNumTurnsAway);
+#else
 				int iTurns = TurnsToReachTarget(pLoopUnit, pTarget, false /*bReusePaths*/, bIgnoreUnits, (iNumTurnsAway==0));
+#endif // AUI_ASTAR_TURN_LIMITER
 				if(iTurns <= iNumTurnsAway)
 				{
 					CvTacticalUnit unit;

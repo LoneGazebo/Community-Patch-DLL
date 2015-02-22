@@ -4963,7 +4963,11 @@ static CvPlot* GetReachablePlot(UnitHandle pUnit, WeightedPlotVector& aPlots, in
 				if (iWeight > iFoundWeight)
 					break;		// Already found one of a lower weight
 			
+#ifdef AUI_ASTAR_TURN_LIMITER
+				int iTurnsCalculated = TurnsToReachTarget(pUnit, pPlot, true /*bReusePaths*/, false, false, iFoundTurns);
+#else
 				int iTurnsCalculated = TurnsToReachTarget(pUnit, pPlot, true /*bReusePaths*/, false);
+#endif // AUI_ASTAR_TURN_LIMITER
 				if (iTurnsCalculated != MAX_INT)
 				{
 					if (iTurnsCalculated < iFoundTurns)

@@ -4615,11 +4615,51 @@ void CvTeam::DoUpdateBestRoute()
 		}
 	}
 
+#ifdef AUI_ASTAR_ROAD_RANGE
+	if(eBestRoute > NO_ROUTE)
+	{
+		SetBestPossibleRoute(eBestRoute);
+		CvRouteInfo* pRouteInfo = GC.getRouteInfo(eBestRoute);
+		if (pRouteInfo)
+		{
+			m_iBestRouteNormalCostMultiplier = GC.getMOVE_DENOMINATOR() / (pRouteInfo->getMovementCost() + getRouteChange(eBestRoute));
+			m_iBestRouteFlatCostMultiplier = GC.getMOVE_DENOMINATOR() / pRouteInfo->getFlatMovementCost();
+			// Extra pRouteInfo->getFlatMovementCost() - 1 is to make sure value is always rounded up
+			m_iUseFlatCostIfBelowThis = (pRouteInfo->getMovementCost() + getRouteChange(eBestRoute) + pRouteInfo->getFlatMovementCost() - 1) / pRouteInfo->getFlatMovementCost();
+		}
+		else
+		{
+			m_iBestRouteFlatCostMultiplier = 0;
+			m_iBestRouteNormalCostMultiplier = 1;
+			m_iUseFlatCostIfBelowThis = -1;
+		}
+	}
+#else
 	if(iBestRouteValue > -1)
 	{
 		SetBestPossibleRoute(eBestRoute);
 	}
+#endif
 }
+
+#ifdef AUI_ASTAR_ROAD_RANGE
+int CvTeam::GetBestRoadMovementMultiplier(const CvUnit* pUnit) const
+{
+	int iRtnValue = m_iBestRouteNormalCostMultiplier;
+	if (pUnit)
+	{
+		if (pUnit->baseMoves(DOMAIN_LAND) < m_iUseFlatCostIfBelowThis)
+		{
+			iRtnValue = m_iBestRouteFlatCostMultiplier / pUnit->baseMoves(DOMAIN_LAND);
+		}
+	}
+	
+	if (iRtnValue < 1)
+		iRtnValue = 1;
+
+	return iRtnValue;
+}
+#endif
 
 //	--------------------------------------------------------------------------------
 int CvTeam::getProjectCount(ProjectTypes eIndex) const

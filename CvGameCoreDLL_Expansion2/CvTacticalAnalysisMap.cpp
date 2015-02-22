@@ -345,7 +345,14 @@ void CvTacticalAnalysisMap::MarkCellsNearEnemy()
 #endif
 							{
 								int iTurnsToReach;
-								iTurnsToReach = TurnsToReachTarget(pUnit, pPlot, true /*bReusePaths*/, true /*bIgnoreUnits*/);	// Its ok to reuse paths because when ignoring units, we don't use the tactical analysis map (which we are building)
+
+								// Its ok to reuse paths because when ignoring units, we don't use the tactical analysis map (which we are building)
+#ifdef AUI_ASTAR_TURN_LIMITER
+								iTurnsToReach = TurnsToReachTarget(pUnit, pPlot, true /*bReusePaths*/, true /*bIgnoreUnits*/, 2);
+#else
+								iTurnsToReach = TurnsToReachTarget(pUnit, pPlot, true /*bReusePaths*/, true /*bIgnoreUnits*/);
+#endif // AUI_ASTAR_TURN_LIMITER
+
 #if defined(MOD_BALANCE_CORE)
 								if (iTurnsToReach <= 1 || (pUnit->isRanged() && iTurnsToReach <= 2))
 #else

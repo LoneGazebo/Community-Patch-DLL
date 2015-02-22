@@ -2393,7 +2393,11 @@ bool CvPlot::canHaveImprovement(ImprovementTypes eImprovement, TeamTypes eTeam, 
 
 	for(iI = 0; iI < NUM_YIELD_TYPES; ++iI)
 	{
+#if defined(MOD_BALANCE_CORE)
+		if(pkImprovementInfo->GetPrereqNatureYield(iI) > 0 && calculateNatureYield(((YieldTypes)iI), eTeam) < pkImprovementInfo->GetPrereqNatureYield(iI))
+#else
 		if(calculateNatureYield(((YieldTypes)iI), eTeam) < pkImprovementInfo->GetPrereqNatureYield(iI))
+#endif
 		{
 			return false;
 		}

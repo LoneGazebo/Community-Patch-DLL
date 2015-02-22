@@ -5555,7 +5555,11 @@ CvPlot* CvReligionAI::ChooseMissionaryTargetPlot(UnitHandle pUnit, int* piTurns)
 
 			if(pUnit->CanSpreadReligion(pLoopPlot))
 			{
+#ifdef AUI_ASTAR_TURN_LIMITER
+				iTurns = TurnsToReachTarget(pUnit, pLoopPlot, true /* bReusePaths */, iBestNumTurns);
+#else
 				iTurns = TurnsToReachTarget(pUnit, pLoopPlot, true /* bReusePaths */);
+#endif // AUI_ASTAR_TURN_LIMITER
 				if(iTurns < MAX_INT)
 				{
 					iDistance = plotDistance(pUnit->getX(), pUnit->getY(), pLoopPlot->getX(), pLoopPlot->getY());
@@ -5669,7 +5673,11 @@ CvPlot* CvReligionAI::ChooseInquisitorTargetPlot(UnitHandle pUnit, int* piTurns)
 
 			if(pUnit->CanRemoveHeresy(pLoopPlot))
 			{
+#ifdef AUI_ASTAR_TURN_LIMITER
+				iTurns = TurnsToReachTarget(pUnit, pLoopPlot, true /* bReusePaths */, iBestNumTurns);
+#else
 				iTurns = TurnsToReachTarget(pUnit, pLoopPlot, true /* bReusePaths */);
+#endif // AUI_ASTAR_TURN_LIMITER
 				if(iTurns < MAX_INT)
 				{
 					iDistance = plotDistance(pUnit->getX(), pUnit->getY(), pLoopPlot->getX(), pLoopPlot->getY());
@@ -5896,7 +5904,11 @@ CvPlot* CvReligionAI::ChooseProphetTargetPlot(UnitHandle pUnit, int* piTurns)
 
 			if(pUnit->CanSpreadReligion(pLoopPlot))
 			{
+#ifdef AUI_ASTAR_TURN_LIMITER
+				iTurns = TurnsToReachTarget(pUnit, pLoopPlot, true /* bReusePaths */, iBestNumTurns);
+#else
 				iTurns = TurnsToReachTarget(pUnit, pLoopPlot, true /* bReusePaths */);
+#endif // AUI_ASTAR_TURN_LIMITER
 				if(iTurns < MAX_INT)
 				{
 					iDistance = plotDistance(pUnit->getX(), pUnit->getY(), pLoopPlot->getX(), pLoopPlot->getY());

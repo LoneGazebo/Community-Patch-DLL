@@ -129,6 +129,10 @@ void CvDangerPlots::UpdateDanger(bool bPretendWarWithAllCivs, bool bIgnoreVisibi
 			}
 
 			int iRange = pLoopUnit->baseMoves();
+#ifdef AUI_ASTAR_ROAD_RANGE
+			IncreaseMoveRangeForRoads(pLoopUnit, iRange);
+#endif
+
 			if(pLoopUnit->canRangeStrike())
 			{
 				iRange += pLoopUnit->GetRange();
