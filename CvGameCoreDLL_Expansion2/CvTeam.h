@@ -510,7 +510,8 @@ protected:
 	static CvTeam* m_aTeams;
 
 #if defined(MOD_BALANCE_CORE)
-	std::set<PlayerTypes> m_members;
+	//we care about iteration speed, so use a vector over a set
+	std::vector<PlayerTypes> m_members;
 #endif
 
 	int m_iNumMembers;

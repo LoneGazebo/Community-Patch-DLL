@@ -249,6 +249,10 @@ void CvTeam::uninit()
 
 	m_eID = NO_TEAM;
 
+#if defined(MOD_BALANCE_CORE)
+	m_members.clear();
+#endif
+
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	m_bIsVoluntaryVassal = false;
 	m_iNumTurnsIsVassal = -1;
@@ -2542,7 +2546,7 @@ bool CvTeam::isMinorCiv() const
 	bool bValid = false;
 
 #if defined(MOD_BALANCE_CORE)
-	for(std::set<PlayerTypes>::const_iterator iI = m_members.begin(); iI != m_members.end(); ++iI)
+	for(std::vector<PlayerTypes>::const_iterator iI = m_members.begin(); iI != m_members.end(); ++iI)
 	{
 		CvPlayer& kPlayer = GET_PLAYER(*iI);
 #else
@@ -2852,12 +2856,15 @@ void CvTeam::changeNumMembers(int iChange)
 #if defined(MOD_BALANCE_CORE)
 void CvTeam::addPlayer(PlayerTypes eID)
 {
-	m_members.insert(eID);
+	if ( std::find( m_members.begin(), m_members.end(), eID ) == m_members.end() )
+		m_members.push_back(eID);
 }
 
 void CvTeam::removePlayer(PlayerTypes eID)
 {
-	m_members.erase(eID);
+	std::vector<PlayerTypes>::iterator pos = std::find( m_members.begin(), m_members.end(), eID );
+	if ( pos != m_members.end() )
+		m_members.erase(pos);
 }
 #endif
 
@@ -7961,6 +7968,16 @@ void CvTeam::Read(FDataStream& kStream)
 	MOD_SERIALIZE_INIT_READ(kStream);
 
 	kStream >> m_iNumMembers;
+
+#if defined(MOD_BALANCE_CORE)
+	for(int i=0; i<m_iNumMembers; i++)
+	{
+		int tmp;
+		kStream >> tmp;
+		m_members.push_back( (PlayerTypes)tmp );
+	}
+#endif
+
 	kStream >> m_iAliveCount;
 	kStream >> m_iEverAliveCount;
 	kStream >> m_iNumCities;
@@ -8167,6 +8184,12 @@ void CvTeam::Write(FDataStream& kStream) const
 	MOD_SERIALIZE_INIT_WRITE(kStream);
 
 	kStream << m_iNumMembers;
+
+#if defined(MOD_BALANCE_CORE)
+	for(std::vector<PlayerTypes>::const_iterator iI = m_members.begin(); iI != m_members.end(); ++iI)
+		kStream << (int)(*iI);
+#endif
+
 	kStream << m_iAliveCount;
 	kStream << m_iEverAliveCount;
 	kStream << m_iNumCities;

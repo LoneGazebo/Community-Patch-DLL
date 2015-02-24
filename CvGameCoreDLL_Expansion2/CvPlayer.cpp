@@ -654,6 +654,11 @@ void CvPlayer::init(PlayerTypes eID)
 	// Init other game data
 	CvAssert(getTeam() != NO_TEAM);
 	GET_TEAM(getTeam()).changeNumMembers(1);
+
+#if defined(MOD_BALANCE_CORE)
+	GET_TEAM(getTeam()).addPlayer( GetID() );
+#endif
+
 	PlayerTypes p = GetID();
 	SlotStatus s = CvPreGame::slotStatus(p);
 	if((s == SS_TAKEN) || (s == SS_COMPUTER))
