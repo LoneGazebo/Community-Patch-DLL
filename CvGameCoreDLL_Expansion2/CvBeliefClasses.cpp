@@ -1971,6 +1971,11 @@ int CvReligionBeliefs::GetBuildingClassYieldChange(BuildingClassTypes eBuildingC
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
 
+#if defined(MOD_BALANCE_CORE)
+	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
+		if(iFollowers >= pBeliefs->GetEntry(*it)->GetMinFollowers())
+			rtnValue += pBeliefs->GetEntry(*it)->GetBuildingClassYieldChange(eBuildingClass, eYieldType);
+#else
 	for(int i = 0; i < pBeliefs->GetNumBeliefs(); i++)
 	{
 		if(HasBelief((BeliefTypes)i))
@@ -1981,6 +1986,7 @@ int CvReligionBeliefs::GetBuildingClassYieldChange(BuildingClassTypes eBuildingC
 			}
 		}
 	}
+#endif
 
 	return rtnValue;
 }
@@ -2045,6 +2051,10 @@ int CvReligionBeliefs::GetCityYieldFromUnimprovedFeature(FeatureTypes eFeature, 
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
 
+#if defined(MOD_BALANCE_CORE)
+	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
+		rtnValue += pBeliefs->GetEntry(*it)->GetCityYieldFromUnimprovedFeature(eFeature, eYieldType);
+#else
 	for(int i = 0; i < pBeliefs->GetNumBeliefs(); i++)
 	{
 		if(HasBelief((BeliefTypes)i))
@@ -2052,6 +2062,7 @@ int CvReligionBeliefs::GetCityYieldFromUnimprovedFeature(FeatureTypes eFeature, 
 			rtnValue += pBeliefs->GetEntry(i)->GetCityYieldFromUnimprovedFeature(eFeature, eYieldType);
 		}
 	}
+#endif
 
 	return rtnValue;
 }
@@ -2096,6 +2107,10 @@ int CvReligionBeliefs::GetTerrainYieldChange(TerrainTypes eTerrain, YieldTypes e
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
 
+#if defined(MOD_BALANCE_CORE)
+	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
+		rtnValue += pBeliefs->GetEntry(*it)->GetTerrainYieldChange(eTerrain, eYieldType);
+#else
 	for(int i = 0; i < pBeliefs->GetNumBeliefs(); i++)
 	{
 		if(HasBelief((BeliefTypes)i))
@@ -2103,6 +2118,7 @@ int CvReligionBeliefs::GetTerrainYieldChange(TerrainTypes eTerrain, YieldTypes e
 			rtnValue += pBeliefs->GetEntry(i)->GetTerrainYieldChange(eTerrain, eYieldType);
 		}
 	}
+#endif
 
 	return rtnValue;
 }
@@ -2129,6 +2145,11 @@ int CvReligionBeliefs::GetSpecialistYieldChange(SpecialistTypes eSpecialist, Yie
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
 
+
+#if defined(MOD_BALANCE_CORE)
+	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
+		rtnValue += pBeliefs->GetEntry(*it)->GetSpecialistYieldChange(eSpecialist, eYieldType);
+#else
 	for(int i = 0; i < pBeliefs->GetNumBeliefs(); i++)
 	{
 		if(HasBelief((BeliefTypes)i))
@@ -2136,6 +2157,7 @@ int CvReligionBeliefs::GetSpecialistYieldChange(SpecialistTypes eSpecialist, Yie
 			rtnValue += pBeliefs->GetEntry(i)->GetSpecialistYieldChange(eSpecialist, eYieldType);
 		}
 	}
+#endif
 
 	return rtnValue;
 }
@@ -2215,6 +2237,11 @@ int CvReligionBeliefs::GetGreatWorkYieldChange(int iPopulation, YieldTypes eYiel
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
 
+#if defined(MOD_BALANCE_CORE)
+	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
+		if(iPopulation >= pBeliefs->GetEntry(*it)->GetMinPopulation())
+			rtnValue += pBeliefs->GetEntry(*it)->GetGreatWorkYieldChange(eYield);
+#else
 	for(int i = 0; i < pBeliefs->GetNumBeliefs(); i++)
 	{
 		if(HasBelief((BeliefTypes)i))
@@ -2225,6 +2252,7 @@ int CvReligionBeliefs::GetGreatWorkYieldChange(int iPopulation, YieldTypes eYiel
 			}
 		}
 	}
+#endif
 
 	return rtnValue;
 }
@@ -2272,6 +2300,10 @@ int CvReligionBeliefs::GetPlotYieldChange(PlotTypes ePlot, YieldTypes eYieldType
 	int rtnValue = 0;
 
 	if (MOD_RELIGION_PLOT_YIELDS) {
+#if defined(MOD_BALANCE_CORE)
+		for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
+			rtnValue += pBeliefs->GetEntry(*it)->GetPlotYieldChange(ePlot, eYieldType);
+#else
 		for(int i = 0; i < pBeliefs->GetNumBeliefs(); i++)
 		{
 			if(HasBelief((BeliefTypes)i))
@@ -2279,6 +2311,7 @@ int CvReligionBeliefs::GetPlotYieldChange(PlotTypes ePlot, YieldTypes eYieldType
 				rtnValue += pBeliefs->GetEntry(i)->GetPlotYieldChange(ePlot, eYieldType);
 			}
 		}
+#endif
 	}
 
 	return rtnValue;
@@ -2473,6 +2506,11 @@ bool CvReligionBeliefs::RequiresImprovement() const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 
+#if defined(MOD_BALANCE_CORE)
+	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
+		if (pBeliefs->GetEntry(*it)->RequiresImprovement())
+			return true;
+#else
 	for(int i = 0; i < pBeliefs->GetNumBeliefs(); i++)
 	{
 		if(HasBelief((BeliefTypes)i))
@@ -2483,6 +2521,7 @@ bool CvReligionBeliefs::RequiresImprovement() const
 			}
 		}
 	}
+#endif
 
 	return false;
 }
@@ -2491,6 +2530,11 @@ bool CvReligionBeliefs::RequiresResource() const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 
+#if defined(MOD_BALANCE_CORE)
+	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
+		if (pBeliefs->GetEntry(*it)->RequiresResource())
+			return true;
+#else
 	for(int i = 0; i < pBeliefs->GetNumBeliefs(); i++)
 	{
 		if(HasBelief((BeliefTypes)i))
@@ -2501,6 +2545,7 @@ bool CvReligionBeliefs::RequiresResource() const
 			}
 		}
 	}
+#endif
 
 	return false;
 }

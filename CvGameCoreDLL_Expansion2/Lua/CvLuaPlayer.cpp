@@ -58,6 +58,9 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 #if defined(MOD_BALANCE_CORE)
 	Method(InitNamedUnit);
 #endif
+#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+	Method(GetResourceMonopolyPlayer);
+#endif
 	Method(DisbandUnit);
 	Method(AddFreeUnit);
 
@@ -935,6 +938,11 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(DoForceDoF);
 	Method(DoForceDenounce);
 
+#if defined(MOD_BALANCE_CORE_DEALS)
+	Method(IsHasDefensivePact);
+	Method(IsHasDefensivePactWithPlayer);
+#endif
+
 	Method(GetNumNotifications);
 	Method(GetNotificationStr);
 	Method(GetNotificationSummaryStr);
@@ -985,6 +993,9 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetTraitGreatScientistRateModifier);
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_TRAITS_ANY_BELIEF)
 	Method(IsTraitAnyBelief);
+#endif
+#if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
+	Method(IsBullyAnnex);
 #endif
 	Method(IsTraitBonusReligiousBelief);
 	Method(GetHappinessFromLuxury);
@@ -1322,6 +1333,33 @@ int CvLuaPlayer::lInitNamedUnit(lua_State* L)
 
 	CvUnit* pkUnit = pkPlayer->initNamedUnit(eUnit, strKey, x, y, eUnitAI, eFacingDirection);
 	CvLuaUnit::Push(L, pkUnit);
+	return 1;
+}
+#endif
+#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+// ---------------------------------------------------------------------
+//PlayerTypes CvPlayer::GetResourceMonopolyPlayer(ResourceTypes eResource)
+int CvLuaPlayer::lGetResourceMonopolyPlayer(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	PlayerTypes ePlayer = NO_PLAYER;
+	if(pkPlayer)
+	{
+		const ResourceTypes eResource = (ResourceTypes)lua_tointeger(L, 2);
+		for (int iPlayerLoop = 0; iPlayerLoop < MAX_PLAYERS; iPlayerLoop++)
+		{
+			PlayerTypes ePlayerLoop = (PlayerTypes) iPlayerLoop;
+			if(GET_TEAM(GET_PLAYER(ePlayerLoop).getTeam()).isHasMet(pkPlayer->getTeam()) && (GET_PLAYER(ePlayerLoop).GetID() != pkPlayer->GetID()))
+			{
+				if(GET_PLAYER(ePlayerLoop).HasMonopoly(eResource))
+				{
+					ePlayer = ePlayerLoop;
+					break;
+				}
+			}
+		}
+	}
+	lua_pushinteger(L, ePlayer);
 	return 1;
 }
 #endif
@@ -9218,7 +9256,41 @@ int CvLuaPlayer::lDoForceDenounce(lua_State* L)
 
 	return 1;
 }
+#if defined(MOD_BALANCE_CORE_DEALS)
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lIsHasDefensivePact(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	PlayerTypes eOtherPlayer = (PlayerTypes) lua_tointeger(L, 2);
+	bool bValue = false;
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_PLAYERS; iPlayerLoop++)
+	{
+		PlayerTypes ePlayerLoop = (PlayerTypes) iPlayerLoop;
+		if(ePlayerLoop != eOtherPlayer && ePlayerLoop != NO_PLAYER && ePlayerLoop != pkPlayer->GetID())
+		{
+			if(GET_TEAM(GET_PLAYER(ePlayerLoop).getTeam()).IsHasDefensivePact(pkPlayer->getTeam()))
+			{
+				bValue = true;
+				break;
+			}
+		}
+	}
 
+	lua_pushboolean(L, bValue);
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lIsHasDefensivePactWithPlayer(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	PlayerTypes eOtherPlayer = (PlayerTypes) lua_tointeger(L, 2);
+
+	const bool bValue = GET_TEAM(GET_PLAYER(eOtherPlayer).getTeam()).IsHasDefensivePact(pkPlayer->getTeam());
+
+	lua_pushboolean(L, bValue);
+	return 1;
+}
+#endif
 //------------------------------------------------------------------------------
 //void AddNotification()
 int CvLuaPlayer::lAddNotification(lua_State* L)
@@ -10042,6 +10114,18 @@ int CvLuaPlayer::lIsTraitAnyBelief(lua_State* L)
 	return 1;
 }
 #endif
+#if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lIsBullyAnnex(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	if(pkPlayer)
+	{
+		lua_pushboolean(L, pkPlayer->GetPlayerTraits()->IsBullyAnnex());
+	}
+	return 1;
+}
+#endif
 //------------------------------------------------------------------------------
 int CvLuaPlayer::lIsTraitBonusReligiousBelief(lua_State* L)
 {
@@ -10709,7 +10793,35 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		}
 #endif
 	}
-
+#if defined(MOD_BALANCE_CORE_DEALS)
+	if(MOD_BALANCE_CORE_DEALS)
+	{
+		iValue = pDiploAI->GetDPAcceptedScore(eWithPlayer);
+		if (iValue != 0)
+		{
+			Opinion kOpinion;
+			kOpinion.m_iValue = iValue;
+			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_DP");
+			aOpinions.push_back(kOpinion);
+		}
+		iValue = pDiploAI->GetDPWithAnyFriendScore(eWithPlayer);
+		if (iValue != 0)
+		{
+			Opinion kOpinion;
+			kOpinion.m_iValue = iValue;
+			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_DP_MUTUAL");
+			aOpinions.push_back(kOpinion);
+		}
+		iValue = pDiploAI->GetDPWithAnyEnemyScore(eWithPlayer);
+		if (iValue != 0)
+		{
+			Opinion kOpinion;
+			kOpinion.m_iValue = iValue;
+			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_DP_WITH_ENEMY");
+			aOpinions.push_back(kOpinion);
+		}
+	}
+#endif
 	if (iVisibleApproach == MAJOR_CIV_APPROACH_AFRAID)
 	{
 		Opinion kOpinion;

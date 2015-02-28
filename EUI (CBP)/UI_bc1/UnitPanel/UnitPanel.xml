@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Context ColorSet="Beige_Black" Font="TwCenMT20" FontStyle="Shadow">
+
+	<Instance Name="UnitAction">
+		<GridButton Anchor="R,T" ID="UnitActionButton" Size="50,50" Style="BaseButton" Hidden="0" ToolTipType="TypeUnitAction">
+			<Image Anchor="C,C" Size="64,64" Texture="UnitActions.dds" ID="UnitActionIcon"/>
+		</GridButton>
+	</Instance>
+
+	<!-- Unit Upgrade definition -->
+	<Instance Name="Upgrade"/>
+
+	<!-- Promotion Instance -->
+	<Instance Name="EarnedPromotionInstance">
+		<Image Size="32,32" Texture="Promotions256.dds" ID="UnitPromotionImage"/>
+	</Instance>
+
+	<Container ID="Base" Size="Full,Full">
+		<!-- Unit Panel -->
+		<Container ID="Panel" Size="Full,Full">
+			<Image Anchor="L,B" Offset="234,18" Size="64,64" Color="White.0" Texture="IconFrame64.dds" Hidden="1" ID="BackgroundCivFrame">
+				<Image Anchor="C,C" Size="128,128" Color="White.128" Texture="CivSymbolsColor.dds" ID="BackgroundCivSymbol"/>
+			</Image>
+
+			<Image Anchor="L,B" Offset="500,0" Texture="BottomLeft128x224.dds" Size="128,224"/>
+
+			<!-- Unit Actions Backgrounds -->
+			<Grid Anchor="L,B" Offset="77,-39" Size="94,446" Style="Grid9Detail48Black" Hidden="1" ID="SecondaryStretchy" ConsumeMouse="1"/>
+			<Grid Anchor="L,B" Offset="77,-39" Size="130,462" Style="Grid9DetailSix140" Hidden="1" ID="PrimaryStretchy" ConsumeMouse="1"/>
+
+			<!-- Worker Action Panel -->
+			<Grid Anchor="L,B" Offset="210,123" Size="290,210" Style="Grid9DetailFive140" Hidden="0" ID="WorkerActionPanel" ConsumeMouse="1">
+				<TextButton Offset="30,25" Anchor="R,T" AnchorSide="I.I" Font="TwCenMT14" ColorSet="Beige_Black_Alpha" String="TXT_KEY_EDIT_BUTTON" ToolTip="TXT_KEY_EDIT_BUTTON" FontStyle="Shadow" MouseOverStyle="SoftShadow" ConsumeMouse="1" ID="EditButton"/>
+
+				<Label	Anchor="C,T" Offset="0,18" Font="TwCenMT20" FontStyle="Shadow" String="TXT_KEY_WORKERACTION_TEXT" ID="WorkerText"/>
+				<Label Anchor="L,T" Offset="60,18" Font="TwCenMT20" String="TXT_KEY_UPANEL_UNIT_PROMOTED" FontStyle="Shadow" ID="PromotionText"/>
+
+				<FlipAnim Size="64,64" Offset="12,-12" Anchor="L,T" Columns="4" Speed="10" Pause=".5" StepSize="64,64" FrameCount="8" Texture="PromotionAnimation.dds" ID="PromotionAnimation"/>
+
+				<GridButton Anchor="R,T" Size="50,50" Offset="25,50" Style="BaseButton" Hidden="1" ID="RecommendedActionButton" ToolTipType="TypeUnitAction">
+					<Box Anchor="L,T" AnchorSide="O,I" Offset="5,0" Size="188,50" Color="0,0,0,0">
+						<Label	Anchor="L,C" Font="TwCenMT16" WrapWidth="188" FontStyle="Shadow" String="TXT_KEY_UPANEL_REPAIR_TILE" ID="RecommendedActionLabel"/>
+					</Box>
+					<Image Anchor="C,C" Size="64,64" TextureOffset="256.256" Texture="UnitActions.dds" ID="RecommendedActionImage"/>
+				</GridButton>
+
+				<Image Anchor="C,T" Offset="0,105" TextureOffset="30.0" Texture="bar300x2.dds" Size="240.1" ID="RecommendedActionDivider"/>
+
+			</Grid>
+
+			<Grid Anchor="L,B" Offset="200,116" Size="280,210" Style="Grid9DetailFive140" Hidden="1" ConsumeMouse="1">
+				<Label Anchor="C,T" Offset="0,18" Font="TwCenMT20" String="TXT_KEY_UPANEL_UNIT_PROMOTED" FontStyle="Shadow"/>
+				<FlipAnim Size="64,64" Offset="28,-14" Anchor="L,T" Columns="4" Speed="10" Pause=".5" StepSize="64,64" FrameCount="8" Texture="PromotionAnimation.dds"/>
+			</Grid>
+
+			<!-- UNIT PROMOTED needs to be DELETED after the top is implemented -->
+
+			<GridButton ID="PromotionButton" Size="266,32" Anchor="L,B" Offset="220,160" ToolTip="TXT_KEY_UPANEL_UNIT_PROMOTED_TT" Hidden="1">
+				<GridData Style="Grid9DarkBlue8Button"/>
+				<Label Anchor="C,C" Font="TwCenMT20" String="TXT_KEY_UPANEL_UNIT_PROMOTED" FontStyle="Shadow"/>
+				<FlipAnim Size="64,64" Offset="6,-4" Anchor="L,C" Columns="4" Speed="10" Pause=".5" StepSize="64,64" FrameCount="8" Texture="PromotionAnimation.dds"/>
+				<Stack Offset="0,-58" Anchor="L,T" StackGrowth="Left" Padding="7" ID="PromotionStack" Hidden="0"/>
+
+			</GridButton>
+
+			<!-- Background -->
+			<Grid Anchor="L,B" Offset="-37,-39" Size="546,208" Style="Grid9DetailFive140" Hidden="0" ConsumeMouse="1">
+
+				<Box Anchor="R,T" Size="400,128" Offset="17,45" Color="White,0" HideBox="0">
+
+					<!-- Next/Prev Unit -->
+					<Box Anchor="R,T" Size="280,22" Offset="0,-28" Color="White.0">
+						<Button ID="UnitNameButton" Anchor="C,C" Size="280,22">
+							<Label ID="UnitName" String="TXT_KEY_UPANEL_UNIT_NAME" Anchor="C,C" Offset="0,-4" Font="TwCenMT24" ColorSet="Beige_Black_Alpha" FontStyle="SoftShadow" ToolTip="TXT_KEY_CURRENTLY_SELECTED_UNIT"/>
+						</Button>
+						<Button Anchor="R,C" Size="32,32" TextureOffset="7,0" Texture="UnitPanelArrows.dds" ID="CycleLeft" ToolTip="TXT_KEY_UPANEL_CYCLELEFT"/>
+						<Button Anchor="L,C" Size="32,32" TextureOffset="30,0" Texture="UnitPanelArrows.dds" ID="CycleRight" ToolTip="TXT_KEY_UPANEL_CYCLERIGHT"/>"
+					</Box>
+
+					<Stack Anchor="R,T" StackGrowth="Bottom">
+
+						<!-- Promotions -->
+						<Box Anchor="R,T" Size="260,26" Color="White,0" HideBox="0">
+							<Stack Anchor="R,T" Offset="-2,-4" Padding="-7" StackGrowth="Left" ID="EarnedPromotionStack"/>
+						</Box>
+
+						<!-- XP METER -->
+						<Grid Anchor="R,C" Size="275,12" Style="Grid9FrameTurns" ID="XPFrame">
+							<TextureBar Anchor="L,T" Offset="3,2" Texture="XPmeter.dds" Size="269,7" ID="XPMeter"/>
+						</Grid>
+
+						<Grid Anchor="R,C" Size="260,27" Style="Grid9FrameTurns" ID="UnitMovementBox">
+							<TextButton Anchor="R,C" String="000" ID="UnitStatMovement" Offset="10,-2" ToolTip="TXT_KEY_UPANEL_MOVEMENT_TT"/>
+							<TextButton Anchor="R,C" Offset="90,-2" String="TXT_KEY_UPANEL_MOVEMENT" ID="UnitStatNameMovement" ToolTip="TXT_KEY_UPANEL_MOVEMENT_TT"/>
+
+							<!-- UNIT IS OUT OF MOVES -->
+							<Grid Anchor="R,C" Offset="2,0" Size="260,27" Style="Grid9Frame27SquareBlack" Hidden="1" ID="UnitStatusInfo">
+								<Label Anchor="C,C" Offset="0,-1" String="TXT_KEY_UPANEL_UNIT_NO_MOVES" Font="TwCenMT18" ColorSet="Red_Black" FontStyle="Shadow"/>
+							</Grid>
+
+						</Grid>
+
+						<Grid Anchor="R,C" Size="260,27" Style="Grid9FrameTurns" ID="UnitStrengthBox">
+							<TextButton Anchor="R,C" String="000" ID="UnitStatStrength" Offset="10,-2" ToolTip="TXT_KEY_UPANEL_STRENGTH_TT"/>
+							<TextButton Anchor="R,C" Offset="90,-2" String="TXT_KEY_UPANEL_STRENGTH" ID="UnitStatNameStrength" ToolTip="TXT_KEY_UPANEL_STRENGTH_TT"/>
+						</Grid>
+
+						<Grid Anchor="R,C" Size="260,27" Style="Grid9FrameTurns" ID="UnitRangedAttackBox">
+							<TextButton Anchor="R,C" String="000" ID="UnitStatRangedAttack" Offset="10,-2" ToolTip="TXT_KEY_UPANEL_RANGED_ATTACK_TT"/>
+							<TextButton Anchor="R,C" Offset="90,-2" String="TXT_KEY_UPANEL_RANGED_ATTACK" ID="UnitStatNameRangedAttack" ToolTip="TXT_KEY_UPANEL_RANGED_ATTACK_TT"/>
+						</Grid>
+					</Stack>
+
+					<!-- Work in Progress Image -->
+					<Grid Anchor="L,B" Size="50,50" Offset="155,12" Style="Grid9BlueFrame" Hidden="0" ID="WorkerProgressIconFrame">
+						<!-- Work in Progress Bar WorkerMeter -->
+						<Box Anchor="C,C" Size="46,45" Color="White,0" ID="WorkerProgressFrame">
+							<Label	Anchor="R,B" AnchorSide="O.I" Offset="8,8" TruncateWidth="190" Font="TwCenMT16" FontStyle="Shadow" String="TXT_KEY_UPANEL_REPAIR_TILE_3" ID="WorkerProgressLabel"/>
+							<TextureBar Anchor="C,C" Size="46.45" Texture="WorkerMeter.dds" Direction="Up" ID="WorkerProgressBar" Hidden="0"/>
+						</Box>
+						<Image Anchor="C,C" Size="45,45" ID="WorkerProgressIcon"/>
+					</Grid>
+				</Box>
+			</Grid>
+
+			<Box Anchor="L,B" Size="166,128" Color="PlayerColor2,200" Hidden="1"/>
+
+			<!-- Unit Portrait -->
+			<Image Anchor="L,B" Texture="UnitPanel.dds" Size="550.256"/>
+			<Image Anchor="L,B" Offset="-28,-23" Size="256,256" Texture="UnitPortraitsAncientMedieval.dds" ID="UnitPortrait" Hidden="0" Disabled="1" ToolTipType="EUI_UnitPanelItemTooltip"/>
+			<Button Anchor="L,B" Offset="-28,-23" Size="256,256" ID="UnitPortraitButton" Hidden="0" Disabled="0"/>
+			<Image Size="54,54" Anchor="L,B" Texture="UnitTypeFrame.dds" ID="UnitTypeFrame">
+				<Image Size="38,38" Anchor="C,C" Color="PlayerColor2,255" Texture="unitbackteamcolor.dds" ID="UnitIconBackground"/>
+				<Image Size="38,38" TextureOffset="0,39" Anchor="C,C" Texture="unitbackteamcolor.dds"/>
+				<Image Size="32,32" Anchor="C,C" Texture="UnitFlagAtlasWhite.dds" Color="Black,128" ID="UnitIconShadow"/>
+				<Image Size="32,32" Anchor="C,C" Color="PlayerColor1" Texture="UnitFlagAtlasWhite.dds" ID="UnitIcon" ToolTip="TXT_KEY_CURRENTLY_SELECTED_UNIT"/>
+			</Image>
+
+			<!-- Health Bar	-->
+			<Image Anchor="L,B" Offset="490,1" Texture="HealthBarBlack.dds" Size="17,127" ToolTip="TXT_KEY_UPANEL_HEALTH" Hidden="1" ID="HealthBar">
+				<Image Anchor="C,B" Offset="-1,2" Texture="HealthBarGreen.dds" Size="9,122" Hidden="1" ID="GreenBar"/>
+				<Image Anchor="C,B" Offset="-1,2" Texture="HealthBarYellow.dds" Size="9,122" Hidden="1" ID="YellowBar"/>
+				<Image Anchor="C,B" Offset="-1,2" Color="255.255.255.100" Texture="HealthBarRed.dds" Size="14,30" Hidden="1" ID="RedBar">
+					<AlphaAnim Anchor="R,B" Texture="HealthBarRed.dds" Size="9,122" Pause="0" Cycle="Bounce" Speed="2" AlphaStart=".5" AlphaEnd="1" ID="RedAnim"/>
+				</Image>
+			</Image>
+		</Container>
+
+		<!-- Scrap Instances -->
+		<Container ID="Scrap" Hidden="1"/>
+
+		<!-- City Ribbon -->
+		<Container ID="CityPanel" Anchor="L,T" Offset="0,70">
+			<ScrollPanel ID="CityScrollPanel" Anchor="L,T" Offset="18,0" Vertical="1" AutoScrollBar="1" Size="100,60" ConsumeMouseOver="1" ConsumeMouseButton="1" Hidden="1">
+				<ScrollBar Style="VertSlider" Anchor="L,C" Length="18" AnchorSide="o,i"/>
+				<UpButton Style="ScrollBarUp" Anchor="L,T" AnchorSide="o,i"/>
+				<DownButton Style="ScrollBarDown" Anchor="L,B" AnchorSide="o,i"/>
+			</ScrollPanel>
+			<!-- City Stack -->
+			<Stack ID="CityStack" Anchor="L,T" StackGrowth="Bottom" Padding="-8"/>
+		</Container>
+
+		<!-- Unit Ribbon -->
+		<Container ID="UnitPanel" Anchor="L,B" Offset="0,215">
+			<GridButton ID="UnitOptionsButton" Size="48,32" Style="SmallButton2" Anchor="L,B" Offset="0,4" AnchorSide="i,o">
+				<Image ID="UnitOptionsOpen" Anchor="C,C" Offset="0,1" Texture="OpenSecondary.dds" Size="64,32"/>
+				<Image ID="UnitOptionsClose" Anchor="C,C" Offset="-1,1" Texture="CloseSecondary.dds" Size="64,32" Hidden="1"/>
+			</GridButton>
+			<ScrollPanel ID="UnitScrollPanel" Anchor="L,B" Offset="18,0" Vertical="1" AutoScrollBar="1" Size="100,60" ConsumeMouseOver="1" ConsumeMouseButton="1" Hidden="1">
+				<ScrollBar Style="VertSlider" Anchor="L,C" Length="18" AnchorSide="o,i"/>
+				<UpButton Style="ScrollBarUp" Anchor="L,T" AnchorSide="o,i"/>
+				<DownButton Style="ScrollBarDown" Anchor="L,B" AnchorSide="o,i"/>
+			</ScrollPanel>
+			<!-- Unit Stack -->
+			<Stack ID="UnitStack" Anchor="L,B" StackGrowth="Top" Padding="-8"/>
+		</Container>
+
+		<!-- Unit Actions -->
+		<Container ID="Actions" Size="Full,Full">
+			<!-- Secondary Actions -->
+			<GridButton ID="SecondaryButton" Size="48,32" Style="SmallButton2" Anchor="L,B" Offset="111,224" ToolTip="TXT_KEY_SECONDARY_O_TEXT" Hidden="0">
+				<Image Anchor="C,C" Offset="0,1" Texture="OpenSecondary.dds" Size="64,32" Hidden="0" ID="SecondaryImageOpen"/>
+				<Image Anchor="C,C" Offset="-1,1" Texture="CloseSecondary.dds" Size="64,32" Hidden="1" ID="SecondaryImageClosed"/>
+			</GridButton>
+
+			<!-- Actions Stacks -->
+			<Stack Offset="192,225" Anchor="L,B" StackGrowth="Bottom" ID="SecondaryStack" Padding="4" Hidden="1"/>
+			<Stack ID="PrimaryStack" Offset="95,225" Anchor="L,B" StackGrowth="Left" Padding="4" WrapWidth="130" WrapGrowth="Down" WrapPadding="4">
+				<!-- Special magical Build City button -->
+				<Button ID="BuildCityButton" Anchor="R,T" Size="50,50" Texture="BuildCity64.dds" ToolTipType="TypeUnitAction" Hidden="1">
+					<AlphaAnim Anchor="C,C" Size="50,50" Texture="BuildCityGlow64.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="1" AlphaEnd="0" Hidden="0"/>
+					<ShowOnMouseOver>
+						<Image Anchor="C,C" Size="50,50" Texture="BuildCityGold64.dds"/>
+					</ShowOnMouseOver>
+				</Button>
+			</Stack>
+
+			<ToolTipType Name="TypeUnitAction">
+				<Grid Size="530,90" Offset="8.0" Padding="8,8" Style="GridBlack8" ID="UnitActionMouseover" NoClip="1">
+					<Label	Anchor="R,T" Offset="8,8" ColorSet="Beige_Black" Font="TwCenMT20" FontStyle="Shadow" String="(M)" ID="UnitActionHotKey"/>
+					<Label	Offset="12,10" Font="TwCenMT20" FontStyle="Shadow" String="Button Name" ID="UnitActionText"/>
+					<Label	Offset="12,28" Font="TwCenMT16" ID="UnitActionHelp" String="description" LeadingOffset="-5" WrapWidth="450"/>
+				</Grid>
+			</ToolTipType>
+		</Container>
+	</Container>
+
+	<!-- City Instance -->
+	<Instance Name="CityInstance">
+		<Button ID="Button" Anchor="L,T" Size="64,64" Offset="-7,0" Texture="64x64FrameButtons.dds">
+			<Image ID="Portrait" Anchor="C,C" Texture="Blank.dds" Size="64.64"/>
+			<TextureBar ID="GrowthMeter" Anchor="C,C" Size="64,64" Texture="BuildCity64.dds" Color="Green,255" Direction="Up" Hidden="1"/>
+			<Label ID="Population" Anchor="C,C" Font="TwCenMT24" FontStyle="Stroke" Color0="White,255" Color1="Black,155"/>
+			<Label ID="BuildGrowth" Anchor="L,C" Offset="6,20" Font="TwCenMT16" FontStyle="Stroke" Color0="Production,255" Color1="Black,155" Color2="Blue,200" Color3="Red,200" />
+			<Label ID="CityGrowth" Anchor="L,C" Offset="6,0" Font="TwCenMT16" FontStyle="Stroke" Color0="Food,255" Color1="Black,155" Color2="Blue,200" Color3="Red,200" />
+			<Label ID="BorderGrowth" Anchor="L,C" Offset="6,-20" Font="TwCenMT16" FontStyle="Stroke" Color0="Culture,255" Color1="Black,155" Color2="Blue,200" Color3="Red,200" />
+			<Label ID="Name" Anchor="L,C" Offset="60,-10" Font="TwCenMT16" FontStyle="Stroke" Color0="Beige,255" Color1="Black,155" Color2="Blue,200" Color3="Red,200" />
+			<Stack ID="Stack" Anchor="L,C" Offset="60,+10" Padding="4" StackGrowth="Right" />
+		</Button>
+	</Instance>
+
+	<!-- Unit Instance -->
+	<Instance Name="UnitInstance">
+		<Button ID="Button" Anchor="L,T" Size="64,64" Offset="-7,0" Texture="64x64FrameButtons.dds">
+			<TextureBar ID="HealthMeter" Anchor="C,C" Size="64,64" Texture="64x64FrameButtons.dds" Direction="Up" Hidden="1"/>
+
+			<!-- Unit Icon -->
+			<Image ID="Portrait" Anchor="C,C" Size="64.64"/>
+
+			<!-- Unit Flags -->
+			<Image ID="MovementPip" Anchor="C,C" Offset="30,-15" Texture="MarcPips.dds" Size="32.32"/>
+			<Image ID="Mission" Anchor="C,C" Offset="30,10" Size="45.45">
+				<Label ID="MissionText" Anchor="C,C" Font="TwCenMT16" FontStyle="Stroke" Color0="0,255,0,255" Color1="Black,155"/>
+			</Image>
+		</Button>
+	</Instance>
+
+	<!-- Unit Option Instance -->
+	<Instance Name="UnitOptionInstance">
+		<Button ID="Button" Anchor="L,T" Size="64,64" Texture="64x64FrameButtons.dds">
+			<Image ID="Portrait" Anchor="C,C" Size="64.64"/>
+			<CheckBox ID="CheckBox" ButtonSize="64.64" CheckSize="64.64" ButtonTexture="Blank.dds" Anchor="C,C" Size="64.64"/>
+		</Button>
+	</Instance>
+
+	<!-- Unit Ribbon Options -->
+	<Grid ID="UnitOptionsPanel" Anchor="L,B" Size="500,405" Offset="210,-40" Style="Grid9DetailSix140" Padding="30,46" ConsumeMouse="1" Hidden="1" >
+		<ScrollPanel ID="UnitOptionsScrollPanel" Anchor="L,C" Offset="20,0" Vertical="1" AutoScrollBar="1" Size="450,320" >
+			<Stack ID="UnitOptionsStack" Anchor="L,T" StackGrowth="Right" Padding="0" WrapWidth="450" WrapGrowth="Down" WrapPadding="0"/>
+			<ScrollBar Style="VertSlider" Anchor="R,C" Length="284" AnchorSide="o,i"/>
+			<UpButton Style="ScrollBarUp" Anchor="R,T" AnchorSide="o,i"/>
+			<DownButton Style="ScrollBarDown" Anchor="R,B" AnchorSide="o,i"/>
+		</ScrollPanel>
+	</Grid>
+
+	<!-- Tooltip -->
+	<ToolTipType Name="EUI_UnitPanelItemTooltip">
+		<Grid ID="Box" Size="530,90" Offset="8.0" Padding="8,8" Style="GridBlack8" NoClip="1">
+			<Image ID="PortraitFrame" Size="256,256" Anchor="R,C" Offset="-40,0" AnchorSide="O.i" Texture="256x256Frame.dds">
+				<Image ID="Portrait" Size="256,256" Anchor="C,C"/>
+			</Image>
+			<Label ID="Text" Offset="12,12" LeadingOffset="-5" WrapWidth="512" Font="TwCenMT18" ColorSet="Beige_Black"/>
+		</Grid>
+	</ToolTipType>
+</Context>

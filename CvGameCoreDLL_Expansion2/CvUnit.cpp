@@ -3590,21 +3590,30 @@ TeamTypes CvUnit::GetDeclareWarMove(const CvPlot& plot) const
 			}
 		}
 #if defined(MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS)
-		if(MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS && plot.getNumUnits())
+		if(MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS && plot.getNumUnits() > 0)
 		{
 			int iPeaceUnits = 0;
 			pUnit = NULL;
+			bool bGotOne = false;
+			if(plot.isCity())
+			{
+				if(!GET_TEAM(getTeam()).isAtWar(GET_PLAYER(plot.getOwner()).getTeam()))
+				{
+					bGotOne = true;
+				}
+			}
 			for(int iUnitLoop = 0; iUnitLoop < plot.getNumUnits(); iUnitLoop++)
 			{
 				CvUnit* loopUnit = plot.getUnitByIndex(iUnitLoop);
 
 				//If we're at war with a civ, and they've got a unit here, let's return that unit instead of the civilian unit on this space.
-				if(loopUnit && GET_TEAM(getTeam()).isAtWar(plot.getUnitByIndex(iUnitLoop)->getTeam()))
+				if(!bGotOne && loopUnit && GET_TEAM(getTeam()).isAtWar(plot.getUnitByIndex(iUnitLoop)->getTeam()))
 				{
 					//There can be only one military unit on a tile, so one check is good enough.
 					if(!plot.getUnitByIndex(iUnitLoop)->IsCivilianUnit())
 					{
 						pUnit = plot.getUnitByIndex(iUnitLoop);
+						bGotOne = true;
 					}
 				}
 				else if(loopUnit && !GET_TEAM(getTeam()).isAtWar(plot.getUnitByIndex(iUnitLoop)->getTeam()))
@@ -3617,7 +3626,7 @@ TeamTypes CvUnit::GetDeclareWarMove(const CvPlot& plot) const
 				}
 			}
 			//If there's a civilian here, but we're at peace with that civilian, return NO_TEAM.
-			if((iPeaceUnits > 0) && (pUnit != NULL))
+			if((iPeaceUnits > 0) && ((pUnit != NULL) || bGotOne))
 			{
 				return NO_TEAM;
 			}
@@ -12412,8 +12421,12 @@ int CvUnit::GetRange() const
 // Special property to get unit range+ move possibility.
 int CvUnit::GetRangeWithMovement() const
 {
+#ifdef AUI_ASTAR_ROAD_RANGE
+	return ((getDomainType() == DOMAIN_AIR) ? GetRange() : (GetRange() + GetIncreasedMoveRangeForRoads(this, baseMoves()) - (isMustSetUpToRangedAttack() ? 1 : 0)));
+#else
 	VALIDATE_OBJECT
 	return ((getDomainType() == DOMAIN_AIR) ? GetRange() : (GetRange() + baseMoves() - (isMustSetUpToRangedAttack() ? 1 : 0)));
+#endif
 }
 #endif
 
@@ -22247,7 +22260,11 @@ void CvUnit::GetMovablePlotListOpt(vector<CvPlot*>& plotData, CvPlot* plotTarget
 					//Check plot is in unit range
 					if (GetRange() >= plotDistance(currentPlot->getX(), currentPlot->getY(), plotTarget->getX(), plotTarget->getY()))
 					{
+#ifdef AUI_ASTAR_TURN_LIMITER
+						if(TurnsToReachTarget(this, currentPlot, false /*bReusePaths*/, false /*bIgnoreUnits*/, true /*bIgnoreStacking*/, 1) == 0)
+#else
 						if(TurnsToReachTarget(this, currentPlot, false /*bReusePaths*/, false /*bIgnoreUnits*/, true /*bIgnoreStacking*/) == 0)
+#endif // AUI_ASTAR_TURN_LIMITER
 						{
 							// Can shoot to the target from plot?
 							if(canEverRangeStrikeAtFromPlot(plotTarget->getX(), plotTarget->getY(), currentPlot))
@@ -24336,6 +24353,8 @@ CvPlot* CvUnit::GetPathEndTurnPlot() const
 }
 
 //	--------------------------------------------------------------------------------
+#if !defined(AUI_ASTAR_ROAD_RANGE)
+// deprecated, don't use this
 int CvUnit::SearchRange(int iRange) const
 {
 	VALIDATE_OBJECT
@@ -24353,6 +24372,7 @@ int CvUnit::SearchRange(int iRange) const
 		return ((iRange + 1) * (baseMoves() + 1));
 	}
 }
+#endif
 
 //	--------------------------------------------------------------------------------
 #if defined(MOD_AI_SECONDARY_WORKERS)

@@ -7,7 +7,7 @@
     <Guid>24923240-e4fb-4bf6-8f0e-6e5b6cf4d3c2</Guid>
     <ModVersion>1</ModVersion>
     <Stability>Beta</Stability>
-    <Teaser>EUI/CBP Compatibility  (2/21)</Teaser>
+    <Teaser>EUI/CBP Compatibility  (2/27)</Teaser>
     <Description>Allows users to use EUI and CBP/CSD/C4DF seamlessly. Users must have the CBP-specific version of EUI installed in order to use this compatibility file. This file can be found on the Community Patch's 'How to Install' page.</Description>
     <Authors>Gazebo</Authors>
     <SpecialThanks>
@@ -112,6 +112,10 @@
     <Content Include="EUI_tooltips.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="EUI_utilities.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
     <Content Include="NeededText.xml">
       <SubType>Lua</SubType>

@@ -207,7 +207,8 @@ void CvPlayerAI::AI_updateFoundValues(bool /*unused*/)
 				CvArea* pLoopArea = GC.getMap().getArea(pLoopPlot->getArea());
 				if(pLoopArea && !pLoopArea->isWater() && (pLoopArea->getNumTiles() > 0))
 				{
-					pLoopArea->setTotalFoundValue(((pLoopArea->getTotalFoundValue() + iValue) * iValue) / pLoopArea->getNumTiles());
+					//use the square found value to give smaller areas a chance. normalize by the minimum fertility to avoid overflow
+					pLoopArea->setTotalFoundValue( pLoopArea->getTotalFoundValue() + iValue * iValue / iGoodEnoughToBeWorthOurTime );
 				}
 			}
 		}
@@ -1730,7 +1731,11 @@ CvPlot* CvPlayerAI::FindBestMerchantTargetPlot(CvUnit* pGreatMerchant, bool bOnl
 					bool bIsRevealed = pAdjacentPlot->isRevealed(getTeam());
 					if(bRightOwner && bIsRevealed)
 					{
+#ifdef AUI_ASTAR_TURN_LIMITER
+						iPathTurns = TurnsToReachTarget(pMerchant, pAdjacentPlot, true /*bReusePaths*/, !bOnlySafePaths/*bIgnoreUnits*/, iBestTurnsToReach);
+#else
 						iPathTurns = TurnsToReachTarget(pMerchant, pAdjacentPlot, true /*bReusePaths*/, !bOnlySafePaths/*bIgnoreUnits*/);
+#endif // AUI_ASTAR_TURN_LIMITER
 						if(iPathTurns < iBestTurnsToReach)
 						{
 							iBestTurnsToReach = iPathTurns;
@@ -2278,6 +2283,21 @@ CvPlot* CvPlayerAI::ChooseDiplomatTargetPlot(UnitHandle pUnit, int* piTurns)
 			{
 				continue;
 			}
+#ifdef AUI_ASTAR_TURN_LIMITER
+			if(pLoopPlot->isWater())
+			{
+				continue;
+			}
+			if(pLoopPlot->getResourceType() != NO_RESOURCE)
+			{
+				continue;
+			}
+
+			iTurns = TurnsToReachTarget(pUnit, pLoopPlot, false /* bReusePaths */, iBestNumTurns);
+			if(iTurns < MAX_INT)
+			{
+				iDistance = plotDistance(pUnit->getX(), pUnit->getY(), pLoopPlot->getX(), pLoopPlot->getY());
+#else
 			iTurns = TurnsToReachTarget(pUnit, pLoopPlot, false /* bReusePaths */);
 			if(iTurns < MAX_INT)
 			{
@@ -2291,6 +2311,7 @@ CvPlot* CvPlayerAI::ChooseDiplomatTargetPlot(UnitHandle pUnit, int* piTurns)
 				{
 					continue;
 				}
+#endif
 				if(iTurns < iBestNumTurns || (iTurns == iBestNumTurns && iDistance < iBestDistance))
 				{
 					iBestNumTurns = iTurns;
@@ -2332,7 +2353,13 @@ CvPlot* CvPlayerAI::ChooseMessengerTargetPlot(UnitHandle pUnit, int* piTurns)
 			{
 				continue;
 			}
+
+#ifdef AUI_ASTAR_TURN_LIMITER
+			iTurns = TurnsToReachTarget(pUnit, pLoopPlot, false /* bReusePaths */, iBestNumTurns);
+#else
 			iTurns = TurnsToReachTarget(pUnit, pLoopPlot, false /* bReusePaths */);
+#endif // AUI_ASTAR_TURN_LIMITER
+
 			if(iTurns < MAX_INT)
 			{
 				iDistance = plotDistance(pUnit->getX(), pUnit->getY(), pLoopPlot->getX(), pLoopPlot->getY());

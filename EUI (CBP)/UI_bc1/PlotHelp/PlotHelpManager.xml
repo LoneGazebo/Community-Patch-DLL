@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Context>
+
+    <Button 		ID="TheBox" Size="Full,Full" Disabled="1" ConsumeMouse="0" />
+    
+    <ToolTipType 	Name="HexDetails" >
+        <Grid		ID="Grid" Offset="30,5" Size="60,12" Padding="8,8" Style="GridBlack8" Color="White,200" Anchor="L,T" >
+            <Label	ID="Text" Anchor="C,C" String="words" WrapWidth="500" ColorSet="Beige_Black_Alpha" />
+        </Grid>
+    </ToolTipType>
+
+</Context>

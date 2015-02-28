@@ -349,6 +349,16 @@ public:
 	void DoCancelWantsResearchAgreementWithPlayer(PlayerTypes ePlayer);
 	bool IsCanMakeResearchAgreementRightNow(PlayerTypes ePlayer);
 
+#if defined(MOD_BALANCE_CORE_DEALS)
+	bool IsWantsDefensivePactWithPlayer(PlayerTypes ePlayer) const;
+	void SetWantsDefensivePactWithPlayer(PlayerTypes ePlayer, bool bValue);
+
+	int GetNumDefensivePactsWanted() const;
+
+	void DoAddWantsDefensivePactWithPlayer(PlayerTypes ePlayer);
+	void DoCancelWantsDefensivePactWithPlayer(PlayerTypes ePlayer);
+	bool IsCanMakeDefensivePactRightNow(PlayerTypes ePlayer);
+#endif
 	/////////////////////////////////////////////////////////
 	// Issues of Dispute
 	/////////////////////////////////////////////////////////
@@ -623,6 +633,9 @@ public:
 	void DoOpenBordersExchange(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
 	void DoOpenBordersOffer(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
 	void DoResearchAgreementOffer(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
+#if defined(MOD_BALANCE_CORE_DEALS)
+	void DoDefensivePactOffer(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
+#endif
 	void DoRenewExpiredDeal(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
 	//void DoResearchAgreementPlan(PlayerTypes ePlayer, DiploStatementTypes &eStatement);
 
@@ -669,6 +682,10 @@ public:
 	void DoBeginDiploWithHumanEspionageResult();
 	void DoBeginDiploWithHumanInDiscuss();
 
+#if defined(MOD_BALANCE_CORE_DEALS)
+	void SetForceDiplomaticMessage(int iValue);
+	int GetForceDiplomaticMessage();
+#endif
 	const char* GetDiploStringForMessage(DiploMessageTypes eDiploMessage, PlayerTypes eForPlayer = NO_PLAYER);
 	const char* GetDiploStringForMessage(DiploMessageTypes eDiploMessage, PlayerTypes eForPlayer, const Localization::String& strOptionalKey1);
 	const char* GetDiploStringForMessage(DiploMessageTypes eDiploMessage, PlayerTypes eForPlayer, const Localization::String& strOptionalKey1, const Localization::String& strOptionalKey2);
@@ -777,6 +794,7 @@ public:
 	int GetNumDoF();
 #if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
 	int GetNumRA();
+	int GetNumDefensePacts();
 #endif
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
 	int GetNumDenouncements();
@@ -1130,6 +1148,11 @@ public:
 	int GetDOFAcceptedScore(PlayerTypes ePlayer);
 	int GetDOFWithAnyFriendScore(PlayerTypes ePlayer);
 	int GetDOFWithAnyEnemyScore(PlayerTypes ePlayer);
+#if defined(MOD_BALANCE_CORE_DEALS)
+	int GetDPAcceptedScore(PlayerTypes ePlayer);
+	int GetDPWithAnyFriendScore(PlayerTypes ePlayer);
+	int GetDPWithAnyEnemyScore(PlayerTypes ePlayer);
+#endif
 	int GetFriendDenouncementScore(PlayerTypes ePlayer);
 	int GetWeDenouncedFriendScore(PlayerTypes ePlayer);
 	int GetFriendDenouncedUsScore(PlayerTypes ePlayer);
@@ -1241,6 +1264,9 @@ private:
 	void LogFriendRequestDenounce(PlayerTypes ePlayer, PlayerTypes eAgainstPlayer, bool bAgreed);
 	void LogCoopWar(PlayerTypes ePlayer, PlayerTypes eAgainstPlayer, CoopWarStates eAcceptedState);
 	void LogWantRA(PlayerTypes ePlayer);
+#if defined(MOD_BALANCE_CORE_DEALS)
+	void LogWantDP(PlayerTypes ePlayer);
+#endif
 
 	void LogOpinionUpdate(PlayerTypes ePlayer, std::vector<int>& viOpinionValues);
 	void LogMajorCivApproachUpdate(PlayerTypes ePlayer, const int* aiApproachValues, MajorCivApproachTypes eNewMajorCivApproach, MajorCivApproachTypes eOldApproach, WarFaceTypes eNewWarFace);
@@ -1317,6 +1343,9 @@ private:
 		short m_aiNumWondersBeatenTo[REALLY_MAX_PLAYERS];
 		bool m_abMusteringForAttack[REALLY_MAX_PLAYERS];
 		bool m_abWantsResearchAgreementWithPlayer[MAX_MAJOR_CIVS];
+#if defined(MOD_BALANCE_CORE_DEALS)
+		bool m_abWantsDefensivePactWithPlayer[MAX_MAJOR_CIVS];
+#endif
 		bool m_abWantToRouteToMinor[REALLY_MAX_PLAYERS-MAX_MAJOR_CIVS];
 		char m_aeWarFace[REALLY_MAX_PLAYERS];
 		char m_aeWarState[REALLY_MAX_PLAYERS];
@@ -1580,6 +1609,9 @@ private:
 	bool* m_pabMusteringForAttack;
 
 	bool* m_pabWantsResearchAgreementWithPlayer;
+#if defined(MOD_BALANCE_CORE_DEALS)
+	bool* m_pabWantsDefensivePactWithPlayer;
+#endif
 	bool* m_pabWantToRouteToMinor;
 
 	char* m_paeWarFace;
@@ -1722,7 +1754,9 @@ private:
 	bool* m_pabPlayerBrokenCoopWarPromise;
 
 	// Personality Members
-
+#if defined(MOD_BALANCE_CORE_DEALS)
+	int m_iForcedMessage;
+#endif
 	int m_iVictoryCompetitiveness;
 	int m_iWonderCompetitiveness;
 	int m_iMinorCivCompetitiveness;

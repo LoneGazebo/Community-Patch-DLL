@@ -254,7 +254,9 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 
 	Method(GetCultureRateModifier);
 	Method(ChangeCultureRateModifier);
-
+#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+	Method(GetCityYieldModFromMonopoly);
+#endif
 #if defined(MOD_API_LUA_EXTENSIONS)
 	Method(GetTourismRateModifier);
 	Method(ChangeTourismRateModifier);
@@ -2357,6 +2359,30 @@ int CvLuaCity::lChangeCultureRateModifier(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvCity::changeCultureRateModifier);
 }
+#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+//int GetCityYieldModFromMonopoly() const;
+int CvLuaCity::lGetCityYieldModFromMonopoly(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	YieldTypes eYieldType = (YieldTypes)lua_tointeger(L, 2);
+	int iModifier = 0;
+	// Do we get increased yields from a resource monopoly?
+	for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+	{
+		ResourceTypes eResourceLoop = (ResourceTypes) iResourceLoop;
+		CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
+		if (pInfo && pInfo->isMonopoly())
+		{
+			if(GET_PLAYER(pkCity->getOwner()).HasMonopoly(eResourceLoop) && pInfo->getCityYieldModFromMonopoly(eYieldType) > 0)
+			{
+				iModifier += pInfo->getCityYieldModFromMonopoly(eYieldType);
+			}
+		}
+	}
+	lua_pushinteger(L, iModifier);
+	return 1;
+}
+#endif
 #if defined(MOD_API_LUA_EXTENSIONS)
 //------------------------------------------------------------------------------
 //int getTourismRateModifier() const;

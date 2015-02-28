@@ -249,6 +249,7 @@ function GetCityStateStatusText( majorPlayerID, minorPlayerID )
 		local majorInfluenceWithMinor = minorPlayer:GetMinorCivFriendshipWithMajor(majorPlayerID)
 
 		-- Status
+
 		if minorPlayer:IsAllies(majorPlayerID) then			-- Allies
 			strStatusText = "[COLOR_CYAN]" .. L("TXT_KEY_ALLIES")
 

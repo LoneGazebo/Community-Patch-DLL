@@ -1576,6 +1576,19 @@ void CvActiveResolution::DoEffects(PlayerTypes ePlayer)
 	{
 		CvAssertMsg(eTargetLuxury != NO_RESOURCE, "Banning Happiness for NO_RESOURCE. Please send Anton your save file and version.");
 		// Refresh happiness
+#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+		if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+		{
+			for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+			{
+				ResourceTypes eResourceLoop = (ResourceTypes) iResourceLoop;
+				if(GC.getGame().GetGameLeagues()->IsLuxuryHappinessBanned(pPlayer->GetID(), eResourceLoop))
+				{
+					pPlayer->TestHasMonopoly(eResourceLoop);
+				}
+			}
+		}
+#endif
 	}
 	if (GetEffects()->iUnitMaintenanceGoldPercent != 0)
 	{
@@ -1838,6 +1851,19 @@ void CvActiveResolution::RemoveEffects(PlayerTypes ePlayer)
 	{
 		CvAssertMsg(eTargetLuxury != NO_RESOURCE, "Repealing a band on Happiness for NO_RESOURCE. Please send Anton your save file and version.");
 		// Refresh happiness
+#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+		if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+		{
+			for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+			{
+				ResourceTypes eResourceLoop = (ResourceTypes) iResourceLoop;
+				if(!GC.getGame().GetGameLeagues()->IsLuxuryHappinessBanned(pPlayer->GetID(), eResourceLoop))
+				{
+					pPlayer->TestHasMonopoly(eResourceLoop);
+				}
+			}
+		}
+#endif
 	}
 	if (GetEffects()->iUnitMaintenanceGoldPercent != 0)
 	{
@@ -3993,6 +4019,10 @@ int CvLeague::CalculateStartingVotesForMember(PlayerTypes ePlayer, bool bForceUp
 		// Order Follower
 		int iRAToVotes = MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS ? GET_PLAYER(ePlayer).GetRAToVotes() : 0;
 		iVotes += iRAToVotes;
+
+		// Order Alt.
+		int iDPToVotes = MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS ? GET_PLAYER(ePlayer).GetDefensePactsToVotes() : 0;
+		iVotes += iDPToVotes;
 #endif
 #if defined(MOD_BALANCE_CORE_BELIEFS)
 		int iReligionVotes = 0;
@@ -4157,6 +4187,12 @@ int CvLeague::CalculateStartingVotesForMember(PlayerTypes ePlayer, bool bForceUp
 			{
 				Localization::String sTemp = Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_MEMBER_DETAILS_RA_VOTES");
 				sTemp << iRAToVotes;
+				pMember->sVoteSources += sTemp.toUTF8();
+			}
+			if (MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS && iDPToVotes > 0)
+			{
+				Localization::String sTemp = Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_MEMBER_DETAILS_DP_VOTES");
+				sTemp << iDPToVotes;
 				pMember->sVoteSources += sTemp.toUTF8();
 			}
 #endif

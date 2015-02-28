@@ -18,7 +18,7 @@
 			<ArtDefineTag>ART_DEF_BUILDING_SKOLA</ArtDefineTag>
 			<SpecialistType>SPECIALIST_SCIENTIST</SpecialistType>
 			<SpecialistCount>2</SpecialistCount>
-			<IlliteracyHappinessChange>1</IlliteracyHappinessChange>
+			<IlliteracyHappinessChange>5</IlliteracyHappinessChange>
 			<MinAreaSize>-1</MinAreaSize>
 			<ConquestProb>66</ConquestProb>
 			<HurryCostModifier>0</HurryCostModifier>
@@ -42,6 +42,11 @@
 			<BuildingType>BUILDING_SKOLA</BuildingType>
 			<FlavorType>FLAVOR_GREAT_PEOPLE</FlavorType>
 			<Flavor>5</Flavor>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_SKOLA</BuildingType>
+			<FlavorType>FLAVOR_HAPPINESS</FlavorType>
+			<Flavor>25</Flavor>
 		</Row>
 	</Building_Flavors>
 	<Civilization_BuildingClassOverrides>
@@ -94,7 +99,7 @@
 			<Strategy>TXT_KEY_BUILDING_BASILICA_STRATEGY</Strategy>
 			<Help>TXT_KEY_BUILDING_BASILICA_HELP</Help>
 			<ArtDefineTag>TEMPLE</ArtDefineTag>
-			<MinorityHappinessChange>1</MinorityHappinessChange>
+			<MinorityHappinessChange>3</MinorityHappinessChange>
 			<MinAreaSize>-1</MinAreaSize>
 			<ConquestProb>66</ConquestProb>
 			<HurryCostModifier>25</HurryCostModifier>

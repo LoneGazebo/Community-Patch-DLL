@@ -502,42 +502,7 @@ int CvTreasury::CalculateGrossGoldTimes100()
 	//Mod for national unhappiness
 	if(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
 	{
-		//Mechanic to allow for growth malus from happiness/unhappiness.
-		int iHappiness = 0;
-		iHappiness += (m_pPlayer->GetHappiness() - m_pPlayer->GetSetUnhappiness());
-
-		//If Happiness is greater than or over threshold, calculate city bonus mod.
-		if(iHappiness >= GC.getBALANCE_HAPPINESS_THRESHOLD())
-		{
-			iHappiness = (iHappiness - GC.getBALANCE_HAPPINESS_THRESHOLD());
-			//Are there minimums/maximums for the bonus? Restrict this value.
-			if(iHappiness > GC.getBALANCE_HAPPINESS_BONUS_MAXIMUM())
-			{
-				iHappiness = GC.getBALANCE_HAPPINESS_BONUS_MAXIMUM();
-			}
-			else if(iHappiness < GC.getBALANCE_HAPPINESS_BONUS_MINIMUM())
-			{
-				iHappiness = GC.getBALANCE_HAPPINESS_BONUS_MINIMUM();
-			}
-			
-		}
-		//If happiness is less than the main threshold, calculate city penalty mod.
-		else if(iHappiness < GC.getBALANCE_HAPPINESS_THRESHOLD_MAIN())
-		{
-			//Are there minimums/maximums for the penalty? Restrict this value.
-			if(iHappiness > GC.getBALANCE_HAPPINESS_PENALTY_MINIMUM())
-			{
-				iHappiness = GC.getBALANCE_HAPPINESS_PENALTY_MINIMUM();
-			}
-			else if(iHappiness < GC.getBALANCE_HAPPINESS_PENALTY_MAXIMUM())
-			{
-				iHappiness = GC.getBALANCE_HAPPINESS_PENALTY_MAXIMUM();
-			}
-		}
-		if(iHappiness != 0)
-		{
-			iNetGold += ((iNetGold * /*5*/ GC.getBALANCE_HAPPINESS_GOLD_MODIFIER() * iHappiness) / 100);
-		}
+		iNetGold += m_pPlayer->GetYieldPerTurnFromHappiness(YIELD_GOLD);
 	}
 #endif
 

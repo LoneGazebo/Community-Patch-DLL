@@ -1,0 +1,451 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Context ColorSet="Beige_Black" Font="TwCenMT22" FontStyle="Shadow">
+
+
+	<Box Style="BGBlock" ID="BGBlock" />
+
+	<!-- Listing Button Instance -->
+
+	<Grid Size="960,658" Anchor="C,C" Offset="0,36" Padding="0,0" Style="Grid9DetailFive140" ConsumeMouse="1">
+
+		<!-- Side treatments -->
+		<Box Style="MenuLeftSideTreatment"/>
+		<Box Style="MenuRightSideTreatment"/>
+
+		<Box Style="MenuTopTreatment"/>
+		<Box Style="MenuBottomTreatment"/>
+
+		<!-- Panel Header Text -->
+		<Label Style="MenuTitleCaption" ID="TitleLabel" />
+
+		<Label Anchor="C,T" Offset="0,18" Font="TwCenMT22" FontStyle="SoftShadow" ColorSet="Beige_Black_Alpha" />
+
+		<!-- Top Panel GridSquareHL8-->
+		<Box Anchor="C,T" Size="926,29" Offset="0,44" Color="0.0.0.128" >
+
+			<Stack Anchor="L,T" Size="926,32" Offset="20,3" Padding="0" StackGrowth="Right">
+
+
+			<Button Anchor="L,T" Size="160,24" Font="TwCenMT18" Offset="0,0" String="TXT_KEY_GAME_OPTIONS" ID="GameButton" >
+				<ShowOnMouseOver>
+				<AlphaAnim Anchor="L,T" Size="160,27" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+					<Grid Size="160,27" Offset="0,-1" Padding="0,0" Style="Grid9FrameTurnsHL" />
+				</AlphaAnim>
+				</ShowOnMouseOver>
+				<Grid Anchor="C,C" Offset="0,0" Size="160,26" Style="Grid9FrameTurns" Hidden="1" ID="GameHighlight" />
+			</Button>
+
+			<Button Anchor="L,T" Size="185,24" Font="TwCenMT18" Offset="0,0" String="TXT_KEY_INTERFACE_OPTIONS" ID="IFaceButton" >
+				<ShowOnMouseOver>
+				<AlphaAnim Anchor="L,T" Size="185,27" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+					<Grid Size="185,27" Offset="0,-1" Padding="0,0" Style="Grid9FrameTurnsHL" />
+				</AlphaAnim>
+				</ShowOnMouseOver>
+				<Grid Anchor="C,C" Offset="0,0" Size="185,26" Style="Grid9FrameTurns" Hidden="1" ID="IFaceHighlight" />
+			</Button>
+
+			<Button Anchor="L,T" Size="160,24" Font="TwCenMT18" Offset="0,0" String="TXT_KEY_VIDEO_OPTIONS" ID="VideoButton" >
+				<ShowOnMouseOver>
+				<AlphaAnim Anchor="L,T" Size="160,27" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+					<Grid Size="160,27" Offset="0,-1" Padding="0,0" Style="Grid9FrameTurnsHL" />
+				</AlphaAnim>
+				</ShowOnMouseOver>
+				<Grid Anchor="C,C" Offset="0,0" Size="160,26" Style="Grid9FrameTurns" Hidden="1" ID="VideoHighlight" />
+			</Button>
+
+			<Button Anchor="L,T" Size="160,24" Font="TwCenMT18" Offset="0,0" String="TXT_KEY_AUDIO_OPTIONS" ID="AudioButton" >
+				<ShowOnMouseOver>
+				<AlphaAnim Anchor="L,T" Size="160,27" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+					<Grid Size="160,27" Offset="0,-1" Padding="0,0" Style="Grid9FrameTurnsHL" />
+				</AlphaAnim>
+				</ShowOnMouseOver>
+				<Grid Anchor="C,C" Offset="0,0" Size="160,26" Style="Grid9FrameTurns" Hidden="1" ID="AudioHighlight" />
+			</Button>
+
+			<Button Anchor="L,T" Size="200,24" Font="TwCenMT18" Offset="0,0" String="TXT_KEY_MULTIPLAYER_OPTIONS" ID="MultiplayerButton" >
+				<ShowOnMouseOver>
+				<AlphaAnim Anchor="L,T" Size="200,27" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+					<Grid Size="200,27" Offset="0,-1" Padding="0,0" Style="Grid9FrameTurnsHL" />
+				</AlphaAnim>
+				</ShowOnMouseOver>
+				<Grid Anchor="C,C" Offset="0,0" Size="200,26" Style="Grid9FrameTurns" Hidden="1" ID="MultiplayerHighlight" />
+			</Button>
+
+			</Stack>
+
+			<Image Anchor="C,B" Offset="1,-6" Texture="HorizontalTrim.dds" Size="926.5" />
+
+		</Box>
+
+
+		<!-- <Image Anchor="C,B" Offset="0,150" Texture="HorizontalTrim.dds" Size="971.5" / -->
+
+		<!-- Game Options -->
+		<Container Size="971,500" Offset="0,44" ID="GamePanel" Hidden="1" >
+			<Stack Anchor="R,C" Offset="110,0" Padding="5" >
+				<Label String="" Anchor="C,T" ID="Tooltip1TimerLength" ToolTip="TXT_KEY_OPSCREEN_TOOLTIP_1_TIMER_LENGTH_TT" />
+				<Slider Length="300" Anchor="C,C" ID="Tooltip1TimerSlider" Style="Slider" WheelSteps="10" />
+				<Label String="" Anchor="C,T" ID="Tooltip2TimerLength" ToolTip="TXT_KEY_OPSCREEN_TOOLTIP_2_TIMER_LENGTH_TT" />
+				<Slider Length="300" Anchor="C,C" ID="Tooltip2TimerSlider" Style="Slider" WheelSteps="10" />
+				<PullDown Offset="0,25" Anchor="C,C" Style="GenericPullDown" ScrollThreshold="200" SpaceForScroll="0" Size="300,32" ID="TutorialPull" ToolTip="TXT_KEY_OPSCREEN_TUTORIAL_LEVEL_TT" >
+					<Label Anchor="C,T" AnchorSide="i,o" Offset="0,3" String="TXT_KEY_OPSCREEN_TUTORIAL_LEVEL" />
+				</PullDown>
+
+				<GridButton Offset="0,15" Anchor="C,B" Size="300,32" ID="ResetTutorialButton" Style="SmallButton" ToolTip="TXT_KEY_OPSCREEN_RESET_TUTORIAL_TT">
+					<Label Anchor="C,C" String="TXT_KEY_OPSCREEN_RESET_TUTORIAL" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" />
+				</GridButton>
+				<CheckBox String="TXT_KEY_OPSCREEN_SPLAYER_AUTO_END_TURN" LeadingOffset="-10" WrapWidth="350" Anchor="R,C" ID="SinglePlayerAutoEndTurnCheckBox" ToolTip="TXT_KEY_OPSCREEN_SPLAYER_AUTO_END_TURN_TT" />
+				<CheckBox String="TXT_KEY_OPSCREEN_MULTIPLAYER_AUTO_END_TURN" LeadingOffset="-10" WrapWidth="350" Anchor="R,C" ID="MultiplayerAutoEndTurnCheckbox" ToolTip="TXT_KEY_OPSCREEN_MULTIPLAYER_AUTO_END_TURN_TT" />
+				<CheckBox String="TXT_KEY_OPSCREEN_SPLAYER_QUICK_COMBAT" LeadingOffset="-10" WrapWidth="350" Anchor="R,C" ID="SPQuickCombatCheckBox" ToolTip="TXT_KEY_OPSCREEN_SPLAYER_QUICK_COMBAT_TT" />
+				<CheckBox String="TXT_KEY_OPSCREEN_SPLAYER_QUICK_MOVEMENT" LeadingOffset="-10" WrapWidth="350" Anchor="R,C" ID="SPQuickMovementCheckBox" ToolTip="TXT_KEY_OPSCREEN_SPLAYER_QUICK_MOVEMENT_TT" />
+				<CheckBox String="TXT_KEY_OPSCREEN_MULTIPLAYER_QUICK_COMBAT" LeadingOffset="-10" WrapWidth="350" Anchor="R,C" ID="MPQuickCombatCheckbox" ToolTip="TXT_KEY_OPSCREEN_MULTIPLAYER_QUICK_COMBAT_TT" />
+				<CheckBox String="TXT_KEY_OPSCREEN_MULTIPLAYER_QUICK_MOVEMENT" LeadingOffset="-10" WrapWidth="350" Anchor="R,C" ID="MPQuickMovementCheckbox" ToolTip="TXT_KEY_OPSCREEN_MULTIPLAYER_QUICK_MOVEMENT_TT" />
+			</Stack>
+
+			<Stack Anchor="L,C" Offset="380,20" Padding="10" >
+				<CheckBox String="TXT_KEY_OPSCREEN_AUTO_WORKERS_DONT_REPLACE" LeadingOffset="-10" WrapWidth="450" Anchor="R,C" ID="AutoWorkersDontReplaceCB" ToolTip="TXT_KEY_OPSCREEN_AUTO_WORKERS_DONT_REPLACE_TT" />
+				<CheckBox String="TXT_KEY_OPSCREEN_AUTO_WORKERS_DONT_REMOVE_FEATURES" LeadingOffset="-10" WrapWidth="450" Anchor="R,C" ID="AutoWorkersDontRemoveFeaturesCB" ToolTip="TXT_KEY_OPSCREEN_AUTO_WORKERS_DONT_REMOVE_FEATURES_TT" />
+				<CheckBox String="TXT_KEY_OPSCREEN_NO_REWARD_POPUPS" LeadingOffset="-10" WrapWidth="450" Anchor="R,C" ID="NoRewardPopupsCheckbox" ToolTip="TXT_KEY_OPSCREEN_NO_REWARD_POPUPS_TT" />
+				<CheckBox String="TXT_KEY_OPSCREEN_NO_TILE_RECOMMENDATIONS" LeadingOffset="-10" WrapWidth="450" Anchor="R,C" ID="NoTileRecommendationsCheckbox" ToolTip="TXT_KEY_OPSCREEN_NO_TILE_RECOMMENDATIONS_TT" />
+				<CheckBox String="TXT_KEY_OPSCREEN_CIVILIAN_YIELDS" LeadingOffset="-10" WrapWidth="450" Anchor="R,C" ID="CivilianYieldsCheckbox" ToolTip="TXT_KEY_OPSCREEN_CIVILIAN_YIELDS_TT" />
+				<CheckBox String="TXT_KEY_OPSCREEN_NO_BASIC_HELP" LeadingOffset="-10" WrapWidth="450" Anchor="R,C" ID="NoBasicHelpCheckbox" ToolTip="TXT_KEY_OPSCREEN_NO_BASIC_HELP_TT" />
+				<CheckBox String="TXT_KEY_OPSCREEN_QUICK_SELECTION_ADVANCE" LeadingOffset="-10" WrapWidth="450" Anchor="R,C" ID="QuickSelectionAdvCheckbox" ToolTip="TXT_KEY_OPSCREEN_QUICK_SELECTION_ADVANCE_TT" />
+				<CheckBox String="TXT_KEY_CITYVIEW_CITIZEN_ALLOCATION" LeadingOffset="-10" WrapWidth="450" Anchor="R,C" ID="NoCitizenWarningCheckbox" ToolTip="TXT_KEY_OPSCREEN_NO_CITIZEN_WARNING" />
+				<CheckBox Anchor="R,C" ID="CityAdvisorCheckbox" >
+					<Stack Offset="30.0" Anchor="R,C" StackGrowth="L" >
+						<Image ID="ScienceRecommendation" ToolTip="TXT_KEY_CITY_CONSTRUCTION_ADVISOR_RECOMMENDATION_SCIENCE" Anchor="L,C" Size="32,32" Texture="AdvisorSymbolScience.dds" >
+							<ScrollAnim Size="32.32" Speed=".2" Pause=".5" Texture="AdvisorShine.dds" MaskTexture="AdvisorMaskScience.dds"/>
+							<AlphaAnim Anchor="C,C" Offset="4,4" Size="32,32" Texture="AdvisorSpecShine.dds" Pause="5" Cycle="Bounce" Speed="4" AlphaStart="0" AlphaEnd="1"/>
+							<AlphaAnim Anchor="C,C" Offset="0,-4" Size="32,32" Texture="AdvisorSpecShine.dds" Pause="3" Cycle="Bounce" Speed="4" AlphaStart="0" AlphaEnd="1"/>
+						</Image>
+						<Image ID="ForeignRecommendation" ToolTip="TXT_KEY_CITY_CONSTRUCTION_ADVISOR_RECOMMENDATION_FOREIGN" Anchor="L,C" Size="32,32" Texture="AdvisorSymbolForeign.dds" >
+							<ScrollAnim Size="32.32" Speed=".2" Pause=".5" Texture="AdvisorShine.dds" MaskTexture="AdvisorMaskForeign.dds"/>
+							<AlphaAnim Anchor="C,C" Offset="6,5" Size="32,32" Texture="AdvisorSpecShine.dds" Pause="5" Cycle="Bounce" Speed="4" AlphaStart="0" AlphaEnd=".7"/>
+							<AlphaAnim Anchor="C,C" Offset="-2,-5" Size="32,32" Texture="AdvisorSpecShine.dds" Pause="3" Cycle="Bounce" Speed="4" AlphaStart="0" AlphaEnd=".7"/>
+						</Image>
+						<Image ID="EconomicRecommendation" ToolTip="TXT_KEY_CITY_CONSTRUCTION_ADVISOR_RECOMMENDATION_ECONOMIC" Anchor="L,C" Size="32,32" Texture="AdvisorSymbolEconomic.dds" >
+							<ScrollAnim Size="32.32" Speed=".2" Pause=".5" Texture="AdvisorShine.dds" MaskTexture="AdvisorMaskEconomic.dds"/>
+							<AlphaAnim Anchor="C,C" Offset="4,4" Size="32,32" Texture="AdvisorSpecShine.dds" Pause="5" Cycle="Bounce" Speed="4" AlphaStart="0" AlphaEnd="1"/>
+							<AlphaAnim Anchor="C,C" Offset="0,-4" Size="32,32" Texture="AdvisorSpecShine.dds" Pause="3" Cycle="Bounce" Speed="4" AlphaStart="0" AlphaEnd="1"/>
+						</Image>
+						<Image ID="MilitaryRecommendation" ToolTip="TXT_KEY_CITY_CONSTRUCTION_ADVISOR_RECOMMENDATION_MILITARY" Anchor="L,C" Size="32,32" Texture="AdvisorSymbolMilitary.dds" >
+							<ScrollAnim Size="32.32" Speed=".2" Pause=".5" Texture="AdvisorShine.dds" MaskTexture="AdvisorMaskMilitary.dds"/>
+							<AlphaAnim Anchor="C,C" Offset="4,4" Size="32,32" Texture="AdvisorSpecShine.dds" Pause="5" Cycle="Bounce" Speed="4" AlphaStart="0" AlphaEnd=".7"/>
+							<AlphaAnim Anchor="C,C" Offset="-3,-6" Size="32,32" Texture="AdvisorSpecShine.dds" Pause="3" Cycle="Bounce" Speed="4" AlphaStart="0" AlphaEnd=".7"/>
+						</Image>
+						<Label Anchor="L,C" String="TXT_KEY_ADVISOR_CITY_SCREEN_DISPLAY" />
+					</Stack>
+				</CheckBox>
+				<Image Anchor="R,C" Offset="30.0" Texture="TopPanelBar.dds" Size="100.32" >
+					<CheckBox String="12:34" LeadingOffset="-10" WrapWidth="450" Anchor="R,C" Offset="-30.0" ID="ClockCheckbox" />
+				</Image>
+			</Stack>
+		</Container>
+
+		<!-- Interface Options -->
+		<Container Size="971,500" Offset="0,44" ID="IFacePanel" Hidden="1">
+			<Stack ID="IFaceStack" Anchor="C,t" Padding="20" Offset="0,90" >
+			<Box Anchor="c,c" Size="400,120" Offset="100,0" Color="White,0" >
+				<Label Anchor="R,T" Offset="44,9" LeadingOffset="-10" WrapWidth="300" String="TXT_KEY_OPSCREEN_TURNS_FOR_AUTOSAVES" ToolTip="TXT_KEY_OPSCREEN_TURNS_FOR_AUTOSAVES_TT" >
+				<Box Anchor="R,C" AnchorSide="o,i" Offset="10,0" Size="34,24" Color="255,255,200,255" >
+					<Box Anchor="C,C" Offset="0,0" Size="32,22" Color="0,0,0,255" >
+					<EditBox EditMode="1" Size="30,18" Anchor="C,C" ID="AutosaveTurnsEdit" Font="TwCenMT14" NumberInput="1" MaxLength="3" />
+					</Box>
+				</Box>
+				</Label>
+				<Label Anchor="R,B" Offset="44,48" LeadingOffset="-10" WrapWidth="300" String="TXT_KEY_OPSCREEN_MAX_AUTOSAVES_KEPT" ToolTip="TXT_KEY_OPSCREEN_MAX_AUTOSAVES_KEPT_TT" >
+				<Box Anchor="R,C" AnchorSide="o,i" Offset="10,0" Size="34,24" Color="255,255,200,255" >
+					<Box Anchor="C,C" Offset="0,0" Size="32,22" Color="0,0,0,255" >
+					<EditBox EditMode="1" Size="30,18" Anchor="C,C" ID="AutosaveMaxEdit" Font="TwCenMT14" NumberInput="1" MaxLength="3" />
+					</Box>
+				</Box>
+				</Label>
+				<PullDown Offset="0,-5" Anchor="R,B" Style="GenericPullDown" ScrollThreshold="200" SpaceForScroll="0" Size="200,32" ID="BindMousePull" ToolTip="TXT_KEY_BIND_MOUSE_TT" >
+				<Label Anchor="L,C" AnchorSide="o,i" Offset="10,0" String="TXT_KEY_BIND_MOUSE" />
+				</PullDown>
+
+				<CheckBox Anchor="L,B" Offset="0,128" String="TXT_KEY_OPSCREEN_DYNAMIC_CAMERA_ZOOM" IsChecked="0" ID="ZoomCheck" ToolTip="TXT_KEY_OPSCREEN_DYNAMIC_CAMERA_ZOOM_TT" />
+				<CheckBox Anchor="L,B" Offset="0,96" String="TXT_KEY_OPSCREEN_SHOW_ALL_POLICY_INFO" IsChecked="0" ID="PolicyInfo" ToolTip="TXT_KEY_OPSCREEN_SHOW_ALL_POLICY_INFO_TT" />
+				<CheckBox Anchor="L,B" Offset="0,64" String="TXT_KEY_AUTO_UNIT_CYCLE" IsChecked="0" ID="AutoUnitCycleCheck" ToolTip="TXT_KEY_AUTO_UNIT_CYCLE_TT" />
+				<CheckBox Anchor="L,B" Offset="0,32" String="TXT_KEY_OPSCREEN_SCORE_LIST" IsChecked="0" ID="ScoreListCheck" ToolTip="TXT_KEY_OPSCREEN_SCORE_LIST_TT" />
+				<CheckBox Anchor="L,B" Offset="0,0" String="TXT_KEY_OPSCREEN_MP_SCORE_LIST" IsChecked="0" ID="MPScoreListCheck" ToolTip="TXT_KEY_OPSCREEN_MP_SCORE_LIST_TT" />
+			</Box>
+
+
+			<!--front end only interface options-->
+			<Container Size="800,300" Offset="0,30" >
+				<Stack ID="FrontEndInterfaceOptions" Anchor="R,T" Padding="8" Hidden="0" >
+				<CheckBox Anchor="R,C" String="TXT_KEY_OPSCREEN_ENABLE_MAP_INERTIA" IsChecked="1" ID="EnableMapInertiaCheck" ToolTip="TXT_KEY_OPSCREEN_ENABLE_MAP_INERTIA_TT" />
+				<CheckBox Anchor="R,C" String="TXT_KEY_OPSCREEN_SKIP_INTRO_VIDEO" IsChecked="1" ID="SkipIntroVideoCheck" ToolTip="TXT_KEY_OPSCREEN_SKIP_INTRO_VIDEO_TT" />
+				<CheckBox Anchor="R,C" String="TXT_KEY_OPSCREEN_AUTOSIZE_UI" IsChecked="1" ID="AutoUIAssetsCheck" ToolTip="TXT_KEY_OPSCREEN_AUTOSIZE_UI_TT" />
+				<CheckBox Offset="0,-10" Anchor="R,C" String="TXT_KEY_OPSCREEN_USE_SMALL_UI" Font="TwCenMT16" IsChecked="0" ID="SmallUIAssetsCheck" NoStateChange="1" Disabled="1" ToolTip="TXT_KEY_OPSCREEN_USE_SMALL_UI_TT" />
+				<PullDown Style="GenericPullDown" ScrollThreshold="200" SpaceForScroll="0" Size="230,32" ID="LanguagePull" Hidden="1" >
+					<Label Anchor="L,C" AnchorSide="o,i" Offset="10,0" String="TXT_KEY_OPSCREEN_SELECT_LANG" />
+				</PullDown>
+				<PullDown Style="GenericPullDown" ScrollThreshold="200" SpaceForScroll="0" Size="230,32" ID="SpokenLanguagePull" >
+					<Label Anchor="L,C" AnchorSide="o,i" Offset="10,0" String="TXT_KEY_OPSCREEN_SELECT_SPOKEN_LANG" />
+				</PullDown>
+				</Stack>
+				<Stack ID="TabletInterfaceOptions" Anchor="L,T" Padding="5" Offset="0,-10" Hidden="0" >
+				<Container Size="1,20" />
+				<Label Anchor="C,C" Offset="0,0" ID="DragSpeedValue" ToolTip="TXT_KEY_DRAG_SPEED_TT" />
+				<Slider Anchor="C,C" Length="300" Style="Slider" ID="DragSpeedSlider" WheelSteps="10" ToolTip="TXT_KEY_DRAG_SPEED_TT" />
+				<Label Offset="0,20" Anchor="C,C" ID="PinchSpeedValue" ToolTip="TXT_KEY_PINCH_SPEED_TT" />
+				<Slider Anchor="C,C" Length="300" Style="Slider" ID="PinchSpeedSlider" WheelSteps="10" ToolTip="TXT_KEY_PINCH_SPEED_TT" />
+				</Stack>
+			</Container>
+			</Stack>
+		</Container>
+
+		<!-- Video Options -->
+		<Container Size="971,500" Offset="0,44" ID="VideoPanel" Hidden="1" >
+
+			<!-- Resolution Options-->
+			<Grid Offset="40,100" Size="395,200" Color="White,128" Style="Grid9FrameButtons" >
+			<Stack Anchor ="R,T" Offset ="10,20">
+				<PullDown Style="GenericPullDown" ScrollThreshold="200" SpaceForScroll="0" Size="210,32" ID="FSResolutionPull" >
+				<Label Anchor="L,C" AnchorSide="o,i" Offset="10,0" String="TXT_KEY_OPSCREEN_RESOLUTION" />
+				</PullDown>
+				<PullDown Style="GenericPullDown" ScrollThreshold="200" SpaceForScroll="0" Size="210,32" ID="WResolutionPull" Hidden="1" >
+				<Label Anchor="L,C" AnchorSide="o,i" Offset="10,0" String="TXT_KEY_OPSCREEN_RESOLUTION" />
+				</PullDown>
+				<PullDown Style="GenericPullDown" Anchor="R,T" Offset="0,4" ScrollThreshold="200" SpaceForScroll="0" Size="130,32" ID="MSAAPull" Hidden="0" >
+				<Label Anchor="L,C" AnchorSide="o,i" Offset="10,0" String="TXT_KEY_OPSCREEN_MSAA" />
+				</PullDown>
+				<CheckBox Anchor="R,T" String="TXT_KEY_OPSCREEN_FULLSCREEN" IsChecked="0" ID="FullscreenCheck" />
+			</Stack>
+			<GridButton Anchor="C,B" Size="200,32" Offset="0,20" ID="ApplyResButton" Style="SmallButton" ToolTip="TXT_KEY_OPSCREEN_APPLY_RESOLUTION_TT">
+				<Label Anchor="C,C" Offset="0,0" String="TXT_KEY_OPSCREEN_APPLY_RESOLUTION" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" />
+			</GridButton>
+			</Grid>
+
+			<!-- Other Video Options-->
+			<Box Offset="40,320" Size="395,160" Color="0,0,0,0">
+			<Stack Offset="0,0" Anchor="R,C">
+				<CheckBox Anchor="R,T" String="TXT_KEY_OPSCREEN_VSYNC" IsChecked="1" ID="VSyncCheck" ToolTip="TXT_KEY_OPSCREEN_RESTART_REQ_TT" />
+				<CheckBox Anchor="R,T" String="TXT_KEY_OPSCREEN_HIGH_DETAIL_STRAT_VIEW" IsChecked="0" ID="HDStratCheck" ToolTip="TXT_KEY_OPSCREEN_HIGH_DETAIL_STRAT_VIEW_TT" />
+				<CheckBox Anchor="R,T" String="TXT_KEY_OPSCREEN_GPU_TEXTURE_DECODE" IsChecked="0" ID="GPUDecodeCheck" ToolTip="TXT_KEY_OPSCREEN_GPU_TEXTURE_DECODE_TT" />
+				<CheckBox Anchor="R,T" String="TXT_KEY_OPSCREEN_MINIMIZE_GRAY_TILES" IsChecked="0" ID="MinimizeGrayTilesCheck" ToolTip="TXT_KEY_OPSCREEN_MINIMIZE_GRAY_TILES_TT" Hidden="1"/>
+				<CheckBox Anchor="R,T" String="TXT_KEY_OPSCREEN_FADE_SHADOWS" IsChecked="0" ID="FadeShadowsCheck" ToolTip="TXT_KEY_OPSCREEN_FADE_SHADOWS_TT" Hidden="1"/>
+			</Stack>
+			</Box>
+
+			<Stack Offset="700,100" Padding="10" >
+			<PullDown Style="GenericPullDown" ScrollThreshold="200" SpaceForScroll="0" Size="230,32" ID="LeaderPull" >
+				<Label Anchor="L,C" AnchorSide="o,i" Offset="10,0" WrapWidth="250" LeadingOffset="-10" String="TXT_KEY_OPSCREEN_LEADER_QUALITY" />
+			</PullDown>
+
+			<PullDown Style="GenericPullDown" ScrollThreshold="200" SpaceForScroll="0" Size="230,32" ID="OverlayPull" >
+				<Label Anchor="L,C" AnchorSide="o,i" Offset="10,0" WrapWidth="250" LeadingOffset="-10" String="TXT_KEY_OPSCREEN_OVERLAY_DETAIL" />
+			</PullDown>
+
+			<PullDown Style="GenericPullDown" ScrollThreshold="200" SpaceForScroll="0" Size="230,32" ID="ShadowPull" >
+				<Label Anchor="L,C" AnchorSide="o,i" Offset="10,0" WrapWidth="250" LeadingOffset="-10" String="TXT_KEY_OPSCREEN_SHADOW_QUALITY" />
+			</PullDown>
+
+			<PullDown Style="GenericPullDown" ScrollThreshold="200" SpaceForScroll="0" Size="230,32" ID="FOWPull" >
+				<Label Anchor="L,C" AnchorSide="o,i" Offset="10,0" WrapWidth="250" LeadingOffset="-10" String="TXT_KEY_OPSCREEN_FOW_QUALITY" />
+			</PullDown>
+
+			<PullDown Style="GenericPullDown" ScrollThreshold="200" SpaceForScroll="0" Size="230,32" ID="TerrainDetailPull" >
+				<Label Anchor="L,C" AnchorSide="o,i" Offset="10,0" WrapWidth="250" LeadingOffset="-10" String="TXT_KEY_OPSCREEN_TERRAIN_DETAIL_LEVEL" />
+			</PullDown>
+
+			<PullDown Style="GenericPullDown" ScrollThreshold="200" SpaceForScroll="0" Size="230,32" ID="TerrainTessPull" >
+				<Label Anchor="L,C" AnchorSide="o,i" Offset="10,0" WrapWidth="250" LeadingOffset="-10" String="TXT_KEY_OPSCREEN_TERRAIN_TESS_LEVEL" />
+			</PullDown>
+
+			<PullDown Style="GenericPullDown" ScrollThreshold="200" SpaceForScroll="0" Size="230,32" ID="TerrainShadowPull" >
+				<Label Anchor="L,C" AnchorSide="o,i" Offset="10,0" WrapWidth="250" LeadingOffset="-10" String="TXT_KEY_OPSCREEN_TERRAIN_SHADOW_QUALITY" />
+			</PullDown>
+
+			<PullDown Style="GenericPullDown" ScrollThreshold="200" SpaceForScroll="0" Size="230,32" ID="WaterPull" >
+				<Label Anchor="L,C" AnchorSide="o,i" Offset="10,0" WrapWidth="250" LeadingOffset="-10" String="TXT_KEY_OPSCREEN_WATER_QUALITY" />
+			</PullDown>
+
+			<PullDown Style="GenericPullDown" ScrollThreshold="200" SpaceForScroll="0" Size="230,32" ID="TextureQualityPull" >
+				<Label Anchor="L,C" AnchorSide="o,i" Offset="10,0" WrapWidth="250" LeadingOffset="-10" String="TXT_KEY_OPSCREEN_TEXTURE_QUALITY" />
+			</PullDown>
+
+			<!--
+					&TerrainSettings::g_uCacheSize
+					&TerrainSettings::g_uTilesToCalcPerFrame
+					&TerrainSettings::g_uNumContinents
+					-->
+			</Stack>
+			<Box Offset="16,28" Size="928,460" Color="Black.200" ID="VideoPanelBlock" Hidden="1" ConsumeMouse="1" >
+			<Label Font="TwCenMT24" Offset="0,30" Anchor="C,T" String="TXT_KEY_OPSCREEN_VDOP_DISABLED" />
+			</Box>
+		</Container>
+
+		<!-- Audio Options -->
+		<Container Size="971,500" Offset="0,0" ID="AudioPanel" Hidden="1" >
+
+			<Stack Anchor="C,T" Padding="12" Offset="0,130" >
+			<Label Anchor="L,C" Offset="0,20" ID="MusicVolumeSliderValue" />
+			<Slider Length="500" Style="Slider" ID="MusicVolumeSlider" WheelSteps="1" />
+
+			<Label Anchor="L,C" Offset="0,20" ID="EffectsVolumeSliderValue" />
+			<Slider Length="500" Style="Slider" ID="EffectsVolumeSlider" WheelSteps="1" />
+
+			<Label Anchor="L,C" Offset="0,20" ID="AmbienceVolumeSliderValue" />
+			<Slider Length="500" Style="Slider" ID="AmbienceVolumeSlider" WheelSteps="1" />
+
+			<Label Anchor="L,C" Offset="0,20" ID="SpeechVolumeSliderValue" />
+			<Slider Length="500" Style="Slider" ID="SpeechVolumeSlider" WheelSteps="1" />
+			</Stack>
+
+		</Container>
+
+		<!-- Multiplayer Options -->
+		<Container Size="971,500" Offset="0,0" ID="MultiplayerPanel" Hidden="1" >
+
+			<!-- Turn Notify Options -->
+			<Grid Offset="40,100" Size="395,200" Color="White,128" Style="Grid9FrameButtons" >
+			<Label Anchor="C,T" Offset="0,5" WrapWidth="250" LeadingOffset="-10" String="TXT_KEY_OPSCREEN_TURN_NOTIFY_OPTIONS" />
+			<Box Anchor="C,T" Offset="0,30" Size="375,160" Color="0,0,0,0">
+				<Stack Anchor="L,T" Padding="0" StackGrowth="Bottom">
+				<CheckBox Anchor="R,T" Offset="-32,0" String="TXT_KEY_OPSCREEN_TURN_NOTIFY_STEAM_INVITE" LeadingOffset="0" WrapWidth="350" ID="TurnNotifySteamInviteCheckbox" ToolTip="TXT_KEY_OPSCREEN_TURN_NOTIFY_STEAM_INVITE_TT" />
+				<CheckBox Anchor="R,T" Offset="-32,0" String="TXT_KEY_OPSCREEN_TURN_NOTIFY_EMAIL" LeadingOffset="0" WrapWidth="350" ID="TurnNotifyEmailCheckbox" ToolTip="TXT_KEY_OPSCREEN_TURN_NOTIFY_EMAIL_TT" />
+				<Label Anchor="L,T" Offset="0,10" LeadingOffset="-10" WrapWidth="300" String="TXT_KEY_OPSCREEN_TURN_NOTIFY_EMAIL_ADDRESS" ToolTip="TXT_KEY_OPSCREEN_TURN_NOTIFY_EMAIL_ADDRESS_TT" >
+					<Box Anchor="R,C" AnchorSide="o,i" Offset="10,0" Size="184,24" Color="255,255,200,255" >
+					<Box Anchor="C,C" Offset="0,0" Size="182,22" Color="0,0,0,255" >
+						<EditBox EditMode="1" Size="180,18" Anchor="C,C" ID="TurnNotifyEmailAddressEdit" Font="TwCenMT16" NumberInput="0" MaxLength="64" />
+					</Box>
+					</Box>
+				</Label>
+				</Stack>
+			</Box>
+			</Grid>
+
+			<!-- Turn Notify Host Options -->
+			<Grid Offset="440,100" Size="460,280" Color="White,128" Style="Grid9FrameButtons" >
+			<Label Anchor="C,T" Offset="0,5" WrapWidth="250" LeadingOffset="-10" String="TXT_KEY_OPSCREEN_TURN_NOTIFY_HOST_OPTIONS" />
+			<Stack Anchor="L,T" Offset="10,30" Padding="10" StackGrowth="Bottom">
+				<Label Anchor="L,C" Offset="0,10" LeadingOffset="-10" WrapWidth="300" String="TXT_KEY_OPSCREEN_TURN_NOTIFY_EMAIL_ADDRESS" >
+				<Box Anchor="R,C" AnchorSide="o,i" Offset="10,0" Size="184,24" Color="255,255,200,255" >
+					<Box Anchor="C,C" Offset="0,0" Size="182,22" Color="0,0,0,255" >
+					<EditBox EditMode="1" Size="180,18" Anchor="C,C" ID="TurnNotifySmtpEmailEdit" Font="TwCenMT16" NumberInput="0" MaxLength="64" />
+					</Box>
+				</Box>
+				</Label>
+				<Label Anchor="L,C" Offset="0,10" LeadingOffset="-10" WrapWidth="300" String="TXT_KEY_OPSCREEN_TURN_NOTIFY_SMTP_HOST" ToolTip="TXT_KEY_OPSCREEN_TURN_NOTIFY_SMTP_HOST_TT" >
+				<Box Anchor="R,C" AnchorSide="o,i" Offset="10,0" Size="184,24" Color="255,255,200,255" >
+					<Box Anchor="C,C" Offset="0,0" Size="182,22" Color="0,0,0,255" >
+					<EditBox EditMode="1" Size="180,18" Anchor="C,C" ID="TurnNotifySmtpHostEdit" Font="TwCenMT16" NumberInput="0" MaxLength="64" />
+					</Box>
+				</Box>
+				</Label>
+				<Stack Anchor="C,C" Offset="30,0" Padding="0" StackGrowth="Right">
+				<CheckBox Anchor="L,C" Offset="0,10" String="TXT_KEY_OPSCREEN_TURN_NOTIFY_SMTP_TLS" LeadingOffset="0" WrapWidth="350" ID="TurnNotifySmtpTLS" ToolTip="TXT_KEY_OPSCREEN_TURN_NOTIFY_SMTP_TLS_TT" />
+				<Label Anchor="L,C" Offset="0,10" LeadingOffset="-10" WrapWidth="300" String="TXT_KEY_OPSCREEN_TURN_NOTIFY_SMTP_PORT" ToolTip="TXT_KEY_OPSCREEN_TURN_NOTIFY_SMTP_PORT_TT" >
+					<Box Anchor="R,C" AnchorSide="o,i" Offset="10,0" Size="34,24" Color="255,255,200,255" >
+					<Box Anchor="C,C" Offset="0,0" Size="32,22" Color="0,0,0,255" >
+						<EditBox EditMode="1" Size="30,18" Anchor="C,C" ID="TurnNotifySmtpPortEdit" Font="TwCenMT16" NumberInput="0" MaxLength="64" />
+					</Box>
+					</Box>
+				</Label>
+				</Stack>
+				<Label Anchor="L,C" Offset="0,10" LeadingOffset="-10" WrapWidth="300" String="TXT_KEY_OPSCREEN_TURN_NOTIFY_SMTP_USERNAME" ToolTip="TXT_KEY_OPSCREEN_TURN_NOTIFY_SMTP_USERNAME_TT" >
+				<Box Anchor="R,C" AnchorSide="o,i" Offset="10,0" Size="84,24" Color="255,255,200,255" >
+					<Box Anchor="C,C" Offset="0,0" Size="82,22" Color="0,0,0,255" >
+					<EditBox EditMode="1" Size="80,18" Anchor="C,C" ID="TurnNotifySmtpUserEdit" Font="TwCenMT16" NumberInput="0" MaxLength="64" />
+					</Box>
+				</Box>
+				</Label>
+				<Label Anchor="L,C" Offset="0,10" LeadingOffset="-10" WrapWidth="300" String="TXT_KEY_OPSCREEN_TURN_NOTIFY_SMTP_PASSWORD" ToolTip="TXT_KEY_OPSCREEN_TURN_NOTIFY_SMTP_PASSWORD_TT" >
+				<Box Anchor="R,C" AnchorSide="o,i" Offset="10,0" Size="84,24" Color="255,255,200,255" >
+					<Box Anchor="C,C" Offset="0,0" Size="82,22" Color="0,0,0,255" >
+					<EditBox EditMode="1" CallOnChar="1" Obscure="1" Size="80,18" Anchor="C,C" ID="TurnNotifySmtpPassEdit" Font="TwCenMT16" NumberInput="0" MaxLength="64" />
+					</Box>
+				</Box>
+				</Label>
+				<Stack Anchor="C,C" Offset="0,0" Padding="0" StackGrowth="Right">
+				<Label Anchor="L,C" Offset="0,10" LeadingOffset="-10" WrapWidth="300" String="TXT_KEY_OPSCREEN_TURN_NOTIFY_SMTP_RETYPE_PASSWORD" ToolTip="TXT_KEY_OPSCREEN_TURN_NOTIFY_SMTP_RETYPE_PASSWORD_TT" />
+				<Box Anchor="L,C" Offset="10,10" Size="84,24" Color="255,255,200,255" >
+					<Box Anchor="C,C" Offset="0,0" Size="82,22" Color="0,0,0,255" >
+					<EditBox EditMode="1" CallOnChar="1" Obscure="1" Size="80,18" Anchor="C,C" ID="TurnNotifySmtpPassRetypeEdit" Font="TwCenMT16" NumberInput="0" MaxLength="64" />
+					</Box>
+				</Box>
+				<Label Anchor="L,C" Offset="5,10" LeadingOffset="-10" WrapWidth="300" ID="StmpPasswordMatchLabel" String="test" ToolTip="test tt" />
+				</Stack>
+			</Stack>
+			</Grid>
+
+			<!-- LAN Nick Name Option -->
+			<Grid Offset="40,350" Size="395,200" Color="White,128" Style="Grid9FrameButtons" >
+				<Label Anchor="C,T" Offset="0,5" WrapWidth="250" LeadingOffset="-10" String="TXT_KEY_MULTIPLAYER_LAN_GAME" />
+				<Stack Anchor="L,T" Offset="10,30" Padding="10" StackGrowth="Bottom">
+					<Label Anchor="L,C" Offset="0,10" LeadingOffset="-10" WrapWidth="300" String="TXT_KEY_MP_NICK_NAME">
+						<Box Anchor="R,C" AnchorSide="o,i" Offset="10,0" Size="84,24" Color="255,255,200,255" >
+							<Box Anchor="C,C"  Offset="0,0" Size="82,22" Color="0,0,0,255" >
+								<EditBox EditMode="1" Size="80,18" Anchor="C,C" ID="LANNickNameEdit" Font="TwCenMT16" NumberInput="0" MaxLength="64" />
+							</Box>
+						</Box>
+					</Label>
+				</Stack>
+			</Grid>
+		</Container>
+
+		<!-- Cancel Button -->
+		<Box Anchor="C,B" AnchorSide="I.I" Offset="0,54" Size="910,56" Color="255,255,255,0" >
+			<GridButton Anchor="L,B" Style="SmallButton" Size="150,32" Offset="14,0" StateOffsetIncrement="0,0" ID="CancelButton" >
+			<Label Anchor="C,C" Offset="0,0" String="TXT_KEY_OPSCREEN_CANCEL_BUTTON" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" />
+			</GridButton>
+		</Box>
+
+		<!-- Defaults Button -->
+		<GridButton Anchor="C,B" Size="200,32" Offset="0,54" ID="DefaultButton" Style="SmallButton" ToolTip="TXT_KEY_OPSCREEN_DEFAULTS_BUTTON_TT">
+			<Label Anchor="C,C" Offset="0,0" String="TXT_KEY_OPSCREEN_DEFAULTS_BUTTON" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" />
+		</GridButton>
+
+		<!-- Accept Button -->
+		<GridButton Anchor="R,B" ID="AcceptButton" Offset="38,54" Size="260,45" Style="BaseButton" String="TXT_KEY_OPSCREEN_SAVE_BUTTON" ToolTip="TXT_KEY_OPSCREEN_SAVE_BUTTON_TT" />
+	</Grid>
+
+	<!-- Graphics options changed popup -->
+	<Box Color="Black.128" Size="Full.Full" ID="GraphicsChangedPopup" Hidden="1" ConsumeMouseOver="1" >
+		<Grid Size="400,225" Anchor="C,C" Offset="0,0" Padding="0,20" Style="Grid9DetailFive140" Hidden="0" >
+
+			<!-- Side treatments -->
+			<Box Style="PopupLeftSideTreatment"/>
+			<Box Style="PopupRightSideTreatment"/>
+			<Box Style="PopupNotificationTopTreatment"/>
+
+			<Label ID="GraphicsChangedMessage" Anchor="C,T" Offset="0,60" WrapWidth="300" String="TXT_KEY_OPSCREEN_VDOP_RESTART" Font="TwCenMT20" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" />
+
+			<!-- OK Button -->
+			<GridButton Style="BaseButton" ID="GraphicsChangedOK" Size="300,30" Anchor="C,B" Offset="0,60" Hidden="0">
+			<Label Anchor="C,C" Offset="0,0" String="TXT_KEY_OK_BUTTON" ColorSet="Beige_Black" Font="TwCenMT20" FontStyle="Shadow" />
+			</GridButton>
+		</Grid>
+	</Box>
+
+	<!-- Resolution/Language Countdown -->
+	<Box Color="Black.128" Size="Full.Full" ID="Countdown" Hidden="1" ConsumeMouseOver="1" >
+		<Grid Size="400,300" Anchor="C,C" Offset="0,0" Padding="0,20" Style="Grid9DetailFive140" Hidden="0" >
+
+			<!-- Side treatments -->
+			<Box Style="PopupLeftSideTreatment"/>
+			<Box Style="PopupRightSideTreatment"/>
+			<Box Style="PopupNotificationTopTreatment"/>
+
+			<Stack Anchor="C,T" Offset="0,60" Padding="10" StackGrowth="Bottom" ID="LabelStack">
+			<Label ID="CountdownMessage" Anchor="C,T" WrapWidth="300" Font="TwCenMT20" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" />
+			<Label ID="CountdownTimer" Anchor="C,T" WrapWidth="300" Font="TwCenMT24" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" />
+			</Stack>
+
+			<Stack Anchor="C,B" Offset="0,60" Padding="10" StackGrowth="Bottom" ID="ButtonStack">
+			<!-- Yes Button -->
+			<GridButton Style="BaseButton" ID="CountYes" Size="300,30" Anchor="C,T" Offset="0,0" Hidden="0">
+				<Label Anchor="C,C" Offset="0,0" ColorSet="Beige_Black" Font="TwCenMT20" FontStyle="Shadow" />
+			</GridButton>
+			<!-- No Button -->
+			<GridButton Style="BaseButton" ID="CountNo" Size="300,30" Anchor="C,T" Offset="0,0" Hidden="0">
+				<Label Anchor="C,C" Offset="0,0" ColorSet="Beige_Black" Font="TwCenMT20" FontStyle="Shadow" />
+			</GridButton>
+			</Stack>
+		</Grid>
+	</Box>
+
+</Context>

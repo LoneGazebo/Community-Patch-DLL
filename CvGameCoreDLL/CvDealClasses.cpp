@@ -463,6 +463,27 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 
 		if (!pToTeam->isAtWar(eFromTeam))
 			return false;
+
+		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+		if (pkScriptSystem)
+		{
+			// Construct and push in some event arguments.
+			CvLuaArgsHandle args;
+			args->Push(ePlayer);
+			args->Push(eToTeam);
+
+			// Attempt to execute the game events.
+			// Will return false if there are no registered listeners.
+			bool bResult = false;
+			if (LuaSupport::CallTestAll(pkScriptSystem, "IsAbleToMakePeace", args.get(), bResult)) 
+			{
+				// Check the result.
+				if (bResult == false)
+				{
+					return false;
+				}
+			}
+		}
 	}
 	// Third Party Peace
 	else if (eItem == TRADE_ITEM_THIRD_PARTY_PEACE)
@@ -2082,6 +2103,23 @@ void CvGameDeals::DoCancelAllDealsWithPlayer(PlayerTypes eCancelPlayer)
 		if (pCancelTeam->isHasMet(eTeam))
 		{
 			DoCancelDealsBetweenPlayers(eCancelPlayer, ePlayer);
+		}
+	}
+}
+
+void CvGameDeals::DoCancelAllProposedDealsWithPlayer(PlayerTypes eCancelPlayer)
+{//Cancel all proposed deals involving eCancelPlayer.
+	PlayerTypes eLoopPlayer;
+	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	{
+		eLoopPlayer = (PlayerTypes) iPlayerLoop;
+		if(GetProposedDeal(eCancelPlayer, eLoopPlayer))
+		{//deal from eCancelPlayer
+			FinalizeDeal(eCancelPlayer, eLoopPlayer, false);
+		}
+		if(GetProposedDeal(eLoopPlayer, eCancelPlayer))
+		{//deal to eCancelPlayer
+			FinalizeDeal(eLoopPlayer, eCancelPlayer, false);
 		}
 	}
 }

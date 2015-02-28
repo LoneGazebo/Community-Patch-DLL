@@ -1028,7 +1028,14 @@ function PopulateTakeChoices()
 	SetButtonSize(Controls.GoldTributeLabel, Controls.GoldTributeButton, Controls.GoldTributeAnim, Controls.GoldTributeButtonHL)
 
 	local sBullyUnit = GameInfo.Units.UNIT_WORKER.Description
-	buttonText = Locale.Lookup("TXT_KEY_POPUP_MINOR_BULLY_UNIT_AMOUNT", sBullyUnit, gk_mode and (-GameDefines.MINOR_FRIENDSHIP_DROP_BULLY_WORKER_SUCCESS / 100) or 0 )
+-- CBP
+	pPlayer = Players[activePlayerID];
+	if(pPlayer:IsBullyAnnex()) then
+		buttonText = Locale.Lookup("TXT_KEY_POPUP_MINOR_BULLY_UNIT_AMOUNT_ANNEX");
+	else
+		buttonText = Locale.Lookup("TXT_KEY_POPUP_MINOR_BULLY_UNIT_AMOUNT", sBullyUnit, gk_mode and (-GameDefines.MINOR_FRIENDSHIP_DROP_BULLY_WORKER_SUCCESS / 100) or 0 )
+	end
+-- END
 	if minorPlayer.GetMajorBullyUnitDetails then
 		ttText = minorPlayer:GetMajorBullyUnitDetails(activePlayerID)
 	else
@@ -1146,6 +1153,9 @@ function OnYesBully( )
 		Game.DoMinorBullyGold( activePlayerID, g_minorCivID )
 
 	elseif m_pendingAction == kiBulliedUnit then
+-- CBP
+		OnCloseButtonClicked();
+-- END
 		Game.DoMinorBullyUnit( activePlayerID, g_minorCivID )
 
 	elseif m_pendingAction == kiDeclaredWar then

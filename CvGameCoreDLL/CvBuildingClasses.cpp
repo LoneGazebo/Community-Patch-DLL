@@ -2540,8 +2540,8 @@ void CvCityBuildings::IncrementWonderStats(BuildingClassTypes eIndex)
 bool CvCityBuildings::CheckForAllWondersBuilt()
 {
 	int iI;
-	int iStartStatWonder = 80; //As defined on the backend
-	int iEndStatWonder = 113;
+	int iStartStatWonder = ESTEAMSTAT_ANGKORWAT;
+	int iEndStatWonder = ESTEAMSTAT_PYRAMIDS;		//Don't include the united nations because it was removed in BNW.
 	int32 nStat;
 
 	for(iI = iStartStatWonder; iI < iEndStatWonder; iI++)

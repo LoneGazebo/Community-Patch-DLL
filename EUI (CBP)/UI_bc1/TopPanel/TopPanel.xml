@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Context Font="TwCenMT16" FontStyle="Base" Color="Beige" ColorSet="Beige_Black" >
+
+	<Grid ID="ClockOptionsPanel" Hidden="1" ConsumeMouse="1" Anchor="R,T" Offset="100,-10" Size="220,220" Style="Grid9DetailTwo140" >
+		<Stack ID="ClockOptions" Anchor="L,T" Offset="20,45" Padding="0" StackGrowth="Bottom" >
+			<Stack Anchor="R,T" StackGrowth="Right" Padding="3" >
+			        <CheckBox ID="AlarmCheckBox" Anchor="L,C" />
+				<Box Anchor="L,C" Size="34,24" Color="255,255,200,255" >
+					<Box Anchor="C,C" Size="32,22" Color="0,0,0,255" >
+						<EditBox ID="AlarmHours" EditMode="1" Size="30,18" Anchor="C,C" NumberInput="1" MaxLength="2" />
+					</Box>
+				</Box>
+				<Label Anchor="L,C" String=":" />
+				<Box Anchor="L,C" Size="34,24" Color="255,255,200,255" >
+					<Box Anchor="C,C" Size="32,22" Color="0,0,0,255" >
+						<EditBox ID="AlarmMinutes" EditMode="1" Size="30,18" Anchor="C,C" NumberInput="1" MaxLength="2" />
+					</Box>
+				</Box>
+			</Stack>
+		</Stack>
+		<TextButton ID="ClockOptionsPanelClose" Anchor="C,B" Offset="0,22" String="TXT_KEY_CLOSE" Font="TwCenMT14" FontStyle="Shadow" MouseOverStyle="SoftShadow" />
+	</Grid>
+	<Instance Name="ClockOptionInstance">
+		<RadioButton ID="ClockOption" Anchor="L,T" TextAnchor="R,C" IsChecked="0" RadioGroup="ClockOptionGroup" />
+	</Instance>
+
+	<Box ID="TopPanelMask" Hidden="1" ConsumeMouse="1" Anchor="C,T" Size="Full.30" Color="0,0,0,200" />
+
+	<Image ID="TopPanelBarL" Hidden="1" ConsumeMouse="1" Anchor="L,T" Texture="TopPanelBar.dds" Size="512.32" >
+		<Image Anchor="R,T" AnchorSide="O,I" Offset="-9,-30" Texture="Dec32x64Right.dds" Size="32.64" ConsumeMouse="true" />
+	</Image>
+
+	<Image ID="TopPanelBarR" Hidden="1" ConsumeMouse="1" Anchor="R,T" Texture="TopPanelBar.dds" Size="512.32" >
+		<Image Anchor="L,T" AnchorSide="O,I" Offset="-9,-30" Texture="Dec32x64Left.dds" Size="32.64" ConsumeMouse="true" />
+	</Image>
+	<Image ID="TopPanelBar" Anchor="C,T" Texture="TopPanelBar.dds" Size="Full.32" ConsumeMouse="true" />
+
+	<Stack ID="TopPanelInfoStack" Anchor="L,T" Padding="0" Offset="4,6" StackGrowth="Right" >
+
+		<!-- Science  -->
+		<TextButton ID="SciencePerTurn" Anchor="L,T" String="TXT_KEY_TOP_PANEL_SCIENCE_OFF"  Color="Science" ToolTipType="EUI_TopPanelProgressTooltip" />
+		<Label ID="ScienceTurns" Anchor="L,T" Offset="0,9" Color0="Science,255" Color1="0,0,0,200" Font="TwCenMT14" FontStyle="Stroke" ForceNonIME="1" />
+		<Box ID="ScienceBox" Hidden="1" Anchor="L,T" Offset="0,-6" Size="6,30" Color="0,0,0,255" >
+			<Bar ID="ScienceBarShadow" Anchor="C,B" Offset="0,0" Size="4,30" FGColor="Science,128" Direction="Up"/>
+			<Bar ID="ScienceBar" Anchor="C,B" Offset="0,0" Size="4,30" FGColor="Science,255" Direction="Up"/>
+			<Box Anchor="L,C" Offset="0,0" Size="3,30" Color="0,0,0,64" />
+			<Box Anchor="R,C" Offset="1,0" Size="1,30" Color="255,255,0,64" />
+		</Box>
+		<Button ID="TechIcon" Hidden="1" NoStateChange="1" Anchor="L,T" Offset="-5,-13" Size="45.45" ToolTipType="EUI_TopPanelProgressTooltip" />
+		<Container Size="10,1" />
+
+		<!-- Culture -->
+		<TextButton ID="CultureString" Anchor="L,T" String="TXT_KEY_TOP_PANEL_POLICIES_OFF" Color0="Culture,255" Color1="0,0,0,200" ToolTipType="TooltipTypeTopPanel" />
+		<Label ID="CultureTurns" Anchor="L,T" Offset="0,9" Color0="Culture,255" Color1="0,0,0,200" Font="TwCenMT14" FontStyle="Stroke" ForceNonIME="1" />
+		<Box ID="CultureBox" Hidden="1" Anchor="L,T" Offset="0,-6" Size="6,30" Color="0,0,0,255" >
+			<Bar ID="CultureBarShadow" Anchor="C,B" Offset="0,0" Size="4,30" FGColor="Culture,128" Direction="Up"/>
+			<Bar ID="CultureBar" Anchor="C,B" Offset="0,0" Size="4,30" FGColor="Culture,255" Direction="Up"/>
+			<Box Anchor="L,C" Offset="0,0" Size="3,30" Color="0,0,0,64"/>
+			<Box Anchor="R,C" Offset="1,0" Size="1,30" Color="255,255,0,64"/>
+		</Box>
+		<Container Size="10,1" />
+
+		<!-- Faith -->
+		<TextButton ID="FaithString" Anchor="L,T" String="" Color0="255,255,200,255" ToolTipType="TooltipTypeTopPanel"/>
+		<Label ID="FaithTurns" Hidden="1" Anchor="L,T" Offset="0,9" Color0="White,255" Color1="0,0,0,200" Font="TwCenMT14" FontStyle="Stroke" ForceNonIME="1" />
+		<Box ID="FaithBox" Hidden="1" Anchor="L,T" Offset="0,-6" Size="6,30" Color="0,0,0,255" >
+			<Bar ID="FaithBarShadow" Anchor="C,B" Offset="0,0" Size="4,30" FGColor="White,128" Direction="Up"/>
+			<Bar ID="FaithBar" Anchor="C,B" Offset="0,0" Size="4,30" FGColor="White,255" Direction="Up"/>
+			<Box Anchor="L,C" Offset="0,0" Size="3,30" Color="0,0,0,64"/>
+			<Box Anchor="R,C" Offset="1,0" Size="1,30" Color="255,255,0,64"/>
+		</Box>
+		<Button ID="FaithIcon" Hidden="1" NoStateChange="1" Anchor="L,T" Offset="-5,-13" Size="45.45" ToolTipType="TooltipTypeTopPanel" />
+		<Container Size="10,1" />
+
+		<!-- GreatPerson -->
+		<Label ID="GpTurns" Anchor="L,T" Offset="0,9" Color0="Production,255" Color1="0,0,0,200" Font="TwCenMT14" FontStyle="Stroke" ForceNonIME="1" />
+		<Box ID="GpBox" Hidden="1" Anchor="L,T" Offset="0,-6" Size="6,30" Color="0,0,0,255" >
+			<Bar ID="GpBarShadow" Anchor="C,B" Offset="0,0" Size="4,30" FGColor="Production,128" Direction="Up"/>
+			<Bar ID="GpBar" Anchor="C,B" Offset="0,0" Size="4,30" FGColor="Production,255" Direction="Up"/>
+			<Box Anchor="L,C" Offset="0,0" Size="3,30" Color="0,0,0,64" />
+			<Box Anchor="R,C" Offset="1,0" Size="1,30" Color="255,255,0,64" />
+		</Box>
+		<Button ID="GpIcon" Hidden="1" NoStateChange="1" Anchor="L,T" Offset="-5,-13" Size="45.45" ToolTipType="TooltipTypeTopPanel" />
+		<Container Size="10,1" />
+
+		<!-- Happy & Golden Age -->
+		<TextButton ID="HappinessString" Anchor="L,T" String="TXT_KEY_TOP_PANEL_HAPPINESS_OFF" ColorLayer0="255,255,200,255" ToolTipType="TooltipTypeTopPanel"/>
+		<Label ID="HappyTurns" Anchor="L,T" Offset="0,9" Color0="White,255" Color1="0,0,0,200" Font="TwCenMT14" FontStyle="Stroke" ForceNonIME="1" />
+		<Box ID="HappyBox" Hidden="1" Anchor="L,T" Offset="0,-6" Size="6,30" Color="0,0,0,255" >
+			<Bar ID="HappyBarShadow" Anchor="C,B" Offset="0,0" Size="4,30" FGColor="White,128" Direction="Up"/>
+			<Bar ID="HappyBar" Anchor="C,B" Offset="0,0" Size="4,30" FGColor="White,255" Direction="Up"/>
+			<Box Anchor="L,C" Offset="0,0" Size="3,30" Color="0,0,0,64"/>
+			<Box Anchor="R,C" Offset="1,0" Size="1,30" Color="255,255,0,64"/>
+		</Box>
+		<TextButton ID="GoldenAgeString" String="[ICON_GOLDEN_AGE]" Anchor="L,T" ColorLayer0="255,255,255,255" ToolTipType="TooltipTypeTopPanel" >
+			<AlphaAnim ID="GoldenAgeAnim" Hidden="1" Anchor="C,C" Offset="0,2" Size="80,80" Texture="NotificationGoldenAge.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="0" AlphaEnd="1" />
+		</TextButton>
+		<Container Size="10,1" />
+
+		<!-- Gold  -->
+		<TextButton ID="GoldPerTurn" Anchor="L,T" String="000 (+000)" ColorLayer0="255,235,0,255" ToolTipType="TooltipTypeTopPanel"/>
+
+		<!-- Warnings  -->
+		<Label String = " "/>
+		<Image ID="UnitSupplyString" Anchor="L,T" Offset="2,-4" Texture="OverSupplyLimit.dds" Size="20.20" />
+		<Label ID="WarningString" Anchor="L,T" />
+	</Stack>
+
+	<Stack ID="TopPanelDiploStack" Anchor="R,T" Offset="0,6" Padding="10" StackGrowth="Left" >
+
+		<TextButton ID="MenuButton" Anchor="R,T" String="TXT_KEY_MENU_CAPS"   Font="TwCenMT20" NormalState="Beige_Black"  MouseOver="White_Black" ButtonDown="Beige_Black_Alpha" ToolTip="TXT_KEY_MENU_TOOLTIP" />
+		<Image Anchor="R,T" TextureOffset="5,0" Texture="Divider.dds" Size="5.16"  />
+
+		<TextButton ID="CivilopediaButton" Anchor="R,T" String="TXT_KEY_HELP_CAPS"   Font="TwCenMT20" NormalState="Beige_Black"  MouseOver="White_Black" ButtonDown="Beige_Black_Alpha" ToolTip="TXT_KEY_CIVILOPEDIA_TOOLTIP" />
+		<Image Anchor="R,T" TextureOffset="5,0" Texture="Divider.dds" Size="5.16"  />
+
+		<!-- Time -->
+		<TextButton ID="CurrentTime" Hidden="1" Anchor="R,T" />
+
+		<!-- Date -->
+		<TextButton ID="CurrentDate" Anchor="R,T" />
+
+		<!-- Turn -->
+		<TextButton ID="CurrentTurn" Anchor="R,T" />
+
+		<!-- Resources -->
+		<TextButton ID="ResourceString" Anchor="R,T" ColorLayer0="255,0,255,255" ToolTipType="TooltipTypeTopPanel" />
+
+		<!-- Trade Routes -->
+		<TextButton ID="InternationalTradeRoutes" Anchor="R,T" String="" ColorLayer0="255,235,0,255" ToolTipType="TooltipTypeTopPanel" />
+
+		<!-- Tourism -->
+		<TextButton ID="TourismString" Anchor="R,T" String="" ColorLayer0="255,255,200,255" ToolTipType="TooltipTypeTopPanel" />
+	</Stack>
+
+	<ToolTipType Name="TooltipTypeTopPanel" >
+		<Grid ID="TopPanelMouseover" Anchor="L,T" Offset="30,5" Size="555,12" Padding="8,8" Style="GridBlack8" Color="White,240">
+			<Label ID="TooltipLabel" Anchor="C,C" String="Brief description" WrapWidth="555" />
+		</Grid>
+	</ToolTipType>
+
+	<ToolTipType Name="EUI_TopPanelProgressTooltip" >
+		<Grid ID="Box" Size="530,90" Anchor="L,T" Offset="30,5" Padding="8,8" Style="GridBlack8" Color="White,240">
+			<Label ID="Text" Anchor="C,C" String="Brief description" WrapWidth="333" />
+			<Image Anchor="R,T" AnchorSide="O,I" Offset="-20,0" Size="256,256" Texture="ProductionPanelBack.dds" NoClip="1" >
+				<Meter ID="LossMeter" Anchor="C,C" Size="256,256" Texture="ProductionPanelMeter.dds" HasShadow="0" Color="Red,128" >
+					<Meter ID="BlankMeter" Anchor="C,C" Size="256,256" Texture="ProductionPanelBack.dds" HasShadow="0" />
+				</Meter>
+				<AlphaAnim ID="AnimMeter" Hidden="1" Anchor="C,C" Size="256.256" Texture="TechMeter256.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="1" AlphaEnd="0" />
+				<Meter ID="ProgressMeter" Anchor="C,C" Size="256,256" Texture="TechMeter256.dds" HasShadow="1" />
+				<Line ID="Line1" Hidden="1" Color="Science,128" Anchor="L,T" Start="128,128" End="128,128" Width="1" />
+				<Line ID="Line2" Hidden="1" Color="Black,128" Anchor="L,T" Start="128,128" End="128,128" Width="1" />
+				<Image ID="ItemPortrait" Hidden="1" Anchor="C,C" Size="256,256" />
+				<Image Anchor="C,C" Size="256,256" Texture="ProductionPanelFrame.dds" />
+				<Label ID="Label1" Hidden="1" Anchor="C,C" Color0="Science,255" Color1="0,0,0,200" Font="TwCenMT14" FontStyle="Stroke" />
+				<Label ID="Label2" Hidden="1" Anchor="C,C" Color0="Science,255" Color1="0,0,0,200" Font="TwCenMT14" FontStyle="Stroke" />
+			</Image>
+		</Grid>
+	</ToolTipType>
+
+	<Instance Name="ResourceInstance">
+		<TextButton ID="ResourceItem" Anchor="R,T" ToolTipType="TooltipTypeTopPanel" />
+	</Instance>
+
+</Context>

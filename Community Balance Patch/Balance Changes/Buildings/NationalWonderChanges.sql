@@ -44,7 +44,7 @@ WHERE Type = 'BUILDING_NATIONAL_COLLEGE' AND EXISTS (SELECT * FROM COMMUNITY WHE
 
 -- East India Co.
 UPDATE Buildings
-SET PovertyHappinessChange = '4'
+SET PovertyHappinessChange = '5'
 WHERE Type = 'BUILDING_NATIONAL_TREASURY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 -- Circus Maximus
@@ -58,25 +58,25 @@ SET UnmoddedHappiness = '2'
 WHERE Type = 'BUILDING_CIRCUS_MAXIMUS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 UPDATE Buildings
-SET UnculturedHappinessChange = '4'
+SET UnculturedHappinessChange = '5'
 WHERE Type = 'BUILDING_CIRCUS_MAXIMUS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 -- National Intelligence Agency
 
 UPDATE Buildings
-SET DefenseHappinessChange = '4'
+SET DefenseHappinessChange = '5'
 WHERE Type = 'BUILDING_INTELLIGENCE_AGENCY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 -- Oxford University
 
 UPDATE Buildings
-SET IlliteracyHappinessChange = '4'
+SET IlliteracyHappinessChange = '5'
 WHERE Type = 'BUILDING_OXFORD_UNIVERSITY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 -- Grand Temple
 
 UPDATE Buildings
-SET MinorityHappinessChange = '4'
+SET MinorityHappinessChange = '5'
 WHERE Type = 'BUILDING_GRAND_TEMPLE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 -- Move Bomb Shelter

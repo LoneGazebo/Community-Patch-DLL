@@ -972,7 +972,13 @@ function PopulateTakeChoices()
 	SetButtonSize(Controls.GoldTributeLabel, Controls.GoldTributeButton, Controls.GoldTributeAnim, Controls.GoldTributeButtonHL);
 	
 	local sBullyUnit = GameInfo.Units["UNIT_WORKER"].Description; --antonjs: todo: XML or fn
-	buttonText = Locale.Lookup("TXT_KEY_POPUP_MINOR_BULLY_UNIT_AMOUNT", sBullyUnit, iBullyUnitInfluenceLost);
+-- CBP
+	if(pPlayer:IsBullyAnnex()) then
+		buttonText = Locale.Lookup("TXT_KEY_POPUP_MINOR_BULLY_UNIT_AMOUNT_ANNEX");
+	else
+		buttonText = Locale.Lookup("TXT_KEY_POPUP_MINOR_BULLY_UNIT_AMOUNT", sBullyUnit, iBullyUnitInfluenceLost);
+	end
+-- END
 	ttText = pPlayer:GetMajorBullyUnitDetails(iActivePlayer);
 	if (not pPlayer:CanMajorBullyUnit(iActivePlayer)) then
 		buttonText = "[COLOR_WARNING_TEXT]" .. buttonText .. "[ENDCOLOR]";
@@ -1083,9 +1089,12 @@ function OnYesBully( )
 		m_iPendingAction = kiNoAction;
 		m_iLastAction = kiBulliedGold;
 	elseif (m_iPendingAction == kiBulliedUnit) then
-		Game.DoMinorBullyUnit(iActivePlayer, g_iMinorCivID);
+-- CBP
+		OnCloseButtonClicked();
 		m_iPendingAction = kiNoAction;
 		m_iLastAction = kiBulliedUnit;
+-- END
+		Game.DoMinorBullyUnit(iActivePlayer, g_iMinorCivID);
 	else
 		print("Scripting error - Selected Yes for bully confrirmation dialog, but invalid PendingAction type");
 	end

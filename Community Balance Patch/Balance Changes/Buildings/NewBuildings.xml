@@ -76,7 +76,7 @@
 			<ArtDefineTag>ART_DEF_BUILDING_GARDEN</ArtDefineTag>
 			<MinAreaSize>-1</MinAreaSize>
 			<FoodKept>25</FoodKept>
-			<PovertyHappinessChange>5</PovertyHappinessChange>
+			<PovertyHappinessChange>4</PovertyHappinessChange>
 			<ConquestProb>66</ConquestProb>
 			<HurryCostModifier>25</HurryCostModifier>
 			<IconAtlas>BW_ATLAS_1</IconAtlas>
@@ -121,7 +121,7 @@
 		<Row>
 			<BuildingType>BUILDING_GROCER</BuildingType>
 			<FlavorType>FLAVOR_HAPPINESS</FlavorType>
-			<Flavor>10</Flavor>
+			<Flavor>25</Flavor>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_WELL</BuildingType>
@@ -204,20 +204,6 @@
 			<Yield>1</Yield>
 		</Row>
 	</Building_TerrainYieldChanges>
-	<Building_ResourceYieldChanges>
-		<Row>
-			<BuildingType>BUILDING_BATH</BuildingType>
-			<ResourceType>RESOURCE_CITRUS</ResourceType>
-			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>1</Yield>
-		</Row>
-		<Row>
-			<BuildingType>BUILDING_BATH</BuildingType>
-			<ResourceType>RESOURCE_WINE</ResourceType>
-			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>1</Yield>
-		</Row>
-	</Building_ResourceYieldChanges>
 	<Language_en_US>
 		<Row Tag="TXT_KEY_BUILDING_BATH">
 			<Text>Baths</Text>

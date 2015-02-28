@@ -1367,7 +1367,7 @@ if civ5_mode then
 					end
 				end
 			end
-			tips:insert( L"TXT_KEY_EO_LOCAL_RESOURCES" .. (#tip > 0 and tip or (" : "..L"TXT_KEY_TP_NO_RESOURCES_DISCOVERED")) )
+			tips:insert( L"TXT_KEY_EO_LOCAL_RESOURCES_CBP" .. (#tip > 0 and tip or (" : "..L"TXT_KEY_TP_NO_RESOURCES_DISCOVERED")) )
 
 			-- Resources from city terrain
 			for city in g_activePlayer:Cities() do
@@ -2094,7 +2094,7 @@ local function ResourcesToolTip( control )
 			-- Local Resources in Cities
 			----------------------------
 			tips:insert( "" )
-			tips:insert( Colorize(numResourceLocal) .. " " .. L"TXT_KEY_EO_LOCAL_RESOURCES" )
+			tips:insert( Colorize(numResourceLocal) .. " " .. L"TXT_KEY_EO_LOCAL_RESOURCES_CBP" )
 
 			-- Resources from city terrain
 			for city in g_activePlayer:Cities() do

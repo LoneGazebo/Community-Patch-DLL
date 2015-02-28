@@ -8,5 +8,8 @@
 		<Row Tag="TXT_KEY_TRAIT_POPULATION_GROWTH_NEW">
 			<Text>Population Growth</Text>
 		</Row>
+		<Row Tag="TXT_KEY_EO_LOCAL_RESOURCES_CBP">
+			<Text>Local Resources</Text>
+		</Row>
 	</Language_en_US>
 </GameData>
