@@ -1066,6 +1066,18 @@
 				<PediaEntry>TXT_KEY_PROMOTION_FAST_GENERAL</PediaEntry>
 			</Row>
 			<Row>
+				<Type>PROMOTION_FASTER_GENERAL</Type>
+				<Description>TXT_KEY_PROMOTION_FASTER_GENERAL</Description>
+				<Help>TXT_KEY_PROMOTION_FASTER_GENERAL_HELP</Help>
+				<Sound>AS2D_IF_LEVELUP</Sound>
+				<CannotBeChosen>true</CannotBeChosen>
+				<MovesChange>1</MovesChange>
+				<PortraitIndex>59</PortraitIndex>
+				<IconAtlas>ABILITY_ATLAS</IconAtlas>
+				<PediaType>PEDIA_SHARED</PediaType>
+				<PediaEntry>TXT_KEY_PROMOTION_FASTER_GENERAL</PediaEntry>
+			</Row>
+			<Row>
 				<Type>PROMOTION_FAST_ADMIRAL</Type>
 				<Description>TXT_KEY_PROMOTION_FAST_ADMIRAL</Description>
 				<Help>TXT_KEY_PROMOTION_FAST_ADMIRAL_HELP</Help>
@@ -2755,5 +2767,18 @@
 		<Row Tag="TXT_KEY_PROMOTION_BIG_CITY_PENALTY_HELP">
 			<Text>75% Penalty Attacking Cities</Text>
 		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_FASTER_GENERAL">
+			<Text>Faster General</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_FASTER_GENERAL_HELP">
+			<Text>+1 [ICON_MOVES] Movement</Text>
+		</Row>
 	</Language_en_US>
+	<UnitPromotions_CivilianUnitType>
+		<Row>
+			<PromotionType>PROMOTION_FASTER_GENERAL</PromotionType>
+			<UnitType>UNIT_GREAT_GENERAL</UnitType>
+		</Row>
+	</UnitPromotions_CivilianUnitType>
 </GameData>

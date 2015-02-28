@@ -288,6 +288,16 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	void MinorAttackTest();
 #endif
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	int GetNumNavalAttacksRequested() const
+	{
+		return m_iNumNavalAttacksRequested;
+	};
+	int GetNumLandAttacksRequested() const
+	{
+		return m_iNumLandAttacksRequested;
+	};
+#endif
 private:
 
 	// Functions to process a turn

@@ -1,3 +1,5 @@
+ALTER TABLE Buildings ADD COLUMN 'DPToVotes' integer default 0;
+
 -- Policy Changes
 
 UPDATE Language_en_US
@@ -12,6 +14,15 @@ UPDATE Policies
 SET GreatDiplomatRateModifier = '25'
 WHERE Type = 'POLICY_SCHOLASTICISM';
 	
+-- Change to Order Palace of Science and Culture
+UPDATE Buildings
+SET DPToVotes = '1'
+WHERE Type = 'BUILDING_PALACE_SCIENCE_CULTURE';
+
+UPDATE Buildings
+SET RAToVotes = '0'
+WHERE Type = 'BUILDING_PALACE_SCIENCE_CULTURE';
+
 -- Building Costs
 
 UPDATE Buildings
@@ -145,11 +156,11 @@ SET Text = 'This National Wonder is unique, in that players may only build it in
 WHERE Tag = 'TXT_KEY_BUILDING_COURT_SCRIBE_STRATEGY';
 
 UPDATE Language_en_US
-SET Text = 'This National Wonder cannot be built unless the city has a Public School and you have a national population of at least 70. Build this national wonder to receive additional Delegates in the World Congress based on the number of Research Agreements you currently have with other players. You will also receive a large boost to the Culture and Science output of the city where it is built.'
+SET Text = 'This National Wonder cannot be built unless the city has a Public School and you have a national population of at least 70. Build this national wonder to receive additional Delegates in the World Congress based on the number of Defense Pacts you currently have with other players. You will also receive a large boost to the Culture and Science output of the city where it is built.'
 WHERE Tag = 'TXT_KEY_BUILDING_PALACE_SCIENCE_CULTURE_STRATEGY';
 
 UPDATE Language_en_US
-SET Text = 'Requires Order. +15% [ICON_CULTURE] Culture and [ICON_RESEARCH] Science in the city where it is built. +2 [ICON_RES_PAPER] Paper. Receive one vote for every [COLOR_POSITIVE_TEXT]Research Agreement[ENDCOLOR] you currently have with other players. [NEWLINE][NEWLINE]Must have built a Public School in the city. Requires a national population of at least 70 before it can be constructed. The cost goes up the more cities there are in the empire.'
+SET Text = 'Requires Order. +15% [ICON_CULTURE] Culture and [ICON_RESEARCH] Science in the city where it is built. +2 [ICON_RES_PAPER] Paper. Receive one vote for every [COLOR_POSITIVE_TEXT]Defense Pact[ENDCOLOR] you currently have with other players. [NEWLINE][NEWLINE]Must have built a Public School in the city. Requires a national population of at least 70 before it can be constructed. The cost goes up the more cities there are in the empire.'
 WHERE Tag = 'TXT_KEY_BUILDING_PALACE_SCIENCE_CULTURE_HELP';
 
 UPDATE Language_en_US
@@ -187,7 +198,7 @@ WHERE Tag = 'TXT_KEY_BUILDING_FOREIGN_OFFICE_HELP';
 -- Grand Temple Help Text
 
 UPDATE Language_en_US
-SET Text = 'Doubles religious pressure emanating from this City. [NEWLINE][NEWLINE]Must be built in a Holy City. Requires a National Population of at least 35. The cost goes up the more cities there are in the empire.'
+SET Text = 'Doubles religious pressure emanating from this City. [NEWLINE][NEWLINE]Requires a National Population of at least 35. The cost goes up the more cities there are in the empire.'
 WHERE Tag = 'TXT_KEY_BUILDING_GRAND_TEMPLE_HELP';
 
 -- Religious Authority (CSD)

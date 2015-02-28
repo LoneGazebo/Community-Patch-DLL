@@ -4617,7 +4617,16 @@ void CvTacticalAI::PlotNavalEscortOperationMoves(CvAINavalEscortedOperation* pOp
 	{
 		pCivilian = m_pPlayer->getUnit(iUnitID);
 
-		iUnitID = pThisArmy->GetNextUnitID();
+#ifdef AUI_TACTICAL_FIX_PLOT_NAVAL_ESCORT_OPERATION_MOVES_POSSIBLE_NULL_POINTER
+		while (iUnitID != -1 && pEscort == NULL)
+		{
+			pEscort = m_pPlayer->getUnit(iUnitID);
+			if (pEscort && pEscort->getDomainType() != DOMAIN_LAND)
+			{
+				pEscort = NULL;   // This unit wasn't the escort
+			}
+			iUnitID = pThisArmy->GetNextUnitID();
+#else
 		if(iUnitID != -1)
 		{
 			pEscort = m_pPlayer->getUnit(iUnitID);
@@ -4625,6 +4634,7 @@ void CvTacticalAI::PlotNavalEscortOperationMoves(CvAINavalEscortedOperation* pOp
 			{
 				pEscort = NULL;   // Second unit wasn't the escort
 			}
+#endif // AUI_TACTICAL_FIX_PLOT_NAVAL_ESCORT_OPERATION_MOVES_POSSIBLE_NULL_POINTER
 		}
 	}
 
@@ -5480,7 +5490,9 @@ bool CvTacticalAI::ScoreDeploymentPlots(CvPlot* pTarget, CvArmyAI* pArmy, int iN
 	int iNumSafePlotsFound = 0;
 	int iNumDeployPlotsFound = 0;
 	CvTacticalTarget target;
-
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	iRange += 1;
+#endif
 	// We'll store the hexes we've found here
 	m_TempTargets.clear();
 
@@ -5628,8 +5640,11 @@ bool CvTacticalAI::ScoreFormationPlots(CvArmyAI* pArmy, CvPlot* pForwardTarget, 
 
 	// We'll store the hexes we've found here
 	m_TempTargets.clear();
-
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	int iRange = 4;
+#else
 	int iRange = 3;
+#endif
 	for(iDX = -(iRange); iDX <= iRange; iDX++)
 	{
 		for(iDY = -(iRange); iDY <= iRange; iDY++)
@@ -7027,6 +7042,11 @@ void CvTacticalAI::ExecuteMovesToSafestPlot()
 #else
 			int iRange = pUnit->getUnitInfo().GetMoves();
 #endif
+
+#ifdef AUI_ASTAR_ROAD_RANGE
+			IncreaseMoveRangeForRoads(pUnit.pointer(), iRange);
+#endif
+
 #if !defined(PATH_PLAN_LAST)
 			int iLowestDanger = MAX_INT;
 			bool bResultHasZeroDangerMove = false;
@@ -9156,11 +9176,18 @@ bool CvTacticalAI::FindUnitsForThisMove(TacticalAIMoveTypes eMove, CvPlot* pTarg
 				if(pLoopUnit->maxMoves() > 0)
 				{
 					int iMovesPerTurn = pLoopUnit->maxMoves() / GC.getMOVE_DENOMINATOR();
+#ifdef AUI_ASTAR_ROAD_RANGE
+					IncreaseMoveRangeForRoads(pLoopUnit.pointer(), iMovesPerTurn);
+#endif
 					int iLeastTurns = (iDistance + iMovesPerTurn - 1) / iMovesPerTurn;
 					if(iNumTurnsAway == -1 || iLeastTurns <= iNumTurnsAway)
 					{
+#ifdef AUI_ASTAR_TURN_LIMITER
+						int iMoves = TurnsToReachTarget(pLoopUnit, pTarget, false, false, false, (iNumTurnsAway == -1 ? MAX_INT : iNumTurnsAway));
+#else
 						// If unit was suitable, and close enough, add it to the proper list
 						int iMoves = TurnsToReachTarget(pLoopUnit, pTarget);
+#endif // AUI_ASTAR_TURN_LIMITER
 						if(iMoves != MAX_INT && (iNumTurnsAway == -1 ||
 						                         (iNumTurnsAway == 0 && pLoopUnit->plot() == pTarget) || iMoves <= iNumTurnsAway))
 						{
@@ -9230,7 +9257,13 @@ bool CvTacticalAI::FindUnitsWithinStrikingDistance(CvPlot* pTarget, int iNumTurn
 				{
 					continue;
 				}
-
+#if defined(MOD_BALANCE_CORE_MILITARY)
+				//Don't pull melee units out of camps to attack.
+				if(pLoopUnit->isBarbarian() && !pLoopUnit->isRanged() && (pLoopUnit->plot()->getImprovementType() == GC.getBARBARIAN_CAMP_IMPROVEMENT()))
+				{
+					continue;
+				}
+#endif
 #if defined(MOD_AI_SMART_MELEE_TACTICS)
 				if (MOD_AI_SMART_MELEE_TACTICS && bNoRangedUnits && pLoopUnit->IsCanAttackRanged())
 				{
@@ -9557,7 +9590,11 @@ bool CvTacticalAI::FindClosestUnit(CvPlot* pTarget, int iNumTurnsAway, bool bMus
 
 			if(bValidUnit)
 			{
+#ifdef AUI_ASTAR_TURN_LIMITER
+				int iTurns = TurnsToReachTarget(pLoopUnit, pTarget, false /*bReusePaths*/, bIgnoreUnits, (iNumTurnsAway==0), iNumTurnsAway);
+#else
 				int iTurns = TurnsToReachTarget(pLoopUnit, pTarget, false /*bReusePaths*/, bIgnoreUnits, (iNumTurnsAway==0));
+#endif // AUI_ASTAR_TURN_LIMITER
 				if(iTurns <= iNumTurnsAway)
 				{
 					CvTacticalUnit unit;
@@ -10229,7 +10266,11 @@ CvPlot* CvTacticalAI::FindBestBarbarianSeaMove(UnitHandle pUnit)
 	CvPlot* pBestMovePlot = NULL;
 	int iBestValue;
 	int iValue;
+#ifdef AUI_TACTICAL_FIX_FIND_BEST_BARBARIAN_SEA_MOVE_POSSIBLE_NULL_POINTER
+	CvPlot* pPlot = NULL;
+#else
 	CvPlot* pPlot;
+#endif // AUI_TACTICAL_FIX_FIND_BEST_BARBARIAN_SEA_MOVE_POSSIBLE_NULL_POINTER
 	CvTacticalTarget* pTarget;
 	int iMovementRate;
 
@@ -10245,9 +10286,17 @@ CvPlot* CvTacticalAI::FindBestBarbarianSeaMove(UnitHandle pUnit)
 		if(plotDistance(pUnit->getX(), pUnit->getY(), pTarget->GetTargetX(), pTarget->GetTargetY()) < m_iSeaBarbarianRange)
 		{
 			pPlot = GC.getMap().plot(pTarget->GetTargetX(), pTarget->GetTargetY());
+#ifdef AUI_TACTICAL_FIX_FIND_BEST_BARBARIAN_SEA_MOVE_POSSIBLE_NULL_POINTER
+			if (pPlot && pUnit->getArea() == pPlot->getArea())
+#else
 			if(pUnit->getArea() == pPlot->getArea())
+#endif // AUI_TACTICAL_FIX_FIND_BEST_BARBARIAN_SEA_MOVE_POSSIBLE_NULL_POINTER
 			{
+#ifdef AUI_ASTAR_TURN_LIMITER
+				iValue = TurnsToReachTarget(pUnit, pPlot, true /*bReusePaths*/, false, false, iBestValue);
+#else
 				iValue = TurnsToReachTarget(pUnit, pPlot, true /*bReusePaths*/);
+#endif // AUI_ASTAR_TURN_LIMITER
 				if(iValue < iBestValue)
 				{
 					iBestValue = iValue;
@@ -11721,12 +11770,7 @@ int CvTacticalAI::ScoreGreatGeneralPlot(UnitHandle pGeneral, CvPlot* pTarget, Cv
 	// No friendly city or unit
 	else
 	{	
-#if defined(MOD_BALANCE_CORE_MILITARY)
-		//GGs should never go alone if possible.
-		return 0;
-#else
 		iDangerDivisor = 1000;
-#endif
 	}
 
 	// Distance to center of army (if still under operational AI)

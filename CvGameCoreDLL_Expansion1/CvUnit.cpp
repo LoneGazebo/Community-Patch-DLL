@@ -1187,6 +1187,22 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 		}
 	}
 
+	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+	if (pkScriptSystem) 
+	{
+		CvLuaArgsHandle args;
+		args->Push(((int)getOwner()));
+		args->Push(GetID());
+		args->Push(getUnitType());
+		args->Push(getX());
+		args->Push(getY());
+		args->Push(bDelay);
+		args->Push(ePlayer);
+
+		bool bResult;
+		LuaSupport::CallHook(pkScriptSystem, "UnitPrekill", args.get(), bResult);
+	}
+
 	if(bDelay)
 	{
 		startDelayedDeath();
@@ -3484,6 +3500,27 @@ bool CvUnit::canLoad(const CvPlot& targetPlot) const
 				{
 					return true;
 				}
+
+				ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+				if (pkScriptSystem)
+				{
+					CvLuaArgsHandle args;
+					args->Push(getOwner());
+					args->Push(GetID());
+					args->Push(targetPlot.getX());
+					args->Push(targetPlot.getY());
+
+					// Attempt to execute the game events.
+					// Will return false if there are no registered listeners.
+					bool bResult = false;
+					if (LuaSupport::CallTestAny(pkScriptSystem, "CanLoadAt", args.get(), bResult))
+					{
+						// Check the result.
+						if (bResult == true) {
+							return true;
+						}
+					}
+				}
 			}
 		}
 	}
@@ -3982,7 +4019,7 @@ bool CvUnit::canDisembark(const CvPlot* pPlot) const
 }
 
 //	--------------------------------------------------------------------------------
-bool CvUnit::canEmbarkOnto(const CvPlot& originPlot, const CvPlot& targetPlot, bool bOverrideEmbarkedCheck) const
+bool CvUnit::canEmbarkOnto(const CvPlot& originPlot, const CvPlot& targetPlot, bool bOverrideEmbarkedCheck /* = false */, bool bIsDestination /* = false */) const
 {
 	VALIDATE_OBJECT
 	if(isEmbarked() && !bOverrideEmbarkedCheck)
@@ -4015,13 +4052,13 @@ bool CvUnit::canEmbarkOnto(const CvPlot& originPlot, const CvPlot& targetPlot, b
 		return false;
 	}
 
-	return canMoveInto(targetPlot, MOVEFLAG_PRETEND_EMBARKED);
+	return canMoveInto(targetPlot, MOVEFLAG_PRETEND_EMBARKED | ((bIsDestination)?MOVEFLAG_DESTINATION:0));
 }
 
 //	--------------------------------------------------------------------------------
-bool CvUnit::canDisembarkOnto(const CvPlot& originPlot, const CvPlot& targetPlot, bool bOverrideEmbarkedCheck) const
+bool CvUnit::canDisembarkOnto(const CvPlot& originPlot, const CvPlot& targetPlot, bool bOverrideEmbarkedCheck /* = false */, bool bIsDestination /* = false */) const
 {
-	//this version is useful if the unit is not actually next to the plot yet -KS
+	// This version is useful if the unit is not actually next to the plot yet -KS
 
 	VALIDATE_OBJECT
 	if(getDomainType() != DOMAIN_LAND)
@@ -4049,11 +4086,11 @@ bool CvUnit::canDisembarkOnto(const CvPlot& originPlot, const CvPlot& targetPlot
 		return false;
 	}
 
-	return canMoveInto(targetPlot, MOVEFLAG_PRETEND_UNEMBARKED);
+	return canMoveInto(targetPlot, MOVEFLAG_PRETEND_UNEMBARKED | ((bIsDestination)?MOVEFLAG_DESTINATION:0));
 }
 
 //	--------------------------------------------------------------------------------
-bool CvUnit::canDisembarkOnto(const CvPlot& targetPlot) const
+bool CvUnit::canDisembarkOnto(const CvPlot& targetPlot, bool bIsDestination /* = false */) const
 {
 	VALIDATE_OBJECT
 	if(getDomainType() != DOMAIN_LAND)
@@ -4081,7 +4118,7 @@ bool CvUnit::canDisembarkOnto(const CvPlot& targetPlot) const
 		return false;
 	}
 
-	return canMoveInto(targetPlot, MOVEFLAG_PRETEND_UNEMBARKED);
+	return canMoveInto(targetPlot, MOVEFLAG_PRETEND_UNEMBARKED | ((bIsDestination)?MOVEFLAG_DESTINATION:0));
 }
 
 //	--------------------------------------------------------------------------------
@@ -5087,8 +5124,53 @@ bool CvUnit::canParadrop(const CvPlot* pPlot, bool bOnlyTestVisibility) const
 			return false;
 		}
 
-		if(!pPlot->IsFriendlyTerritory(getOwner()))
+		if(pPlot->IsFriendlyTerritory(getOwner()))
 		{
+			// We're in friendly territory, call the event to see if we CAN'T start from here anyway
+			ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+			if (pkScriptSystem) 
+			{
+				CvLuaArgsHandle args;
+				args->Push(((int)getOwner()));
+				args->Push(GetID());
+				args->Push(pPlot->getX());
+				args->Push(pPlot->getY());
+
+				// Attempt to execute the game events.
+				// Will return false if there are no registered listeners.
+				bool bResult = false;
+				if (LuaSupport::CallTestAll(pkScriptSystem, "CannotParadropFrom", args.get(), bResult))
+				{
+					if (bResult == true)
+					{
+						return false;
+					}
+				}
+			}
+		}
+		else
+		{
+			// We're not in friendly territory, call the event to see if we CAN start from here anyway
+			ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+			if (pkScriptSystem) {
+				CvLuaArgsHandle args;
+				args->Push(((int)getOwner()));
+				args->Push(GetID());
+				args->Push(pPlot->getX());
+				args->Push(pPlot->getY());
+
+				// Attempt to execute the game events.
+				// Will return false if there are no registered listeners.
+				bool bResult = false;
+				if (LuaSupport::CallTestAny(pkScriptSystem, "CanParadropFrom", args.get(), bResult))
+				{
+					if (bResult == true)
+					{
+						return true;
+					}
+				}
+			}
+
 			return false;
 		}
 	}
@@ -5149,7 +5231,7 @@ bool CvUnit::paradrop(int iX, int iY)
 	changeMoves(-(GC.getMOVE_DENOMINATOR() / 2));
 	setMadeAttack(true);
 
-
+	CvPlot* fromPlot = plot();
 	//JON: CHECK FOR INTERCEPTION HERE
 
 	//play paradrop animation
@@ -5159,6 +5241,21 @@ bool CvUnit::paradrop(int iX, int iY)
 		gDLL->GameplayUnitParadrop(pDllUnit.get());
 	}
 	setXY(pPlot->getX(), pPlot->getY(), true, true, false);
+
+	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+	if (pkScriptSystem) 
+	{
+		CvLuaArgsHandle args;
+		args->Push(((int)getOwner()));
+		args->Push(GetID());
+		args->Push(fromPlot->getX());
+		args->Push(fromPlot->getY());
+		args->Push(pPlot->getX());
+		args->Push(pPlot->getY());
+
+		bool bResult;
+		LuaSupport::CallHook(pkScriptSystem, "ParadropAt", args.get(), bResult);
+	}
 
 	return true;
 }
@@ -5235,6 +5332,31 @@ bool CvUnit::canRebaseAt(const CvPlot* pPlot, int iX, int iY) const
 		{
 			bCityToRebase = true;
 		}
+
+		if (!bCityToRebase)
+		{
+			ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+			if (pkScriptSystem)
+			{
+				CvLuaArgsHandle args;
+				args->Push(getOwner());
+				args->Push(GetID());
+				args->Push(iX);
+				args->Push(iY);
+
+				// Attempt to execute the game events.
+				// Will return false if there are no registered listeners.
+				bool bResult = false;
+				if (LuaSupport::CallTestAny(pkScriptSystem, "CanRebaseInCity", args.get(), bResult))
+				{
+					// Check the result.
+					if (bResult == true)
+					{
+						bCityToRebase = true;
+					}
+				}
+			}
+		}
 	}
 
 	// Rebase onto Unit which can hold cargo
@@ -5263,6 +5385,28 @@ bool CvUnit::canRebaseAt(const CvPlot* pPlot, int iX, int iY) const
 	// No City or Unit at the target to rebase to
 	if(!bCityToRebase && !bUnitToRebase)
 	{
+		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+		if (pkScriptSystem) 
+		{
+			CvLuaArgsHandle args;
+			args->Push(getOwner());
+			args->Push(GetID());
+			args->Push(iX);
+			args->Push(iY);
+
+			// Attempt to execute the game events.
+			// Will return false if there are no registered listeners.
+			bool bResult = false;
+			if (LuaSupport::CallTestAny(pkScriptSystem, "CanRebaseTo", args.get(), bResult))
+			{
+				// Check the result.
+				if (bResult == true)
+				{
+					return true;
+				}
+			}
+		}
+
 		return false;
 	}
 
@@ -5291,7 +5435,7 @@ bool CvUnit::rebase(int iX, int iY)
 
 	bool bShow = true;
 	// Do the rebase first to keep the visualization in sequence
-	if(plot()->isVisibleToWatchingHuman() || pTargetPlot->isVisibleToWatchingHuman())
+	if ((plot()->isVisibleToWatchingHuman() || pTargetPlot->isVisibleToWatchingHuman()) && !CvPreGame::quickMovement())
 	{
 		SpecialUnitTypes eSpecialUnitPlane = (SpecialUnitTypes) GC.getInfoTypeForString("SPECIALUNIT_FIGHTER");
 		if(getSpecialUnitType() == eSpecialUnitPlane)
@@ -5303,6 +5447,19 @@ bool CvUnit::rebase(int iX, int iY)
 			gDLL->GameplayUnitRebased(pDllUnit.get(), pDllOldPlot.get(), pDllTargetPlot.get());
 			bShow = false;		// Tell the setXY to not bother showing the move
 		}
+	}
+
+	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+	if (pkScriptSystem)
+	{
+		CvLuaArgsHandle args;
+		args->Push(getOwner());
+		args->Push(GetID());
+		args->Push(iX);
+		args->Push(iY);
+
+		bool bResult;
+		LuaSupport::CallHook(pkScriptSystem, "RebaseTo", args.get(), bResult);
 	}
 
 	setXY(pTargetPlot->getX(), pTargetPlot->getY(), false, bShow, false);
@@ -5734,6 +5891,25 @@ bool CvUnit::CanFoundReligion(const CvPlot* pPlot) const
 	if(pReligions->HasCreatedReligion(getOwner()))
 	{
 		return false;
+	}
+
+	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+	if (pkScriptSystem) 
+	{
+		CvLuaArgsHandle args;
+		args->Push(getOwner());
+		args->Push(pCity->GetID());
+
+		// Attempt to execute the game events.
+		// Will return false if there are no registered listeners.
+		bool bResult = false;
+		if (LuaSupport::CallTestAll(pkScriptSystem, "PlayerCanFoundReligion", args.get(), bResult))
+		{
+			if (bResult == false) 
+			{
+				return false;
+			}
+		}
 	}
 
 	if (pReligions->GetAvailableFounderBeliefs().size() < 1 || pReligions->GetAvailableFollowerBeliefs().size() < 1)
@@ -7445,6 +7621,18 @@ void CvUnit::promote(PromotionTypes ePromotion, int iLeaderUnitId)
 	else
 	{
 		setHasPromotion(ePromotion, true);
+
+		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+		if (pkScriptSystem)
+		{
+			CvLuaArgsHandle args;
+			args->Push(((int)getOwner()));
+			args->Push(GetID());
+			args->Push(ePromotion);
+
+			bool bResult;
+			LuaSupport::CallHook(pkScriptSystem, "UnitPromoted", args.get(), bResult);
+		}
 	}
 
 	testPromotionReady();
@@ -7692,6 +7880,21 @@ bool CvUnit::CanUpgradeRightNow(bool bOnlyTestVisible) const
 				return false;
 			}
 		}
+
+		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+		if (pkScriptSystem)
+		{
+			CvLuaArgsHandle args;
+			args->Push(((int)getOwner()));
+			args->Push(GetID());
+
+			bool bResult = false;
+			if (LuaSupport::CallTestAll(pkScriptSystem, "CanHaveAnyUpgrade", args.get(), bResult)) {
+				if (bResult == false) {
+					return false;
+				}
+			}
+		}
 	}
 
 	return true;
@@ -7716,6 +7919,26 @@ UnitTypes CvUnit::GetUpgradeUnitType() const
 			if(m_pUnitInfo->GetUpgradeUnitClass(iI))
 			{
 				eUpgradeUnitType = (UnitTypes) kCiv.getCivilizationUnits(iI);
+
+				ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+				if (pkScriptSystem) 
+				{
+					CvLuaArgsHandle args;
+					args->Push(((int)getOwner()));
+					args->Push(GetID());
+					args->Push(iI);
+					args->Push(eUpgradeUnitType);
+
+					bool bResult = false;
+					if (LuaSupport::CallTestAll(pkScriptSystem, "CanHaveUpgrade", args.get(), bResult)) 
+					{
+						if (bResult == false) 
+						{
+							continue;
+						}
+					}
+				}
+
 				break;
 			}
 		}
@@ -7811,6 +8034,19 @@ CvUnit* CvUnit::DoUpgrade()
 		{
 			auto_ptr<ICvUnit1> pDllNewUnit = GC.WrapUnitPointer(pNewUnit);
 			DLLUI->selectUnit(pDllNewUnit.get(), true, false, false);
+		}
+
+		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+		if (pkScriptSystem) 
+		{
+			CvLuaArgsHandle args;
+			args->Push(((int)getOwner()));
+			args->Push(GetID());
+			args->Push(pNewUnit->GetID());
+			args->Push(false); // bGoodyHut
+
+			bool bResult;
+			LuaSupport::CallHook(pkScriptSystem, "UnitUpgraded", args.get(), bResult);
 		}
 
 		pNewUnit->convert(this);
@@ -12062,15 +12298,64 @@ int CvUnit::getDamage() const
 
 
 //	--------------------------------------------------------------------------------
-void CvUnit::setDamage(int iNewValue, PlayerTypes ePlayer, float fAdditionalTextDelay, CvString* pAppendText)
+/**
+    Shows the damage delta text.
+
+    @param	iDelta					Delta of the damage, meaning a negative value is LESS damage.
+    @param [in]	pkPlot				The plot to show the text at.
+    @param	fAdditionalTextDelay	The additional text delay.
+    @param	pAppendText				The text to append or NULL.
+ */
+void CvUnit::ShowDamageDeltaText(int iDelta, CvPlot* pkPlot, float fAdditionalTextDelay /* = 0.f */, const CvString* pAppendText /* = NULL */)
+{
+	if (pkPlot)
+	{
+		if(pkPlot->GetActiveFogOfWarMode() == FOGOFWARMODE_OFF)
+		{
+			float fDelay = 0.0f + fAdditionalTextDelay;
+			CvString text;
+			if(iDelta <= 0)
+			{
+				text.Format("[COLOR_GREEN]+%d", -iDelta);
+				fDelay = GC.getPOST_COMBAT_TEXT_DELAY() * 2;
+			}
+			else
+			{
+				text.Format("[COLOR_RED]%d", -iDelta);
+			}
+			if(pAppendText != NULL)
+			{
+				text += " ";
+				text += *pAppendText;
+			}
+			text += "[ENDCOLOR]";
+
+			DLLUI->AddPopupText(pkPlot->getX(), pkPlot->getY(), text.c_str(), fDelay);
+		}
+	}
+}
+
+
+//	--------------------------------------------------------------------------------
+/**
+    Sets the damage.
+
+    @param	iNewValue				New damage value
+    @param	ePlayer					The player doing the damage, can be NO_PLAYER.
+    @param	fAdditionalTextDelay	The additional text delay.  If < 0, then no popup text is shown
+    @param [in]	pAppendText 	If non-null, the text to append to the popup text.
+
+    @return	The difference in the damage.
+ */
+int CvUnit::setDamage(int iNewValue, PlayerTypes ePlayer, float fAdditionalTextDelay, const CvString* pAppendText)
 {
 	VALIDATE_OBJECT
 	int iOldValue;
-	float fDelay = 0.0f + fAdditionalTextDelay;
 
 	iOldValue = getDamage();
 
 	m_iDamage = range(iNewValue, 0, GetMaxHitPoints());
+	int iDiff = m_iDamage - iOldValue;
 
 	CvAssertMsg(GetCurrHitPoints() >= 0, "currHitPoints() is expected to be non-negative (invalid Index)");
 
@@ -12102,60 +12387,10 @@ void CvUnit::setDamage(int iNewValue, PlayerTypes ePlayer, float fAdditionalText
 		auto_ptr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 		gDLL->GameplayUnitSetDamage(pDllUnit.get(), m_iDamage, iOldValue);
 
-
-		// send the popup text if the player can see this plot
-		if(plot()->GetActiveFogOfWarMode() == FOGOFWARMODE_OFF)
+		if(!IsDead() && !isSuicide() && 
+			fAdditionalTextDelay >= 0.f)		// A negative delay signifies that the caller does not want automatic popup text.
 		{
-			if(!IsDead())
-			{
-				CvString text;
-				iNewValue = MIN(GC.getMAX_HIT_POINTS(),iNewValue);
-				int iDiff = iOldValue - iNewValue;
-				if(iNewValue < iOldValue)
-				{
-					text.Format("[COLOR_GREEN]+%d", iDiff);
-					fDelay = GC.getPOST_COMBAT_TEXT_DELAY() * 2;
-				}
-				else
-				{
-					text.Format("[COLOR_RED]%d", iDiff);
-				}
-				if(pAppendText != NULL)
-				{
-					text += " ";
-					text += *pAppendText;
-				}
-				text += "[ENDCOLOR]";
-
-				int iX = m_iX;
-				int iY = m_iY;
-
-				// Where do we display this text? - put it where the unit is moving TO if it's this unit's turn
-				if(GET_PLAYER(getOwner()).isTurnActive())
-				{
-					const MissionData* pkMissionData = GetHeadMissionData();
-					if(pkMissionData != NULL)
-					{
-						if(pkMissionData->eMissionType == CvTypes::getMISSION_MOVE_TO())
-						{
-							int iTempX = pkMissionData->iData1;
-							int iTempY = pkMissionData->iData2;
-
-							CvPlot* pPlot = GC.getMap().plot(iTempX, iTempY);
-
-							// No enemies in our destination, and it's not a city OR it's a city we own
-							if(pPlot->getNumVisibleEnemyDefenders(this) == 0 && (!pPlot->isCity() || pPlot->getPlotCity()->getOwner() == getOwner()))
-							{
-								iX = iTempX;
-								iY = iTempY;
-							}
-						}
-					}
-				}
-
-				if (!isSuicide())	// Show the HP lost, expect if it is a suicide unit (missisle, etc.)
-					DLLUI->AddPopupText(iX, iY, text.c_str(), fDelay);
-			}
+			ShowDamageDeltaText(iDiff, plot(), fAdditionalTextDelay, pAppendText);
 		}
 	}
 
@@ -12180,16 +12415,27 @@ void CvUnit::setDamage(int iNewValue, PlayerTypes ePlayer, float fAdditionalText
 			GET_PLAYER(ePlayer).DoUnitKilledCombat(getOwner(), getUnitType());
 		}
 	}
+
+	return iDiff;
 }
 
+//    -------------------------------------------------------------------------------- 
+/**
+	Change the damage by a delta. 
+	Damage is measured as an integer percent, from 100 (full health) to 0 (dead)
 
-//	--------------------------------------------------------------------------------
-void CvUnit::changeDamage(int iChange, PlayerTypes ePlayer, float fAdditionalTextDelay, CvString* pAppendText)
+    @param	iChange					Delta added to the current damage.
+    @param	ePlayer					The player doing the damage, can be NO_PLAYER
+    @param	fAdditionalTextDelay	The additional text delay.  If < 0, no popup text is shown.
+    @param [in]	pAppendText 		If non-null, the text to append to the popup.
+
+    @return	the final delta change to the units damage.
+ */
+int CvUnit::changeDamage(int iChange, PlayerTypes ePlayer, float fAdditionalTextDelay, const CvString* pAppendText)
 {
-	VALIDATE_OBJECT
-	setDamage((getDamage() + iChange), ePlayer, fAdditionalTextDelay, pAppendText);
+	VALIDATE_OBJECT;
+	return setDamage((getDamage() + iChange), ePlayer, fAdditionalTextDelay, pAppendText);
 }
-
 
 //	--------------------------------------------------------------------------------
 int CvUnit::getMoves() const
@@ -15198,6 +15444,24 @@ bool CvUnit::canAcquirePromotion(PromotionTypes ePromotion) const
 		return false;
 	}
 
+	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+	if (pkScriptSystem) 
+	{
+		CvLuaArgsHandle args;
+		args->Push(((int)getOwner()));
+		args->Push(GetID());
+		args->Push(ePromotion);
+
+		bool bResult = false;
+		if (LuaSupport::CallTestAll(pkScriptSystem, "CanHavePromotion", args.get(), bResult))
+		{
+			if (bResult == false) 
+			{
+				return false;
+			}
+		}
+	}
+
 	return true;
 }
 
@@ -15563,8 +15827,8 @@ bool CvUnit::CanSwapWithUnitHere(CvPlot& swapPlot) const
 							pLoopUnit = (CvUnit*)::getUnit(*pUnitNode);
 							pUnitNode = swapPlot.nextUnitNode(pUnitNode);
 
-							// Make sure units are on the same team
-							if(pLoopUnit && pLoopUnit->getTeam() == getTeam())
+							// Make sure units belong to the same player
+							if(pLoopUnit && pLoopUnit->getOwner() == getOwner())
 							{
 								if(AreUnitsOfSameType(*pLoopUnit))
 								{
@@ -16835,7 +17099,8 @@ bool CvUnit::UnitAttack(int iX, int iY, int iFlags, int iSteps)
 		return false;
 	}
 
-	if(isHuman() && getOwner() == GC.getGame().getActivePlayer())
+	// Test if this attack requires war to be declared first
+	if(isHuman() && getOwner() == GC.getGame().getActivePlayer() && pDestPlot->isVisible(getTeam()))
 	{
 		TeamTypes eRivalTeam = GetDeclareWarMove(*pDestPlot);
 

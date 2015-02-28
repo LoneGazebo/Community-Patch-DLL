@@ -144,9 +144,6 @@ CvDeal::CvDeal()
 	m_bConsideringForRenewal = false;
 	m_bCheckedForRenewal = false;
 	m_bDealCancelled = false;
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	m_eOfferingPlayer = NO_PLAYER;
-#endif
 }
 
 /// Constructor with typical parameters
@@ -181,9 +178,6 @@ CvDeal::CvDeal(const CvDeal& source)
 	{
 		m_TradedItems.push_back(*it);
 	}
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	m_eOfferingPlayer = source.m_eOfferingPlayer;
-#endif
 }
 
 /// Destructor
@@ -212,9 +206,6 @@ CvDeal& CvDeal::operator=(const CvDeal& source)
 	{
 		m_TradedItems.push_back(*it);
 	}
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	m_eOfferingPlayer = source.m_eOfferingPlayer;
-#endif
 
 	return (*this);
 }
@@ -235,9 +226,6 @@ void CvDeal::ClearItems()
 	SetSurrenderingPlayer(NO_PLAYER);
 	SetDemandingPlayer(NO_PLAYER);
 	SetRequestingPlayer(NO_PLAYER);
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	SetOfferingPlayer(NO_PLAYER);
-#endif
 }
 
 /// How many trade items are in this deal?
@@ -1766,10 +1754,6 @@ CvDeal::DealRenewStatus CvDeal::GetItemTradeableState(TradeableItems eTradeItem)
 
 bool CvDeal::IsPotentiallyRenewable()
 {
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	if(MOD_DIPLOMACY_CIV4_FEATURES && m_eOfferingPlayer != NO_PLAYER)
-		return false;
-#endif
 
 	TradedItemList::iterator it;
 	bool bHasValidTradeItem = false;
@@ -2043,9 +2027,6 @@ FDataStream& operator>>(FDataStream& loadFrom, CvDeal& writeTo)
 	loadFrom >> writeTo.m_eSurrenderingPlayer;
 	loadFrom >> writeTo.m_eDemandingPlayer;
 	loadFrom >> writeTo.m_eRequestingPlayer;
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	MOD_SERIALIZE_READ(36, loadFrom, writeTo.m_eOfferingPlayer, NO_PLAYER);
-#endif
 	loadFrom >> iEntriesToRead;
 
 	writeTo.m_TradedItems.clear();
@@ -2083,9 +2064,6 @@ FDataStream& operator<<(FDataStream& saveTo, const CvDeal& readFrom)
 	saveTo << readFrom.m_eSurrenderingPlayer;
 	saveTo << readFrom.m_eDemandingPlayer;
 	saveTo << readFrom.m_eRequestingPlayer;
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	MOD_SERIALIZE_WRITE(saveTo, readFrom.m_eOfferingPlayer);
-#endif
 	saveTo << readFrom.m_TradedItems.size();
 	TradedItemList::const_iterator it;
 	for(it = readFrom.m_TradedItems.begin(); it != readFrom.m_TradedItems.end(); ++it)
@@ -2193,19 +2171,6 @@ void CvDeal::RemoveTechTrade(TechTypes eTech)
 			break;
 		}
 	}
-}
-
-PlayerTypes CvDeal::GetOfferingPlayer() const
-{
-	return m_eOfferingPlayer;
-}
-
-void CvDeal::SetOfferingPlayer(PlayerTypes ePlayer)
-{
-	CvAssertMsg(ePlayer >= NO_PLAYER, "DEAL: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");	// NO_PLAYER is valid because we could be clearing the deal out for other uses
-	CvAssertMsg(ePlayer < MAX_CIV_PLAYERS, "DEAL: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-
-	m_eOfferingPlayer = ePlayer;
 }
 #endif
 

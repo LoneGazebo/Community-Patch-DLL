@@ -7,7 +7,7 @@
     <Guid>d1b6328c-ff44-4b0d-aad7-c657f83610cd</Guid>
     <ModVersion>66</ModVersion>
     <Stability>Beta</Stability>
-    <Teaser>Unofficial DLL Bugfix and AI Patch for Civ V (2/21)</Teaser>
+    <Teaser>Unofficial DLL Bugfix and AI Patch for Civ V (2/27)</Teaser>
     <Description>Contains core AI improvements and bugfixes for the Civ 5 BNW DLL. Also contains support for Whoward's PNM Mods as well as the Community Balance Patch.</Description>
     <Authors>The Community Patch Team</Authors>
     <SpecialThanks>
@@ -854,7 +854,7 @@
     </Content>
     <Content Include="CvGameCore_Expansion2.dll">
       <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
+      <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
     <Content Include="LUA\DiscussionDialog.lua">
       <SubType>Lua</SubType>

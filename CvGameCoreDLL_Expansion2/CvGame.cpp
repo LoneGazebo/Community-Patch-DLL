@@ -408,6 +408,21 @@ bool CvGame::init2()
 		GAMEEVENTINVOKE_HOOK(GAMEEVENT_TerraformingMap, TERRAFORMINGEVENT_LOAD, 0);
 	}
 #endif
+#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+	if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+	{
+		int iNumResourceInfos= GC.getNumResourceInfos();
+		for(int iResourceLoop = 0; iResourceLoop < iNumResourceInfos; iResourceLoop++)
+		{
+			const ResourceTypes eResource = static_cast<ResourceTypes>(iResourceLoop);
+			CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
+			if(pkResourceInfo)
+			{
+				GC.getMap().setNumResources(eResource);
+			}
+		}
+	}
+#endif
 
 	return true;
 }

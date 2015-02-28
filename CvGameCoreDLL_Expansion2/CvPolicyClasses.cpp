@@ -189,6 +189,7 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iPuppetUnhappinessModPolicy(0),
 	m_iNoUnhappfromXSpecialists(0),
 	m_iNoUnhappfromXSpecialistsCapital(0),
+	m_iWarWearinessModifier(0),
 #endif
 	m_piPrereqOrPolicies(NULL),
 	m_piPrereqAndPolicies(NULL),
@@ -515,6 +516,7 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iPuppetUnhappinessModPolicy = kResults.GetInt("PuppetUnhappinessModPolicy");
 	m_iNoUnhappfromXSpecialists = kResults.GetInt("NoUnhappfromXSpecialists");
 	m_iNoUnhappfromXSpecialistsCapital = kResults.GetInt("NoUnhappfromXSpecialistsCapital");
+	m_iWarWearinessModifier = kResults.GetInt("WarWearinessModifier");
 #endif
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	m_iGarrisonsOccupiedUnhapppinessMod = kResults.GetInt("GarrisonsOccupiedUnhapppinessMod");
@@ -1999,6 +2001,10 @@ int CvPolicyEntry::GetNoUnhappfromXSpecialists() const
 int CvPolicyEntry::GetNoUnhappfromXSpecialistsCapital() const
 {
 	return m_iNoUnhappfromXSpecialistsCapital;
+}
+int CvPolicyEntry::GetWarWearinessModifier() const
+{
+	return m_iWarWearinessModifier;
 }
 #endif
 

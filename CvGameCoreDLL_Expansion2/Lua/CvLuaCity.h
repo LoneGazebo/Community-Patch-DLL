@@ -254,6 +254,9 @@ protected:
 
 	static int lGetCultureRateModifier(lua_State* L);
 	static int lChangeCultureRateModifier(lua_State* L);
+#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+	LUAAPIEXTN(GetCityYieldModFromMonopoly, int);
+#endif
 
 #if defined(MOD_API_LUA_EXTENSIONS)
 	LUAAPIEXTN(GetTourismRateModifier, int);

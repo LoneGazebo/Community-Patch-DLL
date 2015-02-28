@@ -120,6 +120,9 @@ public:
 	bool MakeOfferForEmbassy(PlayerTypes eOtherPlayer, CvDeal* pDeal);
 	bool IsMakeOfferForOpenBorders(PlayerTypes eOtherPlayer, CvDeal* pDeal);
 	bool IsMakeOfferForResearchAgreement(PlayerTypes eOtherPlayer, CvDeal* pDeal);
+#if defined(MOD_BALANCE_CORE_DEALS)
+	bool IsMakeOfferForDefensivePact(PlayerTypes eOtherPlayer, CvDeal* pDeal);
+#endif
 
 	// Called when the human opens or closes the Trade Screen
 

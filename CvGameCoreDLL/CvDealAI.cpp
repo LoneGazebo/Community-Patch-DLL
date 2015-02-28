@@ -547,7 +547,6 @@ bool CvDealAI::IsDealWithHumanAcceptable(CvDeal* pDeal, PlayerTypes eOtherPlayer
 
 	return false;
 }
-
 /// Try to even out the value on both sides.  If bFavorMe is true we'll bias things in our favor if necessary
 bool CvDealAI::DoEqualizeDealWithHuman(CvDeal* pDeal, PlayerTypes eOtherPlayer, bool bDontChangeMyExistingItems, bool bDontChangeTheirExistingItems, bool &bDealGoodToBeginWith, bool &bCantMatchDeal)
 {

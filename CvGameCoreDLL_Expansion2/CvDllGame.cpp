@@ -531,7 +531,11 @@ bool CvDllGame::CanMoveUnitTo(ICvUnit1* pUnit, ICvPlot1* pPlot) const
 	CvUnit* pkUnit = GC.UnwrapUnitPointer(pUnit);
 	CvPlot* pkPlot = GC.UnwrapPlotPointer(pPlot);
 
+#ifdef AUI_ASTAR_TURN_LIMITER
+	GC.getInterfacePathFinder().SetData(pkUnit, 1);
+#else
 	GC.getInterfacePathFinder().SetData(pkUnit);
+#endif // AUI_ASTAR_TURN_LIMITER
 
 	// can the unit actually walk there
 	bool bCanFindPath = GC.getInterfacePathFinder().GeneratePath(pkUnit->getX(), pkUnit->getY(), pkPlot->getX(), pkPlot->getY(), MOVE_UNITS_IGNORE_DANGER | MOVE_UNITS_THROUGH_ENEMY /*iFlags*/, true/*bReuse*/);
@@ -547,11 +551,13 @@ bool CvDllGame::CanMoveUnitTo(ICvUnit1* pUnit, ICvPlot1* pPlot) const
 		return false;
 	}
 
+#ifndef AUI_ASTAR_TURN_LIMITER
 	// move is too far away
 	if(pNode->m_iData2 >= 2)
 	{
 		return false;
 	}
+#endif // AUI_ASTAR_TURN_LIMITER
 
 	return true;
 }

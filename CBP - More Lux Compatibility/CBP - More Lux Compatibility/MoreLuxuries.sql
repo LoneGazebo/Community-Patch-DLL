@@ -118,3 +118,90 @@ INSERT INTO Building_ResourceYieldChanges (BuildingType, ResourceType, YieldType
 SELECT 'BUILDING_COLOSSEUM', 'RESOURCE_PERFUME' , 'YIELD_CULTURE' , '1';
 
 -- Coral -- Covered by Lighthouse
+
+
+-- Monopoly Information
+	
+	UPDATE Resources
+	SET IsMonopoly = 'true'
+	WHERE Type = 'RESOURCE_AMBER';
+
+	UPDATE Resources
+	SET IsMonopoly = 'true'
+	WHERE Type = 'RESOURCE_COFFEE';
+
+	UPDATE Resources
+	SET MonopolyHappiness = '3'
+	WHERE Type = 'RESOURCE_COFFEE';
+
+	UPDATE Resources
+	SET IsMonopoly = 'true'
+	WHERE Type = 'RESOURCE_CORAL';
+
+	UPDATE Resources
+	SET IsMonopoly = 'true'
+	WHERE Type = 'RESOURCE_JADE';
+
+	UPDATE Resources
+	SET IsMonopoly = 'true'
+	WHERE Type = 'RESOURCE_LAPIS';
+
+	UPDATE Resources
+	SET MonopolyGALength = '10'
+	WHERE Type = 'RESOURCE_LAPIS';
+
+	UPDATE Resources
+	SET IsMonopoly = 'true'
+	WHERE Type = 'RESOURCE_OLIVE';
+
+	UPDATE Resources
+	SET IsMonopoly = 'true'
+	WHERE Type = 'RESOURCE_PERFUME';
+
+	UPDATE Resources
+	SET MonopolyHappiness = '3'
+	WHERE Type = 'RESOURCE_PERFUME';
+
+	UPDATE Resources
+	SET IsMonopoly = 'true'
+	WHERE Type = 'RESOURCE_TEA';
+
+	UPDATE Resources
+	SET IsMonopoly = 'true'
+	WHERE Type = 'RESOURCE_TOBACCO';
+
+	UPDATE Resources
+	SET MonopolyHappiness = '3'
+	WHERE Type = 'RESOURCE_TOBACCO';
+
+	-- Text files for changes.
+
+	-- Other Text
+	UPDATE Resources
+	SET Help = 'TXT_KEY_RESOURCE_MONOPOLY_HAPPINESS'
+	WHERE MonopolyHappiness = 3;
+
+	UPDATE Resources
+	SET Help = 'TXT_KEY_RESOURCE_MONOPOLY_GA_LENGTH'
+	WHERE MonopolyGALength = 10;
+
+	-- Yield Text
+	UPDATE Resources
+	SET Help = 'TXT_KEY_RESOURCE_MONOPOLY_YIELD_PRODUCTION'
+	WHERE Type = 'RESOURCE_TEA';
+
+	UPDATE Resources
+	SET Help = 'TXT_KEY_RESOURCE_MONOPOLY_YIELD_GOLD'
+	WHERE Type = 'RESOURCE_CORAL';
+
+	UPDATE Resources
+	SET Help = 'TXT_KEY_RESOURCE_MONOPOLY_YIELD_SCIENCE'
+	WHERE Type = 'RESOURCE_AMBER';
+
+	UPDATE Resources
+	SET Help = 'TXT_KEY_RESOURCE_MONOPOLY_YIELD_CULTURE'
+	WHERE Type = 'RESOURCE_JADE';
+
+	UPDATE Resources
+	SET Help = 'TXT_KEY_RESOURCE_MONOPOLY_YIELD_FOOD'
+	WHERE Type = 'RESOURCE_OLIVE';

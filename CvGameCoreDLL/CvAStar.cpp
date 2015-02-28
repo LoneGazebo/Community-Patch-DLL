@@ -1198,6 +1198,7 @@ int PathValid(CvAStarNode* parent, CvAStarNode* node, int data, const void* poin
 
 	CvAStarNode* pNode = node;
 	bool bPreviousNodeHostile = false;
+	bool bPreviousVisibleToTeam = kToNodeCacheData.bPlotVisibleToTeam;
 	int iDestX = finder->GetDestX();
 	int iDestY = finder->GetDestY();
 	int iNodeX = node->m_iX;
@@ -1233,7 +1234,7 @@ int PathValid(CvAStarNode* parent, CvAStarNode* node, int data, const void* poin
 		if (iOldNumTurns != -1 || (iDestX == iNodeX && iDestY == iNodeY))
 		{
 			// This plot is of greater distance than previously, so we know the unit is ending its turn here (pNode), or it's trying to attack through a unit (and might end up on this tile if an attack fails to kill the enemy)
-			if (iNumTurns != iOldNumTurns || bPreviousNodeHostile)
+			if(iNumTurns != iOldNumTurns || bPreviousNodeHostile || !bPreviousVisibleToTeam)
 			{
 				// Don't count origin, or else a unit will block its own movement!
 				if (iNodeX != iUnitX || iNodeY != iUnitY)
@@ -1271,6 +1272,7 @@ int PathValid(CvAStarNode* parent, CvAStarNode* node, int data, const void* poin
 			}
 		}
 
+		bPreviousVisibleToTeam = kNodeCacheData.bPlotVisibleToTeam;
 		// JON - Special case for the original node passed into this function because it's not yet linked to any parent
 		if (pNode == node && bFirstRun)
 		{

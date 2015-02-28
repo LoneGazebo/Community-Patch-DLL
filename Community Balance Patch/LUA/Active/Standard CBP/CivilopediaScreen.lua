@@ -1,3 +1,4 @@
+print("This is the modded CivilopediaScreen.lua from 'CBP'")
 -------------------------------------------------
 -- Civilopedia screen
 -------------------------------------------------
@@ -4666,9 +4667,7 @@ CivilopediaCategory[CategoryResources].SelectArticle = function( resourceID, sho
 			-- generic text
 			if (thisResource.Civilopedia) then
 				UpdateTextBlock( Locale.ConvertTextKey( thisResource.Civilopedia ), Controls.HistoryLabel, Controls.HistoryInnerFrame, Controls.HistoryFrame );
-			end
-
-			
+			end		
 			
 			-- update the related images
 			Controls.RelatedImagesFrame:SetHide( true );

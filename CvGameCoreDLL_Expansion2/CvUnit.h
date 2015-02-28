@@ -1379,8 +1379,12 @@ public:
 	int GetNumGoodyHutsPopped() const;
 	void ChangeNumGoodyHutsPopped(int iValue);
 
+#if !defined(AUI_ASTAR_ROAD_RANGE)
+	// deprecated, don't use this
 	// Ported in from old CvUnitAI class
 	int SearchRange(int iRange) const;
+#endif
+
 #if defined(MOD_AI_SECONDARY_WORKERS)
 	bool PlotValid(CvPlot* pPlot, byte bMoveFlags = 0) const;
 #else

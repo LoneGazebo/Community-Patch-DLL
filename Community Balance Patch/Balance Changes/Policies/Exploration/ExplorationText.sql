@@ -52,7 +52,7 @@ SET Text = 'Military Tradition'
 WHERE Tag = 'TXT_KEY_POLICY_NAVAL_TRADITION' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Military Tradition[ENDCOLOR][NEWLINE]Earn [ICON_GREAT_ADMIRAL] Great Admirals and [ICON_GREAT_GENERAL] Great Generals 33% more quickly. Barracks, Armories and Military Academies provide +1 [ICON_RESEARCH] Science and +1 [ICON_CULTURE] Culture.'
+SET Text = '[COLOR_POSITIVE_TEXT]Military Tradition[ENDCOLOR][NEWLINE]Earn [ICON_GREAT_ADMIRAL] Great Admirals and [ICON_GREAT_GENERAL] Great Generals 33% more quickly. Barracks, Armories and Military Academies provide +2 [ICON_RESEARCH] Science and +1 [ICON_CULTURE] Culture.'
 WHERE Tag = 'TXT_KEY_POLICY_NAVAL_TRADITION_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -61,7 +61,7 @@ WHERE Tag = 'TXT_KEY_POLICY_NAVAL_TRADITION_TEXT' AND EXISTS (SELECT * FROM COMM
 
 -- Navigation School -- Now called Exploration -- Receive a free Great Admiral -- Reveals all Capitals and starts a Golden Age.
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Exploration[ENDCOLOR][NEWLINE] Receive a free [ICON_GREAT_ADMIRAL] Great Admiral. All undiscovered [ICON_CAPITAL] Capitals are revealed, and embarked units receive +2 [ICON_MOVES] Movement.'
+SET Text = '[COLOR_POSITIVE_TEXT]Exploration[ENDCOLOR][NEWLINE] Receive a free [ICON_GREAT_ADMIRAL] Great Admiral. All undiscovered [ICON_CAPITAL] Capitals are revealed. Embarked units receive +2 [ICON_MOVES] Movement, and [ICON_GREAT_GENERAL] Great Generals recieve +1 [ICON_MOVES] Movement.'
 WHERE Tag = 'TXT_KEY_POLICY_NAVIGATION_SCHOOL_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US

@@ -1286,8 +1286,6 @@ int CvMap::getNumResources(ResourceTypes eIndex)
 	CvAssertMsg(eIndex < GC.getNumResourceInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	return m_paiNumResource[eIndex];
 }
-
-
 //	--------------------------------------------------------------------------------
 void CvMap::changeNumResources(ResourceTypes eIndex, int iChange)
 {
@@ -1296,8 +1294,33 @@ void CvMap::changeNumResources(ResourceTypes eIndex, int iChange)
 	m_paiNumResource[eIndex] = (m_paiNumResource[eIndex] + iChange);
 	CvAssert(getNumResources(eIndex) >= 0);
 }
-
-
+#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+//	--------------------------------------------------------------------------------
+void CvMap::setNumResources(ResourceTypes eIndex)
+{
+	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex < GC.getNumResourceInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eIndex);
+	int iResourceQuantity = 0;
+	if(pkResourceInfo != NULL && pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
+	{
+		CvMap& kMap = GC.getMap();
+		int iWorldNumPlots = kMap.numPlots();
+		for (int iPlotLoop = 0; iPlotLoop < iWorldNumPlots; iPlotLoop++)
+		{
+			CvPlot* pPlot = kMap.plotByIndex(iPlotLoop);
+			if(pPlot != NULL)
+			{
+				if(pPlot->getResourceType() == eIndex)
+				{
+					iResourceQuantity += pPlot->getNumResource();
+				}
+			}
+		}
+		m_paiNumResource[eIndex] = iResourceQuantity;
+	}
+}
+#endif
 //	--------------------------------------------------------------------------------
 int CvMap::getNumResourcesOnLand(ResourceTypes eIndex)
 {

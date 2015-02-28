@@ -137,8 +137,37 @@
 			<ResponseType>RESPONSE_WAR_DEMAND_INSULTED</ResponseType>
 			<Response>TXT_KEY_WAR_DEMAND_INSULTED%</Response>
 		</Row>
+		
+		<!-- Defense Pact Offer -->
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_DEFENSIVE_PACT_REQUEST</ResponseType>
+			<Response>TXT_KEY_DEFENSE_PACT_OFFER%</Response>
+		</Row>
 	</Diplomacy_Responses>
 	<Language_en_US>
+		<!-- Defensive Pact Bonuses -->
+		<Row Tag="TXT_KEY_DIPLO_DP">
+			<Text>[COLOR_POSITIVE_TEXT]We have made a Defensive Pact![ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_DP_MUTUAL">
+			<Text>[COLOR_POSITIVE_TEXT]We have made a Defensive Pact with the same leaders!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_DP_WITH_ENEMY">
+			<Text>[COLOR_NEGATIVE_TEXT]You have made a Defensive Pact with one of their enemies![ENDCOLOR]</Text>
+		</Row>
+		<!-- Defense Pact Offer -->
+		<Row Tag="TXT_KEY_DEFENSE_PACT_OFFER_1">
+			<Text>I admire your military prowess. Shall we make a Defensive Pact?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DEFENSE_PACT_OFFER_2">
+			<Text>We should form an alliance, in order to bring ruin to our enemies. Do you want to make a Defensive Pact?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DEFENSE_PACT_OFFER_3">
+			<Text>Our enemies surround us. If we do not work together, we will surely perish. Would you like to make a Defensive Pact?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DEFENSE_PACT_OFFER_4">
+			<Text>The tyrants of the world would tremble at our feet, if only we were allied. Do you see the value in Defensive Pact?</Text>
+		</Row>
 		<!-- Embark String for LessNo City Cost-->
 		<Row Tag="TXT_KEY_ABLTY_CITY_LESS_EMBARK_COST_STRING">
 			<Text>Units embarking/disembarking in owned cities expend just 1 Movement.</Text>
@@ -2385,6 +2414,11 @@
 		<!-- Global Domination Resistance -->
 		<Row Tag="TXT_KEY_EUPANEL_RESISTANCE_POWER">
 			<Text>Resistance (Domination)</Text>
+		</Row>
+		
+		<!-- Tooltips for required resource monopolies-->
+		<Row Tag="TXT_KEY_NO_ACTION_BUILDING_NEED_MONOPOLY">
+			<Text>[NEWLINE]Requires a Monopoly of {2_ResourceIcon} {1_ResourceName:textkey}. You currently control {3_Percent}%.</Text>
 		</Row>
 	</Language_en_US>
 </GameData>

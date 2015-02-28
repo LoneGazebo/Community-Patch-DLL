@@ -13,6 +13,9 @@ Controls.ResourcesAvailableStack:SetHide( true );
 Controls.ResourcesImportedStack:SetHide( true );
 Controls.ResourcesExportedStack:SetHide( true );
 Controls.ResourcesLocalStack:SetHide( true );
+--CBP
+Controls.ResourcesControlledStack:SetHide( true );
+-- END
 
 if(Game.IsOption(GameOptionTypes.GAMEOPTION_NO_RELIGION)) then
 	Controls.Religion:SetHide(true);
@@ -168,6 +171,24 @@ function OnResourcesLocalToggle()
 end
 Controls.ResourcesLocalToggle:RegisterCallback( Mouse.eLClick, OnResourcesLocalToggle );
 
+--CBP
+-------------------------------------------------
+-------------------------------------------------
+function OnResourcesControlledToggle()
+    local bWasHidden = Controls.ResourcesControlledStack:IsHidden();
+    Controls.ResourcesControlledStack:SetHide( not bWasHidden );
+    local strString = Locale.ConvertTextKey("TXT_KEY_EO_LOCAL_RESOURCES_CONTROLLED");
+    if( bWasHidden ) then
+        Controls.ResourcesControlledToggle:SetText("[ICON_MINUS]" .. strString);
+    else
+        Controls.ResourcesControlledToggle:SetText("[ICON_PLUS]" .. strString);
+    end
+    Controls.ResourcesStack:CalculateSize();
+    Controls.ResourcesStack:ReprocessAnchoring();
+    Controls.ResourcesScroll:CalculateInternalSize();
+end
+Controls.ResourcesControlledToggle:RegisterCallback( Mouse.eLClick, OnResourcesControlledToggle );
+-- END
 -------------------------------------------------
 -------------------------------------------------
 function UpdateScreen()
@@ -870,38 +891,67 @@ function UpdateScreen()
     end
     Controls.ResourcesExportedStack:CalculateSize();
     Controls.ResourcesExportedStack:ReprocessAnchoring();
-    
-	-- Resources Local
+-- CBP    
+	-- Resource Monopolies
 	
     Controls.ResourcesLocalToggle:SetText("[ICON_PLUS]" .. Locale.ConvertTextKey("TXT_KEY_EO_LOCAL_RESOURCES"));
 	
 	iTotalNumResources = 0;
-	
     Controls.ResourcesLocalStack:DestroyAllChildren();
 	for pResource in GameInfo.Resources() do
 		local iResourceID = pResource.ID;
-		local iNum = pPlayer:GetNumResourceTotal(iResourceID, false) + pPlayer:GetResourceExport(iResourceID);
-		
-		if (iNum > 0) then
-			-- Only Luxuries or Strategic Resources
-			if (Game.GetResourceUsageType(iResourceID) ~= ResourceUsageTypes.RESOURCEUSAGE_BONUS) then
-				
+		if (Game.GetResourceUsageType(iResourceID) ~= ResourceUsageTypes.RESOURCEUSAGE_BONUS) then	
+			local iNum = pPlayer:GetNumResourceTotal(iResourceID, false) + pPlayer:GetResourceExport(iResourceID);
+			local iMonopoly = 0;
+			if(iNum > 0) then
+				local iTotal = Map.GetNumResources(iResourceID);
+				if(iTotal > 0) then
+					iMonopoly = (iNum * 100) / iTotal;
+				end
+			end
+			if (iMonopoly > 50) then
+				iTotalNumResources = iTotalNumResources + 1;
+
+				local instance = {};
+				ContextPtr:BuildInstanceForControl( "ResourceEntry", instance, Controls.ResourcesLocalStack );
+
+				instance.ResourceName:SetText(Locale.ConvertTextKey(pResource.Description));
+				instance.ResourceValue:SetText("[COLOR_POSITIVE_TEXT]" .. Locale.ConvertTextKey("TXT_KEY_RESOURCE_MONOPOLY", Locale.ToNumber( iMonopoly, "#" )) .. "[ENDCOLOR]");
+
+				local strTooltip = Locale.Lookup(pResource.Help);
+				instance.ResourceValue:SetToolTipString(strTooltip);
+				instance.ResourceName:SetToolTipString(strTooltip);
+			end
+		end
+	end
+	for pResource in GameInfo.Resources() do
+		local iResourceID = pResource.ID;
+		if (Game.GetResourceUsageType(iResourceID) ~= ResourceUsageTypes.RESOURCEUSAGE_BONUS) then
+			local iOtherPlayer = pPlayer:GetResourceMonopolyPlayer(iResourceID);
+			local iMonopoly = 0;
+			local pOtherPlayer = Players[iOtherPlayer];
+			if(pOtherPlayer ~= nil) then
+				local iOtherNum = pOtherPlayer:GetNumResourceTotal(iResourceID, false) + pOtherPlayer:GetResourceExport(iResourceID);
+				local iOtherTotal = Map.GetNumResources(iResourceID);
+				if(iOtherTotal > 0) then
+					iMonopoly = (iOtherNum * 100) / iOtherTotal;
+				end
+			end
+			if(iMonopoly > 50 and pOtherPlayer ~= nil) then
 				iTotalNumResources = iTotalNumResources + 1;
 				
 				local instance = {};
 				ContextPtr:BuildInstanceForControl( "ResourceEntry", instance, Controls.ResourcesLocalStack );
 		        
-				-- Make it a dash instead of a zero, so it stands out more
-				if (iNum == 0) then
-					iNum = "-";
-				end
-		        
-				instance.ResourceName:SetText( Locale.ConvertTextKey(pResource.Description) );
-				instance.ResourceValue:SetText( iNum );
+				instance.ResourceName:SetText(Locale.ConvertTextKey(pResource.Description));
+				instance.ResourceValue:SetText("[COLOR_NEGATIVE_TEXT]" .. Locale.ConvertTextKey("TXT_KEY_RESOURCE_MONOPOLY_OTHER", Locale.ToNumber( iMonopoly, "#" ), pOtherPlayer:GetCivilizationShortDescriptionKey()) .. "[ENDCOLOR]");
+
+				local strTooltip = Locale.Lookup(pResource.Help);
+				instance.ResourceValue:SetToolTipString(strTooltip);
+				instance.ResourceName:SetToolTipString(strTooltip);
 			end
 		end
 	end
-
     if ( iTotalNumResources > 0 ) then
         Controls.ResourcesLocalToggle:SetDisabled( false );
         Controls.ResourcesLocalToggle:SetAlpha( 1.0 );
@@ -911,6 +961,46 @@ function UpdateScreen()
     end
     Controls.ResourcesLocalStack:CalculateSize();
     Controls.ResourcesLocalStack:ReprocessAnchoring();
+
+	-- Resources Controlled
+	
+    Controls.ResourcesControlledToggle:SetText("[ICON_PLUS]" .. Locale.ConvertTextKey("TXT_KEY_EO_LOCAL_RESOURCES_CONTROLLED"));
+	
+	iTotalNumResources = 0;
+	
+    Controls.ResourcesControlledStack:DestroyAllChildren();
+	for pResource in GameInfo.Resources() do
+		local iResourceID = pResource.ID;
+		if (Game.GetResourceUsageType(iResourceID) ~= ResourceUsageTypes.RESOURCEUSAGE_BONUS) then
+			local iNum = pPlayer:GetNumResourceTotal(iResourceID, false) + pPlayer:GetResourceExport(iResourceID);
+			local iMonopoly = 0;
+			if(iNum > 0) then
+				local iTotal = Map.GetNumResources(iResourceID);
+				if(iTotal > 0) then
+					iMonopoly = (iNum * 100) / iTotal;
+				end
+			end
+			if(iMonopoly > 0 and iMonopoly <= 50) then
+				iTotalNumResources = iTotalNumResources + 1;
+				
+				local instance = {};
+				ContextPtr:BuildInstanceForControl( "ResourceEntry", instance, Controls.ResourcesControlledStack );
+		        
+				instance.ResourceName:SetText(Locale.ConvertTextKey(pResource.Description));
+				instance.ResourceValue:SetText(Locale.ConvertTextKey("TXT_KEY_RESOURCE_CONTROLLED", Locale.ToNumber( iMonopoly, "#" )));
+			end
+		end
+	end
+    if ( iTotalNumResources > 0 ) then
+        Controls.ResourcesControlledToggle:SetDisabled( false );
+        Controls.ResourcesControlledToggle:SetAlpha( 1.0 );
+    else
+        Controls.ResourcesControlledToggle:SetDisabled( true );
+        Controls.ResourcesControlledToggle:SetAlpha( 0.5 );
+    end
+    Controls.ResourcesControlledStack:CalculateSize();
+    Controls.ResourcesControlledStack:ReprocessAnchoring();
+-- END
 end
 
 -------------------------------------------------------------------------------

@@ -794,10 +794,8 @@ local function SortMajorStack( instance1, instance2 )
 	local player1 = Players[ instance1:GetVoid1() ]
 	local player2 = Players[ instance2:GetVoid1() ]
 	if player1 and player2 then
-		local team1 = Teams[ player1:GetTeam() ]
-		local team2 = Teams[ player2:GetTeam() ]
-		local score1 = team1:GetScore()
-		local score2 = team2:GetScore()
+		local score1 = Teams[ player1:GetTeam() ]:GetScore()
+		local score2 = Teams[ player2:GetTeam() ]:GetScore()
 		if score1 == score2 then
 			return player1:GetScore() > player2:GetScore()
 		else
@@ -1042,10 +1040,10 @@ local g_civListInstanceToolTips = { -- the tooltip function names need to match 
 			tips:insert( L("TXT_KEY_DIPLO_MY_SCORE_TECH", player:GetScoreFromTechs() ) )
 			tips:insert( L("TXT_KEY_DIPLO_MY_SCORE_FUTURE_TECH", player:GetScoreFromFutureTech() ) )
 		end
-		if gk_mode and not Game.IsOption(GameOptionTypes.GAMEOPTION_NO_RELIGION) then
-			tips:insert( L("TXT_KEY_DIPLO_MY_SCORE_RELIGION", player:GetScoreFromReligion() ) )
-		end
 		if bnw_mode then
+			if not Game.IsOption(GameOptionTypes.GAMEOPTION_NO_RELIGION) then
+				tips:insert( L("TXT_KEY_DIPLO_MY_SCORE_RELIGION", player:GetScoreFromReligion() ) )
+			end
 			if not Game.IsOption(GameOptionTypes.GAMEOPTION_NO_POLICIES) then
 				tips:insert( L("TXT_KEY_DIPLO_MY_SCORE_POLICIES", player:GetScoreFromPolicies() ) )
 			end
@@ -1116,7 +1114,7 @@ local g_civListInstanceToolTips = { -- the tooltip function names need to match 
 			elseif ping < 1000 then
 				ping = ping .. L"TXT_KEY_STAGING_ROOM_TIME_MS"
 			else
-				ping = string.format("%.2f" , ping / 1000) .. L"TXT_KEY_STAGING_ROOM_TIME_S"
+				ping = ("%.2f"):format( ping / 1000) .. L"TXT_KEY_STAGING_ROOM_TIME_S"
 			end
 			if ping>"" then
 				ping = L"TXT_KEY_ACTION_PING".." "..ping.." "
@@ -1373,12 +1371,14 @@ local function UpdateCivListNow()
 				-- Gold available
 				local gold = player:GetGold()
 				local goldRate = player:CalculateGoldRate()
-				if gold > 0 and (isDoF or not bnw_mode) then
+				if g_deal:IsPossibleToTradeItem( playerID, g_activePlayerID, TradeableItems.TRADE_ITEM_GOLD, 1 ) then -- includes DoF check
 					instance.Gold:SetText( "[COLOR_YELLOW]" .. gold .. "[/COLOR]" )	--[ICON_GOLD]
-				elseif goldRate > 0 then
-					instance.Gold:SetText( "[COLOR_YELLOW]" .. ("%+i"):format(goldRate) .. "[/COLOR]" ) --[ICON_GOLD]
 				else
 					instance.Gold:SetText()
+					gold = 0
+					if not g_deal:IsPossibleToTradeItem( playerID, g_activePlayerID, TradeableItems.TRADE_ITEM_GOLD_PER_TURN, 1 ) then
+						goldRate = 0
+					end
 				end
 				local minKeepLuxuries = 1
 				-- Is reasonable trade possible ?
@@ -1387,31 +1387,33 @@ local function UpdateCivListNow()
 					for resource in GameInfo.Resources() do
 						local resourceID = resource.ID
 						if Game.GetResourceUsageType( resourceID ) == ResourceUsageTypes.RESOURCEUSAGE_LUXURY
-							and (not bnw_mode or player:GetHappinessFromLuxury( resourceID ) > 0) -- it's a luxury that has'nt been banned
-							and player:GetNumResourceAvailable( resourceID, false ) > 1 -- single resources are too expensive
-							and g_deal:IsPossibleToTradeItem(playerID, g_activePlayerID, TradeableItems.TRADE_ITEM_RESOURCES, resourceID, 1) -- 1 here is 1 quantity of the Resource, which is the minimum possible
+							and player:GetNumResourceAvailable( resourceID, true ) > 1 -- single resources (including imports) are too expensive (3x)
+							and g_deal:IsPossibleToTradeItem( playerID, g_activePlayerID, TradeableItems.TRADE_ITEM_RESOURCES, resourceID, 1 ) 
 						then
 							table.insert( theirTradeItems, resource.IconString )
 							minKeepLuxuries = 0	-- if they have luxes to trade, we can trade even our last one
 						end
 					end
 
-					if gold > 0  or goldRate > 0 or minKeepLuxuries == 0 then
-						-- Resources available from us
-						for resource in GameInfo.Resources() do
-							local resourceID = resource.ID
+					local dealDuration = Game.GetDealDuration()
+					local luxMinGold = dealDuration * 5
+					local strategicMinGold = dealDuration
+					local gold = dealDuration * goldRate + gold
+					-- Resources available from us
+					for resource in GameInfo.Resources() do
+						local resourceID = resource.ID
+						-- IsPossibleToTradeItem includes check on min quantity, banned luxes and obsolete strategics
+						if g_deal:IsPossibleToTradeItem( g_activePlayerID, playerID, TradeableItems.TRADE_ITEM_RESOURCES, resourceID, 1 ) then
 							local usage = Game.GetResourceUsageType( resourceID )
-							if g_activePlayer:GetNumResourceAvailable( resourceID, true ) > minKeepLuxuries
-								and g_deal:IsPossibleToTradeItem( g_activePlayerID, playerID, TradeableItems.TRADE_ITEM_RESOURCES, resourceID, 1 )
+							if ( usage == ResourceUsageTypes.RESOURCEUSAGE_LUXURY
+								and (gold >= luxMinGold  or minKeepLuxuries == 0) -- they can pay for it or trade for another lux
+								and player:GetNumResourceAvailable( resourceID, true ) == 0 -- they do not already have or import
+								and g_activePlayer:GetNumResourceAvailable( resourceID, true ) > minKeepLuxuries ) -- we keep some, including imports
+							   or ( usage == ResourceUsageTypes.RESOURCEUSAGE_STRATEGIC
+								and gold >= strategicMinGold -- they can pay for it
+								and player:GetNumResourceAvailable( resourceID, true ) <= player:GetNumCities() ) -- game limit on AI trading
 							then
-								if    ( usage == ResourceUsageTypes.RESOURCEUSAGE_LUXURY 
-									and (not bnw_mode or g_activePlayer:GetHappinessFromLuxury( resourceID ) > 0) ) -- it's a luxury that has'nt been banned
-								   or ( usage == ResourceUsageTypes.RESOURCEUSAGE_STRATEGIC
-									and player:GetCurrentEra() < (GameInfoTypes[ resource.AIStopTradingEra ] or math.huge)
-									and player:GetNumResourceAvailable( resourceID, true ) <= player:GetNumCities() )
-								then
-									table.insert( ourTradeItems, resource.IconString )
-								end
+								table.insert( ourTradeItems, resource.IconString )
 							end
 						end
 					end
@@ -1498,7 +1500,7 @@ local function OnSetActivePlayer()	--activePlayerID, prevActivePlayerID )
 	g_activeTeamID = g_activePlayer:GetTeam()
 	g_activeTeam = Teams[ g_activeTeamID ]
 
-	-- Remove all the UI notifications.	The new player will rebroadcast any persistent ones from their last turn
+	-- Remove all the UI notifications. The new player will rebroadcast any persistent ones from their last turn
 	for Id in pairs( g_ActiveNotifications ) do
 		RemoveNotificationID( Id )
 	end

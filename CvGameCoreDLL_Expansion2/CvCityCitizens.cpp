@@ -407,7 +407,11 @@ void CvCityCitizens::DoTurn()
 }
 
 /// What is the overall value of the current Plot?
+#if defined(MOD_BALANCE_CORE)
+int CvCityCitizens::GetPlotValue(CvPlot* pPlot, bool bUseAllowGrowthFlag, int iExcessFoodTimes100)
+#else
 int CvCityCitizens::GetPlotValue(CvPlot* pPlot, bool bUseAllowGrowthFlag)
+#endif
 {
 	int iValue = 0;
 
@@ -420,8 +424,10 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, bool bUseAllowGrowthFlag)
 	int iFaithYieldValue = (GC.getAI_CITIZEN_VALUE_FAITH() * pPlot->getYield(YIELD_FAITH));
 
 	// How much surplus food are we making?
+#if !defined(MOD_BALANCE_CORE)
+	// avoid re-doing this expensive calculation for every plot
 	int iExcessFoodTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - (m_pCity->foodConsumption() * 100);
-
+#endif
 	bool bAvoidGrowth = IsAvoidGrowth();
 
 	// City Focus
@@ -1434,6 +1440,10 @@ CvPlot* CvCityCitizens::GetBestCityPlotWithValue(int& iValue, bool bWantBest, bo
 
 	CvPlot* pLoopPlot;
 
+#if defined(MOD_BALANCE_CORE)
+	int iExcessFoodTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - (m_pCity->foodConsumption() * 100);
+#endif
+
 	// Look at all workable Plots
 #if defined(MOD_GLOBAL_CITY_WORKING)
 	for(int iPlotLoop = 0; iPlotLoop < GetCity()->GetNumWorkablePlots(); iPlotLoop++)
@@ -1457,7 +1467,11 @@ CvPlot* CvCityCitizens::GetBestCityPlotWithValue(int& iValue, bool bWantBest, bo
 						// Working the Plot or CAN work the Plot?
 						if(bWantWorked || IsCanWork(pLoopPlot))
 						{
+#if defined(MOD_BALANCE_CORE)
+							iValue = GetPlotValue(pLoopPlot, true, iExcessFoodTimes100);
+#else
 							iValue = GetPlotValue(pLoopPlot, bWantBest);
+#endif
 
 							bPlotForceWorked = IsForcedWorkingPlot(pLoopPlot);
 
@@ -1860,6 +1874,10 @@ void CvCityCitizens::DoDemoteWorstForcedWorkingPlot()
 
 	CvPlot* pLoopPlot;
 
+#if defined(MOD_BALANCE_CORE)
+	int iExcessFoodTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - (m_pCity->foodConsumption() * 100);
+#endif
+
 	// Look at all workable Plots
 #if defined(MOD_GLOBAL_CITY_WORKING)
 	for(int iPlotLoop = 0; iPlotLoop < GetCity()->GetNumWorkablePlots(); iPlotLoop++)
@@ -1875,7 +1893,11 @@ void CvCityCitizens::DoDemoteWorstForcedWorkingPlot()
 			{
 				if(IsForcedWorkingPlot(pLoopPlot))
 				{
+#if defined(MOD_BALANCE_CORE)
+					iValue = GetPlotValue(pLoopPlot, true, iExcessFoodTimes100);
+#else
 					iValue = GetPlotValue(pLoopPlot, false);
+#endif
 
 					// First, or worst yet?
 					if(iBestPlotValue == -1 || iValue < iBestPlotValue)
@@ -2336,7 +2358,11 @@ void CvCityCitizens::DoAddSpecialistToBuilding(BuildingTypes eBuilding, bool bFo
 #endif
 
 		GetCity()->processSpecialist(eSpecialist, 1);
+#if defined(MOD_BALANCE_CORE)
+		GetCity()->UpdateReligion(GetCity()->GetCityReligions()->GetReligiousMajority(),false);
+#else
 		GetCity()->UpdateReligion(GetCity()->GetCityReligions()->GetReligiousMajority());
+#endif
 
 		ChangeNumUnassignedCitizens(-1);
 
@@ -2393,7 +2419,11 @@ void CvCityCitizens::DoRemoveSpecialistFromBuilding(BuildingTypes eBuilding, boo
 #endif
 
 		GetCity()->processSpecialist(eSpecialist, -1);
+#if defined(MOD_BALANCE_CORE)
+		GetCity()->UpdateReligion(GetCity()->GetCityReligions()->GetReligiousMajority(),false);
+#else
 		GetCity()->UpdateReligion(GetCity()->GetCityReligions()->GetReligiousMajority());
+#endif
 
 		// Do we kill this population or reassign him?
 		if(bEliminatePopulation)

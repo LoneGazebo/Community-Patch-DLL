@@ -2396,6 +2396,15 @@ int CvPlayerTrade::GetTradeConnectionResourceValueTimes100(const TradeConnection
 #else
 								iValue += 50;
 #endif
+#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+								if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+								{
+									if(GET_PLAYER(pOriginCity->getOwner()).HasMonopoly(eResource) || GET_PLAYER(pDestCity->getOwner()).HasMonopoly(eResource))
+									{
+										iValue += GD_INT_GET(TRADE_ROUTE_DIFFERENT_RESOURCE_VALUE);
+									}
+								}
+#endif
 							}
 						}
 					}
@@ -4790,10 +4799,13 @@ int CvTradeAI::ScoreInternationalTR (const TradeConnection& kTradeConnection)
 	int iGoldAmount = pPlayerTrade->GetTradeConnectionValueTimes100(kTradeConnection, YIELD_GOLD, true);
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	//if a city is impoverished, let's send trade routes from there (multiply based on amount of unhappiness.
-	CvCity* pFromCity = CvGameTrade::GetOriginCity(kTradeConnection);
-	if(pFromCity->getUnhappinessFromGold() > 0)
+	if(MOD_BALANCE_CORE_HAPPINESS)
 	{
-		iGoldAmount *= pFromCity->getUnhappinessFromGold();
+		CvCity* pFromCity = CvGameTrade::GetOriginCity(kTradeConnection);
+		if(pFromCity->getUnhappinessFromGold() > 0)
+		{
+			iGoldAmount *= pFromCity->getUnhappinessFromGold();
+		}
 	}
 #endif
 	int iOtherGoldAmount = pOtherPlayerTrade->GetTradeConnectionValueTimes100(kTradeConnection, YIELD_GOLD, false);
@@ -4801,7 +4813,20 @@ int CvTradeAI::ScoreInternationalTR (const TradeConnection& kTradeConnection)
 	if (bIsToMinor)
 		iOtherGoldAmount = 0;
 #endif // AUI_TRADE_SCORE_INTERNATIONAL_MAX_DELTA_WITH_MINORS
-
+#if defined(MOD_BALANCE_CORE_DEALS_ADVANCED)
+	//If we are friends with the player, let's not care about how much gold they make.
+	if(MOD_BALANCE_CORE_DEALS_ADVANCED)
+	{
+		if(m_pPlayer->GetDiplomacyAI()->GetMajorCivApproach(kTradeConnection.m_eDestOwner, false) == MAJOR_CIV_APPROACH_FRIENDLY)
+		{
+			iOtherGoldAmount = 0;
+		}
+		else if(m_pPlayer->GetDiplomacyAI()->GetMajorCivOpinion(kTradeConnection.m_eDestOwner) >= MAJOR_CIV_OPINION_FRIEND)
+		{
+			iOtherGoldAmount = 0;
+		}
+	}
+#endif
 	int iGoldDelta = iGoldAmount - iOtherGoldAmount;
 
 	// getting out of a logjam at the beginning of the game on an archepeligo map
@@ -4816,9 +4841,13 @@ int CvTradeAI::ScoreInternationalTR (const TradeConnection& kTradeConnection)
 	int iTechDifferenceP1fromP2 = GC.getGame().GetGameTrade()->GetTechDifference(kTradeConnection.m_eOriginOwner, kTradeConnection.m_eDestOwner);
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	//if a city is illiterate, let's send trade routes from there (add based on amount of unhappiness.
-	if(pFromCity->getUnhappinessFromScience() > 0)
+	if(MOD_BALANCE_CORE_HAPPINESS)
 	{
-		iTechDifferenceP1fromP2 += pFromCity->getUnhappinessFromScience();
+		CvCity* pFromCity = CvGameTrade::GetOriginCity(kTradeConnection);
+		if(pFromCity->getUnhappinessFromScience() > 0)
+		{
+			iTechDifferenceP1fromP2 += pFromCity->getUnhappinessFromScience();
+		}
 	}
 #endif
 	int iTechDifferenceP2fromP1 = GC.getGame().GetGameTrade()->GetTechDifference(kTradeConnection.m_eDestOwner,   kTradeConnection.m_eOriginOwner);
@@ -4931,6 +4960,19 @@ int CvTradeAI::ScoreFoodTR (const TradeConnection& kTradeConnection, CvCity* pSm
 		return 0;
 	}
 
+#if defined(MOD_BALANCE_CORE)
+	if(MOD_BALANCE_CORE)
+	{
+		for (int iYieldLoop = 0; iYieldLoop < NUM_YIELD_TYPES; iYieldLoop++)
+		{
+			if(m_pPlayer->GetPlayerTraits()->GetTradeRouteStartYield((YieldTypes)iYieldLoop) > 0)
+			{
+				return 0;
+			}
+		}
+	}
+#endif
+
 	// if this was recently plundered, 0 the score
 	if (m_pPlayer->GetTrade()->CheckTradeConnectionWasPlundered(kTradeConnection))
 	{
@@ -4996,6 +5038,19 @@ int CvTradeAI::ScoreProductionTR (const TradeConnection& kTradeConnection, std::
 	{
 		return 0;
 	}
+
+#if defined(MOD_BALANCE_CORE)
+	if(MOD_BALANCE_CORE)
+	{
+		for (int iYieldLoop = 0; iYieldLoop < NUM_YIELD_TYPES; iYieldLoop++)
+		{
+			if(m_pPlayer->GetPlayerTraits()->GetTradeRouteStartYield((YieldTypes)iYieldLoop) > 0)
+			{
+				return 0;
+			}
+		}
+	}
+#endif
 
 	// if this was recently plundered, 0 the score
 	if (m_pPlayer->GetTrade()->CheckTradeConnectionWasPlundered(kTradeConnection))
@@ -5074,6 +5129,19 @@ int CvTradeAI::ScoreWonderTR (const TradeConnection& kTradeConnection, std::vect
 	{
 		return 0;
 	}
+
+#if defined(MOD_BALANCE_CORE)
+	if(MOD_BALANCE_CORE)
+	{
+		for (int iYieldLoop = 0; iYieldLoop < NUM_YIELD_TYPES; iYieldLoop++)
+		{
+			if(m_pPlayer->GetPlayerTraits()->GetTradeRouteStartYield((YieldTypes)iYieldLoop) > 0)
+			{
+				return 0;
+			}
+		}
+	}
+#endif
 
 	// if this was recently plundered, 0 the score
 	if (m_pPlayer->GetTrade()->CheckTradeConnectionWasPlundered(kTradeConnection))

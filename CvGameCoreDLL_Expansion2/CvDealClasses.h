@@ -111,9 +111,6 @@ public:
 	PlayerTypes m_eSurrenderingPlayer;
 	PlayerTypes m_eDemandingPlayer;
 	PlayerTypes m_eRequestingPlayer;
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	PlayerTypes m_eOfferingPlayer;
-#endif
 
 	bool m_bConsideringForRenewal; // is currently considering renewing this deal
 	bool m_bCheckedForRenewal; // this deal has been discussed with the player for renewal
@@ -163,12 +160,6 @@ public:
 	// Is this deal a request from someone?
 	PlayerTypes GetRequestingPlayer() const;
 	void SetRequestingPlayer(PlayerTypes ePlayer);
-
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	// Is this deal a generous offer from someone?
-	PlayerTypes GetOfferingPlayer() const;
-	void SetOfferingPlayer(PlayerTypes ePlayer);
-#endif
 
 	// Misc important functions
 

@@ -2141,6 +2141,11 @@ void CvDiplomacyAI::DoTurn(PlayerTypes eTargetPlayer)
 		DoUpdatePlanningExchanges();
 		DoContactMinorCivs();
 		DoContactMajorCivs();
+		GC.getGame().GetGameDeals()->DoCancelAllProposedDealsWithPlayer(GetPlayer()->GetID());	//Proposed deals with AI players are purely transitional.
+																																														//If there are any remaining now, this is because this civ
+																																														//was previously controlled by a human player who had a proposed
+																																														//human-to-human deal.  AI can't process human-to-human deals
+																																														//so cancel them now to prevent zombie deals.
 	}
 
 	// Update Counters

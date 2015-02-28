@@ -131,6 +131,11 @@ public:
 	int getNumMembers() const;
 	void changeNumMembers(int iChange);
 
+#if defined(MOD_BALANCE_CORE)
+	void addPlayer(PlayerTypes eID);
+	void removePlayer(PlayerTypes eID);
+#endif
+
 	int getAliveCount() const;
 	void changeAliveCount(int iChange);
 
@@ -340,6 +345,10 @@ public:
 	void SetBestPossibleRoute(RouteTypes eRoute);
 	void DoUpdateBestRoute();
 
+#ifdef AUI_ASTAR_ROAD_RANGE
+	int GetBestRoadMovementMultiplier(const CvUnit* pUnit) const;
+#endif
+
 	int getProjectCount(ProjectTypes eIndex) const;
 	int getProjectDefaultArtType(ProjectTypes eIndex) const;
 	void setProjectDefaultArtType(ProjectTypes eIndex, int value);
@@ -460,14 +469,14 @@ public:
 
 	void DoUpdateVassalWarPeaceRelationships();
 
-	int getNumCitiesWhenVassalMade(TeamTypes eTeam) const;
-	void setNumCitiesWhenVassalMade(TeamTypes eTeam, int iValue);
-	int getTotalPopulationWhenVassalMade(TeamTypes eTeam) const;
-	void setTotalPopulationWhenVassalMade(TeamTypes eTeam, int iValue);
+	int getNumCitiesWhenVassalMade() const;
+	void setNumCitiesWhenVassalMade(int iValue);
+	int getTotalPopulationWhenVassalMade() const;
+	void setTotalPopulationWhenVassalMade(int iValue);
 
-	int GetNumTurnsIsVassal(TeamTypes eTeam) const;
-	void SetNumTurnsIsVassal(TeamTypes eTeam, int iValue);
-	void ChangeNumTurnsIsVassal(TeamTypes eTeam, int iChange);
+	int GetNumTurnsIsVassal() const;
+	void SetNumTurnsIsVassal(int iValue);
+	void ChangeNumTurnsIsVassal(int iChange);
 
 	int GetNumTurnsSinceVassalEnded(TeamTypes eTeam) const;
 	void SetNumTurnsSinceVassalEnded(TeamTypes eTeam, int iValue);
@@ -499,6 +508,11 @@ protected:
 	TeamTypes m_eID;
 
 	static CvTeam* m_aTeams;
+
+#if defined(MOD_BALANCE_CORE)
+	//we care about iteration speed, so use a vector over a set
+	std::vector<PlayerTypes> m_members;
+#endif
 
 	int m_iNumMembers;
 	int m_iAliveCount;
@@ -536,6 +550,12 @@ protected:
 	int m_iNumNaturalWondersDiscovered;
 	int m_iBestPossibleRoute;
 	int m_iNumMinorCivsAttacked;
+
+#ifdef AUI_ASTAR_ROAD_RANGE
+	int m_iBestRouteNormalCostMultiplier;
+	int m_iBestRouteFlatCostMultiplier;
+	int m_iUseFlatCostIfBelowThis;
+#endif
 
 	bool m_bMapCentering;
 	bool m_bHasBrokenPeaceTreaty;
@@ -620,12 +640,12 @@ protected:
 	int m_iVassalageTradingAllowedCount;
 	bool* m_pabTradeTech;
 
-	Firaxis::Array< int, REALLY_MAX_TEAMS > m_aiNumTurnsIsVassal;
-	Firaxis::Array< int, REALLY_MAX_TEAMS > m_aiNumCitiesWhenVassalMade;
-	Firaxis::Array< int, REALLY_MAX_TEAMS > m_aiTotalPopulationWhenVassalMade;
+	TeamTypes m_eMaster;
+	bool m_bIsVoluntaryVassal;
+	int m_iNumTurnsIsVassal;
+	int m_iNumCitiesWhenVassalMade;
+	int m_iTotalPopulationWhenVassalMade;
 	Firaxis::Array< int, REALLY_MAX_TEAMS > m_aiNumTurnsSinceVassalEnded;
-	Firaxis::Array< bool, REALLY_MAX_TEAMS > m_abIsVassal;
-	Firaxis::Array< bool, REALLY_MAX_TEAMS > m_abIsVoluntaryVassal;
 #endif
 
 	bool* m_abCanLaunch;

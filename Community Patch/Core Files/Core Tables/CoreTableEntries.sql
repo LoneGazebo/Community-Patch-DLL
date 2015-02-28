@@ -158,6 +158,9 @@ ALTER TABLE Policies ADD COLUMN 'OccupiedProdMod' integer default 0;
 
 ALTER TABLE Policies ADD COLUMN 'HappinessPerXPopulationGlobal' integer default 0;
 
+-- War Weariness Mod - Positive values make it harder to accumulate war weariness.
+ALTER TABLE Policies ADD COLUMN 'WarWearinessModifier' integer default 0;
+
 -- % boosts to city yield for happiness sources (traits) - Values should be positive to be good!
 ALTER TABLE Traits ADD COLUMN 'PovertyHappinessTraitMod' integer default 0;
 ALTER TABLE Traits ADD COLUMN 'DefenseHappinessTraitMod' integer default 0;
@@ -315,3 +318,8 @@ ALTER TABLE UnitPromotions ADD 'GainsXPFromScouting' boolean default false;
 
 -- Unit stuff for minor civs
 ALTER TABLE Units ADD COLUMN 'MinorCivGift' boolean default false;
+
+-- Resource Changes for Monopolies
+ALTER TABLE Resources ADD COLUMN 'MonopolyHappiness' integer default 0;
+ALTER TABLE Resources ADD COLUMN 'MonopolyGALength' integer default 0;
+ALTER TABLE Resources ADD COLUMN 'IsMonopoly' boolean default false;

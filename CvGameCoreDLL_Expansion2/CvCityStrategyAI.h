@@ -183,6 +183,10 @@ public:
 	double GetYieldAverage(YieldTypes eYieldType);
 	double GetDeficientYieldValue(YieldTypes eYieldType);
 
+#if defined(MOD_BALANCE_CORE)
+	void PrecalcYieldAverages();
+#endif
+
 	// City AI methods
 	void ChooseProduction(bool bUseAsyncRandom, BuildingTypes eIgnoreBldg = NO_BUILDING, UnitTypes eIgnoreUnit = NO_UNIT);
 #if defined(MOD_DIPLOMACY_CITYSTATES)
@@ -237,6 +241,11 @@ private:
 	unsigned short m_asBestYieldAverageTimes100[NUM_YIELD_TYPES];
 	short m_asYieldDeltaTimes100[NUM_YIELD_TYPES];
 	YieldTypes m_eFocusYield;
+
+#if defined(MOD_BALANCE_CORE)
+	double m_adYieldAvg[NUM_YIELD_TYPES];
+#endif
+
 };
 
 namespace CityStrategyAIHelpers
