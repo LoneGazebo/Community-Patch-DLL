@@ -19,7 +19,7 @@ WHERE Tag = 'TXT_KEY_POLICY_OPEN_SOCIETY_HELP' AND EXISTS (SELECT * FROM COMMUNI
 -- Covert Action
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Covert Action[ENDCOLOR][NEWLINE]Chance of rigging election in City-States doubled. Receive an additional [ICON_SPY] Spy.'
+SET Text = '[COLOR_POSITIVE_TEXT]Covert Action[ENDCOLOR][NEWLINE]Chance of rigging election in City-States doubled. Receive one or more additional [ICON_SPY] Spies (based on number of City-States in game).'
 WHERE Tag = 'TXT_KEY_POLICY_COVERT_ACTION_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 -- Creative Expression

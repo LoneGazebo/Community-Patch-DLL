@@ -15,6 +15,9 @@
 #include "CvDiplomacyAI.h"
 #include "CvGrandStrategyAI.h"
 #include "CvTypes.h"
+#if defined(MOD_BALANCE_CORE)
+#include "CvMilitaryAI.h"
+#endif
 
 #include "LintFree.h"
 
@@ -860,6 +863,9 @@ void CvPlayerCulture::Init(CvPlayer* pPlayer)
 
 	m_iLastTurnLifetimeCulture = 0;
 	m_iOpinionUnhappiness = 0;
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+	m_iWarWeariness = 0;
+#endif
 
 	for (int iI = 0; iI < MAX_MAJOR_CIVS; iI++)
 	{
@@ -3496,7 +3502,11 @@ CvString CvPlayerCulture::GetPublicOpinionTooltip() const
 /// Unhappiness generated from public opinion
 int CvPlayerCulture::GetPublicOpinionUnhappiness() const
 {
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+	return m_iOpinionUnhappiness + m_iWarWeariness;
+#else
 	return m_iOpinionUnhappiness;
+#endif
 }
 
 /// Tooltip breaking down public opinion unhappiness
@@ -3549,7 +3559,50 @@ void CvPlayerCulture::AddTourismAllKnownCivs(int iTourism)
 }
 
 // PRIVATE METHODS
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+/// What is our war weariness value?
+int CvPlayerCulture::ComputeWarWeariness()
+{
+	if(!m_pPlayer->IsAtWar())
+	{
+		if(m_iWarWeariness > 0)
+		{
+			m_iWarWeariness -= GC.getGame().getJonRandNum(4, "Roll for war weariness reduction!");
+		}
+		if(m_iWarWeariness <= 0)
+		{
+			m_iWarWeariness = 0;
+		}
 
+		return m_iWarWeariness;
+	}
+	else
+	{
+		MilitaryAIStrategyTypes eStrategyFightAWar = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_AT_WAR");
+		int iWarTurns = 0;
+		int iTotalPop = m_pPlayer->getTotalPopulation();
+		if(m_pPlayer->GetMilitaryAI()->IsUsingStrategy(eStrategyFightAWar))
+		{
+			iWarTurns = m_pPlayer->GetMilitaryAI()->GetTurnStrategyAdopted(eStrategyFightAWar);
+		}
+		int iCurrentTurn = GC.getGame().getGameTurn();
+		int iChance = GC.getGame().getJonRandNum(iTotalPop, "Roll for war weariness increase!");
+			
+		iChance *= (m_pPlayer->GetWarWearinessModifier() + 100);
+		iChance /= 100;
+
+		if(iChance < (iCurrentTurn - iWarTurns))
+		{
+			m_iWarWeariness += 1;
+		}
+		if(m_iWarWeariness > (iTotalPop / 4))
+		{
+			m_iWarWeariness = (iTotalPop / 4);
+		}
+	}
+	return m_iWarWeariness;
+}
+#endif
 /// Once per turn calculation of public opinion data
 void CvPlayerCulture::DoPublicOpinion()
 {
@@ -3738,7 +3791,8 @@ void CvPlayerCulture::DoPublicOpinion()
 				iDissatisfaction = (iPressureForFreedom + iPressureForAutocracy) - iPressureForOrder;
 			}
 		}
-#if !defined(MOD_BALANCE_CORE)
+#if defined(MOD_BALANCE_CORE)
+#else
 		// Compute effects of dissatisfaction
 		int iPerCityUnhappy = 1;
 		int iUnhappyPerXPop = 10;
@@ -3786,7 +3840,13 @@ void CvPlayerCulture::DoPublicOpinion()
 				}
 			}
 		}
-
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+		int iWarWeariness = 0;
+		if(MOD_BALANCE_CORE_HAPPINESS)
+		{
+			iWarWeariness = ComputeWarWeariness();
+		}
+#endif
 		// Build tooltip
 		if (strFreedomPressureString.size() > 0)
 		{
@@ -3833,14 +3893,15 @@ void CvPlayerCulture::DoPublicOpinion()
 			locText << GC.getPolicyBranchInfo(m_ePreferredIdeology)->GetDescription();
 			m_strOpinionTooltip += locText.toUTF8();
 		}
- 
+
 		if (m_iOpinionUnhappiness > 0)
 		{
 			Localization::String locText;
 			locText = Localization::Lookup("TXT_KEY_CO_OPINION_TT_UNHAPPINESS_LINE1");
 			locText << m_iOpinionUnhappiness;
 			m_strOpinionUnhappinessTooltip += locText.toUTF8();
-#if !defined(MOD_BALANCE_CORE)
+#if defined(MOD_BALANCE_CORE)
+#else
 			locText = Localization::Lookup("TXT_KEY_CO_OPINION_TT_UNHAPPINESS_LINE2");
 			m_strOpinionUnhappinessTooltip += locText.toUTF8();
 
@@ -3853,9 +3914,17 @@ void CvPlayerCulture::DoPublicOpinion()
 			m_strOpinionUnhappinessTooltip += locText.toUTF8();
 #endif
 		}
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+		if(MOD_BALANCE_CORE_HAPPINESS && iWarWeariness > 0)
+		{
+			Localization::String locText;
+			locText = Localization::Lookup("TXT_KEY_CO_OPINION_TT_UNHAPPINESS_WAR_WEARINESS");
+			locText << iWarWeariness;
+			m_strOpinionUnhappinessTooltip += locText.toUTF8();
+		}
+#endif
 	}
 }
-
 /// What would the unhappiness be if we chose this Ideology?
 int CvPlayerCulture::ComputeHypotheticalPublicOpinionUnhappiness(PolicyBranchTypes eBranch)
 {
@@ -4394,6 +4463,9 @@ FDataStream& operator>>(FDataStream& loadFrom, CvPlayerCulture& writeTo)
 		writeTo.m_eOpinion = (PublicOpinionTypes)iTemp;
 		loadFrom >> writeTo.m_ePreferredIdeology;
 		loadFrom >> writeTo.m_iOpinionUnhappiness;
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+		loadFrom >> writeTo.m_iWarWeariness;
+#endif
 		loadFrom >> writeTo.m_strOpinionTooltip;
 	}
 	else
@@ -4472,6 +4544,9 @@ FDataStream& operator<<(FDataStream& saveTo, const CvPlayerCulture& readFrom)
 	saveTo << readFrom.m_eOpinion;
 	saveTo << readFrom.m_ePreferredIdeology;
 	saveTo << readFrom.m_iOpinionUnhappiness;
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+	saveTo << readFrom.m_iWarWeariness;
+#endif
 	saveTo << readFrom.m_strOpinionTooltip;
 	saveTo << readFrom.m_strOpinionUnhappinessTooltip;
 	saveTo << readFrom.m_eOpinionBiggestInfluence;

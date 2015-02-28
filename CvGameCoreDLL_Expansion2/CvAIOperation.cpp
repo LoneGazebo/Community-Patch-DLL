@@ -263,7 +263,11 @@ int CvAIOperation::GetGatherTolerance(CvArmyAI* pArmy, CvPlot* pPlot) const
 		// Something constrained here, give ourselves a lot of leeway
 		else
 		{
+#if defined(MOD_BALANCE_CORE_MILITARY)
+			iRtnValue = 4;
+#else
 			iRtnValue = 3;
+#endif
 		}
 	}
 
@@ -505,8 +509,8 @@ bool CvAIOperation::CheckOnTarget()
 	int iUnitID;
 #if defined(MOD_BALANCE_CORE_SETTLER)
 	CvUnit* pCivilian = NULL;
+	CvUnit* pEscort = NULL;
 	CvPlot* pCivilianPlot = NULL;
-	CvPlot* pEscortPlot = NULL;
 #else
 	CvUnit* pCivilian;
 	CvPlot* pCivilianPlot = NULL;
@@ -532,15 +536,13 @@ bool CvAIOperation::CheckOnTarget()
 #if defined(MOD_BALANCE_CORE_SETTLER)
 					if(pCivilian != NULL)
 					{
-#endif
-					pCivilianPlot = pCivilian->plot();
-#if defined(MOD_BALANCE_CORE_SETTLER)
+						pCivilianPlot = pCivilian->plot();
 					}
-#endif
 				}
-#if defined(MOD_BALANCE_CORE_SETTLER)
 				if(pCivilianPlot != NULL && (m_eCurrentState==AI_OPERATION_STATE_MOVING_TO_TARGET || m_eCurrentState==AI_OPERATION_STATE_AT_TARGET) && pCivilianPlot == GetTargetPlot())
 #else
+					pCivilianPlot = pCivilian->plot();
+				}
 				if( m_eCurrentState == AI_OPERATION_STATE_MOVING_TO_TARGET && pCivilianPlot == GetTargetPlot())
 #endif
 				{
@@ -556,8 +558,13 @@ bool CvAIOperation::CheckOnTarget()
 					}
 					else
 					{
+#ifdef MOD_BALANCE_CORE_SETTLER
+						pEscort = GET_PLAYER(m_eOwner).getUnit(pThisArmy->GetNextUnitID());
+						if (pEscort && pCivilianPlot == pEscort->plot())
+#else
 						pEscortPlot = GET_PLAYER(m_eOwner).getUnit(pThisArmy->GetNextUnitID())->plot();
 						if(pCivilianPlot == pEscortPlot)
+#endif
 						{
 							ArmyInPosition(pThisArmy);
 							return true;
@@ -2677,6 +2684,12 @@ CvPlot* CvAIOperationDestroyBarbarianCamp::FindBestTarget()
 
 	CvCity* pStartCity;
 	pStartCity = GetOperationStartCity();
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	if(pStartCity == NULL && GET_PLAYER(m_eOwner).getCapitalCity() != NULL)
+	{
+		pStartCity = GET_PLAYER(m_eOwner).getCapitalCity();
+	}
+#endif
 	if(pStartCity != NULL)
 	{
 
@@ -2728,7 +2741,6 @@ CvPlot* CvAIOperationDestroyBarbarianCamp::FindBestTarget()
 				}
 			}
 		}
-
 	}
 
 	return pBestPlot;
@@ -4963,7 +4975,11 @@ static CvPlot* GetReachablePlot(UnitHandle pUnit, WeightedPlotVector& aPlots, in
 				if (iWeight > iFoundWeight)
 					break;		// Already found one of a lower weight
 			
+#ifdef AUI_ASTAR_TURN_LIMITER
+				int iTurnsCalculated = TurnsToReachTarget(pUnit, pPlot, true /*bReusePaths*/, false, false, iFoundTurns);
+#else
 				int iTurnsCalculated = TurnsToReachTarget(pUnit, pPlot, true /*bReusePaths*/, false);
+#endif // AUI_ASTAR_TURN_LIMITER
 				if (iTurnsCalculated != MAX_INT)
 				{
 					if (iTurnsCalculated < iFoundTurns)
@@ -6472,15 +6488,27 @@ int OperationalAIHelpers::GetGatherRangeForXUnits(int iTotalUnits)
 	}
 	else if(iTotalUnits <= 6)
 	{
+#if defined(MOD_BALANCE_CORE_MILITARY)
+		iRange = 3;
+#else
 		iRange = 2;
+#endif
 	}
 	else if(iTotalUnits <= 10)
 	{
+#if defined(MOD_BALANCE_CORE_MILITARY)
+		iRange = 4;
+#else
 		iRange = 3;
+#endif
 	}
 	else
 	{
+#if defined(MOD_BALANCE_CORE_MILITARY)
+		iRange = 5;
+#else
 		iRange = 4;
+#endif
 	}
 
 	return iRange;

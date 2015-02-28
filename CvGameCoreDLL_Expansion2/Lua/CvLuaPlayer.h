@@ -53,6 +53,9 @@ protected:
 #if defined(MOD_BALANCE_CORE)
 	static int lInitNamedUnit(lua_State* L);
 #endif
+#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+	static int lGetResourceMonopolyPlayer(lua_State* L);
+#endif
 	static int lDisbandUnit(lua_State* L);
 	static int lAddFreeUnit(lua_State* L);
 
@@ -925,6 +928,10 @@ protected:
 	static int lDoForceDoF(lua_State* L);
 	static int lDoForceDenounce(lua_State* L);
 
+#if defined(MOD_BALANCE_CORE_DEALS)
+	LUAAPIEXTN(IsHasDefensivePact, bool);
+	LUAAPIEXTN(IsHasDefensivePactWithPlayer, bool);
+#endif
 	// END Diplomacy Stuff
 
 	static int lGetNumNotifications(lua_State* L);
@@ -987,6 +994,9 @@ protected:
 	static int lGetTraitGreatScientistRateModifier(lua_State* L);
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_TRAITS_ANY_BELIEF)
 	LUAAPIEXTN(IsTraitAnyBelief, bool);
+#endif
+#if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
+	LUAAPIEXTN(IsBullyAnnex, bool);
 #endif
 	static int lIsTraitBonusReligiousBelief(lua_State* L);
 	static int lGetHappinessFromLuxury(lua_State* L);

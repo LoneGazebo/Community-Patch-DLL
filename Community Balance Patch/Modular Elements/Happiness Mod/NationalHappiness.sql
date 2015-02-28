@@ -33,12 +33,12 @@
 	
 	-- Golden Age starting requirement.
 	UPDATE Defines
-	SET Value = '650'
+	SET Value = '700'
 	WHERE Name = 'GOLDEN_AGE_BASE_THRESHOLD_HAPPINESS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
 
 	-- Golden Age per GA increase.
 	UPDATE Defines
-	SET Value = '350'
+	SET Value = '500'
 	WHERE Name = 'GOLDEN_AGE_EACH_GA_ADDITIONAL_HAPPINESS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
 
 	-- % reduction of combat effectiveness per point of unhappiness.

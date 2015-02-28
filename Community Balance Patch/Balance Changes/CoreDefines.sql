@@ -25,10 +25,14 @@
 	SET Value = '9'
 	WHERE Name = 'CITY_GROWTH_MULTIPLIER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
--- More cost for first GP - push founding date back slightly (give Piety more of an advantage)
+-- More cost for first and second Great Prophets - push founding/enhancing dates back slightly
 	UPDATE Defines
-	SET Value = '250'
+	SET Value = '300'
 	WHERE Name = 'RELIGION_MIN_FAITH_FIRST_PROPHET' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	UPDATE Defines
+	SET Value = '200'
+	WHERE Name = 'RELIGION_FAITH_DELTA_NEXT_PROPHET' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 -- Great People more expensive - delta will increase faster as well.
 
@@ -54,3 +58,12 @@
 	UPDATE Defines
 	SET Value = '45'
 	WHERE Name = 'BARBARIAN_MAX_XP_VALUE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	-- GP Upgrade Deltas
+	UPDATE Defines
+	SET Value = '125'
+	WHERE Name = 'GREAT_PERSON_THRESHOLD_BASE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	UPDATE Defines
+	SET Value = '150'
+	WHERE Name = 'GREAT_PERSON_THRESHOLD_INCREASE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );

@@ -2419,7 +2419,11 @@ void CvCity::SetRouteToCapitalConnected(bool bValue)
 
 	if(bUpdateReligion)
 	{
+#if defined(MOD_BALANCE_CORE)
+		UpdateReligion(GetCityReligions()->GetReligiousMajority(),false);
+#else
 		UpdateReligion(GetCityReligions()->GetReligiousMajority());
+#endif
 	}
 
 	if(GC.getGame().getGameTurn() == 0)
@@ -3467,7 +3471,13 @@ bool CvCity::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestVis
 	{
 		return false;
 	}
-
+#if defined(MOD_BALANCE_CORE_DEALS)
+	// Resource Monopoly requirements met?
+	if(MOD_BALANCE_CORE_DEALS && !IsBuildingResourceMonopolyValid(eBuilding, toolTipSink))
+	{
+		return false;
+	}
+#endif
 	// Holy city requirement
 	if (pkBuildingInfo->IsRequiresHolyCity() && !GetCityReligions()->IsHolyCityAnyReligion())
 	{
@@ -3503,6 +3513,43 @@ bool CvCity::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestVis
 			}
 		}
 	}
+#if defined(MOD_BALANCE_CORE)
+	// Does this city have prereq buildings?
+	if(MOD_BALANCE_CORE)
+	{
+		int iNumBuildings = 0;
+		for(iI = 0; iI < iNumBuildingClassInfos; iI++)
+		{
+			CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo((BuildingClassTypes)iI);
+			if(!pkBuildingClassInfo)
+			{
+				continue;
+			}
+
+			if(pkBuildingInfo->IsBuildingClassNeededAnywhere(iI))
+			{
+				ePrereqBuilding = ((BuildingTypes)(thisCivInfo.getCivilizationBuildings(iI)));
+
+				if(ePrereqBuilding != NO_BUILDING)
+				{
+					CvCity* pLoopCity;
+					int iLoop;
+					for(pLoopCity = GET_PLAYER(getOwner()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iLoop))
+					{
+						if(m_pCityBuildings->GetNumBuilding(ePrereqBuilding) > 0)
+						{
+							iNumBuildings++;
+						}
+					}
+					if(iNumBuildings == 0)
+					{
+						return false;
+					}
+				}
+			}
+		}
+	}
+#endif
 #if defined(MOD_BALANCE_CORE)
 	if(MOD_BALANCE_CORE && pkBuildingInfo->GetNeedBuildingThisCity() != NO_BUILDING)
 	{
@@ -4119,7 +4166,11 @@ bool CvCity::IsBuildingLocalResourceValid(BuildingTypes eBuilding, bool bTestVis
 		return false;
 
 	// ANDs: City must have ALL of these nearby
+#if defined(MOD_BALANCE_CORE)
+	for(iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+#else
 	for(iResourceLoop = 0; iResourceLoop < GC.getNUM_BUILDING_RESOURCE_PREREQS(); iResourceLoop++)
+#endif
 	{
 		eResource = (ResourceTypes) pkBuildingInfo->GetLocalResourceAnd(iResourceLoop);
 
@@ -4142,7 +4193,11 @@ bool CvCity::IsBuildingLocalResourceValid(BuildingTypes eBuilding, bool bTestVis
 	int iOrResources = 0;
 
 	// ORs: City must have ONE of these nearby
+#if defined(MOD_BALANCE_CORE)
+	for(iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+#else
 	for(iResourceLoop = 0; iResourceLoop < GC.getNUM_BUILDING_RESOURCE_PREREQS(); iResourceLoop++)
+#endif
 	{
 		eResource = (ResourceTypes) pkBuildingInfo->GetLocalResourceOr(iResourceLoop);
 
@@ -4171,7 +4226,86 @@ bool CvCity::IsBuildingLocalResourceValid(BuildingTypes eBuilding, bool bTestVis
 
 	return false;
 }
+#if defined(MOD_BALANCE_CORE_DEALS)
+//	--------------------------------------------------------------------------------
+/// Does eBuilding pass the resource monopoly requirement test?
+bool CvCity::IsBuildingResourceMonopolyValid(BuildingTypes eBuilding, CvString* toolTipSink) const
+{
+	VALIDATE_OBJECT
 
+	int iResourceLoop;
+	ResourceTypes eResource;
+
+	CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+	if(pkBuildingInfo == NULL)
+		return false;
+
+	// ANDs: City must have ALL of these nearby
+	for(iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+	{
+		eResource = (ResourceTypes) pkBuildingInfo->GetResourceMonopolyAnd(iResourceLoop);
+
+		// Doesn't require a resource in this AND slot
+		if(eResource == NO_RESOURCE)
+			continue;
+
+		CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
+		if(pkResource == NULL)
+			continue;
+
+		// City doesn't have resource locally - return false immediately
+		if(!GET_PLAYER(getOwner()).HasMonopoly(eResource))
+		{
+			int iOwnedNumResource = GET_PLAYER(getOwner()).getNumResourceTotal(eResource, false) + GET_PLAYER(getOwner()).getResourceExport(eResource);
+			if(iOwnedNumResource > 0)
+			{
+				int iTotalNumResource = GC.getMap().getNumResources(eResource);
+				int iValue = ((iOwnedNumResource * 100) / iTotalNumResource);
+				GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_BUILDING_NEED_MONOPOLY", pkResource->GetTextKey(), pkResource->GetIconString(), iValue);
+			}
+			return false;
+		}
+	}
+
+	int iOrResources = 0;
+
+	// ORs: City must have ONE of these nearby
+	for(iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+	{
+		eResource = (ResourceTypes) pkBuildingInfo->GetResourceMonopolyOr(iResourceLoop);
+
+		// Doesn't require a resource in this AND slot
+		if(eResource == NO_RESOURCE)
+			continue;
+
+		CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
+		if(pkResource == NULL)
+			continue;
+
+		// City has resource locally - return true immediately
+		if(GET_PLAYER(getOwner()).HasMonopoly(eResource))
+			return true;
+
+		// If we get here it means we passed the AND tests but not one of the OR tests
+		int iOwnedNumResource = GET_PLAYER(getOwner()).getNumResourceTotal(eResource, false) + GET_PLAYER(getOwner()).getResourceExport(eResource);
+		if(iOwnedNumResource > 0)
+		{
+			int iTotalNumResource = GC.getMap().getNumResources(eResource);
+			int iValue = ((iOwnedNumResource * 100) / iTotalNumResource);
+			GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_BUILDING_NEED_MONOPOLY", pkResource->GetTextKey(), pkResource->GetIconString(), iValue);
+		}
+
+		// Increment counter for OR we don't have
+		iOrResources++;
+	}
+
+	// No OR resource requirements (and passed the AND test above)
+	if(iOrResources == 0)
+		return true;
+
+	return false;
+}
+#endif
 
 //	--------------------------------------------------------------------------------
 /// What Resource does this City want so that it goes into WLTKD?
@@ -6279,11 +6413,14 @@ int CvCity::getGeneralProductionModifiers(CvString* toolTipSink) const
 			//If any city has an industrial route to capital, the capital should also get that bonus.
 			if(pLoopCity->IsIndustrialRouteToCapital())
 			{
-				const int iTempMod = GC.getINDUSTRIAL_ROUTE_PRODUCTION_MOD();
-				iMultiplier += iTempMod;
-				if(toolTipSink && iTempMod)
+				if(GET_PLAYER(getOwner()).GetCurrentEra() >= GC.getInfoTypeForString("ERA_INDUSTRIAL", true /*bHideAssert*/))
 				{
-					GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_RAILROAD_CONNECTION", iTempMod);
+					const int iTempMod = GC.getINDUSTRIAL_ROUTE_PRODUCTION_MOD();
+					iMultiplier += iTempMod;
+					if(toolTipSink && iTempMod)
+					{
+						GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_RAILROAD_CONNECTION", iTempMod);
+					}
 				}
 				break;
 			}
@@ -8138,9 +8275,17 @@ void CvCity::processSpecialist(SpecialistTypes eSpecialist, int iChange)
 
 //	--------------------------------------------------------------------------------
 /// Process the majority religion changing for a city
+#if defined(MOD_BALANCE_CORE)
+void CvCity::UpdateReligion(ReligionTypes eNewMajority, bool bRecalcPlotYields)
+{
+	//avoid this expensive call if only a specialist was added/removed
+	if (bRecalcPlotYields)
+		updateYield();
+#else
 void CvCity::UpdateReligion(ReligionTypes eNewMajority)
 {
 	updateYield();
+#endif
 
 	// Reset city level yields
 #if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
@@ -8660,6 +8805,28 @@ int CvCity::foodDifferenceTimes100(bool bBottom, CvString* toolTipSink) const
 				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_RELIGION", iReligionGrowthMod);
 			}
 		}
+
+#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+		if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+		{
+			int iTempMod = 0;
+			// Do we get increased yields from a resource monopoly?
+			for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+			{
+				ResourceTypes eResourceLoop = (ResourceTypes) iResourceLoop;
+				CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
+				if (pInfo && pInfo->isMonopoly())
+				{
+					if(GET_PLAYER(getOwner()).HasMonopoly(eResourceLoop) && pInfo->getCityYieldModFromMonopoly(YIELD_FOOD) > 0)
+					{
+						iTempMod = pInfo->getCityYieldModFromMonopoly(YIELD_FOOD);
+						iTotalMod += iTempMod;
+						GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_MONOPOLY_RESOURCE", iTempMod);
+					}
+				}
+			}
+		}
+#endif
 
 		// Cities stop growing when empire is very unhappy
 		if(GET_PLAYER(getOwner()).IsEmpireVeryUnhappy())
@@ -11917,7 +12084,7 @@ int CvCity::getUnhappinessFromDefenseNeeded() const
 	//Buildings decrease this by a flat integer.
 	if(GetDefenseUnhappiness() != 0)
 	{
-		iThreshold += GetDefenseUnhappiness() * (getPopulation() * -1);
+		iThreshold += (GetDefenseUnhappiness() * (getPopulation() * -1));
 	}
 	int iLoop = 0;
 	for(const CvCity* pLoopCity = GET_PLAYER(getOwner()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iLoop))
@@ -11927,7 +12094,7 @@ int CvCity::getUnhappinessFromDefenseNeeded() const
 			//Mod from global unhappiness building modifier.
 			if(pLoopCity->GetDefenseUnhappinessGlobal() != 0)
 			{
-				iThreshold += pLoopCity->GetDefenseUnhappinessGlobal() * (pLoopCity->getPopulation() * -1);
+				iThreshold += (pLoopCity->GetDefenseUnhappinessGlobal() * (pLoopCity->getPopulation() * -1));
 			}
 		}		
 	}
@@ -12039,7 +12206,7 @@ int CvCity::getUnhappinessFromGoldNeeded() const
 	//Buildings decrease this by a flat integer.
 	if(GetPovertyUnhappiness() != 0)
 	{
-		iThreshold += GetPovertyUnhappiness() * (getPopulation() * -1);
+		iThreshold += (GetPovertyUnhappiness() * (getPopulation() * -1));
 	}
 	int iLoop = 0;
 	for(const CvCity* pLoopCity = GET_PLAYER(getOwner()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iLoop))
@@ -12049,7 +12216,7 @@ int CvCity::getUnhappinessFromGoldNeeded() const
 			//Mod from global unhappiness building modifier.
 			if(pLoopCity->GetPovertyUnhappinessGlobal() != 0)
 			{
-				iThreshold += pLoopCity->GetPovertyUnhappinessGlobal() * (pLoopCity->getPopulation() * -1);
+				iThreshold += (pLoopCity->GetPovertyUnhappinessGlobal() * (pLoopCity->getPopulation() * -1));
 			}
 		}		
 	}
@@ -13084,7 +13251,29 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_YIELD_HANSE", iTempMod);
 		}
 	}
-
+#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+	if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES && (eIndex != YIELD_FOOD))
+	{
+		// Do we get increased yields from a resource monopoly?
+		for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+		{
+			ResourceTypes eResourceLoop = (ResourceTypes) iResourceLoop;
+			CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
+			if (pInfo && pInfo->isMonopoly())
+			{
+				if(GET_PLAYER(getOwner()).HasMonopoly(eResourceLoop) && pInfo->getCityYieldModFromMonopoly(eIndex) > 0)
+				{
+					iTempMod = pInfo->getCityYieldModFromMonopoly(eIndex);
+					iModifier += iTempMod;
+					if(toolTipSink)
+					{
+						GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_YIELD_MONOPOLY_RESOURCE", iTempMod);
+					}
+				}
+			}
+		}
+	}
+#endif
 #if defined(MOD_BALANCE_CORE_BELIEFS)
 	ReligionTypes eReligionFounded = GET_PLAYER(getOwner()).GetReligions()->GetReligionCreatedByPlayer();
 	if(MOD_BALANCE_CORE_BELIEFS && eReligionFounded > RELIGION_PANTHEON)
@@ -17451,7 +17640,44 @@ bool CvCity::IsCanPurchase(bool bTestPurchaseCost, bool bTestTrainable, UnitType
 #if !defined(MOD_BUGFIX_MINOR)
 			}
 #endif
+#if defined(MOD_BALANCE_CORE)
+			// Does this city have prereq buildings?
+			if(MOD_BALANCE_CORE)
+			{
+				int iNumBuildings = 0;
+				for(int iI = 0; iI < iNumBuildingClassInfos; iI++)
+				{
+					CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo((BuildingClassTypes)iI);
+					if(!pkBuildingClassInfo)
+					{
+						continue;
+					}
 
+					if(pkBuildingInfo->IsBuildingClassNeededAnywhere(iI))
+					{
+						CvCivilizationInfo& thisCivInfo = getCivilizationInfo();
+						ePrereqBuilding = ((BuildingTypes)(thisCivInfo.getCivilizationBuildings(iI)));
+
+						if(ePrereqBuilding != NO_BUILDING)
+						{
+							CvCity* pLoopCity;
+							int iLoop;
+							for(pLoopCity = GET_PLAYER(getOwner()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iLoop))
+							{
+								if(m_pCityBuildings->GetNumBuilding(ePrereqBuilding) > 0)
+								{
+									iNumBuildings++;
+								}
+							}
+							if(iNumBuildings == 0)
+							{
+								return false;
+							}
+						}
+					}
+				}
+			}
+#endif
 			iFaithCost = GetFaithPurchaseCost(eBuildingType);
 			if(iFaithCost < 1) return false;
 #if defined(MOD_BALANCE_CORE_PUPPET_PURCHASE)
@@ -20869,11 +21095,49 @@ bool CvCity::CommitToBuildingUnitForOperation()
 
 				if(eBestUnit != NO_UNIT)
 				{
+#if defined(MOD_BALANCE_CORE_MILITARY)
+					if(IsCanPurchase(/*bTestPurchaseCost*/ true, /*bTestTrainable*/ true, eBestUnit, NO_BUILDING, NO_PROJECT, YIELD_GOLD))
+					{
+						CvUnitEntry* pkUnitEntry = GC.getUnitInfo(eBestUnit);
+						int iGoldCost = GetPurchaseCost(eBestUnit);
+						if(pkUnitEntry && kPlayer.GetEconomicAI()->CanWithdrawMoneyForPurchase(PURCHASE_TYPE_UNIT, iGoldCost))
+						{	
+							//Log it
+							CvString strLogString;
+							strLogString.Format("MOD - Buying specific unit for active operation: %s in %s. Cost: %d, Balance (before buy): %d",
+								pkUnitEntry->GetDescription(), getName().c_str(), iGoldCost, GET_PLAYER(getOwner()).GetTreasury()->GetGold());
+							kPlayer.GetHomelandAI()->LogHomelandMessage(strLogString);
+
+							//take the money...
+							kPlayer.GetTreasury()->ChangeGold(-iGoldCost);
+
+							//and train it!
+							UnitAITypes eUnitAI = (UnitAITypes) pkUnitEntry->GetDefaultUnitAIType();
+							int iResult = CreateUnit(eBestUnit, eUnitAI, false);
+							CvAssertMsg(iResult != FFreeList::INVALID_INDEX, "Unable to create unit");
+							if (iResult != FFreeList::INVALID_INDEX)
+							{
+								CvUnit* pUnit = GET_PLAYER(getOwner()).getUnit(iResult);
+								if (!pUnit->getUnitInfo().CanMoveAfterPurchase())
+								{
+									pUnit->setMoves(0);
+								}
+								CleanUpQueue();
+								kPlayer.CityFinishedBuildingUnitForOperationSlot(thisOperationSlot, pUnit);
+							}
+						}
+					}
+					else
+					{
+#endif
 					// Always try to rush units for operational AI if possible
 					pushOrder(ORDER_TRAIN, eBestUnit, eUnitAI, false, false, false, true /*bRush*/);
 					OperationSlot thisOperationSlot2 = kPlayer.CityCommitToBuildUnitForOperationSlot(getArea(), getProductionTurnsLeft(), this);
 					m_unitBeingBuiltForOperation = thisOperationSlot2;
 					return true;
+#if defined(MOD_BALANCE_CORE_MILITARY)
+					}
+#endif
 				}
 			}
 		}

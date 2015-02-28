@@ -2280,6 +2280,10 @@ local function getCultureTooltip( city )
 		-- Golden Age MOD
 		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_CULTURE_GOLDEN_AGE", city:GetModFromGoldenAge(YieldTypes.YIELD_CULTURE))
 -- END
+
+-- CBP -- Resource Monopoly
+		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_CULTURE_FROM_RESOURCE_MONOPOLY", city:GetCityYieldModFromMonopoly(YieldTypes.YIELD_CULTURE))
+-- END
 	end
 
 	-- Puppet modifier
@@ -2361,6 +2365,9 @@ local function getFaithTooltip( city )
 				
 		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_FAITH_FROM_GOLDEN_AGE", city:GetModFromGoldenAge(YieldTypes.YIELD_FAITH))
 -- END CBP
+-- CBP -- Resource Monopoly
+		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_FAITH_FROM_RESOURCE_MONOPOLY", city:GetCityYieldModFromMonopoly(YieldTypes.YIELD_FAITH))
+-- END
 		-- Puppet modifier
 		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_PRODMOD_PUPPET", city:IsPuppet() and GameDefines.PUPPET_FAITH_MODIFIER or 0 )
 

@@ -941,13 +941,11 @@ Controls.ProposeButton:RegisterCallback( Mouse.eLClick, OnPropose );
 function OnEqualizeDeal()
 	
 	UI.DoEqualizeDealWithHuman();
-    
+
     -- Don't assume we have a message from the AI leader any more
     g_bMessageFromDiploAI = false;
 	
 end
-
-
 ----------------------------------------------------------------
 ----------------------------------------------------------------
 function OnWhatDoesAIWant()
@@ -959,7 +957,6 @@ function OnWhatDoesAIWant()
 	
 end
 
-
 ----------------------------------------------------------------
 ----------------------------------------------------------------
 function OnWhatWillAIGive()
@@ -970,7 +967,6 @@ function OnWhatWillAIGive()
     g_bMessageFromDiploAI = false;
 	
 end
-
 
 ----------------------------------------------------------------        
 ----------------------------------------------------------------        

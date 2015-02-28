@@ -319,6 +319,11 @@ void CvCityStrategyAI::Reset()
 	m_pUnitProductionAI->Reset();
 	m_pProjectProductionAI->Reset();
 	m_pProcessProductionAI->Reset();
+
+#if defined(MOD_BALANCE_CORE)
+	for(iI = 0; iI < NUM_YIELD_TYPES; iI++)
+		m_adYieldAvg[iI] = 0;
+#endif
 }
 
 /// Serialization read
@@ -664,6 +669,51 @@ YieldTypes CvCityStrategyAI::GetDeficientYield(void)
 	return NO_YIELD;
 }
 
+#if defined(MOD_BALANCE_CORE)
+/// Get the average value of the yield for this city
+void CvCityStrategyAI::PrecalcYieldAverages()
+{
+	CvPlayer* pPlayer = &GET_PLAYER(m_pCity->getOwner());
+	CvPlotsVector& aiPlots = pPlayer->GetPlots();
+
+	for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+	{
+		YieldTypes eYield = (YieldTypes) iI;
+
+		int iTilesWorked = 0;
+		int iYieldAmount = 0;
+		for(uint ui = 0; ui < aiPlots.size(); ui++)
+		{
+			// at the end of the plot list
+			if(aiPlots[ui] == -1)
+			{
+				break;
+			}
+
+			CvPlot* pPlot = GC.getMap().plotByIndex(aiPlots[ui]);
+			if(!m_pCity->GetCityCitizens()->IsWorkingPlot(pPlot))
+			{
+				continue;
+			}
+
+			iTilesWorked++;
+			iYieldAmount += pPlot->calculateYield(eYield);
+		}
+
+		if(iTilesWorked > 0)
+			m_adYieldAvg[iI] = iYieldAmount / (double)iTilesWorked;
+		else
+			m_adYieldAvg[iI] = 0;
+	}
+}
+
+double CvCityStrategyAI::GetYieldAverage(YieldTypes eYieldType)
+{
+	return m_adYieldAvg[eYieldType];
+}
+
+#else
+
 /// Get the average value of the yield for this city
 double CvCityStrategyAI::GetYieldAverage(YieldTypes eYieldType)
 {
@@ -698,6 +748,8 @@ double CvCityStrategyAI::GetYieldAverage(YieldTypes eYieldType)
 
 	return fRatio;
 }
+#endif
+
 
 /// Get the deficient value of the yield for this city
 double CvCityStrategyAI::GetDeficientYieldValue(YieldTypes eYieldType)
@@ -1348,12 +1400,19 @@ void CvCityStrategyAI::DoTurn()
 
 	int iCityStrategiesLoop = 0;
 
+#if defined(MOD_BALANCE_CORE)
+	PrecalcYieldAverages();
+#endif
+
 	// Loop through all CityStrategies
 	for(iCityStrategiesLoop = 0; iCityStrategiesLoop < GetAICityStrategies()->GetNumAICityStrategies(); iCityStrategiesLoop++)
 	{
 		AICityStrategyTypes eCityStrategy = (AICityStrategyTypes) iCityStrategiesLoop;
 		CvAICityStrategyEntry* pCityStrategy = GetAICityStrategies()->GetEntry(iCityStrategiesLoop);
-
+#if defined(MOD_BALANCE_CORE)
+		if(pCityStrategy == NULL)	// Can have holes in the list
+			continue;
+#endif
 		// Minor Civs can't run some Strategies
 		if(GET_PLAYER(GetCity()->getOwner()).isMinorCiv() && pCityStrategy->IsNoMinorCivs())
 		{
@@ -1502,10 +1561,12 @@ void CvCityStrategyAI::DoTurn()
 				else if(strStrategyName == "AICITYSTRATEGY_NEED_INTERNATIONAL_LAND_TRADE_ROUTE")
 					bStrategyShouldBeActive = CityStrategyAIHelpers::IsTestCityStrategy_NeedInternationalTradeRoute(GetCity(), DOMAIN_LAND);
 				else if(strStrategyName == "AICITYSTRATEGY_NO_NEED_INTERNATIONAL_LAND_TRADE_ROUTE")
+					//duplication of pathfinding going on here, should not run the same check twice ... best fix in xml
 					bStrategyShouldBeActive = CityStrategyAIHelpers::IsTestCityStrategy_NoNeedInternationalTradeRoute(GetCity(), DOMAIN_LAND);
 				else if(strStrategyName == "AICITYSTRATEGY_NEED_INTERNATIONAL_SEA_TRADE_ROUTE")
 					bStrategyShouldBeActive = CityStrategyAIHelpers::IsTestCityStrategy_NeedInternationalTradeRoute(GetCity(), DOMAIN_SEA);
 				else if(strStrategyName == "AICITYSTRATEGY_NO_NEED_INTERNATIONAL_SEA_TRADE_ROUTE")
+					//duplication of pathfinding going on here, should not run the same check twice ... best fix in xml
 					bStrategyShouldBeActive = CityStrategyAIHelpers::IsTestCityStrategy_NoNeedInternationalTradeRoute(GetCity(), DOMAIN_SEA);
 				else if(strStrategyName == "AICITYSTRATEGY_INTERNATIONAL_TRADE_DESTINATION")
 					bStrategyShouldBeActive = CityStrategyAIHelpers::IsTestCityStrategy_IsInternationalTradeDestination(GetCity());

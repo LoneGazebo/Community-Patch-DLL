@@ -743,6 +743,17 @@ function GetCultureTooltip(pCity)
 			end
 		end
 
+		-- CBP -- Resource Monopoly
+		if (pCity:GetCityYieldModFromMonopoly(YieldTypes.YIELD_CULTURE) > 0) then
+			iAmount = Players[pCity:GetOwner()]:GetCityYieldModFromMonopoly(YieldTypes.YIELD_CULTURE);
+			
+			if (iAmount ~= 0) then
+				strCultureToolTip = strCultureToolTip .. "[NEWLINE][NEWLINE]";
+				strCultureToolTip = strCultureToolTip .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_CULTURE_FROM_RESOURCE_MONOPOLY", iAmount);
+			end
+		end
+		-- END
+
 		-- CBP
 		local iAmount = pCity:GetModFromWLTKD(YieldTypes.YIELD_CULTURE);
 		if (iAmount ~= 0) then
@@ -870,6 +881,16 @@ function GetFaithTooltip(pCity)
 		local iFaithGoldenAgeMod = pCity:GetModFromGoldenAge(YieldTypes.YIELD_FAITH);
 		if (iFaithGoldenAgeMod ~= 0) then
 			table.insert(faithTips, "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_FAITH_FROM_GOLDEN_AGE", iFaithGoldenAgeMod));
+		end
+		-- END
+
+		-- CBP -- Resource Monopoly
+		if (pCity:GetCityYieldModFromMonopoly(YieldTypes.YIELD_FAITH) > 0) then
+			iAmount = Players[pCity:GetOwner()]:GetCityYieldModFromMonopoly(YieldTypes.YIELD_FAITH);
+			
+			if (iAmount ~= 0) then
+				table.insert(faithTips, "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_FAITH_FROM_RESOURCE_MONOPOLY", iAmount));
+			end
 		end
 		-- END
 		

@@ -1581,7 +1581,11 @@ void CvHomelandAI::PlotWorkerSeaMoves()
 				continue;
 			}
 
+#ifdef AUI_ASTAR_TURN_LIMITER
+			int iMoves = TurnsToReachTarget(pUnit.pointer(), pTarget, iTargetMoves);
+#else
 			int iMoves = TurnsToReachTarget(pUnit.pointer(), pTarget);
+#endif // AUI_ASTAR_TURN_LIMITER
 			if (iMoves < iTargetMoves)
 			{
 				iTargetMoves = iMoves;
@@ -2829,24 +2833,6 @@ void CvHomelandAI::ReviewUnassignedUnits()
 							LogHomelandMessage(strLogString);
 						}
 					}
-				}
-			}
-			else if(pUnit->IsCivilianUnit())
-			{
-				if(pUnit->isFound())
-				{
-					pUnit->setArmyID(FFreeList::INVALID_INDEX);
-				}
-				pUnit->PushMission(CvTypes::getMISSION_SKIP());
-				pUnit->SetTurnProcessed(true);
-				CvString strTemp;
-				CvUnitEntry* pkUnitInfo = GC.getUnitInfo(pUnit->getUnitType());
-				if(pkUnitInfo)
-				{
-					strTemp = pkUnitInfo->GetDescription();
-					CvString strLogString;
-					strLogString.Format("Unassigned CIVILIAN %s inactive, Army value reset to -1, at X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY());
-					LogHomelandMessage(strLogString);
 				}
 			}
 #else
@@ -6388,9 +6374,9 @@ bool CvHomelandAI::MoveCivilianToSafety(CvUnit* pUnit, bool bIgnoreUnits, bool b
 bool CvHomelandAI::MoveCivilianToSafety(CvUnit* pUnit, bool bIgnoreUnits)
 #endif
 {
-#if defined(MOD_BALANCE_CORE)
-	//Higher search range to keep them far away from danger.
-	int iSearchRange = pUnit->SearchRange(2);
+#if defined(AUI_ASTAR_ROAD_RANGE)
+	//we want to be able to go there in one turn ...
+	int iSearchRange = GetIncreasedMoveRangeForRoads(pUnit,pUnit->baseMoves());
 #else
 	int iSearchRange = pUnit->SearchRange(1);
 #endif
@@ -7178,7 +7164,13 @@ bool CvHomelandAI::GetClosestUnitByTurnsToTarget(CvHomelandAI::MoveUnitsArray &k
 			int iDistance = it->GetMovesToTarget();	// Raw distance
 			if (iDistance == MAX_INT)
 				continue;
+
+#ifdef AUI_ASTAR_TURN_LIMITER
+			int iMoves = TurnsToReachTarget(pLoopUnit.pointer(), pTarget, iMinTurns);
+#else
 			int iMoves = TurnsToReachTarget(pLoopUnit.pointer(), pTarget);
+#endif // AUI_ASTAR_TURN_LIMITER
+
 			it->SetMovesToTarget(iMoves);
 			// Did we make it at all?
 			if (iMoves != MAX_INT)
@@ -7372,7 +7364,11 @@ CvPlot* CvHomelandAI::FindArchaeologistTarget(CvUnit *pUnit)
 		CvPlot* pTarget = GC.getMap().plot(it->GetTargetX(), it->GetTargetY());
 		if (m_pPlayer->GetPlotDanger(*pTarget) == 0)
 		{
+#ifdef AUI_ASTAR_TURN_LIMITER
+			int iTurns = TurnsToReachTarget(pUnit, pTarget, iBestTurns);
+#else
 			int iTurns = TurnsToReachTarget(pUnit, pTarget);
+#endif // AUI_ASTAR_TURN_LIMITER
 
 			if (iTurns < iBestTurns)
 			{

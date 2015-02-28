@@ -2137,12 +2137,11 @@ bool CvMinorCivQuest::DoFinishQuest()
 		}
 
 		//Update Military AI
-		int iOperationID = AI_OPERATION_ALLY_DEFENSE;
-			CvAIOperation* pThisOperation = GET_PLAYER(m_eAssignedPlayer).getAIOperation(iOperationID);
-			if(pThisOperation)
-			{
-				GET_PLAYER(m_eAssignedPlayer).getAIOperation(iOperationID)->Kill(AI_ABORT_WAR_STATE_CHANGE);
-			}
+		int iOperationID;
+		if(GET_PLAYER(m_eAssignedPlayer).haveAIOperationOfType(AI_OPERATION_ALLY_DEFENSE, &iOperationID))
+		{
+			GET_PLAYER(m_eAssignedPlayer).getAIOperation(iOperationID)->Kill(AI_ABORT_NO_TARGET);
+		}
 	}
 	// Rebellion
 	else if(m_eType == MINOR_CIV_QUEST_REBELLION)
@@ -2158,11 +2157,10 @@ bool CvMinorCivQuest::DoFinishQuest()
 		}
 	
 		//Update Military AI
-		int iOperationID = AI_OPERATION_ALLY_DEFENSE;
-		CvAIOperation* pThisOperation = GET_PLAYER(m_eAssignedPlayer).getAIOperation(iOperationID);
-		if(pThisOperation)
+		int iOperationID;
+		if(GET_PLAYER(m_eAssignedPlayer).haveAIOperationOfType(AI_OPERATION_ALLY_DEFENSE, &iOperationID))
 		{
-			GET_PLAYER(m_eAssignedPlayer).getAIOperation(iOperationID)->Kill(AI_ABORT_WAR_STATE_CHANGE);
+			GET_PLAYER(m_eAssignedPlayer).getAIOperation(iOperationID)->Kill(AI_ABORT_NO_TARGET);
 		}
 	}
 #endif
@@ -2317,11 +2315,10 @@ bool CvMinorCivQuest::DoCancelQuest()
 			}
 
 			//Update Military AI
-			int iOperationID = AI_OPERATION_ALLY_DEFENSE;
-			CvAIOperation* pThisOperation = GET_PLAYER(m_eAssignedPlayer).getAIOperation(iOperationID);
-			if(pThisOperation)
+			int iOperationID;
+			if(GET_PLAYER(m_eAssignedPlayer).haveAIOperationOfType(AI_OPERATION_ALLY_DEFENSE, &iOperationID))
 			{
-				GET_PLAYER(m_eAssignedPlayer).getAIOperation(iOperationID)->Kill(AI_ABORT_WAR_STATE_CHANGE);
+				GET_PLAYER(m_eAssignedPlayer).getAIOperation(iOperationID)->Kill(AI_ABORT_NO_TARGET);
 			}
 		}
 
@@ -2352,11 +2349,10 @@ bool CvMinorCivQuest::DoCancelQuest()
 				pMinor->GetMinorCivAI()->SetCooldownSpawn(50);
 			}
 			//Update Military AI
-			int iOperationID = AI_OPERATION_ALLY_DEFENSE;
-			CvAIOperation* pThisOperation = GET_PLAYER(m_eAssignedPlayer).getAIOperation(iOperationID);
-			if(pThisOperation)
+			int iOperationID;
+			if(GET_PLAYER(m_eAssignedPlayer).haveAIOperationOfType(AI_OPERATION_ALLY_DEFENSE, &iOperationID))
 			{
-				GET_PLAYER(m_eAssignedPlayer).getAIOperation(iOperationID)->Kill(AI_ABORT_WAR_STATE_CHANGE);
+				GET_PLAYER(m_eAssignedPlayer).getAIOperation(iOperationID)->Kill(AI_ABORT_NO_TARGET);
 			}
 		}
 #endif
@@ -7988,68 +7984,7 @@ int CvMinorCivAI::GetFriendshipChangePerTurnTimes100(PlayerTypes ePlayer)
 		}
 		if(CanMajorBullyUnit(ePlayer))
 		{
-#if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
-			if(MOD_BALANCE_CORE_AFRAID_ANNEX)
-			{
-				if(kPlayer.GetPlayerTraits()->IsBullyAnnex())
-				{
-					PlayerTypes ePlayer;
-					const char* strMinorsNameKey = GetPlayer()->getNameKey();
-					const char* strBullyName;
-					Localization::String strMessageOthers;
-					Localization::String strSummaryOthers;
-					for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-					{
-						ePlayer = (PlayerTypes) iPlayerLoop;
-						if(GET_PLAYER(ePlayer).GetID() == kPlayer.GetID())
-						{
-							// Notify player has met the bully
-							strMessageOthers = Localization::Lookup("TXT_KEY_BALANCE_ANNEXED_CS");
-							strMessageOthers << strMinorsNameKey;
-							strSummaryOthers = Localization::Lookup("TXT_KEY_BALANCE_ANNEXED_CS_SUMMARY");
-							strSummaryOthers << strMinorsNameKey;
-							AddNotification(strMessageOthers.toUTF8(), strSummaryOthers.toUTF8(), ePlayer);
-						}
-						else if(GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isHasMet(GetPlayer()->getTeam()))
-						{
-							if(GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isHasMet(kPlayer.getTeam()))
-							{							
-								// Notify player has met the bully
-								strBullyName = kPlayer.getCivilizationShortDescriptionKey();
-								strMessageOthers = Localization::Lookup("TXT_KEY_BALANCE_KNOWN_CS_BULLY_ANNEXED_KNOWN");
-								strMessageOthers << strBullyName << strMinorsNameKey;
-								strSummaryOthers = Localization::Lookup("TXT_KEY_BALANCE_KNOWN_CS_BULLY_ANNEXED_KNOWN_SUMMARY");
-								strSummaryOthers << strMinorsNameKey;
-								AddNotification(strMessageOthers.toUTF8(), strSummaryOthers.toUTF8(), ePlayer);
-							}
-							else
-							{
-								// Notify player has not met the bully
-								strMessageOthers = Localization::Lookup("TXT_KEY_BALANCE_KNOWN_CS_BULLY_ANNEXED_UNKNOWN");
-								strMessageOthers << strMinorsNameKey;
-								strSummaryOthers = Localization::Lookup("TXT_KEY_BALANCE_KNOWN_CS_BULLY_ANNEXED_UNKNOWN_SUMMARY");
-								strSummaryOthers << strMinorsNameKey;
-								AddNotification(strMessageOthers.toUTF8(), strSummaryOthers.toUTF8(), ePlayer);
-							}
-						}
-						else if(GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isHasMet(kPlayer.getTeam()))
-						{
-							// Notify player has met the bully
-							strMessageOthers = Localization::Lookup("TXT_KEY_BALANCE_UNKNOWN_CS_BULLY_ANNEXED_KNOWN");
-							strMessageOthers << strMinorsNameKey;
-							strSummaryOthers = Localization::Lookup("TXT_KEY_BALANCE_UNKNOWN_CS_BULLY_ANNEXED_KNOWN_SUMMARY");
-							strSummaryOthers << strMinorsNameKey;
-							AddNotification(strMessageOthers.toUTF8(), strSummaryOthers.toUTF8(), ePlayer);
-						}
-					}
-					if(GetPlayer()->getCapitalCity() != NULL)
-					{
-						kPlayer.acquireCity(GetPlayer()->getCapitalCity(), true, false, false);
-					}
-				}
-			}
 		}
-#endif
 		
 		if (iShift != 0)
 		{
@@ -10986,7 +10921,11 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 		if(veMilitaryRankings.GetElement(iRanking) == eBullyPlayer)
 		{
 			float fRankRatio = (float)(veMilitaryRankings.size() - iRanking) / (float)(veMilitaryRankings.size());
+#if defined(MOD_BALANCE_CORE_MINORS)
+			iGlobalMilitaryScore = (int)(fRankRatio * 125); // A score between 125*(1 / num majors alive) and 125, with the highest rank major getting 125
+#else
 			iGlobalMilitaryScore = (int)(fRankRatio * 75); // A score between 75*(1 / num majors alive) and 75, with the highest rank major getting 75
+#endif
 			iScore += iGlobalMilitaryScore;
 			break;
 		}
@@ -11064,7 +11003,7 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 	if(fLocalPowerRatio >= 3.0)
 	{
 #if defined(MOD_BALANCE_CORE_MINORS)
-		iLocalPowerScore += 150;
+		iLocalPowerScore += 70;
 #else
 		iLocalPowerScore += 125;
 #endif
@@ -11072,7 +11011,7 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 	else if(fLocalPowerRatio >= 2.0)
 	{
 #if defined(MOD_BALANCE_CORE_MINORS)
-		iLocalPowerScore += 120;
+		iLocalPowerScore += 60;
 #else
 		iLocalPowerScore += 100;
 #endif
@@ -11080,7 +11019,7 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 	else if(fLocalPowerRatio >= 1.5)
 	{
 #if defined(MOD_BALANCE_CORE_MINORS)
-		iLocalPowerScore += 90;
+		iLocalPowerScore += 50;
 #else
 		iLocalPowerScore += 75;
 #endif
@@ -11088,7 +11027,7 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 	else if(fLocalPowerRatio >= 1.0)
 	{
 #if defined(MOD_BALANCE_CORE_MINORS)
-		iLocalPowerScore += 60;
+		iLocalPowerScore += 40;
 #else
 		iLocalPowerScore += 50;
 #endif
@@ -11096,13 +11035,13 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 	else if(fLocalPowerRatio >= 0.5)
 	{
 #if defined(MOD_BALANCE_CORE_MINORS)
-		iLocalPowerScore += 40;
+		iLocalPowerScore += 30;
 #else
 		iLocalPowerScore += 25;
 #endif
 	}
 	iScore += iLocalPowerScore;
-	
+
 	if (sTooltipSink)
 	{
 		Localization::String strPositiveFactor = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_FACTOR_POSITIVE");
@@ -11141,7 +11080,7 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 	// -110
 	// **************************
 #if defined(MOD_BALANCE_CORE_MINORS)
-	const int iBaseReluctanceScore = -125;
+	int iBaseReluctanceScore = -110;
 #else
 	const int iBaseReluctanceScore = -110;
 #endif
@@ -11161,7 +11100,11 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 	//
 	// -999 ~ -0
 	// **************************
+#if defined(MOD_BALANCE_CORE_MINORS)
+	if(GetEffectiveFriendshipWithMajor(eBullyPlayer) >= GC.getFRIENDSHIP_THRESHOLD_CAN_BULLY())
+#else
 	if(GetEffectiveFriendshipWithMajor(eBullyPlayer) < GC.getFRIENDSHIP_THRESHOLD_CAN_BULLY())
+#endif
 	{
 		int iInfluenceScore = iFailScore;
 		iScore += iInfluenceScore;
@@ -11216,7 +11159,7 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 	if (bForUnit)
 	{
 #if defined(MOD_BALANCE_CORE_MINORS)
-		int iUnitScore = -40;
+		int iUnitScore = -30;
 #else
 		int iUnitScore = -30;
 #endif
@@ -11259,7 +11202,7 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 	if(GetAlly() != NO_PLAYER && GetAlly() != eBullyPlayer)
 	{
 #if defined(MOD_BALANCE_CORE_MINORS)
-		int iAllyScore = -25;
+		int iAllyScore = -30;
 #else
 		int iAllyScore = -10;
 #endif
@@ -11285,7 +11228,7 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 		if(eMajorLoop != eBullyPlayer && IsProtectedByMajor(eMajorLoop))
 		{
 #if defined(MOD_BALANCE_CORE_MINORS)
-			iProtectionScore += -25;
+			iProtectionScore += -30;
 #else
 			iProtectionScore += -20;
 #endif
@@ -11308,11 +11251,7 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 	// **************************
 	if(GetPersonality() == MINOR_CIV_PERSONALITY_HOSTILE)
 	{
-#if defined(MOD_BALANCE_CORE_MINORS)
-		int iHostileScore = -15;
-#else
 		int iHostileScore = -10;
-#endif
 		iScore += iHostileScore;
 		if (sTooltipSink)
 		{
@@ -11324,11 +11263,7 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 	}
 	if(GetTrait() == MINOR_CIV_TRAIT_MILITARISTIC)
 	{
-#if defined(MOD_BALANCE_CORE_MINORS)
-		int iMilitaristicScore = -15;
-#else
 		int iMilitaristicScore = -10;
-#endif
 		iScore += iMilitaristicScore;
 		if (sTooltipSink)
 		{
@@ -11451,8 +11386,16 @@ CvString CvMinorCivAI::GetMajorBullyUnitDetails(PlayerTypes ePlayer)
 		sFear = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_RESILIENT");
 	}
 	sFear << iScore;
-
 	Localization::String sResult = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_UNIT_TT");
+#if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
+	if(MOD_BALANCE_CORE_AFRAID_ANNEX)
+	{
+		if(GET_PLAYER(ePlayer).GetPlayerTraits()->IsBullyAnnex())
+		{
+			sResult = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_UNIT_TT_ANNEX");
+		}
+	}
+#endif
 	sResult << sFear.toUTF8() << sFactors << pUnitInfo->GetDescriptionKey();
 
 	return sResult.toUTF8();
@@ -11467,7 +11410,17 @@ void CvMinorCivAI::DoMajorBullyGold(PlayerTypes eBully, int iGold)
 	int iBullyMetric = CalculateBullyMetric(eBully, /*bForUnit*/false);
 	bool bSuccess = CanMajorBullyGold(eBully, iBullyMetric);
 	int iOldFriendshipTimes100 = GetEffectiveFriendshipWithMajorTimes100(eBully);
-
+#if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
+	//Do we get a bonus from unit bullying? Do that instead.
+	if(MOD_BALANCE_CORE_AFRAID_ANNEX)
+	{
+		if(GetPlayer()->GetPlayerTraits()->IsBullyAnnex())
+		{
+			DoMajorBullyUnit(eBully, NO_UNIT);
+			return;
+		}
+	}
+#endif
 	if(bSuccess)
 	{
 		CvAssertMsg(iGold >= 0, "iGold is expected to be non-negative. Please send Anton your save file and version.");
@@ -11504,6 +11457,83 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 
 	if(bSuccess)
 	{
+#if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
+		if(MOD_BALANCE_CORE_AFRAID_ANNEX)
+		{
+			if(GET_PLAYER(eBully).GetPlayerTraits()->IsBullyAnnex())
+			{
+				if(GetPlayer()->getCapitalCity() != NULL)
+				{
+					PlayerTypes ePlayer;
+					const char* strMinorsNameKey = GetPlayer()->getNameKey();
+					const char* strBullyName;
+					Localization::String strMessageOthers;
+					Localization::String strSummaryOthers;
+					for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+					{
+						ePlayer = (PlayerTypes) iPlayerLoop;
+						if(GET_PLAYER(ePlayer).GetID() == eBully)
+						{
+							// Notify player has met the bully
+							strMessageOthers = Localization::Lookup("TXT_KEY_BALANCE_ANNEXED_CS");
+							strMessageOthers << strMinorsNameKey;
+							strSummaryOthers = Localization::Lookup("TXT_KEY_BALANCE_ANNEXED_CS_SUMMARY");
+							strSummaryOthers << strMinorsNameKey;
+							AddNotification(strMessageOthers.toUTF8(), strSummaryOthers.toUTF8(), ePlayer);
+						}
+						else if(GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isHasMet(GetPlayer()->getTeam()))
+						{
+							if(GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isHasMet(GET_PLAYER(eBully).getTeam()))
+							{							
+								// Notify player has met the bully
+								strBullyName = GET_PLAYER(eBully).getCivilizationShortDescriptionKey();
+								strMessageOthers = Localization::Lookup("TXT_KEY_BALANCE_KNOWN_CS_BULLY_ANNEXED_KNOWN");
+								strMessageOthers << strBullyName << strMinorsNameKey;
+								strSummaryOthers = Localization::Lookup("TXT_KEY_BALANCE_KNOWN_CS_BULLY_ANNEXED_KNOWN_SUMMARY");
+								strSummaryOthers << strMinorsNameKey;
+								AddNotification(strMessageOthers.toUTF8(), strSummaryOthers.toUTF8(), ePlayer);
+							}
+							else
+							{
+								// Notify player has not met the bully
+								strMessageOthers = Localization::Lookup("TXT_KEY_BALANCE_KNOWN_CS_BULLY_ANNEXED_UNKNOWN");
+								strMessageOthers << strMinorsNameKey;
+								strSummaryOthers = Localization::Lookup("TXT_KEY_BALANCE_KNOWN_CS_BULLY_ANNEXED_UNKNOWN_SUMMARY");
+								strSummaryOthers << strMinorsNameKey;
+								AddNotification(strMessageOthers.toUTF8(), strSummaryOthers.toUTF8(), ePlayer);
+							}
+						}
+						else if(GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isHasMet(GET_PLAYER(eBully).getTeam()))
+						{
+							// Notify player has met the bully
+							strBullyName = GET_PLAYER(eBully).getCivilizationShortDescriptionKey();
+							strMessageOthers = Localization::Lookup("TXT_KEY_BALANCE_UNKNOWN_CS_BULLY_ANNEXED_KNOWN");
+							strMessageOthers << strBullyName;
+							strSummaryOthers = Localization::Lookup("TXT_KEY_BALANCE_UNKNOWN_CS_BULLY_ANNEXED_KNOWN_SUMMARY");
+							strSummaryOthers << strBullyName;
+							AddNotification(strMessageOthers.toUTF8(), strSummaryOthers.toUTF8(), ePlayer);
+						}
+					}
+					int iGoldenAge = GetPlayer()->getCapitalCity()->getPopulation() * 20;
+					GET_PLAYER(eBully).ChangeGoldenAgeProgressMeter(iGoldenAge);
+					if(eBully == GC.getGame().getActivePlayer())
+					{
+						char text[256] = {0};
+						float fDelay = 0.5f;
+						sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GOLDEN_AGE]", iGoldenAge);
+						DLLUI->AddPopupText(GetPlayer()->getCapitalCity()->getX(),GetPlayer()->getCapitalCity()->getY(), text, fDelay);
+					}
+					// Logging
+					CvString strLogString;
+					strLogString.Format("%s annexed by %s through bullying. X: %d, Y: %d", GetPlayer()->getName(), GET_PLAYER(eBully).getName(), GetPlayer()->getCapitalCity()->getX(), GetPlayer()->getCapitalCity()->getY());
+					GET_PLAYER(eBully).GetHomelandAI()->LogHomelandMessage(strLogString);
+
+					GET_PLAYER(eBully).acquireCity(GetPlayer()->getCapitalCity(), true, false, false);
+					return;
+				}
+			}
+		}
+#endif
 		if(eUnitType == NO_UNIT)
 		{
 			CvAssertMsg(false, "eUnitType is not expected to be NO_UNIT. Please send Anton your save file and version.");

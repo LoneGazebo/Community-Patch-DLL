@@ -42,6 +42,7 @@ local IconLookup = EUI.IconLookup
 local IconHookup = EUI.IconHookup
 local CivIconHookup = EUI.CivIconHookup
 local CityPlots = EUI.CityPlots
+local RadiusHexArea = EUI.RadiusHexArea
 local InstanceStackManager = EUI.InstanceStackManager
 local table = EUI.table
 local YieldIcons = EUI.YieldIcons
@@ -1333,13 +1334,14 @@ local function UpdateWorkingHexesNow()
 
 
 --		Events.RequestYieldDisplay( YieldDisplayTypes.CITY_OWNED, city:GetX(), city:GetY() )
-		Events.RequestYieldDisplay( YieldDisplayTypes.AREA, 3, city:GetX(), city:GetY() )
+		local cityArea = city:GetNumCityPlots() - 1
+		Events.RequestYieldDisplay( YieldDisplayTypes.AREA, RadiusHexArea( cityArea ), city:GetX(), city:GetY() )
 
 		-- display worked plots buttons
 		local cityOwnerID = city:GetOwner()
 		local notInStrategicView = not InStrategicView()
 
-		for cityPlotIndex = 0, city:GetNumCityPlots() - 1 do
+		for cityPlotIndex = 0, cityArea do
 			local plot = city:GetCityIndexPlot( cityPlotIndex )
 
 			if plot and plot:GetOwner() == cityOwnerID then
@@ -1425,7 +1427,7 @@ local function UpdateWorkingHexesNow()
 		-- display buy plot buttons
 --		Events.RequestYieldDisplay( YieldDisplayTypes.CITY_PURCHASABLE, city:GetX(), city:GetY() )
 		if g_BuyPlotMode and not g_isViewingMode then
-			for cityPlotIndex = 0, city:GetNumCityPlots() - 1 do
+			for cityPlotIndex = 0, cityArea do
 				local plot = city:GetCityIndexPlot( cityPlotIndex )
 				if plot then
 					local x, y = plot:GetX(), plot:GetY()

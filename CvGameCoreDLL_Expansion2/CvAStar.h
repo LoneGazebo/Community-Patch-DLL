@@ -142,12 +142,35 @@ public:
 		m_bForceReset = true;
 	}
 
+#ifdef AUI_ASTAR_TURN_LIMITER
+	inline int GetMaxTurns() const
+	{
+		return m_iMaxTurns;
+	}
+
+	inline void SetMaxTurns(int iMaxTurns)
+	{
+		if (m_bDataChangeInvalidatesCache && m_iMaxTurns != iMaxTurns)
+			m_bForceReset = true;
+		m_iMaxTurns = iMaxTurns;
+	}
+
+	inline void SetData(const void* pData, int iMaxTurns = MAX_INT)
+	{
+		if(m_bDataChangeInvalidatesCache && (m_pData != pData || m_iMaxTurns != iMaxTurns))
+			m_bForceReset = true;
+		m_pData = pData;
+		m_iMaxTurns = iMaxTurns;
+	}
+
+#else
 	inline void SetData(const void* pData)
 	{
 		if(m_bDataChangeInvalidatesCache && m_pData != pData)
 			m_bForceReset = true;
 		m_pData = pData;
 	}
+#endif // AUI_ASTAR_TURN_LIMITER
 
 	inline bool IsMPCacheSafe() const
 	{
@@ -326,6 +349,10 @@ protected:
 
 	const void* m_pData;			// Data passed back to functions
 
+#ifdef AUI_ASTAR_TURN_LIMITER
+	int m_iMaxTurns;				// Pathfinder never lets a path's turn cost become higher than this number
+#endif // AUI_ASTAR_TURN_LIMITER
+
 	int m_iColumns;					// Used to calculate node->number
 	int m_iRows;					// Used to calculate node->number
 	int m_iXstart;
@@ -468,7 +495,11 @@ int AttackCityPathDest(int iToX, int iToY, const void* pointer, CvAStar* finder)
 int TacticalAnalysisMapPathValid(CvAStarNode* parent, CvAStarNode* node, int data, const void* pointer, CvAStar* finder);
 int FindValidDestinationDest(int iToX, int iToY, const void* pointer, CvAStar* finder);
 int FindValidDestinationPathValid(CvAStarNode* parent, CvAStarNode* node, int data, const void* pointer, CvAStar* finder);
+#ifdef AUI_ASTAR_TURN_LIMITER
+int TurnsToReachTarget(UnitHandle pUnit, CvPlot* pTarget, bool bReusePaths = false, bool bIgnoreUnits = false, bool bIgnoreStacking = false, int iTargetTurns = MAX_INT);
+#else
 int TurnsToReachTarget(UnitHandle pUnit, CvPlot* pTarget, bool bReusePaths=false, bool bIgnoreUnits=false, bool bIgnoreStacking=false);
+#endif // AUI_ASTAR_TURN_LIMITER
 bool CanReachInXTurns(UnitHandle pUnit, CvPlot* pTarget, int iTurns, bool bIgnoreUnits=false, int* piTurns = NULL);
 int TradeRouteHeuristic(int iFromX, int iFromY, int iToX, int iToY);
 int TradeRouteLandPathCost(CvAStarNode* parent, CvAStarNode* node, int data, const void* pointer, CvAStar* finder);
@@ -479,6 +510,11 @@ void UnitPathInitialize(const void* pointer, CvAStar* finder);
 void UnitPathUninitialize(const void* pointer, CvAStar* finder);
 void TradePathInitialize(const void* pointer, CvAStar* finder);
 void TradePathUninitialize(const void* pointer, CvAStar* finder);
+
+#ifdef AUI_ASTAR_ROAD_RANGE
+void IncreaseMoveRangeForRoads(const CvUnit* pUnit, int& iRange);
+int GetIncreasedMoveRangeForRoads(const CvUnit* pUnit, int iRange);
+#endif // AUI_ASTAR_ROAD_RANGE
 
 // Derived classes (for more convenient access to pathfinding)
 class CvTwoLayerPathFinder: public CvAStar
@@ -491,7 +527,11 @@ public:
 	CvAStarNode* GetPartialMoveNode(int iCol, int iRow);
 	CvPlot* GetPathEndTurnPlot() const;
 
+#ifdef AUI_ASTAR_TURN_LIMITER
+	bool GenerateUnitPath(const CvUnit* pkUnit, int iXstart, int iYstart, int iXdest, int iYdest, int iInfo = 0, bool bReuse = false, int iTargetTurns = MAX_INT);
+#else
 	bool GenerateUnitPath(const CvUnit* pkUnit, int iXstart, int iYstart, int iXdest, int iYdest, int iInfo = 0, bool bReuse = false);
+#endif // AUI_ASTAR_TURN_LIMITER
 
 private:
 	CvAStarNode** m_ppaaPartialMoveNodes;

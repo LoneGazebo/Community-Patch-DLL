@@ -1366,6 +1366,10 @@ int PathValid(CvAStarNode* parent, CvAStarNode* node, int data, const void* poin
 	int iOldNumTurns = -1;
 	int iNumTurns;
 
+#ifdef AUI_ASTAR_TURN_LIMITER
+	int iMaxTurns = finder->GetMaxTurns();
+#endif // AUI_ASTAR_TURN_LIMITER
+
 	// First run special case for checking "node" since it doesn't have a parent set yet
 	bool bFirstRun = true;
 
@@ -1391,6 +1395,13 @@ int PathValid(CvAStarNode* parent, CvAStarNode* node, int data, const void* poin
 	// If there is an invariant value that needs to be fetched from the plot or unit for the node, please do the calculation and put it in the node's data cache.
 	while(pNode != NULL)
 	{
+#ifdef AUI_ASTAR_TURN_LIMITER
+		if (iNumTurns > iMaxTurns) // Path is too long, terminate now
+		{
+			return false;
+		}
+#endif // AUI_ASTAR_TURN_LIMITER
+
 		PREFETCH_FASTAR_NODE(pNode->m_pParent);
 
 		CvPathNodeCacheData& kNodeCacheData = pNode->m_kCostCacheData;
@@ -2977,12 +2988,20 @@ static void LogPathGeneration(const CvUnit *pkUnit, CvString& strMsg)
 
 //	--------------------------------------------------------------------------------
 /// Generate a path, using the supplied unit as the data
+#ifdef AUI_ASTAR_TURN_LIMITER
+bool CvTwoLayerPathFinder::GenerateUnitPath(const CvUnit* pkUnit, int iXstart, int iYstart, int iXdest, int iYdest, int iInfo, bool bReuse, int iTargetTurns)
+#else
 bool CvTwoLayerPathFinder::GenerateUnitPath(const CvUnit* pkUnit, int iXstart, int iYstart, int iXdest, int iYdest, int iInfo /*= 0*/, bool bReuse /*= false*/)
+#endif // AUI_ASTAR_TURN_LIMITER
 {
 	if (pkUnit)
 	{
 		CvAssert(gDLL->IsGameCoreThread() || !gDLL->IsGameCoreExecuting());
+#ifdef AUI_ASTAR_TURN_LIMITER
+		SetData(pkUnit, iTargetTurns);
+#else
 		SetData(pkUnit);
+#endif // AUI_ASTAR_TURN_LIMITER
 		bool bResult = GeneratePath(iXstart, iYstart, iXdest, iYdest, iInfo, bReuse);
 		if(GC.getLogging() && GC.getAILogging())
 		{
@@ -3071,7 +3090,12 @@ CvPlot* CvStepPathFinder::GetLastOwnedPlot(PlayerTypes ePlayer, PlayerTypes eEne
 		{
 			CvPlot* currentPlot;
 			currentPlot = kMap.plotUnchecked(pNode->m_iX, pNode->m_iY);
-
+#if defined(MOD_BALANCE_CORE_MILITARY)
+			if(currentPlot->isImpassable())
+			{
+				continue;
+			}
+#endif
 			// Check and see if this plot has the right owner
 			if(currentPlot->getOwner() == ePlayer)
 			{
@@ -3568,6 +3592,10 @@ int TacticalAnalysisMapPathValid(CvAStarNode* parent, CvAStarNode* node, int dat
 	int iNumTurns;
 	TeamTypes eTeam = eUnitTeam; // this may get modified later is eTEam == NO_TEAM
 
+#ifdef AUI_ASTAR_TURN_LIMITER
+	int iMaxTurns = finder->GetMaxTurns();
+#endif // AUI_ASTAR_TURN_LIMITER
+
 	// First run special case for checking "node" since it doesn't have a parent set yet
 	bool bFirstRun = true;
 
@@ -3593,6 +3621,13 @@ int TacticalAnalysisMapPathValid(CvAStarNode* parent, CvAStarNode* node, int dat
 	// If there is an invariant value that needs to be fetched from the plot or unit for the node, please do the calculation and put it in the node's data cache.
 	while(pNode != NULL)
 	{
+#ifdef AUI_ASTAR_TURN_LIMITER
+		if (iNumTurns > iMaxTurns) // Path is too long, terminate now
+		{
+			return false;
+		}
+#endif // AUI_ASTAR_TURN_LIMITER
+
 		PREFETCH_FASTAR_NODE(pNode->m_pParent);
 
 		CvPathNodeCacheData& kNodeCacheData = pNode->m_kCostCacheData;
@@ -3878,6 +3913,81 @@ int FindValidDestinationPathValid(CvAStarNode* parent, CvAStarNode* node, int da
 	return TRUE;
 }
 
+
+#ifdef AUI_ASTAR_ROAD_RANGE
+// If there is a valid road within the unit's base movement range, multiply range by movement modifier of best road type
+// Check is fairly fast and is good enough for most cases.
+void IncreaseMoveRangeForRoads(const CvUnit* pUnit, int& iRange)
+{
+	// Filtering out units that don't need road optimization
+	if (pUnit->getDomainType() != DOMAIN_LAND || pUnit->flatMovementCost())
+	{
+		return;
+	}
+
+	// Don't want to call this on each loop, so we'll call it once out of loop and be done with it
+	const bool bIsIroquois = GET_PLAYER(pUnit->getOwner()).GetPlayerTraits()->IsMoveFriendlyWoodsAsRoad();
+	const bool bIsSonghai = GET_PLAYER(pUnit->getOwner()).GetPlayerTraits()->IsFasterAlongRiver();
+	const bool bIsInca = GET_PLAYER(pUnit->getOwner()).GetPlayerTraits()->IsFasterInHills();
+
+	CvPlot* pLoopPlot;
+	FeatureTypes eFeature;
+
+	//a road is only useful if we can enter it with movement points left
+	int iSearchRange = max(0,iRange-2);
+
+	for (int iDY = -iSearchRange; iDY <= iSearchRange; iDY++)
+	{
+		int iMaxDX = iSearchRange - MAX(0, iDY);
+		for (int iDX = -iSearchRange - MIN(0, iDY); iDX <= iMaxDX; iDX++)
+		{
+			pLoopPlot = plotXY(pUnit->getX(), pUnit->getY(), iDX, iDY);
+			if (pLoopPlot)
+			{
+				eFeature = pLoopPlot->getFeatureType();
+				if (bIsIroquois && pUnit->getOwner() == pLoopPlot->getOwner() && (eFeature == FEATURE_FOREST || eFeature == FEATURE_JUNGLE))
+				{
+					iRange *= GET_TEAM(pUnit->getTeam()).GetBestRoadMovementMultiplier(pUnit);
+					return;
+				}
+				else if (bIsSonghai && pUnit->getOwner() == pLoopPlot->getOwner() && pLoopPlot->isRiver())
+				{
+					iRange *= GET_TEAM(pUnit->getTeam()).GetBestRoadMovementMultiplier(pUnit);
+					return;
+				}
+				else if (bIsInca && pUnit->getOwner() == pLoopPlot->getOwner() && pLoopPlot->isHills())
+				{
+					iRange *= GET_TEAM(pUnit->getTeam()).GetBestRoadMovementMultiplier(pUnit);
+					return;
+				}
+				else if (pLoopPlot->isValidRoute(pUnit))
+				{
+					CvPlot* pEvalPlot;
+					// Check for neighboring roads that would make this road usable
+					for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+					{
+						pEvalPlot = plotDirection(pLoopPlot->getX(), pLoopPlot->getY(), (DirectionTypes)iI);
+						if (pEvalPlot && pEvalPlot->isValidRoute(pUnit))
+						{
+							iRange *= GET_TEAM(pUnit->getTeam()).GetBestRoadMovementMultiplier(pUnit);
+							return;
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+// AdjustDistanceFilterForRoads() call for when the distance isn't being stored
+int GetIncreasedMoveRangeForRoads(const CvUnit* pUnit, int iRange)
+{
+	IncreaseMoveRangeForRoads(pUnit, iRange);
+	return iRange;
+}
+#endif // AUI_ASTAR_ROAD_RANGE
+
+
 //	--------------------------------------------------------------------------------
 /// Can a unit reach this destination in "X" turns of movement (pass in 0 if need to make it in 1 turn with movement left)?
 // ***
@@ -3896,12 +4006,23 @@ bool CanReachInXTurns(UnitHandle pUnit, CvPlot* pTarget, int iTurns, bool bIgnor
 	iDistance = plotDistance(pUnit->getX(), pUnit->getY(), pTarget->getX(), pTarget->getY());
 	// KWG: If the unit is a land unit that can embark, baseMoves() is only going to give correct value if the starting and ending locations
 	//		are in the same domain (LAND vs. SEA) and no transition occurs.
+
+#ifdef AUI_ASTAR_ROAD_RANGE
+	int iBaseMoves = GetIncreasedMoveRangeForRoads(pUnit.pointer(), pUnit->baseMoves());
+	if (iTurns == 0 && iDistance >= iBaseMoves)
+	{
+		return false;
+	}
+
+	else if(iTurns > 0 && iDistance > (iBaseMoves * iTurns))
+#else
 	if(iTurns == 0 && iDistance >= pUnit->baseMoves())
 	{
 		return false;
 	}
 
 	else if(iTurns > 0 && iDistance > (pUnit->baseMoves() * iTurns))
+#endif
 	{
 		return false;
 	}
@@ -3909,7 +4030,11 @@ bool CanReachInXTurns(UnitHandle pUnit, CvPlot* pTarget, int iTurns, bool bIgnor
 	// Distance not too far, now use pathfinder
 	else
 	{
+#ifdef AUI_ASTAR_TURN_LIMITER
+		int iTurnsCalculated = TurnsToReachTarget(pUnit, pTarget, false /*bReusePaths*/, bIgnoreUnits, false, iTurns);
+#else
 		int iTurnsCalculated = TurnsToReachTarget(pUnit, pTarget, false /*bReusePaths*/, bIgnoreUnits);
+#endif // AUI_ASTAR_TURN_LIMITER
 		if (piTurns)
 			*piTurns = iTurnsCalculated;
 		return (iTurnsCalculated <= iTurns);
@@ -3920,7 +4045,12 @@ bool CanReachInXTurns(UnitHandle pUnit, CvPlot* pTarget, int iTurns, bool bIgnor
 /// How many turns will it take a unit to get to a target plot (returns MAX_INT if can't reach at all; returns 0 if makes it in 1 turn and has movement left)
 // Should call it with bIgnoreStacking true if want foolproof way to see if can make it in 0 turns (since that way doesn't open
 // open the 2nd layer of the pathfinder)
+#ifdef AUI_ASTAR_TURN_LIMITER
+// Delnar: if you're checking if a unit can reach a tile within X turns, set the iTargetTurns parameter to X to speed up the pathfinder
+int TurnsToReachTarget(UnitHandle pUnit, CvPlot* pTarget, bool bReusePaths, bool bIgnoreUnits, bool bIgnoreStacking, int iTargetTurns)
+#else
 int TurnsToReachTarget(UnitHandle pUnit, CvPlot* pTarget, bool bReusePaths, bool bIgnoreUnits, bool bIgnoreStacking)
+#endif // AUI_ASTAR_TURN_LIMITER
 {
 	int rtnValue = MAX_INT;
 	CvAStarNode* pNode = NULL;
@@ -3939,7 +4069,11 @@ int TurnsToReachTarget(UnitHandle pUnit, CvPlot* pTarget, bool bReusePaths, bool
 
 		if(bIgnoreUnits)
 		{
+#ifdef AUI_ASTAR_TURN_LIMITER
+			GC.getIgnoreUnitsPathFinder().SetData(pUnit.pointer(), iTargetTurns);
+#else
 			GC.getIgnoreUnitsPathFinder().SetData(pUnit.pointer());
+#endif // AUI_ASTAR_TURN_LIMITER
 			if (GC.getIgnoreUnitsPathFinder().GeneratePath(pUnit->getX(), pUnit->getY(), pTarget->getX(), pTarget->getY(), 0, bReusePaths))
 			{
 				pNode = GC.getIgnoreUnitsPathFinder().GetLastNode();
@@ -3961,7 +4095,12 @@ int TurnsToReachTarget(UnitHandle pUnit, CvPlot* pTarget, bool bReusePaths, bool
 
 			bool bSuccess;
 
+#ifdef AUI_ASTAR_TURN_LIMITER
+			GC.GetTacticalAnalysisMapFinder().SetData(pUnit.pointer(), iTargetTurns);
+#else
 			GC.GetTacticalAnalysisMapFinder().SetData(pUnit.pointer());
+#endif // AUI_ASTAR_TURN_LIMITER
+
 			bSuccess = GC.GetTacticalAnalysisMapFinder().GeneratePath(pUnit->getX(), pUnit->getY(), pTarget->getX(), pTarget->getY(), iFlags, bReusePaths);
 			if(bSuccess)
 			{
@@ -4174,8 +4313,19 @@ int TradeRouteWaterPathCost(CvAStarNode* parent, CvAStarNode* node, int data, co
 
 	int iBaseCost = 100;
 	int iCost = iBaseCost;
-
+#if defined(MOD_GLOBAL_PASSABLE_FORTS)
+	ImprovementTypes eImprovement = pToPlot->getImprovementType();
+	CvImprovementEntry* pkImprovementInfo = NULL;
+	if(eImprovement != NO_IMPROVEMENT)
+	{
+		pkImprovementInfo = GC.getImprovementInfo(eImprovement);
+	}
+	bool bIsPassable = MOD_GLOBAL_PASSABLE_FORTS && pkImprovementInfo != NULL && pkImprovementInfo->IsMakesPassable();
+	bool bIsCityOrPassable = (pToPlot->isCity() || bIsPassable);
+	if(!bIsCityOrPassable)
+#else
 	if (!pToPlot->isCity())
+#endif
 	{
 		bool bIsAdjacentToLand = pFromPlot->isAdjacentToLand_Cached() && pToPlot->isAdjacentToLand_Cached();
 		if (!bIsAdjacentToLand)
@@ -4237,7 +4387,7 @@ int TradeRouteWaterValid(CvAStarNode* parent, CvAStarNode* node, int data, const
 		pkImprovementInfo = GC.getImprovementInfo(eImprovement);
 	}
 	bool bIsPassable = MOD_GLOBAL_PASSABLE_FORTS && pkImprovementInfo != NULL && pkImprovementInfo->IsMakesPassable();
-	bool bIsCityOrPassable = pNewPlot->isCity() || bIsPassable;
+	bool bIsCityOrPassable = (pNewPlot->isCity() || bIsPassable);
 	if(!bIsCityOrPassable)
 #else
 	if (!pNewPlot->isCity())
@@ -4257,7 +4407,19 @@ int TradeRouteWaterValid(CvAStarNode* parent, CvAStarNode* node, int data, const
 		}
 
 		CvPlot* pParentPlot = kMap.plotUnchecked(parent->m_iX, parent->m_iY);
+#if defined(MOD_GLOBAL_PASSABLE_FORTS)
+		ImprovementTypes eImprovement = pParentPlot->getImprovementType();
+		CvImprovementEntry* pkImprovementInfo = NULL;
+		if(eImprovement != NO_IMPROVEMENT)
+		{
+			pkImprovementInfo = GC.getImprovementInfo(eImprovement);
+		}
+		bool bIsPassable = MOD_GLOBAL_PASSABLE_FORTS && pkImprovementInfo != NULL && pkImprovementInfo->IsMakesPassable();
+		bool bIsCityOrPassable = (pParentPlot->isCity() || bIsPassable);
+		if(!bIsCityOrPassable)
+#else
 		if (!pParentPlot->isCity())
+#endif
 		{
 			if(pParentPlot->getArea() != pNewPlot->getArea())
 			{

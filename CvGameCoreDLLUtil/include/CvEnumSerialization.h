@@ -246,5 +246,9 @@ FDataStream & operator>>(FDataStream&, ResolutionTypes&);
 FDataStream & operator<<(FDataStream&, const ResolutionDecisionTypes&);
 FDataStream & operator>>(FDataStream&, ResolutionDecisionTypes&);
 
+#if defined(MOD_BALANCE_CORE_MILITARY)
+FDataStream & operator<<(FDataStream&, const ResolutionDecisionTypes&);
+FDataStream & operator>>(FDataStream&, ResolutionDecisionTypes&);
 
+#endif
 #endif//INCLUDED_CvEnumSerialization_H
