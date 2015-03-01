@@ -31730,10 +31730,10 @@ ostream& operator<<(ostream& os, const CvPlot* pPlot)
     return os;
 }
 
-CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, bool bEscorted, int iTargetArea, CvAIOperation* pOpToIgnore)
+CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, bool bEscorted, int iTargetArea, CvAIOperation* pOpToIgnore, bool bForceLogging)
 {
 	//--------
-	bool bLogging = GC.getLogging() && GC.getAILogging() && (GC.getGame().getGameTurn()%10==0);
+	bool bLogging = GC.getLogging() && GC.getAILogging() && ( (GC.getGame().getGameTurn()%10==0) || bForceLogging ); 
 	std::stringstream dump;
 	int iDanger=0, iFertility=0;
 	//--------
@@ -31750,7 +31750,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, bool bEscorted, int iTa
 	float fDefaultDiagnonal = sqrt( 80.f*80.f+52.f*52.f );
 	float fActualDiagonal = sqrt( (float)GC.getMap().getGridHeight()*GC.getMap().getGridHeight() + GC.getMap().getGridWidth()*GC.getMap().getGridWidth() );
 	//prefer settling close in the beginning
-	float fTimeOffset = GC.getGame().getGameTurn() / 30.f;
+	float fTimeOffset = (5.f * GC.getGame().getGameTurn()) / GC.getGame().getMaxTurns();
 
 	//this will be used later
 	int iEvalDistance = int(GC.getSETTLER_EVALUATION_DISTANCE() * fActualDiagonal / fDefaultDiagnonal + 0.5f + fTimeOffset);

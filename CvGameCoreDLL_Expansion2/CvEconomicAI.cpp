@@ -2807,7 +2807,8 @@ void CvEconomicAI::UpdatePlots()
 		int iScore = ScoreExplorePlot(pPlot, ePlayerTeam, 1, eDomain);
 
 #if defined(MOD_BALANCE_CORE_MILITARY_LOGGING)
-		result.push_back( SPlotWithScore(pPlot, iScore) );
+		if (MOD_BALANCE_CORE_MILITARY_LOGGING)
+			result.push_back( SPlotWithScore(pPlot, iScore) );
 #endif
 
 		if(iScore <= 0)
@@ -2961,7 +2962,12 @@ void CvEconomicAI::AssignExplorersToHuts()
 			for (uint i = uiListSize; i--; )	// Go backward, we want the lowest score (distance)
 			{
 				CvUnit* pUnit = aBestUnitList.GetElement(i);
+#ifdef AUI_ASTAR_TURN_LIMITER
+				bool bCanFindPath = kPathFinder.GenerateUnitPath(pUnit, pUnit->getX(), pUnit->getY(), pGoodyPlot->getX(), pGoodyPlot->getY(), 
+					MOVE_TERRITORY_NO_ENEMY | MOVE_MAXIMIZE_EXPLORE | MOVE_UNITS_IGNORE_DANGER /*iFlags*/, true/*bReuse*/, 10);
+#else
 				bool bCanFindPath = kPathFinder.GenerateUnitPath(pUnit, pUnit->getX(), pUnit->getY(), pGoodyPlot->getX(), pGoodyPlot->getY(), MOVE_TERRITORY_NO_ENEMY | MOVE_MAXIMIZE_EXPLORE | MOVE_UNITS_IGNORE_DANGER /*iFlags*/, true/*bReuse*/);
+#endif
 				if(bCanFindPath)
 				{
 					iUnitID = pUnit->GetID();
@@ -3028,7 +3034,12 @@ void CvEconomicAI::AssignHutsToExplorers()
 			if(iEstimateTurns < iClosestEstimateTurns)
 			{
 				// Now check path
+#ifdef AUI_ASTAR_TURN_LIMITER
+				bool bCanFindPath = GC.getPathFinder().GenerateUnitPath(pUnit, pUnit->getX(), pUnit->getY(), pGoodyPlot->getX(), pGoodyPlot->getY(), 
+					MOVE_TERRITORY_NO_ENEMY | MOVE_MAXIMIZE_EXPLORE | MOVE_UNITS_IGNORE_DANGER /*iFlags*/, true/*bReuse*/, 10);
+#else
 				bool bCanFindPath = GC.getPathFinder().GenerateUnitPath(pUnit, pUnit->getX(), pUnit->getY(), pGoodyPlot->getX(), pGoodyPlot->getY(), MOVE_TERRITORY_NO_ENEMY | MOVE_MAXIMIZE_EXPLORE | MOVE_UNITS_IGNORE_DANGER /*iFlags*/, true/*bReuse*/);
+#endif
 				if(bCanFindPath)
 				{
 					iClosestEstimateTurns = iEstimateTurns;

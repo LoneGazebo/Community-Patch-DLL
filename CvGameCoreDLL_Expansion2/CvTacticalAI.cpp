@@ -7304,7 +7304,7 @@ void CvTacticalAI::ExecuteBarbarianMoves(bool bAggressive)
 					if(bAggressive && pUnit->IsCanDefend())
 #else
 					if(bAggressive)
-#endif //MOD_BALANCE_CORE_MILITARY_AUI
+#endif
 					{
 						pBestPlot = FindBestBarbarianLandMove(pUnit);
 					}
@@ -7383,7 +7383,7 @@ void CvTacticalAI::ExecuteBarbarianMoves(bool bAggressive)
 								pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pRepositionPlot->getX(), pRepositionPlot->getY());
 							}
 						}
-#endif // MOD_BALANCE_CORE_MILITARY_AUI
+#endif
 
 						pUnit->finishMoves();
 						UnitProcessed(m_CurrentMoveUnits[iI].GetID());
@@ -7409,7 +7409,7 @@ void CvTacticalAI::ExecuteBarbarianMoves(bool bAggressive)
 								pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pRepositionPlot->getX(), pRepositionPlot->getY());
 							}
 						}
-#endif // MOD_BALANCE_CORE_MILITARY_AUI
+#endif
 
 						pUnit->finishMoves();
 						UnitProcessed(m_CurrentMoveUnits[iI].GetID());
@@ -10465,8 +10465,12 @@ CvPlot* CvTacticalAI::FindBarbarianExploreTarget(UnitHandle pUnit)
 			}
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
-			//allow embarking and disembarking to/from lakes
-			if( (pPlot->area() != pUnit->area() ) && !pUnit->plot()->isLake() && !pPlot->isLake() )
+			//land units don't explore water
+			if (pUnit->getDomainType()==DOMAIN_LAND && pPlot->isWater())
+				continue;
+
+			//allow disembarking
+			if( (pPlot->area() != pUnit->area() ) && !pUnit->isEmbarked() )
 #else
 			if(pPlot->area() != pUnit->area())
 #endif
@@ -10496,6 +10500,9 @@ CvPlot* CvTacticalAI::FindBarbarianExploreTarget(UnitHandle pUnit)
 			// If still have no value, score equal to distance from my current plot
 			if(iValue == 0)
 			{
+#if defined(MOD_BALANCE_CORE_MILITARY)
+				if ( ( eDomain==DOMAIN_LAND && !pPlot->isWater() ) || ( eDomain==DOMAIN_SEA && pPlot->isWater() ) )
+#endif
 				iValue = plotDistance(pUnit->getX(), pUnit->getY(), pPlot->getX(), pPlot->getY());
 			}
 

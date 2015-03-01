@@ -1732,7 +1732,7 @@ CvPlot* CvPlayerAI::FindBestMerchantTargetPlot(CvUnit* pGreatMerchant, bool bOnl
 					if(bRightOwner && bIsRevealed)
 					{
 #ifdef AUI_ASTAR_TURN_LIMITER
-						iPathTurns = TurnsToReachTarget(pMerchant, pAdjacentPlot, true /*bReusePaths*/, !bOnlySafePaths/*bIgnoreUnits*/, iBestTurnsToReach);
+						iPathTurns = TurnsToReachTarget(pMerchant, pAdjacentPlot, true /*bReusePaths*/, !bOnlySafePaths/*bIgnoreUnits*/, false, iBestTurnsToReach);
 #else
 						iPathTurns = TurnsToReachTarget(pMerchant, pAdjacentPlot, true /*bReusePaths*/, !bOnlySafePaths/*bIgnoreUnits*/);
 #endif // AUI_ASTAR_TURN_LIMITER
@@ -2293,7 +2293,7 @@ CvPlot* CvPlayerAI::ChooseDiplomatTargetPlot(UnitHandle pUnit, int* piTurns)
 				continue;
 			}
 
-			iTurns = TurnsToReachTarget(pUnit, pLoopPlot, false /* bReusePaths */, iBestNumTurns);
+			iTurns = TurnsToReachTarget(pUnit, pLoopPlot, false /* bReusePaths */, false, false, iBestNumTurns);
 			if(iTurns < MAX_INT)
 			{
 				iDistance = plotDistance(pUnit->getX(), pUnit->getY(), pLoopPlot->getX(), pLoopPlot->getY());
@@ -2355,7 +2355,7 @@ CvPlot* CvPlayerAI::ChooseMessengerTargetPlot(UnitHandle pUnit, int* piTurns)
 			}
 
 #ifdef AUI_ASTAR_TURN_LIMITER
-			iTurns = TurnsToReachTarget(pUnit, pLoopPlot, false /* bReusePaths */, iBestNumTurns);
+			iTurns = TurnsToReachTarget(pUnit, pLoopPlot, false /* bReusePaths */, false, false, iBestNumTurns);
 #else
 			iTurns = TurnsToReachTarget(pUnit, pLoopPlot, false /* bReusePaths */);
 #endif // AUI_ASTAR_TURN_LIMITER

@@ -334,6 +334,7 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, YieldT
 
 	int iCapitalArea = NULL;
 
+	bool bIsAlmostCoast = false;
 	bool bIsInca = false;
 	int iAdjacentMountains = 0;
 
@@ -433,6 +434,13 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, YieldT
 							iTotalStrategicValue += iStrategicValue;
 
 							int iPlotValue = iFoodValue + iHappinessValue + iProductionValue + iGoldValue + iScienceValue + iFaithValue + iResourceValue + iStrategicValue;
+							
+							// for the central plot
+							if (iDistance==0)
+								vQualifiersPositive.push_back( CvString::format("raw plot value: %d", iPlotValue).c_str() );
+
+							if (iDistance==1 && !pPlot->isCoastalLand(GC.getMIN_WATER_SIZE_FOR_OCEAN()) && pLoopPlot->isCoastalLand())
+								bIsAlmostCoast = true;
 
 							// if this tile is a NW boost the value just so that we force the AI to claim them (if we can work it)
 							if (pLoopPlot->IsNaturalWonder())
@@ -507,6 +515,9 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, YieldT
 			}
 		}
 	}
+
+	//experimental: use square of plot value
+	iTotalPlotValue *= iTotalPlotValue/GC.getAI_STRATEGY_MINIMUM_SETTLE_FERTILITY(); 
 
 	//civ-specific bonuses
 	if (pPlayer)
@@ -597,6 +608,12 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, YieldT
 		if(pPlayer && pPlayer->GetPlayerTraits()->IsRiverTradeRoad())
 			iValueModifier += (int)iTotalPlotValue * /*15*/ GC.getBUILD_ON_RIVER_PERCENT() / 100 * 2;
 		vQualifiersPositive.push_back("(V) river");
+	}
+
+	if (bIsAlmostCoast)
+	{
+		iValueModifier -= (iTotalPlotValue * 20) / 100;
+		vQualifiersPositive.push_back("(N) almost coast");
 	}
 
 	if (pPlot->isCoastalLand(GC.getMIN_WATER_SIZE_FOR_OCEAN()))
@@ -728,12 +745,12 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, YieldT
 			{
 				if (iClosestEnemyCity <= 4)
 				{
-					iStratModifier -= (iTotalPlotValue*75)/100;
+					iStratModifier -= (iTotalPlotValue*50)/100;
 					vQualifiersNegative.push_back("(S) too close to enemy");
 				}
 				else if (iClosestEnemyCity == 5)
 				{
-					iStratModifier -= (iTotalPlotValue*50)/100;
+					iStratModifier -= (iTotalPlotValue*25)/100;
 					vQualifiersNegative.push_back("(S) too close to enemy");
 				}
 			}
@@ -741,7 +758,7 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, YieldT
 			{
 				if (iClosestEnemyCity <= 5 && iClosestCityOfMine < 8)
 				{
-					iStratModifier += (iTotalPlotValue*50)/100;
+					iStratModifier += (iTotalPlotValue*25)/100;
 					vQualifiersPositive.push_back("(S) close to enemy and but not far from home");
 				}
 			}
@@ -749,7 +766,7 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, YieldT
 			{
 				if (iClosestEnemyCity < 5)
 				{
-					iStratModifier -= (iTotalPlotValue*33)/100;
+					iStratModifier -= (iTotalPlotValue*25)/100;
 					vQualifiersNegative.push_back("(S) too close to enemy");
 				}
 			}

@@ -3403,7 +3403,7 @@ bool CvAIOperationFoundCity::ArmyInPosition(CvArmyAI* pArmy)
 #if defined(MOD_BALANCE_CORE_SETTLER)
 				//now that the neighboring tiles are guaranteed to be revealed, recheck if we are at the best plot
 				//minor twist: the nearby plots are already targeted for a city. so we need to ignore this very operation when checking the plots
-				CvPlot* pAltPlot = GET_PLAYER(m_eOwner).GetBestSettlePlot(pSettler, m_bEscorted, m_iTargetArea, this);
+				CvPlot* pAltPlot = GET_PLAYER(m_eOwner).GetBestSettlePlot(pSettler, m_bEscorted, m_iTargetArea, this, true);
 				int iAltValue = 0;
 				if(pAltPlot != NULL)
 				{

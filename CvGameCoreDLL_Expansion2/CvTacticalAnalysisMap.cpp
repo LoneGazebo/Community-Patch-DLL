@@ -348,7 +348,7 @@ void CvTacticalAnalysisMap::MarkCellsNearEnemy()
 
 								// Its ok to reuse paths because when ignoring units, we don't use the tactical analysis map (which we are building)
 #ifdef AUI_ASTAR_TURN_LIMITER
-								iTurnsToReach = TurnsToReachTarget(pUnit, pPlot, true /*bReusePaths*/, true /*bIgnoreUnits*/, 2);
+								iTurnsToReach = TurnsToReachTarget(pUnit, pPlot, true /*bReusePaths*/, true /*bIgnoreUnits*/, false /*bIgnoreUnitStacking*/, 2);
 #else
 								iTurnsToReach = TurnsToReachTarget(pUnit, pPlot, true /*bReusePaths*/, true /*bIgnoreUnits*/);
 #endif // AUI_ASTAR_TURN_LIMITER

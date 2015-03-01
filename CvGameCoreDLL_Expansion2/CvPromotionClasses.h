@@ -485,7 +485,7 @@ public:
 	void SetPromotion(PromotionTypes eIndex, bool bValue);
 
 	bool GetAllowFeaturePassable(FeatureTypes eFeatureType) const;
-	bool GetAllowTerrainPassable(TerrainTypes eTerrainType) const ;
+	bool GetAllowTerrainPassable(TerrainTypes eTerrainType) const;
 
 	int GetUnitClassAttackMod(UnitClassTypes eUnitClass) const;
 	int GetUnitClassDefenseMod(UnitClassTypes eUnitClass) const;
@@ -493,8 +493,12 @@ public:
 	PromotionTypes ChangePromotionAfterCombat(PromotionTypes eIndex);
 
 private:
-
 	bool IsInUseByPlayer(PromotionTypes eIndex, PlayerTypes ePlayer); 
+
+#if defined(MOD_BALANCE_CORE)
+	void UpdateTerrainPassableCache();
+	std::vector<std::vector<TechTypes>> m_terrainPassableCache;
+#endif
 
 	CvBitfield m_kHasPromotion;
 	CvPromotionXMLEntries* m_pPromotions;

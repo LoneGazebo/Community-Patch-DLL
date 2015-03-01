@@ -3163,7 +3163,11 @@ CvPlot* CvStepPathFinder::GetXPlotsFromEnd(PlayerTypes ePlayer, PlayerTypes eEne
 
 //	--------------------------------------------------------------------------------
 /// Check for existence of step path between two points
+#ifdef AUI_ASTAR_TURN_LIMITER
+bool CvIgnoreUnitsPathFinder::DoesPathExist(CvUnit& unit, CvPlot* pStartPlot, CvPlot* pEndPlot, int iTargetTurns)
+#else
 bool CvIgnoreUnitsPathFinder::DoesPathExist(CvUnit& unit, CvPlot* pStartPlot, CvPlot* pEndPlot)
+#endif
 {
 	m_pCurNode = NULL;
 
@@ -3172,7 +3176,12 @@ bool CvIgnoreUnitsPathFinder::DoesPathExist(CvUnit& unit, CvPlot* pStartPlot, Cv
 		return false;
 	}
 
+#ifdef AUI_ASTAR_TURN_LIMITER
+	SetData(&unit, iTargetTurns);
+#else
 	SetData(&unit);
+#endif // AUI_ASTAR_TURN_LIMITER
+
 	return GeneratePath(pStartPlot->getX(), pStartPlot->getY(), pEndPlot->getX(), pEndPlot->getY(), 0, true /*bReuse*/);
 }
 
