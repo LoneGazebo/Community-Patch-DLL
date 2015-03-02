@@ -26,6 +26,11 @@
 	SET PrereqTech = 'TECH_POTTERY'
 	WHERE Type = 'UNIT_SETTLER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
+	-- Increase Flavor
+	UPDATE Unit_Flavors
+	SET Flavor = '30'
+	WHERE UnitType = 'UNIT_SETTLER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
 -- Workers Reduced Work Rate to slow down early growth
 	UPDATE Units
 	SET WorkRate = '90'

@@ -119,6 +119,16 @@ void CvUnitCombat::GenerateMeleeCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender
 		int iAttackerDamageInflicted = kAttacker.getCombatDamage(iAttackerStrength, iDefenderStrength, kAttacker.getDamage(), /*bIncludeRand*/ true, /*bAttackerIsCity*/ false, /*bDefenderIsCity*/ true);
 		int iDefenderDamageInflicted = kAttacker.getCombatDamage(iDefenderStrength, iAttackerStrength, pkCity->getDamage(), /*bIncludeRand*/ true, /*bAttackerIsCity*/ true, /*bDefenderIsCity*/ false);
 
+#if defined(MOD_BALANCE_CORE)
+		if(kAttacker.getForcedDamageValue() != 0)
+		{
+			iDefenderDamageInflicted = kAttacker.getForcedDamageValue();
+		}
+		if(kAttacker.getChangeDamageValue() != 0)
+		{
+			iDefenderDamageInflicted += kAttacker.getChangeDamageValue();
+		}
+#endif
 		int iAttackerTotalDamageInflicted = iAttackerDamageInflicted + pkCity->getDamage();
 		int iDefenderTotalDamageInflicted = iDefenderDamageInflicted + kAttacker.getDamage();
 
@@ -183,6 +193,24 @@ void CvUnitCombat::GenerateMeleeCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender
 			iDefenderDamageInflicted /= 3;
 		}
 
+#if defined(MOD_BALANCE_CORE)
+		if(kAttacker.getForcedDamageValue() != 0)
+		{
+			iDefenderDamageInflicted = kAttacker.getForcedDamageValue();
+		}
+		if(pkDefender->getForcedDamageValue() != 0)
+		{
+			iAttackerDamageInflicted = pkDefender->getForcedDamageValue();
+		}
+		if(kAttacker.getChangeDamageValue() != 0)
+		{
+			iDefenderDamageInflicted += kAttacker.getChangeDamageValue();
+		}
+		if(pkDefender->getChangeDamageValue() != 0)
+		{
+			iAttackerDamageInflicted += pkDefender->getChangeDamageValue();
+		}
+#endif
 		int iAttackerTotalDamageInflicted = iAttackerDamageInflicted + pkDefender->getDamage();
 		int iDefenderTotalDamageInflicted = iDefenderDamageInflicted + kAttacker.getDamage();
 
@@ -567,6 +595,16 @@ void CvUnitCombat::GenerateRangedCombatInfo(CvUnit& kAttacker, CvUnit* pkDefende
 
 		iDamage = kAttacker.GetRangeCombatDamage(pkDefender, /*pCity*/ NULL, /*bIncludeRand*/ true);
 
+#if defined(MOD_BALANCE_CORE)
+		if(pkDefender->getForcedDamageValue() != 0)
+		{
+			iDamage = pkDefender->getForcedDamageValue();
+		}
+		if(pkDefender->getChangeDamageValue() != 0)
+		{
+			iDamage += pkDefender->getChangeDamageValue();
+		}
+#endif
 		if(iDamage + pkDefender->getDamage() > GC.getMAX_HIT_POINTS())
 		{
 			iDamage = GC.getMAX_HIT_POINTS() - pkDefender->getDamage();
@@ -679,6 +717,16 @@ void CvUnitCombat::GenerateRangedCombatInfo(CvCity& kAttacker, CvUnit* pkDefende
 
 		iDamage = kAttacker.rangeCombatDamage(pkDefender);
 
+#if defined(MOD_BALANCE_CORE)
+		if(pkDefender->getForcedDamageValue() != 0)
+		{
+			iDamage = pkDefender->getForcedDamageValue();
+		}
+		if(pkDefender->getChangeDamageValue() != 0)
+		{
+			iDamage += pkDefender->getChangeDamageValue();
+		}
+#endif
 		if(iDamage + pkDefender->getDamage() > GC.getMAX_HIT_POINTS())
 		{
 			iDamage = GC.getMAX_HIT_POINTS() - pkDefender->getDamage();
@@ -1223,6 +1271,16 @@ void CvUnitCombat::GenerateAirCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender, 
 		// Calculate attacker damage
 		iAttackerDamageInflicted = kAttacker.GetAirCombatDamage(pkDefender, /*pCity*/ NULL, /*bIncludeRand*/ true, iInterceptionDamage);
 
+#if defined(MOD_BALANCE_CORE)
+		if(pkDefender->getForcedDamageValue() != 0)
+		{
+			iAttackerDamageInflicted = pkDefender->getForcedDamageValue();
+		}
+		if(pkDefender->getChangeDamageValue() != 0)
+		{
+			iAttackerDamageInflicted += pkDefender->getChangeDamageValue();
+		}
+#endif
 		if(iAttackerDamageInflicted + pkDefender->getDamage() > GC.getMAX_HIT_POINTS())
 		{
 			iAttackerDamageInflicted = GC.getMAX_HIT_POINTS() - pkDefender->getDamage();
@@ -1233,6 +1291,16 @@ void CvUnitCombat::GenerateAirCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender, 
 		// Calculate defense damage
 		iDefenderDamageInflicted = pkDefender->GetAirStrikeDefenseDamage(&kAttacker);
 
+#if defined(MOD_BALANCE_CORE)
+		if(kAttacker.getForcedDamageValue() != 0)
+		{
+			iDefenderDamageInflicted = kAttacker.getForcedDamageValue();
+		}
+		if(kAttacker.getChangeDamageValue() != 0)
+		{
+			iDefenderDamageInflicted += kAttacker.getChangeDamageValue();
+		}
+#endif
 		if(iDefenderDamageInflicted + kAttacker.getDamage() > GC.getMAX_HIT_POINTS())
 		{
 			iDefenderDamageInflicted = GC.getMAX_HIT_POINTS() - kAttacker.getDamage();

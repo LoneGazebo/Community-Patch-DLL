@@ -244,6 +244,16 @@ public:
 	void ChangeCaptureDefeatedEnemyCount(int iChange);
 	int GetCaptureChance(CvUnit *pEnemy);
 
+#if defined(MOD_BALANCE_CORE)
+	void ChangeCannotBeCapturedCount(int iChange);
+	bool GetCannotBeCaptured();
+	int getForcedDamageValue();
+	void ChangeForcedDamageValue(int iChange);
+
+	int getChangeDamageValue();
+	void ChangeChangeDamageValue(int iChange);
+#endif
+
 	bool canEmbark(const CvPlot* pPlot) const;
 	bool canDisembark(const CvPlot* pPlot) const;
 	bool canEmbarkOnto(const CvPlot& pOriginPlot, const CvPlot& pTargetPlot, bool bOverrideEmbarkedCheck = false, bool bIsDestination = false) const;
@@ -1483,6 +1493,11 @@ protected:
 	FAutoVariable<int, CvUnit> m_iRangeAttackIgnoreLOSCount;
 	int m_iCityAttackOnlyCount;
 	int m_iCaptureDefeatedEnemyCount;
+#if defined(MOD_BALANCE_CORE)
+	int m_iCannotBeCapturedCount;
+	FAutoVariable<int, CvUnit> m_iForcedDamage;
+	FAutoVariable<int, CvUnit> m_iChangeDamage;
+#endif
 	FAutoVariable<int, CvUnit> m_iRangedSupportFireCount;
 	FAutoVariable<int, CvUnit> m_iAlwaysHealCount;
 	FAutoVariable<int, CvUnit> m_iHealOutsideFriendlyCount;

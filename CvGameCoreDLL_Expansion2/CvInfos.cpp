@@ -4999,6 +4999,7 @@ CvFeatureInfo::CvFeatureInfo() :
 #if defined(MOD_BALANCE_CORE)
 	m_iLocationUnitFreePromotion(NO_PROMOTION),
 	m_iSpawnLocationUnitFreePromotion(NO_PROMOTION),
+	m_iAdjacentSpawnLocationUnitFreePromotion(NO_PROMOTION),
 	m_bIsBarbarianOnly(false),
 	m_bIsCityStateOnly(false),
 #endif
@@ -5579,6 +5580,7 @@ CvTerrainInfo::CvTerrainInfo() :
 #if defined(MOD_BALANCE_CORE)
 	m_iLocationUnitFreePromotion(NO_PROMOTION),
 	m_iSpawnLocationUnitFreePromotion(NO_PROMOTION),
+	m_iAdjacentSpawnLocationUnitFreePromotion(NO_PROMOTION),
 	m_bIsBarbarianOnly(false),
 	m_bIsCityStateOnly(false),
 	m_iAdjacentUnitFreePromotion(NO_PROMOTION),
@@ -5666,6 +5668,10 @@ int CvTerrainInfo::getLocationUnitFreePromotion() const
 int CvTerrainInfo::getSpawnLocationUnitFreePromotion() const
 {
 	return m_iSpawnLocationUnitFreePromotion;
+}
+int CvTerrainInfo::getAdjacentSpawnLocationUnitFreePromotion() const
+{
+	return m_iAdjacentSpawnLocationUnitFreePromotion;
 }
 bool CvTerrainInfo::isBarbarianOnly() const
 {
@@ -5820,6 +5826,9 @@ bool CvTerrainInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 
 	szTextVal = kResults.GetText("SpawnLocationUnitFreePromotion");
 	m_iSpawnLocationUnitFreePromotion = GC.getInfoTypeForString(szTextVal, true);
+
+	szTextVal = kResults.GetText("AdjacentSpawnLocationUnitFreePromotion");
+	m_iAdjacentSpawnLocationUnitFreePromotion = GC.getInfoTypeForString(szTextVal, true);
 
 	m_bIsBarbarianOnly = kResults.GetBool("IsBarbarianOnly");
 	m_bIsCityStateOnly = kResults.GetBool("IsCityStateOnly");

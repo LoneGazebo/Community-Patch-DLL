@@ -90,6 +90,9 @@ ALTER TABLE Terrains ADD COLUMN 'LocationUnitFreePromotion' text default NULL;
 
 ALTER TABLE Terrains ADD COLUMN 'SpawnLocationUnitFreePromotion' text default NULL;
 
+-- Same as above, but for spawning adjacent to a terrain type.
+ALTER TABLE Terrains ADD COLUMN 'AdjacentSpawnLocationUnitFreePromotion' text default NULL;
+
 -- Grants a free valid promotion to a unit when it is adjacent to a type of terrain (grassland, plains, coast, etc.). Generally used for barbarians.
 
 ALTER TABLE Terrains ADD COLUMN 'AdjacentUnitFreePromotion' text default NULL;
@@ -318,6 +321,18 @@ ALTER TABLE Technologies ADD COLUMN 'CityNoEmbarkCost' boolean;
 ALTER TABLE UnitPromotions ADD 'ReconChange' integer default 0;
 
 ALTER TABLE UnitPromotions ADD 'GainsXPFromScouting' boolean default false;
+
+-- Put the name of the Promotion in this row in order to negate it with another promotion - currently only works with the terrain/feature related promotion functions above!
+ALTER TABLE UnitPromotions ADD 'NegatesPromotion' text default NULL;
+
+-- Forced sets the damage the unit will receive from the combat REGARDLESS of how much damage was calculated to be dealt to it.
+ALTER TABLE UnitPromotions ADD 'ForcedDamageValue' integer default 0;
+
+-- Change reduces damage the unit will receive BASED on how much damage was calculated to be dealt to it. Negative numbers to reduce!
+ALTER TABLE UnitPromotions ADD 'ChangeDamageValue' integer default 0;
+
+-- A unit cannot be captured by another player (i.e. from prize ships, etc.). Does not apply to civilians.
+ALTER TABLE UnitPromotions ADD 'CannotBeCaptured' boolean default false;
 
 -- Unit stuff for minor civs
 ALTER TABLE Units ADD COLUMN 'MinorCivGift' boolean default false;
