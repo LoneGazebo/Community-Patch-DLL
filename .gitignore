@@ -6,6 +6,9 @@
 !*.hpp
 !*.rc
 !*.vcxproj
+!*.dds
+!*.ftsxml
+!*.gr2
 !*.filters
 !*.gitattributes
 !*.xml
