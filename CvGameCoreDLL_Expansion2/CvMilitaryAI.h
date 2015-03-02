@@ -214,6 +214,17 @@ public:
 	bool BuyEmergencyBuilding(CvCity* pCity);
 
 	// Finding best cities to target
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	CvCity* GetBestTargetCity(PlayerTypes ePlayer);
+	CvCity* GetBestMusterCity(PlayerTypes ePlayer);
+	bool GetAttackBySea();
+	int GetTestTurn();
+
+	void SetBestTargetCity(CvCity* pCity, PlayerTypes ePlayer);
+	void SetBestMusterCity(CvCity* pCity, PlayerTypes ePlayer);
+	void SetAttackBySea(bool bValue);
+	void SetTestTurn(int iValue);
+#endif
 	CvMilitaryTarget FindBestAttackTarget(AIOperationTypes eAIOperationType, PlayerTypes eEnemy, int* piWinningScore = NULL);
 	void ShouldAttackBySea(PlayerTypes eEnemy, CvMilitaryTarget& target);
 	int ScoreTarget(CvMilitaryTarget& target, AIOperationTypes eAIOperationType);
@@ -345,6 +356,12 @@ private:
 	ArmyType m_eArmyTypeBeingBuilt;
 	int m_iNumberOfTimesOpsBuildSkippedOver;
 
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	bool m_bAttackBySea;
+	int* m_paeBestTargetCity;
+	int* m_paeBestMusterCity;
+	int m_iTestTurn;
+#endif
 	// Data recomputed each turn (no need to serialize)
 	int m_iNumLandUnits;
 	int m_iNumRangedLandUnits;

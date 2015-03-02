@@ -1622,6 +1622,7 @@ protected:
 #if defined(MOD_BALANCE_CORE)
 	int m_iLocationUnitFreePromotion;
 	int m_iSpawnLocationUnitFreePromotion;
+	int m_iAdjacentSpawnLocationUnitFreePromotion;
 	bool m_bIsBarbarianOnly;
 	bool m_bIsCityStateOnly;
 #endif
@@ -1739,6 +1740,7 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	int getLocationUnitFreePromotion() const;
 	int getSpawnLocationUnitFreePromotion() const;
+	int getAdjacentSpawnLocationUnitFreePromotion() const;
 	bool isBarbarianOnly() const;
 	bool isCityStateOnly() const;
 	int getAdjacentUnitFreePromotion() const;
@@ -1784,6 +1786,7 @@ protected:
 #if defined(MOD_BALANCE_CORE)
 	int m_iLocationUnitFreePromotion;
 	int m_iSpawnLocationUnitFreePromotion;
+	int m_iAdjacentSpawnLocationUnitFreePromotion;
 	bool m_bIsBarbarianOnly;
 	bool m_bIsCityStateOnly;
 	int m_iAdjacentUnitFreePromotion;

@@ -146,15 +146,6 @@ DealOfferResponseTypes CvDealAI::DoHumanOfferDealToThisAI(CvDeal* pDeal)
 		{
 			DoAcceptedDeal(eFromPlayer, kDeal, iDealValueToMe, iValueImOffering, iValueTheyreOffering);
 		}
-#if defined(MOD_BALANCE_CORE_DEALS)
-		if(MOD_BALANCE_CORE_DEALS)
-		{
-			if(GetPlayer()->GetDiplomacyAI()->GetForceDiplomaticMessage() != -1)
-			{
-				GetPlayer()->GetDiplomacyAI()->SetForceDiplomaticMessage(-1);
-			}
-		}
-#endif
 	}
 	// We want more from this Deal
 	else if(iDealValueToMe > -75 &&
@@ -304,15 +295,6 @@ void CvDealAI::DoAcceptedDeal(PlayerTypes eFromPlayer, const CvDeal& kDeal, int 
 		if(GC.getGame().getActivePlayer() == eFromPlayer)
 			gDLL->GameplayDiplomacyAILeaderMessage(GetPlayer()->GetID(), eUIState, szText, eAnimation);
 	}
-#if defined(MOD_BALANCE_CORE_DEALS)
-	if(MOD_BALANCE_CORE_DEALS)
-	{
-		if(GetPlayer()->GetDiplomacyAI()->GetForceDiplomaticMessage() != -1)
-		{
-			GetPlayer()->GetDiplomacyAI()->SetForceDiplomaticMessage(-1);
-		}
-	}
-#endif
 	if(GC.getGame().getActivePlayer() == eFromPlayer || GC.getGame().getActivePlayer() == GetPlayer()->GetID())
 	{
 		GC.GetEngineUserInterface()->makeInterfaceDirty();
@@ -655,15 +637,6 @@ bool CvDealAI::IsDealWithHumanAcceptable(CvDeal* pDeal, PlayerTypes eOtherPlayer
 	// If we've gotten the deal to a point where we're happy, offer it up
 	else if(iTotalValueToMe <= iAmountOverWeWillRequest && iTotalValueToMe >= iAmountUnderWeWillOffer)
 	{
-#if defined(MOD_BALANCE_CORE_DEALS)
-		if(MOD_BALANCE_CORE_DEALS)
-		{
-			if(GetPlayer()->GetDiplomacyAI()->GetForceDiplomaticMessage() != -1)
-			{
-				GetPlayer()->GetDiplomacyAI()->SetForceDiplomaticMessage(-1);
-			}
-		}
-#endif
 		return true;
 	}
 	else if (iTotalValueToMe > iAmountOverWeWillRequest)
@@ -686,54 +659,12 @@ bool CvDealAI::DoEqualizeDealWithHuman(CvDeal* pDeal, PlayerTypes eOtherPlayer, 
 
 	int iDealDuration = GC.getGame().GetDealDuration();
 	bCantMatchOffer = false;
-#if defined(MOD_BALANCE_CORE_DEALS)
-	if(MOD_BALANCE_CORE_DEALS)
-	{
-		GetPlayer()->GetDiplomacyAI()->SetForceDiplomaticMessage(-1);
-	}
-#endif
+
 	// Is this a peace deal?
 	if (pDeal->IsPeaceTreatyTrade(eOtherPlayer))
 	{
 		pDeal->ClearItems();
 		bMakeOffer = IsOfferPeace(eOtherPlayer, pDeal, true /*bEqualizingDeals*/);
-#if defined(MOD_BALANCE_CORE_DEALS)
-		if(MOD_BALANCE_CORE_DEALS)
-		{
-			DiploUIStateTypes eUIState = DIPLO_UI_STATE_TRADE;
-			DiploMessageTypes eDiploMessage = NO_DIPLO_MESSAGE_TYPE;
-			const char* szText = "";
-			LeaderheadAnimationTypes eAnimation = NO_LEADERHEAD_ANIM;
-
-			bool bFromIsActivePlayer = false;
-			if(eOtherPlayer == GC.getGame().getActivePlayer())
-			{
-				bFromIsActivePlayer = true;
-			}
-			if(bMakeOffer)
-			{
-				eAnimation = LEADERHEAD_ANIM_HATE_POSITIVE;
-				eDiploMessage = DIPLO_MESSAGE_TRADE_AI_MAKES_OFFER;
-				if(bFromIsActivePlayer)
-				{
-					szText = GetPlayer()->GetDiplomacyAI()->GetDiploStringForMessage(eDiploMessage);
-					gDLL->GameplayDiplomacyAILeaderMessage(GetPlayer()->GetID(), eUIState, szText, eAnimation);
-				}
-				GetPlayer()->GetDiplomacyAI()->SetForceDiplomaticMessage((int)eDiploMessage);
-			}
-			else
-			{
-				eAnimation = LEADERHEAD_ANIM_HATE_NEGATIVE;
-				eDiploMessage = DIPLO_MESSAGE_TRADE_NO_DEAL_POSSIBLE;
-				if(bFromIsActivePlayer)
-				{
-					szText = GetPlayer()->GetDiplomacyAI()->GetDiploStringForMessage(eDiploMessage);
-					gDLL->GameplayDiplomacyAILeaderMessage(GetPlayer()->GetID(), eUIState, szText, eAnimation);
-				}
-				GetPlayer()->GetDiplomacyAI()->SetForceDiplomaticMessage((int)eDiploMessage);
-			}
-		}
-#endif
 	}
 	else
 	{
@@ -811,80 +742,6 @@ bool CvDealAI::DoEqualizeDealWithHuman(CvDeal* pDeal, PlayerTypes eOtherPlayer, 
 			if(pDeal->m_TradedItems.size() > 0)
 			{
 				bMakeOffer = IsDealWithHumanAcceptable(pDeal, GC.getGame().getActivePlayer(), /*Passed by reference*/ iTotalValueToMe, iValueImOffering, iValueTheyreOffering, iAmountOverWeWillRequest, iAmountUnderWeWillOffer, /*passed by reference*/bCantMatchOffer);
-#if defined(MOD_BALANCE_CORE_DEALS)
-				if(MOD_BALANCE_CORE_DEALS)
-				{
-					DiploUIStateTypes eUIState = DIPLO_UI_STATE_TRADE;
-					DiploMessageTypes eDiploMessage = NO_DIPLO_MESSAGE_TYPE;
-					const char* szText = "";
-					LeaderheadAnimationTypes eAnimation = NO_LEADERHEAD_ANIM;
-
-					bool bFromIsActivePlayer = false;
-					if(eOtherPlayer == GC.getGame().getActivePlayer())
-					{
-						bFromIsActivePlayer = true;
-					}
-					if(bMakeOffer)
-					{
-						eAnimation = LEADERHEAD_ANIM_YES;
-						if((iValueImOffering > iValueTheyreOffering) && (iValueTheyreOffering > 0))
-						{
-							eDiploMessage = DIPLO_MESSAGE_TRADE_ACCEPT_ACCEPTABLE;
-						}
-						else if((iValueImOffering < iValueTheyreOffering) && (iValueTheyreOffering > 0))
-						{
-							eDiploMessage = DIPLO_MESSAGE_TRADE_AI_MAKES_OFFER;
-						}
-						else if((iValueImOffering == iValueTheyreOffering) && (iValueTheyreOffering > 0))
-						{
-							eDiploMessage = DIPLO_MESSAGE_TRADE_DEAL_UNCHANGED;
-						}
-						else
-						{
-							eDiploMessage = DIPLO_MESSAGE_TRADE_AI_MAKES_OFFER;
-						}
-						if(bFromIsActivePlayer)
-						{
-							szText = GetPlayer()->GetDiplomacyAI()->GetDiploStringForMessage(eDiploMessage);
-							gDLL->GameplayDiplomacyAILeaderMessage(GetPlayer()->GetID(), eUIState, szText, eAnimation);
-						}
-						GetPlayer()->GetDiplomacyAI()->SetForceDiplomaticMessage((int)eDiploMessage);
-					}
-					else
-					{
-						eAnimation = LEADERHEAD_ANIM_NO;
-						if(pDeal->ContainsItemType(TRADE_ITEM_DEFENSIVE_PACT))
-						{
-							if(!GetPlayer()->GetDiplomacyAI()->IsWantsDefensivePactWithPlayer(eOtherPlayer))
-							{
-								eDiploMessage = DIPLO_MESSAGE_TRADE_NO_DEAL_POSSIBLE;
-							}
-						}
-						else if((iValueImOffering > iValueTheyreOffering) && (iValueTheyreOffering > 0))
-						{
-							eDiploMessage = DIPLO_MESSAGE_TRADE_REJECT_UNACCEPTABLE;
-						}
-						else if((iValueImOffering == iValueTheyreOffering) && (iValueTheyreOffering > 0))
-						{
-							eDiploMessage = DIPLO_MESSAGE_TRADE_DEAL_UNCHANGED;
-						}
-						else if(bCantMatchOffer)
-						{
-							eDiploMessage = DIPLO_MESSAGE_TRADE_CANT_MATCH_OFFER;
-						}
-						else
-						{
-							eDiploMessage = DIPLO_MESSAGE_TRADE_NO_DEAL_POSSIBLE;
-						}
-						if(bFromIsActivePlayer)
-						{
-							szText = GetPlayer()->GetDiplomacyAI()->GetDiploStringForMessage(eDiploMessage);
-							gDLL->GameplayDiplomacyAILeaderMessage(GetPlayer()->GetID(), eUIState, szText, eAnimation);
-						}
-						GetPlayer()->GetDiplomacyAI()->SetForceDiplomaticMessage((int)eDiploMessage);
-					}
-				}
-#endif
 			}
 		}
 	}
@@ -3015,6 +2872,24 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 	else
 		eOpinionTowardsWarPlayer = pDiploAI->GetMajorCivOpinion(eWithPlayer);
 
+#if defined(MOD_BALANCE_CORE_DEALS)
+	if(!bFromMe && MOD_BALANCE_CORE_DEALS && GetPlayer()->IsAtWar())
+	{
+		// find any other wars we have going
+		for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+		{
+			PlayerTypes eWarPlayer = (PlayerTypes)iPlayerLoop;
+			if(eWarPlayer != NO_PLAYER && eWarPlayer != eOtherPlayer && eWarPlayer != GetPlayer()->GetID() && !GET_PLAYER(eWarPlayer).isMinorCiv())
+			{
+				WarProjectionTypes eWarProjection = pDiploAI->GetWarProjection(eWarPlayer);
+				if(eWarProjection <= WAR_PROJECTION_STALEMATE)
+				{
+					return 100000;
+				}
+			}
+		}
+	}
+#endif
 	// From me
 	if(bFromMe)
 	{
@@ -5192,16 +5067,6 @@ void CvDealAI::DoTradeScreenOpened()
 	TeamTypes eActiveTeam = GC.getGame().getActiveTeam();
 	PlayerTypes eActivePlayer = GC.getGame().getActivePlayer();
 
-#if defined(MOD_BALANCE_CORE_DEALS)
-	if(MOD_BALANCE_CORE_DEALS)
-	{
-		if(GetPlayer()->GetDiplomacyAI()->GetForceDiplomaticMessage() != -1)
-		{
-			GetPlayer()->GetDiplomacyAI()->SetForceDiplomaticMessage(-1);
-		}
-	}
-#endif
-
 	if(GET_TEAM(GetTeam()).isAtWar(eActiveTeam))
 	{
 		PlayerTypes eMyPlayer = GetPlayer()->GetID();
@@ -5286,16 +5151,6 @@ void CvDealAI::DoTradeScreenClosed(bool bAIWasMakingOffer)
 	GC.GetEngineUserInterface()->SetHumanMakingDemand(false);
 
 	GetPlayer()->GetDiplomacyAI()->ClearDealToRenew();
-
-#if defined(MOD_BALANCE_CORE_DEALS)
-	if(MOD_BALANCE_CORE_DEALS)
-	{
-		if(GetPlayer()->GetDiplomacyAI()->GetForceDiplomaticMessage() != -1)
-		{
-			GetPlayer()->GetDiplomacyAI()->SetForceDiplomaticMessage(-1);
-		}
-	}
-#endif
 
 	if(bAIWasMakingOffer)
 	{

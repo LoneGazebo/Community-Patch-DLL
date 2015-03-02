@@ -155,6 +155,12 @@ CvUnit::CvUnit() :
 	, m_iRangeAttackIgnoreLOSCount("CvUnit::m_iRangeAttackIgnoreLOSCount", m_syncArchive)
 	, m_iCityAttackOnlyCount(0)
 	, m_iCaptureDefeatedEnemyCount(0)
+#if defined(MOD_BALANCE_CORE)
+	, m_iCannotBeCapturedCount(0)
+	, m_iForcedDamage("CvUnit::m_iForcedDamage", m_syncArchive)
+	, m_iChangeDamage("CvUnit::m_iForcedDamage", m_syncArchive)
+#endif
+
 	, m_iRangedSupportFireCount("CvUnit::m_iRangedSupportFireCount", m_syncArchive)
 	, m_iAlwaysHealCount("CvUnit::m_iAlwaysHealCount", m_syncArchive)
 	, m_iHealOutsideFriendlyCount("CvUnit::m_iHealOutsideFriendlyCount", m_syncArchive)
@@ -1203,7 +1209,27 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 					if(m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT &&
 							(::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
 					{
-						setHasPromotion(ePromotion, true);
+						bool bNoPromotion = false;
+						// Check for negating promotions
+						for(int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
+						{
+							const PromotionTypes eNegatingPromotion = static_cast<PromotionTypes>(iI);
+							CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(eNegatingPromotion);
+							if(pkPromotionInfo)
+							{
+								PromotionTypes eNegatorPromotion = (PromotionTypes)pkPromotionInfo->NegatesPromotion();
+								// Unit has negation promotion
+								if(isHasPromotion(eNegatingPromotion) && ePromotion == eNegatorPromotion)
+								{
+									bNoPromotion = true;
+									break;
+								}
+							}
+						}
+						if(!bNoPromotion)
+						{
+							setHasPromotion(ePromotion, true);
+						}
 					}
 				}
 			}
@@ -1215,17 +1241,56 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 					if(m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT &&
 							(::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
 					{
-						setHasPromotion(ePromotion, true);
+						bool bNoPromotion = false;
+						// Check for negating promotions
+						for(int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
+						{
+							const PromotionTypes eNegatingPromotion = static_cast<PromotionTypes>(iI);
+							CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(eNegatingPromotion);
+							if(pkPromotionInfo)
+							{
+								PromotionTypes eNegatorPromotion = (PromotionTypes)pkPromotionInfo->NegatesPromotion();
+								// Unit has negation promotion
+								if(isHasPromotion(eNegatingPromotion) && ePromotion == eNegatorPromotion)
+								{
+									bNoPromotion = true;
+									break;
+								}
+							}
+						}
+						if(!bNoPromotion)
+						{
+							setHasPromotion(ePromotion, true);
+						}
 					}
 				}
 			}
 			else if(!GC.getFeatureInfo(eFeature)->isBarbarianOnly() && !GC.getFeatureInfo(eFeature)->isCityStateOnly())
 			{
-				// Is this a valid Promotion for the UnitCombatType?
 				if(m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT &&
-						(::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
+							(::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
 				{
-					setHasPromotion(ePromotion, true);
+					bool bNoPromotion = false;
+					// Check for negating promotions
+					for(int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
+					{
+						const PromotionTypes eNegatingPromotion = static_cast<PromotionTypes>(iI);
+						CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(eNegatingPromotion);
+						if(pkPromotionInfo)
+						{
+							PromotionTypes eNegatorPromotion = (PromotionTypes)pkPromotionInfo->NegatesPromotion();
+							// Unit has negation promotion
+							if(isHasPromotion(eNegatingPromotion) && ePromotion == eNegatorPromotion)
+							{
+								bNoPromotion = true;
+								break;
+							}
+						}
+					}
+					if(!bNoPromotion)
+					{
+						setHasPromotion(ePromotion, true);
+					}
 				}
 			}
 		}
@@ -1245,7 +1310,27 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 					if(m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT &&
 							(::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
 					{
-						setHasPromotion(ePromotion, true);
+						bool bNoPromotion = false;
+						// Check for negating promotions
+						for(int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
+						{
+							const PromotionTypes eNegatingPromotion = static_cast<PromotionTypes>(iI);
+							CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(eNegatingPromotion);
+							if(pkPromotionInfo)
+							{
+								PromotionTypes eNegatorPromotion = (PromotionTypes)pkPromotionInfo->NegatesPromotion();
+								// Unit has negation promotion
+								if(isHasPromotion(eNegatingPromotion) && ePromotion == eNegatorPromotion)
+								{
+									bNoPromotion = true;
+									break;
+								}
+							}
+						}
+						if(!bNoPromotion)
+						{
+							setHasPromotion(ePromotion, true);
+						}
 					}
 				}
 			}
@@ -1257,18 +1342,57 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 					if(m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT &&
 							(::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
 					{
-						setHasPromotion(ePromotion, true);
+						bool bNoPromotion = false;
+						// Check for negating promotions
+						for(int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
+						{
+							const PromotionTypes eNegatingPromotion = static_cast<PromotionTypes>(iI);
+							CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(eNegatingPromotion);
+							if(pkPromotionInfo)
+							{
+								PromotionTypes eNegatorPromotion = (PromotionTypes)pkPromotionInfo->NegatesPromotion();
+								// Unit has negation promotion
+								if(isHasPromotion(eNegatingPromotion) && ePromotion == eNegatorPromotion)
+								{
+									bNoPromotion = true;
+									break;
+								}
+							}
+						}
+						if(!bNoPromotion)
+						{
+							setHasPromotion(ePromotion, true);
+						}
 					}
 				}
 			}
 			else if(!GC.getTerrainInfo(eTerrain)->isBarbarianOnly() && !GC.getTerrainInfo(eTerrain)->isCityStateOnly())
 			{
-				// Is this a valid Promotion for the UnitCombatType?
 				if(m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT &&
-						(::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
-				{
-					setHasPromotion(ePromotion, true);
-				}
+							(::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
+					{
+						bool bNoPromotion = false;
+						// Check for negating promotions
+						for(int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
+						{
+							const PromotionTypes eNegatingPromotion = static_cast<PromotionTypes>(iI);
+							CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(eNegatingPromotion);
+							if(pkPromotionInfo)
+							{
+								PromotionTypes eNegatorPromotion = (PromotionTypes)pkPromotionInfo->NegatesPromotion();
+								// Unit has negation promotion
+								if(isHasPromotion(eNegatingPromotion) && ePromotion == eNegatorPromotion)
+								{
+									bNoPromotion = true;
+									break;
+								}
+							}
+						}
+						if(!bNoPromotion)
+						{
+							setHasPromotion(ePromotion, true);
+						}
+					}
 			}
 		}
 	}
@@ -1292,9 +1416,29 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 						if(GET_PLAYER(getOwner()).isBarbarian())
 						{
 							if(m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT &&
-									(::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
+							(::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
 							{
-								setHasPromotion(ePromotion, true);
+								bool bNoPromotion = false;
+								// Check for negating promotions
+								for(int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
+								{
+									const PromotionTypes eNegatingPromotion = static_cast<PromotionTypes>(iI);
+									CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(eNegatingPromotion);
+									if(pkPromotionInfo)
+									{
+										PromotionTypes eNegatorPromotion = (PromotionTypes)pkPromotionInfo->NegatesPromotion();
+										// Unit has negation promotion
+										if(isHasPromotion(eNegatingPromotion) && ePromotion == eNegatorPromotion)
+										{
+											bNoPromotion = true;
+											break;
+										}
+									}
+								}
+								if(!bNoPromotion)
+								{
+									setHasPromotion(ePromotion, true);
+								}
 							}
 						}
 					}
@@ -1304,17 +1448,157 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 						if(GET_PLAYER(getOwner()).isMinorCiv())
 						{
 							if(m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT &&
-									(::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
+							(::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
 							{
-								setHasPromotion(ePromotion, true);
+								bool bNoPromotion = false;
+								// Check for negating promotions
+								for(int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
+								{
+									const PromotionTypes eNegatingPromotion = static_cast<PromotionTypes>(iI);
+									CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(eNegatingPromotion);
+									if(pkPromotionInfo)
+									{
+										PromotionTypes eNegatorPromotion = (PromotionTypes)pkPromotionInfo->NegatesPromotion();
+										// Unit has negation promotion
+										if(isHasPromotion(eNegatingPromotion) && ePromotion == eNegatorPromotion)
+										{
+											bNoPromotion = true;
+											break;
+										}
+									}
+								}
+								if(!bNoPromotion)
+								{
+									setHasPromotion(ePromotion, true);
+								}
 							}
 						}
 					}
 					else if(!GC.getTerrainInfo(eTerrain)->isBarbarianOnly() && !GC.getTerrainInfo(eTerrain)->isCityStateOnly())
 					{
-						// Is this a valid Promotion for the UnitCombatType?
 						if(m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT &&
-								(::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
+							(::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
+						{
+							bool bNoPromotion = false;
+							// Check for negating promotions
+							for(int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
+							{
+								const PromotionTypes eNegatingPromotion = static_cast<PromotionTypes>(iI);
+								CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(eNegatingPromotion);
+								if(pkPromotionInfo)
+								{
+									PromotionTypes eNegatorPromotion = (PromotionTypes)pkPromotionInfo->NegatesPromotion();
+									// Unit has negation promotion
+									if(isHasPromotion(eNegatingPromotion) && ePromotion == eNegatorPromotion)
+									{
+										bNoPromotion = true;
+										break;
+									}
+								}
+							}
+							if(!bNoPromotion)
+							{
+								setHasPromotion(ePromotion, true);
+							}
+						}
+					}
+				}
+			}
+		}
+		// Starting terrain that provides free promotions?
+		TerrainTypes eAdjacentTerrain = pAdjacentPlot->getTerrainType();
+		if(eAdjacentTerrain != NO_TERRAIN)
+		{
+			PromotionTypes ePromotion = (PromotionTypes)GC.getTerrainInfo(eAdjacentTerrain)->getAdjacentSpawnLocationUnitFreePromotion();
+			if(ePromotion != NO_PROMOTION)
+			{
+				if(GC.getTerrainInfo(eAdjacentTerrain)->isBarbarianOnly())
+				{
+					// Is this a valid Promotion for the UnitCombatType?
+					if(GET_PLAYER(getOwner()).isBarbarian())
+					{
+						if(m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT &&
+							(::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
+						{
+							bool bNoPromotion = false;
+							// Check for negating promotions
+							for(int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
+							{
+								const PromotionTypes eNegatingPromotion = static_cast<PromotionTypes>(iI);
+								CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(eNegatingPromotion);
+								if(pkPromotionInfo)
+								{
+									PromotionTypes eNegatorPromotion = (PromotionTypes)pkPromotionInfo->NegatesPromotion();
+									// Unit has negation promotion
+									if(isHasPromotion(eNegatingPromotion) && ePromotion == eNegatorPromotion)
+									{
+										bNoPromotion = true;
+										break;
+									}
+								}
+							}
+							if(!bNoPromotion)
+							{
+								setHasPromotion(ePromotion, true);
+							}
+						}
+					}
+				}
+				if(GC.getTerrainInfo(eAdjacentTerrain)->isCityStateOnly())
+				{
+					// Is this a valid Promotion for the UnitCombatType?
+					if(GET_PLAYER(getOwner()).isMinorCiv())
+					{
+						if(m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT &&
+							(::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
+						{
+							bool bNoPromotion = false;
+							// Check for negating promotions
+							for(int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
+							{
+								const PromotionTypes eNegatingPromotion = static_cast<PromotionTypes>(iI);
+								CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(eNegatingPromotion);
+								if(pkPromotionInfo)
+								{
+									PromotionTypes eNegatorPromotion = (PromotionTypes)pkPromotionInfo->NegatesPromotion();
+									// Unit has negation promotion
+									if(isHasPromotion(eNegatingPromotion) && ePromotion == eNegatorPromotion)
+									{
+										bNoPromotion = true;
+										break;
+									}
+								}
+							}
+							if(!bNoPromotion)
+							{
+								setHasPromotion(ePromotion, true);
+							}
+						}
+					}
+				}
+				else if(!GC.getTerrainInfo(eAdjacentTerrain)->isBarbarianOnly() && !GC.getTerrainInfo(eAdjacentTerrain)->isCityStateOnly())
+				{
+					if(m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT &&
+							(::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
+					{
+						bool bNoPromotion = false;
+						// Check for negating promotions
+						for(int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
+						{
+							const PromotionTypes eNegatingPromotion = static_cast<PromotionTypes>(iI);
+							CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(eNegatingPromotion);
+							if(pkPromotionInfo)
+							{
+								PromotionTypes eNegatorPromotion = (PromotionTypes)pkPromotionInfo->NegatesPromotion();
+								// Unit has negation promotion
+								if(isHasPromotion(eNegatingPromotion) && ePromotion == eNegatorPromotion)
+								{
+									bNoPromotion = true;
+									break;
+								}
+							}
+						}
+						if(!bNoPromotion)
 						{
 							setHasPromotion(ePromotion, true);
 						}
@@ -1638,6 +1922,11 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iRangeAttackIgnoreLOSCount = 0;
 	m_iCityAttackOnlyCount = 0;
 	m_iCaptureDefeatedEnemyCount = 0;
+#if defined(MOD_BALANCE_CORE)
+	m_iCannotBeCapturedCount = 0;
+	m_iForcedDamage = 0;
+	m_iChangeDamage = 0;
+#endif
 	m_iRangedSupportFireCount = 0;
 	m_iAlwaysHealCount = 0;
 	m_iHealOutsideFriendlyCount = 0;
@@ -5419,7 +5708,6 @@ void CvUnit::ChangeCaptureDefeatedEnemyCount(int iChange)
 		m_iCaptureDefeatedEnemyCount += iChange;
 	}
 }
-
 //	--------------------------------------------------------------------------------
 int CvUnit::GetCaptureChance(CvUnit *pEnemy)
 {
@@ -5432,6 +5720,12 @@ int CvUnit::GetCaptureChance(CvUnit *pEnemy)
 		if (pkEnemyInfo)
 		{
 			int iTheirCombat = pkEnemyInfo->GetCombat();
+#if defined(MOD_BALANCE_CORE)
+			if(pEnemy->GetCannotBeCaptured())
+			{
+				return 0;
+			}
+#endif
 
 			if (iTheirCombat > 0)
 			{
@@ -5444,7 +5738,53 @@ int CvUnit::GetCaptureChance(CvUnit *pEnemy)
 
 	return iRtnValue;
 }
-
+#if defined(MOD_BALANCE_CORE)
+//	--------------------------------------------------------------------------------
+void CvUnit::ChangeCannotBeCapturedCount(int iChange)
+{
+	VALIDATE_OBJECT
+	if(iChange != 0)
+	{
+		m_iCannotBeCapturedCount += iChange;
+	}
+}
+//	--------------------------------------------------------------------------------
+bool CvUnit::GetCannotBeCaptured()
+{
+	VALIDATE_OBJECT
+	return m_iCannotBeCapturedCount > 0;
+}
+//	--------------------------------------------------------------------------------
+void CvUnit::ChangeForcedDamageValue(int iChange)
+{
+	VALIDATE_OBJECT
+	if(iChange != 0)
+	{
+		m_iForcedDamage += iChange;
+	}
+}
+//	--------------------------------------------------------------------------------
+int CvUnit::getForcedDamageValue()
+{
+	VALIDATE_OBJECT
+	return m_iForcedDamage;
+}
+//	--------------------------------------------------------------------------------
+void CvUnit::ChangeChangeDamageValue(int iChange)
+{
+	VALIDATE_OBJECT
+	if(iChange != 0)
+	{
+		m_iChangeDamage += iChange;
+	}
+}
+//	--------------------------------------------------------------------------------
+int CvUnit::getChangeDamageValue()
+{
+	VALIDATE_OBJECT
+	return m_iForcedDamage;
+}
+#endif
 //	--------------------------------------------------------------------------------
 bool CvUnit::canSetUpForRangedAttack(const CvPlot* /*pPlot*/) const
 {
@@ -16780,10 +17120,29 @@ if (!bDoEvade)
 							// Is this a valid Promotion for the UnitCombatType?
 							if(GET_PLAYER(getOwner()).isBarbarian())
 							{
-								if(m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT &&
-										(::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
+								if(m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT && (::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
 								{
-									setHasPromotion(ePromotion, true);
+									bool bNoPromotion = false;
+									// Check for negating promotions
+									for(int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
+									{
+										const PromotionTypes eNegatingPromotion = static_cast<PromotionTypes>(iI);
+										CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(eNegatingPromotion);
+										if(pkPromotionInfo)
+										{
+											PromotionTypes eNegatorPromotion = (PromotionTypes)pkPromotionInfo->NegatesPromotion();
+											// Unit has negation promotion
+											if(isHasPromotion(eNegatingPromotion) && ePromotion == eNegatorPromotion)
+											{
+												bNoPromotion = true;
+												break;
+											}
+										}
+									}
+									if(!bNoPromotion)
+									{
+										setHasPromotion(ePromotion, true);
+									}
 								}
 							}
 						}
@@ -16792,23 +17151,65 @@ if (!bDoEvade)
 							// Is this a valid Promotion for the UnitCombatType?
 							if(GET_PLAYER(getOwner()).isMinorCiv())
 							{
-								if(m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT &&
-										(::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
+								if(m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT && (::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
 								{
-									setHasPromotion(ePromotion, true);
+									bool bNoPromotion = false;
+									// Check for negating promotions
+									for(int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
+									{
+										const PromotionTypes eNegatingPromotion = static_cast<PromotionTypes>(iI);
+										CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(eNegatingPromotion);
+										if(pkPromotionInfo)
+										{
+											PromotionTypes eNegatorPromotion = (PromotionTypes)pkPromotionInfo->NegatesPromotion();
+											// Unit has negation promotion
+											if(isHasPromotion(eNegatingPromotion) && ePromotion == eNegatorPromotion)
+											{
+												bNoPromotion = true;
+												break;
+											}
+										}
+									}
+									if(!bNoPromotion)
+									{
+										setHasPromotion(ePromotion, true);
+									}
 								}
 							}
 						}
 						else if(!GC.getFeatureInfo(eFeature)->isBarbarianOnly() && !GC.getFeatureInfo(eFeature)->isCityStateOnly())
 						{
-#endif
+							if(m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT && (::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
+							{
+								bool bNoPromotion = false;
+								// Check for negating promotions
+								for(int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
+								{
+									const PromotionTypes eNegatingPromotion = static_cast<PromotionTypes>(iI);
+									CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(eNegatingPromotion);
+									if(pkPromotionInfo)
+									{
+										PromotionTypes eNegatorPromotion = (PromotionTypes)pkPromotionInfo->NegatesPromotion();
+										// Unit has negation promotion
+										if(isHasPromotion(eNegatingPromotion) && ePromotion == eNegatorPromotion)
+										{
+											bNoPromotion = true;
+											break;
+										}
+									}
+								}
+								if(!bNoPromotion)
+								{
+									setHasPromotion(ePromotion, true);
+								}
+							}
+						}
+#else
 						// Is this a valid Promotion for the UnitCombatType?
 						if(m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT &&
 						        (::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
 						{
 							setHasPromotion(ePromotion, true);
-						}
-#if defined(MOD_BALANCE_CORE)
 						}
 #endif
 					}
@@ -16828,10 +17229,29 @@ if (!bDoEvade)
 					// Is this a valid Promotion for the UnitCombatType?
 					if(GET_PLAYER(getOwner()).isBarbarian())
 					{
-						if(m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT &&
-								(::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
+						if(m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT && (::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
 						{
-							setHasPromotion(ePromotion, true);
+							bool bNoPromotion = false;
+							// Check for negating promotions
+							for(int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
+							{
+								const PromotionTypes eNegatingPromotion = static_cast<PromotionTypes>(iI);
+								CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(eNegatingPromotion);
+								if(pkPromotionInfo)
+								{
+									PromotionTypes eNegatorPromotion = (PromotionTypes)pkPromotionInfo->NegatesPromotion();
+									// Unit has negation promotion
+									if(isHasPromotion(eNegatingPromotion) && ePromotion == eNegatorPromotion)
+									{
+										bNoPromotion = true;
+										break;
+									}
+								}
+							}
+							if(!bNoPromotion)
+							{
+								setHasPromotion(ePromotion, true);
+							}
 						}
 					}
 				}
@@ -16840,20 +17260,57 @@ if (!bDoEvade)
 					// Is this a valid Promotion for the UnitCombatType?
 					if(GET_PLAYER(getOwner()).isMinorCiv())
 					{
-						if(m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT &&
-								(::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
+						if(m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT && (::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
 						{
-							setHasPromotion(ePromotion, true);
+							bool bNoPromotion = false;
+							// Check for negating promotions
+							for(int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
+							{
+								const PromotionTypes eNegatingPromotion = static_cast<PromotionTypes>(iI);
+								CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(eNegatingPromotion);
+								if(pkPromotionInfo)
+								{
+									PromotionTypes eNegatorPromotion = (PromotionTypes)pkPromotionInfo->NegatesPromotion();
+									// Unit has negation promotion
+									if(isHasPromotion(eNegatingPromotion) && ePromotion == eNegatorPromotion)
+									{
+										bNoPromotion = true;
+										break;
+									}
+								}
+							}
+							if(!bNoPromotion)
+							{
+								setHasPromotion(ePromotion, true);
+							}
 						}
 					}
 				}
 				else if(!GC.getFeatureInfo(eFeature)->isBarbarianOnly() && !GC.getFeatureInfo(eFeature)->isCityStateOnly())
 				{
-					// Is this a valid Promotion for the UnitCombatType?
-					if(m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT &&
-							(::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
+					if(m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT && (::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
 					{
-						setHasPromotion(ePromotion, true);
+						bool bNoPromotion = false;
+						// Check for negating promotions
+						for(int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
+						{
+							const PromotionTypes eNegatingPromotion = static_cast<PromotionTypes>(iI);
+							CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(eNegatingPromotion);
+							if(pkPromotionInfo)
+							{
+								PromotionTypes eNegatorPromotion = (PromotionTypes)pkPromotionInfo->NegatesPromotion();
+								// Unit has negation promotion
+								if(isHasPromotion(eNegatingPromotion) && ePromotion == eNegatorPromotion)
+								{
+									bNoPromotion = true;
+									break;
+								}
+							}
+						}
+						if(!bNoPromotion)
+						{
+							setHasPromotion(ePromotion, true);
+						}
 					}
 				}
 			}
@@ -16870,10 +17327,29 @@ if (!bDoEvade)
 					// Is this a valid Promotion for the UnitCombatType?
 					if(GET_PLAYER(getOwner()).isBarbarian())
 					{
-						if(m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT &&
-								(::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
+						if(m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT && (::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
 						{
-							setHasPromotion(ePromotion, true);
+							bool bNoPromotion = false;
+							// Check for negating promotions
+							for(int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
+							{
+								const PromotionTypes eNegatingPromotion = static_cast<PromotionTypes>(iI);
+								CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(eNegatingPromotion);
+								if(pkPromotionInfo)
+								{
+									PromotionTypes eNegatorPromotion = (PromotionTypes)pkPromotionInfo->NegatesPromotion();
+									// Unit has negation promotion
+									if(isHasPromotion(eNegatingPromotion) && ePromotion == eNegatorPromotion)
+									{
+										bNoPromotion = true;
+										break;
+									}
+								}
+							}
+							if(!bNoPromotion)
+							{
+								setHasPromotion(ePromotion, true);
+							}
 						}
 					}
 				}
@@ -16882,20 +17358,57 @@ if (!bDoEvade)
 					// Is this a valid Promotion for the UnitCombatType?
 					if(GET_PLAYER(getOwner()).isMinorCiv())
 					{
-						if(m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT &&
-								(::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
+						if(m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT && (::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
 						{
-							setHasPromotion(ePromotion, true);
+							bool bNoPromotion = false;
+							// Check for negating promotions
+							for(int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
+							{
+								const PromotionTypes eNegatingPromotion = static_cast<PromotionTypes>(iI);
+								CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(eNegatingPromotion);
+								if(pkPromotionInfo)
+								{
+									PromotionTypes eNegatorPromotion = (PromotionTypes)pkPromotionInfo->NegatesPromotion();
+									// Unit has negation promotion
+									if(isHasPromotion(eNegatingPromotion) && ePromotion == eNegatorPromotion)
+									{
+										bNoPromotion = true;
+										break;
+									}
+								}
+							}
+							if(!bNoPromotion)
+							{
+								setHasPromotion(ePromotion, true);
+							}
 						}
 					}
 				}
 				else if(!GC.getTerrainInfo(eTerrain)->isBarbarianOnly() && !GC.getTerrainInfo(eTerrain)->isCityStateOnly())
 				{
-					// Is this a valid Promotion for the UnitCombatType?
-					if(m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT &&
-							(::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
+					if(m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT && (::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
 					{
-						setHasPromotion(ePromotion, true);
+						bool bNoPromotion = false;
+						// Check for negating promotions
+						for(int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
+						{
+							const PromotionTypes eNegatingPromotion = static_cast<PromotionTypes>(iI);
+							CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(eNegatingPromotion);
+							if(pkPromotionInfo)
+							{
+								PromotionTypes eNegatorPromotion = (PromotionTypes)pkPromotionInfo->NegatesPromotion();
+								// Unit has negation promotion
+								if(isHasPromotion(eNegatingPromotion) && ePromotion == eNegatorPromotion)
+								{
+									bNoPromotion = true;
+									break;
+								}
+							}
+						}
+						if(!bNoPromotion)
+						{
+							setHasPromotion(ePromotion, true);
+						}
 					}
 				}
 			}
@@ -21365,6 +21878,11 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 #endif
 		ChangeCityAttackOnlyCount((thisPromotion.IsCityAttackOnly()) ? iChange: 0);
 		ChangeCaptureDefeatedEnemyCount((thisPromotion.IsCaptureDefeatedEnemy()) ? iChange: 0);
+#if defined(MOD_BALANCE_CORE)
+		ChangeCannotBeCapturedCount((thisPromotion.CannotBeCaptured()) ? iChange: 0);
+		ChangeForcedDamageValue((thisPromotion.ForcedDamageValue()) ? iChange : 0);
+		ChangeChangeDamageValue((thisPromotion.ChangeDamageValue()) ? iChange : 0);
+#endif
 		ChangeCanHeavyChargeCount((thisPromotion.IsCanHeavyCharge()) ? iChange : 0);
 
 		ChangeEmbarkExtraVisibility((thisPromotion.GetEmbarkExtraVisibility()) * iChange);
@@ -21799,6 +22317,12 @@ void CvUnit::read(FDataStream& kStream)
 
 	kStream >> m_iCaptureDefeatedEnemyCount;
 
+#if defined(MOD_BALANCE_CORE)
+	MOD_SERIALIZE_READ(66, kStream, m_iCannotBeCapturedCount, 0);
+	MOD_SERIALIZE_READ(66, kStream, m_iForcedDamage, 0);
+	MOD_SERIALIZE_READ(66, kStream, m_iChangeDamage, 0);
+#endif
+
 	kStream >> m_iGreatAdmiralCount;
 
 #if defined(MOD_PROMOTIONS_UNIT_NAMING)
@@ -21932,6 +22456,12 @@ void CvUnit::write(FDataStream& kStream) const
 	kStream << m_iNumExoticGoods;
 	kStream << m_iCityAttackOnlyCount;
 	kStream << m_iCaptureDefeatedEnemyCount;
+#if defined(MOD_BALANCE_CORE)
+	MOD_SERIALIZE_WRITE(kStream, m_iCannotBeCapturedCount);
+	MOD_SERIALIZE_WRITE(kStream, m_iForcedDamage);
+	MOD_SERIALIZE_WRITE(kStream, m_iChangeDamage);
+#endif
+
 	kStream << m_iGreatAdmiralCount;
 
 #if defined(MOD_PROMOTIONS_UNIT_NAMING)

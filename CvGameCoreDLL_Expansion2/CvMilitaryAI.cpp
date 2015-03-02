@@ -259,6 +259,12 @@ CvMilitaryAI::CvMilitaryAI():
 	m_paeLastTurnTargetValue(NULL),
 	m_iTotalThreatWeight(1),
 	m_iNumberOfTimesOpsBuildSkippedOver(0),
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	m_paeBestTargetCity(NULL),
+	m_paeBestMusterCity(NULL),
+	m_bAttackBySea(NULL),
+	m_iTestTurn(0),
+#endif
 	m_eArmyTypeBeingBuilt(NO_ARMY_TYPE)
 {
 }
@@ -299,6 +305,14 @@ void CvMilitaryAI::Init(CvMilitaryAIStrategyXMLEntries* pAIStrategies, CvPlayer*
 	CvAssertMsg(m_paeLastTurnTargetValue==NULL, "about to leak memory, CvMilitaryAI::m_paeLastTurnTargetValue");
 	m_paeLastTurnTargetValue = FNEW(int[MAX_CIV_PLAYERS], c_eCiv5GameplayDLL, 0);
 
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	CvAssertMsg(m_paeBestTargetCity==NULL, "about to leak memory, CvMilitaryAI::m_paeBestTargetCity");
+	m_paeBestTargetCity = FNEW(int[MAX_CIV_PLAYERS], c_eCiv5GameplayDLL, 0);
+
+	CvAssertMsg(m_paeBestMusterCity==NULL, "about to leak memory, CvMilitaryAI::m_paeBestMusterCity");
+	m_paeBestMusterCity = FNEW(int[MAX_CIV_PLAYERS], c_eCiv5GameplayDLL, 0);
+#endif
+
 	Reset();
 }
 
@@ -312,6 +326,10 @@ void CvMilitaryAI::Uninit()
 	SAFE_DELETE_ARRAY(m_paeLastTurnMilitaryThreat);
 	SAFE_DELETE_ARRAY(m_paeLastTurnMilitaryStrength);
 	SAFE_DELETE_ARRAY(m_paeLastTurnTargetValue);
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	SAFE_DELETE_ARRAY(m_paeBestTargetCity);
+	SAFE_DELETE_ARRAY(m_paeBestMusterCity);
+#endif
 }
 
 /// Reset AIStrategy status array to all false
@@ -338,6 +356,16 @@ void CvMilitaryAI::Reset()
 	m_eLandDefenseState = NO_DEFENSE_STATE;
 	m_eNavalDefenseState = NO_DEFENSE_STATE;
 	m_iNumberOfTimesOpsBuildSkippedOver = 0;
+
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	for(iI = 0; iI < MAX_CIV_PLAYERS; iI++)
+	{
+		m_paeBestTargetCity[iI] = -1;
+		m_paeBestMusterCity[iI] = -1;
+	}
+	m_bAttackBySea = false;
+	m_iTestTurn = 0;
+#endif
 
 	for(iI = 0; iI < m_pAIStrategies->GetNumMilitaryAIStrategies(); iI++)
 	{
@@ -366,6 +394,15 @@ void CvMilitaryAI::Read(FDataStream& kStream)
 	m_eArmyTypeBeingBuilt = (ArmyType)temp;
 
 	kStream >> m_iNumberOfTimesOpsBuildSkippedOver;
+
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	ArrayWrapper<int> wrapm_paeBestTargetCity(MAX_CIV_PLAYERS, m_paeBestTargetCity);
+	kStream >> wrapm_paeBestTargetCity;
+	ArrayWrapper<int> wrapm_paeBestMusterCity(MAX_CIV_PLAYERS, m_paeBestMusterCity);
+	kStream >> wrapm_paeBestMusterCity;
+	kStream >> m_bAttackBySea;
+	kStream >> m_iTestTurn;
+#endif
 
 	int iNumStrategies;
 	kStream >> iNumStrategies;
@@ -407,6 +444,12 @@ void CvMilitaryAI::Write(FDataStream& kStream)
 	kStream << m_iTotalThreatWeight;
 	kStream << (int)m_eArmyTypeBeingBuilt;
 	kStream << m_iNumberOfTimesOpsBuildSkippedOver;
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	kStream << ArrayWrapper<int>(MAX_CIV_PLAYERS, m_paeBestTargetCity);
+	kStream << ArrayWrapper<int>(MAX_CIV_PLAYERS, m_paeBestMusterCity);
+	kStream << m_bAttackBySea;
+	kStream << m_iTestTurn;
+#endif
 	kStream << GC.getNumMilitaryAIStrategyInfos();
 	kStream << ArrayWrapper<bool>(m_pAIStrategies->GetNumMilitaryAIStrategies(), m_pabUsingStrategy);
 	kStream << ArrayWrapper<int>(m_pAIStrategies->GetNumMilitaryAIStrategies(), m_paiTurnStrategyAdopted);
@@ -516,7 +559,27 @@ bool CvMilitaryAI::RequestSneakAttack(PlayerTypes eEnemy)
 		return false;
 	}
 #endif
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	if(MOD_BALANCE_CORE_MILITARY)
+	{
+		target.m_pTargetCity = GetBestTargetCity(eEnemy);
+		target.m_pMusterCity = GetBestMusterCity(m_pPlayer->GetID());
+		target.m_bAttackBySea = GetAttackBySea();
+	}
+	if((GC.getGame().getGameTurn() - GetTestTurn() >= 25) || target.m_pMusterCity == NULL || target.m_pTargetCity == NULL || target.m_pTargetCity->getOwner() != eEnemy)
+	{
+#endif
 	target = FindBestAttackTarget(AI_OPERATION_SNEAK_CITY_ATTACK, eEnemy);
+#if defined(MOD_BALANCE_CORE_MILITARY)
+		if(target.m_pTargetCity != NULL && target.m_pMusterCity != NULL)
+		{
+			SetTestTurn(GC.getGame().getGameTurn());
+			SetBestTargetCity(target.m_pTargetCity, target.m_pTargetCity->getOwner());
+			SetBestMusterCity(target.m_pMusterCity, target.m_pMusterCity->getOwner());
+			SetAttackBySea(target.m_bAttackBySea);
+		}
+	}
+#endif
 	if(target.m_pTargetCity)
 	{
 		if(target.m_bAttackBySea)
@@ -573,7 +636,6 @@ bool CvMilitaryAI::RequestSneakAttack(PlayerTypes eEnemy)
 bool CvMilitaryAI::RequestShowOfForce(PlayerTypes eEnemy)
 {
 	CvMilitaryTarget target;
-
 	target = FindBestAttackTarget(AI_OPERATION_SNEAK_CITY_ATTACK, eEnemy);
 	if(target.m_pTargetCity)
 	{
@@ -639,8 +701,27 @@ bool CvMilitaryAI::RequestPillageAttack(PlayerTypes eEnemy)
 bool CvMilitaryAI::RequestBasicAttack(PlayerTypes eEnemy, int iNumUnitsWillingBuild)
 {
 	CvMilitaryTarget target;
-
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	if(MOD_BALANCE_CORE_MILITARY)
+	{
+		target.m_pTargetCity = GetBestTargetCity(eEnemy);
+		target.m_pMusterCity = GetBestMusterCity(m_pPlayer->GetID());
+		target.m_bAttackBySea = GetAttackBySea();
+	}
+	if((GC.getGame().getGameTurn() - GetTestTurn() >= 25) || target.m_pMusterCity == NULL || target.m_pTargetCity == NULL || target.m_pTargetCity->getOwner() != eEnemy)
+	{
+#endif
 	target = FindBestAttackTarget(AI_OPERATION_BASIC_CITY_ATTACK, eEnemy);
+#if defined(MOD_BALANCE_CORE_MILITARY)
+		if(target.m_pTargetCity != NULL && target.m_pMusterCity != NULL)
+		{
+			SetTestTurn(GC.getGame().getGameTurn());
+			SetBestTargetCity(target.m_pTargetCity, target.m_pTargetCity->getOwner());
+			SetBestMusterCity(target.m_pMusterCity, target.m_pMusterCity->getOwner());
+			SetAttackBySea(target.m_bAttackBySea);
+		}
+	}
+#endif
 	return RequestSpecificAttack(target, iNumUnitsWillingBuild);
 }
 
@@ -652,7 +733,6 @@ bool CvMilitaryAI::RequestPureNavalAttack(PlayerTypes eEnemy, int iNumUnitsWilli
 	int iNumRequiredSlots = 0;
 	int iLandReservesUsed = 0;
 	int iFilledSlots = 0;
-
 	target = FindBestAttackTarget(AI_OPERATION_PURE_NAVAL_CITY_ATTACK, eEnemy);
 	if(target.m_pTargetCity)
 	{
@@ -675,7 +755,6 @@ bool CvMilitaryAI::RequestCityStateAttack(PlayerTypes eEnemy)
 {
 	CvMilitaryTarget target;
 	CvAIOperation* pOperation = 0;
-
 	target = FindBestAttackTarget(AI_OPERATION_CITY_STATE_ATTACK, eEnemy);
 	if(target.m_pTargetCity)
 	{
@@ -1023,7 +1102,80 @@ bool CvMilitaryAI::BuyEmergencyBuilding(CvCity* pCity)
 }
 
 // FINDING BEST CITIES TO TARGET
-
+#if defined(MOD_BALANCE_CORE_MILITARY)
+CvCity* CvMilitaryAI::GetBestTargetCity(PlayerTypes ePlayer)
+{
+	CvCity* pLoopCity;
+	int iCityLoop;
+	if(ePlayer != NO_PLAYER && GET_PLAYER(ePlayer).isAlive())
+	{
+		for(pLoopCity = GET_PLAYER(ePlayer).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iCityLoop))
+		{
+			if(pLoopCity != NULL)
+			{
+				if(pLoopCity->GetID() == m_paeBestTargetCity[ePlayer])
+				{
+					return pLoopCity;
+				}
+			}
+		}
+	}
+	return NULL;
+}
+CvCity* CvMilitaryAI::GetBestMusterCity(PlayerTypes ePlayer)
+{
+	CvCity* pLoopCity;
+	for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+	{	
+		int iCityLoop;
+		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+		if(eLoopPlayer != NO_PLAYER && GET_PLAYER(eLoopPlayer).isAlive())
+		{
+			for(pLoopCity = GET_PLAYER(eLoopPlayer).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eLoopPlayer).nextCity(&iCityLoop))
+			{
+				if(pLoopCity != NULL)
+				{
+					if(pLoopCity->GetID() == m_paeBestMusterCity[ePlayer])
+					{
+						return pLoopCity;
+					}
+				}
+			}
+		}
+	}
+	return NULL;
+}
+bool CvMilitaryAI::GetAttackBySea()
+{
+	return m_bAttackBySea;
+}
+int CvMilitaryAI::GetTestTurn()
+{
+	return m_iTestTurn;
+}
+void CvMilitaryAI::SetBestTargetCity(CvCity* pCity, PlayerTypes ePlayer)
+{
+	if(pCity->GetID() != -1 && ePlayer != NO_PLAYER)
+	{
+		m_paeBestTargetCity[ePlayer] = pCity->GetID();
+	}
+}
+void CvMilitaryAI::SetBestMusterCity(CvCity* pCity, PlayerTypes ePlayer)
+{
+	if(pCity->GetID() != -1 && ePlayer != NO_PLAYER)
+	{
+		m_paeBestMusterCity[ePlayer] = pCity->GetID();
+	}
+}
+void CvMilitaryAI::SetAttackBySea(bool bValue)
+{
+	m_bAttackBySea = bValue;
+}
+void CvMilitaryAI::SetTestTurn(int iValue)
+{
+	m_iTestTurn = iValue;
+}
+#endif
 /// Best target by land OR sea
 CvMilitaryTarget CvMilitaryAI::FindBestAttackTarget(AIOperationTypes eAIOperationType, PlayerTypes eEnemy, int* piWinningScore)
 {
@@ -5418,7 +5570,27 @@ void CvMilitaryAI::MinorAttackTest()
 				{
 					if(GET_PLAYER(eLoopPlayer).GetProximityToPlayer(m_pPlayer->GetID()) >= PLAYER_PROXIMITY_CLOSE)
 					{
+#if defined(MOD_BALANCE_CORE_MILITARY)
+						if(MOD_BALANCE_CORE_MILITARY)
+						{
+							target.m_pTargetCity = GetBestTargetCity(eLoopPlayer);
+							target.m_pMusterCity = GetBestMusterCity(m_pPlayer->GetID());
+							target.m_bAttackBySea = GetAttackBySea();
+						}
+						if((GC.getGame().getGameTurn() - GetTestTurn() >= 25) || target.m_pMusterCity == NULL || target.m_pTargetCity == NULL || target.m_pTargetCity->getOwner() != eLoopPlayer)
+						{
+#endif
 						target = FindBestAttackTarget(AI_OPERATION_SMALL_CITY_ATTACK, eLoopPlayer);
+#if defined(MOD_BALANCE_CORE_MILITARY)
+						if(target.m_pTargetCity != NULL && target.m_pMusterCity != NULL)
+						{
+							SetTestTurn(GC.getGame().getGameTurn());
+							SetBestTargetCity(target.m_pTargetCity, target.m_pTargetCity->getOwner());
+							SetBestMusterCity(target.m_pMusterCity, target.m_pMusterCity->getOwner());
+							SetAttackBySea(target.m_bAttackBySea);
+						}
+					}
+#endif
 						if(target.m_pTargetCity)
 						{
 							RequestSpecificAttack(target, 1);

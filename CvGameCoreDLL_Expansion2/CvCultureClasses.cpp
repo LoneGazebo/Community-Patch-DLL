@@ -4155,9 +4155,13 @@ int CvPlayerCulture::ComputePublicOpinionUnhappiness(int iDissatisfaction)
 
 	if (iDissatisfaction<1)
 		return 0;
-
-	float fPerCityUnhappy = 1.f;
-	float fUnhappyPerXPop = 10.f;
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+	float fPerCityUnhappy = 0.5f;
+	float fUnhappyPerXPop = 15.0f;
+#else
+	float fPerCityUnhappy = 1.0f;
+	float fUnhappyPerXPop = 10.0f;
+#endif
 
 	//important!
 	float fPerCityUnhappySlope = 0.2f;

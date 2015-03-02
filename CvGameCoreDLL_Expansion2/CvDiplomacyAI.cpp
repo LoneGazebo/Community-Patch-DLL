@@ -427,9 +427,6 @@ void CvDiplomacyAI::Init(CvPlayer* pPlayer)
 	CvAssertMsg(!m_pDiploData, "MEMORY LEAK, CvDiplomacyAI::m_pDiploData");
 	m_pDiploData = FNEW(DiplomacyAIData, c_eCiv5GameplayDLL, 0);
 
-#if defined(MOD_BALANCE_CORE_DEALS)
-	m_iForcedMessage = 0;
-#endif
 	//Init array pointers
 	m_paDiploLogStatementTurnCountScratchPad = &m_pDiploData->m_aDiploLogStatementTurnCountScratchPad[0];
 	m_paeMajorCivOpinion = &m_pDiploData->m_aiMajorCivOpinion[0];
@@ -1156,9 +1153,6 @@ void CvDiplomacyAI::Reset()
 	m_eDemandTargetPlayer = NO_PLAYER;
 	m_bDemandReady = false;
 
-#if defined(MOD_BALANCE_CORE_DEALS)
-	m_iForcedMessage = -1;
-#endif
 	m_iVictoryCompetitiveness = -1;
 	m_iWonderCompetitiveness = -1;
 	m_iMinorCivCompetitiveness = -1;
@@ -1614,9 +1608,6 @@ void CvDiplomacyAI::Read(FDataStream& kStream)
 	kStream >> m_eDemandTargetPlayer;
 	kStream >> m_bDemandReady;
 
-#if defined(MOD_BALANCE_CORE_DEALS)
-	kStream >> m_iForcedMessage;
-#endif
 	kStream >> m_iVictoryCompetitiveness;
 	kStream >> m_iWonderCompetitiveness;
 	kStream >> m_iMinorCivCompetitiveness;
@@ -1935,9 +1926,7 @@ void CvDiplomacyAI::Write(FDataStream& kStream) const
 
 	kStream << m_eDemandTargetPlayer;
 	kStream << m_bDemandReady;
-#if defined(MOD_BALANCE_CORE_DEALS)
-	kStream << m_iForcedMessage;
-#endif
+
 	kStream << m_iVictoryCompetitiveness;
 	kStream << m_iWonderCompetitiveness;
 	kStream << m_iMinorCivCompetitiveness;
@@ -17186,18 +17175,6 @@ void CvDiplomacyAI::DoBeginDiploWithHumanInDiscuss()
 	}
 }
 
-#if defined(MOD_BALANCE_CORE_DEALS)
-/// What should an AI leader say for a particular situation FORCED?
-void CvDiplomacyAI::SetForceDiplomaticMessage(int iValue)
-{
-	m_iForcedMessage = iValue;
-}
-/// What should an AI leader say for a particular situation FORCED?
-int CvDiplomacyAI::GetForceDiplomaticMessage()
-{
-	return m_iForcedMessage;
-}
-#endif
 /// What should an AI leader say for a particular situation?
 const char* CvDiplomacyAI::GetDiploStringForMessage(DiploMessageTypes eDiploMessage, PlayerTypes eForPlayer)
 {
@@ -17220,13 +17197,6 @@ const char* CvDiplomacyAI::GetDiploStringForMessage(DiploMessageTypes eDiploMess
 	EraTypes eCurrentEra = GC.getGame().getCurrentEra();
 #endif
 	const char* strText;
-#if defined(MOD_BALANCE_CORE_DEALS)
-	//Hacky way of getting around LUA errors where eForPlayer is -1!
-	if(MOD_BALANCE_CORE_DEALS && (GetForceDiplomaticMessage() != -1))
-	{
-		eDiploMessage = (DiploMessageTypes)GetForceDiplomaticMessage();
-	}
-#endif
 	switch(eDiploMessage)
 	{
 		//////////////////////////////////////////////////////////////

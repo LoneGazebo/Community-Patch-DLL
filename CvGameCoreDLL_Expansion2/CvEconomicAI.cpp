@@ -1830,18 +1830,15 @@ void CvEconomicAI::DoHurry()
 
 	if(IsSavingForThisPurchase(PURCHASE_TYPE_UNIT_UPGRADE) || IsSavingForThisPurchase(PURCHASE_TYPE_TILE) || IsSavingForThisPurchase(PURCHASE_TYPE_MINOR_CIV_GIFT))
 	{
-		return;
+		iTreasuryBuffer *= 2;
 	}
 	
 	//Let's check our average income over five-turn periods
-	int iInterval = 5;
-
 	CvTreasury* pTreasury = m_pPlayer->GetTreasury();
 
 	//Are we in debt? Doesn't matter if we are super rich!
-	if((pTreasury->GetGold() > iTreasuryBuffer && pTreasury->AverageIncome(iInterval) >= 1) || (pTreasury->GetGold() > iTreasuryBuffer + 2000))
+	if((pTreasury->GetGold() > iTreasuryBuffer && pTreasury->CalculateBaseNetGoldTimes100() > 0) || (pTreasury->GetGold() > (iTreasuryBuffer * 2)))
 	{
-
 		// Look at each of our cities
 		for(CvCity* pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 		{
