@@ -682,6 +682,10 @@ public:
 	void DoBeginDiploWithHumanEspionageResult();
 	void DoBeginDiploWithHumanInDiscuss();
 
+#if defined(MOD_BALANCE_CORE_DEALS)
+	void SetForceDiplomaticMessage(int iValue);
+	int GetForceDiplomaticMessage();
+#endif
 	const char* GetDiploStringForMessage(DiploMessageTypes eDiploMessage, PlayerTypes eForPlayer = NO_PLAYER);
 	const char* GetDiploStringForMessage(DiploMessageTypes eDiploMessage, PlayerTypes eForPlayer, const Localization::String& strOptionalKey1);
 	const char* GetDiploStringForMessage(DiploMessageTypes eDiploMessage, PlayerTypes eForPlayer, const Localization::String& strOptionalKey1, const Localization::String& strOptionalKey2);
@@ -1750,7 +1754,9 @@ private:
 	bool* m_pabPlayerBrokenCoopWarPromise;
 
 	// Personality Members
-
+#if defined(MOD_BALANCE_CORE_DEALS)
+	int m_iForcedMessage;
+#endif
 	int m_iVictoryCompetitiveness;
 	int m_iWonderCompetitiveness;
 	int m_iMinorCivCompetitiveness;
