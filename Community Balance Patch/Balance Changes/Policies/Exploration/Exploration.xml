@@ -291,7 +291,7 @@
 		<Row>
 			<PolicyType>POLICY_TREASURE_FLEETS</PolicyType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>10</Yield>
+			<Yield>100</Yield>
 		</Row>
 	</Policy_ConquerorYield>
 	<!-- Merchant Navy -->
@@ -327,19 +327,19 @@
 			<PolicyType>POLICY_NAVAL_TRADITION</PolicyType>
 			<BuildingClassType>BUILDINGCLASS_BARRACKS</BuildingClassType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<YieldChange>1</YieldChange>
+			<YieldChange>2</YieldChange>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_NAVAL_TRADITION</PolicyType>
 			<BuildingClassType>BUILDINGCLASS_ARMORY</BuildingClassType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<YieldChange>1</YieldChange>
+			<YieldChange>2</YieldChange>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_NAVAL_TRADITION</PolicyType>
 			<BuildingClassType>BUILDINGCLASS_MILITARY_ACADEMY</BuildingClassType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<YieldChange>1</YieldChange>
+			<YieldChange>2</YieldChange>
 		</Row>
 	</Policy_BuildingClassYieldChanges>
 	<Policy_BuildingClassCultureChanges>
@@ -382,6 +382,10 @@
 		<Row>
 			<PolicyType>POLICY_EXPLORATION_FINISHER</PolicyType>
 			<PromotionType>PROMOTION_AIR_SIEGE_1</PromotionType>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_NAVIGATION_SCHOOL</PolicyType>
+			<PromotionType>PROMOTION_FASTER_GENERAL</PromotionType>
 		</Row>
 	</Policy_FreePromotions>
 </GameData>

@@ -3590,21 +3590,30 @@ TeamTypes CvUnit::GetDeclareWarMove(const CvPlot& plot) const
 			}
 		}
 #if defined(MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS)
-		if(MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS && plot.getNumUnits())
+		if(MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS && plot.getNumUnits() > 0)
 		{
 			int iPeaceUnits = 0;
 			pUnit = NULL;
+			bool bGotOne = false;
+			if(plot.isCity())
+			{
+				if(!GET_TEAM(getTeam()).isAtWar(GET_PLAYER(plot.getOwner()).getTeam()))
+				{
+					bGotOne = true;
+				}
+			}
 			for(int iUnitLoop = 0; iUnitLoop < plot.getNumUnits(); iUnitLoop++)
 			{
 				CvUnit* loopUnit = plot.getUnitByIndex(iUnitLoop);
 
 				//If we're at war with a civ, and they've got a unit here, let's return that unit instead of the civilian unit on this space.
-				if(loopUnit && GET_TEAM(getTeam()).isAtWar(plot.getUnitByIndex(iUnitLoop)->getTeam()))
+				if(!bGotOne && loopUnit && GET_TEAM(getTeam()).isAtWar(plot.getUnitByIndex(iUnitLoop)->getTeam()))
 				{
 					//There can be only one military unit on a tile, so one check is good enough.
 					if(!plot.getUnitByIndex(iUnitLoop)->IsCivilianUnit())
 					{
 						pUnit = plot.getUnitByIndex(iUnitLoop);
+						bGotOne = true;
 					}
 				}
 				else if(loopUnit && !GET_TEAM(getTeam()).isAtWar(plot.getUnitByIndex(iUnitLoop)->getTeam()))
@@ -3617,7 +3626,7 @@ TeamTypes CvUnit::GetDeclareWarMove(const CvPlot& plot) const
 				}
 			}
 			//If there's a civilian here, but we're at peace with that civilian, return NO_TEAM.
-			if((iPeaceUnits > 0) && (pUnit != NULL))
+			if((iPeaceUnits > 0) && ((pUnit != NULL) || bGotOne))
 			{
 				return NO_TEAM;
 			}

@@ -223,9 +223,9 @@ public:
 
 	bool canEmbark(const CvPlot* pPlot) const;
 	bool canDisembark(const CvPlot* pPlot) const;
-	bool canEmbarkOnto(const CvPlot& pOriginPlot, const CvPlot& pTargetPlot, bool bOverrideEmbarkedCheck = false) const;
-	bool canDisembarkOnto(const CvPlot& pOriginPlot, const CvPlot& pTargetPlot, bool bOverrideEmbarkedCheck = false) const;
-	bool canDisembarkOnto(const CvPlot& pTargetPlot) const;
+	bool canEmbarkOnto(const CvPlot& pOriginPlot, const CvPlot& pTargetPlot, bool bOverrideEmbarkedCheck = false, bool bIsDestination = false) const;
+	bool canDisembarkOnto(const CvPlot& pOriginPlot, const CvPlot& pTargetPlot, bool bOverrideEmbarkedCheck = false, bool bIsDestination = false) const;
+	bool canDisembarkOnto(const CvPlot& pTargetPlot, bool bIsDestination = false) const;
 	bool CanEverEmbark() const;  // can this unit ever change into an embarked unit
 	void embark(CvPlot* pPlot);
 	void disembark(CvPlot* pPlot);
@@ -618,8 +618,9 @@ public:
 	void setGameTurnCreated(int iNewValue);
 
 	int getDamage() const;
-	void setDamage(int iNewValue, PlayerTypes ePlayer = NO_PLAYER, float fAdditionalTextDelay = 0.0f, CvString* pAppendText = NULL);
-	void changeDamage(int iChange, PlayerTypes ePlayer = NO_PLAYER, float fAdditionalTextDelay = 0.0f, CvString* pAppendText = NULL);
+	int setDamage(int iNewValue, PlayerTypes ePlayer = NO_PLAYER, float fAdditionalTextDelay = 0.0f, const CvString* pAppendText = NULL);
+	int changeDamage(int iChange, PlayerTypes ePlayer = NO_PLAYER, float fAdditionalTextDelay = 0.0f, const CvString* pAppendText = NULL);
+	static void ShowDamageDeltaText(int iDelta, CvPlot* pkPlot, float fAdditionalTextDelay = 0.0f, const CvString* pAppendText = NULL);
 
 	int getMoves() const;
 	void setMoves(int iNewValue);

@@ -390,44 +390,74 @@
 	<!-- Happiness Flavors -->
 	<Building_Flavors>
 		<Row>
-			<BuildingType>BUILDING_WALLS</BuildingType>
+			<BuildingType>BUILDING_POLICE_STATION</BuildingType>
 			<FlavorType>FLAVOR_HAPPINESS</FlavorType>
-			<Flavor>30</Flavor>
+			<Flavor>50</Flavor>
 		</Row>
 		<Row>
-			<BuildingType>BUILDING_CASTLE</BuildingType>
+			<BuildingType>BUILDING_ARMORY</BuildingType>
 			<FlavorType>FLAVOR_HAPPINESS</FlavorType>
-			<Flavor>30</Flavor>
-		</Row>
-		<Row>
-			<BuildingType>BUILDING_ARSENAL</BuildingType>
-			<FlavorType>FLAVOR_HAPPINESS</FlavorType>
-			<Flavor>30</Flavor>
-		</Row>
-		<Row>
-			<BuildingType>BUILDING_MILITARY_BASE</BuildingType>
-			<FlavorType>FLAVOR_HAPPINESS</FlavorType>
-			<Flavor>30</Flavor>
+			<Flavor>20</Flavor>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_CONSTABLE</BuildingType>
 			<FlavorType>FLAVOR_HAPPINESS</FlavorType>
-			<Flavor>25</Flavor>
+			<Flavor>30</Flavor>
 		</Row>
 		<Row>
-			<BuildingType>BUILDING_POLICE_STATION</BuildingType>
+			<BuildingType>BUILDING_KREPOST</BuildingType>
 			<FlavorType>FLAVOR_HAPPINESS</FlavorType>
-			<Flavor>25</Flavor>
+			<Flavor>15</Flavor>
 		</Row>
 		<Row>
-			<BuildingType>BUILDING_CONSTABLE</BuildingType>
-			<FlavorType>FLAVOR_GROWTH</FlavorType>
-			<Flavor>25</Flavor>
+			<BuildingType>BUILDING_BARRACKS</BuildingType>
+			<FlavorType>FLAVOR_HAPPINESS</FlavorType>
+			<Flavor>15</Flavor>
 		</Row>
 		<Row>
-			<BuildingType>BUILDING_POLICE_STATION</BuildingType>
-			<FlavorType>FLAVOR_GROWTH</FlavorType>
-			<Flavor>25</Flavor>
+			<BuildingType>BUILDING_MEDICAL_LAB</BuildingType>
+			<FlavorType>FLAVOR_HAPPINESS</FlavorType>
+			<Flavor>50</Flavor>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_HOSPITAL</BuildingType>
+			<FlavorType>FLAVOR_HAPPINESS</FlavorType>
+			<Flavor>20</Flavor>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_AQUEDUCT</BuildingType>
+			<FlavorType>FLAVOR_HAPPINESS</FlavorType>
+			<Flavor>15</Flavor>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_LABORATORY</BuildingType>
+			<FlavorType>FLAVOR_HAPPINESS</FlavorType>
+			<Flavor>50</Flavor>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_UNIVERSITY</BuildingType>
+			<FlavorType>FLAVOR_HAPPINESS</FlavorType>
+			<Flavor>20</Flavor>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_PUBLIC_SCHOOL</BuildingType>
+			<FlavorType>FLAVOR_HAPPINESS</FlavorType>
+			<Flavor>30</Flavor>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_PAPER_MAKER</BuildingType>
+			<FlavorType>FLAVOR_HAPPINESS</FlavorType>
+			<Flavor>15</Flavor>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_ROYAL_LIBRARY</BuildingType>
+			<FlavorType>FLAVOR_HAPPINESS</FlavorType>
+			<Flavor>15</Flavor>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_LABORATORY</BuildingType>
+			<FlavorType>FLAVOR_HAPPINESS</FlavorType>
+			<Flavor>50</Flavor>
 		</Row>
 	</Building_Flavors>
 </GameData>

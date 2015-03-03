@@ -508,6 +508,7 @@ public:
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
 	//LUA Functions
+	int GetYieldPerTurnFromHappiness(YieldTypes eYield) const;
 	int CalculateUnhappinessTooltip(YieldTypes eYield) const;
 #endif
 	int GetExcessHappiness() const;
@@ -659,6 +660,11 @@ public:
 	int GetRAToVotes() const;
 	void ChangeRAToVotes(int iChange);
 	int TestRAToVotes(int iChange);
+
+	int GetDefensePactsToVotes() const;
+	void ChangeDefensePactsToVotes(int iChange);
+	int TestDefensePactsToVotes(int iChange);
+
 	int GetGPExpendInfluence() const;
 	void ChangeGPExpendInfluence(int iChange);
 	
@@ -1156,6 +1162,8 @@ public:
 	void ChangeNoUnhappfromXSpecialists(int iChange);
 	int GetNoUnhappfromXSpecialistsCapital() const;
 	void ChangeNoUnhappfromXSpecialistsCapital(int iChange);
+	int GetWarWearinessModifier() const;
+	void ChangeWarWearinessModifier(int iChange);
 #endif
 
 	int getCultureBombTimer() const;
@@ -1484,6 +1492,11 @@ public:
 	void changeNumResourceUsed(ResourceTypes eIndex, int iChange);
 	int getNumResourceTotal(ResourceTypes eIndex, bool bIncludeImport = true) const;
 	void changeNumResourceTotal(ResourceTypes eIndex, int iChange, bool bIgnoreResourceWarning = false);
+#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+	bool HasMonopoly(ResourceTypes eResource) const;
+	void SetHasMonopoly(ResourceTypes eResource, bool bNewValue);
+	void TestHasMonopoly(ResourceTypes eResource);
+#endif
 
 	int getSiphonLuxuryCount(PlayerTypes eFromPlayer) const;
 	void changeSiphonLuxuryCount(PlayerTypes eFromPlayer, int iChange);
@@ -2168,6 +2181,7 @@ protected:
 	int m_iCapitalsToVotes;
 	int m_iDoFToVotes;
 	int m_iRAToVotes;
+	int m_iDefensePactsToVotes;
 	int m_iGPExpendInfluence;
 	bool m_bIsLeagueAid;
 	bool m_bIsLeagueScholar;
@@ -2264,6 +2278,7 @@ protected:
 	int m_iPuppetUnhappinessMod;
 	int m_iNoUnhappfromXSpecialists;
 	int m_iNoUnhappfromXSpecialistsCapital;
+	int m_iWarWearinessModifier;
 #endif
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	int m_iGarrisonsOccupiedUnhapppinessMod;
@@ -2499,6 +2514,10 @@ protected:
 #endif
 
 	FAutoVariable<std::vector<bool>, CvPlayer> m_pabLoyalMember;
+
+#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+	FAutoVariable<std::vector<bool>, CvPlayer> m_pabHasMonopoly;
+#endif
 
 	FAutoVariable<std::vector<bool>, CvPlayer> m_pabGetsScienceFromPlayer;
 

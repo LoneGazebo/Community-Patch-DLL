@@ -1409,7 +1409,10 @@ void CvCityStrategyAI::DoTurn()
 	{
 		AICityStrategyTypes eCityStrategy = (AICityStrategyTypes) iCityStrategiesLoop;
 		CvAICityStrategyEntry* pCityStrategy = GetAICityStrategies()->GetEntry(iCityStrategiesLoop);
-
+#if defined(MOD_BALANCE_CORE)
+		if(pCityStrategy == NULL)	// Can have holes in the list
+			continue;
+#endif
 		// Minor Civs can't run some Strategies
 		if(GET_PLAYER(GetCity()->getOwner()).isMinorCiv() && pCityStrategy->IsNoMinorCivs())
 		{

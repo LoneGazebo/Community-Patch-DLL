@@ -309,6 +309,8 @@ public:
 	int GetPuppetUnhappinessMod() const;
 	int GetNoUnhappfromXSpecialists() const;
 	int GetNoUnhappfromXSpecialistsCapital() const;
+
+	int GetWarWearinessModifier() const;
 #endif
 private:
 	int m_iTechPrereq;
@@ -483,6 +485,7 @@ private:
 	int m_iPuppetUnhappinessModPolicy;
 	int m_iNoUnhappfromXSpecialists;
 	int m_iNoUnhappfromXSpecialistsCapital;
+	int m_iWarWearinessModifier;
 #endif
 
 	CvString m_strWeLoveTheKingKey;

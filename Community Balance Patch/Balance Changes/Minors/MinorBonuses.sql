@@ -5,6 +5,9 @@ SELECT 'BALANCE_SPY_TO_MINOR_RATIO', '15'
 WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_MINORS' AND Value= 1 );
 
 -- Minor Civ Stuff
+UPDATE Defines
+SET Value = '30'
+WHERE Name = 'FRIENDSHIP_THRESHOLD_CAN_BULLY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_MINORS' AND Value= 1 );
 
 INSERT INTO Defines (
 Name, Value)
@@ -20,6 +23,10 @@ INSERT INTO Defines (
 Name, Value)
 SELECT 'BALANCE_CS_FORGIVENESS_CHANCE', '75'
 WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_MINORS' AND Value= 1 );
+
+UPDATE Language_en_US
+SET Text = '[ICON_INFLUENCE] Influence too high'
+WHERE Tag = 'TXT_KEY_POP_CSTATE_BULLY_FACTOR_LOW_INFLUENCE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_MINORS' AND Value= 1 );
 
 UPDATE Language_en_US
 SET Text = 'You are at war with {1_CityStateName:textkey}, which means it will not make peace with you! (If you declared war on this City-State, you will not be able to make peace until [COLOR_NEGATIVE_TEXT]{2_JerkRate}[ENDCOLOR] or more turns have expired.)'

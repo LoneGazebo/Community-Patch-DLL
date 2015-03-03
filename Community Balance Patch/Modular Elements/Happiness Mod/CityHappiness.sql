@@ -83,13 +83,13 @@
 
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_HAPPINESS_TECH_BASE_CITY_COUNT', '-10'
+	SELECT 'BALANCE_HAPPINESS_TECH_BASE_CITY_COUNT', '-15'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 	
--- Value by which yield/threshold difference is divded. 40 = 1 point of unhappiness for every 0.40 difference between city yield and global average (after the first .4).
+-- Value by which yield/threshold difference is divded. 50 = 1 point of unhappiness for every 0.40 difference between city yield and global average (after the first .4).
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_UNHAPPY_CITY_BASE_VALUE', '40'
+	SELECT 'BALANCE_UNHAPPY_CITY_BASE_VALUE', '50'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 -- Unhappiness point per religious minority pop. A high faith to population ratio will reduce this penalty. Also note that this is the ONLY unhappiness calculation that goes down as the game progresses (religion makes slightly less unhappiness as you move into new eras)

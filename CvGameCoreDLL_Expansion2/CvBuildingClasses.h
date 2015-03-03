@@ -241,6 +241,7 @@ public:
 	int GetCapitalsToVotes() const;
 	int GetDoFToVotes() const;
 	int GetRAToVotes() const;
+	int GetDPToVotes() const;
 	int GetGPExpendInfluence() const;
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
@@ -355,8 +356,15 @@ public:
 	int GetFlavorValue(int i) const;
 	int GetLocalResourceAnd(int i) const;
 	int GetLocalResourceOr(int i) const;
+#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+	int GetResourceMonopolyAnd(int i) const;
+	int GetResourceMonopolyOr(int i) const;
+#endif
 	int GetHurryModifier(int i) const;
 	bool IsBuildingClassNeededInCity(int i) const;
+#if defined(MOD_BALANCE_CORE)
+	bool IsBuildingClassNeededAnywhere(int i) const;
+#endif
 	int GetNumFreeUnits(int i) const;
 #if defined(MOD_BALANCE_CORE_BUILDING_INSTANT_YIELD)
 	int GetInstantYield(int i) const;
@@ -520,6 +528,7 @@ private:
 	int m_iCapitalsToVotesBase;
 	int m_iDoFToVotesBase;
 	int m_iRAToVotesBase;
+	int m_iDPToVotesBase;
 	int m_iGPExpendInfluenceBase;
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
@@ -630,9 +639,16 @@ private:
 	int* m_piFlavorValue;
 	int* m_piLocalResourceAnds;
 	int* m_piLocalResourceOrs;
+#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+	int* m_piResourceMonopolyAnds;
+	int* m_piResourceMonopolyOrs;
+#endif
 	int* m_paiHurryModifier;
 
 	bool* m_pbBuildingClassNeededInCity;
+#if defined(MOD_BALANCE_CORE)
+	bool* m_pbBuildingClassNeededAnywhere;
+#endif
 	int* m_piNumFreeUnits;
 
 	int** m_ppaiResourceYieldChange;

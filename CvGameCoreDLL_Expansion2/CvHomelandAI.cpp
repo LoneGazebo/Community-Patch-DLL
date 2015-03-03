@@ -2835,24 +2835,6 @@ void CvHomelandAI::ReviewUnassignedUnits()
 					}
 				}
 			}
-			else if(pUnit->IsCivilianUnit())
-			{
-				if(pUnit->isFound())
-				{
-					pUnit->setArmyID(FFreeList::INVALID_INDEX);
-				}
-				pUnit->PushMission(CvTypes::getMISSION_SKIP());
-				pUnit->SetTurnProcessed(true);
-				CvString strTemp;
-				CvUnitEntry* pkUnitInfo = GC.getUnitInfo(pUnit->getUnitType());
-				if(pkUnitInfo)
-				{
-					strTemp = pkUnitInfo->GetDescription();
-					CvString strLogString;
-					strLogString.Format("Unassigned CIVILIAN %s inactive, Army value reset to -1, at X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY());
-					LogHomelandMessage(strLogString);
-				}
-			}
 #else
 			pUnit->PushMission(CvTypes::getMISSION_SKIP());
 			pUnit->SetTurnProcessed(true);

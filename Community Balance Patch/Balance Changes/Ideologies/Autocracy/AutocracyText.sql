@@ -1,7 +1,7 @@
 -- Clausewitz's Legacy
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Legacy of Clausewitz[ENDCOLOR][NEWLINE]Receive a 25% attack bonus to all Military Units for the first 50 turns after this policy is adopted, and receive one free Policy.'
+SET Text = '[COLOR_POSITIVE_TEXT]Legacy of Clausewitz[ENDCOLOR][NEWLINE]Receive one free Policy, and a 25% Attack Bonus for 50 turns after this policy is adopted. [ICON_HAPPINESS_3] War Weariness rate reduced by 50%.'
 WHERE Tag = 'TXT_KEY_POLICY_NEW_ORDER_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 -- Cult of Personality

@@ -1397,6 +1397,11 @@ public:
 	int getUniqueRange() const;
 	int getGroupRange() const;
 	int getGroupRand() const;
+#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+	int getMonopolyHappiness() const;
+	int getMonopolyGALength() const;
+	bool isMonopoly() const;
+#endif
 
 	bool isPresentOnAllValidPlots() const;
 	bool isOneArea() const;
@@ -1427,6 +1432,14 @@ public:
 	int getYieldChange(int i) const;
 	int* getYieldChangeArray();
 	int getImprovementChange(int i) const;
+
+#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+	int getYieldChangeFromMonopoly(int i) const;
+	int* getYieldChangeFromMonopolyArray();
+
+	int getCityYieldModFromMonopoly(int i) const;
+	int* getCityYieldModFromMonopolyArray();
+#endif
 
 	int getResourceQuantityType(int i) const;
 
@@ -1466,6 +1479,11 @@ protected:
 	int m_iUniqueRange;
 	int m_iGroupRange;
 	int m_iGroupRand;
+#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+	int m_iMonopolyHappiness;
+	int m_iMonopolyGALength;
+	bool m_bIsMonopoly;
+#endif
 
 	bool m_bPresentOnAllValidPlots;
 	bool m_bOneArea;
@@ -1487,6 +1505,10 @@ protected:
 
 	// Arrays
 	int* m_piYieldChange;
+#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+	int* m_piYieldChangeFromMonopoly;
+	int* m_piCityYieldModFromMonopoly;
+#endif
 	int* m_piResourceQuantityTypes;
 	int* m_piImprovementChange;
 	int* m_piFlavor;

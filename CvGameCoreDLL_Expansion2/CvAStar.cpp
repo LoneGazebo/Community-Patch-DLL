@@ -3090,7 +3090,12 @@ CvPlot* CvStepPathFinder::GetLastOwnedPlot(PlayerTypes ePlayer, PlayerTypes eEne
 		{
 			CvPlot* currentPlot;
 			currentPlot = kMap.plotUnchecked(pNode->m_iX, pNode->m_iY);
-
+#if defined(MOD_BALANCE_CORE_MILITARY)
+			if(currentPlot->isImpassable())
+			{
+				continue;
+			}
+#endif
 			// Check and see if this plot has the right owner
 			if(currentPlot->getOwner() == ePlayer)
 			{
@@ -4317,8 +4322,19 @@ int TradeRouteWaterPathCost(CvAStarNode* parent, CvAStarNode* node, int data, co
 
 	int iBaseCost = 100;
 	int iCost = iBaseCost;
-
+#if defined(MOD_GLOBAL_PASSABLE_FORTS)
+	ImprovementTypes eImprovement = pToPlot->getImprovementType();
+	CvImprovementEntry* pkImprovementInfo = NULL;
+	if(eImprovement != NO_IMPROVEMENT)
+	{
+		pkImprovementInfo = GC.getImprovementInfo(eImprovement);
+	}
+	bool bIsPassable = MOD_GLOBAL_PASSABLE_FORTS && pkImprovementInfo != NULL && pkImprovementInfo->IsMakesPassable();
+	bool bIsCityOrPassable = (pToPlot->isCity() || bIsPassable);
+	if(!bIsCityOrPassable)
+#else
 	if (!pToPlot->isCity())
+#endif
 	{
 		bool bIsAdjacentToLand = pFromPlot->isAdjacentToLand_Cached() && pToPlot->isAdjacentToLand_Cached();
 		if (!bIsAdjacentToLand)
@@ -4380,7 +4396,7 @@ int TradeRouteWaterValid(CvAStarNode* parent, CvAStarNode* node, int data, const
 		pkImprovementInfo = GC.getImprovementInfo(eImprovement);
 	}
 	bool bIsPassable = MOD_GLOBAL_PASSABLE_FORTS && pkImprovementInfo != NULL && pkImprovementInfo->IsMakesPassable();
-	bool bIsCityOrPassable = pNewPlot->isCity() || bIsPassable;
+	bool bIsCityOrPassable = (pNewPlot->isCity() || bIsPassable);
 	if(!bIsCityOrPassable)
 #else
 	if (!pNewPlot->isCity())
@@ -4400,7 +4416,19 @@ int TradeRouteWaterValid(CvAStarNode* parent, CvAStarNode* node, int data, const
 		}
 
 		CvPlot* pParentPlot = kMap.plotUnchecked(parent->m_iX, parent->m_iY);
+#if defined(MOD_GLOBAL_PASSABLE_FORTS)
+		ImprovementTypes eImprovement = pParentPlot->getImprovementType();
+		CvImprovementEntry* pkImprovementInfo = NULL;
+		if(eImprovement != NO_IMPROVEMENT)
+		{
+			pkImprovementInfo = GC.getImprovementInfo(eImprovement);
+		}
+		bool bIsPassable = MOD_GLOBAL_PASSABLE_FORTS && pkImprovementInfo != NULL && pkImprovementInfo->IsMakesPassable();
+		bool bIsCityOrPassable = (pParentPlot->isCity() || bIsPassable);
+		if(!bIsCityOrPassable)
+#else
 		if (!pParentPlot->isCity())
+#endif
 		{
 			if(pParentPlot->getArea() != pNewPlot->getArea())
 			{

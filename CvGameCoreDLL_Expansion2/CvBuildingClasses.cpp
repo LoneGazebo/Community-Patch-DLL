@@ -146,6 +146,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_iCapitalsToVotesBase(0),
 	m_iDoFToVotesBase(0),
 	m_iRAToVotesBase(0),
+	m_iDPToVotesBase(0),
 	m_iGPExpendInfluenceBase(0),
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
@@ -244,8 +245,15 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_piFlavorValue(NULL),
 	m_piLocalResourceAnds(NULL),
 	m_piLocalResourceOrs(NULL),
+#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+	m_piResourceMonopolyAnds(NULL),
+	m_piResourceMonopolyOrs(NULL),
+#endif
 	m_paiHurryModifier(NULL),
 	m_pbBuildingClassNeededInCity(NULL),
+#if defined(MOD_BALANCE_CORE)
+	m_pbBuildingClassNeededAnywhere(NULL),
+#endif
 	m_piNumFreeUnits(NULL),
 	m_bArtInfoEraVariation(false),
 	m_bArtInfoCulturalVariation(false),
@@ -307,8 +315,15 @@ CvBuildingEntry::~CvBuildingEntry(void)
 	SAFE_DELETE_ARRAY(m_piFlavorValue);
 	SAFE_DELETE_ARRAY(m_piLocalResourceAnds);
 	SAFE_DELETE_ARRAY(m_piLocalResourceOrs);
+#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+	SAFE_DELETE_ARRAY(m_piResourceMonopolyAnds);
+	SAFE_DELETE_ARRAY(m_piResourceMonopolyOrs);
+#endif
 	SAFE_DELETE_ARRAY(m_paiHurryModifier);
 	SAFE_DELETE_ARRAY(m_pbBuildingClassNeededInCity);
+#if defined(MOD_BALANCE_CORE)
+	SAFE_DELETE_ARRAY(m_pbBuildingClassNeededAnywhere);
+#endif
 	SAFE_DELETE_ARRAY(m_piNumFreeUnits);
 	SAFE_DELETE_ARRAY(m_paiBuildingClassHappiness);
 	SAFE_DELETE_ARRAY(m_paThemingBonusInfo);
@@ -487,6 +502,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 		m_iCapitalsToVotesBase = kResults.GetInt("CapitalsToVotes");
 		m_iDoFToVotesBase = kResults.GetInt("DoFToVotes");
 		m_iRAToVotesBase = kResults.GetInt("RAToVotes");
+		m_iDPToVotesBase = kResults.GetInt("DPToVotes");
 		m_iGPExpendInfluenceBase = kResults.GetInt("GPExpendInfluence");
 	}
 #endif
@@ -661,6 +677,9 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 
 	kUtility.PopulateArrayByValue(m_piPrereqNumOfBuildingClass, "BuildingClasses", "Building_PrereqBuildingClasses", "BuildingClassType", "BuildingType", szBuildingType, "NumBuildingNeeded");
 	kUtility.PopulateArrayByExistence(m_pbBuildingClassNeededInCity, "BuildingClasses", "Building_ClassesNeededInCity", "BuildingClassType", "BuildingType", szBuildingType);
+#if defined(MOD_BALANCE_CORE)
+	kUtility.PopulateArrayByExistence(m_pbBuildingClassNeededAnywhere, "BuildingClasses", "Building_ClassNeededAnywhere", "BuildingClassType", "BuildingType", szBuildingType);
+#endif
 	//kUtility.PopulateArrayByExistence(m_piNumFreeUnits, "Units", "Building_FreeUnits", "UnitType", "BuildingType", szBuildingType);
 	kUtility.PopulateArrayByValue(m_piNumFreeUnits, "Units", "Building_FreeUnits", "UnitType", "BuildingType", szBuildingType, "NumUnits");
 	kUtility.PopulateArrayByValue(m_paiBuildingClassHappiness, "BuildingClasses", "Building_BuildingClassHappiness", "BuildingClassType", "BuildingType", szBuildingType, "Happiness");
@@ -670,6 +689,10 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	kUtility.PopulateArrayByExistence(m_piLocalResourceAnds, "Resources", "Building_LocalResourceAnds", "ResourceType", "BuildingType", szBuildingType);
 	kUtility.PopulateArrayByExistence(m_piLocalResourceOrs, "Resources", "Building_LocalResourceOrs", "ResourceType", "BuildingType", szBuildingType);
 
+#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+	kUtility.PopulateArrayByExistence(m_piResourceMonopolyOrs, "Resources", "Building_ResourceMonopolyOrs", "ResourceType", "BuildingType", szBuildingType);
+	kUtility.PopulateArrayByExistence(m_piResourceMonopolyAnds, "Resources", "Building_ResourceMonopolyAnds", "ResourceType", "BuildingType", szBuildingType);
+#endif
 	//ResourceYieldChanges
 	{
 		kUtility.Initialize2DArray(m_ppaiResourceYieldChange, "Resources", "Yields");
@@ -1599,7 +1622,11 @@ int CvBuildingEntry::GetRAToVotes() const
 {
 	return m_iRAToVotesBase;
 }
-
+/// Extra votes from Defense Pacts
+int CvBuildingEntry::GetDPToVotes() const
+{
+	return m_iDPToVotesBase;
+}
 /// Extra votes from Research Agreements
 int CvBuildingEntry::GetGPExpendInfluence() const
 {
@@ -2260,7 +2287,23 @@ int CvBuildingEntry::GetLocalResourceOr(int i) const
 	CvAssertMsg(i > -1, "Index out of bounds");
 	return m_piLocalResourceOrs ? m_piLocalResourceOrs[i] : -1;
 }
+#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+/// Prerequisite resources with AND
+int CvBuildingEntry::GetResourceMonopolyAnd(int i) const
+{
+	CvAssertMsg(i < GC.getNUM_BUILDING_RESOURCE_PREREQS(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piResourceMonopolyAnds ? m_piResourceMonopolyAnds[i] : -1;
+}
 
+/// Prerequisite resources with OR
+int CvBuildingEntry::GetResourceMonopolyOr(int i) const
+{
+	CvAssertMsg(i < GC.getNUM_BUILDING_RESOURCE_PREREQS(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piResourceMonopolyOrs ? m_piResourceMonopolyOrs[i] : -1;
+}
+#endif
 /// Modifier to Hurry cost
 int CvBuildingEntry::GetHurryModifier(int i) const
 {
@@ -2276,7 +2319,15 @@ bool CvBuildingEntry::IsBuildingClassNeededInCity(int i) const
 	CvAssertMsg(i > -1, "Index out of bounds");
 	return m_pbBuildingClassNeededInCity ? m_pbBuildingClassNeededInCity[i] : false;
 }
-
+#if defined(MOD_BALANCE_CORE)
+/// Can it only built if there is a building of this class in any owned city?
+bool CvBuildingEntry::IsBuildingClassNeededAnywhere(int i) const
+{
+	CvAssertMsg(i < GC.getNumBuildingClassInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_pbBuildingClassNeededAnywhere ? m_pbBuildingClassNeededAnywhere[i] : false;
+}
+#endif
 /// Free units which appear near the capital
 int CvBuildingEntry::GetNumFreeUnits(int i) const
 {

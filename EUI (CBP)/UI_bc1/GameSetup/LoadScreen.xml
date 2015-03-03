@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Scott Lewis (Firaxis Games) -->
+<Context>
+	<!-- NEED TO HIDE-->
+	<Container Anchor="C.C" Size="1024,768">
+
+		<AlphaAnim Anchor="c,c" Stopped="1" AlphaStart="1" Pause="1" AlphaEnd="0" Speed=".5" Cycle="Once" ID="AlphaAnim" >
+			<!-- NEED TO HIDE-->
+			<Box ID="BG0" Anchor="C,C" Size="Full,Full" Color="Black" />
+			<Image ID="Image" Anchor="C,C" Size="1024,768" />
+		</AlphaAnim>
+
+		<SlideAnim Anchor="C,C" Size="1024,768" Start="226,0" End="0,0" Cycle="Once" Speed=".5" Stopped="1" Pause="1" ID="SlideAnim" Function="Root" >
+			<Grid Anchor="C.T" Offset="0,36" Size="500,668" Style="GridBlackIndent8" ID="BlackGrid" >
+				<Grid Anchor="R.T" Size="502,670" Style="Grid9Frame" ID="BlackGridFrame" />
+				<Image Anchor="L,T" Size="80,80" Offset="24,16" Texture="assets\UI\Art\Notification\NotificationFrameBase.dds">
+					<Image Anchor="C,C" ID="IconShadow" Offset="0,-1" Size="80,80" Texture="assets\UI\Art\Notification\CivSymbolsColor640.dds"/>
+				</Image>
+				<Stack Anchor="C,T" Offset="0,36" Size="128,128" StackGrowth="Bottom" Padding="12" ID="MainStack" >
+					<Label Anchor="C,C" ID="Leader" ColorSet="Beige_Black_Alpha" Font="TwCenMT24" FontStyle="Shadow"/>
+					<Label Anchor="C,C" ID="Civilization" ColorSet="Beige_Black_Alpha" Font="TwCenMT20" FontStyle="Shadow"/>
+					<Image Anchor="C,C" Texture="bar340x2.dds" Size="340.1"/>
+					<Label Anchor="C,C" WrapWidth="460" ID="Quote" LeadingOffset="-4" ColorSet="Beige_Black_Alpha" Font="TwCenMT14" FontStyle="Shadow"/>
+					<Box Anchor="C.C" Size="400,6" Color="White.0"/>
+					<Image Anchor="C,C" Texture="bar340x2.dds" Size="340.1"/>
+					<Label Anchor="C,C" ID="BonusTitle" ColorSet="Beige_Black_Alpha" Font="TwCenMT24" FontStyle="Shadow"/>
+					<Label Anchor="C,C" WrapWidth="460" ID="BonusDescription" LeadingOffset="-4" ColorSet="Beige_Black_Alpha" Font="TwCenMT16" FontStyle="Shadow"/>
+					<Image Anchor="C,C" Texture="bar340x2.dds" Size="340.1"/>
+
+					<Stack Anchor="L,C" StackGrowth="Right" WrapGrowth="Down" WrapWidth="460" ID="SubStack" />
+				</Stack>
+			</Grid>
+		</SlideAnim>
+		<Image Anchor="C,B" Texture="Assets/UI/Art/Civilopedia/LoadingMeterTrim.dds" Size="300,64">
+			<AlphaAnim Anchor="C,C" Pause="0" Cycle="Bounce" Speed=".5" AlphaStart="1" AlphaEnd=".3">
+				<TextureBar Anchor="C,C" Size="277.36" Texture="Assets/UI/Art/Civilopedia/LoadingMeterHL.dds" Direction="Right" ID="ProgressBar" Hidden="0"/>
+			</AlphaAnim>
+			<Label Anchor="C,C" Offset="0,-1" String="TXT_KEY_GAME_LOADING" Color0="255.255.200.255" Color1="5.10.10.255" Color2="5.10.10.255" Font="TwCenMT20" FontStyle="SoftShadow"/>
+		</Image>
+		<GridButton ID="ActivateButton" Style="SmallButton2" Anchor="C,B" Offset="0,16" Size="300,32" Hidden="1">
+			<Label ID="ActivateButtonText" Anchor="C,C" String="TXT_KEY_BEGIN_GAME_BUTTON" ColorSet="Beige_Black_Alpha" Font="TwCenMT18" FontStyle="Shadow"/>
+		</GridButton>
+	</Container>
+
+	<Instance Name="IconInstance" >
+		<Container Anchor="L,T" Size="225,64" >
+			<Image Anchor="L,C" Texture="IconFrame64.dds" Size="64.64">
+				<Button Anchor="C,C" Size="64,64" NoStateChange="1" ID="Portrait"/>
+				<Label Anchor="R,C" AnchorSide="O.I" ID="Text" WrapWidth="150" ColorSet="Beige_Black_Alpha" Font="TwCenMT16" FontStyle="Shadow"/>
+			</Image>
+		</Container>
+	</Instance>
+</Context>

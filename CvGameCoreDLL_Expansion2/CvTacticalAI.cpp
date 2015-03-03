@@ -5490,7 +5490,9 @@ bool CvTacticalAI::ScoreDeploymentPlots(CvPlot* pTarget, CvArmyAI* pArmy, int iN
 	int iNumSafePlotsFound = 0;
 	int iNumDeployPlotsFound = 0;
 	CvTacticalTarget target;
-
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	iRange += 1;
+#endif
 	// We'll store the hexes we've found here
 	m_TempTargets.clear();
 
@@ -5638,8 +5640,11 @@ bool CvTacticalAI::ScoreFormationPlots(CvArmyAI* pArmy, CvPlot* pForwardTarget, 
 
 	// We'll store the hexes we've found here
 	m_TempTargets.clear();
-
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	int iRange = 4;
+#else
 	int iRange = 3;
+#endif
 	for(iDX = -(iRange); iDX <= iRange; iDX++)
 	{
 		for(iDY = -(iRange); iDY <= iRange; iDY++)
@@ -9252,7 +9257,13 @@ bool CvTacticalAI::FindUnitsWithinStrikingDistance(CvPlot* pTarget, int iNumTurn
 				{
 					continue;
 				}
-
+#if defined(MOD_BALANCE_CORE_MILITARY)
+				//Don't pull melee units out of camps to attack.
+				if(pLoopUnit->isBarbarian() && !pLoopUnit->isRanged() && (pLoopUnit->plot()->getImprovementType() == GC.getBARBARIAN_CAMP_IMPROVEMENT()))
+				{
+					continue;
+				}
+#endif
 #if defined(MOD_AI_SMART_MELEE_TACTICS)
 				if (MOD_AI_SMART_MELEE_TACTICS && bNoRangedUnits && pLoopUnit->IsCanAttackRanged())
 				{
@@ -11766,12 +11777,7 @@ int CvTacticalAI::ScoreGreatGeneralPlot(UnitHandle pGeneral, CvPlot* pTarget, Cv
 	// No friendly city or unit
 	else
 	{	
-#if defined(MOD_BALANCE_CORE_MILITARY)
-		//GGs should never go alone if possible.
-		return 0;
-#else
 		iDangerDivisor = 1000;
-#endif
 	}
 
 	// Distance to center of army (if still under operational AI)

@@ -157,6 +157,7 @@ local g_gameAvailableBeliefs = { Game.GetAvailablePantheonBeliefs, Game.GetAvail
 local g_unitMouseOvers = table()
 local g_lastTips = {}
 local g_lastTip = false
+local g_cityWorkingRadius = GameDefines.CITY_PLOTS_RADIUS
 local g_defaultWorkRate
 for row in GameInfo.Units() do
 	g_defaultWorkRate = math.max( g_defaultWorkRate or 0, row.WorkRate )
@@ -741,13 +742,12 @@ local function UpdatePlotHelp( timeChange )
 			isCombatUnitSelected = selectedUnit:IsCombatUnit()
 			if selectedUnit:CanFound( plot ) then
 				g_isCityLimits = true
-				local cityWorkingRadius = 3	--todo: find city working radius and replace hardcoded value
 				local x, y = plot:GetX(), plot:GetY()
 				if not OptionsManager.IsCivilianYields() then
 					g_isCityYields = true
-					Events.RequestYieldDisplay( YieldDisplayTypes.AREA, cityWorkingRadius, x, y )
+					Events.RequestYieldDisplay( YieldDisplayTypes.AREA, g_cityWorkingRadius, x, y )
 				end
-				for i=1, EUI.CountHexPlots( cityWorkingRadius ) do
+				for i=1, EUI.CountHexPlots( g_cityWorkingRadius ) do
 					local p = EUI.IndexPlot( plot, i )
 					local hex = ToHexFromGrid{ x=p:GetX(), y=p:GetY() }
 					Events.SerialEventHexHighlight( hex, true, nil, "CityLimits" )

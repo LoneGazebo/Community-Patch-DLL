@@ -7,7 +7,7 @@
     <Guid>190c9417-e3d8-4c82-a5aa-4a01150da2ca</Guid>
     <ModVersion>1</ModVersion>
     <Stability>Experimental</Stability>
-    <Teaser>Compatibility Files for More Luxuries for the CBP (2/21)</Teaser>
+    <Teaser>Compatibility Files for More Luxuries for the CBP (2/27)</Teaser>
     <Description>Makes the CBP and More Luxuries Mods compatible.</Description>
     <Authors>Gazebo</Authors>
     <SpecialThanks>
@@ -25,6 +25,11 @@
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
         <FileName>MoreLuxuries.sql</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>MoreLuxuries.xml</FileName>
       </Action>
     </ModActions>
     <Homepage>
@@ -57,6 +62,10 @@
     <PackageMod>false</PackageMod>
   </PropertyGroup>
   <ItemGroup>
+    <Content Include="MoreLuxuries.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
     <Content Include="MoreLuxuries.sql">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>

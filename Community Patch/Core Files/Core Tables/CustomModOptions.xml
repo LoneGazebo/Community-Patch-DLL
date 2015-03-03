@@ -831,6 +831,8 @@
 	<Row Class="6" Name="BALANCE_CORE_DEALS_ADVANCED" Value="0"/>
 	<!-- Military and City logging for CP - COMMUNITY_PATCH -->
 	<Row Class="6" Name="BALANCE_CORE_MILITARY_LOGGING" Value="0"/>
+	<!-- Resources can give monopoly bonuses - COMMUNITY_PATCH -->
+	<Row Class="6" Name="BALANCE_CORE_RESOURCE_MONOPOLIES" Value="0"/>
 
   </CustomModOptions>
 

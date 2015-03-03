@@ -283,4 +283,9 @@
 			<PediaEntry>TXT_KEY_PROMOTION_TREASURE_FLEET</PediaEntry>
 		</InsertOrAbort>
 	</UnitPromotions>
+	<Language_en_US>
+		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_MEMBER_DETAILS_DP_VOTES">
+			<Text>[NEWLINE][ICON_BULLET]{1_NumVotes} from Defense Pacts</Text>
+		</Row>
+	</Language_en_US>
 </GameData>

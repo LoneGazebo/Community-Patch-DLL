@@ -4472,6 +4472,11 @@ CvResourceInfo::CvResourceInfo() :
 	m_iUniqueRange(0),
 	m_iGroupRange(0),
 	m_iGroupRand(0),
+#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+	m_iMonopolyHappiness(0),
+	m_iMonopolyGALength(0),
+	m_bIsMonopoly(false),
+#endif
 	m_bPresentOnAllValidPlots(false),
 	m_bOneArea(false),
 	m_bHills(false),
@@ -4481,6 +4486,10 @@ CvResourceInfo::CvResourceInfo() :
 	m_bOnlyMinorCivs(false),
 	m_eRequiredCivilization(NO_CIVILIZATION),
 	m_piYieldChange(NULL),
+#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+	m_piYieldChangeFromMonopoly(NULL),
+	m_piCityYieldModFromMonopoly(NULL),
+#endif
 	m_piResourceQuantityTypes(NULL),
 	m_piFlavor(NULL),
 	m_piImprovementChange(NULL),
@@ -4493,6 +4502,10 @@ CvResourceInfo::CvResourceInfo() :
 CvResourceInfo::~CvResourceInfo()
 {
 	SAFE_DELETE_ARRAY(m_piYieldChange);
+#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+	SAFE_DELETE_ARRAY(m_piYieldChangeFromMonopoly);
+	SAFE_DELETE_ARRAY(m_piCityYieldModFromMonopoly);
+#endif
 	SAFE_DELETE_ARRAY(m_piResourceQuantityTypes);
 	SAFE_DELETE_ARRAY(m_piFlavor);
 	SAFE_DELETE_ARRAY(m_piImprovementChange);
@@ -4650,6 +4663,20 @@ int CvResourceInfo::getGroupRand() const
 {
 	return m_iGroupRand;
 }
+#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+int CvResourceInfo::getMonopolyHappiness() const
+{
+	return m_iMonopolyHappiness;
+}
+int CvResourceInfo::getMonopolyGALength() const
+{
+	return m_iMonopolyGALength;
+}
+bool CvResourceInfo::isMonopoly() const
+{
+	return m_bIsMonopoly;
+}
+#endif
 //------------------------------------------------------------------------------
 bool CvResourceInfo::isPresentOnAllValidPlots() const
 {
@@ -4752,6 +4779,32 @@ int* CvResourceInfo::getYieldChangeArray()
 {
 	return m_piYieldChange;
 }
+#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+//------------------------------------------------------------------------------
+int CvResourceInfo::getYieldChangeFromMonopoly(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piYieldChangeFromMonopoly ? m_piYieldChangeFromMonopoly[i] : -1;
+}
+//------------------------------------------------------------------------------
+int* CvResourceInfo::getYieldChangeFromMonopolyArray()
+{
+	return m_piYieldChangeFromMonopoly;
+}
+//------------------------------------------------------------------------------
+int CvResourceInfo::getCityYieldModFromMonopoly(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piCityYieldModFromMonopoly ? m_piCityYieldModFromMonopoly[i] : -1;
+}
+//------------------------------------------------------------------------------
+int* CvResourceInfo::getCityYieldModFromMonopolyArray()
+{
+	return m_piCityYieldModFromMonopoly ;
+}
+#endif
 //------------------------------------------------------------------------------
 int CvResourceInfo::getResourceQuantityType(int i) const
 {
@@ -4822,6 +4875,11 @@ bool CvResourceInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 	m_iUniqueRange = kResults.GetInt("Unique");
 	m_iGroupRange = kResults.GetInt("GroupRange");
 	m_iGroupRand = kResults.GetInt("GroupRand");
+#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+	m_iMonopolyHappiness = kResults.GetInt("MonopolyHappiness");
+	m_iMonopolyGALength = kResults.GetInt("MonopolyGALength");
+	m_bIsMonopoly = kResults.GetBool("IsMonopoly");
+#endif
 	m_bPresentOnAllValidPlots = kResults.GetBool("PresentOnAllValidPlots");
 	m_bOneArea = kResults.GetBool("Area");
 	m_bHills = kResults.GetBool("Hills");
@@ -4877,6 +4935,10 @@ bool CvResourceInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 	//Arrays
 	const char* szResourceType = GetType();
 	kUtility.SetYields(m_piYieldChange, "Resource_YieldChanges", "ResourceType", szResourceType);
+#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+	kUtility.SetYields(m_piYieldChangeFromMonopoly, "Resource_YieldChangeFromMonopoly", "ResourceType", szResourceType);
+	kUtility.SetYields(m_piCityYieldModFromMonopoly, "Resource_CityYieldModFromMonopoly", "ResourceType", szResourceType);
+#endif
 	kUtility.SetFlavors(m_piFlavor, "Resource_Flavors", "ResourceType", szResourceType);
 
 	kUtility.PopulateArrayByExistence(m_pbTerrain, "Terrains", "Resource_TerrainBooleans", "TerrainType", "ResourceType", szResourceType);

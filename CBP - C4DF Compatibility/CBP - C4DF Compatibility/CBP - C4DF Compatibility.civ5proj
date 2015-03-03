@@ -7,7 +7,7 @@
     <Guid>c3b17db8-aaa5-46d2-8ec7-0ed0aa0780ea</Guid>
     <ModVersion>1</ModVersion>
     <Stability>Beta</Stability>
-    <Teaser>Compatibility Files for Civ IV Diplomatic Features (2/21)</Teaser>
+    <Teaser>Compatibility Files for Civ IV Diplomatic Features (2/27)</Teaser>
     <Description>Updates the CBP to be compatible with Civ IV DIplomatic Features.</Description>
     <Authors>Gazebo</Authors>
     <SpecialThanks>
@@ -67,6 +67,14 @@
   </PropertyGroup>
   <ItemGroup>
     <Content Include="CivilopediaScreen.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="DeclareWarPopup.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="DeclareWarPopup.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>

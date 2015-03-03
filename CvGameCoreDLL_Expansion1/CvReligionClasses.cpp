@@ -552,6 +552,24 @@ CvGameReligions::FOUNDING_RESULT CvGameReligions::CanCreatePantheon(PlayerTypes 
 		}
 	}
 
+	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+	if(pkScriptSystem) 
+	{
+		CvLuaArgsHandle args;
+		args->Push(ePlayer);
+
+		// Attempt to execute the game events.
+		// Will return false if there are no registered listeners.
+		bool bResult = false;
+		if (LuaSupport::CallTestAll(pkScriptSystem, "PlayerCanFoundPantheon", args.get(), bResult))
+		{
+			if (bResult == false) 
+			{
+				return FOUNDING_INVALID_PLAYER;
+			}
+		}
+	}
+
 	if (GetAvailablePantheonBeliefs().size() == 0)
 		return FOUNDING_NO_BELIEFS_AVAILABLE;
 
@@ -563,6 +581,25 @@ ReligionTypes CvGameReligions::GetReligionToFound(PlayerTypes ePlayer)
 {
 	ReligionTypes eCivReligion;
 	eCivReligion = GET_PLAYER(ePlayer).getCivilizationInfo().GetReligion();
+
+	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+	if(pkScriptSystem) 
+	{
+		CvLuaArgsHandle args;
+		args->Push(ePlayer);
+		args->Push(eCivReligion);
+		args->Push(HasBeenFounded(eCivReligion));
+
+		int iValue = 0;
+		if (LuaSupport::CallAccumulator(pkScriptSystem, "GetReligionToFound", args.get(), iValue)) 
+		{
+			if (iValue >= 0 && iValue < GC.getNumReligionInfos() && iValue != RELIGION_PANTHEON)
+			{
+				eCivReligion = (ReligionTypes)iValue;
+			}
+		}
+	}
+
 	if(!HasBeenFounded(eCivReligion))
 	{
 		CvReligionEntry* pEntry = GC.getReligionInfo(eCivReligion);
@@ -646,6 +683,19 @@ void CvGameReligions::FoundPantheon(PlayerTypes ePlayer, BeliefTypes eBelief)
 	iIncrement *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 	iIncrement /= 100;
 	SetMinimumFaithNextPantheon(GetMinimumFaithNextPantheon() + iIncrement);
+
+	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+	if(pkScriptSystem) 
+	{
+		CvLuaArgsHandle args;
+		args->Push(ePlayer);
+		args->Push(GET_PLAYER(ePlayer).getCapitalCity()->GetID());
+		args->Push(RELIGION_PANTHEON);
+		args->Push(eBelief);
+
+		bool bResult;
+		LuaSupport::CallHook(pkScriptSystem, "PantheonFounded", args.get(), bResult);
+	}
 
 	// Spread the pantheon into each of their cities
 	int iLoop;
@@ -771,6 +821,23 @@ void CvGameReligions::FoundReligion(PlayerTypes ePlayer, ReligionTypes eReligion
 			pLoopUnit->GetReligionData()->SetSpreadsLeft(pLoopUnit->getUnitInfo().GetReligionSpreads());
 			pLoopUnit->GetReligionData()->SetReligiousStrength(pLoopUnit->getUnitInfo().GetReligiousStrength());
 		}
+	}
+
+	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+	if(pkScriptSystem)
+	{
+		CvLuaArgsHandle args;
+		args->Push(ePlayer);
+		args->Push(pkHolyCity->GetID());
+		args->Push(eReligion);
+		args->Push(eBelief);
+		args->Push(eBelief1);
+		args->Push(eBelief2);
+		args->Push(eBelief3);
+		args->Push(eBelief4);
+
+		bool bResult;
+		LuaSupport::CallHook(pkScriptSystem, "ReligionFounded", args.get(), bResult);
 	}
 
 	// Send out messaging
@@ -932,6 +999,19 @@ void CvGameReligions::EnhanceReligion(PlayerTypes ePlayer, ReligionTypes eReligi
 	// Update game systems
 	UpdateAllCitiesThisReligion(eReligion);
 	kPlayer.UpdateReligion();
+
+	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+	if(pkScriptSystem) 
+	{
+		CvLuaArgsHandle args;
+		args->Push(ePlayer);
+		args->Push(eReligion);
+		args->Push(eBelief1);
+		args->Push(eBelief2);
+
+		bool bResult;
+		LuaSupport::CallHook(pkScriptSystem, "ReligionEnhanced", args.get(), bResult);
+	}
 
 	//Notify the masses
 	for(int iNotifyLoop = 0; iNotifyLoop < MAX_MAJOR_CIVS; ++iNotifyLoop){

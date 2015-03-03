@@ -162,7 +162,9 @@ public:
 	void ChangeNumResourceLocal(ResourceTypes eResource, int iChange);
 
 	bool IsBuildingLocalResourceValid(BuildingTypes eBuilding, bool bTestVisible, CvString* toolTipSink = NULL) const;
-
+#if defined(MOD_BALANCE_CORE_DEALS)
+	bool IsBuildingResourceMonopolyValid(BuildingTypes eBuilding, CvString* toolTipSink = NULL) const;
+#endif
 	// Resource Demanded
 
 	ResourceTypes GetResourceDemanded(bool bHideUnknown = true) const;

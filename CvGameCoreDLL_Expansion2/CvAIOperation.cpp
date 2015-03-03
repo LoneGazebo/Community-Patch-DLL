@@ -263,7 +263,11 @@ int CvAIOperation::GetGatherTolerance(CvArmyAI* pArmy, CvPlot* pPlot) const
 		// Something constrained here, give ourselves a lot of leeway
 		else
 		{
+#if defined(MOD_BALANCE_CORE_MILITARY)
+			iRtnValue = 4;
+#else
 			iRtnValue = 3;
+#endif
 		}
 	}
 
@@ -2680,6 +2684,12 @@ CvPlot* CvAIOperationDestroyBarbarianCamp::FindBestTarget()
 
 	CvCity* pStartCity;
 	pStartCity = GetOperationStartCity();
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	if(pStartCity == NULL && GET_PLAYER(m_eOwner).getCapitalCity() != NULL)
+	{
+		pStartCity = GET_PLAYER(m_eOwner).getCapitalCity();
+	}
+#endif
 	if(pStartCity != NULL)
 	{
 
@@ -2731,7 +2741,6 @@ CvPlot* CvAIOperationDestroyBarbarianCamp::FindBestTarget()
 				}
 			}
 		}
-
 	}
 
 	return pBestPlot;
@@ -6479,15 +6488,27 @@ int OperationalAIHelpers::GetGatherRangeForXUnits(int iTotalUnits)
 	}
 	else if(iTotalUnits <= 6)
 	{
+#if defined(MOD_BALANCE_CORE_MILITARY)
+		iRange = 3;
+#else
 		iRange = 2;
+#endif
 	}
 	else if(iTotalUnits <= 10)
 	{
+#if defined(MOD_BALANCE_CORE_MILITARY)
+		iRange = 4;
+#else
 		iRange = 3;
+#endif
 	}
 	else
 	{
+#if defined(MOD_BALANCE_CORE_MILITARY)
+		iRange = 5;
+#else
 		iRange = 4;
+#endif
 	}
 
 	return iRange;

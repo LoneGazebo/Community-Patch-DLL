@@ -283,6 +283,9 @@ public:
 	int m_iTurnIdeologySwitch;
 	PolicyBranchTypes m_ePreferredIdeology;
 	int m_iOpinionUnhappiness;
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+	int m_iWarWeariness;
+#endif
 	CvString m_strOpinionTooltip;
 	CvString m_strOpinionUnhappinessTooltip;
 
@@ -296,6 +299,9 @@ private:
 	int ComputePublicOpinionUnhappiness(int iDissatisfaction);
 #else
 	int ComputePublicOpinionUnhappiness(int iDissatisfaction, int &iPerCityUnhappy, int &iUnhappyPerXPop);
+#endif
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+	int ComputeWarWeariness();
 #endif
 	// Logging functions
 	void LogCultureData();

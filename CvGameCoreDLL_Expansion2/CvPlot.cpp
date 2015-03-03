@@ -8282,7 +8282,12 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, TeamTypes eTeam, bool bIgnor
 		if(eResource != NO_RESOURCE)
 		{
 			iYield += GC.getResourceInfo(eResource)->getYieldChange(eYield);
-
+#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+			if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES && pWorkingCity != NULL && GET_PLAYER(pWorkingCity->getOwner()).HasMonopoly(eResource))
+			{
+				iYield += GC.getResourceInfo(eResource)->getYieldChangeFromMonopoly(eYield);
+			}
+#endif
 			// Extra yield for religion
 			if(pWorkingCity != NULL && eMajority != NO_RELIGION)
 			{
@@ -12678,7 +12683,7 @@ int CvPlot::GetDefenseBuildValue()
 	int iAdjacentOwned = 0;
 	int iAdjacentForts = 0;
 	int iNearbyOwned = 0;
-	int iRange = 3;
+	int iRange = 2;
 	for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
 	{
 		CvPlot* pLoopAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
@@ -12734,7 +12739,7 @@ int CvPlot::GetDefenseBuildValue()
 					if ((eFort != NO_IMPROVEMENT) && (eCitadel != NO_IMPROVEMENT))
 					{
 						//Let's check for nearby forts as well
-						if(pLoopNearbyPlot->getImprovementType() != NO_IMPROVEMENT)
+						if(pLoopNearbyPlot->getImprovementType() != NO_IMPROVEMENT && (pLoopNearbyPlot->getOwner() == getOwner()))
 						{
 							if((eFort == pLoopNearbyPlot->getImprovementType()) || (eCitadel == pLoopNearbyPlot->getImprovementType()))
 							{
@@ -12746,8 +12751,8 @@ int CvPlot::GetDefenseBuildValue()
 			}
 		}
 
-		//only build a fort if it's somewhat close to the enemy
-		if (iNearbyOwned == 0)
+		//only build a fort if it's somewhat close to the enemy and there aren't forts nearby. We shouldn't be spamming them.
+		if (iNearbyOwned == 0 || iAdjacentForts)
 		{
 			return 0;
 		}
@@ -12769,9 +12774,6 @@ int CvPlot::GetDefenseBuildValue()
 		{
 			iScore += 50;
 		}
-		
-		//Reduction if forts nearby.
-		iScore -= iAdjacentForts * 25;
 
 		return iScore;
 	}
