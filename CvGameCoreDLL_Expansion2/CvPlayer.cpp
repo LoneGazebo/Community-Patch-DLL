@@ -26515,17 +26515,20 @@ bool CvPlayer::IsPlotTargetedForCity(CvPlot *pPlot) const
 	{
 		pOperation = iter->second;
 #if defined(MOD_BALANCE_CORE_SETTLER)
-		if(MOD_BALANCE_CORE_SETTLER && pOperation && pOperation != pOpToIgnore)
+		if(MOD_BALANCE_CORE_SETTLER)
 		{
-			switch (pOperation->GetOperationType())
+			if(pOperation && pOperation != pOpToIgnore)
 			{
-			case AI_OPERATION_FOUND_CITY:
-			case AI_OPERATION_COLONIZE:
-			case AI_OPERATION_QUICK_COLONIZE:
+				switch (pOperation->GetOperationType())
 				{
-					if (plotDistance(pPlot->getX(), pPlot->getY(), pOperation->GetTargetPlot()->getX(), pOperation->GetTargetPlot()->getY()) <= 2)
+				case AI_OPERATION_FOUND_CITY:
+				case AI_OPERATION_COLONIZE:
+				case AI_OPERATION_QUICK_COLONIZE:
 					{
-						return true;
+						if (plotDistance(pPlot->getX(), pPlot->getY(), pOperation->GetTargetPlot()->getX(), pOperation->GetTargetPlot()->getY()) <= 2)
+						{
+							return true;
+						}
 					}
 				}
 			}
