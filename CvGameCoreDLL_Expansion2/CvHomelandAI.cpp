@@ -3147,7 +3147,7 @@ bool CvHomelandAI::PickUpGoodies(CvEconomicAI* pEconomicAI, UnitHandle pUnit)
 #endif
 typedef CvWeightedVector<CvPlot*, 100, true> WeightedPlotVector;
 
-#if defined(MOD_BALANCE_CORE_SETTLER)
+#if defined(MOD_CORE_ALTERNATIVE_EXPLORE_SCORE)
 
 	/// Moves units to explore the map
 void CvHomelandAI::ExecuteExplorerMoves()
@@ -3238,7 +3238,6 @@ void CvHomelandAI::ExecuteExplorerMoves()
 		int iBestPlotScore = 0;
 
 		TeamTypes eTeam = pUnit->getTeam();
-		int iBaseSightRange = pUnit->getUnitInfo().GetBaseSightRange();
 		int iMovementRange = pUnit->movesLeft();
 
 		for(int eDir=0; eDir<NUM_DIRECTION_TYPES; eDir++)
@@ -3248,69 +3247,51 @@ void CvHomelandAI::ExecuteExplorerMoves()
 			if(!pEvalPlot || !IsValidExplorerEndTurnPlot(pUnit.pointer(), pEvalPlot))
 				continue;
 
-			if(pEvalPlot->getNumUnits() > 0)
-			{
-				CvUnit* pUnit = pEvalPlot->getUnitByIndex(0);
-				if(!pUnit->IsCivilianUnit())
-				{
-					continue;
-				}
-			}
+			//ignore occupied plots
+			if( pEvalPlot->getBestDefender(NO_PLAYER) != (UnitHandle)NULL)
+				continue;
 
-			DomainTypes eDomain = pUnit->getDomainType();
-			int iScoreBase = CvEconomicAI::ScoreExplorePlot(pEvalPlot, eTeam, iBaseSightRange, eDomain);
-
+			int iScoreBase = CvEconomicAI::ScoreExplorePlot2(pEvalPlot, eTeam, pUnit->getDomainType(), pUnit->isEmbarked());
 			if(iScoreBase > 0)
 			{
 				int iScoreBonus = pEvalPlot->GetExplorationBonus(m_pPlayer, pCurPlot);
 				int iScoreExtra = 0;
-				//If minor, let's not wander around if we don't have open borders.
+
+				//If a known minor, let's not wander around if we don't have open borders.
 				if(pEvalPlot->getOwner() != NO_PLAYER)
 				{
-					if(GET_PLAYER(pEvalPlot->getOwner()).isMinorCiv())
+					if(GET_PLAYER(pEvalPlot->getOwner()).isMinorCiv() && GET_TEAM(m_pPlayer->getTeam()).isHasMet( GET_PLAYER(pEvalPlot->getOwner()).getTeam() ) )
 					{
 						if(!GET_PLAYER(pEvalPlot->getOwner()).GetMinorCivAI()->IsPlayerHasOpenBorders(m_pPlayer->GetID()))
 						{
-							iScoreExtra -= 200;
+							iScoreExtra -= 100;
 						}
-					}
-				}
-				if (eDomain == DOMAIN_LAND)
-				{
-					if (pEvalPlot->isHills())
-					{
-						iScoreExtra += 50;
-					}
-					if (pUnit->IsEmbarkAllWater() && !pEvalPlot->isShallowWater())
-					{
-						iScoreExtra += 200;
-					}
-				}
-				else if (eDomain == DOMAIN_SEA)
-				{
-					if(pUnit->canSellExoticGoods(pEvalPlot))
-					{
-						float fRewardFactor = pUnit->calculateExoticGoodsDistanceFactor(pEvalPlot);
-						if (fRewardFactor >= 0.75f)
-						{
-							iScoreExtra += 150;
-						}
-						else if (fRewardFactor >= 0.5f)
-						{
-							iScoreExtra += 75;
-						}
-					}
-
-					if(pEvalPlot->isAdjacentToLand())
-					{
-						iScoreExtra += 200;
 					}
 				}
 
-				if(iScoreBase + iScoreExtra + iScoreBonus > iBestPlotScore)
+				if(pUnit->canSellExoticGoods(pEvalPlot))
+				{
+					float fRewardFactor = pUnit->calculateExoticGoodsDistanceFactor(pEvalPlot);
+					if (fRewardFactor >= 0.75f)
+					{
+						iScoreExtra += 150;
+					}
+					else if (fRewardFactor >= 0.5f)
+					{
+						iScoreExtra += 75;
+					}
+				}
+
+				int iTotalScore = iScoreBase+iScoreExtra+iScoreBonus;
+				//careful with plots that are too dangerous
+				int iAcceptableDanger = pUnit->GetBaseCombatStrengthConsideringDamage() * 50;
+				if(m_pPlayer->GetPlotDanger(*pEvalPlot) > iAcceptableDanger)
+					iTotalScore /= 4;
+
+				if(iTotalScore > iBestPlotScore || (iTotalScore==iBestPlotScore && GC.getGame().getJonRandNum(2,"accept equal value explore target")==1) )
 				{
 					pBestPlot = pEvalPlot;
-					iBestPlotScore = iScoreBase + iScoreExtra + iScoreBonus;
+					iBestPlotScore = iTotalScore;
 					bFoundNearbyExplorePlot = true;
 
 					CvString msg = CvString::format("Best plot for %d is %d, %d with base %d, extra %d, bonus %d\n",
@@ -3320,6 +3301,7 @@ void CvHomelandAI::ExecuteExplorerMoves()
 			}
 		}
 
+		//if we didn't find a worthwhile plot among our adjacent plots, check the global targets
 		if(!pBestPlot && iMovementRange > 0)
 		{
 			FFastVector<int>& aiExplorationPlots = pEconomicAI->GetExplorationPlots();
@@ -3357,7 +3339,7 @@ void CvHomelandAI::ExecuteExplorerMoves()
 #ifdef AUI_ASTAR_TURN_LIMITER
 					//reverse the score calculation below to get an upper bound on the distance
 					int iMaxDistance = (1000*iRating) / max(1,iBestPlotScore);
-					bool bCanFindPath = kPathFinder.GenerateUnitPath(pUnit.pointer(), iUnitX, iUnitY, pEvalPlot->getX(), pEvalPlot->getY(), MOVE_TERRITORY_NO_ENEMY | MOVE_MAXIMIZE_EXPLORE | MOVE_UNITS_IGNORE_DANGER /*iFlags*/, true/*bReuse*/, iMaxDistance);
+					bool bCanFindPath = kPathFinder.GenerateUnitPath(pUnit.pointer(), iUnitX, iUnitY, pEvalPlot->getX(), pEvalPlot->getY(), MOVE_TERRITORY_NO_ENEMY | MOVE_MAXIMIZE_EXPLORE /*iFlags*/, true/*bReuse*/, iMaxDistance);
 #else
 					bool bCanFindPath = kPathFinder.GenerateUnitPath(pUnit.pointer(), iUnitX, iUnitY, pEvalPlot->getX(), pEvalPlot->getY(), MOVE_TERRITORY_NO_ENEMY | MOVE_MAXIMIZE_EXPLORE | MOVE_UNITS_IGNORE_DANGER /*iFlags*/, true/*bReuse*/);
 #endif

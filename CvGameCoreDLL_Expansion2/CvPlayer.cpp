@@ -2129,7 +2129,7 @@ CvPlot* CvPlayer::addFreeUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 #endif
 							if(pLoopPlot != NULL && pLoopPlot->getArea() == pStartingPlot->getArea())
 							{
-#if defined(MOD_BALANCE_CORE)
+#if defined(MOD_BALANCE_CORE_SANE_IMPASSABILITY)
 								if(!pLoopPlot->isImpassable())
 #else
 								if(!pLoopPlot->isImpassable() && !pLoopPlot->isMountain())
@@ -8082,8 +8082,8 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 						{
 							if(pLoopPlot->getArea() == pPlot->getArea())
 							{
-#if defined(MOD_BALANCE_CORE)
-								if(MOD_BALANCE_CORE && !(pLoopPlot->isImpassable()) && !(pLoopPlot->getPlotCity()))
+#if defined(MOD_BALANCE_CORE_SANE_IMPASSABILITY)
+								if(!(pLoopPlot->isImpassable()) && !(pLoopPlot->getPlotCity()))
 #else
 								if(!(pLoopPlot->isImpassable()) && !pLoopPlot->isMountain() && !(pLoopPlot->getPlotCity()))
 #endif
@@ -13793,8 +13793,8 @@ void CvPlayer::DoUprising()
 				continue;
 
 			// Can't be impassable
-#if defined(MOD_BALANCE_CORE)
-			if(MOD_BALANCE_CORE && pPlot->isImpassable())
+#if defined(MOD_BALANCE_CORE_SANE_IMPASSABILITY)
+			if(pPlot->isImpassable())
 #else
 			if(pPlot->isImpassable() || pPlot->isMountain())
 #endif
@@ -22279,8 +22279,8 @@ void CvPlayer::DoUpdateCramped()
 						iTotalPlotsNearby++;
 
 						// A "good" unowned Plot
-#if defined(MOD_BALANCE_CORE)
-						if(MOD_BALANCE_CORE && !pPlot->isOwned() && !pPlot->isImpassable() && !pPlot->isWater())
+#if defined(MOD_BALANCE_CORE_SANE_IMPASSABILITY)
+						if(!pPlot->isOwned() && !pPlot->isImpassable() && !pPlot->isWater())
 #else
 						if(!pPlot->isOwned() && !pPlot->isImpassable() && !pPlot->isMountain() && !pPlot->isWater())
 #endif
@@ -27498,8 +27498,8 @@ int CvPlayer::getAdvancedStartUnitCost(UnitTypes eUnit, bool bAdd, CvPlot* pPlot
 				{
 					return -1;
 				}
-#if defined(MOD_BALANCE_CORE)
-				if(MOD_BALANCE_CORE && pPlot->isImpassable())
+#if defined(MOD_BALANCE_CORE_SANE_IMPASSABILITY)
+				if(pPlot->isImpassable())
 #else
 				if(pPlot->isImpassable() || pPlot->isMountain())
 #endif
@@ -27867,8 +27867,8 @@ int CvPlayer::getAdvancedStartRouteCost(RouteTypes eRoute, bool bAdd, CvPlot* pP
 
 		if(bAdd)
 		{
-#if defined(MOD_BALANCE_CORE)
-			if(MOD_BALANCE_CORE && (pPlot->isImpassable() || pPlot->isWater()))
+#if defined(MOD_BALANCE_CORE_SANE_IMPASSABILITY)
+			if(pPlot->isImpassable() || pPlot->isWater())
 #else
 			if(pPlot->isImpassable() || pPlot->isWater() || pPlot->isMountain())
 #endif

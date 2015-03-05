@@ -84,7 +84,7 @@ bool CvCitySiteEvaluator::CanFound(CvPlot* pPlot, const CvPlayer* pPlayer, bool 
 			}
 		}
 	}
-#if defined(MOD_BALANCE_CORE)
+#if defined(MOD_BALANCE_CORE_SANE_IMPASSABILITY)
 	if(pPlot->isImpassable())
 #else
 	if(pPlot->isImpassable() || pPlot->isMountain())
@@ -1412,7 +1412,7 @@ int CvCitySiteEvaluator::PlotFertilityValue(CvPlot* pPlot, bool bAllPlots)
 {
 	int rtnValue = 0;
 #if defined(MOD_BALANCE_CORE)
-	if( bAllPlots || (!pPlot->isWater() && !pPlot->isImpassable()) )
+	if( bAllPlots || (!pPlot->isWater() && !pPlot->isImpassable() && !pPlot->isMountain()) )
 #else
 	if(!pPlot->isWater() && !pPlot->isImpassable() && !pPlot->isMountain())
 #endif
@@ -1748,7 +1748,7 @@ int CvCitySiteEvaluator::ComputeStrategicValue(CvPlot* pPlot, CvPlayer* pPlayer,
 	if(!pPlot) return rtnValue;
 
 	// Possible chokepoint if impassable terrain and exactly 2 plots from city
-#if defined(MOD_BALANCE_CORE)
+#if defined(MOD_BALANCE_CORE_SANE_IMPASSABILITY)
 	if(iPlotsFromCity == 2 && (pPlot->isImpassable()))
 #else
 	if(iPlotsFromCity == 2 && (pPlot->isImpassable() || pPlot->isMountain()))

@@ -31,6 +31,11 @@
 // Comment out this line to include all the achievements code (which don't work in modded games, so we don't need the code!)
 #define NO_ACHIEVEMENTS
 
+/// try to unify mountains and impassable terrain - only halfway implemented 
+//#define MOD_BALANCE_CORE_SANE_IMPASSABILITY
+/// simpler algorithm for scoring exploration plots
+#define MOD_CORE_ALTERNATIVE_EXPLORE_SCORE
+
 /// Performance: Don't generate long paths when we know we don't want them
 #define AUI_ASTAR_TURN_LIMITER
 /// Increase pathfinding movement range for units if necessary
