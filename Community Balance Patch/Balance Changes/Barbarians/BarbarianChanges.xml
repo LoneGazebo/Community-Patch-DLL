@@ -10,8 +10,9 @@
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<OrderPriority>99</OrderPriority>
 			<PortraitIndex>44</PortraitIndex>
+			<BarbarianOnly>true</BarbarianOnly>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
-			<PediaType>PEDIA_SHARED</PediaType>
+			<PediaType>PEDIA_ATTRIBUTES</PediaType>
 			<CannotBeChosen>true</CannotBeChosen>
 			<PediaEntry>TXT_KEY_PROMOTION_MARSH_WALKER</PediaEntry>
 		</Row>
@@ -22,11 +23,70 @@
 			<Help>TXT_KEY_PROMOTION_WHITE_WALKER_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<OrderPriority>99</OrderPriority>
+			<BarbarianOnly>true</BarbarianOnly>
 			<PortraitIndex>44</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
-			<PediaType>PEDIA_SHARED</PediaType>
+			<PediaType>PEDIA_ATTRIBUTES</PediaType>
 			<CannotBeChosen>true</CannotBeChosen>
 			<PediaEntry>TXT_KEY_PROMOTION_WHITE_WALKER</PediaEntry>
+		</Row>
+		<!-- Woods Walker -->
+		<Row>
+			<Type>PROMOTION_WOODS_WALKER</Type>
+			<Description>TXT_KEY_PROMOTION_WOODS_WALKER</Description>
+			<Help>TXT_KEY_PROMOTION_WOODS_WALKER_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<OrderPriority>99</OrderPriority>
+			<PortraitIndex>56</PortraitIndex>
+			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
+			<PediaType>PEDIA_ATTRIBUTES</PediaType>
+			<CannotBeChosen>true</CannotBeChosen>
+			<BarbarianOnly>true</BarbarianOnly>
+			<PediaEntry>TXT_KEY_PROMOTION_WOODS_WALKER</PediaEntry>
+		</Row>
+		<!-- Desert Walker -->
+		<Row>
+			<Type>PROMOTION_DESERT_WALKER</Type>
+			<Description>TXT_KEY_PROMOTION_DESERT_WALKER</Description>
+			<Help>TXT_KEY_PROMOTION_DESERT_WALKER_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<OrderPriority>99</OrderPriority>
+			<PortraitIndex>1</PortraitIndex>
+			<IconAtlas>EXPANSION2_PROMOTION_ATLAS</IconAtlas>
+			<PediaType>PEDIA_ATTRIBUTES</PediaType>
+			<CannotBeChosen>true</CannotBeChosen>
+			<BarbarianOnly>true</BarbarianOnly>
+			<PediaEntry>TXT_KEY_PROMOTION_DESERT_WALKER</PediaEntry>
+		</Row>
+		<!-- Coast Walker -->
+		<Row>
+			<Type>PROMOTION_COAST_WALKER</Type>
+			<Description>TXT_KEY_PROMOTION_COAST_WALKER</Description>
+			<Help>TXT_KEY_PROMOTION_COAST_WALKER_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<OrderPriority>99</OrderPriority>
+			<AllowsEmbarkation>true</AllowsEmbarkation>
+			<PortraitIndex>22</PortraitIndex>
+			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
+			<PediaType>PEDIA_ATTRIBUTES</PediaType>
+			<BarbarianOnly>true</BarbarianOnly>
+			<CannotBeChosen>true</CannotBeChosen>
+			<PediaEntry>TXT_KEY_PROMOTION_COAST_WALKER</PediaEntry>
+		</Row>
+		<!-- Hill Walker -->
+		<Row>
+			<Type>PROMOTION_HILL_WALKER</Type>
+			<Description>TXT_KEY_PROMOTION_HILL_WALKER</Description>
+			<Help>TXT_KEY_PROMOTION_HILL_WALKER_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<OrderPriority>99</OrderPriority>
+			<PortraitIndex>0</PortraitIndex>
+			<IconAtlas>EXPANSION2_PROMOTION_ATLAS</IconAtlas>
+			<PediaType>PEDIA_ATTRIBUTES</PediaType>
+			<CannotBeChosen>true</CannotBeChosen>
+			<BarbarianOnly>true</BarbarianOnly>
+			<PediaEntry>TXT_KEY_PROMOTION_HILL_WALKER</PediaEntry>
+			<HillsDoubleMove>true</HillsDoubleMove>
 		</Row>
 	</UnitPromotions>
 	<UnitPromotions_Features>
@@ -38,6 +98,16 @@
 		<Row>
 			<PromotionType>PROMOTION_MARSH_WALKER</PromotionType>
 			<FeatureType>FEATURE_FLOOD_PLAINS</FeatureType>
+			<DoubleMove>true</DoubleMove>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_WOODS_WALKER</PromotionType>
+			<FeatureType>FEATURE_FOREST</FeatureType>
+			<DoubleMove>true</DoubleMove>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_WOODS_WALKER</PromotionType>
+			<FeatureType>FEATURE_JUNGLE</FeatureType>
 			<DoubleMove>true</DoubleMove>
 		</Row>
 	</UnitPromotions_Features>
@@ -52,19 +122,252 @@
 			<TerrainType>TERRAIN_SNOW</TerrainType>
 			<DoubleMove>true</DoubleMove>
 		</Row>
+		<Row>
+			<PromotionType>PROMOTION_DESERT_WALKER</PromotionType>
+			<TerrainType>TERRAIN_DESERT</TerrainType>
+			<DoubleMove>true</DoubleMove>
+		</Row>
 	</UnitPromotions_Terrains>
+	<UnitPromotions_UnitCombats>
+		<Row>
+			<PromotionType>PROMOTION_MARSH_WALKER</PromotionType>
+			<UnitCombatType>UNITCOMBAT_RECON</UnitCombatType>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_MARSH_WALKER</PromotionType>
+			<UnitCombatType>UNITCOMBAT_ARCHER</UnitCombatType>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_MARSH_WALKER</PromotionType>
+			<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_MARSH_WALKER</PromotionType>
+			<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_MARSH_WALKER</PromotionType>
+			<UnitCombatType>UNITCOMBAT_SIEGE</UnitCombatType>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_MARSH_WALKER</PromotionType>
+			<UnitCombatType>UNITCOMBAT_GUN</UnitCombatType>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_MARSH_WALKER</PromotionType>
+			<UnitCombatType>UNITCOMBAT_ARMOR</UnitCombatType>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_MARSH_WALKER</PromotionType>
+			<UnitCombatType>UNITCOMBAT_HELICOPTER</UnitCombatType>
+		</Row>
+
+		<Row>
+			<PromotionType>PROMOTION_WHITE_WALKER</PromotionType>
+			<UnitCombatType>UNITCOMBAT_RECON</UnitCombatType>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_WHITE_WALKER</PromotionType>
+			<UnitCombatType>UNITCOMBAT_ARCHER</UnitCombatType>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_WHITE_WALKER</PromotionType>
+			<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_WHITE_WALKER</PromotionType>
+			<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_WHITE_WALKER</PromotionType>
+			<UnitCombatType>UNITCOMBAT_SIEGE</UnitCombatType>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_WHITE_WALKER</PromotionType>
+			<UnitCombatType>UNITCOMBAT_GUN</UnitCombatType>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_WHITE_WALKER</PromotionType>
+			<UnitCombatType>UNITCOMBAT_ARMOR</UnitCombatType>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_WHITE_WALKER</PromotionType>
+			<UnitCombatType>UNITCOMBAT_HELICOPTER</UnitCombatType>
+		</Row>
+
+		<Row>
+			<PromotionType>PROMOTION_WOODS_WALKER</PromotionType>
+			<UnitCombatType>UNITCOMBAT_RECON</UnitCombatType>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_WOODS_WALKER</PromotionType>
+			<UnitCombatType>UNITCOMBAT_ARCHER</UnitCombatType>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_WOODS_WALKER</PromotionType>
+			<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_WOODS_WALKER</PromotionType>
+			<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_WOODS_WALKER</PromotionType>
+			<UnitCombatType>UNITCOMBAT_SIEGE</UnitCombatType>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_WOODS_WALKER</PromotionType>
+			<UnitCombatType>UNITCOMBAT_GUN</UnitCombatType>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_WOODS_WALKER</PromotionType>
+			<UnitCombatType>UNITCOMBAT_ARMOR</UnitCombatType>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_WOODS_WALKER</PromotionType>
+			<UnitCombatType>UNITCOMBAT_HELICOPTER</UnitCombatType>
+		</Row>
+
+		<Row>
+			<PromotionType>PROMOTION_COAST_WALKER</PromotionType>
+			<UnitCombatType>UNITCOMBAT_RECON</UnitCombatType>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_COAST_WALKER</PromotionType>
+			<UnitCombatType>UNITCOMBAT_ARCHER</UnitCombatType>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_COAST_WALKER</PromotionType>
+			<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_COAST_WALKER</PromotionType>
+			<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_COAST_WALKER</PromotionType>
+			<UnitCombatType>UNITCOMBAT_SIEGE</UnitCombatType>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_COAST_WALKER</PromotionType>
+			<UnitCombatType>UNITCOMBAT_GUN</UnitCombatType>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_COAST_WALKER</PromotionType>
+			<UnitCombatType>UNITCOMBAT_ARMOR</UnitCombatType>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_COAST_WALKER</PromotionType>
+			<UnitCombatType>UNITCOMBAT_HELICOPTER</UnitCombatType>
+		</Row>
+
+		<Row>
+			<PromotionType>PROMOTION_DESERT_WALKER</PromotionType>
+			<UnitCombatType>UNITCOMBAT_RECON</UnitCombatType>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_DESERT_WALKER</PromotionType>
+			<UnitCombatType>UNITCOMBAT_ARCHER</UnitCombatType>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_DESERT_WALKER</PromotionType>
+			<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_DESERT_WALKER</PromotionType>
+			<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_DESERT_WALKER</PromotionType>
+			<UnitCombatType>UNITCOMBAT_SIEGE</UnitCombatType>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_DESERT_WALKER</PromotionType>
+			<UnitCombatType>UNITCOMBAT_GUN</UnitCombatType>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_DESERT_WALKER</PromotionType>
+			<UnitCombatType>UNITCOMBAT_ARMOR</UnitCombatType>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_DESERT_WALKER</PromotionType>
+			<UnitCombatType>UNITCOMBAT_HELICOPTER</UnitCombatType>
+		</Row>
+
+		<Row>
+			<PromotionType>PROMOTION_HILL_WALKER</PromotionType>
+			<UnitCombatType>UNITCOMBAT_RECON</UnitCombatType>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_HILL_WALKER</PromotionType>
+			<UnitCombatType>UNITCOMBAT_ARCHER</UnitCombatType>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_HILL_WALKER</PromotionType>
+			<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_HILL_WALKER</PromotionType>
+			<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_HILL_WALKER</PromotionType>
+			<UnitCombatType>UNITCOMBAT_SIEGE</UnitCombatType>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_HILL_WALKER</PromotionType>
+			<UnitCombatType>UNITCOMBAT_GUN</UnitCombatType>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_HILL_WALKER</PromotionType>
+			<UnitCombatType>UNITCOMBAT_ARMOR</UnitCombatType>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_HILL_WALKER</PromotionType>
+			<UnitCombatType>UNITCOMBAT_HELICOPTER</UnitCombatType>
+		</Row>
+	</UnitPromotions_UnitCombats>
 	<Language_en_US>
 		<Row Tag="TXT_KEY_PROMOTION_MARSH_WALKER">
 			<Text>Marsh Walkers</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_MARSH_WALKER_HELP">
-			<Text>Double movement on Marsh and Flood Plain tiles.</Text>
+			<Text>Double movement on Marsh and Flood Plain tiles. Barbarian only.</Text>
 		</Row>
+		
 		<Row Tag="TXT_KEY_PROMOTION_WHITE_WALKER">
 			<Text>White Walkers</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_WHITE_WALKER_HELP">
-			<Text>Double movement on Snow and Tundra tiles.</Text>
+			<Text>Double movement on Snow and Tundra tiles. Barbarian only.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_WOODS_WALKER">
+			<Text>Woods Walkers</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_WOODS_WALKER_HELP">
+			<Text>Double movement on Forest and Jungle tiles. Barbarian only.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_DESERT_WALKER">
+			<Text>Desert Walkers</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_DESERT_WALKER_HELP">
+			<Text>Double movement on Desert tiles. Barbarian only.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_COAST_WALKER">
+			<Text>Coast Walkers</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_COAST_WALKER_HELP">
+			<Text>Double movement on Coastal tiles. Barbarian only.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_HILL_WALKER">
+			<Text>Hill Walkers</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_HILL_WALKER_HELP">
+			<Text>Double movement on Hill tiles. Barbarian only.</Text>
 		</Row>
 		<!-- Barbarian Theft Text-->
 		<Row Tag="TXT_KEY_BARBARIAN_GOLD_THEFT_CITY_DETAILED">

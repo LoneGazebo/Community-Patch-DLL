@@ -5,7 +5,7 @@
 		<Row>
 			<BeliefType>BELIEF_RELIGIOUS_COMMUNITY</BeliefType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Max>10</Max>
+			<Max>15</Max>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_FEED_WORLD</BeliefType>

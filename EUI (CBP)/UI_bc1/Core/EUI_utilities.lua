@@ -181,6 +181,10 @@ if Game and PreGame then
 					g_deal:AddDeclarationOfFriendship( fromPlayerID )
 				elseif bnw_mode and id == TradeableItems.TRADE_ITEM_VOTE_COMMITMENT then
 					g_deal:AddVoteCommitment( fromPlayerID, item[4], item[5], item[6], item[7] )
+				elseif bnw_mode and id == TradeableItems.TRADE_ITEM_VASSALAGE then
+					g_deal:AddVassalageTrade( fromPlayerID )
+				elseif bnw_mode and id == TradeableItems.TRADE_ITEM_TECHS then
+					g_deal:AddTechTrade( fromPlayerID, item[4] )
 				end
 			else -- civ be
 				if id == TradeableItems.TRADE_ITEM_ENERGY then

@@ -108,6 +108,9 @@ protected:
 	static int lGetProductionNeeded(lua_State* L);
 	static int lGetUnitProductionNeeded(lua_State* L);
 	static int lGetBuildingProductionNeeded(lua_State* L);
+#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
+	LUAAPIEXTN(GetBuildingInvestment, int);
+#endif
 	static int lGetProjectProductionNeeded(lua_State* L);
 	static int lGetProductionTurnsLeft(lua_State* L);
 	static int lGetUnitProductionTurnsLeft(lua_State* L);

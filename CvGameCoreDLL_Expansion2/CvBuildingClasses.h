@@ -119,6 +119,7 @@ public:
 	int GrantsRandomResourceTerritory() const;
 	bool IsPuppetPurchaseOverride() const;
 	bool IsAllowsPuppetPurchase() const;
+	int GetCooldown() const;
 #endif
 	int GetSpecialistType() const;
 	int GetSpecialistCount() const;
@@ -416,6 +417,7 @@ private:
 	int m_iGrantsRandomResourceTerritory;
 	bool m_bPuppetPurchaseOverride;
 	bool m_bAllowsPuppetPurchase;
+	int m_iGetCooldown;
 #endif
 	int m_iSpecialistType;
 	int m_iSpecialistCount;

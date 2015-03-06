@@ -164,6 +164,9 @@ public:
 	int GetResourceType() const;
 	bool IsPuppetPurchaseOverride() const;
 	bool IsMinorCivGift() const;
+	int GetCooldown() const;
+	bool IsMounted() const;
+
 #endif
 	// Accessor Functions (Arrays)
 	int GetPrereqAndTechs(int i) const;
@@ -185,6 +188,7 @@ public:
 	bool GetBuildingClassRequireds(int i) const;
 #if defined(MOD_BALANCE_CORE)
 	bool GetBuildOnFound(int i) const;
+	bool GetBuildingClassPurchaseRequireds(int i) const;
 #endif
 	bool GetFreePromotions(int i) const;
 
@@ -300,6 +304,8 @@ private:
 	int m_iResourceType;
 	bool m_bPuppetPurchaseOverride;
 	bool m_bMinorCivGift;
+	bool m_bIsMounted;
+	int m_iCooldown;
 #endif
 	int m_iCultureBombRadius;
 	int m_iGoldenAgeTurns;
@@ -351,6 +357,7 @@ private:
 	bool* m_pbBuildingClassRequireds;
 #if defined(MOD_BALANCE_CORE)
 	bool* m_pbBuildOnFound;
+	bool* m_pbBuildingClassPurchaseRequireds;
 #endif
 	bool* m_pbFreePromotions;
 

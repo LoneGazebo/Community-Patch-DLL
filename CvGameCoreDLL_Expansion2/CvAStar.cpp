@@ -2146,7 +2146,7 @@ int StepValid(CvAStarNode* parent, CvAStarNode* node, int data, const void* poin
 	{
 		return FALSE;
 	}
-#if defined(MOD_BALANCE_CORE)
+#if defined(MOD_BALANCE_CORE_SANE_IMPASSABILITY)
 	if(pNewPlot->isImpassable())
 #else
 	if(pNewPlot->isImpassable() || pNewPlot->isMountain())
@@ -2210,7 +2210,11 @@ int StepValidAnyArea(CvAStarNode* parent, CvAStarNode* node, int data, const voi
 	//	return FALSE;
 	//}
 
+#if defined(MOD_BALANCE_CORE_SANE_IMPASSABILITY)
 	if(pNewPlot->isImpassable())
+#else
+	if(pNewPlot->isImpassable() || pNewPlot->isMountain())
+#endif
 	{
 		return FALSE;
 	}
@@ -2766,7 +2770,7 @@ int BuildRouteValid(CvAStarNode* parent, CvAStarNode* node, int data, const void
 	{
 		return FALSE;
 	}
-#if defined(MOD_BALANCE_CORE)
+#if defined(MOD_BALANCE_CORE_SANE_IMPASSABILITY)
 	if(pNewPlot->isImpassable())
 #else
 	if(pNewPlot->isImpassable() || pNewPlot->isMountain())
@@ -3090,7 +3094,8 @@ CvPlot* CvStepPathFinder::GetLastOwnedPlot(PlayerTypes ePlayer, PlayerTypes eEne
 		{
 			CvPlot* currentPlot;
 			currentPlot = kMap.plotUnchecked(pNode->m_iX, pNode->m_iY);
-#if defined(MOD_BALANCE_CORE_MILITARY)
+
+#if defined(MOD_BALANCE_CORE_SANE_IMPASSABILITY)
 			if(currentPlot->isImpassable())
 			{
 				continue;
@@ -3168,7 +3173,11 @@ CvPlot* CvStepPathFinder::GetXPlotsFromEnd(PlayerTypes ePlayer, PlayerTypes eEne
 
 //	--------------------------------------------------------------------------------
 /// Check for existence of step path between two points
+#ifdef AUI_ASTAR_TURN_LIMITER
+bool CvIgnoreUnitsPathFinder::DoesPathExist(CvUnit& unit, CvPlot* pStartPlot, CvPlot* pEndPlot, int iTargetTurns)
+#else
 bool CvIgnoreUnitsPathFinder::DoesPathExist(CvUnit& unit, CvPlot* pStartPlot, CvPlot* pEndPlot)
+#endif
 {
 	m_pCurNode = NULL;
 
@@ -3177,7 +3186,12 @@ bool CvIgnoreUnitsPathFinder::DoesPathExist(CvUnit& unit, CvPlot* pStartPlot, Cv
 		return false;
 	}
 
+#ifdef AUI_ASTAR_TURN_LIMITER
+	SetData(&unit, iTargetTurns);
+#else
 	SetData(&unit);
+#endif // AUI_ASTAR_TURN_LIMITER
+
 	return GeneratePath(pStartPlot->getX(), pStartPlot->getY(), pEndPlot->getX(), pEndPlot->getY(), 0, true /*bReuse*/);
 }
 
@@ -4249,7 +4263,7 @@ int TradeRouteLandPathCost(CvAStarNode* parent, CvAStarNode* node, int data, con
 	}
 	
 	// Penalty for ending a turn on a mountain
-#if defined(MOD_BALANCE_CORE)
+#if defined(MOD_BALANCE_CORE_SANE_IMPASSABILITY)
 	if(pToPlot->isImpassable())
 #else
 	if(pToPlot->isImpassable() || pToPlot->isMountain())
@@ -4284,7 +4298,7 @@ int TradeRouteLandValid(CvAStarNode* parent, CvAStarNode* node, int data, const 
 	{
 		return FALSE;
 	}
-#if defined(MOD_BALANCE_CORE)
+#if defined(MOD_BALANCE_CORE_SANE_IMPASSABILITY)
 	if(pNewPlot->isImpassable())
 #else
 	if(pNewPlot->isMountain() || pNewPlot->isImpassable())

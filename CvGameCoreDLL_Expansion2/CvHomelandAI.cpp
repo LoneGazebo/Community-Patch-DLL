@@ -3147,16 +3147,13 @@ bool CvHomelandAI::PickUpGoodies(CvEconomicAI* pEconomicAI, UnitHandle pUnit)
 #endif
 typedef CvWeightedVector<CvPlot*, 100, true> WeightedPlotVector;
 
-#if defined(MOD_BALANCE_CORE_SETTLER)
+#if defined(MOD_CORE_ALTERNATIVE_EXPLORE_SCORE)
 
-/// Moves units to explore the map
+	/// Moves units to explore the map
 void CvHomelandAI::ExecuteExplorerMoves()
 {
-	bool bFoundNearbyExplorePlot = false;
 	CvEconomicAI* pEconomicAI = m_pPlayer->GetEconomicAI();
-
-	//check goody huts and camps
-	pEconomicAI->UpdatePlots();
+	bool bFoundNearbyExplorePlot = false;
 
 	CvTwoLayerPathFinder& kPathFinder = GC.getPathFinder();
 	FStaticVector< CvHomelandUnit, 64, true, c_eCiv5GameplayDLL >::iterator it;
@@ -3188,7 +3185,6 @@ void CvHomelandAI::ExecuteExplorerMoves()
 		{
 			// Far enough from home to get a good reward?
 			float fRewardFactor = pUnit->calculateExoticGoodsDistanceFactor(pUnit->plot());
-#if defined(MOD_BALANCE_CORE)
 			PlayerTypes ePlotOwner = NO_PLAYER;
 			for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
 			{
@@ -3217,7 +3213,7 @@ void CvHomelandAI::ExecuteExplorerMoves()
 			{
 				fRewardFactor /= 10;
 			}
-#endif
+
 			if (fRewardFactor >= 0.5f)
 			{
 				pUnit->PushMission(CvTypes::getMISSION_SELL_EXOTIC_GOODS());
@@ -3242,7 +3238,6 @@ void CvHomelandAI::ExecuteExplorerMoves()
 		int iBestPlotScore = 0;
 
 		TeamTypes eTeam = pUnit->getTeam();
-		int iBaseSightRange = pUnit->getUnitInfo().GetBaseSightRange();
 		int iMovementRange = pUnit->movesLeft();
 
 		for(int eDir=0; eDir<NUM_DIRECTION_TYPES; eDir++)
@@ -3252,70 +3247,51 @@ void CvHomelandAI::ExecuteExplorerMoves()
 			if(!pEvalPlot || !IsValidExplorerEndTurnPlot(pUnit.pointer(), pEvalPlot))
 				continue;
 
-#if defined(MOD_BALANCE_CORE)
-			if(pEvalPlot->getNumUnits() > 0)
-			{
-				CvUnit* pUnit = pEvalPlot->getUnitByIndex(0);
-				if(!pUnit->IsCivilianUnit())
-				{
-					continue;
-				}
-			}
-#endif
-			DomainTypes eDomain = pUnit->getDomainType();
-			int iScoreBase = CvEconomicAI::ScoreExplorePlot(pEvalPlot, eTeam, iBaseSightRange, eDomain);
+			//ignore occupied plots
+			if( pEvalPlot->getBestDefender(NO_PLAYER) != (UnitHandle)NULL)
+				continue;
 
+			int iScoreBase = CvEconomicAI::ScoreExplorePlot2(pEvalPlot, eTeam, pUnit->getDomainType(), pUnit->isEmbarked());
 			if(iScoreBase > 0)
 			{
 				int iScoreBonus = pEvalPlot->GetExplorationBonus(m_pPlayer, pCurPlot);
 				int iScoreExtra = 0;
-				//If minor, let's not wander around if we don't have open borders.
+
+				//If a known minor, let's not wander around if we don't have open borders.
 				if(pEvalPlot->getOwner() != NO_PLAYER)
 				{
-					if(GET_PLAYER(pEvalPlot->getOwner()).isMinorCiv())
+					if(GET_PLAYER(pEvalPlot->getOwner()).isMinorCiv() && GET_TEAM(m_pPlayer->getTeam()).isHasMet( GET_PLAYER(pEvalPlot->getOwner()).getTeam() ) )
 					{
 						if(!GET_PLAYER(pEvalPlot->getOwner()).GetMinorCivAI()->IsPlayerHasOpenBorders(m_pPlayer->GetID()))
 						{
-							iScoreExtra -= 200;
+							iScoreExtra -= 100;
 						}
-					}
-				}
-				if (eDomain == DOMAIN_LAND)
-				{
-					if (pEvalPlot->isHills())
-					{
-						iScoreExtra += 50;
-					}
-					if (pUnit->IsEmbarkAllWater() && !pEvalPlot->isShallowWater())
-					{
-						iScoreExtra += 200;
-					}
-				}
-				else if (eDomain == DOMAIN_SEA)
-				{
-					if(pUnit->canSellExoticGoods(pEvalPlot))
-					{
-						float fRewardFactor = pUnit->calculateExoticGoodsDistanceFactor(pEvalPlot);
-						if (fRewardFactor >= 0.75f)
-						{
-							iScoreExtra += 150;
-						}
-						else if (fRewardFactor >= 0.5f)
-						{
-							iScoreExtra += 75;
-						}
-					}
-
-					if(pEvalPlot->isAdjacentToLand())
-					{
-						iScoreExtra += 200;
 					}
 				}
 
-				if(iScoreBase + iScoreExtra + iScoreBonus > iBestPlotScore)
+				if(pUnit->canSellExoticGoods(pEvalPlot))
+				{
+					float fRewardFactor = pUnit->calculateExoticGoodsDistanceFactor(pEvalPlot);
+					if (fRewardFactor >= 0.75f)
+					{
+						iScoreExtra += 150;
+					}
+					else if (fRewardFactor >= 0.5f)
+					{
+						iScoreExtra += 75;
+					}
+				}
+
+				int iTotalScore = iScoreBase+iScoreExtra+iScoreBonus;
+				//careful with plots that are too dangerous
+				int iAcceptableDanger = pUnit->GetBaseCombatStrengthConsideringDamage() * 50;
+				if(m_pPlayer->GetPlotDanger(*pEvalPlot) > iAcceptableDanger)
+					iTotalScore /= 4;
+
+				if(iTotalScore > iBestPlotScore || (iTotalScore==iBestPlotScore && GC.getGame().getJonRandNum(2,"accept equal value explore target")==1) )
 				{
 					pBestPlot = pEvalPlot;
-					iBestPlotScore = iScoreBase + iScoreExtra + iScoreBonus;
+					iBestPlotScore = iTotalScore;
 					bFoundNearbyExplorePlot = true;
 
 					CvString msg = CvString::format("Best plot for %d is %d, %d with base %d, extra %d, bonus %d\n",
@@ -3325,6 +3301,7 @@ void CvHomelandAI::ExecuteExplorerMoves()
 			}
 		}
 
+		//if we didn't find a worthwhile plot among our adjacent plots, check the global targets
 		if(!pBestPlot && iMovementRange > 0)
 		{
 			FFastVector<int>& aiExplorationPlots = pEconomicAI->GetExplorationPlots();
@@ -3356,8 +3333,16 @@ void CvHomelandAI::ExecuteExplorerMoves()
 
 					int iRating = aiExplorationPlotRatings[ui];
 
-					// hitting the path finder, may not be the best idea. . .
+					if (iRating==0)
+						continue;
+
+#ifdef AUI_ASTAR_TURN_LIMITER
+					//reverse the score calculation below to get an upper bound on the distance
+					int iMaxDistance = (1000*iRating) / max(1,iBestPlotScore);
+					bool bCanFindPath = kPathFinder.GenerateUnitPath(pUnit.pointer(), iUnitX, iUnitY, pEvalPlot->getX(), pEvalPlot->getY(), MOVE_TERRITORY_NO_ENEMY | MOVE_MAXIMIZE_EXPLORE /*iFlags*/, true/*bReuse*/, iMaxDistance);
+#else
 					bool bCanFindPath = kPathFinder.GenerateUnitPath(pUnit.pointer(), iUnitX, iUnitY, pEvalPlot->getX(), pEvalPlot->getY(), MOVE_TERRITORY_NO_ENEMY | MOVE_MAXIMIZE_EXPLORE | MOVE_UNITS_IGNORE_DANGER /*iFlags*/, true/*bReuse*/);
+#endif
 					if(!bCanFindPath)
 					{
 						continue;
@@ -3367,7 +3352,7 @@ void CvHomelandAI::ExecuteExplorerMoves()
 					int iDistance = pNode->m_iData2;
 					iPlotScore = (1000 * iRating) / max(1,iDistance);
 
-					if(iPlotScore > iBestPlotScore)
+					if (iPlotScore>iBestPlotScore)
 					{
 						CvPlot* pEndTurnPlot = kPathFinder.GetPathEndTurnPlot();
 						if(pEndTurnPlot == pUnit->plot())
@@ -7166,7 +7151,7 @@ bool CvHomelandAI::GetClosestUnitByTurnsToTarget(CvHomelandAI::MoveUnitsArray &k
 				continue;
 
 #ifdef AUI_ASTAR_TURN_LIMITER
-			int iMoves = TurnsToReachTarget(pLoopUnit.pointer(), pTarget, iMinTurns);
+			int iMoves = TurnsToReachTarget(pLoopUnit.pointer(), pTarget, false, false, false, iMinTurns);
 #else
 			int iMoves = TurnsToReachTarget(pLoopUnit.pointer(), pTarget);
 #endif // AUI_ASTAR_TURN_LIMITER
@@ -7365,7 +7350,7 @@ CvPlot* CvHomelandAI::FindArchaeologistTarget(CvUnit *pUnit)
 		if (m_pPlayer->GetPlotDanger(*pTarget) == 0)
 		{
 #ifdef AUI_ASTAR_TURN_LIMITER
-			int iTurns = TurnsToReachTarget(pUnit, pTarget, iBestTurns);
+			int iTurns = TurnsToReachTarget(pUnit, pTarget, false, false, false, iBestTurns);
 #else
 			int iTurns = TurnsToReachTarget(pUnit, pTarget);
 #endif // AUI_ASTAR_TURN_LIMITER

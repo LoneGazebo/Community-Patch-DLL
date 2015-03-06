@@ -14,12 +14,6 @@
 				 />
 		</Update>
 		<Update>
-			<Where Type="FEATURE_KILIMANJARO" />
-			<Set AdjacentUnitFreePromotion="NULL"
-				 Help="NULL"
-				 />
-		</Update>
-		<Update>
 			<Where Type="FEATURE_GEYSER" />
 			<Set InBorderHappiness="1" />
 		</Update>

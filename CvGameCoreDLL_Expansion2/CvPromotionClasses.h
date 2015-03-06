@@ -130,8 +130,11 @@ public:
 	bool IsGainsXPFromScouting() const;
 	int NegatesPromotion() const;
 	bool CannotBeCaptured() const;
+	bool IsLostOnMove() const;
 	int ForcedDamageValue() const;
 	int ChangeDamageValue() const;
+	bool IsCityStateOnly() const;
+	bool IsBarbarianOnly() const;
 #endif
 	bool IsCannotBeChosen() const;
 	bool IsLostWithUpgrade() const;
@@ -331,6 +334,9 @@ protected:
 	int m_iNegatesPromotion;
 	int m_iForcedDamageValue;
 	int m_iChangeDamageValue;
+	bool m_bIsLostOnMove;
+	bool m_bCityStateOnly;
+	bool m_bBarbarianOnly;
 #endif
 	bool m_bCannotBeChosen;
 	bool m_bLostWithUpgrade;
@@ -493,7 +499,7 @@ public:
 	void SetPromotion(PromotionTypes eIndex, bool bValue);
 
 	bool GetAllowFeaturePassable(FeatureTypes eFeatureType) const;
-	bool GetAllowTerrainPassable(TerrainTypes eTerrainType) const ;
+	bool GetAllowTerrainPassable(TerrainTypes eTerrainType) const;
 
 	int GetUnitClassAttackMod(UnitClassTypes eUnitClass) const;
 	int GetUnitClassDefenseMod(UnitClassTypes eUnitClass) const;
@@ -501,8 +507,12 @@ public:
 	PromotionTypes ChangePromotionAfterCombat(PromotionTypes eIndex);
 
 private:
-
 	bool IsInUseByPlayer(PromotionTypes eIndex, PlayerTypes ePlayer); 
+
+#if defined(MOD_BALANCE_CORE)
+	void UpdateTerrainPassableCache();
+	std::vector<std::vector<TechTypes>> m_terrainPassableCache;
+#endif
 
 	CvBitfield m_kHasPromotion;
 	CvPromotionXMLEntries* m_pPromotions;

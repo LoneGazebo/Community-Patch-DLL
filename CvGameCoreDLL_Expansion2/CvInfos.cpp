@@ -5000,8 +5000,6 @@ CvFeatureInfo::CvFeatureInfo() :
 	m_iLocationUnitFreePromotion(NO_PROMOTION),
 	m_iSpawnLocationUnitFreePromotion(NO_PROMOTION),
 	m_iAdjacentSpawnLocationUnitFreePromotion(NO_PROMOTION),
-	m_bIsBarbarianOnly(false),
-	m_bIsCityStateOnly(false),
 #endif
 	m_bYieldNotAdditive(false),
 	m_bNoCoast(false),
@@ -5140,13 +5138,9 @@ int CvFeatureInfo::getSpawnLocationUnitFreePromotion() const
 {
 	return m_iSpawnLocationUnitFreePromotion;
 }
-bool CvFeatureInfo::isBarbarianOnly() const
+int CvFeatureInfo::getAdjacentSpawnLocationUnitFreePromotion() const
 {
-	return m_bIsBarbarianOnly;
-}
-bool CvFeatureInfo::isCityStateOnly() const
-{
-	return m_bIsCityStateOnly;
+	return m_iAdjacentSpawnLocationUnitFreePromotion;
 }
 #endif
 //------------------------------------------------------------------------------
@@ -5354,14 +5348,26 @@ bool CvFeatureInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iAdjacentUnitFreePromotion = GC.getInfoTypeForString(szTextVal, true);
 
 #if defined(MOD_BALANCE_CORE)
-	szTextVal = kResults.GetText("LocationUnitFreePromotion");
-	m_iLocationUnitFreePromotion = GC.getInfoTypeForString(szTextVal, true);
+	const char* szTextVal2;
+	szTextVal2 = kResults.GetText("LocationUnitFreePromotion");
+	if(szTextVal2 != NULL)
+	{
+		m_iLocationUnitFreePromotion = GC.getInfoTypeForString(szTextVal2, true);
+	}
+	
+	const char* szTextVal3;
+	szTextVal3 = kResults.GetText("SpawnLocationUnitFreePromotion");
+	if(szTextVal3 != NULL)
+	{
+		m_iSpawnLocationUnitFreePromotion = GC.getInfoTypeForString(szTextVal3, true);
+	}
 
-	szTextVal = kResults.GetText("SpawnLocationUnitFreePromotion");
-	m_iSpawnLocationUnitFreePromotion = GC.getInfoTypeForString(szTextVal, true);
-
-	m_bIsBarbarianOnly = kResults.GetBool("IsBarbarianOnly");
-	m_bIsCityStateOnly = kResults.GetBool("IsCityStateOnly");
+	const char* szTextVal4;
+	szTextVal4 = kResults.GetText("AdjacentSpawnLocationUnitFreePromotion");
+	if(szTextVal4 != NULL)
+	{
+		m_iAdjacentSpawnLocationUnitFreePromotion = GC.getInfoTypeForString(szTextVal4, true);
+	}
 #endif
 
 	const char* szTerrainType = kResults.GetText("GrowthTerrainType");
@@ -5578,12 +5584,10 @@ CvTerrainInfo::CvTerrainInfo() :
 	m_iExtraTurnDamage(0),
 #endif
 #if defined(MOD_BALANCE_CORE)
-	m_iLocationUnitFreePromotion(NO_PROMOTION),
-	m_iSpawnLocationUnitFreePromotion(NO_PROMOTION),
-	m_iAdjacentSpawnLocationUnitFreePromotion(NO_PROMOTION),
-	m_bIsBarbarianOnly(false),
-	m_bIsCityStateOnly(false),
-	m_iAdjacentUnitFreePromotion(NO_PROMOTION),
+	m_iLocationUnitFreePromotionTerrain(NO_PROMOTION),
+	m_iSpawnLocationUnitFreePromotionTerrain(NO_PROMOTION),
+	m_iAdjacentSpawnLocationUnitFreePromotionTerrain(NO_PROMOTION),
+	m_iAdjacentUnitFreePromotionTerrain(NO_PROMOTION),
 #endif
 	m_bWater(false),
 	m_bImpassable(false),
@@ -5663,28 +5667,20 @@ int CvTerrainInfo::getExtraTurnDamage() const
 #if defined(MOD_BALANCE_CORE)
 int CvTerrainInfo::getLocationUnitFreePromotion() const
 {
-	return m_iLocationUnitFreePromotion;
+	return m_iLocationUnitFreePromotionTerrain;
 }
 int CvTerrainInfo::getSpawnLocationUnitFreePromotion() const
 {
-	return m_iSpawnLocationUnitFreePromotion;
+	return m_iSpawnLocationUnitFreePromotionTerrain;
 }
 int CvTerrainInfo::getAdjacentSpawnLocationUnitFreePromotion() const
 {
-	return m_iAdjacentSpawnLocationUnitFreePromotion;
-}
-bool CvTerrainInfo::isBarbarianOnly() const
-{
-	return m_bIsBarbarianOnly;
-}
-bool CvTerrainInfo::isCityStateOnly() const
-{
-	return m_bIsCityStateOnly;
+	return m_iAdjacentSpawnLocationUnitFreePromotionTerrain;
 }
 //------------------------------------------------------------------------------
 int CvTerrainInfo::getAdjacentUnitFreePromotion() const
 {
-	return m_iAdjacentUnitFreePromotion;
+	return m_iAdjacentUnitFreePromotionTerrain;
 }
 #endif
 //------------------------------------------------------------------------------
@@ -5821,20 +5817,33 @@ bool CvTerrainInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 		Remark(1, "Warning: Missing soundscape definition in XML for feature: '%s'", GetType());
 	}
 #if defined(MOD_BALANCE_CORE)
-	szTextVal = kResults.GetText("LocationUnitFreePromotion");
-	m_iLocationUnitFreePromotion = GC.getInfoTypeForString(szTextVal, true);
+	const char* szTextVal1;
+	szTextVal1 = kResults.GetText("LocationUnitFreePromotion");
+	if(szTextVal1 != NULL)
+	{
+		m_iLocationUnitFreePromotionTerrain = GC.getInfoTypeForString(szTextVal1, true);
+	}
 
-	szTextVal = kResults.GetText("SpawnLocationUnitFreePromotion");
-	m_iSpawnLocationUnitFreePromotion = GC.getInfoTypeForString(szTextVal, true);
+	const char* szTextVal2;
+	szTextVal2 = kResults.GetText("SpawnLocationUnitFreePromotion");
+	if(szTextVal2 != NULL)
+	{
+		m_iSpawnLocationUnitFreePromotionTerrain = GC.getInfoTypeForString(szTextVal2, true);
+	}
 
-	szTextVal = kResults.GetText("AdjacentSpawnLocationUnitFreePromotion");
-	m_iAdjacentSpawnLocationUnitFreePromotion = GC.getInfoTypeForString(szTextVal, true);
+	const char* szTextVal3;
+	szTextVal3 = kResults.GetText("AdjacentSpawnLocationUnitFreePromotion");
+	if(szTextVal3 != NULL)
+	{
+		m_iAdjacentSpawnLocationUnitFreePromotionTerrain = GC.getInfoTypeForString(szTextVal3, true);
+	}
 
-	m_bIsBarbarianOnly = kResults.GetBool("IsBarbarianOnly");
-	m_bIsCityStateOnly = kResults.GetBool("IsCityStateOnly");
-
-	szTextVal = kResults.GetText("AdjacentUnitFreePromotion");
-	m_iAdjacentUnitFreePromotion = GC.getInfoTypeForString(szTextVal, true);
+	const char* szTextVal4;
+	szTextVal4 = kResults.GetText("AdjacentUnitFreePromotion");
+	if(szTextVal4 != NULL)
+	{
+		m_iAdjacentUnitFreePromotionTerrain = GC.getInfoTypeForString(szTextVal4, true);
+	}
 #endif
 
 	//Arrays

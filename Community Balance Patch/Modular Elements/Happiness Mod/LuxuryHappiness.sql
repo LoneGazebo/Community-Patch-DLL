@@ -1,5 +1,4 @@
--- Luxury happiness divisor. % of game completed and number of owned cities affects this (later era = lower potential bonus).
--- Equation looks at tech %, # of cities, and uses value below as baseline. (125 = 12.5 citizens)
+	-- Luxury happiness divisor. % of techs researched increases pop required over time.
 
 	INSERT INTO Defines (
 	Name, Value)
@@ -8,7 +7,7 @@
 	
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_HAPPINESS_POPULATION_DIVISOR', '500'
+	SELECT 'BALANCE_HAPPINESS_POPULATION_DIVISOR', '30'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LUXURY_HAPPINESS' AND Value= 1 );
 
 -- Maximum bonus from luxuries.
@@ -45,5 +44,5 @@
 	
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_HAPPINESS_ERA_MAX_INCREASE', '100'
+	SELECT 'BALANCE_HAPPINESS_ERA_MAX_INCREASE', '150'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LUXURY_HAPPINESS' AND Value= 1 );

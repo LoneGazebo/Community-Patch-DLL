@@ -421,7 +421,7 @@ void CvBarbarians::DoCamps()
 				// Plot must be valid (not Water, nonvisible)
 				if(!pLoopPlot->isWater())
 				{
-#if defined(MOD_BALANCE_CORE)
+#if defined(MOD_BALANCE_CORE_SANE_IMPASSABILITY)
 					if(!pLoopPlot->isImpassable())
 #else
 					if(!pLoopPlot->isImpassable() && !pLoopPlot->isMountain())
@@ -986,7 +986,7 @@ void CvBarbarians::DoSpawnBarbarianUnit(CvPlot* pPlot, bool bIgnoreMaxBarbarians
 			{
 				if(pLoopPlot->getNumUnits() == 0)
 				{
-#if defined(MOD_BALANCE_CORE)
+#if defined(MOD_BALANCE_CORE_SANE_IMPASSABILITY)
 					if(!pLoopPlot->isImpassable())
 #else
 					if(!pLoopPlot->isImpassable() && !pLoopPlot->isMountain())

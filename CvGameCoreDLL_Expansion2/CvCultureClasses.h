@@ -257,6 +257,9 @@ public:
 	PolicyBranchTypes GetPublicOpinionPreferredIdeology() const;
 	CvString GetPublicOpinionTooltip() const;
 	int GetPublicOpinionUnhappiness() const;
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+	int GetWarWeariness() const;
+#endif
 	CvString GetPublicOpinionUnhappinessTooltip() const;
 	PlayerTypes GetPublicOpinionBiggestInfluence() const;
 	int GetTurnIdeologySwitch() const;

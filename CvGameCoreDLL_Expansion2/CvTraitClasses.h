@@ -105,6 +105,9 @@ public:
 	int GetCombatBonusVsHigherPop() const;
 	bool IsBuyOwnedTiles() const;
 #endif
+#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
+	int GetInvestmentModifier() const;
+#endif
 	int GetCombatBonusVsHigherTech() const;
 	int GetCombatBonusVsLargerCiv() const;
 	int GetLandUnitMaintenanceModifier() const;
@@ -307,6 +310,9 @@ protected:
 #if defined(MOD_BALANCE_CORE)
 	int m_iCombatBonusVsHigherPop;
 	bool m_bBuyOwnedTiles;
+#endif
+#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
+	int m_iInvestmentModifier;
 #endif
 	int m_iCombatBonusVsHigherTech;
 	int m_iCombatBonusVsLargerCiv;
@@ -698,6 +704,12 @@ public:
 	bool IsBuyOwnedTiles() const
 	{
 		return m_bBuyOwnedTiles;
+	};
+#endif
+#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
+	int GetInvestmentModifier() const
+	{
+		return m_iInvestmentModifier;
 	};
 #endif
 	int GetCombatBonusVsHigherTech() const
@@ -1169,6 +1181,9 @@ private:
 #if defined(MOD_BALANCE_CORE)
 	int m_iCombatBonusVsHigherPop;
 	bool m_bBuyOwnedTiles;
+#endif
+#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
+	int m_iInvestmentModifier;
 #endif
 	int m_iCombatBonusVsHigherTech;
 	int m_iCombatBonusVsLargerCiv;

@@ -173,8 +173,8 @@ function GatherData(RivalId, Text)
 			data.TheyDenouncedUsTurnsLeft = GameDefines.DENUNCIATION_EXPIRATION_TIME - rivalPlayer:GetDenouncedPlayerCounter(data.LeaderId);
 		end
 -- CBP
-		data.TheyHaveDefensivePact = rivalPlayer:IsHasDefensivePact(RivalId);
-		data.TheyHaveDefensivePactWithPlayer = rivalPlayer:IsHasDefensivePactWithPlayer(RivalId);
+		data.TheyHaveDefensivePact = rivalPlayer:IsHasDefensivePact(data.LeaderId);
+		data.TheyHaveDefensivePactWithPlayer = rivalPlayer:IsHasDefensivePactWithPlayer(data.LeaderId);
 -- END
 	end
 	
@@ -474,9 +474,9 @@ function View(data)
 		Controls.TheyHaveDefensivePact:SetHide(true);
 	end
 	if(data.TheyHaveDefensivePactWithPlayer) then
-		local DPText = Locale.Lookup("TXT_KEY_DIPLO_DEFENSE_PACT_WITH_US");
+		local DPTextUs = Locale.Lookup("TXT_KEY_DIPLO_DEFENSE_PACT_WITH_US");
         Controls.DiplomacyNone:SetHide(true);
-        Controls.TheyDPUsLabel:SetText(DPText);
+        Controls.TheyDPUsLabel:SetText(DPTextUs);
         SizeParentToChildContent(Controls.TheyHaveDefensivePactWithPlayer, Controls.TheyDPUsLabel, 478, 28, 20);
         Controls.TheyHaveDefensivePactWithPlayer:SetHide(false);   
 	else

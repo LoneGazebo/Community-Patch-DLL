@@ -717,9 +717,10 @@ function HappinessTipHandler( control )
 		-- Happiness/Population calculation.
 		local iPopulation = pPlayer: GetCurrentTotalPop();
 		local iPopNeeded = pPlayer: GetPopNeededForLux();
+		local iHappinessFromLuxury = pPlayer:GetBaseLuxuryHappiness();
 		if(iPopulation > 0) then
 			strText = strText .. "[NEWLINE][NEWLINE]";
-			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_HAPPINESS_THRESHOLD_VALUE", iPopNeeded, iPopulation);
+			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_HAPPINESS_THRESHOLD_VALUE", iPopNeeded, iPopulation, iHappinessFromLuxury);
 		end
 --END CHANGE
 		
@@ -819,6 +820,7 @@ function HappinessTipHandler( control )
 		local iUnhappinessFromOccupiedCities = Locale.ToNumber( pPlayer:GetUnhappinessFromOccupiedCities() / 100, "#.##" );
 		local iUnhappinessPublicOpinion = pPlayer:GetUnhappinessFromPublicOpinion();
 -- COMMUNITY PATCH CHANGES BELOW
+		iUnhappinessPublicOpinion = iUnhappinessPublicOpinion + pPlayer:GetUnhappinessFromWarWeariness();
 		local iUnhappinessFromStarving = pPlayer:GetUnhappinessFromCityStarving();
 		local iUnhappinessFromPillaged = pPlayer:GetUnhappinessFromCityPillaged();
 		local iUnhappinessFromGold = pPlayer:GetUnhappinessFromCityGold();

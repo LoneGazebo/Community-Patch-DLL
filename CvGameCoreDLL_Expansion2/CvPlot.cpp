@@ -1151,11 +1151,12 @@ bool CvPlot::isFreshWater() const
 	CvPlot* pLoopPlot;
 	int iDX, iDY;
 #endif
+
 	if(isWater() || isImpassable() || isMountain())
 		return false;
 
 #if defined(MOD_BALANCE_CORE)
-		if(isRiver())
+	if(isRiver())
 		return true;
 
 	//now the more complex checks
@@ -9044,7 +9045,7 @@ int CvPlot::GetExplorationBonus(const CvPlayer* pPlayer, const CvPlot* pRefPlot)
 	if (iDistToOwnCities>iDistRef)
 		return (iFertilityBonus*70)/100;
 	else
-		return iFertilityBonus;
+		return iFertilityBonus+1;
 }
 
 #endif
@@ -12380,13 +12381,12 @@ void CvPlot::updateImpassable()
 {
 	const TerrainTypes eTerrain = getTerrainType();
 	const FeatureTypes eFeature = getFeatureType();
-#if defined(MOD_BALANCE_CORE)
-	const PlotTypes ePlot = getPlotType();
-#endif
 
 	m_bIsImpassable = false;
-#if defined(MOD_BALANCE_CORE)
-		bool bA = false, bB = false, bC = false;
+
+#if defined(MOD_BALANCE_CORE_SANE_IMPASSABILITY)
+	const PlotTypes ePlot = getPlotType();
+	bool bA = false, bB = false, bC = false;
 
 	if(ePlot != NO_PLOT)
 	{

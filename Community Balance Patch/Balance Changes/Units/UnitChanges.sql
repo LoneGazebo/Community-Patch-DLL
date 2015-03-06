@@ -665,6 +665,12 @@
 	SET RangedCombat = '40'
 	WHERE Type = 'UNIT_ARTILLERY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
+	-- Ranged mounted units should have mounted trait in spite of not being in mounted combatclass
+
+	UPDATE Units
+	SET IsMounted = 'true'
+	WHERE CombatClass = 'UNITCOMBAT_ARCHER' AND Moves >= 3 AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
 
 -- NAVAL UNITS
 -- Ranged Units -- Reduced Combat Strength to make Melee units more important

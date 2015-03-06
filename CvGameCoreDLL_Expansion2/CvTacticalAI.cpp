@@ -7309,7 +7309,7 @@ void CvTacticalAI::ExecuteBarbarianMoves(bool bAggressive)
 					if(bAggressive && pUnit->IsCanDefend())
 #else
 					if(bAggressive)
-#endif //MOD_BALANCE_CORE_MILITARY_AUI
+#endif
 					{
 						pBestPlot = FindBestBarbarianLandMove(pUnit);
 					}
@@ -7388,7 +7388,7 @@ void CvTacticalAI::ExecuteBarbarianMoves(bool bAggressive)
 								pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pRepositionPlot->getX(), pRepositionPlot->getY());
 							}
 						}
-#endif // MOD_BALANCE_CORE_MILITARY_AUI
+#endif
 
 						pUnit->finishMoves();
 						UnitProcessed(m_CurrentMoveUnits[iI].GetID());
@@ -7414,7 +7414,7 @@ void CvTacticalAI::ExecuteBarbarianMoves(bool bAggressive)
 								pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pRepositionPlot->getX(), pRepositionPlot->getY());
 							}
 						}
-#endif // MOD_BALANCE_CORE_MILITARY_AUI
+#endif
 
 						pUnit->finishMoves();
 						UnitProcessed(m_CurrentMoveUnits[iI].GetID());
@@ -10405,7 +10405,11 @@ CvPlot* CvTacticalAI::FindBestBarbarianSeaMove(UnitHandle pUnit)
 
 				// Value them based on their explore value
 				DomainTypes eDomain = pUnit->getDomainType();
+#if defined(MOD_CORE_ALTERNATIVE_EXPLORE_SCORE)
+				iValue = CvEconomicAI::ScoreExplorePlot2(pConsiderPlot, pUnit->getTeam(), eDomain, false);
+#else
 				iValue = CvEconomicAI::ScoreExplorePlot(pConsiderPlot, pUnit->getTeam(), pUnit->getUnitInfo().GetBaseSightRange(), eDomain);
+#endif
 
 				// Add special value for being near enemy lands
 				if(pConsiderPlot->isAdjacentOwned())
@@ -10476,8 +10480,12 @@ CvPlot* CvTacticalAI::FindBarbarianExploreTarget(UnitHandle pUnit)
 			}
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
-			//allow embarking and disembarking to/from lakes
-			if( (pPlot->area() != pUnit->area() ) && !pUnit->plot()->isLake() && !pPlot->isLake() )
+			//land units don't explore water
+			if (pUnit->getDomainType()==DOMAIN_LAND && pPlot->isWater())
+				continue;
+
+			//allow disembarking
+			if( (pPlot->area() != pUnit->area() ) && !pUnit->isEmbarked() )
 #else
 			if(pPlot->area() != pUnit->area())
 #endif
@@ -10492,7 +10500,11 @@ CvPlot* CvTacticalAI::FindBarbarianExploreTarget(UnitHandle pUnit)
 
 			// Value them based on their explore value
 			DomainTypes eDomain = pUnit->getDomainType();
+#if defined(MOD_CORE_ALTERNATIVE_EXPLORE_SCORE)
+			iValue = CvEconomicAI::ScoreExplorePlot2(pPlot, pUnit->getTeam(), eDomain, pUnit->isEmbarked());
+#else
 			iValue = CvEconomicAI::ScoreExplorePlot(pPlot, pUnit->getTeam(), pUnit->getUnitInfo().GetBaseSightRange(), eDomain);
+#endif
 
 			// Add special value for popping up on hills or near enemy lands
 			if(pPlot->isAdjacentOwned())
@@ -10507,6 +10519,9 @@ CvPlot* CvTacticalAI::FindBarbarianExploreTarget(UnitHandle pUnit)
 			// If still have no value, score equal to distance from my current plot
 			if(iValue == 0)
 			{
+#if defined(MOD_BALANCE_CORE_MILITARY)
+				if ( ( eDomain==DOMAIN_LAND && !pPlot->isWater() ) || ( eDomain==DOMAIN_SEA && pPlot->isWater() ) )
+#endif
 				iValue = plotDistance(pUnit->getX(), pUnit->getY(), pPlot->getX(), pPlot->getY());
 			}
 

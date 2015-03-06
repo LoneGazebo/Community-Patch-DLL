@@ -193,3 +193,13 @@ INSERT INTO Defines (
 Name, Value)
 SELECT 'OPINION_WEIGHT_DP', '-20';
 
+-- Great People Rate Mod
+INSERT INTO Defines (
+Name, Value)
+SELECT 'GWAM_THRESHOLD_DECREASE', '0';
+
+-- Building Investments Base Rate
+INSERT INTO Defines (
+Name, Value)
+SELECT 'BALANCE_BUILDING_INVESTMENT_BASELINE', '-50';
+

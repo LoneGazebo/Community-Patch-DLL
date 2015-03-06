@@ -347,6 +347,9 @@ protected:
 	static int lUnitClassAttackModifier(lua_State* L);
 	static int lUnitClassDefenseModifier(lua_State* L);
 	static int lUnitCombatModifier(lua_State* L);
+#if defined(MOD_BALANCE_CORE)
+	LUAAPIEXTN(IsMounted, bool);
+#endif
 	static int lDomainModifier(lua_State* L);
 	static int lGetStrategicResourceCombatPenalty(lua_State* L);
 	static int lGetUnhappinessCombatPenalty(lua_State* L);

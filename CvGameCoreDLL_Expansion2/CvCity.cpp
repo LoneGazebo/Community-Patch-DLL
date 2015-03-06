@@ -238,6 +238,7 @@ CvCity::CvCity() :
 #endif
 #if defined(MOD_BALANCE_CORE)
 	, m_iUnhappyCitizen(0)
+	, m_iPurchaseCooldown(0)
 	, m_aiChangeYieldFromVictory("CvCity::m_aiChangeYieldFromVictory", m_syncArchive)
 	, m_aiBaseYieldRateFromCSAlliance("CvCity::m_aiChangeGrowthExtraYield", m_syncArchive)
 #endif
@@ -306,6 +307,7 @@ CvCity::CvCity() :
 	, m_abYieldRankValid("CvCity::m_abYieldRankValid", m_syncArchive)
 #if defined(MOD_BALANCE_CORE)
 	, m_abOwedChosenBuilding("CvCity::m_abOwedChosenBuilding", m_syncArchive)
+	, m_abBuildingInvestment("CvCity::m_abBuildingInvestment", m_syncArchive)
 #endif
 
 	, m_bOwedCultureBuilding(false)
@@ -1280,6 +1282,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 #endif
 #if defined(MOD_BALANCE_CORE)
 	m_iUnhappyCitizen = 0;
+	m_iPurchaseCooldown = 0;
 	m_aiChangeYieldFromVictory.resize(NUM_YIELD_TYPES);
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
@@ -1369,9 +1372,11 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	}
 #if defined(MOD_BALANCE_CORE)
 	m_abOwedChosenBuilding.resize(GC.getNumBuildingClassInfos());
+	m_abBuildingInvestment.resize(GC.getNumBuildingClassInfos());
 	for(int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
 	{
 		m_abOwedChosenBuilding.setAt(iI, false);
+		m_abBuildingInvestment.setAt(iI, false);
 	}
 #endif
 
@@ -2130,6 +2135,12 @@ void CvCity::doTurn()
 
 	AI_doTurn();
 
+#if defined(MOD_BALANCE_CORE)
+	if(GetPurchaseCooldown() > 0)
+	{
+		ChangePurchaseCooldown(-1);
+	}
+#endif
 	bool bRazed = DoRazingTurn();
 
 	if(!bRazed)
@@ -5552,6 +5563,25 @@ int CvCity::getProductionNeeded(BuildingTypes eBuilding) const
 {
 	VALIDATE_OBJECT
 	int iNumProductionNeeded = GET_PLAYER(getOwner()).getProductionNeeded(eBuilding);
+#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
+	if(MOD_BALANCE_CORE_BUILDING_INVESTMENTS && eBuilding != NO_BUILDING)
+	{
+		CvBuildingEntry* pGameBuilding = GC.getBuildingInfo(eBuilding);
+		const BuildingClassTypes eBuildingClass = (BuildingClassTypes)(pGameBuilding->GetBuildingClassType());
+		if(IsBuildingInvestment(eBuildingClass))
+		{
+			int iTotalDiscount = (/*-50*/ GC.getBALANCE_BUILDING_INVESTMENT_BASELINE() + GET_PLAYER(getOwner()).GetPlayerTraits()->GetInvestmentModifier() + GET_PLAYER(getOwner()).GetInvestmentModifier());
+			const CvBuildingClassInfo& kBuildingClassInfo = pGameBuilding->GetBuildingClassInfo();
+			if(::isWorldWonderClass(kBuildingClassInfo))
+
+			{
+				iTotalDiscount /= 2;
+			}
+			iNumProductionNeeded *= (iTotalDiscount + 100);
+			iNumProductionNeeded /= 100;
+		}
+	}
+#endif
 
 	return iNumProductionNeeded;
 }
@@ -5746,7 +5776,24 @@ int CvCity::getProductionTurnsLeft(ProcessTypes eProcess, int) const
 	return INT_MAX;
 }
 #endif
+#if defined(MOD_BALANCE_CORE)
+//	--------------------------------------------------------------------------------
+bool CvCity::IsBuildingInvestment(BuildingClassTypes eBuildingClass) const
+{
+	FAssert(eBuildingClass >= 0);
+	FAssert(eBuildingClass < GC.getNumBuildingClassInfos());
 
+	return m_abBuildingInvestment[eBuildingClass];
+}
+//	--------------------------------------------------------------------------------
+void CvCity::SetBuildingInvestment(BuildingClassTypes eBuildingClass, bool bNewValue)
+{
+	FAssert(eBuildingClass >= 0);
+	FAssert(eBuildingClass < GC.getNumBuildingClassInfos());
+
+	m_abBuildingInvestment.setAt(eBuildingClass, bNewValue);
+}
+#endif
 //	--------------------------------------------------------------------------------
 int CvCity::getProductionTurnsLeft(int iProductionNeeded, int iProduction, int iFirstProductionDifference, int iProductionDifference) const
 {
@@ -8707,6 +8754,27 @@ bool CvCity::IsNoWater() const {
 	}
 
 	return false;
+}
+//	--------------------------------------------------------------------------------
+int CvCity::GetPurchaseCooldown() const
+{
+	VALIDATE_OBJECT
+	return m_iPurchaseCooldown;
+}
+//	--------------------------------------------------------------------------------
+void CvCity::SetPurchaseCooldown(int iValue)
+{
+	VALIDATE_OBJECT
+	m_iPurchaseCooldown = iValue;
+}
+//	--------------------------------------------------------------------------------
+void CvCity::ChangePurchaseCooldown(int iValue)
+{
+	VALIDATE_OBJECT
+	if(iValue != 0)
+	{
+		m_iPurchaseCooldown += iValue;
+	}
 }
 #endif
 
@@ -12029,9 +12097,8 @@ int CvCity::getUnhappinessFromScience() const
 int CvCity::getUnhappinessFromDefenseYield() const
 {
 	int iDefenseYield = getStrengthValue(false);
-	iDefenseYield += (GetCityBuildings()->GetBuildingDefense());
 
-	int iDamage = getDamage() * 4;
+	int iDamage = getDamage() * 10;
 
 	if(iDamage > 0)
 	{
@@ -17467,6 +17534,51 @@ bool CvCity::IsCanPurchase(bool bTestPurchaseCost, bool bTestTrainable, UnitType
 				// Trying to buy something when you don't have enough money!!
 				if(iGoldCost > GET_PLAYER(getOwner()).GetTreasury()->GetGold())
 					return false;
+#if defined(MOD_BALANCE_CORE)
+				if(MOD_BALANCE_CORE && GetPurchaseCooldown() > 0)
+				{
+					return false;
+				}
+				if(eUnitType != NO_UNIT)
+				{
+					CvUnitEntry* thisUnitInfo = GC.getUnitInfo(eUnitType);
+					// See if there are any BuildingClass requirements
+					const int iNumBuildingClassInfos = GC.getNumBuildingClassInfos();
+					CvCivilizationInfo& thisCivilization = getCivilizationInfo();
+					for(int iBuildingClassLoop = 0; iBuildingClassLoop < iNumBuildingClassInfos; iBuildingClassLoop++)
+					{
+						const BuildingClassTypes eBuildingClass = (BuildingClassTypes) iBuildingClassLoop;
+						CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
+						if(!pkBuildingClassInfo)
+						{
+							continue;
+						}
+
+						// Requires Building
+						if(thisUnitInfo->GetBuildingClassPurchaseRequireds(eBuildingClass))
+						{
+							const BuildingTypes ePrereqBuilding = (BuildingTypes)(thisCivilization.getCivilizationBuildings(eBuildingClass));
+
+							if(GetCityBuildings()->GetNumBuilding(ePrereqBuilding) == 0)
+							{
+								return false;
+							}
+						}
+					}
+				}
+#endif
+#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
+				if(MOD_BALANCE_CORE_BUILDING_INVESTMENTS && (NO_BUILDING != eBuildingType))
+				{
+					//Have we already invested here?
+					CvBuildingEntry* pGameBuilding = GC.getBuildingInfo(eBuildingType);
+					const BuildingClassTypes eBuildingClass = (BuildingClassTypes)(pGameBuilding->GetBuildingClassType());
+					if(IsBuildingInvestment(eBuildingClass))
+					{
+						return false;
+					}
+				}
+#endif
 			}
 		}
 	}
@@ -17734,6 +17846,9 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 			{
 				kPlayer.GetTreasury()->LogExpenditure((CvString)pGameUnit->GetText(), iGoldCost, 2);
 			}
+#if defined(MOD_BALANCE_CORE)
+			SetPurchaseCooldown(pGameUnit->GetCooldown());
+#endif
 		// Building
 		}else if(eBuildingType != NO_BUILDING){
 			iGoldCost = GetPurchaseCost(eBuildingType);
@@ -17742,6 +17857,9 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 			{
 				kPlayer.GetTreasury()->LogExpenditure((CvString)pGameBuilding->GetText(), iGoldCost, 2);
 			}
+#if defined(MOD_BALANCE_CORE)
+			SetPurchaseCooldown(pGameBuilding->GetCooldown());
+#endif
 		// Project
 		} else if(eProjectType != NO_PROJECT){
 			iGoldCost = GetPurchaseCost(eProjectType);
@@ -17788,6 +17906,11 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 		}
 		else if(eBuildingType >= 0)
 		{
+#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
+			CvBuildingEntry* pGameBuilding = GC.getBuildingInfo(eBuildingType);
+			const BuildingClassTypes eBuildingClass = (BuildingClassTypes)(pGameBuilding->GetBuildingClassType());
+			SetBuildingInvestment(eBuildingClass, true);
+#else
 			bResult = CreateBuilding(eBuildingType);
 
 #if defined(MOD_EVENTS_CITY)
@@ -17814,6 +17937,7 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 
 			CleanUpQueue(); // cleans out items from the queue that may be invalidated by the recent construction
 			CvAssertMsg(bResult, "Unable to create building");
+#endif
 		}
 		else if(eProjectType >= 0)
 		{
@@ -19237,6 +19361,7 @@ void CvCity::read(FDataStream& kStream)
 #if defined(MOD_BALANCE_CORE)
 	MOD_SERIALIZE_READ_AUTO(65, kStream, m_aiChangeYieldFromVictory, NUM_YIELD_TYPES, 0);
 	MOD_SERIALIZE_READ(66, kStream, m_iUnhappyCitizen, 0);
+	MOD_SERIALIZE_READ(66, kStream, m_iPurchaseCooldown, 0);
 	MOD_SERIALIZE_READ_AUTO(66, kStream, m_aiBaseYieldRateFromCSAlliance, NUM_YIELD_TYPES, 0);
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
@@ -19456,6 +19581,7 @@ void CvCity::read(FDataStream& kStream)
 #endif
 #if defined(MOD_BALANCE_CORE)
 	kStream >> m_abOwedChosenBuilding;
+	kStream >> m_abBuildingInvestment;
 #endif
 	m_pCityStrategyAI->Read(kStream);
 	if(m_eOwner != NO_PLAYER)
@@ -19629,6 +19755,7 @@ void CvCity::write(FDataStream& kStream) const
 #if defined(MOD_BALANCE_CORE)
 	MOD_SERIALIZE_WRITE_AUTO(kStream, m_aiChangeYieldFromVictory);
 	MOD_SERIALIZE_WRITE(kStream, m_iUnhappyCitizen);
+	MOD_SERIALIZE_WRITE(kStream, m_iPurchaseCooldown);
 	MOD_SERIALIZE_WRITE_AUTO(kStream, m_aiBaseYieldRateFromCSAlliance);
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
@@ -19771,6 +19898,7 @@ void CvCity::write(FDataStream& kStream) const
 #endif
 #if defined(MOD_BALANCE_CORE)
 	kStream << m_abOwedChosenBuilding;
+	kStream << m_abBuildingInvestment;
 #endif
 	m_pCityStrategyAI->Write(kStream);
 	m_pCityCitizens->Write(kStream);

@@ -454,6 +454,9 @@ CvPlayer::CvPlayer() :
 	, m_iFreeSpy(0)
 	, m_iTradeReligionModifier(0)
 #endif
+#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
+	, m_iInvestmentModifier(0)
+#endif
 	, m_aiCapitalYieldRateModifier("CvPlayer::m_aiCapitalYieldRateModifier", m_syncArchive)
 	, m_aiExtraYieldThreshold("CvPlayer::m_aiExtraYieldThreshold", m_syncArchive)
 	, m_aiSpecialistExtraYield("CvPlayer::m_aiSpecialistExtraYield", m_syncArchive)
@@ -1232,6 +1235,9 @@ void CvPlayer::uninit()
 	m_iFreeTradeRoute = 0;
 	m_iFreeSpy = 0;
 	m_iTradeReligionModifier = 0;
+#endif
+#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
+	m_iInvestmentModifier = 0;
 #endif
 	m_iCultureBombTimer = 0;
 	m_iConversionTimer = 0;
@@ -2129,7 +2135,7 @@ CvPlot* CvPlayer::addFreeUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
 #endif
 							if(pLoopPlot != NULL && pLoopPlot->getArea() == pStartingPlot->getArea())
 							{
-#if defined(MOD_BALANCE_CORE)
+#if defined(MOD_BALANCE_CORE_SANE_IMPASSABILITY)
 								if(!pLoopPlot->isImpassable())
 #else
 								if(!pLoopPlot->isImpassable() && !pLoopPlot->isMountain())
@@ -8082,8 +8088,8 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 						{
 							if(pLoopPlot->getArea() == pPlot->getArea())
 							{
-#if defined(MOD_BALANCE_CORE)
-								if(MOD_BALANCE_CORE && !(pLoopPlot->isImpassable()) && !(pLoopPlot->getPlotCity()))
+#if defined(MOD_BALANCE_CORE_SANE_IMPASSABILITY)
+								if(!(pLoopPlot->isImpassable()) && !(pLoopPlot->getPlotCity()))
 #else
 								if(!(pLoopPlot->isImpassable()) && !pLoopPlot->isMountain() && !(pLoopPlot->getPlotCity()))
 #endif
@@ -13793,8 +13799,8 @@ void CvPlayer::DoUprising()
 				continue;
 
 			// Can't be impassable
-#if defined(MOD_BALANCE_CORE)
-			if(MOD_BALANCE_CORE && pPlot->isImpassable())
+#if defined(MOD_BALANCE_CORE_SANE_IMPASSABILITY)
+			if(pPlot->isImpassable())
 #else
 			if(pPlot->isImpassable() || pPlot->isMountain())
 #endif
@@ -14552,19 +14558,7 @@ int CvPlayer::getPopNeededForLux() const
 {
 	//Needed for LUA
 	//Happiness as a factor of population, techs, and number of cities. Divisor determines this.
-	int iTechProgress = GET_TEAM(getTeam()).GetTeamTechs()->GetNumTechsKnown() * 100 / GC.getNumTechInfos();
-	if(iTechProgress < GC.getBALANCE_HAPPINESS_ERA_BASE_INCREASE())
-	{
-		iTechProgress = GC.getBALANCE_HAPPINESS_ERA_BASE_INCREASE();
-	}
-	else if(iTechProgress > GC.getBALANCE_HAPPINESS_ERA_MAX_INCREASE())
-	{
-		iTechProgress = GC.getBALANCE_HAPPINESS_ERA_MAX_INCREASE();
-	}
-	int iHappinessPerPop = /*125*/ GC.getBALANCE_HAPPINESS_POPULATION_DIVISOR() + iTechProgress;
-
-	iHappinessPerPop = (iHappinessPerPop / 10);
-	iHappinessPerPop += (((getNumCities() * 2) * iHappinessPerPop) / 10);
+	int iTechProgress = ((GC.getBALANCE_HAPPINESS_POPULATION_DIVISOR() + GET_TEAM(getTeam()).GetTeamTechs()->GetNumTechsKnown()) * 100) / GC.getNumTechInfos();
 
 	int iBaseHappiness = 1;
 	
@@ -14576,19 +14570,19 @@ int CvPlayer::getPopNeededForLux() const
 		if(eResource != NO_RESOURCE)
 		{
 			iBaseHappiness = GetHappinessFromLuxury(eResource);
-			if(iBaseHappiness && iBaseHappiness != 0)
+			if(iBaseHappiness != 0)
 			{
-				iBaseHappiness *= iHappinessPerPop;
+				iBaseHappiness *= iTechProgress;
 				
 				if(iBaseHappiness <= 0)
 				{
-					iBaseHappiness = iHappinessPerPop;
+					iBaseHappiness = iTechProgress;
 				}
 				return iBaseHappiness;
 			}
 			else
 			{
-				iBaseHappiness = iHappinessPerPop;
+				iBaseHappiness = iTechProgress;
 			}
 		}
 	}
@@ -14650,25 +14644,13 @@ int CvPlayer::GetHappinessFromLuxury(ResourceTypes eResource) const
 			iBaseHappiness = 1;
 
 			//Happiness as a factor of population, techs, and number of cities. Divisor determines this.
-			int iTechProgress = GET_TEAM(getTeam()).GetTeamTechs()->GetNumTechsKnown() * 100 / GC.getNumTechInfos();
-			if(iTechProgress < GC.getBALANCE_HAPPINESS_ERA_BASE_INCREASE())
-			{
-				iTechProgress = GC.getBALANCE_HAPPINESS_ERA_BASE_INCREASE();
-			}
-			else if(iTechProgress > GC.getBALANCE_HAPPINESS_ERA_MAX_INCREASE())
-			{
-				iTechProgress = GC.getBALANCE_HAPPINESS_ERA_MAX_INCREASE();
-			}
-			int iHappinessPerPop = /*125*/ GC.getBALANCE_HAPPINESS_POPULATION_DIVISOR() + iTechProgress;
-
-			iHappinessPerPop = (iHappinessPerPop / 10);
-			iHappinessPerPop += ((getNumCities() * iHappinessPerPop) / 10);
+			int iTechProgress = ((GC.getBALANCE_HAPPINESS_POPULATION_DIVISOR() + GET_TEAM(getTeam()).GetTeamTechs()->GetNumTechsKnown()) * 100) / GC.getNumTechInfos();
 
 			int iTotalPop = getCurrentTotalPop();
 
-			if(iTotalPop != 0 && iHappinessPerPop != 0)
+			if(iTotalPop != 0 && iTechProgress != 0)
 			{
-				iBaseHappiness += (iTotalPop / iHappinessPerPop);
+				iBaseHappiness += (iTotalPop / iTechProgress);
 			}
 			if(iBaseHappiness > /*5*/ GC.getBALANCE_HAPPINESS_LUXURY_MAXIMUM())
 			{
@@ -14796,6 +14778,8 @@ int CvPlayer::GetUnhappiness(CvCity* pAssumeCityAnnexed, CvCity* pAssumeCityPupp
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	if(MOD_BALANCE_CORE_HAPPINESS)
 	{
+		iUnhappiness += GetCulture()->GetWarWeariness();
+
 		//These values should return either a positive number, or zero.
 		int iNewUnhappiness = 0;
 		iNewUnhappiness += (GetUnhappinessFromCitySpecialists(pAssumeCityAnnexed, pAssumeCityPuppeted) / 100);
@@ -15328,12 +15312,16 @@ int CvPlayer::GetUnhappinessFromOccupiedCities(CvCity* pAssumeCityAnnexed, CvCit
 	int iSpecialistCount;
 
 	bool bCityValid;
-
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+	bool bIsResistance;
+#endif
 	int iLoop;
 	for(const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
 		bCityValid = false;
-
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+		bIsResistance = false;
+#endif
 		// Assume pLoopCity is Annexed, and counts
 		if(pLoopCity == pAssumeCityAnnexed)
 			bCityValid = true;
@@ -15348,13 +15336,21 @@ int CvPlayer::GetUnhappinessFromOccupiedCities(CvCity* pAssumeCityAnnexed, CvCit
 			bCityValid = true;
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 		if(MOD_BALANCE_CORE_HAPPINESS && (pLoopCity->IsResistance() || pLoopCity->IsRazing()))
+		{
 			bCityValid = true;
+			bIsResistance = true;
+		}
 #endif
 
 		if(bCityValid)
 		{
 			iPopulation = pLoopCity->getPopulation();
-
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+			if(MOD_BALANCE_CORE_HAPPINESS && bIsResistance)
+			{
+				iPopulation /= 4;
+			}
+#endif
 			// No Unhappiness from Specialist Pop? (Policies, etc.)
 			if(isHalfSpecialistUnhappiness())
 			{
@@ -22279,8 +22275,8 @@ void CvPlayer::DoUpdateCramped()
 						iTotalPlotsNearby++;
 
 						// A "good" unowned Plot
-#if defined(MOD_BALANCE_CORE)
-						if(MOD_BALANCE_CORE && !pPlot->isOwned() && !pPlot->isImpassable() && !pPlot->isWater())
+#if defined(MOD_BALANCE_CORE_SANE_IMPASSABILITY)
+						if(!pPlot->isOwned() && !pPlot->isImpassable() && !pPlot->isWater())
 #else
 						if(!pPlot->isOwned() && !pPlot->isImpassable() && !pPlot->isMountain() && !pPlot->isWater())
 #endif
@@ -23038,7 +23034,18 @@ void CvPlayer::changeBuildingClassCultureChange(BuildingClassTypes eIndex, int i
 	CvAssert(getBuildingClassCultureChange(eIndex) >= 0);
 }
 #endif
-
+#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
+//	--------------------------------------------------------------------------------
+int CvPlayer::GetInvestmentModifier() const
+{
+	return m_iInvestmentModifier;
+}
+//	--------------------------------------------------------------------------------
+void CvPlayer::changeInvestmentModifier(int iChange)
+{
+	m_iInvestmentModifier += iChange;
+}
+#endif
 //	--------------------------------------------------------------------------------
 int CvPlayer::getCapitalYieldRateModifier(YieldTypes eIndex) const
 {
@@ -26712,17 +26719,20 @@ bool CvPlayer::IsPlotTargetedForCity(CvPlot *pPlot) const
 	{
 		pOperation = iter->second;
 #if defined(MOD_BALANCE_CORE_SETTLER)
-		if(MOD_BALANCE_CORE_SETTLER && pOperation && pOperation != pOpToIgnore)
+		if(MOD_BALANCE_CORE_SETTLER)
 		{
-			switch (pOperation->GetOperationType())
+			if(pOperation && pOperation != pOpToIgnore)
 			{
-			case AI_OPERATION_FOUND_CITY:
-			case AI_OPERATION_COLONIZE:
-			case AI_OPERATION_QUICK_COLONIZE:
+				switch (pOperation->GetOperationType())
 				{
-					if (plotDistance(pPlot->getX(), pPlot->getY(), pOperation->GetTargetPlot()->getX(), pOperation->GetTargetPlot()->getY()) <= 2)
+				case AI_OPERATION_FOUND_CITY:
+				case AI_OPERATION_COLONIZE:
+				case AI_OPERATION_QUICK_COLONIZE:
 					{
-						return true;
+						if (plotDistance(pPlot->getX(), pPlot->getY(), pOperation->GetTargetPlot()->getX(), pOperation->GetTargetPlot()->getY()) <= 2)
+						{
+							return true;
+						}
 					}
 				}
 			}
@@ -27495,8 +27505,8 @@ int CvPlayer::getAdvancedStartUnitCost(UnitTypes eUnit, bool bAdd, CvPlot* pPlot
 				{
 					return -1;
 				}
-#if defined(MOD_BALANCE_CORE)
-				if(MOD_BALANCE_CORE && pPlot->isImpassable())
+#if defined(MOD_BALANCE_CORE_SANE_IMPASSABILITY)
+				if(pPlot->isImpassable())
 #else
 				if(pPlot->isImpassable() || pPlot->isMountain())
 #endif
@@ -27864,8 +27874,8 @@ int CvPlayer::getAdvancedStartRouteCost(RouteTypes eRoute, bool bAdd, CvPlot* pP
 
 		if(bAdd)
 		{
-#if defined(MOD_BALANCE_CORE)
-			if(MOD_BALANCE_CORE && (pPlot->isImpassable() || pPlot->isWater()))
+#if defined(MOD_BALANCE_CORE_SANE_IMPASSABILITY)
+			if(pPlot->isImpassable() || pPlot->isWater())
 #else
 			if(pPlot->isImpassable() || pPlot->isWater() || pPlot->isMountain())
 #endif
@@ -28476,6 +28486,9 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 			}
 		}
 	}
+#endif
+#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
+	changeInvestmentModifier(pPolicy->GetInvestmentModifier() * iChange);
 #endif
 	if(pPolicy->IsOneShot())
 	{
@@ -30005,6 +30018,9 @@ void CvPlayer::Read(FDataStream& kStream)
 	MOD_SERIALIZE_READ(66, kStream, m_iFreeSpy, 0);
 	MOD_SERIALIZE_READ(60, kStream, m_iTradeReligionModifier, 0);
 #endif
+#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
+	MOD_SERIALIZE_READ(60, kStream, m_iInvestmentModifier, 0);
+#endif
 	kStream >> m_aiCapitalYieldRateModifier;
 
 	if (uiVersion >= 4)
@@ -30634,6 +30650,9 @@ void CvPlayer::Write(FDataStream& kStream) const
 	MOD_SERIALIZE_WRITE(kStream, m_iFreeTradeRoute);
 	MOD_SERIALIZE_WRITE(kStream, m_iFreeSpy);
 	MOD_SERIALIZE_WRITE(kStream, m_iTradeReligionModifier);
+#endif
+#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
+	MOD_SERIALIZE_WRITE(kStream, m_iInvestmentModifier);
 #endif
 	kStream << m_aiCapitalYieldRateModifier;
 	kStream << m_aiGreatWorkYieldChange;
@@ -31965,10 +31984,10 @@ ostream& operator<<(ostream& os, const CvPlot* pPlot)
     return os;
 }
 
-CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, bool bEscorted, int iTargetArea, CvAIOperation* pOpToIgnore)
+CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, bool bEscorted, int iTargetArea, CvAIOperation* pOpToIgnore, bool bForceLogging)
 {
 	//--------
-	bool bLogging = GC.getLogging() && GC.getAILogging() && (GC.getGame().getGameTurn()%10==0);
+	bool bLogging = GC.getLogging() && GC.getAILogging() && ( (GC.getGame().getGameTurn()%10==0) || bForceLogging ); 
 	std::stringstream dump;
 	int iDanger=0, iFertility=0;
 	//--------
@@ -31985,7 +32004,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, bool bEscorted, int iTa
 	float fDefaultDiagnonal = sqrt( 80.f*80.f+52.f*52.f );
 	float fActualDiagonal = sqrt( (float)GC.getMap().getGridHeight()*GC.getMap().getGridHeight() + GC.getMap().getGridWidth()*GC.getMap().getGridWidth() );
 	//prefer settling close in the beginning
-	float fTimeOffset = GC.getGame().getGameTurn() / 30.f;
+	float fTimeOffset = (5.f * GC.getGame().getGameTurn()) / GC.getGame().getMaxTurns();
 
 	//this will be used later
 	int iEvalDistance = int(GC.getSETTLER_EVALUATION_DISTANCE() * fActualDiagonal / fDefaultDiagnonal + 0.5f + fTimeOffset);

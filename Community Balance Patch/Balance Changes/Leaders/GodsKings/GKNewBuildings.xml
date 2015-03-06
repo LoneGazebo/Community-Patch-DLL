@@ -18,7 +18,6 @@
 			<ArtDefineTag>ART_DEF_BUILDING_SKOLA</ArtDefineTag>
 			<SpecialistType>SPECIALIST_SCIENTIST</SpecialistType>
 			<SpecialistCount>2</SpecialistCount>
-			<IlliteracyHappinessChange>5</IlliteracyHappinessChange>
 			<MinAreaSize>-1</MinAreaSize>
 			<ConquestProb>66</ConquestProb>
 			<HurryCostModifier>0</HurryCostModifier>
@@ -99,7 +98,6 @@
 			<Strategy>TXT_KEY_BUILDING_BASILICA_STRATEGY</Strategy>
 			<Help>TXT_KEY_BUILDING_BASILICA_HELP</Help>
 			<ArtDefineTag>TEMPLE</ArtDefineTag>
-			<MinorityHappinessChange>3</MinorityHappinessChange>
 			<MinAreaSize>-1</MinAreaSize>
 			<ConquestProb>66</ConquestProb>
 			<HurryCostModifier>25</HurryCostModifier>

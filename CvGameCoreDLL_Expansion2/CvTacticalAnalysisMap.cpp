@@ -348,7 +348,7 @@ void CvTacticalAnalysisMap::MarkCellsNearEnemy()
 
 								// Its ok to reuse paths because when ignoring units, we don't use the tactical analysis map (which we are building)
 #ifdef AUI_ASTAR_TURN_LIMITER
-								iTurnsToReach = TurnsToReachTarget(pUnit, pPlot, true /*bReusePaths*/, true /*bIgnoreUnits*/, false, 2);
+								iTurnsToReach = TurnsToReachTarget(pUnit, pPlot, true /*bReusePaths*/, true /*bIgnoreUnits*/, false /*bIgnoreUnitStacking*/, 2);
 #else
 								iTurnsToReach = TurnsToReachTarget(pUnit, pPlot, true /*bReusePaths*/, true /*bIgnoreUnits*/);
 #endif // AUI_ASTAR_TURN_LIMITER
@@ -531,7 +531,7 @@ bool CvTacticalAnalysisMap::PopulateCell(int iIndex, CvPlot* pPlot)
 
 	cell.SetRevealed(pPlot->isRevealed(m_pPlayer->getTeam()));
 	cell.SetVisible(pPlot->isVisible(m_pPlayer->getTeam()));
-#if defined(MOD_BALANCE_CORE)
+#if defined(MOD_BALANCE_CORE_SANE_IMPASSABILITY)
 	cell.SetImpassableTerrain(pPlot->isImpassable());
 #else
 	cell.SetImpassableTerrain(pPlot->isImpassable() || pPlot->isMountain());

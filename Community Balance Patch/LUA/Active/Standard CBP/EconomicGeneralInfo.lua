@@ -92,7 +92,13 @@ function UpdateDisplay()
 		local iScienceUnhappiness = pCity:GetUnhappinessFromScience();
 		local iCultureUnhappiness = pCity:GetUnhappinessFromCulture();
 		
-		local iTotalUnhappiness = iScienceUnhappiness + iCultureUnhappiness + iDefenseUnhappiness	+ iGoldUnhappiness + iConnectionUnhappiness + iPillagedUnhappiness + iStarvingUnhappiness + iMinorityUnhappiness + iCityYield;
+		local iResistanceUnhappiness = 0;
+		if(pCity:IsRazing()) then
+			iResistanceUnhappiness = (pCity:GetPopulation() / 4);
+		elseif(pCity:IsResistance()) then
+			iResistanceUnhappiness = (pCity:GetPopulation() / 4);
+		end
+		local iTotalUnhappiness = iScienceUnhappiness + iCultureUnhappiness + iDefenseUnhappiness	+ iGoldUnhappiness + iConnectionUnhappiness + iPillagedUnhappiness + iStarvingUnhappiness + iMinorityUnhappiness + iCityYield + iResistanceUnhappiness;
 		sortEntry.Strength = math.floor(iTotalUnhappiness);
         instance.Defense:SetText( sortEntry.Strength );
 -- END					
@@ -149,6 +155,10 @@ function UpdateDisplay()
 			end
 		end
 		
+		-- Resistance tooltip
+		if (iResistanceUnhappiness ~= 0) then
+			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_EO_CITY_RESISTANCE", iResistanceUnhappiness);
+		end
 		-- Starving tooltip
 		if (iStarvingUnhappiness ~= 0) then
 			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_STARVING_UNHAPPINESS", iStarvingUnhappiness);

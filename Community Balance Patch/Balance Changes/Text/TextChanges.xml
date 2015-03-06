@@ -191,6 +191,20 @@
 
 		<Row Tag="TXT_KEY_DIPLO_DEFENSE_PACT_WITH_US">
 			<Text>[COLOR_NEGATIVE_TEXT]We have a Defensive Pact with them![ENDCOLOR]</Text>
-		</Row>		
+		</Row>
+		
+		<!-- Tooltip for Investments in cities -->
+		<Row Tag="TXT_KEY_ALREADY_INVESTED">
+			<Text>[NEWLINE]You have already invested [ICON_GOLD] Gold in this building. This building's [ICON_PRODUCTION] Production cost is reduced by {1_Num}%.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NO_ACTION_UNIT_REQUIRES_BUILDING_PURCHASE">
+			<Text>[NEWLINE]You cannot [ICON_GOLD] Purchase this Unit without {TXT_KEY_GRAMMAR_A_AN &lt;&lt; {1_BuildingType}} constructed in the city.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODUCTION_INVESTMENT_BUILDING">
+			<Text>[COLOR_POSITIVE_TEXT]Investing [ICON_GOLD] Gold in a Building reduces its [ICON_PRODUCTION] Production cost by {1_Num}%, or {2_Num}% if a Wonder.[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_INVESTED">
+			<Text>[COLOR_POSITIVE_TEXT] (INVESTED) [ENDCOLOR]</Text>
+		</Row>
 	</Language_en_US>
 </GameData>

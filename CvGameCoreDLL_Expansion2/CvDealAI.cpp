@@ -2872,24 +2872,6 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 	else
 		eOpinionTowardsWarPlayer = pDiploAI->GetMajorCivOpinion(eWithPlayer);
 
-#if defined(MOD_BALANCE_CORE_DEALS)
-	if(!bFromMe && MOD_BALANCE_CORE_DEALS && GetPlayer()->IsAtWar())
-	{
-		// find any other wars we have going
-		for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
-		{
-			PlayerTypes eWarPlayer = (PlayerTypes)iPlayerLoop;
-			if(eWarPlayer != NO_PLAYER && eWarPlayer != eOtherPlayer && eWarPlayer != GetPlayer()->GetID() && !GET_PLAYER(eWarPlayer).isMinorCiv())
-			{
-				WarProjectionTypes eWarProjection = pDiploAI->GetWarProjection(eWarPlayer);
-				if(eWarProjection <= WAR_PROJECTION_STALEMATE)
-				{
-					return 100000;
-				}
-			}
-		}
-	}
-#endif
 	// From me
 	if(bFromMe)
 	{
@@ -2964,6 +2946,55 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 			iItemValue *= 125;
 			iItemValue /= 100;
 		}
+#if defined(MOD_BALANCE_CORE_DEALS)
+		if(MOD_BALANCE_CORE_DEALS && !bMinor)
+		{
+			if(GetPlayer()->IsAtWar() && eWithPlayer != NO_PLAYER)
+			{
+				// find any other wars we have going
+				for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+				{
+					PlayerTypes eWarPlayer = (PlayerTypes)iPlayerLoop;
+					if(eWarPlayer != NO_PLAYER && eWarPlayer != eOtherPlayer && eWarPlayer != GetPlayer()->GetID() && !GET_PLAYER(eWarPlayer).isMinorCiv())
+					{
+						if(GET_TEAM(GetTeam()).isAtWar(GET_PLAYER(eWarPlayer).getTeam()))
+						{
+							WarProjectionTypes eWarProjection = pDiploAI->GetWarProjection(eWarPlayer);
+							if(eWarProjection <= WAR_PROJECTION_STALEMATE)
+							{
+								return 100000;
+							}
+							else
+							{
+								iItemValue = 3;
+								iItemValue /= 2;
+							}
+						}
+					}
+				}
+			}
+			switch(GetPlayer()->GetProximityToPlayer(eWithPlayer))
+			{
+				case PLAYER_PROXIMITY_DISTANT:
+					iItemValue *= 200;
+					break;
+				case PLAYER_PROXIMITY_FAR:
+					iItemValue *= 150;
+					break;
+				case PLAYER_PROXIMITY_CLOSE:
+					iItemValue *= 100;
+					break;
+				case PLAYER_PROXIMITY_NEIGHBORS:
+					iItemValue *= 90;
+					break;
+				default:
+					CvAssertMsg(false, "DEAL_AI: Player has no valid proximity for 3rd party deal.");
+					iItemValue *= 100;
+					break;
+			}
+			iItemValue /= 100;
+		}
+#endif
 	}
 
 	// From them
@@ -2984,6 +3015,55 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 			else
 				iItemValue = -100000;
 		}
+#if defined(MOD_BALANCE_CORE_DEALS)
+		if(MOD_BALANCE_CORE_DEALS && !bMinor)
+		{
+			if(GetPlayer()->IsAtWar() && eWithPlayer != NO_PLAYER)
+			{
+				// find any other wars we have going
+				for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+				{
+					PlayerTypes eWarPlayer = (PlayerTypes)iPlayerLoop;
+					if(eWarPlayer != NO_PLAYER && eWarPlayer != eOtherPlayer && eWarPlayer != GetPlayer()->GetID() && !GET_PLAYER(eWarPlayer).isMinorCiv())
+					{
+						if(GET_TEAM(GetTeam()).isAtWar(GET_PLAYER(eWarPlayer).getTeam()))
+						{
+							WarProjectionTypes eWarProjection = pDiploAI->GetWarProjection(eWarPlayer);
+							if(eWarProjection <= WAR_PROJECTION_STALEMATE)
+							{
+								return 100000;
+							}
+							else
+							{
+								iItemValue = 3;
+								iItemValue /= 2;
+							}
+						}
+					}
+				}
+			}
+			switch(GetPlayer()->GetProximityToPlayer(eWithPlayer))
+			{
+				case PLAYER_PROXIMITY_DISTANT:
+					iItemValue *= 200;
+					break;
+				case PLAYER_PROXIMITY_FAR:
+					iItemValue *= 150;
+					break;
+				case PLAYER_PROXIMITY_CLOSE:
+					iItemValue *= 100;
+					break;
+				case PLAYER_PROXIMITY_NEIGHBORS:
+					iItemValue *= 90;
+					break;
+				default:
+					CvAssertMsg(false, "DEAL_AI: Player has no valid proximity for 3rd party deal.");
+					iItemValue *= 100;
+					break;
+			}
+			iItemValue /= 100;
+		}
+#endif
 	}
 
 	return iItemValue;

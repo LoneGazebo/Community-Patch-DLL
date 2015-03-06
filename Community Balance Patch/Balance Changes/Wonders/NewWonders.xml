@@ -111,7 +111,6 @@
 			<FreePolicies>1</FreePolicies>
 			<ConquestProb>100</ConquestProb>
 			<FreeBuildingThisCity>BUILDINGCLASS_POLICE_STATION</FreeBuildingThisCity>
-			<DefenseHappinessChangeGlobal>10</DefenseHappinessChangeGlobal>
 			<NullifyInfluenceModifier>true</NullifyInfluenceModifier>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
 			<PortraitIndex>46</PortraitIndex>

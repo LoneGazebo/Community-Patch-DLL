@@ -1605,8 +1605,14 @@ local function UpdateCityViewNow()
 		local iMinorityUnhappiness = city:GetUnhappinessFromMinority();
 		local iScienceUnhappiness = city:GetUnhappinessFromScience();
 		local iCultureUnhappiness = city:GetUnhappinessFromCulture();
-		
-		local iTotalUnhappiness = iScienceUnhappiness + iCultureUnhappiness + iDefenseUnhappiness	+ iGoldUnhappiness + iConnectionUnhappiness + iPillagedUnhappiness + iStarvingUnhappiness + iMinorityUnhappiness + iCityYield;
+		local iResistanceUnhappiness = 0;
+		if(city:IsRazing()) then
+			iResistanceUnhappiness = (city:GetPopulation() / 4);
+		elseif(city:IsResistance()) then
+			iResistanceUnhappiness = (city:GetPopulation() / 4);
+		end
+
+		local iTotalUnhappiness = iScienceUnhappiness + iCultureUnhappiness + iDefenseUnhappiness	+ iGoldUnhappiness + iConnectionUnhappiness + iPillagedUnhappiness + iStarvingUnhappiness + iMinorityUnhappiness + iCityYield + iResistanceUnhappiness;
 
 		local iPuppetMod = cityOwner:GetPuppetUnhappinessMod();
 		local iCultureYield = city:GetUnhappinessFromCultureYield() / 100;
@@ -1652,6 +1658,11 @@ local function UpdateCityViewNow()
 			end
 		end
 		
+		-- Resistance tooltip
+		if (iResistanceUnhappiness ~= 0) then
+			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_EO_CITY_RESISTANCE", iResistanceUnhappiness);
+		end
+
 		-- Starving tooltip
 		if (iStarvingUnhappiness ~= 0) then
 			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_STARVING_UNHAPPINESS", iStarvingUnhappiness);

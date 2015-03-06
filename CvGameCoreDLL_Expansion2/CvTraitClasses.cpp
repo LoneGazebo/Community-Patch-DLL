@@ -74,6 +74,9 @@ CvTraitEntry::CvTraitEntry() :
 	m_iCombatBonusVsHigherPop(0),
 	m_bBuyOwnedTiles(0),
 #endif
+#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
+	m_iInvestmentModifier(0),
+#endif
 	m_iCombatBonusVsHigherTech(0),
 	m_iCombatBonusVsLargerCiv(0),
 	m_iLandUnitMaintenanceModifier(0),
@@ -497,6 +500,12 @@ int CvTraitEntry::GetCombatBonusVsHigherPop() const
 bool CvTraitEntry::IsBuyOwnedTiles() const
 {
 	return m_bBuyOwnedTiles;
+}
+#endif
+#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
+int CvTraitEntry::GetInvestmentModifier() const
+{
+	return m_iInvestmentModifier;
 }
 #endif
 
@@ -1306,6 +1315,9 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	m_iCombatBonusVsHigherPop				= kResults.GetInt("CombatBonusVsHigherPop");
 	m_bBuyOwnedTiles						= kResults.GetBool("BuyOwnedTiles");
 #endif
+#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
+	m_iInvestmentModifier					= kResults.GetInt("InvestmentModifier");
+#endif
 	m_iCombatBonusVsHigherTech				= kResults.GetInt("CombatBonusVsHigherTech");
 	m_iCombatBonusVsLargerCiv				= kResults.GetInt("CombatBonusVsLargerCiv");
 	m_iLandUnitMaintenanceModifier          = kResults.GetInt("LandUnitMaintenanceModifier");
@@ -2099,6 +2111,9 @@ void CvPlayerTraits::InitPlayerTraits()
 				m_bBuyOwnedTiles = true;
 			}
 #endif
+#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
+			m_iInvestmentModifier += trait->GetInvestmentModifier();
+#endif
 			m_iCombatBonusVsHigherTech += trait->GetCombatBonusVsHigherTech();
 			m_iCombatBonusVsLargerCiv += trait->GetCombatBonusVsLargerCiv();
 			m_iLandUnitMaintenanceModifier += trait->GetLandUnitMaintenanceModifier();
@@ -2551,6 +2566,9 @@ void CvPlayerTraits::Reset()
 #if defined(MOD_BALANCE_CORE)
 	m_iCombatBonusVsHigherPop = 0;
 	m_bBuyOwnedTiles = false;
+#endif
+#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
+	m_iInvestmentModifier = 0;
 #endif
 	m_iCombatBonusVsHigherTech = 0;
 	m_iCombatBonusVsLargerCiv = 0;
@@ -4033,6 +4051,9 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	MOD_SERIALIZE_READ(66, kStream, m_iCombatBonusVsHigherPop, 0);
 	MOD_SERIALIZE_READ(66, kStream, m_bBuyOwnedTiles, false);
 #endif
+#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
+	MOD_SERIALIZE_READ(66, kStream, m_iInvestmentModifier , 0);
+#endif
 
 	kStream >> m_iCombatBonusVsHigherTech;
 
@@ -4481,6 +4502,9 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 #if defined(MOD_BALANCE_CORE)
 	MOD_SERIALIZE_WRITE(kStream, m_iCombatBonusVsHigherPop);
 	MOD_SERIALIZE_WRITE(kStream, m_bBuyOwnedTiles);
+#endif
+#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
+	MOD_SERIALIZE_WRITE(kStream, m_iInvestmentModifier);
 #endif
 	kStream << m_iCombatBonusVsHigherTech;
 	kStream << m_iCombatBonusVsLargerCiv;

@@ -1,8 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Created by ModBuddy on 5/27/2014 11:00:03 PM -->
 <GameData>
-	<!-- Allows you to define tables that are built when founded by advanced settlers. -->
+	<!-- Allows you to define buildings that are built when founded by advanced settlers. -->
 	<Table name="Unit_BuildOnFound">
+		<Column name="UnitType" type="text" reference="Units(Type)"/>
+		<Column name="BuildingClassType" type="text" reference="BuildingClasses(Type)"/>
+	</Table>
+	<!-- Allows you to define building classes required by units before they can be purchased in a city.-->
+	<Table name="Unit_BuildingClassPurchaseRequireds">
 		<Column name="UnitType" type="text" reference="Units(Type)"/>
 		<Column name="BuildingClassType" type="text" reference="BuildingClasses(Type)"/>
 	</Table>
