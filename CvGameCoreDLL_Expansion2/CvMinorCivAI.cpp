@@ -11101,7 +11101,12 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 	// -999 ~ -0
 	// **************************
 #if defined(MOD_BALANCE_CORE_MINORS)
-	if(GetEffectiveFriendshipWithMajor(eBullyPlayer) >= GC.getFRIENDSHIP_THRESHOLD_CAN_BULLY())
+	int iFriendshipLimit = GC.getFRIENDSHIP_THRESHOLD_CAN_BULLY();
+	if(GET_PLAYER(eBullyPlayer).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_AFRAID_INFLUENCE) > 0)
+	{
+		iFriendshipLimit *= 5;
+	}
+	if(GetEffectiveFriendshipWithMajor(eBullyPlayer) >= iFriendshipLimit)
 #else
 	if(GetEffectiveFriendshipWithMajor(eBullyPlayer) < GC.getFRIENDSHIP_THRESHOLD_CAN_BULLY())
 #endif

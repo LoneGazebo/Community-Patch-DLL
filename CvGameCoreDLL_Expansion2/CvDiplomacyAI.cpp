@@ -8017,6 +8017,13 @@ void CvDiplomacyAI::DoUpdatePlanningExchanges()
 	if(MOD_BALANCE_CORE_DEALS)
 	{
 		int iNumDPsWanted = GetNumDefensivePactsWanted();
+#if defined(DIPLOMACY_CITYSTATES_RESOLUTIONS)
+		//Halve this to encourage more DPs below.
+		if(DIPLOMACY_CITYSTATES_RESOLUTIONS && GetPlayer()->GetDefensePactsToVotes() > 0)
+		{
+			iNumDPsWanted /= 2;
+		}
+#endif
 
 		// Loop through all (known) Players
 		PlayerTypes eLoopPlayer;
@@ -8040,11 +8047,15 @@ void CvDiplomacyAI::DoUpdatePlanningExchanges()
 							{
 								if(GetPlayerMilitaryStrengthComparedToUs(eLoopPlayer) >= STRENGTH_AVERAGE)
 								{
-									if(GET_TEAM(GetPlayer()->getTeam()).isDefensivePactTradingAllowedWithTeam(GET_PLAYER(eLoopPlayer).getTeam()) ||	   // We have Tech & embassy to make a RA
-											GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).isDefensivePactTradingAllowed()) // They have Tech & embassy to make RA
+									//We don't want spam - let's limit this to the civ's loyalty metric (to prevent backstabs and to keep the AI from overcomitting).
+									if(iNumDPsWanted <= (GetPlayer()->GetDiplomacyAI()->GetLoyalty() / 2))
 									{
-											DoAddWantsDefensivePactWithPlayer(eLoopPlayer);
-											iNumDPsWanted++;	// This was calculated above, increment it by one since we know we've added another
+										if(GET_TEAM(GetPlayer()->getTeam()).isDefensivePactTradingAllowedWithTeam(GET_PLAYER(eLoopPlayer).getTeam()) ||	   // We have Tech & embassy to make a RA
+												GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).isDefensivePactTradingAllowed()) // They have Tech & embassy to make RA
+										{
+												DoAddWantsDefensivePactWithPlayer(eLoopPlayer);
+												iNumDPsWanted++;	// This was calculated above, increment it by one since we know we've added another
+										}
 									}
 								}
 							}
@@ -8061,6 +8072,10 @@ void CvDiplomacyAI::DoUpdatePlanningExchanges()
 						bCancel = true;
 					}
 					if(eOpinion < MAJOR_CIV_OPINION_FAVORABLE)
+					{
+						bCancel = true;
+					}
+					if(GetPlayerMilitaryStrengthComparedToUs(eLoopPlayer) < STRENGTH_AVERAGE)
 					{
 						bCancel = true;
 					}
@@ -21257,6 +21272,27 @@ int CvDiplomacyAI::GetCoopWarScore(PlayerTypes ePlayer, PlayerTypes eTargetPlaye
 		else if(eOpinionTowardsPlayer >= MAJOR_CIV_OPINION_FAVORABLE)
 			iWeight += 2;
 	}
+#if defined(MOD_BALANCE_CORE_DIPLOMACY)
+	if(MOD_BALANCE_CORE_DIPLOMACY)
+	{
+		if(GetPlayer()->GetProximityToPlayer(eTargetPlayer) == PLAYER_PROXIMITY_NEIGHBORS)
+		{
+			iWeight += 3;
+		}
+		else if(GetPlayer()->GetProximityToPlayer(eTargetPlayer) == PLAYER_PROXIMITY_CLOSE)
+		{
+			iWeight += 1;
+		}
+		else if(GetPlayer()->GetProximityToPlayer(eTargetPlayer) == PLAYER_PROXIMITY_FAR)
+		{
+			iWeight -= 5;
+		}
+		else if(GetPlayer()->GetProximityToPlayer(eTargetPlayer) == PLAYER_PROXIMITY_DISTANT)
+		{
+			iWeight -= 10;
+		}
+	}
+#endif
 
 	// Weight for Approach
 	if(eApproachTowardsTarget == MAJOR_CIV_APPROACH_WAR)

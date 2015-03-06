@@ -1129,6 +1129,11 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 			-- UnitCombatModifier
 			if (pTheirUnit:GetUnitCombatType() ~= -1) then
 				iModifier = pMyUnit:UnitCombatModifier(pTheirUnit:GetUnitCombatType());
+-- CBP
+				if(pTheirUnit:IsMounted()) then
+					iModifier = (iModifier + pMyUnit:UnitCombatModifier(GameInfo.UnitCombatInfos["UNITCOMBAT_MOUNTED"].ID));
+				end
+-- END
 
 				if (iModifier ~= 0) then
 					controlTable = g_MyCombatDataIM:GetInstance();
@@ -1544,7 +1549,11 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 				-- UnitCombatModifier
 				if (pMyUnit:GetUnitCombatType() ~= -1) then
 					iModifier = pTheirUnit:UnitCombatModifier(pMyUnit:GetUnitCombatType());
-
+-- CBP
+					if(pMyUnit:IsMounted()) then
+						iModifier = (iModifier + pTheirUnit:UnitCombatModifier(GameInfo.UnitCombatInfos["UNITCOMBAT_MOUNTED"].ID));
+					end
+-- END
 					if (iModifier ~= 0) then
 						controlTable = g_TheirCombatDataIM:GetInstance();
 						local unitClassType = Locale.ConvertTextKey(GameInfo.UnitCombatInfos[pMyUnit:GetUnitCombatType()].Description);

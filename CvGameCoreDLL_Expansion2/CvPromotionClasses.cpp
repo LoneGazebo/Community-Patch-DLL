@@ -101,6 +101,9 @@ CvPromotionEntry::CvPromotionEntry():
 #if defined(MOD_BALANCE_CORE)
 	m_bGainsXPFromScouting(false),
 	m_bCannotBeCaptured(false),
+	m_bIsLostOnMove(false),
+	m_bCityStateOnly(false),
+	m_bBarbarianOnly(false),
 	m_iNegatesPromotion(NO_PROMOTION),
 	m_iForcedDamageValue(0),
 	m_iChangeDamageValue(0),
@@ -250,6 +253,9 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 #if defined(MOD_BALANCE_CORE)
 	m_bGainsXPFromScouting = kResults.GetBool("GainsXPFromScouting");
 	m_bCannotBeCaptured = kResults.GetBool("CannotBeCaptured");
+	m_bIsLostOnMove = kResults.GetBool("IsLostOnMove");
+	m_bCityStateOnly = kResults.GetBool("CityStateOnly");
+	m_bBarbarianOnly = kResults.GetBool("BarbarianOnly");
 	const char* szNegatesPromotion = kResults.GetText("NegatesPromotion");
 	m_iNegatesPromotion = GC.getInfoTypeForString(szNegatesPromotion, true);
 	m_iForcedDamageValue = kResults.GetInt("ForcedDamageValue");
@@ -1355,6 +1361,21 @@ bool CvPromotionEntry::CannotBeCaptured() const
 {
 	return m_bCannotBeCaptured;
 }
+//Promotion lost if you leave the terrain/feature that gives it.
+bool CvPromotionEntry::IsLostOnMove() const
+{
+	return m_bIsLostOnMove;
+}
+//Promotion for CSs only
+bool CvPromotionEntry::IsCityStateOnly() const
+{
+	return m_bCityStateOnly;
+}
+//Promotion for barbs only
+bool CvPromotionEntry::IsBarbarianOnly() const
+{
+	return m_bBarbarianOnly;
+}
 int CvPromotionEntry::NegatesPromotion() const
 {
 	return m_iNegatesPromotion;
@@ -2134,12 +2155,20 @@ void CvUnitPromotions::Init(CvPromotionXMLEntries* pPromotions, CvUnit* pUnit)
 void CvUnitPromotions::Uninit()
 {
 	m_kHasPromotion.SetSize(0);
+
+#if defined(MOD_BALANCE_CORE)
+	m_terrainPassableCache.clear();
+#endif
 }
 
 /// Reset unit promotion array to all false
 void CvUnitPromotions::Reset()
 {
 	m_kHasPromotion.SetSize(0);
+
+#if defined(MOD_BALANCE_CORE)
+	m_terrainPassableCache.clear();
+#endif
 }
 
 /// Serialization read
@@ -2158,6 +2187,10 @@ void CvUnitPromotions::Read(FDataStream& kStream)
 	CvAssertMsg(m_pPromotions != NULL && m_pPromotions->GetNumPromotions() > 0, "Number of promotions to serialize is expected to greater than 0");
 
 	PromotionArrayHelpers::Read(kStream, m_kHasPromotion);
+
+#if defined(MOD_BALANCE_CORE)
+	UpdateTerrainPassableCache();
+#endif
 }
 
 /// Serialization write
@@ -2206,6 +2239,10 @@ void CvUnitPromotions::SetPromotion(PromotionTypes eIndex, bool bValue)
 	{
 		m_kHasPromotion.SetBit(eIndex, bValue);
 	}
+
+#if defined(MOD_BALANCE_CORE)
+	UpdateTerrainPassableCache();
+#endif
 }
 
 /// determines if the terrain feature is passable given the unit's current promotions
@@ -2237,11 +2274,50 @@ bool CvUnitPromotions::GetAllowFeaturePassable(FeatureTypes eFeatureType) const
 }
 
 /// determines if the terrain type is passable given the unit's current promotions
+#if defined(MOD_BALANCE_CORE)
+void CvUnitPromotions::UpdateTerrainPassableCache()
+{
+	for(int iTerrain = 0; iTerrain < GC.getNumTerrainInfos(); iTerrain++)
+	{
+		std::vector<TechTypes> reqTechs;
+		for(int iPromotion = 0; iPromotion < GC.getNumPromotionInfos(); iPromotion++)
+		{
+			if(m_kHasPromotion.GetBit(iPromotion))
+			{
+				CvPromotionEntry* promotion = GC.getPromotionInfo((PromotionTypes)iPromotion);
+				if(promotion)
+				{
+					TechTypes eTech = (TechTypes) promotion->GetTerrainPassableTech(iTerrain);
+					if(eTech != NO_TECH)
+						reqTechs.push_back(eTech);
+				}
+			}
+		}
+
+		m_terrainPassableCache.push_back( reqTechs );
+	}
+}
+#endif
+
+
 bool CvUnitPromotions::GetAllowTerrainPassable(TerrainTypes eTerrainType) const
 {
 	CvTeamTechs* teamTechs = GET_TEAM(m_pUnit->getTeam()).GetTeamTechs();
 	CvAssert(teamTechs);
 	if(!teamTechs) return false;
+
+#if defined(MOD_BALANCE_CORE)
+	//first check if this terrain type is cached
+	std::vector<TechTypes> reqTechs = m_terrainPassableCache[eTerrainType];
+	for ( std::vector<TechTypes>::iterator it_techs = reqTechs.begin(); it_techs != reqTechs.end(); ++it_techs )
+		if (teamTechs->HasTech(*it_techs))
+			return true;
+
+	//have none of the techs?
+	return false;
+}
+
+#else
 
 	int iNumPromos = GC.getNumPromotionInfos();
 	for(int iLoop = 0; iLoop < iNumPromos; iLoop++)
@@ -2261,8 +2337,10 @@ bool CvUnitPromotions::GetAllowTerrainPassable(TerrainTypes eTerrainType) const
 			}
 		}
 	}
+
 	return false;
 }
+#endif
 
 /// returns the advantage percent when attacking the specified unit class
 int CvUnitPromotions::GetUnitClassAttackMod(UnitClassTypes eUnitClass) const

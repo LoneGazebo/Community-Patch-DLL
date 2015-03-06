@@ -1,5 +1,18 @@
 ALTER TABLE Buildings ADD COLUMN 'DPToVotes' integer default 0;
 
+-- Units
+INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_ENVOY','BUILDINGCLASS_CHANCERY';
+INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_DIPLOMAT','BUILDINGCLASS_WIRE_SERVICE';
+INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_AMBASSADOR','BUILDINGCLASS_WIRE_SERVICE';
+
+-- Hurry Cost - reduced for all buildings (as you now need production as well to make them work)
+UPDATE Buildings
+SET HurryCostModifier = '-20';
+
+UPDATE Buildings
+SET HurryCostModifier = '-5'
+WHERE NOT WonderSplashImage = 'NULL';
+
 -- Policy Changes
 
 UPDATE Language_en_US

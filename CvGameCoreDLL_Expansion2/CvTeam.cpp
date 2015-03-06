@@ -850,7 +850,7 @@ void CvTeam::doTurn()
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 			if (MOD_DIPLOMACY_CIV4_FEATURES)
 			{
-				if(IsVassalOfSomeone())
+				if(IsVassal(eTeam))
 					ChangeNumTurnsIsVassal(1);
 
 				if(GetNumTurnsSinceVassalEnded(eTeam) > -1)

@@ -12,6 +12,9 @@
 #include "CvLuaCity.h"
 #include "CvLuaPlot.h"
 #include "CvLuaUnit.h"
+#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
+#include "../CvInternalGameCoreUtils.h"
+#endif
 
 //Utility macro for registering methods
 #define Method(Name)			\
@@ -108,6 +111,9 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(GetProductionNeeded);
 	Method(GetUnitProductionNeeded);
 	Method(GetBuildingProductionNeeded);
+#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
+	Method(GetBuildingInvestment);
+#endif
 	Method(GetProjectProductionNeeded);
 	Method(GetProductionTurnsLeft);
 	Method(GetUnitProductionTurnsLeft);
@@ -955,6 +961,64 @@ int CvLuaCity::lGetPurchaseUnitTooltip(lua_State* L)
 	// City Production Modifier
 	pkCity->canTrain(eUnit, false, false, false, false, &toolTip);
 
+#if defined(MOD_BALANCE_CORE)
+	if(MOD_BALANCE_CORE && pkCity->GetPurchaseCooldown() > 0)
+	{
+		Localization::String localizedText = Localization::Lookup("TXT_KEY_COOLDOWN_X_TURNS_REMAINING");
+		localizedText << pkCity->GetPurchaseCooldown();
+
+		const char* const localized = localizedText.toUTF8();
+		if(localized)
+		{
+			if(!toolTip.IsEmpty())
+				toolTip += "[NEWLINE]";
+
+			toolTip += localized;
+		}
+	}
+	if(eUnit != NO_UNIT)
+	{
+		CvUnitEntry* thisUnitInfo = GC.getUnitInfo(eUnit);
+		// See if there are any BuildingClass requirements
+		const int iNumBuildingClassInfos = GC.getNumBuildingClassInfos();
+		CvCivilizationInfo& thisCivilization = pkCity->getCivilizationInfo();
+		for(int iBuildingClassLoop = 0; iBuildingClassLoop < iNumBuildingClassInfos; iBuildingClassLoop++)
+		{
+			const BuildingClassTypes eBuildingClass = (BuildingClassTypes) iBuildingClassLoop;
+			CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
+			if(!pkBuildingClassInfo)
+			{
+				continue;
+			}
+
+			// Requires Building
+			if(thisUnitInfo->GetBuildingClassPurchaseRequireds(eBuildingClass))
+			{
+				const BuildingTypes ePrereqBuilding = (BuildingTypes)(thisCivilization.getCivilizationBuildings(eBuildingClass));
+
+				if(pkCity->GetCityBuildings()->GetNumBuilding(ePrereqBuilding) == 0)
+				{
+					CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(ePrereqBuilding);
+					if(pkBuildingInfo)
+					{
+						Localization::String localizedText = Localization::Lookup("TXT_KEY_NO_ACTION_UNIT_REQUIRES_BUILDING_PURCHASE");
+						localizedText << pkBuildingInfo->GetDescriptionKey();
+
+						const char* const localized = localizedText.toUTF8();
+						if(localized)
+						{
+							if(!toolTip.IsEmpty())
+								toolTip += "[NEWLINE]";
+
+							toolTip += localized;
+						}
+					}
+				}
+			}
+		}
+	}
+#endif
+
 	// Already a unit here
 	if(!pkCity->CanPlaceUnitHere(eUnit))
 	{
@@ -1041,7 +1105,51 @@ int CvLuaCity::lGetPurchaseBuildingTooltip(lua_State* L)
 #else
 	pkCity->canConstruct(eBuilding, false, false, false, &toolTip);
 #endif
+#if defined(MOD_BALANCE_CORE)
+	if(MOD_BALANCE_CORE && pkCity->GetPurchaseCooldown() > 0)
+	{
+		Localization::String localizedText = Localization::Lookup("TXT_KEY_COOLDOWN_X_TURNS_REMAINING");
+		localizedText << pkCity->GetPurchaseCooldown();
 
+		const char* const localized = localizedText.toUTF8();
+		if(localized)
+		{
+			if(!toolTip.IsEmpty())
+				toolTip += "[NEWLINE]";
+
+			toolTip += localized;
+		}
+	}
+#endif
+#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
+	if(MOD_BALANCE_CORE_BUILDING_INVESTMENTS && eBuilding != NO_BUILDING)
+	{
+		//Have we already invested here?
+		CvBuildingEntry* pGameBuilding = GC.getBuildingInfo(eBuilding);
+		const BuildingClassTypes eBuildingClass = (BuildingClassTypes)(pGameBuilding->GetBuildingClassType());
+		if(pkCity->IsBuildingInvestment(eBuildingClass))
+		{
+			int iValue = (/*-50*/ GC.getBALANCE_BUILDING_INVESTMENT_BASELINE() + GET_PLAYER(pkCity->getOwner()).GetPlayerTraits()->GetInvestmentModifier() + GET_PLAYER(pkCity->getOwner()).GetInvestmentModifier());
+			iValue *= -1;
+			const CvBuildingClassInfo& kBuildingClassInfo = pGameBuilding->GetBuildingClassInfo();
+			if(::isWorldWonderClass(kBuildingClassInfo))
+			{
+				iValue /= 2;
+			}
+			Localization::String localizedText = Localization::Lookup("TXT_KEY_ALREADY_INVESTED");
+			localizedText << iValue;
+
+			const char* const localized = localizedText.toUTF8();
+			if(localized)
+			{
+				if(!toolTip.IsEmpty())
+					toolTip += "[NEWLINE]";
+
+				toolTip += localized;
+			}
+		}
+	}
+#endif
 	// Not enough cash money
 	if(pkCity->GetPurchaseCost(eBuilding) > GET_PLAYER(pkCity->getOwner()).GetTreasury()->GetGold())
 	{
@@ -1056,7 +1164,6 @@ int CvLuaCity::lGetPurchaseBuildingTooltip(lua_State* L)
 			toolTip += localized;
 		}
 	}
-
 	lua_pushstring(L, toolTip.c_str());
 	return 1;
 }
@@ -1366,6 +1473,34 @@ int CvLuaCity::lGetBuildingProductionNeeded(lua_State* L)
 	lua_pushinteger(L, iResult);
 	return 1;
 }
+#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
+//------------------------------------------------------------------------------
+//bool IsBuildingInvestment();
+int CvLuaCity::lGetBuildingInvestment(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	int iResult = 0;
+	int iTotalDiscount = 0;
+	const BuildingTypes eBuildingType = (BuildingTypes) lua_tointeger(L, 2);
+	CvBuildingEntry* pGameBuilding = GC.getBuildingInfo(eBuildingType);
+	const BuildingClassTypes eBuildingClass = (BuildingClassTypes)(pGameBuilding->GetBuildingClassType());
+	if(pkCity->IsBuildingInvestment(eBuildingClass))
+	{
+		iResult = GET_PLAYER(pkCity->getOwner()).getProductionNeeded(eBuildingType);
+		iTotalDiscount = (/*-50*/ GC.getBALANCE_BUILDING_INVESTMENT_BASELINE() + GET_PLAYER(pkCity->getOwner()).GetPlayerTraits()->GetInvestmentModifier() + GET_PLAYER(pkCity->getOwner()).GetInvestmentModifier());
+		const CvBuildingClassInfo& kBuildingClassInfo = pGameBuilding->GetBuildingClassInfo();
+		if(::isWorldWonderClass(kBuildingClassInfo))
+		{
+			iTotalDiscount /= 2;
+		}
+		iResult *= (iTotalDiscount + 100);
+		iResult /= 100;
+	}
+
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+#endif
 //------------------------------------------------------------------------------
 //int GetProjectProductionNeeded();
 int CvLuaCity::lGetProjectProductionNeeded(lua_State* L)

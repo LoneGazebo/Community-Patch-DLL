@@ -84,7 +84,7 @@ bool CvCitySiteEvaluator::CanFound(CvPlot* pPlot, const CvPlayer* pPlayer, bool 
 			}
 		}
 	}
-#if defined(MOD_BALANCE_CORE)
+#if defined(MOD_BALANCE_CORE_SANE_IMPASSABILITY)
 	if(pPlot->isImpassable())
 #else
 	if(pPlot->isImpassable() || pPlot->isMountain())
@@ -329,13 +329,20 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, YieldT
 	int iTotalResourceValue = 0;
 	int iTotalStrategicValue = 0;
 
+	//use a slightly negative base value to discourage settling in bad lands
+	int iDefaultPlotValue = -100;
+
 	int iClosestCityOfMine = 999;
 	int iClosestEnemyCity = 999;
 
 	int iCapitalArea = NULL;
 
+	bool bIsAlmostCoast = false;
 	bool bIsInca = false;
 	int iAdjacentMountains = 0;
+
+	std::vector<SPlotWithScore> workablePlots;
+	workablePlots.reserve(49);
 
 	TeamTypes eTeam = pPlayer ? pPlayer->getTeam() : NO_TEAM;
 	PlayerTypes ePlayer = pPlayer ? pPlayer->GetID() : NO_PLAYER;
@@ -396,29 +403,29 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, YieldT
 
 							if (eYield == NO_YIELD || eYield == YIELD_FOOD)
 							{
-								iFoodValue = iRingModifier * ComputeFoodValue(pLoopPlot, pPlayer) * /*15*/ GC.getSETTLER_FOOD_MULTIPLIER();
+								iFoodValue = ComputeFoodValue(pLoopPlot, pPlayer) * /*15*/ GC.getSETTLER_FOOD_MULTIPLIER();
 							}
 							if (eYield == NO_YIELD || eYield == YIELD_PRODUCTION)
 							{
-								iProductionValue = iRingModifier * ComputeProductionValue(pLoopPlot, pPlayer) * /*3*/ GC.getSETTLER_PRODUCTION_MULTIPLIER();
+								iProductionValue = ComputeProductionValue(pLoopPlot, pPlayer) * /*3*/ GC.getSETTLER_PRODUCTION_MULTIPLIER();
 							}
 							if (eYield == NO_YIELD || eYield == YIELD_GOLD)
 							{
-								iGoldValue = iRingModifier * ComputeGoldValue(pLoopPlot, pPlayer) * /*2*/ GC.getSETTLER_GOLD_MULTIPLIER();
+								iGoldValue = ComputeGoldValue(pLoopPlot, pPlayer) * /*2*/ GC.getSETTLER_GOLD_MULTIPLIER();
 							}
 							if (eYield == NO_YIELD || eYield == YIELD_SCIENCE)
 							{
-								iScienceValue = iRingModifier * ComputeScienceValue(pLoopPlot, pPlayer) * /*1*/ GC.getSETTLER_SCIENCE_MULTIPLIER();
+								iScienceValue = ComputeScienceValue(pLoopPlot, pPlayer) * /*1*/ GC.getSETTLER_SCIENCE_MULTIPLIER();
 							}
 							if (eYield == NO_YIELD || eYield == YIELD_FAITH)
 							{
-								iFaithValue = iRingModifier * ComputeFaithValue(pLoopPlot, pPlayer) * /*1*/ GC.getSETTLER_FAITH_MULTIPLIER();
+								iFaithValue = ComputeFaithValue(pLoopPlot, pPlayer) * /*1*/ GC.getSETTLER_FAITH_MULTIPLIER();
 							}
 
 							if (pLoopPlot->getOwner() == NO_PLAYER) // there is no benefit if we already own these tiles
 							{
-								iHappinessValue = iRingModifier * ComputeHappinessValue(pLoopPlot, pPlayer) * /*6*/ GC.getSETTLER_HAPPINESS_MULTIPLIER();
-								iResourceValue = iRingModifier * ComputeTradeableResourceValue(pLoopPlot, pPlayer) * /*1*/ GC.getSETTLER_RESOURCE_MULTIPLIER();
+								iHappinessValue = ComputeHappinessValue(pLoopPlot, pPlayer) * /*6*/ GC.getSETTLER_HAPPINESS_MULTIPLIER();
+								iResourceValue = ComputeTradeableResourceValue(pLoopPlot, pPlayer) * /*1*/ GC.getSETTLER_RESOURCE_MULTIPLIER();
 								if (iDistance)
 									iStrategicValue = ComputeStrategicValue(pLoopPlot, pPlayer, iDistance) * /*1*/ GC.getSETTLER_STRATEGIC_MULTIPLIER();  // the ring is included in the computation
 							}
@@ -432,7 +439,14 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, YieldT
 							iTotalResourceValue += iResourceValue;
 							iTotalStrategicValue += iStrategicValue;
 
-							int iPlotValue = iFoodValue + iHappinessValue + iProductionValue + iGoldValue + iScienceValue + iFaithValue + iResourceValue + iStrategicValue;
+							int iPlotValue = iDefaultPlotValue + iRingModifier * ( iFoodValue + iHappinessValue + iProductionValue + iGoldValue + iScienceValue + iFaithValue + iResourceValue ) + iStrategicValue;
+							
+							// for the central plot
+							if (iDistance==0)
+								vQualifiersPositive.push_back( CvString::format("raw plot value: %d", iPlotValue).c_str() );
+
+							if (iDistance==1 && !pPlot->isCoastalLand(GC.getMIN_WATER_SIZE_FOR_OCEAN()) && pLoopPlot->isCoastalLand(GC.getMIN_WATER_SIZE_FOR_OCEAN()))
+								bIsAlmostCoast = true;
 
 							// if this tile is a NW boost the value just so that we force the AI to claim them (if we can work it)
 							if (pLoopPlot->IsNaturalWonder())
@@ -443,7 +457,7 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, YieldT
 								iPlotValue /= 2;
 
 							// add this plot into the total
-							iTotalPlotValue += iPlotValue;
+							workablePlots.push_back( SPlotWithScore(pLoopPlot,iPlotValue) );
 
 							// some civ-specific checks
 							FeatureTypes ePlotFeature = pLoopPlot->getFeatureType();
@@ -506,6 +520,15 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, YieldT
 				}
 			}
 		}
+	}
+
+	//take into account only the best 70% of the plots - in the near term the city will not work all plots anyways
+	std::sort( workablePlots.begin(), workablePlots.end() );
+	size_t iIrrelevantPlots = workablePlots.size()*30/100;
+	for (size_t idx=iIrrelevantPlots; idx<workablePlots.size(); idx++)
+	{
+		SPlotWithScore& ref = workablePlots[idx];
+		iTotalPlotValue += ref.score;
 	}
 
 	//civ-specific bonuses
@@ -591,12 +614,24 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, YieldT
 		vQualifiersNegative.push_back("(V) city on resource");
 	}
 
+	if ( iTotalFoodValue>5*iTotalProductionValue || iTotalProductionValue > 2*iTotalFoodValue )
+	{
+		iValueModifier -= (int)iTotalPlotValue * 10 / 100;
+		vQualifiersNegative.push_back("(V) unbalanced yields");
+	}
+
 	if (pPlot->isRiver())
 	{
 		iValueModifier += (int)iTotalPlotValue * /*15*/ GC.getBUILD_ON_RIVER_PERCENT() / 100;
 		if(pPlayer && pPlayer->GetPlayerTraits()->IsRiverTradeRoad())
 			iValueModifier += (int)iTotalPlotValue * /*15*/ GC.getBUILD_ON_RIVER_PERCENT() / 100 * 2;
 		vQualifiersPositive.push_back("(V) river");
+	}
+
+	if (bIsAlmostCoast)
+	{
+		iValueModifier -= (iTotalPlotValue * 20) / 100;
+		vQualifiersNegative.push_back("(V) almost coast");
 	}
 
 	if (pPlot->isCoastalLand(GC.getMIN_WATER_SIZE_FOR_OCEAN()))
@@ -728,12 +763,12 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, YieldT
 			{
 				if (iClosestEnemyCity <= 4)
 				{
-					iStratModifier -= (iTotalPlotValue*75)/100;
+					iStratModifier -= (iTotalPlotValue*50)/100;
 					vQualifiersNegative.push_back("(S) too close to enemy");
 				}
 				else if (iClosestEnemyCity == 5)
 				{
-					iStratModifier -= (iTotalPlotValue*50)/100;
+					iStratModifier -= (iTotalPlotValue*25)/100;
 					vQualifiersNegative.push_back("(S) too close to enemy");
 				}
 			}
@@ -741,7 +776,7 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, YieldT
 			{
 				if (iClosestEnemyCity <= 5 && iClosestCityOfMine < 8)
 				{
-					iStratModifier += (iTotalPlotValue*50)/100;
+					iStratModifier += (iTotalPlotValue*25)/100;
 					vQualifiersPositive.push_back("(S) close to enemy and but not far from home");
 				}
 			}
@@ -749,7 +784,7 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, YieldT
 			{
 				if (iClosestEnemyCity < 5)
 				{
-					iStratModifier -= (iTotalPlotValue*33)/100;
+					iStratModifier -= (iTotalPlotValue*25)/100;
 					vQualifiersNegative.push_back("(S) too close to enemy");
 				}
 			}
@@ -1377,7 +1412,7 @@ int CvCitySiteEvaluator::PlotFertilityValue(CvPlot* pPlot, bool bAllPlots)
 {
 	int rtnValue = 0;
 #if defined(MOD_BALANCE_CORE)
-	if( bAllPlots || (!pPlot->isWater() && !pPlot->isImpassable()) )
+	if( bAllPlots || (!pPlot->isWater() && !pPlot->isImpassable() && !pPlot->isMountain()) )
 #else
 	if(!pPlot->isWater() && !pPlot->isImpassable() && !pPlot->isMountain())
 #endif
@@ -1418,6 +1453,12 @@ int CvCitySiteEvaluator::ComputeFoodValue(CvPlot* pPlot, CvPlayer* pPlayer)
 	{
 		rtnValue += pPlot->calculateNatureYield(YIELD_FOOD, pPlayer->getTeam());
 	}
+
+#if defined(MOD_BALANCE_CORE_SETTLER)
+	// assume a farm or similar on suitable terrain ... should be build sooner or later. value averages out with other improvements ...
+	if (MOD_BALANCE_CORE_SETTLER && (pPlot->getTerrainType()==TERRAIN_GRASS || pPlot->getTerrainType()==TERRAIN_PLAINS || pPlot->getFeatureType()==FEATURE_FLOOD_PLAINS))
+		rtnValue += 1;
+#endif
 
 	// From resource
 	TeamTypes eTeam = NO_TEAM;
@@ -1489,6 +1530,12 @@ int CvCitySiteEvaluator::ComputeProductionValue(CvPlot* pPlot, CvPlayer* pPlayer
 	{
 		rtnValue += pPlot->calculateNatureYield(YIELD_PRODUCTION, pPlayer->getTeam());
 	}
+
+#if defined(MOD_BALANCE_CORE_SETTLER)
+	// assume a mine or similar ...
+	if (MOD_BALANCE_CORE_SETTLER && pPlot->isHills())
+		rtnValue += 1;
+#endif
 
 	// From resource
 	TeamTypes eTeam = NO_TEAM;
@@ -1701,7 +1748,7 @@ int CvCitySiteEvaluator::ComputeStrategicValue(CvPlot* pPlot, CvPlayer* pPlayer,
 	if(!pPlot) return rtnValue;
 
 	// Possible chokepoint if impassable terrain and exactly 2 plots from city
-#if defined(MOD_BALANCE_CORE)
+#if defined(MOD_BALANCE_CORE_SANE_IMPASSABILITY)
 	if(iPlotsFromCity == 2 && (pPlot->isImpassable()))
 #else
 	if(iPlotsFromCity == 2 && (pPlot->isImpassable() || pPlot->isMountain()))

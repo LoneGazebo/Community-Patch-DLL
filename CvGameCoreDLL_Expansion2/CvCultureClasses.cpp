@@ -3502,13 +3502,15 @@ CvString CvPlayerCulture::GetPublicOpinionTooltip() const
 /// Unhappiness generated from public opinion
 int CvPlayerCulture::GetPublicOpinionUnhappiness() const
 {
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-	return m_iOpinionUnhappiness + m_iWarWeariness;
-#else
 	return m_iOpinionUnhappiness;
-#endif
 }
-
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+/// Unhappiness generated from public opinion
+int CvPlayerCulture::GetWarWeariness() const
+{
+	return m_iWarWeariness;
+}
+#endif
 /// Tooltip breaking down public opinion unhappiness
 CvString CvPlayerCulture::GetPublicOpinionUnhappinessTooltip() const
 {

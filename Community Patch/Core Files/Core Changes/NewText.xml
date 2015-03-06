@@ -2420,5 +2420,10 @@
 		<Row Tag="TXT_KEY_NO_ACTION_BUILDING_NEED_MONOPOLY">
 			<Text>[NEWLINE]Requires a Monopoly of {2_ResourceIcon} {1_ResourceName:textkey}. You currently control {3_Percent}%.</Text>
 		</Row>
+
+		<!-- tooltip for purchase cooldown -->
+		<Row Tag="TXT_KEY_COOLDOWN_X_TURNS_REMAINING">
+			<Text>You recently made a [ICON_GOLD] Gold purchase in this city, and must wait for {1_Num} more turn(s) to do so again.</Text>
+		</Row>
 	</Language_en_US>
 </GameData>

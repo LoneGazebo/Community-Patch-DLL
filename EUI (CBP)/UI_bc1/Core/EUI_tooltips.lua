@@ -705,7 +705,7 @@ local buildingData = {
 	UnitUpgradeCostMod = "",
 	Experience = "",
 	GlobalExperience = "",
-	FoodKept = "%+i%%[ICON_FOOD] " .. L"TXT_KEY_TRAIT_POPULATION_GROWTH_SHORT",-- granary effect
+	FoodKept = "%+i%%[ICON_FOOD] " .. L"TXT_KEY_TRAIT_POPULATION_GROWTH_NEW",-- granary effect
 	AirModifier = "",
 	NukeModifier = "",
 	NukeExplosionRand = "",
@@ -898,6 +898,13 @@ local function getHelpTextForBuilding( buildingID, bExcludeName, bExcludeHeader,
 
 		-- player production cost
 		productionCost = activePlayer:GetBuildingProductionNeeded( buildingID )
+-- CBP
+		if (city ~= nil) then
+			if(city:GetBuildingInvestment(buildingID) > 0) then
+				productionCost = city:GetBuildingInvestment(buildingID);
+			end
+		end
+-- END
 		if civ5_mode then
 			-- player extra happiness
 			happinessChange = happinessChange + activePlayer:GetExtraBuildingHappinessFromPolicies( buildingID )
@@ -917,7 +924,15 @@ local function getHelpTextForBuilding( buildingID, bExcludeName, bExcludeHeader,
 	local tip, items, item, condition
 	-- Name
 	local tips = table( BuildingColor( Locale.ToUpper( building.Description ) ) )
-
+-- CBP
+	if (city ~= nil) then
+		if(city:GetBuildingInvestment(buildingID) > 0) then
+			if tips then
+				tips:insert( L"TXT_KEY_INVESTED")
+			end
+		end
+	end
+-- END
 	-- Other tags
 	for k,v in pairs(building) do
 		if v then
@@ -969,6 +984,13 @@ local function getHelpTextForBuilding( buildingID, bExcludeName, bExcludeHeader,
 				if bnw_mode then
 					yieldChange = yieldChange + city:GetLeagueBuildingClassYieldChange( buildingClassID, yieldID )
 				end
+-- CBP
+				if yield.Type == "YIELD_CULTURE" then
+					yieldChange = yieldChange + city:GetBuildingClassCultureChange(buildingClassID )
+				end
+					
+				yieldChange = yieldChange + city:GetReligionBuildingYieldRateModifier(buildingClassID, yieldID)
+-- END CBP
 			end
 		else -- not Game
 			for row in GameInfo.Building_YieldChanges( thisBuildingAndYieldTypes ) do
@@ -1129,9 +1151,28 @@ local function getHelpTextForBuilding( buildingID, bExcludeName, bExcludeHeader,
 				tip = S(" %+i[ICON_TOURISM]", city:GetFaithBuildingTourism() )
 			end
 		end
+-- CBP FIX
+		if (building.FaithCost or 0) > 0 and building.PolicyType ~= nil and building.Cost == -1 then
+			if city then
+				 tourism = city:GetFaithBuildingTourism()
+			else
+			end
+			if tourism ~= 0 then
+				tip = S(" %+i[ICON_TOURISM]", city:GetFaithBuildingTourism() )
+			end
+		end
+-- END
 		if enhancedYieldTechName and (building.TechEnhancedTourism or 0) ~= 0 then
 			tip = S("%s %s %+i[ICON_TOURISM]", tip, enhancedYieldTechName, building.TechEnhancedTourism )
 		end
+	-- CBP
+		if city then
+			local iTourism = activePlayer:GetExtraYieldWorldWonder(buildingID, YieldTypes.YIELD_TOURISM);
+			if(iTourism ~= 0) then
+				tip = S("%s %+i[ICON_TOURISM]", tip, iTourism)
+			end
+		end
+	-- END
 		tips:insertIf( #tip > 0 and L"TXT_KEY_CITYVIEW_TOURISM_TEXT" .. ":" .. tip )
 	end
 -- TODO GetInternationalTradeRouteYourBuildingBonus
@@ -1590,6 +1631,16 @@ local function getHelpTextForBuilding( buildingID, bExcludeName, bExcludeHeader,
 	end
 
 	-- Pre-written Help text
+-- CBP
+	if (city ~= nil) then
+		local iAmount = GameDefines.BALANCE_BUILDING_INVESTMENT_BASELINE;
+		iAmount = (iAmount * -1);
+		local iWonderAmount = (iAmount / 2);
+		if(iAmount > 0) then
+			tips:append( ( "[NEWLINE]" .. L("TXT_KEY_PRODUCTION_INVESTMENT_BUILDING", iAmount, iWonderAmount) ) )
+		end
+	end
+-- END
 	return AddPreWrittenHelpTextAndConcat( tips, building )
 end
 
@@ -1886,6 +1937,31 @@ local function getYieldTooltip( city, yieldID, baseYield, totalYield, yieldIconS
 		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_YIELD_FROM_RELIGION", city:GetBaseYieldRateFromReligion( yieldID ), yieldIconString )
 	end
 
+-- CBP 
+	-- Yield Increase from CS Alliance (Germany)
+	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_YIELD_FROM_CS_ALLIANCE", city:GetBaseYieldRateFromCSAlliance( yieldID ), yieldIconString)
+
+	-- Yield Increase from Piety
+	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_YIELD_FROM_PIETY", city:GetReligionYieldRateModifier( yieldID ), yieldIconString)
+
+	-- Base Yield From City Connections
+	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_YIELD_FROM_CONNECTION", city:GetYieldChangeTradeRoute( yieldID ), yieldIconString)
+
+	-- Gold from Great Works
+	if(yieldID == YieldTypes.YIELD_GOLD) then
+		tips:insertLocalizedBulletIfNonZero("TXT_KEY_YIELD_FROM_ART_CBP", city:GetBaseYieldRateFromGreatWorks( yieldID ), yieldIconString)
+	end
+
+-- CBP
+	if(yieldID == YieldTypes.YIELD_SCIENCE) then
+		-- WLTKD MOD
+		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_SCIENCE_GOLDEN_AGE", city:GetModFromWLTKD(yieldID))
+
+		-- Golden Age MOD
+		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_SCIENCE_GOLDEN_AGE", city:GetModFromGoldenAge(yieldID))
+	end
+-- END CBP
+
 	if civBE_mode then
 		-- Yield from Production Processes
 		local yieldFromProcesses = city:GetYieldRateFromProductionProcesses( yieldID )
@@ -2134,8 +2210,8 @@ local function getCultureTooltip( city )
 
 	local tips = table()
 	local cityOwner = Players[city:GetOwner()]
-	local culturePerTurn, cultureStored, cultureNeeded, cultureFromBuildings, cultureFromPolicies, cultureFromSpecialists, cultureFromTraits, baseCulturePerTurn
-	-- Thanks fo Firaxis Cleverness...
+	local culturePerTurn, cultureStored, cultureNeeded, cultureFromBuildings, cultureFromPolicies, cultureFromSpecialists, cultureFromTraits, baseCulturePerTurn, cultureFromPop, cultureFromPiety, cultureFromCSAlliance  -- CBP
+	-- Thanks to Firaxis Cleverness...
 	if civ5_mode then
 		culturePerTurn = city:GetJONSCulturePerTurn()
 		cultureStored = city:GetJONSCultureStored()
@@ -2145,6 +2221,13 @@ local function getCultureTooltip( city )
 		cultureFromSpecialists = city:GetJONSCulturePerTurnFromSpecialists()
 		cultureFromTraits = city:GetJONSCulturePerTurnFromTraits()
 		baseCulturePerTurn = city:GetBaseJONSCulturePerTurn()
+		cultureFromPop = city:GetYieldPerPopTimes100(YieldTypes.YIELD_CULTURE) -- CBP
+		if (cultureFromPop ~= 0) then
+			cultureFromPop = cultureFromPop * city:GetPopulation();
+			cultureFromPop = cultureFromPop / 100;
+		end
+		cultureFromPiety = city:GetReligionYieldRateModifier(YieldTypes.YIELD_CULTURE) -- CBP
+		cultureFromCSAlliance = city:GetBaseYieldRateFromCSAlliance(YieldTypes.YIELD_CULTURE) -- CBP
 	else
 		culturePerTurn = city:GetCulturePerTurn()
 		cultureStored = city:GetCultureStored()
@@ -2169,7 +2252,18 @@ local function getCultureTooltip( city )
 
 	-- Culture from Specialists
 	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_CULTURE_FROM_SPECIALISTS", cultureFromSpecialists )
-
+	
+-- CBP -- Culture from Pop, Piety, and CS Alliance:
+	-- Culture from Pop
+	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_CULTURE_FROM_POPULATION", cultureFromPop )
+	
+	-- Culture from Piety
+	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_CULTURE_FROM_PIETY", cultureFromPiety )
+	
+	-- Culture from Alliances
+	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_CULTURE_FROM_CS_ALLIANCE", cultureFromCSAlliance )
+-- END CBP
+	
 	-- Culture from Religion
 	if civ5gk_mode then
 		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_CULTURE_FROM_RELIGION", city:GetJONSCulturePerTurnFromReligion() )
@@ -2203,6 +2297,18 @@ local function getCultureTooltip( city )
 
 		-- Culture Wonders modifier
 		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_CULTURE_WONDER_BONUS", city:GetNumWorldWonders() > 0 and cityOwner and cityOwner:GetCultureWonderMultiplier() or 0 )
+		
+-- CBP
+		-- WLTKD MOD
+		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_CULTURE_GOLDEN_AGE", city:GetModFromWLTKD(YieldTypes.YIELD_CULTURE))
+
+		-- Golden Age MOD
+		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_CULTURE_GOLDEN_AGE", city:GetModFromGoldenAge(YieldTypes.YIELD_CULTURE))
+-- END
+
+-- CBP -- Resource Monopoly
+		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_CULTURE_FROM_RESOURCE_MONOPOLY", city:GetCityYieldModFromMonopoly(YieldTypes.YIELD_CULTURE))
+-- END
 	end
 
 	-- Puppet modifier
@@ -2258,6 +2364,35 @@ local function getFaithTooltip( city )
 		-- Faith from Religion
 		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_FAITH_FROM_RELIGION", city:GetFaithPerTurnFromReligion() )
 
+-- CBP
+		-- Faith from Pop
+		local iYieldPerPop = city:GetYieldPerPopTimes100(YieldTypes.YIELD_FAITH);
+		if (iYieldPerPop ~= 0) then
+			iYieldPerPop = iYieldPerPop * city:GetPopulation();
+			iYieldPerPop = iYieldPerPop / 100;
+		end
+
+		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_FAITH_FROM_POP", iYieldPerPop)
+
+		-- Faith from Specialists
+		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_YIELD_FROM_SPECIALISTS_FAITH", city:GetBaseYieldRateFromSpecialists(YieldTypes.YIELD_FAITH))
+		
+		-- Faith from Traits
+		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_FAITH_FROM_TRAITS", city:GetFaithPerTurnFromTraits())
+
+		-- Yield Increase from Piety
+		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_FAITH_FROM_PIETY", city:GetReligionYieldRateModifier(YieldTypes.YIELD_FAITH))
+	
+		-- Yield Increase from CS Alliance
+		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_FAITH_FROM_CS_ALLIANCE", city:GetBaseYieldRateFromCSAlliance(YieldTypes.YIELD_FAITH))
+	
+		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_FAITH_FROM_WLTKD", city:GetModFromWLTKD(YieldTypes.YIELD_FAITH))
+				
+		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_FAITH_FROM_GOLDEN_AGE", city:GetModFromGoldenAge(YieldTypes.YIELD_FAITH))
+-- END CBP
+-- CBP -- Resource Monopoly
+		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_FAITH_FROM_RESOURCE_MONOPOLY", city:GetCityYieldModFromMonopoly(YieldTypes.YIELD_FAITH))
+-- END
 		-- Puppet modifier
 		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_PRODMOD_PUPPET", city:IsPuppet() and GameDefines.PUPPET_FAITH_MODIFIER or 0 )
 

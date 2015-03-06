@@ -15,7 +15,6 @@
 			<HolyCity>true</HolyCity>
 			<HurryCostModifier>-1</HurryCostModifier>
 			<MinAreaSize>-1</MinAreaSize>
-			<MinorityHappinessChange>5</MinorityHappinessChange>
 			<ConversionModifier>-20</ConversionModifier>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
 			<PortraitIndex>21</PortraitIndex>
@@ -37,7 +36,6 @@
 			<Strategy>TXT_KEY_BUILDING_HEAVENLY_THRONE_STRATEGY</Strategy>
 			<ArtDefineTag>TEMPLE</ArtDefineTag>
 			<NukeImmune>true</NukeImmune>
-			<MinorityHappinessChange>5</MinorityHappinessChange>
 			<HolyCity>true</HolyCity>
 			<ConversionModifier>-20</ConversionModifier>
 			<HurryCostModifier>-1</HurryCostModifier>
@@ -62,7 +60,6 @@
 			<Strategy>TXT_KEY_BUILDING_GREAT_ALTAR_STRATEGY</Strategy>
 			<ArtDefineTag>TEMPLE</ArtDefineTag>
 			<NukeImmune>true</NukeImmune>
-			<MinorityHappinessChange>5</MinorityHappinessChange>
 			<HolyCity>true</HolyCity>
 			<ConversionModifier>-20</ConversionModifier>
 			<HurryCostModifier>-1</HurryCostModifier>
@@ -90,7 +87,6 @@
 			<GreatWorkCount>4</GreatWorkCount>
 			<ArtDefineTag>TEMPLE</ArtDefineTag>
 			<NukeImmune>true</NukeImmune>
-			<MinorityHappinessChange>5</MinorityHappinessChange>
 			<ConversionModifier>-20</ConversionModifier>
 			<HolyCity>true</HolyCity>
 			<HurryCostModifier>-1</HurryCostModifier>
@@ -117,7 +113,6 @@
 			<NukeImmune>true</NukeImmune>
 			<ConversionModifier>-20</ConversionModifier>
 			<HolyCity>true</HolyCity>
-			<MinorityHappinessChange>5</MinorityHappinessChange>
 			<HurryCostModifier>-1</HurryCostModifier>
 			<MinAreaSize>-1</MinAreaSize>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
@@ -140,7 +135,6 @@
 			<Strategy>TXT_KEY_BUILDING_SACRED_GARDEN_STRATEGY</Strategy>
 			<ArtDefineTag>TEMPLE</ArtDefineTag>
 			<NukeImmune>true</NukeImmune>
-			<MinorityHappinessChange>5</MinorityHappinessChange>
 			<ConversionModifier>-20</ConversionModifier>
 			<HolyCity>true</HolyCity>
 			<HurryCostModifier>-1</HurryCostModifier>
@@ -167,7 +161,6 @@
 			<NukeImmune>true</NukeImmune>
 			<ConversionModifier>-20</ConversionModifier>
 			<HolyCity>true</HolyCity>
-			<MinorityHappinessChange>5</MinorityHappinessChange>
 			<HurryCostModifier>-1</HurryCostModifier>
 			<MinAreaSize>-1</MinAreaSize>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
@@ -191,7 +184,6 @@
 			<ArtDefineTag>TEMPLE</ArtDefineTag>
 			<NukeImmune>true</NukeImmune>
 			<HolyCity>true</HolyCity>
-			<MinorityHappinessChange>5</MinorityHappinessChange>
 			<ConversionModifier>-20</ConversionModifier>
 			<HurryCostModifier>-1</HurryCostModifier>
 			<MinAreaSize>-1</MinAreaSize>
@@ -216,7 +208,6 @@
 			<ArtDefineTag>TEMPLE</ArtDefineTag>
 			<NukeImmune>true</NukeImmune>
 			<HolyCity>true</HolyCity>
-			<MinorityHappinessChange>5</MinorityHappinessChange>
 			<ConversionModifier>-20</ConversionModifier>
 			<HurryCostModifier>-1</HurryCostModifier>
 			<MinAreaSize>-1</MinAreaSize>

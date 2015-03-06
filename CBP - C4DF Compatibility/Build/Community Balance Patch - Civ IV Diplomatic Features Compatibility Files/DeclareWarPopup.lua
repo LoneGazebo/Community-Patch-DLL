@@ -175,8 +175,8 @@ function GatherData(RivalId, Text)
 			data.TheyDenouncedUsTurnsLeft = GameDefines.DENUNCIATION_EXPIRATION_TIME - rivalPlayer:GetDenouncedPlayerCounter(data.LeaderId);
 		end
 -- CBP
-		data.TheyHaveDefensivePact = rivalPlayer:IsHasDefensivePact(RivalId);
-		data.TheyHaveDefensivePactWithPlayer = rivalPlayer:IsHasDefensivePactWithPlayer(RivalId);
+		data.TheyHaveDefensivePact = rivalPlayer:IsHasDefensivePact(data.LeaderId);
+		data.TheyHaveDefensivePactWithPlayer = rivalPlayer:IsHasDefensivePactWithPlayer(data.LeaderId);
 -- END
 	end
 	

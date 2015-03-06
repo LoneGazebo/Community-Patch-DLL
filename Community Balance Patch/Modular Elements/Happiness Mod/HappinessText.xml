@@ -36,6 +36,10 @@
 		<Row Tag="TXT_KEY_EO_CITY_LOCAL_UNHAPPINESS">
 			<Text>Local [ICON_HAPPINESS_3] Unhappiness: [COLOR_NEGATIVE_TEXT]{1_NUM}[ENDCOLOR]</Text>
 		</Row>
+		<Row Tag="TXT_KEY_EO_CITY_RESISTANCE">
+			<Text>>[ICON_BULLET] [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] from Resistance.</Text>
+		</Row>
+
 		<Row Tag="TXT_KEY_PUPPET_UNHAPPINESS_MOD">
 			<Text>[ICON_BULLET] [ICON_PUPPET] Puppet Needs Modifier: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR]%.</Text>
 		</Row>
@@ -121,7 +125,7 @@
 		
 		<!-- Luxury Tooltip -->
 		<Row Tag="TXT_KEY_TP_HAPPINESS_THRESHOLD_VALUE">
-			<Text>[ENDCOLOR]To increase the [ICON_HAPPINESS_1] Happiness value of your Luxury Resources, your empire's population must reach [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR]. Your empire's current population is [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR]. The target value increases with every Era, and for every owned City.</Text>
+			<Text>[ENDCOLOR]Each of your Luxury Resources produces [COLOR_POSITIVE_TEXT]{3_Num}[ENDCOLOR] [ICON_HAPPINESS_1] Happiness. [NEWLINE]To increase this value, your Empire's Population must reach: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR][NEWLINE]Your Empire's current Population is: [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR] [NEWLINE]The target value increases with every Technology [ICON_RESEARCH] researched.</Text>
 		</Row>
 		
 		<Row Tag="TXT_KEY_EO_CITY_CONNECTED">

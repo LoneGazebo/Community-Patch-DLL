@@ -226,6 +226,10 @@ public:
 	int getProductionNeeded(ProcessTypes eProcess) const;
 	int getProductionTurnsLeft(ProcessTypes eProcess, int iNum) const;
 #endif
+#if defined(MOD_BALANCE_CORE)
+	void SetBuildingInvestment(BuildingClassTypes eBuildingClass, bool bValue);
+	bool IsBuildingInvestment(BuildingClassTypes eBuildingClass) const;
+#endif
 	int GetPurchaseCost(UnitTypes eUnit);
 	int GetFaithPurchaseCost(UnitTypes eUnit, bool bIncludeBeliefDiscounts);
 	int GetPurchaseCost(BuildingTypes eBuilding);
@@ -310,6 +314,9 @@ public:
 #endif
 #if defined(MOD_BALANCE_CORE)
 	bool IsNoWater() const;
+	int GetPurchaseCooldown() const;
+	void SetPurchaseCooldown(int iValue);
+	void ChangePurchaseCooldown(int iValue);
 #endif
 	int foodConsumption(bool bNoAngry = false, int iExtra = 0) const;
 	int foodDifference(bool bBottom = true) const;
@@ -1200,6 +1207,7 @@ protected:
 #if defined(MOD_BALANCE_CORE)
 	FAutoVariable<std::vector<int>, CvCity> m_aiChangeYieldFromVictory;
 	int m_iUnhappyCitizen;
+	int m_iPurchaseCooldown;
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
 	int m_iCityRank;
@@ -1300,6 +1308,7 @@ protected:
 	FAutoVariable<std::vector<bool>, CvCity> m_abYieldRankValid;
 #if defined(MOD_BALANCE_CORE)
 	FAutoVariable<std::vector<bool>, CvCity> m_abOwedChosenBuilding;
+	FAutoVariable<std::vector<bool>, CvCity> m_abBuildingInvestment;
 #endif
 
 	IDInfo m_combatUnit;		// The unit the city is in combat with

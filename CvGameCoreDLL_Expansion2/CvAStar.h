@@ -549,7 +549,11 @@ public:
 class CvIgnoreUnitsPathFinder: public CvAStar
 {
 public:
+#ifdef AUI_ASTAR_TURN_LIMITER
+	bool DoesPathExist(CvUnit& unit, CvPlot* pStartPlot, CvPlot* pEndPlot, int iTargetTurns=INT_MAX);
+#else
 	bool DoesPathExist(CvUnit& unit, CvPlot* pStartPlot, CvPlot* pEndPlot);
+#endif
 	CvPlot* GetLastOwnedPlot(CvPlot* pStartPlot, CvPlot* pEndPlot, PlayerTypes iOwner) const;
 	int GetPathLength();
 	CvPlot* GetPathFirstPlot() const;

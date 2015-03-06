@@ -313,6 +313,23 @@ void CvCityCitizens::DoTurn()
 				SetForcedAvoidGrowth(false);
 			}
 		}
+#if defined(MOD_BALANCE_CORE)
+		else if(MOD_BALANCE_CORE)  // we want production for settlers
+		{
+			const OrderData* pOrderNode = m_pCity->headOrderQueueNode();
+
+			if(pOrderNode != NULL && pOrderNode->eOrderType == ORDER_TRAIN)
+			{
+				CvUnitEntry* pkUnitInfo = GC.getUnitInfo((UnitTypes)pOrderNode->iData1);
+				if(pkUnitInfo && pkUnitInfo->IsFound())
+				{
+					SetFocusType(CITY_AI_FOCUS_TYPE_PRODUCTION);
+					SetNoAutoAssignSpecialists(false);
+					SetForcedAvoidGrowth(false);
+				}
+			}
+		}
+#endif
 		else if(m_pCity->getPopulation() < 5)  // we want a balanced growth
 		{
 			SetFocusType(NO_CITY_AI_FOCUS_TYPE);
@@ -2709,6 +2726,7 @@ int CvCityCitizens::GetSpecialistUpgradeThreshold(UnitClassTypes eUnitClass)
 	{
 #if defined(MOD_GLOBAL_TRULY_FREE_GP)
 		iNumCreated = GET_PLAYER(GetCity()->getOwner()).getGreatWritersCreated(MOD_GLOBAL_TRULY_FREE_GP);
+		iThreshold -= GC.getGWAM_THRESHOLD_DECREASE();
 #else
 		iNumCreated = GET_PLAYER(GetCity()->getOwner()).getGreatWritersCreated();
 #endif
@@ -2717,6 +2735,7 @@ int CvCityCitizens::GetSpecialistUpgradeThreshold(UnitClassTypes eUnitClass)
 	{
 #if defined(MOD_GLOBAL_TRULY_FREE_GP)
 		iNumCreated = GET_PLAYER(GetCity()->getOwner()).getGreatArtistsCreated(MOD_GLOBAL_TRULY_FREE_GP);
+		iThreshold -= GC.getGWAM_THRESHOLD_DECREASE();
 #else
 		iNumCreated = GET_PLAYER(GetCity()->getOwner()).getGreatArtistsCreated();
 #endif
@@ -2725,6 +2744,7 @@ int CvCityCitizens::GetSpecialistUpgradeThreshold(UnitClassTypes eUnitClass)
 	{
 #if defined(MOD_GLOBAL_TRULY_FREE_GP)
 		iNumCreated = GET_PLAYER(GetCity()->getOwner()).getGreatMusiciansCreated(MOD_GLOBAL_TRULY_FREE_GP);
+		iThreshold -= GC.getGWAM_THRESHOLD_DECREASE();
 #else
 		iNumCreated = GET_PLAYER(GetCity()->getOwner()).getGreatMusiciansCreated();
 #endif

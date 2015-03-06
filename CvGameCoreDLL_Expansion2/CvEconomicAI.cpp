@@ -995,6 +995,61 @@ void CvEconomicAI::ClearUnitTargetGoodyStepPlot(CvUnit* pUnit)
 }
 
 //	---------------------------------------------------------------------------
+#if defined(MOD_CORE_ALTERNATIVE_EXPLORE_SCORE)
+int CvEconomicAI::ScoreExplorePlot2(CvPlot* pPlot, TeamTypes eTeam, DomainTypes eDomainType, bool bEmbarked)
+{
+	int iResultValue = 0;
+	int iSmallScore = 1;
+	int iMediumScore = 50;
+	int iLargeScore = 100;
+
+	FAssertMsg(pPlot->isRevealed(eTeam), "Plot isn't revealed. This isn't good.");
+
+	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(pPlot);
+	for(int iCount=0; iCount<NUM_DIRECTION_TYPES; iCount++)
+	{
+		const CvPlot* pLoopPlot = aPlotsToCheck[iCount];
+
+		if(pLoopPlot != NULL)
+		{
+			//no value if revealed already
+			if(pLoopPlot->isRevealed(eTeam))
+				continue;
+
+			// "cheating" to look to see what the next tile is.
+			// a human should be able to do this by looking at the transition from the tile to the next
+			FeatureTypes eFeature = pLoopPlot->getFeatureType();
+			if (eDomainType==DOMAIN_LAND && !bEmbarked)
+			{
+				if (pLoopPlot->isWater() || pLoopPlot->isImpassable() || pLoopPlot->isMountain())
+					//we're not very interested in these "useless" plots
+					iResultValue += iSmallScore;
+				else if(eFeature != NO_FEATURE && GC.getFeatureInfo(eFeature)->getSeeThroughChange() > 0 && !pLoopPlot->isHills())
+					//flatland forest/jungle is meh
+					iResultValue += iMediumScore;
+				else
+					//the real deal - gives us a good view
+					iResultValue += iLargeScore;
+			}
+			else
+			{
+				if (!pLoopPlot->isWater() && !pLoopPlot->isImpassable() && !pLoopPlot->isMountain())
+					//we're here to find new land!
+					iResultValue += iLargeScore;
+				else if (pLoopPlot->getTerrainType()==TERRAIN_COAST)
+					//when there's coast, land is not far
+					iResultValue += iMediumScore;
+				else
+					iResultValue += iSmallScore;
+			}
+		}
+	}
+
+	return iResultValue;
+}
+#endif
+
+//	---------------------------------------------------------------------------
 int CvEconomicAI::ScoreExplorePlot(CvPlot* pPlot, TeamTypes eTeam, int iRange, DomainTypes eDomainType)
 {
 	int iResultValue = 0;
@@ -1264,7 +1319,7 @@ double CvEconomicAI::GetImprovedToImprovablePlotsRatio()
 		{
 			continue;
 		}
-#if defined(MOD_BALANCE_CORE)
+#if defined(MOD_BALANCE_CORE_SANE_IMPASSABILITY)
 		if(pPlot->isWater() || pPlot->isImpassable() || pPlot->isCity())
 #else
 		if(pPlot->isWater() || pPlot->isImpassable() || pPlot->isMountain() || pPlot->isCity())
@@ -1899,6 +1954,7 @@ void CvEconomicAI::DoHurry()
 														{
 															pUnit->setMoves(0);
 														}
+														pLoopCity->SetPurchaseCooldown(pkUnitEntry->GetCooldown());
 
 #if defined(MOD_EVENTS_CITY)
 														if (MOD_EVENTS_CITY) {
@@ -1934,7 +1990,11 @@ void CvEconomicAI::DoHurry()
 									{
 										//Log it
 										CvString strLogString;
+#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
+										strLogString.Format("MOD - Investing in building: %s in %s. Cost: %d, Balance (before buy): %d",
+#else
 										strLogString.Format("MOD - Buying building: %s in %s. Cost: %d, Balance (before buy): %d",
+#endif
 										pkBuildingInfo->GetDescription(), pLoopCity->getName().c_str(), iGoldCost, m_pPlayer->GetTreasury()->GetGold());
 										m_pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
 					
@@ -1942,15 +2002,25 @@ void CvEconomicAI::DoHurry()
 										m_pPlayer->GetTreasury()->ChangeGold(-iGoldCost);
 				
 										//and build it!
+#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
+										const BuildingClassTypes eBuildingClass = (BuildingClassTypes)(pkBuildingInfo->GetBuildingClassType());
+										pLoopCity->SetBuildingInvestment(eBuildingClass, true);
+#else
 										pLoopCity->CreateBuilding(eBuildingType);
-										
+#endif
+										pLoopCity->SetPurchaseCooldown(pkBuildingEntry->GetCooldown());
+#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
+#else										
 #if defined(MOD_EVENTS_CITY)
 										if (MOD_EVENTS_CITY) {
 											GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityConstructed, pLoopCity->getOwner(), pLoopCity->GetID(), eBuildingType, true, false);
 										}
 #endif
-
+#endif
+#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
+#else
 										pLoopCity->CleanUpQueue();
+#endif
 									}
 								}
 							}
@@ -1999,6 +2069,7 @@ void CvEconomicAI::DoHurry()
 														{
 															pUnit->setMoves(0);
 														}
+														pLoopCity->SetPurchaseCooldown(pkUnitEntry->GetCooldown());
 
 #if defined(MOD_EVENTS_CITY)
 														if (MOD_EVENTS_CITY) {
@@ -2512,7 +2583,7 @@ void CvEconomicAI::DisbandExtraWorkers()
 		{
 			continue;
 		}
-#if defined(MOD_BALANCE_CORE)
+#if defined(MOD_BALANCE_CORE_SANE_IMPASSABILITY)
 		if(pPlot->isWater() || pPlot->isImpassable() || pPlot->isCity())
 #else
 		if(pPlot->isWater() || pPlot->isImpassable() || pPlot->isMountain() || pPlot->isCity())
@@ -2801,10 +2872,15 @@ void CvEconomicAI::UpdatePlots()
 			eDomain = DOMAIN_SEA;
 		}
 
+#if defined(MOD_CORE_ALTERNATIVE_EXPLORE_SCORE)
+		int iScore = ScoreExplorePlot2(pPlot, ePlayerTeam, eDomain, false);
+#else
 		int iScore = ScoreExplorePlot(pPlot, ePlayerTeam, 1, eDomain);
+#endif
 
 #if defined(MOD_BALANCE_CORE_MILITARY_LOGGING)
-		result.push_back( SPlotWithScore(pPlot, iScore) );
+		if (MOD_BALANCE_CORE_MILITARY_LOGGING)
+			result.push_back( SPlotWithScore(pPlot, iScore) );
 #endif
 
 		if(iScore <= 0)
@@ -2825,9 +2901,8 @@ void CvEconomicAI::UpdatePlots()
 	}
 
 #if defined(MOD_BALANCE_CORE_MILITARY_LOGGING)
-	//bool bLogging = GC.getLogging() && GC.getAILogging() && m_pPlayer->isMajorCiv();
-	bool bLogging = false;
-	if (bLogging) 
+	bool bLogging = GC.getLogging() && GC.getAILogging() && m_pPlayer->isMajorCiv() && GC.getGame().getGameTurn()%4==0 && GC.getGame().getGameTurn()<200;
+	if (bLogging && MOD_BALANCE_CORE_MILITARY_LOGGING) 
 	{
 		CvString fname = CvString::format( "ExplorePlots_%s_%03d.txt", m_pPlayer->getCivilizationAdjective(), GC.getGame().getGameTurn() );
 		FILogFile* pLog=LOGFILEMGR.GetLog( fname.c_str(), FILogFile::kDontTimeStamp );
@@ -2958,7 +3033,12 @@ void CvEconomicAI::AssignExplorersToHuts()
 			for (uint i = uiListSize; i--; )	// Go backward, we want the lowest score (distance)
 			{
 				CvUnit* pUnit = aBestUnitList.GetElement(i);
+#ifdef AUI_ASTAR_TURN_LIMITER
+				bool bCanFindPath = kPathFinder.GenerateUnitPath(pUnit, pUnit->getX(), pUnit->getY(), pGoodyPlot->getX(), pGoodyPlot->getY(), 
+					MOVE_TERRITORY_NO_ENEMY | MOVE_MAXIMIZE_EXPLORE | MOVE_UNITS_IGNORE_DANGER /*iFlags*/, true/*bReuse*/, 10);
+#else
 				bool bCanFindPath = kPathFinder.GenerateUnitPath(pUnit, pUnit->getX(), pUnit->getY(), pGoodyPlot->getX(), pGoodyPlot->getY(), MOVE_TERRITORY_NO_ENEMY | MOVE_MAXIMIZE_EXPLORE | MOVE_UNITS_IGNORE_DANGER /*iFlags*/, true/*bReuse*/);
+#endif
 				if(bCanFindPath)
 				{
 					iUnitID = pUnit->GetID();
@@ -3025,7 +3105,12 @@ void CvEconomicAI::AssignHutsToExplorers()
 			if(iEstimateTurns < iClosestEstimateTurns)
 			{
 				// Now check path
+#ifdef AUI_ASTAR_TURN_LIMITER
+				bool bCanFindPath = GC.getPathFinder().GenerateUnitPath(pUnit, pUnit->getX(), pUnit->getY(), pGoodyPlot->getX(), pGoodyPlot->getY(), 
+					MOVE_TERRITORY_NO_ENEMY | MOVE_MAXIMIZE_EXPLORE | MOVE_UNITS_IGNORE_DANGER /*iFlags*/, true/*bReuse*/, 10);
+#else
 				bool bCanFindPath = GC.getPathFinder().GenerateUnitPath(pUnit, pUnit->getX(), pUnit->getY(), pGoodyPlot->getX(), pGoodyPlot->getY(), MOVE_TERRITORY_NO_ENEMY | MOVE_MAXIMIZE_EXPLORE | MOVE_UNITS_IGNORE_DANGER /*iFlags*/, true/*bReuse*/);
+#endif
 				if(bCanFindPath)
 				{
 					iClosestEstimateTurns = iEstimateTurns;

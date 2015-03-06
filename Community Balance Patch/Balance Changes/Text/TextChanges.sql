@@ -63,3 +63,21 @@
 	UPDATE Language_en_US
 	SET Text = '{1_Num} from Public Opinion (Ideological Pressure or War Weariness).'
 	WHERE Tag = 'TXT_KEY_TP_UNHAPPINESS_PUBLIC_OPINION' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );
+
+-- Building Purchased
+	UPDATE Language_en_US
+	SET Text = 'When you have enough [ICON_GOLD] Gold or [ICON_PEACE] Faith, you can spend it on units and buildings.'
+	WHERE Tag = 'TXT_KEY_CITYVIEW_PURCHASE_TT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );
+
+	UPDATE Language_en_US
+	SET Text = 'You can change city construction orders on the City Screen. You can also expend gold to purchase a unit (or invest in a building) on this screen as well. See the City Screen section for details.'
+	WHERE Tag = 'TXT_KEY_BUILDINGS_PURCHASING_HEADING3_BODY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );
+
+	UPDATE Language_en_US
+	SET Text = 'You can purchase units with gold, or invest gold in buildings to reduce their construction cost, from within your city screen. This can be helpful if you need something in a hurry, like additional units to defend against an invader.'
+	WHERE Tag = 'TXT_KEY_CITIES_PURCHASINGITEM_HEADING3_BODY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );
+
+	UPDATE Language_en_US
+	SET Text = ' You can spend gold to purchase units or invest in a building in a city. Click on a unit (if you can afford it!) and it will be immediately trained in the city, and the amount deducted from your treasury. If you click on a building, you will invest in it, reducing the production cost of the building by 50%.[NEWLINE][NEWLINE]Note that "projects" - the Manhattan Project, etc. - cannot be purchased.'
+	WHERE Tag = 'TXT_KEY_GOLD_PURCHASEUNITS_HEADING3_BODY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );
+	

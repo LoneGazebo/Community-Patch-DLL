@@ -337,6 +337,9 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(UnitClassAttackModifier);
 	Method(UnitClassDefenseModifier);
 	Method(UnitCombatModifier);
+#if defined(MOD_BALANCE_CORE)
+	Method(IsMounted);
+#endif
 	Method(DomainModifier);
 	Method(GetStrategicResourceCombatPenalty);
 	Method(GetUnhappinessCombatPenalty);
@@ -3268,9 +3271,23 @@ int CvLuaUnit::lUnitCombatModifier(lua_State* L)
 	const UnitCombatTypes eUnitCombat = (UnitCombatTypes)lua_tointeger(L, 2);
 
 	const int iResult = pkUnit->unitCombatModifier(eUnitCombat);
+	
 	lua_pushinteger(L, iResult);
 	return 1;
 }
+#if defined(MOD_BALANCE_CORE)
+//------------------------------------------------------------------------------
+int CvLuaUnit::lIsMounted(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	CvUnitEntry* pUnitInfo = GC.getUnitInfo(pkUnit->getUnitType());
+
+	const bool bResult = pUnitInfo->IsMounted();
+	
+	lua_pushboolean(L, bResult);
+	return 1;
+}	
+#endif
 //------------------------------------------------------------------------------
 //int domainModifier(int /*DomainTypes*/ eDomain);
 int CvLuaUnit::lDomainModifier(lua_State* L)

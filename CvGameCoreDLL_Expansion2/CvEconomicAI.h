@@ -172,6 +172,9 @@ public:
 	void ClearUnitTargetGoodyStepPlot(CvUnit* pUnit);
 
 	static int ScoreExplorePlot(CvPlot* pPlot, TeamTypes eTeam, int iRange, DomainTypes eDomainType);
+#if defined(MOD_CORE_ALTERNATIVE_EXPLORE_SCORE)
+	static int ScoreExplorePlot2(CvPlot* pPlot, TeamTypes eTeam, DomainTypes eDomainType, bool bEmbarked);
+#endif
 
 	void StartSaveForPurchase(PurchaseType ePurchase, int iAmount, int iPriority);
 	bool IsSavingForThisPurchase(PurchaseType ePurchase);

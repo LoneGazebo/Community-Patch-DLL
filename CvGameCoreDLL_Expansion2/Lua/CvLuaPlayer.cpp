@@ -357,6 +357,9 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetUnhappinessFromOccupiedCities);
 	Method(GetUnhappinessFromPuppetCityPopulation);
 	Method(GetUnhappinessFromPublicOpinion);
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+	Method(GetUnhappinessFromWarWeariness);
+#endif
 	Method(GetUnhappinessFromUnits);
 	Method(ChangeUnhappinessFromUnits);
 
@@ -698,6 +701,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 #if defined(MOD_BALANCE_CORE_HAPPINESS_LUXURY)
 	Method(GetPopNeededForLux);
 	Method(GetCurrentTotalPop);
+	Method(GetBaseLuxuryHappiness);
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
 	Method(CalculateUnhappinessTooltip);
@@ -3452,7 +3456,17 @@ int CvLuaPlayer::lGetUnhappinessFromPublicOpinion(lua_State* L)
 	lua_pushinteger(L, iResult);
 	return 1;
 }
-
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+//------------------------------------------------------------------------------
+//int GetUnhappinessFromWarWeariness() const;
+int CvLuaPlayer::lGetUnhappinessFromWarWeariness(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const int iResult = pkPlayer->GetCulture()->GetWarWeariness();
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+#endif
 //------------------------------------------------------------------------------
 //int GetUnhappinessFromUnits() const;
 int CvLuaPlayer::lGetUnhappinessFromUnits(lua_State* L)
@@ -7466,6 +7480,16 @@ int CvLuaPlayer::lGetCurrentTotalPop(lua_State* L)
 	lua_pushinteger(L, iResult);
 	return 1;
 }
+//------------------------------------------------------------------------------
+//int GetBaseLuxuryHappiness();
+int CvLuaPlayer::lGetBaseLuxuryHappiness(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+
+	const int iResult = pkPlayer->GetBaseLuxuryHappiness();
+	lua_pushinteger(L, iResult);
+	return 1;
+}
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
 //------------------------------------------------------------------------------
@@ -9268,7 +9292,7 @@ int CvLuaPlayer::lIsHasDefensivePact(lua_State* L)
 		PlayerTypes ePlayerLoop = (PlayerTypes) iPlayerLoop;
 		if(ePlayerLoop != eOtherPlayer && ePlayerLoop != NO_PLAYER && ePlayerLoop != pkPlayer->GetID())
 		{
-			if(GET_TEAM(GET_PLAYER(ePlayerLoop).getTeam()).IsHasDefensivePact(pkPlayer->getTeam()))
+			if(GET_TEAM(pkPlayer->getTeam()).IsHasDefensivePact(GET_PLAYER(ePlayerLoop).getTeam()))
 			{
 				bValue = true;
 				break;
@@ -9284,10 +9308,7 @@ int CvLuaPlayer::lIsHasDefensivePactWithPlayer(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	PlayerTypes eOtherPlayer = (PlayerTypes) lua_tointeger(L, 2);
-
-	const bool bValue = GET_TEAM(GET_PLAYER(eOtherPlayer).getTeam()).IsHasDefensivePact(pkPlayer->getTeam());
-
-	lua_pushboolean(L, bValue);
+	lua_pushboolean(L, GET_TEAM(pkPlayer->getTeam()).IsHasDefensivePact(GET_PLAYER(eOtherPlayer).getTeam()));
 	return 1;
 }
 #endif

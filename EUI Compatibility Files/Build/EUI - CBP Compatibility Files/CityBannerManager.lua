@@ -355,11 +355,22 @@ function g_toolTipHandler.BannerButton( control )
 				local iMinorityUnhappiness = city:GetUnhappinessFromMinority();
 				local iScienceUnhappiness = city:GetUnhappinessFromScience();
 				local iCultureUnhappiness = city:GetUnhappinessFromCulture();
+				local iResistanceUnhappiness = 0;
+				if(city:IsRazing()) then
+					iResistanceUnhappiness = (city:GetPopulation() / 4);
+				elseif(city:IsResistance()) then
+					iResistanceUnhappiness = (city:GetPopulation() / 4);
+				end
 			
-				local iTotalUnhappiness = iCultureUnhappiness + iDefenseUnhappiness	+ iGoldUnhappiness + iConnectionUnhappiness + iPillagedUnhappiness + iScienceUnhappiness + iStarvingUnhappiness + iMinorityUnhappiness;
+			
+				local iTotalUnhappiness = iCultureUnhappiness + iDefenseUnhappiness	+ iGoldUnhappiness + iConnectionUnhappiness + iPillagedUnhappiness + iScienceUnhappiness + iStarvingUnhappiness + iMinorityUnhappiness + iResistanceUnhappiness;
 
 				tipText = tipText .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_EO_CITY_LOCAL_UNHAPPINESS", iTotalUnhappiness);
 
+				-- Resistance tooltip
+				if (iResistanceUnhappiness ~= 0) then
+					tipText = tipText .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_EO_CITY_RESISTANCE", iResistanceUnhappiness);
+				end
 				-- Starving tooltip
 				if (iStarvingUnhappiness ~= 0) then
 					tipText = tipText .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_EO_CITY_STARVING", iStarvingUnhappiness);

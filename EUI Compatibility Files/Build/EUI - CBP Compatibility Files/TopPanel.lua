@@ -1222,8 +1222,9 @@ if civ5_mode then
 			-- Happiness/Population calculation.
 			local iPopulation = g_activePlayer:GetCurrentTotalPop()
 			local iPopNeeded = g_activePlayer:GetPopNeededForLux()
+			local iHappinessFromLuxury = g_activePlayer:GetBaseLuxuryHappiness();
 			if(iPopulation > 0) then
-				tips:insert( L("TXT_KEY_TP_HAPPINESS_THRESHOLD_VALUE", iPopNeeded, iPopulation))
+				tips:insert( L("TXT_KEY_TP_HAPPINESS_THRESHOLD_VALUE", iPopNeeded, iPopulation, iHappinessFromLuxury))
 			end
 --END CHANGE
 
@@ -1298,8 +1299,11 @@ if civ5_mode then
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_OCCUPIED_POPULATION", g_activePlayer:GetUnhappinessFromOccupiedCities() / 100 )
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_UNITS", g_activePlayer:GetUnhappinessFromUnits() / 100 )
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_POLICIES", math.min(policiesHappiness,0) )
-			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_PUBLIC_OPINION", bnw_mode and g_activePlayer:GetUnhappinessFromPublicOpinion() or 0 )
+			
 -- COMMUNITY PATCH CHANGES BELOW
+			local iUnhappinessPublicOpinion = g_activePlayer:GetUnhappinessFromPublicOpinion();
+			iUnhappinessPublicOpinion = iUnhappinessPublicOpinion + g_activePlayer:GetUnhappinessFromWarWeariness();
+			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_PUBLIC_OPINION", bnw_mode and iUnhappinessPublicOpinion or 0 )
 			local iUnhappinessFromStarving = g_activePlayer:GetUnhappinessFromCityStarving();
 			local iUnhappinessFromPillaged = g_activePlayer:GetUnhappinessFromCityPillaged();
 			local iUnhappinessFromGold = g_activePlayer:GetUnhappinessFromCityGold();
