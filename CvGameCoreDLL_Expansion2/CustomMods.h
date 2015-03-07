@@ -58,8 +58,6 @@
 #define AUI_GS_CONQUEST_FIX_CRAMPED
 /// Removes the check for a cultural grand strategy that's a holdover from pre-BNW when cultural victories were won through policies, not tourism
 #define AUI_ECONOMIC_FIX_EXPAND_LIKE_CRAZY_REMOVE_HOLDOVER_CULTURE_CHECK
-/// Early Expansion strategy is always active if the AI is the only player on a continent (well, until the good settling plots run out)
-#define AUI_ECONOMIC_EARLY_EXPANSION_ALWAYS_ACTIVE_IF_ALONE
 /// Priorities for sneak attack military units are no longer artificially inflated at the highest difficulty levels
 #define AUI_CITYSTRATEGY_CHOOSE_PRODUCTION_NO_HIGH_DIFFICULTY_SKEW
 /// The AI wants an expensive tech if it's selecting a free tech

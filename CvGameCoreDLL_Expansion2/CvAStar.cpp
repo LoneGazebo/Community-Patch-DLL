@@ -4450,6 +4450,20 @@ int TradeRouteWaterValid(CvAStarNode* parent, CvAStarNode* node, int data, const
 	return TRUE;
 }
 
+#if defined(MOD_BALANCE_CORE)
+//	--------------------------------------------------------------------------------
+/// trade route path finder - count path length
+int TradeRoutePathAdd(CvAStarNode* parent, CvAStarNode* node, int data, const void* pointer, CvAStar* finder)
+{
+	int	iTurns = (data == ASNC_INITIALADD) ? 1 : parent->m_iData2;
+
+	node->m_iData1 = 0;
+	node->m_iData2 = iTurns+1;
+
+	return 1;
+}
+#endif
+
 //	--------------------------------------------------------------------------------
 // Copy the supplied node and its parent nodes into an array of simpler path nodes for caching purposes.
 // It is ok to pass in NULL, the resulting array will contain zero elements

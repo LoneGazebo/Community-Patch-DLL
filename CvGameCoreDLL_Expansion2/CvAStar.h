@@ -98,6 +98,16 @@ public:
 	}
 #endif
 
+#if defined(MOD_BALANCE_CORE)
+	inline int GetPathLength()
+	{
+		if( udNotifyChild && GetLastNode() )
+			return GetLastNode()->m_iData2;
+		else
+			return -1;
+	}
+#endif
+
 	inline bool IsPathStart(int iX, int iY)
 	{
 		return ((m_iXstart == iX) && (m_iYstart == iY));
@@ -506,6 +516,9 @@ int TradeRouteLandPathCost(CvAStarNode* parent, CvAStarNode* node, int data, con
 int TradeRouteLandValid(CvAStarNode* parent, CvAStarNode* node, int data, const void* pointer, CvAStar* finder);
 int TradeRouteWaterPathCost(CvAStarNode* parent, CvAStarNode* node, int data, const void* pointer, CvAStar* finder);
 int TradeRouteWaterValid(CvAStarNode* parent, CvAStarNode* node, int data, const void* pointer, CvAStar* finder);
+#if defined(MOD_BALANCE_CORE)
+int TradeRoutePathAdd(CvAStarNode* parent, CvAStarNode* node, int data, const void* pointer, CvAStar* finder);
+#endif
 void UnitPathInitialize(const void* pointer, CvAStar* finder);
 void UnitPathUninitialize(const void* pointer, CvAStar* finder);
 void TradePathInitialize(const void* pointer, CvAStar* finder);

@@ -3416,7 +3416,7 @@ int CvPlot::countPassableLandNeighbors(CvPlot** aPassableNeighbors) const
 	return iPassable;
 }
 
-bool CvPlot::IsChokePoint()
+bool CvPlot::IsChokePoint() const
 {
 	//only passable land plots can be chokepoints
 	if(isWater() || isImpassable())
@@ -3425,8 +3425,7 @@ bool CvPlot::IsChokePoint()
 	CvPlot* aPassableNeighbors[NUM_DIRECTION_TYPES];
 	int iPassable = countPassableLandNeighbors(aPassableNeighbors);
 
-	//a plot is a chokepoint if it has between two and three passable land plots as neighbors
-	//(with four passable plots it's not a real chokepoint ...)
+	//a plot is a chokepoint if it has between two and four passable land plots as neighbors
 	if (iPassable<2 || iPassable>4)
 		return false;
 
@@ -3473,6 +3472,49 @@ bool CvPlot::IsChokePoint()
 
 	return false;
 }
+
+bool CvPlot::IsLandbridge(int iMinDistanceSaved, int iMinOceanSize) const
+{
+	//only passable land plots can be chokepoints
+	if(isWater() || isImpassable())
+		return false;
+
+	const CvPlot *pFirstPlot = 0, *pSecondPlot = 0;
+	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(this);
+	for(int iCount=0; iCount<NUM_DIRECTION_TYPES; iCount++)
+	{
+		const CvPlot* pLoopPlot = aPlotsToCheck[iCount];
+
+		if(pLoopPlot==NULL || !pLoopPlot->isWater())
+			continue;
+
+		pFirstPlot = pSecondPlot;
+		pSecondPlot = pLoopPlot;
+
+		if (pFirstPlot && pSecondPlot)
+		{
+			//don't use the pathfinder for direct neighbors
+			if(plotDistance(pFirstPlot->getX(), pFirstPlot->getY(), pSecondPlot->getX(), pSecondPlot->getY())<2)
+				continue;
+
+			//how useful is the shortcut is we could generate
+			if(GC.GetInternationalTradeRouteWaterFinder().GeneratePath(pFirstPlot->getX(), pFirstPlot->getY(), pSecondPlot->getX(), pSecondPlot->getY()))
+			{
+				if (GC.GetInternationalTradeRouteWaterFinder().GetPathLength()>=iMinDistanceSaved)
+					return true;
+			}
+			else
+			{
+				//no path found, perhaps it's two different oceans?
+				if (pFirstPlot->getArea()!=pSecondPlot->getArea() && pFirstPlot->area()->getNumTiles()>iMinOceanSize && pSecondPlot->area()->getNumTiles()>iMinOceanSize)
+					return true;
+			}
+		}
+	}
+
+	return false;
+}
+
 #endif
 //	--------------------------------------------------------------------------------
 void CvPlot::plotAction(PlotUnitFunc func, int iData1, int iData2, PlayerTypes eOwner, TeamTypes eTeam)
@@ -9039,13 +9081,13 @@ int CvPlot::GetExplorationBonus(const CvPlayer* pPlayer, const CvPlot* pRefPlot)
 	int iDistRef = pPlayer->GetCityDistance(pRefPlot);
 	
 	int iFertilityBonus = 0;
-	if ( pPlayer->GetFoundValueOfLastSettledCity()>0 )
-		iFertilityBonus = max(0, (getFoundValue(pPlayer->GetID())*100) / pPlayer->GetFoundValueOfLastSettledCity() );
+	if ( pPlayer->GetFoundValueOfCapital()>0 )
+		iFertilityBonus = max(0, (getFoundValue(pPlayer->GetID())*100) / pPlayer->GetFoundValueOfCapital() );
 
 	if (iDistToOwnCities>iDistRef)
-		return (iFertilityBonus*70)/100;
+		return iFertilityBonus;
 	else
-		return iFertilityBonus+1;
+		return iFertilityBonus+20;
 }
 
 #endif

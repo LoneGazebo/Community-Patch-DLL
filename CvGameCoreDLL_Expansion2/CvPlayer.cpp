@@ -557,7 +557,7 @@ CvPlayer::CvPlayer() :
 	m_pDangerPlots = FNEW(CvDangerPlots, c_eCiv5GameplayDLL, 0);
 #if defined(MOD_BALANCE_CORE_SETTLER)
 	m_pCityDistance = FNEW(CvDistanceMap, c_eCiv5GameplayDLL, 0);
-	m_iFoundValueOfLastSettledCity = 0;
+	m_iFoundValueOfCapital = 0;
 #endif
 	m_pCityConnections = FNEW(CvCityConnections, c_eCiv5GameplayDLL, 0);
 	m_pTreasury = FNEW(CvTreasury, c_eCiv5GameplayDLL, 0);
@@ -8345,13 +8345,15 @@ void CvPlayer::found(int iX, int iY)
 	}
 
 	SetTurnsSinceSettledLastCity(0);
+
 #if defined(MOD_BALANCE_CORE)
-	int iFoundValue = GC.getMap().plot(iX,iY)->getFoundValue(GetID());
-	if(MOD_BALANCE_CORE)
+	if (getCapitalCity()==NULL)
 	{
-		SetFoundValueOfLastSettledCity(iFoundValue);
+		int iFoundValue = GC.getMap().plot(iX,iY)->getFoundValue(GetID());
+		SetFoundValueOfCapital(iFoundValue);
 	}
 #endif
+
 #if defined(MOD_GLOBAL_RELIGIOUS_SETTLERS) && defined(MOD_API_EXTENSIONS)
 	CvCity* pCity = initCity(iX, iY, true, true, eReligion);
 #else
@@ -30261,7 +30263,7 @@ void CvPlayer::Read(FDataStream& kStream)
 #endif
 
 #if defined(MOD_BALANCE_CORE_SETTLER)
-	kStream >> m_iFoundValueOfLastSettledCity;
+	kStream >> m_iFoundValueOfCapital;
 #endif
 
 	if(GetID() < MAX_MAJOR_CIVS)
@@ -30837,7 +30839,7 @@ void CvPlayer::Write(FDataStream& kStream) const
 #endif
 
 #if defined(MOD_BALANCE_CORE_SETTLER)
-	kStream << m_iFoundValueOfLastSettledCity;
+	kStream << m_iFoundValueOfCapital;
 #endif
 }
 
@@ -31855,18 +31857,28 @@ int CvPlayer::GetNumNaturalWondersInOwnedPlots()
 //	--------------------------------------------------------------------------------
 #if defined(MOD_BALANCE_CORE)
 /// How good was the last city?
-void CvPlayer::SetFoundValueOfLastSettledCity(int iValue)
+void CvPlayer::SetFoundValueOfCapital(int iValue)
 {
-	if(m_iFoundValueOfLastSettledCity != iValue)
-		m_iFoundValueOfLastSettledCity = iValue;
+	if(m_iFoundValueOfCapital != iValue)
+		m_iFoundValueOfCapital = iValue;
 }
 
 //	--------------------------------------------------------------------------------
 /// How good was the last city?
-int CvPlayer::GetFoundValueOfLastSettledCity() const
+int CvPlayer::GetFoundValueOfCapital() const
 {
-	return m_iFoundValueOfLastSettledCity;
+	return m_iFoundValueOfCapital;
 }
+
+bool CvPlayer::HaveGoodSettlePlot(int iAreaID) const
+{
+	// Check if there are good plots to settle nearby
+	CvPlot* pBestSettlePlot = GetBestSettlePlot(NULL,true,iAreaID,NULL);
+	int iBestFoundValue = pBestSettlePlot ? pBestSettlePlot->getFoundValue( GetID() ) : 0;
+	int iRefFoundValue = GetFoundValueOfCapital();
+	return (iBestFoundValue > iRefFoundValue * GC.getAI_STRATEGY_EARLY_EXPANSION_RELATIVE_TILE_QUALITY() / 100 );
+}
+
 #endif
 //	--------------------------------------------------------------------------------
 /// How long ago did this guy last settle a city?
@@ -31968,7 +31980,7 @@ ostream& operator<<(ostream& os, const CvPlot* pPlot)
     return os;
 }
 
-CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, bool bEscorted, int iTargetArea, CvAIOperation* pOpToIgnore, bool bForceLogging)
+CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, bool bEscorted, int iTargetArea, CvAIOperation* pOpToIgnore, bool bForceLogging) const
 {
 	//--------
 	bool bLogging = GC.getLogging() && GC.getAILogging() && ( (GC.getGame().getGameTurn()%10==0) || bForceLogging ); 

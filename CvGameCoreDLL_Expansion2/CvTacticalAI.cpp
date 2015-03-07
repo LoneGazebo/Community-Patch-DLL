@@ -4233,27 +4233,29 @@ void CvTacticalAI::PlotSingleHexOperationMoves(CvAIEscortedOperation* pOperation
 		if(pCivilian->plot() != pOperation->GetTargetPlot())
 		{
 #if defined(MOD_BALANCE_CORE)
-			//todo: make sure to stay away from danger
-			bool bDanger = pCivilian->SentryAlert(true);
-			if (bDanger)
+			//make sure to stay away from danger
+			if ( m_pPlayer->GetPlotDanger( *pCivilian->plot() ) > 0 )
 			{
 				CvString msg = CvString::format("%s settler in danger at (%d,%d)", GET_PLAYER(pCivilian->getOwner()).getCivilizationAdjective(), pCivilian->getX(), pCivilian->getY() );
 				if (pEscort && pEscort->plot()!=pCivilian->plot())
 					msg += CvString::format(", escort at (%d,%d)", pEscort->getX(), pEscort->getY() );
 				msg += "\n";
 				OutputDebugString( msg );
-#if defined(MOD_BALANCE_CORE_SETTLER)
 				if (!pEscort || pEscort->plot()!=pCivilian->plot())
 					m_pPlayer->GetHomelandAI()->MoveCivilianToSafety(pCivilian.pointer());
-#endif
 			}
-#endif
+
+			int iFlags = 0;
+			if (pEscort && pEscort->plot()==pCivilian->plot())
+				iFlags = MOVE_UNITS_IGNORE_DANGER;
+#else
 			// Look at where we'd move this turn taking units into consideration
 			int iFlags = 0;
 			if(pThisArmy->GetNumSlotsFilled() > 1)
 			{
 				iFlags = MOVE_UNITS_IGNORE_DANGER;
 			}
+#endif
 
 			// Handle case of no path found at all for civilian
 			if(!pCivilian->GeneratePath(pOperation->GetTargetPlot(), iFlags, false /*bReuse*/))

@@ -2277,10 +2277,7 @@ void CvEconomicAI::DoReconState()
 	if (!bIsVenice)
 	{
 		// Need recon if there are no good plots to settle
-		CvPlot* pBestSettlePlot = GetPlayer()->GetBestSettlePlot( NULL, true, -1, NULL);
-		int iBestFoundValue = pBestSettlePlot ? pBestSettlePlot->getFoundValue( GetPlayer()->GetID() ) : 0;
-		int iLastFoundValue = GetPlayer()->GetFoundValueOfLastSettledCity();
-		if (iBestFoundValue < 0.5f * iLastFoundValue )
+		if (! GetPlayer()->HaveGoodSettlePlot(-1) )
 		{
 			//OutputDebugString( CvString::format("%s - no good settle plot: ratio %.2f (%08d vs %08d) - need more recon\n", 
 			//	GetPlayer()->getCivilizationDescription(), iBestFoundValue/(float)iLastFoundValue, iBestFoundValue, iLastFoundValue) );
@@ -3627,45 +3624,22 @@ bool EconomicAIHelpers::IsTestStrategy_EarlyExpansion(CvPlayer* pPlayer)
 		}
 	}
 
-#if defined(AUI_ECONOMIC_EARLY_EXPANSION_ALWAYS_ACTIVE_IF_ALONE)
-	// If we're the only ones on our continent, we use completely different logic
-	// to: check if we have met somebody else instead?
-	bool bAloneInArea = true;
-	CvPlot* pLoopPlot;
-	if (pPlayer->getCapitalCity())
-	{
-		int iStartArea = pPlayer->getCapitalCity()->getArea();
-		for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
-		{
-			pLoopPlot = GC.getMap().plotByIndexUnchecked(iI);
-			if (pLoopPlot->getArea() == iStartArea)
-			{
-				if (pLoopPlot->isOwned() && pLoopPlot->getOwner() != pPlayer->GetID() && !GET_PLAYER(pLoopPlot->getOwner()).isMinorCiv())
-				{
-					bAloneInArea = false;
-				}
-			}
-		}
-		if (bAloneInArea)
-		{
-			CvArea* pArea = GC.getMap().getArea(pPlayer->getCapitalCity()->getArea());
+#if defined(MOD_BALANCE_CORE_SETTLER)
 
-			// Is this area still one of the best to settle?
-			int iBestArea, iSecondBestArea;
-			pPlayer->GetBestSettleAreas(pPlayer->GetEconomicAI()->GetMinimumSettleFertility(), iBestArea, iSecondBestArea);
-			if (iBestArea == pArea->GetID())
-			{
-				// Check if there are good plots to settle nearby
-				CvPlot* pBestSettlePlot = pPlayer->GetBestSettlePlot(NULL,true,pArea->GetID(),NULL);
-				int iBestFoundValue = pBestSettlePlot ? pBestSettlePlot->getFoundValue( pPlayer->GetID() ) : 0;
-				int iLastFoundValue = pPlayer->GetFoundValueOfLastSettledCity();
-				if (iBestFoundValue > 0.5f * iLastFoundValue )
-					return true;
-			}
-		}
-	}
-#endif // AUI_ECONOMIC_EARLY_EXPANSION_ALWAYS_ACTIVE_IF_ALONE
+	// scale based on flavor and world size
+	const int iDefaultNumTiles = 80*52;
+	iDesiredCities = int( 0.5f + float(iDesiredCities * iFlavorExpansion * GC.getMap().numPlots()) / (max(iFlavorGrowth, 1) * iDefaultNumTiles));
 
+	int iSettlersOnMap = pPlayer->GetNumUnitsWithUnitAI(UNITAI_SETTLE, true);
+	int iNumCities = pPlayer->getNumCities() - pPlayer->GetNumPuppetCities();
+
+	if( (iNumCities+iSettlersOnMap) >= iDesiredCities )
+		return false;
+
+	if(pPlayer->getCapitalCity() && pPlayer->HaveGoodSettlePlot( pPlayer->getCapitalCity()->getArea() ) )
+		return true;
+
+#else
 	iDesiredCities = (iDesiredCities * iFlavorExpansion) / max(iFlavorGrowth, 1);
 	int iDifficulty = max(0,GC.getGame().getHandicapInfo().GetID() - 3);
 	iDesiredCities += iDifficulty;
@@ -3704,6 +3678,7 @@ bool EconomicAIHelpers::IsTestStrategy_EarlyExpansion(CvPlayer* pPlayer)
 			}
 		}
 	}
+#endif
 
 	return false;
 }

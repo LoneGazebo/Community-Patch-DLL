@@ -192,7 +192,8 @@ public:
 	int GetNumAdjacentMountains() const;
 #if defined(MOD_BALANCE_CORE_SETTLER)
 	int countPassableLandNeighbors(CvPlot** aPassableNeighbors) const;
-	bool IsChokePoint();
+	bool IsChokePoint() const;
+	bool IsLandbridge(int iMinDistanceSaved, int iMinOceanSize) const;
 #endif
 
 	void plotAction(PlotUnitFunc func, int iData1 = -1, int iData2 = -1, PlayerTypes eOwner = NO_PLAYER, TeamTypes eTeam = NO_TEAM);
