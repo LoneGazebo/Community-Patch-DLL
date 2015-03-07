@@ -4781,10 +4781,6 @@ void CvDealAI::DoAddItemsToDealForPeaceTreaty(PlayerTypes eOtherPlayer, CvDeal* 
 		// Just one city?
 		if (bGiveOnlyOneCity)
 		{
-#if defined(MOD_BALANCE_CORE_DEALS_ADVANCED)
-			//todo: check if city is in danger?
-			//todo: look at city value also, not only proximity
-#endif
 			iSortedCityID = viCityProximities.GetElement(viCityProximities.size() - 1);
 			pDeal->AddCityTrade(eLosingPlayer, iSortedCityID);
 		}
@@ -4805,19 +4801,11 @@ void CvDealAI::DoAddItemsToDealForPeaceTreaty(PlayerTypes eOtherPlayer, CvDeal* 
 				// City is worth less than what is left to be added to the deal, so add it
 				if(iCityValue < iCityValueToSurrender)
 				{
-#if defined(MOD_BALANCE_CORE_DEALS_ADVANCED)
-					if (MOD_BALANCE_CORE_DEALS_ADVANCED && iCityValue != -1)
-					{
-#endif
 					if(pDeal->IsPossibleToTradeItem(eLosingPlayer, eWinningPlayer, TRADE_ITEM_CITIES, pLoopCity->getX(), pLoopCity->getY()))
 					{
 						pDeal->AddCityTrade(eLosingPlayer, iSortedCityID);
 						iCityValueToSurrender -= iCityValue;
 					}
-#if defined(MOD_BALANCE_CORE_DEALS_ADVANCED)
-					}
-#endif
-
 				}
 			}
 		}
@@ -5222,19 +5210,15 @@ void CvDealAI::DoTradeScreenOpened()
 			pDeal->SetFromPlayer(eActivePlayer);	// The order of these is very important!
 			pDeal->SetToPlayer(eMyPlayer);	// The order of these is very important!
 
-#if defined(MOD_BALANCE_CORE_DEALS_ADVANCED)
-			if(MOD_BALANCE_CORE_DEALS_ADVANCED)
-			{
-				//assume a white peace to allow gold trading
-				pDeal->SetPeaceTreatyType(PEACE_TREATY_WHITE_PEACE);
-			}
-#endif
-
 			// AI is surrendering
 			if(ePeaceTreatyImWillingToOffer > PEACE_TREATY_WHITE_PEACE)
 			{
 				pkUIDeal->SetSurrenderingPlayer(eMyPlayer);
 				pkUIDeal->SetPeaceTreatyType(ePeaceTreatyImWillingToOffer);
+//#if defined(MOD_BALANCE_CORE_DEALS_ADVANCED)
+//				if(MOD_BALANCE_CORE_DEALS_ADVANCED)
+//					pDeal->SetPeaceTreatyType(ePeaceTreatyImWillingToOffer);
+//#endif
 
 				DoAddItemsToDealForPeaceTreaty(eActivePlayer, pDeal, ePeaceTreatyImWillingToOffer, /*bMeSurrendering*/ true);
 
@@ -5248,6 +5232,10 @@ void CvDealAI::DoTradeScreenOpened()
 			{
 				pkUIDeal->SetSurrenderingPlayer(eActivePlayer);
 				pkUIDeal->SetPeaceTreatyType(ePeaceTreatyImWillingToAccept);
+//#if defined(MOD_BALANCE_CORE_DEALS_ADVANCED)
+//				if(MOD_BALANCE_CORE_DEALS_ADVANCED)
+//					pDeal->SetPeaceTreatyType(ePeaceTreatyImWillingToAccept);
+//#endif
 
 				DoAddItemsToDealForPeaceTreaty(eActivePlayer, pDeal, ePeaceTreatyImWillingToAccept, /*bMeSurrendering*/ false);
 

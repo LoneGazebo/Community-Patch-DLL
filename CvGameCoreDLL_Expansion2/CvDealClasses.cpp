@@ -1660,11 +1660,11 @@ bool CvDeal::IsPeaceTreatyTrade(PlayerTypes eFrom)
 			return true;
 		}
 	}
-#if defined(MOD_BALANCE_CORE_DEALS)
-	return m_ePeaceTreatyType != NO_PEACE_TREATY_TYPE;
-#else
+//#if defined(MOD_BALANCE_CORE_DEALS)
+//	return m_ePeaceTreatyType != NO_PEACE_TREATY_TYPE;
+//#else
 	return 0;
-#endif
+//#endif
 }
 
 bool CvDeal::IsThirdPartyPeaceTrade(PlayerTypes eFrom, TeamTypes eThirdPartyTeam)

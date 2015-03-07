@@ -5266,10 +5266,7 @@ void CvPlayer::doTurnPostDiplomacy()
 
 			UpdatePlots();
 #if defined(MOD_BALANCE_CORE)
-			if(MOD_BALANCE_CORE)
-			{
-				UpdateDangerPlots();
-			}
+			UpdateDangerPlots();
 #else
 			m_pDangerPlots->UpdateDanger();
 #endif
