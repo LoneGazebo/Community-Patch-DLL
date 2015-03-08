@@ -427,9 +427,6 @@ void CvDiplomacyAI::Init(CvPlayer* pPlayer)
 	CvAssertMsg(!m_pDiploData, "MEMORY LEAK, CvDiplomacyAI::m_pDiploData");
 	m_pDiploData = FNEW(DiplomacyAIData, c_eCiv5GameplayDLL, 0);
 
-#if defined(MOD_BALANCE_CORE_DEALS)
-	m_iForcedMessage = 0;
-#endif
 	//Init array pointers
 	m_paDiploLogStatementTurnCountScratchPad = &m_pDiploData->m_aDiploLogStatementTurnCountScratchPad[0];
 	m_paeMajorCivOpinion = &m_pDiploData->m_aiMajorCivOpinion[0];
@@ -1156,9 +1153,6 @@ void CvDiplomacyAI::Reset()
 	m_eDemandTargetPlayer = NO_PLAYER;
 	m_bDemandReady = false;
 
-#if defined(MOD_BALANCE_CORE_DEALS)
-	m_iForcedMessage = -1;
-#endif
 	m_iVictoryCompetitiveness = -1;
 	m_iWonderCompetitiveness = -1;
 	m_iMinorCivCompetitiveness = -1;
@@ -1614,9 +1608,6 @@ void CvDiplomacyAI::Read(FDataStream& kStream)
 	kStream >> m_eDemandTargetPlayer;
 	kStream >> m_bDemandReady;
 
-#if defined(MOD_BALANCE_CORE_DEALS)
-	kStream >> m_iForcedMessage;
-#endif
 	kStream >> m_iVictoryCompetitiveness;
 	kStream >> m_iWonderCompetitiveness;
 	kStream >> m_iMinorCivCompetitiveness;
@@ -1935,9 +1926,7 @@ void CvDiplomacyAI::Write(FDataStream& kStream) const
 
 	kStream << m_eDemandTargetPlayer;
 	kStream << m_bDemandReady;
-#if defined(MOD_BALANCE_CORE_DEALS)
-	kStream << m_iForcedMessage;
-#endif
+
 	kStream << m_iVictoryCompetitiveness;
 	kStream << m_iWonderCompetitiveness;
 	kStream << m_iMinorCivCompetitiveness;
@@ -8028,6 +8017,13 @@ void CvDiplomacyAI::DoUpdatePlanningExchanges()
 	if(MOD_BALANCE_CORE_DEALS)
 	{
 		int iNumDPsWanted = GetNumDefensivePactsWanted();
+#if defined(DIPLOMACY_CITYSTATES_RESOLUTIONS)
+		//Halve this to encourage more DPs below.
+		if(DIPLOMACY_CITYSTATES_RESOLUTIONS && GetPlayer()->GetDefensePactsToVotes() > 0)
+		{
+			iNumDPsWanted /= 2;
+		}
+#endif
 
 		// Loop through all (known) Players
 		PlayerTypes eLoopPlayer;
@@ -8051,11 +8047,15 @@ void CvDiplomacyAI::DoUpdatePlanningExchanges()
 							{
 								if(GetPlayerMilitaryStrengthComparedToUs(eLoopPlayer) >= STRENGTH_AVERAGE)
 								{
-									if(GET_TEAM(GetPlayer()->getTeam()).isDefensivePactTradingAllowedWithTeam(GET_PLAYER(eLoopPlayer).getTeam()) ||	   // We have Tech & embassy to make a RA
-											GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).isDefensivePactTradingAllowed()) // They have Tech & embassy to make RA
+									//We don't want spam - let's limit this to the civ's loyalty metric (to prevent backstabs and to keep the AI from overcomitting).
+									if(iNumDPsWanted <= (GetPlayer()->GetDiplomacyAI()->GetLoyalty() / 2))
 									{
-											DoAddWantsDefensivePactWithPlayer(eLoopPlayer);
-											iNumDPsWanted++;	// This was calculated above, increment it by one since we know we've added another
+										if(GET_TEAM(GetPlayer()->getTeam()).isDefensivePactTradingAllowedWithTeam(GET_PLAYER(eLoopPlayer).getTeam()) ||	   // We have Tech & embassy to make a RA
+												GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).isDefensivePactTradingAllowed()) // They have Tech & embassy to make RA
+										{
+												DoAddWantsDefensivePactWithPlayer(eLoopPlayer);
+												iNumDPsWanted++;	// This was calculated above, increment it by one since we know we've added another
+										}
 									}
 								}
 							}
@@ -8072,6 +8072,10 @@ void CvDiplomacyAI::DoUpdatePlanningExchanges()
 						bCancel = true;
 					}
 					if(eOpinion < MAJOR_CIV_OPINION_FAVORABLE)
+					{
+						bCancel = true;
+					}
+					if(GetPlayerMilitaryStrengthComparedToUs(eLoopPlayer) < STRENGTH_AVERAGE)
 					{
 						bCancel = true;
 					}
@@ -17186,18 +17190,6 @@ void CvDiplomacyAI::DoBeginDiploWithHumanInDiscuss()
 	}
 }
 
-#if defined(MOD_BALANCE_CORE_DEALS)
-/// What should an AI leader say for a particular situation FORCED?
-void CvDiplomacyAI::SetForceDiplomaticMessage(int iValue)
-{
-	m_iForcedMessage = iValue;
-}
-/// What should an AI leader say for a particular situation FORCED?
-int CvDiplomacyAI::GetForceDiplomaticMessage()
-{
-	return m_iForcedMessage;
-}
-#endif
 /// What should an AI leader say for a particular situation?
 const char* CvDiplomacyAI::GetDiploStringForMessage(DiploMessageTypes eDiploMessage, PlayerTypes eForPlayer)
 {
@@ -17220,13 +17212,6 @@ const char* CvDiplomacyAI::GetDiploStringForMessage(DiploMessageTypes eDiploMess
 	EraTypes eCurrentEra = GC.getGame().getCurrentEra();
 #endif
 	const char* strText;
-#if defined(MOD_BALANCE_CORE_DEALS)
-	//Hacky way of getting around LUA errors where eForPlayer is -1!
-	if(MOD_BALANCE_CORE_DEALS && (GetForceDiplomaticMessage() != -1))
-	{
-		eDiploMessage = (DiploMessageTypes)GetForceDiplomaticMessage();
-	}
-#endif
 	switch(eDiploMessage)
 	{
 		//////////////////////////////////////////////////////////////
@@ -21287,6 +21272,27 @@ int CvDiplomacyAI::GetCoopWarScore(PlayerTypes ePlayer, PlayerTypes eTargetPlaye
 		else if(eOpinionTowardsPlayer >= MAJOR_CIV_OPINION_FAVORABLE)
 			iWeight += 2;
 	}
+#if defined(MOD_BALANCE_CORE_DIPLOMACY)
+	if(MOD_BALANCE_CORE_DIPLOMACY)
+	{
+		if(GetPlayer()->GetProximityToPlayer(eTargetPlayer) == PLAYER_PROXIMITY_NEIGHBORS)
+		{
+			iWeight += 3;
+		}
+		else if(GetPlayer()->GetProximityToPlayer(eTargetPlayer) == PLAYER_PROXIMITY_CLOSE)
+		{
+			iWeight += 1;
+		}
+		else if(GetPlayer()->GetProximityToPlayer(eTargetPlayer) == PLAYER_PROXIMITY_FAR)
+		{
+			iWeight -= 5;
+		}
+		else if(GetPlayer()->GetProximityToPlayer(eTargetPlayer) == PLAYER_PROXIMITY_DISTANT)
+		{
+			iWeight -= 10;
+		}
+	}
+#endif
 
 	// Weight for Approach
 	if(eApproachTowardsTarget == MAJOR_CIV_APPROACH_WAR)

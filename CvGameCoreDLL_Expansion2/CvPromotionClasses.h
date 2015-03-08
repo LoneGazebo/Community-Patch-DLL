@@ -128,6 +128,13 @@ public:
 	int GetTradeMissionGoldModifier() const;
 #if defined(MOD_BALANCE_CORE)
 	bool IsGainsXPFromScouting() const;
+	int NegatesPromotion() const;
+	bool CannotBeCaptured() const;
+	bool IsLostOnMove() const;
+	int ForcedDamageValue() const;
+	int ChangeDamageValue() const;
+	bool IsCityStateOnly() const;
+	bool IsBarbarianOnly() const;
 #endif
 	bool IsCannotBeChosen() const;
 	bool IsLostWithUpgrade() const;
@@ -323,6 +330,13 @@ protected:
 
 #if defined(MOD_BALANCE_CORE)
 	bool m_bGainsXPFromScouting;
+	bool m_bCannotBeCaptured;
+	int m_iNegatesPromotion;
+	int m_iForcedDamageValue;
+	int m_iChangeDamageValue;
+	bool m_bIsLostOnMove;
+	bool m_bCityStateOnly;
+	bool m_bBarbarianOnly;
 #endif
 	bool m_bCannotBeChosen;
 	bool m_bLostWithUpgrade;

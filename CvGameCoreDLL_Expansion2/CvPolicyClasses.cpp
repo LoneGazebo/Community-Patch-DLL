@@ -244,6 +244,9 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_piReligionYieldMod(NULL),
 	m_ppiReligionBuildingYieldMod(NULL),
 #endif
+#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
+	m_iInvestmentModifier(0),
+#endif
 	m_ppiImprovementYieldChanges(NULL),
 #if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
 	m_ppiPlotYieldChanges(NULL),
@@ -536,6 +539,9 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iInfluenceGPExpend = kResults.GetInt("InfluenceGPExpend");
 	m_iFreeTradeRoute = kResults.GetInt("FreeTradeRoute");
 	m_iFreeSpy = kResults.GetInt("FreeSpy");
+#endif
+#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
+	m_iInvestmentModifier = kResults.GetInt("InvestmentModifier");
 #endif
 	m_strWeLoveTheKingKey = kResults.GetText("WeLoveTheKing");
 	m_wstrWeLoveTheKing = GetLocalizedText(m_strWeLoveTheKingKey);
@@ -2439,6 +2445,12 @@ int CvPolicyEntry::GetReligionBuildingYieldMod(int i, int j) const
 	CvAssertMsg(j < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(j > -1, "Index out of bounds");
 	return m_ppiReligionBuildingYieldMod[i][j];
+}
+#endif
+#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
+int CvPolicyEntry::GetInvestmentModifier () const
+{
+	return m_iInvestmentModifier ;
 }
 #endif
 /// Yield modifier for a specific improvement by yield type

@@ -261,6 +261,9 @@ public:
 	int GetFreePopulation() const;
 	int GetExtraMoves() const;
 #endif
+#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
+	int GetInvestmentModifier() const;
+#endif
 	int GetImprovementYieldChanges(int i, int j) const;
 #if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
 	int GetPlotYieldChanges(int i, int j) const;
@@ -550,6 +553,9 @@ private:
 	int* m_piConquerorYield;
 	int* m_piReligionYieldMod;
 	int** m_ppiReligionBuildingYieldMod;
+#endif
+#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
+	int m_iInvestmentModifier;
 #endif
 //	bool* m_pabHurry;
 	bool* m_pabSpecialistValid;

@@ -26,6 +26,11 @@
 	SET PrereqTech = 'TECH_POTTERY'
 	WHERE Type = 'UNIT_SETTLER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
+	-- Increase Flavor
+	UPDATE Unit_Flavors
+	SET Flavor = '30'
+	WHERE UnitType = 'UNIT_SETTLER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
 -- Workers Reduced Work Rate to slow down early growth
 	UPDATE Units
 	SET WorkRate = '90'
@@ -659,6 +664,12 @@
 	UPDATE Units
 	SET RangedCombat = '40'
 	WHERE Type = 'UNIT_ARTILLERY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	-- Ranged mounted units should have mounted trait in spite of not being in mounted combatclass
+
+	UPDATE Units
+	SET IsMounted = 'true'
+	WHERE CombatClass = 'UNITCOMBAT_ARCHER' AND Moves >= 3 AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 
 -- NAVAL UNITS

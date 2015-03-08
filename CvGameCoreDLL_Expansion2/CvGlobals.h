@@ -7465,6 +7465,14 @@ public:
 	{
 		return m_iOPINION_WEIGHT_DP;
 	}
+	inline int getGWAM_THRESHOLD_DECREASE()
+	{
+		return m_iGWAM_THRESHOLD_DECREASE;
+	}
+	inline int getBALANCE_BUILDING_INVESTMENT_BASELINE()
+	{
+		return m_iBALANCE_BUILDING_INVESTMENT_BASELINE;
+	}
 #endif
 
 	// -- floats --
@@ -10640,6 +10648,8 @@ protected:
 	int m_iOPINION_WEIGHT_DP_WITH_ENEMY;
 	int m_iOPINION_WEIGHT_DP_WITH_FRIEND;
 	int m_iOPINION_WEIGHT_DP;
+	int m_iGWAM_THRESHOLD_DECREASE;
+	int m_iBALANCE_BUILDING_INVESTMENT_BASELINE;
 #endif
 	// -- floats --
 

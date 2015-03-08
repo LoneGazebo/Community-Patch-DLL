@@ -1885,18 +1885,15 @@ void CvEconomicAI::DoHurry()
 
 	if(IsSavingForThisPurchase(PURCHASE_TYPE_UNIT_UPGRADE) || IsSavingForThisPurchase(PURCHASE_TYPE_TILE) || IsSavingForThisPurchase(PURCHASE_TYPE_MINOR_CIV_GIFT))
 	{
-		return;
+		iTreasuryBuffer *= 2;
 	}
 	
 	//Let's check our average income over five-turn periods
-	int iInterval = 5;
-
 	CvTreasury* pTreasury = m_pPlayer->GetTreasury();
 
 	//Are we in debt? Doesn't matter if we are super rich!
-	if((pTreasury->GetGold() > iTreasuryBuffer && pTreasury->AverageIncome(iInterval) >= 1) || (pTreasury->GetGold() > iTreasuryBuffer + 2000))
+	if((pTreasury->GetGold() > iTreasuryBuffer && pTreasury->CalculateBaseNetGoldTimes100() > 0) || (pTreasury->GetGold() > (iTreasuryBuffer * 2)))
 	{
-
 		// Look at each of our cities
 		for(CvCity* pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 		{
@@ -1957,6 +1954,7 @@ void CvEconomicAI::DoHurry()
 														{
 															pUnit->setMoves(0);
 														}
+														pLoopCity->SetPurchaseCooldown(pkUnitEntry->GetCooldown());
 
 #if defined(MOD_EVENTS_CITY)
 														if (MOD_EVENTS_CITY) {
@@ -1992,7 +1990,11 @@ void CvEconomicAI::DoHurry()
 									{
 										//Log it
 										CvString strLogString;
+#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
+										strLogString.Format("MOD - Investing in building: %s in %s. Cost: %d, Balance (before buy): %d",
+#else
 										strLogString.Format("MOD - Buying building: %s in %s. Cost: %d, Balance (before buy): %d",
+#endif
 										pkBuildingInfo->GetDescription(), pLoopCity->getName().c_str(), iGoldCost, m_pPlayer->GetTreasury()->GetGold());
 										m_pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
 					
@@ -2000,15 +2002,25 @@ void CvEconomicAI::DoHurry()
 										m_pPlayer->GetTreasury()->ChangeGold(-iGoldCost);
 				
 										//and build it!
+#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
+										const BuildingClassTypes eBuildingClass = (BuildingClassTypes)(pkBuildingInfo->GetBuildingClassType());
+										pLoopCity->SetBuildingInvestment(eBuildingClass, true);
+#else
 										pLoopCity->CreateBuilding(eBuildingType);
-										
+#endif
+										pLoopCity->SetPurchaseCooldown(pkBuildingEntry->GetCooldown());
+#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
+#else										
 #if defined(MOD_EVENTS_CITY)
 										if (MOD_EVENTS_CITY) {
 											GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityConstructed, pLoopCity->getOwner(), pLoopCity->GetID(), eBuildingType, true, false);
 										}
 #endif
-
+#endif
+#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
+#else
 										pLoopCity->CleanUpQueue();
+#endif
 									}
 								}
 							}
@@ -2057,6 +2069,7 @@ void CvEconomicAI::DoHurry()
 														{
 															pUnit->setMoves(0);
 														}
+														pLoopCity->SetPurchaseCooldown(pkUnitEntry->GetCooldown());
 
 #if defined(MOD_EVENTS_CITY)
 														if (MOD_EVENTS_CITY) {

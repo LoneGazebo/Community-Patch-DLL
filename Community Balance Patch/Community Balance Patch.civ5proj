@@ -7,7 +7,7 @@
     <Guid>8411a7a8-dad3-4622-a18e-fcc18324c799</Guid>
     <ModVersion>13</ModVersion>
     <Stability>Beta</Stability>
-    <Teaser>The Complete Civ 5 Experience (2/27)</Teaser>
+    <Teaser>The Complete Civ 5 Experience (3/6)</Teaser>
     <Description>Community Balance Patch - Contains balance changes and gameplay improvements to make Civ V a more enjoyable and exciting game.</Description>
     <Authors>Civfanatics Community Balance Team</Authors>
     <SpecialThanks>
@@ -746,6 +746,31 @@
         <Type>UpdateDatabase</Type>
         <FileName>Balance Changes/AI/Diplomacy/AIChanges.sql</FileName>
       </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>Balance Changes/Buildings/BuildingCooldowns.sql</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>Balance Changes/Units/UnitCooldowns.sql</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>Modular Elements/Happiness Mod/BuildingHappinessMods.sql</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>Balance Changes/Units/UnitBuildingPurchaseRequired.sql</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>Balance Changes/Buildings/BuildingHurryCosts.sql</FileName>
+      </Action>
     </ModActions>
     <Homepage>
     </Homepage>
@@ -1183,6 +1208,14 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
+    <Content Include="Balance Changes\Buildings\BuildingCooldowns.sql">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="Balance Changes\Buildings\BuildingHurryCosts.sql">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
     <Content Include="Balance Changes\Buildings\NationalWonderChanges.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
@@ -1507,6 +1540,14 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
+    <Content Include="Balance Changes\Units\UnitBuildingPurchaseRequired.sql">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="Balance Changes\Units\UnitCooldowns.sql">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
     <Content Include="Balance Changes\Units\LeftOverUnits.sql">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
@@ -1688,6 +1729,10 @@
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
     <Content Include="Modular Elements\Happiness Mod\CityHappiness.sql">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="Modular Elements\Happiness Mod\BuildingHappinessMods.sql">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>

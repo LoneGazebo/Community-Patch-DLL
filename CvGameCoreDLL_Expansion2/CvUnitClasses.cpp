@@ -131,9 +131,12 @@ CvUnitEntry::CvUnitEntry(void) :
 	m_pbBuildingClassRequireds(NULL),
 #if defined(MOD_BALANCE_CORE)
 	m_pbBuildOnFound(NULL),
+	m_pbBuildingClassPurchaseRequireds(NULL),
 	m_iResourceType(NO_RESOURCE),
 	m_bPuppetPurchaseOverride(false),
 	m_bMinorCivGift(false),
+	m_bIsMounted(false),
+	m_iCooldown(0),
 #endif
 	m_piPrereqAndTechs(NULL),
 	m_piResourceQuantityRequirements(NULL),
@@ -168,6 +171,7 @@ CvUnitEntry::~CvUnitEntry(void)
 	SAFE_DELETE_ARRAY(m_pbBuildingClassRequireds);
 #if defined(MOD_BALANCE_CORE)
 	SAFE_DELETE_ARRAY(m_pbBuildOnFound);
+	SAFE_DELETE_ARRAY(m_pbBuildingClassPurchaseRequireds);
 #endif
 	SAFE_DELETE_ARRAY(m_piPrereqAndTechs);
 	SAFE_DELETE_ARRAY(m_piResourceQuantityRequirements);
@@ -323,6 +327,10 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 
 	m_bPuppetPurchaseOverride = kResults.GetBool("PuppetPurchaseOverride");
 	m_bMinorCivGift = kResults.GetBool("MinorCivGift");
+
+	m_iCooldown = kResults.GetInt("PurchaseCooldown");
+
+	m_bIsMounted = kResults.GetBool("IsMounted");
 #endif
 
 #if defined(MOD_EVENTS_CAN_MOVE_INTO)
@@ -395,6 +403,7 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 #if defined(MOD_BALANCE_CORE)
 	if (MOD_BALANCE_CORE) {
 		kUtility.PopulateArrayByExistence(m_pbBuildOnFound, "BuildingClasses", "Unit_BuildOnFound", "BuildingClassType", "UnitType", szUnitType);
+		kUtility.PopulateArrayByExistence(m_pbBuildingClassPurchaseRequireds, "BuildingClasses", "Unit_BuildingClassPurchaseRequireds", "BuildingClassType", "UnitType", szUnitType);
 	}
 #endif
 	//TechTypes
@@ -1248,6 +1257,13 @@ bool CvUnitEntry::GetBuildOnFound(int i) const
 	CvAssertMsg(i > -1, "Index out of bounds");
 	return m_pbBuildOnFound? m_pbBuildOnFound[i] : false;
 }
+/// Does this Unit need a certain BuildingClass in this City to purchase?
+bool CvUnitEntry::GetBuildingClassPurchaseRequireds(int i) const
+{
+	CvAssertMsg(i < GC.getNumBuildingClassInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_pbBuildingClassPurchaseRequireds ? m_pbBuildingClassPurchaseRequireds[i] : false;
+}
 #endif
 
 /// Initial set of promotions for this unit
@@ -1339,6 +1355,16 @@ bool CvUnitEntry::IsPuppetPurchaseOverride() const
 bool CvUnitEntry::IsMinorCivGift() const
 {
 	return m_bMinorCivGift;
+}
+/// Is mounted
+bool CvUnitEntry::IsMounted() const
+{
+	return m_bIsMounted;
+}
+/// Purchase cooldown for this unit.
+int CvUnitEntry::GetCooldown() const
+{
+	return m_iCooldown;
 }
 #endif
 /// What flag icon to use

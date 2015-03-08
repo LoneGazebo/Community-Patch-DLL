@@ -744,9 +744,8 @@ function UpdateDisplay()
 			Controls.SwitchIdeologyButton:SetDisabled(false);	
 			local ePreferredIdeology = player:GetPublicOpinionPreferredIdeology();
 			local strPreferredIdeology = GameInfo.PolicyBranchTypes[ePreferredIdeology].Description;
-		    strChangeIdeologyTooltip = Locale.ConvertTextKey("TXT_KEY_POLICYSCREEN_CHANGE_IDEOLOGY_TT", strPreferredIdeology, (-1 * iUnhappiness), 2);
-		    
-		    Controls.SwitchIdeologyButton:RegisterCallback(Mouse.eLClick, function()
+			strChangeIdeologyTooltip = Locale.ConvertTextKey("TXT_KEY_POLICYSCREEN_CHANGE_IDEOLOGY_TT", strPreferredIdeology, (-1 * iUnhappiness), 2);
+			Controls.SwitchIdeologyButton:RegisterCallback(Mouse.eLClick, function()
 					ChooseChangeIdeology();
 			end);
 		else

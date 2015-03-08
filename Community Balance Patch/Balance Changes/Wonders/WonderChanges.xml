@@ -109,7 +109,6 @@
 			<Quote>TXT_KEY_WONDER_STATUE_ZEUS_QUOTE</Quote>
 			<ArtDefineTag>STATUE ZEUS</ArtDefineTag>
 			<MaxStartEra>ERA_CLASSICAL</MaxStartEra>
-			<DefenseHappinessChangeGlobal>2</DefenseHappinessChangeGlobal>
 			<NukeImmune>true</NukeImmune>
 			<HurryCostModifier>-1</HurryCostModifier>
 			<MinAreaSize>-1</MinAreaSize>

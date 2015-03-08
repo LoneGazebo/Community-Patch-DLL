@@ -1426,6 +1426,10 @@ public:
 	void changeBuildingClassCultureChange(BuildingClassTypes eIndex, int iChange);
 	
 #endif
+#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
+	int GetInvestmentModifier() const;
+	void changeInvestmentModifier(int iChange);
+#endif
 	int getCapitalYieldRateModifier(YieldTypes eIndex) const;
 	void changeCapitalYieldRateModifier(YieldTypes eIndex, int iChange);
 
@@ -2298,6 +2302,9 @@ protected:
 	int m_iFreeTradeRoute;
 	int m_iFreeSpy;
 	int m_iTradeReligionModifier;
+#endif
+#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
+	int m_iInvestmentModifier;
 #endif
 	FAutoVariable<int, CvPlayer> m_iMaxGlobalBuildingProductionModifier;
 	FAutoVariable<int, CvPlayer> m_iMaxTeamBuildingProductionModifier;

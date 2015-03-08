@@ -898,6 +898,13 @@ local function getHelpTextForBuilding( buildingID, bExcludeName, bExcludeHeader,
 
 		-- player production cost
 		productionCost = activePlayer:GetBuildingProductionNeeded( buildingID )
+-- CBP
+		if (city ~= nil) then
+			if(city:GetBuildingInvestment(buildingID) > 0) then
+				productionCost = city:GetBuildingInvestment(buildingID);
+			end
+		end
+-- END
 		if civ5_mode then
 			-- player extra happiness
 			happinessChange = happinessChange + activePlayer:GetExtraBuildingHappinessFromPolicies( buildingID )
@@ -917,7 +924,15 @@ local function getHelpTextForBuilding( buildingID, bExcludeName, bExcludeHeader,
 	local tip, items, item, condition
 	-- Name
 	local tips = table( BuildingColor( Locale.ToUpper( building.Description ) ) )
-
+-- CBP
+	if (city ~= nil) then
+		if(city:GetBuildingInvestment(buildingID) > 0) then
+			if tips then
+				tips:insert( L"TXT_KEY_INVESTED")
+			end
+		end
+	end
+-- END
 	-- Other tags
 	for k,v in pairs(building) do
 		if v then
@@ -1616,6 +1631,16 @@ local function getHelpTextForBuilding( buildingID, bExcludeName, bExcludeHeader,
 	end
 
 	-- Pre-written Help text
+-- CBP
+	if (city ~= nil) then
+		local iAmount = GameDefines.BALANCE_BUILDING_INVESTMENT_BASELINE;
+		iAmount = (iAmount * -1);
+		local iWonderAmount = (iAmount / 2);
+		if(iAmount > 0) then
+			tips:append( ( "[NEWLINE]" .. L("TXT_KEY_PRODUCTION_INVESTMENT_BUILDING", iAmount, iWonderAmount) ) )
+		end
+	end
+-- END
 	return AddPreWrittenHelpTextAndConcat( tips, building )
 end
 

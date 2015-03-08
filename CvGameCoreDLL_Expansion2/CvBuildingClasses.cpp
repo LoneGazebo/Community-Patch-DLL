@@ -49,6 +49,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_iGrantsRandomResourceTerritory(0),
 	m_bPuppetPurchaseOverride(false),
 	m_bAllowsPuppetPurchase(false),
+	m_iGetCooldown(0),
 #endif
 	m_iSpecialistType(NO_SPECIALIST),
 	m_iSpecialistCount(0),
@@ -604,6 +605,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_iGrantsRandomResourceTerritory = kResults.GetInt("GrantsRandomResourceTerritory");
 	m_bPuppetPurchaseOverride = kResults.GetBool("PuppetPurchaseOverride");
 	m_bAllowsPuppetPurchase = kResults.GetBool("AllowsPuppetPurchase");
+	m_iGetCooldown = kResults.GetInt("PurchaseCooldown");
 #endif
 
 	szTextVal = kResults.GetText("SpecialistType");
@@ -1032,6 +1034,11 @@ bool CvBuildingEntry::IsPuppetPurchaseOverride() const
 bool CvBuildingEntry::IsAllowsPuppetPurchase() const
 {
 	return m_bAllowsPuppetPurchase;
+}
+/// Does this building have a cooldown cost when purchased?
+int CvBuildingEntry::GetCooldown() const
+{
+	return m_iGetCooldown;
 }
 #endif
 /// What SpecialistType is allowed by this Building

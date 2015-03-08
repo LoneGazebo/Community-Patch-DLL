@@ -159,5 +159,13 @@ SET Value = '0'
 WHERE Name = 'GLOBAL_PASSABLE_FORTS_ANY';
 
 UPDATE CustomModOptions
-SET Value = '0'
+SET Value = '1'
 WHERE Name = 'GLOBAL_CS_RAZE_RARELY';
+
+UPDATE CustomModOptions
+SET Value = '1'
+WHERE Name = 'GLOBAL_CS_LIBERATE_AFTER_BUYOUT';
+
+UPDATE CustomModOptions
+SET Value = '1'
+WHERE Name = 'BALANCE_CORE_BUILDING_INVESTMENTS';

@@ -116,6 +116,13 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 		if (not bExcludeName) then
 			-- Name
 			strHelpText = strHelpText .. Locale.ToUpper(Locale.ConvertTextKey( pBuildingInfo.Description ));
+-- CBP
+			if (pCity ~= nil) then
+				if(pCity:GetBuildingInvestment(iBuildingID) > 0) then
+				strHelpText = strHelpText .. Locale.ConvertTextKey("TXT_KEY_INVESTED");
+				end
+			end
+-- END
 			strHelpText = strHelpText .. "[NEWLINE]----------------[NEWLINE]";
 		end
 		
@@ -123,6 +130,13 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 		--Only show cost info if the cost is greater than 0.
 		if(pBuildingInfo.Cost > 0) then
 			local iCost = pActivePlayer:GetBuildingProductionNeeded(iBuildingID);
+-- CBP
+			if (pCity ~= nil) then
+				if(pCity:GetBuildingInvestment(iBuildingID) > 0) then
+					iCost = pCity:GetBuildingInvestment(iBuildingID);
+				end
+			end
+-- END
 			table.insert(lines, Locale.ConvertTextKey("TXT_KEY_PRODUCTION_COST", iCost));
 		end
 		
@@ -342,7 +356,17 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 			strHelpText = strHelpText .. strWrittenHelpText;
 		end
 	end
-	
+-- CBP
+	if (pCity ~= nil) then
+		local iAmount = GameDefines.BALANCE_BUILDING_INVESTMENT_BASELINE;
+		iAmount = (iAmount * -1);
+		local iWonderAmount = (iAmount / 2);
+		local localizedText = Locale.ConvertTextKey("TXT_KEY_PRODUCTION_INVESTMENT_BUILDING", iAmount, iWonderAmount);
+		-- Separator
+		strHelpText = strHelpText .. "[NEWLINE]----------------[NEWLINE]";
+		strHelpText = strHelpText .. localizedText;
+	end
+-- END	
 	return strHelpText;
 	
 end

@@ -912,6 +912,17 @@ void CvCityStrategyAI::ChooseProduction(bool bUseAsyncRandom, BuildingTypes eIgn
 
 			iTempWeight = m_pBuildingProductionAI->GetWeight(eLoopBuilding);
 
+#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
+			if(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
+			{
+				const BuildingClassTypes eBuildingClass = (BuildingClassTypes)(pkBuildingInfo->GetBuildingClassType());
+				if(GetCity()->IsBuildingInvestment(eBuildingClass))
+				{
+					iTempWeight *= 4;
+				}
+			}
+#endif
+
 			// Don't build the UN if you aren't going for the diplo victory
 			if(pkBuildingInfo->IsDiplomaticVoting())
 			{
@@ -1300,10 +1311,32 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry()
 
 			iTempWeight = m_pBuildingProductionAI->GetWeight(eLoopBuilding);
 
-			//Cannot purchase wonders!
+			//Cannot purchase wonders!		
 			const CvBuildingClassInfo& kBuildingClassInfo = pkBuildingInfo->GetBuildingClassInfo();
+#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
+			//If we've invested in a national or world wonder anywhere in our empire, zero out the weight
+			CvCity* pLoopCity = NULL;
+			int iLoop;
+			for(pLoopCity = GET_PLAYER(m_pCity->getOwner()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(m_pCity->getOwner()).nextCity(&iLoop))
+			{
+				if(pLoopCity != NULL)
+				{
+					if(isWorldWonderClass(kBuildingClassInfo) || isTeamWonderClass(kBuildingClassInfo) || isNationalWonderClass(kBuildingClassInfo) || isLimitedWonderClass(kBuildingClassInfo))
+					{
+						const BuildingClassTypes eBuildingClass = (BuildingClassTypes)(pkBuildingInfo->GetBuildingClassType());
+						if(pLoopCity->IsBuildingInvestment(eBuildingClass))
+						{
+							iTempWeight = 0;
+							break;
+						}
+					}
+				}
+			}
 
+			if(pkBuildingInfo->GetHurryCostModifier() == -1)
+#else
 			if(isWorldWonderClass(kBuildingClassInfo) || isTeamWonderClass(kBuildingClassInfo) || isNationalWonderClass(kBuildingClassInfo) || isLimitedWonderClass(kBuildingClassInfo))
+#endif
 			{
 				iTempWeight = 0;
 			}

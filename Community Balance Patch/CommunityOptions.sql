@@ -30,6 +30,18 @@ INSERT INTO COMMUNITY (Type, Value)
 VALUES ('COMMUNITY_CORE_BALANCE_BUILDINGS', 1);
 
 /*
+Enable/Disable Building and Unit Gold purchase cooldown values
+1 = Enabled (Default)
+0 = Disabled 
+*/
+
+INSERT INTO COMMUNITY (Type, Value)
+VALUES ('COMMUNITY_CORE_BALANCE_BUILDINGS_COOLDOWN', 1);
+
+INSERT INTO COMMUNITY (Type, Value)
+VALUES ('COMMUNITY_CORE_BALANCE_UNITS_COOLDOWN', 1);
+
+/*
 Changes to Units
 1 = Enabled (Default)
 0 = Disabled 

@@ -248,10 +248,21 @@ function RefreshCityBanner(cityBanner, iActiveTeam, iActivePlayer)
 			local iMinorityUnhappiness = city:GetUnhappinessFromMinority();
 			local iScienceUnhappiness = city:GetUnhappinessFromScience();
 			local iCultureUnhappiness = city:GetUnhappinessFromCulture();
+			local iResistanceUnhappiness = 0;
+			if(city:IsRazing()) then
+				iResistanceUnhappiness = (city:GetPopulation() / 4);
+			elseif(city:IsResistance()) then
+				iResistanceUnhappiness = (city:GetPopulation() / 4);
+			end
 			
-			local iTotalUnhappiness = iCultureUnhappiness + iDefenseUnhappiness	+ iGoldUnhappiness + iConnectionUnhappiness + iPillagedUnhappiness + iScienceUnhappiness + iStarvingUnhappiness + iMinorityUnhappiness;
+			local iTotalUnhappiness = iCultureUnhappiness + iDefenseUnhappiness	+ iGoldUnhappiness + iConnectionUnhappiness + iPillagedUnhappiness + iScienceUnhappiness + iStarvingUnhappiness + iMinorityUnhappiness + iResistanceUnhappiness;
 
 			strToolTip = strToolTip .. "[NEWLINE]----------------[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_EO_CITY_LOCAL_UNHAPPINESS", iTotalUnhappiness);
+
+			-- Resistance tooltip
+			if (iResistanceUnhappiness ~= 0) then
+				strToolTip = strToolTip .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_EO_CITY_RESISTANCE", iResistanceUnhappiness);
+			end
 
 			-- Starving tooltip
 			if (iStarvingUnhappiness ~= 0) then
@@ -285,7 +296,7 @@ function RefreshCityBanner(cityBanner, iActiveTeam, iActivePlayer)
 			end
 			if(iCultureUnhappiness ~= 0) then
 				strToolTip = strToolTip .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_EO_CITY_UNCULTURED", iCultureUnhappiness);
-			end		
+			end	
 		end
 -- END
 

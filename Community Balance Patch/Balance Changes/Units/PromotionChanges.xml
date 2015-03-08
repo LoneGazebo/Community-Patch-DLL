@@ -4,7 +4,6 @@
 		<UnitPromotions>
 			<!--Earnable Promotions-->
 			<Row>
-				<ID>0</ID>
 				<Type>PROMOTION_DRILL_1</Type>
 				<Description>TXT_KEY_PROMOTION_DRILL_1</Description>
 				<Help>TXT_KEY_PROMOTION_DRILL_1_HELP</Help>

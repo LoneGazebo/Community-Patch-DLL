@@ -3502,13 +3502,15 @@ CvString CvPlayerCulture::GetPublicOpinionTooltip() const
 /// Unhappiness generated from public opinion
 int CvPlayerCulture::GetPublicOpinionUnhappiness() const
 {
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-	return m_iOpinionUnhappiness + m_iWarWeariness;
-#else
 	return m_iOpinionUnhappiness;
-#endif
 }
-
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+/// Unhappiness generated from public opinion
+int CvPlayerCulture::GetWarWeariness() const
+{
+	return m_iWarWeariness;
+}
+#endif
 /// Tooltip breaking down public opinion unhappiness
 CvString CvPlayerCulture::GetPublicOpinionUnhappinessTooltip() const
 {
@@ -4155,9 +4157,13 @@ int CvPlayerCulture::ComputePublicOpinionUnhappiness(int iDissatisfaction)
 
 	if (iDissatisfaction<1)
 		return 0;
-
-	float fPerCityUnhappy = 1.f;
-	float fUnhappyPerXPop = 10.f;
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+	float fPerCityUnhappy = 0.5f;
+	float fUnhappyPerXPop = 15.0f;
+#else
+	float fPerCityUnhappy = 1.0f;
+	float fUnhappyPerXPop = 10.0f;
+#endif
 
 	//important!
 	float fPerCityUnhappySlope = 0.2f;

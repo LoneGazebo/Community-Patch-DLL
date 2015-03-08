@@ -26,51 +26,23 @@ SET SpawnLocationUnitFreePromotion = 'PROMOTION_MARSH_WALKER'
 WHERE Type = 'FEATURE_FLOOD_PLAINS';
 
 UPDATE Features
-SET IsBarbarianOnly = 'true'
-WHERE Type = 'FEATURE_MARSH';
-
-UPDATE Features
-SET IsBarbarianOnly = 'true'
-WHERE Type = 'FEATURE_FLOOD_PLAINS';
-
-UPDATE Features
-SET SpawnLocationUnitFreePromotion = 'PROMOTION_WOODSMAN'
+SET SpawnLocationUnitFreePromotion = 'PROMOTION_WOODS_WALKER'
 WHERE Type = 'FEATURE_FOREST';
 
 UPDATE Features
-SET IsBarbarianOnly = 'true'
-WHERE Type = 'FEATURE_FOREST';
-
-UPDATE Features
-SET SpawnLocationUnitFreePromotion = 'PROMOTION_WOODSMAN'
-WHERE Type = 'FEATURE_JUNGLE';
-
-UPDATE Features
-SET IsBarbarianOnly = 'true'
+SET SpawnLocationUnitFreePromotion = 'PROMOTION_WOODS_WALKER'
 WHERE Type = 'FEATURE_JUNGLE';
 
 UPDATE Terrains
-SET SpawnLocationUnitFreePromotion = 'PROMOTION_DESERT_SHIPS'
+SET SpawnLocationUnitFreePromotion = 'PROMOTION_DESERT_WALKER'
 WHERE Type = 'TERRAIN_DESERT';
 
 UPDATE Terrains
-SET IsBarbarianOnly = 'true'
-WHERE Type = 'TERRAIN_DESERT';
-
-UPDATE Terrains
-SET IsBarbarianOnly = 'true'
+SET AdjacentSpawnLocationUnitFreePromotion = 'PROMOTION_COAST_WALKER'
 WHERE Type = 'TERRAIN_COAST';
 
 UPDATE Terrains
-SET AdjacentUnitFreePromotion = 'PROMOTION_EMBARKATION'
-WHERE Type = 'TERRAIN_COAST';
-
-UPDATE Terrains
-SET IsBarbarianOnly = 'true'
-WHERE Type = 'TERRAIN_HILL';
-
-UPDATE Terrains
-SET SpawnLocationUnitFreePromotion = 'PROMOTION_ALTITUDE_TRAINING'
+SET SpawnLocationUnitFreePromotion = 'PROMOTION_HILL_WALKER'
 WHERE Type = 'TERRAIN_HILL';
 
 UPDATE Terrains
@@ -79,12 +51,4 @@ WHERE Type = 'TERRAIN_SNOW';
 
 UPDATE Terrains
 SET SpawnLocationUnitFreePromotion = 'PROMOTION_WHITE_WALKER'
-WHERE Type = 'TERRAIN_TUNDRA';
-
-UPDATE Terrains
-SET IsBarbarianOnly = 'true'
-WHERE Type = 'TERRAIN_SNOW';
-
-UPDATE Terrains
-SET IsBarbarianOnly = 'true'
 WHERE Type = 'TERRAIN_TUNDRA';

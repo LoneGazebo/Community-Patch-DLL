@@ -313,13 +313,17 @@ void CvCityConnections::UpdateRouteInfo(void)
 	{
 		return;
 	}
-
+#if defined(MOD_BALANCE_CORE)
+	// pass 1 = can cities connect via water routes
+	// pass 0 = can cities connect via land and water routes
+#else
 	// pass 0 = can cities connect via water routes
 	// pass 1 = can cities connect via land and water routes
+#endif
 	for(int iPass = 0; iPass < 2; iPass++)
 	{
 #if defined(MOD_EVENTS_CITY_CONNECTIONS)
-		if(iPass == 0 && !bAllowIndirectRoutes)  // if in the first pass and we can't create indirect routes, skip
+		if(iPass == 1 && !bAllowIndirectRoutes)  // if in the first pass and we can't create indirect routes, skip
 #else
 		if(iPass == 0 && !bAllowWaterRoutes)  // if in the first pass, we can't embark, skip
 #endif
@@ -327,7 +331,7 @@ void CvCityConnections::UpdateRouteInfo(void)
 			continue;
 		}
 #if defined(MOD_EVENTS_CITY_CONNECTIONS)
-		else if(iPass == 1 && !(bAllowDirectRoutes || bAllowIndirectRoutes))  // if in the second pass and we can't create any routes (this allows for harbour to harbour connections without The Wheel), skip
+		else if(iPass == 0 && !(bAllowDirectRoutes || bAllowIndirectRoutes))  // if in the second pass and we can't create any routes (this allows for harbour to harbour connections without The Wheel), skip
 #else
 #if defined(MOD_BUGFIX_MINOR)
 		else if(iPass == 1 && !(eBestRouteType != NO_ROUTE || bAllowWaterRoutes))  // if in the second pass, we can't build a road or a water connection, skip
@@ -387,7 +391,11 @@ void CvCityConnections::UpdateRouteInfo(void)
 
 				pRouteInfo->m_cPassEval = iPass + 1;
 
+#if defined(MOD_BALANCE_CORE)
+				if(iPass == 1)  // check water route
+#else
 				if(iPass == 0)  // check water route
+#endif
 				{
 					// if either city is blockaded, don't consider a water connection
 					if(pFirstCity->IsBlockaded() || pSecondCity->IsBlockaded())
@@ -434,7 +442,11 @@ void CvCityConnections::UpdateRouteInfo(void)
 					}
 #endif
 				}
+#if defined(MOD_BALANCE_CORE)
+				else if(iPass == 0)  // check land route
+#else
 				else if(iPass == 1)  // check land route
+#endif
 				{
 					bool bAnyRouteFound = false;
 #if !defined(MOD_EVENTS_CITY_CONNECTIONS)

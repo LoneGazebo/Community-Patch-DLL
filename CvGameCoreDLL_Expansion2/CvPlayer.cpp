@@ -454,6 +454,9 @@ CvPlayer::CvPlayer() :
 	, m_iFreeSpy(0)
 	, m_iTradeReligionModifier(0)
 #endif
+#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
+	, m_iInvestmentModifier(0)
+#endif
 	, m_aiCapitalYieldRateModifier("CvPlayer::m_aiCapitalYieldRateModifier", m_syncArchive)
 	, m_aiExtraYieldThreshold("CvPlayer::m_aiExtraYieldThreshold", m_syncArchive)
 	, m_aiSpecialistExtraYield("CvPlayer::m_aiSpecialistExtraYield", m_syncArchive)
@@ -1232,6 +1235,9 @@ void CvPlayer::uninit()
 	m_iFreeTradeRoute = 0;
 	m_iFreeSpy = 0;
 	m_iTradeReligionModifier = 0;
+#endif
+#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
+	m_iInvestmentModifier = 0;
 #endif
 	m_iCultureBombTimer = 0;
 	m_iConversionTimer = 0;
@@ -14551,19 +14557,7 @@ int CvPlayer::getPopNeededForLux() const
 {
 	//Needed for LUA
 	//Happiness as a factor of population, techs, and number of cities. Divisor determines this.
-	int iTechProgress = GET_TEAM(getTeam()).GetTeamTechs()->GetNumTechsKnown() * 100 / GC.getNumTechInfos();
-	if(iTechProgress < GC.getBALANCE_HAPPINESS_ERA_BASE_INCREASE())
-	{
-		iTechProgress = GC.getBALANCE_HAPPINESS_ERA_BASE_INCREASE();
-	}
-	else if(iTechProgress > GC.getBALANCE_HAPPINESS_ERA_MAX_INCREASE())
-	{
-		iTechProgress = GC.getBALANCE_HAPPINESS_ERA_MAX_INCREASE();
-	}
-	int iHappinessPerPop = /*125*/ GC.getBALANCE_HAPPINESS_POPULATION_DIVISOR() + iTechProgress;
-
-	iHappinessPerPop = (iHappinessPerPop / 10);
-	iHappinessPerPop += (((getNumCities() * 2) * iHappinessPerPop) / 10);
+	int iTechProgress = ((GC.getBALANCE_HAPPINESS_POPULATION_DIVISOR() + GET_TEAM(getTeam()).GetTeamTechs()->GetNumTechsKnown()) * 100) / GC.getNumTechInfos();
 
 	int iBaseHappiness = 1;
 	
@@ -14575,19 +14569,19 @@ int CvPlayer::getPopNeededForLux() const
 		if(eResource != NO_RESOURCE)
 		{
 			iBaseHappiness = GetHappinessFromLuxury(eResource);
-			if(iBaseHappiness && iBaseHappiness != 0)
+			if(iBaseHappiness != 0)
 			{
-				iBaseHappiness *= iHappinessPerPop;
+				iBaseHappiness *= iTechProgress;
 				
 				if(iBaseHappiness <= 0)
 				{
-					iBaseHappiness = iHappinessPerPop;
+					iBaseHappiness = iTechProgress;
 				}
 				return iBaseHappiness;
 			}
 			else
 			{
-				iBaseHappiness = iHappinessPerPop;
+				iBaseHappiness = iTechProgress;
 			}
 		}
 	}
@@ -14649,25 +14643,13 @@ int CvPlayer::GetHappinessFromLuxury(ResourceTypes eResource) const
 			iBaseHappiness = 1;
 
 			//Happiness as a factor of population, techs, and number of cities. Divisor determines this.
-			int iTechProgress = GET_TEAM(getTeam()).GetTeamTechs()->GetNumTechsKnown() * 100 / GC.getNumTechInfos();
-			if(iTechProgress < GC.getBALANCE_HAPPINESS_ERA_BASE_INCREASE())
-			{
-				iTechProgress = GC.getBALANCE_HAPPINESS_ERA_BASE_INCREASE();
-			}
-			else if(iTechProgress > GC.getBALANCE_HAPPINESS_ERA_MAX_INCREASE())
-			{
-				iTechProgress = GC.getBALANCE_HAPPINESS_ERA_MAX_INCREASE();
-			}
-			int iHappinessPerPop = /*125*/ GC.getBALANCE_HAPPINESS_POPULATION_DIVISOR() + iTechProgress;
-
-			iHappinessPerPop = (iHappinessPerPop / 10);
-			iHappinessPerPop += ((getNumCities() * iHappinessPerPop) / 10);
+			int iTechProgress = ((GC.getBALANCE_HAPPINESS_POPULATION_DIVISOR() + GET_TEAM(getTeam()).GetTeamTechs()->GetNumTechsKnown()) * 100) / GC.getNumTechInfos();
 
 			int iTotalPop = getCurrentTotalPop();
 
-			if(iTotalPop != 0 && iHappinessPerPop != 0)
+			if(iTotalPop != 0 && iTechProgress != 0)
 			{
-				iBaseHappiness += (iTotalPop / iHappinessPerPop);
+				iBaseHappiness += (iTotalPop / iTechProgress);
 			}
 			if(iBaseHappiness > /*5*/ GC.getBALANCE_HAPPINESS_LUXURY_MAXIMUM())
 			{
@@ -14795,6 +14777,8 @@ int CvPlayer::GetUnhappiness(CvCity* pAssumeCityAnnexed, CvCity* pAssumeCityPupp
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	if(MOD_BALANCE_CORE_HAPPINESS)
 	{
+		iUnhappiness += GetCulture()->GetWarWeariness();
+
 		//These values should return either a positive number, or zero.
 		int iNewUnhappiness = 0;
 		iNewUnhappiness += (GetUnhappinessFromCitySpecialists(pAssumeCityAnnexed, pAssumeCityPuppeted) / 100);
@@ -15327,12 +15311,16 @@ int CvPlayer::GetUnhappinessFromOccupiedCities(CvCity* pAssumeCityAnnexed, CvCit
 	int iSpecialistCount;
 
 	bool bCityValid;
-
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+	bool bIsResistance;
+#endif
 	int iLoop;
 	for(const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
 		bCityValid = false;
-
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+		bIsResistance = false;
+#endif
 		// Assume pLoopCity is Annexed, and counts
 		if(pLoopCity == pAssumeCityAnnexed)
 			bCityValid = true;
@@ -15347,13 +15335,21 @@ int CvPlayer::GetUnhappinessFromOccupiedCities(CvCity* pAssumeCityAnnexed, CvCit
 			bCityValid = true;
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 		if(MOD_BALANCE_CORE_HAPPINESS && (pLoopCity->IsResistance() || pLoopCity->IsRazing()))
+		{
 			bCityValid = true;
+			bIsResistance = true;
+		}
 #endif
 
 		if(bCityValid)
 		{
 			iPopulation = pLoopCity->getPopulation();
-
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+			if(MOD_BALANCE_CORE_HAPPINESS && bIsResistance)
+			{
+				iPopulation /= 4;
+			}
+#endif
 			// No Unhappiness from Specialist Pop? (Policies, etc.)
 			if(isHalfSpecialistUnhappiness())
 			{
@@ -23037,7 +23033,18 @@ void CvPlayer::changeBuildingClassCultureChange(BuildingClassTypes eIndex, int i
 	CvAssert(getBuildingClassCultureChange(eIndex) >= 0);
 }
 #endif
-
+#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
+//	--------------------------------------------------------------------------------
+int CvPlayer::GetInvestmentModifier() const
+{
+	return m_iInvestmentModifier;
+}
+//	--------------------------------------------------------------------------------
+void CvPlayer::changeInvestmentModifier(int iChange)
+{
+	m_iInvestmentModifier += iChange;
+}
+#endif
 //	--------------------------------------------------------------------------------
 int CvPlayer::getCapitalYieldRateModifier(YieldTypes eIndex) const
 {
@@ -28479,6 +28486,9 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 		}
 	}
 #endif
+#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
+	changeInvestmentModifier(pPolicy->GetInvestmentModifier() * iChange);
+#endif
 	if(pPolicy->IsOneShot())
 	{
 		if(m_pPlayerPolicies->HasOneShotPolicyFired(ePolicy))
@@ -30007,6 +30017,9 @@ void CvPlayer::Read(FDataStream& kStream)
 	MOD_SERIALIZE_READ(66, kStream, m_iFreeSpy, 0);
 	MOD_SERIALIZE_READ(60, kStream, m_iTradeReligionModifier, 0);
 #endif
+#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
+	MOD_SERIALIZE_READ(60, kStream, m_iInvestmentModifier, 0);
+#endif
 	kStream >> m_aiCapitalYieldRateModifier;
 
 	if (uiVersion >= 4)
@@ -30636,6 +30649,9 @@ void CvPlayer::Write(FDataStream& kStream) const
 	MOD_SERIALIZE_WRITE(kStream, m_iFreeTradeRoute);
 	MOD_SERIALIZE_WRITE(kStream, m_iFreeSpy);
 	MOD_SERIALIZE_WRITE(kStream, m_iTradeReligionModifier);
+#endif
+#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
+	MOD_SERIALIZE_WRITE(kStream, m_iInvestmentModifier);
 #endif
 	kStream << m_aiCapitalYieldRateModifier;
 	kStream << m_aiGreatWorkYieldChange;

@@ -100,6 +100,13 @@ CvPromotionEntry::CvPromotionEntry():
 	m_iTradeMissionGoldModifier(0),
 #if defined(MOD_BALANCE_CORE)
 	m_bGainsXPFromScouting(false),
+	m_bCannotBeCaptured(false),
+	m_bIsLostOnMove(false),
+	m_bCityStateOnly(false),
+	m_bBarbarianOnly(false),
+	m_iNegatesPromotion(NO_PROMOTION),
+	m_iForcedDamageValue(0),
+	m_iChangeDamageValue(0),
 #endif
 	m_bCannotBeChosen(false),
 	m_bLostWithUpgrade(false),
@@ -245,6 +252,14 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	//Basic Properties
 #if defined(MOD_BALANCE_CORE)
 	m_bGainsXPFromScouting = kResults.GetBool("GainsXPFromScouting");
+	m_bCannotBeCaptured = kResults.GetBool("CannotBeCaptured");
+	m_bIsLostOnMove = kResults.GetBool("IsLostOnMove");
+	m_bCityStateOnly = kResults.GetBool("CityStateOnly");
+	m_bBarbarianOnly = kResults.GetBool("BarbarianOnly");
+	const char* szNegatesPromotion = kResults.GetText("NegatesPromotion");
+	m_iNegatesPromotion = GC.getInfoTypeForString(szNegatesPromotion, true);
+	m_iForcedDamageValue = kResults.GetInt("ForcedDamageValue");
+	m_iChangeDamageValue = kResults.GetInt("ChangeDamageValue");
 #endif
 	m_bCannotBeChosen = kResults.GetBool("CannotBeChosen");
 	m_bLostWithUpgrade = kResults.GetBool("LostWithUpgrade");
@@ -1340,6 +1355,38 @@ int CvPromotionEntry::GetTradeMissionGoldModifier() const
 bool CvPromotionEntry::IsGainsXPFromScouting() const
 {
 	return m_bGainsXPFromScouting;
+}
+//Cannot be captured
+bool CvPromotionEntry::CannotBeCaptured() const
+{
+	return m_bCannotBeCaptured;
+}
+//Promotion lost if you leave the terrain/feature that gives it.
+bool CvPromotionEntry::IsLostOnMove() const
+{
+	return m_bIsLostOnMove;
+}
+//Promotion for CSs only
+bool CvPromotionEntry::IsCityStateOnly() const
+{
+	return m_bCityStateOnly;
+}
+//Promotion for barbs only
+bool CvPromotionEntry::IsBarbarianOnly() const
+{
+	return m_bBarbarianOnly;
+}
+int CvPromotionEntry::NegatesPromotion() const
+{
+	return m_iNegatesPromotion;
+}
+int CvPromotionEntry::ForcedDamageValue() const
+{
+	return m_iForcedDamageValue;
+}
+int CvPromotionEntry::ChangeDamageValue() const
+{
+	return m_iChangeDamageValue;
 }
 #endif
 /// Accessor: Can this Promotion be earned through normal leveling?

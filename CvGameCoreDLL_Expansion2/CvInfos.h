@@ -1551,9 +1551,8 @@ public:
 	int getAdjacentUnitFreePromotion() const;
 #if defined(MOD_BALANCE_CORE)
 	int getLocationUnitFreePromotion() const;
+	int getAdjacentSpawnLocationUnitFreePromotion() const;
 	int getSpawnLocationUnitFreePromotion() const;
-	bool isBarbarianOnly() const;
-	bool isCityStateOnly() const;
 #endif
 
 	bool isYieldNotAdditive() const;
@@ -1622,8 +1621,7 @@ protected:
 #if defined(MOD_BALANCE_CORE)
 	int m_iLocationUnitFreePromotion;
 	int m_iSpawnLocationUnitFreePromotion;
-	bool m_bIsBarbarianOnly;
-	bool m_bIsCityStateOnly;
+	int m_iAdjacentSpawnLocationUnitFreePromotion;
 #endif
 
 	bool m_bYieldNotAdditive;
@@ -1739,8 +1737,8 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	int getLocationUnitFreePromotion() const;
 	int getSpawnLocationUnitFreePromotion() const;
-	bool isBarbarianOnly() const;
-	bool isCityStateOnly() const;
+	int getAdjacentSpawnLocationUnitFreePromotion() const;
+
 	int getAdjacentUnitFreePromotion() const;
 #endif
 
@@ -1782,11 +1780,10 @@ protected:
 	int m_iExtraTurnDamage;
 #endif
 #if defined(MOD_BALANCE_CORE)
-	int m_iLocationUnitFreePromotion;
-	int m_iSpawnLocationUnitFreePromotion;
-	bool m_bIsBarbarianOnly;
-	bool m_bIsCityStateOnly;
-	int m_iAdjacentUnitFreePromotion;
+	int m_iLocationUnitFreePromotionTerrain;
+	int m_iSpawnLocationUnitFreePromotionTerrain;
+	int m_iAdjacentSpawnLocationUnitFreePromotionTerrain;
+	int m_iAdjacentUnitFreePromotionTerrain;
 #endif
 
 	bool m_bWater;
