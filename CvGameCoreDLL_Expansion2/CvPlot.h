@@ -201,6 +201,11 @@ public:
 	CvUnit* plotCheck(ConstPlotUnitFunc funcA, int iData1A = -1, int iData2A = -1, PlayerTypes eOwner = NO_PLAYER, TeamTypes eTeam = NO_TEAM, ConstPlotUnitFunc funcB = NULL, int iData1B = -1, int iData2B = -1);
 	const CvUnit* plotCheck(ConstPlotUnitFunc funcA, int iData1A = -1, int iData2A = -1, PlayerTypes eOwner = NO_PLAYER, TeamTypes eTeam = NO_TEAM, ConstPlotUnitFunc funcB = NULL, int iData1B = -1, int iData2B = -1) const;
 
+// How many times does a vector contain this plot?
+#ifdef AUI_DANGER_PLOTS_REMADE
+	int getNumTimesInList(const DangerPlotList& aPlotList, bool bTerminateAfterFirst) const;
+#endif
+
 	bool isOwned() const;
 	bool isBarbarian() const;
 	bool isRevealedBarbarian() const;
@@ -851,10 +856,11 @@ public:
 	void SetArtifactType(GreatWorkArtifactClass eType);
 	void SetArtifactGreatWork(GreatWorkType eWork);
 	bool HasWrittenArtifact() const;
-#if defined(MOD_BALANCE_CORE)
-	// Citadel
-	int GetDamageFromNearByFeatures(PlayerTypes ePlayer) const;
+
+#ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
+	bool IsNearEnemyCitadel(PlayerTypes ePlayer, int* piCitadelDamage=NULL) const;
 #endif
+
 #if defined(MOD_API_EXTENSIONS)
 	bool IsCivilization(CivilizationTypes iCivilizationType) const;
 	bool HasFeature(FeatureTypes iFeatureType) const;

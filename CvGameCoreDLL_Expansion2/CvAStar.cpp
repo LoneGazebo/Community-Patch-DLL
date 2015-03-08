@@ -1355,6 +1355,11 @@ int PathValid(CvAStarNode* parent, CvAStarNode* node, int data, const void* poin
 	bool bFromPlotOwned          = pFromPlot->isOwned();
 	TeamTypes eFromPlotTeam      = pFromPlot->getTeam();
 
+#ifdef AUI_DANGER_PLOTS_REMADE
+	if (bAIControl || !bIsHuman)
+		kToNodeCacheData.iPlotDanger = GET_PLAYER(unit_owner).GetPlotDanger(*pToPlot, pUnit);
+#endif
+
 	// We have determined that this node is not the origin above (parent == NULL)
 	CvAStarNode* pNode = node;
 	bool bPreviousNodeHostile = false;
@@ -1583,7 +1588,11 @@ int PathValid(CvAStarNode* parent, CvAStarNode* node, int data, const void* poin
 		}
 	}
 
+#ifdef AUI_DANGER_PLOTS_REMADE
+	if (bAIControl || !bIsHuman)
+#else
 	if(bAIControl)
+#endif
 	{
 		if((parent->m_iData2 > 1) || (parent->m_iData1 == 0))
 		{
@@ -1591,8 +1600,8 @@ int PathValid(CvAStarNode* parent, CvAStarNode* node, int data, const void* poin
 			{
 				if(!bUnitIsCombat || pUnit->getArmyID() == FFreeList::INVALID_INDEX)
 				{
-#ifdef AUI_ASTAR_FIX_CONSIDER_DANGER_USES_COMBAT_STRENGTH
-					if(GET_PLAYER(unit_owner).GetPlotDanger(*pFromPlot) > pUnit->GetBaseCombatStrengthConsideringDamage() * AUI_ASTAR_FIX_CONSIDER_DANGER_USES_COMBAT_STRENGTH)
+#ifdef AUI_DANGER_PLOTS_REMADE
+					if (kToNodeCacheData.iPlotDanger == MAX_INT || (kToNodeCacheData.iPlotDanger >= pUnit->GetCurrHitPoints() && kFromNodeCacheData.iPlotDanger < pUnit->GetCurrHitPoints()))
 #else
 					if(GET_PLAYER(unit_owner).GetPlotDanger(*pFromPlot) > 0)
 #endif // AUI_ASTAR_FIX_CONSIDER_DANGER_USES_COMBAT_STRENGTH
@@ -3595,6 +3604,11 @@ int TacticalAnalysisMapPathValid(CvAStarNode* parent, CvAStarNode* node, int dat
 	bool bFromPlotOwned          = !pFromPlotCell->IsUnclaimedTerritory();
 	TeamTypes eFromPlotTeam      = pFromPlot->getTeam();
 
+#ifdef AUI_DANGER_PLOTS_REMADE
+	if (bAIControl || !bIsHuman)
+		kToNodeCacheData.iPlotDanger = GET_PLAYER(unit_owner).GetPlotDanger(*pToPlot, pUnit);
+#endif // AUI_DANGER_PLOTS_REMADE
+
 	// We have determined that this node is not the origin above (parent == NULL)
 	CvAStarNode* pNode = node;
 	bool bPreviousNodeHostile = false;
@@ -3824,7 +3838,11 @@ int TacticalAnalysisMapPathValid(CvAStarNode* parent, CvAStarNode* node, int dat
 		}
 	}
 
+#ifdef AUI_DANGER_PLOTS_REMADE
+	if (bAIControl || !bIsHuman)
+#else
 	if(bAIControl)
+#endif // AUI_DANGER_PLOTS_REMADE
 	{
 		if((parent->m_iData2 > 1) || (parent->m_iData1 == 0))
 		{
@@ -3832,11 +3850,11 @@ int TacticalAnalysisMapPathValid(CvAStarNode* parent, CvAStarNode* node, int dat
 			{
 				if(!bUnitIsCombat || pUnit->getArmyID() == FFreeList::INVALID_INDEX)
 				{
-#ifdef AUI_ASTAR_FIX_CONSIDER_DANGER_USES_COMBAT_STRENGTH
-					if(GET_PLAYER(unit_owner).GetPlotDanger(*pFromPlot) > pUnit->GetBaseCombatStrengthConsideringDamage() * AUI_ASTAR_FIX_CONSIDER_DANGER_USES_COMBAT_STRENGTH)
+#ifdef AUI_DANGER_PLOTS_REMADE
+					if (kToNodeCacheData.iPlotDanger == MAX_INT || (kToNodeCacheData.iPlotDanger >= pUnit->GetCurrHitPoints() && kFromNodeCacheData.iPlotDanger < pUnit->GetCurrHitPoints()))
 #else
 					if(GET_PLAYER(unit_owner).GetPlotDanger(*pFromPlot) > 0)
-#endif // AUI_ASTAR_FIX_CONSIDER_DANGER_USES_COMBAT_STRENGTH
+#endif
 					{
 						return FALSE;
 					}
@@ -4061,7 +4079,7 @@ bool CanReachInXTurns(UnitHandle pUnit, CvPlot* pTarget, int iTurns, bool bIgnor
 // open the 2nd layer of the pathfinder)
 #ifdef AUI_ASTAR_TURN_LIMITER
 // Delnar: if you're checking if a unit can reach a tile within X turns, set the iTargetTurns parameter to X to speed up the pathfinder
-int TurnsToReachTarget(UnitHandle pUnit, CvPlot* pTarget, bool bReusePaths, bool bIgnoreUnits, bool bIgnoreStacking, int iTargetTurns)
+int TurnsToReachTarget(const UnitHandle pUnit, const CvPlot* pTarget, bool bReusePaths, bool bIgnoreUnits, bool bIgnoreStacking, int iTargetTurns)
 #else
 int TurnsToReachTarget(UnitHandle pUnit, CvPlot* pTarget, bool bReusePaths, bool bIgnoreUnits, bool bIgnoreStacking)
 #endif // AUI_ASTAR_TURN_LIMITER

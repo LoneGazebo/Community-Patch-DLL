@@ -506,7 +506,7 @@ int TacticalAnalysisMapPathValid(CvAStarNode* parent, CvAStarNode* node, int dat
 int FindValidDestinationDest(int iToX, int iToY, const void* pointer, CvAStar* finder);
 int FindValidDestinationPathValid(CvAStarNode* parent, CvAStarNode* node, int data, const void* pointer, CvAStar* finder);
 #ifdef AUI_ASTAR_TURN_LIMITER
-int TurnsToReachTarget(UnitHandle pUnit, CvPlot* pTarget, bool bReusePaths = false, bool bIgnoreUnits = false, bool bIgnoreStacking = false, int iTargetTurns = MAX_INT);
+int TurnsToReachTarget(const UnitHandle pUnit, const CvPlot* pTarget, bool bReusePaths = false, bool bIgnoreUnits = false, bool bIgnoreStacking = false, int iTargetTurns = MAX_INT);
 #else
 int TurnsToReachTarget(UnitHandle pUnit, CvPlot* pTarget, bool bReusePaths=false, bool bIgnoreUnits=false, bool bIgnoreStacking=false);
 #endif // AUI_ASTAR_TURN_LIMITER

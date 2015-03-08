@@ -10879,6 +10879,28 @@ void CvPlot::showPopupText(PlayerTypes ePlayer, const char* szMessage)
 }
 #endif
 
+#ifdef AUI_DANGER_PLOTS_REMADE
+int CvPlot::getNumTimesInList(const DangerPlotList& aPlotList, bool bTerminateAfterFirst) const
+{
+	if (aPlotList.size() == 0)
+		return 0;
+
+	int rtnValue = 0;
+
+	for (DangerPlotList::const_iterator it = aPlotList.begin(); it != aPlotList.end(); ++it)
+	{
+		if (it->first == this)
+		{
+			if (bTerminateAfterFirst)
+				return 1;
+			++rtnValue;
+		}
+	}
+
+	return rtnValue;
+}
+#endif
+
 // Protected Functions...
 
 //	--------------------------------------------------------------------------------
@@ -12373,17 +12395,19 @@ bool CvPlot::HasWrittenArtifact() const
 	}
 	return bRtnValue;
 }
-#if defined(MOD_BALANCE_CORE)
-// Citadel
-int CvPlot::GetDamageFromNearByFeatures(PlayerTypes ePlayer) const
-{
-	int iCitadelRange = 1;
 
+//	--------------------------------------------------------------------------------
+// Citadel
+#ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
+bool CvPlot::IsNearEnemyCitadel(PlayerTypes ePlayer, int* piCitadelDamage) const
+{
+	VALIDATE_OBJECT
+
+	int iCitadelRange = 1;
 	CvPlot* pLoopPlot;
-	TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
 
 	ImprovementTypes eImprovement;
-	int iDamage = 0, iTotalDamage = 0;
+	int iDamage;
 
 	// Look around this Unit to see if there's an adjacent Citadel
 	for(int iX = -iCitadelRange; iX <= iCitadelRange; iX++)
@@ -12392,7 +12416,7 @@ int CvPlot::GetDamageFromNearByFeatures(PlayerTypes ePlayer) const
 		{
 			pLoopPlot = plotXYWithRangeCheck(getX(), getY(), iX, iY, iCitadelRange);
 
-			if(pLoopPlot != NULL && pLoopPlot->isRevealed(eTeam) )
+			if(pLoopPlot != NULL)
 			{
 				eImprovement = pLoopPlot->getImprovementType();
 
@@ -12404,9 +12428,11 @@ int CvPlot::GetDamageFromNearByFeatures(PlayerTypes ePlayer) const
 					{
 						if(pLoopPlot->getOwner() != NO_PLAYER)
 						{
-							if(GET_TEAM(eTeam).isAtWar(pLoopPlot->getTeam()))
+							if(GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isAtWar(pLoopPlot->getTeam()))
 							{
-								iTotalDamage += iDamage;
+								if(piCitadelDamage)
+									*piCitadelDamage = iDamage;
+								return true;
 							}
 						}
 					}
@@ -12415,9 +12441,10 @@ int CvPlot::GetDamageFromNearByFeatures(PlayerTypes ePlayer) const
 		}
 	}
 
-	return iTotalDamage;
+	return false;
 }
 #endif
+
 //	---------------------------------------------------------------------------
 void CvPlot::updateImpassable()
 {

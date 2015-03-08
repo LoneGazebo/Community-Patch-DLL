@@ -36,6 +36,26 @@
 /// simpler algorithm for scoring exploration plots
 #define MOD_CORE_ALTERNATIVE_EXPLORE_SCORE
 
+#define AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
+#define AUI_UNIT_FIX_BAD_BONUS_STACKS
+#define AUI_UNIT_GET_NTH_BEST_INTERCEPTOR
+#define AUI_UNIT_EXTRA_ATTACKS_GETTER
+#define AUI_TACTICAL_FIX_SCORE_GREAT_GENERAL_PLOT_NO_OVERLAP
+#define AUI_UNIT_DO_AITYPE_FLIP
+#define AUI_DANGER_PLOTS_REMADE (2)
+#define AUI_DANGER_PLOTS_ADD_DANGER_CONSIDER_TERRAIN_STRENGTH_MODIFICATION
+#define AUI_DANGER_PLOTS_TWEAKED_RANGED
+#define AUI_DANGER_PLOTS_FIX_SHOULD_IGNORE_UNIT_IGNORE_VISIBILITY_PLOT 
+#define AUI_DANGER_PLOTS_SHOULD_IGNORE_UNIT_MINORS_SEE_MAJORS (5)
+#define AUI_DANGER_PLOTS_SHOULD_IGNORE_UNIT_MAJORS_SEE_BARBARIANS_IN_FOG
+#define AUI_DANGER_PLOTS_FIX_IS_DANGER_BY_RELATIONSHIP_ZERO_MINORS_IGNORE_ALL_NONWARRED
+
+#ifdef AUI_DANGER_PLOTS_REMADE
+	#define AIR_ACTION_ATTACK		0
+	#define AIR_ACTION_SWEEP		1
+	#define AIR_ACTION_INTERCEPT	2
+#endif
+
 /// Performance: Don't generate long paths when we know we don't want them
 #define AUI_ASTAR_TURN_LIMITER
 /// Increase pathfinding movement range for units if necessary
@@ -48,8 +68,6 @@
 #define AUI_ASTAR_GET_PENULTIMATE_NODE
 /// The danger of a tile will only be considered when checking path nodes, not when checking the destination (stops units from freezing in panic)
 #define AUI_ASTAR_FIX_CONSIDER_DANGER_ONLY_PATH
-/// If the pathfinder does not ignore danger, use the unit's combat strength times this value as the danger limit instead of 0 (important for combat units)
-#define AUI_ASTAR_FIX_CONSIDER_DANGER_USES_COMBAT_STRENGTH (4)
 /// Flavors that weren't previously fetched but were still (attempted to be) used in processing later are now fetched
 #define AUI_HOMELAND_FIX_ESTABLISH_HOMELAND_PRIORITIES_MISSING_FLAVORS
 /// Disables the code that would start fortifying scouts if recon state was set as "enough"

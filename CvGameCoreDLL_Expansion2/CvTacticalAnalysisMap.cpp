@@ -337,7 +337,6 @@ void CvTacticalAnalysisMap::MarkCellsNearEnemy()
 								bMarkedIt = true;
 							}
 
-							// FIXME - TEMPORARY OPTIMIZATION: Assumes can't use roads or RR
 #if defined(MOD_BALANCE_CORE)
 							else if(iDistance <= pUnit->GetRangeWithMovement() )
 #else
@@ -374,7 +373,7 @@ void CvTacticalAnalysisMap::MarkCellsNearEnemy()
 					if(!m_pPlots[iI].IsSubjectToAttack())
 					{
 #if defined(MOD_BALANCE_CORE)
-						if ( pPlot->GetDamageFromNearByFeatures( m_pPlayer->GetID() ) )
+						if ( pPlot->IsNearEnemyCitadel( m_pPlayer->GetID() ) )
 								m_pPlots[iI].SetSubjectToAttack(true);
 #else
 						CvPlot* pAdjacentPlot;

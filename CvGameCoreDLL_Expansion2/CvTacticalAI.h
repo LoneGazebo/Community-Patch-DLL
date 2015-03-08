@@ -213,6 +213,17 @@ public:
 		return m_iMovesToTarget;
 	};
 
+#ifdef MOD_AI_SMART_AIR_TACTICS 
+	void SetInterceptor(CvUnit* pInterceptor)
+	{
+		m_pInterceptor = pInterceptor;
+	}
+	CvUnit* GetInterceptor() const
+	{
+		return m_pInterceptor;
+	};
+#endif
+
 	// Derived
 	int GetAttackPriority() const
 	{
@@ -226,6 +237,9 @@ private:
 	int m_iMovesToTarget;
 	int m_iExpectedTargetDamage;
 	int m_iExpectedSelfDamage;
+#ifdef MOD_AI_SMART_AIR_TACTICS
+	CvUnit* m_pInterceptor;
+#endif
 };
 
 // Object stored in the list of current move cities (m_CurrentMoveCities)
@@ -901,6 +915,7 @@ private:
 	CvPlot* GetBestRepositionPlot(UnitHandle unitH, CvPlot* plotTarget);
 	void GetBestPlot(CvPlot*& outputPlot, vector<CvPlot*> plotsToCheck);
 	bool ContainsPlot(vector<CvPlot*> plotData, CvPlot* plotXy);
+	void SortCurrentMoveUnits(bool bSortBySelfDamage);
 #endif
 	void TurnOffMove(TacticalAIMoveTypes eType);
 	bool FindUnitsForThisMove(TacticalAIMoveTypes eMove, CvPlot* pTargetPlot, int iNumTurnsAway=0, bool bRangedOnly=false);
@@ -914,7 +929,9 @@ private:
 public:
 	int SamePlotFound(vector<CvPlot*> plotData, CvPlot* plotXy);
 private:
-	bool FindAirUnitsToAirSweep(CvPlot* pTarget);
+	void FindAirUnitsToAirSweep(CvPlot* pTarget);
+	CvUnit* GetProbableInterceptor(CvPlot* pTarget) const;
+	void ProcessAirUnitsInAttack(CvPlot *pTargetPlot);
 #endif
 	int ComputeTotalExpectedDamage(CvTacticalTarget* target, CvPlot* pTargetPlot);
 	int ComputeTotalExpectedBombardDamage(UnitHandle pTarget);

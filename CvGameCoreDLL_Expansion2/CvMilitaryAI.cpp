@@ -2226,7 +2226,7 @@ CityAttackApproaches CvMilitaryAI::EvaluateMilitaryApproaches(CvCity* pCity, boo
 				bBlocked = true;
 
 			//should not go here
-			if ( pLoopPlot->GetDamageFromNearByFeatures( GetPlayer()->GetID() ) > 0 )
+			if ( pLoopPlot->IsNearEnemyCitadel( GetPlayer()->GetID() ) )
 				bHarmful = true;
 
 			//makes us slow
@@ -4972,45 +4972,41 @@ bool CvMilitaryAI::WillAirUnitRebase(CvUnit* pUnit) const
 }
 
 #if defined(MOD_AI_SMART_AIR_TACTICS)
-// Get all possible interceptions on that plot, doesn't use visibility to offset AI inability to remember air attacks.
-int CvMilitaryAI::GetMaxPossibleInterceptions(CvPlot* pTargetPlot) const
+/// AMS: Get all possible interceptions on that plot, doesn't use visibility to offset AI inability to remember air attacks.
+int CvMilitaryAI::GetMaxPossibleInterceptions(CvPlot* pTargetPlot, bool bCountPercents) const
 {
 	int iRtnValue = 0;
+	int iLoopUnit;
+	CvUnit* pLoopUnit;
 
 	// Loop through all the players
-	for(int iI = 0; iI < MAX_PLAYERS; iI++)
+	for (int iI = 0; iI < MAX_PLAYERS; iI++)
 	{
 		CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)iI);
 
-		if(kPlayer.isAlive() && kPlayer.GetID() != m_pPlayer->GetID())
+		if (kPlayer.isAlive() && kPlayer.GetID() != m_pPlayer->GetID())
 		{
 			if (atWar(kPlayer.getTeam(), m_pPlayer->getTeam()))
 			{
 				// Loop through their units looking for intercept capable units
-				int iLoopUnit = 0;
-
-				for(CvUnit* pLoopUnit = kPlayer.firstUnit(&iLoopUnit); pLoopUnit != NULL; pLoopUnit = kPlayer.nextUnit(&iLoopUnit))
+				iLoopUnit = 0;
+				for (pLoopUnit = kPlayer.firstUnit(&iLoopUnit); pLoopUnit != NULL; pLoopUnit = kPlayer.nextUnit(&iLoopUnit))
 				{
-					// Must be able to intercept
-					if(!pLoopUnit->isDelayedDeath() && pLoopUnit->canAirDefend() && !pLoopUnit->isInCombat())
+					// Must be able to intercept this turn
+					if (!pLoopUnit->isDelayedDeath() && pLoopUnit->canAirDefend() && !pLoopUnit->isInCombat() && !pLoopUnit->isOutOfInterceptions())
 					{
-						// Must still be able to intercept this turn.
-						if(!pLoopUnit->isOutOfInterceptions())
+						// Must either be a non-air Unit, or an air Unit that hasn't moved this turn and is on intercept duty
+						if ((pLoopUnit->getDomainType() != DOMAIN_AIR) || !(pLoopUnit->hasMoved() && pLoopUnit->GetActivityType() == ACTIVITY_INTERCEPT))
 						{
-							// Must either be a non-air Unit, or an air Unit that hasn't moved this turn
-							if((pLoopUnit->getDomainType() != DOMAIN_AIR) || !(pLoopUnit->hasMoved()))
+							// Test range
+							if (plotDistance(pLoopUnit->getX(), pLoopUnit->getY(), pTargetPlot->getX(), pTargetPlot->getY()) <= pLoopUnit->getUnitInfo().GetAirInterceptRange())
 							{
-								// Must either be a non-air Unit or an air Unit on intercept
-								if((pLoopUnit->getDomainType() != DOMAIN_AIR) || (pLoopUnit->GetActivityType() == ACTIVITY_INTERCEPT))
+								if (pLoopUnit->currInterceptionProbability() > 0)
 								{
-									// Test range
-									if(plotDistance(pLoopUnit->getX(), pLoopUnit->getY(), pTargetPlot->getX(), pTargetPlot->getY()) <= pLoopUnit->getUnitInfo().GetAirInterceptRange())
-									{
-										if (pLoopUnit->currInterceptionProbability() > 0)
-										{
-											iRtnValue++;
-										}
-									}
+									if (bCountPercents)
+										iRtnValue += pLoopUnit->currInterceptionProbability();
+									else
+										iRtnValue++;
 								}
 							}
 						}
@@ -5019,6 +5015,9 @@ int CvMilitaryAI::GetMaxPossibleInterceptions(CvPlot* pTargetPlot) const
 			}
 		}
 	}
+
+	if (bCountPercents)
+		iRtnValue /= 100;
 
 	return iRtnValue;
 }
