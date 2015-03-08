@@ -17,13 +17,12 @@
 #include "CvDLLUtilDefines.h"
 // Stores all possible damage sources on a tile (terrain, improvements, cities, units)
 
+typedef std::vector<std::pair<PlayerTypes,int>> DangerUnitVector;
+typedef std::vector<CvCity*> DangerCityVector;
 typedef std::set<std::pair<PlayerTypes,int>> UnitSet;
 
 struct CvDangerPlotContents
 {
-	typedef FStaticVector<CvUnit*, NUM_DIRECTION_TYPES * NUM_DIRECTION_TYPES + 1, true, c_eCiv5GameplayDLL> DangerUnitVector;
-	typedef FStaticVector<CvCity*, NUM_DIRECTION_TYPES, true, c_eCiv5GameplayDLL> DangerCityVector;
-
 	CvDangerPlotContents()
 	{
 		clear();
