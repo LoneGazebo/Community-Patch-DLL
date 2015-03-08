@@ -20,6 +20,9 @@
 #include "CvInfos.h"
 #include "CvPromotionClasses.h"
 #include "CvAStarNode.h"
+#ifdef AUI_UNIT_GET_NTH_BEST_INTERCEPTOR
+#include "CvWeightedVector.h"
+#endif
 
 #define DEFAULT_UNIT_MAP_LAYER 0
 
@@ -228,9 +231,9 @@ public:
 
 	bool canEmbark(const CvPlot* pPlot) const;
 	bool canDisembark(const CvPlot* pPlot) const;
-	bool canEmbarkOnto(const CvPlot& pOriginPlot, const CvPlot& pTargetPlot, bool bOverrideEmbarkedCheck = false) const;
-	bool canDisembarkOnto(const CvPlot& pOriginPlot, const CvPlot& pTargetPlot, bool bOverrideEmbarkedCheck = false) const;
-	bool canDisembarkOnto(const CvPlot& pTargetPlot) const;
+	bool canEmbarkOnto(const CvPlot& pOriginPlot, const CvPlot& pTargetPlot, bool bOverrideEmbarkedCheck = false, bool bIsDestination = false) const;
+	bool canDisembarkOnto(const CvPlot& pOriginPlot, const CvPlot& pTargetPlot, bool bOverrideEmbarkedCheck = false, bool bIsDestination = false) const;
+	bool canDisembarkOnto(const CvPlot& pTargetPlot, bool bIsDestination = false) const;
 	bool CanEverEmbark() const;  // can this unit ever change into an embarked unit
 	void embark(CvPlot* pPlot);
 	void disembark(CvPlot* pPlot);
@@ -457,7 +460,11 @@ public:
 	int GetBaseCombatStrength(bool bIgnoreEmbarked = false) const;
 	int GetBaseCombatStrengthConsideringDamage() const;
 
+#ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
+	int GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot* pBattlePlot, bool bIgnoreUnitAdjacency, const CvPlot* pFromPlot = NULL) const;
+#else
 	int GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot* pBattlePlot, bool bIgnoreUnitAdjacency) const;
+#endif
 	int GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot, const CvUnit* pDefender) const;
 	int GetMaxDefenseStrength(const CvPlot* pInPlot, const CvUnit* pAttacker, bool bFromRangedAttack = false) const;
 	int GetEmbarkedUnitDefense() const;
@@ -465,19 +472,38 @@ public:
 	bool canSiege(TeamTypes eTeam) const;
 
 	int GetBaseRangedCombatStrength() const;
+#ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
+	int GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* pCity, bool bAttacking, bool bForRangedAttack, const CvPlot* pTargetPlot = NULL, const CvPlot* pFromPlot = NULL) const;
+
+	int GetAirCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bIncludeRand, int iAssumeExtraDamage = 0, const CvPlot* pTargetPlot = NULL, const CvPlot* pFromPlot = NULL) const;
+	int GetRangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bIncludeRand, int iAssumeExtraDamage = 0, const CvPlot* pTargetPlot = NULL, const CvPlot* pFromPlot = NULL) const;
+#else
 	int GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* pCity, bool bAttacking, bool bForRangedAttack) const;
 
 	int GetAirCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bIncludeRand, int iAssumeExtraDamage = 0) const;
 	int GetRangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bIncludeRand, int iAssumeExtraDamage = 0) const;
+#endif
 
 	bool canAirAttack() const;
 	bool canAirDefend(const CvPlot* pPlot = NULL) const;
 
+#ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
+	int GetAirStrikeDefenseDamage(const CvUnit* pAttacker, bool bIncludeRand = true, const CvPlot* pTargetPlot = NULL, const CvPlot* pFromPlot = NULL) const;
+#else
 	int GetAirStrikeDefenseDamage(const CvUnit* pAttacker, bool bIncludeRand = true) const;
+#endif
 
 	CvUnit* GetBestInterceptor(const CvPlot& pPlot, CvUnit* pkDefender = NULL, bool bLandInterceptorsOnly=false, bool bVisibleInterceptorsOnly=false) const;
+#ifdef AUI_UNIT_GET_NTH_BEST_INTERCEPTOR
+	void BuildInterceptorVector(CvWeightedVector<CvUnit*, 8, true>& kVector, const CvPlot& pPlot, CvUnit* pkDefender = NULL, bool bLandInterceptorsOnly = false, bool bVisibleInterceptorsOnly = false) const;
+	CvUnit* GetNthBestInterceptor(const CvPlot& pPlot, int iIndex = 0, CvUnit* pkDefender = NULL, bool bLandInterceptorsOnly = false, bool bVisibleInterceptorsOnly = false) const;
+#endif
 	int GetInterceptorCount(const CvPlot& pPlot, CvUnit* pkDefender = NULL, bool bLandInterceptorsOnly=false, bool bVisibleInterceptorsOnly=false) const;
+#ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
+	int GetInterceptionDamage(const CvUnit* pAttacker, bool bIncludeRand = true, const CvPlot* pTargetPlot = NULL, const CvPlot* pFromPlot = NULL) const;
+#else
 	int GetInterceptionDamage(const CvUnit* pAttacker, bool bIncludeRand = true) const;
+#endif
 
 	int GetCombatLimit() const;
 	int GetRangedCombatLimit() const;
@@ -568,11 +594,19 @@ public:
 	int evasionProbability() const;
 	int withdrawalProbability() const;
 
+#ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
+	int GetNumEnemyUnitsAdjacent(const CvUnit* pUnitToExclude = NULL, const CvPlot* pAtPlot = NULL) const;
+	bool IsEnemyCityAdjacent(const CvPlot* pAtPlot = NULL) const;
+	bool IsEnemyCityAdjacent(const CvCity* pSpecifyCity, const CvPlot* pAtPlot = NULL) const;
+	int GetNumSpecificEnemyUnitsAdjacent(const CvUnit* pUnitToExclude = NULL, const CvUnit* pUnitCompare = NULL, const CvPlot* pAtPlot = NULL) const;
+	bool IsFriendlyUnitAdjacent(bool bCombatUnit, const CvPlot* pAtPlot = NULL) const;
+#else
 	int GetNumEnemyUnitsAdjacent(const CvUnit* pUnitToExclude = NULL) const;
 	bool IsEnemyCityAdjacent() const;
 	bool IsEnemyCityAdjacent(const CvCity* pSpecifyCity) const;
 	int GetNumSpecificEnemyUnitsAdjacent(const CvUnit* pUnitToExclude = NULL, const CvUnit* pUnitCompare = NULL) const;
 	bool IsFriendlyUnitAdjacent(bool bCombatUnit) const;
+#endif
 
 	int GetAdjacentModifier() const;
 	void ChangeAdjacentModifier(int iValue);
@@ -668,8 +702,9 @@ public:
 	void setGameTurnCreated(int iNewValue);
 
 	int getDamage() const;
-	void setDamage(int iNewValue, PlayerTypes ePlayer = NO_PLAYER, float fAdditionalTextDelay = 0.0f, CvString* pAppendText = NULL);
-	void changeDamage(int iChange, PlayerTypes ePlayer = NO_PLAYER, float fAdditionalTextDelay = 0.0f, CvString* pAppendText = NULL);
+	int setDamage(int iNewValue, PlayerTypes ePlayer = NO_PLAYER, float fAdditionalTextDelay = 0.0f, const CvString* pAppendText = NULL);
+	int changeDamage(int iChange, PlayerTypes ePlayer = NO_PLAYER, float fAdditionalTextDelay = 0.0f, const CvString* pAppendText = NULL);
+	static void ShowDamageDeltaText(int iDelta, CvPlot* pkPlot, float fAdditionalTextDelay = 0.0f, const CvString* pAppendText = NULL);
 
 	int getMoves() const;
 	void setMoves(int iNewValue);
@@ -861,9 +896,27 @@ public:
 	int getExtraRoughDefensePercent() const;
 	void changeExtraRoughDefensePercent(int iChange);
 
+#ifdef AUI_UNIT_EXTRA_ATTACKS_GETTER
+	int getNumAttacks();
+#endif // AUI_UNIT_EXTRA_ATTACKS_GETTER
 	void changeExtraAttacks(int iChange);
 
 	// Citadel
+#ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
+	bool IsNearEnemyCitadel(int& iCitadelDamage, const CvPlot* pInPlot = NULL) const;
+
+	// Great General Stuff
+#ifdef AUI_TACTICAL_FIX_SCORE_GREAT_GENERAL_PLOT_NO_OVERLAP
+	bool IsNearGreatGeneral(const CvPlot* pAtPlot = NULL, const CvUnit* pIgnoreThisGeneral = NULL) const;
+	bool IsStackedGreatGeneral(const CvPlot* pAtPlot = NULL, const CvUnit* pIgnoreThisGeneral = NULL) const;
+#else
+	bool IsNearGreatGeneral(const CvPlot* pAtPlot = NULL) const;
+	bool IsStackedGreatGeneral(const CvPlot* pAtPlot = NULL) const;
+#endif
+	int GetGreatGeneralStackMovement(const CvPlot* pAtPlot = NULL) const;
+	int GetReverseGreatGeneralModifier(const CvPlot* pAtPlot = NULL) const;
+	int GetNearbyImprovementModifier(const CvPlot* pAtPlot = NULL) const;
+#else
 	bool IsNearEnemyCitadel(int& iCitadelDamage);
 
 	// Great General Stuff
@@ -872,6 +925,7 @@ public:
 	int GetGreatGeneralStackMovement() const;
 	int GetReverseGreatGeneralModifier() const;
 	int GetNearbyImprovementModifier() const;
+#endif
 
 	bool IsGreatGeneral() const;
 	int GetGreatGeneralCount() const;
@@ -1217,6 +1271,18 @@ public:
 
 	int GetNumGoodyHutsPopped() const;
 	void ChangeNumGoodyHutsPopped(int iValue);
+	
+#ifdef AUI_UNIT_CAN_MOVE_AND_RANGED_STRIKE
+	bool canMoveAndRangedStrike(int iX, int iY) const;
+	bool canMoveAndRangedStrike(const CvPlot* pTargetPlot) const;
+	bool GetMovablePlotListOpt(BaseVector<CvPlot*, true>& plotData, const CvPlot* pTargetPlot, bool bExitOnFound = false, int iWithinTurns = 0, const CvPlot* pFromPlot = NULL) const;
+#endif // AUI_UNIT_CAN_MOVE_AND_RANGED_STRIKE
+#ifdef AUI_UNIT_DO_AITYPE_FLIP
+	bool DoSingleUnitAITypeFlip(UnitAITypes eUnitAIType, bool bRevert = false, bool bForceOff = false);
+#endif // AUI_UNIT_DO_AITYPE_FLIP
+#ifdef AUI_DANGER_PLOTS_REMADE
+	FFastVector<std::pair<CvPlot*, bool>, true, c_eCiv5GameplayDLL>& GetDangerPlotList(bool bMoveOnly = false);
+#endif
 
 	// Ported in from old CvUnitAI class
 	int SearchRange(int iRange) const;
@@ -1392,6 +1458,10 @@ protected:
 	int m_iSapperCount;
 	int m_iCanHeavyCharge;
 	int m_iNumExoticGoods;
+#ifdef AUI_DANGER_PLOTS_REMADE
+	FFastVector<std::pair<CvPlot*, bool>, true, c_eCiv5GameplayDLL> vpDangerPlotList;
+	FFastVector<std::pair<CvPlot*, bool>, true, c_eCiv5GameplayDLL> vpDangerPlotMoveOnlyList;
+#endif
 
 	FAutoVariable<bool, CvUnit> m_bPromotionReady;
 	FAutoVariable<bool, CvUnit> m_bDeathDelay;
