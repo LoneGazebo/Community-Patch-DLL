@@ -4236,18 +4236,6 @@ void CvTacticalAI::PlotSingleHexOperationMoves(CvAIEscortedOperation* pOperation
 		if(pCivilian->plot() != pOperation->GetTargetPlot())
 		{
 #if defined(MOD_BALANCE_CORE)
-			//make sure to stay away from danger
-			if ( m_pPlayer->GetPlotDanger( *pCivilian->plot() ) > 0 )
-			{
-				CvString msg = CvString::format("%s settler in danger at (%d,%d)", GET_PLAYER(pCivilian->getOwner()).getCivilizationAdjective(), pCivilian->getX(), pCivilian->getY() );
-				if (pEscort && pEscort->plot()!=pCivilian->plot())
-					msg += CvString::format(", escort at (%d,%d)", pEscort->getX(), pEscort->getY() );
-				msg += "\n";
-				OutputDebugString( msg );
-				if (!pEscort || pEscort->plot()!=pCivilian->plot())
-					m_pPlayer->GetHomelandAI()->MoveCivilianToSafety(pCivilian.pointer());
-			}
-
 			int iFlags = 0;
 			if (pEscort && pEscort->plot()==pCivilian->plot())
 				iFlags = MOVE_UNITS_IGNORE_DANGER;

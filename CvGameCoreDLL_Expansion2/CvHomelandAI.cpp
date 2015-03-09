@@ -2971,14 +2971,14 @@ void CvHomelandAI::ExecuteFirstTurnSettlerMoves()
 				}
 				else
 				{
-					iInitialPlotValue = GC.getGame().GetSettlerSiteEvaluator()->PlotFoundValue(pUnit->plot(), m_pPlayer, NO_YIELD, false);
+					iInitialPlotValue = pUnit->plot()->getFoundValue(m_pPlayer->GetID());
 
 					for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
 					{
 						CvPlot* pAdjacentPlot = plotDirection(pUnit->getX(), pUnit->getY(), ((DirectionTypes)iI));
 						if(pAdjacentPlot != NULL)
 						{
-							iAdjacentValue = GC.getGame().GetSettlerSiteEvaluator()->PlotFoundValue(pAdjacentPlot, m_pPlayer, NO_YIELD, false);
+							iAdjacentValue = pAdjacentPlot->getFoundValue(m_pPlayer->GetID());;
 							if(iAdjacentValue > iInitialPlotValue)
 							{
 								iInitialPlotValue = iAdjacentValue;
@@ -3025,7 +3025,7 @@ void CvHomelandAI::ExecuteFirstTurnSettlerMoves()
 							iCount++;
 							int iDir = GC.getGame().getJonRandNum(NUM_DIRECTION_TYPES, "Roll to see where to move!");
 							pAdjacentPlot = plotDirection(pUnit->getX(), pUnit->getY(), ((DirectionTypes)iDir));
-							if(pAdjacentPlot != NULL && !pAdjacentPlot->isWater() && !pAdjacentPlot->isImpassable())
+							if(pAdjacentPlot != NULL && pUnit->canFound(pAdjacentPlot))
 							{
 								pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pAdjacentPlot->getX(), pAdjacentPlot->getY());
 								UnitProcessed(pUnit->GetID());
