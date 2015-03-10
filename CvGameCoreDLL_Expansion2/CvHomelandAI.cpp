@@ -3339,7 +3339,8 @@ void CvHomelandAI::ExecuteExplorerMoves()
 #ifdef AUI_ASTAR_TURN_LIMITER
 					//reverse the score calculation below to get an upper bound on the distance
 					int iMaxDistance = (1000*iRating) / max(1,iBestPlotScore);
-					bool bCanFindPath = kPathFinder.GenerateUnitPath(pUnit.pointer(), iUnitX, iUnitY, pEvalPlot->getX(), pEvalPlot->getY(), MOVE_TERRITORY_NO_ENEMY | MOVE_MAXIMIZE_EXPLORE /*iFlags*/, true/*bReuse*/, iMaxDistance);
+					bool bCanFindPath = (iMaxDistance>0) && kPathFinder.GenerateUnitPath(pUnit.pointer(), iUnitX, iUnitY, pEvalPlot->getX(), pEvalPlot->getY(), 
+																	MOVE_TERRITORY_NO_ENEMY | MOVE_MAXIMIZE_EXPLORE /*iFlags*/, true/*bReuse*/, iMaxDistance);
 #else
 					bool bCanFindPath = kPathFinder.GenerateUnitPath(pUnit.pointer(), iUnitX, iUnitY, pEvalPlot->getX(), pEvalPlot->getY(), MOVE_TERRITORY_NO_ENEMY | MOVE_MAXIMIZE_EXPLORE | MOVE_UNITS_IGNORE_DANGER /*iFlags*/, true/*bReuse*/);
 #endif
