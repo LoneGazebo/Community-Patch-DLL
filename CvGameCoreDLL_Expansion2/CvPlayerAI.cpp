@@ -31,6 +31,11 @@
 #include "cvStopWatch.h"
 #include "CvEconomicAI.h"
 
+#if defined(MOD_BALANCE_CORE)
+#include "CvDistanceMap.h"
+#endif
+
+
 // Include this after all other headers.
 #include "LintFree.h"
 
@@ -177,6 +182,7 @@ void CvPlayerAI::AI_updateFoundValues(bool /*unused*/)
 	}
 
 	// important preparation
+	m_pCityDistance->Update();
 	GC.getGame().GetSettlerSiteEvaluator()->ComputeFlavorMultipliers(this);
 
 	const PlayerTypes eID = GetID();

@@ -71,7 +71,8 @@ void CvDangerPlots::Init(PlayerTypes ePlayer, bool bAllocate)
 		for(int i = 0; i < iGridSize; i++)
 		{
 #ifdef AUI_DANGER_PLOTS_REMADE
-			m_DangerPlots[i].init(GC.getMap().plotByIndexUnchecked(i));
+			CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(i);
+			m_DangerPlots[i].init(*pPlot);
 #else
 			m_DangerPlots[i] = 0;
 #endif // AUI_DANGER_PLOTS_REMADE
@@ -1064,21 +1065,15 @@ void CvDangerPlots::Read(FDataStream& kStream)
 	kStream >> iGridSize;
 
 #ifdef AUI_DANGER_PLOTS_REMADE
+	Uninit();
 	m_DangerPlots = FNEW(CvDangerPlotContents[iGridSize], c_eCiv5GameplayDLL, 0);
-	if (uiVersion >= 2)
+	m_bArrayAllocated = true;
+
+	for (int i = 0; i < iGridSize; i++)
 	{
-		for (int i = 0; i < iGridSize; i++)
-		{
-			kStream >> m_DangerPlots[i];
-		}
+		kStream >> m_DangerPlots[i];
 	}
-	else
-	{
-		for (int i = 0; i < iGridSize; i++)
-		{
-			m_DangerPlots[i].init(GC.getMap().plotByIndexUnchecked(i));
-		}
-	}
+
 #else
 	m_DangerPlots.resize(iGridSize);
 	for(int i = 0; i < iGridSize; i++)
@@ -1094,11 +1089,7 @@ void CvDangerPlots::Read(FDataStream& kStream)
 void CvDangerPlots::Write(FDataStream& kStream) const
 {
 	// Current version number
-#ifdef AUI_DANGER_PLOTS_REMADE
-	uint uiVersion = AUI_DANGER_PLOTS_REMADE;
-#else
 	uint uiVersion = 1;
-#endif
 	kStream << uiVersion;
 	MOD_SERIALIZE_INIT_WRITE(kStream);
 
@@ -1123,6 +1114,9 @@ void CvDangerPlots::SetDirty()
 // Get the maximum damage unit could receive at this plot in the next turn
 int CvDangerPlotContents::GetDanger(PlayerTypes ePlayer)
 {
+	if (!m_pPlot)
+		return 0;
+
 	// Damage from terrain
 	int iPlotDamage = m_iFlatPlotDamage;
 
@@ -1187,6 +1181,9 @@ int CvDangerPlotContents::GetDanger(PlayerTypes ePlayer)
 // Get the maximum damage unit could receive at this plot in the next turn (update this with CvUnitCombat changes!)
 int CvDangerPlotContents::GetDanger(CvUnit* pUnit, int iAirAction, int iAfterNIntercepts)
 {
+	if (!m_pPlot || !pUnit)
+		return 0;
+
 	// Air units only take damage from interceptions
 	if (pUnit->getDomainType() == DOMAIN_AIR)
 	{
@@ -1508,6 +1505,9 @@ int CvDangerPlotContents::GetDanger(CvUnit* pUnit, int iAirAction, int iAfterNIn
 // Can this tile be attacked by an enemy unit or city next turn?
 bool CvDangerPlotContents::IsUnderImmediateThreat(PlayerTypes ePlayer)
 {
+	if (!m_pPlot)
+		return false;
+
 	// Terrain damage
 	if (m_iFlatPlotDamage > 0)
 	{
@@ -1546,6 +1546,9 @@ bool CvDangerPlotContents::IsUnderImmediateThreat(PlayerTypes ePlayer)
 // Can this tile be attacked by an enemy unit or city next turn?
 bool CvDangerPlotContents::IsUnderImmediateThreat(CvUnit* pUnit)
 {
+	if (!m_pPlot || !pUnit)
+		return false;
+
 	// Air units operate off of intercepts instead of units/cities that can attack them
 	if (pUnit->getDomainType() == DOMAIN_AIR)
 	{
@@ -1613,6 +1616,9 @@ bool CvDangerPlotContents::IsUnderImmediateThreat(CvUnit* pUnit)
 
 bool CvDangerPlotContents::CouldAttackHere(CvUnit* pAttacker)
 {
+	if (!m_pPlot || !pAttacker)
+		return false;
+
 	for (DangerUnitVector::iterator it = m_apUnits.begin(); it < m_apUnits.end(); ++it)
 	{
 		CvUnit* pUnit = GET_PLAYER(it->first).getUnit(it->second);
@@ -1631,6 +1637,9 @@ bool CvDangerPlotContents::CouldAttackHere(CvUnit* pAttacker)
 
 bool CvDangerPlotContents::CouldAttackHere(CvCity* pAttacker)
 {
+	if (!m_pPlot || !pAttacker)
+		return false;
+
 	for (DangerCityVector::iterator it = m_apCities.begin(); it < m_apCities.end(); ++it)
 	{
 		if (*it == pAttacker)
@@ -1649,16 +1658,18 @@ bool CvDangerPlotContents::CouldAttackHere(CvCity* pAttacker)
 // Get the maximum damage city could receive this turn if it were in this plot
 int CvDangerPlotContents::GetDanger(CvCity* pCity, CvUnit* pPretendGarrison, int iAfterNIntercepts)
 {
+	if (!m_pPlot || !pCity)
+		return 0;
+
 	int iPlotDamage = 0;
 	CvPlot* pCityPlot = pCity->plot();
 	const int iCityX = pCityPlot->getX();
 	const int iCityY = pCityPlot->getY();
 	const int iMaxNoCaptureDamage = pCity->GetMaxHitPoints() - pCity->getDamage() - 1;
+
 #ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
 	if (pPretendGarrison != NULL)
-	{
 		pCity->OverrideGarrison(pPretendGarrison);
-	}
 #endif
 
 	CvPlot* pAttackerPlot = NULL;

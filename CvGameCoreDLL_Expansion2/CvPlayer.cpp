@@ -1726,8 +1726,6 @@ void CvPlayer::gameStartInit()
 	//make sure the non-serialized infos are up to date
 	m_pDangerPlots->Init(GetID(), true);
 	m_pCityDistance->Init(GetID(), true);
-	m_pCityDistance->Update();
-	UpdateDangerPlots();
 #else
 	// if the game is loaded, don't init the danger plots. This was already done in the serialization process.
 	if(CvPreGame::gameStartType() != GAME_LOADED)

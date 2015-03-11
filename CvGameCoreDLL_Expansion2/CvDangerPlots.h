@@ -25,25 +25,17 @@ struct CvDangerPlotContents
 {
 	CvDangerPlotContents()
 	{
+		m_pPlot = NULL;
+		m_iX = INVALID_PLOT_COORD;
+		m_iY = INVALID_PLOT_COORD;
 		clear();
 	}
 
-	void init(CvPlot* pPlot = NULL, int iX = INVALID_PLOT_COORD, int iY = INVALID_PLOT_COORD)
+	void init(CvPlot& plot)
 	{
-		m_pPlot = pPlot;
-		if (m_pPlot && (iX == INVALID_PLOT_COORD || iY == INVALID_PLOT_COORD))
-		{
-			m_iX = m_pPlot->getX();
-			m_iY = m_pPlot->getY();
-		}
-		else if (!m_pPlot)
-		{
-			if (!(m_pPlot = GC.getMap().plot(iX, iY)))
-			{
-				m_iX = INVALID_PLOT_COORD;
-				m_iY = INVALID_PLOT_COORD;
-			}
-		}
+		m_pPlot = &plot;
+		m_iX = m_pPlot->getX();
+		m_iY = m_pPlot->getY();
 	}
 
 	void clear()
@@ -57,7 +49,7 @@ struct CvDangerPlotContents
 
 	int GetDanger(CvUnit* pUnit, int iAirAction = AIR_ACTION_ATTACK, int iAfterNIntercepts = 0);
 	int GetDanger(CvCity* pCity, CvUnit* pPretendGarrison = NULL, int iAfterNIntercepts = 0);
-	// Not normally used, primarily a helper tool
+	// should not normally be used, primarily for compatibility
 	int GetDanger(PlayerTypes ePlayer);
 	bool IsUnderImmediateThreat(CvUnit* pUnit);
 	bool IsUnderImmediateThreat(PlayerTypes ePlayer);
@@ -78,13 +70,16 @@ struct CvDangerPlotContents
 
 inline FDataStream & operator >> (FDataStream & kStream, CvDangerPlotContents & kStruct)
 {
-	int m_iX;
-	int m_iY;
+	int iX;
+	int iY;
 
-	kStream >> m_iX;
-	kStream >> m_iY;
+	kStream >> iX;
+	kStream >> iY;
 
-	kStruct.init(NULL, m_iX, m_iY);
+	CvPlot* pPlot = GC.getMap().plot(iX,iY);
+
+	if (pPlot)
+		kStruct.init(*pPlot);
 
 	return kStream;
 }
