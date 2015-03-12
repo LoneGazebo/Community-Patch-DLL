@@ -177,11 +177,20 @@ static bool SortUnitDistance(const DistancePlotEntry& kEntry1, const DistancePlo
 	return kEntry1.first < kEntry2.first;
 }
 
+#if defined(MOD_BALANCE_CORE)
+CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit) const
+#else
 bool CvHomelandAI::IsAnyValidExploreMoves(const CvUnit* pUnit) const
+#endif
 {
 	CvEconomicAI* pEconomicAI = m_pPlayer->GetEconomicAI();
 	FFastVector<int>& aiExplorationPlots = pEconomicAI->GetExplorationPlots();
 	FFastVector<int>& aiExplorationPlotRatings = pEconomicAI->GetExplorationPlotRatings();
+
+#if defined(MOD_BALANCE_CORE)
+		int iBestPlotScore = 0;
+		CvPlot* pBestPlot = NULL;
+#endif
 
 	if (aiExplorationPlots.size() > 0)
 	{
@@ -215,7 +224,6 @@ bool CvHomelandAI::IsAnyValidExploreMoves(const CvUnit* pUnit) const
 			int iDistY = abs( pEvalPlot->getY() - iUnitY );
 
 			aDistanceList.push_back(std::pair<int, CvPlot*>((iDistX*iDistX)+(iDistY*iDistY), pEvalPlot));
-
 		}
 
 		if (aDistanceList.size())
@@ -225,10 +233,52 @@ bool CvHomelandAI::IsAnyValidExploreMoves(const CvUnit* pUnit) const
 			for (DistanceSortedPlotArray::const_iterator itr = aDistanceList.begin(); itr != aDistanceList.end(); ++itr)
 			{
 				CvPlot* pEvalPlot = (*itr).second;
+
+#if defined(MOD_BALANCE_CORE)
+				int iRating=(*itr).first;
+
+#ifdef AUI_ASTAR_TURN_LIMITER
+				//reverse the score calculation below to get an upper bound on the distance
+				int iMaxDistance = (1000*iRating) / max(1,iBestPlotScore);
+
+				if(iMaxDistance==0 || !IsValidExplorerEndTurnPlot(pUnit, pEvalPlot))
+					continue;
+
+				bool bCanFindPath = GC.getPathFinder().GenerateUnitPath(pUnit, iUnitX, iUnitY, pEvalPlot->getX(), pEvalPlot->getY(), 
+									MOVE_TERRITORY_NO_ENEMY | MOVE_MAXIMIZE_EXPLORE /*iFlags*/, true/*bReuse*/, iMaxDistance);
+#else
+				if(!IsValidExplorerEndTurnPlot(pUnit, pEvalPlot))
+					continue;
+
+				bool bCanFindPath = GC.getPathFinder().GenerateUnitPath(pUnit.pointer(), iUnitX, iUnitY, pEvalPlot->getX(), pEvalPlot->getY(), MOVE_TERRITORY_NO_ENEMY | MOVE_MAXIMIZE_EXPLORE | MOVE_UNITS_IGNORE_DANGER /*iFlags*/, true/*bReuse*/);
+#endif
+				if(!bCanFindPath)
+					continue;
+
+				CvAStarNode* pNode = GC.getPathFinder().GetLastNode();
+				int iDistance = pNode->m_iData2;
+				int iPlotScore = (1000 * iRating) / max(1,iDistance);
+
+				if (iPlotScore>iBestPlotScore)
+				{
+					CvPlot* pEndTurnPlot = GC.getPathFinder().GetPathEndTurnPlot();
+					if(pEndTurnPlot == pUnit->plot())
+					{
+						pBestPlot = NULL;
+						iBestPlotScore = iPlotScore;
+					}
+					else
+					{
+						pBestPlot = pEndTurnPlot;
+						iBestPlotScore = iPlotScore;
+					}
+				}
+#else
 				if(!IsValidExplorerEndTurnPlot(pUnit, pEvalPlot))
 				{
 					continue;
 				}
+
 				// hitting the path finder, may not be the best idea. . .
 				bool bCanFindPath = GC.getPathFinder().GenerateUnitPath(pUnit, iUnitX, iUnitY, pEvalPlot->getX(), pEvalPlot->getY(), MOVE_TERRITORY_NO_ENEMY | MOVE_MAXIMIZE_EXPLORE | MOVE_UNITS_IGNORE_DANGER /*iFlags*/, true/*bReuse*/);
 				if(!bCanFindPath)
@@ -237,12 +287,18 @@ bool CvHomelandAI::IsAnyValidExploreMoves(const CvUnit* pUnit) const
 				}
 
 				return true;
+#endif
+
 			}
 		}
 	}
 
 
+#if defined(MOD_BALANCE_CORE)
+	return pBestPlot;
+#else
 	return false;
+#endif
 }
 
 // PRIVATE METHODS
@@ -3155,7 +3211,6 @@ void CvHomelandAI::ExecuteExplorerMoves()
 	CvEconomicAI* pEconomicAI = m_pPlayer->GetEconomicAI();
 	bool bFoundNearbyExplorePlot = false;
 
-	CvTwoLayerPathFinder& kPathFinder = GC.getPathFinder();
 	FStaticVector< CvHomelandUnit, 64, true, c_eCiv5GameplayDLL >::iterator it;
 	for(it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
 	{
@@ -3303,78 +3358,7 @@ void CvHomelandAI::ExecuteExplorerMoves()
 
 		//if we didn't find a worthwhile plot among our adjacent plots, check the global targets
 		if(!pBestPlot && iMovementRange > 0)
-		{
-			FFastVector<int>& aiExplorationPlots = pEconomicAI->GetExplorationPlots();
-			if (aiExplorationPlots.size() > 0)
-			{
-				FFastVector<int>& aiExplorationPlotRatings = pEconomicAI->GetExplorationPlotRatings();
-				iBestPlotScore = 0;
-
-				for(uint ui = 0; ui < aiExplorationPlots.size(); ui++)
-				{
-					int iPlot = aiExplorationPlots[ui];
-					if(iPlot < 0)
-					{
-						continue;
-					}
-
-					CvPlot* pEvalPlot = GC.getMap().plotByIndex(iPlot);
-					if(!pEvalPlot)
-					{
-						continue;
-					}
-
-					int iPlotScore = 0;
-
-					if(!IsValidExplorerEndTurnPlot(pUnit.pointer(), pEvalPlot))
-					{
-						continue;
-					}
-
-					int iRating = aiExplorationPlotRatings[ui];
-
-					if (iRating==0)
-						continue;
-
-#ifdef AUI_ASTAR_TURN_LIMITER
-					//reverse the score calculation below to get an upper bound on the distance
-					int iMaxDistance = (1000*iRating) / max(1,iBestPlotScore);
-					bool bCanFindPath = (iMaxDistance>0) && kPathFinder.GenerateUnitPath(pUnit.pointer(), iUnitX, iUnitY, pEvalPlot->getX(), pEvalPlot->getY(), 
-																	MOVE_TERRITORY_NO_ENEMY | MOVE_MAXIMIZE_EXPLORE /*iFlags*/, true/*bReuse*/, iMaxDistance);
-#else
-					bool bCanFindPath = kPathFinder.GenerateUnitPath(pUnit.pointer(), iUnitX, iUnitY, pEvalPlot->getX(), pEvalPlot->getY(), MOVE_TERRITORY_NO_ENEMY | MOVE_MAXIMIZE_EXPLORE | MOVE_UNITS_IGNORE_DANGER /*iFlags*/, true/*bReuse*/);
-#endif
-					if(!bCanFindPath)
-					{
-						continue;
-					}
-
-					CvAStarNode* pNode = kPathFinder.GetLastNode();
-					int iDistance = pNode->m_iData2;
-					iPlotScore = (1000 * iRating) / max(1,iDistance);
-
-					if (iPlotScore>iBestPlotScore)
-					{
-						CvPlot* pEndTurnPlot = kPathFinder.GetPathEndTurnPlot();
-						if(pEndTurnPlot == pUnit->plot())
-						{
-							pBestPlot = NULL;
-							iBestPlotScore = iPlotScore;
-						}
-						else if(IsValidExplorerEndTurnPlot(pUnit.pointer(), pEndTurnPlot))
-						{
-							pBestPlot = pEndTurnPlot;
-							iBestPlotScore = iPlotScore;
-						}
-						else
-						{
-							// not a valid destination
-							continue;
-						}
-					}
-				}
-			}
-		}
+			pBestPlot = GetBestExploreTarget(pUnit.pointer());
 
 		//make sure we're not in an endless loop
 		if(pBestPlot)

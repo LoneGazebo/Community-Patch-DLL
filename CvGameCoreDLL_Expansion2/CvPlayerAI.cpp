@@ -495,7 +495,9 @@ int CvPlayerAI::AI_foundValue(int iX, int iY, int, bool bStartingLoc)
 	}
 	else
 	{
+#if !defined(MOD_BALANCE_CORE)
 		GC.getGame().GetSettlerSiteEvaluator()->ComputeFlavorMultipliers(this);
+#endif
 		rtnValue =  GC.getGame().GetSettlerSiteEvaluator()->PlotFoundValue(pPlot, this, NO_YIELD, false);
 	}
 

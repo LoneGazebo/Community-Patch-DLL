@@ -5092,7 +5092,11 @@ bool CvUnit::CanAutomate(AutomateTypes eAutomate, bool bTestVisibility) const
 
 		if(!bTestVisibility)
 		{
+#if defined(MOD_BALANCE_CORE)
+			if(GET_PLAYER(m_eOwner).GetHomelandAI()->GetBestExploreTarget(this)==NULL)
+#else
 			if(!GET_PLAYER(m_eOwner).GetHomelandAI()->IsAnyValidExploreMoves(this))
+#endif
 			{
 				return false;
 			}
