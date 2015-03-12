@@ -3360,7 +3360,13 @@ int CvPlayerReligions::GetNumForeignFollowers(bool bAtPeace) const
 /// Constructor
 CvCityReligions::CvCityReligions(void):
 	m_bHasPaidAdoptionBonus(false),
+#if defined(MOD_BALANCE_CORE)
+	m_iReligiousPressureModifier(0),
+	m_pCity(NULL),
+	m_majorityReligion(NO_RELIGION)
+#else
 	m_iReligiousPressureModifier(0)
+#endif
 {
 	m_ReligionStatus.clear();
 }
@@ -3586,9 +3592,19 @@ bool CvCityReligions::IsDefendedAgainstSpread(ReligionTypes eReligion)
 	return false;
 }
 
+#if defined(MOD_BALANCE_CORE)
+ReligionTypes CvCityReligions::GetReligiousMajority()
+{
+	return m_majorityReligion;
+}
+
+ReligionTypes CvCityReligions::ComputeReligiousMajority()
+{
+#else
 /// Is there a religion that at least half of the population follows?
 ReligionTypes CvCityReligions::GetReligiousMajority()
 {
+#endif
 	int iTotalFollowers = 0;
 	int iMostFollowerPressure = 0;
 	int iMostFollowers = -1;
@@ -4472,6 +4488,10 @@ void CvCityReligions::RecomputeFollowers(CvReligiousFollowChangeReason eReason, 
 			itLargestRemainder->m_iTemp = 0;
 		}
 	}
+
+#if defined(MOD_BALANCE_CORE)
+	m_majorityReligion = ComputeReligiousMajority();
+#endif
 
 	ReligionTypes eMajority = GetReligiousMajority();
 	int iFollowers = GetNumFollowers(eMajority);

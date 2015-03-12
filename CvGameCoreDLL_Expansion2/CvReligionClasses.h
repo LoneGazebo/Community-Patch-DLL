@@ -476,9 +476,17 @@ private:
 	void CityConvertsReligion(ReligionTypes eMajority, ReligionTypes eOldMajority, PlayerTypes eResponsibleParty);
 	void LogFollowersChange(CvReligiousFollowChangeReason eReason);
 
+#if defined(MOD_BALANCE_CORE)
+	ReligionTypes ComputeReligiousMajority();
+#endif
+
 	CvCity* m_pCity;
 	bool m_bHasPaidAdoptionBonus;
 	int m_iReligiousPressureModifier;
+
+#if defined(MOD_BALANCE_CORE)
+	ReligionTypes m_majorityReligion;
+#endif
 };
 
 FDataStream& operator>>(FDataStream&, CvCityReligions&);

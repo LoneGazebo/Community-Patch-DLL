@@ -1146,7 +1146,14 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTarget2(AIOperationTypes eAIOperati
 			cachedTarget.iTurnChosen = GC.getGame().getGameTurn();
 
 			m_cachedTargets[eEnemy][eAIOperationType] = cachedTarget;
-			LogChosenTarget(eAIOperationType,eEnemy,new_target);
+
+			if(GC.getLogging() && GC.getAILogging())
+			{
+				CvString strOutBuf = CvString::format("%s - found better attack target", m_pPlayer->getCivilizationShortDescription());
+				FILogFile* pLog = LOGFILEMGR.GetLog("OperationalAILog.csv", FILogFile::kDontTimeStamp);
+				if (pLog)
+					pLog->Msg(strOutBuf);
+			}
 		}
 	}
 	else
@@ -1154,6 +1161,14 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTarget2(AIOperationTypes eAIOperati
 		new_target.m_pTargetCity = GetCityFromID(cachedTarget.iTargetCity);
 		new_target.m_pMusterCity = GetCityFromID(cachedTarget.iMusterCity);
 		new_target.m_bAttackBySea = cachedTarget.bAttackBySea;
+
+		if(GC.getLogging() && GC.getAILogging())
+		{
+			CvString strOutBuf = CvString::format("%s - keeping cached attack target %s", m_pPlayer->getCivilizationShortDescription(), new_target.m_pTargetCity->getName().c_str());
+			FILogFile* pLog = LOGFILEMGR.GetLog("OperationalAILog.csv", FILogFile::kDontTimeStamp);
+			if (pLog)
+				pLog->Msg(strOutBuf);
+		}
 	}
 
 	//either the cache one or we updated it
@@ -1659,6 +1674,13 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTarget(AIOperationTypes eAIOperatio
 	weightedTargetList.SortItems();
 	LogAttackTargets(eAIOperationType, eEnemy, weightedTargetList);
 
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	//just take the best one
+	chosenTarget = weightedTargetList.GetElement(0);
+	if (piWinningScore)
+		*piWinningScore = ScoreTarget(chosenTarget, eAIOperationType);
+#else
+
 	if(weightedTargetList.GetTotalWeight() > 0)
 	{
 		RandomNumberDelegate fcn;
@@ -1680,6 +1702,7 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTarget(AIOperationTypes eAIOperatio
 			*piWinningScore = -1;
 		}
 	}
+#endif
 
 	return chosenTarget;
 }

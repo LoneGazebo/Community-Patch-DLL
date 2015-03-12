@@ -614,6 +614,12 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 		vQualifiersNegative.push_back("(V) city on resource");
 	}
 
+	if (pPlot->IsNaturalWonder())
+	{
+		iValueModifier += (int)iTotalPlotValue * /*-50*/ GC.getBUILD_ON_RESOURCE_PERCENT() / 100;
+		vQualifiersNegative.push_back("(V) city on natural wonder");
+	}
+
 	if ( iTotalFoodValue>5*iTotalProductionValue || iTotalProductionValue > 2*iTotalFoodValue )
 	{
 		iValueModifier -= (int)iTotalPlotValue * 10 / 100;
