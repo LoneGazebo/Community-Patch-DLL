@@ -1974,6 +1974,7 @@ ReligionTypes CvGameReligions::GetFounderBenefitsReligion(PlayerTypes ePlayer) c
 {
 	ReligionTypes eReligion;
 
+#if !defined(AUI_DANGER_PLOTS_REMADE)
 	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
 	if(pkScriptSystem)
 	{
@@ -1987,6 +1988,7 @@ ReligionTypes CvGameReligions::GetFounderBenefitsReligion(PlayerTypes ePlayer) c
 			return eReligion;
 		}
 	}
+#endif
 
 	eReligion = GetReligionCreatedByPlayer(ePlayer);
 
@@ -2879,6 +2881,9 @@ CvPlayerReligions::CvPlayerReligions(void):
 #if defined(MOD_GLOBAL_TRULY_FREE_GP)
 	m_iNumFreeProphetsSpawned(0),
 #endif
+#if defined(MOD_BALANCE_CORE)
+	m_majorityReligion(NO_RELIGION),
+#endif
 	m_iNumProphetsSpawned(0),
 	m_bFoundingReligion(false)
 {
@@ -2915,6 +2920,9 @@ void CvPlayerReligions::Reset()
 #if defined(MOD_RELIGION_RECURRING_PURCHASE_NOTIFIY)
 	m_iFaithAtLastNotify = 0;
 #endif
+#if defined(MOD_BALANCE_CORE)
+	m_majorityReligion = NO_RELIGION;
+#endif
 }
 
 /// Serialization read
@@ -2929,6 +2937,10 @@ void CvPlayerReligions::Read(FDataStream& kStream)
 #endif
 	kStream >> m_iNumProphetsSpawned;
 	kStream >> m_bFoundingReligion;
+#if defined(MOD_BALANCE_CORE)
+	int tmp;
+	kStream >> tmp; m_majorityReligion = (ReligionTypes)tmp;
+#endif
 #if defined(MOD_RELIGION_RECURRING_PURCHASE_NOTIFIY)
 	MOD_SERIALIZE_READ(42, kStream, m_iFaithAtLastNotify, 0);
 #endif
@@ -2946,6 +2958,9 @@ void CvPlayerReligions::Write(FDataStream& kStream)
 #endif
 	kStream << m_iNumProphetsSpawned;
 	kStream << m_bFoundingReligion;
+#if defined(MOD_BALANCE_CORE)
+	kStream << m_majorityReligion;
+#endif
 #if defined(MOD_RELIGION_RECURRING_PURCHASE_NOTIFIY)
 	MOD_SERIALIZE_WRITE(kStream, m_iFaithAtLastNotify);
 #endif
@@ -3228,6 +3243,30 @@ bool CvPlayerReligions::HasReligionInMostCities(ReligionTypes eReligion) const
 #endif
 }
 
+#if defined(MOD_BALANCE_CORE)
+/// What religion is followed in a majority of our cities?
+ReligionTypes CvPlayerReligions::GetReligionInMostCities() const
+{
+	return m_majorityReligion;
+}
+
+/// What religion is followed in a majority of our cities?
+bool CvPlayerReligions::ComputeMajority()
+{
+	for (int iI = RELIGION_PANTHEON + 1; iI < GC.GetGameReligions()->GetNumReligions(); iI++)
+	{
+		ReligionTypes eReligion = (ReligionTypes)iI;
+		if (HasReligionInMostCities(eReligion))
+		{
+			m_majorityReligion = eReligion;
+			return true;
+		}
+	}
+	m_majorityReligion = NO_RELIGION;
+	return false;
+}
+
+#else
 /// What religion is followed in a majority of our cities?
 ReligionTypes CvPlayerReligions::GetReligionInMostCities() const
 {
@@ -3241,6 +3280,8 @@ ReligionTypes CvPlayerReligions::GetReligionInMostCities() const
 	}
 	return NO_RELIGION;
 }
+
+#endif
 
 /// Does this player get a default influence boost with city states following this religion?
 int CvPlayerReligions::GetCityStateMinimumInfluence(ReligionTypes eReligion) const
@@ -3626,6 +3667,13 @@ ReligionTypes CvCityReligions::GetReligiousMajority()
 		}
 	}
 
+#if defined(MOD_BALANCE_CORE)
+	//update local majority
+	m_majorityReligion = (iMostFollowers*2 >= iTotalFollowers) ? eMostFollowers : NO_RELIGION;
+	//update player majority - really only have to to this if the local majority changes ...
+	GET_PLAYER(m_pCity->getOwner()).GetReligions()->ComputeMajority();
+	return m_majorityReligion!=NO_RELIGION;
+#else
 	if ((iMostFollowers * 2) >= iTotalFollowers)
 	{
 		m_majorityReligion = eMostFollowers;
@@ -3636,6 +3684,8 @@ ReligionTypes CvCityReligions::GetReligiousMajority()
 		m_majorityReligion = NO_RELIGION;
 		return false;
 	}
+#endif
+
 }
 
 /// Just asked to simulate a conversion - who would be the majority religion?

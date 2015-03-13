@@ -1813,6 +1813,11 @@ public:
 #endif
 	int GetMaxEffectiveCities(bool bIncludePuppets = false);
 
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	int GetFractionOriginalCapitalsUnderControl() const;
+	void UpdateFractionOriginalCapitalsUnderControl();
+#endif
+
 	int GetNumNaturalWondersDiscoveredInArea() const;
 	void SetNumNaturalWondersDiscoveredInArea(int iValue);
 	void ChangeNumNaturalWondersDiscoveredInArea(int iChange);
@@ -2698,6 +2703,11 @@ protected:
 	friend const CvUnit* GetPlayerUnit(const IDInfo& unit);
 
 	CvPlayerAchievements m_kPlayerAchievements;
+
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	//percent
+	int m_iFractionOriginalCapitalsUnderControl;
+#endif
 };
 
 extern bool CancelActivePlayerEndTurn();

@@ -13466,10 +13466,14 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 		iModifier += GetUnhappinessCombatPenalty();
 	}
 
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	// units cannot heal anymore, but strength is unaffected
+#else
 	// Over our strategic resource limit?
 	iTempModifier = GetStrategicResourceCombatPenalty();
 	if(iTempModifier != 0)
 		iModifier += iTempModifier;
+#endif
 
 #ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
 	if (pFromPlot == NULL)
@@ -14155,34 +14159,10 @@ int CvUnit::GetEmbarkedUnitDefense() const
 //	--------------------------------------------------------------------------------
 int CvUnit::GetResistancePower(const CvUnit* pOtherUnit) const
 {
-	int iResistancePower = 0;
 	if(!pOtherUnit->isBarbarian() && !GET_PLAYER(pOtherUnit->getOwner()).isMinorCiv() && pOtherUnit->getOwner() != NO_PLAYER)
-	{
-		int iNum = 0;
-		const CvCity* pLoopCity;
-		int iLoop;
-		for(pLoopCity = GET_PLAYER(pOtherUnit->getOwner()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(pOtherUnit->getOwner()).nextCity(&iLoop))
-		{
-			if(pLoopCity->IsOriginalMajorCapital() && !pLoopCity->isCapital())
-			{
-				iNum++;
-			}
-		}
-		if(iNum >= 1)
-		{
-			int iNumCivs = 0;
-			for (int iLoopPlayer = 0; iLoopPlayer < MAX_PLAYERS; iLoopPlayer++)
-			{
-				CvPlayer &kPlayer = GET_PLAYER((PlayerTypes)iLoopPlayer);
-				if (kPlayer.isEverAlive() && !kPlayer.isMinorCiv())
-				{
-					iNumCivs++;
-				}
-			}
-			iResistancePower = ((iNum * 50) / iNumCivs);
-		}
-	}
-	return iResistancePower;
+		return GET_PLAYER(pOtherUnit->getOwner()).GetFractionOriginalCapitalsUnderControl() / 2;
+
+	return 0;
 }
 #endif
 //	--------------------------------------------------------------------------------
@@ -14320,10 +14300,14 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 		iModifier += GetUnhappinessCombatPenalty();
 	}
 
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	// units cannot heal anymore, but strength is unaffected
+#else
 	// Over our strategic resource limit?
 	iTempModifier = GetStrategicResourceCombatPenalty();
 	if(iTempModifier != 0)
 		iModifier += iTempModifier;
+#endif
 
 	// Great General nearby
 #ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS

@@ -1332,6 +1332,10 @@ void CvPlayer::uninit()
 	m_iVassalGoldMaintenanceMod = 0;
 #endif
 
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	m_iFractionOriginalCapitalsUnderControl = 0;
+#endif
+
 	m_eID = NO_PLAYER;
 }
 
@@ -5271,6 +5275,7 @@ void CvPlayer::doTurnPostDiplomacy()
 			UpdatePlots();
 #if defined(MOD_BALANCE_CORE)
 			UpdateDangerPlots();
+			UpdateFractionOriginalCapitalsUnderControl();
 #else
 			m_pDangerPlots->UpdateDanger();
 #endif
@@ -30270,6 +30275,10 @@ void CvPlayer::Read(FDataStream& kStream)
 	kStream >> m_iFoundValueOfCapital;
 #endif
 
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	kStream >> m_iFractionOriginalCapitalsUnderControl;
+#endif
+
 	if(GetID() < MAX_MAJOR_CIVS)
 	{
 		if(!m_pDiplomacyRequests)
@@ -30847,6 +30856,10 @@ void CvPlayer::Write(FDataStream& kStream) const
 
 #if defined(MOD_BALANCE_CORE_SETTLER)
 	kStream << m_iFoundValueOfCapital;
+#endif
+
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	kStream << m_iFractionOriginalCapitalsUnderControl;
 #endif
 }
 
@@ -31822,6 +31835,39 @@ int CvPlayer::GetNumCapitalCities() const
 	return iNum;
 }
 #endif
+
+#if defined(MOD_BALANCE_CORE_MILITARY)
+int CvPlayer::GetFractionOriginalCapitalsUnderControl() const
+{
+	return m_iFractionOriginalCapitalsUnderControl;
+}
+
+void CvPlayer::UpdateFractionOriginalCapitalsUnderControl()
+{
+	m_iFractionOriginalCapitalsUnderControl = 0;
+
+	int iLoop;
+	int iOCCount = 0;
+	for(const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+		//don't count our own capital!
+		if(pLoopCity->IsOriginalMajorCapital() && !pLoopCity->isCapital())
+			iOCCount++;
+
+	if(iOCCount > 0)
+	{
+		int iCivCount = 0;
+		for (int iLoopPlayer = 0; iLoopPlayer < MAX_PLAYERS; iLoopPlayer++)
+		{
+			CvPlayer &kPlayer = GET_PLAYER((PlayerTypes)iLoopPlayer);
+			if (kPlayer.isEverAlive() && !kPlayer.isMinorCiv())
+				iCivCount++;
+		}
+
+		m_iFractionOriginalCapitalsUnderControl = iOCCount * 100 / iCivCount;
+	}
+}
+#endif
+
 //	--------------------------------------------------------------------------------
 // How many Cities does this player have for policy/tech cost purposes?
 int CvPlayer::GetMaxEffectiveCities(bool bIncludePuppets)
