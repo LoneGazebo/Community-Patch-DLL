@@ -469,16 +469,16 @@ public:
 	ReligionInCityList m_ReligionStatus;
 	ReligionInCityList m_SimulatedStatus;
 
+#if defined(MOD_BALANCE_CORE)
+	bool ComputeReligiousMajority();
+#endif
+
 private:
 	void RecomputeFollowers(CvReligiousFollowChangeReason eReason, ReligionTypes eOldMajorityReligion, PlayerTypes eResponsibleParty=NO_PLAYER);
 	void SimulateFollowers();
 	void CopyToSimulatedStatus();
 	void CityConvertsReligion(ReligionTypes eMajority, ReligionTypes eOldMajority, PlayerTypes eResponsibleParty);
 	void LogFollowersChange(CvReligiousFollowChangeReason eReason);
-
-#if defined(MOD_BALANCE_CORE)
-	ReligionTypes ComputeReligiousMajority();
-#endif
 
 	CvCity* m_pCity;
 	bool m_bHasPaidAdoptionBonus;

@@ -3384,6 +3384,9 @@ void CvCityReligions::Init(CvCity* pCity)
 	m_bHasPaidAdoptionBonus = false;
 	m_iReligiousPressureModifier = 0;
 	m_ReligionStatus.clear();
+#if defined(MOD_BALANCE_CORE)
+	m_majorityReligion = NO_RELIGION;
+#endif
 }
 
 /// Cleanup
@@ -3598,7 +3601,7 @@ ReligionTypes CvCityReligions::GetReligiousMajority()
 	return m_majorityReligion;
 }
 
-ReligionTypes CvCityReligions::ComputeReligiousMajority()
+bool CvCityReligions::ComputeReligiousMajority()
 {
 #else
 /// Is there a religion that at least half of the population follows?
@@ -3625,11 +3628,13 @@ ReligionTypes CvCityReligions::GetReligiousMajority()
 
 	if ((iMostFollowers * 2) >= iTotalFollowers)
 	{
-		return eMostFollowers;
+		m_majorityReligion = eMostFollowers;
+		return true;
 	}
 	else
 	{
-		return NO_RELIGION;
+		m_majorityReligion = NO_RELIGION;
+		return false;
 	}
 }
 
@@ -4490,7 +4495,7 @@ void CvCityReligions::RecomputeFollowers(CvReligiousFollowChangeReason eReason, 
 	}
 
 #if defined(MOD_BALANCE_CORE)
-	m_majorityReligion = ComputeReligiousMajority();
+	ComputeReligiousMajority();
 #endif
 
 	ReligionTypes eMajority = GetReligiousMajority();
@@ -4956,6 +4961,10 @@ FDataStream& operator>>(FDataStream& loadFrom, CvCityReligions& writeTo)
 		loadFrom >> tempItem;
 		writeTo.m_ReligionStatus.push_back(tempItem);
 	}
+	
+#if defined(MOD_BALANCE_CORE)
+	writeTo.ComputeReligiousMajority();
+#endif
 
 	return loadFrom;
 }

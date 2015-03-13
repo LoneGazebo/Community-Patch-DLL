@@ -240,7 +240,7 @@ public:
 	void Update();
 
 	// Public exploration routines
-#if defined(MOD_BALANCE_CORE)
+#if defined(MOD_CORE_ALTERNATIVE_EXPLORE_SCORE)
 	CvPlot* GetBestExploreTarget(const CvUnit* pUnit) const;
 #else
 	bool IsAnyValidExploreMoves(const CvUnit* pUnit) const;

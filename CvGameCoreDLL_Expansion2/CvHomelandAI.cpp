@@ -177,7 +177,7 @@ static bool SortUnitDistance(const DistancePlotEntry& kEntry1, const DistancePlo
 	return kEntry1.first < kEntry2.first;
 }
 
-#if defined(MOD_BALANCE_CORE)
+#if defined(MOD_CORE_ALTERNATIVE_EXPLORE_SCORE)
 CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit) const
 #else
 bool CvHomelandAI::IsAnyValidExploreMoves(const CvUnit* pUnit) const
@@ -187,7 +187,7 @@ bool CvHomelandAI::IsAnyValidExploreMoves(const CvUnit* pUnit) const
 	FFastVector<int>& aiExplorationPlots = pEconomicAI->GetExplorationPlots();
 	FFastVector<int>& aiExplorationPlotRatings = pEconomicAI->GetExplorationPlotRatings();
 
-#if defined(MOD_BALANCE_CORE)
+#if defined(MOD_CORE_ALTERNATIVE_EXPLORE_SCORE)
 		int iBestPlotScore = 0;
 		CvPlot* pBestPlot = NULL;
 #endif
@@ -234,7 +234,7 @@ bool CvHomelandAI::IsAnyValidExploreMoves(const CvUnit* pUnit) const
 			{
 				CvPlot* pEvalPlot = (*itr).second;
 
-#if defined(MOD_BALANCE_CORE)
+#if defined(MOD_CORE_ALTERNATIVE_EXPLORE_SCORE)
 				int iRating=(*itr).first;
 
 #ifdef AUI_ASTAR_TURN_LIMITER
