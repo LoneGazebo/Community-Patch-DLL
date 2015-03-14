@@ -2731,7 +2731,7 @@ void CvCityBuildings::Read(FDataStream& kStream)
 	kStream >> m_aBuildingGreatWork;
 
 #if defined(MOD_BALANCE_CORE)
-	for (int i=0; i<m_iNumBuildings; i++)
+	for (int i=0; i<m_pBuildings->GetNumBuildings(); i++)
 		if (m_paiNumRealBuilding[i]>0 || m_paiNumFreeBuilding[i]>0)
 			m_buildingsThatExistAtLeastOnce.push_back( (BuildingTypes)i );
 #endif
@@ -3909,11 +3909,12 @@ int CvCityBuildings::GetThemingBonuses() const
 			}
 		}
 #else
-		iBonus += m_pCity->GetCityCulture()->GetThemingBonus(eLoopBuildingClass);
+		iBonus += m_pCity->GetCityCulture()->GetThemingBonus( (BuildingClassTypes)pkInfo->GetBuildingClassType() );
 #endif
 	}
 
 #else
+
 	for(int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
 	{
 		BuildingClassTypes eLoopBuildingClass = (BuildingClassTypes) iI;

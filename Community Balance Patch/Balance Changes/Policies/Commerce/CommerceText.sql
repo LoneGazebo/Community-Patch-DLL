@@ -28,7 +28,7 @@ WHERE Tag = 'TXT_KEY_POLICY_TRADE_UNIONS_TEXT' AND EXISTS (SELECT * FROM COMMUNI
 -- Wagon Trains (now called Turnpikes)
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Turnpikes[ENDCOLOR][NEWLINE]+4 [ICON_GOLD] Gold from all your land trade routes. Maintenance for Improvements is reduced by 25%.'
+SET Text = '[COLOR_POSITIVE_TEXT]Turnpikes[ENDCOLOR][NEWLINE]+4 [ICON_GOLD] Gold from owned Land [ICON_INTERNATIONAL_TRADE] Trade Routes. Maintenance for Improvements is reduced by 25%.'
 WHERE Tag = 'TXT_KEY_POLICY_CARAVANS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -41,7 +41,7 @@ WHERE Tag = 'TXT_KEY_POLICY_CARAVANS_TEXT' AND EXISTS (SELECT * FROM COMMUNITY W
 
 -- Mercantilism
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Mercantilism[ENDCOLOR][NEWLINE] +1 [ICON_RESEARCH] Science and +1 [ICON_CULTURE] Culture from every Mint, Market, Bank, and Stock Exchange.'
+SET Text = '[COLOR_POSITIVE_TEXT]Mercantilism[ENDCOLOR][NEWLINE] +1 [ICON_RESEARCH] Science and +1 [ICON_CULTURE] Culture from every Mint, Market, Bank, and Stock Exchange. Yields from Internal [ICON_INTERNATIONAL_TRADE] Trade Routes increased by 33%.'
 WHERE Tag = 'TXT_KEY_POLICY_MERCANTILISM_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 -- Entrepreneurship
@@ -52,6 +52,6 @@ WHERE Tag = 'TXT_KEY_POLICY_ENTREPRENEURSHIP_HELP' AND EXISTS (SELECT * FROM COM
 --Protectionism
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Protectionism[ENDCOLOR][NEWLINE]Receive an additional [ICON_INTERNATIONAL_TRADE] Trade Route, and receive +2 [ICON_GOLD] Gold from naval [ICON_INTERNATIONAL_TRADE] Trade Routes.'
+SET Text = '[COLOR_POSITIVE_TEXT]Protectionism[ENDCOLOR][NEWLINE]Receive an additional [ICON_INTERNATIONAL_TRADE] Trade Route, and receive +2 [ICON_GOLD] Gold from owned Naval [ICON_INTERNATIONAL_TRADE] Trade Routes.'
 WHERE Tag = 'TXT_KEY_POLICY_PROTECTIONISM_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 

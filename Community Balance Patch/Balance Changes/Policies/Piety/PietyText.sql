@@ -5,7 +5,7 @@ WHERE Tag = 'TXT_KEY_POLICY_BRANCH_PIETY_HELP' AND EXISTS (SELECT * FROM COMMUNI
 
 -- Organized Religion
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Organized Religion[ENDCOLOR][NEWLINE] Temples and Shrines grant +2 [ICON_PEACE] Faith, +2 [ICON_CULTURE] Culture, and +2 [ICON_FOOD] Food to the City where they are built. Temples and Shrines are constructed 50% more quickly.'
+SET Text = '[COLOR_POSITIVE_TEXT]Organized Religion[ENDCOLOR][NEWLINE] Temples and Shrines grant +2 [ICON_PEACE] Faith and +2 [ICON_CULTURE] Culture to the City where they are built. Temples and Shrines are constructed 50% more quickly.'
 WHERE Tag = 'TXT_KEY_POLICY_ORGANIZED_RELIGION_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 -- Mandate of Heaven (Now Trade Fairs)
@@ -14,7 +14,7 @@ SET Text = 'Trade Fairs'
 WHERE Tag = 'TXT_KEY_POLICY_MANDATE_OF_HEAVEN' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Trade Fairs[ENDCOLOR][NEWLINE]+2 [ICON_GOLD] Gold from Temples and +2 [ICON_GOLD] Gold from Markets in Cities that follow your majority [ICON_RELIGION] Religion. [ICON_INTERNATIONAL_TRADE] Trade Routes generate +2 [ICON_GOLD] Gold, and your majority Religion spreads 50% more quickly over [ICON_INTERNATIONAL_TRADE] Trade Routes.'
+SET Text = '[COLOR_POSITIVE_TEXT]Trade Fairs[ENDCOLOR][NEWLINE]+2 [ICON_GOLD] Gold from Temples and +2 [ICON_GOLD] Gold from Markets in Cities that follow your majority [ICON_RELIGION] Religion. Your majority Religion spreads 50% more quickly over [ICON_INTERNATIONAL_TRADE] Trade Routes.'
 WHERE Tag = 'TXT_KEY_POLICY_MANDATE_OF_HEAVEN_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -27,7 +27,7 @@ SET Text = 'Divine Right'
 WHERE Tag = 'TXT_KEY_POLICY_THEOCRACY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Divine Right[ENDCOLOR][NEWLINE] Cities that follow your majority [ICON_RELIGION] Religion generate +4 [ICON_PRODUCTION] Production and +2 [ICON_PEACE] Faith. Border growth is doubled during [ICON_GOLDEN_AGE] Golden Ages.'
+SET Text = '[COLOR_POSITIVE_TEXT]Divine Right[ENDCOLOR][NEWLINE] Cities that follow your majority [ICON_RELIGION] Religion generate +2 [ICON_PRODUCTION] Production and +2 [ICON_PEACE] Faith. Border growth is doubled during [ICON_GOLDEN_AGE] Golden Ages.'
 WHERE Tag = 'TXT_KEY_POLICY_THEOCRACY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US

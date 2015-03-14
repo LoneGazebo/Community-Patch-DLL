@@ -31,6 +31,11 @@
 #include "cvStopWatch.h"
 #include "CvEconomicAI.h"
 
+#if defined(MOD_BALANCE_CORE)
+#include "CvDistanceMap.h"
+#endif
+
+
 // Include this after all other headers.
 #include "LintFree.h"
 
@@ -177,9 +182,11 @@ void CvPlayerAI::AI_updateFoundValues(bool /*unused*/)
 	}
 
 	// important preparation
+	m_pCityDistance->Update();
 	GC.getGame().GetSettlerSiteEvaluator()->ComputeFlavorMultipliers(this);
 
 	const PlayerTypes eID = GetID();
+	const TeamTypes eTeam = getTeam();
 
 	// reset the areas
 	int iLoop = 0;
@@ -188,33 +195,55 @@ void CvPlayerAI::AI_updateFoundValues(bool /*unused*/)
 		pLoopArea->setTotalFoundValue(0);
 	}
 
-	// calculate new score
+	// first pass: precalculate found values
 	int iGoodEnoughToBeWorthOurTime = GC.getAI_STRATEGY_MINIMUM_SETTLE_FERTILITY();
 	const int iNumPlots = GC.getMap().numPlots();
 	for (int iI = 0; iI < iNumPlots; iI++)
 	{
 		CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(iI);
-		const TeamTypes eTeam = getTeam();
 		if (pLoopPlot->isRevealed(eTeam))
 		{
 			const int iValue = GC.getGame().GetSettlerSiteEvaluator()->PlotFoundValue(pLoopPlot, this, NO_YIELD, false);
 			
 			//cache the result
 			pLoopPlot->setFoundValue(eID, iValue);
-
-			if (iValue >= iGoodEnoughToBeWorthOurTime)
-			{
-				CvArea* pLoopArea = GC.getMap().getArea(pLoopPlot->getArea());
-				if(pLoopArea && !pLoopArea->isWater() && (pLoopArea->getNumTiles() > 0))
-				{
-					//use the square found value to give smaller areas a chance. normalize by the minimum fertility to avoid overflow
-					pLoopArea->setTotalFoundValue( pLoopArea->getTotalFoundValue() + iValue * iValue / iGoodEnoughToBeWorthOurTime );
-				}
-			}
 		}
 		else
 		{
 			pLoopPlot->setFoundValue(eID, -1);
+		}
+	}
+
+	// second pass: non-maxima suppression and aggregation
+	for (int iI = 0; iI < iNumPlots; iI++)
+	{
+		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(iI);
+		int iRefValue = pPlot->getFoundValue(eID);
+
+		if (iRefValue < iGoodEnoughToBeWorthOurTime)
+			continue;
+
+		CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(pPlot);
+		for(int iCount=0; iCount<NUM_DIRECTION_TYPES; iCount++)
+		{
+			CvPlot* pLoopPlot = aPlotsToCheck[iCount];
+
+			if(pLoopPlot==NULL)
+				continue;
+
+			if(pLoopPlot->getFoundValue(eID) > iRefValue)
+			{
+				//this is not a local maximum
+				pPlot = NULL;
+				break;
+			}
+		}
+
+		if (pPlot)
+		{
+			CvArea* pLoopArea = GC.getMap().getArea( pPlot->getArea() );
+			if(pLoopArea && !pLoopArea->isWater() && (pLoopArea->getNumTiles() > 0))
+				pLoopArea->setTotalFoundValue( pLoopArea->getTotalFoundValue() + iRefValue );
 		}
 	}
 }
@@ -466,7 +495,9 @@ int CvPlayerAI::AI_foundValue(int iX, int iY, int, bool bStartingLoc)
 	}
 	else
 	{
+#if !defined(MOD_BALANCE_CORE)
 		GC.getGame().GetSettlerSiteEvaluator()->ComputeFlavorMultipliers(this);
+#endif
 		rtnValue =  GC.getGame().GetSettlerSiteEvaluator()->PlotFoundValue(pPlot, this, NO_YIELD, false);
 	}
 

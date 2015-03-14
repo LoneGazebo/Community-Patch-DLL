@@ -7,7 +7,7 @@
     <Guid>8411a7a8-dad3-4622-a18e-fcc18324c799</Guid>
     <ModVersion>13</ModVersion>
     <Stability>Beta</Stability>
-    <Teaser>The Complete Civ 5 Experience (3/6)</Teaser>
+    <Teaser>The Complete Civ 5 Experience (3/14)</Teaser>
     <Description>Community Balance Patch - Contains balance changes and gameplay improvements to make Civ V a more enjoyable and exciting game.</Description>
     <Authors>Civfanatics Community Balance Team</Authors>
     <SpecialThanks>
@@ -794,13 +794,7 @@
         <Type>InGameUIAddin</Type>
         <Name>GlobalCityBombardRange</Name>
         <Description>GlobalCityBombardRange</Description>
-        <FileName>LUA/Other/GlobalCityBombardRange.lua</FileName>
-      </Content>
-      <Content>
-        <Type>MapScript</Type>
-        <Name>Communitas</Name>
-        <Description>LUA/Active/Communitas.lua</Description>
-        <FileName>LUA/Active/Standard CBP/Communitas.lua</FileName>
+        <FileName>Modular Elements/GlobalCityBombardRange.lua</FileName>
       </Content>
     </ModContent>
   </PropertyGroup>
@@ -861,9 +855,6 @@
     <Folder Include="Core Files\" />
     <Folder Include="Core Files\Core Changes\" />
     <Folder Include="LUA\" />
-    <Folder Include="LUA\Active" />
-    <Folder Include="LUA\Active\Standard CBP" />
-    <Folder Include="LUA\Other" />
     <Folder Include="Modular Elements" />
     <Folder Include="Modular Elements\Happiness Mod" />
     <Folder Include="Modular Elements\SpiceIslands" />
@@ -1604,127 +1595,127 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
-    <Content Include="LUA\Active\Standard CBP\Bombardment.lua">
+    <Content Include="LUA\Bombardment.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="LUA\Active\Standard CBP\CityBannerManager.lua">
+    <Content Include="LUA\CityBannerManager.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="LUA\Active\Standard CBP\CityList.lua">
+    <Content Include="LUA\CityList.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="LUA\Active\Standard CBP\CityStateDiploPopup.lua">
+    <Content Include="LUA\CityStateDiploPopup.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="LUA\Active\Standard CBP\CityStateStatusHelper.lua">
+    <Content Include="LUA\CityStateStatusHelper.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="LUA\Active\Standard CBP\CityView.lua">
+    <Content Include="LUA\CityView.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="LUA\Active\Standard CBP\CivilopediaScreen.lua">
+    <Content Include="LUA\CivilopediaScreen.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="LUA\Active\Standard CBP\Communitas.lua">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="LUA\Active\Standard CBP\CultureOverview.lua">
+    <Content Include="LUA\Communitas.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="LUA\Active\Standard CBP\CultureOverview.xml">
+    <Content Include="LUA\CultureOverview.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="LUA\Active\Standard CBP\DeclareWarPopup.lua">
+    <Content Include="LUA\CultureOverview.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="LUA\Active\Standard CBP\DeclareWarPopup.xml">
+    <Content Include="LUA\DeclareWarPopup.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="LUA\Active\Standard CBP\DiscussionDialog.lua">
+    <Content Include="LUA\DeclareWarPopup.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="LUA\Active\Standard CBP\DiscussionDialog.xml">
+    <Content Include="LUA\DiscussionDialog.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="LUA\Active\Standard CBP\EconomicGeneralInfo.lua">
+    <Content Include="LUA\DiscussionDialog.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="LUA\Active\Standard CBP\EconomicGeneralInfo.xml">
+    <Content Include="LUA\EconomicGeneralInfo.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="LUA\Active\Standard CBP\EnemyUnitPanel.lua">
+    <Content Include="LUA\EconomicGeneralInfo.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="LUA\Active\Standard CBP\EspionageOverview.lua">
+    <Content Include="LUA\EnemyUnitPanel.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="LUA\Active\Standard CBP\EspionageOverview.xml">
+    <Content Include="LUA\EspionageOverview.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="LUA\Active\Standard CBP\HappinessInfo.lua">
+    <Content Include="LUA\EspionageOverview.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="LUA\Active\Standard CBP\HappinessInfo.xml">
+    <Content Include="LUA\HappinessInfo.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="LUA\Active\Standard CBP\InfoTooltipInclude.lua">
+    <Content Include="LUA\HappinessInfo.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="LUA\Active\Standard CBP\LeagueOverview.lua">
+    <Content Include="LUA\InfoTooltipInclude.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="LUA\Active\Standard CBP\ResourceTooltipGenerator.lua">
+    <Content Include="LUA\LeagueOverview.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="LUA\Active\Standard CBP\SocialPolicyPopup.lua">
+    <Content Include="LUA\ResourceTooltipGenerator.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="LUA\Active\Standard CBP\TechButtonInclude.lua">
+    <Content Include="LUA\SocialPolicyPopup.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="LUA\Active\Standard CBP\TopPanel.lua">
+    <Content Include="LUA\TechButtonInclude.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="LUA\Active\Standard CBP\TradeLogic.lua">
+    <Content Include="LUA\TopPanel.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="LUA\Active\Standard CBP\TradeRouteHelpers.lua">
+    <Content Include="LUA\TradeLogic.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="LUA\Active\Standard CBP\WhosWinningPopup.lua">
+    <Content Include="LUA\TradeRouteHelpers.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="LUA\Other\GlobalCityBombardRange.lua">
+    <Content Include="LUA\WhosWinningPopup.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modular Elements\GlobalCityBombardRange.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
@@ -1773,6 +1764,10 @@
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
     <Content Include="Modular Elements\WonderConsolation\WonderConsolation.sql">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="INSTRUCTIONS.txt">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>

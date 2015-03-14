@@ -240,11 +240,13 @@ public:
 	void Update();
 
 	// Public exploration routines
+#if defined(MOD_CORE_ALTERNATIVE_EXPLORE_SCORE)
+	CvPlot* GetBestExploreTarget(const CvUnit* pUnit) const;
+#else
 	bool IsAnyValidExploreMoves(const CvUnit* pUnit) const;
-	bool ExecuteSpecialExploreMove(CvUnit* pUnit, CvPlot* pPlot);
-#if defined(MOD_BALANCE_CORE)
-	bool PickUpGoodies(CvEconomicAI* pEconomicAI, UnitHandle pUnit);
 #endif
+	bool ExecuteSpecialExploreMove(CvUnit* pUnit, CvPlot* pPlot);
+
 	// Public logging
 	void LogHomelandMessage(CvString& strMsg);
 	void LogPatrolMessage(CvString& strMsg, CvUnit* pPatrolUnit);

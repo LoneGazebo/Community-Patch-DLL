@@ -540,7 +540,9 @@ public:
 	void ChangeExtraHappinessPerCity(int iChange);
 	int GetExtraHappinessPerXPolicies() const;
 	void ChangeExtraHappinessPerXPolicies(int iChange);
-
+#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+	int GetHappinessFromResourceMonopolies() const;
+#endif
 	int GetHappinessFromResources() const;
 	int GetHappinessFromResourceVariety() const;
 	int GetHappinessFromReligion();
@@ -1792,8 +1794,19 @@ public:
 	int GetUnitPurchaseCostModifier() const;
 	void ChangeUnitPurchaseCostModifier(int iChange);
 
+#ifdef AUI_DANGER_PLOTS_REMADE
+	int GetPlotDanger(CvPlot& Plot, CvUnit* pUnit, int iAirAction = AIR_ACTION_ATTACK, int iAfterNIntercepts = 0) const;
+	int GetPlotDanger(CvPlot& Plot, CvCity* pCity, CvUnit* pPretendGarrison = NULL, int iAfterNIntercepts = 0) const;
+	int GetPlotDanger(CvPlot& Plot, PlayerTypes ePlayer=NO_PLAYER) const;
+	bool IsPlotUnderImmediateThreat(CvPlot& Plot, CvUnit* pUnit) const;
+	bool IsPlotUnderImmediateThreat(CvPlot& Plot, PlayerTypes ePlayer=NO_PLAYER) const;
+	bool CouldAttackHere(CvPlot& Plot, CvUnit* pUnit) const;
+	bool CouldAttackHere(CvPlot& Plot, CvCity* pCity) const;
+#else
 	int GetPlotDanger(CvPlot& Plot) const;
 	bool IsPlotUnderImmediateThreat(CvPlot& Plot) const;
+#endif // AUI_DANGER_PLOTS_REMADE
+
 	CvCity* GetClosestFriendlyCity(CvPlot& plot, int iSearchRadius);
 
 	int GetNumPuppetCities() const;
@@ -1801,6 +1814,11 @@ public:
 	int GetNumCapitalCities() const;
 #endif
 	int GetMaxEffectiveCities(bool bIncludePuppets = false);
+
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	int GetFractionOriginalCapitalsUnderControl() const;
+	void UpdateFractionOriginalCapitalsUnderControl();
+#endif
 
 	int GetNumNaturalWondersDiscoveredInArea() const;
 	void SetNumNaturalWondersDiscoveredInArea(int iValue);
@@ -1814,9 +1832,10 @@ public:
 
 	int GetBestSettleAreas(int iMinScore, int& iFirstArea, int& iSecondArea);
 #if defined(MOD_BALANCE_CORE_SETTLER)
-	CvPlot* GetBestSettlePlot(const CvUnit* pUnit, bool bEscorted, int iTargetArea, CvAIOperation* pOpToIgnore, bool bForceLogging=false);
-	int GetFoundValueOfLastSettledCity() const;
-	void SetFoundValueOfLastSettledCity(int iValue);
+	CvPlot* GetBestSettlePlot(const CvUnit* pUnit, bool bEscorted, int iTargetArea, CvAIOperation* pOpToIgnore, bool bForceLogging=false) const;
+	int GetFoundValueOfCapital() const;
+	void SetFoundValueOfCapital(int iValue);
+	bool HaveGoodSettlePlot(int iAreaID) const;
 #else
 	CvPlot* GetBestSettlePlot(CvUnit* pUnit, bool bEscorted, int iArea=-1) const;
 #endif
@@ -2591,7 +2610,7 @@ protected:
 
 #if defined(MOD_BALANCE_CORE_SETTLER)
 	CvDistanceMap* m_pCityDistance;
-	int	m_iFoundValueOfLastSettledCity;
+	int	m_iFoundValueOfCapital;
 #endif
 
 	// Policies
@@ -2686,6 +2705,11 @@ protected:
 	friend const CvUnit* GetPlayerUnit(const IDInfo& unit);
 
 	CvPlayerAchievements m_kPlayerAchievements;
+
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	//percent
+	int m_iFractionOriginalCapitalsUnderControl;
+#endif
 };
 
 extern bool CancelActivePlayerEndTurn();

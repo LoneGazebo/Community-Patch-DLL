@@ -5,12 +5,12 @@ WHERE Tag = 'TXT_KEY_POLICY_BRANCH_TRADITION_HELP' AND EXISTS (SELECT * FROM COM
 
 -- Aristocracy
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Aristocracy[ENDCOLOR][NEWLINE] +1 [ICON_CULTURE] Culture in every City. +1 [ICON_GOLD] Gold in the Capital for every 4 [ICON_CITIZEN] Citizens.'
+SET Text = '[COLOR_POSITIVE_TEXT]Aristocracy[ENDCOLOR][NEWLINE] +1 [ICON_CULTURE] Culture in every City. +1 [ICON_GOLD] Gold in [ICON_CAPITAL] Capital for every 4 [ICON_CITIZEN] Citizens.'
 WHERE Tag = 'TXT_KEY_POLICY_ARISTOCRACY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 -- Oligarchy
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Oligarchy[ENDCOLOR][NEWLINE] +1 [ICON_GOLD] Gold in every City. +1 [ICON_CULTURE] Culture in the Capital for every 4 [ICON_CITIZEN] Citizens.'
+SET Text = '[COLOR_POSITIVE_TEXT]Oligarchy[ENDCOLOR][NEWLINE] +1 [ICON_GOLD] Gold in every City. +1 [ICON_CULTURE] Culture in [ICON_CAPITAL] Capital for every 4 [ICON_CITIZEN] Citizens.'
 WHERE Tag = 'TXT_KEY_POLICY_OLIGARCHY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 -- Legalism
@@ -20,12 +20,21 @@ WHERE Tag = 'TXT_KEY_POLICY_LEGALISM_HELP' AND EXISTS (SELECT * FROM COMMUNITY W
 
 -- Landed Elite
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Landed Elite[ENDCOLOR][NEWLINE]+2 [ICON_FOOD] Food in every City. Internal [ICON_INTERNATIONAL_TRADE] Trade Routes are 33% more effective.'
+SET Text = '[COLOR_POSITIVE_TEXT]Landed Elite[ENDCOLOR][NEWLINE]+2 [ICON_FOOD] Food in every City. [ICON_GREAT_PEOPLE] Great People rate increased by 25% in every city.'
 WHERE Tag = 'TXT_KEY_POLICY_LANDED_ELITE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 -- Monarchy
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Monarchy[ENDCOLOR][NEWLINE] [ICON_CAPITAL] Capital gains a free Engineer Specialist slot. [ICON_GREAT_PEOPLE] Great People rate increased by 25% in every city.'
+SET Text = '[COLOR_POSITIVE_TEXT]Centralization[ENDCOLOR][NEWLINE] [ICON_CAPITAL] Capital gains a free Engineer Specialist slot. +1 [ICON_PRODUCTION] Production in [ICON_CAPITAL] Capital for every 4 [ICON_CITIZEN] Citizens.'
 WHERE Tag = 'TXT_KEY_POLICY_MONARCHY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
+
+-- Monarchy
+UPDATE Language_en_US
+SET Text = 'Centralization'
+WHERE Tag = 'TXT_KEY_POLICY_MONARCHY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
+
+UPDATE Language_en_US
+SET Text = 'Centralization is the process by which the activities of an organization, particularly those regarding planning and decision-making, become concentrated within a particular location and/or group or keeping all of the important decision making powers within head office or the center of the organization.'
+WHERE Tag = 'TXT_KEY_POLICY_MONARCHY_TEXT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 -- Finisher

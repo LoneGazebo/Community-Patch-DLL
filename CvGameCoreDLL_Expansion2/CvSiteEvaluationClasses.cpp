@@ -278,7 +278,7 @@ void CvCitySiteEvaluator::ComputeFlavorMultipliers(CvPlayer* pPlayer)
 }
 
 /// Retrieve the relative value of this plot (including plots that would be in city radius)
-int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, YieldTypes eYield, bool /*bCoastOnly*/, CvString* pDebug)
+int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, YieldTypes eYield, bool /*bCoastOnly*/, CvString* pDebug)
 {
 	CvAssert(pPlot);
 	if(!pPlot)
@@ -614,6 +614,12 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, YieldT
 		vQualifiersNegative.push_back("(V) city on resource");
 	}
 
+	if (pPlot->IsNaturalWonder())
+	{
+		iValueModifier += (int)iTotalPlotValue * /*-50*/ GC.getBUILD_ON_RESOURCE_PERCENT() / 100;
+		vQualifiersNegative.push_back("(V) city on natural wonder");
+	}
+
 	if ( iTotalFoodValue>5*iTotalProductionValue || iTotalProductionValue > 2*iTotalFoodValue )
 	{
 		iValueModifier -= (int)iTotalPlotValue * 10 / 100;
@@ -658,6 +664,13 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, YieldT
 	{
 		iStratModifier += (iTotalPlotValue * /*100*/ GC.getBALANCE_CHOKEPOINT_STRATEGIC_VALUE()) / 100;
 		vQualifiersPositive.push_back("(S) chokepoint");
+
+		//each landbride is a chokepoint, but not every chokepoint is a landbridge
+		if(pPlot->IsLandbridge(12,54))
+		{
+			iStratModifier += (iTotalPlotValue * /*100*/ GC.getBALANCE_CHOKEPOINT_STRATEGIC_VALUE()) / 100;
+			vQualifiersPositive.push_back("(S) landbridge");
+		}
 	}
 
 	//Check for strategic landgrab
@@ -1440,7 +1453,7 @@ int CvCitySiteEvaluator::BestFoundValueForSpecificYield(CvPlayer* pPlayer, Yield
 // PROTECTED METHODS (can be overridden in derived classes)
 
 /// Value of plot for providing food
-int CvCitySiteEvaluator::ComputeFoodValue(CvPlot* pPlot, CvPlayer* pPlayer)
+int CvCitySiteEvaluator::ComputeFoodValue(CvPlot* pPlot, const CvPlayer* pPlayer)
 {
 	int rtnValue = 0;
 
@@ -1484,7 +1497,7 @@ int CvCitySiteEvaluator::ComputeFoodValue(CvPlot* pPlot, CvPlayer* pPlayer)
 }
 
 /// Value of plot for providing Happiness
-int CvCitySiteEvaluator::ComputeHappinessValue(CvPlot* pPlot, CvPlayer* pPlayer)
+int CvCitySiteEvaluator::ComputeHappinessValue(CvPlot* pPlot, const CvPlayer* pPlayer)
 {
 	int rtnValue = 0;
 
@@ -1517,7 +1530,7 @@ int CvCitySiteEvaluator::ComputeHappinessValue(CvPlot* pPlot, CvPlayer* pPlayer)
 }
 
 /// Value of plot for providing hammers
-int CvCitySiteEvaluator::ComputeProductionValue(CvPlot* pPlot, CvPlayer* pPlayer)
+int CvCitySiteEvaluator::ComputeProductionValue(CvPlot* pPlot, const CvPlayer* pPlayer)
 {
 	int rtnValue = 0;
 
@@ -1561,7 +1574,7 @@ int CvCitySiteEvaluator::ComputeProductionValue(CvPlot* pPlot, CvPlayer* pPlayer
 }
 
 /// Value of plot for providing gold
-int CvCitySiteEvaluator::ComputeGoldValue(CvPlot* pPlot, CvPlayer* pPlayer)
+int CvCitySiteEvaluator::ComputeGoldValue(CvPlot* pPlot, const CvPlayer* pPlayer)
 {
 	int rtnValue = 0;
 
@@ -1599,7 +1612,7 @@ int CvCitySiteEvaluator::ComputeGoldValue(CvPlot* pPlot, CvPlayer* pPlayer)
 }
 
 /// Value of plot for providing science
-int CvCitySiteEvaluator::ComputeScienceValue(CvPlot* pPlot, CvPlayer* pPlayer)
+int CvCitySiteEvaluator::ComputeScienceValue(CvPlot* pPlot, const CvPlayer* pPlayer)
 {
 	int rtnValue = 0;
 
@@ -1640,7 +1653,7 @@ int CvCitySiteEvaluator::ComputeScienceValue(CvPlot* pPlot, CvPlayer* pPlayer)
 }
 
 /// Vale of plot for providing faith
-int CvCitySiteEvaluator::ComputeFaithValue(CvPlot* pPlot, CvPlayer* pPlayer)
+int CvCitySiteEvaluator::ComputeFaithValue(CvPlot* pPlot, const CvPlayer* pPlayer)
 {
 	int rtnValue = 0;
 
@@ -1682,7 +1695,7 @@ int CvCitySiteEvaluator::ComputeFaithValue(CvPlot* pPlot, CvPlayer* pPlayer)
 
 
 /// Value of plot for providing tradeable resources
-int CvCitySiteEvaluator::ComputeTradeableResourceValue(CvPlot* pPlot, CvPlayer* pPlayer)
+int CvCitySiteEvaluator::ComputeTradeableResourceValue(CvPlot* pPlot, const CvPlayer* pPlayer)
 {
 	int rtnValue = 0;
 
@@ -1740,7 +1753,7 @@ int CvCitySiteEvaluator::ComputeTradeableResourceValue(CvPlot* pPlot, CvPlayer* 
 }
 
 /// Value of plot for providing strategic value
-int CvCitySiteEvaluator::ComputeStrategicValue(CvPlot* pPlot, CvPlayer* pPlayer, int iPlotsFromCity)
+int CvCitySiteEvaluator::ComputeStrategicValue(CvPlot* pPlot, const CvPlayer* pPlayer, int iPlotsFromCity)
 {
 	int rtnValue = 0;
 
@@ -1826,7 +1839,7 @@ CvSiteEvaluatorForSettler::~CvSiteEvaluatorForSettler(void)
 
 /// Value of this site for a settler
 #if defined(MOD_BALANCE_CORE_SETTLER)
-int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, YieldTypes eYield, bool bCoastOnly, CvString* pDebug)
+int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, YieldTypes eYield, bool bCoastOnly, CvString* pDebug)
 {
 	CvAssert(pPlot);
 	if(!pPlot)

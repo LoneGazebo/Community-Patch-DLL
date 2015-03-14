@@ -578,12 +578,16 @@ void CvMap::setup()
 	GC.getAreaFinder().Initialize(getGridWidth(), getGridHeight(), isWrapX(), isWrapY(), PathDest, NULL, NULL, NULL, AreaValid, NULL, JoinArea, NULL, NULL, NULL, NULL, NULL);
 	GC.getInfluenceFinder().Initialize(getGridWidth(), getGridHeight(), isWrapX(), isWrapY(), PathDest, InfluenceDestValid, InfluenceHeuristic, InfluenceCost, InfluenceValid, InfluenceAdd, NULL, NULL, NULL, NULL, NULL, NULL);
 	GC.GetBuildRouteFinder().Initialize(getGridWidth(), getGridHeight(), isWrapX(), isWrapY(), PathDest, NULL, NULL, BuildRouteCost, BuildRouteValid, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+#if defined(MOD_BALANCE_CORE)
+	GC.GetInternationalTradeRouteLandFinder().Initialize(getGridWidth(), getGridHeight(), isWrapX(), isWrapY(), PathDest, NULL,	TradeRouteHeuristic, TradeRouteLandPathCost, TradeRouteLandValid, TradeRoutePathAdd, NULL, NULL, NULL, TradePathInitialize, TradePathUninitialize, NULL);
+	GC.GetInternationalTradeRouteWaterFinder().Initialize(getGridWidth(), getGridHeight(), isWrapX(), isWrapY(), PathDest, NULL, TradeRouteHeuristic, TradeRouteWaterPathCost, TradeRouteWaterValid, TradeRoutePathAdd, NULL, NULL, NULL, TradePathInitialize, TradePathUninitialize, NULL);
+#else
 	GC.GetInternationalTradeRouteLandFinder().Initialize(getGridWidth(), getGridHeight(), isWrapX(), isWrapY(), PathDest, NULL,	TradeRouteHeuristic, TradeRouteLandPathCost, TradeRouteLandValid, NULL, NULL, NULL, NULL, TradePathInitialize, TradePathUninitialize, NULL);
 	GC.GetInternationalTradeRouteWaterFinder().Initialize(getGridWidth(), getGridHeight(), isWrapX(), isWrapY(), PathDest, NULL, TradeRouteHeuristic, TradeRouteWaterPathCost, TradeRouteWaterValid, NULL, NULL, NULL, NULL, TradePathInitialize, TradePathUninitialize, NULL);
+#endif
 	GC.GetTacticalAnalysisMapFinder().Initialize(getGridWidth(), getGridHeight(), isWrapX(), isWrapY(), PathDest, PathDestValid, PathHeuristic, PathCost, TacticalAnalysisMapPathValid, PathAdd, PathNodeAdd, UnitPathInitialize, UnitPathUninitialize, NULL);
 	GC.GetTacticalAnalysisMapFinder().SetDataChangeInvalidatesCache(true);
 }
-
 
 //////////////////////////////////////
 // graphical only setup

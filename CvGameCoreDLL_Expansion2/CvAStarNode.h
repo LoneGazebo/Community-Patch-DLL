@@ -69,6 +69,9 @@ struct CvPathNodeCacheData
 #if defined(MOD_GLOBAL_STACKING_RULES)
 	int	iUnitPlotLimit;
 #endif
+#ifdef AUI_DANGER_PLOTS_REMADE
+	int iPlotDanger;
+#endif // AUI_DANGER_PLOTS_REMADE
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

@@ -560,7 +560,7 @@ CvPlayer::CvPlayer() :
 	m_pDangerPlots = FNEW(CvDangerPlots, c_eCiv5GameplayDLL, 0);
 #if defined(MOD_BALANCE_CORE_SETTLER)
 	m_pCityDistance = FNEW(CvDistanceMap, c_eCiv5GameplayDLL, 0);
-	m_iFoundValueOfLastSettledCity = 0;
+	m_iFoundValueOfCapital = 0;
 #endif
 	m_pCityConnections = FNEW(CvCityConnections, c_eCiv5GameplayDLL, 0);
 	m_pTreasury = FNEW(CvTreasury, c_eCiv5GameplayDLL, 0);
@@ -1332,6 +1332,10 @@ void CvPlayer::uninit()
 	m_iVassalGoldMaintenanceMod = 0;
 #endif
 
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	m_iFractionOriginalCapitalsUnderControl = 0;
+#endif
+
 	m_eID = NO_PLAYER;
 }
 
@@ -1726,8 +1730,6 @@ void CvPlayer::gameStartInit()
 	//make sure the non-serialized infos are up to date
 	m_pDangerPlots->Init(GetID(), true);
 	m_pCityDistance->Init(GetID(), true);
-	m_pCityDistance->Update();
-	UpdateDangerPlots();
 #else
 	// if the game is loaded, don't init the danger plots. This was already done in the serialization process.
 	if(CvPreGame::gameStartType() != GAME_LOADED)
@@ -4295,6 +4297,15 @@ CvUnit* CvPlayer::initNamedUnit(UnitTypes eUnit, const char* strKey, int iX, int
 	if (pkUnitDef == NULL)
 		return NULL;
 
+	if(strKey == NULL)
+		return NULL;
+
+	CvString strName = strKey;
+	if(GC.getGame().isGreatPersonBorn(strName))
+	{
+		return NULL;
+	}
+
 	CvUnit* pUnit = addUnit();
 	CvAssertMsg(pUnit != NULL, "Unit is not assigned a valid value");
 	if(NULL != pUnit)
@@ -5272,10 +5283,8 @@ void CvPlayer::doTurnPostDiplomacy()
 
 			UpdatePlots();
 #if defined(MOD_BALANCE_CORE)
-			if(MOD_BALANCE_CORE)
-			{
-				UpdateDangerPlots();
-			}
+			UpdateDangerPlots();
+			UpdateFractionOriginalCapitalsUnderControl();
 #else
 			m_pDangerPlots->UpdateDanger();
 #endif
@@ -5642,13 +5651,9 @@ void CvPlayer::DoUnitReset()
 				}
 			}
 		}
-#if defined(MOD_BALANCE_CORE)
-		int iCitadelDamage = pLoopUnit->plot()->GetDamageFromNearByFeatures(GetID());
-		if(MOD_BALANCE_CORE && iCitadelDamage )
-#else
+
 		int iCitadelDamage;
 		if(pLoopUnit->IsNearEnemyCitadel(iCitadelDamage))
-#endif
 		{
 			pLoopUnit->changeDamage(iCitadelDamage, NO_PLAYER, /*fAdditionalTextDelay*/ 0.5f);
 		}
@@ -8351,13 +8356,15 @@ void CvPlayer::found(int iX, int iY)
 	}
 
 	SetTurnsSinceSettledLastCity(0);
+
 #if defined(MOD_BALANCE_CORE)
-	int iFoundValue = GC.getMap().plot(iX,iY)->getFoundValue(GetID());
-	if(MOD_BALANCE_CORE)
+	if (getCapitalCity()==NULL)
 	{
-		SetFoundValueOfLastSettledCity(iFoundValue);
+		int iFoundValue = GC.getMap().plot(iX,iY)->getFoundValue(GetID());
+		SetFoundValueOfCapital(iFoundValue);
 	}
 #endif
+
 #if defined(MOD_GLOBAL_RELIGIOUS_SETTLERS) && defined(MOD_API_EXTENSIONS)
 	CvCity* pCity = initCity(iX, iY, true, true, eReligion);
 #else
@@ -13302,7 +13309,14 @@ void CvPlayer::DoUpdateHappiness()
 		m_iHappiness += iGameSpeedHappiness;
 	}
 #endif
-
+#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+	// Gamespeed Bonus level
+	if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+	{
+		int iMonpolyHappiness = GetHappinessFromResourceMonopolies();
+		m_iHappiness += iMonpolyHappiness;
+	}
+#endif
 	// Increase from Luxury Resources
 	int iNumHappinessFromResources = GetHappinessFromResources();
 	m_iHappiness += iNumHappinessFromResources;
@@ -14276,7 +14290,26 @@ void CvPlayer::ChangeExtraHappinessPerXPolicies(int iChange)
 	if(iChange != 0)
 		m_iHappinessPerXPolicies += iChange;
 }
-
+#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+int CvPlayer::GetHappinessFromResourceMonopolies() const
+{
+	int iTotalHappiness = 0;
+	// Do we get increased Happiness from a resource monopoly?
+	for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+	{
+		ResourceTypes eResourceLoop = (ResourceTypes) iResourceLoop;
+		CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
+		if (pInfo && pInfo->isMonopoly())
+		{
+			if(HasMonopoly(eResourceLoop) && pInfo->getMonopolyHappiness() > 0)
+			{
+				iTotalHappiness += pInfo->getMonopolyHappiness();
+			}
+		}
+	}
+	return iTotalHappiness;
+}
+#endif
 //	--------------------------------------------------------------------------------
 /// Total amount of Happiness gained from Resources
 int CvPlayer::GetHappinessFromResources() const
@@ -14305,24 +14338,6 @@ int CvPlayer::GetHappinessFromResources() const
 			iTotalHappiness += GetExtraHappinessPerLuxury();
 		}
 	}
-#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
-	// Do we get increased Happiness from a resource monopoly?
-	if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
-	{
-		for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
-		{
-			ResourceTypes eResourceLoop = (ResourceTypes) iResourceLoop;
-			CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
-			if (pInfo && pInfo->isMonopoly())
-			{
-				if(HasMonopoly(eResourceLoop) && pInfo->getMonopolyHappiness() > 0)
-				{
-					iTotalHappiness += pInfo->getMonopolyHappiness();
-				}
-			}
-		}
-	}
-#endif
 
 	// Happiness bonus for multiple Resource types
 	iTotalHappiness += GetHappinessFromResourceVariety();
@@ -30274,7 +30289,11 @@ void CvPlayer::Read(FDataStream& kStream)
 #endif
 
 #if defined(MOD_BALANCE_CORE_SETTLER)
-	kStream >> m_iFoundValueOfLastSettledCity;
+	kStream >> m_iFoundValueOfCapital;
+#endif
+
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	kStream >> m_iFractionOriginalCapitalsUnderControl;
 #endif
 
 	if(GetID() < MAX_MAJOR_CIVS)
@@ -30853,7 +30872,11 @@ void CvPlayer::Write(FDataStream& kStream) const
 #endif
 
 #if defined(MOD_BALANCE_CORE_SETTLER)
-	kStream << m_iFoundValueOfLastSettledCity;
+	kStream << m_iFoundValueOfCapital;
+#endif
+
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	kStream << m_iFractionOriginalCapitalsUnderControl;
 #endif
 }
 
@@ -31716,6 +31739,46 @@ void CvPlayer::ChangeUnitPurchaseCostModifier(int iChange)
 	}
 }
 
+#ifdef AUI_DANGER_PLOTS_REMADE
+//	--------------------------------------------------------------------------------
+int CvPlayer::GetPlotDanger(CvPlot& pPlot, CvUnit* pUnit, int iAirAction, int iAfterNIntercepts) const
+{
+	return m_pDangerPlots->GetDanger(pPlot, pUnit, iAirAction, iAfterNIntercepts);
+}
+
+//	--------------------------------------------------------------------------------
+int CvPlayer::GetPlotDanger(CvPlot& pPlot, CvCity* pCity, CvUnit* pPretendGarrison, int iAfterNIntercepts) const
+{
+	return m_pDangerPlots->GetDanger(pPlot, pCity, pPretendGarrison, iAfterNIntercepts);
+}
+
+//	--------------------------------------------------------------------------------
+int CvPlayer::GetPlotDanger(CvPlot& pPlot, PlayerTypes ePlayer) const
+{
+	return m_pDangerPlots->GetDanger(pPlot, ePlayer == NO_PLAYER ? GetID() : ePlayer );
+}
+
+//	--------------------------------------------------------------------------------
+bool CvPlayer::IsPlotUnderImmediateThreat(CvPlot& pPlot, PlayerTypes ePlayer) const
+{
+	return m_pDangerPlots->IsUnderImmediateThreat(pPlot, ePlayer == NO_PLAYER ? GetID() : ePlayer );
+}
+
+//	--------------------------------------------------------------------------------
+bool CvPlayer::IsPlotUnderImmediateThreat(CvPlot& pPlot, CvUnit* pUnit) const
+{
+	return m_pDangerPlots->IsUnderImmediateThreat(pPlot, pUnit);
+}
+
+bool CvPlayer::CouldAttackHere(CvPlot& pPlot, CvUnit* pUnit) const
+{
+	return m_pDangerPlots->CouldAttackHere(pPlot, pUnit);
+}
+bool CvPlayer::CouldAttackHere(CvPlot& pPlot, CvCity* pCity) const
+{
+	return m_pDangerPlots->CouldAttackHere(pPlot, pCity);
+}
+#else
 //	--------------------------------------------------------------------------------
 int CvPlayer::GetPlotDanger(CvPlot& pPlot) const
 {
@@ -31727,6 +31790,7 @@ bool CvPlayer::IsPlotUnderImmediateThreat(CvPlot& pPlot) const
 {
 	return m_pDangerPlots->IsUnderImmediateThreat(pPlot);
 }
+#endif // AUI_DANGER_PLOTS_REMADE
 
 //	--------------------------------------------------------------------------------
 /// Find closest city to a plot (within specified search radius)
@@ -31788,6 +31852,39 @@ int CvPlayer::GetNumCapitalCities() const
 	return iNum;
 }
 #endif
+
+#if defined(MOD_BALANCE_CORE_MILITARY)
+int CvPlayer::GetFractionOriginalCapitalsUnderControl() const
+{
+	return m_iFractionOriginalCapitalsUnderControl;
+}
+
+void CvPlayer::UpdateFractionOriginalCapitalsUnderControl()
+{
+	m_iFractionOriginalCapitalsUnderControl = 0;
+
+	int iLoop;
+	int iOCCount = 0;
+	for(const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+		//don't count our own capital!
+		if(pLoopCity->IsOriginalMajorCapital() && !pLoopCity->isCapital())
+			iOCCount++;
+
+	if(iOCCount > 0)
+	{
+		int iCivCount = 0;
+		for (int iLoopPlayer = 0; iLoopPlayer < MAX_PLAYERS; iLoopPlayer++)
+		{
+			CvPlayer &kPlayer = GET_PLAYER((PlayerTypes)iLoopPlayer);
+			if (kPlayer.isEverAlive() && !kPlayer.isMinorCiv())
+				iCivCount++;
+		}
+
+		m_iFractionOriginalCapitalsUnderControl = iOCCount * 100 / iCivCount;
+	}
+}
+#endif
+
 //	--------------------------------------------------------------------------------
 // How many Cities does this player have for policy/tech cost purposes?
 int CvPlayer::GetMaxEffectiveCities(bool bIncludePuppets)
@@ -31871,18 +31968,28 @@ int CvPlayer::GetNumNaturalWondersInOwnedPlots()
 //	--------------------------------------------------------------------------------
 #if defined(MOD_BALANCE_CORE)
 /// How good was the last city?
-void CvPlayer::SetFoundValueOfLastSettledCity(int iValue)
+void CvPlayer::SetFoundValueOfCapital(int iValue)
 {
-	if(m_iFoundValueOfLastSettledCity != iValue)
-		m_iFoundValueOfLastSettledCity = iValue;
+	if(m_iFoundValueOfCapital != iValue)
+		m_iFoundValueOfCapital = iValue;
 }
 
 //	--------------------------------------------------------------------------------
 /// How good was the last city?
-int CvPlayer::GetFoundValueOfLastSettledCity() const
+int CvPlayer::GetFoundValueOfCapital() const
 {
-	return m_iFoundValueOfLastSettledCity;
+	return m_iFoundValueOfCapital;
 }
+
+bool CvPlayer::HaveGoodSettlePlot(int iAreaID) const
+{
+	// Check if there are good plots to settle nearby
+	CvPlot* pBestSettlePlot = GetBestSettlePlot(NULL,true,iAreaID,NULL);
+	int iBestFoundValue = pBestSettlePlot ? pBestSettlePlot->getFoundValue( GetID() ) : 0;
+	int iRefFoundValue = GetFoundValueOfCapital();
+	return (iBestFoundValue > iRefFoundValue * GC.getAI_STRATEGY_EARLY_EXPANSION_RELATIVE_TILE_QUALITY() / 100 );
+}
+
 #endif
 //	--------------------------------------------------------------------------------
 /// How long ago did this guy last settle a city?
@@ -31984,7 +32091,7 @@ ostream& operator<<(ostream& os, const CvPlot* pPlot)
     return os;
 }
 
-CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, bool bEscorted, int iTargetArea, CvAIOperation* pOpToIgnore, bool bForceLogging)
+CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, bool bEscorted, int iTargetArea, CvAIOperation* pOpToIgnore, bool bForceLogging) const
 {
 	//--------
 	bool bLogging = GC.getLogging() && GC.getAILogging() && ( (GC.getGame().getGameTurn()%10==0) || bForceLogging ); 
@@ -32524,6 +32631,15 @@ bool CvPlayer::GetEverPoppedGoody()
 //	--------------------------------------------------------------------------------
 CvPlot* CvPlayer::GetClosestGoodyPlot(bool bStopAfterFindingFirst)
 {
+#if defined(MOD_CORE_ALTERNATIVE_EXPLORE_SCORE)
+	CvPlot* pResultPlot = NULL;
+	int iShortestPath = INT_MAX;
+
+	// cycle through goodies
+	for(int i = 0; i < GC.getMap().numPlots(); i++)
+	{
+		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(i);
+#else
 	FFastVector<int> aiGoodyPlots = GetEconomicAI()->GetGoodyHutPlots();
 
 	CvPlot* pResultPlot = NULL;
@@ -32533,6 +32649,7 @@ CvPlot* CvPlayer::GetClosestGoodyPlot(bool bStopAfterFindingFirst)
 	for(uint uiGoodyIndex = 0; uiGoodyIndex < aiGoodyPlots.size(); uiGoodyIndex++)
 	{
 		CvPlot* pPlot = GC.getMap().plotByIndex(aiGoodyPlots[uiGoodyIndex]);
+#endif
 		if(!pPlot || !pPlot->isGoody(getTeam()))
 		{
 			continue;
@@ -32600,12 +32717,20 @@ bool CvPlayer::GetPlotHasOrder(CvPlot* pPlot)
 //	--------------------------------------------------------------------------------
 bool CvPlayer::GetAnyUnitHasOrderToGoody()
 {
+#if defined(MOD_CORE_ALTERNATIVE_EXPLORE_SCORE)
+	// cycle through goodies
+	for(int i = 0; i < GC.getMap().numPlots(); i++)
+	{
+		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(i);
+#else
+
 	FFastVector<int> aiGoodyPlots = GetEconomicAI()->GetGoodyHutPlots();
 
 	// cycle through goodies
 	for(uint uiGoodyIndex = 0; uiGoodyIndex < aiGoodyPlots.size(); uiGoodyIndex++)
 	{
 		CvPlot* pPlot = GC.getMap().plotByIndex(aiGoodyPlots[uiGoodyIndex]);
+#endif
 		if(!pPlot)
 		{
 			continue;

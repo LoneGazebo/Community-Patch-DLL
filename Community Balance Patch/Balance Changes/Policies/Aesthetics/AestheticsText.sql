@@ -5,34 +5,42 @@ WHERE Tag = 'TXT_KEY_POLICY_BRANCH_AESTHETICS_HELP' AND EXISTS (SELECT * FROM CO
 
 -- Cultural Centers (now Humanities)
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Humanities[ENDCOLOR][NEWLINE]All Culture buildings that can hold [ICON_GREAT_WORK] Great Works produce +3 [ICON_RESEARCH] Science. All [ICON_GREAT_WORK] Great Works produce +1 [ICON_GOLD] Gold.'
+SET Text = '[COLOR_POSITIVE_TEXT]Humanism[ENDCOLOR][NEWLINE]All Culture buildings that can hold [ICON_GREAT_WORK] Great Works produce +3 [ICON_RESEARCH] Science. All [ICON_GREAT_WORK] Great Works produce +1 [ICON_GOLD] Gold.'
 WHERE Tag = 'TXT_KEY_POLICY_CULTURAL_CENTERS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Humanities'
+SET Text = 'Humanism'
 WHERE Tag = 'TXT_KEY_POLICY_CULTURAL_CENTERS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'The humanities are academic disciplines that study human culture. The humanities use methods that are primarily critical, or speculative, and have a significant historical element, as distinguished from the mainly empirical approaches of the natural sciences. The humanities include ancient and modern languages, literature, philosophy, religion, and visual and performing arts such as music and theatre. Areas that are sometimes regarded as social sciences and sometimes as humanities include history, archaeology, anthropology, area studies, communication studies, classical studies, law and linguistics.'
+SET Text = 'Humanism is a philosophical and ethical stance that emphasizes the value and agency of human beings, individually and collectively, and generally prefers critical thinking and evidence (rationalism, empiricism) over established doctrine or faith (fideism). The meaning of the term humanism has fluctuated, according to the successive intellectual movements which have identified with it. Generally, however, humanism refers to a perspective that affirms some notion of a "human nature" (sometimes contrasted with antihumanism).'
 WHERE Tag = 'TXT_KEY_POLICY_CULTURAL_CENTERS_TEXT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 -- Fine Arts
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Public Galleries[ENDCOLOR][NEWLINE]Positive [ICON_HAPPINESS_1] Happiness is added to your Empire-wide [ICON_CULTURE] Culture rate. +1 [ICON_HAPPINESS_1] Happiness from Museums.'
+SET Text = '[COLOR_POSITIVE_TEXT]Refinement[ENDCOLOR][NEWLINE]All positive [ICON_HAPPINESS_1] Happiness is added to your Empire-wide [ICON_CULTURE] Culture rate. +1 [ICON_HAPPINESS_1] Happiness from Museums and Opera Houses.'
 WHERE Tag = 'TXT_KEY_POLICY_FINE_ARTS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Public Galleries'
+SET Text = 'Refinement'
 WHERE Tag = 'TXT_KEY_POLICY_FINE_ARTS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Public art is art in any media that has been planned and executed with the intention of being staged in the physical public domain, usually outside and accessible to all. Public art is significant within the art world, amongst curators, commissioning bodies and practitioners of public art, to whom it signifies a working practice of site specificity, community involvement and collaboration. Public art may include any art which is exhibited in a public space including publicly accessible buildings, but often it is not that simple. Rather, the relationship between the content and audience, what the art is saying and to whom, is just as important if not more important than its physical location.'
+SET Text = 'Sophistication is the quality of refinement — displaying good taste, wisdom and subtlety rather than crudeness, stupidity and vulgarity. In the perception of social class, sophistication can link with concepts such as status, privilege and superiority.'
 WHERE Tag = 'TXT_KEY_POLICY_FINE_ARTS_TEXT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 -- Flourishing of the Arts
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Flourishing of the Arts[ENDCOLOR][NEWLINE]All World Wonders produce +2 [ICON_TOURISM] Tourism. The empire immediately enters a [ICON_GOLDEN_AGE] Golden Age.'
+SET Text = '[COLOR_POSITIVE_TEXT]Heritage[ENDCOLOR][NEWLINE]All World Wonders produce +2 [ICON_TOURISM] Tourism. The empire immediately enters a [ICON_GOLDEN_AGE] Golden Age.'
 WHERE Tag = 'TXT_KEY_POLICY_FLOURISHING_OF_ARTS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
+
+UPDATE Language_en_US
+SET Text = 'Heritage'
+WHERE Tag = 'TXT_KEY_POLICY_FLOURISHING_OF_ARTS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
+
+UPDATE Language_en_US
+SET Text = 'Cultural heritage is the legacy of physical artifacts and intangible attributes of a group or society that are inherited from past generations, maintained in the present and bestowed for the benefit of future generations. Cultural heritage includes tangible culture (such as buildings, monuments, landscapes, books, works of art, and artifacts), intangible culture (such as folklore, traditions, language, and knowledge), and natural heritage (including culturally significant landscapes, and biodiversity).'
+WHERE Tag = 'TXT_KEY_POLICY_FLOURISHING_OF_ARTS_TEXT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 -- Artistic Genius
 UPDATE Language_en_US

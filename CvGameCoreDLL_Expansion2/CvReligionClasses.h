@@ -371,6 +371,10 @@ public:
 	int GetNumForeignCitiesFollowing() const;
 	int GetNumForeignFollowers(bool bAtPeace) const;
 
+#if defined(MOD_BALANCE_CORE)
+	bool ComputeMajority();
+#endif
+
 private:
 	CvPlayer* m_pPlayer;
 
@@ -381,6 +385,10 @@ private:
 	int m_bFoundingReligion;
 #if defined(MOD_RELIGION_RECURRING_PURCHASE_NOTIFIY)
 	int m_iFaithAtLastNotify;
+#endif
+
+#if defined(MOD_BALANCE_CORE)
+	ReligionTypes m_majorityReligion;
 #endif
 };
 
@@ -469,6 +477,10 @@ public:
 	ReligionInCityList m_ReligionStatus;
 	ReligionInCityList m_SimulatedStatus;
 
+#if defined(MOD_BALANCE_CORE)
+	bool ComputeReligiousMajority();
+#endif
+
 private:
 	void RecomputeFollowers(CvReligiousFollowChangeReason eReason, ReligionTypes eOldMajorityReligion, PlayerTypes eResponsibleParty=NO_PLAYER);
 	void SimulateFollowers();
@@ -479,6 +491,10 @@ private:
 	CvCity* m_pCity;
 	bool m_bHasPaidAdoptionBonus;
 	int m_iReligiousPressureModifier;
+
+#if defined(MOD_BALANCE_CORE)
+	ReligionTypes m_majorityReligion;
+#endif
 };
 
 FDataStream& operator>>(FDataStream&, CvCityReligions&);

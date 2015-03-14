@@ -81,3 +81,8 @@
 	SET Text = ' You can spend gold to purchase units or invest in a building in a city. Click on a unit (if you can afford it!) and it will be immediately trained in the city, and the amount deducted from your treasury. If you click on a building, you will invest in it, reducing the production cost of the building by 50%.[NEWLINE][NEWLINE]Note that "projects" - the Manhattan Project, etc. - cannot be purchased.'
 	WHERE Tag = 'TXT_KEY_GOLD_PURCHASEUNITS_HEADING3_BODY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );
 	
+-- Resource Limit breached
+	UPDATE Language_en_US
+	SET Text = ' You are currently using more {1_Resource:textkey} than you have! All units which require it are [COLOR_NEGATIVE_TEXT]unable to heal[ENDCOLOR].'
+	WHERE Tag = 'TXT_KEY_NOTIFICATION_OVER_RESOURCE_LIMIT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );
+	

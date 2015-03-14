@@ -1,3 +1,7 @@
+-- Civilian
+INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_CARAVAN','BUILDINGCLASS_CARAVANSARY'; 
+INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_CARGO_SHIP','BUILDINGCLASS_HARBOR'; 
+
 -- Ancient
 INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_ARCHER','BUILDINGCLASS_BARRACKS'; 
 INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_HUN_BATTERING_RAM','BUILDINGCLASS_BARRACKS'; 

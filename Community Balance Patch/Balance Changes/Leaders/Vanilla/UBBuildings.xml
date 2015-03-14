@@ -397,7 +397,7 @@
 		<Row>
 			<BuildingType>BUILDING_TRIUMPHAL_ARCH</BuildingType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>2</Yield>
+			<Yield>1</Yield>
 		</Row>
 	</Building_YieldChanges>
 	<Building_YieldFromVictory>
@@ -536,6 +536,8 @@
 			<ArtDefineTag>ART_DEF_BUILDING_MILITARY_ACADEMY</ArtDefineTag>
 			<MinAreaSize>-1</MinAreaSize>
 			<TrainedFreePromotion>PROMOTION_VOLLEY</TrainedFreePromotion>
+			<SpecialistType>SPECIALIST_ENGINEER</SpecialistType>
+			<SpecialistCount>2</SpecialistCount>
 			<AllowsRangeStrike>true</AllowsRangeStrike>
 			<Defense>1000</Defense>
 			<ExtraCityHitPoints>100</ExtraCityHitPoints>

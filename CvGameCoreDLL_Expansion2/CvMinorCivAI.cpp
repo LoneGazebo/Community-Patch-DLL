@@ -11207,7 +11207,7 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 	if(GetAlly() != NO_PLAYER && GetAlly() != eBullyPlayer)
 	{
 #if defined(MOD_BALANCE_CORE_MINORS)
-		int iAllyScore = -30;
+		int iAllyScore = -50;
 #else
 		int iAllyScore = -10;
 #endif
@@ -11233,7 +11233,7 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 		if(eMajorLoop != eBullyPlayer && IsProtectedByMajor(eMajorLoop))
 		{
 #if defined(MOD_BALANCE_CORE_MINORS)
-			iProtectionScore += -30;
+			iProtectionScore += -25;
 #else
 			iProtectionScore += -20;
 #endif

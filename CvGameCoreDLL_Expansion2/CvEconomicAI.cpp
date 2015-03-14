@@ -303,6 +303,9 @@ void CvEconomicAI::Reset()
 		m_auiYields[ui] = 0;
 	}
 
+#if defined(MOD_CORE_ALTERNATIVE_EXPLORE_SCORE)
+	m_vPlotsToExplore.clear();
+#else
 	for(uint ui = 0; ui < m_aiExplorationPlots.size(); ui++)
 	{
 		m_aiExplorationPlots[ui] = -1;
@@ -314,6 +317,7 @@ void CvEconomicAI::Reset()
 		m_aiGoodyHutPlots[ui] = -1;
 		m_aiGoodyHutUnitAssignments[ui].Clear();
 	}
+#endif
 
 	m_bExplorationPlotsDirty = true;
 
@@ -380,6 +384,15 @@ void CvEconomicAI::Read(FDataStream& kStream)
 #define MAX_PLOT_ARRAY_SIZE	((152+1)*(96+1))
 	int iMaxEntriesToRead = MIN(MAX_PLOT_ARRAY_SIZE, iEntriesToRead);
 
+#if defined(MOD_CORE_ALTERNATIVE_EXPLORE_SCORE)
+	for(int i = 0; i < iMaxEntriesToRead; i++)
+	{
+		int idx,score;
+		kStream >> idx;
+		kStream >> score;
+		m_vPlotsToExplore.push_back( SPlotWithScore( GC.getMap().plotByIndex(idx),score ) );
+	}
+#else
 	m_aiExplorationPlots.resize(iMaxEntriesToRead);
 	m_aiExplorationPlotRatings.resize(iMaxEntriesToRead);
 
@@ -417,6 +430,7 @@ void CvEconomicAI::Read(FDataStream& kStream)
 		kStream >> iDummy;
 		kStream >> iDummy;
 	}
+#endif
 
 	int iTemp;
 	kStream >> iTemp;
@@ -453,6 +467,15 @@ void CvEconomicAI::Write(FDataStream& kStream)
 	}
 
 	kStream << m_bExplorationPlotsDirty;
+
+#if defined(MOD_CORE_ALTERNATIVE_EXPLORE_SCORE)
+	kStream << m_vPlotsToExplore.size();
+	for(uint ui = 0; ui < m_vPlotsToExplore.size(); ui++)
+	{
+		kStream << GC.getMap().plotNum( m_vPlotsToExplore[ui].pPlot->getX(), m_vPlotsToExplore[ui].pPlot->getY() );
+		kStream << m_vPlotsToExplore[ui].score;
+	}
+#else
 	kStream << m_aiExplorationPlots.size();
 	for(uint ui = 0; ui < m_aiExplorationPlots.size(); ui++)
 	{
@@ -466,6 +489,7 @@ void CvEconomicAI::Write(FDataStream& kStream)
 		kStream << m_aiGoodyHutPlots[ui];
 		kStream << m_aiGoodyHutUnitAssignments[ui].m_iUnitID;
 	}
+#endif
 
 	kStream << (int)m_eReconState;
 	kStream << (int)m_eNavalReconState;
@@ -924,6 +948,17 @@ void AppendToLog(CvString& strHeader, CvString& strLog, CvString strHeaderValue,
 	strLog += str;
 }
 
+#if defined(MOD_CORE_ALTERNATIVE_EXPLORE_SCORE)
+const std::vector<SPlotWithScore>& CvEconomicAI::GetExplorationPlots()
+{
+	if(m_bExplorationPlotsDirty)
+	{
+		UpdatePlots();
+	}
+
+	return m_vPlotsToExplore;
+}
+#else
 FFastVector<int>& CvEconomicAI::GetExplorationPlots()
 {
 	if(m_bExplorationPlotsDirty)
@@ -993,17 +1028,25 @@ void CvEconomicAI::ClearUnitTargetGoodyStepPlot(CvUnit* pUnit)
 		}
 	}
 }
+#endif
 
 //	---------------------------------------------------------------------------
 #if defined(MOD_CORE_ALTERNATIVE_EXPLORE_SCORE)
-int CvEconomicAI::ScoreExplorePlot2(CvPlot* pPlot, TeamTypes eTeam, DomainTypes eDomainType, bool bEmbarked)
+int CvEconomicAI::ScoreExplorePlot2(CvPlot* pPlot, CvPlayer* pPlayer, DomainTypes eDomainType, bool bEmbarked)
 {
 	int iResultValue = 0;
 	int iSmallScore = 1;
 	int iMediumScore = 50;
 	int iLargeScore = 100;
+	int iJackpot = 1000;
 
 	FAssertMsg(pPlot->isRevealed(eTeam), "Plot isn't revealed. This isn't good.");
+
+	//goodies
+	if(pPlot->isRevealedGoody(pPlayer->getTeam()) && !pPlot->isVisibleEnemyUnit(pPlayer->GetID()))
+		iResultValue += iJackpot;
+	if(pPlot->HasBarbarianCamp() && pPlot->getNumDefenders(BARBARIAN_PLAYER) == 0)
+		iResultValue += iJackpot;
 
 	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(pPlot);
 	for(int iCount=0; iCount<NUM_DIRECTION_TYPES; iCount++)
@@ -1013,7 +1056,7 @@ int CvEconomicAI::ScoreExplorePlot2(CvPlot* pPlot, TeamTypes eTeam, DomainTypes 
 		if(pLoopPlot != NULL)
 		{
 			//no value if revealed already
-			if(pLoopPlot->isRevealed(eTeam))
+			if(pLoopPlot->isRevealed(pPlayer->getTeam()))
 				continue;
 
 			// "cheating" to look to see what the next tile is.
@@ -1047,7 +1090,8 @@ int CvEconomicAI::ScoreExplorePlot2(CvPlot* pPlot, TeamTypes eTeam, DomainTypes 
 
 	return iResultValue;
 }
-#endif
+
+#else
 
 //	---------------------------------------------------------------------------
 int CvEconomicAI::ScoreExplorePlot(CvPlot* pPlot, TeamTypes eTeam, int iRange, DomainTypes eDomainType)
@@ -1182,6 +1226,8 @@ int CvEconomicAI::ScoreExplorePlot(CvPlot* pPlot, TeamTypes eTeam, int iRange, D
 
 	return iResultValue;
 }
+
+#endif
 
 /// Request that the AI set aside this much money
 void CvEconomicAI::StartSaveForPurchase(PurchaseType ePurchase, int iAmount, int iPriority)
@@ -2003,23 +2049,25 @@ void CvEconomicAI::DoHurry()
 				
 										//and build it!
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
-										const BuildingClassTypes eBuildingClass = (BuildingClassTypes)(pkBuildingInfo->GetBuildingClassType());
-										pLoopCity->SetBuildingInvestment(eBuildingClass, true);
-#else
-										pLoopCity->CreateBuilding(eBuildingType);
+										if(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
+										{
+											const BuildingClassTypes eBuildingClass = (BuildingClassTypes)(pkBuildingInfo->GetBuildingClassType());
+											pLoopCity->SetBuildingInvestment(eBuildingClass, true);
+										}
+										else
+										{
 #endif
-										pLoopCity->SetPurchaseCooldown(pkBuildingEntry->GetCooldown());
-#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
-#else										
+										pLoopCity->CreateBuilding(eBuildingType);
+										pLoopCity->SetPurchaseCooldown(pkBuildingEntry->GetCooldown());	
 #if defined(MOD_EVENTS_CITY)
-										if (MOD_EVENTS_CITY) {
+										if (MOD_EVENTS_CITY) 
+										{
 											GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityConstructed, pLoopCity->getOwner(), pLoopCity->GetID(), eBuildingType, true, false);
 										}
 #endif
-#endif
-#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
-#else
 										pLoopCity->CleanUpQueue();
+#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
+										}
 #endif
 									}
 								}
@@ -2290,10 +2338,7 @@ void CvEconomicAI::DoReconState()
 	if (!bIsVenice)
 	{
 		// Need recon if there are no good plots to settle
-		CvPlot* pBestSettlePlot = GetPlayer()->GetBestSettlePlot( NULL, true, -1, NULL);
-		int iBestFoundValue = pBestSettlePlot ? pBestSettlePlot->getFoundValue( GetPlayer()->GetID() ) : 0;
-		int iLastFoundValue = GetPlayer()->GetFoundValueOfLastSettledCity();
-		if (iBestFoundValue < 0.5f * iLastFoundValue )
+		if (! GetPlayer()->HaveGoodSettlePlot(-1) )
 		{
 			//OutputDebugString( CvString::format("%s - no good settle plot: ratio %.2f (%08d vs %08d) - need more recon\n", 
 			//	GetPlayer()->getCivilizationDescription(), iBestFoundValue/(float)iLastFoundValue, iBestFoundValue, iLastFoundValue) );
@@ -2779,6 +2824,78 @@ void CvEconomicAI::DisbandLongObsoleteUnits()
 }
 #endif
 
+#if defined(MOD_CORE_ALTERNATIVE_EXPLORE_SCORE)
+
+/// Go through the plots for the exploration automation to evaluate
+void CvEconomicAI::UpdatePlots()
+{
+	m_vPlotsToExplore.clear();
+
+	for(int i = 0; i < GC.getMap().numPlots(); i++)
+	{
+		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(i);
+		if(pPlot == NULL)
+			continue;
+
+		if(!pPlot->isRevealed(m_pPlayer->getTeam()))
+			continue;
+
+		DomainTypes eDomain = pPlot->isWater() ? DOMAIN_SEA : DOMAIN_LAND;
+		int iScore = ScoreExplorePlot2(pPlot, m_pPlayer, eDomain, false);
+
+		if(iScore <= 0)
+			continue;
+
+		// add an entry for this plot
+		m_vPlotsToExplore.push_back( SPlotWithScore(pPlot, iScore) );
+	}
+
+#if defined(MOD_BALANCE_CORE_MILITARY_LOGGING)
+	bool bLogging = GC.getLogging() && GC.getAILogging() && m_pPlayer->isMajorCiv() && GC.getGame().getGameTurn()%4==0 && GC.getGame().getGameTurn()<200;
+	if (bLogging && MOD_BALANCE_CORE_MILITARY_LOGGING) 
+	{
+		CvString fname = CvString::format( "ExplorePlots_%s_%03d.txt", m_pPlayer->getCivilizationAdjective(), GC.getGame().getGameTurn() );
+		FILogFile* pLog=LOGFILEMGR.GetLog( fname.c_str(), FILogFile::kDontTimeStamp );
+		pLog->Msg( "#x,y,revealed,terrain,owner,score\n" );
+		for (size_t i=0; i<m_vPlotsToExplore.size(); i++)
+		{
+			CvString dump = CvString::format( "%d,%d,%d,%d,%d,%d\n", 
+				m_vPlotsToExplore[i].pPlot->getX(), m_vPlotsToExplore[i].pPlot->getY(),
+				m_vPlotsToExplore[i].pPlot->isRevealed(m_pPlayer->getTeam()), m_vPlotsToExplore[i].pPlot->getTerrainType(), m_vPlotsToExplore[i].pPlot->getOwner(),
+				m_vPlotsToExplore[i].score );
+			pLog->Msg( dump.c_str() );
+		}
+		pLog->Close();
+	}
+#endif
+
+	// build explorer list
+	CvUnit* pLoopUnit;
+	int iLoopUnit;
+	m_apExplorers.clear();
+	for(pLoopUnit = m_pPlayer->firstUnit(&iLoopUnit); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iLoopUnit))
+	{
+		// non-automated human-controlled units should not be considered
+		if(m_pPlayer->isHuman() && !pLoopUnit->IsAutomated())
+			continue;
+
+		if(pLoopUnit->AI_getUnitAIType() == UNITAI_EXPLORE_SEA)
+			continue;
+
+		if(pLoopUnit->AI_getUnitAIType() != UNITAI_EXPLORE && pLoopUnit->GetMissionAIType() != MISSIONAI_EXPLORE)
+			continue;
+
+		if(pLoopUnit->getArmyID() != FFreeList::INVALID_INDEX)
+			continue;
+
+		m_apExplorers.push_back(pLoopUnit);
+	}
+
+	m_bExplorationPlotsDirty = false;
+}
+
+#else
+
 /// Go through the plots for the exploration automation to evaluate
 void CvEconomicAI::UpdatePlots()
 {
@@ -2821,10 +2938,6 @@ void CvEconomicAI::UpdatePlots()
 	uint uiExplorationPlotIndex = 0;
 	uint uiGoodyHutPlotIndex = 0;
 	TeamTypes ePlayerTeam = m_pPlayer->getTeam();
-
-#if defined(MOD_BALANCE_CORE_MILITARY_LOGGING)
-	std::vector<SPlotWithScore> result;
-#endif
 
 	CvPlot* pPlot;
 	for(int i = 0; i < GC.getMap().numPlots(); i++)
@@ -2872,17 +2985,7 @@ void CvEconomicAI::UpdatePlots()
 			eDomain = DOMAIN_SEA;
 		}
 
-#if defined(MOD_CORE_ALTERNATIVE_EXPLORE_SCORE)
-		int iScore = ScoreExplorePlot2(pPlot, ePlayerTeam, eDomain, false);
-#else
 		int iScore = ScoreExplorePlot(pPlot, ePlayerTeam, 1, eDomain);
-#endif
-
-#if defined(MOD_BALANCE_CORE_MILITARY_LOGGING)
-		if (MOD_BALANCE_CORE_MILITARY_LOGGING)
-			result.push_back( SPlotWithScore(pPlot, iScore) );
-#endif
-
 		if(iScore <= 0)
 		{
 			continue;
@@ -2900,24 +3003,6 @@ void CvEconomicAI::UpdatePlots()
 		uiExplorationPlotIndex++;
 	}
 
-#if defined(MOD_BALANCE_CORE_MILITARY_LOGGING)
-	bool bLogging = GC.getLogging() && GC.getAILogging() && m_pPlayer->isMajorCiv() && GC.getGame().getGameTurn()%4==0 && GC.getGame().getGameTurn()<200;
-	if (bLogging && MOD_BALANCE_CORE_MILITARY_LOGGING) 
-	{
-		CvString fname = CvString::format( "ExplorePlots_%s_%03d.txt", m_pPlayer->getCivilizationAdjective(), GC.getGame().getGameTurn() );
-		FILogFile* pLog=LOGFILEMGR.GetLog( fname.c_str(), FILogFile::kDontTimeStamp );
-		pLog->Msg( "#x,y,revealed,terrain,owner,score\n" );
-		for (size_t i=0; i<result.size(); i++)
-		{
-			CvString dump = CvString::format( "%d,%d,%d,%d,%d,%d\n", 
-				result[i].pPlot->getX(), result[i].pPlot->getY(),
-				result[i].pPlot->isRevealed(m_pPlayer->getTeam()), result[i].pPlot->getTerrainType(), result[i].pPlot->getOwner(),
-				result[i].score );
-			pLog->Msg( dump.c_str() );
-		}
-		pLog->Close();
-	}
-#endif
 
 	// assign explorers to goody huts
 
@@ -3135,6 +3220,9 @@ void CvEconomicAI::AssignHutsToExplorers()
 		}
 	}
 }
+
+#endif //MOD_CORE_ALTERNATIVE_EXPLORE_SCORE
+
 
 CvUnit* CvEconomicAI::FindWorkerToScrap()
 {
@@ -3640,45 +3728,22 @@ bool EconomicAIHelpers::IsTestStrategy_EarlyExpansion(CvPlayer* pPlayer)
 		}
 	}
 
-#if defined(AUI_ECONOMIC_EARLY_EXPANSION_ALWAYS_ACTIVE_IF_ALONE)
-	// If we're the only ones on our continent, we use completely different logic
-	// to: check if we have met somebody else instead?
-	bool bAloneInArea = true;
-	CvPlot* pLoopPlot;
-	if (pPlayer->getCapitalCity())
-	{
-		int iStartArea = pPlayer->getCapitalCity()->getArea();
-		for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
-		{
-			pLoopPlot = GC.getMap().plotByIndexUnchecked(iI);
-			if (pLoopPlot->getArea() == iStartArea)
-			{
-				if (pLoopPlot->isOwned() && pLoopPlot->getOwner() != pPlayer->GetID() && !GET_PLAYER(pLoopPlot->getOwner()).isMinorCiv())
-				{
-					bAloneInArea = false;
-				}
-			}
-		}
-		if (bAloneInArea)
-		{
-			CvArea* pArea = GC.getMap().getArea(pPlayer->getCapitalCity()->getArea());
+#if defined(MOD_BALANCE_CORE_SETTLER)
 
-			// Is this area still one of the best to settle?
-			int iBestArea, iSecondBestArea;
-			pPlayer->GetBestSettleAreas(pPlayer->GetEconomicAI()->GetMinimumSettleFertility(), iBestArea, iSecondBestArea);
-			if (iBestArea == pArea->GetID())
-			{
-				// Check if there are good plots to settle nearby
-				CvPlot* pBestSettlePlot = pPlayer->GetBestSettlePlot(NULL,true,pArea->GetID(),NULL);
-				int iBestFoundValue = pBestSettlePlot ? pBestSettlePlot->getFoundValue( pPlayer->GetID() ) : 0;
-				int iLastFoundValue = pPlayer->GetFoundValueOfLastSettledCity();
-				if (iBestFoundValue > 0.5f * iLastFoundValue )
-					return true;
-			}
-		}
-	}
-#endif // AUI_ECONOMIC_EARLY_EXPANSION_ALWAYS_ACTIVE_IF_ALONE
+	// scale based on flavor and world size
+	const int iDefaultNumTiles = 80*52;
+	iDesiredCities = int( 0.5f + float(iDesiredCities * iFlavorExpansion * GC.getMap().numPlots()) / (max(iFlavorGrowth, 1) * iDefaultNumTiles));
 
+	int iSettlersOnMap = pPlayer->GetNumUnitsWithUnitAI(UNITAI_SETTLE, true);
+	int iNumCities = pPlayer->getNumCities() - pPlayer->GetNumPuppetCities();
+
+	if( (iNumCities+iSettlersOnMap) >= iDesiredCities )
+		return false;
+
+	if(pPlayer->getCapitalCity() && pPlayer->HaveGoodSettlePlot( pPlayer->getCapitalCity()->getArea() ) )
+		return true;
+
+#else
 	iDesiredCities = (iDesiredCities * iFlavorExpansion) / max(iFlavorGrowth, 1);
 	int iDifficulty = max(0,GC.getGame().getHandicapInfo().GetID() - 3);
 	iDesiredCities += iDifficulty;
@@ -3717,6 +3782,7 @@ bool EconomicAIHelpers::IsTestStrategy_EarlyExpansion(CvPlayer* pPlayer)
 			}
 		}
 	}
+#endif
 
 	return false;
 }

@@ -1974,6 +1974,7 @@ ReligionTypes CvGameReligions::GetFounderBenefitsReligion(PlayerTypes ePlayer) c
 {
 	ReligionTypes eReligion;
 
+#if !defined(AUI_DANGER_PLOTS_REMADE)
 	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
 	if(pkScriptSystem)
 	{
@@ -1987,6 +1988,7 @@ ReligionTypes CvGameReligions::GetFounderBenefitsReligion(PlayerTypes ePlayer) c
 			return eReligion;
 		}
 	}
+#endif
 
 	eReligion = GetReligionCreatedByPlayer(ePlayer);
 
@@ -2692,7 +2694,41 @@ bool CvGameReligions::CheckSpawnGreatProphet(CvPlayer& kPlayer)
 	}
 	else
 	{
+#if defined(MOD_BALANCE_CORE_BELIEFS)
+		//Random GP spawn/holy city.
+		CvCity* pBestCity = NULL;
+		if(MOD_BALANCE_CORE_BELIEFS)
+		{		
+			int iBestWeight = 0;
+
+			int iTempWeight;
+
+			CvCity* pLoopCity;
+			int iLoop;
+			CvGame& theGame = GC.getGame();
+			for(pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
+			{
+				iTempWeight = pLoopCity->GetFaithPerTurn() * 5;
+				iTempWeight += theGame.getJonRandNum(15, "Faith rand weight.");
+
+				if(iTempWeight > iBestWeight)
+				{
+					iBestWeight = iTempWeight;
+					pBestCity = pLoopCity;
+				}
+			}
+		}
+		if(pBestCity != NULL)
+		{
+			pSpawnCity = pBestCity;
+		}
+		else
+		{
+#endif
 		pSpawnCity = kPlayer.getCapitalCity();
+#if defined(MOD_BALANCE_CORE_BELIEFS)
+		}
+#endif
 		if(pSpawnCity != NULL)
 		{
 #if defined(MOD_BUGFIX_MINOR)
@@ -2879,6 +2915,9 @@ CvPlayerReligions::CvPlayerReligions(void):
 #if defined(MOD_GLOBAL_TRULY_FREE_GP)
 	m_iNumFreeProphetsSpawned(0),
 #endif
+#if defined(MOD_BALANCE_CORE)
+	m_majorityReligion(NO_RELIGION),
+#endif
 	m_iNumProphetsSpawned(0),
 	m_bFoundingReligion(false)
 {
@@ -2915,6 +2954,9 @@ void CvPlayerReligions::Reset()
 #if defined(MOD_RELIGION_RECURRING_PURCHASE_NOTIFIY)
 	m_iFaithAtLastNotify = 0;
 #endif
+#if defined(MOD_BALANCE_CORE)
+	m_majorityReligion = NO_RELIGION;
+#endif
 }
 
 /// Serialization read
@@ -2929,6 +2971,10 @@ void CvPlayerReligions::Read(FDataStream& kStream)
 #endif
 	kStream >> m_iNumProphetsSpawned;
 	kStream >> m_bFoundingReligion;
+#if defined(MOD_BALANCE_CORE)
+	int tmp;
+	kStream >> tmp; m_majorityReligion = (ReligionTypes)tmp;
+#endif
 #if defined(MOD_RELIGION_RECURRING_PURCHASE_NOTIFIY)
 	MOD_SERIALIZE_READ(42, kStream, m_iFaithAtLastNotify, 0);
 #endif
@@ -2946,6 +2992,9 @@ void CvPlayerReligions::Write(FDataStream& kStream)
 #endif
 	kStream << m_iNumProphetsSpawned;
 	kStream << m_bFoundingReligion;
+#if defined(MOD_BALANCE_CORE)
+	kStream << m_majorityReligion;
+#endif
 #if defined(MOD_RELIGION_RECURRING_PURCHASE_NOTIFIY)
 	MOD_SERIALIZE_WRITE(kStream, m_iFaithAtLastNotify);
 #endif
@@ -3228,6 +3277,30 @@ bool CvPlayerReligions::HasReligionInMostCities(ReligionTypes eReligion) const
 #endif
 }
 
+#if defined(MOD_BALANCE_CORE)
+/// What religion is followed in a majority of our cities?
+ReligionTypes CvPlayerReligions::GetReligionInMostCities() const
+{
+	return m_majorityReligion;
+}
+
+/// What religion is followed in a majority of our cities?
+bool CvPlayerReligions::ComputeMajority()
+{
+	for (int iI = RELIGION_PANTHEON + 1; iI < GC.GetGameReligions()->GetNumReligions(); iI++)
+	{
+		ReligionTypes eReligion = (ReligionTypes)iI;
+		if (HasReligionInMostCities(eReligion))
+		{
+			m_majorityReligion = eReligion;
+			return true;
+		}
+	}
+	m_majorityReligion = NO_RELIGION;
+	return false;
+}
+
+#else
 /// What religion is followed in a majority of our cities?
 ReligionTypes CvPlayerReligions::GetReligionInMostCities() const
 {
@@ -3241,6 +3314,8 @@ ReligionTypes CvPlayerReligions::GetReligionInMostCities() const
 	}
 	return NO_RELIGION;
 }
+
+#endif
 
 /// Does this player get a default influence boost with city states following this religion?
 int CvPlayerReligions::GetCityStateMinimumInfluence(ReligionTypes eReligion) const
@@ -3360,7 +3435,13 @@ int CvPlayerReligions::GetNumForeignFollowers(bool bAtPeace) const
 /// Constructor
 CvCityReligions::CvCityReligions(void):
 	m_bHasPaidAdoptionBonus(false),
+#if defined(MOD_BALANCE_CORE)
+	m_iReligiousPressureModifier(0),
+	m_pCity(NULL),
+	m_majorityReligion(NO_RELIGION)
+#else
 	m_iReligiousPressureModifier(0)
+#endif
 {
 	m_ReligionStatus.clear();
 }
@@ -3378,6 +3459,9 @@ void CvCityReligions::Init(CvCity* pCity)
 	m_bHasPaidAdoptionBonus = false;
 	m_iReligiousPressureModifier = 0;
 	m_ReligionStatus.clear();
+#if defined(MOD_BALANCE_CORE)
+	m_majorityReligion = NO_RELIGION;
+#endif
 }
 
 /// Cleanup
@@ -3586,9 +3670,19 @@ bool CvCityReligions::IsDefendedAgainstSpread(ReligionTypes eReligion)
 	return false;
 }
 
+#if defined(MOD_BALANCE_CORE)
+ReligionTypes CvCityReligions::GetReligiousMajority()
+{
+	return m_majorityReligion;
+}
+
+bool CvCityReligions::ComputeReligiousMajority()
+{
+#else
 /// Is there a religion that at least half of the population follows?
 ReligionTypes CvCityReligions::GetReligiousMajority()
 {
+#endif
 	int iTotalFollowers = 0;
 	int iMostFollowerPressure = 0;
 	int iMostFollowers = -1;
@@ -3607,14 +3701,25 @@ ReligionTypes CvCityReligions::GetReligiousMajority()
 		}
 	}
 
+#if defined(MOD_BALANCE_CORE)
+	//update local majority
+	m_majorityReligion = (iMostFollowers*2 >= iTotalFollowers) ? eMostFollowers : NO_RELIGION;
+	//update player majority - really only have to to this if the local majority changes ...
+	GET_PLAYER(m_pCity->getOwner()).GetReligions()->ComputeMajority();
+	return m_majorityReligion!=NO_RELIGION;
+#else
 	if ((iMostFollowers * 2) >= iTotalFollowers)
 	{
-		return eMostFollowers;
+		m_majorityReligion = eMostFollowers;
+		return true;
 	}
 	else
 	{
-		return NO_RELIGION;
+		m_majorityReligion = NO_RELIGION;
+		return false;
 	}
+#endif
+
 }
 
 /// Just asked to simulate a conversion - who would be the majority religion?
@@ -4473,6 +4578,10 @@ void CvCityReligions::RecomputeFollowers(CvReligiousFollowChangeReason eReason, 
 		}
 	}
 
+#if defined(MOD_BALANCE_CORE)
+	ComputeReligiousMajority();
+#endif
+
 	ReligionTypes eMajority = GetReligiousMajority();
 	int iFollowers = GetNumFollowers(eMajority);
 
@@ -4936,6 +5045,10 @@ FDataStream& operator>>(FDataStream& loadFrom, CvCityReligions& writeTo)
 		loadFrom >> tempItem;
 		writeTo.m_ReligionStatus.push_back(tempItem);
 	}
+	
+#if defined(MOD_BALANCE_CORE)
+	writeTo.ComputeReligiousMajority();
+#endif
 
 	return loadFrom;
 }

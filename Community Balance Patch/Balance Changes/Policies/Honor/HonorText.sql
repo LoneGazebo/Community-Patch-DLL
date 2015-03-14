@@ -17,7 +17,7 @@ SET Text = 'Expansionism'
 WHERE Tag = 'TXT_KEY_POLICY_WARRIOR_CODE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Expansionism[ENDCOLOR][NEWLINE]A Free Settler appears in the [ICON_CAPITAL] Capital. Each City with a garrison increases empire [ICON_HAPPINESS_1] Happiness and [ICON_CULTURE] Culture by 1.'
+SET Text = '[COLOR_POSITIVE_TEXT]Expansionism[ENDCOLOR][NEWLINE]A free Settler appears near the [ICON_CAPITAL] Capital. Each City with a garrison increases empire [ICON_HAPPINESS_1] Happiness and [ICON_CULTURE] Culture by 1.'
 WHERE Tag = 'TXT_KEY_POLICY_WARRIOR_CODE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -30,7 +30,7 @@ SET Text = 'Tribute'
 WHERE Tag = 'TXT_KEY_POLICY_DISCIPLINE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Tribute[ENDCOLOR][NEWLINE]City borders expand 25% faster. Gain a bonus to [ICON_PRODUCTION] Production and [ICON_GOLD] Gold in a City from border expansion. Bonus scales with Era.'
+SET Text = '[COLOR_POSITIVE_TEXT]Tribute[ENDCOLOR][NEWLINE]City borders expand 25% faster. Gain a bonus to [ICON_PRODUCTION] Production and [ICON_GOLD] Gold in a City when its borders expand. Bonus scales with Era.'
 WHERE Tag = 'TXT_KEY_POLICY_DISCIPLINE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
