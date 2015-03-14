@@ -26,11 +26,6 @@
 	SET PrereqTech = 'TECH_POTTERY'
 	WHERE Type = 'UNIT_SETTLER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
-	-- Increase Flavor
-	UPDATE Unit_Flavors
-	SET Flavor = '30'
-	WHERE UnitType = 'UNIT_SETTLER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
-
 -- Workers Reduced Work Rate to slow down early growth
 	UPDATE Units
 	SET WorkRate = '90'
@@ -322,6 +317,11 @@
 	UPDATE Unit_ClassUpgrades
 	SET UnitClassType = 'UNITCLASS_LANCER'
 	WHERE UnitType = 'UNIT_SIAMESE_WARELEPHANT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	-- Siamese War Elephant require Horse
+	INSERT INTO Unit_ResourceQuantityRequirements (UnitType, ResourceType, Cost)
+	SELECT 'UNIT_SIAMESE_WARELEPHANT', 'RESOURCE_HORSE', '1'
+	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	-- Increase strength of horsemen, knights, lancers, and cavalry, and all UUs
 
@@ -983,7 +983,7 @@
 
 	-- Maintenance
 	UPDATE Units
-	SET NoMaintenance = 'false'
+	SET NoMaintenance = '0'
 	WHERE Type = 'UNIT_GUIDED_MISSILE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Language_en_US

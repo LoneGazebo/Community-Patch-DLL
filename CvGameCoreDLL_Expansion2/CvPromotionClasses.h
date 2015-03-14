@@ -510,8 +510,10 @@ private:
 	bool IsInUseByPlayer(PromotionTypes eIndex, PlayerTypes ePlayer); 
 
 #if defined(MOD_BALANCE_CORE)
-	void UpdateTerrainPassableCache();
+	void UpdateCache();
 	std::vector<std::vector<TechTypes>> m_terrainPassableCache;
+	std::vector<int> m_unitClassDefenseMod;
+	std::vector<int> m_unitClassAttackMod;
 #endif
 
 	CvBitfield m_kHasPromotion;

@@ -240,11 +240,11 @@
 			<Where Type="TECH_RIFLING" />
 		</Update>
 		<Update>
-			<Set GridX="10" GridY="3" />
+			<Set GridX="10" GridY="9" />
 			<Where Type="TECH_MILITARY_SCIENCE" />
 		</Update>
 		<Update>
-			<Set GridX="10" />
+			<Set GridX="10"  GridY="3" />
 			<Where Type="TECH_FERTILIZER" />
 		</Update>
 		<Update>
@@ -606,31 +606,31 @@
 		</Row>
 		<Row>
 			<TechType>TECH_BIOLOGY</TechType>
-			<PrereqTech>TECH_MILITARY_SCIENCE</PrereqTech>
-		</Row>
-		<Row>
-			<TechType>TECH_ELECTRICITY</TechType>
-			<PrereqTech>TECH_MILITARY_SCIENCE</PrereqTech>
-		</Row>
-		<Row>
-			<TechType>TECH_ELECTRICITY</TechType>
-			<PrereqTech>TECH_INDUSTRIALIZATION</PrereqTech>
-		</Row>
-		<Row>
-			<TechType>TECH_REPLACEABLE_PARTS</TechType>
-			<PrereqTech>TECH_INDUSTRIALIZATION</PrereqTech>
-		</Row>
-		<Row>
-			<TechType>TECH_REPLACEABLE_PARTS</TechType>
-			<PrereqTech>TECH_DYNAMITE</PrereqTech>
-		</Row>
-		<Row>
-			<TechType>TECH_COMBUSTION</TechType>
-			<PrereqTech>TECH_DYNAMITE</PrereqTech>
-		</Row>
-		<Row>
-			<TechType>TECH_COMBUSTION</TechType>
 			<PrereqTech>TECH_FERTILIZER</PrereqTech>
+		</Row>
+		<Row>
+			<TechType>TECH_ELECTRICITY</TechType>
+			<PrereqTech>TECH_FERTILIZER</PrereqTech>
+		</Row>
+		<Row>
+			<TechType>TECH_ELECTRICITY</TechType>
+			<PrereqTech>TECH_INDUSTRIALIZATION</PrereqTech>
+		</Row>
+		<Row>
+			<TechType>TECH_REPLACEABLE_PARTS</TechType>
+			<PrereqTech>TECH_INDUSTRIALIZATION</PrereqTech>
+		</Row>
+		<Row>
+			<TechType>TECH_REPLACEABLE_PARTS</TechType>
+			<PrereqTech>TECH_DYNAMITE</PrereqTech>
+		</Row>
+		<Row>
+			<TechType>TECH_COMBUSTION</TechType>
+			<PrereqTech>TECH_DYNAMITE</PrereqTech>
+		</Row>
+		<Row>
+			<TechType>TECH_COMBUSTION</TechType>
+			<PrereqTech>TECH_MILITARY_SCIENCE</PrereqTech>
 		</Row>
 		<!-- Industrial Era -->
 		<Row>
@@ -638,11 +638,11 @@
 			<PrereqTech>TECH_SCIENTIFIC_THEORY</PrereqTech>
 		</Row>
 		<Row>
-			<TechType>TECH_MILITARY_SCIENCE</TechType>
+			<TechType>TECH_FERTILIZER</TechType>
 			<PrereqTech>TECH_SCIENTIFIC_THEORY</PrereqTech>
 		</Row>
 		<Row>
-			<TechType>TECH_MILITARY_SCIENCE</TechType>
+			<TechType>TECH_FERTILIZER</TechType>
 			<PrereqTech>TECH_RAILROAD</PrereqTech>
 		</Row>
 		<Row>
@@ -662,7 +662,7 @@
 			<PrereqTech>TECH_RIFLING</PrereqTech>
 		</Row>
 		<Row>
-			<TechType>TECH_FERTILIZER</TechType>
+			<TechType>TECH_MILITARY_SCIENCE</TechType>
 			<PrereqTech>TECH_RIFLING</PrereqTech>
 		</Row>
 		<Row>

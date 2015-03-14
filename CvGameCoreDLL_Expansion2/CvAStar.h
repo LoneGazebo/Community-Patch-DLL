@@ -98,6 +98,16 @@ public:
 	}
 #endif
 
+#if defined(MOD_BALANCE_CORE)
+	inline int GetPathLength()
+	{
+		if( udNotifyChild && GetLastNode() )
+			return GetLastNode()->m_iData2;
+		else
+			return -1;
+	}
+#endif
+
 	inline bool IsPathStart(int iX, int iY)
 	{
 		return ((m_iXstart == iX) && (m_iYstart == iY));
@@ -496,7 +506,7 @@ int TacticalAnalysisMapPathValid(CvAStarNode* parent, CvAStarNode* node, int dat
 int FindValidDestinationDest(int iToX, int iToY, const void* pointer, CvAStar* finder);
 int FindValidDestinationPathValid(CvAStarNode* parent, CvAStarNode* node, int data, const void* pointer, CvAStar* finder);
 #ifdef AUI_ASTAR_TURN_LIMITER
-int TurnsToReachTarget(UnitHandle pUnit, CvPlot* pTarget, bool bReusePaths = false, bool bIgnoreUnits = false, bool bIgnoreStacking = false, int iTargetTurns = MAX_INT);
+int TurnsToReachTarget(const UnitHandle pUnit, const CvPlot* pTarget, bool bReusePaths = false, bool bIgnoreUnits = false, bool bIgnoreStacking = false, int iTargetTurns = MAX_INT);
 #else
 int TurnsToReachTarget(UnitHandle pUnit, CvPlot* pTarget, bool bReusePaths=false, bool bIgnoreUnits=false, bool bIgnoreStacking=false);
 #endif // AUI_ASTAR_TURN_LIMITER
@@ -506,6 +516,9 @@ int TradeRouteLandPathCost(CvAStarNode* parent, CvAStarNode* node, int data, con
 int TradeRouteLandValid(CvAStarNode* parent, CvAStarNode* node, int data, const void* pointer, CvAStar* finder);
 int TradeRouteWaterPathCost(CvAStarNode* parent, CvAStarNode* node, int data, const void* pointer, CvAStar* finder);
 int TradeRouteWaterValid(CvAStarNode* parent, CvAStarNode* node, int data, const void* pointer, CvAStar* finder);
+#if defined(MOD_BALANCE_CORE)
+int TradeRoutePathAdd(CvAStarNode* parent, CvAStarNode* node, int data, const void* pointer, CvAStar* finder);
+#endif
 void UnitPathInitialize(const void* pointer, CvAStar* finder);
 void UnitPathUninitialize(const void* pointer, CvAStar* finder);
 void TradePathInitialize(const void* pointer, CvAStar* finder);

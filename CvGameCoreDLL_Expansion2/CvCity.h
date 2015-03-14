@@ -360,6 +360,10 @@ public:
 	CvArea* waterArea() const;
 
 	CvUnit* GetGarrisonedUnit() const;
+#ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
+	void OverrideGarrison(CvUnit* pUnit);
+	void UnsetGarrisonOverride();
+#endif // AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
 
 	CvPlot* getRallyPlot() const;
 	void setRallyPlot(CvPlot* pPlot);
@@ -917,8 +921,13 @@ public:
 	CvUnit* rangedStrikeTarget(CvPlot* pPlot);
 	bool canRangedStrikeTarget(const CvPlot& targetPlot) const;
 
+#ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
+	int rangeCombatUnitDefense(_In_ const CvUnit* pDefender, const CvPlot* pInPlot = NULL) const;
+	int rangeCombatDamage(const CvUnit* pDefender, CvCity* pCity = NULL, bool bIncludeRand = true, const CvPlot* pInPlot = NULL) const;
+#else
 	int rangeCombatUnitDefense(_In_ const CvUnit* pDefender) const;
 	int rangeCombatDamage(const CvUnit* pDefender, CvCity* pCity = NULL, bool bIncludeRand = true) const;
+#endif
 
 	int GetAirStrikeDefenseDamage(const CvUnit* pAttacker, bool bIncludeRand = true) const;
 
@@ -1154,6 +1163,9 @@ protected:
 	FAutoVariable<int, CvCity> m_iDamage;
 	FAutoVariable<int, CvCity> m_iThreatValue;
 	FAutoVariable<int, CvCity> m_iGarrisonedUnit;  // unused
+#ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
+	UnitHandle m_hGarrisonOverride;
+#endif // AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
 	FAutoVariable<int, CvCity> m_iResourceDemanded;
 	FAutoVariable<int, CvCity> m_iWeLoveTheKingDayCounter;
 	FAutoVariable<int, CvCity> m_iLastTurnGarrisonAssigned;

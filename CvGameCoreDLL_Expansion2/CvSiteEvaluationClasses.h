@@ -40,7 +40,7 @@ public:
 	virtual void ComputeFlavorMultipliers(CvPlayer* pPlayer);
 	virtual bool CanFound(CvPlot* pPlot, const CvPlayer* pPlayer, bool bTestVisible) const;
 #if defined(MOD_BALANCE_CORE_SETTLER)
-	virtual int PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, YieldTypes eYield = NO_YIELD, bool bCoastOnly=false, CvString* pDebug=NULL);
+	virtual int PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, YieldTypes eYield = NO_YIELD, bool bCoastOnly=false, CvString* pDebug=NULL);
 	virtual int PlotFertilityValue(CvPlot* pPlot, bool bAllPlots=false);
 #else
 	virtual int PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, YieldTypes eYield = NO_YIELD, bool bCoastOnly=false);
@@ -50,14 +50,14 @@ public:
 
 protected:
 	// Each of these routines computes a number from 0 (no value) to 100 (best possible value)
-	virtual int ComputeFoodValue(CvPlot* pPlot, CvPlayer* pPlayer);
-	virtual int ComputeHappinessValue(CvPlot* pPlot, CvPlayer* pPlayer);
-	virtual int ComputeProductionValue(CvPlot* pPlot, CvPlayer* pPlayer);
-	virtual int ComputeGoldValue(CvPlot* pPlot, CvPlayer* pPlayer);
-	virtual int ComputeScienceValue(CvPlot* pPlot, CvPlayer* pPlayer);
-	virtual int ComputeFaithValue(CvPlot* pPlot, CvPlayer* pPlayer);
-	virtual int ComputeTradeableResourceValue(CvPlot* pPlot, CvPlayer* pPlayer);
-	virtual int ComputeStrategicValue(CvPlot* pPlot, CvPlayer* pPlayer, int iPlotsFromCity);
+	virtual int ComputeFoodValue(CvPlot* pPlot, const CvPlayer* pPlayer);
+	virtual int ComputeHappinessValue(CvPlot* pPlot, const CvPlayer* pPlayer);
+	virtual int ComputeProductionValue(CvPlot* pPlot, const CvPlayer* pPlayer);
+	virtual int ComputeGoldValue(CvPlot* pPlot, const CvPlayer* pPlayer);
+	virtual int ComputeScienceValue(CvPlot* pPlot, const CvPlayer* pPlayer);
+	virtual int ComputeFaithValue(CvPlot* pPlot, const CvPlayer* pPlayer);
+	virtual int ComputeTradeableResourceValue(CvPlot* pPlot, const CvPlayer* pPlayer);
+	virtual int ComputeStrategicValue(CvPlot* pPlot, const CvPlayer* pPlayer, int iPlotsFromCity);
 
 	int m_iFlavorMultiplier[NUM_SITE_EVALUATION_FACTORS];  // Extra for tradeable resources and strategic value
 #if defined(MOD_GLOBAL_CITY_WORKING)
@@ -92,7 +92,7 @@ public:
 	~CvSiteEvaluatorForSettler(void);
 
 #if defined(MOD_BALANCE_CORE_SETTLER)
-	virtual int PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, YieldTypes eYield = NO_YIELD, bool bCoastOnly=false, CvString* pDebug=NULL);
+	virtual int PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, YieldTypes eYield = NO_YIELD, bool bCoastOnly=false, CvString* pDebug=NULL);
 #else
 	int PlotFoundValue(CvPlot* pPlot, CvPlayer* pPlayer, YieldTypes eYield = NO_YIELD, bool bCoastOnly=true);
 #endif

@@ -39,8 +39,16 @@ WHERE Tag = 'TXT_KEY_POLICY_SECULARISM_TEXT' AND EXISTS (SELECT * FROM COMMUNITY
 -- Sovereignty
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Sovereignty[ENDCOLOR][NEWLINE]+1 [ICON_HAPPINESS_1] Happiness for every city [ICON_CONNECTED] Connection with the [ICON_CAPITAL] Capital, and +5 [ICON_HAPPINESS_1] Happiness in your [ICON_CAPITAL] Capital.'
+SET Text = '[COLOR_POSITIVE_TEXT]Empiricism[ENDCOLOR][NEWLINE]+1 [ICON_HAPPINESS_1] Happiness for every city [ICON_CONNECTED] Connection with the [ICON_CAPITAL] Capital, and +5 [ICON_HAPPINESS_1] Happiness in your [ICON_CAPITAL] Capital.'
 WHERE Tag = 'TXT_KEY_POLICY_SOVEREIGNTY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
+
+UPDATE Language_en_US
+SET Text = 'Empiricism'
+WHERE Tag = 'TXT_KEY_POLICY_SOVEREIGNTY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
+
+UPDATE Language_en_US
+SET Text = 'Empiricism is a theory which states that knowledge comes only or primarily from sensory experience. One of several views of epistemology, the study of human knowledge, along with rationalism and skepticism, empiricism emphasizes the role of experience and evidence, especially sensory experience, in the formation of ideas, over the notion of innate ideas or traditions; empiricists may argue however that traditions (or customs) arise due to relations of previous sense experiences.'
+WHERE Tag = 'TXT_KEY_POLICY_SOVEREIGNTY_TEXT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 -- Free Thought
 UPDATE Language_en_US

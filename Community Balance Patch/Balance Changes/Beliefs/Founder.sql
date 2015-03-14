@@ -23,7 +23,7 @@ UPDATE Beliefs
 SET GoldPerXFollowers = '0'
 WHERE Type = 'BELIEF_TITHE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
--- Initiation Rites (Now Path of Transcendence)
+-- Initiation Rites (Now Way of Transcendence)
 UPDATE Beliefs
 SET GoldPerFirstCityConversion = '0'
 WHERE Type = 'BELIEF_INITIATION_RITES' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );

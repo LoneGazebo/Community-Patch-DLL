@@ -64,12 +64,12 @@
 		<Row>
 			<UnitType>UNIT_PIONEER</UnitType>
 			<FlavorType>FLAVOR_EXPANSION</FlavorType>
-			<Flavor>60</Flavor>
+			<Flavor>35</Flavor>
 		</Row>
 		<Row>
 			<UnitType>UNIT_COLONIST</UnitType>
 			<FlavorType>FLAVOR_EXPANSION</FlavorType>
-			<Flavor>80</Flavor>
+			<Flavor>45</Flavor>
 		</Row>
 	</Unit_Flavors>
 	<Unit_FreePromotions>

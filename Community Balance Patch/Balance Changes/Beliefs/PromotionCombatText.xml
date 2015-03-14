@@ -8,6 +8,12 @@
 		<Row Tag="TXT_KEY_EUPANEL_ENEMY_CITY_BELIEF_BONUS_CBP">
 			<Text>Crusader Zeal</Text>
 		</Row>
+		<Row Tag="TXT_KEY_EUPANEL_NAVAL_DEFENSE_CITY">
+			<Text>Difficult Target</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EUPANEL_TRAIT_LOW_POP_BONUS">
+			<Text>Lower Population than Enemy</Text>
+		</Row>
 		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_MEMBER_DETAILS_RELIGION_REFORMATION_VOTES">
 			<Text>[NEWLINE][ICON_BULLET]{1_NumVotes} from Reformation Belief</Text>
 		</Row>

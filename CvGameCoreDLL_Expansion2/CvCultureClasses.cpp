@@ -3569,7 +3569,7 @@ int CvPlayerCulture::ComputeWarWeariness()
 	{
 		if(m_iWarWeariness > 0)
 		{
-			m_iWarWeariness -= GC.getGame().getJonRandNum(4, "Roll for war weariness reduction!");
+			m_iWarWeariness -= GC.getGame().getJonRandNum(5, "Roll for war weariness reduction!");
 		}
 		if(m_iWarWeariness <= 0)
 		{
@@ -3895,7 +3895,15 @@ void CvPlayerCulture::DoPublicOpinion()
 			locText << GC.getPolicyBranchInfo(m_ePreferredIdeology)->GetDescription();
 			m_strOpinionTooltip += locText.toUTF8();
 		}
-
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+		if(MOD_BALANCE_CORE_HAPPINESS && iWarWeariness > 0)
+		{
+			Localization::String locText;
+			locText = Localization::Lookup("TXT_KEY_CO_OPINION_TT_UNHAPPINESS_WAR_WEARINESS");
+			locText << iWarWeariness;
+			m_strOpinionUnhappinessTooltip += locText.toUTF8();
+		}
+#endif
 		if (m_iOpinionUnhappiness > 0)
 		{
 			Localization::String locText;
@@ -3916,15 +3924,6 @@ void CvPlayerCulture::DoPublicOpinion()
 			m_strOpinionUnhappinessTooltip += locText.toUTF8();
 #endif
 		}
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-		if(MOD_BALANCE_CORE_HAPPINESS && iWarWeariness > 0)
-		{
-			Localization::String locText;
-			locText = Localization::Lookup("TXT_KEY_CO_OPINION_TT_UNHAPPINESS_WAR_WEARINESS");
-			locText << iWarWeariness;
-			m_strOpinionUnhappinessTooltip += locText.toUTF8();
-		}
-#endif
 	}
 }
 /// What would the unhappiness be if we chose this Ideology?

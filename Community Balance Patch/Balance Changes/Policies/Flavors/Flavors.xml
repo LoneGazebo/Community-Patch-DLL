@@ -91,13 +91,18 @@
 		</Row>
 		<Row>
 			<PolicyType>POLICY_TRADITION</PolicyType>
-			<FlavorType>FLAVOR_GROWTH</FlavorType>
+			<FlavorType>FLAVOR_PRODUCTION</FlavorType>
 			<Flavor>15</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_TRADITION</PolicyType>
+			<FlavorType>FLAVOR_GROWTH</FlavorType>
+			<Flavor>20</Flavor>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_TRADITION</PolicyType>
 			<FlavorType>FLAVOR_GREAT_PEOPLE</FlavorType>
-			<Flavor>10</Flavor>
+			<Flavor>15</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_TRADITION</PolicyType>
@@ -107,12 +112,12 @@
 		<Row>
 			<PolicyType>POLICY_ARISTOCRACY</PolicyType>
 			<FlavorType>FLAVOR_GOLD</FlavorType>
-			<Flavor>10</Flavor>
+			<Flavor>15</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_OLIGARCHY</PolicyType>
 			<FlavorType>FLAVOR_GOLD</FlavorType>
-			<Flavor>10</Flavor>
+			<Flavor>15</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_OLIGARCHY</PolicyType>
@@ -132,27 +137,22 @@
 		<Row>
 			<PolicyType>POLICY_LANDED_ELITE</PolicyType>
 			<FlavorType>FLAVOR_GROWTH</FlavorType>
-			<Flavor>10</Flavor>
+			<Flavor>15</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_LANDED_ELITE</PolicyType>
-			<FlavorType>FLAVOR_INFRASTRUCTURE</FlavorType>
-			<Flavor>10</Flavor>
-		</Row>
-		<Row>
-			<PolicyType>POLICY_MONARCHY</PolicyType>
-			<FlavorType>FLAVOR_GOLD</FlavorType>
-			<Flavor>10</Flavor>
-		</Row>
-		<Row>
-			<PolicyType>POLICY_MONARCHY</PolicyType>
-			<FlavorType>FLAVOR_CULTURE</FlavorType>
-			<Flavor>10</Flavor>
-		</Row>
-		<Row>
-			<PolicyType>POLICY_MONARCHY</PolicyType>
 			<FlavorType>FLAVOR_GREAT_PEOPLE</FlavorType>
-			<Flavor>10</Flavor>
+			<Flavor>15</Flavor>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_MONARCHY</PolicyType>
+			<FlavorType>FLAVOR_PRODUCTION</FlavorType>
+			<Flavor>25</Flavor>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_LANDED_ELITE</PolicyType>
+			<FlavorType>FLAVOR_GREAT_PEOPLE</FlavorType>
+			<Flavor>20</Flavor>
 		</Row>
 		<!-- Might -->
 		<Row>
@@ -492,7 +492,22 @@
 		<Row>
 			<PolicyType>POLICY_MERCANTILISM</PolicyType>
 			<FlavorType>FLAVOR_SCIENCE</FlavorType>
-			<Flavor>35</Flavor>
+			<Flavor>30</Flavor>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_MERCANTILISM</PolicyType>
+			<FlavorType>FLAVOR_CULTURE</FlavorType>
+			<Flavor>20</Flavor>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_MERCANTILISM</PolicyType>
+			<FlavorType>FLAVOR_I_LAND_TRADE_ROUTE</FlavorType>
+			<Flavor>15</Flavor>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_MERCANTILISM</PolicyType>
+			<FlavorType>FLAVOR_I_SEA_TRADE_ROUTE</FlavorType>
+			<Flavor>15</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_PROTECTIONISM</PolicyType>

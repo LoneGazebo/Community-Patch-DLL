@@ -138,6 +138,28 @@ struct CvMilitaryTarget
 	bool m_bAttackBySea;
 };
 
+#if defined(MOD_BALANCE_CORE_MILITARY)
+struct SCachedTarget
+{
+	SCachedTarget() :
+		iTargetCity(0),
+		iMusterCity(0),
+		bAttackBySea(0),
+		iScore(0),
+		iTurnChosen(0)
+	{
+	}
+
+	int iTargetCity;
+	int iMusterCity;
+	int bAttackBySea;
+	int iScore;
+	int iTurnChosen;
+};
+
+typedef std::map<PlayerTypes,std::map<AIOperationTypes,SCachedTarget>> CachedTargetsMap;
+#endif
+
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  CLASS:      CvMilitaryAI
 //!  \brief		Information about the AI military strategies of a single player
@@ -215,15 +237,7 @@ public:
 
 	// Finding best cities to target
 #if defined(MOD_BALANCE_CORE_MILITARY)
-	CvCity* GetBestTargetCity(PlayerTypes ePlayer);
-	CvCity* GetBestMusterCity(PlayerTypes ePlayer);
-	bool GetAttackBySea();
-	int GetTestTurn();
-
-	void SetBestTargetCity(CvCity* pCity, PlayerTypes ePlayer);
-	void SetBestMusterCity(CvCity* pCity, PlayerTypes ePlayer);
-	void SetAttackBySea(bool bValue);
-	void SetTestTurn(int iValue);
+	CvMilitaryTarget FindBestAttackTarget2(AIOperationTypes eAIOperationType, PlayerTypes eEnemy, int* piWinningScore = NULL);
 #endif
 	CvMilitaryTarget FindBestAttackTarget(AIOperationTypes eAIOperationType, PlayerTypes eEnemy, int* piWinningScore = NULL);
 	void ShouldAttackBySea(PlayerTypes eEnemy, CvMilitaryTarget& target);
@@ -268,7 +282,7 @@ public:
 	UnitTypes GetUnitForArmy(CvCity* pCity) const;
 	bool WillAirUnitRebase(CvUnit* pUnit) const;
 #if defined(MOD_AI_SMART_AIR_TACTICS)
-	int GetMaxPossibleInterceptions(CvPlot* pCenterPlot) const;
+	int GetMaxPossibleInterceptions(CvPlot* pCenterPlot, bool bCountPercents = false) const;
 #endif
 	int GetNumEnemyAirUnitsInRange(CvPlot* pCenterPlot, int iRange, bool bCountFighters, bool bCountBombers) const;
 	CvPlot *GetBestAirSweepTarget(CvUnit* pFighter) const;
@@ -357,11 +371,9 @@ private:
 	int m_iNumberOfTimesOpsBuildSkippedOver;
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
-	bool m_bAttackBySea;
-	int* m_paeBestTargetCity;
-	int* m_paeBestMusterCity;
-	int m_iTestTurn;
+	CachedTargetsMap m_cachedTargets;
 #endif
+
 	// Data recomputed each turn (no need to serialize)
 	int m_iNumLandUnits;
 	int m_iNumRangedLandUnits;

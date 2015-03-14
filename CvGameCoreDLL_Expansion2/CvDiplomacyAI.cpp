@@ -5610,7 +5610,7 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness()
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 				if(MOD_BALANCE_CORE_HAPPINESS)
 				{
-					iWillingToOfferScore = GetPlayer()->GetCulture()->m_iWarWeariness;
+					iWillingToOfferScore = GetPlayer()->GetCulture()->GetWarWeariness();
 				}
 #endif
 //					if (IsWantsPeaceWithPlayer(eLoopPlayer))
@@ -5713,7 +5713,12 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness()
 					}
 
 					// What we're willing to accept from eLoopPlayer.  The higher the number the more we want
-
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+				if(MOD_BALANCE_CORE_HAPPINESS)
+				{
+					iWillingToAcceptScore = (GetPlayer()->GetCulture()->GetWarWeariness() * -1);
+				}
+#endif
 					// How is the war going?
 					switch(eWarProjection)
 					{
@@ -12260,12 +12265,6 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 			if(bDealAcceptable)
 			{
 				eMessageType = DIPLO_MESSAGE_RENEW_DEAL;
-#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-				if(MOD_DIPLOMACY_CIV4_FEATURES)
-				{
-					SetOfferingGift(ePlayer, true);
-				}
-#endif
 			}
 			// We want more from this Deal
 			else if(iDealValueToMe > -75 &&

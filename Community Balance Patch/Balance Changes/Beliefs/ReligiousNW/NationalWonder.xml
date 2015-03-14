@@ -292,7 +292,7 @@
 		<Row>
 			<BuildingType>BUILDING_MAUSOLEUM</BuildingType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>6</Yield>
+			<Yield>5</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_HEAVENLY_THRONE</BuildingType>
@@ -367,12 +367,12 @@
 		<Row>
 			<BuildingType>BUILDING_GRAND_OSSUARY</BuildingType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>7</Yield>
+			<Yield>6</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_DIVINE_COURT</BuildingType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>8</Yield>
+			<Yield>6</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_HOLY_COUNCIL</BuildingType>

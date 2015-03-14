@@ -269,7 +269,6 @@
 			<PrimaryUnitType>UNITAI_ATTACK</PrimaryUnitType>
 			<SecondaryUnitType>UNITAI_DEFENSE</SecondaryUnitType>
 			<MultiUnitPositionType>MUPOSITION_FRONT_LINE</MultiUnitPositionType>
-			<RequiredSlot>true</RequiredSlot>
 		</Row>
 		<Row>
 			<MultiUnitFormationType>MUFORMATION_SMALL_CITY_ATTACK_FORCE</MultiUnitFormationType>

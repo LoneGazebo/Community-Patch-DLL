@@ -8,19 +8,19 @@ ALTER TABLE Unit_UniqueNames ADD COLUMN 'EraType' TEXT DEFAULT NULL;
 
 -- Create buildings that cannot have access to fresh water.
 
-ALTER TABLE Buildings ADD COLUMN 'IsNoWater' BOOLEAN DEFAULT FALSE;
+ALTER TABLE Buildings ADD COLUMN 'IsNoWater' BOOLEAN DEFAULT 0;
 
 -- Create buildings that must be in the Capital
 
-ALTER TABLE Buildings ADD COLUMN 'CapitalOnly' BOOLEAN DEFAULT FALSE;
+ALTER TABLE Buildings ADD COLUMN 'CapitalOnly' BOOLEAN DEFAULT 0;
 
 -- Belief requires an improvement on a terrain type to grant its yield.
 
-ALTER TABLE Beliefs ADD COLUMN 'RequiresImprovement' BOOLEAN DEFAULT FALSE;
+ALTER TABLE Beliefs ADD COLUMN 'RequiresImprovement' BOOLEAN DEFAULT 0;
 
 -- Belief requires a resource (improved or not) on a terrain type to grant its yield.
 
-ALTER TABLE Beliefs ADD COLUMN 'RequiresResource' BOOLEAN DEFAULT FALSE;
+ALTER TABLE Beliefs ADD COLUMN 'RequiresResource' BOOLEAN DEFAULT 0;
 
 -- Give CSs defensive units at the beginning of the game.
 
@@ -36,11 +36,11 @@ ALTER TABLE GameSpeeds ADD COLUMN 'StartingHappiness' INTEGER DEFAULT 0;
 
 -- No unhappiness from Isolation.
 
-ALTER TABLE Traits ADD COLUMN 'NoConnectionUnhappiness' BOOLEAN DEFAULT FALSE;
+ALTER TABLE Traits ADD COLUMN 'NoConnectionUnhappiness' BOOLEAN DEFAULT 0;
 
 -- No unhappiness from religious strife.
 
-ALTER TABLE Traits ADD COLUMN 'IsNoReligiousStrife' BOOLEAN DEFAULT FALSE;
+ALTER TABLE Traits ADD COLUMN 'IsNoReligiousStrife' BOOLEAN DEFAULT 0;
 
 -- Earn a free building only in your capital as your trait. No tech requirement.
 
@@ -64,7 +64,7 @@ ALTER TABLE Traits ADD COLUMN 'CapitalFreeBuildingPrereqTech' TEXT DEFAULT NULL;
 
 -- Adds a trait that lets a player conquer a city-state if they can bully it.
 
-ALTER TABLE Traits ADD COLUMN 'BullyAnnex' BOOLEAN DEFAULT FALSE;
+ALTER TABLE Traits ADD COLUMN 'BullyAnnex' BOOLEAN DEFAULT 0;
 
 -- Grants a free valid promotion to a unit when it enters a type of feature (forest, marsh, etc.).
 
@@ -94,10 +94,10 @@ ALTER TABLE Terrains ADD COLUMN 'AdjacentSpawnLocationUnitFreePromotion' TEXT DE
 ALTER TABLE Terrains ADD COLUMN 'AdjacentUnitFreePromotion' TEXT DEFAULT NULL;
 
 -- Adds ability for settlers to get free buildings when a city is founded.
-ALTER TABLE Units ADD COLUMN 'FoundMid' BOOLEAN DEFAULT FALSE;
+ALTER TABLE Units ADD COLUMN 'FoundMid' BOOLEAN DEFAULT 0;
 
 -- Adds ability for settlers to get free buildings when a city is founded.
-ALTER TABLE Units ADD COLUMN 'FoundLate' BOOLEAN DEFAULT FALSE;
+ALTER TABLE Units ADD COLUMN 'FoundLate' BOOLEAN DEFAULT 0;
 
 -- Adds minimum national population requirement for a building.
 ALTER TABLE Buildings ADD COLUMN 'NationalPopRequired' INTEGER DEFAULT 0;
@@ -161,11 +161,11 @@ ALTER TABLE Traits ADD COLUMN 'MinorityHappinessTraitMod' INTEGER DEFAULT 0;
 
 -- New Traits - Free Great Work(s) on Conquest (or Culture Boost if no great works/slots)
 
-ALTER TABLE Traits ADD COLUMN 'FreeGreatWorkOnConquest' BOOLEAN DEFAULT FALSE;
+ALTER TABLE Traits ADD COLUMN 'FreeGreatWorkOnConquest' BOOLEAN DEFAULT 0;
 
 -- New Traits - Religious Pressure modified based on population
 
-ALTER TABLE Traits ADD COLUMN 'PopulationBoostReligion' BOOLEAN DEFAULT FALSE;
+ALTER TABLE Traits ADD COLUMN 'PopulationBoostReligion' BOOLEAN DEFAULT 0;
 
 -- New Traits - Additioanl WC vote for every x CS Alliances
 ALTER TABLE Traits ADD COLUMN 'VotePerXCSAlliance' INTEGER DEFAULT 0;
@@ -174,7 +174,7 @@ ALTER TABLE Traits ADD COLUMN 'VotePerXCSAlliance' INTEGER DEFAULT 0;
 ALTER TABLE Traits ADD COLUMN 'GoldenAgeFromVictory' INTEGER DEFAULT 0;
 
 -- New Traits - Can buy owned plots with gold
-ALTER TABLE Traits ADD COLUMN 'BuyOwnedTiles' BOOLEAN DEFAULT FALSE;
+ALTER TABLE Traits ADD COLUMN 'BuyOwnedTiles' BOOLEAN DEFAULT 0;
 
 -- New Policies
 
@@ -185,13 +185,13 @@ ALTER TABLE Policies ADD COLUMN 'GarrisonsOccupiedUnhapppinessMod' INTEGER DEFAU
 ALTER TABLE Policies ADD COLUMN 'BestRangedUnitSpawnSettle' INTEGER DEFAULT 0;
 
 -- No Unhappiness from Expansion
-ALTER TABLE Policies ADD COLUMN 'NoUnhappinessExpansion' BOOLEAN DEFAULT FALSE;
+ALTER TABLE Policies ADD COLUMN 'NoUnhappinessExpansion' BOOLEAN DEFAULT 0;
 
 -- No Unhapppiness from Isolation
-ALTER TABLE Policies ADD COLUMN 'NoUnhappyIsolation' BOOLEAN DEFAULT FALSE;
+ALTER TABLE Policies ADD COLUMN 'NoUnhappyIsolation' BOOLEAN DEFAULT 0;
 
 -- Double City Border Growth During GA
-ALTER TABLE Policies ADD COLUMN 'DoubleBorderGA' BOOLEAN DEFAULT FALSE;
+ALTER TABLE Policies ADD COLUMN 'DoubleBorderGA' BOOLEAN DEFAULT 0;
 
 -- Free Population
 ALTER TABLE Policies ADD COLUMN 'FreePopulation' INTEGER DEFAULT 0;
@@ -203,7 +203,7 @@ ALTER TABLE Policies ADD COLUMN 'ExtraMoves' INTEGER DEFAULT 0;
 ALTER TABLE Policies ADD COLUMN 'TradeReligionModifier' INTEGER DEFAULT 0;
 
 -- Increased Quest Influence
-ALTER TABLE Policies ADD COLUMN 'IncreasedQuestInfluence' BOOLEAN DEFAULT FALSE;
+ALTER TABLE Policies ADD COLUMN 'IncreasedQuestInfluence' BOOLEAN DEFAULT 0;
 
 -- Free Votes in WC
 ALTER TABLE Policies ADD COLUMN 'FreeWCVotes' INTEGER DEFAULT 0;
@@ -255,7 +255,7 @@ ALTER TABLE Buildings ADD COLUMN 'NationalFollowerPopRequired' INTEGER DEFAULT 0
 ALTER TABLE Buildings ADD COLUMN 'GlobalFollowerPopRequired' INTEGER DEFAULT 0;
 
 -- Allows for Reformation Policy
-ALTER TABLE Buildings ADD COLUMN 'IsReformation' BOOLEAN DEFAULT FALSE;
+ALTER TABLE Buildings ADD COLUMN 'IsReformation' BOOLEAN DEFAULT 0;
 
 -- Allows for Building to be unlocked by a specific policy (not a branch)
 ALTER TABLE Buildings ADD COLUMN 'PolicyType' TEXT DEFAULT NULL;
@@ -267,10 +267,10 @@ ALTER TABLE Buildings ADD COLUMN 'ResourceType' TEXT DEFAULT NULL;
 ALTER TABLE Units ADD COLUMN 'ResourceType' TEXT DEFAULT NULL;
 
 -- Allows for Building to be purchased in puppet city
-ALTER TABLE Buildings ADD COLUMN 'PuppetPurchaseOverride' BOOLEAN DEFAULT FALSE;
+ALTER TABLE Buildings ADD COLUMN 'PuppetPurchaseOverride' BOOLEAN DEFAULT 0;
 
 -- Allows for All Units/Buildings to be purchased in puppet city
-ALTER TABLE Buildings ADD COLUMN 'AllowsPuppetPurchase' BOOLEAN DEFAULT FALSE;
+ALTER TABLE Buildings ADD COLUMN 'AllowsPuppetPurchase' BOOLEAN DEFAULT 0;
 
 -- Creates a resource unique to this civ (i.e. Indonesian Candi) in the territory around the city. To make this work with a civ, you'll need to create a new resource modelled on the Indonesian resources and assign them to the civ. Value is indicative of the number of resources that will be granted.
 ALTER TABLE Buildings ADD COLUMN 'GrantsRandomResourceTerritory' INTEGER DEFAULT 0;
@@ -279,7 +279,7 @@ ALTER TABLE Buildings ADD COLUMN 'GrantsRandomResourceTerritory' INTEGER DEFAULT
 ALTER TABLE Buildings ADD COLUMN 'NeedBuildingThisCity' TEXT DEFAULT NULL;
 
 -- Allows for Unit to be purchased in puppet city
-ALTER TABLE Units ADD COLUMN 'PuppetPurchaseOverride' BOOLEAN DEFAULT FALSE;
+ALTER TABLE Units ADD COLUMN 'PuppetPurchaseOverride' BOOLEAN DEFAULT 0;
 
 -- Grants resource to improvement
 ALTER TABLE Improvements ADD COLUMN 'ImprovementResource' TEXT DEFAULT NULL;
@@ -291,7 +291,7 @@ ALTER TABLE Builds ADD COLUMN 'ObsoleteTech' TEXT DEFAULT NULL;
 ALTER TABLE Improvements ADD COLUMN 'ObsoleteTech' TEXT DEFAULT NULL;
 
 -- Improvements can be made valid by being adjacent to a lake
-ALTER TABLE Improvements ADD COLUMN 'Lakeside' BOOLEAN DEFAULT FALSE;
+ALTER TABLE Improvements ADD COLUMN 'Lakeside' BOOLEAN DEFAULT 0;
 
 -- New Goody Hut Additions
 ALTER TABLE GoodyHuts ADD COLUMN 'Production' INTEGER DEFAULT 0;
@@ -305,11 +305,11 @@ ALTER TABLE Technologies ADD COLUMN 'CityNoEmbarkCost' BOOLEAN;
 
 ALTER TABLE UnitPromotions ADD 'ReconChange' INTEGER DEFAULT 0;
 
-ALTER TABLE UnitPromotions ADD 'GainsXPFromScouting' BOOLEAN DEFAULT FALSE;
+ALTER TABLE UnitPromotions ADD 'GainsXPFromScouting' BOOLEAN DEFAULT 0;
 
 -- Promotion restricted to tile. Lost if unit leaves it. Only used in conjuction with free promotions from features and terrains (see above)
 
-ALTER TABLE UnitPromotions ADD COLUMN 'IsLostOnMove' BOOLEAN DEFAULT FALSE;
+ALTER TABLE UnitPromotions ADD COLUMN 'IsLostOnMove' BOOLEAN DEFAULT 0;
 
 -- Put the name of the Promotion in this row in order to negate it with another promotion - currently only works with the terrain/feature related promotion functions above!
 ALTER TABLE UnitPromotions ADD 'NegatesPromotion' TEXT DEFAULT NULL;
@@ -321,23 +321,23 @@ ALTER TABLE UnitPromotions ADD 'ForcedDamageValue' INTEGER DEFAULT 0;
 ALTER TABLE UnitPromotions ADD 'ChangeDamageValue' INTEGER DEFAULT 0;
 
 -- A unit cannot be captured by another player (i.e. from prize ships, etc.). Does not apply to civilians.
-ALTER TABLE UnitPromotions ADD 'CannotBeCaptured' BOOLEAN DEFAULT FALSE;
+ALTER TABLE UnitPromotions ADD 'CannotBeCaptured' BOOLEAN DEFAULT 0;
 
 -- Promotion bonuses restricted to Barbarians.
 
-ALTER TABLE UnitPromotions ADD COLUMN 'BarbarianOnly' BOOLEAN DEFAULT FALSE;
+ALTER TABLE UnitPromotions ADD COLUMN 'BarbarianOnly' BOOLEAN DEFAULT 0;
 
 -- Promotion bonuses restricted to City States.
 
-ALTER TABLE UnitPromotions ADD COLUMN 'CityStateOnly' BOOLEAN DEFAULT FALSE;
+ALTER TABLE UnitPromotions ADD COLUMN 'CityStateOnly' BOOLEAN DEFAULT 0;
 
 -- Unit stuff for minor civs
-ALTER TABLE Units ADD COLUMN 'MinorCivGift' BOOLEAN DEFAULT FALSE;
+ALTER TABLE Units ADD COLUMN 'MinorCivGift' BOOLEAN DEFAULT 0;
 
 -- Resource Changes for Monopolies
 ALTER TABLE Resources ADD COLUMN 'MonopolyHappiness' INTEGER DEFAULT 0;
 ALTER TABLE Resources ADD COLUMN 'MonopolyGALength' INTEGER DEFAULT 0;
-ALTER TABLE Resources ADD COLUMN 'IsMonopoly' BOOLEAN DEFAULT FALSE;
+ALTER TABLE Resources ADD COLUMN 'IsMonopoly' BOOLEAN DEFAULT 0;
 
 -- Cooldowns for Units/Buildings
 ALTER TABLE Units ADD COLUMN 'PurchaseCooldown' INTEGER DEFAULT 0;
@@ -345,7 +345,7 @@ ALTER TABLE Units ADD COLUMN 'PurchaseCooldown' INTEGER DEFAULT 0;
 ALTER TABLE Buildings ADD COLUMN 'PurchaseCooldown' INTEGER DEFAULT 0;
 
 -- Adds Mounted trait to a unit that isn't in the unitcombat_mounted combat class
-ALTER TABLE Units ADD COLUMN 'IsMounted' BOOLEAN DEFAULT FALSE;
+ALTER TABLE Units ADD COLUMN 'IsMounted' BOOLEAN DEFAULT 0;
 
 -- Investment reduction costs -- policy -- negative makes it stronger!
 ALTER TABLE Policies ADD COLUMN 'InvestmentModifier' INTEGER DEFAULT 0;

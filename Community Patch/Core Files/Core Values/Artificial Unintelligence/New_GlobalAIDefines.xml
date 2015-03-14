@@ -8,13 +8,6 @@
 			<Set Value="6" />
 			<Where Name="TECH_PRIORITY_UNIQUE_ITEM" />
 		</Update>
-		<!-- This one actually can both add and subtract from flavor, so it actually ranges from -2 to 2;
-			It gets applied at half effect on each era advance as well. -->
-		<Update>
-			<Set Value="3" />
-			<Where Name="FLAVOR_RANDOMIZATION_RANGE" />
-		</Update>
-		<!-- Since DLL code divides by personalities often, allowing them to be 0 is a bad, bad idea -->
 		<Update>
 			<Set Value="1" />
 			<Where Name="PERSONALITY_FLAVOR_MIN_VALUE" />
@@ -23,20 +16,20 @@
 		<!-- Grand Strategy Stuff -->
 		<!-- Default AI is very schizophrenic with Grand Strategies, following 3 values help them focus a bit more -->
 		<Update>
-			<Set Value="20" />
+			<Set Value="30" />
 			<Where Name="AI_GRAND_STRATEGY_NUM_TURNS_STRATEGY_MUST_BE_ACTIVE" />
 		</Update>
 		<Update>
 			<!-- Random values are given to all grand strategies during a reroll; values range from 0-X, where X is value below -->
-			<Set Value="10" />
+			<Set Value="25" />
 			<Where Name="AI_GS_RAND_ROLL" />
 		</Update>
 		<Update>
-			<Set Value="75" />
+			<Set Value="50" />
 			<Where Name="AI_GRAND_STRATEGY_CURRENT_STRATEGY_WEIGHT" />
 		</Update>
 		<Update>
-			<Set Value="25" />
+			<Set Value="75" />
 			<Where Name="AI_GRAND_STRATEGY_OTHER_PLAYERS_GS_MULTIPLIER" />
 		</Update>
 		<Update>
@@ -103,7 +96,7 @@
 			<!-- This seems to be drastically low, but it doesn't actually hurt the AI (worst case is that end turns are bit slower)
 				In fact, this pretty much means the AI reevaluates city spec after completing its current production, which improves
 				AI flexibility. -->
-			<Set Value="30" />
+			<Set Value="20" />
 			<Where Name="AI_CITY_SPECIALIZATION_REEVALUATION_INTERVAL" />
 		</Update>
 		
@@ -141,41 +134,21 @@
 			<Where Name="AI_CITIZEN_VALUE_GOLD" />
 		</Update>
 		
-		<!-- Danger Value Stuff -->
-		<!-- Danger values were quite wonky before, this makes them a lot more logical -->
-		<Update>
-			<Set Value="0.3" />
-			<Where Name="AI_DANGER_MAJOR_APPROACH_DECEPTIVE" />
-		</Update>
-		<Update>
-			<Set Value="0.6" />
-			<Where Name="AI_DANGER_MAJOR_APPROACH_HOSTILE" />
-		</Update>
-		<Update>
-			<Set Value="0.8" />
-			<Where Name="AI_DANGER_MINOR_APPROACH_BULLY" />
-		</Update>
-		
 		<!-- Religion -->
 		<Update>
 			<!-- Unowned but in range more valuable than before to make sure AI knows it's in a good position -->
-			<Set Value="4" />
+			<Set Value="3" />
 			<Where Name="RELIGION_BELIEF_SCORE_UNOWNED_PLOT_MULTIPLIER" />
 		</Update>
 		<Update>
 			<!-- Owned slightly more valuable than before -->
-			<Set Value="6" />
+			<Set Value="8" />
 			<Where Name="RELIGION_BELIEF_SCORE_OWNED_PLOT_MULTIPLIER" />
 		</Update>
 		<Update>
 			<!-- Owned and worked should have no difference since citizen management will compensate anyway -->
-			<Set Value="10" />
-			<Where Name="RELIGION_BELIEF_SCORE_WORKED_PLOT_MULTIPLIER" />
-		</Update>
-		<Update>
-			<!-- 10 was a bit ridiculous -->
 			<Set Value="8" />
-			<Where Name="RELIGION_MISSIONARY_RANGE_IN_TURNS" />
+			<Where Name="RELIGION_BELIEF_SCORE_WORKED_PLOT_MULTIPLIER" />
 		</Update>
 		
 		<!-- City annex -->

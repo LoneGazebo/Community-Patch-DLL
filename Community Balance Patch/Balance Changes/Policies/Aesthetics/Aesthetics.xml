@@ -50,6 +50,11 @@
 			<BuildingClassType>BUILDINGCLASS_MUSEUM</BuildingClassType>
 			<Happiness>1</Happiness>
 		</Row>
+		<Row>
+			<PolicyType>POLICY_FINE_ARTS</PolicyType>
+			<BuildingClassType>BUILDINGCLASS_OPERA_HOUSE</BuildingClassType>
+			<Happiness>1</Happiness>
+		</Row>
 	</Policy_BuildingClassHappiness>
 	<!-- Artistic Genius -->
 	<Policy_ImprovementCultureChanges>

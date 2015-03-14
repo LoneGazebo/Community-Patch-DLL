@@ -15,11 +15,11 @@ SET CombatModifierEnemyCities = '0'
 WHERE Type = 'BELIEF_JUST_WAR' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Beliefs
-SET SpyPressure = '5'
+SET GreatPersonExpendedFaith = '100'
 WHERE Type = 'BELIEF_JUST_WAR' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Beliefs
-SET InquisitorPressureRetention = '50'
+SET SpyPressure = '5'
 WHERE Type = 'BELIEF_JUST_WAR' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Heathen Conversion (Now Holy Warriors)
@@ -37,16 +37,17 @@ SET SpreadDistanceModifier = '0'
 WHERE Type = 'BELIEF_ITINERANT_PREACHERS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Beliefs
-SET HappinessPerFollowingCity = '0.5'
+SET HappinessPerFollowingCity = '1'
 WHERE Type = 'BELIEF_ITINERANT_PREACHERS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Beliefs
-SET HappinessPerXPeacefulForeignFollowers = '6'
+SET CityStateMinimumInfluence = '15'
 WHERE Type = 'BELIEF_ITINERANT_PREACHERS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Messiah (Now Sainthood)
+
 UPDATE Beliefs
-SET GreatPersonExpendedFaith = '100'
+SET InquisitorPressureRetention = '50'
 WHERE Type = 'BELIEF_MESSIAH' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Missionary Zeal (Now Scholar-Priests)
@@ -60,6 +61,7 @@ SET SpreadDistanceModifier = '30'
 WHERE Type = 'BELIEF_HOLY_ORDER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Religious Unity
+
 UPDATE Beliefs
-SET CityStateMinimumInfluence = '15'
+SET HappinessPerXPeacefulForeignFollowers = '6'
 WHERE Type = 'BELIEF_RELIGIOUS_UNITY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );

@@ -2189,7 +2189,7 @@ void CvUnitPromotions::Read(FDataStream& kStream)
 	PromotionArrayHelpers::Read(kStream, m_kHasPromotion);
 
 #if defined(MOD_BALANCE_CORE)
-	UpdateTerrainPassableCache();
+	UpdateCache();
 #endif
 }
 
@@ -2241,7 +2241,7 @@ void CvUnitPromotions::SetPromotion(PromotionTypes eIndex, bool bValue)
 	}
 
 #if defined(MOD_BALANCE_CORE)
-	UpdateTerrainPassableCache();
+	UpdateCache();
 #endif
 }
 
@@ -2275,8 +2275,16 @@ bool CvUnitPromotions::GetAllowFeaturePassable(FeatureTypes eFeatureType) const
 
 /// determines if the terrain type is passable given the unit's current promotions
 #if defined(MOD_BALANCE_CORE)
-void CvUnitPromotions::UpdateTerrainPassableCache()
+void CvUnitPromotions::UpdateCache()
 {
+	m_unitClassDefenseMod.clear();
+	m_unitClassAttackMod.clear();
+	for(int iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
+	{
+		m_unitClassDefenseMod.push_back( GetUnitClassDefenseMod((UnitClassTypes)iI) );
+		m_unitClassAttackMod.push_back( GetUnitClassAttackMod((UnitClassTypes)iI) );
+	}
+
 	for(int iTerrain = 0; iTerrain < GC.getNumTerrainInfos(); iTerrain++)
 	{
 		std::vector<TechTypes> reqTechs;
@@ -2345,6 +2353,11 @@ bool CvUnitPromotions::GetAllowTerrainPassable(TerrainTypes eTerrainType) const
 /// returns the advantage percent when attacking the specified unit class
 int CvUnitPromotions::GetUnitClassAttackMod(UnitClassTypes eUnitClass) const
 {
+#if defined(MOD_BALANCE_CORE)
+	if ((size_t)eUnitClass<m_unitClassAttackMod.size())
+		return m_unitClassAttackMod[eUnitClass];
+#endif
+
 	int iSum = 0;
 	for(int iLoop = 0; iLoop < GC.getNumPromotionInfos(); iLoop++)
 	{
@@ -2355,12 +2368,18 @@ int CvUnitPromotions::GetUnitClassAttackMod(UnitClassTypes eUnitClass) const
 			iSum += promotion->GetUnitClassAttackModifier(eUnitClass);
 		}
 	}
+
 	return iSum;
 }
 
 /// returns the advantage percent when defending against the specified unit class
 int CvUnitPromotions::GetUnitClassDefenseMod(UnitClassTypes eUnitClass) const
 {
+#if defined(MOD_BALANCE_CORE)
+	if ((size_t)eUnitClass<m_unitClassDefenseMod.size())
+		return m_unitClassDefenseMod[eUnitClass];
+#endif
+
 	int iSum = 0;
 	for(int iLoop = 0; iLoop < GC.getNumPromotionInfos(); iLoop++)
 	{
@@ -2371,6 +2390,7 @@ int CvUnitPromotions::GetUnitClassDefenseMod(UnitClassTypes eUnitClass) const
 			iSum += promotion->GetUnitClassDefenseModifier(eUnitClass);
 		}
 	}
+
 	return iSum;
 }
 

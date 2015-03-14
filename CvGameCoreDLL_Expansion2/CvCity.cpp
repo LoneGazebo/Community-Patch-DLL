@@ -9323,7 +9323,7 @@ bool CvCity::at(CvPlot* pPlot) const
 int CvCity::getArea() const
 {
 	VALIDATE_OBJECT
-#if defined(AUI_ECONOMIC_EARLY_EXPANSION_ALWAYS_ACTIVE_IF_ALONE)
+#if defined(MOD_BALANCE_CORE)
 	if (plot())
 		return plot()->getArea();
 	else
@@ -9337,7 +9337,7 @@ int CvCity::getArea() const
 CvArea* CvCity::area() const
 {
 	VALIDATE_OBJECT
-#if defined(AUI_ECONOMIC_EARLY_EXPANSION_ALWAYS_ACTIVE_IF_ALONE)
+#if defined(MOD_BALANCE_CORE)
 	if (plot())
 		return plot()->area();
 	else
@@ -9358,7 +9358,13 @@ CvArea* CvCity::waterArea() const
 //	--------------------------------------------------------------------------------
 CvUnit* CvCity::GetGarrisonedUnit() const
 {
+#ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
+	CvUnit* pGarrison = m_hGarrisonOverride.pointer();
+	if (pGarrison != NULL)
+		return pGarrison;
+#else
 	CvUnit* pGarrison = NULL;
+#endif // AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
 
 	CvPlot* pPlot = plot();
 	if(pPlot)
@@ -9372,6 +9378,18 @@ CvUnit* CvCity::GetGarrisonedUnit() const
 
 	return pGarrison;
 }
+
+#ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
+void CvCity::OverrideGarrison(CvUnit* pUnit)
+{
+	m_hGarrisonOverride = pUnit;
+}
+
+void CvCity::UnsetGarrisonOverride()
+{
+	m_hGarrisonOverride.removeTarget();
+}
+#endif // AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
 
 //	--------------------------------------------------------------------------------
 CvPlot* CvCity::getRallyPlot() const
@@ -10045,7 +10063,7 @@ void CvCity::DoJONSCultureLevelIncrease()
 					{
 						char text[256] = {0};
 						fDelay += 0.5f;
-						sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", pReligion->m_Beliefs.GetYieldPerBorderGrowth(YIELD_FAITH));
+						sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", pReligion->m_Beliefs.GetYieldPerBorderGrowth(YIELD_FAITH) * iEra);
 						DLLUI->AddPopupText(pPlotToAcquire->getX(),pPlotToAcquire->getY(), text, fDelay);
 					}
 				}
@@ -17907,12 +17925,16 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 		else if(eBuildingType >= 0)
 		{
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
-			CvBuildingEntry* pGameBuilding = GC.getBuildingInfo(eBuildingType);
-			const BuildingClassTypes eBuildingClass = (BuildingClassTypes)(pGameBuilding->GetBuildingClassType());
-			SetBuildingInvestment(eBuildingClass, true);
-#else
+			if(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
+			{
+				CvBuildingEntry* pGameBuilding = GC.getBuildingInfo(eBuildingType);
+				const BuildingClassTypes eBuildingClass = (BuildingClassTypes)(pGameBuilding->GetBuildingClassType());
+				SetBuildingInvestment(eBuildingClass, true);
+			}
+			else
+			{
+#endif
 			bResult = CreateBuilding(eBuildingType);
-
 #if defined(MOD_EVENTS_CITY)
 			if (MOD_EVENTS_CITY) {
 				GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityConstructed, getOwner(), GetID(), eBuildingType, true, false);
@@ -17937,6 +17959,8 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 
 			CleanUpQueue(); // cleans out items from the queue that may be invalidated by the recent construction
 			CvAssertMsg(bResult, "Unable to create building");
+#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
+			}
 #endif
 		}
 		else if(eProjectType >= 0)
@@ -18738,6 +18762,14 @@ bool CvCity::doCheckProduction()
 #if defined(MOD_BALANCE_CORE_WONDERS_VARIABLE_REWARD)
 						if(MOD_BALANCE_CORE_WONDERS_VARIABLE_REWARD && GC.getBALANCE_WONDER_BEATEN_CONSOLATION_PRIZE() != 0)
 						{
+#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
+							const BuildingClassTypes eWonderClass = (BuildingClassTypes)pkExpiredBuildingInfo->GetBuildingClassType();
+							if(MOD_BALANCE_CORE_BUILDING_INVESTMENTS && IsBuildingInvestment(eWonderClass))
+							{
+								iProductionGold *= 2;
+							}
+#endif
+							
 							if(GC.getBALANCE_WONDER_BEATEN_CONSOLATION_PRIZE() == 1)
 							{
 								//Wonders converted into Gold (default).
@@ -20434,19 +20466,35 @@ CvUnit* CvCity::rangedStrikeTarget(CvPlot* pPlot)
 }
 
 //	--------------------------------------------------------------------------------
+#ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
+int CvCity::rangeCombatUnitDefense(const CvUnit* pDefender, const CvPlot* pInPlot) const
+{
+	if (pInPlot == NULL)
+		pInPlot = pDefender->plot();
+#else
 int CvCity::rangeCombatUnitDefense(const CvUnit* pDefender) const
 {
+#endif // AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
 	int iDefenderStrength = 0;
 
 	// Use Ranged combat value for defender, UNLESS it's a boat
+#ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
+	if (pDefender->isEmbarked() || (pInPlot->isWater() && pDefender->getDomainType() == DOMAIN_LAND && !pInPlot->isValidDomainForAction(*pDefender)))
+#else
 	if (pDefender->isEmbarked())
+#endif // AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
 	{
 		iDefenderStrength = pDefender->GetEmbarkedUnitDefense();;
 	}
 
+#ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
+	else if (!pDefender->isRangedSupportFire() && !pDefender->getDomainType() == DOMAIN_SEA && (iDefenderStrength = pDefender->GetMaxRangedCombatStrength(NULL, /*pCity*/ NULL, false, false, pInPlot, plot())) > 0)
+	{
+#else
 	else if(!pDefender->isRangedSupportFire() && !pDefender->getDomainType() == DOMAIN_SEA && pDefender->GetMaxRangedCombatStrength(NULL, /*pCity*/ NULL, false, false) > 0)
 	{
 		iDefenderStrength = pDefender->GetMaxRangedCombatStrength(NULL, /*pCity*/ NULL, false, false);
+#endif // AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
 
 		// Ranged units take less damage from one another
 		iDefenderStrength *= /*125*/ GC.getRANGE_ATTACK_RANGED_DEFENDER_MOD();
@@ -20454,39 +20502,100 @@ int CvCity::rangeCombatUnitDefense(const CvUnit* pDefender) const
 	}
 	else
 	{
+#ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
+		iDefenderStrength = pDefender->GetMaxDefenseStrength(pInPlot, NULL, /*bFromRangedAttack*/ true);
+#else
 		iDefenderStrength = pDefender->GetMaxDefenseStrength(pDefender->plot(), NULL, /*bFromRangedAttack*/ true);
+#endif // AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
 	}
 
 	return iDefenderStrength;
 }
 
 //	--------------------------------------------------------------------------------
+#ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
+int CvCity::rangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bIncludeRand, const CvPlot* pInPlot) const
+{
+	VALIDATE_OBJECT
+	
+	if (pInPlot == NULL)
+	{
+		if (pDefender != NULL)
+		{
+			pInPlot = pDefender->plot();
+		}
+		else if (pCity != NULL)
+		{
+			pInPlot = pCity->plot();
+		}
+	}
+	if(this == NULL)
+	{
+		return 0;
+	}
+#else
 int CvCity::rangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bIncludeRand) const
 {
 	VALIDATE_OBJECT
+#endif // AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
 	int iAttackerStrength;
 
 	iAttackerStrength = getStrengthValue(true);
 
+#if defined(MOD_BALANCE_CORE)
+	//Cities should deal less raw damage to boats - helps naval siege units greatly.
+	if(pDefender != NULL)
+	{
+		if(pDefender->getDomainType() == DOMAIN_SEA)
+		{
+			iAttackerStrength *= /* 75 */ GC.getBALANCE_NAVAL_DEFENSE_CITY_STRIKE_MODIFIER();
+			iAttackerStrength /= 100;
+		}
+	}
+#endif
 	int iDefenderStrength;
 
+#ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
+	if (pCity != NULL)
+	{
+		iDefenderStrength = pCity->getStrengthValue();
+	}
+	else if (pDefender != NULL)
+#else
 	// No City
 	if(pCity == NULL)
+#endif
 	{
 		// If this is a defenseless unit, do a fixed amount of damage
+#ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
+		if (!pDefender->IsCanDefend(pInPlot))
+#else
 		if(!pDefender->IsCanDefend())
+#endif
 		{
 			return GC.getNONCOMBAT_UNIT_RANGED_DAMAGE();
 		}
 
+#ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
+		iDefenderStrength = rangeCombatUnitDefense(pDefender, pInPlot);
+#else
 		iDefenderStrength = rangeCombatUnitDefense(pDefender);
+#endif
 
 	}
+#ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
+	// NULL case
+	else
+	{
+		iDefenderStrength = 1;
+	}
+#else
 	// City
 	else
 	{
 		iDefenderStrength = pCity->getStrengthValue();
 	}
+#endif
 
 	// The roll will vary damage between 30 and 40 (out of 100) for two units of identical strength
 

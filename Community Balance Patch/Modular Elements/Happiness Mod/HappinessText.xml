@@ -36,9 +36,6 @@
 		<Row Tag="TXT_KEY_EO_CITY_LOCAL_UNHAPPINESS">
 			<Text>Local [ICON_HAPPINESS_3] Unhappiness: [COLOR_NEGATIVE_TEXT]{1_NUM}[ENDCOLOR]</Text>
 		</Row>
-		<Row Tag="TXT_KEY_EO_CITY_RESISTANCE">
-			<Text>>[ICON_BULLET] [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] from Resistance.</Text>
-		</Row>
 
 		<Row Tag="TXT_KEY_PUPPET_UNHAPPINESS_MOD">
 			<Text>[ICON_BULLET] [ICON_PUPPET] Puppet Needs Modifier: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR]%.</Text>
@@ -70,6 +67,12 @@
 		<Row Tag="TXT_KEY_MINORITY_UNHAPPINESS">
 			<Text>[ICON_BULLET] [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] from Religious Divisions (Needs Followers of [ICON_RELIGION] Majority Religion).</Text>
 		</Row>
+		<Row Tag="TXT_KEY_RESISTANCE_UNHAPPINESS">
+			<Text>[ICON_BULLET] [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] from [ICON_RESISTANCE] Resistance.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_OCCUPATION_UNHAPPINESS">
+			<Text>[ICON_BULLET] [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] from [ICON_OCCUPIED] Occupation.</Text>
+		</Row>
 
 		<!-- Surplus Threshold -->
 		<Row Tag="TXT_KEY_CULTURE_UNHAPPINESS_SURPLUS">
@@ -85,19 +88,12 @@
 			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR] above [ICON_GOLD] Need.</Text>
 		</Row>
 
-		<Row Tag="TXT_KEY_EO_CITY_EDUCATED">
-			<Text>[COLOR_POSITIVE_TEXT]Literate[ENDCOLOR]</Text>
+		<Row Tag="TXT_KEY_EO_CITY_OCCUPATION">
+			<Text>[COLOR_NEGATIVE_TEXT]({1_Num})[ENDCOLOR] [ICON_CITIZEN]: "Fight the [ICON_OCCUPIED] Oppressors!"</Text>
 		</Row>
-		<Row Tag="TXT_KEY_EO_CITY_DEFENDED">
-			<Text>[COLOR_POSITIVE_TEXT]Calm[ENDCOLOR]</Text>
+		<Row Tag="TXT_KEY_EO_CITY_RESISTANCE">
+			<Text>[COLOR_NEGATIVE_TEXT]({1_Num})[ENDCOLOR] [ICON_CITIZEN]: "Viva la [ICON_RESISTANCE] Revolution!"</Text>
 		</Row>
-		<Row Tag="TXT_KEY_EO_CITY_PROSPEROUS">
-			<Text>[COLOR_POSITIVE_TEXT]Wealthy[ENDCOLOR]</Text>
-		</Row>
-		<Row Tag="TXT_KEY_EO_CITY_CULTURED">
-			<Text>[COLOR_POSITIVE_TEXT]Cultured[ENDCOLOR]</Text>
-		</Row>
-
 		<Row Tag="TXT_KEY_EO_CITY_UNEDUCATED">
 			<Text>[COLOR_NEGATIVE_TEXT]({1_Num})[ENDCOLOR] [ICON_CITIZEN]: "We are [ICON_RESEARCH] illiterate!"</Text>
 		</Row>

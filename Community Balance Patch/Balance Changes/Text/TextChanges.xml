@@ -206,5 +206,14 @@
 		<Row Tag="TXT_KEY_INVESTED">
 			<Text>[COLOR_POSITIVE_TEXT] (INVESTED) [ENDCOLOR]</Text>
 		</Row>
+
+		<Row Tag ="TXT_KEY_TP_HAPPINESS_RESOURCE_MONOPOLY">
+			<Text>{1_Happiness} from Resource Monopolies.</Text>
+		</Row>
+		
+		<!-- Tooltip for 'You'll Pay' Text -->
+		<Row Tag ="TXT_KEY_DIPLO_DISCUSS_MESSAGE_YOULL_PAY_TT">
+			<Text>Selecting this insulting response may result in [COLOR_NEGATIVE_TEXT]war[ENDCOLOR]! If this insult does not result in war, the leader will be humbled, and their opinion of you will temporarily be reset to Neutral.</Text>
+		</Row>
 	</Language_en_US>
 </GameData>
