@@ -3246,11 +3246,16 @@ void CvHomelandAI::ExecuteExplorerMoves()
 			if( pEvalPlot->getBestDefender(NO_PLAYER) != (UnitHandle)NULL)
 				continue;
 
+			//get contributions from yet-to-be revealed plots (and goodies)
 			int iScoreBase = CvEconomicAI::ScoreExplorePlot2(pEvalPlot, m_pPlayer, pUnit->getDomainType(), pUnit->isEmbarked());
 			if(iScoreBase > 0)
 			{
 				int iScoreBonus = pEvalPlot->GetExplorationBonus(m_pPlayer, pCurPlot);
 				int iScoreExtra = 0;
+
+				//hill plots are good for defense and view - do not add this in ScoreExplorePlot2
+				if(pEvalPlot->isHills())
+					iScoreExtra += 50;
 
 				//If a known minor, let's not wander around if we don't have open borders.
 				if(pEvalPlot->getOwner() != NO_PLAYER)
@@ -3278,10 +3283,16 @@ void CvHomelandAI::ExecuteExplorerMoves()
 				}
 
 				int iTotalScore = iScoreBase+iScoreExtra+iScoreBonus;
+
+#if defined(AUI_DANGER_PLOTS_REMADE)
 				//careful with plots that are too dangerous
-				int iAcceptableDanger = pUnit->GetBaseCombatStrengthConsideringDamage() * 50;
-				if(m_pPlayer->GetPlotDanger(*pEvalPlot) > iAcceptableDanger)
+				int iAcceptableDanger = pUnit->GetCurrHitPoints()/2;
+				int iDanger = m_pPlayer->GetPlotDanger(*pEvalPlot,pUnit.pointer());
+				if(iDanger > iAcceptableDanger)
+					continue;
+				if(iDanger > iAcceptableDanger/2)
 					iTotalScore /= 4;
+#endif
 
 				if(iTotalScore > iBestPlotScore || (iTotalScore==iBestPlotScore && GC.getGame().getJonRandNum(2,"accept equal value explore target")==1) )
 				{
@@ -3318,7 +3329,7 @@ void CvHomelandAI::ExecuteExplorerMoves()
 		if(pBestPlot)
 		{
 			it->PushPrevPlot( pCurPlot->GetPlotIndex() );
-			pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestPlot->getX(), pBestPlot->getY(), MOVE_TERRITORY_NO_ENEMY | MOVE_MAXIMIZE_EXPLORE | MOVE_UNITS_IGNORE_DANGER, false, false, MISSIONAI_EXPLORE, pBestPlot);
+			pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestPlot->getX(), pBestPlot->getY(), MOVE_TERRITORY_NO_ENEMY | MOVE_MAXIMIZE_EXPLORE, false, false, MISSIONAI_EXPLORE, pBestPlot);
 
 			// Only mark as done if out of movement
 			if(pUnit->getMoves() <= 0)

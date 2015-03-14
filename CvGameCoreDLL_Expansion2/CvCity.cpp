@@ -318,6 +318,10 @@ CvCity::CvCity() :
 	OBJECT_ALLOCATED
 	FSerialization::citiesToCheck.insert(this);
 
+#if defined(MOD_BALANCE_CORE_GLOBAL_CITY_IDS)
+	m_iGlobalID = GC.getGame().GetNextCityID();
+#endif
+
 	reset(0, NO_PLAYER, 0, 0, true);
 }
 
@@ -19235,6 +19239,11 @@ void CvCity::read(FDataStream& kStream)
 	MOD_SERIALIZE_INIT_READ(kStream);
 
 	kStream >> m_iID;
+
+#if defined(MOD_BALANCE_CORE_GLOBAL_CITY_IDS)
+	kStream >> m_iGlobalID;
+#endif
+
 	kStream >> m_iX;
 	kStream >> m_iY;
 	kStream >> m_iRallyX;
@@ -19653,6 +19662,11 @@ void CvCity::write(FDataStream& kStream) const
 	MOD_SERIALIZE_INIT_WRITE(kStream);
 
 	kStream << m_iID;
+
+#if defined(MOD_BALANCE_CORE_GLOBAL_CITY_IDS)
+	kStream << m_iGlobalID;
+#endif
+
 	kStream << m_iX;
 	kStream << m_iY;
 	kStream << m_iRallyX;

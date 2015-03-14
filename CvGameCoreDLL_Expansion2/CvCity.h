@@ -1088,6 +1088,10 @@ public:
 	bool IsWithinDistanceOfTerrain(TerrainTypes iTerrainType, int iDistance) const;
 #endif
 
+#if defined(MOD_BALANCE_CORE_GLOBAL_CITY_IDS)
+	int GetGlobalID() const { return m_iGlobalID; };
+#endif
+
 	int iScratch; // know the scope of your validity
 
 protected:
@@ -1098,6 +1102,10 @@ protected:
 	FAutoVariable<int, CvCity> m_iX;
 	FAutoVariable<int, CvCity> m_iY;
 	FAutoVariable<int, CvCity> m_iID;
+
+#if defined(MOD_BALANCE_CORE_GLOBAL_CITY_IDS)
+	int m_iGlobalID;
+#endif
 
 	FAutoVariable<int, CvCity> m_iRallyX;
 	FAutoVariable<int, CvCity> m_iRallyY;

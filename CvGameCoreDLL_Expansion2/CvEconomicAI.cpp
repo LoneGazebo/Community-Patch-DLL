@@ -1032,6 +1032,7 @@ void CvEconomicAI::ClearUnitTargetGoodyStepPlot(CvUnit* pUnit)
 
 //	---------------------------------------------------------------------------
 #if defined(MOD_CORE_ALTERNATIVE_EXPLORE_SCORE)
+//compute score for yet-to-be revealed plots
 int CvEconomicAI::ScoreExplorePlot2(CvPlot* pPlot, CvPlayer* pPlayer, DomainTypes eDomainType, bool bEmbarked)
 {
 	int iResultValue = 0;
@@ -1042,7 +1043,7 @@ int CvEconomicAI::ScoreExplorePlot2(CvPlot* pPlot, CvPlayer* pPlayer, DomainType
 
 	FAssertMsg(pPlot->isRevealed(eTeam), "Plot isn't revealed. This isn't good.");
 
-	//goodies
+	//add goodies - they go away - do not add any permanent scores here - leads to loops
 	if(pPlot->isRevealedGoody(pPlayer->getTeam()) && !pPlot->isVisibleEnemyUnit(pPlayer->GetID()))
 		iResultValue += iJackpot;
 	if(pPlot->HasBarbarianCamp() && pPlot->getNumDefenders(BARBARIAN_PLAYER) == 0)

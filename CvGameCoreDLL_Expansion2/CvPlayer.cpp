@@ -2212,11 +2212,7 @@ CvCity* CvPlayer::initCity(int iX, int iY, bool bBumpUnits, bool bInitialFoundin
 CvCity* CvPlayer::initCity(int iX, int iY, bool bBumpUnits, bool bInitialFounding)
 #endif
 {
-#if defined(MOD_BALANCE_CORE)
-	CvCity* pCity = m_cities.Add();
-#else
 	CvCity* pCity = addCity();
-#endif
 
 	CvAssertMsg(pCity != NULL, "City is not assigned a valid value");
 	if(pCity != NULL)
@@ -26363,10 +26359,43 @@ const CvCity* CvPlayer::getCity(int iID) const
 {
 	return(m_cities.GetAt(iID));
 }
-#if defined(MOD_BALANCE_CORE)
+
+#if defined(MOD_BALANCE_CORE_GLOBAL_CITY_IDS)
+CvCity* CvPlayer::getCityByGlobalID(int iID) const
+{
+	std::map<int,CvCity*>::const_iterator it = m_citiesByGlobalID.find(iID);
+	if (it!=m_citiesByGlobalID.end())
+		return it->second;
+
+	return NULL;
+}
+#endif
+
+//	--------------------------------------------------------------------------------
+CvCity* CvPlayer::addCity()
+{
+#if defined(MOD_BALANCE_CORE_GLOBAL_CITY_IDS)
+	CvCity* pCity = m_cities.Add();
+	m_citiesByGlobalID.insert( std::make_pair( pCity->GetGlobalID(), pCity ) );
+	return pCity;
+#else
+	return(m_cities.Add());
+#endif
+}
+
 //	--------------------------------------------------------------------------------
 void CvPlayer::deleteCity(int iID)
 {
+#if defined(MOD_BALANCE_CORE_GLOBAL_CITY_IDS)
+	CvCity* pCity = getCity(iID);
+	for (std::map<int,CvCity*>::iterator it = m_citiesByGlobalID.begin(); it!=m_citiesByGlobalID.end(); ++it)
+		if (it->second==pCity)
+		{
+			m_citiesByGlobalID.erase(it);
+			break;
+		}
+#endif
+
 	m_cities.RemoveAt(iID);
 
 #if defined(MOD_BALANCE_CORE_SETTLER)
@@ -26381,19 +26410,6 @@ int CvPlayer::GetCityDistance( const CvPlot* pPlot ) const
 		return m_pCityDistance->GetDistanceFromFriendlyCity( *pPlot );
 	else
 		return INT_MAX;
-}
-#endif
-#else
-//	--------------------------------------------------------------------------------
-CvCity* CvPlayer::addCity()
-{
-	return(m_cities.Add());
-}
-
-//	--------------------------------------------------------------------------------
-void CvPlayer::deleteCity(int iID)
-{
-	m_cities.RemoveAt(iID);
 }
 #endif
 
@@ -30195,6 +30211,15 @@ void CvPlayer::Read(FDataStream& kStream)
 	kStream >> m_cityNames;
 
 	kStream >> m_cities;
+
+#if defined(MOD_BALANCE_CORE_GLOBAL_CITY_IDS)
+	{
+		int iLoopCity = 0;
+		for(CvCity* pLoopCity = firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = nextCity(&iLoopCity))
+			m_citiesByGlobalID.insert( std::make_pair( pLoopCity->GetGlobalID(), pLoopCity ) );
+	}
+#endif
+
 	kStream >> m_units;
 	kStream >> m_armyAIs;
 
@@ -31373,6 +31398,10 @@ void CvPlayer::UpdatePlots(void)
 		m_aiPlots[iPlotIndex] = iI;
 		iPlotIndex++;
 	}
+
+#if defined(MOD_BALANCE_CORE_SETTLER)
+	m_pCityDistance->Update();
+#endif
 }
 
 //	--------------------------------------------------------------------------------

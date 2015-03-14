@@ -1087,8 +1087,8 @@ bool CvMilitaryAI::BuyEmergencyBuilding(CvCity* pCity)
 }
 
 // FINDING BEST CITIES TO TARGET
-#if defined(MOD_BALANCE_CORE_MILITARY)
-CvCity* GetCityFromID(int iID)
+#if defined(MOD_BALANCE_CORE_MILITARY) && defined(MOD_BALANCE_CORE_GLOBAL_CITY_IDS)
+CvCity* GetCityFromGlobalID(int iID)
 {
 	//the muster city for a given target can belong to any player, no only to ourselves
 	for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
@@ -1096,7 +1096,7 @@ CvCity* GetCityFromID(int iID)
 		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
 		if(eLoopPlayer != NO_PLAYER && GET_PLAYER(eLoopPlayer).isAlive())
 		{
-			CvCity* pCity = GET_PLAYER(eLoopPlayer).getCity(iID);
+			CvCity* pCity = GET_PLAYER(eLoopPlayer).getCityByGlobalID(iID);
 			if (pCity!=NULL)
 				return pCity;
 		}
@@ -1115,65 +1115,109 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTarget2(AIOperationTypes eAIOperati
 		return CvMilitaryTarget();
 	}
 
-	SCachedTarget cachedTarget;
+	int iNewScore = 0;
+	CvMilitaryTarget new_target;
+	bool bFoundInCache = false;
+
+	//todo: compare score across different enemies / op types to see if this makes sense at all
+
 	CachedTargetsMap::iterator itE = m_cachedTargets.find(eEnemy);
 	if (itE!=m_cachedTargets.end())
 	{
 		CachedTargetsMap::value_type::second_type::iterator itOp = itE->second.find(eAIOperationType);
 		if (itOp!=itE->second.end())
-			cachedTarget = itOp->second;
+		{
+			bFoundInCache = true;
+
+			// important - this must be a reference!
+			SCachedTarget& cachedTarget = itOp->second;
+
+			CvCity* pCachedTargetCity = GetCityFromGlobalID(cachedTarget.iTargetCity);
+			CvCity* pCachedMusterCity = GetCityFromGlobalID(cachedTarget.iMusterCity);
+
+			//check if the cached target is still good
+			if (GC.getGame().getGameTurn() - cachedTarget.iTurnChosen >= ciAgeLimit)
+				cachedTarget.iScore = 0;
+
+			if (pCachedTargetCity == NULL || 
+				pCachedMusterCity == NULL ||
+				pCachedTargetCity->getOwner() != eEnemy || 
+				!GET_TEAM( GET_PLAYER(pCachedMusterCity->getOwner()).getTeam() ).IsAllowsOpenBordersToTeam(m_pPlayer->getTeam()) )
+				cachedTarget.iScore = 0;
+
+			new_target = FindBestAttackTarget(eAIOperationType, eEnemy, &iNewScore);
+
+			//if we can't us the old one anymore, or the new one is significantly better
+			if( iNewScore > cachedTarget.iScore * 1.4 &&
+				new_target.m_pTargetCity != NULL && 
+				new_target.m_pMusterCity != NULL)
+			{
+				cachedTarget.iTargetCity = new_target.m_pTargetCity->GetGlobalID();
+				cachedTarget.iMusterCity = new_target.m_pMusterCity->GetGlobalID();
+				cachedTarget.bAttackBySea = new_target.m_bAttackBySea;
+				cachedTarget.iScore = iNewScore;
+				cachedTarget.iTurnChosen = GC.getGame().getGameTurn();
+
+				m_cachedTargets[eEnemy][eAIOperationType] = cachedTarget;
+
+				if(GC.getLogging() && GC.getAILogging())
+				{
+					CvString strOutBuf = CvString::format("%d, %s, found better attack target, %s",
+						GC.getGame().getGameTurn(), m_pPlayer->getCivilizationShortDescription(), new_target.m_pTargetCity->getName().c_str());
+					FILogFile* pLog = LOGFILEMGR.GetLog("OperationalAILog.csv", FILogFile::kDontTimeStamp);
+					if (pLog)
+						pLog->Msg(strOutBuf);
+				}
+			}
+			else
+			{
+				//may be null!
+				new_target.m_pTargetCity = pCachedTargetCity;
+				new_target.m_pMusterCity = pCachedMusterCity;
+				new_target.m_bAttackBySea = cachedTarget.bAttackBySea;
+				iNewScore = cachedTarget.iScore;
+
+				if(GC.getLogging() && GC.getAILogging() && pCachedTargetCity)
+				{
+					CvString strOutBuf = CvString::format("%d, %s, keeping cached attack target, %s",
+						GC.getGame().getGameTurn(), m_pPlayer->getCivilizationShortDescription(), pCachedTargetCity->getName().c_str());
+					FILogFile* pLog = LOGFILEMGR.GetLog("OperationalAILog.csv", FILogFile::kDontTimeStamp);
+					if (pLog)
+						pLog->Msg(strOutBuf);
+				}
+			}
+		}
 	}
 
-	int iNewScore = 0;
-	CvMilitaryTarget new_target = FindBestAttackTarget(eAIOperationType, eEnemy, &iNewScore);
-
-	CvCity* pCachedTargetCity = GetCityFromID(cachedTarget.iTargetCity);
-	CvCity* pCachedMusterCity = GetCityFromID(cachedTarget.iMusterCity);
-
-	if( (GC.getGame().getGameTurn() - cachedTarget.iTurnChosen >= ciAgeLimit) ||
-		iNewScore > cachedTarget.iScore * 1.5 ||
-		pCachedTargetCity == NULL ||
-		pCachedMusterCity == NULL ||
-		pCachedTargetCity->getOwner() != eEnemy ||
-		!GET_TEAM( GET_PLAYER(pCachedMusterCity->getOwner()).getTeam() ).IsAllowsOpenBordersToTeam(m_pPlayer->getTeam()) )
+	if (!bFoundInCache)
 	{
-		if(new_target.m_pTargetCity != NULL && new_target.m_pMusterCity != NULL)
-		{
-			cachedTarget.iTargetCity = new_target.m_pTargetCity->GetID();
-			cachedTarget.iMusterCity = new_target.m_pMusterCity->GetID();
-			cachedTarget.bAttackBySea = new_target.m_bAttackBySea;
-			cachedTarget.iScore = iNewScore;
-			cachedTarget.iTurnChosen = GC.getGame().getGameTurn();
+		new_target = FindBestAttackTarget(eAIOperationType, eEnemy, &iNewScore);
 
-			m_cachedTargets[eEnemy][eAIOperationType] = cachedTarget;
+		if (new_target.m_pTargetCity && new_target.m_pMusterCity)
+		{
+			SCachedTarget memory;
+			memory.iTargetCity = new_target.m_pTargetCity->GetGlobalID();
+			memory.iMusterCity = new_target.m_pMusterCity->GetGlobalID();
+			memory.bAttackBySea = new_target.m_bAttackBySea;
+			memory.iScore = iNewScore;
+			memory.iTurnChosen = GC.getGame().getGameTurn();
+
+			m_cachedTargets[eEnemy][eAIOperationType] = memory;
 
 			if(GC.getLogging() && GC.getAILogging())
 			{
-				CvString strOutBuf = CvString::format("%s - found better attack target", m_pPlayer->getCivilizationShortDescription());
+				CvString strOutBuf = CvString::format("%d, %s, found new attack target, %s",
+					GC.getGame().getGameTurn(), m_pPlayer->getCivilizationShortDescription(), new_target.m_pTargetCity->getName().c_str());
 				FILogFile* pLog = LOGFILEMGR.GetLog("OperationalAILog.csv", FILogFile::kDontTimeStamp);
 				if (pLog)
 					pLog->Msg(strOutBuf);
 			}
 		}
 	}
-	else
-	{
-		new_target.m_pTargetCity = GetCityFromID(cachedTarget.iTargetCity);
-		new_target.m_pMusterCity = GetCityFromID(cachedTarget.iMusterCity);
-		new_target.m_bAttackBySea = cachedTarget.bAttackBySea;
-
-		if(GC.getLogging() && GC.getAILogging())
-		{
-			CvString strOutBuf = CvString::format("%s - keeping cached attack target %s", m_pPlayer->getCivilizationShortDescription(), new_target.m_pTargetCity->getName().c_str());
-			FILogFile* pLog = LOGFILEMGR.GetLog("OperationalAILog.csv", FILogFile::kDontTimeStamp);
-			if (pLog)
-				pLog->Msg(strOutBuf);
-		}
-	}
 
 	//either the cache one or we updated it
 	if (piWinningScore)
-		*piWinningScore = m_cachedTargets[eEnemy][eAIOperationType].iScore;
+		*piWinningScore = iNewScore;
 
 	return new_target;
 }
@@ -1457,6 +1501,10 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTarget(AIOperationTypes eAIOperatio
 					}
 					for(pOtherEnemyCity = GET_PLAYER(eEnemy).firstCity(&iOtherEnemyLoop); pOtherEnemyCity != NULL; pOtherEnemyCity = GET_PLAYER(eEnemy).nextCity(&iOtherEnemyLoop))
 					{
+						//muster and target cannot be equal
+						if(pOtherCity==pOtherEnemyCity)
+							continue;
+
 						if(pOtherEnemyCity->plot()->isRevealed(m_pPlayer->getTeam()))
 						{
 							CvMilitaryTarget target;
@@ -1538,6 +1586,10 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTarget(AIOperationTypes eAIOperatio
 					}
 					for(pOtherEnemyCity = GET_PLAYER(eEnemy).firstCity(&iOtherEnemyLoop); pOtherEnemyCity != NULL; pOtherEnemyCity = GET_PLAYER(eEnemy).nextCity(&iOtherEnemyLoop))
 					{
+						//muster and target cannot be equal
+						if(pOtherCity==pOtherEnemyCity)
+							continue;
+
 						if(pOtherEnemyCity->plot()->isRevealed(m_pPlayer->getTeam()))
 						{
 							CvMilitaryTarget target;
@@ -1651,6 +1703,11 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTarget(AIOperationTypes eAIOperatio
 #if defined(MOD_BALANCE_CORE_MILITARY)
 		if (iWeight>0)
 		{
+			if (weightedTargetList.GetElement( weightedTargetList.size()-1 ) == target)
+			{
+				OutputDebugString("repeated target! why??");
+			}
+
 			weightedTargetList.push_back(target, iWeight);
 			iTargetsConsidered++;
 		}

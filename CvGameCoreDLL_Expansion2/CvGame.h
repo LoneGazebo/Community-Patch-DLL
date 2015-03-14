@@ -637,6 +637,10 @@ public:
 	int m_iLargestBasePotential;
 #endif
 
+#if defined(MOD_BALANCE_CORE_GLOBAL_CITY_IDS)
+	int GetNextCityID() { return ++m_iGlobalCityCounter; }
+#endif
+
 	//------------------------------------------------------------
 	//------------------------------------------------------------
 	//------------------------------------------------------------
@@ -648,6 +652,10 @@ private:
 	const static unsigned int ms_aiSizes[10];
 
 protected:
+
+#if defined(MOD_BALANCE_CORE_GLOBAL_CITY_IDS)
+	int m_iGlobalCityCounter;
+#endif
 
 	int m_iEndTurnMessagesSent;
 	int m_iElapsedGameTurns;

@@ -130,6 +130,11 @@ struct CvMilitaryTarget
 	{
 	}
 
+	bool operator==(const CvMilitaryTarget& rhs) const
+	{
+		return m_pTargetCity == rhs.m_pTargetCity && m_pMusterCity == rhs.m_pMusterCity;
+	}
+
 	CvCity* m_pTargetCity;
 	CvCity* m_pMusterCity;
 	int iTargetNearbyUnitPower;

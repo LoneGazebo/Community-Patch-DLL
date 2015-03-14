@@ -9082,7 +9082,7 @@ int CvPlot::GetExplorationBonus(const CvPlayer* pPlayer, const CvPlot* pRefPlot)
 	
 	int iFertilityBonus = 0;
 	if ( pPlayer->GetFoundValueOfCapital()>0 )
-		iFertilityBonus = max(0, (getFoundValue(pPlayer->GetID())*100) / pPlayer->GetFoundValueOfCapital() );
+		iFertilityBonus = min(100, max(0, (getFoundValue(pPlayer->GetID())*100) / pPlayer->GetFoundValueOfCapital() ));
 
 	if (iDistToOwnCities>iDistRef)
 		return iFertilityBonus;
