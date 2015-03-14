@@ -9956,7 +9956,11 @@ bool CvTacticalAI::FindClosestOperationUnit(CvPlot* pTarget, bool bSafeForRanged
 
 			if(bValidUnit)
 			{
+#if defined(AUI_ASTAR_TURN_LIMITER)
+				int iTurns = TurnsToReachTarget(pLoopUnit, pTarget, false /*bReusePaths*/, false /*bIgnoreUnits*/, false, 8);
+#else
 				int iTurns = TurnsToReachTarget(pLoopUnit, pTarget, false /*bReusePaths*/, false /*bIgnoreUnits*/);
+#endif
 
 				if(iTurns != MAX_INT)
 				{
@@ -10649,7 +10653,7 @@ CvPlot* CvTacticalAI::FindBestBarbarianSeaMove(UnitHandle pUnit)
 				// Value them based on their explore value
 				DomainTypes eDomain = pUnit->getDomainType();
 #if defined(MOD_CORE_ALTERNATIVE_EXPLORE_SCORE)
-				iValue = CvEconomicAI::ScoreExplorePlot2(pConsiderPlot, pUnit->getTeam(), eDomain, false);
+				iValue = CvEconomicAI::ScoreExplorePlot2(pConsiderPlot, m_pPlayer, eDomain, false);
 #else
 				iValue = CvEconomicAI::ScoreExplorePlot(pConsiderPlot, pUnit->getTeam(), pUnit->getUnitInfo().GetBaseSightRange(), eDomain);
 #endif
@@ -10744,7 +10748,7 @@ CvPlot* CvTacticalAI::FindBarbarianExploreTarget(UnitHandle pUnit)
 			// Value them based on their explore value
 			DomainTypes eDomain = pUnit->getDomainType();
 #if defined(MOD_CORE_ALTERNATIVE_EXPLORE_SCORE)
-			iValue = CvEconomicAI::ScoreExplorePlot2(pPlot, pUnit->getTeam(), eDomain, pUnit->isEmbarked());
+			iValue = CvEconomicAI::ScoreExplorePlot2(pPlot, m_pPlayer, eDomain, pUnit->isEmbarked());
 #else
 			iValue = CvEconomicAI::ScoreExplorePlot(pPlot, pUnit->getTeam(), pUnit->getUnitInfo().GetBaseSightRange(), eDomain);
 #endif

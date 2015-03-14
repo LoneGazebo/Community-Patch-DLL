@@ -165,6 +165,10 @@ public:
 
 	CvCity* GetBestGreatWorkCity(CvPlot *pStartPlot, GreatWorkType eGreatWork) const;
 
+#if defined(MOD_CORE_ALTERNATIVE_EXPLORE_SCORE)
+	static int ScoreExplorePlot2(CvPlot* pPlot, CvPlayer* pPlayer, DomainTypes eDomainType, bool bEmbarked);
+	const std::vector<SPlotWithScore>& GetExplorationPlots();
+#else
 	FFastVector<int>& GetExplorationPlots();
 	FFastVector<int>& GetExplorationPlotRatings();
 	FFastVector<int>& GetGoodyHutPlots();
@@ -172,8 +176,6 @@ public:
 	void ClearUnitTargetGoodyStepPlot(CvUnit* pUnit);
 
 	static int ScoreExplorePlot(CvPlot* pPlot, TeamTypes eTeam, int iRange, DomainTypes eDomainType);
-#if defined(MOD_CORE_ALTERNATIVE_EXPLORE_SCORE)
-	static int ScoreExplorePlot2(CvPlot* pPlot, TeamTypes eTeam, DomainTypes eDomainType, bool bEmbarked);
 #endif
 
 	void StartSaveForPurchase(PurchaseType ePurchase, int iAmount, int iPriority);
@@ -267,9 +269,6 @@ private:
 	FFastVector<uint> m_auiYields;
 
 	// for the exploration plots
-	FFastVector<int> m_aiExplorationPlots;
-	FFastVector<int> m_aiExplorationPlotRatings;
-	FFastVector<int> m_aiGoodyHutPlots;
 	struct GoodyHutUnitAssignment
 	{
 		int m_iUnitID;				// The unit that is assigned.
@@ -278,7 +277,16 @@ private:
 		GoodyHutUnitAssignment(int unitID, int plotID) : m_iUnitID(unitID), m_iStepPlotID(plotID) {}
 		void Clear() { m_iUnitID = -1; m_iStepPlotID = -1; }
 	};
+
+#if defined(MOD_CORE_ALTERNATIVE_EXPLORE_SCORE)
+	std::vector<SPlotWithScore> m_vPlotsToExplore;
+#else
+	FFastVector<int> m_aiExplorationPlots;
+	FFastVector<int> m_aiExplorationPlotRatings;
+	FFastVector<int> m_aiGoodyHutPlots;
 	FFastVector<GoodyHutUnitAssignment> m_aiGoodyHutUnitAssignments;
+#endif
+
 	FStaticVector<CvPurchaseRequest, NUM_PURCHASE_TYPES, true, c_eCiv5GameplayDLL, 0> m_RequestedSavings;
 	FStaticVector<CvPurchaseRequest, NUM_PURCHASE_TYPES, true, c_eCiv5GameplayDLL, 0> m_TempRequestedSavings;
 	FFastVector<CvUnit*> m_apExplorers;
