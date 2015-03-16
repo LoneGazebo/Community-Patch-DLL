@@ -13654,18 +13654,6 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 			}
 		}
 
-#if defined(MOD_BALANCE_CORE)
-		// Trait (player level) bonus against more populated civs
-		iTempModifier = GET_PLAYER(getOwner()).GetPlayerTraits()->GetCombatBonusVsHigherPop();
-		if(MOD_BALANCE_CORE && iTempModifier > 0)
-		{
-			if(pOtherUnit && pOtherUnit->IsHigherPopThan(this))
-			{
-				iModifier += iTempModifier;
-			}
-		}
-#endif
-
 		// Trait (player level) bonus against higher tech units
 		iTempModifier = GET_PLAYER(getOwner()).GetPlayerTraits()->GetCombatBonusVsHigherTech();
 		if(iTempModifier > 0)
@@ -16514,6 +16502,18 @@ int CvUnit::GetNumEnemyUnitsAdjacent(const CvUnit* pUnitToExclude) const
 	CvUnit* pLoopUnit;
 	TeamTypes eTheirTeam;
 
+#if defined(MOD_BALANCE_CORE)
+
+#ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
+	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(pAtPlot);
+#else
+	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(this);
+#endif
+	for(int iCount=0; iCount<NUM_DIRECTION_TYPES; iCount++)
+	{
+		pLoopPlot = aPlotsToCheck[iCount];
+#else
+
 	for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
 	{
 #ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
@@ -16522,6 +16522,7 @@ int CvUnit::GetNumEnemyUnitsAdjacent(const CvUnit* pUnitToExclude) const
 		pLoopPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
 #endif
 
+#endif
 		if(pLoopPlot != NULL)
 		{
 			pUnitNode = pLoopPlot->headUnitNode();
@@ -16762,6 +16763,13 @@ bool CvUnit::IsFriendlyUnitAdjacent(bool bCombatUnit) const
 
 	TeamTypes eTeam = getTeam();
 
+#if defined(MOD_BALANCE_CORE)
+	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(pPlot);
+	for(int iCount=0; iCount<NUM_DIRECTION_TYPES; iCount++)
+	{
+		pLoopPlot = aPlotsToCheck[iCount];
+#else
+
 	for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
 	{
 #ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
@@ -16770,6 +16778,7 @@ bool CvUnit::IsFriendlyUnitAdjacent(bool bCombatUnit) const
 		pLoopPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
 #endif
 
+#endif
 		if(pLoopPlot != NULL)
 		{
 			// Must be in same area
@@ -20592,6 +20601,43 @@ bool CvUnit::IsNearEnemyCitadel(int& iCitadelDamage)
 
 //	--------------------------------------------------------------------------------
 /// Great General close enough to give us a bonus?
+#if defined(MOD_BALANCE_CORE_MILITARY)
+
+bool CvUnit::IsNearGreatGeneral(const CvPlot* pAtPlot, const CvUnit* pIgnoreThisGeneral) const
+{
+	VALIDATE_OBJECT
+
+	int iGreatGeneralRange = /*2*/ GC.getGREAT_GENERAL_RANGE();
+
+	if (pAtPlot == NULL)
+	{
+		pAtPlot = plot();
+		if (pAtPlot == NULL)
+			return false;
+	}
+
+	const std::vector<int>& possibleUnits = GET_PLAYER(getOwner()).GetAreaEffectNegativeUnits();
+	for(std::vector<int>::const_iterator it = possibleUnits.begin(); it!=possibleUnits.end(); ++it)
+	{
+		UnitHandle pUnit = GET_PLAYER(getOwner()).getUnit(*it);
+
+		if (pUnit && pUnit != pIgnoreThisGeneral)
+		{
+			// Same domain
+			if(pUnit->getDomainType() == getDomainType())
+			{
+				if (plotDistance( pAtPlot->getX(),pAtPlot->getY(),pUnit->getX(),pUnit->getY() ) <= iGreatGeneralRange)
+					return true;
+			}
+		}
+
+	}
+
+	return false;
+}
+
+#else
+
 #ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
 #ifdef AUI_TACTICAL_FIX_SCORE_GREAT_GENERAL_PLOT_NO_OVERLAP
 bool CvUnit::IsNearGreatGeneral(const CvPlot* pAtPlot, const CvUnit* pIgnoreThisGeneral) const
@@ -20666,6 +20712,8 @@ bool CvUnit::IsNearGreatGeneral() const
 
 	return false;
 }
+
+#endif
 
 //	--------------------------------------------------------------------------------
 /// Great General in our hex?
@@ -20788,6 +20836,63 @@ int CvUnit::GetGreatGeneralStackMovement() const
 	return iRtnValue;
 }
 
+#if defined(MOD_BALANCE_CORE_MILITARY)
+
+int CvUnit::GetReverseGreatGeneralModifier(const CvPlot* pAtPlot) const
+{
+	VALIDATE_OBJECT
+
+	if (pAtPlot == NULL)
+	{
+		pAtPlot = plot();
+		if (pAtPlot == NULL)
+			return 0;
+	}
+	
+	int iMaxMod = 0;
+
+	const std::vector<PlayerTypes>& vEnemies = GET_PLAYER(getOwner()).GetDiplomacyAI()->GetPlayersAtWarWith();
+
+	for(std::vector<PlayerTypes>::const_iterator it=vEnemies.begin(); it!=vEnemies.end(); ++it)
+	{
+		CvPlayer& kLoopPlayer = GET_PLAYER(*it);
+		const std::vector<int>& possibleUnits = kLoopPlayer.GetAreaEffectNegativeUnits();
+
+		for(std::vector<int>::const_iterator it = possibleUnits.begin(); it!=possibleUnits.end(); ++it)
+		{
+			UnitHandle pUnit = kLoopPlayer.getUnit(*it);
+
+			if (pUnit)
+			{
+				// Unit with a combat modifier against the enemy
+				int iMod = pUnit->getNearbyEnemyCombatMod();
+				if(iMod != 0)
+				{
+					// Same domain
+					if(((pUnit->getDomainType() == getDomainType()) && (pUnit->getDomainType() == DOMAIN_LAND) && !pUnit->isEmbarked()) || ((pUnit->getDomainType() == getDomainType()) && (pUnit->getDomainType() == DOMAIN_SEA)))
+					{
+						// Within range?
+						int iRange = pUnit->getNearbyEnemyCombatRange();
+						if(plotDistance(pAtPlot->getX(), pAtPlot->getY(), pUnit->getX(), pUnit->getY()) <= iRange)
+						{
+							// Don't assume the first one found is the worst!
+							// Combat modifiers are negative, as applied against the defender (and not for the attacker)
+							if (iMod < iMaxMod)
+							{
+								iMaxMod = iMod;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return iMaxMod;
+}
+
+#else
+
 //	--------------------------------------------------------------------------------
 #ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
 int CvUnit::GetReverseGreatGeneralModifier(const CvPlot* pAtPlot) const
@@ -20854,7 +20959,11 @@ int CvUnit::GetReverseGreatGeneralModifier()const
 								{
 									// Within range?
 									int iRange = pLoopUnit->getNearbyEnemyCombatRange();
+#ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
+									if(plotDistance(pAtPlot->getX(), pAtPlot->getY(), pLoopPlot->getX(), pLoopPlot->getY()) <= iRange)
+#else
 									if(plotDistance(getX(), getY(), pLoopPlot->getX(), pLoopPlot->getY()) <= iRange)
+#endif
 									{
 #if defined(MOD_BUGFIX_MINOR)
 										// Don't assume the first one found is the worst!
@@ -20881,6 +20990,8 @@ int CvUnit::GetReverseGreatGeneralModifier()const
 	return 0;
 #endif
 }
+
+#endif
 
 //	--------------------------------------------------------------------------------
 #if defined(MOD_PROMOTIONS_IMPROVEMENT_BONUS)

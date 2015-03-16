@@ -1817,6 +1817,9 @@ public:
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	int GetFractionOriginalCapitalsUnderControl() const;
 	void UpdateFractionOriginalCapitalsUnderControl();
+	void UpdateAreaEffectUnits();
+	const std::vector<int>& GetAreaEffectPositiveUnits() const;
+	const std::vector<int>& GetAreaEffectNegativeUnits() const;
 #endif
 
 	int GetNumNaturalWondersDiscoveredInArea() const;
@@ -2711,6 +2714,8 @@ protected:
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	//percent
 	int m_iFractionOriginalCapitalsUnderControl;
+	std::vector<int> m_unitsAreaEffectPositive;
+	std::vector<int> m_unitsAreaEffectNegative;
 #endif
 };
 

@@ -1041,7 +1041,8 @@ int CvEconomicAI::ScoreExplorePlot2(CvPlot* pPlot, CvPlayer* pPlayer, DomainType
 	int iLargeScore = 100;
 	int iJackpot = 1000;
 
-	FAssertMsg(pPlot->isRevealed(eTeam), "Plot isn't revealed. This isn't good.");
+	if(!pPlot->isRevealed(pPlayer->getTeam()))
+		return 0;
 
 	//add goodies - they go away - do not add any permanent scores here - leads to loops
 	if(pPlot->isRevealedGoody(pPlayer->getTeam()) && !pPlot->isVisibleEnemyUnit(pPlayer->GetID()))

@@ -204,6 +204,10 @@ CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit) const
 		CvPlot* pEvalPlot = itr->second.pPlot;
 		int iRating = itr->second.score;
 
+		//discourage embarking
+		if (pUnit->getDomainType()==DOMAIN_LAND && pEvalPlot->isWater())
+			iRating /= 2;
+
 #ifdef AUI_ASTAR_TURN_LIMITER
 		//reverse the score calculation below to get an upper bound on the distance
 		int iMaxDistance = (1000*iRating) / max(1,iBestPlotScore);
@@ -3233,82 +3237,88 @@ void CvHomelandAI::ExecuteExplorerMoves()
 		CvPlot* pBestPlot = NULL;
 		int iBestPlotScore = 0;
 
-		int iMovementRange = pUnit->movesLeft();
-
-		for(int eDir=0; eDir<NUM_DIRECTION_TYPES; eDir++)
+		int iRange = pUnit->baseMoves();
+		for(int iX = -iRange; iX <= iRange; iX++)
 		{
-			CvPlot* pEvalPlot = GC.getMap().getNeighborUnchecked(iUnitX, iUnitY, (DirectionTypes)eDir);
-
-			if(!pEvalPlot || !IsValidExplorerEndTurnPlot(pUnit.pointer(), pEvalPlot))
-				continue;
-
-			//ignore occupied plots
-			if( pEvalPlot->getBestDefender(NO_PLAYER) != (UnitHandle)NULL)
-				continue;
-
-			//get contributions from yet-to-be revealed plots (and goodies)
-			int iScoreBase = CvEconomicAI::ScoreExplorePlot2(pEvalPlot, m_pPlayer, pUnit->getDomainType(), pUnit->isEmbarked());
-			if(iScoreBase > 0)
+			for(int iY = -iRange; iY <= iRange; iY++)
 			{
-				int iScoreBonus = pEvalPlot->GetExplorationBonus(m_pPlayer, pCurPlot);
-				int iScoreExtra = 0;
+				CvPlot* pEvalPlot = plotXYWithRangeCheck(iUnitX, iUnitY, iX, iY, iRange);
 
-				//hill plots are good for defense and view - do not add this in ScoreExplorePlot2
-				if(pEvalPlot->isHills())
-					iScoreExtra += 50;
+				if(!pEvalPlot || !IsValidExplorerEndTurnPlot(pUnit.pointer(), pEvalPlot))
+					continue;
 
-				//If a known minor, let's not wander around if we don't have open borders.
-				if(pEvalPlot->getOwner() != NO_PLAYER)
+				//don't embark to reach a close-range target
+				if(pUnit->getDomainType()==DOMAIN_LAND && pEvalPlot->isWater())
+					continue;
+
+				//ignore occupied plots
+				if( pEvalPlot->getBestDefender(NO_PLAYER) != (UnitHandle)NULL)
+					continue;
+
+				//get contributions from yet-to-be revealed plots (and goodies)
+				int iScoreBase = CvEconomicAI::ScoreExplorePlot2(pEvalPlot, m_pPlayer, pUnit->getDomainType(), pUnit->isEmbarked());
+				if(iScoreBase > 0)
 				{
-					if(GET_PLAYER(pEvalPlot->getOwner()).isMinorCiv() && GET_TEAM(m_pPlayer->getTeam()).isHasMet( GET_PLAYER(pEvalPlot->getOwner()).getTeam() ) )
+					int iScoreBonus = pEvalPlot->GetExplorationBonus(m_pPlayer, pCurPlot);
+					int iScoreExtra = 0;
+
+					//hill plots are good for defense and view - do not add this in ScoreExplorePlot2
+					if(pEvalPlot->isHills())
+						iScoreExtra += 50;
+
+					//If a known minor, let's not wander around if we don't have open borders.
+					if(pEvalPlot->getOwner() != NO_PLAYER)
 					{
-						if(!GET_PLAYER(pEvalPlot->getOwner()).GetMinorCivAI()->IsPlayerHasOpenBorders(m_pPlayer->GetID()))
+						if(GET_PLAYER(pEvalPlot->getOwner()).isMinorCiv() && GET_TEAM(m_pPlayer->getTeam()).isHasMet( GET_PLAYER(pEvalPlot->getOwner()).getTeam() ) )
 						{
-							iScoreExtra -= 100;
+							if(!GET_PLAYER(pEvalPlot->getOwner()).GetMinorCivAI()->IsPlayerHasOpenBorders(m_pPlayer->GetID()))
+							{
+								iScoreExtra -= 100;
+							}
 						}
 					}
-				}
 
-				if(pUnit->canSellExoticGoods(pEvalPlot))
-				{
-					float fRewardFactor = pUnit->calculateExoticGoodsDistanceFactor(pEvalPlot);
-					if (fRewardFactor >= 0.75f)
+					if(pUnit->canSellExoticGoods(pEvalPlot))
 					{
-						iScoreExtra += 150;
+						float fRewardFactor = pUnit->calculateExoticGoodsDistanceFactor(pEvalPlot);
+						if (fRewardFactor >= 0.75f)
+						{
+							iScoreExtra += 150;
+						}
+						else if (fRewardFactor >= 0.5f)
+						{
+							iScoreExtra += 75;
+						}
 					}
-					else if (fRewardFactor >= 0.5f)
-					{
-						iScoreExtra += 75;
-					}
-				}
 
-				int iTotalScore = iScoreBase+iScoreExtra+iScoreBonus;
+					int iTotalScore = iScoreBase+iScoreExtra+iScoreBonus;
 
 #if defined(AUI_DANGER_PLOTS_REMADE)
-				//careful with plots that are too dangerous
-				int iAcceptableDanger = pUnit->GetCurrHitPoints()/2;
-				int iDanger = m_pPlayer->GetPlotDanger(*pEvalPlot,pUnit.pointer());
-				if(iDanger > iAcceptableDanger)
-					continue;
-				if(iDanger > iAcceptableDanger/2)
-					iTotalScore /= 4;
+					//careful with plots that are too dangerous
+					int iAcceptableDanger = pUnit->GetCurrHitPoints()/2;
+					int iDanger = m_pPlayer->GetPlotDanger(*pEvalPlot,pUnit.pointer());
+					if(iDanger > iAcceptableDanger)
+						continue;
+					if(iDanger > iAcceptableDanger/2)
+						iTotalScore /= 4;
 #endif
 
-				if(iTotalScore > iBestPlotScore || (iTotalScore==iBestPlotScore && GC.getGame().getJonRandNum(2,"accept equal value explore target")==1) )
-				{
-					pBestPlot = pEvalPlot;
-					iBestPlotScore = iTotalScore;
-					bFoundNearbyExplorePlot = true;
+					if(iTotalScore > iBestPlotScore || (iTotalScore==iBestPlotScore && GC.getGame().getJonRandNum(2,"accept equal value explore target")==1) )
+					{
+						pBestPlot = pEvalPlot;
+						iBestPlotScore = iTotalScore;
+						bFoundNearbyExplorePlot = true;
 
-					CvString msg = CvString::format("Best plot for %d is %d, %d with base %d, extra %d, bonus %d\n",
-						it->GetID(), pBestPlot->getX(), pBestPlot->getY(), iScoreBase, iScoreExtra, iScoreBonus);
-					LogHomelandMessage(msg);
+						CvString msg = CvString::format("Best plot for %d is %d, %d with base %d, extra %d, bonus %d\n",
+							it->GetID(), pBestPlot->getX(), pBestPlot->getY(), iScoreBase, iScoreExtra, iScoreBonus);
+						LogHomelandMessage(msg);
+					}
 				}
 			}
 		}
 
 		//if we didn't find a worthwhile plot among our adjacent plots, check the global targets
-		if(!pBestPlot && iMovementRange > 0)
+		if(!pBestPlot && pUnit->movesLeft() > 0)
 			pBestPlot = GetBestExploreTarget(pUnit.pointer());
 
 		//make sure we're not in an endless loop

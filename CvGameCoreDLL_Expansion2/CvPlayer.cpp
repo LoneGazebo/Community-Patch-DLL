@@ -5272,6 +5272,7 @@ void CvPlayer::doTurnPostDiplomacy()
 #if defined(MOD_BALANCE_CORE)
 			UpdateDangerPlots();
 			UpdateFractionOriginalCapitalsUnderControl();
+			UpdateAreaEffectUnits();
 #else
 			m_pDangerPlots->UpdateDanger();
 #endif
@@ -31895,6 +31896,40 @@ void CvPlayer::UpdateFractionOriginalCapitalsUnderControl()
 		m_iFractionOriginalCapitalsUnderControl = iOCCount * 100 / iCivCount;
 	}
 }
+
+void CvPlayer::UpdateAreaEffectUnits()
+{
+	//great generals/admirals
+	m_unitsAreaEffectPositive.clear();
+	//maori warrior et al
+	m_unitsAreaEffectNegative.clear();
+
+	// Loop through our units
+	int iLoop;
+	CvUnit* pLoopUnit = NULL;
+	for(pLoopUnit = firstUnit(&iLoop); pLoopUnit; pLoopUnit = nextUnit(&iLoop))
+	{
+		if (!pLoopUnit)
+			continue;
+		
+		if (pLoopUnit->IsGreatGeneral() || pLoopUnit->IsGreatAdmiral())
+			m_unitsAreaEffectPositive.push_back( pLoopUnit->GetID() );
+
+		if (pLoopUnit->getNearbyEnemyCombatMod() > 0)
+			m_unitsAreaEffectNegative.push_back( pLoopUnit->GetID() );
+	}
+}
+
+const std::vector<int>& CvPlayer::GetAreaEffectPositiveUnits() const
+{
+	return m_unitsAreaEffectPositive;
+}
+
+const std::vector<int>& CvPlayer::GetAreaEffectNegativeUnits() const
+{
+	return m_unitsAreaEffectNegative;
+}
+
 #endif
 
 //	--------------------------------------------------------------------------------
