@@ -1675,11 +1675,12 @@ public:
 	int getNumCities() const;
 	CvCity* getCity(int iID);
 	const CvCity* getCity(int iID) const;
-#if !defined(MOD_BALANCE_CORE)
 	CvCity* addCity();
-#endif
 	void deleteCity(int iID);
 	CvCity* GetFirstCityWithBuildingClass(BuildingClassTypes eBuildingClass);
+#if defined(MOD_BALANCE_CORE_GLOBAL_CITY_IDS)
+	CvCity* getCityByGlobalID(int iID) const;
+#endif
 
 	// unit iteration
 	int getNumUnits() const;
@@ -1818,6 +1819,9 @@ public:
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	int GetFractionOriginalCapitalsUnderControl() const;
 	void UpdateFractionOriginalCapitalsUnderControl();
+	void UpdateAreaEffectUnits();
+	const std::vector<int>& GetAreaEffectPositiveUnits() const;
+	const std::vector<int>& GetAreaEffectNegativeUnits() const;
 #endif
 
 	int GetNumNaturalWondersDiscoveredInArea() const;
@@ -2587,6 +2591,9 @@ protected:
 
 	CLinkList<CvString> m_cityNames;
 
+#if defined(MOD_BALANCE_CORE_GLOBAL_CITY_IDS)
+	std::map<int,CvCity*> m_citiesByGlobalID;
+#endif
 	FFreeListTrashArray<CvCityAI> m_cities;
 
 	FFreeListTrashArray<CvUnit> m_units;
@@ -2709,6 +2716,8 @@ protected:
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	//percent
 	int m_iFractionOriginalCapitalsUnderControl;
+	std::vector<int> m_unitsAreaEffectPositive;
+	std::vector<int> m_unitsAreaEffectNegative;
 #endif
 };
 

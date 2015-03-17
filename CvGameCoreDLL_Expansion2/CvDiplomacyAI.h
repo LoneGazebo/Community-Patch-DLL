@@ -567,6 +567,10 @@ public:
 #endif
 	int GetOtherPlayerWarmongerScore(PlayerTypes ePlayer);
 
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	const std::vector<PlayerTypes>& GetPlayersAtWarWith() const { return m_playersWeAreAtWarWith; }
+#endif
+
 	/////////////////////////////////////////////////////////
 	// Contact
 	/////////////////////////////////////////////////////////
@@ -1790,6 +1794,10 @@ private:
 	int*  m_paiOtherPlayerWarmongerAmountTimes100;
 #else
 	int*  m_paiOtherPlayerWarmongerAmount;
+#endif
+
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	std::vector<PlayerTypes> m_playersWeAreAtWarWith;
 #endif
 
 	short* m_paiOtherPlayerTurnsSinceWeLikedTheirProposal;

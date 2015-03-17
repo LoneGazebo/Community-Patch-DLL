@@ -1597,11 +1597,46 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveProphet(CvUnit*)
 GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveAdmiral(CvUnit* pGreatAdmiral)
 {
 	if( pGreatAdmiral->GetGreatPeopleDirective() == NO_GREAT_PEOPLE_DIRECTIVE_TYPE )
+	{
 		// idle ones become commanders
 		return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
-	else
-		// he should keep doing what he's doing
-		return pGreatAdmiral->GetGreatPeopleDirective();
+	}
+	//Should we consider using our heal?
+	else if(pGreatAdmiral->GetGreatPeopleDirective() == GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND)
+	{
+		UnitHandle pUnit;
+		int iInjured = 0;
+		int iArmySize = 0;
+		if(pGreatAdmiral->getArmyID() != FFreeList::INVALID_INDEX)
+		{
+			CvArmyAI* pThisArmy = getArmyAI(pGreatAdmiral->getArmyID());
+			if(pThisArmy)
+			{
+				pUnit = pThisArmy->GetFirstUnit();
+				while(pUnit)
+				{
+					if(pUnit->GetCurrHitPoints() <= (pUnit->GetMaxHitPoints() / 2))
+					{
+						iInjured++;
+					}
+					iArmySize++;
+					pUnit = pThisArmy->GetNextUnit();
+				}
+				//A lot of injured ships here,
+				if(iInjured >= (iArmySize / 2))
+				{
+					//Are we close enough?
+					if(pThisArmy->GetFurthestUnitDistance(pGreatAdmiral->plot()) <= 1)
+					{
+						return GREAT_PEOPLE_DIRECTIVE_USE_POWER;
+					}
+				}
+			}
+		}
+	}
+	// he should keep doing what he's doing
+	return pGreatAdmiral->GetGreatPeopleDirective();
+
 }
 
 #else

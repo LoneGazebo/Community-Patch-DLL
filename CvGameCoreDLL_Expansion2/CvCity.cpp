@@ -318,6 +318,10 @@ CvCity::CvCity() :
 	OBJECT_ALLOCATED
 	FSerialization::citiesToCheck.insert(this);
 
+#if defined(MOD_BALANCE_CORE_GLOBAL_CITY_IDS)
+	m_iGlobalID = GC.getGame().GetNextCityID();
+#endif
+
 	reset(0, NO_PLAYER, 0, 0, true);
 }
 
@@ -15070,6 +15074,20 @@ void CvCity::updateStrengthValue()
 	{
 		int iMaxHits = GC.getMAX_HIT_POINTS();
 		iStrengthFromUnits = pGarrisonedUnit->GetBaseCombatStrength() * 100 * (iMaxHits - pGarrisonedUnit->getDamage()) / iMaxHits;
+#if defined(MOD_BALANCE_CORE_MILITARY)
+		if(MOD_BALANCE_CORE_MILITARY)
+		{
+			CvPlot* pTarget = plot();
+			for(int iUnitLoop = 0; iUnitLoop < pTarget->getNumUnits(); iUnitLoop++)
+			{
+				if(pTarget->getUnitByIndex(iUnitLoop)->IsGreatGeneral() || pTarget->getUnitByIndex(iUnitLoop)->IsGreatAdmiral())
+				{
+					iStrengthFromUnits *= 2;
+					break;
+				}
+			}
+		}
+#endif
 	}
 
 	iStrengthValue += ((iStrengthFromUnits * 100) / /*300*/ GC.getCITY_STRENGTH_UNIT_DIVISOR());
@@ -19249,6 +19267,11 @@ void CvCity::read(FDataStream& kStream)
 	MOD_SERIALIZE_INIT_READ(kStream);
 
 	kStream >> m_iID;
+
+#if defined(MOD_BALANCE_CORE_GLOBAL_CITY_IDS)
+	kStream >> m_iGlobalID;
+#endif
+
 	kStream >> m_iX;
 	kStream >> m_iY;
 	kStream >> m_iRallyX;
@@ -19667,6 +19690,11 @@ void CvCity::write(FDataStream& kStream) const
 	MOD_SERIALIZE_INIT_WRITE(kStream);
 
 	kStream << m_iID;
+
+#if defined(MOD_BALANCE_CORE_GLOBAL_CITY_IDS)
+	kStream << m_iGlobalID;
+#endif
+
 	kStream << m_iX;
 	kStream << m_iY;
 	kStream << m_iRallyX;

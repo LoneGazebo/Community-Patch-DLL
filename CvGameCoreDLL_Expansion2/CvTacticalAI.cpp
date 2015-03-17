@@ -396,7 +396,9 @@ void CvTacticalAI::CommandeerUnits()
 			{
 				GreatPeopleDirectiveTypes eDirective = pLoopUnit->GetGreatPeopleDirective();
 				if (eDirective != GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND)
+				{
 					continue;
+				}
 			}
 #else
 		else if(!pLoopUnit->IsCombatUnit() && !pLoopUnit->IsGreatGeneral())
@@ -8910,7 +8912,11 @@ void CvTacticalAI::ExecuteEscortEmbarkedMoves()
 
 			if (pBestTarget)
 			{
+#if defined(MOD_BALANCE_CORE_MILITARY)
+				ExecuteMoveToPlot(pUnit, pBestTarget, true);
+#else
 				ExecuteMoveToPlot(pUnit, pBestTarget);
+#endif
 #if defined(MOD_BALANCE_CORE)
 				//If we can shoot while doing this, do it!
 				if(pUnit && pUnit->IsCanAttackRanged() && !pUnit->isOutOfAttacks())
@@ -8934,9 +8940,8 @@ void CvTacticalAI::ExecuteEscortEmbarkedMoves()
 											strLogString.Format("%s escort bombarded city at, Current X: %d, Current Y: %d", pUnit->getName().GetCString(), pUnit->getX(), pUnit->getY());
 											LogTacticalMessage(strLogString, false);
 										}
-										break;
 									}
-									else if(pConsiderPlot->getNumUnits() > 0 && !pConsiderPlot->isWater() && (GET_TEAM(GET_PLAYER(pConsiderPlot->getUnitByIndex(0)->getOwner()).getTeam()).isAtWar(GET_PLAYER(pUnit->getOwner()).getTeam())) && (pUnit->canEverRangeStrikeAt(pConsiderPlot->getX(), pConsiderPlot->getY())))
+									if(!pUnit->isOutOfAttacks() && pConsiderPlot->getNumUnits() > 0 && !pConsiderPlot->isWater() && (GET_TEAM(GET_PLAYER(pConsiderPlot->getUnitByIndex(0)->getOwner()).getTeam()).isAtWar(GET_PLAYER(pUnit->getOwner()).getTeam())) && (pUnit->canEverRangeStrikeAt(pConsiderPlot->getX(), pConsiderPlot->getY())))
 									{
 										pUnit->PushMission(CvTypes::getMISSION_RANGE_ATTACK(), pConsiderPlot->getX(), pConsiderPlot->getY());
 										if(GC.getLogging() && GC.getAILogging())
@@ -8945,9 +8950,8 @@ void CvTacticalAI::ExecuteEscortEmbarkedMoves()
 											strLogString.Format("%s escort bombarded land unit at, Current X: %d, Current Y: %d", pUnit->getName().GetCString(), pUnit->getX(), pUnit->getY());
 											LogTacticalMessage(strLogString, false);
 										}
-										break;
 									}
-									else if(pConsiderPlot->getNumUnits() > 0 && pConsiderPlot->isWater() && (GET_TEAM(GET_PLAYER(pConsiderPlot->getUnitByIndex(0)->getOwner()).getTeam()).isAtWar(GET_PLAYER(pUnit->getOwner()).getTeam())) && (pUnit->canEverRangeStrikeAt(pConsiderPlot->getX(), pConsiderPlot->getY())))
+									if(!pUnit->isOutOfAttacks() && pConsiderPlot->getNumUnits() > 0 && pConsiderPlot->isWater() && (GET_TEAM(GET_PLAYER(pConsiderPlot->getUnitByIndex(0)->getOwner()).getTeam()).isAtWar(GET_PLAYER(pUnit->getOwner()).getTeam())) && (pUnit->canEverRangeStrikeAt(pConsiderPlot->getX(), pConsiderPlot->getY())))
 									{
 										pUnit->PushMission(CvTypes::getMISSION_RANGE_ATTACK(), pConsiderPlot->getX(), pConsiderPlot->getY());
 										if(GC.getLogging() && GC.getAILogging())
@@ -8956,13 +8960,13 @@ void CvTacticalAI::ExecuteEscortEmbarkedMoves()
 											strLogString.Format("%s escort bombarded water unit at, Current X: %d, Current Y: %d", pUnit->getName().GetCString(), pUnit->getX(), pUnit->getY());
 											LogTacticalMessage(strLogString, false);
 										}
-										break;
 									}
 								}
 							}
 						}
 					}		
 				}
+				pUnit->finishMoves();
 #endif
 				UnitProcessed(m_CurrentMoveUnits[iI].GetID());
 
@@ -11368,7 +11372,11 @@ void CvTacticalAI::MoveGreatGeneral(CvArmyAI* pArmyAI)
 
 		if(pGeneral)
 		{
+#if defined(MOD_BALANCE_CORE_MILITARY)
+			iRange = (pGeneral->maxMoves() * 2);
+#else
 			iRange = (pGeneral->maxMoves() * 3) / GC.getMOVE_DENOMINATOR();  // Enough to make a decent road move
+#endif
 			for(int iX = -iRange; iX <= iRange; iX++)
 			{
 				for(int iY = -iRange; iY <= iRange; iY++)
@@ -12069,7 +12077,7 @@ int CvTacticalAI::ScoreGreatGeneralPlot(UnitHandle pGeneral, CvPlot* pTarget, Cv
 	else
 	{
 #if defined(MOD_BALANCE_CORE_MILITARY)
-		if(iDangerValue <= 0)
+		if(!pArmyAI && iDangerValue <= 0)
 		{
 #endif
 		iScore = 10;
