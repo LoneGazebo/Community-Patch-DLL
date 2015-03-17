@@ -35,6 +35,8 @@
 //#define MOD_BALANCE_CORE_SANE_IMPASSABILITY
 /// simpler algorithm for scoring exploration plots
 #define MOD_CORE_ALTERNATIVE_EXPLORE_SCORE
+/// use globally unique ids for cities
+#define MOD_BALANCE_CORE_GLOBAL_CITY_IDS
 
 #define AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
 #define AUI_UNIT_FIX_BAD_BONUS_STACKS

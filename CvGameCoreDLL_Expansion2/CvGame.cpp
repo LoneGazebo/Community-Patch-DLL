@@ -1307,6 +1307,10 @@ void CvGame::reset(HandicapTypes eHandicap, bool bConstructorCall)
 	m_AdvisorMessagesViewed.clear();
 
 	CvCityManager::Reset();
+
+#if defined(MOD_BALANCE_CORE_GLOBAL_CITY_IDS)
+	m_iGlobalCityCounter = 0;
+#endif
 }
 
 //	--------------------------------------------------------------------------------
@@ -9787,7 +9791,11 @@ void CvGame::Read(FDataStream& kStream)
 	kStream >> m_iNoNukesCount;
 	kStream >> m_iNukesExploded;
 	kStream >> m_iMaxPopulation;
+#if defined(MOD_BALANCE_CORE_GLOBAL_CITY_IDS)
+	kStream >> m_iGlobalCityCounter;
+#else
 	kStream >> m_iUnused1;
+#endif
 	kStream >> m_iUnused2;
 	kStream >> m_iUnused3;
 	kStream >> m_iInitPopulation;
@@ -10044,7 +10052,11 @@ void CvGame::Write(FDataStream& kStream) const
 	kStream << m_iNoNukesCount;
 	kStream << m_iNukesExploded;
 	kStream << m_iMaxPopulation;
+#if defined(MOD_BALANCE_CORE_GLOBAL_CITY_IDS)
+	kStream << m_iGlobalCityCounter;
+#else
 	kStream << m_iUnused1;
+#endif
 	kStream << m_iUnused2;
 	kStream << m_iUnused3;
 	kStream << m_iInitPopulation;

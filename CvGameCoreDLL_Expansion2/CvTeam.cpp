@@ -4350,6 +4350,12 @@ bool CvTeam::IsAllowsOpenBordersToTeam(TeamTypes eIndex) const
 	}
 #endif
 
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	//we always have open borders with ourselves
+	if (GetID() == eIndex)
+		return true;
+#endif
+
 	return m_abOpenBorders[eIndex];
 }
 
