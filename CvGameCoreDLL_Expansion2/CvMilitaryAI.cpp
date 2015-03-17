@@ -3996,7 +3996,7 @@ void CvMilitaryAI::UpdateOperations()
 		int iLoop;
 		for(pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 		{
-			if(pLoopCity != GetMostThreatenedCity()
+			if(pLoopCity != GetMostThreatenedCity())
 			{
 				if(m_pPlayer->haveAIOperationOfType(AI_OPERATION_CITY_CLOSE_DEFENSE, &iOperationID, NO_PLAYER, pLoopCity->plot()))
 				{
