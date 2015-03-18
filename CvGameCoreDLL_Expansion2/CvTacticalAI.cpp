@@ -2418,7 +2418,11 @@ void CvTacticalAI::PlotMovesToSafety(bool bCombatUnits)
 			// Danger value of plot must be greater than 0
 			CvPlot* pPlot = pUnit->plot();
 
+#if defined(AUI_DANGER_PLOTS_REMADE)
+			iDangerLevel = m_pPlayer->GetPlotDanger(*pPlot,pUnit.pointer());
+#else
 			iDangerLevel = m_pPlayer->GetPlotDanger(*pPlot);
+#endif
 			if(iDangerLevel > 0)
 			{
 				bool bAddUnit = false;
@@ -7077,7 +7081,12 @@ void CvTacticalAI::ExecuteMovesToSafestPlot()
 					//   prefer being in your own territory with the lowest danger value
 					//   prefer the lowest danger value
 
+#if defined(AUI_DANGER_PLOTS_REMADE)
+					iDanger = m_pPlayer->GetPlotDanger(*pPlot,pUnit.pointer());
+#else
 					iDanger = m_pPlayer->GetPlotDanger(*pPlot);
+#endif
+
 					bool bIsZeroDanger = (iDanger <= 0);
 					bool bIsInCity = pPlot->isFriendlyCity(*pUnit, false);
 					bool bIsInCover = (pPlot->getNumDefenders(ePlayerID) > 0) && !pUnit->IsCanDefend(pPlot); // only move to cover if I'm defenseless here
@@ -8899,7 +8908,11 @@ void CvTacticalAI::ExecuteEscortEmbarkedMoves()
 				CvPlot *pTarget = pLoopUnit->plot();
 				if (TurnsToReachTarget(pUnit, pTarget) <= 1)
 				{
+#if defined(AUI_DANGER_PLOTS_REMADE)
+					int iDanger = m_pPlayer->GetPlotDanger(*pTarget,pUnit.pointer());
+#else
 					int iDanger = m_pPlayer->GetPlotDanger(*pTarget);
+#endif
 					if (iDanger > iHighestDanger)
 					{
 						iHighestDanger = iDanger;
@@ -8978,43 +8991,6 @@ void CvTacticalAI::ExecuteEscortEmbarkedMoves()
 }
 
 #if defined(MOD_AI_SMART_RANGED_UNITS)
-// Iterate through available plots and get the best one to later move at.
-void CvTacticalAI::GetBestPlot(CvPlot*& outputPlot, vector<CvPlot*> plotsToCheck)
-{
-	int minDanger = 0;
-	std::vector<CvPlot*>::iterator it;
-
-	for (it = plotsToCheck.begin(); it != plotsToCheck.end(); it++)
-	{
-		CvPlot* pPlot = (*it);
-		int currentDanger = m_pPlayer->GetPlotDanger(*pPlot);
-
-		if (minDanger == 0 || (currentDanger < minDanger))
-		{
-			outputPlot = pPlot;
-			minDanger = currentDanger;
-		}
-	}
-}
-
-// helper function to iterate vector that is of CvPlot Type.
-bool CvTacticalAI::ContainsPlot(vector<CvPlot*> plotData, CvPlot* plotXy)
-{
-	bool methodResult = false;
-	std::vector<CvPlot*>::iterator it;
-
-	for (it = plotData.begin(); it != plotData.end(); it++)
-	{
-		if (((*it)->getX() == plotXy->getX()) && ((*it)->getY() == plotXy->getY()))
-		{
-			methodResult = true;
-			break;
-		}
-	}
-
-	return methodResult;
-}
-
 // Get best plot of the array of possible plots, based on plot danger.
 CvPlot* CvTacticalAI::GetBestRepositionPlot(UnitHandle pUnit, CvPlot* plotTarget)
 {
@@ -11962,7 +11938,11 @@ int CvTacticalAI::ScoreGreatGeneralPlot(UnitHandle pGeneral, CvPlot* pTarget, Cv
 	}
 
 	// Danger value
+#if defined(AUI_DANGER_PLOTS_REMADE)
+	iDangerValue = m_pPlayer->GetPlotDanger(*pTarget,pGeneral.pointer());
+#else
 	iDangerValue = m_pPlayer->GetPlotDanger(*pTarget);
+#endif
 	pBestDefender = pTarget->getBestDefender(m_pPlayer->GetID());
 
 	// Friendly city here?

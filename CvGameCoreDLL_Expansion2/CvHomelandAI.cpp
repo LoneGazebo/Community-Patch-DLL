@@ -4108,8 +4108,12 @@ void CvHomelandAI::ExecuteMovesToSafestPlot()
 					//   prefer being under a unit with the lowest danger value
 					//   prefer being in your own territory with the lowest danger value
 					//   prefer the lowest danger value
-
+#if defined(AUI_DANGER_PLOTS_REMADE)
+					iDanger = m_pPlayer->GetPlotDanger(*pPlot,pUnit.pointer());
+#else
 					iDanger = m_pPlayer->GetPlotDanger(*pPlot);
+#endif
+
 					bool bIsZeroDanger = (iDanger <= 0);
 					bool bIsInCity = pPlot->isFriendlyCity(*pUnit, false);
 					bool bIsInCover = (pPlot->getNumDefenders(m_pPlayer->GetID()) > 0) && !pUnit->IsCanDefend();
@@ -6209,7 +6213,12 @@ void CvHomelandAI::ExecuteAircraftMoves()
 				continue;
 			}
 
+#if defined(AUI_DANGER_PLOTS_REMADE)
+			int iPlotDanger = m_pPlayer->GetPlotDanger(*pLoopUnitPlot,pUnit.pointer());
+#else
 			int iPlotDanger = m_pPlayer->GetPlotDanger(*pLoopUnitPlot);
+#endif
+
 			if (pLoopUnit->getArmyID() != FFreeList::INVALID_INDEX)
 			{
 				iPlotDanger += 5000;
@@ -6244,7 +6253,11 @@ void CvHomelandAI::ExecuteAircraftMoves()
 				continue;
 			}
 
+#if defined(AUI_DANGER_PLOTS_REMADE)
+			int iPlotDanger = m_pPlayer->GetPlotDanger(*pTarget,pUnit.pointer());
+#else
 			int iPlotDanger = m_pPlayer->GetPlotDanger(*pTarget);
+#endif
 			if(iPlotDanger >= iMostDangerous)
 			{
 				iMostDangerous = iPlotDanger;
