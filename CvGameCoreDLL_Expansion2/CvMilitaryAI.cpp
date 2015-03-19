@@ -1307,97 +1307,97 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTarget(AIOperationTypes eAIOperatio
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	PlayerTypes eLoopPlayer;
 	//Let's loop through all valid cities in the world
-		for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
-		{
-			eLoopPlayer = (PlayerTypes) iPlayerLoop;
+	for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+	{
+		eLoopPlayer = (PlayerTypes) iPlayerLoop;
 		if(GET_PLAYER(eLoopPlayer).isAlive())
-			{
+		{
 			bool bIsMinor = false;
 			if(GET_PLAYER(eLoopPlayer).isMinorCiv())
-				{
+			{
 				if(GET_PLAYER(eLoopPlayer).GetMinorCivAI()->IsAllies(m_pPlayer->GetID()))
-					{
+				{
 					bIsMinor = true;
 				}
 			}
 			if(eLoopPlayer != eEnemy && (bIsMinor || GET_PLAYER(eLoopPlayer).GetID() == m_pPlayer->GetID() || GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).IsAllowsOpenBordersToTeam(m_pPlayer->getTeam())))
-						{
+			{
 				// Estimate the relative strength of units near our cities and near their cities (can't use TacticalAnalysisMap because we may not be at war - and that it isn't current if we are calling this from the DiploAI)
 				for (pFriendlyCity = GET_PLAYER(eLoopPlayer).firstCity(&iFriendlyLoop); pFriendlyCity != NULL; pFriendlyCity = GET_PLAYER(eLoopPlayer).nextCity(&iFriendlyLoop))
 				{
 					CvPlot* pPlot = pFriendlyCity->plot();
-							int iX = pPlot->getX();
-							int iY = pPlot->getY();
-							bool bGeneralInTheVicinity = false;
-							int iPower = 0;
-							for (pLoopUnit = GET_PLAYER(eLoopPlayer).firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = GET_PLAYER(eLoopPlayer).nextUnit(&iUnitLoop))
+					int iX = pPlot->getX();
+					int iY = pPlot->getY();
+					bool bGeneralInTheVicinity = false;
+					int iPower = 0;
+					for (pLoopUnit = GET_PLAYER(eLoopPlayer).firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = GET_PLAYER(eLoopPlayer).nextUnit(&iUnitLoop))
+					{
+						if (pLoopUnit->IsCombatUnit())
+						{
+							int iDistance = plotDistance(pLoopUnit->getX(), pLoopUnit->getY(), iX, iY);
+							if (iDistance <= 5)
 							{
-								if (pLoopUnit->IsCombatUnit())
-								{
-									int iDistance = plotDistance(pLoopUnit->getX(), pLoopUnit->getY(), iX, iY);
-									if (iDistance <= 5)
-									{
-										iPower += pLoopUnit->GetPower();
-									}
-								}
-								if (!bGeneralInTheVicinity && pLoopUnit->IsGreatGeneral())
-								{
-									int iDistance = plotDistance(pLoopUnit->getX(), pLoopUnit->getY(), iX, iY);
-									if (iDistance <= 5)
-									{
-										bGeneralInTheVicinity = true;
-									}
-								}
+								iPower += pLoopUnit->GetPower();
 							}
-							if (bGeneralInTheVicinity)
+						}
+						if (!bGeneralInTheVicinity && pLoopUnit->IsGreatGeneral())
+						{
+							int iDistance = plotDistance(pLoopUnit->getX(), pLoopUnit->getY(), iX, iY);
+							if (iDistance <= 5)
 							{
-								iPower *= 11;
-								iPower /= 10;
+								bGeneralInTheVicinity = true;
 							}
-					pFriendlyCity->iScratch = iPower;
 						}
 					}
-			else if(eLoopPlayer == eEnemy)
-				{
-				for(pEnemyCity = kEnemy.firstCity(&iEnemyLoop); pEnemyCity != NULL; pEnemyCity = kEnemy.nextCity(&iEnemyLoop))
+					if (bGeneralInTheVicinity)
 					{
+						iPower *= 11;
+						iPower /= 10;
+					}
+					pFriendlyCity->iScratch = iPower;
+				}
+			}
+			else if(eLoopPlayer == eEnemy)
+			{
+				for(pEnemyCity = kEnemy.firstCity(&iEnemyLoop); pEnemyCity != NULL; pEnemyCity = kEnemy.nextCity(&iEnemyLoop))
+				{
 					CvPlot* pPlot = pEnemyCity->plot();
-						if(pPlot->isRevealed(m_pPlayer->getTeam()))
-						{
-							int iX = pPlot->getX();
-							int iY = pPlot->getY();
-							bool bGeneralInTheVicinity = false;
-							int iPower = 0;
+					if(pPlot->isRevealed(m_pPlayer->getTeam()))
+					{
+						int iX = pPlot->getX();
+						int iY = pPlot->getY();
+						bool bGeneralInTheVicinity = false;
+						int iPower = 0;
 						for (pLoopUnit = kEnemy.firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = kEnemy.nextUnit(&iUnitLoop))
+						{
+							if (pLoopUnit->IsCombatUnit())
 							{
-								if (pLoopUnit->IsCombatUnit())
+								int iDistance = plotDistance(pLoopUnit->getX(), pLoopUnit->getY(), iX, iY);
+								if (iDistance <= 5)
 								{
-									int iDistance = plotDistance(pLoopUnit->getX(), pLoopUnit->getY(), iX, iY);
-									if (iDistance <= 5)
-									{
-										iPower += pLoopUnit->GetPower();
-									}
-								}
-								if (!bGeneralInTheVicinity && pLoopUnit->IsGreatGeneral())
-								{
-									int iDistance = plotDistance(pLoopUnit->getX(), pLoopUnit->getY(), iX, iY);
-									if (iDistance <= 5)
-									{
-										bGeneralInTheVicinity = true;
-									}
+									iPower += pLoopUnit->GetPower();
 								}
 							}
-							if (bGeneralInTheVicinity)
+							if (!bGeneralInTheVicinity && pLoopUnit->IsGreatGeneral())
 							{
-							iPower *= 12;
-								iPower /= 10;
+								int iDistance = plotDistance(pLoopUnit->getX(), pLoopUnit->getY(), iX, iY);
+								if (iDistance <= 5)
+								{
+									bGeneralInTheVicinity = true;
+								}
 							}
-						pEnemyCity->iScratch = iPower;
 						}
+						if (bGeneralInTheVicinity)
+						{
+							iPower *= 12;
+							iPower /= 10;
+						}
+						pEnemyCity->iScratch = iPower;
 					}
 				}
 			}
 		}
+	}
 	// Build a list of all the possible start city/target city pairs
 	static CvWeightedVector<CvMilitaryTarget, SAFE_ESTIMATE_NUM_CITIES* 10, true> prelimWeightedTargetList;
 	prelimWeightedTargetList.clear();
@@ -1418,43 +1418,43 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTarget(AIOperationTypes eAIOperatio
 			{
 				for(pFriendlyCity = GET_PLAYER(eLoopPlayer).firstCity(&iFriendlyLoop); pFriendlyCity != NULL; pFriendlyCity = GET_PLAYER(eLoopPlayer).nextCity(&iFriendlyLoop))
 				{
-		for(pEnemyCity = GET_PLAYER(eEnemy).firstCity(&iEnemyLoop); pEnemyCity != NULL; pEnemyCity = GET_PLAYER(eEnemy).nextCity(&iEnemyLoop))
-		{
-			if(pEnemyCity->plot()->isRevealed(m_pPlayer->getTeam()))
-			{
-				CvMilitaryTarget target;
-				int iWeight;
-				target.m_pMusterCity = pFriendlyCity;
-				target.m_pTargetCity = pEnemyCity;
-				target.iMusterNearbyUnitPower = pFriendlyCity->iScratch;
-				target.iTargetNearbyUnitPower = pEnemyCity->iScratch;
-				if (eAIOperationType == AI_OPERATION_PURE_NAVAL_CITY_ATTACK || eAIOperationType == AI_OPERATION_NAVAL_ATTACK || eAIOperationType == AI_OPERATION_NAVAL_SNEAK_ATTACK)
-				{
-					target.m_bAttackBySea = true;
-					if (target.m_pMusterCity->isCoastal() && target.m_pTargetCity->isCoastal())
+					for(pEnemyCity = GET_PLAYER(eEnemy).firstCity(&iEnemyLoop); pEnemyCity != NULL; pEnemyCity = GET_PLAYER(eEnemy).nextCity(&iEnemyLoop))
 					{
-						target.m_iPathLength = plotDistance(target.m_pMusterCity->getX(), target.m_pMusterCity->getY(), target.m_pTargetCity->getX(), target.m_pTargetCity->getY());
+						if(pEnemyCity->plot()->isRevealed(m_pPlayer->getTeam()))
+						{
+							CvMilitaryTarget target;
+							int iWeight;
+							target.m_pMusterCity = pFriendlyCity;
+							target.m_pTargetCity = pEnemyCity;
+							target.iMusterNearbyUnitPower = pFriendlyCity->iScratch;
+							target.iTargetNearbyUnitPower = pEnemyCity->iScratch;
+							if (eAIOperationType == AI_OPERATION_PURE_NAVAL_CITY_ATTACK || eAIOperationType == AI_OPERATION_NAVAL_ATTACK || eAIOperationType == AI_OPERATION_NAVAL_SNEAK_ATTACK)
+							{
+								target.m_bAttackBySea = true;
+								if (target.m_pMusterCity->isCoastal() && target.m_pTargetCity->isCoastal())
+								{
+									target.m_iPathLength = plotDistance(target.m_pMusterCity->getX(), target.m_pMusterCity->getY(), target.m_pTargetCity->getX(), target.m_pTargetCity->getY());
+								}
+							}
+
+							else
+							{
+								ShouldAttackBySea(eEnemy, target);
+
+								if (!pFriendlyCity->isCoastal() && target.m_bAttackBySea)
+								{
+									continue;
+								}
+							}
+
+							if(target.m_iPathLength > 0)
+							{
+								iWeight = (10000 - target.m_iPathLength);   // Start by using the path length as the weight, shorter paths have higher weight
+								prelimWeightedTargetList.push_back(target, iWeight);
+							}
+						}
 					}
 				}
-
-				else
-				{
-					ShouldAttackBySea(eEnemy, target);
-
-					if (!pFriendlyCity->isCoastal() && target.m_bAttackBySea)
-					{
-						continue;
-					}
-				}
-
-				if(target.m_iPathLength > 0)
-				{
-					iWeight = (10000 - target.m_iPathLength);   // Start by using the path length as the weight, shorter paths have higher weight
-					prelimWeightedTargetList.push_back(target, iWeight);
-				}
-			}
-		}
-	}
 			}
 		}
 	}
@@ -1475,13 +1475,13 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTarget(AIOperationTypes eAIOperatio
 				continue;
 			}
 			if (!target.m_pTargetCity->isCoastal())
-				{
+			{
 				continue;
 			}
 			CvPlot *pSeaPlotNearMuster = GetCoastalPlotAdjacentToTarget(target.m_pMusterCity->plot(), NULL);
 			CvPlot *pSeaPlotNearTarget = GetCoastalPlotAdjacentToTarget(target.m_pTargetCity->plot(), NULL);
 			if(!GC.getStepFinder().DoesPathExist(m_pPlayer->GetID(), eEnemy, pSeaPlotNearMuster, pSeaPlotNearTarget))
-					{
+			{
 				continue;
 			}
 		}
@@ -1489,16 +1489,16 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTarget(AIOperationTypes eAIOperatio
 		iWeight = ScoreTarget(target, eAIOperationType);
 
 		if (iWeight > 0)
-									{
+		{
 			if (weightedTargetList.GetElement( weightedTargetList.size()-1 ) == target)
-										{
+			{
 				OutputDebugString("repeated target! why??");
-											}
+			}
 
 			weightedTargetList.push_back(target, iWeight);
 			iTargetsConsidered++;
-										}
-									}
+		}
+	}
 
 	// Didn't find anything, abort
 	if(weightedTargetList.size() == 0)
@@ -1507,9 +1507,9 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTarget(AIOperationTypes eAIOperatio
 		if (piWinningScore)
 		{
 			*piWinningScore = -1;
-								}
+		}
 		return chosenTarget;
-							}
+	}
 
 	weightedTargetList.SortItems();
 	LogAttackTargets(eAIOperationType, eEnemy, weightedTargetList);
@@ -1520,7 +1520,7 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTarget(AIOperationTypes eAIOperatio
 		*piWinningScore = ScoreTarget(chosenTarget, eAIOperationType);
 
 	return chosenTarget;
-						}
+}
 #else
 	// Estimate the relative strength of units near our cities and near their cities (can't use TacticalAnalysisMap because we may not be at war - and that it isn't current if we are calling this from the DiploAI)
 	for (pFriendlyCity = m_pPlayer->firstCity(&iFriendlyLoop); pFriendlyCity != NULL; pFriendlyCity = m_pPlayer->nextCity(&iFriendlyLoop))
@@ -1875,7 +1875,7 @@ int CvMilitaryAI::ScoreTarget(CvMilitaryTarget& target, AIOperationTypes eAIOper
 	{	
 		if(m_pPlayer->IsCityAlreadyTargeted(target.m_pTargetCity, DOMAIN_SEA, 50))
 		{
-		return 0;
+			return 0;
 		}
 	}
 	else if(eAIOperationType == AI_OPERATION_BASIC_CITY_ATTACK ||
@@ -1905,9 +1905,9 @@ int CvMilitaryAI::ScoreTarget(CvMilitaryTarget& target, AIOperationTypes eAIOper
 			}
 			else
 			{
-			fDistanceLow /= 2;
-			fDistanceHigh /= 2;
-		}
+				fDistanceLow /= 2;
+				fDistanceHigh /= 2;
+			}
 		}
 
 		float fSlope = (fWeightHigh-fWeightLow) / (fDistanceHigh-fDistanceLow);
@@ -1934,9 +1934,9 @@ int CvMilitaryAI::ScoreTarget(CvMilitaryTarget& target, AIOperationTypes eAIOper
 			}
 			else
 			{
-			fDistanceLow /= 2;
-			fDistanceHigh /= 2;
-		}
+				fDistanceLow /= 2;
+				fDistanceHigh /= 2;
+			}
 		}
 
 		float fSlope = (fWeightHigh-fWeightLow) / (fDistanceHigh-fDistanceLow);

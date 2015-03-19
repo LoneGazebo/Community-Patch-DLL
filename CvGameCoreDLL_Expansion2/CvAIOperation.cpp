@@ -180,6 +180,14 @@ CvPlot* CvAIOperation::GetTargetPlot() const
 /// Set plot targeted by this operation
 void CvAIOperation::SetTargetPlot(CvPlot* pTarget)
 {
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	if (pTarget==NULL)
+	{
+		m_iTargetX = INVALID_PLOT_COORD;
+		m_iTargetY = INVALID_PLOT_COORD;
+		return;
+	}
+#endif
 	m_iTargetX = pTarget->getX();
 	m_iTargetY = pTarget->getY();
 }
@@ -195,6 +203,14 @@ CvPlot* CvAIOperation::GetMusterPlot() const
 /// Set plot where this operation assembles
 void CvAIOperation::SetMusterPlot(CvPlot* pMuster)
 {
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	if (pMuster==NULL)
+	{
+		m_iMusterX = INVALID_PLOT_COORD;
+		m_iMusterX = INVALID_PLOT_COORD;
+		return;
+	}
+#endif
 	m_iMusterX = pMuster->getX();
 	m_iMusterY = pMuster->getY();
 }
