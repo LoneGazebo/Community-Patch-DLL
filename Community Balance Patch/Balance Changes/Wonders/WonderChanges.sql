@@ -220,7 +220,7 @@ DELETE FROM Building_UnitCombatProductionModifiers
 WHERE BuildingType = 'BUILDING_KREMLIN' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Grants 1 free Policy, and enables you to select a Reformation Belief without the normal prerequisites. Must be built in a Holy City.'
+SET Text = 'Grants 1 free Social Policy, and enables you to select a Reformation Belief without the normal prerequisites. Must be built in a Holy City.'
 WHERE Tag = 'TXT_KEY_WONDER_KREMLIN_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US

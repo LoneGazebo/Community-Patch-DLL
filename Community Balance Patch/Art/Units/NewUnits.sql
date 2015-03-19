@@ -10,7 +10,7 @@ INSERT INTO Units (Type, Description, Civilopedia, Strategy, Help, Requirements,
 	FROM Units WHERE (Type = 'UNIT_BATTLESHIP');
 
 INSERT INTO Unit_AITypes (UnitType, UnitAIType)
-	SELECT 'UNIT_CRUISER', 'UNITAI_ASSAULT_SEA'
+	SELECT 'UNIT_CRUISER', UnitAIType
 	FROM Unit_AITypes WHERE (UnitType = 'UNIT_BATTLESHIP');
 
 INSERT INTO Unit_ClassUpgrades (UnitType, UnitClassType)

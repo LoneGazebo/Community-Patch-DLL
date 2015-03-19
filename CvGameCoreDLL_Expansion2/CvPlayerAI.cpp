@@ -1448,42 +1448,43 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveScientist(CvUnit* /*pGreatScie
 #if defined(MOD_BALANCE_CORE_MILITARY)
 GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveGeneral(CvUnit* pGreatGeneral)
 {
-	GreatPeopleDirectiveTypes eDirective = NO_GREAT_PEOPLE_DIRECTIVE_TYPE;
-
+	int iValue = 0;
+	MilitaryAIStrategyTypes eMobilization = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_WAR_MOBILIZATION");
+	MilitaryAIStrategyTypes eWar = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_AT_WAR");
+	CvPlot* pTargetPlot = FindBestGreatGeneralTargetPlot(pGreatGeneral, iValue);
 	SpecialUnitTypes eSpecialUnitGreatPerson = (SpecialUnitTypes) GC.getInfoTypeForString("SPECIALUNIT_PEOPLE");
 
 	int iGreatGeneralCount = 0;
 
-	//count how many generals we have in total
 	int iLoop;
 	for(CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit; pLoopUnit = nextUnit(&iLoop))
 	{
 		if(pLoopUnit->getSpecialUnitType() != eSpecialUnitGreatPerson)
+		{
 			continue;
+		}
 
 		if(pLoopUnit->IsGreatGeneral())
 		{
 			iGreatGeneralCount++;
 		}
 	}
-
-	//if this is an idle one, what we want it to do depends on the number we have
-	if( pGreatGeneral->GetGreatPeopleDirective() == NO_GREAT_PEOPLE_DIRECTIVE_TYPE )
+	//if this is an extra idle one, what we want it to do depends on the number we have
+	if(iGreatGeneralCount > 1 && (GetMilitaryAI()->IsUsingStrategy(eWar) || GetMilitaryAI()->IsUsingStrategy(eMobilization)))
 	{
-		assert( pGreatGeneral->plot()->getOwner() == pGreatGeneral->getOwner() );
-
-		if( iGreatGeneralCount < 3 )
-			//accompany an army
-			eDirective = GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
-		else
-			//build a citadel
-			eDirective = GREAT_PEOPLE_DIRECTIVE_USE_POWER;
-
-		return eDirective;
+		//accompany an army
+		return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
+	}
+	else if(pTargetPlot)
+	{
+		//build a citadel
+		return GREAT_PEOPLE_DIRECTIVE_USE_POWER;
 	}
 	else
+	{
 		// he should keep doing what he's doing
-		return pGreatGeneral->GetGreatPeopleDirective();
+		return NO_GREAT_PEOPLE_DIRECTIVE_TYPE;
+	}
 }
 
 #else
@@ -1596,13 +1597,11 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveProphet(CvUnit*)
 #if defined(MOD_BALANCE_CORE_MILITARY)
 GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveAdmiral(CvUnit* pGreatAdmiral)
 {
-	if( pGreatAdmiral->GetGreatPeopleDirective() == NO_GREAT_PEOPLE_DIRECTIVE_TYPE )
-	{
-		// idle ones become commanders
-		return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
-	}
+	MilitaryAIStrategyTypes eMobilization = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_WAR_MOBILIZATION");
+	MilitaryAIStrategyTypes eWar = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_AT_WAR");
+
 	//Should we consider using our heal?
-	else if(pGreatAdmiral->GetGreatPeopleDirective() == GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND)
+	if(pGreatAdmiral->GetGreatPeopleDirective() == GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND)
 	{
 		UnitHandle pUnit;
 		int iInjured = 0;
@@ -1634,9 +1633,18 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveAdmiral(CvUnit* pGreatAdmiral)
 			}
 		}
 	}
-	// he should keep doing what he's doing
-	return pGreatAdmiral->GetGreatPeopleDirective();
-
+	//if this is an idle one, what we want it to do depends on the number we have
+	else if(GetMilitaryAI()->IsUsingStrategy(eWar) || GetMilitaryAI()->IsUsingStrategy(eMobilization))
+	{
+		//accompany an army
+		return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
+	}
+	else
+	{
+		// he should keep doing what he's doing
+		return NO_GREAT_PEOPLE_DIRECTIVE_TYPE;
+	}
+	return NO_GREAT_PEOPLE_DIRECTIVE_TYPE;
 }
 
 #else

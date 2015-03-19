@@ -181,7 +181,7 @@
 		</Row>
 		<!-- Tooltip for War Weariness-->
 		<Row Tag="TXT_KEY_CO_OPINION_TT_UNHAPPINESS_WAR_WEARINESS">
-			<Text>[NEWLINE][NEWLINE]War Weariness is generating {1_Num} [ICON_HAPPINESS_4]</Text>
+			<Text>[NEWLINE][NEWLINE]War Weariness is generating {1_Num} [ICON_HAPPINESS_4][NEWLINE][NEWLINE]</Text>
 		</Row>
 		
 		<!-- Tooltip for Defensive Pacts -->

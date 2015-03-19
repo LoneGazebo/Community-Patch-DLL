@@ -3171,6 +3171,12 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 	{
 		if(IsGoingForWorldConquest())
 			viApproachWeights[MAJOR_CIV_APPROACH_WAR] += /*5*/ GC.getAPPROACH_WAR_CONQUEST_GRAND_STRATEGY();
+#if defined(MOD_BALANCE_CORE_DIPLOMACY)
+		else
+		{
+			viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (int)eWarState;
+		}
+#endif
 	}
 
 #if defined(MOD_DIPLOMACY_CITYSTATES)
@@ -3471,9 +3477,15 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 		viApproachWeights[MAJOR_CIV_APPROACH_GUARDED] += /*0*/ GC.getAPPROACH_GUARDED_MILITARY_THREAT_MINOR();
 		viApproachWeights[MAJOR_CIV_APPROACH_AFRAID] += /*1*/ GC.getAPPROACH_AFRAID_MILITARY_THREAT_MINOR();
 		viApproachWeights[MAJOR_CIV_APPROACH_FRIENDLY] += /*0*/ GC.getAPPROACH_FRIENDLY_MILITARY_THREAT_MINOR();
+#if defined(MOD_BALANCE_CORE_DIPLOMACY)
+		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += (/*2*/ GC.getAPPROACH_HOSTILE_MILITARY_THREAT_NONE() / 2);
+#endif
 		break;
 	case THREAT_NONE:
 		viApproachWeights[MAJOR_CIV_APPROACH_HOSTILE] += /*2*/ GC.getAPPROACH_HOSTILE_MILITARY_THREAT_NONE();
+#if defined(MOD_BALANCE_CORE_DIPLOMACY)
+		viApproachWeights[MAJOR_CIV_APPROACH_WAR] += /*2*/ GC.getAPPROACH_HOSTILE_MILITARY_THREAT_NONE();
+#endif
 		break;
 	}
 
@@ -3870,7 +3882,11 @@ MajorCivApproachTypes CvDiplomacyAI::GetBestApproachTowardsMajorCiv(PlayerTypes 
 		// Increase weights to hundreds to give us more fidelity
 		viApproachWeights[iApproachLoop] *= 100;
 
+#if defined(MOD_BALANCE_CORE_DIPLOMACY)
+		iRandAmount = viApproachWeights[iApproachLoop] * GetLoyalty();
+#else
 		iRandAmount = viApproachWeights[iApproachLoop] * /*15*/ GC.getAPPROACH_RANDOM_PERCENT();
+#endif
 
 		// If the amount is negative, only bad things can happen.  Plus, it's not likely we're going to pick this anyways
 		if(iRandAmount > 0)
@@ -6331,26 +6347,6 @@ void CvDiplomacyAI::DoUpdateWarStates()
 				{
 					iPercentHealthLeft = (pLoopCity->GetMaxHitPoints() - pLoopCity->getDamage()) * 100 / pLoopCity->GetMaxHitPoints();
 					iMyLocalMilitaryStrength += (pLoopCity->GetPower() * iPercentHealthLeft / 100 / 100);
-#if defined(MOD_BALANCE_CORE_DIPLOMACY)
-					//If any of our main cities are below 2/3 health, that probably means it is in danger, and we should consider this.
-					if(MOD_BALANCE_CORE_DIPLOMACY)
-					{
-						if(pLoopCity->getDamage() >= (pLoopCity->GetMaxHitPoints() / 3) && (!pLoopCity->IsPuppet() || (!pLoopCity->IsOccupied() && pLoopCity->IsNoOccupiedUnhappiness())))
-						{
-							iMyLocalMilitaryStrength -= pLoopCity->getDamage();
-						}
-						CvUnit* pGarrisonedUnit = pLoopCity->GetGarrisonedUnit();
-						//If a city lacks a garrison, subtract any damage it has from your value. These things should help pull the AI back from reckless attacks.
-						if(!pGarrisonedUnit)
-						{
-							iMyLocalMilitaryStrength -= pLoopCity->getDamage();
-						}
-						if(iMyLocalMilitaryStrength <= 0)
-						{
-							iMyLocalMilitaryStrength = 1;
-						}
-					}
-#endif
 				}
 
 				// Loop through our Enemy's Cities
@@ -6459,8 +6455,8 @@ void CvDiplomacyAI::DoUpdateWarStates()
 					}
 				}
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
-				//If the war is going well, but it is an overseas fight and we're outnumbered at sea, let's pull back.
-				if(MOD_BALANCE_CORE_DIPLOMACY && eWarState >= WAR_STATE_CALM)
+				//If the war isn't going well, is an overseas fight and we're outnumbered at sea, let's pull back.
+				if(MOD_BALANCE_CORE_DIPLOMACY && eWarState < WAR_STATE_STALEMATE)
 				{
 					CvCity *pCapital = GET_PLAYER(eLoopPlayer).getCapitalCity();
 					CvCity *MyCapital = GetPlayer()->getCapitalCity();
@@ -7451,6 +7447,12 @@ void CvDiplomacyAI::DoUpdateOnePlayerTargetValue(PlayerTypes ePlayer)
 				}
 			}
 		}
+	}
+#endif
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	if(GET_PLAYER(ePlayer).GetDiplomacyAI()->GetNumDefensePacts() > 0)
+	{
+		iTargetValue += (25 * GET_PLAYER(ePlayer).GetDiplomacyAI()->GetNumDefensePacts());
 	}
 #endif
 
