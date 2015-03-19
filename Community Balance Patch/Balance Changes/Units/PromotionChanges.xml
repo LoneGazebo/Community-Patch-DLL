@@ -2649,7 +2649,20 @@
 				<PediaEntry>TXT_KEY_PROMOTION_RECON_EXPERIENCE</PediaEntry>
 				<CannotBeChosen>true</CannotBeChosen>
 			</Row>
-			
+			<Row>
+				<Type>PROMOTION_ATLATL_ATTACK</Type>
+				<Description>TXT_KEY_PROMOTION_ATLATL_ATTACK</Description>
+				<Help>TXT_KEY_PROMOTION_ATLATL_ATTACK_HELP</Help>
+				<Sound>AS2D_IF_LEVELUP</Sound>
+				<CanMoveAfterAttacking>true</CanMoveAfterAttacking>
+				<ExtraAttacks>1</ExtraAttacks>
+				<PortraitIndex>59</PortraitIndex>
+				<LostWithUpgrade>true</LostWithUpgrade>
+				<IconAtlas>ABILITY_ATLAS</IconAtlas>
+				<PediaType>PEDIA_ATTRIBUTES</PediaType>
+				<PediaEntry>TXT_KEY_PROMOTION_ATLATL_ATTACK</PediaEntry>
+				<CannotBeChosen>true</CannotBeChosen>
+			</Row>
 		</UnitPromotions>
 	<UnitPromotions_CivilianUnitType>
 		<Row>
@@ -2697,7 +2710,7 @@
 		<Row>
 			<PromotionType>PROMOTION_NAVAL_MISFIRE</PromotionType>
 			<DomainType>DOMAIN_SEA</DomainType>
-			<Modifier>-33</Modifier>
+			<Modifier>-50</Modifier>
 		</Row>
 	</UnitPromotions_Domains>
 	<UnitPromotions_YieldFromKills>
@@ -2708,11 +2721,17 @@
 		</Row>
 	</UnitPromotions_YieldFromKills>
 	<Language_en_US>
+		<Row Tag="TXT_KEY_PROMOTION_ATLATL_ATTACK">
+			<Text>Atlatl Strike</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_ATLATL_ATTACK_HELP">
+			<Text>May attack twice.</Text>
+		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_NAVAL_MISFIRE">
 			<Text>Difficult Target</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_NAVAL_MISFIRE_HELP">
-			<Text>-33% [ICON_RANGE_STRENGTH] Ranged Strength vs. Naval units.</Text>
+			<Text>-50% [ICON_RANGE_STRENGTH] Ranged Strength vs. Naval units.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_MODERN_RANGED_PENALTY_I">
 			<Text>Covering Fire I</Text>

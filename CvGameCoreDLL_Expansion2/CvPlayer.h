@@ -540,7 +540,9 @@ public:
 	void ChangeExtraHappinessPerCity(int iChange);
 	int GetExtraHappinessPerXPolicies() const;
 	void ChangeExtraHappinessPerXPolicies(int iChange);
-
+#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+	int GetHappinessFromResourceMonopolies() const;
+#endif
 	int GetHappinessFromResources() const;
 	int GetHappinessFromResourceVariety() const;
 	int GetHappinessFromReligion();

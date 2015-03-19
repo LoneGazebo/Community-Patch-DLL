@@ -20,7 +20,7 @@ WHERE Tag = 'TXT_KEY_DIPLO_CULTURE_BOMB' AND EXISTS (SELECT * FROM COMMUNITY WHE
 
 -- Arabia -- Faith Instead of Luxury Doubling from Bazaar -- Units move faster in Desert -- Boosted Religion over Trade route spread.
 UPDATE Buildings
-SET ExtraLuxuries = 'false'
+SET ExtraLuxuries = '0'
 WHERE Type = 'BUILDING_BAZAAR' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US

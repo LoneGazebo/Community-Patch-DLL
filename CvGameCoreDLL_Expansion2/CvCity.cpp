@@ -10067,7 +10067,7 @@ void CvCity::DoJONSCultureLevelIncrease()
 					{
 						char text[256] = {0};
 						fDelay += 0.5f;
-						sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", pReligion->m_Beliefs.GetYieldPerBorderGrowth(YIELD_FAITH));
+						sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", pReligion->m_Beliefs.GetYieldPerBorderGrowth(YIELD_FAITH) * iEra);
 						DLLUI->AddPopupText(pPlotToAcquire->getX(),pPlotToAcquire->getY(), text, fDelay);
 					}
 				}
@@ -15074,6 +15074,20 @@ void CvCity::updateStrengthValue()
 	{
 		int iMaxHits = GC.getMAX_HIT_POINTS();
 		iStrengthFromUnits = pGarrisonedUnit->GetBaseCombatStrength() * 100 * (iMaxHits - pGarrisonedUnit->getDamage()) / iMaxHits;
+#if defined(MOD_BALANCE_CORE_MILITARY)
+		if(MOD_BALANCE_CORE_MILITARY)
+		{
+			CvPlot* pTarget = plot();
+			for(int iUnitLoop = 0; iUnitLoop < pTarget->getNumUnits(); iUnitLoop++)
+			{
+				if(pTarget->getUnitByIndex(iUnitLoop)->IsGreatGeneral() || pTarget->getUnitByIndex(iUnitLoop)->IsGreatAdmiral())
+				{
+					iStrengthFromUnits *= 2;
+					break;
+	}
+			}
+		}
+#endif
 	}
 
 	iStrengthValue += ((iStrengthFromUnits * 100) / /*300*/ GC.getCITY_STRENGTH_UNIT_DIVISOR());
@@ -17929,12 +17943,16 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 		else if(eBuildingType >= 0)
 		{
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
+			if(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
+			{
 			CvBuildingEntry* pGameBuilding = GC.getBuildingInfo(eBuildingType);
 			const BuildingClassTypes eBuildingClass = (BuildingClassTypes)(pGameBuilding->GetBuildingClassType());
 			SetBuildingInvestment(eBuildingClass, true);
-#else
+			}
+			else
+			{
+#endif
 			bResult = CreateBuilding(eBuildingType);
-
 #if defined(MOD_EVENTS_CITY)
 			if (MOD_EVENTS_CITY) {
 				GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityConstructed, getOwner(), GetID(), eBuildingType, true, false);
@@ -17959,6 +17977,8 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 
 			CleanUpQueue(); // cleans out items from the queue that may be invalidated by the recent construction
 			CvAssertMsg(bResult, "Unable to create building");
+#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
+			}
 #endif
 		}
 		else if(eProjectType >= 0)
@@ -18760,6 +18780,14 @@ bool CvCity::doCheckProduction()
 #if defined(MOD_BALANCE_CORE_WONDERS_VARIABLE_REWARD)
 						if(MOD_BALANCE_CORE_WONDERS_VARIABLE_REWARD && GC.getBALANCE_WONDER_BEATEN_CONSOLATION_PRIZE() != 0)
 						{
+#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
+							const BuildingClassTypes eWonderClass = (BuildingClassTypes)pkExpiredBuildingInfo->GetBuildingClassType();
+							if(MOD_BALANCE_CORE_BUILDING_INVESTMENTS && IsBuildingInvestment(eWonderClass))
+							{
+								iProductionGold *= 2;
+							}
+#endif
+							
 							if(GC.getBALANCE_WONDER_BEATEN_CONSOLATION_PRIZE() == 1)
 							{
 								//Wonders converted into Gold (default).
@@ -20538,6 +20566,17 @@ int CvCity::rangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bIncl
 
 	iAttackerStrength = getStrengthValue(true);
 
+#if defined(MOD_BALANCE_CORE)
+	//Cities should deal less raw damage to boats - helps naval siege units greatly.
+	if(pDefender != NULL)
+	{
+		if(pDefender->getDomainType() == DOMAIN_SEA)
+		{
+			iAttackerStrength *= /* 75 */ GC.getBALANCE_NAVAL_DEFENSE_CITY_STRIKE_MODIFIER();
+			iAttackerStrength /= 100;
+		}
+	}
+#endif
 	int iDefenderStrength;
 
 #ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS

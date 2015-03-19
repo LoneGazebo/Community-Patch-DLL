@@ -396,7 +396,9 @@ void CvTacticalAI::CommandeerUnits()
 			{
 				GreatPeopleDirectiveTypes eDirective = pLoopUnit->GetGreatPeopleDirective();
 				if (eDirective != GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND)
+				{
 					continue;
+				}
 			}
 #else
 		else if(!pLoopUnit->IsCombatUnit() && !pLoopUnit->IsGreatGeneral())
@@ -2418,11 +2420,7 @@ void CvTacticalAI::PlotMovesToSafety(bool bCombatUnits)
 			// Danger value of plot must be greater than 0
 			CvPlot* pPlot = pUnit->plot();
 
-#if defined(AUI_DANGER_PLOTS_REMADE)
-			iDangerLevel = m_pPlayer->GetPlotDanger(*pPlot,pUnit.pointer());
-#else
 			iDangerLevel = m_pPlayer->GetPlotDanger(*pPlot);
-#endif
 			if(iDangerLevel > 0)
 			{
 				bool bAddUnit = false;
@@ -7081,12 +7079,7 @@ void CvTacticalAI::ExecuteMovesToSafestPlot()
 					//   prefer being in your own territory with the lowest danger value
 					//   prefer the lowest danger value
 
-#if defined(AUI_DANGER_PLOTS_REMADE)
-					iDanger = m_pPlayer->GetPlotDanger(*pPlot,pUnit.pointer());
-#else
 					iDanger = m_pPlayer->GetPlotDanger(*pPlot);
-#endif
-
 					bool bIsZeroDanger = (iDanger <= 0);
 					bool bIsInCity = pPlot->isFriendlyCity(*pUnit, false);
 					bool bIsInCover = (pPlot->getNumDefenders(ePlayerID) > 0) && !pUnit->IsCanDefend(pPlot); // only move to cover if I'm defenseless here
@@ -8908,11 +8901,7 @@ void CvTacticalAI::ExecuteEscortEmbarkedMoves()
 				CvPlot *pTarget = pLoopUnit->plot();
 				if (TurnsToReachTarget(pUnit, pTarget) <= 1)
 				{
-#if defined(AUI_DANGER_PLOTS_REMADE)
-					int iDanger = m_pPlayer->GetPlotDanger(*pTarget,pUnit.pointer());
-#else
 					int iDanger = m_pPlayer->GetPlotDanger(*pTarget);
-#endif
 					if (iDanger > iHighestDanger)
 					{
 						iHighestDanger = iDanger;
@@ -8923,7 +8912,11 @@ void CvTacticalAI::ExecuteEscortEmbarkedMoves()
 
 			if (pBestTarget)
 			{
+#if defined(MOD_BALANCE_CORE_MILITARY)
+				ExecuteMoveToPlot(pUnit, pBestTarget, true);
+#else
 				ExecuteMoveToPlot(pUnit, pBestTarget);
+#endif
 #if defined(MOD_BALANCE_CORE)
 				//If we can shoot while doing this, do it!
 				if(pUnit && pUnit->IsCanAttackRanged() && !pUnit->isOutOfAttacks())
@@ -8947,9 +8940,8 @@ void CvTacticalAI::ExecuteEscortEmbarkedMoves()
 											strLogString.Format("%s escort bombarded city at, Current X: %d, Current Y: %d", pUnit->getName().GetCString(), pUnit->getX(), pUnit->getY());
 											LogTacticalMessage(strLogString, false);
 										}
-										break;
 									}
-									else if(pConsiderPlot->getNumUnits() > 0 && !pConsiderPlot->isWater() && (GET_TEAM(GET_PLAYER(pConsiderPlot->getUnitByIndex(0)->getOwner()).getTeam()).isAtWar(GET_PLAYER(pUnit->getOwner()).getTeam())) && (pUnit->canEverRangeStrikeAt(pConsiderPlot->getX(), pConsiderPlot->getY())))
+									if(!pUnit->isOutOfAttacks() && pConsiderPlot->getNumUnits() > 0 && !pConsiderPlot->isWater() && (GET_TEAM(GET_PLAYER(pConsiderPlot->getUnitByIndex(0)->getOwner()).getTeam()).isAtWar(GET_PLAYER(pUnit->getOwner()).getTeam())) && (pUnit->canEverRangeStrikeAt(pConsiderPlot->getX(), pConsiderPlot->getY())))
 									{
 										pUnit->PushMission(CvTypes::getMISSION_RANGE_ATTACK(), pConsiderPlot->getX(), pConsiderPlot->getY());
 										if(GC.getLogging() && GC.getAILogging())
@@ -8958,9 +8950,8 @@ void CvTacticalAI::ExecuteEscortEmbarkedMoves()
 											strLogString.Format("%s escort bombarded land unit at, Current X: %d, Current Y: %d", pUnit->getName().GetCString(), pUnit->getX(), pUnit->getY());
 											LogTacticalMessage(strLogString, false);
 										}
-										break;
 									}
-									else if(pConsiderPlot->getNumUnits() > 0 && pConsiderPlot->isWater() && (GET_TEAM(GET_PLAYER(pConsiderPlot->getUnitByIndex(0)->getOwner()).getTeam()).isAtWar(GET_PLAYER(pUnit->getOwner()).getTeam())) && (pUnit->canEverRangeStrikeAt(pConsiderPlot->getX(), pConsiderPlot->getY())))
+									if(!pUnit->isOutOfAttacks() && pConsiderPlot->getNumUnits() > 0 && pConsiderPlot->isWater() && (GET_TEAM(GET_PLAYER(pConsiderPlot->getUnitByIndex(0)->getOwner()).getTeam()).isAtWar(GET_PLAYER(pUnit->getOwner()).getTeam())) && (pUnit->canEverRangeStrikeAt(pConsiderPlot->getX(), pConsiderPlot->getY())))
 									{
 										pUnit->PushMission(CvTypes::getMISSION_RANGE_ATTACK(), pConsiderPlot->getX(), pConsiderPlot->getY());
 										if(GC.getLogging() && GC.getAILogging())
@@ -8969,13 +8960,13 @@ void CvTacticalAI::ExecuteEscortEmbarkedMoves()
 											strLogString.Format("%s escort bombarded water unit at, Current X: %d, Current Y: %d", pUnit->getName().GetCString(), pUnit->getX(), pUnit->getY());
 											LogTacticalMessage(strLogString, false);
 										}
-										break;
 									}
 								}
 							}
 						}
 					}		
 				}
+				pUnit->finishMoves();
 #endif
 				UnitProcessed(m_CurrentMoveUnits[iI].GetID());
 
@@ -8991,6 +8982,43 @@ void CvTacticalAI::ExecuteEscortEmbarkedMoves()
 }
 
 #if defined(MOD_AI_SMART_RANGED_UNITS)
+// Iterate through available plots and get the best one to later move at.
+void CvTacticalAI::GetBestPlot(CvPlot*& outputPlot, vector<CvPlot*> plotsToCheck)
+{
+	int minDanger = 0;
+	std::vector<CvPlot*>::iterator it;
+
+	for (it = plotsToCheck.begin(); it != plotsToCheck.end(); it++)
+	{
+		CvPlot* pPlot = (*it);
+		int currentDanger = m_pPlayer->GetPlotDanger(*pPlot);
+
+		if (minDanger == 0 || (currentDanger < minDanger))
+		{
+			outputPlot = pPlot;
+			minDanger = currentDanger;
+		}
+	}
+}
+
+// helper function to iterate vector that is of CvPlot Type.
+bool CvTacticalAI::ContainsPlot(vector<CvPlot*> plotData, CvPlot* plotXy)
+{
+	bool methodResult = false;
+	std::vector<CvPlot*>::iterator it;
+
+	for (it = plotData.begin(); it != plotData.end(); it++)
+	{
+		if (((*it)->getX() == plotXy->getX()) && ((*it)->getY() == plotXy->getY()))
+		{
+			methodResult = true;
+			break;
+		}
+	}
+
+	return methodResult;
+}
+
 // Get best plot of the array of possible plots, based on plot danger.
 CvPlot* CvTacticalAI::GetBestRepositionPlot(UnitHandle pUnit, CvPlot* plotTarget)
 {
@@ -11344,7 +11372,11 @@ void CvTacticalAI::MoveGreatGeneral(CvArmyAI* pArmyAI)
 
 		if(pGeneral)
 		{
+#if defined(MOD_BALANCE_CORE_MILITARY)
+			iRange = (pGeneral->maxMoves() * 2);
+#else
 			iRange = (pGeneral->maxMoves() * 3) / GC.getMOVE_DENOMINATOR();  // Enough to make a decent road move
+#endif
 			for(int iX = -iRange; iX <= iRange; iX++)
 			{
 				for(int iY = -iRange; iY <= iRange; iY++)
@@ -11938,11 +11970,7 @@ int CvTacticalAI::ScoreGreatGeneralPlot(UnitHandle pGeneral, CvPlot* pTarget, Cv
 	}
 
 	// Danger value
-#if defined(AUI_DANGER_PLOTS_REMADE)
-	iDangerValue = m_pPlayer->GetPlotDanger(*pTarget,pGeneral.pointer());
-#else
 	iDangerValue = m_pPlayer->GetPlotDanger(*pTarget);
-#endif
 	pBestDefender = pTarget->getBestDefender(m_pPlayer->GetID());
 
 	// Friendly city here?
@@ -12049,7 +12077,7 @@ int CvTacticalAI::ScoreGreatGeneralPlot(UnitHandle pGeneral, CvPlot* pTarget, Cv
 	else
 	{
 #if defined(MOD_BALANCE_CORE_MILITARY)
-		if(iDangerValue <= 0)
+		if(!pArmyAI && iDangerValue <= 0)
 		{
 #endif
 		iScore = 10;

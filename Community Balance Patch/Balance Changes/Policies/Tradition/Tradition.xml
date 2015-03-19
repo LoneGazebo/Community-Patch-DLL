@@ -16,6 +16,11 @@
 			<YieldType>YIELD_CULTURE</YieldType>
 			<Yield>25</Yield>
 		</Row>
+		<Row>
+			<PolicyType>POLICY_MONARCHY</PolicyType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>25</Yield>
+		</Row>
 	</Policy_CapitalYieldPerPopChanges>
 	<Policy_CityYieldChanges>
 		<Row>

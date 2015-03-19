@@ -1040,8 +1040,11 @@ void CvBarbarians::DoSpawnBarbarianUnit(CvPlot* pPlot, bool bIgnoreMaxBarbarians
 
 #if defined(MOD_BUGFIX_MINOR)
 				// Stop units from plundered trade routes ending up in the ocean
-				if (!pUnit->jumpToNearestValidPlot())
-					pUnit->kill(false);	// Could not find a valid spot!
+				if(bIgnoreMaxBarbarians)
+				{
+					if (!pUnit->jumpToNearestValidPlot())
+						pUnit->kill(false);	// Could not find a valid spot!
+				}
 #endif
 			}
 		}

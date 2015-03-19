@@ -13,7 +13,7 @@ SET Text = '+15% [ICON_STRENGTH] Combat Strength in enemy lands versus players t
 WHERE Tag = 'TXT_KEY_BELIEF_EVANGELISM' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Crusader Zeal'
+SET Text = 'Holy War'
 WHERE Tag = 'TXT_KEY_BELIEF_EVANGELISM_SHORT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Defender Faith
@@ -34,7 +34,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_RELIGIOUS_FERVOR_SHORT' AND EXISTS (SELECT * FROM CO
 
 -- Sacred Sites
 UPDATE Language_en_US
-SET Text = 'All buildings purchased with Faith provide 3 [ICON_TOURISM] Tourism each. Hermitage provides +10 [ICON_CULTURE] Culture and +10 [ICON_TOURISM] Tourism.'
+SET Text = 'All buildings purchased with Faith provide 2 [ICON_TOURISM] Tourism each. Hermitage provides +5 [ICON_CULTURE] Culture and +5 [ICON_TOURISM] Tourism.'
 WHERE Tag = 'TXT_KEY_BELIEF_SACRED_SITES' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Glory of God
@@ -51,7 +51,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_UNDERGROUND_SECT_SHORT' AND EXISTS (SELECT * FROM CO
 -- Unity of the Prophets (Now Knowledge Through Faith)
 
 UPDATE Language_en_US
-SET Text = 'Holy Sites produce +5 [ICON_RESEARCH] Science, Academies produce +5 [ICON_PEACE] Faith.'
+SET Text = 'Holy Sites produce +4 [ICON_RESEARCH] Science, Academies produce +4 [ICON_PEACE] Faith.'
 WHERE Tag = 'TXT_KEY_BELIEF_UNITY_OF_PROPHETS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US

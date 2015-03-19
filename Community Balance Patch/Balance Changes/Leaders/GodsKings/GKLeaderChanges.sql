@@ -236,7 +236,7 @@ WHERE CivilizationType = 'CIVILIZATION_SWEDEN' AND EXISTS (SELECT * FROM COMMUNI
 
 
 
--- Selassie -- Free Great Engineer at Industrialization
+-- Selassie -- Peace Treaty Bonuss
 UPDATE Traits
 SET GoldenAgeFromVictory = '10'
 WHERE Type = 'TRAIT_BONUS_AGAINST_TECH' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
@@ -245,6 +245,10 @@ UPDATE Language_en_US
 SET Text = 'Combat bonus (+20%) when fighting units from a Civilization with more Cities than Ethiopia. When you complete a favorable Peace Treaty, a [ICON_GOLDEN_AGE] Golden Age begins.'
 WHERE Tag = 'TXT_KEY_TRAIT_BONUS_AGAINST_TECH' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
+UPDATE Building_YieldChanges
+SET Yield = '1'
+WHERE BuildingType = 'BUILDING_STELE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
+ 
 -- Theodora -- Basilica UB (Replace Dromon)
 DELETE FROM Civilization_UnitClassOverrides
 WHERE UnitType = 'UNIT_BYZANTINE_DROMON' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );

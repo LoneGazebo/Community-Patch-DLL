@@ -4293,6 +4293,15 @@ CvUnit* CvPlayer::initNamedUnit(UnitTypes eUnit, const char* strKey, int iX, int
 	if (pkUnitDef == NULL)
 		return NULL;
 
+	if(strKey == NULL)
+		return NULL;
+
+	CvString strName = strKey;
+	if(GC.getGame().isGreatPersonBorn(strName))
+	{
+		return NULL;
+	}
+
 	CvUnit* pUnit = addUnit();
 	CvAssertMsg(pUnit != NULL, "Unit is not assigned a valid value");
 	if(NULL != pUnit)
@@ -13297,7 +13306,14 @@ void CvPlayer::DoUpdateHappiness()
 		m_iHappiness += iGameSpeedHappiness;
 	}
 #endif
-
+#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+	// Gamespeed Bonus level
+	if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+	{
+		int iMonpolyHappiness = GetHappinessFromResourceMonopolies();
+		m_iHappiness += iMonpolyHappiness;
+	}
+#endif
 	// Increase from Luxury Resources
 	int iNumHappinessFromResources = GetHappinessFromResources();
 	m_iHappiness += iNumHappinessFromResources;
@@ -14271,7 +14287,26 @@ void CvPlayer::ChangeExtraHappinessPerXPolicies(int iChange)
 	if(iChange != 0)
 		m_iHappinessPerXPolicies += iChange;
 }
-
+#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+int CvPlayer::GetHappinessFromResourceMonopolies() const
+{
+	int iTotalHappiness = 0;
+	// Do we get increased Happiness from a resource monopoly?
+	for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+	{
+		ResourceTypes eResourceLoop = (ResourceTypes) iResourceLoop;
+		CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
+		if (pInfo && pInfo->isMonopoly())
+		{
+			if(HasMonopoly(eResourceLoop) && pInfo->getMonopolyHappiness() > 0)
+			{
+				iTotalHappiness += pInfo->getMonopolyHappiness();
+			}
+		}
+	}
+	return iTotalHappiness;
+}
+#endif
 //	--------------------------------------------------------------------------------
 /// Total amount of Happiness gained from Resources
 int CvPlayer::GetHappinessFromResources() const
@@ -14300,24 +14335,6 @@ int CvPlayer::GetHappinessFromResources() const
 			iTotalHappiness += GetExtraHappinessPerLuxury();
 		}
 	}
-#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
-	// Do we get increased Happiness from a resource monopoly?
-	if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
-	{
-		for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
-		{
-			ResourceTypes eResourceLoop = (ResourceTypes) iResourceLoop;
-			CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
-			if (pInfo && pInfo->isMonopoly())
-			{
-				if(HasMonopoly(eResourceLoop) && pInfo->getMonopolyHappiness() > 0)
-				{
-					iTotalHappiness += pInfo->getMonopolyHappiness();
-				}
-			}
-		}
-	}
-#endif
 
 	// Happiness bonus for multiple Resource types
 	iTotalHappiness += GetHappinessFromResourceVariety();
@@ -26617,7 +26634,6 @@ CvAIOperation* CvPlayer::addAIOperation(int OperationType, PlayerTypes eEnemy, i
 	}
 	return pNewOperation;
 }
-
 
 //	--------------------------------------------------------------------------------
 void CvPlayer::deleteAIOperation(int iID)

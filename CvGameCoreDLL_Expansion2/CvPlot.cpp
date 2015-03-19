@@ -12821,7 +12821,7 @@ int CvPlot::GetDefenseBuildValue()
 		}
 
 		//only build a fort if it's somewhat close to the enemy and there aren't forts nearby. We shouldn't be spamming them.
-		if (iNearbyOwned == 0 || iAdjacentForts)
+		if (iNearbyOwned == 0 || (iAdjacentForts > 2))
 		{
 			return 0;
 		}

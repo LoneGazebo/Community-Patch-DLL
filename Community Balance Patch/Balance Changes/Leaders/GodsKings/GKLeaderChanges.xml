@@ -95,7 +95,7 @@
 	<Unit_FreePromotions>
 		<Row>
 			<UnitType>UNIT_MAYAN_ATLATLIST</UnitType>
-			<PromotionType>PROMOTION_SECOND_ATTACK</PromotionType>
+			<PromotionType>PROMOTION_ATLATL_ATTACK</PromotionType>
 		</Row>
 	</Unit_FreePromotions>
 </GameData>

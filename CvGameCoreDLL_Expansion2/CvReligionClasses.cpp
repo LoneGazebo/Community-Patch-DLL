@@ -2694,7 +2694,41 @@ bool CvGameReligions::CheckSpawnGreatProphet(CvPlayer& kPlayer)
 	}
 	else
 	{
+#if defined(MOD_BALANCE_CORE_BELIEFS)
+		//Random GP spawn/holy city.
+		CvCity* pBestCity = NULL;
+		if(MOD_BALANCE_CORE_BELIEFS)
+		{		
+			int iBestWeight = 0;
+
+			int iTempWeight;
+
+			CvCity* pLoopCity;
+			int iLoop;
+			CvGame& theGame = GC.getGame();
+			for(pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
+			{
+				iTempWeight = pLoopCity->GetFaithPerTurn() * 5;
+				iTempWeight += theGame.getJonRandNum(15, "Faith rand weight.");
+
+				if(iTempWeight > iBestWeight)
+				{
+					iBestWeight = iTempWeight;
+					pBestCity = pLoopCity;
+				}
+			}
+		}
+		if(pBestCity != NULL)
+		{
+			pSpawnCity = pBestCity;
+		}
+		else
+		{
+#endif
 		pSpawnCity = kPlayer.getCapitalCity();
+#if defined(MOD_BALANCE_CORE_BELIEFS)
+		}
+#endif
 		if(pSpawnCity != NULL)
 		{
 #if defined(MOD_BUGFIX_MINOR)

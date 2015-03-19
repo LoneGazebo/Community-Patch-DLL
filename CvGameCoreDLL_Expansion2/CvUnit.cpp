@@ -453,13 +453,14 @@ void CvUnit::initWithSpecificName(int iID, UnitTypes eUnit, const char* strKey, 
 
 	if(strKey != NULL)
 	{
+		CvString strName = strKey;
 		int iNumNames = getUnitInfo().GetNumUnitNames();
 		//Look for units from previous and current eras.
 		for(iI = 0; iI < iNumNames; iI++)
 		{
-			if(getUnitInfo().GetUnitNames(iI) == strKey)
+			CvString strOtherName = getUnitInfo().GetUnitNames(iI);
+			if(strOtherName == strName)
 			{
-				CvString strName = getUnitInfo().GetUnitNames(iI);	
 				setName(strName);
 				SetGreatWork(getUnitInfo().GetGreatWorks(iI));
 				GC.getGame().addGreatPersonBornName(strName);
@@ -6819,7 +6820,12 @@ bool CvUnit::canHeal(const CvPlot* pPlot, bool bTestVisible) const
 	{
 		return false;
 	}
-
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	if(GetStrategicResourceCombatPenalty() > 0)
+	{
+		return false;
+	}
+#endif
 	if(isWaiting())
 	{
 		return false;
@@ -18250,13 +18256,13 @@ if (!bDoEvade)
 		// No longer on terrain that provides free promotions?
 		for(iI = 0; iI < GC.getNumTerrainInfos(); iI++)
 		{
-			const TerrainTypes eTerrain = static_cast<TerrainTypes>(iI);
-			CvTerrainInfo* pkTerrainInfo = GC.getTerrainInfo(eTerrain);
+			const TerrainTypes eNeededTerrain = static_cast<TerrainTypes>(iI);
+			CvTerrainInfo* pkTerrainInfo = GC.getTerrainInfo(eNeededTerrain);
 			if(pkTerrainInfo)
 			{
-				if(eTerrain != pNewPlot->getTerrainType())
+				if(eNeededTerrain != pNewPlot->getTerrainType())
 				{
-					PromotionTypes ePromotion = (PromotionTypes)GC.getTerrainInfo(eTerrain)->getLocationUnitFreePromotion();
+					PromotionTypes ePromotion = (PromotionTypes)GC.getTerrainInfo(eNeededTerrain)->getLocationUnitFreePromotion();
 					if(ePromotion != NO_PROMOTION)
 					{
 						CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(ePromotion);
@@ -18269,7 +18275,7 @@ if (!bDoEvade)
 						}
 					}
 				}
-				if(!pNewPlot->isHills())
+				if(!pNewPlot->isHills() && eNeededTerrain == TERRAIN_HILL)
 				{
 					PromotionTypes ePromotion = (PromotionTypes)GC.getTerrainInfo(TERRAIN_HILL)->getLocationUnitFreePromotion();
 					if(ePromotion != NO_PROMOTION)
@@ -18284,7 +18290,7 @@ if (!bDoEvade)
 						}
 					}
 				}
-				if(!pNewPlot->isMountain())
+				if(!pNewPlot->isMountain() && eNeededTerrain == TERRAIN_MOUNTAIN)
 				{
 					PromotionTypes ePromotion = (PromotionTypes)GC.getTerrainInfo(TERRAIN_MOUNTAIN)->getLocationUnitFreePromotion();
 					if(ePromotion != NO_PROMOTION)
@@ -18304,13 +18310,13 @@ if (!bDoEvade)
 		//No longer on feature that provides free promotions?
 		for(iI = 0; iI < GC.getNumFeatureInfos(); iI++)
 		{
-			const FeatureTypes eFeature = static_cast<FeatureTypes>(iI);
-			CvFeatureInfo* pkFeatureInfo = GC.getFeatureInfo(eFeature);
+			const FeatureTypes eNeededFeature = static_cast<FeatureTypes>(iI);
+			CvFeatureInfo* pkFeatureInfo = GC.getFeatureInfo(eNeededFeature);
 			if(pkFeatureInfo)
 			{
-				if(eFeature != pNewPlot->getFeatureType())
+				if(eNeededFeature != pNewPlot->getFeatureType())
 				{
-					PromotionTypes ePromotion = (PromotionTypes)GC.getFeatureInfo(eFeature)->getLocationUnitFreePromotion();
+					PromotionTypes ePromotion = (PromotionTypes)GC.getFeatureInfo(eNeededFeature)->getLocationUnitFreePromotion();
 					if(ePromotion != NO_PROMOTION)
 					{
 						CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(ePromotion);

@@ -25,5 +25,5 @@ WHERE Tag = 'TXT_KEY_POLICY_CULTURAL_DIPLOMACY_HELP' AND EXISTS (SELECT * FROM C
 
 -- Merchant Confederacy
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Merchant Confederacy[ENDCOLOR][NEWLINE]+1 [ICON_GOLD] Gold and +1 [ICON_INFLUENCE] Influence (per turn) for each [ICON_INTERNATIONAL_TRADE] Trade Route with a City-State.'
+SET Text = '[COLOR_POSITIVE_TEXT]Merchant Confederacy[ENDCOLOR][NEWLINE]+3 [ICON_GOLD] Gold from [ICON_INTERNATIONAL_TRADE] Trade Routes with City-States. Gain +1 [ICON_INFLUENCE] Influence (per turn) with City-States that you have a [ICON_INTERNATIONAL_TRADE] Trade Route with.'
 WHERE Tag = 'TXT_KEY_POLICY_MERCHANT_CONFEDERACY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );

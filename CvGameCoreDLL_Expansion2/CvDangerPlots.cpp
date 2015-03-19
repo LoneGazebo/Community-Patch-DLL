@@ -1478,7 +1478,10 @@ int CvDangerPlotContents::GetDanger(CvUnit* pUnit, int iAirAction, int iAfterNIn
 		}
 
 #ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
-		iPlotDamage += (*it)->rangeCombatDamage(pUnit, NULL, false, m_pPlot);
+		if((*it)->GetID() != -1)
+		{
+			iPlotDamage += (*it)->rangeCombatDamage(pUnit, NULL, false, m_pPlot);
+		}
 #else
 		iPlotDamage += (*it)->rangeCombatDamage(pUnit, NULL, false);
 #endif

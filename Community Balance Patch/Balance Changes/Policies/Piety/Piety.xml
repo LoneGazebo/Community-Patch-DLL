@@ -51,31 +51,19 @@
 			<YieldType>YIELD_FAITH</YieldType>
 			<YieldChange>2</YieldChange>
 		</Row>
-		<Row>
-			<PolicyType>POLICY_ORGANIZED_RELIGION</PolicyType>
-			<BuildingClassType>BUILDINGCLASS_SHRINE</BuildingClassType>
-			<YieldType>YIELD_FOOD</YieldType>
-			<YieldChange>2</YieldChange>
-		</Row>
-		<Row>
-			<PolicyType>POLICY_ORGANIZED_RELIGION</PolicyType>
-			<BuildingClassType>BUILDINGCLASS_TEMPLE</BuildingClassType>
-			<YieldType>YIELD_FOOD</YieldType>
-			<YieldChange>2</YieldChange>
-		</Row>
 	</Policy_BuildingClassYieldChanges>
 	<Policy_ReligionBuildingYieldMod>
 		<Row>
 			<PolicyType>POLICY_MANDATE_OF_HEAVEN</PolicyType>
 			<BuildingClassType>BUILDINGCLASS_MARKET</BuildingClassType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<YieldMod>3</YieldMod>
+			<YieldMod>2</YieldMod>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_MANDATE_OF_HEAVEN</PolicyType>
 			<BuildingClassType>BUILDINGCLASS_TEMPLE</BuildingClassType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<YieldMod>3</YieldMod>
+			<YieldMod>2</YieldMod>
 		</Row>
 	</Policy_ReligionBuildingYieldMod>
 	<Policy_ReligionYieldMod>
@@ -87,7 +75,7 @@
 		<Row>
 			<PolicyType>POLICY_THEOCRACY</PolicyType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Yield>4</Yield>
+			<Yield>2</Yield>
 		</Row>
 	</Policy_ReligionYieldMod>
 	<Policy_SpecialistExtraYields>

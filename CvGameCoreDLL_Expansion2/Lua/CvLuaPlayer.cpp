@@ -339,6 +339,9 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(ChangeExtraHappinessPerCity);
 
 	Method(GetHappinessFromResources);
+#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+	Method(GetHappinessFromResourceMonopolies);
+#endif
 	Method(GetHappinessFromResourceVariety);
 	Method(GetExtraHappinessPerLuxury);
 	Method(GetHappinessFromReligion);
@@ -3327,7 +3330,14 @@ int CvLuaPlayer::lGetHappinessFromResources(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvPlayerAI::GetHappinessFromResources);
 }
-
+#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+//------------------------------------------------------------------------------
+//int GetHappinessFromResourceMonopolies() const;
+int CvLuaPlayer::lGetHappinessFromResourceMonopolies(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlayerAI::GetHappinessFromResourceMonopolies);
+}
+#endif
 //------------------------------------------------------------------------------
 //int GetHappinessFromResourceVariety() const;
 int CvLuaPlayer::lGetHappinessFromResourceVariety(lua_State* L)

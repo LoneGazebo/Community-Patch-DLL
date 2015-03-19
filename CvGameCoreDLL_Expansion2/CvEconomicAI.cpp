@@ -2051,23 +2051,25 @@ void CvEconomicAI::DoHurry()
 				
 										//and build it!
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
+										if(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
+										{
 										const BuildingClassTypes eBuildingClass = (BuildingClassTypes)(pkBuildingInfo->GetBuildingClassType());
 										pLoopCity->SetBuildingInvestment(eBuildingClass, true);
-#else
-										pLoopCity->CreateBuilding(eBuildingType);
+										}
+										else
+										{
 #endif
+										pLoopCity->CreateBuilding(eBuildingType);
 										pLoopCity->SetPurchaseCooldown(pkBuildingEntry->GetCooldown());
-#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
-#else										
 #if defined(MOD_EVENTS_CITY)
-										if (MOD_EVENTS_CITY) {
+										if (MOD_EVENTS_CITY) 
+										{
 											GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityConstructed, pLoopCity->getOwner(), pLoopCity->GetID(), eBuildingType, true, false);
 										}
 #endif
-#endif
-#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
-#else
 										pLoopCity->CleanUpQueue();
+#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
+										}
 #endif
 									}
 								}
