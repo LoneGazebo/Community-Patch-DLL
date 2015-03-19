@@ -23674,6 +23674,13 @@ void CvPlayer::DoUpdateProximityToPlayer(PlayerTypes ePlayer)
 	{
 		iAverageDistanceBetweenCities /= iNumCityConnections;
 
+#if defined(MOD_BALANCE_CORE_DIPLOMACY)
+		if(GC.getMap().GetAIMapHint() & 1)
+		{
+			iSmallestDistanceBetweenCities /= 2;
+		}
+#endif
+
 		// Closest Cities must be within a certain range
 		if(iSmallestDistanceBetweenCities <= /*7*/ GC.getPROXIMITY_NEIGHBORS_CLOSEST_CITY_REQUIREMENT())
 		{

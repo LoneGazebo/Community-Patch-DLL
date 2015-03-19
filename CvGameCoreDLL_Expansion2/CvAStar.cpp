@@ -3167,6 +3167,25 @@ CvPlot* CvStepPathFinder::GetXPlotsFromEnd(PlayerTypes ePlayer, PlayerTypes eEne
 						// Move to the previous plot on the path
 						pNode = pNode->m_pParent;
 						currentPlot = kMap.plotUnchecked(pNode->m_iX, pNode->m_iY);
+#if defined(MOD_BALANCE_CORE)
+						CvPlot* pAdjacentPlot = NULL;
+						if(currentPlot != NULL)
+						{
+							if(currentPlot->isImpassable())
+							{
+								// Find an adjacent tile
+								for(int iDirectionLoop = 0; iDirectionLoop < NUM_DIRECTION_TYPES; ++iDirectionLoop)
+								{
+									pAdjacentPlot = plotDirection(currentPlot->getX(), currentPlot->getY(), ((DirectionTypes)iDirectionLoop));
+									if(pAdjacentPlot != NULL && !pAdjacentPlot->isImpassable())
+									{
+										currentPlot = pAdjacentPlot;
+										break;
+									}
+								}
+							}
+						}
+#endif
 					}
 					else
 					{

@@ -1,0 +1,23 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# ModBuddy Solution File, Format Version 11.00
+Project("{F5FC21B5-7CC2-458A-ABBA-992F515BBA20}") = "No-EUI CBP Compatibility", "Mod Template1\No-EUI CBP Compatibility.civ5proj", "{63283AEA-F6AD-4004-8FBD-639E69D54803}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Default|x86 = Default|x86
+		Deploy Only|x86 = Deploy Only|x86
+		Package Only|x86 = Package Only|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{63283AEA-F6AD-4004-8FBD-639E69D54803}.Default|x86.ActiveCfg = Default|x86
+		{63283AEA-F6AD-4004-8FBD-639E69D54803}.Default|x86.Build.0 = Default|x86
+		{63283AEA-F6AD-4004-8FBD-639E69D54803}.Deploy Only|x86.ActiveCfg = Deploy Only|x86
+		{63283AEA-F6AD-4004-8FBD-639E69D54803}.Deploy Only|x86.Build.0 = Deploy Only|x86
+		{63283AEA-F6AD-4004-8FBD-639E69D54803}.Package Only|x86.ActiveCfg = Package Only|x86
+		{63283AEA-F6AD-4004-8FBD-639E69D54803}.Package Only|x86.Build.0 = Package Only|x86
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

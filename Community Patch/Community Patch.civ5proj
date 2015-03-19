@@ -7,7 +7,7 @@
     <Guid>d1b6328c-ff44-4b0d-aad7-c657f83610cd</Guid>
     <ModVersion>66</ModVersion>
     <Stability>Beta</Stability>
-    <Teaser>Unofficial DLL Bugfix and AI Patch for Civ V (3/14)</Teaser>
+    <Teaser>Unofficial DLL Bugfix and AI Patch for Civ V (3/19)</Teaser>
     <Description>Contains core AI improvements and bugfixes for the Civ 5 BNW DLL. Also contains support for Whoward's PNM Mods as well as the Community Balance Patch.</Description>
     <Authors>The Community Patch Team</Authors>
     <SpecialThanks>
@@ -83,6 +83,11 @@
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
         <FileName>Core Files/Core Tables/CoreTableEntries.sql</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>Core Files/Core Values/Artificial Unintelligence/New_CIV5MultiUnitFormations.xml</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
@@ -387,11 +392,6 @@
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <FileName>Core Files/Core Values/Artificial Unintelligence/New_CIV5MultiUnitFormations.xml</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
         <FileName>Core Files/Core Values/Artificial Unintelligence/New_GlobalAIDefines.xml</FileName>
       </Action>
       <Action>
@@ -459,7 +459,6 @@
     <Folder Include="Core Files\PNM Mods DB\CONFIG\" />
     <Folder Include="Core Files\PNM Mods DB\EVENTS\" />
     <Folder Include="Core Files\PNM Mods DB\GLOBAL\" />
-    <Folder Include="Core Files\PNM Mods DB\InGame\" />
     <Folder Include="Core Files\PNM Mods DB\DIPLO" />
     <Folder Include="Core Files\PNM Mods DB\SMART" />
     <Folder Include="Core Files\PNM Mods DB\PROMOTIONS\" />
@@ -764,14 +763,6 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
-    <Content Include="Core Files\PNM Mods DB\InGame\YieldIconManager.lua">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
-    <Content Include="Core Files\PNM Mods DB\InGame\YieldIconManager.xml">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
     <Content Include="Core Files\PNM Mods DB\PROMOTIONS\CrossIce.sql">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
@@ -867,6 +858,14 @@
     <Content Include="LUA\ProductionPopup.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="LUA\YieldIconManager.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="LUA\YieldIconManager.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Firaxis\ModBuddy\Civ5Mod.targets" />

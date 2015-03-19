@@ -3026,6 +3026,7 @@ int CvPlayerEspionage::CalcPerTurn(int iSpyState, CvCity* pCity, int iSpyIndex)
 #if defined(MOD_BALANCE_CORE_SPIES)
 			int iBaseYieldRate = pCity->getYieldRateTimes100(YIELD_SCIENCE, false);
 			iBaseYieldRate += pCity->getYieldRateTimes100(YIELD_GOLD, false);
+			iBaseYieldRate -= (pCity->getStrengthValue(false) / 2);
 #else
 			int iBaseYieldRate = pCity->getYieldRateTimes100(YIELD_SCIENCE, false);
 #endif	

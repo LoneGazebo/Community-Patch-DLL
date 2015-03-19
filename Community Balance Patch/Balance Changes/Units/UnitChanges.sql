@@ -66,7 +66,7 @@
 -- LAND
 	-- Samurai
 	UPDATE Units
-	SET Combat = '28'
+	SET Combat = '24'
 	WHERE Type = 'UNIT_JAPANESE_SAMURAI' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	-- Change Name of Great War Infantry/Bomber to be more 'generic'

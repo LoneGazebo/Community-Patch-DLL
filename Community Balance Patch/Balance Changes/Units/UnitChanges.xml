@@ -134,7 +134,7 @@
 			<UnitType>UNIT_SIAMESE_WARELEPHANT</UnitType>
 			<PromotionType>PROMOTION_FEARED_ELEPHANT</PromotionType>
 		</Row>
-		<!-- Promotinos for Scout -->
+		<!-- Promotions for Scout -->
 		<Row>
 			<UnitType>UNIT_SCOUT</UnitType>
 			<PromotionType>PROMOTION_RECON_EXPERIENCE</PromotionType>
@@ -142,6 +142,11 @@
 		<Row>
 			<UnitType>UNIT_SHOSHONE_PATHFINDER</UnitType>
 			<PromotionType>PROMOTION_RECON_EXPERIENCE</PromotionType>
+		</Row>
+		<!-- Promotion for Samurai-->
+		<Row>
+			<UnitType>UNIT_JAPANESE_SAMURAI</UnitType>
+			<PromotionType>PROMOTION_GAIN_EXPERIENCE</PromotionType>
 		</Row>
 	</Unit_FreePromotions>
 	<Unit_AITypes>

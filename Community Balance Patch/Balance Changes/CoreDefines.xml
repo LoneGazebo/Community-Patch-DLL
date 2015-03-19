@@ -137,11 +137,6 @@
 			<!-- 25 -->
 		</Update>
 		<Update>
-			<Where Name="STRATEGIC_RESOURCE_EXHAUSTED_PENALTY" />
-			<Set Value="-15" />
-			<!-- -50 -->
-		</Update>
-		<Update>
 			<Where Name="CITY_STRENGTH_DEFAULT" />
 			<Set Value="400" />
 			<!-- 800 -->

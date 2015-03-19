@@ -729,7 +729,17 @@ public:
 
 	CvAINavalOperation();
 	virtual ~CvAINavalOperation();
-
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	virtual int GetOperationType() const
+	{
+		return AI_OPERATION_NAVAL_ATTACK;
+	}
+	virtual CvString GetOperationName() const
+	{
+		return CvString("AI_OPERATION_NAVAL_ATTACK");
+	}
+	virtual bool ShouldAbort();
+#endif
 	virtual void Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, int iDefaultArea = -1, CvCity* pTarget = NULL, CvCity* pMuster = NULL) = 0;
 	virtual void Read(FDataStream& kStream);
 	virtual void Write(FDataStream& kStream) const;
@@ -1022,11 +1032,29 @@ protected:
 //  CLASS:      CvAIOperationNavalSneakAttack
 //!  \brief		Same as basic naval attack except allowed when not at war
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#if defined(MOD_BALANCE_CORE_MILITARY)
+class CvAIOperationNavalSneakAttack : public CvAINavalEscortedOperation
+#else
 class CvAIOperationNavalSneakAttack : public CvAIOperationNavalAttack
+#endif
 {
 public:
 	CvAIOperationNavalSneakAttack();
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	virtual ~CvAIOperationNavalSneakAttack();
 
+	virtual void Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, int iDefaultArea = -1, CvCity* pTarget = NULL, CvCity* pMuster = NULL);
+	virtual void Read(FDataStream& kStream);
+	virtual void Write(FDataStream& kStream) const;
+	virtual CvCity* GetOperationStartCity() const;
+	virtual bool IsCivilianRequired() const
+	{
+		return false;
+	};
+
+	virtual bool ArmyInPosition(CvArmyAI* pArmy);
+	virtual void UnitWasRemoved(int iArmyID, int iSlotID);
+#endif
 	virtual int GetOperationType() const
 	{
 		return AI_OPERATION_NAVAL_SNEAK_ATTACK;
@@ -1045,11 +1073,29 @@ public:
 //  CLASS:      CvAIOperationNavalCityStateAttack
 //!  \brief		Same as basic naval attack except allowed when not at war
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+#if defined(MOD_BALANCE_CORE_MILITARY)
+class CvAIOperationNavalCityStateAttack : public CvAINavalEscortedOperation
+#else
 class CvAIOperationNavalCityStateAttack : public CvAIOperationNavalAttack
+#endif
 {
 public:
 	CvAIOperationNavalCityStateAttack();
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	virtual ~CvAIOperationNavalCityStateAttack();
 
+	virtual void Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, int iDefaultArea = -1, CvCity* pTarget = NULL, CvCity* pMuster = NULL);
+	virtual void Read(FDataStream& kStream);
+	virtual void Write(FDataStream& kStream) const;
+	virtual CvCity* GetOperationStartCity() const;
+	virtual bool IsCivilianRequired() const
+	{
+		return false;
+	};
+
+	virtual bool ArmyInPosition(CvArmyAI* pArmy);
+	virtual void UnitWasRemoved(int iArmyID, int iSlotID);
+#endif
 	virtual int GetOperationType() const
 	{
 		return AI_OPERATION_CITY_STATE_NAVAL_ATTACK;

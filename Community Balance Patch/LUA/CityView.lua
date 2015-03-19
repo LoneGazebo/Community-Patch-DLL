@@ -881,7 +881,7 @@ function OnCityViewUpdate()
 			iResistanceUnhappiness = (pCity:GetPopulation() / 4);
 		end
 		local iOccupationUnhappiness = 0;
-		if(pCity:IsOccupied()) then
+		if(pCity:IsOccupied() and not pCity:IsNoOccupiedUnhappiness()) then
 			iOccupationUnhappiness = (pCity:GetPopulation() * GameDefines.UNHAPPINESS_PER_OCCUPIED_POPULATION);
 		end
 			

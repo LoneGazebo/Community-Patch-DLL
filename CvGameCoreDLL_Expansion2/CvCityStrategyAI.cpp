@@ -837,7 +837,12 @@ void CvCityStrategyAI::ChooseProduction(bool bUseAsyncRandom, BuildingTypes eIgn
 		{
 			iTempWeight *= 5;
 		}
-
+#if defined(MOD_BALANCE_CORE)
+		if(GetCity()->getFreeExperience() > 0)
+		{
+			iTempWeight *= GetCity()->getFreeExperience();
+		}
+#endif
 		// add in the weight of this unit as if I were deciding to build it without having a reason
 		iTempWeight += m_pUnitProductionAI->GetWeight(eUnitForOperation);
 
@@ -918,7 +923,7 @@ void CvCityStrategyAI::ChooseProduction(bool bUseAsyncRandom, BuildingTypes eIgn
 				const BuildingClassTypes eBuildingClass = (BuildingClassTypes)(pkBuildingInfo->GetBuildingClassType());
 				if(GetCity()->IsBuildingInvestment(eBuildingClass))
 				{
-					iTempWeight *= 4;
+					iTempWeight *= 10;
 				}
 			}
 #endif

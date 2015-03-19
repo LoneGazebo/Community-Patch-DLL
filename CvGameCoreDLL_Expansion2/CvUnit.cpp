@@ -803,141 +803,141 @@ void CvUnit::initWithSpecificName(int iID, UnitTypes eUnit, const char* strKey, 
 					}
 				}
 			}
-		}
-		// Starting terrain that provides free promotions?
-		TerrainTypes eAdjacentTerrain = pAdjacentPlot->getTerrainType();
-		if(eAdjacentTerrain != NO_TERRAIN)
-		{
-			PromotionTypes ePromotion = (PromotionTypes)GC.getTerrainInfo(eAdjacentTerrain)->getAdjacentSpawnLocationUnitFreePromotion();
-			if(ePromotion != NO_PROMOTION)
-			{
-				CvPromotionEntry* pkOriginalPromotionInfo = GC.getPromotionInfo(ePromotion);
-				if(pkOriginalPromotionInfo && m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT && (::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
-				{
-					bool bNoPromotion = false;
-					// Check for negating promotions
-					if(pkOriginalPromotionInfo->IsBarbarianOnly() && !isBarbarian())
-					{
-						bNoPromotion = true;
-					}
-					if(pkOriginalPromotionInfo->IsCityStateOnly() && !GET_PLAYER(getOwner()).isMinorCiv())
-					{
-						bNoPromotion = true;
-					}
-					if(!bNoPromotion)
-					{
-						for(int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
-						{
-							const PromotionTypes eNegatingPromotion = static_cast<PromotionTypes>(iI);
-							CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(eNegatingPromotion);
-							if(pkPromotionInfo)
-							{
-								PromotionTypes eNegatorPromotion = (PromotionTypes)pkPromotionInfo->NegatesPromotion();
-								// Unit has negation promotion
-								if(isHasPromotion(eNegatingPromotion) && ePromotion == eNegatorPromotion)
-								{
-									bNoPromotion = true;
-									break;
-								}
-							}
-						}
-					}
-					if(!bNoPromotion)
-					{
-						setHasPromotion(ePromotion, true);
-					}
-				}
-			}
-		}
+
 			// Starting terrain that provides free promotions?
-		if(pAdjacentPlot->isHills())
-		{
-			PromotionTypes ePromotion = (PromotionTypes)GC.getTerrainInfo(TERRAIN_HILL)->getSpawnLocationUnitFreePromotion();
-			if(ePromotion != NO_PROMOTION)
+			TerrainTypes eAdjacentTerrain = pAdjacentPlot->getTerrainType();
+			if(eAdjacentTerrain != NO_TERRAIN)
 			{
-				CvPromotionEntry* pkOriginalPromotionInfo = GC.getPromotionInfo(ePromotion);
-				if(pkOriginalPromotionInfo && m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT && (::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
+				PromotionTypes ePromotion = (PromotionTypes)GC.getTerrainInfo(eAdjacentTerrain)->getAdjacentSpawnLocationUnitFreePromotion();
+				if(ePromotion != NO_PROMOTION)
 				{
-					bool bNoPromotion = false;
-					// Check for negating promotions
-					if(pkOriginalPromotionInfo->IsBarbarianOnly() && !isBarbarian())
+					CvPromotionEntry* pkOriginalPromotionInfo = GC.getPromotionInfo(ePromotion);
+					if(pkOriginalPromotionInfo && m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT && (::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
 					{
-						bNoPromotion = true;
-					}
-					if(pkOriginalPromotionInfo->IsCityStateOnly() && !GET_PLAYER(getOwner()).isMinorCiv())
-					{
-						bNoPromotion = true;
-					}
-					if(!bNoPromotion)
-					{
-						for(int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
+						bool bNoPromotion = false;
+						// Check for negating promotions
+						if(pkOriginalPromotionInfo->IsBarbarianOnly() && !isBarbarian())
 						{
-							const PromotionTypes eNegatingPromotion = static_cast<PromotionTypes>(iI);
-							CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(eNegatingPromotion);
-							if(pkPromotionInfo)
+							bNoPromotion = true;
+						}
+						if(pkOriginalPromotionInfo->IsCityStateOnly() && !GET_PLAYER(getOwner()).isMinorCiv())
+						{
+							bNoPromotion = true;
+						}
+						if(!bNoPromotion)
+						{
+							for(int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
 							{
-								PromotionTypes eNegatorPromotion = (PromotionTypes)pkPromotionInfo->NegatesPromotion();
-								// Unit has negation promotion
-								if(isHasPromotion(eNegatingPromotion) && ePromotion == eNegatorPromotion)
+								const PromotionTypes eNegatingPromotion = static_cast<PromotionTypes>(iI);
+								CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(eNegatingPromotion);
+								if(pkPromotionInfo)
 								{
-									bNoPromotion = true;
-									break;
+									PromotionTypes eNegatorPromotion = (PromotionTypes)pkPromotionInfo->NegatesPromotion();
+									// Unit has negation promotion
+									if(isHasPromotion(eNegatingPromotion) && ePromotion == eNegatorPromotion)
+									{
+										bNoPromotion = true;
+										break;
+									}
 								}
 							}
 						}
-					}
-					if(!bNoPromotion)
-					{
-						setHasPromotion(ePromotion, true);
+						if(!bNoPromotion)
+						{
+							setHasPromotion(ePromotion, true);
+						}
 					}
 				}
 			}
-		}
-		if(pAdjacentPlot->isMountain())
-		{
-			PromotionTypes ePromotion = (PromotionTypes)GC.getTerrainInfo(TERRAIN_MOUNTAIN)->getSpawnLocationUnitFreePromotion();
-			if(ePromotion != NO_PROMOTION)
+			// Starting terrain that provides free promotions?
+			if(pAdjacentPlot->isHills())
 			{
-				CvPromotionEntry* pkOriginalPromotionInfo = GC.getPromotionInfo(ePromotion);
-				if(pkOriginalPromotionInfo && m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT && (::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
+				PromotionTypes ePromotion = (PromotionTypes)GC.getTerrainInfo(TERRAIN_HILL)->getSpawnLocationUnitFreePromotion();
+				if(ePromotion != NO_PROMOTION)
 				{
-					bool bNoPromotion = false;
-					// Check for negating promotions
-					if(pkOriginalPromotionInfo->IsBarbarianOnly() && !isBarbarian())
+					CvPromotionEntry* pkOriginalPromotionInfo = GC.getPromotionInfo(ePromotion);
+					if(pkOriginalPromotionInfo && m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT && (::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
 					{
-						bNoPromotion = true;
-					}
-					if(pkOriginalPromotionInfo->IsCityStateOnly() && !GET_PLAYER(getOwner()).isMinorCiv())
-					{
-						bNoPromotion = true;
-					}
-					if(!bNoPromotion)
-					{
-						for(int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
+						bool bNoPromotion = false;
+						// Check for negating promotions
+						if(pkOriginalPromotionInfo->IsBarbarianOnly() && !isBarbarian())
 						{
-							const PromotionTypes eNegatingPromotion = static_cast<PromotionTypes>(iI);
-							CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(eNegatingPromotion);
-							if(pkPromotionInfo)
+							bNoPromotion = true;
+						}
+						if(pkOriginalPromotionInfo->IsCityStateOnly() && !GET_PLAYER(getOwner()).isMinorCiv())
+						{
+							bNoPromotion = true;
+						}
+						if(!bNoPromotion)
+						{
+							for(int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
 							{
-								PromotionTypes eNegatorPromotion = (PromotionTypes)pkPromotionInfo->NegatesPromotion();
-								// Unit has negation promotion
-								if(isHasPromotion(eNegatingPromotion) && ePromotion == eNegatorPromotion)
+								const PromotionTypes eNegatingPromotion = static_cast<PromotionTypes>(iI);
+								CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(eNegatingPromotion);
+								if(pkPromotionInfo)
 								{
-									bNoPromotion = true;
-									break;
+									PromotionTypes eNegatorPromotion = (PromotionTypes)pkPromotionInfo->NegatesPromotion();
+									// Unit has negation promotion
+									if(isHasPromotion(eNegatingPromotion) && ePromotion == eNegatorPromotion)
+									{
+										bNoPromotion = true;
+										break;
+									}
 								}
 							}
 						}
+						if(!bNoPromotion)
+						{
+							setHasPromotion(ePromotion, true);
+						}
 					}
-					if(!bNoPromotion)
+				}
+			}
+			if(pAdjacentPlot->isMountain())
+			{
+				PromotionTypes ePromotion = (PromotionTypes)GC.getTerrainInfo(TERRAIN_MOUNTAIN)->getSpawnLocationUnitFreePromotion();
+				if(ePromotion != NO_PROMOTION)
+				{
+					CvPromotionEntry* pkOriginalPromotionInfo = GC.getPromotionInfo(ePromotion);
+					if(pkOriginalPromotionInfo && m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT && (::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
 					{
-						setHasPromotion(ePromotion, true);
+						bool bNoPromotion = false;
+						// Check for negating promotions
+						if(pkOriginalPromotionInfo->IsBarbarianOnly() && !isBarbarian())
+						{
+							bNoPromotion = true;
+						}
+						if(pkOriginalPromotionInfo->IsCityStateOnly() && !GET_PLAYER(getOwner()).isMinorCiv())
+						{
+							bNoPromotion = true;
+						}
+						if(!bNoPromotion)
+						{
+							for(int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
+							{
+								const PromotionTypes eNegatingPromotion = static_cast<PromotionTypes>(iI);
+								CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(eNegatingPromotion);
+								if(pkPromotionInfo)
+								{
+									PromotionTypes eNegatorPromotion = (PromotionTypes)pkPromotionInfo->NegatesPromotion();
+									// Unit has negation promotion
+									if(isHasPromotion(eNegatingPromotion) && ePromotion == eNegatorPromotion)
+									{
+										bNoPromotion = true;
+										break;
+									}
+								}
+							}
+						}
+						if(!bNoPromotion)
+						{
+							setHasPromotion(ePromotion, true);
+						}
 					}
 				}
 			}
 		}
 	}
-
 	// Give embark promotion for free?
 	if(GET_TEAM(getTeam()).canEmbark() || kPlayer.GetPlayerTraits()->IsEmbarkedAllWater())
 	{
@@ -1653,136 +1653,136 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 					}
 				}
 			}
-		}
-		// Starting terrain that provides free promotions?
-		TerrainTypes eAdjacentTerrain = pAdjacentPlot->getTerrainType();
-		if(eAdjacentTerrain != NO_TERRAIN)
-		{
-			PromotionTypes ePromotion = (PromotionTypes)GC.getTerrainInfo(eAdjacentTerrain)->getAdjacentSpawnLocationUnitFreePromotion();
-			if(ePromotion != NO_PROMOTION)
+			// Starting terrain that provides free promotions?
+			TerrainTypes eAdjacentTerrain = pAdjacentPlot->getTerrainType();
+			if(eAdjacentTerrain != NO_TERRAIN)
 			{
-				CvPromotionEntry* pkOriginalPromotionInfo = GC.getPromotionInfo(ePromotion);
-				if(pkOriginalPromotionInfo && m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT && (::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
+				PromotionTypes ePromotion = (PromotionTypes)GC.getTerrainInfo(eAdjacentTerrain)->getAdjacentSpawnLocationUnitFreePromotion();
+				if(ePromotion != NO_PROMOTION)
 				{
-					bool bNoPromotion = false;
-					// Check for negating promotions
-					if(pkOriginalPromotionInfo->IsBarbarianOnly() && !isBarbarian())
+					CvPromotionEntry* pkOriginalPromotionInfo = GC.getPromotionInfo(ePromotion);
+					if(pkOriginalPromotionInfo && m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT && (::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
 					{
-						bNoPromotion = true;
-					}
-					if(pkOriginalPromotionInfo->IsCityStateOnly() && !GET_PLAYER(getOwner()).isMinorCiv())
-					{
-						bNoPromotion = true;
-					}
-					if(!bNoPromotion)
-					{
-						for(int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
+						bool bNoPromotion = false;
+						// Check for negating promotions
+						if(pkOriginalPromotionInfo->IsBarbarianOnly() && !isBarbarian())
 						{
-							const PromotionTypes eNegatingPromotion = static_cast<PromotionTypes>(iI);
-							CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(eNegatingPromotion);
-							if(pkPromotionInfo)
+							bNoPromotion = true;
+						}
+						if(pkOriginalPromotionInfo->IsCityStateOnly() && !GET_PLAYER(getOwner()).isMinorCiv())
+						{
+							bNoPromotion = true;
+						}
+						if(!bNoPromotion)
+						{
+							for(int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
 							{
-								PromotionTypes eNegatorPromotion = (PromotionTypes)pkPromotionInfo->NegatesPromotion();
-								// Unit has negation promotion
-								if(isHasPromotion(eNegatingPromotion) && ePromotion == eNegatorPromotion)
+								const PromotionTypes eNegatingPromotion = static_cast<PromotionTypes>(iI);
+								CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(eNegatingPromotion);
+								if(pkPromotionInfo)
 								{
-									bNoPromotion = true;
-									break;
+									PromotionTypes eNegatorPromotion = (PromotionTypes)pkPromotionInfo->NegatesPromotion();
+									// Unit has negation promotion
+									if(isHasPromotion(eNegatingPromotion) && ePromotion == eNegatorPromotion)
+									{
+										bNoPromotion = true;
+										break;
+									}
 								}
 							}
 						}
-					}
-					if(!bNoPromotion)
-					{
-						setHasPromotion(ePromotion, true);
+						if(!bNoPromotion)
+						{
+							setHasPromotion(ePromotion, true);
+						}
 					}
 				}
 			}
-		}
-		// Starting terrain that provides free promotions?
-		if(pAdjacentPlot->isHills())
-		{
-			PromotionTypes ePromotion = (PromotionTypes)GC.getTerrainInfo(TERRAIN_HILL)->getAdjacentSpawnLocationUnitFreePromotion();
-			if(ePromotion != NO_PROMOTION)
+			// Starting terrain that provides free promotions?
+			if(pAdjacentPlot->isHills())
 			{
-				CvPromotionEntry* pkOriginalPromotionInfo = GC.getPromotionInfo(ePromotion);
-				if(pkOriginalPromotionInfo && m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT && (::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
+				PromotionTypes ePromotion = (PromotionTypes)GC.getTerrainInfo(TERRAIN_HILL)->getAdjacentSpawnLocationUnitFreePromotion();
+				if(ePromotion != NO_PROMOTION)
 				{
-					bool bNoPromotion = false;
-					// Check for negating promotions
-					if(pkOriginalPromotionInfo->IsBarbarianOnly() && !isBarbarian())
+					CvPromotionEntry* pkOriginalPromotionInfo = GC.getPromotionInfo(ePromotion);
+					if(pkOriginalPromotionInfo && m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT && (::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
 					{
-						bNoPromotion = true;
-					}
-					if(pkOriginalPromotionInfo->IsCityStateOnly() && !GET_PLAYER(getOwner()).isMinorCiv())
-					{
-						bNoPromotion = true;
-					}
-					if(!bNoPromotion)
-					{
-						for(int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
+						bool bNoPromotion = false;
+						// Check for negating promotions
+						if(pkOriginalPromotionInfo->IsBarbarianOnly() && !isBarbarian())
 						{
-							const PromotionTypes eNegatingPromotion = static_cast<PromotionTypes>(iI);
-							CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(eNegatingPromotion);
-							if(pkPromotionInfo)
+							bNoPromotion = true;
+						}
+						if(pkOriginalPromotionInfo->IsCityStateOnly() && !GET_PLAYER(getOwner()).isMinorCiv())
+						{
+							bNoPromotion = true;
+						}
+						if(!bNoPromotion)
+						{
+							for(int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
 							{
-								PromotionTypes eNegatorPromotion = (PromotionTypes)pkPromotionInfo->NegatesPromotion();
-								// Unit has negation promotion
-								if(isHasPromotion(eNegatingPromotion) && ePromotion == eNegatorPromotion)
+								const PromotionTypes eNegatingPromotion = static_cast<PromotionTypes>(iI);
+								CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(eNegatingPromotion);
+								if(pkPromotionInfo)
 								{
-									bNoPromotion = true;
-									break;
+									PromotionTypes eNegatorPromotion = (PromotionTypes)pkPromotionInfo->NegatesPromotion();
+									// Unit has negation promotion
+									if(isHasPromotion(eNegatingPromotion) && ePromotion == eNegatorPromotion)
+									{
+										bNoPromotion = true;
+										break;
+									}
 								}
 							}
 						}
-					}
-					if(!bNoPromotion)
-					{
-						setHasPromotion(ePromotion, true);
+						if(!bNoPromotion)
+						{
+							setHasPromotion(ePromotion, true);
+						}
 					}
 				}
 			}
-		}
-		// Starting terrain that provides free promotions?
-		if(pAdjacentPlot->isMountain())
-		{
-			PromotionTypes ePromotion = (PromotionTypes)GC.getTerrainInfo(TERRAIN_MOUNTAIN)->getAdjacentSpawnLocationUnitFreePromotion();
-			if(ePromotion != NO_PROMOTION)
+			// Starting terrain that provides free promotions?
+			if(pAdjacentPlot->isMountain())
 			{
-				CvPromotionEntry* pkOriginalPromotionInfo = GC.getPromotionInfo(ePromotion);
-				if(pkOriginalPromotionInfo && m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT && (::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
+				PromotionTypes ePromotion = (PromotionTypes)GC.getTerrainInfo(TERRAIN_MOUNTAIN)->getAdjacentSpawnLocationUnitFreePromotion();
+				if(ePromotion != NO_PROMOTION)
 				{
-					bool bNoPromotion = false;
-					// Check for negating promotions
-					if(pkOriginalPromotionInfo->IsBarbarianOnly() && !isBarbarian())
+					CvPromotionEntry* pkOriginalPromotionInfo = GC.getPromotionInfo(ePromotion);
+					if(pkOriginalPromotionInfo && m_pUnitInfo->GetUnitCombatType() != NO_UNITCOMBAT && (::IsPromotionValidForUnitCombatType(ePromotion, getUnitType()) || ::IsPromotionValidForUnitCombatType(ePromotion, getUnitType())))
 					{
-						bNoPromotion = true;
-					}
-					if(pkOriginalPromotionInfo->IsCityStateOnly() && !GET_PLAYER(getOwner()).isMinorCiv())
-					{
-						bNoPromotion = true;
-					}
-					if(!bNoPromotion)
-					{
-						for(int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
+						bool bNoPromotion = false;
+						// Check for negating promotions
+						if(pkOriginalPromotionInfo->IsBarbarianOnly() && !isBarbarian())
 						{
-							const PromotionTypes eNegatingPromotion = static_cast<PromotionTypes>(iI);
-							CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(eNegatingPromotion);
-							if(pkPromotionInfo)
+							bNoPromotion = true;
+						}
+						if(pkOriginalPromotionInfo->IsCityStateOnly() && !GET_PLAYER(getOwner()).isMinorCiv())
+						{
+							bNoPromotion = true;
+						}
+						if(!bNoPromotion)
+						{
+							for(int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
 							{
-								PromotionTypes eNegatorPromotion = (PromotionTypes)pkPromotionInfo->NegatesPromotion();
-								// Unit has negation promotion
-								if(isHasPromotion(eNegatingPromotion) && ePromotion == eNegatorPromotion)
+								const PromotionTypes eNegatingPromotion = static_cast<PromotionTypes>(iI);
+								CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(eNegatingPromotion);
+								if(pkPromotionInfo)
 								{
-									bNoPromotion = true;
-									break;
+									PromotionTypes eNegatorPromotion = (PromotionTypes)pkPromotionInfo->NegatesPromotion();
+									// Unit has negation promotion
+									if(isHasPromotion(eNegatingPromotion) && ePromotion == eNegatorPromotion)
+									{
+										bNoPromotion = true;
+										break;
+									}
 								}
 							}
 						}
-					}
-					if(!bNoPromotion)
-					{
-						setHasPromotion(ePromotion, true);
+						if(!bNoPromotion)
+						{
+							setHasPromotion(ePromotion, true);
+						}
 					}
 				}
 			}

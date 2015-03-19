@@ -2309,7 +2309,7 @@
 				<PediaType>PEDIA_ATTRIBUTES</PediaType>
 				<PediaEntry>TXT_KEY_PROMOTION_RECRUITMENT</PediaEntry>
 				<CannotBeChosen>true</CannotBeChosen>
-				<HPHealedIfDestroyEnemy>50</HPHealedIfDestroyEnemy>
+				<HPHealedIfDestroyEnemy>100</HPHealedIfDestroyEnemy>
 				<HealIfDestroyExcludesBarbarians>true</HealIfDestroyExcludesBarbarians>
 			</Row>
 			<Row>
