@@ -256,6 +256,10 @@ public:
 	void LogOperationSpecialMessage(const CvString& strMsg);
 	void LogOperationEnd();
 
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	virtual const char* GetInfoString();
+#endif
+
 protected:
 	CvString GetLogFileName(CvString& playerName) const;
 	virtual CvString GetOperationName() const
@@ -290,6 +294,11 @@ protected:
 	// Coordinates of target plot
 	int m_iTargetX;
 	int m_iTargetY;
+
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	// for debugging
+	CvString m_strInfoString;
+#endif
 };
 
 FDataStream& operator<<(FDataStream&, const AIOperationMovementType&);
@@ -558,13 +567,12 @@ public:
 	}
 	virtual bool ArmyInPosition(CvArmyAI* pArmy);
 	virtual bool ShouldAbort();
+
 #if defined(MOD_BALANCE_CORE_SETTLER)
-	virtual CvPlot* FindBestTarget(CvUnit* pUnit, bool bOnlySafePaths);
+	virtual CvPlot* FindBestTargetIgnoreCurrent(CvUnit* pUnit, bool bOnlySafePaths);
 #endif
-private:
-#if !defined(MOD_BALANCE_CORE_SETTLER)
+
 	virtual CvPlot* FindBestTarget(CvUnit* pUnit, bool bOnlySafePaths);
-#endif
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

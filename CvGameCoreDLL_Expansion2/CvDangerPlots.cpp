@@ -695,6 +695,13 @@ bool CvDangerPlots::ShouldIgnorePlayer(PlayerTypes ePlayer)
 		}
 	}
 
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	//ignore if one is vassal of the other
+	if ( GET_TEAM(GET_PLAYER(m_ePlayer).getTeam()).IsVassal(GET_PLAYER(ePlayer).getTeam()) ||
+		 GET_TEAM(GET_PLAYER(ePlayer).getTeam()).IsVassal(GET_PLAYER(m_ePlayer).getTeam()) )
+		 return true;
+#endif
+
 	return false;
 }
 
@@ -1290,7 +1297,7 @@ int CvDangerPlotContents::GetDanger(CvUnit* pUnit, int iAirAction, int iAfterNIn
 	if (!pUnit->IsCombatUnit() && (!m_pPlot->isWater() || pUnit->getDomainType() != DOMAIN_LAND || m_pPlot->isValidDomainForAction(*pUnit)))
 	{
 		// If plot contains an enemy unit, mark it as max danger
-		if (m_pPlot->getBestDefender(NO_PLAYER, pUnit->getOwner()))
+		if (m_pPlot->getBestDefender(NO_PLAYER, pUnit->getOwner(),NULL,true))
 		{
 			return MAX_INT;
 		}

@@ -703,8 +703,14 @@ local function UpdatePlotHelp( timeChange )
 					if unit:IsEmbarked() then
 						unitTip = unitTip .. " " .. L( "TXT_KEY_PLOTROLL_EMBARKED" )
 					end
-
+					
 					tips:insert( unitTip )
+
+--CBP
+					tips:insert( S("Unit Danger: %d", L(unit:GetDanger()) ) )
+					tips:insert( L(unit:GetAIOperationInfo()) )
+--
+
 					-- Can build something?
 					local unitWorkRate = unit:WorkRate(true)
 					if unitWorkRate > 0 then
@@ -898,8 +904,9 @@ local function UpdatePlotHelp( timeChange )
 		if isNoob then
 			local plotX = plot:GetX();
 			local plotY = plot:GetY();
+			local danger = activePlayer:GetPlotDanger(plot);
 			if(plotX ~= -1 and plotY ~= -1) then
-				featureTips:insert( L("TXT_KEY_DEBUG_X_Y" , plotX, plotY) )
+				featureTips:insert( L("TXT_KEY_DEBUG_X_Y" , plotX, plotY, danger) )
 			end
 		end
 -- END
@@ -1143,8 +1150,8 @@ local function UpdatePlotHelp( timeChange )
 					canBuild = revealedImprovement
 				end
 
-				if canBuild or isBuildInProgress then
-					-- Determine yield changes from this build
+				if isBuildInProgress then
+				-- Determine yield changes from this build
 					canBuild = false
 					for yieldID = 0, YieldTypes.NUM_YIELD_TYPES-1 do -- GameInfo.Yields() iterator is broken by Communitas
 						local yieldChange
@@ -1192,7 +1199,9 @@ local function UpdatePlotHelp( timeChange )
 					end
 				end
 
-				if isBuildInProgress or (canBuild and (isBasicBuild or (isNoob and isExtraTips))) then
+-- CBP: too much information
+				if isBuildInProgress then
+--				if isBuildInProgress or (canBuild and (isBasicBuild or (isNoob and isExtraTips))) then
 					tips:insert( buildTip )
 				end
 			end

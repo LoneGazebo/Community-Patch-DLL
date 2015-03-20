@@ -295,6 +295,12 @@ void CvTeam::reset(TeamTypes eID, bool bConstructorCall)
 		int numTechInfos = GC.getNumTechInfos();
 #endif
 
+#if defined(AUI_ASTAR_ROAD_RANGE)
+		m_iBestRouteFlatCostMultiplier = 1;
+		m_iBestRouteNormalCostMultiplier = 1;
+		m_iUseFlatCostIfBelowThis = -1;
+#endif
+
 		//Perform batch allocation
 		AllocData aData[] =
 		{
@@ -8178,6 +8184,11 @@ void CvTeam::Read(FDataStream& kStream)
 		m_abAggressorPacifier[m_eID] = false;
 #endif
 	}
+
+#if defined(AUI_ASTAR_ROAD_RANGE)
+	DoUpdateBestRoute();
+#endif
+
 }
 
 

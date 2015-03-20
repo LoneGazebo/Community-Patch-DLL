@@ -23982,21 +23982,16 @@ bool CvUnit::canMoveAndRangedStrike(const CvPlot* pTargetPlot) const
 bool CvUnit::GetMovablePlotListOpt(vector<CvPlot*>& plotData, const CvPlot* pTargetPlot, bool bExitOnFound) const
 {
 	VALIDATE_OBJECT
-	int xVariance = max(abs((getX() - pTargetPlot->getX()) / 2), 1);
-	int yVariance = max(abs((getY() - pTargetPlot->getY()) / 2), 1);
-
-#ifdef AUI_ASTAR_ROAD_RANGE
-	IncreaseMoveRangeForRoads(this, xVariance);
-	IncreaseMoveRangeForRoads(this, yVariance);
-#endif
+	int xVariance = max(abs((getX() - pTargetPlot->getX()) / 2), baseMoves()-1);
+	int yVariance = max(abs((getY() - pTargetPlot->getY()) / 2), baseMoves()-1);
 
 	int xMin, xMax, yMin, yMax;
 	if (isRanged())
 	{
-		xMin = min(getX(), pTargetPlot->getX()) - yVariance;
-		xMax = max(getX(), pTargetPlot->getX()) + yVariance;
-		yMin = min(getY(), pTargetPlot->getY()) - xVariance;
-		yMax = max(getY(), pTargetPlot->getY()) + xVariance;
+		xMin = min(getX(), pTargetPlot->getX()) - xVariance;
+		xMax = max(getX(), pTargetPlot->getX()) + xVariance;
+		yMin = min(getY(), pTargetPlot->getY()) - yVariance;
+		yMax = max(getY(), pTargetPlot->getY()) + yVariance;
 	}
 	else
 	{
@@ -24032,11 +24027,11 @@ bool CvUnit::GetMovablePlotListOpt(vector<CvPlot*>& plotData, const CvPlot* pTar
 						{
 							if (pNode->m_iData2 == 1)
 							{
+								plotData.push_back(pLoopPlot);
 								if (bExitOnFound)
 								{
 									return true;
 								}
-								plotData.push_back(pLoopPlot);
 							}
 						}
 					}
@@ -24052,11 +24047,11 @@ bool CvUnit::GetMovablePlotListOpt(vector<CvPlot*>& plotData, const CvPlot* pTar
 						{
 							if (pNode->m_iData2 == 1 && pNode->m_iData1 > getMustSetUpToRangedAttackCount())
 							{
+								plotData.push_back(pLoopPlot);
 								if (bExitOnFound)
 								{
 									return true;
 								}
-								plotData.push_back(pLoopPlot);
 							}
 						}
 					}

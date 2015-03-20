@@ -1256,6 +1256,40 @@ void CvAIOperation::Write(FDataStream& kStream) const
 	kStream << m_viListOfUnitsCitiesHaveCommittedToBuild;
 }
 
+#if defined(MOD_BALANCE_CORE_MILITARY)
+const char* CvAIOperation::GetInfoString()
+{
+	CvString strTemp0, strTemp1, strTemp2;
+	strTemp0 = GetOperationName();
+	strTemp1.Format(" / Target at %d,%d / Muster at %d,%d / ", m_iTargetX, m_iTargetY, m_iMusterX, m_iMusterY );
+
+	switch(m_eCurrentState)
+	{
+	case AI_OPERATION_STATE_ABORTED:
+		strTemp2 = "Aborted";
+		break;
+	case AI_OPERATION_STATE_RECRUITING_UNITS:
+		strTemp2 = "Recruiting Units";
+		break;
+	case AI_OPERATION_STATE_GATHERING_FORCES:
+		strTemp2 = "Gathering Forces";
+		break;
+	case AI_OPERATION_STATE_MOVING_TO_TARGET:
+		strTemp2 = "Moving To Target";
+		break;
+	case AI_OPERATION_STATE_AT_TARGET:
+		strTemp2 = "At Target";
+		break;
+	case AI_OPERATION_STATE_SUCCESSFUL_FINISH:
+		strTemp2 = "Completed";
+		break;
+	};
+
+	m_strInfoString = strTemp0+strTemp1+strTemp2;
+	return m_strInfoString.c_str();
+}
+#endif
+
 // PRIVATE FUNCTIONS
 
 /// Log that an operation has started
@@ -3616,8 +3650,9 @@ bool CvAIOperationFoundCity::ArmyInPosition(CvArmyAI* pArmy)
 
 			if(pSettler != NULL && pEscort != NULL && pSettler->plot() == pEscort->plot())
 			{
+#if defined(MOD_BALANCE_CORE_SETTLER)
 				// let's see if the target still makes sense (this is modified from RetargetCivilian)
-				CvPlot* pBetterTarget = FindBestTarget(pSettler, false);
+				CvPlot* pBetterTarget = FindBestTargetIgnoreCurrent(pSettler, false);
 
 				// No targets at all!  Abort
 				if(pBetterTarget == NULL)
@@ -3632,6 +3667,7 @@ bool CvAIOperationFoundCity::ArmyInPosition(CvArmyAI* pArmy)
 					SetTargetPlot(pBetterTarget);
 					pArmy->SetGoalPlot(pBetterTarget);
 				}
+#endif
 				return CvAIOperation::ArmyInPosition(pArmy);
 			}
 		}
@@ -3795,8 +3831,12 @@ bool CvAIOperationFoundCity::ArmyInPosition(CvArmyAI* pArmy)
 /// Find the plot where we want to settle
 #if defined(MOD_BALANCE_CORE_SETTLER)
 
-CvPlot* CvAIOperationFoundCity::FindBestTarget(CvUnit* pUnit, bool bOnlySafePaths)
+CvPlot* CvAIOperationFoundCity::FindBestTargetIgnoreCurrent(CvUnit* pUnit, bool bOnlySafePaths)
 {
+	//todo: better options
+	//a) return a list of possible targets and find the ones that are currently reachable
+	//b) if the best target is unreachable, move in the general direction and hope the block will clear up
+
 	CvPlot* pResult = GET_PLAYER(m_eOwner).GetBestSettlePlot(pUnit, !bOnlySafePaths /*m_bEscorted*/, m_iTargetArea, this);
 	if (pResult == NULL)
 	{
@@ -3806,7 +3846,7 @@ CvPlot* CvAIOperationFoundCity::FindBestTarget(CvUnit* pUnit, bool bOnlySafePath
 	return pResult;
 }
 
-#else
+#endif
 
 CvPlot* CvAIOperationFoundCity::FindBestTarget(CvUnit* pUnit, bool bOnlySafePaths)
 {
@@ -3818,8 +3858,6 @@ CvPlot* CvAIOperationFoundCity::FindBestTarget(CvUnit* pUnit, bool bOnlySafePath
 	}
 	return pResult;
 }
-
-#endif
 
 /// Returns true when we should abort the operation totally (besides when we have lost all units in it)
 bool CvAIOperationFoundCity::ShouldAbort()
