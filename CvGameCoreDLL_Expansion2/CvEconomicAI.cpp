@@ -1961,7 +1961,6 @@ void CvEconomicAI::DoHurry()
 					switch(selection.m_eBuildableType)
 					{
 					case CITY_BUILDABLE_UNIT:
-					case CITY_BUILDABLE_UNIT_FOR_ARMY:
 					{
 						int iPaidUnits = m_pPlayer->GetNumUnitsOutOfSupply();
 							if(iPaidUnits <= 0)
@@ -2078,6 +2077,7 @@ void CvEconomicAI::DoHurry()
 					}
 					break;
 
+					case CITY_BUILDABLE_UNIT_FOR_ARMY:
 					case CITY_BUILDABLE_UNIT_FOR_OPERATION:
 					{
 						int iPaidUnits = m_pPlayer->GetNumUnitsOutOfSupply();

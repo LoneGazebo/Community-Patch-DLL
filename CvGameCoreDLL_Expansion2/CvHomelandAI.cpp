@@ -2732,7 +2732,6 @@ void CvHomelandAI::ReviewUnassignedUnits()
 						if(pMovePlot != NULL)
 						{
 							pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pMovePlot->getX(), pMovePlot->getY());
-							pUnit->finishMoves();
 							pUnit->SetTurnProcessed(true);
 							CvString strTemp;
 							CvUnitEntry* pkUnitInfo = GC.getUnitInfo(pUnit->getUnitType());
@@ -2788,7 +2787,6 @@ void CvHomelandAI::ReviewUnassignedUnits()
 					if(pMovePlot != NULL)
 					{
 						pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pMovePlot->getX(), pMovePlot->getY());
-						pUnit->finishMoves();
 						pUnit->SetTurnProcessed(true);
 						CvString strTemp;
 						CvUnitEntry* pkUnitInfo = GC.getUnitInfo(pUnit->getUnitType());
@@ -2861,7 +2859,6 @@ void CvHomelandAI::ReviewUnassignedUnits()
 					if(pMovePlot != NULL)
 					{
 						pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pMovePlot->getX(), pMovePlot->getY());
-						pUnit->finishMoves();
 						pUnit->SetTurnProcessed(true);
 						CvString strTemp;
 						CvUnitEntry* pkUnitInfo = GC.getUnitInfo(pUnit->getUnitType());
@@ -2944,6 +2941,7 @@ void CvHomelandAI::ExecuteFirstTurnSettlerMoves()
 						strLogString.Format("Founded city at starting location as it is great, X: %d, Y: %d", pUnit->getX(), pUnit->getY());
 						LogHomelandMessage(strLogString);
 					}
+					break;
 				}
 				else
 				{
@@ -2981,6 +2979,7 @@ void CvHomelandAI::ExecuteFirstTurnSettlerMoves()
 								strLogString.Format("Founded city at adjacent site, as it is superior. X: %d, Y: %d", pUnit->getX(), pUnit->getY());
 								LogHomelandMessage(strLogString);
 							}
+							break;
 						}
 						//Couldn't get there and found in one move? That's okay - it is better to lose a turn or two early on than to be in a bad spot.
 						else
@@ -2992,9 +2991,10 @@ void CvHomelandAI::ExecuteFirstTurnSettlerMoves()
 								strLogString.Format("Moved to superior starting site. Wish me luck! X: %d, Y: %d", pUnit->getX(), pUnit->getY());
 								LogHomelandMessage(strLogString);
 							}
+							break;
 						}
 					}
-					else if(GC.getGame().getGameTurn() > 2 && pUnit->canFound(pUnit->plot()))
+					else if(pUnit->canFound(pUnit->plot()))
 					{
 						pUnit->PushMission(CvTypes::getMISSION_FOUND());
 						UnitProcessed(pUnit->GetID());
@@ -3004,22 +3004,27 @@ void CvHomelandAI::ExecuteFirstTurnSettlerMoves()
 						strLogString.Format("Founded city because we are out of time, X: %d, Y: %d", pUnit->getX(), pUnit->getY());
 						LogHomelandMessage(strLogString);
 					}
+						break;
 				}
-				else
-				{
 						//apparently no good plot around. move in a random direction to explore
-						CvPlot* pAdjacentPlot = NULL;
-							
-						int iCount = 0;
-						while(iCount < 10)
+					CvPlot* pLoopPlotSearch = NULL;
+					for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
 						{
-							iCount++;
-							int iDir = GC.getGame().getJonRandNum(NUM_DIRECTION_TYPES, "Roll to see where to move!");
-							pAdjacentPlot = plotDirection(pUnit->getX(), pUnit->getY(), ((DirectionTypes)iDir));
-							if(pAdjacentPlot != NULL && pUnit->canFound(pAdjacentPlot))
+						pLoopPlotSearch = plotDirection(pUnit->plot()->getX(), pUnit->plot()->getY(), ((DirectionTypes)iI));
+						if (pLoopPlotSearch != NULL)
 							{
-								pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pAdjacentPlot->getX(), pAdjacentPlot->getY());
+							if(pLoopPlotSearch != NULL && pUnit->canFound(pLoopPlotSearch))
+							{
+								pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pLoopPlotSearch->getX(), pLoopPlotSearch->getY());
+								break;
+							}
+						}
+					}
+					if(pLoopPlotSearch != NULL && pUnit->plot() == pLoopPlotSearch && (pUnit->getMoves() > 0))
+					{
+						pUnit->PushMission(CvTypes::getMISSION_FOUND());
 								UnitProcessed(pUnit->GetID());
+					}
 								if(GC.getLogging() && GC.getAILogging())
 								{
 									CvString strLogString;
@@ -3029,9 +3034,6 @@ void CvHomelandAI::ExecuteFirstTurnSettlerMoves()
 								break;
 							}
 						}
-					}
-				}
-			}
 			else
 			{
 				pUnit->PushMission(CvTypes::getMISSION_FOUND());
@@ -5435,7 +5437,7 @@ void CvHomelandAI::ExecuteGeneralMoves()
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
 		//if he's a commander but not in an army, put him up in a city for a while
-		if(pUnit->GetGreatPeopleDirective() == GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND && pUnit->getArmyID()==-1)
+		if(pUnit->GetGreatPeopleDirective() == NO_GREAT_PEOPLE_DIRECTIVE_TYPE || (pUnit->GetGreatPeopleDirective() == GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND && pUnit->getArmyID() == -1))
 		{
 #endif
 
@@ -5528,6 +5530,35 @@ void CvHomelandAI::ExecuteGeneralMoves()
 					LogHomelandMessage(strLogString);
 				}
 			}
+#if defined(MOD_BALANCE_CORE_MILITARY)
+			else if(m_pPlayer->getCapitalCity() != NULL)
+			{
+				CvPlot* pAdjacentPlot;
+				int iI;
+				for(iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+				{
+					pAdjacentPlot = plotDirection(m_pPlayer->getCapitalCity()->getX(), m_pPlayer->getCapitalCity()->getY(), ((DirectionTypes)iI));
+
+					if(pAdjacentPlot != NULL)
+					{
+						if(pUnit->PlotValid(pAdjacentPlot))
+						{
+							pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pAdjacentPlot->getX(), pAdjacentPlot->getY());
+							pUnit->finishMoves();
+							UnitProcessed(pUnit->GetID());
+
+							if(GC.getLogging() && GC.getAILogging())
+							{
+								CvString strLogString;
+								strLogString.Format("Moving Great General close to Capital, X: %d, Y: %d", pAdjacentPlot->getX(), pAdjacentPlot->getY());
+								LogHomelandMessage(strLogString);
+							}
+							break;
+						}
+					}
+				}
+			}
+#endif
 			else
 			{
 				if(GC.getLogging() && GC.getAILogging())
@@ -5594,7 +5625,14 @@ void CvHomelandAI::ExecuteAdmiralMoves()
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
 		//if he's a commander but not in an army, put him up in a city for a while
-		if(pUnit->GetGreatPeopleDirective() == GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND && pUnit->getArmyID()==-1)
+		if(pUnit->GetGreatPeopleDirective() == GREAT_PEOPLE_DIRECTIVE_USE_POWER)
+		{
+			pUnit->PushMission(CvTypes::getMISSION_REPAIR_FLEET());
+			UnitProcessed(pUnit->GetID());
+			continue;
+		}
+		//if he's a commander but not in an army, put him up in a city for a while
+		if(pUnit->GetGreatPeopleDirective() == NO_GREAT_PEOPLE_DIRECTIVE_TYPE || (pUnit->GetGreatPeopleDirective() == GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND && pUnit->getArmyID() == -1))
 		{
 #endif
 
@@ -5745,6 +5783,59 @@ void CvHomelandAI::ExecuteAdmiralMoves()
 				}
 			}
 		}
+#if defined(MOD_BALANCE_CORE_MILITARY)
+		else if(m_pPlayer->getCapitalCity() != NULL)
+		{
+			CvCity* pLoopCity;
+			CvCity* pBestCoastalCity = NULL;
+			int iLoop;
+			int iBestDistance = MAX_INT;
+
+			for(pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
+			{
+				if(pLoopCity != NULL && pLoopCity->isCoastal())
+				{
+					// On same body of water?
+					if(GC.getStepFinder().GeneratePath(pUnit->getX(), pUnit->getY(), pLoopCity->getX(), pLoopCity->getY(), m_pPlayer->GetID(), false))
+					{
+						int iDistance = plotDistance(pLoopCity->getX(), pLoopCity->getY(), pUnit->getX(), pUnit->getY());
+						if(iDistance < iBestDistance)
+						{
+							iBestDistance = iDistance;
+							pBestCoastalCity = pLoopCity;
+						}
+					}
+				}
+			}
+			if(pBestCoastalCity)
+			{
+				CvPlot* pAdjacentPlot;
+				int iI;
+				for(iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+				{
+					pAdjacentPlot = plotDirection(pBestCoastalCity->getX(), pBestCoastalCity->getY(), ((DirectionTypes)iI));
+
+					if(pAdjacentPlot != NULL)
+					{
+						if(pUnit->PlotValid(pAdjacentPlot))
+						{
+							pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pAdjacentPlot->getX(), pAdjacentPlot->getY());
+							pUnit->finishMoves();
+							UnitProcessed(pUnit->GetID());
+
+							if(GC.getLogging() && GC.getAILogging())
+							{
+								CvString strLogString;
+								strLogString.Format("Moving Great Admiral close to nearest coastal city, X: %d, Y: %d", pAdjacentPlot->getX(), pAdjacentPlot->getY());
+								LogHomelandMessage(strLogString);
+							}
+							break;
+						}
+					}
+				}
+			}
+		}
+#endif
 		else
 		{
 			pUnit->finishMoves();

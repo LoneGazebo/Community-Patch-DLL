@@ -2645,27 +2645,6 @@ void CvTacticalAI::PlotOperationalArmyMoves()
 	{
 		if(nextOp->GetLastTurnMoved() < GC.getGame().getGameTurn())
 		{
-#if defined(MOD_BALANCE_CORE_MILITARY)
-			switch (nextOp->GetMoveType())
-			{
-			case AI_OPERATION_MOVETYPE_SINGLE_HEX:
-				PlotSingleHexOperationMoves((CvAIEscortedOperation*)nextOp);
-				break;
-
-			case AI_OPERATION_MOVETYPE_ENEMY_TERRITORY:
-				PlotEnemyTerritoryOperationMoves((CvAIEnemyTerritoryOperation*)nextOp);
-				break;
-
-			case AI_OPERATION_MOVETYPE_NAVAL_ESCORT:
-				PlotNavalEscortOperationMoves((CvAINavalEscortedOperation*)nextOp);
-				break;
-
-			case AI_OPERATION_MOVETYPE_FREEFORM_NAVAL:
-				PlotFreeformNavalOperationMoves((CvAINavalOperation*)nextOp);
-				break;
-			}
-			nextOp->CheckOnTarget();
-#endif
 			switch(nextOp->GetMoveType())
 			{
 			case AI_OPERATION_MOVETYPE_SINGLE_HEX:
@@ -4432,6 +4411,13 @@ void CvTacticalAI::PlotEnemyTerritoryOperationMoves(CvAIEnemyTerritoryOperation*
 		{
 			return;
 		}
+#if defined(MOD_BALANCE_CORE_MILITARY)
+		// If estimate is 25+ turns out, let's just end this attmept. We can do better.
+		if((GC.getGame().getGameTurn() - pThisArmy->GetTurnAtNextCheckpoint()) >= 25)
+		{
+			return;
+		}
+#endif
 		else
 		{
 			for(int iI = 0; iI < pThisArmy->GetNumFormationEntries(); iI++)
@@ -4649,6 +4635,13 @@ void CvTacticalAI::PlotNavalEscortOperationMoves(CvAINavalEscortedOperation* pOp
 		{
 			return;
 		}
+#if defined(MOD_BALANCE_CORE_MILITARY)
+		// If estimate is 25+ turns out, let's just end this attmept. We can do better.
+		if((GC.getGame().getGameTurn() - pThisArmy->GetTurnAtNextCheckpoint()) >= 25)
+		{
+			return;
+		}
+#endif
 		else
 		{
 			for(int iI = 0; iI < pThisArmy->GetNumFormationEntries(); iI++)
@@ -5020,6 +5013,13 @@ void CvTacticalAI::PlotFreeformNavalOperationMoves(CvAINavalOperation* pOperatio
 		{
 			return;
 		}
+#if defined(MOD_BALANCE_CORE_MILITARY)
+		// If estimate is 25+ turns out, let's just end this attmept. We can do better.
+		if((GC.getGame().getGameTurn() - pThisArmy->GetTurnAtNextCheckpoint()) >= 25)
+		{
+			return;
+		}
+#endif
 		else
 		{
 			for(int iI = 0; iI < pThisArmy->GetNumFormationEntries(); iI++)
@@ -5229,7 +5229,10 @@ void CvTacticalAI::ExecuteGatherMoves(CvArmyAI* pArmy)
 		else
 		{
 			m_TempTargets.clear();
+#if defined(MOD_BALANCE_CORE_MILITARY)
+#else
 			iRange = 3;
+#endif
 		}
 	}
 
@@ -5485,9 +5488,7 @@ bool CvTacticalAI::ScoreDeploymentPlots(CvPlot* pTarget, CvArmyAI* pArmy, int iN
 	int iNumSafePlotsFound = 0;
 	int iNumDeployPlotsFound = 0;
 	CvTacticalTarget target;
-#if defined(MOD_BALANCE_CORE_MILITARY)
-	iRange += 1;
-#endif
+
 	// We'll store the hexes we've found here
 	m_TempTargets.clear();
 
@@ -11373,10 +11374,72 @@ void CvTacticalAI::MoveGreatGeneral(CvArmyAI* pArmyAI)
 		if(pGeneral)
 		{
 #if defined(MOD_BALANCE_CORE_MILITARY)
-			iRange = (pGeneral->maxMoves() * 2);
-#else
-			iRange = (pGeneral->maxMoves() * 3) / GC.getMOVE_DENOMINATOR();  // Enough to make a decent road move
+			if(pArmyAI)
+			{
+				int iDistToOperationCenter = 0;
+				CvPlot* pCOM = NULL;
+				iRange = (pGeneral->getMoves());
+				int iBestDistToOperationCenter = MAX_INT;						
+				if(pGeneral->getDomainType() == DOMAIN_LAND)
+				{
+					pCOM = pArmyAI->GetCenterOfMass(DOMAIN_LAND);
+				}
+				else
+				{
+					pCOM = pArmyAI->GetCenterOfMass(DOMAIN_SEA);
+				}
+				for(int iX = -iRange; iX <= iRange; iX++)
+				{
+					for(int iY = -iRange; iY <= iRange; iY++)
+					{
+						CvPlot* pEvalPlot = NULL;
+						pEvalPlot = plotXYWithRangeCheck(pGeneral->getX(), pGeneral->getY(), iX, iY, iRange);
+						if (!pEvalPlot)
+						{
+							continue;
+						}
+						int iScore = ScoreGreatGeneralPlot(pGeneral, pEvalPlot, pArmyAI);
+						if(iScore > 0)
+						{
+							if(GC.getStepFinder().DoesPathExist(m_pPlayer->GetID(), pArmyAI->GetGoalPlot()->getOwner(), pGeneral->plot(), pEvalPlot))						
+							{					
+								if(pCOM != NULL)
+								{
+									iDistToOperationCenter = plotDistance(pEvalPlot->getX(), pEvalPlot->getY(), pCOM->getX(), pCOM->getY());
+									//Already there? Break.
+									if(iDistToOperationCenter == 0)
+									{
+										pBestPlot = pEvalPlot;
+										break;
+									}
+									else if((iDistToOperationCenter < iBestDistToOperationCenter))
+									{
+										iBestDistToOperationCenter = iDistToOperationCenter;
+										pBestPlot = pEvalPlot;
+									}
+								}
+							}
+						}
+					}
+				}
+				if(pBestPlot != NULL)
+				{
+					ExecuteMoveToPlot(pGeneral, pBestPlot);
+
+					if(GC.getLogging() && GC.getAILogging())
+					{
+						CvString strMsg;
+						strMsg.Format("Deploying %s as part of an army, To X: %d, To Y: %d, At X: %d, At Y: %d, Plot Score: %d, Dist from COM: %d",
+									  pGeneral->getName().GetCString(), pBestPlot->getX(), pBestPlot->getY(),
+									  pGeneral->getX(), pGeneral->getY(), iBestDistToOperationCenter);
+						LogTacticalMessage(strMsg);
+					}
+				}
+			}
+			else
+			{
 #endif
+			iRange = (pGeneral->maxMoves() * 3) / GC.getMOVE_DENOMINATOR();  // Enough to make a decent road move
 			for(int iX = -iRange; iX <= iRange; iX++)
 			{
 				for(int iY = -iRange; iY <= iRange; iY++)
@@ -11391,7 +11454,6 @@ void CvTacticalAI::MoveGreatGeneral(CvArmyAI* pArmyAI)
 					{
 						continue;
 					}
-
 					if(CanReachInXTurns(pGeneral, pEvalPlot, 1))
 					{
 						int iScore = ScoreGreatGeneralPlot(pGeneral, pEvalPlot, pArmyAI);
@@ -11434,6 +11496,9 @@ void CvTacticalAI::MoveGreatGeneral(CvArmyAI* pArmyAI)
 					LogTacticalMessage(strMsg);
 				}
 			}
+#if defined(MOD_BALANCE_CORE_MILITARY)
+			}
+#endif
 		}
 	}
 

@@ -73,16 +73,6 @@ function UpdateDisplay()
 
 -- COMMUNITY PATCH
 	
-		local iNumOccupiedCities = 0;
-		for pCity in pPlayer:Cities() do
-			if (pCity:IsOccupied() and not pCity:IsNoOccupiedUnhappiness()) then
-				iNumOccupiedCities = iNumOccupiedCities + 1;
-			end
-		end
-		local iCityCountMod = pPlayer:GetCapitalUnhappinessMod();
-		local iNumNormalCities = pPlayer:GetNumCities() - iNumOccupiedCities;
-		local iUnhappinessFromCityCount = Locale.ToNumber( pPlayer:GetUnhappinessFromCityCount() / 100, "#.##" );
-		local iCityYield = (iUnhappinessFromCityCount / iNumNormalCities);
 		local iStarvingUnhappiness = pCity:GetUnhappinessFromStarving();
 		local iPillagedUnhappiness = pCity:GetUnhappinessFromPillaged();
 		local iGoldUnhappiness = pCity:GetUnhappinessFromGold();
@@ -98,7 +88,11 @@ function UpdateDisplay()
 		elseif(pCity:IsResistance()) then
 			iResistanceUnhappiness = (pCity:GetPopulation() / 4);
 		end
-		local iTotalUnhappiness = iScienceUnhappiness + iCultureUnhappiness + iDefenseUnhappiness	+ iGoldUnhappiness + iConnectionUnhappiness + iPillagedUnhappiness + iStarvingUnhappiness + iMinorityUnhappiness + iCityYield + iResistanceUnhappiness;
+		local iOccupationUnhappiness = 0;
+		if(pCity:IsOccupied() and not pCity:IsNoOccupiedUnhappiness()) then
+			iOccupationUnhappiness = (pCity:GetPopulation() * GameDefines.UNHAPPINESS_PER_OCCUPIED_POPULATION);
+		end
+		local iTotalUnhappiness = iScienceUnhappiness + iCultureUnhappiness + iDefenseUnhappiness	+ iGoldUnhappiness + iConnectionUnhappiness + iPillagedUnhappiness + iStarvingUnhappiness + iMinorityUnhappiness + iOccupationUnhappiness + iResistanceUnhappiness;
 		sortEntry.Strength = math.floor(iTotalUnhappiness);
         instance.Defense:SetText( sortEntry.Strength );
 -- END					
@@ -123,41 +117,19 @@ function UpdateDisplay()
 
 		strOccupationTT = Locale.ConvertTextKey("TXT_KEY_EO_CITY_LOCAL_UNHAPPINESS", iTotalUnhappiness);
 
-		if (pCity:IsCapital()) then
-			if (iCityCountMod == 0) then
-				if(iCityYield ~= 0) then
-					strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_CITYCOUNT_UNHAPPINESS", iCityYield);
-				end
-			end
-		end
-		
-		if (not pCity:IsCapital()) then
-			if (iCityYield ~= 0) then
-				if (not pCity:IsOccupied()) then
-					strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_CITYCOUNT_UNHAPPINESS", iCityYield);
-				end
-			end
-		end
-
-		if (not pCity:IsCapital()) then
-			if (iCityYield ~= 0) then
-				if (pCity:IsOccupied()) then
-					if(pCity:IsNoOccupiedUnhappiness()) then
-						strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_CITYCOUNT_UNHAPPINESS", iCityYield);
-					end
-				end
-			end
-		end
-
 		if(pCity:IsPuppet()) then
 			if (iPuppetMod ~= 0) then
 				strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_PUPPET_UNHAPPINESS_MOD", iPuppetMod);
 			end
 		end
 		
+		-- Occupation tooltip
+		if (iOccupationUnhappiness ~= 0) then
+			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_OCCUPATION_UNHAPPINESS", iOccupationUnhappiness);
+		end
 		-- Resistance tooltip
 		if (iResistanceUnhappiness ~= 0) then
-			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_EO_CITY_RESISTANCE", iResistanceUnhappiness);
+			strOccupationTT = strOccupationTT .. "[NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_RESISTANCE_UNHAPPINESS", iResistanceUnhappiness);
 		end
 		-- Starving tooltip
 		if (iStarvingUnhappiness ~= 0) then
