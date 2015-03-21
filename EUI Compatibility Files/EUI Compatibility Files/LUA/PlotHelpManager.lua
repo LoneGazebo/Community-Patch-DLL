@@ -709,6 +709,7 @@ local function UpdatePlotHelp( timeChange )
 --CBP
 					tips:insert( S("Unit Danger: %d", L(unit:GetDanger()) ) )
 					tips:insert( L(unit:GetAIOperationInfo()) )
+					tips:insert( L(unit:GetMissionInfo()) )
 --
 
 					-- Can build something?

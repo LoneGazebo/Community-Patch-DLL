@@ -559,6 +559,7 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	Method(GetAIOperationInfo);
+	Method(GetMissionInfo);
 	Method(GetDanger);
 #endif
 
@@ -5142,7 +5143,15 @@ int CvLuaUnit::lGetAIOperationInfo(lua_State* L)
 		}
 	}
 
-	lua_pushstring(L, "not in an operation");
+	lua_pushstring(L, "no operation");
+	return 1;
+}
+
+//------------------------------------------------------------------------------
+int CvLuaUnit::lGetMissionInfo(lua_State* L)
+{
+	CvUnit* pUnit = GetInstance(L);
+	lua_pushstring(L, pUnit->GetMissionInfo());
 	return 1;
 }
 

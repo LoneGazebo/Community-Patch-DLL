@@ -5344,6 +5344,8 @@ void CvHomelandAI::ExecuteGeneralMoves()
 
 	// Do we have a holy city to stay clear of?
 	bool bKeepHolyCityClear = false;
+
+#if defined(MOD_GLOBAL_BREAK_CIVILIAN_1UPT)
 	CvGameReligions* pReligions = GC.getGame().GetGameReligions();
 	ReligionTypes eMyReligion = pReligions->GetReligionCreatedByPlayer(m_pPlayer->GetID());
 	const CvReligion* pMyReligion = pReligions->GetReligion(eMyReligion, m_pPlayer->GetID());
@@ -5356,6 +5358,7 @@ void CvHomelandAI::ExecuteGeneralMoves()
 			bKeepHolyCityClear = true;
 		}
 	}
+#endif
 
 	for(it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
 	{
@@ -5541,7 +5544,7 @@ void CvHomelandAI::ExecuteGeneralMoves()
 
 					if(pAdjacentPlot != NULL)
 					{
-						if(pUnit->PlotValid(pAdjacentPlot))
+						if(pUnit->PlotValid(pAdjacentPlot) && m_pPlayer->GetPlotDanger(*pAdjacentPlot,pUnit.pointer())==0)
 						{
 							pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pAdjacentPlot->getX(), pAdjacentPlot->getY());
 							pUnit->finishMoves();

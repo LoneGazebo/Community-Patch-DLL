@@ -4233,6 +4233,8 @@ void CvTacticalAI::PlotSingleHexOperationMoves(CvAIEscortedOperation* pOperation
 			if(!pCivilian->GeneratePath(pOperation->GetTargetPlot(), iFlags, false /*bReuse*/))
 			{
 				pOperation->RetargetCivilian(pCivilian.pointer(), pThisArmy);
+				//todo: improve this, we should generate a new path and strike out immediately
+				//but then we have to take care not to end up in an infinite loop, alternating between two unreachable targets
 				pCivilian->finishMoves();
 #if !defined(MOD_BALANCE_CORE)
 				pEscort = m_pPlayer->getUnit(pThisArmy->GetNextUnitID());

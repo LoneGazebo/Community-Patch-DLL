@@ -1344,7 +1344,8 @@ int CvDangerPlotContents::GetDanger(CvUnit* pUnit, int iAirAction, int iAfterNIn
 					// If have a defender and it will survive all attack, return a danger value of 1
 					if (pBestDefender && (pBestDefender->isWaiting() || !pBestDefender->canMove()))
 					{
-						if (GetDanger(pBestDefender) < pBestDefender->GetCurrHitPoints())
+						//avoid recursion!
+						if (pBestDefender!=pUnit &&  GetDanger(pBestDefender)<pBestDefender->GetCurrHitPoints())
 						{
 							// Trivial amount to indicate that the plot can still be attacked
 							++iPlotDamage;
@@ -1355,19 +1356,6 @@ int CvDangerPlotContents::GetDanger(CvUnit* pUnit, int iAirAction, int iAfterNIn
 				if (iPlotDamage == m_iFlatPlotDamage)
 				{
 					return MAX_INT;
-				}
-				// Proceed as normal
-				
-				// If this unit would survive all attacks, reduce the damage dealt by heal rate before applying citadel stuff (since citadel stuff is applied after DoHeal() anyway)
-				if (iPlotDamage + pUnit->getDamage() <= pUnit->GetMaxHitPoints())
-				{
-					if ((pUnit->plot() == m_pPlot && !pUnit->isEmbarked()) ||
-						(pUnit->isAlwaysHeal() && (!m_pPlot->isWater() || pUnit->getDomainType() != DOMAIN_LAND || m_pPlot->isValidDomainForAction(*pUnit))))
-					{
-						iPlotDamage -= pUnit->healRate(m_pPlot);
-						if (iPlotDamage < 0)
-							iPlotDamage = 0;
-					}
 				}
 
 				// Damage from features
@@ -1387,18 +1375,6 @@ int CvDangerPlotContents::GetDanger(CvUnit* pUnit, int iAirAction, int iAfterNIn
 			// Trivial amount to indicate that the plot can still be attacked
 			++iPlotDamage;
 
-			// If this unit would survive all attacks, reduce the damage dealt by heal rate before applying citadel stuff (since citadel stuff is applied after DoHeal() anyway)
-			if (iPlotDamage + pUnit->getDamage() <= pUnit->GetMaxHitPoints())
-			{
-				if ((pUnit->plot() == m_pPlot && !pUnit->isEmbarked()) ||
-					(pUnit->isAlwaysHeal() && (!m_pPlot->isWater() || pUnit->getDomainType() != DOMAIN_LAND || m_pPlot->isValidDomainForAction(*pUnit))))
-				{
-					iPlotDamage -= pUnit->healRate(m_pPlot);
-					if (iPlotDamage < 0)
-						iPlotDamage = 0;
-				}
-			}
-
 			// Damage from features
 			iPlotDamage += GetDamageFromFeatures(pUnit->getOwner());
 
@@ -1415,24 +1391,24 @@ int CvDangerPlotContents::GetDanger(CvUnit* pUnit, int iAirAction, int iAfterNIn
 	// Damage from units
 	for (DangerUnitVector::iterator it = m_apUnits.begin(); it < m_apUnits.end(); ++it)
 	{
-		CvUnit* pUnit = GET_PLAYER(it->first).getUnit(it->second);
+		CvUnit* pAttacker = GET_PLAYER(it->first).getUnit(it->second);
 
-		if (!pUnit || pUnit->isDelayedDeath() || pUnit->IsDead())
+		if (!pAttacker || pAttacker->isDelayedDeath() || pAttacker->IsDead())
 		{
 			continue;
 		}
 
 		pAttackerPlot = NULL;
-		if (pUnit->plot() != m_pPlot)
+		if (pAttacker->plot() != m_pPlot)
 		{				
-			if (pUnit->IsCanAttackRanged())
+			if (pAttacker->IsCanAttackRanged())
 			{
-				if (pUnit->getDomainType() == DOMAIN_AIR)
+				if (pAttacker->getDomainType() == DOMAIN_AIR)
 				{
 #ifdef AUI_UNIT_GET_NTH_BEST_INTERCEPTOR
-					pInterceptor = pUnit->GetNthBestInterceptor(*m_pPlot, iAfterNIntercepts, pUnit);
+					pInterceptor = pAttacker->GetNthBestInterceptor(*m_pPlot, iAfterNIntercepts, pUnit);
 #else
-					pInterceptor = pUnit->GetBestInterceptor(*m_pPlot, pUnit);
+					pInterceptor = pAttacker->GetBestInterceptor(*m_pPlot, pUnit);
 #endif
 					int iInterceptDamage = 0;
 					if (pInterceptor)
@@ -1442,17 +1418,17 @@ int CvDangerPlotContents::GetDanger(CvUnit* pUnit, int iAirAction, int iAfterNIn
 						++iAfterNIntercepts;
 					}
 #ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
-					iPlotDamage += pUnit->GetAirCombatDamage(pUnit, NULL, false, iInterceptDamage, m_pPlot);
+					iPlotDamage += pAttacker->GetAirCombatDamage(pUnit, NULL, false, iInterceptDamage, m_pPlot);
 #else
-					iPlotDamage += pUnit->GetAirCombatDamage(pUnit, NULL, false, iInterceptDamage);
+					iPlotDamage += pAttacker->GetAirCombatDamage(pUnit, NULL, false, iInterceptDamage);
 #endif
 				}
 				else
 				{
 #ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
-					iPlotDamage += pUnit->GetRangeCombatDamage(pUnit, NULL, false, 0, m_pPlot);
+					iPlotDamage += pAttacker->GetRangeCombatDamage(pUnit, NULL, false, 0, m_pPlot);
 #else
-					iPlotDamage += pUnit->GetRangeCombatDamage(pUnit, NULL, false);
+					iPlotDamage += pAttacker->GetRangeCombatDamage(pUnit, NULL, false);
 #endif
 				}
 			}
@@ -1460,16 +1436,17 @@ int CvDangerPlotContents::GetDanger(CvUnit* pUnit, int iAirAction, int iAfterNIn
 			{
 				if (plotDistance(m_iX, m_iY, pUnit->getX(), pUnit->getY()) == 1)
 				{
-					pAttackerPlot = pUnit->plot();
+					pAttackerPlot = pAttacker->plot();
 				}
-				iPlotDamage += pUnit->getCombatDamage(pUnit->GetMaxAttackStrength(pAttackerPlot, m_pPlot, pUnit),
-					pUnit->GetMaxDefenseStrength(m_pPlot, pUnit), pUnit->getDamage(), false, false, false);
-				if (pUnit->isRangedSupportFire())
+				iPlotDamage += pAttacker->getCombatDamage(
+					pAttacker->GetMaxAttackStrength(pAttackerPlot, m_pPlot, pUnit),
+					pUnit->GetMaxDefenseStrength(m_pPlot, pAttacker), pUnit->getDamage(), false, false, false);
+				if (pAttacker->isRangedSupportFire())
 				{
 #ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
-					iPlotDamage += pUnit->GetRangeCombatDamage(pUnit, NULL, false, 0, m_pPlot, pAttackerPlot);
+					iPlotDamage += pAttacker->GetRangeCombatDamage(pUnit, NULL, false, 0, m_pPlot, pAttackerPlot);
 #else
-					iPlotDamage += pUnit->GetRangeCombatDamage(pUnit, NULL, false);
+					iPlotDamage += pAttacker->GetRangeCombatDamage(pUnit, NULL, false);
 #endif
 				}
 			}
@@ -1492,18 +1469,6 @@ int CvDangerPlotContents::GetDanger(CvUnit* pUnit, int iAirAction, int iAfterNIn
 #else
 		iPlotDamage += (*it)->rangeCombatDamage(pUnit, NULL, false);
 #endif
-	}
-
-	// If this unit would survive all attacks, reduce the damage dealt by heal rate before applying citadel stuff (since citadel stuff is applied after DoHeal() anyway)
-	if (iPlotDamage + pUnit->getDamage() < pUnit->GetMaxHitPoints())
-	{
-		if ((pUnit->plot() == m_pPlot && !pUnit->isEmbarked()) ||
-			(pUnit->isAlwaysHeal() && (!m_pPlot->isWater() || pUnit->getDomainType() != DOMAIN_LAND || m_pPlot->isValidDomainForAction(*pUnit))))
-		{
-			iPlotDamage -= pUnit->healRate(m_pPlot);
-			if (iPlotDamage < 0)
-				iPlotDamage = 0;
-		}
 	}
 
 	// Damage from features

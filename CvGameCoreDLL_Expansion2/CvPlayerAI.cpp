@@ -1449,42 +1449,27 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveScientist(CvUnit* /*pGreatScie
 GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveGeneral(CvUnit* pGreatGeneral)
 {
 	int iValue = 0;
-	MilitaryAIStrategyTypes eMobilization = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_WAR_MOBILIZATION");
-	MilitaryAIStrategyTypes eWar = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_AT_WAR");
 	CvPlot* pTargetPlot = FindBestGreatGeneralTargetPlot(pGreatGeneral, iValue);
 	SpecialUnitTypes eSpecialUnitGreatPerson = (SpecialUnitTypes) GC.getInfoTypeForString("SPECIALUNIT_PEOPLE");
-
 	int iGreatGeneralCount = 0;
-
 	int iLoop;
 	for(CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit; pLoopUnit = nextUnit(&iLoop))
 	{
 		if(pLoopUnit->getSpecialUnitType() != eSpecialUnitGreatPerson)
-		{
 			continue;
-		}
 
 		if(pLoopUnit->IsGreatGeneral())
-		{
 			iGreatGeneralCount++;
-		}
 	}
+
 	//if this is an extra idle one, what we want it to do depends on the number we have
-	if(iGreatGeneralCount > 1 && (GetMilitaryAI()->IsUsingStrategy(eWar) || GetMilitaryAI()->IsUsingStrategy(eMobilization)))
+	if(iGreatGeneralCount>1 && pTargetPlot)
 	{
-			//accompany an army
-		return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
-	}
-	else if(pTargetPlot)
-	{
-			//build a citadel
+		//build a citadel
 		return GREAT_PEOPLE_DIRECTIVE_USE_POWER;
 	}
-	else
-	{
-		// he should keep doing what he's doing
-		return NO_GREAT_PEOPLE_DIRECTIVE_TYPE;
-}
+
+	return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
 }
 
 #else
@@ -1601,7 +1586,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveAdmiral(CvUnit* pGreatAdmiral)
 	MilitaryAIStrategyTypes eWar = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_AT_WAR");
 
 	//Should we consider using our heal?
-	if(pGreatAdmiral->GetGreatPeopleDirective() == GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND)
+	if(pGreatAdmiral->GetGreatPeopleDirective() != GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND)
 	{
 		UnitHandle pUnit;
 		int iInjured = 0;
@@ -1643,7 +1628,8 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveAdmiral(CvUnit* pGreatAdmiral)
 	{
 		// he should keep doing what he's doing
 		return NO_GREAT_PEOPLE_DIRECTIVE_TYPE;
-}
+	}
+
 	return NO_GREAT_PEOPLE_DIRECTIVE_TYPE;
 }
 

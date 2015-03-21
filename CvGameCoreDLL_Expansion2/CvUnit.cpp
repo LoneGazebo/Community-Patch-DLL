@@ -25524,6 +25524,35 @@ bool CvUnit::CanDoInterfaceMode(InterfaceModeTypes eInterfaceMode, bool bTestVis
 // MISSION ROUTINES
 //////////////////////////////////////////////////////////////////////////
 
+#if defined(MOD_BALANCE_CORE_MILITARY)
+const char* CvUnit::GetMissionInfo()
+{
+	m_strMissionInfoString.clear();
+
+	CvString strTemp0;
+	getMissionAIString(strTemp0, GetMissionAIType());
+	CvString strTemp1;
+	getUnitAIString(strTemp1, AI_getUnitAIType());
+
+	m_strMissionInfoString.Format("UnitAI: %s / MissionAI: %s", strTemp0.c_str(), strTemp1.c_str()); 
+	
+	if (m_iMissionAIX!=INVALID_PLOT_COORD && m_iMissionAIY!=INVALID_PLOT_COORD)
+	{
+		strTemp0.Format(" / Target: %d,%d", m_iMissionAIX.get(), m_iMissionAIY.get());
+		m_strMissionInfoString += strTemp0;
+	}
+
+	const MissionData* pMission = GetHeadMissionData();
+	if (pMission)
+	{
+		strTemp0.Format(" / HeadMission %s at %d,%d", CvTypes::GetMissionName(pMission->eMissionType).c_str(),	pMission->iData1, pMission->iData2);
+		m_strMissionInfoString += strTemp0;
+	}
+
+	return m_strMissionInfoString.c_str();
+}
+#endif
+
 //	--------------------------------------------------------------------------------
 /// Queue up a new mission
 void CvUnit::PushMission(MissionTypes eMission, int iData1, int iData2, int iFlags, bool bAppend, bool bManual, MissionAITypes eMissionAI, CvPlot* pMissionAIPlot, CvUnit* pMissionAIUnit)
