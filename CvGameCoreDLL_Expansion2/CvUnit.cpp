@@ -5094,7 +5094,7 @@ bool CvUnit::CanAutomate(AutomateTypes eAutomate, bool bTestVisibility) const
 		if(!bTestVisibility)
 		{
 #if defined(MOD_CORE_ALTERNATIVE_EXPLORE_SCORE)
-			if(GET_PLAYER(m_eOwner).GetHomelandAI()->GetBestExploreTarget(this)==NULL)
+			if(GET_PLAYER(m_eOwner).GetEconomicAI()->GetExplorationPlots().empty())
 #else
 			if(!GET_PLAYER(m_eOwner).GetHomelandAI()->IsAnyValidExploreMoves(this))
 #endif

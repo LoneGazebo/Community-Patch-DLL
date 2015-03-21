@@ -93,7 +93,7 @@ void CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlo
 
 	iRegularCost = std::min(iRegularCost, (iBaseMoves * iMoveDenominator));
 #if defined(MOD_BALANCE_CORE)
-	if(pFromPlot->isValidRoute(pUnit) && pToPlot->isValidRoute(pUnit) && ((kUnitTeam.isBridgeBuilding() || bAmphibious || !(pFromPlot->isRiverCrossing(directionXY(pFromPlot, pToPlot))))))
+	if(pFromPlot->isValidRoute(pUnit) && pToPlot->isValidRoute(pUnit) && (kUnitTeam.isBridgeBuilding() || bAmphibious || !bRiverCrossing))
 #else
 	if(pFromPlot->isValidRoute(pUnit) && pToPlot->isValidRoute(pUnit) && ((kUnitTeam.isBridgeBuilding() || !(pFromPlot->isRiverCrossing(directionXY(pFromPlot, pToPlot))))))
 #endif
@@ -120,13 +120,13 @@ void CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlo
 		iRouteFlatCost = pRoadInfo->getFlatMovementCost() * iBaseMoves;
 	}
 #if defined(MOD_BALANCE_CORE)
-	else if(MOD_BALANCE_CORE && bSuperAmphibious && pFromPlot->isRiverCrossing(directionXY(pFromPlot, pToPlot)))
+	else if(MOD_BALANCE_CORE && bSuperAmphibious && bRiverCrossing)
 	{
 		CvRouteInfo* pRoadInfo = GC.getRouteInfo(ROUTE_ROAD);
 		iRouteCost = pRoadInfo->getMovementCost();
 		iRouteFlatCost = (pRoadInfo->getFlatMovementCost() * iBaseMoves);
 	}
-	else if(MOD_BALANCE_CORE && bAmphibious && !bSuperAmphibious && pFromPlot->isRiverCrossing(directionXY(pFromPlot, pToPlot)))
+	else if(MOD_BALANCE_CORE && bAmphibious && !bSuperAmphibious && bRiverCrossing)
 	{
 		CvRouteInfo* pRoadInfo = GC.getRouteInfo(ROUTE_ROAD);
 		iRouteCost = pRoadInfo->getMovementCost() * 2;

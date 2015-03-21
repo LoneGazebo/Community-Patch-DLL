@@ -6406,8 +6406,12 @@ bool CvHomelandAI::MoveCivilianToSafety(CvUnit* pUnit, bool bIgnoreUnits)
 				}
 			}
 
-			iValue -= m_pPlayer->GetPlotDanger(*pLoopPlot);
+#if defined(AUI_DANGER_PLOTS_REMADE)
+			if (m_pPlayer->GetPlotDanger(*pLoopPlot,pUnit)==INT_MAX)
+				continue;
+#endif
 
+			iValue -= m_pPlayer->GetPlotDanger(*pLoopPlot);
 			aBestPlotList.push_back(pLoopPlot, iValue);
 		}
 	}
@@ -7266,6 +7270,10 @@ bool CvHomelandAI::MoveToEmptySpaceNearTarget(CvUnit* pUnit, CvPlot* pTarget, bo
 				// Enemies too
 				if(!pLoopPlot->getBestDefender(NO_PLAYER, m_pPlayer->GetID()))
 				{
+#ifdef AUI_DANGER_PLOTS_REMADE
+					if(m_pPlayer->GetPlotDanger(*pLoopPlot,pUnit)*2 > pUnit->GetCurrHitPoints())
+						continue;
+#endif
 					// Find a path to this space
 					if(pUnit->GeneratePath(pLoopPlot))
 					{

@@ -2420,7 +2420,11 @@ void CvTacticalAI::PlotMovesToSafety(bool bCombatUnits)
 			// Danger value of plot must be greater than 0
 			CvPlot* pPlot = pUnit->plot();
 
+#ifdef AUI_DANGER_PLOTS_REMADE
+			iDangerLevel = m_pPlayer->GetPlotDanger(*pPlot,pUnit.pointer());
+#else
 			iDangerLevel = m_pPlayer->GetPlotDanger(*pPlot);
+#endif
 			if(iDangerLevel > 0)
 			{
 				bool bAddUnit = false;
@@ -2466,9 +2470,13 @@ void CvTacticalAI::PlotMovesToSafety(bool bCombatUnits)
 					// Also flee if danger is really high in current plot (but not if we're barbarian)
 					else if(!pUnit->isBarbarian())
 					{
+#ifdef AUI_DANGER_PLOTS_REMADE
+						if(iDangerLevel*1.1 > pUnit->GetCurrHitPoints())
+#else
 						int iAcceptableDanger;
 						iAcceptableDanger = pUnit->GetBaseCombatStrengthConsideringDamage() * 100;
 						if(iDangerLevel > iAcceptableDanger)
+#endif
 						{
 							bAddUnit = true;
 						}
@@ -7082,7 +7090,11 @@ void CvTacticalAI::ExecuteMovesToSafestPlot()
 					//   prefer being in your own territory with the lowest danger value
 					//   prefer the lowest danger value
 
+#ifdef AUI_DANGER_PLOTS_REMADE
+					iDanger = m_pPlayer->GetPlotDanger(*pPlot,pUnit.pointer());
+#else
 					iDanger = m_pPlayer->GetPlotDanger(*pPlot);
+#endif
 					bool bIsZeroDanger = (iDanger <= 0);
 					bool bIsInCity = pPlot->isFriendlyCity(*pUnit, false);
 					bool bIsInCover = (pPlot->getNumDefenders(ePlayerID) > 0) && !pUnit->IsCanDefend(pPlot); // only move to cover if I'm defenseless here
@@ -8904,7 +8916,11 @@ void CvTacticalAI::ExecuteEscortEmbarkedMoves()
 				CvPlot *pTarget = pLoopUnit->plot();
 				if (TurnsToReachTarget(pUnit, pTarget) <= 1)
 				{
+#ifdef AUI_DANGER_PLOTS_REMADE
+					int iDanger = m_pPlayer->GetPlotDanger(*pTarget,pUnit.pointer());
+#else
 					int iDanger = m_pPlayer->GetPlotDanger(*pTarget);
+#endif
 					if (iDanger > iHighestDanger)
 					{
 						iHighestDanger = iDanger;
@@ -8985,42 +9001,6 @@ void CvTacticalAI::ExecuteEscortEmbarkedMoves()
 }
 
 #if defined(MOD_AI_SMART_RANGED_UNITS)
-// Iterate through available plots and get the best one to later move at.
-void CvTacticalAI::GetBestPlot(CvPlot*& outputPlot, vector<CvPlot*> plotsToCheck)
-{
-	int minDanger = 0;
-	std::vector<CvPlot*>::iterator it;
-
-	for (it = plotsToCheck.begin(); it != plotsToCheck.end(); it++)
-	{
-		CvPlot* pPlot = (*it);
-		int currentDanger = m_pPlayer->GetPlotDanger(*pPlot);
-
-		if (minDanger == 0 || (currentDanger < minDanger))
-		{
-			outputPlot = pPlot;
-			minDanger = currentDanger;
-		}
-	}
-}
-
-// helper function to iterate vector that is of CvPlot Type.
-bool CvTacticalAI::ContainsPlot(vector<CvPlot*> plotData, CvPlot* plotXy)
-{
-	bool methodResult = false;
-	std::vector<CvPlot*>::iterator it;
-
-	for (it = plotData.begin(); it != plotData.end(); it++)
-	{
-		if (((*it)->getX() == plotXy->getX()) && ((*it)->getY() == plotXy->getY()))
-		{
-			methodResult = true;
-			break;
-		}
-	}
-
-	return methodResult;
-}
 
 // Get best plot of the array of possible plots, based on plot danger.
 CvPlot* CvTacticalAI::GetBestRepositionPlot(UnitHandle pUnit, CvPlot* plotTarget)
@@ -9361,30 +9341,6 @@ CvUnit* CvTacticalAI::GetProbableInterceptor(CvPlot* pTargetPlot) const
 }
 #endif
 
-void CvTacticalAI::SortCurrentMoveUnits(bool bSortBySelfDamage)
-{
-	for (std::vector<CvTacticalUnit>::iterator it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
-	{
-		for (std::vector<CvTacticalUnit>::iterator jt = it + 1; jt < m_CurrentMoveUnits.end(); ++jt)
-		{
-			// Should the two items swap places?
-			if (bSortBySelfDamage && jt->GetExpectedSelfDamage() <= it->GetExpectedSelfDamage())
-			{
-				if (jt->GetExpectedTargetDamage() > it->GetExpectedTargetDamage() || jt->GetExpectedSelfDamage() < it->GetExpectedSelfDamage())
-				{
-					iter_swap(it, jt);
-				}
-			}
-			else if (jt->GetExpectedTargetDamage() >= it->GetExpectedTargetDamage())
-			{
-				if (jt->GetExpectedTargetDamage() > it->GetExpectedTargetDamage() || jt->GetExpectedSelfDamage() < it->GetExpectedSelfDamage())
-				{
-					iter_swap(it, jt);
-				}
-			}
-		}
-	}
-}
 #endif
 
 /// Disable a move (probably because it is incompatible with a posture chosen)
@@ -10283,6 +10239,10 @@ bool CvTacticalAI::MoveToEmptySpaceNearTarget(UnitHandle pUnit, CvPlot* pTarget,
 					// And if it is a city, make sure we are friends with them, else we will automatically attack
 					if(pLoopPlot->getPlotCity() == NULL || pLoopPlot->isFriendlyCity(*pUnit, false))
 					{
+#ifdef AUI_DANGER_PLOTS_REMADE
+						if(m_pPlayer->GetPlotDanger(*pLoopPlot,pUnit.pointer())*2 > pUnit->GetCurrHitPoints())
+							continue;
+#endif
 						// Find a path to this space
 						if(pUnit->GeneratePath(pLoopPlot))
 						{
@@ -12037,7 +11997,11 @@ int CvTacticalAI::ScoreGreatGeneralPlot(UnitHandle pGeneral, CvPlot* pTarget, Cv
 	}
 
 	// Danger value
+#ifdef AUI_DANGER_PLOTS_REMADE
+	iDangerValue = m_pPlayer->GetPlotDanger(*pTarget,pGeneral.pointer());
+#else
 	iDangerValue = m_pPlayer->GetPlotDanger(*pTarget);
+#endif
 	pBestDefender = pTarget->getBestDefender(m_pPlayer->GetID());
 
 	// Friendly city here?

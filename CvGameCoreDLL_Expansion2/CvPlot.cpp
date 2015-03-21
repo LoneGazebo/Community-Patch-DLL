@@ -3060,7 +3060,8 @@ int CvPlot::defenseModifier(TeamTypes eDefender, bool, bool bHelp) const
 	ImprovementTypes eImprovement = bHelp ? getRevealedImprovementType(GC.getGame().getActiveTeam()) : getImprovementType();
 	if(eImprovement != NO_IMPROVEMENT && !IsImprovementPillaged())
 	{
-		if(eDefender != NO_TEAM && (getTeam() == NO_TEAM || GET_TEAM(eDefender).isFriendlyTerritory(getTeam())))
+		//only friendly or unowned fortresses can be used for combat, but include them in the tooltips always
+		if(bHelp || (eDefender != NO_TEAM && (getTeam() == NO_TEAM || GET_TEAM(eDefender).isFriendlyTerritory(getTeam()))))
 		{
 			CvImprovementEntry* pkImprovement = GC.getImprovementInfo(eImprovement);
 			if (pkImprovement)

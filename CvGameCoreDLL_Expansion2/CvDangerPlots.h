@@ -18,7 +18,7 @@
 // Stores all possible damage sources on a tile (terrain, improvements, cities, units)
 
 typedef std::vector<std::pair<PlayerTypes,int>> DangerUnitVector;
-typedef std::vector<CvCity*> DangerCityVector;
+typedef std::vector<std::pair<PlayerTypes,int>> DangerCityVector;
 typedef std::set<std::pair<PlayerTypes,int>> UnitSet;
 
 struct CvDangerPlotContents
@@ -122,10 +122,8 @@ public:
 	void AddDanger(int iPlotX, int iPlotY, int iValue, bool bWithinOneMove);
 	int GetDanger(const CvPlot& pPlot) const;
 	bool IsUnderImmediateThreat(const CvPlot& pPlot) const;
-#endif // AUI_DANGER_PLOTS_REMADE
-	int GetCityDanger(CvCity* pCity);  // sums the plots around the city to determine it's danger value
 
-#ifndef AUI_DANGER_PLOTS_REMADE
+	int GetCityDanger(CvCity* pCity);  // sums the plots around the city to determine it's danger value
 	int ModifyDangerByRelationship(PlayerTypes ePlayer, CvPlot* pPlot, int iDanger);
 #endif // AUI_DANGER_PLOTS_REMADE
 

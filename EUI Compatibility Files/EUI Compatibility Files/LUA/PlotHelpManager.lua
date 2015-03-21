@@ -963,7 +963,7 @@ local function UpdatePlotHelp( timeChange )
 		end
 
 		-- Defense
-		local defenseModifier = plot:DefenseModifier( activeTeamID, false, false )
+		local defenseModifier = plot:DefenseModifier( activeTeamID, false, true )
 		if defenseModifier ~= 0 then
 			if isNoob then
 				tips:insert( L"TXT_KEY_PEDIA_DEFENSE_LABEL" .. S(" %+i%%[ICON_STRENGTH]", defenseModifier) )

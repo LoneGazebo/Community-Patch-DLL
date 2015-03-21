@@ -2600,7 +2600,11 @@ CvCity* CvMilitaryAI::GetMostThreatenedCity(int iOrder)
 			}
 
 			int iThreatValue = pLoopCity->getThreatValue();
+#if defined(MOD_BALANCE_CORE_MILITARY)
+			iThreatValue = iThreatValue * (int)(sqrt((float)pLoopCity->getPopulation())+0.5f);
+#else
 			iThreatValue = iThreatValue * pLoopCity->getPopulation();
+#endif
 
 			if(pLoopCity->isCapital())
 			{
