@@ -30,7 +30,7 @@
     <_ProjectFileVersion>10.0.40219.1</_ProjectFileVersion>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Mod|Win32'">$(SolutionDir)\BuildOutput\VS2010_$(Configuration)$(Platform)\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Mod|Win32'">$(SolutionDir)\BuildTemp\VS2010_$(ProjectName)$(Configuration)$(Platform)\</IntDir>
-    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Mod|Win32'">false</LinkIncremental>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Mod|Win32'">true</LinkIncremental>
     <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Mod|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
     <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Mod|Win32'" />
     <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Mod|Win32'" />
@@ -81,6 +81,7 @@
       <TargetMachine>MachineX86</TargetMachine>
       <ModuleDefinitionFile>$(ProjectDir)CvGameCoreDLL.def</ModuleDefinitionFile>
       <DelayLoadDLLs>%(DelayLoadDLLs)</DelayLoadDLLs>
+      <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

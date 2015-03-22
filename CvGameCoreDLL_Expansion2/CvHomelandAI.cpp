@@ -7259,9 +7259,16 @@ bool CvHomelandAI::MoveToEmptySpaceNearTarget(CvUnit* pUnit, CvPlot* pTarget, bo
 	CvPlot* pLoopPlot;
 
 	// Look at spaces adjacent to target
+#if defined(MOD_BALANCE_CORE)
+	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(pTarget);
+	for(int iI=0; iI<NUM_DIRECTION_TYPES; iI++)
+	{
+		pLoopPlot = aPlotsToCheck[iI];
+#else
 	for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
 	{
 		pLoopPlot = plotDirection(pTarget->getX(), pTarget->getY(), ((DirectionTypes)iI));
+#endif
 		if(pLoopPlot != NULL && pLoopPlot->isWater() != bLand)
 		{
 			// Must be currently empty of friendly combat units

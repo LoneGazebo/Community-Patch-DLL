@@ -850,7 +850,7 @@ void CvDangerPlots::AssignUnitDangerValue(CvUnit* pUnit, CvPlot* pPlot, bool bRe
 	}
 
 	// Check to see if another player has already done the pathfinding for us
-	DangerPlotList& vpUnitDangerPlotList = pUnit->GetDangerPlotList();
+	DangerPlotList& vpUnitDangerPlotList = pUnit->GetDangerPlotList(false);
 	DangerPlotList& vpUnitDangerPlotMoveOnlyList = pUnit->GetDangerPlotList(true);
 	bool bInList = pPlot->getNumTimesInList(vpUnitDangerPlotList, true) > 0;
 	bool bInMoveOnlyList = pPlot->getNumTimesInList(vpUnitDangerPlotMoveOnlyList, true) > 0;

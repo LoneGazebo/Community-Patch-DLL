@@ -10224,10 +10224,18 @@ bool CvTacticalAI::MoveToEmptySpaceNearTarget(UnitHandle pUnit, CvPlot* pTarget,
 		return false;
 	}	
 #endif
+
 	// Look at spaces adjacent to target
+#if defined(MOD_BALANCE_CORE)
+	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(pTarget);
+	for(int iI=0; iI<NUM_DIRECTION_TYPES; iI++)
+	{
+		pLoopPlot = aPlotsToCheck[iI];
+#else
 	for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
 	{
 		pLoopPlot = plotDirection(pTarget->getX(), pTarget->getY(), ((DirectionTypes)iI));
+#endif
 		if(pLoopPlot != NULL && pLoopPlot->isWater() != bLand)
 		{
 			// Must be currently empty of friendly combat units
@@ -10240,7 +10248,8 @@ bool CvTacticalAI::MoveToEmptySpaceNearTarget(UnitHandle pUnit, CvPlot* pTarget,
 					if(pLoopPlot->getPlotCity() == NULL || pLoopPlot->isFriendlyCity(*pUnit, false))
 					{
 #ifdef AUI_DANGER_PLOTS_REMADE
-						if(m_pPlayer->GetPlotDanger(*pLoopPlot,pUnit.pointer())*2 > pUnit->GetCurrHitPoints())
+						//ideally we would check all plots and use the one with the lowest danger, but that's more pathfinding
+						if(!pUnit->isBarbarian() && m_pPlayer->GetPlotDanger(*pLoopPlot,pUnit.pointer())*2 > pUnit->GetCurrHitPoints())
 							continue;
 #endif
 						// Find a path to this space

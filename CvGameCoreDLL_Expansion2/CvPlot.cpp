@@ -929,10 +929,16 @@ bool CvPlot::isAdjacentToLand() const
 	CvPlot* pAdjacentPlot;
 	int iI;
 
+#if defined(MOD_BALANCE_CORE)
+	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(this);
+	for(iI=0; iI<NUM_DIRECTION_TYPES; iI++)
+	{
+		pAdjacentPlot = aPlotsToCheck[iI];
+#else
 	for(iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
 	{
 		pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
-
+#endif
 		if(pAdjacentPlot != NULL)
 		{
 			if(!(pAdjacentPlot->isWater()))
@@ -967,10 +973,16 @@ bool CvPlot::isAdjacentToShallowWater() const
 
 	TerrainTypes eShallowWater = (TerrainTypes) GC.getSHALLOW_WATER_TERRAIN();
 
+#if defined(MOD_BALANCE_CORE)
+	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(this);
+	for(iI=0; iI<NUM_DIRECTION_TYPES; iI++)
+	{
+		pAdjacentPlot = aPlotsToCheck[iI];
+#else
 	for(iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
 	{
 		pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
-
+#endif
 		if(pAdjacentPlot != NULL)
 		{
 			if(pAdjacentPlot->getTerrainType() == eShallowWater)
@@ -3194,10 +3206,16 @@ bool CvPlot::isAdjacentOwned() const
 	CvPlot* pAdjacentPlot;
 	int iI;
 
+#if defined(MOD_BALANCE_CORE)
+	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(this);
+	for(iI=0; iI<NUM_DIRECTION_TYPES; iI++)
+	{
+		pAdjacentPlot = aPlotsToCheck[iI];
+#else
 	for(iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
 	{
 		pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
-
+#endif
 		if(pAdjacentPlot != NULL)
 		{
 			if(pAdjacentPlot->getOwner() != NO_PLAYER)
@@ -3217,10 +3235,16 @@ bool CvPlot::isAdjacentPlayer(PlayerTypes ePlayer, bool bLandOnly) const
 	CvPlot* pAdjacentPlot;
 	int iI;
 
+#if defined(MOD_BALANCE_CORE)
+	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(this);
+	for(iI=0; iI<NUM_DIRECTION_TYPES; iI++)
+	{
+		pAdjacentPlot = aPlotsToCheck[iI];
+#else
 	for(iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
 	{
 		pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
-
+#endif
 		if(pAdjacentPlot != NULL)
 		{
 			if(pAdjacentPlot->getOwner() == ePlayer)
@@ -3242,10 +3266,16 @@ bool CvPlot::IsAdjacentOwnedByOtherTeam(TeamTypes eTeam) const
 	CvPlot* pAdjacentPlot;
 	int iI;
 
+#if defined(MOD_BALANCE_CORE)
+	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(this);
+	for(iI=0; iI<NUM_DIRECTION_TYPES; iI++)
+	{
+		pAdjacentPlot = aPlotsToCheck[iI];
+#else
 	for(iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
 	{
 		pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
-
+#endif
 		if(pAdjacentPlot != NULL)
 		{
 			if(pAdjacentPlot->getTeam() != NO_TEAM && pAdjacentPlot->getTeam() != eTeam)
@@ -3266,10 +3296,16 @@ bool CvPlot::isAdjacentTeam(TeamTypes eTeam, bool bLandOnly) const
 	CvPlot* pAdjacentPlot;
 	int iI;
 
+#if defined(MOD_BALANCE_CORE)
+	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(this);
+	for(iI=0; iI<NUM_DIRECTION_TYPES; iI++)
+	{
+		pAdjacentPlot = aPlotsToCheck[iI];
+#else
 	for(iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
 	{
 		pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
-
+#endif
 		if(pAdjacentPlot != NULL)
 		{
 			if(pAdjacentPlot->getTeam() == eTeam)
@@ -3740,10 +3776,16 @@ bool CvPlot::isAdjacentVisible(TeamTypes eTeam, bool bDebug) const
 	CvPlot* pAdjacentPlot;
 	int iI;
 
+#if defined(MOD_BALANCE_CORE)
+	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(this);
+	for(iI=0; iI<NUM_DIRECTION_TYPES; iI++)
+	{
+		pAdjacentPlot = aPlotsToCheck[iI];
+#else
 	for(iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
 	{
 		pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
-
+#endif
 		if(pAdjacentPlot != NULL)
 		{
 			if(pAdjacentPlot->isVisible(eTeam, bDebug))
@@ -3762,10 +3804,16 @@ bool CvPlot::isAdjacentVisible(TeamTypes eTeam) const
 	CvPlot* pAdjacentPlot;
 	int iI;
 
+#if defined(MOD_BALANCE_CORE)
+	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(this);
+	for(iI=0; iI<NUM_DIRECTION_TYPES; iI++)
+	{
+		pAdjacentPlot = aPlotsToCheck[iI];
+#else
 	for(iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
 	{
 		pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
-
+#endif
 		if(pAdjacentPlot != NULL)
 		{
 			if(pAdjacentPlot->isVisible(eTeam))
@@ -3784,10 +3832,16 @@ bool CvPlot::isAdjacentNonvisible(TeamTypes eTeam) const
 	CvPlot* pAdjacentPlot;
 	int iI;
 
+#if defined(MOD_BALANCE_CORE)
+	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(this);
+	for(iI=0; iI<NUM_DIRECTION_TYPES; iI++)
+	{
+		pAdjacentPlot = aPlotsToCheck[iI];
+#else
 	for(iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
 	{
 		pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
-
+#endif
 		if(pAdjacentPlot != NULL)
 		{
 			if(!pAdjacentPlot->isVisible(eTeam))
@@ -10019,10 +10073,16 @@ bool CvPlot::isAdjacentRevealed(TeamTypes eTeam) const
 	CvPlot* pAdjacentPlot;
 	int iI;
 
+#if defined(MOD_BALANCE_CORE)
+	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(this);
+	for(iI=0; iI<NUM_DIRECTION_TYPES; iI++)
+	{
+		pAdjacentPlot = aPlotsToCheck[iI];
+#else
 	for(iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
 	{
 		pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
-
+#endif
 		if(pAdjacentPlot != NULL)
 		{
 			if(pAdjacentPlot->isRevealed(eTeam))
@@ -10041,10 +10101,16 @@ bool CvPlot::isAdjacentNonrevealed(TeamTypes eTeam) const
 	CvPlot* pAdjacentPlot;
 	int iI;
 
+#if defined(MOD_BALANCE_CORE)
+	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(this);
+	for(iI=0; iI<NUM_DIRECTION_TYPES; iI++)
+	{
+		pAdjacentPlot = aPlotsToCheck[iI];
+#else
 	for(iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
 	{
 		pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
-
+#endif
 		if(pAdjacentPlot != NULL)
 		{
 			if(!pAdjacentPlot->isRevealed(eTeam))
@@ -10063,10 +10129,16 @@ int CvPlot::getNumAdjacentNonrevealed(TeamTypes eTeam) const
 	CvPlot* pAdjacentPlot;
 	int iCount = 0;
 
+#if defined(MOD_BALANCE_CORE)
+	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(this);
+	for(int i=0; i<NUM_DIRECTION_TYPES; i++)
+	{
+		pAdjacentPlot = aPlotsToCheck[i];
+#else
 	for(int i = 0; i < NUM_DIRECTION_TYPES; ++i)
 	{
 		pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)i));
-
+#endif
 		if(pAdjacentPlot != NULL)
 		{
 			if(!pAdjacentPlot->isRevealed(eTeam))

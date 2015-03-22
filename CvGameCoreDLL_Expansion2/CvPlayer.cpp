@@ -30341,6 +30341,10 @@ void CvPlayer::Read(FDataStream& kStream)
 
 	if(m_bTurnActive)
 		GC.getGame().changeNumGameTurnActive(1, std::string("setTurnActive() [loading save game] for player ") + getName());
+
+#if defined(MOD_BALANCE_CORE)
+	UpdateAreaEffectUnits();
+#endif
 }
 
 //	--------------------------------------------------------------------------------
@@ -31938,8 +31942,18 @@ void CvPlayer::UpdateAreaEffectUnits()
 		if (pLoopUnit->IsGreatGeneral() || pLoopUnit->IsGreatAdmiral())
 			m_unitsAreaEffectPositive.push_back( pLoopUnit->GetID() );
 
-		if (pLoopUnit->getNearbyEnemyCombatMod() > 0)
+		if (pLoopUnit->getNearbyEnemyCombatMod() < 0)
 			m_unitsAreaEffectNegative.push_back( pLoopUnit->GetID() );
+	}
+
+	//cache the wars we have going
+	m_playersWeAreAtWarWith.clear();
+	//note: normal players are not at war with the barbarians, but the barbarians are at war with everyone
+	for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+	{
+		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+		if(GET_TEAM(getTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam()))
+			m_playersWeAreAtWarWith.push_back( eLoopPlayer );
 	}
 }
 

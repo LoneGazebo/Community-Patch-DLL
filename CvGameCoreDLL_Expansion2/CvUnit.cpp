@@ -20622,7 +20622,7 @@ bool CvUnit::IsNearGreatGeneral(const CvPlot* pAtPlot, const CvUnit* pIgnoreThis
 			return false;
 	}
 
-	const std::vector<int>& possibleUnits = GET_PLAYER(getOwner()).GetAreaEffectNegativeUnits();
+	const std::vector<int>& possibleUnits = GET_PLAYER(getOwner()).GetAreaEffectPositiveUnits();
 	for(std::vector<int>::const_iterator it = possibleUnits.begin(); it!=possibleUnits.end(); ++it)
 	{
 		UnitHandle pUnit = GET_PLAYER(getOwner()).getUnit(*it);
@@ -20857,7 +20857,7 @@ int CvUnit::GetReverseGreatGeneralModifier(const CvPlot* pAtPlot) const
 	
 	int iMaxMod = 0;
 
-	const std::vector<PlayerTypes>& vEnemies = GET_PLAYER(getOwner()).GetDiplomacyAI()->GetPlayersAtWarWith();
+	const std::vector<PlayerTypes>& vEnemies = GET_PLAYER(getOwner()).GetPlayersAtWarWith();
 
 	for(std::vector<PlayerTypes>::const_iterator it=vEnemies.begin(); it!=vEnemies.end(); ++it)
 	{

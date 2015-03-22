@@ -2311,10 +2311,6 @@ void CvDiplomacyAI::DoCounters()
 	PlayerTypes eThirdPlayer;
 	int iThirdPlayerLoop;
 
-#if defined(MOD_BALANCE_CORE_MILITARY)
-	m_playersWeAreAtWarWith.clear();
-#endif
-
 	// Loop through all (known) Players
 	PlayerTypes eLoopPlayer;
 	for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
@@ -2325,14 +2321,7 @@ void CvDiplomacyAI::DoCounters()
 		{
 			// War Counter
 			if(GET_TEAM(GetTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam()))
-#if defined(MOD_BALANCE_CORE_MILITARY)
-			{
-				m_playersWeAreAtWarWith.push_back(eLoopPlayer);
 				ChangePlayerNumTurnsAtWar(eLoopPlayer, 1);
-			}
-#else
-				ChangePlayerNumTurnsAtWar(eLoopPlayer, 1);
-#endif
 			// Reset Counter if not at war
 			else if(GetPlayerNumTurnsAtWar(eLoopPlayer) > 0)
 				SetPlayerNumTurnsAtWar(eLoopPlayer, 0);
