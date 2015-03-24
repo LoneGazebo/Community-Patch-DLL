@@ -21012,7 +21012,31 @@ int CvUnit::GetNearbyImprovementModifierFromTraits(const CvPlot* pAtPlot)const
 	CvPlayer& kPlayer = GET_PLAYER(m_eOwner);
 	CvPlayerTraits* playerTraits = kPlayer.GetPlayerTraits();
 
+#if defined(MOD_BALANCE_CORE_MILITARY)
+
+	int iImprovementRange = playerTraits->GetNearbyImprovementBonusRange();
+	int iImprovementModifier = playerTraits->GetNearbyImprovementCombatBonus();
+
+	const std::vector<int>& possiblePlots = GET_PLAYER(getOwner()).GetAreaEffectPositiveFromTraitsPlots();
+	for(std::vector<int>::const_iterator it = possiblePlots.begin(); it!=possiblePlots.end(); ++it)
+	{
+		CvPlot* pCandidatePlot = GC.getMap().plotByIndexUnchecked(*it);
+
+		if (pCandidatePlot)
+		{
+			if (plotDistance( pAtPlot->getX(),pAtPlot->getY(),pCandidatePlot->getX(),pCandidatePlot->getY() ) <= iImprovementRange)
+				return iImprovementModifier;
+		}
+
+	}
+
+	return 0;
+
+#else
+
 	return GetNearbyImprovementModifier(playerTraits->GetCombatBonusImprovementType(), playerTraits->GetNearbyImprovementBonusRange(), playerTraits->GetNearbyImprovementCombatBonus(), pAtPlot);
+
+#endif
 }
 
 int CvUnit::GetNearbyImprovementModifierFromPromotions(const CvPlot* pAtPlot)const

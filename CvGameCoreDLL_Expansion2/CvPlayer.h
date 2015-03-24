@@ -1822,6 +1822,7 @@ public:
 	void UpdateAreaEffectUnits();
 	const std::vector<int>& GetAreaEffectPositiveUnits() const;
 	const std::vector<int>& GetAreaEffectNegativeUnits() const;
+	const std::vector<int>& GetAreaEffectPositiveFromTraitsPlots() const;
 	const std::vector<PlayerTypes>& GetPlayersAtWarWith() const { return m_playersWeAreAtWarWith; }
 #endif
 
@@ -2719,6 +2720,7 @@ protected:
 	int m_iFractionOriginalCapitalsUnderControl;
 	std::vector<int> m_unitsAreaEffectPositive;
 	std::vector<int> m_unitsAreaEffectNegative;
+	std::vector<int> m_plotsAreaEffectPositiveFromTraits;
 	std::vector<PlayerTypes> m_playersWeAreAtWarWith;
 #endif
 };

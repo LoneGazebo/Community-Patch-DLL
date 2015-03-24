@@ -31930,6 +31930,8 @@ void CvPlayer::UpdateAreaEffectUnits()
 	m_unitsAreaEffectPositive.clear();
 	//maori warrior et al
 	m_unitsAreaEffectNegative.clear();
+	//moai et al
+	m_plotsAreaEffectPositiveFromTraits.clear();
 
 	// Loop through our units
 	int iLoop;
@@ -31944,6 +31946,18 @@ void CvPlayer::UpdateAreaEffectUnits()
 
 		if (pLoopUnit->getNearbyEnemyCombatMod() < 0)
 			m_unitsAreaEffectNegative.push_back( pLoopUnit->GetID() );
+	}
+
+	// Loop through our plots
+	ImprovementTypes iTraitImprovement = GetPlayerTraits()->GetCombatBonusImprovementType();
+	if (iTraitImprovement!=NO_IMPROVEMENT)
+	{
+		for(int iPlotLoop = 0; iPlotLoop < GC.getMap().numPlots(); iPlotLoop++)
+		{
+			CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(iPlotLoop);
+			if (pPlot && pPlot->getOwner()==GetID() && pPlot->getImprovementType()==iTraitImprovement )
+				m_plotsAreaEffectPositiveFromTraits.push_back( iPlotLoop );
+		}
 	}
 
 	//cache the wars we have going
@@ -31965,6 +31979,11 @@ const std::vector<int>& CvPlayer::GetAreaEffectPositiveUnits() const
 const std::vector<int>& CvPlayer::GetAreaEffectNegativeUnits() const
 {
 	return m_unitsAreaEffectNegative;
+}
+
+const std::vector<int>& CvPlayer::GetAreaEffectPositiveFromTraitsPlots() const
+{
+	return m_plotsAreaEffectPositiveFromTraits;
 }
 
 #endif

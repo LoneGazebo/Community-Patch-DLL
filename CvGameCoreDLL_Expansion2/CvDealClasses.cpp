@@ -337,7 +337,11 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 	if(eItem == TRADE_ITEM_GOLD)
 	{
 		// DoF has not been made with this player
+#if defined(MOD_BALANCE_CORE_DEALS_ADVANCED)
+		if (!this->IsPeaceTreatyTrade(eToPlayer) && !this->IsPeaceTreatyTrade(ePlayer) && this->GetPeaceTreatyType()==NO_PEACE_TREATY_TYPE)
+#else
 		if (!this->IsPeaceTreatyTrade(eToPlayer) && !this->IsPeaceTreatyTrade(ePlayer))
+#endif
 		{
 			if (pFromPlayer->getTeam() != pToPlayer->getTeam() && (!pFromPlayer->GetDiplomacyAI()->IsDoFAccepted(eToPlayer) || !pToPlayer->GetDiplomacyAI()->IsDoFAccepted(ePlayer)))
 				return false;
@@ -1660,11 +1664,7 @@ bool CvDeal::IsPeaceTreatyTrade(PlayerTypes eFrom)
 			return true;
 		}
 	}
-//#if defined(MOD_BALANCE_CORE_DEALS)
-//	return m_ePeaceTreatyType != NO_PEACE_TREATY_TYPE;
-//#else
 	return 0;
-//#endif
 }
 
 bool CvDeal::IsThirdPartyPeaceTrade(PlayerTypes eFrom, TeamTypes eThirdPartyTeam)

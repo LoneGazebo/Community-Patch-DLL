@@ -5163,10 +5163,10 @@ void CvDealAI::DoTradeScreenOpened()
 			{
 				pkUIDeal->SetSurrenderingPlayer(eMyPlayer);
 				pkUIDeal->SetPeaceTreatyType(ePeaceTreatyImWillingToOffer);
-//#if defined(MOD_BALANCE_CORE_DEALS_ADVANCED)
-//				if(MOD_BALANCE_CORE_DEALS_ADVANCED)
-//					pDeal->SetPeaceTreatyType(ePeaceTreatyImWillingToOffer);
-//#endif
+#if defined(MOD_BALANCE_CORE_DEALS_ADVANCED)
+				if(MOD_BALANCE_CORE_DEALS_ADVANCED)
+					pDeal->SetPeaceTreatyType(ePeaceTreatyImWillingToOffer);
+#endif
 
 				DoAddItemsToDealForPeaceTreaty(eActivePlayer, pDeal, ePeaceTreatyImWillingToOffer, /*bMeSurrendering*/ true);
 
@@ -5180,10 +5180,10 @@ void CvDealAI::DoTradeScreenOpened()
 			{
 				pkUIDeal->SetSurrenderingPlayer(eActivePlayer);
 				pkUIDeal->SetPeaceTreatyType(ePeaceTreatyImWillingToAccept);
-//#if defined(MOD_BALANCE_CORE_DEALS_ADVANCED)
-//				if(MOD_BALANCE_CORE_DEALS_ADVANCED)
-//					pDeal->SetPeaceTreatyType(ePeaceTreatyImWillingToAccept);
-//#endif
+#if defined(MOD_BALANCE_CORE_DEALS_ADVANCED)
+				if(MOD_BALANCE_CORE_DEALS_ADVANCED)
+					pDeal->SetPeaceTreatyType(ePeaceTreatyImWillingToAccept);
+#endif
 
 				DoAddItemsToDealForPeaceTreaty(eActivePlayer, pDeal, ePeaceTreatyImWillingToAccept, /*bMeSurrendering*/ false);
 

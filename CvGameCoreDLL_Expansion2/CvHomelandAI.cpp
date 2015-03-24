@@ -193,7 +193,7 @@ CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit) const
 		int iDistX = abs( vExplorePlots[ui].pPlot->getX() - iRefX );
 		int iDistY = abs( vExplorePlots[ui].pPlot->getY() - iRefY );
 
-		vPlotsByDistance.push_back( std::make_pair((iDistX*iDistX)+(iDistY*iDistY), vExplorePlots[ui]) );
+		vPlotsByDistance.push_back( std::make_pair( (iDistX*iDistX)+(iDistY*iDistY), vExplorePlots[ui]) );
 	}
 
 	//sorts by the first element of the iterator ... which is our distance. nice.
@@ -212,7 +212,8 @@ CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit) const
 		//reverse the score calculation below to get an upper bound on the distance
 		int iMaxDistance = (1000*iRating) / max(1,iBestPlotScore);
 
-		if(iMaxDistance==0)
+		//is there a chance we can reach the plot within the required number of turns? (assuming no roads)
+		if( sqrt((float)itr->first) > (iMaxDistance*pUnit->baseMoves()) )
 			continue;
 
 		bool bCanFindPath = GC.getPathFinder().GenerateUnitPath(pUnit, iRefX, iRefY, pEvalPlot->getX(), pEvalPlot->getY(), 
