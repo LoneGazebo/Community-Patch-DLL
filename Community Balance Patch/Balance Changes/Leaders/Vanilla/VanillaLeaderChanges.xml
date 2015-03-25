@@ -195,7 +195,7 @@
 	<Unit_FreePromotions>
 		<Row>
 			<UnitType>UNIT_GREEK_HOPLITE</UnitType>
-			<PromotionType>PROMOTION_SPAWN_GENERALS_I</PromotionType>
+			<PromotionType>PROMOTION_SPAWN_GENERALS_II</PromotionType>
 		</Row>
 	</Unit_FreePromotions>
 	<!-- India -->

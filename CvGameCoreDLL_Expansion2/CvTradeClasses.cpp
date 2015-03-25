@@ -4742,7 +4742,11 @@ void CvTradeAI::GetAvailableTR(TradeConnectionList& aTradeConnectionList)
 }
 
 /// Score TR
+#if defined(MOD_BALANCE_CORE)
+int CvTradeAI::ScoreInternationalTR (const TradeConnection& kTradeConnection, bool bHaveTourism)
+#else
 int CvTradeAI::ScoreInternationalTR (const TradeConnection& kTradeConnection)
+#endif
 {
 	// don't evaluate other trade types
 	if (kTradeConnection.m_eConnectionType != TRADE_CONNECTION_INTERNATIONAL)
@@ -4927,7 +4931,11 @@ int CvTradeAI::ScoreInternationalTR (const TradeConnection& kTradeConnection)
 #endif // AUI_TRADE_SCORE_TRADE_ROUTE_DIVIDE_BY_LOG_TOTAL_DANGER
 	
 	// if we have any tourism and the destination owner is not a minor civ
+#if defined(MOD_BALANCE_CORE)
+	if (bHaveTourism && !GET_PLAYER(kTradeConnection.m_eDestOwner).isMinorCiv())
+#else
 	if (m_pPlayer->GetCulture()->GetTourism() > 0 && !GET_PLAYER(kTradeConnection.m_eDestOwner).isMinorCiv())
+#endif
 	{
 		// if we're not connected to a player, double the value to that player
 		if (!GC.getGame().GetGameTrade()->IsPlayerConnectedToPlayer(m_pPlayer->GetID(), kTradeConnection.m_eDestOwner))
@@ -5425,13 +5433,22 @@ void CvTradeAI::PrioritizeTradeRoutes(TradeConnectionList& aTradeConnectionList)
 	}
 #endif
 
+#if defined(MOD_BALANCE_CORE)
+	//precalculate this, it's expensive
+	bool bHaveTourism = (m_pPlayer->GetCulture()->GetTourism()>0);
+#endif
+
 	// GOLD GOLD GOLD GOLD
 	aGoldSortedTR.clear();
 	for (uint ui = 0; ui < aTradeConnectionList.size(); ui++)
 	{
 		TRSortElement kElement;
 		kElement.m_kTradeConnection = aTradeConnectionList[ui];
+#if defined(MOD_BALANCE_CORE)
+		kElement.m_iScore = ScoreInternationalTR(aTradeConnectionList[ui],bHaveTourism);
+#else
 		kElement.m_iScore = ScoreInternationalTR(aTradeConnectionList[ui]);
+#endif
 		if (kElement.m_iScore > 0)
 		{
 			aGoldSortedTR.push_back(kElement);

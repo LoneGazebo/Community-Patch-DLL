@@ -557,11 +557,14 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 
 	Method(IsRangedSupportFire);
 
-#if defined(MOD_API_LUA_EXTENSIONS)
-	Method(AddMessage);
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	Method(GetAIOperationInfo);
+	Method(GetMissionInfo);
+	Method(GetDanger);
 #endif
 
 #if defined(MOD_API_LUA_EXTENSIONS)
+	Method(AddMessage);
 	Method(IsCivilization);
 	Method(HasPromotion);
 	Method(IsUnit);
@@ -5115,6 +5118,57 @@ int CvLuaUnit::lAddMessage(lua_State* L)
 	SHOW_UNIT_MESSAGE(pUnit, ePlayer, szMessage);
 	return 0;
 }
+#endif
+
+#if defined(MOD_BALANCE_CORE_MILITARY)
+#include "../CvPlayerAI.h"
+
+//------------------------------------------------------------------------------
+int CvLuaUnit::lGetAIOperationInfo(lua_State* L)
+{
+	CvUnit* pUnit = GetInstance(L);
+	PlayerTypes ePlayer = (PlayerTypes)pUnit->getOwner();
+	int iArmyID = pUnit->getArmyID();
+	if (ePlayer!=NO_PLAYER && iArmyID!=-1)
+	{
+		CvArmyAI* pArmy = CvPlayerAI::getPlayer(ePlayer).getArmyAI(iArmyID);
+		if (pArmy)
+		{
+			CvAIOperation* pAIOp = CvPlayerAI::getPlayer(ePlayer).getAIOperation(pArmy->GetOperationID());
+			if (pAIOp)
+			{
+				lua_pushstring(L, pAIOp->GetInfoString());
+				return 1;
+			}
+		}
+	}
+
+	lua_pushstring(L, "no operation");
+	return 1;
+}
+
+//------------------------------------------------------------------------------
+int CvLuaUnit::lGetMissionInfo(lua_State* L)
+{
+	CvUnit* pUnit = GetInstance(L);
+	lua_pushstring(L, pUnit->GetMissionInfo());
+	return 1;
+}
+
+//------------------------------------------------------------------------------
+int CvLuaUnit::lGetDanger(lua_State* L)
+{
+	CvUnit* pUnit = GetInstance(L);
+	PlayerTypes ePlayer = (PlayerTypes)pUnit->getOwner();
+	int iDanger = 0;
+
+	if (ePlayer!=NO_PLAYER)
+		iDanger = CvPlayerAI::getPlayer(ePlayer).GetPlotDanger(*(pUnit->plot()),pUnit);
+
+	lua_pushinteger(L, iDanger);
+	return 1;
+}
+
 #endif
 
 #if defined(MOD_API_LUA_EXTENSIONS)

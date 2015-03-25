@@ -145,6 +145,13 @@
 		</Row>
 	</Diplomacy_Responses>
 	<Language_en_US>
+		<!-- No Supply -->
+		<Row Tag="TXT_KEY_NO_ACTION_NO_SUPPLY">
+			<Text>Cannot [ICON_PRODUCTION] Train this unit, as you are at your Supply cap!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NO_ACTION_NO_SUPPLY_PURCHASE">
+			<Text>Cannot [ICON_GOLD] Purchase this unit, as you are at your Supply cap!</Text>
+		</Row>
 		<!-- Defensive Pact Bonuses -->
 		<Row Tag="TXT_KEY_DIPLO_DP">
 			<Text>[COLOR_POSITIVE_TEXT]We have made a Defensive Pact![ENDCOLOR]</Text>

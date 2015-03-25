@@ -1822,6 +1822,8 @@ public:
 	void UpdateAreaEffectUnits();
 	const std::vector<int>& GetAreaEffectPositiveUnits() const;
 	const std::vector<int>& GetAreaEffectNegativeUnits() const;
+	const std::vector<int>& GetAreaEffectPositiveFromTraitsPlots() const;
+	const std::vector<PlayerTypes>& GetPlayersAtWarWith() const { return m_playersWeAreAtWarWith; }
 #endif
 
 	int GetNumNaturalWondersDiscoveredInArea() const;
@@ -1836,7 +1838,7 @@ public:
 
 	int GetBestSettleAreas(int iMinScore, int& iFirstArea, int& iSecondArea);
 #if defined(MOD_BALANCE_CORE_SETTLER)
-	CvPlot* GetBestSettlePlot(const CvUnit* pUnit, bool bEscorted, int iTargetArea, CvAIOperation* pOpToIgnore, bool bForceLogging=false) const;
+	CvPlot* GetBestSettlePlot(const CvUnit* pUnit, bool bEscorted, int iTargetArea, CvAIOperation* pOpToIgnore=NULL, bool bForceLogging=false) const;
 	int GetFoundValueOfCapital() const;
 	void SetFoundValueOfCapital(int iValue);
 	bool HaveGoodSettlePlot(int iAreaID) const;
@@ -2718,6 +2720,8 @@ protected:
 	int m_iFractionOriginalCapitalsUnderControl;
 	std::vector<int> m_unitsAreaEffectPositive;
 	std::vector<int> m_unitsAreaEffectNegative;
+	std::vector<int> m_plotsAreaEffectPositiveFromTraits;
+	std::vector<PlayerTypes> m_playersWeAreAtWarWith;
 #endif
 };
 

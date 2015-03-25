@@ -105,11 +105,11 @@ SET Text = 'Does the village provide gold?'
 WHERE Tag = 'TXT_KEY_GOLD_TRADINGPOST_ADV_QUEST';
 
 UPDATE Language_en_US
-SET Text = 'Construct a Village improvement in a tile to increase its gold output. Earns additional gold if placed on a Road or Railroad that connects two owned cities. Also earns additional gold if a Trade Route, either internal or international, passes over it.'
+SET Text = 'Construct a Village improvement in a tile to increase its gold output. Earns additional gold if placed on a Road or Railroad that connects two owned cities. Also earns additional gold if a Trade Route, either internal or international, passes over it. Cannot be built adjacent to one another.'
 WHERE Tag = 'TXT_KEY_GOLD_TRADINGPOST_HEADING3_BODY';
 
 UPDATE Language_en_US
-SET Text = 'The village increases output of a tile by 1 gold. It does not access a resource. It generates additional gold if on a route, or if build on a trade route.[NEWLINE]Technology Required: Currency[NEWLINE]Construction Time: 5 Turns[NEWLINE]May Be Constructed On: Any land tile but ice.'
+SET Text = 'The village increases output of a tile by 1 gold. It does not access a resource. It generates additional gold if on a route, or if build on a trade route.[NEWLINE]Technology Required: Currency[NEWLINE]Construction Time: 5 Turns[NEWLINE]May Be Constructed On: Any land tile but ice. Cannot be built adjacent to one another.'
 WHERE Tag = 'TXT_KEY_WORKERS_TRADINGPOST_HEADING3_BODY';
 
 UPDATE Language_en_US

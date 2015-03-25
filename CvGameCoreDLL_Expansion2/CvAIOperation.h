@@ -256,6 +256,13 @@ public:
 	void LogOperationSpecialMessage(const CvString& strMsg);
 	void LogOperationEnd();
 
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	virtual const char* GetInfoString();
+#endif
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	virtual bool FindBestFitReserveUnitForced(CvArmyAI* pThisArmy, CvPlot* pMusterPlot, CvPlot* pTargetPlot, bool bIsNaval, bool bIsMixed);
+#endif
+
 protected:
 	CvString GetLogFileName(CvString& playerName) const;
 	virtual CvString GetOperationName() const
@@ -268,6 +275,9 @@ protected:
 
 	std::vector<int> m_viArmyIDs;
 	std::vector<OperationSlot> m_viListOfUnitsWeStillNeedToBuild;
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	std::vector<OperationSlot> m_viListOfUnitsWeSkipped;
+#endif
 	std::vector<OperationSlot> m_viListOfUnitsCitiesHaveCommittedToBuild;
 	int m_iID;
 	AIOperationState m_eCurrentState;
@@ -290,6 +300,11 @@ protected:
 	// Coordinates of target plot
 	int m_iTargetX;
 	int m_iTargetY;
+
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	// for debugging
+	CvString m_strInfoString;
+#endif
 };
 
 FDataStream& operator<<(FDataStream&, const AIOperationMovementType&);
@@ -558,13 +573,12 @@ public:
 	}
 	virtual bool ArmyInPosition(CvArmyAI* pArmy);
 	virtual bool ShouldAbort();
+
 #if defined(MOD_BALANCE_CORE_SETTLER)
-	virtual CvPlot* FindBestTarget(CvUnit* pUnit, bool bOnlySafePaths);
+	virtual CvPlot* FindBestTargetIgnoreCurrent(CvUnit* pUnit, bool bOnlySafePaths);
 #endif
-private:
-#if !defined(MOD_BALANCE_CORE_SETTLER)
+
 	virtual CvPlot* FindBestTarget(CvUnit* pUnit, bool bOnlySafePaths);
-#endif
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -685,9 +699,9 @@ public:
 	{
 		return MUFORMATION_CLOSE_CITY_DEFENSE;
 	}
+	virtual bool ShouldAbort();
 
 private:
-	CvPlot* FindBestTarget();
 };
 #endif
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -827,7 +841,13 @@ public:
 	}
 
 	virtual bool ArmyInPosition(CvArmyAI* pArmy);
-
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	virtual bool ShouldAbort();
+	virtual MultiunitFormationTypes GetFormation() const
+	{
+		return MUFORMATION_NAVAL_BOMBARDMENT;
+	}
+#endif
 protected:
 	virtual CvPlot* FindBestTarget();
 };

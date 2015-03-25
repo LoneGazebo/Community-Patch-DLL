@@ -66,8 +66,13 @@
 -- LAND
 	-- Samurai
 	UPDATE Units
-	SET Combat = '24'
+	SET Combat = '25'
 	WHERE Type = 'UNIT_JAPANESE_SAMURAI' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+	
+	-- Roman Legion
+	UPDATE Language_en_US
+	SET Text = 'Strong, front-line land Unit of the Classical Era. Only the Romans may build it. This Unit has a higher [ICON_STRENGTH] Combat Strength than the Swordsman, which it replaces, and gains the Cover I promotion for free.'
+	WHERE Tag = 'TXT_KEY_UNIT_HELP_ROMAN_LEGION' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	-- Change Name of Great War Infantry/Bomber to be more 'generic'
 	UPDATE Language_en_US
@@ -81,10 +86,6 @@
 	UPDATE Units
 	SET ObsoleteTech = 'TECH_ATOMIC_THEORY'
 	WHERE Type = 'UNIT_GREAT_WAR_INFANTRY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
-
-	UPDATE Language_en_US
-	SET Text = 'Allows you to build the basic land unit [COLOR_POSITIVE_TEXT]Rifleman[ENDCOLOR], and the [COLOR_POSITIVE_TEXT]Military Base[ENDCOLOR], which boosts City defense.'
-	WHERE Tag = 'TXT_KEY_TECH_REPLACEABLE_PARTS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	-- Musketman Buffed Slightly
 
@@ -101,10 +102,6 @@
 	UPDATE Language_en_US
 	SET Text = 'The Fusilier is the gunpowder unit following the musketman. It is significantly more powerful than the musketman, giving the army with the advanced units a big advantage over civs which have not yet upgraded to the new unit.'
 	WHERE Tag = 'TXT_KEY_UNIT_RIFLEMAN_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
-
-	UPDATE Language_en_US
-	SET Text = 'Allows you to build the [COLOR_POSITIVE_TEXT]Fusilier[ENDCOLOR], a front-line infantry unit of the mid-game eras.'
-	WHERE Tag = 'TXT_KEY_TECH_RIFLING_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	-- Moved Infantry to Atomic Theory
 	UPDATE Units
@@ -125,9 +122,6 @@
 	SET Text = 'Infantry is the basic Industrial era combat unit. It is significantly stronger than its predecessor, the Rifleman. Modern combat is increasingly complex, and on its own an Infantry unit is vulnerable to air, artillery and tank attack. When possible Infantry should be supported by artillery, tanks, and air (or anti-air) units.'
 	WHERE Tag = 'TXT_KEY_UNIT_INFANTRY_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
-	UPDATE Language_en_US
-	SET Text = 'Allows you to build the [COLOR_POSITIVE_TEXT]Research Lab[ENDCOLOR], a building which improves [ICON_RESEARCH] Science in a City.'
-	WHERE Tag = 'TXT_KEY_TECH_PLASTICS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	-- Pikeman and Pikeman UUs -- Upgrade to Musketman
 	UPDATE Units
@@ -639,14 +633,6 @@
 	SET PrereqTech = 'TECH_GUNPOWDER'
 	WHERE Type = 'UNIT_CANNON' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
-	UPDATE Language_en_US
-	SET Text = 'Allows you to build the Leaning Tower of Pisa, and is an gateway to vital Renaissance-Era techs.'
-	WHERE Tag = 'TXT_KEY_TECH_CHEMISTRY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
-
-	UPDATE Language_en_US
-	SET Text = 'Allows you to build the [COLOR_POSITIVE_TEXT]Cannon[ENDCOLOR], a powerful Renaissance-Era siege unit, and the [COLOR_POSITIVE_TEXT]Arsenal[ENDCOLOR], which boosts City defense.'
-	WHERE Tag = 'TXT_KEY_TECH_METALLURGY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
-
 	-- They should also be a little stronger ranged, to compensate
 
 	UPDATE Units
@@ -711,6 +697,48 @@
 	SET Combat = '11'
 	WHERE Type = 'UNIT_GALLEASS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
+	DELETE FROM Unit_AITypes
+	WHERE UnitType = 'UNIT_GALLEASS' AND UnitAIType = 'UNITAI_EXPLORE_SEA' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+-- Dromon (new Classical Unit)
+	INSERT INTO UnitClasses (Type, Description, DefaultUnit)
+	SELECT 'UNITCLASS_BYZANTINE_DROMON', 'TXT_KEY_UNIT_BYZANTINE_DROMON', 'UNIT_BYZANTINE_DROMON'
+	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
+	DELETE FROM Unit_AITypes
+	WHERE UnitType = 'UNIT_BYZANTINE_DROMON' AND UnitAIType = 'UNITAI_EXPLORE_SEA' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	UPDATE Language_en_US
+	SET Text = 'Dominant Classical Era Naval Unit used to own the seas well into the Medieval Era with its ranged attack.'
+	WHERE Tag = 'TXT_KEY_UNIT_HELP_BYZANTINE_DROMON' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
+	UPDATE Language_en_US
+	SET Text = 'Attacks with lethal Greek Fire, making it the first naval unit with a ranged attack. It cannot enter Deep Ocean tiles outside of the city borders.'
+	WHERE Tag = 'TXT_KEY_UNIT_BYZANTINE_DROMON_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
+	UPDATE Units
+	SET Combat = '8'
+	WHERE Type = 'UNIT_BYZANTINE_DROMON' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	UPDATE Units
+	SET RangedCombat = '11'
+	WHERE Type = 'UNIT_BYZANTINE_DROMON' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	UPDATE Units
+	SET PrereqTech = 'TECH_OPTICS'
+	WHERE Type = 'UNIT_BYZANTINE_DROMON' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	UPDATE Units
+	SET ObsoleteTech = 'TECH_GUILDS'
+	WHERE Type = 'UNIT_BYZANTINE_DROMON' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	UPDATE Units
+	SET Class = 'UNITCLASS_BYZANTINE_DROMON'
+	WHERE Type = 'UNIT_BYZANTINE_DROMON' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	DELETE FROM Unit_FreePromotions
+	WHERE UnitType = 'UNIT_BYZANTINE_DROMON' AND PromotionType = 'PROMOTION_NAVAL_BONUS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
 -- Frigate Upgrade into Cruiser
 	UPDATE Unit_ClassUpgrades
 	SET UnitClassType = 'UNITCLASS_CRUISER'
@@ -773,7 +801,7 @@
 	WHERE Type = 'UNIT_PORTUGUESE_NAU' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Units
-	SET ObsoleteTech = 'TECH_COMBUSTION'
+	SET ObsoleteTech = 'TECH_INDUSTRIALIZATION'
 	WHERE Type = 'UNIT_PORTUGUESE_NAU' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Units
@@ -786,7 +814,7 @@
 
 	-- Move Galleass to Optics
 	UPDATE Units
-	SET PrereqTech = 'TECH_PHYSICS'
+	SET PrereqTech = 'TECH_GUILDS'
 	WHERE Type = 'UNIT_GALLEASS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Units
@@ -797,6 +825,20 @@
 	UPDATE Units
 	SET PrereqTech = 'TECH_NAVIGATION'
 	WHERE Type = 'UNIT_PRIVATEER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	UPDATE Units
+	SET DefaultUnitAI = 'UNITAI_ATTACK_SEA'
+	WHERE Type = 'UNIT_PRIVATEER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	UPDATE Units
+	SET DefaultUnitAI = 'UNITAI_ATTACK_SEA'
+	WHERE Type = 'UNIT_DUTCH_SEA_BEGGAR' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	DELETE FROM Unit_AITypes
+	WHERE UnitType = 'UNIT_PRIVATEER' AND UnitAIType = 'UNITAI_PIRATE_SEA' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	DELETE FROM Unit_AITypes
+	WHERE UnitType = 'UNIT_DUTCH_SEA_BEGGAR' AND UnitAIType = 'UNITAI_PIRATE_SEA' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Units
 	SET PrereqTech = 'TECH_ASTRONOMY'
@@ -819,7 +861,7 @@
 	WHERE Tag = 'TXT_KEY_UNIT_PRIVATEER_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 	UPDATE Units
-	SET ObsoleteTech = 'TECH_COMBUSTION'
+	SET ObsoleteTech = 'TECH_INDUSTRIALIZATION'
 	WHERE Type = 'UNIT_PRIVATEER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Units
@@ -861,8 +903,26 @@
 	DELETE FROM Unit_FreePromotions
 	WHERE UnitType = 'UNIT_PRIVATEER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
+	-- Ironclad
+	UPDATE Units
+	SET PrereqTech = 'TECH_INDUSTRIALIZATION'
+	WHERE Type = 'UNIT_IRONCLAD' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	UPDATE Unit_ResourceQuantityRequirements
+	SET 'RESOURCE_IRON'
+	WHERE UnitType = 'UNIT_IRONCLAD' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	-- Destroyer
+	UPDATE Units
+	SET PrereqTech = 'TECH_ROCKETRY'
+	WHERE Type = 'UNIT_DESTROYER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	INSERT INTO Unit_ResourceQuantityRequirements (UnitType, ResourceType, Cost)
+	SELECT 'UNIT_DESTROYER', 'RESOURCE_IRON', '1'
+	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
 	-- Submarines -- Can Now Attack Coastal Cities -- Reduced Ranged Damage, but boosted it versus boats. This will help AI a TON
-	-- Moved to Atomic Era (Submarine) -- Upgrade for Destroyer
+	-- Moved to Atomic Era (Submarine)
 
 	UPDATE Units
 	SET RangedCombat = '60'
@@ -880,6 +940,12 @@
 	SET PrereqTech = 'TECH_PENICILIN'
 	WHERE Type = 'UNIT_SUBMARINE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
+	DELETE FROM Unit_AITypes
+	WHERE UnitType = 'UNIT_SUBMARINE' AND UnitAIType = 'UNITAI_EXPLORE_SEA' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	DELETE FROM Unit_AITypes
+	WHERE UnitType = 'UNIT_NUCLEAR_SUBMARINE' AND UnitAIType = 'UNITAI_EXPLORE_SEA' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
 	-- Battleship -- Upgrades to Missile Cruiser
 
 	INSERT INTO Unit_ClassUpgrades (UnitClassType, UnitType)
@@ -893,7 +959,7 @@
 	-- Trieme -- Move to Optics, Increase Cost and Strength
 	
 	UPDATE Units
-	SET PrereqTech = 'TECH_OPTICS'
+	SET PrereqTech = 'TECH_SAILING'
 	WHERE Type = 'UNIT_TRIREME' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Units
@@ -920,7 +986,7 @@
 	
 	-- Submarines and Missile Cruiser should cost Iron
 	INSERT INTO Unit_ResourceQuantityRequirements (UnitType, ResourceType, Cost)
-	SELECT 'UNIT_MISSILE_CRUISER', 'RESOURCE_IRON', '1'
+	SELECT 'UNIT_MISSILE_CRUISER', 'RESOURCE_OIL', '1'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	INSERT INTO Unit_ResourceQuantityRequirements (UnitType, ResourceType, Cost)
@@ -929,6 +995,11 @@
 
 	INSERT INTO Unit_ResourceQuantityRequirements (UnitType, ResourceType, Cost)
 	SELECT 'UNIT_NUCLEAR_SUBMARINE', 'RESOURCE_IRON', '1'
+	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	-- Carrier should cost Iron
+	INSERT INTO Unit_ResourceQuantityRequirements (UnitType, ResourceType, Cost)
+	SELECT 'UNIT_CARRIER', 'RESOURCE_IRON', '1'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	-- Move Carrier

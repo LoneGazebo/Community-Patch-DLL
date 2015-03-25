@@ -507,6 +507,24 @@ public:
 	{
 		m_iFriendlyRangedUnitCount += iUnitCount;
 	};
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	inline void AddFriendlyMeleeUnitCount(int iUnitCount)
+	{
+		m_iFriendlyMeleeUnitCount += iUnitCount;
+	};
+	inline void AddEnemyMeleeUnitCount(int iUnitCount)
+	{
+		m_iEnemyMeleeUnitCount += iUnitCount;
+	};
+	inline int GetFriendlyMeleeUnitCount() const
+	{
+		return m_iFriendlyMeleeUnitCount;
+	};
+	inline int GetEnemyMeleeUnitCount() const
+	{
+		return m_iEnemyMeleeUnitCount;
+	};
+#endif
 	inline int GetEnemyRangedUnitCount() const
 	{
 		return m_iEnemyRangedUnitCount;
@@ -571,6 +589,10 @@ private:
 	int m_iFriendlyUnitCount;
 	int m_iEnemyUnitCount;
 	int m_iFriendlyRangedUnitCount;
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	int m_iFriendlyMeleeUnitCount;
+	int m_iEnemyMeleeUnitCount;
+#endif
 	int m_iEnemyRangedUnitCount;
 	int m_iEnemyNavalUnitCount;
 	int m_iZoneValue;

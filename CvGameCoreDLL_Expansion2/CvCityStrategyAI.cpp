@@ -840,7 +840,11 @@ void CvCityStrategyAI::ChooseProduction(bool bUseAsyncRandom, BuildingTypes eIgn
 #if defined(MOD_BALANCE_CORE)
 		if(GetCity()->getFreeExperience() > 0)
 		{
-			iTempWeight *= GetCity()->getFreeExperience();
+			iTempWeight *= GetCity()->getFreeExperience() * 10;
+		}
+		else
+		{
+			iTempWeight /= 10;
 		}
 #endif
 		// add in the weight of this unit as if I were deciding to build it without having a reason
@@ -1266,7 +1270,6 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry()
 		if (iTempWeight > 0)
 		{
 			m_Buildables.push_back(buildable, iTempWeight);
-			kPlayer.GetMilitaryAI()->BumpNumberOfTimesOpsBuildSkippedOver();
 		}
 
 	}
@@ -2555,7 +2558,11 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_LargeCity(CvCity* pCity)
 bool CityStrategyAIHelpers::IsTestCityStrategy_Landlocked(CvCity* pCity)
 {
 	// If this City isn't adjacent to a body of water big enough to be "Ocean" then we consider it landlocked
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	if(!pCity->isCoastal(GC.getMIN_WATER_SIZE_FOR_OCEAN()))
+#else
 	if(!pCity->isCoastal())
+#endif
 	{
 		return true;
 	}

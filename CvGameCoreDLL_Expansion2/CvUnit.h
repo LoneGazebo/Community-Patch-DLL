@@ -1489,6 +1489,10 @@ public:
 	std::string debugDump(const FAutoVariableBase&) const;
 	std::string stackTraceRemark(const FAutoVariableBase&) const;
 
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	const char* GetMissionInfo();
+#endif
+
 #if defined(MOD_API_EXTENSIONS)
 	bool IsCivilization(CivilizationTypes iCivilizationType) const;
 	bool HasPromotion(PromotionTypes iPromotionType) const;
@@ -1813,6 +1817,11 @@ protected:
 private:
 
 	mutable MissionQueue m_missionQueue;
+
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	// for debugging
+	CvString m_strMissionInfoString;
+#endif
 };
 
 FDataStream& operator<<(FDataStream&, const CvUnit&);

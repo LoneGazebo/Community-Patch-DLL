@@ -8689,6 +8689,14 @@ bool CvPlayer::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool
 
 	if(!bTestVisible)
 	{
+#if defined(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
+		if(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED && !pUnitInfo.IsFound() && GetNumUnitsOutOfSupply() > 0)
+		{
+			GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_NO_SUPPLY");
+			if(toolTipSink == NULL)
+			return false;
+		}
+#endif
 		// Settlers
 		if(pUnitInfo.IsFound() || pUnitInfo.IsFoundAbroad())
 		{
@@ -24439,7 +24447,7 @@ void CvPlayer::TestHasMonopoly(ResourceTypes eResource)
 			int iTotalNumResource = GC.getMap().getNumResources(eResource);
 			bool bGainingBonus = false;
 			bool bLosingBonus = false;
-			if(iOwnedNumResource > 0 && iTotalNumResource > 0)
+			if(iTotalNumResource > 0)
 			{
 				//Do we have +50% of this resource under our control?
 				if(((iOwnedNumResource * 100) / iTotalNumResource) > 50)
@@ -30341,6 +30349,10 @@ void CvPlayer::Read(FDataStream& kStream)
 
 	if(m_bTurnActive)
 		GC.getGame().changeNumGameTurnActive(1, std::string("setTurnActive() [loading save game] for player ") + getName());
+
+#if defined(MOD_BALANCE_CORE)
+	UpdateAreaEffectUnits();
+#endif
 }
 
 //	--------------------------------------------------------------------------------
@@ -31926,6 +31938,8 @@ void CvPlayer::UpdateAreaEffectUnits()
 	m_unitsAreaEffectPositive.clear();
 	//maori warrior et al
 	m_unitsAreaEffectNegative.clear();
+	//moai et al
+	m_plotsAreaEffectPositiveFromTraits.clear();
 
 	// Loop through our units
 	int iLoop;
@@ -31938,8 +31952,30 @@ void CvPlayer::UpdateAreaEffectUnits()
 		if (pLoopUnit->IsGreatGeneral() || pLoopUnit->IsGreatAdmiral())
 			m_unitsAreaEffectPositive.push_back( pLoopUnit->GetID() );
 
-		if (pLoopUnit->getNearbyEnemyCombatMod() > 0)
+		if (pLoopUnit->getNearbyEnemyCombatMod() < 0)
 			m_unitsAreaEffectNegative.push_back( pLoopUnit->GetID() );
+	}
+
+	// Loop through our plots
+	ImprovementTypes iTraitImprovement = GetPlayerTraits()->GetCombatBonusImprovementType();
+	if (iTraitImprovement!=NO_IMPROVEMENT)
+	{
+		for(int iPlotLoop = 0; iPlotLoop < GC.getMap().numPlots(); iPlotLoop++)
+		{
+			CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(iPlotLoop);
+			if (pPlot && pPlot->getOwner()==GetID() && pPlot->getImprovementType()==iTraitImprovement )
+				m_plotsAreaEffectPositiveFromTraits.push_back( iPlotLoop );
+		}
+	}
+
+	//cache the wars we have going
+	m_playersWeAreAtWarWith.clear();
+	//note: normal players are not at war with the barbarians, but the barbarians are at war with everyone
+	for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+	{
+		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+		if(GET_TEAM(getTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam()))
+			m_playersWeAreAtWarWith.push_back( eLoopPlayer );
 	}
 }
 
@@ -31951,6 +31987,11 @@ const std::vector<int>& CvPlayer::GetAreaEffectPositiveUnits() const
 const std::vector<int>& CvPlayer::GetAreaEffectNegativeUnits() const
 {
 	return m_unitsAreaEffectNegative;
+}
+
+const std::vector<int>& CvPlayer::GetAreaEffectPositiveFromTraitsPlots() const
+{
+	return m_plotsAreaEffectPositiveFromTraits;
 }
 
 #endif

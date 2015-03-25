@@ -265,7 +265,11 @@ public:
 
 	void GetAvailableTR(TradeConnectionList& aTradeConnectionList);
 	void PrioritizeTradeRoutes(TradeConnectionList& aTradeConnectionList);
+#if defined(MOD_BALANCE_CORE)
+	int	ScoreInternationalTR (const TradeConnection& kTradeConnection, bool bHaveTourism);
+#else
 	int	ScoreInternationalTR (const TradeConnection& kTradeConnection);
+#endif
 	int ScoreFoodTR(const TradeConnection& kTradeConnection, CvCity* pSmallestCity);
 	int ScoreProductionTR (const TradeConnection& kTradeConnection, std::vector<CvCity*> aTargetCityList);
 #if defined(MOD_TRADE_WONDER_RESOURCE_ROUTES)
