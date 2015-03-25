@@ -797,7 +797,9 @@ public:
 	bool IsInQueuedAttack(const CvUnit* pAttacker);
 	bool IsCityInQueuedAttack(const CvCity* pAttackCity);
 	int NearXQueuedAttacks(const CvPlot* pPlot, const int iRange);
-
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	bool ScoreDeploymentPlotsHelper(CvPlot* pTarget, int iNumUnits, int iDeployRange);
+#endif
 	// Public logging
 	void LogTacticalMessage(CvString& strMsg, bool bSkipLogDominanceZone = true);
 
@@ -913,9 +915,6 @@ private:
 	// Internal low-level utility routines
 #if defined(MOD_AI_SMART_RANGED_UNITS)
 	CvPlot* GetBestRepositionPlot(UnitHandle unitH, CvPlot* plotTarget);
-	void GetBestPlot(CvPlot*& outputPlot, vector<CvPlot*> plotsToCheck);
-	bool ContainsPlot(vector<CvPlot*> plotData, CvPlot* plotXy);
-	void SortCurrentMoveUnits(bool bSortBySelfDamage);
 #endif
 	void TurnOffMove(TacticalAIMoveTypes eType);
 	bool FindUnitsForThisMove(TacticalAIMoveTypes eMove, CvPlot* pTargetPlot, int iNumTurnsAway=0, bool bRangedOnly=false);

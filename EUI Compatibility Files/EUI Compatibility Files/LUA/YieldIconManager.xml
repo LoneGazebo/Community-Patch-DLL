@@ -11,7 +11,7 @@
 
 	<Instance Name="AnchorInstance" >
 		<WorldAnchor ID="Anchor" Scaling="True" DepthAdjust="-25" >
-			<Stack ID="Stack" Offset="0,-10" Anchor="C,C" StackGrowth="Bottom" Padding="-20">
+			<Stack ID="Stack" Offset="0,-10" Anchor="C,C" StackGrowth="Bottom" Padding="-40">
 				<Stack ID="Stack1" Anchor="C,C" StackGrowth="Right" Padding="-40" />
 				<Stack ID="Stack2" Anchor="C,C" StackGrowth="Right" Padding="-40" />
 			</Stack>

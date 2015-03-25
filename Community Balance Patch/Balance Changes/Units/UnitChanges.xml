@@ -148,6 +148,11 @@
 			<UnitType>UNIT_JAPANESE_SAMURAI</UnitType>
 			<PromotionType>PROMOTION_GAIN_EXPERIENCE</PromotionType>
 		</Row>
+		<!-- Promotion for Samurai-->
+		<Row>
+			<UnitType>UNIT_ROMAN_LEGION</UnitType>
+			<PromotionType>PROMOTION_COVER_1</PromotionType>
+		</Row>
 	</Unit_FreePromotions>
 	<Unit_AITypes>
 		<Row>

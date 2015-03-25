@@ -39,18 +39,6 @@
 			<YieldType>YIELD_FAITH</YieldType>
 			<YieldChange>5</YieldChange>
 		</Row>
-		<Row>
-			<PolicyType>POLICY_ORGANIZED_RELIGION</PolicyType>
-			<BuildingClassType>BUILDINGCLASS_SHRINE</BuildingClassType>
-			<YieldType>YIELD_FAITH</YieldType>
-			<YieldChange>2</YieldChange>
-		</Row>
-		<Row>
-			<PolicyType>POLICY_ORGANIZED_RELIGION</PolicyType>
-			<BuildingClassType>BUILDINGCLASS_TEMPLE</BuildingClassType>
-			<YieldType>YIELD_FAITH</YieldType>
-			<YieldChange>2</YieldChange>
-		</Row>
 	</Policy_BuildingClassYieldChanges>
 	<Policy_ReligionBuildingYieldMod>
 		<Row>

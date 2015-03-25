@@ -390,6 +390,9 @@ CvUnit::~CvUnit()
 void CvUnit::init(int iID, UnitTypes eUnit, UnitAITypes eUnitAI, PlayerTypes eOwner, int iX, int iY, DirectionTypes eFacingDirection, bool bNoMove, bool bSetupGraphical, int iMapLayer /*= DEFAULT_UNIT_MAP_LAYER*/, int iNumGoodyHutsPopped)
 {
 	initWithNameOffset(iID, eUnit, -1, eUnitAI, eOwner, iX, iY, eFacingDirection, bNoMove, bSetupGraphical, iMapLayer, iNumGoodyHutsPopped);
+#if defined(MOD_BALANCE_CORE)
+	GET_PLAYER(getOwner()).UpdateAreaEffectUnits();
+#endif
 }
 
 // ---------------------------------------------------------------------------------
@@ -5094,7 +5097,7 @@ bool CvUnit::CanAutomate(AutomateTypes eAutomate, bool bTestVisibility) const
 		if(!bTestVisibility)
 		{
 #if defined(MOD_CORE_ALTERNATIVE_EXPLORE_SCORE)
-			if(GET_PLAYER(m_eOwner).GetHomelandAI()->GetBestExploreTarget(this)==NULL)
+			if(GET_PLAYER(m_eOwner).GetEconomicAI()->GetExplorationPlots().empty())
 #else
 			if(!GET_PLAYER(m_eOwner).GetHomelandAI()->IsAnyValidExploreMoves(this))
 #endif
@@ -12897,7 +12900,7 @@ int CvUnit::baseMoves(DomainTypes eIntoDomain /* = NO_DOMAIN */) const
 	}
 
 #if defined(MOD_BALANCE_CORE_POLICIES)
-	if((m_pUnitInfo->IsFound() || (m_pUnitInfo->GetWorkRate() > 0)) && !IsCombatUnit())
+	if((m_pUnitInfo->IsFound() || (m_pUnitInfo->GetWorkRate() > 0)) && !IsCombatUnit() && !IsGreatGeneral() && !IsGreatAdmiral())
 	{
 		iExtraGoldenAgeMoves += GET_PLAYER(getOwner()).GetExtraMoves();
 	}
@@ -13659,18 +13662,6 @@ int CvUnit::GetGenericMaxStrengthModifier(const CvUnit* pOtherUnit, const CvPlot
 				}
 			}
 		}
-
-#if defined(MOD_BALANCE_CORE)
-		// Trait (player level) bonus against more populated civs
-		iTempModifier = GET_PLAYER(getOwner()).GetPlayerTraits()->GetCombatBonusVsHigherPop();
-		if(MOD_BALANCE_CORE && iTempModifier > 0)
-		{
-			if(pOtherUnit && pOtherUnit->IsHigherPopThan(this))
-			{
-				iModifier += iTempModifier;
-			}
-		}
-#endif
 
 		// Trait (player level) bonus against higher tech units
 		iTempModifier = GET_PLAYER(getOwner()).GetPlayerTraits()->GetCombatBonusVsHigherTech();
@@ -20634,7 +20625,7 @@ bool CvUnit::IsNearGreatGeneral(const CvPlot* pAtPlot, const CvUnit* pIgnoreThis
 			return false;
 	}
 
-	const std::vector<int>& possibleUnits = GET_PLAYER(getOwner()).GetAreaEffectNegativeUnits();
+	const std::vector<int>& possibleUnits = GET_PLAYER(getOwner()).GetAreaEffectPositiveUnits();
 	for(std::vector<int>::const_iterator it = possibleUnits.begin(); it!=possibleUnits.end(); ++it)
 	{
 		UnitHandle pUnit = GET_PLAYER(getOwner()).getUnit(*it);
@@ -20869,7 +20860,7 @@ int CvUnit::GetReverseGreatGeneralModifier(const CvPlot* pAtPlot) const
 	
 	int iMaxMod = 0;
 
-	const std::vector<PlayerTypes>& vEnemies = GET_PLAYER(getOwner()).GetDiplomacyAI()->GetPlayersAtWarWith();
+	const std::vector<PlayerTypes>& vEnemies = GET_PLAYER(getOwner()).GetPlayersAtWarWith();
 
 	for(std::vector<PlayerTypes>::const_iterator it=vEnemies.begin(); it!=vEnemies.end(); ++it)
 	{
@@ -21024,7 +21015,31 @@ int CvUnit::GetNearbyImprovementModifierFromTraits(const CvPlot* pAtPlot)const
 	CvPlayer& kPlayer = GET_PLAYER(m_eOwner);
 	CvPlayerTraits* playerTraits = kPlayer.GetPlayerTraits();
 
+#if defined(MOD_BALANCE_CORE_MILITARY)
+
+	int iImprovementRange = playerTraits->GetNearbyImprovementBonusRange();
+	int iImprovementModifier = playerTraits->GetNearbyImprovementCombatBonus();
+
+	const std::vector<int>& possiblePlots = GET_PLAYER(getOwner()).GetAreaEffectPositiveFromTraitsPlots();
+	for(std::vector<int>::const_iterator it = possiblePlots.begin(); it!=possiblePlots.end(); ++it)
+	{
+		CvPlot* pCandidatePlot = GC.getMap().plotByIndexUnchecked(*it);
+
+		if (pCandidatePlot)
+		{
+			if (plotDistance( pAtPlot->getX(),pAtPlot->getY(),pCandidatePlot->getX(),pCandidatePlot->getY() ) <= iImprovementRange)
+				return iImprovementModifier;
+		}
+
+	}
+
+	return 0;
+
+#else
+
 	return GetNearbyImprovementModifier(playerTraits->GetCombatBonusImprovementType(), playerTraits->GetNearbyImprovementBonusRange(), playerTraits->GetNearbyImprovementCombatBonus(), pAtPlot);
+
+#endif
 }
 
 int CvUnit::GetNearbyImprovementModifierFromPromotions(const CvPlot* pAtPlot)const
@@ -23994,21 +24009,16 @@ bool CvUnit::canMoveAndRangedStrike(const CvPlot* pTargetPlot) const
 bool CvUnit::GetMovablePlotListOpt(vector<CvPlot*>& plotData, const CvPlot* pTargetPlot, bool bExitOnFound) const
 {
 	VALIDATE_OBJECT
-	int xVariance = max(abs((getX() - pTargetPlot->getX()) / 2), 1);
-	int yVariance = max(abs((getY() - pTargetPlot->getY()) / 2), 1);
-
-#ifdef AUI_ASTAR_ROAD_RANGE
-	IncreaseMoveRangeForRoads(this, xVariance);
-	IncreaseMoveRangeForRoads(this, yVariance);
-#endif
+	int xVariance = max(abs((getX() - pTargetPlot->getX()) / 2), baseMoves()-1);
+	int yVariance = max(abs((getY() - pTargetPlot->getY()) / 2), baseMoves()-1);
 
 	int xMin, xMax, yMin, yMax;
 	if (isRanged())
 	{
-		xMin = min(getX(), pTargetPlot->getX()) - yVariance;
-		xMax = max(getX(), pTargetPlot->getX()) + yVariance;
-		yMin = min(getY(), pTargetPlot->getY()) - xVariance;
-		yMax = max(getY(), pTargetPlot->getY()) + xVariance;
+		xMin = min(getX(), pTargetPlot->getX()) - xVariance;
+		xMax = max(getX(), pTargetPlot->getX()) + xVariance;
+		yMin = min(getY(), pTargetPlot->getY()) - yVariance;
+		yMax = max(getY(), pTargetPlot->getY()) + yVariance;
 	}
 	else
 	{
@@ -24044,11 +24054,11 @@ bool CvUnit::GetMovablePlotListOpt(vector<CvPlot*>& plotData, const CvPlot* pTar
 						{
 							if (pNode->m_iData2 == 1)
 							{
+								plotData.push_back(pLoopPlot);
 								if (bExitOnFound)
 								{
 									return true;
 								}
-								plotData.push_back(pLoopPlot);
 							}
 						}
 					}
@@ -24064,11 +24074,11 @@ bool CvUnit::GetMovablePlotListOpt(vector<CvPlot*>& plotData, const CvPlot* pTar
 						{
 							if (pNode->m_iData2 == 1 && pNode->m_iData1 > getMustSetUpToRangedAttackCount())
 							{
+								plotData.push_back(pLoopPlot);
 								if (bExitOnFound)
 								{
 									return true;
 								}
-								plotData.push_back(pLoopPlot);
 							}
 						}
 					}
@@ -25540,6 +25550,35 @@ bool CvUnit::CanDoInterfaceMode(InterfaceModeTypes eInterfaceMode, bool bTestVis
 //////////////////////////////////////////////////////////////////////////
 // MISSION ROUTINES
 //////////////////////////////////////////////////////////////////////////
+
+#if defined(MOD_BALANCE_CORE_MILITARY)
+const char* CvUnit::GetMissionInfo()
+{
+	m_strMissionInfoString.clear();
+
+	CvString strTemp0;
+	getMissionAIString(strTemp0, GetMissionAIType());
+	CvString strTemp1;
+	getUnitAIString(strTemp1, AI_getUnitAIType());
+
+	m_strMissionInfoString.Format("UnitAI: %s / MissionAI: %s", strTemp0.c_str(), strTemp1.c_str()); 
+	
+	if (m_iMissionAIX!=INVALID_PLOT_COORD && m_iMissionAIY!=INVALID_PLOT_COORD)
+	{
+		strTemp0.Format(" / Target: %d,%d", m_iMissionAIX.get(), m_iMissionAIY.get());
+		m_strMissionInfoString += strTemp0;
+	}
+
+	const MissionData* pMission = GetHeadMissionData();
+	if (pMission)
+	{
+		strTemp0.Format(" / HeadMission %s at %d,%d", CvTypes::GetMissionName(pMission->eMissionType).c_str(),	pMission->iData1, pMission->iData2);
+		m_strMissionInfoString += strTemp0;
+	}
+
+	return m_strMissionInfoString.c_str();
+}
+#endif
 
 //	--------------------------------------------------------------------------------
 /// Queue up a new mission

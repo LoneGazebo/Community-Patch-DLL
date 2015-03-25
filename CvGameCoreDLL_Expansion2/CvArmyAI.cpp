@@ -69,6 +69,9 @@ void CvArmyAI::Reset(int iID, PlayerTypes eOwner, int iOperationID, bool /* bCon
 	m_eDomainType = DOMAIN_LAND;
 	m_iFormationIndex = NO_MUFORMATION;
 	m_eAIState = NO_ARMYAISTATE;
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	m_iWait = 0;
+#endif
 
 	m_FormationEntries.clear();
 }
@@ -116,6 +119,9 @@ void CvArmyAI::read(FDataStream& kStream)
 	kStream >> m_iFormationIndex;
 	kStream >> m_eAIState;
 	kStream >> m_iOperationID;
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	kStream >> m_iWait;
+#endif
 
 	int iEntriesToRead;
 	kStream >> iEntriesToRead;
@@ -145,6 +151,9 @@ void CvArmyAI::write(FDataStream& kStream) const
 	kStream << m_iFormationIndex;
 	kStream << m_eAIState;
 	kStream << m_iOperationID;
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	kStream << m_iWait;
+#endif
 
 	kStream << (int)m_FormationEntries.size();
 	for(uint ui = 0; ui < m_FormationEntries.size(); ui++)
@@ -845,7 +854,23 @@ bool CvArmyAI::DoDelayedDeath()
 
 	return false;
 }
-
+#if defined(MOD_BALANCE_CORE_MILITARY)
+void CvArmyAI::IncrementWait(int iChange)
+{
+	if(iChange != 0)
+	{
+		m_iWait += iChange;
+	}
+}
+int CvArmyAI::GetWait() const
+{
+	return m_iWait;
+}
+void CvArmyAI::SetWait(int iChange)
+{
+	m_iWait = iChange;
+}
+#endif
 FDataStream& operator<<(FDataStream& saveTo, const CvArmyAI& readFrom)
 {
 	readFrom.write(saveTo);

@@ -3100,7 +3100,7 @@ void CvCityBuildings::SetNumRealBuildingTimed(BuildingTypes eIndex, int iNewValu
 		m_paiNumRealBuilding[eIndex] = iNewValue;
 
 #if defined(MOD_BALANCE_CORE)
-		if (iNewValue>0)
+		if (iNewValue > 0)
 		{
 			if ( std::find( m_buildingsThatExistAtLeastOnce.begin(), m_buildingsThatExistAtLeastOnce.end(), eIndex ) == m_buildingsThatExistAtLeastOnce.end() )
 				m_buildingsThatExistAtLeastOnce.push_back(eIndex);

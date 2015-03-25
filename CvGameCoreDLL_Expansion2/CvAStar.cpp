@@ -4011,7 +4011,8 @@ void IncreaseMoveRangeForRoads(const CvUnit* pUnit, int& iRange)
 					iRange *= GET_TEAM(pUnit->getTeam()).GetBestRoadMovementMultiplier(pUnit);
 					return;
 				}
-				else if (pLoopPlot->isValidRoute(pUnit))
+
+				if (pLoopPlot->isValidRoute(pUnit))
 				{
 					CvPlot* pEvalPlot;
 					// Check for neighboring roads that would make this road usable

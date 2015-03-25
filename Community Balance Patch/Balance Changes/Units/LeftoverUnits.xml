@@ -2225,7 +2225,7 @@
 			<UnitClassType>UNITCLASS_VENETIAN_GALLEASS</UnitClassType>
 			<UnitType/>
 		</Row>
-		<!-- Dromon -->
+		<!-- Dromon 
 		<Row>
 			<CivilizationType>CIVILIZATION_AMERICA</CivilizationType>
 			<UnitClassType>UNITCLASS_BYZANTINE_DROMON</UnitClassType>
@@ -2456,6 +2456,7 @@
 			<UnitClassType>UNITCLASS_BYZANTINE_DROMON</UnitClassType>
 			<UnitType/>
 		</Row>
+		-->
 		<!-- Turtle Ship -->
 		<Row>
 			<CivilizationType>CIVILIZATION_AMERICA</CivilizationType>

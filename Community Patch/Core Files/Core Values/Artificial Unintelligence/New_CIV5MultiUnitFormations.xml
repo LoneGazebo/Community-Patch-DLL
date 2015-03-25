@@ -1,16 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Created by ModBuddy on 8/7/2014 3:30:27 PM -->
 <GameData>
-	<!-- A lot of rows had to be deleted and rewritten instead of using Update because indexing isn't clear in this table.
-		BNW-specific naval formations weren't modified to maintain compatibility with non-BNW versions -->
 	<MultiUnitFormation_SlotEntries>
-		<!-- Who on Earth thought putting melee units in ranged units' spots was a good idea? -->
-		<Update>
-			<Set SecondaryUnitType="UNITAI_RANGED" />
-			<Where MultiUnitPositionType="MUPOSITION_BOMBARD" SecondaryUnitType="UNITAI_DEFENSE"/>
-		</Update>
-
-		<!-- Less required slots, more bombard-ranged instead of bombard-bombard, and a single attackSea-attack -->
 		<Delete MultiUnitFormationType="MUFORMATION_BASIC_CITY_ATTACK_FORCE"/>
 		<Row>
 			<MultiUnitFormationType>MUFORMATION_BASIC_CITY_ATTACK_FORCE</MultiUnitFormationType>
@@ -48,19 +39,20 @@
 		<Row>
 			<MultiUnitFormationType>MUFORMATION_BASIC_CITY_ATTACK_FORCE</MultiUnitFormationType>
 			<PrimaryUnitType>UNITAI_CITY_BOMBARD</PrimaryUnitType>
-			<SecondaryUnitType>UNITAI_CITY_BOMBARD</SecondaryUnitType>
-			<MultiUnitPositionType>MUPOSITION_BOMBARD</MultiUnitPositionType>
-		</Row>
-		<Row>
-			<MultiUnitFormationType>MUFORMATION_BASIC_CITY_ATTACK_FORCE</MultiUnitFormationType>
-			<PrimaryUnitType>UNITAI_CITY_BOMBARD</PrimaryUnitType>
-			<SecondaryUnitType>UNITAI_CITY_BOMBARD</SecondaryUnitType>
+			<SecondaryUnitType>UNITAI_RANGED</SecondaryUnitType>
 			<MultiUnitPositionType>MUPOSITION_BOMBARD</MultiUnitPositionType>
 		</Row>
 		<Row>
 			<MultiUnitFormationType>MUFORMATION_BASIC_CITY_ATTACK_FORCE</MultiUnitFormationType>
 			<PrimaryUnitType>UNITAI_ATTACK</PrimaryUnitType>
 			<SecondaryUnitType>UNITAI_DEFENSE</SecondaryUnitType>
+			<MultiUnitPositionType>MUPOSITION_FRONT_LINE</MultiUnitPositionType>
+			<RequiredSlot>true</RequiredSlot>
+		</Row>
+		<Row>
+			<MultiUnitFormationType>MUFORMATION_BASIC_CITY_ATTACK_FORCE</MultiUnitFormationType>
+			<PrimaryUnitType>UNITAI_ATTACK</PrimaryUnitType>
+			<SecondaryUnitType>UNITAI_FAST_ATTACK</SecondaryUnitType>
 			<MultiUnitPositionType>MUPOSITION_FRONT_LINE</MultiUnitPositionType>
 			<RequiredSlot>true</RequiredSlot>
 		</Row>
@@ -74,20 +66,13 @@
 		<Row>
 			<MultiUnitFormationType>MUFORMATION_BASIC_CITY_ATTACK_FORCE</MultiUnitFormationType>
 			<PrimaryUnitType>UNITAI_ATTACK</PrimaryUnitType>
-			<SecondaryUnitType>UNITAI_COUNTER</SecondaryUnitType>
-			<MultiUnitPositionType>MUPOSITION_FRONT_LINE</MultiUnitPositionType>
-			<RequiredSlot>true</RequiredSlot>
-		</Row>
-		<Row>
-			<MultiUnitFormationType>MUFORMATION_BASIC_CITY_ATTACK_FORCE</MultiUnitFormationType>
-			<PrimaryUnitType>UNITAI_ATTACK</PrimaryUnitType>
 			<SecondaryUnitType>UNITAI_DEFENSE</SecondaryUnitType>
 			<MultiUnitPositionType>MUPOSITION_FRONT_LINE</MultiUnitPositionType>
 		</Row>
 		<Row>
 			<MultiUnitFormationType>MUFORMATION_BASIC_CITY_ATTACK_FORCE</MultiUnitFormationType>
 			<PrimaryUnitType>UNITAI_ATTACK</PrimaryUnitType>
-			<SecondaryUnitType>UNITAI_DEFENSE</SecondaryUnitType>
+			<SecondaryUnitType>UNITAI_FAST_ATTACK</SecondaryUnitType>
 			<MultiUnitPositionType>MUPOSITION_FRONT_LINE</MultiUnitPositionType>
 		</Row>
 		<Row>
@@ -97,13 +82,18 @@
 			<MultiUnitPositionType>MUPOSITION_CIVILIAN_SUPPORT</MultiUnitPositionType>
 		</Row>
 
-		<!-- Single attackSea-attack -->
 		<Row>
 			<MultiUnitFormationType>MUFORMATION_BIGGER_CITY_ATTACK_FORCE</MultiUnitFormationType>
 			<PrimaryUnitType>UNITAI_ATTACK</PrimaryUnitType>
 			<SecondaryUnitType>UNITAI_COUNTER</SecondaryUnitType>
 			<MultiUnitPositionType>MUPOSITION_FRONT_LINE</MultiUnitPositionType>
 			<RequiredSlot>true</RequiredSlot>
+		</Row>
+		<Row>
+			<MultiUnitFormationType>MUFORMATION_BIGGER_CITY_ATTACK_FORCE</MultiUnitFormationType>
+			<PrimaryUnitType>UNITAI_ATTACK</PrimaryUnitType>
+			<SecondaryUnitType>UNITAI_FAST_ATTACK</SecondaryUnitType>
+			<MultiUnitPositionType>MUPOSITION_FRONT_LINE</MultiUnitPositionType>
 		</Row>
 		<Row>
 			<MultiUnitFormationType>MUFORMATION_BIGGER_CITY_ATTACK_FORCE</MultiUnitFormationType>
@@ -150,19 +140,13 @@
 		<Row>
 			<MultiUnitFormationType>MUFORMATION_CITY_STATE_ATTACK_FORCE</MultiUnitFormationType>
 			<PrimaryUnitType>UNITAI_CITY_BOMBARD</PrimaryUnitType>
-			<SecondaryUnitType>UNITAI_CITY_BOMBARD</SecondaryUnitType>
-			<MultiUnitPositionType>MUPOSITION_BOMBARD</MultiUnitPositionType>
-		</Row>
-		<Row>
-			<MultiUnitFormationType>MUFORMATION_CITY_STATE_ATTACK_FORCE</MultiUnitFormationType>
-			<PrimaryUnitType>UNITAI_CITY_BOMBARD</PrimaryUnitType>
-			<SecondaryUnitType>UNITAI_CITY_BOMBARD</SecondaryUnitType>
+			<SecondaryUnitType>UNITAI_RANGED</SecondaryUnitType>
 			<MultiUnitPositionType>MUPOSITION_BOMBARD</MultiUnitPositionType>
 		</Row>
 		<Row>
 			<MultiUnitFormationType>MUFORMATION_CITY_STATE_ATTACK_FORCE</MultiUnitFormationType>
 			<PrimaryUnitType>UNITAI_ATTACK</PrimaryUnitType>
-			<SecondaryUnitType>UNITAI_DEFENSE</SecondaryUnitType>
+			<SecondaryUnitType>UNITAI_FAST_ATTACK</SecondaryUnitType>
 			<MultiUnitPositionType>MUPOSITION_FRONT_LINE</MultiUnitPositionType>
 			<RequiredSlot>true</RequiredSlot>
 		</Row>
@@ -176,7 +160,7 @@
 		<Row>
 			<MultiUnitFormationType>MUFORMATION_CITY_STATE_ATTACK_FORCE</MultiUnitFormationType>
 			<PrimaryUnitType>UNITAI_ATTACK</PrimaryUnitType>
-			<SecondaryUnitType>UNITAI_DEFENSE</SecondaryUnitType>
+			<SecondaryUnitType>UNITAI_FAST_ATTACK</SecondaryUnitType>
 			<MultiUnitPositionType>MUPOSITION_FRONT_LINE</MultiUnitPositionType>
 		</Row>
 		<Row>
@@ -209,40 +193,28 @@
 			<MultiUnitPositionType>MUPOSITION_FRONT_LINE</MultiUnitPositionType>
 			<RequiredSlot>true</RequiredSlot>
 		</Row>
-		<Row>
-			<MultiUnitFormationType>MUFORMATION_FAST_PILLAGERS</MultiUnitFormationType>
-			<PrimaryUnitType>UNITAI_FAST_ATTACK</PrimaryUnitType>
-			<SecondaryUnitType>UNITAI_ATTACK</SecondaryUnitType>
-			<MultiUnitPositionType>MUPOSITION_BOMBARD</MultiUnitPositionType>
-		</Row>
 
 		<!-- More flexibility, less required slots -->
 		<Delete MultiUnitFormationType="MUFORMATION_ANTI_BARBARIAN_TEAM"/>
 		<Row>
 			<MultiUnitFormationType>MUFORMATION_ANTI_BARBARIAN_TEAM</MultiUnitFormationType>
-			<PrimaryUnitType>UNITAI_RANGED</PrimaryUnitType>
-			<SecondaryUnitType>UNITAI_CITY_BOMBARD</SecondaryUnitType>
+			<PrimaryUnitType>UNITAI_FAST_ATTACK</PrimaryUnitType>
+			<SecondaryUnitType>UNITAI_ATTACK</SecondaryUnitType>
+			<MultiUnitPositionType>MUPOSITION_FRONT_LINE</MultiUnitPositionType>
+			<RequiredSlot>true</RequiredSlot>
+		</Row>
+		<Row>
+			<MultiUnitFormationType>MUFORMATION_ANTI_BARBARIAN_TEAM</MultiUnitFormationType>
+			<PrimaryUnitType>UNITAI_FAST_ATTACK</PrimaryUnitType>
+			<SecondaryUnitType>UNITAI_DEFENSE</SecondaryUnitType>
+			<MultiUnitPositionType>MUPOSITION_FRONT_LINE</MultiUnitPositionType>
+			<RequiredSlot>true</RequiredSlot>
+		</Row>
+		<Row>
+			<MultiUnitFormationType>MUFORMATION_ANTI_BARBARIAN_TEAM</MultiUnitFormationType>
+			<PrimaryUnitType>UNITAI_FAST_ATTACK</PrimaryUnitType>
+			<SecondaryUnitType>UNITAI_DEFENSE</SecondaryUnitType>
 			<MultiUnitPositionType>MUPOSITION_BOMBARD</MultiUnitPositionType>
-		</Row>
-		<Row>
-			<MultiUnitFormationType>MUFORMATION_ANTI_BARBARIAN_TEAM</MultiUnitFormationType>
-			<PrimaryUnitType>UNITAI_FAST_ATTACK</PrimaryUnitType>
-			<SecondaryUnitType>UNITAI_DEFENSE</SecondaryUnitType>
-			<MultiUnitPositionType>MUPOSITION_FRONT_LINE</MultiUnitPositionType>
-			<RequiredSlot>true</RequiredSlot>
-		</Row>
-		<Row>
-			<MultiUnitFormationType>MUFORMATION_ANTI_BARBARIAN_TEAM</MultiUnitFormationType>
-			<PrimaryUnitType>UNITAI_FAST_ATTACK</PrimaryUnitType>
-			<SecondaryUnitType>UNITAI_DEFENSE</SecondaryUnitType>
-			<MultiUnitPositionType>MUPOSITION_FRONT_LINE</MultiUnitPositionType>
-			<RequiredSlot>true</RequiredSlot>
-		</Row>
-		<Row>
-			<MultiUnitFormationType>MUFORMATION_ANTI_BARBARIAN_TEAM</MultiUnitFormationType>
-			<PrimaryUnitType>UNITAI_FAST_ATTACK</PrimaryUnitType>
-			<SecondaryUnitType>UNITAI_DEFENSE</SecondaryUnitType>
-			<MultiUnitPositionType>MUPOSITION_FRONT_LINE</MultiUnitPositionType>
 		</Row>
 
 		<!-- Less required slots, more bombard-ranged instead of bombard-bombard, and a single attackSea-attack -->
@@ -259,37 +231,31 @@
 			<PrimaryUnitType>UNITAI_CITY_BOMBARD</PrimaryUnitType>
 			<SecondaryUnitType>UNITAI_RANGED</SecondaryUnitType>
 			<MultiUnitPositionType>MUPOSITION_BOMBARD</MultiUnitPositionType>
+			<RequiredSlot>true</RequiredSlot>
 		</Row>
 		<Row>
 			<MultiUnitFormationType>MUFORMATION_SMALL_CITY_ATTACK_FORCE</MultiUnitFormationType>
 			<PrimaryUnitType>UNITAI_CITY_BOMBARD</PrimaryUnitType>
 			<SecondaryUnitType>UNITAI_RANGED</SecondaryUnitType>
 			<MultiUnitPositionType>MUPOSITION_BOMBARD</MultiUnitPositionType>
-			<RequiredSlot>true</RequiredSlot>
-		</Row>
-		<Row>
-			<MultiUnitFormationType>MUFORMATION_SMALL_CITY_ATTACK_FORCE</MultiUnitFormationType>
-			<PrimaryUnitType>UNITAI_CITY_BOMBARD</PrimaryUnitType>
-			<SecondaryUnitType>UNITAI_CITY_BOMBARD</SecondaryUnitType>
-			<MultiUnitPositionType>MUPOSITION_BOMBARD</MultiUnitPositionType>
 		</Row>
 		<Row>
 			<MultiUnitFormationType>MUFORMATION_SMALL_CITY_ATTACK_FORCE</MultiUnitFormationType>
 			<PrimaryUnitType>UNITAI_ATTACK</PrimaryUnitType>
-			<SecondaryUnitType>UNITAI_DEFENSE</SecondaryUnitType>
+			<SecondaryUnitType>UNITAI_FAST_ATTACK</SecondaryUnitType>
 			<MultiUnitPositionType>MUPOSITION_FRONT_LINE</MultiUnitPositionType>
 		</Row>
 		<Row>
 			<MultiUnitFormationType>MUFORMATION_SMALL_CITY_ATTACK_FORCE</MultiUnitFormationType>
 			<PrimaryUnitType>UNITAI_ATTACK</PrimaryUnitType>
-			<SecondaryUnitType>UNITAI_DEFENSE</SecondaryUnitType>
+			<SecondaryUnitType>UNITAI_FAST_ATTACK</SecondaryUnitType>
 			<MultiUnitPositionType>MUPOSITION_FRONT_LINE</MultiUnitPositionType>
 			<RequiredSlot>true</RequiredSlot>
 		</Row>
 		<Row>
 			<MultiUnitFormationType>MUFORMATION_SMALL_CITY_ATTACK_FORCE</MultiUnitFormationType>
 			<PrimaryUnitType>UNITAI_ATTACK</PrimaryUnitType>
-			<SecondaryUnitType>UNITAI_DEFENSE</SecondaryUnitType>
+			<SecondaryUnitType>UNITAI_FAST_ATTACK</SecondaryUnitType>
 			<MultiUnitPositionType>MUPOSITION_FRONT_LINE</MultiUnitPositionType>
 		</Row>
 		<Row>
@@ -311,7 +277,7 @@
 		<Row>
 			<MultiUnitFormationType>MUFORMATION_EARLY_RUSH</MultiUnitFormationType>
 			<PrimaryUnitType>UNITAI_ATTACK</PrimaryUnitType>
-			<SecondaryUnitType>UNITAI_DEFENSE</SecondaryUnitType>
+			<SecondaryUnitType>UNITAI_FAST_ATTACK</SecondaryUnitType>
 			<MultiUnitPositionType>MUPOSITION_FRONT_LINE</MultiUnitPositionType>
 			<RequiredSlot>true</RequiredSlot>
 		</Row>
@@ -325,15 +291,9 @@
 		<Row>
 			<MultiUnitFormationType>MUFORMATION_EARLY_RUSH</MultiUnitFormationType>
 			<PrimaryUnitType>UNITAI_ATTACK</PrimaryUnitType>
-			<SecondaryUnitType>UNITAI_DEFENSE</SecondaryUnitType>
+			<SecondaryUnitType>UNITAI_FAST_ATTACK</SecondaryUnitType>
 			<MultiUnitPositionType>MUPOSITION_FRONT_LINE</MultiUnitPositionType>
 			<RequiredSlot>true</RequiredSlot>
-		</Row>
-		<Row>
-			<MultiUnitFormationType>MUFORMATION_EARLY_RUSH</MultiUnitFormationType>
-			<PrimaryUnitType>UNITAI_ATTACK</PrimaryUnitType>
-			<SecondaryUnitType>UNITAI_DEFENSE</SecondaryUnitType>
-			<MultiUnitPositionType>MUPOSITION_FRONT_LINE</MultiUnitPositionType>
 		</Row>
 		<Row>
 			<MultiUnitFormationType>MUFORMATION_EARLY_RUSH</MultiUnitFormationType>
@@ -392,53 +352,28 @@
 		<Row>
 			<MultiUnitFormationType>MUFORMATION_NAVAL_SQUADRON</MultiUnitFormationType>
 			<PrimaryUnitType>UNITAI_ATTACK_SEA</PrimaryUnitType>
-			<SecondaryUnitType>UNITAI_ATTACK_SEA</SecondaryUnitType>
-			<MultiUnitPositionType>MUPOSITION_FRONT_LINE</MultiUnitPositionType>
-			<RequiredSlot>true</RequiredSlot>
-		</Row>
-		<Row>
-			<MultiUnitFormationType>MUFORMATION_NAVAL_SQUADRON</MultiUnitFormationType>
-			<PrimaryUnitType>UNITAI_ASSAULT_SEA</PrimaryUnitType>
 			<SecondaryUnitType>UNITAI_RESERVE_SEA</SecondaryUnitType>
-			<MultiUnitPositionType>MUPOSITION_BOMBARD</MultiUnitPositionType>
-		</Row>
-		<Row>
-			<MultiUnitFormationType>MUFORMATION_NAVAL_SQUADRON</MultiUnitFormationType>
-			<PrimaryUnitType>UNITAI_ASSAULT_SEA</PrimaryUnitType>
-			<SecondaryUnitType>UNITAI_ASSAULT_SEA</SecondaryUnitType>
 			<MultiUnitPositionType>MUPOSITION_FRONT_LINE</MultiUnitPositionType>
-		</Row>
-		<Row>
-			<MultiUnitFormationType>MUFORMATION_NAVAL_SQUADRON</MultiUnitFormationType>
-			<PrimaryUnitType>UNITAI_ASSAULT_SEA</PrimaryUnitType>
-			<SecondaryUnitType>UNITAI_RESERVE_SEA</SecondaryUnitType>
-			<MultiUnitPositionType>MUPOSITION_BOMBARD</MultiUnitPositionType>
 		</Row>
 		<Row>
 			<MultiUnitFormationType>MUFORMATION_NAVAL_SQUADRON</MultiUnitFormationType>
 			<PrimaryUnitType>UNITAI_ATTACK_SEA</PrimaryUnitType>
-			<SecondaryUnitType>UNITAI_ATTACK_SEA</SecondaryUnitType>
+			<SecondaryUnitType>UNITAI_RESERVE_SEA</SecondaryUnitType>
+			<MultiUnitPositionType>MUPOSITION_BOMBARD</MultiUnitPositionType>
+			<RequiredSlot>true</RequiredSlot>
+		</Row>
+		<Row>
+			<MultiUnitFormationType>MUFORMATION_NAVAL_SQUADRON</MultiUnitFormationType>
+			<PrimaryUnitType>UNITAI_ASSAULT_SEA</PrimaryUnitType>
+			<SecondaryUnitType>UNITAI_RESERVE_SEA</SecondaryUnitType>
 			<MultiUnitPositionType>MUPOSITION_FRONT_LINE</MultiUnitPositionType>
 		</Row>
 		<Row>
 			<MultiUnitFormationType>MUFORMATION_NAVAL_SQUADRON</MultiUnitFormationType>
 			<PrimaryUnitType>UNITAI_ASSAULT_SEA</PrimaryUnitType>
-			<SecondaryUnitType>UNITAI_ASSAULT_SEA</SecondaryUnitType>
+			<SecondaryUnitType>UNITAI_RESERVE_SEA</SecondaryUnitType>
 			<MultiUnitPositionType>MUPOSITION_BOMBARD</MultiUnitPositionType>
 			<RequiredSlot>true</RequiredSlot>
-		</Row>
-		<Row>
-			<MultiUnitFormationType>MUFORMATION_NAVAL_SQUADRON</MultiUnitFormationType>
-			<PrimaryUnitType>UNITAI_ASSAULT_SEA</PrimaryUnitType>
-			<SecondaryUnitType>UNITAI_ASSAULT_SEA</SecondaryUnitType>
-			<MultiUnitPositionType>MUPOSITION_BOMBARD</MultiUnitPositionType>
-			<RequiredSlot>true</RequiredSlot>
-		</Row>
-		<Row>
-			<MultiUnitFormationType>MUFORMATION_NAVAL_SQUADRON</MultiUnitFormationType>
-			<PrimaryUnitType>UNITAI_ASSAULT_SEA</PrimaryUnitType>
-			<SecondaryUnitType>UNITAI_ASSAULT_SEA</SecondaryUnitType>
-			<MultiUnitPositionType>MUPOSITION_BOMBARD</MultiUnitPositionType>
 		</Row>
 		<Row>
 			<MultiUnitFormationType>MUFORMATION_NAVAL_SQUADRON</MultiUnitFormationType>
@@ -449,7 +384,20 @@
 		<Row>
 			<MultiUnitFormationType>MUFORMATION_NAVAL_SQUADRON</MultiUnitFormationType>
 			<PrimaryUnitType>UNITAI_ASSAULT_SEA</PrimaryUnitType>
-			<SecondaryUnitType>UNITAI_ASSAULT_SEA</SecondaryUnitType>
+			<SecondaryUnitType>UNITAI_RESERVE_SEA</SecondaryUnitType>
+			<MultiUnitPositionType>MUPOSITION_BOMBARD</MultiUnitPositionType>
+			<RequiredSlot>true</RequiredSlot>
+		</Row>
+		<Row>
+			<MultiUnitFormationType>MUFORMATION_NAVAL_SQUADRON</MultiUnitFormationType>
+			<PrimaryUnitType>UNITAI_ATTACK_SEA</PrimaryUnitType>
+			<SecondaryUnitType>UNITAI_RESERVE_SEA</SecondaryUnitType>
+			<MultiUnitPositionType>MUPOSITION_BOMBARD</MultiUnitPositionType>
+		</Row>
+		<Row>
+			<MultiUnitFormationType>MUFORMATION_NAVAL_SQUADRON</MultiUnitFormationType>
+			<PrimaryUnitType>UNITAI_ASSAULT_SEA</PrimaryUnitType>
+			<SecondaryUnitType>UNITAI_RESERVE_SEA</SecondaryUnitType>
 			<MultiUnitPositionType>MUPOSITION_BOMBARD</MultiUnitPositionType>
 		</Row>
 		<Row>
@@ -469,12 +417,6 @@
 		</Row>
 		<Row>
 			<MultiUnitFormationType>MUFORMATION_NAVAL_INVASION</MultiUnitFormationType>
-			<PrimaryUnitType>UNITAI_CITY_BOMBARD</PrimaryUnitType>
-			<SecondaryUnitType>UNITAI_RANGED</SecondaryUnitType>
-			<MultiUnitPositionType>MUPOSITION_BOMBARD</MultiUnitPositionType>
-		</Row>
-		<Row>
-			<MultiUnitFormationType>MUFORMATION_NAVAL_INVASION</MultiUnitFormationType>
 			<PrimaryUnitType>UNITAI_RANGED</PrimaryUnitType>
 			<SecondaryUnitType>UNITAI_CITY_BOMBARD</SecondaryUnitType>
 			<MultiUnitPositionType>MUPOSITION_BOMBARD</MultiUnitPositionType>
@@ -504,13 +446,13 @@
 			<PrimaryUnitType>UNITAI_ATTACK</PrimaryUnitType>
 			<SecondaryUnitType>UNITAI_DEFENSE</SecondaryUnitType>
 			<MultiUnitPositionType>MUPOSITION_FRONT_LINE</MultiUnitPositionType>
+			<RequiredSlot>true</RequiredSlot>
 		</Row>
 		<Row>
 			<MultiUnitFormationType>MUFORMATION_NAVAL_INVASION</MultiUnitFormationType>
 			<PrimaryUnitType>UNITAI_ATTACK</PrimaryUnitType>
 			<SecondaryUnitType>UNITAI_DEFENSE</SecondaryUnitType>
 			<MultiUnitPositionType>MUPOSITION_FRONT_LINE</MultiUnitPositionType>
-			<RequiredSlot>true</RequiredSlot>
 		</Row>
 		<Row>
 			<MultiUnitFormationType>MUFORMATION_NAVAL_INVASION</MultiUnitFormationType>
@@ -529,12 +471,6 @@
 			<MultiUnitFormationType>MUFORMATION_NAVAL_INVASION</MultiUnitFormationType>
 			<PrimaryUnitType>UNITAI_ATTACK_SEA</PrimaryUnitType>
 			<SecondaryUnitType>UNITAI_ASSAULT_SEA</SecondaryUnitType>
-			<MultiUnitPositionType>MUPOSITION_NAVAL_ESCORT</MultiUnitPositionType>
-		</Row>
-		<Row>
-			<MultiUnitFormationType>MUFORMATION_NAVAL_INVASION</MultiUnitFormationType>
-			<PrimaryUnitType>UNITAI_ATTACK_SEA</PrimaryUnitType>
-			<SecondaryUnitType>UNITAI_RESERVE_SEA</SecondaryUnitType>
 			<MultiUnitPositionType>MUPOSITION_NAVAL_ESCORT</MultiUnitPositionType>
 		</Row>
 		<Row>
@@ -550,6 +486,12 @@
 			<SecondaryUnitType>UNITAI_RESERVE_SEA</SecondaryUnitType>
 			<MultiUnitPositionType>MUPOSITION_NAVAL_ESCORT</MultiUnitPositionType>
 			<RequiredSlot>true</RequiredSlot>
+		</Row>
+		<Row>
+			<MultiUnitFormationType>MUFORMATION_NAVAL_INVASION</MultiUnitFormationType>
+			<PrimaryUnitType>UNITAI_ASSAULT_SEA</PrimaryUnitType>
+			<SecondaryUnitType>UNITAI_RESERVE_SEA</SecondaryUnitType>
+			<MultiUnitPositionType>MUPOSITION_NAVAL_ESCORT</MultiUnitPositionType>
 		</Row>
 		<Row>
 			<MultiUnitFormationType>MUFORMATION_NAVAL_INVASION</MultiUnitFormationType>
@@ -591,7 +533,7 @@
 		<Row>
 			<MultiUnitFormationType>MUFORMATION_NAVAL_INVASION</MultiUnitFormationType>
 			<PrimaryUnitType>UNITAI_ATTACK_SEA</PrimaryUnitType>
-			<SecondaryUnitType>UNITAI_ATTACK_SEA</SecondaryUnitType>
+			<SecondaryUnitType>UNITAI_ASSAULT_SEA</SecondaryUnitType>
 			<MultiUnitPositionType>MUPOSITION_NAVAL_ESCORT</MultiUnitPositionType>
 			<RequiredSlot>true</RequiredSlot>
 		</Row>
@@ -616,12 +558,6 @@
 			<PrimaryUnitType>UNITAI_CITY_BOMBARD</PrimaryUnitType>
 			<SecondaryUnitType>UNITAI_DEFENSE</SecondaryUnitType>
 			<MultiUnitPositionType>MUPOSITION_BOMBARD</MultiUnitPositionType>
-		</Row>
-		<Row>
-			<MultiUnitFormationType>MUFORMATION_CITY_STATE_INVASION</MultiUnitFormationType>
-			<PrimaryUnitType>UNITAI_ATTACK</PrimaryUnitType>
-			<SecondaryUnitType>UNITAI_DEFENSE</SecondaryUnitType>
-			<MultiUnitPositionType>MUPOSITION_FRONT_LINE</MultiUnitPositionType>
 			<RequiredSlot>true</RequiredSlot>
 		</Row>
 		<Row>
@@ -636,6 +572,7 @@
 			<PrimaryUnitType>UNITAI_ATTACK</PrimaryUnitType>
 			<SecondaryUnitType>UNITAI_DEFENSE</SecondaryUnitType>
 			<MultiUnitPositionType>MUPOSITION_FRONT_LINE</MultiUnitPositionType>
+			<RequiredSlot>true</RequiredSlot>
 		</Row>
 		<Row>
 			<MultiUnitFormationType>MUFORMATION_CITY_STATE_INVASION</MultiUnitFormationType>
@@ -667,30 +604,6 @@
 			<MultiUnitFormationType>MUFORMATION_CITY_STATE_INVASION</MultiUnitFormationType>
 			<PrimaryUnitType>UNITAI_ASSAULT_SEA</PrimaryUnitType>
 			<SecondaryUnitType>UNITAI_RESERVE_SEA</SecondaryUnitType>
-			<MultiUnitPositionType>MUPOSITION_NAVAL_ESCORT</MultiUnitPositionType>
-		</Row>
-		<Row>
-			<MultiUnitFormationType>MUFORMATION_CITY_STATE_INVASION</MultiUnitFormationType>
-			<PrimaryUnitType>UNITAI_ASSAULT_SEA</PrimaryUnitType>
-			<SecondaryUnitType>UNITAI_RESERVE_SEA</SecondaryUnitType>
-			<MultiUnitPositionType>MUPOSITION_NAVAL_ESCORT</MultiUnitPositionType>
-		</Row>
-		<Row>
-			<MultiUnitFormationType>MUFORMATION_CITY_STATE_INVASION</MultiUnitFormationType>
-			<PrimaryUnitType>UNITAI_ASSAULT_SEA</PrimaryUnitType>
-			<SecondaryUnitType>UNITAI_RESERVE_SEA</SecondaryUnitType>
-			<MultiUnitPositionType>MUPOSITION_NAVAL_ESCORT</MultiUnitPositionType>
-		</Row>
-		<Row>
-			<MultiUnitFormationType>MUFORMATION_CITY_STATE_INVASION</MultiUnitFormationType>
-			<PrimaryUnitType>UNITAI_ATTACK_SEA</PrimaryUnitType>
-			<SecondaryUnitType>UNITAI_RESERVE_SEA</SecondaryUnitType>
-			<MultiUnitPositionType>MUPOSITION_NAVAL_ESCORT</MultiUnitPositionType>
-		</Row>
-		<Row>
-			<MultiUnitFormationType>MUFORMATION_CITY_STATE_INVASION</MultiUnitFormationType>
-			<PrimaryUnitType>UNITAI_ASSAULT_SEA</PrimaryUnitType>
-			<SecondaryUnitType>UNITAI_ATTACK_SEA</SecondaryUnitType>
 			<MultiUnitPositionType>MUPOSITION_NAVAL_ESCORT</MultiUnitPositionType>
 		</Row>
 		<Row>
@@ -703,42 +616,28 @@
 		<Delete MultiUnitFormationType="MUFORMATION_NAVAL_BOMBARDMENT"/>
 		<Row>
 			<MultiUnitFormationType>MUFORMATION_NAVAL_BOMBARDMENT</MultiUnitFormationType>
-			<PrimaryUnitType>UNITAI_ATTACK_SEA</PrimaryUnitType>
-			<SecondaryUnitType>UNITAI_RESERVE_SEA</SecondaryUnitType>
-			<MultiUnitPositionType>MUPOSITION_FRONT_LINE</MultiUnitPositionType>
-		</Row>
-		<Row>
-			<MultiUnitFormationType>MUFORMATION_NAVAL_BOMBARDMENT</MultiUnitFormationType>
-			<PrimaryUnitType>UNITAI_ATTACK_SEA</PrimaryUnitType>
-			<SecondaryUnitType>UNITAI_RESERVE_SEA</SecondaryUnitType>
-			<MultiUnitPositionType>MUPOSITION_FRONT_LINE</MultiUnitPositionType>
-		</Row>
-		<Row>
-			<MultiUnitFormationType>MUFORMATION_NAVAL_BOMBARDMENT</MultiUnitFormationType>
 			<PrimaryUnitType>UNITAI_ASSAULT_SEA</PrimaryUnitType>
-			<SecondaryUnitType>UNITAI_ATTACK_SEA</SecondaryUnitType>
-			<MultiUnitPositionType>MUPOSITION_BOMBARD</MultiUnitPositionType>
+			<SecondaryUnitType>UNITAI_ASSAULT_SEA</SecondaryUnitType>
+			<MultiUnitPositionType>MUPOSITION_FRONT_LINE</MultiUnitPositionType>
 			<RequiredSlot>true</RequiredSlot>
 		</Row>
 		<Row>
 			<MultiUnitFormationType>MUFORMATION_NAVAL_BOMBARDMENT</MultiUnitFormationType>
 			<PrimaryUnitType>UNITAI_ASSAULT_SEA</PrimaryUnitType>
-			<SecondaryUnitType>UNITAI_CARRIER_SEA</SecondaryUnitType>
+			<SecondaryUnitType>UNITAI_ASSAULT_SEA</SecondaryUnitType>
 			<MultiUnitPositionType>MUPOSITION_BOMBARD</MultiUnitPositionType>
-			<RequiredSlot>true</RequiredSlot>
+		</Row>
+		<Row>
+			<MultiUnitFormationType>MUFORMATION_NAVAL_BOMBARDMENT</MultiUnitFormationType>
+			<PrimaryUnitType>UNITAI_ASSAULT_SEA</PrimaryUnitType>
+			<SecondaryUnitType>UNITAI_ASSAULT_SEA</SecondaryUnitType>
+			<MultiUnitPositionType>MUPOSITION_BOMBARD</MultiUnitPositionType>
 		</Row>
 		<!-- Naval City State Attack: more variety, less required slots, less carriers. -->
 		<Delete MultiUnitFormationType="MUFORMATION_PURE_NAVAL_CITY_ATTACK"/>
 		<Row>
 			<MultiUnitFormationType>MUFORMATION_PURE_NAVAL_CITY_ATTACK</MultiUnitFormationType>
 			<PrimaryUnitType>UNITAI_ATTACK_SEA</PrimaryUnitType>
-			<SecondaryUnitType>UNITAI_ATTACK_SEA</SecondaryUnitType>
-			<MultiUnitPositionType>MUPOSITION_FRONT_LINE</MultiUnitPositionType>
-			<RequiredSlot>true</RequiredSlot>
-		</Row>
-		<Row>
-			<MultiUnitFormationType>MUFORMATION_PURE_NAVAL_CITY_ATTACK</MultiUnitFormationType>
-			<PrimaryUnitType>UNITAI_ATTACK_SEA</PrimaryUnitType>
 			<SecondaryUnitType>UNITAI_RESERVE_SEA</SecondaryUnitType>
 			<MultiUnitPositionType>MUPOSITION_FRONT_LINE</MultiUnitPositionType>
 			<RequiredSlot>true</RequiredSlot>
@@ -748,16 +647,30 @@
 			<PrimaryUnitType>UNITAI_ATTACK_SEA</PrimaryUnitType>
 			<SecondaryUnitType>UNITAI_RESERVE_SEA</SecondaryUnitType>
 			<MultiUnitPositionType>MUPOSITION_FRONT_LINE</MultiUnitPositionType>
+			<RequiredSlot>true</RequiredSlot>
 		</Row>
 		<Row>
 			<MultiUnitFormationType>MUFORMATION_PURE_NAVAL_CITY_ATTACK</MultiUnitFormationType>
 			<PrimaryUnitType>UNITAI_ATTACK_SEA</PrimaryUnitType>
-			<SecondaryUnitType>UNITAI_ASSAULT_SEA</SecondaryUnitType>
+			<SecondaryUnitType>UNITAI_RESERVE_SEA</SecondaryUnitType>
+			<MultiUnitPositionType>MUPOSITION_FRONT_LINE</MultiUnitPositionType>
+		</Row>
+		<Row>
+			<MultiUnitFormationType>MUFORMATION_PURE_NAVAL_CITY_ATTACK</MultiUnitFormationType>
+			<PrimaryUnitType>UNITAI_ATTACK_SEA</PrimaryUnitType>
+			<SecondaryUnitType>UNITAI_RESERVE_SEA</SecondaryUnitType>
 			<MultiUnitPositionType>MUPOSITION_FRONT_LINE</MultiUnitPositionType>
 		</Row>
 		<Row>
 			<MultiUnitFormationType>MUFORMATION_PURE_NAVAL_CITY_ATTACK</MultiUnitFormationType>
 			<PrimaryUnitType>UNITAI_ASSAULT_SEA</PrimaryUnitType>
+			<SecondaryUnitType>UNITAI_RESERVE_SEA</SecondaryUnitType>
+			<MultiUnitPositionType>MUPOSITION_BOMBARD</MultiUnitPositionType>
+			<RequiredSlot>true</RequiredSlot>
+		</Row>
+		<Row>
+			<MultiUnitFormationType>MUFORMATION_PURE_NAVAL_CITY_ATTACK</MultiUnitFormationType>
+			<PrimaryUnitType>UNITAI_CARRIER_SEA</PrimaryUnitType>
 			<SecondaryUnitType>UNITAI_ASSAULT_SEA</SecondaryUnitType>
 			<MultiUnitPositionType>MUPOSITION_BOMBARD</MultiUnitPositionType>
 			<RequiredSlot>true</RequiredSlot>
@@ -765,14 +678,7 @@
 		<Row>
 			<MultiUnitFormationType>MUFORMATION_PURE_NAVAL_CITY_ATTACK</MultiUnitFormationType>
 			<PrimaryUnitType>UNITAI_ASSAULT_SEA</PrimaryUnitType>
-			<SecondaryUnitType>UNITAI_CARRIER_SEA</SecondaryUnitType>
-			<MultiUnitPositionType>MUPOSITION_BOMBARD</MultiUnitPositionType>
-			<RequiredSlot>true</RequiredSlot>
-		</Row>
-		<Row>
-			<MultiUnitFormationType>MUFORMATION_PURE_NAVAL_CITY_ATTACK</MultiUnitFormationType>
-			<PrimaryUnitType>UNITAI_ASSAULT_SEA</PrimaryUnitType>
-			<SecondaryUnitType>UNITAI_ATTACK_SEA</SecondaryUnitType>
+			<SecondaryUnitType>UNITAI_RESERVE_SEA</SecondaryUnitType>
 			<MultiUnitPositionType>MUPOSITION_BOMBARD</MultiUnitPositionType>
 		</Row>
 		<Row>
@@ -784,20 +690,20 @@
 		<Row>
 			<MultiUnitFormationType>MUFORMATION_PURE_NAVAL_CITY_ATTACK</MultiUnitFormationType>
 			<PrimaryUnitType>UNITAI_ASSAULT_SEA</PrimaryUnitType>
-			<SecondaryUnitType>UNITAI_CARRIER_SEA</SecondaryUnitType>
+			<SecondaryUnitType>UNITAI_RESERVE_SEA</SecondaryUnitType>
 			<MultiUnitPositionType>MUPOSITION_BOMBARD</MultiUnitPositionType>
 		</Row>
 		<Row>
 			<MultiUnitFormationType>MUFORMATION_PURE_NAVAL_CITY_ATTACK</MultiUnitFormationType>
 			<PrimaryUnitType>UNITAI_ASSAULT_SEA</PrimaryUnitType>
-			<SecondaryUnitType>UNITAI_CARRIER_SEA</SecondaryUnitType>
+			<SecondaryUnitType>UNITAI_RESERVE_SEA</SecondaryUnitType>
 			<MultiUnitPositionType>MUPOSITION_BOMBARD</MultiUnitPositionType>
 			<RequiredSlot>true</RequiredSlot>
 		</Row>
 		<Row>
 			<MultiUnitFormationType>MUFORMATION_PURE_NAVAL_CITY_ATTACK</MultiUnitFormationType>
-			<PrimaryUnitType>UNITAI_CARRIER_SEA</PrimaryUnitType>
-			<SecondaryUnitType>UNITAI_ASSAULT_SEA</SecondaryUnitType>
+			<PrimaryUnitType>UNITAI_ASSAULT_SEA</PrimaryUnitType>
+			<SecondaryUnitType>UNITAI_RESERVE_SEA</SecondaryUnitType>
 			<MultiUnitPositionType>MUPOSITION_BOMBARD</MultiUnitPositionType>
 		</Row>
 		<Delete MultiUnitFormationType="MUFORMATION_RAPID_RESPONSE_FORCE"/>
@@ -810,22 +716,16 @@
 		</Row>
 		<Row>
 			<MultiUnitFormationType>MUFORMATION_RAPID_RESPONSE_FORCE</MultiUnitFormationType>
-			<PrimaryUnitType>UNITAI_ATTACK</PrimaryUnitType>
-			<SecondaryUnitType>UNITAI_FAST_ATTACK</SecondaryUnitType>
-			<MultiUnitPositionType>MUPOSITION_FRONT_LINE</MultiUnitPositionType>
+			<PrimaryUnitType>UNITAI_FAST_ATTACK</PrimaryUnitType>
+			<SecondaryUnitType>UNITAI_RANGED</SecondaryUnitType>
+			<MultiUnitPositionType>MUPOSITION_BOMBARD</MultiUnitPositionType>
+		</Row>
+		<Row>
+			<MultiUnitFormationType>MUFORMATION_RAPID_RESPONSE_FORCE</MultiUnitFormationType>
+			<PrimaryUnitType>UNITAI_FAST_ATTACK</PrimaryUnitType>
+			<SecondaryUnitType>UNITAI_RANGED</SecondaryUnitType>
+			<MultiUnitPositionType>MUPOSITION_BOMBARD</MultiUnitPositionType>
 			<RequiredSlot>true</RequiredSlot>
-		</Row>
-		<Row>
-			<MultiUnitFormationType>MUFORMATION_RAPID_RESPONSE_FORCE</MultiUnitFormationType>
-			<PrimaryUnitType>UNITAI_FAST_ATTACK</PrimaryUnitType>
-			<SecondaryUnitType>UNITAI_RANGED</SecondaryUnitType>
-			<MultiUnitPositionType>MUPOSITION_BOMBARD</MultiUnitPositionType>
-		</Row>
-		<Row>
-			<MultiUnitFormationType>MUFORMATION_RAPID_RESPONSE_FORCE</MultiUnitFormationType>
-			<PrimaryUnitType>UNITAI_FAST_ATTACK</PrimaryUnitType>
-			<SecondaryUnitType>UNITAI_RANGED</SecondaryUnitType>
-			<MultiUnitPositionType>MUPOSITION_BOMBARD</MultiUnitPositionType>
 		</Row>
 		
 		<Row>

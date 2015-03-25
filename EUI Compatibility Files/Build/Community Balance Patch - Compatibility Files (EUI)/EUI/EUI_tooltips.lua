@@ -2103,7 +2103,8 @@ end
 -- PRODUCTION
 local function getProductionTooltip( city )
 
-	local isNoob = civBE_mode or not OptionsManager.IsNoBasicHelp()
+	local 
+	 = civBE_mode or not OptionsManager.IsNoBasicHelp()
 	local cityProductionName = city:GetProductionNameKey()
 	local tipText = ""
 	local productionColor

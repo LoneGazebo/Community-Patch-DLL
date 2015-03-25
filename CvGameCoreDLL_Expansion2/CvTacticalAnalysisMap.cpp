@@ -89,6 +89,10 @@ CvTacticalDominanceZone::CvTacticalDominanceZone(void)
 	m_iFriendlyUnitCount = 0;
 	m_iEnemyUnitCount = 0;
 	m_iFriendlyRangedUnitCount = 0;
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	m_iFriendlyMeleeUnitCount = 0;
+	m_iEnemyMeleeUnitCount = 0;
+#endif
 	m_iEnemyRangedUnitCount = 0;
 	m_iEnemyNavalUnitCount = 0;
 	m_iZoneValue = 0;
@@ -352,11 +356,7 @@ void CvTacticalAnalysisMap::MarkCellsNearEnemy()
 								iTurnsToReach = TurnsToReachTarget(pUnit, pPlot, true /*bReusePaths*/, true /*bIgnoreUnits*/);
 #endif // AUI_ASTAR_TURN_LIMITER
 
-#if defined(MOD_BALANCE_CORE)
-								if (iTurnsToReach <= 1 || (pUnit->isRanged() && iTurnsToReach <= 2))
-#else
 								if(iTurnsToReach <= 1)
-#endif
 								{
 									m_pPlots[iI].SetSubjectToAttack(true);
 								}
@@ -735,6 +735,12 @@ void CvTacticalAnalysisMap::AddToDominanceZones(int iIndex, CvTacticalAnalysisCe
 				{
 					pZone->AddFriendlyRangedUnitCount(1);
 				}
+#if defined(MOD_BALANCE_CORE_MILITARY)
+				else if(!pFriendlyUnit->isRanged())
+				{
+					pZone->AddFriendlyMeleeUnitCount(1);
+				}
+#endif
 			}
 		}
 
@@ -757,6 +763,12 @@ void CvTacticalAnalysisMap::AddToDominanceZones(int iIndex, CvTacticalAnalysisCe
 				{
 					pZone->AddEnemyRangedUnitCount(1);
 				}
+#if defined(MOD_BALANCE_CORE_MILITARY)
+				else if(!pEnemyUnit->isRanged())
+				{
+					pZone->AddEnemyMeleeUnitCount(1);
+				}
+#endif
 				if (pEnemyUnit->getDomainType() == DOMAIN_SEA)
 				{
 					pZone->AddEnemyNavalUnitCount(1);
@@ -794,16 +806,28 @@ void CvTacticalAnalysisMap::CalculateMilitaryStrengths()
 			{
 				// Start with strength of the city itself
 				int iCityHitPoints = pClosestCity->GetMaxHitPoints() - pClosestCity->getDamage();
+#if defined(MOD_BALANCE_CORE_MILITARY)
+				int iStrength = m_iTacticalRange * pClosestCity->getStrengthValue(true) * iCityHitPoints / GC.getMAX_CITY_HIT_POINTS();
+#else
 				int iStrength = m_iTacticalRange * pClosestCity->getStrengthValue() * iCityHitPoints / GC.getMAX_CITY_HIT_POINTS();
+#endif
 				if(pZone->GetTerritoryType() == TACTICAL_TERRITORY_FRIENDLY)
 				{
 					pZone->AddFriendlyStrength(iStrength);
+#if defined(MOD_BALANCE_CORE_MILITARY)
+					pZone->AddFriendlyRangedStrength(pClosestCity->getStrengthValue(true));
+#else
 					pZone->AddFriendlyRangedStrength(pClosestCity->getStrengthValue());
+#endif
 				}
 				else
 				{
 					pZone->AddEnemyStrength(iStrength);
+#if defined(MOD_BALANCE_CORE_MILITARY)
+					pZone->AddEnemyRangedStrength(pClosestCity->getStrengthValue(true));
+#else
 					pZone->AddEnemyRangedStrength(pClosestCity->getStrengthValue());
+#endif
 				}
 
 				// Loop through all of OUR units first
@@ -841,7 +865,11 @@ void CvTacticalAnalysisMap::CalculateMilitaryStrengths()
 									int iUnitStrength = pLoopUnit->GetBaseCombatStrengthConsideringDamage();
 									if(iUnitStrength == 0 && pLoopUnit->isEmbarked() && !pZone->IsWater())
 									{
+#if defined(MOD_BALANCE_CORE_MILITARY)
+										iUnitStrength = pLoopUnit->GetBaseCombatStrength();
+#else
 										iUnitStrength = pLoopUnit->GetBaseCombatStrength(true);
+#endif
 									}
 									pZone->AddFriendlyStrength(iUnitStrength * iMultiplier * m_iUnitStrengthMultiplier);
 									pZone->AddFriendlyRangedStrength(pLoopUnit->GetMaxRangedCombatStrength(NULL, /*pCity*/ NULL, true, true));
@@ -858,6 +886,12 @@ void CvTacticalAnalysisMap::CalculateMilitaryStrengths()
 									{
 										pZone->AddFriendlyRangedUnitCount(1);
 									}
+#if defined(MOD_BALANCE_CORE_MILITARY)
+									else if(!pLoopUnit->isRanged())
+									{
+										pZone->AddFriendlyMeleeUnitCount(1);
+									}
+#endif
 								}
 							}
 						}
@@ -912,7 +946,11 @@ void CvTacticalAnalysisMap::CalculateMilitaryStrengths()
 												int iUnitStrength = pLoopUnit->GetBaseCombatStrengthConsideringDamage();
 												if(iUnitStrength == 0 && pLoopUnit->isEmbarked() && !pZone->IsWater())
 												{
+#if defined(MOD_BALANCE_CORE_MILITARY)
+													iUnitStrength = pLoopUnit->GetBaseCombatStrength();
+#else
 													iUnitStrength = pLoopUnit->GetBaseCombatStrength(true);
+#endif
 												}
 
 												if(!bVisible)
@@ -941,6 +979,12 @@ void CvTacticalAnalysisMap::CalculateMilitaryStrengths()
 													{
 														pZone->AddEnemyRangedUnitCount(1);
 													}
+#if defined(MOD_BALANCE_CORE_MILITARY)
+													else if(!pLoopUnit->isRanged())
+													{
+														pZone->AddEnemyMeleeUnitCount(1);
+													}
+#endif
 													if(pLoopUnit->getDomainType() == DOMAIN_SEA)
 													{
 														pZone->AddEnemyNavalUnitCount(1);
@@ -1026,11 +1070,19 @@ void CvTacticalAnalysisMap::PrioritizeZones()
 			{
 				if(pZone->GetTerritoryType() == TACTICAL_TERRITORY_ENEMY)
 				{
+#if defined(MOD_BALANCE_CORE_MILITARY)
+					iMultiplier = 1;
+#else
 					iMultiplier = 2;
+#endif
 				}
 				else if(pZone->GetTerritoryType() == TACTICAL_TERRITORY_FRIENDLY)
 				{
+#if defined(MOD_BALANCE_CORE_MILITARY)
+					iMultiplier = 8;
+#else
 					iMultiplier = 6;
+#endif
 				}
 			}
 			else if(eDominance == TACTICAL_DOMINANCE_EVEN)
@@ -1061,7 +1113,11 @@ void CvTacticalAnalysisMap::PrioritizeZones()
 				{
 					if(pZone->GetTerritoryType() == TACTICAL_TERRITORY_ENEMY)
 					{
+#if defined(MOD_BALANCE_CORE_MILITARY)
+						iMultiplier *= 4;
+#else
 						iMultiplier *= 2;
+#endif
 					}
 				}
 				else if(m_pPlayer->GetDiplomacyAI()->GetStateAllWars() == STATE_ALL_WARS_LOSING)
@@ -1235,7 +1291,11 @@ bool CvTacticalAnalysisMap::IsInEnemyDominatedZone(CvPlot* pPlot)
 eTacticalDominanceFlags CvTacticalAnalysisMap::ComputeDominance(CvTacticalDominanceZone* pZone)
 {
 	// Look at ratio of friendly to enemy strength
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	if(pZone->GetEnemyUnitCount() <= 0)
+#else
 	if(pZone->GetTerritoryType() != TACTICAL_TERRITORY_ENEMY && pZone->GetEnemyUnitCount() <= 0)
+#endif
 	{
 		pZone->SetDominanceFlag(TACTICAL_DOMINANCE_NO_UNITS_VISIBLE);
 	}
