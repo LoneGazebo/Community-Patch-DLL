@@ -177,6 +177,11 @@ public:
 	// Per turn processing
 	void DoTurn();
 	bool DoDelayedDeath();
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	void IncrementWait(int iChange);
+	int GetWait() const;
+	void SetWait(int iChange);
+#endif
 
 protected:
 	int m_iID;
@@ -189,6 +194,9 @@ protected:
 	int m_eDomainType; // DomainTypes
 	int m_iFormationIndex;
 	int m_eAIState; // ArmyAIState
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	int m_iWait;
+#endif
 	FStaticVector<CvArmyFormationSlot, SAFE_ESTIMATE_NUM_MULTIUNITFORMATION_ENTRIES, true, c_eCiv5GameplayDLL, 0> m_FormationEntries;
 	FStaticVector<CvArmyFormationSlot, SAFE_ESTIMATE_NUM_MULTIUNITFORMATION_ENTRIES, true, c_eCiv5GameplayDLL, 0>::iterator m_CurUnitIter;
 };

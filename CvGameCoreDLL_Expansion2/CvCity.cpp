@@ -15278,7 +15278,7 @@ bool CvCity::CanBuyPlot(int iPlotX, int iPlotY, bool bIgnoreCost)
 #if defined(MOD_BALANCE_CORE)
 		if(MOD_BALANCE_CORE && GET_PLAYER(getOwner()).GetPlayerTraits()->IsBuyOwnedTiles())
 		{
-			if(pTargetPlot->getOwner() == getOwner())
+			if(pTargetPlot->getOwner() == getOwner() || pTargetPlot->isCity())
 			{
 				return false;
 			}
@@ -15498,7 +15498,7 @@ void CvCity::GetBuyablePlotList(std::vector<int>& aiPlotList)
 #if defined(MOD_BALANCE_CORE)
 					if(MOD_BALANCE_CORE && GET_PLAYER(getOwner()).GetPlayerTraits()->IsBuyOwnedTiles())
 					{
-						if(pLoopPlot->getOwner() == getOwner())
+						if(pLoopPlot->getOwner() == getOwner() || pLoopPlot->isCity())
 						{
 							continue;
 						}
@@ -17577,6 +17577,12 @@ bool CvCity::IsCanPurchase(bool bTestPurchaseCost, bool bTestTrainable, UnitType
 				}
 				if(eUnitType != NO_UNIT)
 				{
+#if defined(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
+					if(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED && GET_PLAYER(getOwner()).GetNumUnitsOutOfSupply() > 0)
+					{
+						return false;
+					}
+#endif
 					CvUnitEntry* thisUnitInfo = GC.getUnitInfo(eUnitType);
 					// See if there are any BuildingClass requirements
 					const int iNumBuildingClassInfos = GC.getNumBuildingClassInfos();

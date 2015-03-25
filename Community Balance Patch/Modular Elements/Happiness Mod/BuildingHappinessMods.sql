@@ -23,6 +23,10 @@ UPDATE Buildings
 SET PovertyHappinessChange = '10'
 WHERE Type = 'BUILDING_MEDICAL_LAB' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
+UPDATE Buildings
+SET PovertyHappinessChange = '-6'
+WHERE Type = 'BUILDING_COAL_PLANT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
+
 -- Poverty Global
 UPDATE Buildings
 SET PovertyHappinessChangeGlobal = '4'

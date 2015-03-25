@@ -8689,6 +8689,14 @@ bool CvPlayer::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool
 
 	if(!bTestVisible)
 	{
+#if defined(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
+		if(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED && !pUnitInfo.IsFound() && GetNumUnitsOutOfSupply() > 0)
+		{
+			GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_NO_SUPPLY");
+			if(toolTipSink == NULL)
+			return false;
+		}
+#endif
 		// Settlers
 		if(pUnitInfo.IsFound() || pUnitInfo.IsFoundAbroad())
 		{
@@ -24439,7 +24447,7 @@ void CvPlayer::TestHasMonopoly(ResourceTypes eResource)
 			int iTotalNumResource = GC.getMap().getNumResources(eResource);
 			bool bGainingBonus = false;
 			bool bLosingBonus = false;
-			if(iOwnedNumResource > 0 && iTotalNumResource > 0)
+			if(iTotalNumResource > 0)
 			{
 				//Do we have +50% of this resource under our control?
 				if(((iOwnedNumResource * 100) / iTotalNumResource) > 50)

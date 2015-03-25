@@ -390,6 +390,9 @@ CvUnit::~CvUnit()
 void CvUnit::init(int iID, UnitTypes eUnit, UnitAITypes eUnitAI, PlayerTypes eOwner, int iX, int iY, DirectionTypes eFacingDirection, bool bNoMove, bool bSetupGraphical, int iMapLayer /*= DEFAULT_UNIT_MAP_LAYER*/, int iNumGoodyHutsPopped)
 {
 	initWithNameOffset(iID, eUnit, -1, eUnitAI, eOwner, iX, iY, eFacingDirection, bNoMove, bSetupGraphical, iMapLayer, iNumGoodyHutsPopped);
+#if defined(MOD_BALANCE_CORE)
+	GET_PLAYER(getOwner()).UpdateAreaEffectUnits();
+#endif
 }
 
 // ---------------------------------------------------------------------------------
@@ -12897,7 +12900,7 @@ int CvUnit::baseMoves(DomainTypes eIntoDomain /* = NO_DOMAIN */) const
 	}
 
 #if defined(MOD_BALANCE_CORE_POLICIES)
-	if((m_pUnitInfo->IsFound() || (m_pUnitInfo->GetWorkRate() > 0)) && !IsCombatUnit())
+	if((m_pUnitInfo->IsFound() || (m_pUnitInfo->GetWorkRate() > 0)) && !IsCombatUnit() && !IsGreatGeneral() && !IsGreatAdmiral())
 	{
 		iExtraGoldenAgeMoves += GET_PLAYER(getOwner()).GetExtraMoves();
 	}
@@ -25558,7 +25561,7 @@ const char* CvUnit::GetMissionInfo()
 	CvString strTemp1;
 	getUnitAIString(strTemp1, AI_getUnitAIType());
 
-	m_strMissionInfoString.Format("UnitAI: %s / MissionAI: %s", strTemp0.c_str(), strTemp1.c_str()); 
+	m_strMissionInfoString.Format("%s / %s", strTemp0.c_str(), strTemp1.c_str()); 
 	
 	if (m_iMissionAIX!=INVALID_PLOT_COORD && m_iMissionAIY!=INVALID_PLOT_COORD)
 	{

@@ -1,5 +1,5 @@
-/*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+ï»¿/*	-------------------------------------------------------------------------------------------------------
+	ï¿½ 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -258,6 +258,7 @@ public:
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	virtual const char* GetInfoString();
+	virtual bool FindBestFitReserveUnitForced(CvArmyAI* pThisArmy, CvPlot* pMusterPlot, CvPlot* pTargetPlot, bool bIsNaval, bool bIsMixed);
 #endif
 
 protected:
@@ -272,6 +273,9 @@ protected:
 
 	std::vector<int> m_viArmyIDs;
 	std::vector<OperationSlot> m_viListOfUnitsWeStillNeedToBuild;
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	std::vector<OperationSlot> m_viListOfUnitsWeSkipped;
+#endif
 	std::vector<OperationSlot> m_viListOfUnitsCitiesHaveCommittedToBuild;
 	int m_iID;
 	AIOperationState m_eCurrentState;
@@ -693,9 +697,9 @@ public:
 	{
 		return MUFORMATION_CLOSE_CITY_DEFENSE;
 	}
+	virtual bool ShouldAbort();
 
 private:
-	CvPlot* FindBestTarget();
 };
 #endif
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -835,7 +839,13 @@ public:
 	}
 
 	virtual bool ArmyInPosition(CvArmyAI* pArmy);
-
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	virtual bool ShouldAbort();
+	virtual MultiunitFormationTypes GetFormation() const
+	{
+		return MUFORMATION_NAVAL_BOMBARDMENT;
+	}
+#endif
 protected:
 	virtual CvPlot* FindBestTarget();
 };

@@ -5905,6 +5905,28 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 	{
 		return false;
 	}
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	//Vassals will never want peace with a player if their master is at war with a player.
+	if(MOD_DIPLOMACY_CIV4_FEATURES)
+	{
+		PlayerTypes eLoopPlayer;
+		for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+		{
+			eLoopPlayer = (PlayerTypes) iPlayerLoop;
+
+			if(GET_PLAYER(eLoopPlayer).isAlive())
+			{
+				if(m_pPlayer->GetDiplomacyAI()->IsVassal(eLoopPlayer))
+				{
+					if(GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).isAtWar(GET_PLAYER(ePlayer).getTeam()))
+					{
+						return false;
+					}
+				}
+			}
+		}
+	}
+#endif
 
 	if(GetWantPeaceCounter(ePlayer) >= iRequestPeaceTurnThreshold)
 	{
@@ -6034,7 +6056,12 @@ void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 		}
 
 		// We were planning an attack, but changed our minds so abort
+#if defined(MOD_BALANCE_CORE_MILITARY)
+		//Sanity check - is an army gathering or moving towards the enemy? Let's not back off now. Too easy to exploit AI for humans at this point.
+		else if(pOperation != NULL && pOperation->GetOperationState() < AI_OPERATION_STATE_GATHERING_FORCES)
+#else
 		else
+#endif
 		{
 			if(pOperation != NULL)
 			{

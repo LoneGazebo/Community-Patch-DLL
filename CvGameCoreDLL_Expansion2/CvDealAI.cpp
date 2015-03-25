@@ -2843,7 +2843,12 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 	if(bFromMe && iWarApproachWeight < 4)
 		return 100000;
 
-
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	if(pDiploAI->IsMusteringForAttack(eOtherPlayer))
+	{
+		return 100000;
+	}
+#endif
 	PlayerTypes eWithPlayer = NO_PLAYER;
 	// find the first player associated with the team
 	for (uint ui = 0; ui < MAX_CIV_PLAYERS; ui++)

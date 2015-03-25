@@ -12916,7 +12916,10 @@ int CvPlot::GetDefenseBuildValue()
 		{
 			iScore += 50;
 		}
-
+		if(IsLandbridge(12,54))
+		{
+			iScore += 100;
+		}
 		return iScore;
 	}
 	return 0;

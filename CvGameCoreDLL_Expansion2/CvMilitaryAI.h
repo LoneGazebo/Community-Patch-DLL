@@ -249,6 +249,9 @@ public:
 	int ScoreTarget(CvMilitaryTarget& target, AIOperationTypes eAIOperationType);
 	CityAttackApproaches EvaluateMilitaryApproaches(CvCity* pCity, bool bAttackByLand, bool bAttackBySea);
 	CvCity* GetNearestCoastalCity(PlayerTypes eEnemy) const;
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	CvCity* GetNearestCoastalCityEnemy(PlayerTypes eEnemy) const;
+#endif
 	CvPlot* GetCoastalPlotAdjacentToTarget(CvPlot *pTarget, CvArmyAI *pArmy) const;
 
 	// Accessors to provide military data to other AI subsystems

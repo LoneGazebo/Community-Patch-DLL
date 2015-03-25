@@ -2048,7 +2048,7 @@ local function getFoodTooltip( city )
 		end
 	end
 
-	tipText = tipText .. "  " .. foodStoredTimes100 / 100 .. "[ICON_FOOD]/ " .. foodThreshold .. "[ICON_FOOD][NEWLINE]"
+	tipText = getYieldTooltipHelper( city, YieldTypes.YIELD_FOOD ) .. "[NEWLINE][NEWLINE]" .. tipText .. "  " .. foodStoredTimes100 / 100 .. "[ICON_FOOD]/ " .. foodThreshold .. "[ICON_FOOD][NEWLINE]"
 
 	if foodPerTurnTimes100 == 0 then
 
@@ -2059,9 +2059,8 @@ local function getFoodTooltip( city )
 		if turnsToCityGrowth > 1 then
 			tipText = S( "%s%s %+g[ICON_FOOD]  ", tipText, L( "TXT_KEY_STR_TURNS", turnsToCityGrowth -1 ), ( foodOverflowTimes100 - foodPerTurnTimes100 ) / 100 )
 		end
-		tipText =  S( "%s%s%s %+g[ICON_FOOD]", tipText, foodPerTurnTimes100 < 0 and "[COLOR_WARNING_TEXT]" or "[COLOR_POSITIVE_TEXT]", Locale.ToUpper( "TXT_KEY_STR_TURNS", turnsToCityGrowth ), foodOverflowTimes100 / 100 )
+		tipText =  S( "%s%s%s[ENDCOLOR] %+g[ICON_FOOD]", tipText, foodPerTurnTimes100 < 0 and "[COLOR_WARNING_TEXT]" or "[COLOR_POSITIVE_TEXT]", Locale.ToUpper( L( "TXT_KEY_STR_TURNS", turnsToCityGrowth ) ), foodOverflowTimes100 / 100 )
 	end
-	tipText = getYieldTooltipHelper( city, YieldTypes.YIELD_FOOD ) .. "[NEWLINE][NEWLINE]" .. tipText
 
 	if isNoob then
 		return L"TXT_KEY_FOOD_HELP_INFO" .. "[NEWLINE][NEWLINE]" .. tipText
@@ -2156,7 +2155,7 @@ local function getProductionTooltip( city )
 			if productionTurnsLeft > 1 then
 				tipText =  S( "%s%s %+g[ICON_PRODUCTION]  ", tipText, L( "TXT_KEY_STR_TURNS", productionTurnsLeft -1 ), ( productionOverflow100 - productionPerTurn100 ) / 100 )
 			end
-			tipText = S( "%s%s %+g[ICON_PRODUCTION]", tipText, productionColor( Locale.ToUpper( "TXT_KEY_STR_TURNS", productionTurnsLeft ) ), productionOverflow100 / 100 )
+			tipText = S( "%s%s %+g[ICON_PRODUCTION]", tipText, productionColor( Locale.ToUpper( L( "TXT_KEY_STR_TURNS", productionTurnsLeft ) ) ), productionOverflow100 / 100 )
 		end
 	end
 	local strModifiersString = city:GetYieldModifierTooltip( YieldTypes.YIELD_PRODUCTION )
@@ -2335,9 +2334,9 @@ local function getCultureTooltip( city )
 		local turnsRemaining =  math.max(math.ceil((cultureNeeded - cultureStored ) / culturePerTurn), 1)
 		local overflow = culturePerTurn * turnsRemaining + cultureStored - cultureNeeded
 		if turnsRemaining > 1 then
-			tips:insert( S( "%s %+g[ICON_CULTURE]  ", L( "TXT_KEY_STR_TURNS", turnsRemaining -1 ), overflow - culturePerTurn ) )
+			tipText = S( "%s %+g[ICON_CULTURE]  ", L( "TXT_KEY_STR_TURNS", turnsRemaining -1 ), overflow - culturePerTurn )
 		end
-		tips:insert( S( "[COLOR_MAGENTA]%s[ENDCOLOR] %+g[ICON_CULTURE]", Locale.ToUpper( "TXT_KEY_STR_TURNS", turnsRemaining ), overflow ) )
+		tips:insert( S( "%s[COLOR_MAGENTA]%s[ENDCOLOR] %+g[ICON_CULTURE]", tipText, Locale.ToUpper( L( "TXT_KEY_STR_TURNS", turnsRemaining ) ), overflow ) )
 	end
 	return tips:concat( "[NEWLINE]" )
 end

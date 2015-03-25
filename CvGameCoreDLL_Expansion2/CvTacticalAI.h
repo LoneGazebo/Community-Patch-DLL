@@ -797,7 +797,9 @@ public:
 	bool IsInQueuedAttack(const CvUnit* pAttacker);
 	bool IsCityInQueuedAttack(const CvCity* pAttackCity);
 	int NearXQueuedAttacks(const CvPlot* pPlot, const int iRange);
-
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	bool ScoreDeploymentPlotsHelper(CvPlot* pTarget, int iNumUnits, int iDeployRange);
+#endif
 	// Public logging
 	void LogTacticalMessage(CvString& strMsg, bool bSkipLogDominanceZone = true);
 

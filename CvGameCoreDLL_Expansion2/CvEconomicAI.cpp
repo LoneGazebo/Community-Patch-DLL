@@ -1961,6 +1961,7 @@ void CvEconomicAI::DoHurry()
 					switch(selection.m_eBuildableType)
 					{
 					case CITY_BUILDABLE_UNIT:
+					case CITY_BUILDABLE_UNIT_FOR_ARMY:
 					{
 						int iPaidUnits = m_pPlayer->GetNumUnitsOutOfSupply();
 							if(iPaidUnits <= 0)
@@ -2077,7 +2078,6 @@ void CvEconomicAI::DoHurry()
 					}
 					break;
 
-					case CITY_BUILDABLE_UNIT_FOR_ARMY:
 					case CITY_BUILDABLE_UNIT_FOR_OPERATION:
 					{
 						int iPaidUnits = m_pPlayer->GetNumUnitsOutOfSupply();
@@ -3734,7 +3734,7 @@ bool EconomicAIHelpers::IsTestStrategy_EarlyExpansion(CvPlayer* pPlayer)
 
 	// scale based on flavor and world size
 	const int iDefaultNumTiles = 80*52;
-	iDesiredCities = int( 0.5f + float(iDesiredCities * iFlavorExpansion * GC.getMap().numPlots()) / (max(iFlavorGrowth, 1) * iDefaultNumTiles));
+	iDesiredCities = int( 0.6f + float(iDesiredCities * iFlavorExpansion * GC.getMap().numPlots()) / (max(iFlavorGrowth, 1) * iDefaultNumTiles));
 
 	int iSettlersOnMap = pPlayer->GetNumUnitsWithUnitAI(UNITAI_SETTLE, true);
 	int iNumCities = pPlayer->getNumCities() - pPlayer->GetNumPuppetCities();
