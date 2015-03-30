@@ -5178,6 +5178,8 @@ void CvPlayer::doTurn()
 
 	setConscriptCount(0);
 #if defined(MOD_BALANCE_CORE)
+	GET_TEAM(getTeam()).updateMinorCiv();
+
 	if(MOD_BALANCE_CORE && !isMinorCiv() && !isBarbarian())
 	{
 #endif
@@ -5282,6 +5284,7 @@ void CvPlayer::doTurnPostDiplomacy()
 			UpdateDangerPlots();
 			UpdateFractionOriginalCapitalsUnderControl();
 			UpdateAreaEffectUnits();
+			GET_TEAM(getTeam()).ClearWarDeclarationCache();
 #else
 			m_pDangerPlots->UpdateDanger();
 #endif
