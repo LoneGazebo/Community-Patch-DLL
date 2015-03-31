@@ -2635,7 +2635,10 @@ int CvMilitaryAI::GetThreatWeight(ThreatTypes eThreat)
 int CvMilitaryAI::GetNumberCivsAtWarWith() const
 {
 	PlayerTypes eLoopPlayer;
+#if defined(MOD_BALANCE_CORE_MILITARY)
+#else
 	WarStateTypes eWarState;
+#endif
 	int iRtnValue = 0;
 
 	// Let's figure out if we're at war
@@ -2646,8 +2649,16 @@ int CvMilitaryAI::GetNumberCivsAtWarWith() const
 		// Is this a player we have relations with?
 		if(eLoopPlayer != m_pPlayer->GetID() && m_pPlayer->GetDiplomacyAI()->IsPlayerValid(eLoopPlayer))
 		{
+#if defined(MOD_BALANCE_CORE_MILITARY)
+			if(GET_TEAM(m_pPlayer->getTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam()))
+			{
+				iRtnValue++;
+			}
+			else if(m_pPlayer->GetDiplomacyAI()->GetWarGoal(eLoopPlayer) == WAR_GOAL_PREPARE)
+#else
 			eWarState = m_pPlayer->GetDiplomacyAI()->GetWarState(eLoopPlayer);
 			if(eWarState != NO_WAR_STATE_TYPE)
+#endif
 			{
 				iRtnValue++;
 			}
@@ -2689,7 +2700,11 @@ CvCity* CvMilitaryAI::GetMostThreatenedCity(int iOrder)
 			}
 
 			int iThreatValue = pLoopCity->getThreatValue();
+#if defined(MOD_BALANCE_CORE_MILITARY)
+			iThreatValue = iThreatValue * (int)(sqrt((float)pLoopCity->getPopulation())+0.5f);
+#else
 			iThreatValue = iThreatValue * pLoopCity->getPopulation();
+#endif
 
 			if(pLoopCity->isCapital())
 			{
@@ -3910,7 +3925,7 @@ void CvMilitaryAI::UpdateOperations()
 		}
 	}
 
-	else
+	if(m_pPlayer->GetMilitaryAI()->GetNumberCivsAtWarWith() > 0)
 	{
 		// Are any of our strategies inappropriate given the type of war we are fighting
 		for(iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
@@ -4320,17 +4335,19 @@ void CvMilitaryAI::UpdateOperations()
 						}
 						if(pNearestCoastalCityEnemy != NULL)
 						{	
-							bool bHasOperationUnderway = m_pPlayer->haveAIOperationOfType(AI_OPERATION_NAVAL_SUPERIORITY, &iOperationID, eLoopPlayer, pNearestCoastalCityEnemy->plot());
-							if (!bHasOperationUnderway)
+							iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(m_pPlayer, MUFORMATION_PURE_NAVAL_CITY_ATTACK, true, &iNumRequiredSlots);
+							bool bHasOperationUnderway = m_pPlayer->haveAIOperationOfType(AI_OPERATION_NAVAL_SUPERIORITY, &iOperationID, eLoopPlayer);
+							// If we can afford a pure naval attack, let's do that instead.
+							if ((iFilledSlots < iNumRequiredSlots) && !bHasOperationUnderway)
 							{
 								m_pPlayer->addAIOperation(AI_OPERATION_NAVAL_SUPERIORITY, eLoopPlayer, pNearestCoastalCityEnemy->getArea(), pNearestCoastalCityEnemy, pNearestCoastalCity);
 							}
+							else if (eWarState >= WAR_STATE_DEFENSIVE)
+							{
+								int iFlavorNaval = m_pPlayer->GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_NAVAL"));
+								RequestPureNavalAttack(eLoopPlayer, (iFlavorNaval / 2));
+							}
 						}
-					}
-					if (eWarState >= WAR_STATE_DEFENSIVE)
-					{
-						int iFlavorNaval = m_pPlayer->GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_NAVAL"));
-						RequestPureNavalAttack(eLoopPlayer, (iFlavorNaval / 2));
 					}
 				}
 				else if(GET_PLAYER(eLoopPlayer).isMinorCiv())

@@ -8098,6 +8098,10 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 #if defined(MOD_API_UNIFIED_YIELDS)
 			ChangeBaseYieldRateFromBuildings(eYield, GET_PLAYER(getOwner()).GetPlayerTraits()->GetBuildingClassYieldChange(eBuildingClass, eYield) * iChange);
 #endif
+#if defined(MOD_BALANCE_CORE)
+			// Building modifiers
+			ChangeBaseYieldRateFromBuildings(eYield, pBuildingInfo->GetBuildingClassLocalYieldChange(eBuildingClass, eYield) * iChange);
+#endif
 #if defined(MOD_BALANCE_CORE_POLICIES)
 			//Policy-Religion Fusion Yield Changes
 			if(MOD_BALANCE_CORE_POLICIES)
@@ -8223,7 +8227,6 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 				changeUnitCombatProductionModifier(eUnitCombatClass, pBuildingInfo->GetUnitCombatProductionModifier(iI) * iChange);
 			}
 		}
-
 		for(int iI = 0; iI < NUM_DOMAIN_TYPES; iI++)
 		{
 			changeDomainFreeExperience(((DomainTypes)iI), pBuildingInfo->GetDomainFreeExperience(iI) * iChange);
@@ -11787,11 +11790,55 @@ int CvCity::GetLocalHappiness() const
 		}
 		iLocalHappiness += iHappinessFromReligion;
 	}
+#if defined(MOD_BALANCE_CORE)
+	BuildingClassTypes eBuildingClass;
 
+	// Building Class Mods
+	int iSpecialBuildingHappiness = 0;
+	for(int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
+	{
+		eBuildingClass = (BuildingClassTypes) iI;
+
+		CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
+		if(!pkBuildingClassInfo)
+		{
+			continue;
+		}
+
+		BuildingTypes eBuilding = (BuildingTypes) getCivilizationInfo().getCivilizationBuildings(eBuildingClass);
+		if(GetCityBuildings()->GetNumRealBuilding(eBuilding) <= 0)
+		{
+			continue;
+		}
+		if(eBuilding != NO_BUILDING)
+		{
+			CvBuildingEntry* pkBuilding = GC.getBuildingInfo(eBuilding);
+			if(pkBuilding)
+			{
+				for(int jJ = 0; jJ < GC.getNumBuildingClassInfos(); jJ++)
+				{
+					BuildingClassTypes eBuildingClassThatGivesHappiness = (BuildingClassTypes) jJ;
+					int iHappinessPerBuilding = pkBuilding->GetBuildingClassLocalHappiness(eBuildingClassThatGivesHappiness);
+					if(iHappinessPerBuilding > 0)
+					{
+						BuildingTypes eBuildingThatGivesHappiness = (BuildingTypes) getCivilizationInfo().getCivilizationBuildings(eBuildingClassThatGivesHappiness);
+						if(eBuildingThatGivesHappiness != NO_BUILDING)
+						{
+							if(GetCityBuildings()->GetNumRealBuilding(eBuildingThatGivesHappiness) > 0)
+							{
+								iSpecialBuildingHappiness += iHappinessPerBuilding;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	iLocalHappiness += iSpecialBuildingHappiness;
+#endif
 	// Policy Building Mods
 	int iSpecialPolicyBuildingHappiness = 0;
 	int iBuildingClassLoop;
-	BuildingClassTypes eBuildingClass;
 	for(int iPolicyLoop = 0; iPolicyLoop < GC.getNumPolicyInfos(); iPolicyLoop++)
 	{
 		PolicyTypes ePolicy = (PolicyTypes)iPolicyLoop;
@@ -11923,7 +11970,7 @@ int CvCity::getUnhappinessFromCultureNeeded() const
 	//Buildings decrease this by a flat integer.
 	if(GetUnculturedUnhappiness() != 0)
 	{
-		iThreshold += (GetUnculturedUnhappiness() * (getPopulation() * -1));
+		iThreshold += ((GetUnculturedUnhappiness()  * iThreshold) / 100);
 	}
 	int iLoop = 0;
 	for(const CvCity* pLoopCity = GET_PLAYER(getOwner()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iLoop))
@@ -11933,7 +11980,7 @@ int CvCity::getUnhappinessFromCultureNeeded() const
 			//Mod from global unhappiness building modifier.
 			if(pLoopCity->GetUnculturedUnhappinessGlobal() != 0)
 			{
-				iThreshold += (pLoopCity->GetUnculturedUnhappinessGlobal() * (getPopulation() * -1));
+				iThreshold += ((pLoopCity->GetUnculturedUnhappinessGlobal()  * iThreshold) / 100);
 			}
 		}		
 	}
@@ -11970,7 +12017,7 @@ int CvCity::getUnhappinessFromCulture() const
 	{
 		iUnhappiness = iThreshold - iCityCulture;
 		
-		iUnhappiness /= /* 100 */ GC.getBALANCE_UNHAPPY_CITY_BASE_VALUE();
+		iUnhappiness /= /* 100 */ GC.getBALANCE_UNHAPPY_CITY_BASE_VALUE_BOREDOM();
 		if(iUnhappiness < 1)
 		{
 			iUnhappiness = 1;
@@ -12045,7 +12092,7 @@ int CvCity::getUnhappinessFromScienceNeeded() const
 	//Buildings decrease this by a flat integer.
 	if(GetIlliteracyUnhappiness() != 0)
 	{
-		iThreshold += (GetIlliteracyUnhappiness() * (getPopulation() * -1));
+		iThreshold += ((GetIlliteracyUnhappiness() * iThreshold) / 100);
 	}
 	int iLoop = 0;
 	for(const CvCity* pLoopCity = GET_PLAYER(getOwner()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iLoop))
@@ -12055,7 +12102,7 @@ int CvCity::getUnhappinessFromScienceNeeded() const
 			//Mod from global unhappiness building modifier.
 			if(pLoopCity->GetIlliteracyUnhappinessGlobal() != 0)
 			{
-				iThreshold += (pLoopCity->GetIlliteracyUnhappinessGlobal() * (pLoopCity->getPopulation() * -1));
+				iThreshold += ((pLoopCity->GetIlliteracyUnhappinessGlobal() * iThreshold) / 100);
 			}
 		}		
 	}
@@ -12092,7 +12139,7 @@ int CvCity::getUnhappinessFromScience() const
 	{
 		iUnhappiness = iThreshold - iCityResearch;
 		
-		iUnhappiness /= /* 100 */ GC.getBALANCE_UNHAPPY_CITY_BASE_VALUE();
+		iUnhappiness /= /* 100 */ GC.getBALANCE_UNHAPPY_CITY_BASE_VALUE_ILLITERACY();
 		if(iUnhappiness < 1)
 		{
 			iUnhappiness = 1;
@@ -12173,7 +12220,7 @@ int CvCity::getUnhappinessFromDefenseNeeded() const
 	//Buildings decrease this by a flat integer.
 	if(GetDefenseUnhappiness() != 0)
 	{
-		iThreshold += (GetDefenseUnhappiness() * (getPopulation() * -1));
+		iThreshold += ((GetDefenseUnhappiness() * iThreshold) / 100);
 	}
 	int iLoop = 0;
 	for(const CvCity* pLoopCity = GET_PLAYER(getOwner()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iLoop))
@@ -12183,7 +12230,7 @@ int CvCity::getUnhappinessFromDefenseNeeded() const
 			//Mod from global unhappiness building modifier.
 			if(pLoopCity->GetDefenseUnhappinessGlobal() != 0)
 			{
-				iThreshold += (pLoopCity->GetDefenseUnhappinessGlobal() * (pLoopCity->getPopulation() * -1));
+				iThreshold += ((pLoopCity->GetDefenseUnhappinessGlobal() * iThreshold) / 100);
 			}
 		}		
 	}
@@ -12219,7 +12266,7 @@ int CvCity::getUnhappinessFromDefense() const
 	{
 		iUnhappiness = iThreshold - iBuildingDefense;
 
-		iUnhappiness /= /* 100 */ GC.getBALANCE_UNHAPPY_CITY_BASE_VALUE();
+		iUnhappiness /= /* 100 */ GC.getBALANCE_UNHAPPY_CITY_BASE_VALUE_DISORDER();
 		if(iUnhappiness < 1)
 		{
 			iUnhappiness = 1;
@@ -12295,7 +12342,7 @@ int CvCity::getUnhappinessFromGoldNeeded() const
 	//Buildings decrease this by a flat integer.
 	if(GetPovertyUnhappiness() != 0)
 	{
-		iThreshold += (GetPovertyUnhappiness() * (getPopulation() * -1));
+		iThreshold += ((GetPovertyUnhappiness() * iThreshold) / 100);
 	}
 	int iLoop = 0;
 	for(const CvCity* pLoopCity = GET_PLAYER(getOwner()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iLoop))
@@ -12305,7 +12352,7 @@ int CvCity::getUnhappinessFromGoldNeeded() const
 			//Mod from global unhappiness building modifier.
 			if(pLoopCity->GetPovertyUnhappinessGlobal() != 0)
 			{
-				iThreshold += (pLoopCity->GetPovertyUnhappinessGlobal() * (pLoopCity->getPopulation() * -1));
+				iThreshold += ((pLoopCity->GetPovertyUnhappinessGlobal() * iThreshold) / 100);
 			}
 		}		
 	}
@@ -12341,7 +12388,7 @@ int CvCity::getUnhappinessFromGold() const
 	{
 		iUnhappiness = iThreshold - iGold;
 
-		iUnhappiness /= /* 100 */ GC.getBALANCE_UNHAPPY_CITY_BASE_VALUE();
+		iUnhappiness /= /* 100 */ GC.getBALANCE_UNHAPPY_CITY_BASE_VALUE_POVERTY();
 		if(iUnhappiness < 1)
 		{
 			iUnhappiness = 1;
@@ -12599,37 +12646,32 @@ int CvCity::getUnhappinessFromMinority() const
 	if(pReligion != NULL)
 	{
 		int iFollowers = GetCityReligions()->GetNumFollowers(eMajority);
-		if(iFollowers != 0)
-		{
-			//Producing lots of faith? That should matter.
-			iFollowers += (GetFaithPerTurn() / 10);
-		}
-#if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
-		//Buildings increase this by a flat integer.
-		if(GetMinorityUnhappiness() != 0)
-		{
-			iFollowers += (GetMinorityUnhappiness() * getPopulation()) / 100;
-		}
-		int iLoop = 0;
-		for(const CvCity* pLoopCity = GET_PLAYER(getOwner()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iLoop))
-		{
-			if(pLoopCity != NULL)
-			{
-				//Mod from global unhappiness building modifier.
-				if(pLoopCity->GetMinorityUnhappinessGlobal() != 0)
-				{
-					iFollowers += (pLoopCity->GetMinorityUnhappiness() * pLoopCity->getPopulation()) / 100;
-				}
-			}		
-		}
-#endif
 
 		int iMinority = iCityPop - iFollowers;
 
 		if(iMinority > 0)
 		{
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
-			//Trait adds % boost to this value (higher trait = higher artificial level of followers).
+			//Buildings increase this by a flat integer.
+			if(GetMinorityUnhappiness() != 0)
+			{
+				iMinority += ((GetMinorityUnhappiness() * iFollowers) / 100);
+			}
+			int iLoop = 0;
+			for(const CvCity* pLoopCity = GET_PLAYER(getOwner()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iLoop))
+			{
+				if(pLoopCity != NULL)
+				{
+					//Mod from global unhappiness building modifier.
+					if(pLoopCity->GetMinorityUnhappinessGlobal() != 0)
+					{
+						iMinority += ((pLoopCity->GetMinorityUnhappiness() * iFollowers) / 100);
+					}
+				}		
+			}
+#endif
+#if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
+			//Trait adds % boost to this value (higher trait = smaller minority population).
 			if(GET_PLAYER(getOwner()).GetPlayerTraits()->GetMinorityHappinessChange() != 0)
 			{
 				iMinority -= ((GET_PLAYER(getOwner()).GetPlayerTraits()->GetMinorityHappinessChange() * iMinority) / 100);

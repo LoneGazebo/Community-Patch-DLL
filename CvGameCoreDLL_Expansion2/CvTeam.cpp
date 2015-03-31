@@ -1082,13 +1082,74 @@ bool CvTeam::canChangeWarPeace(TeamTypes eTeam) const
 	return true;
 }
 
+#if defined(MOD_BALANCE_CORE)
+void CvTeam::ClearWarDeclarationCache()
+{
+	m_cacheCanDeclareWar.clear();
+}
+#endif
+
 //	--------------------------------------------------------------------------------
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
-bool CvTeam::canDeclareWar(TeamTypes eTeam, PlayerTypes eOriginatingPlayer) const
+bool CvTeam::canDeclareWar(TeamTypes eTeam, PlayerTypes eOriginatingPlayer)
+{
 #else
 bool CvTeam::canDeclareWar(TeamTypes eTeam) const
-#endif
 {
+	PlayerTypes eOriginatingPlayer = NO_PLAYER;
+#endif
+
+#if defined(MOD_BALANCE_CORE)
+	std::pair<TeamTypes,PlayerTypes> args(eTeam,eOriginatingPlayer);
+	std::map<std::pair<TeamTypes,PlayerTypes>,bool>::iterator it = m_cacheCanDeclareWar.find(args);
+	if (it!=m_cacheCanDeclareWar.end())
+		return it->second;
+
+	bool bResult = true;
+	if(eTeam == GetID())
+		bResult = false;
+	else if(!(isAlive()) || !(GET_TEAM(eTeam).isAlive()))
+		bResult = false;
+	else if(isAtWar(eTeam))
+		bResult = false;
+	else if(!isHasMet(eTeam))
+		bResult = false;
+	else if(isForcePeace(eTeam))
+		bResult = false;
+	else if(!canChangeWarPeace(eTeam))
+		bResult = false;
+	else if(GC.getGame().isOption(GAMEOPTION_ALWAYS_PEACE))
+		bResult = false;
+#if defined(MOD_EVENTS_WAR_AND_PEACE)
+	else if (MOD_EVENTS_WAR_AND_PEACE & (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_IsAbleToDeclareWar, eOriginatingPlayer, eTeam) == GAMEEVENTRETURN_FALSE))
+		bResult = false;
+	else if (MOD_EVENTS_WAR_AND_PEACE & (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_PlayerCanDeclareWar, eOriginatingPlayer, eTeam) == GAMEEVENTRETURN_FALSE))
+		bResult = false;
+#endif
+	else
+	{
+		// First, obtain the Lua script system.
+		ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+		if(pkScriptSystem)
+		{
+			// Construct and push in some event arguments.
+			CvLuaArgsHandle luaArgs(2);
+			luaArgs->Push(GetID());
+			luaArgs->Push(eTeam);
+
+			// Attempt to execute the game events.
+			// Will return false if there are no registered listeners.
+			bool bLuaResult = false;
+			if(LuaSupport::CallTestAll(pkScriptSystem, "CanDeclareWar", luaArgs.get(), bLuaResult))
+				bResult = bLuaResult;
+		}
+	}
+
+	m_cacheCanDeclareWar[args] = bResult;
+	return bResult;
+
+#endif
+
 	if(eTeam == GetID())
 	{
 		return false;
@@ -2545,21 +2606,40 @@ bool CvTeam::isBarbarian() const
 	return (m_eID == BARBARIAN_TEAM);
 }
 
+#if defined(MOD_BALANCE_CORE)
+
+bool CvTeam::isMinorCiv() const
+{
+	return m_bIsMinorCiv;
+}
+
+void CvTeam::updateMinorCiv()
+{
+	m_bIsMinorCiv = false;
+	for(std::vector<PlayerTypes>::const_iterator iI = m_members.begin(); iI != m_members.end(); ++iI)
+	{
+		CvPlayer& kPlayer = GET_PLAYER(*iI);
+		if(kPlayer.isAlive())
+		{
+			if(kPlayer.isMinorCiv())
+			{
+				m_bIsMinorCiv = true;
+				break;
+			}
+		}
+	}
+}
+
+#else
 
 //	--------------------------------------------------------------------------------
 bool CvTeam::isMinorCiv() const
 {
 	bool bValid = false;
 
-#if defined(MOD_BALANCE_CORE)
-	for(std::vector<PlayerTypes>::const_iterator iI = m_members.begin(); iI != m_members.end(); ++iI)
-	{
-		CvPlayer& kPlayer = GET_PLAYER(*iI);
-#else
 	for(int iI = MAX_MAJOR_CIVS; iI < MAX_PLAYERS; iI++)
 	{
 		CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)iI);
-#endif
 		if(kPlayer.isAlive())
 		{
 			if(kPlayer.getTeam() == GetID())
@@ -2579,6 +2659,7 @@ bool CvTeam::isMinorCiv() const
 
 	return bValid;
 }
+#endif
 
 #if defined(MOD_API_EXTENSIONS)
 //	--------------------------------------------------------------------------------
@@ -2692,8 +2773,22 @@ void CvTeam::SetBrokenCityStatePromise(bool bValue)
 //	--------------------------------------------------------------------------------
 PlayerTypes CvTeam::getLeaderID() const
 {
-	int iI;
+#if defined(MOD_BALANCE_CORE)
+	for(std::vector<PlayerTypes>::const_iterator iI = m_members.begin(); iI != m_members.end(); ++iI)
+	{
+		CvPlayer& thisPlayer = GET_PLAYER(*iI);
+		if(thisPlayer.isAlive())
+			return thisPlayer.GetID();
+	}
+	//if no member is alive, return the first
+	if (m_members.empty())
+		return NO_PLAYER;
+	else
+		return m_members.front();
 
+#else
+
+	int iI;
 	for(iI = 0; iI < MAX_PLAYERS; iI++)
 	{
 		CvPlayerAI& thisPlayer = GET_PLAYER((PlayerTypes)iI);
@@ -2716,6 +2811,7 @@ PlayerTypes CvTeam::getLeaderID() const
 	}
 
 	return NO_PLAYER;
+#endif
 }
 
 
@@ -2864,6 +2960,8 @@ void CvTeam::addPlayer(PlayerTypes eID)
 {
 	if ( std::find( m_members.begin(), m_members.end(), eID ) == m_members.end() )
 		m_members.push_back(eID);
+
+	updateMinorCiv();
 }
 
 void CvTeam::removePlayer(PlayerTypes eID)
@@ -2871,6 +2969,8 @@ void CvTeam::removePlayer(PlayerTypes eID)
 	std::vector<PlayerTypes>::iterator pos = std::find( m_members.begin(), m_members.end(), eID );
 	if ( pos != m_members.end() )
 		m_members.erase(pos);
+
+	updateMinorCiv();
 }
 #endif
 
@@ -3847,7 +3947,11 @@ void CvTeam::makeHasMet(TeamTypes eIndex, bool bSuppressMessages)
 
 			// Minor reveals his capital to the player so that he can click on the City to contact
 			CvCity* pCap = GET_PLAYER(GET_TEAM(eIndex).getLeaderID()).getCapitalCity();
+#if defined(MOD_BALANCE_CORE)
+			if(pCap != NULL)
+#else
 			if(pCap)
+#endif
 			{
 				iCapitalX  = pCap->getX();
 				iCapitalY  = pCap->getY();

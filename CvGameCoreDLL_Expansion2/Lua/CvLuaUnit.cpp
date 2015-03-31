@@ -552,6 +552,10 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(IsHigherPopThan);
 	Method(GetResistancePower);
 #endif
+#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+	Method(GetMonopolyAttackBonus);
+	Method(GetMonopolyDefenseBonus);
+#endif
 	Method(IsHigherTechThan);
 	Method(IsLargerCivThan);
 
@@ -4468,8 +4472,11 @@ int CvLuaUnit::lIsNearSapper(lua_State* L)
 int CvLuaUnit::lGetNearbyImprovementModifier(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
-
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	const int bResult = pkUnit->GetNearbyImprovementModifier(pkUnit->plot());
+#else
 	const int bResult = pkUnit->GetNearbyImprovementModifier();
+#endif
 	lua_pushinteger(L, bResult);
 	return 1;
 }
@@ -5070,6 +5077,56 @@ int CvLuaUnit::lGetResistancePower(lua_State* L)
 	CvUnit* pkOtherUnit = CvLuaUnit::GetInstance(L, 2);
 	int iResistancePower = pkUnit->GetResistancePower(pkOtherUnit);
 	lua_pushinteger(L, iResistancePower);
+
+	return 1;
+}
+#endif
+#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+//int GetMonopolyAttackBonus();
+int CvLuaUnit::lGetMonopolyAttackBonus(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	int iAttackBonus = 0;
+	for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+	{
+		ResourceTypes eResourceLoop = (ResourceTypes) iResourceLoop;
+		if(eResourceLoop != NO_RESOURCE)
+		{
+			CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
+			if (pInfo && pInfo->isMonopoly())
+			{
+				if(GET_PLAYER(pkUnit->getOwner()).HasStrategicMonopoly(eResourceLoop) && pInfo->getMonopolyAttackBonus() > 0)
+				{
+					iAttackBonus +=  pInfo->getMonopolyAttackBonus();
+				}
+			}
+		}
+	}
+	lua_pushinteger(L, iAttackBonus);
+
+	return 1;
+}
+//int GetMonopolyDefenseBonus();
+int CvLuaUnit::lGetMonopolyDefenseBonus(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	int iDefenseBonus = 0;
+	for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+	{
+		ResourceTypes eResourceLoop = (ResourceTypes) iResourceLoop;
+		if(eResourceLoop != NO_RESOURCE)
+		{
+			CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
+			if (pInfo && pInfo->isMonopoly())
+			{
+				if(GET_PLAYER(pkUnit->getOwner()).HasStrategicMonopoly(eResourceLoop) && pInfo->getMonopolyDefenseBonus() > 0)
+				{
+					iDefenseBonus +=  pInfo->getMonopolyDefenseBonus();
+				}
+			}
+		}
+	}
+	lua_pushinteger(L, iDefenseBonus);
 
 	return 1;
 }

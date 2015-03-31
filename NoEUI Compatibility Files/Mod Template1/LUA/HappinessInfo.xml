@@ -106,6 +106,16 @@
 								<Label Offset="10,0" Font="TwCenMT18" Anchor="L,C" String="TXT_KEY_HAPPINESS_FROM_LEAGUES"/>
 								<Label Offset="10,0" Font="TwCenMT18" Anchor="R,C" ID="LeagueHappinessValue"/>
 							</Box>
+							<!-- CBP -->
+							<Box Size="270,24" Anchor="c,c" Color="0.0.0.0" ID="MonopolyHappiness">
+								<Label Offset="10,0" Font="TwCenMT18" Anchor="L,C" String="TXT_KEY_HAPPINESS_FROM_MONOPOLY"/>
+								<Label Offset="10,0" Font="TwCenMT18" Anchor="R,C" ID="MonopolyHappinessValue"/>
+							</Box>
+							<Box Size="270,24" Anchor="c,c" Color="0.0.0.0" ID="ExtraLuxuryHappiness">
+								<Label Offset="10,0" Font="TwCenMT18" Anchor="L,C" String="TXT_KEY_HAPPINESS_FROM_EXTRA_LUXURY"/>
+								<Label Offset="10,0" Font="TwCenMT18" Anchor="R,C" ID="ExtraLuxuryHappinessValue"/>
+							</Box>
+							<!-- END -->
 							<!-- HandicapHappiness -->
 							<Box Size="270,24" Anchor="c,c" Color="0.0.0.0" ID="HandicapHappiness">
 								<Label Offset="10,0" Font="TwCenMT18" Anchor="L,C" String="TXT_KEY_AD_SETUP_HANDICAP"/>

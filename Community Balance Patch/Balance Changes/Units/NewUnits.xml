@@ -175,7 +175,7 @@
 		<Row>
 			<UnitType>UNIT_EXPLORER</UnitType>
 			<FlavorType>FLAVOR_RECON</FlavorType>
-			<Flavor>25</Flavor>
+			<Flavor>10</Flavor>
 		</Row>
 	</Unit_Flavors>
 	<Unit_FreePromotions>

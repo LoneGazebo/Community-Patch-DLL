@@ -7101,7 +7101,26 @@ int CvUnit::healRate(const CvPlot* pPlot) const
 			iExtraHeal += iExtraFriendlyHeal;
 		}
 	}
-
+#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+	if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+	{
+		for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+		{
+			ResourceTypes eResourceLoop = (ResourceTypes) iResourceLoop;
+			if(eResourceLoop != NO_RESOURCE)
+			{
+				CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
+				if (pInfo && pInfo->isMonopoly())
+				{
+					if(GET_PLAYER(getOwner()).HasStrategicMonopoly(eResourceLoop) && pInfo->getMonopolyHealBonus() > 0)
+					{
+						iExtraHeal += pInfo->getMonopolyHealBonus();
+					}
+				}
+			}
+		}
+	}
+#endif
 	// Base healing rate mod
 	int iBaseHealMod = GET_PLAYER(getOwner()).getUnitBaseHealModifier();
 	if(iBaseHealMod != 0)
@@ -12885,7 +12904,26 @@ int CvUnit::baseMoves(DomainTypes eIntoDomain /* = NO_DOMAIN */) const
 	if(eDomain == DOMAIN_SEA)
 	{
 		m_iExtraNavalMoves += getExtraNavalMoves();
-
+#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+		if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+		{
+			for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+			{
+				ResourceTypes eResourceLoop = (ResourceTypes) iResourceLoop;
+				if(eResourceLoop != NO_RESOURCE)
+				{
+					CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
+					if (pInfo && pInfo->isMonopoly())
+					{
+						if(GET_PLAYER(getOwner()).HasStrategicMonopoly(eResourceLoop) && pInfo->getMonopolyMovementBonus() > 0)
+						{
+							m_iExtraNavalMoves += pInfo->getMonopolyMovementBonus();
+						}
+					}
+				}
+			}
+		}
+#endif
 		// Work boats also get extra moves, and they don't have a combat class to receive a promotion from
 		if(m_iBaseCombat == 0)
 		{
@@ -13846,6 +13884,26 @@ int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot,
 		iModifier += (getDamage() / 5);
 	}
 #endif
+#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+	if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+	{
+		for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+		{
+			ResourceTypes eResourceLoop = (ResourceTypes) iResourceLoop;
+			if(eResourceLoop != NO_RESOURCE)
+			{
+				CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
+				if (pInfo && pInfo->isMonopoly())
+				{
+					if(GET_PLAYER(getOwner()).HasStrategicMonopoly(eResourceLoop) && pInfo->getMonopolyAttackBonus() > 0)
+					{
+						iModifier += pInfo->getMonopolyAttackBonus();
+					}
+				}
+			}
+		}
+	}
+#endif
 
 	////////////////////////
 	// KNOWN DESTINATION PLOT
@@ -14025,6 +14083,26 @@ int CvUnit::GetMaxDefenseStrength(const CvPlot* pInPlot, const CvUnit* pAttacker
 	if(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED && GET_PLAYER(getOwner()).GetPlayerTraits()->IsFightWellDamaged())
 	{
 		iModifier += (getDamage() / 5);
+	}
+#endif
+#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+	if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+	{
+		for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+		{
+			ResourceTypes eResourceLoop = (ResourceTypes) iResourceLoop;
+			if(eResourceLoop != NO_RESOURCE)
+			{
+				CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
+				if (pInfo && pInfo->isMonopoly())
+				{
+					if(GET_PLAYER(getOwner()).HasStrategicMonopoly(eResourceLoop) && pInfo->getMonopolyDefenseBonus() > 0)
+					{
+						iModifier += pInfo->getMonopolyDefenseBonus();
+					}
+				}
+			}
+		}
 	}
 #endif
 
@@ -14360,7 +14438,26 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 		iModifier += (getDamage() / 5);
 	}
 #endif
-
+#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+	if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+	{
+		for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+		{
+			ResourceTypes eResourceLoop = (ResourceTypes) iResourceLoop;
+			if(eResourceLoop != NO_RESOURCE)
+			{
+				CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
+				if (pInfo && pInfo->isMonopoly())
+				{
+					if(GET_PLAYER(getOwner()).HasStrategicMonopoly(eResourceLoop) && pInfo->getMonopolyAttackBonus() > 0)
+					{
+						iModifier += pInfo->getMonopolyAttackBonus();
+					}
+				}
+			}
+		}
+	}
+#endif
 #ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
 	if (pTargetPlot)
 	{
@@ -14928,8 +15025,9 @@ int CvUnit::GetRangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bI
 
 		// Use Ranged combat value for defender, UNLESS it's a boat or an Impi (ranged support)
 #ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
-		else if (!pDefender->isRangedSupportFire() && pDefender->getDomainType() != DOMAIN_SEA && (iDefenderStrength = pDefender->GetMaxRangedCombatStrength(this, /*pCity*/ NULL, false, false, pTargetPlot, pFromPlot)) > 0)
+		else if (!pDefender->isRangedSupportFire() && pDefender->getDomainType() != DOMAIN_SEA && pDefender->GetMaxRangedCombatStrength(this, /*pCity*/ NULL, false, false, pTargetPlot, pFromPlot) > 0)
 		{
+			iDefenderStrength = pDefender->GetMaxRangedCombatStrength(this, /*pCity*/ NULL, false, false, pTargetPlot, pFromPlot);
 #else
 		else if(!pDefender->isRangedSupportFire() && pDefender->getDomainType() != DOMAIN_SEA && pDefender->GetMaxRangedCombatStrength(this, /*pCity*/ NULL, false, false) > 0)
 		{
@@ -19336,7 +19434,26 @@ void CvUnit::changeExperience(int iChange, int iMax, bool bFromCombat, bool bInB
 
 		// Unit XP mod
 		iUnitExperience += (iChange * kPlayer.getExpModifier()) / 100;
-
+#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+		if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+		{
+			for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+			{
+				ResourceTypes eResourceLoop = (ResourceTypes) iResourceLoop;
+				if(eResourceLoop != NO_RESOURCE)
+				{
+					CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
+					if (pInfo && pInfo->isMonopoly())
+					{
+						if(GET_PLAYER(getOwner()).HasStrategicMonopoly(eResourceLoop) && pInfo->getMonopolyXPBonus() > 0)
+						{
+							iUnitExperience += pInfo->getMonopolyXPBonus();
+						}
+					}
+				}
+			}
+		}
+#endif
 		// Great General & Unit XP mod in borders
 		if (bInBorders && getDomainType() == DOMAIN_LAND)
 		{
@@ -21007,6 +21124,10 @@ int CvUnit::GetReverseGreatGeneralModifier()const
 #ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
 int CvUnit::GetNearbyImprovementModifier(const CvPlot* pAtPlot) const
 {
+	if(pAtPlot == NULL)
+	{
+		return 0;
+	}
 	return std::max(GetNearbyImprovementModifierFromTraits(pAtPlot), GetNearbyImprovementModifierFromPromotions(pAtPlot));
 }
 
@@ -25561,7 +25682,7 @@ const char* CvUnit::GetMissionInfo()
 	CvString strTemp1;
 	getUnitAIString(strTemp1, AI_getUnitAIType());
 
-	m_strMissionInfoString.Format("UnitAI: %s / MissionAI: %s", strTemp0.c_str(), strTemp1.c_str()); 
+	m_strMissionInfoString.Format("%s / %s", strTemp0.c_str(), strTemp1.c_str()); 
 	
 	if (m_iMissionAIX!=INVALID_PLOT_COORD && m_iMissionAIY!=INVALID_PLOT_COORD)
 	{

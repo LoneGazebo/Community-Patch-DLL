@@ -4672,6 +4672,26 @@ int CvResourceInfo::getMonopolyGALength() const
 {
 	return m_iMonopolyGALength;
 }
+int CvResourceInfo::getMonopolyAttackBonus() const
+{
+	return m_iMonopolyAttackBonus;
+}
+int CvResourceInfo::getMonopolyDefenseBonus() const
+{
+	return m_iMonopolyDefenseBonus;
+}
+int CvResourceInfo::getMonopolyMovementBonus() const
+{
+	return m_iMonopolyMovementBonus;
+}
+int CvResourceInfo::getMonopolyHealBonus() const
+{
+	return m_iMonopolyHealBonus;
+}
+int CvResourceInfo::getMonopolyXPBonus() const
+{
+	return m_iMonopolyXPBonus;
+}
 bool CvResourceInfo::isMonopoly() const
 {
 	return m_bIsMonopoly;
@@ -4878,6 +4898,11 @@ bool CvResourceInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	m_iMonopolyHappiness = kResults.GetInt("MonopolyHappiness");
 	m_iMonopolyGALength = kResults.GetInt("MonopolyGALength");
+	m_iMonopolyAttackBonus = kResults.GetInt("MonopolyAttackBonus");
+	m_iMonopolyDefenseBonus = kResults.GetInt("MonopolyDefenseBonus");
+	m_iMonopolyMovementBonus = kResults.GetInt("MonopolyMovementBonus");
+	m_iMonopolyHealBonus = kResults.GetInt("MonopolyHealBonus");
+	m_iMonopolyXPBonus = kResults.GetInt("MonopolyXPBonus");
 	m_bIsMonopoly = kResults.GetBool("IsMonopoly");
 #endif
 	m_bPresentOnAllValidPlots = kResults.GetBool("PresentOnAllValidPlots");

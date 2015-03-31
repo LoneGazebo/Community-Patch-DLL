@@ -1,3 +1,7 @@
+UPDATE Resources
+SET Happiness = '1'
+WHERE Happiness = '4';
+
 -- Temple -- Amber
 
 UPDATE Language_en_US

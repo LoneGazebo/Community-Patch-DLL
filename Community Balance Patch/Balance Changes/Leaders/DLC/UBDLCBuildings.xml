@@ -326,7 +326,7 @@
 		<Row>
 			<BuildingType>BUILDING_YURT</BuildingType>
 			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>2</Yield>
+			<Yield>3</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_YURT</BuildingType>
@@ -339,19 +339,19 @@
 			<BuildingType>BUILDING_YURT</BuildingType>
 			<ResourceType>RESOURCE_HORSE</ResourceType>
 			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>2</Yield>
+			<Yield>3</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_YURT</BuildingType>
 			<ResourceType>RESOURCE_SHEEP</ResourceType>
 			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>2</Yield>
+			<Yield>3</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_YURT</BuildingType>
 			<ResourceType>RESOURCE_COW</ResourceType>
 			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>2</Yield>
+			<Yield>3</Yield>
 		</Row>
 	</Building_ResourceYieldChanges>
 	<Language_en_US>
@@ -364,10 +364,10 @@
 			</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_YURT_HELP">
-			<Text>Each source of [ICON_RES_COW] Cows [ICON_RES_SHEEP] Sheep and [ICON_RES_HORSE] Horses worked by this City produce +2 [ICON_FOOD] Food.[NEWLINE][NEWLINE]Allows [ICON_FOOD] Food to be moved from this city along trade routes inside your civilization.</Text>
+			<Text>Each source of [ICON_RES_COW] Cows [ICON_RES_SHEEP] Sheep and [ICON_RES_HORSE] Horses worked by this City produce +3 [ICON_FOOD] Food.[NEWLINE][NEWLINE]Allows [ICON_FOOD] Food to be moved from this city along trade routes inside your civilization.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_YURT_STRATEGY">
-			<Text>Unique Mongolian replacement for the Granary. Unlike the Granary, the Ger provides additional Food from livestock, as well as a small amount of Faith, and has no maintenance. Build Gers in your cities to maximize their growth, and to get an early Pantheon.</Text>
+			<Text>Unique Mongolian replacement for the Granary. Unlike the Granary, the Ger provides Food from livestock instead of crops. It also provides a small amount of Faith, and has no maintenance. Build Gers in your cities to maximize their growth, and to get an early Pantheon.</Text>
 		</Row>
 	</Language_en_US>
 </GameData>

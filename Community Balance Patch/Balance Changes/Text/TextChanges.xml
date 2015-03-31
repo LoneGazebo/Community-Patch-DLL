@@ -104,7 +104,7 @@
 		</Row>
 		
 		<Row Tag="TXT_KEY_NOTIFICATION_MONOPOLY_LOST">
-			<Text>You [COLOR_NEGATIVE_TEXT]no longer have[ENDCOLOR] a Global Monopoly on [COLOR_POSITIVE_TEXT]{1_ResourceNames}[ENDCOLOR]![NEWLINE][COLOR_NEGATIVE_TEXT]Lost:[ENDCOLOR][NEWLINE][NEWLINE]{2_ResourceHelp}</Text>
+			<Text>You [COLOR_NEGATIVE_TEXT]no longer have[ENDCOLOR] a Global Monopoly on [COLOR_POSITIVE_TEXT]{1_ResourceNames}[ENDCOLOR]![NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]Lost:[ENDCOLOR][NEWLINE][NEWLINE]{2_ResourceHelp}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_MONOPOLY_LOST">
 			<Text>Lost Global Monopoly on [COLOR_POSITIVE_TEXT]{1_ResourceNames}[ENDCOLOR]!</Text>
@@ -146,29 +146,51 @@
 			<Text>[COLOR_POSITIVE_TEXT]Monopoly Bonus:[ENDCOLOR] +10% [ICON_CULTURE] Culture in all owned Cities.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY_MOD_SCIENCE">
-			<Text>[COLOR_POSITIVE_TEXT]Monopoly Bonus:[ENDCOLOR] +10% [ICON_SCIENCE] Science in all owned Cities.</Text>
+			<Text>[COLOR_POSITIVE_TEXT]Monopoly Bonus:[ENDCOLOR] +10% [ICON_RESEARCH] Science in all owned Cities.</Text>
 		</Row>
 		
 		<!-- Strategic Help-->
 		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY_YIELD_PRODUCTION_ALUMINUM">
-			<Text>Used by powerful late-game Units and Buildings.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Monopoly Bonus:[ENDCOLOR] +2 [ICON_PRODUCTION] Production from Resource tiles.</Text>
+			<Text>Used by powerful late-game Units and Buildings.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Strategic Monopoly Bonus (25%):[ENDCOLOR] Units gain +5 HP when Healing.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]True Monopoly Bonus (50%):[ENDCOLOR] +2 [ICON_PRODUCTION] Production from Resource tiles.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY_YIELD_GOLD_COAL">
-			<Text>Used by powerful mid-game Units and Buildings.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Monopoly Bonus:[ENDCOLOR] +2 [ICON_GOLD] Gold from Resource tiles.</Text>
+			<Text>Used by powerful mid-game Units and Buildings.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Strategic Monopoly Bonus (25%):[ENDCOLOR] Naval Units gain +1 [ICON_MOVES] Movement.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]True Monopoly Bonus (50%):[ENDCOLOR] +2 [ICON_GOLD] Gold from Resource tiles.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY_YIELD_SCIENCE_OIL">
-			<Text>Used by powerful late-game Units and Buildings.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Monopoly Bonus:[ENDCOLOR] +2 [ICON_RESEARCH] Science from Resource tiles.</Text>
+			<Text>Used by powerful late-game Units and Buildings.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Strategic Monopoly Bonus (25%):[ENDCOLOR] Units gain +5 XP after combat.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]True Monopoly Bonus (50%):[ENDCOLOR] +2 [ICON_RESEARCH] Science from Resource tiles.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY_YIELD_SCIENCE_HORSE">
-			<Text>Used by powerful Units.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Monopoly Bonus:[ENDCOLOR] +2 [ICON_RESEARCH] Science from Resource tiles.</Text>
+			<Text>Used by powerful Units.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Strategic Monopoly Bonus (25%):[ENDCOLOR] Units gain +10% [ICON_STRENGTH] Strength when attacking.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]True Monopoly Bonus (50%):[ENDCOLOR] +2 [ICON_RESEARCH] Science from Resource tiles.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY_MOD_PRODUCTION_IRON">
-			<Text>Used by powerful Units throughout the game.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Monopoly Bonus:[ENDCOLOR] +2 [ICON_PRODUCTION] Production from Resource tiles.</Text>
+			<Text>Used by powerful Units throughout the game.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Strategic Monopoly Bonus (25%):[ENDCOLOR] Units gain +10% [ICON_STRENGTH] Strength when defending.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]True Monopoly Bonus (50%):[ENDCOLOR] +2 [ICON_PRODUCTION] Production from Resource tiles.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY_MOD_SCIENCE_URANIUM">
-			<Text>Used to build terrifying weapons of mass destruction.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Monopoly Bonus:[ENDCOLOR] +10% [ICON_RESEARCH] Science in all owned Cities.</Text>
+			<Text>Used to build terrifying weapons of mass destruction.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Strategic Monopoly Bonus (25%):[ENDCOLOR] Units gain +10% [ICON_STRENGTH] Strength when attacking.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]True Monopoly Bonus (50%):[ENDCOLOR] +10% [ICON_RESEARCH] Science in all owned Cities.</Text>
+		</Row>
+		
+		<!-- Tooltip for Strategic Monopolies -->
+		<Row Tag="TXT_KEY_NOTIFICATION_STRATEGIC_MONOPOLY_GAINED">
+			<Text>You control over 25% of the World's [COLOR_POSITIVE_TEXT]{1_ResourceNames}[ENDCOLOR], and therefore have a Strategic Monopoly![NEWLINE][NEWLINE]{2_ResourceHelp}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_STRATEGIC_MONOPOLY_GAINED">
+			<Text>Global Monopoly on [COLOR_POSITIVE_TEXT]{1_ResourceNames}[ENDCOLOR]!</Text>
 		</Row>
 
+		<Row Tag="TXT_KEY_NOTIFICATION_OTHER_PLAYER_STRATEGIC_MONOPOLY_GAINED">
+			<Text>{3_CivName} control over 25% of the World's [COLOR_POSITIVE_TEXT]{1_ResourceNames}[ENDCOLOR], and therefore have a Strategic Monopoly![NEWLINE][NEWLINE]{2_ResourceHelp}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_OTHER_PLAYER_STRATEGIC_MONOPOLY_GAINED">
+			<Text>{2_CivName} have a Global Monopoly on [COLOR_POSITIVE_TEXT]{1_ResourceNames}[ENDCOLOR]!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_STRATEGIC_MONOPOLY_LOST">
+			<Text>You [COLOR_NEGATIVE_TEXT]no longer have[ENDCOLOR] a Strategic Monopoly on [COLOR_POSITIVE_TEXT]{1_ResourceNames}[ENDCOLOR]![NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]Lost:[ENDCOLOR][NEWLINE][NEWLINE]{2_ResourceHelp}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_STRATEGIC_MONOPOLY_LOST">
+			<Text>Lost Strategic Monopoly on [COLOR_POSITIVE_TEXT]{1_ResourceNames}[ENDCOLOR]!</Text>
+		</Row>
+		
 		<!-- Tooltip for Monopolies -->
 		<Row Tag="TXT_KEY_FOODMOD_MONOPOLY_RESOURCE">
 			<Text>[NEWLINE][ICON_BULLET]Resource Monopolies Modifier: {1_Num}%</Text>
@@ -214,6 +236,35 @@
 		<!-- Tooltip for 'You'll Pay' Text -->
 		<Row Tag ="TXT_KEY_DIPLO_DISCUSS_MESSAGE_YOULL_PAY_TT">
 			<Text>Selecting this insulting response may result in [COLOR_NEGATIVE_TEXT]war[ENDCOLOR]! If this insult does not result in war, the leader will be humbled, and their opinion of you will temporarily be reset to Neutral.</Text>
+		</Row>
+		
+		<!-- Tootips for Monopoly Bonuses -->
+		<Row Tag ="TXT_KEY_EUPANEL_MONOPOLY_POWER_ATTACK">
+			<Text>Strategic Resource Monopoly</Text>
+		</Row>
+		<Row Tag ="TXT_KEY_EUPANEL_MONOPOLY_POWER_DEFENSE">
+			<Text>Strategic Resource Monopoly</Text>
+		</Row>
+		<!-- Tooltip for Top Panel Happiness -->
+		<Row Tag ="TXT_KEY_TP_HAPPINESS_RESOURCE_POP_BONUS">
+			<Text>{1_Happiness} from Luxury Resource Population Bonus</Text>
+		</Row>
+
+		<!-- Text for HappinessInfo.lua -->
+		<Row Tag ="TXT_KEY_HAPPINESS_FROM_MONOPOLY">
+			<Text>Monopolies</Text>
+		</Row>
+		<Row Tag ="TXT_KEY_HAPPINESS_FROM_EXTRA_LUXURY">
+			<Text>Luxury Pop. Bonus</Text>
+		</Row>
+		
+		<!-- Assyria UA Text -->
+		<Row Tag ="TXT_KEY_SCIENCE_BOOST_CONQUEST">
+			<Text>Your soldiers found information worth {1_Num} [ICON_RESEARCH] Science during the conquest of {2_Name}!</Text>
+		</Row>
+
+		<Row Tag ="TXT_KEY_SCIENCE_BOOST_CONQUEST_SUMMARY">
+			<Text>Scientific Secrets Pillaged!</Text>
 		</Row>
 	</Language_en_US>
 </GameData>

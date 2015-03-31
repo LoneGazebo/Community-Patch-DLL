@@ -556,8 +556,8 @@ function UpdateCombatOddsUnitVsCity(pMyUnit, pCity)
 			end
 			
 			-- Nearby improvement modifier
-			if (pMyUnit:GetNearbyImprovementModifier() ~= 0) then
-				iModifier = pMyUnit:GetNearbyImprovementModifier();
+			if (pMyUnit:GetNearbyImprovementModifier(pFromPlot) ~= 0) then
+				iModifier = pMyUnit:GetNearbyImprovementModifier(pFromPlot);
 				controlTable = g_MyCombatDataIM:GetInstance();
 				controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_IMPROVEMENT_NEAR" );
 				controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
@@ -895,8 +895,8 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 			end
 			
 			-- Nearby improvement modifier
-			if (pMyUnit:GetNearbyImprovementModifier() ~= 0) then
-				iModifier = pMyUnit:GetNearbyImprovementModifier();
+			if (pMyUnit:GetNearbyImprovementModifier(pFromPlot) ~= 0) then
+				iModifier = pMyUnit:GetNearbyImprovementModifier(pFromPlot);
 				controlTable = g_MyCombatDataIM:GetInstance();
 				controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_IMPROVEMENT_NEAR" );
 				controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
@@ -944,6 +944,22 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 				   controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_BUSHIDO" );
 				   controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
 				end
+			end
+
+			-- CBP (Monopoly)
+			iModifier = pMyUnit:GetMonopolyAttackBonus();
+			if(iModifier ~= 0) then
+				controlTable = g_MyCombatDataIM:GetInstance();
+				controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_MONOPOLY_POWER_ATTACK" );
+				controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
+			end
+
+			-- CBP (Monopoly)
+			iModifier = pMyUnit:GetMonopolyDefenseBonus();
+			if(iModifier ~= 0) then
+				controlTable = g_MyCombatDataIM:GetInstance();
+				controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_MONOPOLY_POWER_DEFENSE" );
+				controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
 			end
 
 			-- COMMUNITY (Resistance)
@@ -1353,6 +1369,22 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 					end
 				end
 
+				-- CBP (Monopoly)
+				iModifier = pTheirUnit:GetMonopolyAttackBonus();
+				if(iModifier ~= 0) then
+					controlTable = g_TheirCombatDataIM:GetInstance();
+					controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_MONOPOLY_POWER_ATTACK" );
+					controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
+				end
+
+				-- CBP (Monopoly)
+				iModifier = pTheirUnit:GetMonopolyDefenseBonus();
+				if(iModifier ~= 0) then
+					controlTable = g_TheirCombatDataIM:GetInstance();
+					controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_MONOPOLY_POWER_DEFENSE" );
+					controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
+				end
+
 			-- COMMUNITY (Resistance)
 				iModifier = pTheirUnit:GetResistancePower(pMyUnit);
 				if(iModifier ~= 0) then
@@ -1439,8 +1471,8 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 				end 
 				
 				-- Nearby improvement modifier
-				if (pTheirUnit:GetNearbyImprovementModifier() ~= 0) then
-					iModifier = pTheirUnit:GetNearbyImprovementModifier();
+				if (pTheirUnit:GetNearbyImprovementModifier(pToPlot) ~= 0) then
+					iModifier = pTheirUnit:GetNearbyImprovementModifier(pToPlot);
 					controlTable = g_TheirCombatDataIM:GetInstance();
 					controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_IMPROVEMENT_NEAR" );
 					controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );

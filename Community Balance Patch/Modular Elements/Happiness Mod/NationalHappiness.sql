@@ -31,6 +31,10 @@
 
 -- These values can be modified.
 	
+	UPDATE Defines
+	SET Value = '0'
+	WHERE Name = 'HAPPINESS_PER_NATURAL_WONDER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
+
 	-- Golden Age starting requirement.
 	UPDATE Defines
 	SET Value = '700'
@@ -91,7 +95,7 @@
 -- Maximum happiness penalty % mod. (Should always be a negative value)
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_HAPPINESS_PENALTY_MAXIMUM', '-20'
+	SELECT 'BALANCE_HAPPINESS_PENALTY_MAXIMUM', '-25'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
 
 -- Minimum happiness penalty % mod.
@@ -115,7 +119,7 @@
 -- Science % point per happiness mod (should always be a positive value).
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_HAPPINESS_SCIENCE_MODIFIER', '1'
+	SELECT 'BALANCE_HAPPINESS_SCIENCE_MODIFIER', '2'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
  
 --Gold % point per happiness mod (should always be a positive value).
@@ -127,7 +131,7 @@
 --Gold % point per happiness mod (should always be a positive value).
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_HAPPINESS_GOLD_MODIFIER', '1'
+	SELECT 'BALANCE_HAPPINESS_GOLD_MODIFIER', '2'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
 
 -- Production % point per happiness mod (should always be a positive value).
@@ -151,7 +155,7 @@
 -- Food % point per happiness mod (should always be a positive value).
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_HAPPINESS_FOOD_MODIFIER', '1'
+	SELECT 'BALANCE_HAPPINESS_FOOD_MODIFIER', '2'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
 
 -- Faith point per happiness mod (should always be a positive value). THIS ONE DIVIDES BY YOUR HAPPINESS VALUE (SO /5 HAPPINESS PER TURN)
@@ -163,7 +167,7 @@
 -- Faith point per happiness mod (should always be a positive value). THIS ONE DIVIDES BY YOUR HAPPINESS VALUE (SO /5 HAPPINESS PER TURN)
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_HAPPINESS_FAITH_MODIFIER', '1'
+	SELECT 'BALANCE_HAPPINESS_FAITH_MODIFIER', '2'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
 
 -- Culture point per happiness mod (should always be a positive value). THIS ONE DIVIDES BY YOUR HAPPINESS VALUE (SO /5 HAPPINESS PER TURN)
@@ -175,7 +179,7 @@
 -- Culture point per happiness mod (should always be a positive value). THIS ONE DIVIDES BY YOUR HAPPINESS VALUE (SO /5 HAPPINESS PER TURN)
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_HAPPINESS_CULTURE_MODIFIER', '1'
+	SELECT 'BALANCE_HAPPINESS_CULTURE_MODIFIER', '2'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
 
 -- Text for city view tooltip.
@@ -199,7 +203,7 @@
 
 -- Update text for top panel depending on which yields you have enabled above. Change as desired.
 	UPDATE Language_en_US
-	SET Text = 'Your empire is [ICON_HAPPINESS_3] very unhappy![ENDCOLOR] [NEWLINE][NEWLINE]Empire-wide [ICON_CULTURE] Culture, [ICON_PEACE] Faith, [ICON_GOLD] Gold, [ICON_FOOD] Growth, and [ICON_RESEARCH] Science are [COLOR_NEGATIVE_TEXT]reduced by 1%[ENDCOLOR] for each point of [ICON_HAPPINESS_3] Unhappiness (up to -20 [ICON_HAPPINESS_3] Unhappiness)!'
+	SET Text = 'Your empire is [ICON_HAPPINESS_3] very unhappy![ENDCOLOR] [NEWLINE][NEWLINE]Empire-wide [ICON_CULTURE] Culture, [ICON_PEACE] Faith, [ICON_GOLD] Gold, [ICON_FOOD] Growth, and [ICON_RESEARCH] Science are [COLOR_NEGATIVE_TEXT]reduced by 2%[ENDCOLOR] for each point of [ICON_HAPPINESS_3] Unhappiness (up to -20 [ICON_HAPPINESS_3] Unhappiness)!'
 	WHERE Tag = 'TXT_KEY_TP_EMPIRE_VERY_UNHAPPY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
 
 	UPDATE Language_en_US
@@ -208,7 +212,7 @@
 	
 -- Update text for top panel depending on which yields you have enabled above. Change as desired.
 	UPDATE Language_en_US
-	SET Text = 'Your empire is [ICON_HAPPINESS_3] unhappy! [NEWLINE][NEWLINE][ENDCOLOR]Empire-wide [ICON_CULTURE] Culture, [ICON_PEACE] Faith, [ICON_GOLD] Gold, [ICON_FOOD] Growth, and [ICON_RESEARCH] Science are [COLOR_NEGATIVE_TEXT]reduced by 1%[ENDCOLOR] for each point of [ICON_HAPPINESS_3] Unhappiness (up to -20 [ICON_HAPPINESS_3] Unhappiness)!'
+	SET Text = 'Your empire is [ICON_HAPPINESS_3] unhappy! [NEWLINE][NEWLINE][ENDCOLOR]Empire-wide [ICON_CULTURE] Culture, [ICON_PEACE] Faith, [ICON_GOLD] Gold, [ICON_FOOD] Growth, and [ICON_RESEARCH] Science are [COLOR_NEGATIVE_TEXT]reduced by 2%[ENDCOLOR] for each point of [ICON_HAPPINESS_3] Unhappiness (up to -20 [ICON_HAPPINESS_3] Unhappiness)!'
 	WHERE Tag = 'TXT_KEY_TP_EMPIRE_UNHAPPY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_HAPPINESS' AND Value= 1 );
 
 -- TOOLTIPS FOR TOP BAR

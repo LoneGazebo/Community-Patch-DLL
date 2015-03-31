@@ -47,13 +47,6 @@
       </Association>
       <Association>
         <Type>Mod</Type>
-        <Name>Community Balance Patch - CSD Compatibility</Name>
-        <Id>0cdeb9c8-1e2e-49f3-bbd0-2acb8833ec8d</Id>
-        <MinVersion>0</MinVersion>
-        <MaxVersion>999</MaxVersion>
-      </Association>
-      <Association>
-        <Type>Mod</Type>
         <Name>Community Balance Patch</Name>
         <Id>8411a7a8-dad3-4622-a18e-fcc18324c799</Id>
         <MinVersion>0</MinVersion>

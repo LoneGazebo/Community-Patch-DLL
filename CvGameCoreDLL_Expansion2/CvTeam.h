@@ -53,7 +53,7 @@ public:
 
 	bool canChangeWarPeace(TeamTypes eTeam) const;
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
-	bool canDeclareWar(TeamTypes eTeam, PlayerTypes eOriginatingPlayer = NO_PLAYER) const;
+	bool canDeclareWar(TeamTypes eTeam, PlayerTypes eOriginatingPlayer = NO_PLAYER);
 	void declareWar(TeamTypes eTeam, bool bDefensivePact = false, PlayerTypes eOriginatingPlayer = NO_PLAYER);
 	void makePeace(TeamTypes eTeam, bool bBumpUnits = true, bool bSuppressNotification = false, PlayerTypes eOriginatingPlayer = NO_PLAYER);
 #else
@@ -134,6 +134,8 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	void addPlayer(PlayerTypes eID);
 	void removePlayer(PlayerTypes eID);
+	void updateMinorCiv();
+	void ClearWarDeclarationCache();
 #endif
 
 	int getAliveCount() const;
@@ -512,6 +514,8 @@ protected:
 #if defined(MOD_BALANCE_CORE)
 	//we care about iteration speed, so use a vector over a set
 	std::vector<PlayerTypes> m_members;
+	std::map<std::pair<TeamTypes,PlayerTypes>,bool> m_cacheCanDeclareWar;
+	bool m_bIsMinorCiv;
 #endif
 
 	int m_iNumMembers;

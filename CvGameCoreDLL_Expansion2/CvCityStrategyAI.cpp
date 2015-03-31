@@ -821,6 +821,33 @@ void CvCityStrategyAI::ChooseProduction(bool bUseAsyncRandom, BuildingTypes eIgn
 
 	EconomicAIStrategyTypes eStrategyEnoughSettlers = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_ENOUGH_EXPANSION");
 	bool bEnoughSettlers = kPlayer.GetEconomicAI()->IsUsingStrategy(eStrategyEnoughSettlers);
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	bool bForceSettler = false;
+	if(bEnoughSettlers)
+	{
+		int iDesiredCities = kPlayer.GetEconomicAI()->GetEarlyCityNumberTarget();
+		int iFlavorExpansion = 0;
+		int iFlavorGrowth = 0;
+		for(int iFlavorLoop = 0; iFlavorLoop < GC.getNumFlavorTypes() && (iFlavorExpansion == 0 || iFlavorGrowth == 0); iFlavorLoop++)
+		{
+			if(GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_EXPANSION")
+			{
+				iFlavorExpansion = kPlayer.GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)iFlavorLoop);
+			}
+			else if(GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_GROWTH")
+			{
+				iFlavorGrowth = kPlayer.GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)iFlavorLoop);
+			}
+		}
+		const int iDefaultNumTiles = 80*52;
+		iDesiredCities = int( 0.6f + float(iDesiredCities * iFlavorExpansion * GC.getMap().numPlots()) / (max(iFlavorGrowth, 1) * iDefaultNumTiles));
+		if(kPlayer.getNumCities() < iDesiredCities)
+		{
+			bEnoughSettlers = false;
+			bForceSettler = true;
+		}
+	}
+#endif
 
 	// Check units for operations first
 	eUnitForOperation = m_pCity->GetUnitForOperation();
@@ -857,7 +884,11 @@ void CvCityStrategyAI::ChooseProduction(bool bUseAsyncRandom, BuildingTypes eIgn
 			{
 				iTempWeight = 0;
 			}
+#if defined(MOD_BALANCE_CORE)
+			else if(!bForceSettler)
+#else
 			else
+#endif
 			{
 				int iBestArea, iSecondBestArea;
 				int iNumGoodAreas = kPlayer.GetBestSettleAreas(kPlayer.GetEconomicAI()->GetMinimumSettleFertility(), iBestArea, iSecondBestArea);
@@ -928,6 +959,27 @@ void CvCityStrategyAI::ChooseProduction(bool bUseAsyncRandom, BuildingTypes eIgn
 				if(GetCity()->IsBuildingInvestment(eBuildingClass))
 				{
 					iTempWeight *= 10;
+				}
+			}
+#endif
+#if defined(MOD_BALANCE_CORE_HAPPINESS)
+			if(MOD_BALANCE_CORE_HAPPINESS)
+			{
+				if(GetCity()->getUnhappinessFromCulture() > 0 && ((pkBuildingInfo->GetUnculturedHappinessChangeBuilding() != 0) || (pkBuildingInfo->GetUnculturedHappinessChangeBuildingGlobal() != 0)))
+				{
+					iTempWeight *= GetCity()->getUnhappinessFromCulture();
+				}
+				if(GetCity()->getUnhappinessFromGold() > 0 && ((pkBuildingInfo->GetPovertyHappinessChangeBuilding() != 0) || (pkBuildingInfo->GetPovertyHappinessChangeBuildingGlobal() != 0)))
+				{
+					iTempWeight *= GetCity()->getUnhappinessFromGold();
+				}
+				if(GetCity()->getUnhappinessFromDefense() > 0 && ((pkBuildingInfo->GetDefenseHappinessChangeBuilding() != 0) || (pkBuildingInfo->GetDefenseHappinessChangeBuildingGlobal() != 0)))
+				{
+					iTempWeight *= GetCity()->getUnhappinessFromDefense();
+				}
+				if(GetCity()->getUnhappinessFromScience() > 0 && ((pkBuildingInfo->GetIlliteracyHappinessChangeBuilding() != 0) || (pkBuildingInfo->GetIlliteracyHappinessChangeBuildingGlobal() != 0)))
+				{
+					iTempWeight *= GetCity()->getUnhappinessFromScience();
 				}
 			}
 #endif
@@ -1035,7 +1087,11 @@ void CvCityStrategyAI::ChooseProduction(bool bUseAsyncRandom, BuildingTypes eIgn
 					{
 						iTempWeight = 0;
 					}
+#if defined(MOD_BALANCE_CORE)
+					else if(!bForceSettler)
+#else
 					else
+#endif
 					{
 						int iBestArea, iSecondBestArea;
 						int iNumGoodAreas = kPlayer.GetBestSettleAreas(kPlayer.GetEconomicAI()->GetMinimumSettleFertility(), iBestArea, iSecondBestArea);

@@ -387,6 +387,10 @@ public:
 	int* GetPlotYieldChangeArray(int i) const;
 #endif
 	int GetBuildingClassYieldChange(int i, int j) const;
+#if defined(MOD_BALANCE_CORE)
+	int GetBuildingClassLocalYieldChange(int i, int j) const;
+	int GetBuildingClassLocalHappiness(int i) const;
+#endif
 	int GetBuildingClassHappiness(int i) const;
 
 	CvThemingBonusInfo *GetThemingBonusInfo(int i) const;
@@ -662,6 +666,10 @@ private:
 	int** m_ppaiPlotYieldChange;
 #endif
 	int** m_ppiBuildingClassYieldChanges;
+#if defined(MOD_BALANCE_CORE)
+	int** m_ppiBuildingClassLocalYieldChanges;
+	int* m_paiBuildingClassLocalHappiness;
+#endif
 	int* m_paiBuildingClassHappiness;
 #if defined(MOD_BALANCE_CORE_BUILDING_INSTANT_YIELD)
 	int* m_piInstantYield;

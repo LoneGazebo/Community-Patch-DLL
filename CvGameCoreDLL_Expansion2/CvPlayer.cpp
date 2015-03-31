@@ -492,6 +492,7 @@ CvPlayer::CvPlayer() :
 #endif
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	, m_pabHasMonopoly("CvPlayer::m_pabHasMonopoly", m_syncArchive)
+	, m_pabHasStrategicMonopoly("CvPlayer::m_pabHasStrategicMonopoly", m_syncArchive)
 #endif
 	, m_pabLoyalMember("CvPlayer::m_pabLoyalMember", m_syncArchive)
 	, m_pabGetsScienceFromPlayer("CvPlayer::m_pabGetsScienceFromPlayer", m_syncArchive)
@@ -899,6 +900,7 @@ void CvPlayer::uninit()
 #endif
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	m_pabHasMonopoly.clear();
+	m_pabHasStrategicMonopoly.clear();
 #endif
 	m_pabLoyalMember.clear();
 	m_pabGetsScienceFromPlayer.clear();
@@ -1516,6 +1518,8 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 		m_pabHasMonopoly.clear();
 		m_pabHasMonopoly.resize(GC.getNumResourceInfos(), false);
+		m_pabHasStrategicMonopoly.clear();
+		m_pabHasStrategicMonopoly.resize(GC.getNumResourceInfos(), false);
 #endif
 		m_pabLoyalMember.clear();
 		m_pabLoyalMember.resize(GC.getNumVoteSourceInfos(), true);
@@ -5178,6 +5182,8 @@ void CvPlayer::doTurn()
 
 	setConscriptCount(0);
 #if defined(MOD_BALANCE_CORE)
+	GET_TEAM(getTeam()).updateMinorCiv();
+
 	if(MOD_BALANCE_CORE && !isMinorCiv() && !isBarbarian())
 	{
 #endif
@@ -5282,6 +5288,7 @@ void CvPlayer::doTurnPostDiplomacy()
 			UpdateDangerPlots();
 			UpdateFractionOriginalCapitalsUnderControl();
 			UpdateAreaEffectUnits();
+			GET_TEAM(getTeam()).ClearWarDeclarationCache();
 #else
 			m_pDangerPlots->UpdateDanger();
 #endif
@@ -8549,7 +8556,7 @@ bool CvPlayer::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool
 		return false;
 	}
 #if defined(MOD_BALANCE_CORE_MINOR_CIV_GIFT)
-	if(MOD_BALANCE_CORE_MINOR_CIV_GIFT && pUnitInfo.IsMinorCivGift())
+	if(MOD_BALANCE_CORE_MINOR_CIV_GIFT && pUnitInfo.IsMinorCivGift() && !isBarbarian())
 	{
 		return false;
 	}
@@ -8576,7 +8583,7 @@ bool CvPlayer::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool
 	}
 #if defined(MOD_BALANCE_CORE)
 	ResourceTypes eResource = (ResourceTypes)pUnitInfo.GetResourceType();
-	if (MOD_BALANCE_CORE && eResource != NO_RESOURCE)
+	if (MOD_BALANCE_CORE && eResource != NO_RESOURCE && !isBarbarian())
 	{
 		if (getNumResourceTotal(eResource, true) <= 0)
 		{
@@ -8690,7 +8697,7 @@ bool CvPlayer::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool
 	if(!bTestVisible)
 	{
 #if defined(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
-		if(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED && !pUnitInfo.IsFound() && GetNumUnitsOutOfSupply() > 0)
+		if(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED && !pUnitInfo.IsFound() && !isBarbarian() && GetNumUnitsOutOfSupply() > 0)
 		{
 			GC.getGame().BuildCannotPerformActionHelpText(toolTipSink, "TXT_KEY_NO_ACTION_NO_SUPPLY");
 			if(toolTipSink == NULL)
@@ -12731,6 +12738,36 @@ void CvPlayer::DoTechFromCityConquer(CvCity* pConqueredCity)
 			GET_TEAM(getTeam()).GetTeamTechs()->SetNoTradeTech(eFreeTech, true);
 		}
 	}
+#if defined(MOD_BALANCE_CORE)
+	else
+	{
+		const char* strTargetNameKey = pConqueredCity->getNameKey();
+		TechTypes eCurrentTech = GetPlayerTechs()->GetCurrentResearch();
+		if(eCurrentTech == NO_TECH)
+		{
+			changeOverflowResearch(pConqueredCity->getPopulation() * 10);
+		}
+		else
+		{
+			GET_TEAM(GET_PLAYER(GetID()).getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, pConqueredCity->getPopulation() * 10, GetID());
+		}
+		if(GetID() == GC.getGame().getActivePlayer())
+		{
+			Localization::String strMessage;
+			Localization::String strSummary;
+			strMessage = Localization::Lookup("TXT_KEY_SCIENCE_BOOST_CONQUEST");
+			strMessage << (pConqueredCity->getPopulation() * 10);
+			strMessage << strTargetNameKey;
+			strSummary = Localization::Lookup("TXT_KEY_SCIENCE_BOOST_CONQUEST_SUMMARY");
+
+			CvNotifications* pNotification = GetNotifications();
+			if(pNotification)
+			{
+				pNotification->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), pConqueredCity->getX(), pConqueredCity->getY(), (int) pConqueredCity->GetID(), GetID());
+			}
+		}
+	}
+#endif
 }
 #if defined(MOD_BALANCE_CORE)
 //	--------------------------------------------------------------------------------
@@ -13320,6 +13357,13 @@ void CvPlayer::DoUpdateHappiness()
 	{
 		int iMonpolyHappiness = GetHappinessFromResourceMonopolies();
 		m_iHappiness += iMonpolyHappiness;
+	}
+#endif
+#if defined(MOD_BALANCE_CORE_HAPPINESS_LUXURY)
+	if(MOD_BALANCE_CORE_HAPPINESS_LUXURY)
+	{
+		int iExtraResourceHappiness = GetBonusHappinessFromLuxuries();
+		m_iHappiness += iExtraResourceHappiness;
 	}
 #endif
 	// Increase from Luxury Resources
@@ -14538,38 +14582,34 @@ void CvPlayer::ChangeExtraHappinessPerLuxury(int iChange)
 int CvPlayer::getGlobalAverage(YieldTypes eYield) const
 {	
 	int iYield = 0;
-	float iTotal = 0.0;
 
-	//Let's modify this based on the number of player techs - more techs means the threshold goes higher. Variables allow us to make this more or less severe an increase.
-	float iTech = ((GET_TEAM(getTeam()).GetTeamTechs()->GetNumTechsKnown() * (float) /*1.5f*/ GC.getBALANCE_HAPPINESS_TECH_BASE_MODIFIER()) + /*25*/ GC.getBALANCE_HAPPINESS_TECH_BASE_CITY_COUNT()) * 100;
-	iTech /= GC.getNumTechInfos();
+	//Let's modify this based on the number of player techs - more techs means the threshold goes higher.
+	int iTech = (GET_TEAM(getTeam()).GetTeamTechs()->GetNumTechsKnown() * 100);
+	//Dividing it by the num of techs to get a % - num of techs artificially increased to slow rate of growth
+	iTech /= (1 + ((int)(GC.getNumTechInfos() * /*1.5*/ GC.getBALANCE_HAPPINESS_TECH_BASE_MODIFIER())));
 
 	if(eYield == YIELD_CULTURE)
 	{
 		iYield = GC.getGame().GetCultureAverage();
-		iTotal = (float)iYield;
-		iTotal += ((iYield * iTech) / 100);
+		iYield += ((iYield * iTech) / 100);
 	}
 	else if(eYield == YIELD_SCIENCE)
 	{
 		iYield = GC.getGame().GetScienceAverage();
-		iTotal = (float)iYield;
-		iTotal += ((iYield * iTech) / 100);
+		iYield += ((iYield * iTech) / 100);
 	}
 	else if(eYield == YIELD_PRODUCTION)
 	{
 		iYield = GC.getGame().GetDefenseAverage();
-		iTotal = (float)iYield;
-		iTotal += ((iYield * iTech) / 100);
+		iYield += ((iYield * iTech) / 100);
 	}
 	else if(eYield == YIELD_GOLD)
 	{
 		iYield = GC.getGame().GetGoldAverage();
-		iTotal = (float)iYield;
-		iTotal += ((iYield * iTech) / 100);
+		iYield += ((iYield * iTech) / 100);
 	}
 
-	return (int) iTotal;
+	return iYield;
 }
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_LUXURY)
@@ -14577,36 +14617,53 @@ int CvPlayer::getGlobalAverage(YieldTypes eYield) const
 int CvPlayer::getPopNeededForLux() const
 {
 	//Needed for LUA
-	//Happiness as a factor of population, techs, and number of cities. Divisor determines this.
-	int iTechProgress = ((GC.getBALANCE_HAPPINESS_POPULATION_DIVISOR() + GET_TEAM(getTeam()).GetTeamTechs()->GetNumTechsKnown()) * 100) / GC.getNumTechInfos();
+	//Happiness as a factor of population and number of cities. Divisor determines this.
+	int iInflation = (getCurrentTotalPop() * getNumCities()) / 10;
+	if(iInflation <= GC.getBALANCE_HAPPINESS_POPULATION_DIVISOR())
+	{
+		iInflation = GC.getBALANCE_HAPPINESS_POPULATION_DIVISOR();
+	}
 
 	int iBaseHappiness = 1;
 	
 	//Happiness as a factor of population and number of cities. Divisor determines this.
+	if(GetBaseLuxuryHappiness() <= 0)
+	{
+		iBaseHappiness = iInflation;
+	}
+	else
+	{
+		iBaseHappiness = (GetBaseLuxuryHappiness() * iInflation);
+	}
+
+	return iBaseHappiness;
+}
+//	--------------------------------------------------------------------------------
+int CvPlayer::GetBonusHappinessFromLuxuries() const
+{
+	if(getCurrentTotalPop() >= getPopNeededForLux())
+	{
+		GET_PLAYER(GetID()).SetBaseLuxuryHappiness(GetBaseLuxuryHappiness() + 1);
+	}
+	int iHappiness = GetBaseLuxuryHappiness();
+	int iExtraHappiness = 0;
+	int iNumHappinessResources = 0;
 	ResourceTypes eResource;
 	for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 	{
 		eResource = (ResourceTypes) iResourceLoop;
-		if(eResource != NO_RESOURCE)
+
+		if(eResource != NO_RESOURCE && (GetHappinessFromLuxury(eResource) > 0))
 		{
-			iBaseHappiness = GetHappinessFromLuxury(eResource);
-			if(iBaseHappiness != 0)
-			{
-				iBaseHappiness *= iTechProgress;
-				
-				if(iBaseHappiness <= 0)
-				{
-					iBaseHappiness = iTechProgress;
-				}
-				return iBaseHappiness;
-			}
-			else
-			{
-				iBaseHappiness = iTechProgress;
-			}
+			iNumHappinessResources++;
 		}
 	}
-	return iBaseHappiness;
+	int iNumLux = iNumHappinessResources;
+	if(iNumLux > 0)
+	{
+		iExtraHappiness = ((iNumLux * iHappiness) / /*8*/ GC.getBALANCE_HAPPINESS_LUXURY_BASE());
+	}
+	return iExtraHappiness;
 }
 int CvPlayer::GetBaseLuxuryHappiness() const
 {
@@ -14657,39 +14714,6 @@ int CvPlayer::GetHappinessFromLuxury(ResourceTypes eResource) const
 		{
 			iBaseHappiness = 0;
 		}
-
-#if defined(MOD_BALANCE_CORE_HAPPINESS_LUXURY)
-		if(MOD_BALANCE_CORE_HAPPINESS_LUXURY)
-		{
-			iBaseHappiness = 1;
-
-			//Happiness as a factor of population, techs, and number of cities. Divisor determines this.
-			int iTechProgress = ((GC.getBALANCE_HAPPINESS_POPULATION_DIVISOR() + GET_TEAM(getTeam()).GetTeamTechs()->GetNumTechsKnown()) * 100) / GC.getNumTechInfos();
-
-			int iTotalPop = getCurrentTotalPop();
-
-			if(iTotalPop != 0 && iTechProgress != 0)
-			{
-				iBaseHappiness += (iTotalPop / iTechProgress);
-			}
-			if(iBaseHappiness > /*5*/ GC.getBALANCE_HAPPINESS_LUXURY_MAXIMUM())
-			{
-				iBaseHappiness = GC.getBALANCE_HAPPINESS_LUXURY_MAXIMUM();
-			}
-			else if(iBaseHappiness <= /*1*/ GC.getBALANCE_HAPPINESS_LUXURY_BASE())
-			{
-				iBaseHappiness = GC.getBALANCE_HAPPINESS_LUXURY_BASE();
-			}
-			if(GetBaseLuxuryHappiness() >= iBaseHappiness)
-			{
-				iBaseHappiness = GetBaseLuxuryHappiness();
-			}
-			else if(GetBaseLuxuryHappiness() < iBaseHappiness)
-			{
-				GET_PLAYER(GetID()).SetBaseLuxuryHappiness(iBaseHappiness);
-			}
-		}
-#endif
 
 		// Only look at Luxuries
 		if(pkResourceInfo->getResourceUsage() != RESOURCEUSAGE_LUXURY)
@@ -15368,7 +15392,7 @@ int CvPlayer::GetUnhappinessFromOccupiedCities(CvCity* pAssumeCityAnnexed, CvCit
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 			if(MOD_BALANCE_CORE_HAPPINESS && bIsResistance)
 			{
-				iPopulation /= 4;
+				iPopulation /= 2;
 			}
 #endif
 			// No Unhappiness from Specialist Pop? (Policies, etc.)
@@ -17289,12 +17313,15 @@ int CvPlayer::getGoldenAgeLength() const
 		for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 		{
 			ResourceTypes eResourceLoop = (ResourceTypes) iResourceLoop;
-			CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
-			if (pInfo && pInfo->isMonopoly())
+			if(eResourceLoop != NO_RESOURCE)
 			{
-				if(HasMonopoly(eResourceLoop) && pInfo->getMonopolyGALength() > 0)
+				CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
+				if (pInfo && pInfo->isMonopoly())
 				{
-					iLengthModifier += pInfo->getMonopolyGALength();
+					if(HasMonopoly(eResourceLoop) && pInfo->getMonopolyGALength() > 0)
+					{
+						iLengthModifier += pInfo->getMonopolyGALength();
+					}
 				}
 			}
 		}
@@ -24436,6 +24463,20 @@ void CvPlayer::SetHasMonopoly(ResourceTypes eResource, bool bNewValue)
 	}
 }
 //	--------------------------------------------------------------------------------
+bool CvPlayer::HasStrategicMonopoly(ResourceTypes eResource) const
+{
+	return m_pabHasStrategicMonopoly[eResource];
+}
+//	--------------------------------------------------------------------------------
+void CvPlayer::SetHasStrategicMonopoly(ResourceTypes eResource, bool bNewValue)
+{
+	if(bNewValue != m_pabHasStrategicMonopoly[eResource])
+	{
+		m_pabHasStrategicMonopoly.setAt(eResource, bNewValue);
+	}
+}
+
+//	--------------------------------------------------------------------------------
 void CvPlayer::TestHasMonopoly(ResourceTypes eResource)
 {
 	const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
@@ -24446,25 +24487,67 @@ void CvPlayer::TestHasMonopoly(ResourceTypes eResource)
 			int iOwnedNumResource = getNumResourceTotal(eResource, false) + getResourceExport(eResource);
 			int iTotalNumResource = GC.getMap().getNumResources(eResource);
 			bool bGainingBonus = false;
+			bool bGainingStrategicBonus = false;
 			bool bLosingBonus = false;
+			bool bLosingStrategicBonus = false;
 			if(iTotalNumResource > 0)
 			{
-				//Do we have +50% of this resource under our control?
-				if(((iOwnedNumResource * 100) / iTotalNumResource) > 50)
+				if(pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_LUXURY)
 				{
-					if(m_pabHasMonopoly[eResource] == false)
+					//Do we have +50% of this resource under our control?
+					if(((iOwnedNumResource * 100) / iTotalNumResource) > 50)
 					{
-						bGainingBonus = true;
+						if(m_pabHasMonopoly[eResource] == false)
+						{
+							bGainingBonus = true;
+						}
+						SetHasMonopoly(eResource, true);
 					}
-					SetHasMonopoly(eResource, true);
+					else
+					{
+						if(m_pabHasMonopoly[eResource] == true)
+						{
+							bLosingBonus = true;
+						}
+						SetHasMonopoly(eResource, false);
+					}
 				}
-				else
+				else if(pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
 				{
-					if(m_pabHasMonopoly[eResource] == true)
+					//Do we have +25% of this resource under our control?
+					if(((iOwnedNumResource * 100) / iTotalNumResource) > 25)
 					{
-						bLosingBonus = true;
+						if(m_pabHasStrategicMonopoly[eResource] == false)
+						{
+							bGainingStrategicBonus = true;
+						}
+						SetHasStrategicMonopoly(eResource, true);
 					}
-					SetHasMonopoly(eResource, false);
+					else
+					{
+						if(m_pabHasStrategicMonopoly[eResource] == true)
+						{
+							bLosingStrategicBonus = true;
+						}
+						SetHasStrategicMonopoly(eResource, false);
+					}
+					//Do we also have 50% of this resource under our control?
+					if(((iOwnedNumResource * 100) / iTotalNumResource) > 50)
+					{
+						if(m_pabHasMonopoly[eResource] == false)
+						{
+							bGainingBonus = true;
+						}
+						SetHasMonopoly(eResource, true);
+					}
+					else
+					{
+						if(m_pabHasMonopoly[eResource] == true)
+						{
+							bLosingBonus = true;
+						}
+						SetHasMonopoly(eResource, false);
+					}
 				}
 				CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
 				if(pLeague != NULL)
@@ -24524,6 +24607,53 @@ void CvPlayer::TestHasMonopoly(ResourceTypes eResource)
 					strMessage << pkResourceInfo->GetTextKey();
 					strMessage << strResourceHelp;
 					Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_MONOPOLY_LOST");
+					strSummary << pkResourceInfo->GetTextKey();
+					int iX = -1;
+					int iY = -1;
+
+					pNotifications->Add(NOTIFICATION_DISCOVERED_BONUS_RESOURCE, strMessage.toUTF8(), strSummary.toUTF8(), iX, iY, eResource);
+					updateYield();
+				}
+				// Adding Resources
+				if(bGainingStrategicBonus)
+				{
+					Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_STRATEGIC_MONOPOLY_GAINED");
+					strMessage << pkResourceInfo->GetTextKey();
+					strMessage << strResourceHelp;
+					Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_STRATEGIC_MONOPOLY_GAINED");
+					strSummary << pkResourceInfo->GetTextKey();
+					int iX = -1;
+					int iY = -1;
+
+					pNotifications->Add(NOTIFICATION_DISCOVERED_BONUS_RESOURCE, strMessage.toUTF8(), strSummary.toUTF8(), iX, iY, eResource);
+					updateYield();
+					for(int iPlayer = 0; iPlayer < MAX_PLAYERS; ++iPlayer)
+					{
+						//Notify human players of this, as they'll care.
+						CvPlayer& kLoopPlayer = GET_PLAYER((PlayerTypes)iPlayer);
+						if(GET_TEAM(kLoopPlayer.getTeam()).isHasMet(getTeam()) && kLoopPlayer.isHuman() && (kLoopPlayer.GetID() != GetID()))
+						{
+							Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_OTHER_PLAYER_STRATEGIC_MONOPOLY_GAINED");
+							strMessage << pkResourceInfo->GetTextKey();
+							strMessage << strResourceHelp;
+							strMessage << getCivilizationInfo().getShortDescriptionKey();
+							Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_OTHER_PLAYER_STRATEGIC_MONOPOLY_GAINED");
+							strSummary << pkResourceInfo->GetTextKey();
+							strSummary << getCivilizationInfo().getShortDescriptionKey();
+							int iX = -1;
+							int iY = -1;
+
+							pNotifications->Add(NOTIFICATION_DISCOVERED_BONUS_RESOURCE, strMessage.toUTF8(), strSummary.toUTF8(), iX, iY, eResource);
+						}
+					}
+				}
+				// Lost Resources
+				else if(bLosingStrategicBonus)
+				{
+					Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_STRATEGIC_MONOPOLY_LOST");
+					strMessage << pkResourceInfo->GetTextKey();
+					strMessage << strResourceHelp;
+					Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_STRATEGIC_MONOPOLY_LOST");
 					strSummary << pkResourceInfo->GetTextKey();
 					int iX = -1;
 					int iY = -1;
@@ -30153,6 +30283,7 @@ void CvPlayer::Read(FDataStream& kStream)
 
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	kStream >> m_pabHasMonopoly;
+	kStream >> m_pabHasStrategicMonopoly;
 #endif
 
 	kStream >> m_pabGetsScienceFromPlayer;
@@ -30768,6 +30899,7 @@ void CvPlayer::Write(FDataStream& kStream) const
 
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	kStream << m_pabHasMonopoly;
+	kStream << m_pabHasStrategicMonopoly;
 #endif
 
 	kStream << m_pabGetsScienceFromPlayer;
