@@ -462,8 +462,19 @@ void CvGrandStrategyAI::DoTurn()
 		eGrandStrategy = (AIGrandStrategyTypes) iGrandStrategiesLoop;
 		// If EVERYONE else we know is also going for this Grand Strategy, reduce our Priority by 50%
 		iChange = GetGrandStrategyPriority(eGrandStrategy) * /*50*/ GC.getAI_GRAND_STRATEGY_OTHER_PLAYERS_GS_MULTIPLIER();
+#if defined(MOD_BALANCE_CORE)
+		if(iNumPlayersAliveAndMet != 0)
+		{
+#endif
 		iChange = iChange * viNumGrandStrategiesAdopted[eGrandStrategy] / iNumPlayersAliveAndMet;
 		iChange /= 100;
+#if defined(MOD_BALANCE_CORE)
+		}
+		else
+		{
+			iChange = 0;
+		}
+#endif
 
 		ChangeGrandStrategyPriority(eGrandStrategy, -iChange);
 

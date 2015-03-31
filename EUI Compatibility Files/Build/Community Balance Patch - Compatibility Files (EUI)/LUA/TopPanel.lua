@@ -1194,6 +1194,7 @@ if civ5_mode then
 			local resourcesHappiness = g_activePlayer:GetHappinessFromResources()
 -- CBP
 			local happinessFromMonopoly = g_activePlayer:GetHappinessFromResourceMonopolies();
+			local happinessfromLuxuryBonus = g_activePlayer:GetBonusHappinessFromLuxuries();
 -- END
 			local happinessFromExtraResources = g_activePlayer:GetHappinessFromResourceVariety()
 			local extraLuxuryHappiness = g_activePlayer:GetExtraHappinessPerLuxury()
@@ -1220,16 +1221,7 @@ if civ5_mode then
 			local leagueHappiness = bnw_mode and g_activePlayer:GetHappinessFromLeagues() or 0
 			local totalHappiness = g_activePlayer:GetHappiness()
 			local happinessFromVassals = g_activePlayer.GetHappinessFromVassals and g_activePlayer:GetHappinessFromVassals() or 0	-- Compatibility with Putmalk's Civ IV Diplomacy Features Mod
-			local handicapHappiness = totalHappiness - policiesHappiness - resourcesHappiness - cityHappiness - buildingHappiness - garrisonedUnitsHappiness - minorCivHappiness - tradeRouteHappiness - religionHappiness - naturalWonderHappiness - extraHappinessPerCity - leagueHappiness - happinessFromVassals - happinessFromMonopoly	-- Compatibility with Putmalk's Civ IV Diplomacy Features Mod
--- COMMUNITY PATCH CHANGE
-			-- Happiness/Population calculation.
-			local iPopulation = g_activePlayer:GetCurrentTotalPop()
-			local iPopNeeded = g_activePlayer:GetPopNeededForLux()
-			local iHappinessFromLuxury = g_activePlayer:GetBaseLuxuryHappiness();
-			if(iPopulation > 0) then
-				tips:insert( L("TXT_KEY_TP_HAPPINESS_THRESHOLD_VALUE", iPopNeeded, iPopulation, iHappinessFromLuxury))
-			end
---END CHANGE
+			local handicapHappiness = totalHappiness - policiesHappiness - resourcesHappiness - cityHappiness - buildingHappiness - garrisonedUnitsHappiness - minorCivHappiness - tradeRouteHappiness - religionHappiness - naturalWonderHappiness - extraHappinessPerCity - leagueHappiness - happinessFromVassals - happinessFromMonopoly - happinessfromLuxuryBonus	-- Compatibility with Putmalk's Civ IV Diplomacy Features Mod
 
 			if g_activePlayer:IsEmpireVeryUnhappy() then
 
@@ -1343,8 +1335,17 @@ if civ5_mode then
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_LEAGUES", leagueHappiness )
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_VASSALS", happinessFromVassals )	-- Compatibility with Putmalk's Civ IV Diplomacy Features Mod
 -- CBP
-			-- Happiness from Luxury Variety
+			-- Happiness from Monopolies
 			tips:insertLocalizedBulletIfNonZero("TXT_KEY_TP_HAPPINESS_RESOURCE_MONOPOLY", happinessFromMonopoly )
+			tips:insertLocalizedBulletIfNonZero("TXT_KEY_TP_HAPPINESS_RESOURCE_POP_BONUS", happinessfromLuxuryBonus )
+			-- COMMUNITY PATCH CHANGE
+			-- Happiness/Population calculation.
+			if(happinessfromLuxuryBonus > 0) then
+				local iPopulation = g_activePlayer:GetCurrentTotalPop()
+				local iPopNeeded = g_activePlayer:GetPopNeededForLux()
+				local iThreshold = g_activePlayer:GetBaseLuxuryHappiness();
+				tips:insert( "[ENDCOLOR]" .. "          " .. L("TXT_KEY_TP_HAPPINESS_THRESHOLD_VALUE", iPopNeeded, iPopulation, iThreshold, (iThreshold + 1)))
+			end
 -- END
 			-- Happiness from Luxury Variety
 			tips:insertLocalizedBulletIfNonZero( "          ", "TXT_KEY_TP_HAPPINESS_RESOURCE_VARIETY", happinessFromExtraResources )

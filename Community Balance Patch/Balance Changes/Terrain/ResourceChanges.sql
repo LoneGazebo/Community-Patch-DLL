@@ -65,6 +65,10 @@
 	WHERE Type = 'RESOURCE_ALUMINUM';
 
 	UPDATE Resources
+	SET MonopolyHealBonus = '5'
+	WHERE Type = 'RESOURCE_ALUMINUM';
+
+	UPDATE Resources
 	SET IsMonopoly = 'true'
 	WHERE Type = 'RESOURCE_CITRUS';
 
@@ -78,6 +82,10 @@
 
 	UPDATE Resources
 	SET IsMonopoly = 'true'
+	WHERE Type = 'RESOURCE_COAL';
+
+	UPDATE Resources
+	SET MonopolyMovementBonus = '1'
 	WHERE Type = 'RESOURCE_COAL';
 
 	UPDATE Resources
@@ -129,6 +137,10 @@
 	WHERE Type = 'RESOURCE_HORSE';
 
 	UPDATE Resources
+	SET MonopolyAttackBonus = '10'
+	WHERE Type = 'RESOURCE_HORSE';
+
+	UPDATE Resources
 	SET IsMonopoly = 'true'
 	WHERE Type = 'RESOURCE_INCENSE';
 
@@ -138,6 +150,10 @@
 
 	UPDATE Resources
 	SET IsMonopoly = 'true'
+	WHERE Type = 'RESOURCE_IRON';
+
+	UPDATE Resources
+	SET MonopolyDefenseBonus = '10'
 	WHERE Type = 'RESOURCE_IRON';
 
 	UPDATE Resources
@@ -158,6 +174,10 @@
 
 	UPDATE Resources
 	SET IsMonopoly = 'true'
+	WHERE Type = 'RESOURCE_OIL';
+
+	UPDATE Resources
+	SET MonopolyXPBonus = '5'
 	WHERE Type = 'RESOURCE_OIL';
 
 	UPDATE Resources
@@ -206,6 +226,10 @@
 
 	UPDATE Resources
 	SET IsMonopoly = 'true'
+	WHERE Type = 'RESOURCE_URANIUM';
+
+	UPDATE Resources
+	SET MonopolyAttackBonus = '10'
 	WHERE Type = 'RESOURCE_URANIUM';
 
 	UPDATE Resources

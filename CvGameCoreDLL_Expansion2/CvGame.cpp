@@ -9599,7 +9599,7 @@ void CvGame::getGlobalAverage() const
 					vfCultureYield.push_back((float)iCultureAvg);
 
 					//Illiteracy
-					iScienceYield = pLoopCity->getYieldRateTimes100(YIELD_SCIENCE, true);
+					iScienceYield = pLoopCity->getYieldRateTimes100(YIELD_SCIENCE, false);
 					float iScienceAvg = iScienceYield / (float)iPopulation;
 					vfScienceYield.push_back((float)iScienceAvg);
 					
@@ -9609,7 +9609,7 @@ void CvGame::getGlobalAverage() const
 					vfDefenseYield.push_back((float)iDefenseAvg);
 
 					//Poverty
-					iGoldYield = pLoopCity->getYieldRateTimes100(YIELD_GOLD, true);
+					iGoldYield = pLoopCity->getYieldRateTimes100(YIELD_GOLD, false);
 					float iGoldAvg = iGoldYield / (float)iPopulation;
 					vfGoldYield.push_back((float)iGoldAvg);
 				}		

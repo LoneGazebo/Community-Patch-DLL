@@ -310,6 +310,19 @@
 		<Column name="BuildingType" type="text" reference="Buildings(Type)"/>
 		<Column name="ResourceType" type="text" reference="Resources(Type)"/>
 	</Table>
+
+	<!-- Buildings: Allows buildings to change the happiness/yields of specific building classes in the city where they are built. -->
+	<Table name="Building_BuildingClassLocalHappiness">
+		<Column name="BuildingType" type="text" reference="Buildings(Type)"/>
+		<Column name="BuildingClassType" type="text" reference="BuildingClasses(Type)"/>
+		<Column name="Happiness" type="integer"/>
+	</Table>
+	<Table name="Building_BuildingClassLocalYieldChanges">
+		<Column name="BuildingType" type="text" reference="Buildings(Type)"/>
+		<Column name="BuildingClassType" type="text" reference="BuildingClasses(Type)"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
+		<Column name="YieldChange" type="integer" default="0"/>
+	</Table>
 	
 	<Yields>
 		<Row>

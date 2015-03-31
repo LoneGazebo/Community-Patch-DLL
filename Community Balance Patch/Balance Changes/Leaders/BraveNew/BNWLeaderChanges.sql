@@ -40,6 +40,10 @@ UPDATE Language_en_US
 SET Text = 'Unique Assyrian Library replacement. +1 [ICON_RESEARCH] Science for every 4 [ICON_CITIZEN] Citizens in this City. Reduces [ICON_HAPPINESS_3] Illiteracy. Also has a slot for a Great Work of Writing which, when filled, gives extra XP to trained Units.'
 WHERE Tag = 'TXT_KEY_BUILDING_ROYAL_LIBRARY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
+UPDATE Language_en_US
+SET Text = 'When a city is conquered for the first time, gain a free Technology already discovered by its owner. If there are no Technologies to discover, receive a large sum of [ICON_RESEARCH] Science instead.'
+WHERE Tag = 'TXT_KEY_TRAIT_SLAYER_OF_TIAMAT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
+
 -- Ashurbanipal -- Earlier Siege Tower
 
 UPDATE Units

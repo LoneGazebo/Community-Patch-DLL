@@ -909,17 +909,17 @@
 	WHERE Type = 'UNIT_IRONCLAD' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Unit_ResourceQuantityRequirements
-	SET 'RESOURCE_IRON'
+	SET ResourceType = 'RESOURCE_IRON'
 	WHERE UnitType = 'UNIT_IRONCLAD' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	UPDATE Units
+	SET ObsoleteTech = 'TECH_ROCKETRY'
+	WHERE Type = 'UNIT_IRONCLAD' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	-- Destroyer
 	UPDATE Units
 	SET PrereqTech = 'TECH_ROCKETRY'
 	WHERE Type = 'UNIT_DESTROYER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
-
-	INSERT INTO Unit_ResourceQuantityRequirements (UnitType, ResourceType, Cost)
-	SELECT 'UNIT_DESTROYER', 'RESOURCE_IRON', '1'
-	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	-- Submarines -- Can Now Attack Coastal Cities -- Reduced Ranged Damage, but boosted it versus boats. This will help AI a TON
 	-- Moved to Atomic Era (Submarine)

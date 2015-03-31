@@ -702,6 +702,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetUnhappinessFromCityMinority);
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_LUXURY)
+	Method(GetBonusHappinessFromLuxuries);
 	Method(GetPopNeededForLux);
 	Method(GetCurrentTotalPop);
 	Method(GetBaseLuxuryHappiness);
@@ -7470,6 +7471,16 @@ int CvLuaPlayer::lGetUnhappinessFromCityMinority(lua_State* L)
 }
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_LUXURY)
+//------------------------------------------------------------------------------
+//int getPopNeededForLux();
+int CvLuaPlayer::lGetBonusHappinessFromLuxuries(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+
+	const int iResult = pkPlayer->GetBonusHappinessFromLuxuries();
+	lua_pushinteger(L, iResult);
+	return 1;
+}
 //------------------------------------------------------------------------------
 //int getPopNeededForLux();
 int CvLuaPlayer::lGetPopNeededForLux(lua_State* L)

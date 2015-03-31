@@ -5647,14 +5647,22 @@ void CvAIOperationNavalSuperiority::Init(int iID, PlayerTypes eOwner, PlayerType
 #if defined(MOD_BALANCE_CORE_MILITARY)
 			if(pMuster != NULL)
 			{
-				SetMusterPlot(pMuster->plot());
+				CvPlot* pPlot = GET_PLAYER(m_eOwner).GetMilitaryAI()->GetCoastalPlotAdjacentToTarget(pMuster->plot(), pArmyAI);
+				if(pPlot != NULL)
+				{
+					SetMusterPlot(pPlot);
+				}
 			}
 			if(GetMusterPlot() != NULL)
 			{
 				if(pTarget != NULL)
 				{
-					SetTargetPlot(pTarget->plot());
-					pArmyAI->SetGoalPlot(pTarget->plot());
+					CvPlot* pPlot = GET_PLAYER(m_eOwner).GetMilitaryAI()->GetCoastalPlotAdjacentToTarget(pTarget->plot(), pArmyAI);
+					if(pPlot != NULL)
+					{
+						SetTargetPlot(pPlot);
+						pArmyAI->SetGoalPlot(pPlot);
+					}
 				}
 				else
 				{
@@ -5814,7 +5822,7 @@ bool CvAIOperationNavalSuperiority::ShouldAbort()
 
 	if(!rtnValue)
 	{
-		if((FindBestTarget() == NULL) && (GetTargetPlot() == NULL))
+		if(FindBestTarget() == NULL)
 		{
 			return true;
 		}
@@ -5937,6 +5945,18 @@ CvPlot* CvAIOperationNavalSuperiority::FindBestTarget()
 	if(GetMusterPlot() != NULL)
 	{
 		pStartPlot = GetMusterPlot();
+		if(GetTargetPlot() != NULL)
+		{
+			iDistance = plotDistance(pStartPlot->getX(), pStartPlot->getY(), GetTargetPlot()->getX(), GetTargetPlot()->getY());
+			if(GC.GetWaterRouteFinder().GeneratePath(pStartPlot->getX(), pStartPlot->getY(), GetTargetPlot()->getX(), GetTargetPlot()->getY()))
+			{
+				iClosestEnemy = iDistance;
+			}
+		}
+		if(iClosestEnemy <= 3 )
+		{
+			return GetTargetPlot();
+		}
 		for(iPlotLoop = 0; iPlotLoop < GC.getMap().numPlots(); iPlotLoop++)
 		{
 			pPlot = GC.getMap().plotByIndexUnchecked(iPlotLoop);
@@ -5968,6 +5988,10 @@ CvPlot* CvAIOperationNavalSuperiority::FindBestTarget()
 		if(pEnemyTarget != NULL)
 		{
 			return pEnemyTarget;
+		}
+		else if(GetTargetPlot() != NULL)
+		{
+			return GetTargetPlot();
 		}
 	}
 #else

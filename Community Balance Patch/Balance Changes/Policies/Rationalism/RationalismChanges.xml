@@ -121,11 +121,4 @@
 		</Row>
 	</Policy_SpecialistExtraYields>
 	<!-- Free Thought -->
-	<Policy_GreatWorkYieldChanges>
-		<Row>
-			<PolicyType>POLICY_FREE_THOUGHT</PolicyType>
-			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>1</Yield>
-		</Row>
-	</Policy_GreatWorkYieldChanges>
 </GameData>

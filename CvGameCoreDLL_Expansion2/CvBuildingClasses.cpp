@@ -268,10 +268,14 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_ppaiPlotYieldChange(NULL),
 #endif
 	m_ppiBuildingClassYieldChanges(NULL),
+#if defined(MOD_BALANCE_CORE)
+	m_ppiBuildingClassLocalYieldChanges(NULL),
+#endif
 	m_paiBuildingClassHappiness(NULL),
 	m_paThemingBonusInfo(NULL),
 #if defined(MOD_BALANCE_CORE_BUILDING_INSTANT_YIELD)
 	m_piInstantYield(NULL),
+	m_paiBuildingClassLocalHappiness(NULL),
 #endif
 	m_iNumThemingBonuses(0)
 {
@@ -343,6 +347,10 @@ CvBuildingEntry::~CvBuildingEntry(void)
 	CvDatabaseUtility::SafeDelete2DArray(m_ppaiPlotYieldChange);
 #endif
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiBuildingClassYieldChanges);
+#if defined(MOD_BALANCE_CORE)
+	SAFE_DELETE_ARRAY(m_paiBuildingClassLocalHappiness);
+	CvDatabaseUtility::SafeDelete2DArray(m_ppiBuildingClassLocalYieldChanges);
+#endif
 }
 
 /// Read from XML file
@@ -681,6 +689,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	kUtility.PopulateArrayByExistence(m_pbBuildingClassNeededInCity, "BuildingClasses", "Building_ClassesNeededInCity", "BuildingClassType", "BuildingType", szBuildingType);
 #if defined(MOD_BALANCE_CORE)
 	kUtility.PopulateArrayByExistence(m_pbBuildingClassNeededAnywhere, "BuildingClasses", "Building_ClassNeededAnywhere", "BuildingClassType", "BuildingType", szBuildingType);
+	kUtility.PopulateArrayByValue(m_paiBuildingClassLocalHappiness, "BuildingClasses", "Building_BuildingClassLocalHappiness", "BuildingClassType", "BuildingType", szBuildingType, "Happiness");
 #endif
 	//kUtility.PopulateArrayByExistence(m_piNumFreeUnits, "Units", "Building_FreeUnits", "UnitType", "BuildingType", szBuildingType);
 	kUtility.PopulateArrayByValue(m_piNumFreeUnits, "Units", "Building_FreeUnits", "UnitType", "BuildingType", szBuildingType, "NumUnits");
@@ -858,7 +867,30 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 			m_ppiBuildingClassYieldChanges[BuildingClassID][iYieldID] = iYieldChange;
 		}
 	}
+#if defined(MOD_BALANCE_CORE)
+	//BuildingClassLocalYieldChanges
+	{
+		kUtility.Initialize2DArray(m_ppiBuildingClassLocalYieldChanges, "BuildingClasses", "Yields");
 
+		std::string strKey("Building_BuildingClassLocalYieldChanges");
+		Database::Results* pResults = kUtility.GetResults(strKey);
+		if(pResults == NULL)
+		{
+			pResults = kUtility.PrepareResults(strKey, "select BuildingClasses.ID as BuildingClassID, Yields.ID as YieldID, YieldChange from Building_BuildingClassLocalYieldChanges inner join BuildingClasses on BuildingClasses.Type = BuildingClassType inner join Yields on Yields.Type = YieldType where BuildingType = ?");
+		}
+
+		pResults->Bind(1, szBuildingType);
+
+		while(pResults->Step())
+		{
+			const int BuildingClassID = pResults->GetInt(0);
+			const int iYieldID = pResults->GetInt(1);
+			const int iYieldChange = pResults->GetInt(2);
+
+			m_ppiBuildingClassLocalYieldChanges[BuildingClassID][iYieldID] = iYieldChange;
+		}
+	}
+#endif
 	{
 		//Initialize Theming Bonuses
 		const int iNumThemes = MAX_THEMING_BONUSES; /* 12 */
@@ -2466,7 +2498,24 @@ int CvBuildingEntry::GetBuildingClassYieldChange(int i, int j) const
 	CvAssertMsg(j > -1, "Index out of bounds");
 	return m_ppiBuildingClassYieldChanges[i][j];
 }
-
+#if defined(MOD_BALANCE_CORE)
+/// Yield change for a specific BuildingClass by yield type
+int CvBuildingEntry::GetBuildingClassLocalYieldChange(int i, int j) const
+{
+	CvAssertMsg(i < GC.getNumBuildingClassInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	CvAssertMsg(j < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(j > -1, "Index out of bounds");
+	return m_ppiBuildingClassLocalYieldChanges[i][j];
+}
+/// Amount of extra Happiness per turn a BuildingClass provides
+int CvBuildingEntry::GetBuildingClassLocalHappiness(int i) const
+{
+	CvAssertMsg(i < GC.getNumBuildingClassInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_paiBuildingClassLocalHappiness ? m_paiBuildingClassLocalHappiness[i] : -1;
+}
+#endif
 /// Amount of extra Happiness per turn a BuildingClass provides
 int CvBuildingEntry::GetBuildingClassHappiness(int i) const
 {

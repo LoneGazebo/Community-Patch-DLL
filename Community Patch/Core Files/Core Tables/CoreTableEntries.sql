@@ -337,6 +337,11 @@ ALTER TABLE Units ADD COLUMN 'MinorCivGift' BOOLEAN DEFAULT 0;
 -- Resource Changes for Monopolies
 ALTER TABLE Resources ADD COLUMN 'MonopolyHappiness' INTEGER DEFAULT 0;
 ALTER TABLE Resources ADD COLUMN 'MonopolyGALength' INTEGER DEFAULT 0;
+ALTER TABLE Resources ADD COLUMN 'MonopolyAttackBonus' INTEGER DEFAULT 0;
+ALTER TABLE Resources ADD COLUMN 'MonopolyDefenseBonus' INTEGER DEFAULT 0;
+ALTER TABLE Resources ADD COLUMN 'MonopolyMovementBonus' INTEGER DEFAULT 0;
+ALTER TABLE Resources ADD COLUMN 'MonopolyHealBonus' INTEGER DEFAULT 0;
+ALTER TABLE Resources ADD COLUMN 'MonopolyXPBonus' INTEGER DEFAULT 0;
 ALTER TABLE Resources ADD COLUMN 'IsMonopoly' BOOLEAN DEFAULT 0;
 
 -- Cooldowns for Units/Buildings
