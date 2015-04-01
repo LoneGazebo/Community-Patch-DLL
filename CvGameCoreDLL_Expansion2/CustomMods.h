@@ -40,7 +40,10 @@
 
 #define AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
 #define AUI_UNIT_FIX_BAD_BONUS_STACKS
-#define AUI_UNIT_GET_NTH_BEST_INTERCEPTOR
+
+//disable this as it would make caching the danger calculation result much more complex - also not well tested, unclear benefit
+//#define AUI_UNIT_GET_NTH_BEST_INTERCEPTOR
+
 #define AUI_UNIT_EXTRA_ATTACKS_GETTER
 #define AUI_TACTICAL_FIX_SCORE_GREAT_GENERAL_PLOT_NO_OVERLAP
 #define AUI_UNIT_DO_AITYPE_FLIP

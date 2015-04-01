@@ -1302,6 +1302,12 @@ int CvDangerPlotContents::GetDanger(CvUnit* pUnit, int iAirAction, int iAfterNIn
 		return 0;
 	}
 
+	//simple caching for speedup
+	SUnitStats unitStats(pUnit);
+	if (unitStats==m_lastUnit)
+		return m_lastResult;
+
+	//otherwise calculate from scratch
 	int iPlotDamage = 0;
 	if (m_iFlatPlotDamage != 0 && (pUnit->atPlot(*m_pPlot) || pUnit->canMoveInto(*m_pPlot)))
 	{
@@ -1495,6 +1501,11 @@ int CvDangerPlotContents::GetDanger(CvUnit* pUnit, int iAirAction, int iAfterNIn
 	// Damage from features
 	iPlotDamage += GetDamageFromFeatures(pUnit->getOwner());
 
+	//update cache
+	m_lastUnit = unitStats;
+	m_lastResult = iPlotDamage;
+
+	//done
 	return iPlotDamage;
 }
 
