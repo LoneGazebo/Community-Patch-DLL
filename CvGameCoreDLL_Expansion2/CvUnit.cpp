@@ -21141,6 +21141,13 @@ int CvUnit::GetNearbyImprovementModifierFromTraits(const CvPlot* pAtPlot)const
 	int iImprovementRange = playerTraits->GetNearbyImprovementBonusRange();
 	int iImprovementModifier = playerTraits->GetNearbyImprovementCombatBonus();
 
+	if (pAtPlot == NULL)
+	{
+		pAtPlot = plot();
+		if (pAtPlot == NULL)
+			return 0;
+	}
+
 	const std::vector<int>& possiblePlots = GET_PLAYER(getOwner()).GetAreaEffectPositiveFromTraitsPlots();
 	for(std::vector<int>::const_iterator it = possiblePlots.begin(); it!=possiblePlots.end(); ++it)
 	{

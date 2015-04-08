@@ -10977,7 +10977,7 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 		{
 			float fRankRatio = (float)(veMilitaryRankings.size() - iRanking) / (float)(veMilitaryRankings.size());
 #if defined(MOD_BALANCE_CORE_MINORS)
-			iGlobalMilitaryScore = (int)(fRankRatio * 125); // A score between 125*(1 / num majors alive) and 125, with the highest rank major getting 125
+			iGlobalMilitaryScore = (int)(fRankRatio * 110); // A score between 110*(1 / num majors alive) and 110, with the highest rank major getting 110
 #else
 			iGlobalMilitaryScore = (int)(fRankRatio * 75); // A score between 75*(1 / num majors alive) and 75, with the highest rank major getting 75
 #endif
@@ -11058,7 +11058,7 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 	if(fLocalPowerRatio >= 3.0)
 	{
 #if defined(MOD_BALANCE_CORE_MINORS)
-		iLocalPowerScore += 70;
+		iLocalPowerScore += 95;
 #else
 		iLocalPowerScore += 125;
 #endif
@@ -11066,7 +11066,7 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 	else if(fLocalPowerRatio >= 2.0)
 	{
 #if defined(MOD_BALANCE_CORE_MINORS)
-		iLocalPowerScore += 60;
+		iLocalPowerScore += 80;
 #else
 		iLocalPowerScore += 100;
 #endif
@@ -11074,7 +11074,7 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 	else if(fLocalPowerRatio >= 1.5)
 	{
 #if defined(MOD_BALANCE_CORE_MINORS)
-		iLocalPowerScore += 50;
+		iLocalPowerScore += 65;
 #else
 		iLocalPowerScore += 75;
 #endif
@@ -11082,7 +11082,7 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 	else if(fLocalPowerRatio >= 1.0)
 	{
 #if defined(MOD_BALANCE_CORE_MINORS)
-		iLocalPowerScore += 40;
+		iLocalPowerScore += 45;
 #else
 		iLocalPowerScore += 50;
 #endif
@@ -11135,7 +11135,7 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 	// -110
 	// **************************
 #if defined(MOD_BALANCE_CORE_MINORS)
-	int iBaseReluctanceScore = -110;
+	int iBaseReluctanceScore = -125;
 #else
 	const int iBaseReluctanceScore = -110;
 #endif

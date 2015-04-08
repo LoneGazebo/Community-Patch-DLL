@@ -159,7 +159,7 @@ WHERE UnitType = 'UNIT_ENGLISH_LONGBOWMAN' AND EXISTS (SELECT * FROM COMMUNITY W
 
 -- Extra Spies
 UPDATE Language_en_US
-SET Text = '+2 [ICON_MOVES] Movement for all naval units. Receive one or more additional Spies based on the number of City-States.'
+SET Text = '+2 [ICON_MOVES] Movement for all naval and embarked units. Receive one or more additional Spies based on the number of City-States.'
 WHERE Tag = 'TXT_KEY_TRAIT_OCEAN_MOVEMENT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 -- Germany -- New UA

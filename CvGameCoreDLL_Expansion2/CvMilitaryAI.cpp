@@ -1164,7 +1164,12 @@ CvCity* GetCityFromGlobalID(int iID)
 		{
 			CvCity* pCity = GET_PLAYER(eLoopPlayer).getCityByGlobalID(iID);
 			if (pCity!=NULL)
+			{
+				//sanity check
+				if (pCity->getOwner()!=eLoopPlayer)
+					OutputDebugString("incorrect city owner!");
 				return pCity;
+			}
 		}
 	}
 	return NULL;

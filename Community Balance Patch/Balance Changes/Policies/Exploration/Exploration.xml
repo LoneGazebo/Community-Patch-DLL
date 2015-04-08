@@ -44,6 +44,16 @@
 			<PortraitIndex>52</PortraitIndex>
 		</Row>
 	</Units>
+	<Unit_ClassUpgrades>
+		<Row>
+			<UnitType>UNIT_GUERILLA</UnitType>
+			<UnitClassType>UNITCLASS_MECHANIZED_INFANTRY</UnitClassType>
+		</Row>
+		<Row>
+			<UnitType>UNIT_MARINE</UnitType>
+			<UnitClassType>UNITCLASS_MECHANIZED_INFANTRY</UnitClassType>
+		</Row>
+	</Unit_ClassUpgrades>
 	<Unit_AITypes>
 		<Row>
 			<UnitType>UNIT_GUERILLA</UnitType>

@@ -1580,6 +1580,11 @@ void CvTeam::DoDeclareWar(TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyP
 //	--------------------------------------------------------------------------------
 void CvTeam::DoNowAtWarOrPeace(TeamTypes eTeam, bool bWar)
 {
+
+#if defined(MOD_BALANCE_CORE)
+	ClearWarDeclarationCache();
+#endif
+
 	// Major is at war with a minor
 	if(isMinorCiv())
 	{

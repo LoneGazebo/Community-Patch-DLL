@@ -258,8 +258,6 @@ public:
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	virtual const char* GetInfoString();
-#endif
-#if defined(MOD_BALANCE_CORE_MILITARY)
 	virtual bool FindBestFitReserveUnitForced(CvArmyAI* pThisArmy, CvPlot* pMusterPlot, CvPlot* pTargetPlot, bool bIsNaval, bool bIsMixed);
 #endif
 

@@ -94,7 +94,7 @@
 			<Type>UNIT_JAPANESE_ZERO</Type>
 			<PrereqTech>TECH_RADAR</PrereqTech>
 			<PolicyType>POLICY_MILITARISM</PolicyType>
-			<RangedCombat>45</RangedCombat>
+			<RangedCombat>50</RangedCombat>
 			<Cost>500</Cost>
 			<Moves>2</Moves>
 			<Immobile>true</Immobile>

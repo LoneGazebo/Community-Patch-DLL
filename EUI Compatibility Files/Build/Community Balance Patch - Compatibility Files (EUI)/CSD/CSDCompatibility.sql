@@ -1,8 +1,7 @@
 ALTER TABLE Buildings ADD COLUMN 'DPToVotes' integer default 0;
 
 -- Units
-INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_ENVOY','BUILDINGCLASS_CHANCERY';
-INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_DIPLOMAT','BUILDINGCLASS_WIRE_SERVICE';
+INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_DIPLOMAT','BUILDINGCLASS_CHANCERY';
 INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_AMBASSADOR','BUILDINGCLASS_WIRE_SERVICE';
 
 -- Hurry Cost - reduced for all buildings (as you now need production as well to make them work)
@@ -43,7 +42,7 @@ SET Cost = '150'
 WHERE Type = 'BUILDING_COURT_SCRIBE';
 
 UPDATE Buildings
-SET Cost = '225'
+SET Cost = '200'
 WHERE Type = 'BUILDING_CHANCERY';
 
 UPDATE Buildings
@@ -51,7 +50,7 @@ SET GoldMaintenance = '2'
 WHERE Type = 'BUILDING_CHANCERY';
 
 UPDATE Buildings
-SET Cost = '550'
+SET Cost = '500'
 WHERE Type = 'BUILDING_WIRE_SERVICE';
 
 UPDATE Buildings
@@ -59,8 +58,20 @@ SET GoldMaintenance = '4'
 WHERE Type = 'BUILDING_WIRE_SERVICE';
 
 UPDATE Buildings
-SET PrereqTech = 'TECH_INDUSTRIALIZATION'
+SET PrereqTech = 'TECH_EDUCATION'
+WHERE Type = 'BUILDING_CHANCERY';
+
+UPDATE Buildings
+SET PrereqTech = 'TECH_STEAM_POWER'
 WHERE Type = 'BUILDING_WIRE_SERVICE';
+
+UPDATE Units
+SET PrereqTech = 'TECH_CIVIL_SERVICE'
+WHERE Type = 'UNIT_ENVOY';
+
+UPDATE Units
+SET PrereqTech = 'TECH_INDUSTRIALIZATION'
+WHERE Type = 'UNIT_DIPLOMAT';
 
 -- Building Requirement - Printing Press
 

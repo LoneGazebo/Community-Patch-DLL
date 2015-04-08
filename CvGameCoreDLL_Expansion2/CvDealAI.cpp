@@ -2974,7 +2974,7 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 							}
 							else
 							{
-								iItemValue = 3;
+								iItemValue *= 3;
 								iItemValue /= 2;
 							}
 						}
@@ -3043,7 +3043,7 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 							}
 							else
 							{
-								iItemValue = 3;
+								iItemValue *= 3;
 								iItemValue /= 2;
 							}
 						}
