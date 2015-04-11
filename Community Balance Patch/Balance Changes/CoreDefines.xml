@@ -143,12 +143,12 @@
 		</Update>
 		<Update>
 			<Where Name="CITY_STRENGTH_POPULATION_CHANGE" />
-			<Set Value="20" />
+			<Set Value="50" />
 			<!-- 40 -->
 		</Update>
 		<Update>
 			<Where Name="CITY_STRENGTH_UNIT_DIVISOR" />
-			<Set Value="250" />
+			<Set Value="200" />
 			<!-- 500 -->
 		</Update>
 		<Update>
@@ -163,7 +163,7 @@
 		</Update>
 		<Update>
 			<Where Name="CITY_STRENGTH_TECH_MULTIPLIER" />
-			<Set Value="1" />
+			<Set Value="0" />
 			<!-- 1 -->
 		</Update>
 		<Update>

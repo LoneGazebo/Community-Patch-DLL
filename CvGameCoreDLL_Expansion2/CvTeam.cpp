@@ -251,6 +251,7 @@ void CvTeam::uninit()
 
 #if defined(MOD_BALANCE_CORE)
 	m_members.clear();
+	m_bIsMinorCiv = false;
 #endif
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
@@ -2787,6 +2788,7 @@ PlayerTypes CvTeam::getLeaderID() const
 	}
 	//if no member is alive, return the first
 	if (m_members.empty())
+		//this is dangerous - the return value is not checked in many places
 		return NO_PLAYER;
 	else
 		return m_members.front();

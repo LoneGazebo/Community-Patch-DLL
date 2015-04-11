@@ -14247,7 +14247,7 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 		pTargetPlot = pMyPlot;
 		pMyPlot = pFromPlot;
 	}
-	else if (bForRangedAttack)
+	else if (bForRangedAttack && !isRangedSupportFire())
 	{
 		if (pFromPlot != NULL && pTargetPlot != NULL)
 		{

@@ -26397,11 +26397,11 @@ const CvCity* CvPlayer::getCity(int iID) const
 }
 
 #if defined(MOD_BALANCE_CORE_GLOBAL_CITY_IDS)
-CvCity* CvPlayer::getCityByGlobalID(int iID) const
+CvCity* CvPlayer::getCityByGlobalID(int iID)
 {
-	std::map<int,CvCity*>::const_iterator it = m_citiesByGlobalID.find(iID);
+	std::map<int,int>::const_iterator it = m_citiesByGlobalID.find(iID);
 	if (it!=m_citiesByGlobalID.end())
-		return it->second;
+		return getCity(it->second);
 
 	return NULL;
 }
@@ -26412,7 +26412,7 @@ CvCity* CvPlayer::addCity()
 {
 #if defined(MOD_BALANCE_CORE_GLOBAL_CITY_IDS)
 	CvCity* pCity = m_cities.Add();
-	m_citiesByGlobalID.insert( std::make_pair( pCity->GetGlobalID(), pCity ) );
+	m_citiesByGlobalID.insert( std::make_pair( pCity->GetGlobalID(), pCity->GetID() ) );
 	return pCity;
 #else
 	return(m_cities.Add());
@@ -26423,9 +26423,8 @@ CvCity* CvPlayer::addCity()
 void CvPlayer::deleteCity(int iID)
 {
 #if defined(MOD_BALANCE_CORE_GLOBAL_CITY_IDS)
-	CvCity* pCity = getCity(iID);
-	for (std::map<int,CvCity*>::iterator it = m_citiesByGlobalID.begin(); it!=m_citiesByGlobalID.end(); ++it)
-		if (it->second==pCity)
+	for (std::map<int,int>::iterator it = m_citiesByGlobalID.begin(); it!=m_citiesByGlobalID.end(); ++it)
+		if (it->second==iID)
 		{
 			m_citiesByGlobalID.erase(it);
 			break;
@@ -30251,7 +30250,11 @@ void CvPlayer::Read(FDataStream& kStream)
 	{
 		int iLoopCity = 0;
 		for(CvCity* pLoopCity = firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = nextCity(&iLoopCity))
-			m_citiesByGlobalID.insert( std::make_pair( pLoopCity->GetGlobalID(), pLoopCity ) );
+		{
+			if (pLoopCity->getOwner()!=GetID())
+				OutputDebugString("incorrect city owner");
+			m_citiesByGlobalID.insert( std::make_pair( pLoopCity->GetGlobalID(), pLoopCity->GetID() ) );
+		}
 	}
 #endif
 
