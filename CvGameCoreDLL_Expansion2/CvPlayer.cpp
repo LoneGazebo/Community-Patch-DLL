@@ -30358,6 +30358,7 @@ void CvPlayer::Read(FDataStream& kStream)
 
 #if defined(MOD_BALANCE_CORE)
 	UpdateAreaEffectUnits();
+	GET_TEAM(getTeam()).updateMinorCiv();
 #endif
 }
 

@@ -148,7 +148,7 @@
 		</Update>
 		<Update>
 			<Where Name="CITY_STRENGTH_UNIT_DIVISOR" />
-			<Set Value="200" />
+			<Set Value="10000" />
 			<!-- 500 -->
 		</Update>
 		<Update>

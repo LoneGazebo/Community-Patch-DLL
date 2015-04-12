@@ -9622,10 +9622,10 @@ void CvGame::getGlobalAverage() const
 		return;
 	}
 	
-	//Select median of each category
-	size_t n = vfCultureYield.size() / 2;
+	//Select n-th percentile of each category
+	size_t n = (vfCultureYield.size() * GC.getBALANCE_HAPPINESS_THRESHOLD_PERCENTILE()) / 100;
 
-	//Find Median...
+	//Find it ...
 	std::nth_element(vfCultureYield.begin(), vfCultureYield.begin()+n, vfCultureYield.end());
 	std::nth_element(vfScienceYield.begin(), vfScienceYield.begin()+n, vfScienceYield.end());
 	std::nth_element(vfDefenseYield.begin(), vfDefenseYield.begin()+n, vfDefenseYield.end());
