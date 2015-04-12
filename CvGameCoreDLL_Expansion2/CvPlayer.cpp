@@ -30176,7 +30176,9 @@ void CvPlayer::Read(FDataStream& kStream)
 	m_pDealAI->Read(kStream);
 	m_pBuilderTaskingAI->Read(kStream);
 	m_pCityConnections->Read(kStream);
-#if !defined(MOD_BALANCE_CORE)
+#if defined(MOD_BALANCE_CORE)
+	SetDangerPlotsDirty();
+#else
 	m_pDangerPlots->Read(kStream);
 #endif
 	m_pTraits->Read(kStream);

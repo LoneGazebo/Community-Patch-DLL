@@ -4637,7 +4637,12 @@ int CvUnit::getCombatDamage(int iStrength, int iOpponentStrength, int iCurrentDa
 
 	fStrengthRatio = (fStrengthRatio + 3) / 4;
 	fStrengthRatio = pow(fStrengthRatio, 4.0);
+#if defined(MOD_BALANCE_CORE)
+	//avoid overflows later ...
+	fStrengthRatio = MIN(1e3, (fStrengthRatio + 1) / 2);
+#else
 	fStrengthRatio = (fStrengthRatio + 1) / 2;
+#endif
 
 	if(iOpponentStrength > iStrength)
 	{
@@ -14885,6 +14890,7 @@ int CvUnit::GetRangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bI
 	}
 
 	int iAttackerStrength = GetMaxRangedCombatStrength(pDefender, pCity, true, /*bForRangedAttack*/ true, pTargetPlot, pFromPlot);
+
 #else
 int CvUnit::GetRangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bIncludeRand, int iAssumeExtraDamage) const
 {
@@ -14892,6 +14898,12 @@ int CvUnit::GetRangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bI
 
 	int iAttackerStrength = GetMaxRangedCombatStrength(pDefender, pCity, true, /*bForRangedAttack*/ true);
 #endif
+
+#if defined(MOD_BALANCE_CORE)
+	if (iAttackerStrength==0)
+		return 0;
+#endif
+
 	int iDefenderStrength;
 
 	CvPlayerAI& kPlayer = GET_PLAYER(getOwner());
@@ -14902,39 +14914,50 @@ int CvUnit::GetRangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bI
 	{
 		iDefenderStrength = pCity->getStrengthValue();
 	}
-#endif
 	// Unit is Defender
-#ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
 	else if (pDefender != NULL)
-#else
-	if(pCity == NULL)
-#endif
 	{
 		// If this is a defenseless unit, do a fixed amount of damage
-#ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
 		if (!pDefender->IsCanDefend(pTargetPlot))
 			return /*4*/ GC.getNONCOMBAT_UNIT_RANGED_DAMAGE();
 
 		if (pDefender->isEmbarked() || (pTargetPlot && pTargetPlot->isWater() && pDefender->getDomainType() == DOMAIN_LAND && !pTargetPlot->isValidDomainForAction(*pDefender)))
+		{
+			iDefenderStrength = pDefender->GetEmbarkedUnitDefense();
+		}
+		// Use Ranged combat value for defender, UNLESS it's a boat or an Impi (ranged support)
+		else if (!pDefender->isRangedSupportFire() && pDefender->getDomainType() != DOMAIN_SEA && (iDefenderStrength = pDefender->GetMaxRangedCombatStrength(this, /*pCity*/ NULL, false, false, pTargetPlot, pFromPlot)) > 0)
+		{
+			// Ranged units take less damage from one another
+			iDefenderStrength *= /*125*/ GC.getRANGE_ATTACK_RANGED_DEFENDER_MOD();
+			iDefenderStrength /= 100;
+		}
+		else
+		{
+			iDefenderStrength = pDefender->GetMaxDefenseStrength(pTargetPlot, this, /*bFromRangedAttack*/ true);
+		}
+	}
+	else
+	{
+		//defender unknown - assume equal strength unit ...
+		iDefenderStrength = GetBaseCombatStrength()*100;
+	}
 #else
+	// Unit is Defender
+	if(pCity == NULL)
+	{
+		// If this is a defenseless unit, do a fixed amount of damage
 		if(!pDefender->IsCanDefend())
 			return /*4*/ GC.getNONCOMBAT_UNIT_RANGED_DAMAGE();
 
 		if (pDefender->isEmbarked())
-#endif
 		{
 			iDefenderStrength = pDefender->GetEmbarkedUnitDefense();;
 		}
-
 		// Use Ranged combat value for defender, UNLESS it's a boat or an Impi (ranged support)
-#ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
-		else if (!pDefender->isRangedSupportFire() && pDefender->getDomainType() != DOMAIN_SEA && (iDefenderStrength = pDefender->GetMaxRangedCombatStrength(this, /*pCity*/ NULL, false, false, pTargetPlot, pFromPlot)) > 0)
-		{
-#else
 		else if(!pDefender->isRangedSupportFire() && pDefender->getDomainType() != DOMAIN_SEA && pDefender->GetMaxRangedCombatStrength(this, /*pCity*/ NULL, false, false) > 0)
 		{
 			iDefenderStrength = pDefender->GetMaxRangedCombatStrength(this, /*pCity*/ NULL, false, /*bForRangedAttack*/ false);
-#endif
 
 			// Ranged units take less damage from one another
 			iDefenderStrength *= /*125*/ GC.getRANGE_ATTACK_RANGED_DEFENDER_MOD();
@@ -14942,19 +14965,9 @@ int CvUnit::GetRangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bI
 		}
 		else
 		{
-#ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
-			iDefenderStrength = pDefender->GetMaxDefenseStrength(pTargetPlot, this, /*bFromRangedAttack*/ true);
-#else
 			iDefenderStrength = pDefender->GetMaxDefenseStrength(pDefender->plot(), this, /*bFromRangedAttack*/ true);
-#endif
 		}
 	}
-#ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
-	else
-	{
-		iDefenderStrength = 1;
-	}
-#else
 	// City is Defender
 	else
 	{
@@ -15004,7 +15017,12 @@ int CvUnit::GetRangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bI
 
 	fStrengthRatio = (fStrengthRatio + 3) / 4;
 	fStrengthRatio = pow(fStrengthRatio, 4.0);
+#if defined(MOD_BALANCE_CORE)
+	//avoid overflow later
+	fStrengthRatio = MIN(1e3,(fStrengthRatio + 1) / 2);
+#else
 	fStrengthRatio = (fStrengthRatio + 1) / 2;
+#endif
 
 	if(iDefenderStrength > iAttackerStrength)
 	{

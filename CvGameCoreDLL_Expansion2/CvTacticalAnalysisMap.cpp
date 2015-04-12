@@ -836,8 +836,12 @@ void CvTacticalAnalysisMap::CalculateMilitaryStrengths()
 					if(pLoopUnit->IsCombatUnit())
 					{
 						if(pLoopUnit->getDomainType() == DOMAIN_AIR ||
-						        (pLoopUnit->getDomainType() == DOMAIN_LAND && !pZone->IsWater()) ||
-						        (pLoopUnit->getDomainType() == DOMAIN_SEA && pZone->IsWater()))
+#if defined(MOD_BALANCE_CORE_MILITARY)
+							//ranged power is cross-domain!
+							pLoopUnit->isRanged() ||
+#endif
+							(pLoopUnit->getDomainType() == DOMAIN_LAND && !pZone->IsWater()) ||
+							(pLoopUnit->getDomainType() == DOMAIN_SEA && pZone->IsWater()))
 						{
 #ifdef AUI_TACTICAL_ANALYSIS_MAP_CALCULATE_MILITARY_STRENGTHS_USE_PATHFINDER
 							iDistance = MAX_INT;
@@ -871,7 +875,16 @@ void CvTacticalAnalysisMap::CalculateMilitaryStrengths()
 										iUnitStrength = pLoopUnit->GetBaseCombatStrength(true);
 #endif
 									}
+
+#if defined(MOD_BALANCE_CORE_MILITARY)
+									//melee strength counts only if we're in the same domain
+									if ( (pLoopUnit->getDomainType() == DOMAIN_LAND && !pZone->IsWater()) ||
+										 (pLoopUnit->getDomainType() == DOMAIN_SEA && pZone->IsWater()) )
+										pZone->AddFriendlyStrength(iUnitStrength * iMultiplier * m_iUnitStrengthMultiplier);
+#else
 									pZone->AddFriendlyStrength(iUnitStrength * iMultiplier * m_iUnitStrengthMultiplier);
+#endif
+
 									pZone->AddFriendlyRangedStrength(pLoopUnit->GetMaxRangedCombatStrength(NULL, /*pCity*/ NULL, true, true));
 									if(pLoopUnit->GetRange() > GetBestFriendlyRange())
 									{
@@ -909,7 +922,11 @@ void CvTacticalAnalysisMap::CalculateMilitaryStrengths()
 							if(pLoopUnit->IsCombatUnit())
 							{
 								if(pLoopUnit->getDomainType() == DOMAIN_AIR ||
-								        (pLoopUnit->getDomainType() == DOMAIN_LAND && !pZone->IsWater()) ||
+#if defined(MOD_BALANCE_CORE_MILITARY)
+										//ranged power is cross-domain!
+										pLoopUnit->isRanged() ||
+#endif
+										(pLoopUnit->getDomainType() == DOMAIN_LAND && !pZone->IsWater()) ||
 								        (pLoopUnit->getDomainType() == DOMAIN_SEA && pZone->IsWater()))
 								{
 									CvPlot* pPlot;
@@ -958,7 +975,14 @@ void CvTacticalAnalysisMap::CalculateMilitaryStrengths()
 													iUnitStrength /= 2;
 												}
 
+#if defined(MOD_BALANCE_CORE_MILITARY)
+												//melee strength counts only if we're in the same domain
+												if ( (pLoopUnit->getDomainType() == DOMAIN_LAND && !pZone->IsWater()) ||
+													 (pLoopUnit->getDomainType() == DOMAIN_SEA && pZone->IsWater()) )
+													pZone->AddEnemyStrength(iUnitStrength * iMultiplier * m_iUnitStrengthMultiplier);
+#else
 												pZone->AddEnemyStrength(iUnitStrength * iMultiplier * m_iUnitStrengthMultiplier);
+#endif
 
 												int iRangedStrength = pLoopUnit->GetMaxRangedCombatStrength(NULL, /*pCity*/ NULL, true, true);
 												if(!bVisible)
@@ -1309,7 +1333,11 @@ eTacticalDominanceFlags CvTacticalAnalysisMap::ComputeDominance(CvTacticalDomina
 		}
 		else
 		{
+#if defined(MOD_BALANCE_CORE_MILITARY)
+			int iRatio = ((pZone->GetFriendlyStrength()+pZone->GetFriendlyRangedStrength())*100) / (pZone->GetEnemyStrength()+pZone->GetEnemyRangedStrength());
+#else
 			int iRatio = (pZone->GetFriendlyStrength()  * 100) / pZone->GetEnemyStrength();
+#endif
 			if(iRatio > 100 + m_iDominancePercentage)
 			{
 				pZone->SetDominanceFlag(TACTICAL_DOMINANCE_FRIENDLY);

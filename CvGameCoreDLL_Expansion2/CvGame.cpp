@@ -60,6 +60,10 @@
 #include "CvInfosSerializationHelper.h"
 #include "CvCityManager.h"
 
+#if defined(MOD_BALANCE_CORE)
+#include "CvPlayerManager.h"
+#endif
+
 // Public Functions...
 // must be included after all other headers
 #include "LintFree.h"
@@ -929,6 +933,10 @@ void CvGame::DoGameStarted()
 	}
 
 	GET_PLAYER(getActivePlayer()).GetUnitCycler().Rebuild();
+
+#if defined(MOD_BALANCE_CORE)
+	CvPlayerManager::RefreshDangerPlots();
+#endif
 }
 
 
