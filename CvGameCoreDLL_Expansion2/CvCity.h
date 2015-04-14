@@ -1090,6 +1090,7 @@ public:
 
 #if defined(MOD_BALANCE_CORE_GLOBAL_CITY_IDS)
 	int GetGlobalID() const { return m_iGlobalID; };
+	void SetGlobalID(int iID) { m_iGlobalID=iID; };
 #endif
 
 	int iScratch; // know the scope of your validity

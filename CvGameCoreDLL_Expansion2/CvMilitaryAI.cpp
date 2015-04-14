@@ -1294,7 +1294,8 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTarget2(AIOperationTypes eAIOperati
 		{
 			SCachedTarget memory;
 			memory.iTargetCity = new_target.m_pTargetCity->GetGlobalID();
-			memory.iMusterCity = new_target.m_pMusterCity->GetGlobalID();
+			if (new_target.m_pMusterCity)
+				memory.iMusterCity = new_target.m_pMusterCity->GetGlobalID();
 			memory.bAttackBySea = new_target.m_bAttackBySea;
 			memory.iScore = iNewScore;
 			memory.iTurnChosen = GC.getGame().getGameTurn();

@@ -1317,7 +1317,7 @@ void CvGame::reset(HandicapTypes eHandicap, bool bConstructorCall)
 	CvCityManager::Reset();
 
 #if defined(MOD_BALANCE_CORE_GLOBAL_CITY_IDS)
-	m_iGlobalCityCounter = 0;
+	m_iGlobalCityCounter = 1; //0 is invalid
 #endif
 }
 

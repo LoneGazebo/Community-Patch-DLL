@@ -319,7 +319,7 @@ CvCity::CvCity() :
 	FSerialization::citiesToCheck.insert(this);
 
 #if defined(MOD_BALANCE_CORE_GLOBAL_CITY_IDS)
-	m_iGlobalID = GC.getGame().GetNextCityID();
+	m_iGlobalID = 0; //init with invalid value!
 #endif
 
 	reset(0, NO_PLAYER, 0, 0, true);

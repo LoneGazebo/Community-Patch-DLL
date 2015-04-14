@@ -53,7 +53,11 @@ void CvAIOperation::Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, int iD
 	m_iDefaultArea = iDefaultArea;
 	m_bShouldReplaceLossesWithReinforcements = false;
 
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	SetStartCityPlot(pMuster ? pMuster->plot() : NULL);
+#else
 	SetStartCityPlot(pMuster->plot());
+#endif
 
 	// create the armies that are needed and set the state to ARMYAISTATE_WAITING_FOR_UNITS_TO_REINFORCE
 	BuildListOfUnitsWeStillNeedToBuild();
@@ -2662,7 +2666,10 @@ void CvAIOperationBasicCityAttack::Init(int iID, PlayerTypes eOwner, PlayerTypes
 	m_iID = iID;
 	m_eOwner = eOwner;
 	m_eEnemy = eEnemy;
+
+#if !defined(MOD_BALANCE_CORE_MILITARY)
 	SetStartCityPlot(pMuster->plot());
+#endif
 
 	if(iID != -1)
 	{
@@ -2676,8 +2683,14 @@ void CvAIOperationBasicCityAttack::Init(int iID, PlayerTypes eOwner, PlayerTypes
 			pArmyAI->SetArmyAIState(ARMYAISTATE_WAITING_FOR_UNITS_TO_REINFORCE);
 			pArmyAI->SetFormationIndex(GetFormation());
 
+#if defined(MOD_BALANCE_CORE_MILITARY)
+			if(pTarget && pMuster)
+			{
+				SetStartCityPlot(pMuster->plot());
+#else
 			if(pTarget)
 			{
+#endif
 				SetTargetPlot(pTarget->plot());
 				pArmyAI->SetGoalPlot(GetTargetPlot());
 				SetMusterPlot(GetStartCityPlot());

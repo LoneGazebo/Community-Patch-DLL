@@ -2229,6 +2229,13 @@ CvCity* CvPlayer::initCity(int iX, int iY, bool bBumpUnits, bool bInitialFoundin
 		m_pCityDistance->Update();
 #endif
 
+#if defined(MOD_BALANCE_CORE_GLOBAL_CITY_IDS)
+		if (bInitialFounding)
+		{
+			pCity->SetGlobalID( GC.getGame().GetNextCityID() );
+			m_citiesByGlobalID.insert( std::make_pair( pCity->GetGlobalID(), pCity->GetID() ) );
+		}
+#endif
 	}
 
 	return pCity;
@@ -2942,6 +2949,10 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 		gDLL->GameplayCityCaptured(pkDllOldCity.get(), GetID());
 	}
 
+#if defined(MOD_BALANCE_CORE_GLOBAL_CITY_IDS)
+	int iOldCityGlobalID = pOldCity->GetGlobalID();
+#endif
+
 	GET_PLAYER(eOldOwner).deleteCity(pOldCity->GetID());
 	// adapted from PostKill()
 
@@ -2986,6 +2997,12 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 	pNewCity = initCity(pCityPlot->getX(), pCityPlot->getY(), !bConquest, (!bConquest && !bGift), NO_RELIGION, strName.c_str());
 #else
 	pNewCity = initCity(pCityPlot->getX(), pCityPlot->getY(), !bConquest, (!bConquest && !bGift));
+#endif
+
+#if defined(MOD_BALANCE_CORE_GLOBAL_CITY_IDS)
+	//fix the missing global ID of the new city - initCity sets it only for initial founding
+	pNewCity->SetGlobalID( iOldCityGlobalID );
+	m_citiesByGlobalID.insert( std::make_pair( iOldCityGlobalID, pNewCity->GetID() ) );
 #endif
 
 	CvAssertMsg(pNewCity != NULL, "NewCity is not assigned a valid value");
@@ -26410,13 +26427,7 @@ CvCity* CvPlayer::getCityByGlobalID(int iID)
 //	--------------------------------------------------------------------------------
 CvCity* CvPlayer::addCity()
 {
-#if defined(MOD_BALANCE_CORE_GLOBAL_CITY_IDS)
-	CvCity* pCity = m_cities.Add();
-	m_citiesByGlobalID.insert( std::make_pair( pCity->GetGlobalID(), pCity->GetID() ) );
-	return pCity;
-#else
 	return(m_cities.Add());
-#endif
 }
 
 //	--------------------------------------------------------------------------------
