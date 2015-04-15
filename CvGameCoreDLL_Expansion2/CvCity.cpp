@@ -319,7 +319,7 @@ CvCity::CvCity() :
 	FSerialization::citiesToCheck.insert(this);
 
 #if defined(MOD_BALANCE_CORE_GLOBAL_CITY_IDS)
-	m_iGlobalID = GC.getGame().GetNextCityID();
+	m_iGlobalID = 0; //init with invalid value!
 #endif
 
 	reset(0, NO_PLAYER, 0, 0, true);
@@ -2143,6 +2143,34 @@ void CvCity::doTurn()
 	if(GetPurchaseCooldown() > 0)
 	{
 		ChangePurchaseCooldown(-1);
+	}
+#endif
+#if defined(MOD_BALANCE_CORE)
+	if(MOD_BALANCE_CORE)
+	{
+		int iNumAllies = 0;
+		// Loop through all minors and get the total number we've met.
+		for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+		{
+			PlayerTypes eMinor = (PlayerTypes) iPlayerLoop;
+
+			if (eMinor != GET_PLAYER(getOwner()).GetID() && GET_PLAYER(eMinor).isAlive() && GET_PLAYER(eMinor).isMinorCiv())
+			{
+				if (GET_PLAYER(eMinor).GetMinorCivAI()->IsAllies(GET_PLAYER(getOwner()).GetID()))
+				{
+					iNumAllies++;
+				}
+			}
+		}
+		//If we get a yield bonus in all cities because of CS alliance, this is a good place to refresh it.
+		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+		{
+			YieldTypes eYield = (YieldTypes) iI;
+			if(GET_PLAYER(getOwner()).GetPlayerTraits()->GetYieldFromCSAlly(eYield) > 0)
+			{
+				SetBaseYieldRateFromCSAlliance(eYield, (GET_PLAYER(getOwner()).GetPlayerTraits()->GetYieldFromCSAlly(eYield) * iNumAllies));
+			}
+		}
 	}
 #endif
 	bool bRazed = DoRazingTurn();
@@ -8100,7 +8128,32 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 #endif
 #if defined(MOD_BALANCE_CORE)
 			// Building modifiers
-			ChangeBaseYieldRateFromBuildings(eYield, pBuildingInfo->GetBuildingClassLocalYieldChange(eBuildingClass, eYield) * iChange);
+			BuildingClassTypes eBuildingClassLocal;
+			for(int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
+			{
+				eBuildingClassLocal = (BuildingClassTypes) iI;
+
+				CvBuildingClassInfo* pkBuildingClassLocalInfo = GC.getBuildingClassInfo(eBuildingClassLocal);
+				if(!pkBuildingClassLocalInfo)
+				{
+					continue;
+				}
+
+				BuildingTypes eLocalBuilding = (BuildingTypes) getCivilizationInfo().getCivilizationBuildings(eBuildingClassLocal);
+
+				if(eLocalBuilding != NO_BUILDING)
+				{
+					CvBuildingEntry* pkLocalBuilding = GC.getBuildingInfo(eLocalBuilding);
+					if(pkLocalBuilding)
+					{
+						int iYieldChange = pBuildingInfo->GetBuildingClassLocalYieldChange(eBuildingClassLocal, eYield);
+						if(iYieldChange != 0)
+						{
+							m_pCityBuildings->ChangeBuildingYieldChange(eBuildingClassLocal, eYield, (iYieldChange * iChange));
+						}
+					}
+				}
+			}
 #endif
 #if defined(MOD_BALANCE_CORE_POLICIES)
 			//Policy-Religion Fusion Yield Changes
@@ -9933,8 +9986,11 @@ void CvCity::DoJONSCultureLevelIncrease()
 #if defined(MOD_UI_CITY_EXPANSION)
 	}
 #endif
-
+#if defined(MOD_BALANCE_CORE)
+	CvPlot* pPlotToAcquire = GetNextBuyablePlot(false);
+#else
 	CvPlot* pPlotToAcquire = GetNextBuyablePlot();
+#endif
 
 	// maybe the player owns ALL of the plots or there are none avaialable?
 	if(pPlotToAcquire)
@@ -14307,7 +14363,6 @@ void CvCity::changeYieldRateModifier(YieldTypes eIndex, int iChange)
 	VALIDATE_OBJECT
 	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
 	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
-
 	if(iChange != 0)
 	{
 		m_aiYieldRateModifier.setAt(eIndex, m_aiYieldRateModifier[eIndex] + iChange);
@@ -15464,12 +15519,20 @@ bool CvCity::CanBuyAnyPlot(void)
 
 //	--------------------------------------------------------------------------------
 /// Which plot will we buy next
+#if defined(MOD_BALANCE_CORE)
+CvPlot* CvCity::GetNextBuyablePlot(bool bForPurchase)
+#else
 CvPlot* CvCity::GetNextBuyablePlot(void)
+#endif
 {
 	VALIDATE_OBJECT
 	std::vector<int> aiPlotList;
 	aiPlotList.resize(20, -1);
+#if defined(MOD_BALANCE_CORE)
+	GetBuyablePlotList(aiPlotList, bForPurchase);
+#else
 	GetBuyablePlotList(aiPlotList);
+#endif
 
 	int iListLength = 0;
 	for(uint ui = 0; ui < aiPlotList.size(); ui++)
@@ -15495,7 +15558,11 @@ CvPlot* CvCity::GetNextBuyablePlot(void)
 }
 
 //	--------------------------------------------------------------------------------
+#if defined(MOD_BALANCE_CORE)
+void CvCity::GetBuyablePlotList(std::vector<int>& aiPlotList, bool bForPurchase)
+#else
 void CvCity::GetBuyablePlotList(std::vector<int>& aiPlotList)
+#endif
 {
 	VALIDATE_OBJECT
 	aiPlotList.resize(20, -1);
@@ -15538,7 +15605,7 @@ void CvCity::GetBuyablePlotList(std::vector<int>& aiPlotList)
 				if (pLoopPlot->getOwner() != NO_PLAYER)
 				{
 #if defined(MOD_BALANCE_CORE)
-					if(MOD_BALANCE_CORE && GET_PLAYER(getOwner()).GetPlayerTraits()->IsBuyOwnedTiles())
+					if(MOD_BALANCE_CORE && GET_PLAYER(getOwner()).GetPlayerTraits()->IsBuyOwnedTiles() && bForPurchase)
 					{
 						if(pLoopPlot->getOwner() == getOwner() || pLoopPlot->isCity())
 						{
@@ -15661,16 +15728,6 @@ void CvCity::GetBuyablePlotList(std::vector<int>& aiPlotList)
 						iInfluenceCost += iPLOT_INFLUENCE_NW_COST;
 					}
 
-#if defined(MOD_BALANCE_CORE)
-					//If we can buy/acquire already-owned plots, that's good, but let's rate them lower to limit diplomatic impact.
-					if(MOD_BALANCE_CORE && GET_PLAYER(getOwner()).GetPlayerTraits()->IsBuyOwnedTiles())
-					{
-						if(pLoopPlot->getOwner() != getOwner())
-						{
-							iInfluenceCost *= 2;
-						}
-					}
-#endif
 					// More Yield == more desirable
 					for (iYieldLoop = 0; iYieldLoop < NUM_YIELD_TYPES; iYieldLoop++)
 					{
@@ -16057,8 +16114,13 @@ void CvCity::BuyPlot(int iPlotX, int iPlotY)
 		CvLuaArgsHandle args;
 		args->Push(getOwner());
 		args->Push(GetID());
+#if defined(MOD_BUGFIX_MINOR)
+		args->Push(iPlotX);
+		args->Push(iPlotY);
+#else
 		args->Push(plot()->getX());
 		args->Push(plot()->getY());
+#endif
 		args->Push(true); // bGold
 		args->Push(false); // bFaith/bCulture
 

@@ -2280,10 +2280,10 @@
 			<PediaType>PEDIA_ATTRIBUTES</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_AMBITION</PediaEntry>
 			<CannotBeChosen>true</CannotBeChosen>
-			<OpenAttack>50</OpenAttack>
-			<RoughAttack>50</RoughAttack>
-			<OpenDefense>-20</OpenDefense>
-			<RoughDefense>-20</RoughDefense>
+			<OpenAttack>30</OpenAttack>
+			<RoughAttack>30</RoughAttack>
+			<OpenDefense>5</OpenDefense>
+			<RoughDefense>5</RoughDefense>
 		</Row>
 		<Row>
 			<Type>PROMOTION_RESTLESSNESS</Type>
@@ -2322,8 +2322,8 @@
 			<PediaType>PEDIA_ATTRIBUTES</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_ENEMY_BLADE</PediaEntry>
 			<CannotBeChosen>true</CannotBeChosen>
-			<EnemyDamageChance>100</EnemyDamageChance>
-			<EnemyDamage>20</EnemyDamage>
+			<EnemyDamageChance>50</EnemyDamageChance>
+			<EnemyDamage>-10</EnemyDamage>
 		</Row>
 		<Row>
 			<Type>PROMOTION_EVIL_SPIRITS</Type>
@@ -2335,10 +2335,10 @@
 			<PediaType>PEDIA_ATTRIBUTES</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_EVIL_SPIRITS</PediaEntry>
 			<CannotBeChosen>true</CannotBeChosen>
-			<OpenAttack>-10</OpenAttack>
-			<RoughAttack>-10</RoughAttack>
-			<OpenDefense>-30</OpenDefense>
-			<RoughDefense>-30</RoughDefense>
+			<OpenAttack>5</OpenAttack>
+			<RoughAttack>5</RoughAttack>
+			<OpenDefense>30</OpenDefense>
+			<RoughDefense>30</RoughDefense>
 		</Row>
 		<Row>
 			<Type>PROMOTION_EXTENDED_PARADROP</Type>

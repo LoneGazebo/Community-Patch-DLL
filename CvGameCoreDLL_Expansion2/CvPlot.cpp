@@ -8185,16 +8185,19 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, TeamTypes eTeam, bool bIgnor
 				{
 					int iMod = pReligion->m_Beliefs.GetTerrainYieldChange(getTerrainType(), eYield);
 					iReligionChange += iMod;
+					bIgnoreFeature = true;
 				}
 				else if(bRequiresImprovement && !bRequiresResource && (getImprovementType() != NO_IMPROVEMENT))
 				{
 					int iMod = pReligion->m_Beliefs.GetTerrainYieldChange(getTerrainType(), eYield);
 					iReligionChange += iMod;
+					bIgnoreFeature = true;
 				}
 				else if(bRequiresResource && !bRequiresImprovement && (getResourceType() != NO_RESOURCE))
 				{
 					int iMod = pReligion->m_Beliefs.GetTerrainYieldChange(getTerrainType(), eYield);
 					iReligionChange += iMod;
+					bIgnoreFeature = true;
 				}
 			}
 			else

@@ -945,8 +945,16 @@ public:
 
 	bool CanBuyPlot(int iPlotX = -1, int iPlotY = -1, bool bIgnoreCost = false);
 	bool CanBuyAnyPlot(void);
+#if defined(MOD_BALANCE_CORE)
+	CvPlot* GetNextBuyablePlot(bool bForPurchase);
+#else
 	CvPlot* GetNextBuyablePlot();
+#endif
+#if defined(MOD_BALANCE_CORE)
+	void GetBuyablePlotList(std::vector<int>& aiPlotList, bool bForPurchase);
+#else
 	void GetBuyablePlotList(std::vector<int>& aiPlotList);
+#endif
 	int GetBuyPlotCost(int iPlotX, int iPlotY) const;
 	void BuyPlot(int iPlotX, int iPlotY);
 	void DoAcquirePlot(int iPlotX, int iPlotY);
@@ -1090,6 +1098,7 @@ public:
 
 #if defined(MOD_BALANCE_CORE_GLOBAL_CITY_IDS)
 	int GetGlobalID() const { return m_iGlobalID; };
+	void SetGlobalID(int iID) { m_iGlobalID=iID; };
 #endif
 
 	int iScratch; // know the scope of your validity

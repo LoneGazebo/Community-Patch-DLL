@@ -70,8 +70,16 @@ SET PrereqTech = 'TECH_CIVIL_SERVICE'
 WHERE Type = 'UNIT_ENVOY';
 
 UPDATE Units
+SET ObsoleteTech = 'TECH_CIVIL_SERVICE'
+WHERE Type = 'UNIT_EMISSARY';
+
+UPDATE Units
 SET PrereqTech = 'TECH_INDUSTRIALIZATION'
 WHERE Type = 'UNIT_DIPLOMAT';
+
+UPDATE Units
+SET ObsoleteTech = 'TECH_INDUSTRIALIZATION'
+WHERE Type = 'UNIT_ENVOY';
 
 -- Building Requirement - Printing Press
 

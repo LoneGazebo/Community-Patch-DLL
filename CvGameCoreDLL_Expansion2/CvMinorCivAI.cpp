@@ -727,8 +727,18 @@ bool CvMinorCivQuest::IsComplete()
 	else if(m_eType == MINOR_CIV_QUEST_REBELLION)
 	{
 		if((GetEndTurn() == GC.getGame().getGameTurn()) && (pMinor->GetMinorCivAI()->GetNumThreateningBarbarians() <= 0))
+		{
 			return true;
+		}
+		PlayerTypes eAlly = GET_PLAYER(m_eMinor).GetMinorCivAI()->GetAlly();
+		PlayerTypes eOriginalAlly = (PlayerTypes) GetPrimaryData();
+		if(eAlly != eOriginalAlly)
+		{
+			return true;
+		}
 	}
+	//No longer allies?
+	
 #endif
 
 	return false;
@@ -1087,14 +1097,7 @@ bool CvMinorCivQuest::IsExpired()
 	//Are there still rebels milling about? You lose!
 	else if(m_eType == MINOR_CIV_QUEST_REBELLION)
 	{
-		PlayerTypes eAlly = GET_PLAYER(m_eMinor).GetMinorCivAI()->GetAlly();
-		PlayerTypes eOriginalAlly = (PlayerTypes) GetPrimaryData();
 		if((GC.getGame().getGameTurn() == GetEndTurn()) && (GET_PLAYER(m_eMinor).GetMinorCivAI()->GetNumThreateningBarbarians() > 0))
-		{
-			return true;
-		}
-		//No longer allies?
-		else if(eAlly != eOriginalAlly)
 		{
 			return true;
 		}
@@ -1485,7 +1488,10 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn)
 		}
 
 		//Let's issue an attack request.
-		pAssignedPlayer->GetMilitaryAI()->RequestBasicAttack(eMostRecentBully, 1);
+		if(GET_TEAM(pAssignedPlayer->getTeam()).canDeclareWar(GET_PLAYER(eMostRecentBully).getTeam(), pAssignedPlayer->GetID()))
+		{
+			pAssignedPlayer->GetMilitaryAI()->RequestSneakAttack(eMostRecentBully);
+		}
 	}
 	// Find a City State
 	else if(m_eType == MINOR_CIV_QUEST_FIND_CITY_STATE)
@@ -1586,7 +1592,27 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn)
 		strSummary << strTargetNameKey;
 
 		//Let's issue an attack request.
-		pAssignedPlayer->GetMilitaryAI()->RequestBasicAttack(eTargetCityState, 1);
+		TeamTypes eConquerorTeam = GET_TEAM(GET_PLAYER(eTargetCityState).getTeam()).GetKilledByTeam();
+
+		if(eConquerorTeam != NO_TEAM)
+		{
+			PlayerTypes eTeamPlayer;
+
+			int iPlayerLoop;
+			// Loop through all players to see if they're on our team
+			for(iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+			{
+				eTeamPlayer = (PlayerTypes) iPlayerLoop;
+				// On this team
+				if(GET_PLAYER(eTeamPlayer).getTeam() == eConquerorTeam)
+				{
+					if(GET_TEAM(pAssignedPlayer->getTeam()).canDeclareWar(eConquerorTeam), pAssignedPlayer->GetID())
+					{
+						pAssignedPlayer->GetMilitaryAI()->RequestSneakAttack(eTeamPlayer);
+					}
+				}
+			}
+		}
 	}
 	// Horde
 	else if(m_eType == MINOR_CIV_QUEST_HORDE)
@@ -7367,6 +7393,9 @@ PlayerTypes CvMinorCivAI::GetBestCityStateLiberate(PlayerTypes eForPlayer)
 
 		if(GET_PLAYER(eForPlayer).getTeam() == eConquerorTeam)
 			continue;
+	
+		if(GetPlayer()->getTeam() == eConquerorTeam)
+			continue;
 
 		if(GetPlayer()->GetProximityToPlayer(eTarget) == eClosestProximity)
 		{
@@ -11058,7 +11087,7 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 	if(fLocalPowerRatio >= 3.0)
 	{
 #if defined(MOD_BALANCE_CORE_MINORS)
-		iLocalPowerScore += 95;
+		iLocalPowerScore += 110;
 #else
 		iLocalPowerScore += 125;
 #endif
@@ -11066,7 +11095,7 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 	else if(fLocalPowerRatio >= 2.0)
 	{
 #if defined(MOD_BALANCE_CORE_MINORS)
-		iLocalPowerScore += 80;
+		iLocalPowerScore += 90;
 #else
 		iLocalPowerScore += 100;
 #endif
@@ -11074,7 +11103,7 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 	else if(fLocalPowerRatio >= 1.5)
 	{
 #if defined(MOD_BALANCE_CORE_MINORS)
-		iLocalPowerScore += 65;
+		iLocalPowerScore += 70;
 #else
 		iLocalPowerScore += 75;
 #endif
@@ -11082,7 +11111,7 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 	else if(fLocalPowerRatio >= 1.0)
 	{
 #if defined(MOD_BALANCE_CORE_MINORS)
-		iLocalPowerScore += 45;
+		iLocalPowerScore += 40;
 #else
 		iLocalPowerScore += 50;
 #endif
@@ -11090,7 +11119,7 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 	else if(fLocalPowerRatio >= 0.5)
 	{
 #if defined(MOD_BALANCE_CORE_MINORS)
-		iLocalPowerScore += 30;
+		iLocalPowerScore += 20;
 #else
 		iLocalPowerScore += 25;
 #endif

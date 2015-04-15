@@ -1340,12 +1340,10 @@ if civ5_mode then
 			tips:insertLocalizedBulletIfNonZero("TXT_KEY_TP_HAPPINESS_RESOURCE_POP_BONUS", happinessfromLuxuryBonus )
 			-- COMMUNITY PATCH CHANGE
 			-- Happiness/Population calculation.
-			if(happinessfromLuxuryBonus > 0) then
-				local iPopulation = g_activePlayer:GetCurrentTotalPop()
-				local iPopNeeded = g_activePlayer:GetPopNeededForLux()
-				local iThreshold = g_activePlayer:GetBaseLuxuryHappiness();
-				tips:insert( "[ENDCOLOR]" .. "          " .. L("TXT_KEY_TP_HAPPINESS_THRESHOLD_VALUE", iPopNeeded, iPopulation, iThreshold, (iThreshold + 1)))
-			end
+			local iPopulation = g_activePlayer:GetCurrentTotalPop()
+			local iPopNeeded = g_activePlayer:GetPopNeededForLux()
+			local iThreshold = g_activePlayer:GetBaseLuxuryHappiness();
+			tips:insert( "[ENDCOLOR]" .. "          " .. L("TXT_KEY_TP_HAPPINESS_THRESHOLD_VALUE", iPopNeeded, iPopulation, iThreshold, (iThreshold + 1)))
 -- END
 			-- Happiness from Luxury Variety
 			tips:insertLocalizedBulletIfNonZero( "          ", "TXT_KEY_TP_HAPPINESS_RESOURCE_VARIETY", happinessFromExtraResources )

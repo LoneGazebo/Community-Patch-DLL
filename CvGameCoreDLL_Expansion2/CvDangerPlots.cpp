@@ -1177,8 +1177,11 @@ int CvDangerPlotContents::GetDanger(PlayerTypes ePlayer)
 			{
 				pAttackerPlot = pUnit->plot();
 			}
-			iPlotDamage += pUnit->getCombatDamage(pUnit->GetMaxAttackStrength(pAttackerPlot, m_pPlot, NULL),
-				1, pUnit->getDamage(), false, false, false);
+			//we don't know the defender strength, so assume it's equal to attacker strength!
+			iPlotDamage += pUnit->getCombatDamage(
+				pUnit->GetMaxAttackStrength(pAttackerPlot, m_pPlot, NULL),
+				pUnit->GetBaseCombatStrength()*100, 
+				pUnit->getDamage(), false, false, false);
 #ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
 			if (pUnit->isRangedSupportFire())
 			{

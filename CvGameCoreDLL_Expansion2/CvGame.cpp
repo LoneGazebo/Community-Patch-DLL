@@ -60,6 +60,10 @@
 #include "CvInfosSerializationHelper.h"
 #include "CvCityManager.h"
 
+#if defined(MOD_BALANCE_CORE)
+#include "CvPlayerManager.h"
+#endif
+
 // Public Functions...
 // must be included after all other headers
 #include "LintFree.h"
@@ -929,6 +933,10 @@ void CvGame::DoGameStarted()
 	}
 
 	GET_PLAYER(getActivePlayer()).GetUnitCycler().Rebuild();
+
+#if defined(MOD_BALANCE_CORE)
+	CvPlayerManager::RefreshDangerPlots();
+#endif
 }
 
 
@@ -1309,7 +1317,7 @@ void CvGame::reset(HandicapTypes eHandicap, bool bConstructorCall)
 	CvCityManager::Reset();
 
 #if defined(MOD_BALANCE_CORE_GLOBAL_CITY_IDS)
-	m_iGlobalCityCounter = 0;
+	m_iGlobalCityCounter = 1; //0 is invalid
 #endif
 }
 
@@ -9599,7 +9607,7 @@ void CvGame::getGlobalAverage() const
 					vfCultureYield.push_back((float)iCultureAvg);
 
 					//Illiteracy
-					iScienceYield = pLoopCity->getYieldRateTimes100(YIELD_SCIENCE, false);
+					iScienceYield = pLoopCity->getYieldRateTimes100(YIELD_SCIENCE, true);
 					float iScienceAvg = iScienceYield / (float)iPopulation;
 					vfScienceYield.push_back((float)iScienceAvg);
 					
@@ -9609,7 +9617,7 @@ void CvGame::getGlobalAverage() const
 					vfDefenseYield.push_back((float)iDefenseAvg);
 
 					//Poverty
-					iGoldYield = pLoopCity->getYieldRateTimes100(YIELD_GOLD, false);
+					iGoldYield = pLoopCity->getYieldRateTimes100(YIELD_GOLD, true);
 					float iGoldAvg = iGoldYield / (float)iPopulation;
 					vfGoldYield.push_back((float)iGoldAvg);
 				}		
@@ -9622,10 +9630,10 @@ void CvGame::getGlobalAverage() const
 		return;
 	}
 	
-	//Select median of each category
-	size_t n = vfCultureYield.size() / 2;
+	//Select n-th percentile of each category
+	size_t n = (vfCultureYield.size() * GC.getBALANCE_HAPPINESS_THRESHOLD_PERCENTILE()) / 100;
 
-	//Find Median...
+	//Find it ...
 	std::nth_element(vfCultureYield.begin(), vfCultureYield.begin()+n, vfCultureYield.end());
 	std::nth_element(vfScienceYield.begin(), vfScienceYield.begin()+n, vfScienceYield.end());
 	std::nth_element(vfDefenseYield.begin(), vfDefenseYield.begin()+n, vfDefenseYield.end());

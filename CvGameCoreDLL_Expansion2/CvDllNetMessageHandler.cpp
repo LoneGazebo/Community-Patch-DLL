@@ -138,7 +138,11 @@ void CvDllNetMessageHandler::ResponseCityBuyPlot(PlayerTypes ePlayer, int iCityI
 		// (-1,-1) means pick a random plot to buy
 		if(iX == -1 && iY == -1)
 		{
+#if defined(MOD_BALANCE_CORE)
+			pkPlot = pkCity->GetNextBuyablePlot(false);
+#else
 			pkPlot = pkCity->GetNextBuyablePlot();
+#endif
 		}
 		else
 		{

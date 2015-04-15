@@ -23,7 +23,7 @@ typedef std::set<std::pair<PlayerTypes,int>> UnitSet;
 
 struct SUnitStats
 {
-	SUnitStats(CvUnit* pUnit=NULL)
+	SUnitStats(const CvUnit* pUnit=NULL)
 	{
 		m_pUnit = pUnit;
 		m_x = pUnit ? pUnit->plot()->getX() : 0;
@@ -39,7 +39,7 @@ struct SUnitStats
 		return (m_pUnit==rhs.m_pUnit && m_x==rhs.m_x && m_y==rhs.m_y && m_damage==rhs.m_damage);
 	}
 
-	CvUnit* m_pUnit;
+	const CvUnit* m_pUnit;
 	int m_x;
 	int m_y;
 	int m_damage;

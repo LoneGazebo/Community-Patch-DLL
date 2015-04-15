@@ -14,7 +14,7 @@
 			<Description>TXT_KEY_GOODY_GOLDEN_AGE</Description>
 			<ChooseDescription>TXT_KEY_GOODY_CHOOSE_GOLDEN_AGE</ChooseDescription>
 			<Sound>AS2D_GOODY_WARRIOR</Sound>
-			<GoldenAge>200</GoldenAge>
+			<GoldenAge>100</GoldenAge>
 		</Row>
 	</GoodyHuts>
 	<HandicapInfo_Goodies>

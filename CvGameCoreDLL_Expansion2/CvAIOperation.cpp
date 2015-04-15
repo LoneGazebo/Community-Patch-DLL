@@ -53,7 +53,11 @@ void CvAIOperation::Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, int iD
 	m_iDefaultArea = iDefaultArea;
 	m_bShouldReplaceLossesWithReinforcements = false;
 
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	SetStartCityPlot(pMuster ? pMuster->plot() : NULL);
+#else
 	SetStartCityPlot(pMuster->plot());
+#endif
 
 	// create the armies that are needed and set the state to ARMYAISTATE_WAITING_FOR_UNITS_TO_REINFORCE
 	BuildListOfUnitsWeStillNeedToBuild();
@@ -2662,7 +2666,10 @@ void CvAIOperationBasicCityAttack::Init(int iID, PlayerTypes eOwner, PlayerTypes
 	m_iID = iID;
 	m_eOwner = eOwner;
 	m_eEnemy = eEnemy;
+
+#if !defined(MOD_BALANCE_CORE_MILITARY)
 	SetStartCityPlot(pMuster->plot());
+#endif
 
 	if(iID != -1)
 	{
@@ -2676,8 +2683,14 @@ void CvAIOperationBasicCityAttack::Init(int iID, PlayerTypes eOwner, PlayerTypes
 			pArmyAI->SetArmyAIState(ARMYAISTATE_WAITING_FOR_UNITS_TO_REINFORCE);
 			pArmyAI->SetFormationIndex(GetFormation());
 
+#if defined(MOD_BALANCE_CORE_MILITARY)
+			if(pTarget && pMuster)
+			{
+				SetStartCityPlot(pMuster->plot());
+#else
 			if(pTarget)
 			{
+#endif
 				SetTargetPlot(pTarget->plot());
 				pArmyAI->SetGoalPlot(GetTargetPlot());
 				SetMusterPlot(GetStartCityPlot());
@@ -2829,51 +2842,6 @@ bool CvAIOperationBasicCityAttack::ArmyInPosition(CvArmyAI* pArmy)
 
 			m_eCurrentState = AI_OPERATION_STATE_SUCCESSFUL_FINISH;
 		}
-#if defined(MOD_BALANCE_CORE_MILITARY)
-		//Did we bump into them on the way in? Whoops! We've been caught, so attack!
-		else if(pArmy && !GET_TEAM(GET_PLAYER(m_eEnemy).getTeam()).isAtWar(GET_PLAYER(m_eOwner).getTeam()))
-		{
-			for(int iDirectionLoop = 0; iDirectionLoop < NUM_DIRECTION_TYPES; ++iDirectionLoop)
-			{
-				UnitHandle pUnit;
-				pUnit = pArmy->GetFirstUnit();
-				while(pUnit)
-				{
-					CvPlot* pAdjacentPlot = plotDirection(pUnit->getX(), pUnit->getY(), ((DirectionTypes)iDirectionLoop));
-					CvUnit* pOtherUnit = NULL;
-					if(pAdjacentPlot->getNumUnits() > 0)
-					{
-						 pOtherUnit = pAdjacentPlot->getUnitByIndex(0);
-					}
-					if(pAdjacentPlot != NULL && ((pAdjacentPlot->getOwner() == GetEnemy()) || (pOtherUnit != NULL && (pOtherUnit->getOwner() == GetEnemy()))))
-					{
-								// Notify Diplo AI we're in place for attack
-						GET_PLAYER(GetOwner()).GetDiplomacyAI()->SetMusteringForAttack(GetEnemy(), true);
-						pArmy->SetGoalPlot(pAdjacentPlot);
-						SetTargetPlot(pAdjacentPlot);
-
-						// Notify tactical AI to focus on this area
-						CvTemporaryZone zone;
-						zone.SetX(pUnit->getX());
-						zone.SetY(pUnit->getY());
-						zone.SetTargetType(AI_TACTICAL_TARGET_CITY);
-						zone.SetLastTurn(GC.getGame().getGameTurn() + GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS());
-						GET_PLAYER(m_eOwner).GetTacticalAI()->AddTemporaryZone(zone);
-
-						m_eCurrentState = AI_OPERATION_STATE_SUCCESSFUL_FINISH;
-						if(GC.getLogging() && GC.getAILogging())
-						{
-							CvString szMsg;
-							szMsg.Format("Our sneak attack was discovered! We are now attacking the nearest enemy stuff we can. New target is, X: %d, Y: %d", pArmy->GetGoalPlot()->getX(), pArmy->GetGoalPlot()->getY());
-							LogOperationSpecialMessage(szMsg);
-						}
-						break;
-					}
-					pUnit = pArmy->GetNextUnit();
-				}
-			}
-		}
-#endif
 	}
 	break;
 
@@ -5822,7 +5790,7 @@ bool CvAIOperationNavalSuperiority::ShouldAbort()
 
 	if(!rtnValue)
 	{
-		if(FindBestTarget() == NULL)
+		if((FindBestTarget() == NULL) && (GetTargetPlot() == NULL))
 		{
 			return true;
 		}

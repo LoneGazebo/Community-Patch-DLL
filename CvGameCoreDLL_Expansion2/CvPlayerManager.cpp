@@ -25,12 +25,14 @@ void CvPlayerManager::RefreshDangerPlots()
 		if(!kPlayer.isAlive())
 			continue;
 
+#if defined(MOD_BALANCE_CORE)
+		//this is called after a declaration of war and after loading a savegame
+		kPlayer.UpdateDangerPlots();
+		kPlayer.UpdateAreaEffectUnits();
+		kPlayer.UpdateFractionOriginalCapitalsUnderControl();
+#else
 		if(kPlayer.m_pDangerPlots && kPlayer.m_pDangerPlots->IsDirty())
 			kPlayer.UpdateDangerPlots();
-
-#if defined(MOD_BALANCE_CORE)
-		//this is called after a declaration of war
-		kPlayer.UpdateAreaEffectUnits();
 #endif
 	}
 }

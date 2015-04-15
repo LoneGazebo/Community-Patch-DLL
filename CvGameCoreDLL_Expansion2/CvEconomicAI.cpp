@@ -2337,14 +2337,11 @@ void CvEconomicAI::DoReconState()
 
 #if defined(MOD_BALANCE_CORE_SETTLER)
 	bool bIsVenice = GetPlayer()->GetPlayerTraits()->IsNoAnnexing();
-	if (!bIsVenice)
+	if (!bIsVenice && GetPlayer()->GetNumCitiesFounded()<3 )
 	{
-		// Need recon if there are no good plots to settle
+		// Need recon if there are no good plots to settle, at least until we have some cities
 		if (! GetPlayer()->HaveGoodSettlePlot(-1) )
 		{
-			//OutputDebugString( CvString::format("%s - no good settle plot: ratio %.2f (%08d vs %08d) - need more recon\n", 
-			//	GetPlayer()->getCivilizationDescription(), iBestFoundValue/(float)iLastFoundValue, iBestFoundValue, iLastFoundValue) );
-
 			m_eReconState = RECON_STATE_NEEDED;
 			m_eNavalReconState = RECON_STATE_NEEDED;
 			return;

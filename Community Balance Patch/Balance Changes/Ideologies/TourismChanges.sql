@@ -1,3 +1,8 @@
+-- Base Culture Increased for GW
+UPDATE Defines
+SET Value = '3'
+WHERE Name = 'BASE_CULTURE_PER_GREAT_WORK' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_TOURISM_CHANGES' AND Value= 1 );
+
 -- Change instructions for Ideologies
 
 UPDATE Language_en_US

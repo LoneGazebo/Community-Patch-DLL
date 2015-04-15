@@ -251,6 +251,7 @@ void CvTeam::uninit()
 
 #if defined(MOD_BALANCE_CORE)
 	m_members.clear();
+	m_bIsMinorCiv = false;
 #endif
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
@@ -1148,7 +1149,7 @@ bool CvTeam::canDeclareWar(TeamTypes eTeam) const
 	m_cacheCanDeclareWar[args] = bResult;
 	return bResult;
 
-#endif
+#else
 
 	if(eTeam == GetID())
 	{
@@ -1220,6 +1221,7 @@ bool CvTeam::canDeclareWar(TeamTypes eTeam) const
 	}
 
 	return true;
+#endif
 }
 
 //	-----------------------------------------------------------------------------------------------
@@ -1532,7 +1534,11 @@ void CvTeam::DoDeclareWar(TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyP
 							// Have I actually met this player declaring war?
 							if(GET_TEAM(GET_PLAYER((PlayerTypes) iMajorCivLoop2).getTeam()).isHasMet(GET_PLAYER((PlayerTypes) iMajorCivLoop).getTeam()))
 							{
+#if defined(MOD_BALANCE_CORE)
+								GET_PLAYER((PlayerTypes) iMajorCivLoop2).GetDiplomacyAI()->DoPlayerDeclaredWarOnSomeone((PlayerTypes) iMajorCivLoop, eTeam, bDefensivePact);
+#else
 								GET_PLAYER((PlayerTypes) iMajorCivLoop2).GetDiplomacyAI()->DoPlayerDeclaredWarOnSomeone((PlayerTypes) iMajorCivLoop, eTeam);
+#endif
 
 								if(!bDefensivePact)
 								{
@@ -2787,6 +2793,7 @@ PlayerTypes CvTeam::getLeaderID() const
 	}
 	//if no member is alive, return the first
 	if (m_members.empty())
+		//this is dangerous - the return value is not checked in many places
 		return NO_PLAYER;
 	else
 		return m_members.front();

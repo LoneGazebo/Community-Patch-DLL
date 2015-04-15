@@ -2233,6 +2233,13 @@ CvCity* CvPlayer::initCity(int iX, int iY, bool bBumpUnits, bool bInitialFoundin
 		m_pCityDistance->Update();
 #endif
 
+#if defined(MOD_BALANCE_CORE_GLOBAL_CITY_IDS)
+		if (bInitialFounding)
+		{
+			pCity->SetGlobalID( GC.getGame().GetNextCityID() );
+			m_citiesByGlobalID.insert( std::make_pair( pCity->GetGlobalID(), pCity->GetID() ) );
+		}
+#endif
 	}
 
 	return pCity;
@@ -2946,6 +2953,10 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 		gDLL->GameplayCityCaptured(pkDllOldCity.get(), GetID());
 	}
 
+#if defined(MOD_BALANCE_CORE_GLOBAL_CITY_IDS)
+	int iOldCityGlobalID = pOldCity->GetGlobalID();
+#endif
+
 	GET_PLAYER(eOldOwner).deleteCity(pOldCity->GetID());
 	// adapted from PostKill()
 
@@ -2990,6 +3001,12 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 	pNewCity = initCity(pCityPlot->getX(), pCityPlot->getY(), !bConquest, (!bConquest && !bGift), NO_RELIGION, strName.c_str());
 #else
 	pNewCity = initCity(pCityPlot->getX(), pCityPlot->getY(), !bConquest, (!bConquest && !bGift));
+#endif
+
+#if defined(MOD_BALANCE_CORE_GLOBAL_CITY_IDS)
+	//fix the missing global ID of the new city - initCity sets it only for initial founding
+	pNewCity->SetGlobalID( iOldCityGlobalID );
+	m_citiesByGlobalID.insert( std::make_pair( iOldCityGlobalID, pNewCity->GetID() ) );
 #endif
 
 	CvAssertMsg(pNewCity != NULL, "NewCity is not assigned a valid value");
@@ -5213,7 +5230,26 @@ void CvPlayer::doTurn()
 
 	}
 #endif
-
+#if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
+	if(MOD_BALANCE_CORE_AFRAID_ANNEX)
+	{
+		if(GetPlayerTraits()->IsBullyAnnex() && !IsEmpireVeryUnhappy())
+		{
+			PlayerTypes eLoopPlayer;
+			for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+			{
+				eLoopPlayer = (PlayerTypes) iPlayerLoop;
+				if(GET_PLAYER(eLoopPlayer).isMinorCiv() && GET_PLAYER(eLoopPlayer).isAlive())
+				{
+					if(GET_PLAYER(eLoopPlayer).GetMinorCivAI()->CanMajorBullyUnit(GetID()))
+					{
+						GC.getGame().DoMinorBullyUnit(GetID(), eLoopPlayer);
+					}
+				}
+			}
+		}
+	}
+#endif
 	if(GetPlayerTraits()->IsEndOfMayaLongCount())
 	{
 		ChangeNumMayaBoosts(1);
@@ -7574,6 +7610,11 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 		iGoldenAge *= GC.getGame().getGameSpeedInfo().getCulturePercent();
 		iGoldenAge /= 100;
 
+		if(GetNumGoldenAges() > 0)
+		{
+			iGoldenAge *= GetNumGoldenAges();
+		}
+
 		ChangeGoldenAgeProgressMeter(iGoldenAge);
 	}
 #endif
@@ -8381,7 +8422,11 @@ void CvPlayer::found(int iX, int iY)
 	int iExtraTerritoryClaim = GetPlayerTraits()->GetExtraFoundedCityTerritoryClaimRange();
 	for (int i = 0; i < iExtraTerritoryClaim; i++)
 	{
+#if defined(MOD_BALANCE_CORE)
+		CvPlot* pPlotToAcquire = pCity->GetNextBuyablePlot(false);
+#else
 		CvPlot* pPlotToAcquire = pCity->GetNextBuyablePlot();
+#endif
 
 		// maybe the player owns ALL of the plots or there are none available?
 		if(pPlotToAcquire)
@@ -8518,7 +8563,11 @@ void CvPlayer::cityBoost(int iX, int iY, CvUnitEntry* pkUnitEntry, int iExtraPlo
 		//And a little territory to boot
 		for (int i = 0; i < iExtraPlots; i++)
 		{
+#if defined(MOD_BALANCE_CORE)
+			CvPlot* pPlotToAcquire = pCity->GetNextBuyablePlot(false);
+#else
 			CvPlot* pPlotToAcquire = pCity->GetNextBuyablePlot();
+#endif
 
 			// maybe the player owns ALL of the plots or there are none available?
 			if(pPlotToAcquire)
@@ -12793,6 +12842,10 @@ void CvPlayer::DoFreeGreatWorkOnConquest(PlayerTypes ePlayer, CvCity* pCity)
 			CvCity* pPlayerCity = NULL;
 			int iGreatWorkIndex;
 			int ArtPlunder = GC.getGame().getJonRandNum(iOpenArt, "Art Plunder Value");
+			if(ArtPlunder <= 0)
+			{
+				ArtPlunder = 1;
+			}
 			for(int iArtLoop = 0; iArtLoop < ArtPlunder; iArtLoop++)
 			{			
 				for (pPlayerCity = GET_PLAYER(ePlayer).firstCity(&iCityLoop); pPlayerCity != NULL; pPlayerCity = GET_PLAYER(ePlayer).nextCity(&iCityLoop))
@@ -12814,10 +12867,10 @@ void CvPlayer::DoFreeGreatWorkOnConquest(PlayerTypes ePlayer, CvCity* pCity)
 										for (int iI = 0; iI < iNumSlots; iI++)
 										{
 											iGreatWorkIndex = pPlayerCity->GetCityBuildings()->GetBuildingGreatWork((BuildingClassTypes)iBuildingClassLoop, iI);
-											if (iGreatWorkIndex != NO_GREAT_WORK)
+											if (iGreatWorkIndex != -1 && !GetCulture()->ControlsGreatWork(iGreatWorkIndex))
 											{
 												// remove existing great works
-												pPlayerCity->GetCityBuildings()->SetBuildingGreatWork((BuildingClassTypes)iBuildingClassLoop, iGreatWorkIndex, -1);
+												pPlayerCity->GetCityBuildings()->SetBuildingGreatWork((BuildingClassTypes)iBuildingClassLoop, iI, -1);
 												// and create great work at home
 												BuildingClassTypes eGWBuildingClass;
 												int iGWSlot;
@@ -14618,11 +14671,26 @@ int CvPlayer::getPopNeededForLux() const
 {
 	//Needed for LUA
 	//Happiness as a factor of population and number of cities. Divisor determines this.
-	int iInflation = (getCurrentTotalPop() * getNumCities()) / 10;
-	if(iInflation <= GC.getBALANCE_HAPPINESS_POPULATION_DIVISOR())
+	int iLoop;
+	int iTotalCities = 0;
+	for(const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
-		iInflation = GC.getBALANCE_HAPPINESS_POPULATION_DIVISOR();
+		if(pLoopCity != NULL)
+		{
+			//Venice should get a boost here.
+			if(GET_PLAYER(GetID()).GetPlayerTraits()->IsNoAnnexing())
+			{
+				iTotalCities++;
+			}
+			else if(!pLoopCity->IsPuppet())
+			{
+				iTotalCities++;
+			}
+		}
 	}
+	int iInflation = GC.getBALANCE_HAPPINESS_POPULATION_DIVISOR();
+		
+	iInflation += (getCurrentTotalPop() * iTotalCities) / 10;
 
 	int iBaseHappiness = 1;
 	
@@ -26524,11 +26592,11 @@ const CvCity* CvPlayer::getCity(int iID) const
 }
 
 #if defined(MOD_BALANCE_CORE_GLOBAL_CITY_IDS)
-CvCity* CvPlayer::getCityByGlobalID(int iID) const
+CvCity* CvPlayer::getCityByGlobalID(int iID)
 {
-	std::map<int,CvCity*>::const_iterator it = m_citiesByGlobalID.find(iID);
+	std::map<int,int>::const_iterator it = m_citiesByGlobalID.find(iID);
 	if (it!=m_citiesByGlobalID.end())
-		return it->second;
+		return getCity(it->second);
 
 	return NULL;
 }
@@ -26537,22 +26605,15 @@ CvCity* CvPlayer::getCityByGlobalID(int iID) const
 //	--------------------------------------------------------------------------------
 CvCity* CvPlayer::addCity()
 {
-#if defined(MOD_BALANCE_CORE_GLOBAL_CITY_IDS)
-	CvCity* pCity = m_cities.Add();
-	m_citiesByGlobalID.insert( std::make_pair( pCity->GetGlobalID(), pCity ) );
-	return pCity;
-#else
 	return(m_cities.Add());
-#endif
 }
 
 //	--------------------------------------------------------------------------------
 void CvPlayer::deleteCity(int iID)
 {
 #if defined(MOD_BALANCE_CORE_GLOBAL_CITY_IDS)
-	CvCity* pCity = getCity(iID);
-	for (std::map<int,CvCity*>::iterator it = m_citiesByGlobalID.begin(); it!=m_citiesByGlobalID.end(); ++it)
-		if (it->second==pCity)
+	for (std::map<int,int>::iterator it = m_citiesByGlobalID.begin(); it!=m_citiesByGlobalID.end(); ++it)
+		if (it->second==iID)
 		{
 			m_citiesByGlobalID.erase(it);
 			break;
@@ -30305,7 +30366,9 @@ void CvPlayer::Read(FDataStream& kStream)
 	m_pDealAI->Read(kStream);
 	m_pBuilderTaskingAI->Read(kStream);
 	m_pCityConnections->Read(kStream);
-#if !defined(MOD_BALANCE_CORE)
+#if defined(MOD_BALANCE_CORE)
+	SetDangerPlotsDirty();
+#else
 	m_pDangerPlots->Read(kStream);
 #endif
 	m_pTraits->Read(kStream);
@@ -30379,7 +30442,11 @@ void CvPlayer::Read(FDataStream& kStream)
 	{
 		int iLoopCity = 0;
 		for(CvCity* pLoopCity = firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = nextCity(&iLoopCity))
-			m_citiesByGlobalID.insert( std::make_pair( pLoopCity->GetGlobalID(), pLoopCity ) );
+		{
+			if (pLoopCity->getOwner()!=GetID())
+				OutputDebugString("incorrect city owner");
+			m_citiesByGlobalID.insert( std::make_pair( pLoopCity->GetGlobalID(), pLoopCity->GetID() ) );
+		}
 	}
 #endif
 
@@ -30483,6 +30550,7 @@ void CvPlayer::Read(FDataStream& kStream)
 
 #if defined(MOD_BALANCE_CORE)
 	UpdateAreaEffectUnits();
+	GET_TEAM(getTeam()).updateMinorCiv();
 #endif
 }
 
