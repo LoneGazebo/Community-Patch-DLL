@@ -497,7 +497,11 @@ public:
 	// Someone had some kind of interaction with another player
 
 	void DoWeMadePeaceWithSomeone(TeamTypes eOtherTeam);
+#if defined(MOD_BALANCE_CORE)
+	void DoPlayerDeclaredWarOnSomeone(PlayerTypes ePlayer, TeamTypes eOtherTeam, bool bDefensivePact);
+#else
 	void DoPlayerDeclaredWarOnSomeone(PlayerTypes ePlayer, TeamTypes eOtherTeam);
+#endif
 	void DoPlayerKilledSomeone(PlayerTypes ePlayer, PlayerTypes eDeadPlayer);
 	void DoPlayerBulliedSomeone(PlayerTypes ePlayer, PlayerTypes eOtherPlayer);
 	void DoPlayerMetSomeone(PlayerTypes ePlayer, PlayerTypes eOtherPlayer);

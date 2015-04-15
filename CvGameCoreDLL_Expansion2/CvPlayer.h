@@ -1682,7 +1682,7 @@ public:
 	void deleteCity(int iID);
 	CvCity* GetFirstCityWithBuildingClass(BuildingClassTypes eBuildingClass);
 #if defined(MOD_BALANCE_CORE_GLOBAL_CITY_IDS)
-	CvCity* getCityByGlobalID(int iID) const;
+	CvCity* getCityByGlobalID(int iID);
 #endif
 
 	// unit iteration
@@ -2598,7 +2598,7 @@ protected:
 	CLinkList<CvString> m_cityNames;
 
 #if defined(MOD_BALANCE_CORE_GLOBAL_CITY_IDS)
-	std::map<int,CvCity*> m_citiesByGlobalID;
+	std::map<int,int> m_citiesByGlobalID;
 #endif
 	FFreeListTrashArray<CvCityAI> m_cities;
 

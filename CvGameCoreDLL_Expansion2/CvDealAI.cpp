@@ -257,14 +257,11 @@ void CvDealAI::DoAcceptedDeal(PlayerTypes eFromPlayer, const CvDeal& kDeal, int 
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 		// We're offering help to a player
-		if (MOD_DIPLOMACY_CIV4_FEATURES && GetPlayer()->GetDiplomacyAI()->IsOfferingGift(eFromPlayer))
+		if (MOD_DIPLOMACY_CIV4_FEATURES)
 		{
 			//End the gift exchange after this.
 			GetPlayer()->GetDiplomacyAI()->SetOfferingGift(eFromPlayer, false);
-			szText = GetPlayer()->GetDiplomacyAI()->GetDiploStringForMessage(DIPLO_MESSAGE_TRADE_ACCEPT_AI_DEMAND);
-			eAnimation = LEADERHEAD_ANIM_YES;
 		}
-		else
 #endif
 		// Good deal for us
 		if(iDealValueToMe >= 100 ||
@@ -2974,7 +2971,7 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 							}
 							else
 							{
-								iItemValue = 3;
+								iItemValue *= 3;
 								iItemValue /= 2;
 							}
 						}
@@ -3043,7 +3040,7 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 							}
 							else
 							{
-								iItemValue = 3;
+								iItemValue *= 3;
 								iItemValue /= 2;
 							}
 						}
@@ -5239,6 +5236,15 @@ void CvDealAI::DoTradeScreenClosed(bool bAIWasMakingOffer)
 				GetPlayer()->GetDiplomacyAI()->DoCancelWantsResearchAgreementWithPlayer(eActivePlayer);
 			}
 		}
+#if defined(MOD_BALANCE_CORE_DIPLOMACY)
+		if(GetPlayer()->GetDiplomacyAI()->IsWantsDefensivePactWithPlayer(eActivePlayer))
+		{
+			if(GetPlayer()->GetDiplomacyAI()->IsCanMakeDefensivePactRightNow(eActivePlayer))
+			{
+				GetPlayer()->GetDiplomacyAI()->DoCancelWantsDefensivePactWithPlayer(eActivePlayer);
+			}
+		}
+#endif
 	}
 }
 

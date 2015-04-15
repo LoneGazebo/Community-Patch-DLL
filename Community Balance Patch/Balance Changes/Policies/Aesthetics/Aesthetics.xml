@@ -88,7 +88,7 @@
 		<Row>
 			<PolicyType>POLICY_FLOURISHING_OF_ARTS</PolicyType>
 			<YieldType>YIELD_TOURISM</YieldType>
-			<Yield>2</Yield>
+			<Yield>1</Yield>
 		</Row>
 	</Policy_YieldChangeWorldWonder>
 </GameData>

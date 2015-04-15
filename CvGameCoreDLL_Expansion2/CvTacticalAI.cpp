@@ -419,7 +419,11 @@ void CvTacticalAI::CommandeerUnits()
 			else
 			{
 				// Non-zero danger value, near enemy, or deploying out of an operation?
+#if defined(AUI_DANGER_PLOTS_REMADE)
+				int iDanger = m_pPlayer->GetPlotDanger(*(pLoopUnit->plot()),pLoopUnit.pointer());
+#else
 				int iDanger = m_pPlayer->GetPlotDanger(*(pLoopUnit->plot()));
+#endif
 				if(iDanger > 0 || NearVisibleEnemy(pLoopUnit, m_iRecruitRange) ||
 				        pLoopUnit->GetDeployFromOperationTurn() + GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS() >= GC.getGame().getGameTurn())
 				{
@@ -1783,6 +1787,10 @@ void CvTacticalAI::AssignTacticalMove(CvTacticalMove move)
 #pragma warning ( disable : 6011 ) // Dereferencing NULL pointer
 	AI_PERF_FORMAT("AI-perf-tact.csv", ("Move Type: %s (%d), Turn %03d, %s", GC.getTacticalMoveInfo(move.m_eMoveType)->GetType(), (int)move.m_eMoveType, GC.getGame().getElapsedGameTurns(), m_pPlayer->getCivilizationShortDescription()) );
 #pragma warning ( pop )
+
+	//Debugging: Check order of tactical moves ...
+	//if (GC.getLogging())
+	//	OutputDebugString( GC.getTacticalMoveInfo(move.m_eMoveType)->GetType() );
 
 	if(move.m_eMoveType == (TacticalAIMoveTypes)m_CachedInfoTypes[eTACTICAL_MOVE_NONCOMBATANTS_TO_SAFETY])
 	{
@@ -8733,7 +8741,7 @@ void CvTacticalAI::ExecuteCloseOnTarget(CvTacticalTarget& kTarget, CvTacticalDom
 		int iMeleeUnitsToPlace = iMeleeUnits;
 
 		// First loop for ranged unit spots
-		bool bDone = false;
+		bool bDone = (iRangedUnitsToPlace==0);
 		for(unsigned int iI = 0; iI < m_TempTargets.size() && !bDone; iI++)
 		{
 			AITacticalTargetType eTargetType = m_TempTargets[iI].GetTargetType();
@@ -8764,14 +8772,24 @@ void CvTacticalAI::ExecuteCloseOnTarget(CvTacticalTarget& kTarget, CvTacticalDom
 		PerformChosenMoves();
 
 		// Second loop for everyone else (including remaining ranged units)
+#if defined(MOD_BALANCE_CORE_MILITARY)
+		// re-check for free spots
+		ScoreCloseOnPlots(pTargetPlot, bLandOnly);
+		std::stable_sort(m_TempTargets.begin(), m_TempTargets.end());
+#endif
 		m_PotentialBlocks.clear();
 		iMeleeUnits += iRangedUnitsToPlace;
 		iMeleeUnitsToPlace += iRangedUnitsToPlace;
-		bDone = false;
+		bDone = (iMeleeUnitsToPlace==0);
 		for(unsigned int iI = 0; iI < m_TempTargets.size() && !bDone; iI++)
 		{
+#if defined(MOD_BALANCE_CORE_MILITARY)
+			//don't care about prio/safety now
+			if (true)
+#else
 			AITacticalTargetType eTargetType = m_TempTargets[iI].GetTargetType();
 			if (eTargetType != AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT)
+#endif
 			{
 				CvPlot* pLoopPlot = GC.getMap().plot(m_TempTargets[iI].GetTargetX(), m_TempTargets[iI].GetTargetY());
 				if(FindClosestOperationUnit(pLoopPlot, true /*bSafeForRanged*/, false /*bMustBeRangedUnit*/))
@@ -8884,7 +8902,7 @@ void CvTacticalAI::ExecuteHedgehogDefense(CvTacticalTarget& kTarget, CvTacticalD
 		int iMeleeUnitsToPlace = iMeleeUnits;
 
 		// First loop for ranged unit spots
-		bool bDone = false;
+		bool bDone = (iRangedUnitsToPlace==0);
 		for(unsigned int iI = 0; iI < m_TempTargets.size() && !bDone; iI++)
 		{
 			AITacticalTargetType eTargetType = m_TempTargets[iI].GetTargetType();
@@ -8915,14 +8933,25 @@ void CvTacticalAI::ExecuteHedgehogDefense(CvTacticalTarget& kTarget, CvTacticalD
 		PerformChosenMoves();
 
 		// Second loop for everyone else (including remaining ranged units)
+#if defined(MOD_BALANCE_CORE_MILITARY)
+		// re-check for free spots
+		ScoreHedgehogPlots(pTargetPlot);
+		std::stable_sort(m_TempTargets.begin(), m_TempTargets.end());
+#endif
+
 		m_PotentialBlocks.clear();
 		iMeleeUnits += iRangedUnitsToPlace;
 		iMeleeUnitsToPlace += iRangedUnitsToPlace;
-		bDone = false;
+		bDone = (iMeleeUnitsToPlace==0);
 		for(unsigned int iI = 0; iI < m_TempTargets.size() && !bDone; iI++)
 		{
+#if defined(MOD_BALANCE_CORE_MILITARY)
+			//don't care about prio/safety now
+			if (true)
+#else
 			AITacticalTargetType eTargetType = m_TempTargets[iI].GetTargetType();
 			if (eTargetType != AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT)
+#endif
 			{
 				CvPlot* pLoopPlot = GC.getMap().plot(m_TempTargets[iI].GetTargetX(), m_TempTargets[iI].GetTargetY());
 				if(FindClosestOperationUnit(pLoopPlot, true /*bSafeForRanged*/, false /*bMustBeRangedUnit*/))
@@ -10399,6 +10428,7 @@ bool CvTacticalAI::MoveToEmptySpaceNearTarget(UnitHandle pUnit, CvPlot* pTarget,
 		return false;
 	}	
 #endif
+
 	// Look at spaces adjacent to target
 #if defined(MOD_BALANCE_CORE)
 	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(pTarget);
@@ -12158,8 +12188,8 @@ void CvTacticalAI::ScoreHedgehogPlots(CvPlot* pTarget)
 				if(pPlot->isCity() && pPlot->getOwner() == m_pPlayer->GetID())
 				{
 #if defined(MOD_BALANCE_CORE_MILITARY)
-					//Let's prioritize filling up cities, okay?
-					iScore += 1000;
+					//Let's prioritize filling up cities. Make it so high even a good defense multiplier can't match (50*25==1250)
+					iScore += 2000;
 					bChoiceBombardSpot = true;
 #else
 					iScore += 100;

@@ -11719,10 +11719,12 @@ int CvLuaPlayer::lGetEspionageCityStatus(lua_State* L)
 
 	lua_createtable(L, 0, 0);
 	int index = 1;
-#if defined(MOD_BALANCE_CORE_SPIES_ADVANCED)
-#else
 	// first pass to get the largest base potential available
 	int iLargestBasePotential = 0;
+#if defined(MOD_BALANCE_CORE_SPIES_ADVANCED)
+	if(!MOD_BALANCE_CORE_SPIES_ADVANCED)
+	{
+#endif
 	for(int i = 0; i < MAX_PLAYERS; ++i)
 	{
 		const PlayerTypes ePlayer(static_cast<PlayerTypes>(i));
@@ -11756,6 +11758,8 @@ int CvLuaPlayer::lGetEspionageCityStatus(lua_State* L)
 			}
 		}
 	}
+#if defined(MOD_BALANCE_CORE_SPIES_ADVANCED)
+	}
 #endif
 	// second pass to set the values
 	for(int i = 0; i < MAX_PLAYERS; ++i)
@@ -11773,10 +11777,8 @@ int CvLuaPlayer::lGetEspionageCityStatus(lua_State* L)
 		{
 			if(pkPlayerEspionage->CanEverMoveSpyTo(pCity))
 			{
-#if defined(MOD_BALANCE_CORE_SPIES_ADVANCED)
-#else
 				CvCityEspionage* pCityEspionage = pCity->GetCityEspionage();
-#endif
+
 				lua_createtable(L, 0, 0);
 				const int t = lua_gettop(L);
 
@@ -11805,6 +11807,8 @@ int CvLuaPlayer::lGetEspionageCityStatus(lua_State* L)
 				lua_pushinteger(L, pCity->getPopulation());
 				lua_setfield(L, t, "Population");
 #if defined(MOD_BALANCE_CORE_SPIES_ADVANCED)
+			if(MOD_BALANCE_CORE_SPIES_ADVANCED)
+			{
 				int iRate = pCity->GetRank();
 				lua_pushinteger(L, iRate);
 				lua_setfield(L, t, "Potential");
@@ -11814,7 +11818,12 @@ int CvLuaPlayer::lGetEspionageCityStatus(lua_State* L)
 
 				lua_pushinteger(L, 10);
 				lua_setfield(L, t, "LargestBasePotential");
-#else
+			}
+#endif
+#if defined(MOD_BALANCE_CORE_SPIES_ADVANCED)
+			if(!MOD_BALANCE_CORE_SPIES_ADVANCED)
+			{
+#endif
 				if(pCity->getOwner() == pkThisPlayer->GetID())
 				{
 					int iRate = pkPlayerEspionage->CalcPerTurn(SPY_STATE_GATHERING_INTEL, pCity, -1);
@@ -11838,6 +11847,8 @@ int CvLuaPlayer::lGetEspionageCityStatus(lua_State* L)
 
 				lua_pushinteger(L, iLargestBasePotential);
 				lua_setfield(L, t, "LargestBasePotential");
+#if defined(MOD_BALANCE_CORE_SPIES_ADVANCED)
+			}
 #endif
 				lua_rawseti(L, -2, index++);
 			}

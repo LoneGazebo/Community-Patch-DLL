@@ -778,12 +778,10 @@ function HappinessTipHandler( control )
 			strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_HAPPINESS_RESOURCE_POP_BONUS", iHappinessFromBonusResources);
 		end
 		-- Happiness/Population calculation.
-		if(iHappinessFromBonusResources > 0) then
-			local iPopulation = pPlayer:GetCurrentTotalPop();
-			local iPopNeeded = pPlayer:GetPopNeededForLux();
-			local iThreshold = pPlayer:GetBaseLuxuryHappiness(); 
-			strText = strText .. "          " .. Locale.ConvertTextKey("TXT_KEY_TP_HAPPINESS_THRESHOLD_VALUE", iPopNeeded, iPopulation, iThreshold, (iThreshold + 1));
-		end
+		local iPopulation = pPlayer:GetCurrentTotalPop();
+		local iPopNeeded = pPlayer:GetPopNeededForLux();
+		local iThreshold = pPlayer:GetBaseLuxuryHappiness(); 
+		strText = strText .. "          " .. Locale.ConvertTextKey("TXT_KEY_TP_HAPPINESS_THRESHOLD_VALUE", iPopNeeded, iPopulation, iThreshold, (iThreshold + 1));
 -- END
 	
 		-- Happiness from Luxury Variety

@@ -32,7 +32,7 @@ SET PovertyHappinessChange = '-10'
 WHERE Type = '-BUILDING_MEDICAL_LAB' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Buildings
-SET PovertyHappinessChange = '-6'
+SET PovertyHappinessChange = '4'
 WHERE Type = '-BUILDING_COAL_PLANT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 -- Poverty Global
@@ -159,45 +159,45 @@ WHERE Type = '-BUILDING_STATUE_ZEUS' AND EXISTS (SELECT * FROM COMMUNITY WHERE T
 
 -- Culture
 UPDATE Buildings
-SET UnculturedHappinessChange = '-4'
+SET UnculturedHappinessChange = '-2'
 WHERE Type = '-BUILDING_COLOSSEUM' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Buildings
-SET UnculturedHappinessChange = '-4'
+SET UnculturedHappinessChange = '-2'
 WHERE Type = '-BUILDING_CEILIDH_HALL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Buildings
-SET UnculturedHappinessChange = '-6'
+SET UnculturedHappinessChange = '-4'
 WHERE Type = '-BUILDING_CHURCH' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Buildings
-SET UnculturedHappinessChange = '-6'
+SET UnculturedHappinessChange = '-4'
 WHERE Type = '-BUILDING_PAGODA' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Buildings
-SET UnculturedHappinessChange = '-6'
+SET UnculturedHappinessChange = '-4'
 WHERE Type = '-BUILDING_CIRCUS_MAXIMUS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 UPDATE Buildings
-SET UnculturedHappinessChange = '-6'
+SET UnculturedHappinessChange = '-4'
 WHERE Type = '-BUILDING_CIRCUS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Buildings
-SET UnculturedHappinessChange = '-6'
+SET UnculturedHappinessChange = '-4'
 WHERE Type = '-BUILDING_THEATRE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Buildings
-SET UnculturedHappinessChange = '-8'
+SET UnculturedHappinessChange = '-6'
 WHERE Type = '-BUILDING_STADIUM' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 -- Culture Global
 
 UPDATE Buildings
-SET UnculturedHappinessChangeGlobal = '-4'
+SET UnculturedHappinessChangeGlobal = '-2'
 WHERE Type = '-BUILDING_PARTHENON' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Buildings
-SET UnculturedHappinessChangeGlobal = '-6'
+SET UnculturedHappinessChangeGlobal = '-4'
 WHERE Type = '-BUILDING_EIFFEL_TOWER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 -- Religion

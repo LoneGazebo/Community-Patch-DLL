@@ -5997,7 +5997,31 @@ void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 	else
 	{
 		MajorCivApproachTypes eApproach = GetMajorCivApproach(eTargetPlayer, /*bHideTrueFeelings*/ false);
+#if defined(MOD_BALANCE_CORE)
+		bWantToAttack =  (eApproach == MAJOR_CIV_APPROACH_DECEPTIVE && GetLoyalty() < 5);
+		if(!bWantToAttack)
+		{
+			bWantToAttack =  (eApproach == MAJOR_CIV_APPROACH_GUARDED && GetWarmongerThreat(eTargetPlayer) > THREAT_MAJOR);
+		}
+		if(!bWantToAttack)
+		{
+			bWantToAttack = ((eApproach != MAJOR_CIV_APPROACH_FRIENDLY) && GetVictoryBlockLevel(eTargetPlayer) > BLOCK_LEVEL_STRONG);
+		}
+		if(!bWantToAttack)
+		{
+			bWantToAttack = ((eApproach != MAJOR_CIV_APPROACH_FRIENDLY) && GetVictoryDisputeLevel(eTargetPlayer) > DISPUTE_LEVEL_STRONG);
+		}
+		if(!bWantToAttack)
+		{
+			bWantToAttack = (eApproach == MAJOR_CIV_APPROACH_WAR);
+		}
+		if(!bWantToAttack)
+		{
+			bWantToAttack = (GetWarGoal(eTargetPlayer) == WAR_GOAL_PREPARE) && (eApproach == MAJOR_CIV_APPROACH_WAR || eApproach == MAJOR_CIV_APPROACH_DECEPTIVE);
+		}
+#else
 		bWantToAttack = (eApproach == MAJOR_CIV_APPROACH_WAR || (eApproach == MAJOR_CIV_APPROACH_DECEPTIVE && IsGoingForWorldConquest()));
+#endif
 		bWantToAttack = bWantToAttack && !bAtWarWithAtLeastOneMajor; // let's not get into another war right now
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 		bWantToAttack = bWantToAttack && (MOD_DIPLOMACY_CIV4_FEATURES && !IsPlayerMoveTroopsRequestAccepted(eTargetPlayer));	// don't declare war on a player we promised not to attack!
@@ -6057,8 +6081,8 @@ void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 
 		// We were planning an attack, but changed our minds so abort
 #if defined(MOD_BALANCE_CORE_MILITARY)
-		//Sanity check - is an army gathering or moving towards the enemy? Let's not back off now. Too easy to exploit AI for humans at this point.
-		else if(pOperation != NULL && pOperation->GetOperationState() < AI_OPERATION_STATE_GATHERING_FORCES)
+		//Sanity check - is an army moving towards the enemy? Let's not back off now. Too easy to exploit AI for humans at this point.
+		else if(pOperation != NULL && pOperation->PercentFromMusterPointToTarget() <= 20)
 #else
 		else
 #endif
@@ -10698,7 +10722,11 @@ void CvDiplomacyAI::DoWeMadePeaceWithSomeone(TeamTypes eOtherTeam)
 }
 
 /// ePlayer declared war on someone, so figure out what that means
+#if defined(MOD_BALANCE_CORE)
+void CvDiplomacyAI::DoPlayerDeclaredWarOnSomeone(PlayerTypes ePlayer, TeamTypes eOtherTeam, bool bDefensivePact)
+#else
 void CvDiplomacyAI::DoPlayerDeclaredWarOnSomeone(PlayerTypes ePlayer, TeamTypes eOtherTeam)
+#endif
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_CIV_PLAYERS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -10797,8 +10825,15 @@ void CvDiplomacyAI::DoPlayerDeclaredWarOnSomeone(PlayerTypes ePlayer, TeamTypes 
 					// WAS friends with this player
 					if(bWasFriends)
 					{
+#if defined(MOD_BALANCE_CORE)
+						if(!bDefensivePact)
+						{
+#endif
 						SetFriendDeclaredWarOnUs(eThem, true);
 						ChangeDeclaredWarOnFriendValue(eThem, GC.getOPINION_WEIGHT_WAR_FRIEND_EACH() * GC.getGame().getGameSpeedInfo().getOpinionDurationPercent());
+#if defined(MOD_BALANCE_CORE)
+						}
+#endif
 					}
 
 					if(!GET_PLAYER(ePlayer).isMinorCiv())
@@ -14562,6 +14597,7 @@ void CvDiplomacyAI::DoBulliedCityStateStatement(PlayerTypes ePlayer, DiploStatem
 					{
 						// WAR! You've broken too many promises, jerk. 
 						//AI declaration
+						GET_TEAM(GetPlayer()->getTeam()).declareWar(GET_PLAYER(ePlayer).getTeam(), false, GetPlayer()->GetID());
 						m_pPlayer->GetCitySpecializationAI()->SetSpecializationsDirty(SPECIALIZATION_UPDATE_NOW_AT_WAR);
 						LogWarDeclaration(ePlayer);
 
@@ -19118,8 +19154,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 		GetPlayer()->GetDiplomacyAI()->ChangeRecentAssistValue(eFromPlayer, iArg1);
 #endif
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-		// We're offering help to a player
-		if (MOD_DIPLOMACY_CIV4_FEATURES && GetPlayer()->GetDiplomacyAI()->IsOfferingGift(eFromPlayer))
+		if (MOD_DIPLOMACY_CIV4_FEATURES)
 		{
 			//End the gift exchange after this.
 			GetPlayer()->GetDiplomacyAI()->SetOfferingGift(eFromPlayer, false);
@@ -19480,7 +19515,6 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 	case FROM_UI_DIPLO_EVENT_WORK_WITH_US_RESPONSE:
 	{
 		// **** NOTE **** - iArg1 is BUTTON ID from DiscussionDialog.lua
-
 		SetDoFCounter(eFromPlayer, 0);
 		GET_PLAYER(eFromPlayer).GetDiplomacyAI()->SetDoFCounter(eMyPlayer, 0);
 
@@ -22082,15 +22116,17 @@ bool CvDiplomacyAI::IsDoFAcceptable(PlayerTypes ePlayer)
 
 	MajorCivOpinionTypes eOpinion = GetMajorCivOpinion(ePlayer);
 #if defined(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
-	if(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED && IsDoFBroken(ePlayer) && (eOpinion > MAJOR_CIV_OPINION_UNFORGIVABLE))
+	if(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED && IsDoFBroken(ePlayer))
 	{
-		//If he broke a DoF, lower our opinion by a degree.
-		eOpinion = MajorCivOpinionTypes(eOpinion - 1);
-	}
-	//If we've made amends, take away the DoF malus.
-	if(eOpinion > MAJOR_CIV_OPINION_NEUTRAL)
-	{
-		SetDoFBroken(ePlayer, false);
+		//If we've made amends, take away the DoF malus.
+		if(eOpinion >= MAJOR_CIV_OPINION_FRIEND)
+		{
+			SetDoFBroken(ePlayer, false);
+		}
+		else
+		{
+			return false;
+		}
 	}
 #endif
 	// If player is unforgivable, always say no

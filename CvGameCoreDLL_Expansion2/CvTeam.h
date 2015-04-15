@@ -28,6 +28,16 @@ public:
 	{
 		CvAssertMsg(eTeam != NO_TEAM, "eTeam is not assigned a valid value");
 		CvAssertMsg(eTeam < MAX_TEAMS, "eTeam is not assigned a valid value");
+
+#if defined(MOD_BALANCE_CORE)
+		if (eTeam==NO_TEAM)
+		{
+			OutputDebugString("invalid team index!");
+			//ugly hack ...
+			return m_aTeams[MAX_TEAMS-1];
+		}
+#endif
+
 		return m_aTeams[eTeam];
 	}
 

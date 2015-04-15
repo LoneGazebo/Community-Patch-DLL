@@ -27,6 +27,16 @@ public:
 	{
 		CvAssertMsg(ePlayer != NO_PLAYER, "Player is not assigned a valid value");
 		CvAssertMsg(ePlayer < MAX_PLAYERS, "Player is not assigned a valid value");
+
+#if defined(MOD_BALANCE_CORE)
+		if (ePlayer==NO_PLAYER)
+		{
+			OutputDebugString("invalid player index!");
+			//ugly hack ...
+			return m_aPlayers[MAX_PLAYERS-1];
+		}
+#endif
+
 		return m_aPlayers[ePlayer];
 	}
 

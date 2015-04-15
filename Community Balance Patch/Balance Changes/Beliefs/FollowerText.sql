@@ -15,7 +15,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_MOSQUES' AND EXISTS (SELECT * FROM COMMUNITY WHERE T
 
 -- Sword into Plowshare (Now Church)
 UPDATE Language_en_US
-SET Text = 'Use [ICON_PEACE] Faith to purchase Churches (+3 [ICON_PEACE] Faith, 1 [ICON_GREAT_WORK] Great Work of Music Slot)'
+SET Text = 'Use [ICON_PEACE] Faith to purchase Churches (+4 [ICON_PEACE] Faith, 1 [ICON_GREAT_WORK] Great Work of Music Slot)'
 WHERE Tag = 'TXT_KEY_BELIEF_SWORD_PLOWSHARES' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -42,7 +42,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_HOLY_WARRIORS_SHORT' AND EXISTS (SELECT * FROM COMMU
 
 -- Monasteries (Now Stupa)
 UPDATE Language_en_US
-SET Text = 'Use [ICON_PEACE] Faith to purchase Stupas (+4 [ICON_PEACE] Faith, +1 [ICON_TOURISM] Tourism once you have researched Theology)'
+SET Text = 'Use [ICON_PEACE] Faith to purchase Stupas (+4 [ICON_PEACE] Faith, +2 [ICON_TOURISM] Tourism once you have researched Architecture)'
 WHERE Tag = 'TXT_KEY_BELIEF_MONASTERIES' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US

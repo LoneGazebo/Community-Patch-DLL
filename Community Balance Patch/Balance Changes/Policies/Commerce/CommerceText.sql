@@ -28,7 +28,7 @@ WHERE Tag = 'TXT_KEY_POLICY_TRADE_UNIONS_TEXT' AND EXISTS (SELECT * FROM COMMUNI
 -- Wagon Trains (now called Turnpikes)
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Turnpikes[ENDCOLOR][NEWLINE]+4 [ICON_GOLD] Gold from owned Land [ICON_INTERNATIONAL_TRADE] Trade Routes. Maintenance for Improvements is reduced by 25%.'
+SET Text = '[COLOR_POSITIVE_TEXT]Turnpikes[ENDCOLOR][NEWLINE]+4 [ICON_GOLD] Gold from owned Land [ICON_INTERNATIONAL_TRADE] Trade Routes. Poverty Threshold reduced by 20% in all Cities.'
 WHERE Tag = 'TXT_KEY_POLICY_CARAVANS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
