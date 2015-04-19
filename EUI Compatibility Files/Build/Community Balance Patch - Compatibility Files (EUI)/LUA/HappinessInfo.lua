@@ -219,10 +219,15 @@ function UpdateScreen()
 	local iExtraHappinessPerCity = pPlayer:GetExtraHappinessPerCity() * pPlayer:GetNumCities();
 	local iMinorCivHappiness = pPlayer:GetHappinessFromMinorCivs();
 	local iLeagueHappiness = pPlayer:GetHappinessFromLeagues();
+	-- CBP
+	local iHappinessFromMonopoly = pPlayer:GetHappinessFromResourceMonopolies();
+	local iHappinessFromBonusResources = pPlayer:GetBonusHappinessFromLuxuries();
+	-- END
 	
-	local iHandicapHappiness = pPlayer:GetHappiness() - iPoliciesHappiness - iResourcesHappiness - iBuildingHappiness - iCityHappiness - iTradeRouteHappiness - iReligionHappiness - iNaturalWonderHappiness - iMinorCivHappiness - iExtraHappinessPerCity - iLeagueHappiness;
+	-- EDIT
+	local iHandicapHappiness = pPlayer:GetHappiness() - iPoliciesHappiness - iHappinessFromMonopoly - iHappinessFromBonusResources - iResourcesHappiness - iBuildingHappiness - iCityHappiness - iTradeRouteHappiness - iReligionHappiness - iNaturalWonderHappiness - iMinorCivHappiness - iExtraHappinessPerCity - iLeagueHappiness;
 
-	local iTotalHappiness = iPoliciesHappiness + iResourcesHappiness + iBuildingHappiness + iMinorCivHappiness + iHandicapHappiness + iTradeRouteHappiness + iReligionHappiness + iNaturalWonderHappiness + iExtraHappinessPerCity + iLeagueHappiness;
+	local iTotalHappiness = iPoliciesHappiness + iResourcesHappiness + iBuildingHappiness + iMinorCivHappiness + iHandicapHappiness + iTradeRouteHappiness + iReligionHappiness + iNaturalWonderHappiness + iExtraHappinessPerCity + iLeagueHappiness + iHappinessFromBonusResources + iHappinessFromMonopoly;
 	
 	-- Luxury Resource Details
 
@@ -410,7 +415,22 @@ function UpdateScreen()
 	else
 		Controls.LeagueHappiness:SetHide(true);
 	end
-	
+
+	-- CBP
+	if (iHappinessFromMonopoly ~= 0) then
+		Controls.MonopolyHappinessValue:SetText(iHappinessFromMonopoly);
+		Controls.MonopolyHappiness:SetHide(false);
+	else
+		Controls.MonopolyHappiness:SetHide(true);
+	end
+
+	if (iHappinessFromBonusResources ~= 0) then
+		Controls.ExtraLuxuryHappinessValue:SetText(iHappinessFromBonusResources);
+		Controls.ExtraLuxuryHappiness:SetHide(false);
+	else
+		Controls.ExtraLuxuryHappiness:SetHide(true);
+	end
+
 	-- iHandicapHappiness
 	Controls.HandicapHappinessValue:SetText(iHandicapHappiness);
 
@@ -927,6 +947,18 @@ function UpdateScreen()
 				local strTooltip = Locale.Lookup(pResource.Help);
 				instance.ResourceValue:SetToolTipString(strTooltip);
 				instance.ResourceName:SetToolTipString(strTooltip);
+			elseif(Game.GetResourceUsageType(iResourceID) ~= ResourceUsageTypes.RESOURCEUSAGE_LUXURY and iMonopoly > 25 and pOtherPlayer ~= nil) then
+				iTotalNumResources = iTotalNumResources + 1;
+				
+				local instance = {};
+				ContextPtr:BuildInstanceForControl( "ResourceEntry", instance, Controls.ResourcesLocalStack );
+		        
+				instance.ResourceName:SetText(Locale.ConvertTextKey(pResource.Description));
+				instance.ResourceValue:SetText("[COLOR_CYAN]" .. Locale.ConvertTextKey("TXT_KEY_RESOURCE_MONOPOLY_OTHER", Locale.ToNumber( iMonopoly, "#" ), pOtherPlayer:GetCivilizationShortDescriptionKey()) .. "[ENDCOLOR]");
+
+				local strTooltip = Locale.Lookup(pResource.Help);
+				instance.ResourceValue:SetToolTipString(strTooltip);
+				instance.ResourceName:SetToolTipString(strTooltip);
 			end
 		end
 	end
@@ -966,6 +998,11 @@ function UpdateScreen()
 		        
 				instance.ResourceName:SetText(Locale.ConvertTextKey(pResource.Description));
 				instance.ResourceValue:SetText(Locale.ConvertTextKey("TXT_KEY_RESOURCE_CONTROLLED", Locale.ToNumber( iMonopoly, "#" )));
+				if(Game.GetResourceUsageType(iResourceID) ~= ResourceUsageTypes.RESOURCEUSAGE_LUXURY and iMonopoly > 25) then
+					local strTooltip = Locale.Lookup(pResource.Help);
+					instance.ResourceValue:SetToolTipString(strTooltip);
+					instance.ResourceName:SetToolTipString(strTooltip);
+				end
 			end
 		end
 	end

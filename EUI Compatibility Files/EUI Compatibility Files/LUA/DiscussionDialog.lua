@@ -1142,8 +1142,14 @@ function OnButton3()
 	
 	if (g_DiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_DISCUSS_HUMAN_INVOKED) then
 		if (g_iInvokedDiscussionMode == g_iModeDiscussionRoot) then
-			-- Ask the AI player not to spy any more
-			Game.DoFromUIDiploEvent( FromUIDiploEventTypes.FROM_UI_DIPLO_EVENT_HUMAN_DISCUSSION_STOP_SPYING, g_iAIPlayer, 0, 0 );
+		-- CBP Sanity
+			local agents = pAIPlayer:GetEspionageSpies();
+			local bHasAgents = #agents ~= 0;
+			if (bHasAgents) then
+				-- Ask the AI player not to spy any more
+				Game.DoFromUIDiploEvent( FromUIDiploEventTypes.FROM_UI_DIPLO_EVENT_HUMAN_DISCUSSION_STOP_SPYING, g_iAIPlayer, 0, 0 );
+			end
+		-- END
 		end
 		
     -- AI asking to work against someone - we agree

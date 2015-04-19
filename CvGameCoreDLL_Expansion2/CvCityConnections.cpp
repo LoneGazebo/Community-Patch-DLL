@@ -388,66 +388,11 @@ void CvCityConnections::UpdateRouteInfo(void)
 				//	continue;
 				//}
 #endif
-
 				pRouteInfo->m_cPassEval = iPass + 1;
-
-#if defined(MOD_BALANCE_CORE)
-				if(iPass == 1)  // check water route
-#else
 				if(iPass == 0)  // check water route
-#endif
 				{
-					// if either city is blockaded, don't consider a water connection
-					if(pFirstCity->IsBlockaded() || pSecondCity->IsBlockaded())
-					{
-						continue;
-					}
-
-					bool bFirstCityHasHarbor = false;
-					bool bSecondCityHasHarbor = false;
-
-					// Loop through adding the available buildings
-					for(int i = 0; i < (int)m_aBuildingsAllowWaterRoutes.size(); i++)
-					{
-						if(pFirstCity->GetCityBuildings()->GetNumActiveBuilding(m_aBuildingsAllowWaterRoutes[i]) > 0)
-						{
-							bFirstCityHasHarbor = true;
-						}
-
-						if(pSecondCity->GetCityBuildings()->GetNumActiveBuilding(m_aBuildingsAllowWaterRoutes[i]) > 0)
-						{
-							bSecondCityHasHarbor = true;
-						}
-					}
-
-					if(bFirstCityHasHarbor && bSecondCityHasHarbor)
-					{
-						if(GC.GetWaterRouteFinder().GeneratePath(pFirstCity->getX(), pFirstCity->getY(), pSecondCity->getX(), pSecondCity->getY(), m_pPlayer->GetID(), true))
-						{
-#if defined(MOD_EVENTS_CITY_CONNECTIONS)
-							pRouteInfo->m_cRouteState |= HAS_ANY_ROUTE | HAS_INDIRECT_ROUTE;
-#else
-							pRouteInfo->m_cRouteState |= HAS_ANY_ROUTE | HAS_WATER_ROUTE;
-#endif
-						}
-					}
-
-#if defined(MOD_EVENTS_CITY_CONNECTIONS)
-					if (!(pRouteInfo->m_cRouteState & HAS_ANY_ROUTE) && bCallIndirectEvents)
-					{
-						// Event to determine if pFirstCity is connected to pSecondCity by an alternative indirect route type
-						if (GAMEEVENTINVOKE_TESTANY(GAMEEVENT_CityConnected, m_pPlayer->GetID(), pFirstCity->getX(), pFirstCity->getY(), pSecondCity->getX(), pSecondCity->getY(), false) == GAMEEVENTRETURN_TRUE) {
-							pRouteInfo->m_cRouteState |= HAS_ANY_ROUTE | HAS_INDIRECT_ROUTE;
-						}
-					}
-#endif
-				}
 #if defined(MOD_BALANCE_CORE)
-				else if(iPass == 0)  // check land route
-#else
-				else if(iPass == 1)  // check land route
-#endif
-				{
+					//Actually check land route.
 					bool bAnyRouteFound = false;
 #if !defined(MOD_EVENTS_CITY_CONNECTIONS)
 					bool bBestRouteFound = false;
@@ -514,6 +459,171 @@ void CvCityConnections::UpdateRouteInfo(void)
 							pSecondCity->SetRouteToCapitalConnected(true);
 						}
 					}
+#else
+				// if either city is blockaded, don't consider a water connection
+					if(pFirstCity->IsBlockaded() || pSecondCity->IsBlockaded())
+					{
+						continue;
+					}
+
+					bool bFirstCityHasHarbor = false;
+					bool bSecondCityHasHarbor = false;
+
+					// Loop through adding the available buildings
+					for(int i = 0; i < (int)m_aBuildingsAllowWaterRoutes.size(); i++)
+					{
+						if(pFirstCity->GetCityBuildings()->GetNumActiveBuilding(m_aBuildingsAllowWaterRoutes[i]) > 0)
+						{
+							bFirstCityHasHarbor = true;
+						}
+
+						if(pSecondCity->GetCityBuildings()->GetNumActiveBuilding(m_aBuildingsAllowWaterRoutes[i]) > 0)
+						{
+							bSecondCityHasHarbor = true;
+						}
+					}
+
+					if(bFirstCityHasHarbor && bSecondCityHasHarbor)
+					{
+						if(GC.GetWaterRouteFinder().GeneratePath(pFirstCity->getX(), pFirstCity->getY(), pSecondCity->getX(), pSecondCity->getY(), m_pPlayer->GetID(), true))
+						{
+#if defined(MOD_EVENTS_CITY_CONNECTIONS)
+							pRouteInfo->m_cRouteState |= HAS_ANY_ROUTE | HAS_INDIRECT_ROUTE;
+#else
+							pRouteInfo->m_cRouteState |= HAS_ANY_ROUTE | HAS_WATER_ROUTE;
+#endif
+						}
+					}
+
+#if defined(MOD_EVENTS_CITY_CONNECTIONS)
+					if (!(pRouteInfo->m_cRouteState & HAS_ANY_ROUTE) && bCallIndirectEvents)
+					{
+						// Event to determine if pFirstCity is connected to pSecondCity by an alternative indirect route type
+						if (GAMEEVENTINVOKE_TESTANY(GAMEEVENT_CityConnected, m_pPlayer->GetID(), pFirstCity->getX(), pFirstCity->getY(), pSecondCity->getX(), pSecondCity->getY(), false) == GAMEEVENTRETURN_TRUE) {
+							pRouteInfo->m_cRouteState |= HAS_ANY_ROUTE | HAS_INDIRECT_ROUTE;
+						}
+					}
+#endif
+#endif
+				}
+				else if(iPass == 1)  // check land route
+				{
+#if defined(MOD_BALANCE_CORE)
+					//Actually check water route.
+					// if either city is blockaded, don't consider a water connection
+					if(pFirstCity->IsBlockaded() || pSecondCity->IsBlockaded())
+					{
+						continue;
+					}
+
+					bool bFirstCityHasHarbor = false;
+					bool bSecondCityHasHarbor = false;
+
+					// Loop through adding the available buildings
+					for(int i = 0; i < (int)m_aBuildingsAllowWaterRoutes.size(); i++)
+					{
+						if(pFirstCity->GetCityBuildings()->GetNumActiveBuilding(m_aBuildingsAllowWaterRoutes[i]) > 0)
+						{
+							bFirstCityHasHarbor = true;
+						}
+
+						if(pSecondCity->GetCityBuildings()->GetNumActiveBuilding(m_aBuildingsAllowWaterRoutes[i]) > 0)
+						{
+							bSecondCityHasHarbor = true;
+						}
+					}
+
+					if(bFirstCityHasHarbor && bSecondCityHasHarbor)
+					{
+						if(GC.GetWaterRouteFinder().GeneratePath(pFirstCity->getX(), pFirstCity->getY(), pSecondCity->getX(), pSecondCity->getY(), m_pPlayer->GetID(), true))
+						{
+#if defined(MOD_EVENTS_CITY_CONNECTIONS)
+							pRouteInfo->m_cRouteState |= HAS_ANY_ROUTE | HAS_INDIRECT_ROUTE;
+#else
+							pRouteInfo->m_cRouteState |= HAS_ANY_ROUTE | HAS_WATER_ROUTE;
+#endif
+							pFirstCity->SetRouteToCapitalConnected(true);
+							pSecondCity->SetRouteToCapitalConnected(true);
+						}
+					}
+
+#if defined(MOD_EVENTS_CITY_CONNECTIONS)
+					if (!(pRouteInfo->m_cRouteState & HAS_ANY_ROUTE) && bCallIndirectEvents)
+					{
+						// Event to determine if pFirstCity is connected to pSecondCity by an alternative indirect route type
+						if (GAMEEVENTINVOKE_TESTANY(GAMEEVENT_CityConnected, m_pPlayer->GetID(), pFirstCity->getX(), pFirstCity->getY(), pSecondCity->getX(), pSecondCity->getY(), false) == GAMEEVENTRETURN_TRUE) {
+							pRouteInfo->m_cRouteState |= HAS_ANY_ROUTE | HAS_INDIRECT_ROUTE;
+						}
+					}
+#endif
+#else
+					bool bAnyRouteFound = false;
+#if !defined(MOD_EVENTS_CITY_CONNECTIONS)
+					bool bBestRouteFound = false;
+
+					// assuming that there are fewer than 256 players
+					int iRouteValue = eBestRouteType + 1;
+					int iPathfinderFlags = (iRouteValue << 8);
+
+					if(pkLandRouteFinder->GeneratePath(pFirstCity->getX(), pFirstCity->getY(), pSecondCity->getX(), pSecondCity->getY(), iPathfinderFlags | m_pPlayer->GetID(), true))
+					{
+						bAnyRouteFound = true;
+						bBestRouteFound = true;
+					}
+#endif
+
+#if !defined(MOD_EVENTS_CITY_CONNECTIONS)
+					if(!bAnyRouteFound)
+#endif
+					{
+						if(pkLandRouteFinder->GeneratePath(pFirstCity->getX(), pFirstCity->getY(), pSecondCity->getX(), pSecondCity->getY(), MOVE_ANY_ROUTE | m_pPlayer->GetID(), true))
+						{
+							bAnyRouteFound = true;
+						}
+					}
+
+#if defined(MOD_EVENTS_CITY_CONNECTIONS)
+					if (!bAnyRouteFound && bCallDirectEvents)
+					{
+						// Event to determine if pFirstCity is connected to pSecondCity by an alternative direct route type
+						if (GAMEEVENTINVOKE_TESTANY(GAMEEVENT_CityConnected, m_pPlayer->GetID(), pFirstCity->getX(), pFirstCity->getY(), pSecondCity->getX(), pSecondCity->getY(), true) == GAMEEVENTRETURN_TRUE) {
+							bAnyRouteFound = true;
+						}
+					}
+#endif
+
+#if !defined(MOD_EVENTS_CITY_CONNECTIONS)
+					if(bBestRouteFound)
+					{
+						pRouteInfo->m_cRouteState |= HAS_BEST_ROUTE | HAS_ANY_ROUTE;
+					}
+					else if(bAnyRouteFound)
+#else
+					if(bAnyRouteFound)
+#endif
+					{
+						pRouteInfo->m_cRouteState |= HAS_ANY_ROUTE;
+					}
+
+					// walk through the nodes for plot route info
+					if(pFirstCity->isCapital() || pSecondCity->isCapital())
+					{
+						if(bAnyRouteFound)
+						{
+							CvPlot* pPlot = NULL;
+							CvAStarNode* pNode = pkLandRouteFinder->GetLastNode();
+							while(pNode)
+							{
+								pPlot = GC.getMap().plot(pNode->m_iX, pNode->m_iY);
+								ConnectPlotRoute(pPlot);
+								pNode = pNode->m_pParent;
+							}
+
+							pFirstCity->SetRouteToCapitalConnected(true);
+							pSecondCity->SetRouteToCapitalConnected(true);
+						}
+					}
+#endif
 				}
 			}
 		}

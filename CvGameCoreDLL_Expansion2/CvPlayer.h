@@ -555,6 +555,7 @@ public:
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_LUXURY)
 	int getPopNeededForLux() const;
+	int GetBonusHappinessFromLuxuries() const;
 	int GetBaseLuxuryHappiness() const;
 	void SetBaseLuxuryHappiness(int iValue);
 #endif
@@ -1501,6 +1502,8 @@ public:
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	bool HasMonopoly(ResourceTypes eResource) const;
 	void SetHasMonopoly(ResourceTypes eResource, bool bNewValue);
+	bool HasStrategicMonopoly(ResourceTypes eResource) const;
+	void SetHasStrategicMonopoly(ResourceTypes eResource, bool bNewValue);
 	void TestHasMonopoly(ResourceTypes eResource);
 #endif
 
@@ -2549,6 +2552,7 @@ protected:
 
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	FAutoVariable<std::vector<bool>, CvPlayer> m_pabHasMonopoly;
+	FAutoVariable<std::vector<bool>, CvPlayer> m_pabHasStrategicMonopoly;
 #endif
 
 	FAutoVariable<std::vector<bool>, CvPlayer> m_pabGetsScienceFromPlayer;

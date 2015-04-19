@@ -13,8 +13,8 @@
 			<ArtDefineTag>TEMPLE</ArtDefineTag>
 			<MinAreaSize>-1</MinAreaSize>
 			<Help>TXT_KEY_BUILDING_STUPA_HELP</Help>
-			<TechEnhancedTourism>1</TechEnhancedTourism>
-			<EnhancedYieldTech>TECH_THEOLOGY</EnhancedYieldTech>
+			<TechEnhancedTourism>2</TechEnhancedTourism>
+			<EnhancedYieldTech>TECH_ARCHITECTURE</EnhancedYieldTech>
 			<ReligiousPressureModifier>15</ReligiousPressureModifier>
 			<ConversionModifier>-20</ConversionModifier>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
@@ -148,7 +148,7 @@
 		<Row>
 			<BuildingType>BUILDING_CHURCH</BuildingType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>3</Yield>
+			<Yield>4</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_MANDIR</BuildingType>

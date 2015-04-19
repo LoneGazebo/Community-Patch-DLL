@@ -86,3 +86,7 @@
 	SET Text = ' You are currently using more {1_Resource:textkey} than you have! All units which require it are [COLOR_NEGATIVE_TEXT]unable to heal[ENDCOLOR].'
 	WHERE Tag = 'TXT_KEY_NOTIFICATION_OVER_RESOURCE_LIMIT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );
 	
+--	Natural Wonders
+	UPDATE Language_en_US
+	SET Text = ' Congratulations on your discovery of {@1_NWName}! [NEWLINE][NEWLINE]Output if worked:'
+	WHERE Tag = 'TXT_KEY_POP_NATURAL_WONDER_FOUND_TT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );

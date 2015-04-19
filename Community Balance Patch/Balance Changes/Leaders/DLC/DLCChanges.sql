@@ -283,6 +283,61 @@ WHERE Type = 'UNIT_SPANISH_TERCIO' AND EXISTS (SELECT * FROM COMMUNITY WHERE Typ
 DELETE FROM Civilization_UnitClassOverrides
 WHERE UnitType = 'UNIT_SPANISH_TERCIO' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
+UPDATE Traits
+Set NaturalWonderFirstFinderGold = '400'
+WHERE Type = 'TRAIT_SEVEN_CITIES' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
+UPDATE Traits
+Set NaturalWonderSubsequentFinderGold = '400'
+WHERE Type = 'TRAIT_SEVEN_CITIES' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
+UPDATE Traits
+Set NaturalWonderYieldModifier = '50'
+WHERE Type = 'TRAIT_SEVEN_CITIES' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
+UPDATE Language_en_US
+SET Text = 'Receive [ICON_GOLD] Gold bonuses from discovering Natural Wonders. [ICON_HAPPINESS_1] Happiness and tile yields from Natural Wonders increased by 50%. All Military Units receive the Reconnaissance Promotion for free.'
+WHERE Tag = 'TXT_KEY_TRAIT_SEVEN_CITIES' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
+INSERT INTO Trait_FreePromotionUnitCombats 
+(TraitType, UnitCombatType, PromotionType)
+SELECT 'TRAIT_SEVEN_CITIES', 'UNITCOMBAT_ARCHER', 'PROMOTION_RECON_EXPERIENCE';
+
+INSERT INTO Trait_FreePromotionUnitCombats 
+(TraitType, UnitCombatType, PromotionType)
+SELECT 'TRAIT_SEVEN_CITIES', 'UNITCOMBAT_MOUNTED', 'PROMOTION_RECON_EXPERIENCE';
+
+INSERT INTO Trait_FreePromotionUnitCombats 
+(TraitType, UnitCombatType, PromotionType)
+SELECT 'TRAIT_SEVEN_CITIES', 'UNITCOMBAT_MELEE', 'PROMOTION_RECON_EXPERIENCE';
+
+INSERT INTO Trait_FreePromotionUnitCombats 
+(TraitType, UnitCombatType, PromotionType)
+SELECT 'TRAIT_SEVEN_CITIES', 'UNITCOMBAT_SIEGE', 'PROMOTION_RECON_EXPERIENCE';
+
+INSERT INTO Trait_FreePromotionUnitCombats 
+(TraitType, UnitCombatType, PromotionType)
+SELECT 'TRAIT_SEVEN_CITIES', 'UNITCOMBAT_GUN', 'PROMOTION_RECON_EXPERIENCE';
+
+INSERT INTO Trait_FreePromotionUnitCombats 
+(TraitType, UnitCombatType, PromotionType)
+SELECT 'TRAIT_SEVEN_CITIES', 'UNITCOMBAT_ARMOR', 'PROMOTION_RECON_EXPERIENCE';
+
+INSERT INTO Trait_FreePromotionUnitCombats 
+(TraitType, UnitCombatType, PromotionType)
+SELECT 'TRAIT_SEVEN_CITIES', 'UNITCOMBAT_NAVALRANGED', 'PROMOTION_RECON_EXPERIENCE';
+
+INSERT INTO Trait_FreePromotionUnitCombats 
+(TraitType, UnitCombatType, PromotionType)
+SELECT 'TRAIT_SEVEN_CITIES', 'UNITCOMBAT_NAVALMELEE', 'PROMOTION_RECON_EXPERIENCE';
+
+INSERT INTO Trait_FreePromotionUnitCombats 
+(TraitType, UnitCombatType, PromotionType)
+SELECT 'TRAIT_SEVEN_CITIES', 'UNITCOMBAT_SUBMARINE', 'PROMOTION_RECON_EXPERIENCE';
+
+INSERT INTO Trait_FreePromotionUnitCombats 
+(TraitType, UnitCombatType, PromotionType)
+SELECT 'TRAIT_SEVEN_CITIES', 'UNITCOMBAT_CARRIER', 'PROMOTION_RECON_EXPERIENCE';
 -- Inca
 UPDATE Language_en_US
 SET Text = 'This Incan Unique Unit replaces the Archer. The Slinger is less powerful than the Archer, and is even more fragile if subjected to a melee attack. However it possesses a promotion that gives it a good chance to withdraw to the rear before an enemy melee attack can occur, and can attack twice in one turn.'

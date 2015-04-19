@@ -1243,10 +1243,8 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTarget2(AIOperationTypes eAIOperati
 				if(new_target.m_pTargetCity)
 				{
 					cachedTarget.iTargetCity = new_target.m_pTargetCity->GetGlobalID();
-					//again, naval doesn't need a muster city
-					if(eAIOperationType != AI_OPERATION_NAVAL_SNEAK_ATTACK && eAIOperationType != AI_OPERATION_CITY_STATE_NAVAL_ATTACK && eAIOperationType != AI_OPERATION_NAVAL_ATTACK)
-						if (new_target.m_pMusterCity)
-							cachedTarget.iMusterCity = new_target.m_pMusterCity->GetGlobalID();
+					if (new_target.m_pMusterCity)
+						cachedTarget.iMusterCity = new_target.m_pMusterCity->GetGlobalID();
 					cachedTarget.bAttackBySea = new_target.m_bAttackBySea;
 					cachedTarget.iScore = iNewScore;
 					cachedTarget.iTurnChosen = GC.getGame().getGameTurn();			
@@ -1518,11 +1516,11 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTarget(AIOperationTypes eAIOperatio
 			}
 		}
 	}
-	// Let's score the 15 shortest paths ... anything more than that means there are too many interior cities from one (or both) sides being considered
+	// Let's score the 10 shortest paths ... anything more than that means there are too many interior cities from one (or both) sides being considered
 	prelimWeightedTargetList.SortItems();
 	weightedTargetList.clear();
 	int iTargetsConsidered = 0;
-	for (int iI = 0; iI < prelimWeightedTargetList.size() && iTargetsConsidered < 15; iI++)
+	for (int iI = 0; iI < prelimWeightedTargetList.size() && iTargetsConsidered < 10; iI++)
 	{
 		CvMilitaryTarget target = prelimWeightedTargetList.GetElement(iI);
 		int iWeight;
@@ -2075,18 +2073,29 @@ int CvMilitaryAI::ScoreTarget(CvMilitaryTarget& target, AIOperationTypes eAIOper
 	}
 
 	float fDesirability = 1;
-	if (eAIOperationType != AI_OPERATION_SNEAK_CITY_ATTACK && eAIOperationType != AI_OPERATION_NAVAL_SNEAK_ATTACK)
+	if (target.m_pTargetCity->IsOriginalCapital())
 	{
-		if (target.m_pTargetCity->IsOriginalCapital())
+		fDesirability *= GC.getAI_MILITARY_CAPTURING_ORIGINAL_CAPITAL();
+		fDesirability /= 100;
+	}
+	if (target.m_pTargetCity->getOriginalOwner() == m_pPlayer->GetID())
+	{
+		fDesirability *= GC.getAI_MILITARY_RECAPTURING_OWN_CITY();
+		fDesirability /= 100;
+	}
+	int iRange = 8;
+
+	// Within 8 hexes? This is a real good target for a sneak attack.
+	if(eAIOperationType == AI_OPERATION_NAVAL_SNEAK_ATTACK || AI_OPERATION_SNEAK_CITY_ATTACK)
+	{
+		if(target.m_pMusterCity && target.m_pTargetCity)
 		{
-			fDesirability *= GC.getAI_MILITARY_CAPTURING_ORIGINAL_CAPITAL();
-			fDesirability /= 100;
+			if(::plotDistance(target.m_pMusterCity->getX(), target.m_pMusterCity->getY(), target.m_pTargetCity->getX(), target.m_pTargetCity->getY()) < iRange)
+			{
+				fDesirability *= 10;
+			}
 		}
-		if (target.m_pTargetCity->getOriginalOwner() == m_pPlayer->GetID())
-		{
-			fDesirability *= GC.getAI_MILITARY_RECAPTURING_OWN_CITY();
-			fDesirability /= 100;
-		}
+	}
 	
 #if defined(MOD_DIPLOMACY_CITYSTATES)
 	if (MOD_DIPLOMACY_CITYSTATES) {
@@ -2127,16 +2136,12 @@ int CvMilitaryAI::ScoreTarget(CvMilitaryTarget& target, AIOperationTypes eAIOper
 			}
 		}
 	}
-#endif
-	}			
+#endif			
 	
-	// Economic value of target, but only if not a sneak attack (proximity is everything for sneak attacks)
+	// Economic value of target
 	float fEconomicValue = 1.0;
-	if (eAIOperationType != AI_OPERATION_SNEAK_CITY_ATTACK && eAIOperationType != AI_OPERATION_NAVAL_SNEAK_ATTACK)
-	{
-		fEconomicValue = (float)target.m_pTargetCity->getEconomicValue( GetPlayer()->GetID(), 100 );
-		fEconomicValue = sqrt(fEconomicValue/100);
-	}
+	fEconomicValue = (float)target.m_pTargetCity->getEconomicValue( GetPlayer()->GetID(), 100 );
+	fEconomicValue = sqrt(fEconomicValue/100);
 
 	//everything together now
 	int iRtnValue = (int)(100 * fDistWeightInterpolated * fApproachMultiplier * fStrengthRatio * fDesirability * fEconomicValue);
@@ -2406,12 +2411,12 @@ CityAttackApproaches CvMilitaryAI::EvaluateMilitaryApproaches(CvCity* pCity, boo
 			if (bBlocked)
 				iNumBlocked++;
 			else if (bHarmful)
-				iNumTough+=2;
+				iNumTough++;
 			else if (bTough)
 				iNumTough++;
 		}
 	}
-	iNumBlocked = (iNumTough / 6) + iNumBlocked;
+	iNumBlocked = (iNumTough / 8) + iNumBlocked;
 	iTotal = (iNumBlocked * 100) / /*36*/ iNumPlots;
 	//We want a number between 0 and 100
 	if (iTotal<10)
@@ -2685,11 +2690,18 @@ int CvMilitaryAI::GetNumberCivsAtWarWith() const
 		// Is this a player we have relations with?
 		if(eLoopPlayer != m_pPlayer->GetID() && m_pPlayer->GetDiplomacyAI()->IsPlayerValid(eLoopPlayer))
 		{
+#if defined(MOD_BALANCE_CORE)
+			if(!GET_PLAYER(eLoopPlayer).isMinorCiv())
+			{
+#endif
 			eWarState = m_pPlayer->GetDiplomacyAI()->GetWarState(eLoopPlayer);
 			if(eWarState != NO_WAR_STATE_TYPE)
 			{
 				iRtnValue++;
 			}
+#if defined(MOD_BALANCE_CORE)
+			}
+#endif
 		}
 	}
 
@@ -3256,7 +3268,7 @@ void CvMilitaryAI::UpdateBaseData()
 			if(eOtherPlayer != NO_PLAYER && !GET_PLAYER(eOtherPlayer).isMinorCiv() && (eOtherPlayer != m_pPlayer->GetID()))
 			{
 				MajorCivApproachTypes eApproachType = GetPlayer()->GetDiplomacyAI()->GetMajorCivApproach(eOtherPlayer, false);
-				if((eApproachType <= MAJOR_CIV_APPROACH_GUARDED) || (GET_PLAYER(eOtherPlayer).GetProximityToPlayer(GetPlayer()->GetID()) == PLAYER_PROXIMITY_NEIGHBORS))
+				if((eApproachType < MAJOR_CIV_APPROACH_GUARDED) && (GET_PLAYER(eOtherPlayer).GetProximityToPlayer(GetPlayer()->GetID()) >= PLAYER_PROXIMITY_CLOSE))
 				{
 					for (int iUnitLoop = 0; iUnitLoop < GET_PLAYER(eOtherPlayer).getNumUnits(); iUnitLoop++)
 					{
@@ -3953,7 +3965,7 @@ void CvMilitaryAI::UpdateOperations()
 		}
 	}
 
-	else
+	if(m_pPlayer->GetMilitaryAI()->GetNumberCivsAtWarWith() > 0)
 	{
 		// Are any of our strategies inappropriate given the type of war we are fighting
 		for(iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
@@ -3986,6 +3998,20 @@ void CvMilitaryAI::UpdateOperations()
 					if(pOperation)
 					{
 						pOperation->Kill(AI_ABORT_WAR_STATE_CHANGE);
+					}
+				}
+				//Are we at war with the civ? Sneak attacks aren't viable any more (as we aren't sneaking)
+				if(GET_TEAM(m_pPlayer->getTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam()))
+				{
+					pOperation = GetSneakAttackOperation(eLoopPlayer);
+					if(pOperation)
+					{
+						int iOperationPercentMustered = pOperation->PercentFromMusterPointToTarget();
+
+						if(iOperationPercentMustered < 50)
+						{
+							pOperation->Kill(AI_ABORT_WAR_STATE_CHANGE);
+						}
 					}
 				}
 				eWarState = m_pPlayer->GetDiplomacyAI()->GetWarState(eLoopPlayer);
@@ -4363,17 +4389,23 @@ void CvMilitaryAI::UpdateOperations()
 						}
 						if(pNearestCoastalCityEnemy != NULL)
 						{	
-							bool bHasOperationUnderway = m_pPlayer->haveAIOperationOfType(AI_OPERATION_NAVAL_SUPERIORITY, &iOperationID, eLoopPlayer, pNearestCoastalCityEnemy->plot());
-							if (!bHasOperationUnderway)
+							iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(m_pPlayer, MUFORMATION_PURE_NAVAL_CITY_ATTACK, true, &iNumRequiredSlots);
+							bool bHasOperationUnderway = m_pPlayer->haveAIOperationOfType(AI_OPERATION_NAVAL_SUPERIORITY, &iOperationID, eLoopPlayer);
+							// If we can afford a pure naval attack, let's do that instead.
+							if ((iFilledSlots < iNumRequiredSlots) && !bHasOperationUnderway)
 							{
-								m_pPlayer->addAIOperation(AI_OPERATION_NAVAL_SUPERIORITY, eLoopPlayer, pNearestCoastalCityEnemy->getArea(), pNearestCoastalCityEnemy, pNearestCoastalCity);
+								iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(m_pPlayer, MUFORMATION_NAVAL_SQUADRON, true, &iNumRequiredSlots);
+								if (iFilledSlots >= iNumRequiredSlots)
+								{
+									m_pPlayer->addAIOperation(AI_OPERATION_NAVAL_SUPERIORITY, eLoopPlayer, pNearestCoastalCityEnemy->getArea(), pNearestCoastalCityEnemy, pNearestCoastalCity);
+								}
+							}
+							else if (eWarState >= WAR_STATE_DEFENSIVE)
+							{
+								int iFlavorNaval = m_pPlayer->GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_NAVAL"));
+								RequestPureNavalAttack(eLoopPlayer, (iFlavorNaval / 2));
 							}
 						}
-					}
-					if (eWarState >= WAR_STATE_DEFENSIVE)
-					{
-						int iFlavorNaval = m_pPlayer->GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_NAVAL"));
-						RequestPureNavalAttack(eLoopPlayer, (iFlavorNaval / 2));
 					}
 				}
 				else if(GET_PLAYER(eLoopPlayer).isMinorCiv())
@@ -5236,7 +5268,11 @@ UnitHandle CvMilitaryAI::FindBestUnitToScrap(bool bLand, bool bDeficitForcedDisb
 				continue;
 			}
 			// Can I still build this unit? If so too new to scrap
+#if defined(MOD_BALANCE_CORE)
+			if(bLand && m_pPlayer->canTrain(pLoopUnit->getUnitType(), false /*bContinue*/, true /*bTestVisible*/, true /*bIgnoreCost*/))
+#else
 			if(bLand && m_pPlayer->canTrain(pLoopUnit->getUnitType(), false /*bContinue*/, false /*bTestVisible*/, true /*bIgnoreCost*/))
+#endif
 			{
 				continue;
 			}
@@ -6326,11 +6362,39 @@ bool MilitaryAIHelpers::IsTestStrategy_WarMobilization(MilitaryAIStrategyTypes e
 			iCurrentWeight += 25;
 		}
 	}
+#if defined(MOD_BALANCE_CORE)
+	if(pPlayer->IsCramped())
+	{
+		iCurrentWeight += 25;
+	}
+	int iExpansionFlavor = 0;
+	for(int iFlavorLoop = 0; iFlavorLoop < GC.getNumFlavorTypes(); iFlavorLoop++)
+	{
+		if(GC.getFlavorTypes((FlavorTypes) iFlavorLoop) == "FLAVOR_EXPANSION")
+		{
+			iExpansionFlavor += pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes) iFlavorLoop);
+		}
+		if(GC.getFlavorTypes((FlavorTypes) iFlavorLoop) == "FLAVOR_OFFENSE")
+		{
+			iExpansionFlavor += pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes) iFlavorLoop);
+		}
+	}
+#endif
 
 	CvDiplomacyAI* pkDiplomacyAI = pPlayer->GetDiplomacyAI();
 	for(int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
 	{
 		eOtherPlayer = (PlayerTypes) iMajorLoop;
+#if defined(MOD_BALANCE_CORE)
+		if(pkDiplomacyAI->GetVictoryBlockLevel(eOtherPlayer) > BLOCK_LEVEL_WEAK)
+		{
+			iCurrentWeight += 10;
+		}
+		if(pkDiplomacyAI->GetVictoryDisputeLevel(eOtherPlayer) > DISPUTE_LEVEL_WEAK)
+		{
+			iCurrentWeight += 20;
+		}
+#endif
 
 		// Mobilize for war is automatic if we are preparing a sneak attack
 		if(pkDiplomacyAI->GetWarGoal(eOtherPlayer) == WAR_GOAL_PREPARE || pPlayer->GetMilitaryAI()->GetArmyBeingBuilt() != NO_ARMY_TYPE)
@@ -6738,7 +6802,11 @@ int MilitaryAIHelpers::ComputeRecommendedNavySize(CvPlayer* pPlayer)
 	CvCity* pCity;
 	for(pCity = pPlayer->firstCity(&iLoop); pCity != NULL; pCity = pPlayer->nextCity(&iLoop))
 	{
+#if defined(MOD_BALANCE_CORE_MILITARY)
+		if(pCity->isCoastal(GC.getMIN_WATER_SIZE_FOR_OCEAN()))
+#else
 		if(pCity->isCoastal(-1))
+#endif
 		{
 			iNumCoastalCities++;
 		}
@@ -6801,7 +6869,7 @@ int MilitaryAIHelpers::ComputeRecommendedNavySize(CvPlayer* pPlayer)
 			if(eOtherPlayer != NO_PLAYER && !GET_PLAYER(eOtherPlayer).isMinorCiv() && (eOtherPlayer != pPlayer->GetID()))
 			{
 				MajorCivApproachTypes eApproachType = pPlayer->GetDiplomacyAI()->GetMajorCivApproach(eOtherPlayer, false);
-				if((eApproachType <= MAJOR_CIV_APPROACH_GUARDED) || (GET_PLAYER(eOtherPlayer).GetProximityToPlayer(pPlayer->GetID()) == PLAYER_PROXIMITY_NEIGHBORS))
+				if((eApproachType != MAJOR_CIV_APPROACH_FRIENDLY) && (GET_PLAYER(eOtherPlayer).GetProximityToPlayer(pPlayer->GetID()) >= PLAYER_PROXIMITY_CLOSE))
 				{
 					for (int iUnitLoop = 0; iUnitLoop < GET_PLAYER(eOtherPlayer).getNumUnits(); iUnitLoop++)
 					{

@@ -2842,51 +2842,6 @@ bool CvAIOperationBasicCityAttack::ArmyInPosition(CvArmyAI* pArmy)
 
 			m_eCurrentState = AI_OPERATION_STATE_SUCCESSFUL_FINISH;
 		}
-#if defined(MOD_BALANCE_CORE_MILITARY)
-		//Did we bump into them on the way in? Whoops! We've been caught, so attack!
-		else if(pArmy && !GET_TEAM(GET_PLAYER(m_eEnemy).getTeam()).isAtWar(GET_PLAYER(m_eOwner).getTeam()))
-		{
-			for(int iDirectionLoop = 0; iDirectionLoop < NUM_DIRECTION_TYPES; ++iDirectionLoop)
-			{
-				UnitHandle pUnit;
-				pUnit = pArmy->GetFirstUnit();
-				while(pUnit)
-				{
-					CvPlot* pAdjacentPlot = plotDirection(pUnit->getX(), pUnit->getY(), ((DirectionTypes)iDirectionLoop));
-					CvUnit* pOtherUnit = NULL;
-					if(pAdjacentPlot->getNumUnits() > 0)
-					{
-						 pOtherUnit = pAdjacentPlot->getUnitByIndex(0);
-					}
-					if(pAdjacentPlot != NULL && ((pAdjacentPlot->getOwner() == GetEnemy()) || (pOtherUnit != NULL && (pOtherUnit->getOwner() == GetEnemy()))))
-					{
-								// Notify Diplo AI we're in place for attack
-						GET_PLAYER(GetOwner()).GetDiplomacyAI()->SetMusteringForAttack(GetEnemy(), true);
-						pArmy->SetGoalPlot(pAdjacentPlot);
-						SetTargetPlot(pAdjacentPlot);
-
-						// Notify tactical AI to focus on this area
-						CvTemporaryZone zone;
-						zone.SetX(pUnit->getX());
-						zone.SetY(pUnit->getY());
-						zone.SetTargetType(AI_TACTICAL_TARGET_CITY);
-						zone.SetLastTurn(GC.getGame().getGameTurn() + GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS());
-						GET_PLAYER(m_eOwner).GetTacticalAI()->AddTemporaryZone(zone);
-
-						m_eCurrentState = AI_OPERATION_STATE_SUCCESSFUL_FINISH;
-						if(GC.getLogging() && GC.getAILogging())
-						{
-							CvString szMsg;
-							szMsg.Format("Our sneak attack was discovered! We are now attacking the nearest enemy stuff we can. New target is, X: %d, Y: %d", pArmy->GetGoalPlot()->getX(), pArmy->GetGoalPlot()->getY());
-							LogOperationSpecialMessage(szMsg);
-						}
-						break;
-					}
-					pUnit = pArmy->GetNextUnit();
-				}
-			}
-		}
-#endif
 	}
 	break;
 
@@ -5660,14 +5615,22 @@ void CvAIOperationNavalSuperiority::Init(int iID, PlayerTypes eOwner, PlayerType
 #if defined(MOD_BALANCE_CORE_MILITARY)
 			if(pMuster != NULL)
 			{
-				SetMusterPlot(pMuster->plot());
+				CvPlot* pPlot = GET_PLAYER(m_eOwner).GetMilitaryAI()->GetCoastalPlotAdjacentToTarget(pMuster->plot(), pArmyAI);
+				if(pPlot != NULL)
+				{
+					SetMusterPlot(pPlot);
+				}
 			}
 			if(GetMusterPlot() != NULL)
 			{
 				if(pTarget != NULL)
 				{
-					SetTargetPlot(pTarget->plot());
-					pArmyAI->SetGoalPlot(pTarget->plot());
+					CvPlot* pPlot = GET_PLAYER(m_eOwner).GetMilitaryAI()->GetCoastalPlotAdjacentToTarget(pTarget->plot(), pArmyAI);
+					if(pPlot != NULL)
+					{
+						SetTargetPlot(pPlot);
+						pArmyAI->SetGoalPlot(pPlot);
+					}
 				}
 				else
 				{
@@ -5950,6 +5913,18 @@ CvPlot* CvAIOperationNavalSuperiority::FindBestTarget()
 	if(GetMusterPlot() != NULL)
 	{
 		pStartPlot = GetMusterPlot();
+		if(GetTargetPlot() != NULL)
+		{
+			iDistance = plotDistance(pStartPlot->getX(), pStartPlot->getY(), GetTargetPlot()->getX(), GetTargetPlot()->getY());
+			if(GC.GetWaterRouteFinder().GeneratePath(pStartPlot->getX(), pStartPlot->getY(), GetTargetPlot()->getX(), GetTargetPlot()->getY()))
+			{
+				iClosestEnemy = iDistance;
+			}
+		}
+		if(iClosestEnemy <= 3 )
+		{
+			return GetTargetPlot();
+		}
 		for(iPlotLoop = 0; iPlotLoop < GC.getMap().numPlots(); iPlotLoop++)
 		{
 			pPlot = GC.getMap().plotByIndexUnchecked(iPlotLoop);
@@ -5981,6 +5956,10 @@ CvPlot* CvAIOperationNavalSuperiority::FindBestTarget()
 		if(pEnemyTarget != NULL)
 		{
 			return pEnemyTarget;
+		}
+		else if(GetTargetPlot() != NULL)
+		{
+			return GetTargetPlot();
 		}
 	}
 #else

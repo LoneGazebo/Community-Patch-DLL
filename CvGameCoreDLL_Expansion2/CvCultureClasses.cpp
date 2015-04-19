@@ -3565,7 +3565,8 @@ void CvPlayerCulture::AddTourismAllKnownCivs(int iTourism)
 /// What is our war weariness value?
 int CvPlayerCulture::ComputeWarWeariness()
 {
-	if(!m_pPlayer->IsAtWar())
+	MilitaryAIStrategyTypes eStrategyFightAWar = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_AT_WAR");
+	if(!m_pPlayer->GetMilitaryAI()->IsUsingStrategy(eStrategyFightAWar))
 	{
 		if(m_iWarWeariness > 0)
 		{
@@ -3580,7 +3581,6 @@ int CvPlayerCulture::ComputeWarWeariness()
 	}
 	else
 	{
-		MilitaryAIStrategyTypes eStrategyFightAWar = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_AT_WAR");
 		int iWarTurns = 0;
 		int iTotalPop = m_pPlayer->getTotalPopulation();
 		if(m_pPlayer->GetMilitaryAI()->IsUsingStrategy(eStrategyFightAWar))

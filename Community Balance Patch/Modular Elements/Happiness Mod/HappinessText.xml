@@ -121,7 +121,7 @@
 		
 		<!-- Luxury Tooltip -->
 		<Row Tag="TXT_KEY_TP_HAPPINESS_THRESHOLD_VALUE">
-			<Text>[ENDCOLOR]Each of your Luxury Resources produces [COLOR_POSITIVE_TEXT]{3_Num}[ENDCOLOR] [ICON_HAPPINESS_1] Happiness. [NEWLINE]To increase this value, your Empire's Population must reach: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR][NEWLINE]Your Empire's current Population is: [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR] [NEWLINE]The target value increases with every Technology [ICON_RESEARCH] researched.</Text>
+			<Text>[NEWLINE]To increase your Luxury Resource Population Bonus Threshold from [COLOR_POSITIVE_TEXT]{3_Num}[ENDCOLOR] to [COLOR_POSITIVE_TEXT]{4_Num}[ENDCOLOR], your Empire's Population must reach [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR]. Your current Population is [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR].</Text>
 		</Row>
 		
 		<Row Tag="TXT_KEY_EO_CITY_CONNECTED">

@@ -208,6 +208,13 @@ void CvPlayerAI::AI_updateFoundValues(bool /*unused*/)
 			//cache the result
 			pLoopPlot->setFoundValue(eID, iValue);
 		}
+		else if(getCapitalCity() != NULL && pLoopPlot->getArea() == getCapitalCity()->getArea())
+		{
+			const int iValue = GC.getGame().GetSettlerSiteEvaluator()->PlotFoundValue(pLoopPlot, this, NO_YIELD, false);
+			
+			//cache the result
+			pLoopPlot->setFoundValue(eID, iValue);
+		}
 		else
 		{
 			pLoopPlot->setFoundValue(eID, -1);

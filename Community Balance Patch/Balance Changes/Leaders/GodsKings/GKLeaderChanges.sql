@@ -45,6 +45,10 @@ UPDATE Units
 SET Class = 'UNITCLASS_CATAPULT'
 WHERE Type = 'UNIT_HUN_BATTERING_RAM' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
+INSERT INTO Unit_FreePromotions (UnitType, PromotionType)
+SELECT 'UNIT_HUN_BATTERING_RAM' , 'PROMOTION_COVER_2'
+WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
 UPDATE Units
 SET PrereqTech = 'TECH_ARCHERY'
 WHERE Type = 'UNIT_HUN_BATTERING_RAM' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
@@ -54,7 +58,7 @@ Set UnitClassType = 'UNITCLASS_CATAPULT'
 WHERE UnitType = 'UNIT_HUN_BATTERING_RAM' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Battering Rams are a Hunnic unique unit replacing the Catapult. Battering Rams are available earlier than Catapults, and are cheaper. Use Battering Rams to knock down the defenses of a city. They have the Cover I promotion to keep them safe from ranged units; attack them with melee units to defeat them.'
+SET Text = 'Battering Rams are a Hunnic unique unit replacing the Catapult. Battering Rams are available earlier than Catapults, and are cheaper. Use Battering Rams to knock down the defenses of a city. They have the Cover I and II promotions to keep them safe from ranged units; attack them with melee units to defeat them.'
 WHERE Tag = 'TXT_KEY_UNIT_HUN_BATTERING_RAM_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 	
 -- Horse Archer -- Break Off, Make Upgrade for Chariot Archer

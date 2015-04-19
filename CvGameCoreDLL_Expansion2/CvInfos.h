@@ -1400,6 +1400,11 @@ public:
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	int getMonopolyHappiness() const;
 	int getMonopolyGALength() const;
+	int getMonopolyAttackBonus() const;
+	int getMonopolyDefenseBonus() const;
+	int getMonopolyMovementBonus() const;
+	int getMonopolyHealBonus() const;
+	int getMonopolyXPBonus() const;
 	bool isMonopoly() const;
 #endif
 
@@ -1483,6 +1488,11 @@ protected:
 	int m_iMonopolyHappiness;
 	int m_iMonopolyGALength;
 	bool m_bIsMonopoly;
+	int m_iMonopolyAttackBonus;
+	int m_iMonopolyDefenseBonus;
+	int m_iMonopolyMovementBonus;
+	int m_iMonopolyHealBonus;
+	int m_iMonopolyXPBonus;
 #endif
 
 	bool m_bPresentOnAllValidPlots;

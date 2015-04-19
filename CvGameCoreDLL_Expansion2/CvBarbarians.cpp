@@ -783,6 +783,7 @@ void CvBarbarians::DoUnits()
 						if(iTheft > 0)
 						{
 							pCity->changeDamage((iTheft / 2));
+							pUnit->changeDamage((iTheft / 4));
 							int iYield = GC.getGame().getJonRandNum(10, "Barbarian Theft Value");
 							if(iYield <= 2)
 							{

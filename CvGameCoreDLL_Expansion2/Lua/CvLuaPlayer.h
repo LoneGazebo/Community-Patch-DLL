@@ -631,6 +631,7 @@ protected:
 	LUAAPIEXTN(GetUnhappinessFromCityMinority, int);
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_LUXURY)
+	LUAAPIEXTN(GetBonusHappinessFromLuxuries, int);
 	LUAAPIEXTN(GetPopNeededForLux, int);
 	LUAAPIEXTN(GetCurrentTotalPop, int);
 	LUAAPIEXTN(GetBaseLuxuryHappiness, int);

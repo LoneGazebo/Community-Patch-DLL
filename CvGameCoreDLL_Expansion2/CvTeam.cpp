@@ -1,5 +1,5 @@
-/*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+ï»¿/*	-------------------------------------------------------------------------------------------------------
+	ï¿½ 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -1149,7 +1149,7 @@ bool CvTeam::canDeclareWar(TeamTypes eTeam) const
 	m_cacheCanDeclareWar[args] = bResult;
 	return bResult;
 
-#endif
+#else
 
 	if(eTeam == GetID())
 	{
@@ -1221,6 +1221,7 @@ bool CvTeam::canDeclareWar(TeamTypes eTeam) const
 	}
 
 	return true;
+#endif
 }
 
 //	-----------------------------------------------------------------------------------------------
@@ -1533,7 +1534,11 @@ void CvTeam::DoDeclareWar(TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyP
 							// Have I actually met this player declaring war?
 							if(GET_TEAM(GET_PLAYER((PlayerTypes) iMajorCivLoop2).getTeam()).isHasMet(GET_PLAYER((PlayerTypes) iMajorCivLoop).getTeam()))
 							{
+#if defined(MOD_BALANCE_CORE)
+								GET_PLAYER((PlayerTypes) iMajorCivLoop2).GetDiplomacyAI()->DoPlayerDeclaredWarOnSomeone((PlayerTypes) iMajorCivLoop, eTeam, bDefensivePact);
+#else
 								GET_PLAYER((PlayerTypes) iMajorCivLoop2).GetDiplomacyAI()->DoPlayerDeclaredWarOnSomeone((PlayerTypes) iMajorCivLoop, eTeam);
+#endif
 
 								if(!bDefensivePact)
 								{
@@ -2795,6 +2800,7 @@ PlayerTypes CvTeam::getLeaderID() const
 
 #else
 
+
 	int iI;
 	for(iI = 0; iI < MAX_PLAYERS; iI++)
 	{
@@ -3954,7 +3960,11 @@ void CvTeam::makeHasMet(TeamTypes eIndex, bool bSuppressMessages)
 
 			// Minor reveals his capital to the player so that he can click on the City to contact
 			CvCity* pCap = GET_PLAYER(GET_TEAM(eIndex).getLeaderID()).getCapitalCity();
+#if defined(MOD_BALANCE_CORE)
+			if(pCap != NULL)
+#else
 			if(pCap)
+#endif
 			{
 				iCapitalX  = pCap->getX();
 				iCapitalY  = pCap->getY();

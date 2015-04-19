@@ -2145,6 +2145,34 @@ void CvCity::doTurn()
 		ChangePurchaseCooldown(-1);
 	}
 #endif
+#if defined(MOD_BALANCE_CORE)
+	if(MOD_BALANCE_CORE)
+	{
+		int iNumAllies = 0;
+		// Loop through all minors and get the total number we've met.
+		for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+		{
+			PlayerTypes eMinor = (PlayerTypes) iPlayerLoop;
+
+			if (eMinor != GET_PLAYER(getOwner()).GetID() && GET_PLAYER(eMinor).isAlive() && GET_PLAYER(eMinor).isMinorCiv())
+			{
+				if (GET_PLAYER(eMinor).GetMinorCivAI()->IsAllies(GET_PLAYER(getOwner()).GetID()))
+				{
+					iNumAllies++;
+				}
+			}
+		}
+		//If we get a yield bonus in all cities because of CS alliance, this is a good place to refresh it.
+		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+		{
+			YieldTypes eYield = (YieldTypes) iI;
+			if(GET_PLAYER(getOwner()).GetPlayerTraits()->GetYieldFromCSAlly(eYield) > 0)
+			{
+				SetBaseYieldRateFromCSAlliance(eYield, (GET_PLAYER(getOwner()).GetPlayerTraits()->GetYieldFromCSAlly(eYield) * iNumAllies));
+			}
+		}
+	}
+#endif
 	bool bRazed = DoRazingTurn();
 
 	if(!bRazed)
@@ -8098,6 +8126,35 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 #if defined(MOD_API_UNIFIED_YIELDS)
 			ChangeBaseYieldRateFromBuildings(eYield, GET_PLAYER(getOwner()).GetPlayerTraits()->GetBuildingClassYieldChange(eBuildingClass, eYield) * iChange);
 #endif
+#if defined(MOD_BALANCE_CORE)
+			// Building modifiers
+			BuildingClassTypes eBuildingClassLocal;
+			for(int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
+			{
+				eBuildingClassLocal = (BuildingClassTypes) iI;
+
+				CvBuildingClassInfo* pkBuildingClassLocalInfo = GC.getBuildingClassInfo(eBuildingClassLocal);
+				if(!pkBuildingClassLocalInfo)
+				{
+					continue;
+				}
+
+				BuildingTypes eLocalBuilding = (BuildingTypes) getCivilizationInfo().getCivilizationBuildings(eBuildingClassLocal);
+
+				if(eLocalBuilding != NO_BUILDING)
+				{
+					CvBuildingEntry* pkLocalBuilding = GC.getBuildingInfo(eLocalBuilding);
+					if(pkLocalBuilding)
+					{
+						int iYieldChange = pBuildingInfo->GetBuildingClassLocalYieldChange(eBuildingClassLocal, eYield);
+						if(iYieldChange != 0)
+						{
+							m_pCityBuildings->ChangeBuildingYieldChange(eBuildingClassLocal, eYield, (iYieldChange * iChange));
+						}
+					}
+				}
+			}
+#endif
 #if defined(MOD_BALANCE_CORE_POLICIES)
 			//Policy-Religion Fusion Yield Changes
 			if(MOD_BALANCE_CORE_POLICIES)
@@ -8223,7 +8280,6 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 				changeUnitCombatProductionModifier(eUnitCombatClass, pBuildingInfo->GetUnitCombatProductionModifier(iI) * iChange);
 			}
 		}
-
 		for(int iI = 0; iI < NUM_DOMAIN_TYPES; iI++)
 		{
 			changeDomainFreeExperience(((DomainTypes)iI), pBuildingInfo->GetDomainFreeExperience(iI) * iChange);
@@ -9930,8 +9986,11 @@ void CvCity::DoJONSCultureLevelIncrease()
 #if defined(MOD_UI_CITY_EXPANSION)
 	}
 #endif
-
+#if defined(MOD_BALANCE_CORE)
+	CvPlot* pPlotToAcquire = GetNextBuyablePlot(false);
+#else
 	CvPlot* pPlotToAcquire = GetNextBuyablePlot();
+#endif
 
 	// maybe the player owns ALL of the plots or there are none avaialable?
 	if(pPlotToAcquire)
@@ -11787,11 +11846,55 @@ int CvCity::GetLocalHappiness() const
 		}
 		iLocalHappiness += iHappinessFromReligion;
 	}
+#if defined(MOD_BALANCE_CORE)
+	BuildingClassTypes eBuildingClass;
 
+	// Building Class Mods
+	int iSpecialBuildingHappiness = 0;
+	for(int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
+	{
+		eBuildingClass = (BuildingClassTypes) iI;
+
+		CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
+		if(!pkBuildingClassInfo)
+		{
+			continue;
+		}
+
+		BuildingTypes eBuilding = (BuildingTypes) getCivilizationInfo().getCivilizationBuildings(eBuildingClass);
+		if(GetCityBuildings()->GetNumRealBuilding(eBuilding) <= 0)
+		{
+			continue;
+		}
+		if(eBuilding != NO_BUILDING)
+		{
+			CvBuildingEntry* pkBuilding = GC.getBuildingInfo(eBuilding);
+			if(pkBuilding)
+			{
+				for(int jJ = 0; jJ < GC.getNumBuildingClassInfos(); jJ++)
+				{
+					BuildingClassTypes eBuildingClassThatGivesHappiness = (BuildingClassTypes) jJ;
+					int iHappinessPerBuilding = pkBuilding->GetBuildingClassLocalHappiness(eBuildingClassThatGivesHappiness);
+					if(iHappinessPerBuilding > 0)
+					{
+						BuildingTypes eBuildingThatGivesHappiness = (BuildingTypes) getCivilizationInfo().getCivilizationBuildings(eBuildingClassThatGivesHappiness);
+						if(eBuildingThatGivesHappiness != NO_BUILDING)
+						{
+							if(GetCityBuildings()->GetNumRealBuilding(eBuildingThatGivesHappiness) > 0)
+							{
+								iSpecialBuildingHappiness += iHappinessPerBuilding;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	iLocalHappiness += iSpecialBuildingHappiness;
+#endif
 	// Policy Building Mods
 	int iSpecialPolicyBuildingHappiness = 0;
 	int iBuildingClassLoop;
-	BuildingClassTypes eBuildingClass;
 	for(int iPolicyLoop = 0; iPolicyLoop < GC.getNumPolicyInfos(); iPolicyLoop++)
 	{
 		PolicyTypes ePolicy = (PolicyTypes)iPolicyLoop;
@@ -11923,7 +12026,7 @@ int CvCity::getUnhappinessFromCultureNeeded() const
 	//Buildings decrease this by a flat integer.
 	if(GetUnculturedUnhappiness() != 0)
 	{
-		iThreshold += (GetUnculturedUnhappiness() * (getPopulation() * -1));
+		iThreshold += ((GetUnculturedUnhappiness()  * iThreshold) / 100);
 	}
 	int iLoop = 0;
 	for(const CvCity* pLoopCity = GET_PLAYER(getOwner()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iLoop))
@@ -11933,7 +12036,7 @@ int CvCity::getUnhappinessFromCultureNeeded() const
 			//Mod from global unhappiness building modifier.
 			if(pLoopCity->GetUnculturedUnhappinessGlobal() != 0)
 			{
-				iThreshold += (pLoopCity->GetUnculturedUnhappinessGlobal() * (getPopulation() * -1));
+				iThreshold += ((pLoopCity->GetUnculturedUnhappinessGlobal()  * iThreshold) / 100);
 			}
 		}		
 	}
@@ -11970,7 +12073,7 @@ int CvCity::getUnhappinessFromCulture() const
 	{
 		iUnhappiness = iThreshold - iCityCulture;
 		
-		iUnhappiness /= /* 100 */ GC.getBALANCE_UNHAPPY_CITY_BASE_VALUE();
+		iUnhappiness /= /* 100 */ GC.getBALANCE_UNHAPPY_CITY_BASE_VALUE_BOREDOM();
 		if(iUnhappiness < 1)
 		{
 			iUnhappiness = 1;
@@ -12045,7 +12148,7 @@ int CvCity::getUnhappinessFromScienceNeeded() const
 	//Buildings decrease this by a flat integer.
 	if(GetIlliteracyUnhappiness() != 0)
 	{
-		iThreshold += (GetIlliteracyUnhappiness() * (getPopulation() * -1));
+		iThreshold += ((GetIlliteracyUnhappiness() * iThreshold) / 100);
 	}
 	int iLoop = 0;
 	for(const CvCity* pLoopCity = GET_PLAYER(getOwner()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iLoop))
@@ -12055,7 +12158,7 @@ int CvCity::getUnhappinessFromScienceNeeded() const
 			//Mod from global unhappiness building modifier.
 			if(pLoopCity->GetIlliteracyUnhappinessGlobal() != 0)
 			{
-				iThreshold += (pLoopCity->GetIlliteracyUnhappinessGlobal() * (pLoopCity->getPopulation() * -1));
+				iThreshold += ((pLoopCity->GetIlliteracyUnhappinessGlobal() * iThreshold) / 100);
 			}
 		}		
 	}
@@ -12092,7 +12195,7 @@ int CvCity::getUnhappinessFromScience() const
 	{
 		iUnhappiness = iThreshold - iCityResearch;
 		
-		iUnhappiness /= /* 100 */ GC.getBALANCE_UNHAPPY_CITY_BASE_VALUE();
+		iUnhappiness /= /* 100 */ GC.getBALANCE_UNHAPPY_CITY_BASE_VALUE_ILLITERACY();
 		if(iUnhappiness < 1)
 		{
 			iUnhappiness = 1;
@@ -12173,7 +12276,7 @@ int CvCity::getUnhappinessFromDefenseNeeded() const
 	//Buildings decrease this by a flat integer.
 	if(GetDefenseUnhappiness() != 0)
 	{
-		iThreshold += (GetDefenseUnhappiness() * (getPopulation() * -1));
+		iThreshold += ((GetDefenseUnhappiness() * iThreshold) / 100);
 	}
 	int iLoop = 0;
 	for(const CvCity* pLoopCity = GET_PLAYER(getOwner()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iLoop))
@@ -12183,7 +12286,7 @@ int CvCity::getUnhappinessFromDefenseNeeded() const
 			//Mod from global unhappiness building modifier.
 			if(pLoopCity->GetDefenseUnhappinessGlobal() != 0)
 			{
-				iThreshold += (pLoopCity->GetDefenseUnhappinessGlobal() * (pLoopCity->getPopulation() * -1));
+				iThreshold += ((pLoopCity->GetDefenseUnhappinessGlobal() * iThreshold) / 100);
 			}
 		}		
 	}
@@ -12219,7 +12322,7 @@ int CvCity::getUnhappinessFromDefense() const
 	{
 		iUnhappiness = iThreshold - iBuildingDefense;
 
-		iUnhappiness /= /* 100 */ GC.getBALANCE_UNHAPPY_CITY_BASE_VALUE();
+		iUnhappiness /= /* 100 */ GC.getBALANCE_UNHAPPY_CITY_BASE_VALUE_DISORDER();
 		if(iUnhappiness < 1)
 		{
 			iUnhappiness = 1;
@@ -12295,7 +12398,7 @@ int CvCity::getUnhappinessFromGoldNeeded() const
 	//Buildings decrease this by a flat integer.
 	if(GetPovertyUnhappiness() != 0)
 	{
-		iThreshold += (GetPovertyUnhappiness() * (getPopulation() * -1));
+		iThreshold += ((GetPovertyUnhappiness() * iThreshold) / 100);
 	}
 	int iLoop = 0;
 	for(const CvCity* pLoopCity = GET_PLAYER(getOwner()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iLoop))
@@ -12305,7 +12408,7 @@ int CvCity::getUnhappinessFromGoldNeeded() const
 			//Mod from global unhappiness building modifier.
 			if(pLoopCity->GetPovertyUnhappinessGlobal() != 0)
 			{
-				iThreshold += (pLoopCity->GetPovertyUnhappinessGlobal() * (pLoopCity->getPopulation() * -1));
+				iThreshold += ((pLoopCity->GetPovertyUnhappinessGlobal() * iThreshold) / 100);
 			}
 		}		
 	}
@@ -12341,7 +12444,7 @@ int CvCity::getUnhappinessFromGold() const
 	{
 		iUnhappiness = iThreshold - iGold;
 
-		iUnhappiness /= /* 100 */ GC.getBALANCE_UNHAPPY_CITY_BASE_VALUE();
+		iUnhappiness /= /* 100 */ GC.getBALANCE_UNHAPPY_CITY_BASE_VALUE_POVERTY();
 		if(iUnhappiness < 1)
 		{
 			iUnhappiness = 1;
@@ -12599,37 +12702,32 @@ int CvCity::getUnhappinessFromMinority() const
 	if(pReligion != NULL)
 	{
 		int iFollowers = GetCityReligions()->GetNumFollowers(eMajority);
-		if(iFollowers != 0)
-		{
-			//Producing lots of faith? That should matter.
-			iFollowers += (GetFaithPerTurn() / 10);
-		}
-#if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
-		//Buildings increase this by a flat integer.
-		if(GetMinorityUnhappiness() != 0)
-		{
-			iFollowers += (GetMinorityUnhappiness() * getPopulation()) / 100;
-		}
-		int iLoop = 0;
-		for(const CvCity* pLoopCity = GET_PLAYER(getOwner()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iLoop))
-		{
-			if(pLoopCity != NULL)
-			{
-				//Mod from global unhappiness building modifier.
-				if(pLoopCity->GetMinorityUnhappinessGlobal() != 0)
-				{
-					iFollowers += (pLoopCity->GetMinorityUnhappiness() * pLoopCity->getPopulation()) / 100;
-				}
-			}		
-		}
-#endif
 
 		int iMinority = iCityPop - iFollowers;
 
 		if(iMinority > 0)
 		{
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
-			//Trait adds % boost to this value (higher trait = higher artificial level of followers).
+			//Buildings increase this by a flat integer.
+			if(GetMinorityUnhappiness() != 0)
+			{
+				iMinority += ((GetMinorityUnhappiness() * iFollowers) / 100);
+			}
+			int iLoop = 0;
+			for(const CvCity* pLoopCity = GET_PLAYER(getOwner()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iLoop))
+			{
+				if(pLoopCity != NULL)
+				{
+					//Mod from global unhappiness building modifier.
+					if(pLoopCity->GetMinorityUnhappinessGlobal() != 0)
+					{
+						iMinority += ((pLoopCity->GetMinorityUnhappiness() * iFollowers) / 100);
+					}
+				}		
+			}
+#endif
+#if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
+			//Trait adds % boost to this value (higher trait = smaller minority population).
 			if(GET_PLAYER(getOwner()).GetPlayerTraits()->GetMinorityHappinessChange() != 0)
 			{
 				iMinority -= ((GET_PLAYER(getOwner()).GetPlayerTraits()->GetMinorityHappinessChange() * iMinority) / 100);
@@ -14265,7 +14363,6 @@ void CvCity::changeYieldRateModifier(YieldTypes eIndex, int iChange)
 	VALIDATE_OBJECT
 	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
 	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
-
 	if(iChange != 0)
 	{
 		m_aiYieldRateModifier.setAt(eIndex, m_aiYieldRateModifier[eIndex] + iChange);
@@ -15422,12 +15519,20 @@ bool CvCity::CanBuyAnyPlot(void)
 
 //	--------------------------------------------------------------------------------
 /// Which plot will we buy next
+#if defined(MOD_BALANCE_CORE)
+CvPlot* CvCity::GetNextBuyablePlot(bool bForPurchase)
+#else
 CvPlot* CvCity::GetNextBuyablePlot(void)
+#endif
 {
 	VALIDATE_OBJECT
 	std::vector<int> aiPlotList;
 	aiPlotList.resize(20, -1);
+#if defined(MOD_BALANCE_CORE)
+	GetBuyablePlotList(aiPlotList, bForPurchase);
+#else
 	GetBuyablePlotList(aiPlotList);
+#endif
 
 	int iListLength = 0;
 	for(uint ui = 0; ui < aiPlotList.size(); ui++)
@@ -15453,7 +15558,11 @@ CvPlot* CvCity::GetNextBuyablePlot(void)
 }
 
 //	--------------------------------------------------------------------------------
+#if defined(MOD_BALANCE_CORE)
+void CvCity::GetBuyablePlotList(std::vector<int>& aiPlotList, bool bForPurchase)
+#else
 void CvCity::GetBuyablePlotList(std::vector<int>& aiPlotList)
+#endif
 {
 	VALIDATE_OBJECT
 	aiPlotList.resize(20, -1);
@@ -15496,7 +15605,7 @@ void CvCity::GetBuyablePlotList(std::vector<int>& aiPlotList)
 				if (pLoopPlot->getOwner() != NO_PLAYER)
 				{
 #if defined(MOD_BALANCE_CORE)
-					if(MOD_BALANCE_CORE && GET_PLAYER(getOwner()).GetPlayerTraits()->IsBuyOwnedTiles())
+					if(MOD_BALANCE_CORE && GET_PLAYER(getOwner()).GetPlayerTraits()->IsBuyOwnedTiles() && bForPurchase)
 					{
 						if(pLoopPlot->getOwner() == getOwner() || pLoopPlot->isCity())
 						{
@@ -15619,16 +15728,6 @@ void CvCity::GetBuyablePlotList(std::vector<int>& aiPlotList)
 						iInfluenceCost += iPLOT_INFLUENCE_NW_COST;
 					}
 
-#if defined(MOD_BALANCE_CORE)
-					//If we can buy/acquire already-owned plots, that's good, but let's rate them lower to limit diplomatic impact.
-					if(MOD_BALANCE_CORE && GET_PLAYER(getOwner()).GetPlayerTraits()->IsBuyOwnedTiles())
-					{
-						if(pLoopPlot->getOwner() != getOwner())
-						{
-							iInfluenceCost *= 2;
-						}
-					}
-#endif
 					// More Yield == more desirable
 					for (iYieldLoop = 0; iYieldLoop < NUM_YIELD_TYPES; iYieldLoop++)
 					{
@@ -16015,8 +16114,13 @@ void CvCity::BuyPlot(int iPlotX, int iPlotY)
 		CvLuaArgsHandle args;
 		args->Push(getOwner());
 		args->Push(GetID());
+#if defined(MOD_BUGFIX_MINOR)
+		args->Push(iPlotX);
+		args->Push(iPlotY);
+#else
 		args->Push(plot()->getX());
 		args->Push(plot()->getY());
+#endif
 		args->Push(true); // bGold
 		args->Push(false); // bFaith/bCulture
 

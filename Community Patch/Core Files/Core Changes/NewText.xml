@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Created by ModBuddy on 7/12/2014 9:12:37 PM -->
 <GameData>
-
 	<!-- NEW DIPLOMACY TEXTS -->
 	<Diplomacy_Responses>
 		<!-- Human over AI -->
@@ -173,7 +172,7 @@
 			<Text>Our enemies surround us. If we do not work together, we will surely perish. Would you like to make a Defensive Pact?</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DEFENSE_PACT_OFFER_4">
-			<Text>The tyrants of the world would tremble at our feet, if only we were allied. Do you see the value in Defensive Pact?</Text>
+			<Text>The tyrants of the world would tremble at our feet, if only we were allied. Do you see the value in a Defensive Pact?</Text>
 		</Row>
 		<!-- Embark String for LessNo City Cost-->
 		<Row Tag="TXT_KEY_ABLTY_CITY_LESS_EMBARK_COST_STRING">

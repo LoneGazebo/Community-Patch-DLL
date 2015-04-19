@@ -19,7 +19,7 @@ SET RouteGoldMaintenanceMod = '0'
 WHERE Type = 'POLICY_CARAVANS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Policies
-SET ImprovementCostModifier = '-25'
+SET PovertyHappinessMod = '-20'
 WHERE Type = 'POLICY_CARAVANS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 -- Mercantilism (the same)

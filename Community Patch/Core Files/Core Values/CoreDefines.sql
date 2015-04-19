@@ -1,4 +1,4 @@
--- Settler stuff
+﻿-- Settler stuff
 
 INSERT INTO Defines (
 Name, Value)

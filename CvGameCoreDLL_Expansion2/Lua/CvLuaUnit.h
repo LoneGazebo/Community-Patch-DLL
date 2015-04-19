@@ -561,6 +561,10 @@ protected:
 	static int lIsHigherPopThan(lua_State* L);
 	static int lGetResistancePower(lua_State* L);
 #endif
+#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+	static int lGetMonopolyAttackBonus(lua_State* L);
+	static int lGetMonopolyDefenseBonus(lua_State* L);
+#endif
 	static int lIsHigherTechThan(lua_State* L);
 	static int lIsLargerCivThan(lua_State* L);
 

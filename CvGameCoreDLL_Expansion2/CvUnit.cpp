@@ -5986,7 +5986,7 @@ void CvUnit::ChangeChangeDamageValue(int iChange)
 int CvUnit::getChangeDamageValue()
 {
 	VALIDATE_OBJECT
-	return m_iForcedDamage;
+	return m_iChangeDamage;
 }
 #endif
 //	--------------------------------------------------------------------------------
@@ -7106,7 +7106,26 @@ int CvUnit::healRate(const CvPlot* pPlot) const
 			iExtraHeal += iExtraFriendlyHeal;
 		}
 	}
-
+#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+	if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+	{
+		for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+		{
+			ResourceTypes eResourceLoop = (ResourceTypes) iResourceLoop;
+			if(eResourceLoop != NO_RESOURCE)
+			{
+				CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
+				if (pInfo && pInfo->isMonopoly())
+				{
+					if(GET_PLAYER(getOwner()).HasStrategicMonopoly(eResourceLoop) && pInfo->getMonopolyHealBonus() > 0)
+					{
+						iExtraHeal += pInfo->getMonopolyHealBonus();
+					}
+				}
+			}
+		}
+	}
+#endif
 	// Base healing rate mod
 	int iBaseHealMod = GET_PLAYER(getOwner()).getUnitBaseHealModifier();
 	if(iBaseHealMod != 0)
@@ -7223,6 +7242,16 @@ void CvUnit::DoAttrition()
 				changeDamage(getEnemyDamage(), NO_PLAYER, 0.0, &strAppendText);
 			}
 		}
+#if defined(MOD_BALANCE_CORE)
+		else if(isEnemy(pPlot->getTeam(), pPlot) && getEnemyDamageChance() > 0 && getEnemyDamage() < 0)
+		{
+			if(GC.getGame().getJonRandNum(100, "Enemy Territory Heal Chance") <= getEnemyDamageChance())
+			{
+				strAppendText =  GetLocalizedText("TXT_KEY_MISC_YOU_ENEMY_UNITS_DEFECT");
+				changeDamage(getEnemyDamage(), NO_PLAYER, 0.0, &strAppendText);
+			}
+		}
+#endif
 		else if(getNeutralDamageChance() > 0 && getNeutralDamage() > 0)
 		{
 			if(GC.getGame().getJonRandNum(100, "Neutral Territory Damage Chance") < getNeutralDamageChance())
@@ -12890,7 +12919,26 @@ int CvUnit::baseMoves(DomainTypes eIntoDomain /* = NO_DOMAIN */) const
 	if(eDomain == DOMAIN_SEA)
 	{
 		m_iExtraNavalMoves += getExtraNavalMoves();
-
+#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+		if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+		{
+			for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+			{
+				ResourceTypes eResourceLoop = (ResourceTypes) iResourceLoop;
+				if(eResourceLoop != NO_RESOURCE)
+				{
+					CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
+					if (pInfo && pInfo->isMonopoly())
+					{
+						if(GET_PLAYER(getOwner()).HasStrategicMonopoly(eResourceLoop) && pInfo->getMonopolyMovementBonus() > 0)
+						{
+							m_iExtraNavalMoves += pInfo->getMonopolyMovementBonus();
+						}
+					}
+				}
+			}
+		}
+#endif
 		// Work boats also get extra moves, and they don't have a combat class to receive a promotion from
 		if(m_iBaseCombat == 0)
 		{
@@ -13851,6 +13899,26 @@ int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot,
 		iModifier += (getDamage() / 5);
 	}
 #endif
+#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+	if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+	{
+		for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+		{
+			ResourceTypes eResourceLoop = (ResourceTypes) iResourceLoop;
+			if(eResourceLoop != NO_RESOURCE)
+			{
+				CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
+				if (pInfo && pInfo->isMonopoly())
+				{
+					if(GET_PLAYER(getOwner()).HasStrategicMonopoly(eResourceLoop) && pInfo->getMonopolyAttackBonus() > 0)
+					{
+						iModifier += pInfo->getMonopolyAttackBonus();
+					}
+				}
+			}
+		}
+	}
+#endif
 
 	////////////////////////
 	// KNOWN DESTINATION PLOT
@@ -14030,6 +14098,26 @@ int CvUnit::GetMaxDefenseStrength(const CvPlot* pInPlot, const CvUnit* pAttacker
 	if(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED && GET_PLAYER(getOwner()).GetPlayerTraits()->IsFightWellDamaged())
 	{
 		iModifier += (getDamage() / 5);
+	}
+#endif
+#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+	if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+	{
+		for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+		{
+			ResourceTypes eResourceLoop = (ResourceTypes) iResourceLoop;
+			if(eResourceLoop != NO_RESOURCE)
+			{
+				CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
+				if (pInfo && pInfo->isMonopoly())
+				{
+					if(GET_PLAYER(getOwner()).HasStrategicMonopoly(eResourceLoop) && pInfo->getMonopolyDefenseBonus() > 0)
+					{
+						iModifier += pInfo->getMonopolyDefenseBonus();
+					}
+				}
+			}
+		}
 	}
 #endif
 
@@ -14246,6 +14334,7 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 		}
 	}
 	const CvPlot* pMyPlot = pFromPlot;
+
 	if (!bAttacking)
 	{
 		pFromPlot = pTargetPlot;
@@ -14256,7 +14345,7 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 	{
 		if (pFromPlot != NULL && pTargetPlot != NULL)
 		{
-			if (!canEverRangeStrikeAt(pTargetPlot->getX(), pTargetPlot->getY(), pFromPlot))
+			if (!canEverRangeStrikeAt(pTargetPlot->getX(), pTargetPlot->getY(), pFromPlot) && !isRangedSupportFire())
 			{
 				return 0;
 			}
@@ -14365,7 +14454,26 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 		iModifier += (getDamage() / 5);
 	}
 #endif
-
+#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+	if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+	{
+		for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+		{
+			ResourceTypes eResourceLoop = (ResourceTypes) iResourceLoop;
+			if(eResourceLoop != NO_RESOURCE)
+			{
+				CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
+				if (pInfo && pInfo->isMonopoly())
+				{
+					if(GET_PLAYER(getOwner()).HasStrategicMonopoly(eResourceLoop) && pInfo->getMonopolyAttackBonus() > 0)
+					{
+						iModifier += pInfo->getMonopolyAttackBonus();
+					}
+				}
+			}
+		}
+	}
+#endif
 #ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
 	if (pTargetPlot)
 	{
@@ -19354,7 +19462,26 @@ void CvUnit::changeExperience(int iChange, int iMax, bool bFromCombat, bool bInB
 
 		// Unit XP mod
 		iUnitExperience += (iChange * kPlayer.getExpModifier()) / 100;
-
+#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+		if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+		{
+			for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+			{
+				ResourceTypes eResourceLoop = (ResourceTypes) iResourceLoop;
+				if(eResourceLoop != NO_RESOURCE)
+				{
+					CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
+					if (pInfo && pInfo->isMonopoly())
+					{
+						if(GET_PLAYER(getOwner()).HasStrategicMonopoly(eResourceLoop) && pInfo->getMonopolyXPBonus() > 0)
+						{
+							iUnitExperience += pInfo->getMonopolyXPBonus();
+						}
+					}
+				}
+			}
+		}
+#endif
 		// Great General & Unit XP mod in borders
 		if (bInBorders && getDomainType() == DOMAIN_LAND)
 		{
@@ -20224,7 +20351,10 @@ void CvUnit::changeEnemyDamage(int iChange)
 {
 	VALIDATE_OBJECT
 	m_iEnemyDamage = (m_iEnemyDamage + iChange);
+#if defined(MOD_BALANCE_CORE)
+#else
 	CvAssert(getEnemyDamage() >= 0);
+#endif
 }
 
 //	--------------------------------------------------------------------------------
@@ -21025,6 +21155,10 @@ int CvUnit::GetReverseGreatGeneralModifier()const
 #ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
 int CvUnit::GetNearbyImprovementModifier(const CvPlot* pAtPlot) const
 {
+	if(pAtPlot == NULL)
+	{
+		return 0;
+	}
 	return std::max(GetNearbyImprovementModifierFromTraits(pAtPlot), GetNearbyImprovementModifierFromPromotions(pAtPlot));
 }
 
@@ -23056,8 +23190,8 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		ChangeCaptureDefeatedEnemyCount((thisPromotion.IsCaptureDefeatedEnemy()) ? iChange: 0);
 #if defined(MOD_BALANCE_CORE)
 		ChangeCannotBeCapturedCount((thisPromotion.CannotBeCaptured()) ? iChange: 0);
-		ChangeForcedDamageValue((thisPromotion.ForcedDamageValue()) ? iChange : 0);
-		ChangeChangeDamageValue((thisPromotion.ChangeDamageValue()) ? iChange : 0);
+		ChangeForcedDamageValue((thisPromotion.ForcedDamageValue()) * iChange);
+		ChangeChangeDamageValue((thisPromotion.ChangeDamageValue()) * iChange);
 #endif
 		ChangeCanHeavyChargeCount((thisPromotion.IsCanHeavyCharge()) ? iChange : 0);
 

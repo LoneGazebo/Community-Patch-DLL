@@ -117,7 +117,7 @@
 		<Row>
 			<BuildingType>BUILDING_INDUS_CANAL</BuildingType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Yield>1</Yield>
+			<Yield>2</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_INDUS_CANAL</BuildingType>
@@ -175,6 +175,7 @@
 			<Help>TXT_KEY_BUILDING_DOJO_HELP</Help>
 			<Description>TXT_KEY_BUILDING_DOJO</Description>
 			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_DOJO_TEXT</Civilopedia>
+			<TrainedFreePromotion>PROMOTION_BUSHIDO</TrainedFreePromotion>
 			<Strategy>TXT_KEY_BUILDING_DOJO_STRATEGY</Strategy>
 			<ArtDefineTag>ART_DEF_BUILDING_BARRACKS</ArtDefineTag>
 			<MinAreaSize>-1</MinAreaSize>
@@ -256,10 +257,10 @@
 			</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_DOJO_HELP">
-			<Text>Unique Japanese replacement for the Armory. Reduces [ICON_HAPPINESS_3] Disorder. Grants +25 Experience to all military units trained in this city, and sources of [ICON_RES_IRON] Iron and [ICON_RES_HORSE] Horses near this city generate +1 [ICON_CULTURE] Culture.</Text>
+			<Text>Unique Japanese replacement for the Armory. Reduces [ICON_HAPPINESS_3] Disorder. Grants +25 Experience to all military units trained in this city, and sources of [ICON_RES_IRON] Iron and [ICON_RES_HORSE] Horses near this city generate +1 [ICON_CULTURE] Culture. [NEWLINE][NEWLINE]All Melee and Gun units trained in this city recieve the [COLOR_POSITIVE_TEXT]Eight Virtues of Bushido[ENDCOLOR] Promotion.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_DOJO_STRATEGY">
-			<Text>Build these unique Armories to produce dominant military units, and to generate additional Culture.</Text>
+			<Text>Build these unique Armories to produce dominant military units, and to generate additional Culture. All Melee and Gun units trained in this city recieve the Eight Virtues of Bushido Promotion, which offers one of eight possible promotions to these unit types after their first combat.</Text>
 		</Row>
 	</Language_en_US>
 	<!-- Odeon -->

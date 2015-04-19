@@ -2272,6 +2272,11 @@ void CvMilitaryAI::UpdateOperations()
 				m_pPlayer->getAIOperation(iOperationID)->Kill();
 				bFoundOneToDelete = true;
 			}
+			if (m_pPlayer->haveAIOperationOfType(AI_OPERATION_NAVAL_SUPERIORITY, &iOperationID))
+			{
+				m_pPlayer->getAIOperation(iOperationID)->Kill();
+				bFoundOneToDelete = true;
+			}
 		}
 	}
 

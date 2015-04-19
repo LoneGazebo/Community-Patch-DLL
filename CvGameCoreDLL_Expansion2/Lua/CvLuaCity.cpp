@@ -2155,7 +2155,12 @@ int CvLuaCity::lGetRallyPlot(lua_State* L)
 int CvLuaCity::lCanBuyPlot(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
+#if defined(MOD_BALANCE_CORE)
+	const bool bPurchase = lua_toboolean(L, 2);
+	CvPlot* pPlot = pkCity->GetNextBuyablePlot(bPurchase);
+#else
 	CvPlot* pPlot = pkCity->GetNextBuyablePlot();
+#endif
 	lua_pushboolean(L, pkCity->CanBuyPlot(pPlot->getX(), pPlot->getY()));
 	return 1;
 }
@@ -2184,7 +2189,12 @@ int CvLuaCity::lCanBuyAnyPlot(lua_State* L)
 int CvLuaCity::lGetNextBuyablePlot(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
+#if defined(MOD_BALANCE_CORE)
+	const bool bPurchase = lua_toboolean(L, 2);
+	CvPlot* pkPlot = pkCity->GetNextBuyablePlot(bPurchase);
+#else
 	CvPlot* pkPlot = pkCity->GetNextBuyablePlot();
+#endif
 	CvLuaPlot::Push(L, pkPlot);
 	return 1;
 }
@@ -2195,7 +2205,12 @@ int CvLuaCity::lGetBuyablePlotList(lua_State* L)
 	CvCity* pkCity = GetInstance(L);
 	std::vector<int> aiPlotList;
 	aiPlotList.resize(20, -1);
+#if defined(MOD_BALANCE_CORE)
+	const bool bPurchase = lua_toboolean(L, 2);
+	pkCity->GetBuyablePlotList(aiPlotList, bPurchase);
+#else
 	pkCity->GetBuyablePlotList(aiPlotList);
+#endif
 
 	int iReturnValues = 0;
 

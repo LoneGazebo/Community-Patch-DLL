@@ -713,17 +713,6 @@ function HappinessTipHandler( control )
 		end
 	
 		local iTotalHappiness = iPoliciesHappiness + iResourcesHappiness + iCityHappiness + iBuildingHappiness + iMinorCivHappiness + iHandicapHappiness + iTradeRouteHappiness + iReligionHappiness + iNaturalWonderHappiness + iExtraHappinessPerCity + iLeagueHappiness;
-	
--- COMMUNITY PATCH CHANGE
-		-- Happiness/Population calculation.
-		local iPopulation = pPlayer: GetCurrentTotalPop();
-		local iPopNeeded = pPlayer: GetPopNeededForLux();
-		local iHappinessFromLuxury = pPlayer:GetBaseLuxuryHappiness();
-		if(iPopulation > 0) then
-			strText = strText .. "[NEWLINE][NEWLINE]";
-			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_HAPPINESS_THRESHOLD_VALUE", iPopNeeded, iPopulation, iHappinessFromLuxury);
-		end
---END CHANGE
 		
 		strText = strText .. "[NEWLINE][NEWLINE]";
 		strText = strText .. "[COLOR:150:255:150:255]";
@@ -755,6 +744,16 @@ function HappinessTipHandler( control )
 			strText = strText .. "[NEWLINE]";
 			strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_HAPPINESS_RESOURCE_MONOPOLY", iHappinessFromMonopoly);
 		end
+		local iHappinessFromBonusResources = pPlayer:GetBonusHappinessFromLuxuries();
+		if (iHappinessFromBonusResources > 0) then
+			strText = strText .. "[NEWLINE]";
+			strText = strText .. "  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_HAPPINESS_RESOURCE_POP_BONUS", iHappinessFromBonusResources);
+		end
+		-- Happiness/Population calculation.
+		local iPopulation = pPlayer:GetCurrentTotalPop();
+		local iPopNeeded = pPlayer:GetPopNeededForLux();
+		local iThreshold = pPlayer:GetBaseLuxuryHappiness(); 
+		strText = strText .. "          " .. Locale.ConvertTextKey("TXT_KEY_TP_HAPPINESS_THRESHOLD_VALUE", iPopNeeded, iPopulation, iThreshold, (iThreshold + 1));
 -- END
 	
 		-- Happiness from Luxury Variety
@@ -772,7 +771,7 @@ function HappinessTipHandler( control )
 	
 		-- Misc Happiness from Resources
 -- CBP EDIT
-		local iMiscHappiness = iResourcesHappiness - iHappinessFromMonopoly - iBaseHappinessFromResources - iHappinessFromExtraResources - (iExtraLuxuryHappiness * iNumHappinessResources);
+		local iMiscHappiness = iResourcesHappiness - iHappinessFromBonusResources - iHappinessFromMonopoly - iBaseHappinessFromResources - iHappinessFromExtraResources - (iExtraLuxuryHappiness * iNumHappinessResources);
 		if (iMiscHappiness > 0) then
 			strText = strText .. "[NEWLINE]";
 			strText = strText .. "          +" .. Locale.ConvertTextKey("TXT_KEY_TP_HAPPINESS_OTHER_SOURCES", iMiscHappiness);

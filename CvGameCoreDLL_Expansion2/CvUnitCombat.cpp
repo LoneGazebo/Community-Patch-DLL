@@ -196,11 +196,11 @@ void CvUnitCombat::GenerateMeleeCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender
 #if defined(MOD_BALANCE_CORE)
 		if(kAttacker.getForcedDamageValue() != 0)
 		{
-			iDefenderDamageInflicted = kAttacker.getForcedDamageValue();
+			iDefenderDamageInflicted   = kAttacker.getForcedDamageValue();
 		}
 		if(pkDefender->getForcedDamageValue() != 0)
 		{
-			iAttackerDamageInflicted = pkDefender->getForcedDamageValue();
+			iAttackerDamageInflicted= pkDefender->getForcedDamageValue();
 		}
 		if(kAttacker.getChangeDamageValue() != 0)
 		{

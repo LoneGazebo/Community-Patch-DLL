@@ -2695,7 +2695,6 @@ bool CvStepPathFinder::DoesPathExist(PlayerTypes ePlayer, PlayerTypes eEnemy, Cv
 	SetData(&eEnemy);
 	return GeneratePath(pStartPlot->getX(), pStartPlot->getY(), pEndPlot->getX(), pEndPlot->getY(), ePlayer, false);
 }
-
 //	--------------------------------------------------------------------------------
 /// Returns the last plot along the step path owned by a specific player
 CvPlot* CvStepPathFinder::GetLastOwnedPlot(PlayerTypes ePlayer, PlayerTypes eEnemy, CvPlot *pStartPlot, CvPlot *pEndPlot) const
