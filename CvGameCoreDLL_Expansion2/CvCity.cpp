@@ -20325,9 +20325,11 @@ bool CvCity::canRangeStrike() const
 {
 	VALIDATE_OBJECT
 
+#if !defined(MOD_BALANCE_CORE_MILITARY)
 	// Can't shoot more than once per turn
 	if(isMadeAttack())
 		return false;
+#endif
 
 	// Can't shoot when in resistance
 	if(IsResistance() || IsRazing())
@@ -20337,9 +20339,11 @@ bool CvCity::canRangeStrike() const
 	if(getDamage() == GetMaxHitPoints())
 		return false;
 
+#if !defined(MOD_BALANCE_CORE_MILITARY)
 	// Apparently it's possible for someone to fire during another player's turn
 	if(!GET_PLAYER(getOwner()).isTurnActive())
 		return false;
+#endif
 
 	return true;
 }
@@ -20351,6 +20355,11 @@ bool CvCity::CanRangeStrikeNow() const
 	{
 		return false;
 	}
+
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	if (isMadeAttack())
+		return false;
+#endif
 
 #if defined(MOD_EVENTS_CITY_BOMBARD)
 	bool bIndirectFireAllowed; // By reference, yuck!!!
@@ -20396,7 +20405,11 @@ bool CvCity::CanRangeStrikeNow() const
 					int iPlotDistance = plotDistance(iX, iY, iTargetPlotX, iTargetPlotY);
 					if(iPlotDistance <= iRange)
 					{
+#if defined(MOD_BALANCE_CORE_MILITARY)
+						if(canRangeStrikeAt(iTargetPlotX, iTargetPlotY) && canRangedStrikeTarget(*pTargetPlot)!=NULL)
+#else
 						if(canRangeStrikeAt(iTargetPlotX, iTargetPlotY))
+#endif
 						{
 							if(m_eOwner == eActivePlayer)
 							{
@@ -20492,6 +20505,9 @@ bool CvCity::canRangeStrikeAt(int iX, int iY) const
 		}
 	}
 
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	return (!pTargetPlot->isCity());
+#else
 	// If it's NOT a city, see if there are any units to aim for
 	if(!pTargetPlot->isCity())
 	{
@@ -20506,6 +20522,7 @@ bool CvCity::canRangeStrikeAt(int iX, int iY) const
 	}
 
 	return true;
+#endif
 }
 
 //	----------------------------------------------------------------------------
@@ -20522,7 +20539,11 @@ CityTaskResult CvCity::rangeStrike(int iX, int iY)
 		return eResult;
 	}
 
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	if(!canRangeStrikeAt(iX, iY) || rangedStrikeTarget(pPlot)==NULL)
+#else
 	if(!canRangeStrikeAt(iX, iY))
+#endif
 	{
 		return eResult;
 	}
@@ -20845,6 +20866,11 @@ void CvCity::DoNearbyEnemy()
 	if(!canRangeStrike())
 		return;
 
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	if (isMadeAttack())
+		return;
+#endif
+
 #if defined(MOD_EVENTS_CITY_BOMBARD)
 	int iSearchRange = getBombardRange();
 #else
@@ -20864,7 +20890,11 @@ void CvCity::DoNearbyEnemy()
 			{
 				if(pLoopPlot->isVisibleEnemyUnit(getOwner()))
 				{
+#if defined(MOD_BALANCE_CORE_MILITARY)
+					if(canRangeStrikeAt(pLoopPlot->getX(), pLoopPlot->getY()) && rangedStrikeTarget(pLoopPlot)!=NULL)
+#else
 					if(canRangeStrikeAt(pLoopPlot->getX(), pLoopPlot->getY()))
+#endif
 					{
 						bFoundEnemy = true;
 
