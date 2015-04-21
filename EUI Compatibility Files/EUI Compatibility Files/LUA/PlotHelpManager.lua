@@ -708,7 +708,7 @@ local function UpdatePlotHelp( timeChange )
 
 --CBP
 					if isNoob then
-						tips:insert( S("Unit Danger: %d", L(unit:GetDanger()) ) )
+						tips:insert( S("Unit %d - ", L(unit:GetID())) .. S("Danger: %d", L(unit:GetDanger()) ) )
 						tips:insert( L(unit:GetAIOperationInfo()) )
 						tips:insert( L(unit:GetMissionInfo()) )
 					end

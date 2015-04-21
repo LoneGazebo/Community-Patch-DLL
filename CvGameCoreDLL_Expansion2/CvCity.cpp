@@ -20540,7 +20540,7 @@ CityTaskResult CvCity::rangeStrike(int iX, int iY)
 	}
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
-	if(!canRangeStrikeAt(iX, iY) || rangedStrikeTarget(pPlot)==NULL)
+	if(!canRangeStrikeAt(iX, iY) || rangedStrikeTarget(pPlot)==NULL || isMadeAttack())
 #else
 	if(!canRangeStrikeAt(iX, iY))
 #endif
