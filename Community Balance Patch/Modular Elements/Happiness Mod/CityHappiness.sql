@@ -24,11 +24,11 @@
 	WHERE Tag = 'TXT_KEY_EO_SORT_STRENGTH' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 	UPDATE Language_en_US
-	SET Text = 'City will be [ICON_RAZING] Razed to the ground in {1_Num} turn(s)! While being Razed, 25% of the [ICON_CITIZEN] Population will produce [ICON_HAPPINESS_3] Unhappiness!'
+	SET Text = 'City will be [ICON_RAZING] Razed to the ground in {1_Num} turn(s)! While being Razed, 50% of the [ICON_CITIZEN] Population will produce [ICON_HAPPINESS_3] Unhappiness!'
 	WHERE Tag = 'TXT_KEY_CITY_BURNING' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 	UPDATE Language_en_US
-	SET Text = 'City is in [ICON_RESISTANCE] Resistance for {1_Num} turn(s)! While in Resistance, a City cannot do anything useful and 25% of the [ICON_CITIZEN] Population will produce [ICON_HAPPINESS_3] Unhappiness!'
+	SET Text = 'City is in [ICON_RESISTANCE] Resistance for {1_Num} turn(s)! While in Resistance, a City cannot do anything useful and 50% of the [ICON_CITIZEN] Population will produce [ICON_HAPPINESS_3] Unhappiness!'
 	WHERE Tag = 'TXT_KEY_CITY_RESISTANCE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 	UPDATE Language_en_US

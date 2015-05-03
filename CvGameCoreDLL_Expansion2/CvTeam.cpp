@@ -7189,6 +7189,10 @@ void CvTeam::processTech(TechTypes eTech, int iChange)
 										{
 											if(pLoopCity->GetCityBuildings()->GetNumFreeBuilding(eBuilding) <= 0)
 											{
+												if(pLoopCity->GetCityBuildings()->GetNumRealBuilding(eBuilding) > 0)
+												{
+													pLoopCity->GetCityBuildings()->SetNumRealBuilding(eBuilding, 0);
+												}
 												pLoopCity->GetCityBuildings()->SetNumFreeBuilding(eBuilding, 1);
 												if(pLoopCity->GetCityBuildings()->GetNumFreeBuilding(eBuilding) > 0)
 												{

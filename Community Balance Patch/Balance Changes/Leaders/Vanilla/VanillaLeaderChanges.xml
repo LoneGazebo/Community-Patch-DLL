@@ -24,7 +24,14 @@
 			<DoubleMove>true</DoubleMove>
 		</Row>
 	</UnitPromotions_Terrains>
-	
+	<!-- Aztec -->
+	<Building_RiverPlotYieldChanges>
+		<Row>
+			<BuildingType>BUILDING_FLOATING_GARDENS</BuildingType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+	</Building_RiverPlotYieldChanges>
 	<!-- Arabia -->
 	<Language_en_US>
 		<Row Tag="TXT_KEY_PROMOTION_DESERT_SHIPS">
@@ -153,17 +160,17 @@
 		<Row>
 			<TraitType>TRAIT_CONVERTS_SEA_BARBARIANS</TraitType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Yield>50</Yield>
+			<Yield>40</Yield>
 		</Row>
 		<Row>
 			<TraitType>TRAIT_CONVERTS_SEA_BARBARIANS</TraitType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>50</Yield>
+			<Yield>40</Yield>
 		</Row>
 		<Row>
 			<TraitType>TRAIT_CONVERTS_SEA_BARBARIANS</TraitType>
 			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>50</Yield>
+			<Yield>40</Yield>
 		</Row>
 	</Trait_TradeRouteStartYield>
 	<!-- Germany -->
@@ -211,6 +218,22 @@
 			<Text>Bushido</Text>
 		</Row>
 	</Language_en_US>
+	<Trait_ImprovementYieldChanges>
+		<Row>
+			<TraitType>TRAIT_FIGHT_WELL_DAMAGED</TraitType>
+			<ImprovementType>IMPROVEMENT_FISHING_BOATS</ImprovementType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+	</Trait_ImprovementYieldChanges>
+	<Trait_UnimprovedFeatureYieldChanges>
+		<Row>
+			<TraitType>TRAIT_FIGHT_WELL_DAMAGED</TraitType>
+			<FeatureType>FEATURE_ATOLL</FeatureType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+	</Trait_UnimprovedFeatureYieldChanges>
 	<!-- Siam -->
 	<Building_GrowthExtraYield>
 		<Row>
@@ -247,4 +270,75 @@
 			<StartAlongRiver>true</StartAlongRiver>
 		</Row>
 	</Civilization_Start_Along_River>
+	<!-- China -->
+	<Building_YieldChangesPerPop>
+		<Row>
+			<BuildingType>BUILDING_PAPER_MAKER</BuildingType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>50</Yield>
+		</Row>
+	</Building_YieldChangesPerPop>
+	<Building_Flavors>
+		<Row>
+			<BuildingType>BUILDING_PAPER_MAKER</BuildingType>
+			<FlavorType>FLAVOR_GROWTH</FlavorType>
+			<Flavor>50</Flavor>
+		</Row>
+	</Building_Flavors>
+	<Trait_GreatPersonBornYield>
+		<Row>
+			<TraitType>TRAIT_ART_OF_WAR</TraitType>
+			<GreatPersonType>GREATPERSON_SCIENTIST</GreatPersonType>
+			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
+			<Yield>50</Yield>
+		</Row>
+		<Row>
+			<TraitType>TRAIT_ART_OF_WAR</TraitType>
+			<GreatPersonType>GREATPERSON_ENGINEER</GreatPersonType>
+			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
+			<Yield>50</Yield>
+		</Row>
+		<Row>
+			<TraitType>TRAIT_ART_OF_WAR</TraitType>
+			<GreatPersonType>GREATPERSON_PROPHET</GreatPersonType>
+			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
+			<Yield>50</Yield>
+		</Row>
+		<Row>
+			<TraitType>TRAIT_ART_OF_WAR</TraitType>
+			<GreatPersonType>GREATPERSON_GENERAL</GreatPersonType>
+			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
+			<Yield>50</Yield>
+		</Row>
+		<Row>
+			<TraitType>TRAIT_ART_OF_WAR</TraitType>
+			<GreatPersonType>GREATPERSON_ADMIRAL</GreatPersonType>
+			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
+			<Yield>50</Yield>
+		</Row>
+		<Row>
+			<TraitType>TRAIT_ART_OF_WAR</TraitType>
+			<GreatPersonType>GREATPERSON_MERCHANT</GreatPersonType>
+			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
+			<Yield>50</Yield>
+		</Row>
+		<Row>
+			<TraitType>TRAIT_ART_OF_WAR</TraitType>
+			<GreatPersonType>GREATPERSON_ARTIST</GreatPersonType>
+			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
+			<Yield>50</Yield>
+		</Row>
+		<Row>
+			<TraitType>TRAIT_ART_OF_WAR</TraitType>
+			<GreatPersonType>GREATPERSON_MUSICIAN</GreatPersonType>
+			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
+			<Yield>50</Yield>
+		</Row>
+		<Row>
+			<TraitType>TRAIT_ART_OF_WAR</TraitType>
+			<GreatPersonType>GREATPERSON_WRITER</GreatPersonType>
+			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
+			<Yield>50</Yield>
+		</Row>
+	</Trait_GreatPersonBornYield>
 </GameData>

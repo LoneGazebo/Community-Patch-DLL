@@ -93,7 +93,7 @@
 	<Unit_BuildingClassRequireds>
 		<Row>
 			<UnitType>UNIT_ELEPHANT_RIDER</UnitType>
-			<BuildingClassType>BUILDINGCLASS_STABLE</BuildingClassType>
+			<BuildingClassType>BUILDINGCLASS_BARRACKS</BuildingClassType>
 		</Row>
 	</Unit_BuildingClassRequireds>
 	<Language_en_US>
@@ -101,10 +101,10 @@
 			<Text>War Elephant</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_ELEPHANT_RIDER_STRATEGY">
-			<Text>War Elephants are more expensive and slower than the Horseman, but they are also much more powerful. They can move after attacking and strike fear into nearby enemy units, giving them a negative combat modifier. You must have a source of [ICON_RES_IVORY] Ivory to construct War Elephants, and the city where you wish to build them must have a Stable. Unlike other Military Units, War Elephants do not consume resources when constructed.</Text>
+			<Text>War Elephants are more expensive and slower than the Horseman, but they are also much more powerful. They can move after attacking and strike fear into nearby enemy units, giving them a negative combat modifier. You must have a source of [ICON_RES_IVORY] Ivory to construct War Elephants, and the city where you wish to build them must have a Barracks. Unlike other Military Units, War Elephants do not consume resources when constructed.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_ELEPHANT_RIDER_HELP">
-			<Text>Powerful early game Mounted Unit that is weak to Spearmen. This Unit has a higher [ICON_STRENGTH] Combat Strength than other Mounted Units and strikes fear into nearby enemy units. It is, however, much slower and more expensive than the Horseman. [NEWLINE][NEWLINE]You must have a source of [ICON_RES_IVORY] Ivory and a Stable in order to construct this unit.</Text>
+			<Text>Powerful early game Mounted Unit that is weak to Spearmen. This Unit has a higher [ICON_STRENGTH] Combat Strength than other Mounted Units and strikes fear into nearby enemy units. It is, however, much slower and more expensive than the Horseman. [NEWLINE][NEWLINE]You must have a source of [ICON_RES_IVORY] Ivory and a Barracks in order to construct this unit.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_ELEPHANT_RIDER_TEXT">
 			<Text>A War Elephant was an elephant trained and guided by humans for combat. Their main use was to charge the enemy, breaking their ranks and instilling terror. Elephantry are military units with elephant-mounted troops. They were first employed in India, the practice spreading out across south-east Asia and westwards into the Mediterranean. Their most famous use in the West was by the Greek general Pyrrhus of Epirus and in significant numbers by the armies of Carthage, including briefly by Hannibal.</Text>
@@ -185,7 +185,7 @@
 		</Row>
 		<Row>
 			<UnitType>UNIT_EXPLORER</UnitType>
-			<PromotionType>PROMOTION_ALLWATER_EMBARKATION</PromotionType>
+			<PromotionType>PROMOTION_EMBARKED_SIGHT</PromotionType>
 		</Row>
 		<Row>
 			<UnitType>UNIT_EXPLORER</UnitType>
@@ -204,7 +204,7 @@
 			<Text>Explorers are a useful counterpart to Caravels when setting out to explore across the ocean during the Renaissance and Industrial periods. They are fairly weak and, therefore, are easily defeated by contemporary military units, however their reconaissance abilities are unparalleled.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_HELP_EXPLORER_CBP">
-			<Text>Mid-game exploration unit that is stronger while embarked, and can cross Oceans. Use these units to discover new lands.</Text>
+			<Text>Mid-game exploration unit that is stronger while embarked, has additional sight while embarked, and can cross Oceans. Use these units to discover new lands.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CIV5_EXPLORER_TEXT_CBP">
 			<Text>Exploration is the act of searching for the purpose of discovery of information or resources. Exploration occurs in all non-sessile animal species, including humans. In human history, its most dramatic rise was during the Age of Discovery when European explorers sailed and charted much of the rest of the world, largely in a pursuit of material wealth. Since then, major explorations after the Age of Discovery have occurred for reasons mostly aimed at information discovery.</Text>

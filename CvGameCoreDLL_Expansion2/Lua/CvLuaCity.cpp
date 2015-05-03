@@ -606,6 +606,12 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(IsOnFeature);
 	Method(IsAdjacentToFeature);
 	Method(IsWithinDistanceOfFeature);
+#if defined(MOD_BALANCE_CORE)
+	Method(IsWithinDistanceOfUnit);
+	Method(IsWithinDistanceOfUnitClass);
+	Method(IsWithinDistanceOfUnitCombatType);
+	Method(IsWithinDistanceOfUnitPromotion);
+#endif
 	Method(IsOnImprovement);
 	Method(IsAdjacentToImprovement);
 	Method(IsWithinDistanceOfImprovement);
@@ -4878,6 +4884,12 @@ LUAAPIIMPL(City, HasTradeRouteFrom)
 LUAAPIIMPL(City, IsOnFeature)
 LUAAPIIMPL(City, IsAdjacentToFeature)
 LUAAPIIMPL(City, IsWithinDistanceOfFeature)
+#if defined(MOD_BALANCE_CORE)
+LUAAPIIMPL(City, IsWithinDistanceOfUnit)
+LUAAPIIMPL(City, IsWithinDistanceOfUnitClass)
+LUAAPIIMPL(City, IsWithinDistanceOfUnitCombatType)
+LUAAPIIMPL(City, IsWithinDistanceOfUnitPromotion)
+#endif
 LUAAPIIMPL(City, IsOnImprovement)
 LUAAPIIMPL(City, IsAdjacentToImprovement)
 LUAAPIIMPL(City, IsWithinDistanceOfImprovement)

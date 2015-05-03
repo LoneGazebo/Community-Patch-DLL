@@ -581,7 +581,7 @@ function LeaderMessageHandler( iPlayer, iDiploUIState, szLeaderMessage, iAnimati
 		elseif (g_DiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_DISCUSS_AI_REVOKE_VASSALAGE) then
 			strButton1Text = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_DONT_ALLOW_VASSAL_INDEPENDENCE" );
 			strButton2Text = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_ALLOW_VASSAL_INDEPENDENCE" );
-			bHideBackButton = true
+			bHideBackButton = true;
 		end
 	    
 		-- Buttons: change text or hide
@@ -997,19 +997,19 @@ function OnButton2()
 	elseif (g_DiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_BLANK_DISCUSSION_MEAN_HUMAN) then
 -- CBP
 		Game.DoFromUIDiploEvent( FromUIDiploEventTypes.FROM_UI_DIPLO_EVENT_MEAN_RESPONSE, g_iAIPlayer, 0, 0 );
-		--OnBack(true);
+		OnBack(true);
 -- END
     -- Fluff discussion mode 2
 	elseif (g_DiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_BLANK_DISCUSSION_MEAN_AI) then
 -- CBP
 		Game.DoFromUIDiploEvent( FromUIDiploEventTypes.FROM_UI_DIPLO_EVENT_MEAN_RESPONSE, g_iAIPlayer, 0, 0 );
-		--OnBack(true);
+		OnBack(true);
 -- END
     -- AI declared war on us!
 	elseif (g_DiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_AI_DECLARED_WAR) then
 -- CBP
 		Game.DoFromUIDiploEvent( FromUIDiploEventTypes.FROM_UI_DIPLO_EVENT_MEAN_RESPONSE, g_iAIPlayer, 0, 0 );
-		--OnBack(true);
+		OnBack(true);
 -- END
         
     -- AI is telling us he sees a military buildup - we tell him to die

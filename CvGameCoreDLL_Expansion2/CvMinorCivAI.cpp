@@ -1720,10 +1720,14 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn)
 				int iNumRequiredSlots;
 				int iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(pAssignedPlayer, MUFORMATION_CLOSE_CITY_DEFENSE, false, &iNumRequiredSlots);
 
-				// Not willing to build units to get this off the ground
-				if (iFilledSlots >= iNumRequiredSlots)
+				CvCity* pMusterCity = pAssignedPlayer->getCapitalCity();
+				if(pMusterCity != NULL)
 				{
-					pAssignedPlayer->addAIOperation(AI_OPERATION_ALLY_DEFENSE, pMinor->GetID(), pMinor->getCapitalCity()->getArea(), pMinor->getCapitalCity(), pMinor->getCapitalCity());
+					// Not willing to build units to get this off the ground
+					if (iFilledSlots >= iNumRequiredSlots)
+					{
+						pAssignedPlayer->addAIOperation(AI_OPERATION_ALLY_DEFENSE, pMinor->GetID(), pMinor->getCapitalCity()->getArea(), pMinor->getCapitalCity(), pMusterCity);
+					}
 				}
 			}
 		}
@@ -2551,7 +2555,14 @@ void CvMinorCivAI::Reset()
 	m_bDisableNotifications = false;
 
 	int iI, iJ;
-
+#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
+	m_bIsSacked = false;
+	m_bIsRebellion = false;
+	m_iIsRebellionCountdown = 0;
+	m_bIsRebellionActive = 0;
+	m_bIsHordeActive = 0;
+	m_iCooldownSpawn = 0;
+#endif
 	for(iI = 0; iI < MAX_MAJOR_CIVS; iI++)
 	{
 		m_abWarQuestAgainstMajor[iI] = false;
@@ -2580,22 +2591,17 @@ void CvMinorCivAI::Reset()
 		m_abEverFriends[iI] = false;
 		m_abPledgeToProtect[iI] = false;
 		m_aiMajorScratchPad[iI] = 0;
-#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
-		m_bIsSacked = false;
-		m_bIsRebellion = false;
-		m_iIsRebellionCountdown = 0;
-		m_bIsRebellionActive = 0;
-		m_bIsHordeActive = 0;
-		m_iCooldownSpawn = 0;
-#endif
 #if defined(MOD_BALANCE_CORE_MINORS) || defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
-		m_abIsJerk[iI] = false;
-		m_aiJerk[iI] = 0;
+		m_abIsMarried[iI] = false;
 #endif
 	}
 
 	for(iI = 0; iI < REALLY_MAX_TEAMS; iI++)
 	{
+#if defined(MOD_BALANCE_CORE_MINORS) || defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
+		m_abIsJerk[iI] = false;
+		m_aiJerk[iI] = 0;
+#endif
 		m_abPermanentWar[iI] = false;
 		m_abWaryOfTeam[iI] = false;
 	}
@@ -2692,6 +2698,18 @@ void CvMinorCivAI::Read(FDataStream& kStream)
 
 	kStream >> m_abWaryOfTeam;
 
+#if defined(MOD_BALANCE_CORE)
+	kStream >> m_bIsSacked;
+	kStream >> m_bIsRebellion;
+	kStream >> m_iIsRebellionCountdown;
+	kStream >> m_bIsRebellionActive;
+	kStream >> m_bIsHordeActive;
+	kStream >> m_iCooldownSpawn;
+	kStream >> m_abIsJerk;
+	kStream >> m_aiJerk;
+	kStream >> m_abIsMarried;
+#endif
+
 	// List of quests given
 	ResetQuestList();
 
@@ -2764,6 +2782,18 @@ void CvMinorCivAI::Write(FDataStream& kStream) const
 	kStream << m_abPledgeToProtect;
 	kStream << m_abPermanentWar;
 	kStream << m_abWaryOfTeam; // Version 12
+
+#if defined(MOD_BALANCE_CORE)
+	kStream << m_bIsSacked;
+	kStream << m_bIsRebellion;
+	kStream << m_iIsRebellionCountdown;
+	kStream << m_bIsRebellionActive;
+	kStream << m_bIsHordeActive;
+	kStream << m_iCooldownSpawn;
+	kStream << m_abIsJerk;
+	kStream << m_aiJerk;
+	kStream << m_abIsMarried;
+#endif
 
 	// List of quests given
 	CvAssertMsg(m_QuestsGiven.size() == MAX_MAJOR_CIVS, "Number of entries in minor's quest list does not match MAX_MAJOR_CIVS when writing to memory!");
@@ -7940,7 +7970,12 @@ int CvMinorCivAI::GetFriendshipChangePerTurnTimes100(PlayerTypes ePlayer)
 		}
 	}
 #endif
-
+#if defined(MOD_BALANCE_CORE)
+	if(GET_PLAYER(ePlayer).IsDiplomaticMarriage() && IsMarried(ePlayer))
+	{
+		return iChangeThisTurn;
+	}
+#endif
 	// Modifier to rate based on traits and religion
 	int iTraitMod = kPlayer.GetPlayerTraits()->GetCityStateFriendshipModifier();
 	int iReligionMod = 0;
@@ -10723,7 +10758,136 @@ int CvMinorCivAI::GetCurrentSpawnEstimate(PlayerTypes ePlayer)
 
 	return iNumTurns / 100;
 }
+#if defined(MOD_BALANCE_CORE)
+/// Has this minor been married by us already?
+bool CvMinorCivAI::IsMarried(PlayerTypes eMajor) const
+{
+	CvAssertMsg(eMajor >= 0, "ePlayer is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eMajor < REALLY_MAX_PLAYERS, "ePlayer is expected to be within maximum bounds (invalid Index)");
+	if(eMajor < 0 || eMajor >= REALLY_MAX_PLAYERS) return 0;  // as defined in Reset()
+	return m_abIsMarried[eMajor];
+}
+/// This minor has been bought out by a major civ
+void CvMinorCivAI::SetMajorMarried(PlayerTypes eMajor, bool bValue)
+{
+	CvAssertMsg(eMajor >= 0, "ePlayer is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eMajor < REALLY_MAX_PLAYERS, "ePlayer is expected to be within maximum bounds (invalid Index)");
+	if(m_abIsMarried[eMajor] != bValue)
+	{
+		m_abIsMarried[eMajor] = bValue;
+	}
+}
+/// Can this minor be bought out by this major?  (Austria UA)
+bool CvMinorCivAI::CanMajorDiploMarriage(PlayerTypes eMajor)
+{
+	CvAssertMsg(eMajor >= 0, "eMajor is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eMajor < MAX_MAJOR_CIVS, "eMajor is expected to be within maximum bounds (invalid Index)");
+	if(eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return false;
 
+	// Is alive?
+	if (!GET_PLAYER(eMajor).isAlive() || !GetPlayer()->isAlive())
+		return false;
+
+	// Has the trait or the policy?
+	if(!GET_PLAYER(eMajor).IsDiplomaticMarriage())
+		return false;
+	
+	//Already married?
+	if(IsMarried(eMajor))
+		return false;
+	
+	// Not at war?
+	if(GET_TEAM(GetPlayer()->getTeam()).isAtWar(GET_PLAYER(eMajor).getTeam()))
+		return false;
+
+	// Allies?
+	if(!IsAllies(eMajor))
+		return false;
+
+	// Allied long enough?
+	if (GetAlliedTurns() < GC.getMINOR_CIV_BUYOUT_TURNS())
+	{
+		return false;
+	}
+
+	// Has enough gold?
+	const int iBuyoutCost = GetMarriageCost(eMajor);
+	if(GET_PLAYER(eMajor).GetTreasury()->GetGold() < iBuyoutCost)
+		return false;
+
+	return true;
+}
+void CvMinorCivAI::DoMarriage(PlayerTypes eMajor)
+{
+	CvAssertMsg(eMajor >= 0, "eMajor is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eMajor < MAX_MAJOR_CIVS, "eMajor is expected to be within maximum bounds (invalid Index)");
+	if(eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return;
+
+	if(!CanMajorDiploMarriage(eMajor))
+		return;
+
+	// Pay the cost
+	const int iBuyoutCost = GetMarriageCost(eMajor);
+	GET_PLAYER(eMajor).GetTreasury()->LogExpenditure(GetPlayer()->GetMinorCivAI()->GetNamesListAsString(0), iBuyoutCost,6);
+	GET_PLAYER(eMajor).GetTreasury()->ChangeGold(-iBuyoutCost);
+
+	SetMajorMarried(eMajor, true);
+
+	GET_PLAYER(eMajor).GetDiplomacyAI()->LogMinorCivBuyout(GetPlayer()->GetID(), iBuyoutCost, /*bSaving*/ false);
+
+	// Show special notifications
+	int iCoinToss = GC.getGame().getJonRandNum(2, "Coin toss roll to determine flavor message for minor civ buyout notification.");
+	Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_MARRIAGE_TT_1");
+	if (iCoinToss == 0) // Is it a boy or a girl?
+		strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_MARRIAGE_TT_2");
+	strMessage << GET_PLAYER(eMajor).getCivilizationShortDescriptionKey();
+	strMessage << GetPlayer()->getCivilizationShortDescriptionKey();
+
+	Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_MARRIAGE");
+	strSummary << GET_PLAYER(eMajor).getCivilizationShortDescriptionKey();
+	strSummary << GetPlayer()->getCivilizationShortDescriptionKey();
+
+	for (int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
+	{
+		PlayerTypes eMajorLoop = (PlayerTypes) iMajorLoop;
+		if (IsHasMetPlayer(eMajorLoop))
+		{
+			AddBuyoutNotification(strMessage.toUTF8(), strSummary.toUTF8(), eMajorLoop);
+		}
+	}
+}
+int CvMinorCivAI::GetMarriageCost(PlayerTypes eMajor)
+{
+	CvAssertMsg(eMajor >= 0, "eMajor is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eMajor < MAX_MAJOR_CIVS, "eMajor is expected to be within maximum bounds (invalid Index)");
+	if(eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return -1;
+
+	int iGold = GC.getMINOR_CIV_BUYOUT_COST();
+
+	// Game Speed Mod
+	iGold *= GC.getGame().getGameSpeedInfo().getGoldPercent();
+	iGold /= 100;
+
+	// Add in the number of marriages we've already got.
+	int iCost = 0;
+	for (int iMinorLoop = 0; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
+	{
+		PlayerTypes eMinorLoop = (PlayerTypes) iMinorLoop;
+		if(eMinorLoop != NO_PLAYER && GET_PLAYER(eMinorLoop).isMinorCiv() && GET_PLAYER(eMinorLoop).GetMinorCivAI()->IsMarried(eMajor))
+		{
+			iCost++;
+		}
+	}
+	iGold += (iCost * 100);
+
+	// Rounding
+	int iVisibleDivisor = /*5*/ GC.getMINOR_CIV_GOLD_GIFT_VISIBLE_DIVISOR();
+	iGold /= iVisibleDivisor;
+	iGold *= iVisibleDivisor;
+
+	return iGold;
+}
+#endif
 /// Has this minor been bought out by someone?
 bool CvMinorCivAI::IsBoughtOut() const
 {
@@ -11503,7 +11667,7 @@ void CvMinorCivAI::DoMajorBullyGold(PlayerTypes eBully, int iGold)
 	//Do we get a bonus from unit bullying? Do that instead.
 	if(MOD_BALANCE_CORE_AFRAID_ANNEX)
 	{
-		if(GetPlayer()->GetPlayerTraits()->IsBullyAnnex())
+		if(GET_PLAYER(eBully).GetPlayerTraits()->IsBullyAnnex() && !GET_PLAYER(eBully).isHuman())
 		{
 			DoMajorBullyUnit(eBully, NO_UNIT);
 			return;

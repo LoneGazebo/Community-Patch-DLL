@@ -120,6 +120,7 @@ public:
 	bool IsPuppetPurchaseOverride() const;
 	bool IsAllowsPuppetPurchase() const;
 	int GetCooldown() const;
+	bool IsNationalMissionaries() const;
 #endif
 	int GetSpecialistType() const;
 	int GetSpecialistCount() const;
@@ -421,6 +422,7 @@ private:
 	int m_iGrantsRandomResourceTerritory;
 	bool m_bPuppetPurchaseOverride;
 	bool m_bAllowsPuppetPurchase;
+	bool m_bNationalMissionaries;
 	int m_iGetCooldown;
 #endif
 	int m_iSpecialistType;

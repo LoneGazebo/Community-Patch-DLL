@@ -911,7 +911,20 @@ void CvGameReligions::FoundPantheon(PlayerTypes ePlayer, BeliefTypes eBelief)
 
 	// Found it
 	m_CurrentReligions.push_back(newReligion);
-
+#if defined(MOD_BALANCE_CORE)
+	if(kPlayer.GetPlayerTraits()->IsAdoptionFreeTech())
+	{
+		if (!kPlayer.isHuman())
+		{
+			kPlayer.AI_chooseFreeTech();
+		}
+		else
+		{
+			CvString strBuffer = GetLocalizedText("TXT_KEY_MISC_CHOSE_BELIEF_UA_CHOOSE_TECH");
+			kPlayer.chooseTech(1, strBuffer.GetCString());
+		}
+	}
+#endif
 	// Update game systems
 	kPlayer.UpdateReligion();
 	kPlayer.ChangeFaith(-GetMinimumFaithNextPantheon());
@@ -1058,7 +1071,20 @@ void CvGameReligions::FoundReligion(PlayerTypes ePlayer, ReligionTypes eReligion
 #else
 		kReligion.m_Beliefs.AddBelief(eBelief);
 #endif
-
+#if defined(MOD_BALANCE_CORE)
+	if(kPlayer.GetPlayerTraits()->IsAdoptionFreeTech())
+	{
+		if (!kPlayer.isHuman())
+		{
+			kPlayer.AI_chooseFreeTech();
+		}
+		else
+		{
+			CvString strBuffer = GetLocalizedText("TXT_KEY_MISC_CHOSE_BELIEF_UA_CHOOSE_TECH");
+			kPlayer.chooseTech(1, strBuffer.GetCString());
+		}
+	}
+#endif
 	kReligion.m_Beliefs.AddBelief(eBelief1);
 	kReligion.m_Beliefs.AddBelief(eBelief2);
 
@@ -1324,7 +1350,20 @@ void CvGameReligions::EnhanceReligion(PlayerTypes ePlayer, ReligionTypes eReligi
 		CUSTOMLOG("Trying to enhance a religion/pantheon that doesn't exist!!!");
 		return;
 	}
-
+#if defined(MOD_BALANCE_CORE)
+	if(kPlayer.GetPlayerTraits()->IsAdoptionFreeTech())
+	{
+		if (!kPlayer.isHuman())
+		{
+			kPlayer.AI_chooseFreeTech();
+		}
+		else
+		{
+			CvString strBuffer = GetLocalizedText("TXT_KEY_MISC_CHOSE_BELIEF_UA_CHOOSE_TECH");
+			kPlayer.chooseTech(1, strBuffer.GetCString());
+		}
+	}
+#endif
 	it->m_Beliefs.AddBelief(eBelief1);
 #if defined(MOD_API_RELIGION)
 	if(eBelief2 != NO_BELIEF)
@@ -1514,7 +1553,20 @@ void CvGameReligions::AddReformationBelief(PlayerTypes ePlayer, ReligionTypes eR
 		CvAssertMsg(false, "Internal error in religion code.");
 		return;
 	}
-
+#if defined(MOD_BALANCE_CORE)
+	if(kPlayer.GetPlayerTraits()->IsAdoptionFreeTech())
+	{
+		if (!kPlayer.isHuman())
+		{
+			kPlayer.AI_chooseFreeTech();
+		}
+		else
+		{
+			CvString strBuffer = GetLocalizedText("TXT_KEY_MISC_CHOSE_BELIEF_UA_CHOOSE_TECH");
+			kPlayer.chooseTech(1, strBuffer.GetCString());
+		}
+	}
+#endif
 	it->m_Beliefs.AddBelief(eBelief1);
 
 	// Update game systems
@@ -2309,6 +2361,49 @@ int CvGameReligions::GetAdjacentCityReligiousPressure (ReligionTypes eReligion, 
 	{
 		return iPressure;
 	}
+#if defined(MOD_BALANCE_CORE)
+	if(!GET_PLAYER(pToCity->getOwner()).isMinorCiv() && GET_PLAYER(pToCity->getOwner()).GetPlayerTraits()->IsNoSpread())
+	{
+		if(GET_PLAYER(pToCity->getOwner()).GetReligions()->GetReligionCreatedByPlayer(false) != NO_RELIGION)
+		{
+			if(eReligion != GET_PLAYER(pToCity->getOwner()).GetReligions()->GetReligionCreatedByPlayer(false))
+			{
+				return iPressure;
+			}
+		}
+		if((GET_PLAYER(pToCity->getOwner()).GetReligions()->GetReligionInMostCities() != NO_RELIGION))
+		{
+			if(eReligion != GET_PLAYER(pToCity->getOwner()).GetReligions()->GetReligionInMostCities())
+			{
+				return iPressure;
+			}
+		}
+	}
+	if(GET_PLAYER(pToCity->getOwner()).isMinorCiv())
+	{
+		PlayerTypes eAlly = GET_PLAYER(pToCity->getOwner()).GetMinorCivAI()->GetAlly();
+		if(eAlly != NO_PLAYER)
+		{
+			if(GET_PLAYER(eAlly).GetPlayerTraits()->IsNoSpread())
+			{
+				if(GET_PLAYER(eAlly).GetReligions()->GetReligionCreatedByPlayer(false) != NO_RELIGION)
+				{
+					if(eReligion != GET_PLAYER(eAlly).GetReligions()->GetReligionCreatedByPlayer(false))
+					{
+						return iPressure;
+					}
+				}
+				if((GET_PLAYER(eAlly).GetReligions()->GetReligionInMostCities() != NO_RELIGION))
+				{
+					if(eReligion != GET_PLAYER(eAlly).GetReligions()->GetReligionInMostCities())
+					{
+						return iPressure;
+					}
+				}
+			}
+		}
+	}
+#endif
 
 #if defined(MOD_RELIGION_LOCAL_RELIGIONS)
 	if (MOD_RELIGION_LOCAL_RELIGIONS && GC.getReligionInfo(eReligion)->IsLocalReligion()) {

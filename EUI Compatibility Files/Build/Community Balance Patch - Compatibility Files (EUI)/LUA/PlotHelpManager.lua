@@ -703,15 +703,16 @@ local function UpdatePlotHelp( timeChange )
 					if unit:IsEmbarked() then
 						unitTip = unitTip .. " " .. L( "TXT_KEY_PLOTROLL_EMBARKED" )
 					end
-
+					
 					tips:insert( unitTip )
 
 --CBP
-					if isNoob then
-						tips:insert( S("Unit Danger: %d", L(unit:GetDanger()) ) )
-						tips:insert( L(unit:GetAIOperationInfo()) )
-						tips:insert( L(unit:GetMissionInfo()) )
-					end
+					--if isNoob then
+					--	tips:insert( S("Unit %d - ", L(unit:GetID())))
+					--	tips:insert( S("Danger: %d", L(unit:GetDanger())))
+					--	tips:insert( L(unit:GetAIOperationInfo()) )
+					--	tips:insert( L(unit:GetMissionInfo()) )
+					--end
 -- END CBP
 
 					-- Can build something?

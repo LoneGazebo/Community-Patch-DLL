@@ -5,28 +5,28 @@
 		
 		<!-- Top Panel -->
 		<Row Tag="TXT_KEY_TP_UNHAPPINESS_SCIENCE">
-			<Text>{1_Num} from Illiteracy.</Text>
+			<Text>{1_Num} from [ICON_RESEARCH] Illiteracy.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TP_UNHAPPINESS_CULTURE">
-			<Text>{1_Num} from Boredom.</Text>
+			<Text>{1_Num} from [ICON_CULTURE] Boredom.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TP_UNHAPPINESS_DEFENSE">
-			<Text>{1_Num} from Disorder.</Text>
+			<Text>{1_Num} from [ICON_STRENGTH] Disorder.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TP_UNHAPPINESS_GOLD">
-			<Text>{1_Num} from Poverty.</Text>
+			<Text>{1_Num} from [ICON_GOLD] Poverty.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TP_UNHAPPINESS_CONNECTION">
-			<Text>{1_Num} from Isolation.</Text>
+			<Text>{1_Num} from [ICON_BLOCAKDED] Isolation.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TP_UNHAPPINESS_PILLAGED">
-			<Text>{1_Num} from Pillaged Tiles.</Text>
+			<Text>{1_Num} from [ICON_RAZING] Pillaged Tiles.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TP_UNHAPPINESS_STARVING">
-			<Text>{1_Num} from Famine.</Text>
+			<Text>{1_Num} from [ICON_FOOD] Famine.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TP_UNHAPPINESS_MINORITY">
-			<Text>{1_Num} from Religious Divisions.</Text>
+			<Text>{1_Num} from [ICON_RELIGION] Religious Divisions.</Text>
 		</Row>
 		
 		<!-- Economic Overview -->

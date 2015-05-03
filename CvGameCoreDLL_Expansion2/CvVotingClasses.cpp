@@ -4116,6 +4116,27 @@ int CvLeague::CalculateStartingVotesForMember(PlayerTypes ePlayer, bool bForceUp
 		int iWorldIdeologyVotes = GetExtraVotesForFollowingIdeology(ePlayer);
 		iVotes += iWorldIdeologyVotes;
 
+#if defined(MOD_BALANCE_CORE)
+		int iNumMarried = 0;
+		// Loop through all minors and get the total number we've met.
+		for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+		{
+			PlayerTypes eMinor = (PlayerTypes) iPlayerLoop;
+
+			if (eMinor != ePlayer && GET_PLAYER(eMinor).isAlive() && GET_PLAYER(eMinor).isMinorCiv())
+			{
+				if (GET_PLAYER(ePlayer).IsDiplomaticMarriage() && GET_PLAYER(eMinor).GetMinorCivAI()->IsMarried(ePlayer))
+				{
+					iNumMarried++;
+				}
+			}
+		}
+		if(GET_PLAYER(ePlayer).IsDiplomaticMarriage() && iNumMarried > 0)
+		{
+			iVotes += iNumMarried;
+		}
+#endif
+
 		// Vote Sources - Normally this is only updated when we are not in session
 		if (bForceUpdateSources || !IsInSession())
 		{
@@ -4217,6 +4238,12 @@ int CvLeague::CalculateStartingVotesForMember(PlayerTypes ePlayer, bool bForceUp
 			{
 				Localization::String sTemp = Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_MEMBER_DETAILS_TRAIT_VOTES");
 				sTemp << iTraitVotes;
+				pMember->sVoteSources += sTemp.toUTF8();
+			}
+			if(MOD_BALANCE_CORE && iNumMarried > 0)
+			{
+				Localization::String sTemp = Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_MEMBER_DETAILS_MARRIED_VOTES");
+				sTemp << iNumMarried;
 				pMember->sVoteSources += sTemp.toUTF8();
 			}
 #endif
@@ -10519,27 +10546,27 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 			//If FLAVOR_DIPLOMACY is 6+...
 			if(iFlavorDiplo - 5 > 0)
 			{
-				iScore += 50 * iFlavorDiplo;
+				iScore += 100 * iFlavorDiplo;
 			}
 			if(iNeededVotes > 0)
 			{
 				iVoteRatio = (iVotes * 100) / iNeededVotes;
 				if(iVoteRatio < 50)
 				{
-					iScore += -100;
+					iScore += -200;
 				}
 				else if(iVoteRatio >= 50)
 				{
-					iScore += 200;
+					iScore += 1000;
 				}
 				else
 				{
-					iScore += 30;
+					iScore += 25;
 				}
 			}
 			else
 			{
-				iScore += 15;
+				iScore += 20;
 			}
 		}
 #endif

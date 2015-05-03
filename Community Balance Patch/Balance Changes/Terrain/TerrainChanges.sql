@@ -16,11 +16,16 @@ UPDATE Terrains
 SET SeeFrom = '2'
 WHERE Type = 'TERRAIN_MOUNTAIN' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_TERRAIN' AND Value= 1 );
 
--- Improvements -- Trading Post -- Available at Horseback Riding
+-- Improvements -- Trading Post -- Available at Currency
 
 UPDATE Builds
-SET PrereqTech = 'TECH_HORSEBACK_RIDING'
+SET PrereqTech = 'TECH_CURRENCY'
 WHERE Type = 'BUILD_TRADING_POST' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_TERRAIN' AND Value= 1 );
+
+-- Lumbermill moved to Machinery
+UPDATE Builds
+SET PrereqTech = 'TECH_MACHINERY'
+WHERE Type = 'BUILD_LUMBERMILL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_TERRAIN' AND Value= 1 );
 
 -- Removal of Forest/Jungle/Marsh moved back a bit
 UPDATE Builds

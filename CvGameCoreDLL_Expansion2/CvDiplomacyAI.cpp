@@ -48,6 +48,9 @@ CvDiplomacyAI::DiplomacyAIData::DiplomacyAIData() :
 	, m_aeWarProjection()
 	, m_aeWarGoal()
 	, m_aiPlayerNumTurnsAtWar()
+#if defined(MOD_BALANCE_CORE)
+	, m_aiPlayerNumTurnsSinceCityCapture()
+#endif
 	, m_aiNumWarsFought()
 	, m_aePlayerMilitaryStrengthComparedToUs()
 	, m_aePlayerEconomicStrengthComparedToUs()
@@ -217,6 +220,9 @@ CvDiplomacyAI::CvDiplomacyAI():
 	m_paeLastWarProjection(NULL),
 	m_paeWarGoal(NULL),
 	m_paiPlayerNumTurnsAtWar(NULL),
+#if defined(MOD_BALANCE_CORE)
+	m_paiPlayerNumTurnsSinceCityCapture(NULL),
+#endif
 	m_paiNumWarsFought(NULL),
 	m_paePlayerMilitaryStrengthComparedToUs(NULL),
 	m_paePlayerEconomicStrengthComparedToUs(NULL),
@@ -451,6 +457,9 @@ void CvDiplomacyAI::Init(CvPlayer* pPlayer)
 	m_paeLastWarProjection = &m_pDiploData->m_aeLastWarProjection[0];
 	m_paeWarGoal = &m_pDiploData->m_aeWarGoal[0];
 	m_paiPlayerNumTurnsAtWar = &m_pDiploData->m_aiPlayerNumTurnsAtWar[0];
+#if defined(MOD_BALANCE_CORE)
+	m_paiPlayerNumTurnsSinceCityCapture = &m_pDiploData->m_aiPlayerNumTurnsSinceCityCapture[0];
+#endif
 	m_paiNumWarsFought = &m_pDiploData->m_aiNumWarsFought[0];
 	m_paePlayerMilitaryStrengthComparedToUs = &m_pDiploData->m_aePlayerMilitaryStrengthComparedToUs[0];
 	m_paePlayerEconomicStrengthComparedToUs = &m_pDiploData->m_aePlayerEconomicStrengthComparedToUs[0];
@@ -730,6 +739,9 @@ void CvDiplomacyAI::Uninit()
 	m_paeLastWarProjection = NULL;
 	m_paeWarGoal = NULL;
 	m_paiPlayerNumTurnsAtWar = NULL;
+#if defined(MOD_BALANCE_CORE)
+	m_paiPlayerNumTurnsSinceCityCapture = NULL;
+#endif
 	m_paiNumWarsFought = NULL;
 	m_paePlayerMilitaryStrengthComparedToUs = NULL;
 	m_paePlayerEconomicStrengthComparedToUs = NULL;
@@ -1109,6 +1121,9 @@ void CvDiplomacyAI::Reset()
 		m_paeLastWarProjection[iI] = NO_WAR_PROJECTION_TYPE;
 		m_paeWarGoal[iI] = NO_WAR_GOAL_TYPE;
 		m_paiPlayerNumTurnsAtWar[iI] = 0;
+#if defined(MOD_BALANCE_CORE)
+		m_paiPlayerNumTurnsSinceCityCapture[iI] = 0;
+#endif
 		m_paiNumWarsFought[iI] = 0;
 
 		m_paePlayerMilitaryStrengthComparedToUs[iI] = NO_STRENGTH_VALUE;
@@ -1287,6 +1302,11 @@ void CvDiplomacyAI::Read(FDataStream& kStream)
 
 	ArrayWrapper<short> wrapm_paiPlayerNumTurnsAtWar(MAX_CIV_PLAYERS, m_paiPlayerNumTurnsAtWar);
 	kStream >> wrapm_paiPlayerNumTurnsAtWar;
+
+#if defined(MOD_BALANCE_CORE)
+	ArrayWrapper<short> wrapm_paiPlayerNumTurnsSinceCityCapture (MAX_CIV_PLAYERS, m_paiPlayerNumTurnsSinceCityCapture );
+	kStream >> wrapm_paiPlayerNumTurnsSinceCityCapture;
+#endif
 
 	ArrayWrapper<short> wrapm_paiNumWarsFought(MAX_CIV_PLAYERS, m_paiNumWarsFought);
 	kStream >> wrapm_paiNumWarsFought;
@@ -1788,6 +1808,9 @@ void CvDiplomacyAI::Write(FDataStream& kStream) const
 	kStream << ArrayWrapper<char>(MAX_CIV_PLAYERS, m_paeLastWarProjection);
 	kStream << ArrayWrapper<char>(MAX_CIV_PLAYERS, m_paeWarGoal);
 	kStream << ArrayWrapper<short>(MAX_CIV_PLAYERS, m_paiPlayerNumTurnsAtWar);
+#if defined(MOD_BALANCE_CORE)
+	kStream << ArrayWrapper<short>(MAX_CIV_PLAYERS, m_paiPlayerNumTurnsSinceCityCapture );
+#endif
 	kStream << ArrayWrapper<short>(MAX_CIV_PLAYERS, m_paiNumWarsFought);
 
 	kStream << ArrayWrapper<char>(MAX_CIV_PLAYERS, m_paePlayerMilitaryStrengthComparedToUs);
@@ -2321,10 +2344,24 @@ void CvDiplomacyAI::DoCounters()
 		{
 			// War Counter
 			if(GET_TEAM(GetTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam()))
+#if defined(MOD_BALANCE_CORE)
+			{
+#endif
 				ChangePlayerNumTurnsAtWar(eLoopPlayer, 1);
+#if defined(MOD_BALANCE_CORE)
+				ChangePlayerNumTurnsSinceCityCapture(eLoopPlayer, 1);
+			}
+#endif
 			// Reset Counter if not at war
 			else if(GetPlayerNumTurnsAtWar(eLoopPlayer) > 0)
+#if defined(MOD_BALANCE_CORE)
+			{
+#endif
 				SetPlayerNumTurnsAtWar(eLoopPlayer, 0);
+#if defined(MOD_BALANCE_CORE)
+				SetPlayerNumTurnsSinceCityCapture(eLoopPlayer, 0);
+			}
+#endif
 
 			///////////////////////////////
 			// Major Civs only!
@@ -5835,6 +5872,9 @@ bool CvDiplomacyAI::IsWillingToMakePeaceWithHuman(PlayerTypes ePlayer)
 		{
 			return false;
 		}
+#if defined(MOD_BALANCE_CORE)
+		bWillMakePeace = GetPlayerNumTurnsSinceCityCapture(ePlayer) >= (5 + GetBoldness());
+#endif
 
 		// If either of us are locked in, then we're not willing to make peace (this prevents weird greetings and stuff) - we use > 1 because it'll get decremented after it appears the human make peace again
 		if(GET_TEAM(GetPlayer()->getTeam()).GetNumTurnsLockedIntoWar(kHumanPlayer.getTeam()) > 1)
@@ -6176,7 +6216,12 @@ void CvDiplomacyAI::MakeWar()
 									SetCoopWarAcceptedState(eLoopPlayer, eThirdPlayer, COOP_WAR_STATE_ACCEPTED);
 									SetCoopWarCounter(eLoopPlayer, eThirdPlayer, 0);
 									DeclareWar(eThirdPlayer);
+#if defined(MOD_BALANCE_CORE)
+									GetPlayer()->GetMilitaryAI()->RequestBasicAttack(eThirdPlayer, 2);
+									GetPlayer()->GetMilitaryAI()->RequestPillageAttack(eThirdPlayer);
+#else
 									GetPlayer()->GetMilitaryAI()->RequestShowOfForce(eThirdPlayer);
+#endif
 
 									int iLockedTurns = /*15*/ GC.getCOOP_WAR_LOCKED_LENGTH();
 									GET_TEAM(GetPlayer()->getTeam()).ChangeNumTurnsLockedIntoWar(GET_PLAYER(eThirdPlayer).getTeam(), iLockedTurns);
@@ -6506,7 +6551,7 @@ void CvDiplomacyAI::DoUpdateWarStates()
 						{
 							if(GET_PLAYER(eLoopPlayer).GetMilitaryAI()->GetNavalDefenseState() < GetPlayer()->GetMilitaryAI()->GetNavalDefenseState())
 							{
-								iStateAllWars -= 1;
+								eWarState = WAR_STATE_DEFENSIVE;
 							}
 						}
 					}
@@ -7045,7 +7090,34 @@ void CvDiplomacyAI::ChangePlayerNumTurnsAtWar(PlayerTypes ePlayer, int iChange)
 		SetPlayerNumTurnsAtWar(ePlayer, GetPlayerNumTurnsAtWar(ePlayer) + iChange);
 	}
 }
+#if defined(MOD_BALANCE_CORE)
+/// How many turns have we been at war with this Player?
+int CvDiplomacyAI::GetPlayerNumTurnsSinceCityCapture(PlayerTypes ePlayer) const
+{
+	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	CvAssertMsg(ePlayer < MAX_CIV_PLAYERS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	return m_paiPlayerNumTurnsSinceCityCapture[ePlayer];
+}
 
+/// Sets how many turns we've been at war with this Player
+void CvDiplomacyAI::SetPlayerNumTurnsSinceCityCapture(PlayerTypes ePlayer, int iValue)
+{
+	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	CvAssertMsg(ePlayer < MAX_CIV_PLAYERS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	CvAssertMsg(iValue >= 0, "DIPLOMACY_AI: Setting PlayerNumTurnsAtWar to a negative value.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+
+	m_paiPlayerNumTurnsSinceCityCapture[ePlayer] = iValue;
+}
+
+/// Sets how many turns we've been at war with this Player
+void CvDiplomacyAI::ChangePlayerNumTurnsSinceCityCapture(PlayerTypes ePlayer, int iChange)
+{
+	if(iChange != 0)
+	{
+		SetPlayerNumTurnsSinceCityCapture(ePlayer, GetPlayerNumTurnsSinceCityCapture(ePlayer) + iChange);
+	}
+}
+#endif
 /// How many times have we gone to war?
 int CvDiplomacyAI::GetNumWarsFought(PlayerTypes ePlayer) const
 {
@@ -11932,16 +12004,36 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 	// We no longer want to work with a player
 	else if(eStatement == DIPLO_STATEMENT_END_WORK_WITH_US)
 	{
+#if defined(MOD_BALANCE_CORE)
+		if(IsDoFAccepted(ePlayer))
+		{
+#endif
 		SetDoFAccepted(ePlayer, false);
 		SetDoFCounter(ePlayer, -666);
+#if defined(MOD_BALANCE_CORE)
+		}
+#endif
 
 		// If we had agreed to not settle near the player, break that off
+#if defined(MOD_BALANCE_CORE)
+		if(GetPlayerNoSettleRequestCounter(ePlayer) > -1)
+		{
+#endif
 		SetPlayerNoSettleRequestAccepted(ePlayer, false);
 		SetPlayerNoSettleRequestCounter(ePlayer, -666);
-
+#if defined(MOD_BALANCE_CORE)
+		}
+#endif
+#if defined(MOD_BALANCE_CORE)
+		if(GetPlayerStopSpyingRequestCounter(ePlayer) > -1)
+		{
+#endif
 		// If we had agreed to not spy on the player, break that off
 		SetPlayerStopSpyingRequestAccepted(ePlayer, false);
 		SetPlayerStopSpyingRequestCounter(ePlayer, -666);
+#if defined(MOD_BALANCE_CORE)
+		}
+#endif
 
 		// Send message to human
 		if(bShouldShowLeaderScene)
@@ -13520,6 +13612,23 @@ void CvDiplomacyAI::DoContactMinorCivs()
 				bWantsToBuyout = true;
 		}
 	}
+#if defined(MOD_BALANCE_CORE)
+	if(GetPlayer()->IsDiplomaticMarriage())
+	{
+		if(IsGoingForDiploVictory() || IsGoingForCultureVictory())
+		{
+			bWantsToBuyout = true;
+		}
+		else
+		{
+			int iThreshold = iExpansionFlavor * 5; //antonjs: todo: xml
+			int iRandRoll = GC.getGame().getJonRandNum(100, "Diplomacy AI: good turn to buyout a minor?");
+
+			if(iRandRoll < iThreshold)
+				bWantsToBuyout = true;
+		}
+	}
+#endif
 
 	// **************************
 	// Would we like to give a gold gift this turn?
@@ -13853,6 +13962,14 @@ void CvDiplomacyAI::DoContactMinorCivs()
 						bWantsToBuyoutThisMinor = true;
 					}
 				}
+#if defined(MOD_BALANCE_CORE)
+				// Only bother if we actually can buyout
+				if(GetPlayer()->IsDiplomaticMarriage() && pMinorCivAI->CanMajorDiploMarriage(eID))
+				{
+					veMinorsToBuyout.push_back(eMinor, 1000);
+						bWantsToBuyoutThisMinor = true;
+				}	
+#endif
 			}
 
 			// Calculate desirability to give this minor gold
@@ -14187,6 +14304,14 @@ void CvDiplomacyAI::DoContactMinorCivs()
 					iGoldLeft -= iBuyoutCost;
 					break; // Don't buyout more than once in a single turn
 				}
+#if defined(MOD_BALANCE_CORE)
+				if(GET_PLAYER(eLoopMinor).GetMinorCivAI()->CanMajorDiploMarriage(eID))
+				{
+					GET_PLAYER(eLoopMinor).GetMinorCivAI()->DoMarriage(eID);
+					iBuyoutCost = GET_PLAYER(eLoopMinor).GetMinorCivAI()->GetMarriageCost(eID);
+					iGoldLeft -= iBuyoutCost;
+				}
+#endif
 				else
 				{
 					CvAssertMsg(false, "Chose a minor to buyout that cannot actually be bought! Please send Anton your save file and version.");
@@ -16296,7 +16421,11 @@ void CvDiplomacyAI::DoPeaceOffer(PlayerTypes ePlayer, DiploStatementTypes& eStat
 		TeamTypes eTheirTeam = GET_PLAYER(ePlayer).getTeam();
 
 		// Have to have been at war for at least a little while
+#if defined(MOD_BALANCE_CORE)
+		if((GetPlayerNumTurnsAtWar(ePlayer) > 5) && (GetPlayerNumTurnsSinceCityCapture(ePlayer) > 5))
+#else
 		if(GetPlayerNumTurnsAtWar(ePlayer) > 5)
+#endif
 		{
 			// We can't be locked into war with them, or them with us
 			if(pOurTeam->GetNumTurnsLockedIntoWar(eTheirTeam) == 0 &&
@@ -18810,7 +18939,11 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 			else
 			{
 				// Player declared war and wants peace right away.  Uh huh, right.
+#if defined(MOD_BALANCE_CORE)
+				if((GetPlayerNumTurnsAtWar(eFromPlayer) < 1) && (GetPlayerNumTurnsSinceCityCapture(eFromPlayer) < 1))
+#else
 				if(GetPlayerNumTurnsAtWar(eFromPlayer) < 1)
+#endif
 					strText = GetDiploStringForMessage(DIPLO_MESSAGE_TOO_SOON_NO_PEACE);
 				// Don't want peace for some other reason
 				else
@@ -21217,7 +21350,13 @@ bool CvDiplomacyAI::DoTestCoopWarDesire(PlayerTypes ePlayer, PlayerTypes& eChose
 		// Don't test player Target himself
 		if(eTargetPlayerLoop == ePlayer)
 			continue;
+#if defined(MOD_BALANCE_CORE)
+		if(GET_TEAM(GET_PLAYER(eTargetPlayerLoop).getTeam()).isAtWar(GET_PLAYER(ePlayer).getTeam()))
+			continue;
 
+		if(GET_TEAM(GET_PLAYER(eTargetPlayerLoop).getTeam()).isForcePeace(GET_PLAYER(ePlayer).getTeam()))
+			continue;
+#endif
 		// Have we already made the agreement?
 		if(GetCoopWarAcceptedState(ePlayer, eTargetPlayerLoop) != NO_COOP_WAR_STATE)
 			continue;
@@ -21587,6 +21726,10 @@ bool CvDiplomacyAI::IsContinueCoopWar(PlayerTypes ePlayer, PlayerTypes eTargetPl
 	if(eOpinionTowardsTarget >= MAJOR_CIV_OPINION_FRIEND)
 		return false;
 
+#if defined(MOD_BALANCE_CORE)
+	if(GET_TEAM(GET_PLAYER(eTargetPlayer).getTeam()).isForcePeace(GET_PLAYER(ePlayer).getTeam()))
+		return false;
+#endif
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	// If we've made the decision to move troops from borders, we're done
 	if(MOD_DIPLOMACY_CIV4_FEATURES && IsPlayerMoveTroopsRequestAccepted(eTargetPlayer))
@@ -22706,6 +22849,14 @@ bool CvDiplomacyAI::IsDenounceAcceptable(PlayerTypes ePlayer, bool bBias)
 	// If we're friends, return false - this is handled in IsDenounceFriendAcceptable
 	if(IsDoFAccepted(ePlayer))
 		return false;
+
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	//No Vassal denouncement.
+	if(IsVassal(ePlayer) || GET_PLAYER(ePlayer).GetDiplomacyAI()->IsVassal(m_pPlayer->GetID()))
+	{
+		return false;
+	}
+#endif
 
 	int iWeight = GetDenounceWeight(ePlayer, bBias);
 	if(iWeight >= 18)

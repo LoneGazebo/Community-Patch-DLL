@@ -91,11 +91,27 @@
 	SET ObsoleteTech = 'TECH_ATOMIC_THEORY'
 	WHERE Type = 'UNIT_GREAT_WAR_INFANTRY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
-	-- Musketman Buffed Slightly
+	-- Musketman Changes
 
 	UPDATE Units
-	SET Combat = '25'
+	SET Combat = '24'
 	WHERE Type = 'UNIT_MUSKETMAN' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	UPDATE Units
+	SET Combat = '28'
+	WHERE Type = 'UNIT_SWEDISH_CAROLEAN' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	UPDATE Units
+	SET PrereqTech = 'TECH_GUNPOWDER'
+	WHERE Type = 'UNIT_SWEDISH_CAROLEAN' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	UPDATE Units
+	SET ObsoleteTech = 'TECH_REPLACEABLE_PARTS'
+	WHERE Type = 'UNIT_SWEDISH_CAROLEAN' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	UPDATE Units
+	SET Class = 'UNITCLASS_MUSKETMAN'
+	WHERE Type = 'UNIT_SWEDISH_CAROLEAN' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	-- Borrowed for WWI Infantry - Fusiliers more fiting.
 	
@@ -365,6 +381,9 @@
 	SET Combat = '20'
 	WHERE Type = 'UNIT_ARABIAN_CAMELARCHER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
+	INSERT INTO Unit_FreePromotions (UnitType, PromotionType)
+	SELECT 'UNIT_ARABIAN_CAMELARCHER' , 'PROMOTION_WITHDRAW_BEFORE_MELEE'
+	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Units
 	SET Combat = '25'
@@ -501,11 +520,11 @@
 
 	-- Indian Elephant (9)
 	UPDATE Units
-	SET Combat = '10'
+	SET Combat = '11'
 	WHERE Type = 'UNIT_INDIAN_WARELEPHANT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Units
-	SET RangedCombat = '14'
+	SET RangedCombat = '15'
 	WHERE Type = 'UNIT_INDIAN_WARELEPHANT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 	
 	UPDATE Units
@@ -515,6 +534,10 @@
 	UPDATE Units
 	SET PrereqTech = 'TECH_MATHEMATICS'
 	WHERE Type = 'UNIT_INDIAN_WARELEPHANT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	INSERT INTO Unit_FreePromotions (UnitType, PromotionType)
+	SELECT 'UNIT_INDIAN_WARELEPHANT' , 'PROMOTION_FEARED_ELEPHANT'
+	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	-- Archer (5)
 	UPDATE Units
@@ -733,6 +756,10 @@
 	SET Combat = '75'
 	WHERE Type = 'UNIT_MISSILE_CRUISER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
+	UPDATE Units
+	SET Moves = '6'
+	WHERE Type = 'UNIT_MISSILE_CRUISER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
 	-- Nuclear Submarine (50)
 	UPDATE Units
 	SET Combat = '45'
@@ -763,6 +790,10 @@
 	SET Combat = '11'
 	WHERE Type = 'UNIT_GALLEASS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
+	UPDATE Units
+	SET Moves = '3'
+	WHERE Type = 'UNIT_GALLEASS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
 	DELETE FROM Unit_AITypes
 	WHERE UnitType = 'UNIT_GALLEASS' AND UnitAIType = 'UNITAI_EXPLORE_SEA' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
@@ -788,6 +819,10 @@
 
 	UPDATE Units
 	SET RangedCombat = '11'
+	WHERE Type = 'UNIT_BYZANTINE_DROMON' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	UPDATE Units
+	SET Moves = '3'
 	WHERE Type = 'UNIT_BYZANTINE_DROMON' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Units
@@ -826,7 +861,139 @@
 	SET UnitClassType = 'UNITCLASS_CRUISER'
 	WHERE UnitType = 'UNIT_ENGLISH_SHIPOFTHELINE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
+	-- Flavors -- Naval
+	UPDATE Unit_Flavors
+	SET Flavor = '4'
+	WHERE UnitType = 'UNIT_TRIREME' AND FlavorType = 'FLAVOR_NAVAL';
+
+	UPDATE Unit_Flavors
+	SET Flavor = '8'
+	WHERE UnitType = 'UNIT_CARTHAGINIAN_QUINQUEREME' AND FlavorType = 'FLAVOR_NAVAL';
+
+	UPDATE Unit_Flavors
+	SET Flavor = '7'
+	WHERE UnitType = 'UNIT_CARAVEL' AND FlavorType = 'FLAVOR_NAVAL';
+
+	UPDATE Unit_Flavors
+	SET Flavor = '11'
+	WHERE UnitType = 'UNIT_PORTUGUESE_NAU' AND FlavorType = 'FLAVOR_NAVAL';
+
+	UPDATE Unit_Flavors
+	SET Flavor = '10'
+	WHERE UnitType = 'UNIT_KOREAN_TURTLE_SHIP' AND FlavorType = 'FLAVOR_NAVAL';
+
+	UPDATE Unit_Flavors
+	SET Flavor = '9'
+	WHERE UnitType = 'UNIT_PRIVATEER' AND FlavorType = 'FLAVOR_NAVAL';
+
+	UPDATE Unit_Flavors
+	SET Flavor = '12'
+	WHERE UnitType = 'UNIT_DUTCH_SEA_BEGGAR' AND FlavorType = 'FLAVOR_NAVAL';
+
+	UPDATE Unit_Flavors
+	SET Flavor = '12'
+	WHERE UnitType = 'UNIT_IRONCLAD' AND FlavorType = 'FLAVOR_NAVAL';
+
+	UPDATE Unit_Flavors
+	SET Flavor = '15'
+	WHERE UnitType = 'UNIT_DESTROYER' AND FlavorType = 'FLAVOR_NAVAL';
+
+	UPDATE Unit_Flavors
+	SET Flavor = '6'
+	WHERE UnitType = 'UNIT_BYZANTINE_DROMON' AND FlavorType = 'FLAVOR_NAVAL';
+
+	UPDATE Unit_Flavors
+	SET Flavor = '10'
+	WHERE UnitType = 'UNIT_GALLEASS' AND FlavorType = 'FLAVOR_NAVAL';
+
+	UPDATE Unit_Flavors
+	SET Flavor = '12'
+	WHERE UnitType = 'UNIT_FRIGATE' AND FlavorType = 'FLAVOR_NAVAL';
+
+	UPDATE Unit_Flavors
+	SET Flavor = '18'
+	WHERE UnitType = 'UNIT_ENGLISH_SHIPOFTHELINE' AND FlavorType = 'FLAVOR_NAVAL';
+
+	UPDATE Unit_Flavors
+	SET Flavor = '18'
+	WHERE UnitType = 'UNIT_CRUISER' AND FlavorType = 'FLAVOR_NAVAL';
+
+	UPDATE Unit_Flavors
+	SET Flavor = '22'
+	WHERE UnitType = 'UNIT_BATTLESHIP' AND FlavorType = 'FLAVOR_NAVAL';
+
+	UPDATE Unit_Flavors
+	SET Flavor = '30'
+	WHERE UnitType = 'UNIT_MISSILE_CRUISER' AND FlavorType = 'FLAVOR_NAVAL';
+
+	-- Flavors -- Naval Recon
+
+	UPDATE Unit_Flavors
+	SET Flavor = '6'
+	WHERE UnitType = 'UNIT_TRIREME' AND FlavorType = 'FLAVOR_NAVAL_RECON';
+
+	UPDATE Unit_Flavors
+	SET Flavor = '10'
+	WHERE UnitType = 'UNIT_CARTHAGINIAN_QUINQUEREME' AND FlavorType = 'FLAVOR_NAVAL_RECON';
+
+	UPDATE Unit_Flavors
+	SET Flavor = '12'
+	WHERE UnitType = 'UNIT_CARAVEL' AND FlavorType = 'FLAVOR_NAVAL_RECON';
+
+	UPDATE Unit_Flavors
+	SET Flavor = '16'
+	WHERE UnitType = 'UNIT_PORTUGUESE_NAU' AND FlavorType = 'FLAVOR_NAVAL_RECON';
+
+	INSERT INTO Unit_Flavors (Flavor, UnitType, FlavorType)
+	SELECT '6' , 'UNIT_KOREAN_TURTLE_SHIP', 'FLAVOR_NAVAL_RECON';
+
+	UPDATE Unit_Flavors
+	SET Flavor = '14'
+	WHERE UnitType = 'UNIT_PRIVATEER' AND FlavorType = 'FLAVOR_NAVAL_RECON';
+
+	UPDATE Unit_Flavors
+	SET Flavor = '18'
+	WHERE UnitType = 'UNIT_DUTCH_SEA_BEGGAR' AND FlavorType = 'FLAVOR_NAVAL_RECON';
+
+	INSERT INTO Unit_Flavors (Flavor, UnitType, FlavorType)
+	SELECT '18' , 'UNIT_IRONCLAD', 'FLAVOR_NAVAL_RECON';
+
+	UPDATE Unit_Flavors
+	SET Flavor = '25'
+	WHERE UnitType = 'UNIT_DESTROYER' AND FlavorType = 'FLAVOR_NAVAL_RECON';
+
+	UPDATE Unit_Flavors
+	SET Flavor = '3'
+	WHERE UnitType = 'UNIT_BYZANTINE_DROMON' AND FlavorType = 'FLAVOR_NAVAL_RECON';
+
+	UPDATE Unit_Flavors
+	SET Flavor = '5'
+	WHERE UnitType = 'UNIT_GALLEASS' AND FlavorType = 'FLAVOR_NAVAL_RECON';
+
+	UPDATE Unit_Flavors
+	SET Flavor = '9'
+	WHERE UnitType = 'UNIT_FRIGATE' AND FlavorType = 'FLAVOR_NAVAL_RECON';
+
+	UPDATE Unit_Flavors
+	SET Flavor = '16'
+	WHERE UnitType = 'UNIT_ENGLISH_SHIPOFTHELINE' AND FlavorType = 'FLAVOR_NAVAL_RECON';
+
+	UPDATE Unit_Flavors
+	SET Flavor = '18'
+	WHERE UnitType = 'UNIT_CRUISER' AND FlavorType = 'FLAVOR_NAVAL_RECON';
+
+	INSERT INTO Unit_Flavors (Flavor, UnitType, FlavorType)
+	SELECT '22' , 'UNIT_BATTLESHIP', 'FLAVOR_NAVAL_RECON';
+
+	UPDATE Unit_Flavors
+	SET Flavor = '27'
+	WHERE UnitType = 'UNIT_MISSILE_CRUISER' AND FlavorType = 'FLAVOR_NAVAL_RECON';
+
 	-- Move Caravel to Compass
+	UPDATE Units
+	SET Moves = '4'
+	WHERE Type = 'UNIT_CARAVEL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+	
 	UPDATE Units
 	SET PrereqTech = 'TECH_COMPASS'
 	WHERE Type = 'UNIT_CARAVEL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
@@ -849,10 +1016,6 @@
 	
 	UPDATE Units
 	SET ObsoleteTech = 'TECH_NAVIGATION'
-	WHERE Type = 'UNIT_CARAVEL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
-
-	UPDATE Units
-	SET Moves = '3'
 	WHERE Type = 'UNIT_CARAVEL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	DELETE FROM Unit_FreePromotions
@@ -975,7 +1138,7 @@
 
 	-- Ironclad
 	UPDATE Units
-	SET Moves = '4'
+	SET Moves = '5'
 	WHERE Type = 'UNIT_IRONCLAD' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Units
@@ -992,6 +1155,10 @@
 
 	DELETE FROM Unit_FreePromotions
 	WHERE UnitType = 'UNIT_IRONCLAD' AND PromotionType = 'PROMOTION_STEAM_POWERED' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	UPDATE Language_en_US
+	SET Text = 'A very powerful naval melee unit, the Ironclad pays for its strength by requiring [ICON_RES_IRON] Iron.'
+	WHERE Tag = 'TXT_KEY_UNIT_HELP_IRONCLAD' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	-- Destroyer
 	UPDATE Units
@@ -1044,7 +1211,7 @@
 	WHERE Type = 'UNIT_TRIREME' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Units
-	SET Moves = '3'
+	SET Moves = '4'
 	WHERE Type = 'UNIT_TRIREME' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Units
@@ -1059,6 +1226,10 @@
 
 	UPDATE Units
 	SET Combat = '16'
+	WHERE Type = 'UNIT_CARTHAGINIAN_QUINQUEREME' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+	UPDATE Units
+	SET Moves = '4'
 	WHERE Type = 'UNIT_CARTHAGINIAN_QUINQUEREME' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Language_en_US
@@ -1200,19 +1371,19 @@
 -- OTHER 
 	-- Changes to Zero, B17, and Ski Infantry
 	UPDATE Language_en_US
-	SET Text = 'Ski Infantry'
+	SET Text = 'Guerilla Fighter'
 	WHERE Tag = 'TXT_KEY_UNIT_DANISH_SKI_INFANTRY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Language_en_US
-	SET Text = 'Ski troops played a key role in the successes of the Finnish war effort against the Soviet Union during the Winter War in 1939, and, as such, have become symbolic of the ferocious defense of the Finnish homeland against Soviet Aggression. Forested, rural terrain with no roads was used by Finnish ski troops with great success against the advancing mechanized Soviet troops. Most notably, in Battle of Suomussalmi, two Soviet mechanized divisions (45,000 men) were annihilated by three Finnish regiments (11,000 men). Perhaps learning from the Finns, the Soviet Union deployed several ski battalions during World War II, notably in their 1941 counterattack in the Battle of Moscow. The most common transportation for Norwegian soldiers during the Norwegian Campaign in 1940 was skis and sleds, and in Operation Gunnerside, paradropped Norwegian commandos covered a large distance using skis in order to reach and destroy a heavy water plant Vemork at Rjukan in Telemark, Norway, which was being used by the Germans as part of their nuclear research programme. Ski warfare even extended to the Middle East where the Australian Ski Corps were deployed against Vichy French forces in the mountains of Lebanon. Also during WWII, the United States Army 10th Mountain Division was established and trained for ski combat. They were deployed in Italy.'
+	SET Text = 'Guerrilla warfare is a form of irregular warfare in which a small group of combatants such as armed civilians or irregulars use military tactics including ambushes, sabotage, raids, petty warfare, hit-and-run tactics, and mobility to fight a larger and less-mobile traditional military.'
 	WHERE Tag = 'TXT_KEY_CIV5_DENMARK_SKI_INFANTRY_TEXT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Language_en_US
-	SET Text = 'Strong, front-line land Unit of the late-game that specializes in operating in Snow, Tundra and Hills. Requires Order.'
+	SET Text = 'Unique land Unit of the late-game that specializes in flanking, attacking wounded units, and rapid healing in friendly territory. Ignores all Zone of Control and Terrain Movement Penalties. Requires Order.'
 	WHERE Tag = 'TXT_KEY_CIV5_DENMARK_SKI_INFANTRY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Language_en_US
-	SET Text = 'The Ski Infantry is unique to the Order Ideology. This Unit moves through Snow, Tundra, or Hill at double speed. It also has a +25% combat bonus in Snow, Tundra or Hill terrain if neither Forest nor Jungle is present.'
+	SET Text = 'The Guerilla is unique to the Order Ideology. The Guerilla is cheaper and less innately strong than other units of its era, however it has a unique collection of promotions that make it quite powerful. It recieves a combat bonus versus wounded units and when flanking, and can move through all terrain and zones of control without incurring movement penalties. Lastly, it heals rapidly in friendly territory.'
 	WHERE Tag = 'TXT_KEY_CIV5_DENMARK_SKI_INFANTRY_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Language_en_US

@@ -2431,7 +2431,189 @@ void CvPlayerEspionage::UncoverIntrigue(uint uiSpyIndex)
 #endif
 	}
 }
+#if defined(MOD_BALANCE_CORE)
+/// UncoverIntrigue - Determine if the spy uncovers any secret information and pass it along to the player
+void CvPlayerEspionage::GetRandomIntrigue(CvCity* pCity)
+{
+	if(pCity == NULL)
+	{
+		return;
+	}
+	PlayerTypes eOtherPlayer = pCity->getOwner();
+	if(eOtherPlayer == NO_PLAYER)
+	{
+		return;
+	}
+	// make a list of the active civs
+	std::vector<int> aiMajorCivIndex;
+	for(int i = 0; i < MAX_MAJOR_CIVS; i++)
+	{
+		if(GET_PLAYER((PlayerTypes)i).isAlive())
+		{
+			aiMajorCivIndex.push_back(i);
+		}
+	}
 
+	// randomize that list
+	for(uint ui = 0; ui < aiMajorCivIndex.size(); ui++)
+	{
+		int iTempValue;
+		uint uiTargetSlot = GC.getGame().getJonRandNum(aiMajorCivIndex.size(), "Randomizing aiMajorCivIndex list within UncoverIntrigue");
+		iTempValue = aiMajorCivIndex[ui];
+		aiMajorCivIndex[ui] = aiMajorCivIndex[uiTargetSlot];
+		aiMajorCivIndex[uiTargetSlot] = iTempValue;
+	}
+	// sending out a sneak attack
+	for(uint ui = 0; ui < aiMajorCivIndex.size(); ui++)
+	{
+		PlayerTypes eTargetPlayer = (PlayerTypes)aiMajorCivIndex[ui];
+		// a player shouldn't target themselves for a sneak attack. That's strange.
+		if(eTargetPlayer == eOtherPlayer)
+		{
+			continue;
+		}
+
+		// Don't tell other civs about what the shadow ai is thinking because that's incorrect information!
+		if(GET_PLAYER(eOtherPlayer).isHuman())
+		{
+			continue;
+		}
+
+		CvAIOperation* pSneakAttackOperation = GET_PLAYER(eOtherPlayer).GetMilitaryAI()->GetSneakAttackOperation(eTargetPlayer);
+		if(!pSneakAttackOperation)
+		{
+			continue;
+		}
+
+		CvCity* pTargetCity = NULL;
+
+		CvPlot* pPlot = pSneakAttackOperation->GetTargetPlot();
+		if(pPlot)
+		{
+			pTargetCity = pPlot->getPlotCity();
+		}
+
+		PlayerTypes eRevealedTargetPlayer = NO_PLAYER;
+		eRevealedTargetPlayer = (PlayerTypes)MAX_MAJOR_CIVS; // hack to indicate that we shouldn't know the target due to our low spy rank
+
+		if(GET_TEAM(m_pPlayer->getTeam()).isHasMet(GET_PLAYER(eTargetPlayer).getTeam()))
+		{
+			eRevealedTargetPlayer = eTargetPlayer;
+		}
+
+		switch(pSneakAttackOperation->GetOperationType())
+		{
+		case AI_OPERATION_SNEAK_CITY_ATTACK:
+		{
+			AddIntrigueMessage(m_pPlayer->GetID(), eOtherPlayer, eRevealedTargetPlayer, NO_BUILDING, NO_PROJECT, INTRIGUE_TYPE_ARMY_SNEAK_ATTACK, -1, pTargetCity, true);
+		}
+		break;
+		case AI_OPERATION_NAVAL_SNEAK_ATTACK:
+		{
+			AddIntrigueMessage(m_pPlayer->GetID(), eOtherPlayer, eRevealedTargetPlayer, NO_BUILDING, NO_PROJECT, INTRIGUE_TYPE_AMPHIBIOUS_SNEAK_ATTACK, -1, pTargetCity, true);
+		}
+		break;
+		}
+
+		// If a sneak attack is reported, bust out of the loop
+		break;
+	}
+
+	// building up an army
+	if(!GET_PLAYER(eOtherPlayer).isHuman())
+	{
+		ArmyType eArmyType = GET_PLAYER(eOtherPlayer).GetMilitaryAI()->GetArmyBeingBuilt();
+		if(eArmyType != NO_ARMY_TYPE)
+		{
+			switch(eArmyType)
+			{
+			case ARMY_TYPE_LAND:
+				AddIntrigueMessage(m_pPlayer->GetID(), eOtherPlayer, NO_PLAYER, NO_BUILDING, NO_PROJECT, INTRIGUE_TYPE_BUILDING_ARMY, -1, pCity, true);
+				break;
+			case ARMY_TYPE_NAVAL_INVASION:
+				AddIntrigueMessage(m_pPlayer->GetID(), eOtherPlayer, NO_PLAYER, NO_BUILDING, NO_PROJECT, INTRIGUE_TYPE_BUILDING_AMPHIBIOUS_ARMY, -1, pCity, true);
+				break;
+			}
+		}
+	}
+
+	// deception!
+	CvDiplomacyAI* pTargetDiploAI = GET_PLAYER(eOtherPlayer).GetDiplomacyAI();
+	CvAssertMsg(pTargetDiploAI, "pTargetDiploAI is null");
+	if(!pTargetDiploAI)
+	{
+		return;
+	}
+
+	for(uint ui = 0; ui < aiMajorCivIndex.size(); ui++)
+	{
+		PlayerTypes eOtherOtherPlayer = (PlayerTypes)aiMajorCivIndex[ui];
+		// doesn't make sense for player to give information on themselves
+		if(eOtherOtherPlayer == eOtherPlayer)
+		{
+			continue;
+		}
+
+		// Don't tell other civs about what the shadow ai is thinking because that's incorrect information!
+		if(GET_PLAYER(eOtherPlayer).isHuman())
+		{
+			continue;
+		}
+
+		MajorCivApproachTypes eSurfaceApproach = pTargetDiploAI->GetMajorCivApproach(eOtherOtherPlayer, true);
+		MajorCivApproachTypes eHonestApproach = pTargetDiploAI->GetMajorCivApproach(eOtherOtherPlayer, false);
+
+		// if the current approach is a dangerous approach
+		if(eHonestApproach == MAJOR_CIV_APPROACH_DECEPTIVE || eHonestApproach == MAJOR_CIV_APPROACH_WAR)
+		{
+			// if the surface approach hides this
+			if(eSurfaceApproach == MAJOR_CIV_APPROACH_FRIENDLY || eSurfaceApproach == MAJOR_CIV_APPROACH_NEUTRAL)
+			{
+				if(GET_TEAM(GET_PLAYER(eOtherPlayer).getTeam()).isAtWar(GET_PLAYER(eOtherOtherPlayer).getTeam()))
+				{
+					// If the teams are already at war, this isn't notable
+					continue;
+				}
+
+				if(GET_TEAM(m_pPlayer->getTeam()).isHasMet(GET_PLAYER(eOtherOtherPlayer).getTeam()))
+				{
+					AddIntrigueMessage(m_pPlayer->GetID(), eOtherPlayer, eOtherOtherPlayer, NO_BUILDING, NO_PROJECT, INTRIGUE_TYPE_DECEPTION, -1, pCity, true);
+				}
+				else
+				{
+					AddIntrigueMessage(m_pPlayer->GetID(), eOtherPlayer, NO_PLAYER, NO_BUILDING, NO_PROJECT, INTRIGUE_TYPE_DECEPTION, -1, pCity, true);
+				}
+				break; // we reported intrigue, now bail out
+			}
+		}
+	}
+
+	ProjectTypes eProject = pCity->getProductionProject();
+	BuildingTypes eBuilding = pCity->getProductionBuilding();
+	bool bNotifyAboutConstruction = false;
+	if (eProject != NO_PROJECT)
+	{
+		bNotifyAboutConstruction = true;
+	}
+	else if (eBuilding != NO_BUILDING)
+	{
+		CvBuildingEntry* pBuildingInfo = GC.getBuildingInfo(eBuilding);
+		CvAssertMsg(pBuildingInfo, "pBuildingInfo is null");
+		if (pBuildingInfo)
+		{
+			if (::isWorldWonderClass(pBuildingInfo->GetBuildingClassInfo()))
+			{
+				bNotifyAboutConstruction = true;
+			}
+		}
+	}
+
+	if (bNotifyAboutConstruction)
+	{
+		AddIntrigueMessage(m_pPlayer->GetID(), eOtherPlayer, NO_PLAYER, eBuilding, eProject, INTRIGUE_TYPE_CONSTRUCTING_WONDER, -1, pCity, true);
+	}
+}
+#endif
 #if defined(MOD_BUGFIX_SPY_NAMES)
 bool isSpyNameInUse(CvPlayer* pPlayer, const char* szSpyName)
 {

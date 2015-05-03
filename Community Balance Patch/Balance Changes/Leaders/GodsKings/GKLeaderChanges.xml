@@ -98,4 +98,42 @@
 			<PromotionType>PROMOTION_ATLATL_ATTACK</PromotionType>
 		</Row>
 	</Unit_FreePromotions>
+	<!-- Sweden -->
+	<Trait_FreePromotionUnitCombats>
+		<Row>
+			<TraitType>TRAIT_DIPLOMACY_GREAT_PEOPLE</TraitType>
+			<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
+			<PromotionType>PROMOTION_ATTACK_BONUS_SWEDEN</PromotionType>
+		</Row>
+		<Row>
+			<TraitType>TRAIT_DIPLOMACY_GREAT_PEOPLE</TraitType>
+			<UnitCombatType>UNITCOMBAT_RECON</UnitCombatType>
+			<PromotionType>PROMOTION_ATTACK_BONUS_SWEDEN</PromotionType>
+		</Row>
+		<Row>
+			<TraitType>TRAIT_DIPLOMACY_GREAT_PEOPLE</TraitType>
+			<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
+			<PromotionType>PROMOTION_ATTACK_BONUS_SWEDEN</PromotionType>
+		</Row>
+		<Row>
+			<TraitType>TRAIT_DIPLOMACY_GREAT_PEOPLE</TraitType>
+			<UnitCombatType>UNITCOMBAT_SIEGE</UnitCombatType>
+			<PromotionType>PROMOTION_MOBILITY</PromotionType>
+		</Row>
+		<Row>
+			<TraitType>TRAIT_DIPLOMACY_GREAT_PEOPLE</TraitType>
+			<UnitCombatType>UNITCOMBAT_GUN</UnitCombatType>
+			<PromotionType>PROMOTION_ATTACK_BONUS_SWEDEN</PromotionType>
+		</Row>
+		<Row>
+			<TraitType>TRAIT_DIPLOMACY_GREAT_PEOPLE</TraitType>
+			<UnitCombatType>UNITCOMBAT_ARMOR</UnitCombatType>
+			<PromotionType>PROMOTION_ATTACK_BONUS_SWEDEN</PromotionType>
+		</Row>
+		<Row>
+			<TraitType>TRAIT_DIPLOMACY_GREAT_PEOPLE</TraitType>
+			<UnitCombatType>UNITCOMBAT_HELICOPTER</UnitCombatType>
+			<PromotionType>PROMOTION_ATTACK_BONUS_SWEDEN</PromotionType>
+		</Row>
+	</Trait_FreePromotionUnitCombats>
 </GameData>

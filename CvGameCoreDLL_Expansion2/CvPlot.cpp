@@ -8183,21 +8183,15 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, TeamTypes eTeam, bool bIgnor
 			{	
 				if(bRequiresImprovement && bRequiresResource && (getResourceType() != NO_RESOURCE) && (getImprovementType() != NO_IMPROVEMENT))
 				{
-					int iMod = pReligion->m_Beliefs.GetTerrainYieldChange(getTerrainType(), eYield);
-					iReligionChange += iMod;
-					bIgnoreFeature = true;
+					iReligionChange += pReligion->m_Beliefs.GetTerrainYieldChange(getTerrainType(), eYield);
 				}
 				else if(bRequiresImprovement && !bRequiresResource && (getImprovementType() != NO_IMPROVEMENT))
 				{
-					int iMod = pReligion->m_Beliefs.GetTerrainYieldChange(getTerrainType(), eYield);
-					iReligionChange += iMod;
-					bIgnoreFeature = true;
+					iReligionChange += pReligion->m_Beliefs.GetTerrainYieldChange(getTerrainType(), eYield);
 				}
 				else if(bRequiresResource && !bRequiresImprovement && (getResourceType() != NO_RESOURCE))
 				{
-					int iMod = pReligion->m_Beliefs.GetTerrainYieldChange(getTerrainType(), eYield);
-					iReligionChange += iMod;
-					bIgnoreFeature = true;
+					iReligionChange += pReligion->m_Beliefs.GetTerrainYieldChange(getTerrainType(), eYield);
 				}
 			}
 			else
@@ -8218,18 +8212,15 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, TeamTypes eTeam, bool bIgnor
 				{		
 					if(bRequiresImprovement && bRequiresResource && (getResourceType() != NO_RESOURCE) && (getImprovementType() != NO_IMPROVEMENT))
 					{
-						int iMod = GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetTerrainYieldChange(getTerrainType(), eYield);
-						iReligionChange += iMod;
+						iReligionChange += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetTerrainYieldChange(getTerrainType(), eYield);
 					}
 					else if(bRequiresImprovement && !bRequiresResource && (getImprovementType() != NO_IMPROVEMENT))
 					{
-						int iMod = GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetTerrainYieldChange(getTerrainType(), eYield);
-						iReligionChange += iMod;
+						iReligionChange += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetTerrainYieldChange(getTerrainType(), eYield);
 					}
 					else if(bRequiresResource && !bRequiresImprovement && (getResourceType() != NO_RESOURCE))
 					{
-						int iMod = GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetTerrainYieldChange(getTerrainType(), eYield);
-						iReligionChange += iMod;
+						iReligionChange += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetTerrainYieldChange(getTerrainType(), eYield);
 					}
 				}
 				else
@@ -8700,12 +8691,12 @@ int CvPlot::calculateImprovementYieldChange(ImprovementTypes eImprovement, Yield
 				{	
 					if(bRequiresResource && (getResourceType(GET_PLAYER(pWorkingCity->getOwner()).getTeam()) != NO_RESOURCE))
 					{		
-						iReligionChange = pReligion->m_Beliefs.GetImprovementYieldChange(eImprovement, eYield);
+						iReligionChange += pReligion->m_Beliefs.GetImprovementYieldChange(eImprovement, eYield);
 					}
 				}
 				else
 				{
-					iReligionChange = pReligion->m_Beliefs.GetImprovementYieldChange(eImprovement, eYield);
+					iReligionChange += pReligion->m_Beliefs.GetImprovementYieldChange(eImprovement, eYield);
 				}
 #else
 				int iReligionChange = pReligion->m_Beliefs.GetImprovementYieldChange(eImprovement, eYield);
@@ -12689,7 +12680,172 @@ bool CvPlot::IsWithinDistanceOfFeature(FeatureTypes iFeatureType, int iDistance)
 
 	return false;
 }
-
+#if defined(MOD_BALANCE_CORE)
+bool CvPlot::IsWithinDistanceOfUnit(PlayerTypes ePlayer, UnitTypes eOtherUnit, int iDistance, bool bIsFriendly, bool bIsEnemy) const
+{
+	int iX = getX(); int iY = getY();
+	CvUnit* pLoopUnit;
+	for (int i = -iDistance; i <= iDistance; ++i) 
+	{
+		for (int j = -iDistance; j <= iDistance; ++j) 
+		{
+			CvPlot* pLoopPlot = ::plotXYWithRangeCheck(iX, iY, i, j, iDistance);
+		
+			if (pLoopPlot != NULL && pLoopPlot->getNumUnits() != 0)
+			{
+				for(int iI = 0; iI < pLoopPlot->getNumUnits(); iI++)
+				{
+					pLoopUnit = pLoopPlot->getUnitByIndex(iI);
+					if(pLoopUnit != NULL)
+					{
+						if(pLoopUnit->getUnitType() == eOtherUnit)
+						{
+							if(bIsFriendly && GET_PLAYER(pLoopUnit->getOwner()).getTeam() == GET_PLAYER(ePlayer).getTeam())
+							{
+								return true;
+							}
+							else if(bIsEnemy && GET_TEAM(GET_PLAYER(pLoopUnit->getOwner()).getTeam()).isAtWar(GET_PLAYER(ePlayer).getTeam()))
+							{
+								return true;
+							}
+							else if(!bIsFriendly && !bIsEnemy)
+							{
+								return true;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	return false;
+}
+bool CvPlot::IsWithinDistanceOfUnitCombatType(PlayerTypes ePlayer, UnitCombatTypes eUnitCombat, int iDistance, bool bIsFriendly, bool bIsEnemy) const
+{
+	int iX = getX(); int iY = getY();
+	CvUnit* pLoopUnit;
+	for (int i = -iDistance; i <= iDistance; ++i) 
+	{
+		for (int j = -iDistance; j <= iDistance; ++j) 
+		{
+			CvPlot* pLoopPlot = ::plotXYWithRangeCheck(iX, iY, i, j, iDistance);
+		
+			if (pLoopPlot != NULL && pLoopPlot->getNumUnits() != 0)
+			{
+				for(int iI = 0; iI < pLoopPlot->getNumUnits(); iI++)
+				{
+					pLoopUnit = pLoopPlot->getUnitByIndex(iI);
+					if(pLoopUnit != NULL)
+					{
+						if(pLoopUnit->getUnitCombatType() == eUnitCombat)
+						{
+							if(bIsFriendly && GET_PLAYER(pLoopUnit->getOwner()).getTeam() == GET_PLAYER(ePlayer).getTeam())
+							{
+								return true;
+							}
+							else if(bIsEnemy && GET_TEAM(GET_PLAYER(pLoopUnit->getOwner()).getTeam()).isAtWar(GET_PLAYER(ePlayer).getTeam()))
+							{
+								return true;
+							}
+							else if(!bIsFriendly && !bIsEnemy)
+							{
+								return true;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	return false;
+}
+bool CvPlot::IsWithinDistanceOfUnitClass(PlayerTypes ePlayer, UnitClassTypes eUnitClass, int iDistance, bool bIsFriendly, bool bIsEnemy) const
+{
+	int iX = getX(); int iY = getY();
+	CvUnit* pLoopUnit;
+	for (int i = -iDistance; i <= iDistance; ++i) 
+	{
+		for (int j = -iDistance; j <= iDistance; ++j) 
+		{
+			CvPlot* pLoopPlot = ::plotXYWithRangeCheck(iX, iY, i, j, iDistance);
+		
+			if (pLoopPlot != NULL && pLoopPlot->getNumUnits() != 0)
+			{
+				for(int iI = 0; iI < pLoopPlot->getNumUnits(); iI++)
+				{
+					pLoopUnit = pLoopPlot->getUnitByIndex(iI);
+					if(pLoopUnit != NULL)
+					{
+						if(pLoopUnit->getUnitClassType() == eUnitClass)
+						{
+							if(bIsFriendly && GET_PLAYER(pLoopUnit->getOwner()).getTeam() == GET_PLAYER(ePlayer).getTeam())
+							{
+								return true;
+							}
+							else if(bIsEnemy && GET_TEAM(GET_PLAYER(pLoopUnit->getOwner()).getTeam()).isAtWar(GET_PLAYER(ePlayer).getTeam()))
+							{
+								return true;
+							}
+							else if(!bIsFriendly && !bIsEnemy)
+							{
+								return true;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	return false;
+}
+bool CvPlot::IsWithinDistanceOfUnitPromotion(PlayerTypes ePlayer, PromotionTypes eUnitPromotion, int iDistance, bool bIsFriendly, bool bIsEnemy) const
+{
+	int iX = getX(); int iY = getY();
+	CvUnit* pLoopUnit;
+	for (int i = -iDistance; i <= iDistance; ++i) 
+	{
+		for (int j = -iDistance; j <= iDistance; ++j) 
+		{
+			CvPlot* pLoopPlot = ::plotXYWithRangeCheck(iX, iY, i, j, iDistance);
+		
+			if (pLoopPlot != NULL && pLoopPlot->getNumUnits() != 0)
+			{
+				for(int iI = 0; iI < pLoopPlot->getNumUnits(); iI++)
+				{
+					pLoopUnit = pLoopPlot->getUnitByIndex(iI);
+					if(pLoopUnit != NULL)
+					{
+						for(int iPromotionLoop = 0; iPromotionLoop < GC.getNumPromotionInfos(); iPromotionLoop++)
+						{
+							const PromotionTypes ePromotion = (PromotionTypes) iPromotionLoop;
+							CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(ePromotion);
+							if(pkPromotionInfo)
+							{
+								if(pLoopUnit->isHasPromotion(ePromotion) && ePromotion == eUnitPromotion)
+								{
+									if(bIsFriendly && GET_PLAYER(pLoopUnit->getOwner()).getTeam() == GET_PLAYER(ePlayer).getTeam())
+									{
+										return true;
+									}
+									else if(bIsEnemy && GET_TEAM(GET_PLAYER(pLoopUnit->getOwner()).getTeam()).isAtWar(GET_PLAYER(ePlayer).getTeam()))
+									{
+										return true;
+									}
+									else if(!bIsFriendly && !bIsEnemy)
+									{
+										return true;
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	return false;
+}
+#endif
 bool CvPlot::IsAdjacentToImprovement(ImprovementTypes iImprovementType) const
 {
 	int iX = getX(); int iY = getY();

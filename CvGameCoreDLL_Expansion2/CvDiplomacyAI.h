@@ -253,6 +253,11 @@ public:
 	void SetPlayerNumTurnsAtWar(PlayerTypes ePlayer, int iValue);
 	void ChangePlayerNumTurnsAtWar(PlayerTypes ePlayer, int iChange);
 
+#if defined(MOD_BALANCE_CORE)
+	int GetPlayerNumTurnsSinceCityCapture(PlayerTypes ePlayer) const;
+	void SetPlayerNumTurnsSinceCityCapture(PlayerTypes ePlayer, int iValue);
+	void ChangePlayerNumTurnsSinceCityCapture(PlayerTypes ePlayer, int iChange);
+#endif
 	// How many times have we gone to war?
 	int GetNumWarsFought(PlayerTypes ePlayer) const;
 	void SetNumWarsFought(PlayerTypes ePlayer, int iValue);
@@ -1353,6 +1358,9 @@ private:
 		char m_aeLastWarProjection[REALLY_MAX_PLAYERS];
 		char m_aeWarGoal[REALLY_MAX_PLAYERS];
 		short m_aiPlayerNumTurnsAtWar[REALLY_MAX_PLAYERS];
+#if defined(MOD_BALANCE_CORE)
+		short m_aiPlayerNumTurnsSinceCityCapture[REALLY_MAX_PLAYERS];
+#endif
 		short m_aiNumWarsFought[REALLY_MAX_PLAYERS];
 		char m_aePlayerMilitaryStrengthComparedToUs[REALLY_MAX_PLAYERS];
 		char m_aePlayerEconomicStrengthComparedToUs[REALLY_MAX_PLAYERS];
@@ -1620,6 +1628,9 @@ private:
 	char* m_paeLastWarProjection;
 	char* m_paeWarGoal;
 	short* m_paiPlayerNumTurnsAtWar;
+#if defined(MOD_BALANCE_CORE)
+	short* m_paiPlayerNumTurnsSinceCityCapture;
+#endif
 	short* m_paiNumWarsFought;
 
 	char* m_paePlayerMilitaryStrengthComparedToUs;

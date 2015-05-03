@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Created by ModBuddy on 11/14/2014 9:35:13 AM -->
 <GameData>
+	<GreatPersons>
+		<Row>
+			<Type>GREATPERSON_DIPLOMAT</Type>
+			<Class>UNITCLASS_GREAT_DIPLOMAT</Class>
+			<Specialist>SPECIALIST_CIVIL_SERVANT</Specialist>
+		</Row>
+	</GreatPersons>
 	<!-- CSD -->
 	<Policy_FaithPurchaseUnitClasses>
 		<Row>
@@ -8,6 +15,14 @@
 			<UnitClassType>UNITCLASS_GREAT_DIPLOMAT</UnitClassType>
 		</Row>
 	</Policy_FaithPurchaseUnitClasses>
+	<Trait_GreatPersonBornYield>
+		<Row>
+			<TraitType>TRAIT_ART_OF_WAR</TraitType>
+			<GreatPersonType>GREATPERSON_DIPLOMAT</GreatPersonType>
+			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
+			<Yield>50</Yield>
+		</Row>
+	</Trait_GreatPersonBornYield>
 	<Building_SpecialistYieldChanges>
 		<Row>
 			<BuildingType>BUILDING_STATUE_OF_LIBERTY</BuildingType>
