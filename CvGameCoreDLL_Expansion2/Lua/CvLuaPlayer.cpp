@@ -678,6 +678,12 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(CanMajorBullyUnit);
 	Method(GetMajorBullyUnitDetails);
 	Method(CanMajorBuyout);
+#if defined(MOD_BALANCE_CORE)
+	Method(CanMajorMarry);
+	Method(DoMarriage);
+	Method(IsMarried);
+	Method(GetMarriageCost);
+#endif
 	Method(GetBuyoutCost);
 	Method(CanMajorGiftTileImprovement);
 	Method(CanMajorGiftTileImprovementAtPlot);
@@ -1008,6 +1014,10 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(IsTraitBonusReligiousBelief);
 	Method(GetHappinessFromLuxury);
 	Method(IsAbleToAnnexCityStates);
+#if defined(MOD_BALANCE_CORE)
+	Method(IsDiplomaticMarriage);
+	Method(IsGPWLTKD);
+#endif
 	Method(IsUsingMayaCalendar);
 	Method(GetMayaCalendarString);
 	Method(GetMayaCalendarLongString);
@@ -1054,6 +1064,9 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(MayNotAnnex);
 
 	Method(GetEspionageCityStatus);
+#if defined(MOD_BALANCE_CORE)
+	Method(GetRandomIntrigue);
+#endif
 	Method(GetNumSpies);
 	Method(GetNumUnassignedSpies);
 	Method(GetEspionageSpies);
@@ -7279,6 +7292,51 @@ int CvLuaPlayer::lCanMajorBuyout(lua_State* L)
 	lua_pushboolean(L, bResult);
 	return 1;
 }
+#if defined(MOD_BALANCE_CORE)
+//------------------------------------------------------------------------------
+//bool CanMajorMarry(PlayerTypes eMajor);
+int CvLuaPlayer::lCanMajorMarry(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	PlayerTypes eMajor = (PlayerTypes) lua_tointeger(L, 2);
+
+	const bool bResult = pkPlayer->GetMinorCivAI()->CanMajorDiploMarriage(eMajor);
+	lua_pushboolean(L, bResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
+//void DoMarriage(PlayerTypes eMajor);
+int CvLuaPlayer::lDoMarriage(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	PlayerTypes eMajor = (PlayerTypes) lua_tointeger(L, 2);
+
+	pkPlayer->GetMinorCivAI()->DoMarriage(eMajor);
+	return 0;
+}
+//------------------------------------------------------------------------------
+//void DoMarriage(PlayerTypes eMajor);
+int CvLuaPlayer::lIsMarried(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	PlayerTypes eMajor = (PlayerTypes) lua_tointeger(L, 2);
+
+	const bool bResult = pkPlayer->GetMinorCivAI()->IsMarried(eMajor);
+	lua_pushboolean(L, bResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
+//int GetMarriageCost(PlayerTypes eMajor);
+int CvLuaPlayer::lGetMarriageCost(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	PlayerTypes eMajor = (PlayerTypes) lua_tointeger(L, 2);
+
+	const int iCost = pkPlayer->GetMinorCivAI()->GetMarriageCost(eMajor);
+	lua_pushinteger(L, iCost);
+	return 1;
+}
+#endif
 //------------------------------------------------------------------------------
 //int GetBuyoutCost(PlayerTypes eMajor);
 int CvLuaPlayer::lGetBuyoutCost(lua_State* L)
@@ -10204,6 +10262,28 @@ int CvLuaPlayer::lIsAbleToAnnexCityStates(lua_State* L)
 	}
 	return 1;
 }
+#if defined(MOD_BALANCE_CORE)
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lIsDiplomaticMarriage(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	if(pkPlayer)
+	{
+		lua_pushboolean(L, pkPlayer->IsDiplomaticMarriage());
+	}
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lIsGPWLTKD(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	if(pkPlayer)
+	{
+		lua_pushboolean(L, pkPlayer->GetPlayerTraits()->IsGPWLTKD());
+	}
+	return 1;
+}
+#endif
 //------------------------------------------------------------------------------
 int CvLuaPlayer::lIsUsingMayaCalendar(lua_State* L)
 {
@@ -11710,7 +11790,18 @@ int CvLuaPlayer::lMayNotAnnex(lua_State* L)
 	lua_pushboolean(L, pkThisPlayer->GetPlayerTraits()->IsNoAnnexing());
 	return 1;
 }
-
+#if defined(MOD_BALANCE_CORE)
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lGetRandomIntrigue(lua_State* L)
+{
+	CvPlayerAI* pkThisPlayer = GetInstance(L);
+	CvPlayerEspionage* pkPlayerEspionage = pkThisPlayer->GetEspionage();
+	CvCity* pkCity = CvLuaCity::GetInstance(L, 2);
+	
+	pkPlayerEspionage->GetRandomIntrigue(pkCity);
+	return 0;
+}
+#endif
 //------------------------------------------------------------------------------
 int CvLuaPlayer::lGetEspionageCityStatus(lua_State* L)
 {

@@ -321,16 +321,16 @@ WHERE Tag = 'TXT_KEY_BUILDING_GRAND_OSSUARY_HELP';
 
 -- Sweden Trait 
 
-INSERT INTO Trait_FreePromotionUnitCombats 
-(TraitType, UnitCombatType, PromotionType)
-SELECT 'TRAIT_DIPLOMACY_GREAT_PEOPLE', 'UNITCOMBAT_DIPLOMACY', 'PROMOTION_NOBEL_LAUREATE';
+--INSERT INTO Trait_FreePromotionUnitCombats 
+--(TraitType, UnitCombatType, PromotionType)
+--SELECT 'TRAIT_DIPLOMACY_GREAT_PEOPLE', 'UNITCOMBAT_DIPLOMACY', 'PROMOTION_NOBEL_LAUREATE';
 
 --Sweden Trait (Bonus Text)
-UPDATE Language_en_US
-SET Text = 'All Diplomatic Units start with the Nobel Laureate promotion, which grants +25% [ICON_INFLUENCE] Influence from Diplomatic Missions. When declaring friendship, Sweden and friend gain +10% Great Person generation.'
-WHERE Tag = 'TXT_KEY_TRAIT_DIPLOMACY_GREAT_PEOPLE';
+--UPDATE Language_en_US
+--SET Text = 'All Diplomatic Units start with the Nobel Laureate promotion, which grants +25% [ICON_INFLUENCE] Influence from Diplomatic Missions. When declaring friendship, Sweden and friend gain +10% Great Person generation.'
+--WHERE Tag = 'TXT_KEY_TRAIT_DIPLOMACY_GREAT_PEOPLE';
 
 --Sweden Trait Change
-UPDATE Traits
-SET GreatPersonGiftInfluence = '0'
-WHERE Type = 'TRAIT_DIPLOMACY_GREAT_PEOPLE';
+--UPDATE Traits
+--SET GreatPersonGiftInfluence = '0'
+--WHERE Type = 'TRAIT_DIPLOMACY_GREAT_PEOPLE';

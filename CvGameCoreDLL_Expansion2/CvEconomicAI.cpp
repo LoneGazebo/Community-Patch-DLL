@@ -3420,7 +3420,9 @@ bool EconomicAIHelpers::IsAreaSafeForQuickColony(int iAreaID, CvPlayer* pPlayer)
 	int iBeginSearchY = pArea->getAreaBoundaries().m_iSouthEdge;
 	int iEndSearchX   = pArea->getAreaBoundaries().m_iEastEdge;
 	int iEndSearchY   = pArea->getAreaBoundaries().m_iNorthEdge;
-
+#if defined(MOD_BALANCE_CORE)
+	int iBad = 0;
+#endif
 	for(int iPlotX = iBeginSearchX; iPlotX <= iEndSearchX; iPlotX++)
 	{
 		for(int iPlotY = iBeginSearchY; iPlotY <= iEndSearchY; iPlotY++)
@@ -3435,13 +3437,45 @@ bool EconomicAIHelpers::IsAreaSafeForQuickColony(int iAreaID, CvPlayer* pPlayer)
 			{
 				continue;
 			}
+#if defined(MOD_BALANCE_CORE)
+			//The AI is going to cheat here, okay? Don't blame me.
+			if(pPlot->getNumUnits() > 0)
+			{
+				IDInfo* pUnitNode = pPlot->headUnitNode();
+				while(pUnitNode != NULL)
+				{
+					CvUnit* pLoopUnit = ::getUnit(*pUnitNode);
+					pUnitNode = pPlot->nextUnitNode(pUnitNode);
 
+					if(NULL != pLoopUnit && pLoopUnit->isEnemy(pPlayer->getTeam()))
+					{
+						iBad++;
+					}
+					else if(NULL != pLoopUnit && pLoopUnit->isBarbarian())
+					{
+						iBad++;
+					}
+				}
+			}
+			if(pPlot->getImprovementType() == GC.getBARBARIAN_CAMP_IMPROVEMENT())
+			{
+				iBad += 5;
+			}
+
+#else
 			if(pPlot->isVisibleEnemyUnit(pPlayer->GetID()))
 			{
 				return false;
 			}
+#endif
 		}
 	}
+#if defined(MOD_BALANCE_CORE)
+	if(iBad >= (pPlayer->GetDiplomacyAI()->GetBoldness() / 3))
+	{
+		return false;
+	}
+#endif
 	return true;
 }
 
@@ -4461,6 +4495,20 @@ bool EconomicAIHelpers::IsTestStrategy_HaltGrowthBuildings(CvPlayer* pPlayer)
 /// Are we paying more in unit maintenance than we are taking in from our cities?
 bool EconomicAIHelpers::IsTestStrategy_TooManyUnits(CvPlayer* pPlayer)
 {
+#if defined(MOD_BALANCE_CORE)
+	if(pPlayer->GetTreasury()->AverageIncome(10) <= 0)
+	{
+		return true;
+	}
+	int iFreeUnits;
+	int iPaidUnits;
+	int iBaseUnitCost;
+	int iExtraCost;
+	if(pPlayer->GetTreasury()->CalculateUnitCost(iFreeUnits, iPaidUnits, iBaseUnitCost, iExtraCost) > (pPlayer->GetTreasury()->GetBuildingGoldMaintenance() + pPlayer->GetTreasury()->GetImprovementGoldMaintenance()))
+	{
+		return true;
+	}
+#endif
 	return (pPlayer->GetUnitProductionMaintenanceMod()) != 0;
 }
 

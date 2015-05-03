@@ -83,7 +83,7 @@
 			<ImprovementType>IMPROVEMENT_PLANTATION</ImprovementType>
 			<ResourceType>RESOURCE_BANANA</ResourceType>
 			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>2</Yield>
+			<Yield>1</Yield>
 		</Row>
 		
 		<Delete ResourceType="RESOURCE_DEER" />
@@ -373,7 +373,7 @@
 	<Improvement_TechFreshWaterYieldChanges>
 		<Row>
 			<ImprovementType>IMPROVEMENT_TRADING_POST</ImprovementType>
-			<TechType>TECH_CURRENCY</TechType>
+			<TechType>TECH_PRINTING_PRESS</TechType>
 			<YieldType>YIELD_GOLD</YieldType>
 			<Yield>1</Yield>
 		</Row>
@@ -391,7 +391,13 @@
 		</Row>
 		<Row>
 			<ImprovementType>IMPROVEMENT_LUMBERMILL</ImprovementType>
-			<TechType>TECH_MACHINERY</TechType>
+			<TechType>TECH_INDUSTRIALIZATION</TechType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<ImprovementType>IMPROVEMENT_LUMBERMILL_JUNGLE</ImprovementType>
+			<TechType>TECH_INDUSTRIALIZATION</TechType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
 			<Yield>1</Yield>
 		</Row>
@@ -466,10 +472,16 @@
 		</Row>		
 		<Row>
 			<ImprovementType>IMPROVEMENT_LUMBERMILL</ImprovementType>
-			<TechType>TECH_STEAM_POWER</TechType>
+			<TechType>TECH_COMBUSTION</TechType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
 			<Yield>1</Yield>
-		</Row>		
+		</Row>
+		<Row>
+			<ImprovementType>IMPROVEMENT_LUMBERMILL_JUNGLE</ImprovementType>
+			<TechType>TECH_COMBUSTION</TechType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>1</Yield>
+		</Row>
 	</Improvement_TechNoFreshWaterYieldChanges>
 	<Resource_TerrainBooleans>
 		<Row>

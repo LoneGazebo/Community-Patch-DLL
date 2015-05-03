@@ -902,6 +902,12 @@ public:
 	LUAAPIINLINE(IsTerrainHills, HasTerrain, TERRAIN_HILL)
 	bool IsAdjacentToFeature(FeatureTypes iFeatureType) const;
 	bool IsWithinDistanceOfFeature(FeatureTypes iFeatureType, int iDistance) const;
+#if defined(MOD_BALANCE_CORE)
+	bool IsWithinDistanceOfUnit(PlayerTypes ePlayer, UnitTypes eOtherUnit, int iDistance, bool bIsFriendly, bool bIsEnemy) const;
+	bool IsWithinDistanceOfUnitClass(PlayerTypes ePlayer, UnitClassTypes eUnitClass, int iDistance, bool bIsFriendly, bool bIsEnemy) const;
+	bool IsWithinDistanceOfUnitCombatType(PlayerTypes ePlayer, UnitCombatTypes eUnitCombat, int iDistance, bool bIsFriendly, bool bIsEnemy) const;
+	bool IsWithinDistanceOfUnitPromotion(PlayerTypes ePlayer, PromotionTypes eUnitPromotion, int iDistance, bool bIsFriendly, bool bIsEnemy) const;
+#endif
 	bool IsAdjacentToImprovement(ImprovementTypes iImprovementType) const;
 	bool IsWithinDistanceOfImprovement(ImprovementTypes iImprovementType, int iDistance) const;
 	bool IsAdjacentToPlotType(PlotTypes iPlotType) const;

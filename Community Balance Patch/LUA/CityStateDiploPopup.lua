@@ -569,6 +569,36 @@ function OnDisplay()
 	end
 	Controls.BuyoutLabel:SetText( strButtonLabel )
 	Controls.BuyoutButton:SetToolTipString( strToolTip );
+	-- CBP
+	if(not pPlayer:IsMarried(iActivePlayer)) then
+		iBuyoutCost = pPlayer:GetMarriageCost(iActivePlayer);
+			local strButtonLabel = Locale.ConvertTextKey( "TXT_KEY_POP_CSTATE_BUYOUT");
+			local strToolTip = Locale.ConvertTextKey( "TXT_KEY_POP_CSTATE_MARRIAGE_TT", iBuyoutCost );
+		if(pPlayer:CanMajorMarry(iActivePlayer) and not bWar ) then	
+			Controls.MarriageButton:SetHide(false);
+			Controls.MarriageAnim:SetHide(false);
+		elseif (pActivePlayer:IsDiplomaticMarriage() and not bWar) then
+			if (pPlayer:GetAlly() == iActivePlayer) then
+				local iAllianceTurns = pPlayer:GetAlliedTurns();
+				strButtonLabel = "[COLOR_WARNING_TEXT]" .. strButtonLabel .. "[ENDCOLOR]";
+				strToolTip = Locale.ConvertTextKey("TXT_KEY_POP_CSTATE_MARRIAGE_DISABLED_ALLY_TT", GameDefines.MINOR_CIV_BUYOUT_TURNS, iAllianceTurns, iBuyoutCost);
+			else
+				strButtonLabel = "[COLOR_WARNING_TEXT]" .. strButtonLabel .. "[ENDCOLOR]";
+				strToolTip = Locale.ConvertTextKey("TXT_KEY_POP_CSTATE_MARRIAGE_DISABLED_TT", GameDefines.MINOR_CIV_BUYOUT_TURNS, iBuyoutCost);
+			end
+			--antonjs: todo: disable button entirely, in case bWar doesn't update in time for the callback to disallow buyout in wartime
+			Controls.MarriageButton:SetHide(false);
+			Controls.MarriageAnim:SetHide(true);
+		else
+			Controls.MarriageButton:SetHide(true);
+		end
+		Controls.MarriageLabel:SetText( strButtonLabel );
+		Controls.MarriageButton:SetToolTipString( strToolTip );
+	else
+		Controls.MarriageButton:SetHide(true);
+	end
+	-- END
+	
 	
 	Controls.DescriptionLabel:SetText(strText);
 	
@@ -580,7 +610,9 @@ function OnDisplay()
 	SetButtonSize(Controls.RevokePledgeLabel, Controls.RevokePledgeButton, Controls.RevokePledgeAnim, Controls.RevokePledgeButtonHL);
 	SetButtonSize(Controls.NoUnitSpawningLabel, Controls.NoUnitSpawningButton, Controls.NoUnitSpawningAnim, Controls.NoUnitSpawningButtonHL);
 	SetButtonSize(Controls.BuyoutLabel, Controls.BuyoutButton, Controls.BuyoutAnim, Controls.BuyoutButtonHL);
-	
+	--CBP
+	SetButtonSize(Controls.MarriageLabel, Controls.MarriageButton, Controls.MarriageAnim, Controls.MarriageButtonHL)
+	-- END
 	Controls.GiveStack:SetHide(true);
 	Controls.TakeStack:SetHide(true);
 	Controls.ButtonStack:SetHide(false);
@@ -668,7 +700,21 @@ function OnBuyoutButtonClicked()
 	end
 end
 Controls.BuyoutButton:RegisterCallback( Mouse.eLClick, OnBuyoutButtonClicked );
+--CBP
+----------------------------------------------------------------
+-- Marriage
+----------------------------------------------------------------
+function OnMarriageButtonClicked()
+	local iActivePlayer = Game.GetActivePlayer();
+	local pMinor = Players[g_iMinorCivID];
 
+	if (pMinor:CanMajorMarry(iActivePlayer)) then
+		UIManager:DequeuePopup( ContextPtr );
+		pMinor:DoMarriage(iActivePlayer);
+	end
+end
+Controls.MarriageButton:RegisterCallback( Mouse.eLClick, OnMarriageButtonClicked );
+--END
 
 ----------------------------------------------------------------
 -- War

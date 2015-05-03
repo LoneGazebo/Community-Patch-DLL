@@ -882,9 +882,9 @@ function OnCityViewUpdate()
 		local iCultureUnhappiness = pCity:GetUnhappinessFromCulture();
 		local iResistanceUnhappiness = 0;
 		if(pCity:IsRazing()) then
-			iResistanceUnhappiness = (pCity:GetPopulation() / 4);
+			iResistanceUnhappiness = (pCity:GetPopulation() / 2);
 		elseif(pCity:IsResistance()) then
-			iResistanceUnhappiness = (pCity:GetPopulation() / 4);
+			iResistanceUnhappiness = (pCity:GetPopulation() / 2);
 		end
 		local iOccupationUnhappiness = 0;
 		if(pCity:IsOccupied() and not pCity:IsNoOccupiedUnhappiness()) then
@@ -1701,10 +1701,27 @@ function OnCityViewUpdate()
 		local iNumTurns = pCity:GetWeLoveTheKingDayCounter();
 		if (iNumTurns > 0) then
 			szText = Locale.ConvertTextKey( "TXT_KEY_CITYVIEW_WLTKD_COUNTER", tostring(iNumTurns) );
+			--- CBP
+			if(pPlayer:IsGPWLTKD()) then
+				szText = Locale.ConvertTextKey( "TXT_KEY_CITYVIEW_WLTKD_COUNTER_UA", tostring(iNumTurns) );
+				Controls.ResourceDemandedBox:SetToolTipString(Locale.ConvertTextKey( "TXT_KEY_CITYVIEW_RESOURCE_FULFILLED_TT_UA" ) );
+			else
+			-- END
+
 			Controls.ResourceDemandedBox:SetToolTipString(Locale.ConvertTextKey( "TXT_KEY_CITYVIEW_RESOURCE_FULFILLED_TT" ) );
+			--CBP
+			end
+			-- END
 		else
 			szText = Locale.ConvertTextKey( "TXT_KEY_CITYVIEW_RESOURCE_DEMANDED", szResourceDemanded );
-			Controls.ResourceDemandedBox:SetToolTipString(Locale.ConvertTextKey( "TXT_KEY_CITYVIEW_RESOURCE_DEMANDED_TT" ) );
+			--CBP
+			if(pPlayer:IsGPWLTKD()) then
+				Controls.ResourceDemandedBox:SetToolTipString(Locale.ConvertTextKey( "TXT_KEY_CITYVIEW_RESOURCE_DEMANDED_TT_UA" ) );
+			else
+				Controls.ResourceDemandedBox:SetToolTipString(Locale.ConvertTextKey( "TXT_KEY_CITYVIEW_RESOURCE_DEMANDED_TT" ) );
+			-- CBP
+			end
+			-- END
 		end
 		
 		Controls.ResourceDemandedString:SetText(szText);

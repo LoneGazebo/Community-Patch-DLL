@@ -137,3 +137,18 @@ UPDATE BuildFeatures SET Time = 600 WHERE (FeatureType = 'FEATURE_JUNGLE' AND Ti
 UPDATE BuildFeatures SET Time = 200 WHERE  BuildType   = 'BUILD_REMOVE_JUNGLE';
 UPDATE BuildFeatures SET Production = 30 WHERE FeatureType = 'FEATURE_FOREST' AND Remove = 1;
 UPDATE BuildFeatures SET Production = 20 WHERE FeatureType = 'FEATURE_JUNGLE' AND Remove = 1;
+
+-- Additive Nature of Features
+UPDATE Features
+SET YieldNotAdditive = 'false'
+WHERE Type = 'FEATURE_FOREST';
+
+-- Lake Buff
+
+UPDATE Yields
+SET LakeChange = '1'
+WHERE Type = 'YIELD_PRODUCTION';
+
+UPDATE Yields
+SET LakeChange = '3'
+WHERE Type = 'YIELD_FOOD';

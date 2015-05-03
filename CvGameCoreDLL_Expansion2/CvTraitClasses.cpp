@@ -72,7 +72,14 @@ CvTraitEntry::CvTraitEntry() :
 	m_iCultureBuildingYieldChange(0),
 #if defined(MOD_BALANCE_CORE)
 	m_iCombatBonusVsHigherPop(0),
-	m_bBuyOwnedTiles(0),
+	m_bBuyOwnedTiles(false),
+	m_bReconquista(false),
+	m_bNoSpread(false),
+	m_bInspirationalLeader(false),
+	m_bDiplomaticMarriage(false),
+	m_bAdoptionFreeTech(false),
+	m_bGPWLTKD(false),
+	m_iGrowthBoon(0),
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	m_iInvestmentModifier(0),
@@ -161,6 +168,7 @@ CvTraitEntry::CvTraitEntry() :
 	m_piYieldFromTilePurchase(NULL),
 	m_piYieldFromCSAlly(NULL),
 	m_piYieldFromSettle(NULL),
+	m_piYieldFromConquest(NULL),
 	m_iVotePerXCSAlliance(0),
 	m_iGoldenAgeFromVictory(0),
 	m_bFreeGreatWorkOnConquest(false),
@@ -184,6 +192,7 @@ CvTraitEntry::CvTraitEntry() :
 	m_ppiSpecialistYieldChanges(NULL),
 #if defined(MOD_API_UNIFIED_YIELDS)
 	m_ppiGreatPersonExpendedYield(NULL),
+	m_ppiGreatPersonBornYield(NULL),
 	m_piGoldenAgeGreatPersonRateModifier(NULL),
 	m_ppiCityYieldFromUnimprovedFeature(NULL),
 #endif
@@ -208,6 +217,7 @@ CvTraitEntry::~CvTraitEntry()
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiSpecialistYieldChanges);
 #if defined(MOD_API_UNIFIED_YIELDS)
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiGreatPersonExpendedYield);
+	CvDatabaseUtility::SafeDelete2DArray(m_ppiGreatPersonBornYield);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiCityYieldFromUnimprovedFeature);
 #endif
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiUnimprovedFeatureYieldChanges);
@@ -500,6 +510,38 @@ int CvTraitEntry::GetCombatBonusVsHigherPop() const
 bool CvTraitEntry::IsBuyOwnedTiles() const
 {
 	return m_bBuyOwnedTiles;
+}
+
+bool CvTraitEntry::IsReconquista() const
+{
+	return m_bReconquista;
+}
+
+bool CvTraitEntry::IsNoSpread() const
+{
+	return m_bNoSpread;
+}
+
+bool CvTraitEntry::IsInspirationalLeader() const
+{
+	return m_bInspirationalLeader;
+}
+
+bool CvTraitEntry::IsDiplomaticMarriage() const
+{
+	return m_bDiplomaticMarriage;
+}
+bool CvTraitEntry::IsAdoptionFreeTech() const
+{
+	return m_bAdoptionFreeTech;
+}
+bool CvTraitEntry::IsGPWLTKD() const
+{
+	return m_bGPWLTKD;
+}
+int CvTraitEntry::GetGrowthBoon() const
+{
+	return m_iGrowthBoon;
 }
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
@@ -975,6 +1017,10 @@ int CvTraitEntry::GetYieldFromSettle(int i) const
 {
 	return m_piYieldFromSettle ? m_piYieldFromSettle[i] : -1;
 }
+int CvTraitEntry::GetYieldFromConquest(int i) const
+{
+	return m_piYieldFromConquest ? m_piYieldFromConquest[i] : -1;
+}
 int CvTraitEntry::GetVotePerXCSAlliance() const
 {
 	return m_iVotePerXCSAlliance;
@@ -1094,7 +1140,14 @@ int CvTraitEntry::GetGreatPersonExpendedYield(GreatPersonTypes eIndex1, YieldTyp
 	CvAssertMsg(eIndex2 > -1, "Index out of bounds");
 	return m_ppiGreatPersonExpendedYield ? m_ppiGreatPersonExpendedYield[eIndex1][eIndex2] : 0;
 }
-
+int CvTraitEntry::GetGreatPersonBornYield(GreatPersonTypes eIndex1, YieldTypes eIndex2) const
+{
+	CvAssertMsg(eIndex1 < GC.getNumGreatPersonInfos(), "Index out of bounds");
+	CvAssertMsg(eIndex1 > -1, "Index out of bounds");
+	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(eIndex2 > -1, "Index out of bounds");
+	return m_ppiGreatPersonBornYield ? m_ppiGreatPersonBornYield[eIndex1][eIndex2] : 0;
+}
 int CvTraitEntry::GetGoldenAgeGreatPersonRateModifier(GreatPersonTypes eGreatPerson) const
 {
 	CvAssertMsg((int)eGreatPerson < GC.getNumGreatPersonInfos(), "Yield type out of bounds");
@@ -1314,6 +1367,13 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 #if defined(MOD_BALANCE_CORE)
 	m_iCombatBonusVsHigherPop				= kResults.GetInt("CombatBonusVsHigherPop");
 	m_bBuyOwnedTiles						= kResults.GetBool("BuyOwnedTiles");
+	m_bReconquista							= kResults.GetBool("Reconquista");
+	m_bNoSpread								= kResults.GetBool("NoSpread");
+	m_bInspirationalLeader					= kResults.GetBool("InspirationalLeader");
+	m_bDiplomaticMarriage					= kResults.GetBool("DiplomaticMarriage");
+	m_bAdoptionFreeTech						= kResults.GetBool("IsAdoptionFreeTech");
+	m_iGrowthBoon							= kResults.GetInt("GrowthBoon");
+	m_bGPWLTKD								= kResults.GetBool("GPWLTKD");
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	m_iInvestmentModifier					= kResults.GetInt("InvestmentModifier");
@@ -1677,10 +1737,12 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	kUtility.SetYields(m_piYieldFromTilePurchase, "Trait_YieldFromTilePurchase", "TraitType", szTraitType);
 	kUtility.SetYields(m_piYieldFromCSAlly, "Trait_YieldFromCSAlly", "TraitType", szTraitType);
 	kUtility.SetYields(m_piYieldFromSettle, "Trait_YieldFromSettle", "TraitType", szTraitType);
+	kUtility.SetYields(m_piYieldFromConquest, "Trait_YieldFromConquest", "TraitType", szTraitType);
 	m_iVotePerXCSAlliance = kResults.GetInt("VotePerXCSAlliance");
 	m_iGoldenAgeFromVictory = kResults.GetInt("GoldenAgeFromVictory");
 	m_bFreeGreatWorkOnConquest = kResults.GetBool("FreeGreatWorkOnConquest");
 	m_bPopulationBoostReligion = kResults.GetBool("PopulationBoostReligion");
+
 #endif
 
 #if defined(MOD_API_UNIFIED_YIELDS)
@@ -1860,7 +1922,28 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 			m_ppiGreatPersonExpendedYield[GreatPersonID][YieldID] = yield;
 		}
 	}
+	//GreatPersonBornYield
+	{
+		kUtility.Initialize2DArray(m_ppiGreatPersonBornYield, "GreatPersons", "Yields");
 
+		std::string strKey("Trait_GreatPersonBornYield");
+		Database::Results* pResults = kUtility.GetResults(strKey);
+		if(pResults == NULL)
+		{
+			pResults = kUtility.PrepareResults(strKey, "select GreatPersons.ID as GreatPersonID, Yields.ID as YieldID, Yield from Trait_GreatPersonBornYield inner join GreatPersons on GreatPersons.Type = GreatPersonType inner join Yields on Yields.Type = YieldType where TraitType = ?");
+		}
+
+		pResults->Bind(1, szTraitType);
+
+		while(pResults->Step())
+		{
+			const int GreatPersonID = pResults->GetInt(0);
+			const int YieldID = pResults->GetInt(1);
+			const int yield = pResults->GetInt(2);
+
+			m_ppiGreatPersonBornYield[GreatPersonID][YieldID] = yield;
+		}
+	}
 	kUtility.PopulateArrayByValue(m_piGoldenAgeGreatPersonRateModifier, "GreatPersons", "Trait_GoldenAgeGreatPersonRateModifier", "GreatPersonType", "TraitType", szTraitType, "Modifier");
 
 	//CityYieldFromUnimprovedFeature
@@ -2110,6 +2193,31 @@ void CvPlayerTraits::InitPlayerTraits()
 			{
 				m_bBuyOwnedTiles = true;
 			}
+			if(trait->IsReconquista())
+			{
+				m_bReconquista = true;
+			}
+			if(trait->IsNoSpread())
+			{
+				m_bNoSpread = true;
+			}
+			if(trait->IsInspirationalLeader())
+			{
+				m_bInspirationalLeader = true;
+			}
+			if(trait->IsDiplomaticMarriage())
+			{
+				m_bDiplomaticMarriage = true;
+			}
+			if(trait->IsAdoptionFreeTech())
+			{
+				m_bAdoptionFreeTech = true;
+			}
+			if(trait->IsGPWLTKD())
+			{
+				m_bGPWLTKD = true;
+			}
+			m_iGrowthBoon += trait->GetGrowthBoon();
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 			m_iInvestmentModifier += trait->GetInvestmentModifier();
@@ -2318,6 +2426,7 @@ void CvPlayerTraits::InitPlayerTraits()
 				m_iYieldFromTilePurchase[iYield] = trait->GetYieldFromTilePurchase(iYield);
 				m_iYieldFromCSAlly[iYield] = trait->GetYieldFromCSAlly(iYield);
 				m_iYieldFromSettle[iYield] = trait->GetYieldFromSettle(iYield);
+				m_iYieldFromConquest[iYield] = trait->GetYieldFromConquest(iYield);
 				m_iVotePerXCSAlliance = trait->GetVotePerXCSAlliance();
 				m_iGoldenAgeFromVictory = trait->GetGoldenAgeFromVictory();
 				if(trait->IsFreeGreatWorkOnConquest())
@@ -2403,6 +2512,13 @@ void CvPlayerTraits::InitPlayerTraits()
 						Firaxis::Array<int, NUM_YIELD_TYPES> yields = m_ppiGreatPersonExpendedYield[iGreatPersonLoop];
 						yields[iYield] = (m_ppiGreatPersonExpendedYield[iGreatPersonLoop][iYield] + iChange);
 						m_ppiGreatPersonExpendedYield[iGreatPersonLoop] = yields;
+					}
+					int iChange2 = trait->GetGreatPersonBornYield((GreatPersonTypes)iGreatPersonLoop, (YieldTypes)iYield);
+					if(iChange2 > 0)
+					{
+						Firaxis::Array<int, NUM_YIELD_TYPES> yields = m_ppiGreatPersonBornYield[iGreatPersonLoop];
+						yields[iYield] = (m_ppiGreatPersonBornYield[iGreatPersonLoop][iYield] + iChange2);
+						m_ppiGreatPersonBornYield[iGreatPersonLoop] = yields;
 					}
 
 					m_piGoldenAgeGreatPersonRateModifier[iGreatPersonLoop] = trait->GetGoldenAgeGreatPersonRateModifier((GreatPersonTypes) iGreatPersonLoop);
@@ -2504,6 +2620,7 @@ void CvPlayerTraits::Uninit()
 	m_ppaaiSpecialistYieldChange.clear();
 #if defined(MOD_API_UNIFIED_YIELDS)
 	m_ppiGreatPersonExpendedYield.clear();
+	m_ppiGreatPersonBornYield.clear();
 	m_piGoldenAgeGreatPersonRateModifier.clear();
 	m_ppiCityYieldFromUnimprovedFeature.clear();
 #endif
@@ -2566,6 +2683,13 @@ void CvPlayerTraits::Reset()
 #if defined(MOD_BALANCE_CORE)
 	m_iCombatBonusVsHigherPop = 0;
 	m_bBuyOwnedTiles = false;
+	m_bReconquista = false;
+	m_bNoSpread = false;
+	m_bInspirationalLeader = false;
+	m_bDiplomaticMarriage = false;
+	m_bAdoptionFreeTech = false;
+	m_iGrowthBoon = 0;
+	m_bGPWLTKD = false;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	m_iInvestmentModifier = 0;
@@ -2661,6 +2785,8 @@ void CvPlayerTraits::Reset()
 #if defined(MOD_API_UNIFIED_YIELDS)
 	m_ppiGreatPersonExpendedYield.clear();
 	m_ppiGreatPersonExpendedYield.resize(GC.getNumGreatPersonInfos());
+	m_ppiGreatPersonBornYield.clear();
+	m_ppiGreatPersonBornYield.resize(GC.getNumGreatPersonInfos());
 	m_ppiCityYieldFromUnimprovedFeature.clear();
 	m_ppiCityYieldFromUnimprovedFeature.resize(GC.getNumFeatureInfos());
 #endif
@@ -2700,6 +2826,7 @@ void CvPlayerTraits::Reset()
 		m_iYieldFromImport[iYield] = 0;
 		m_iYieldFromTilePurchase[iYield] = 0;
 		m_iYieldFromSettle[iYield] = 0;
+		m_iYieldFromConquest[iYield] = 0;
 		m_iYieldFromCSAlly[iYield] = 0;
 		m_iVotePerXCSAlliance = 0;
 		m_iGoldenAgeFromVictory = 0;
@@ -2738,6 +2865,7 @@ void CvPlayerTraits::Reset()
 		for(int iGreatPerson = 0; iGreatPerson < GC.getNumGreatPersonInfos(); iGreatPerson++)
 		{
 			m_ppiGreatPersonExpendedYield[iGreatPerson] = yield;
+			m_ppiGreatPersonBornYield[iGreatPerson] = yield;
 		}
 #endif
 		for(int iSpecialist = 0; iSpecialist < GC.getNumSpecialistInfos(); iSpecialist++)
@@ -3046,6 +3174,18 @@ int CvPlayerTraits::GetGreatPersonExpendedYield(GreatPersonTypes eGreatPerson, Y
 	}
 
 	return m_ppiGreatPersonExpendedYield[(int)eGreatPerson][(int)eYield];
+}
+int CvPlayerTraits::GetGreatPersonBornYield(GreatPersonTypes eGreatPerson, YieldTypes eYield) const
+{
+	CvAssertMsg(eSpecialist < GC.getNumGreatPersonInfos(),  "Invalid eGreatPerson parameter in call to CvPlayerTraits::GetGreatPersonBornYield()");
+	CvAssertMsg(eYield < NUM_YIELD_TYPES,  "Invalid eYield parameter in call to CvPlayerTraits::GetGreatPersonBornYield()");
+
+	if(eGreatPerson == NO_GREATPERSON)
+	{
+		return 0;
+	}
+
+	return m_ppiGreatPersonBornYield[(int)eGreatPerson][(int)eYield];
 }
 
 int CvPlayerTraits::GetGoldenAgeGreatPersonRateModifier(GreatPersonTypes eGreatPerson) const
@@ -4050,6 +4190,13 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 #if defined(MOD_BALANCE_CORE)
 	MOD_SERIALIZE_READ(66, kStream, m_iCombatBonusVsHigherPop, 0);
 	MOD_SERIALIZE_READ(66, kStream, m_bBuyOwnedTiles, false);
+	MOD_SERIALIZE_READ(66, kStream, m_bReconquista, false);
+	MOD_SERIALIZE_READ(66, kStream, m_bNoSpread, false);
+	MOD_SERIALIZE_READ(66, kStream, m_bInspirationalLeader, false);
+	MOD_SERIALIZE_READ(66, kStream, m_bDiplomaticMarriage, false);
+	MOD_SERIALIZE_READ(66, kStream, m_bAdoptionFreeTech, false);
+	MOD_SERIALIZE_READ(66, kStream, m_bGPWLTKD, false);
+	MOD_SERIALIZE_READ(66, kStream, m_iGrowthBoon, 0);
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	MOD_SERIALIZE_READ(66, kStream, m_iInvestmentModifier , 0);
@@ -4373,6 +4520,8 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	kStream >> kYieldFromTilePurchaseWrapper;
 	ArrayWrapper<int> kYieldFromSettleWrapper(NUM_YIELD_TYPES, m_iYieldFromSettle);
 	kStream >> kYieldFromSettleWrapper;
+	ArrayWrapper<int> kYieldFromConquest(NUM_YIELD_TYPES, m_iYieldFromConquest);
+	kStream >> kYieldFromConquest;
 	ArrayWrapper<int> kYieldFromCSAlly(NUM_YIELD_TYPES, m_iYieldFromCSAlly);
 	kStream >> kYieldFromCSAlly;
 	MOD_SERIALIZE_READ(66, kStream, m_bFreeGreatWorkOnConquest, false);
@@ -4418,6 +4567,7 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 
 #if defined(MOD_API_UNIFIED_YIELDS)
 	kStream >> m_ppiGreatPersonExpendedYield;
+	kStream >> m_ppiGreatPersonBornYield;
 	kStream >> m_piGoldenAgeGreatPersonRateModifier;
 	kStream >> m_ppiCityYieldFromUnimprovedFeature;
 #endif
@@ -4502,6 +4652,13 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 #if defined(MOD_BALANCE_CORE)
 	MOD_SERIALIZE_WRITE(kStream, m_iCombatBonusVsHigherPop);
 	MOD_SERIALIZE_WRITE(kStream, m_bBuyOwnedTiles);
+	MOD_SERIALIZE_WRITE(kStream, m_bReconquista);
+	MOD_SERIALIZE_WRITE(kStream, m_bNoSpread);
+	MOD_SERIALIZE_WRITE(kStream, m_bInspirationalLeader);
+	MOD_SERIALIZE_WRITE(kStream, m_bDiplomaticMarriage);
+	MOD_SERIALIZE_WRITE(kStream, m_bAdoptionFreeTech);
+	MOD_SERIALIZE_WRITE(kStream, m_bGPWLTKD);
+	MOD_SERIALIZE_WRITE(kStream, m_iGrowthBoon);
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	MOD_SERIALIZE_WRITE(kStream, m_iInvestmentModifier);
@@ -4637,6 +4794,7 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iYieldFromImport);
 	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iYieldFromTilePurchase);
 	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iYieldFromSettle);
+	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iYieldFromConquest);
 	kStream << ArrayWrapper<int>(NUM_YIELD_TYPES, m_iYieldFromCSAlly);
 	MOD_SERIALIZE_WRITE(kStream, m_bFreeGreatWorkOnConquest);
 	MOD_SERIALIZE_WRITE(kStream, m_bPopulationBoostReligion);
@@ -4662,6 +4820,7 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	kStream << m_ppaaiSpecialistYieldChange;
 #if defined(MOD_API_UNIFIED_YIELDS)
 	kStream << m_ppiGreatPersonExpendedYield;
+	kStream << m_ppiGreatPersonBornYield;
 	kStream << m_piGoldenAgeGreatPersonRateModifier;
 	kStream << m_ppiCityYieldFromUnimprovedFeature;
 #endif

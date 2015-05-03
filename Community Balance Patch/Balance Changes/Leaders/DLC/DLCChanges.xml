@@ -7,7 +7,7 @@
 			<ImprovementType>IMPROVEMENT_MOAI</ImprovementType>
 			<TechType>TECH_CONSTRUCTION</TechType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Yield>1</Yield>
+			<Yield>2</Yield>
 		</Row>
 	</Improvement_TechYieldChanges>
 	<!-- Make Keshik a Medieval Unit -->
@@ -99,4 +99,19 @@
 			<PromotionType>PROMOTION_SECOND_ATTACK</PromotionType>
 		</Row>
 	</Unit_FreePromotions>
+	<!-- Spain -->
+	<Trait_YieldFromConquest>
+		<Row>
+			<TraitType>TRAIT_SEVEN_CITIES</TraitType>
+			<YieldType>YIELD_FAITH</YieldType>
+			<Yield>150</Yield>
+		</Row>
+	</Trait_YieldFromConquest>
+	<Trait_YieldFromSettle>
+		<Row>
+			<TraitType>TRAIT_SEVEN_CITIES</TraitType>
+			<YieldType>YIELD_FAITH</YieldType>
+			<Yield>10</Yield>
+		</Row>
+	</Trait_YieldFromSettle>
 </GameData>

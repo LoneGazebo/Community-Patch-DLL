@@ -5,23 +5,6 @@
 			<PrereqPolicy>POLICY_ARISTOCRACY</PrereqPolicy>
 		</Row>
 	</Policy_PrereqPolicies>
-	<Policy_CapitalYieldPerPopChanges>
-		<Row>
-			<PolicyType>POLICY_ARISTOCRACY</PolicyType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>25</Yield>
-		</Row>
-		<Row>
-			<PolicyType>POLICY_OLIGARCHY</PolicyType>
-			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>25</Yield>
-		</Row>
-		<Row>
-			<PolicyType>POLICY_MONARCHY</PolicyType>
-			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Yield>25</Yield>
-		</Row>
-	</Policy_CapitalYieldPerPopChanges>
 	<Policy_CityYieldChanges>
 		<Row>
 			<PolicyType>POLICY_OLIGARCHY</PolicyType>
@@ -41,8 +24,28 @@
 	</Policy_CityYieldChanges>
 	<Policy_FreeBuilding>
 		<Row>
-			<PolicyType>POLICY_MONARCHY</PolicyType>
+			<PolicyType>POLICY_ARISTOCRACY</PolicyType>
 			<BuildingClassType>BUILDINGCLASS_CAPITAL_ENGINEER</BuildingClassType>
+			<Count>1</Count>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_OLIGARCHY</PolicyType>
+			<BuildingClassType>BUILDINGCLASS_PALACE_TREASURY</BuildingClassType>
+			<Count>1</Count>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_LANDED_ELITE</PolicyType>
+			<BuildingClassType>BUILDINGCLASS_PALACE_GARDEN</BuildingClassType>
+			<Count>1</Count>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_LEGALISM</PolicyType>
+			<BuildingClassType>BUILDINGCLASS_THRONE_ROOM</BuildingClassType>
+			<Count>1</Count>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_MONARCHY</PolicyType>
+			<BuildingClassType>BUILDINGCLASS_PALACE_COURT_CHAPEL</BuildingClassType>
 			<Count>1</Count>
 		</Row>
 	</Policy_FreeBuilding>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created by ModBuddy on 5/3/2015 3:15:12 PM -->
+<GameData>
+	<Row>
+		<Type>IMPROVEMENT_LUMBERMILL_JUNGLE</Type>
+		<Description>TXT_KEY_IMPROVEMENT_LUMBERMILL_JUNGLE</Description>
+		<Civilopedia>TXT_KEY_CIV5_IMPROVEMENTS_LUMBERMILL_TEXT</Civilopedia>
+		<ArtDefineTag>ART_DEF_IMPROVEMENT_LUMBERMILL</ArtDefineTag>
+		<RequiresFeature>true</RequiresFeature>
+		<PillageGold>10</PillageGold>
+		<PortraitIndex>25</PortraitIndex>
+		<IconAtlas>TERRAIN_ATLAS</IconAtlas>
+	</Row>
+	<Improvement_Yields>
+		<Row>
+			<ImprovementType>IMPROVEMENT_LUMBERMILL_JUNGLE</ImprovementType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+	</Improvement_Yields>
+	<Improvement_ValidFeatures>
+		<Row>
+			<ImprovementType>IMPROVEMENT_LUMBERMILL_JUNGLE</ImprovementType>
+			<FeatureType>FEATURE_JUNGLE</FeatureType>
+		</Row>
+	</Improvement_ValidFeatures>
+</GameData>

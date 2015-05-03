@@ -236,9 +236,11 @@ void CvTacticalAnalysisMap::RefreshDataForNextPlayer(CvPlayer* pPlayer)
 
 			m_bIsBuilt = false;
 
+#if !defined(MOD_BALANCE_CORE_MILITARY)
 			// AI civs build this map every turn
 			//if (!m_pPlayer->isHuman() && !m_pPlayer->isBarbarian())
 			if(!m_pPlayer->isBarbarian())
+#endif
 			{
 				m_DominanceZones.clear();
 
@@ -263,9 +265,19 @@ void CvTacticalAnalysisMap::RefreshDataForNextPlayer(CvPlayer* pPlayer)
 					}
 				}
 
+#if defined(MOD_BALANCE_CORE_MILITARY)
+				//barbarians don't care about tactical dominance
+				if(!m_pPlayer->isBarbarian())
+				{
+					CalculateMilitaryStrengths();
+					PrioritizeZones();
+					LogZones();
+				}
+#else
 				CalculateMilitaryStrengths();
 				PrioritizeZones();
 				LogZones();
+#endif
 
 				BuildEnemyUnitList();
 				MarkCellsNearEnemy();
@@ -281,6 +293,9 @@ void CvTacticalAnalysisMap::BuildEnemyUnitList()
 {
 	CvTacticalAnalysisEnemy enemy;
 	m_EnemyUnits.clear();
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	m_EnemyCities.clear();
+#endif
 
 	for(int iPlayer = 0; iPlayer < MAX_PLAYERS; iPlayer++)
 	{
@@ -301,6 +316,11 @@ void CvTacticalAnalysisMap::BuildEnemyUnitList()
 					m_EnemyUnits.push_back(pLoopUnit);
 				}
 			}
+#if defined(MOD_BALANCE_CORE_MILITARY)
+			CvCity* pLoopCity;
+			for(pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
+				m_EnemyCities.push_back(pLoopCity);
+#endif
 		}
 	}
 }
@@ -367,6 +387,18 @@ void CvTacticalAnalysisMap::MarkCellsNearEnemy()
 								}
 							}
 						}
+#if defined(MOD_BALANCE_CORE_MILITARY)
+						else if (pUnit->IsCanAttackRanged())
+						{
+							iDistance = plotDistance(pUnit->getX(), pUnit->getY(), pPlot->getX(), pPlot->getY());
+							//assume the ranged unit does not move - that would complicate stuff ...
+							if (iDistance<=pUnit->GetRange())
+							{
+								m_pPlots[iI].SetSubjectToAttack(true);
+								bMarkedIt = true;
+							}
+						}
+#endif
 					}
 
 					// Check adjacent plots for enemy citadels
@@ -375,6 +407,13 @@ void CvTacticalAnalysisMap::MarkCellsNearEnemy()
 #if defined(MOD_BALANCE_CORE)
 						if ( pPlot->IsNearEnemyCitadel( m_pPlayer->GetID() ) )
 								m_pPlots[iI].SetSubjectToAttack(true);
+
+						for(unsigned int iCityIndex = 0;  iCityIndex < m_EnemyCities.size(); iCityIndex++)
+						{
+							CvCity* pCity = m_EnemyCities[iCityIndex];
+							if (pCity->canRangeStrikeAt( pPlot->getX(), pPlot->getY() ))
+								m_pPlots[iI].SetSubjectToAttack(true);
+						}
 #else
 						CvPlot* pAdjacentPlot;
 						for(int jJ = 0; jJ < NUM_DIRECTION_TYPES; jJ++)

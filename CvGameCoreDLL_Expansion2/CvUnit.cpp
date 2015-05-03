@@ -1874,6 +1874,32 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 		CvCity *pPlotCity = plot()->getPlotCity();
 		if (pPlotCity)
 		{
+#if defined(MOD_BALANCE_CORE)
+			if(pPlotCity->IsNationalMissionaries())
+			{
+				//Only fires once.
+				ReligionTypes eNationalReligion = GET_PLAYER(pPlotCity->getOwner()).GetReligions()->GetReligionCreatedByPlayer(false);
+				if(eNationalReligion == NO_RELIGION)
+				{
+					eNationalReligion = GET_PLAYER(pPlotCity->getOwner()).GetReligions()->GetReligionInMostCities();
+				}
+				if (eNationalReligion != NO_RELIGION)
+				{
+					GetReligionData()->SetReligion(eNationalReligion);
+					GetReligionData()->SetSpreadsLeft(getUnitInfo().GetReligionSpreads() + pPlotCity->GetCityBuildings()->GetMissionaryExtraSpreads());
+					GetReligionData()->SetReligiousStrength(getUnitInfo().GetReligiousStrength());
+				}
+				else
+				{
+					kill(true);
+					pPlotCity->SetNationalMissionaries(false);
+					return;
+				}
+				pPlotCity->SetNationalMissionaries(false);
+			}
+			else
+			{
+#endif
 			ReligionTypes eReligion = pPlotCity->GetCityReligions()->GetReligiousMajority();
 			if (eReligion > RELIGION_PANTHEON)
 			{
@@ -1881,6 +1907,9 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 				GetReligionData()->SetSpreadsLeft(getUnitInfo().GetReligionSpreads() + pPlotCity->GetCityBuildings()->GetMissionaryExtraSpreads());
 				GetReligionData()->SetReligiousStrength(getUnitInfo().GetReligiousStrength());
 			}
+#if defined(MOD_BALANCE_CORE)
+			}
+#endif
 		}
 #if defined(MOD_GLOBAL_RELIGIOUS_SETTLERS) && defined(MOD_BALANCE_CORE_SETTLER_ADVANCED)
 	}
@@ -3251,6 +3280,12 @@ void CvUnit::doTurn()
 	if(IsFortifiedThisTurn())
 	{
 		changeFortifyTurns(1);
+#if defined(MOD_BALANCE_CORE)
+		if(canHeal(plot()))
+		{
+			doHeal();
+		}
+#endif
 	}
 
 	// Recon unit? If so, he sees what's around him
@@ -9655,6 +9690,29 @@ bool CvUnit::CanSpreadReligion(const CvPlot* pPlot) const
 		{
 			return false;
 		}
+#if defined(MOD_BALANCE_CORE)
+		else if(GET_PLAYER(pCity->getOwner()).GetPlayerTraits()->IsNoSpread() && (getOwner() != pCity->getOwner()))
+		{
+			if(GetReligionData()->GetReligion() != GET_PLAYER(pCity->getOwner()).GetReligions()->GetReligionInMostCities())
+			{
+				return false;
+			}
+		}
+		else if(GET_PLAYER(pCity->getOwner()).isMinorCiv())
+		{
+			PlayerTypes eAlly = (GET_PLAYER(pCity->getOwner()).GetMinorCivAI()->GetAlly());
+			if(eAlly != NO_PLAYER)
+			{
+				if(GET_PLAYER(eAlly).GetPlayerTraits()->IsNoSpread() && (getOwner() != eAlly))
+				{
+					if(GetReligionData()->GetReligion() != GET_PLAYER(pCity->getOwner()).GetReligions()->GetReligionInMostCities())
+					{
+						return false;
+					}
+				}
+			}
+		}
+#endif
 	}
 
 	// Blocked by Inquisitor?
@@ -13938,6 +13996,13 @@ int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot,
 				iTempModifier = GC.getSAPPED_CITY_ATTACK_MODIFIER();
 				iModifier += iTempModifier;
 			}
+#if defined(MOD_BALANCE_CORE)
+			if(pToPlot->getPlotCity()->IsBlockaded())
+			{
+				iTempModifier = GC.getSAPPED_CITY_ATTACK_MODIFIER();
+				iModifier += iTempModifier;
+			}
+#endif
 
 			// City Defending against a Barbarian
 			if(isBarbarian())
@@ -14341,7 +14406,7 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 		pTargetPlot = pMyPlot;
 		pMyPlot = pFromPlot;
 	}
-	else if (bForRangedAttack)
+	else if (bForRangedAttack && !isRangedSupportFire())
 	{
 		if (pFromPlot != NULL && pTargetPlot != NULL)
 		{
@@ -25748,11 +25813,17 @@ void CvUnit::PushMission(MissionTypes eMission, int iData1, int iData2, int iFla
 #if defined(MOD_BALANCE_CORE_MILITARY_LOGGING)
 	if (GC.getLogging() && GC.getAILogging()) 
 	{
-		CvString info = CvString::format( "%03d;0x%08X;%s;id;0x%08X;owner;%02d;army;0x%08X;%s;arg1;%d;arg2;%d;flags;0x%08X;at;%d;%d\n", 
-			GC.getGame().getGameTurn(),this,this->getNameKey(),this->GetID(),this->getOwner(),this->getArmyID(),CvTypes::GetMissionName(eMission).c_str(),iData1,iData2,iFlags, 
-			plot() ? plot()->getX() : -1, plot() ? plot()->getY() : -1 );
-		FILogFile* pLog=LOGFILEMGR.GetLog( "unit-missions.csv", FILogFile::kDontTimeStamp | FILogFile::kDontFlushOnWrite );
-		pLog->Msg( info.c_str() );
+		CvPlayer& kPlayer = GET_PLAYER(getOwner());
+		CvPlot* pPlot = plot();
+		CvPlot* pTarget = (eMission==CvTypes::getMISSION_MOVE_TO()) ? GC.getMap().plot(iData1,iData2) : NULL;
+		if (pPlot)
+		{
+			CvString info = CvString::format( "%03d;0x%08X;%s;id;0x%08X;owner;%02d;army;0x%08X;%s;arg1;%d;arg2;%d;flags;0x%08X;at;%d;%d;danger;%d\n", 
+				GC.getGame().getGameTurn(),this,this->getNameKey(),this->GetID(),this->getOwner(),this->getArmyID(),CvTypes::GetMissionName(eMission).c_str(),iData1,iData2,iFlags, 
+				pPlot->getX(), pPlot->getY(), kPlayer.GetPlotDanger(*pPlot,this), pTarget ? kPlayer.GetPlotDanger(*pTarget,this) : -1 );
+			FILogFile* pLog=LOGFILEMGR.GetLog( "unit-missions.csv", FILogFile::kDontTimeStamp | FILogFile::kDontFlushOnWrite );
+			pLog->Msg( info.c_str() );
+		}
 	}
 #endif
 
@@ -27629,7 +27700,24 @@ bool CvUnit::IsWithinDistanceOfFeature(FeatureTypes iFeatureType, int iDistance)
 {
 	return plot()->IsWithinDistanceOfFeature(iFeatureType, iDistance);
 }
-
+#if defined(MOD_BALANCE_CORE)
+bool CvUnit::IsWithinDistanceOfUnit(UnitTypes eOtherUnit, int iDistance, bool bIsFriendly, bool bIsEnemy) const
+{
+	return plot()->IsWithinDistanceOfUnit(getOwner(), eOtherUnit, iDistance, bIsFriendly, bIsEnemy);
+}
+bool CvUnit::IsWithinDistanceOfUnitClass(UnitClassTypes eUnitClass, int iDistance, bool bIsFriendly, bool bIsEnemy) const
+{
+	return plot()->IsWithinDistanceOfUnitClass(getOwner(), eUnitClass, iDistance, bIsFriendly, bIsEnemy);
+}
+bool CvUnit::IsWithinDistanceOfUnitCombatType(UnitCombatTypes eUnitCombat, int iDistance, bool bIsFriendly, bool bIsEnemy) const
+{
+	return plot()->IsWithinDistanceOfUnitCombatType(getOwner(), eUnitCombat, iDistance, bIsFriendly, bIsEnemy);
+}
+bool CvUnit::IsWithinDistanceOfUnitPromotion(PromotionTypes eUnitPromotion, int iDistance, bool bIsFriendly, bool bIsEnemy) const
+{
+	return plot()->IsWithinDistanceOfUnitPromotion(getOwner(), eUnitPromotion, iDistance, bIsFriendly, bIsEnemy);
+}
+#endif
 bool CvUnit::IsOnImprovement(ImprovementTypes iImprovementType) const
 {
 	return plot()->HasImprovement(iImprovementType);

@@ -8,6 +8,23 @@
 	SET Value = '7'
 	WHERE Name = 'UNIT_MAINTENANCE_GAME_EXPONENT_DIVISOR' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
+-- Deal Durations
+	UPDATE GameSpeeds
+	SET DealDuration = '100'
+	WHERE Type = 'GAMESPEED_MARATHON';
+
+	UPDATE GameSpeeds
+	SET DealDuration = '70'
+	WHERE Type = 'GAMESPEED_EPIC';
+
+	UPDATE GameSpeeds
+	SET DealDuration = '50'
+	WHERE Type = 'GAMESPEED_STANDARD';
+
+	UPDATE GameSpeeds
+	SET DealDuration = '30'
+	WHERE Type = 'GAMESPEED_QUICK';
+
 -- City Growth Defines
 
 	-- 15
@@ -83,5 +100,5 @@
 
 	-- Reduction of Pop from conquest reduced to 20% (was 50%)
 	UPDATE Defines
-	SET Value = '20'
+	SET Value = '80'
 	WHERE Name = 'CITY_CAPTURE_POPULATION_PERCENT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_MILITARY_TWEAKS' AND Value= 1 );

@@ -47,7 +47,7 @@ SET Text = 'The Amphitheater increases the [ICON_CULTURE] Culture of a city and 
 WHERE Tag = 'TXT_KEY_BUILDING_AMPHITHEATER_STRATEGY';
 
 UPDATE Language_en_US
-SET Text = '+1 [ICON_CULTURE] Culture, and +1 [ICON_CULTURE] Culture for every 5 [ICON_CITIZEN] Citizens in the city. +1 [ICON_CULTURE] Culture on nearby [ICON_RES_DYE] Dye and [ICON_RES_LAPIS] Lapis Lazuli resources. [NEWLINE][NEWLINE]+2 [ICON_TOURISM] Tourism once you research Philosophy.'
+SET Text = 'Whenever you destroy an enemy unit, gain +5 [ICON_CULTURE] Culture in the City.[NEWLINE][NEWLINE] +1 [ICON_CULTURE] Culture, and +1 [ICON_CULTURE] Culture for every 5 [ICON_CITIZEN] Citizens in the city. +1 [ICON_CULTURE] Culture on nearby [ICON_RES_DYE] Dye and [ICON_RES_LAPIS] Lapis Lazuli resources. [NEWLINE][NEWLINE]+2 [ICON_TOURISM] Tourism once you research Philosophy.'
 WHERE Tag = 'TXT_KEY_BUILDING_ODEON_HELP';
 
 INSERT INTO Building_ResourceYieldChanges (BuildingType, ResourceType, YieldType, Yield)

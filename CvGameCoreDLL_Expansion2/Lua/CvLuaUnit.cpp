@@ -576,6 +576,12 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(IsOnFeature);
 	Method(IsAdjacentToFeature);
 	Method(IsWithinDistanceOfFeature);
+#if defined(MOD_BALANCE_CORE)
+	Method(IsWithinDistanceOfUnit);
+	Method(IsWithinDistanceOfUnitClass);
+	Method(IsWithinDistanceOfUnitCombatType);
+	Method(IsWithinDistanceOfUnitPromotion);
+#endif
 	Method(IsOnImprovement);
 	Method(IsAdjacentToImprovement);
 	Method(IsWithinDistanceOfImprovement);
@@ -5236,6 +5242,12 @@ LUAAPIIMPL(Unit, IsUnitClass)
 LUAAPIIMPL(Unit, IsOnFeature)
 LUAAPIIMPL(Unit, IsAdjacentToFeature)
 LUAAPIIMPL(Unit, IsWithinDistanceOfFeature)
+#if defined(MOD_BALANCE_CORE)
+LUAAPIIMPL(Unit, IsWithinDistanceOfUnit)
+LUAAPIIMPL(Unit, IsWithinDistanceOfUnitClass)
+LUAAPIIMPL(Unit, IsWithinDistanceOfUnitCombatType)
+LUAAPIIMPL(Unit, IsWithinDistanceOfUnitPromotion)
+#endif
 LUAAPIIMPL(Unit, IsOnImprovement)
 LUAAPIIMPL(Unit, IsAdjacentToImprovement)
 LUAAPIIMPL(Unit, IsWithinDistanceOfImprovement)

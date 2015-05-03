@@ -15,6 +15,9 @@
 #include "CvMinorCivAI.h"
 #include "CvDllInterfaces.h"
 #include "CvGrandStrategyAI.h"
+#if defined(MOD_BALANCE_CORE_MILITARY)
+#include "CvMilitaryAI.h"
+#endif
 
 // must be included after all other headers
 #include "LintFree.h"
@@ -2330,11 +2333,15 @@ int CvDealAI::GetDefensivePactValue(bool bFromMe, PlayerTypes eOtherPlayer, bool
 	iItemValue = 0;
 	if(GetPlayer()->GetDiplomacyAI()->IsMusteringForAttack(eOtherPlayer))
 	{
-		return 0;
+		return 100000;
 	}
 	if(!GetPlayer()->GetDiplomacyAI()->IsWantsDefensivePactWithPlayer(eOtherPlayer))
 	{
-		return 0;
+		return 100000;
+	}
+	if(GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(eOtherPlayer) <= MAJOR_CIV_OPINION_NEUTRAL)
+	{
+		return 100000;
 	}
 #endif
 	// What is a Defensive Pact with eOtherPlayer worth to US?
@@ -2360,13 +2367,13 @@ int CvDealAI::GetDefensivePactValue(bool bFromMe, PlayerTypes eOtherPlayer, bool
 				iItemValue = 100;
 				break;
 			case STRENGTH_STRONG:
-				iItemValue = 125;
+				iItemValue = 200;
 				break;
 			case STRENGTH_POWERFUL:
-				iItemValue = 150;
+				iItemValue = 300;
 				break;
 			case STRENGTH_IMMENSE:
-				iItemValue = 200;
+				iItemValue = 400;
 				break;
 			default:
 				CvAssertMsg(false, "DEAL_AI: AI player has no valid MilitaryStrengthComparedToUs for Defensive Pact valuation.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.")
@@ -2435,13 +2442,13 @@ int CvDealAI::GetDefensivePactValue(bool bFromMe, PlayerTypes eOtherPlayer, bool
 			switch (GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(GetPlayer()->GetID()))
 			{
 			case STRENGTH_PATHETIC:
-				iItemValue = 200;
+				iItemValue = 400;
 				break;
 			case STRENGTH_WEAK:
-				iItemValue = 150;
+				iItemValue = 300;
 				break;
 			case STRENGTH_POOR:
-				iItemValue = 125;
+				iItemValue = 200;
 				break;
 			case STRENGTH_AVERAGE:
 				iItemValue = 100;
@@ -2542,7 +2549,7 @@ int CvDealAI::GetDefensivePactValue(bool bFromMe, PlayerTypes eOtherPlayer, bool
 	{
 		if(GetPlayer()->GetDefensePactsToVotes() > 0)
 		{
-			iItemValue *= 5;
+			iItemValue *= 10;
 		}
 	}
 #endif
@@ -2840,12 +2847,6 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 	if(bFromMe && iWarApproachWeight < 4)
 		return 100000;
 
-#if defined(MOD_BALANCE_CORE_MILITARY)
-	if(pDiploAI->IsMusteringForAttack(eOtherPlayer))
-	{
-		return 100000;
-	}
-#endif
 	PlayerTypes eWithPlayer = NO_PLAYER;
 	// find the first player associated with the team
 	for (uint ui = 0; ui < MAX_CIV_PLAYERS; ui++)
@@ -2857,6 +2858,24 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 			break;
 		}
 	}
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	// find the first player associated with the team
+	for (uint ui = 0; ui < MAX_CIV_PLAYERS; ui++)
+	{
+		PlayerTypes ePlayer = (PlayerTypes)ui;
+		if (GET_PLAYER(ePlayer).getTeam() == eWithTeam) 
+		{
+			if(pDiploAI->IsMusteringForAttack(ePlayer))
+			{
+				return 100000;
+			}
+			if(GetPlayer()->GetMilitaryAI()->GetSneakAttackOperation(ePlayer))
+			{
+				return 100000;
+			}
+		}
+	}
+#endif
 	WarProjectionTypes eWarProjection = pDiploAI->GetWarProjection(eWithPlayer);
 
 	EraTypes eOurEra = GET_TEAM(GetPlayer()->getTeam()).GetCurrentEra();

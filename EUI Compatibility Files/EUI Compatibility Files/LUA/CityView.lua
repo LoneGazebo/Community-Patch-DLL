@@ -1597,9 +1597,9 @@ local function UpdateCityViewNow()
 		local iCultureUnhappiness = city:GetUnhappinessFromCulture();
 		local iResistanceUnhappiness = 0;
 		if(city:IsRazing()) then
-			iResistanceUnhappiness = (city:GetPopulation() / 4);
+			iResistanceUnhappiness = (city:GetPopulation() / 2);
 		elseif(city:IsResistance()) then
-			iResistanceUnhappiness = (city:GetPopulation() / 4);
+			iResistanceUnhappiness = (city:GetPopulation() / 2);
 		end
 		local iOccupationUnhappiness = 0;
 		if(city:IsOccupied() and not city:IsNoOccupiedUnhappiness()) then
@@ -1881,6 +1881,11 @@ local function UpdateCityViewNow()
 						-- Compatibility with Gazebo's City-State Diplomacy Mod (CSD) for Brave New World
 						elseif cityOwner.GetGreatDiplomatRateModifier and specialist.GreatPeopleUnitClass == "UNITCLASS_GREAT_DIPLOMAT" then
 							gpChangePlayerMod = gpChangePlayerMod + cityOwner:GetGreatDiplomatRateModifier()
+--CBP
+							if isGoldenAge and cityOwner:GetGoldenAgeGreatDiplomatRateModifier() > 0 then
+								gpChangeGoldenAgeMod = gpChangeGoldenAgeMod + cityOwner:GetGoldenAgeGreatDiplomatRateModifier()
+							end
+-- END
 						end
 
 						-- Player mod actually includes policy mod and World Congress mod, so separate them for tooltip
@@ -2020,14 +2025,30 @@ local function UpdateCityViewNow()
 		else
 			Controls.ResourceDemandedBox:SetHide(true)
 		end
-
 		local iNumTurns = city:GetWeLoveTheKingDayCounter()
 		if (iNumTurns > 0) then
 			szText = L( "TXT_KEY_CITYVIEW_WLTKD_COUNTER", tostring(iNumTurns) )
+			--- CBP
+			if(cityOwner:IsGPWLTKD()) then
+				szText = L( "TXT_KEY_CITYVIEW_WLTKD_COUNTER_UA", tostring(iNumTurns) )
+				Controls.ResourceDemandedBox:LocalizeAndSetToolTip( "TXT_KEY_CITYVIEW_RESOURCE_FULFILLED_TT_UA" )
+			else
+			-- END
+
 			Controls.ResourceDemandedBox:LocalizeAndSetToolTip( "TXT_KEY_CITYVIEW_RESOURCE_FULFILLED_TT" )
+			--CBP
+			end
+			-- END
 		else
 			szText = L( "TXT_KEY_CITYVIEW_RESOURCE_DEMANDED", szResourceDemanded )
-			Controls.ResourceDemandedBox:LocalizeAndSetToolTip( "TXT_KEY_CITYVIEW_RESOURCE_DEMANDED_TT" )
+			--CBP
+			if(cityOwner:IsGPWLTKD()) then
+				Controls.ResourceDemandedBox:LocalizeAndSetToolTip( "TXT_KEY_CITYVIEW_RESOURCE_DEMANDED_TT_UA" )
+			else
+				Controls.ResourceDemandedBox:LocalizeAndSetToolTip( "TXT_KEY_CITYVIEW_RESOURCE_DEMANDED_TT" )
+			-- CBP
+			end
+			-- END
 		end
 
 		Controls.ResourceDemandedString:SetText(szText)

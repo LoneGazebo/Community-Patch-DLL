@@ -516,6 +516,14 @@ public:
 	int GetSpawnBaseTurns(PlayerTypes ePlayer);
 	int GetCurrentSpawnEstimate(PlayerTypes ePlayer);
 
+
+#if defined(MOD_BALANCE_CORE)
+	bool IsMarried(PlayerTypes eMajor) const;
+	void SetMajorMarried(PlayerTypes eMajor, bool bValue);
+	bool CanMajorDiploMarriage(PlayerTypes eMajor);
+	void DoMarriage(PlayerTypes eMajor);
+	int GetMarriageCost(PlayerTypes eMajor);
+#endif
 	// Buyout by major civ (Austria UA)
 	bool IsBoughtOut() const;
 	PlayerTypes GetMajorBoughtOutBy() const;
@@ -656,6 +664,7 @@ private:
 #if defined(MOD_BALANCE_CORE_MINORS)  || defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 	bool m_abIsJerk[REALLY_MAX_TEAMS];
 	int m_aiJerk[REALLY_MAX_TEAMS];
+	bool m_abIsMarried[REALLY_MAX_TEAMS];
 #endif
 
 	PlayerTypes m_eAlly;

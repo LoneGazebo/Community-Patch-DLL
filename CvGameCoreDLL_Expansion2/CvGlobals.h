@@ -7106,6 +7106,10 @@ public:
 	}
 #endif
 #if defined(MOD_BALANCE_CORE)
+	inline int getBALANCE_MARRIAGE_GP_RATE()
+	{
+		return m_iBALANCE_MARRIAGE_GP_RATE;
+	}
 	inline int getBALANCE_SPY_RESPAWN_TIMER()
 	{
 		return m_iBALANCE_SPY_RESPAWN_TIMER;
@@ -10586,6 +10590,7 @@ protected:
 	int m_iBALANCE_CS_FORGIVENESS_CHANCE;
 #endif
 #if defined(MOD_BALANCE_CORE)
+	int m_iBALANCE_MARRIAGE_GP_RATE;
 	int m_iBALANCE_SPY_RESPAWN_TIMER;
 	int m_iBALANCE_SPY_SABOTAGE_RATE;
 	int m_iBALANCE_SPY_TO_MINOR_RATIO;

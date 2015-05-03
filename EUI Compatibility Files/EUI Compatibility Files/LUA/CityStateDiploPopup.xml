@@ -161,6 +161,16 @@
               </AlphaAnim>
             </ShowOnMouseOver>
           </Button>
+			<!-- Marriage BUTTON (Austria UA CBP)-->
+			<Button Hidden="0" Size="500,32" Anchor="C,C" Offset="0,0" ID="MarriageButton" ToolTip="">
+				<Label Anchor="C,C" Offset="0,0" ID="MarriageLabel" String="TXT_KEY_POP_CSTATE_BUYOUT"/>
+				<Image Anchor="C,B" Offset="0,0" Texture="bar500x2.dds" Size="500.1"/>
+				<ShowOnMouseOver>
+					<AlphaAnim ID="MarriageAnim" Anchor="C,C" Offset="0,0" Size="500,35" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+						<Grid ID="MarriageButtonHL" Size="500,35" Offset="0,0" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+					</AlphaAnim>
+				</ShowOnMouseOver>
+			</Button>
         </Stack>
         <!--=======================================================================================================================-->
         <!--Give Something (gold, unit) Stack-->

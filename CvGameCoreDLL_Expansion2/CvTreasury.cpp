@@ -289,12 +289,12 @@ void CvTreasury::DoUpdateCityConnectionGold()
 	}
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	//Bonus for Internal Trade Routes Gold Policy added in here (for LUA simplicity)
-	if(m_pPlayer->GetGoldInternalTrade() > 0)
+	if(m_pPlayer->IsGoldInternalTrade())
 	{
 		int iInternalTradeRoutes = m_pPlayer->GetTrade()->GetNumberOfInternalTradeRoutes();
 		if(iInternalTradeRoutes > 0)
 		{
-			iNumGold += ((iInternalTradeRoutes * /*5*/ m_pPlayer->GetGoldInternalTrade()) * 100);
+			iNumGold += ((iInternalTradeRoutes * /*10*/ m_pPlayer->GetGoldInternalTrade()) * 100);
 		}
 	}
 #endif
@@ -430,7 +430,12 @@ int CvTreasury::GetGoldPerTurnFromTradeRoutesTimes100() const
 int CvTreasury::GetGoldPerTurnFromTraits() const
 {
 #if defined(MOD_BALANCE_CORE)
-	return ((m_pPlayer->GetPlayerTraits()->GetYieldChangePerTradePartner(YIELD_GOLD) * m_pPlayer->GetTrade()->GetNumDifferentTradingPartners()) + (m_pPlayer->GetYieldPerTurnFromResources(YIELD_GOLD, true, false)));
+	int iEra = m_pPlayer->GetCurrentEra();
+	if(iEra < 1)
+	{
+		iEra = 1;
+	}
+	return ((iEra * m_pPlayer->GetPlayerTraits()->GetYieldChangePerTradePartner(YIELD_GOLD) * m_pPlayer->GetTrade()->GetNumDifferentTradingPartners()) + (m_pPlayer->GetYieldPerTurnFromResources(YIELD_GOLD, true, false)));
 #else
 	return m_pPlayer->GetPlayerTraits()->GetYieldChangePerTradePartner(YIELD_GOLD) * m_pPlayer->GetTrade()->GetNumDifferentTradingPartners();
 #endif

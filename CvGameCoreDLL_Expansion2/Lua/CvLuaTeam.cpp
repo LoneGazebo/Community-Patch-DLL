@@ -128,6 +128,7 @@ void CvLuaTeam::PushMethods(lua_State* L, int t)
 	Method(ChangePermanentAllianceTradingCount);
 #if defined(MOD_BALANCE_CORE)
 	Method(SetOpenBorders);
+	Method(SetForcePeace);
 #endif
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_TECHS_CITY_WORKING)
 	Method(GetCityWorkingChange);
@@ -832,6 +833,7 @@ int CvLuaTeam::lChangePermanentAllianceTradingCount(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvTeam::changePermanentAllianceTradingCount);
 }
+#if defined(MOD_BALANCE_CORE)
 //void SetAllowsOpenBordersToTeam(eOtherTeam, bool bValue)
 int CvLuaTeam::lSetOpenBorders(lua_State* L)
 {
@@ -842,6 +844,17 @@ int CvLuaTeam::lSetOpenBorders(lua_State* L)
 	pkTeam->SetAllowsOpenBordersToTeam(eTeam, bValue);
 	return 0;
 }
+//void CvTeam::setForcePeace(TeamTypes eIndex, bool bNewValue)
+int CvLuaTeam::lSetForcePeace(lua_State* L)
+{
+	CvTeam* pkTeam = GetInstance(L);
+	const TeamTypes eTeam = (TeamTypes) lua_tointeger(L, 2);
+	const bool bValue = luaL_optbool(L, 3, false);
+
+	pkTeam->setForcePeace(eTeam, bValue);
+	return 0;
+}
+#endif
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_TECHS_CITY_WORKING)
 //------------------------------------------------------------------------------
 //int getCityWorkingChange();

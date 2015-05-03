@@ -6,7 +6,7 @@
 		<Row>
 			<BuildingType>BUILDING_FLOATING_GARDENS</BuildingType>
 			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>50</Yield>
+			<Yield>25</Yield>
 		</Row>
 	</Building_YieldChangesPerPop>
   <!-- Bazaar -->
@@ -30,19 +30,19 @@
 			<BuildingType>BUILDING_BAZAAR</BuildingType>
 			<ResourceType>RESOURCE_SPICES</ResourceType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>1</Yield>
+			<Yield>2</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_BAZAAR</BuildingType>
 			<ResourceType>RESOURCE_SUGAR</ResourceType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>1</Yield>
+			<Yield>2</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_BAZAAR</BuildingType>
 			<ResourceType>RESOURCE_COCOA</ResourceType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>1</Yield>
+			<Yield>2</Yield>
 		</Row>
 	</Building_ResourceYieldChanges>
 <!-- Hanse -->
@@ -241,8 +241,20 @@
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_DOJO</BuildingType>
+			<ResourceType>RESOURCE_IRON</ResourceType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_DOJO</BuildingType>
 			<ResourceType>RESOURCE_HORSE</ResourceType>
 			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_DOJO</BuildingType>
+			<ResourceType>RESOURCE_HORSE</ResourceType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
 			<Yield>1</Yield>
 		</Row>
 	</Building_ResourceYieldChanges>
@@ -257,10 +269,10 @@
 			</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_DOJO_HELP">
-			<Text>Unique Japanese replacement for the Armory. Reduces [ICON_HAPPINESS_3] Disorder. Grants +25 Experience to all military units trained in this city, and sources of [ICON_RES_IRON] Iron and [ICON_RES_HORSE] Horses near this city generate +1 [ICON_CULTURE] Culture. [NEWLINE][NEWLINE]All Melee and Gun units trained in this city recieve the [COLOR_POSITIVE_TEXT]Eight Virtues of Bushido[ENDCOLOR] Promotion.</Text>
+			<Text>Unique Japanese replacement for the Armory. Reduces [ICON_HAPPINESS_3] Disorder. Grants +25 Experience to all military units trained in this city, and sources of [ICON_RES_IRON] Iron and [ICON_RES_HORSE] Horses near this city generate +1 [ICON_CULTURE] Culture and +1 [ICON_PRODUCTION] Production. [NEWLINE][NEWLINE]All Melee and Gun units trained in this city recieve the [COLOR_POSITIVE_TEXT]Eight Virtues of Bushido[ENDCOLOR] Promotion.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_DOJO_STRATEGY">
-			<Text>Build these unique Armories to produce dominant military units, and to generate additional Culture. All Melee and Gun units trained in this city recieve the Eight Virtues of Bushido Promotion, which offers one of eight possible promotions to these unit types after their first combat.</Text>
+			<Text>Build these unique Armories to produce dominant military units, and to generate additional Culture and Production. All Melee and Gun units trained in this city recieve the Eight Virtues of Bushido Promotion, which offers one of eight possible promotions to these unit types after their first combat.</Text>
 		</Row>
 	</Language_en_US>
 	<!-- Odeon -->
@@ -325,11 +337,24 @@
 			<Yield>20</Yield>
 		</Row>
 	</Building_YieldChangesPerPop>
+	<Building_YieldFromVictory>
+		<Row>
+			<BuildingType>BUILDING_ODEON</BuildingType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>5</Yield>
+		</Row>
+	</Building_YieldFromVictory>
 	<Building_ResourceYieldChanges>
 		<Row>
 			<BuildingType>BUILDING_ODEON</BuildingType>
 			<ResourceType>RESOURCE_DYE</ResourceType>
 			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_ODEON</BuildingType>
+			<ResourceType>RESOURCE_DYE</ResourceType>
+			<YieldType>YIELD_GOLD</YieldType>
 			<Yield>1</Yield>
 		</Row>
 	</Building_ResourceYieldChanges>
@@ -343,7 +368,7 @@
 			</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_ODEON_HELP">
-			<Text>+1 [ICON_CULTURE] Culture, and +1 [ICON_CULTURE] Culture for every 5 [ICON_CITIZEN] Citizens in the city. +1 [ICON_CULTURE] Culture on nearby [ICON_RES_DYE] Dye resources. [NEWLINE][NEWLINE]+2 [ICON_TOURISM] Tourism once you research Philosophy.</Text>
+			<Text>Whenever you destroy an enemy unit, gain +5 [ICON_CULTURE] Culture in the City.[NEWLINE][NEWLINE]+1 [ICON_CULTURE] Culture, and +1 [ICON_CULTURE] Culture for every 5 [ICON_CITIZEN] Citizens in the city. +1 [ICON_CULTURE] Culture and +1 [ICON_GOLD] Gold on nearby [ICON_RES_DYE] Dye resources. [NEWLINE][NEWLINE]+2 [ICON_TOURISM] Tourism once you research Philosophy.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_ODEON_STRATEGY">
 			<Text>Unique Greek replacement for the Amphitheater. Build these unique Amphitheaters to boost your city's Culture and Tourism. Contains no slot for a Great Work, however it produces +2 [ICON_TOURISM] Tourism once you research Philosophy.</Text>
@@ -476,7 +501,7 @@
 			<BuildingType>BUILDING_STEAM_MILL</BuildingType>
 			<ResourceType>RESOURCE_COAL</ResourceType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Yield>1</Yield>
+			<Yield>3</Yield>
 		</Row>
 	</Building_ResourceYieldChanges>
 	<Civilization_BuildingClassOverrides>
@@ -516,7 +541,7 @@
 			</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_STEAM_MILL_HELP">
-			<Text>+1 [ICON_PRODUCTION] Production for every 5 [ICON_CITIZEN] Citizens in the City. Each source of [ICON_RES_COAL] Coal worked by this City produces +1 [ICON_PRODUCTION] Production. [NEWLINE][NEWLINE]Does not require [ICON_RES_COAL] Coal. [NEWLINE][NEWLINE]If your Empire contains at least 3 Steam Mills, you may choose an Ideology.</Text>
+			<Text>+1 [ICON_PRODUCTION] Production for every 5 [ICON_CITIZEN] Citizens in the City. Each source of [ICON_RES_COAL] Coal worked by this City produces +3 [ICON_PRODUCTION] Production. [NEWLINE][NEWLINE]Does not require [ICON_RES_COAL] Coal. [NEWLINE][NEWLINE]If your Empire contains at least 3 Steam Mills, you may choose an Ideology.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_STEAM_MILL_STRATEGY">
 			<Text>Unique English replacement for the Factory. The Steam Mill is cheaper, requires no [ICON_RES_COAL] Coal, is available earlier than the Factory, and provides additional Production to [ICON_RES_COAL] Coal worked by the City. Because it is cheaper, however, it also generates slightly less Production per [ICON_CITIZEN] Citizen. Since Steam Mills do not require Coal, you can use your Coal surplus to build a large, modern navy, or trade it away for a large amount of gold. Lastly, if you have at least three Steam Mills in your empire, you will be allowed to choose an ideology. This ability is not available to other civilizations.</Text>
@@ -623,8 +648,20 @@
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_MUD_PYRAMID_MOSQUE</BuildingType>
+			<ResourceType>RESOURCE_INCENSE</ResourceType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_MUD_PYRAMID_MOSQUE</BuildingType>
 			<ResourceType>RESOURCE_WINE</ResourceType>
 			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_MUD_PYRAMID_MOSQUE</BuildingType>
+			<ResourceType>RESOURCE_WINE</ResourceType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
 			<Yield>1</Yield>
 		</Row>
 		<Row>
@@ -635,57 +672,75 @@
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_BURIAL_TOMB</BuildingType>
+			<ResourceType>RESOURCE_INCENSE</ResourceType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_BURIAL_TOMB</BuildingType>
 			<ResourceType>RESOURCE_WINE</ResourceType>
 			<YieldType>YIELD_CULTURE</YieldType>
 			<Yield>1</Yield>
 		</Row>
+		<Row>
+			<BuildingType>BUILDING_BURIAL_TOMB</BuildingType>
+			<ResourceType>RESOURCE_WINE</ResourceType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>1</Yield>
+		</Row>
 	</Building_ResourceYieldChanges>
-	<!-- Resort -->
+	<!-- MOMA -->
 	<Buildings>
 		<Row>
-			<Type>BUILDING_RESORT</Type>
-			<BuildingClass>BUILDINGCLASS_HOTEL</BuildingClass>
-			<Cost>700</Cost>
-			<PrereqTech>TECH_REFRIGERATION</PrereqTech>
-			<Help>TXT_KEY_BUILDING_RESORT_HELP</Help>
-			<Description>TXT_KEY_BUILDING_RESORT</Description>
-			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_RESORT_TEXT</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_RESORT_STRATEGY</Strategy>
+			<Type>BUILDING_MOMA</Type>
+			<BuildingClass>BUILDINGCLASS_HERMITAGE</BuildingClass>
+			<Cost>125</Cost>
+			<PrereqTech>TECH_ARCHAEOLOGY</PrereqTech>
+			<Help>TXT_KEY_BUILDING_MOMA_HELP</Help>
+			<Description>TXT_KEY_BUILDING_MOMA</Description>
+			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_MOMA_TEXT</Civilopedia>
+			<Strategy>TXT_KEY_BUILDING_MOMA_STRATEGY</Strategy>
 			<ArtDefineTag>ART_DEF_BUILDING_MILITARY_ACADEMY</ArtDefineTag>
 			<MinAreaSize>-1</MinAreaSize>
+			<NukeImmune>true</NukeImmune>
+			<NumCityCostMod>35</NumCityCostMod>
+			<NationalPopRequired>65</NationalPopRequired>
+			<HurryCostModifier>-1</HurryCostModifier>
+			<CultureRateModifier>25</CultureRateModifier>
+			<GreatWorkSlotType>GREAT_WORK_SLOT_ART_ARTIFACT</GreatWorkSlotType>
+			<GreatWorkCount>3</GreatWorkCount>
+			<NeverCapture>true</NeverCapture>
 			<Happiness>1</Happiness>
 			<LandmarksTourismPercent>50</LandmarksTourismPercent>
 			<GreatWorksTourismModifier>50</GreatWorksTourismModifier>
-			<HurryCostModifier>25</HurryCostModifier>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
 			<PortraitIndex>20</PortraitIndex>
 		</Row>
 	</Buildings>
+	<Building_ClassesNeededInCity>
+		<Row>
+			<BuildingType>BUILDING_MOMA</BuildingType>
+			<BuildingClassType>BUILDINGCLASS_MUSEUM</BuildingClassType>
+		</Row>
+	</Building_ClassesNeededInCity>
 	<Building_YieldChanges>
 		<Row>
-			<BuildingType>BUILDING_RESORT</BuildingType>
+			<BuildingType>BUILDING_MOMA</BuildingType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>1</Yield>
-		</Row>
-		<Row>
-			<BuildingType>BUILDING_RESORT</BuildingType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>2</Yield>
+			<Yield>5</Yield>
 		</Row>
 	</Building_YieldChanges>
+	<Building_BuildingClassYieldChanges>
+		<Row>
+			<BuildingType>BUILDING_MOMA</BuildingType>
+			<BuildingClassType>BUILDINGCLASS_MUSEUM</BuildingClassType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<YieldChange>5</YieldChange>
+		</Row>
+	</Building_BuildingClassYieldChanges>
 	<Building_Flavors>
 		<Row>
-			<BuildingType>BUILDING_RESORT</BuildingType>
-			<FlavorType>FLAVOR_GOLD</FlavorType>
-			<Flavor>100</Flavor>
-		</Row>
-		<Row>
-			<BuildingType>BUILDING_RESORT</BuildingType>
-			<FlavorType>FLAVOR_HAPPINESS</FlavorType>
-			<Flavor>25</Flavor>
-		</Row>
-		<Row>
-			<BuildingType>BUILDING_RESORT</BuildingType>
+			<BuildingType>BUILDING_MOMA</BuildingType>
 			<FlavorType>FLAVOR_CULTURE</FlavorType>
 			<Flavor>100</Flavor>
 		</Row>
@@ -693,22 +748,24 @@
 	<Civilization_BuildingClassOverrides>
 		<Row>
 			<CivilizationType>CIVILIZATION_AMERICA</CivilizationType>
-			<BuildingClassType>BUILDINGCLASS_HOTEL</BuildingClassType>
-			<BuildingType>BUILDING_RESORT</BuildingType>
+			<BuildingClassType>BUILDINGCLASS_HERMITAGE</BuildingClassType>
+			<BuildingType>BUILDING_MOMA</BuildingType>
 		</Row>
 	</Civilization_BuildingClassOverrides>
 	<Language_en_US>
-		<Row Tag="TXT_KEY_BUILDING_RESORT">
-			<Text>Resort</Text>
+		<Row Tag="TXT_KEY_BUILDING_MOMA">
+			<Text>Museum of Modern Art</Text>
 		</Row>
-		<Row Tag="TXT_KEY_CIV5_BUILDINGS_RESORT_TEXT">
-			<Text>A resort is a place used for relaxation or recreation, attracting visitors for vacations and/or tourism. Resorts are places, towns or sometimes commercial establishment operated by a single company. In North American English, the term "resort" is now also used for a self-contained commercial establishment which attempts to provide for most of a vacationer's wants while remaining on the premises, such as food, drink, lodging, sports, entertainment, and shopping. The term may be used to identify a hotel property that provides an array of amenities and typically includes entertainment and recreational activities. A hotel is frequently a central feature of a resort, such as the Grand Hotel at Mackinac Island, Michigan. A resort is not always a commercial establishment operated by a single company, although in the late twentieth century this sort of facility became more common.</Text>
+		<Row Tag="TXT_KEY_CIV5_BUILDINGS_MOMA_TEXT">
+			<Text>
+				The Museum of Modern Art (MoMA) is an art museum located in Midtown Manhattan in New York City, on 53rd Street between Fifth and Sixth Avenues. It has been important in developing and collecting modernist art, and is often identified as the most influential museum of modern art in the world. The museum's collection offers an overview of modern and contemporary art, including works of architecture and design, drawing, painting, sculpture, photography, prints, illustrated books and artist's books, film and electronic media. The Library's holdings include approximately 300,000 books and exhibition catalogs, over 1,000 periodical titles, and over 40,000 files of ephemera about individual artists and groups. The archives holds primary source material related to the history of modern and contemporary art.
+			</Text>
 		</Row>
-		<Row Tag="TXT_KEY_BUILDING_RESORT_HELP">
-			<Text>Unique American replacement for the Hotel. 50% of the [ICON_CULTURE] Culture from World Wonders, Natural Wonders, and Improvements (Landmarks, Moai, Chateau) is added to the [ICON_TOURISM] Tourism output of the city. [ICON_TOURISM] Tourism output from Great Works +50%.</Text>
+		<Row Tag="TXT_KEY_BUILDING_MOMA_HELP">
+			<Text>Unique American replacement for the Hermitage. A city must have a Museum before it can construct the Museum of Modern Art. Requires a national population of at least 65 before it can be constructed. [NEWLINE][NEWLINE]+25% [ICON_CULTURE] Culture in the City, and 50% of the [ICON_CULTURE] Culture from Great Works, World Wonders, Natural Wonders, and Improvements (Landmarks, Moai, Chateau) is added to the [ICON_TOURISM] Tourism output of the city. Boosts [ICON_CULTURE] Culture output of Museums in all Cities by +5. Contains 3 Slots for Great Works of Art or Artifacts.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_BUILDING_RESORT_STRATEGY">
-			<Text>Unique American replacement for the Hotel. Unlike the building it replaces, the Resort has no maintenance; instead, it produces both Gold and Culture. With a larger boost to Tourism than the Hotel, the Resort is an excellent choice for civilizations that are trying to achieve a Culture victory, or attempting to increase your ideological impact on other civilizations.</Text>
+		<Row Tag="TXT_KEY_BUILDING_MOMA_STRATEGY">
+			<Text>Unique American replacement for the Hermitage. In addition to the bonuses of the Hermitage, The Museum of Modern Art boosts Culture and Tourism in the City greatly. The Museum of Modern Art also boosts the Culture output of all Museums in your Empire. The Museum of Modern Art is avaialable later than the Hermitage, however, and requires a Museum instead of an Opera House. Also requires a national population of at least 65.</Text>
 		</Row>
 	</Language_en_US>
 </GameData>

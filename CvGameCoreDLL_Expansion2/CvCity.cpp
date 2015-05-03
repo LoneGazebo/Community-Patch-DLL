@@ -308,6 +308,8 @@ CvCity::CvCity() :
 #if defined(MOD_BALANCE_CORE)
 	, m_abOwedChosenBuilding("CvCity::m_abOwedChosenBuilding", m_syncArchive)
 	, m_abBuildingInvestment("CvCity::m_abBuildingInvestment", m_syncArchive)
+	, m_abBuildingConstructed("CvCity::m_abBuildingConstructed", m_syncArchive)
+	, m_bIsNationalMissionaries(false)
 #endif
 
 	, m_bOwedCultureBuilding(false)
@@ -576,7 +578,6 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 		setName(szName);
 	}
 #endif
-
 	// Free food from things (e.g. Policies)
 	int iFreeFood = growthThreshold() * GET_PLAYER(getOwner()).GetFreeFoodBox();
 	changeFoodTimes100(iFreeFood);
@@ -672,7 +673,6 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 			owningPlayer.GetMinorCivAI()->DoAddStartingResources(plot());
 		}
 	}
-
 	// make sure that all the team members get the city connection update
 #if defined(MOD_BALANCE_CORE)
 	if(MOD_BALANCE_CORE && !owningPlayer.isMinorCiv() && bInitialFounding)
@@ -1014,7 +1014,24 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 		}
 	}
 #endif
-
+#if defined(MOD_BALANCE_CORE)
+	if(owningPlayer.GetPlayerTraits()->IsReconquista())
+	{
+		ReligionTypes eReligion = owningPlayer.GetReligions()->GetReligionCreatedByPlayer(false);
+		if(eReligion != NO_RELIGION)
+		{
+			GetCityReligions()->AdoptReligionFully(eReligion);
+		}
+		else
+		{
+			eReligion = owningPlayer.GetReligions()->GetReligionInMostCities();
+			if(eReligion != NO_RELIGION)
+			{
+				GetCityReligions()->AdoptReligionFully(eReligion);
+			}
+		}
+	}
+#endif
 	AI_init();
 
 #if defined(MOD_BALANCE_CORE_POLICIES)
@@ -1285,6 +1302,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_aiChangeGrowthExtraYield.resize(NUM_YIELD_TYPES);
 #endif
 #if defined(MOD_BALANCE_CORE)
+	m_bIsNationalMissionaries = false;
 	m_iUnhappyCitizen = 0;
 	m_iPurchaseCooldown = 0;
 	m_aiChangeYieldFromVictory.resize(NUM_YIELD_TYPES);
@@ -1377,10 +1395,12 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 #if defined(MOD_BALANCE_CORE)
 	m_abOwedChosenBuilding.resize(GC.getNumBuildingClassInfos());
 	m_abBuildingInvestment.resize(GC.getNumBuildingClassInfos());
+	m_abBuildingConstructed.resize(GC.getNumBuildingClassInfos());
 	for(int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
 	{
 		m_abOwedChosenBuilding.setAt(iI, false);
 		m_abBuildingInvestment.setAt(iI, false);
+		m_abBuildingConstructed.setAt(iI, false);
 	}
 #endif
 
@@ -2625,7 +2645,13 @@ void CvCity::chooseProduction(UnitTypes eTrainUnit, BuildingTypes eConstructBuil
 {
 	VALIDATE_OBJECT
 	CvString strTooltip = GetLocalizedText("TXT_KEY_NOTIFICATION_NEW_CONSTRUCTION", getNameKey());
-
+#if defined(MOD_BALANCE_CORE)
+	if(IsRazing())
+	{
+		//No popup if razing.
+		return;
+	}
+#endif
 	CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
 	if(pNotifications)
 	{
@@ -4502,11 +4528,27 @@ void CvCity::DoPickResourceDemanded(bool bCurrentResourceInvalid)
 			CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
 			if(pNotifications)
 			{
+#if defined(MOD_BALANCE_CORE)
+
+				if(GET_PLAYER(getOwner()).GetPlayerTraits()->GetGrowthBoon() > 0)
+				{
+					Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_RESOURCE_DEMAND_UA");
+					strText << getNameKey() << GC.getResourceInfo(eResource)->GetTextKey();
+					Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_RESOURCE_DEMAND");
+					strSummary << getNameKey() << GC.getResourceInfo(eResource)->GetTextKey();
+					pNotifications->Add(NOTIFICATION_REQUEST_RESOURCE, strText.toUTF8(), strSummary.toUTF8(), getX(), getY(), eResource);
+				}
+				else
+				{
+#endif
 				Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_RESOURCE_DEMAND");
 				strText << getNameKey() << GC.getResourceInfo(eResource)->GetTextKey();
 				Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_RESOURCE_DEMAND");
 				strSummary << getNameKey() << GC.getResourceInfo(eResource)->GetTextKey();
 				pNotifications->Add(NOTIFICATION_REQUEST_RESOURCE, strText.toUTF8(), strSummary.toUTF8(), getX(), getY(), eResource);
+#if defined(MOD_BALANCE_CORE)
+				}
+#endif
 			}
 
 			return;
@@ -4571,11 +4613,26 @@ void CvCity::DoTestResourceDemanded()
 				CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
 				if(pNotifications)
 				{
+#if defined(MOD_BALANCE_CORE)
+					if(GET_PLAYER(getOwner()).GetPlayerTraits()->GetGrowthBoon() > 0)
+					{
+						Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_WLTKD_UA_RESOURCE");
+						strText << GC.getResourceInfo(eResource)->GetTextKey() << getNameKey();
+						Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_WLTKD_UA_RESOURCE");
+						strSummary << getNameKey();
+						pNotifications->Add(NOTIFICATION_REQUEST_RESOURCE, strText.toUTF8(), strSummary.toUTF8(), getX(), getY(), eResource);
+					}
+					else
+					{
+#endif
 					Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_WLTKD");
 					strText << GC.getResourceInfo(eResource)->GetTextKey() << getNameKey();
 					Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_WLTKD");
 					strSummary << getNameKey();
 					pNotifications->Add(NOTIFICATION_REQUEST_RESOURCE, strText.toUTF8(), strSummary.toUTF8(), getX(), getY(), eResource);
+#if defined(MOD_BALANCE_CORE)
+					}
+#endif
 				}
 			}
 		}
@@ -5825,6 +5882,23 @@ void CvCity::SetBuildingInvestment(BuildingClassTypes eBuildingClass, bool bNewV
 
 	m_abBuildingInvestment.setAt(eBuildingClass, bNewValue);
 }
+
+//	--------------------------------------------------------------------------------
+bool CvCity::IsBuildingConstructed(BuildingClassTypes eBuildingClass) const
+{
+	FAssert(eBuildingClass >= 0);
+	FAssert(eBuildingClass < GC.getNumBuildingClassInfos());
+
+	return m_abBuildingConstructed[eBuildingClass];
+}
+//	--------------------------------------------------------------------------------
+void CvCity::SetBuildingConstructed(BuildingClassTypes eBuildingClass, bool bNewValue)
+{
+	FAssert(eBuildingClass >= 0);
+	FAssert(eBuildingClass < GC.getNumBuildingClassInfos());
+
+	m_abBuildingConstructed.setAt(eBuildingClass, bNewValue);
+}	
 #endif
 //	--------------------------------------------------------------------------------
 int CvCity::getProductionTurnsLeft(int iProductionNeeded, int iProduction, int iFirstProductionDifference, int iProductionDifference) const
@@ -7765,57 +7839,61 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 #if defined(MOD_BALANCE_CORE_BUILDING_INSTANT_YIELD)
 			if(MOD_BALANCE_CORE_BUILDING_INSTANT_YIELD && (iChange > 0))
 			{
-				if(pBuildingInfo->GetInstantYield(YIELD_CULTURE_LOCAL) > 0)
+				if(!IsBuildingConstructed(eBuildingClass))
 				{
-					ChangeJONSCultureStored(pBuildingInfo->GetInstantYield(YIELD_CULTURE_LOCAL));
-				}
-				if(pBuildingInfo->GetInstantYield(YIELD_CULTURE) > 0)
-				{
-					GET_PLAYER(getOwner()).changeJONSCulture(pBuildingInfo->GetInstantYield(YIELD_CULTURE));
-				}
-				if(pBuildingInfo->GetInstantYield(YIELD_GOLD) > 0)
-				{
-					GET_PLAYER(getOwner()).GetTreasury()->ChangeGold(pBuildingInfo->GetInstantYield(YIELD_GOLD));
-				}
-				if(pBuildingInfo->GetInstantYield(YIELD_FOOD) > 0)
-				{
-					changeFood(pBuildingInfo->GetInstantYield(YIELD_FOOD));
-				}	
-				if(pBuildingInfo->GetInstantYield(YIELD_PRODUCTION) > 0)
-				{
-					changeProduction(pBuildingInfo->GetInstantYield(YIELD_PRODUCTION));
-				}
-				if(pBuildingInfo->GetInstantYield(YIELD_FAITH) > 0)
-				{
-					GET_PLAYER(getOwner()).ChangeFaith(pBuildingInfo->GetInstantYield(YIELD_FAITH));
-				}
-				if(pBuildingInfo->GetInstantYield(YIELD_SCIENCE) > 0)
-				{
-					TechTypes eCurrentTech = owningPlayer.GetPlayerTechs()->GetCurrentResearch();
-					if(eCurrentTech == NO_TECH)
+					SetBuildingConstructed(eBuildingClass, true);
+					if(pBuildingInfo->GetInstantYield(YIELD_CULTURE_LOCAL) > 0)
 					{
-						owningPlayer.changeOverflowResearch(pBuildingInfo->GetInstantYield(YIELD_SCIENCE));
+						ChangeJONSCultureStored(pBuildingInfo->GetInstantYield(YIELD_CULTURE_LOCAL));
 					}
-					else
+					if(pBuildingInfo->GetInstantYield(YIELD_CULTURE) > 0)
 					{
-						owningTeam.GetTeamTechs()->ChangeResearchProgress(eCurrentTech, pBuildingInfo->GetInstantYield(YIELD_SCIENCE), owningPlayer.GetID());
+						GET_PLAYER(getOwner()).changeJONSCulture(pBuildingInfo->GetInstantYield(YIELD_CULTURE));
 					}
-				}
-				if(pBuildingInfo->GetInstantYield(YIELD_GOLDEN_AGE_POINTS) > 0)
-				{
-					GET_PLAYER(getOwner()).ChangeGoldenAgeProgressMeter(pBuildingInfo->GetInstantYield(YIELD_GOLDEN_AGE_POINTS));
-				}
-				if(pBuildingInfo->GetInstantYield(YIELD_GREAT_GENERAL_POINTS) > 0)
-				{
-					GET_PLAYER(getOwner()).changeCombatExperience(pBuildingInfo->GetInstantYield(YIELD_GREAT_GENERAL_POINTS), 0);
-				}
-				if(pBuildingInfo->GetInstantYield(YIELD_GREAT_ADMIRAL_POINTS) > 0)
-				{
-					GET_PLAYER(getOwner()).changeNavalCombatExperience(pBuildingInfo->GetInstantYield(YIELD_GREAT_ADMIRAL_POINTS), 0);
-				}
-				if(pBuildingInfo->GetInstantYield(YIELD_POPULATION) > 0)
-				{
-					changePopulation(pBuildingInfo->GetInstantYield(YIELD_POPULATION), false);
+					if(pBuildingInfo->GetInstantYield(YIELD_GOLD) > 0)
+					{
+						GET_PLAYER(getOwner()).GetTreasury()->ChangeGold(pBuildingInfo->GetInstantYield(YIELD_GOLD));
+					}
+					if(pBuildingInfo->GetInstantYield(YIELD_FOOD) > 0)
+					{
+						changeFood(pBuildingInfo->GetInstantYield(YIELD_FOOD));
+					}	
+					if(pBuildingInfo->GetInstantYield(YIELD_PRODUCTION) > 0)
+					{
+						changeProduction(pBuildingInfo->GetInstantYield(YIELD_PRODUCTION));
+					}
+					if(pBuildingInfo->GetInstantYield(YIELD_FAITH) > 0)
+					{
+						GET_PLAYER(getOwner()).ChangeFaith(pBuildingInfo->GetInstantYield(YIELD_FAITH));
+					}
+					if(pBuildingInfo->GetInstantYield(YIELD_SCIENCE) > 0)
+					{
+						TechTypes eCurrentTech = owningPlayer.GetPlayerTechs()->GetCurrentResearch();
+						if(eCurrentTech == NO_TECH)
+						{
+							owningPlayer.changeOverflowResearch(pBuildingInfo->GetInstantYield(YIELD_SCIENCE));
+						}
+						else
+						{
+							owningTeam.GetTeamTechs()->ChangeResearchProgress(eCurrentTech, pBuildingInfo->GetInstantYield(YIELD_SCIENCE), owningPlayer.GetID());
+						}
+					}
+					if(pBuildingInfo->GetInstantYield(YIELD_GOLDEN_AGE_POINTS) > 0)
+					{
+						GET_PLAYER(getOwner()).ChangeGoldenAgeProgressMeter(pBuildingInfo->GetInstantYield(YIELD_GOLDEN_AGE_POINTS));
+					}
+					if(pBuildingInfo->GetInstantYield(YIELD_GREAT_GENERAL_POINTS) > 0)
+					{
+						GET_PLAYER(getOwner()).changeCombatExperience(pBuildingInfo->GetInstantYield(YIELD_GREAT_GENERAL_POINTS), 0);
+					}
+					if(pBuildingInfo->GetInstantYield(YIELD_GREAT_ADMIRAL_POINTS) > 0)
+					{
+						GET_PLAYER(getOwner()).changeNavalCombatExperience(pBuildingInfo->GetInstantYield(YIELD_GREAT_ADMIRAL_POINTS), 0);
+					}
+					if(pBuildingInfo->GetInstantYield(YIELD_POPULATION) > 0)
+					{
+						changePopulation(pBuildingInfo->GetInstantYield(YIELD_POPULATION), false);
+					}
 				}
 			}
 #endif
@@ -7951,6 +8029,10 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 		if(MOD_BALANCE_CORE && (pBuildingInfo->GrantsRandomResourceTerritory() > 0))
 		{
 			GET_PLAYER(getOwner()).GetPlayerTraits()->AddUniqueLuxuriesAround(this, pBuildingInfo->GrantsRandomResourceTerritory());
+		}
+		if(MOD_BALANCE_CORE && (pBuildingInfo->IsNationalMissionaries()))
+		{
+			SetNationalMissionaries(true);
 		}
 #endif
 
@@ -8955,7 +9037,17 @@ int CvCity::foodDifferenceTimes100(bool bBottom, CvString* toolTipSink) const
 			}
 		}
 #endif
-
+#if defined(MOD_BALANCE_CORE)
+		if(GET_PLAYER(getOwner()).GetPlayerTraits()->GetGrowthBoon() > 0)
+		{
+			int iBoon = GET_PLAYER(getOwner()).GetPlayerTraits()->GetGrowthBoon();
+			if(GET_PLAYER(getOwner()).getGoldenAgeTurns() > 0)
+			{
+				iTotalMod += iBoon;
+				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_PLAYER_UA_GOLDEN_AGE", iBoon);
+			}
+		}
+#endif
 		// Cities stop growing when empire is very unhappy
 		if(GET_PLAYER(getOwner()).IsEmpireVeryUnhappy())
 		{
@@ -9057,8 +9149,25 @@ int CvCity::foodDifferenceTimes100(bool bBottom, CvString* toolTipSink) const
 		else if(GetWeLoveTheKingDayCounter() > 0)
 		{
 			int iMod = /*25*/ GC.getWLTKD_GROWTH_MULTIPLIER();
+#if defined(MOD_BALANCE_CORE)
+			if(GET_PLAYER(getOwner()).GetPlayerTraits()->GetGrowthBoon() > 0)
+			{
+				iMod += (GET_PLAYER(getOwner()).GetPlayerTraits()->GetGrowthBoon() / 2);
+			}
+#endif
 			iTotalMod += iMod;
+#if defined(MOD_BALANCE_CORE)
+			if(GET_PLAYER(getOwner()).GetPlayerTraits()->GetGrowthBoon() > 0)
+			{
+				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_WLTKD_UA", iMod);
+			}
+			else
+			{
+#endif
 			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_WLTKD", iMod);
+#if defined(MOD_BALANCE_CORE)
+			}
+#endif
 		}
 #if defined(MOD_DIPLOMACY_CITYSTATES)
 		//Resolution League Bonus	
@@ -9908,9 +10017,33 @@ void CvCity::changeBaseGreatPeopleRate(int iChange)
 int CvCity::getGreatPeopleRateModifier() const
 {
 	VALIDATE_OBJECT
+#if defined(MOD_BALANCE_CORE)
+	int iNewValue = 0;
+	if(isCapital())
+	{
+		int iNumMarried = 0;
+		// Loop through all minors and get the total number we've met.
+		for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+		{
+			PlayerTypes eMinor = (PlayerTypes) iPlayerLoop;
+
+			if (eMinor != GET_PLAYER(getOwner()).GetID() && GET_PLAYER(eMinor).isAlive() && GET_PLAYER(eMinor).isMinorCiv())
+			{
+				if (GET_PLAYER(getOwner()).IsDiplomaticMarriage() && GET_PLAYER(eMinor).GetMinorCivAI()->IsMarried(GET_PLAYER(getOwner()).GetID()))
+				{
+					iNumMarried++;
+				}
+			}
+		}
+		if(GET_PLAYER(getOwner()).IsDiplomaticMarriage() && iNumMarried > 0)
+		{
+			iNewValue = m_iGreatPeopleRateModifier + (iNumMarried * GC.getBALANCE_MARRIAGE_GP_RATE());
+			return iNewValue;
+		}
+	}
+#endif
 	return m_iGreatPeopleRateModifier;
 }
-
 
 //	--------------------------------------------------------------------------------
 void CvCity::changeGreatPeopleRateModifier(int iChange)
@@ -12516,6 +12649,10 @@ int CvCity::getUnhappinessFromConnection() const
 				fUnhappiness += (float) ((GET_PLAYER(getOwner()).GetPuppetUnhappinessMod() * fUnhappiness) / 100);
 			}
 #endif
+			if(fUnhappiness < 0)
+			{
+				return 0;
+			}
 			if(getUnhappyCitizenCount() > 0)
 			{
 				iRealCityPop -= getUnhappyCitizenCount();
@@ -12601,6 +12738,10 @@ int CvCity::getUnhappinessFromPillaged() const
 			fUnhappiness += (float) ((GET_PLAYER(getOwner()).GetPuppetUnhappinessMod() * fUnhappiness) / 100);
 		}
 #endif
+		if(fUnhappiness < 0)
+		{
+			return 0;
+		}
 		int iRealCityPop = getPopulation();
 		if(getUnhappyCitizenCount() > 0)
 		{
@@ -12652,6 +12793,10 @@ int CvCity::getUnhappinessFromStarving() const
 			fUnhappiness += (float) ((GET_PLAYER(getOwner()).GetPuppetUnhappinessMod() * fUnhappiness) / 100);
 		}
 #endif
+		if(fUnhappiness < 0)
+		{
+			return 0;
+		}
 		if(fUnhappiness > iRealCityPop)
 		{
 			changeUnhappyCitizenCount(iRealCityPop);
@@ -12753,6 +12898,10 @@ int CvCity::getUnhappinessFromMinority() const
 				fUnhappiness += (float) ((GET_PLAYER(getOwner()).GetPuppetUnhappinessMod() * fUnhappiness) / 100);
 			}
 #endif
+			if(fUnhappiness < 0)
+			{
+				return 0;
+			}
 			if(getUnhappyCitizenCount() > 0)
 			{
 				iCityPop -= getUnhappyCitizenCount();
@@ -12987,7 +13136,19 @@ void CvCity::SetOwedFoodBuilding(bool bNewValue)
 	m_bOwedFoodBuilding = bNewValue;
 }
 #endif
+#if defined(MOD_BALANCE_CORE)
+//	--------------------------------------------------------------------------------
+bool CvCity::IsNationalMissionaries() const
+{
+	return m_bIsNationalMissionaries;
+}
 
+//	--------------------------------------------------------------------------------
+void CvCity::SetNationalMissionaries(bool bNewValue)
+{
+	m_bIsNationalMissionaries = bNewValue;
+}
+#endif
 #if defined(MOD_BALANCE_CORE)
 //	--------------------------------------------------------------------------------
 bool CvCity::IsOwedChosenBuilding(BuildingClassTypes eBuildingClass) const
@@ -17681,12 +17842,6 @@ bool CvCity::IsCanPurchase(bool bTestPurchaseCost, bool bTestTrainable, UnitType
 				}
 				if(eUnitType != NO_UNIT)
 				{
-#if defined(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
-					if(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED && GET_PLAYER(getOwner()).GetNumUnitsOutOfSupply() > 0)
-					{
-						return false;
-					}
-#endif
 					CvUnitEntry* thisUnitInfo = GC.getUnitInfo(eUnitType);
 					// See if there are any BuildingClass requirements
 					const int iNumBuildingClassInfos = GC.getNumBuildingClassInfos();
@@ -19747,6 +19902,8 @@ void CvCity::read(FDataStream& kStream)
 #if defined(MOD_BALANCE_CORE)
 	kStream >> m_abOwedChosenBuilding;
 	kStream >> m_abBuildingInvestment;
+	kStream >> m_abBuildingConstructed;
+	kStream >> m_bIsNationalMissionaries;
 #endif
 	m_pCityStrategyAI->Read(kStream);
 	if(m_eOwner != NO_PLAYER)
@@ -20069,6 +20226,8 @@ void CvCity::write(FDataStream& kStream) const
 #if defined(MOD_BALANCE_CORE)
 	kStream << m_abOwedChosenBuilding;
 	kStream << m_abBuildingInvestment;
+	kStream << m_abBuildingConstructed;
+	kStream << m_bIsNationalMissionaries;
 #endif
 	m_pCityStrategyAI->Write(kStream);
 	m_pCityCitizens->Write(kStream);
@@ -20325,9 +20484,11 @@ bool CvCity::canRangeStrike() const
 {
 	VALIDATE_OBJECT
 
+#if !defined(MOD_BALANCE_CORE_MILITARY)
 	// Can't shoot more than once per turn
 	if(isMadeAttack())
 		return false;
+#endif
 
 	// Can't shoot when in resistance
 	if(IsResistance() || IsRazing())
@@ -20337,9 +20498,11 @@ bool CvCity::canRangeStrike() const
 	if(getDamage() == GetMaxHitPoints())
 		return false;
 
+#if !defined(MOD_BALANCE_CORE_MILITARY)
 	// Apparently it's possible for someone to fire during another player's turn
 	if(!GET_PLAYER(getOwner()).isTurnActive())
 		return false;
+#endif
 
 	return true;
 }
@@ -20351,6 +20514,11 @@ bool CvCity::CanRangeStrikeNow() const
 	{
 		return false;
 	}
+
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	if (isMadeAttack())
+		return false;
+#endif
 
 #if defined(MOD_EVENTS_CITY_BOMBARD)
 	bool bIndirectFireAllowed; // By reference, yuck!!!
@@ -20396,7 +20564,11 @@ bool CvCity::CanRangeStrikeNow() const
 					int iPlotDistance = plotDistance(iX, iY, iTargetPlotX, iTargetPlotY);
 					if(iPlotDistance <= iRange)
 					{
+#if defined(MOD_BALANCE_CORE_MILITARY)
+						if(canRangeStrikeAt(iTargetPlotX, iTargetPlotY) && canRangedStrikeTarget(*pTargetPlot)!=NULL)
+#else
 						if(canRangeStrikeAt(iTargetPlotX, iTargetPlotY))
+#endif
 						{
 							if(m_eOwner == eActivePlayer)
 							{
@@ -20492,6 +20664,9 @@ bool CvCity::canRangeStrikeAt(int iX, int iY) const
 		}
 	}
 
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	return (!pTargetPlot->isCity());
+#else
 	// If it's NOT a city, see if there are any units to aim for
 	if(!pTargetPlot->isCity())
 	{
@@ -20506,6 +20681,7 @@ bool CvCity::canRangeStrikeAt(int iX, int iY) const
 	}
 
 	return true;
+#endif
 }
 
 //	----------------------------------------------------------------------------
@@ -20522,7 +20698,11 @@ CityTaskResult CvCity::rangeStrike(int iX, int iY)
 		return eResult;
 	}
 
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	if(!canRangeStrikeAt(iX, iY) || rangedStrikeTarget(pPlot)==NULL || isMadeAttack())
+#else
 	if(!canRangeStrikeAt(iX, iY))
+#endif
 	{
 		return eResult;
 	}
@@ -20849,6 +21029,11 @@ void CvCity::DoNearbyEnemy()
 	if(!canRangeStrike())
 		return;
 
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	if (isMadeAttack())
+		return;
+#endif
+
 #if defined(MOD_EVENTS_CITY_BOMBARD)
 	int iSearchRange = getBombardRange();
 #else
@@ -20868,7 +21053,11 @@ void CvCity::DoNearbyEnemy()
 			{
 				if(pLoopPlot->isVisibleEnemyUnit(getOwner()))
 				{
+#if defined(MOD_BALANCE_CORE_MILITARY)
+					if(canRangeStrikeAt(pLoopPlot->getX(), pLoopPlot->getY()) && rangedStrikeTarget(pLoopPlot)!=NULL)
+#else
 					if(canRangeStrikeAt(pLoopPlot->getX(), pLoopPlot->getY()))
+#endif
 					{
 						bFoundEnemy = true;
 
@@ -22227,7 +22416,24 @@ bool CvCity::IsWithinDistanceOfFeature(FeatureTypes iFeatureType, int iDistance)
 {
 	return plot()->IsWithinDistanceOfFeature(iFeatureType, iDistance);
 }
-
+#if defined(MOD_BALANCE_CORE)
+bool CvCity::IsWithinDistanceOfUnit(UnitTypes eOtherUnit, int iDistance, bool bIsFriendly, bool bIsEnemy) const
+{
+	return plot()->IsWithinDistanceOfUnit(getOwner(), eOtherUnit, iDistance, bIsFriendly, bIsEnemy);
+}
+bool CvCity::IsWithinDistanceOfUnitClass(UnitClassTypes eUnitClass, int iDistance, bool bIsFriendly, bool bIsEnemy) const
+{
+	return plot()->IsWithinDistanceOfUnitClass(getOwner(), eUnitClass, iDistance, bIsFriendly, bIsEnemy);
+}
+bool CvCity::IsWithinDistanceOfUnitCombatType(UnitCombatTypes eUnitCombat, int iDistance, bool bIsFriendly, bool bIsEnemy) const
+{
+	return plot()->IsWithinDistanceOfUnitCombatType(getOwner(), eUnitCombat, iDistance, bIsFriendly, bIsEnemy);
+}
+bool CvCity::IsWithinDistanceOfUnitPromotion(PromotionTypes eUnitPromotion, int iDistance, bool bIsFriendly, bool bIsEnemy) const
+{
+	return plot()->IsWithinDistanceOfUnitPromotion(getOwner(), eUnitPromotion, iDistance, bIsFriendly, bIsEnemy);
+}
+#endif
 bool CvCity::IsOnImprovement(ImprovementTypes iImprovementType) const
 {
 	return plot()->HasImprovement(iImprovementType);

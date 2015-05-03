@@ -104,6 +104,13 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	int GetCombatBonusVsHigherPop() const;
 	bool IsBuyOwnedTiles() const;
+	bool IsReconquista() const;
+	bool IsNoSpread() const;
+	bool IsInspirationalLeader() const;
+	bool IsDiplomaticMarriage() const;
+	bool IsAdoptionFreeTech() const;
+	bool IsGPWLTKD() const;
+	int  GetGrowthBoon() const;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int GetInvestmentModifier() const;
@@ -216,6 +223,7 @@ public:
 	int GetYieldFromTilePurchase(int i) const;
 	int GetYieldFromCSAlly(int i) const;
 	int GetYieldFromSettle(int i) const;
+	int GetYieldFromConquest(int i) const;
 	int GetVotePerXCSAlliance() const;
 	int GetGoldenAgeFromVictory() const;
 	bool IsFreeGreatWorkOnConquest() const;
@@ -239,6 +247,7 @@ public:
 	int GetSpecialistYieldChanges(SpecialistTypes eIndex1, YieldTypes eIndex2) const;
 #if defined(MOD_API_UNIFIED_YIELDS)
 	int GetGreatPersonExpendedYield(GreatPersonTypes eIndex1, YieldTypes eIndex2) const;
+	int GetGreatPersonBornYield(GreatPersonTypes eIndex1, YieldTypes eIndex2) const;
 	int GetGoldenAgeGreatPersonRateModifier(GreatPersonTypes eIndex1) const;
 	int GetCityYieldFromUnimprovedFeature(FeatureTypes eIndex1, YieldTypes eIndex2) const;
 #endif
@@ -310,6 +319,13 @@ protected:
 #if defined(MOD_BALANCE_CORE)
 	int m_iCombatBonusVsHigherPop;
 	bool m_bBuyOwnedTiles;
+	bool m_bReconquista;
+	bool m_bNoSpread;
+	bool m_bInspirationalLeader;
+	bool m_bDiplomaticMarriage;
+	bool m_bAdoptionFreeTech;
+	bool m_bGPWLTKD;
+	int m_iGrowthBoon;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int m_iInvestmentModifier;
@@ -417,6 +433,7 @@ protected:
 	int* m_piYieldFromTilePurchase;
 	int* m_piYieldFromCSAlly;
 	int* m_piYieldFromSettle;
+	int* m_piYieldFromConquest;
 	int m_iVotePerXCSAlliance;
 	int m_iGoldenAgeFromVictory;
 	bool m_bFreeGreatWorkOnConquest;
@@ -440,6 +457,7 @@ protected:
 	int** m_ppiSpecialistYieldChanges;
 #if defined(MOD_API_UNIFIED_YIELDS)
 	int** m_ppiGreatPersonExpendedYield;
+	int ** m_ppiGreatPersonBornYield;
 	int* m_piGoldenAgeGreatPersonRateModifier;
 	int** m_ppiCityYieldFromUnimprovedFeature;
 #endif
@@ -704,6 +722,34 @@ public:
 	bool IsBuyOwnedTiles() const
 	{
 		return m_bBuyOwnedTiles;
+	};
+	bool IsReconquista() const
+	{
+		return m_bReconquista;
+	};
+	bool IsNoSpread() const
+	{
+		return m_bNoSpread;
+	};
+	bool IsInspirationalLeader() const
+	{
+		return m_bInspirationalLeader;
+	};
+	bool IsDiplomaticMarriage() const
+	{
+		return m_bDiplomaticMarriage;
+	};
+	bool IsAdoptionFreeTech() const
+	{
+		return m_bAdoptionFreeTech;
+	};
+	bool IsGPWLTKD() const
+	{
+		return m_bGPWLTKD;
+	};
+	int GetGrowthBoon() const
+	{
+		return m_iGrowthBoon;
 	};
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
@@ -1005,6 +1051,10 @@ public:
 	{
 		return m_iYieldFromSettle[(int)eYield];
 	};
+	int GetYieldFromConquest(YieldTypes eYield) const
+	{
+		return m_iYieldFromConquest[(int)eYield];
+	};
 	int GetVotePerXCSAlliance() const
 	{
 		return m_iVotePerXCSAlliance;
@@ -1058,6 +1108,7 @@ public:
 	int GetSpecialistYieldChange(SpecialistTypes eSpecialist, YieldTypes eYield) const;
 #if defined(MOD_API_UNIFIED_YIELDS)
 	int GetGreatPersonExpendedYield(GreatPersonTypes eGreatPerson, YieldTypes eYield) const;
+	int GetGreatPersonBornYield(GreatPersonTypes eGreatPerson, YieldTypes eYield) const;
 	int GetGoldenAgeGreatPersonRateModifier(GreatPersonTypes eGreatPerson) const;
 	int GetCityYieldFromUnimprovedFeature(FeatureTypes eFeature, YieldTypes eYield) const;
 #endif
@@ -1181,6 +1232,13 @@ private:
 #if defined(MOD_BALANCE_CORE)
 	int m_iCombatBonusVsHigherPop;
 	bool m_bBuyOwnedTiles;
+	bool m_bReconquista;
+	bool m_bNoSpread;
+	bool m_bInspirationalLeader;
+	bool m_bDiplomaticMarriage;
+	bool m_bAdoptionFreeTech;
+	bool m_bGPWLTKD;
+	int m_iGrowthBoon;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int m_iInvestmentModifier;
@@ -1301,6 +1359,7 @@ private:
 	int m_iYieldFromTilePurchase[NUM_YIELD_TYPES];
 	int m_iYieldFromCSAlly[NUM_YIELD_TYPES];
 	int m_iYieldFromSettle[NUM_YIELD_TYPES];
+	int m_iYieldFromConquest[NUM_YIELD_TYPES];
 	int m_iVotePerXCSAlliance;
 	int m_iGoldenAgeFromVictory;
 	bool m_bFreeGreatWorkOnConquest;
@@ -1324,6 +1383,7 @@ private:
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppaaiSpecialistYieldChange;
 #if defined(MOD_API_UNIFIED_YIELDS)
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiGreatPersonExpendedYield;
+	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiGreatPersonBornYield;
 	std::vector<int> m_piGoldenAgeGreatPersonRateModifier;
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiCityYieldFromUnimprovedFeature;
 #endif

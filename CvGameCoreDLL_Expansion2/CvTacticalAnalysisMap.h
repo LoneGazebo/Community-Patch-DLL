@@ -737,6 +737,10 @@ protected:
 	CvTacticalDominanceZone m_TempZone;
 	FStaticVector<CvTacticalDominanceZone, SAFE_ESTIMATE_NUM_DOMINANCE_ZONES, true, c_eCiv5GameplayDLL, 0> m_DominanceZones;
 	FStaticVector<CvUnit*, SAFE_ESTIMATE_NUM_ENEMIES, true, c_eCiv5GameplayDLL, 0> m_EnemyUnits;
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	FStaticVector<CvCity*, SAFE_ESTIMATE_NUM_ENEMIES, true, c_eCiv5GameplayDLL, 0> m_EnemyCities;
+#endif
+
 };
 
 

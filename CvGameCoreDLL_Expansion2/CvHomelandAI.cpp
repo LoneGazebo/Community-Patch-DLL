@@ -1118,6 +1118,13 @@ void CvHomelandAI::PlotExplorerSeaMoves()
 {
 	ClearCurrentMoveUnits();
 
+#if defined(MOD_BALANCE_CORE)
+	//No naval scouting while at war - we need these ships for attack/defense.
+	if(m_pPlayer->IsAtWarAnyMajor())
+	{
+		return;
+	}
+#endif
 	// Loop through all recruited units
 	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
 	{

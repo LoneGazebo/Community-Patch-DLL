@@ -60,6 +60,9 @@ if not gk_mode then
 	Controls.FindOnMapButton:SetHide( true )
 	Controls.TileImprovementGiftButton:SetHide( true )
 	Controls.BuyoutButton:SetHide( true )
+	--CBP
+	Controls.MarriageButton:SetHide ( true )
+	--END
 	Controls.RevokePledgeButton:SetHide( true )
 	Controls.TakeButton:SetHide( true )
 	Controls.GiveLabel:LocalizeAndSetText( "TXT_KEY_POP_CSTATE_PROVIDE_GOLD_GIFT" )
@@ -585,6 +588,35 @@ function OnDisplay()
 		Controls.BuyoutLabel:SetText( strButtonLabel )
 		Controls.BuyoutButton:SetToolTipString( strToolTip )
 	end
+	-- CBP
+	if(not minorPlayer:IsMarried(activePlayerID)) then
+		local iBuyoutCost = minorPlayer:GetMarriageCost(activePlayerID);
+		local strButtonLabel = L( "TXT_KEY_POP_CSTATE_BUYOUT")
+		local strToolTip = L( "TXT_KEY_POP_CSTATE_MARRIAGE_TT", iBuyoutCost )
+		if minorPlayer:CanMajorMarry(activePlayerID) and not isAtWar then	
+			Controls.MarriageButton:SetHide(false)
+			Controls.MarriageAnim:SetHide(false)
+		elseif (activePlayer:IsDiplomaticMarriage() and not isAtWar) then
+			if (minorPlayer:GetAlly() == activePlayerID) then
+				local iAllianceTurns = minorPlayer:GetAlliedTurns();
+				strButtonLabel = "[COLOR_WARNING_TEXT]" .. strButtonLabel .. "[ENDCOLOR]";
+				strToolTip = L("TXT_KEY_POP_CSTATE_MARRIAGE_DISABLED_ALLY_TT", GameDefines.MINOR_CIV_BUYOUT_TURNS, iAllianceTurns, iBuyoutCost)
+			else
+				strButtonLabel = "[COLOR_WARNING_TEXT]" .. strButtonLabel .. "[ENDCOLOR]";
+				strToolTip = L("TXT_KEY_POP_CSTATE_MARRIAGE_DISABLED_TT", GameDefines.MINOR_CIV_BUYOUT_TURNS, iBuyoutCost)
+			end
+			--antonjs: todo: disable button entirely, in case bWar doesn't update in time for the callback to disallow buyout in wartime
+			Controls.MarriageButton:SetHide(false);
+			Controls.MarriageAnim:SetHide(true);
+		else
+			Controls.MarriageButton:SetHide(true)
+		end
+		Controls.MarriageLabel:SetText( strButtonLabel )
+		Controls.MarriageButton:SetToolTipString( strToolTip )
+	else
+		Controls.MarriageButton:SetHide(true)
+	end
+	-- END
 
 	Controls.DescriptionLabel:SetText(strText)
 
@@ -596,7 +628,9 @@ function OnDisplay()
 	SetButtonSize(Controls.RevokePledgeLabel, Controls.RevokePledgeButton, Controls.RevokePledgeAnim, Controls.RevokePledgeButtonHL)
 	SetButtonSize(Controls.NoUnitSpawningLabel, Controls.NoUnitSpawningButton, Controls.NoUnitSpawningAnim, Controls.NoUnitSpawningButtonHL)
 	SetButtonSize(Controls.BuyoutLabel, Controls.BuyoutButton, Controls.BuyoutAnim, Controls.BuyoutButtonHL)
-
+	--CBP
+	SetButtonSize(Controls.MarriageLabel, Controls.MarriageButton, Controls.MarriageAnim, Controls.MarriageButtonHL)
+	-- END
 	Controls.GiveStack:SetHide(true)
 	-- CSD
 	Controls.GiveStackCSD:SetHide(true);
@@ -698,7 +732,21 @@ function OnBuyoutButtonClicked()
 	end
 end
 Controls.BuyoutButton:RegisterCallback( Mouse.eLClick, OnBuyoutButtonClicked )
+--CBP
+----------------------------------------------------------------
+-- Marriage
+----------------------------------------------------------------
+function OnMarriageButtonClicked()
+	local activePlayerID = Game.GetActivePlayer()
+	local minorPlayer = Players[g_minorCivID]
 
+	if gk_mode and minorPlayer:CanMajorMarry(activePlayerID) then
+		OnCloseButtonClicked()
+		minorPlayer:DoMarriage(activePlayerID)
+	end
+end
+Controls.MarriageButton:RegisterCallback( Mouse.eLClick, OnMarriageButtonClicked )
+--END
 ----------------------------------------------------------------
 -- War
 ----------------------------------------------------------------

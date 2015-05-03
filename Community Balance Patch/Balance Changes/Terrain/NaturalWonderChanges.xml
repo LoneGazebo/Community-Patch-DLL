@@ -199,9 +199,63 @@
 		<Row><FeatureType>FEATURE_MT_SINAI</FeatureType>       <YieldType>YIELD_CULTURE</YieldType>            <Yield>3</Yield></Row>
 		<Row><FeatureType>FEATURE_MT_SINAI</FeatureType>       <YieldType>YIELD_FAITH</YieldType>              <Yield>6</Yield></Row>
 		<Row><FeatureType>FEATURE_MT_KAILASH</FeatureType>     <YieldType>YIELD_FAITH</YieldType>              <Yield>6</Yield></Row>
+		
+		<!-- Other Features-->
+		<Delete FeatureType="FEATURE_ATOLL" />
+		<Row>
+			<FeatureType>FEATURE_ATOLL</FeatureType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>2</Yield>
+		</Row>
+		<Row>
+			<FeatureType>FEATURE_ATOLL</FeatureType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>2</Yield>
+		</Row>
 
+		<Delete FeatureType="FEATURE_FLOOD_PLAINS" />
+		<Row>
+			<FeatureType>FEATURE_FLOOD_PLAINS</FeatureType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>3</Yield>
+		</Row>
 
+		<Delete FeatureType="FEATURE_FOREST" />
+		<Row>
+			<FeatureType>FEATURE_FOREST</FeatureType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>2</Yield>
+		</Row>
+
+		<Delete FeatureType="FEATURE_JUNGLE" />
+		<Row>
+			<FeatureType>FEATURE_JUNGLE</FeatureType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<FeatureType>FEATURE_JUNGLE</FeatureType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+
+		<Delete FeatureType="FEATURE_MARSH" />
+		<Row>
+			<FeatureType>FEATURE_MARSH</FeatureType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+
+		<Delete FeatureType="FEATURE_OASIS" />
+		<Row>
+			<FeatureType>FEATURE_OASIS</FeatureType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>2</Yield>
+		</Row>
+		<Row>
+			<FeatureType>FEATURE_OASIS</FeatureType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>3</Yield>
+		</Row>
 	</Feature_YieldChanges>
-
-
 </GameData>

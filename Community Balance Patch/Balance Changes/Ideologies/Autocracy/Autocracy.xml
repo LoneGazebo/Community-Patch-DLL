@@ -40,31 +40,43 @@
 			<PolicyType>POLICY_MOBILIZATION</PolicyType>
 			<BuildingClassType>BUILDINGCLASS_WALLS</BuildingClassType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<YieldChange>1</YieldChange>
+			<YieldChange>3</YieldChange>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_MOBILIZATION</PolicyType>
 			<BuildingClassType>BUILDINGCLASS_CASTLE</BuildingClassType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<YieldChange>1</YieldChange>
+			<YieldChange>3</YieldChange>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_MOBILIZATION</PolicyType>
 			<BuildingClassType>BUILDINGCLASS_ARSENAL</BuildingClassType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<YieldChange>1</YieldChange>
+			<YieldChange>3</YieldChange>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_MOBILIZATION</PolicyType>
 			<BuildingClassType>BUILDINGCLASS_MILITARY_BASE</BuildingClassType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<YieldChange>1</YieldChange>
+			<YieldChange>3</YieldChange>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_MOBILIZATION</PolicyType>
 			<BuildingClassType>BUILDINGCLASS_BOMB_SHELTER</BuildingClassType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<YieldChange>1</YieldChange>
+			<YieldChange>3</YieldChange>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_FORTIFIED_BORDERS</PolicyType>
+			<BuildingClassType>BUILDINGCLASS_CONSTABLE</BuildingClassType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<YieldChange>5</YieldChange>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_FORTIFIED_BORDERS</PolicyType>
+			<BuildingClassType>BUILDINGCLASS_POLICE_STATION</BuildingClassType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<YieldChange>5</YieldChange>
 		</Row>
 	</Policy_BuildingClassYieldChanges>
 	<Policy_ImprovementYieldChanges>
@@ -72,7 +84,7 @@
 			<PolicyType>POLICY_MOBILIZATION</PolicyType>
 			<ImprovementType>IMPROVEMENT_CITADEL</ImprovementType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>1</Yield>
+			<Yield>3</Yield>
 		</Row>
 	</Policy_ImprovementYieldChanges>
 	<!-- Fortified Borders -->
@@ -80,12 +92,12 @@
 		<Row>
 			<PolicyType>POLICY_FORTIFIED_BORDERS</PolicyType>
 			<BuildingClassType>BUILDINGCLASS_CONSTABLE</BuildingClassType>
-			<CultureChange>2</CultureChange>
+			<CultureChange>3</CultureChange>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_FORTIFIED_BORDERS</PolicyType>
 			<BuildingClassType>BUILDINGCLASS_POLICE_STATION</BuildingClassType>
-			<CultureChange>2</CultureChange>
+			<CultureChange>3</CultureChange>
 		</Row>
 	</Policy_BuildingClassCultureChanges>
 		<!-- Lebensraum-->
@@ -161,49 +173,72 @@
 			<PolicyType>POLICY_MOBILIZATION</PolicyType>
 			<ImprovementType>IMPROVEMENT_TERRACE_FARM</ImprovementType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>1</Yield>
+			<Yield>3</Yield>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_MOBILIZATION</PolicyType>
 			<ImprovementType>IMPROVEMENT_EKI</ImprovementType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>1</Yield>
+			<Yield>3</Yield>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_MOBILIZATION</PolicyType>
 			<ImprovementType>IMPROVEMENT_ENCAMPMENT_SHOSHONE</ImprovementType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>1</Yield>
+			<Yield>3</Yield>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_MOBILIZATION</PolicyType>
 			<ImprovementType>IMPROVEMENT_POLDER</ImprovementType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>1</Yield>
+			<Yield>3</Yield>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_MOBILIZATION</PolicyType>
 			<ImprovementType>IMPROVEMENT_CHATEAU</ImprovementType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>1</Yield>
+			<Yield>3</Yield>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_MOBILIZATION</PolicyType>
 			<ImprovementType>IMPROVEMENT_KASBAH</ImprovementType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>1</Yield>
+			<Yield>3</Yield>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_MOBILIZATION</PolicyType>
 			<ImprovementType>IMPROVEMENT_BRAZILWOOD_CAMP</ImprovementType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>1</Yield>
+			<Yield>3</Yield>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_MOBILIZATION</PolicyType>
 			<ImprovementType>IMPROVEMENT_MOAI</ImprovementType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>1</Yield>
+			<Yield>3</Yield>
 		</Row>
 	</Policy_ImprovementYieldChanges>
+	<!-- Third Alternative -->
+	<Policy_CapitalYieldChanges>
+		<Row>
+			<PolicyType>POLICY_THIRD_ALTERNATIVE</PolicyType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>15</Yield>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_THIRD_ALTERNATIVE</PolicyType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>15</Yield>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_THIRD_ALTERNATIVE</PolicyType>
+			<YieldType>YIELD_FAITH</YieldType>
+			<Yield>15</Yield>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_THIRD_ALTERNATIVE</PolicyType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>15</Yield>
+		</Row>
+	</Policy_CapitalYieldChanges>
 </GameData>

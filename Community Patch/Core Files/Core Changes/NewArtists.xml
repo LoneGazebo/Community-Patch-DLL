@@ -90,7 +90,7 @@
 			<GreatWorkClassType>GREAT_WORK_ART</GreatWorkClassType>
 			<Description>TXT_KEY_GREAT_WORK_AUGUSTUS</Description>
 			<Audio>AS2D_GREAT_ARTIST_ARTWORK</Audio>
-			<Image>augustus.dds</Image>
+			<Image>augustusstatue.dds</Image>
 		</Row>
 	</GreatWorks>
 	<Language_en_US>
@@ -215,7 +215,7 @@
 			<GreatWorkClassType>GREAT_WORK_ART</GreatWorkClassType>
 			<Description>TXT_KEY_GREAT_WORK_ASHURBANIPAL</Description>
 			<Audio>AS2D_GREAT_ARTIST_ARTWORK</Audio>
-			<Image>ashurbanipal.dds</Image>
+			<Image>ashurbanipalstatue.dds</Image>
 		</Row>
 	</GreatWorks>
 	<Language_en_US>

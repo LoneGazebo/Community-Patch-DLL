@@ -46,7 +46,7 @@ WHERE Tag = 'TXT_KEY_POLICY_MERCANTILISM_HELP' AND EXISTS (SELECT * FROM COMMUNI
 
 -- Entrepreneurship
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Entrepreneurship[ENDCOLOR][NEWLINE]Great Merchants are earned 25% faster. +1 [ICON_GOLD] Gold and +1 [ICON_PRODUCTION] Production from every Mine and Quarry.'
+SET Text = '[COLOR_POSITIVE_TEXT]Entrepreneurship[ENDCOLOR][NEWLINE]Great Merchants are earned 25% faster. +1 [ICON_GOLD] Gold and +1 [ICON_PRODUCTION] Production from every Mine, Quarry, and Lumbermill.'
 WHERE Tag = 'TXT_KEY_POLICY_ENTREPRENEURSHIP_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 --Protectionism

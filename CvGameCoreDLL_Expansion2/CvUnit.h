@@ -1501,6 +1501,12 @@ public:
 	bool IsOnFeature(FeatureTypes iFeatureType) const;
 	bool IsAdjacentToFeature(FeatureTypes iFeatureType) const;
 	bool IsWithinDistanceOfFeature(FeatureTypes iFeatureType, int iDistance) const;
+#if defined(MOD_BALANCE_CORE)
+	bool IsWithinDistanceOfUnit(UnitTypes eOtherUnit, int iDistance, bool bIsFriendly, bool bIsEnemy) const;
+	bool IsWithinDistanceOfUnitClass(UnitClassTypes eUnitClass, int iDistance, bool bIsFriendly, bool bIsEnemy) const;
+	bool IsWithinDistanceOfUnitCombatType(UnitCombatTypes eUnitCombat, int iDistance, bool bIsFriendly, bool bIsEnemy) const;
+	bool IsWithinDistanceOfUnitPromotion(PromotionTypes eUnitPromotion, int iDistance, bool bIsFriendly, bool bIsEnemy) const;
+#endif
 	bool IsOnImprovement(ImprovementTypes iImprovementType) const;
 	bool IsAdjacentToImprovement(ImprovementTypes iImprovementType) const;
 	bool IsWithinDistanceOfImprovement(ImprovementTypes iImprovementType, int iDistance) const;

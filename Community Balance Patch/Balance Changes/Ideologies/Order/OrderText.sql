@@ -46,7 +46,7 @@ SET Text = 'Guerilla Warfare'
 WHERE Tag = 'TXT_KEY_POLICY_PATRIOTIC_WAR' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Guerilla Warfare[ENDCOLOR][NEWLINE]+15% attack bonus and +50% Experience for Military Units in friendly territory. Can build [COLOR_POSITIVE_TEXT]Ski Infantry[ENDCOLOR].'
+SET Text = '[COLOR_POSITIVE_TEXT]Guerilla Warfare[ENDCOLOR][NEWLINE]+15% attack bonus and +50% Experience for Military Units in friendly territory. Can build [COLOR_POSITIVE_TEXT]Guerilla Fighters[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_POLICY_PATRIOTIC_WAR_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -89,7 +89,7 @@ SET Text = 'Great Leap Forward'
 WHERE Tag = 'TXT_KEY_POLICY_YOUNG_PIONEERS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Great Leap Forward[ENDCOLOR][NEWLINE]Receive a free Technology.'
+SET Text = '[COLOR_POSITIVE_TEXT]Great Leap Forward[ENDCOLOR][NEWLINE]Receive two free Technologies.'
 WHERE Tag = 'TXT_KEY_POLICY_YOUNG_PIONEERS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
