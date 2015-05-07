@@ -83,7 +83,7 @@
 			</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_MISSION_HELP">
-			<Text>Receive a free Missionary that follows your [ICON_RELIGION] Religion, and grants a lump sum of [ICON_PEACE] Faith. Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 10%, and increases the city's resistance to conversion by 20%. Does not require Walls in order to be built.</Text>
+			<Text>Receive a free Missionary that follows your [ICON_RELIGION] Religion, and a lump sum of [ICON_PEACE] Faith. Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 10%, and increases the city's resistance to conversion by 20%. Does not require Walls in order to be built.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_MISSION_STRATEGY">
 			<Text>Unique Spanish replacement for the Castle. It is cheaper than the Castle, has no maintenance, and does not require Walls in order to be built. Grants Faith when it is constructed, as well as a free Missionary. The free Missionary will follow your founded Religion or, if you have not founded a religion, it will follow your majority Religion. Boosts the city's religious pressure by 10% and resistance to foreign conversion by 20%, thus making the city more effective at converting nearby cities and harder for others to convert! Build these unique Castles to quickly boost a City's productivity and defense, bypass the need for Walls, and to bolster your Religion.</Text>

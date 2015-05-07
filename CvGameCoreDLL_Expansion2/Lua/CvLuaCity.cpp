@@ -39,6 +39,9 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(GetCityIndexPlot);
 	Method(CanWork);
 	Method(IsPlotBlockaded);
+#if defined(MOD_BALANCE_CORE)
+	Method(IsBlockadedTest);
+#endif
 	Method(ClearWorkingOverride);
 	Method(CountNumImprovedPlots);
 	Method(CountNumWaterPlots);
@@ -736,6 +739,18 @@ int CvLuaCity::lIsPlotBlockaded(lua_State* L)
 	lua_pushboolean(L, bResult);
 	return 1;
 }
+#if defined(MOD_BALANCE_CORE)
+//------------------------------------------------------------------------------
+//bool IsBlockadedTest(CyPlot* pPlot);
+int CvLuaCity::lIsBlockadedTest(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const bool bResult = pkCity->IsBlockadedTest();
+
+	lua_pushboolean(L, bResult);
+	return 1;
+}
+#endif
 //------------------------------------------------------------------------------
 //void clearWorkingOverride(int iIndex);
 int CvLuaCity::lClearWorkingOverride(lua_State* L)

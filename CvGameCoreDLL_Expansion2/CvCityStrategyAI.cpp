@@ -865,13 +865,17 @@ void CvCityStrategyAI::ChooseProduction(bool bUseAsyncRandom, BuildingTypes eIgn
 			iTempWeight *= 5;
 		}
 #if defined(MOD_BALANCE_CORE)
-		if(GetCity()->getFreeExperience() > 0)
+		if(GET_PLAYER(GetCity()->getOwner()).IsAtWar())
 		{
-			iTempWeight *= GetCity()->getFreeExperience() * 10;
+			iTempWeight *= 100;
 		}
 		else
 		{
-			iTempWeight /= 10;
+			iTempWeight *= 10;
+		}
+		if(GetCity()->getFreeExperience() > 0)
+		{
+			iTempWeight *= GetCity()->getFreeExperience() * 10;
 		}
 #endif
 		// add in the weight of this unit as if I were deciding to build it without having a reason
@@ -923,7 +927,20 @@ void CvCityStrategyAI::ChooseProduction(bool bUseAsyncRandom, BuildingTypes eIgn
 		int iBonusMultiplier = max(1,GC.getGame().getHandicapInfo().GetID() - 5); // more at the higher difficulties
 		iTempWeight += (GC.getAI_CITYSTRATEGY_OPERATION_UNIT_FLAVOR_MULTIPLIER() * iOffenseFlavor * iBonusMultiplier);
 #endif // AUI_CITYSTRATEGY_CHOOSE_PRODUCTION_NO_HIGH_DIFFICULTY_SKEW
-
+#if defined(MOD_BALANCE_CORE)
+		if(GET_PLAYER(GetCity()->getOwner()).IsAtWar())
+		{
+			iTempWeight *= 100;
+		}
+		else
+		{
+			iTempWeight *= 10;
+		}
+		if(GetCity()->getFreeExperience() > 0)
+		{
+			iTempWeight *= GetCity()->getFreeExperience() * 10;
+		}
+#endif
 		// add in the weight of this unit as if I were deciding to build it without having a reason
 		iTempWeight += m_pUnitProductionAI->GetWeight(eUnitForArmy);
 
@@ -958,7 +975,7 @@ void CvCityStrategyAI::ChooseProduction(bool bUseAsyncRandom, BuildingTypes eIgn
 				const BuildingClassTypes eBuildingClass = (BuildingClassTypes)(pkBuildingInfo->GetBuildingClassType());
 				if(GetCity()->IsBuildingInvestment(eBuildingClass))
 				{
-					iTempWeight *= 10;
+					iTempWeight *= 1000;
 				}
 			}
 #endif
@@ -1103,7 +1120,7 @@ void CvCityStrategyAI::ChooseProduction(bool bUseAsyncRandom, BuildingTypes eIgn
 				}
 
 #if defined(MOD_BALANCE_CORE)
-				if ( GetUnitProductionAI()->CheckUnitBuildSanity((UnitTypes)iUnitLoop) )
+				if ( GetUnitProductionAI()->CheckUnitBuildSanity((UnitTypes)iUnitLoop, false) )
 					m_Buildables.push_back(buildable, iTempWeight);
 #else
 				// sanity check for building ships on small inland seas (not lakes)
@@ -1195,15 +1212,52 @@ void CvCityStrategyAI::ChooseProduction(bool bUseAsyncRandom, BuildingTypes eIgn
 	{
 		// Choose from the best options (currently 2)
 		int iNumChoices = GC.getGame().getHandicapInfo().GetCityProductionNumOptions();
-		selection = m_Buildables.ChooseFromTopChoices(iNumChoices, &fcn, "Choosing city build from Top Choices");
+#if defined(MOD_BALANCE_CORE)
+		//Forced some changes to make the AI a little more direct in its behavior.
 		int iRushIfMoreThanXTurns = GC.getAI_ATTEMPT_RUSH_OVER_X_TURNS_TO_BUILD();
+		selection = m_Buildables.GetElement(0);
+		bool bForced = false;
+		if(selection.m_eBuildableType == CITY_BUILDABLE_UNIT_FOR_OPERATION)
+		{
+			bForced = true;
+		}
+		else if(selection.m_eBuildableType == CITY_BUILDABLE_UNIT_FOR_ARMY)
+		{
+			bForced = true;
+		}
+		else if(selection.m_eBuildableType == CITY_BUILDABLE_BUILDING)
+		{
+			BuildingTypes eBuildingType = (BuildingTypes) selection.m_iIndex;
+			CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuildingType);
+			const BuildingClassTypes eBuildingClass = (BuildingClassTypes)(pkBuildingInfo->GetBuildingClassType());
+			if(GetCity()->IsBuildingInvestment(eBuildingClass))
+			{
+				bForced = true;
+			}
+		}
+		if(!bForced)
+		{
+#endif
+		selection = m_Buildables.ChooseFromTopChoices(iNumChoices, &fcn, "Choosing city build from Top Choices");
+#if defined(MOD_BALANCE_CORE)
+#else
+		int iRushIfMoreThanXTurns = GC.getAI_ATTEMPT_RUSH_OVER_X_TURNS_TO_BUILD();
+#endif
 		if(GET_PLAYER(m_pCity->getOwner()).isMinorCiv())
 		{
 			iRushIfMoreThanXTurns *= GC.getMINOR_CIV_PRODUCTION_PERCENT();
 			iRushIfMoreThanXTurns /= 100;
 		}
-
+#if defined(MOD_BALANCE_CORE)
+		}
+#endif
 		bool bRush = selection.m_iTurnsToConstruct > iRushIfMoreThanXTurns;
+#if defined(MOD_BALANCE_CORE)
+		if(bForced)
+		{
+			bRush = true;
+		}
+#endif
 		LogCityProduction(selection, bRush);
 
 		switch(selection.m_eBuildableType)
@@ -1594,6 +1648,10 @@ void CvCityStrategyAI::DoTurn()
 					bStrategyShouldBeActive = CityStrategyAIHelpers::IsTestCityStrategy_LargeCity(GetCity());
 				else if(strStrategyName == "AICITYSTRATEGY_LANDLOCKED")
 					bStrategyShouldBeActive = CityStrategyAIHelpers::IsTestCityStrategy_Landlocked(GetCity());
+#if defined(MOD_BALANCE_CORE)
+				else if(strStrategyName == "AICITYSTRATEGY_LAKEBOUND")
+					bStrategyShouldBeActive = CityStrategyAIHelpers::IsTestCityStrategy_Lakebound(GetCity());
+#endif
 				else if(strStrategyName == "AICITYSTRATEGY_NEED_TILE_IMPROVERS")
 					bStrategyShouldBeActive = CityStrategyAIHelpers::IsTestCityStrategy_NeedTileImprovers(eCityStrategy, GetCity());
 				else if(strStrategyName == "AICITYSTRATEGY_WANT_TILE_IMPROVERS")
@@ -2625,7 +2683,43 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_Landlocked(CvCity* pCity)
 
 	return false;
 }
+#if defined(MOD_BALANCE_CORE)
+/// "Lakebound" City Strategy: If a City has no access to actual Ocean, reduce all water-based Flavors
+bool CityStrategyAIHelpers::IsTestCityStrategy_Lakebound(CvCity* pCity)
+{
+	CvPlayer& kPlayer = GET_PLAYER(pCity->getOwner());
+	if(kPlayer.GetID() != NULL)
+	{
+		CvCity* pLoopCity;
+		int iLoop = 0;
+		int iBiggestOcean = 0;
 
+		CvArea* pBiggestNearbyWater = pCity->waterArea();
+		if(pBiggestNearbyWater)
+		{
+			int iThisCityWaterTiles = pBiggestNearbyWater->getNumTiles();
+
+			for(pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
+			{
+				CvArea* pBiggestNearbyBodyOfWater = pLoopCity->waterArea();
+				if (pBiggestNearbyBodyOfWater)
+				{
+					int iWaterTiles = pBiggestNearbyBodyOfWater->getNumTiles();
+					if(iWaterTiles > iBiggestOcean)
+					{
+						iBiggestOcean = iWaterTiles;
+					}
+				}
+			}
+			if(iThisCityWaterTiles < iBiggestOcean)
+			{
+				return true;
+			}
+		}
+	}
+	return false;
+}
+#endif
 /// "Need Tile Improvers" City Strategy: Do we REALLY need to train some Workers?
 bool CityStrategyAIHelpers::IsTestCityStrategy_NeedTileImprovers(AICityStrategyTypes eStrategy, CvCity* pCity)
 {

@@ -50,13 +50,13 @@
 			<BuildingType>BUILDING_CANDI</BuildingType>
 			<ResourceType>RESOURCE_CITRUS</ResourceType>
 			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>1</Yield>
+			<Yield>2</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_CANDI</BuildingType>
 			<ResourceType>RESOURCE_WINE</ResourceType>
 			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>1</Yield>
+			<Yield>2</Yield>
 		</Row>
 	</Building_ResourceYieldChanges>
 	<Building_Flavors>

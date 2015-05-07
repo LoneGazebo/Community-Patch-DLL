@@ -2454,5 +2454,36 @@
 		<Row Tag="TXT_KEY_POP_CSTATE_MARRIAGE_DISABLED_ALLY_TT">
 			<Text>You may spend {3_BuyoutCost} [ICON_GOLD] Gold to arrange a Diplomatic Marriage with this City-State. Doing so grants: an additional delegate in the World Congress, +5% [ICON_GREAT_PERSON] Great Person rate in [ICON_CAPITAL] Capital, and [ICON_INFLUENCE] Influence with the City-State no longer decays.[NEWLINE][NEWLINE] This can be only be done once per City-State, and the [ICON_GOLD] Gold cost increases with each Diplomatic Marriage.[NEWLINE][NEWLINE][COLOR_WARNING_TEXT]You must be allied for {1_NumTurns} turns ({2_TurnsAllied} turns so far) and have {3_BuyoutCost} [ICON_GOLD] Gold to perform this action.[ENDCOLOR]</Text>
 		</Row>
+		
+		<!-- Attack City -->
+		<Row Tag="TXT_KEY_MISC_YOU_ATTACKED_CITY_CP">
+			<Text>Your {@2_UnitName} bombarded the enemy City of {@1_CityName} ({3_Num} damage)!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_DECLARE_WAR_DPS_CP">
+			<Text>DEFENSIVE PACTS</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_DP_WITH_CBP">
+			<Text>[COLOR_POSITIVE_TEXT]Defensive Pact with {1_CivName:textkey}[ENDCOLOR]</Text>
+		</Row>
+		
+		<!--Revolutions-->
+		<Row Tag="TXT_KEY_NOTIFICATION_POSSIBLE_CITY_REVOLUTION_CP">
+			<Text>Because the empire has at least 20 [ICON_HAPPINESS_4] Unhappiness, a city will revolt in {1_Turns} turns. Based on current Unhappiness levels, the city most likely to revolt is {2_CityName}. If this city revolts, it will restore the sovereignty of {3_CivName}. Try to get your empire's Happiness level out of this range as soon as possible!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_POSSIBLE_CITY_REVOLUTION_CP_SUMMARY">
+			<Text>Revolutionary Unrest Brewing</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_CIV_REVOLUTION_CP">
+			<Text>{1_CityName} has risen up and restored {2_CivAdj} sovereignty. The flame of the {3_CivName}, once extinguished, burns again.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_CIV_REVOLUTION_SHORT_CP">
+			<Text>{1_PlayerName} restored!</Text>
+		</Row>
+		
+		
+
+		
+		
 	</Language_en_US>
 </GameData>

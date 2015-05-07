@@ -261,12 +261,6 @@ int CvAIOperation::GetGatherTolerance(CvArmyAI* pArmy, CvPlot* pPlot) const
 	else
 	{
 		int iRange = OperationalAIHelpers::GetGatherRangeForXUnits(iNumUnits);
-#if defined(MOD_BALANCE_CORE_MILITARY)
-		if(pArmy->GetDomainType() == DOMAIN_SEA)
-		{
-			iRange *= 2;
-		}
-#endif
 		for(int iX = -iRange; iX <= iRange; iX++)
 		{
 			for(int iY = -iRange; iY <= iRange; iY++)
@@ -2541,6 +2535,53 @@ bool CvAIOperationBasicCityAttack::ArmyInPosition(CvArmyAI* pArmy)
 	{
 		CvPlot *pCenterOfMass = pArmy->GetCenterOfMass(DOMAIN_LAND);
 
+#if defined(MOD_BALANCE_CORE)
+		bool bBeenHad = false;
+		CvString strMsg;
+		if(!GET_TEAM(GET_PLAYER(GetOwner()).getTeam()).isAtWar(GET_PLAYER(m_eEnemy).getTeam()))
+		{
+			UnitHandle pUnit;
+			pUnit = pArmy->GetFirstUnit();
+			while(pUnit)
+			{
+				for(int iDirectionLoop = 0; iDirectionLoop < NUM_DIRECTION_TYPES; ++iDirectionLoop)
+				{
+					CvPlot* pAdjacentPlot = plotDirection(pUnit->getX(), pUnit->getY(), ((DirectionTypes)iDirectionLoop));
+					if(pAdjacentPlot != NULL)
+					{
+						CvUnit* pOtherUnit = pAdjacentPlot->getUnitByIndex(0);
+						if(pOtherUnit != NULL && pOtherUnit->getOwner() == m_eEnemy)
+						{
+							bBeenHad = true;
+							break;
+							// We ran into a potential enemy unit duing a sneak attack. The jig is probably up, so let's DOW.
+							if(GC.getLogging() && GC.getAILogging())
+							{
+								strMsg.Format("Ran into enemy unit during sneak attack on (x=%d y=%d). Time to fight!", GetTargetPlot()->getX(), GetTargetPlot()->getY());
+								LogOperationSpecialMessage(strMsg);
+							}
+						}
+					}
+				}
+				pUnit = pArmy->GetNextUnit();
+			}
+		}
+		if(bBeenHad)
+		{
+			// Notify Diplo AI we're in place for attack
+			GET_PLAYER(GetOwner()).GetDiplomacyAI()->SetMusteringForAttack(GetEnemy(), true);
+
+			// Notify tactical AI to focus on this area
+			CvTemporaryZone zone;
+			zone.SetX(GetTargetPlot()->getX());
+			zone.SetY(GetTargetPlot()->getY());
+			zone.SetTargetType(AI_TACTICAL_TARGET_CITY);
+			zone.SetLastTurn(GC.getGame().getGameTurn() + GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS());
+			GET_PLAYER(m_eOwner).GetTacticalAI()->AddTemporaryZone(zone);
+
+			m_eCurrentState = AI_OPERATION_STATE_SUCCESSFUL_FINISH;
+		}
+#endif
 		// Are we within tactical range of our target?
 		if(pCenterOfMass && plotDistance(pCenterOfMass->getX(), pCenterOfMass->getY(), m_iTargetX, m_iTargetY) <= GC.getAI_OPERATIONAL_CITY_ATTACK_DEPLOY_RANGE())
 		{
@@ -5860,7 +5901,7 @@ void CvAIOperationPureNavalCityAttack::Init(int iID, PlayerTypes eOwner, PlayerT
 		}
 		if(pMuster != NULL && GET_PLAYER(m_eOwner).GetMilitaryAI()->GetCoastalPlotAdjacentToTarget(pMuster->plot(), pArmyAI) != NULL)
 		{
-			pMusterPlot = pMuster->plot();
+			pMusterPlot = GET_PLAYER(m_eOwner).GetMilitaryAI()->GetCoastalPlotAdjacentToTarget(pMuster->plot(), pArmyAI);
 		}
 		SetDefaultArea(pMuster->getArea());
 
@@ -5886,7 +5927,7 @@ void CvAIOperationPureNavalCityAttack::Init(int iID, PlayerTypes eOwner, PlayerT
 						pArmyAI->SetFormationIndex(GetFormation());
 
 						pArmyAI->SetGoalPlot(GetTargetPlot());
-						SetMusterPlot(GetStartCityPlot());
+						SetMusterPlot(pMusterPlot);
 						pArmyAI->SetXY(GetStartCityPlot()->getX(), GetStartCityPlot()->getY());
 
 						BuildListOfUnitsWeStillNeedToBuild();
@@ -6842,7 +6883,7 @@ bool CvAINavalEscortedOperation::ArmyInPosition(CvArmyAI* pArmy)
 				CvPlot *pCenterOfMass = pArmy->GetCenterOfMass(DOMAIN_SEA);
 
 				// Are we within tactical range of our target? (larger than usual range for a naval attack)
-				if(pCenterOfMass && plotDistance(pCenterOfMass->getX(), pCenterOfMass->getY(), m_iTargetX, m_iTargetY) <= GC.getAI_OPERATIONAL_CITY_ATTACK_DEPLOY_RANGE() * 2)
+				if(pCenterOfMass && plotDistance(pCenterOfMass->getX(), pCenterOfMass->getY(), m_iTargetX, m_iTargetY) <= GC.getAI_OPERATIONAL_CITY_ATTACK_DEPLOY_RANGE())
 				{
 					// Notify Diplo AI we're in place for attack
 					GET_PLAYER(GetOwner()).GetDiplomacyAI()->SetMusteringForAttack(GetEnemy(), true);
@@ -6950,7 +6991,7 @@ void CvAIOperationNavalAttack::Init(int iID, PlayerTypes eOwner, PlayerTypes eEn
 		}
 		if(pMuster != NULL && GET_PLAYER(m_eOwner).GetMilitaryAI()->GetCoastalPlotAdjacentToTarget(pMuster->plot(), pArmyAI) != NULL)
 		{
-			pMusterPlot = pMuster->plot();
+			pMusterPlot = GET_PLAYER(m_eOwner).GetMilitaryAI()->GetCoastalPlotAdjacentToTarget(pMuster->plot(), pArmyAI);
 		}
 		iDefaultArea = pMuster->getArea();
 		SetDefaultArea(iDefaultArea);
@@ -7201,14 +7242,14 @@ void CvAIOperationNavalSneakAttack::Init(int iID, PlayerTypes eOwner, PlayerType
 		}
 		if(pMuster != NULL && GET_PLAYER(m_eOwner).GetMilitaryAI()->GetCoastalPlotAdjacentToTarget(pMuster->plot(), pArmyAI) != NULL)
 		{
-			pMusterPlot = pMuster->plot();
+			pMusterPlot = GET_PLAYER(m_eOwner).GetMilitaryAI()->GetCoastalPlotAdjacentToTarget(pMuster->plot(), pArmyAI);
 		}
-		iDefaultArea = pMuster->getArea();
-		SetDefaultArea(iDefaultArea);
 
 		if(pMusterPlot != NULL)
 		{
 			SetStartCityPlot(pMusterPlot);
+			iDefaultArea = pMusterPlot->getArea();
+			SetDefaultArea(iDefaultArea);
 
 			if(iID != -1)
 			{
@@ -7312,7 +7353,11 @@ bool CvAIOperationNavalSneakAttack::ArmyInPosition(CvArmyAI* pArmy)
 		CvPlot *pCenterOfMass = pArmy->GetCenterOfMass(DOMAIN_SEA);
 
 		// Are we within tactical range of our target? (larger than usual range for a naval attack)
+#if defined(MOD_BALANCE_CORE)
+		if(pCenterOfMass && plotDistance(pCenterOfMass->getX(), pCenterOfMass->getY(), m_iTargetX, m_iTargetY) <= GC.getAI_OPERATIONAL_CITY_ATTACK_DEPLOY_RANGE())
+#else
 		if(pCenterOfMass && plotDistance(pCenterOfMass->getX(), pCenterOfMass->getY(), m_iTargetX, m_iTargetY) <= GC.getAI_OPERATIONAL_CITY_ATTACK_DEPLOY_RANGE() * 2)
+#endif
 		{
 			// Notify Diplo AI we're in place for attack
 			GET_PLAYER(GetOwner()).GetDiplomacyAI()->SetMusteringForAttack(GetEnemy(), true);
@@ -7391,14 +7436,14 @@ void CvAIOperationNavalCityStateAttack::Init(int iID, PlayerTypes eOwner, Player
 		}
 		if(pMuster != NULL && GET_PLAYER(m_eOwner).GetMilitaryAI()->GetCoastalPlotAdjacentToTarget(pMuster->plot(), pArmyAI) != NULL)
 		{
-			pMusterPlot = pMuster->plot();
+			pMusterPlot = GET_PLAYER(m_eOwner).GetMilitaryAI()->GetCoastalPlotAdjacentToTarget(pMuster->plot(), pArmyAI);
 		}
-		iDefaultArea = pMuster->getArea();
-		SetDefaultArea(iDefaultArea);
 
 		if(pMusterPlot != NULL)
 		{
 			SetStartCityPlot(pMusterPlot);
+			iDefaultArea = pMusterPlot->getArea();
+			SetDefaultArea(iDefaultArea);
 
 			if(iID != -1)
 			{
@@ -7502,7 +7547,7 @@ bool CvAIOperationNavalCityStateAttack::ArmyInPosition(CvArmyAI* pArmy)
 		CvPlot *pCenterOfMass = pArmy->GetCenterOfMass(DOMAIN_SEA);
 
 		// Are we within tactical range of our target? (larger than usual range for a naval attack)
-		if(pCenterOfMass && plotDistance(pCenterOfMass->getX(), pCenterOfMass->getY(), m_iTargetX, m_iTargetY) <= GC.getAI_OPERATIONAL_CITY_ATTACK_DEPLOY_RANGE() * 2)
+		if(pCenterOfMass && plotDistance(pCenterOfMass->getX(), pCenterOfMass->getY(), m_iTargetX, m_iTargetY) <= GC.getAI_OPERATIONAL_CITY_ATTACK_DEPLOY_RANGE())
 		{
 			// Notify Diplo AI we're in place for attack
 			GET_PLAYER(GetOwner()).GetDiplomacyAI()->SetMusteringForAttack(GetEnemy(), true);
@@ -7888,19 +7933,11 @@ int OperationalAIHelpers::GetGatherRangeForXUnits(int iTotalUnits)
 
 	if(iTotalUnits <= 2)
 	{
-#if defined(MOD_BALANCE_CORE)
-		iRange = 2;
-#else
 		iRange = 1;
-#endif
 	}
 	else if(iTotalUnits <= 6)
 	{
-#if defined(MOD_BALANCE_CORE)
-		iRange = 3;
-#else
 		iRange = 2;
-#endif
 	}
 	else if(iTotalUnits <= 10)
 	{
@@ -7912,11 +7949,7 @@ int OperationalAIHelpers::GetGatherRangeForXUnits(int iTotalUnits)
 	}
 	else
 	{
-#if defined(MOD_BALANCE_CORE)
-		iRange = 5;
-#else
 		iRange = 4;
-#endif
 	}
 
 	return iRange;

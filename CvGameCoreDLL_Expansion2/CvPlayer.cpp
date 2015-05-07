@@ -4062,7 +4062,119 @@ int CvPlayer::GetNumWorkablePlots() const
 	return ((6 * (1+getWorkPlotDistance()) * getWorkPlotDistance() / 2) + 1);
 }
 #endif
+#if defined(MOD_BALANCE_CORE)
+//	--------------------------------------------------------------------------------
+/// This player liberates iOldCityID and gives it back to ePlayer
+void CvPlayer::DoRevolutionPlayer(PlayerTypes ePlayer, int iOldCityID)
+{
+	CvCity* pCity = getCity(iOldCityID);
+	CvAssert(pCity);
+	if (!pCity)
+		return;
 
+	PlayerTypes eOldOwner = pCity->getOwner();
+	CvPlot* pPlot = pCity->plot();
+
+	// Set that this team has been liberated
+	TeamTypes eLiberatedTeam = GET_PLAYER(ePlayer).getTeam();
+
+	// Who originally took out this team?
+	TeamTypes eConquerorTeam = GET_TEAM(eLiberatedTeam).GetKilledByTeam();
+
+	if (!GET_PLAYER(ePlayer).isAlive())
+	{
+		GET_PLAYER(ePlayer).setBeingResurrected(true);
+
+		// Put everyone at peace with this guy
+		for(int iOtherTeamLoop = 0; iOtherTeamLoop < MAX_CIV_TEAMS; iOtherTeamLoop++)
+		{
+			if(eLiberatedTeam != iOtherTeamLoop)
+			{
+#if defined(MOD_EVENTS_WAR_AND_PEACE)
+				GET_TEAM(eLiberatedTeam).makePeace((TeamTypes) iOtherTeamLoop, /*bBumpUnits*/false, /*bSuppressNotification*/true, GetID());
+#else
+				GET_TEAM(eLiberatedTeam).makePeace((TeamTypes) iOtherTeamLoop, /*bBumpUnits*/false, /*bSuppressNotification*/true);
+#endif
+			}
+		}
+	
+		if (!GET_PLAYER(ePlayer).isMinorCiv())
+		{
+			// add notification
+			Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CIV_REVOLUTION_CP");
+			strMessage << pCity->getNameKey(); // CITY NAME
+			strMessage << GET_PLAYER(ePlayer).getCivilizationAdjectiveKey(); // LIBERATED CIV NAME
+			strMessage << GET_PLAYER(ePlayer).getCivilizationDescriptionKey();// LIBERATED CIV NAME
+			Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CIV_REVOLUTION_SHORT_CP");
+			if(GC.getGame().isGameMultiPlayer() && GET_PLAYER(ePlayer).isHuman())
+			{
+				strSummary << GET_PLAYER(ePlayer).getNickName();
+			}
+			else
+			{
+				strSummary << GET_PLAYER(ePlayer).getNameKey();
+			}		
+
+			for(int iI = 0; iI < MAX_PLAYERS; iI++)
+			{
+				const PlayerTypes eOtherPlayer = static_cast<PlayerTypes>(iI);
+				CvPlayerAI& kOtherPlayer = GET_PLAYER(eOtherPlayer);
+				if(kOtherPlayer.isAlive() && kOtherPlayer.GetNotifications())
+				{
+					kOtherPlayer.GetNotifications()->Add(NOTIFICATION_RESURRECTED_MAJOR_CIV, strMessage.toUTF8(), strSummary.toUTF8(), pCity->getX(), pCity->getY(), -1);
+				}
+			}
+
+			CvString temp = strMessage.toUTF8();
+			GC.getGame().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, m_eID, temp);
+		}
+	}
+
+	// Give the city back to the liberated player
+	GET_PLAYER(ePlayer).acquireCity(pCity, false, true);
+
+	// Now verify the player is alive
+	GET_PLAYER(ePlayer).verifyAlive();
+	GET_PLAYER(ePlayer).setBeingResurrected(false);
+
+	// Is this a Minor we have liberated?
+	if(GET_PLAYER(ePlayer).isMinorCiv())
+	{
+		GET_PLAYER(ePlayer).GetMinorCivAI()->DoLiberationByMajor(eOldOwner, eConquerorTeam);
+	}
+
+	// Move Units from player that don't belong here
+	if(pPlot->getNumUnits() > 0)
+	{
+		// Get the current list of units because we will possibly be moving them out of the plot's list
+		IDInfoVector currentUnits;
+		if (pPlot->getUnits(&currentUnits) > 0)
+		{
+			for(IDInfoVector::const_iterator itr = currentUnits.begin(); itr != currentUnits.end(); ++itr)
+			{
+				CvUnit* pLoopUnit = (CvUnit*)GetPlayerUnit(*itr);
+
+				if(pLoopUnit && pLoopUnit->getOwner() == eOldOwner)
+				{
+					pLoopUnit->finishMoves();
+					if (!pLoopUnit->jumpToNearestValidPlot())
+						pLoopUnit->kill(false);
+				}
+			}
+		}
+	}
+
+#if defined(MOD_DIPLOMACY_CITYSTATES)
+	//Let's give the Embassies of the defeated player back to the liberated player
+	if(MOD_DIPLOMACY_CITYSTATES && GET_PLAYER(ePlayer).GetImprovementLeagueVotes() > 0)
+	{
+		CvPlayer* eConqueringPlayer = &GET_PLAYER(GET_TEAM(eConquerorTeam).getLeaderID());
+		int iEmbassyVotes = GET_PLAYER(ePlayer).GetImprovementLeagueVotes();
+		eConqueringPlayer->ChangeImprovementLeagueVotes(-iEmbassyVotes);
+	}
+#endif
+}
+#endif
 //	--------------------------------------------------------------------------------
 /// This player liberates iOldCityID and gives it back to ePlayer
 void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID)
@@ -11040,7 +11152,7 @@ int CvPlayer::GetNumUnitsOutOfSupply() const
 	for(pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
 	{
 #if defined(MOD_BALANCE_CORE)
-		if(pLoopUnit->IsCivilianUnit() || pLoopUnit->isTrade())
+		if(pLoopUnit->isTrade() || pLoopUnit->IsCivilianUnit())
 #else
 		if(pLoopUnit->isTrade())
 #endif
@@ -11052,7 +11164,27 @@ int CvPlayer::GetNumUnitsOutOfSupply() const
 	int iNumUnitsToSupply = iNumUnits - iNumTradeUnits;
 	return std::max(0, iNumUnitsToSupply - iFreeUnits);
 }
+#if defined(MOD_BALANCE_CORE)
+//	--------------------------------------------------------------------------------
+int CvPlayer::getNumUnitsNoCivilian() const
+{
+	int iNumUnits = getNumUnits();
 
+	int iNumTradeUnits = 0;
+	int iLoop = 0;
+	const CvUnit* pLoopUnit = NULL;
+	for(pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
+	{
+		if(pLoopUnit->isTrade() || pLoopUnit->IsCivilianUnit())
+		{
+			iNumTradeUnits++;
+		}
+	}
+
+	int iNumUnitsToSupply = iNumUnits - iNumTradeUnits;
+	return iNumUnitsToSupply;
+}
+#endif
 //	--------------------------------------------------------------------------------
 int CvPlayer::calculateUnitCost() const
 {
@@ -14243,6 +14375,23 @@ void CvPlayer::DoResetCityRevoltCounter()
 			pNotifications->Add(NOTIFICATION_CITY_REVOLT_POSSIBLE, strMessage.toUTF8(), strSummary.toUTF8(), pMostUnhappyCity->getX(), pMostUnhappyCity->getY(), -1);
 		}
 	}
+#if defined(MOD_BALANCE_CORE)
+	else if(pMostUnhappyCity && eRecipient == NO_PLAYER)
+	{
+		PlayerTypes eOldPlayer = pMostUnhappyCity->getOriginalOwner();
+		if(eOldPlayer != NO_PLAYER && !GET_PLAYER(eOldPlayer).isAlive())
+		{
+			SetCityRevoltCounter(iTurns);
+			CvNotifications* pNotifications = GetNotifications();
+			if(pNotifications && isHuman())
+			{
+				Localization::String strMessage = GetLocalizedText("TXT_KEY_NOTIFICATION_POSSIBLE_CITY_REVOLUTION_CP", iTurns, pMostUnhappyCity->getName(), GET_PLAYER(eOldPlayer).getCivilizationShortDescription());
+				Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_POSSIBLE_CITY_REVOLUTION_CP_SUMMARY");
+				pNotifications->Add(NOTIFICATION_CITY_REVOLT_POSSIBLE, strMessage.toUTF8(), strSummary.toUTF8(), pMostUnhappyCity->getX(), pMostUnhappyCity->getY(), -1);
+			}
+		}
+	}
+#endif
 }
 
 //	--------------------------------------------------------------------------------
@@ -14298,6 +14447,16 @@ void CvPlayer::DoCityRevolt()
 			}
 		}
 	}
+#if defined(MOD_BALANCE_CORE)
+	else if(pMostUnhappyCity && eRecipient == NO_PLAYER && pMostUnhappyCity->getOriginalOwner() != NULL)
+	{
+		PlayerTypes eOldPlayer = pMostUnhappyCity->getOriginalOwner();
+		if(eOldPlayer != NO_PLAYER && !GET_PLAYER(eOldPlayer).isAlive())
+		{
+			DoRevolutionPlayer(eOldPlayer, pMostUnhappyCity->GetID());
+		}
+	}
+#endif
 }
 
 //	--------------------------------------------------------------------------------
@@ -14322,6 +14481,16 @@ CvCity *CvPlayer::GetMostUnhappyCity()
 
 			// Start with population
 			int iUnhappiness = pLoopCity->getPopulation();
+#if defined(MOD_BALANCE_CORE)
+			iUnhappiness += pLoopCity->getUnhappinessFromStarving();
+			iUnhappiness += pLoopCity->getUnhappinessFromPillaged();
+			iUnhappiness += pLoopCity->getUnhappinessFromGold();
+			iUnhappiness += pLoopCity->getUnhappinessFromDefense();
+			iUnhappiness += pLoopCity->getUnhappinessFromConnection();
+			iUnhappiness += pLoopCity->getUnhappinessFromMinority();
+			iUnhappiness += pLoopCity->getUnhappinessFromScience();
+			iUnhappiness += pLoopCity->getUnhappinessFromCulture();
+#endif
 
 			// Subtract off local unhappiness
 			iUnhappiness -= pLoopCity->GetLocalHappiness(); 
@@ -14382,8 +14551,13 @@ PlayerTypes CvPlayer::GetMostUnhappyCityRecipient()
 				PolicyBranchTypes eOtherCivIdeology = kPlayer.GetPlayerPolicies()->GetLateGamePolicyTree();
 				if (eOtherCivIdeology == ePreferredIdeology)
 				{
+#if defined(MOD_BALANCE_CORE)		
+					PublicOpinionTypes eOpinionInMyCiv = GetCulture()->GetPublicOpinionType();
+					if(eOpinionInMyCiv == PUBLIC_OPINION_REVOLUTIONARY_WAVE && kPlayer.getCapitalCity() != NULL)
+#else
 					int iCulturalDominanceOverUs = kPlayer.GetCulture()->GetInfluenceLevel(GetID()) - GetCulture()->GetInfluenceLevel((PlayerTypes)iLoopPlayer);
 					if (iCulturalDominanceOverUs > 0 && kPlayer.getCapitalCity() != NULL)
+#endif
 					{
 						// Find how far their capital is from this city
 						int iCapitalDistance = plotDistance(pMostUnhappyCity->getX(), pMostUnhappyCity->getY(), kPlayer.getCapitalCity()->getX(), kPlayer.getCapitalCity()->getY());
@@ -29025,7 +29199,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 
 			if(GetBestRangedUnitSpawnSettle() > 0)
 			{
-				UnitTypes eType = GET_PLAYER(GetID()).getCapitalCity()->GetCityStrategyAI()->GetUnitProductionAI()->RecommendUnit(UNITAI_RANGED, false);
+				UnitTypes eType = GET_PLAYER(GetID()).getCapitalCity()->GetCityStrategyAI()->GetUnitProductionAI()->RecommendUnit(UNITAI_RANGED, false, false);
 				if(eType != NO_UNIT)
 				{
 					int iResult = GET_PLAYER(GetID()).getCapitalCity()->CreateUnit(eType, NO_UNITAI, false /*bUseToSatisfyOperation*/);
@@ -29044,7 +29218,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 				}
 				else
 				{
-					UnitTypes eType = GET_PLAYER(GetID()).getCapitalCity()->GetCityStrategyAI()->GetUnitProductionAI()->RecommendUnit(UNITAI_DEFENSE, false);
+					UnitTypes eType = GET_PLAYER(GetID()).getCapitalCity()->GetCityStrategyAI()->GetUnitProductionAI()->RecommendUnit(UNITAI_DEFENSE, false, false);
 					if(eType != NO_UNIT)
 					{
 						int iResult = GET_PLAYER(GetID()).getCapitalCity()->CreateUnit(eType, NO_UNITAI, false /*bUseToSatisfyOperation*/);

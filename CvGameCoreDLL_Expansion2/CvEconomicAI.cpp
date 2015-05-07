@@ -2337,7 +2337,7 @@ void CvEconomicAI::DoReconState()
 
 #if defined(MOD_BALANCE_CORE_SETTLER)
 	bool bIsVenice = GetPlayer()->GetPlayerTraits()->IsNoAnnexing();
-	if (!bIsVenice && GetPlayer()->GetNumCitiesFounded()<3 )
+	if (!bIsVenice && GetPlayer()->GetNumCitiesFounded() < 2 )
 	{
 		// Need recon if there are no good plots to settle, at least until we have some cities
 		if (! GetPlayer()->HaveGoodSettlePlot(-1) )
@@ -3482,7 +3482,6 @@ bool EconomicAIHelpers::IsAreaSafeForQuickColony(int iAreaID, CvPlayer* pPlayer)
 /// "Need Recon" Player Strategy: chosen by the DoRecon() function
 bool EconomicAIHelpers::IsTestStrategy_NeedRecon(CvPlayer* pPlayer)
 {
-#if !defined(MOD_BALANCE_CORE)
 	// Never desperate for explorers if we are at war
 	MilitaryAIStrategyTypes eStrategyAtWar = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_AT_WAR");
 	if(eStrategyAtWar != NO_MILITARYAISTRATEGY)
@@ -3492,7 +3491,6 @@ bool EconomicAIHelpers::IsTestStrategy_NeedRecon(CvPlayer* pPlayer)
 			return false;
 		}
 	}
-#endif
 	return (pPlayer->GetEconomicAI()->GetReconState() == RECON_STATE_NEEDED);
 }
 

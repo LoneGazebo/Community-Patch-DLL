@@ -355,7 +355,7 @@ WHERE BuildingType = 'BUILDING_SEAPORT' AND EXISTS (SELECT * FROM COMMUNITY WHER
 
 -- Seaport	
 UPDATE Language_en_US
-SET Text = '+3 [ICON_PRODUCTION] Production, and +2 [ICON_PRODUCTION] Production and [ICON_GOLD] Gold from Sea Resources worked by this City.[NEWLINE][NEWLINE]City must be built on the coast.'
+SET Text = '+1 [ICON_FOOD] Food from all Ocean and Coastal tiles. +2 [ICON_PRODUCTION] Production and [ICON_GOLD] Gold from Sea Resources worked by this City.[NEWLINE][NEWLINE]City must be built on the coast.'
 WHERE Tag = 'TXT_KEY_BUILDING_SEAPORT_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Building_YieldChanges
@@ -610,8 +610,16 @@ SET Defense = '1200'
 WHERE Type = 'BUILDING_MILITARY_BASE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Buildings
-SET HealRateChange = '5'
+SET PrereqTech = 'TECH_NUCLEAR_FISSION'
 WHERE Type = 'BUILDING_MILITARY_BASE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
+
+UPDATE Buildings
+SET HealRateChange = '10'
+WHERE Type = 'BUILDING_MILITARY_BASE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
+
+UPDATE Language_en_US
+SET Text = '+20% [ICON_PRODUCTION] Production of Air units. Garrisoned units receive an additional 10 Health when healing in this city. City must have an Arsenal.'
+WHERE Tag = 'TXT_KEY_BUILDING_MILITARY_BASE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
 SET Text = 'The Military Base is a late-game building which increases Defensive Strength by 12 and Hit Points by 125. The city must possess an Arsenal before a Military Base may be constructed. Garrisoned units receive an additional 5 Health when healing in this city.'

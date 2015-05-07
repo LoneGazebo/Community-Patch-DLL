@@ -150,5 +150,5 @@ SET LakeChange = '1'
 WHERE Type = 'YIELD_PRODUCTION';
 
 UPDATE Yields
-SET LakeChange = '3'
+SET LakeChange = '2'
 WHERE Type = 'YIELD_FOOD';

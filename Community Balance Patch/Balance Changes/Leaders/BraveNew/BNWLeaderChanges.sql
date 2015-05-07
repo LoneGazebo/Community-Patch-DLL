@@ -221,7 +221,7 @@ SET Text = 'Tourism [ICON_TOURISM] output is +100% during their Golden Ages. Ear
 WHERE Tag = 'TXT_KEY_TRAIT_CARNIVAL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Because of your unique Carnival bonus, Tourism output is currently +100% with all civilizations and you are earning Great People 50% faster.</Text>'
+SET Text = 'Because of your unique Carnival bonus, Tourism output is currently +100% with all civilizations and you are earning Great People 50% faster.'
 WHERE Tag = 'TXT_KEY_TP_CARNIVAL_EFFECT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US

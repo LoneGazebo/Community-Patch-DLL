@@ -6823,7 +6823,7 @@ bool CvReligionAI::BuyAnyAvailableNonFaithUnit()
 	{
 		for (int iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
 		{
-			UnitTypes eUnit = m_pPlayer->getCapitalCity()->GetCityStrategyAI()->GetUnitProductionAI()->RecommendUnit(UNITAI_ATTACK, true);
+			UnitTypes eUnit = m_pPlayer->getCapitalCity()->GetCityStrategyAI()->GetUnitProductionAI()->RecommendUnit(UNITAI_ATTACK, true, false);
 			if(eUnit != NO_UNIT)
 			{
 				CvUnitEntry* pUnitEntry = GC.GetGameUnits()->GetEntry(eUnit);

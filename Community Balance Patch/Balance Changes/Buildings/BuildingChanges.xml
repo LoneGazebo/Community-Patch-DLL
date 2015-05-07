@@ -69,6 +69,12 @@
 			<YieldType>YIELD_GOLD</YieldType>
 			<Yield>1</Yield>
 		</Row>
+		<Row>
+			<BuildingType>BUILDING_TEMPLE</BuildingType>
+			<ResourceType>RESOURCE_WINE</ResourceType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>1</Yield>
+		</Row>
 	</Building_ResourceYieldChanges>
 	<!-- Amphitheater-->
 	<Building_ResourceYieldChanges>
@@ -129,6 +135,13 @@
 			<Modifier>15</Modifier>
 		</Row>
 	</Building_DomainProductionModifiers>
+	<Building_DomainProductionModifiers>
+		<Row>
+			<BuildingType>BUILDING_MILITARY_BASE</BuildingType>
+			<DomainType>DOMAIN_AIR</DomainType>
+			<Modifier>20</Modifier>
+		</Row>
+	</Building_DomainProductionModifiers>
 	<!-- Colosseum/Zoo/Circus/Stadium -->
 	<Building_YieldChanges>
 		<Row>
@@ -186,13 +199,13 @@
 		</Row>
 	</Building_YieldChanges>
 	<!-- Seaport -->
-	<Building_YieldChanges>
+	<Building_SeaPlotYieldChanges>
 		<Row>
 			<BuildingType>BUILDING_SEAPORT</BuildingType>
-			<YieldType>YIELD_PRODUCTION</YieldType>
+			<YieldType>YIELD_FOOD</YieldType>
 			<Yield>1</Yield>
 		</Row>
-	</Building_YieldChanges>
+	</Building_SeaPlotYieldChanges>
 	<!-- Caravansary -->
 	<Building_YieldChanges>
 		<Row>
