@@ -7,6 +7,9 @@ include( "InstanceManager" );
 include( "CommonBehaviors" );
 
 local g_AlliedCityStatesInstanceManager = GenerationalInstanceManager:new( "CityStateInstance", "Base", Controls.AlliedCityStatesStack);
+-- CBP
+local g_DefensePactsInstanceManager = GenerationalInstanceManager:new( "DPInstance", "Base", Controls.DefensePactStack);
+-- END
 local g_UnderProtectionOfInstanceManager = GenerationalInstanceManager:new( "UnderProtectionCivInstance", "Base", Controls.UnderProtectionOfStack);
 local g_ActiveTradesInstanceManager = GenerationalInstanceManager:new("TradeRouteInstance", "Base", Controls.TradeRoutesStack);
 -- Putmalk
@@ -174,10 +177,9 @@ function GatherData(RivalId, Text)
 		if(rivalPlayer.GetDenouncedPlayerCounter and GameDefines.DENUNCIATION_EXPIRATION_TIME ~= nil) then
 			data.TheyDenouncedUsTurnsLeft = GameDefines.DENUNCIATION_EXPIRATION_TIME - rivalPlayer:GetDenouncedPlayerCounter(data.LeaderId);
 		end
--- CBP
-		data.TheyHaveDefensivePact = rivalPlayer:IsHasDefensivePact(data.LeaderId);
+		--CBP
 		data.TheyHaveDefensivePactWithPlayer = rivalPlayer:IsHasDefensivePactWithPlayer(data.LeaderId);
--- END
+		--END
 	end
 	
 	-- Rival Civ + his Allies
@@ -203,6 +205,21 @@ function GatherData(RivalId, Text)
 		end
 	end
 	
+-- CBP
+	-- Rival Civ + his DP
+	data.DefensePacts = {};
+	for iPlayerLoop = 0, GameDefines.MAX_MAJOR_CIVS - 1, 1 do
+		local player = Players[iPlayerLoop];
+		if(player and player ~= activePlayer and player:IsHasDefensivePactWithPlayer(RivalId) and player:IsAlive()) then
+			print("Found DP!");
+			table.insert(data.DefensePacts, {
+				PlayerID = iPlayerLoop,
+				Name = player:GetCivilizationShortDescriptionKey(),
+			});
+		end
+	end
+-- END
+
 	data.UnderProtectionOf = {};
 	if(data.RivalIsMinor) then
 		for iPlayerLoop = 0, GameDefines.MAX_MAJOR_CIVS - 1, 1 do	
@@ -495,15 +512,6 @@ function View(data)
 	end
 
 -- CBP
-	if(data.TheyHaveDefensivePact) then
-		local DPText = Locale.Lookup("TXT_KEY_DIPLO_DEFENSE_PACT_UNKNOWN");     
-        Controls.DiplomacyNone:SetHide(true);
-        Controls.TheyDPLabel:SetText(DPText);
-        SizeParentToChildContent(Controls.TheyHaveDefensivePact, Controls.TheyDPLabel, 478, 28, 20);
-        Controls.TheyHaveDefensivePact:SetHide(false);   
-	else
-		Controls.TheyHaveDefensivePact:SetHide(true);
-	end
 	if(data.TheyHaveDefensivePactWithPlayer) then
 		local DPTextUs = Locale.Lookup("TXT_KEY_DIPLO_DEFENSE_PACT_WITH_US");
         Controls.DiplomacyNone:SetHide(true);
@@ -525,6 +533,11 @@ function View(data)
 		
 		Controls.AlliedCityStatesHeader:SetHide(true);
 		Controls.AlliedCityStatesStack:SetHide(true);
+
+-- CBP
+		Controls.DefensePactHeader:SetHide(true);
+		Controls.DefensePactStack:SetHide(true);
+-- END
 		
 		Controls.ActiveDealsHeader:SetHide(true);
         Controls.ActiveDealsStack:SetHide(true);
@@ -564,6 +577,10 @@ function View(data)
 
 		Controls.VassalsHeader:SetHide(false);
 		Controls.VassalsStack:SetHide(false);
+-- CBP
+		Controls.DefensePactHeader:SetHide(false);
+		Controls.DefensePactStack:SetHide(false);
+-- END
 	end
 	
 	g_AlliedCityStatesInstanceManager:ResetInstances();
@@ -581,7 +598,21 @@ function View(data)
 		instance.Label:SetText(name);
 		instance.IconFrame:SetToolTipString(name);
 	end	
+-- CBP
+	g_DefensePactsInstanceManager:ResetInstances();
+	local defensePacts = data.DefensePacts or {};
+	Controls.DefensePactNone:SetHide(#defensePacts > 0);
 	
+	for i,v in ipairs(defensePacts) do
+	
+		local instance = g_DefensePactsInstanceManager:GetInstance();	
+		CivIconHookup(v.PlayerID, 45, instance.Icon, instance.IconBG, instance.IconShadow, true, true, instance.IconHighlight);
+		
+		local name = Locale.Lookup(v.Name);
+		instance.Label:SetText(name);
+		instance.IconFrame:SetToolTipString(name);
+	end	
+-- END
 	g_UnderProtectionOfInstanceManager:ResetInstances();
 	local underProtectionOf = data.UnderProtectionOf or {};
 	Controls.UnderProtectionOfNone:SetHide(#underProtectionOf > 0);
@@ -678,6 +709,10 @@ function View(data)
 	Controls.DiplomacyStack:CalculateSize();	
 	Controls.AlliedCityStatesStack:ReprocessAnchoring();
 	Controls.AlliedCityStatesStack:CalculateSize();
+-- CBP
+	Controls.DefensePactStack:ReprocessAnchoring();
+	Controls.DefensePactStack:CalculateSize();
+-- END
 	Controls.UnderProtectionOfStack:ReprocessAnchoring();
 	Controls.UnderProtectionOfStack:CalculateSize();
 	Controls.ActiveDealsStack:ReprocessAnchoring();
@@ -909,6 +944,10 @@ function OnCollapseExpand()
 	Controls.UnderProtectionOfStack:ReprocessAnchoring();
 	Controls.AlliedCityStatesStack:CalculateSize();
 	Controls.AlliedCityStatesStack:ReprocessAnchoring();
+-- CBP
+	Controls.DefensePactStack:CalculateSize();
+	Controls.DefensePactStack:ReprocessAnchoring();
+--END
 	Controls.ActiveDealsStack:CalculateSize();
 	Controls.ActiveDealsStack:ReprocessAnchoring();
 	Controls.TradeRoutesStack:CalculateSize();
@@ -979,7 +1018,19 @@ RegisterCollapseBehavior{
 	OnCollapse = OnCollapseExpand,
 	OnExpand = OnCollapseExpand,
 };
-			
+--CBP
+local dptext = Locale.Lookup("TXT_KEY_DECLARE_WAR_DPS_CP");
+RegisterCollapseBehavior{	
+	Header = Controls.DefensePactHeader, 
+	HeaderLabel = Controls.DefensePactHeader, 
+	HeaderExpandedLabel = "[ICON_MINUS] " .. dptext,
+	HeaderCollapsedLabel = "[ICON_PLUS] " .. dptext,
+	Panel = Controls.DefensePactStack,
+	Collapsed = false,
+	OnCollapse = OnCollapseExpand,
+	OnExpand = OnCollapseExpand,
+};
+--END			
 local activeDealsText = Locale.Lookup("TXT_KEY_DECLARE_WAR_ACTIVE_DEALS");
 RegisterCollapseBehavior{
 	Header = Controls.ActiveDealsHeader,

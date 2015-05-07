@@ -4672,6 +4672,14 @@ void CvTacticalAI::PlotEnemyTerritoryOperationMoves(CvAIEnemyTerritoryOperation*
 		if(pThisTurnTarget == NULL)
 		{
 			pOperation->SetToAbort(AI_ABORT_LOST_PATH);
+#if defined(MOD_BALANCE_CORE)
+			if(GC.getLogging() && GC.getAILogging())
+			{
+				CvString strMsg;
+				strMsg.Format("Pathing lost en route due to a bad COM computation!");
+				pOperation->LogOperationSpecialMessage(strMsg);
+			}
+#endif
 			return;
 		}
 

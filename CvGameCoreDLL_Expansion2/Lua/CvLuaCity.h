@@ -38,6 +38,9 @@ protected:
 	static int lGetCityIndexPlot(lua_State* L);
 	static int lCanWork(lua_State* L);
 	static int lIsPlotBlockaded(lua_State* L);
+#if defined(MOD_BALANCE_CORE)
+	static int lIsBlockadedTest(lua_State* L);
+#endif
 	static int lClearWorkingOverride(lua_State* L);
 	static int lCountNumImprovedPlots(lua_State* L);
 	static int lCountNumWaterPlots(lua_State* L);

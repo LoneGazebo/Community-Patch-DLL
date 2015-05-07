@@ -400,7 +400,7 @@
 			<MultiUnitFormationType>MUFORMATION_NAVAL_SQUADRON</MultiUnitFormationType>
 			<PrimaryUnitType>UNITAI_ATTACK_SEA</PrimaryUnitType>
 			<SecondaryUnitType>UNITAI_RESERVE_SEA</SecondaryUnitType>
-			<MultiUnitPositionType>MUPOSITION_BOMBARD</MultiUnitPositionType>
+			<MultiUnitPositionType>MUPOSITION_FRONT_LINE</MultiUnitPositionType>
 			<RequiredSlot>true</RequiredSlot>
 		</Row>
 		<Row>
@@ -480,13 +480,13 @@
 		<Row>
 			<MultiUnitFormationType>MUFORMATION_NAVAL_INVASION</MultiUnitFormationType>
 			<PrimaryUnitType>UNITAI_ATTACK_SEA</PrimaryUnitType>
-			<SecondaryUnitType>UNITAI_ASSAULT_SEA</SecondaryUnitType>
+			<SecondaryUnitType>UNITAI_RESERVE_SEA</SecondaryUnitType>
 			<MultiUnitPositionType>MUPOSITION_NAVAL_ESCORT</MultiUnitPositionType>
 		</Row>
 		<Row>
 			<MultiUnitFormationType>MUFORMATION_NAVAL_INVASION</MultiUnitFormationType>
 			<PrimaryUnitType>UNITAI_ATTACK_SEA</PrimaryUnitType>
-			<SecondaryUnitType>UNITAI_ASSAULT_SEA</SecondaryUnitType>
+			<SecondaryUnitType>UNITAI_RESERVE_SEA</SecondaryUnitType>
 			<MultiUnitPositionType>MUPOSITION_NAVAL_ESCORT</MultiUnitPositionType>
 			<RequiredSlot>true</RequiredSlot>
 		</Row>
@@ -513,19 +513,19 @@
 		<Row>
 			<MultiUnitFormationType>MUFORMATION_NAVAL_INVASION</MultiUnitFormationType>
 			<PrimaryUnitType>UNITAI_CARRIER_SEA</PrimaryUnitType>
-			<SecondaryUnitType>UNITAI_ASSAULT_SEA</SecondaryUnitType>
+			<SecondaryUnitType>UNITAI_RESERVE_SEA</SecondaryUnitType>
 			<MultiUnitPositionType>MUPOSITION_NAVAL_ESCORT</MultiUnitPositionType>
 		</Row>
 		<Row>
 			<MultiUnitFormationType>MUFORMATION_NAVAL_INVASION</MultiUnitFormationType>
 			<PrimaryUnitType>UNITAI_ASSAULT_SEA</PrimaryUnitType>
-			<SecondaryUnitType>UNITAI_ATTACK_SEA</SecondaryUnitType>
+			<SecondaryUnitType>UNITAI_RESERVE_SEA</SecondaryUnitType>
 			<MultiUnitPositionType>MUPOSITION_NAVAL_ESCORT</MultiUnitPositionType>
 		</Row>
 		<Row>
 			<MultiUnitFormationType>MUFORMATION_NAVAL_INVASION</MultiUnitFormationType>
 			<PrimaryUnitType>UNITAI_ASSAULT_SEA</PrimaryUnitType>
-			<SecondaryUnitType>UNITAI_ATTACK_SEA</SecondaryUnitType>
+			<SecondaryUnitType>UNITAI_RESERVE_SEA</SecondaryUnitType>
 			<MultiUnitPositionType>MUPOSITION_NAVAL_ESCORT</MultiUnitPositionType>
 		</Row>
 		<!-- City State Invasion: Larger, but less required slots to get the attack out more quickly. -->
@@ -603,7 +603,7 @@
 		<Row>
 			<MultiUnitFormationType>MUFORMATION_NAVAL_BOMBARDMENT</MultiUnitFormationType>
 			<PrimaryUnitType>UNITAI_ASSAULT_SEA</PrimaryUnitType>
-			<SecondaryUnitType>UNITAI_ATTACK_SEA</SecondaryUnitType>
+			<SecondaryUnitType>UNITAI_RESERVE_SEA</SecondaryUnitType>
 			<MultiUnitPositionType>MUPOSITION_BOMBARD</MultiUnitPositionType>
 		</Row>
 		<!-- Naval City State Attack: more variety, less required slots, less carriers. -->
@@ -637,7 +637,7 @@
 		<Row>
 			<MultiUnitFormationType>MUFORMATION_PURE_NAVAL_CITY_ATTACK</MultiUnitFormationType>
 			<PrimaryUnitType>UNITAI_CARRIER_SEA</PrimaryUnitType>
-			<SecondaryUnitType>UNITAI_ASSAULT_SEA</SecondaryUnitType>
+			<SecondaryUnitType>UNITAI_RESERVE_SEA</SecondaryUnitType>
 			<MultiUnitPositionType>MUPOSITION_BOMBARD</MultiUnitPositionType>
 			<RequiredSlot>true</RequiredSlot>
 		</Row>

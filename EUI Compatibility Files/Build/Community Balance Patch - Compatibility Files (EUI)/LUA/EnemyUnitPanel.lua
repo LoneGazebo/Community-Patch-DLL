@@ -468,8 +468,8 @@ function UpdateCombatOddsUnitVsCity(pMyUnit, pCity)
 
 			-- CBP 
 			-- Blockaded
-			if (pCity:IsBlockaded()) then
-				iModifier = GameDefines["SAPPED_CITY_ATTACK_MODIFIER"];
+			if (pCity:IsBlockadedTest()) then
+				iModifier = (GameDefines["SAPPED_CITY_ATTACK_MODIFIER"] / 2);
 				controlTable = g_MyCombatDataIM:GetInstance();
 				controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_CITY_BLOCKADED" );
 				controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
@@ -2193,8 +2193,8 @@ function UpdateCombatOddsCityVsUnit(myCity, theirUnit)
 
 		-- CBP 
 		-- Blockaded
-		if (myCity:IsBlockaded()) then
-			iModifier = GameDefines["SAPPED_CITY_ATTACK_MODIFIER"];
+		if (myCity:IsBlockadedTest()) then
+			iModifier = (GameDefines["SAPPED_CITY_ATTACK_MODIFIER"] / 2);
 			controlTable = g_TheirCombatDataIM:GetInstance();
 			controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_CITY_BLOCKADED" );
 			controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );

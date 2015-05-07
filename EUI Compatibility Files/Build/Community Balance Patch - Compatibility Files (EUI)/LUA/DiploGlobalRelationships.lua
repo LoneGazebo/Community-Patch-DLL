@@ -262,6 +262,43 @@ function InitMajorCivList()
 						end
 					end
 				end
+
+				-- DPS (CBP)
+				for iThirdPlayer = 0, GameDefines.MAX_MAJOR_CIVS - 1 do
+					if (iThirdPlayer ~= iOtherPlayer) then
+						local pThirdPlayer = Players[iThirdPlayer];
+						
+						if (pThirdPlayer ~= nil and pThirdPlayer:IsAlive()) then
+							local iThirdTeam = pThirdPlayer:GetTeam();
+							
+							if (g_pUsTeam:IsHasMet(iThirdTeam) or iThirdPlayer == g_iUs) then
+								
+								-- Has a DoF
+								if (pOtherPlayer:IsHasDefensivePactWithPlayer(iThirdPlayer)) then
+									bHasEntry = true;
+									
+									-- Us
+									if (iThirdPlayer == g_iUs) then
+										thirdName = "TXT_KEY_YOU";
+									-- Human
+									elseif (pThirdPlayer:IsHuman()) then
+										thirdName = pThirdPlayer:GetNickName();
+									-- AI
+									else
+										thirdName = pThirdPlayer:GetCivilizationShortDescription();
+									end
+									
+									local textControls = {};
+									ContextPtr:BuildInstanceForControl("TextEntry", textControls, controlTable.PactStack);
+									
+									local text = Locale.Lookup("TXT_KEY_DIPLO_DP_WITH_CBP", thirdName);
+									textControls.Text:SetText(text);
+								end
+							end
+						end
+					end
+				end
+				-- END
 				
 				-- Denouncements
 				for iThirdPlayer = 0, GameDefines.MAX_MAJOR_CIVS - 1 do

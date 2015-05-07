@@ -24,7 +24,7 @@ SET ExtraLuxuries = '0'
 WHERE Type = 'BUILDING_BAZAAR' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '+1 [ICON_GOLD] Gold for every 4 [ICON_CITIZEN] Citizens in the City. +2 [ICON_GOLD] Gold from [ICON_RES_SPICES] Spices, [ICON_RES_SUGAR] Sugar and [ICON_RES_COCOA] Cocoa. Each source of [ICON_RES_OIL] Oil and each Oasis provides +2 [ICON_GOLD] Gold.[NEWLINE][NEWLINE]Trade routes other players make to a city with a Bazaar will generate an extra 1 [ICON_GOLD] Gold for the city owner and the trade route owner gains an additional 1 [ICON_GOLD] Gold for the trade route.'
+SET Text = '+1 [ICON_GOLD] Gold for every 4 [ICON_CITIZEN] Citizens in the City. +1 [ICON_GOLD] Gold and +1 [ICON_PRODUCTION] Production from [ICON_RES_SPICES] Spices, [ICON_RES_SUGAR] Sugar and [ICON_RES_COCOA] Cocoa. Each source of [ICON_RES_OIL] Oil and each Oasis provides +2 [ICON_GOLD] Gold.[NEWLINE][NEWLINE]Trade routes other players make to a city with a Bazaar will generate an extra 1 [ICON_GOLD] Gold for the city owner and the trade route owner gains an additional 1 [ICON_GOLD] Gold for the trade route.'
 WHERE Tag = 'TXT_KEY_BUILDING_BAZAAR_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -146,12 +146,22 @@ WHERE Type = 'BUILDING_BURIAL_TOMB' AND EXISTS (SELECT * FROM COMMUNITY WHERE Ty
 
 INSERT INTO Building_ResourceYieldChanges (
 BuildingType, ResourceType, YieldType, Yield)
-SELECT 'BUILDING_BURIAL_TOMB', 'RESOURCE_INCENSE', 'YIELD_FAITH', '1'
+SELECT 'BUILDING_BURIAL_TOMB', 'RESOURCE_INCENSE', 'YIELD_CULTURE', '1'
 WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 INSERT INTO Building_ResourceYieldChanges (
 BuildingType, ResourceType, YieldType, Yield)
-SELECT 'BUILDING_BURIAL_TOMB', 'RESOURCE_WINE', 'YIELD_FAITH', '1'
+SELECT 'BUILDING_BURIAL_TOMB', 'RESOURCE_WINE', 'YIELD_CULTURE', '1'
+WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
+INSERT INTO Building_ResourceYieldChanges (
+BuildingType, ResourceType, YieldType, Yield)
+SELECT 'BUILDING_BURIAL_TOMB', 'RESOURCE_INCENSE', 'YIELD_GOLD', '1'
+WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
+INSERT INTO Building_ResourceYieldChanges (
+BuildingType, ResourceType, YieldType, Yield)
+SELECT 'BUILDING_BURIAL_TOMB', 'RESOURCE_WINE', 'YIELD_GOLD', '1'
 WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -198,7 +208,7 @@ SET LandUnitMaintenanceModifier = '0'
 WHERE Type = 'TRAIT_CONVERTS_LAND_BARBARIANS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 
--- Greece -- +2 Culture per city -- Odeon
+-- Greece -- +1 Culture per city -- Odeon
 DELETE FROM Units
 WHERE Type = 'UNIT_GREEK_COMPANIONCAVALRY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 

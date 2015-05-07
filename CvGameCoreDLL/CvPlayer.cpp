@@ -15057,7 +15057,6 @@ int CvPlayer::getNumUnits() const
 	return m_units.GetCount();
 }
 
-
 //	--------------------------------------------------------------------------------
 const CvUnit * CvPlayer::getUnit(int iID) const
 {

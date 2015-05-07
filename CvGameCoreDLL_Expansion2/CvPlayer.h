@@ -117,6 +117,9 @@ public:
 	int GetNumWorkablePlots() const;
 #endif
 
+#if defined(MOD_BALANCE_CORE)
+	void DoRevolutionPlayer(PlayerTypes ePlayer, int iOldCityID);
+#endif
 	void DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID);
 	bool CanLiberatePlayer(PlayerTypes ePlayer);
 	bool CanLiberatePlayerCity(PlayerTypes ePlayer);
@@ -320,6 +323,9 @@ public:
 	int GetNumUnitsSuppliedByPopulation() const;
 
 	int GetNumUnitsOutOfSupply() const;
+#if defined(MOD_BALANCE_CORE)
+	int getNumUnitsNoCivilian() const;
+#endif
 
 	int calculateUnitCost() const;
 	int calculateUnitSupply() const;

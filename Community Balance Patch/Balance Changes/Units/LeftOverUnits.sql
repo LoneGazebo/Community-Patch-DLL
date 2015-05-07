@@ -10,31 +10,20 @@ INSERT INTO Unit_FreePromotions (UnitType, PromotionType)
 SELECT 'UNIT_ROMAN_BALLISTA' , 'PROMOTION_COVER_1'
 WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
+UPDATE Units
+SET ObsoleteTech = 'TECH_COMBINED_ARMS'
+WHERE Type = 'UNIT_SHOSHONE_COMANCHE_RIDERS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
 DELETE FROM Unit_AITypes
 WHERE UnitType = 'UNIT_VENETIAN_GALLEASS' AND UnitAIType = 'UNITAI_EXPLORE_SEA' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 -- Borrowed from Whoward's tutorial on triggers
 
---CREATE TRIGGER Civilizations
---AFTER INSERT ON Civilizations
---WHEN EXISTS (SELECT Type FROM Civilizations WHERE Type='CIVILIZATION_'||NEW.Type)
---BEGIN
---	INSERT INTO Civilization_UnitClassOverrides(CivilizationType, UnitClassType, UnitType)
-  --  VALUES('CIVILIZATION_'||NEW.Type, UNITCLASS_LONGBOWMAN, );
---	INSERT INTO Civilization_UnitClassOverrides(CivilizationType, UnitClassType, UnitType)
- --   VALUES('CIVILIZATION_'||NEW.Type, UNITCLASS_COMPANIONCAVALRY, );
---	INSERT INTO Civilization_UnitClassOverrides(CivilizationType, UnitClassType, UnitType)
---    VALUES('CIVILIZATION_'||NEW.Type, UNITCLASS_SIPAHI, );
---	INSERT INTO Civilization_UnitClassOverrides(CivilizationType, UnitClassType, UnitType)
- --   VALUES('CIVILIZATION_'||NEW.Type, UNITCLASS_BALLISTA, );
---	INSERT INTO Civilization_UnitClassOverrides(CivilizationType, UnitClassType, UnitType)
- --   VALUES('CIVILIZATION_'||NEW.Type, UNITCLASS_TERCIO, );
---	INSERT INTO Civilization_UnitClassOverrides(CivilizationType, UnitClassType, UnitType)
- --   VALUES('CIVILIZATION_'||NEW.Type, UNITCLASS_HAKKAPELIITTA, );
---	INSERT INTO Civilization_UnitClassOverrides(CivilizationType, UnitClassType, UnitType)
- --   VALUES('CIVILIZATION_'||NEW.Type, UNITCLASS_COMANCHE_RIDERS, );
---	INSERT INTO Civilization_UnitClassOverrides(CivilizationType, UnitClassType, UnitType)
- --   VALUES('CIVILIZATION_'||NEW.Type, UNITCLASS_VENETIAN_GALLEASS, );
---	INSERT INTO Civilization_UnitClassOverrides(CivilizationType, UnitClassType, UnitType)
- --   VALUES('CIVILIZATION_'||NEW.Type, UNITCLASS_KOREAN_TURTLE_SHIP, );
---END;
+CREATE TRIGGER Unit_BuildingClassPurchaseRequireds
+AFTER INSERT ON Units
+WHEN EXISTS ( SELECT Type FROM Units WHERE Type = NEW.Type )
+BEGIN
+INSERT INTO Unit_BuildingClassPurchaseRequireds( UnitType, BuildingClassType )
+SELECT ( NEW.Type ), BuildingClassType
+FROM Unit_BuildingClassPurchaseRequireds WHERE UnitType IN ( SELECT DefaultUnit FROM UnitClasses WHERE Type = NEW.Class );
+END;

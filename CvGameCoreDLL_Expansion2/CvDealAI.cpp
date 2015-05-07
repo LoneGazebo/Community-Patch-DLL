@@ -122,7 +122,7 @@ DealOfferResponseTypes CvDealAI::DoHumanOfferDealToThisAI(CvDeal* pDeal)
 			if (MOD_BALANCE_CORE_DEALS_ADVANCED) 
 			{
 				//If there is a city in this deal...let's refuse. It is probably a trap.
-				if(!pDeal->ContainsItemType(TRADE_ITEM_CITIES, eFromPlayer))
+				if(!pDeal->ContainsItemType(TRADE_ITEM_CITIES, eFromPlayer) && !pDeal->ContainsItemType(TRADE_ITEM_DEFENSIVE_PACT, eFromPlayer))
 				{
 #endif
 			bDealAcceptable = true;
@@ -675,7 +675,19 @@ bool CvDealAI::DoEqualizeDealWithHuman(CvDeal* pDeal, PlayerTypes eOtherPlayer, 
 		{
 			return false;
 		}
-
+#if defined(MOD_BALANCE_CORE_DEALS)
+		if(pDeal->ContainsItemType(TRADE_ITEM_DEFENSIVE_PACT))
+		{
+			if(GetPlayer()->GetDiplomacyAI()->IsMusteringForAttack(eOtherPlayer))
+			{
+				return false;
+			}
+			if(!GetPlayer()->GetDiplomacyAI()->IsWantsDefensivePactWithPlayer(eOtherPlayer))
+			{
+				return false;
+			}
+		}
+#endif
 		if(bMakeOffer)
 		{
 			bDealGoodToBeginWith = true;

@@ -832,6 +832,9 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 
 	Method(Units);
 	Method(GetNumUnits);
+#if defined(MOD_BALANCE_CORE)
+	Method(GetNumUnitsNoCivlian);
+#endif
 	Method(GetUnitByID);
 
 	Method(AI_updateFoundValues);
@@ -8256,6 +8259,14 @@ int CvLuaPlayer::lGetNumUnits(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvPlayerAI::getNumUnits);
 }
+#if defined(MOD_BALANCE_CORE)
+//------------------------------------------------------------------------------
+//int getNumUnits();
+int CvLuaPlayer::lGetNumUnitsNoCivlian(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlayerAI::getNumUnitsNoCivilian);
+}
+#endif
 //------------------------------------------------------------------------------
 //void AI_updateFoundValues(bool bStartingLoc);
 int CvLuaPlayer::lAI_updateFoundValues(lua_State* L)

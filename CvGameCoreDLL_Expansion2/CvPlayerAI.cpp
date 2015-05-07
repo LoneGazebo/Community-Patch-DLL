@@ -169,7 +169,6 @@ void CvPlayerAI::AI_doTurnUnitsPost()
 		}
 	}
 }
-
 #if defined(MOD_BALANCE_CORE)
 void CvPlayerAI::AI_updateFoundValues(bool /*unused*/)
 {
@@ -218,26 +217,6 @@ void CvPlayerAI::AI_updateFoundValues(bool /*unused*/)
 		else
 		{
 			pLoopPlot->setFoundValue(eID, -1);
-		}
-		//Sanity check regarding war - if this tile is even close to enemy territory, we should not consider it.
-		if(IsAtWar())
-		{
-			int iRange = 4;
-			for(int iX = -iRange; iX <= iRange; iX++)
-			{
-				for(int iY = -iRange; iY <= iRange; iY++)
-				{
-					CvPlot* pEvalPlot = NULL;
-					pEvalPlot = plotXYWithRangeCheck(pLoopPlot->getX(), pLoopPlot->getY(), iX, iY, iRange);
-					if(pEvalPlot != NULL)
-					{
-						if(GET_TEAM(GET_PLAYER(pEvalPlot->getOwner()).getTeam()).isAtWar(getTeam()))
-						{
-							pLoopPlot->setFoundValue(eID, -1);
-						}
-					}
-				}
-			}
 		}
 	}
 

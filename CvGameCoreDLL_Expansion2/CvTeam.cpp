@@ -1283,7 +1283,14 @@ void CvTeam::DoDeclareWar(TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyP
 #endif
 
 		// Since we declared war, all of OUR Defensive Pacts are nullified
+#if defined(MOD_BALANCE_CORE)
+		if(!bDefensivePact)
+		{
+#endif
 		cancelDefensivePacts();
+#if defined(MOD_BALANCE_CORE)
+		}
+#endif
 		GC.getGame().GetGameTrade()->DoAutoWarPlundering(m_eID, eTeam);
 		GC.getGame().GetGameTrade()->CancelTradeBetweenTeams(m_eID, eTeam);
 
@@ -3279,6 +3286,15 @@ int CvTeam::getDefensivePactTradingAllowedCount() const
 //	--------------------------------------------------------------------------------
 bool CvTeam::isDefensivePactTradingAllowed() const
 {
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	if(MOD_DIPLOMACY_CIV4_FEATURES)
+	{
+		if(IsVassalOfSomeone())
+		{
+			return false;
+		}
+	}
+#endif
 	return (getDefensivePactTradingAllowedCount() > 0);
 }
 
@@ -9035,6 +9051,13 @@ void CvTeam::DoBecomeVassal(TeamTypes eTeam, bool bVoluntary)
 				{
 					// Notify DiploAI that we are now eTeam's vassal
 					GET_PLAYER((PlayerTypes)iI).GetDiplomacyAI()->DoWeMadeVassalageWithSomeone((PlayerTypes)iI, eTeam);
+#if defined(MOD_BALANCE_CORE)
+					if(IsHasDefensivePact(GET_PLAYER((PlayerTypes)iI).getTeam()))
+					{
+						GET_TEAM(GET_PLAYER((PlayerTypes)iI).getTeam()).SetHasDefensivePact(this->GetID(), false);
+						SetHasDefensivePact(GET_PLAYER((PlayerTypes)iI).getTeam(), false);
+					}
+#endif
 				}
 			}
 		}

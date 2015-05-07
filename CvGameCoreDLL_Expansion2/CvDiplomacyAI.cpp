@@ -5590,9 +5590,25 @@ void CvDiplomacyAI::DoMakePeaceWithMinors()
 				if(IsAtWar(eLoopPlayer))
 				{
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
-					if(IsWantsPeaceWithPlayer(eLoopPlayer) && GET_TEAM(GetPlayer()->getTeam()).GetNumTurnsLockedIntoWar(GET_PLAYER(eLoopPlayer).getTeam()) == 0 && (MOD_DIPLOMACY_CIV4_FEATURES && GET_TEAM(GetPlayer()->getTeam()).IsVassalLockedIntoWar(GET_PLAYER(eLoopPlayer).getTeam()) == false))	// Locked into war for a period of time? (coop war, war deal, etc.)
+					if(MOD_DIPLOMACY_CIV4_FEATURES && !GET_TEAM(GetPlayer()->getTeam()).IsVassalLockedIntoWar(GET_PLAYER(eLoopPlayer).getTeam()))	// Locked into war for a period of time? (coop war, war deal, etc.)
+					{
+						if(IsWantsPeaceWithPlayer(eLoopPlayer) && GET_TEAM(GetPlayer()->getTeam()).GetNumTurnsLockedIntoWar(GET_PLAYER(eLoopPlayer).getTeam()) == 0)	// Locked into war for a period of time? (coop war, war deal, etc.)
+						{
+							if(!GET_PLAYER(eLoopPlayer).GetMinorCivAI()->IsPeaceBlocked(GetPlayer()->getTeam()))
+							{
+#if defined(MOD_EVENTS_WAR_AND_PEACE)
+								GET_TEAM(GetTeam()).makePeace(GET_PLAYER(eLoopPlayer).getTeam(), true, false, GetPlayer()->GetID());
 #else
-					if(IsWantsPeaceWithPlayer(eLoopPlayer) && GET_TEAM(GetPlayer()->getTeam()).GetNumTurnsLockedIntoWar(GET_PLAYER(eLoopPlayer).getTeam()) == 0)	// Locked into war for a period of time? (coop war, war deal, etc.)
+								GET_TEAM(GetTeam()).makePeace(GET_PLAYER(eLoopPlayer).getTeam());
+#endif
+
+								LogPeaceMade(eLoopPlayer);
+							}
+						}
+					}
+					else
+#else
+					if(!MOD_DIPLOMACY_CIV4_FEATURES && IsWantsPeaceWithPlayer(eLoopPlayer) && GET_TEAM(GetPlayer()->getTeam()).GetNumTurnsLockedIntoWar(GET_PLAYER(eLoopPlayer).getTeam()) == 0)	// Locked into war for a period of time? (coop war, war deal, etc.)
 #endif
 					{
 						if(!GET_PLAYER(eLoopPlayer).GetMinorCivAI()->IsPeaceBlocked(GetPlayer()->getTeam()))
@@ -5949,19 +5965,14 @@ bool CvDiplomacyAI::IsWantsPeaceWithPlayer(PlayerTypes ePlayer) const
 	//Vassals will never want peace with a player if their master is at war with a player.
 	if(MOD_DIPLOMACY_CIV4_FEATURES)
 	{
-		PlayerTypes eLoopPlayer;
-		for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+		if(GET_TEAM(m_pPlayer->getTeam()).IsVassalOfSomeone())
 		{
-			eLoopPlayer = (PlayerTypes) iPlayerLoop;
-
-			if(GET_PLAYER(eLoopPlayer).isAlive())
+			TeamTypes eMasterTeam = GET_TEAM(m_pPlayer->getTeam()).GetMaster();
+			if(eMasterTeam != NO_TEAM)
 			{
-				if(m_pPlayer->GetDiplomacyAI()->IsVassal(eLoopPlayer))
+				if(GET_TEAM(eMasterTeam).isAtWar(GET_PLAYER(ePlayer).getTeam()))
 				{
-					if(GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).isAtWar(GET_PLAYER(ePlayer).getTeam()))
-					{
-						return false;
-					}
+					return false;
 				}
 			}
 		}
@@ -6038,26 +6049,42 @@ void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 	{
 		MajorCivApproachTypes eApproach = GetMajorCivApproach(eTargetPlayer, /*bHideTrueFeelings*/ false);
 #if defined(MOD_BALANCE_CORE)
-		bWantToAttack =  (eApproach == MAJOR_CIV_APPROACH_DECEPTIVE && GetLoyalty() < 5);
-		if(!bWantToAttack)
-		{
-			bWantToAttack =  (eApproach == MAJOR_CIV_APPROACH_GUARDED && GetWarmongerThreat(eTargetPlayer) > THREAT_MAJOR);
-		}
-		if(!bWantToAttack)
-		{
-			bWantToAttack = ((eApproach != MAJOR_CIV_APPROACH_FRIENDLY) && GetVictoryBlockLevel(eTargetPlayer) > BLOCK_LEVEL_STRONG);
-		}
-		if(!bWantToAttack)
-		{
-			bWantToAttack = ((eApproach != MAJOR_CIV_APPROACH_FRIENDLY) && GetVictoryDisputeLevel(eTargetPlayer) > DISPUTE_LEVEL_STRONG);
-		}
-		if(!bWantToAttack)
-		{
-			bWantToAttack = (eApproach == MAJOR_CIV_APPROACH_WAR);
-		}
+		bWantToAttack = (eApproach == MAJOR_CIV_APPROACH_WAR);
 		if(!bWantToAttack)
 		{
 			bWantToAttack = (GetWarGoal(eTargetPlayer) == WAR_GOAL_PREPARE) && (eApproach == MAJOR_CIV_APPROACH_WAR || eApproach == MAJOR_CIV_APPROACH_DECEPTIVE);
+		}
+		if(!bWantToAttack)
+		{
+			bWantToAttack =  (eApproach == MAJOR_CIV_APPROACH_DECEPTIVE && GetLoyalty() < 5);
+		}
+		if(!bWantToAttack)
+		{
+			bWantToAttack =  (eApproach != MAJOR_CIV_APPROACH_FRIENDLY && GetWarmongerThreat(eTargetPlayer) >= THREAT_MAJOR && GetWarmongerHate() > 5);
+		}
+		if(!bWantToAttack)
+		{
+			bWantToAttack = ((eApproach != MAJOR_CIV_APPROACH_FRIENDLY) && GetVictoryBlockLevel(eTargetPlayer) >= BLOCK_LEVEL_STRONG && GetVictoryCompetitiveness() > 5);
+		}
+		if(!bWantToAttack)
+		{
+			bWantToAttack = ((eApproach != MAJOR_CIV_APPROACH_FRIENDLY) && GetVictoryDisputeLevel(eTargetPlayer) >= DISPUTE_LEVEL_STRONG && GetVictoryCompetitiveness() > 5);
+		}
+		if(!bWantToAttack)
+		{
+			bWantToAttack = GetPlayerMilitaryStrengthComparedToUs(eTargetPlayer) <= STRENGTH_POOR && GetMeanness() > 5;
+		}
+		if(!bWantToAttack)
+		{
+			bWantToAttack = GetPlayerEconomicStrengthComparedToUs(eTargetPlayer) <= STRENGTH_POOR && GetNeediness() > 5;
+		}
+		if(!bWantToAttack)
+		{
+			bWantToAttack = GetPlayerEconomicStrengthComparedToUs(eTargetPlayer) <= STRENGTH_POOR && GetNeediness() > 5;
+		}
+		if(!bWantToAttack)
+		{
+			bWantToAttack = IsGoingForWorldConquest();
 		}
 #else
 		bWantToAttack = (eApproach == MAJOR_CIV_APPROACH_WAR || (eApproach == MAJOR_CIV_APPROACH_DECEPTIVE && IsGoingForWorldConquest()));
@@ -7199,6 +7226,25 @@ void CvDiplomacyAI::DoUpdateOnePlayerMilitaryStrength(PlayerTypes ePlayer)
 			// Example: If another player has double the Military strength of us, the Ratio will be 200
 			iMilitaryRatio = iOtherPlayerMilitary* /*100*/ GC.getMILITARY_STRENGTH_RATIO_MULTIPLIER() / iMilitaryStrength;
 		}
+#if defined(MOD_BALANCE_CORE)
+		PlayerTypes eLoopPlayer;
+		int iDP = 0;
+		for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+		{
+			eLoopPlayer = (PlayerTypes) iPlayerLoop;
+			if(eLoopPlayer != NO_PLAYER && !GET_PLAYER(eLoopPlayer).isMinorCiv() && eLoopPlayer != ePlayer)
+			{
+				if(GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).IsHasDefensivePact(GET_PLAYER(ePlayer).getTeam()))
+				{
+					iDP++;
+				}
+			}
+		}
+		if(iDP > 0)
+		{
+			iMilitaryRatio += (iDP * 10);
+		}
+#endif
 		//else
 		//{
 		//	iMilitaryRatio = /*100*/ GC.getMILITARY_STRENGTH_RATIO_MULTIPLIER();
@@ -8147,77 +8193,138 @@ void CvDiplomacyAI::DoUpdatePlanningExchanges()
 	if(MOD_BALANCE_CORE_DEALS)
 	{
 		int iNumDPsWanted = GetNumDefensivePactsWanted();
-#if defined(DIPLOMACY_CITYSTATES_RESOLUTIONS)
-		//Halve this to encourage more DPs below.
-		if(DIPLOMACY_CITYSTATES_RESOLUTIONS && GetPlayer()->GetDefensePactsToVotes() > 0)
-		{
-			iNumDPsWanted /= 2;
-		}
-#endif
+		int iLoyalty = GetPlayer()->GetDiplomacyAI()->GetLoyalty();
+		int iNumCivs = 0;
 
-		// Loop through all (known) Players
-		PlayerTypes eLoopPlayer;
+		PlayerTypes eLoopTest;
 		for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 		{
-			eLoopPlayer = (PlayerTypes) iPlayerLoop;
-
-			MajorCivOpinionTypes eOpinion = GetMajorCivOpinion(eLoopPlayer);
-			if(IsPlayerValid(eLoopPlayer))
+			eLoopTest = (PlayerTypes) iPlayerLoop;
+			if(IsPlayerValid(eLoopTest) && (eLoopTest != GetPlayer()->GetID()) && !GET_PLAYER(eLoopTest).isMinorCiv())
 			{
-				// Defensive Pacts
-				// Do we already have a DP?
-				if(!GET_TEAM(GetPlayer()->getTeam()).IsHasDefensivePact(GET_PLAYER(eLoopPlayer).getTeam()))
+				iNumCivs++;
+			}
+		}
+		iLoyalty = ((iLoyalty * iNumCivs) / 20);
+#if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
+		//Halve this to encourage more DPs below.
+		if(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS && GetPlayer()->GetDefensePactsToVotes() > 0)
+		{
+			iLoyalty *= 2;
+		}
+#endif
+		if(iLoyalty > 0)
+		{
+			// Loop through all (known) Players
+			PlayerTypes eLoopPlayer;
+			for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+			{
+				eLoopPlayer = (PlayerTypes) iPlayerLoop;
+
+				MajorCivOpinionTypes eOpinion = GetMajorCivOpinion(eLoopPlayer);
+				if(IsPlayerValid(eLoopPlayer))
 				{
-					// If we're Friendly and have the appropriate tech...
-					if(!IsWantsDefensivePactWithPlayer(eLoopPlayer))
+					// Defensive Pacts
+					// Do we already have a DP?
+					if(!GET_TEAM(GetPlayer()->getTeam()).IsHasDefensivePact(GET_PLAYER(eLoopPlayer).getTeam()))
 					{
-						if(GetMajorCivApproach(eLoopPlayer, /*bHideTrueFeelings*/ false) == MAJOR_CIV_APPROACH_FRIENDLY)
+						// If we're Friendly and have the appropriate tech...
+						if(!IsWantsDefensivePactWithPlayer(eLoopPlayer))
 						{
-							if(eOpinion >= MAJOR_CIV_OPINION_FAVORABLE)
+							if((GetMajorCivApproach(eLoopPlayer, /*bHideTrueFeelings*/ false) == MAJOR_CIV_APPROACH_FRIENDLY) || (GetMajorCivApproach(eLoopPlayer, /*bHideTrueFeelings*/ false) == MAJOR_CIV_APPROACH_AFRAID))
 							{
-								if(GetPlayerMilitaryStrengthComparedToUs(eLoopPlayer) >= STRENGTH_AVERAGE)
+								if(eOpinion > MAJOR_CIV_OPINION_FAVORABLE)
 								{
-									//We don't want spam - let's limit this to the civ's loyalty metric (to prevent backstabs and to keep the AI from overcomitting).
-									if(iNumDPsWanted <= (GetPlayer()->GetDiplomacyAI()->GetLoyalty() / 2))
+									if(GetPlayerMilitaryStrengthComparedToUs(eLoopPlayer) > STRENGTH_AVERAGE)
 									{
-										if(GET_TEAM(GetPlayer()->getTeam()).isDefensivePactTradingAllowedWithTeam(GET_PLAYER(eLoopPlayer).getTeam()) ||	   // We have Tech & embassy to make a RA
-												GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).isDefensivePactTradingAllowed()) // They have Tech & embassy to make RA
+										//We don't want spam - let's limit this to the civ's loyalty metric (to prevent backstabs and to keep the AI from overcomitting).
+										if(GetPlayer()->GetDiplomacyAI()->GetNumDefensePacts() <= iLoyalty)
 										{
-												DoAddWantsDefensivePactWithPlayer(eLoopPlayer);
-												iNumDPsWanted++;	// This was calculated above, increment it by one since we know we've added another
+											if(GET_TEAM(GetPlayer()->getTeam()).isDefensivePactTradingAllowedWithTeam(GET_PLAYER(eLoopPlayer).getTeam()) ||	   // We have Tech & embassy to make a RA
+													GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).isDefensivePactTradingAllowed()) // They have Tech & embassy to make RA
+											{
+												bool bFalseFriend = false;
+												//Let's check to see if he has a DP with someone we don't like - if he does, we should not ally with him.
+												PlayerTypes eLoopOtherPlayer;
+												for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+												{
+													eLoopOtherPlayer = (PlayerTypes) iPlayerLoop;
+													if(eLoopOtherPlayer != NO_PLAYER && !GET_PLAYER(eLoopOtherPlayer).isMinorCiv() && ((GetMajorCivApproach(eLoopOtherPlayer, /*bHideTrueFeelings*/ false) != MAJOR_CIV_APPROACH_FRIENDLY) && (GetMajorCivApproach(eLoopOtherPlayer, /*bHideTrueFeelings*/ false) != MAJOR_CIV_APPROACH_AFRAID)))
+													{
+														MajorCivOpinionTypes eOpinion = GetMajorCivOpinion(eLoopOtherPlayer);
+														if(eOpinion <= MAJOR_CIV_OPINION_NEUTRAL)
+														{
+															if(GET_TEAM(GET_PLAYER(eLoopOtherPlayer).getTeam()).IsHasDefensivePact(GET_PLAYER(eLoopPlayer).getTeam()))
+															{
+																bFalseFriend = true;
+																break;
+															}
+														}
+													}
+												}
+												if(!bFalseFriend)
+												{		
+													DoAddWantsDefensivePactWithPlayer(eLoopPlayer);
+													iNumDPsWanted++;	// This was calculated above, increment it by one since we know we've added another
+												}
+											}
 										}
 									}
 								}
 							}
 						}
 					}
-				}
 
-				// Already planning a DP?
-				if(IsWantsDefensivePactWithPlayer(eLoopPlayer))
-				{
-					bool bCancel = false;
-					if((GetMajorCivApproach(eLoopPlayer, /*bHideTrueFeelings*/ false) <= MAJOR_CIV_APPROACH_GUARDED) || GetMajorCivApproach(eLoopPlayer, /*bHideTrueFeelings*/ false) == MAJOR_CIV_APPROACH_NEUTRAL)
+					// Already planning a DP?
+					if(IsWantsDefensivePactWithPlayer(eLoopPlayer))
 					{
-						bCancel = true;
-					}
-					if(eOpinion < MAJOR_CIV_OPINION_FAVORABLE)
-					{
-						bCancel = true;
-					}
-					if(GetPlayerMilitaryStrengthComparedToUs(eLoopPlayer) < STRENGTH_AVERAGE)
-					{
-						bCancel = true;
-					}
-					else if(!(GET_TEAM(GetPlayer()->getTeam()).isDefensivePactTradingAllowedWithTeam(GET_PLAYER(eLoopPlayer).getTeam()) ||	   // We have Tech & embassy to make a RA
-							  GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).isDefensivePactTradingAllowed())) // They have Tech & embassy to make RA
-					{
-						bCancel = true;
-					}
-		
-					if (bCancel)
-					{
-						DoCancelWantsDefensivePactWithPlayer(eLoopPlayer);
+						bool bCancel = false;
+						if((GetMajorCivApproach(eLoopPlayer, /*bHideTrueFeelings*/ false) != MAJOR_CIV_APPROACH_FRIENDLY) && (GetMajorCivApproach(eLoopPlayer, /*bHideTrueFeelings*/ false) != MAJOR_CIV_APPROACH_AFRAID))
+						{
+							bCancel = true;
+						}
+						if(eOpinion < MAJOR_CIV_OPINION_FAVORABLE)
+						{
+							bCancel = true;
+						}
+						if(GetPlayerMilitaryStrengthComparedToUs(eLoopPlayer) <= STRENGTH_AVERAGE)
+						{
+							bCancel = true;
+						}
+						if(GetPlayer()->GetDiplomacyAI()->GetNumDefensePacts() > iLoyalty)
+						{
+							bCancel = true;
+						}
+						else if(!(GET_TEAM(GetPlayer()->getTeam()).isDefensivePactTradingAllowedWithTeam(GET_PLAYER(eLoopPlayer).getTeam()) ||	   // We have Tech & embassy to make a RA
+								  GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).isDefensivePactTradingAllowed())) // They have Tech & embassy to make RA
+						{
+							bCancel = true;
+						}
+						if(!bCancel)
+						{
+							//Let's check to see if he has a DP with someone we don't like - if he does, we should not ally with him.
+							PlayerTypes eLoopOtherPlayer;
+							for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+							{
+								eLoopOtherPlayer = (PlayerTypes) iPlayerLoop;
+								if(eLoopOtherPlayer != NO_PLAYER && !GET_PLAYER(eLoopOtherPlayer).isMinorCiv() && ((GetMajorCivApproach(eLoopOtherPlayer, /*bHideTrueFeelings*/ false) != MAJOR_CIV_APPROACH_FRIENDLY) && (GetMajorCivApproach(eLoopOtherPlayer, /*bHideTrueFeelings*/ false) != MAJOR_CIV_APPROACH_AFRAID)))
+								{
+									MajorCivOpinionTypes eOpinion = GetMajorCivOpinion(eLoopOtherPlayer);
+									if(eOpinion <= MAJOR_CIV_OPINION_NEUTRAL)
+									{
+										if(GET_TEAM(GET_PLAYER(eLoopOtherPlayer).getTeam()).IsHasDefensivePact(GET_PLAYER(eLoopPlayer).getTeam()))
+										{
+											bCancel = true;
+											break;
+										}
+									}
+								}
+							}
+						}
+						if (bCancel)
+						{
+							DoCancelWantsDefensivePactWithPlayer(eLoopPlayer);
+						}
 					}
 				}
 			}
@@ -12417,6 +12524,14 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 					bDealAcceptable = true;
 				}
 			}
+#if defined(MOD_BALANCE_CORE)
+			CvDeal* pRenewDeal1 = GetDealToRenew();
+			if(pRenewDeal1->ContainsItemType(TRADE_ITEM_DEFENSIVE_PACT, ePlayer) && !IsWantsDefensivePactWithPlayer(ePlayer))
+			{
+				bDealAcceptable = false;
+				iValueImOffering = 100000;
+			}
+#endif
 
 			if(bDealAcceptable)
 			{
@@ -12441,12 +12556,19 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 			if(eMessageType != NUM_DIPLO_MESSAGE_TYPES)
 			{
 				CvDeal* pRenewDeal = GetDealToRenew();
+#if defined(MOD_BALANCE_CORE)
+				if(pRenewDeal->ContainsItemType(TRADE_ITEM_DEFENSIVE_PACT, ePlayer) && !IsWantsDefensivePactWithPlayer(ePlayer))
+				{
+#endif
 				if (pRenewDeal)
 				{
 					pRenewDeal->m_bCheckedForRenewal = true;
 				}
 				szText = GetDiploStringForMessage(eMessageType);
 				CvDiplomacyRequests::SendDealRequest(GetPlayer()->GetID(), ePlayer, pDeal, DIPLO_UI_STATE_TRADE_AI_MAKES_OFFER, szText, LEADERHEAD_ANIM_REQUEST);
+#if defined(MOD_BALANCE_CORE)
+				}
+#endif
 			}
 		}
 		// Offer to an AI player

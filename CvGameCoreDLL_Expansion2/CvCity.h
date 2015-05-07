@@ -641,7 +641,9 @@ public:
 #endif
 
 	bool IsBlockaded() const;
-
+#if defined(MOD_BALANCE_CORE)
+	bool IsBlockadedTest() const;
+#endif
 	int GetWeLoveTheKingDayCounter() const;
 	void SetWeLoveTheKingDayCounter(int iValue);
 	void ChangeWeLoveTheKingDayCounter(int iChange);

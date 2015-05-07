@@ -1037,7 +1037,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	if(MOD_BALANCE_CORE_POLICIES && bInitialFounding && owningPlayer.GetBestRangedUnitSpawnSettle() > 0)
 	{
-		UnitTypes eType = GetCityStrategyAI()->GetUnitProductionAI()->RecommendUnit(UNITAI_RANGED, false /*Uses strategic resource*/);
+		UnitTypes eType = GetCityStrategyAI()->GetUnitProductionAI()->RecommendUnit(UNITAI_RANGED, false /*Uses strategic resource*/, false);
 		if(eType != NO_UNIT)
 		{
 			int iResult = CreateUnit(eType, UNITAI_RANGED, false /*bUseToSatisfyOperation*/);
@@ -1056,7 +1056,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 		}
 		else
 		{
-			UnitTypes eType = GetCityStrategyAI()->GetUnitProductionAI()->RecommendUnit(UNITAI_DEFENSE, false);
+			UnitTypes eType = GetCityStrategyAI()->GetUnitProductionAI()->RecommendUnit(UNITAI_DEFENSE, false, false);
 			if(eType != NO_UNIT)
 			{
 				int iResult = CreateUnit(eType, UNITAI_DEFENSE, false /*bUseToSatisfyOperation*/);
@@ -13236,7 +13236,46 @@ bool CvCity::IsBlockaded() const
 	}
 #endif
 }
+#if defined(MOD_BALANCE_CORE)
+//	--------------------------------------------------------------------------------
+bool CvCity::IsBlockadedTest() const
+{
+	VALIDATE_OBJECT
+	int iRange = 3;
+	int iFriendly = 0;
+	int iEnemy = 0;
+	CvPlot* pLoopPlot = NULL;
 
+	for(int iDX = -iRange; iDX <= iRange; iDX++)
+	{
+		for(int iDY = -iRange; iDY <= iRange; iDY++)
+		{
+			pLoopPlot = plotXYWithRangeCheck(getX(), getY(), iDX, iDY, iRange);
+			if(!pLoopPlot)
+			{
+				continue;
+			}
+			if(pLoopPlot->isWater() && (pLoopPlot->getUnitByIndex(0) != NULL) && (pLoopPlot->getUnitByIndex(0)->getDomainType() == DOMAIN_SEA) && (pLoopPlot->getUnitByIndex(0)->IsCombatUnit()))
+			{
+				if(pLoopPlot->getUnitByIndex(0)->getOwner() == getOwner())
+				{
+					iFriendly++;
+				}
+				else if(GET_TEAM(GET_PLAYER(pLoopPlot->getUnitByIndex(0)->getOwner()).getTeam()).isAtWar(GET_PLAYER(getOwner()).getTeam()))
+				{
+					iEnemy++;
+				}
+			}
+		}
+	}
+	if(iEnemy > iFriendly)
+	{
+		return true;
+	}
+
+	return false;
+}
+#endif
 //	--------------------------------------------------------------------------------
 /// Amount of turns left in WLTKD
 int CvCity::GetWeLoveTheKingDayCounter() const
@@ -21643,7 +21682,7 @@ bool CvCity::CommitToBuildingUnitForOperation()
 
 				eUnitAI = (UnitAITypes)slotEntry.m_primaryUnitType;
 #if defined(MOD_BALANCE_CORE)
-				eBestUnit = m_pCityStrategyAI->GetUnitProductionAI()->RecommendUnit(eUnitAI, true);
+				eBestUnit = m_pCityStrategyAI->GetUnitProductionAI()->RecommendUnit(eUnitAI, true, true);
 #else
 				eBestUnit = m_pCityStrategyAI->GetUnitProductionAI()->RecommendUnit(eUnitAI);
 #endif
@@ -21651,7 +21690,7 @@ bool CvCity::CommitToBuildingUnitForOperation()
 				{
 					eUnitAI = (UnitAITypes)slotEntry.m_secondaryUnitType;
 #if defined(MOD_BALANCE_CORE)
-					eBestUnit = m_pCityStrategyAI->GetUnitProductionAI()->RecommendUnit(eUnitAI, true);
+					eBestUnit = m_pCityStrategyAI->GetUnitProductionAI()->RecommendUnit(eUnitAI, true, true);
 #else
 					eBestUnit = m_pCityStrategyAI->GetUnitProductionAI()->RecommendUnit(eUnitAI);
 #endif
@@ -21736,7 +21775,7 @@ UnitTypes CvCity::GetUnitForOperation()
 
 				eUnitAI = (UnitAITypes)slotEntry.m_primaryUnitType;
 #if defined(MOD_BALANCE_CORE)
-				eBestUnit = m_pCityStrategyAI->GetUnitProductionAI()->RecommendUnit(eUnitAI, true);
+				eBestUnit = m_pCityStrategyAI->GetUnitProductionAI()->RecommendUnit(eUnitAI, true, true);
 #else
 				eBestUnit = m_pCityStrategyAI->GetUnitProductionAI()->RecommendUnit(eUnitAI);
 #endif
@@ -21744,7 +21783,7 @@ UnitTypes CvCity::GetUnitForOperation()
 				{
 					eUnitAI = (UnitAITypes)slotEntry.m_secondaryUnitType;
 #if defined(MOD_BALANCE_CORE)
-					eBestUnit = m_pCityStrategyAI->GetUnitProductionAI()->RecommendUnit(eUnitAI, true);
+					eBestUnit = m_pCityStrategyAI->GetUnitProductionAI()->RecommendUnit(eUnitAI, true, true);
 #else
 					eBestUnit = m_pCityStrategyAI->GetUnitProductionAI()->RecommendUnit(eUnitAI);
 #endif

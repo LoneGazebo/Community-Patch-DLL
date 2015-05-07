@@ -396,12 +396,6 @@
 			<Yield>1</Yield>
 		</Row>
 		<Row>
-			<ImprovementType>IMPROVEMENT_LUMBERMILL_JUNGLE</ImprovementType>
-			<TechType>TECH_INDUSTRIALIZATION</TechType>
-			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Yield>1</Yield>
-		</Row>
-		<Row>
 			<ImprovementType>IMPROVEMENT_PLANTATION</ImprovementType>
 			<TechType>TECH_CHEMISTRY</TechType>
 			<YieldType>YIELD_GOLD</YieldType>
@@ -472,12 +466,6 @@
 		</Row>		
 		<Row>
 			<ImprovementType>IMPROVEMENT_LUMBERMILL</ImprovementType>
-			<TechType>TECH_COMBUSTION</TechType>
-			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Yield>1</Yield>
-		</Row>
-		<Row>
-			<ImprovementType>IMPROVEMENT_LUMBERMILL_JUNGLE</ImprovementType>
 			<TechType>TECH_COMBUSTION</TechType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
 			<Yield>1</Yield>

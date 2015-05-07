@@ -83,6 +83,18 @@
 			<YieldType>YIELD_GOLD</YieldType>
 			<Yield>1</Yield>
 		</Row>
+		<Row>
+			<PolicyType>POLICY_ENTREPRENEURSHIP</PolicyType>
+			<ImprovementType>IMPROVEMENT_LUMBERMILL_JUNGLE</ImprovementType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_ENTREPRENEURSHIP</PolicyType>
+			<ImprovementType>IMPROVEMENT_LUMBERMILL_JUNGLE</ImprovementType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>1</Yield>
+		</Row>
 	</Policy_ImprovementYieldChanges>
 	<!-- Organization -->
 	<Policy_BuildingClassYieldChanges>

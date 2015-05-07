@@ -1,5 +1,3 @@
--- Insert SQL Rules Here 
-
 
 --
 -- Tech Priorities
@@ -15,27 +13,58 @@ DELETE FROM Technology_Flavors;
 		AND unit.Type = class.DefaultUnit
 		AND unit.Class = class.Type
 		AND flavor.Flavor >= 2
+	)
+	-- extended for Unit_TechTypes
+	UNION ALL
+	SELECT Unit_TechTypes.TechType, Unit_Flavors.FlavorType, Unit_Flavors.Flavor
+	FROM Unit_TechTypes, UnitClasses, Unit_Flavors, Units
+		WHERE ( Unit_TechTypes.UnitType = Unit_Flavors.UnitType
+		AND Unit_TechTypes.UnitType = UnitClasses.DefaultUnit
+		AND Units.Class = UnitClasses.Type
+		AND Unit_TechTypes.UnitType = Units.Type
+		AND Unit_Flavors.Flavor >= 2
 	);
 
 -- Buildings
 	INSERT OR IGNORE INTO Technology_Flavors(TechType, FlavorType, Flavor)
 	SELECT building.PrereqTech, flavor.FlavorType, flavor.Flavor * building.AIAvailability / 8
-	FROM Buildings building, BuildingClasses class, Building_Flavors_Human flavor
+	FROM Buildings building, BuildingClasses class, Building_Flavors flavor -- Building_Flavors_Human (empty/not used) = Building_Flavors
 	WHERE ( building.Type = flavor.BuildingType
 		AND building.Type = class.DefaultBuilding
 		AND building.BuildingClass = class.Type
 		AND flavor.FlavorType <> 'FLAVOR_WONDER'
 		AND (building.AIAvailability * flavor.Flavor / 8) >= 2
+	)
+	-- extended for Building_TechAndPrereqs
+	UNION ALL
+	SELECT Building_TechAndPrereqs.TechType, Building_Flavors.FlavorType, Building_Flavors.Flavor * Buildings.AIAvailability / 8
+	FROM Building_TechAndPrereqs, BuildingClasses, Building_Flavors, Buildings
+		WHERE ( Building_TechAndPrereqs.BuildingType = Building_Flavors.BuildingType
+		AND Building_TechAndPrereqs.BuildingType = BuildingClasses.DefaultBuilding
+		AND Buildings.BuildingClass = BuildingClasses.Type
+		AND Building_Flavors.FlavorType <> 'FLAVOR_WONDER'
+		AND Building_TechAndPrereqs.BuildingType = Buildings.Type
+		AND (Buildings.AIAvailability * Building_Flavors.Flavor / 8) >= 2
 	);
 
 -- Wonders
 	INSERT OR IGNORE INTO Technology_Flavors(TechType, FlavorType, Flavor)
 	SELECT building.PrereqTech, flavor.FlavorType, flavor.Flavor / 2
-	FROM Buildings building, BuildingClasses class, Building_Flavors_Human flavor
+	FROM Buildings building, BuildingClasses class, Building_Flavors flavor -- Building_Flavors_Human (empty/not used) = Building_Flavors
 	WHERE ( building.Type = flavor.BuildingType
 		AND building.Type = class.DefaultBuilding
 		AND building.BuildingClass = class.Type
 		AND flavor.FlavorType = 'FLAVOR_WONDER'
+	)
+	-- extended for Building_TechAndPrereqs
+	UNION ALL
+	SELECT Building_TechAndPrereqs.TechType, Building_Flavors.FlavorType, Building_Flavors.Flavor / 2
+	FROM Building_TechAndPrereqs, BuildingClasses, Building_Flavors, Buildings
+		WHERE ( Building_TechAndPrereqs.BuildingType = Building_Flavors.BuildingType
+		AND Building_TechAndPrereqs.BuildingType = BuildingClasses.DefaultBuilding
+		AND Buildings.BuildingClass = BuildingClasses.Type
+		AND Building_Flavors.FlavorType = 'FLAVOR_WONDER'
+		AND Building_TechAndPrereqs.BuildingType = Buildings.Type
 	);
 
 -- Projects
