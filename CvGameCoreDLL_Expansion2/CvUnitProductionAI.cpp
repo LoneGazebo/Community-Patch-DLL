@@ -194,7 +194,7 @@ UnitTypes CvUnitProductionAI::RecommendUnit(UnitAITypes eUnitAIType)
 					}
 				}
 			}
-			if(!bForOperation && !CheckUnitBuildSanity(eUnit, bForOperation))
+			if(!CheckUnitBuildSanity(eUnit, bForOperation))
 			{
 				continue;
 			}

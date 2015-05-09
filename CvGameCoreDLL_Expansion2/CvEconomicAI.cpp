@@ -4494,7 +4494,11 @@ bool EconomicAIHelpers::IsTestStrategy_HaltGrowthBuildings(CvPlayer* pPlayer)
 bool EconomicAIHelpers::IsTestStrategy_TooManyUnits(CvPlayer* pPlayer)
 {
 #if defined(MOD_BALANCE_CORE)
-	if(pPlayer->GetTreasury()->AverageIncome(10) <= 0)
+	if(pPlayer->GetTreasury()->AverageIncome(10) <= -5 && pPlayer->GetTreasury()->GetGold() <= 100)
+	{
+		return true;
+	}
+	if(pPlayer->GetTreasury()->GetGold() <= 0)
 	{
 		return true;
 	}

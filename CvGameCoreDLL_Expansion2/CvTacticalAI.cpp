@@ -4899,7 +4899,12 @@ void CvTacticalAI::PlotNavalEscortOperationMoves(CvAINavalEscortedOperation* pOp
 					UnitHandle pUnit = m_pPlayer->getUnit(pSlot->GetUnitID());
 					if(pUnit && !pUnit->TurnProcessed())
 					{
+#if defined(MOD_BALANCE_CORE)
+						if(MoveToEmptySpaceNearTarget(pUnit, pOperation->GetTargetPlot(), false /*bLand */))
+						{
+#else
 						MoveToEmptySpaceNearTarget(pUnit, pOperation->GetTargetPlot(), false /*bLand */);
+#endif
 						if(GC.getLogging() && GC.getAILogging())
 						{
 							CvString strTemp;
@@ -4908,6 +4913,72 @@ void CvTacticalAI::PlotNavalEscortOperationMoves(CvAINavalEscortedOperation* pOp
 							strLogString.Format("Moving %s near target, Now at X: %d, Y: %d", strTemp.GetCString(), pCivilian->getX(), pCivilian->getY());
 							LogTacticalMessage(strLogString);
 						}
+#if defined(MOD_BALANCE_CORE)
+						}
+						else if(pOperation->GetTargetPlot() != NULL)
+						{
+							for(int iDirectionLoop = 0; iDirectionLoop < NUM_DIRECTION_TYPES; ++iDirectionLoop)
+							{
+								CvPlot* pAdjacentPlot = plotDirection(pOperation->GetTargetPlot()->getX(), pOperation->GetTargetPlot()->getY(), ((DirectionTypes)iDirectionLoop));
+								if (pAdjacentPlot)
+								{
+									if(pAdjacentPlot != NULL && pAdjacentPlot != pOperation->GetTargetPlot())
+									{
+										if(pAdjacentPlot->isCity() && pAdjacentPlot->getOwner() != pUnit->getOwner())
+										{
+											continue;
+										}
+										CvUnit* pFriendlyUnit = pAdjacentPlot->getUnitByIndex(0);
+										if(pFriendlyUnit == NULL)
+										{
+											if (TurnsToReachTarget(pUnit, pAdjacentPlot, false /*bReusePaths*/, false /*bIgnoreUnits*/, true /*bIgnoreStacking*/) <= 1)
+											{
+												// Move up there
+												pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pAdjacentPlot->getX(), pAdjacentPlot->getY());
+												pUnit->finishMoves();
+												UnitProcessed(m_CurrentMoveUnits[iI].GetID(), pUnit->IsCombatUnit());
+												if(GC.getLogging() && GC.getAILogging())
+												{
+													CvString strTemp;
+													CvString strMsg;
+													strTemp = GC.getUnitInfo(pUnit->getUnitType())->GetDescription();
+													strMsg.Format("Moving %s for proper organization, x: %d, y: %d (PlotNavalEscortOperationMoves)", strTemp.GetCString(), pAdjacentPlot->getX(), pAdjacentPlot->getY());
+													LogTacticalMessage(strMsg);
+												}
+												break;
+											}
+										}
+										else if(pFriendlyUnit != NULL && pFriendlyUnit->getOwner() == pUnit->getOwner() && (pFriendlyUnit->getMoves() > 0))
+										{
+											CvPlot* pFriendlyPlot = pFriendlyUnit->plot();
+											CvPlot* pCurrentPlot = pUnit->plot();
+											if(m_pPlayer->GetPlotDanger(*pFriendlyPlot) > m_pPlayer->GetPlotDanger(*pCurrentPlot) && !pUnit->isRanged() && pFriendlyUnit->isRanged())
+											{
+												if(pUnit->CanSwapWithUnitHere(*pFriendlyPlot))
+												{
+													// Move up there
+													pUnit->PushMission(CvTypes::getMISSION_SWAP_UNITS(), pFriendlyUnit->getX(), pFriendlyUnit->getY());
+													pUnit->finishMoves();
+													UnitProcessed(m_CurrentMoveUnits[iI].GetID(), pUnit->IsCombatUnit());
+													if(GC.getLogging() && GC.getAILogging())
+													{
+														CvString strTemp;
+														CvString strTemp2;
+														CvString strMsg;
+														strTemp = GC.getUnitInfo(pUnit->getUnitType())->GetDescription();
+														strTemp2 = GC.getUnitInfo(pFriendlyUnit->getUnitType())->GetDescription();
+														strMsg.Format("Moving %s and repositioning %s in its place for proper organization, x: %d, y: %d (PlotNavalEscortOperationMoves)", strTemp2.GetCString(), strTemp.GetCString(), pFriendlyPlot->getX(), pFriendlyPlot->getY());
+														LogTacticalMessage(strMsg);
+													}
+													break;
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+#endif
 					}
 				}
 			}
@@ -6828,9 +6899,43 @@ void CvTacticalAI::ExecuteAttack(CvTacticalTarget* pTarget, CvPlot* pTargetPlot,
 									{
 										// Move up there
 										pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), (*it)->getX(), (*it)->getY());
+										if(GC.getLogging() && GC.getAILogging())
+										{
+											CvString strTemp;
+											CvString strMsg;
+											strTemp = GC.getUnitInfo(pUnit->getUnitType())->GetDescription();
+											strMsg.Format("Moving %s for proper organization, x: %d, y: %d (ExecuteAttack)", strTemp.GetCString(), (*it)->getX(), (*it)->getY());
+											LogTacticalMessage(strMsg);
+										}
 										plotList.erase(it);
 										unitHasMoved = true;
 										break;
+									}
+									CvUnit* pFriendlyUnit = (*it)->getUnitByIndex(0);
+									if(pFriendlyUnit != NULL)
+									{
+										if(pFriendlyUnit->isRanged())
+										{
+											CvPlot* pFriendlyPlot = pFriendlyUnit->plot();
+											if(pUnit->CanSwapWithUnitHere(*pFriendlyPlot))
+											{
+												// Move up there
+												pUnit->PushMission(CvTypes::getMISSION_SWAP_UNITS(), pFriendlyUnit->getX(), pFriendlyUnit->getY());
+												if(GC.getLogging() && GC.getAILogging())
+												{
+													CvString strTemp;
+													CvString strTemp2;
+													CvString strMsg;
+													strTemp = GC.getUnitInfo(pUnit->getUnitType())->GetDescription();
+													strTemp2 = GC.getUnitInfo(pFriendlyUnit->getUnitType())->GetDescription();
+													strMsg.Format("Moving %s and repositioning %s in its place for proper organization (ExecuteAttack), x: %d, y: %d", strTemp2.GetCString(), strTemp.GetCString(), (*it)->getX(), (*it)->getY());
+													LogTacticalMessage(strMsg);
+												}
+												plotList.erase(it);
+												unitHasMoved = true;
+												break;
+											}
+										}
 									}
 								}
 
@@ -7066,12 +7171,48 @@ void CvTacticalAI::ExecuteAttack(CvTacticalTarget* pTarget, CvPlot* pTargetPlot,
 										// Move up there
 										pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), (*it)->getX(), (*it)->getY());
 										bQueueAttackNow = true;
-
+#if defined(MOD_BALANCE_CORE)
+										if(GC.getLogging() && GC.getAILogging())
+										{
+											CvString strTemp;
+											CvString strMsg;
+											strTemp = GC.getUnitInfo(pUnit->getUnitType())->GetDescription();
+											strMsg.Format("Moving for immediate melee attack (ExecuteAttack), x: %d, y: %d", strTemp.GetCString(), (*it)->getX(), (*it)->getY());
+											LogTacticalMessage(strMsg);
+										}
+#endif
 										plotList.erase(it);
 										break;
 									}
+#if defined(MOD_BALANCE_CORE)
+									CvUnit* pFriendlyUnit = (*it)->getUnitByIndex(0);
+									if(pFriendlyUnit != NULL)
+									{
+										if(pFriendlyUnit->isRanged())
+										{
+											CvPlot* pFriendlyPlot = pFriendlyUnit->plot();
+											if(pUnit->CanSwapWithUnitHere(*pFriendlyPlot))
+											{
+												// Move up there
+												pUnit->PushMission(CvTypes::getMISSION_SWAP_UNITS(), pFriendlyUnit->getX(), pFriendlyUnit->getY());											
+												if(GC.getLogging() && GC.getAILogging())
+												{
+													CvString strTemp;
+													CvString strTemp2;
+													CvString strMsg;
+													strTemp = GC.getUnitInfo(pUnit->getUnitType())->GetDescription();
+													strTemp2 = GC.getUnitInfo(pFriendlyUnit->getUnitType())->GetDescription();
+													strMsg.Format("Moving %s and repositioning %s in its place for immediate melee attack (ExecuteAttack), x: %d, y: %d", strTemp2.GetCString(), strTemp.GetCString(), (*it)->getX(), (*it)->getY());
+													LogTacticalMessage(strMsg);
+												}
+												bQueueAttackNow = true;
+												plotList.erase(it);
+												break;
+											}
+										}
+									}
+#endif
 								}
-
 								// Didn't find an open hex
 								if (!bQueueAttackNow)
 								{
@@ -7174,6 +7315,71 @@ void CvTacticalAI::ExecuteRepositionMoves()
 							LogTacticalMessage(strLogString);
 						}
 					}
+#if defined(MOD_BALANCE_CORE)
+					else if(pBestPlot)
+					{
+						for(int iDirectionLoop = 0; iDirectionLoop < NUM_DIRECTION_TYPES; ++iDirectionLoop)
+						{
+							CvPlot* pAdjacentPlot = plotDirection(pBestPlot->getX(), pBestPlot->getY(), ((DirectionTypes)iDirectionLoop));
+							if (pAdjacentPlot)
+							{
+								if(pAdjacentPlot != NULL && pAdjacentPlot != pBestPlot)
+								{
+									if(pAdjacentPlot->isCity() && pAdjacentPlot->getOwner() != pUnit->getOwner())
+									{
+										continue;
+									}
+									CvUnit* pFriendlyUnit = pAdjacentPlot->getUnitByIndex(0);
+									if(pFriendlyUnit == NULL)
+									{
+										if (TurnsToReachTarget(pUnit, pAdjacentPlot, false /*bReusePaths*/, false /*bIgnoreUnits*/, true /*bIgnoreStacking*/) <= 1)
+										{
+											// Move up there
+											pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pAdjacentPlot->getX(), pAdjacentPlot->getY());
+											pUnit->finishMoves();
+											UnitProcessed(m_CurrentMoveUnits[iI].GetID(), pUnit->IsCombatUnit());
+											if(GC.getLogging() && GC.getAILogging())
+											{
+												CvString strTemp;
+												CvString strMsg;
+												strTemp = GC.getUnitInfo(pUnit->getUnitType())->GetDescription();
+												strMsg.Format("Moving %s for proper organization, x: %d, y: %d (ExecuteRepositionMoves)", strTemp.GetCString(), pAdjacentPlot->getX(), pAdjacentPlot->getY());
+												LogTacticalMessage(strMsg);
+											}
+											break;
+										}
+									}
+									else if(pFriendlyUnit != NULL && pFriendlyUnit->getOwner() == pUnit->getOwner() && (pFriendlyUnit->getMoves() > 0))
+									{
+										CvPlot* pFriendlyPlot = pFriendlyUnit->plot();
+										CvPlot* pCurrentPlot = pUnit->plot();
+										if(m_pPlayer->GetPlotDanger(*pFriendlyPlot) > m_pPlayer->GetPlotDanger(*pCurrentPlot) && !pUnit->isRanged() && pFriendlyUnit->isRanged())
+										{
+											if(pUnit->CanSwapWithUnitHere(*pFriendlyPlot))
+											{
+												// Move up there
+												pUnit->PushMission(CvTypes::getMISSION_SWAP_UNITS(), pFriendlyUnit->getX(), pFriendlyUnit->getY());
+												pUnit->finishMoves();
+												UnitProcessed(m_CurrentMoveUnits[iI].GetID(), pUnit->IsCombatUnit());
+												if(GC.getLogging() && GC.getAILogging())
+												{
+													CvString strTemp;
+													CvString strTemp2;
+													CvString strMsg;
+													strTemp = GC.getUnitInfo(pUnit->getUnitType())->GetDescription();
+													strTemp2 = GC.getUnitInfo(pFriendlyUnit->getUnitType())->GetDescription();
+													strMsg.Format("Moving %s and repositioning %s in its place for proper organization, x: %d, y: %d (ExecuteRepositionMoves)", strTemp2.GetCString(), strTemp.GetCString(), pFriendlyPlot->getX(), pFriendlyPlot->getY());
+													LogTacticalMessage(strMsg);
+												}
+												break;
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+#endif
 				}
 			}
 		}
@@ -7535,6 +7741,71 @@ void CvTacticalAI::ExecuteBarbarianMoves(bool bAggressive)
 							LogTacticalMessage(strLogString);
 						}
 					}
+#if defined(MOD_BALANCE_CORE)
+					else if(pBestPlot)
+					{
+						for(int iDirectionLoop = 0; iDirectionLoop < NUM_DIRECTION_TYPES; ++iDirectionLoop)
+						{
+							CvPlot* pAdjacentPlot = plotDirection(pBestPlot->getX(), pBestPlot->getY(), ((DirectionTypes)iDirectionLoop));
+							if (pAdjacentPlot)
+							{
+								if(pAdjacentPlot != NULL && pAdjacentPlot != pBestPlot)
+								{
+									if(pAdjacentPlot->isCity() && pAdjacentPlot->getOwner() != pUnit->getOwner())
+									{
+										continue;
+									}
+									CvUnit* pFriendlyUnit = pAdjacentPlot->getUnitByIndex(0);
+									if(pFriendlyUnit == NULL)
+									{
+										if (TurnsToReachTarget(pUnit, pAdjacentPlot, false /*bReusePaths*/, false /*bIgnoreUnits*/, true /*bIgnoreStacking*/) <= 1)
+										{
+											// Move up there
+											pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pAdjacentPlot->getX(), pAdjacentPlot->getY());
+											pUnit->finishMoves();
+											UnitProcessed(m_CurrentMoveUnits[iI].GetID(), pUnit->IsCombatUnit());
+											if(GC.getLogging() && GC.getAILogging())
+											{
+												CvString strTemp;
+												CvString strMsg;
+												strTemp = GC.getUnitInfo(pUnit->getUnitType())->GetDescription();
+												strMsg.Format("Moving %s for proper organization, x: %d, y: %d (ExecuteBarbarianMoves)", strTemp.GetCString(), pAdjacentPlot->getX(), pAdjacentPlot->getY());
+												LogTacticalMessage(strMsg);
+											}
+											break;
+										}
+									}
+									else if(pFriendlyUnit != NULL && pFriendlyUnit->getOwner() == pUnit->getOwner() && (pFriendlyUnit->getMoves() > 0))
+									{
+										CvPlot* pFriendlyPlot = pFriendlyUnit->plot();
+										CvPlot* pCurrentPlot = pUnit->plot();
+										if(m_pPlayer->GetPlotDanger(*pFriendlyPlot) > m_pPlayer->GetPlotDanger(*pCurrentPlot) && !pUnit->isRanged() && pFriendlyUnit->isRanged())
+										{
+											if(pUnit->CanSwapWithUnitHere(*pFriendlyPlot))
+											{
+												// Move up there
+												pUnit->PushMission(CvTypes::getMISSION_SWAP_UNITS(), pFriendlyUnit->getX(), pFriendlyUnit->getY());
+												pUnit->finishMoves();
+												UnitProcessed(m_CurrentMoveUnits[iI].GetID(), pUnit->IsCombatUnit());
+												if(GC.getLogging() && GC.getAILogging())
+												{
+													CvString strTemp;
+													CvString strTemp2;
+													CvString strMsg;
+													strTemp = GC.getUnitInfo(pUnit->getUnitType())->GetDescription();
+													strTemp2 = GC.getUnitInfo(pFriendlyUnit->getUnitType())->GetDescription();
+													strMsg.Format("Moving %s and repositioning %s in its place for proper organization, x: %d, y: %d (ExecuteBarbarianMoves)", strTemp2.GetCString(), strTemp.GetCString(), pFriendlyPlot->getX(), pFriendlyPlot->getY());
+													LogTacticalMessage(strMsg);
+												}
+												break;
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+#endif
 					else
 					{
 						pUnit->finishMoves();
@@ -9101,8 +9372,12 @@ void CvTacticalAI::ExecuteWithdrawMoves()
 			pNearestCity = GC.getMap().findCity(pUnit->getX(), pUnit->getY(), m_pPlayer->GetID(), NO_TEAM, true /* bSameArea */);
 			if(pNearestCity != NULL)
 			{
+#if defined(MOD_BALANCE_CORE)
+				if(MoveToEmptySpaceNearTarget(pUnit, pNearestCity->plot(), (pUnit->getDomainType()==DOMAIN_LAND)))
+				{
+#else
 				MoveToEmptySpaceNearTarget(pUnit, pNearestCity->plot(), (pUnit->getDomainType()==DOMAIN_LAND));
-
+#endif
 				pUnit->finishMoves();
 				UnitProcessed(m_CurrentMoveUnits[iI].GetID(), pUnit->IsCombatUnit());
 
@@ -9113,6 +9388,72 @@ void CvTacticalAI::ExecuteWithdrawMoves()
 					                    pUnit->getX(), pUnit->getY());
 					LogTacticalMessage(strLogString, false);
 				}
+#if defined(MOD_BALANCE_CORE)
+				}
+				else
+				{
+					for(int iDirectionLoop = 0; iDirectionLoop < NUM_DIRECTION_TYPES; ++iDirectionLoop)
+					{
+						CvPlot* pAdjacentPlot = plotDirection(pNearestCity->getX(), pNearestCity->getY(), ((DirectionTypes)iDirectionLoop));
+						if (pAdjacentPlot)
+						{
+							if(pAdjacentPlot != NULL && pAdjacentPlot != pNearestCity->plot())
+							{
+								if(pAdjacentPlot->isCity() && pAdjacentPlot->getOwner() != pUnit->getOwner())
+								{
+									continue;
+								}
+								CvUnit* pFriendlyUnit = pAdjacentPlot->getUnitByIndex(0);
+								if(pFriendlyUnit == NULL)
+								{
+									if (TurnsToReachTarget(pUnit, pAdjacentPlot, false /*bReusePaths*/, false /*bIgnoreUnits*/, true /*bIgnoreStacking*/) <= 1)
+									{
+										// Move up there
+										pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pAdjacentPlot->getX(), pAdjacentPlot->getY());
+										pUnit->finishMoves();
+										UnitProcessed(m_CurrentMoveUnits[iI].GetID(), pUnit->IsCombatUnit());
+										if(GC.getLogging() && GC.getAILogging())
+										{
+											CvString strTemp;
+											CvString strMsg;
+											strTemp = GC.getUnitInfo(pUnit->getUnitType())->GetDescription();
+											strMsg.Format("Moving %s for proper organization, x: %d, y: %d (ExecuteWithdrawMoves)", strTemp.GetCString(), pAdjacentPlot->getX(), pAdjacentPlot->getY());
+											LogTacticalMessage(strMsg);
+										}
+										break;
+									}
+								}
+								else if(pFriendlyUnit != NULL && pFriendlyUnit->getOwner() == pUnit->getOwner() && (pFriendlyUnit->getMoves() > 0))
+								{
+									CvPlot* pFriendlyPlot = pFriendlyUnit->plot();
+									CvPlot* pCurrentPlot = pUnit->plot();
+									if(m_pPlayer->GetPlotDanger(*pFriendlyPlot) > m_pPlayer->GetPlotDanger(*pCurrentPlot) && !pUnit->isRanged() && pFriendlyUnit->isRanged())
+									{
+										if(pUnit->CanSwapWithUnitHere(*pFriendlyPlot))
+										{
+											// Move up there
+											pUnit->PushMission(CvTypes::getMISSION_SWAP_UNITS(), pFriendlyUnit->getX(), pFriendlyUnit->getY());
+											pUnit->finishMoves();
+											UnitProcessed(m_CurrentMoveUnits[iI].GetID(), pUnit->IsCombatUnit());
+											if(GC.getLogging() && GC.getAILogging())
+											{
+												CvString strTemp;
+												CvString strTemp2;
+												CvString strMsg;
+												strTemp = GC.getUnitInfo(pUnit->getUnitType())->GetDescription();
+												strTemp2 = GC.getUnitInfo(pFriendlyUnit->getUnitType())->GetDescription();
+												strMsg.Format("Moving %s and repositioning %s in its place for proper organization, x: %d, y: %d (ExecuteWithdrawMoves)", strTemp2.GetCString(), strTemp.GetCString(), pFriendlyPlot->getX(), pFriendlyPlot->getY());
+												LogTacticalMessage(strMsg);
+											}
+											break;
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+#endif
 			}
 		}
 	}
@@ -11320,7 +11661,7 @@ CvPlot* CvTacticalAI::FindNearbyTarget(UnitHandle pUnit, int iRange, AITacticalT
 						{
 							if(!pPlot->isRoute() || pPlot->isWater())
 							{
-								iValue *= 5;
+								iValue *= 10;
 							}
 						}
 #endif
@@ -11701,6 +12042,75 @@ void CvTacticalAI::PerformChosenMoves(int iFallbackMoveRange)
 							m_ChosenBlocks[iI].SetNumChoices(-1);
 						}
 					}
+#if defined(MOD_BALANCE_CORE)
+					else if(m_ChosenBlocks[iI].GetPlot() != NULL)
+					{
+						for(int iDirectionLoop = 0; iDirectionLoop < NUM_DIRECTION_TYPES; ++iDirectionLoop)
+						{
+							CvPlot* pAdjacentPlot = plotDirection(m_ChosenBlocks[iI].GetPlot()->getX(), m_ChosenBlocks[iI].GetPlot()->getY(), ((DirectionTypes)iDirectionLoop));
+							if (pAdjacentPlot)
+							{
+								if(pAdjacentPlot != NULL && pAdjacentPlot != m_ChosenBlocks[iI].GetPlot())
+								{
+									if(pAdjacentPlot->isCity() && pAdjacentPlot->getOwner() != pUnit->getOwner())
+									{
+										continue;
+									}
+									CvUnit* pFriendlyUnit = pAdjacentPlot->getUnitByIndex(0);
+									if(pFriendlyUnit == NULL)
+									{
+										if (TurnsToReachTarget(pUnit, pAdjacentPlot, false /*bReusePaths*/, false /*bIgnoreUnits*/, true /*bIgnoreStacking*/) <= 1)
+										{
+											// Move up there
+											pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pAdjacentPlot->getX(), pAdjacentPlot->getY());
+											if(pPlotBeforeMove != pUnit->plot())
+											{
+												m_ChosenBlocks[iI].SetNumChoices(-1);
+											}
+											if(GC.getLogging() && GC.getAILogging())
+											{
+												CvString strTemp;
+												CvString strMsg;
+												strTemp = GC.getUnitInfo(pUnit->getUnitType())->GetDescription();
+												strMsg.Format("Moving %s for proper organization, x: %d, y: %d (PerformChosenMoves)", strTemp.GetCString(), pAdjacentPlot->getX(), pAdjacentPlot->getY());
+												LogTacticalMessage(strMsg);
+											}
+											break;
+										}
+									}
+									else if(pFriendlyUnit != NULL && pFriendlyUnit->getOwner() == pUnit->getOwner() && (pFriendlyUnit->getMoves() > 0))
+									{
+										CvPlot* pFriendlyPlot = pFriendlyUnit->plot();
+										CvPlot* pCurrentPlot = pUnit->plot();
+										if(m_pPlayer->GetPlotDanger(*pFriendlyPlot) > m_pPlayer->GetPlotDanger(*pCurrentPlot) && !pUnit->isRanged() && pFriendlyUnit->isRanged())
+										{
+											if(pUnit->CanSwapWithUnitHere(*pFriendlyPlot))
+											{
+												// Move up there
+												pUnit->PushMission(CvTypes::getMISSION_SWAP_UNITS(), pFriendlyUnit->getX(), pFriendlyUnit->getY());
+												if(pPlotBeforeMove != pUnit->plot())
+												{
+													m_ChosenBlocks[iI].SetNumChoices(-1);
+												}
+												if(GC.getLogging() && GC.getAILogging())
+												{
+													CvString strTemp;
+													CvString strTemp2;
+													CvString strMsg;
+													strTemp = GC.getUnitInfo(pUnit->getUnitType())->GetDescription();
+													strTemp2 = GC.getUnitInfo(pFriendlyUnit->getUnitType())->GetDescription();
+													strMsg.Format("Moving %s and repositioning %s in its place for proper organization, x: %d, y: %d (PerformChosenMoves)", strTemp2.GetCString(), strTemp.GetCString(), pFriendlyPlot->getX(), pFriendlyPlot->getY());
+													LogTacticalMessage(strMsg);
+												}
+												break;
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+#endif
 				}
 			}
 		}
@@ -11764,6 +12174,19 @@ void CvTacticalAI::PerformChosenMoves(int iFallbackMoveRange)
 						LogTacticalMessage(strMsg);
 					}
 				}
+#if defined(MOD_BALANCE_CORE)
+				else if(pUnit->getDamage() > 0 && pUnit->canHeal(pUnit->plot()))
+				{
+					pUnit->PushMission(CvTypes::getMISSION_HEAL());
+					if(GC.getLogging() && GC.getAILogging())
+					{
+						CvString strMsg;
+						strMsg.Format("Already in position, will heal up with %s, X: %d, Y: %d", pUnit->getName().GetCString(),
+							m_ChosenBlocks[iI].GetPlot()->getX(), m_ChosenBlocks[iI].GetPlot()->getY());
+						LogTacticalMessage(strMsg);
+					}
+				}
+#endif
 				else
 				{
 					if(GC.getLogging() && GC.getAILogging())

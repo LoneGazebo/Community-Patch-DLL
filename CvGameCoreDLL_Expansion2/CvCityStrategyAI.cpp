@@ -818,7 +818,27 @@ void CvCityStrategyAI::ChooseProduction(bool bUseAsyncRandom, BuildingTypes eIgn
 
 	// Reset vector holding items we can currently build
 	m_Buildables.clear();
-
+#if defined(MOD_BALANCE_CORE)
+	AICityStrategyTypes eStrategyLakeBound = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_LAKEBOUND");
+	bool bNoBoats = false;
+	if(eStrategyLakeBound != NO_ECONOMICAISTRATEGY)
+	{
+		bNoBoats = m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eStrategyLakeBound);
+		if(bNoBoats)
+		{
+			CvArea* pBiggestNearbyBodyOfWater = m_pCity->waterArea();
+			if (pBiggestNearbyBodyOfWater)
+			{
+				int iWaterTiles = pBiggestNearbyBodyOfWater->getNumTiles();
+				int iNumUnitsofMine = pBiggestNearbyBodyOfWater->getUnitsPerPlayer(m_pCity->getOwner());
+				if ((iNumUnitsofMine * 5) < iWaterTiles)
+				{
+					bNoBoats = false;
+				}
+			}
+		}
+	}
+#endif
 	EconomicAIStrategyTypes eStrategyEnoughSettlers = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_ENOUGH_EXPANSION");
 	bool bEnoughSettlers = kPlayer.GetEconomicAI()->IsUsingStrategy(eStrategyEnoughSettlers);
 #if defined(MOD_BALANCE_CORE_MILITARY)
@@ -865,17 +885,9 @@ void CvCityStrategyAI::ChooseProduction(bool bUseAsyncRandom, BuildingTypes eIgn
 			iTempWeight *= 5;
 		}
 #if defined(MOD_BALANCE_CORE)
-		if(GET_PLAYER(GetCity()->getOwner()).IsAtWar())
-		{
-			iTempWeight *= 100;
-		}
-		else
-		{
-			iTempWeight *= 10;
-		}
 		if(GetCity()->getFreeExperience() > 0)
 		{
-			iTempWeight *= GetCity()->getFreeExperience() * 10;
+			iTempWeight += GetCity()->getFreeExperience() * 5;
 		}
 #endif
 		// add in the weight of this unit as if I were deciding to build it without having a reason
@@ -902,7 +914,12 @@ void CvCityStrategyAI::ChooseProduction(bool bUseAsyncRandom, BuildingTypes eIgn
 				}
 			}
 		}
-
+#if defined(MOD_BALANCE_CORE)
+		if(bNoBoats && pkUnitEntry && pkUnitEntry->GetDomainType() == DOMAIN_SEA)
+		{
+			iTempWeight = 0;
+		}
+#endif
 		if (iTempWeight > 0)
 		{
 			m_Buildables.push_back(buildable, iTempWeight);
@@ -928,22 +945,20 @@ void CvCityStrategyAI::ChooseProduction(bool bUseAsyncRandom, BuildingTypes eIgn
 		iTempWeight += (GC.getAI_CITYSTRATEGY_OPERATION_UNIT_FLAVOR_MULTIPLIER() * iOffenseFlavor * iBonusMultiplier);
 #endif // AUI_CITYSTRATEGY_CHOOSE_PRODUCTION_NO_HIGH_DIFFICULTY_SKEW
 #if defined(MOD_BALANCE_CORE)
-		if(GET_PLAYER(GetCity()->getOwner()).IsAtWar())
-		{
-			iTempWeight *= 100;
-		}
-		else
-		{
-			iTempWeight *= 10;
-		}
 		if(GetCity()->getFreeExperience() > 0)
 		{
-			iTempWeight *= GetCity()->getFreeExperience() * 10;
+			iTempWeight *= GetCity()->getFreeExperience() * 5;
 		}
 #endif
 		// add in the weight of this unit as if I were deciding to build it without having a reason
 		iTempWeight += m_pUnitProductionAI->GetWeight(eUnitForArmy);
-
+#if defined(MOD_BALANCE_CORE)
+		CvUnitEntry* pkUnitEntry = GC.getUnitInfo(eUnitForArmy);
+		if(bNoBoats && pkUnitEntry && pkUnitEntry->GetDomainType() == DOMAIN_SEA)
+		{
+			iTempWeight = 0;
+		}
+#endif
 		if (iTempWeight > 0)
 		{
 			m_Buildables.push_back(buildable, iTempWeight);
@@ -1118,10 +1133,18 @@ void CvCityStrategyAI::ChooseProduction(bool bUseAsyncRandom, BuildingTypes eIgn
 						}
 					}
 				}
-
+#if defined(MOD_BALANCE_CORE)
+				if(bNoBoats && pkUnitEntry && pkUnitEntry->GetDomainType() == DOMAIN_SEA)
+				{
+					iTempWeight = 0;
+				}
+				if(iTempWeight > 0)
+				{
+#endif
 #if defined(MOD_BALANCE_CORE)
 				if ( GetUnitProductionAI()->CheckUnitBuildSanity((UnitTypes)iUnitLoop, false) )
 					m_Buildables.push_back(buildable, iTempWeight);
+				}
 #else
 				// sanity check for building ships on small inland seas (not lakes)
 				if (pkUnitEntry)
@@ -1252,12 +1275,6 @@ void CvCityStrategyAI::ChooseProduction(bool bUseAsyncRandom, BuildingTypes eIgn
 		}
 #endif
 		bool bRush = selection.m_iTurnsToConstruct > iRushIfMoreThanXTurns;
-#if defined(MOD_BALANCE_CORE)
-		if(bForced)
-		{
-			bRush = true;
-		}
-#endif
 		LogCityProduction(selection, bRush);
 
 		switch(selection.m_eBuildableType)
@@ -1339,7 +1356,27 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry()
 
 	EconomicAIStrategyTypes eStrategyEnoughSettlers = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_ENOUGH_EXPANSION");
 	bool bEnoughSettlers = kPlayer.GetEconomicAI()->IsUsingStrategy(eStrategyEnoughSettlers);
-
+#if defined(MOD_BALANCE_CORE)
+	AICityStrategyTypes eStrategyLakeBound = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_LAKEBOUND");
+	bool bNoBoats = false;
+	if(eStrategyLakeBound != NO_ECONOMICAISTRATEGY)
+	{
+		bNoBoats = m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eStrategyLakeBound);
+		if(bNoBoats)
+		{
+			CvArea* pBiggestNearbyBodyOfWater = m_pCity->waterArea();
+			if (pBiggestNearbyBodyOfWater)
+			{
+				int iWaterTiles = pBiggestNearbyBodyOfWater->getNumTiles();
+				int iNumUnitsofMine = pBiggestNearbyBodyOfWater->getUnitsPerPlayer(m_pCity->getOwner());
+				if ((iNumUnitsofMine * 5) <= iWaterTiles)
+				{
+					bNoBoats = false;
+				}
+			}
+		}
+	}
+#endif
 	// Check units for operations first
 	eUnitForOperation = m_pCity->GetUnitForOperation();
 	if(eUnitForOperation != NO_UNIT)
@@ -1376,7 +1413,12 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry()
 				}
 			}
 		}
-
+#if defined(MOD_BALANCE_CORE)
+		if(bNoBoats && pkUnitEntry && pkUnitEntry->GetDomainType() == DOMAIN_SEA)
+		{
+			iTempWeight = 0;
+		}
+#endif
 		if (iTempWeight > 0)
 		{
 			m_Buildables.push_back(buildable, iTempWeight);
@@ -1403,7 +1445,13 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry()
 
 		// add in the weight of this unit as if I were deciding to build it without having a reason
 		iTempWeight += m_pUnitProductionAI->GetWeight(eUnitForArmy);
-
+#if defined(MOD_BALANCE_CORE)
+		CvUnitEntry* pkUnitEntry = GC.getUnitInfo(eUnitForArmy);
+		if(bNoBoats && pkUnitEntry && pkUnitEntry->GetDomainType() == DOMAIN_SEA)
+		{
+			iTempWeight = 0;
+		}
+#endif
 		if (iTempWeight > 0)
 		{
 			m_Buildables.push_back(buildable, iTempWeight);
@@ -1517,7 +1565,12 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry()
 					}
 				}
 			}
-
+#if defined(MOD_BALANCE_CORE)
+			if(bNoBoats && pkUnitEntry && pkUnitEntry->GetDomainType() == DOMAIN_SEA)
+			{
+				iTempWeight = 0;
+			}
+#endif
 
 			if(iTempWeight > 0)
 				m_Buildables.push_back(buildable, iTempWeight);

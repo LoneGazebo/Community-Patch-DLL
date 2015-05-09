@@ -15,8 +15,7 @@ This file updates all relevant LUA changes from the CBP (and all accompanying mo
 
 == Installation Instructions ==
 
-WHEN INSTALLING: Make sure to drag the EUI_tooltips and EUI_utilities file from this Mod's main directory into the following folder: C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization V\Assets\DLC\UI_bc1\Core
-Failure to do this will remove all CBP tooltips from the game, but should not cause any fatal errors.
+Make sure you delete the LUA folders in the CP and CBP mods before running the game!
 
 == Potential Mod Conflicts ==
 

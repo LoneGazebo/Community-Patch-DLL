@@ -267,6 +267,9 @@ ALTER TABLE Beliefs ADD COLUMN 'HappinessPerPantheon' INTEGER DEFAULT 0;
 -- Extra Votes from Belief
 ALTER TABLE Beliefs ADD COLUMN 'ExtraVotes' INTEGER DEFAULT 0;
 
+-- Extra Votes from Belief
+ALTER TABLE Beliefs ADD COLUMN 'HalvedFollowers' BOOLEAN DEFAULT 0;
+
 -- New Buildings
 
 -- National Religious Followers Needed for a Building

@@ -1,28 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Created by ModBuddy on 8/10/2014 10:48:16 PM -->
 <GameData>
-	<Belief_MaxYieldModifierPerFollower>
-		<Row>
-			<BeliefType>BELIEF_RELIGIOUS_COMMUNITY</BeliefType>
-			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Max>15</Max>
-		</Row>
-		<Row>
-			<BeliefType>BELIEF_FEED_WORLD</BeliefType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Max>10</Max>
-		</Row>
-		<Row>
-			<BeliefType>BELIEF_CHORAL_MUSIC</BeliefType>
-			<YieldType>YIELD_SCIENCE</YieldType>
-			<Max>10</Max>
-		</Row>
-		<Row>
-			<BeliefType>BELIEF_ASCETISM</BeliefType>
-			<YieldType>YIELD_FOOD</YieldType>
-			<Max>15</Max>
-		</Row>
-	</Belief_MaxYieldModifierPerFollower>
 	<Belief_SpecialistYieldChanges>
 		<Row>
 			<BeliefType>BELIEF_RELIGIOUS_ART</BeliefType>
@@ -45,14 +23,34 @@
 	</Belief_SpecialistYieldChanges>
 	<Belief_MaxYieldPerFollower>
 		<Row>
+			<BeliefType>BELIEF_RELIGIOUS_COMMUNITY</BeliefType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Max>15</Max>
+		</Row>
+		<Row>
+			<BeliefType>BELIEF_FEED_WORLD</BeliefType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Max>15</Max>
+		</Row>
+		<Row>
+			<BeliefType>BELIEF_CHORAL_MUSIC</BeliefType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Max>15</Max>
+		</Row>
+		<Row>
+			<BeliefType>BELIEF_ASCETISM</BeliefType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Max>15</Max>
+		</Row>
+		<Row>
 			<BeliefType>BELIEF_LITURGICAL_DRAMA</BeliefType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Max>5</Max>
+			<Max>15</Max>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_DIVINE_INSPIRATION</BeliefType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Max>5</Max>
+			<Max>15</Max>
 		</Row>
 	</Belief_MaxYieldPerFollower>
 	<Belief_YieldPerBirth>

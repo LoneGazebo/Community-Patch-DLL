@@ -2812,7 +2812,23 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 			}
 		}
 	}
-
+#if defined(MOD_BALANCE_CORE)
+	//Let's not slaughter citizens in a city we've owned before.
+	bool bSlaughter = true;
+	if(bConquest)
+	{
+		//Our city originally? Don't slaughter.
+		if(pOldCity->getOriginalOwner() == GetID())
+		{
+			bSlaughter = false;
+		}
+		//Recently captured and still in resistance? Don't slaughter.
+		else if(pOldCity->IsResistance() || pOldCity->IsRazing())
+		{
+			bSlaughter = false;
+		}
+	}
+#endif
 	int iNumBuildingInfos = GC.getNumBuildingInfos();
 	std::vector<int> paiNumRealBuilding(iNumBuildingInfos, 0);
 	std::vector<int> paiBuildingOriginalOwner(iNumBuildingInfos, 0);
@@ -3143,7 +3159,11 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 	}
 
 	// Population change for capturing a city
+#if defined(MOD_BALANCE_CORE)
+	if(!bRecapture && bConquest && bSlaughter)	
+#else
 	if(!bRecapture && bConquest)	// Don't drop it if we're recapturing our own City
+#endif
 	{
 		int iPercentPopulationRetained = /*50*/ GC.getCITY_CAPTURE_POPULATION_PERCENT();
 		int iInfluenceReduction = GetCulture()->GetInfluenceCityConquestReduction(eOldOwner);
@@ -3605,6 +3625,19 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 #endif
 		}
 	}
+#if defined(MOD_DIPLOMACY_CITYSTATES)
+	if(GET_PLAYER(eOldOwner).isMinorCiv() && GET_PLAYER(eOldOwner).getNumCities() == 0)
+	{
+		for(int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
+		{
+			if(!GET_PLAYER((PlayerTypes) iMajorLoop).isMinorCiv())
+			{
+				GET_PLAYER(eOldOwner).GetMinorCivAI()->SetIsJerk(GET_PLAYER((PlayerTypes) iMajorLoop).getTeam(), false);
+				GET_PLAYER(eOldOwner).GetMinorCivAI()->SetJerk(GET_PLAYER((PlayerTypes) iMajorLoop).getTeam(), 0);
+			}
+		}
+	}			
+#endif
 	// If not, old owner should look at city specializations
 	else
 	{
@@ -4163,7 +4196,21 @@ void CvPlayer::DoRevolutionPlayer(PlayerTypes ePlayer, int iOldCityID)
 			}
 		}
 	}
-
+	if(GC.getLogging() && GC.getAILogging() && pCity != NULL)
+	{
+		CvString playerName;
+		FILogFile* pLog;
+		CvString strBaseString;
+		CvString strOutBuf;
+		CvString strFileName = "CustomMods.csv";
+		playerName = getCivilizationShortDescription();
+		pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
+		strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+		strBaseString += playerName + ", ";
+		strOutBuf.Format("Revolution! City restored to %d", GET_PLAYER(pCity->getOwner()).getCivilizationShortDescription());
+		strBaseString += strOutBuf;
+		pLog->Msg(strBaseString);
+	}
 #if defined(MOD_DIPLOMACY_CITYSTATES)
 	//Let's give the Embassies of the defeated player back to the liberated player
 	if(MOD_DIPLOMACY_CITYSTATES && GET_PLAYER(ePlayer).GetImprovementLeagueVotes() > 0)
@@ -23766,8 +23813,11 @@ int CvPlayer::GetScienceTimes100() const
 		iValue += GetYieldPerTurnFromHappiness(YIELD_SCIENCE);
 	}
 #endif
-
+#if defined(MOD_BALANCE_CORE)
+	return max(iValue, 1);
+#else
 	return max(iValue, 0);
+#endif
 }
 #if defined(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
 //	--------------------------------------------------------------------------------
@@ -23814,7 +23864,7 @@ int CvPlayer::GetScienceTimes100ForUI() const
 	}
 #endif
 
-	return max(iValue, 0);
+	return max(iValue, 1);
 }
 #endif
 //	--------------------------------------------------------------------------------

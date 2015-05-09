@@ -80,6 +80,7 @@ CvDiplomacyAI::DiplomacyAIData::DiplomacyAIData() :
 	, m_abDoFAccepted()
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
 	, m_abDoFBroken()
+	, m_aiNumDoFLifetime()
 #endif
 	, m_aiDoFCounter()
 	, m_abDenouncedPlayer()
@@ -270,6 +271,7 @@ CvDiplomacyAI::CvDiplomacyAI():
 	m_pabDoFAccepted(NULL),
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
 	m_pabDoFBroken(NULL),
+	m_paiNumDoFLifetime(NULL),
 #endif
 	m_paiDoFCounter(NULL),
 
@@ -498,6 +500,7 @@ void CvDiplomacyAI::Init(CvPlayer* pPlayer)
 	m_pabDoFAccepted = &m_pDiploData->m_abDoFAccepted[0];
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
 	m_pabDoFBroken = &m_pDiploData->m_abDoFBroken[0];
+	m_paiNumDoFLifetime = &m_pDiploData->m_aiNumDoFLifetime[0];
 #endif
 	m_paiDoFCounter = &m_pDiploData->m_aiDoFCounter[0];
 
@@ -780,6 +783,7 @@ void CvDiplomacyAI::Uninit()
 	m_pabDoFAccepted = NULL;
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
 	m_pabDoFBroken = NULL;
+	m_paiNumDoFLifetime =  NULL;
 #endif
 	m_paiDoFCounter = NULL;
 
@@ -1001,6 +1005,7 @@ void CvDiplomacyAI::Reset()
 		m_pabDoFAccepted[iI] = false;
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
 		m_pabDoFBroken[iI] = false;
+		m_paiNumDoFLifetime[iI] = 0;
 #endif
 		m_paiDoFCounter[iI] = -1;
 
@@ -1417,6 +1422,9 @@ void CvDiplomacyAI::Read(FDataStream& kStream)
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
 	ArrayWrapper<bool> wrapm_pabDoFBroken(MAX_MAJOR_CIVS, m_pabDoFBroken);
 	kStream >> wrapm_pabDoFBroken;
+
+	ArrayWrapper<short> wrapm_paiNumDoFLifetime(MAX_MAJOR_CIVS, m_paiNumDoFLifetime);
+	kStream >> wrapm_paiNumDoFLifetime;
 #endif
 
 	ArrayWrapper<short> wrapm_paiDoFCounter(MAX_MAJOR_CIVS, m_paiDoFCounter);
@@ -1868,6 +1876,7 @@ void CvDiplomacyAI::Write(FDataStream& kStream) const
 	kStream << ArrayWrapper<bool>(MAX_MAJOR_CIVS, m_pabDoFAccepted);
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
 	kStream << ArrayWrapper<bool>(MAX_MAJOR_CIVS, m_pabDoFBroken);
+	kStream << ArrayWrapper<short>(MAX_MAJOR_CIVS, m_paiNumDoFLifetime);
 #endif
 	kStream << ArrayWrapper<short>(MAX_MAJOR_CIVS, m_paiDoFCounter);
 
@@ -2545,6 +2554,13 @@ void CvDiplomacyAI::DoCounters()
 
 					GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetDoFCounter(GetPlayer()->GetID(), -1);
 					GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetDoFAccepted(GetPlayer()->GetID(), false);
+
+#if defined(MOD_BALANCE_CORE_DIPLOMACY)
+					if(!GetPlayer()->isHuman())
+					{
+						GetPlayer()->GetDiplomacyAI()->SetNumDoFLifetime(eLoopPlayer, (GetNumDoFLifetime(eLoopPlayer) + 1));
+					}
+#endif
 
 					//Notify both parties that our friendship has expired.
 					CvNotifications* pNotifications = GET_PLAYER(eLoopPlayer).GetNotifications();
@@ -5561,6 +5577,33 @@ bool CvDiplomacyAI::IsOpenBordersExchangeAcceptable(PlayerTypes ePlayer)
 		return true;
 	else if(eApproach == MAJOR_CIV_APPROACH_AFRAID)
 		return true;
+#if defined(MOD_BALANCE_CORE_DIPLOMACY)
+	if(GetPlayer()->IsCramped() && GET_PLAYER(ePlayer).getNumCities() > GetPlayer()->getNumCities())
+	{
+		return true;
+	}
+	PlayerTypes eLoopPlayer;
+
+	for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+	{
+		eLoopPlayer = (PlayerTypes) iPlayerLoop;
+
+		if(eLoopPlayer != NO_PLAYER && IsPlayerValid(eLoopPlayer) && !GET_PLAYER(eLoopPlayer).isMinorCiv())
+		{
+			if(GET_PLAYER(eLoopPlayer).GetProximityToPlayer(ePlayer) == PLAYER_PROXIMITY_NEIGHBORS)
+			{
+				if(GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).isAtWar(GetTeam()))
+				{
+					return true;
+				}
+				if(GetMajorCivOpinion(eLoopPlayer) < MAJOR_CIV_OPINION_NEUTRAL)
+				{
+					return true;
+				}
+			}
+		}
+	}
+#endif
 
 	return false;
 }
@@ -5677,10 +5720,11 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness()
 
 					// What we're willing to give up.  The higher the number the more we're willing to part with
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
-				if(MOD_BALANCE_CORE_HAPPINESS)
-				{
-					iWillingToOfferScore = GetPlayer()->GetCulture()->GetWarWeariness();
-				}
+					if(MOD_BALANCE_CORE_HAPPINESS)
+					{
+						iWillingToOfferScore += (GetPlayer()->GetCulture()->GetWarWeariness() / 2);
+						iWillingToAcceptScore -= (GetPlayer()->GetCulture()->GetWarWeariness() / 2);
+					}
 #endif
 //					if (IsWantsPeaceWithPlayer(eLoopPlayer))
 					{
@@ -7610,7 +7654,7 @@ void CvDiplomacyAI::DoUpdateOnePlayerTargetValue(PlayerTypes ePlayer)
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	if(GET_PLAYER(ePlayer).GetDiplomacyAI()->GetNumDefensePacts() > 0)
 	{
-		iTargetValue += (25 * GET_PLAYER(ePlayer).GetDiplomacyAI()->GetNumDefensePacts());
+		iTargetValue += (10 * GET_PLAYER(ePlayer).GetDiplomacyAI()->GetNumDefensePacts());
 	}
 #endif
 
@@ -10950,6 +10994,9 @@ void CvDiplomacyAI::DoPlayerDeclaredWarOnSomeone(PlayerTypes ePlayer, TeamTypes 
 
 						SetDoFAccepted(eThem, false);
 						SetDoFCounter(eThem, -666);
+#if defined(MOD_BALANCE_CORE_DIPLOMACY)
+						SetNumDoFLifetime(eThem, -1);
+#endif
 					}
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
@@ -11042,6 +11089,9 @@ void CvDiplomacyAI::DoPlayerDeclaredWarOnSomeone(PlayerTypes ePlayer, TeamTypes 
 					// clear out their values
 					GET_PLAYER(ePlayer).GetDiplomacyAI()->SetDoFCounter(GetPlayer()->GetID(), -1);
 					GET_PLAYER(ePlayer).GetDiplomacyAI()->SetDoFAccepted(GetPlayer()->GetID(), false);
+#if defined(MOD_BALANCE_CORE_DIPLOMACY)
+					GET_PLAYER(ePlayer).GetDiplomacyAI()->SetNumDoFLifetime(GetPlayer()->GetID(), -1);
+#endif
 				}
 			}
 
@@ -12114,6 +12164,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 #if defined(MOD_BALANCE_CORE)
 		if(IsDoFAccepted(ePlayer))
 		{
+			SetNumDoFLifetime(ePlayer, -1);
 #endif
 		SetDoFAccepted(ePlayer, false);
 		SetDoFCounter(ePlayer, -666);
@@ -12141,7 +12192,6 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 #if defined(MOD_BALANCE_CORE)
 		}
 #endif
-
 		// Send message to human
 		if(bShouldShowLeaderScene)
 		{
@@ -12156,8 +12206,8 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 			if(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
 			{
 				GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeRecentAssistValue(GetPlayer()->GetID(), 80);
-
-				GET_PLAYER(ePlayer).GetDiplomacyAI()->SetDoFBroken(GetPlayer()->GetID(), true);
+				GET_PLAYER(ePlayer).GetDiplomacyAI()->SetDoFBroken(GetPlayer()->GetID(), true);	
+				GET_PLAYER(ePlayer).GetDiplomacyAI()->SetNumDoFLifetime(GetPlayer()->GetID(), -1);	
 				LogBrokenDoF(ePlayer);
 			}
 #endif
@@ -12292,10 +12342,20 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 				if(eAcceptedState == COOP_WAR_STATE_ACCEPTED)
 				{
 					DeclareWar(eAgainstPlayer);
+#if defined(MOD_BALANCE_CORE)
+					GetPlayer()->GetMilitaryAI()->RequestBasicAttack(eAgainstPlayer, 2);
+					GetPlayer()->GetMilitaryAI()->RequestPureNavalAttack(eAgainstPlayer, 2);
+#else
 					GetPlayer()->GetMilitaryAI()->RequestBasicAttack(eAgainstPlayer, 1);
+#endif
 
 					GET_PLAYER(ePlayer).GetDiplomacyAI()->DeclareWar(eAgainstPlayer);
+#if defined(MOD_BALANCE_CORE)
+					GET_PLAYER(ePlayer).GetMilitaryAI()->RequestBasicAttack(eAgainstPlayer, 2);
+					GET_PLAYER(ePlayer).GetMilitaryAI()->RequestPureNavalAttack(eAgainstPlayer, 2);
+#else
 					GET_PLAYER(ePlayer).GetMilitaryAI()->RequestBasicAttack(eAgainstPlayer, 1);
+#endif
 
 					int iLockedTurns = /*15*/ GC.getCOOP_WAR_LOCKED_LENGTH();
 					GET_TEAM(GetPlayer()->getTeam()).ChangeNumTurnsLockedIntoWar(GET_PLAYER(eAgainstPlayer).getTeam(), iLockedTurns);
@@ -12531,6 +12591,11 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 				bDealAcceptable = false;
 				iValueImOffering = 100000;
 			}
+			else if(pRenewDeal1->ContainsItemType(TRADE_ITEM_DEFENSIVE_PACT, ePlayer) && IsWantsDefensivePactWithPlayer(ePlayer))
+			{
+				bDealAcceptable = true;
+				iValueTheyreOffering = 100000;
+			}
 #endif
 
 			if(bDealAcceptable)
@@ -12577,8 +12642,12 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 			CvDeal kDeal = *pDeal;
 			int iDealType = -1;
 			CvDeal* pRenewedDeal = m_pPlayer->GetDiplomacyAI()->GetDealToRenew(&iDealType);
+#if defined(MOD_BALANCE_CORE)
+			if(pRenewedDeal && pRenewedDeal->ContainsItemType(TRADE_ITEM_DEFENSIVE_PACT, ePlayer) && !IsWantsDefensivePactWithPlayer(ePlayer))
+			{
+#endif
 			if(pRenewedDeal)
-			{	
+			{
 				if (iDealType != 0) // this is not a historic deal, so don't change the resource allocations
 				{
 					CvGameDeals::PrepareRenewDeal(m_pPlayer->GetDiplomacyAI()->GetDealToRenew(), &kDeal);
@@ -12590,6 +12659,9 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 			// Don't need to call DoOffer because we check to see if the deal works for both sides BEFORE sending
 			GC.getGame().GetGameDeals()->AddProposedDeal(kDeal);
 			GC.getGame().GetGameDeals()->FinalizeDeal(GetPlayer()->GetID(), ePlayer, true);
+#if defined(MOD_BALANCE_CORE)
+			}
+#endif
 		}
 	}
 
@@ -16109,7 +16181,11 @@ void CvDiplomacyAI::DoHostileStatement(PlayerTypes ePlayer, DiploStatementTypes&
 			}
 
 			DiploStatementTypes eTempStatement = DIPLO_STATEMENT_INSULT;
+#if defined(MOD_BALANCE_CORE)
+			int iTurnsBetweenStatements = 60;
+#else
 			int iTurnsBetweenStatements = 35;
+#endif
 
 			if(GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
 				eStatement = eTempStatement;
@@ -17820,7 +17896,11 @@ const char* CvDiplomacyAI::GetDiploStringForMessage(DiploMessageTypes eDiploMess
 
 		// AI would like to work with a player
 	case DIPLO_MESSAGE_WORK_WITH_US:
+#if defined(MOD_BALANCE_CORE_DIPLOMACY)
+		strText = GetDoFHumanMessage();
+#else
 		strText = GetDiploTextFromTag("RESPONSE_WORK_WITH_US");
+#endif
 		break;
 
 		// AI is done working with a player
@@ -19341,6 +19421,9 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 		GET_PLAYER(eFromPlayer).GetDiplomacyAI()->SetDoFAccepted(eMyPlayer, false);
 		SetDoFCounter(eFromPlayer, -666);
 		GET_PLAYER(eFromPlayer).GetDiplomacyAI()->SetDoFCounter(eMyPlayer, -666);
+#if defined(MOD_BALANCE_CORE_DIPLOMACY)
+		SetNumDoFLifetime(eFromPlayer, -1);
+#endif
 
 		if(bActivePlayer)
 		{
@@ -21111,7 +21194,40 @@ const char* CvDiplomacyAI::GetGreetHumanMessage(LeaderheadAnimationTypes& eAnima
 	// NOTHING else fits so use generic neutral greeting
 	return GetDiploStringForMessage(DIPLO_MESSAGE_GREETING_NEUTRAL_HELLO);
 }
-
+#if defined(MOD_BALANCE_CORE_DIPLOMACY)
+/// AI is DOF the human
+const char* CvDiplomacyAI::GetDoFHumanMessage()
+{
+	PlayerTypes ePlayer = GC.getGame().getActivePlayer();
+	int iFriendshipValue = GetNumDoFLifetime(ePlayer);
+	const char* strText;
+	if(iFriendshipValue < 0)
+	{
+		strText = GetDiploTextFromTag("RESPONSE_WORK_WITH_US_UNTRUSTWORTHY");
+	}
+	else if(iFriendshipValue == 0)
+	{
+		strText = GetDiploTextFromTag("RESPONSE_WORK_WITH_US");
+	}
+	else if(iFriendshipValue == 1)
+	{
+		strText = GetDiploTextFromTag("RESPONSE_WORK_WITH_US_FRIENDS");
+	}
+	else if(iFriendshipValue == 2)
+	{
+		strText = GetDiploTextFromTag("RESPONSE_WORK_WITH_US_OLD_FRIENDS");
+	}
+	else if(iFriendshipValue > 2)
+	{
+		strText = GetDiploTextFromTag("RESPONSE_WORK_WITH_US_BATTLE_BROTHERS");
+	}
+	else
+	{
+		strText = GetDiploTextFromTag("RESPONSE_WORK_WITH_US");
+	}
+	return strText;
+}
+#endif
 /// AI is insulting the human
 const char* CvDiplomacyAI::GetInsultHumanMessage()
 {
@@ -21123,7 +21239,11 @@ const char* CvDiplomacyAI::GetInsultHumanMessage()
 	FStaticVector<DiploMessageTypes, NUM_DIPLO_MESSAGE_TYPES, true, c_eCiv5GameplayDLL, 0> veValidInsults;
 
 	// They're weak militarily
+#if defined(MOD_BALANCE_CORE_DIPLOMACY)
+	if(eMilitaryStrengthComparedToUs <= STRENGTH_WEAK)
+#else
 	if(eMilitaryStrengthComparedToUs < STRENGTH_AVERAGE)
+#endif
 		veValidInsults.push_back(DIPLO_MESSAGE_INSULT_MILITARY);
 
 	// We have nukes and they don't
@@ -21135,19 +21255,35 @@ const char* CvDiplomacyAI::GetInsultHumanMessage()
 		veValidInsults.push_back(DIPLO_MESSAGE_INSULT_BULLY);
 
 	// Their empire is unhappy
+#if defined(MOD_BALANCE_CORE_DIPLOMACY)
+	else if(kPlayer.IsEmpireVeryUnhappy())
+#else
 	else if(kPlayer.IsEmpireUnhappy())
+#endif
 		veValidInsults.push_back(DIPLO_MESSAGE_INSULT_UNHAPPINESS);
 
 	// They have fewer Cities than us
+#if defined(MOD_BALANCE_CORE_DIPLOMACY)
+	else if((kPlayer.getNumCities() * 2) < m_pPlayer->getNumCities())
+#else
 	else if(kPlayer.getNumCities() < m_pPlayer->getNumCities())
+#endif
 		veValidInsults.push_back(DIPLO_MESSAGE_INSULT_CITIES);
 
 	// They have a low population
+#if defined(MOD_BALANCE_CORE_DIPLOMACY)
+	else if((kPlayer.getTotalPopulation() * 2) <= m_pPlayer->getTotalPopulation())
+#else
 	else if(kPlayer.getTotalPopulation() < m_pPlayer->getTotalPopulation())
+#endif
 		veValidInsults.push_back(DIPLO_MESSAGE_INSULT_POPULATION);
 
 	// They have less Culture us
+#if defined(MOD_BALANCE_CORE_DIPLOMACY)
+	else if((kPlayer.GetJONSCultureEverGenerated() * 2) <= m_pPlayer->GetJONSCultureEverGenerated())
+#else
 	else if(kPlayer.GetJONSCultureEverGenerated() < m_pPlayer->GetJONSCultureEverGenerated())
+#endif
 		veValidInsults.push_back(DIPLO_MESSAGE_INSULT_CULTURE);
 
 	// Pick a random insult from the valid ones
@@ -22416,6 +22552,10 @@ bool CvDiplomacyAI::IsDoFAcceptable(PlayerTypes ePlayer)
 	// Base Personality value; ranges from 0 to 10 (ish)
 	iWeight += GetDoFWillingness();
 
+#if defined(MOD_BALANCE_CORE_DIPLOMACY)
+	iWeight += GetNumDoFLifetime(ePlayer);
+#endif
+
 #if defined(MOD_DIPLOMACY_CITYSTATES)
 	if(MOD_DIPLOMACY_CITYSTATES)
 	{
@@ -22560,6 +22700,19 @@ void CvDiplomacyAI::SetDoFAccepted(PlayerTypes ePlayer, bool bValue)
 	}
 }
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
+short CvDiplomacyAI::GetNumDoFLifetime(PlayerTypes ePlayer) const
+{
+	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	return m_paiNumDoFLifetime[ePlayer];
+}
+
+void CvDiplomacyAI::SetNumDoFLifetime(PlayerTypes ePlayer, int iValue)
+{
+	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	m_paiNumDoFLifetime[ePlayer] = iValue;
+}
 bool CvDiplomacyAI::IsDoFBroken(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
@@ -22760,6 +22913,11 @@ bool CvDiplomacyAI::IsDenounceFriendAcceptable(PlayerTypes ePlayer)
 
 	int iChance = 0;
 
+#if defined(MOD_BALANCE_CORE_DIPLOMACY)
+	iChance -= GetNumDoFLifetime(ePlayer);
+#endif
+
+
 	// If we've worked together for at least 30 turns, and are competitors, there's a chance we break things off (based on Loyalty)
 	if(GetDoFCounter(ePlayer) > 30)
 	{
@@ -22848,6 +23006,9 @@ void CvDiplomacyAI::DoDenouncePlayer(PlayerTypes ePlayer)
 	{
 		SetDoFAccepted(ePlayer, false);
 		SetDoFCounter(ePlayer, -666);
+#if defined(MOD_BALANCE_CORE_DIPLOMACY)
+		SetNumDoFLifetime(ePlayer, -1);
+#endif
 		GET_PLAYER(ePlayer).GetDiplomacyAI()->SetDoFAccepted(eMyPlayer, false);
 		GET_PLAYER(ePlayer).GetDiplomacyAI()->SetDoFCounter(eMyPlayer, -666);
 

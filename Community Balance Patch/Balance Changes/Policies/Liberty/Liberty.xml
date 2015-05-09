@@ -5,14 +5,14 @@
 		<Row>
 			<PolicyType>POLICY_LIBERTY</PolicyType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>5</Yield>
+			<Yield>10</Yield>
 		</Row>
 	</Policy_YieldFromTech>
 	<Policy_YieldFromConstruction>
 		<Row>
 			<PolicyType>POLICY_LIBERTY</PolicyType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>5</Yield>
+			<Yield>10</Yield>
 		</Row>
 	</Policy_YieldFromConstruction>
 	<Policy_YieldGPExpend>
@@ -23,7 +23,7 @@
 		</Row>
 		<Row>
 			<PolicyType>POLICY_MERITOCRACY</PolicyType>
-			<YieldType>YIELD_SCIENCE</YieldType>
+			<YieldType>YIELD_CULTURE</YieldType>
 			<Yield>50</Yield>
 		</Row>
 	</Policy_YieldGPExpend>
@@ -31,14 +31,14 @@
 		<Row>
 			<PolicyType>POLICY_COLLECTIVE_RULE</PolicyType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>20</Yield>
+			<Yield>40</Yield>
 		</Row>
 	</Policy_YieldFromBirth>
 	<Policy_YieldFromBirthCapital>
 		<Row>
 			<PolicyType>POLICY_COLLECTIVE_RULE</PolicyType>
-			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>20</Yield>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Yield>50</Yield>
 		</Row>
 	</Policy_YieldFromBirthCapital>
 	<Policy_PrereqPolicies>

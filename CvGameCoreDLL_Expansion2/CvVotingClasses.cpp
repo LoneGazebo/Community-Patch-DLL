@@ -4531,6 +4531,34 @@ int CvLeague::GetProjectCostPerPlayer(LeagueProjectTypes eLeagueProject) const
 
 		iCost *= GC.getGame().getStartEraInfo().getConstructPercent();
 		iCost /= 100;
+
+#if defined(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
+		if(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
+		{
+			const CvProcessInfo* pkProcessInfo = GC.getProcessInfo(pProjectInfo->GetProcess());
+			if (pkProcessInfo)
+			{
+				TechTypes eTech = ((TechTypes)pkProcessInfo->getTechPrereq());
+				if(eTech != NO_TECH)
+				{
+					const CvTechEntry* pkTechInfo = GC.getTechInfo(eTech);
+					if(pkTechInfo)
+					{
+						if(pkTechInfo->GetEra() < GC.getGame().getCurrentEra())
+						{
+							int iEraDiff = (GC.getGame().getCurrentEra() - pkTechInfo->GetEra());
+							if(iEraDiff <= 0)
+							{
+								iEraDiff = 1;
+							}
+							iCost *= (iCost * iEraDiff);
+							iCost /= 100;
+						}
+					}
+				}
+			}
+		}
+#endif
 	}
 	return iCost;
 }

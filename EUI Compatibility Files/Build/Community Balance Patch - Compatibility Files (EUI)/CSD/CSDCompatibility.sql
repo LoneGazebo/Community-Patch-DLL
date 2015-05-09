@@ -50,7 +50,7 @@ SET GoldMaintenance = '2'
 WHERE Type = 'BUILDING_CHANCERY';
 
 UPDATE Buildings
-SET Cost = '500'
+SET Cost = '600'
 WHERE Type = 'BUILDING_WIRE_SERVICE';
 
 UPDATE Buildings
@@ -62,7 +62,7 @@ SET PrereqTech = 'TECH_EDUCATION'
 WHERE Type = 'BUILDING_CHANCERY';
 
 UPDATE Buildings
-SET PrereqTech = 'TECH_STEAM_POWER'
+SET PrereqTech = 'TECH_REPLACEABLE_PARTS'
 WHERE Type = 'BUILDING_WIRE_SERVICE';
 
 UPDATE Units
