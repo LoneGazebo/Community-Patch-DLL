@@ -223,9 +223,9 @@
 	SET ObsoleteTech = 'TECH_STEEL'
 	WHERE Type = 'UNIT_SPEARMAN' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
-	-- Make Landship cost iron, not oil:
+	-- Make Landship cost Coal, not oil:
 	UPDATE Unit_ResourceQuantityRequirements
-	SET ResourceType = 'RESOURCE_IRON'
+	SET ResourceType = 'RESOURCE_COAL'
 	WHERE UnitType = 'UNIT_WWI_TANK' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	-- Make Modern Armor cost oil, not aluminum:
@@ -681,7 +681,7 @@
 
 -- Make Rocket Artillery cost oil, not aluminum:
 	UPDATE Unit_ResourceQuantityRequirements
-	SET ResourceType = 'RESOURCE_OIL'
+	SET ResourceType = 'RESOURCE_IRON'
 	WHERE UnitType = 'UNIT_ROCKET_ARTILLERY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 -- Catapults, Trebuchets, and Artillery should cost Iron
@@ -1098,7 +1098,7 @@
 	WHERE Type = 'UNIT_DUTCH_SEA_BEGGAR' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Units
-	SET ObsoleteTech = 'TECH_ROCKETRY'
+	SET ObsoleteTech = 'TECH_INDUSTRIALIZATION'
 	WHERE Type = 'UNIT_PRIVATEER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Units
@@ -1149,8 +1149,7 @@
 	SET PrereqTech = 'TECH_INDUSTRIALIZATION'
 	WHERE Type = 'UNIT_IRONCLAD' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
-	UPDATE Unit_ResourceQuantityRequirements
-	SET ResourceType = 'RESOURCE_IRON'
+	DELETE FROM Unit_ResourceQuantityRequirements
 	WHERE UnitType = 'UNIT_IRONCLAD' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Units
@@ -1161,7 +1160,7 @@
 	WHERE UnitType = 'UNIT_IRONCLAD' AND PromotionType = 'PROMOTION_STEAM_POWERED' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Language_en_US
-	SET Text = 'A very powerful naval melee unit, the Ironclad pays for its strength by requiring [ICON_RES_IRON] Iron.'
+	SET Text = 'A very powerful naval melee unit, the Ironclad dominates the oceans of the Industrial age.'
 	WHERE Tag = 'TXT_KEY_UNIT_HELP_IRONCLAD' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	-- Destroyer
@@ -1195,6 +1194,9 @@
 	WHERE UnitType = 'UNIT_NUCLEAR_SUBMARINE' AND UnitAIType = 'UNITAI_EXPLORE_SEA' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	-- Battleship -- Upgrades to Missile Cruiser
+	UPDATE Unit_ResourceQuantityRequirements
+	SET ResourceType = 'RESOURCE_IRON'
+	WHERE UnitType = 'UNIT_BATTLESHIP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	INSERT INTO Unit_ClassUpgrades (UnitClassType, UnitType)
 	SELECT 'UNITCLASS_MISSILE_CRUISER' , 'UNIT_BATTLESHIP'
@@ -1242,7 +1244,7 @@
 	
 	-- Submarines and Missile Cruiser should cost Iron
 	INSERT INTO Unit_ResourceQuantityRequirements (UnitType, ResourceType, Cost)
-	SELECT 'UNIT_MISSILE_CRUISER', 'RESOURCE_OIL', '1'
+	SELECT 'UNIT_MISSILE_CRUISER', 'RESOURCE_IRON', '1'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	INSERT INTO Unit_ResourceQuantityRequirements (UnitType, ResourceType, Cost)
@@ -1255,7 +1257,7 @@
 
 	-- Carrier should cost Iron
 	INSERT INTO Unit_ResourceQuantityRequirements (UnitType, ResourceType, Cost)
-	SELECT 'UNIT_CARRIER', 'RESOURCE_IRON', '1'
+	SELECT 'UNIT_CARRIER', 'RESOURCE_OIL', '1'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	-- Move Carrier

@@ -8534,6 +8534,12 @@ void CvCity::UpdateReligion(ReligionTypes eNewMajority)
 				if (iReligionYieldMaxFollowers > 0)
 				{
 					int iFollowers = GetCityReligions()->GetNumFollowers(pReligion->m_eReligion);
+#if defined(MOD_BALANCE_CORE_BELIEFS)
+					if(pReligion->m_Beliefs.IsHalvedFollowers())
+					{
+						iFollowers /= 2;
+					}
+#endif
 					int iTempMod = min(iFollowers, iReligionYieldMaxFollowers);
 					iReligionYieldChange += iTempMod;
 				}
@@ -12358,6 +12364,32 @@ int CvCity::getUnhappinessFromDefenseYield() const
 
 	int iDamage = getDamage() * 10;
 
+	CvPlot* pLoopPlot;
+	int iEnemyUnits = 0;
+#if defined(MOD_GLOBAL_CITY_WORKING)
+	for(int iI = 0; iI < GetNumWorkablePlots(); iI++)
+#else
+	for(int iI = 0; iI < NUM_CITY_PLOTS; iI++)
+#endif
+	{
+		pLoopPlot = plotCity(getX(), getY(), iI);
+
+		if(pLoopPlot != NULL)
+		{
+			if(pLoopPlot->getOwner() == getOwner())
+			{
+				CvUnit* pUnit = pLoopPlot->getUnitByIndex(0);
+				if(pUnit != NULL && pUnit->IsCombatUnit() && GET_TEAM(GET_PLAYER(pUnit->getOwner()).getTeam()).isAtWar(GET_PLAYER(getOwner()).getTeam()))
+				{
+					iEnemyUnits++;
+				}
+			}
+		}
+	}
+	if(iEnemyUnits > 0)
+	{
+		iDefenseYield -= iEnemyUnits * 25;
+	}
 	if(iDamage > 0)
 	{
 		iDefenseYield -= iDamage;
@@ -13622,6 +13654,12 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 		if (iReligionYieldMaxFollowers > 0)
 		{
 			int iFollowers = GetCityReligions()->GetNumFollowers(eMajority);
+#if defined(MOD_BALANCE_CORE_BELIEFS)
+			if(pReligion->m_Beliefs.IsHalvedFollowers())
+			{
+				iFollowers /= 2;
+			}
+#endif
 			iTempMod = min(iFollowers, iReligionYieldMaxFollowers);
 			iModifier += iTempMod;
 			if(toolTipSink)
@@ -16511,12 +16549,30 @@ int CvCity::GetIndividualPlotScore(const CvPlot* pPlot) const
 							{
 							case DISPUTE_LEVEL_FIERCE:
 								iRtnValue += (10 - iDistance) * /* 6 */ GC.getAI_PLOT_VALUE_FIERCE_DISPUTE();
+#if defined(MOD_BALANCE_CORE)
+								if(GET_PLAYER(getOwner()).GetPlayerTraits()->IsBuyOwnedTiles() && pPlot->getOwner() == (PlayerTypes)iI)
+								{
+									iRtnValue *= (GET_PLAYER(getOwner()).GetDiplomacyAI()->GetBoldness() * GET_PLAYER(getOwner()).GetDiplomacyAI()->GetMeanness());
+								}
+#endif
 								break;
 							case DISPUTE_LEVEL_STRONG:
 								iRtnValue += (10 - iDistance) * /* 4 */GC.getAI_PLOT_VALUE_STRONG_DISPUTE();
+#if defined(MOD_BALANCE_CORE)
+								if(GET_PLAYER(getOwner()).GetPlayerTraits()->IsBuyOwnedTiles() && pPlot->getOwner() == (PlayerTypes)iI)
+								{
+									iRtnValue *= (GET_PLAYER(getOwner()).GetDiplomacyAI()->GetBoldness() + GET_PLAYER(getOwner()).GetDiplomacyAI()->GetMeanness());
+								}
+#endif
 								break;
 							case DISPUTE_LEVEL_WEAK:
 								iRtnValue += (10 - iDistance) * /* 2 */ GC.getAI_PLOT_VALUE_WEAK_DISPUTE();
+#if defined(MOD_BALANCE_CORE)
+								if(GET_PLAYER(getOwner()).GetPlayerTraits()->IsBuyOwnedTiles() && pPlot->getOwner() == (PlayerTypes)iI)
+								{
+									iRtnValue += (GET_PLAYER(getOwner()).GetDiplomacyAI()->GetBoldness() * GET_PLAYER(getOwner()).GetDiplomacyAI()->GetMeanness());
+								}
+#endif
 								break;
 							}
 						}
@@ -16525,7 +16581,6 @@ int CvCity::GetIndividualPlotScore(const CvPlot* pPlot) const
 			}
 		}
 	}
-
 	// Modify value based on cost - the higher it is compared to the "base" cost the less the value
 	int iCost = GetBuyPlotCost(pPlot->getX(), pPlot->getY());
 	iRtnValue *= GET_PLAYER(getOwner()).GetBuyPlotCost();
@@ -21766,6 +21821,33 @@ UnitTypes CvCity::GetUnitForOperation()
 
 		if(pThisArmy)
 		{
+#if defined(MOD_BALANCE_CORE)
+			UnitHandle pUnit;
+			pUnit = pThisArmy->GetFirstUnit();
+			if(pThisArmy->IsAllOceanGoing() && waterArea() != NULL && pThisArmy->GetArea() != NULL)
+			{
+				if(pThisArmy->GetArea() != waterArea()->GetID())
+				{
+					return NO_UNIT;
+				}
+			}
+			if(pThisArmy->GetCenterOfMass(pThisArmy->GetDomainType()) != NULL)
+			{
+				CvPlot* pCenterofMass = pThisArmy->GetCenterOfMass(pThisArmy->GetDomainType());
+				if(!GC.getStepFinder().GeneratePath(getX(), getY(), pCenterofMass->getX(), pCenterofMass->getY()))
+				{
+					return NO_UNIT;
+				}
+			}		
+			else if(pUnit)
+			{
+				CvPlot* pFirstUnit = pUnit->plot();
+				if(!GC.getStepFinder().GeneratePath(getX(), getY(), pFirstUnit->getX(), pFirstUnit->getY()))
+				{
+					return NO_UNIT;
+				}
+			}
+#endif
 			// figure out the primary and secondary unit type to potentially build
 			int iFormationIndex = pThisArmy->GetFormationIndex();
 			CvMultiUnitFormationInfo* thisFormation = GC.getMultiUnitFormationInfo(iFormationIndex);

@@ -72,6 +72,7 @@ CvBeliefEntry::CvBeliefEntry() :
 #endif
 
 #if defined(MOD_BALANCE_CORE_BELIEFS)
+	m_bIsHalvedFollowers(false),
 	m_piYieldPerPop(NULL),
 	m_piYieldPerGPT(NULL),
 	m_piYieldPerLux(NULL),
@@ -461,6 +462,11 @@ bool CvBeliefEntry::RequiresResource() const
 #endif
 
 #if defined(MOD_BALANCE_CORE_BELIEFS)
+/// Accessor: is this a belief that grants half follower belief yields?
+bool CvBeliefEntry::IsHalvedFollowers() const
+{
+	return m_bIsHalvedFollowers;
+}
 /// Accessor:: Yield Per Pop
 int CvBeliefEntry::GetYieldPerPop(int i) const
 {
@@ -990,6 +996,7 @@ bool CvBeliefEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_bRequiresResource				  = kResults.GetBool("RequiresResource");
 #endif
 #if defined(MOD_BALANCE_CORE_BELIEFS)
+	m_bIsHalvedFollowers			  = kResults.GetBool("HalvedFollowers");
 	m_iCombatVersusOtherReligionOwnLands = kResults.GetInt("CombatVersusOtherReligionOwnLands");
 	m_iCombatVersusOtherReligionTheirLands = kResults.GetInt("CombatVersusOtherReligionTheirLands");
 	m_iMissionaryInfluenceCS = kResults.GetInt("MissionaryInfluenceCS");
@@ -2551,6 +2558,24 @@ bool CvReligionBeliefs::RequiresResource() const
 }
 #endif
 #if defined(MOD_BALANCE_CORE_BELIEFS)
+/// Is there a belief that halves follower values?
+bool CvReligionBeliefs::IsHalvedFollowers() const
+{
+	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
+
+	for(int i = 0; i < pBeliefs->GetNumBeliefs(); i++)
+	{
+		if(HasBelief((BeliefTypes)i))
+		{
+			if (pBeliefs->GetEntry(i)->IsHalvedFollowers())
+			{
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
 /// Get yield modifier from beliefs for pop
 int CvReligionBeliefs::GetYieldPerPop(YieldTypes eYieldType) const
 {

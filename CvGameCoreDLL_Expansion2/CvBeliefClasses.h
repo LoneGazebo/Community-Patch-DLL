@@ -83,6 +83,7 @@ public:
 #endif
 
 #if defined(MOD_BALANCE_CORE_BELIEFS)
+	bool IsHalvedFollowers() const;
 	int GetYieldPerPop(int i) const;
 	int GetYieldPerGPT(int i) const;
 	int GetYieldPerLux(int i) const;
@@ -270,6 +271,7 @@ protected:
     bool* m_pbBuildingClassEnabled;
 
 #if defined(MOD_BALANCE_CORE_BELIEFS)
+	bool m_bIsHalvedFollowers;
 	int* m_piYieldPerPop;
 	int* m_piYieldPerGPT;
 	int* m_piYieldPerLux;
@@ -545,6 +547,7 @@ public:
 #endif
 
 #if defined(MOD_BALANCE_CORE_BELIEFS)
+	bool IsHalvedFollowers() const;
 	int GetYieldPerPop(YieldTypes eYieldType) const;
 	int GetYieldPerGPT(YieldTypes eYieldType) const;
 	int GetYieldPerLux(YieldTypes eYieldType) const;

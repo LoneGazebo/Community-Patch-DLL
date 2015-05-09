@@ -461,4 +461,12 @@
 			<Yield>15</Yield>
 		</Row>
 	</Building_YieldModifiers>
+	<!-- Seaport -->
+	<Building_ResourceQuantityRequirements>
+		<Row>
+			<BuildingType>BUILDING_SEAPORT</BuildingType>
+			<ResourceType>RESOURCE_COAL</ResourceType>
+			<Cost>1</Cost>
+		</Row>
+	</Building_ResourceQuantityRequirements>
 </GameData>

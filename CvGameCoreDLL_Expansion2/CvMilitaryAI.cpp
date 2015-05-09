@@ -4327,6 +4327,20 @@ void CvMilitaryAI::UpdateOperations()
 				int iScore;
 				if(!GET_PLAYER(eLoopPlayer).isMinorCiv())
 				{
+					if(eWarState <= WAR_STATE_CALM)
+					{
+						bool bHasOperationUnderway = m_pPlayer->haveAIOperationOfType(AI_OPERATION_RAPID_RESPONSE, &iOperationID, eLoopPlayer);
+						if (!bHasOperationUnderway)
+						{
+							iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(m_pPlayer, MUFORMATION_RAPID_RESPONSE_FORCE, false, &iNumRequiredSlots);
+
+							// Not willing to build units to get this off the ground
+							if (iFilledSlots >= iNumRequiredSlots)
+							{
+								m_pPlayer->addAIOperation(AI_OPERATION_RAPID_RESPONSE, eLoopPlayer);
+							}
+						}
+					}
 					if (eWarState < WAR_STATE_STALEMATE)
 					{
 						CvCity* pTarget = GetMostThreatenedCity(0);
@@ -4372,17 +4386,6 @@ void CvMilitaryAI::UpdateOperations()
 								{
 									m_pPlayer->addAIOperation(AI_OPERATION_CITY_CLOSE_DEFENSE, NO_PLAYER, -1, pTarget, pTarget);
 								}
-							}
-						}
-						bool bHasOperationUnderway = m_pPlayer->haveAIOperationOfType(AI_OPERATION_RAPID_RESPONSE, &iOperationID, eLoopPlayer);
-						if (!bHasOperationUnderway)
-						{
-							iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(m_pPlayer, MUFORMATION_RAPID_RESPONSE_FORCE, false, &iNumRequiredSlots);
-
-							// Not willing to build units to get this off the ground
-							if (iFilledSlots >= iNumRequiredSlots)
-							{
-								m_pPlayer->addAIOperation(AI_OPERATION_RAPID_RESPONSE, eLoopPlayer);
 							}
 						}
 					}

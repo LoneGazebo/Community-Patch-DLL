@@ -14,7 +14,7 @@
 		<Row>
 			<BuildingType>BUILDING_BAZAAR</BuildingType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>3</Yield>
+			<Yield>2</Yield>
 		</Row>
 	</Building_YieldChanges>
 	<Building_YieldChangesPerPop>

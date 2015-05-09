@@ -2236,7 +2236,11 @@ int CvDealAI::GetOpenBordersValue(bool bFromMe, PlayerTypes eOtherPlayer, bool b
 		int iNumEnemiesAtWarWith = GetPlayer()->GetDiplomacyAI()->GetNumOurEnemiesPlayerAtWarWith(eOtherPlayer);
 		if(iNumEnemiesAtWarWith >= 2)
 		{
+#if defined(MOD_BALANCE_CORE_DEALS)
+			iItemValue *= (10 - iNumEnemiesAtWarWith);
+#else
 			iItemValue *= 10;
+#endif
 			iItemValue /= 100;
 		}
 		else if(iNumEnemiesAtWarWith == 1)
@@ -2258,6 +2262,22 @@ int CvDealAI::GetOpenBordersValue(bool bFromMe, PlayerTypes eOtherPlayer, bool b
 				iItemValue /= 100;
 			}
 		}
+#if defined(MOD_BALANCE_CORE_DEALS)
+		if(MOD_BALANCE_CORE_DEALS)
+		{
+			CvPlayer &kOtherPlayer = GET_PLAYER(eOtherPlayer);
+			if (kOtherPlayer.GetCulture()->GetTourism() > 0 && (kOtherPlayer.GetCulture()->GetInfluenceOn(GetPlayer()->GetID()) > INFLUENCE_LEVEL_FAMILIAR) && (kOtherPlayer.GetCulture()->GetInfluenceOn(GetPlayer()->GetID()) < INFLUENCE_LEVEL_INFLUENTIAL))
+			{
+				if(GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(eOtherPlayer) <= MAJOR_CIV_OPINION_NEUTRAL)
+				{
+					if(GetPlayer()->GetDiplomacyAI()->GetVictoryBlockLevel(eOtherPlayer) >= BLOCK_LEVEL_STRONG || GetPlayer()->GetDiplomacyAI()->GetVictoryDisputeLevel(eOtherPlayer) >= DISPUTE_LEVEL_STRONG)
+					{
+						iItemValue = 1000000;
+					}
+				}
+			}
+		}
+#endif
 	}
 	// Other guy giving me Open Borders
 	else
@@ -2289,7 +2309,38 @@ int CvDealAI::GetOpenBordersValue(bool bFromMe, PlayerTypes eOtherPlayer, bool b
 			iItemValue *= 50;
 			iItemValue /= 100;
 		}
+#if defined(MOD_BALANCE_CORE_DIPLOMACY)
+		if(GetPlayer()->IsCramped() && GET_PLAYER(eOtherPlayer).getNumCities() > GetPlayer()->getNumCities())
+		{
+			iItemValue *= 150;
+			iItemValue /= 100;
+		}
+		PlayerTypes eLoopPlayer;
 
+		for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+		{
+			eLoopPlayer = (PlayerTypes) iPlayerLoop;
+
+			if(eLoopPlayer != NO_PLAYER && GetPlayer()->GetDiplomacyAI()->IsPlayerValid(eLoopPlayer) && !GET_PLAYER(eLoopPlayer).isMinorCiv())
+			{
+				if(GET_PLAYER(eLoopPlayer).GetProximityToPlayer(eOtherPlayer) == PLAYER_PROXIMITY_NEIGHBORS)
+				{
+					if(GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).isAtWar(GetTeam()))
+					{
+						iItemValue *= 150;
+						iItemValue /= 100;
+						break;
+					}
+					else if(GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(eLoopPlayer) < MAJOR_CIV_OPINION_NEUTRAL)
+					{
+						iItemValue *= 150;
+						iItemValue /= 100;
+						break;
+					}
+				}
+			}
+		}
+#endif
 		// Boost value greatly if we are going for a culture win
 		// If going for culture win always want open borders against civs we need influence on
 		AIGrandStrategyTypes eCultureStrategy = (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_CULTURE");
@@ -2995,8 +3046,8 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 					{
 						if(GET_TEAM(GetTeam()).isAtWar(GET_PLAYER(eWarPlayer).getTeam()))
 						{
-							WarProjectionTypes eWarProjection = pDiploAI->GetWarProjection(eWarPlayer);
-							if(eWarProjection <= WAR_PROJECTION_STALEMATE)
+							WarStateTypes eWarState = pDiploAI->GetWarState(eWarPlayer);
+							if(eWarState <= WAR_STATE_CALM)
 							{
 								return 100000;
 							}
@@ -3064,8 +3115,8 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 					{
 						if(GET_TEAM(GetTeam()).isAtWar(GET_PLAYER(eWarPlayer).getTeam()))
 						{
-							WarProjectionTypes eWarProjection = pDiploAI->GetWarProjection(eWarPlayer);
-							if(eWarProjection <= WAR_PROJECTION_STALEMATE)
+							WarStateTypes eWarState = pDiploAI->GetWarState(eWarPlayer);
+							if(eWarState <= WAR_STATE_CALM)
 							{
 								return 100000;
 							}

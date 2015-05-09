@@ -42,12 +42,12 @@
 		<Row>
 			<AICityStrategyType>AICITYSTRATEGY_LAKEBOUND</AICityStrategyType>
 			<FlavorType>FLAVOR_NAVAL</FlavorType>
-			<Flavor>-50</Flavor>
+			<Flavor>-500</Flavor>
 		</Row>
 		<Row>
 			<AICityStrategyType>AICITYSTRATEGY_LAKEBOUND</AICityStrategyType>
 			<FlavorType>FLAVOR_NAVAL_RECON</FlavorType>
-			<Flavor>-50</Flavor>
+			<Flavor>-500</Flavor>
 		</Row>
 	</AICityStrategy_Flavors>
 </GameData>

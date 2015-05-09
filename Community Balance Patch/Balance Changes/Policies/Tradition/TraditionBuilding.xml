@@ -13,7 +13,7 @@
 			<ArtDefineTag>ART_DEF_BUILDING_MARKET</ArtDefineTag>
 			<MinAreaSize>-1</MinAreaSize>
 			<CapitalOnly>true</CapitalOnly>
-			<CultureRateModifier>15</CultureRateModifier>
+			<CultureRateModifier>10</CultureRateModifier>
 			<SpecialistType>SPECIALIST_WRITER</SpecialistType>
 			<SpecialistCount>1</SpecialistCount>
 			<GreatWorkSlotType>GREAT_WORK_SLOT_LITERATURE</GreatWorkSlotType>
@@ -33,7 +33,7 @@
 	</BuildingClasses>
 	<Building_YieldChanges>
 		<Row>
-			<BuildingType>BUILDING_PALACE_GREAT_HALL</BuildingType>
+			<BuildingType>BUILDING_THRONE_ROOM</BuildingType>
 			<YieldType>YIELD_CULTURE</YieldType>
 			<Yield>2</Yield>
 		</Row>
@@ -43,7 +43,7 @@
 			<Text>Throne Room</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_CAPITAL_THRONE_ROOM_HELP">
-			<Text>Allows for a Writer Specialist in your [ICON_CAPITAL] Capital. Has a slot for a [ICON_GREAT_WORK] Great Work of Writing, and boosts [ICON_CULTURE] Culture in your [ICON_CAPITAL] Capital by 15%. Can only be constructed via the Majesty Policy.</Text>
+			<Text>Allows for a Writer Specialist in your [ICON_CAPITAL] Capital. Has a slot for a [ICON_GREAT_WORK] Great Work of Writing, and boosts [ICON_CULTURE] Culture in your [ICON_CAPITAL] Capital by 10%. Can only be constructed via the Majesty Policy.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_CAPITAL_THRONE_ROOM_PEDIA">
 			<Text>A throne room is the room, often rather a hall, in the official residence of the crown, either a palace or a fortified castle, where the throne of a senior figure (usually a monarch) is set up with elaborate pomp— usually raised, often with steps, and under a canopy, both of which are part of the original notion of the Greek word thronos.</Text>
@@ -61,8 +61,8 @@
 			<ConquestProb>0</ConquestProb>
 			<ArtDefineTag>ART_DEF_BUILDING_MARKET</ArtDefineTag>
 			<MinAreaSize>-1</MinAreaSize>
-			<GlobalPlotBuyCostModifier>-15</GlobalPlotBuyCostModifier>
-			<GlobalPlotCultureCostModifier>-15</GlobalPlotCultureCostModifier>
+			<GlobalPlotBuyCostModifier>-10</GlobalPlotBuyCostModifier>
+			<GlobalPlotCultureCostModifier>-10</GlobalPlotCultureCostModifier>
 			<CapitalOnly>true</CapitalOnly>
 			<SpecialistType>SPECIALIST_MERCHANT</SpecialistType>
 			<SpecialistCount>1</SpecialistCount>
@@ -91,7 +91,7 @@
 			<Text>State Treasury</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_PALACE_TREASURY_HELP">
-			<Text>Allows for a Merchant specialist in your Capital. Reduces the amount of [ICON_CULTURE] Culture and [ICON_GOLD] Gold needed to acquire Tiles in all Cities by 15%. Can only be constructed via the Sovereignty Policy.</Text>
+			<Text>Allows for a Merchant specialist in your Capital. Reduces the amount of [ICON_CULTURE] Culture and [ICON_GOLD] Gold needed to acquire Tiles in all Cities by 10%. Can only be constructed via the Sovereignty Policy.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_PALACE_TREASURY_PEDIA">
 			<Text>The term treasury was first used in Classical times to describe the votive buildings erected to house gifts to the gods, such as the Siphnian Treasury in Delphi or many similar buildings erected in Olympia, Greece by competing city-states to impress others during the ancient Olympic Games. In Ancient Greece treasuries were almost always physically incorporated within religious buildings such as temples, thus making state funds sacrosanct and adding moral constraints to the penal ones to those who would have access to these funds.</Text>
@@ -110,7 +110,7 @@
 			<ArtDefineTag>ART_DEF_BUILDING_MARKET</ArtDefineTag>
 			<MinAreaSize>-1</MinAreaSize>
 			<Defense>300</Defense>
-			<ExtraCityHitPoints>20</ExtraCityHitPoints>
+			<ExtraCityHitPoints>25</ExtraCityHitPoints>
 			<CapitalOnly>true</CapitalOnly>
 			<SpecialistType>SPECIALIST_ENGINEER</SpecialistType>
 			<SpecialistCount>1</SpecialistCount>

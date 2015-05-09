@@ -12555,19 +12555,6 @@ bool CvMinorCivAI::IsPeaceBlocked(TeamTypes eTeam) const
 
 		return true;
 	}
-	
-#if defined(MOD_CONFIG_GAME_IN_XML)
-	int iLimit = GD_INT_GET(WAR_MINOR_MINIMUM_TURNS);
-
-	if (iLimit > 0) {
-		int iTurns = m_pPlayer->GetDiplomacyAI()->GetTeamNumTurnsAtWar(eTeam);
-
-		if ((iTurns == 0 && GET_TEAM(m_pPlayer->getTeam()).isAtWar(eTeam)) || (iTurns != 0 && iTurns <= iLimit))
-		{
-			return true;
-		}
-	}
-#endif
 
 	return false;
 }

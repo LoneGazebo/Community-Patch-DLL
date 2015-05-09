@@ -11,6 +11,9 @@
 #include "CvGameCoreUtils.h"
 #include "CvDiplomacyAI.h"
 #include "CvMinorCivAI.h"
+#if defined(MOD_BALANCE_CORE)
+#include "CvMilitaryAI.h"
+#endif
 
 // must be included after all other headers
 #include "LintFree.h"
@@ -2484,6 +2487,32 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 					GET_TEAM(eFromTeam).declareWar(eTargetTeam, false, eFromPlayer);
 #else
 					GET_TEAM(eFromTeam).declareWar(eTargetTeam);
+#endif
+#if defined(MOD_BALANCE_CORE)
+					if(!GET_PLAYER(eAcceptedFromPlayer).isHuman())
+					{
+						PlayerTypes eLoopPlayer;
+						for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+						{
+							eLoopPlayer = (PlayerTypes) iPlayerLoop;
+							if(eLoopPlayer != NO_PLAYER && GET_PLAYER(eLoopPlayer).getTeam() == eTargetTeam)
+							{
+								GET_PLAYER(eAcceptedFromPlayer).GetMilitaryAI()->RequestBasicAttack(eLoopPlayer, 2);
+							}
+						}
+					}
+					if(!GET_PLAYER(eAcceptedToPlayer).isHuman())
+					{
+						PlayerTypes eLoopPlayer;
+						for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+						{
+							eLoopPlayer = (PlayerTypes) iPlayerLoop;
+							if(eLoopPlayer != NO_PLAYER && GET_PLAYER(eLoopPlayer).getTeam() == eTargetTeam)
+							{
+								GET_PLAYER(eAcceptedToPlayer).GetMilitaryAI()->RequestBasicAttack(eLoopPlayer, 2);
+							}
+						}
+					}
 #endif
 
 					int iLockedTurns = /*15*/ GC.getCOOP_WAR_LOCKED_LENGTH();

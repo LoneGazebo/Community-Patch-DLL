@@ -2538,7 +2538,7 @@ bool CvAIOperationBasicCityAttack::ArmyInPosition(CvArmyAI* pArmy)
 #if defined(MOD_BALANCE_CORE)
 		bool bBeenHad = false;
 		CvString strMsg;
-		if(!GET_TEAM(GET_PLAYER(GetOwner()).getTeam()).isAtWar(GET_PLAYER(m_eEnemy).getTeam()))
+		if(pArmy && !GET_TEAM(GET_PLAYER(GetOwner()).getTeam()).isAtWar(GET_PLAYER(m_eEnemy).getTeam()))
 		{
 			UnitHandle pUnit;
 			pUnit = pArmy->GetFirstUnit();
@@ -2552,14 +2552,14 @@ bool CvAIOperationBasicCityAttack::ArmyInPosition(CvArmyAI* pArmy)
 						CvUnit* pOtherUnit = pAdjacentPlot->getUnitByIndex(0);
 						if(pOtherUnit != NULL && pOtherUnit->getOwner() == m_eEnemy)
 						{
-							bBeenHad = true;
-							break;
 							// We ran into a potential enemy unit duing a sneak attack. The jig is probably up, so let's DOW.
 							if(GC.getLogging() && GC.getAILogging())
 							{
 								strMsg.Format("Ran into enemy unit during sneak attack on (x=%d y=%d). Time to fight!", GetTargetPlot()->getX(), GetTargetPlot()->getY());
 								LogOperationSpecialMessage(strMsg);
 							}
+							bBeenHad = true;
+							break;
 						}
 					}
 				}
@@ -4852,6 +4852,53 @@ bool CvAINavalOperation::ArmyInPosition(CvArmyAI* pArmy)
 		// See if within 2 spaces of our target, if so give control of these units to the tactical AI
 	case AI_OPERATION_STATE_MOVING_TO_TARGET:
 		{
+#if defined(MOD_BALANCE_CORE)
+			bool bBeenHad = false;
+			CvString strMsg;
+			if(pArmy && !GET_TEAM(GET_PLAYER(GetOwner()).getTeam()).isAtWar(GET_PLAYER(m_eEnemy).getTeam()))
+			{
+				UnitHandle pUnit;
+				pUnit = pArmy->GetFirstUnit();
+				while(pUnit)
+				{
+					for(int iDirectionLoop = 0; iDirectionLoop < NUM_DIRECTION_TYPES; ++iDirectionLoop)
+					{
+						CvPlot* pAdjacentPlot = plotDirection(pUnit->getX(), pUnit->getY(), ((DirectionTypes)iDirectionLoop));
+						if(pAdjacentPlot != NULL)
+						{
+							CvUnit* pOtherUnit = pAdjacentPlot->getUnitByIndex(0);
+							if(pOtherUnit != NULL && pOtherUnit->getOwner() == m_eEnemy)
+							{
+								// We ran into a potential enemy unit duing a sneak attack. The jig is probably up, so let's DOW.
+								if(GC.getLogging() && GC.getAILogging())
+								{
+									strMsg.Format("Ran into enemy unit during sneak attack on (x=%d y=%d). Time to fight!", GetTargetPlot()->getX(), GetTargetPlot()->getY());
+									LogOperationSpecialMessage(strMsg);
+								}
+								bBeenHad = true;
+								break;
+							}
+						}
+					}
+					pUnit = pArmy->GetNextUnit();
+				}
+			}
+			if(bBeenHad)
+			{
+				// Notify Diplo AI we're in place for attack
+				GET_PLAYER(GetOwner()).GetDiplomacyAI()->SetMusteringForAttack(GetEnemy(), true);
+
+				// Notify tactical AI to focus on this area
+				CvTemporaryZone zone;
+				zone.SetX(GetTargetPlot()->getX());
+				zone.SetY(GetTargetPlot()->getY());
+				zone.SetTargetType(AI_TACTICAL_TARGET_CITY);
+				zone.SetLastTurn(GC.getGame().getGameTurn() + GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS());
+				GET_PLAYER(m_eOwner).GetTacticalAI()->AddTemporaryZone(zone);
+
+				m_eCurrentState = AI_OPERATION_STATE_SUCCESSFUL_FINISH;
+			}
+#endif
 			if (plotDistance(pArmy->Plot()->getX(), pArmy->Plot()->getY(), GetTargetPlot()->getX(), GetTargetPlot()->getY()) < 2)
 			{
 				// Notify tactical AI to focus on this area
@@ -6091,6 +6138,53 @@ bool CvAIOperationPureNavalCityAttack::ArmyInPosition(CvArmyAI* pArmy)
 		// See if within 2 spaces of our target, if so give control of these units to the tactical AI
 	case AI_OPERATION_STATE_MOVING_TO_TARGET:
 		{
+#if defined(MOD_BALANCE_CORE)
+			bool bBeenHad = false;
+			CvString strMsg;
+			if(pArmy && !GET_TEAM(GET_PLAYER(GetOwner()).getTeam()).isAtWar(GET_PLAYER(m_eEnemy).getTeam()))
+			{
+				UnitHandle pUnit;
+				pUnit = pArmy->GetFirstUnit();
+				while(pUnit)
+				{
+					for(int iDirectionLoop = 0; iDirectionLoop < NUM_DIRECTION_TYPES; ++iDirectionLoop)
+					{
+						CvPlot* pAdjacentPlot = plotDirection(pUnit->getX(), pUnit->getY(), ((DirectionTypes)iDirectionLoop));
+						if(pAdjacentPlot != NULL)
+						{
+							CvUnit* pOtherUnit = pAdjacentPlot->getUnitByIndex(0);
+							if(pOtherUnit != NULL && pOtherUnit->getOwner() == m_eEnemy)
+							{
+								// We ran into a potential enemy unit duing a sneak attack. The jig is probably up, so let's DOW.
+								if(GC.getLogging() && GC.getAILogging())
+								{
+									strMsg.Format("Ran into enemy unit during sneak attack on (x=%d y=%d). Time to fight!", GetTargetPlot()->getX(), GetTargetPlot()->getY());
+									LogOperationSpecialMessage(strMsg);
+								}
+								bBeenHad = true;
+								break;
+							}
+						}
+					}
+					pUnit = pArmy->GetNextUnit();
+				}
+			}
+			if(bBeenHad)
+			{
+				// Notify Diplo AI we're in place for attack
+				GET_PLAYER(GetOwner()).GetDiplomacyAI()->SetMusteringForAttack(GetEnemy(), true);
+
+				// Notify tactical AI to focus on this area
+				CvTemporaryZone zone;
+				zone.SetX(GetTargetPlot()->getX());
+				zone.SetY(GetTargetPlot()->getY());
+				zone.SetTargetType(AI_TACTICAL_TARGET_CITY);
+				zone.SetLastTurn(GC.getGame().getGameTurn() + GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS());
+				GET_PLAYER(m_eOwner).GetTacticalAI()->AddTemporaryZone(zone);
+
+				m_eCurrentState = AI_OPERATION_STATE_SUCCESSFUL_FINISH;
+			}
+#endif
 			if (plotDistance(pArmy->Plot()->getX(), pArmy->Plot()->getY(), GetTargetPlot()->getX(), GetTargetPlot()->getY()) < 2)
 			{
 				// Notify tactical AI to focus on this area
@@ -6477,7 +6571,7 @@ CvPlot* CvAIOperationRapidResponse::FindBestTarget()
 {
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	CvPlot* pBestPlot = NULL;
-	int iHighestDanger = -1;
+	int iHighestDanger = 0;
 	CvPlot* pLoopPlot = NULL;
 	const CvPlotsVector& aiPlots = GET_PLAYER(m_eOwner).GetPlots();
 	for (uint uiPlotIndex = 0; uiPlotIndex < aiPlots.size(); uiPlotIndex++)
@@ -6487,12 +6581,21 @@ CvPlot* CvAIOperationRapidResponse::FindBestTarget()
 			continue;
 		}
 		pLoopPlot = GC.getMap().plotByIndex(aiPlots[uiPlotIndex]);
-		if(pLoopPlot != NULL)
+		if(pLoopPlot != NULL && !pLoopPlot->isWater())
 		{
-			if(GET_PLAYER(m_eOwner).GetPlotDanger(*pLoopPlot) > iHighestDanger)
+			CvUnit* pUnit = pLoopPlot->getUnitByIndex(0);
+			if(pUnit != NULL && pUnit->getOwner() == m_eEnemy)
 			{
-				iHighestDanger = GET_PLAYER(m_eOwner).GetPlotDanger(*pLoopPlot);
-				pBestPlot = pLoopPlot;
+				CvUnitEntry* unitInfo = GC.getUnitInfo(pUnit->getUnitType());
+				if(pUnit->IsCivilianUnit() && pUnit->getDomainType() == DOMAIN_LAND)
+				{
+					return pUnit->plot();
+				}
+				else if(pUnit->getDomainType() == DOMAIN_LAND && pUnit->IsCombatUnit() && unitInfo->GetPower() > iHighestDanger)
+				{
+					iHighestDanger = unitInfo->GetPower();
+					pBestPlot = pLoopPlot;
+				}
 			}
 		}
 	}
@@ -7153,7 +7256,53 @@ bool CvAIOperationNavalAttack::ArmyInPosition(CvArmyAI* pArmy)
 	case AI_OPERATION_STATE_MOVING_TO_TARGET:
 	{
 		CvPlot *pCenterOfMass = pArmy->GetCenterOfMass(DOMAIN_SEA);
+#if defined(MOD_BALANCE_CORE)
+		bool bBeenHad = false;
+		CvString strMsg;
+		if(pArmy && !GET_TEAM(GET_PLAYER(GetOwner()).getTeam()).isAtWar(GET_PLAYER(m_eEnemy).getTeam()))
+		{
+			UnitHandle pUnit;
+			pUnit = pArmy->GetFirstUnit();
+			while(pUnit)
+			{
+				for(int iDirectionLoop = 0; iDirectionLoop < NUM_DIRECTION_TYPES; ++iDirectionLoop)
+				{
+					CvPlot* pAdjacentPlot = plotDirection(pUnit->getX(), pUnit->getY(), ((DirectionTypes)iDirectionLoop));
+					if(pAdjacentPlot != NULL)
+					{
+						CvUnit* pOtherUnit = pAdjacentPlot->getUnitByIndex(0);
+						if(pOtherUnit != NULL && pOtherUnit->getOwner() == m_eEnemy)
+						{
+							// We ran into a potential enemy unit duing a sneak attack. The jig is probably up, so let's DOW.
+							if(GC.getLogging() && GC.getAILogging())
+							{
+								strMsg.Format("Ran into enemy unit during sneak attack on (x=%d y=%d). Time to fight!", GetTargetPlot()->getX(), GetTargetPlot()->getY());
+								LogOperationSpecialMessage(strMsg);
+							}
+							bBeenHad = true;
+							break;						
+						}
+					}
+				}
+				pUnit = pArmy->GetNextUnit();
+			}
+		}
+		if(bBeenHad)
+		{
+			// Notify Diplo AI we're in place for attack
+			GET_PLAYER(GetOwner()).GetDiplomacyAI()->SetMusteringForAttack(GetEnemy(), true);
 
+			// Notify tactical AI to focus on this area
+			CvTemporaryZone zone;
+			zone.SetX(GetTargetPlot()->getX());
+			zone.SetY(GetTargetPlot()->getY());
+			zone.SetTargetType(AI_TACTICAL_TARGET_CITY);
+			zone.SetLastTurn(GC.getGame().getGameTurn() + GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS());
+			GET_PLAYER(m_eOwner).GetTacticalAI()->AddTemporaryZone(zone);
+
+			m_eCurrentState = AI_OPERATION_STATE_SUCCESSFUL_FINISH;
+		}
+#endif
 		// Are we within tactical range of our target? (larger than usual range for a naval attack)
 		if(pCenterOfMass && plotDistance(pCenterOfMass->getX(), pCenterOfMass->getY(), m_iTargetX, m_iTargetY) <= GC.getAI_OPERATIONAL_CITY_ATTACK_DEPLOY_RANGE() * 2)
 		{
@@ -7351,7 +7500,53 @@ bool CvAIOperationNavalSneakAttack::ArmyInPosition(CvArmyAI* pArmy)
 	case AI_OPERATION_STATE_MOVING_TO_TARGET:
 	{
 		CvPlot *pCenterOfMass = pArmy->GetCenterOfMass(DOMAIN_SEA);
+#if defined(MOD_BALANCE_CORE)
+		bool bBeenHad = false;
+		CvString strMsg;
+		if(pArmy && !GET_TEAM(GET_PLAYER(GetOwner()).getTeam()).isAtWar(GET_PLAYER(m_eEnemy).getTeam()))
+		{
+			UnitHandle pUnit;
+			pUnit = pArmy->GetFirstUnit();
+			while(pUnit)
+			{
+				for(int iDirectionLoop = 0; iDirectionLoop < NUM_DIRECTION_TYPES; ++iDirectionLoop)
+				{
+					CvPlot* pAdjacentPlot = plotDirection(pUnit->getX(), pUnit->getY(), ((DirectionTypes)iDirectionLoop));
+					if(pAdjacentPlot != NULL)
+					{
+						CvUnit* pOtherUnit = pAdjacentPlot->getUnitByIndex(0);
+						if(pOtherUnit != NULL && pOtherUnit->getOwner() == m_eEnemy)
+						{
+							bBeenHad = true;
+							// We ran into a potential enemy unit duing a sneak attack. The jig is probably up, so let's DOW.
+							if(GC.getLogging() && GC.getAILogging())
+							{
+								strMsg.Format("Ran into enemy unit during sneak attack on (x=%d y=%d). Time to fight!", GetTargetPlot()->getX(), GetTargetPlot()->getY());
+								LogOperationSpecialMessage(strMsg);
+							}
+							break;
+						}
+					}
+				}
+				pUnit = pArmy->GetNextUnit();
+			}
+		}
+		if(bBeenHad)
+		{
+			// Notify Diplo AI we're in place for attack
+			GET_PLAYER(GetOwner()).GetDiplomacyAI()->SetMusteringForAttack(GetEnemy(), true);
 
+			// Notify tactical AI to focus on this area
+			CvTemporaryZone zone;
+			zone.SetX(GetTargetPlot()->getX());
+			zone.SetY(GetTargetPlot()->getY());
+			zone.SetTargetType(AI_TACTICAL_TARGET_CITY);
+			zone.SetLastTurn(GC.getGame().getGameTurn() + GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS());
+			GET_PLAYER(m_eOwner).GetTacticalAI()->AddTemporaryZone(zone);
+
+			m_eCurrentState = AI_OPERATION_STATE_SUCCESSFUL_FINISH;
+		}
+#endif
 		// Are we within tactical range of our target? (larger than usual range for a naval attack)
 #if defined(MOD_BALANCE_CORE)
 		if(pCenterOfMass && plotDistance(pCenterOfMass->getX(), pCenterOfMass->getY(), m_iTargetX, m_iTargetY) <= GC.getAI_OPERATIONAL_CITY_ATTACK_DEPLOY_RANGE())

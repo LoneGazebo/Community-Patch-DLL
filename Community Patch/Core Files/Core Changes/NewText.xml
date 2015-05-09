@@ -142,6 +142,24 @@
 			<ResponseType>RESPONSE_DEFENSIVE_PACT_REQUEST</ResponseType>
 			<Response>TXT_KEY_DEFENSE_PACT_OFFER%</Response>
 		</Row>
+		
+		<!-- DOF Friend Levels -->
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_WORK_WITH_US_UNTRUSTWORTHY</ResponseType>
+			<Response>TXT_KEY_DEC_FRIENDSHIP_UNTRUSTWORTHY%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_WORK_WITH_US_FRIENDS</ResponseType>
+			<Response>TXT_KEY_DEC_FRIENDSHIP_FRIENDS%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_WORK_WITH_US_OLD_FRIENDS</ResponseType>
+			<Response>TXT_KEY_DEC_FRIENDSHIP_OLD_FRIENDS%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_WORK_WITH_US_BATTLE_BROTHERS</ResponseType>
+			<Response>TXT_KEY_DEC_FRIENDSHIP_BATTLE_BROTHERS%</Response>
+		</Row>
 	</Diplomacy_Responses>
 	<Language_en_US>
 		<!-- No Supply -->
@@ -2121,6 +2139,47 @@
 		</Row>
 		<Row Tag="TXT_KEY_GENERIC_HUMAN_SUPPORTED_OUR_HOSTING_3">
 			<Text>The {1_LeagueName} is under our control because of wise leaders like you. Together, we can make the world a better place.</Text>
+		</Row>
+		
+		<!-- DOF Layers -->
+		<Row Tag="TXT_KEY_DEC_FRIENDSHIP_UNTRUSTWORTHY_1">
+			<Text>We have not always seen eye to eye in the past. A Declaration of Friendship could change that. What do you say?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DEC_FRIENDSHIP_UNTRUSTWORTHY_2">
+			<Text>I do not trust you, yet my advisors tell me that a Declaration of Friendship with you is a shrewd diplomatic move. Shall we?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DEC_FRIENDSHIP_UNTRUSTWORTHY_3">
+			<Text>A Declaration of Friendship might show the world that we are willing to put past transgressions behind us. Do you agree?</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_DEC_FRIENDSHIP_FRIENDS_1">
+			<Text>Our people have grown close over the years. It would be a shame to see this relationship decay. Shall we renew our Declaration of Friendship?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DEC_FRIENDSHIP_FRIENDS_2">
+			<Text>You have proven to be a trustworthy friend, a rare trait in this world. Do you wish to renew our Declaration of Friendship?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DEC_FRIENDSHIP_FRIENDS_3">
+			<Text>We have shown the world that cooperation is possible. Come, let us show them again. Shall we renew our Declaration of Friendship?</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_DEC_FRIENDSHIP_OLD_FRIENDS_1">
+			<Text>Greetings, old friend. My advisors tell me that our Declaration of Friendship has lapsed. Surely this is simply a clerical error, yes? Shall we renew our Declaration of Friendship?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DEC_FRIENDSHIP_OLD_FRIENDS_2">
+			<Text>Our friendship has stood the test of time. It would be a shame to see it end now. Do you want to renew our Declaration of Friendship?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DEC_FRIENDSHIP_OLD_FRIENDS_3">
+			<Text>There are few people in the world I trust more than you. It would be wise of us to renew our Declaration of Friendship. Do you agree?</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_DEC_FRIENDSHIP_BATTLE_BROTHERS_1">
+			<Text>Once more into the breach, dear friend. Shall we renew our Declaration of Friendship?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DEC_FRIENDSHIP_BATTLE_BROTHERS_2">
+			<Text>I have been, and always shall be, your friend. Will you reciprocate this sentiment, and renew our Declaration of Friendship?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DEC_FRIENDSHIP_BATTLE_BROTHERS_3">
+			<Text>We have forged a legendary alliance over the years, have we not? Come, let us renew our Declaration of Friendship.</Text>
 		</Row>
 
 		<!-- ESSENTIAL TEXTS - DO NOT CHANGE -->

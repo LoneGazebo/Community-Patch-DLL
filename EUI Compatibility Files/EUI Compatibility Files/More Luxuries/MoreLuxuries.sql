@@ -179,6 +179,12 @@ SELECT 'BUILDING_CEILIDH_HALL', 'RESOURCE_PERFUME' , 'YIELD_CULTURE' , '1';
 INSERT INTO Building_ResourceYieldChanges (BuildingType, ResourceType, YieldType, Yield)
 SELECT 'BUILDING_CEILIDH_HALL', 'RESOURCE_OLIVE' , 'YIELD_GOLD' , '1';
 
+INSERT INTO Building_ResourceYieldChanges (BuildingType, ResourceType, YieldType, Yield)
+SELECT 'BUILDING_CEILIDH_HALL', 'RESOURCE_OLIVE' , 'YIELD_CULTURE' , '1';
+
+INSERT INTO Building_ResourceYieldChanges (BuildingType, ResourceType, YieldType, Yield)
+SELECT 'BUILDING_CEILIDH_HALL', 'RESOURCE_PERFUME' , 'YIELD_GOLD' , '1';
+
 UPDATE Language_en_US
 SET Text = 'Reduces [ICON_HAPPINESS_3] Boredom slightly. Each source of [ICON_RES_PERFUME] Perfume and [ICON_RES_OLIVE] Olives worked by this City produces +1 [ICON_CULTURE] Culture and +1 [ICON_GOLD] Gold.'
 WHERE Tag = 'TXT_KEY_BUILDING_CEILIDH_HALL_HELP';
