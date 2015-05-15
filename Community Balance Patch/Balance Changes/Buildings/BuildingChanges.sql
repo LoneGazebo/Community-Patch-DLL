@@ -392,7 +392,7 @@ SET Yield = '0'
 WHERE BuildingType = 'BUILDING_MARKET' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 	
 INSERT INTO Language_en_US (Tag, Text)
-SELECT 'TXT_KEY_BUILDING_MARKET_HELP', '+1 [ICON_GOLD] Gold and +1 [ICON_PRODUCTION] Production from [ICON_RES_SPICES] Spices, [ICON_RES_SUGAR] Sugar and [ICON_RES_COCOA] Cocoa. +1 [ICON_GOLD] Gold for every 6 [ICON_CITIZEN] Citizens in the City.'
+SELECT 'TXT_KEY_BUILDING_MARKET_HELP', '+1 [ICON_GOLD] Gold for every 6 [ICON_CITIZEN] Citizens in the City. +1 [ICON_GOLD] Gold and +1 [ICON_PRODUCTION] Production from [ICON_RES_SPICES] Spices, [ICON_RES_SUGAR] Sugar and [ICON_RES_COCOA] Cocoa.[NEWLINE][NEWLINE]Trade routes other players make to a city with a Market will generate an extra 1 [ICON_GOLD] Gold for the city owner and the trade route owner gains an additional 1 [ICON_GOLD] Gold for the trade route.'
 WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -418,7 +418,7 @@ WHERE Tag = 'TXT_KEY_BUILDING_MINT_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHE
 
 -- Bank
 UPDATE Language_en_US
-SET Text = 'City must have a Market. +1 [ICON_GOLD] for every 5 [ICON_CITIZEN] Citizens in the City.'
+SET Text = 'City must have a Market. +1 [ICON_GOLD] for every 5 [ICON_CITIZEN] Citizens in the City.[NEWLINE][NEWLINE]Trade routes other players make to a city with a Bank will generate an extra 1 [ICON_GOLD] Gold for the city owner and the trade route owner gains an additional 1 [ICON_GOLD] Gold for the trade route.'
 WHERE Tag = 'TXT_KEY_BUILDING_BANK_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 -- Stock Exchange
