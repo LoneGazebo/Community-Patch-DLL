@@ -113,7 +113,7 @@ WHERE CivilizationType = 'CIVILIZATION_RUSSIA' AND EXISTS (SELECT * FROM COMMUNI
 
 -- Darius -- Adjust Satrap
 UPDATE Language_en_US
-SET Text = 'City must have a Market. +1 [ICON_GOLD] Gold for every 4 [ICON_CITIZEN] Citizens in the City.[NEWLINE][NEWLINE]Trade routes other players make to a city with a Satraps Court will generate an extra 1 [ICON_GOLD] Gold for the city owner and the trade route owner gains an additional 1 [ICON_GOLD] Gold for the trade route.'
+SET Text = 'City must have a Market. +1 [ICON_GOLD] Gold for every 4 [ICON_CITIZEN] Citizens in the City.[NEWLINE][NEWLINE]Trade routes other players make to a city with a Satrap''s Court will generate an extra 1 [ICON_GOLD] Gold for the city owner and the trade route owner gains an additional 1 [ICON_GOLD] Gold for the trade route.'
 WHERE Tag = 'TXT_KEY_BUILDING_SATRAPS_COURT_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Buildings
