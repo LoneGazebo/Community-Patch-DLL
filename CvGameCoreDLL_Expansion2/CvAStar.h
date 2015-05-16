@@ -45,9 +45,16 @@ typedef void(*CvAEnd)(const void*, CvAStar*);
 #define MOVE_DECLARE_WAR					(0x00000020)
 // Used for AI group attacks (??). Not really a pathfinder flag
 #define MISSION_MODIFIER_DIRECT_ATTACK		(0x00000040)
-#define MISSION_MODIFIER_NO_DEFENSIVE_SUPPORT (0x00000100)
 
 #define MOVE_MAXIMIZE_EXPLORE				(0x00000080)
+
+// Used for AI group attacks (??). Not really a pathfinder flag
+#define MISSION_MODIFIER_NO_DEFENSIVE_SUPPORT (0x00000100)
+
+#if defined(MOD_BALANCE_CORE_MILITARY)
+#define MOVE_MINIMIZE_ENEMY_TERRITORY		(0x00000200)
+#endif
+
 //
 // Used for route information
 #define MOVE_ANY_ROUTE					    (0x80000000) // because we're passing in the player number as well as the route flag
@@ -557,6 +564,9 @@ public:
 	bool DoesPathExist(PlayerTypes ePlayer, PlayerTypes eEnemy, CvPlot* pStartPlot, CvPlot* pEndPlot);
 	CvPlot* GetLastOwnedPlot(PlayerTypes ePlayer, PlayerTypes eEnemy, CvPlot* pStartPlot, CvPlot* pEndPlot) const;
 	CvPlot* GetXPlotsFromEnd(PlayerTypes ePlayer, PlayerTypes eEnemy, CvPlot* pStartPlot, CvPlot* pEndPlot, int iPlotsFromEnd, bool bLeaveEnemyTerritory) const;
+#if defined(MOD_BALANCE_CORE)
+	int CountPlotsOwnedByXInPath(PlayerTypes ePlayer) const;
+#endif
 };
 
 class CvIgnoreUnitsPathFinder: public CvAStar

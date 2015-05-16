@@ -1783,6 +1783,12 @@ void CvMilitaryAI::ShouldAttackBySea(PlayerTypes eEnemy, CvMilitaryTarget& targe
 			if(pPathfinderNode != NULL)
 			{
 				iPathLength = pPathfinderNode->m_iTotalCost;
+
+				int iEnemyPlots = GC.getStepFinder().CountPlotsOwnedByXInPath(eEnemy);
+				//up to 5 plots over enemy territory is good, more is suspicious 
+				iEnemyPlots = MAX(0, iEnemyPlots-5);
+				//and costs extra
+				iPathLength = (iPathLength*(100+iEnemyPlots*10))/100;
 			}
 		}
 		// Water path between muster point and target?
@@ -1970,7 +1976,7 @@ int CvMilitaryAI::ScoreTarget(CvMilitaryTarget& target, AIOperationTypes eAIOper
 	{
 		// interpolate linearly between a low and a high distance
 		float fDistanceLow = 8, fWeightLow = 10;
-		float fDistanceHigh = 20, fWeightHigh = 1;
+		float fDistanceHigh = 24, fWeightHigh = 1;
 
 		// Is this a sneakattack?  If so distance is REALLY important (want to target spaces on edge of empire)
 		if (eAIOperationType == AI_OPERATION_SNEAK_CITY_ATTACK)
@@ -1991,7 +1997,7 @@ int CvMilitaryAI::ScoreTarget(CvMilitaryTarget& target, AIOperationTypes eAIOper
 	{
 		// interpolate linearly between a low and a high distance
 		float fDistanceLow = 12, fWeightLow = 5;
-		float fDistanceHigh = 30, fWeightHigh = 2;
+		float fDistanceHigh = 36, fWeightHigh = 1;
 
 		// Is this a sneak attack?  If so distance is REALLY important (want to target spaces on edge of empire)
 		if (eAIOperationType == AI_OPERATION_NAVAL_SNEAK_ATTACK)

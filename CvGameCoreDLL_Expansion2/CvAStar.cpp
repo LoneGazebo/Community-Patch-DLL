@@ -44,6 +44,10 @@
 #define PATH_END_TURN_MOUNTAIN_WEIGHT							(1000000)
 #define PATH_END_TURN_MISSIONARY_OTHER_TERRITORY				(150000)
 
+#if defined(MOD_BALANCE_CORE_MILITARY)
+#define PATH_ENEMY_TERRITORY_WEIGHT								(100)
+#endif
+
 #include <xmmintrin.h>
 
 // until Tim is finished with AStar optimization
@@ -1121,6 +1125,18 @@ int PathCost(CvAStarNode* parent, CvAStarNode* node, int data, const void* point
 			}
 		}
 
+#if defined(MOD_BALANCE_CORE_MILITARY)
+		if (finder->GetInfo() & MOVE_MINIMIZE_ENEMY_TERRITORY)
+		{
+			if (pToPlot->getOwner()!=NO_PLAYER)
+			{
+				CvTeam& plotTeam = GET_TEAM(GET_PLAYER(pToPlot->getOwner()).getTeam());
+				if (!plotTeam.IsAllowsOpenBordersToTeam(GET_PLAYER(pUnit->getOwner()).getTeam()))
+					iCost += PATH_ENEMY_TERRITORY_WEIGHT;
+			}
+		}
+#endif
+
 		// Damage caused by features (mods)
 		if(0 != GC.getPATH_DAMAGE_WEIGHT())
 		{
@@ -1254,9 +1270,9 @@ int PathCost(CvAStarNode* parent, CvAStarNode* node, int data, const void* point
 						}
 #endif
 
-						if(pFromPlot->isRiverCrossing(directionXY(iFromPlotX, iFromPlotY, iToPlotX, iToPlotY)))
+						if(!(pUnit->isRiverCrossingNoPenalty()))
 						{
-							if(!(pUnit->isRiverCrossingNoPenalty()))
+							if(pFromPlot->isRiverCrossing(directionXY(pFromPlot, pToPlot)))
 							{
 								iCost += (PATH_RIVER_WEIGHT * -(GC.getRIVER_ATTACK_MODIFIER()));
 								iCost += (PATH_MOVEMENT_WEIGHT * iMovesLeft);
@@ -1866,6 +1882,18 @@ int IgnoreUnitsCost(CvAStarNode* parent, CvAStarNode* node, int data, const void
 				iCost += PATH_EXPLORE_NON_HILL_WEIGHT;
 			}
 		}
+
+#if defined(MOD_BALANCE_CORE_MILITARY)
+		if (finder->GetInfo() & MOVE_MINIMIZE_ENEMY_TERRITORY)
+		{
+			if (pToPlot->getOwner()!=NO_PLAYER)
+			{
+				CvTeam& plotTeam = GET_TEAM(GET_PLAYER(pToPlot->getOwner()).getTeam());
+				if (!plotTeam.IsAllowsOpenBordersToTeam(GET_PLAYER(pUnit->getOwner()).getTeam()))
+					iCost += PATH_ENEMY_TERRITORY_WEIGHT;
+			}
+		}
+#endif
 
 		// Damage caused by features (mods)
 		if(0 != GC.getPATH_DAMAGE_WEIGHT())
@@ -3198,6 +3226,33 @@ CvPlot* CvStepPathFinder::GetXPlotsFromEnd(PlayerTypes ePlayer, PlayerTypes eEne
 
 	return currentPlot;
 }
+
+#if defined(MOD_BALANCE_CORE)
+//	--------------------------------------------------------------------------------
+/// Returns the last plot along the step path owned by a specific player
+int CvStepPathFinder::CountPlotsOwnedByXInPath(PlayerTypes ePlayer) const
+{
+	int iCount = 0;
+	CvAStarNode* pNode = GC.getStepFinder().GetLastNode();
+
+	// Starting at the end, loop until we find a plot from this owner
+	CvMap& kMap = GC.getMap();
+	while(pNode != NULL)
+	{
+		CvPlot* currentPlot;
+		currentPlot = kMap.plotUnchecked(pNode->m_iX, pNode->m_iY);
+
+		// Check and see if this plot has the right owner
+		if(currentPlot->getOwner() == ePlayer)
+			iCount++;
+
+		// Move to the previous plot on the path
+		pNode = pNode->m_pParent;
+	}
+
+	return iCount;
+}
+#endif
 
 //	--------------------------------------------------------------------------------
 /// Check for existence of step path between two points
