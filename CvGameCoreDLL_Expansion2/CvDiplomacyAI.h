@@ -253,6 +253,11 @@ public:
 	void SetPlayerNumTurnsAtWar(PlayerTypes ePlayer, int iValue);
 	void ChangePlayerNumTurnsAtWar(PlayerTypes ePlayer, int iChange);
 
+#if defined(MOD_BALANCE_CORE)
+	int GetPlayerNumTurnsSinceCityCapture(PlayerTypes ePlayer) const;
+	void SetPlayerNumTurnsSinceCityCapture(PlayerTypes ePlayer, int iValue);
+	void ChangePlayerNumTurnsSinceCityCapture(PlayerTypes ePlayer, int iChange);
+#endif
 	// How many times have we gone to war?
 	int GetNumWarsFought(PlayerTypes ePlayer) const;
 	void SetNumWarsFought(PlayerTypes ePlayer, int iValue);
@@ -696,6 +701,9 @@ public:
 
 	const char* GetGreetHumanMessage(LeaderheadAnimationTypes& eAnimation);
 	const char* GetInsultHumanMessage();
+#if defined(MOD_BALANCE_CORE_DIPLOMACY)
+	const char* GetDoFHumanMessage();
+#endif
 	const char* GetAttackedByHumanMessage();
 	const char* GetWarMessage(PlayerTypes ePlayer);
 	const char* GetEndDoFMessage(PlayerTypes ePlayer);
@@ -783,6 +791,8 @@ public:
 	bool IsDoFAccepted(PlayerTypes ePlayer) const;
 	void SetDoFAccepted(PlayerTypes ePlayer, bool bValue);
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
+	void SetNumDoFLifetime(PlayerTypes ePlayer, int iValue);
+	short GetNumDoFLifetime(PlayerTypes ePlayer) const;
 	bool IsDoFBroken(PlayerTypes ePlayer) const;
 	void SetDoFBroken(PlayerTypes ePlayer, bool bValue);
 #endif
@@ -1353,6 +1363,9 @@ private:
 		char m_aeLastWarProjection[REALLY_MAX_PLAYERS];
 		char m_aeWarGoal[REALLY_MAX_PLAYERS];
 		short m_aiPlayerNumTurnsAtWar[REALLY_MAX_PLAYERS];
+#if defined(MOD_BALANCE_CORE)
+		short m_aiPlayerNumTurnsSinceCityCapture[REALLY_MAX_PLAYERS];
+#endif
 		short m_aiNumWarsFought[REALLY_MAX_PLAYERS];
 		char m_aePlayerMilitaryStrengthComparedToUs[REALLY_MAX_PLAYERS];
 		char m_aePlayerEconomicStrengthComparedToUs[REALLY_MAX_PLAYERS];
@@ -1391,6 +1404,7 @@ private:
 		bool m_abDoFAccepted[MAX_MAJOR_CIVS];
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
 		bool m_abDoFBroken[MAX_MAJOR_CIVS];
+		short m_aiNumDoFLifetime[MAX_MAJOR_CIVS];
 #endif
 		short m_aiDoFCounter[MAX_MAJOR_CIVS];
 
@@ -1620,6 +1634,9 @@ private:
 	char* m_paeLastWarProjection;
 	char* m_paeWarGoal;
 	short* m_paiPlayerNumTurnsAtWar;
+#if defined(MOD_BALANCE_CORE)
+	short* m_paiPlayerNumTurnsSinceCityCapture;
+#endif
 	short* m_paiNumWarsFought;
 
 	char* m_paePlayerMilitaryStrengthComparedToUs;
@@ -1668,6 +1685,7 @@ private:
 	bool* m_pabDoFAccepted;
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
 	bool* m_pabDoFBroken;
+	short* m_paiNumDoFLifetime;
 #endif
 	short* m_paiDoFCounter;
 

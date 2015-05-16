@@ -1118,6 +1118,13 @@ void CvHomelandAI::PlotExplorerSeaMoves()
 {
 	ClearCurrentMoveUnits();
 
+#if defined(MOD_BALANCE_CORE)
+	//No naval scouting while at war - we need these ships for attack/defense.
+	if(m_pPlayer->IsAtWarAnyMajor())
+	{
+		return;
+	}
+#endif
 	// Loop through all recruited units
 	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
 	{
@@ -2686,7 +2693,7 @@ void CvHomelandAI::ReviewUnassignedUnits()
 		if(pUnit)
 		{
 #if defined(MOD_BALANCE_CORE)
-			if(pUnit->getDomainType() == DOMAIN_LAND && !pUnit->IsCivilianUnit() && !pUnit->IsGreatPerson())
+			if(pUnit->getDomainType() == DOMAIN_LAND && !pUnit->IsCivilianUnit() && !pUnit->IsGreatPerson() && pUnit->canRecruitFromTacticalAI() && pUnit->getArmyID() == FFreeList::INVALID_INDEX)
 			{
 				if(pUnit->plot()->getOwner() == pUnit->getOwner())
 				{
@@ -2813,7 +2820,7 @@ void CvHomelandAI::ReviewUnassignedUnits()
 					}
 				}
 			}
-			else if(pUnit->getDomainType() == DOMAIN_SEA && !pUnit->IsCivilianUnit() && !pUnit->IsGreatPerson())
+			else if(pUnit->getDomainType() == DOMAIN_SEA && !pUnit->IsCivilianUnit() && !pUnit->IsGreatPerson() && pUnit->canRecruitFromTacticalAI() && pUnit->getArmyID() == FFreeList::INVALID_INDEX)
 			{
 				if(pUnit->plot()->getOwner() == pUnit->getOwner())
 				{
@@ -2999,7 +3006,7 @@ void CvHomelandAI::ExecuteFirstTurnSettlerMoves()
 						if(GC.getLogging() && GC.getAILogging())
 						{
 							CvString strLogString;
-						strLogString.Format("Founded city because we are out of time, X: %d, Y: %d", pUnit->getX(), pUnit->getY());
+							strLogString.Format("Founded city because this is the best we can do, X: %d, Y: %d", pUnit->getX(), pUnit->getY());
 						LogHomelandMessage(strLogString);
 					}
 						break;
@@ -5075,12 +5082,15 @@ void CvHomelandAI::ExecuteMessengerMoves()
 			if(pUnit->plot() == pTarget && pUnit->canMove() && pUnit->canTrade(pUnit->plot()))
 			{
 				pUnit->PushMission(CvTypes::getMISSION_TRADE());
-
-				if(GC.getLogging() && GC.getAILogging())
+				PlayerTypes ePlayer = pUnit->plot()->getOwner();
+				if(ePlayer != NO_PLAYER)
 				{
-					CvString strLogString;
-					strLogString.Format("Diplomatic Unit finishing Diplomatic Mission at %s", pUnit->plot()->GetAdjacentCity()->getName().c_str());
-					LogHomelandMessage(strLogString);
+					if(GC.getLogging() && GC.getAILogging())
+					{
+						CvString strLogString;
+						strLogString.Format("Diplomatic Unit finishing Diplomatic Mission at %s", GET_PLAYER(ePlayer).getCivilizationShortDescription());
+						LogHomelandMessage(strLogString);
+					}
 				}
 			}
 			else if(iTargetTurns < 1)
@@ -5090,12 +5100,15 @@ void CvHomelandAI::ExecuteMessengerMoves()
 				if(pUnit->plot() == pTarget && pUnit->canMove())
 				{
 					pUnit->PushMission(CvTypes::getMISSION_TRADE());
-					
-					if(GC.getLogging() && GC.getAILogging())
+					PlayerTypes ePlayer = pUnit->plot()->getOwner();
+					if(ePlayer != NO_PLAYER)
 					{
-						CvString strLogString;
-						strLogString.Format("Diplomatic Unit moving to finish Diplomatic Mission at %s", pUnit->plot()->GetAdjacentCity()->getName().c_str());
-						LogHomelandMessage(strLogString);
+						if(GC.getLogging() && GC.getAILogging())
+						{
+							CvString strLogString;
+							strLogString.Format("Diplomatic Unit moving to finish Diplomatic Mission at %s", GET_PLAYER(ePlayer).getCivilizationShortDescription());
+							LogHomelandMessage(strLogString);
+						}
 					}
 				}
 			}

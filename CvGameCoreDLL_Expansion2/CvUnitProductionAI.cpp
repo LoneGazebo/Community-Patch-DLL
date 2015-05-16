@@ -156,7 +156,7 @@ int CvUnitProductionAI::GetWeight(UnitTypes eUnit)
 
 /// Recommend highest-weighted unit
 #if defined(MOD_BALANCE_CORE)
-UnitTypes CvUnitProductionAI::RecommendUnit(UnitAITypes eUnitAIType, bool bUsesStrategicResource)
+UnitTypes CvUnitProductionAI::RecommendUnit(UnitAITypes eUnitAIType, bool bUsesStrategicResource, bool bForOperation)
 #else
 UnitTypes CvUnitProductionAI::RecommendUnit(UnitAITypes eUnitAIType)
 #endif
@@ -194,9 +194,10 @@ UnitTypes CvUnitProductionAI::RecommendUnit(UnitAITypes eUnitAIType)
 					}
 				}
 			}
-
-			if(!CheckUnitBuildSanity(eUnit))
+			if(!CheckUnitBuildSanity(eUnit, bForOperation))
+			{
 				continue;
+			}
 #endif
 			// Make sure this unit can be built now
 			if(m_pCity->canTrain(eUnit))
@@ -230,8 +231,9 @@ UnitTypes CvUnitProductionAI::RecommendUnit(UnitAITypes eUnitAIType)
 }
 
 #if defined(MOD_BALANCE_CORE)
-bool CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit)
+bool CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation)
 {
+	bool bOperationalOverride = false;
 	CvUnitEntry* pkUnitEntry = GC.getUnitInfo(eUnit);
 	if (!pkUnitEntry)
 		return false;
@@ -254,9 +256,15 @@ bool CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit)
 #else
 			int iFactor = 5;
 #endif
-
-			if (iNumUnitsofMine * iFactor > iWaterTiles || (iNumUnitsOther==0 && iNumCitiesOther==0) )
+			//Are we mustering a naval attack here?
+			if(bForOperation && !GET_PLAYER(m_pCity->getOwner()).IsMusterCityAlreadyTargeted(m_pCity, DOMAIN_SEA))
+			{
+				bOperationalOverride = true;
+			}
+			if (!bOperationalOverride && ((iNumUnitsofMine * iFactor > iWaterTiles) || ((iNumUnitsOther==0 && iNumCitiesOther==0))))
+			{
 				return false;
+			}
 		}
 		else // this should never happen, but...
 			return false;

@@ -229,6 +229,9 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	void SetBuildingInvestment(BuildingClassTypes eBuildingClass, bool bValue);
 	bool IsBuildingInvestment(BuildingClassTypes eBuildingClass) const;
+
+	void SetBuildingConstructed(BuildingClassTypes eBuildingClass, bool bValue);
+	bool IsBuildingConstructed(BuildingClassTypes eBuildingClass) const;
 #endif
 	int GetPurchaseCost(UnitTypes eUnit);
 	int GetFaithPurchaseCost(UnitTypes eUnit, bool bIncludeBeliefDiscounts);
@@ -393,7 +396,6 @@ public:
 	int getGreatPeopleRate() const;
 	int getTotalGreatPeopleRateModifier() const;
 	void changeBaseGreatPeopleRate(int iChange);
-
 	int getGreatPeopleRateModifier() const;
 	void changeGreatPeopleRateModifier(int iChange);
 
@@ -630,11 +632,18 @@ public:
 	void SetOwedFoodBuilding(bool bNewValue);
 #endif
 #if defined(MOD_BALANCE_CORE)
+	void SetNationalMissionaries(bool bNewValue);
+	bool IsNationalMissionaries() const;
+#endif
+#if defined(MOD_BALANCE_CORE)
 	bool IsOwedChosenBuilding(BuildingClassTypes eBuildingClass) const;
 	void SetOwedChosenBuilding(BuildingClassTypes eBuildingClass, bool bNewValue);
 #endif
-	bool IsBlockaded() const;
 
+	bool IsBlockaded() const;
+#if defined(MOD_BALANCE_CORE)
+	bool IsBlockadedTest() const;
+#endif
 	int GetWeLoveTheKingDayCounter() const;
 	void SetWeLoveTheKingDayCounter(int iValue);
 	void ChangeWeLoveTheKingDayCounter(int iChange);
@@ -1082,6 +1091,12 @@ public:
 	bool IsOnFeature(FeatureTypes iFeatureType) const;
 	bool IsAdjacentToFeature(FeatureTypes iFeatureType) const;
 	bool IsWithinDistanceOfFeature(FeatureTypes iFeatureType, int iDistance) const;
+#if defined(MOD_BALANCE_CORE)
+	bool IsWithinDistanceOfUnit(UnitTypes eOtherUnit, int iDistance, bool bIsFriendly, bool bIsEnemy) const;
+	bool IsWithinDistanceOfUnitClass(UnitClassTypes eUnitClass, int iDistance, bool bIsFriendly, bool bIsEnemy) const;
+	bool IsWithinDistanceOfUnitCombatType(UnitCombatTypes eUnitCombat, int iDistance, bool bIsFriendly, bool bIsEnemy) const;
+	bool IsWithinDistanceOfUnitPromotion(PromotionTypes eUnitPromotion, int iDistance, bool bIsFriendly, bool bIsEnemy) const;
+#endif
 	bool IsOnImprovement(ImprovementTypes iImprovementType) const;
 	bool IsAdjacentToImprovement(ImprovementTypes iImprovementType) const;
 	bool IsWithinDistanceOfImprovement(ImprovementTypes iImprovementType, int iDistance) const;
@@ -1237,6 +1252,7 @@ protected:
 	FAutoVariable<std::vector<int>, CvCity> m_aiChangeYieldFromVictory;
 	int m_iUnhappyCitizen;
 	int m_iPurchaseCooldown;
+	bool m_bIsNationalMissionaries;
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
 	int m_iCityRank;
@@ -1338,6 +1354,7 @@ protected:
 #if defined(MOD_BALANCE_CORE)
 	FAutoVariable<std::vector<bool>, CvCity> m_abOwedChosenBuilding;
 	FAutoVariable<std::vector<bool>, CvCity> m_abBuildingInvestment;
+	FAutoVariable<std::vector<bool>, CvCity> m_abBuildingConstructed;
 #endif
 
 	IDInfo m_combatUnit;		// The unit the city is in combat with

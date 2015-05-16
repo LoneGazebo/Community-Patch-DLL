@@ -2779,6 +2779,33 @@
 			<DefenseMod>15</DefenseMod>
 			<HPHealedIfDestroyEnemy>10</HPHealedIfDestroyEnemy>
 		</Row>
+		<Row>
+			<Type>PROMOTION_ATTACK_BONUS_SWEDEN</Type>
+			<Description>TXT_KEY_PROMOTION_ATTACK_BONUS_SWEDEN</Description>
+			<Help>TXT_KEY_PROMOTION_ATTACK_BONUS_SWEDEN_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<AttackMod>15</AttackMod>
+			<PortraitIndex>59</PortraitIndex>
+			<IconAtlas>ABILITY_ATLAS</IconAtlas>
+			<PediaType>PEDIA_ATTRIBUTES</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_ATTACK_BONUS_SWEDEN</PediaEntry>
+		</Row>
+		<!-- Guerilla Fighter -->
+		<Row>
+			<Type>PROMOTION_GUERILLA_FIGHTER</Type>
+			<Description>TXT_KEY_PROMOTION_GUERILLA_FIGHTER</Description>
+			<Help>TXT_KEY_PROMOTION_GUERILLA_FIGHTER_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<IgnoreTerrainCost>true</IgnoreTerrainCost>
+			<IgnoreZOC>true</IgnoreZOC>
+			<AttackWoundedMod>50</AttackWoundedMod>
+			<FlankAttackModifier>50</FlankAttackModifier>
+			<FriendlyHealChange>10</FriendlyHealChange>
+			<PortraitIndex>59</PortraitIndex>
+			<IconAtlas>ABILITY_ATLAS</IconAtlas>
+			<PediaType>PEDIA_ATTRIBUTES</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_GUERILLA_FIGHTER</PediaEntry>
+		</Row>
 	</UnitPromotions>
 	<UnitPromotions_UnitCombats>
 		<Row>
@@ -2893,6 +2920,18 @@
 		</Row>
 	</UnitPromotions_YieldFromKills>
 	<Language_en_US>
+		<Row Tag="TXT_KEY_PROMOTION_GUERILLA_FIGHTER_HELP">
+			<Text>+50% Flank Attack and Wounded Attack Bonus. Ignores ZOC and Terrain Movement Penalties, and +10 HP when healing in Friendly Territory.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_GUERILLA_FIGHTER">
+			<Text>Guerilla Fighter</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_ATTACK_BONUS_SWEDEN_HELP">
+			<Text>+15% [ICON_STRENGTH] Strength when attacking.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_ATTACK_BONUS_SWEDEN">
+			<Text>No Retreat</Text>
+		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_ATLATL_ATTACK">
 			<Text>Atlatl Strike</Text>
 		</Row>

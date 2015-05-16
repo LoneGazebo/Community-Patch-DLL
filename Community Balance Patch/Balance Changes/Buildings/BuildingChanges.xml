@@ -8,7 +8,7 @@
 			<BuildingType>BUILDING_GRANARY</BuildingType>
 			<ResourceType>RESOURCE_BISON</ResourceType>
 			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>1</Yield>
+			<Yield>2</Yield>
 		</Row>
 	</Building_ResourceYieldChanges>
 	<!-- Aqueduct-->
@@ -40,13 +40,13 @@
 			<BuildingType>BUILDING_GARDEN</BuildingType>
 			<ResourceType>RESOURCE_CITRUS</ResourceType>
 			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>1</Yield>
+			<Yield>2</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_GARDEN</BuildingType>
 			<ResourceType>RESOURCE_WINE</ResourceType>
 			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>1</Yield>
+			<Yield>2</Yield>
 		</Row>
 	</Building_ResourceYieldChanges>
 	<!-- Temple -->
@@ -55,6 +55,18 @@
 			<BuildingType>BUILDING_TEMPLE</BuildingType>
 			<ResourceType>RESOURCE_INCENSE</ResourceType>
 			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_TEMPLE</BuildingType>
+			<ResourceType>RESOURCE_INCENSE</ResourceType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_TEMPLE</BuildingType>
+			<ResourceType>RESOURCE_WINE</ResourceType>
+			<YieldType>YIELD_GOLD</YieldType>
 			<Yield>1</Yield>
 		</Row>
 		<Row>
@@ -72,11 +84,23 @@
 			<YieldType>YIELD_CULTURE</YieldType>
 			<Yield>1</Yield>
 		</Row>
+		<Row>
+			<BuildingType>BUILDING_AMPHITHEATER</BuildingType>
+			<ResourceType>RESOURCE_DYE</ResourceType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>1</Yield>
+		</Row>
 	<!--Opera House -->
 		<Row>
 			<BuildingType>BUILDING_OPERA_HOUSE</BuildingType>
 			<ResourceType>RESOURCE_SILK</ResourceType>
 			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_OPERA_HOUSE</BuildingType>
+			<ResourceType>RESOURCE_SILK</ResourceType>
+			<YieldType>YIELD_GOLD</YieldType>
 			<Yield>1</Yield>
 		</Row>
 	</Building_ResourceYieldChanges>
@@ -109,6 +133,13 @@
 			<BuildingType>BUILDING_MILITARY_ACADEMY</BuildingType>
 			<DomainType>DOMAIN_LAND</DomainType>
 			<Modifier>15</Modifier>
+		</Row>
+	</Building_DomainProductionModifiers>
+	<Building_DomainProductionModifiers>
+		<Row>
+			<BuildingType>BUILDING_MILITARY_BASE</BuildingType>
+			<DomainType>DOMAIN_AIR</DomainType>
+			<Modifier>20</Modifier>
 		</Row>
 	</Building_DomainProductionModifiers>
 	<!-- Colosseum/Zoo/Circus/Stadium -->
@@ -168,13 +199,13 @@
 		</Row>
 	</Building_YieldChanges>
 	<!-- Seaport -->
-	<Building_YieldChanges>
+	<Building_SeaPlotYieldChanges>
 		<Row>
 			<BuildingType>BUILDING_SEAPORT</BuildingType>
-			<YieldType>YIELD_PRODUCTION</YieldType>
+			<YieldType>YIELD_FOOD</YieldType>
 			<Yield>1</Yield>
 		</Row>
-	</Building_YieldChanges>
+	</Building_SeaPlotYieldChanges>
 	<!-- Caravansary -->
 	<Building_YieldChanges>
 		<Row>
@@ -193,14 +224,32 @@
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_MARKET</BuildingType>
+			<ResourceType>RESOURCE_SPICES</ResourceType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_MARKET</BuildingType>
 			<ResourceType>RESOURCE_SUGAR</ResourceType>
 			<YieldType>YIELD_GOLD</YieldType>
 			<Yield>1</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_MARKET</BuildingType>
+			<ResourceType>RESOURCE_SUGAR</ResourceType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_MARKET</BuildingType>
 			<ResourceType>RESOURCE_COCOA</ResourceType>
 			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_MARKET</BuildingType>
+			<ResourceType>RESOURCE_COCOA</ResourceType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
 			<Yield>1</Yield>
 		</Row>
 	</Building_ResourceYieldChanges>
@@ -237,7 +286,7 @@
 			<BuildingType>BUILDING_FORGE</BuildingType>
 			<ResourceType>RESOURCE_COPPER</ResourceType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Yield>1</Yield>
+			<Yield>2</Yield>
 		</Row>
 	<!-- Caravanserai -->
 		<Row>
@@ -248,14 +297,32 @@
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_CARAVANSARY</BuildingType>
+			<ResourceType>RESOURCE_TRUFFLES</ResourceType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_CARAVANSARY</BuildingType>
 			<ResourceType>RESOURCE_COTTON</ResourceType>
 			<YieldType>YIELD_GOLD</YieldType>
 			<Yield>1</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_CARAVANSARY</BuildingType>
+			<ResourceType>RESOURCE_COTTON</ResourceType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_CARAVANSARY</BuildingType>
 			<ResourceType>RESOURCE_FUR</ResourceType>
 			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_CARAVANSARY</BuildingType>
+			<ResourceType>RESOURCE_FUR</ResourceType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
 			<Yield>1</Yield>
 		</Row>
 	</Building_ResourceYieldChanges>
@@ -344,7 +411,7 @@
 			<BuildingType>BUILDING_STONE_WORKS</BuildingType>
 			<ResourceType>RESOURCE_SALT</ResourceType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Yield>1</Yield>
+			<Yield>2</Yield>
 		</Row>
 	</Building_ResourceYieldChanges>
 	<Building_LocalResourceOrs>
@@ -394,4 +461,12 @@
 			<Yield>15</Yield>
 		</Row>
 	</Building_YieldModifiers>
+	<!-- Seaport -->
+	<Building_ResourceQuantityRequirements>
+		<Row>
+			<BuildingType>BUILDING_SEAPORT</BuildingType>
+			<ResourceType>RESOURCE_COAL</ResourceType>
+			<Cost>1</Cost>
+		</Row>
+	</Building_ResourceQuantityRequirements>
 </GameData>

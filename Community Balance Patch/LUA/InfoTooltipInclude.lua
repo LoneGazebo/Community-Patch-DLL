@@ -775,7 +775,7 @@ function GetCultureTooltip(pCity)
 
 		-- CBP -- Resource Monopoly
 		if (pCity:GetCityYieldModFromMonopoly(YieldTypes.YIELD_CULTURE) > 0) then
-			iAmount = Players[pCity:GetOwner()]:GetCityYieldModFromMonopoly(YieldTypes.YIELD_CULTURE);
+			iAmount = pCity:GetCityYieldModFromMonopoly(YieldTypes.YIELD_CULTURE);
 			
 			if (iAmount ~= 0) then
 				strCultureToolTip = strCultureToolTip .. "[NEWLINE][NEWLINE]";
@@ -916,7 +916,7 @@ function GetFaithTooltip(pCity)
 
 		-- CBP -- Resource Monopoly
 		if (pCity:GetCityYieldModFromMonopoly(YieldTypes.YIELD_FAITH) > 0) then
-			iAmount = Players[pCity:GetOwner()]:GetCityYieldModFromMonopoly(YieldTypes.YIELD_FAITH);
+			iAmount = pCity:GetCityYieldModFromMonopoly(YieldTypes.YIELD_FAITH);
 			
 			if (iAmount ~= 0) then
 				table.insert(faithTips, "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_FAITH_FROM_RESOURCE_MONOPOLY", iAmount));

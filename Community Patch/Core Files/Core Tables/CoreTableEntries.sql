@@ -176,6 +176,27 @@ ALTER TABLE Traits ADD COLUMN 'GoldenAgeFromVictory' INTEGER DEFAULT 0;
 -- New Traits - Can buy owned plots with gold
 ALTER TABLE Traits ADD COLUMN 'BuyOwnedTiles' BOOLEAN DEFAULT 0;
 
+-- New Traits - Converts citizens on conquest
+ALTER TABLE Traits ADD COLUMN 'Reconquista' BOOLEAN DEFAULT 0;
+
+-- New Traits - No Foreign Religious Spread in cities or allied CSs
+ALTER TABLE Traits ADD COLUMN 'NoSpread' BOOLEAN DEFAULT 0;
+
+-- New Traits - GG bonus when spawned
+ALTER TABLE Traits ADD COLUMN 'InspirationalLeader' BOOLEAN DEFAULT 0;
+
+-- New Traits - Diplomatic Marriage bonus (Austria UA - CBP)
+ALTER TABLE Traits ADD COLUMN 'DiplomaticMarriage' BOOLEAN DEFAULT 0;
+
+-- New Traits - Adoption of Policies/Beliefs/Ideology = free tech
+ALTER TABLE Traits ADD COLUMN 'IsAdoptionFreeTech' BOOLEAN DEFAULT 0;
+
+-- New Traits - Extra Growth from GA/WLTKD
+ALTER TABLE Traits ADD COLUMN 'GrowthBoon' INTEGER DEFAULT 0;
+
+-- New Traits - WLTKD from GP birth
+ALTER TABLE Traits ADD COLUMN 'GPWLTKD' BOOLEAN DEFAULT 0;
+
 -- New Policies
 
 -- Reduces unhappiness in occupied cities w/ Garrison. Negative = reduction.
@@ -246,6 +267,9 @@ ALTER TABLE Beliefs ADD COLUMN 'HappinessPerPantheon' INTEGER DEFAULT 0;
 -- Extra Votes from Belief
 ALTER TABLE Beliefs ADD COLUMN 'ExtraVotes' INTEGER DEFAULT 0;
 
+-- Extra Votes from Belief
+ALTER TABLE Beliefs ADD COLUMN 'HalvedFollowers' BOOLEAN DEFAULT 0;
+
 -- New Buildings
 
 -- National Religious Followers Needed for a Building
@@ -271,6 +295,9 @@ ALTER TABLE Buildings ADD COLUMN 'PuppetPurchaseOverride' BOOLEAN DEFAULT 0;
 
 -- Allows for All Units/Buildings to be purchased in puppet city
 ALTER TABLE Buildings ADD COLUMN 'AllowsPuppetPurchase' BOOLEAN DEFAULT 0;
+
+-- Temporary value that spawns a missionary of your national or founded religion
+ALTER TABLE Buildings ADD COLUMN 'NationalMissionaries' BOOLEAN DEFAULT 0;
 
 -- Creates a resource unique to this civ (i.e. Indonesian Candi) in the territory around the city. To make this work with a civ, you'll need to create a new resource modelled on the Indonesian resources and assign them to the civ. Value is indicative of the number of resources that will be granted.
 ALTER TABLE Buildings ADD COLUMN 'GrantsRandomResourceTerritory' INTEGER DEFAULT 0;

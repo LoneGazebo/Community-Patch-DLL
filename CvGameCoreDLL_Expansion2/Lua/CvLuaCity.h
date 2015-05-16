@@ -38,6 +38,9 @@ protected:
 	static int lGetCityIndexPlot(lua_State* L);
 	static int lCanWork(lua_State* L);
 	static int lIsPlotBlockaded(lua_State* L);
+#if defined(MOD_BALANCE_CORE)
+	static int lIsBlockadedTest(lua_State* L);
+#endif
 	static int lClearWorkingOverride(lua_State* L);
 	static int lCountNumImprovedPlots(lua_State* L);
 	static int lCountNumWaterPlots(lua_State* L);
@@ -613,6 +616,12 @@ protected:
 	LUAAPIEXTN(IsOnFeature, bool, iFeatureType);
 	LUAAPIEXTN(IsAdjacentToFeature, bool, iFeatureType);
 	LUAAPIEXTN(IsWithinDistanceOfFeature, bool, iFeatureType, iDistance);
+#if defined(MOD_BALANCE_CORE)
+	LUAAPIEXTN(IsWithinDistanceOfUnit, iUnitType, iDistance, bool, bool);
+	LUAAPIEXTN(IsWithinDistanceOfUnitClass, iUnitClassType, iDistance, bool, bool);
+	LUAAPIEXTN(IsWithinDistanceOfUnitCombatType, iUnitCombatType, iDistance, bool, bool);
+	LUAAPIEXTN(IsWithinDistanceOfUnitPromotion, iPromotionType, iDistance, bool, bool);
+#endif
 	LUAAPIEXTN(IsOnImprovement, bool, iImprovementType);
 	LUAAPIEXTN(IsAdjacentToImprovement, bool, iImprovementType);
 	LUAAPIEXTN(IsWithinDistanceOfImprovement, bool, iImprovementType, iDistance);

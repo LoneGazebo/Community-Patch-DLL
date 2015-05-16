@@ -117,6 +117,9 @@ public:
 	int GetNumWorkablePlots() const;
 #endif
 
+#if defined(MOD_BALANCE_CORE)
+	void DoRevolutionPlayer(PlayerTypes ePlayer, int iOldCityID);
+#endif
 	void DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID);
 	bool CanLiberatePlayer(PlayerTypes ePlayer);
 	bool CanLiberatePlayerCity(PlayerTypes ePlayer);
@@ -320,6 +323,9 @@ public:
 	int GetNumUnitsSuppliedByPopulation() const;
 
 	int GetNumUnitsOutOfSupply() const;
+#if defined(MOD_BALANCE_CORE)
+	int getNumUnitsNoCivilian() const;
+#endif
 
 	int calculateUnitCost() const;
 	int calculateUnitSupply() const;
@@ -1137,6 +1143,11 @@ public:
 	bool IsAbleToAnnexCityStates() const;
 	int GetAbleToAnnexCityStatesCount() const;
 	void ChangeAbleToAnnexCityStatesCount(int iChange);
+#if defined(MOD_BALANCE_CORE)
+	bool IsDiplomaticMarriage() const;
+	int GetAbleToMarryCityStatesCount() const;
+	void ChangeAbleToMarryCityStatesCount(int iChange);
+#endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 	int GetPovertyUnhappinessMod() const;
 	void ChangePovertyUnhappinessMod(int iChange);
@@ -1717,6 +1728,9 @@ public:
 	bool haveAIOperationOfType(int iOperationType, int* piID=NULL, PlayerTypes eTargetPlayer = NO_PLAYER, CvPlot* pTargetPlot=NULL);
 	int numOperationsOfType(int iOperationType);
 	bool IsCityAlreadyTargeted(CvCity* pCity, DomainTypes eDomain=NO_DOMAIN, int iPercentToTarget=100, int iIgnoreOperationID=-1) const;
+#if defined(MOD_BALANCE_CORE)
+	bool IsMusterCityAlreadyTargeted(CvCity* pCity, DomainTypes eDomain=NO_DOMAIN, int iPercentToTarget=100, int iIgnoreOperationID=-1) const;
+#endif
 #if defined(MOD_BALANCE_CORE_SETTLER)
 	bool IsPlotTargetedForCity(CvPlot *pPlot, CvAIOperation* pOpToIgnore) const;
 #else
@@ -2395,6 +2409,9 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iMinorScienceAlliesCount;
 	FAutoVariable<int, CvPlayer> m_iMinorResourceBonusCount;
 	int m_iAbleToAnnexCityStatesCount;
+#if defined(MOD_BALANCE_CORE)
+	int m_iAbleToMarryCityStatesCount;
+#endif
 	FAutoVariable<int, CvPlayer> m_iFreeSpecialist;
 	FAutoVariable<int, CvPlayer> m_iCultureBombTimer;
 	FAutoVariable<int, CvPlayer> m_iConversionTimer;

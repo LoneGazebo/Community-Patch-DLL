@@ -19,8 +19,12 @@ WHERE Tag = 'TXT_KEY_POLICY_ELITE_FORCES_HELP' AND EXISTS (SELECT * FROM COMMUNI
 -- Fortified Borders
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]New World Order[ENDCOLOR][NEWLINE]Reduces [ICON_HAPPINESS_3] Disorder in all Cities by 20%. Police Stations and Constabularies provide +2 [ICON_CULTURE] Culture and +1 [ICON_PRODUCTION] Production.'
+SET Text = '[COLOR_POSITIVE_TEXT]New World Order[ENDCOLOR][NEWLINE]Reduces [ICON_HAPPINESS_3] Disorder in all Cities by 20%. Police Stations and Constabularies provide +3 [ICON_CULTURE] Culture and +5 [ICON_PRODUCTION] Production.'
 WHERE Tag = 'TXT_KEY_POLICY_FORTIFIED_BORDERS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
+
+UPDATE Language_en_US
+SET Text = 'New World Order'
+WHERE Tag = 'TXT_KEY_POLICY_FORTIFIED_BORDERS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 -- Futurism
 
@@ -66,7 +70,7 @@ SET Text = 'Military-Industrial Complex'
 WHERE Tag = 'TXT_KEY_POLICY_MOBILIZATION' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Military-Industrial Complex[ENDCOLOR][NEWLINE][ICON_GOLD] Gold cost of purchasing/upgrading units reduced by 33%. [ICON_STRENGTH] Defense Buildings, Citadels, and Unique Improvements produce +1 [ICON_RESEARCH] Science.'
+SET Text = '[COLOR_POSITIVE_TEXT]Military-Industrial Complex[ENDCOLOR][NEWLINE][ICON_GOLD] Gold cost of purchasing/upgrading units reduced by 33%. [ICON_STRENGTH] Defense Buildings, Citadels, and Unique Improvements produce +3 [ICON_RESEARCH] Science.'
 WHERE Tag = 'TXT_KEY_POLICY_MOBILIZATION_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -81,18 +85,18 @@ WHERE Tag = 'TXT_KEY_POLICY_POLICE_STATE_HELP' AND EXISTS (SELECT * FROM COMMUNI
 
 -- Third Alternative 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Third Alternative[ENDCOLOR][NEWLINE]Quantity of Strategic Resources produced is increased by 100%. +10 [ICON_FOOD] Food and +10 [ICON_RESEARCH] Science in [ICON_CAPITAL] Capital.'
+SET Text = '[COLOR_POSITIVE_TEXT]Third Alternative[ENDCOLOR][NEWLINE]Quantity of Strategic Resources produced is increased by 100%. +15 to all Yields in [ICON_CAPITAL] Capital.'
 WHERE Tag = 'TXT_KEY_POLICY_THIRD_ALTERNATIVE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 -- Total War
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Total War[ENDCOLOR][NEWLINE]+25% [ICON_PRODUCTION] Production when building Military Units and Workers construct improvements 25% more quickly.'
+SET Text = '[COLOR_POSITIVE_TEXT]Total War[ENDCOLOR][NEWLINE]+25% [ICON_PRODUCTION] Production when building Military Units, and Workers construct improvements 25% more quickly.'
 WHERE Tag = 'TXT_KEY_POLICY_TOTAL_WAR_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 -- United Front
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]United Front[ENDCOLOR][NEWLINE]Militaristic City-States grant units twice as often when you are at war with a common foe. +10 [ICON_INFLUENCE] Influence from Military Unit gifts to City-States.'
+SET Text = '[COLOR_POSITIVE_TEXT]United Front[ENDCOLOR][NEWLINE]Militaristic City-States grant units 200% more quickly than normal when you are at war with a common foe. +10 [ICON_INFLUENCE] Influence from Military Unit gifts to City-States.'
 WHERE Tag = 'TXT_KEY_POLICY_UNITED_FRONT_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 

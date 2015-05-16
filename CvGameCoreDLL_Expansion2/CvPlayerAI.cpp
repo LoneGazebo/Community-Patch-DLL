@@ -169,7 +169,6 @@ void CvPlayerAI::AI_doTurnUnitsPost()
 		}
 	}
 }
-
 #if defined(MOD_BALANCE_CORE)
 void CvPlayerAI::AI_updateFoundValues(bool /*unused*/)
 {
@@ -373,7 +372,6 @@ void CvPlayerAI::AI_unitUpdate()
 	GC.getRouteFinder().SetMPCacheSafe(bRoutePathFinderMPCaching);
 	GC.GetWaterRouteFinder().SetMPCacheSafe(bWaterRoutePathFinderMPCaching);
 }
-
 
 void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner)
 {

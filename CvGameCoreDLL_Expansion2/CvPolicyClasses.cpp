@@ -3251,6 +3251,20 @@ void CvPlayerPolicies::SetPolicy(PolicyTypes eIndex, bool bNewValue)
 					{
 						GetPlayer()->setHasPolicy(eFinisher, true);
 						GetPlayer()->ChangeNumFreePoliciesEver(1);
+#if defined(MOD_BALANCE_CORE)
+						if(GetPlayer()->GetPlayerTraits()->IsAdoptionFreeTech())
+						{
+							if (!GetPlayer()->isHuman())
+							{
+								GetPlayer()->AI_chooseFreeTech();
+							}
+							else
+							{
+								CvString strBuffer = GetLocalizedText("TXT_KEY_MISC_COMPLETED_POLICY_UA_CHOOSE_TECH");
+								GetPlayer()->chooseTech(1, strBuffer.GetCString());
+							}
+						}
+#endif
 					}
 				}
 			}

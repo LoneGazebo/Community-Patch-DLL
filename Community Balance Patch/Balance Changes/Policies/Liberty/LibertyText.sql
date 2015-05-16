@@ -1,6 +1,6 @@
 -- Liberty Opener
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Liberty[ENDCOLOR] is best for civilizations which desire robust infrastructure.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting Liberty grants:[ENDCOLOR] [NEWLINE] [ICON_BULLET] 5 [ICON_CULTURE] Culture every time you research a Technology or construct a Building. [NEWLINE] [ICON_BULLET] +5% [ICON_PRODUCTION] Production towards buildings.[NEWLINE] [ICON_BULLET] Unlocks building the [COLOR_CYAN]Parthenon[ENDCOLOR].[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Each Liberty policy unlocked grants:[ENDCOLOR] [NEWLINE] [ICON_BULLET] +2% [ICON_PRODUCTION] Production towards buildings.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting all policies in Liberty grants:[ENDCOLOR] [NEWLINE] [ICON_BULLET] A free [ICON_GREAT_PEOPLE] Great Person of your choice appears near the [ICON_CAPITAL] Capital. [NEWLINE] [ICON_BULLET] Grants access to Medieval Era Policy Branches, ignoring Era requirement.[NEWLINE] [ICON_BULLET] Provides [COLOR_CYAN]1[ENDCOLOR] point (of [COLOR_CYAN]4[ENDCOLOR] required in total) towards unlocking access to Ideologies.[NEWLINE] [ICON_BULLET] Allows for the purchase of [ICON_GREAT_WRITER] Great Writers with [ICON_PEACE] Faith starting in the Industrial Era.'
+SET Text = '[COLOR_POSITIVE_TEXT]Liberty[ENDCOLOR] is best for civilizations which desire robust infrastructure.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting Liberty grants:[ENDCOLOR] [NEWLINE] [ICON_BULLET] 10 [ICON_CULTURE] Culture every time you research a Technology or construct a Building. [NEWLINE] [ICON_BULLET] +5% [ICON_PRODUCTION] Production towards buildings.[NEWLINE] [ICON_BULLET] Unlocks building the [COLOR_CYAN]Parthenon[ENDCOLOR].[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Each Liberty policy unlocked grants:[ENDCOLOR] [NEWLINE] [ICON_BULLET] +2% [ICON_PRODUCTION] Production towards buildings.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting all policies in Liberty grants:[ENDCOLOR] [NEWLINE] [ICON_BULLET] A free [ICON_GREAT_PEOPLE] Great Person of your choice appears near the [ICON_CAPITAL] Capital. [NEWLINE] [ICON_BULLET] Grants access to Medieval Era Policy Branches, ignoring Era requirement.[NEWLINE] [ICON_BULLET] Provides [COLOR_CYAN]1[ENDCOLOR] point (of [COLOR_CYAN]4[ENDCOLOR] required in total) towards unlocking access to Ideologies.[NEWLINE] [ICON_BULLET] Allows for the purchase of [ICON_GREAT_WRITER] Great Writers with [ICON_PEACE] Faith starting in the Industrial Era.'
 WHERE Tag = 'TXT_KEY_POLICY_BRANCH_LIBERTY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 -- Collective Rule (Now City Planning)
@@ -9,7 +9,7 @@ SET Text = 'City Planning'
 WHERE Tag = 'TXT_KEY_POLICY_COLLECTIVE_RULE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]City Planning[ENDCOLOR][NEWLINE] Receive 20 [ICON_GOLD] Gold when a [ICON_CITIZEN] Citizen is born in any city, and 20 [ICON_CULTURE] Culture when a [ICON_CITIZEN] Citizen is born in your Capital. Bonus scales with Era.'
+SET Text = '[COLOR_POSITIVE_TEXT]City Planning[ENDCOLOR][NEWLINE] Receive 40 [ICON_GOLD] Gold when a [ICON_CITIZEN] Citizen is born in any city, and 50 [ICON_RESEARCH] Science when a [ICON_CITIZEN] Citizen is born in your Capital. Bonuses scale with Era.'
 WHERE Tag = 'TXT_KEY_POLICY_COLLECTIVE_RULE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -24,7 +24,7 @@ SET Text = 'Civil Engineers'
 WHERE Tag = 'TXT_KEY_POLICY_REPUBLIC' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Civil Engineers[ENDCOLOR][NEWLINE] +1 [ICON_PRODUCTION] Production in all cities. Road and Railroad [ICON_GOLD] Gold maintenance reduced by 50%.'
+SET Text = '[COLOR_POSITIVE_TEXT]Civil Engineers[ENDCOLOR][NEWLINE] +2 [ICON_PRODUCTION] Production in all cities. Road and Railroad [ICON_GOLD] Gold maintenance reduced by 50%.'
 WHERE Tag = 'TXT_KEY_POLICY_REPUBLIC_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -38,7 +38,7 @@ WHERE Tag = 'TXT_KEY_POLICY_REPRESENTATION_HELP' AND EXISTS (SELECT * FROM COMMU
 
 -- Meritocracy
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Meritocracy[ENDCOLOR][NEWLINE] +1 [ICON_MOVES] Movement for Workers and Settlers. When you expend a Great Person, receive 50 [ICON_GOLDEN_AGE] Golden Age Points and [ICON_RESEARCH] Science. Bonus scales with Era.'
+SET Text = '[COLOR_POSITIVE_TEXT]Meritocracy[ENDCOLOR][NEWLINE] +1 [ICON_MOVES] Movement for Workers and Settlers. When you expend a Great Person, receive 50 [ICON_GOLDEN_AGE] Golden Age Points and 50 [ICON_CULTURE] Culture. Bonuses scale with Era.'
 WHERE Tag = 'TXT_KEY_POLICY_MERITOCRACY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 -- Finisher

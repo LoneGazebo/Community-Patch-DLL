@@ -357,9 +357,9 @@ function g_toolTipHandler.BannerButton( control )
 				local iCultureUnhappiness = city:GetUnhappinessFromCulture();
 				local iResistanceUnhappiness = 0;
 				if(city:IsRazing()) then
-					iResistanceUnhappiness = (city:GetPopulation() / 4);
+					iResistanceUnhappiness = (city:GetPopulation() / 2);
 				elseif(city:IsResistance()) then
-					iResistanceUnhappiness = (city:GetPopulation() / 4);
+					iResistanceUnhappiness = (city:GetPopulation() / 2);
 				end
 				local iOccupationUnhappiness = 0;
 				if(city:IsOccupied() and not city:IsNoOccupiedUnhappiness()) then

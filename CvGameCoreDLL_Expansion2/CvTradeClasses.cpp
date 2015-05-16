@@ -433,12 +433,12 @@ bool CvGameTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Domai
 	MoveUnit(iNewTradeRouteIndex);
 
 #if defined(MOD_BALANCE_CORE_POLICIES)
-	if(MOD_BALANCE_CORE_POLICIES && (GET_PLAYER(eOriginPlayer).GetGoldInternalTrade() > 0) && ((eConnectionType == TRADE_CONNECTION_FOOD) || (eConnectionType == TRADE_CONNECTION_PRODUCTION)))
+	if(MOD_BALANCE_CORE_POLICIES && (GET_PLAYER(eOriginPlayer).IsGoldInternalTrade()) && ((eConnectionType == TRADE_CONNECTION_FOOD) || (eConnectionType == TRADE_CONNECTION_PRODUCTION)))
 	{
 		GET_PLAYER(eOriginPlayer).GetTreasury()->DoUpdateCityConnectionGold();
 	}
 #if defined(MOD_TRADE_WONDER_RESOURCE_ROUTES)
-	if(MOD_BALANCE_CORE_POLICIES && MOD_TRADE_WONDER_RESOURCE_ROUTES && (GET_PLAYER(eOriginPlayer).GetGoldInternalTrade() > 0) && (eConnectionType == TRADE_CONNECTION_WONDER_RESOURCE))
+	if(MOD_BALANCE_CORE_POLICIES && MOD_TRADE_WONDER_RESOURCE_ROUTES && (GET_PLAYER(eOriginPlayer).IsGoldInternalTrade()) && (eConnectionType == TRADE_CONNECTION_WONDER_RESOURCE))
 	{
 		GET_PLAYER(eOriginPlayer).GetTreasury()->DoUpdateCityConnectionGold();
 	}
@@ -2074,6 +2074,11 @@ void CvPlayerTrade::MoveUnits (void)
 				{
 					TechTypes eCurrentTech = GET_PLAYER(pTradeConnection->m_eOriginOwner).GetPlayerTechs()->GetCurrentResearch();
 					float fDelay = 0.0f;
+					int iEra = GET_PLAYER(pTradeConnection->m_eOriginOwner).GetCurrentEra();
+					if(iEra < 1)
+					{
+						iEra = 1;
+					}
 					for(int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
 					{
 						int iYieldFromStartingRoute = GET_PLAYER(pTradeConnection->m_eOriginOwner).GetPlayerTraits()->GetTradeRouteStartYield((YieldTypes)iYield);
@@ -2084,12 +2089,12 @@ void CvPlayerTrade::MoveUnits (void)
 								case YIELD_PRODUCTION:
 									if(pCity != NULL)
 									{
-										pCity->changeProduction(iYieldFromStartingRoute);
+										pCity->changeProduction(iYieldFromStartingRoute * iEra);
 										if(pTradeConnection->m_eOriginOwner == GC.getGame().getActivePlayer())
 										{
 											char text[256] = {0};
 											fDelay += 0.5f;
-											sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_PRODUCTION]", iYieldFromStartingRoute);
+											sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_PRODUCTION]", iYieldFromStartingRoute * iEra);
 											DLLUI->AddPopupText(iOriginX ,iOriginY, text, fDelay);
 										}
 									}
@@ -2097,86 +2102,86 @@ void CvPlayerTrade::MoveUnits (void)
 								case YIELD_FOOD:
 									if(pCity != NULL)
 									{
-										pCity->changeFood(iYieldFromStartingRoute);
+										pCity->changeFood(iYieldFromStartingRoute * iEra);
 										if(pTradeConnection->m_eOriginOwner == GC.getGame().getActivePlayer())
 										{
 											char text[256] = {0};
 											fDelay += 0.5f;
-											sprintf_s(text, "[COLOR_GREEN]+%d[ENDCOLOR][ICON_FOOD]", iYieldFromStartingRoute);
+											sprintf_s(text, "[COLOR_GREEN]+%d[ENDCOLOR][ICON_FOOD]", iYieldFromStartingRoute * iEra);
 											DLLUI->AddPopupText(iOriginX ,iOriginY, text, fDelay);
 										}
 									}
 									break;
 								case YIELD_CULTURE:
-									GET_PLAYER(pTradeConnection->m_eOriginOwner).changeJONSCulture(iYieldFromStartingRoute);
+									GET_PLAYER(pTradeConnection->m_eOriginOwner).changeJONSCulture(iYieldFromStartingRoute * iEra);
 									if(pCity != NULL)
 									{
-										pCity->ChangeJONSCultureStored(iYieldFromStartingRoute);
+										pCity->ChangeJONSCultureStored(iYieldFromStartingRoute * iEra);
 									}
 									if(pTradeConnection->m_eOriginOwner == GC.getGame().getActivePlayer())
 									{
 										char text[256] = {0};
 										fDelay += 0.5f;
-										sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", iYieldFromStartingRoute);
+										sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", iYieldFromStartingRoute * iEra);
 										DLLUI->AddPopupText(iOriginX ,iOriginY, text, fDelay);
 									}
 									break;
 								case YIELD_GOLDEN_AGE_POINTS:
-									GET_PLAYER(pTradeConnection->m_eOriginOwner).ChangeGoldenAgeProgressMeter(iYieldFromStartingRoute);
+									GET_PLAYER(pTradeConnection->m_eOriginOwner).ChangeGoldenAgeProgressMeter(iYieldFromStartingRoute * iEra);
 									if(pTradeConnection->m_eOriginOwner == GC.getGame().getActivePlayer())
 									{
 										char text[256] = {0};
 										fDelay += 0.5f;
-										sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GOLDEN_AGE]", iYieldFromStartingRoute);
+										sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GOLDEN_AGE]", iYieldFromStartingRoute * iEra);
 										DLLUI->AddPopupText(iOriginX ,iOriginY, text, fDelay);
 									}
 									break;
 								case YIELD_FAITH:
-									GET_PLAYER(pTradeConnection->m_eOriginOwner).ChangeFaith(iYieldFromStartingRoute);
+									GET_PLAYER(pTradeConnection->m_eOriginOwner).ChangeFaith(iYieldFromStartingRoute * iEra);
 									if(pTradeConnection->m_eOriginOwner == GC.getGame().getActivePlayer())
 									{
 										char text[256] = {0};
 										fDelay += 0.5f;
-										sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", iYieldFromStartingRoute);
+										sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", iYieldFromStartingRoute * iEra);
 										DLLUI->AddPopupText(iOriginX, iOriginY, text, fDelay);
 									}
 									break;
 								case YIELD_SCIENCE:	
 									if(eCurrentTech == NO_TECH)
 									{
-										GET_PLAYER(pTradeConnection->m_eOriginOwner).changeOverflowResearch(iYieldFromStartingRoute);
+										GET_PLAYER(pTradeConnection->m_eOriginOwner).changeOverflowResearch(iYieldFromStartingRoute * iEra);
 									}
 									else
 									{
-										GET_TEAM(GET_PLAYER(pTradeConnection->m_eOriginOwner).getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iYieldFromStartingRoute, pTradeConnection->m_eOriginOwner);
+										GET_TEAM(GET_PLAYER(pTradeConnection->m_eOriginOwner).getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iYieldFromStartingRoute * iEra, pTradeConnection->m_eOriginOwner);
 									}
 									if(pTradeConnection->m_eOriginOwner == GC.getGame().getActivePlayer())
 									{
 										char text[256] = {0};
 										fDelay += 0.5f;
-										sprintf_s(text, "[COLOR_BLUE]+%d[ENDCOLOR][ICON_RESEARCH]", iYieldFromStartingRoute);
+										sprintf_s(text, "[COLOR_BLUE]+%d[ENDCOLOR][ICON_RESEARCH]", iYieldFromStartingRoute * iEra);
 										DLLUI->AddPopupText(iOriginX, iOriginY, text, fDelay);
 									}
 									break;
 								case YIELD_GOLD:
-									GET_PLAYER(pTradeConnection->m_eOriginOwner).GetTreasury()->ChangeGold(iYieldFromStartingRoute);
+									GET_PLAYER(pTradeConnection->m_eOriginOwner).GetTreasury()->ChangeGold(iYieldFromStartingRoute * iEra);
 									if(pTradeConnection->m_eOriginOwner == GC.getGame().getActivePlayer())
 									{
 										char text[256] = {0};
 										fDelay += 0.5f;
-										sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]", iYieldFromStartingRoute);
+										sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]", iYieldFromStartingRoute * iEra);
 										DLLUI->AddPopupText(iOriginX, iOriginY, text, fDelay);
 									}
 									break;
 								case YIELD_GREAT_GENERAL_POINTS:
 									if(pTradeConnection->m_eDomain == DOMAIN_LAND)
 									{
-										GET_PLAYER(pTradeConnection->m_eOriginOwner).changeCombatExperience(iYieldFromStartingRoute);
+										GET_PLAYER(pTradeConnection->m_eOriginOwner).changeCombatExperience(iYieldFromStartingRoute * iEra);
 										if(pTradeConnection->m_eOriginOwner == GC.getGame().getActivePlayer())
 										{
 											char text[256] = {0};
 											fDelay += 0.5f;
-											sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GREAT_GENERAL]", iYieldFromStartingRoute);
+											sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GREAT_GENERAL]", iYieldFromStartingRoute * iEra);
 											DLLUI->AddPopupText(iOriginX, iOriginY, text, fDelay);
 										}
 									}
@@ -2184,12 +2189,12 @@ void CvPlayerTrade::MoveUnits (void)
 								case YIELD_GREAT_ADMIRAL_POINTS:
 									if(pTradeConnection->m_eDomain == DOMAIN_SEA)
 									{
-										GET_PLAYER(pTradeConnection->m_eOriginOwner).changeNavalCombatExperience(iYieldFromStartingRoute);
+										GET_PLAYER(pTradeConnection->m_eOriginOwner).changeNavalCombatExperience(iYieldFromStartingRoute * iEra);
 										if(pTradeConnection->m_eOriginOwner == GC.getGame().getActivePlayer())
 										{
 											char text[256] = {0};
 											fDelay += 0.5f;
-											sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GREAT_ADMIRAL]", iYieldFromStartingRoute);
+											sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GREAT_ADMIRAL]", iYieldFromStartingRoute * iEra);
 											DLLUI->AddPopupText(iOriginX, iOriginY, text, fDelay);
 										}
 									}
@@ -4844,7 +4849,7 @@ int CvTradeAI::ScoreInternationalTR (const TradeConnection& kTradeConnection)
 	// tech
 	int iTechDifferenceP1fromP2 = GC.getGame().GetGameTrade()->GetTechDifference(kTradeConnection.m_eOriginOwner, kTradeConnection.m_eDestOwner);
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
-	//if a city is illiterate, let's send trade routes from there (add based on amount of unhappiness.
+	//if a city is illiterate, let's send trade routes from there (add based on amount of unhappiness).
 	if(MOD_BALANCE_CORE_HAPPINESS)
 	{
 		CvCity* pFromCity = CvGameTrade::GetOriginCity(kTradeConnection);
@@ -4948,7 +4953,40 @@ int CvTradeAI::ScoreInternationalTR (const TradeConnection& kTradeConnection)
 #endif
 		}
 	}
-
+#if defined(MOD_BALANCE_CORE)
+	if(MOD_BALANCE_CORE)
+	{
+		//If we aren't connected to a player, and we benefit from this, ramp up the score!
+		for (int iYieldLoop = 0; iYieldLoop < NUM_YIELD_TYPES; iYieldLoop++)
+		{
+			if(m_pPlayer->GetPlayerTraits()->GetYieldChangePerTradePartner((YieldTypes)iYieldLoop) > 0)
+			{
+				if (!GC.getGame().GetGameTrade()->IsPlayerConnectedToPlayer(m_pPlayer->GetID(), kTradeConnection.m_eDestOwner))
+				{
+					iScore *= 50;
+				}
+			}
+		}
+		if(GET_PLAYER(kTradeConnection.m_eDestOwner).isMinorCiv())
+		{
+			int iCityLoop;
+			CvCity* pLoopCity;
+			for(pLoopCity = m_pPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iCityLoop))
+			{
+				if(pLoopCity != NULL)
+				{
+					if(pLoopCity->GetCityBuildings()->GetCityStateTradeRouteProductionModifier() > 0)
+					{
+						if (!GC.getGame().GetGameTrade()->IsPlayerConnectedToPlayer(m_pPlayer->GetID(), kTradeConnection.m_eDestOwner))
+						{
+							iScore *= 10;
+						}
+					}
+				}
+			}
+		}
+	}
+#endif
 	return iScore;
 }
 
@@ -4966,6 +5004,10 @@ int CvTradeAI::ScoreFoodTR (const TradeConnection& kTradeConnection, CvCity* pSm
 		for (int iYieldLoop = 0; iYieldLoop < NUM_YIELD_TYPES; iYieldLoop++)
 		{
 			if(m_pPlayer->GetPlayerTraits()->GetTradeRouteStartYield((YieldTypes)iYieldLoop) > 0)
+			{
+				return 0;
+			}
+			if(m_pPlayer->GetPlayerTraits()->GetYieldChangePerTradePartner((YieldTypes)iYieldLoop) > 0)
 			{
 				return 0;
 			}
@@ -5045,6 +5087,10 @@ int CvTradeAI::ScoreProductionTR (const TradeConnection& kTradeConnection, std::
 		for (int iYieldLoop = 0; iYieldLoop < NUM_YIELD_TYPES; iYieldLoop++)
 		{
 			if(m_pPlayer->GetPlayerTraits()->GetTradeRouteStartYield((YieldTypes)iYieldLoop) > 0)
+			{
+				return 0;
+			}
+			if(m_pPlayer->GetPlayerTraits()->GetYieldChangePerTradePartner((YieldTypes)iYieldLoop) > 0)
 			{
 				return 0;
 			}
@@ -5136,6 +5182,10 @@ int CvTradeAI::ScoreWonderTR (const TradeConnection& kTradeConnection, std::vect
 		for (int iYieldLoop = 0; iYieldLoop < NUM_YIELD_TYPES; iYieldLoop++)
 		{
 			if(m_pPlayer->GetPlayerTraits()->GetTradeRouteStartYield((YieldTypes)iYieldLoop) > 0)
+			{
+				return 0;
+			}
+			if(m_pPlayer->GetPlayerTraits()->GetYieldChangePerTradePartner((YieldTypes)iYieldLoop) > 0)
 			{
 				return 0;
 			}

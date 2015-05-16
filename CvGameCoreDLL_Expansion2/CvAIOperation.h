@@ -258,7 +258,6 @@ public:
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	virtual const char* GetInfoString();
-	virtual bool FindBestFitReserveUnitForced(CvArmyAI* pThisArmy, CvPlot* pMusterPlot, CvPlot* pTargetPlot, bool bIsNaval, bool bIsMixed);
 #endif
 
 protected:
@@ -476,6 +475,9 @@ protected:
 	virtual CvPlot* FindBestTarget();
 	bool m_bCivilianRescue;
 	int m_iUnitToRescue;
+#if defined(MOD_BALANCE_CORE)
+	bool m_bInitializedRun;
+#endif
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -684,6 +686,7 @@ public:
 	virtual void Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, int iDefaultArea = -1, CvCity* pTarget = NULL, CvCity* pMuster = NULL);
 	virtual void Read(FDataStream& kStream);
 	virtual void Write(FDataStream& kStream) const;
+	virtual bool ArmyInPosition(CvArmyAI* pArmy);
 
 	virtual int GetOperationType() const
 	{

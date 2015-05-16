@@ -142,6 +142,24 @@
 			<ResponseType>RESPONSE_DEFENSIVE_PACT_REQUEST</ResponseType>
 			<Response>TXT_KEY_DEFENSE_PACT_OFFER%</Response>
 		</Row>
+		
+		<!-- DOF Friend Levels -->
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_WORK_WITH_US_UNTRUSTWORTHY</ResponseType>
+			<Response>TXT_KEY_DEC_FRIENDSHIP_UNTRUSTWORTHY%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_WORK_WITH_US_FRIENDS</ResponseType>
+			<Response>TXT_KEY_DEC_FRIENDSHIP_FRIENDS%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_WORK_WITH_US_OLD_FRIENDS</ResponseType>
+			<Response>TXT_KEY_DEC_FRIENDSHIP_OLD_FRIENDS%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_WORK_WITH_US_BATTLE_BROTHERS</ResponseType>
+			<Response>TXT_KEY_DEC_FRIENDSHIP_BATTLE_BROTHERS%</Response>
+		</Row>
 	</Diplomacy_Responses>
 	<Language_en_US>
 		<!-- No Supply -->
@@ -2122,6 +2140,47 @@
 		<Row Tag="TXT_KEY_GENERIC_HUMAN_SUPPORTED_OUR_HOSTING_3">
 			<Text>The {1_LeagueName} is under our control because of wise leaders like you. Together, we can make the world a better place.</Text>
 		</Row>
+		
+		<!-- DOF Layers -->
+		<Row Tag="TXT_KEY_DEC_FRIENDSHIP_UNTRUSTWORTHY_1">
+			<Text>We have not always seen eye to eye in the past. A Declaration of Friendship could change that. What do you say?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DEC_FRIENDSHIP_UNTRUSTWORTHY_2">
+			<Text>I do not trust you, yet my advisors tell me that a Declaration of Friendship with you is a shrewd diplomatic move. Shall we?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DEC_FRIENDSHIP_UNTRUSTWORTHY_3">
+			<Text>A Declaration of Friendship might show the world that we are willing to put past transgressions behind us. Do you agree?</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_DEC_FRIENDSHIP_FRIENDS_1">
+			<Text>Our people have grown close over the years. It would be a shame to see this relationship decay. Shall we renew our Declaration of Friendship?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DEC_FRIENDSHIP_FRIENDS_2">
+			<Text>You have proven to be a trustworthy friend, a rare trait in this world. Do you wish to renew our Declaration of Friendship?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DEC_FRIENDSHIP_FRIENDS_3">
+			<Text>We have shown the world that cooperation is possible. Come, let us show them again. Shall we renew our Declaration of Friendship?</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_DEC_FRIENDSHIP_OLD_FRIENDS_1">
+			<Text>Greetings, old friend. My advisors tell me that our Declaration of Friendship has lapsed. Surely this is simply a clerical error, yes? Shall we renew our Declaration of Friendship?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DEC_FRIENDSHIP_OLD_FRIENDS_2">
+			<Text>Our friendship has stood the test of time. It would be a shame to see it end now. Do you want to renew our Declaration of Friendship?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DEC_FRIENDSHIP_OLD_FRIENDS_3">
+			<Text>There are few people in the world I trust more than you. It would be wise of us to renew our Declaration of Friendship. Do you agree?</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_DEC_FRIENDSHIP_BATTLE_BROTHERS_1">
+			<Text>Once more into the breach, dear friend. Shall we renew our Declaration of Friendship?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DEC_FRIENDSHIP_BATTLE_BROTHERS_2">
+			<Text>I have been, and always shall be, your friend. Will you reciprocate this sentiment, and renew our Declaration of Friendship?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DEC_FRIENDSHIP_BATTLE_BROTHERS_3">
+			<Text>We have forged a legendary alliance over the years, have we not? Come, let us renew our Declaration of Friendship.</Text>
+		</Row>
 
 		<!-- ESSENTIAL TEXTS - DO NOT CHANGE -->
 
@@ -2431,5 +2490,59 @@
 		<Row Tag="TXT_KEY_COOLDOWN_X_TURNS_REMAINING">
 			<Text>You recently made a [ICON_GOLD] Gold purchase in this city, and must wait for {1_Num} more turn(s) to do so again.</Text>
 		</Row>
+		
+		<!-- Tooltips for CBP Austria Ability -->
+		<Row Tag="TXT_KEY_NOTIFICATION_MINOR_MARRIAGE">
+			<Text>Marriage between {@2_MinorCivName} and {@1_CivName}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_MINOR_MARRIAGE_TT_1">
+			<Text>A beautiful princess of {@1_CivName} has been married off to a nobleman of {@2_MinorCivName}.  With a diplomatic relationship united by marriage, {@2_MinorCivName} grants {@1_CivName} an additional Delegate in the World Congress, boosts their [ICON_CAPITAL] Capital's [ICON_GREAT_PEOPLE] Great Person rate, and their [ICON_INFLUENCE] Influence with the City-State no longer decays.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_MINOR_MARRIAGE_TT_2">
+			<Text>A handsome prince of {@1_CivName} has been married off to a noblewoman of {@2_MinorCivName}.  With a diplomatic relationship united by marriage, {@2_MinorCivName} grants {@1_CivName} an additional Delegate in the World Congress, boosts their [ICON_CAPITAL] Capital's [ICON_GREAT_PEOPLE] Great Person rate, and their [ICON_INFLUENCE] Influence with the City-State no longer decays.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_MEMBER_DETAILS_MARRIED_VOTES">
+			<Text>[NEWLINE][ICON_BULLET]{1_Num} from Diplomatic Marriages</Text>
+		</Row>
+		<Row Tag="TXT_KEY_POP_CSTATE_MARRIAGE_TT">
+			<Text>You may spend {1_BuyoutCost} [ICON_GOLD] Gold to arrange a Diplomatic Marriage with this City-State. Doing so grants: an additional delegate in the World Congress, +5% [ICON_GREAT_PERSON] Great Person rate in [ICON_CAPITAL] Capital, and [ICON_INFLUENCE] Influence with the City-State no longer decays.[NEWLINE][NEWLINE] This can be only be done once per City-State, and the [ICON_GOLD] Gold cost increases with each Diplomatic Marriage.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_POP_CSTATE_MARRIAGE_DISABLED_TT">
+			<Text>You may spend {2_BuyoutCost} [ICON_GOLD] Gold to arrange a Diplomatic Marriage with this City-State. Doing so grants: an additional delegate in the World Congress, +5% [ICON_GREAT_PERSON] Great Person rate in [ICON_CAPITAL] Capital, and [ICON_INFLUENCE] Influence with the City-State no longer decays.[NEWLINE][NEWLINE] This can be only be done once per City-State, and the [ICON_GOLD] Gold cost increases with each Diplomatic Marriage.[NEWLINE][NEWLINE][COLOR_WARNING_TEXT]You must be allied for {1_NumTurns} turns and have {2_BuyoutCost} [ICON_GOLD] Gold to perform this action.[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_POP_CSTATE_MARRIAGE_DISABLED_ALLY_TT">
+			<Text>You may spend {3_BuyoutCost} [ICON_GOLD] Gold to arrange a Diplomatic Marriage with this City-State. Doing so grants: an additional delegate in the World Congress, +5% [ICON_GREAT_PERSON] Great Person rate in [ICON_CAPITAL] Capital, and [ICON_INFLUENCE] Influence with the City-State no longer decays.[NEWLINE][NEWLINE] This can be only be done once per City-State, and the [ICON_GOLD] Gold cost increases with each Diplomatic Marriage.[NEWLINE][NEWLINE][COLOR_WARNING_TEXT]You must be allied for {1_NumTurns} turns ({2_TurnsAllied} turns so far) and have {3_BuyoutCost} [ICON_GOLD] Gold to perform this action.[ENDCOLOR]</Text>
+		</Row>
+		
+		<!-- Attack City -->
+		<Row Tag="TXT_KEY_MISC_YOU_ATTACKED_CITY_CP">
+			<Text>Your {@2_UnitName} bombarded the enemy City of {@1_CityName} ({3_Num} damage)!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_DECLARE_WAR_DPS_CP">
+			<Text>DEFENSIVE PACTS</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_DP_WITH_CBP">
+			<Text>[COLOR_POSITIVE_TEXT]Defensive Pact with {1_CivName:textkey}[ENDCOLOR]</Text>
+		</Row>
+		
+		<!--Revolutions-->
+		<Row Tag="TXT_KEY_NOTIFICATION_POSSIBLE_CITY_REVOLUTION_CP">
+			<Text>Because the empire has at least 20 [ICON_HAPPINESS_4] Unhappiness, a city will revolt in {1_Turns} turns. Based on current Unhappiness levels, the city most likely to revolt is {2_CityName}. If this city revolts, it will restore the sovereignty of {3_CivName}. Try to get your empire's Happiness level out of this range as soon as possible!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_POSSIBLE_CITY_REVOLUTION_CP_SUMMARY">
+			<Text>Revolutionary Unrest Brewing</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_CIV_REVOLUTION_CP">
+			<Text>{1_CityName} has risen up and restored {2_CivAdj} sovereignty. The flame of the {3_CivName}, once extinguished, burns again.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_CIV_REVOLUTION_SHORT_CP">
+			<Text>{1_PlayerName} restored!</Text>
+		</Row>
+		
+		
+
+		
+		
 	</Language_en_US>
 </GameData>

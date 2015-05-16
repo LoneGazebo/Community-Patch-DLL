@@ -465,6 +465,16 @@ function UpdateCombatOddsUnitVsCity(pMyUnit, pCity)
 				controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_CITY_SAPPED" );
 				controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
 			end
+
+			-- CBP 
+			-- Blockaded
+			if (pCity:IsBlockadedTest()) then
+				iModifier = (GameDefines["SAPPED_CITY_ATTACK_MODIFIER"] / 2);
+				controlTable = g_MyCombatDataIM:GetInstance();
+				controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_CITY_BLOCKADED" );
+				controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
+			end
+			-- END
 						
 			-- Civ Trait Bonus
 			iModifier = pMyPlayer:GetTraitGoldenAgeCombatModifier();
@@ -556,8 +566,8 @@ function UpdateCombatOddsUnitVsCity(pMyUnit, pCity)
 			end
 			
 			-- Nearby improvement modifier
-			if (pMyUnit:GetNearbyImprovementModifier() ~= 0) then
-				iModifier = pMyUnit:GetNearbyImprovementModifier();
+			if (pMyUnit:GetNearbyImprovementModifier(pFromPlot) ~= 0) then
+				iModifier = pMyUnit:GetNearbyImprovementModifier(pFromPlot);
 				controlTable = g_MyCombatDataIM:GetInstance();
 				controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_IMPROVEMENT_NEAR" );
 				controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
@@ -895,8 +905,8 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 			end
 			
 			-- Nearby improvement modifier
-			if (pMyUnit:GetNearbyImprovementModifier() ~= 0) then
-				iModifier = pMyUnit:GetNearbyImprovementModifier();
+			if (pMyUnit:GetNearbyImprovementModifier(pFromPlot) ~= 0) then
+				iModifier = pMyUnit:GetNearbyImprovementModifier(pFromPlot);
 				controlTable = g_MyCombatDataIM:GetInstance();
 				controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_IMPROVEMENT_NEAR" );
 				controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
@@ -1154,8 +1164,17 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 				if (iModifier ~= 0) then
 					controlTable = g_MyCombatDataIM:GetInstance();
 					local unitClassType = Locale.ConvertTextKey(GameInfo.UnitCombatInfos[pTheirUnit:GetUnitCombatType()].Description);
-					controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_BONUS_VS_CLASS", unitClassType );
-					controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
+-- CBP
+					if(pTheirUnit:IsMounted()) then
+						controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_BONUS_VS_CLASS_CBP", unitClassType );
+						controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
+					else
+-- END
+						controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_BONUS_VS_CLASS", unitClassType );
+						controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
+-- CBP
+					end
+-- END
 				end
 			end
 
@@ -1471,8 +1490,8 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 				end 
 				
 				-- Nearby improvement modifier
-				if (pTheirUnit:GetNearbyImprovementModifier() ~= 0) then
-					iModifier = pTheirUnit:GetNearbyImprovementModifier();
+				if (pTheirUnit:GetNearbyImprovementModifier(pToPlot) ~= 0) then
+					iModifier = pTheirUnit:GetNearbyImprovementModifier(pToPlot);
 					controlTable = g_TheirCombatDataIM:GetInstance();
 					controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_IMPROVEMENT_NEAR" );
 					controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
@@ -1589,8 +1608,17 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 					if (iModifier ~= 0) then
 						controlTable = g_TheirCombatDataIM:GetInstance();
 						local unitClassType = Locale.ConvertTextKey(GameInfo.UnitCombatInfos[pMyUnit:GetUnitCombatType()].Description);
-						controlTable.Text:LocalizeAndSetText(  "TXT_KEY_EUPANEL_BONUS_VS_CLASS", unitClassType );
-						controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
+-- CBP
+						if(pMyUnit:IsMounted()) then
+							controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_BONUS_VS_CLASS_CBP", unitClassType );
+							controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
+						else
+-- END
+							controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_BONUS_VS_CLASS", unitClassType );
+							controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
+-- CBP
+						end
+-- END
 					end
 				end
 
@@ -2162,6 +2190,16 @@ function UpdateCombatOddsCityVsUnit(myCity, theirUnit)
 			controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_CITY_SAPPED" );
 			controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
 		end
+
+		-- CBP 
+		-- Blockaded
+		if (myCity:IsBlockadedTest()) then
+			iModifier = (GameDefines["SAPPED_CITY_ATTACK_MODIFIER"] / 2);
+			controlTable = g_TheirCombatDataIM:GetInstance();
+			controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_CITY_BLOCKADED" );
+			controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
+		end
+		-- END
 		
 		-- Civ Trait Bonus
 		iModifier = theirPlayer:GetTraitGoldenAgeCombatModifier();

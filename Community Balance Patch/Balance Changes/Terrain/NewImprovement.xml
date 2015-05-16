@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created by ModBuddy on 5/3/2015 3:15:12 PM -->
+<GameData>
+	<Improvements>
+		<Row>
+			<Type>IMPROVEMENT_LUMBERMILL_JUNGLE</Type>
+			<Description>TXT_KEY_IMPROVEMENT_LUMBERMILL_JUNGLE</Description>
+			<Civilopedia>TXT_KEY_CIV5_IMPROVEMENTS_LUMBERMILL_TEXT_JUNGLE</Civilopedia>
+			<ArtDefineTag>ART_DEF_IMPROVEMENT_LUMBERMILL</ArtDefineTag>
+			<RequiresFeature>true</RequiresFeature>
+			<PillageGold>10</PillageGold>
+			<PortraitIndex>25</PortraitIndex>
+			<IconAtlas>TERRAIN_ATLAS</IconAtlas>
+		</Row>
+	</Improvements>
+	<Improvement_Yields>
+		<Row>
+			<ImprovementType>IMPROVEMENT_LUMBERMILL_JUNGLE</ImprovementType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+	</Improvement_Yields>
+	<Improvement_ValidFeatures>
+		<Row>
+			<ImprovementType>IMPROVEMENT_LUMBERMILL_JUNGLE</ImprovementType>
+			<FeatureType>FEATURE_JUNGLE</FeatureType>
+		</Row>
+	</Improvement_ValidFeatures>
+	<Improvement_TechFreshWaterYieldChanges>
+		<Row>
+			<ImprovementType>IMPROVEMENT_LUMBERMILL_JUNGLE</ImprovementType>
+			<TechType>TECH_INDUSTRIALIZATION</TechType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>1</Yield>
+		</Row>
+	</Improvement_TechFreshWaterYieldChanges>
+	<Improvement_TechNoFreshWaterYieldChanges>
+		<Row>
+			<ImprovementType>IMPROVEMENT_LUMBERMILL_JUNGLE</ImprovementType>
+			<TechType>TECH_COMBUSTION</TechType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>1</Yield>
+		</Row>
+	</Improvement_TechNoFreshWaterYieldChanges>
+	<Builds>
+		<Row>
+			<Type>BUILD_LUMBERMILL_JUNGLE</Type>
+			<PrereqTech>TECH_METALLURGY</PrereqTech>
+			<Time>800</Time>
+			<ImprovementType>IMPROVEMENT_LUMBERMILL_JUNGLE</ImprovementType>
+			<Description>TXT_KEY_BUILD_LUMBERMILL_JUNGLE</Description>
+			<Recommendation>TXT_KEY_BUILD_LUMBERMILL_REC_JUNGLE</Recommendation>
+			<EntityEvent>ENTITY_EVENT_BUILD</EntityEvent>
+			<HotKey>KB_L</HotKey>
+			<OrderPriority>98</OrderPriority>
+			<IconIndex>28</IconIndex>
+			<IconAtlas>UNIT_ACTION_ATLAS</IconAtlas>
+		</Row>
+	</Builds>
+	<Unit_Builds>
+		<Row>
+			<UnitType>UNIT_WORKER</UnitType>
+			<BuildType>BUILD_LUMBERMILL_JUNGLE</BuildType>
+		</Row>
+	</Unit_Builds>
+	<Language_en_US>
+		<Row Tag="TXT_KEY_CIV5_IMPROVEMENTS_LUMBERMILL_JUNGLE">
+			<Text>Lumbermill (Jungle)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_IMPROVEMENTS_LUMBERMILL_TEXT_JUNGLE">
+			<Text>A lumbermill (Jungle) allows you to improve the production output of jungle hexes. Unlike the regular Lumbermill, the Lumbermill (Jungle) improves Gold output, and is available later.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILD_LUMBERMILL_JUNGLE">
+			<Text>Construct a [LINK=IMPROVEMENT_LUMBERMILL]Lumber Mill (Jungle)[\LINK]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILD_LUMBERMILL_REC_JUNGLE">
+			<Text>It will increase the amount of [ICON_GOLD] Gold provided by this tile, while keeping the Jungle intact.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_IMPROVEMENT_LUMBERMILL_JUNGLE">
+			<Text>Lumber Mill (Jungle)</Text>
+		</Row>
+	</Language_en_US>
+</GameData>

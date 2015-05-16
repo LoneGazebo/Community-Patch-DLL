@@ -174,6 +174,9 @@ public:
 	void DoAdvancedAction(uint uiSpyIndex);
 #endif
 	void UncoverIntrigue(uint uiSpyIndex);
+#if defined(MOD_BALANCE_CORE)
+	void GetRandomIntrigue(CvCity* pCity);
+#endif
 #if defined(MOD_BUGFIX_SPY_NAMES)
 	void GetNextSpyName(CvEspionageSpy* pSpy);
 #else

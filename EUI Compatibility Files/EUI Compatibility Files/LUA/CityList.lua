@@ -144,9 +144,9 @@ function UpdateDisplay()
 		
 		local iResistanceUnhappiness = 0;
 		if(pCity:IsRazing()) then
-			iResistanceUnhappiness = (pCity:GetPopulation() / 4);
+			iResistanceUnhappiness = (pCity:GetPopulation() / 2);
 		elseif(pCity:IsResistance()) then
-			iResistanceUnhappiness = (pCity:GetPopulation() / 4);
+			iResistanceUnhappiness = (pCity:GetPopulation() / 2);
 		end
 		local iOccupationUnhappiness = 0;
 		if(pCity:IsOccupied() and not pCity:IsNoOccupiedUnhappiness()) then

@@ -695,6 +695,12 @@ protected:
 	static int lCanMajorBullyUnit(lua_State* L);
 	static int lGetMajorBullyUnitDetails(lua_State* L);
 	static int lCanMajorBuyout(lua_State* L);
+#if defined(MOD_BALANCE_CORE)
+	static int lCanMajorMarry(lua_State* L);
+	static int lDoMarriage(lua_State* L);
+	static int lIsMarried(lua_State* L);
+	static int lGetMarriageCost(lua_State* L);
+#endif
 	static int lGetBuyoutCost(lua_State* L);
 	static int lCanMajorGiftTileImprovement(lua_State* L);
 	static int lCanMajorGiftTileImprovementAtPlot(lua_State* L);
@@ -813,6 +819,9 @@ protected:
 
 	static int lGetUnits(lua_State* L);
 	static int lGetNumUnits(lua_State* L);
+#if defined(MOD_BALANCE_CORE)
+	static int lGetNumUnitsNoCivlian(lua_State* L);
+#endif
 	static int lGetUnitByID(lua_State* L);
 
 	static int lAI_updateFoundValues(lua_State* L);
@@ -1009,6 +1018,10 @@ protected:
 	static int lIsTraitBonusReligiousBelief(lua_State* L);
 	static int lGetHappinessFromLuxury(lua_State* L);
 	static int lIsAbleToAnnexCityStates(lua_State* L);
+#if defined(MOD_BALANCE_CORE)
+	static int lIsDiplomaticMarriage(lua_State* L);
+	static int lIsGPWLTKD(lua_State* L);
+#endif
 	static int lIsUsingMayaCalendar(lua_State* L);
 	static int lGetMayaCalendarString(lua_State* L);
 	static int lGetMayaCalendarLongString(lua_State* L);
@@ -1056,6 +1069,9 @@ protected:
 
 	//Espionage Methods
 	static int lGetEspionageCityStatus(lua_State* L);
+#if defined(MOD_BALANCE_CORE)
+	static int lGetRandomIntrigue(lua_State* L);
+#endif
 	static int lGetNumSpies(lua_State* L);
 	static int lGetNumUnassignedSpies(lua_State* L);
 	static int lGetEspionageSpies(lua_State* L);

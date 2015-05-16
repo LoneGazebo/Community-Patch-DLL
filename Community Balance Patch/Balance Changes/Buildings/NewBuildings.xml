@@ -222,13 +222,13 @@
 			<BuildingType>BUILDING_BATH</BuildingType>
 			<ResourceType>RESOURCE_CITRUS</ResourceType>
 			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>1</Yield>
+			<Yield>2</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_BATH</BuildingType>
 			<ResourceType>RESOURCE_WINE</ResourceType>
 			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>1</Yield>
+			<Yield>2</Yield>
 		</Row>
 	</Building_ResourceYieldChanges>
 	<Building_YieldChanges>
@@ -250,7 +250,7 @@
 		<Row>
 			<BuildingType>BUILDING_STOCKYARD</BuildingType>
 			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>3</Yield>
+			<Yield>5</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_COAL_PLANT</BuildingType>
@@ -276,7 +276,7 @@
 		<Row>
 			<BuildingType>BUILDING_STOCKYARD</BuildingType>
 			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>10</Yield>
+			<Yield>15</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_COAL_PLANT</BuildingType>
@@ -325,7 +325,7 @@
 			<Text>The Grocer is a Renaissance-era building which can only be constructed if you have already built an Aqueduct in the City. The Grocer helps your City grow more quickly, and combats Poverty.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_STOCKYARD_STRATEGY">
-			<Text>The Stockyard is an Industrial-era building which can only be constructed if you have already built a Grocer in the City. The Stockyard helps your City grow more quickly, however the use of Horses is a risky tradeoff.</Text>
+			<Text>The Stockyard is an Industrial-era building which can only be constructed if you have already built a Grocer in the City. The Stockyard helps your City grow more quickly, however the use of Horses is a risky tradeoff during an era in which Cavalry is still quite powerful.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_COAL_PLANT_STRATEGY">
 			<Text>The Coal Plant is a Modern-era building which can only be constructed if you have enough Coal. The Coal Plant helps your Production, however it negatively impacts Poverty.</Text>
@@ -334,7 +334,7 @@
 			<Text>City must not be built next to a River. Cannot be built if the City already has a Watermill.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_BATH_HELP">
-			<Text>+20% [ICON_GREAT_PEOPLE] Great People generation in this City. +1 [ICON_FOOD] Food from [ICON_RES_CITRUS] Citrus and [ICON_RES_WINE] Wine. [NEWLINE][NEWLINE]City must not be built next to a River, and requires an Aqueduct. Cannot be built if the City already has a Garden.</Text>
+			<Text>+20% [ICON_GREAT_PEOPLE] Great People generation in this City. +2 [ICON_FOOD] Food from [ICON_RES_CITRUS] Citrus and [ICON_RES_WINE] Wine. [NEWLINE][NEWLINE]City must not be built next to a River, and requires an Aqueduct. Cannot be built if the City already has a Garden.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_GROCER_HELP">
 			<Text>Carries over 25% of [ICON_FOOD] Food after City growth (effect stacks with Aqueduct). Reduces [ICON_HAPPINESS_3] Poverty.[NEWLINE][NEWLINE]Requires an Aqueduct in the City.</Text>
@@ -343,7 +343,7 @@
 			<Text>+1 [ICON_PRODUCTION] Production on every Grassland and Plains tile. [NEWLINE][NEWLINE]City must not be built next to a River. Cannot be built if the City already has a Hydro Plant.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_STOCKYARD_HELP">
-			<Text>+10% [ICON_FOOD] Food. Requires 2 [ICON_RES_HORSE] Horses.</Text>
+			<Text>+15% [ICON_FOOD] Food. Requires 2 [ICON_RES_HORSE] Horses.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_COAL_PLANT_HELP">
 			<Text>+15% [ICON_PRODUCTION] Production. Requires 2 [ICON_RES_COAL] Coal. Increases [ICON_HAPPINESS_3] Poverty, and cannot be built if you have a Nuclear or Solar plant in the City.</Text>

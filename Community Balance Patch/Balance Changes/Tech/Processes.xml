@@ -11,6 +11,15 @@
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
 			<PortraitIndex>43</PortraitIndex>
 		</Row>
+		<Row>
+			<Type>PROCESS_FOOD</Type>
+			<Description>TXT_KEY_PROCESS_FOOD</Description>
+			<Help>TXT_KEY_PROCESS_FOOD_HELP</Help>
+			<Strategy>TXT_KEY_PROCESS_FOOD_STRATEGY</Strategy>
+			<TechPrereq>TECH_AGRICULTURE</TechPrereq>
+			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
+			<PortraitIndex>32</PortraitIndex>
+		</Row>
 	</Processes>
 	<Process_Flavors>
 		<Row>
@@ -18,12 +27,22 @@
 			<FlavorType>FLAVOR_CULTURE</FlavorType>
 			<Flavor>5</Flavor>
 		</Row>
+		<Row>
+			<ProcessType>PROCESS_FOOD</ProcessType>
+			<FlavorType>FLAVOR_GROWTH</FlavorType>
+			<Flavor>5</Flavor>
+		</Row>
 	</Process_Flavors>
 	<Process_ProductionYields>
 		<Row>
 			<ProcessType>PROCESS_CULTURE</ProcessType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>25</Yield>
+			<Yield>20</Yield>
+		</Row>
+		<Row>
+			<ProcessType>PROCESS_FOOD</ProcessType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>10</Yield>
 		</Row>
 	</Process_ProductionYields>
 	<Language_en_US>
@@ -31,10 +50,19 @@
 			<Text>Arts</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROCESS_CULTURE_HELP">
-			<Text>[COLOR_POSITIVE_TEXT]Arts[ENDCOLOR] converts 25% of [ICON_PRODUCTION] Production of this City into [ICON_CULTURE] Culture.</Text>
+			<Text>[COLOR_POSITIVE_TEXT]Arts[ENDCOLOR] converts 20% of [ICON_PRODUCTION] Production of this City into [ICON_CULTURE] Culture.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROCESS_CULTURE_STRATEGY">
 			<Text>Investing production in art is a good way to boost your Civilization's cutural output, either to grab that next policy or to stave off a Tourism victory.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROCESS_FOOD">
+			<Text>Farming</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROCESS_FOOD_HELP">
+			<Text>[COLOR_POSITIVE_TEXT]Farming[ENDCOLOR] converts 10% of [ICON_PRODUCTION] Production of this City into [ICON_FOOD] Food.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROCESS_FOOD_STRATEGY">
+			<Text>Investing production in farming is a good way to boost your City's growth, which can be useful if you are falling behind in technologies, or you simply need bigger cities.</Text>
 		</Row>
 	</Language_en_US>
 </GameData>

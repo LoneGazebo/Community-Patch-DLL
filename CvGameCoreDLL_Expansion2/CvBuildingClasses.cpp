@@ -49,6 +49,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_iGrantsRandomResourceTerritory(0),
 	m_bPuppetPurchaseOverride(false),
 	m_bAllowsPuppetPurchase(false),
+	m_bNationalMissionaries(false),
 	m_iGetCooldown(0),
 #endif
 	m_iSpecialistType(NO_SPECIALIST),
@@ -613,6 +614,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_iGrantsRandomResourceTerritory = kResults.GetInt("GrantsRandomResourceTerritory");
 	m_bPuppetPurchaseOverride = kResults.GetBool("PuppetPurchaseOverride");
 	m_bAllowsPuppetPurchase = kResults.GetBool("AllowsPuppetPurchase");
+	m_bNationalMissionaries = kResults.GetBool("NationalMissionaries");
 	m_iGetCooldown = kResults.GetInt("PurchaseCooldown");
 #endif
 
@@ -1066,6 +1068,11 @@ bool CvBuildingEntry::IsPuppetPurchaseOverride() const
 bool CvBuildingEntry::IsAllowsPuppetPurchase() const
 {
 	return m_bAllowsPuppetPurchase;
+}
+/// Dpes this building grant national missionaries?
+bool CvBuildingEntry::IsNationalMissionaries() const
+{
+	return m_bNationalMissionaries;
 }
 /// Does this building have a cooldown cost when purchased?
 int CvBuildingEntry::GetCooldown() const
@@ -1949,6 +1956,12 @@ bool CvBuildingEntry::IsScienceBuilding() const
 	{
 		bRtnValue = true;
 	}
+#if defined(MOD_BALANCE_CORE)
+	else if(GetMedianTechPercentChange() > 0)
+	{
+		bRtnValue = true;
+	}
+#endif
 
 	return bRtnValue;
 }

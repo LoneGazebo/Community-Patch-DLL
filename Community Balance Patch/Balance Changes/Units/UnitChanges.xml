@@ -179,5 +179,9 @@
 			<UnitType>UNIT_BAZOOKA</UnitType>
 			<UnitAIType>UNITAI_RANGED</UnitAIType>
 		</Row>
+		<Row>
+			<UnitType>UNIT_IRONCLAD</UnitType>
+			<UnitAIType>UNITAI_EXPLORE_SEA</UnitAIType>
+		</Row>
 	</Unit_AITypes>
 </GameData>

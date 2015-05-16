@@ -1857,7 +1857,27 @@ int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPl
 	{
 		return 0;
 	}
-
+#if defined(MOD_BALANCE_CORE)
+	PlayerTypes eLoopPlayer;
+	int iNumSettlers = GET_PLAYER(pPlayer->GetID()).GetNumUnitsWithUnitAI(UNITAI_SETTLE, true, false);
+	if(iNumSettlers > 0)
+	{
+		for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+		{
+			eLoopPlayer = (PlayerTypes) iPlayerLoop;
+			if(eLoopPlayer != NO_PLAYER)
+			{
+				if(GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).isAtWar(pPlayer->getTeam()))
+				{
+					if(pPlot->IsHomeFrontForPlayer(eLoopPlayer))
+					{
+						return 0;
+					}
+				}
+			}
+		}
+	}
+#endif
 	int iNumAreaCities = pArea->getCitiesPerPlayer(pPlayer->GetID());
 	if(bCoastOnly && !bIsCoastal && iNumAreaCities == 0)
 	{

@@ -15,6 +15,9 @@
 #include "CvMinorCivAI.h"
 #include "CvDllInterfaces.h"
 #include "CvGrandStrategyAI.h"
+#if defined(MOD_BALANCE_CORE_MILITARY)
+#include "CvMilitaryAI.h"
+#endif
 
 // must be included after all other headers
 #include "LintFree.h"
@@ -119,7 +122,7 @@ DealOfferResponseTypes CvDealAI::DoHumanOfferDealToThisAI(CvDeal* pDeal)
 			if (MOD_BALANCE_CORE_DEALS_ADVANCED) 
 			{
 				//If there is a city in this deal...let's refuse. It is probably a trap.
-				if(!pDeal->ContainsItemType(TRADE_ITEM_CITIES, eFromPlayer))
+				if(!pDeal->ContainsItemType(TRADE_ITEM_CITIES, eFromPlayer) && !pDeal->ContainsItemType(TRADE_ITEM_DEFENSIVE_PACT, eFromPlayer))
 				{
 #endif
 			bDealAcceptable = true;
@@ -672,7 +675,19 @@ bool CvDealAI::DoEqualizeDealWithHuman(CvDeal* pDeal, PlayerTypes eOtherPlayer, 
 		{
 			return false;
 		}
-
+#if defined(MOD_BALANCE_CORE_DEALS)
+		if(pDeal->ContainsItemType(TRADE_ITEM_DEFENSIVE_PACT))
+		{
+			if(GetPlayer()->GetDiplomacyAI()->IsMusteringForAttack(eOtherPlayer))
+			{
+				return false;
+			}
+			if(!GetPlayer()->GetDiplomacyAI()->IsWantsDefensivePactWithPlayer(eOtherPlayer))
+			{
+				return false;
+			}
+		}
+#endif
 		if(bMakeOffer)
 		{
 			bDealGoodToBeginWith = true;
@@ -2221,7 +2236,11 @@ int CvDealAI::GetOpenBordersValue(bool bFromMe, PlayerTypes eOtherPlayer, bool b
 		int iNumEnemiesAtWarWith = GetPlayer()->GetDiplomacyAI()->GetNumOurEnemiesPlayerAtWarWith(eOtherPlayer);
 		if(iNumEnemiesAtWarWith >= 2)
 		{
+#if defined(MOD_BALANCE_CORE_DEALS)
+			iItemValue *= (10 - iNumEnemiesAtWarWith);
+#else
 			iItemValue *= 10;
+#endif
 			iItemValue /= 100;
 		}
 		else if(iNumEnemiesAtWarWith == 1)
@@ -2243,6 +2262,22 @@ int CvDealAI::GetOpenBordersValue(bool bFromMe, PlayerTypes eOtherPlayer, bool b
 				iItemValue /= 100;
 			}
 		}
+#if defined(MOD_BALANCE_CORE_DEALS)
+		if(MOD_BALANCE_CORE_DEALS)
+		{
+			CvPlayer &kOtherPlayer = GET_PLAYER(eOtherPlayer);
+			if (kOtherPlayer.GetCulture()->GetTourism() > 0 && (kOtherPlayer.GetCulture()->GetInfluenceOn(GetPlayer()->GetID()) > INFLUENCE_LEVEL_FAMILIAR) && (kOtherPlayer.GetCulture()->GetInfluenceOn(GetPlayer()->GetID()) < INFLUENCE_LEVEL_INFLUENTIAL))
+			{
+				if(GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(eOtherPlayer) <= MAJOR_CIV_OPINION_NEUTRAL)
+				{
+					if(GetPlayer()->GetDiplomacyAI()->GetVictoryBlockLevel(eOtherPlayer) >= BLOCK_LEVEL_STRONG || GetPlayer()->GetDiplomacyAI()->GetVictoryDisputeLevel(eOtherPlayer) >= DISPUTE_LEVEL_STRONG)
+					{
+						iItemValue = 1000000;
+					}
+				}
+			}
+		}
+#endif
 	}
 	// Other guy giving me Open Borders
 	else
@@ -2274,7 +2309,38 @@ int CvDealAI::GetOpenBordersValue(bool bFromMe, PlayerTypes eOtherPlayer, bool b
 			iItemValue *= 50;
 			iItemValue /= 100;
 		}
+#if defined(MOD_BALANCE_CORE_DIPLOMACY)
+		if(GetPlayer()->IsCramped() && GET_PLAYER(eOtherPlayer).getNumCities() > GetPlayer()->getNumCities())
+		{
+			iItemValue *= 150;
+			iItemValue /= 100;
+		}
+		PlayerTypes eLoopPlayer;
 
+		for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+		{
+			eLoopPlayer = (PlayerTypes) iPlayerLoop;
+
+			if(eLoopPlayer != NO_PLAYER && GetPlayer()->GetDiplomacyAI()->IsPlayerValid(eLoopPlayer) && !GET_PLAYER(eLoopPlayer).isMinorCiv())
+			{
+				if(GET_PLAYER(eLoopPlayer).GetProximityToPlayer(eOtherPlayer) == PLAYER_PROXIMITY_NEIGHBORS)
+				{
+					if(GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).isAtWar(GetTeam()))
+					{
+						iItemValue *= 150;
+						iItemValue /= 100;
+						break;
+					}
+					else if(GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(eLoopPlayer) < MAJOR_CIV_OPINION_NEUTRAL)
+					{
+						iItemValue *= 150;
+						iItemValue /= 100;
+						break;
+					}
+				}
+			}
+		}
+#endif
 		// Boost value greatly if we are going for a culture win
 		// If going for culture win always want open borders against civs we need influence on
 		AIGrandStrategyTypes eCultureStrategy = (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_CULTURE");
@@ -2330,11 +2396,15 @@ int CvDealAI::GetDefensivePactValue(bool bFromMe, PlayerTypes eOtherPlayer, bool
 	iItemValue = 0;
 	if(GetPlayer()->GetDiplomacyAI()->IsMusteringForAttack(eOtherPlayer))
 	{
-		return 0;
+		return 100000;
 	}
 	if(!GetPlayer()->GetDiplomacyAI()->IsWantsDefensivePactWithPlayer(eOtherPlayer))
 	{
-		return 0;
+		return 100000;
+	}
+	if(GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(eOtherPlayer) <= MAJOR_CIV_OPINION_NEUTRAL)
+	{
+		return 100000;
 	}
 #endif
 	// What is a Defensive Pact with eOtherPlayer worth to US?
@@ -2360,13 +2430,13 @@ int CvDealAI::GetDefensivePactValue(bool bFromMe, PlayerTypes eOtherPlayer, bool
 				iItemValue = 100;
 				break;
 			case STRENGTH_STRONG:
-				iItemValue = 125;
+				iItemValue = 200;
 				break;
 			case STRENGTH_POWERFUL:
-				iItemValue = 150;
+				iItemValue = 300;
 				break;
 			case STRENGTH_IMMENSE:
-				iItemValue = 200;
+				iItemValue = 400;
 				break;
 			default:
 				CvAssertMsg(false, "DEAL_AI: AI player has no valid MilitaryStrengthComparedToUs for Defensive Pact valuation.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.")
@@ -2435,13 +2505,13 @@ int CvDealAI::GetDefensivePactValue(bool bFromMe, PlayerTypes eOtherPlayer, bool
 			switch (GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(GetPlayer()->GetID()))
 			{
 			case STRENGTH_PATHETIC:
-				iItemValue = 200;
+				iItemValue = 400;
 				break;
 			case STRENGTH_WEAK:
-				iItemValue = 150;
+				iItemValue = 300;
 				break;
 			case STRENGTH_POOR:
-				iItemValue = 125;
+				iItemValue = 200;
 				break;
 			case STRENGTH_AVERAGE:
 				iItemValue = 100;
@@ -2542,7 +2612,7 @@ int CvDealAI::GetDefensivePactValue(bool bFromMe, PlayerTypes eOtherPlayer, bool
 	{
 		if(GetPlayer()->GetDefensePactsToVotes() > 0)
 		{
-			iItemValue *= 5;
+			iItemValue *= 10;
 		}
 	}
 #endif
@@ -2840,12 +2910,6 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 	if(bFromMe && iWarApproachWeight < 4)
 		return 100000;
 
-#if defined(MOD_BALANCE_CORE_MILITARY)
-	if(pDiploAI->IsMusteringForAttack(eOtherPlayer))
-	{
-		return 100000;
-	}
-#endif
 	PlayerTypes eWithPlayer = NO_PLAYER;
 	// find the first player associated with the team
 	for (uint ui = 0; ui < MAX_CIV_PLAYERS; ui++)
@@ -2857,6 +2921,24 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 			break;
 		}
 	}
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	// find the first player associated with the team
+	for (uint ui = 0; ui < MAX_CIV_PLAYERS; ui++)
+	{
+		PlayerTypes ePlayer = (PlayerTypes)ui;
+		if (GET_PLAYER(ePlayer).getTeam() == eWithTeam) 
+		{
+			if(pDiploAI->IsMusteringForAttack(ePlayer))
+			{
+				return 100000;
+			}
+			if(GetPlayer()->GetMilitaryAI()->GetSneakAttackOperation(ePlayer))
+			{
+				return 100000;
+			}
+		}
+	}
+#endif
 	WarProjectionTypes eWarProjection = pDiploAI->GetWarProjection(eWithPlayer);
 
 	EraTypes eOurEra = GET_TEAM(GetPlayer()->getTeam()).GetCurrentEra();
@@ -2964,8 +3046,8 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 					{
 						if(GET_TEAM(GetTeam()).isAtWar(GET_PLAYER(eWarPlayer).getTeam()))
 						{
-							WarProjectionTypes eWarProjection = pDiploAI->GetWarProjection(eWarPlayer);
-							if(eWarProjection <= WAR_PROJECTION_STALEMATE)
+							WarStateTypes eWarState = pDiploAI->GetWarState(eWarPlayer);
+							if(eWarState <= WAR_STATE_CALM)
 							{
 								return 100000;
 							}
@@ -3033,8 +3115,8 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 					{
 						if(GET_TEAM(GetTeam()).isAtWar(GET_PLAYER(eWarPlayer).getTeam()))
 						{
-							WarProjectionTypes eWarProjection = pDiploAI->GetWarProjection(eWarPlayer);
-							if(eWarProjection <= WAR_PROJECTION_STALEMATE)
+							WarStateTypes eWarState = pDiploAI->GetWarState(eWarPlayer);
+							if(eWarState <= WAR_STATE_CALM)
 							{
 								return 100000;
 							}
