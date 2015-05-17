@@ -3741,7 +3741,7 @@ bool CvAIOperationFoundCity::ArmyInPosition(CvArmyAI* pArmy)
 			{
 #if defined(MOD_BALANCE_CORE_SETTLER)
 				// let's see if the target still makes sense (this is modified from RetargetCivilian)
-				CvPlot* pBetterTarget = FindBestTargetIgnoreCurrent(pSettler, false);
+				CvPlot* pBetterTarget = FindBestTargetIncludingCurrent(pSettler, false);
 
 				// No targets at all!  Abort
 				if(pBetterTarget == NULL)
@@ -3920,12 +3920,13 @@ bool CvAIOperationFoundCity::ArmyInPosition(CvArmyAI* pArmy)
 /// Find the plot where we want to settle
 #if defined(MOD_BALANCE_CORE_SETTLER)
 
-CvPlot* CvAIOperationFoundCity::FindBestTargetIgnoreCurrent(CvUnit* pUnit, bool bOnlySafePaths)
+CvPlot* CvAIOperationFoundCity::FindBestTargetIncludingCurrent(CvUnit* pUnit, bool bOnlySafePaths)
 {
 	//todo: better options
 	//a) return a list of possible targets and find the ones that are currently reachable
 	//b) if the best target is unreachable, move in the general direction and hope the block will clear up
 
+	//ignore the current operation target when searching. default would be to suppress currently targeted plots
 	CvPlot* pResult = GET_PLAYER(m_eOwner).GetBestSettlePlot(pUnit, !bOnlySafePaths /*m_bEscorted*/, m_iTargetArea, this);
 	if (pResult == NULL)
 	{

@@ -1802,10 +1802,8 @@ void CvMilitaryAI::ShouldAttackBySea(PlayerTypes eEnemy, CvMilitaryTarget& targe
 				iPathLength = pPathfinderNode->m_iTotalCost;
 
 				int iEnemyPlots = GC.getStepFinder().CountPlotsOwnedByXInPath(eEnemy);
-				//up to 5 plots over enemy territory is good, more is suspicious 
-				iEnemyPlots = MAX(0, iEnemyPlots-5);
-				//and costs extra
-				iPathLength = (iPathLength*(100+iEnemyPlots*10))/100;
+				//up to 3 plots over enemy territory is good, more costs extra 
+				iPathLength += MAX(0, iEnemyPlots-3);
 			}
 		}
 		// Water path between muster point and target?

@@ -11176,7 +11176,11 @@ bool CvTacticalAI::MoveToUsingSafeEmbark(UnitHandle pUnit, CvPlot* pTargetPlot, 
 			// Dangerous - try to move just on land
 			else
 			{
+#if defined(MOD_BALANCE_CORE_PATHFINDER_FLAGS)
+				if(!pUnit->GeneratePath(pTargetPlot, MOVE_NO_EMBARK))
+#else
 				if(!pUnit->GeneratePath(pTargetPlot, CvUnit::MOVEFLAG_STAY_ON_LAND))
+#endif
 				{
 #if defined(MOD_BALANCE_CORE_MILITARY)
 					if (MOD_BALANCE_CORE_MILITARY) 
@@ -11197,7 +11201,11 @@ bool CvTacticalAI::MoveToUsingSafeEmbark(UnitHandle pUnit, CvPlot* pTargetPlot, 
 				}
 				else
 				{
+#if defined(MOD_BALANCE_CORE_PATHFINDER_FLAGS)
+					pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTargetPlot->getX(), pTargetPlot->getY(), MOVE_NO_EMBARK);
+#else
 					pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTargetPlot->getX(), pTargetPlot->getY(), CvUnit::MOVEFLAG_STAY_ON_LAND);
+#endif
 					return true;	
 				}
 			}

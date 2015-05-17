@@ -575,7 +575,7 @@ public:
 	virtual bool ShouldAbort();
 
 #if defined(MOD_BALANCE_CORE_SETTLER)
-	virtual CvPlot* FindBestTargetIgnoreCurrent(CvUnit* pUnit, bool bOnlySafePaths);
+	virtual CvPlot* FindBestTargetIncludingCurrent(CvUnit* pUnit, bool bOnlySafePaths);
 #endif
 
 	virtual CvPlot* FindBestTarget(CvUnit* pUnit, bool bOnlySafePaths);

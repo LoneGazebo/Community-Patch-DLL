@@ -9503,10 +9503,15 @@ bool CvUnit::canFound(const CvPlot* pPlot, bool bTestVisible) const
 		}
 	}
 
+#if defined(MOD_BALANCE_CORE)
+	if (pPlot && !(GET_PLAYER(getOwner()).canFound(pPlot->getX(), pPlot->getY(), bTestVisible)))
+		return false;
+#else
 	if(!(GET_PLAYER(getOwner()).canFound(pPlot->getX(), pPlot->getY(), bTestVisible)))
 	{
 		return false;
 	}
+#endif
 
 	return true;
 }

@@ -1163,7 +1163,11 @@ void CvHomelandAI::PlotFirstTurnSettlerMoves()
 		{
 			if(m_pPlayer->getNumCities() == 0 && m_CurrentMoveUnits.size() == 0)
 			{
+#if defined(MOD_BALANCE_CORE_SETTLER_MOVE)
+				if(pUnit->canFound(NULL))
+#else
 				if(pUnit->canFound(pUnit->plot()))
+#endif
 				{
 					CvHomelandUnit unit;
 					unit.SetID(pUnit->GetID());
@@ -2919,18 +2923,7 @@ void CvHomelandAI::ExecuteFirstTurnSettlerMoves()
 		if(pUnit)
 		{
 #if defined(MOD_BALANCE_CORE_SETTLER_MOVE)
-			if(GC.getSETTLER_MOVE_ON_START() <= 0)
-			{
-				pUnit->PushMission(CvTypes::getMISSION_FOUND());
-				UnitProcessed(pUnit->GetID());
-				if(GC.getLogging() && GC.getAILogging())
-				{
-					CvString strLogString;
-					strLogString.Format("Founded city at, X: %d, Y: %d", pUnit->getX(), pUnit->getY());
-					LogHomelandMessage(strLogString);
-				}
-			}
-			else if(MOD_BALANCE_CORE_SETTLER_MOVE) 
+			if( MOD_BALANCE_CORE_SETTLER_MOVE && GC.getSETTLER_MOVE_ON_START() > 0 )
 			{
 				int iInitialPlotValue = 0;
 				int iAdjacentValue = 0;
@@ -3007,17 +3000,18 @@ void CvHomelandAI::ExecuteFirstTurnSettlerMoves()
 						{
 							CvString strLogString;
 							strLogString.Format("Founded city because this is the best we can do, X: %d, Y: %d", pUnit->getX(), pUnit->getY());
-						LogHomelandMessage(strLogString);
-					}
+							LogHomelandMessage(strLogString);
+						}
 						break;
-				}
-						//apparently no good plot around. move in a random direction to explore
+					}
+
+					//apparently no good plot around. move in a random direction to explore
 					CvPlot* pLoopPlotSearch = NULL;
 					for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
-						{
+					{
 						pLoopPlotSearch = plotDirection(pUnit->plot()->getX(), pUnit->plot()->getY(), ((DirectionTypes)iI));
 						if (pLoopPlotSearch != NULL)
-							{
+						{
 							if(pLoopPlotSearch != NULL && pUnit->canFound(pLoopPlotSearch))
 							{
 								pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pLoopPlotSearch->getX(), pLoopPlotSearch->getY());
@@ -3028,19 +3022,20 @@ void CvHomelandAI::ExecuteFirstTurnSettlerMoves()
 					if(pLoopPlotSearch != NULL && pUnit->plot() == pLoopPlotSearch && (pUnit->getMoves() > 0))
 					{
 						pUnit->PushMission(CvTypes::getMISSION_FOUND());
-								UnitProcessed(pUnit->GetID());
+						UnitProcessed(pUnit->GetID());
 					}
-								if(GC.getLogging() && GC.getAILogging())
-								{
-									CvString strLogString;
-									strLogString.Format("Things aren't looking good for us! Scramble to X: %d, Y: %d", pUnit->getX(), pUnit->getY());
-									LogHomelandMessage(strLogString);
-								}
-								break;
-							}
-						}
+					if(GC.getLogging() && GC.getAILogging())
+					{
+						CvString strLogString;
+						strLogString.Format("Things aren't looking good for us! Scramble to X: %d, Y: %d", pUnit->getX(), pUnit->getY());
+						LogHomelandMessage(strLogString);
+					}
+					break;
+				}
+			}
 			else
 			{
+				//default behavior
 				pUnit->PushMission(CvTypes::getMISSION_FOUND());
 				UnitProcessed(pUnit->GetID());
 				if(GC.getLogging() && GC.getAILogging())

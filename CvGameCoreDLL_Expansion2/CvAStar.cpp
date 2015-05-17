@@ -951,7 +951,11 @@ int PathDestValid(int iToX, int iToY, const void* pointer, CvAStar* finder)
 		return FALSE;
 	}
 
+#if defined(MOD_BALANCE_CORE_PATHFINDER_FLAGS)
+	if ((finder->GetInfo() & MOVE_NO_EMBARK) && (pToPlot->isWater() && !pToPlot->IsAllowsWalkWater()))
+#else
 	if ((finder->GetInfo() & CvUnit::MOVEFLAG_STAY_ON_LAND) && (pToPlot->isWater() && !pToPlot->IsAllowsWalkWater()))
+#endif
 	{
 		return FALSE;
 	}
@@ -1457,7 +1461,11 @@ int PathValid(CvAStarNode* parent, CvAStarNode* node, int data, const void* poin
 							return FALSE;
 						}
 
+#if defined(MOD_BALANCE_CORE_PATHFINDER_FLAGS)
+						if ((iFinderInfo & MOVE_NO_EMBARK) && kNodeCacheData.bIsWater)
+#else
 						if ((iFinderInfo & CvUnit::MOVEFLAG_STAY_ON_LAND) && kNodeCacheData.bIsWater)
+#endif
 						{
 							return FALSE;
 						}
@@ -1764,7 +1772,11 @@ int IgnoreUnitsDestValid(int iToX, int iToY, const void* pointer, CvAStar* finde
 		return FALSE;
 	}
 
+#if defined(MOD_BALANCE_CORE_PATHFINDER_FLAGS)
+	if ((finder->GetInfo() & MOVE_NO_EMBARK) && (pToPlot->isWater() && !pToPlot->IsAllowsWalkWater()))
+#else
 	if ((finder->GetInfo() & CvUnit::MOVEFLAG_STAY_ON_LAND) && (pToPlot->isWater() && !pToPlot->IsAllowsWalkWater()))
+#endif
 	{
 		return FALSE;
 	}
@@ -3765,7 +3777,11 @@ int TacticalAnalysisMapPathValid(CvAStarNode* parent, CvAStarNode* node, int dat
 							return FALSE;
 						}
 
+#if defined(MOD_BALANCE_CORE_PATHFINDER_FLAGS)
+						if ((finder->GetInfo() & MOVE_NO_EMBARK) && kNodeCacheData.bIsWater)
+#else
 						if ((finder->GetInfo() & CvUnit::MOVEFLAG_STAY_ON_LAND) && kNodeCacheData.bIsWater)
+#endif
 						{
 							return FALSE;
 						}
