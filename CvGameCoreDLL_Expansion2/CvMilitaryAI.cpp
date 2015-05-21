@@ -5425,6 +5425,114 @@ UnitHandle CvMilitaryAI::FindBestUnitToScrap(bool bLand, bool bDeficitForcedDisb
 	int iScore;
 	int iBestScore = MAX_INT;
 
+#if defined(MOD_BALANCE_CORE)
+
+	for(pLoopUnit = m_pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iUnitLoop))
+	{
+		bool bIsUseless = false;
+		bool bStillNeeded = false;
+
+		if(!pLoopUnit->IsCombatUnit())
+			continue;
+
+		if(bLand && pLoopUnit->getDomainType() != DOMAIN_LAND)
+			continue;
+
+		if(!bLand && pLoopUnit->getDomainType() != DOMAIN_SEA)
+			continue;
+
+		// Following checks are for the case where the AI is trying to decide if it is a good idea to disband this unit (as opposed to when the game is FORCING the player to disband one)
+		if(!bDeficitForcedDisband)
+		{
+			//needed later
+			CvUnitEntry& pUnitInfo = pLoopUnit->getUnitInfo();
+
+			if(bLand && m_eLandDefenseState == DEFENSE_STATE_CRITICAL)
+				bStillNeeded = true;
+			else if(!bLand && m_eNavalDefenseState == DEFENSE_STATE_CRITICAL)
+				bStillNeeded = true;
+
+			// Is it in an army?
+			if(pLoopUnit->getArmyID() != FFreeList::INVALID_INDEX)
+				bStillNeeded = true;
+
+			// Can I still build this unit? If so too new to scrap
+			if(bLand && m_pPlayer->canTrain(pLoopUnit->getUnitType(), false /*bContinue*/, true /*bTestVisible*/, true /*bIgnoreCost*/))
+				bStillNeeded = true;
+
+			// Is this a ship on a water body without enemies?
+			if (!bLand)
+			{
+				CvArea* pWaterBody = pLoopUnit->plot()->waterArea();
+				if (pWaterBody)
+				{
+					int iForeignCities = pWaterBody->getNumCities() - pWaterBody->getCitiesPerPlayer(m_pPlayer->GetID());
+					int iForeignUnits = pWaterBody->getNumUnits() - pWaterBody->getUnitsPerPlayer(m_pPlayer->GetID());
+
+					if (iForeignCities == 0 && iForeignUnits == 0)
+						bIsUseless = true;
+				}
+			}
+
+			//Failsafe to keep AI from deleting advanced start settlers
+			//Probably useless because of the combat unit check above
+			if(m_pPlayer->GetNumCitiesFounded() < 3)
+				if(pUnitInfo.IsFound() || pUnitInfo.IsFoundAbroad())
+					bStillNeeded = true;
+
+			// Is this a unit who has an obsolete tech that I have researched?
+			if((TechTypes)pUnitInfo.GetObsoleteTech() != NO_TECH && !GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->HasTech((TechTypes)(pUnitInfo.GetObsoleteTech())))
+				bStillNeeded = true;
+
+			// Is this unit's INTRINSIC power less than half that of the best unit I can build for this domain?
+			if((pLoopUnit->getUnitInfo().GetPower() * 2) >= GetPowerOfStrongestBuildableUnit(pLoopUnit->getDomainType()))
+				bStillNeeded = true;
+
+			// Does this unit's upgrade require a resource?
+			UnitTypes eUpgradeUnit = pLoopUnit->GetUpgradeUnitType();
+			if(eUpgradeUnit != NO_UNIT)
+			{
+				CvUnitEntry* pUpgradeUnitInfo = GC.GetGameUnits()->GetEntry(eUpgradeUnit);
+				if(pUpgradeUnitInfo != NULL)
+				{
+					for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+					{
+						ResourceTypes eResource = (ResourceTypes) iResourceLoop;
+						int iNumResourceNeeded = pUpgradeUnitInfo->GetResourceQuantityRequirement(eResource);
+
+						// Minor issue: this only works correctly if a unit has only one required resource ...
+						if(iNumResourceNeeded > 0)
+						{
+							if(m_pPlayer->getNumResourceTotal(eResource) > 0)
+							{
+								// We'll wait and try to upgrade this one, our unit count isn't that bad
+								if(bLand && m_eLandDefenseState > DEFENSE_STATE_NEUTRAL)
+									bStillNeeded = true;
+								else if(!bLand && m_eNavalDefenseState > DEFENSE_STATE_NEUTRAL)
+									bStillNeeded = true;
+							}
+						}
+					}
+				}
+			}
+		}
+
+		// Can I scrap this unit?
+		if( (!bStillNeeded || bIsUseless) && pLoopUnit->canScrap())
+		{
+			iScore = pLoopUnit->GetPower();
+
+			if(iScore < iBestScore)
+			{
+				iBestScore = iScore;
+				iReturnedScore = iBestScore;
+				pBestUnit = pLoopUnit;
+			}
+		}
+	}
+
+#else
+
 	for(pLoopUnit = m_pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iUnitLoop))
 	{
 		bool bSkipThisOne = false;
@@ -5462,30 +5570,18 @@ UnitHandle CvMilitaryAI::FindBestUnitToScrap(bool bLand, bool bDeficitForcedDisb
 				continue;
 			}
 			// Can I still build this unit? If so too new to scrap
-#if defined(MOD_BALANCE_CORE)
-			if(bLand && m_pPlayer->canTrain(pLoopUnit->getUnitType(), false /*bContinue*/, true /*bTestVisible*/, true /*bIgnoreCost*/))
-#else
 			if(bLand && m_pPlayer->canTrain(pLoopUnit->getUnitType(), false /*bContinue*/, false /*bTestVisible*/, true /*bIgnoreCost*/))
-#endif
 			{
 				continue;
 			}
+
 			// Is this a unit who has an obsolete tech that I have researched?
 			CvUnitEntry& pUnitInfo = pLoopUnit->getUnitInfo();
 			if((TechTypes)pUnitInfo.GetObsoleteTech() == NO_TECH)
 			{
 				continue;
 			}
-#if defined(MOD_BALANCE_CORE_SETTLER)
-			//Failsafe to keep AI from deleting advanced start settlers.
-			if(m_pPlayer->GetNumCitiesFounded() < 3)
-			{
-				if(pUnitInfo.IsFound() || pUnitInfo.IsFoundAbroad())
-				{
-					continue;
-				}
-			}
-#endif
+
 			if(!GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->HasTech((TechTypes)(pUnitInfo.GetObsoleteTech())))
 			{
 				continue;
@@ -5495,6 +5591,7 @@ UnitHandle CvMilitaryAI::FindBestUnitToScrap(bool bLand, bool bDeficitForcedDisb
 			{
 				continue;
 			}
+
 			// Does this unit's upgrade require a resource?
 			UnitTypes eUpgradeUnit = pLoopUnit->GetUpgradeUnitType();
 			if(eUpgradeUnit != NO_UNIT)
@@ -5539,6 +5636,7 @@ UnitHandle CvMilitaryAI::FindBestUnitToScrap(bool bLand, bool bDeficitForcedDisb
 			}
 		}
 	}
+#endif
 
 	return pBestUnit;
 }

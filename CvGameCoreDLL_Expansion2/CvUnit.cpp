@@ -26326,30 +26326,38 @@ bool CvUnit::CanDoInterfaceMode(InterfaceModeTypes eInterfaceMode, bool bTestVis
 //////////////////////////////////////////////////////////////////////////
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
+
+void CvUnit::SetLastMoveInfo(CvString strInfo)
+{
+	m_strLastTacticalMove = strInfo;
+}
+
 const char* CvUnit::GetMissionInfo()
 {
 	m_strMissionInfoString.clear();
+	getUnitAIString(m_strMissionInfoString, AI_getUnitAIType());
+	m_strMissionInfoString += " / ";
+	m_strMissionInfoString += m_strLastTacticalMove;
 
-	CvString strTemp0;
-	getMissionAIString(strTemp0, GetMissionAIType());
-	CvString strTemp1;
-	getUnitAIString(strTemp1, AI_getUnitAIType());
-
-	m_strMissionInfoString.Format("%s / %s", strTemp0.c_str(), strTemp1.c_str()); 
-	
 	if (m_iMissionAIX!=INVALID_PLOT_COORD && m_iMissionAIY!=INVALID_PLOT_COORD)
 	{
-		strTemp0.Format(" / Target: %d,%d", m_iMissionAIX.get(), m_iMissionAIY.get());
-		m_strMissionInfoString += strTemp0;
+		CvString strTemp1;
+		getMissionAIString(strTemp1, GetMissionAIType());
+		m_strMissionInfoString += " / ";
+		m_strMissionInfoString += strTemp1;
+		strTemp1.Format(" / Target: %d,%d", m_iMissionAIX.get(), m_iMissionAIY.get());
+		m_strMissionInfoString += strTemp1;
 	}
 
 	const MissionData* pMission = GetHeadMissionData();
 	if (pMission)
 	{
-		strTemp0.Format(" / HeadMission %s at %d,%d", CvTypes::GetMissionName(pMission->eMissionType).c_str(),	pMission->iData1, pMission->iData2);
-		m_strMissionInfoString += strTemp0;
+		CvString strTemp1;
+		strTemp1.Format(" / HeadMission %s at %d,%d", CvTypes::GetMissionName(pMission->eMissionType).c_str(),	pMission->iData1, pMission->iData2);
+		m_strMissionInfoString += strTemp1;
 	}
 
+	//this works because it's a member variable!
 	return m_strMissionInfoString.c_str();
 }
 #endif

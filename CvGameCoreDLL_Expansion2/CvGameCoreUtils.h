@@ -288,9 +288,16 @@ inline DirectionTypes directionXY(int iSourceX, int iSourceY, int iDestX, int iD
 //	----------------------------------------------------------------------------
 inline DirectionTypes directionXY(const CvPlot* pFromPlot, const CvPlot* pToPlot)
 {
+#if defined(MOD_BALANCE_CORE)
+	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(pFromPlot);
+	for(int iI=0; iI<NUM_DIRECTION_TYPES; iI++)
+		if (aPlotsToCheck[iI]==pToPlot)
+			return (DirectionTypes)iI;
+	return NO_DIRECTION;
+#else
 	return directionXY(pFromPlot->getX(), pFromPlot->getY(),
 	                   pToPlot->getX(), pToPlot->getY());
-
+#endif
 }
 
 /// Find the nearest "spike" direction that we are clockwise of

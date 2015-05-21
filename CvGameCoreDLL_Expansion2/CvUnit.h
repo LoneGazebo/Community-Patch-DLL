@@ -36,6 +36,10 @@ class CvUnitEntry;
 class CvUnitReligion;
 class CvPathNode;
 
+#if defined(MOD_BALANCE_CORE_MILITARY)
+class CvTacticalMove;
+#endif
+
 typedef MissionData MissionQueueNode;
 
 typedef FFastSmallFixedList< MissionQueueNode, 12, true, c_eCiv5GameplayDLL > MissionQueue;
@@ -1496,6 +1500,7 @@ public:
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	const char* GetMissionInfo();
+	void SetLastMoveInfo(CvString strInfo);
 #endif
 
 #if defined(MOD_API_EXTENSIONS)
@@ -1832,6 +1837,7 @@ private:
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	// for debugging
 	CvString m_strMissionInfoString;
+	CvString m_strLastTacticalMove;
 #endif
 };
 

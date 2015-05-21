@@ -1673,6 +1673,10 @@ void CvTacticalAI::ProcessDominanceZones()
 		{
 			CvTacticalMove move = *it;
 
+			//Debugging: Check order of tactical moves ...
+			if (GC.getGame().getGameTurn() == 1 && m_pPlayer->GetID() < MAX_CIV_PLAYERS )
+				OutputDebugString( CvString::format("Player %d - Move %s - Prio %d", m_pPlayer->GetID(), GC.getTacticalMoveInfo(move.m_eMoveType)->GetType(), move.m_iPriority).c_str() );
+
 			if(move.m_iPriority >= 0)
 			{
 				CvTacticalMoveXMLEntry* pkTacticalMoveInfo = GC.getTacticalMoveInfo(move.m_eMoveType);
@@ -1787,10 +1791,6 @@ void CvTacticalAI::AssignTacticalMove(CvTacticalMove move)
 #pragma warning ( disable : 6011 ) // Dereferencing NULL pointer
 	AI_PERF_FORMAT("AI-perf-tact.csv", ("Move Type: %s (%d), Turn %03d, %s", GC.getTacticalMoveInfo(move.m_eMoveType)->GetType(), (int)move.m_eMoveType, GC.getGame().getElapsedGameTurns(), m_pPlayer->getCivilizationShortDescription()) );
 #pragma warning ( pop )
-
-	//Debugging: Check order of tactical moves ...
-	//if (GC.getLogging())
-	//	OutputDebugString( GC.getTacticalMoveInfo(move.m_eMoveType)->GetType() );
 
 	if(move.m_eMoveType == (TacticalAIMoveTypes)m_CachedInfoTypes[eTACTICAL_MOVE_NONCOMBATANTS_TO_SAFETY])
 	{
@@ -1994,6 +1994,16 @@ void CvTacticalAI::AssignTacticalMove(CvTacticalMove move)
 	{
 		PlotEscortEmbarkedMoves();
 	}
+
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	for(unsigned int iI = 0; iI < m_CurrentMoveUnits.size(); iI++)
+	{
+		UnitHandle pUnit = m_pPlayer->getUnit(m_CurrentMoveUnits[iI].GetID());
+		if(pUnit)
+			pUnit->SetLastMoveInfo( GC.getTacticalMoveInfo(move.m_eMoveType)->GetType() );
+	}
+#endif
+
 }
 
 /// Choose which tactics to run and assign units to it (barbarian version)
@@ -2076,6 +2086,16 @@ void CvTacticalAI::AssignBarbarianMoves()
 			PlotBarbarianPlunderTradeUnitMove(DOMAIN_SEA);
 			break;
 		}
+
+#if defined(MOD_BALANCE_CORE_MILITARY)
+		for(unsigned int iI = 0; iI < m_CurrentMoveUnits.size(); iI++)
+		{
+			UnitHandle pUnit = m_pPlayer->getUnit(m_CurrentMoveUnits[iI].GetID());
+			if(pUnit)
+				pUnit->SetLastMoveInfo( GC.getTacticalMoveInfo(move.m_eMoveType)->GetType() );
+		}
+#endif
+
 	}
 
 	ReviewUnassignedUnits();
@@ -10364,7 +10384,7 @@ bool CvTacticalAI::FindUnitsWithinStrikingDistance2(CvPlot* pTarget, int iMinHit
 					if (pLoopUnit->getDomainType() != DOMAIN_AIR || (pLoopUnit->getDamage() * 2) < GC.getMAX_HIT_POINTS())
 					{
 						// Do we have LOS to the target?
-						if(iTurnsToReach<=1 || pLoopUnit->canEverRangeStrikeAt(pTarget->getX(), pTarget->getY()))
+						if(iTurnsToReach<2 || pLoopUnit->canEverRangeStrikeAt(pTarget->getX(), pTarget->getY()))
 						{
 							// Will we do a significant amount of damage
 							int iTargetHitpoints = pDefender ? pDefender->GetCurrHitPoints() : 0;
@@ -10383,6 +10403,19 @@ bool CvTacticalAI::FindUnitsWithinStrikingDistance2(CvPlot* pTarget, int iMinHit
 
 								if (pLoopUnit->getDomainType() == DOMAIN_AIR)
 									bAirUnitsAdded = true;
+							}
+							//also check second-line ranged units (non-air only)
+							else if (pLoopUnit->getDomainType() != DOMAIN_AIR && bIncludeBlockedUnits && iTurnsToReach==2)
+							{
+								CvTacticalUnit unit;
+								unit.SetID(pLoopUnit->GetID());
+								if (bIsCityTarget)
+									unit.SetAttackStrength(pLoopUnit->GetMaxRangedCombatStrength(NULL, pTarget->getPlotCity(), true, true)/2);
+								else
+									unit.SetAttackStrength(pLoopUnit->GetMaxRangedCombatStrength(pDefender, NULL, true, true)/2);
+								unit.SetHealthPercent(pLoopUnit->GetCurrHitPoints(), pLoopUnit->GetMaxHitPoints());
+								m_CurrentMoveUnits.push_back(unit);
+								rtnValue = true;
 							}
 						}
 					}
@@ -10410,11 +10443,7 @@ bool CvTacticalAI::FindUnitsWithinStrikingDistance2(CvPlot* pTarget, int iMinHit
 						rtnValue = true;
 					}
 					// Units that can make it when others get out of the way are also potentially useful, but give them half priority so they bring up the rear
-#if defined(MOD_BALANCE_CORE_MILITARY)
 					else if (bIncludeBlockedUnits && CanReachInXTurns(pLoopUnit, pTarget, 2, true /*bIgnoreUnits*/))
-#else
-					else if (bIncludeBlockedUnits && CanReachInXTurns(pLoopUnit, pTarget, 1, true /*bIgnoreUnits*/))
-#endif
 					{
 						CvTacticalUnit unit;
 						unit.SetID(pLoopUnit->GetID());
