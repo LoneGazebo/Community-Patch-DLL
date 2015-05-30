@@ -26360,6 +26360,35 @@ const char* CvUnit::GetMissionInfo()
 	//this works because it's a member variable!
 	return m_strMissionInfoString.c_str();
 }
+
+//for debugging: calculate unit danger in all the plots around us
+void CvUnit::DumpDangerInNeighborhood()
+{
+	CvString fname = CvString::format( "Unit%08d_Turn%03d_Danger.txt", GetID(), GC.getGame().getGameTurn() );
+	FILogFile* pLog=LOGFILEMGR.GetLog( fname.c_str(), FILogFile::kDontTimeStamp );
+	if (!pLog)
+		return;
+
+	pLog->Msg( "#x,y,revealed,terrain,enemy,danger\n" );
+
+	int iRange = 9;
+	for (int x = -iRange; x<=iRange; x++)
+	for (int y = -iRange; y<=iRange; y++)
+	{
+		CvPlot* pPlot = GC.getMap().plot( m_iX+x, m_iY+y );
+		if (!pPlot)
+			continue;
+
+		int iDanger = GET_PLAYER(m_eOwner).GetPlotDanger(*pPlot,this);
+		bool bRevealed = pPlot->isRevealed( GET_PLAYER(m_eOwner).getTeam() );
+		bool bHasEnemy = pPlot->isVisibleEnemyUnit(this);
+
+		pLog->Msg( CvString::format( "%03d,%03d,%d,%d,%d,%d\n", pPlot->getX(), pPlot->getY(), bRevealed, pPlot->getTerrainType(), bHasEnemy, iDanger ).c_str() );
+	}
+
+	pLog->Close();
+}
+
 #endif
 
 //	--------------------------------------------------------------------------------

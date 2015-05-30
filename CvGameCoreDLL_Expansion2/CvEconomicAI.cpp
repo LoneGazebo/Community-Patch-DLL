@@ -2855,16 +2855,19 @@ void CvEconomicAI::UpdatePlots()
 	{
 		CvString fname = CvString::format( "ExplorePlots_%s_%03d.txt", m_pPlayer->getCivilizationAdjective(), GC.getGame().getGameTurn() );
 		FILogFile* pLog=LOGFILEMGR.GetLog( fname.c_str(), FILogFile::kDontTimeStamp );
-		pLog->Msg( "#x,y,revealed,terrain,owner,score\n" );
-		for (size_t i=0; i<m_vPlotsToExplore.size(); i++)
+		if (pLog)
 		{
-			CvString dump = CvString::format( "%d,%d,%d,%d,%d,%d\n", 
-				m_vPlotsToExplore[i].pPlot->getX(), m_vPlotsToExplore[i].pPlot->getY(),
-				m_vPlotsToExplore[i].pPlot->isRevealed(m_pPlayer->getTeam()), m_vPlotsToExplore[i].pPlot->getTerrainType(), m_vPlotsToExplore[i].pPlot->getOwner(),
-				m_vPlotsToExplore[i].score );
-			pLog->Msg( dump.c_str() );
+			pLog->Msg( "#x,y,revealed,terrain,owner,score\n" );
+			for (size_t i=0; i<m_vPlotsToExplore.size(); i++)
+			{
+				CvString dump = CvString::format( "%d,%d,%d,%d,%d,%d\n", 
+					m_vPlotsToExplore[i].pPlot->getX(), m_vPlotsToExplore[i].pPlot->getY(),
+					m_vPlotsToExplore[i].pPlot->isRevealed(m_pPlayer->getTeam()), m_vPlotsToExplore[i].pPlot->getTerrainType(), m_vPlotsToExplore[i].pPlot->getOwner(),
+					m_vPlotsToExplore[i].score );
+				pLog->Msg( dump.c_str() );
+			}
+			pLog->Close();
 		}
-		pLog->Close();
 	}
 #endif
 

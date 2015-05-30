@@ -9498,9 +9498,79 @@ int CvGame::calculateSyncChecksum()
 		}
 	}
 
+#if defined(MOD_BALANCE_CORE)
+	debugSyncChecksum();
+#endif
+
 	return iValue;
 }
 
+#if defined(MOD_BALANCE_CORE)
+void CvGame::debugSyncChecksum()
+{
+	CvString fname = CvString::format( "AssetsTurn%03d.txt", GC.getGame().getGameTurn() );
+	FILogFile* pLog=LOGFILEMGR.GetLog( fname.c_str(), FILogFile::kDontTimeStamp );
+	if (!pLog)
+		return;
+
+	pLog->Msg( "----global-----\n" );
+	pLog->Msg( CvString::format("MapRandSeed: %d\n",getMapRand().getSeed()).c_str() );
+	pLog->Msg( CvString::format("GameRandSeed: %d\n",getJonRand().getSeed()).c_str() );
+	pLog->Msg( CvString::format("NCities: %d\n",getNumCities()).c_str() );
+	pLog->Msg( CvString::format("TotalPop: %d\n",getTotalPopulation()).c_str() );
+	pLog->Msg( CvString::format("OwnedPlots: %d\n",GC.getMap().getOwnedPlots()).c_str() );
+	pLog->Msg( CvString::format("MapAreas: %d\n",GC.getMap().getNumAreas()).c_str() );
+
+	for(int iI = 0; iI < MAX_PLAYERS; iI++)
+	{
+		if(GET_PLAYER((PlayerTypes)iI).isEverAlive())
+		{
+			pLog->Msg( CvString::format("------ Player %02d : %s\n",iI,GET_PLAYER((PlayerTypes)iI).getCivilizationAdjective()).c_str() );
+
+			pLog->Msg( CvString::format("Score: %d\n",getPlayerScore((PlayerTypes)iI)).c_str() );
+
+			pLog->Msg( CvString::format("pop: %d\n",GET_PLAYER((PlayerTypes)iI).getTotalPopulation()).c_str() );
+			pLog->Msg( CvString::format("land: %d\n",GET_PLAYER((PlayerTypes)iI).getTotalLand()).c_str() );
+			pLog->Msg( CvString::format("gold: %d\n",GET_PLAYER((PlayerTypes)iI).GetTreasury()->GetGold()).c_str() );
+			pLog->Msg( CvString::format("power: %d\n",GET_PLAYER((PlayerTypes)iI).getPower()).c_str() );
+			pLog->Msg( CvString::format("cities: %d\n",GET_PLAYER((PlayerTypes)iI).getNumCities()).c_str() );
+			pLog->Msg( CvString::format("units: %d\n",GET_PLAYER((PlayerTypes)iI).getNumUnits()).c_str() );
+
+			for(int iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
+				pLog->Msg( CvString::format("yield type %d: %d\n",iJ,GET_PLAYER((PlayerTypes)iI).calculateTotalYield((YieldTypes)iJ)).c_str() );
+
+			for(int iJ = 0; iJ < GC.getNumImprovementInfos(); iJ++)
+				pLog->Msg( CvString::format("improvement type %d: %d\n",iJ,GET_PLAYER((PlayerTypes)iI).getImprovementCount((ImprovementTypes)iJ)).c_str() );
+
+			for(int iJ = 0; iJ < GC.getNumBuildingClassInfos(); iJ++)
+			{
+				CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo((BuildingClassTypes)iJ);
+				if(!pkBuildingClassInfo)
+					continue;
+
+				pLog->Msg( CvString::format("building type %d: %d\n",iJ,GET_PLAYER((PlayerTypes)iI).getBuildingClassCountPlusMaking((BuildingClassTypes)iJ)).c_str() );
+			}
+
+			for(int iJ = 0; iJ < GC.getNumUnitClassInfos(); iJ++)
+			{
+				CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo((UnitClassTypes)iJ);
+				if(!pkUnitClassInfo)
+					continue;
+
+				pLog->Msg( CvString::format("unit type %d: %d\n",iJ,GET_PLAYER((PlayerTypes)iI).getUnitClassCountPlusMaking((UnitClassTypes)iJ)).c_str() );
+			}
+
+			int iLoop=0;
+			for(CvUnit* pLoopUnit = GET_PLAYER((PlayerTypes)iI).firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = GET_PLAYER((PlayerTypes)iI).nextUnit(&iLoop))
+				pLog->Msg( CvString::format("unit %d: x %02d, y %02d, damage %02d, exp %02d, level %02d\n",
+					iLoop, pLoopUnit->getX(), pLoopUnit->getY(), pLoopUnit->getDamage(), pLoopUnit->getExperience(), pLoopUnit->getLevel() ).c_str() );
+		}
+	}
+
+	pLog->Close();
+}
+
+#endif
 
 //	--------------------------------------------------------------------------------
 int CvGame::calculateOptionsChecksum()

@@ -33189,9 +33189,12 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, bool bEscorted, int iTa
 		std::stringstream ss;
 		ss << "CitySites_" << getCivilizationAdjective() << "_" << std::setfill('0') << std::setw(3) << GC.getGame().getGameTurn() << ".txt";
 		FILogFile* pLog=LOGFILEMGR.GetLog( ss.str().c_str(), FILogFile::kDontTimeStamp );
-		pLog->Msg( "#x,y,terrain,plotype,feature,owner,area,revealed,danger,fertility,distancescale,value,comments\n" );
-		pLog->Msg( dump.str().c_str() );
-		pLog->Close();
+		if (pLog)
+		{
+			pLog->Msg( "#x,y,terrain,plotype,feature,owner,area,revealed,danger,fertility,distancescale,value,comments\n" );
+			pLog->Msg( dump.str().c_str() );
+			pLog->Close();
+		}
 	}
 #endif
 	return pBestFoundPlot;

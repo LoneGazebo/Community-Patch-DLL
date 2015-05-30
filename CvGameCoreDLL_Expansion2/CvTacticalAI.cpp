@@ -21,6 +21,12 @@
 
 #include "LintFree.h"
 
+#if defined(MOD_BALANCE_CORE_MILITARY)
+//for easier debugging
+CvTacticalMove g_currentTacticalMove;
+int g_currentUnitToTrack = 0;
+#endif
+
 CvTacticalUnit::CvTacticalUnit() :
 	m_iID(0)
 	, m_iAttackStrength(0)
@@ -320,6 +326,11 @@ void CvTacticalAI::Init(CvPlayer* pPlayer)
 	m_CachedInfoTypes[eMUPOSITION_BOMBARD] = GC.getInfoTypeForString("MUPOSITION_BOMBARD");
 	m_CachedInfoTypes[eMUPOSITION_FRONT_LINE] = GC.getInfoTypeForString("MUPOSITION_FRONT_LINE");
 
+#if defined(MOD_BALANCE_CORE)
+	//needed for better debugging - can't use ID here because it's not set yet!
+	m_CurrentMoveHighPriorityUnits.setPlayer(pPlayer);
+	m_CurrentMoveUnits.setPlayer(pPlayer);
+#endif
 }
 
 /// Deallocate memory created in initialize
@@ -370,6 +381,12 @@ void CvTacticalAI::CommandeerUnits()
 	// Loop through our units
 	for(pLoopUnit = m_pPlayer->firstUnit(&iLoop); pLoopUnit; pLoopUnit = m_pPlayer->nextUnit(&iLoop))
 	{
+
+#if defined(MOD_BALANCE_CORE_MILITARY)
+		if (g_currentUnitToTrack == pLoopUnit->GetID())
+			pLoopUnit->DumpDangerInNeighborhood();
+#endif
+
 		// Never want immobile/dead units, explorers, ones that have already moved or automated human units
 		if(pLoopUnit->TurnProcessed() || pLoopUnit->isDelayedDeath() || pLoopUnit->AI_getUnitAIType() == UNITAI_UNKNOWN ||  pLoopUnit->AI_getUnitAIType() == UNITAI_EXPLORE || !pLoopUnit->canMove() || pLoopUnit->isHuman())
 		{
@@ -1791,6 +1808,10 @@ void CvTacticalAI::AssignTacticalMove(CvTacticalMove move)
 #pragma warning ( disable : 6011 ) // Dereferencing NULL pointer
 	AI_PERF_FORMAT("AI-perf-tact.csv", ("Move Type: %s (%d), Turn %03d, %s", GC.getTacticalMoveInfo(move.m_eMoveType)->GetType(), (int)move.m_eMoveType, GC.getGame().getElapsedGameTurns(), m_pPlayer->getCivilizationShortDescription()) );
 #pragma warning ( pop )
+
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	g_currentTacticalMove = move;
+#endif
 
 	if(move.m_eMoveType == (TacticalAIMoveTypes)m_CachedInfoTypes[eTACTICAL_MOVE_NONCOMBATANTS_TO_SAFETY])
 	{
@@ -13432,3 +13453,16 @@ bool TacticalAIHelpers::CvBlockingUnitDistanceSort(CvBlockingUnit obj1, CvBlocki
 {
 	return obj1.GetDistanceToTarget() < obj2.GetDistanceToTarget();
 }
+
+#if defined(MOD_BALANCE_CORE)
+void CTacticalUnitArray::push_back(const CvTacticalUnit& unit)
+{
+	m_vec.push_back(unit);
+
+	if (unit.GetID()==g_currentUnitToTrack)
+		OutputDebugString( CvString::format("turn %03d: using unit %d for move %s (%d moves left)\n", 
+			GC.getGame().getGameTurn(), g_currentUnitToTrack, 
+			GC.getTacticalMoveInfo(g_currentTacticalMove.m_eMoveType)->GetType(), 
+			m_owner ? m_owner->getUnit(g_currentUnitToTrack)->movesLeft() : -1 ) );
+}
+#endif

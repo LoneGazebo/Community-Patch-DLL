@@ -1501,6 +1501,7 @@ public:
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	const char* GetMissionInfo();
 	void SetLastMoveInfo(CvString strInfo);
+	void DumpDangerInNeighborhood();
 #endif
 
 #if defined(MOD_API_EXTENSIONS)
