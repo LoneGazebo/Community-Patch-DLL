@@ -2181,6 +2181,11 @@ int StepValid(CvAStarNode* parent, CvAStarNode* node, int data, const void* poin
 		return TRUE;
 	}
 
+#if defined(MOD_BALANCE_CORE)
+	if (pointer==NULL)
+		return FALSE;
+#endif
+
 	int iFlags = finder->GetInfo();
 	PlayerTypes ePlayer = (PlayerTypes)(iFlags & 0xFF);
 
