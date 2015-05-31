@@ -26369,7 +26369,7 @@ void CvUnit::DumpDangerInNeighborhood()
 	if (!pLog)
 		return;
 
-	pLog->Msg( "#x,y,revealed,terrain,enemy,danger\n" );
+	pLog->Msg( "#x,y,revealed,terrain,state,danger\n" );
 
 	int iRange = 9;
 	for (int x = -iRange; x<=iRange; x++)
@@ -26380,10 +26380,15 @@ void CvUnit::DumpDangerInNeighborhood()
 			continue;
 
 		int iDanger = GET_PLAYER(m_eOwner).GetPlotDanger(*pPlot,this);
-		bool bRevealed = pPlot->isRevealed( GET_PLAYER(m_eOwner).getTeam() );
-		bool bHasEnemy = pPlot->isVisibleEnemyUnit(this);
+		bool bVisible = pPlot->isVisible( GET_PLAYER(m_eOwner).getTeam() );
+		bool bHasVisibleEnemyDefender = pPlot->isVisibleEnemyDefender(this);
+		bool bHasEnemyUnit = pPlot->getBestDefender(NO_PLAYER,m_eOwner,this);
+		bool bHasEnemyCity = pPlot->isEnemyCity(*this);
 
-		pLog->Msg( CvString::format( "%03d,%03d,%d,%d,%d,%d\n", pPlot->getX(), pPlot->getY(), bRevealed, pPlot->getTerrainType(), bHasEnemy, iDanger ).c_str() );
+		int iState = (((int)bHasVisibleEnemyDefender)<<3) + (((int)bHasEnemyCity)<<2) + (((int)bHasEnemyUnit)<<1);
+
+		pLog->Msg( CvString::format( "%03d,%03d,%d,%d,%d,%d\n", 
+			pPlot->getX(), pPlot->getY(), bVisible, pPlot->getTerrainType(), iState, iDanger ).c_str() );
 	}
 
 	pLog->Close();

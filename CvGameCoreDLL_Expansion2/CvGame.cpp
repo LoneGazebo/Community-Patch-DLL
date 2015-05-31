@@ -9548,7 +9548,9 @@ void CvGame::debugSyncChecksum()
 				if(!pkBuildingClassInfo)
 					continue;
 
-				pLog->Msg( CvString::format("building type %d: %d\n",iJ,GET_PLAYER((PlayerTypes)iI).getBuildingClassCountPlusMaking((BuildingClassTypes)iJ)).c_str() );
+				int iCount = GET_PLAYER((PlayerTypes)iI).getBuildingClassCountPlusMaking((BuildingClassTypes)iJ);
+				if (iCount>0)
+					pLog->Msg( CvString::format("building type %d: %d\n",iJ,iCount).c_str() );
 			}
 
 			for(int iJ = 0; iJ < GC.getNumUnitClassInfos(); iJ++)
@@ -9557,7 +9559,9 @@ void CvGame::debugSyncChecksum()
 				if(!pkUnitClassInfo)
 					continue;
 
-				pLog->Msg( CvString::format("unit type %d: %d\n",iJ,GET_PLAYER((PlayerTypes)iI).getUnitClassCountPlusMaking((UnitClassTypes)iJ)).c_str() );
+				int iCount = GET_PLAYER((PlayerTypes)iI).getUnitClassCountPlusMaking((UnitClassTypes)iJ);
+				if (iCount>0)
+					pLog->Msg( CvString::format("unit type %d: %d\n",iJ,iCount).c_str() );
 			}
 
 			int iLoop=0;

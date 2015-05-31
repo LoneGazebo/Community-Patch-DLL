@@ -2015,16 +2015,6 @@ void CvTacticalAI::AssignTacticalMove(CvTacticalMove move)
 	{
 		PlotEscortEmbarkedMoves();
 	}
-
-#if defined(MOD_BALANCE_CORE_MILITARY)
-	for(unsigned int iI = 0; iI < m_CurrentMoveUnits.size(); iI++)
-	{
-		UnitHandle pUnit = m_pPlayer->getUnit(m_CurrentMoveUnits[iI].GetID());
-		if(pUnit)
-			pUnit->SetLastMoveInfo( GC.getTacticalMoveInfo(move.m_eMoveType)->GetType() );
-	}
-#endif
-
 }
 
 /// Choose which tactics to run and assign units to it (barbarian version)
@@ -13471,10 +13461,20 @@ void CTacticalUnitArray::push_back(const CvTacticalUnit& unit)
 {
 	m_vec.push_back(unit);
 
-	if (unit.GetID()==g_currentUnitToTrack)
-		OutputDebugString( CvString::format("turn %03d: using unit %d for move %s (%d moves left)\n", 
-			GC.getGame().getGameTurn(), g_currentUnitToTrack, 
-			GC.getTacticalMoveInfo(g_currentTacticalMove.m_eMoveType)->GetType(), 
-			m_owner ? m_owner->getUnit(g_currentUnitToTrack)->movesLeft() : -1 ) );
+	CvUnit* pUnit = m_owner ? m_owner->getUnit( unit.GetID() ) : NULL;
+
+	if (pUnit)
+	{
+		pUnit->SetLastMoveInfo( GC.getTacticalMoveInfo(g_currentTacticalMove.m_eMoveType)->GetType() );
+
+		if (unit.GetID()==g_currentUnitToTrack)
+		{
+			CvPlayer& owner = GET_PLAYER(pUnit->getOwner());
+			OutputDebugString( CvString::format("turn %03d: using %s %s %d for move %s. hitpoints %d, pos (%d,%d), danger %d\n", 
+				GC.getGame().getGameTurn(), owner.getCivilizationAdjective(), pUnit->getName().c_str(), g_currentUnitToTrack,
+				GC.getTacticalMoveInfo(g_currentTacticalMove.m_eMoveType)->GetType(), 
+				pUnit->GetCurrHitPoints(), pUnit->getX(), pUnit->getY(), owner.GetPlotDanger(*(pUnit->plot()),pUnit) ) );
+		}
+	}
 }
 #endif
