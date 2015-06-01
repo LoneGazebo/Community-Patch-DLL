@@ -24971,7 +24971,17 @@ void CvPlayer::changeNumResourceTotal(ResourceTypes eIndex, int iChange, bool bI
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 		if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 		{
-			TestHasMonopoly(eIndex);
+			//we need to update all players if they still have or get the monopoly bonus
+			for(int iPlayerCivLoop = 0; iPlayerCivLoop < MAX_CIV_PLAYERS; iPlayerCivLoop++)
+			{
+				PlayerTypes ePlayer = (PlayerTypes) iPlayerCivLoop;
+
+				CvPlayer& kPlayer = GET_PLAYER(ePlayer);
+				// Must be alive
+				if(!kPlayer.isAlive())
+					continue;
+				kPlayer.TestHasMonopoly(eIndex);
+			}
 		}
 #endif
 
@@ -25084,7 +25094,21 @@ void CvPlayer::TestHasMonopoly(ResourceTypes eResource)
 		if(pkResourceInfo->isMonopoly())
 		{
 			int iOwnedNumResource = getNumResourceTotal(eResource, false) + getResourceExport(eResource);
-			int iTotalNumResource = GC.getMap().getNumResources(eResource);
+			int iTotalNumResource = 0;
+			//int iTotalNumResource = GC.getMap().getNumResources(eResource);
+
+			//monopoly is now based on the total resources worked by all civilizations
+			for(int iPlayerCivLoop = 0; iPlayerCivLoop < MAX_CIV_PLAYERS; iPlayerCivLoop++)
+			{
+				PlayerTypes ePlayer = (PlayerTypes) iPlayerCivLoop;
+
+				CvPlayer& kPlayer = GET_PLAYER(ePlayer);
+				// Must be alive
+				if(!kPlayer.isAlive())
+					continue;
+
+				iTotalNumResource += kPlayer.getNumResourceTotal(eResource, false) + kPlayer.getResourceExport(eResource);
+			}
 			bool bGainingBonus = false;
 			bool bGainingStrategicBonus = false;
 			bool bLosingBonus = false;
