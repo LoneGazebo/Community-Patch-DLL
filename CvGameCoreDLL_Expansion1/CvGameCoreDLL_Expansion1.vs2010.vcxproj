@@ -7,7 +7,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectName>CvGameCoreDLL_Expansion1</ProjectName>
+    <ProjectName>CvGameCore_Expansion1</ProjectName>
     <ProjectGuid>{BA66E125-88D7-48AF-8CCF-F4F1901040AE}</ProjectGuid>
     <RootNamespace>CvGameCoreDLL</RootNamespace>
     <Keyword>Win32Proj</Keyword>
@@ -64,7 +64,7 @@
     </ClCompile>
     <Link>
       <AdditionalDependencies>CvWorldBuilderMapWin32.lib;CvGameCoreDLLUtilWin32.lib;CvLocalizationWin32.lib;CvGameDatabaseWin32.lib;FireWorksWin32.lib;FLuaWin32.lib;lua51_Win32.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>$(OutDir)$(ProjectName)$(Platform)$(Configuration).dll</OutputFile>
+      <OutputFile>$(OutDir)\CvGameCore_Expansion1.dll</OutputFile>
       <SuppressStartupBanner>false</SuppressStartupBanner>
       <AdditionalLibraryDirectories>$(SolutionDir)\CvWorldBuilderMap\lib\;$(SolutionDir)\CvGameCoreDLLUtil\lib\;$(SolutionDir)\CvLocalization\lib\;$(SolutionDir)\CvGameDatabase\lib\;$(SolutionDir)FirePlace\lib\;$(SolutionDir)ThirdPartyLibs\Lua51\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <DelayLoadDLLs>%(DelayLoadDLLs)</DelayLoadDLLs>
