@@ -1500,7 +1500,6 @@ public:
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	const char* GetMissionInfo();
-	void SetLastMoveInfo(CvString strInfo);
 	void DumpDangerInNeighborhood();
 #endif
 
@@ -1838,7 +1837,6 @@ private:
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	// for debugging
 	CvString m_strMissionInfoString;
-	CvString m_strLastTacticalMove;
 #endif
 };
 

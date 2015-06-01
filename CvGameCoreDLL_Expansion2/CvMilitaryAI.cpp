@@ -2824,8 +2824,45 @@ int CvMilitaryAI::GetNumberCivsAtWarWith() const
 /// Which city is in the most danger now?
 CvCity* CvMilitaryAI::GetMostThreatenedCity(int iOrder)
 {
-	// slewis - this is slow, but I did it quickly!
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	std::vector<std::pair<CvCity*,int>> vCities;
+	struct sort_pred {
+		bool operator()(const std::pair<CvCity*,int> &left, const std::pair<CvCity*,int> &right) {
+			return left.second > right.second;
+		}
+	};
 
+	CvCity* pLoopCity;
+	int iLoopCity = 0;
+	for(pLoopCity = m_pPlayer->firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoopCity))
+	{
+		//with the new danger plots, the stored threat value should be accurate
+		int iThreatValue = pLoopCity->getThreatValue();
+
+		//ignore it if attack would be pointless - times two because a long siege will favor the city
+		if (iThreatValue < GC.getCITY_HIT_POINTS_HEALED_PER_TURN()*2)
+			continue;
+
+		//scale it a bit with city value and remaining hitpoints
+		float fScale = 1000 * sqrt((float)pLoopCity->getPopulation()) / MAX(1,pLoopCity->GetMaxHitPoints() - pLoopCity->getDamage());
+
+		//OutputDebugString( CvString::format("%s - threat %d - scale %.3f\n", pLoopCity->getName().c_str(), iThreatValue, fScale ).c_str() );
+
+		if(pLoopCity->isCapital())
+			iThreatValue = (iThreatValue * GC.getAI_MILITARY_CITY_THREAT_WEIGHT_CAPITAL()) / 100;
+
+		vCities.push_back( std::make_pair( pLoopCity, (int)(iThreatValue*fScale) ) );
+	}
+
+	std::sort(vCities.begin(), vCities.end(), sort_pred());
+	if (iOrder<0 || iOrder>=(int)vCities.size()) 
+		return NULL;
+	else
+		return vCities[iOrder].first;
+
+#else
+
+	// slewis - this is slow, but I did it quickly!
 	FFastVector<CvCity*> m_apCities;
 	m_apCities.push_back_copy(NULL, iOrder + 1);
 
@@ -2853,42 +2890,13 @@ CvCity* CvMilitaryAI::GetMostThreatenedCity(int iOrder)
 			}
 
 			int iThreatValue = pLoopCity->getThreatValue();
-#if defined(MOD_BALANCE_CORE_MILITARY)
-			iThreatValue = iThreatValue * (int)(sqrt((float)pLoopCity->getPopulation())+0.5f);
-#else
 			iThreatValue = iThreatValue * pLoopCity->getPopulation();
-#endif
 
 			if(pLoopCity->isCapital())
 			{
 				iThreatValue = (iThreatValue * GC.getAI_MILITARY_CITY_THREAT_WEIGHT_CAPITAL()) / 100;
 			}
-#if defined(MOD_BALANCE_CORE)
-			const CvPlot* pLoopPlot;
-			int iCount = 0;
-			int iI;
-#if defined(MOD_GLOBAL_CITY_WORKING)
-			for(iI = 0; iI < pLoopCity->GetNumWorkablePlots(); iI++)
-#else
-			for(iI = 0; iI < NUM_CITY_PLOTS; iI++)
-#endif
-			{
-				pLoopPlot = plotCity(pLoopCity->getX(), pLoopCity->getY(), iI);
 
-				if(pLoopPlot != NULL)
-				{
-					CvUnit* pUnit = pLoopPlot->getUnitByIndex(0);
-					if(pUnit != NULL && pUnit->IsCombatUnit() && GET_TEAM(GET_PLAYER(pUnit->getOwner()).getTeam()).isAtWar(GET_PLAYER(pLoopCity->getOwner()).getTeam()))
-					{
-						iCount++;
-					}
-				}
-			}
-			if(iCount > 0)
-			{
-				iThreatValue *= iCount;
-			}
-#endif
 			if(iThreatValue > iHighestThreatValue)
 			{
 				pCity = pLoopCity;
@@ -2908,6 +2916,7 @@ CvCity* CvMilitaryAI::GetMostThreatenedCity(int iOrder)
 	}
 
 	return m_apCities[iOrder];
+#endif
 }
 
 /// How big is our military compared to the recommended size?

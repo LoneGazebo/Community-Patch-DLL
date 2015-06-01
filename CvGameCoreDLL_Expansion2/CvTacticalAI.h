@@ -306,8 +306,13 @@ public:
 	void Clear()
 	{
 		m_eTargetType = AI_TACTICAL_TARGET_NONE;
+#if defined(MOD_BALANCE_CORE)
+		m_iTargetX = INVALID_PLOT_COORD;
+		m_iTargetY = INVALID_PLOT_COORD;
+#else
 		m_iTargetX = -1;
 		m_iTargetY = -1;
+#endif
 		m_eTargetPlayer = NO_PLAYER;
 		m_iDominanceZoneID = -1;
 		m_pAuxData = NULL;

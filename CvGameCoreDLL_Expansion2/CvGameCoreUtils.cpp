@@ -1538,3 +1538,18 @@ bool IsGUIDEmpty(const GUID& kGUID)
 {
 	return kGUID.Data1 == 0 && kGUID.Data2 == 0 && kGUID.Data3 == 0 && *(INT32*)&kGUID.Data4[0] == 0 && *(INT32*)&kGUID.Data4[4] == 0;
 }
+
+#if defined(MOD_BALANCE_CORE)
+//take value and map it linearly to [0;100]. if outside of given thresholds, map to min/max. 
+int MapToPercent(int iValue, int iZeroAt, int iHundredAt)
+{
+	if (iHundredAt!=iZeroAt)
+		return MIN( 100, MAX( 0, (iValue-iZeroAt)*100/(iHundredAt-iZeroAt) ) );
+	else if (iValue>iHundredAt)
+		return 100;
+	else if (iValue<iZeroAt)
+		return 0;
+	else
+		return 50;
+}
+#endif

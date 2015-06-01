@@ -348,14 +348,6 @@ void CvPlayerAI::AI_unitUpdate()
 	}
 	else
 	{
-
-#if defined(MOD_BALANCE_CORE_MILITARY)
-		//reset debug info
-		int iLoop;
-		for(CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit; pLoopUnit = nextUnit(&iLoop))
-			pLoopUnit->SetLastMoveInfo( "no move info" );
-#endif
-
 		// Update tactical AI
 		GetTacticalAI()->CommandeerUnits();
 

@@ -554,3 +554,8 @@ inline CvString GetLocalizedText(const char* szString, const T1& arg1, const T2&
 #define NET_MESSAGE_DEBUG_OSTR_ALWAYS(x)	{ std::ostringstream str; str << x; gDLL->netMessageDebugLog(str.str()); }
 
 #endif
+
+#if defined(MOD_BALANCE_CORE)
+//take value and map it linearly to [0;100]. if outside of given thresholds, map to min/max. 
+int MapToPercent(int iValue, int iZeroAt, int iHundredAt);
+#endif

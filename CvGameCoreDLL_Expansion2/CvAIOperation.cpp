@@ -101,10 +101,17 @@ void CvAIOperation::Reset()
 	m_iDefaultArea = FFreeList::INVALID_INDEX;
 	m_eCurrentState = AI_OPERATION_STATE_ABORTED;
 	m_eAbortReason = NO_ABORT_REASON;
+#if defined(MOD_BALANCE_CORE)
+	m_iTargetX = INVALID_PLOT_COORD;
+	m_iTargetY = INVALID_PLOT_COORD;
+	m_iMusterX = INVALID_PLOT_COORD;
+	m_iMusterY = INVALID_PLOT_COORD;
+#else
 	m_iTargetX = 0;
 	m_iTargetY = 0;
 	m_iMusterX = 0;
 	m_iMusterY = 0;
+#endif
 	m_iStartCityX = -1;
 	m_iStartCityY = -1;
 	m_eMoveType = INVALID_AI_OPERATION_MOVE_TYPE;
@@ -177,6 +184,9 @@ int CvAIOperation::GetFirstArmyID()
 CvPlot* CvAIOperation::GetTargetPlot() const
 {
 	CvPlot* rtnValue = NULL;
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	if (m_iTargetX!=INVALID_PLOT_COORD && m_iTargetY!=INVALID_PLOT_COORD)
+#endif
 	rtnValue =  GC.getMap().plot(m_iTargetX, m_iTargetY);
 	return rtnValue;
 }
@@ -200,6 +210,9 @@ void CvAIOperation::SetTargetPlot(CvPlot* pTarget)
 CvPlot* CvAIOperation::GetMusterPlot() const
 {
 	CvPlot* rtnValue = NULL;
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	if (m_iMusterX!=INVALID_PLOT_COORD && m_iMusterY!=INVALID_PLOT_COORD)
+#endif
 	rtnValue =  GC.getMap().plot(m_iMusterX, m_iMusterY);
 	return rtnValue;
 }
@@ -6493,14 +6506,29 @@ bool CvAIOperationRapidResponse::ArmyInPosition(CvArmyAI* pArmy)
 		// See if reached our target
 	case AI_OPERATION_STATE_MOVING_TO_TARGET:
 	{
+#if defined(MOD_BALANCE_CORE_MILITARY)
+		if (plotDistance(pArmy->GetX(), pArmy->GetY(), pArmy->GetGoalX(), pArmy->GetGoalY()) <= 2)
+		{
+			// Notify tactical AI to focus on this area
+			CvTemporaryZone zone;
+			zone.SetX(GetTargetPlot()->getX());
+			zone.SetY(GetTargetPlot()->getY());
+			zone.SetTargetType(AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT);
+			zone.SetLastTurn(GC.getGame().getGameTurn() + GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS());
+			GET_PLAYER(m_eOwner).GetTacticalAI()->AddTemporaryZone(zone);
+
+			m_eCurrentState = AI_OPERATION_STATE_SUCCESSFUL_FINISH;
+			bStateChanged = true;
+		}
+#else
 		// For now never end, even at target
 		bStateChanged = false;
 
 		// ... but we might want to move to a greater threat
 		RetargetDefensiveArmy(pArmy);
+#endif
 	}
 	break;
-
 	// In all other cases use base class version
 	case AI_OPERATION_STATE_GATHERING_FORCES:
 	case AI_OPERATION_STATE_ABORTED:
@@ -6582,21 +6610,35 @@ CvPlot* CvAIOperationRapidResponse::FindBestTarget()
 			continue;
 		}
 		pLoopPlot = GC.getMap().plotByIndex(aiPlots[uiPlotIndex]);
-		if(pLoopPlot != NULL && !pLoopPlot->isWater())
+
+		//check all our owned land plots
+		if(pLoopPlot != NULL && !pLoopPlot->isWater() && pLoopPlot->getOwner()==m_eOwner )
 		{
-			CvUnit* pUnit = pLoopPlot->getUnitByIndex(0);
-			if(pUnit != NULL && pUnit->getOwner() == m_eEnemy)
+			const UnitHandle pEnemy = pLoopPlot->getBestDefender(NO_PLAYER,m_eOwner,NULL,true);
+			if (!pEnemy)
+				continue;
+
+			//a single unit is too volatile, check for a whole cluster
+			int iEnemyPower = pEnemy->GetPower();
+			CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(pLoopPlot);
+			for(int iCount=0; iCount<NUM_DIRECTION_TYPES; iCount++)
 			{
-				CvUnitEntry* unitInfo = GC.getUnitInfo(pUnit->getUnitType());
-				if(pUnit->IsCivilianUnit() && pUnit->getDomainType() == DOMAIN_LAND)
-				{
-					return pUnit->plot();
-				}
-				else if(pUnit->getDomainType() == DOMAIN_LAND && pUnit->IsCombatUnit() && unitInfo->GetPower() > iHighestDanger)
-				{
-					iHighestDanger = unitInfo->GetPower();
-					pBestPlot = pLoopPlot;
-				}
+				const CvPlot* pNeighborPlot = aPlotsToCheck[iCount];
+				pEnemy = pNeighborPlot->getBestDefender(NO_PLAYER,m_eOwner,NULL,true);
+				if (pEnemy && pEnemy->getDomainType() == DOMAIN_LAND && pEnemy->IsCombatUnit())
+					iEnemyPower += pEnemy->GetPower();
+			}
+
+			//we don't want to adjust our target too much
+			int iDistance = (m_iTargetX>=0 && m_iTargetY>=0) ? plotDistance(m_iTargetX,m_iTargetY,pLoopPlot->getX(),pLoopPlot->getY()) : 0;
+			//OutputDebugString( CvString::format("enemies at %d,%d: power is %d - old target at %d,%d - distance scale %d\n", 
+			//	pLoopPlot->getX(), pLoopPlot->getY(), iEnemyPower, m_iTargetX, m_iTargetY, MapToPercent(iDistance,23,3) ).c_str() );
+			iEnemyPower *= MapToPercent(iDistance,23,3);
+
+			if(iEnemyPower > iHighestDanger)
+			{
+				iHighestDanger = iEnemyPower;
+				pBestPlot = pLoopPlot;
 			}
 		}
 	}
@@ -7973,7 +8015,7 @@ CvPlot* CvAIOperationNukeAttack::FindBestTarget()
 										iThisCityValue -= 1000;
 									}
 									//Is this city threatened? Let's target this.
-									if(enemyPlayer.GetMilitaryAI()->GetMostThreatenedCity(0) == pLoopCity)
+									if(enemyPlayer.GetMilitaryAI()->GetMostThreatenedCity() == pLoopCity)
 									{
 										iThisCityValue += 250;
 									}

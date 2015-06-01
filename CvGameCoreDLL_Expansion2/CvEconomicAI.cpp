@@ -1942,6 +1942,9 @@ void CvEconomicAI::DoHurry()
 	//Are we in debt? Doesn't matter if we are super rich!
 	if((pTreasury->GetGold() > iTreasuryBuffer && pTreasury->CalculateBaseNetGoldTimes100() > 0) || (pTreasury->GetGold() > (iTreasuryBuffer * 2)))
 	{
+		// Which city needs hurrying most?
+		CvCity* pMostThreatenedCity = m_pPlayer->GetMilitaryAI()->GetMostThreatenedCity();
+
 		// Look at each of our cities
 		for(CvCity* pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 		{
@@ -1951,8 +1954,8 @@ void CvEconomicAI::DoHurry()
 				return;
 			}
 
-			//Is the city threatened? Always be able to hurry things in the capital.
-			if(pLoopCity != m_pPlayer->GetMilitaryAI()->GetMostThreatenedCity() || pLoopCity->isCapital())
+			//Is the city threatened - don't invest there. Always be able to hurry things in the capital.
+			if(pLoopCity != pMostThreatenedCity || pLoopCity->isCapital())
 			{
 				if(!pLoopCity->IsPuppet() || m_pPlayer->GetPlayerTraits()->IsNoAnnexing())
 				{

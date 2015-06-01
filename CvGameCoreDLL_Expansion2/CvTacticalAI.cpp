@@ -396,7 +396,12 @@ void CvTacticalAI::CommandeerUnits()
 		// We want ALL the barbarians and air units (that are combat ready)
 		else if(pLoopUnit->isBarbarian() || (pLoopUnit->getDomainType() == DOMAIN_AIR && pLoopUnit->getDamage() < 50 && !m_pPlayer->GetMilitaryAI()->WillAirUnitRebase(pLoopUnit.pointer())))
 		{
+#if defined(MOD_BALANCE_CORE_MILITARY)
+			if (pLoopUnit->getTacticalMove()==NO_TACTICAL_MOVE)
+				pLoopUnit->setTacticalMove((TacticalAIMoveTypes)m_CachedInfoTypes[eTACTICAL_UNASSIGNED]);
+#else
 			pLoopUnit->setTacticalMove((TacticalAIMoveTypes)m_CachedInfoTypes[eTACTICAL_UNASSIGNED]);
+#endif
 			m_CurrentTurnUnits.push_back(pLoopUnit->GetID());
 		}
 
@@ -444,12 +449,22 @@ void CvTacticalAI::CommandeerUnits()
 				if(iDanger > 0 || NearVisibleEnemy(pLoopUnit, m_iRecruitRange) ||
 				        pLoopUnit->GetDeployFromOperationTurn() + GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS() >= GC.getGame().getGameTurn())
 				{
+#if defined(MOD_BALANCE_CORE_MILITARY)
+					if (pLoopUnit->getTacticalMove()==NO_TACTICAL_MOVE)
+						pLoopUnit->setTacticalMove((TacticalAIMoveTypes)m_CachedInfoTypes[eTACTICAL_UNASSIGNED]);
+#else
 					pLoopUnit->setTacticalMove((TacticalAIMoveTypes)m_CachedInfoTypes[eTACTICAL_UNASSIGNED]);
+#endif
 					m_CurrentTurnUnits.push_back(pLoopUnit->GetID());
 				}
 				else if (pLoopUnit->canParadrop(pLoopUnit->plot(),false))
 				{
+#if defined(MOD_BALANCE_CORE_MILITARY)
+					if (pLoopUnit->getTacticalMove()==NO_TACTICAL_MOVE)
+						pLoopUnit->setTacticalMove((TacticalAIMoveTypes)m_CachedInfoTypes[eTACTICAL_UNASSIGNED]);
+#else
 					pLoopUnit->setTacticalMove((TacticalAIMoveTypes)m_CachedInfoTypes[eTACTICAL_UNASSIGNED]);
+#endif
 					m_CurrentTurnUnits.push_back(pLoopUnit->GetID());
 				}
 			}
@@ -2027,6 +2042,11 @@ void CvTacticalAI::AssignBarbarianMoves()
 	{
 		CvTacticalMove move = *it;
 
+#if defined(MOD_BALANCE_CORE_MILITARY)
+		//debugging
+		g_currentTacticalMove = move;
+#endif
+
 		AI_PERF_FORMAT("AI-perf-tact.csv", ("Barb Move: %d, Turn %03d, %s", (int)move.m_eMoveType, GC.getGame().getElapsedGameTurns(), m_pPlayer->getCivilizationShortDescription()) );
 
 		switch(move.m_eMoveType)
@@ -2097,16 +2117,6 @@ void CvTacticalAI::AssignBarbarianMoves()
 			PlotBarbarianPlunderTradeUnitMove(DOMAIN_SEA);
 			break;
 		}
-
-#if defined(MOD_BALANCE_CORE_MILITARY)
-		for(unsigned int iI = 0; iI < m_CurrentMoveUnits.size(); iI++)
-		{
-			UnitHandle pUnit = m_pPlayer->getUnit(m_CurrentMoveUnits[iI].GetID());
-			if(pUnit)
-				pUnit->SetLastMoveInfo( GC.getTacticalMoveInfo(move.m_eMoveType)->GetType() );
-		}
-#endif
-
 	}
 
 	ReviewUnassignedUnits();
@@ -13465,7 +13475,8 @@ void CTacticalUnitArray::push_back(const CvTacticalUnit& unit)
 
 	if (pUnit)
 	{
-		pUnit->SetLastMoveInfo( GC.getTacticalMoveInfo(g_currentTacticalMove.m_eMoveType)->GetType() );
+		//not a nice design to use a global variable here, but it's easier than modifying the code in 30 places
+		pUnit->setTacticalMove( g_currentTacticalMove.m_eMoveType );
 
 		if (unit.GetID()==g_currentUnitToTrack)
 		{

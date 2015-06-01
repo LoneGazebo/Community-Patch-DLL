@@ -27525,7 +27525,7 @@ bool CvPlayer::IsPlotTargetedForCity(CvPlot *pPlot) const
 #if defined(MOD_BALANCE_CORE_SETTLER)
 		if(MOD_BALANCE_CORE_SETTLER)
 		{
-			if(pOperation && pOperation != pOpToIgnore)
+			if(pOperation && pOperation != pOpToIgnore && pOperation->HasTargetPlot())
 			{
 				switch (pOperation->GetOperationType())
 				{

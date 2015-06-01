@@ -26327,33 +26327,17 @@ bool CvUnit::CanDoInterfaceMode(InterfaceModeTypes eInterfaceMode, bool bTestVis
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
 
-void CvUnit::SetLastMoveInfo(CvString strInfo)
-{
-	m_strLastTacticalMove = strInfo;
-}
-
 const char* CvUnit::GetMissionInfo()
 {
-	m_strMissionInfoString.clear();
-	getUnitAIString(m_strMissionInfoString, AI_getUnitAIType());
-	m_strMissionInfoString += " / ";
-	m_strMissionInfoString += m_strLastTacticalMove;
+	m_strMissionInfoString = (m_eTacticalMove==NO_TACTICAL_MOVE) ? "no tactical move" : GC.getTacticalMoveInfo(m_eTacticalMove)->GetType();
 
 	if (m_iMissionAIX!=INVALID_PLOT_COORD && m_iMissionAIY!=INVALID_PLOT_COORD)
 	{
 		CvString strTemp1;
 		getMissionAIString(strTemp1, GetMissionAIType());
-		m_strMissionInfoString += " / ";
+		m_strMissionInfoString += " // ";
 		m_strMissionInfoString += strTemp1;
-		strTemp1.Format(" / Target: %d,%d", m_iMissionAIX.get(), m_iMissionAIY.get());
-		m_strMissionInfoString += strTemp1;
-	}
-
-	const MissionData* pMission = GetHeadMissionData();
-	if (pMission)
-	{
-		CvString strTemp1;
-		strTemp1.Format(" / HeadMission %s at %d,%d", CvTypes::GetMissionName(pMission->eMissionType).c_str(),	pMission->iData1, pMission->iData2);
+		strTemp1.Format(" target: %d,%d", m_iMissionAIX.get(), m_iMissionAIY.get());
 		m_strMissionInfoString += strTemp1;
 	}
 

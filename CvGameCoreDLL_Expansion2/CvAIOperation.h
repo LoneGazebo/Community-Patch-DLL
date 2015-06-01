@@ -206,6 +206,11 @@ public:
 		return false;
 	};
 
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	bool HasTargetPlot() const { return (m_iTargetX!=INVALID_PLOT_COORD && m_iTargetX!=INVALID_PLOT_COORD); }
+	bool HasMusterPlot() const { return (m_iMusterX!=INVALID_PLOT_COORD && m_iMusterY!=INVALID_PLOT_COORD); }
+#endif
+
 	CvPlot* GetTargetPlot() const;
 	void SetTargetPlot(CvPlot* pTarget);
 	CvPlot* GetMusterPlot() const;
