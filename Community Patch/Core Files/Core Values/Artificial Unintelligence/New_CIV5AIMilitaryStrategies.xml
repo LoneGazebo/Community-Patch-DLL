@@ -28,11 +28,25 @@
 			<FlavorType>FLAVOR_NUKE</FlavorType>
 			<Flavor>30</Flavor>
 		</Row>
+		<Row>
+			<AIMilitaryStrategyType>MILITARYAISTRATEGY_ERADICATE_BARBARIANS</AIMilitaryStrategyType>
+			<FlavorType>FLAVOR_EXPANSION</FlavorType>
+			<Flavor>-5</Flavor>
+		</Row>
+		<Row>
+			<AIMilitaryStrategyType>MILITARYAISTRATEGY_ERADICATE_BARBARIANS</AIMilitaryStrategyType>
+			<FlavorType>FLAVOR_RECON</FlavorType>
+			<Flavor>-5</Flavor>
+		</Row>
+		<Row>
+			<AIMilitaryStrategyType>MILITARYAISTRATEGY_ERADICATE_BARBARIANS</AIMilitaryStrategyType>
+			<FlavorType>FLAVOR_TILE_IMPROVEMENT</FlavorType>
+			<Flavor>-15</Flavor>
+		</Row>
 		<!-- Mainly for non-BNW, that -50 Growth flavor really is a bit too much -->
 		<Update>
 			<Set Flavor="-10" />
 			<Where AIMilitaryStrategyType="MILITARYAISTRATEGY_WAR_MOBILIZATION" FlavorType="FLAVOR_GROWTH" />
 		</Update>
 	</AIMilitaryStrategy_Player_Flavors>
-
 </GameData>

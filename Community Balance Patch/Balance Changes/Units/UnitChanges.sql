@@ -26,6 +26,10 @@
 	SET PrereqTech = 'TECH_POTTERY'
 	WHERE Type = 'UNIT_SETTLER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
+	UPDATE Unit_Flavors
+	SET Flavor = '20'
+	WHERE UnitType = 'UNIT_SETTLER';
+
 -- Workers Reduced Work Rate to slow down early growth
 	UPDATE Units
 	SET WorkRate = '90'
@@ -116,7 +120,7 @@
 	-- Borrowed for WWI Infantry - Fusiliers more fiting.
 	
 	UPDATE Language_en_US
-	SET Text = 'Fusiliers'
+	SET Text = 'Fusilier'
 	WHERE Tag = 'TXT_KEY_UNIT_RIFLEMAN' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Language_en_US
@@ -1209,7 +1213,7 @@
 	-- Trieme -- Move to Optics, Increase Cost and Strength
 	
 	UPDATE Units
-	SET PrereqTech = 'TECH_SAILING'
+	SET PrereqTech = 'TECH_OPTICS'
 	WHERE Type = 'UNIT_TRIREME' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Units

@@ -432,6 +432,10 @@ public:
 	int calculateSyncChecksum();
 	int calculateOptionsChecksum();
 
+#if defined(MOD_BALANCE_CORE)
+	void debugSyncChecksum();
+#endif
+
 	void addReplayMessage(ReplayMessageTypes eType, PlayerTypes ePlayer, const CvString& pszText, int iPlotX = -1, int iPlotY = -1);
 	void clearReplayMessageMap();
 	uint getNumReplayMessages() const;

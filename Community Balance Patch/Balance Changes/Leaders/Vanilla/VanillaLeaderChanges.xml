@@ -17,6 +17,88 @@
 			<PediaEntry>TXT_KEY_PROMOTION_DESERT_SHIPS</PediaEntry>
 		</Row>
 	</UnitPromotions>
+	<Trait_FreePromotionUnitClass>
+		<Row>
+			<TraitType>TRAIT_LAND_TRADE_GOLD</TraitType>
+			<UnitClassType>UNITCLASS_SETTLER</UnitClassType>
+			<PromotionType>PROMOTION_DESERT_SHIPS</PromotionType>
+		</Row>
+		<Row>
+			<TraitType>TRAIT_LAND_TRADE_GOLD</TraitType>
+			<UnitClassType>UNITCLASS_WORKER</UnitClassType>
+			<PromotionType>PROMOTION_DESERT_SHIPS</PromotionType>
+		</Row>
+		<Row>
+			<TraitType>TRAIT_LAND_TRADE_GOLD</TraitType>
+			<UnitClassType>UNITCLASS_MISSIONARY</UnitClassType>
+			<PromotionType>PROMOTION_DESERT_SHIPS</PromotionType>
+		</Row>
+		<Row>
+			<TraitType>TRAIT_LAND_TRADE_GOLD</TraitType>
+			<UnitClassType>UNITCLASS_INQUISITOR</UnitClassType>
+			<PromotionType>PROMOTION_DESERT_SHIPS</PromotionType>
+		</Row>
+		<Row>
+			<TraitType>TRAIT_LAND_TRADE_GOLD</TraitType>
+			<UnitClassType>UNITCLASS_PROPHET</UnitClassType>
+			<PromotionType>PROMOTION_DESERT_SHIPS</PromotionType>
+		</Row>
+		<Row>
+			<TraitType>TRAIT_LAND_TRADE_GOLD</TraitType>
+			<UnitClassType>UNITCLASS_MUSICIAN</UnitClassType>
+			<PromotionType>PROMOTION_DESERT_SHIPS</PromotionType>
+		</Row>
+		<Row>
+			<TraitType>TRAIT_LAND_TRADE_GOLD</TraitType>
+			<UnitClassType>UNITCLASS_ARTIST</UnitClassType>
+			<PromotionType>PROMOTION_DESERT_SHIPS</PromotionType>
+		</Row>
+		<Row>
+			<TraitType>TRAIT_LAND_TRADE_GOLD</TraitType>
+			<UnitClassType>UNITCLASS_SCIENTIST</UnitClassType>
+			<PromotionType>PROMOTION_DESERT_SHIPS</PromotionType>
+		</Row>
+		<Row>
+			<TraitType>TRAIT_LAND_TRADE_GOLD</TraitType>
+			<UnitClassType>UNITCLASS_MERCHANT</UnitClassType>
+			<PromotionType>PROMOTION_DESERT_SHIPS</PromotionType>
+		</Row>
+		<Row>
+			<TraitType>TRAIT_LAND_TRADE_GOLD</TraitType>
+			<UnitClassType>UNITCLASS_GREAT_GENERAL</UnitClassType>
+			<PromotionType>PROMOTION_DESERT_SHIPS</PromotionType>
+		</Row>
+		<Row>
+			<TraitType>TRAIT_LAND_TRADE_GOLD</TraitType>
+			<UnitClassType>UNITCLASS_ENGINEER</UnitClassType>
+			<PromotionType>PROMOTION_DESERT_SHIPS</PromotionType>
+		</Row>
+		<Row>
+			<TraitType>TRAIT_LAND_TRADE_GOLD</TraitType>
+			<UnitClassType>UNITCLASS_ARCHAEOLOGIST</UnitClassType>
+			<PromotionType>PROMOTION_DESERT_SHIPS</PromotionType>
+		</Row>
+	</Trait_FreePromotionUnitClass>
+	<Trait_TerrainYieldChanges>
+		<Row>
+			<TraitType>TRAIT_LAND_TRADE_GOLD</TraitType>
+			<TerrainType>TERRAIN_DESERT</TerrainType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>2</Yield>
+		</Row>
+		<Row>
+			<TraitType>TRAIT_LAND_TRADE_GOLD</TraitType>
+			<TerrainType>TERRAIN_DESERT</TerrainType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>2</Yield>
+		</Row>
+		<Row>
+			<TraitType>TRAIT_LAND_TRADE_GOLD</TraitType>
+			<TerrainType>TERRAIN_DESERT</TerrainType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>2</Yield>
+		</Row>
+	</Trait_TerrainYieldChanges>
 	<UnitPromotions_Terrains>
 		<Row>
 			<PromotionType>PROMOTION_DESERT_SHIPS</PromotionType>
@@ -341,4 +423,29 @@
 			<Yield>50</Yield>
 		</Row>
 	</Trait_GreatPersonBornYield>
+	<!-- Russia -->
+	<Trait_YieldFromTilePurchase>
+		<Row>
+			<TraitType>TRAIT_STRATEGIC_RICHES</TraitType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Yield>20</Yield>
+		</Row>
+	</Trait_YieldFromTilePurchase>
+	<Trait_ResourceQuantityModifiers>
+		<Row>
+			<TraitType>TRAIT_STRATEGIC_RICHES</TraitType>
+			<ResourceType>RESOURCE_OIL</ResourceType>
+			<ResourceQuantityModifier>100</ResourceQuantityModifier>
+		</Row>
+		<Row>
+			<TraitType>TRAIT_STRATEGIC_RICHES</TraitType>
+			<ResourceType>RESOURCE_COAL</ResourceType>
+			<ResourceQuantityModifier>100</ResourceQuantityModifier>
+		</Row>
+		<Row>
+			<TraitType>TRAIT_STRATEGIC_RICHES</TraitType>
+			<ResourceType>RESOURCE_ALUMINUM</ResourceType>
+			<ResourceQuantityModifier>100</ResourceQuantityModifier>
+		</Row>
+	</Trait_ResourceQuantityModifiers>
 </GameData>

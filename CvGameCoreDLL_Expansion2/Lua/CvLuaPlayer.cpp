@@ -1153,10 +1153,9 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	Method(IsVassalageAcceptable);
 	Method(GetVassalGoldMaintenance);
-	Method(GetJONSCulturePerTurnFromVassals);
+	Method(GetYieldPerTurnFromVassals);
 	Method(GetHappinessFromVassals);
 	Method(GetScoreFromVassals);
-	Method(GetScienceFromVassalTimes100);
 	Method(GetMilitaryAggressivePosture);
 	Method(MoveRequestTooSoon);
 	Method(GetPlayerMoveTroopsRequestCounter);
@@ -11357,7 +11356,8 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 	}
 
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_DIPLOMACY_CIV4_FEATURES)
-	if (MOD_DIPLOMACY_CIV4_FEATURES) {
+	if (MOD_DIPLOMACY_CIV4_FEATURES) 
+	{
 		if (GET_TEAM(pDiploAI->GetTeam()).IsVassal(GET_PLAYER(eWithPlayer).getTeam()))
 		{
 			iValue = pDiploAI->GetVassalScore(eWithPlayer);
@@ -12469,12 +12469,6 @@ int CvLuaPlayer::lGetScoreFromVassals(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvPlayerAI::GetScoreFromVassals);
 }
-//-----------------------------------------------------------------------------
-//int GetScienceFromVassalsTimes100();
-int CvLuaPlayer::lGetScienceFromVassalTimes100(lua_State* L)
-{
-	return BasicLuaMethod(L, &CvPlayerAI::GetScienceFromVassalTimes100);
-}
 //-------------------------------------------------------------------------------
 //int GetHappinessFromVassals();
 int CvLuaPlayer::lGetHappinessFromVassals(lua_State* L)
@@ -12483,9 +12477,13 @@ int CvLuaPlayer::lGetHappinessFromVassals(lua_State* L)
 }
 //------------------------------------------------------------------------------
 //int GetJONSCulturePerTurnFromVassals();
-int CvLuaPlayer::lGetJONSCulturePerTurnFromVassals(lua_State* L)
+int CvLuaPlayer::lGetYieldPerTurnFromVassals(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlayerAI::GetJONSCulturePerTurnFromVassals);
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const YieldTypes eYield = (YieldTypes) lua_tointeger(L, 2);
+	const int iResult = pkPlayer->GetYieldPerTurnFromVassals(eYield);
+	lua_pushinteger(L, iResult);
+	return 1;
 }
 //-----------------------------------------------------------------------------
 //int GetVassalGoldMaintenance();

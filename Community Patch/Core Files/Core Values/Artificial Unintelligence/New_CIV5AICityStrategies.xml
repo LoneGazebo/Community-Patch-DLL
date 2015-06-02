@@ -1,41 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Created by ModBuddy on 7/8/2014 11:59:13 PM -->
 <GameData>
-	<AICityStrategy_Flavors>
-		<!-- Old values were all -3, which was slightly too much *just* because a city has a barracks -->
-		<Update>
-			<Set Flavor="-1" />
-			<Where AICityStrategyType="AICITYSTRATEGY_HAVE_TRAINING_FACILITY" FlavorType="FLAVOR_TILE_IMPROVEMENT" />
-		</Update>
-		<Update>
-			<Set Flavor="-1" />
-			<Where AICityStrategyType="AICITYSTRATEGY_HAVE_TRAINING_FACILITY" FlavorType="FLAVOR_EXPANSION" />
-		</Update>
-		<Update>
-			<Set Flavor="-1" />
-			<Where AICityStrategyType="AICITYSTRATEGY_HAVE_TRAINING_FACILITY" FlavorType="FLAVOR_GROWTH" />
-		</Update>
-		<Update>
-			<Set Flavor="-1" />
-			<Where AICityStrategyType="AICITYSTRATEGY_HAVE_TRAINING_FACILITY" FlavorType="FLAVOR_HAPPINESS" />
-		</Update>
-		<!-- Defense flavor influences more than just unit behavior, it also influences unit types and diplomacy, so the base 25 needed to be increased a bit -->
-		<Update>
-			<Set Flavor="30" />
-			<Where AICityStrategyType="AICITYSTRATEGY_CAPITAL_UNDER_THREAT" FlavorType="FLAVOR_DEFENSE" />
-		</Update>
-		<!-- Makes sure settlers are more likely to be produced by the capital instead of forcing a smaller city to do the job -->
-		<Row>
-			<AICityStrategyType>AICITYSTRATEGY_ORIGINAL_CAPITAL</AICityStrategyType>
-			<FlavorType>FLAVOR_EXPANSION</FlavorType>
-			<Flavor>1</Flavor>
-		</Row>
-	</AICityStrategy_Flavors>
 	<AICityStrategies>
 		<Row>
 			<Type>AICITYSTRATEGY_LAKEBOUND</Type>
-			<CheckTriggerTurnCount>20</CheckTriggerTurnCount>
-			<MinimumNumTurnsExecuted>20</MinimumNumTurnsExecuted>
+			<CheckTriggerTurnCount>1</CheckTriggerTurnCount>
+			<MinimumNumTurnsExecuted>75</MinimumNumTurnsExecuted>
+			<NoMinorCivs>true</NoMinorCivs>
 		</Row>
 	</AICityStrategies>
 	<AICityStrategy_Flavors>
@@ -48,6 +19,31 @@
 			<AICityStrategyType>AICITYSTRATEGY_LAKEBOUND</AICityStrategyType>
 			<FlavorType>FLAVOR_NAVAL_RECON</FlavorType>
 			<Flavor>-500</Flavor>
+		</Row>
+	</AICityStrategy_Flavors>
+	<AICityStrategies>
+		<Row>
+			<Type>AICITYSTRATEGY_ENOUGH_SETTLERS</Type>
+			<CheckTriggerTurnCount>5</CheckTriggerTurnCount>
+			<MinimumNumTurnsExecuted>20</MinimumNumTurnsExecuted>
+			<NoMinorCivs>true</NoMinorCivs>
+		</Row>
+	</AICityStrategies>
+	<AICityStrategy_Flavors>
+		<Row>
+			<AICityStrategyType>AICITYSTRATEGY_ENOUGH_SETTLERS</AICityStrategyType>
+			<FlavorType>FLAVOR_EXPANSION</FlavorType>
+			<Flavor>-50</Flavor>
+		</Row>
+		<Row>
+			<AICityStrategyType>AICITYSTRATEGY_ENOUGH_SETTLERS</AICityStrategyType>
+			<FlavorType>FLAVOR_DEFENSE</FlavorType>
+			<Flavor>15</Flavor>
+		</Row>
+		<Row>
+			<AICityStrategyType>AICITYSTRATEGY_ENOUGH_SETTLERS</AICityStrategyType>
+			<FlavorType>FLAVOR_OFFENSE</FlavorType>
+			<Flavor>15</Flavor>
 		</Row>
 	</AICityStrategy_Flavors>
 </GameData>

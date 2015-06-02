@@ -30,29 +30,56 @@ typedef void(*CvABegin)(const void*, CvAStar*);
 typedef void(*CvAEnd)(const void*, CvAStar*);
 
 // PATHFINDER FLAGS
-// WARNING: Some of these flags are passed into the unit mission and stored in the missions iFlags member.
-//          Because the mission's iFlags are sharing space with the pathfinder flags, we currently have mission
-//			modifier flags listed below that really don't have anything to do with the pathfinder.
-//			A fix for this would be to have the mission contain separate pathfinder and modifier flags.
-// These flags determine plots that can be entered
-#define MOVE_TERRITORY_NO_UNEXPLORED		(0x00000001)
-#define MOVE_TERRITORY_NO_ENEMY				(0x00000002)
-#define MOVE_IGNORE_STACKING                (0x00000004)
-// These two tell about presence of enemy units
-#define MOVE_UNITS_IGNORE_DANGER			(0x00000008)
-#define MOVE_UNITS_THROUGH_ENEMY			(0x00000010)
-// Used for human player movement
-#define MOVE_DECLARE_WAR					(0x00000020)
-// Used for AI group attacks (??). Not really a pathfinder flag
-#define MISSION_MODIFIER_DIRECT_ATTACK		(0x00000040)
-#define MISSION_MODIFIER_NO_DEFENSIVE_SUPPORT (0x00000100)
 
-#define MOVE_MAXIMIZE_EXPLORE				(0x00000080)
-//
-// Used for route information
-#define MOVE_ANY_ROUTE					    (0x80000000) // because we're passing in the player number as well as the route flag
-#define MOVE_ROUTE_ALLOW_UNEXPLORED			(0x40000000) // When searching for a route, allow the search to use unrevealed plots
-//#define MOVE_NON_WAR_ROUTE				 // we're passing the player id and other flags in as well. This flag checks to see if it can get from point to point without going into territory with a team we're at war with
+#if defined(MOD_BALANCE_CORE_PATHFINDER_FLAGS)
+
+	//also see MOVEFLAG* in CvUnit, but these flags are not used for AStar
+	//the two low bytes are used to pass the player ID and desired route type in some cases, do not use here
+
+	#define MOVE_TERRITORY_NO_UNEXPLORED		(0x00010000)
+	#define MOVE_TERRITORY_NO_ENEMY				(0x00020000)
+	#define MOVE_IGNORE_STACKING                (0x00040000)
+	// These two tell about presence of enemy units
+	#define MOVE_UNITS_IGNORE_DANGER			(0x00080000)
+	#define MOVE_UNITS_THROUGH_ENEMY			(0x00100000)
+	// Used for human player movement
+	#define MOVE_DECLARE_WAR					(0x00200000)
+	#define MOVE_MAXIMIZE_EXPLORE				(0x00400000)
+	// Used for route information
+	#define MOVE_ANY_ROUTE					    (0x00800000)
+	#define MOVE_ROUTE_ALLOW_UNEXPLORED			(0x01000000)
+	// New flags
+	#define MOVE_MINIMIZE_ENEMY_TERRITORY		(0x02000000)
+	#define MOVE_NO_EMBARK						(0x04000000)
+
+#else
+
+	// WARNING: Some of these flags are passed into the unit mission and stored in the missions iFlags member.
+	//          Because the mission's iFlags are sharing space with the pathfinder flags, we currently have mission
+	//			modifier flags listed below that really don't have anything to do with the pathfinder.
+	//			A fix for this would be to have the mission contain separate pathfinder and modifier flags.
+	// These flags determine plots that can be entered
+	#define MOVE_TERRITORY_NO_UNEXPLORED		(0x00000001)
+	#define MOVE_TERRITORY_NO_ENEMY				(0x00000002)
+	#define MOVE_IGNORE_STACKING                (0x00000004)
+	// These two tell about presence of enemy units
+	#define MOVE_UNITS_IGNORE_DANGER			(0x00000008)
+	#define MOVE_UNITS_THROUGH_ENEMY			(0x00000010)
+	// Used for human player movement
+	#define MOVE_DECLARE_WAR					(0x00000020)
+	// Used for AI group attacks (??). Not really a pathfinder flag
+	#define MISSION_MODIFIER_DIRECT_ATTACK		(0x00000040)
+	#define MISSION_MODIFIER_NO_DEFENSIVE_SUPPORT (0x00000100)
+
+	#define MOVE_MAXIMIZE_EXPLORE				(0x00000080)
+
+	//
+	// Used for route information
+	#define MOVE_ANY_ROUTE					    (0x80000000) // because we're passing in the player number as well as the route flag
+	#define MOVE_ROUTE_ALLOW_UNEXPLORED			(0x40000000) // When searching for a route, allow the search to use unrevealed plots
+	//#define MOVE_NON_WAR_ROUTE				 // we're passing the player id and other flags in as well. This flag checks to see if it can get from point to point without going into territory with a team we're at war with
+
+#endif
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //
@@ -557,6 +584,9 @@ public:
 	bool DoesPathExist(PlayerTypes ePlayer, PlayerTypes eEnemy, CvPlot* pStartPlot, CvPlot* pEndPlot);
 	CvPlot* GetLastOwnedPlot(PlayerTypes ePlayer, PlayerTypes eEnemy, CvPlot* pStartPlot, CvPlot* pEndPlot) const;
 	CvPlot* GetXPlotsFromEnd(PlayerTypes ePlayer, PlayerTypes eEnemy, CvPlot* pStartPlot, CvPlot* pEndPlot, int iPlotsFromEnd, bool bLeaveEnemyTerritory) const;
+#if defined(MOD_BALANCE_CORE)
+	int CountPlotsOwnedByXInPath(PlayerTypes ePlayer) const;
+#endif
 };
 
 class CvIgnoreUnitsPathFinder: public CvAStar

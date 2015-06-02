@@ -42,7 +42,7 @@
 		<Row>
 			<ProcessType>PROCESS_FOOD</ProcessType>
 			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>10</Yield>
+			<Yield>20</Yield>
 		</Row>
 	</Process_ProductionYields>
 	<Language_en_US>
@@ -59,7 +59,7 @@
 			<Text>Farming</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROCESS_FOOD_HELP">
-			<Text>[COLOR_POSITIVE_TEXT]Farming[ENDCOLOR] converts 10% of [ICON_PRODUCTION] Production of this City into [ICON_FOOD] Food.</Text>
+			<Text>[COLOR_POSITIVE_TEXT]Farming[ENDCOLOR] converts 20% of [ICON_PRODUCTION] Production of this City into [ICON_FOOD] Food.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROCESS_FOOD_STRATEGY">
 			<Text>Investing production in farming is a good way to boost your City's growth, which can be useful if you are falling behind in technologies, or you simply need bigger cities.</Text>

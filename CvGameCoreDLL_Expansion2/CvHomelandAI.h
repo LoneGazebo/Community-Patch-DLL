@@ -144,8 +144,13 @@ public:
 
 	CvHomelandTarget()
 		: m_eTargetType(AI_HOMELAND_TARGET_CITY)
+#if defined(MOD_BALANCE_CORE)
+		, m_iTargetX(INVALID_PLOT_COORD)
+		, m_iTargetY(INVALID_PLOT_COORD)
+#else
 		, m_iTargetX(-1)
 		, m_iTargetY(-1)
+#endif
 		, m_pAuxData(NULL)
 		, m_iAuxData(0)
 	{

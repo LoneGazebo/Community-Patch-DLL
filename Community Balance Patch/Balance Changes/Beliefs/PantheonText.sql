@@ -2,12 +2,12 @@
 
 -- Goddess of the Hunt
 UPDATE Language_en_US
-SET Text = '+1 [ICON_PEACE] Faith and +1 [ICON_FOOD] Food from Camps'
+SET Text = '+2 [ICON_PEACE] Faith and +1 [ICON_FOOD] Food from Camps'
 WHERE Tag = 'TXT_KEY_BELIEF_GODDESS_HUNT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Fertility Rites
 UPDATE Language_en_US
-SET Text = '+2 [ICON_PEACE] Faith from Granaries, and 10% faster [ICON_FOOD] Growth Rate'
+SET Text = '+1 [ICON_CULTURE] Culture and +1 [ICON_PEACE] Faith from Shrines, and 10% faster [ICON_FOOD] Growth Rate'
 WHERE Tag = 'TXT_KEY_BELIEF_FERTILITY_RITES' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- God of Craftsmen
@@ -17,12 +17,12 @@ WHERE Tag = 'TXT_KEY_BELIEF_GOD_CRAFTSMEN' AND EXISTS (SELECT * FROM COMMUNITY W
 
 -- God of the Sea
 UPDATE Language_en_US
-SET Text = '+1 [ICON_PEACE] Faith from Fishing Boats and +2 [ICON_PRODUCTION] Production in coastal Cities'
+SET Text = '+1 [ICON_PEACE] Faith from Fishing Boats and Atolls. +2 [ICON_FOOD] Food in coastal Cities'
 WHERE Tag = 'TXT_KEY_BELIEF_GOD_SEA' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- God of the Open Sky
 UPDATE Language_en_US
-SET Text = '+1 [ICON_PEACE] Faith from Pastures and +2 [ICON_FOOD] Food from Stables'
+SET Text = '+1 [ICON_PEACE] Faith from Pastures and +2 [ICON_PRODUCTION] Production from Stables'
 WHERE Tag = 'TXT_KEY_BELIEF_OPEN_SKY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Messenger of the Gods
@@ -30,10 +30,18 @@ UPDATE Language_en_US
 SET Text = '+2 [ICON_PEACE] Faith and +2 [ICON_RESEARCH] Science in Cities with a [ICON_CONNECTED] City Connection'
 WHERE Tag = 'TXT_KEY_BELIEF_MESSENGER_GODS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
+UPDATE Language_en_US
+SET Text = 'God of Commerce'
+WHERE Tag = 'TXT_KEY_BELIEF_MESSENGER_GODS_SHORT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
+
 -- One With Nature
 UPDATE Language_en_US
-SET Text = '+4 [ICON_PEACE] Faith and +2 [ICON_CULTURE] Culture from Natural Wonders'
+SET Text = '+2 [ICON_PEACE] Faith and +2 [ICON_CULTURE] Culture from Natural Wonders and Mountains'
 WHERE Tag = 'TXT_KEY_BELIEF_ONE_WITH_NATURE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
+
+UPDATE Language_en_US
+SET Text = 'Cult of Nature'
+WHERE Tag = 'TXT_KEY_BELIEF_ONE_WITH_NATURE_SHORT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Liturgy (Now Goddess of Wisdom)
 UPDATE Language_en_US
@@ -46,7 +54,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_FORMAL_LITURGY_SHORT' AND EXISTS (SELECT * FROM COMM
 
 -- Stone Circles
 UPDATE Language_en_US
-SET Text = '+2 [ICON_PEACE] Faith from Quarries, and +2 [ICON_PRODUCTION] Production from Stone Works'
+SET Text = '+3 [ICON_PEACE] Faith from Quarries, and +2 [ICON_PRODUCTION] Production from Stone Works'
 WHERE Tag = 'TXT_KEY_BELIEF_STONE_CIRCLES' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- God of War
@@ -56,11 +64,11 @@ WHERE Tag = 'TXT_KEY_BELIEF_GOD_WAR' AND EXISTS (SELECT * FROM COMMUNITY WHERE T
 
 -- Sacred Waters
 UPDATE Language_en_US
-SET Text = 'Places of Power'
+SET Text = 'Sacred Springs'
 WHERE Tag = 'TXT_KEY_BELIEF_SACRED_WATERS_SHORT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '+2 [ICON_PEACE] Faith from Mountains, Oases, and Atolls, and +1 [ICON_HAPPINESS_1] Happiness from Cities on rivers'
+SET Text = '+1 [ICON_PEACE] Faith from Oases, Lakes, and Marshes. +1 [ICON_HAPPINESS_1] Happiness from Cities on rivers'
 WHERE Tag = 'TXT_KEY_BELIEF_SACRED_WATERS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Goddess of Love
@@ -75,7 +83,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_RELIGIOUS_SETTLEMENTS' AND EXISTS (SELECT * FROM COM
 
 -- God of Festivals
 UPDATE Language_en_US
-SET Text = '+1 [ICON_PEACE] Faith and +2 [ICON_CULTURE] Culture from every unique Luxury Resource you own'
+SET Text = '+2 [ICON_PEACE] Faith and +2 [ICON_CULTURE] Culture from every unique Luxury Resource you own'
 WHERE Tag = 'TXT_KEY_BELIEF_GOD_FESTIVALS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Oral Tradition
@@ -91,12 +99,12 @@ WHERE Tag = 'TXT_KEY_BELIEF_ANCESTOR_WORSHIP' AND EXISTS (SELECT * FROM COMMUNIT
 -- Desert Folklore
 
 UPDATE Language_en_US
-SET Text = '+1 [ICON_PEACE] Faith and +2 [ICON_GOLD] Gold from Desert tiles with improved resources'
+SET Text = '+2 [ICON_PEACE] Faith, [ICON_FOOD] Food and [ICON_GOLD] Gold from Desert tiles with improved resources'
 WHERE Tag = 'TXT_KEY_BELIEF_DESERT_FOLKLORE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Sacred Path
 UPDATE Language_en_US
-SET Text = '+1 [ICON_PEACE] Faith from Jungles, +1 [ICON_CULTURE] Culture from Forests'
+SET Text = '+1 [ICON_PEACE] Faith from unimproved Jungles, +1 [ICON_CULTURE] Culture from unimproved Forests'
 WHERE Tag = 'TXT_KEY_BELIEF_SACRED_PATH' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Goddess of Protection
@@ -111,12 +119,12 @@ WHERE Tag = 'TXT_KEY_BELIEF_FAITH_HEALERS' AND EXISTS (SELECT * FROM COMMUNITY W
 
 -- Monuments to the Gods
 UPDATE Language_en_US
-SET Text = '+3 [ICON_PEACE] Faith from World Wonders, and +15% [ICON_PRODUCTION] Production of Ancient/Classical Wonders'
+SET Text = '+2 [ICON_PEACE] Faith and +1 [ICON_CULTURE] Culture from World Wonders. +15% [ICON_PRODUCTION] Production of Ancient/Classical Wonders'
 WHERE Tag = 'TXT_KEY_BELIEF_MONUMENT_GODS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Dance of the Aurora
 UPDATE Language_en_US
-SET Text = '+1 [ICON_PEACE] Faith and +2 [ICON_FOOD] Food from Tundra tiles with improved resources'
+SET Text = '+2 [ICON_PEACE] Faith, [ICON_PRODUCTION] Production and [ICON_CULTURE] Culture from Tundra tiles with improved resources'
 WHERE Tag = 'TXT_KEY_BELIEF_DANCE_AURORA' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 --  Tears of the Gods (Now Polytheism)
@@ -130,7 +138,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_TEARS_OF_GODS_SHORT' AND EXISTS (SELECT * FROM COMMU
 
 -- Earth Mother
 UPDATE Language_en_US
-SET Text = '+1 [ICON_PEACE] Faith from Mines on improved resources, and +3 [ICON_GOLD] Gold from Shrines'
+SET Text = '+2 [ICON_PEACE] Faith from Mines on improved resources, and +2 [ICON_PRODUCTION] Production from Monuments'
 WHERE Tag = 'TXT_KEY_BELIEF_EARTH_MOTHER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- God-King
@@ -140,5 +148,5 @@ WHERE Tag = 'TXT_KEY_BELIEF_GOD_KING' AND EXISTS (SELECT * FROM COMMUNITY WHERE 
 
 -- Sun God
 UPDATE Language_en_US
-SET Text = '+1 [ICON_FOOD] Food and +1 [ICON_PEACE] Faith from Farms on improved resources, and +2 [ICON_PEACE] Faith in the [ICON_CAPITAL] Capital'
+SET Text = '+2 [ICON_FOOD] Food from Granaries and Farms on improved resources. +2 [ICON_PEACE] Faith in the [ICON_CAPITAL] Capital'
 WHERE Tag = 'TXT_KEY_BELIEF_SUN_GOD' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );

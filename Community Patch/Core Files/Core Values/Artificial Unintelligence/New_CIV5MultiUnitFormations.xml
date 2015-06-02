@@ -716,14 +716,14 @@
 		<Row>
 			<MultiUnitFormationType>MUFORMATION_CLOSE_CITY_DEFENSE</MultiUnitFormationType>
 			<PrimaryUnitType>UNITAI_RANGED</PrimaryUnitType>
-			<SecondaryUnitType>UNITAI_BOMBARD</SecondaryUnitType>
+			<SecondaryUnitType>UNITAI_CITY_BOMBARD</SecondaryUnitType>
 			<MultiUnitPositionType>MUPOSITION_BOMBARD</MultiUnitPositionType>
 			<RequiredSlot>true</RequiredSlot>
 		</Row>
 		<Row>
 			<MultiUnitFormationType>MUFORMATION_CLOSE_CITY_DEFENSE</MultiUnitFormationType>
 			<PrimaryUnitType>UNITAI_RANGED</PrimaryUnitType>
-			<SecondaryUnitType>UNITAI_BOMBARD</SecondaryUnitType>
+			<SecondaryUnitType>UNITAI_CITY_BOMBARD</SecondaryUnitType>
 			<MultiUnitPositionType>MUPOSITION_BOMBARD</MultiUnitPositionType>
 		</Row>
 		<Row>
@@ -731,6 +731,67 @@
 			<PrimaryUnitType>UNITAI_GENERAL</PrimaryUnitType>
 			<SecondaryUnitType>UNITAI_GENERAL</SecondaryUnitType>
 			<MultiUnitPositionType>MUPOSITION_CIVILIAN_SUPPORT</MultiUnitPositionType>
+		</Row>
+		<Delete MultiUnitFormationType="MUFORMATION_SETTLER_ESCORT"/>
+		<Row>
+			<MultiUnitFormationType>MUFORMATION_SETTLER_ESCORT</MultiUnitFormationType>
+			<PrimaryUnitType>UNITAI_SETTLE</PrimaryUnitType>
+			<SecondaryUnitType>UNITAI_SETTLE</SecondaryUnitType>
+			<MultiUnitPositionType>MUPOSITION_CIVILIAN_SUPPORT</MultiUnitPositionType>
+			<RequiredSlot>true</RequiredSlot>
+		</Row>
+		<Row>
+			<MultiUnitFormationType>MUFORMATION_SETTLER_ESCORT</MultiUnitFormationType>
+			<PrimaryUnitType>UNITAI_DEFENSE</PrimaryUnitType>
+			<SecondaryUnitType>UNITAI_ATTACK</SecondaryUnitType>
+			<MultiUnitPositionType>MUPOSITION_FRONT_LINE</MultiUnitPositionType>
+			<RequiredSlot>true</RequiredSlot>
+		</Row>
+		<Row>
+			<MultiUnitFormationType>MUFORMATION_SETTLER_ESCORT</MultiUnitFormationType>
+			<PrimaryUnitType>UNITAI_FAST_ATTACK</PrimaryUnitType>
+			<SecondaryUnitType>UNITAI_COUNTER</SecondaryUnitType>
+			<MultiUnitPositionType>MUPOSITION_BOMBARD</MultiUnitPositionType>
+		</Row>
+		<Row>
+			<MultiUnitFormationType>MUFORMATION_SETTLER_ESCORT</MultiUnitFormationType>
+			<PrimaryUnitType>UNITAI_FAST_ATTACK</PrimaryUnitType>
+			<SecondaryUnitType>UNITAI_COUNTER</SecondaryUnitType>
+			<MultiUnitPositionType>MUPOSITION_BOMBARD</MultiUnitPositionType>
+		</Row>
+		<Delete MultiUnitFormationType="MUFORMATION_COLONIZATION_PARTY"/>
+		<Row>
+			<MultiUnitFormationType>MUFORMATION_COLONIZATION_PARTY</MultiUnitFormationType>
+			<PrimaryUnitType>UNITAI_SETTLE</PrimaryUnitType>
+			<SecondaryUnitType>UNITAI_SETTLE</SecondaryUnitType>
+			<MultiUnitPositionType>MUPOSITION_CIVILIAN_SUPPORT</MultiUnitPositionType>
+			<RequiredSlot>true</RequiredSlot>
+		</Row>
+		<Row>
+			<MultiUnitFormationType>MUFORMATION_COLONIZATION_PARTY</MultiUnitFormationType>
+			<PrimaryUnitType>UNITAI_DEFENSE</PrimaryUnitType>
+			<SecondaryUnitType>UNITAI_ATTACK</SecondaryUnitType>
+			<MultiUnitPositionType>MUPOSITION_FRONT_LINE</MultiUnitPositionType>
+			<RequiredSlot>true</RequiredSlot>
+		</Row>
+		<Row>
+			<MultiUnitFormationType>MUFORMATION_COLONIZATION_PARTY</MultiUnitFormationType>
+			<PrimaryUnitType>UNITAI_DEFENSE</PrimaryUnitType>
+			<SecondaryUnitType>UNITAI_ATTACK</SecondaryUnitType>
+			<MultiUnitPositionType>MUPOSITION_FRONT_LINE</MultiUnitPositionType>
+		</Row>
+		<Row>
+			<MultiUnitFormationType>MUFORMATION_COLONIZATION_PARTY</MultiUnitFormationType>
+			<PrimaryUnitType>UNITAI_ESCORT_SEA</PrimaryUnitType>
+			<SecondaryUnitType>UNITAI_ASSAULT_SEA</SecondaryUnitType>
+			<MultiUnitPositionType>MUPOSITION_NAVAL_ESCORT</MultiUnitPositionType>
+			<RequiredSlot>true</RequiredSlot>
+		</Row>
+		<Row>
+			<MultiUnitFormationType>MUFORMATION_COLONIZATION_PARTY</MultiUnitFormationType>
+			<PrimaryUnitType>UNITAI_ESCORT_SEA</PrimaryUnitType>
+			<SecondaryUnitType>UNITAI_ATTACK_SEA</SecondaryUnitType>
+			<MultiUnitPositionType>MUPOSITION_NAVAL_ESCORT</MultiUnitPositionType>
 		</Row>
 	</MultiUnitFormation_SlotEntries>
 </GameData>

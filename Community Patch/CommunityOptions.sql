@@ -46,6 +46,15 @@ INSERT INTO COMMUNITY (Type, Value)
 VALUES ('COMMUNITY_CORE_BALANCE_SETTLER_MOVE_START', 1);
 
 /*
+Great Engineers instantly build their project
+1 = Enabled (Default)
+0 = Disabled 
+*/
+
+INSERT INTO COMMUNITY (Type, Value)
+VALUES ('COMMUNITY_CORE_BALANCE_ENGINEER_INSTANT_BUILD', 1);
+
+/*
 Changes to Military Behavior and Flavors
 1 = Enabled (Default)
 0 = Disabled 
@@ -72,3 +81,8 @@ Changes to City Strategy Flavors
 INSERT INTO COMMUNITY (Type, Value)
 VALUES ('COMMUNITY_CORE_BALANCE_CITYSTRATEGY_TWEAKS', 1);
 
+-- DO NOT EDIT
+
+UPDATE CustomModOptions
+SET Value = '1'
+WHERE Name = 'BALANCE_CORE_ENGINEER_HURRY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_ENGINEER_INSTANT_BUILD' AND Value= 1 );

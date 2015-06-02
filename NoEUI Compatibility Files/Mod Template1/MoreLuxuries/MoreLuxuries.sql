@@ -154,7 +154,7 @@ SELECT 'BUILDING_STONE_WORKS', 'RESOURCE_JADE';
 
 -- Olives, Perfume -- Colosseum
 UPDATE Language_en_US
-SET Text = 'Reduces [ICON_HAPPINESS_3] Boredom slightly. Each source of [ICON_RES_PERFUME] Perfume and [ICON_RES_OLIVE] Olives worked by this City produces +1 [ICON_CULTURE] Culture and +1 [ICON_GOLD] Gold.'
+SET Text = '+1 [ICON_TOURISM] Tourism. Reduces [ICON_HAPPINESS_3] Boredom slightly. Each source of [ICON_RES_PERFUME] Perfume and [ICON_RES_OLIVE] Olives worked by this City produces +1 [ICON_CULTURE] Culture and +1 [ICON_GOLD] Gold.'
 WHERE Tag = 'TXT_KEY_BUILDING_COLOSSEUM_HELP';
 
 UPDATE Language_en_US
@@ -174,23 +174,24 @@ INSERT INTO Building_ResourceYieldChanges (BuildingType, ResourceType, YieldType
 SELECT 'BUILDING_COLOSSEUM', 'RESOURCE_PERFUME' , 'YIELD_GOLD' , '1';
 
 INSERT INTO Building_ResourceYieldChanges (BuildingType, ResourceType, YieldType, Yield)
-SELECT 'BUILDING_CEILIDH_HALL', 'RESOURCE_PERFUME' , 'YIELD_CULTURE' , '1';
+SELECT 'BUILDING_FLAVIAN_COLOSSEUM', 'RESOURCE_PERFUME' , 'YIELD_CULTURE' , '1';
 
 INSERT INTO Building_ResourceYieldChanges (BuildingType, ResourceType, YieldType, Yield)
-SELECT 'BUILDING_CEILIDH_HALL', 'RESOURCE_OLIVE' , 'YIELD_GOLD' , '1';
+SELECT 'BUILDING_FLAVIAN_COLOSSEUM', 'RESOURCE_OLIVE' , 'YIELD_GOLD' , '1';
 
 INSERT INTO Building_ResourceYieldChanges (BuildingType, ResourceType, YieldType, Yield)
-SELECT 'BUILDING_CEILIDH_HALL', 'RESOURCE_OLIVE' , 'YIELD_CULTURE' , '1';
+SELECT 'BUILDING_FLAVIAN_COLOSSEUM', 'RESOURCE_OLIVE' , 'YIELD_CULTURE' , '1';
 
 INSERT INTO Building_ResourceYieldChanges (BuildingType, ResourceType, YieldType, Yield)
-SELECT 'BUILDING_CEILIDH_HALL', 'RESOURCE_PERFUME' , 'YIELD_GOLD' , '1';
-UPDATE Language_en_US
-SET Text = 'Reduces [ICON_HAPPINESS_3] Boredom slightly. Each source of [ICON_RES_PERFUME] Perfume and [ICON_RES_OLIVE] Olives worked by this City produces +1 [ICON_CULTURE] Culture and +1 [ICON_GOLD] Gold.'
-WHERE Tag = 'TXT_KEY_BUILDING_CEILIDH_HALL_HELP';
+SELECT 'BUILDING_FLAVIAN_COLOSSEUM', 'RESOURCE_PERFUME' , 'YIELD_GOLD' , '1';
 
 UPDATE Language_en_US
-SET Text = 'The Ceilidh Hall is a Classical-era building unique to the Celts, replacing the Colosseum. Reduces [ICON_HAPPINESS_3] Boredom slightly and increases city [ICON_CULTURE] Culture and [ICON_PEACE] Faith. Provides 1 Musician Specialist slot, and contains a slot for a Great Work of Music. Each source of [ICON_RES_PERFUME] Perfume and [ICON_RES_OLIVE] Olives worked by this City produces +1 [ICON_CULTURE] Culture and +1 [ICON_GOLD] Gold.'
-WHERE Tag = 'TXT_KEY_BUILDING_CEILIDH_HALL_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+SET Text = '+1 [ICON_TOURISM] Tourism. Reduces [ICON_HAPPINESS_3] Boredom slightly. Each source of [ICON_RES_PERFUME] Perfume and [ICON_RES_OLIVE] Olives worked by this City produces +1 [ICON_CULTURE] Culture and +1 [ICON_GOLD] Gold. [NEWLINE][NEWLINE]Whenever you destroy an enemy unit, produce +5 [ICON_GREAT_GENERAL] Great General points and +5 [ICON_GOLDEN_AGE] Golden Age points. [ICON_CITY_CONNECTED] City Connections produce +2% more [ICON_GOLD] Gold.'
+WHERE Tag = 'TXT_KEY_BUILDING_FLAVIAN_COLOSSEUM_HELP';
+
+UPDATE Language_en_US
+SET Text = 'Unique Roman replacement for the Colosseum. Build the Arena to boost city Culture and Production, and to maximize your gain from the victories of your conquering armies. Every Arena slightly increases the Gold value of City Connections, thus allowing Rome to benefit from large, sprawling empires. Each source of [ICON_RES_PERFUME] Perfume and [ICON_RES_OLIVE] Olives worked by this City produces +1 [ICON_CULTURE] Culture and +1 [ICON_GOLD] Gold.'
+WHERE Tag = 'TXT_KEY_BUILDING_FLAVIAN_COLOSSEUM_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 -- Coral -- Covered by Lighthouse
 

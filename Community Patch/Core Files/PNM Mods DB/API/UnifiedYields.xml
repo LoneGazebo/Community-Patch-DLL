@@ -81,6 +81,11 @@
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer"/>
 	</Table>
+	<Table name="Belief_LakePlotYield">
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer"/>
+	</Table>
 	<Table name="Belief_YieldPerOtherReligionFollower">
 		<!-- Refer to Beliefs.SciencePerOtherReligionFollower -->
 		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>

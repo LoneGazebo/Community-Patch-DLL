@@ -4187,7 +4187,11 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, byte bMoveFlags) const
 		if (!bCanCross)
 #else
 		CvPlayer& kPlayer = GET_PLAYER(getOwner());
+#if defined(MOD_BALANCE_CORE)
+		if(!kPlayer.GetPlayerTraits()->IsAbleToCrossMountains() && !kPlayer.GetPlayerTraits()->IsAbleToCrossMountains2() && !IsHoveringUnit() && !canMoveAllTerrain())
+#else
 		if(!kPlayer.GetPlayerTraits()->IsAbleToCrossMountains() && !IsHoveringUnit() && !canMoveAllTerrain())
+#endif
 #endif
 		{
 			return false;
@@ -7643,6 +7647,16 @@ void CvUnit::DoAttrition()
 #if defined(MOD_API_PLOT_BASED_DAMAGE)
 	if (MOD_API_PLOT_BASED_DAMAGE) {
 		int iDamage = plot()->getTurnDamage(ignoreTerrainDamage(), ignoreFeatureDamage(), extraTerrainDamage(), extraFeatureDamage());
+#if defined(MOD_BALANCE_CORE)
+		if(MOD_BALANCE_CORE && plot()->isMountain() && iDamage > 25 && GET_PLAYER(getOwner()).GetPlayerTraits()->IsCrossesMountainsAfterGreatGeneral())
+		{
+			iDamage = 25;
+		}
+		else if(MOD_BALANCE_CORE && plot()->isMountain() && iDamage > 15 && GET_PLAYER(getOwner()).GetPlayerTraits()->IsMountainPass())
+		{
+			iDamage = 15;
+		}
+#endif
 		if (0 != iDamage) {
 			if (iDamage > 0) {
 				// CUSTOMLOG("Applying terrain/feature damage (of %i) for player/unit %i/%i at (%i, %i)", iDamage, getOwner(), GetID(), plot()->getX(), plot()->getY());
@@ -7662,7 +7676,11 @@ void CvUnit::DoAttrition()
 #if defined(MOD_BALANCE_CORE)
 			if(MOD_BALANCE_CORE && GET_PLAYER(getOwner()).GetPlayerTraits()->IsCrossesMountainsAfterGreatGeneral())
 			{
-				changeDamage(20, NO_PLAYER, 0.0, &strAppendText);
+				changeDamage(25, NO_PLAYER, 0.0, &strAppendText);
+			}
+			else if(MOD_BALANCE_CORE && GET_PLAYER(getOwner()).GetPlayerTraits()->IsMountainPass())
+			{
+				changeDamage(15, NO_PLAYER, 0.0, &strAppendText);
 			}
 			else
 			{
@@ -8985,6 +9003,7 @@ bool CvUnit::sellExoticGoods()
 				}
 			}
 		}
+		return true;
 #endif
 	}
 	return false;
@@ -9503,10 +9522,15 @@ bool CvUnit::canFound(const CvPlot* pPlot, bool bTestVisible) const
 		}
 	}
 
+#if defined(MOD_BALANCE_CORE)
+	if (pPlot && !(GET_PLAYER(getOwner()).canFound(pPlot->getX(), pPlot->getY(), bTestVisible)))
+		return false;
+#else
 	if(!(GET_PLAYER(getOwner()).canFound(pPlot->getX(), pPlot->getY(), bTestVisible)))
 	{
 		return false;
 	}
+#endif
 
 	return true;
 }
@@ -10908,6 +10932,15 @@ bool CvUnit::hurry()
 	if(pCity != NULL)
 	{
 		pCity->changeProduction(getHurryProduction(pPlot));
+#if defined(MOD_BALANCE_CORE_ENGINEER_HURRY)
+		if(MOD_BALANCE_CORE_ENGINEER_HURRY && pCity != NULL && pCity->getProductionBuilding() != NO_BUILDING)
+		{
+			if (pCity->getProduction() >= pCity->getProductionNeeded())
+			{
+				pCity->popOrder(0, true, true);
+			}
+		}
+#endif
 	}
 
 	if(pPlot->isActiveVisible(false))
@@ -15406,6 +15439,7 @@ int CvUnit::GetRangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bI
 	}
 
 	int iAttackerStrength = GetMaxRangedCombatStrength(pDefender, pCity, true, /*bForRangedAttack*/ true, pTargetPlot, pFromPlot);
+
 #else
 int CvUnit::GetRangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bIncludeRand, int iAssumeExtraDamage) const
 {
@@ -16462,7 +16496,7 @@ void CvUnit::SetCombatBonusImprovement(ImprovementTypes eImprovement)
 bool CvUnit::canCrossMountains() const
 {
 	VALIDATE_OBJECT
-	return GET_PLAYER(getOwner()).GetPlayerTraits()->IsAbleToCrossMountains() || (MOD_PROMOTIONS_CROSS_MOUNTAINS && getCanCrossMountainsCount() > 0);
+	return GET_PLAYER(getOwner()).GetPlayerTraits()->IsAbleToCrossMountains() || GET_PLAYER(getOwner()).GetPlayerTraits()->IsAbleToCrossMountains2() || (MOD_PROMOTIONS_CROSS_MOUNTAINS && getCanCrossMountainsCount() > 0);
 }
 
 //	--------------------------------------------------------------------------------
@@ -19159,17 +19193,20 @@ if (!bDoEvade)
 						kPlayer.GetTreasury()->ChangeGold(iNumGold);
 
 #if defined(MOD_BALANCE_CORE_POLICIES)
-						float fDelay = 0.5f;
-						if(GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CULTURE_FROM_BARBARIAN_KILLS) > 0)
-						{	
-							int iCulturePoints = (GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CULTURE_FROM_BARBARIAN_KILLS) / 5);
-							GET_PLAYER(getOwner()).changeJONSCulture(iCulturePoints);
-							if(GET_PLAYER(getOwner()).GetID() == GC.getGame().getActivePlayer())
-							{
-								char text[256] = {0};
-								fDelay += 0.5f;
-								sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", iCulturePoints);
-								DLLUI->AddPopupText(pNewPlot->getX(),pNewPlot->getY(), text, fDelay);
+						if(MOD_BALANCE_CORE_POLICIES)
+						{
+							float fDelay = 0.5f;
+							if(GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CULTURE_FROM_BARBARIAN_KILLS) > 0)
+							{	
+								int iCulturePoints = (GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CULTURE_FROM_BARBARIAN_KILLS) / 5);
+								GET_PLAYER(getOwner()).changeJONSCulture(iCulturePoints);
+								if(GET_PLAYER(getOwner()).GetID() == GC.getGame().getActivePlayer())
+								{
+									char text[256] = {0};
+									fDelay += 0.5f;
+									sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", iCulturePoints);
+									DLLUI->AddPopupText(pNewPlot->getX(),pNewPlot->getY(), text, fDelay);
+								}
 							}
 						}
 #endif
@@ -24023,6 +24060,19 @@ bool CvUnit::AreUnitsOfSameType(const CvUnit& pUnit2, const bool bPretendEmbarke
 
 	bool bUnit1isEmbarked = isEmbarked();
 	bool bUnit2isEmbarked = pUnit2.isEmbarked() || bPretendEmbarked;
+#if defined(MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS)
+	if(MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS)
+	{
+		if(IsCivilianUnit())
+		{
+			bUnit1isEmbarked = false;
+		}
+		if(pUnit2.IsCivilianUnit())
+		{
+			bUnit2isEmbarked = false;
+		}
+	}
+#endif
 
 	// 2 embarked units are considered the same type, regardless of circumstances
 	if(bUnit1isEmbarked && bUnit2isEmbarked)
@@ -26320,32 +26370,58 @@ bool CvUnit::CanDoInterfaceMode(InterfaceModeTypes eInterfaceMode, bool bTestVis
 //////////////////////////////////////////////////////////////////////////
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
+
 const char* CvUnit::GetMissionInfo()
 {
-	m_strMissionInfoString.clear();
+	m_strMissionInfoString = (m_eTacticalMove==NO_TACTICAL_MOVE) ? "no tactical move" : GC.getTacticalMoveInfo(m_eTacticalMove)->GetType();
 
-	CvString strTemp0;
-	getMissionAIString(strTemp0, GetMissionAIType());
-	CvString strTemp1;
-	getUnitAIString(strTemp1, AI_getUnitAIType());
-
-	m_strMissionInfoString.Format("%s / %s", strTemp0.c_str(), strTemp1.c_str()); 
-	
 	if (m_iMissionAIX!=INVALID_PLOT_COORD && m_iMissionAIY!=INVALID_PLOT_COORD)
 	{
-		strTemp0.Format(" / Target: %d,%d", m_iMissionAIX.get(), m_iMissionAIY.get());
-		m_strMissionInfoString += strTemp0;
+		CvString strTemp1;
+		getMissionAIString(strTemp1, GetMissionAIType());
+		m_strMissionInfoString += " // ";
+		m_strMissionInfoString += strTemp1;
+		strTemp1.Format(" target: %d,%d", m_iMissionAIX.get(), m_iMissionAIY.get());
+		m_strMissionInfoString += strTemp1;
 	}
 
-	const MissionData* pMission = GetHeadMissionData();
-	if (pMission)
-	{
-		strTemp0.Format(" / HeadMission %s at %d,%d", CvTypes::GetMissionName(pMission->eMissionType).c_str(),	pMission->iData1, pMission->iData2);
-		m_strMissionInfoString += strTemp0;
-	}
-
+	//this works because it's a member variable!
 	return m_strMissionInfoString.c_str();
 }
+
+//for debugging: calculate unit danger in all the plots around us
+void CvUnit::DumpDangerInNeighborhood()
+{
+	CvString fname = CvString::format( "Unit%08d_Turn%03d_Danger.txt", GetID(), GC.getGame().getGameTurn() );
+	FILogFile* pLog=LOGFILEMGR.GetLog( fname.c_str(), FILogFile::kDontTimeStamp );
+	if (!pLog)
+		return;
+
+	pLog->Msg( "#x,y,revealed,terrain,state,danger\n" );
+
+	int iRange = 9;
+	for (int x = -iRange; x<=iRange; x++)
+	for (int y = -iRange; y<=iRange; y++)
+	{
+		CvPlot* pPlot = GC.getMap().plot( m_iX+x, m_iY+y );
+		if (!pPlot)
+			continue;
+
+		int iDanger = GET_PLAYER(m_eOwner).GetPlotDanger(*pPlot,this);
+		bool bVisible = pPlot->isVisible( GET_PLAYER(m_eOwner).getTeam() );
+		bool bHasVisibleEnemyDefender = pPlot->isVisibleEnemyDefender(this);
+		bool bHasEnemyUnit = pPlot->getBestDefender(NO_PLAYER,m_eOwner,this);
+		bool bHasEnemyCity = pPlot->isEnemyCity(*this);
+
+		int iState = (((int)bHasVisibleEnemyDefender)<<3) + (((int)bHasEnemyCity)<<2) + (((int)bHasEnemyUnit)<<1);
+
+		pLog->Msg( CvString::format( "%03d,%03d,%d,%d,%d,%d\n", 
+			pPlot->getX(), pPlot->getY(), bVisible, pPlot->getTerrainType(), iState, iDanger ).c_str() );
+	}
+
+	pLog->Close();
+}
+
 #endif
 
 //	--------------------------------------------------------------------------------

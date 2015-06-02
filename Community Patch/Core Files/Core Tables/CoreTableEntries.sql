@@ -18,6 +18,14 @@ ALTER TABLE Buildings ADD COLUMN 'CapitalOnly' BOOLEAN DEFAULT 0;
 
 ALTER TABLE Beliefs ADD COLUMN 'RequiresImprovement' BOOLEAN DEFAULT 0;
 
+-- Belief requires no improvement on a terrain type to grant its yield.
+
+ALTER TABLE Beliefs ADD COLUMN 'RequiresNoImprovement' BOOLEAN DEFAULT 0;
+
+-- Belief requires no improvement on a feature type to grant its yield.
+
+ALTER TABLE Beliefs ADD COLUMN 'RequiresNoImprovementFeature' BOOLEAN DEFAULT 0;
+
 -- Belief requires a resource (improved or not) on a terrain type to grant its yield.
 
 ALTER TABLE Beliefs ADD COLUMN 'RequiresResource' BOOLEAN DEFAULT 0;
@@ -197,6 +205,21 @@ ALTER TABLE Traits ADD COLUMN 'GrowthBoon' INTEGER DEFAULT 0;
 -- New Traits - WLTKD from GP birth
 ALTER TABLE Traits ADD COLUMN 'GPWLTKD' BOOLEAN DEFAULT 0;
 
+-- New Traits - Extra Terrain When Conquering a City
+ALTER TABLE Traits ADD COLUMN 'ExtraConqueredCityTerritoryClaimRange' INTEGER DEFAULT 0;
+
+-- New Traits - Extra Terrain When Conquering a City
+ALTER TABLE Traits ADD COLUMN 'KeepConqueredBuildings' BOOLEAN DEFAULT 0;
+
+-- New Traits - Extra Terrain Yields IF you have a trade route or city connection crossing tile
+ALTER TABLE Traits ADD COLUMN 'TradeRouteOnly' BOOLEAN DEFAULT 0;
+
+-- New Traits - Extra Terrain when you gain a tile naturally - must be the ID # of the TERRAIN_TYPE (i.e. TERRAIN_DESERT is 2)
+ALTER TABLE Traits ADD COLUMN 'TerrainClaimBoost' TEXT DEFAULT NULL;
+
+-- New Traits - Mountain Movement and City Connections
+ALTER TABLE Traits ADD COLUMN 'MountainPass' BOOLEAN DEFAULT 0;
+
 -- New Policies
 
 -- Reduces unhappiness in occupied cities w/ Garrison. Negative = reduction.
@@ -302,6 +325,9 @@ ALTER TABLE Buildings ADD COLUMN 'NationalMissionaries' BOOLEAN DEFAULT 0;
 -- Creates a resource unique to this civ (i.e. Indonesian Candi) in the territory around the city. To make this work with a civ, you'll need to create a new resource modelled on the Indonesian resources and assign them to the civ. Value is indicative of the number of resources that will be granted.
 ALTER TABLE Buildings ADD COLUMN 'GrantsRandomResourceTerritory' INTEGER DEFAULT 0;
 
+-- Boosts trade route religious pressure on buildings
+ALTER TABLE Buildings ADD COLUMN 'TradeReligionModifier' INTEGER DEFAULT 0;
+
 -- Allows you to define a building needed by this building (similar to BuildingClassNeeded) -->
 ALTER TABLE Buildings ADD COLUMN 'NeedBuildingThisCity' TEXT DEFAULT NULL;
 
@@ -319,6 +345,9 @@ ALTER TABLE Improvements ADD COLUMN 'ObsoleteTech' TEXT DEFAULT NULL;
 
 -- Improvements can be made valid by being adjacent to a lake
 ALTER TABLE Improvements ADD COLUMN 'Lakeside' BOOLEAN DEFAULT 0;
+
+-- Improvements can be made valid by being adjacent to a city
+ALTER TABLE Improvements ADD COLUMN 'Cityside' BOOLEAN DEFAULT 0;
 
 -- New Goody Hut Additions
 ALTER TABLE GoodyHuts ADD COLUMN 'Production' INTEGER DEFAULT 0;
@@ -384,3 +413,39 @@ ALTER TABLE Policies ADD COLUMN 'InvestmentModifier' INTEGER DEFAULT 0;
 
 -- Investment reduction costs -- trait -- negative makes it stronger!
 ALTER TABLE Traits ADD COLUMN 'InvestmentModifier' INTEGER DEFAULT 0;
+
+
+-- C4DF Function
+
+ALTER TABLE Buildings ADD COLUMN 'VassalLevyEra' BOOLEAN DEFAULT 0;
+
+
+-- Advanced Action Spy Stuff (for CBP)
+
+-- Spies cannot fail advanced actions -- they won't trigger unless they can do damage
+ALTER TABLE Buildings ADD COLUMN 'CannotFailSpies' BOOLEAN DEFAULT 0;
+
+-- Each point in these columns increases the chances of the event happening by 1
+-- All possible events are pooled and then selected from at random - each point in these adds that value to the pool again
+-- Are empire-wide values - affect all spies
+ALTER TABLE Buildings ADD COLUMN 'AdvancedActionGold' INTEGER DEFAULT 0; -- starts at 3 
+ALTER TABLE Buildings ADD COLUMN 'AdvancedActionScience' INTEGER DEFAULT 0; -- starts at 3 
+ALTER TABLE Buildings ADD COLUMN 'AdvancedActionUnrest' INTEGER DEFAULT 0; -- starts at 1 
+ALTER TABLE Buildings ADD COLUMN 'AdvancedActionRebellion' INTEGER DEFAULT 0; -- starts at 1
+ALTER TABLE Buildings ADD COLUMN 'AdvancedActionGP' INTEGER DEFAULT 0; -- starts at 1
+ALTER TABLE Buildings ADD COLUMN 'AdvancedActionUnit' INTEGER DEFAULT 0; -- starts at 2
+ALTER TABLE Buildings ADD COLUMN 'AdvancedActionWonder' INTEGER DEFAULT 0; -- starts at 1
+ALTER TABLE Buildings ADD COLUMN 'AdvancedActionBuilding' INTEGER DEFAULT 0; -- starts at 2
+
+-- Blocks advanced actions entirely in a city
+ALTER TABLE Buildings ADD COLUMN 'BlockBuildingDestructionSpies' BOOLEAN DEFAULT 0;
+ALTER TABLE Buildings ADD COLUMN 'BlockWWDestructionSpies' BOOLEAN DEFAULT 0;
+ALTER TABLE Buildings ADD COLUMN 'BlockUDestructionSpies' BOOLEAN DEFAULT 0;
+ALTER TABLE Buildings ADD COLUMN 'BlockGPDestructionSpies' BOOLEAN DEFAULT 0;
+ALTER TABLE Buildings ADD COLUMN 'BlockRebellionSpies' BOOLEAN DEFAULT 0;
+ALTER TABLE Buildings ADD COLUMN 'BlockUnrestSpies' BOOLEAN DEFAULT 0;
+ALTER TABLE Buildings ADD COLUMN 'BlockScienceTheft' BOOLEAN DEFAULT 0;
+ALTER TABLE Buildings ADD COLUMN 'BlockGoldTheft' BOOLEAN DEFAULT 0;
+
+
+

@@ -93,7 +93,11 @@ void CvBarbarians::DoCampActivationNotice(CvPlot* pPlot)
 {
 	CvGame& kGame = GC.getGame();
 	// Default to between 8 and 12 turns per spawn
+#if defined(MOD_BALANCE_CORE)
+	int iNumTurnsToSpawn = 10 + kGame.getJonRandNum(5, "Barb Spawn Rand call");
+#else
 	int iNumTurnsToSpawn = 8 + kGame.getJonRandNum(5, "Barb Spawn Rand call");
+#endif
 
 	// Raging
 	if (kGame.isOption(GAMEOPTION_RAGING_BARBARIANS))

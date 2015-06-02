@@ -79,7 +79,11 @@ CvTraitEntry::CvTraitEntry() :
 	m_bDiplomaticMarriage(false),
 	m_bAdoptionFreeTech(false),
 	m_bGPWLTKD(false),
+	m_bTradeRouteOnly(false),
+	m_iTerrainClaimBoost(NO_TERRAIN),
+	m_bKeepConqueredBuildings(false),
 	m_iGrowthBoon(0),
+	m_bMountainPass(false),
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	m_iInvestmentModifier(0),
@@ -94,6 +98,9 @@ CvTraitEntry::CvTraitEntry() :
 	m_iExtraSpies(0),
 	m_iUnresearchedTechBonusFromKills(0),
 	m_iExtraFoundedCityTerritoryClaimRange(0),
+#if defined(MOD_BALANCE_CORE)
+	m_iExtraConqueredCityTerritoryClaimRange(0),
+#endif
 	m_iFreeSocialPoliciesPerEra(0),
 	m_iNumTradeRoutesModifier(0),
 	m_iTradeRouteResourceModifier(0),
@@ -539,6 +546,18 @@ bool CvTraitEntry::IsGPWLTKD() const
 {
 	return m_bGPWLTKD;
 }
+bool CvTraitEntry::IsTradeRouteOnly() const
+{
+	return m_bTradeRouteOnly;
+}
+bool CvTraitEntry::IsKeepConqueredBuildings() const
+{
+	return m_bKeepConqueredBuildings;
+}
+bool CvTraitEntry::IsMountainPass() const
+{
+	return m_bMountainPass;
+}
 int CvTraitEntry::GetGrowthBoon() const
 {
 	return m_iGrowthBoon;
@@ -609,7 +628,12 @@ int CvTraitEntry::GetExtraFoundedCityTerritoryClaimRange() const
 {
 	return m_iExtraFoundedCityTerritoryClaimRange;
 }
-
+#if defined(MOD_BALANCE_CORE)
+int CvTraitEntry::GetExtraConqueredCityTerritoryClaimRange() const
+{
+	return m_iExtraConqueredCityTerritoryClaimRange;
+}
+#endif
 /// Accessor: extra social policy from advancing to the next age
 int CvTraitEntry::GetFreeSocialPoliciesPerEra() const
 {
@@ -721,6 +745,10 @@ BuildingTypes CvTraitEntry::GetFreeBuilding() const
 BuildingTypes CvTraitEntry::GetFreeCapitalBuilding() const
 {
 	return m_eFreeCapitalBuilding;
+}
+int CvTraitEntry::GetTerrainClaimBoost() const
+{
+	return m_iTerrainClaimBoost;
 }
 #endif
 /// Accessor: free building in each city conquered
@@ -1374,6 +1402,9 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	m_bAdoptionFreeTech						= kResults.GetBool("IsAdoptionFreeTech");
 	m_iGrowthBoon							= kResults.GetInt("GrowthBoon");
 	m_bGPWLTKD								= kResults.GetBool("GPWLTKD");
+	m_bTradeRouteOnly						= kResults.GetBool("TradeRouteOnly");
+	m_bKeepConqueredBuildings				= kResults.GetBool("KeepConqueredBuildings");
+	m_bMountainPass							= kResults.GetBool("MountainPass");
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	m_iInvestmentModifier					= kResults.GetInt("InvestmentModifier");
@@ -1388,6 +1419,9 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	m_iExtraSpies							= kResults.GetInt("ExtraSpies");
 	m_iUnresearchedTechBonusFromKills		= kResults.GetInt("UnresearchedTechBonusFromKills");
 	m_iExtraFoundedCityTerritoryClaimRange  = kResults.GetInt("ExtraFoundedCityTerritoryClaimRange");
+#if defined(MOD_BALANCE_CORE)
+	m_iExtraConqueredCityTerritoryClaimRange = kResults.GetInt("ExtraConqueredCityTerritoryClaimRange");
+#endif
 	m_iFreeSocialPoliciesPerEra				= kResults.GetInt("FreeSocialPoliciesPerEra");
 	m_iNumTradeRoutesModifier				= kResults.GetInt("NumTradeRoutesModifier");
 	m_iTradeRouteResourceModifier			= kResults.GetInt("TradeRouteResourceModifier");
@@ -1430,6 +1464,11 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	if(szTextVal)
 	{
 		m_eCapitalFreeBuildingPrereqTech = (TechTypes)GC.getInfoTypeForString(szTextVal, true);
+	}
+	szTextVal = kResults.GetText("TerrainClaimBoost");
+	if(szTextVal)
+	{
+		m_iTerrainClaimBoost = GC.getInfoTypeForString(szTextVal, true);
 	}
 #endif
 
@@ -2217,6 +2256,22 @@ void CvPlayerTraits::InitPlayerTraits()
 			{
 				m_bGPWLTKD = true;
 			}
+			if(trait->IsTradeRouteOnly())
+			{
+				m_bTradeRouteOnly = true;
+			}
+			if((TerrainTypes) trait->GetTerrainClaimBoost() != NO_TERRAIN)
+			{
+				m_iTerrainClaimBoost = (TerrainTypes) trait->GetTerrainClaimBoost();
+			}
+			if(trait->IsKeepConqueredBuildings())
+			{
+				m_bKeepConqueredBuildings = true;
+			}
+			if(trait->IsMountainPass())
+			{
+				m_bMountainPass = true;
+			}
 			m_iGrowthBoon += trait->GetGrowthBoon();
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
@@ -2232,6 +2287,9 @@ void CvPlayerTraits::InitPlayerTraits()
 			m_iExtraSpies += trait->GetExtraSpies();
 			m_iUnresearchedTechBonusFromKills += trait->GetUnresearchedTechBonusFromKills();
 			m_iExtraFoundedCityTerritoryClaimRange += trait->GetExtraFoundedCityTerritoryClaimRange();
+#if defined(MOD_BALANCE_CORE)
+			m_iExtraConqueredCityTerritoryClaimRange += trait->GetExtraConqueredCityTerritoryClaimRange();
+#endif
 			m_iFreeSocialPoliciesPerEra += trait->GetFreeSocialPoliciesPerEra();
 			m_iNumTradeRoutesModifier += trait->GetNumTradeRoutesModifier();
 			m_iTradeRouteResourceModifier += trait->GetTradeRouteResourceModifier();
@@ -2690,6 +2748,10 @@ void CvPlayerTraits::Reset()
 	m_bAdoptionFreeTech = false;
 	m_iGrowthBoon = 0;
 	m_bGPWLTKD = false;
+	m_bTradeRouteOnly = false;
+	m_iTerrainClaimBoost = NO_TERRAIN;
+	m_bKeepConqueredBuildings = false;
+	m_bMountainPass = false;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	m_iInvestmentModifier = 0;
@@ -2704,6 +2766,9 @@ void CvPlayerTraits::Reset()
 	m_iExtraSpies = 0;
 	m_iUnresearchedTechBonusFromKills = 0;
 	m_iExtraFoundedCityTerritoryClaimRange = 0;
+#if defined(MOD_BALANCE_CORE)
+	m_iExtraConqueredCityTerritoryClaimRange = 0;
+#endif
 	m_iFreeSocialPoliciesPerEra = 0;
 	m_iNumTradeRoutesModifier = 0;
 	m_iTradeRouteResourceModifier = 0;
@@ -3649,7 +3714,34 @@ FreeResourceXCities CvPlayerTraits::GetFreeResourceXCities(ResourceTypes eResour
 {
 	return m_aFreeResourceXCities[(int)eResource];
 }
+#if defined(MOD_BALANCE_CORE)
+/// Is this civ currently able to cross mountains with combat units?
+bool CvPlayerTraits::IsAbleToCrossMountains2() const
+{
+	CvTeam& thisTeam = GET_TEAM(m_pPlayer->getTeam());
+	bool bValid = false;
+	CvTeamTechs* pTeamTechs = thisTeam.GetTeamTechs();
 
+	int iNumBuildInfos = GC.getNumBuildInfos();
+	for(int iI = 0; iI < iNumBuildInfos; iI++)
+	{
+		CvBuildInfo* thisBuildInfo = GC.getBuildInfo((BuildTypes)iI);
+		if(NULL != thisBuildInfo && thisBuildInfo->getRoute() == ROUTE_ROAD)
+		{
+			if(pTeamTechs->HasTech((TechTypes)(thisBuildInfo->getTechPrereq())))
+			{
+				bValid = true;
+				break;
+			}
+		}
+	}
+	if(m_bMountainPass && bValid)
+	{
+		return true;
+	}
+	return false;
+}
+#endif
 /// Is this civ currently able to cross mountains with combat units?
 bool CvPlayerTraits::IsAbleToCrossMountains() const
 {
@@ -3659,7 +3751,6 @@ bool CvPlayerTraits::IsAbleToCrossMountains() const
 	return (m_bCrossesMountainsAfterGreatGeneral && m_pPlayer->getGreatGeneralsCreated() > 0);
 #endif
 }
-
 #if defined(MOD_TRAITS_CROSSES_ICE)
 /// Is this civ currently able to cross ice with combat units?
 bool CvPlayerTraits::IsAbleToCrossIce() const
@@ -4196,6 +4287,10 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	MOD_SERIALIZE_READ(66, kStream, m_bDiplomaticMarriage, false);
 	MOD_SERIALIZE_READ(66, kStream, m_bAdoptionFreeTech, false);
 	MOD_SERIALIZE_READ(66, kStream, m_bGPWLTKD, false);
+	MOD_SERIALIZE_READ(66, kStream, m_bTradeRouteOnly, false);
+	MOD_SERIALIZE_READ(66, kStream, m_iTerrainClaimBoost, NO_TERRAIN);
+	MOD_SERIALIZE_READ(66, kStream, m_bKeepConqueredBuildings, false);
+	MOD_SERIALIZE_READ(66, kStream, m_bMountainPass, false);
 	MOD_SERIALIZE_READ(66, kStream, m_iGrowthBoon, 0);
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
@@ -4228,7 +4323,9 @@ void CvPlayerTraits::Read(FDataStream& kStream)
 	{
 		m_iExtraFoundedCityTerritoryClaimRange = 0;
 	}
-
+#if defined(MOD_BALANCE_CORE)
+	kStream >> m_iExtraConqueredCityTerritoryClaimRange;
+#endif
 	if (uiVersion >= 5)
 	{
 		kStream >> m_iFreeSocialPoliciesPerEra;
@@ -4658,6 +4755,10 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	MOD_SERIALIZE_WRITE(kStream, m_bDiplomaticMarriage);
 	MOD_SERIALIZE_WRITE(kStream, m_bAdoptionFreeTech);
 	MOD_SERIALIZE_WRITE(kStream, m_bGPWLTKD);
+	MOD_SERIALIZE_WRITE(kStream, m_bTradeRouteOnly);
+	MOD_SERIALIZE_WRITE(kStream, m_iTerrainClaimBoost);
+	MOD_SERIALIZE_WRITE(kStream, m_bKeepConqueredBuildings);
+	MOD_SERIALIZE_WRITE(kStream, m_bMountainPass);
 	MOD_SERIALIZE_WRITE(kStream, m_iGrowthBoon);
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
@@ -4673,6 +4774,9 @@ void CvPlayerTraits::Write(FDataStream& kStream)
 	kStream << m_iExtraSpies;
 	kStream << m_iUnresearchedTechBonusFromKills;
 	kStream << m_iExtraFoundedCityTerritoryClaimRange;
+#if defined(MOD_BALANCE_CORE)
+	kStream << m_iExtraConqueredCityTerritoryClaimRange;
+#endif
 	kStream << m_iFreeSocialPoliciesPerEra;
 	kStream << m_iNumTradeRoutesModifier;
 	kStream << m_iTradeRouteResourceModifier;

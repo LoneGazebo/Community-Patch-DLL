@@ -206,6 +206,11 @@ function GatherInfoAboutUniqueStuff( civType )
 		end
 	end
 
+	-- kludge to prevent TECH PANEL opening upon ButtonPopupTypes.BUTTONPOPUP_CHOOSETECH
+	if OnOpenInfoCorner and OnPopup then
+		Events.SerialEventGameMessagePopup.Remove( OnPopup )
+		OnPopup = nil
+	end
 end
 
 local function adjustArtOnButton( toolTipCallBack, button, row, textureSize, portraitOffset, portraitAtlas )
@@ -536,7 +541,7 @@ function AddSmallButtonsToTechButton( thisTechButtonInstance, tech, maxSmallButt
 		addSmallActionButton( GameInfo.Missions.MISSION_EMBARK, "", "TXT_KEY_ALLOWS_EMBARKING" )
 	end
 
-	if civ5_mode then 
+	if civ5_mode then
 		if tech.AllowsDefensiveEmbarking then
 			addSmallActionButton( GameInfo.Missions.MISSION_EMBARK, "[ICON_STRENGTH]", "TXT_KEY_ABLTY_DEFENSIVE_EMBARK_STRING" )
 		end
@@ -652,7 +657,7 @@ end
 local AddSmallButtonsToTechButton = AddSmallButtonsToTechButton
 
 -- ===========================================================================
---	Obtain small buttons for a tech and lay them out radially centered 
+--	Obtain small buttons for a tech and lay them out radially centered
 --	from the bottom.
 -- ===========================================================================
 function AddSmallButtonsToTechButtonRadial( thisTechButtonInstance, tech, maxSmallButtons, textureSize )

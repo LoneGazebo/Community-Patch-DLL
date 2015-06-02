@@ -834,9 +834,11 @@
 	<!-- Resources can give monopoly bonuses - COMMUNITY_PATCH -->
 	<Row Class="6" Name="BALANCE_CORE_RESOURCE_MONOPOLIES" Value="0"/>
 	<!-- Gold purchases in cities reduce production cost by 50% instead of buying it outright - COMMUNITY_PATCH -->
-	<Row Class="6" Name="BALANCE_CORE_BUILDING_INVESTMENTS" Value="0"/>
+	<Row Class="6" Name="BALANCE_CORE_BUILDING_INVESTMENTS" Value="0"/>  
+	<!-- Great Engineers Produce their building on the same turn their expended -->
+	<Row Class="6" Name="BALANCE_CORE_ENGINEER_HURRY" Value="0"/>
 
-	  
+
 
   </CustomModOptions>
 

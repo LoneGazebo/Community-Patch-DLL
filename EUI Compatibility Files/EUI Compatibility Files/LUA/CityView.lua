@@ -505,15 +505,22 @@ end
 local function OrderItemTooltip( city, isDisabled, purchaseYieldID, orderID, itemID )
 	local itemInfo, strToolTip, strDisabledInfo, portraitOffset, portraitAtlas
 	if city then
+		local cityOwnerID = city:GetOwner()
+		local cityOwner = Players[ cityOwnerID ]
+		local cash, icon
 		if orderID == OrderTypes.ORDER_TRAIN then
 			itemInfo = GameInfo.Units
-			portraitOffset, portraitAtlas = UI.GetUnitPortraitIcon( itemID, city:GetOwner() )
+			portraitOffset, portraitAtlas = UI.GetUnitPortraitIcon( itemID, cityOwnerID )
 			strToolTip = GetHelpTextForUnit( itemID, true )
 
 			if isDisabled then
 				if purchaseYieldID == g_yieldCurrency then
+					cash = cityOwner:GetGold() - city:GetUnitPurchaseCost(itemID)
+					icon = g_iconCurrency
 					strDisabledInfo = city:GetPurchaseUnitTooltip(itemID)
 				elseif purchaseYieldID == YieldTypes.YIELD_FAITH then
+					cash = cityOwner:GetFaith() - city:GetUnitFaithPurchaseCost(itemID)
+					icon = "[ICON_PEACE]"
 					strDisabledInfo = city:GetFaithPurchaseUnitTooltip(itemID)
 				else
 					strDisabledInfo = city:CanTrainTooltip(itemID)
@@ -525,8 +532,12 @@ local function OrderItemTooltip( city, isDisabled, purchaseYieldID, orderID, ite
 			strToolTip = GetHelpTextForBuilding( itemID, false, false, city:GetNumFreeBuilding(itemID) > 0, city )
 			if isDisabled then
 				if purchaseYieldID == g_yieldCurrency then
+					cash = cityOwner:GetGold() - city:GetBuildingPurchaseCost(itemID)
+					icon = g_iconCurrency
 					strDisabledInfo = city:GetPurchaseBuildingTooltip(itemID)
 				elseif purchaseYieldID == YieldTypes.YIELD_FAITH then
+					cash = cityOwner:GetFaith() - city:GetBuildingFaithPurchaseCost(itemID)
+					icon = "[ICON_PEACE]"
 					strDisabledInfo = city:GetFaithPurchaseBuildingTooltip(itemID)
 				else
 					strDisabledInfo = city:CanConstructTooltip(itemID)
@@ -544,7 +555,11 @@ local function OrderItemTooltip( city, isDisabled, purchaseYieldID, orderID, ite
 		end
 		if strToolTip then
 			if strDisabledInfo and #strDisabledInfo > 0 then
-				strToolTip = "[COLOR_WARNING_TEXT]" .. (strDisabledInfo:gsub("^%[NEWLINE%]","")):gsub("^%[NEWLINE%]","") .. "[ENDCOLOR][NEWLINE][NEWLINE]"..strToolTip
+				strDisabledInfo = (strDisabledInfo:gsub("^%[NEWLINE%]","")):gsub("^%[NEWLINE%]","")
+				if cash and cash < 0 then
+					strDisabledInfo = ("%s (%+i%s)"):format( strDisabledInfo, cash, icon )
+				end
+				strToolTip = "[COLOR_WARNING_TEXT]" .. strDisabledInfo .. "[ENDCOLOR][NEWLINE][NEWLINE]"..strToolTip
 			elseif purchaseYieldID then
 				if not isDisabled then
 					strToolTip = "[COLOR_YELLOW]"..L"TXT_KEY_CITYVIEW_PURCHASE_TT".."[ENDCOLOR][NEWLINE][NEWLINE]"..strToolTip
@@ -907,7 +922,6 @@ local function SelectionPurchase( orderID, itemID, yieldID, soundKey )
 			elseif orderID == OrderTypes.ORDER_CONSTRUCT then
 				if cityIsCanPurchase( city, true, true, -1, itemID, -1, yieldID ) then
 					Game.CityPurchaseBuilding( city, itemID, yieldID )
---					city:DoReallocateCitizens()
 					Network.SendUpdateCityCitizens( cityID )
 					isPurchase = true
 				end
@@ -1006,7 +1020,7 @@ local g_SelectionListTooltips = {
 	end,
 }
 
-local function SetupSelectionList( itemList, selectionIM, getUnitPortraitIcon )
+local function SetupSelectionList( itemList, selectionIM, cityOwnerID, getUnitPortraitIcon )
 	itemList:sort( SortSelectionList )
 	selectionIM.ResetInstances()
 	for i = 1, #itemList do
@@ -1258,7 +1272,7 @@ local function UpdateCityProductionQueueNow( city, cityID, cityOwnerID, isVenice
 			end
 		end
 
-		SetupSelectionList( unitSelectList, g_UnitSelectIM, UI.GetUnitPortraitIcon )
+		SetupSelectionList( unitSelectList, g_UnitSelectIM, cityOwnerID, UI.GetUnitPortraitIcon )
 		SetupSelectionList( buildingSelectList, g_BuildingSelectIM )
 		SetupSelectionList( wonderSelectList, g_WonderSelectIM )
 		SetupSelectionList( processSelectList, g_ProcessSelectIM )
@@ -1278,7 +1292,6 @@ local function PlotButtonClicked( plotIndex )
 		-- calling this with the city center (0 in the third param) causes it to reset all forced tiles
 		Network.SendDoTask( city:GetID(), TaskTypes.TASK_CHANGE_WORKING_PLOT, plotIndex, -1, false )
 		if outside then
---			return city:DoReallocateCitizens()
 			return Network.SendUpdateCityCitizens( city:GetID() )
 		end
 	end
@@ -1292,7 +1305,6 @@ local function BuyPlotAnchorButtonClicked( plotIndex )
 			local plotX = plot:GetX()
 			local plotY = plot:GetY()
 			Network.SendCityBuyPlot(city:GetID(), plotX, plotY)
---			city:DoReallocateCitizens()
 			Network.SendUpdateCityCitizens( city:GetID() )
 			UI.UpdateCityScreen()
 			Events.AudioPlay2DSound("AS2D_INTERFACE_BUY_TILE")
@@ -1428,6 +1440,7 @@ local function UpdateWorkingHexesNow()
 		-- display buy plot buttons
 --		Events.RequestYieldDisplay( YieldDisplayTypes.CITY_PURCHASABLE, city:GetX(), city:GetY() )
 		if g_BuyPlotMode and not g_isViewingMode then
+			local cash = g_activePlayer:GetGold()
 			for cityPlotIndex = 0, cityArea do
 				local plot = city:GetCityIndexPlot( cityPlotIndex )
 				if plot then
@@ -1439,11 +1452,12 @@ local function UpdateWorkingHexesNow()
 						local button = instance.BuyPlotAnchoredButton
 						instance.BuyPlotButtonAnchor:SetWorldPositionVal( worldPos.x + g_worldPositionOffset2.x, worldPos.y + g_worldPositionOffset2.y, worldPos.z + g_worldPositionOffset2.z ) --todo: improve code
 						local plotCost = city:GetBuyPlotCost( x, y )
-						local tip, txt
+						local tip, txt, alpha
 						local canBuy = city:CanBuyPlotAt( x, y, false )
 						if canBuy then
 							tip = L( "TXT_KEY_CITYVIEW_CLAIM_NEW_LAND", plotCost )
 							txt = plotCost
+							alpha = 1
 							button:SetVoid1( cityPlotIndex )
 							button:RegisterCallback( Mouse.eLCLick, BuyPlotAnchorButtonClicked )
 							if notInStrategicView then
@@ -1453,10 +1467,12 @@ local function UpdateWorkingHexesNow()
 								end
 							end
 						else
-							tip = L( "TXT_KEY_CITYVIEW_NEED_MONEY_BUY_TILE", plotCost )
+							tip = L( "TXT_KEY_CITYVIEW_NEED_MONEY_BUY_TILE", ("%+i"):format(plotCost - cash) )
 							txt = "[COLOR_WARNING_TEXT]"..plotCost.."[ENDCOLOR]"
+							alpha = 0.5
 						end
 						button:SetDisabled( not canBuy )
+						instance.BuyPlotButtonAnchor:SetAlpha( alpha )
 --todo
 						button:SetToolTipString( tip )
 						instance.BuyPlotAnchoredButtonLabel:SetText( txt )
@@ -1711,13 +1727,13 @@ local function UpdateCityViewNow()
 		-------------------------------------------
 		-- Growth Meter
 		-------------------------------------------
-		local iCurrentFood = city:GetFood()
-		local iFoodNeeded = city:GrowthThreshold()
-		local iFoodPerTurn = city:FoodDifference()
-		local iCurrentFoodPlusThisTurn = iCurrentFood + iFoodPerTurn
+		local currentFood = city:GetFood()
+		local foodNeeded = city:GrowthThreshold()
+		local foodPerTurn = city:FoodDifference()
+		local currentFoodPlusThisTurn = currentFood + foodPerTurn
 
-		local fGrowthProgressPercent = iCurrentFood / iFoodNeeded
-		local fGrowthProgressPlusThisTurnPercent = iCurrentFoodPlusThisTurn / iFoodNeeded
+		local fGrowthProgressPercent = currentFood / foodNeeded
+		local fGrowthProgressPlusThisTurnPercent = currentFoodPlusThisTurn / foodNeeded
 		if (fGrowthProgressPlusThisTurnPercent > 1) then
 			fGrowthProgressPlusThisTurnPercent = 1
 		end
@@ -1729,7 +1745,7 @@ local function UpdateCityViewNow()
 		Controls.PeopleMeter:SetPercent( city:GetFood() / city:GrowthThreshold() )
 
 		--Update suffix to use correct plurality.
-		Controls.CityPopulationLabelSuffix:LocalizeAndSetText("TXT_KEY_CITYVIEW_CITIZENS_TEXT", cityPopulation)
+		Controls.CityPopulationLabelSuffix:LocalizeAndSetText( "TXT_KEY_CITYVIEW_CITIZENS_TEXT", cityPopulation )
 
 
 		-------------------------------------------
@@ -2025,6 +2041,7 @@ local function UpdateCityViewNow()
 		else
 			Controls.ResourceDemandedBox:SetHide(true)
 		end
+
 		local iNumTurns = city:GetWeLoveTheKingDayCounter()
 		if (iNumTurns > 0) then
 			szText = L( "TXT_KEY_CITYVIEW_WLTKD_COUNTER", tostring(iNumTurns) )
@@ -2162,20 +2179,16 @@ local function UpdateCityViewNow()
 		end
 
 		local cityGrowth = city:GetFoodTurnsLeft()
-		if city:IsFoodProduction() or city:FoodDifferenceTimes100() == 0 then
+		local foodPerTurnTimes100 = city:FoodDifferenceTimes100()
+		if city:IsFoodProduction() or foodPerTurnTimes100 == 0 then
 			Controls.CityGrowthLabel:LocalizeAndSetText( "TXT_KEY_CITYVIEW_STAGNATION_TEXT" )
-		elseif city:FoodDifference() < 0 then
+		elseif foodPerTurnTimes100 < 0 then
 			Controls.CityGrowthLabel:LocalizeAndSetText( "TXT_KEY_CITYVIEW_STARVATION_TEXT" )
 		else
 			Controls.CityGrowthLabel:LocalizeAndSetText( "TXT_KEY_CITYVIEW_TURNS_TILL_CITIZEN_TEXT", cityGrowth )
 		end
-		local iFoodPerTurn = city:FoodDifferenceTimes100() / 100
 
-		if (iFoodPerTurn >= 0) then
-			Controls.FoodPerTurnLabel:LocalizeAndSetText( "TXT_KEY_CITYVIEW_PERTURN_TEXT", iFoodPerTurn )
-		else
-			Controls.FoodPerTurnLabel:LocalizeAndSetText( "TXT_KEY_CITYVIEW_PERTURN_TEXT_NEGATIVE", iFoodPerTurn )
-		end
+		Controls.FoodPerTurnLabel:LocalizeAndSetText( foodPerTurnTimes100 >= 0 and "TXT_KEY_CITYVIEW_PERTURN_TEXT" or "TXT_KEY_CITYVIEW_PERTURN_TEXT_NEGATIVE", foodPerTurnTimes100 / 100 )
 
 		-------------------------------------------
 		-- Disable Buttons as Appropriate
@@ -2316,7 +2329,6 @@ local FocusButtonBehavior = {
 			local city = UI.GetHeadSelectedCity()
 			if city then
 				Network.SendSetCityAIFocus( city:GetID(), focus )
---				return city:DoReallocateCitizens()
 				return Network.SendUpdateCityCitizens( city:GetID() )
 			end
 		end
@@ -2338,7 +2350,6 @@ local g_callBacks = {
 			local city = isActivePlayerAllowed() and UI.GetHeadSelectedCity()
 			if city then
 				Network.SendSetCityAvoidGrowth( city:GetID(), not city:IsForcedAvoidGrowth() )
---				return city:DoReallocateCitizens()
 				return Network.SendUpdateCityCitizens( city:GetID() )
 			end
 		end,
@@ -2361,7 +2372,6 @@ local g_callBacks = {
 			Controls.SellBuildingConfirm:SetHide( true )
 			if isActivePlayerAllowed() and cityID and buildingID and buildingID > 0 then
 				Network.SendSellBuilding( cityID, buildingID )
---				city:DoReallocateCitizens()
 				Network.SendUpdateCityCitizens( cityID )
 			end
 			return Controls.YesButton:SetVoids( -1, -1 )
@@ -2454,7 +2464,6 @@ function()
 --	local city = UI.GetHeadSelectedCity()
 --	if city then
 --		Network.SendUpdateCityCitizens( city:GetID() )
---		city:DoReallocateCitizens()
 --	end
 
 	LuaEvents.TryQueueTutorial("CITY_SCREEN", true)

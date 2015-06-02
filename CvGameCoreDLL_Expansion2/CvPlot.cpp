@@ -2232,7 +2232,12 @@ bool CvPlot::canHaveImprovement(ImprovementTypes eImprovement, TeamTypes eTeam, 
 	{
 		return false;
 	}
-
+#if defined(MOD_BALANCE_CORE)
+	if(pkImprovementInfo->IsAdjacentCity() && GetAdjacentCity() == NULL)
+	{
+		return false;
+	}
+#endif
 	if(pkImprovementInfo->IsRequiresFeature() && (getFeatureType() == NO_FEATURE))
 	{
 #if defined(MOD_BALANCE_CORE)
@@ -2696,6 +2701,13 @@ bool CvPlot::canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible,
 	{
 		if(GC.getBuildInfo(eBuild)->isFeatureRemove(getFeatureType()))
 		{
+#if defined(MOD_BALANCE_CORE)
+			if(getFeatureType() == FEATURE_FALLOUT && GC.getBuildInfo(eBuild)->isFeatureRemove(FEATURE_FALLOUT))
+			{
+				bValid = true;
+			}
+			else
+#endif
 			if(bTestPlotOwner)
 			{
 				if(isOwned() && (eTeam != getTeam()) && !atWar(eTeam, getTeam()))
@@ -4426,6 +4438,7 @@ int CvPlot::getNumFriendlyUnitsOfType(const CvUnit* pUnit, bool bBreakOnUnitLimi
 	}
 
 	bool bPretendEmbarked = false;
+
 	if(isWater() && pUnit->canEmbarkOnto(*pUnit->plot(), *this))
 	{
 		bPretendEmbarked = true;
@@ -5659,7 +5672,11 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 
 					if(GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes) GC.getResourceInfo(getResourceType())->getTechCityTrade()))
 					{
+#if defined(MOD_BALANCE_CORE)
+						if(getImprovementType() != NO_IMPROVEMENT && (GC.getImprovementInfo(getImprovementType())->IsImprovementResourceTrade(getResourceType()) || GC.getImprovementInfo(getImprovementType())->IsCreatedByGreatPerson()))
+#else
 						if(getImprovementType() != NO_IMPROVEMENT && GC.getImprovementInfo(getImprovementType())->IsImprovementResourceTrade(getResourceType()))
+#endif
 						{
 							if(!IsImprovementPillaged())
 							{
@@ -5858,7 +5875,11 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 					// Add Resource Quantity to total
 					if(GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes) GC.getResourceInfo(getResourceType())->getTechCityTrade()))
 					{
+#if defined(MOD_BALANCE_CORE)
+						if(getImprovementType() != NO_IMPROVEMENT && (GC.getImprovementInfo(getImprovementType())->IsImprovementResourceTrade(getResourceType()) || GC.getImprovementInfo(getImprovementType())->IsCreatedByGreatPerson()))
+#else
 						if(getImprovementType() != NO_IMPROVEMENT && GC.getImprovementInfo(getImprovementType())->IsImprovementResourceTrade(getResourceType()))
+#endif
 						{
 							if(!IsImprovementPillaged())
 							{
@@ -7128,7 +7149,11 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 				{
 					if(bIgnoreResourceTechPrereq || GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes) GC.getResourceInfo(getResourceType())->getTechCityTrade()))
 					{
+#if defined(MOD_BALANCE_CORE)
+						if(newImprovementEntry.IsImprovementResourceTrade(getResourceType()) || newImprovementEntry.IsCreatedByGreatPerson())
+#else
 						if(newImprovementEntry.IsImprovementResourceTrade(getResourceType()))
+#endif
 						{
 							owningPlayer.changeNumResourceTotal(getResourceType(), getNumResourceForPlayer(owningPlayerID));
 
@@ -7145,7 +7170,11 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 
 				if(eResource != NO_RESOURCE)
 				{
+#if defined(MOD_BALANCE_CORE)
+					if(newImprovementEntry.IsImprovementResourceTrade(eResource) || newImprovementEntry.IsCreatedByGreatPerson())
+#else
 					if(newImprovementEntry.IsImprovementResourceTrade(eResource))
+#endif
 					{
 						if(GC.getResourceInfo(eResource)->getResourceUsage() == RESOURCEUSAGE_LUXURY)
 						{
@@ -7197,7 +7226,11 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 					if(IsImprovedByGiftFromMajor() || // If old improvement was a gift, it ignored our tech limits, so be sure to remove resources properly
 						GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes) GC.getResourceInfo(getResourceType())->getTechCityTrade()))
 					{
+#if defined(MOD_BALANCE_CORE)
+						if(GC.getImprovementInfo(eOldImprovement)->IsImprovementResourceTrade(getResourceType()) || GC.getImprovementInfo(eOldImprovement)->IsCreatedByGreatPerson())
+#else
 						if(GC.getImprovementInfo(eOldImprovement)->IsImprovementResourceTrade(getResourceType()))
+#endif
 						{
 							owningPlayer.changeNumResourceTotal(getResourceType(), -getNumResourceForPlayer(owningPlayerID));
 
@@ -7212,7 +7245,11 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 
 				if(eResource != NO_RESOURCE)
 				{
+#if defined(MOD_BALANCE_CORE)
+					if(GC.getImprovementInfo(eOldImprovement)->IsImprovementResourceTrade(eResource) || GC.getImprovementInfo(eOldImprovement)->IsCreatedByGreatPerson())
+#else
 					if(GC.getImprovementInfo(eOldImprovement)->IsImprovementResourceTrade(eResource))
+#endif
 					{
 						if(GC.getResourceInfo(eResource)->getResourceUsage() == RESOURCEUSAGE_LUXURY)
 						{
@@ -7329,7 +7366,11 @@ void CvPlot::SetImprovementPillaged(bool bPillaged)
 			{
 				if(GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes) GC.getResourceInfo(getResourceType())->getTechCityTrade()))
 				{
+#if defined(MOD_BALANCE_CORE)
+					if(GC.getImprovementInfo(getImprovementType())->IsImprovementResourceTrade(getResourceType()) || GC.getImprovementInfo(getImprovementType())->IsCreatedByGreatPerson())
+#else
 					if(GC.getImprovementInfo(getImprovementType())->IsImprovementResourceTrade(getResourceType()))
+#endif
 					{
 						if(bPillaged)
 						{
@@ -7851,7 +7892,11 @@ void CvPlot::DoFindCityToLinkResourceTo(CvCity* pCityToExclude)
 		// Already have a valid improvement here?
 		if(isCity() || getImprovementType() != NO_IMPROVEMENT)
 		{
+#if defined(MOD_BALANCE_CORE)
+			if(isCity() || GC.getImprovementInfo(getImprovementType())->IsImprovementResourceTrade(getResourceType()) || GC.getImprovementInfo(getImprovementType())->IsCreatedByGreatPerson())
+#else
 			if(isCity() || GC.getImprovementInfo(getImprovementType())->IsImprovementResourceTrade(getResourceType()))
+#endif
 			{
 				SetResourceLinkedCityActive(true);
 			}
@@ -8178,18 +8223,31 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, TeamTypes eTeam, bool bIgnor
 			//Change for improvement/resource
 			int iReligionChange = 0;
 			bool bRequiresImprovement = pReligion->m_Beliefs.RequiresImprovement();
+			bool bRequiresNoImprovement = pReligion->m_Beliefs.RequiresNoImprovement();
 			bool bRequiresResource = pReligion->m_Beliefs.RequiresResource();
-			if (MOD_BALANCE_CORE_BELIEFS_RESOURCE && (bRequiresImprovement || bRequiresResource))
+			if (MOD_BALANCE_CORE_BELIEFS_RESOURCE && (bRequiresImprovement || bRequiresResource || bRequiresNoImprovement))
 			{	
-				if(bRequiresImprovement && bRequiresResource && (getResourceType() != NO_RESOURCE) && (getImprovementType() != NO_IMPROVEMENT))
+				if(bRequiresImprovement && bRequiresResource && !bRequiresNoImprovement && (getResourceType() != NO_RESOURCE) && (getImprovementType() != NO_IMPROVEMENT))
 				{
 					iReligionChange += pReligion->m_Beliefs.GetTerrainYieldChange(getTerrainType(), eYield);
 				}
-				else if(bRequiresImprovement && !bRequiresResource && (getImprovementType() != NO_IMPROVEMENT))
+				else if(bRequiresImprovement && !bRequiresResource && !bRequiresNoImprovement && (getImprovementType() != NO_IMPROVEMENT))
 				{
 					iReligionChange += pReligion->m_Beliefs.GetTerrainYieldChange(getTerrainType(), eYield);
 				}
-				else if(bRequiresResource && !bRequiresImprovement && (getResourceType() != NO_RESOURCE))
+				else if(bRequiresResource && !bRequiresImprovement && !bRequiresNoImprovement && (getResourceType() != NO_RESOURCE))
+				{
+					iReligionChange += pReligion->m_Beliefs.GetTerrainYieldChange(getTerrainType(), eYield);
+				}
+				else if(bRequiresResource && !bRequiresImprovement && bRequiresNoImprovement && (getResourceType() != NO_RESOURCE) && (getImprovementType() == NO_IMPROVEMENT))
+				{
+					iReligionChange += pReligion->m_Beliefs.GetTerrainYieldChange(getTerrainType(), eYield);
+				}
+				else if(!bRequiresResource && !bRequiresImprovement && bRequiresNoImprovement && (getResourceType() == NO_RESOURCE) && (getImprovementType() == NO_IMPROVEMENT))
+				{
+					iReligionChange += pReligion->m_Beliefs.GetTerrainYieldChange(getTerrainType(), eYield);
+				}
+				else if(bRequiresNoImprovement && (getImprovementType() == NO_IMPROVEMENT))
 				{
 					iReligionChange += pReligion->m_Beliefs.GetTerrainYieldChange(getTerrainType(), eYield);
 				}
@@ -8208,7 +8266,8 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, TeamTypes eTeam, bool bIgnor
 				int iReligionChange = 0;
 				bool bRequiresImprovement = GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->RequiresImprovement();
 				bool bRequiresResource = GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->RequiresResource();
-				if(MOD_BALANCE_CORE_BELIEFS_RESOURCE && (bRequiresImprovement || bRequiresResource))
+				bool bRequiresNoImprovement = GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->RequiresNoImprovement();
+				if (MOD_BALANCE_CORE_BELIEFS_RESOURCE && (bRequiresImprovement || bRequiresResource || bRequiresNoImprovement))
 				{		
 					if(bRequiresImprovement && bRequiresResource && (getResourceType() != NO_RESOURCE) && (getImprovementType() != NO_IMPROVEMENT))
 					{
@@ -8221,6 +8280,18 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, TeamTypes eTeam, bool bIgnor
 					else if(bRequiresResource && !bRequiresImprovement && (getResourceType() != NO_RESOURCE))
 					{
 						iReligionChange += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetTerrainYieldChange(getTerrainType(), eYield);
+					}
+					else if(bRequiresResource && !bRequiresImprovement && bRequiresNoImprovement && (getResourceType() != NO_RESOURCE) && (getImprovementType() == NO_IMPROVEMENT))
+					{
+						iReligionChange += pReligion->m_Beliefs.GetTerrainYieldChange(getTerrainType(), eYield);
+					}
+					else if(!bRequiresResource && !bRequiresImprovement && bRequiresNoImprovement && (getResourceType() == NO_RESOURCE) && (getImprovementType() == NO_IMPROVEMENT))
+					{
+						iReligionChange += pReligion->m_Beliefs.GetTerrainYieldChange(getTerrainType(), eYield);
+					}
+					else if(bRequiresNoImprovement && (getImprovementType() == NO_IMPROVEMENT))
+					{
+						iReligionChange += pReligion->m_Beliefs.GetTerrainYieldChange(getTerrainType(), eYield);
 					}
 				}
 				else
@@ -8259,6 +8330,21 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, TeamTypes eTeam, bool bIgnor
 	if(isLake())
 	{
 		iYield += kYield.getLakeChange();
+#if defined(MOD_BALANCE_CORE_BELIEFS)
+		if(pWorkingCity != NULL && eMajority != NO_RELIGION)
+		{
+			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, pWorkingCity->getOwner());
+			if(pReligion)
+			{
+				int iReligionChange = pReligion->m_Beliefs.GetLakePlotYieldChange(eYield);
+				if (eSecondaryPantheon != NO_BELIEF)
+				{
+					iReligionChange += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetLakePlotYieldChange(eYield);
+				}
+				iYield += iReligionChange;
+			}
+		}
+#endif
 	}
 
 	if(!bIgnoreFeature)
@@ -8305,10 +8391,44 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, TeamTypes eTeam, bool bIgnor
 				const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, pWorkingCity->getOwner());
 				if(pReligion)
 				{
+#if defined(MOD_BALANCE_CORE_BELIEFS_RESOURCE)
+					//Change for improvement/resource
+					int iReligionChange = 0;
+					bool bRequiresNoImprovement = pReligion->m_Beliefs.RequiresNoImprovementFeature();
+					if(MOD_BALANCE_CORE_BELIEFS_RESOURCE && bRequiresNoImprovement)
+					{		
+						if(bRequiresNoImprovement && getImprovementType() == NO_IMPROVEMENT)
+						{
+							iReligionChange += pReligion->m_Beliefs.GetFeatureYieldChange(getFeatureType(), eYield);
+						}
+					}
+					else
+					{
+						iReligionChange +=  pReligion->m_Beliefs.GetFeatureYieldChange(getFeatureType(), eYield);
+					}
+#else
 					int iReligionChange = pReligion->m_Beliefs.GetFeatureYieldChange(getFeatureType(), eYield);
+#endif
 					if (eSecondaryPantheon != NO_BELIEF)
 					{
+#if defined(MOD_BALANCE_CORE_BELIEFS_RESOURCE)
+						//Change for improvement/resource
+						int iReligionChange = 0;
+						bool bRequiresNoImprovement = GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->RequiresNoImprovementFeature();
+						if(MOD_BALANCE_CORE_BELIEFS_RESOURCE && bRequiresNoImprovement)
+						{		
+							if(bRequiresNoImprovement && getImprovementType() == NO_IMPROVEMENT)
+							{
+								iReligionChange += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetFeatureYieldChange(getFeatureType(), eYield);
+							}
+						}
+						else
+						{
+							iReligionChange += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetFeatureYieldChange(getFeatureType(), eYield);
+						}
+#else
 						iReligionChange += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetFeatureYieldChange(getFeatureType(), eYield);
+#endif
 					}
 					iYieldChange += iReligionChange;
 				}
@@ -8797,7 +8917,46 @@ int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay)
 		iYield += kPlayer.GetPlayerTraits()->GetPlotYieldChange(getPlotType(), eYield);
 		iYield += kPlayer.getPlotYieldChange(getPlotType(), eYield);
 #endif
+#if defined(MOD_BALANCE_CORE)
+		if(kPlayer.GetPlayerTraits()->IsTradeRouteOnly())
+		{
+			bool bTrade = false;
+			if(IsTradeRoute())
+			{
+				bTrade = true;
+			}
+			if(!bTrade)
+			{
+				CvGameTrade* pTrade = GC.getGame().GetGameTrade();
+				for (uint uiConnection = 0; uiConnection < pTrade->m_aTradeConnections.size(); uiConnection++)
+				{
+					TradeConnection* pConnection = &(pTrade->m_aTradeConnections[uiConnection]);
+					if (pTrade->IsTradeRouteIndexEmpty(uiConnection))
+					{
+						continue;
+					}
+					for (uint ui = 0; ui < pConnection->m_aPlotList.size(); ui++)
+					{
+						if (pConnection->m_aPlotList[ui].m_iX == getX() && pConnection->m_aPlotList[ui].m_iY == getY())
+						{
+							bTrade = true;
+							break;
+						}
+					}
+				}
+			}
+			if(bTrade)
+			{
+				iYield += kPlayer.GetPlayerTraits()->GetTerrainYieldChange(getTerrainType(), eYield);
+			}
+		}
+		else
+		{
+#endif
 		iYield += kPlayer.GetPlayerTraits()->GetTerrainYieldChange(getTerrainType(), eYield);
+#if defined(MOD_BALANCE_CORE)
+		}
+#endif
 		iYield += kPlayer.getTerrainYieldChange(getTerrainType(), eYield);
 	}
 #endif
@@ -11701,8 +11860,11 @@ void CvPlot::getVisibleResourceState(ResourceTypes& eType, bool& bImproved, bool
 	if(eType != NO_RESOURCE)
 	{
 		ImprovementTypes eRevealedImprovement = getRevealedImprovementType(GC.getGame().getActiveTeam(), true);
-
+#if defined(MOD_BALANCE_CORE)
+		if((eRevealedImprovement != NO_IMPROVEMENT) && (GC.getImprovementInfo(eRevealedImprovement)->IsImprovementResourceTrade(eType) || GC.getImprovementInfo(eRevealedImprovement)->IsCreatedByGreatPerson()))
+#else
 		if((eRevealedImprovement != NO_IMPROVEMENT) && GC.getImprovementInfo(eRevealedImprovement)->IsImprovementResourceTrade(eType))
+#endif
 		{
 			bImproved = true;
 			bWorked = isBeingWorked();

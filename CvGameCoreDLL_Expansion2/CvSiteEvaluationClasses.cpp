@@ -12,6 +12,9 @@
 #include "CvCitySpecializationAI.h"
 #include "CvDiplomacyAI.h"
 #include "CvGrandStrategyAI.h"
+#if defined(MOD_BALANCE_CORE)
+#include "CvEconomicAI.h"
+#endif
 
 // include this after all other headers!
 #include "LintFree.h"
@@ -51,6 +54,9 @@ void CvCitySiteEvaluator::Init()
 	m_iBrazilMultiplier = 1000;	//fertility boost from jungles
 	m_iSpainMultiplier = 55000;	//fertility boost from natural wonders
 	m_iMorrocoMultiplier = 1000; //fertility boost from desert
+#if defined(MOD_BALANCE_CORE)
+	m_iFranceMultiplier = 1000; //fertility boost from resources
+#endif
 	m_iNetherlandsMultiplier = 2000; //fertility boost from marshes and flood plains
 	m_iIncaMultiplier = 500; //fertility boost for hill tiles surrounded my mountains
 
@@ -319,6 +325,9 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 	int iDesertCount = 0;
 	int iWetlandsCount = 0;
 
+	int iLakeCount = 0;
+	int iLuxuryCount = 0;
+
 	//currently just for debugging
 	int iTotalFoodValue = 0;
 	int iTotalHappinessValue = 0;
@@ -456,6 +465,11 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 							if (iPlotValue > 0 && pLoopPlot->getOwner() == ePlayer && ePlayer != NO_PLAYER)
 								iPlotValue /= 2;
 
+							if(pLoopPlot->getFeatureType() == FEATURE_ICE || pLoopPlot->getTerrainType() == TERRAIN_SNOW)
+							{
+								iPlotValue = 0;
+							}
+
 							// add this plot into the total
 							workablePlots.push_back( SPlotWithScore(pLoopPlot,iPlotValue) );
 
@@ -489,6 +503,23 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 							{
 								if (iDistance <= iRange)
 									++iNaturalWonderCount;
+							}
+
+							if (pLoopPlot->isLake())
+							{
+								if (iDistance <= iRange)
+									++iLakeCount;
+							}
+							if (pLoopPlot->getResourceType(NO_TEAM) != NO_RESOURCE)
+							{
+								ResourceTypes eResource = pLoopPlot->getResourceType(eTeam);
+								if(eResource != NO_RESOURCE && GC.getResourceInfo(eResource)->getResourceUsage() == RESOURCEUSAGE_LUXURY)
+								{
+									if (iDistance <= iRange)
+									{
+										++iLuxuryCount;
+									}
+								}
 							}
 
 							if (pLoopPlot->getTerrainType() == TERRAIN_DESERT)
@@ -579,13 +610,29 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 		if(eMoroccoImprovement != NO_IMPROVEMENT)
 		{
 			CvImprovementEntry* pkEntry = GC.getImprovementInfo(eMoroccoImprovement);
-			if(pkEntry != NULL && pkEntry->IsSpecificCivRequired())
+			if(pkEntry != NULL && pkEntry->IsSpecificCivRequired() && !pkEntry->IsAdjacentCity())
 			{
 				CivilizationTypes eCiv = pkEntry->GetRequiredCivilization();
 				if(eCiv == pPlayer->getCivilizationType())
 				{
 					iCivModifier += iDesertCount * m_iMorrocoMultiplier;
 					vQualifiersPositive.push_back("(C) desert");
+				}
+			}
+		}
+
+		// Custom code for France
+		ImprovementTypes eFranceImprovement = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_CHATEAU", true);  
+		if(eFranceImprovement != NO_IMPROVEMENT)
+		{
+			CvImprovementEntry* pkEntry = GC.getImprovementInfo(eFranceImprovement);
+			if(pkEntry != NULL && pkEntry->IsSpecificCivRequired() && pkEntry->IsAdjacentLuxury())
+			{
+				CivilizationTypes eCiv = pkEntry->GetRequiredCivilization();
+				if(eCiv == pPlayer->getCivilizationType())
+				{
+					iCivModifier += iLuxuryCount * m_iFranceMultiplier;
+					vQualifiersPositive.push_back("(C) luxury");
 				}
 			}
 		}
@@ -601,6 +648,10 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 				if(eCiv == pPlayer->getCivilizationType())
 				{
 					iCivModifier += iWetlandsCount * m_iNetherlandsMultiplier;
+					if(pkEntry->IsAdjacentLake())
+					{
+						iCivModifier += (iLakeCount * m_iNetherlandsMultiplier);
+					}
 					vQualifiersPositive.push_back("(C) wetlands");
 				}
 			}
@@ -642,19 +693,41 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 
 	if (pPlot->isCoastalLand(GC.getMIN_WATER_SIZE_FOR_OCEAN()))
 	{
-		iValueModifier += (iTotalPlotValue * /*40*/ GC.getSETTLER_BUILD_ON_COAST_PERCENT()) / 100;
-		vQualifiersPositive.push_back("(V) coast");
-
-		if (pPlayer)
+		CvArea* pArea = pPlot->area();
+		if(pArea != NULL && pArea->getNumTiles() > 4)
 		{
-			int iNavalFlavor = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)m_iNavalIndex);
-			if (iNavalFlavor > 7)
+			iValueModifier += (iTotalPlotValue * /*40*/ GC.getSETTLER_BUILD_ON_COAST_PERCENT()) / 100;
+			vQualifiersPositive.push_back("(V) coast");
+
+			if (pPlayer)
 			{
-				iValueModifier += (iTotalPlotValue * /*40*/ GC.getSETTLER_BUILD_ON_COAST_PERCENT()) / 100;
+				int iNavalFlavor = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)m_iNavalIndex);
+				if (iNavalFlavor > 7)
+				{
+					iValueModifier += (iTotalPlotValue * /*40*/ GC.getSETTLER_BUILD_ON_COAST_PERCENT()) / 100;
+				}
+				if (pPlayer->getCivilizationInfo().isCoastalCiv()) // we really like the coast (England, Norway, Polynesia, Carthage, etc.)
+				{
+					iValueModifier += (iTotalPlotValue/2);
+				}
 			}
-			if (pPlayer->getCivilizationInfo().isCoastalCiv()) // we really like the coast (England, Norway, Polynesia, Carthage, etc.)
+		}
+		else
+		{
+			iValueModifier += (iTotalPlotValue * (/*40*/ GC.getSETTLER_BUILD_ON_COAST_PERCENT() / 2)) / 100;
+			vQualifiersPositive.push_back("(V) coast");
+
+			if (pPlayer)
 			{
-				iValueModifier += iTotalPlotValue/2;
+				int iNavalFlavor = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)m_iNavalIndex);
+				if (iNavalFlavor > 7)
+				{
+					iValueModifier += (((iTotalPlotValue * /*40*/ GC.getSETTLER_BUILD_ON_COAST_PERCENT()) / 2)) / 100;
+				}
+				if (pPlayer->getCivilizationInfo().isCoastalCiv()) // we really like the coast (England, Norway, Polynesia, Carthage, etc.)
+				{
+					iValueModifier += (iTotalPlotValue/4);
+				}
 			}
 		}
 	}
@@ -755,59 +828,59 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 		// AI
 		else
 		{
+			int iSweetMin = 5, iSweetMax = 5;
+
 			int iGrowthFlavor = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)m_iGrowthIndex);
 			int iExpansionFlavor = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)m_iExpansionIndex);
+			int iBoldness = pPlayer->GetDiplomacyAI()->GetBoldness();
+			int iDefaultNumTiles = 80*52;
 
-			int iSweetMin = 5, iSweetMax = 6;
-			if (iGrowthFlavor > 7) iSweetMin++;
-			if (iExpansionFlavor > 7) iSweetMax++;
+			iSweetMax += (GC.getSETTLER_EVALUATION_DISTANCE() * max(iExpansionFlavor, 1) * GC.getMap().numPlots()) / (max(iGrowthFlavor, 1) * iDefaultNumTiles);		
+
+			if (iGrowthFlavor > 6) iSweetMin++;
+			if (iExpansionFlavor > 6) iSweetMax++;
 			if (iGrowthFlavor < 4) iSweetMin--;
 			if (iExpansionFlavor < 4) iSweetMax--;
+			if (iBoldness < 4) iSweetMin--;
+			if (iBoldness > 6) iSweetMax++;
 
+			EconomicAIStrategyTypes eStrategyExpandToOtherContinents = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_EXPAND_TO_OTHER_CONTINENTS");
+			EconomicAIStrategyTypes eStrategyReallyExpandToOtherContinents = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_REALLY_EXPAND_TO_OTHER_CONTINENTS");
+			
+			if(eStrategyExpandToOtherContinents != NO_ECONOMICAISTRATEGY && eStrategyReallyExpandToOtherContinents != NO_ECONOMICAISTRATEGY)
+			{
+				if(pPlayer->GetEconomicAI()->IsUsingStrategy(eStrategyReallyExpandToOtherContinents))
+				{
+					iSweetMax *= iExpansionFlavor;
+				}
+				if(pPlayer->GetEconomicAI()->IsUsingStrategy(eStrategyExpandToOtherContinents))
+				{
+					iSweetMax *= iExpansionFlavor;
+				}
+			}
 			if ((iClosestCityOfMine >= iSweetMin) && (iClosestCityOfMine <= iSweetMax)) 
 			{
-				iValueModifier += (iTotalPlotValue*10)/100; //make this a small bonus, there is a separate distance check anyway
+				iStratModifier += (iTotalPlotValue*15)/100; //make this a small bonus, there is a separate distance check anyway
 				vQualifiersPositive.push_back("(V) optimal distance to existing cities");
 			}
 
-			// use boldness to decide if we want to push close to enemies
-			int iBoldness = pPlayer->GetDiplomacyAI()->GetBoldness();
-			if (iBoldness < 4)
+			if (iClosestEnemyCity == iSweetMin)
 			{
-				if (iClosestEnemyCity <= 4)
-				{
-					iStratModifier -= (iTotalPlotValue*50)/100;
-					vQualifiersNegative.push_back("(S) too close to enemy");
-				}
-				else if (iClosestEnemyCity == 5)
-				{
-					iStratModifier -= (iTotalPlotValue*25)/100;
-					vQualifiersNegative.push_back("(S) too close to enemy");
-				}
+				iStratModifier -= (iTotalPlotValue*33)/100;
+				vQualifiersNegative.push_back("(S) too close to enemy");
 			}
-			else if (iBoldness > 7)
+			else if (iClosestEnemyCity < iSweetMin)
 			{
-				if (iClosestEnemyCity <= 5 && iClosestCityOfMine < 8)
-				{
-					iStratModifier += (iTotalPlotValue*25)/100;
-					vQualifiersPositive.push_back("(S) close to enemy and but not far from home");
-				}
-			}
-			else
-			{
-				if (iClosestEnemyCity < 5)
-				{
-					iStratModifier -= (iTotalPlotValue*25)/100;
-					vQualifiersNegative.push_back("(S) too close to enemy");
-				}
+				iStratModifier -= (iTotalPlotValue*25)/100;
+				vQualifiersNegative.push_back("(S) too close to enemy");
 			}
 
 			// if we are offshore, pull cities in tighter
 			if (iCapitalArea != pPlot->getArea())
 			{
-				if (iClosestCityOfMine > 7)
+				if (iClosestCityOfMine > iSweetMax)
 				{
-					iValueModifier -= (iTotalPlotValue*33)/100;
+					iStratModifier -= (iTotalPlotValue*25)/100;
 					vQualifiersNegative.push_back("(V) too far from home");
 				}
 			}
@@ -1857,27 +1930,7 @@ int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPl
 	{
 		return 0;
 	}
-#if defined(MOD_BALANCE_CORE)
-	PlayerTypes eLoopPlayer;
-	int iNumSettlers = GET_PLAYER(pPlayer->GetID()).GetNumUnitsWithUnitAI(UNITAI_SETTLE, true, false);
-	if(iNumSettlers > 0)
-	{
-		for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
-		{
-			eLoopPlayer = (PlayerTypes) iPlayerLoop;
-			if(eLoopPlayer != NO_PLAYER)
-			{
-				if(GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).isAtWar(pPlayer->getTeam()))
-				{
-					if(pPlot->IsHomeFrontForPlayer(eLoopPlayer))
-					{
-						return 0;
-					}
-				}
-			}
-		}
-	}
-#endif
+
 	int iNumAreaCities = pArea->getCitiesPerPlayer(pPlayer->GetID());
 	if(bCoastOnly && !bIsCoastal && iNumAreaCities == 0)
 	{

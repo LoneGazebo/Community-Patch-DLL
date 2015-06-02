@@ -411,6 +411,19 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner)
 			{
 				bLiberate = true;
 			}
+#if defined(MOD_BALANCE_CORE)
+			if(IsEmpireUnhappy())
+			{
+				if(GetDiplomacyAI()->GetMajorCivOpinion(eOriginalOwner) > MAJOR_CIV_OPINION_FAVORABLE)
+				{
+					bLiberate = true;
+				}
+				if(GET_TEAM(getTeam()).isAtWar(eOldOwnerTeam) && GET_PLAYER(eOriginalOwner).GetDiplomacyAI()->GetMajorCivOpinion(eOldOwner) < MAJOR_CIV_OPINION_COMPETITOR && GetDiplomacyAI()->GetMajorCivOpinion(eOldOwner) < MAJOR_CIV_OPINION_COMPETITOR)
+				{
+					bLiberate = true;
+				}
+			}
+#endif
 
 			if (bLiberate)
 			{
@@ -427,8 +440,8 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner)
 		// Huns will burn down everything possible once they have a core of a few cities (was 3, but this put Attila out of the running long term as a conqueror)
 #if defined(MOD_GLOBAL_CS_RAZE_RARELY)
 		CUSTOMLOG("AI_conquerCity: City=%s, Player=%d, ExcessHappiness=%d", pCity->getName().GetCString(), GetID(), GetExcessHappiness());
-		bool bUnhappy = isMinorCiv() ? IsEmpireVeryUnhappy() : IsEmpireUnhappy();
-		if (bUnhappy || (GC.getMap().GetAIMapHint() & 2) || (GetPlayerTraits()->GetRazeSpeedModifier() > 0 && getNumCities() >= 3 + (GC.getGame().getGameTurn() / 100)) )
+		bool bUnhappy = IsEmpireVeryUnhappy();
+		if (bUnhappy || (GC.getMap().GetAIMapHint() & 2) || (GetPlayerTraits()->GetRazeSpeedModifier() > 0 && getNumCities() >= GetDiplomacyAI()->GetBoldness() + (GC.getGame().getGameTurn() / 100)) )
 #else
 		if (IsEmpireUnhappy() || (GC.getMap().GetAIMapHint() & 2) || (GetPlayerTraits()->GetRazeSpeedModifier() > 0 && getNumCities() >= 3 + (GC.getGame().getGameTurn() / 100)) )
 #endif
@@ -437,6 +450,17 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner)
 			return;
 		}
 	}
+#if defined(MOD_BALANCE_CORE)
+	if(canRaze(pCity) && IsEmpireUnhappy())
+	{
+		MajorCivOpinionTypes eOpinion = GetDiplomacyAI()->GetMajorCivOpinion(pCity->getOriginalOwner());
+		if(eOpinion < MAJOR_CIV_OPINION_COMPETITOR)
+		{
+			pCity->doTask(TASK_RAZE);
+			return;
+		}
+	}
+#endif
 
 	// Puppet the city
 	if(pCity->getOriginalOwner() != GetID() || GET_PLAYER(m_eID).GetPlayerTraits()->IsNoAnnexing())
@@ -1648,32 +1672,21 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveAdmiral(CvUnit* pGreatAdmiral)
 	//Should we consider using our heal?
 	if(pGreatAdmiral->GetGreatPeopleDirective() == GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND)
 	{
-		UnitHandle pUnit;
 		int iInjured = 0;
-		int iArmySize = 0;
-		if(pGreatAdmiral->getArmyID() != FFreeList::INVALID_INDEX)
+		for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
 		{
-			CvArmyAI* pThisArmy = getArmyAI(pGreatAdmiral->getArmyID());
-			if(pThisArmy)
+			CvPlot *pLoopPlot = plotDirection(pGreatAdmiral->plot()->getX(), pGreatAdmiral->plot()->getY(), ((DirectionTypes)iI));
+			if (pLoopPlot != NULL && pLoopPlot->getNumUnits() > 0)
 			{
-				pUnit = pThisArmy->GetFirstUnit();
-				while(pUnit)
+				CvUnit* pUnit = pLoopPlot->getUnitByIndex(0);
+				if(pUnit != NULL && pUnit->getOwner() == pGreatAdmiral->getOwner() && (pUnit->GetCurrHitPoints() <= (pUnit->GetMaxHitPoints() / 2)))
 				{
-					if(pUnit->GetCurrHitPoints() <= (pUnit->GetMaxHitPoints() / 2))
-					{
-						iInjured++;
-					}
-					iArmySize++;
-					pUnit = pThisArmy->GetNextUnit();
+					iInjured++;
 				}
-				//A lot of injured ships here,
-				if(iInjured >= (iArmySize / 2))
+				//A lot of injured ships around us
+				if(iInjured >= 3)
 				{
-					//Are we close enough?
-					if(pThisArmy->GetFurthestUnitDistance(pGreatAdmiral->plot()) <= 1)
-					{
-						return GREAT_PEOPLE_DIRECTIVE_USE_POWER;
-					}
+					return GREAT_PEOPLE_DIRECTIVE_USE_POWER;
 				}
 			}
 		}

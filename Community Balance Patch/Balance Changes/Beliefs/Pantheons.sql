@@ -11,6 +11,10 @@ UPDATE Belief_ImprovementYieldChanges
 SET YieldType = 'YIELD_FAITH'
 WHERE BeliefType = 'BELIEF_GOD_SEA' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
+UPDATE Belief_ImprovementYieldChanges
+SET Yield = '1'
+WHERE BeliefType = 'BELIEF_GOD_SEA' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
+
 -- God of the Open Sky
 
 UPDATE Belief_ImprovementYieldChanges
@@ -20,6 +24,9 @@ WHERE BeliefType = 'BELIEF_OPEN_SKY' AND EXISTS (SELECT * FROM COMMUNITY WHERE T
 -- Messenger of the Gods
 
 -- One With Nature
+UPDATE Belief_YieldChangeNaturalWonder
+SET Yield = '2'
+WHERE YieldType = 'YIELD_FAITH' AND BeliefType = 'BELIEF_ONE_WITH_NATURE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Liturgy (Now Goddess of Wisdom)
 
@@ -28,6 +35,9 @@ SET Yield = '0'
 WHERE BeliefType = 'BELIEF_FORMAL_LITURGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Stone Circles
+UPDATE Belief_ImprovementYieldChanges
+SET Yield = '3'
+WHERE BeliefType = 'BELIEF_STONE_CIRCLES' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- God of War
 UPDATE Beliefs
@@ -68,6 +78,9 @@ SET YieldChange = '0'
 WHERE BeliefType = 'BELIEF_ANCESTOR_WORSHIP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 --Desert Folklore
+UPDATE Belief_TerrainYieldChanges
+SET Yield = '2'
+WHERE YieldType = 'YIELD_FAITH' AND BeliefType = 'BELIEF_DESERT_FOLKLORE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Beliefs
 SET RequiresResource = 'true'
@@ -78,6 +91,10 @@ SET RequiresImprovement = 'true'
 WHERE Type = 'BELIEF_DESERT_FOLKLORE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Sacred Path
+
+UPDATE Beliefs
+SET RequiresNoImprovementFeature = '1'
+WHERE Type = 'BELIEF_SACRED_PATH' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Belief_FeatureYieldChanges
 SET Yield = '0'
@@ -96,6 +113,9 @@ SET WonderProductionModifier = '15'
 WHERE Type = 'BELIEF_MONUMENT_GODS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Dance of the Aurora
+UPDATE Belief_TerrainYieldChanges
+SET Yield = '2'
+WHERE YieldType = 'YIELD_FAITH' AND BeliefType = 'BELIEF_DANCE_AURORA' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Beliefs
 SET RequiresImprovement = 'true'

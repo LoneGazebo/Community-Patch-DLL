@@ -733,7 +733,7 @@ void CvUnitMission::ContinueMission(UnitHandle hUnit, int iSteps, int iETA)
 
 			else if(kMissionData.eMissionType == CvTypes::getMISSION_RANGE_ATTACK())
 			{
-				if(CvUnitCombat::AttackRanged(*hUnit, kMissionData.iData1, kMissionData.iData2, (kMissionData.iFlags &  MISSION_MODIFIER_NO_DEFENSIVE_SUPPORT)?CvUnitCombat::ATTACK_OPTION_NO_DEFENSIVE_SUPPORT:CvUnitCombat::ATTACK_OPTION_NONE) != CvUnitCombat::ATTACK_ABORTED)
+				if(CvUnitCombat::AttackRanged(*hUnit, kMissionData.iData1, kMissionData.iData2, (kMissionData.iFlags &  CvUnit::MISSION_MODIFIER_NO_DEFENSIVE_SUPPORT)?CvUnitCombat::ATTACK_OPTION_NO_DEFENSIVE_SUPPORT:CvUnitCombat::ATTACK_OPTION_NONE) != CvUnitCombat::ATTACK_ABORTED)
 				{
 					bDone = true;
 				}
@@ -741,7 +741,7 @@ void CvUnitMission::ContinueMission(UnitHandle hUnit, int iSteps, int iETA)
 
 			else if(kMissionData.eMissionType == CvTypes::getMISSION_NUKE())
 			{
-				if(CvUnitCombat::AttackNuclear(*hUnit, kMissionData.iData1, kMissionData.iData2, (kMissionData.iFlags &  MISSION_MODIFIER_NO_DEFENSIVE_SUPPORT)?CvUnitCombat::ATTACK_OPTION_NO_DEFENSIVE_SUPPORT:CvUnitCombat::ATTACK_OPTION_NONE) != CvUnitCombat::ATTACK_ABORTED)
+				if(CvUnitCombat::AttackNuclear(*hUnit, kMissionData.iData1, kMissionData.iData2, (kMissionData.iFlags &  CvUnit::MISSION_MODIFIER_NO_DEFENSIVE_SUPPORT)?CvUnitCombat::ATTACK_OPTION_NO_DEFENSIVE_SUPPORT:CvUnitCombat::ATTACK_OPTION_NONE) != CvUnitCombat::ATTACK_ABORTED)
 				{
 					bDone = true;
 				}

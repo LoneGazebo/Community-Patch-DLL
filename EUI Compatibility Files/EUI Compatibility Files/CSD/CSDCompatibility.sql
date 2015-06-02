@@ -4,6 +4,11 @@ ALTER TABLE Buildings ADD COLUMN 'DPToVotes' integer default 0;
 INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_DIPLOMAT','BUILDINGCLASS_CHANCERY';
 INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_AMBASSADOR','BUILDINGCLASS_WIRE_SERVICE';
 
+UPDATE Units SET PurchaseCooldown =     1  WHERE Type = 'UNIT_EMISSARY';
+UPDATE Units SET PurchaseCooldown =     1  WHERE Type = 'UNIT_ENVOY';
+UPDATE Units SET PurchaseCooldown =     1  WHERE Type = 'UNIT_DIPLOMAT';
+UPDATE Units SET PurchaseCooldown =     1  WHERE Type = 'UNIT_AMBASSADOR';
+
 -- Hurry Cost - reduced for all buildings (as you now need production as well to make them work)
 UPDATE Buildings
 SET HurryCostModifier = '-20';

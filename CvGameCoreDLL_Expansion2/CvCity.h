@@ -496,7 +496,9 @@ public:
 	int GetCityWorkingChange() const;
 	void changeCityWorkingChange(int iChange);
 #endif
-
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	bool IsVassalLevyEra() const;
+#endif
 	int getHealRate() const;
 	void changeHealRate(int iChange);
 
@@ -761,6 +763,7 @@ public:
 	int GetYieldFromVictory(YieldTypes eIndex) const;
 	void ChangeYieldFromVictory(YieldTypes eIndex, int iChange);
 #endif
+
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 	int GetPovertyUnhappiness() const;
 	void ChangePovertyUnhappiness(int iChange);
@@ -800,6 +803,35 @@ public:
 	int GetBaseYieldRateFromCSAlliance(YieldTypes eIndex) const;
 	void ChangeBaseYieldRateFromCSAlliance(YieldTypes eIndex, int iChange);
 	void SetBaseYieldRateFromCSAlliance(YieldTypes eIndex, int iValue);
+
+	int GetReligiousTradeModifier() const;
+	void ChangeReligiousTradeModifier(int iChange);
+	void SetReligiousTradeModifier(int iValue);
+#endif
+#if defined(MOD_BALANCE_CORE_SPIES)
+	void SetBlockBuildingDestruction(bool bNewValue);
+	bool IsBlockBuildingDestruction() const;
+
+	void SetBlockWWDestruction(bool bNewValue);
+	bool IsBlockWWDestruction() const;
+
+	void SetBlockUDestruction(bool bNewValue);
+	bool IsBlockUDestruction() const;
+
+	void SetBlockGPDestruction(bool bNewValue);
+	bool IsBlockGPDestruction() const;
+
+	void SetBlockRebellion(bool bNewValue);
+	bool IsBlockRebellion() const;
+
+	void SetBlockUnrest(bool bNewValue);
+	bool IsBlockUnrest() const;
+
+	void SetBlockScience(bool bNewValue);
+	bool IsBlockScience() const;
+
+	void SetBlockGold(bool bNewValue);
+	bool IsBlockGold() const;
 #endif
 	// END Base Yield
 
@@ -1252,7 +1284,18 @@ protected:
 	FAutoVariable<std::vector<int>, CvCity> m_aiChangeYieldFromVictory;
 	int m_iUnhappyCitizen;
 	int m_iPurchaseCooldown;
+	int m_iReligiousTradeModifier;
 	bool m_bIsNationalMissionaries;
+#endif
+#if defined(MOD_BALANCE_CORE)
+	bool m_bBlockBuildingDestruction;
+	bool m_bBlockWWDestruction;
+	bool m_bBlockUDestruction;
+	bool m_bBlockGPDestruction;
+	bool m_bBlockRebellion;
+	bool m_bBlockUnrest;
+	bool m_bBlockScience;
+	bool m_bBlockGold;
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
 	int m_iCityRank;

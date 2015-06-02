@@ -73,6 +73,9 @@ protected:
 	int m_iBrazilMultiplier;
 	int m_iSpainMultiplier;
 	int m_iMorrocoMultiplier;
+#if defined(MOD_BALANCE_CORE)
+	int m_iFranceMultiplier;
+#endif
 	int m_iNetherlandsMultiplier;
 	int m_iIncaMultiplier;
 };

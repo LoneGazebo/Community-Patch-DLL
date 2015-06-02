@@ -493,6 +493,21 @@ function ScienceTipHandler( control )
 			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_SCIENCE_FROM_RESEARCH_AGREEMENTS", iScienceFromRAs / 100);
 		end
 
+		-- C4DF
+		-- Science from Vassals
+		local iScienceFromVassals = pPlayer:GetYieldPerTurnFromVassals(YieldTypes.YIELD_SCIENCE);
+		if (iScienceFromVassals ~= 0) then
+		
+			-- Add separator for non-initial entries
+			if (bFirstEntry) then
+				bFirstEntry = false;
+			else
+				strText = strText .. "[NEWLINE]";
+			end
+	
+			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_SCIENCE_VASSALS", iScienceFromVassals / 100);
+		end
+
 		-- Science from Allies (CSD MOD)
 		local iScienceFromAllies = pPlayer:GetScienceRateFromMinorAllies();
 		if (iScienceFromAllies ~= 0) then
@@ -620,6 +635,13 @@ function GoldTipHandler( control )
 	if (iGoldPerTurnFromReligion > 0) then
 		strText = strText .. "[NEWLINE]  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_GOLD_FROM_RELIGION", iGoldPerTurnFromReligion);
 	end
+-- C4DF
+	-- Gold from Vassals
+	local iGoldFromVassals = pPlayer:GetYieldPerTurnFromVassals(YieldTypes.YIELD_GOLD);
+	if (iGoldFromVassals > 0) then
+		strText = strText .. "[NEWLINE]  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_GOLD_VASSALS", iGoldFromVassals);
+	end
+--  END
 -- COMMUNITY PATCH CHANGE
 		-- Gold gained from unhappiness
 		local iGoldChange = pPlayer:CalculateUnhappinessTooltip(YieldTypes.YIELD_GOLD) / 100;
@@ -739,8 +761,13 @@ function HappinessTipHandler( control )
 			strText = strText .. "[NEWLINE][NEWLINE]";
 			strText = strText .. "[COLOR:255:60:60:255]" .. Locale.ConvertTextKey("TXT_KEY_TP_EMPIRE_UNHAPPY") .. "[/COLOR]";
 		end
-	
-		local iTotalHappiness = iPoliciesHappiness + iResourcesHappiness + iCityHappiness + iBuildingHappiness + iMinorCivHappiness + iHandicapHappiness + iTradeRouteHappiness + iReligionHappiness + iNaturalWonderHappiness + iExtraHappinessPerCity + iLeagueHappiness;
+
+-- C4DF
+		-- Happiness from Vassals
+		local happinessFromVassals = pPlayer:GetHappinessFromVassals();	-- Compatibility with Putmalk's Civ IV Diplomacy Features Mod
+--  END
+
+		local iTotalHappiness = iPoliciesHappiness + iResourcesHappiness + iCityHappiness + iBuildingHappiness + iMinorCivHappiness + iHandicapHappiness + iTradeRouteHappiness + iReligionHappiness + iNaturalWonderHappiness + iExtraHappinessPerCity + iLeagueHappiness + happinessFromVassals;
 		
 		strText = strText .. "[NEWLINE][NEWLINE]";
 		strText = strText .. "[COLOR:150:255:150:255]";
@@ -783,7 +810,12 @@ function HappinessTipHandler( control )
 		local iThreshold = pPlayer:GetBaseLuxuryHappiness(); 
 		strText = strText .. "          " .. Locale.ConvertTextKey("TXT_KEY_TP_HAPPINESS_THRESHOLD_VALUE", iPopNeeded, iPopulation, iThreshold, (iThreshold + 1));
 -- END
-	
+-- C4DF
+		if (happinessFromVassals > 0) then
+			strText = strText .. "[NEWLINE]";
+			strText = strText .. "          +" .. Locale.ConvertTextKey("TXT_KEY_TP_HAPPINESS_VASSALS", happinessFromVassals);
+		end
+-- END
 		-- Happiness from Luxury Variety
 		local iHappinessFromExtraResources = pPlayer:GetHappinessFromResourceVariety();
 		if (iHappinessFromExtraResources > 0) then
@@ -1120,7 +1152,20 @@ function CultureTipHandler( control )
 			strText = strText .. "[NEWLINE]";
 			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_CULTURE_FROM_TRAITS", iCultureFromTraits);
 		end
-	
+-- C4DF
+		local iCultureFromVassals = pPlayer:GetYieldPerTurnFromVassals(YieldTypes.YIELD_CULTURE);
+		if (iCultureFromVassals ~= 0) then
+		
+			-- Add separator for non-initial entries
+			if (bFirstEntry) then
+				strText = strText .. "[NEWLINE]";
+				bFirstEntry = false;
+			end
+
+			strText = strText .. "[NEWLINE]";
+			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_CULTURE_VASSALS", iCultureFromVassals);
+		end
+-- END	
 		-- Culture from Minor Civs
 		local iCultureFromMinors = pPlayer:GetCulturePerTurnFromMinorCivs();
 		if (iCultureFromMinors ~= 0) then
@@ -1166,7 +1211,7 @@ function CultureTipHandler( control )
 		
 		-- Culture from Golden Age (COMMUNITY PATCH EDIT)
 		local iCommunityCulture = pPlayer:CalculateUnhappinessTooltip(YieldTypes.YIELD_CULTURE);
-		local iCultureFromGoldenAge = pPlayer:GetTotalJONSCulturePerTurn() - iCultureForFree - iCultureFromCities - iCultureFromHappiness - iCultureFromMinors - iCultureFromReligion - iCultureFromTraits - iCultureFromBonusTurns - iCommunityCulture; -- last part added (COMMUNITY PATCH)
+		local iCultureFromGoldenAge = pPlayer:GetTotalJONSCulturePerTurn() - iCultureForFree - iCultureFromCities - iCultureFromHappiness - iCultureFromMinors - iCultureFromReligion - iCultureFromTraits - iCultureFromBonusTurns - iCommunityCulture - iCultureFromVassals; -- last part added (COMMUNITY PATCH)
 		if (iCultureFromGoldenAge ~= 0) then
 		
 			-- Add separator for non-initial entries
@@ -1279,6 +1324,13 @@ function FaithTipHandler( control )
 			strText = strText .. "[NEWLINE]";
 			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_FAITH_FROM_RELIGION", iFaithFromReligion);
 		end
+-- C4DF
+		local iFaithFromVassals = pPlayer:GetYieldPerTurnFromVassals(YieldTypes.YIELD_FAITH);
+		if (iFaithFromVassals ~= 0) then
+			strText = strText .. "[NEWLINE]";
+			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_FAITH_VASSALS", iFaithFromVassals);
+		end
+-- END	
 -- COMMUNITY PATCH CHANGE
 		-- Faith % lost from unhappiness
 		local iFaithChange = pPlayer:CalculateUnhappinessTooltip(YieldTypes.YIELD_FAITH);

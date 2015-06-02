@@ -44,6 +44,10 @@
 #define PATH_END_TURN_MOUNTAIN_WEIGHT							(1000000)
 #define PATH_END_TURN_MISSIONARY_OTHER_TERRITORY				(150000)
 
+#if defined(MOD_BALANCE_CORE_MILITARY)
+#define PATH_ENEMY_TERRITORY_WEIGHT								(100)
+#endif
+
 #include <xmmintrin.h>
 
 // until Tim is finished with AStar optimization
@@ -947,7 +951,11 @@ int PathDestValid(int iToX, int iToY, const void* pointer, CvAStar* finder)
 		return FALSE;
 	}
 
+#if defined(MOD_BALANCE_CORE_PATHFINDER_FLAGS)
+	if ((finder->GetInfo() & MOVE_NO_EMBARK) && (pToPlot->isWater() && !pToPlot->IsAllowsWalkWater()))
+#else
 	if ((finder->GetInfo() & CvUnit::MOVEFLAG_STAY_ON_LAND) && (pToPlot->isWater() && !pToPlot->IsAllowsWalkWater()))
+#endif
 	{
 		return FALSE;
 	}
@@ -1121,6 +1129,18 @@ int PathCost(CvAStarNode* parent, CvAStarNode* node, int data, const void* point
 			}
 		}
 
+#if defined(MOD_BALANCE_CORE_MILITARY)
+		if (finder->GetInfo() & MOVE_MINIMIZE_ENEMY_TERRITORY)
+		{
+			if (pToPlot->getOwner()!=NO_PLAYER)
+			{
+				CvTeam& plotTeam = GET_TEAM(GET_PLAYER(pToPlot->getOwner()).getTeam());
+				if (!plotTeam.IsAllowsOpenBordersToTeam(GET_PLAYER(pUnit->getOwner()).getTeam()))
+					iCost += PATH_ENEMY_TERRITORY_WEIGHT;
+			}
+		}
+#endif
+
 		// Damage caused by features (mods)
 		if(0 != GC.getPATH_DAMAGE_WEIGHT())
 		{
@@ -1254,9 +1274,9 @@ int PathCost(CvAStarNode* parent, CvAStarNode* node, int data, const void* point
 						}
 #endif
 
-						if(pFromPlot->isRiverCrossing(directionXY(iFromPlotX, iFromPlotY, iToPlotX, iToPlotY)))
+						if(!(pUnit->isRiverCrossingNoPenalty()))
 						{
-							if(!(pUnit->isRiverCrossingNoPenalty()))
+							if(pFromPlot->isRiverCrossing(directionXY(pFromPlot, pToPlot)))
 							{
 								iCost += (PATH_RIVER_WEIGHT * -(GC.getRIVER_ATTACK_MODIFIER()));
 								iCost += (PATH_MOVEMENT_WEIGHT * iMovesLeft);
@@ -1441,7 +1461,11 @@ int PathValid(CvAStarNode* parent, CvAStarNode* node, int data, const void* poin
 							return FALSE;
 						}
 
+#if defined(MOD_BALANCE_CORE_PATHFINDER_FLAGS)
+						if ((iFinderInfo & MOVE_NO_EMBARK) && kNodeCacheData.bIsWater)
+#else
 						if ((iFinderInfo & CvUnit::MOVEFLAG_STAY_ON_LAND) && kNodeCacheData.bIsWater)
+#endif
 						{
 							return FALSE;
 						}
@@ -1748,7 +1772,11 @@ int IgnoreUnitsDestValid(int iToX, int iToY, const void* pointer, CvAStar* finde
 		return FALSE;
 	}
 
+#if defined(MOD_BALANCE_CORE_PATHFINDER_FLAGS)
+	if ((finder->GetInfo() & MOVE_NO_EMBARK) && (pToPlot->isWater() && !pToPlot->IsAllowsWalkWater()))
+#else
 	if ((finder->GetInfo() & CvUnit::MOVEFLAG_STAY_ON_LAND) && (pToPlot->isWater() && !pToPlot->IsAllowsWalkWater()))
+#endif
 	{
 		return FALSE;
 	}
@@ -1866,6 +1894,18 @@ int IgnoreUnitsCost(CvAStarNode* parent, CvAStarNode* node, int data, const void
 				iCost += PATH_EXPLORE_NON_HILL_WEIGHT;
 			}
 		}
+
+#if defined(MOD_BALANCE_CORE_MILITARY)
+		if (finder->GetInfo() & MOVE_MINIMIZE_ENEMY_TERRITORY)
+		{
+			if (pToPlot->getOwner()!=NO_PLAYER)
+			{
+				CvTeam& plotTeam = GET_TEAM(GET_PLAYER(pToPlot->getOwner()).getTeam());
+				if (!plotTeam.IsAllowsOpenBordersToTeam(GET_PLAYER(pUnit->getOwner()).getTeam()))
+					iCost += PATH_ENEMY_TERRITORY_WEIGHT;
+			}
+		}
+#endif
 
 		// Damage caused by features (mods)
 		if(0 != GC.getPATH_DAMAGE_WEIGHT())
@@ -2140,7 +2180,12 @@ int StepValid(CvAStarNode* parent, CvAStarNode* node, int data, const void* poin
 	{
 		return TRUE;
 	}
-
+#if defined(MOD_BALANCE_CORE)
+	if (pointer==NULL)
+	{
+		return FALSE;
+	}
+#endif
 	int iFlags = finder->GetInfo();
 	PlayerTypes ePlayer = (PlayerTypes)(iFlags & 0xFF);
 
@@ -2512,6 +2557,13 @@ int RouteValid(CvAStarNode* parent, CvAStarNode* node, int data, const void* poi
 	if(kPlayer.GetPlayerTraits()->IsRiverTradeRoad())
 	{
 		if(pNewPlot->isRiver())
+		{
+			return TRUE;
+		}
+	}
+	if(kPlayer.GetPlayerTraits()->IsMountainPass())
+	{
+		if(pNewPlot->isMountain())
 		{
 			return TRUE;
 		}
@@ -3199,6 +3251,33 @@ CvPlot* CvStepPathFinder::GetXPlotsFromEnd(PlayerTypes ePlayer, PlayerTypes eEne
 	return currentPlot;
 }
 
+#if defined(MOD_BALANCE_CORE)
+//	--------------------------------------------------------------------------------
+/// Returns the last plot along the step path owned by a specific player
+int CvStepPathFinder::CountPlotsOwnedByXInPath(PlayerTypes ePlayer) const
+{
+	int iCount = 0;
+	CvAStarNode* pNode = GC.getStepFinder().GetLastNode();
+
+	// Starting at the end, loop until we find a plot from this owner
+	CvMap& kMap = GC.getMap();
+	while(pNode != NULL)
+	{
+		CvPlot* currentPlot;
+		currentPlot = kMap.plotUnchecked(pNode->m_iX, pNode->m_iY);
+
+		// Check and see if this plot has the right owner
+		if(currentPlot->getOwner() == ePlayer)
+			iCount++;
+
+		// Move to the previous plot on the path
+		pNode = pNode->m_pParent;
+	}
+
+	return iCount;
+}
+#endif
+
 //	--------------------------------------------------------------------------------
 /// Check for existence of step path between two points
 #ifdef AUI_ASTAR_TURN_LIMITER
@@ -3710,7 +3789,11 @@ int TacticalAnalysisMapPathValid(CvAStarNode* parent, CvAStarNode* node, int dat
 							return FALSE;
 						}
 
+#if defined(MOD_BALANCE_CORE_PATHFINDER_FLAGS)
+						if ((finder->GetInfo() & MOVE_NO_EMBARK) && kNodeCacheData.bIsWater)
+#else
 						if ((finder->GetInfo() & CvUnit::MOVEFLAG_STAY_ON_LAND) && kNodeCacheData.bIsWater)
+#endif
 						{
 							return FALSE;
 						}
@@ -4190,12 +4273,18 @@ struct TradePathCacheData
 	CvTeam* m_pTeam;
 	bool m_bCanEmbarkAllWaterPassage;
 	bool m_bIsRiverTradeRoad;
+#if defined(MOD_BALANCE_CORE)
+	bool m_bIsMountainPass;
+#endif
 	bool m_bIsMoveFriendlyWoodsAsRoad;
 
 	inline CvTeam& getTeam() const { return *m_pTeam; }
 	inline bool CanEmbarkAllWaterPassage() const { return m_bCanEmbarkAllWaterPassage; }
 	inline bool IsRiverTradeRoad() const { return m_bIsRiverTradeRoad; }
 	inline bool IsMoveFriendlyWoodsAsRoad() const { return m_bIsMoveFriendlyWoodsAsRoad; }
+#if defined(MOD_BALANCE_CORE)
+	inline bool IsMountainPass() const { return m_bIsMountainPass; }
+#endif
 };
 
 //	--------------------------------------------------------------------------------
@@ -4219,11 +4308,17 @@ void TradePathInitialize(const void* pointer, CvAStar* finder)
 	{
 		pCacheData->m_bIsRiverTradeRoad = pPlayerTraits->IsRiverTradeRoad();
 		pCacheData->m_bIsMoveFriendlyWoodsAsRoad = pPlayerTraits->IsMoveFriendlyWoodsAsRoad();
+#if defined(MOD_BALANCE_CORE)
+		pCacheData->m_bIsMountainPass = pPlayerTraits->IsMountainPass();
+#endif
 	}
 	else
 	{
 		pCacheData->m_bIsRiverTradeRoad = false;
 		pCacheData->m_bIsMoveFriendlyWoodsAsRoad = false;
+#if defined(MOD_BALANCE_CORE)
+		pCacheData->m_bIsMountainPass = false;
+#endif
 	}
 
 }
@@ -4275,6 +4370,12 @@ int TradeRouteLandPathCost(CvAStarNode* parent, CvAStarNode* node, int data, con
 	{
 		iCost = iCost / 2;
 	}
+#if defined(MOD_BALANCE_CORE)
+	else if (pToPlot->isMountain() && pCacheData->IsMountainPass())
+	{
+		iCost = iCost / 2;
+	}
+#endif
 	else
 	{
 		bool bFeaturePenalty = false;

@@ -1,3 +1,25 @@
+-- Farm
+UPDATE Builds
+SET Help = 'TXT_KEY_BUILD_FARM_HELP'
+WHERE Type = 'BUILD_FARM' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_TERRAIN' AND Value= 1 );
+
+INSERT INTO Language_en_US (
+Tag, Text)
+SELECT 'TXT_KEY_BUILD_FARM_HELP', 'Gain an additional +1 [ICON_FOOD] Food for every 2 Farms adjacent to one another.'
+WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
+
+UPDATE Builds
+SET Recommendation = 'TXT_KEY_BUILD_FARM_REC'
+WHERE Type = 'BUILD_FARM' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_TERRAIN' AND Value= 1 );
+
+INSERT INTO Language_en_US (
+Tag, Text)
+SELECT 'TXT_KEY_BUILD_FARM_REC', 'It will boost your [ICON_FOOD] Food output on this tile. For every two Farms adjacent to this one, it will gain an additional +1 [ICON_FOOD] Food!'
+WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
+
+UPDATE Language_en_US
+SET Text = 'Farms can be constructed on most any land to improve the output of food on the tile. For every two Farms adjacent to each other, Farms gain additional Food.[NEWLINE][NEWLINE]Farming is one of the earliest and most important of all human professions, as it allowed mankind to stop migrating and settle in one location without depleting the local resources.'
+WHERE Tag = 'TXT_KEY_CIV5_IMPROVEMENTS_FARM_TEXT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );
 -- Terrain 
 
 UPDATE Terrains
@@ -167,7 +189,7 @@ WHERE ImprovementType = 'ART_DEF_IMPROVEMENT_HOLY_SITE';
 
 -- Shrink Kasbah
 UPDATE ArtDefine_Landmarks
-SET Scale= '0.80'
+SET Scale= '0.90'
 WHERE ImprovementType = 'ART_DEF_IMPROVEMENT_KASBAH';
 
 -- Shrink Chateau

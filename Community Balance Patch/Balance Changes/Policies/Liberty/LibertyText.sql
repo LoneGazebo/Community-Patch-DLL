@@ -38,7 +38,7 @@ WHERE Tag = 'TXT_KEY_POLICY_REPRESENTATION_HELP' AND EXISTS (SELECT * FROM COMMU
 
 -- Meritocracy
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Meritocracy[ENDCOLOR][NEWLINE] +1 [ICON_MOVES] Movement for Workers and Settlers. When you expend a Great Person, receive 50 [ICON_GOLDEN_AGE] Golden Age Points and 50 [ICON_CULTURE] Culture. Bonuses scale with Era.'
+SET Text = '[COLOR_POSITIVE_TEXT]Meritocracy[ENDCOLOR][NEWLINE] +1 [ICON_MOVES] Movement for Workers and Settlers. When you expend a Great Person, receive 50 [ICON_GOLDEN_AGE] Golden Age Points and 50 [ICON_CULTURE] Culture, scaling with Era.'
 WHERE Tag = 'TXT_KEY_POLICY_MERITOCRACY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 -- Finisher

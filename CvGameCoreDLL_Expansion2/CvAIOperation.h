@@ -206,6 +206,11 @@ public:
 		return false;
 	};
 
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	bool HasTargetPlot() const { return (m_iTargetX!=INVALID_PLOT_COORD && m_iTargetX!=INVALID_PLOT_COORD); }
+	bool HasMusterPlot() const { return (m_iMusterX!=INVALID_PLOT_COORD && m_iMusterY!=INVALID_PLOT_COORD); }
+#endif
+
 	CvPlot* GetTargetPlot() const;
 	void SetTargetPlot(CvPlot* pTarget);
 	CvPlot* GetMusterPlot() const;
@@ -574,8 +579,8 @@ public:
 	virtual bool ArmyInPosition(CvArmyAI* pArmy);
 	virtual bool ShouldAbort();
 
-#if defined(MOD_BALANCE_CORE_SETTLER)
-	virtual CvPlot* FindBestTargetIgnoreCurrent(CvUnit* pUnit, bool bOnlySafePaths);
+#if defined(MOD_BALANCE_CORE)
+	virtual CvPlot* FindBestTargetIncludingCurrent(CvUnit* pUnit, bool bOnlySafePaths);
 #endif
 
 	virtual CvPlot* FindBestTarget(CvUnit* pUnit, bool bOnlySafePaths);
@@ -605,10 +610,16 @@ public:
 	{
 		return MUFORMATION_QUICK_COLONY_SETTLER;
 	}
+#if defined(MOD_BALANCE_CORE)
+	virtual bool IsMixedLandNavalOperation() const
+	{
+		return true;
+	};
+#endif
 	virtual CvUnit* FindBestCivilian();
 
 private:
-#if !defined(MOD_BALANCE_CORE_SETTLER)
+#if !defined(MOD_BALANCE_CORE)
 	CvPlot* FindBestTarget(CvUnit* pUnit, bool bOnlySafePaths);
 #endif
 };
@@ -987,7 +998,9 @@ public:
 	{
 		return MUFORMATION_COLONIZATION_PARTY;
 	}
+#if !defined(MOD_BALANCE_CORE)
 	virtual CvCity* GetOperationStartCity() const;
+#endif
 	virtual bool IsMixedLandNavalOperation() const
 	{
 		return true;
@@ -999,14 +1012,24 @@ public:
 
 	virtual bool ArmyInPosition(CvArmyAI* pArmy);
 	virtual CvUnit* FindBestCivilian();
+#if !defined(MOD_BALANCE_CORE)
 	virtual void UnitWasRemoved(int iArmyID, int iSlotID);
+#endif
 	bool RetargetCivilian(CvUnit* pCivilian, CvArmyAI* pArmy);
-
 protected:
+#if defined(MOD_BALANCE_CORE)
+	CvPlot* FindBestTargetIncludingCurrent(CvUnit* pUnit, bool bOnlySafePaths);
+	CvPlot* FindBestTarget(CvUnit* pUnit, bool bOnlySafePaths);
+#else
 	CvPlot* FindBestTarget(CvUnit* pUnit);
+#endif
 
 	UnitAITypes m_eCivilianType;
+#if defined(MOD_BALANCE_CORE)
+	int m_iTargetArea;
+#else
 	int m_iInitialAreaID;
+#endif
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

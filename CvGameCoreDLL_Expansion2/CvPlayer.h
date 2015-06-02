@@ -1440,6 +1440,27 @@ public:
 	void changeBuildingClassCultureChange(BuildingClassTypes eIndex, int iChange);
 	
 #endif
+#if defined(MOD_BALANCE_CORE_SPIES)
+	int GetAdvancedActionGold() const;
+	void changeAdvancedActionGold(int iChange);
+	int GetAdvancedActionScience() const;
+	void changeAdvancedActionScience(int iChange);
+	int GetAdvancedActionUnrest() const;
+	void changeAdvancedActionUnrest(int iChange);
+	int GetAdvancedActionRebellion() const;
+	void changeAdvancedActionRebellion(int iChange);
+	int GetAdvancedActionGP() const;
+	void changeAdvancedActionGP(int iChange);
+	int GetAdvancedActionUnit() const;
+	void changeAdvancedActionUnit(int iChange);
+	int GetAdvancedActionWonder() const;
+	void changeAdvancedActionWonder(int iChange);
+	int GetAdvancedActionBuilding() const;
+	void changeAdvancedActionBuilding(int iChange);
+	bool IsCannotFailSpies() const;
+	int GetCannotFailSpies() const;
+	void changeCannotFailSpies(int iChange);
+#endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int GetInvestmentModifier() const;
 	void changeInvestmentModifier(int iChange);
@@ -2090,12 +2111,10 @@ public:
 	int GetScoreFromVassals() const;
 	int GetScoreFromVassal(PlayerTypes ePlayer) const;
 
-	int GetJONSCulturePerTurnFromVassals() const;
+	int GetYieldPerTurnFromVassals(YieldTypes eYield) const;
 
 	int GetHappinessFromVassals() const;
 	int GetHappinessFromVassal(PlayerTypes ePlayer) const;
-
-	int GetScienceFromVassalTimes100() const;
 
 	int GetVassalGoldMaintenanceMod() const;
 	void SetVassalGoldMaintenanceMod(int iValue);
@@ -2343,6 +2362,17 @@ protected:
 	int m_iFreeTradeRoute;
 	int m_iFreeSpy;
 	int m_iTradeReligionModifier;
+#endif
+#if defined(MOD_BALANCE_CORE_SPIES)
+	int m_iAdvancedActionGold;
+	int m_iAdvancedActionScience;
+	int m_iAdvancedActionUnrest;
+	int m_iAdvancedActionRebellion;
+	int m_iAdvancedActionGP;
+	int m_iAdvancedActionUnit;
+	int m_iAdvancedActionWonder;
+	int m_iAdvancedActionBuilding;
+	int m_iCannotFailSpies;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int m_iInvestmentModifier;
