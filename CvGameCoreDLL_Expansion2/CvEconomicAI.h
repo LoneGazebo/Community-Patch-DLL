@@ -307,7 +307,11 @@ bool IsTestStrategy_ReallyNeedReconSea(CvPlayer* pPlayer);
 bool IsTestStrategy_NeedReconSea(CvPlayer* pPlayer);
 bool IsTestStrategy_EnoughReconSea(CvPlayer* pPlayer);
 bool IsTestStrategy_EarlyExpansion(CvPlayer* pPlayer);
+#if defined(MOD_BALANCE_CORE)
+bool IsTestStrategy_EnoughExpansion(CvPlayer* pPlayer);
+#else
 bool IsTestStrategy_EnoughExpansion(EconomicAIStrategyTypes eStrategy, CvPlayer* pPlayer);
+#endif
 bool IsTestStrategy_NeedHappiness(EconomicAIStrategyTypes eStrategy, CvPlayer* pPlayer);
 bool IsTestStrategy_NeedHappinessCritical(EconomicAIStrategyTypes eStrategy, CvPlayer* pPlayer);
 bool IsTestStrategy_CitiesNeedNavalGrowth(EconomicAIStrategyTypes eStrategy, CvPlayer* pPlayer);

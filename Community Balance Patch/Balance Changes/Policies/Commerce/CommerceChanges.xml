@@ -106,7 +106,7 @@
 		</Row>
 		<Row>
 			<PolicyType>POLICY_TRADE_UNIONS</PolicyType>
-			<BuildingClassType>BUILDINGCLASS_SEAPORT</BuildingClassType>
+			<BuildingClassType>BUILDINGCLASS_WINDMILL</BuildingClassType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
 			<YieldChange>2</YieldChange>
 		</Row>
@@ -124,7 +124,7 @@
 		</Row>
 		<Row>
 			<PolicyType>POLICY_TRADE_UNIONS</PolicyType>
-			<BuildingClassType>BUILDINGCLASS_SEAPORT</BuildingClassType>
+			<BuildingClassType>BUILDINGCLASS_WINDMILL</BuildingClassType>
 			<YieldType>YIELD_GOLD</YieldType>
 			<YieldChange>1</YieldChange>
 		</Row>

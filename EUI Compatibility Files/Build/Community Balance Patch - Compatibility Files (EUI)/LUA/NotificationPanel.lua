@@ -1399,6 +1399,7 @@ local function UpdateCivListNow()
 					local luxMinGold = dealDuration * 5
 					local strategicMinGold = dealDuration
 					local gold = dealDuration * goldRate + gold
+					local happyWithoutLux = g_activePlayer:GetExcessHappiness() > 4 + g_activePlayer:GetNumCities() -- approximation... should take actual happy value + scan city growth
 					-- Resources available from us
 					for resource in GameInfo.Resources() do
 						local resourceID = resource.ID
@@ -1408,7 +1409,7 @@ local function UpdateCivListNow()
 							if ( usage == ResourceUsageTypes.RESOURCEUSAGE_LUXURY
 								and (gold >= luxMinGold  or minKeepLuxuries == 0) -- they can pay for it or trade for another lux
 								and player:GetNumResourceAvailable( resourceID, true ) == 0 -- they do not already have or import
-								and g_activePlayer:GetNumResourceAvailable( resourceID, true ) > minKeepLuxuries ) -- we keep some, including imports
+								and ( happyWithoutLux or g_activePlayer:GetNumResourceAvailable( resourceID, true ) > minKeepLuxuries ) ) -- we keep some, including imports
 							   or ( usage == ResourceUsageTypes.RESOURCEUSAGE_STRATEGIC
 								and gold >= strategicMinGold -- they can pay for it
 								and player:GetNumResourceAvailable( resourceID, true ) <= player:GetNumCities() ) -- game limit on AI trading

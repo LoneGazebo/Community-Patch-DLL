@@ -93,6 +93,34 @@ void CvDangerPlots::Uninit()
 	m_bDirty = false;
 }
 
+//helper function for city threat calculation
+int SimulateDamageFromAttackOnCity(CvCity* pCity, const CvUnit* pUnit)
+{
+	if (!pUnit || !pCity || pUnit->isDelayedDeath() || pUnit->IsDead())
+		return 0;
+		
+	int iDamage = 0;
+	if (pUnit->IsCanAttackRanged())
+	{
+		if (pUnit->getDomainType() == DOMAIN_AIR)
+			iDamage += pUnit->GetAirCombatDamage(NULL, pCity, false);
+		else
+			iDamage += pUnit->GetRangeCombatDamage(NULL, pCity, false);
+	}
+	else
+	{
+		if (pUnit->isRangedSupportFire())
+			iDamage += pUnit->GetRangeCombatDamage(NULL, pCity, false);
+
+		//just assume the unit can attack from it's current location - modifiers might be different, but thats acceptable
+		iDamage += pUnit->getCombatDamage(pUnit->GetMaxAttackStrength(pUnit->plot(), pCity->plot(), NULL),
+			pCity->getStrengthValue(), pUnit->getDamage(), false, false, true);
+
+	}
+
+	return iDamage;
+}
+
 /// Updates the danger plots values to reflect threats across the map
 void CvDangerPlots::UpdateDanger(bool bPretendWarWithAllCivs, bool bIgnoreVisibility)
 {
@@ -322,9 +350,10 @@ void CvDangerPlots::UpdateDanger(bool bPretendWarWithAllCivs, bool bIgnoreVisibi
 	for(pLoopCity = thisPlayer.firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = thisPlayer.nextCity(&iLoopCity))
 	{
 #ifdef AUI_DANGER_PLOTS_REMADE
-		//simple add up the enemy combat strength near the city, adding danger would count each unit multiple times, is biased towards fast units
-		//todo: pretend they would all attack the city and tally up the damage
-		int iEvalRange = GC.getAI_DIPLO_PLOT_RANGE_FROM_CITY_HOME_FRONT();
+		//adding danger would count each unit multiple times, is biased towards fast units
+		//so we pretend they would all attack the city and tally up the damage
+		//question is, what about our own defensive units in the area. should we count those as well?
+		int iEvalRange = 4;
 		int iThreatValue = 0;
 		for(int iX = -iEvalRange; iX <= iEvalRange; iX++)
 			for(int iY = -iEvalRange; iY <= iEvalRange; iY++)
@@ -334,7 +363,7 @@ void CvDangerPlots::UpdateDanger(bool bPretendWarWithAllCivs, bool bIgnoreVisibi
 				{
 					const UnitHandle pEnemy = pEvalPlot->getBestDefender(NO_PLAYER, thisPlayer.GetID(), NULL, true);
 					if (pEnemy)
-						iThreatValue += pEnemy->GetBaseCombatStrengthConsideringDamage();
+						iThreatValue += SimulateDamageFromAttackOnCity(pLoopCity,pEnemy.pointer());
 				}
 			}
 #else
@@ -1829,4 +1858,5 @@ int CvDangerPlotContents::GetDamageFromFeatures(PlayerTypes ePlayer) const
 
 	return 0;
 };
+
 #endif // AUI_DANGER_PLOTS_REMADE

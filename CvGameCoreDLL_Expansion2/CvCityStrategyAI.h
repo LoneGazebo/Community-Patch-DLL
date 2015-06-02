@@ -269,6 +269,9 @@ bool IsTestCityStrategy_EnoughTileImprovers(AICityStrategyTypes eStrategy, CvCit
 bool IsTestCityStrategy_NeedNavalGrowth(AICityStrategyTypes eStrategy, CvCity* pCity);
 bool IsTestCityStrategy_NeedNavalTileImprovement(CvCity* pCity);
 bool IsTestCityStrategy_EnoughNavalTileImprovement(CvCity* pCity);
+#if defined(MOD_BALANCE_CORE)
+bool IsTestCityStrategy_EnoughSettlers(CvCity* pCity);
+#endif
 bool IsTestCityStrategy_NeedImprovement(CvCity* pCity, YieldTypes yield);
 bool IsTestCityStrategy_HaveTrainingFacility(CvCity* pCity);
 bool IsTestCityStrategy_CapitalNeedSettler(AICityStrategyTypes eStrategy, CvCity* pCity);

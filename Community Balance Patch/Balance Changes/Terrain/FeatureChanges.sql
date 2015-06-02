@@ -79,44 +79,6 @@ UPDATE Natural_Wonder_Placement SET OccurrenceFrequency = 20 WHERE NaturalWonder
 	'FEATURE_LAKE_VICTORIA'	
 );
 
-INSERT OR REPLACE INTO Improvement_ResourceTypes(ImprovementType, ResourceType) 
-SELECT improve.Type, res.Type
-FROM Improvements improve, Resources res
-WHERE ( improve.CreatedByGreatPerson = 1
-	AND res.OnlyMinorCivs = 0
-	AND res.TechCityTrade <> 'TECH_SAILING'
-	AND NOT res.CivilizationType
-);
-
-INSERT OR REPLACE INTO Improvement_ResourceTypes(ImprovementType, ResourceType) 
-SELECT improve.Type, res.Type
-FROM Improvements improve, Resources res
-WHERE ( improve.Type = 'IMPROVEMENT_FORT'
-	AND res.OnlyMinorCivs = 0
-	AND res.TechCityTrade <> 'TECH_SAILING'
-	AND NOT res.CivilizationType
-);
-
-INSERT OR REPLACE INTO Improvement_ResourceType_Yields(ImprovementType, ResourceType, YieldType, Yield) 
-SELECT improve.Type, resTypes.ResourceType, resYields.YieldType, resYields.Yield 
-FROM Improvements improve, Improvement_ResourceTypes resTypes, Improvement_ResourceType_Yields resYields, Improvements impBasic
-WHERE improve.Type = 'IMPROVEMENT_FORT'
-AND resTypes.ImprovementType = improve.Type
-AND resTypes.ResourceType = resYields.ResourceType
-AND resYields.ImprovementType = impBasic.Type
-AND NOT impBasic.Water = 1;
-
-/*
-INSERT OR REPLACE INTO Improvement_ResourceType_Yields(ImprovementType, ResourceType, YieldType, Yield) 
-SELECT improve.Type, resTypes.ResourceType, resYields.YieldType, resYields.Yield 
-FROM Improvements improve, Improvement_ResourceTypes resTypes, Improvement_ResourceType_Yields resYields, Improvements impBasic
-WHERE improve.BuildableOnResources = 1
-AND resTypes.ImprovementType = improve.Type
-AND resTypes.ResourceType = resYields.ResourceType
-AND resYields.ImprovementType = impBasic.Type
-AND NOT impBasic.Water = 1;
-*/
-
 -- Buff jungles and forests
 INSERT INTO BuildFeatures (BuildType, FeatureType, PrereqTech, Time, Remove)
 VALUES ('BUILD_CAMP', 'FEATURE_MARSH', 'TECH_BRONZE_WORKING', '600', 1);
@@ -150,5 +112,9 @@ SET LakeChange = '1'
 WHERE Type = 'YIELD_PRODUCTION';
 
 UPDATE Yields
-SET LakeChange = '2'
+SET LakeChange = '1'
 WHERE Type = 'YIELD_FOOD';
+
+UPDATE Language_en_US
+SET Text = 'You have found {@1_Name}!'
+WHERE Tag = 'TXT_KEY_FOUND_NATURAL_WONDER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );

@@ -99,6 +99,12 @@
 			<YieldType>YIELD_FOOD</YieldType>
 			<Yield>1</Yield>
 		</Row>
+		<Row>
+			<ImprovementType>IMPROVEMENT_EKI</ImprovementType>
+			<TechType>TECH_ECOLOGY</TechType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>2</Yield>
+		</Row>
 	</Improvement_TechYieldChanges>
 	<Language_en_US>
 		<Row Tag="TXT_KEY_IMPROVEMENT_EKI">

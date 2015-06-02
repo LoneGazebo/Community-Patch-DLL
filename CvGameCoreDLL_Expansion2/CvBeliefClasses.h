@@ -80,6 +80,8 @@ public:
 #if defined(MOD_BALANCE_CORE_BELIEFS_RESOURCE)
 	bool RequiresImprovement() const;
 	bool RequiresResource() const;
+	bool RequiresNoImprovement() const;
+	bool RequiresNoImprovementFeature() const;
 #endif
 
 #if defined(MOD_BALANCE_CORE_BELIEFS)
@@ -134,6 +136,7 @@ public:
 #if defined(MOD_API_UNIFIED_YIELDS)
 	int GetCityYieldFromUnimprovedFeature(int i, int j) const;
 	int GetUnimprovedFeatureYieldChange(int i, int j) const;
+	int GetLakePlotYieldChange(int i) const;
 #endif
 	int GetResourceYieldChange(int i, int j) const;
 	int GetTerrainYieldChange(int i, int j) const;
@@ -216,6 +219,8 @@ protected:
 #if defined(MOD_BALANCE_CORE_BELIEFS_RESOURCE)
 	bool m_bRequiresImprovement;
 	bool m_bRequiresResource;
+	bool m_bRequiresNoImprovement;
+	bool m_bRequiresNoImprovementFeature;
 #endif
 
 	EraTypes m_eObsoleteEra;
@@ -243,6 +248,7 @@ protected:
 #if defined(MOD_API_UNIFIED_YIELDS)
 	int** m_ppiCityYieldFromUnimprovedFeature;
 	int** m_ppiUnimprovedFeatureYieldChanges;
+	int* m_paiLakePlotYieldChange;
 #endif
 	int** m_ppaiResourceYieldChange;
 	int** m_ppaiTerrainYieldChange;
@@ -511,6 +517,7 @@ public:
 #if defined(MOD_API_UNIFIED_YIELDS)
 	int GetCityYieldFromUnimprovedFeature(FeatureTypes eFeature, YieldTypes eYieldType) const;
 	int GetUnimprovedFeatureYieldChange(FeatureTypes eFeature, YieldTypes eYieldType) const;
+	int GetLakePlotYieldChange(YieldTypes eYieldType) const;
 #endif
 	int GetResourceYieldChange(ResourceTypes eResource, YieldTypes eYieldType) const;
 	int GetTerrainYieldChange(TerrainTypes eTerrain, YieldTypes eYieldType) const;
@@ -544,6 +551,8 @@ public:
 #if defined(MOD_BALANCE_CORE_BELIEFS_RESOURCE)
 	bool RequiresImprovement() const;
 	bool RequiresResource() const;
+	bool RequiresNoImprovement() const;
+	bool RequiresNoImprovementFeature() const;
 #endif
 
 #if defined(MOD_BALANCE_CORE_BELIEFS)

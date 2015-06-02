@@ -272,7 +272,7 @@
 		<Row>
 			<PolicyType>POLICY_MILITARY_TRADITION</PolicyType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>70</Yield>
+			<Yield>60</Yield>
 		</Row>
 	</Policy_YieldFromKills>
 	<Policy_FreePromotions>

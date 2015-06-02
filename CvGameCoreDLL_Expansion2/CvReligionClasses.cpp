@@ -2455,6 +2455,12 @@ int CvGameReligions::GetAdjacentCityReligiousPressure (ReligionTypes eReligion, 
 #if defined(MOD_BALANCE_CORE_POLICIES)
 				iTradeReligionModifer += GET_PLAYER(pFromCity->getOwner()).GetTradeReligionModifier();
 #endif
+#if defined(MOD_BALANCE_CORE)
+				if(pFromCity->GetReligiousTradeModifier() > 0)
+				{
+					iTradeReligionModifer += pFromCity->GetReligiousTradeModifier();
+				}
+#endif
 				if (iTradeReligionModifer != 0)
 				{
 					iPressure *= 100 + iTradeReligionModifer;
@@ -2522,6 +2528,12 @@ int CvGameReligions::GetAdjacentCityReligiousPressure (ReligionTypes eReligion, 
 			iPressure *= (100 + iModifier);
 			iPressure /= 100;
 		}
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+		if(GET_TEAM(GET_PLAYER(pToCity->getOwner()).getTeam()).IsVassal(GET_PLAYER(pFromCity->getOwner()).getTeam()))
+		{
+			iPressure *= 2;
+		}
+#endif
 #if defined(MOD_BALANCE_CORE)
 		if(GET_PLAYER(pFromCity->getOwner()).GetPlayerTraits()->IsPopulationBoostReligion())
 		{
@@ -7071,6 +7083,13 @@ int CvReligionAI::ScoreBeliefAtPlot(CvBeliefEntry* pEntry, CvPlot* pPlot)
 				iRtnValue += (pEntry->GetYieldModifierNaturalWonder(iI) / 25);
 			}
 		}
+#if defined(MOD_BALANCE_CORE)
+		//Lake
+		if(pPlot->isLake())
+		{
+			iRtnValue += pEntry->GetLakePlotYieldChange(iI);
+		}
+#endif
 		// Resource
 		ResourceTypes eResource = pPlot->getResourceType();
 		if(eResource != NO_RESOURCE)

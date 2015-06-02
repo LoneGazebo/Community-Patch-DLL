@@ -239,8 +239,19 @@ CvCity::CvCity() :
 #if defined(MOD_BALANCE_CORE)
 	, m_iUnhappyCitizen(0)
 	, m_iPurchaseCooldown(0)
+	, m_iReligiousTradeModifier(0)
 	, m_aiChangeYieldFromVictory("CvCity::m_aiChangeYieldFromVictory", m_syncArchive)
 	, m_aiBaseYieldRateFromCSAlliance("CvCity::m_aiChangeGrowthExtraYield", m_syncArchive)
+#endif
+#if defined(MOD_BALANCE_CORE)
+	, m_bBlockBuildingDestruction(false)
+	, m_bBlockWWDestruction(false)
+	, m_bBlockUDestruction(false)
+	, m_bBlockGPDestruction(false)
+	, m_bBlockRebellion(false)
+	, m_bBlockUnrest(false)
+	, m_bBlockScience(false)
+	, m_bBlockGold(false)
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
 	, m_iCityRank(0)
@@ -1305,7 +1316,18 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_bIsNationalMissionaries = false;
 	m_iUnhappyCitizen = 0;
 	m_iPurchaseCooldown = 0;
+	m_iReligiousTradeModifier = 0;
 	m_aiChangeYieldFromVictory.resize(NUM_YIELD_TYPES);
+#endif
+#if defined(MOD_BALANCE_CORE)
+	m_bBlockBuildingDestruction = false;
+	m_bBlockWWDestruction = false;
+	m_bBlockUDestruction = false;
+	m_bBlockGPDestruction = false;
+	m_bBlockRebellion = false;
+	m_bBlockUnrest = false;
+	m_bBlockScience = false;
+	m_bBlockGold = false;
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
 	m_iCityRank = 0;
@@ -4135,26 +4157,32 @@ void CvCity::ChangeNumResourceLocal(ResourceTypes eResource, int iChange)
 #if defined(MOD_BALANCE_CORE_RESOURCE_FLAVORS)
 					if(MOD_BALANCE_CORE_RESOURCE_FLAVORS && GC.getResourceInfo(eResource)->getWonderProductionModObsoleteEra() == GC.getInfoTypeForString("ERA_MEDIEVAL", true /*bHideAssert*/))
 					{
-						CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
-						if(pNotifications)
+						if(GET_PLAYER(getOwner()).GetCurrentEra() < GC.getInfoTypeForString("ERA_MEDIEVAL", true /*bHideAssert*/))
 						{
-							Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_RESOURCE_WONDER_MOD");
-							strText << getNameKey() << GC.getResourceInfo(eResource)->GetTextKey() << iWonderMod;
-							Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_RESOURCE_WONDER_MOD_SUMMARY");
-							strSummary << getNameKey() << GC.getResourceInfo(eResource)->GetTextKey();
-							pNotifications->Add(NOTIFICATION_DISCOVERED_BONUS_RESOURCE, strText.toUTF8(), strSummary.toUTF8(), getX(), getY(), eResource);
+							CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
+							if(pNotifications)
+							{
+								Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_RESOURCE_WONDER_MOD");
+								strText << getNameKey() << GC.getResourceInfo(eResource)->GetTextKey() << iWonderMod;
+								Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_RESOURCE_WONDER_MOD_SUMMARY");
+								strSummary << getNameKey() << GC.getResourceInfo(eResource)->GetTextKey();
+								pNotifications->Add(NOTIFICATION_DISCOVERED_BONUS_RESOURCE, strText.toUTF8(), strSummary.toUTF8(), getX(), getY(), eResource);
+							}
 						}
 					}
 					else if(MOD_BALANCE_CORE_RESOURCE_FLAVORS && GC.getResourceInfo(eResource)->getWonderProductionModObsoleteEra() == GC.getInfoTypeForString("ERA_INDUSTRIAL", true /*bHideAssert*/))
 					{
-						CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
-						if(pNotifications)
+						if(GET_PLAYER(getOwner()).GetCurrentEra() < GC.getInfoTypeForString("ERA_INDUSTRIAL", true /*bHideAssert*/))
 						{
-							Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_RESOURCE_WONDER_MOD_LATE");
-							strText << getNameKey() << GC.getResourceInfo(eResource)->GetTextKey() << iWonderMod;
-							Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_RESOURCE_WONDER_MOD_SUMMARY");
-							strSummary << getNameKey() << GC.getResourceInfo(eResource)->GetTextKey();
-							pNotifications->Add(NOTIFICATION_DISCOVERED_BONUS_RESOURCE, strText.toUTF8(), strSummary.toUTF8(), getX(), getY(), eResource);
+							CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
+							if(pNotifications)
+							{
+								Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_RESOURCE_WONDER_MOD_LATE");
+								strText << getNameKey() << GC.getResourceInfo(eResource)->GetTextKey() << iWonderMod;
+								Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_RESOURCE_WONDER_MOD_SUMMARY");
+								strSummary << getNameKey() << GC.getResourceInfo(eResource)->GetTextKey();
+								pNotifications->Add(NOTIFICATION_DISCOVERED_BONUS_RESOURCE, strText.toUTF8(), strSummary.toUTF8(), getX(), getY(), eResource);
+							}
 						}
 					}
 					else
@@ -7836,6 +7864,16 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 				}
 			}
 			// END TERRA COTTA AWESOME
+#if defined(MOD_BALANCE_CORE)
+			if(MOD_BALANCE_CORE && pBuildingInfo->IsReformation() && (iChange > 0))
+			{
+				GET_PLAYER(getOwner()).SetReformation(true);
+			}
+			if(MOD_BALANCE_CORE && (pBuildingInfo->GrantsRandomResourceTerritory() > 0) && (iChange > 0))
+			{
+				GET_PLAYER(getOwner()).GetPlayerTraits()->AddUniqueLuxuriesAround(this, pBuildingInfo->GrantsRandomResourceTerritory());
+			}
+#endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INSTANT_YIELD)
 			if(MOD_BALANCE_CORE_BUILDING_INSTANT_YIELD && (iChange > 0))
 			{
@@ -7844,55 +7882,88 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 					SetBuildingConstructed(eBuildingClass, true);
 					if(pBuildingInfo->GetInstantYield(YIELD_CULTURE_LOCAL) > 0)
 					{
-						ChangeJONSCultureStored(pBuildingInfo->GetInstantYield(YIELD_CULTURE_LOCAL));
+						int iYield = pBuildingInfo->GetInstantYield(YIELD_CULTURE_LOCAL);
+						iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+						iYield /= 100;
+						ChangeJONSCultureStored(iYield);
 					}
 					if(pBuildingInfo->GetInstantYield(YIELD_CULTURE) > 0)
 					{
-						GET_PLAYER(getOwner()).changeJONSCulture(pBuildingInfo->GetInstantYield(YIELD_CULTURE));
+						int iYield = pBuildingInfo->GetInstantYield(YIELD_CULTURE);
+						iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+						iYield /= 100;
+						GET_PLAYER(getOwner()).changeJONSCulture(iYield);
 					}
 					if(pBuildingInfo->GetInstantYield(YIELD_GOLD) > 0)
 					{
-						GET_PLAYER(getOwner()).GetTreasury()->ChangeGold(pBuildingInfo->GetInstantYield(YIELD_GOLD));
+						int iYield = pBuildingInfo->GetInstantYield(YIELD_GOLD);
+						iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+						iYield /= 100;
+						GET_PLAYER(getOwner()).GetTreasury()->ChangeGold(iYield);
 					}
 					if(pBuildingInfo->GetInstantYield(YIELD_FOOD) > 0)
 					{
-						changeFood(pBuildingInfo->GetInstantYield(YIELD_FOOD));
+						int iYield = pBuildingInfo->GetInstantYield(YIELD_FOOD);
+						iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+						iYield /= 100;
+						changeFood(iYield);
 					}	
 					if(pBuildingInfo->GetInstantYield(YIELD_PRODUCTION) > 0)
 					{
-						changeProduction(pBuildingInfo->GetInstantYield(YIELD_PRODUCTION));
+						int iYield = pBuildingInfo->GetInstantYield(YIELD_PRODUCTION);
+						iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+						iYield /= 100;
+						changeProduction(iYield);
 					}
 					if(pBuildingInfo->GetInstantYield(YIELD_FAITH) > 0)
 					{
-						GET_PLAYER(getOwner()).ChangeFaith(pBuildingInfo->GetInstantYield(YIELD_FAITH));
+						int iYield = pBuildingInfo->GetInstantYield(YIELD_FAITH);
+						iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+						iYield /= 100;
+						GET_PLAYER(getOwner()).ChangeFaith(iYield);
 					}
 					if(pBuildingInfo->GetInstantYield(YIELD_SCIENCE) > 0)
 					{
+						int iYield = pBuildingInfo->GetInstantYield(YIELD_SCIENCE);
+						iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+						iYield /= 100;
 						TechTypes eCurrentTech = owningPlayer.GetPlayerTechs()->GetCurrentResearch();
 						if(eCurrentTech == NO_TECH)
 						{
-							owningPlayer.changeOverflowResearch(pBuildingInfo->GetInstantYield(YIELD_SCIENCE));
+							owningPlayer.changeOverflowResearch(iYield);
 						}
 						else
 						{
-							owningTeam.GetTeamTechs()->ChangeResearchProgress(eCurrentTech, pBuildingInfo->GetInstantYield(YIELD_SCIENCE), owningPlayer.GetID());
+							owningTeam.GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iYield, owningPlayer.GetID());
 						}
 					}
 					if(pBuildingInfo->GetInstantYield(YIELD_GOLDEN_AGE_POINTS) > 0)
 					{
-						GET_PLAYER(getOwner()).ChangeGoldenAgeProgressMeter(pBuildingInfo->GetInstantYield(YIELD_GOLDEN_AGE_POINTS));
+						int iYield = pBuildingInfo->GetInstantYield(YIELD_GOLDEN_AGE_POINTS);
+						iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+						iYield /= 100;
+						GET_PLAYER(getOwner()).ChangeGoldenAgeProgressMeter(iYield);
 					}
 					if(pBuildingInfo->GetInstantYield(YIELD_GREAT_GENERAL_POINTS) > 0)
 					{
-						GET_PLAYER(getOwner()).changeCombatExperience(pBuildingInfo->GetInstantYield(YIELD_GREAT_GENERAL_POINTS), 0);
+						int iYield = pBuildingInfo->GetInstantYield(YIELD_GREAT_GENERAL_POINTS);
+						iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+						iYield /= 100;
+						GET_PLAYER(getOwner()).changeCombatExperience(iYield, 0);
 					}
 					if(pBuildingInfo->GetInstantYield(YIELD_GREAT_ADMIRAL_POINTS) > 0)
 					{
-						GET_PLAYER(getOwner()).changeNavalCombatExperience(pBuildingInfo->GetInstantYield(YIELD_GREAT_ADMIRAL_POINTS), 0);
+						int iYield = pBuildingInfo->GetInstantYield(YIELD_GREAT_ADMIRAL_POINTS);
+						iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+						iYield /= 100;
+						GET_PLAYER(getOwner()).changeNavalCombatExperience(iYield, 0);
 					}
 					if(pBuildingInfo->GetInstantYield(YIELD_POPULATION) > 0)
 					{
-						changePopulation(pBuildingInfo->GetInstantYield(YIELD_POPULATION), false);
+						int iYield = pBuildingInfo->GetInstantYield(YIELD_POPULATION);
+						iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+						iYield /= 100;
+						changePopulation(iYield, false);
 					}
 				}
 			}
@@ -8022,20 +8093,52 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 		}
 #endif
 #if defined(MOD_BALANCE_CORE)
-		if(MOD_BALANCE_CORE && pBuildingInfo->IsReformation())
-		{
-			GET_PLAYER(getOwner()).SetReformation(true);
-		}
-		if(MOD_BALANCE_CORE && (pBuildingInfo->GrantsRandomResourceTerritory() > 0))
-		{
-			GET_PLAYER(getOwner()).GetPlayerTraits()->AddUniqueLuxuriesAround(this, pBuildingInfo->GrantsRandomResourceTerritory());
-		}
 		if(MOD_BALANCE_CORE && (pBuildingInfo->IsNationalMissionaries()))
 		{
 			SetNationalMissionaries(true);
 		}
+		if(MOD_BALANCE_CORE && (pBuildingInfo->GetTradeReligionModifier() > 0))
+		{
+			ChangeReligiousTradeModifier(pBuildingInfo->GetTradeReligionModifier() * iChange);
+		}
 #endif
-
+#if defined(MOD_BALANCE_CORE_SPIES)
+		if(MOD_BALANCE_CORE_SPIES)
+		{
+			if(pBuildingInfo->IsBlockBuildingDestruction())
+			{
+				SetBlockBuildingDestruction(true);
+			}
+			if(pBuildingInfo->IsBlockWWDestruction())
+			{
+				SetBlockWWDestruction(true);
+			}
+			if(pBuildingInfo->IsBlockUDestruction())
+			{
+				SetBlockUDestruction(true);
+			}
+			if(pBuildingInfo->IsBlockGPDestruction())
+			{
+				SetBlockGPDestruction(true);
+			}
+			if(pBuildingInfo->IsBlockRebellion())
+			{
+				SetBlockRebellion(true);
+			}
+			if(pBuildingInfo->IsBlockUnrest())
+			{
+				SetBlockUnrest(true);
+			}
+			if(pBuildingInfo->IsBlockScience())
+			{
+				SetBlockScience(true);
+			}
+			if(pBuildingInfo->IsBlockGold())
+			{
+				SetBlockGold(true);
+			}
+		}
+#endif
 		changeMaxFoodKeptPercent(pBuildingInfo->GetFoodKept() * iChange);
 		changeMilitaryProductionModifier(pBuildingInfo->GetMilitaryProductionModifier() * iChange);
 		changeSpaceProductionModifier(pBuildingInfo->GetSpaceProductionModifier() * iChange);
@@ -10386,6 +10489,28 @@ void CvCity::DoJONSCultureLevelIncrease()
 			}
 		}
 #endif
+#if defined(MOD_BALANCE_CORE)
+		TerrainTypes eTerrainBoost = (TerrainTypes) GET_PLAYER(getOwner()).GetPlayerTraits()->GetTerrainClaimBoost();
+		int iTotal = 0;
+		if(eTerrainBoost != NO_TERRAIN)
+		{
+			if(pPlotToAcquire->getTerrainType() == eTerrainBoost)
+			{
+				for (int iDirectionLoop = 0; iDirectionLoop < NUM_DIRECTION_TYPES; ++iDirectionLoop)
+				{
+					CvPlot* pAdjacentPlot = plotDirection(pPlotToAcquire->getX(), pPlotToAcquire->getY(), ((DirectionTypes)iDirectionLoop));
+					if (pAdjacentPlot && pAdjacentPlot->getTerrainType() == eTerrainBoost)
+					{
+						if(pAdjacentPlot->getOwner() == NO_PLAYER && iTotal < GC.getBALANCE_CORE_ARABIA_TILE_BONUS())
+						{
+							DoAcquirePlot(pAdjacentPlot->getX(), pAdjacentPlot->getY());
+							iTotal++;
+						}
+					}
+				}
+			}
+		}
+#endif
 #if defined(MOD_UI_CITY_EXPANSION)
 	}
 	else if (MOD_UI_CITY_EXPANSION && bIsHumanControlled) 
@@ -11925,7 +12050,11 @@ int CvCity::GetLocalHappiness() const
 	{
 		if(GetGarrisonedUnit() != NULL)
 		{
+#if defined(MOD_BALANCE_CORE)
+			iLocalHappiness += kPlayer.GetHappinessPerGarrisonedUnit();
+#else
 			iLocalHappiness++;
+#endif
 		}
 	}
 
@@ -14536,6 +14665,108 @@ void CvCity::SetBaseYieldRateFromCSAlliance(YieldTypes eIndex, int iValue)
 		m_aiBaseYieldRateFromCSAlliance.setAt(eIndex, iValue);
 	}
 }
+//	--------------------------------------------------------------------------------
+/// Trade Route Religious Spread Boost
+int CvCity::GetReligiousTradeModifier() const
+{
+	return m_iReligiousTradeModifier;
+}
+void CvCity::ChangeReligiousTradeModifier(int iChange)
+{
+	if(iChange != 0)
+	{
+		SetReligiousTradeModifier(GetReligiousTradeModifier() + iChange);
+	}
+}
+void CvCity::SetReligiousTradeModifier(int iValue)
+{
+	m_iReligiousTradeModifier = iValue;
+}
+#endif
+#if defined(MOD_BALANCE_CORE_SPIES)
+//	--------------------------------------------------------------------------------
+//	--------------------------------------------------------------------------------
+void CvCity::SetBlockBuildingDestruction(bool bNewValue)
+{
+	m_bBlockBuildingDestruction = bNewValue;
+}
+bool CvCity::IsBlockBuildingDestruction() const
+{
+	return m_bBlockBuildingDestruction;
+}
+//	--------------------------------------------------------------------------------
+void CvCity::SetBlockWWDestruction(bool bNewValue)
+{
+	m_bBlockWWDestruction = bNewValue;
+}
+//	--------------------------------------------------------------------------------
+bool CvCity::IsBlockWWDestruction() const
+{
+	return m_bBlockWWDestruction;
+}
+//	--------------------------------------------------------------------------------
+void CvCity::SetBlockUDestruction(bool bNewValue)
+{
+	m_bBlockUDestruction = bNewValue;
+}
+//	--------------------------------------------------------------------------------
+bool CvCity::IsBlockUDestruction() const
+{
+	return m_bBlockUDestruction;
+}
+//	--------------------------------------------------------------------------------
+void CvCity::SetBlockGPDestruction(bool bNewValue)
+{
+	m_bBlockGPDestruction = bNewValue;
+}
+//	--------------------------------------------------------------------------------
+bool CvCity::IsBlockGPDestruction() const
+{
+	return m_bBlockGPDestruction;
+}
+//	--------------------------------------------------------------------------------
+void CvCity::SetBlockRebellion(bool bNewValue)
+{
+	m_bBlockRebellion = bNewValue;
+}
+//	--------------------------------------------------------------------------------
+bool CvCity::IsBlockRebellion() const
+{
+	return m_bBlockRebellion;
+}
+
+//	--------------------------------------------------------------------------------
+void CvCity::SetBlockUnrest(bool bNewValue)
+{
+	m_bBlockUnrest = bNewValue;
+}
+//	--------------------------------------------------------------------------------
+bool CvCity::IsBlockUnrest() const
+{
+	return m_bBlockUnrest;
+}
+
+//	--------------------------------------------------------------------------------
+void CvCity::SetBlockScience(bool bNewValue)
+{
+	m_bBlockScience = bNewValue;
+}
+//	--------------------------------------------------------------------------------
+bool CvCity::IsBlockScience() const
+{
+	return m_bBlockScience;
+}
+
+//	--------------------------------------------------------------------------------
+void CvCity::SetBlockGold(bool bNewValue)
+{
+	m_bIsNationalMissionaries = bNewValue;
+}
+//	--------------------------------------------------------------------------------
+bool CvCity::IsBlockGold() const
+{
+	return m_bIsNationalMissionaries;
+}
 #endif
 //	--------------------------------------------------------------------------------
 /// Extra yield for each pop point
@@ -15923,7 +16154,11 @@ void CvCity::GetBuyablePlotList(std::vector<int>& aiPlotList)
 					{
 
 						// Water Plots claimed later
+#if defined(MOD_BALANCE_CORE)
+						if (pLoopPlot->isWater() && !pLoopPlot->isLake())
+#else
 						if (pLoopPlot->isWater())
+#endif
 						{
 							iInfluenceCost += iPLOT_INFLUENCE_WATER_COST;
 						}
@@ -15969,6 +16204,16 @@ void CvCity::GetBuyablePlotList(std::vector<int>& aiPlotList)
 					// More Yield == more desirable
 					for (iYieldLoop = 0; iYieldLoop < NUM_YIELD_TYPES; iYieldLoop++)
 					{
+#if defined(MOD_BALANCE_CORE)
+						TerrainTypes eTerrainBoost = (TerrainTypes) GET_PLAYER(getOwner()).GetPlayerTraits()->GetTerrainClaimBoost();
+						if(eTerrainBoost != NO_TERRAIN)
+						{
+							if(pLoopPlot->getTerrainType() == eTerrainBoost)
+							{
+								iInfluenceCost -= (GET_PLAYER(getOwner()).GetPlayerTraits()->GetTerrainYieldChange(pLoopPlot->getTerrainType(), (YieldTypes) iYieldLoop) * 25);
+							}
+						}
+#endif
 						iInfluenceCost += (iPLOT_INFLUENCE_YIELD_POINT_COST * pLoopPlot->getYield((YieldTypes) iYieldLoop));
 					}
 
@@ -16231,38 +16476,43 @@ void CvCity::BuyPlot(int iPlotX, int iPlotY)
 #if defined(MOD_BALANCE_CORE)
 	if(MOD_BALANCE_CORE)
 	{
+		int iEra = GET_PLAYER(getOwner()).GetCurrentEra();
+		if(iEra < 1)
+		{
+			iEra = 1;
+		}
 		float fDelay = 0.0f;
 		if(thisPlayer.GetPlayerTraits()->GetYieldFromTilePurchase(YIELD_FOOD) > 0)
 		{
-			changeFood(thisPlayer.GetPlayerTraits()->GetYieldFromTilePurchase(YIELD_FOOD));
+			changeFood(thisPlayer.GetPlayerTraits()->GetYieldFromTilePurchase(YIELD_FOOD) * iEra);
 			if(getOwner() == GC.getGame().getActivePlayer())
 			{
 				char text[256] = {0};
 				fDelay += 0.5f;
-				sprintf_s(text, "[COLOR_GREEN]+%d[ENDCOLOR][ICON_FOOD]", thisPlayer.GetPlayerTraits()->GetYieldFromTilePurchase(YIELD_FOOD));
-				DLLUI->AddPopupText(getX(),getY(), text, fDelay);
+				sprintf_s(text, "[COLOR_GREEN]+%d[ENDCOLOR][ICON_FOOD]", thisPlayer.GetPlayerTraits()->GetYieldFromTilePurchase(YIELD_FOOD) * iEra);
+				DLLUI->AddPopupText(pPlot->getX(),pPlot->getY(), text, fDelay);
 			}
 		}
 		if(thisPlayer.GetPlayerTraits()->GetYieldFromTilePurchase(YIELD_PRODUCTION) > 0)
 		{
-			changeProduction(thisPlayer.GetPlayerTraits()->GetYieldFromTilePurchase(YIELD_PRODUCTION));
+			changeProduction(thisPlayer.GetPlayerTraits()->GetYieldFromTilePurchase(YIELD_PRODUCTION) * iEra);
 			if(getOwner() == GC.getGame().getActivePlayer())
 			{
 				char text[256] = {0};
 				fDelay += 0.5f;
-				sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_PRODUCTION]", thisPlayer.GetPlayerTraits()->GetYieldFromTilePurchase(YIELD_PRODUCTION));
-				DLLUI->AddPopupText(getX(),getY(), text, fDelay);
+				sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_PRODUCTION]", thisPlayer.GetPlayerTraits()->GetYieldFromTilePurchase(YIELD_PRODUCTION) * iEra);
+				DLLUI->AddPopupText(pPlot->getX(),pPlot->getY(), text, fDelay);
 			}
 		}
 		if(thisPlayer.GetPlayerTraits()->GetYieldFromTilePurchase(YIELD_GOLD) > 0)
 		{
-			thisPlayer.GetTreasury()->ChangeGold(thisPlayer.GetPlayerTraits()->GetYieldFromTilePurchase(YIELD_GOLD));
+			thisPlayer.GetTreasury()->ChangeGold(thisPlayer.GetPlayerTraits()->GetYieldFromTilePurchase(YIELD_GOLD) * iEra);
 			if(getOwner() == GC.getGame().getActivePlayer())
 			{
 				char text[256] = {0};
 				fDelay += 0.5f;
-				sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]", thisPlayer.GetPlayerTraits()->GetYieldFromTilePurchase(YIELD_GOLD));
-				DLLUI->AddPopupText(getX(),getY(), text, fDelay);
+				sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]", thisPlayer.GetPlayerTraits()->GetYieldFromTilePurchase(YIELD_GOLD) * iEra);
+				DLLUI->AddPopupText(pPlot->getX(),pPlot->getY(), text, fDelay);
 			}
 		}
 		if(thisPlayer.GetPlayerTraits()->GetYieldFromTilePurchase(YIELD_SCIENCE) > 0)
@@ -16270,52 +16520,52 @@ void CvCity::BuyPlot(int iPlotX, int iPlotY)
 			TechTypes eCurrentTech = thisPlayer.GetPlayerTechs()->GetCurrentResearch();
 			if(eCurrentTech == NO_TECH)
 			{
-				thisPlayer.changeOverflowResearch(thisPlayer.GetPlayerTraits()->GetYieldFromTilePurchase(YIELD_SCIENCE));
+				thisPlayer.changeOverflowResearch(thisPlayer.GetPlayerTraits()->GetYieldFromTilePurchase(YIELD_SCIENCE) * iEra);
 			}
 			else
 			{
-				GET_TEAM(thisPlayer.getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, thisPlayer.GetPlayerTraits()->GetYieldFromTilePurchase(YIELD_SCIENCE), getOwner());
+				GET_TEAM(thisPlayer.getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, thisPlayer.GetPlayerTraits()->GetYieldFromTilePurchase(YIELD_SCIENCE) * iEra, getOwner());
 			}
 			if(getOwner() == GC.getGame().getActivePlayer())
 			{
 				char text[256] = {0};
 				fDelay += 0.5f;
-				sprintf_s(text, "[COLOR_BLUE]+%d[ENDCOLOR][ICON_RESEARCH]", thisPlayer.GetPlayerTraits()->GetYieldFromTilePurchase(YIELD_SCIENCE));
-				DLLUI->AddPopupText(getX(),getY(), text, fDelay);
+				sprintf_s(text, "[COLOR_BLUE]+%d[ENDCOLOR][ICON_RESEARCH]", thisPlayer.GetPlayerTraits()->GetYieldFromTilePurchase(YIELD_SCIENCE) * iEra);
+				DLLUI->AddPopupText(pPlot->getX(),pPlot->getY(), text, fDelay);
 			}
 		}
 		if(thisPlayer.GetPlayerTraits()->GetYieldFromTilePurchase(YIELD_CULTURE) > 0)
 		{
-			thisPlayer.changeJONSCulture(thisPlayer.GetPlayerTraits()->GetYieldFromTilePurchase(YIELD_CULTURE));
-			ChangeJONSCultureStored(thisPlayer.GetPlayerTraits()->GetYieldFromTilePurchase(YIELD_CULTURE));
+			thisPlayer.changeJONSCulture(thisPlayer.GetPlayerTraits()->GetYieldFromTilePurchase(YIELD_CULTURE) * iEra);
+			ChangeJONSCultureStored(thisPlayer.GetPlayerTraits()->GetYieldFromTilePurchase(YIELD_CULTURE) * iEra);
 			if(getOwner() == GC.getGame().getActivePlayer())
 			{
 				char text[256] = {0};
 				fDelay += 0.5f;
-				sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", thisPlayer.GetPlayerTraits()->GetYieldFromTilePurchase(YIELD_CULTURE));
-				DLLUI->AddPopupText(getX(),getY(), text, fDelay);
+				sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", thisPlayer.GetPlayerTraits()->GetYieldFromTilePurchase(YIELD_CULTURE) * iEra);
+				DLLUI->AddPopupText(pPlot->getX(),pPlot->getY(), text, fDelay);
 			}
 		}
 		if(thisPlayer.GetPlayerTraits()->GetYieldFromTilePurchase(YIELD_FAITH) > 0)
 		{
-			thisPlayer.ChangeFaith(thisPlayer.GetPlayerTraits()->GetYieldFromTilePurchase(YIELD_FAITH));
+			thisPlayer.ChangeFaith(thisPlayer.GetPlayerTraits()->GetYieldFromTilePurchase(YIELD_FAITH) * iEra);
 			if(getOwner() == GC.getGame().getActivePlayer())
 			{
 				char text[256] = {0};
 				fDelay += 0.5f;
-				sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", thisPlayer.GetPlayerTraits()->GetYieldFromTilePurchase(YIELD_FAITH));
-				DLLUI->AddPopupText(getX(),getY(), text, fDelay);
+				sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", thisPlayer.GetPlayerTraits()->GetYieldFromTilePurchase(YIELD_FAITH) * iEra);
+				DLLUI->AddPopupText(pPlot->getX(),pPlot->getY(), text, fDelay);
 			}
 		}
 		if(thisPlayer.GetPlayerTraits()->GetYieldFromTilePurchase(YIELD_GOLDEN_AGE_POINTS) > 0)
 		{
-			thisPlayer.ChangeGoldenAgeProgressMeter(thisPlayer.GetPlayerTraits()->GetYieldFromTilePurchase(YIELD_GOLDEN_AGE_POINTS));
+			thisPlayer.ChangeGoldenAgeProgressMeter(thisPlayer.GetPlayerTraits()->GetYieldFromTilePurchase(YIELD_GOLDEN_AGE_POINTS) * iEra);
 			if(getOwner() == GC.getGame().getActivePlayer())
 			{
 				char text[256] = {0};
 				fDelay += 0.5f;
-				sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GOLDEN_AGE]", thisPlayer.GetPlayerTraits()->GetYieldFromTilePurchase(YIELD_GOLDEN_AGE_POINTS));
-				DLLUI->AddPopupText(getX(),getY(), text, fDelay);
+				sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_GOLDEN_AGE]", thisPlayer.GetPlayerTraits()->GetYieldFromTilePurchase(YIELD_GOLDEN_AGE_POINTS) * iEra);
+				DLLUI->AddPopupText(pPlot->getX(),pPlot->getY(), text, fDelay);
 			}
 		}
 	}
@@ -16505,6 +16755,16 @@ int CvCity::GetIndividualPlotScore(const CvPlot* pPlot) const
 		eYield = (YieldTypes) iI;
 
 		iYield = pPlot->calculateNatureYield(eYield, getTeam());
+#if defined(MOD_BALANCE_CORE)
+		TerrainTypes eTerrainBoost = (TerrainTypes) GET_PLAYER(getOwner()).GetPlayerTraits()->GetTerrainClaimBoost();
+		if(eTerrainBoost != NO_TERRAIN)
+		{
+			if(pPlot->getTerrainType() == eTerrainBoost)
+			{
+				iYield += (GET_PLAYER(getOwner()).GetPlayerTraits()->GetTerrainYieldChange(pPlot->getTerrainType(), eYield) * 5);
+			}
+		}
+#endif
 		iTempValue = 0;
 
 		if(eYield == eSpecializationYield)
@@ -16550,27 +16810,27 @@ int CvCity::GetIndividualPlotScore(const CvPlot* pPlot) const
 							case DISPUTE_LEVEL_FIERCE:
 								iRtnValue += (10 - iDistance) * /* 6 */ GC.getAI_PLOT_VALUE_FIERCE_DISPUTE();
 #if defined(MOD_BALANCE_CORE)
-								if(GET_PLAYER(getOwner()).GetPlayerTraits()->IsBuyOwnedTiles() && pPlot->getOwner() == (PlayerTypes)iI)
+								if(GET_PLAYER(getOwner()).GetPlayerTraits()->IsBuyOwnedTiles() && pPlot->getOwner() == loopPlayer.GetID())
 								{
-									iRtnValue *= (GET_PLAYER(getOwner()).GetDiplomacyAI()->GetBoldness() * GET_PLAYER(getOwner()).GetDiplomacyAI()->GetMeanness());
+									iRtnValue *= (6 * GET_PLAYER(getOwner()).GetDiplomacyAI()->GetBoldness() * GET_PLAYER(getOwner()).GetDiplomacyAI()->GetMeanness());
 								}
 #endif
 								break;
 							case DISPUTE_LEVEL_STRONG:
 								iRtnValue += (10 - iDistance) * /* 4 */GC.getAI_PLOT_VALUE_STRONG_DISPUTE();
 #if defined(MOD_BALANCE_CORE)
-								if(GET_PLAYER(getOwner()).GetPlayerTraits()->IsBuyOwnedTiles() && pPlot->getOwner() == (PlayerTypes)iI)
+								if(GET_PLAYER(getOwner()).GetPlayerTraits()->IsBuyOwnedTiles() && pPlot->getOwner() == loopPlayer.GetID())
 								{
-									iRtnValue *= (GET_PLAYER(getOwner()).GetDiplomacyAI()->GetBoldness() + GET_PLAYER(getOwner()).GetDiplomacyAI()->GetMeanness());
+									iRtnValue *= (4 * GET_PLAYER(getOwner()).GetDiplomacyAI()->GetBoldness() + GET_PLAYER(getOwner()).GetDiplomacyAI()->GetMeanness());
 								}
 #endif
 								break;
 							case DISPUTE_LEVEL_WEAK:
 								iRtnValue += (10 - iDistance) * /* 2 */ GC.getAI_PLOT_VALUE_WEAK_DISPUTE();
 #if defined(MOD_BALANCE_CORE)
-								if(GET_PLAYER(getOwner()).GetPlayerTraits()->IsBuyOwnedTiles() && pPlot->getOwner() == (PlayerTypes)iI)
+								if(GET_PLAYER(getOwner()).GetPlayerTraits()->IsBuyOwnedTiles() && pPlot->getOwner() == loopPlayer.GetID())
 								{
-									iRtnValue += (GET_PLAYER(getOwner()).GetDiplomacyAI()->GetBoldness() * GET_PLAYER(getOwner()).GetDiplomacyAI()->GetMeanness());
+									iRtnValue += (2 * GET_PLAYER(getOwner()).GetDiplomacyAI()->GetBoldness() * GET_PLAYER(getOwner()).GetDiplomacyAI()->GetMeanness());
 								}
 #endif
 								break;
@@ -16583,6 +16843,12 @@ int CvCity::GetIndividualPlotScore(const CvPlot* pPlot) const
 	}
 	// Modify value based on cost - the higher it is compared to the "base" cost the less the value
 	int iCost = GetBuyPlotCost(pPlot->getX(), pPlot->getY());
+#if defined(MOD_BALANCE_CORE)
+	if(GET_PLAYER(getOwner()).GetPlayerTraits()->IsBuyOwnedTiles())
+	{
+		iCost /= 3;
+	}
+#endif
 	iRtnValue *= GET_PLAYER(getOwner()).GetBuyPlotCost();
 
 	// Protect against div by 0.
@@ -16637,8 +16903,20 @@ void CvCity::DoUpdateCheapestPlotInfluence()
 #else
 				// If the plot's not owned by us, it doesn't matter
 #endif
+#if defined(MOD_BALANCE_CORE)
+				if(!GET_PLAYER(getOwner()).GetPlayerTraits()->IsBuyOwnedTiles() && pLoopPlot->getOwner() != NO_PLAYER)
+				{
+#else
 				if(pLoopPlot->getOwner() != NO_PLAYER)
+#endif
 					continue;
+#if defined(MOD_BALANCE_CORE)
+				}
+				else if(GET_PLAYER(getOwner()).GetPlayerTraits()->IsBuyOwnedTiles() && pLoopPlot->isCity())
+				{
+					continue;
+				}
+#endif
 					
 #if defined(MOD_EVENTS_CITY_BORDERS)
 				// If we can't acquire it, it also doesn't matter
@@ -19776,7 +20054,18 @@ void CvCity::read(FDataStream& kStream)
 	MOD_SERIALIZE_READ_AUTO(65, kStream, m_aiChangeYieldFromVictory, NUM_YIELD_TYPES, 0);
 	MOD_SERIALIZE_READ(66, kStream, m_iUnhappyCitizen, 0);
 	MOD_SERIALIZE_READ(66, kStream, m_iPurchaseCooldown, 0);
+	MOD_SERIALIZE_READ(66, kStream, m_iReligiousTradeModifier, 0);
 	MOD_SERIALIZE_READ_AUTO(66, kStream, m_aiBaseYieldRateFromCSAlliance, NUM_YIELD_TYPES, 0);
+#endif
+#if defined(MOD_BALANCE_CORE)
+	MOD_SERIALIZE_READ(66, kStream, m_bBlockBuildingDestruction, false);
+	MOD_SERIALIZE_READ(66, kStream, m_bBlockWWDestruction, false);
+	MOD_SERIALIZE_READ(66, kStream, m_bBlockUDestruction, false);
+	MOD_SERIALIZE_READ(66, kStream, m_bBlockGPDestruction, false);
+	MOD_SERIALIZE_READ(66, kStream, m_bBlockRebellion, false);
+	MOD_SERIALIZE_READ(66, kStream, m_bBlockUnrest, false);
+	MOD_SERIALIZE_READ(66, kStream, m_bBlockScience, false);
+	MOD_SERIALIZE_READ(66, kStream, m_bBlockGold, false);
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
 	MOD_SERIALIZE_READ(66, kStream, m_iCityRank, 0);
@@ -20177,7 +20466,18 @@ void CvCity::write(FDataStream& kStream) const
 	MOD_SERIALIZE_WRITE_AUTO(kStream, m_aiChangeYieldFromVictory);
 	MOD_SERIALIZE_WRITE(kStream, m_iUnhappyCitizen);
 	MOD_SERIALIZE_WRITE(kStream, m_iPurchaseCooldown);
+	MOD_SERIALIZE_WRITE(kStream, m_iReligiousTradeModifier);
 	MOD_SERIALIZE_WRITE_AUTO(kStream, m_aiBaseYieldRateFromCSAlliance);
+#endif
+#if defined(MOD_BALANCE_CORE)
+	MOD_SERIALIZE_WRITE(kStream, m_bBlockBuildingDestruction);
+	MOD_SERIALIZE_WRITE(kStream, m_bBlockWWDestruction);
+	MOD_SERIALIZE_WRITE(kStream, m_bBlockUDestruction);
+	MOD_SERIALIZE_WRITE(kStream, m_bBlockGPDestruction);
+	MOD_SERIALIZE_WRITE(kStream, m_bBlockRebellion);
+	MOD_SERIALIZE_WRITE(kStream, m_bBlockUnrest);
+	MOD_SERIALIZE_WRITE(kStream, m_bBlockScience);
+	MOD_SERIALIZE_WRITE(kStream, m_bBlockGold);
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
 	MOD_SERIALIZE_WRITE(kStream, m_iCityRank);

@@ -2154,7 +2154,11 @@ uint CvUnitCombat::ApplyNuclearExplosionDamage(const CvCombatMemberEntry* pkDama
 
 				if(pLoopCity == NULL)
 				{
+#if defined(MOD_BALANCE_CORE)
+					if(!(pLoopPlot->isWater()) && !(pLoopPlot->isImpassable()) && !(pLoopPlot->isMountain()))
+#else
 					if(!(pLoopPlot->isWater()) && !(pLoopPlot->isImpassable()))
+#endif
 					{
 						if(pLoopPlot->getFeatureType() != NO_FEATURE)
 						{
@@ -3033,7 +3037,7 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::Attack(CvUnit& kAttacker, CvPlot& targ
 			{
 				// The supporting unit has queued their attack (against the attacker), we must have the attacker queue its attack.
 				// Also, flag the current mission that the next time through, the defender doesn't get any defensive support.
-				const_cast<MissionData*>(kAttacker.GetHeadMissionData())->iFlags |= MISSION_MODIFIER_NO_DEFENSIVE_SUPPORT;
+				const_cast<MissionData*>(kAttacker.GetHeadMissionData())->iFlags |= CvUnit::MISSION_MODIFIER_NO_DEFENSIVE_SUPPORT;
 				CvUnitMission::WaitFor(&kAttacker, pFireSupportUnit);
 				eResult = ATTACK_QUEUED;
 			}
@@ -3422,7 +3426,7 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackCity(CvUnit& kAttacker, CvPlot& 
 		{
 			// The supporting unit has queued their attack (against the attacker), we must have the attacker queue its attack.
 			// Also, flag the current mission that the next time through, the defender doesn't get any defensive support.
-			const_cast<MissionData*>(kAttacker.GetHeadMissionData())->iFlags |= MISSION_MODIFIER_NO_DEFENSIVE_SUPPORT;
+			const_cast<MissionData*>(kAttacker.GetHeadMissionData())->iFlags |= CvUnit::MISSION_MODIFIER_NO_DEFENSIVE_SUPPORT;
 			CvUnitMission::WaitFor(&kAttacker, pFireSupportUnit);
 			eResult = ATTACK_QUEUED;
 		}

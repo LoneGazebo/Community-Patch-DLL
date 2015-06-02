@@ -6,7 +6,7 @@
 		<Row>
 			<BuildingType>BUILDING_FLOATING_GARDENS</BuildingType>
 			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>25</Yield>
+			<Yield>20</Yield>
 		</Row>
 	</Building_YieldChangesPerPop>
   <!-- Bazaar -->
@@ -14,7 +14,7 @@
 		<Row>
 			<BuildingType>BUILDING_BAZAAR</BuildingType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>2</Yield>
+			<Yield>1</Yield>
 		</Row>
 	</Building_YieldChanges>
 	<Building_YieldChangesPerPop>
@@ -40,12 +40,6 @@
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_BAZAAR</BuildingType>
-			<ResourceType>RESOURCE_COCOA</ResourceType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>1</Yield>
-		</Row>
-		<Row>
-			<BuildingType>BUILDING_BAZAAR</BuildingType>
 			<ResourceType>RESOURCE_SPICES</ResourceType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
 			<Yield>1</Yield>
@@ -53,12 +47,6 @@
 		<Row>
 			<BuildingType>BUILDING_BAZAAR</BuildingType>
 			<ResourceType>RESOURCE_SUGAR</ResourceType>
-			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Yield>1</Yield>
-		</Row>
-		<Row>
-			<BuildingType>BUILDING_BAZAAR</BuildingType>
-			<ResourceType>RESOURCE_COCOA</ResourceType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
 			<Yield>1</Yield>
 		</Row>
@@ -140,7 +128,7 @@
 		<Row>
 			<BuildingType>BUILDING_INDUS_CANAL</BuildingType>
 			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>2</Yield>
+			<Yield>1</Yield>
 		</Row>
 	</Building_YieldChanges>
 	<Civilization_BuildingClassOverrides>
@@ -395,32 +383,35 @@
 	<!-- Triumphal Arch -->
 	<Buildings>
 		<Row>
-			<Type>BUILDING_TRIUMPHAL_ARCH</Type>
-			<BuildingClass>BUILDINGCLASS_MONUMENT</BuildingClass>
-			<FreeStartEra>ERA_MEDIEVAL</FreeStartEra>
-			<Cost>55</Cost>
+			<Type>BUILDING_FLAVIAN_COLOSSEUM</Type>
+			<BuildingClass>BUILDINGCLASS_COLOSSEUM</BuildingClass>
+			<FreeStartEra>ERA_INDUSTRIAL</FreeStartEra>
+			<Cost>125</Cost>
+			<PrereqTech>TECH_CONSTRUCTION</PrereqTech>
 			<GoldMaintenance>1</GoldMaintenance>
-			<Description>TXT_KEY_BUILDING_TRIUMPHAL_ARCH</Description>
-			<Civilopedia>TXT_KEY_CIV5_BUILDING_TRIUMPHAL_ARCH_TEXT</Civilopedia>
-			<Strategy>TXT_KEY_BUILDING_TRIUMPHAL_ARCH_STRATEGY</Strategy>
-			<Help>TXT_KEY_BUILDING_TRIUMPHAL_ARCH_HELP</Help>
-			<ArtDefineTag>MONUMENT</ArtDefineTag>
+			<Description>TXT_KEY_BUILDING_FLAVIAN_COLOSSEUM</Description>
+			<Civilopedia>TXT_KEY_CIV5_BUILDING_FLAVIAN_COLOSSEUM_TEXT</Civilopedia>
+			<Strategy>TXT_KEY_BUILDING_FLAVIAN_COLOSSEUM_STRATEGY</Strategy>
+			<Help>TXT_KEY_BUILDING_FLAVIAN_COLOSSEUM_HELP</Help>
+			<CityConnectionTradeRouteModifier>2</CityConnectionTradeRouteModifier>
+			<ArtDefineTag>COLESSEUM</ArtDefineTag>
+			<TechEnhancedTourism>1</TechEnhancedTourism>
+			<EnhancedYieldTech>TECH_CONSTRUCTION</EnhancedYieldTech>
 			<MinAreaSize>-1</MinAreaSize>
-			<PlotCultureCostModifier>-25</PlotCultureCostModifier>
 			<HurryCostModifier>25</HurryCostModifier>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
-			<PortraitIndex>35</PortraitIndex>
+			<PortraitIndex>23</PortraitIndex>
 			<NeverCapture>true</NeverCapture>
 		</Row>
 	</Buildings>
 	<Building_Flavors>
 		<Row>
-			<BuildingType>BUILDING_TRIUMPHAL_ARCH</BuildingType>
+			<BuildingType>BUILDING_FLAVIAN_COLOSSEUM</BuildingType>
 			<FlavorType>FLAVOR_CULTURE</FlavorType>
 			<Flavor>50</Flavor>
 		</Row>
 		<Row>
-			<BuildingType>BUILDING_TRIUMPHAL_ARCH</BuildingType>
+			<BuildingType>BUILDING_FLAVIAN_COLOSSEUM</BuildingType>
 			<FlavorType>FLAVOR_PRODUCTION</FlavorType>
 			<Flavor>50</Flavor>
 		</Row>
@@ -428,50 +419,49 @@
 	<Civilization_BuildingClassOverrides>
 		<Row>
 			<CivilizationType>CIVILIZATION_ROME</CivilizationType>
-			<BuildingClassType>BUILDINGCLASS_MONUMENT</BuildingClassType>
-			<BuildingType>BUILDING_TRIUMPHAL_ARCH</BuildingType>
+			<BuildingClassType>BUILDINGCLASS_COLOSSEUM</BuildingClassType>
+			<BuildingType>BUILDING_FLAVIAN_COLOSSEUM</BuildingType>
 		</Row>
 	</Civilization_BuildingClassOverrides>
 	<Building_YieldChanges>
 		<Row>
-			<BuildingType>BUILDING_TRIUMPHAL_ARCH</BuildingType>
+			<BuildingType>BUILDING_FLAVIAN_COLOSSEUM</BuildingType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Yield>1</Yield>
+			<Yield>3</Yield>
 		</Row>
 		<Row>
-			<BuildingType>BUILDING_TRIUMPHAL_ARCH</BuildingType>
+			<BuildingType>BUILDING_FLAVIAN_COLOSSEUM</BuildingType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>1</Yield>
+			<Yield>3</Yield>
 		</Row>
 	</Building_YieldChanges>
 	<Building_YieldFromVictory>
 		<Row>
-			<BuildingType>BUILDING_TRIUMPHAL_ARCH</BuildingType>
+			<BuildingType>BUILDING_FLAVIAN_COLOSSEUM</BuildingType>
 			<YieldType>YIELD_GREAT_GENERAL_POINTS</YieldType>
-			<Yield>3</Yield>
+			<Yield>5</Yield>
 		</Row>
 		<Row>
-			<BuildingType>BUILDING_TRIUMPHAL_ARCH</BuildingType>
+			<BuildingType>BUILDING_FLAVIAN_COLOSSEUM</BuildingType>
 			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Yield>3</Yield>
+			<Yield>5</Yield>
 		</Row>
 	</Building_YieldFromVictory>
 	
 	<Language_en_US>
-		<Row Tag="TXT_KEY_BUILDING_TRIUMPHAL_ARCH">
-			<Text>Triumphal Arch</Text>
+		<Row Tag="TXT_KEY_BUILDING_FLAVIAN_COLOSSEUM">
+			<Text>Arena</Text>
 		</Row>
-		<Row Tag="TXT_KEY_CIV5_BUILDING_TRIUMPHAL_ARCH_TEXT">
+		<Row Tag="TXT_KEY_CIV5_BUILDING_FLAVIAN_COLOSSEUM_TEXT">
 			<Text>
-				A triumphal arch is a monumental structure in the shape of an archway with one or more arched passageways, often designed to span a road. In its simplest form a triumphal arch consists of two massive piers connected by an arch, crowned with a flat entablature or attic on which a statue might be mounted or which bears commemorative inscriptions. The main structure is often decorated with carvings, sculpted reliefs and dedications. More elaborate triumphal arches may have multiple archways.
-				Triumphal arches are one of the most influential and distinctive types of architecture associated with ancient Rome. Thought to have been invented by the Romans, the triumphal arch was used to commemorate victorious generals or significant public events such as the founding of new colonies, the construction of a road or bridge, the death of a member of the imperial family or the accession of a new emperor.
+				An arena is an enclosed area, often circular or oval-shaped, designed to showcase theater, musical performances, or sporting events. The word derives from Latin harena, a particularly fine/smooth sand used to absorb blood in ancient arenas such as the Colosseum in Rome. It is composed of a large open space surrounded on most or all sides by tiered seating for spectators. The key feature of an arena is that the event space is the lowest point, allowing for maximum visibility. Arenas are usually designed to accommodate a large number of spectators.
 			</Text>
 		</Row>
-		<Row Tag="TXT_KEY_BUILDING_TRIUMPHAL_ARCH_HELP">
-			<Text>[ICON_CULTURE] Culture costs of acquiring new tiles reduced by 25% in this city. [NEWLINE][NEWLINE] Whenever you destroy an enemy unit, produce +3 [ICON_GREAT_GENERAL] Great General points and +3 [ICON_GOLDEN_AGE] Golden Age points.</Text>
+		<Row Tag="TXT_KEY_BUILDING_FLAVIAN_COLOSSEUM_HELP">
+			<Text>Whenever you destroy an enemy unit, produce +5 [ICON_GREAT_GENERAL] Great General points and +5 [ICON_GOLDEN_AGE] Golden Age points. Provides +2 [ICON_TOURISM] Tourism. [ICON_CITY_CONNECTED] City Connections produce +2% more [ICON_GOLD] Gold.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_BUILDING_TRIUMPHAL_ARCH_STRATEGY">
-			<Text>Unique Roman replacement for the Monument. Build the Triumphal Arch to boost your city's Culture growth and early Production, and to maximize your empire's gain from the victories of your conquering armies.</Text>
+		<Row Tag="TXT_KEY_BUILDING_FLAVIAN_COLOSSEUM_STRATEGY">
+			<Text>Unique Roman replacement for the Colosseum. Build the Arena to boost your city's Culture and Production, and to maximize your empire's gain from the victories of your conquering armies. Every Arena slightly increases the Gold value of City Connections, thus allowing Rome to benefit from large, sprawling empires.</Text>
 		</Row>
 	</Language_en_US>
 	<!-- Steam Mill -->

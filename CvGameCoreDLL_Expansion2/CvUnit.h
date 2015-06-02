@@ -36,6 +36,10 @@ class CvUnitEntry;
 class CvUnitReligion;
 class CvPathNode;
 
+#if defined(MOD_BALANCE_CORE_MILITARY)
+class CvTacticalMove;
+#endif
+
 typedef MissionData MissionQueueNode;
 
 typedef FFastSmallFixedList< MissionQueueNode, 12, true, c_eCiv5GameplayDLL > MissionQueue;
@@ -110,6 +114,11 @@ public:
 	    MOVEFLAG_PRETEND_UNEMBARKED			  = 0x040, // to check movement as if the unit was unembarked
 	    MOVEFLAG_PRETEND_CORRECT_EMBARK_STATE = 0x080, // check to see if the unit can move into the tile in an embarked or unembarked state
 		MOVEFLAG_STAY_ON_LAND                 = 0x100, // don't embark, even if you can
+#if defined(MOD_BALANCE_CORE_PATHFINDER_FLAGS)
+		//moved here from CvAStar because that's where they belong
+		MISSION_MODIFIER_DIRECT_ATTACK			= 0x200,
+		MISSION_MODIFIER_NO_DEFENSIVE_SUPPORT	= 0x400,
+#endif
 	};
 
 	DestructionNotification<UnitHandle>& getDestructionNotification();
@@ -1491,6 +1500,7 @@ public:
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	const char* GetMissionInfo();
+	void DumpDangerInNeighborhood();
 #endif
 
 #if defined(MOD_API_EXTENSIONS)

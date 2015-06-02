@@ -341,7 +341,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 	{
 		// DoF has not been made with this player
 #if defined(MOD_BALANCE_CORE_DEALS_ADVANCED)
-		if (!this->IsPeaceTreatyTrade(eToPlayer) && !this->IsPeaceTreatyTrade(ePlayer) && this->GetPeaceTreatyType()==NO_PEACE_TREATY_TYPE)
+		if (MOD_BALANCE_CORE_DEALS_ADVANCED && !this->IsPeaceTreatyTrade(eToPlayer) && !this->IsPeaceTreatyTrade(ePlayer) && this->GetPeaceTreatyType()==NO_PEACE_TREATY_TYPE)
 #else
 		if (!this->IsPeaceTreatyTrade(eToPlayer) && !this->IsPeaceTreatyTrade(ePlayer))
 #endif
@@ -3525,6 +3525,11 @@ void CvGameDeals::LogDealComplete(CvDeal* pDeal)
 				break;
 			case TRADE_ITEM_VASSALAGE:
 				strTemp.Format("***** Vassalage Trade *****");
+				break;
+#endif
+#if defined(MOD_BALANCE_CORE)
+			case TRADE_ITEM_ALLOW_EMBASSY:
+				strTemp.Format("***** Embassy Trade *****");
 				break;
 #endif
 			default:

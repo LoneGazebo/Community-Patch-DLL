@@ -514,7 +514,24 @@ bool CvGameTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Domai
 		strMsg.Format("%s, New Trade Route, %s, %s, %s, %i, %s", GET_PLAYER(pOriginCity->getOwner()).getCivilizationShortDescription(), strDomain.c_str(), pOriginCity->getName().c_str(), pDestCity->getName().c_str(), m_aTradeConnections[iNewTradeRouteIndex].m_aPlotList.size(), strTRType.c_str());
 		LogTradeMsg(strMsg);
 	}
-
+#if defined(MOD_BALANCE_CORE)
+	 if(m_aTradeConnections[iNewTradeRouteIndex].m_aPlotList.size() > 0)
+	 {
+		for (uint ui = 0; ui < m_aTradeConnections[iNewTradeRouteIndex].m_aPlotList.size(); ui++)
+		{
+			int iPlotX = m_aTradeConnections[iNewTradeRouteIndex].m_aPlotList[ui].m_iX;
+			int iPlotY = m_aTradeConnections[iNewTradeRouteIndex].m_aPlotList[ui].m_iY;
+			if(iPlotX != NULL && iPlotY != NULL)
+			{
+				CvPlot* pPlot = GC.getMap().plot(iPlotX, iPlotY);
+				if(pPlot != NULL)
+				{
+					pPlot->updateYield();
+				}
+			}
+		}
+	}
+#endif
 	
 
 	return true;

@@ -69,6 +69,8 @@ CvBeliefEntry::CvBeliefEntry() :
 #if defined(MOD_BALANCE_CORE_BELIEFS_RESOURCE)
 	m_bRequiresImprovement(false),
 	m_bRequiresResource(false),
+	m_bRequiresNoImprovement(false),
+	m_bRequiresNoImprovementFeature(false),
 #endif
 
 #if defined(MOD_BALANCE_CORE_BELIEFS)
@@ -119,6 +121,7 @@ CvBeliefEntry::CvBeliefEntry() :
 #if defined(MOD_API_UNIFIED_YIELDS)
 	m_ppiCityYieldFromUnimprovedFeature(NULL),
 	m_ppiUnimprovedFeatureYieldChanges(NULL),
+	m_paiLakePlotYieldChange(NULL),
 #endif
 	m_ppaiResourceYieldChange(NULL),
 	m_ppaiTerrainYieldChange(NULL),
@@ -459,6 +462,16 @@ bool CvBeliefEntry::RequiresResource() const
 {
 	return m_bRequiresResource;
 }
+/// Accessor: is this a belief that grants faith only from no improvements?
+bool CvBeliefEntry::RequiresNoImprovement() const
+{
+	return m_bRequiresNoImprovement;
+}
+/// Accessor: is this a belief that grants faith only from no improvements on a feature?
+bool CvBeliefEntry::RequiresNoImprovementFeature() const
+{
+	return m_bRequiresNoImprovementFeature;
+}
 #endif
 
 #if defined(MOD_BALANCE_CORE_BELIEFS)
@@ -757,6 +770,10 @@ int CvBeliefEntry::GetUnimprovedFeatureYieldChange(int i, int j) const
 	CvAssertMsg(j > -1, "Index out of bounds");
 	return m_ppiUnimprovedFeatureYieldChanges ? m_ppiUnimprovedFeatureYieldChanges[i][j] : 0;
 }
+int CvBeliefEntry::GetLakePlotYieldChange(int i) const
+{
+	return m_paiLakePlotYieldChange ? m_paiLakePlotYieldChange[i] : 0;
+}
 #endif
 
 /// Change to Resource yield by type
@@ -994,6 +1011,8 @@ bool CvBeliefEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 #if defined(MOD_BALANCE_CORE_BELIEFS_RESOURCE)
 	m_bRequiresImprovement			  = kResults.GetBool("RequiresImprovement");
 	m_bRequiresResource				  = kResults.GetBool("RequiresResource");
+	m_bRequiresNoImprovement		  = kResults.GetBool("RequiresNoImprovement");
+	m_bRequiresNoImprovementFeature	  = kResults.GetBool("RequiresNoImprovementFeature");
 #endif
 #if defined(MOD_BALANCE_CORE_BELIEFS)
 	m_bIsHalvedFollowers			  = kResults.GetBool("HalvedFollowers");
@@ -1051,6 +1070,7 @@ bool CvBeliefEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	kUtility.PopulateArrayByValue(m_piYieldPerFollowingCity, "Yields", "Belief_YieldPerFollowingCity", "YieldType", "BeliefType", szBeliefType, "Yield");
 	kUtility.PopulateArrayByValue(m_piYieldPerXFollowers, "Yields", "Belief_YieldPerXFollowers", "YieldType", "BeliefType", szBeliefType, "PerXFollowers");
 	kUtility.PopulateArrayByValue(m_piYieldPerOtherReligionFollower, "Yields", "Belief_YieldPerOtherReligionFollower", "YieldType", "BeliefType", szBeliefType, "Yield");
+	kUtility.PopulateArrayByValue(m_paiLakePlotYieldChange, "Yields", "Belief_LakePlotYield", "YieldType", "BeliefType", szBeliefType, "Yield");	
 #endif
 	kUtility.PopulateArrayByExistence(m_pbFaithPurchaseUnitEraEnabled, "Eras", "Belief_EraFaithUnitPurchase", "EraType", "BeliefType", szBeliefType);
 	kUtility.PopulateArrayByExistence(m_pbBuildingClassEnabled, "BuildingClasses", "Belief_BuildingClassFaithPurchase", "BuildingClassType", "BeliefType", szBeliefType);
@@ -1904,7 +1924,21 @@ int CvReligionBeliefs::GetYieldPerFollowingCity(YieldTypes eYield) const
 
 	return rtnValue;
 }
+int CvReligionBeliefs::GetLakePlotYieldChange(YieldTypes eYield) const
+{
+	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
+	int rtnValue = 0;
 
+	for(int i = 0; i < pBeliefs->GetNumBeliefs(); i++)
+	{
+		if(HasBelief((BeliefTypes)i))
+		{
+			rtnValue += pBeliefs->GetEntry(i)->GetLakePlotYieldChange(eYield);
+		}
+	}
+
+	return rtnValue;
+}
 int CvReligionBeliefs::GetYieldPerXFollowers(YieldTypes eYield) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
@@ -2523,6 +2557,53 @@ bool CvReligionBeliefs::RequiresImprovement() const
 		if(HasBelief((BeliefTypes)i))
 		{
 			if (pBeliefs->GetEntry(i)->RequiresImprovement())
+			{
+				return true;
+			}
+		}
+	}
+#endif
+	return false;
+}
+/// Is there a belief that requires improvements?
+bool CvReligionBeliefs::RequiresNoImprovement() const
+{
+	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
+
+#if defined(MOD_BALANCE_CORE)
+	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
+		if (pBeliefs->GetEntry(*it)->RequiresNoImprovement())
+			return true;
+#else
+	for(int i = 0; i < pBeliefs->GetNumBeliefs(); i++)
+	{
+		if(HasBelief((BeliefTypes)i))
+		{
+			if (pBeliefs->GetEntry(i)->RequiresNoImprovement())
+			{
+				return true;
+			}
+		}
+	}
+#endif
+
+	return false;
+}
+/// Is there a belief that requires improvements?
+bool CvReligionBeliefs::RequiresNoImprovementFeature() const
+{
+	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
+
+#if defined(MOD_BALANCE_CORE)
+	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
+		if (pBeliefs->GetEntry(*it)->RequiresNoImprovementFeature())
+			return true;
+#else
+	for(int i = 0; i < pBeliefs->GetNumBeliefs(); i++)
+	{
+		if(HasBelief((BeliefTypes)i))
+		{
+			if (pBeliefs->GetEntry(i)->RequiresNoImprovementFeature())
 			{
 				return true;
 			}

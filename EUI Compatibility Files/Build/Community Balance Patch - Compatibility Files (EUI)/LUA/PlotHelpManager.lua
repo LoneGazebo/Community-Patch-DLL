@@ -1154,8 +1154,8 @@ local function UpdatePlotHelp( timeChange )
 					canBuild = revealedImprovement
 				end
 
-				if isBuildInProgress then
-				-- Determine yield changes from this build
+				if canBuild or isBuildInProgress then
+					-- Determine yield changes from this build
 					canBuild = false
 					for yieldID = 0, YieldTypes.NUM_YIELD_TYPES-1 do -- GameInfo.Yields() iterator is broken by Communitas
 						local yieldChange
@@ -1203,9 +1203,7 @@ local function UpdatePlotHelp( timeChange )
 					end
 				end
 
--- CBP: too much information
-				if isBuildInProgress then
---				if isBuildInProgress or (canBuild and (isBasicBuild or (isNoob and isExtraTips))) then
+				if isBuildInProgress or (canBuild and (isBasicBuild or (isNoob and isExtraTips))) then
 					tips:insert( buildTip )
 				end
 			end

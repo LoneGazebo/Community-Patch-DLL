@@ -537,8 +537,7 @@ public:
 					}
 				}
 			}
-		}
-		
+		}		
 		return damage;
 	}
 #endif

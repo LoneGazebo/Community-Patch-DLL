@@ -267,7 +267,11 @@ void CvCityCitizens::DoTurn()
 		if(GC.getGame().getGameTurn() % 8 == 0)
 		{
 			SetFocusType(CITY_AI_FOCUS_TYPE_GOLD_GROWTH);
+#if defined(MOD_BALANCE_CORE)
+			SetNoAutoAssignSpecialists(false);
+#else
 			SetNoAutoAssignSpecialists(true);
+#endif
 			SetForcedAvoidGrowth(false);
 			int iExcessFoodTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - (m_pCity->foodConsumption() * 100);
 			if(iExcessFoodTimes100 < 200)
@@ -361,7 +365,11 @@ void CvCityCitizens::DoTurn()
 			else if(GC.getGame().getGameTurn() % 3 == 0 && thisPlayer.GetGrandStrategyAI()->GetActiveGrandStrategy() == (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_CULTURE"))
 			{
 				SetFocusType(CITY_AI_FOCUS_TYPE_CULTURE);
+#if defined(MOD_BALANCE_CORE)
+				SetNoAutoAssignSpecialists(false);
+#else
 				SetNoAutoAssignSpecialists(true);
+#endif
 				SetForcedAvoidGrowth(false);
 				int iExcessFoodTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - (m_pCity->foodConsumption() * 100);
 				if(iExcessFoodTimes100 < 200)

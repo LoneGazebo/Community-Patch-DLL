@@ -17,7 +17,7 @@
 			<Text>{1_Num} from [ICON_GOLD] Poverty.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TP_UNHAPPINESS_CONNECTION">
-			<Text>{1_Num} from [ICON_BLOCAKDED] Isolation.</Text>
+			<Text>{1_Num} from [ICON_BLOCKADED] Isolation.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TP_UNHAPPINESS_PILLAGED">
 			<Text>{1_Num} from [ICON_RAZING] Pillaged Tiles.</Text>

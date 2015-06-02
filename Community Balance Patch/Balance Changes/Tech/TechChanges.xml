@@ -72,11 +72,11 @@
 	
 	<Technologies>
 		<Update>
-			<Set GridY="2" />
+			<Set GridX="1" GridY="7"/>
 			<Where Type="TECH_POTTERY" />
 		</Update>
 		<Update>
-			<Set GridY="6" />
+			<Set GridY="3" />
 			<Where Type="TECH_ANIMAL_HUSBANDRY" />
 		</Update>
 		<Update>
@@ -88,35 +88,35 @@
 			<Where Type="TECH_MINING" />
 		</Update>
 		<Update>
-			<Set GridX="1" />
+			<Set GridX="2" GridY="1"/>
 			<Where Type="TECH_SAILING" />
 		</Update>
 		<Update>
-			<Set GridY="1" />
-			<Where Type="TECH_SAILING" />
+			<Set GridX="2" GridY="6"/>
+			<Where Type="TECH_CALENDAR" />
 		</Update>
 		<Update>
 			<Set Era="ERA_CLASSICAL" GridX="3" GridY="3"/>
 			<Where Type="TECH_WRITING" />
 		</Update>
 		<Update>
-			<Set GridX="1" />
+			<Set GridX="1" GridY="1"/>
 			<Where Type="TECH_TRAPPING" />
 		</Update>
 		<Update>
-			<Set GridX="1" GridY="8" />
+			<Set GridX="1" GridY="5" />
 			<Where Type="TECH_THE_WHEEL" />
 		</Update>
 		<Update>
-			<Set GridY="7" />
+			<Set GridY="7" GridX="2" />
 			<Where Type="TECH_MASONRY" />
 		</Update>
 		<Update>
-			<Set GridY="2" />
+			<Set GridY="1" />
 			<Where Type="TECH_OPTICS" />
 		</Update>
 		<Update>
-			<Set Era="ERA_ANCIENT" GridX="2" GridY="5" />
+			<Set Era="ERA_ANCIENT" GridX="2" GridY="4" />
 			<Where Type="TECH_HORSEBACK_RIDING" />
 		</Update>
 		<Update>
@@ -140,7 +140,7 @@
 			<Where Type="TECH_CONSTRUCTION" />
 		</Update>
 		<Update>
-			<Set GridX="3" GridY="8" />
+			<Set GridX="3" GridY="9" />
 			<Where Type="TECH_IRON_WORKING" />
 		</Update>
 		<Update>
@@ -914,35 +914,31 @@
 		</Row>
 		<Row>
 			<TechType>TECH_OPTICS</TechType>
-			<PrereqTech>TECH_CALENDAR</PrereqTech>
-		</Row>
-		<Row>
-			<TechType>TECH_WRITING</TechType>
-			<PrereqTech>TECH_CALENDAR</PrereqTech>
+			<PrereqTech>TECH_SAILING</PrereqTech>
 		</Row>
 		<Row>
 			<TechType>TECH_WRITING</TechType>
 			<PrereqTech>TECH_ARCHERY</PrereqTech>
 		</Row>
 		<Row>
-			<TechType>TECH_MATHEMATICS</TechType>
-			<PrereqTech>TECH_MASONRY</PrereqTech>
-		</Row>
-		<Row>
-			<TechType>TECH_MATHEMATICS</TechType>
-			<PrereqTech>TECH_ARCHERY</PrereqTech>
+			<TechType>TECH_WRITING</TechType>
+			<PrereqTech>TECH_HORSEBACK_RIDING</PrereqTech>
 		</Row>
 		<Row>
 			<TechType>TECH_MATHEMATICS</TechType>
 			<PrereqTech>TECH_HORSEBACK_RIDING</PrereqTech>
 		</Row>
 		<Row>
-			<TechType>TECH_CONSTRUCTION</TechType>
-			<PrereqTech>TECH_MASONRY</PrereqTech>
+			<TechType>TECH_MATHEMATICS</TechType>
+			<PrereqTech>TECH_CALENDAR</PrereqTech>
 		</Row>
 		<Row>
 			<TechType>TECH_CONSTRUCTION</TechType>
-			<PrereqTech>TECH_BRONZE_WORKING</PrereqTech>
+			<PrereqTech>TECH_CALENDAR</PrereqTech>
+		</Row>
+		<Row>
+			<TechType>TECH_CONSTRUCTION</TechType>
+			<PrereqTech>TECH_MASONRY</PrereqTech>
 		</Row>
 		<Row>
 			<TechType>TECH_IRON_WORKING</TechType>
@@ -950,60 +946,44 @@
 		</Row>
 	<!-- Ancient Era -->
 		<Row>
-			<TechType>TECH_CALENDAR</TechType>
-			<PrereqTech>TECH_SAILING</PrereqTech>
-		</Row>
-		<Row>
-			<TechType>TECH_CALENDAR</TechType>
-			<PrereqTech>TECH_POTTERY</PrereqTech>
-		</Row>
-		<Row>
-			<TechType>TECH_ARCHERY</TechType>
-			<PrereqTech>TECH_POTTERY</PrereqTech>
-		</Row>
-		<Row>
-			<TechType>TECH_ARCHERY</TechType>
-			<PrereqTech>TECH_TRAPPING</PrereqTech>
-		</Row>
-		<Row>
-			<TechType>TECH_ARCHERY</TechType>
-			<PrereqTech>TECH_SAILING</PrereqTech>
-		</Row>
-		<Row>
-			<TechType>TECH_HORSEBACK_RIDING</TechType>
-			<PrereqTech>TECH_TRAPPING</PrereqTech>
-		</Row>
-		<Row>
-			<TechType>TECH_HORSEBACK_RIDING</TechType>
-			<PrereqTech>TECH_ANIMAL_HUSBANDRY</PrereqTech>
-		</Row>
-		<Row>
-			<TechType>TECH_MASONRY</TechType>
-			<PrereqTech>TECH_ANIMAL_HUSBANDRY</PrereqTech>
-		</Row>
-		<Row>
-			<TechType>TECH_MASONRY</TechType>
-			<PrereqTech>TECH_THE_WHEEL</PrereqTech>
-		</Row>
-		<Row>
-			<TechType>TECH_MASONRY</TechType>
-			<PrereqTech>TECH_MINING</PrereqTech>
-		</Row>
-		<Row>
-			<TechType>TECH_BRONZE_WORKING</TechType>
-			<PrereqTech>TECH_THE_WHEEL</PrereqTech>
-		</Row>
-		<Row>
-			<TechType>TECH_BRONZE_WORKING</TechType>
-			<PrereqTech>TECH_MINING</PrereqTech>
-		</Row>
-		<Row>
 			<TechType>TECH_SAILING</TechType>
-			<PrereqTech>TECH_AGRICULTURE</PrereqTech>
+			<PrereqTech>TECH_TRAPPING</PrereqTech>
 		</Row>
 		<Row>
-			<TechType>TECH_POTTERY</TechType>
-			<PrereqTech>TECH_AGRICULTURE</PrereqTech>
+			<TechType>TECH_ARCHERY</TechType>
+			<PrereqTech>TECH_TRAPPING</PrereqTech>
+		</Row>
+		<Row>
+			<TechType>TECH_ARCHERY</TechType>
+			<PrereqTech>TECH_ANIMAL_HUSBANDRY</PrereqTech>
+		</Row>
+		<Row>
+			<TechType>TECH_HORSEBACK_RIDING</TechType>
+			<PrereqTech>TECH_ANIMAL_HUSBANDRY</PrereqTech>
+		</Row>
+		<Row>
+			<TechType>TECH_HORSEBACK_RIDING</TechType>
+			<PrereqTech>TECH_THE_WHEEL</PrereqTech>
+		</Row>
+		<Row>
+			<TechType>TECH_CALENDAR</TechType>
+			<PrereqTech>TECH_THE_WHEEL</PrereqTech>
+		</Row>
+		<Row>
+			<TechType>TECH_CALENDAR</TechType>
+			<PrereqTech>TECH_POTTERY</PrereqTech>
+		</Row>
+		<Row>
+			<TechType>TECH_MASONRY</TechType>
+			<PrereqTech>TECH_POTTERY</PrereqTech>
+		</Row>
+		<Row>
+			<TechType>TECH_MASONRY</TechType>
+			<PrereqTech>TECH_MINING</PrereqTech>
+		</Row>
+		<Row>
+			<TechType>TECH_BRONZE_WORKING</TechType>
+			<PrereqTech>TECH_MINING</PrereqTech>
 		</Row>
 		<Row>
 			<TechType>TECH_TRAPPING</TechType>
@@ -1015,6 +995,10 @@
 		</Row>
 		<Row>
 			<TechType>TECH_THE_WHEEL</TechType>
+			<PrereqTech>TECH_AGRICULTURE</PrereqTech>
+		</Row>
+		<Row>
+			<TechType>TECH_POTTERY</TechType>
 			<PrereqTech>TECH_AGRICULTURE</PrereqTech>
 		</Row>
 		<Row>

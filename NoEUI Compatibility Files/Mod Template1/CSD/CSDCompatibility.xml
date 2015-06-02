@@ -9,6 +9,33 @@
 		</Row>
 	</GreatPersons>
 	<!-- CSD -->
+	<Trait_FreePromotionUnitClass>
+		<Row>
+			<TraitType>TRAIT_LAND_TRADE_GOLD</TraitType>
+			<UnitClassType>UNITCLASS_EMISSARY</UnitClassType>
+			<PromotionType>PROMOTION_DESERT_SHIPS</PromotionType>
+		</Row>
+		<Row>
+			<TraitType>TRAIT_LAND_TRADE_GOLD</TraitType>
+			<UnitClassType>UNITCLASS_ENVOY</UnitClassType>
+			<PromotionType>PROMOTION_DESERT_SHIPS</PromotionType>
+		</Row>
+		<Row>
+			<TraitType>TRAIT_LAND_TRADE_GOLD</TraitType>
+			<UnitClassType>UNITCLASS_DIPLOMAT</UnitClassType>
+			<PromotionType>PROMOTION_DESERT_SHIPS</PromotionType>
+		</Row>
+		<Row>
+			<TraitType>TRAIT_LAND_TRADE_GOLD</TraitType>
+			<UnitClassType>UNITCLASS_AMBASSADOR</UnitClassType>
+			<PromotionType>PROMOTION_DESERT_SHIPS</PromotionType>
+		</Row>
+		<Row>
+			<TraitType>TRAIT_LAND_TRADE_GOLD</TraitType>
+			<UnitClassType>UNITCLASS_GREAT_DIPLOMAT</UnitClassType>
+			<PromotionType>PROMOTION_DESERT_SHIPS</PromotionType>
+		</Row>
+	</Trait_FreePromotionUnitClass>
 	<Policy_FaithPurchaseUnitClasses>
 		<Row>
 			<PolicyType>POLICY_PATRONAGE_FINISHER</PolicyType>

@@ -30,7 +30,7 @@
 		<Row>
 			<ImprovementType>IMPROVEMENT_LUMBERMILL_JUNGLE</ImprovementType>
 			<TechType>TECH_INDUSTRIALIZATION</TechType>
-			<YieldType>YIELD_PRODUCTION</YieldType>
+			<YieldType>YIELD_FOOD</YieldType>
 			<Yield>1</Yield>
 		</Row>
 	</Improvement_TechFreshWaterYieldChanges>
@@ -68,13 +68,13 @@
 			<Text>Lumbermill (Jungle)</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CIV5_IMPROVEMENTS_LUMBERMILL_TEXT_JUNGLE">
-			<Text>A lumbermill (Jungle) allows you to improve the production output of jungle hexes. Unlike the regular Lumbermill, the Lumbermill (Jungle) improves Gold output, and is available later.</Text>
+			<Text>A lumbermill (Jungle) allows you to improve the production output of jungle hexes. Unlike the regular Lumbermill, the Lumbermill (Jungle) is available later.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILD_LUMBERMILL_JUNGLE">
 			<Text>Construct a [LINK=IMPROVEMENT_LUMBERMILL]Lumber Mill (Jungle)[\LINK]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILD_LUMBERMILL_REC_JUNGLE">
-			<Text>It will increase the amount of [ICON_GOLD] Gold provided by this tile, while keeping the Jungle intact.</Text>
+			<Text>It will increase the amount of [ICON_PRODUCTION] Production provided by this tile, while keeping the Jungle intact.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_IMPROVEMENT_LUMBERMILL_JUNGLE">
 			<Text>Lumber Mill (Jungle)</Text>

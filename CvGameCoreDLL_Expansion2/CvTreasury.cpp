@@ -511,6 +511,13 @@ int CvTreasury::CalculateGrossGoldTimes100()
 	}
 #endif
 
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	if (MOD_DIPLOMACY_CIV4_FEATURES) {
+		// We're a vassal of someone, we get x% of his faith
+		iNetGold += (m_pPlayer->GetYieldPerTurnFromVassals(YIELD_GOLD) * 100);
+	}
+#endif
+
 	return iNetGold;
 }
 #if defined(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
@@ -1180,7 +1187,7 @@ int CvTreasury::GetVassalGoldMaintenance() const
 					iRtnValue += std::max(0, (int)(pow((double)iCityPop, (double)/*0.6*/ GC.getVASSALAGE_VASSAL_CITY_POP_EXPONENT())));
 				}
 
-				iRtnValue += std::max(0, (GET_PLAYER((PlayerTypes)iI).GetTreasury()->GetExpensePerTurnUnitMaintenance() * /*40*/GC.getVASSALAGE_VASSAL_UNIT_MAINT_COST_PERCENT() / 100));
+				iRtnValue += std::max(0, (GET_PLAYER((PlayerTypes)iI).GetTreasury()->GetExpensePerTurnUnitMaintenance() * /*10*/GC.getVASSALAGE_VASSAL_UNIT_MAINT_COST_PERCENT() / 100));
 			}
 		}
 	}

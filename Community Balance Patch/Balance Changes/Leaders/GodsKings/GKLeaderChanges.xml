@@ -9,6 +9,13 @@
 			<Yield>1</Yield>
 		</Row>
 	</Building_YieldChanges>
+	<Building_InstantYield>
+		<Row>
+			<BuildingType>BUILDING_CEILIDH_HALL</BuildingType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>100</Yield>
+		</Row>
+	</Building_InstantYield>
 <!-- Polder -->
 	<Improvement_Yields>
 		<Row>

@@ -180,6 +180,29 @@ public:
 	bool IsNoWater() const;
 	bool IsCapitalOnly() const;
 	bool IsReformation() const;
+	int GetTradeReligionModifier() const;
+#endif
+#if defined(MOD_BALANCE_CORE_SPIES)
+	bool IsCannotFailSpies() const;
+	int GetAdvancedActionGold() const;
+	int GetAdvancedActionScience() const;
+	int GetAdvancedActionUnrest() const;
+	int GetAdvancedActionRebellion() const;
+	int GetAdvancedActionGP() const;
+	int GetAdvancedActionUnit() const;
+	int GetAdvancedActionWonder() const;
+	int GetAdvancedActionBuilding() const;
+	bool IsBlockBuildingDestruction() const;
+	bool IsBlockWWDestruction() const;
+	bool IsBlockUDestruction() const;
+	bool IsBlockGPDestruction() const;
+	bool IsBlockRebellion() const;
+	bool IsBlockUnrest() const;
+	bool IsBlockScience() const;
+	bool IsBlockGold() const;
+#endif
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	bool IsVassalLevyEra() const;
 #endif
 #if defined(MOD_BALANCE_CORE_POP_REQ_BUILDINGS)
 	int GetNationalPopulationRequired() const;
@@ -566,6 +589,29 @@ private:
 	bool m_bIsNoWater;
 	bool m_bIsCapitalOnly;
 	bool m_bIsReformation;
+	int m_iTradeReligionModifier;
+#endif
+#if defined(MOD_BALANCE_CORE_SPIES)
+	bool m_bCannotFailSpies;
+	int m_iAdvancedActionGold;
+	int m_iAdvancedActionScience;
+	int m_iAdvancedActionUnrest;
+	int m_iAdvancedActionRebellion;
+	int m_iAdvancedActionGP;
+	int m_iAdvancedActionUnit;
+	int m_iAdvancedActionWonder;
+	int m_iAdvancedActionBuilding;
+	bool m_bBlockBuildingDestruction;
+	bool m_bBlockWWDestruction;
+	bool m_bBlockUDestruction;
+	bool m_bBlockGPDestruction;
+	bool m_bBlockRebellion;
+	bool m_bBlockUnrest;
+	bool m_bBlockScience;
+	bool m_bBlockGold;
+#endif
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	bool m_bVassalLevyEra;
 #endif
 #if defined(MOD_BALANCE_CORE_POP_REQ_BUILDINGS)
 	int m_iNationalPopRequired;

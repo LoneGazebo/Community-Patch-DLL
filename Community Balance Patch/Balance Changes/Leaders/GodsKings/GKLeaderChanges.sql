@@ -28,7 +28,14 @@ WHERE TraitType = 'TRAIT_RAZE_AND_HORSES' AND EXISTS (SELECT * FROM COMMUNITY WH
 INSERT INTO Unit_ResourceQuantityRequirements (UnitType, ResourceType, Cost)
 SELECT 'UNIT_HUN_HORSE_ARCHER', 'RESOURCE_HORSE', '1'
 WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
-		
+	
+UPDATE Unit_Flavors
+SET Flavor = '20'
+WHERE FlavorType = 'FLAVOR_RANGED' AND UnitType = 'UNIT_HUN_BATTERING_RAM';
+
+UPDATE Unit_Flavors
+SET Flavor = '5'
+WHERE FlavorType = 'FLAVOR_OFFENSE' AND UnitType = 'UNIT_HUN_BATTERING_RAM';	
 -- Eki
 
 INSERT INTO ArtDefine_LandmarkTypes(Type, LandmarkType, FriendlyName)
@@ -156,13 +163,13 @@ UPDATE Units
 SET ObsoleteTech = 'TECH_PHYSICS'
 WHERE Type = 'UNIT_INDIAN_WARELEPHANT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
--- Boudicca -- Boost Ceilidh Hall -- Move to Classical, add faith
+-- Boudicca -- Boost Ceilidh Hall -- Move to Medieval, add faith
 UPDATE Buildings
-SET PrereqTech = 'TECH_CONSTRUCTION'
+SET PrereqTech = 'TECH_PHYSICS'
 WHERE Type = 'BUILDING_CEILIDH_HALL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Buildings
-SET BuildingClass = 'BUILDINGCLASS_COLOSSEUM'
+SET BuildingClass = 'BUILDINGCLASS_CIRCUS'
 WHERE Type = 'BUILDING_CEILIDH_HALL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Buildings 
@@ -170,11 +177,11 @@ SET Help = 'TXT_KEY_BUILDING_CEILIDH_HALL_HELP'
 WHERE Type = 'BUILDING_CEILIDH_HALL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 INSERT INTO Language_en_US (Tag, Text)
-SELECT 'TXT_KEY_BUILDING_CEILIDH_HALL_HELP', 'Reduces [ICON_HAPPINESS_3] Boredom slightly.'
+SELECT 'TXT_KEY_BUILDING_CEILIDH_HALL_HELP', 'Reduces [ICON_HAPPINESS_3] Boredom, and provides a modest sum of [ICON_CULTURE] Culture when completed.'
 WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Building_YieldChanges
-SET Yield = '2'
+SET Yield = '3'
 WHERE BuildingType = 'BUILDING_CEILIDH_HALL' AND YieldType = 'YIELD_CULTURE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Buildings
@@ -190,32 +197,33 @@ SET SpecialistCount = '1'
 WHERE Type = 'BUILDING_CEILIDH_HALL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Civilization_BuildingClassOverrides
-SET BuildingClassType = 'BUILDINGCLASS_COLOSSEUM'
+SET BuildingClassType = 'BUILDINGCLASS_CIRCUS'
 WHERE BuildingType = 'BUILDING_CEILIDH_HALL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
-DELETE FROM Building_ClassesNeededInCity
+UPDATE Building_ClassesNeededInCity
+Set BuildingClassType = 'BUILDINGCLASS_COLOSSEUM'
 WHERE BuildingType = 'BUILDING_CEILIDH_HALL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 	
 UPDATE Language_en_US
-SET Text = 'The Ceilidh Hall is a Classical-era building unique to the Celts, replacing the Colosseum. Reduces [ICON_HAPPINESS_3] Boredom slightly and increases city [ICON_CULTURE] Culture and [ICON_PEACE] Faith. Provides 1 Musician Specialist slot, and contains a slot for a Great Work of Music.'
+SET Text = 'The Ceilidh Hall is a Medieval-era building unique to the Celts, replacing the Circus. Reduces [ICON_HAPPINESS_3] Boredom slightly and increases city [ICON_CULTURE] Culture and [ICON_PEACE] Faith. Provides 1 Musician Specialist slot, and contains a slot for a Great Work of Music.'
 WHERE Tag = 'TXT_KEY_BUILDING_CEILIDH_HALL_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 	
 UPDATE Language_en_US
-SET Text = '+2 [ICON_PEACE] Faith in Cities with an adjacent unimproved Forest, or +4 [ICON_PEACE] Faith with 3+ adjacent unimproved Forest tiles. +50% tile yields and [ICON_HAPPINESS_1] Happiness from Natural Wonders.'
+SET Text = '+2 [ICON_PEACE] Faith in Cities with an adjacent unimproved Forest, or +4 [ICON_PEACE] Faith with 3+ adjacent unimproved Forest tiles. +50% tile yields from Natural Wonders.'
 WHERE Tag = 'TXT_KEY_TRAIT_FAITH_FROM_NATURE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Traits
 SET NaturalWonderYieldModifier = '50'
 WHERE Type = 'TRAIT_FAITH_FROM_NATURE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
-UPDATE Traits
-SET NaturalWonderHappinessModifier = '50'
-WHERE Type = 'TRAIT_FAITH_FROM_NATURE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
-
--- Dido -- Delete African Forest Elephant
+-- Dido -- Delete African Forest Elephant, remove mountain bonus (given to incans)
 UPDATE Language_en_US
-SET Text = 'Cities produce a large sum of [ICON_GOLD] Gold when founded, and coastal Cities also gain a free Harbor. Units may cross mountains after a Great General is earned, taking 20 HP damage if they end a turn on one.'
+SET Text = 'Cities produce a large sum of [ICON_GOLD] Gold when founded. Bonus scales with Era. All coastal Cities receive a free Harbor when founded or conquered.'
 WHERE Tag = 'TXT_KEY_TRAIT_PHOENICIAN_HERITAGE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
+UPDATE Traits
+Set CrossesMountainsAfterGreatGeneral = '0'
+WHERE Type = 'TRAIT_PHOENICIAN_HERITAGE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 DELETE FROM Units
 WHERE Type = 'UNIT_CARTHAGINIAN_FOREST_ELEPHANT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
@@ -343,7 +351,7 @@ SET Lakeside = '1'
 WHERE Type = 'IMPROVEMENT_POLDER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Improvement_Yields
-SET Yield = '2'
+SET Yield = '3'
 WHERE ImprovementType = 'IMPROVEMENT_POLDER' AND YieldType = 'YIELD_FOOD' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
