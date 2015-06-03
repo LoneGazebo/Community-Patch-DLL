@@ -768,7 +768,7 @@ public:
 	std::vector<CvTacticalUnit>::iterator end() { return m_vec.end(); }
 	std::vector<CvTacticalUnit>::size_type size() const { return m_vec.size(); }
 	std::vector<CvTacticalUnit>::reference operator[](std::vector<CvTacticalUnit>::size_type _Pos) { return m_vec[_Pos]; }
-	std::vector<CvTacticalUnit>::iterator erase(std::vector<CvTacticalUnit>::const_iterator _Where) { m_vec.erase(_Where); }
+	std::vector<CvTacticalUnit>::iterator erase(std::vector<CvTacticalUnit>::const_iterator _Where) { return m_vec.erase(_Where); }
 	void push_back(const CvTacticalUnit& unit);
 	void clear() { m_vec.clear(); }
 	void setPlayer(CvPlayer* pOwner) { m_owner=pOwner; }

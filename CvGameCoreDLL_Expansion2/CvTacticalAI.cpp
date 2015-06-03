@@ -2762,6 +2762,10 @@ void CvTacticalAI::PlotOperationalArmyMoves()
 	{
 		if(nextOp->GetLastTurnMoved() < GC.getGame().getGameTurn())
 		{
+#if defined(MOD_BALANCE_CORE)
+			nextOp->CheckTarget();
+#endif
+
 			switch(nextOp->GetMoveType())
 			{
 			case AI_OPERATION_MOVETYPE_SINGLE_HEX:

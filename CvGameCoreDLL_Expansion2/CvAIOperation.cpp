@@ -542,6 +542,21 @@ bool CvAIOperation::GrabUnitsFromTheReserves(CvPlot* pMusterPlot, CvPlot* pTarge
 	return rtnValue;
 }
 
+#if defined(MOD_BALANCE_CORE)
+//see if the target is still current or if there is a better one
+bool CvAIOperation::CheckTarget()
+{
+	bool retval = true;
+	for(unsigned int uiI = 0; uiI < m_viArmyIDs.size(); uiI++)
+	{
+		CvArmyAI* pThisArmy = GET_PLAYER(m_eOwner).getArmyAI(m_viArmyIDs[uiI]);
+		//name is misleading, this checks if the target is still where we think it is
+		retval &= ArmyMoved(pThisArmy);
+	}
+	return retval;
+}
+#endif
+
 /// See if armies are ready to hand off units to the tactical AI (and do so if ready)
 bool CvAIOperation::CheckOnTarget()
 {
@@ -6431,6 +6446,9 @@ void CvAIOperationRapidResponse::Init(int iID, PlayerTypes eOwner, PlayerTypes e
 	m_iID = iID;
 	m_eOwner = eOwner;
 	m_eEnemy = eEnemy;
+#if defined(MOD_BALANCE_CORE)
+	m_eMoveType = AI_OPERATION_MOVETYPE_ENEMY_TERRITORY;
+#endif
 
 	if(iID != -1)
 	{
@@ -6501,6 +6519,11 @@ bool CvAIOperationRapidResponse::ArmyInPosition(CvArmyAI* pArmy)
 {
 	bool bStateChanged = false;
 
+#if defined(MOD_BALANCE_CORE)
+	if (pArmy==NULL)
+		pArmy = GET_PLAYER(m_eOwner).getArmyAI(m_viArmyIDs[0]);
+#endif
+
 	switch(m_eCurrentState)
 	{
 		// See if reached our target
@@ -6548,7 +6571,9 @@ bool CvAIOperationRapidResponse::ArmyMoved(CvArmyAI* pArmy)
 
 	switch(m_eCurrentState)
 	{
+	//muster point and target are equal ...
 	case AI_OPERATION_STATE_MOVING_TO_TARGET:
+	case AI_OPERATION_STATE_GATHERING_FORCES:
 	{
 		RetargetDefensiveArmy(pArmy);
 	}
@@ -6557,7 +6582,6 @@ bool CvAIOperationRapidResponse::ArmyMoved(CvArmyAI* pArmy)
 	// In all other cases use base class version
 	case AI_OPERATION_STATE_AT_TARGET:
 	case AI_OPERATION_STATE_RECRUITING_UNITS:
-	case AI_OPERATION_STATE_GATHERING_FORCES:
 	case AI_OPERATION_STATE_ABORTED:
 		return CvAIOperation::ArmyMoved(pArmy);
 		break;
@@ -8169,6 +8193,24 @@ int OperationalAIHelpers::GetGatherRangeForXUnits(int iTotalUnits)
 {
 	int iRange = 0;
 
+#if defined(MOD_BALANCE_CORE)
+	if(iTotalUnits <= 2)
+	{
+		iRange = 2;
+	}
+	else if(iTotalUnits <= 6)
+	{
+		iRange = 3;
+	}
+	else if(iTotalUnits <= 10)
+	{
+		iRange = 4;
+	}
+	else
+	{
+		iRange = 5;
+	}
+#else
 	if(iTotalUnits <= 2)
 	{
 		iRange = 1;
@@ -8179,16 +8221,13 @@ int OperationalAIHelpers::GetGatherRangeForXUnits(int iTotalUnits)
 	}
 	else if(iTotalUnits <= 10)
 	{
-#if defined(MOD_BALANCE_CORE)
-		iRange = 4;
-#else
 		iRange = 3;
-#endif
 	}
 	else
 	{
 		iRange = 4;
 	}
+#endif
 
 	return iRange;
 }
