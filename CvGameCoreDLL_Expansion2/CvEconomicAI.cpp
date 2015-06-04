@@ -669,7 +669,11 @@ void CvEconomicAI::DoTurn()
 				else if(strStrategyName == "ECONOMICAISTRATEGY_EARLY_EXPANSION")
 					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_EarlyExpansion(m_pPlayer);
 				else if(strStrategyName == "ECONOMICAISTRATEGY_ENOUGH_EXPANSION")
+#if defined(MOD_BALANCE_CORE)
+					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_EnoughExpansion(m_pPlayer);
+#else
 					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_EnoughExpansion(eStrategy, m_pPlayer);
+#endif
 				else if(strStrategyName == "ECONOMICAISTRATEGY_NEED_HAPPINESS")
 					bStrategyShouldBeActive = EconomicAIHelpers::IsTestStrategy_NeedHappiness(eStrategy, m_pPlayer);
 				else if(strStrategyName == "ECONOMICAISTRATEGY_NEED_HAPPINESS_CRITICAL")
@@ -2249,7 +2253,12 @@ void CvEconomicAI::DoPlotPurchases()
 	MilitaryAIStrategyTypes eStrategyAtWar = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_AT_WAR");
 	if(eStrategyAtWar != NO_MILITARYAISTRATEGY)
 	{
+#if defined(MOD_BALANCE_CORE)
+		//Losing?
+		if (m_pPlayer->GetMilitaryAI()->IsUsingStrategy(eStrategyAtWar) && m_pPlayer->GetDiplomacyAI()->GetStateAllWars() == STATE_ALL_WARS_LOSING)
+#else
 		if(m_pPlayer->GetMilitaryAI()->IsUsingStrategy(eStrategyAtWar))
+#endif
 		{
 			return;
 		}
@@ -2260,7 +2269,9 @@ void CvEconomicAI::DoPlotPurchases()
 	int iCurrentCost = m_pPlayer->GetBuyPlotCost();
 	int iGoldForHalfCost = /*1000*/ GC.getAI_GOLD_BALANCE_TO_HALVE_PLOT_BUY_MINIMUM();
 	int iBalance = m_pPlayer->GetTreasury()->GetGold();
-
+#if defined(MOD_BALANCE_CORE)
+	int iCityCount = 0;
+#endif
 	// Let's always invest any money we have in plot purchases
 	//  (LATER -- save up money to spend at newly settled cities)
 	if(iCurrentCost < iBalance && iGoldForHalfCost > iCurrentCost)
@@ -2274,8 +2285,14 @@ void CvEconomicAI::DoPlotPurchases()
 		{
 			if(pLoopCity->CanBuyAnyPlot())
 			{
+#if defined(MOD_BALANCE_CORE)
+				iCityCount++;
+#endif
 				iScore = pLoopCity->GetBuyPlotScore(iTempX, iTempY);
-
+#if defined(MOD_BALANCE_CORE)
+				//Should encourage spending in newer cities.
+				iScore *= iCityCount;
+#endif
 				if(iScore > iBestScore)
 				{
 					pBestCity = pLoopCity;
@@ -2340,7 +2357,7 @@ void CvEconomicAI::DoReconState()
 
 #if defined(MOD_BALANCE_CORE_SETTLER)
 	bool bIsVenice = GetPlayer()->GetPlayerTraits()->IsNoAnnexing();
-	if (!bIsVenice && GetPlayer()->GetNumCitiesFounded() < 2 )
+	if (!bIsVenice && GetPlayer()->GetNumCitiesFounded() < 3 )
 	{
 		// Need recon if there are no good plots to settle, at least until we have some cities
 		if (! GetPlayer()->HaveGoodSettlePlot(-1) )
@@ -2431,7 +2448,11 @@ void CvEconomicAI::DoReconState()
 		iWeightThreshold = 100;
 	}
 
+#if defined(MOD_BALANCE_CORE)
+	iStrategyWeight *= (iNumLandPlotsWithAdjacentFog * 2);
+#else
 	iStrategyWeight *= iNumLandPlotsWithAdjacentFog;
+#endif
 	int iNumExplorerDivisor = iNumExploringUnits + /*1*/ GC.getAI_STRATEGY_EARLY_EXPLORATION_EXPLORERS_WEIGHT_DIVISOR();
 	iStrategyWeight /= (iNumExplorerDivisor * iNumExplorerDivisor);
 	iStrategyWeight /= (int)sqrt((double)iNumLandPlotsRevealed);
@@ -2512,8 +2533,12 @@ void CvEconomicAI::DoReconState()
 		{
 			iWeightThreshold = 100;
 		}
-
+	
+#if defined(MOD_BALANCE_CORE)
+		iStrategyWeight *= (iNumCoastalTilesWithAdjacentFog * 2);
+#else
 		iStrategyWeight *= iNumCoastalTilesWithAdjacentFog;
+#endif
 		iNumExplorerDivisor = iNumExploringUnits + /*1*/ GC.getAI_STRATEGY_EARLY_EXPLORATION_EXPLORERS_WEIGHT_DIVISOR();
 		iStrategyWeight /= (iNumExplorerDivisor * iNumExplorerDivisor);
 		iStrategyWeight /= (int)sqrt((double)iNumCoastalTilesRevealed);
@@ -3427,6 +3452,11 @@ bool EconomicAIHelpers::IsAreaSafeForQuickColony(int iAreaID, CvPlayer* pPlayer)
 	int iEndSearchX   = pArea->getAreaBoundaries().m_iEastEdge;
 	int iEndSearchY   = pArea->getAreaBoundaries().m_iNorthEdge;
 #if defined(MOD_BALANCE_CORE)
+	//We don't want to 'quick colonize' somewhere we have no settlement at all.
+	if(pArea->getCitiesPerPlayer(pPlayer->GetID()) <= 0)
+	{
+		return false;
+	}
 	int iBad = 0;
 #endif
 	for(int iPlotX = iBeginSearchX; iPlotX <= iEndSearchX; iPlotX++)
@@ -3465,7 +3495,7 @@ bool EconomicAIHelpers::IsAreaSafeForQuickColony(int iAreaID, CvPlayer* pPlayer)
 			}
 			if(pPlot->getImprovementType() == GC.getBARBARIAN_CAMP_IMPROVEMENT())
 			{
-				iBad += 5;
+				iBad += 10;
 			}
 
 #else
@@ -3477,7 +3507,7 @@ bool EconomicAIHelpers::IsAreaSafeForQuickColony(int iAreaID, CvPlayer* pPlayer)
 		}
 	}
 #if defined(MOD_BALANCE_CORE)
-	if(iBad >= (pPlayer->GetDiplomacyAI()->GetBoldness() / 3))
+	if(iBad >= ((pArea->getNumTiles() * 90) / 100))
 	{
 		return false;
 	}
@@ -3743,15 +3773,16 @@ bool EconomicAIHelpers::IsTestStrategy_TechLeader(CvPlayer* pPlayer)
 /// "Early Expansion" Player Strategy: An early Strategy simply designed to get player up to 3 Cities quickly.
 bool EconomicAIHelpers::IsTestStrategy_EarlyExpansion(CvPlayer* pPlayer)
 {
+#if !defined(MOD_BALANCE_CORE_SETTLER)
 	int iDesiredCities;
 	int iFlavorExpansion = 0;
 	int iFlavorGrowth = 0;
-
+#endif
 	if(GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && pPlayer->isHuman())
 	{
 		return false;
 	}
-
+#if !defined(MOD_BALANCE_CORE_SETTLER)
 	iDesiredCities = pPlayer->GetEconomicAI()->GetEarlyCityNumberTarget();
 	for(int iFlavorLoop = 0; iFlavorLoop < GC.getNumFlavorTypes() && (iFlavorExpansion == 0 || iFlavorGrowth == 0); iFlavorLoop++)
 	{
@@ -3764,22 +3795,56 @@ bool EconomicAIHelpers::IsTestStrategy_EarlyExpansion(CvPlayer* pPlayer)
 			iFlavorGrowth = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)iFlavorLoop);
 		}
 	}
-
+#endif
 #if defined(MOD_BALANCE_CORE_SETTLER)
-
 	// scale based on flavor and world size
-	const int iDefaultNumTiles = 80*52;
-	iDesiredCities = int( 0.6f + float(iDesiredCities * iFlavorExpansion * GC.getMap().numPlots()) / (max(iFlavorGrowth, 1) * iDefaultNumTiles));
-
-	int iSettlersOnMap = pPlayer->GetNumUnitsWithUnitAI(UNITAI_SETTLE, true);
-	int iNumCities = pPlayer->getNumCities() - pPlayer->GetNumPuppetCities();
-
-	if( (iNumCities+iSettlersOnMap) >= iDesiredCities )
+	if(pPlayer->IsEmpireVeryUnhappy())
+	{
 		return false;
-
-	if(pPlayer->getCapitalCity() && pPlayer->HaveGoodSettlePlot( pPlayer->getCapitalCity()->getArea() ) )
+	}
+	if(pPlayer->getNumCities() <= 3)
+	{
 		return true;
+	}
+	MilitaryAIStrategyTypes eBuildCriticalDefenses = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_LOSING_WARS");
+	// scale based on flavor and world size
+	if(eBuildCriticalDefenses != NO_MILITARYAISTRATEGY && pPlayer->GetMilitaryAI()->IsUsingStrategy(eBuildCriticalDefenses) && !pPlayer->IsCramped())
+	{
+		return false;
+	}
+	int iLoopCity = 0;
+	bool bCoastal = false;
+	CvCity* pLoopCity = NULL;
+	for(pLoopCity = pPlayer->firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = pPlayer->nextCity(&iLoopCity))
+	{
+		if(pLoopCity->isCoastal())
+		{
+			bCoastal = true;
+			break;
+		}
+	}
+	if(!bCoastal)
+	{
+		return true;
+	}
+	// Over 75% of territory on our landmass full? Time to look elsewhere.
+	if(pPlayer->getCapitalCity() != NULL)
+	{
+		CvArea* pArea = GC.getMap().getArea(pPlayer->getCapitalCity()->getArea());
 
+		int iNumOwnedTiles = pArea->getNumOwnedTiles();
+		int iNumTiles = max(1,pArea->getNumTiles());
+
+		int iOwnageRatio = iNumOwnedTiles * 100 / iNumTiles;
+		if(iOwnageRatio > GC.getAI_STRATEGY_AREA_IS_FULL_PERCENT())
+		{
+			return false;
+		}
+		if(pPlayer->HaveGoodSettlePlot( pPlayer->getCapitalCity()->getArea() ) )
+		{
+			return true;
+		}
+	}
 #else
 	iDesiredCities = (iDesiredCities * iFlavorExpansion) / max(iFlavorGrowth, 1);
 	int iDifficulty = max(0,GC.getGame().getHandicapInfo().GetID() - 3);
@@ -3820,21 +3885,78 @@ bool EconomicAIHelpers::IsTestStrategy_EarlyExpansion(CvPlayer* pPlayer)
 		}
 	}
 #endif
-
 	return false;
 }
 
 /// "Enough Expansion" Player Strategy: Never want a lot of settlers hanging around
+#if defined(MOD_BALANCE_CORE)
+bool EconomicAIHelpers::IsTestStrategy_EnoughExpansion(CvPlayer* pPlayer)
+#else
 bool EconomicAIHelpers::IsTestStrategy_EnoughExpansion(EconomicAIStrategyTypes eStrategy, CvPlayer* pPlayer)
+#endif
 {
+#if !defined(MOD_BALANCE_CORE)
 	int iBestArea;
 	int iSecondBestArea;
+#endif
 #if defined(MOD_BALANCE_CORE)
 	bool bCannotExpand = pPlayer->isBarbarian() || pPlayer->isMinorCiv() || pPlayer->GetPlayerTraits()->IsNoAnnexing();
 	if ((GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && pPlayer->isHuman()) || bCannotExpand)
+	{
+		return true;
+	}
+	else
+	{
+		if(pPlayer->getNumCities() <= pPlayer->GetDiplomacyAI()->GetBoldness())
+		{
+			return false;
+		}
+	}
+	// If we are running "ECONOMICAISTRATEGY_EXPAND_TO_OTHER_CONTINENTS"
+	EconomicAIStrategyTypes eExpandOther = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_EXPAND_TO_OTHER_CONTINENTS");
+	if (eExpandOther != NO_ECONOMICAISTRATEGY)
+	{
+		if (pPlayer->GetEconomicAI()->IsUsingStrategy(eExpandOther))
+		{
+			return false;
+		}
+	}
+
+	// If we are running "ECONOMICAISTRATEGY_EARLY_EXPANSION"
+	EconomicAIStrategyTypes eEarlyExpand = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_EARLY_EXPANSION");
+	if (eEarlyExpand != NO_ECONOMICAISTRATEGY)
+	{
+		if (pPlayer->GetEconomicAI()->IsUsingStrategy(eEarlyExpand))
+		{
+			return false;
+		}
+	}
+	// If we are running "ECONOMICAISTRATEGY_EXPAND_LIKE_CRAZY"
+	EconomicAIStrategyTypes eExpandCrazy = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_EXPAND_LIKE_CRAZY");
+	if (eExpandCrazy != NO_ECONOMICAISTRATEGY)
+	{
+		if (pPlayer->GetEconomicAI()->IsUsingStrategy(eExpandCrazy))
+		{
+			return false;
+		}
+	}
+	if(pPlayer->IsEmpireVeryUnhappy())
+	{
+		return true;
+	}
+	if (!pPlayer->HaveGoodSettlePlot(-1) )
+	{
+		return true;
+	}
+	MilitaryAIStrategyTypes eBuildCriticalDefenses = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_LOSING_WARS");
+	// scale based on flavor and world size
+	if(eBuildCriticalDefenses != NO_MILITARYAISTRATEGY && pPlayer->GetMilitaryAI()->IsUsingStrategy(eBuildCriticalDefenses) && !pPlayer->IsCramped())
+	{
+		return true;
+	}
 #else
 	if (GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && pPlayer->isHuman())
-#endif
+
 	{
 		return true;
 	}
@@ -3846,7 +3968,6 @@ bool EconomicAIHelpers::IsTestStrategy_EnoughExpansion(EconomicAIStrategyTypes e
 	}
 
 	int iNumExtraSettlers = 0;
-
 	if (!pPlayer->IsEmpireUnhappy())
 	{
 
@@ -3863,20 +3984,7 @@ bool EconomicAIHelpers::IsTestStrategy_EnoughExpansion(EconomicAIStrategyTypes e
 				}
 			}
 		}
-
-		// if we are generally expansionistic
-		int iFlavorExpansion = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_EXPANSION"));
-		if (iFlavorExpansion > 6)
-		{
-			++iNumExtraSettlers;
-		}
-		if (iFlavorExpansion > 8)
-		{
-			++iNumExtraSettlers;
-		}
-
 	}
-
 	int iSettlersOnMap = pPlayer->GetNumUnitsWithUnitAI(UNITAI_SETTLE, true);
 
 	CvEconomicAIStrategyXMLEntry* pStrategy = pPlayer->GetEconomicAI()->GetEconomicAIStrategies()->GetEntry(eStrategy);
@@ -3886,7 +3994,7 @@ bool EconomicAIHelpers::IsTestStrategy_EnoughExpansion(EconomicAIStrategyTypes e
 	{
 		return true;
 	}
-
+#endif
 	return false;
 }
 
@@ -4055,20 +4163,19 @@ bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes /*eStra
 	int iSecondBestArea;
 	int iNumAreas;
 	int iArea = -1;
-
 #if defined(MOD_BALANCE_CORE_SETTLER)
 	// Never run this strategy for OCC, barbarians or minor civs
 	if (GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) || pPlayer->isBarbarian() || pPlayer->isMinorCiv())
 	{
 		return false;
 	}
+	iNumAreas = 0;
 #else
 	if(GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && pPlayer->isHuman())
 	{
 		return false;
 	}
 #endif
-
 	// Never run this strategy for a human player
 	if(!pPlayer->isHuman())
 	{
@@ -4091,19 +4198,31 @@ bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes /*eStra
 		}
 
 		// Don't run this strategy if have 0 cities, in that case we just want to drop down a city wherever we happen to be
-		if (iLooseSettler && pPlayer->getNumCities() >= 1)
+#if defined(MOD_BALANCE_CORE)
+		if (pFirstSettler != NULL && pPlayer->getNumCities() >= 1)
 		{
 			iNumAreas = pPlayer->GetBestSettleAreas(pPlayer->GetEconomicAI()->GetMinimumSettleFertility(), iBestArea, iSecondBestArea);
 			if(iNumAreas == 0)
 			{
 				return false;
 			}
+#else
+		if (iLooseSettler && pPlayer->getNumCities() >= 1)
 
+		{
+			iNumAreas = pPlayer->GetBestSettleAreas(pPlayer->GetEconomicAI()->GetMinimumSettleFertility(), iBestArea, iSecondBestArea);
+			if(iNumAreas == 0)
+			{
+				return false;
+			}
+#endif
 			bool bCanEmbark = GET_TEAM(pPlayer->getTeam()).canEmbark() || pPlayer->GetPlayerTraits()->IsEmbarkedAllWater();
+#if defined(MOD_BALANCE_CORE)
+#else
 			bool bWantEscort = false;
-
+#endif
 			// CASE 1: we can go offshore
-			if (bCanEmbark && (pPlayer->getNumCities() > 1))
+			if (bCanEmbark)
 			{
 #if !defined(MOD_BALANCE_CORE_SETTLER)
 
@@ -4128,10 +4247,64 @@ bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes /*eStra
 					iArea = iBestArea;
 					bWantEscort = IsAreaSafeForQuickColony(iArea, pPlayer);
 				}
-#else
 				iArea = iBestArea;
 				bWantEscort = IsAreaSafeForQuickColony(iArea, pPlayer);
+#else
 #endif
+#if defined(MOD_BALANCE_CORE)
+				EconomicAIStrategyTypes eStrategyExpandToOtherContinents = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_EXPAND_TO_OTHER_CONTINENTS");
+				iArea = iBestArea;
+				if(iArea == -1)
+				{
+					iArea = iSecondBestArea;
+				}
+				if(pPlayer->GetEconomicAI()->IsUsingStrategy(eStrategyExpandToOtherContinents))
+				{
+					bool bWantEscort = false;
+					if(!IsAreaSafeForQuickColony(iArea, pPlayer))
+					{
+						bWantEscort = true;
+					}
+					bool bIsOccupied = false;
+					CvArea* pArea = GC.getMap().getArea(iBestArea);
+					if(pArea != NULL)
+					{
+						if(pArea->getCitiesPerPlayer(pPlayer->GetID()) > 0)
+						{
+							bIsOccupied = true;
+						}
+					}
+					if(!bIsOccupied)
+					{
+						if (!bWantEscort)
+						{
+							pPlayer->addAIOperation(AI_OPERATION_QUICK_COLONIZE, NO_PLAYER, iArea);
+							return true;
+						}
+						else
+						{
+							pPlayer->addAIOperation(AI_OPERATION_COLONIZE, NO_PLAYER, iArea);
+							return true;
+						}
+					}
+					else
+					{
+						pPlayer->addAIOperation(AI_OPERATION_FOUND_CITY, NO_PLAYER, iArea);
+						return true;
+					}
+				}
+				else
+				{
+					pPlayer->addAIOperation(AI_OPERATION_FOUND_CITY, NO_PLAYER, iArea);
+					return true;
+				}
+			}
+			else // we can't embark yet
+			{
+				pPlayer->addAIOperation(AI_OPERATION_FOUND_CITY, NO_PLAYER, iArea);
+				return true;
+			}
+#else
 				if (bWantEscort)
 				{
 					pPlayer->addAIOperation(AI_OPERATION_FOUND_CITY, NO_PLAYER, iArea);
@@ -4148,6 +4321,7 @@ bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes /*eStra
 				pPlayer->addAIOperation(AI_OPERATION_FOUND_CITY, NO_PLAYER, iBestArea);
 				return true;
 			}
+#endif	
 		}
 	}
 
@@ -4573,6 +4747,38 @@ bool EconomicAIHelpers::IsTestStrategy_ExpandToOtherContinents(CvPlayer* pPlayer
 		return false;
 	}
 
+#if defined(MOD_BALANCE_CORE)
+	if(pPlayer->IsEmpireVeryUnhappy())
+	{
+		return false;
+	}
+	if(!GET_TEAM(pPlayer->getTeam()).canEmbark())
+	{
+		return false;
+	}
+	int iLoopCity = 0;
+	bool bCoastal = false;
+	CvCity* pLoopCity = NULL;
+	for(pLoopCity = pPlayer->firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = pPlayer->nextCity(&iLoopCity))
+	{
+		if(pLoopCity->isCoastal(GC.getMIN_WATER_SIZE_FOR_OCEAN()))
+		{
+			bCoastal = true;
+			break;
+		}
+	}
+	if(!bCoastal)
+	{
+		return false;
+	}
+	MilitaryAIStrategyTypes eBuildCriticalDefenses = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_LOSING_WARS");
+	// scale based on flavor and world size
+	if(eBuildCriticalDefenses != NO_MILITARYAISTRATEGY && pPlayer->GetMilitaryAI()->IsUsingStrategy(eBuildCriticalDefenses) && !pPlayer->IsCramped())
+	{
+		return false;
+	}
+#endif
+
 	// Never run this at the same time as island start
 	EconomicAIStrategyTypes eStrategyIslandStart = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_ISLAND_START");
 	if(eStrategyIslandStart != NO_ECONOMICAISTRATEGY)
@@ -4592,7 +4798,29 @@ bool EconomicAIHelpers::IsTestStrategy_ExpandToOtherContinents(CvPlayer* pPlayer
 			return false;
 		}
 	}
+#if defined(MOD_BALANCE_CORE)
+	EconomicAIStrategyTypes eOffshoreExpansion = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_OFFSHORE_EXPANSION_MAP");
+	EconomicAIStrategyTypes eNavalMap = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_NAVAL_MAP");
 
+	if(eOffshoreExpansion != NO_ECONOMICAISTRATEGY)
+	{
+		if(pPlayer->GetEconomicAI()->IsUsingStrategy(eOffshoreExpansion))
+		{
+			return true;
+		}
+	}
+	if(eNavalMap != NO_ECONOMICAISTRATEGY)
+	{
+		if(pPlayer->GetEconomicAI()->IsUsingStrategy(eNavalMap))
+		{
+			return true;
+		}
+	}
+	if (pPlayer->getCapitalCity() != NULL && !pPlayer->HaveGoodSettlePlot(pPlayer->getCapitalCity()->getArea()) )
+	{
+		return true;
+	}
+#else
 	// Never desperate to settle distant lands if we are at war (unless we are doing okay at the war)
 	MilitaryAIStrategyTypes eStrategyAtWar = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_LOSING_WARS");
 	if(eStrategyAtWar != NO_MILITARYAISTRATEGY)
@@ -4616,8 +4844,9 @@ bool EconomicAIHelpers::IsTestStrategy_ExpandToOtherContinents(CvPlayer* pPlayer
 			return true;
 		}
 	}
-
+#endif
 	return false;
+
 }
 
 
@@ -4628,6 +4857,18 @@ bool EconomicAIHelpers::IsTestStrategy_ReallyExpandToOtherContinents(CvPlayer* p
 	{
 		return false;
 	}
+
+#if defined(MOD_BALANCE_CORE)
+	if(pPlayer->getCapitalCity() == NULL)
+	{
+		return false;
+	}
+	if(!GET_TEAM(pPlayer->getTeam()).canEmbarkAllWaterPassage())
+	{
+		return false;
+	}
+	EconomicAIStrategyTypes eOffshoreExpansion = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_OFFSHORE_EXPANSION_MAP");
+#endif
 
 	// Only run this if we are running "ExpandToOtherContinents"
 	EconomicAIStrategyTypes eStrategyExpandToOtherContinents = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_EXPAND_TO_OTHER_CONTINENTS");
@@ -4647,9 +4888,13 @@ bool EconomicAIHelpers::IsTestStrategy_ReallyExpandToOtherContinents(CvPlayer* p
 			return false;
 		}
 	}
-
+#if defined(MOD_BALANCE_CORE)
+	// if we are at war probably shouldn't (unless the map is an offshore expansion map)
+	if(eOffshoreExpansion != NO_ECONOMICAISTRATEGY && !pPlayer->GetEconomicAI()->IsUsingStrategy(eOffshoreExpansion))
+#else
 	// if we are at war probably shouldn't (unless the map is an offshore expansion map)
 	if ((GC.getMap().GetAIMapHint() & 4) == 0)
+#endif
 	{
 		MilitaryAIStrategyTypes eStrategyAtWar = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_AT_WAR");
 		if(eStrategyAtWar != NO_MILITARYAISTRATEGY)
@@ -4707,7 +4952,19 @@ bool EconomicAIHelpers::IsTestStrategy_ExpandLikeCrazy(EconomicAIStrategyTypes e
 	{
 		return false;
 	}
+#if defined(MOD_BALANCE_CORE)
+	int iBestArea, iSecondBestArea;
+	int iNumSettleAreas = pPlayer->GetBestSettleAreas(pPlayer->GetEconomicAI()->GetMinimumSettleFertility(), iBestArea, iSecondBestArea);
+	if (iNumSettleAreas == 0)
+	{
+		return false;
+	}
 
+	if (!pPlayer->IsEmpireUnhappy())
+	{
+		return false;
+	}
+#endif
 #ifndef AUI_ECONOMIC_FIX_EXPAND_LIKE_CRAZY_REMOVE_HOLDOVER_CULTURE_CHECK
 	// Never run this if we are going for a cultural victory since it will derail that
 	AIGrandStrategyTypes eGrandStrategy = (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_CULTURE");

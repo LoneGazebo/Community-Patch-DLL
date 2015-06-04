@@ -184,4 +184,11 @@
 			<UnitAIType>UNITAI_EXPLORE_SEA</UnitAIType>
 		</Row>
 	</Unit_AITypes>
+	<Civilization_UnitClassOverrides>
+		<Row>
+			<CivilizationType>CIVILIZATION_BARBARIAN</CivilizationType>
+			<UnitClassType>UNITCLASS_ELEPHANT_RIDER</UnitClassType>
+			<UnitType/>
+		</Row>
+	</Civilization_UnitClassOverrides>
 </GameData>

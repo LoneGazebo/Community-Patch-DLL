@@ -1,5 +1,5 @@
-/*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+ï»¿/*	-------------------------------------------------------------------------------------------------------
+	ï¿½ 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -2180,12 +2180,12 @@ int StepValid(CvAStarNode* parent, CvAStarNode* node, int data, const void* poin
 	{
 		return TRUE;
 	}
-
 #if defined(MOD_BALANCE_CORE)
 	if (pointer==NULL)
+	{
 		return FALSE;
+	}
 #endif
-
 	int iFlags = finder->GetInfo();
 	PlayerTypes ePlayer = (PlayerTypes)(iFlags & 0xFF);
 
@@ -2557,6 +2557,13 @@ int RouteValid(CvAStarNode* parent, CvAStarNode* node, int data, const void* poi
 	if(kPlayer.GetPlayerTraits()->IsRiverTradeRoad())
 	{
 		if(pNewPlot->isRiver())
+		{
+			return TRUE;
+		}
+	}
+	if(kPlayer.GetPlayerTraits()->IsMountainPass())
+	{
+		if(pNewPlot->isMountain())
 		{
 			return TRUE;
 		}
@@ -4266,12 +4273,18 @@ struct TradePathCacheData
 	CvTeam* m_pTeam;
 	bool m_bCanEmbarkAllWaterPassage;
 	bool m_bIsRiverTradeRoad;
+#if defined(MOD_BALANCE_CORE)
+	bool m_bIsMountainPass;
+#endif
 	bool m_bIsMoveFriendlyWoodsAsRoad;
 
 	inline CvTeam& getTeam() const { return *m_pTeam; }
 	inline bool CanEmbarkAllWaterPassage() const { return m_bCanEmbarkAllWaterPassage; }
 	inline bool IsRiverTradeRoad() const { return m_bIsRiverTradeRoad; }
 	inline bool IsMoveFriendlyWoodsAsRoad() const { return m_bIsMoveFriendlyWoodsAsRoad; }
+#if defined(MOD_BALANCE_CORE)
+	inline bool IsMountainPass() const { return m_bIsMountainPass; }
+#endif
 };
 
 //	--------------------------------------------------------------------------------
@@ -4295,11 +4308,17 @@ void TradePathInitialize(const void* pointer, CvAStar* finder)
 	{
 		pCacheData->m_bIsRiverTradeRoad = pPlayerTraits->IsRiverTradeRoad();
 		pCacheData->m_bIsMoveFriendlyWoodsAsRoad = pPlayerTraits->IsMoveFriendlyWoodsAsRoad();
+#if defined(MOD_BALANCE_CORE)
+		pCacheData->m_bIsMountainPass = pPlayerTraits->IsMountainPass();
+#endif
 	}
 	else
 	{
 		pCacheData->m_bIsRiverTradeRoad = false;
 		pCacheData->m_bIsMoveFriendlyWoodsAsRoad = false;
+#if defined(MOD_BALANCE_CORE)
+		pCacheData->m_bIsMountainPass = false;
+#endif
 	}
 
 }
@@ -4351,6 +4370,12 @@ int TradeRouteLandPathCost(CvAStarNode* parent, CvAStarNode* node, int data, con
 	{
 		iCost = iCost / 2;
 	}
+#if defined(MOD_BALANCE_CORE)
+	else if (pToPlot->isMountain() && pCacheData->IsMountainPass())
+	{
+		iCost = iCost / 2;
+	}
+#endif
 	else
 	{
 		bool bFeaturePenalty = false;

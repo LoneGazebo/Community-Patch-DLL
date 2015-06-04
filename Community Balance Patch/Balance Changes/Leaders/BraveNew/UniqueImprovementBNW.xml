@@ -102,13 +102,19 @@
 		<Row>
 			<ImprovementType>IMPROVEMENT_ENCAMPMENT_SHOSHONE</ImprovementType>
 			<TechType>TECH_RIFLING</TechType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<ImprovementType>IMPROVEMENT_ENCAMPMENT_SHOSHONE</ImprovementType>
+			<TechType>TECH_ECOLOGY</TechType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
 			<Yield>1</Yield>
 		</Row>
 		<Row>
 			<ImprovementType>IMPROVEMENT_ENCAMPMENT_SHOSHONE</ImprovementType>
-			<TechType>TECH_RIFLING</TechType>
-			<YieldType>YIELD_FOOD</YieldType>
+			<TechType>TECH_ECOLOGY</TechType>
+			<YieldType>YIELD_SCIENCE</YieldType>
 			<Yield>1</Yield>
 		</Row>
 	</Improvement_TechYieldChanges>

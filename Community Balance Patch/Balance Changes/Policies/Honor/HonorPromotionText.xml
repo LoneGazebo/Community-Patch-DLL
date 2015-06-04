@@ -13,7 +13,7 @@
 			<Text>Logistics</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_KILL_HEAL_HELP">
-			<Text>Heal 20 points when you destoy an enemy unit.</Text>
+			<Text>Heal 15 points when you destoy an enemy unit.</Text>
 		</Row>
 		<!-- Honor ProdMod Text-->
 		<Row Tag="TXT_KEY_PRODMOD_YIELD_PUPPET_POLICY">

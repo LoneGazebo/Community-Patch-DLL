@@ -549,6 +549,8 @@ bool CvMilitaryAI::RequestSneakAttack(PlayerTypes eEnemy)
 	CvAIOperation* pOperation = 0;
 	int iOperationID;
 	// Let's only allow us to be sneak attacking one opponent at a time, so abort if already have one of these operations active against any opponent
+#if defined(MOD_BALANCE_CORE_MILITARY)
+#else
 	if (m_pPlayer->haveAIOperationOfType(AI_OPERATION_NAVAL_SNEAK_ATTACK, &iOperationID))
 	{
 		return false;
@@ -557,7 +559,7 @@ bool CvMilitaryAI::RequestSneakAttack(PlayerTypes eEnemy)
 	{
 		return false;
 	}
-
+#endif
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	target = FindBestAttackTarget2(AI_OPERATION_SNEAK_CITY_ATTACK, eEnemy);
 #else
@@ -568,6 +570,12 @@ bool CvMilitaryAI::RequestSneakAttack(PlayerTypes eEnemy)
 	{
 		if(target.m_bAttackBySea)
 		{
+#if defined(MOD_BALANCE_CORE_MILITARY)
+			if (m_pPlayer->haveAIOperationOfType(AI_OPERATION_NAVAL_SNEAK_ATTACK, &iOperationID))
+			{
+				return false;
+			}
+#endif
 			if(IsAttackReady(MUFORMATION_NAVAL_INVASION, AI_OPERATION_SNEAK_CITY_ATTACK))
 			{
 				pOperation = m_pPlayer->addAIOperation(AI_OPERATION_NAVAL_SNEAK_ATTACK, eEnemy, target.m_pTargetCity->getArea(), target.m_pTargetCity, target.m_pMusterCity);
@@ -584,6 +592,12 @@ bool CvMilitaryAI::RequestSneakAttack(PlayerTypes eEnemy)
 		}
 		else
 		{
+#if defined(MOD_BALANCE_CORE_MILITARY)
+			if (m_pPlayer->haveAIOperationOfType(AI_OPERATION_SNEAK_CITY_ATTACK, &iOperationID))
+			{
+				return false;
+			}
+#endif
 			if(IsAttackReady((GC.getGame().getHandicapInfo().GetID() > 4 && !(GC.getMap().GetAIMapHint() & 1)) ? MUFORMATION_BIGGER_CITY_ATTACK_FORCE : MUFORMATION_BASIC_CITY_ATTACK_FORCE, AI_OPERATION_SNEAK_CITY_ATTACK))
 			{
 				pOperation = m_pPlayer->addAIOperation(AI_OPERATION_SNEAK_CITY_ATTACK, eEnemy, target.m_pTargetCity->getArea(), target.m_pTargetCity, target.m_pMusterCity);
@@ -1499,7 +1513,7 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTarget(AIOperationTypes eAIOperatio
 								{
 									continue;
 								}
-								if(GC.GetInternationalTradeRouteWaterFinder().GeneratePath(pFriendlyCity->getX(), pEnemyCity->getY(), pFriendlyCity->getX(), pEnemyCity->getY()))
+								if(GC.GetInternationalTradeRouteWaterFinder().GeneratePath(pFriendlyCity->getX(), pFriendlyCity->getY(), pEnemyCity->getX(), pEnemyCity->getY()))
 								{
 									pPathfinderNode = GC.GetInternationalTradeRouteWaterFinder().GetLastNode();
 									if(pPathfinderNode != NULL)
@@ -1723,14 +1737,14 @@ CvMilitaryTarget CvMilitaryAI::FindBestAttackTarget(AIOperationTypes eAIOperatio
 
 		iWeight = ScoreTarget(target, eAIOperationType);
 
-			if (weightedTargetList.GetElement( weightedTargetList.size()-1 ) == target)
-			{
-				OutputDebugString("repeated target! why??");
-			}
-
-			weightedTargetList.push_back(target, iWeight);
-			iTargetsConsidered++;
+		if (weightedTargetList.GetElement( weightedTargetList.size()-1 ) == target)
+		{
+			OutputDebugString("repeated target! why??");
 		}
+
+		weightedTargetList.push_back(target, iWeight);
+		iTargetsConsidered++;
+	}
 
 	// Didn't find anything, abort
 	if(weightedTargetList.size() == 0)
@@ -4012,7 +4026,14 @@ void CvMilitaryAI::UpdateOperations()
 		}
 	}
 #endif
-
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	//Let's hunt barbs if we want to expand
+	EconomicAIStrategyTypes eStrategyExpandToOtherContinents = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_EXPAND_TO_OTHER_CONTINENTS");
+	if(m_pPlayer->GetEconomicAI()->IsUsingStrategy(eStrategyExpandToOtherContinents))
+	{
+		bWillingToAcceptRisk = true;
+	}
+#endif
 	//
 	// Operations vs. Barbarians
 	//
@@ -6821,6 +6842,12 @@ bool MilitaryAIHelpers::IsTestStrategy_EradicateBarbarians(MilitaryAIStrategyTyp
 #if defined(MOD_BALANCE_CORE_MILITARY)
 		// If we have an operation of this type running, we don't want to turn this strategy off
 		else if(pPlayer->haveAIOperationOfType(AI_OPERATION_NAVAL_BOMBARDMENT))
+		{
+			return true;
+		}
+		//Let's hunt barbs if we want to expand
+		EconomicAIStrategyTypes eStrategyExpandToOtherContinents = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_EXPAND_TO_OTHER_CONTINENTS");
+		if(pPlayer->GetEconomicAI()->IsUsingStrategy(eStrategyExpandToOtherContinents))
 		{
 			return true;
 		}

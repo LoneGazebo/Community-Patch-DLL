@@ -24,12 +24,12 @@
 		<Row>
 			<PolicyType>POLICY_ORGANIZED_RELIGION</PolicyType>
 			<BuildingClassType>BUILDINGCLASS_SHRINE</BuildingClassType>
-			<CultureChange>2</CultureChange>
+			<CultureChange>1</CultureChange>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_ORGANIZED_RELIGION</PolicyType>
 			<BuildingClassType>BUILDINGCLASS_TEMPLE</BuildingClassType>
-			<CultureChange>2</CultureChange>
+			<CultureChange>1</CultureChange>
 		</Row>
 	</Policy_BuildingClassCultureChanges>
 	<Policy_BuildingClassYieldChanges>

@@ -99,6 +99,18 @@
 			<PromotionType>PROMOTION_SECOND_ATTACK</PromotionType>
 		</Row>
 	</Unit_FreePromotions>
+	<Improvement_Yields>
+		<Row>
+			<ImprovementType>IMPROVEMENT_TERRACE_FARM</ImprovementType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<ImprovementType>IMPROVEMENT_TERRACE_FARM</ImprovementType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>1</Yield>
+		</Row>
+	</Improvement_Yields>
 	<!-- Spain -->
 	<Trait_YieldFromConquest>
 		<Row>
@@ -111,7 +123,7 @@
 		<Row>
 			<TraitType>TRAIT_SEVEN_CITIES</TraitType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>10</Yield>
+			<Yield>15</Yield>
 		</Row>
 	</Trait_YieldFromSettle>
 </GameData>

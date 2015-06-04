@@ -140,8 +140,6 @@ local g_activePlayer = Players[ g_activePlayerID ]
 local g_activeTeamID = Game.GetActiveTeam()
 local g_activeTeam = Teams[ g_activeTeamID ]
 
-local g_isMultiplayerEndTurnTimer = Game.IsOption(GameOptionTypes.GAMEOPTION_END_TURN_TIMER_ENABLED) and PreGame.IsMultiplayerGame()
-
 local g_cityBanners = {}
 local g_outpostBanners = {}
 local g_stationBanners = {}
@@ -1226,7 +1224,15 @@ local function RefreshCityBannersNow()
 				-- We love the king
 				if weLoveTheKingDayCounter > 0 then
 					cityBanner.QuestIcons:SetText( "[ICON_HAPPINESS_1]" )
-					cityBanner.QuestIcons:LocalizeAndSetToolTip( "TXT_KEY_CITYVIEW_WLTKD_COUNTER", weLoveTheKingDayCounter )
+					--- CBP
+					if(cityOwner:IsGPWLTKD()) then
+						cityBanner.QuestIcons:LocalizeAndSetToolTip( "TXT_KEY_CITYVIEW_WLTKD_COUNTER_UA", weLoveTheKingDayCounter )
+					else
+					-- END
+						cityBanner.QuestIcons:LocalizeAndSetToolTip( "TXT_KEY_CITYVIEW_WLTKD_COUNTER", weLoveTheKingDayCounter )
+					--CBP
+					end
+					-- END
 					cityBanner.QuestIcons:SetHide( false )
 
 				elseif resource then
@@ -1389,8 +1395,8 @@ local function RefreshCityBannersNow()
 
 			if city:GetTeam() == g_activeTeamID or g_activePlayer:IsObserver() then
 
-				if cityOwnerID == g_activePlayerID and not g_isMultiplayerEndTurnTimer then -- TODO check
-					Network.SendUpdateCityCitizens( city:GetID() ) --city:DoReallocateCitizens()
+				if cityOwnerID == g_activePlayerID and not( Game.IsNetworkMultiPlayer() and g_activePlayer:HasReceivedNetTurnComplete() ) then -- required to prevent turn interrupt
+					Network.SendUpdateCityCitizens( city:GetID() )
 				end
 
 				local normalView = not (civ5_mode and InStrategicView())

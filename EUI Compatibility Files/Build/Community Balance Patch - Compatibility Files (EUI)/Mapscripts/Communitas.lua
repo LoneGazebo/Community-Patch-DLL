@@ -64,7 +64,7 @@ function MapGlobals:New()
 	
 
 	--Percent of land tiles on the map.
-	mglobal.landPercent				= 0.45
+	mglobal.landPercent				= 0.55
 	
 	--Top and bottom map latitudes.
 	mglobal.topLatitude				= 70
@@ -73,38 +73,38 @@ function MapGlobals:New()
 	
 	--Important latitude markers used for generating climate.
 	mglobal.tropicLatitudes			= 20	--    			   tropicLatitudes to 0 : grass, jungle
-	mglobal.horseLatitudes			= 30	-- polarFrontLatitude to horseLatitudes : grass, plains, desert
-	mglobal.iceLatitude				= 60	-- 		  bottomLatitude to iceLatitude : ice
-	mglobal.polarFrontLatitude		= 62	-- bottomLatitude to polarFrontLatitude : snow, tundra
+	mglobal.horseLatitudes			= 40	-- polarFrontLatitude to horseLatitudes : grass, plains, desert
+	mglobal.iceLatitude				= 62	-- 		  bottomLatitude to iceLatitude : ice
+	mglobal.polarFrontLatitude		= 66	-- bottomLatitude to polarFrontLatitude : snow, tundra
 	
 	
 	--Adjusting these will generate larger or smaller landmasses and features.
-	mglobal.landMinScatter			= 0.04 	--Recommended range:[0.02 to 0.1]
-	mglobal.landMaxScatter			= 0.06	--Recommended range:[0.03 to 0.3]
+	mglobal.landMinScatter			= 0.03 	--Recommended range:[0.02 to 0.1]
+	mglobal.landMaxScatter			= 0.04	--Recommended range:[0.03 to 0.3]
 											--Higher values makes continental divisions and stringy features more likely,
 											--and very high values result in a lot of stringy continents and islands.
 											
-	mglobal.coastScatter			= 0.10 	--Recommended range:[0.01 to 0.3]
+	mglobal.coastScatter			= 0.15 	--Recommended range:[0.01 to 0.3]
 											--Higher values result in more islands and variance on landmasses and coastlines.
 											
-	mglobal.mountainScatter			= 550 * mapW --Recommended range:[130 to 1000]
+	mglobal.mountainScatter			= 250 * mapW --Recommended range:[130 to 1000]
 											--Lower values make large, long, mountain ranges. Higher values make sporadic mountainous features.
 	
 	
 	-- Terrain
 	mglobal.mountainWeight			= 0.8  --Weight of the mountain elevation map versus the coastline elevation map.
-	mglobal.belowMountainPercent	= 0.95 -- Percent of non-mountain land
+	mglobal.belowMountainPercent	= 0.96 -- Percent of non-mountain land
 										   -- flatPercent to belowMountainPercent : hills
-	mglobal.flatPercent				= 0.74 -- Percent of flat land
-	mglobal.hillsBlendPercent		= 0.33 -- Chance for flat land to become hills per near mountain. Requires at least 2 near mountains.
+	mglobal.flatPercent				= 0.78 -- Percent of flat land
+	mglobal.hillsBlendPercent		= 0.40 -- Chance for flat land to become hills per near mountain. Requires at least 2 near mountains.
 	mglobal.terrainBlendRange		= 2	   -- range to smooth terrain (desert surrounded by plains turns to plains, etc)
 	mglobal.terrainBlendRandom		= 0.5  -- random modifier for terrain smoothing
 
 	
 	-- Features
-	mglobal.featurePercent			= 0.60 -- Percent of potential feature tiles that actually create a feature (marsh/jungle/forest)
-	mglobal.featureWetVariance		= 0.10 -- Percent chance increase if freshwater, decrease if dry (groups features near rivers)
-	mglobal.islePercent				= 0.06 -- Percent of coast tiles with an isle
+	mglobal.featurePercent			= 0.56 -- Percent of potential feature tiles that actually create a feature (marsh/jungle/forest)
+	mglobal.featureWetVariance		= 0.11 -- Percent chance increase if freshwater, decrease if dry (groups features near rivers)
+	mglobal.islePercent				= 0.07 -- Percent of coast tiles with an isle
 	mglobal.numNaturalWonders		= 2 + GameInfo.Worlds[Map.GetWorldSize()].NumNaturalWonders
 	
 	
@@ -8121,8 +8121,8 @@ function AssignStartingPlots:PlaceBonusResources()
 	
 -- CBP
 	resources_to_place = {
-	{self.bison_ID, 1, 100, 2, 3} };
-	self:ProcessResourceList(60 * resMultiplier, 3, self.plains_flat_no_feature, resources_to_place)
+	{self.bison_ID, 1, 100, 1, 2} };
+	self:ProcessResourceList(15 * resMultiplier, 3, self.plains_flat_no_feature, resources_to_place)
 -- END
 
 	resources_to_place = {
@@ -8147,7 +8147,7 @@ function AssignStartingPlots:PlaceBonusResources()
 	
 	resources_to_place = {
 	{self.stone_ID, 1, 100, 1, 2} };
-	self:ProcessResourceList(99 * resMultiplier, 3, self.marsh_list, resources_to_place)
+	self:ProcessResourceList(50 * resMultiplier, 3, self.marsh_list, resources_to_place)
 	-- 99
 	
 	resources_to_place = {

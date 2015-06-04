@@ -1160,10 +1160,9 @@ protected:
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	LUAAPIEXTN(GetVassalGoldMaintenance, int);
 	LUAAPIEXTN(IsVassalageAcceptable, bool, iOtherPlayer);
-	LUAAPIEXTN(GetJONSCulturePerTurnFromVassals, int);
+	LUAAPIEXTN(GetYieldPerTurnFromVassals, int);
 	LUAAPIEXTN(GetHappinessFromVassals, int);
 	LUAAPIEXTN(GetScoreFromVassals, int);
-	LUAAPIEXTN(GetScienceFromVassalTimes100, int);
 	LUAAPIEXTN(GetMilitaryAggressivePosture, int, iOtherPlayer);
 	LUAAPIEXTN(MoveRequestTooSoon, bool, iOtherPlayer);
 	LUAAPIEXTN(GetPlayerMoveTroopsRequestCounter, int, iOtherPlayer);

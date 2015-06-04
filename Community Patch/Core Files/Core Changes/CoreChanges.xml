@@ -45,17 +45,17 @@
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_AT_WAR</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_WONDER</FlavorType>
-			<Flavor>-50</Flavor>
+			<Flavor>-25</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_AT_WAR</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_EXPANSION</FlavorType>
-			<Flavor>-100</Flavor>
+			<Flavor>-25</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_AT_WAR</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_CULTURE</FlavorType>
-			<Flavor>-50</Flavor>
+			<Flavor>-25</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_AT_WAR</AIMilitaryStrategyType>
@@ -65,7 +65,7 @@
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_AT_WAR</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_GROWTH</FlavorType>
-			<Flavor>-50</Flavor>
+			<Flavor>-25</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_AT_WAR</AIMilitaryStrategyType>
@@ -75,57 +75,57 @@
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_AT_WAR</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_INFRASTRUCTURE</FlavorType>
-			<Flavor>-50</Flavor>
+			<Flavor>-25</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_AT_WAR</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_GOLD</FlavorType>
-			<Flavor>-25</Flavor>
+			<Flavor>-15</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_AT_WAR</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_HAPPINESS</FlavorType>
-			<Flavor>-25</Flavor>
+			<Flavor>5</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_AT_WAR</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_GREAT_PEOPLE</FlavorType>
-			<Flavor>-50</Flavor>
+			<Flavor>-10</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_AT_WAR</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_RELIGION</FlavorType>
-			<Flavor>-50</Flavor>
+			<Flavor>-10</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_AT_WAR</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_DIPLOMACY</FlavorType>
-			<Flavor>-100</Flavor>
+			<Flavor>-25</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_AT_WAR</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_ARCHAEOLOGY</FlavorType>
-			<Flavor>-100</Flavor>
+			<Flavor>-25</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_AT_WAR</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_I_LAND_TRADE_ROUTE</FlavorType>
-			<Flavor>-100</Flavor>
+			<Flavor>-30</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_AT_WAR</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_I_SEA_TRADE_ROUTE</FlavorType>
-			<Flavor>-100</Flavor>
+			<Flavor>-30</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_AT_WAR</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_NAVAL_GROWTH</FlavorType>
-			<Flavor>-100</Flavor>
+			<Flavor>-30</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_AT_WAR</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_RECON</FlavorType>
-			<Flavor>-100</Flavor>
+			<Flavor>-10</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_WINNING_WARS</AIMilitaryStrategyType>
@@ -160,7 +160,7 @@
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_WINNING_WARS</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_CITY_DEFENSE</FlavorType>
-			<Flavor>-25</Flavor>
+			<Flavor>-10</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_WINNING_WARS</AIMilitaryStrategyType>
@@ -170,17 +170,17 @@
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_WINNING_WARS</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_WONDER</FlavorType>
-			<Flavor>-50</Flavor>
+			<Flavor>-10</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_WINNING_WARS</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_EXPANSION</FlavorType>
-			<Flavor>-100</Flavor>
+			<Flavor>-5</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_WINNING_WARS</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_CULTURE</FlavorType>
-			<Flavor>-50</Flavor>
+			<Flavor>-10</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_WINNING_WARS</AIMilitaryStrategyType>
@@ -190,67 +190,67 @@
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_WINNING_WARS</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_GROWTH</FlavorType>
-			<Flavor>-50</Flavor>
+			<Flavor>-5</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_WINNING_WARS</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_SCIENCE</FlavorType>
-			<Flavor>-25</Flavor>
+			<Flavor>-5</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_WINNING_WARS</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_INFRASTRUCTURE</FlavorType>
-			<Flavor>-50</Flavor>
+			<Flavor>-10</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_WINNING_WARS</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_GOLD</FlavorType>
-			<Flavor>25</Flavor>
+			<Flavor>30</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_WINNING_WARS</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_HAPPINESS</FlavorType>
-			<Flavor>25</Flavor>
+			<Flavor>30</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_WINNING_WARS</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_GREAT_PEOPLE</FlavorType>
-			<Flavor>-50</Flavor>
+			<Flavor>-5</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_WINNING_WARS</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_RELIGION</FlavorType>
-			<Flavor>-50</Flavor>
+			<Flavor>-5</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_WINNING_WARS</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_DIPLOMACY</FlavorType>
-			<Flavor>-100</Flavor>
+			<Flavor>-20</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_WINNING_WARS</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_ARCHAEOLOGY</FlavorType>
-			<Flavor>-100</Flavor>
+			<Flavor>-10</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_WINNING_WARS</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_I_LAND_TRADE_ROUTE</FlavorType>
-			<Flavor>-100</Flavor>
+			<Flavor>-10</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_WINNING_WARS</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_I_SEA_TRADE_ROUTE</FlavorType>
-			<Flavor>-100</Flavor>
+			<Flavor>-10</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_WINNING_WARS</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_NAVAL_GROWTH</FlavorType>
-			<Flavor>-100</Flavor>
+			<Flavor>-10</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_WINNING_WARS</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_RECON</FlavorType>
-			<Flavor>-100</Flavor>
+			<Flavor>10</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_LOSING_WARS</AIMilitaryStrategyType>
@@ -295,87 +295,87 @@
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_LOSING_WARS</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_WONDER</FlavorType>
-			<Flavor>-100</Flavor>
+			<Flavor>-50</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_LOSING_WARS</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_EXPANSION</FlavorType>
-			<Flavor>-200</Flavor>
+			<Flavor>-50</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_LOSING_WARS</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_CULTURE</FlavorType>
-			<Flavor>-100</Flavor>
+			<Flavor>-40</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_LOSING_WARS</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_PRODUCTION</FlavorType>
-			<Flavor>5</Flavor>
+			<Flavor>10</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_LOSING_WARS</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_GROWTH</FlavorType>
-			<Flavor>-100</Flavor>
+			<Flavor>-40</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_LOSING_WARS</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_SCIENCE</FlavorType>
-			<Flavor>-100</Flavor>
+			<Flavor>-20</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_LOSING_WARS</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_INFRASTRUCTURE</FlavorType>
-			<Flavor>-100</Flavor>
+			<Flavor>-50</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_LOSING_WARS</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_GOLD</FlavorType>
-			<Flavor>-100</Flavor>
+			<Flavor>-20</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_LOSING_WARS</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_HAPPINESS</FlavorType>
-			<Flavor>-100</Flavor>
+			<Flavor>-10</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_LOSING_WARS</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_GREAT_PEOPLE</FlavorType>
-			<Flavor>-100</Flavor>
+			<Flavor>-20</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_LOSING_WARS</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_RELIGION</FlavorType>
-			<Flavor>-100</Flavor>
+			<Flavor>-20</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_LOSING_WARS</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_DIPLOMACY</FlavorType>
-			<Flavor>-100</Flavor>
+			<Flavor>-30</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_LOSING_WARS</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_ARCHAEOLOGY</FlavorType>
-			<Flavor>-100</Flavor>
+			<Flavor>-40</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_LOSING_WARS</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_I_LAND_TRADE_ROUTE</FlavorType>
-			<Flavor>-100</Flavor>
+			<Flavor>-50</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_LOSING_WARS</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_I_SEA_TRADE_ROUTE</FlavorType>
-			<Flavor>-100</Flavor>
+			<Flavor>-50</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_LOSING_WARS</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_NAVAL_GROWTH</FlavorType>
-			<Flavor>-100</Flavor>
+			<Flavor>-20</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_LOSING_WARS</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_RECON</FlavorType>
-			<Flavor>-100</Flavor>
+			<Flavor>-15</Flavor>
 		</Row>
 	</AIMilitaryStrategy_City_Flavors>
 	<AIMilitaryStrategy_Player_Flavors>
@@ -427,32 +427,32 @@
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_AT_WAR</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_WONDER</FlavorType>
-			<Flavor>-25</Flavor>
+			<Flavor>-10</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_AT_WAR</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_EXPANSION</FlavorType>
-			<Flavor>-50</Flavor>
+			<Flavor>-30</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_AT_WAR</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_CULTURE</FlavorType>
-			<Flavor>-25</Flavor>
+			<Flavor>-10</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_AT_WAR</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_PRODUCTION</FlavorType>
-			<Flavor>-25</Flavor>
+			<Flavor>10</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_AT_WAR</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_GROWTH</FlavorType>
-			<Flavor>-25</Flavor>
+			<Flavor>-5</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_AT_WAR</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_SCIENCE</FlavorType>
-			<Flavor>-25</Flavor>
+			<Flavor>-5</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_AT_WAR</AIMilitaryStrategyType>
@@ -462,52 +462,52 @@
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_AT_WAR</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_GOLD</FlavorType>
-			<Flavor>-25</Flavor>
+			<Flavor>-5</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_AT_WAR</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_HAPPINESS</FlavorType>
-			<Flavor>-25</Flavor>
+			<Flavor>-5</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_AT_WAR</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_GREAT_PEOPLE</FlavorType>
-			<Flavor>-25</Flavor>
+			<Flavor>-10</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_AT_WAR</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_RELIGION</FlavorType>
-			<Flavor>-25</Flavor>
+			<Flavor>-15</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_AT_WAR</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_DIPLOMACY</FlavorType>
-			<Flavor>-50</Flavor>
+			<Flavor>-30</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_AT_WAR</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_ARCHAEOLOGY</FlavorType>
-			<Flavor>-50</Flavor>
+			<Flavor>-20</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_AT_WAR</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_I_LAND_TRADE_ROUTE</FlavorType>
-			<Flavor>-50</Flavor>
+			<Flavor>-20</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_AT_WAR</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_I_SEA_TRADE_ROUTE</FlavorType>
-			<Flavor>-50</Flavor>
+			<Flavor>-20</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_AT_WAR</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_NAVAL_GROWTH</FlavorType>
-			<Flavor>-50</Flavor>
+			<Flavor>-20</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_AT_WAR</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_RECON</FlavorType>
-			<Flavor>-50</Flavor>
+			<Flavor>-10</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_WINNING_WARS</AIMilitaryStrategyType>
@@ -547,7 +547,7 @@
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_WINNING_WARS</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_CITY_DEFENSE</FlavorType>
-			<Flavor>-25</Flavor>
+			<Flavor>-10</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_WINNING_WARS</AIMilitaryStrategyType>
@@ -557,17 +557,17 @@
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_WINNING_WARS</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_WONDER</FlavorType>
-			<Flavor>-25</Flavor>
+			<Flavor>-5</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_WINNING_WARS</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_EXPANSION</FlavorType>
-			<Flavor>-50</Flavor>
+			<Flavor>-15</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_WINNING_WARS</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_CULTURE</FlavorType>
-			<Flavor>-25</Flavor>
+			<Flavor>-10</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_WINNING_WARS</AIMilitaryStrategyType>
@@ -577,17 +577,17 @@
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_WINNING_WARS</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_GROWTH</FlavorType>
-			<Flavor>-25</Flavor>
+			<Flavor>-10</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_WINNING_WARS</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_SCIENCE</FlavorType>
-			<Flavor>-25</Flavor>
+			<Flavor>-10</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_WINNING_WARS</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_INFRASTRUCTURE</FlavorType>
-			<Flavor>-25</Flavor>
+			<Flavor>-10</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_WINNING_WARS</AIMilitaryStrategyType>
@@ -602,42 +602,42 @@
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_WINNING_WARS</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_GREAT_PEOPLE</FlavorType>
-			<Flavor>-25</Flavor>
+			<Flavor>-10</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_WINNING_WARS</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_RELIGION</FlavorType>
-			<Flavor>-25</Flavor>
+			<Flavor>-10</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_WINNING_WARS</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_DIPLOMACY</FlavorType>
-			<Flavor>-50</Flavor>
+			<Flavor>-20</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_WINNING_WARS</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_ARCHAEOLOGY</FlavorType>
-			<Flavor>-50</Flavor>
+			<Flavor>-30</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_WINNING_WARS</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_I_LAND_TRADE_ROUTE</FlavorType>
-			<Flavor>-50</Flavor>
+			<Flavor>-20</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_WINNING_WARS</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_I_SEA_TRADE_ROUTE</FlavorType>
-			<Flavor>-50</Flavor>
+			<Flavor>-20</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_WINNING_WARS</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_NAVAL_GROWTH</FlavorType>
-			<Flavor>-50</Flavor>
+			<Flavor>-10</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_WINNING_WARS</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_RECON</FlavorType>
-			<Flavor>-50</Flavor>
+			<Flavor>-10</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_LOSING_WARS</AIMilitaryStrategyType>
@@ -687,17 +687,17 @@
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_LOSING_WARS</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_WONDER</FlavorType>
-			<Flavor>-50</Flavor>
+			<Flavor>-30</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_LOSING_WARS</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_EXPANSION</FlavorType>
-			<Flavor>-200</Flavor>
+			<Flavor>-50</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_LOSING_WARS</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_CULTURE</FlavorType>
-			<Flavor>-50</Flavor>
+			<Flavor>-20</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_LOSING_WARS</AIMilitaryStrategyType>
@@ -707,67 +707,67 @@
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_LOSING_WARS</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_GROWTH</FlavorType>
-			<Flavor>-50</Flavor>
+			<Flavor>-20</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_LOSING_WARS</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_SCIENCE</FlavorType>
-			<Flavor>-50</Flavor>
+			<Flavor>-20</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_LOSING_WARS</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_INFRASTRUCTURE</FlavorType>
-			<Flavor>-50</Flavor>
+			<Flavor>-10</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_LOSING_WARS</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_GOLD</FlavorType>
-			<Flavor>-50</Flavor>
+			<Flavor>-10</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_LOSING_WARS</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_HAPPINESS</FlavorType>
-			<Flavor>-50</Flavor>
+			<Flavor>-10</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_LOSING_WARS</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_GREAT_PEOPLE</FlavorType>
-			<Flavor>-50</Flavor>
+			<Flavor>-25</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_LOSING_WARS</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_RELIGION</FlavorType>
-			<Flavor>-50</Flavor>
+			<Flavor>-20</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_LOSING_WARS</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_DIPLOMACY</FlavorType>
-			<Flavor>-50</Flavor>
+			<Flavor>-20</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_LOSING_WARS</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_ARCHAEOLOGY</FlavorType>
-			<Flavor>-50</Flavor>
+			<Flavor>-10</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_LOSING_WARS</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_I_LAND_TRADE_ROUTE</FlavorType>
-			<Flavor>-50</Flavor>
+			<Flavor>-30</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_LOSING_WARS</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_I_SEA_TRADE_ROUTE</FlavorType>
-			<Flavor>-50</Flavor>
+			<Flavor>-30</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_LOSING_WARS</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_NAVAL_GROWTH</FlavorType>
-			<Flavor>-50</Flavor>
+			<Flavor>-30</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_LOSING_WARS</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_RECON</FlavorType>
-			<Flavor>-50</Flavor>
+			<Flavor>-10</Flavor>
 		</Row>
 	</AIMilitaryStrategy_Player_Flavors>
 	<AIEconomicStrategy_City_Flavors>
@@ -817,4 +817,16 @@
 			<Flavor>-25</Flavor>
 		</Row>
 	</AIEconomicStrategy_City_Flavors>
+	<AICityStrategy_Flavors>
+		<Row>
+			<AICityStrategyType>AICITYSTRATEGY_LARGE_CITY</AICityStrategyType>
+			<FlavorType>FLAVOR_EXPANSION</FlavorType>
+			<Flavor>20</Flavor>
+		</Row>
+		<Row>
+			<AICityStrategyType>AICITYSTRATEGY_ENOUGH_TILE_IMPROVERS</AICityStrategyType>
+			<FlavorType>FLAVOR_EXPANSION</FlavorType>
+			<Flavor>20</Flavor>
+		</Row>
+	</AICityStrategy_Flavors>
 </GameData>

@@ -96,6 +96,7 @@
 	UPDATE Language_en_US
 	SET Text = 'How did your wretched spies get through my defenses? These may be the last words we speak in peace.'
 	WHERE Tag = 'TXT_KEY_GENERIC_CAUGHT_YOUR_SPY_HOSTILE_1' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );
+
 	UPDATE Language_en_US
 	SET Text = 'I am willing to overlook your recent espionage activites in my lands if you make a solemn promise that it will not happen again.'
 	WHERE Tag = 'TXT_KEY_GENERIC_CAUGHT_YOUR_SPY_FRIENDLY_1' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );
@@ -103,3 +104,21 @@
 	UPDATE Language_en_US
 	SET Text = 'I am glad you agreed to stop spying on my people.'
 	WHERE Tag = 'TXT_KEY_GENERIC_HUMAN_CAUGHT_YOUR_SPY_GOOD_1' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );
+
+	UPDATE Language_en_US
+	SET Text = 'Someone gave you tribute very recently'
+	WHERE Tag = 'TXT_KEY_POP_CSTATE_BULLY_FACTOR_BULLIED_VERY_RECENTLY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );
+
+	UPDATE Language_en_US
+	SET Text = 'Someone gave you tribute recently'
+	WHERE Tag = 'TXT_KEY_POP_CSTATE_BULLY_FACTOR_BULLIED_RECENTLY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );
+
+-- Capture Popup
+
+	UPDATE Language_en_US	
+	SET Text = 'By turning the City into a [COLOR_POSITIVE_TEXT]Puppet[ENDCOLOR], it will generate Gold, Science, Culture, etc. for you, but you [COLOR_POSITIVE_TEXT]may not choose what it produces[ENDCOLOR] or customize the City.[NEWLINE][NEWLINE]It will contribute much less [ICON_HAPPINESS_4] than an Annexed City, and will not increase the cost of your Social Policies and Great People. If you choose this, you may later Annex the City at any point.[NEWLINE][NEWLINE]While in [ICON_RESISTANCE] Resistance, this City will increase [ICON_HAPPINESS_4] Unhappiness by {1_Num}. Afterwards, it will generate [ICON_HAPPINESS_3] Unhappiness like your other cities.'
+	WHERE Tag = 'TXT_KEY_POPUP_CITY_CAPTURE_INFO_PUPPET' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );
+
+	UPDATE Language_en_US	
+	SET Text = '[COLOR_POSITIVE_TEXT]Annexing[ENDCOLOR] the City into your empire causes it to become a normal City that produces quite a bit of extra [ICON_HAPPINESS_4] Unhappiness.[NEWLINE][NEWLINE]While in [ICON_RESISTANCE] Resistance, this City will increase [ICON_HAPPINESS_4] Unhappiness by {1_Num}. Afterwards, it will generate [ICON_HAPPINESS_3] Unhappiness like your other cities.'
+	WHERE Tag = 'TXT_KEY_POPUP_CITY_CAPTURE_INFO_ANNEX' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CIVS' AND Value= 1 );

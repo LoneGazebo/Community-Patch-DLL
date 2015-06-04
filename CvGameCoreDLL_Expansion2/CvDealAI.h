@@ -37,9 +37,16 @@ public:
 	CvPlayer* GetPlayer();
 
 	TeamTypes GetTeam();
-
+#if defined(MOD_BALANCE_CORE_DEALS)
+	int GetDealPercentLeewayWithAI(PlayerTypes eOtherPlayer) const;
+#else
 	int GetDealPercentLeewayWithAI() const;
+#endif
+#if defined(MOD_BALANCE_CORE_DEALS)
+	int GetDealPercentLeewayWithHuman(PlayerTypes eOtherPlayer) const;
+#else
 	int GetDealPercentLeewayWithHuman() const;
+#endif
 
 	// Offer deal to this AI player and see what his response is
 
@@ -122,6 +129,9 @@ public:
 	bool IsMakeOfferForResearchAgreement(PlayerTypes eOtherPlayer, CvDeal* pDeal);
 #if defined(MOD_BALANCE_CORE_DEALS)
 	bool IsMakeOfferForDefensivePact(PlayerTypes eOtherPlayer, CvDeal* pDeal);
+	bool IsMakeOfferForCity(PlayerTypes eOtherPlayer, CvDeal* pDeal);
+	bool IsMakeOfferForThirdPartyWar(PlayerTypes eOtherPlayer, CvDeal* pDeal);
+	bool IsMakeOfferForThirdPartyPeace(PlayerTypes eOtherPlayer, CvDeal* pDeal);
 #endif
 
 	// Called when the human opens or closes the Trade Screen

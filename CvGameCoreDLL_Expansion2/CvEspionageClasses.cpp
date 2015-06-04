@@ -1061,14 +1061,8 @@ void CvPlayerEspionage::DoAdvancedAction(uint uiSpyIndex)
 	int iCityValue = 0;
 	UnitClassTypes eUnitClass = NO_UNITCLASS;
 	SpecialistTypes eBestSpecialist = NO_SPECIALIST;
+	std::vector<int> aiAdvancedAction;
 	//Let's give spies a few new tricks, eh?
-	bool bDoAction = false;
-	bool bDoBuilding = false;
-	bool bDoUnit = false;
-	bool bDoWonder = false;
-	bool bDoGreatPerson = false;
-	bool bDoUnrest = false;
-	bool bDoRebellion = false;
 	if(pCityPlot)
 	{
 		pCity = pCityPlot->getPlotCity();
@@ -1090,27 +1084,31 @@ void CvPlayerEspionage::DoAdvancedAction(uint uiSpyIndex)
 		{
 			CvBuildingEntry* pBuildingInfo = GC.getBuildingInfo(eBuilding);
 			CvAssertMsg(pBuildingInfo, "pBuildingInfo is null");
-			if (pBuildingInfo && !::isWorldWonderClass(pBuildingInfo->GetBuildingClassInfo()))
+			if (!pCity->IsBlockBuildingDestruction() && pBuildingInfo && !::isWorldWonderClass(pBuildingInfo->GetBuildingClassInfo()))
 			{
 				//Can we affect this building?
 				if((pCity->getProduction() > 0) && (iCityRank > 4))
 				{
-					bDoAction = true;
-					bDoBuilding = true;
+					for (int iAdvancedActionLoop = 0; iAdvancedActionLoop < m_pPlayer->GetAdvancedActionBuilding(); iAdvancedActionLoop++)
+					{
+						aiAdvancedAction.push_back(1);
+					}
 				}
 			}
-			if (pBuildingInfo && ::isWorldWonderClass(pBuildingInfo->GetBuildingClassInfo()))
+			if (!pCity->IsBlockWWDestruction() && pBuildingInfo && ::isWorldWonderClass(pBuildingInfo->GetBuildingClassInfo()))
 			{
 				//Can we affect this building?
 				if((pCity->getProduction() > 0) && (iCityRank > 5))
 				{
-					bDoAction = true;
-					bDoWonder  = true;
+					for (int iAdvancedActionLoop = 0; iAdvancedActionLoop < m_pPlayer->GetAdvancedActionWonder(); iAdvancedActionLoop++)
+					{
+						aiAdvancedAction.push_back(2);
+					}
 				}
 			}
 		}	
 		//Production setback for military units
-		if (eUnit != NO_UNIT && (iCityRank > 3))
+		if (eUnit != NO_UNIT && (iCityRank > 3) && !pCity->IsBlockUDestruction())
 		{
 			CvUnitEntry* pUnitInfo = GC.getUnitInfo(eUnit);
 			CvAssertMsg(pUnitInfo, "pUnitInfo is null");
@@ -1119,16 +1117,18 @@ void CvPlayerEspionage::DoAdvancedAction(uint uiSpyIndex)
 				if(pUnitInfo->GetCombat() > 0)
 				{
 					//Can we affect this unit?
-					if((pCity->getProduction() > 0))
+					if(pCity->getProduction() > 0)
 					{
-						bDoAction = true;
-						bDoUnit = true;
+						for (int iAdvancedActionLoop = 0; iAdvancedActionLoop < m_pPlayer->GetAdvancedActionUnit(); iAdvancedActionLoop++)
+						{
+							aiAdvancedAction.push_back(3);
+						}
 					}
 				}
 			}
 		}
 		//GP setback
-		if(iCityRank > 6)
+		if(iCityRank > 6  && !pCity->IsBlockGPDestruction())
 		{
 			int iBestRate = 0;
 			int iRate = 0;
@@ -1148,28 +1148,57 @@ void CvPlayerEspionage::DoAdvancedAction(uint uiSpyIndex)
 							eBestSpecialist = eSpecialist;
 							eUnitClass = (UnitClassTypes) pkSpecialistInfo->getGreatPeopleUnitClass();
 							eGreatUnit = (UnitTypes) pCity->getCivilizationInfo().getCivilizationUnits(eUnitClass);
-							bDoAction = true;
-							bDoGreatPerson = true;
+							for (int iAdvancedActionLoop = 0; iAdvancedActionLoop < m_pPlayer->GetAdvancedActionGP(); iAdvancedActionLoop++)
+							{
+								aiAdvancedAction.push_back(4);
+							}
 						}
 					}
 				}
 			}
 		}
 		//Only possible if very unhappy
-		if(GET_PLAYER(pCity->getOwner()).IsEmpireVeryUnhappy())
+		if(GET_PLAYER(pCity->getOwner()).IsEmpireVeryUnhappy() && !pCity->IsBlockRebellion())
 		{
 			if(iCityRank > 8)
 			{
-				bDoAction = true;
-				bDoRebellion = true;
+				for (int iAdvancedActionLoop = 0; iAdvancedActionLoop < m_pPlayer->GetAdvancedActionRebellion(); iAdvancedActionLoop++)
+				{
+					aiAdvancedAction.push_back(5);
+				}
 			}
-			else if(iCityRank > 7)
+			else if(iCityRank > 7 && !pCity->IsBlockUnrest())
 			{	
-				bDoAction = true;
-				bDoUnrest = true;
+				for (int iAdvancedActionLoop = 0; iAdvancedActionLoop < m_pPlayer->GetAdvancedActionUnrest(); iAdvancedActionLoop++)
+				{
+					aiAdvancedAction.push_back(6);
+				}
 			}
 		}
-		if(bDoAction)
+		//Science
+		if(!pCity->IsBlockScience())
+		{
+			for (int iAdvancedActionLoop = 0; iAdvancedActionLoop < m_pPlayer->GetAdvancedActionScience(); iAdvancedActionLoop++)
+			{
+				aiAdvancedAction.push_back(7);
+			}
+		}
+		//Gold
+		if(!pCity->IsBlockGold())
+		{
+			for (int iAdvancedActionLoop = 0; iAdvancedActionLoop < m_pPlayer->GetAdvancedActionGold(); iAdvancedActionLoop++)
+			{
+				aiAdvancedAction.push_back(8);
+			}
+		}
+		//Failure (only one in pool)
+		if(!m_pPlayer->IsCannotFailSpies())
+		{
+			aiAdvancedAction.push_back(9);
+		}
+
+		//Do we have at least something good in here?
+		if(aiAdvancedAction.size() > 1)
 		{
 			bool bCanDie = false;
 			int iSpyResult = 0;
@@ -1314,18 +1343,21 @@ void CvPlayerEspionage::DoAdvancedAction(uint uiSpyIndex)
 
 			if(pCityEspionage->m_aiResult[ePlayer] != SPY_RESULT_KILLED) // spy successfully completed advanced task - chance of getting one of these below.
 			{
+				//Result improved by duration of stay.
 				int iTurnsActive = (GC.getGame().getGameTurn() - pSpy->GetSpyActiveTurn());
 				if(iTurnsActive > (iRank * 10))
 				{
 					iTurnsActive = (iRank * 10);
 				}
+
+				iTurnsActive /= 3;
+
 				pSpy->ChangeAdvancedActions(1);
 				
-				//Reduce result by duration of stay.
-				iSpyResult -= iTurnsActive;
+				int iSpyResult = GC.getGame().getJonRandNum(aiAdvancedAction.size(), "Randomizing Advanced Actions");
 
 				//Rebellion
-				if (iSpyResult <= 10 && bDoRebellion)
+				if (iSpyResult == 5)
 				{
 					int iDamage = (GC.getBALANCE_SPY_SABOTAGE_RATE() * iRank);
 					pCity->setDamage(iDamage);
@@ -1335,7 +1367,7 @@ void CvPlayerEspionage::DoAdvancedAction(uint uiSpyIndex)
 					// In hundreds
 					int iNumRebels = (iRank * 100); //Based on rank of spy.
 					int iExtraRoll = iRank * 100; //1+ Rebels maximum
-					iNumRebels += GC.getGame().getJonRandNum(iExtraRoll, "Rebel count rand roll");
+					iNumRebels += GC.getGame().getJonRandNum(iExtraRoll + iTurnsActive, "Rebel count rand roll");
 					iNumRebels /= 100;
 					int iNumRebelTotal = iNumRebels;
 					CvGame& theGame = GC.getGame();
@@ -1530,12 +1562,12 @@ void CvPlayerEspionage::DoAdvancedAction(uint uiSpyIndex)
 					}
 				}
 				//Riots!
-				else if (iSpyResult <= 20 && bDoUnrest)
+				else if (iSpyResult == 6)
 				{
 					m_pPlayer->ChangeSpyCooldown(pCity->getFood() * 2);
 					int iFood = pCity->getFood();
 					pCity->setFood(0);
-					pCity->ChangeResistanceTurns(iRank);
+					pCity->ChangeResistanceTurns(max(1, iTurnsActive / 10));
 
 					CvAssertMsg(pDefendingPlayerEspionage, "Defending player espionage is null");
 					if(pDefendingPlayerEspionage)
@@ -1604,9 +1636,9 @@ void CvPlayerEspionage::DoAdvancedAction(uint uiSpyIndex)
 					}
 				}
 				//WONDER
-				else if(iSpyResult <= 20 && bDoWonder)
+				else if(iSpyResult == 2)
 				{
-					int iSetback = (pCity->getProduction() * (iRank * GC.getBALANCE_SPY_SABOTAGE_RATE())) / 100;
+					int iSetback = (pCity->getProduction() * (iTurnsActive * GC.getBALANCE_SPY_SABOTAGE_RATE())) / 100;
 					if(iSetback > 0)
 					{
 						pCity->setProduction(pCity->getProduction() - iSetback);
@@ -1682,9 +1714,9 @@ void CvPlayerEspionage::DoAdvancedAction(uint uiSpyIndex)
 					}
 				}
 				//GREAT PERSON
-				else if(iSpyResult <= 20 && bDoGreatPerson)
+				else if(iSpyResult == 4)
 				{
-					int iPercentage = (pCity->GetCityCitizens()->GetSpecialistGreatPersonProgressTimes100(eBestSpecialist) * (iRank * GC.getBALANCE_SPY_SABOTAGE_RATE())) / 100;
+					int iPercentage = (pCity->GetCityCitizens()->GetSpecialistGreatPersonProgressTimes100(eBestSpecialist) * (iTurnsActive * GC.getBALANCE_SPY_SABOTAGE_RATE())) / 100;
 					if(iPercentage > 0)
 					{
 						pCity->GetCityCitizens()->ChangeSpecialistGreatPersonProgressTimes100(eBestSpecialist, (iPercentage * -1));
@@ -1765,9 +1797,9 @@ void CvPlayerEspionage::DoAdvancedAction(uint uiSpyIndex)
 					}
 				}
 				//BUILDING
-				else if(iSpyResult <= 40 && bDoBuilding)
+				else if(iSpyResult == 1)
 				{
-					int iSetback = (pCity->getProduction() * (GC.getBALANCE_SPY_SABOTAGE_RATE() * iRank)) / 100;
+					int iSetback = (pCity->getProduction() * (GC.getBALANCE_SPY_SABOTAGE_RATE() * iTurnsActive)) / 100;
 					if(iSetback > 0)
 					{
 						pCity->setProduction(pCity->getProduction() - iSetback);
@@ -1843,9 +1875,9 @@ void CvPlayerEspionage::DoAdvancedAction(uint uiSpyIndex)
 					}
 				}
 				// UNIT
-				else if(iSpyResult <= 40 && bDoUnit)
+				else if(iSpyResult == 3)
 				{
-					int iSetback = (pCity->getProduction() * (iRank * GC.getBALANCE_SPY_SABOTAGE_RATE())) / 100;
+					int iSetback = (pCity->getProduction() * (iTurnsActive * GC.getBALANCE_SPY_SABOTAGE_RATE())) / 100;
 					if(iSetback > 0)
 					{
 						pCity->setProduction(pCity->getProduction() - iSetback);
@@ -1921,9 +1953,9 @@ void CvPlayerEspionage::DoAdvancedAction(uint uiSpyIndex)
 					}
 				}
 				// Science
-				else if(iSpyResult <= 50)
+				else if(iSpyResult == 7)
 				{
-					int iPercentage = (GC.getBALANCE_SPY_SABOTAGE_RATE() * iRank) / 2;
+					int iPercentage = (GC.getBALANCE_SPY_SABOTAGE_RATE() * iTurnsActive) / 2;
 					int iSetback = (GET_PLAYER(pCity->getOwner()).GetScience() * iPercentage) / 100;
 					if(iSetback > 0)
 					{
@@ -2009,9 +2041,9 @@ void CvPlayerEspionage::DoAdvancedAction(uint uiSpyIndex)
 					}
 				}
 				//Gold Theft
-				else if(iSpyResult <= 85)
+				else if(iSpyResult == 8)
 				{
-					int iPercentage = (GC.getBALANCE_SPY_SABOTAGE_RATE() * iRank) / 3;
+					int iPercentage = (GC.getBALANCE_SPY_SABOTAGE_RATE() * iTurnsActive) / 3;
 					int iTheft = (GET_PLAYER(pCity->getOwner()).GetTreasury()->GetGold() * iPercentage) / 100;
 
 					GET_PLAYER(pCity->getOwner()).GetTreasury()->ChangeGold((iTheft * -1));
@@ -2085,7 +2117,7 @@ void CvPlayerEspionage::DoAdvancedAction(uint uiSpyIndex)
 						LogEspionageMsg(strMsg);
 					}
 				}
-				else
+				else if(iSpyResult == 9)
 				{
 					CvAssertMsg(pDefendingPlayerEspionage, "Defending player espionage is null");
 					if(pDefendingPlayerEspionage)
@@ -4339,6 +4371,7 @@ void CvPlayerEspionage::ProcessSpyMessages()
 		int iProduction = 0;
 		int iDamage = 0;
 		bool bGreatPerson = false;
+		bool bAdvanced = false;
 		if(MOD_BALANCE_CORE_SPIES && GC.getBALANCE_SPY_SABOTAGE_RATE() > 0)
 		{
 			if(m_aSpyNotificationMessages[ui].m_eDamagedBuilding != NO_BUILDING)
@@ -4357,25 +4390,34 @@ void CvPlayerEspionage::ProcessSpyMessages()
 					if(pUnitInfo->GetSpecialUnitType() == eSpecialUnitGreatPerson)
 					{
 						bGreatPerson = true;
+						bAdvanced = true;
 					}
 				}
 			}
 			else if(m_aSpyNotificationMessages[ui].m_bDamagedCity != false)
 			{
 				bUnrest = true;
+				bAdvanced = true;
 				iDamage = m_aSpyNotificationMessages[ui].m_iGold;
 			}
 			else if(m_aSpyNotificationMessages[ui].m_bRebellion != false)
 			{
+				bAdvanced = true;
 				bRebellion = true;
 			}
 			else if(m_aSpyNotificationMessages[ui].m_iGold > 0)
 			{
+				bAdvanced = true;
 				iGold = m_aSpyNotificationMessages[ui].m_iGold;
 			}
 			else if(m_aSpyNotificationMessages[ui].m_iScience > 0)
 			{
+				bAdvanced = true;
 				iScience = m_aSpyNotificationMessages[ui].m_iScience;
+			}
+			else
+			{
+				bAdvanced = true;
 			}
 			if(pBuildingInfo != NULL)
 			{
@@ -4404,6 +4446,7 @@ void CvPlayerEspionage::ProcessSpyMessages()
 					strNotification << pCity->getNameKey();
 					strNotification << iProduction;
 					pNotifications->Add(NOTIFICATION_TECH_STOLEN_SPY_DETECTED, strNotification.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
+					bAdvanced = true;
 				}
 				break;
 				case SPY_RESULT_IDENTIFIED:
@@ -5058,7 +5101,7 @@ void CvPlayerEspionage::ProcessSpyMessages()
 		}
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
-		if(bMultiplayer || (!pTechEntry && pBuildingInfo == NULL && pUnitInfo == NULL && !bUnrest && !bRebellion && iGold == 0 && iScience == 0))
+		if(bMultiplayer || !bAdvanced)
 #else
 		if(bMultiplayer || !pTechEntry)
 #endif

@@ -842,30 +842,34 @@ void CvCityStrategyAI::ChooseProduction(bool bUseAsyncRandom, BuildingTypes eIgn
 	EconomicAIStrategyTypes eStrategyEnoughSettlers = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_ENOUGH_EXPANSION");
 	bool bEnoughSettlers = kPlayer.GetEconomicAI()->IsUsingStrategy(eStrategyEnoughSettlers);
 #if defined(MOD_BALANCE_CORE_MILITARY)
-	bool bForceSettler = false;
-	if(bEnoughSettlers)
+	if(!bEnoughSettlers)
 	{
-		int iDesiredCities = kPlayer.GetEconomicAI()->GetEarlyCityNumberTarget();
-		int iFlavorExpansion = 0;
-		int iFlavorGrowth = 0;
-		for(int iFlavorLoop = 0; iFlavorLoop < GC.getNumFlavorTypes() && (iFlavorExpansion == 0 || iFlavorGrowth == 0); iFlavorLoop++)
-		{
-			if(GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_EXPANSION")
-			{
-				iFlavorExpansion = kPlayer.GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)iFlavorLoop);
-			}
-			else if(GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_GROWTH")
-			{
-				iFlavorGrowth = kPlayer.GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)iFlavorLoop);
-			}
-		}
-		const int iDefaultNumTiles = 80*52;
-		iDesiredCities = int( 0.6f + float(iDesiredCities * iFlavorExpansion * GC.getMap().numPlots()) / (max(iFlavorGrowth, 1) * iDefaultNumTiles));
-		if(kPlayer.getNumCities() < iDesiredCities)
+		AICityStrategyTypes eStrategyEnoughSettlers2 = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_ENOUGH_SETTLERS");
+		bEnoughSettlers = m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eStrategyEnoughSettlers2);
+	}
+	bool bForceSettler = false;
+	EconomicAIStrategyTypes eStrategyExpandToOtherContinents = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_REALLY_EXPAND_TO_OTHER_CONTINENTS");
+	EconomicAIStrategyTypes eExpandLikeCrazy = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_EXPAND_LIKE_CRAZY");
+	if (eStrategyExpandToOtherContinents != NO_ECONOMICAISTRATEGY)
+	{
+		if (kPlayer.GetEconomicAI()->IsUsingStrategy(eStrategyExpandToOtherContinents))
 		{
 			bEnoughSettlers = false;
 			bForceSettler = true;
 		}
+	}
+	else if (eExpandLikeCrazy != NO_ECONOMICAISTRATEGY)
+	{
+		if (kPlayer.GetEconomicAI()->IsUsingStrategy(eExpandLikeCrazy))
+		{
+			bEnoughSettlers = false;
+			bForceSettler = true;
+		}
+	}
+	if(kPlayer.isMinorCiv() || kPlayer.isBarbarian())
+	{
+		bEnoughSettlers = true;
+		bForceSettler = false;
 	}
 #endif
 
@@ -1071,7 +1075,12 @@ void CvCityStrategyAI::ChooseProduction(bool bUseAsyncRandom, BuildingTypes eIgn
 					iTempWeight = 0;
 				}
 				// it also avoids military training buildings - since it can't build units
+#if defined(MOD_BALANCE_CORE)
+				bool bIsVenice = kPlayer.GetPlayerTraits()->IsNoAnnexing();
+				if(pkBuildingInfo->GetDomainFreeExperience(DOMAIN_LAND) && !bIsVenice)
+#else
 				if(pkBuildingInfo->GetDomainFreeExperience(DOMAIN_LAND))
+#endif
 				{
 					iTempWeight = 0;
 				}
@@ -1542,7 +1551,21 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry()
 					}
 				}
 			}
-
+#if defined(MOD_BALANCE_CORE)
+			if(pkUnitEntry && pkUnitEntry->GetDefaultUnitAIType() == UNITAI_TRADE_UNIT)
+			{
+				int iMatchWeight = 0;
+				if(pkUnitEntry->GetDomainType() == DOMAIN_SEA && kPlayer.GetPlayerTraits()->IsTradeRouteOnly())
+				{
+					iMatchWeight = iTempWeight;
+				}
+				if(iMatchWeight > 0 && pkUnitEntry->GetDomainType() == DOMAIN_LAND && kPlayer.GetPlayerTraits()->IsTradeRouteOnly())
+				{
+					iTempWeight += iMatchWeight;
+					iTempWeight *= 2;
+				}
+			}
+#endif
 			// sanity check for building ships on small inland seas (not lakes)
 			if (pkUnitEntry)
 			{
@@ -1717,6 +1740,10 @@ void CvCityStrategyAI::DoTurn()
 					bStrategyShouldBeActive = CityStrategyAIHelpers::IsTestCityStrategy_NeedNavalTileImprovement(GetCity());
 				else if(strStrategyName == "AICITYSTRATEGY_ENOUGH_NAVAL_TILE_IMPROVEMENT")
 					bStrategyShouldBeActive = CityStrategyAIHelpers::IsTestCityStrategy_EnoughNavalTileImprovement(GetCity());
+#if defined(MOD_BALANCE_CORE)
+				else if(strStrategyName == "AICITYSTRATEGY_ENOUGH_SETTLERS")
+					bStrategyShouldBeActive = CityStrategyAIHelpers::IsTestCityStrategy_EnoughSettlers(GetCity());
+#endif
 				else if(strStrategyName == "AICITYSTRATEGY_NEED_IMPROVEMENT_FOOD")
 					bStrategyShouldBeActive = CityStrategyAIHelpers::IsTestCityStrategy_NeedImprovement(GetCity(), YIELD_FOOD);
 				else if(strStrategyName == "AICITYSTRATEGY_NEED_IMPROVEMENT_PRODUCTION")
@@ -2741,33 +2768,37 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_Landlocked(CvCity* pCity)
 bool CityStrategyAIHelpers::IsTestCityStrategy_Lakebound(CvCity* pCity)
 {
 	CvPlayer& kPlayer = GET_PLAYER(pCity->getOwner());
-	if(kPlayer.GetID() != NULL)
+	CvCity* pLoopCity = NULL;
+	int iLoop;
+	int iBiggestOcean = 0;
+	int iNumOtherCities = 0;
+
+	CvArea* pBiggestNearbyWater = pCity->waterArea();
+	if(pBiggestNearbyWater)
 	{
-		CvCity* pLoopCity;
-		int iLoop = 0;
-		int iBiggestOcean = 0;
+		int iThisCityWaterTiles = pBiggestNearbyWater->getNumTiles();
 
-		CvArea* pBiggestNearbyWater = pCity->waterArea();
-		if(pBiggestNearbyWater)
+		for(pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
 		{
-			int iThisCityWaterTiles = pBiggestNearbyWater->getNumTiles();
-
-			for(pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
+			iNumOtherCities++;
+			// don't evaluate ourselves
+			if (pLoopCity == pCity)
 			{
-				CvArea* pBiggestNearbyBodyOfWater = pLoopCity->waterArea();
-				if (pBiggestNearbyBodyOfWater)
+				continue;
+			}
+			CvArea* pBiggestNearbyBodyOfWater = pLoopCity->waterArea();
+			if (pBiggestNearbyBodyOfWater)
+			{
+				int iWaterTiles = pBiggestNearbyBodyOfWater->getNumTiles();
+				if(iWaterTiles > iBiggestOcean)
 				{
-					int iWaterTiles = pBiggestNearbyBodyOfWater->getNumTiles();
-					if(iWaterTiles > iBiggestOcean)
-					{
-						iBiggestOcean = iWaterTiles;
-					}
+					iBiggestOcean = iWaterTiles;
 				}
 			}
-			if(iThisCityWaterTiles < iBiggestOcean)
-			{
-				return true;
-			}
+		}
+		if((iNumOtherCities > 0) && (iThisCityWaterTiles < iBiggestOcean))
+		{
+			return true;
 		}
 	}
 	return false;
@@ -2803,7 +2834,12 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_NeedTileImprovers(AICityStrategyT
 	}
 
 	// If we're under attack from Barbs and have 1 or fewer Cities and no credible defense then training more Workers will only hurt us
+#if defined(MOD_BALANCE_CORE)
+	//Updated to 3
+	if(iCurrentNumCities <= 3)
+#else
 	if(iCurrentNumCities <= 1)
+#endif
 	{
 		CvMilitaryAI* pMilitaryAI =kPlayer.GetMilitaryAI();
 		MilitaryAIStrategyTypes eStrategyKillBarbs = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_ERADICATE_BARBARIANS");
@@ -2879,8 +2915,16 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_WantTileImprovers(AICityStrategyT
 		{
 			return true;
 		}
-
+#if defined(MOD_BALANCE_CORE)
+		int iNumCities = kPlayer.getNumCities();
 		CvAICityStrategyEntry* pCityStrategy = pCity->GetCityStrategyAI()->GetAICityStrategies()->GetEntry(eStrategy);
+		int iWeightThresholdModifier = pCityStrategy->GetWeightThreshold();	// 1
+		iWeightThresholdModifier *= iNumCities;
+		if(iNumBuilders < iWeightThresholdModifier)
+		{
+			return true;
+		}
+#else
 
 		int iWeightThresholdModifier = CityStrategyAIHelpers::GetWeightThresholdModifier(eStrategy, pCity);	// 2 Extra Weight per TILE_IMPROVEMENT Flavor
 		int iPerCityThreshold = pCityStrategy->GetWeightThreshold() + iWeightThresholdModifier;	// 40
@@ -3005,6 +3049,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_WantTileImprovers(AICityStrategyT
 
 			//return (kPlayer.GetExcessHappiness()) >= (iNumBuilders - iBuildersInGame + 1) * iBuilderUnhappiness;
 		}
+#endif
 	}
 
 	return false;
@@ -3167,7 +3212,34 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_EnoughNavalTileImprovement(CvCity
 
 	return false;
 }
+#if defined(MOD_BALANCE_CORE)
+// Too many settlers!
+bool CityStrategyAIHelpers::IsTestCityStrategy_EnoughSettlers(CvCity* pCity)
+{
+	CvPlayer& kPlayer = GET_PLAYER(pCity->getOwner());
 
+	if(!kPlayer.isMinorCiv())
+	{
+		int iSettlersOnMapOrBuild = kPlayer.GetNumUnitsWithUnitAI(UNITAI_SETTLE, true);
+		//Too many settlers? Stop building them!
+		if(iSettlersOnMapOrBuild >= 2)
+		{
+			return true;
+		}
+		MilitaryAIStrategyTypes eBuildCriticalDefenses = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_LOSING_WARS");
+		// scale based on flavor and world size
+		if(eBuildCriticalDefenses != NO_MILITARYAISTRATEGY && kPlayer.GetMilitaryAI()->IsUsingStrategy(eBuildCriticalDefenses) && !kPlayer.IsCramped())
+		{
+			if(iSettlersOnMapOrBuild >= 1)
+			{
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+#endif
 /// "Need Improvement" City Strategy: if we need to get an improvement that increases a yield amount
 bool CityStrategyAIHelpers::IsTestCityStrategy_NeedImprovement(CvCity* pCity, YieldTypes yield)
 {
@@ -3203,6 +3275,14 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_CapitalNeedSettler(AICityStrategy
 			int iSettlersOnMapOrBuild = kPlayer.GetNumUnitsWithUnitAI(UNITAI_SETTLE, true);
 			int iCitiesPlusSettlers = iNumCities + iSettlersOnMapOrBuild;
 
+#if defined(MOD_BALANCE_CORE)
+			bool bIsVenice = kPlayer.GetPlayerTraits()->IsNoAnnexing();
+			//City #2 is essential.
+			if(!bIsVenice && (iCitiesPlusSettlers <= 1))
+			{
+				return true;
+			}
+#endif
 			if((iCitiesPlusSettlers) < 3)
 			{
 
@@ -3823,7 +3903,11 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_GoodAirliftCity(CvCity *pCity)
 
 	CvPlayer &kPlayer = GET_PLAYER(pCity->getOwner());
 	CvCity *pCapital = kPlayer.getCapitalCity();
+#if defined(MOD_BALANCE_CORE)
+	if (pCity && pCapital && pCity->getArea() != pCapital->getArea())
+#else
 	if (pCity && pCity->getArea() != pCapital->getArea())
+#endif
 	{
 		return true;
 	}

@@ -4774,10 +4774,23 @@ void CvTeam::DoUpdateBestRoute()
 		CvRouteInfo* pRouteInfo = GC.getRouteInfo(eBestRoute);
 		if (pRouteInfo)
 		{
+#if defined(MOD_BALANCE_CORE)
+			if((pRouteInfo->getMovementCost() + getRouteChange(eBestRoute) != 0) && (pRouteInfo->getFlatMovementCost() != 0))
+			{
+#endif
 			m_iBestRouteNormalCostMultiplier = GC.getMOVE_DENOMINATOR() / (pRouteInfo->getMovementCost() + getRouteChange(eBestRoute));
 			m_iBestRouteFlatCostMultiplier = GC.getMOVE_DENOMINATOR() / pRouteInfo->getFlatMovementCost();
 			// Extra pRouteInfo->getFlatMovementCost() - 1 is to make sure value is always rounded up
 			m_iUseFlatCostIfBelowThis = (pRouteInfo->getMovementCost() + getRouteChange(eBestRoute) + pRouteInfo->getFlatMovementCost() - 1) / pRouteInfo->getFlatMovementCost();
+#if defined(MOD_BALANCE_CORE)
+			}
+			else
+			{
+				m_iBestRouteNormalCostMultiplier = 1;
+				m_iBestRouteFlatCostMultiplier = 0;
+				m_iUseFlatCostIfBelowThis = -1;
+			}
+#endif
 		}
 		else
 		{
@@ -6069,6 +6082,83 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 					}
 				}
 #endif
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+				if(MOD_DIPLOMACY_CIV4_FEATURES)
+				{
+					CvCity* pLoopCity;
+					int iLoop;
+					PlayerTypes eLoopPlayer;
+
+					// Check all players on this team
+					for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+					{
+						eLoopPlayer = (PlayerTypes) iPlayerLoop;
+
+						if(GET_PLAYER(eLoopPlayer).getTeam() == GetID() && eLoopPlayer == GC.getGame().getActivePlayer())
+						{
+							// Look at all Cities
+							for(pLoopCity = GET_PLAYER(eLoopPlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eLoopPlayer).nextCity(&iLoop))
+							{
+								for(int iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
+								{
+									const BuildingTypes eBuilding = static_cast<BuildingTypes>(iBuildingLoop);
+									CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+
+									if(pkBuildingInfo)
+									{
+										// Has this Building
+										if(pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
+										{
+											if(pkBuildingInfo->IsVassalLevyEra() && GetNumVassals() > 0)
+											{
+												std::vector<UnitTypes> aExtraUnits;
+												std::vector<UnitAITypes> aExtraUnitAITypes;
+												CvUnit* pLoopUnit = NULL;
+												int iLoop = 0;
+												for(pLoopUnit = GET_PLAYER(eLoopPlayer).firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = GET_PLAYER(eLoopPlayer).nextUnit(&iLoop))
+												{
+													if (pLoopUnit->getDomainType() == DOMAIN_LAND && pLoopUnit->IsCombatUnit())
+													{
+														UnitTypes eCurrentUnitType = pLoopUnit->getUnitType();
+														UnitAITypes eCurrentUnitAIType = pLoopUnit->AI_getUnitAIType();
+
+														// check for duplicate unit
+														bool bAddUnit = true;
+														for (uint ui = 0; ui < aExtraUnits.size(); ui++)
+														{
+															if (aExtraUnits[ui] == eCurrentUnitType)
+															{
+																bAddUnit = false;
+															}
+														}
+
+														if (bAddUnit)
+														{
+															aExtraUnits.push_back(eCurrentUnitType);
+															aExtraUnitAITypes.push_back(eCurrentUnitAIType);
+														}
+													}
+												}
+
+												for (uint ui = 0; ui < aExtraUnits.size(); ui++)
+												{
+													CvUnit* pNewUnit = GET_PLAYER(eLoopPlayer).initUnit(aExtraUnits[ui], pLoopCity->getX(), pLoopCity->getY(), aExtraUnitAITypes[ui]);
+													bool bJumpSuccess = pNewUnit->jumpToNearestValidPlot();
+													if (!bJumpSuccess)
+													{
+														pNewUnit->kill(false);
+														break;
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+#endif
 			}
 			// DON'T enter a new era with this tech
 			else
@@ -6152,6 +6242,83 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 												kPlayer.ChangeGoldenAgeProgressMeter(pReligion->m_Beliefs.GetYieldFromEraUnlock(YIELD_GOLDEN_AGE_POINTS) * iEra);
 											}
 #endif
+										}
+									}
+								}
+							}
+#endif
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+							if(MOD_DIPLOMACY_CIV4_FEATURES)
+							{
+								CvCity* pLoopCity;
+								int iLoop;
+								PlayerTypes eLoopPlayer;
+
+								// Check all players on this team
+								for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+								{
+									eLoopPlayer = (PlayerTypes) iPlayerLoop;
+
+									if(GET_PLAYER(eLoopPlayer).getTeam() == GetID() && eLoopPlayer == GC.getGame().getActivePlayer())
+									{
+										// Look at all Cities
+										for(pLoopCity = GET_PLAYER(eLoopPlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eLoopPlayer).nextCity(&iLoop))
+										{
+											for(int iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
+											{
+												const BuildingTypes eBuilding = static_cast<BuildingTypes>(iBuildingLoop);
+												CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+
+												if(pkBuildingInfo)
+												{
+													// Has this Building
+													if(pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
+													{
+														if(pkBuildingInfo->IsVassalLevyEra() && GetNumVassals() > 0)
+														{
+															std::vector<UnitTypes> aExtraUnits;
+															std::vector<UnitAITypes> aExtraUnitAITypes;
+															CvUnit* pLoopUnit = NULL;
+															int iLoop = 0;
+															for(pLoopUnit = GET_PLAYER(eLoopPlayer).firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = GET_PLAYER(eLoopPlayer).nextUnit(&iLoop))
+															{
+																if (pLoopUnit->getDomainType() == DOMAIN_LAND && pLoopUnit->IsCombatUnit())
+																{
+																	UnitTypes eCurrentUnitType = pLoopUnit->getUnitType();
+																	UnitAITypes eCurrentUnitAIType = pLoopUnit->AI_getUnitAIType();
+
+																	// check for duplicate unit
+																	bool bAddUnit = true;
+																	for (uint ui = 0; ui < aExtraUnits.size(); ui++)
+																	{
+																		if (aExtraUnits[ui] == eCurrentUnitType)
+																		{
+																			bAddUnit = false;
+																		}
+																	}
+
+																	if (bAddUnit)
+																	{
+																		aExtraUnits.push_back(eCurrentUnitType);
+																		aExtraUnitAITypes.push_back(eCurrentUnitAIType);
+																	}
+																}
+															}
+
+															for (uint ui = 0; ui < aExtraUnits.size(); ui++)
+															{
+																CvUnit* pNewUnit = GET_PLAYER(eLoopPlayer).initUnit(aExtraUnits[ui], pLoopCity->getX(), pLoopCity->getY(), aExtraUnitAITypes[ui]);
+																bool bJumpSuccess = pNewUnit->jumpToNearestValidPlot();
+																if (!bJumpSuccess)
+																{
+																	pNewUnit->kill(false);
+																	break;
+																}
+															}
+														}
+													}
+												}
+											}
 										}
 									}
 								}
@@ -7848,12 +8015,12 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 				{
 					if(kPlayer.getCapitalCity() != NULL)
 					{
-						kPlayer.getCapitalCity()->ChangeUnmoddedHappinessFromBuildings(GC.getBALANCE_GAME_DIFFICULTY_MULTIPLIER());
-						kPlayer.GetTreasury()->ChangeGold((GC.getBALANCE_GAME_DIFFICULTY_MULTIPLIER() + kPlayer.GetCurrentEra()) * 100);
-						kPlayer.ChangeGoldenAgeProgressMeter((GC.getBALANCE_GAME_DIFFICULTY_MULTIPLIER() + kPlayer.GetCurrentEra()) * 100);
-						kPlayer.changeJONSCulture((GC.getBALANCE_GAME_DIFFICULTY_MULTIPLIER() + kPlayer.GetCurrentEra()) * 50);
+						kPlayer.getCapitalCity()->ChangeUnmoddedHappinessFromBuildings(GC.getBALANCE_GAME_DIFFICULTY_MULTIPLIER() + 1);
+						kPlayer.GetTreasury()->ChangeGold((GC.getBALANCE_GAME_DIFFICULTY_MULTIPLIER() + kPlayer.GetCurrentEra()) * 150);
+						kPlayer.ChangeGoldenAgeProgressMeter((GC.getBALANCE_GAME_DIFFICULTY_MULTIPLIER() + kPlayer.GetCurrentEra()) * 150);
+						kPlayer.changeJONSCulture((GC.getBALANCE_GAME_DIFFICULTY_MULTIPLIER() + kPlayer.GetCurrentEra()) * 75);
 
-						int iBeakersBonus = kPlayer.GetScienceYieldFromPreviousTurns(GC.getGame().getGameTurn(), (GC.getBALANCE_GAME_DIFFICULTY_MULTIPLIER() + kPlayer.GetCurrentEra() + 4));
+						int iBeakersBonus = kPlayer.GetScienceYieldFromPreviousTurns(GC.getGame().getGameTurn(), (GC.getBALANCE_GAME_DIFFICULTY_MULTIPLIER() + kPlayer.GetCurrentEra() + 5));
 						
 						if(iBeakersBonus > 0)
 						{
@@ -7872,8 +8039,8 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 					{
 						if(pLoopCity != NULL)
 						{
-							pLoopCity->changeProduction((GC.getBALANCE_GAME_DIFFICULTY_MULTIPLIER() + kPlayer.GetCurrentEra()) * 25);
-							pLoopCity->changeFood((GC.getBALANCE_GAME_DIFFICULTY_MULTIPLIER() + kPlayer.GetCurrentEra()) * 10);
+							pLoopCity->changeProduction((GC.getBALANCE_GAME_DIFFICULTY_MULTIPLIER() + kPlayer.GetCurrentEra()) * 40);
+							pLoopCity->changeFood((GC.getBALANCE_GAME_DIFFICULTY_MULTIPLIER() + kPlayer.GetCurrentEra()) * 20);
 						}
 					}
 				}

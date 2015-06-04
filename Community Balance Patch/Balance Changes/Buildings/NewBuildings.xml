@@ -221,13 +221,13 @@
 		<Row>
 			<BuildingType>BUILDING_BATH</BuildingType>
 			<ResourceType>RESOURCE_CITRUS</ResourceType>
-			<YieldType>YIELD_FOOD</YieldType>
+			<YieldType>YIELD_GOLD</YieldType>
 			<Yield>2</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_BATH</BuildingType>
-			<ResourceType>RESOURCE_WINE</ResourceType>
-			<YieldType>YIELD_FOOD</YieldType>
+			<ResourceType>RESOURCE_COCOA</ResourceType>
+			<YieldType>YIELD_GOLD</YieldType>
 			<Yield>2</Yield>
 		</Row>
 	</Building_ResourceYieldChanges>
@@ -284,6 +284,32 @@
 			<Yield>15</Yield>
 		</Row>
 	</Building_YieldModifiers>
+	<Building_ResourceYieldChanges>
+		<Row>
+			<BuildingType>BUILDING_STOCKYARD</BuildingType>
+			<ResourceType>RESOURCE_BISON</ResourceType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_STOCKYARD</BuildingType>
+			<ResourceType>RESOURCE_WHEAT</ResourceType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_STOCKYARD</BuildingType>
+			<ResourceType>RESOURCE_DEER</ResourceType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_STOCKYARD</BuildingType>
+			<ResourceType>RESOURCE_BANANA</ResourceType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+	</Building_ResourceYieldChanges>
 	<Building_ResourceQuantityRequirements>
 		<Row>
 			<BuildingType>BUILDING_STOCKYARD</BuildingType>
@@ -313,7 +339,7 @@
 			<Text>Coal Plant</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_BATH_STRATEGY">
-			<Text>The Bath increases the speed at which Great People are generated in the city by 20% (5% less than the Garden), and boosts the yields of Citrus and Wine resources. Baths can be constructed only in cities not next to a river or lake. Requires an Aqueduct in order to be constructed.</Text>
+			<Text>The Bath increases the speed at which Great People are generated in the city by 20% (5% less than the Garden), and boosts the yields of Citrus and Cocoa resources. Baths can be constructed only in cities not next to a river or lake. Requires an Aqueduct in order to be constructed.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_WELL_STRATEGY">
 			<Text>The Well can only be constructed in a city without access to fresh water. The Well increases the city's Food and Production, but has a higher maintenance cost than a Water Mill.</Text>
@@ -334,7 +360,7 @@
 			<Text>City must not be built next to a River. Cannot be built if the City already has a Watermill.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_BATH_HELP">
-			<Text>+20% [ICON_GREAT_PEOPLE] Great People generation in this City. +2 [ICON_FOOD] Food from [ICON_RES_CITRUS] Citrus and [ICON_RES_WINE] Wine. [NEWLINE][NEWLINE]City must not be built next to a River, and requires an Aqueduct. Cannot be built if the City already has a Garden.</Text>
+			<Text>+20% [ICON_GREAT_PEOPLE] Great People generation in this City. +2 [ICON_GOLD] Food from [ICON_RES_CITRUS] Citrus and [ICON_RES_COCOA] Cocoa. [NEWLINE][NEWLINE]City must not be built next to a River, and requires an Aqueduct. Cannot be built if the City already has a Garden.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_GROCER_HELP">
 			<Text>Carries over 25% of [ICON_FOOD] Food after City growth (effect stacks with Aqueduct). Reduces [ICON_HAPPINESS_3] Poverty.[NEWLINE][NEWLINE]Requires an Aqueduct in the City.</Text>
@@ -343,7 +369,7 @@
 			<Text>+1 [ICON_PRODUCTION] Production on every Grassland and Plains tile. [NEWLINE][NEWLINE]City must not be built next to a River. Cannot be built if the City already has a Hydro Plant.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_STOCKYARD_HELP">
-			<Text>+15% [ICON_FOOD] Food. Requires 2 [ICON_RES_HORSE] Horses.</Text>
+			<Text>+15% [ICON_FOOD] Food. Each source of [ICON_RES_WHEAT] Wheat [ICON_RES_BANANA] Bananas, [ICON_RES_DEER] Deer, and [ICON_RES_BISON] Bison worked by this City produces +1 [ICON_FOOD] Food. [NEWLINE][NEWLINE]Requires 2 [ICON_RES_HORSE] Horses.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_COAL_PLANT_HELP">
 			<Text>+15% [ICON_PRODUCTION] Production. Requires 2 [ICON_RES_COAL] Coal. Increases [ICON_HAPPINESS_3] Poverty, and cannot be built if you have a Nuclear or Solar plant in the City.</Text>
@@ -361,7 +387,7 @@
 			<Text>Wind power is the conversion of wind energy into a useful form of energy, such as using wind turbines to produce electrical power, windmills for mechanical power, windpumps for water pumping or drainage, or sails to propel ships. Large wind farms consist of hundreds of individual wind turbines which are connected to the electric power transmission network. For new constructions, onshore wind is an inexpensive source of electricity, competitive with or in many places cheaper than fossil fuel plants. Small onshore wind farms provide electricity to isolated locations. Utility companies increasingly buy surplus electricity produced by small domestic wind turbines. Offshore wind is steadier and stronger than on land, and offshore farms have less visual impact, but construction and maintenance costs are considerably higher. Wind power, as an alternative to fossil fuels, is plentiful, renewable, widely distributed, clean, produces no greenhouse gas emissions during operation and uses little land. The effects on the environment are generally less problematic than those from other power sources. As of 2011, Denmark is generating more than a quarter of its electricity from wind and 83 countries around the world are using wind power to supply the electricity grid. In 2010 wind energy production was over 2.5% of total worldwide electricity usage, and growing rapidly at more than 25% per annum. Wind power is very consistent from year to year but has significant variation over shorter time scales. As the proportion of windpower in a region increases, a need to upgrade the grid, and a lowered ability to supplant conventional production can occur. Power management techniques such as having excess capacity storage, geographically distributed turbines, dispatchable backing sources, storage such as pumped-storage hydroelectricity, exporting and importing power to neighboring areas or reducing demand when wind production is low, can greatly mitigate these problems.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CIV5_BUILDINGS_STOCKYARD_TEXT">
-			<Text>A large enclosed yard, usually with pens or stables, in which livestock, such as cattle or pigs, are temporarily kept until slaughtered, sold, or shipped elsewhere. Essential for Industrial-scale livestock production.</Text>
+			<Text>A large enclosed yard, usually with pens or stables, in which livestock, such as cattle or pigs, are temporarily kept until slaughtered, sold, or shipped elsewhere. Essential for Industrial-scale food production.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CIV5_BUILDINGS_COAL_PLANT_TEXT">
 			<Text>A fossil fuel power station burns fossil fuels such as coal, natural gas or petroleum (oil) to produce electricity. Central station fossil-fuel power plants are designed on a large scale for continuous operation. In many countries, such plants provide most of the electrical energy used. Fossil-fuel power stations have machinery to convert the heat energy of combustion into mechanical energy, which then operates an electrical generator. The prime mover may be a steam turbine, a gas turbine or, in small plants, a reciprocating internal combustion engine. All plants use the energy extracted from expanding gas, either steam or combustion gases. Very few MHD generators have been built which directly convert the energy of moving hot gas into electricity.</Text>

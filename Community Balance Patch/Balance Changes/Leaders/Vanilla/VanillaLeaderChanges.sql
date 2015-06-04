@@ -23,25 +23,57 @@ UPDATE Buildings
 SET ExtraLuxuries = '0'
 WHERE Type = 'BUILDING_BAZAAR' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
+UPDATE Buildings
+SET TradeReligionModifier = '100'
+WHERE Type = 'BUILDING_BAZAAR' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
+UPDATE Buildings
+SET TradeRouteLandDistanceModifier = '50'
+WHERE Type = 'BUILDING_BAZAAR' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
+UPDATE Building_ResourceYieldChanges
+SET Yield = '0'
+WHERE ResourceType = 'RESOURCE_OIL' AND BuildingType = 'BUILDING_BAZAAR' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
+UPDATE Building_FeatureYieldChanges
+SET Yield = '0'
+WHERE FeatureType = 'FEATURE_OASIS' AND BuildingType = 'BUILDING_BAZAAR' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
 UPDATE Language_en_US
-SET Text = '+1 [ICON_GOLD] Gold for every 4 [ICON_CITIZEN] Citizens in the City. +1 [ICON_GOLD] Gold and +1 [ICON_PRODUCTION] Production from [ICON_RES_SPICES] Spices, [ICON_RES_SUGAR] Sugar and [ICON_RES_COCOA] Cocoa. Each source of [ICON_RES_OIL] Oil and each Oasis provides +2 [ICON_GOLD] Gold.[NEWLINE][NEWLINE]Trade routes other players make to a city with a Bazaar will generate an extra 1 [ICON_GOLD] Gold for the city owner and the trade route owner gains an additional 1 [ICON_GOLD] Gold for the trade route.'
+SET Text = '+1 [ICON_GOLD] Gold for every 4 [ICON_CITIZEN] Citizens in the City. +1 [ICON_GOLD] Gold and +1 [ICON_PRODUCTION] Production from [ICON_RES_SPICES] Spices and [ICON_RES_SUGAR] Sugar. [NEWLINE][NEWLINE]Trade routes gain 50% range and double religious pressure in the destination City. Trade Routes other players make to a city with a Bazaar will generate an extra 1 [ICON_GOLD] Gold for the city owner and the trade route owner gains an additional 1 [ICON_GOLD] Gold for the trade route.'
 WHERE Tag = 'TXT_KEY_BUILDING_BAZAAR_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'The Bazaar is the Arabian unique building, replacing the Market. The Bazaar provides [ICON_GOLD] Gold and [ICON_PEACE] Faith bonuses to the city, and boosts trade routes. The Bazaar provides +2 [ICON_GOLD] Gold on [ICON_RES_OIL] Oil and Oases, and boosts the yields of [ICON_RES_SPICES], [ICON_RES_SUGAR], and [ICON_RES_COCOA] Cocoa.'
+SET Text = 'The Bazaar is the Arabian unique building, replacing the Market. The Bazaar provides [ICON_GOLD] Gold and [ICON_PEACE] Faith, and boosts Trade Route range, [ICON_GOLD] Gold value, and Religious Pressure. The Bazaar also boosts the yields of [ICON_RES_SPICES] and [ICON_RES_SUGAR] Sugar'
 WHERE Tag = 'TXT_KEY_BUILDING_BAZAAR_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'All land military units move twice as fast in the Desert. Caravans gain 50% extended range, and your trade routes spread religion much more effectively. [ICON_OIL] Oil resources are doubled.'
+SET Text = 'Units move twice as fast in the Desert. When you acquire Desert tiles naturally, unowned adjacent Desert tiles are also claimed. Deserts gain +2 [ICON_FOOD] Food, [ICON_PRODUCTION] Production, and [ICON_GOLD] Gold if Trade Routes or City Connections pass over them.'
 WHERE Tag = 'TXT_KEY_TRAIT_LAND_TRADE_GOLD2' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Traits
-SET TradeReligionModifier = '150'
+SET TradeReligionModifier = '0'
+WHERE Type = 'TRAIT_LAND_TRADE_GOLD' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
+UPDATE Traits
+SET LandTradeRouteRangeBonus = '0'
+WHERE Type = 'TRAIT_LAND_TRADE_GOLD' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
+UPDATE Trait_ResourceQuantityModifiers
+SET ResourceQuantityModifier = '0'
+WHERE TraitType = 'TRAIT_LAND_TRADE_GOLD' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
+UPDATE Traits
+SET TradeRouteOnly = '1'
+WHERE Type = 'TRAIT_LAND_TRADE_GOLD' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
+UPDATE Traits
+SET TerrainClaimBoost = 'TERRAIN_DESERT'
 WHERE Type = 'TRAIT_LAND_TRADE_GOLD' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 -- Aztec -- Set Floating Garden to +1 Food per 4 citizens instead of +15%
 UPDATE Language_en_US
-SET Text = '+1 [ICON_FOOD] Food for every 4 [ICON_CITIZEN] Citizens in the City. Each worked Lake tile provides +2 [ICON_FOOD] Food, and River tiles produce +1 [ICON_FOOD] Food.[NEWLINE][NEWLINE]City must be built next to a River or Lake.'
+SET Text = '+1 [ICON_FOOD] Food for every 5 [ICON_CITIZEN] Citizens in the City. Each worked Lake tile provides +2 [ICON_FOOD] Food, and River tiles produce +1 [ICON_FOOD] Food.[NEWLINE][NEWLINE]City must be built next to a River or Lake.'
 WHERE Tag = 'TXT_KEY_BUILDING_FLOATING_GARDENS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -106,6 +138,14 @@ UPDATE Language_en_US
 SET Text = 'The Krepost is the Russian unique building, replacing the barracks. The Krepost provides 15 experience points for all military units constructed in its city. In addition, the Krepost increases cultural border growth by 25% and city defense strength by 2. It is quite worthwhile to construct these useful buildings in all Russian cities, but especially in cities on the the Russian frontier.'
 WHERE Tag = 'TXT_KEY_BUILDINGS_KREPOST_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
+UPDATE Language_en_US
+SET Text = 'All Strategic Resources provide +1 [ICON_SCIENCE] Science and double their normal quantity. When you purchase a tile with [ICON_GOLD] Gold, receive +20 [ICON_RESEARCH] Science. Bonus scales with Era.'
+WHERE Tag = 'TXT_KEY_TRAIT_STRATEGIC_RICHES' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
+UPDATE Trait_YieldChangesStrategicResources
+SET YieldType = 'YIELD_SCIENCE'
+WHERE TraitType = 'TRAIT_STRATEGIC_RICHES' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
 -- Adjusted startbias out of tundra
 
 DELETE FROM Civilization_Start_Region_Priority
@@ -113,7 +153,7 @@ WHERE CivilizationType = 'CIVILIZATION_RUSSIA' AND EXISTS (SELECT * FROM COMMUNI
 
 -- Darius -- Adjust Satrap
 UPDATE Language_en_US
-SET Text = 'City must have a Market. +1 [ICON_GOLD] Gold for every 4 [ICON_CITIZEN] Citizens in the City. Trade routes other players make to a city with a Satraps Court will generate an extra 1 [ICON_GOLD] Gold for the city owner and the trade route owner gains an additional 1 [ICON_GOLD] Gold for the trade route.'
+SET Text = 'City must have a Market. +1 [ICON_GOLD] Gold for every 4 [ICON_CITIZEN] Citizens in the City.[NEWLINE][NEWLINE]Trade routes other players make to a city with a Satrap''s Court will generate an extra 1 [ICON_GOLD] Gold for the city owner and the trade route owner gains an additional 1 [ICON_GOLD] Gold for the trade route.'
 WHERE Tag = 'TXT_KEY_BUILDING_SATRAPS_COURT_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Buildings
@@ -414,12 +454,28 @@ UPDATE Units
 SET ObsoleteTech = 'TECH_REPLACEABLE_PARTS'
 WHERE Type = 'UNIT_OTTOMAN_JANISSARY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
--- Rome -- Unique Monument (Triumphal Arch) -- Receive Culture boost when you conquer a City.
+-- Rome -- Unique Monument (Flavian Amphitheater) -- Receive Culture boost when you conquer a City.
 DELETE FROM Units
 WHERE Type = 'UNIT_ROMAN_BALLISTA' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 DELETE FROM Civilization_UnitClassOverrides
 WHERE UnitType = 'UNIT_ROMAN_BALLISTA' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
+UPDATE Traits
+SET CapitalBuildingModifier = '15'
+WHERE Type = 'TRAIT_CAPITAL_BUILDINGS_CHEAPER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
+UPDATE Traits
+SET ExtraConqueredCityTerritoryClaimRange = '4'
+WHERE Type = 'TRAIT_CAPITAL_BUILDINGS_CHEAPER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
+UPDATE Traits
+SET KeepConqueredBuildings = '1'
+WHERE Type = 'TRAIT_CAPITAL_BUILDINGS_CHEAPER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
+UPDATE Language_en_US
+SET Text = 'When you conquer a City, the City retains all valid Buildings and you immediately acquire additional territory around the City. +15% [ICON_PRODUCTION] Production towards Buildings present in Capital.'
+WHERE Tag = 'TXT_KEY_TRAIT_CAPITAL_BUILDINGS_CHEAPER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 -- Siam -- adjust Wat
 UPDATE Building_FeatureYieldChanges

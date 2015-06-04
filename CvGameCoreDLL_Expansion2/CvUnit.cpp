@@ -4187,7 +4187,11 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, byte bMoveFlags) const
 		if (!bCanCross)
 #else
 		CvPlayer& kPlayer = GET_PLAYER(getOwner());
+#if defined(MOD_BALANCE_CORE)
+		if(!kPlayer.GetPlayerTraits()->IsAbleToCrossMountains() && !kPlayer.GetPlayerTraits()->IsAbleToCrossMountains2() && !IsHoveringUnit() && !canMoveAllTerrain())
+#else
 		if(!kPlayer.GetPlayerTraits()->IsAbleToCrossMountains() && !IsHoveringUnit() && !canMoveAllTerrain())
+#endif
 #endif
 		{
 			return false;
@@ -7643,6 +7647,16 @@ void CvUnit::DoAttrition()
 #if defined(MOD_API_PLOT_BASED_DAMAGE)
 	if (MOD_API_PLOT_BASED_DAMAGE) {
 		int iDamage = plot()->getTurnDamage(ignoreTerrainDamage(), ignoreFeatureDamage(), extraTerrainDamage(), extraFeatureDamage());
+#if defined(MOD_BALANCE_CORE)
+		if(MOD_BALANCE_CORE && plot()->isMountain() && iDamage > 25 && GET_PLAYER(getOwner()).GetPlayerTraits()->IsCrossesMountainsAfterGreatGeneral())
+		{
+			iDamage = 25;
+		}
+		else if(MOD_BALANCE_CORE && plot()->isMountain() && iDamage > 15 && GET_PLAYER(getOwner()).GetPlayerTraits()->IsMountainPass())
+		{
+			iDamage = 15;
+		}
+#endif
 		if (0 != iDamage) {
 			if (iDamage > 0) {
 				// CUSTOMLOG("Applying terrain/feature damage (of %i) for player/unit %i/%i at (%i, %i)", iDamage, getOwner(), GetID(), plot()->getX(), plot()->getY());
@@ -7662,7 +7676,11 @@ void CvUnit::DoAttrition()
 #if defined(MOD_BALANCE_CORE)
 			if(MOD_BALANCE_CORE && GET_PLAYER(getOwner()).GetPlayerTraits()->IsCrossesMountainsAfterGreatGeneral())
 			{
-				changeDamage(20, NO_PLAYER, 0.0, &strAppendText);
+				changeDamage(25, NO_PLAYER, 0.0, &strAppendText);
+			}
+			else if(MOD_BALANCE_CORE && GET_PLAYER(getOwner()).GetPlayerTraits()->IsMountainPass())
+			{
+				changeDamage(15, NO_PLAYER, 0.0, &strAppendText);
 			}
 			else
 			{
@@ -8985,6 +9003,7 @@ bool CvUnit::sellExoticGoods()
 				}
 			}
 		}
+		return true;
 #endif
 	}
 	return false;
@@ -10913,6 +10932,15 @@ bool CvUnit::hurry()
 	if(pCity != NULL)
 	{
 		pCity->changeProduction(getHurryProduction(pPlot));
+#if defined(MOD_BALANCE_CORE_ENGINEER_HURRY)
+		if(MOD_BALANCE_CORE_ENGINEER_HURRY && pCity != NULL && pCity->getProductionBuilding() != NO_BUILDING)
+		{
+			if (pCity->getProduction() >= pCity->getProductionNeeded())
+			{
+				pCity->popOrder(0, true, true);
+			}
+		}
+#endif
 	}
 
 	if(pPlot->isActiveVisible(false))
@@ -16468,7 +16496,7 @@ void CvUnit::SetCombatBonusImprovement(ImprovementTypes eImprovement)
 bool CvUnit::canCrossMountains() const
 {
 	VALIDATE_OBJECT
-	return GET_PLAYER(getOwner()).GetPlayerTraits()->IsAbleToCrossMountains() || (MOD_PROMOTIONS_CROSS_MOUNTAINS && getCanCrossMountainsCount() > 0);
+	return GET_PLAYER(getOwner()).GetPlayerTraits()->IsAbleToCrossMountains() || GET_PLAYER(getOwner()).GetPlayerTraits()->IsAbleToCrossMountains2() || (MOD_PROMOTIONS_CROSS_MOUNTAINS && getCanCrossMountainsCount() > 0);
 }
 
 //	--------------------------------------------------------------------------------
@@ -19165,17 +19193,20 @@ if (!bDoEvade)
 						kPlayer.GetTreasury()->ChangeGold(iNumGold);
 
 #if defined(MOD_BALANCE_CORE_POLICIES)
-						float fDelay = 0.5f;
-						if(GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CULTURE_FROM_BARBARIAN_KILLS) > 0)
-						{	
-							int iCulturePoints = (GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CULTURE_FROM_BARBARIAN_KILLS) / 5);
-							GET_PLAYER(getOwner()).changeJONSCulture(iCulturePoints);
-							if(GET_PLAYER(getOwner()).GetID() == GC.getGame().getActivePlayer())
-							{
-								char text[256] = {0};
-								fDelay += 0.5f;
-								sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", iCulturePoints);
-								DLLUI->AddPopupText(pNewPlot->getX(),pNewPlot->getY(), text, fDelay);
+						if(MOD_BALANCE_CORE_POLICIES)
+						{
+							float fDelay = 0.5f;
+							if(GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CULTURE_FROM_BARBARIAN_KILLS) > 0)
+							{	
+								int iCulturePoints = (GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CULTURE_FROM_BARBARIAN_KILLS) / 5);
+								GET_PLAYER(getOwner()).changeJONSCulture(iCulturePoints);
+								if(GET_PLAYER(getOwner()).GetID() == GC.getGame().getActivePlayer())
+								{
+									char text[256] = {0};
+									fDelay += 0.5f;
+									sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", iCulturePoints);
+									DLLUI->AddPopupText(pNewPlot->getX(),pNewPlot->getY(), text, fDelay);
+								}
 							}
 						}
 #endif
@@ -24029,6 +24060,19 @@ bool CvUnit::AreUnitsOfSameType(const CvUnit& pUnit2, const bool bPretendEmbarke
 
 	bool bUnit1isEmbarked = isEmbarked();
 	bool bUnit2isEmbarked = pUnit2.isEmbarked() || bPretendEmbarked;
+#if defined(MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS)
+	if(MOD_GLOBAL_BREAK_CIVILIAN_RESTRICTIONS)
+	{
+		if(IsCivilianUnit())
+		{
+			bUnit1isEmbarked = false;
+		}
+		if(pUnit2.IsCivilianUnit())
+		{
+			bUnit2isEmbarked = false;
+		}
+	}
+#endif
 
 	// 2 embarked units are considered the same type, regardless of circumstances
 	if(bUnit1isEmbarked && bUnit2isEmbarked)

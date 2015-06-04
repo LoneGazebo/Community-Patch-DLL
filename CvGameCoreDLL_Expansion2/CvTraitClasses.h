@@ -110,6 +110,10 @@ public:
 	bool IsDiplomaticMarriage() const;
 	bool IsAdoptionFreeTech() const;
 	bool IsGPWLTKD() const;
+	bool IsTradeRouteOnly() const;
+	int GetTerrainClaimBoost() const;
+	bool IsKeepConqueredBuildings() const;
+	bool IsMountainPass() const;
 	int  GetGrowthBoon() const;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
@@ -125,6 +129,9 @@ public:
 	int GetExtraSpies() const;
 	int GetUnresearchedTechBonusFromKills() const;
 	int GetExtraFoundedCityTerritoryClaimRange() const;
+#if defined(MOD_BALANCE_CORE)
+	int GetExtraConqueredCityTerritoryClaimRange() const;
+#endif
 	int GetFreeSocialPoliciesPerEra() const;
 	int GetNumTradeRoutesModifier() const;
 	int GetTradeRouteResourceModifier() const;
@@ -325,6 +332,9 @@ protected:
 	bool m_bDiplomaticMarriage;
 	bool m_bAdoptionFreeTech;
 	bool m_bGPWLTKD;
+	bool m_bTradeRouteOnly;
+	bool m_bKeepConqueredBuildings;
+	bool m_bMountainPass;
 	int m_iGrowthBoon;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
@@ -340,6 +350,9 @@ protected:
 	int m_iExtraSpies;
 	int m_iUnresearchedTechBonusFromKills;
 	int m_iExtraFoundedCityTerritoryClaimRange;
+#if defined(MOD_BALANCE_CORE)
+	int m_iExtraConqueredCityTerritoryClaimRange;
+#endif
 	int m_iFreeSocialPoliciesPerEra;
 	int m_iNumTradeRoutesModifier;
 	int m_iTradeRouteResourceModifier;
@@ -364,6 +377,7 @@ protected:
 	BuildingTypes m_eFreeCapitalBuilding;
 	TechTypes m_eFreeBuildingPrereqTech;
 	TechTypes m_eCapitalFreeBuildingPrereqTech;
+	int m_iTerrainClaimBoost;
 #endif
 	BuildingTypes m_eFreeBuildingOnConquest;
 #if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
@@ -747,6 +761,18 @@ public:
 	{
 		return m_bGPWLTKD;
 	};
+	bool IsTradeRouteOnly() const
+	{
+		return m_bTradeRouteOnly;
+	};
+	bool IsKeepConqueredBuildings() const
+	{
+		return m_bKeepConqueredBuildings;
+	};
+	bool IsMountainPass() const
+	{
+		return m_bMountainPass;
+	};
 	int GetGrowthBoon() const
 	{
 		return m_iGrowthBoon;
@@ -798,6 +824,12 @@ public:
 	{
 		return m_iExtraFoundedCityTerritoryClaimRange;
 	}
+#if defined(MOD_BALANCE_CORE)
+	int GetExtraConqueredCityTerritoryClaimRange() const
+	{
+		return m_iExtraConqueredCityTerritoryClaimRange;
+	}
+#endif
 	int GetFreeSocialPoliciesPerEra() const
 	{
 		return m_iFreeSocialPoliciesPerEra;
@@ -1134,6 +1166,10 @@ public:
 	BuildingTypes GetFreeBuilding() const;
 #if defined(MOD_BALANCE_CORE)
 	BuildingTypes GetFreeCapitalBuilding() const;
+	int GetTerrainClaimBoost() const
+	{
+		return m_iTerrainClaimBoost;
+	};
 #endif
 	BuildingTypes GetFreeBuildingOnConquest() const;
 	void SetDefeatedBarbarianCampGuardType(UnitTypes eType)
@@ -1152,7 +1188,11 @@ public:
 	{
 		return m_eCombatBonusImprovement;
 	};
+#if defined(MOD_BALANCE_CORE)
+	bool IsAbleToCrossMountains2() const;
+#endif
 	bool IsAbleToCrossMountains() const;
+
 #if defined(MOD_TRAITS_CROSSES_ICE)
 	bool IsAbleToCrossIce() const;
 #endif
@@ -1238,6 +1278,9 @@ private:
 	bool m_bDiplomaticMarriage;
 	bool m_bAdoptionFreeTech;
 	bool m_bGPWLTKD;
+	bool m_bTradeRouteOnly;
+	bool m_bKeepConqueredBuildings;
+	bool m_bMountainPass;
 	int m_iGrowthBoon;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
@@ -1253,6 +1296,9 @@ private:
 	int m_iExtraSpies;
 	int m_iUnresearchedTechBonusFromKills;
 	int m_iExtraFoundedCityTerritoryClaimRange;
+#if defined(MOD_BALANCE_CORE)
+	int m_iExtraConqueredCityTerritoryClaimRange;
+#endif
 	int m_iFreeSocialPoliciesPerEra;
 	int m_iNumTradeRoutesModifier;
 	int m_iTradeRouteResourceModifier;
@@ -1314,6 +1360,7 @@ private:
 	BuildingTypes m_eFreeBuilding;
 #if defined(MOD_BALANCE_CORE)
 	BuildingTypes m_eFreeCapitalBuilding;
+	int m_iTerrainClaimBoost;
 #endif
 	BuildingTypes m_eFreeBuildingOnConquest;
 #if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)

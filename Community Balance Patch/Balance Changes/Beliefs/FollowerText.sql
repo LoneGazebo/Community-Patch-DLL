@@ -101,7 +101,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_ASCETISM' AND EXISTS (SELECT * FROM COMMUNITY WHERE 
 
 -- Religious Center (Now Order)
 UPDATE Language_en_US
-SET Text = 'Use [ICON_PEACE] Faith to purchase Orders (+3 [ICON_PEACE] Faith. +10 XP and the Morale promotion for Land Units built in the city.)'
+SET Text = 'Use [ICON_PEACE] Faith to purchase Orders (+3 [ICON_PEACE] Faith. +3 [ICON_STRENGTH] Strength, +25 Hit Points for the City. +10 XP and the Morale promotion for Land Units built in the city.)'
 WHERE Tag = 'TXT_KEY_BELIEF_RELIGIOUS_CENTER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US

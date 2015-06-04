@@ -80,17 +80,17 @@
 		<Row>
 			<BeliefType>BELIEF_CHURCH_PROPERTY</BeliefType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>60</Yield>
+			<Yield>50</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_CHURCH_PROPERTY</BeliefType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>60</Yield>
+			<Yield>50</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_CHURCH_PROPERTY</BeliefType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>60</Yield>
+			<Yield>50</Yield>
 		</Row>
 	</Belief_YieldFromPolicyUnlock>
 
@@ -98,27 +98,27 @@
 		<Row>
 			<BeliefType>BELIEF_INITIATION_RITES</BeliefType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>250</Yield>
+			<Yield>200</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_INITIATION_RITES</BeliefType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>250</Yield>
+			<Yield>200</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_INITIATION_RITES</BeliefType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>250</Yield>
+			<Yield>200</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_INITIATION_RITES</BeliefType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>250</Yield>
+			<Yield>200</Yield>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_INITIATION_RITES</BeliefType>
 			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Yield>250</Yield>
+			<Yield>200</Yield>
 		</Row>
 	</Belief_YieldFromEraUnlock>
 

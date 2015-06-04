@@ -739,6 +739,19 @@ void CvHomelandAI::FindHomelandTargets()
 					}
 				}
 			}
+			// ... enemy civilian (or embarked) unit?
+			else if(pLoopPlot->isVisibleOtherUnit(m_pPlayer->GetID()))
+			{
+				CvUnit* pTargetUnit = pLoopPlot->getUnitByIndex(0);
+				if(!pTargetUnit->isDelayedDeath() && atWar(eTeam, pTargetUnit->getTeam()) && !pTargetUnit->IsCanDefend())
+				{
+					newTarget.SetTargetType(AI_HOMELAND_TARGET_ANCIENT_RUIN);
+					newTarget.SetTargetX(pLoopPlot->getX());
+					newTarget.SetTargetY(pLoopPlot->getY());
+					newTarget.SetAuxData(pLoopPlot);
+					m_TargetedAncientRuins.push_back(newTarget);
+				}
+			}
 #if defined(MOD_BALANCE_CORE)
 #else
 			// ... unpopped goody hut?
@@ -916,7 +929,7 @@ void CvHomelandAI::FindHomelandTargets()
 	{
 		CvPlot* pLoopOutsidePlot = theMap.plotByIndexUnchecked(iI);
 
-		if(pLoopOutsidePlot->isVisible(m_pPlayer->getTeam()))
+		if(pLoopOutsidePlot->isVisible(m_pPlayer->getTeam()) && pLoopOutsidePlot->getOwner() != m_pPlayer->GetID())
 		{
 			// ... antiquity site?
 			if((pLoopOutsidePlot->getResourceType(eTeam) == GC.getARTIFACT_RESOURCE() || pLoopOutsidePlot->getResourceType(eTeam) == GC.getHIDDEN_ARTIFACT_RESOURCE()) && 
@@ -1118,13 +1131,6 @@ void CvHomelandAI::PlotExplorerSeaMoves()
 {
 	ClearCurrentMoveUnits();
 
-#if defined(MOD_BALANCE_CORE)
-	//No naval scouting while at war - we need these ships for attack/defense.
-	if(m_pPlayer->IsAtWarAnyMajor())
-	{
-		return;
-	}
-#endif
 	// Loop through all recruited units
 	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
 	{
@@ -1207,9 +1213,34 @@ void CvHomelandAI::PlotGarrisonMoves(bool bCityStateOnly)
 		{
 			CvPlot* pTarget = GC.getMap().plot(m_TargetedCities[iI].GetTargetX(), m_TargetedCities[iI].GetTargetY());
 			CvCity* pCity = pTarget->getPlotCity();
-
 			if(pCity && pCity->GetLastTurnGarrisonAssigned() < GC.getGame().getGameTurn())
 			{
+#if defined(MOD_BALANCE_CORE)
+				if(pCity == m_pPlayer->GetMilitaryAI()->GetMostThreatenedCity(0))
+				{
+					// Grab units that make sense for this move type
+					FindUnitsForThisMove(AI_HOMELAND_MOVE_GARRISON, (iI == 0)/*bFirstTime*/);
+
+					if(m_CurrentMoveHighPriorityUnits.size() + m_CurrentMoveUnits.size() > 0)
+					{
+						if(GetBestUnitToReachTarget(pTarget, m_iDefensiveMoveTurns))
+						{
+							ExecuteMoveToTarget(pTarget);
+
+							if(GC.getLogging() && GC.getAILogging())
+							{
+								CvString strLogString;
+								strLogString.Format("Moving to most threatened city for garrison, X: %d, Y: %d, Priority: %d", m_TargetedCities[iI].GetTargetX(), m_TargetedCities[iI].GetTargetY(), m_TargetedCities[iI].GetAuxIntData());
+								LogHomelandMessage(strLogString);
+							}
+
+							pCity->SetLastTurnGarrisonAssigned(GC.getGame().getGameTurn());
+						}
+					}
+				}
+				else
+				{
+#endif
 				// Grab units that make sense for this move type
 				FindUnitsForThisMove(AI_HOMELAND_MOVE_GARRISON, (iI == 0)/*bFirstTime*/);
 
@@ -1229,6 +1260,9 @@ void CvHomelandAI::PlotGarrisonMoves(bool bCityStateOnly)
 						pCity->SetLastTurnGarrisonAssigned(GC.getGame().getGameTurn());
 					}
 				}
+#if defined(MOD_BALANCE_CORE)
+				}
+#endif
 			}
 		}
 	}
@@ -1309,7 +1343,16 @@ void CvHomelandAI::PlotMovesToSafety()
 		{
 			// Danger value of plot must be greater than 0
 			CvPlot* pPlot = pUnit->plot();
-
+#if defined(MOD_BALANCE_CORE)
+			bool bFallout = false;
+			if(pPlot != NULL)
+			{
+				if(!pUnit->IsCanDefend() && pPlot->getFeatureType() == FEATURE_FALLOUT && (pUnit->ignoreFeatureDamage() || (pUnit->getDamage() <= (pUnit->GetMaxHitPoints() / 2))))
+				{
+					bFallout = true;
+				}
+			}
+#endif
 			int iDangerLevel = m_pPlayer->GetPlotDanger(*pPlot);
 			if(iDangerLevel > 0)
 			{
@@ -1319,6 +1362,10 @@ void CvHomelandAI::PlotMovesToSafety()
 				// slewis - 4.18.2013 - Problem here is that a combat unit that is a boat can get stuck in a city hiding from barbarians on the land
 				if(!pUnit->IsCanDefend())
 				{
+#if defined(MOD_BALANCE_CORE)
+					if(!bFallout)
+					{
+#endif
 					if (pUnit->IsAutomated() && pUnit->GetBaseCombatStrength() > 0)
 					{
 						// then this is our special case
@@ -1327,11 +1374,17 @@ void CvHomelandAI::PlotMovesToSafety()
 					{
 						bAddUnit = true;
 					}
+#if defined(MOD_BALANCE_CORE)
+					}
+#endif
 				}
 
 				// Also may be true if a damaged combat unit
 				else if(pUnit->GetCurrHitPoints() < pUnit->GetMaxHitPoints())
 				{
+#if defined(MOD_BALANCE_CORE)
+					int iDamage = pUnit->plot()->getTurnDamage(pUnit->ignoreTerrainDamage(), pUnit->ignoreFeatureDamage(), pUnit->extraTerrainDamage(), pUnit->extraFeatureDamage());
+#endif
 					if(pUnit->isBarbarian())
 					{
 						// Barbarian combat units - only naval units flee (but they flee if have taken ANY damage)
@@ -1342,6 +1395,10 @@ void CvHomelandAI::PlotMovesToSafety()
 					}
 
 #if defined(MOD_AI_SMART_FLEE_FROM_DANGER)
+					else if(iDamage > 0 && (((pUnit->getDamage()*100)/pUnit->GetMaxHitPoints())>50))
+					{
+						bAddUnit = true;
+					}
 					// Everyone else flees at more than 70% damage
 					else if(MOD_AI_SMART_FLEE_FROM_DANGER && (((pUnit->getDamage()*100)/pUnit->GetMaxHitPoints())>70))
 					{
@@ -4028,7 +4085,6 @@ void CvHomelandAI::ExecuteMovesToSafestPlot()
 #if defined(MOD_AI_SMART_FLEE_FROM_DANGER)
 					bool bNeedEmbark = ((pUnit->getDomainType() == DOMAIN_LAND) && (!pUnit->plot()->isWater()) && (pPlot->isWater()));
 #endif
-
 					#define MAX_DANGER_VALUE	100000
 					#define PREFERENCE_LEVEL(x, y) (x * MAX_DANGER_VALUE) + ((MAX_DANGER_VALUE - 1) - y)
 
@@ -4091,7 +4147,6 @@ void CvHomelandAI::ExecuteMovesToSafestPlot()
 						iScore = PREFERENCE_LEVEL(0, iDanger);
 #endif
 					}
-
 					aBestPlotList.push_back(pPlot, iScore);
 				}
 			}
@@ -6524,6 +6579,14 @@ bool CvHomelandAI::MoveCivilianToSafety(CvUnit* pUnit, bool bIgnoreUnits)
 			if(pCity && pCity->getTeam() == pUnit->getTeam())
 			{
 				iValue += pCity->getStrengthValue() * (GC.getMAX_CITY_DEFENSE_DAMAGE() - pCity->getDamage());
+#if defined(MOD_BALANCE_CORE)
+				if(pCity->getDamage() <= 0)
+				{
+					//We should always hide in cities if we can.
+					iValue += 1;
+					iValue *= 1000;
+				}
+#endif
 			}
 			else if(!bIgnoreUnits)
 			{
@@ -7070,6 +7133,12 @@ bool CvHomelandAI::FindUnitsForThisMove(AIHomelandMove eMove, bool bFirstTime)
 					{
 						bSuitableUnit = true;
 					}
+#if defined(MOD_BALANCE_CORE)
+					else if(pLoopUnit->IsCombatUnit())
+					{
+						bSuitableUnit = true;
+					}
+#endif
 					break;
 				}
 

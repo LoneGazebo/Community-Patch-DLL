@@ -644,6 +644,9 @@ public:
 	void DoResearchAgreementOffer(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
 #if defined(MOD_BALANCE_CORE_DEALS)
 	void DoDefensivePactOffer(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
+	void DoCityTrade(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
+	void DoThirdPartyWarTrade(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
+	void DoThirdPartyPeaceTrade(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
 #endif
 	void DoRenewExpiredDeal(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
 	//void DoResearchAgreementPlan(PlayerTypes ePlayer, DiploStatementTypes &eStatement);
@@ -703,6 +706,8 @@ public:
 	const char* GetInsultHumanMessage();
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
 	const char* GetDoFHumanMessage();
+	int	GetDenounceMessage(PlayerTypes ePlayer);
+	const char* GetDenounceMessageValue(int iValue);
 #endif
 	const char* GetAttackedByHumanMessage();
 	const char* GetWarMessage(PlayerTypes ePlayer);

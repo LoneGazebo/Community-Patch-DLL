@@ -42,6 +42,7 @@
 			<Set CoreTileCanBeAnyTerrainType="1"
 				 AdjacentTilesCareAboutTerrainTypes="0"
 				 AdjacentTilesAvoidGrass="0"
+				 ChangeCoreTileToMountain="0"
 				 />
 		</Update>
 		<Update>
@@ -75,6 +76,7 @@
 				 MaximumAllowedAdjacentDesert="99"
 				 AdjacentTilesRequireHillsPlusMountains="0"
 				 RequiredNumberOfAdjacentHillsPlusMountains="0"
+				 ChangeCoreTileToMountain="0"
 				 />
 		</Update>
 		<Update>
@@ -83,6 +85,7 @@
 				 CoreTileCanBeDesert="1"
 				 AdjacentTilesRequireDesert="1"
 				 RequiredNumberOfAdjacentDesert="1"
+				 ChangeCoreTileToMountain="0"
 				 />
 		</Update>
 		<Update>
@@ -105,6 +108,7 @@
 			<Set AdjacentTilesCareAboutTerrainTypes="1"
 				 AdjacentTilesAvoidGrass="1"
 				 MaximumAllowedAdjacentGrass="1"
+				 ChangeCoreTileToMountain="0"
 				 />
 		</Update>
 		<Update>
@@ -126,6 +130,7 @@
 				 CoreTileCanBeTundra="1"
 				 CoreTileCanBeSnow="1"
 				 CoreTileCanBePlains="1"
+				 ChangeCoreTileToMountain="0"
 				 />
 		</Update>
 	</Natural_Wonder_Placement>
@@ -224,15 +229,10 @@
 		<Row>
 			<FeatureType>FEATURE_FOREST</FeatureType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Yield>2</Yield>
+			<Yield>1</Yield>
 		</Row>
 
 		<Delete FeatureType="FEATURE_JUNGLE" />
-		<Row>
-			<FeatureType>FEATURE_JUNGLE</FeatureType>
-			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Yield>1</Yield>
-		</Row>
 		<Row>
 			<FeatureType>FEATURE_JUNGLE</FeatureType>
 			<YieldType>YIELD_FOOD</YieldType>
@@ -250,7 +250,7 @@
 		<Row>
 			<FeatureType>FEATURE_OASIS</FeatureType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>2</Yield>
+			<Yield>1</Yield>
 		</Row>
 		<Row>
 			<FeatureType>FEATURE_OASIS</FeatureType>

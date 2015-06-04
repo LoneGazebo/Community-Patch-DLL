@@ -1,18 +1,38 @@
 -- Ahmad -- Boost Kasbah, Ability
 UPDATE Improvement_Yields
-SET Yield = '2'
+SET Yield = '1'
 WHERE YieldType = 'YIELD_GOLD' AND ImprovementType = 'IMPROVEMENT_KASBAH' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
+UPDATE Improvement_Yields
+SET Yield = '1'
+WHERE YieldType = 'YIELD_FOOD' AND ImprovementType = 'IMPROVEMENT_KASBAH' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
+UPDATE Improvements
+SET Cityside = '1'
+WHERE Type = 'IMPROVEMENT_KASBAH' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
+UPDATE Improvements
+SET DefenseModifier = '30'
+WHERE Type = 'IMPROVEMENT_KASBAH' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
 UPDATE Builds
-SET PrereqTech = 'TECH_MASONRY'
+SET PrereqTech = 'TECH_CHIVALRY'
 WHERE Type = 'BUILD_KASBAH' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
+UPDATE Builds
+SET Time = '1000'
+WHERE Type = 'BUILD_KASBAH' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
+UPDATE Language_en_US
+SET Text = 'A Kasbah can only be built adjacent to a City.  It provides one additional [ICON_FOOD] Food, [ICON_PRODUCTION] Production, and [ICON_GOLD] Gold. It also provides a +30% defense bonus and additional [ICON_PRODUCTION] Production and [ICON_GOLD] Gold for every adjacent Kasbah.'
+WHERE Tag = 'TXT_KEY_CIV5_IMPROVEMENTS_KASBAH_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
 SET Text = 'Receives +3 Gold [ICON_GOLD], +1 [ICON_CULTURE] Culture, and +2 [ICON_GOLDEN_AGE] Golden Age Points for each Trade Route with a different civ or City-State. Bonuses scale with Era. The Trade Route owners receive +2 [ICON_GOLD] Gold for each Trade Route sent to Morocco.'
 WHERE Tag = 'TXT_KEY_TRAIT_GATEWAY_AFRICA' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Mounted unit that specializes in Desert warfare and protecting Moroccan lands. Receives combat bonuses when fighting both in Desert tiles and Moroccan territory. Moves twice as fast in Deserts. May only be built by Morocco.'
+SET Text = 'Mounted unit that specializes in protecting Moroccan lands. Receives combat bonuses when fighting both in Moroccan territory. Ignores terrain penalties. May only be built by Morocco.'
 WHERE Tag = 'TXT_KEY_UNIT_HELP_BERBER_CAVALRY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 -- Ashurbanipal -- Boost Royal Library
@@ -45,6 +65,13 @@ SET Text = 'When a city is conquered for the first time, gain a free Technology 
 WHERE Tag = 'TXT_KEY_TRAIT_SLAYER_OF_TIAMAT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 -- Ashurbanipal -- Earlier Siege Tower
+UPDATE Unit_Flavors
+SET Flavor = '20'
+WHERE FlavorType = 'FLAVOR_RANGED' AND UnitType = 'UNIT_ASSYRIAN_SIEGE_TOWER';
+
+UPDATE Unit_Flavors
+SET Flavor = '5'
+WHERE FlavorType = 'FLAVOR_OFFENSE' AND UnitType = 'UNIT_ASSYRIAN_SIEGE_TOWER';	
 
 UPDATE Units
 SET PrereqTech = 'TECH_ARCHERY'
@@ -102,12 +129,16 @@ SET Combat = '16'
 WHERE Type = 'UNIT_KRIS_SWORDSMAN' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Unique Indonesian Garden replacement. +2 [ICON_FOOD] Food from [ICON_RES_CITRUS] Citrus and [ICON_RES_WINE] Wine.[NEWLINE][NEWLINE]A [ICON_RES_CLOVES] Clove, [ICON_RES_PEPPER] Pepper, or [ICON_RES_NUTMEG] Nutmeg Resource will appear near or under this City when built.[NEWLINE][NEWLINE]+25% [ICON_GREAT_PEOPLE] Great People generation in this City, and +2 [ICON_PEACE] Faith for each World Religion that has at least 1 follower in the city. [NEWLINE][NEWLINE]Unlike the Garden the Candi does not have to be built next to a River or Lake.'
+SET Text = 'Unique Indonesian Garden replacement. +2 [ICON_GOLD] Gold from [ICON_RES_CITRUS] Citrus and [ICON_RES_COCOA] Cocoa.[NEWLINE][NEWLINE]A [ICON_RES_CLOVES] Clove, [ICON_RES_PEPPER] Pepper, or [ICON_RES_NUTMEG] Nutmeg Resource will appear near or under this City when built.[NEWLINE][NEWLINE]+25% [ICON_GREAT_PEOPLE] Great People generation in this City, and +2 [ICON_PEACE] Faith for each World Religion that has at least 1 follower in the city. [NEWLINE][NEWLINE]Unlike the Garden the Candi does not have to be built next to a River or Lake.'
 WHERE Tag = 'TXT_KEY_BUILDING_CANDI_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Buildings
 SET GrantsRandomResourceTerritory = '1'
 WHERE Type = 'BUILDING_CANDI' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
+UPDATE Buildings
+SET MutuallyExclusiveGroup = '2'
+WHERE Type = 'BUILDING_CANDI' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Traits
 SET UniqueLuxuryRequiresNewArea = '0'

@@ -20,7 +20,7 @@
 			<Help>TXT_KEY_PROMOTION_KILL_HEAL_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<CannotBeChosen>true</CannotBeChosen>
-			<HPHealedIfDestroyEnemy>20</HPHealedIfDestroyEnemy>
+			<HPHealedIfDestroyEnemy>15</HPHealedIfDestroyEnemy>
 			<HealIfDestroyExcludesBarbarians>false</HealIfDestroyExcludesBarbarians>
 			<PortraitIndex>59</PortraitIndex>
 			<IconAtlas>ABILITY_ATLAS</IconAtlas>

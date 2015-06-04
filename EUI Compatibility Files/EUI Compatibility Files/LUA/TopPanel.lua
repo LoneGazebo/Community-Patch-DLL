@@ -26,6 +26,11 @@ local table = EUI.table
 local YieldIcons = EUI.YieldIcons
 local YieldNames = EUI.YieldNames
 
+for i,v in pairs( Modding.GetActivatedMods() ) do
+	print("Active Mod", Modding.GetModProperty(v.ID, v.Version, "Name"), "ID", v.ID, "Version", v.Version )
+	EUI.deluxe_scenario = EUI.deluxe_scenario or v.ID == "34fb6c19-10dd-4b65-b143-fd00b2c0826f"
+end
+
 -------------------------------
 -- minor lua optimizations
 -------------------------------
@@ -712,6 +717,8 @@ local function UpdateTopPanelNow()
 		Controls.CultureString:SetText( S("[COLOR_MAGENTA]+%i[ENDCOLOR][ICON_CULTURE]", culturePerTurn ) )
 	end
 
+	Controls.TopPanelInfoStack:CalculateSize()
+	Controls.TopPanelDiploStack:CalculateSize()
 	Controls.TopPanelInfoStack:ReprocessAnchoring()
 	Controls.TopPanelDiploStack:ReprocessAnchoring()
 	Controls.TopPanelInfoStack:CalculateSize()
@@ -870,8 +877,8 @@ g_toolTipHandler.SciencePerTurn = function( control )
 			tips:insertLocalizedIfNonZero( "TXT_KEY_TP_SCIENCE_FROM_HAPPINESS", g_activePlayer:GetScienceFromHappinessTimes100() / 100 )
 
 			-- Science from Vassals / Compatibility with Putmalk's Civ IV Diplomacy Features Mod
-			if g_activePlayer.GetScienceFromVassalTimes100 then
-				tips:insertLocalizedIfNonZero( "TXT_KEY_TP_SCIENCE_VASSALS", g_activePlayer:GetScienceFromVassalTimes100() / 100 )
+			if g_activePlayer.GetYieldPerTurnFromVassals then
+				tips:insertLocalizedIfNonZero( "TXT_KEY_TP_SCIENCE_VASSALS", g_activePlayer:GetYieldPerTurnFromVassals(YieldTypes.YIELD_SCIENCE) / 100 )
 			end
 
 			-- Compatibility with Gazebo's City-State Diplomacy Mod (CSD) for Brave New World v23
@@ -905,7 +912,7 @@ g_toolTipHandler.SciencePerTurn = function( control )
 				local itemType, duration, finalTurn, data1, data2, data3, flag1, fromPlayerID
 				local gameTurn = Game.GetGameTurn() - 1
 				local researchAgreementCounters = {}
-
+	
 				PushScratchDeal()
 				for i = 0, UI.GetNumCurrentDeals( g_activePlayerID ) - 1 do
 					UI.LoadCurrentDeal( g_activePlayerID, i )
@@ -925,26 +932,31 @@ g_toolTipHandler.SciencePerTurn = function( control )
 					until not itemType
 				end
 				PopScratchDeal()
-
+	
 				local tipIndex = #tips
+	
 				for playerID = 0, GameDefines.MAX_MAJOR_CIVS-1 do
-
+	
 					local player = Players[playerID]
 					local teamID = player:GetTeam()
-
+	
 					if playerID ~= g_activePlayerID and player:IsAlive() and g_activeTeam:IsHasMet(teamID) then
-
+	
 						-- has reseach agreement ?
 						if g_activeTeam:IsHasResearchAgreement(teamID) then
 							tips:insert( "[ICON_BULLET][COLOR_POSITIVE_TEXT]" .. player:GetName() .. "[ENDCOLOR]" )
 							if researchAgreementCounters[playerID] then
 								tips:append( " " .. g_scienceTextColor .. Locale.ToUpper( L( "TXT_KEY_STR_TURNS", researchAgreementCounters[playerID] ) ) .. "[ENDCOLOR]" )
+	
+	
+	
 							end
 						else
 							tips:insert( "[ICON_BULLET][COLOR_WARNING_TEXT]" .. player:GetName() .. "[ENDCOLOR]" )
 						end
 					end
 				end
+	
 				if #tips > tipIndex then
 					tips:insert( tipIndex+1, "" )
 					tips:insert( tipIndex+2, L"TXT_KEY_DO_RESEARCH_AGREEMENT" )
@@ -1070,7 +1082,10 @@ g_toolTipHandler.GoldPerTurn = function( control )
 	else
 		tips:insertLocalizedBulletIfNonZero( S("TXT_KEY_TP_%s_FROM_TR", g_currencyString), cityConnectionGold / 100 )
 	end
-
+-- C4DF
+	-- Gold from Vassals / Compatibility with Putmalk's Civ IV Diplomacy Features Mod
+	tips:insertLocalizedBulletIfNonZero( S("TXT_KEY_TP_GOLD_VASSALS", g_currencyString), g_activePlayer:GetYieldPerTurnFromVassals(YieldTypes.YIELD_GOLD) / 100 )
+-- END
 	tips:insertLocalizedBulletIfNonZero( S("TXT_KEY_TP_%s_FROM_OTHERS", g_currencyString), goldPerTurnFromOtherPlayers / 100 )
 	tips:insertLocalizedBulletIfNonZero( S("TXT_KEY_TP_%s_FROM_RELIGION", g_currencyString), goldPerTurnFromReligion / 100 )
 	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_YIELD_FROM_UNCATEGORIZED", (totalIncome - explicitIncome) / 100 )
@@ -1220,7 +1235,7 @@ if civ5_mode then
 			local extraHappinessPerCity = g_activePlayer:GetExtraHappinessPerCity() * g_activePlayer:GetNumCities()
 			local leagueHappiness = bnw_mode and g_activePlayer:GetHappinessFromLeagues() or 0
 			local totalHappiness = g_activePlayer:GetHappiness()
-			local happinessFromVassals = g_activePlayer.GetHappinessFromVassals and g_activePlayer:GetHappinessFromVassals() or 0	-- Compatibility with Putmalk's Civ IV Diplomacy Features Mod
+			local happinessFromVassals = g_activePlayer:GetHappinessFromVassals();	-- Compatibility with Putmalk's Civ IV Diplomacy Features Mod
 			local handicapHappiness = totalHappiness - policiesHappiness - resourcesHappiness - cityHappiness - buildingHappiness - garrisonedUnitsHappiness - minorCivHappiness - tradeRouteHappiness - religionHappiness - naturalWonderHappiness - extraHappinessPerCity - leagueHappiness - happinessFromVassals - happinessFromMonopoly - happinessfromLuxuryBonus	-- Compatibility with Putmalk's Civ IV Diplomacy Features Mod
 
 			if g_activePlayer:IsEmpireVeryUnhappy() then
@@ -1929,9 +1944,10 @@ g_toolTipHandler.CultureString = function( control )
 			end
 
 			-- Culture from Vassals / Compatibility with Putmalk's Civ IV Diplomacy Features Mod
-			local culturePerTurnFromVassals = g_activePlayer.GetJONSCulturePerTurnFromVassals and g_activePlayer:GetJONSCulturePerTurnFromVassals() or 0
+-- C4DF
+			local culturePerTurnFromVassals = g_activePlayer:GetYieldPerTurnFromVassals(YieldTypes.YIELD_CULTURE)
 			tips:insertLocalizedIfNonZero( "TXT_KEY_TP_CULTURE_VASSALS", culturePerTurnFromVassals )
-
+-- END
 			-- Culture from Golden Age
 -- CBP
 			local communityCulture = g_activePlayer:CalculateUnhappinessTooltip(YieldTypes.YIELD_CULTURE)
@@ -1998,7 +2014,10 @@ if civ5_mode and gk_mode then
 
 			-- Faith from Religion
 			tips:insertLocalizedIfNonZero( "TXT_KEY_TP_FAITH_FROM_RELIGION", g_activePlayer:GetFaithPerTurnFromReligion() )
-			
+
+-- C4DF
+			tips:insertLocalizedIfNonZero( "TXT_KEY_TP_FAITH_VASSALS", g_activePlayer:GetYieldPerTurnFromVassals(YieldTypes.YIELD_FAITH) )
+-- END			
 -- COMMUNITY PATCH CHANGE
 			-- Faith % lost from unhappiness
 			local faithChange = g_activePlayer:CalculateUnhappinessTooltip(YieldTypes.YIELD_FAITH);
@@ -2009,42 +2028,47 @@ if civ5_mode and gk_mode then
 			end
 --END
 
-			if g_activePlayer:HasCreatedPantheon() then
-				if (Game.GetNumReligionsStillToFound() > 0 or g_activePlayer:HasCreatedReligion())
-					and (g_activePlayer:GetCurrentEra() < GameInfoTypes.ERA_INDUSTRIAL)
-				then
-					tips:insertLocalizedIfNonZero( "TXT_KEY_TP_FAITH_NEXT_PROPHET", g_activePlayer:GetMinimumFaithNextGreatProphet() )
-				end
+			-- New World Deluxe Scenario ( you still need to delete TopPanel.lua from ...\Steam\SteamApps\common\sid meier's civilization v\assets\DLC\DLC_07\Scenarios\Conquest of the New World Deluxe\UI )
+			if EUI.deluxe_scenario then
+				tips:insertLocalized( "TXT_KEY_NEWWORLD_SCENARIO_TP_RELIGION_TOOLTIP" )
 			else
-				if g_activePlayer:CanCreatePantheon(false) then
-					tips:insertLocalizedIfNonZero( "TXT_KEY_TP_FAITH_NEXT_PANTHEON", Game.GetMinimumFaithNextPantheon() )
+				if g_activePlayer:HasCreatedPantheon() then
+					if (Game.GetNumReligionsStillToFound() > 0 or g_activePlayer:HasCreatedReligion())
+						and (g_activePlayer:GetCurrentEra() < GameInfoTypes.ERA_INDUSTRIAL)
+					then
+						tips:insertLocalizedIfNonZero( "TXT_KEY_TP_FAITH_NEXT_PROPHET", g_activePlayer:GetMinimumFaithNextGreatProphet() )
+					end
 				else
-					tips:insert( L"TXT_KEY_TP_FAITH_PANTHEONS_LOCKED" )
-				end
-			end
-
-			tips:insert( "" )
-			tips:insert( L( "TXT_KEY_TP_FAITH_RELIGIONS_LEFT", math.max( Game.GetNumReligionsStillToFound(), 0 ) ) )
-
-			local numTips = #tips
-			if g_activePlayer:GetCurrentEra() >= GameInfoTypes.ERA_INDUSTRIAL then
-				tips:insert( "" )
-				tips:insert( L( "TXT_KEY_TP_FAITH_NEXT_GREAT_PERSON", g_activePlayer:GetMinimumFaithNextGreatProphet() ) )
-				local capitalCity = g_activePlayer:GetCapitalCity()
-				if capitalCity then
-					for unit in GameInfo.Units{Special = "SPECIALUNIT_PEOPLE"} do
-						local unitID = unit.ID
-						if capitalCity:GetUnitFaithPurchaseCost(unitID, true) > 0
-							and g_activePlayer:IsCanPurchaseAnyCity(false, true, unitID, -1, YieldTypes.YIELD_FAITH)
-							and g_activePlayer:DoesUnitPassFaithPurchaseCheck(unitID)
-						then
-							tips:insert( "[ICON_BULLET]" .. L(unit.Description) )
-						end
+					if g_activePlayer:CanCreatePantheon(false) then
+						tips:insertLocalizedIfNonZero( "TXT_KEY_TP_FAITH_NEXT_PANTHEON", Game.GetMinimumFaithNextPantheon() )
+					else
+						tips:insert( L"TXT_KEY_TP_FAITH_PANTHEONS_LOCKED" )
 					end
 				end
 
-				if numTips == #tips then
-					tips:insert( "[ICON_BULLET]" .. L("TXT_KEY_RO_YR_NO_GREAT_PEOPLE") )
+				tips:insert( "" )
+				tips:insert( L( "TXT_KEY_TP_FAITH_RELIGIONS_LEFT", math.max( Game.GetNumReligionsStillToFound(), 0 ) ) )
+
+				if g_activePlayer:GetCurrentEra() >= GameInfoTypes.ERA_INDUSTRIAL then
+					tips:insert( "" )
+					tips:insert( L( "TXT_KEY_TP_FAITH_NEXT_GREAT_PERSON", g_activePlayer:GetMinimumFaithNextGreatProphet() ) )
+					local numTips = #tips
+					local capitalCity = g_activePlayer:GetCapitalCity()
+					if capitalCity then
+						for unit in GameInfo.Units{Special = "SPECIALUNIT_PEOPLE"} do
+							local unitID = unit.ID
+							if capitalCity:GetUnitFaithPurchaseCost(unitID, true) > 0
+								and g_activePlayer:IsCanPurchaseAnyCity(false, true, unitID, -1, YieldTypes.YIELD_FAITH)
+								and g_activePlayer:DoesUnitPassFaithPurchaseCheck(unitID)
+							then
+								tips:insert( "[ICON_BULLET]" .. L(unit.Description) )
+							end
+						end
+					end
+
+					if numTips == #tips then
+						tips:insert( "[ICON_BULLET]" .. L("TXT_KEY_RO_YR_NO_GREAT_PEOPLE") )
+					end
 				end
 			end
 			return setTextToolTip( tips:concat( "[NEWLINE]" ) )
@@ -2475,7 +2499,7 @@ for resource in GameInfo.Resources() do
 	local resourceID = resource.ID
 	if Game.GetResourceUsageType( resourceID ) == ResourceUsageTypes.RESOURCEUSAGE_STRATEGIC then
 		local instance = {}
-		ContextPtr:BuildInstanceForControl( "ResourceInstance", instance, Controls.TopPanelDiploStack )
+		ContextPtr:BuildInstanceForControlAtIndex( "ResourceInstance", instance, Controls.TopPanelDiploStack, 8 )
 		instance = instance.ResourceItem
 		g_resourceString[ resourceID ] = instance
 		instance:SetVoid1( resourceID )
@@ -2529,18 +2553,6 @@ ContextPtr:SetUpdate(
 function()
 	if IsGameCoreBusy() then
 		return
-
-	elseif g_isPopupUp ~= UI.IsPopupUp() then
-		Controls.TopPanelMask:SetHide( g_isPopupUp or g_isSmallScreen )
-		g_isPopupUp = not g_isPopupUp
-		UpdateTopPanelNow()
-
-	elseif g_requestTopPanelUpdate then
-		UpdateTopPanelNow()
-	end
-
-	if g_clockFormat then
-		Controls.CurrentTime:SetText( os.date( g_clockFormat ) )
 	end
 
 	if g_alarmTime and os.time() >= g_alarmTime then
@@ -2549,6 +2561,19 @@ function()
 			Data1 = 800,	-- WrapWidth
 			Option1 = true, -- show TopImage
 			Text = os.date( g_clockFormat ) }
+	end
+
+	if g_clockFormat then
+		Controls.CurrentTime:SetText( os.date( g_clockFormat ) )
+	end
+
+	if g_isPopupUp ~= UI.IsPopupUp() then
+		Controls.TopPanelMask:SetHide( g_isPopupUp or g_isSmallScreen )
+		g_isPopupUp = not g_isPopupUp
+		UpdateTopPanelNow()
+
+	elseif g_requestTopPanelUpdate then
+		UpdateTopPanelNow()
 	end
 
 	if g_requestToolTipControl then

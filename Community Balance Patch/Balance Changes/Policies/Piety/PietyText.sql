@@ -5,7 +5,7 @@ WHERE Tag = 'TXT_KEY_POLICY_BRANCH_PIETY_HELP' AND EXISTS (SELECT * FROM COMMUNI
 
 -- Organized Religion
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Organized Religion[ENDCOLOR][NEWLINE] Temples and Shrines grant +2 [ICON_PEACE] Faith and +2 [ICON_CULTURE] Culture to the City where they are built. Temples and Shrines are constructed 50% more quickly.'
+SET Text = '[COLOR_POSITIVE_TEXT]Organized Religion[ENDCOLOR][NEWLINE] Temples and Shrines grant +1 [ICON_PEACE] Faith and +1 [ICON_CULTURE] Culture to the City where they are built. Temples and Shrines are constructed 50% more quickly.'
 WHERE Tag = 'TXT_KEY_POLICY_ORGANIZED_RELIGION_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 -- Mandate of Heaven (Now Trade Fairs)

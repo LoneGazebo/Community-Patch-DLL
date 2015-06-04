@@ -1,5 +1,5 @@
-/*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+ï»¿/*	-------------------------------------------------------------------------------------------------------
+	ï¿½ 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -291,8 +291,12 @@ inline DirectionTypes directionXY(const CvPlot* pFromPlot, const CvPlot* pToPlot
 #if defined(MOD_BALANCE_CORE)
 	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(pFromPlot);
 	for(int iI=0; iI<NUM_DIRECTION_TYPES; iI++)
+	{
 		if (aPlotsToCheck[iI]==pToPlot)
+		{
 			return (DirectionTypes)iI;
+		}
+	}
 	return NO_DIRECTION;
 #else
 	return directionXY(pFromPlot->getX(), pFromPlot->getY(),
