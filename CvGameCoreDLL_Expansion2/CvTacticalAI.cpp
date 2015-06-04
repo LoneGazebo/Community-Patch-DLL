@@ -4468,7 +4468,12 @@ void CvTacticalAI::PlotSingleHexOperationMoves(CvAIEscortedOperation* pOperation
 						// can move that escort can't -- like minor civ territory), then find a new path based on moving the escort
 						if(pCell->IsFriendlyTurnEndTile() || !pBlockingUnit)
 						{
+#if defined(MOD_BALANCE_CORE)
+							//escort targets the civilian's plot, not the civilian's target!
+							if(!pEscort->GeneratePath(pCivilianMove, iFlags, false /*bReuse*/))
+#else
 							if(!pEscort->GeneratePath(pOperation->GetTargetPlot(), 0, false /*bReuse*/))
+#endif
 							{
 								pOperation->RetargetCivilian(pCivilian.pointer(), pThisArmy);
 								pCivilian->finishMoves();
@@ -4482,6 +4487,34 @@ void CvTacticalAI::PlotSingleHexOperationMoves(CvAIEscortedOperation* pOperation
 							}
 							else
 							{
+#if defined(MOD_BALANCE_CORE)
+								//make sure the civilian does not outrun the escort
+								pEscortMove = pEscort->GetPathEndTurnPlot();
+
+								int iEscortToCivilianTurns = TurnsToReachTarget(pEscort, pCivilianMove);
+								int iCivilianToEscortTurns = TurnsToReachTarget(pCivilian, pEscortMove);
+
+								CvPlot* pCommonMove = 0;
+								if (iEscortToCivilianTurns>iCivilianToEscortTurns)
+									//escort is slower
+									pCommonMove = pEscortMove;
+								else
+									//civilian is slower or equal
+									pCommonMove = pCivilianMove;
+
+								//now we know that both units can reach the plot in one turn
+								bSaveMoves = (pCommonMove == pOperation->GetTargetPlot());
+								ExecuteMoveToPlot(pEscort, pCommonMove);
+								ExecuteMoveToPlot(pCivilian, pCommonMove, bSaveMoves);
+								if(GC.getLogging() && GC.getAILogging())
+								{
+									CvString strLogString;
+									strLogString.Format("Moving civilian %s and escort %s to plot X: %d, Y: %d", 
+										pCivilian->getUnitInfo().GetDescription(), pEscort->getUnitInfo().GetDescription(), 
+										pCommonMove->getX(), pCommonMove->getY());
+									LogTacticalMessage(strLogString);
+								}
+#else
 								pEscortMove = pCivilian->GetPathEndTurnPlot();
 								bSaveMoves = (pEscortMove == pOperation->GetTargetPlot());
 
@@ -4515,6 +4548,7 @@ void CvTacticalAI::PlotSingleHexOperationMoves(CvAIEscortedOperation* pOperation
 										LogTacticalMessage(strLogString);
 									}
 								}
+#endif
 							}
 						}
 						// Looks like we should be able to move the blocking unit out of the way

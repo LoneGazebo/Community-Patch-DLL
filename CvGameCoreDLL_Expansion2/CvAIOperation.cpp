@@ -3546,10 +3546,11 @@ bool CvAIEscortedOperation::RetargetCivilian(CvUnit* pCivilian, CvArmyAI* pArmy)
 		m_eAbortReason = AI_ABORT_NO_TARGET;
 		return false;
 	}
-	// If this is a new target, switch to it
-	else if(pBetterTarget != GetTargetPlot())
-	{
 #if defined(AUI_OPERATION_FIX_RETARGET_CIVILIAN_ABORT_IF_UNREACHABLE_ESCORT)
+	// If this is a new target, switch to it
+	else if(pBetterTarget)
+	{
+		//check if all units can reach it and dismiss those who can't
 		std::vector<int> aiUnitsToRemove;
 		for (UnitHandle pUnit = pArmy->GetFirstUnit(); pUnit.pointer(); pUnit = pArmy->GetNextUnit())
 		{
@@ -3564,6 +3565,10 @@ bool CvAIEscortedOperation::RetargetCivilian(CvUnit* pCivilian, CvArmyAI* pArmy)
 		}
 		if ((m_eCurrentState) == AI_OPERATION_STATE_ABORTED)
 			return false;
+#else
+	// If this is a new target, switch to it
+	else if(pBetterTarget != GetTargetPlot())
+	{
 #endif // AUI_OPERATION_FIX_RETARGET_CIVILIAN_ABORT_IF_UNREACHABLE_ESCORT
 		SetTargetPlot(pBetterTarget);
 		pArmy->SetGoalPlot(pBetterTarget);
