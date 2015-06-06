@@ -49,6 +49,24 @@
 
 CvPlayerAI* CvPlayerAI::m_aPlayers = NULL;
 
+// inlined for performance reasons
+CvPlayerAI& CvPlayerAI::getPlayer(PlayerTypes ePlayer)
+{
+	CvAssertMsg(ePlayer != NO_PLAYER, "Player is not assigned a valid value");
+	CvAssertMsg(ePlayer < MAX_PLAYERS, "Player is not assigned a valid value");
+
+#if defined(MOD_BALANCE_CORE)
+	if (ePlayer==NO_PLAYER)
+	{
+		//OutputDebugString("invalid player index!");
+		//ugly hack ...
+		return m_aPlayers[MAX_PLAYERS-1];
+	}
+#endif
+
+	return m_aPlayers[ePlayer];
+}
+
 void CvPlayerAI::initStatics()
 {
 	m_aPlayers = FNEW(CvPlayerAI[MAX_PLAYERS], c_eCiv5GameplayDLL, 0);

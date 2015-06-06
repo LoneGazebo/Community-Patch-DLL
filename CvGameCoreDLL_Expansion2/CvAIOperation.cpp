@@ -1191,6 +1191,7 @@ CvPlot* CvAIOperation::ComputeCenterOfMassForTurn(CvArmyAI* pArmy, CvPlot **ppCl
 				}
 				else
 				{
+					OutputDebugString( CvString::format( "cannot find a step path from %d,%d to %d,%d\n", pCenterOfMass->getX(), pCenterOfMass->getY(), pGoalPlot->getX(), pGoalPlot->getY() ).c_str() );
 					// Can't plot a path, probably due to change of control of hexes.  Will probably abort the operation
 					return NULL;
 				}
@@ -1303,7 +1304,7 @@ void CvAIOperation::Write(FDataStream& kStream) const
 #if defined(MOD_BALANCE_CORE)
 const char* CvAIOperation::GetInfoString()
 {
-	CvString strTemp0, strTemp1, strTemp2;
+	CvString strTemp0, strTemp1, strTemp2, strTemp3;
 	strTemp0 = GetOperationName();
 	strTemp1.Format(" / Target at %d,%d / Muster at %d,%d / ", m_iTargetX, m_iTargetY, m_iMusterX, m_iMusterY );
 
@@ -1329,7 +1330,22 @@ const char* CvAIOperation::GetInfoString()
 		break;
 	};
 
-	m_strInfoString = strTemp0+strTemp1+strTemp2;
+	int iUnitsToBeBuilt = int(m_viListOfUnitsWeStillNeedToBuild.size() + m_viListOfUnitsCitiesHaveCommittedToBuild.size());
+	int iUnitsInOperation = 0;
+	int iUnitsMissing = 0;
+	CvPlayer& thisPlayer = GET_PLAYER(m_eOwner);
+	for(unsigned int uiI = 0; uiI < m_viArmyIDs.size(); uiI++)
+	{
+		CvArmyAI* thisArmy = thisPlayer.getArmyAI(m_viArmyIDs[uiI]);
+		if(thisArmy)
+		{
+			iUnitsMissing += thisArmy->GetNumFormationEntries() - thisArmy->GetNumSlotsFilled();
+			iUnitsInOperation += thisArmy->GetNumSlotsFilled();
+		}
+	}
+	strTemp3.Format(" (c%d-m%d-b%d)", iUnitsInOperation, iUnitsMissing, iUnitsToBeBuilt);
+
+	m_strInfoString = strTemp0+strTemp1+strTemp2+strTemp3;
 	return m_strInfoString.c_str();
 }
 #endif
@@ -3346,19 +3362,21 @@ CvPlot* CvAIOperationPillageEnemy::FindBestTarget()
 #endif
 		}
 	}
-#if defined(MOD_BALANCE_CORE)
-	if(pBestTargetCity == NULL && GET_PLAYER(m_eEnemy).getCapitalCity() != NULL)
-#else
 	if(pBestTargetCity == NULL)
-#endif
 	{
+#if defined(MOD_BALANCE_CORE)
+		if(GET_PLAYER(m_eEnemy).getCapitalCity() != NULL)
+			return GET_PLAYER(m_eEnemy).getCapitalCity()->plot();
+		else
+			return NULL;
+#else
 		return GET_PLAYER(m_eEnemy).getCapitalCity()->plot();
+#endif
 	}
 	else
 	{
 		return pBestTargetCity->plot();
 	}
-	return NULL;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

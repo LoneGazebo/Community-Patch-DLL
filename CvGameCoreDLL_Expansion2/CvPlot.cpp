@@ -9496,6 +9496,13 @@ PlotVisibilityChangeResult CvPlot::changeVisibilityCount(TeamTypes eTeam, int iC
 					}
 
 					GET_TEAM(eTeam).meet(loopUnit->getTeam(), false);
+
+#if defined(MOD_BALANCE_CORE_MILITARY)
+					//if it is an enemy unit, update the danger plots! 
+					const std::vector<PlayerTypes>& aePlayers = GET_TEAM(eTeam).getPlayers();
+					for(size_t iI = 0; iI < aePlayers.size(); iI++)
+						GET_PLAYER(aePlayers[iI]).UpdateDangerSingleUnit(loopUnit);
+#endif
 				}
 
 				// If there's a City here, meet its owner

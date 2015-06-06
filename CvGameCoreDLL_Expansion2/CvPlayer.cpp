@@ -5175,7 +5175,13 @@ int CvPlayer::GetNumUnitsWithUnitCombat(UnitCombatTypes eUnitCombat)
 }
 
 //	-----------------------------------------------------------------------------------------------
-#if !defined(MOD_BALANCE_CORE)
+#if defined(MOD_BALANCE_CORE)
+void CvPlayer::UpdateDangerSingleUnit(CvUnit* pUnit)
+{
+	m_pDangerPlots->UpdateDangerSingleUnit(pUnit,false);
+}
+
+#else
 /// Setting up danger plots
 void CvPlayer::InitDangerPlots()
 {
@@ -33282,58 +33288,25 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, bool bEscorted, int iTa
 
 	int iBestArea, iSecondBestArea;
 	int iNumSettleAreas = GET_PLAYER(GetID()).GetBestSettleAreas(GetEconomicAI()->GetMinimumSettleFertility(), iBestArea, iSecondBestArea);
-
 	if(iNumSettleAreas == 0)
-	{
 		return NULL;
-	}
+
 	//start with a predefined base value
 	int iBestFoundValue = GC.getAI_STRATEGY_MINIMUM_SETTLE_FERTILITY();
 	CvPlot* pBestFoundPlot = NULL;
 
-	int iFlavorExpansion = GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_EXPANSION"));
-	int iFlavorGrowth = GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GROWTH"));
+	//prefer settling close in the beginning
+	int iTimeOffset = (30 * GC.getGame().getGameTurn()) / GC.getGame().getMaxTurns();
 
-	// scale plot values by distance based on world size
-	int iDefaultNumTiles = 80*52;
-	
-	int iTimeOffset = (100 * GC.getGame().getGameTurn()) / GC.getGame().getMaxTurns();
-	int iEvalDistance = (GC.getSETTLER_EVALUATION_DISTANCE() * max(iFlavorExpansion, 1) * GC.getMap().numPlots()) / (max(iFlavorGrowth, 1) * iDefaultNumTiles);
-	iEvalDistance = max( /*8*/ GC.getSETTLER_EVALUATION_DISTANCE(), iEvalDistance );
+	//basic search area around existing cities. value at eval distance is scaled to zero.
+	int iEvalDistance = 10+iTimeOffset;
+	if(IsCramped())
+		iEvalDistance += iTimeOffset;
 
-	
-
+	//if we want to go to other continents, we need a very large search radius
 	EconomicAIStrategyTypes eStrategyExpandToOtherContinents = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_EXPAND_TO_OTHER_CONTINENTS");
 	EconomicAIStrategyTypes eStrategyReallyExpandToOtherContinents = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_REALLY_EXPAND_TO_OTHER_CONTINENTS");
-	
-	//prefer settling close in the beginning
-	if(eStrategyExpandToOtherContinents != NO_ECONOMICAISTRATEGY && eStrategyReallyExpandToOtherContinents != NO_ECONOMICAISTRATEGY)
-	{
-		if(GetEconomicAI()->IsUsingStrategy(eStrategyReallyExpandToOtherContinents))
-		{
-			iEvalDistance += iTimeOffset;
-		}
-		if(GetEconomicAI()->IsUsingStrategy(eStrategyExpandToOtherContinents))
-		{
-			iEvalDistance += iTimeOffset;
-		}
-	}
-
-	if((iFlavorExpansion > 0) && (eStrategyExpandToOtherContinents != NO_ECONOMICAISTRATEGY) && (eStrategyReallyExpandToOtherContinents != NO_ECONOMICAISTRATEGY))
-	{
-		if(GetEconomicAI()->IsUsingStrategy(eStrategyReallyExpandToOtherContinents))
-		{
-			iEvalDistance *= (iFlavorExpansion * 20);
-		}
-		else if(GetEconomicAI()->IsUsingStrategy(eStrategyExpandToOtherContinents))
-		{
-			iEvalDistance *= (iFlavorExpansion * 10);
-		}
-	}
-	if(IsCramped())
-	{
-		iEvalDistance += iTimeOffset;
-	}
+	bool bWantOffshore = GetEconomicAI()->IsUsingStrategy(eStrategyReallyExpandToOtherContinents) && GetEconomicAI()->IsUsingStrategy(eStrategyExpandToOtherContinents);
 
 	CvMap& kMap = GC.getMap();
 	int iNumPlots = kMap.numPlots();
@@ -33352,19 +33325,6 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, bool bEscorted, int iTa
 			iFertility = GC.getGame().GetSettlerSiteEvaluator()->PlotFertilityValue(pPlot,true);
 		}
 
-		//take distance from existing cities into account
-		int iDistance = GetCityDistance(pPlot);
-		int iScale = iEvalDistance - iDistance;
-
-		if (iScale <= 0)
-		{
-			//--------------
-			if (bLogging) 
-			dump << pPlot << ",1," << iDanger << "," << iFertility << ",0" << ",-5" << std::endl;
-			//--------------
-			continue;
-		}
-
 		if(!pPlot->isRevealed(getTeam()))
 		{
 			//--------------
@@ -33374,31 +33334,13 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, bool bEscorted, int iTa
 			continue;
 		}
 
-		if(GetEconomicAI()->IsUsingStrategy(eStrategyExpandToOtherContinents))
+		if(iTargetArea != -1 && pPlot->getArea() != iTargetArea)
 		{
-			CvArea* pArea = GC.getMap().getArea(pPlot->getArea());
-			if((pArea != NULL) && (getCapitalCity() != NULL))
-			{
-				if((pArea->GetID() == getCapitalCity()->area()->GetID()))
-				{
-					//--------------
-					if (bLogging) 
-					dump << pPlot << ",1," << iDanger << "," << iFertility << ",-1" << ",-6" << std::endl;
-					//--------------
-					 continue;
-				}
-			}
-			if(pArea != NULL)
-			{
-				if(!pPlot->isCoastalLand() && pArea->getCitiesPerPlayer(GetID()) <= 0)
-				{
-					//--------------
-					if (bLogging) 
-					dump << pPlot << ",1," << iDanger << "," << iFertility << ",-1" << ",-6" << std::endl;
-					//--------------
-					 continue;
-				}
-			}
+			//--------------
+			if (bLogging) 
+			dump << pPlot << ",1," << iDanger << "," << iFertility << ",-1" << ",-6" << std::endl;
+			//--------------
+			continue;
 		}
 
 		if(pPlot->getOwner() != NO_PLAYER && pPlot->getOwner() != eOwner)
@@ -33446,137 +33388,50 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, bool bEscorted, int iTa
 			continue;
 		}
 
-		if(!bEscorted)
+		//check for new continent
+		const CvArea* pArea = GC.getMap().getArea(pPlot->getArea());
+		const CvCity* pCapital = getCapitalCity();
+		bool bNewContinent = (pArea && pArea->getCitiesPerPlayer(GetID()) == 0);
+		bool bOffshore = (pArea && pCapital && pArea->GetID() != pCapital->plot()->getArea());
+
+		//take into account distance from existing cities
+		int iScale = MapToPercent( GetCityDistance(pPlot), iEvalDistance, GC.getSETTLER_DISTANCE_DROPOFF_MODIFIER() );
+
+		//on a new continent we want to settle along the coast
+		if (bNewContinent && !pPlot->isCoastalLand())
+			iScale = 1;
+
+		//if we want offshore expansion, distance doesn't matter, use a flat scale
+		if (bWantOffshore)
+			iScale = bOffshore ? 100 : 1;
+
+		if (iScale==0)
 		{
-			int iDX, iDY;
-			int iRange = 2;
-			CvPlot* pLoopPlot = NULL;
-			bool bBad = false;
-			for(iDX = -(iRange); iDX <= iRange; iDX++)
-			{
-				for(iDY = -(iRange); iDY <= iRange; iDY++)
-				{
-					pLoopPlot = plotXY(pPlot->getX(), pPlot->getY(), iDX, iDY);
-					if(pLoopPlot != NULL)
-					{
-						if(pLoopPlot->HasBarbarianCamp())
-						{
-							//--------------
-							if (bLogging) 
-							dump << pPlot << ",1," << iDanger << "," << iFertility << ",-1" << ",-4" << std::endl;
-							//--------------
-							bBad = true;
-							break;
-						}
-					}
-				}
-			}
-			if(bBad)
-			{
-				continue;
-			}
+			//--------------
+			if (bLogging) 
+			dump << pPlot << ",1," << iDanger << "," << iFertility << ",0" << ",-5" << std::endl;
+			//--------------
+			continue;
 		}
+
 		//finally no more obstacles
 		int iValue = 0;
 		if (bLogging) 
 		{
 			CvString strDebug;
-			CvArea* pArea = GC.getMap().getArea(pPlot->getArea());
-			if(pArea != NULL && pArea->getCitiesPerPlayer(GetID()) <= 0)
-			{
-				iValue = GC.getGame().GetSettlerSiteEvaluator()->PlotFoundValue(pPlot, this, NO_YIELD, true, &strDebug);
-			}
-			else
-			{
-				iValue = GC.getGame().GetSettlerSiteEvaluator()->PlotFoundValue(pPlot, this, NO_YIELD, false, &strDebug);
-			}
-			if(pArea->GetID() == iBestArea)
-			{
-				if(getCapitalCity() != NULL && getCapitalCity()->getArea() == iBestArea)
-				{
-					iValue *= 3;
-					iValue /= 2;
-				}
-				//Offshore settling is generally a good thing.
-				else
-				{
-					iValue *= pArea->getNumTiles();
-				}
-			}
-			else if(pArea->GetID() == iSecondBestArea)
-			{
-				if(getCapitalCity() != NULL && getCapitalCity()->getArea() == iSecondBestArea)
-				{
-					iValue *= 3;
-					iValue /= 2;
-				}
-				//Offshore settling is generally a good thing.
-				else
-				{
-					iValue *= (pArea->getNumTiles() / 2);
-				}
-			}
+			iValue = GC.getGame().GetSettlerSiteEvaluator()->PlotFoundValue(pPlot, this, NO_YIELD, bNewContinent, &strDebug);
 			//--------------
 			dump << pPlot << ",1," << iDanger << "," << iFertility << "," << iScale << "," << iValue << "," << strDebug.c_str() << std::endl;
 			//--------------
 		}
 		else
 		{
-			CvString strDebug;
 			//with caching
-			CvArea* pArea = GC.getMap().getArea(pPlot->getArea());
-			if(pArea != NULL && pArea->getCitiesPerPlayer(GetID()) <= 0)
-			{
-				iValue = GC.getGame().GetSettlerSiteEvaluator()->PlotFoundValue(pPlot, this, NO_YIELD, true, &strDebug);
-			}
-			else
-			{
-				iValue = GC.getGame().GetSettlerSiteEvaluator()->PlotFoundValue(pPlot, this, NO_YIELD, false, &strDebug);
-			}
-			if(pArea->GetID() == iBestArea)
-			{
-				iValue *= max(pArea->getNumTiles(), 1);
-			}
-			else if(pArea->GetID() == iSecondBestArea)
-			{
-				iValue *= (max(pArea->getNumTiles(), 1) / 2);
-			}
+			iValue = pPlot->getFoundValue(eOwner);
 		}
-		if(iScale <= GC.getSETTLER_DISTANCE_DROPOFF_MODIFIER() && !GetEconomicAI()->IsUsingStrategy(eStrategyExpandToOtherContinents))
-		{ 
-			iValue /=2;
-		}
-		if(GetEconomicAI()->IsUsingStrategy(eStrategyExpandToOtherContinents))
-		{
-			CvArea* pArea = GC.getMap().getArea(pPlot->getArea());
-			if(pArea != NULL)
-			{
-				if(pArea->getNumCities() <= 0)
-				{
-					iValue *= max(pArea->getNumTiles(), 1);
-				}
-				else
-				{
-					for(int iPlayer = 0; iPlayer < MAX_PLAYERS; ++iPlayer)
-					{
-						CvPlayer& kLoopPlayer = GET_PLAYER((PlayerTypes)iPlayer);
-						if((kLoopPlayer.GetID() != -1) && kLoopPlayer.GetID() != GetID() && !kLoopPlayer.isMinorCiv())
-						{
-							if(pArea->getCitiesPerPlayer(kLoopPlayer.GetID()) <= 0)
-							{
-								iValue *= 2;
-							}
-						}
-					}
-				}
-			}
-		}
-		if(iTargetArea != -1  && pPlot->getArea() != iTargetArea)
-		{
-			iValue /= 2;
-		}
+
 		//factor in the distance
-		iValue = ((iValue * iScale) / max(iScale, 1));
+		iValue = (iValue*iScale)/100;
 		if(iValue > iBestFoundValue)
 		{
 			iBestFoundValue = iValue;
@@ -33590,12 +33445,9 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, bool bEscorted, int iTa
 		std::stringstream ss;
 		ss << "CitySites_" << getCivilizationAdjective() << "_" << std::setfill('0') << std::setw(3) << GC.getGame().getGameTurn() << ".txt";
 		FILogFile* pLog=LOGFILEMGR.GetLog( ss.str().c_str(), FILogFile::kDontTimeStamp );
-		if (pLog)
-		{
-			pLog->Msg( "#x,y,terrain,plotype,feature,owner,area,revealed,danger,fertility,distancescale,value,comments\n" );
-			pLog->Msg( dump.str().c_str() );
-			pLog->Close();
-		}
+		pLog->Msg( "#x,y,terrain,plotype,feature,owner,area,revealed,danger,fertility,distancescale,value,comments\n" );
+		pLog->Msg( dump.str().c_str() );
+		pLog->Close();
 	}
 #endif
 	return pBestFoundPlot;

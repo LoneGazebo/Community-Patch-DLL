@@ -640,10 +640,7 @@ void CvHomelandAI::EstablishHomelandPriorities()
 /// Make lists of everything we might want to target with the homeland AI this turn
 void CvHomelandAI::FindHomelandTargets()
 {
-#if defined(MOD_BALANCE_CORE)
-#else
 	int iI;
-#endif
 	CvPlot* pLoopPlot;
 	CvHomelandTarget newTarget;
 
@@ -659,16 +656,6 @@ void CvHomelandAI::FindHomelandTargets()
 	TeamTypes eTeam = m_pPlayer->getTeam();
 
 	// Look at every tile on map
-	
-#if defined(MOD_BALANCE_CORE)
-	const CvPlotsVector& aiPlots = m_pPlayer->GetPlots();
-	for (uint uiPlotIndex = 0; uiPlotIndex < aiPlots.size(); uiPlotIndex++)
-	{
-		if(aiPlots[uiPlotIndex] == -1)
-			continue;
-
-		pLoopPlot = GC.getMap().plotByIndex(aiPlots[uiPlotIndex]);
-#else
 	CvMap& theMap = GC.getMap();
 	int iNumPlots = theMap.numPlots();
 
@@ -676,19 +663,19 @@ void CvHomelandAI::FindHomelandTargets()
 	{
 		pLoopPlot = theMap.plotByIndexUnchecked(iI);
 
+#if defined(MOD_BALANCE_CORE)
+		if(pLoopPlot->isVisible(m_pPlayer->getTeam()) && m_pPlayer->GetCityDistance(pLoopPlot)<10 )
+#else
 		if(pLoopPlot->isVisible(m_pPlayer->getTeam()))
-		{
 #endif
+		{
 			// Have a ...
 			// ... friendly city?
 			CvCity* pCity = pLoopPlot->getPlotCity();
 			if(pCity != NULL)
 			{
-#if defined(MOD_BALANCE_CORE)
-#else
 				if(m_pPlayer->GetID() == pCity->getOwner())
 				{
-#endif
 					// Don't send another unit if the tactical AI already sent a garrison here
 					UnitHandle pUnit = pLoopPlot->getBestDefender(m_pPlayer->GetID());
 					if(!pUnit || !pUnit->isUnderTacticalControl())
@@ -700,12 +687,8 @@ void CvHomelandAI::FindHomelandTargets()
 						newTarget.SetAuxIntData(pCity->getThreatValue());
 						m_TargetedCities.push_back(newTarget);
 					}
-#if defined(MOD_BALANCE_CORE)
-#else
 				}
-#endif
 			}
-
 			// ... naval resource?
 			else if(pLoopPlot->isWater() &&
 			        pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
@@ -739,21 +722,6 @@ void CvHomelandAI::FindHomelandTargets()
 					}
 				}
 			}
-			// ... enemy civilian (or embarked) unit?
-			else if(pLoopPlot->isVisibleOtherUnit(m_pPlayer->GetID()))
-			{
-				CvUnit* pTargetUnit = pLoopPlot->getUnitByIndex(0);
-				if(!pTargetUnit->isDelayedDeath() && atWar(eTeam, pTargetUnit->getTeam()) && !pTargetUnit->IsCanDefend())
-				{
-					newTarget.SetTargetType(AI_HOMELAND_TARGET_ANCIENT_RUIN);
-					newTarget.SetTargetX(pLoopPlot->getX());
-					newTarget.SetTargetY(pLoopPlot->getY());
-					newTarget.SetAuxData(pLoopPlot);
-					m_TargetedAncientRuins.push_back(newTarget);
-				}
-			}
-#if defined(MOD_BALANCE_CORE)
-#else
 			// ... unpopped goody hut?
 			else if(!m_pPlayer->isMinorCiv() && pLoopPlot->isGoody())
 			{
@@ -773,20 +741,6 @@ void CvHomelandAI::FindHomelandTargets()
 				newTarget.SetAuxData(pLoopPlot);
 				m_TargetedAntiquitySites.push_back(newTarget);
 			}
-			// ... enemy civilian (or embarked) unit?
-			else if(pLoopPlot->isVisibleOtherUnit(m_pPlayer->GetID()))
-			{
-				CvUnit* pTargetUnit = pLoopPlot->getUnitByIndex(0);
-				if(!pTargetUnit->isDelayedDeath() && atWar(eTeam, pTargetUnit->getTeam()) && !pTargetUnit->IsCanDefend())
-				{
-					newTarget.SetTargetType(AI_HOMELAND_TARGET_ANCIENT_RUIN);
-					newTarget.SetTargetX(pLoopPlot->getX());
-					newTarget.SetTargetY(pLoopPlot->getY());
-					newTarget.SetAuxData(pLoopPlot);
-					m_TargetedAncientRuins.push_back(newTarget);
-				}
-			}
-#endif
 #if defined(MOD_BALANCE_CORE)
 			// ... possible sentry point?
 			else if(!pLoopPlot->isWater() && !pLoopPlot->isImpassable() && !pLoopPlot->isCity())
@@ -841,6 +795,19 @@ void CvHomelandAI::FindHomelandTargets()
 				}
 			}
 #else
+			// ... enemy civilian (or embarked) unit?
+			else if(pLoopPlot->isVisibleOtherUnit(m_pPlayer->GetID()))
+			{
+				CvUnit* pTargetUnit = pLoopPlot->getUnitByIndex(0);
+				if(!pTargetUnit->isDelayedDeath() && atWar(eTeam, pTargetUnit->getTeam()) && !pTargetUnit->IsCanDefend())
+				{
+					newTarget.SetTargetType(AI_HOMELAND_TARGET_ANCIENT_RUIN);
+					newTarget.SetTargetX(pLoopPlot->getX());
+					newTarget.SetTargetY(pLoopPlot->getY());
+					newTarget.SetAuxData(pLoopPlot);
+					m_TargetedAncientRuins.push_back(newTarget);
+				}
+			}
 			// ... possible sentry point? (must be empty or only have friendly units)
 			else if(!pLoopPlot->isWater() && (!pLoopPlot->isUnit() || pLoopPlot->getNumDefenders(m_pPlayer->GetID()) > 0))
 			{
@@ -891,81 +858,32 @@ void CvHomelandAI::FindHomelandTargets()
 			// ... road segment in friendly territory?
 #if defined(MOD_BALANCE_CORE)
 			else if(pLoopPlot->isRoute())
-#else
-			else if(pLoopPlot->getTeam() == eTeam && pLoopPlot->isRoute())
-#endif
 			{
-#if defined(MOD_BALANCE_CORE)
 				//Let's weight them based on defense and danger - this should make us muster in more tactically - responsible places
 				int iWeight = pLoopPlot->defenseModifier(eTeam, true);
 				iWeight += m_pPlayer->GetPlotDanger(*pLoopPlot);
 				if(iWeight > 0)
 				{
-					
-#endif
+					newTarget.SetTargetType(AI_HOMELAND_TARGET_HOME_ROAD);
+					newTarget.SetTargetX(pLoopPlot->getX());
+					newTarget.SetTargetY(pLoopPlot->getY());
+					newTarget.SetAuxData(pLoopPlot);
+					newTarget.SetAuxIntData(iWeight);
+					m_TargetedHomelandRoads.push_back(newTarget);
+				}
+			}
+#else
+			else if(pLoopPlot->getTeam() == eTeam && pLoopPlot->isRoute())
+			{
 				newTarget.SetTargetType(AI_HOMELAND_TARGET_HOME_ROAD);
 				newTarget.SetTargetX(pLoopPlot->getX());
 				newTarget.SetTargetY(pLoopPlot->getY());
 				newTarget.SetAuxData(pLoopPlot);
-#if defined(MOD_BALANCE_CORE)
-				newTarget.SetAuxIntData(iWeight);
-#endif
-
 				m_TargetedHomelandRoads.push_back(newTarget);
-#if defined(MOD_BALANCE_CORE)
-				}
+			}
 #endif
-			}
-#if defined(MOD_BALANCE_CORE)
-#else
-		}
-#endif
-	}
-#if defined(MOD_BALANCE_CORE)
-	CvMap& theMap = GC.getMap();
-	int iNumPlots = theMap.numPlots();
-
-	for(int iI = 0; iI < iNumPlots; iI++)
-	{
-		CvPlot* pLoopOutsidePlot = theMap.plotByIndexUnchecked(iI);
-
-		if(pLoopOutsidePlot->isVisible(m_pPlayer->getTeam()) && pLoopOutsidePlot->getOwner() != m_pPlayer->GetID())
-		{
-			// ... antiquity site?
-			if((pLoopOutsidePlot->getResourceType(eTeam) == GC.getARTIFACT_RESOURCE() || pLoopOutsidePlot->getResourceType(eTeam) == GC.getHIDDEN_ARTIFACT_RESOURCE()) && 
-				!(pLoopOutsidePlot->getOwner() != NO_PLAYER && m_pPlayer->GetDiplomacyAI()->IsPlayerMadeNoDiggingPromise(pLoopOutsidePlot->getOwner())))
-			{
-				newTarget.SetTargetType(AI_HOMELAND_TARGET_ANTIQUITY_SITE);
-				newTarget.SetTargetX(pLoopOutsidePlot->getX());
-				newTarget.SetTargetY(pLoopOutsidePlot->getY());
-				newTarget.SetAuxData(pLoopOutsidePlot);
-				m_TargetedAntiquitySites.push_back(newTarget);
-			}
-			// ... unpopped goody hut?
-			else if(!m_pPlayer->isMinorCiv() && pLoopOutsidePlot->isGoody())
-			{
-				newTarget.SetTargetType(AI_HOMELAND_TARGET_ANCIENT_RUIN);
-				newTarget.SetTargetX(pLoopOutsidePlot->getX());
-				newTarget.SetTargetY(pLoopOutsidePlot->getY());
-				newTarget.SetAuxData(pLoopOutsidePlot);
-				m_TargetedAncientRuins.push_back(newTarget);
-			}
-			// ... enemy civilian (or embarked) unit?
-			else if(pLoopOutsidePlot->isVisibleOtherUnit(m_pPlayer->GetID()))
-			{
-				CvUnit* pTargetUnit = pLoopOutsidePlot->getUnitByIndex(0);
-				if(!pTargetUnit->isDelayedDeath() && atWar(eTeam, pTargetUnit->getTeam()) && !pTargetUnit->IsCanDefend())
-				{
-					newTarget.SetTargetType(AI_HOMELAND_TARGET_ANCIENT_RUIN);
-					newTarget.SetTargetX(pLoopOutsidePlot->getX());
-					newTarget.SetTargetY(pLoopOutsidePlot->getY());
-					newTarget.SetAuxData(pLoopOutsidePlot);
-					m_TargetedAncientRuins.push_back(newTarget);
-				}
-			}
 		}
 	}
-#endif
 
 	// Post-processing on targets
 	EliminateAdjacentSentryPoints();
@@ -977,6 +895,20 @@ void CvHomelandAI::FindHomelandTargets()
 void CvHomelandAI::AssignHomelandMoves()
 {
 	FStaticVector< CvHomelandMove, 64, true, c_eCiv5GameplayDLL >::iterator it;
+
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	// debugging
+	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
+	{
+		UnitHandle pUnit = m_pPlayer->getUnit(*it);
+		if(pUnit && pUnit->IsCombatUnit())
+		{
+			CvString missionInfo = (pUnit->getTacticalMove()==NO_TACTICAL_MOVE) ? "no tactical move" : GC.getTacticalMoveInfo(pUnit->getTacticalMove())->GetType();
+			//OutputDebugString( CvString::format( "%s combat unit %s used for homeland ai (last move %s)\n", m_pPlayer->getCivilizationAdjective(), pUnit->getName().c_str(), missionInfo.c_str() ).c_str() ); 
+		}
+	}
+
+#endif
 
 	// Proceed in priority order
 	for(it = m_MovePriorityList.begin(); it != m_MovePriorityList.end() && !m_CurrentTurnUnits.empty(); ++it)
@@ -2754,6 +2686,8 @@ void CvHomelandAI::ReviewUnassignedUnits()
 		if(pUnit)
 		{
 #if defined(MOD_BALANCE_CORE)
+			//OutputDebugString( CvString::format( "unassigned %s homeland unit %s at %d,%d\n", m_pPlayer->getCivilizationAdjective(), pUnit->getName().c_str(), pUnit->getX(), pUnit->getY() ).c_str() ); 
+
 			if(pUnit->getDomainType() == DOMAIN_LAND && !pUnit->IsCivilianUnit() && !pUnit->IsGreatPerson() && pUnit->canRecruitFromTacticalAI() && pUnit->getArmyID() == FFreeList::INVALID_INDEX)
 			{
 				if(pUnit->plot()->getOwner() == pUnit->getOwner())

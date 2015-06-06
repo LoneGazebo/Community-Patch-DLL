@@ -24,23 +24,7 @@ public:
 	~CvTeam();
 
 	// inlined for performance reasons, only in the dll
-	static CvTeam& getTeam(TeamTypes eTeam)
-	{
-		CvAssertMsg(eTeam != NO_TEAM, "eTeam is not assigned a valid value");
-		CvAssertMsg(eTeam < MAX_TEAMS, "eTeam is not assigned a valid value");
-
-#if defined(MOD_BALANCE_CORE)
-		if (eTeam==NO_TEAM)
-		{
-			OutputDebugString("invalid team index!");
-			//ugly hack ...
-			return m_aTeams[MAX_TEAMS-1];
-		}
-#endif
-
-		return m_aTeams[eTeam];
-	}
-
+	static CvTeam& getTeam(TeamTypes eTeam);
 	static void initStatics();
 	static void freeStatics();
 
@@ -144,6 +128,7 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	void addPlayer(PlayerTypes eID);
 	void removePlayer(PlayerTypes eID);
+	const std::vector<PlayerTypes>& getPlayers();
 	void updateMinorCiv();
 	void ClearWarDeclarationCache();
 #endif
