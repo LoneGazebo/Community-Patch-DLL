@@ -121,6 +121,43 @@ int SimulateDamageFromAttackOnCity(CvCity* pCity, const CvUnit* pUnit)
 	return iDamage;
 }
 
+#if defined(AUI_DANGER_PLOTS_REMADE)
+bool CvDangerPlots::UpdateDangerSingleUnit(CvUnit* pLoopUnit, bool bIgnoreVisibility)
+{
+	if(ShouldIgnoreUnit(pLoopUnit, bIgnoreVisibility))
+		return false;
+
+	int iRange = pLoopUnit->baseMoves();
+#ifdef AUI_ASTAR_ROAD_RANGE
+	IncreaseMoveRangeForRoads(pLoopUnit, iRange);
+#endif
+
+	if(pLoopUnit->canRangeStrike())
+	{
+		iRange += pLoopUnit->GetRange() - 1;
+	}
+
+	CvPlot* pUnitPlot = pLoopUnit->plot();
+	//store the units which are being aggregated
+	m_knownUnits.insert( std::make_pair(pLoopUnit->getOwner(),pLoopUnit->GetID()) );
+
+	CvPlot* pLoopPlot = NULL;
+	for(int iDX = -(iRange); iDX <= iRange; iDX++)
+	{
+		for(int iDY = -(iRange); iDY <= iRange; iDY++)
+		{
+			pLoopPlot = plotXYWithRangeCheck(pUnitPlot->getX(), pUnitPlot->getY(), iDX, iDY, iRange);
+			if(!pLoopPlot || pLoopPlot == pUnitPlot)
+				continue;
+
+			AssignUnitDangerValue(pLoopUnit, pLoopPlot);
+		}
+	}
+
+	return true;
+}
+#endif
+
 /// Updates the danger plots values to reflect threats across the map
 void CvDangerPlots::UpdateDanger(bool bPretendWarWithAllCivs, bool bIgnoreVisibility)
 {
@@ -177,28 +214,22 @@ void CvDangerPlots::UpdateDanger(bool bPretendWarWithAllCivs, bool bIgnoreVisibi
 		CvUnit* pLoopUnit = NULL;
 		for(pLoopUnit = loopPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = loopPlayer.nextUnit(&iLoop))
 		{
+#ifdef AUI_DANGER_PLOTS_REMADE
+			UpdateDangerSingleUnit(pLoopUnit, bIgnoreVisibility);
+#else
 			if(ShouldIgnoreUnit(pLoopUnit, bIgnoreVisibility))
 			{
 				continue;
 			}
 
 			int iRange = pLoopUnit->baseMoves();
-#ifdef AUI_ASTAR_ROAD_RANGE
-			IncreaseMoveRangeForRoads(pLoopUnit, iRange);
-#endif
-
 			if(pLoopUnit->canRangeStrike())
 			{
 				iRange += pLoopUnit->GetRange() - 1;
 			}
 
 			CvPlot* pUnitPlot = pLoopUnit->plot();
-#ifndef AUI_DANGER_PLOTS_REMADE
 			AssignUnitDangerValue(pLoopUnit, pUnitPlot);
-#else
-			//store the units which are being aggregated
-			m_knownUnits.insert( std::make_pair(ePlayer,pLoopUnit->GetID()) );
-#endif
 			CvPlot* pLoopPlot = NULL;
 
 			for(int iDX = -(iRange); iDX <= iRange; iDX++)
@@ -211,16 +242,15 @@ void CvDangerPlots::UpdateDanger(bool bPretendWarWithAllCivs, bool bIgnoreVisibi
 						continue;
 					}
 
-#ifndef  AUI_DANGER_PLOTS_REMADE
 					if(!pLoopUnit->canMoveOrAttackInto(*pLoopPlot) && !pLoopUnit->canRangeStrikeAt(pLoopPlot->getX(),pLoopPlot->getY()))
 					{
 						continue;
 					}
-#endif //  AUI_DANGER_PLOTS_REMADE
 
 					AssignUnitDangerValue(pLoopUnit, pLoopPlot);
 				}
 			}
+#endif
 		}
 
 		// for each city

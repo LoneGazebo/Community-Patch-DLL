@@ -772,9 +772,11 @@ public:
 	void push_back(const CvTacticalUnit& unit);
 	void clear() { m_vec.clear(); }
 	void setPlayer(CvPlayer* pOwner) { m_owner=pOwner; }
+	void setCurrentTacticalMove(CvTacticalMove move) { m_currentTacticalMove=move; }
 private:
 	std::vector<CvTacticalUnit> m_vec;
 	CvPlayer* m_owner;
+	CvTacticalMove m_currentTacticalMove;
 };
 
 #endif

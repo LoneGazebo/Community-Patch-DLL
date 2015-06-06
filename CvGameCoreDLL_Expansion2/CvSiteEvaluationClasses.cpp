@@ -158,7 +158,9 @@ bool CvCitySiteEvaluator::CanFound(CvPlot* pPlot, const CvPlayer* pPlayer, bool 
 	{
 		return false;
 	}
+
 #if defined(MOD_BALANCE_CORE)
+
 	if(!bTestVisible)
 	{
 		// look at same land mass

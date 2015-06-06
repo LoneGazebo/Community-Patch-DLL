@@ -37,6 +37,23 @@
 // statics
 CvTeam* CvTeam::m_aTeams = NULL;
 
+CvTeam& CvTeam::getTeam(TeamTypes eTeam)
+{
+	CvAssertMsg(eTeam != NO_TEAM, "eTeam is not assigned a valid value");
+	CvAssertMsg(eTeam < MAX_TEAMS, "eTeam is not assigned a valid value");
+
+#if defined(MOD_BALANCE_CORE)
+	if (eTeam==NO_TEAM)
+	{
+		//OutputDebugString("invalid team index!");
+		//ugly hack ...
+		return m_aTeams[MAX_TEAMS-1];
+	}
+#endif
+
+	return m_aTeams[eTeam];
+}
+
 //	--------------------------------------------------------------------------------
 void CvTeam::initStatics()
 {
@@ -2992,6 +3009,12 @@ void CvTeam::removePlayer(PlayerTypes eID)
 
 	updateMinorCiv();
 }
+
+const std::vector<PlayerTypes>& CvTeam::getPlayers()
+{
+	return m_members;
+}
+
 #endif
 
 //	--------------------------------------------------------------------------------
