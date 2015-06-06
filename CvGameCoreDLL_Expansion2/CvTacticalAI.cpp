@@ -13666,6 +13666,11 @@ void CvTacticalAI::UnitProcessed(int iID, bool bMarkTacticalMap)
 	m_CurrentTurnUnits.remove(iID);
 	pUnit = m_pPlayer->getUnit(iID);
 
+#if defined(MOD_BALANCE_CORE)
+	if (!pUnit)
+		return;
+#endif
+
 	CvAssert(pUnit);
 	pUnit->SetTurnProcessed(true);
 
