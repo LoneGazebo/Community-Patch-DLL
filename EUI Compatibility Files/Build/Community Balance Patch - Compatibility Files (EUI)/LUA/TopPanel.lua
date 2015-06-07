@@ -878,7 +878,7 @@ g_toolTipHandler.SciencePerTurn = function( control )
 
 			-- Science from Vassals / Compatibility with Putmalk's Civ IV Diplomacy Features Mod
 			if g_activePlayer.GetYieldPerTurnFromVassals then
-				tips:insertLocalizedIfNonZero( "TXT_KEY_TP_SCIENCE_VASSALS", g_activePlayer:GetYieldPerTurnFromVassals(YieldTypes.YIELD_SCIENCE) / 100 )
+				tips:insertLocalizedIfNonZero( "TXT_KEY_TP_SCIENCE_VASSALS", g_activePlayer:GetYieldPerTurnFromVassals(YieldTypes.YIELD_SCIENCE) )
 			end
 
 			-- Compatibility with Gazebo's City-State Diplomacy Mod (CSD) for Brave New World v23
@@ -1353,13 +1353,7 @@ if civ5_mode then
 			-- Happiness from Monopolies
 			tips:insertLocalizedBulletIfNonZero("TXT_KEY_TP_HAPPINESS_RESOURCE_MONOPOLY", happinessFromMonopoly )
 			tips:insertLocalizedBulletIfNonZero("TXT_KEY_TP_HAPPINESS_RESOURCE_POP_BONUS", happinessfromLuxuryBonus )
-			-- COMMUNITY PATCH CHANGE
-			-- Happiness/Population calculation.
-			local iPopulation = g_activePlayer:GetCurrentTotalPop()
-			local iPopNeeded = g_activePlayer:GetPopNeededForLux()
-			local iThreshold = g_activePlayer:GetBaseLuxuryHappiness();
-			tips:insert( "[ENDCOLOR]" .. "          " .. L("TXT_KEY_TP_HAPPINESS_THRESHOLD_VALUE", iPopNeeded, iPopulation, iThreshold, (iThreshold + 1)))
--- END
+	
 			-- Happiness from Luxury Variety
 			tips:insertLocalizedBulletIfNonZero( "          ", "TXT_KEY_TP_HAPPINESS_RESOURCE_VARIETY", happinessFromExtraResources )
 
@@ -1377,7 +1371,13 @@ if civ5_mode then
 
 			tips:insert( "[ENDCOLOR]" )
 
-
+-- COMMUNITY PATCH CHANGE
+			-- Happiness/Population calculation.
+			local iPopulation = g_activePlayer:GetCurrentTotalPop()
+			local iPopNeeded = g_activePlayer:GetPopNeededForLux()
+			local iThreshold = g_activePlayer:GetBaseLuxuryHappiness();
+			tips:insert( "          " .. L("TXT_KEY_TP_HAPPINESS_THRESHOLD_VALUE", iPopNeeded, iPopulation, iThreshold, (iThreshold + 1)))
+-- END
 			----------------------------
 			-- Local Resources in Cities
 			----------------------------

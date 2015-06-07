@@ -7,7 +7,7 @@
 !*.rc
 !*.vcxproj
 !*.dds
-!*.ftsxml
+!*.fxsxml
 !*.gr2
 !*.filters
 !*.gitattributes

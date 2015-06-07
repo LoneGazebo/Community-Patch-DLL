@@ -1364,6 +1364,7 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirectives(CvUnit* pUnit, CvPlot* pPlo
 			}
 		}
 		int iDefense = 0;
+		bool bBad = false;
 		//Fort test.
 		ImprovementTypes eFort = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_FORT");
 		if (eFort != NO_IMPROVEMENT)
@@ -1375,6 +1376,19 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirectives(CvUnit* pUnit, CvPlot* pPlo
 				{
 					if(pPlot->getOwner() == m_pPlayer->GetID())
 					{
+						for(int iDirectionLoop = 0; iDirectionLoop < NUM_DIRECTION_TYPES; iDirectionLoop++)
+						{
+							CvPlot* pAdjacentPlot = plotDirection(pPlot->getX(), pPlot->getY(), ((DirectionTypes) iDirectionLoop));
+							if(pAdjacentPlot != NULL && pAdjacentPlot->getImprovementType() == eFort)
+							{
+								bBad = true;
+								break;
+							}
+						}
+						if(bBad)
+						{
+							continue;
+						}
 						iDefense = pPlot->GetDefenseBuildValue();
 						if(iDefense > iScore)
 						{

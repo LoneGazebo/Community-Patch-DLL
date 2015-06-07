@@ -5617,6 +5617,29 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 							}
 						}
 					}
+#if defined(MOD_BALANCE_CORE)
+					if(pImprovementInfo->GetGrantsVision() > 0 && GetPlayerThatBuiltImprovement() != NO_PLAYER)
+					{
+						int iPlotVisRange = GC.getPLOT_VISIBILITY_RANGE();
+						CvPlot* pLoopPlot;
+						for(int iDX = -pImprovementInfo->GetGrantsVision(); iDX <= pImprovementInfo->GetGrantsVision(); iDX++)
+						{
+							for(int iDY = -pImprovementInfo->GetGrantsVision(); iDY <= pImprovementInfo->GetGrantsVision(); iDY++)
+							{
+								pLoopPlot = ::plotXYWithRangeCheck(getX(), getY(), iDX, iDY, pImprovementInfo->GetGrantsVision());
+
+								if(pLoopPlot != NULL)
+								{
+									pLoopPlot->changeAdjacentSight(GET_PLAYER(GetPlayerThatBuiltImprovement()).getTeam(), iPlotVisRange, false, NO_INVISIBLE, NO_DIRECTION, false);
+								}
+							}
+						}
+						if(GetPlayerThatBuiltImprovement() == GC.getGame().getActivePlayer())
+						{
+							GC.getMap().updateDeferredFog();
+						}
+					}
+#endif
 #if defined(MOD_DIPLOMACY_CITYSTATES)
 					// Embassy extra vote in WC mod
 					if(MOD_DIPLOMACY_CITYSTATES && pImprovementInfo != NULL && pImprovementInfo->GetCityStateExtraVote() > 0)
@@ -5812,6 +5835,35 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 							}
 						}
 					}
+#if defined(MOD_BALANCE_CORE)
+					//Did someone else build this, and now you own it? Let's shift that around.
+					if(pImprovementInfo->GetGrantsVision() > 0 && GetPlayerThatBuiltImprovement() != NO_PLAYER && getOwner() != GetPlayerThatBuiltImprovement())
+					{
+						int iPlotVisRange = GC.getPLOT_VISIBILITY_RANGE();
+						CvPlot* pLoopPlot;
+						for(int iDX = -pImprovementInfo->GetGrantsVision(); iDX <= pImprovementInfo->GetGrantsVision(); iDX++)
+						{
+							for(int iDY = -pImprovementInfo->GetGrantsVision(); iDY <= pImprovementInfo->GetGrantsVision(); iDY++)
+							{
+								pLoopPlot = ::plotXYWithRangeCheck(getX(), getY(), iDX, iDY, pImprovementInfo->GetGrantsVision());
+
+								if(pLoopPlot != NULL)
+								{
+									pLoopPlot->changeAdjacentSight(GET_PLAYER(GetPlayerThatBuiltImprovement()).getTeam(), iPlotVisRange, false, NO_INVISIBLE, NO_DIRECTION, false);
+									pLoopPlot->changeAdjacentSight(GET_PLAYER(getOwner()).getTeam(), iPlotVisRange, true, NO_INVISIBLE, NO_DIRECTION, false);
+								}
+							}
+						}
+						if(GetPlayerThatBuiltImprovement() == GC.getGame().getActivePlayer())
+						{
+							GC.getMap().updateDeferredFog();
+						}
+						if(getOwner() == GC.getGame().getActivePlayer())
+						{
+							GC.getMap().updateDeferredFog();
+						}
+					}
+#endif
 #if defined(MOD_BALANCE_CORE)
 					//Resource from improvement - change ownership if needed.
 					ResourceTypes eResourceFromImprovement = (ResourceTypes)pImprovementInfo->GetResourceFromImprovement();
@@ -6954,6 +7006,29 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 					}
 				}
 #if defined(MOD_BALANCE_CORE)
+				if(oldImprovementEntry.GetGrantsVision() > 0 && eOldBuilder != NO_PLAYER)
+				{
+					int iPlotVisRange = GC.getPLOT_VISIBILITY_RANGE();
+					CvPlot* pLoopPlot;
+					for(int iDX = -oldImprovementEntry.GetGrantsVision(); iDX <= oldImprovementEntry.GetGrantsVision(); iDX++)
+					{
+						for(int iDY = -oldImprovementEntry.GetGrantsVision(); iDY <= oldImprovementEntry.GetGrantsVision(); iDY++)
+						{
+							pLoopPlot = ::plotXYWithRangeCheck(getX(), getY(), iDX, iDY, oldImprovementEntry.GetGrantsVision());
+
+							if(pLoopPlot != NULL)
+							{
+								pLoopPlot->changeAdjacentSight(GET_PLAYER(GetPlayerThatBuiltImprovement()).getTeam(), iPlotVisRange, false, NO_INVISIBLE, NO_DIRECTION, false);
+							}
+						}
+					}
+					if(eOldBuilder == GC.getGame().getActivePlayer())
+					{
+						GC.getMap().updateDeferredFog();
+					}
+				}	
+#endif
+#if defined(MOD_BALANCE_CORE)
 				//Resource from improvement - change ownership if needed.
 				ResourceTypes eResourceFromImprovement = (ResourceTypes)oldImprovementEntry.GetResourceFromImprovement();
 				int iQuantity = oldImprovementEntry.GetResourceQuantityFromImprovement();
@@ -6987,7 +7062,33 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 				}
 #endif
 			}
+#if defined(MOD_BALANCE_CORE)
+			else
+			{
+				PlayerTypes eOldBuilder = GetPlayerThatBuiltImprovement();
+				if(oldImprovementEntry.GetGrantsVision() > 0 && eOldBuilder != NO_PLAYER)
+				{
+					int iPlotVisRange = GC.getPLOT_VISIBILITY_RANGE();
+					CvPlot* pLoopPlot;
+					for(int iDX = -oldImprovementEntry.GetGrantsVision(); iDX <= oldImprovementEntry.GetGrantsVision(); iDX++)
+					{
+						for(int iDY = -oldImprovementEntry.GetGrantsVision(); iDY <= oldImprovementEntry.GetGrantsVision(); iDY++)
+						{
+							pLoopPlot = ::plotXYWithRangeCheck(getX(), getY(), iDX, iDY, oldImprovementEntry.GetGrantsVision());
 
+							if(pLoopPlot != NULL)
+							{
+								pLoopPlot->changeAdjacentSight(GET_PLAYER(GetPlayerThatBuiltImprovement()).getTeam(), iPlotVisRange, false, NO_INVISIBLE, NO_DIRECTION, false);
+							}
+						}
+					}
+					if(eOldBuilder == GC.getGame().getActivePlayer())
+					{
+						GC.getMap().updateDeferredFog();
+					}
+				}
+			}
+#endif
 			// Someone had built something here in an unowned plot, remove effects of the old improvement
 			if(GetPlayerResponsibleForImprovement() != NO_PLAYER)
 			{
@@ -7131,6 +7232,29 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 					}
 				}
 #if defined(MOD_BALANCE_CORE)
+				if(newImprovementEntry.GetGrantsVision() > 0 && eBuilder != NO_PLAYER)
+				{
+					int iPlotVisRange = GC.getPLOT_VISIBILITY_RANGE();
+					CvPlot* pLoopPlot;
+					for(int iDX = -newImprovementEntry.GetGrantsVision(); iDX <= newImprovementEntry.GetGrantsVision(); iDX++)
+					{
+						for(int iDY = -newImprovementEntry.GetGrantsVision(); iDY <= newImprovementEntry.GetGrantsVision(); iDY++)
+						{
+							pLoopPlot = ::plotXYWithRangeCheck(getX(), getY(), iDX, iDY, newImprovementEntry.GetGrantsVision());
+
+							if(pLoopPlot != NULL)
+							{
+								pLoopPlot->changeAdjacentSight(GET_PLAYER(eBuilder).getTeam(), iPlotVisRange, true, NO_INVISIBLE, NO_DIRECTION, false);
+							}
+						}
+					}
+					if(eBuilder == GC.getGame().getActivePlayer())
+					{
+						GC.getMap().updateDeferredFog();
+					}
+				}	
+#endif
+#if defined(MOD_BALANCE_CORE)
 				//Resource from improvement - change ownership if needed.
 				ResourceTypes eResourceFromImprovement = (ResourceTypes)newImprovementEntry.GetResourceFromImprovement();
 				int iQuantity = newImprovementEntry.GetResourceQuantityFromImprovement();
@@ -7212,6 +7336,32 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 				}
 #endif
 			}
+#if defined(MOD_BALANCE_CORE)
+			else if(!isOwned())
+			{
+				if(newImprovementEntry.GetGrantsVision() > 0 && eBuilder != NO_PLAYER)
+				{
+					int iPlotVisRange = GC.getPLOT_VISIBILITY_RANGE();
+					CvPlot* pLoopPlot;
+					for(int iDX = -newImprovementEntry.GetGrantsVision(); iDX <= newImprovementEntry.GetGrantsVision(); iDX++)
+					{
+						for(int iDY = -newImprovementEntry.GetGrantsVision(); iDY <= newImprovementEntry.GetGrantsVision(); iDY++)
+						{
+							pLoopPlot = ::plotXYWithRangeCheck(getX(), getY(), iDX, iDY, newImprovementEntry.GetGrantsVision());
+
+							if(pLoopPlot != NULL)
+							{
+								pLoopPlot->changeAdjacentSight(GET_PLAYER(eBuilder).getTeam(), iPlotVisRange, true, NO_INVISIBLE, NO_DIRECTION, false);
+							}
+						}
+					}
+					if(eBuilder == GC.getGame().getActivePlayer())
+					{
+						GC.getMap().updateDeferredFog();
+					}
+				}	
+			}
+#endif
 		}
 
 		// If we're removing an Improvement that hooked up a resource then we need to take away the bonus
@@ -9096,6 +9246,16 @@ int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay)
 				iYield += pWorkingCity->GetFeatureExtraYield(getFeatureType(), eYield);
 			}
 		}
+#if defined(MOD_BALANCE_CORE)
+		// Extra yield for improvements
+		if(getImprovementType() != NO_FEATURE)
+		{
+			if(pWorkingCity != NULL)
+			{
+				iYield += pWorkingCity->GetImprovementExtraYield(getImprovementType(), eYield);
+			}
+		}
+#endif
 
 #if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
 		// Extra yield for plot
@@ -9294,14 +9454,21 @@ int CvPlot::GetExplorationBonus(const CvPlayer* pPlayer, const CvPlot* pRefPlot)
 	int iDistToOwnCities = pPlayer->GetCityDistance(this);
 	int iDistRef = pPlayer->GetCityDistance(pRefPlot);
 	
-	int iFertilityBonus = 0;
-	if ( pPlayer->GetFoundValueOfCapital()>0 )
-		iFertilityBonus = min(100, max(0, (getFoundValue(pPlayer->GetID())*100) / pPlayer->GetFoundValueOfCapital() ));
-
-	if (iDistToOwnCities>iDistRef)
-		return iFertilityBonus;
-	else
-		return iFertilityBonus+20;
+	if(!pPlayer->GetID() == getOwner())
+	{
+		int iFertilityBonus = 0;
+		if ( pPlayer->GetFoundValueOfCapital()>0 )
+			iFertilityBonus = min(100, max(0, (getFoundValue(pPlayer->GetID())*100) / pPlayer->GetFoundValueOfCapital() ));
+		if(getOwner() == NO_PLAYER)
+		{
+			iFertilityBonus += 50;
+		}
+		if (iDistToOwnCities>iDistRef)
+			return iFertilityBonus;
+		else
+			return iFertilityBonus+20;
+	}
+	return 0;
 }
 
 #endif
@@ -12157,6 +12324,13 @@ int CvPlot::getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUp
 			if(pWorkingCity != NULL)
 				iYield += pWorkingCity->GetFeatureExtraYield(getFeatureType(), eYield);
 		}
+#if defined(MOD_BALANCE_CORE)
+		if(getImprovementType() != NO_FEATURE)
+		{
+			if(pWorkingCity != NULL)
+				iYield += pWorkingCity->GetImprovementExtraYield(getImprovementType(), eYield);
+		}
+#endif
 
 
 #if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
@@ -13153,12 +13327,17 @@ int CvPlot::GetDefenseBuildValue()
 	}
 	ImprovementTypes eFort = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_FORT");
 	ImprovementTypes eCitadel = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_CITADEL");
+	
+	PlayerTypes pNeighborAdjacent = NO_PLAYER;
+	PlayerTypes pNeighborNearby = NO_PLAYER;
 
 	// See how many outside plots are nearby to monitor
 	int iAdjacentUnowned = 0;
 	int iAdjacentOwned = 0;
 	int iAdjacentForts = 0;
 	int iNearbyOwned = 0;
+	int iBadNearby = 0;
+	int iBadAdjacent = 0;
 	int iRange = 2;
 	for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
 	{
@@ -13184,6 +13363,14 @@ int CvPlot::GetDefenseBuildValue()
 			else if(pLoopAdjacentPlot->getOwner() != getOwner() && !(GET_PLAYER(pLoopAdjacentPlot->getOwner()).isMinorCiv()))
 			{
 				iAdjacentOwned++;
+				pNeighborAdjacent = pLoopAdjacentPlot->getOwner();
+				if(pNeighborAdjacent != NULL)
+				{
+					if(GET_PLAYER(getOwner()).GetDiplomacyAI()->GetMajorCivOpinion(pNeighborAdjacent) < MAJOR_CIV_OPINION_NEUTRAL)
+					{
+						iBadAdjacent++;
+					}
+				}
 			}
 			//Let's check for adjacent forts as well
 			if(eFort != NO_IMPROVEMENT)
@@ -13195,8 +13382,9 @@ int CvPlot::GetDefenseBuildValue()
 			}
 		}
 	}
+
 	//If there are unowned or enemy tiles, this is a nice 'frontier' position.
-	if( (iAdjacentUnowned > 3) || (iAdjacentOwned > 0) )
+	if( (iAdjacentUnowned > 3) || (iAdjacentOwned < 5) )
 	{
 		//check the wider area for enemy tiles. may also be on another landmass
 		for(int iX = -iRange; iX <= iRange; iX++)
@@ -13211,6 +13399,14 @@ int CvPlot::GetDefenseBuildValue()
 					if((pLoopNearbyPlot->getOwner() != getOwner()) && (pLoopNearbyPlot->getOwner() != NO_PLAYER) && !(GET_PLAYER(pLoopNearbyPlot->getOwner()).isMinorCiv()))
 					{
 						iNearbyOwned++;
+						pNeighborNearby = pLoopNearbyPlot->getOwner();
+						if(pNeighborNearby != NULL)
+						{
+							if(GET_PLAYER(getOwner()).GetDiplomacyAI()->GetMajorCivOpinion(pNeighborNearby) < MAJOR_CIV_OPINION_NEUTRAL)
+							{
+								iBadNearby++;
+							}
+						}
 					}
 					if ((eFort != NO_IMPROVEMENT) && (eCitadel != NO_IMPROVEMENT))
 					{
@@ -13237,13 +13433,18 @@ int CvPlot::GetDefenseBuildValue()
 		int iScore = GET_PLAYER(getOwner()).GetPlotDanger(*this);
 
 		iScore += defenseModifier(eTeam, true);
-		iScore += iAdjacentUnowned;
 
 		//Bonus for nearby owned tiles
-		iScore += iNearbyOwned * 5;
+		iScore += iNearbyOwned * 10;
 		
+		//Big Bonus if adjacent to territory.
+		iScore += (iAdjacentOwned * 30);
+
 		//Big Bonus if adjacent to enemy territory.
-		iScore += (iAdjacentOwned * 50);
+		iScore += (iBadAdjacent * 40);
+
+		//Big Bonus if adjacent to enemy territory.
+		iScore += (iBadNearby * 20);
 
 		//Big bonus if chokepoint
 		if(IsChokePoint())
@@ -13252,7 +13453,7 @@ int CvPlot::GetDefenseBuildValue()
 		}
 		if(IsLandbridge(12,54))
 		{
-			iScore += 100;
+			iScore += 150;
 		}
 		return iScore;
 	}

@@ -7,7 +7,7 @@
     <Guid>24923240-e4fb-4bf6-8f0e-6e5b6cf4d3c2</Guid>
     <ModVersion>1</ModVersion>
     <Stability>Beta</Stability>
-    <Teaser>CBP Compatibility and LUA (EUI Version) (6/1)</Teaser>
+    <Teaser>CBP Compatibility and LUA (EUI Version) (6/6)</Teaser>
     <Description>Contains compatibility files for CBP, CSD, C4DF and EUI - required if you intend to use any mod aside from the CP and CBP by themselves.
 
 NOTE: Make sure to delete the LUA folder in the CBP if you are using this!</Description>
@@ -96,12 +96,6 @@ NOTE: Make sure to delete the LUA folder in the CBP if you are using this!</Desc
       </Association>
     </ModDependencies>
     <ModContent>
-      <Content>
-        <Type>MapScript</Type>
-        <Name>Communitas</Name>
-        <Description>Communitas</Description>
-        <FileName>Mapscripts/Communitas.lua</FileName>
-      </Content>
     </ModContent>
     <ModBlockers>
       <Association>
@@ -144,6 +138,10 @@ NOTE: Make sure to delete the LUA folder in the CBP if you are using this!</Desc
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
     <Content Include="LUA\Bombardment.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="LUA\ChooseMayaBonus.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
@@ -327,10 +325,6 @@ NOTE: Make sure to delete the LUA folder in the CBP if you are using this!</Desc
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Mapscripts\Communitas.lua">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
     <Content Include="More Luxuries\MoreLuxuries.sql">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
@@ -346,7 +340,6 @@ NOTE: Make sure to delete the LUA folder in the CBP if you are using this!</Desc
   </ItemGroup>
   <ItemGroup>
     <Folder Include="CSD" />
-    <Folder Include="Mapscripts" />
     <Folder Include="More Luxuries" />
     <Folder Include="LUA" />
     <Folder Include="EUI" />

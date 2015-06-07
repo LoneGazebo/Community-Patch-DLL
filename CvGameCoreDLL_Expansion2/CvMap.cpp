@@ -1481,6 +1481,7 @@ void CvMap::Read(FDataStream& kStream)
 	kStream >> m_iLandPlots;
 	kStream >> m_iOwnedPlots;
 	kStream >> m_iNumNaturalWonders;
+
 	kStream >> m_iTopLatitude;
 	kStream >> m_iBottomLatitude;
 
@@ -1544,6 +1545,7 @@ void CvMap::Write(FDataStream& kStream) const
 	kStream << m_iLandPlots;
 	kStream << m_iOwnedPlots;
 	kStream << m_iNumNaturalWonders;
+
 	kStream << m_iTopLatitude;
 	kStream << m_iBottomLatitude;
 	kStream << m_bWrapX;

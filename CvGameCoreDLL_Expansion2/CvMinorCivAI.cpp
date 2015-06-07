@@ -3052,26 +3052,30 @@ void CvMinorCivAI::DoTurn()
 		}
 #endif
 #if defined(MOD_BALANCE_CORE)
-	//Let's see if we can launch a military action.
-	GetPlayer()->GetMilitaryAI()->MinorAttackTest();
+		//Let's see if we can launch a military action.
+		GetPlayer()->GetMilitaryAI()->MinorAttackTest();
 #endif
 #if defined(MOD_BALANCE_CORE_MINORS) || defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
-	if (MOD_BALANCE_CORE_MINORS || MOD_DIPLOMACY_CITYSTATES_QUESTS) 
-	{
-		TeamTypes eLoopTeam;
-		for(int iTeamLoop = 0; iTeamLoop < REALLY_MAX_TEAMS; iTeamLoop++)
+		if (MOD_BALANCE_CORE_MINORS || MOD_DIPLOMACY_CITYSTATES_QUESTS) 
 		{
-			eLoopTeam = (TeamTypes) iTeamLoop;
-			if(IsJerk(eLoopTeam))
+			TeamTypes eLoopTeam;
+			for(int iTeamLoop = 0; iTeamLoop < REALLY_MAX_TEAMS; iTeamLoop++)
 			{
-				ChangeJerk(eLoopTeam, -1);
-				if(GetJerk(eLoopTeam) <= 0)
+				eLoopTeam = (TeamTypes) iTeamLoop;
+				if(eLoopTeam != NO_TEAM)
 				{
-					SetIsJerk(eLoopTeam, false);
+					if(IsJerk(eLoopTeam) || GetJerk(eLoopTeam) > 0)
+					{
+						ChangeJerk(eLoopTeam, -1);
+					}
+					if(GetJerk(eLoopTeam) <= 0 && !IsJerk(eLoopTeam))
+					{
+						SetIsJerk(eLoopTeam, false);
+						SetJerk(eLoopTeam, 0);
+					}
 				}
 			}
 		}
-	}
 #endif
 	}
 }
@@ -3111,7 +3115,21 @@ void CvMinorCivAI::DoChangeAliveStatus(bool bAlive)
 			}
 			vNewInfluence.push_back(iNewInfluence);
 		}
-
+#if defined(MOD_BALANCE_CORE_MINORS) || defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
+		if (MOD_BALANCE_CORE_MINORS || MOD_DIPLOMACY_CITYSTATES_QUESTS) 
+		{
+			TeamTypes eLoopTeam;
+			for(int iTeamLoop = 0; iTeamLoop < REALLY_MAX_TEAMS; iTeamLoop++)
+			{
+				eLoopTeam = (TeamTypes) iTeamLoop;
+				if(eLoopTeam != NO_TEAM)
+				{
+					SetIsJerk(eLoopTeam, false);
+					SetJerk(eLoopTeam, 0);
+				}
+			}
+		}
+#endif
 		// Set new influence values
 		SetDisableNotifications(true);
 		for (unsigned int i = 0; i < vNewInfluence.size(); ++i)
@@ -4666,12 +4684,6 @@ void CvMinorCivAI::DoObsoleteQuestsForPlayer(PlayerTypes ePlayer, MinorCivQuestT
 	// If quest(s) were revoked because of bullying, send out a notification
 	if(bQuestRevokedFromBullying)
 	{
-#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
-		if (MOD_DIPLOMACY_CITYSTATES_QUESTS) {
-			//Minor punishment- don't bully city-states!
-			SetFriendshipWithMajor(ePlayer, GC.getMINOR_FRIENDSHIP_AT_WAR(), /*bFromQuest*/ true);
-		}
-#endif
 		Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_QUEST_ENDED_REVOKED");
 		Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_QUEST_ENDED_REVOKED");
 		strMessage << GetPlayer()->getNameKey();
@@ -7997,9 +8009,16 @@ int CvMinorCivAI::GetFriendshipChangePerTurnTimes100(PlayerTypes ePlayer)
 		{
 			if(GetPlayer()->getCapitalCity() != NULL)
 			{
-				if(GetPlayer()->getCapitalCity()->getDamage() > 0)
+				if(GetPlayer()->getCapitalCity()->getDamage() > 0 && !GetPlayer()->getCapitalCity()->IsResistance())
 				{
-					iChangeThisTurn += /*-600*/ (GC.getMINOR_FRIENDSHIP_DROP_PER_TURN_AGGRESSOR() * 3);
+					if(GetPersonality() == MINOR_CIV_PERSONALITY_HOSTILE)
+						iChangeThisTurn += (/*-150*/ GC.getMINOR_FRIENDSHIP_DROP_PER_TURN_HOSTILE()  * 3);
+					// Aggressor!
+					else if(GET_TEAM(kPlayer.getTeam()).IsMinorCivAggressor())
+						iChangeThisTurn += (/*-200*/ GC.getMINOR_FRIENDSHIP_DROP_PER_TURN_AGGRESSOR() * 3);
+					// Normal decay
+					else
+						iChangeThisTurn += (/*-100*/ GC.getMINOR_FRIENDSHIP_DROP_PER_TURN() * 3);
 				}
 			}
 		}
@@ -9426,13 +9445,7 @@ void CvMinorCivAI::DoChangeProtectionFromMajor(PlayerTypes eMajor, bool bProtect
 		if(bPledgeNowBroken)
 		{
 			SetTurnLastPledgeBrokenByMajor(eMajor, GC.getGame().getGameTurn());
-#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
-			//Don't take this lightly!
-			if (MOD_DIPLOMACY_CITYSTATES_QUESTS) 
-				SetFriendshipWithMajor(eMajor, GC.getMINOR_FRIENDSHIP_AT_WAR(), false);
-			else
-#endif
-				ChangeFriendshipWithMajorTimes100(eMajor, GC.getMINOR_FRIENDSHIP_DROP_DISHONOR_PLEDGE_TO_PROTECT());
+			ChangeFriendshipWithMajorTimes100(eMajor, GC.getMINOR_FRIENDSHIP_DROP_DISHONOR_PLEDGE_TO_PROTECT());
 		}
 	}
 
@@ -12541,7 +12554,7 @@ bool CvMinorCivAI::IsPeaceBlocked(TeamTypes eTeam) const
 #if defined(MOD_BALANCE_CORE_MINORS) || defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 	if (MOD_BALANCE_CORE_MINORS || MOD_DIPLOMACY_CITYSTATES_QUESTS) 
 	{
-		if(IsJerk(eTeam))
+		if(IsJerk(eTeam) || (GetJerk(eTeam) > 0))
 		{
 			return true;
 		}
@@ -12561,6 +12574,14 @@ bool CvMinorCivAI::IsPeaceBlocked(TeamTypes eTeam) const
 		// Must be allies
 		if(!IsAllies(eMajor))
 			continue;
+
+#if defined(MOD_BALANCE_CORE)
+		//Failsafe
+		if(GET_PLAYER(eMajor).isMinorCiv() || GET_PLAYER(eMajor).isBarbarian())
+		{
+			continue;
+		}
+#endif
 
 		// Ally must be at war with this team
 		if(!GET_TEAM(GET_PLAYER(eMajor).getTeam()).isAtWar(eTeam))

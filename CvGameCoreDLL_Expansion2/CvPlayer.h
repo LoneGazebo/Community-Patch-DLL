@@ -2123,7 +2123,7 @@ public:
 	void ChangeVassalGoldMaintenanceMod(int iChange);
 #endif
 
-#if defined(MOD_BALANCE_CORE_SETTLER)
+#if defined(MOD_BALANCE_CORE)
 	int GetCityDistance( const CvPlot* pPlot ) const;
 #endif
 

@@ -124,6 +124,10 @@ public:
 	int GetNumNaturalWonders() const;
 	void ChangeNumNaturalWonders(int iChange);
 
+#if defined(MOD_BALANCE_CORE)
+	int GetNumBadPlots() const;
+#endif
+
 	// for serialization
 	virtual void read(FDataStream& kStream);
 	virtual void write(FDataStream& kStream) const;

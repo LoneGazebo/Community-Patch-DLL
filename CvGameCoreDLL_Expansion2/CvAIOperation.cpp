@@ -705,10 +705,47 @@ bool CvAIOperation::CheckOnTarget()
 
 			if(pThisArmy->GetNumSlotsFilled() >= 1)
 			{
+#if defined(MOD_BALANCE_CORE)
+				iUnitID = pThisArmy->GetFirstUnitID();
+				if(iUnitID != -1)
+				{
+					pCivilian = GET_PLAYER(m_eOwner).getUnit(iUnitID);
+					if(pCivilian != NULL && pCivilian->isFound())
+					{
+						pCivilianPlot = pCivilian->plot();
+					}
+				}
+#endif
 				switch(m_eCurrentState)
 				{
 				case AI_OPERATION_STATE_GATHERING_FORCES:
 					{
+#if defined(MOD_BALANCE_CORE)
+						if(pCivilian && pCivilianPlot != NULL)
+						{
+							//Triplicate in the event that another of the 'escorts' is here.
+							pEscort = GET_PLAYER(m_eOwner).getUnit(pThisArmy->GetNextUnitID());
+							if (pEscort && pCivilianPlot == pEscort->plot())
+							{
+								ArmyInPosition(pThisArmy);
+								return true;
+							}
+							pEscort = GET_PLAYER(m_eOwner).getUnit(pThisArmy->GetNextUnitID());
+							if (pEscort && pCivilianPlot == pEscort->plot())
+							{
+								ArmyInPosition(pThisArmy);
+								return true;
+							}
+							pEscort = GET_PLAYER(m_eOwner).getUnit(pThisArmy->GetNextUnitID());
+							if (pEscort && pCivilianPlot == pEscort->plot())
+							{
+								ArmyInPosition(pThisArmy);
+								return true;
+							}
+						}
+						else
+						{
+#endif
 						int iGatherTolerance = GetGatherTolerance(pThisArmy, GetMusterPlot());
 						pCenterOfMass = pThisArmy->GetCenterOfMass(DOMAIN_SEA);
 						if(pCenterOfMass &&
@@ -718,10 +755,22 @@ bool CvAIOperation::CheckOnTarget()
 							ArmyInPosition(pThisArmy);
 							return true;
 						}
+#if defined(MOD_BALANCE_CORE)
+						}
+#endif
 					}
 					break;
 				case AI_OPERATION_STATE_MOVING_TO_TARGET:
 					{
+#if defined(MOD_BALANCE_CORE)
+						if(pCivilianPlot != NULL && pCivilianPlot == GetTargetPlot())
+						{
+							ArmyInPosition(pThisArmy);
+							return true;
+						}
+						else
+						{
+#endif
 						int iTargetTolerance = GC.getAI_OPERATIONAL_CITY_ATTACK_DEPLOY_RANGE();
 						pCenterOfMass = pThisArmy->GetCenterOfMass(DOMAIN_SEA);
 						if(pCenterOfMass &&
@@ -731,6 +780,9 @@ bool CvAIOperation::CheckOnTarget()
 							ArmyInPosition(pThisArmy);
 							return true;
 						}
+#if defined(MOD_BALANCE_CORE)
+						}
+#endif
 					}
 					break;
 				}
@@ -811,24 +863,8 @@ bool CvAIOperation::ArmyInPosition(CvArmyAI* pArmy)
 		}
 	}
 	break;
-#if defined(MOD_BALANCE_CORE)
-	case AI_OPERATION_STATE_RECRUITING_UNITS:
-	{
-		if(pArmy && GetTargetPlot() != NULL && GetMusterPlot() != NULL)
-		{
-			if(GrabUnitsFromTheReserves(GetMusterPlot(), GetTargetPlot()))
-			{
-				pArmy->SetArmyAIState(ARMYAISTATE_WAITING_FOR_UNITS_TO_CATCH_UP);
-				m_eCurrentState = AI_OPERATION_STATE_GATHERING_FORCES;
-			}
-		}
-	}
-	break;
-#endif
 	case AI_OPERATION_STATE_ABORTED:
-#if !defined(MOD_BALANCE_CORE)
 	case AI_OPERATION_STATE_RECRUITING_UNITS:
-#endif
 	case AI_OPERATION_STATE_AT_TARGET:
 	case AI_OPERATION_STATE_SUCCESSFUL_FINISH:
 		break;
@@ -1979,6 +2015,15 @@ bool CvAIOperation::FindBestFitReserveUnit(OperationSlot thisOperationSlot, CvPl
 						{
 							continue;
 						}
+						// Mixed naval operation targeting a city?   Change target (but only for the naval units).
+						if (unitInfo->GetDomainType() == DOMAIN_SEA && pTargetToUse && !pTargetToUse->isWater())
+						{
+							pTargetToUse = ownerPlayer.GetMilitaryAI()->GetCoastalPlotAdjacentToTarget(pTargetToUse, pThisArmy);
+							if(pTargetToUse == NULL)
+							{
+								continue;
+							}
+						}
 #endif
 						// Is his health okay?
 						if(!pLoopUnit->IsCombatUnit() || pLoopUnit->GetCurrHitPoints() >= pLoopUnit->GetMaxHitPoints() * GC.getAI_OPERATIONAL_PERCENT_HEALTH_FOR_OPERATION() / 100)
@@ -2088,6 +2133,15 @@ bool CvAIOperation::FindBestFitReserveUnit(OperationSlot thisOperationSlot, CvPl
 						if(pTargetPlot != NULL && pLoopUnit->IsCityAttackOnly() && !pTargetPlot->isCity())
 						{
 							continue;
+						}
+						// Mixed naval operation targeting a city?   Change target (but only for the naval units).
+						if (unitInfo->GetDomainType() == DOMAIN_SEA && pTargetToUse && !pTargetToUse->isWater())
+						{
+							pTargetToUse = ownerPlayer.GetMilitaryAI()->GetCoastalPlotAdjacentToTarget(pTargetToUse, pThisArmy);
+							if(pTargetToUse == NULL)
+							{
+								continue;
+							}
 						}
 #endif
 						// Is his health okay?
@@ -3615,7 +3669,9 @@ bool CvAIEscortedOperation::RetargetCivilian(CvUnit* pCivilian, CvArmyAI* pArmy)
 			pArmy->RemoveUnit((*it));
 		}
 		if ((m_eCurrentState) == AI_OPERATION_STATE_ABORTED)
+		{
 			return false;
+		}
 #else
 	// If this is a new target, switch to it
 	else if(pBetterTarget != GetTargetPlot())
@@ -3623,6 +3679,70 @@ bool CvAIEscortedOperation::RetargetCivilian(CvUnit* pCivilian, CvArmyAI* pArmy)
 #endif // AUI_OPERATION_FIX_RETARGET_CIVILIAN_ABORT_IF_UNREACHABLE_ESCORT
 		SetTargetPlot(pBetterTarget);
 		pArmy->SetGoalPlot(pBetterTarget);
+#if defined(MOD_BALANCE_CORE)
+		CvPlot* pFinalPlot = NULL;
+		int iBestDistance = MAX_INT;
+		CvArea* pArea = GC.getMap().getArea(pBetterTarget->getArea());
+		if(pArea != NULL && pArea->getCitiesPerPlayer(m_eOwner) > 0)
+		{
+			CvPlot* pLoopPlot;
+			const CvPlotsVector& aiPlots = GET_PLAYER(m_eOwner).GetPlots();
+			for (uint uiPlotIndex = 0; uiPlotIndex < aiPlots.size(); uiPlotIndex++)
+			{
+				if(aiPlots[uiPlotIndex] == -1)
+				{
+					continue;
+				}
+				pLoopPlot = GC.getMap().plotByIndex(aiPlots[uiPlotIndex]);
+				if(!pCivilian->GeneratePath(pLoopPlot))
+				{
+					continue;
+				}
+				if(pLoopPlot->isCity() && pLoopPlot->getOwner() == m_eOwner && pLoopPlot->getArea() == pBetterTarget->getArea())
+				{
+					int iDistance = plotDistance(pLoopPlot->getX(), pLoopPlot->getY(), pCivilian->getX(), pCivilian->getY());
+					if(iDistance < iBestDistance)
+					{
+						iBestDistance = iDistance;
+						pFinalPlot = pLoopPlot;
+					}
+				}
+			}
+		}
+		else
+		{
+			CvPlot* pLoopPlot;
+			int iBestDistance = MAX_INT;
+			const CvPlotsVector& aiPlots = GET_PLAYER(m_eOwner).GetPlots();			
+			for (uint uiPlotIndex = 0; uiPlotIndex < aiPlots.size(); uiPlotIndex++)
+			{
+				if(aiPlots[uiPlotIndex] == -1)
+				{
+					continue;
+				}
+				pLoopPlot = GC.getMap().plotByIndex(aiPlots[uiPlotIndex]);
+				if(!pCivilian->GeneratePath(pLoopPlot))
+				{
+					continue;
+				}
+				if(pLoopPlot->isCity() && pLoopPlot->getOwner() == m_eOwner)
+				{
+					int iDistance = plotDistance(pLoopPlot->getX(), pLoopPlot->getY(), pCivilian->getX(), pCivilian->getY());
+					if(iDistance < iBestDistance)
+					{
+						iBestDistance = iDistance;
+						pFinalPlot = pLoopPlot;
+					}
+				}
+			}
+		}
+		if(pFinalPlot != NULL)
+		{
+			SetMusterPlot(pFinalPlot);
+			pArmy->SetXY(pFinalPlot->getX(), pFinalPlot->getY());
+			SetDefaultArea(pFinalPlot->getArea());
+		}
+#endif
 	}
 #if defined(MOD_BALANCE_CORE)
 	else if(GetTargetPlot() == NULL)
@@ -3892,7 +4012,7 @@ bool CvAIOperationFoundCity::ArmyInPosition(CvArmyAI* pArmy)
 				CvPlot* pBetterTarget = FindBestTargetIncludingCurrent(pSettler, false);
 
 				// No targets at all!  Abort
-				if(pBetterTarget == NULL)
+				if(pBetterTarget == NULL && GetTargetPlot() == NULL)
 				{
 					m_eCurrentState = AI_OPERATION_STATE_ABORTED;
 					m_eAbortReason = AI_ABORT_NO_TARGET;
@@ -3903,9 +4023,13 @@ bool CvAIOperationFoundCity::ArmyInPosition(CvArmyAI* pArmy)
 				{
 					SetTargetPlot(pBetterTarget);
 					pArmy->SetGoalPlot(pBetterTarget);
+					m_eCurrentState = AI_OPERATION_STATE_MOVING_TO_TARGET;
+					pArmy->SetArmyAIState(ARMYAISTATE_MOVING_TO_DESTINATION);
+					return true;
 				}
-#endif
+#else
 				return CvAIOperation::ArmyInPosition(pArmy);
+#endif
 			}
 		}
 		break;
@@ -3954,6 +4078,11 @@ bool CvAIOperationFoundCity::ArmyInPosition(CvArmyAI* pArmy)
 				CvPlot* pAltPlot = GET_PLAYER(m_eOwner).GetBestSettlePlot(pSettler, m_bEscorted, m_iTargetArea, this, true);
 				int iAltValue = pAltPlot ? pAltPlot->getFoundValue(m_eOwner) : 0;
 				int iDelta = pAltPlot ? ::plotDistance(pCityPlot->getX(),pCityPlot->getY(),pAltPlot->getX(),pAltPlot->getY()) : 0;
+				//Must be much better to be worth it.
+				if((iAltValue * 2) <= (GetTargetPlot()->getFoundValue(m_eOwner) * 3))
+				{
+					iDelta = 0;
+				}
 				if (iDelta == 0 || iDelta > 3 || m_iRetargetCount >= 1)
 				{
 					pSettler->PushMission(CvTypes::getMISSION_FOUND());
@@ -3994,7 +4123,7 @@ bool CvAIOperationFoundCity::ArmyInPosition(CvArmyAI* pArmy)
 					pArmy->SetGoalPlot(pAltPlot);
 					pArmy->SetArmyAIState(ARMYAISTATE_MOVING_TO_DESTINATION);
 					m_eCurrentState = AI_OPERATION_STATE_MOVING_TO_TARGET;
-
+					
 					pSettler->finishMoves();
 					iUnitID = pArmy->GetNextUnitID();
 					if(iUnitID != -1)
@@ -7071,7 +7200,7 @@ void CvAINavalEscortedOperation::Init(int iID, PlayerTypes eOwner, PlayerTypes /
 
 						// try to get the escort from existing units that are waiting around
 						BuildListOfUnitsWeStillNeedToBuild();
-						// try to get the escort from existing units that are waiting around
+						
 						GrabUnitsFromTheReserves(pFinalPlot, pTargetSite);
 						if(pArmyAI->GetNumSlotsFilled() > 1)
 						{
@@ -7355,12 +7484,36 @@ bool CvAINavalEscortedOperation::ArmyInPosition(CvArmyAI* pArmy)
 				return false;
 			}
 			// If we have a target
-			else if(GetTargetPlot() == NULL)
+			else
 			{
 				SetTargetPlot(pBetterTarget);
 				pArmy->SetGoalPlot(pBetterTarget);
+				m_eCurrentState = AI_OPERATION_STATE_MOVING_TO_TARGET;
+				pArmy->SetArmyAIState(ARMYAISTATE_MOVING_TO_DESTINATION);
+				return true;
 			}
-				return CvAIOperation::ArmyInPosition(pArmy);
+		}
+		else if(pSettler != NULL && pEscort != NULL && plotDistance(pSettler->getX(), pSettler->getY(), pEscort->getX(), pEscort->getY()) <= 2)
+		{
+			// let's see if the target still makes sense (this is modified from RetargetCivilian)
+			CvPlot* pBetterTarget = FindBestTargetIncludingCurrent(pSettler, false);
+
+			// No targets at all!  Abort
+			if(pBetterTarget == NULL && GetTargetPlot() == NULL)
+			{
+				m_eCurrentState = AI_OPERATION_STATE_ABORTED;
+				m_eAbortReason = AI_ABORT_NO_TARGET;
+				return false;
+			}
+			// If we have a target
+			else
+			{
+				SetTargetPlot(pBetterTarget);
+				pArmy->SetGoalPlot(pBetterTarget);
+				m_eCurrentState = AI_OPERATION_STATE_MOVING_TO_TARGET;
+				pArmy->SetArmyAIState(ARMYAISTATE_MOVING_TO_DESTINATION);
+				return true;
+			}
 		}
 	}
 	break;
@@ -7555,32 +7708,128 @@ CvPlot* CvAINavalEscortedOperation::FindBestTarget(CvUnit* pUnit)
 /// Start the civilian off to a new target plot
 bool CvAINavalEscortedOperation::RetargetCivilian(CvUnit* pCivilian, CvArmyAI* pArmy)
 {
+#if defined(MOD_BALANCE_CORE)
 	CvPlot* pBetterTarget;
 
 	// Find best city site (taking into account whether or not we are escorted)
-#if defined(MOD_BALANCE_CORE)
-	pBetterTarget = FindBestTargetIncludingCurrent(pCivilian, false);
-#else
-	pBetterTarget = FindBestTarget(pCivilian);
-#endif
+	pBetterTarget = FindBestTarget(pCivilian, false);
 
 	// No targets at all!  Abort
-#if defined(MOD_BALANCE_CORE)
-	if(pBetterTarget == NULL && GetTargetPlot() == NULL)
-#else
 	if(pBetterTarget == NULL)
-#endif
 	{
 		m_eCurrentState = AI_OPERATION_STATE_ABORTED;
 		m_eAbortReason = AI_ABORT_NO_TARGET;
 		return false;
 	}
 	// If this is a new target, switch to it
-#if defined(MOD_BALANCE_CORE)
-	else if(pBetterTarget != NULL && pBetterTarget != GetTargetPlot())
-#else
 	else if(pBetterTarget != GetTargetPlot())
-#endif
+	{
+		std::vector<int> aiUnitsToRemove;
+		for (UnitHandle pUnit = pArmy->GetFirstUnit(); pUnit.pointer(); pUnit = pArmy->GetNextUnit())
+		{
+			if (TurnsToReachTarget(pUnit, pBetterTarget) == MAX_INT)
+			{
+				aiUnitsToRemove.push_back(pUnit->GetID());
+			}
+		}
+		for (std::vector<int>::iterator it = aiUnitsToRemove.begin(); it != aiUnitsToRemove.end(); ++it)
+		{
+			pArmy->RemoveUnit((*it));
+		}
+		if ((m_eCurrentState) == AI_OPERATION_STATE_ABORTED)
+		{
+			return false;
+		}
+		SetTargetPlot(pBetterTarget);
+		pArmy->SetGoalPlot(pBetterTarget);
+		CvPlot* pFinalPlot = NULL;
+		int iBestDistance = MAX_INT;
+		CvArea* pArea = GC.getMap().getArea(pBetterTarget->getArea());
+		if(pArea != NULL && pArea->getCitiesPerPlayer(m_eOwner) > 0)
+		{
+			CvPlot* pLoopPlot;
+			const CvPlotsVector& aiPlots = GET_PLAYER(m_eOwner).GetPlots();
+			for (uint uiPlotIndex = 0; uiPlotIndex < aiPlots.size(); uiPlotIndex++)
+			{
+				if(aiPlots[uiPlotIndex] == -1)
+				{
+					continue;
+				}
+				pLoopPlot = GC.getMap().plotByIndex(aiPlots[uiPlotIndex]);
+				if(!pCivilian->GeneratePath(pLoopPlot))
+				{
+					continue;
+				}
+				if(pLoopPlot->isCity() && pLoopPlot->getOwner() == m_eOwner && pLoopPlot->getArea() == pBetterTarget->getArea())
+				{
+					int iDistance = plotDistance(pLoopPlot->getX(), pLoopPlot->getY(), pCivilian->getX(), pCivilian->getY());
+					if(iDistance < iBestDistance)
+					{
+						iBestDistance = iDistance;
+						pFinalPlot = pLoopPlot;
+					}
+				}
+			}
+		}
+		else
+		{
+			CvPlot* pLoopPlot;
+			int iBestDistance = MAX_INT;
+			const CvPlotsVector& aiPlots = GET_PLAYER(m_eOwner).GetPlots();			
+			for (uint uiPlotIndex = 0; uiPlotIndex < aiPlots.size(); uiPlotIndex++)
+			{
+				if(aiPlots[uiPlotIndex] == -1)
+				{
+					continue;
+				}
+				pLoopPlot = GC.getMap().plotByIndex(aiPlots[uiPlotIndex]);
+				if(!pCivilian->GeneratePath(pLoopPlot))
+				{
+					continue;
+				}
+				if(pLoopPlot->isCity() && pLoopPlot->getOwner() == m_eOwner)
+				{
+					int iDistance = plotDistance(pLoopPlot->getX(), pLoopPlot->getY(), pCivilian->getX(), pCivilian->getY());
+					if(iDistance < iBestDistance)
+					{
+						iBestDistance = iDistance;
+						pFinalPlot = pLoopPlot;
+					}
+				}
+			}
+		}
+		if(pFinalPlot != NULL)
+		{
+			SetMusterPlot(pFinalPlot);
+			pArmy->SetXY(pFinalPlot->getX(), pFinalPlot->getY());
+			SetDefaultArea(pFinalPlot->getArea());
+		}
+	}
+	else if(GetTargetPlot() == NULL)
+	{
+		m_eCurrentState = AI_OPERATION_STATE_ABORTED;
+		m_eAbortReason = AI_ABORT_LOST_TARGET;
+		return false;
+	}
+	pArmy->SetArmyAIState(ARMYAISTATE_MOVING_TO_DESTINATION);
+	m_eCurrentState = AI_OPERATION_STATE_MOVING_TO_TARGET;
+
+	return true;
+#else
+	CvPlot* pBetterTarget;
+
+	// Find best city site (taking into account whether or not we are escorted)
+	pBetterTarget = FindBestTarget(pCivilian);
+
+	// No targets at all!  Abort
+	if(pBetterTarget == NULL)
+	{
+		m_eCurrentState = AI_OPERATION_STATE_ABORTED;
+		m_eAbortReason = AI_ABORT_NO_TARGET;
+		return false;
+	}
+	// If this is a new target, switch to it
+	else if(pBetterTarget != GetTargetPlot())
 	{
 		SetTargetPlot(pBetterTarget);
 		pArmy->SetGoalPlot(pBetterTarget);
@@ -7590,6 +7839,7 @@ bool CvAINavalEscortedOperation::RetargetCivilian(CvUnit* pCivilian, CvArmyAI* p
 	m_eCurrentState = AI_OPERATION_STATE_MOVING_TO_TARGET;
 
 	return true;
+#endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -8671,11 +8921,13 @@ int OperationalAIHelpers::GetGatherRangeForXUnits(int iTotalUnits)
 	}
 	else if(iTotalUnits <= 10)
 	{
+		iRange = 4;
 	}
 	else
 	{
 		iRange = 5;
 	}
+#else
 	if(iTotalUnits <= 2)
 	{
 		iRange = 1;

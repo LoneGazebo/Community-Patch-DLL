@@ -7,7 +7,7 @@
     <Guid>828b5b4b-7c62-4afb-a43f-034b596ef5e4</Guid>
     <ModVersion>1</ModVersion>
     <Stability>Beta</Stability>
-    <Teaser>Community Balance Patch - Compatibility Files (No EUI)  (6/1)</Teaser>
+    <Teaser>Community Balance Patch - Compatibility Files (No EUI)  (6/6)</Teaser>
     <Description>LUA and mod compatibility files for CBP if not using EUI. Includes support for More Luxuries, CSD, and C4DF. Must use all three mods in order to use this mod.</Description>
     <Authors>Gazebo</Authors>
     <SpecialThanks>
@@ -64,12 +64,6 @@
       </Association>
     </ModReferences>
     <ModContent>
-      <Content>
-        <Type>MapScript</Type>
-        <Name>Communitas</Name>
-        <Description>Communitas</Description>
-        <FileName>MapScripts/Communitas.lua</FileName>
-      </Content>
     </ModContent>
     <ModDependencies>
       <Association>
@@ -117,7 +111,6 @@
     <Folder Include="MoreLuxuries" />
     <Folder Include="CSD" />
     <Folder Include="LUA" />
-    <Folder Include="MapScripts" />
     <Folder Include="C4DF Compatibility" />
   </ItemGroup>
   <ItemGroup>
@@ -138,6 +131,10 @@
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
     <Content Include="LUA\Bombardment.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="LUA\ChooseMayaBonus.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
@@ -316,10 +313,6 @@
     <Content Include="LUA\YieldIconManager.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
-    <Content Include="MapScripts\Communitas.lua">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
     <Content Include="MoreLuxuries\MoreLuxuries.sql">
       <SubType>Lua</SubType>

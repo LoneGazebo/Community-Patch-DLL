@@ -1089,7 +1089,13 @@ function ResetDisplay()
 		Controls.UsPocketGold:SetDisabled(true);
 		Controls.UsPocketGold:GetTextControl():SetColorByName("Gray_Black");
 		if bnw_mode then
-			sUsPocketGoldTT = Locale.ConvertTextKey("TXT_KEY_DIPLO_NEED_DOF_TT_ONE_LINE");
+--CBP
+			if not (g_pUs:IsDoF(g_iThem)) then
+				sUsPocketGoldTT = Locale.ConvertTextKey("TXT_KEY_DIPLO_NEED_DOF_TT_ONE_LINE");
+			else
+				sUsPocketGoldTT = Locale.ConvertTextKey("TXT_KEY_DIPLO_NOT_BANK_TT_ONE_LINE");
+			end
+-- END
 		end
 	else
 		Controls.UsPocketGold:SetDisabled(false);
@@ -1109,7 +1115,13 @@ function ResetDisplay()
 		Controls.ThemPocketGold:SetDisabled(true);
 		Controls.ThemPocketGold:GetTextControl():SetColorByName("Gray_Black");
 		if bnw_mode then
-			sThemPocketGoldTT = Locale.ConvertTextKey("TXT_KEY_DIPLO_NEED_DOF_TT_ONE_LINE");
+--CBP
+			if not (g_pUs:IsDoF(g_iThem)) then
+				sThemPocketGoldTT = Locale.ConvertTextKey("TXT_KEY_DIPLO_NEED_DOF_TT_ONE_LINE");
+			else
+				sThemPocketGoldTT = Locale.ConvertTextKey("TXT_KEY_DIPLO_NOT_BANK_TT_ONE_LINE");
+			end
+-- END
 		end
 	else
 		Controls.ThemPocketGold:SetDisabled(false);
@@ -1131,10 +1143,15 @@ function ResetDisplay()
 	if (not bGPTAllowed) then
 		Controls.UsPocketGoldPerTurn:SetDisabled(true);
 		Controls.UsPocketGoldPerTurn:GetTextControl():SetColorByName("Gray_Black");
+--CBP
+		sUsPocketGoldTT = Locale.ConvertTextKey("TXT_KEY_DIPLO_NOT_BANK_TT_ONE_LINE");
+-- END
 	else
 		Controls.UsPocketGoldPerTurn:SetDisabled(false);
 		Controls.UsPocketGoldPerTurn:GetTextControl():SetColorByName("Beige_Black");
 	end
+	--CBP
+	Controls.UsPocketGoldPerTurn:SetToolTipString(sUsPocketGoldTT);
 
 	-- Them
 	iGoldPerTurn = g_pThem:CalculateGoldRate();
@@ -1146,10 +1163,15 @@ function ResetDisplay()
 	if (not bGPTAllowed) then
 		Controls.ThemPocketGoldPerTurn:SetDisabled(true);
 		Controls.ThemPocketGoldPerTurn:GetTextControl():SetColorByName("Gray_Black");
+--CBP
+		sThemPocketGoldTT = Locale.ConvertTextKey("TXT_KEY_DIPLO_NOT_BANK_TT_ONE_LINE");
+--END
 	else
 		Controls.ThemPocketGoldPerTurn:SetDisabled(false);
 		Controls.ThemPocketGoldPerTurn:GetTextControl():SetColorByName("Beige_Black");
 	end
+	--CBP
+	Controls.ThemPocketGoldPerTurn:SetToolTipString(sThemPocketGoldTT);
 	if gk_mode then
 		----------------------------------------------------------------------------------
 		-- pocket Allow Embassy
@@ -3554,15 +3576,15 @@ if bnw_mode then
 			-- CBP EDIT
 			local iNumChooseVotes = 0;
 			if(iFromPlayer == g_iUs) then
-				iNumVotes = pLeague:GetPotentialVotesForMember(g_iThem, g_iUs);
+				iNumChooseVotes = pLeague:GetPotentialVotesForMember(g_iThem, g_iUs);
 			else
-				iNumVotes = pLeague:GetPotentialVotesForMember(g_iUs, g_iThem);
+				iNumChooseVotes = pLeague:GetPotentialVotesForMember(g_iUs, g_iThem);
 			end
 			-- END	
-			local iNumVotes = pLeague:GetCoreVotesForMember(iFromPlayer);
+			--local iNumVotes = pLeague:GetCoreVotesForMember(iFromPlayer);
 			local bRepeal = g_LeagueVoteList[iVoteIndex].Repeal;
 			--print("==debug== Vote added to deal, ID=" .. iResolutionID .. ", VoteChoice=" .. iVoteChoice .. ", NumVotes=" .. iNumVotes);
-			g_Deal:AddVoteCommitment(iFromPlayer, iResolutionID, iVoteChoice, iNumVotes, bRepeal);
+			g_Deal:AddVoteCommitment(iFromPlayer, iResolutionID, iVoteChoice, iNumChooseVotes, bRepeal);
 
 			DisplayDeal();
 			DoUIDealChangedByHuman();
@@ -3589,11 +3611,11 @@ if bnw_mode then
 				-- Us to them?
 				if (iIsUs == 1) then
 	-- CBP EDITS BELOW
-					local iNumVotes = pLeague:GetPotentialVotesForMember(g_iThem, g_iUs);
+					local iNumUsVotes = pLeague:GetPotentialVotesForMember(g_iThem, g_iUs);
 	-- END
-					local sProposalText = GetVoteText(pLeague, i, tVote.Repeal, iNumVotes);
+					local sProposalText = GetVoteText(pLeague, i, tVote.Repeal, iNumUsVotes);
 					local sChoiceText = pLeague:GetTextForChoice(tVote.VoteDecision, tVote.VoteChoice);
-					local sTooltip = GetVoteTooltip(pLeague, i, tVote.Repeal, iNumVotes);
+					local sTooltip = GetVoteTooltip(pLeague, i, tVote.Repeal, iNumUsVotes);
 					if (g_Deal:IsPossibleToTradeItem(g_iUs, g_iThem, TradeableItems.TRADE_ITEM_VOTE_COMMITMENT, tVote.ID, tVote.VoteChoice, iNumVotes, tVote.Repeal)) then
 						local cInstance = g_UsPocketVoteIM:GetInstance();
 						cInstance.ProposalLabel:SetText(sProposalText);
@@ -3605,11 +3627,11 @@ if bnw_mode then
 				-- Them to us?
 				else
 -- CBP EDIT
-					local iNumVotes = pLeague:GetPotentialVotesForMember(g_iUs, g_iThem);
+					local iNumThemVotes = pLeague:GetPotentialVotesForMember(g_iUs, g_iThem);
 -- END	
-					local sProposalText = GetVoteText(pLeague, i, tVote.Repeal, iNumVotes);
+					local sProposalText = GetVoteText(pLeague, i, tVote.Repeal, iNumThemVotes);
 					local sChoiceText = pLeague:GetTextForChoice(tVote.VoteDecision, tVote.VoteChoice);
-					local sTooltip = GetVoteTooltip(pLeague, i, tVote.Repeal, iNumVotes);
+					local sTooltip = GetVoteTooltip(pLeague, i, tVote.Repeal, iNumThemVotes);
 					if (g_Deal:IsPossibleToTradeItem(g_iThem, g_iUs, TradeableItems.TRADE_ITEM_VOTE_COMMITMENT, tVote.ID, tVote.VoteChoice, iNumVotes, tVote.Repeal)) then
 						local cInstance = g_ThemPocketVoteIM:GetInstance();
 						cInstance.ProposalLabel:SetText(sProposalText);
@@ -3633,11 +3655,16 @@ if bnw_mode then
 			local iResolutionID = g_LeagueVoteList[iVoteIndex].ID;
 			local iVoteChoice = g_LeagueVoteList[iVoteIndex].VoteChoice;
 -- CBP EDIT
-			local iNumVotes = pLeague:GetPotentialVotesForMember(g_iUs, g_iThem);
--- END	
+			local iNumTableVotes = 0;
+			if(iFromPlayer == g_iUs) then
+				iNumTableVotes = pLeague:GetPotentialVotesForMember(g_iThem, g_iUs);
+			else
+				iNumTableVotes = pLeague:GetPotentialVotesForMember(g_iUs, g_iThem);
+			end
+-- END		
 			local bRepeal = g_LeagueVoteList[iVoteIndex].Repeal;
 			--print("==debug== Vote removed from deal, ID=" .. iResolutionID .. ", VoteChoice=" .. iVoteChoice .. ", NumVotes=" .. iNumVotes);
-			g_Deal:RemoveVoteCommitment(iFromPlayer, iResolutionID, iVoteChoice, iNumVotes, bRepeal);
+			g_Deal:RemoveVoteCommitment(iFromPlayer, iResolutionID, iVoteChoice, iNumTableVotes, bRepeal);
 
 			DoClearTable();
 			DisplayDeal();
@@ -3949,6 +3976,21 @@ function ShowOtherPlayerChooser( isUs, type )
 					-- City-State ally
 					elseif (pLoopPlayer:IsMinorCiv() and pLoopPlayer:GetAlly() == iFromPlayer) then
 						strToolTip = Locale.ConvertTextKey("TXT_KEY_DIPLO_NO_WAR_ALLIES");
+
+-- CBP
+					-- City-State ally
+					elseif (pLoopPlayer:IsMinorCiv() and pLoopPlayer:GetAlly() == iToPlayer) then
+						strToolTip = Locale.ConvertTextKey("TXT_KEY_DIPLO_NO_WAR_ALLIES_US");
+
+					-- DOF
+					elseif (pLoopPlayer:IsDoF(iFromPlayer)) then
+						strToolTip = Locale.ConvertTextKey("TXT_KEY_DIPLO_NO_WAR_DOF");
+
+					-- DP
+					elseif (Teams[iLoopTeam]:IsDefensivePact(iLoopTeam)) then
+						strToolTip = Locale.ConvertTextKey("TXT_KEY_DIPLO_NO_WAR_DP");
+
+-- END
 					end
 
 				end

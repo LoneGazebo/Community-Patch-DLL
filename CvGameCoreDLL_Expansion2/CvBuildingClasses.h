@@ -400,6 +400,10 @@ public:
 	int* GetResourceYieldChangeArray(int i) const;
 	int GetFeatureYieldChange(int i, int j) const;
 	int* GetFeatureYieldChangeArray(int i) const;
+#if defined(MOD_BALANCE_CORE)
+	int GetImprovementYieldChange(int i, int j) const;
+	int* GetImprovementYieldChangeArray(int i) const;
+#endif
 	int GetSpecialistYieldChange(int i, int j) const;
 	int* GetSpecialistYieldChangeArray(int i) const;
 	int GetResourceYieldModifier(int i, int j) const;
@@ -707,6 +711,9 @@ private:
 
 	int** m_ppaiResourceYieldChange;
 	int** m_ppaiFeatureYieldChange;
+#if defined(MOD_BALANCE_CORE)
+	int** m_ppaiImprovementYieldChange;
+#endif
 	int** m_ppaiSpecialistYieldChange;
 	int** m_ppaiResourceYieldModifier;
 	int** m_ppaiTerrainYieldChange;

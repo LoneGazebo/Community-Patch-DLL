@@ -15,9 +15,8 @@
 			<Strategy>TXT_KEY_BUILDING_MISSION_STRATEGY</Strategy>
 			<ArtDefineTag>CASTLE</ArtDefineTag>
 			<MinAreaSize>-1</MinAreaSize>
-			<ReligiousPressureModifier>10</ReligiousPressureModifier>
+			<ReligiousPressureModifier>15</ReligiousPressureModifier>
 			<NationalMissionaries>true</NationalMissionaries>
-			<ConversionModifier>-20</ConversionModifier>
 			<AllowsRangeStrike>true</AllowsRangeStrike>
 			<Defense>800</Defense>
 			<ExtraCityHitPoints>75</ExtraCityHitPoints>
@@ -37,8 +36,8 @@
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_MISSION</BuildingType>
-			<FlavorType>FLAVOR_PRODUCTION</FlavorType>
-			<Flavor>50</Flavor>
+			<FlavorType>FLAVOR_GOLD</FlavorType>
+			<Flavor>30</Flavor>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_MISSION</BuildingType>
@@ -51,13 +50,6 @@
 			<Flavor>30</Flavor>
 		</Row>
 	</Building_Flavors>
-	<Building_InstantYield>
-		<Row>
-			<BuildingType>BUILDING_MISSION</BuildingType>
-			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>50</Yield>
-		</Row>
-	</Building_InstantYield>
 	<Building_FreeUnits>
 		<Row>
 			<BuildingType>BUILDING_MISSION</BuildingType>
@@ -65,6 +57,18 @@
 			<NumUnits>1</NumUnits>
 		</Row>
 	</Building_FreeUnits>
+	<Building_GrowthExtraYield>
+		<Row>
+			<BuildingType>BUILDING_MISSION</BuildingType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>30</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_MISSION</BuildingType>
+			<YieldType>YIELD_FAITH</YieldType>
+			<Yield>15</Yield>
+		</Row>
+	</Building_GrowthExtraYield>
 	<Civilization_BuildingClassOverrides>
 		<Row>
 			<CivilizationType>CIVILIZATION_SPAIN</CivilizationType>
@@ -83,10 +87,10 @@
 			</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_MISSION_HELP">
-			<Text>Receive a free Missionary that follows your [ICON_RELIGION] Religion, and a lump sum of [ICON_PEACE] Faith. Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 10%, and increases the city's resistance to conversion by 20%. Does not require Walls in order to be built.</Text>
+			<Text>When constructed, receive a free Missionary that follows your [ICON_RELIGION] Religion. Every time a [ICON_CITIZEN] Citizen is born in this City, receive [ICON_PEACE] Faith and [ICON_GOLD] Gold. [NEWLINE][NEWLINE]Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 15%. Does not require Walls in order to be built.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_MISSION_STRATEGY">
-			<Text>Unique Spanish replacement for the Castle. It is cheaper than the Castle, has no maintenance, and does not require Walls in order to be built. Grants Faith when it is constructed, as well as a free Missionary. The free Missionary will follow your founded Religion or, if you have not founded a religion, it will follow your majority Religion. Boosts the city's religious pressure by 10% and resistance to foreign conversion by 20%, thus making the city more effective at converting nearby cities and harder for others to convert! Build these unique Castles to quickly boost a City's productivity and defense, bypass the need for Walls, and to bolster your Religion.</Text>
+			<Text>Unique Spanish replacement for the Castle. It is cheaper than the Castle, has no maintenance, and does not require Walls in order to be built. Grants Faith and Gold when Citizens are born in the City, as well as a free Missionary when constructed. The free Missionary will follow your founded Religion or, if you have not founded a religion, it will follow your majority Religion. Boosts the city's religious pressure by 10% and resistance to foreign conversion by 20%, thus making the city more effective at converting nearby cities and harder for others to convert! Build these unique Castles to quickly boost a City's Defense, bypass the need for Walls, and to bolster your Religion.</Text>
 		</Row>
 	</Language_en_US>
 	<!-- Jelling Stones -->

@@ -1158,9 +1158,9 @@ void CvPlayerEspionage::DoAdvancedAction(uint uiSpyIndex)
 			}
 		}
 		//Only possible if very unhappy
-		if(GET_PLAYER(pCity->getOwner()).IsEmpireVeryUnhappy() && !pCity->IsBlockRebellion())
+		if(GET_PLAYER(pCity->getOwner()).IsEmpireVeryUnhappy())
 		{
-			if(iCityRank > 8)
+			if(iCityRank > 8 && !pCity->IsBlockRebellion())
 			{
 				for (int iAdvancedActionLoop = 0; iAdvancedActionLoop < m_pPlayer->GetAdvancedActionRebellion(); iAdvancedActionLoop++)
 				{
@@ -1350,11 +1350,16 @@ void CvPlayerEspionage::DoAdvancedAction(uint uiSpyIndex)
 					iTurnsActive = (iRank * 10);
 				}
 
-				iTurnsActive /= 3;
+				iTurnsActive /= 2;
+				if(iTurnsActive <= 0)
+				{
+					iTurnsActive = 1;
+				}
 
 				pSpy->ChangeAdvancedActions(1);
 				
-				int iSpyResult = GC.getGame().getJonRandNum(aiAdvancedAction.size(), "Randomizing Advanced Actions");
+				int iTest = GC.getGame().getJonRandNum(aiAdvancedAction.size(), "Randomizing Advanced Actions");
+				int iSpyResult = (int)aiAdvancedAction[iTest];
 
 				//Rebellion
 				if (iSpyResult == 5)

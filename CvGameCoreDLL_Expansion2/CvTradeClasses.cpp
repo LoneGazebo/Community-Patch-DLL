@@ -1516,29 +1516,93 @@ bool CvGameTrade::MoveUnit (int iIndex)
 		pkUnit->UnitMove(NULL, false, NULL);
 		pkUnit->setMoves(0);
 #if defined(MOD_BALANCE_CORE)
+		int iOriginX = -1;
+		int iOriginY = -1;
 		//Free resources when your trade units move.
+		CvGameTrade* pTrade = GC.getGame().GetGameTrade();
+		for (uint ui = 0; ui < pTrade->m_aTradeConnections.size(); ui++)
+		{
+			TradeConnection* pTradeConnection = &(pTrade->m_aTradeConnections[ui]);
+			if (pTradeConnection->m_eOriginOwner == GET_PLAYER(kTradeConnection.m_eOriginOwner).GetID())
+			{
+				if(pTradeConnection->m_unitID == pkUnit->GetID())
+				{
+					// get data before we wipe the trade route
+					iOriginX = pTradeConnection->m_iOriginX;
+					iOriginY = pTradeConnection->m_iOriginY;
+					break;
+				}
+			}
+		}
+
 		TechTypes eCurrentTech = GET_PLAYER(pkUnit->getOwner()).GetPlayerTechs()->GetCurrentResearch();
 		float fDelay = 0.0f;
+		CvPlot* pPlot = NULL;
+		CvCity* pCity = NULL;
+		if(iOriginX != -1 && iOriginY != -1)
+		{
+			pPlot = GC.getMap().plot(iOriginX, iOriginY);		
+			if(pPlot != NULL)
+			{
+				pCity = pPlot->getPlotCity();
+			}
+		}
+		int iEra = GET_PLAYER(pkUnit->getOwner()).GetCurrentEra();
+		if(iEra < 1)
+		{
+			iEra = 1;
+		}
 		for(int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
 		{
 			int iYieldFromRouteMovement = GET_PLAYER(pkUnit->getOwner()).GetPlayerTraits()->GetYieldFromRouteMovement((YieldTypes)iYield);
 			if (iYieldFromRouteMovement > 0)
 			{
+				iYieldFromRouteMovement = (iEra * iYieldFromRouteMovement);
 				switch(iYield)
 				{
+					case YIELD_PRODUCTION:
+						if(pCity != NULL)
+						{
+							pCity->changeProduction(iYieldFromRouteMovement);
+							if(pkUnit->getOwner() == GC.getGame().getActivePlayer() && pkUnit->plot()->isActiveVisible(false))
+							{
+								char text[256] = {0};
+								fDelay += 0.5f;
+								sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_PRODUCTION]", iYieldFromRouteMovement);
+								DLLUI->AddPopupText(iOriginX ,iOriginY, text, fDelay);
+							}
+						}
+						break;
+					case YIELD_FOOD:
+						if(pCity != NULL)
+						{
+							pCity->changeFood(iYieldFromRouteMovement);
+							if(pkUnit->getOwner() == GC.getGame().getActivePlayer() && pkUnit->plot()->isActiveVisible(false))
+							{
+								char text[256] = {0};
+								fDelay += 0.5f;
+								sprintf_s(text, "[COLOR_GREEN]+%d[ENDCOLOR][ICON_FOOD]", iYieldFromRouteMovement);
+								DLLUI->AddPopupText(iOriginX ,iOriginY, text, fDelay);
+							}
+						}
+						break;
 					case YIELD_CULTURE:
 						GET_PLAYER(pkUnit->getOwner()).changeJONSCulture(iYieldFromRouteMovement);
-						if(pkUnit->getOwner() == GC.getGame().getActivePlayer())
+						if(pCity != NULL)
+						{
+							pCity->ChangeJONSCultureStored(iYieldFromRouteMovement);
+						}
+						if(pkUnit->getOwner() == GC.getGame().getActivePlayer() && pkUnit->plot()->isActiveVisible(false))
 						{
 							char text[256] = {0};
 							fDelay += 0.5f;
 							sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", iYieldFromRouteMovement);
-							DLLUI->AddPopupText(pkUnit->getX(),pkUnit->getY(), text, fDelay);
+							DLLUI->AddPopupText(iOriginX ,iOriginY, text, fDelay);
 						}
 						break;
 					case YIELD_GOLDEN_AGE_POINTS:
 						GET_PLAYER(pkUnit->getOwner()).ChangeGoldenAgeProgressMeter(iYieldFromRouteMovement);
-						if(pkUnit->getOwner() == GC.getGame().getActivePlayer())
+						if(pkUnit->getOwner() == GC.getGame().getActivePlayer() && pkUnit->plot()->isActiveVisible(false))
 						{
 							char text[256] = {0};
 							fDelay += 0.5f;
@@ -1548,7 +1612,7 @@ bool CvGameTrade::MoveUnit (int iIndex)
 						break;
 					case YIELD_FAITH:
 						GET_PLAYER(pkUnit->getOwner()).ChangeFaith(iYieldFromRouteMovement);
-						if(pkUnit->getOwner() == GC.getGame().getActivePlayer())
+						if(pkUnit->getOwner() == GC.getGame().getActivePlayer() && pkUnit->plot()->isActiveVisible(false))
 						{
 							char text[256] = {0};
 							fDelay += 0.5f;
@@ -1565,7 +1629,7 @@ bool CvGameTrade::MoveUnit (int iIndex)
 						{
 							GET_TEAM(GET_PLAYER(pkUnit->getOwner()).getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iYieldFromRouteMovement, pkUnit->getOwner());
 						}
-						if(pkUnit->getOwner() == GC.getGame().getActivePlayer())
+						if(pkUnit->getOwner() == GC.getGame().getActivePlayer() && pkUnit->plot()->isActiveVisible(false))
 						{
 							char text[256] = {0};
 							fDelay += 0.5f;
@@ -1575,7 +1639,7 @@ bool CvGameTrade::MoveUnit (int iIndex)
 						break;
 					case YIELD_GOLD:
 						GET_PLAYER(pkUnit->getOwner()).GetTreasury()->ChangeGold(iYieldFromRouteMovement);
-						if(pkUnit->getOwner() == GC.getGame().getActivePlayer())
+						if(pkUnit->getOwner() == GC.getGame().getActivePlayer() && pkUnit->plot()->isActiveVisible(false))
 						{
 							char text[256] = {0};
 							fDelay += 0.5f;
@@ -1587,7 +1651,7 @@ bool CvGameTrade::MoveUnit (int iIndex)
 						if(pkUnit->getDomainType() == DOMAIN_LAND)
 						{
 							GET_PLAYER(pkUnit->getOwner()).changeCombatExperience(iYieldFromRouteMovement);
-							if(pkUnit->getOwner() == GC.getGame().getActivePlayer())
+							if(pkUnit->getOwner() == GC.getGame().getActivePlayer() && pkUnit->plot()->isActiveVisible(false))
 							{
 								char text[256] = {0};
 								fDelay += 0.5f;
@@ -1600,7 +1664,7 @@ bool CvGameTrade::MoveUnit (int iIndex)
 						if(pkUnit->getDomainType() == DOMAIN_SEA)
 						{
 							GET_PLAYER(pkUnit->getOwner()).changeNavalCombatExperience(iYieldFromRouteMovement);
-							if(pkUnit->getOwner() == GC.getGame().getActivePlayer())
+							if(pkUnit->getOwner() == GC.getGame().getActivePlayer() && pkUnit->plot()->isActiveVisible(false))
 							{
 								char text[256] = {0};
 								fDelay += 0.5f;

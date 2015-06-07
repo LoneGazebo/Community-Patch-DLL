@@ -57,6 +57,10 @@
 		<Row Tag="TXT_KEY_DUDE_25">
 			<Text>Nennius</Text>
 		</Row>
+<!-- Maya Prophet Lock -->
+		<Row Tag="TXT_KEY_INVALID_NO_RELIGION">
+			<Text>[COLOR_NEGATIVE_TEXT]Cannot be selected until you have founded a Religion[ENDCOLOR]</Text>
+		</Row>
 <!-- Espionage Overview Screen -->
 		<Row Tag="TXT_KEY_CAPITAL_CBP_SPY">
 			<Text>{1_CityName} is the [ICON_CAPITAL] Capital of {@2_CivShortDesc}. You can send either [ICON_SPY] Spies or [ICON_DIPLOMAT] Diplomats to this City.</Text>

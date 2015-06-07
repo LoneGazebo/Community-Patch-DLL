@@ -705,7 +705,10 @@ public:
 	const char* GetGreetHumanMessage(LeaderheadAnimationTypes& eAnimation);
 	const char* GetInsultHumanMessage();
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
-	const char* GetDoFHumanMessage();
+	bool IsCantMatchDeal(PlayerTypes ePlayer);
+	void SetCantMatchDeal(PlayerTypes ePlayer, bool bValue);
+	const char* GetOfferText(PlayerTypes ePlayer);
+	const char* GetDoFHumanMessage(PlayerTypes ePlayer);
 	int	GetDenounceMessage(PlayerTypes ePlayer);
 	const char* GetDenounceMessageValue(int iValue);
 #endif
@@ -1380,6 +1383,7 @@ private:
 		char m_aePlayerVictoryDisputeLevel[REALLY_MAX_PLAYERS];
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
 		char m_paePlayerVictoryBlockLevel[REALLY_MAX_PLAYERS];
+		bool m_abCantMatchDeal[REALLY_MAX_PLAYERS];
 #endif
 		char m_aePlayerWonderDisputeLevel[REALLY_MAX_PLAYERS];
 		char m_aePlayerMinorCivDisputeLevel[REALLY_MAX_PLAYERS];
@@ -1665,6 +1669,7 @@ private:
 	char* m_paePlayerVictoryDisputeLevel;
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
 	char* m_paePlayerVictoryBlockLevel;
+	bool* m_pabCantMatchDeal;
 #endif
 	char* m_paePlayerWonderDisputeLevel;
 	char* m_paePlayerMinorCivDisputeLevel;

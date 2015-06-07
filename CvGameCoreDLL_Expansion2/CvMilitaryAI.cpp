@@ -2862,8 +2862,15 @@ CvCity* CvMilitaryAI::GetMostThreatenedCity(int iOrder)
 
 		//OutputDebugString( CvString::format("%s - threat %d - scale %.3f\n", pLoopCity->getName().c_str(), iThreatValue, fScale ).c_str() );
 
-		if(pLoopCity->isCapital())
+		// Is this a temporary zone city? If so, we need to support it ASAP.
+		if(m_pPlayer->GetTacticalAI()->IsTemporaryZoneCity(pLoopCity))
+		{
+			iThreatValue = (iThreatValue * GC.getAI_MILITARY_CITY_THREAT_WEIGHT_CAPITAL() * 2) / 100;
+		}
+		else if(pLoopCity->isCapital())
+		{
 			iThreatValue = (iThreatValue * GC.getAI_MILITARY_CITY_THREAT_WEIGHT_CAPITAL()) / 100;
+		}
 
 		vCities.push_back( std::make_pair( pLoopCity, (int)(iThreatValue*fScale) ) );
 	}
@@ -3579,7 +3586,6 @@ void CvMilitaryAI::ScanForBarbarians()
 	for(iPlotLoop = 0; iPlotLoop < GC.getMap().numPlots(); iPlotLoop++)
 	{
 		pPlot = GC.getMap().plotByIndexUnchecked(iPlotLoop);
-
 		if(pPlot->isRevealed(eTeam))
 		{
 			if(pPlot->getImprovementType() == GC.getBARBARIAN_CAMP_IMPROVEMENT())
@@ -3591,6 +3597,13 @@ void CvMilitaryAI::ScanForBarbarians()
 				{
 					m_iBarbarianCampCount += 9;
 				}
+#if defined(MOD_BALANCE_CORE)
+				// Count it as -5 camps if sitting inside someone else's territory.
+				if(pPlot->getOwner() != m_pPlayer->GetID() && pPlot->getOwner() != NO_PLAYER)
+				{
+					m_iBarbarianCampCount -= 5;
+				}
+#endif
 
 				// See how close it is to each of our cities, if less than 10 tiles, treat it as 5 camps
 				else
@@ -3830,6 +3843,10 @@ void CvMilitaryAI::UpdateMilitaryStrategies()
 					bStrategyShouldBeActive = MilitaryAIHelpers::IsTestStrategy_MinorCivThreatCritical(m_pPlayer);
 				else if(strStrategyName == "MILITARYAISTRATEGY_ERADICATE_BARBARIANS")
 					bStrategyShouldBeActive = MilitaryAIHelpers::IsTestStrategy_EradicateBarbarians(eStrategy, m_pPlayer, m_iBarbarianCampCount, m_iVisibleBarbarianCount);
+#if defined(MOD_BALANCE_CORE)
+				else if(strStrategyName == "MILITARYAISTRATEGY_ERADICATE_BARBARIANS_CRITICAL")
+					bStrategyShouldBeActive = MilitaryAIHelpers::IsTestStrategy_EradicateBarbariansCritical(eStrategy, m_pPlayer, m_iBarbarianCampCount, m_iVisibleBarbarianCount);
+#endif
 				else if(strStrategyName == "MILITARYAISTRATEGY_WINNING_WARS")
 					bStrategyShouldBeActive = MilitaryAIHelpers::IsTestStrategy_WinningWars(m_pPlayer);
 				else if(strStrategyName == "MILITARYAISTRATEGY_LOSING_WARS")
@@ -3975,6 +3992,7 @@ void CvMilitaryAI::UpdateOperations()
 	CvAIOperation* pOperation;
 
 	MilitaryAIStrategyTypes eStrategyBarbs = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_ERADICATE_BARBARIANS");
+	MilitaryAIStrategyTypes eStrategyBarbsCritical = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_ERADICATE_BARBARIANS_CRITICAL");
 	MilitaryAIStrategyTypes eStrategyFightAWar = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_AT_WAR");
 	// SEE IF THERE ARE OPERATIONS THAT NEED TO BE ABORTED
 
@@ -3996,6 +4014,10 @@ void CvMilitaryAI::UpdateOperations()
 			bWillingToAcceptRisk = true;
 			break;
 		}
+	}
+	if(!bWillingToAcceptRisk && IsUsingStrategy(eStrategyBarbsCritical))
+	{
+		bWillingToAcceptRisk = true;
 	}
 #if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 	int iMinorLoop;
@@ -6856,7 +6878,29 @@ bool MilitaryAIHelpers::IsTestStrategy_EradicateBarbarians(MilitaryAIStrategyTyp
 
 	return false;
 }
+#if defined(MOD_BALANCE_CORE)
+/// "Eradicate Barbarians" Player Strategy: If there is a large group of barbarians units or camps near our civilization, increase OFFENSE
+bool MilitaryAIHelpers::IsTestStrategy_EradicateBarbariansCritical(MilitaryAIStrategyTypes eStrategy, CvPlayer* pPlayer, int iBarbarianCampCount, int iVisibleBarbarianCount)
+{
+	int iStrategyWeight;
 
+	CvMilitaryAIStrategyXMLEntry* pStrategy = pPlayer->GetMilitaryAI()->GetMilitaryAIStrategies()->GetEntry(eStrategy);
+	CvAssert(pStrategy != NULL);
+	if(pStrategy)
+	{
+		iStrategyWeight = iBarbarianCampCount * 50 + iVisibleBarbarianCount * 25;
+		int iWeightThresholdModifier = GetWeightThresholdModifier(eStrategy, pPlayer);
+		int iWeightThreshold = pStrategy->GetWeightThreshold() + iWeightThresholdModifier;
+
+		if(iStrategyWeight >= iWeightThreshold * 4 && iVisibleBarbarianCount > 1) // barbs are a HUGE threat
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+#endif
 /// "Winning Wars" Strategy: boost OFFENSE over DEFENSE
 bool MilitaryAIHelpers::IsTestStrategy_WinningWars(CvPlayer* pPlayer)
 {
