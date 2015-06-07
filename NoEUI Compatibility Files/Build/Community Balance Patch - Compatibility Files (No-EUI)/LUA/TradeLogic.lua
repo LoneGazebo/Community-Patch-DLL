@@ -1116,7 +1116,13 @@ function ResetDisplay()
     if (not bGoldTradeAllowed) then
 	    Controls.UsPocketGold:SetDisabled(true);
 	    Controls.UsPocketGold:GetTextControl():SetColorByName("Gray_Black");
-	    Controls.UsPocketGold:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_DIPLO_NEED_DOF_TT_ONE_LINE"));
+--CBP
+		if not (g_pUs:IsDoF(g_iThem)) then
+			Controls.UsPocketGold:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_DIPLO_NEED_DOF_TT_ONE_LINE"));
+		else
+			Controls.UsPocketGold:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_DIPLO_NOT_BANK_TT_ONE_LINE"));
+		end
+-- END
 	else
 	    Controls.UsPocketGold:SetDisabled(false);
 	    Controls.UsPocketGold:GetTextControl():SetColorByName("Beige_Black");
@@ -1133,7 +1139,13 @@ function ResetDisplay()
     if (not bGoldTradeAllowed) then
 	    Controls.ThemPocketGold:SetDisabled(true);
 	    Controls.ThemPocketGold:GetTextControl():SetColorByName("Gray_Black");
-	    Controls.ThemPocketGold:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_DIPLO_NEED_DOF_TT_ONE_LINE"));
+--CBP
+		if not (g_pUs:IsDoF(g_iThem)) then
+			Controls.ThemPocketGold:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_DIPLO_NEED_DOF_TT_ONE_LINE"));
+		else
+			Controls.ThemPocketGold:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_DIPLO_NOT_BANK_TT_ONE_LINE"));
+		end
+-- END
 	else
 	    Controls.ThemPocketGold:SetDisabled(false);
 	    Controls.ThemPocketGold:GetTextControl():SetColorByName("Beige_Black");
@@ -1154,6 +1166,9 @@ function ResetDisplay()
     if (not bGPTAllowed) then
 	    Controls.UsPocketGoldPerTurn:SetDisabled(true);
 	    Controls.UsPocketGoldPerTurn:GetTextControl():SetColorByName("Gray_Black");
+--CBP
+		Controls.UsPocketGoldPerTurn:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_DIPLO_NEED_DOF_TT_ONE_LINE"));
+--END
 	else
 	    Controls.UsPocketGoldPerTurn:SetDisabled(false);
 	    Controls.UsPocketGoldPerTurn:GetTextControl():SetColorByName("Beige_Black");
@@ -1169,6 +1184,9 @@ function ResetDisplay()
     if (not bGPTAllowed) then
 	    Controls.ThemPocketGoldPerTurn:SetDisabled(true);
 	    Controls.ThemPocketGoldPerTurn:GetTextControl():SetColorByName("Gray_Black");
+--CBP
+		Controls.ThemPocketGoldPerTurn:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_DIPLO_NEED_DOF_TT_ONE_LINE"));
+--END
 	else
 	    Controls.ThemPocketGoldPerTurn:SetDisabled(false);
 	    Controls.ThemPocketGoldPerTurn:GetTextControl():SetColorByName("Beige_Black");
@@ -3600,7 +3618,12 @@ function OnChooseTableVote(iFromPlayer, iVoteIndex)
 		local iResolutionID = g_LeagueVoteList[iVoteIndex].ID;
 		local iVoteChoice = g_LeagueVoteList[iVoteIndex].VoteChoice;
 -- CBP EDIT
-		local iNumTableVotes = pLeague:GetPotentialVotesForMember(g_iUs, g_iThem);
+		local iNumTableVotes = 0;
+		if(iFromPlayer == g_iUs) then
+			iNumTableVotes = pLeague:GetPotentialVotesForMember(g_iThem, g_iUs);
+		else
+			iNumTableVotes = pLeague:GetPotentialVotesForMember(g_iUs, g_iThem);
+		end
 -- END		
 		local bRepeal = g_LeagueVoteList[iVoteIndex].Repeal;
 		print("==debug== Vote removed from deal, ID=" .. iResolutionID .. ", VoteChoice=" .. iVoteChoice .. ", NumVotes=" .. iNumTableVotes);
@@ -3903,14 +3926,29 @@ function ShowOtherPlayerChooser( isUs, type )
 					-- Already at war
 					if (Teams[iLoopTeam]:IsAtWar(iFromTeam)) then
 						strToolTip = Locale.ConvertTextKey("TXT_KEY_DIPLO_ALREADY_AT_WAR");
-					
+
 					-- Locked in to peace
 					elseif (Teams[iFromTeam]:IsForcePeace(iLoopTeam)) then
 						strToolTip = Locale.ConvertTextKey("TXT_KEY_DIPLO_FORCE_PEACE");
-					
+
 					-- City-State ally
 					elseif (pLoopPlayer:IsMinorCiv() and pLoopPlayer:GetAlly() == iFromPlayer) then
 						strToolTip = Locale.ConvertTextKey("TXT_KEY_DIPLO_NO_WAR_ALLIES");
+
+-- CBP
+					-- City-State ally
+					elseif (pLoopPlayer:IsMinorCiv() and pLoopPlayer:GetAlly() == iToPlayer) then
+						strToolTip = Locale.ConvertTextKey("TXT_KEY_DIPLO_NO_WAR_ALLIES_US");
+
+					-- DOF
+					elseif (pLoopPlayer:IsDoF(iFromPlayer)) then
+						strToolTip = Locale.ConvertTextKey("TXT_KEY_DIPLO_NO_WAR_DOF");
+
+					-- DP
+					elseif (Teams[iLoopTeam]:IsDefensivePact(iLoopTeam)) then
+						strToolTip = Locale.ConvertTextKey("TXT_KEY_DIPLO_NO_WAR_DP");
+
+-- END
 					end
     				
     		    end

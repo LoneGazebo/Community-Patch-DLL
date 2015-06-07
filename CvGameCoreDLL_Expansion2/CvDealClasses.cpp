@@ -354,6 +354,12 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 		int iGold = iData1;
 		if(iGold != -1 && iGoldAvailable < iGold)
 			return false;
+
+#if defined(MOD_BALANCE_CORE)
+		// Can't exchange GPT for lump Gold - we aren't a bank.
+		if(GetGoldPerTurnTrade(ePlayer) > 0 || GetGoldPerTurnTrade(eToPlayer) > 0)
+			return false;
+#endif
 	}
 	// Gold per Turn
 	else if(eItem == TRADE_ITEM_GOLD_PER_TURN)
@@ -362,6 +368,12 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 		int iGoldPerTurn = iData1;
 		if(iGoldPerTurn != -1 && pFromPlayer->calculateGoldRate() < iGoldPerTurn)
 			return false;
+
+#if defined(MOD_BALANCE_CORE)
+		// Can't exchange GPT for lump Gold - we aren't a bank.
+		if(GetGoldTrade(ePlayer) > 0 || GetGoldTrade(eToPlayer) > 0)
+			return false;
+#endif
 
 		//int iDuration = iData2;
 		//if (iDuration != GC.getGame().GetDealDuration())
@@ -554,6 +566,10 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 		// Same Team
 		if(eFromTeam == eToTeam)
 			return false;
+#if defined(MOD_BALANCE_CORE)
+		if(pFromTeam->isAtWar(eToTeam))
+			return false;
+#endif
 
 		// Check to see if the other player can trade this item to us as well.  If we can't, we can't trade it either
 		if(bCheckOtherPlayerValidity)
@@ -677,7 +693,13 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 	else if(eItem == TRADE_ITEM_THIRD_PARTY_PEACE)
 	{
 		TeamTypes eThirdTeam = (TeamTypes) iData1;
+#if defined(MOD_BALANCE_CORE)
+		if(eThirdTeam == NULL)
+			return false;
 
+		if(eThirdTeam == NO_TEAM)
+			return false;
+#endif
 		// Can't be the same team
 		if(eFromTeam == eThirdTeam)
 			return false;
@@ -741,7 +763,34 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 	else if(eItem == TRADE_ITEM_THIRD_PARTY_WAR)
 	{
 		TeamTypes eThirdTeam = (TeamTypes) iData1;
+#if defined(MOD_BALANCE_CORE)
+		if(eThirdTeam == NULL)
+			return false;
 
+		if(eThirdTeam == NO_TEAM)
+			return false;
+
+		// If eThirdTeam is an AI then they have to want peace with ToTeam
+		CvPlayer* pOtherPlayer = &GET_PLAYER(GET_TEAM(eThirdTeam).getLeaderID());
+		// Major civ
+		if(pOtherPlayer->isMajorCiv())
+		{
+			// Can't ask friends to backstab each other
+			if(pOtherPlayer->GetDiplomacyAI()->IsDoFAccepted(ePlayer))
+				return false;
+
+			// Can't ask friends to backstab each other
+			if(pOtherPlayer->GetDiplomacyAI()->IsDoFAccepted(eToPlayer))
+				return false;
+
+			// Can't ask DPs to DOW on each other
+			if(GET_TEAM(eThirdTeam).IsHasDefensivePact(eFromTeam))
+				return false;
+
+			if(GET_TEAM(eThirdTeam).IsHasDefensivePact(eToTeam))
+				return false;
+		}
+#endif
 		// Can't be the same team
 		if(eFromTeam == eThirdTeam)
 			return false;
@@ -782,6 +831,11 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 		{
 			if(GET_PLAYER(GET_TEAM(eThirdTeam).getLeaderID()).GetMinorCivAI()->GetAlly() == ePlayer)
 				return false;
+#if defined(MOD_BALANCE_CORE)
+			//Can't offer an attack like that either
+			if(GET_PLAYER(GET_TEAM(eThirdTeam).getLeaderID()).GetMinorCivAI()->GetAlly() == eToPlayer)
+				return false;
+#endif
 		}
 	}
 	// Third Party Embargo
@@ -2501,7 +2555,7 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 							}
 						}
 					}
-					if(!GET_PLAYER(eAcceptedToPlayer).isHuman())
+					if(!GET_PLAYER(eAcceptedFromPlayer).isHuman())
 					{
 						PlayerTypes eLoopPlayer;
 						for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
@@ -2509,7 +2563,7 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 							eLoopPlayer = (PlayerTypes) iPlayerLoop;
 							if(eLoopPlayer != NO_PLAYER && GET_PLAYER(eLoopPlayer).getTeam() == eTargetTeam)
 							{
-								GET_PLAYER(eAcceptedToPlayer).GetMilitaryAI()->RequestBasicAttack(eLoopPlayer, 2);
+								GET_PLAYER(eAcceptedToPlayer).GetMilitaryAI()->RequestPureNavalAttack(eLoopPlayer, 2);
 							}
 						}
 					}
@@ -3507,12 +3561,21 @@ void CvGameDeals::LogDealComplete(CvDeal* pDeal)
 			case TRADE_ITEM_PEACE_TREATY:
 				strTemp.Format("***** Peace Treaty Trade *****");
 				break;
+#if defined(MOD_BALANCE_CORE)
+			case TRADE_ITEM_THIRD_PARTY_PEACE:
+				strTemp.Format("***** Third Party Peace Trade versus ID %d *****", itemIter->m_iData1);
+				break;
+			case TRADE_ITEM_THIRD_PARTY_WAR:
+				strTemp.Format("***** Third Party War Trade versus ID %d *****" , itemIter->m_iData1);
+				break;
+#else
 			case TRADE_ITEM_THIRD_PARTY_PEACE:
 				strTemp.Format("***** Third Party Peace Trade *****");
 				break;
 			case TRADE_ITEM_THIRD_PARTY_WAR:
 				strTemp.Format("***** Third Party War Trade *****");
 				break;
+#endif
 			case TRADE_ITEM_VOTE_COMMITMENT:
 				strTemp.Format("***** Vote Commitment: ID %d, Choice %d *****", itemIter->m_iData1, itemIter->m_iData2);
 				break;

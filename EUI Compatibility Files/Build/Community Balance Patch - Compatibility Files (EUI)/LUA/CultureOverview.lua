@@ -464,49 +464,48 @@ function getBuildings()
 	-- Get all non-override, non-Wonder buildings with at least 1 Great Work slot.
 
 	for row in DB.Query([[
-							SELECT b.Id AS Id, bc.Type AS BuildingClass, b.Type AS BuildingType, GreatWorkCount, 
-							CivilizationType, t.GridX, t.GridY,
-							EXISTS (
-								SELECT 1
-								FROM Building_ThemingBonuses
-								WHERE BuildingType = b.Type
-								LIMIT 1 
-							) AS HasThemeBonusInt
-							FROM BuildingClasses AS bc
-							JOIN Buildings AS b ON bc.Type = b.BuildingClass
-							LEFT JOIN Civilization_BuildingClassOverrides AS o ON o.BuildingType = b.Type
-							LEFT JOIN Technologies AS t ON b.PrereqTech = t.Type
-							WHERE	MaxPlayerInstances = -1 AND
-									MaxTeamInstances = -1 AND
-									MaxGlobalInstances = -1 AND
-									GreatWorkCount > 0 AND
-									CivilizationType IS NULL
-						]]) do
-		gwBuildings[row.BuildingClass] = row;
+		SELECT b.Id AS Id, bc.Type AS BuildingClass, b.Type AS BuildingType, GreatWorkCount, 
+		CivilizationType, t.GridX, t.GridY,
+		EXISTS (
+			SELECT 1
+			FROM Building_ThemingBonuses
+			WHERE BuildingType = b.Type
+			LIMIT 1 
+		) AS HasThemeBonusInt
+		FROM BuildingClasses AS bc
+		JOIN Buildings AS b ON bc.Type = b.BuildingClass
+		LEFT JOIN Civilization_BuildingClassOverrides AS o ON o.BuildingType = b.Type
+		LEFT JOIN Technologies AS t ON b.PrereqTech = t.Type
+		WHERE	MaxPlayerInstances = -1 AND
+				MaxTeamInstances = -1 AND
+				MaxGlobalInstances = -1 AND
+				GreatWorkCount > 0 AND
+				CivilizationType IS NULL
+	]]) do
+		gwBuildings[row.BuildingType] = row;
 		dprint(row.BuildingType);
 	end
 	
 	-- If you get overrides after normal buildings it'll effectively replace the previous buildings so it all works out pretty nicely.
 	for row in DB.Query([[
-							SELECT b.Id AS Id, bc.Type AS BuildingClass, b.Type AS BuildingType, GreatWorkCount,
-							CivilizationType, t.GridX, t.GridY, 
-							EXISTS (
-								SELECT 1
-								FROM Building_ThemingBonuses
-								WHERE BuildingType = b.Type
-								LIMIT 1 
-							) AS HasThemeBonusInt
-							FROM BuildingClasses AS bc
-							JOIN Buildings AS b ON bc.Type = b.BuildingClass
-							LEFT JOIN Civilization_BuildingClassOverrides AS o ON o.BuildingType = b.Type
-							LEFT JOIN Technologies AS t ON b.PrereqTech = t.Type
-							WHERE	MaxPlayerInstances = -1 AND
-									MaxTeamInstances = -1 AND
-									MaxGlobalInstances = -1 AND
-									GreatWorkCount > 0 AND
-									CivilizationType = ?
-						]], GameInfo.Civilizations[Game.GetActiveCivilizationType()].Type) do
-		gwBuildings[row.BuildingClass] = row;
+		SELECT b.Id AS Id, bc.Type AS BuildingClass, b.Type AS BuildingType, GreatWorkCount,
+		CivilizationType, t.GridX, t.GridY, 
+		EXISTS (
+			SELECT 1
+			FROM Building_ThemingBonuses
+			WHERE BuildingType = b.Type
+			LIMIT 1 
+		) AS HasThemeBonusInt
+		FROM BuildingClasses AS bc
+		JOIN Buildings AS b ON bc.Type = b.BuildingClass
+		LEFT JOIN Civilization_BuildingClassOverrides AS o ON o.BuildingType = b.Type
+		LEFT JOIN Technologies AS t ON b.PrereqTech = t.Type
+		WHERE	MaxPlayerInstances = -1 AND
+				MaxTeamInstances = -1 AND
+				MaxGlobalInstances = -1 AND
+				GreatWorkCount > 0 
+	]]) do
+		gwBuildings[row.BuildingType] = row;
 		dprint(row.BuildingType);
 	end
 
@@ -1988,7 +1987,7 @@ function RefreshCultureVictory()
 				if (iUnhappiness < 0) then
 					strPublicOpinionUnhappiness = Locale.ConvertTextKey("TXT_KEY_CO_PUBLIC_OPINION_UNHAPPINESS", iUnhappiness);
 				end
-				
+
 				row.iUnhappiness = iUnhappiness;
 				row.strPublicOpinionUnhappiness = strPublicOpinionUnhappiness;
 				row.strPublicOpinionUnhappinessToolTip = pPlayer:GetPublicOpinionUnhappinessTooltip();

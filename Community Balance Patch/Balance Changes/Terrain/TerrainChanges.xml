@@ -239,6 +239,12 @@
 		<Delete ImprovementType="IMPROVEMENT_CAMP"/>
 		<Delete ImprovementType="IMPROVEMENT_CHATEAU"/>
 		<Row>
+			<ImprovementType>IMPROVEMENT_MINE</ImprovementType>
+			<TechType>TECH_STEAM_POWER</TechType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>2</Yield>
+		</Row>
+		<Row>
 			<ImprovementType>IMPROVEMENT_MOAI</ImprovementType>
 			<TechType>TECH_ARCHITECTURE</TechType>
 			<YieldType>YIELD_CULTURE</YieldType>

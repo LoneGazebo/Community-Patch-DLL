@@ -1608,7 +1608,11 @@ void CvEconomicAI::DoPlotPurchases()
 	MilitaryAIStrategyTypes eStrategyAtWar = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_AT_WAR");
 	if (eStrategyAtWar != NO_MILITARYAISTRATEGY)
 	{
+#if defined(MOD_BALANCE_CORE)
 		if (m_pPlayer->GetMilitaryAI()->IsUsingStrategy(eStrategyAtWar))
+#else
+		if (m_pPlayer->GetMilitaryAI()->IsUsingStrategy(eStrategyAtWar))
+#endif
 		{
 			return;
 		}

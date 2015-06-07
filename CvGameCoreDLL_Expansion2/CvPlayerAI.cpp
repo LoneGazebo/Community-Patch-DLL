@@ -49,6 +49,24 @@
 
 CvPlayerAI* CvPlayerAI::m_aPlayers = NULL;
 
+// inlined for performance reasons
+CvPlayerAI& CvPlayerAI::getPlayer(PlayerTypes ePlayer)
+{
+	CvAssertMsg(ePlayer != NO_PLAYER, "Player is not assigned a valid value");
+	CvAssertMsg(ePlayer < MAX_PLAYERS, "Player is not assigned a valid value");
+
+#if defined(MOD_BALANCE_CORE)
+	if (ePlayer==NO_PLAYER)
+	{
+		//OutputDebugString("invalid player index!");
+		//ugly hack ...
+		return m_aPlayers[MAX_PLAYERS-1];
+	}
+#endif
+
+	return m_aPlayers[ePlayer];
+}
+
 void CvPlayerAI::initStatics()
 {
 	m_aPlayers = FNEW(CvPlayerAI[MAX_PLAYERS], c_eCiv5GameplayDLL, 0);
@@ -454,7 +472,7 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner)
 	if(canRaze(pCity) && IsEmpireUnhappy())
 	{
 		MajorCivOpinionTypes eOpinion = GetDiplomacyAI()->GetMajorCivOpinion(pCity->getOriginalOwner());
-		if(eOpinion < MAJOR_CIV_OPINION_COMPETITOR)
+		if(eOpinion == MAJOR_CIV_OPINION_UNFORGIVABLE)
 		{
 			pCity->doTask(TASK_RAZE);
 			return;
@@ -1481,53 +1499,60 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveGeneral(CvUnit* pGreatGeneral)
 	MilitaryAIStrategyTypes eMobilization = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_WAR_MOBILIZATION");
 	MilitaryAIStrategyTypes eWar = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_AT_WAR");
 	CvPlot* pTargetPlot = FindBestGreatGeneralTargetPlot(pGreatGeneral, iValue);
-	SpecialUnitTypes eSpecialUnitGreatPerson = (SpecialUnitTypes) GC.getInfoTypeForString("SPECIALUNIT_PEOPLE");
 
 	int iGreatGeneralCount = 0;
-	int iCommanderCount = 0;
 
 	int iLoop;
 	for(CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit; pLoopUnit = nextUnit(&iLoop))
 	{
-		if(pLoopUnit->getSpecialUnitType() != eSpecialUnitGreatPerson)
-		{
-			continue;
-		}
-
 		if(pLoopUnit->IsGreatGeneral())
 		{
 			iGreatGeneralCount++;
 		}
-		if(pLoopUnit->GetGreatPeopleDirective() == GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND)
+	}
+	if(pGreatGeneral->getArmyID() != FFreeList::INVALID_INDEX)
+	{
+		return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
+	}
+	if(!pGreatGeneral->canRecruitFromTacticalAI())
+	{
+		return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
+	}
+	if(pGreatGeneral->GetDeployFromOperationTurn() + GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS() + GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS() < GC.getGame().getGameTurn())
+	{
+		return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
+	}
+	int iFriendlies = 0;
+	if(GetMilitaryAI()->IsUsingStrategy(eWar) && (pGreatGeneral->plot()->getNumDefenders(GetID()) > 0))
+	{
+		for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
 		{
-			iCommanderCount++;
+			CvPlot *pLoopPlot = plotDirection(pGreatGeneral->plot()->getX(), pGreatGeneral->plot()->getY(), ((DirectionTypes)iI));
+			if (pLoopPlot != NULL && pLoopPlot->getNumUnits() > 0)
+			{
+				CvUnit* pUnit = pLoopPlot->getUnitByIndex(0);
+				if(pUnit != NULL && pUnit->getOwner() == pGreatGeneral->getOwner() && pUnit->IsCombatUnit() && pUnit->getDomainType() == DOMAIN_LAND)
+				{
+					iFriendlies++;
+				}
+			}
 		}
 	}
+	if(iFriendlies > 3)
+	{
+		return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
+	}
 	//No war? Let's settle down.
-	if(!GetMilitaryAI()->IsUsingStrategy(eWar) && !GetMilitaryAI()->IsUsingStrategy(eMobilization) && (pGreatGeneral->getArmyID() == -1))
+	if(!GetMilitaryAI()->IsUsingStrategy(eWar) && !GetMilitaryAI()->IsUsingStrategy(eMobilization))
 	{
 		return NO_GREAT_PEOPLE_DIRECTIVE_TYPE;
 	}
-	if(pGreatGeneral->GetGreatPeopleDirective() == GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND && GetMilitaryAI()->IsUsingStrategy(eWar))
-	{
-		return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
-	}
-	//if we have too few commanders, or we are prepping for war...
-	else if((iCommanderCount < iGreatGeneralCount) && (GetMilitaryAI()->IsUsingStrategy(eWar) || GetMilitaryAI()->IsUsingStrategy(eMobilization)))
-	{
-		//accompany an army
-		return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
-	}
-	else if(iGreatGeneralCount > 1 && pTargetPlot && (pGreatGeneral->getArmyID() == -1) && !GetMilitaryAI()->IsUsingStrategy(eWar) && !GetMilitaryAI()->IsUsingStrategy(eMobilization))
+	if(iGreatGeneralCount > 2 && pTargetPlot && (pGreatGeneral->getArmyID() == FFreeList::INVALID_INDEX) && !GetMilitaryAI()->IsUsingStrategy(eWar))
 	{
 		//build a citadel
 		return GREAT_PEOPLE_DIRECTIVE_USE_POWER;
 	}
-	else
-	{
-		// he should keep doing what he's doing
-		return NO_GREAT_PEOPLE_DIRECTIVE_TYPE;
-	}
+	return NO_GREAT_PEOPLE_DIRECTIVE_TYPE;
 }
 
 #else
@@ -1642,71 +1667,46 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveAdmiral(CvUnit* pGreatAdmiral)
 {
 	MilitaryAIStrategyTypes eMobilization = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_WAR_MOBILIZATION");
 	MilitaryAIStrategyTypes eWar = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_AT_WAR");
-	SpecialUnitTypes eSpecialUnitGreatPerson = (SpecialUnitTypes) GC.getInfoTypeForString("SPECIALUNIT_PEOPLE");
 
-	int iGreatAdmiralCount = 0;
-	int iCommanderCount = 0;
-
-	int iLoop;
-	for(CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit; pLoopUnit = nextUnit(&iLoop))
+	if(pGreatAdmiral->getArmyID() != FFreeList::INVALID_INDEX)
 	{
-		if(pLoopUnit->getSpecialUnitType() != eSpecialUnitGreatPerson)
-		{
-			continue;
-		}
-
-		if(pLoopUnit->IsGreatAdmiral())
-		{
-			iGreatAdmiralCount++;
-		}
-		if(pLoopUnit->GetGreatPeopleDirective() == GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND)
-		{
-			iCommanderCount++;
-		}
+		return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
 	}
-	//No war? Let's settle down.
-	if(!GetMilitaryAI()->IsUsingStrategy(eWar) && !GetMilitaryAI()->IsUsingStrategy(eMobilization) && (pGreatAdmiral->getArmyID() == -1))
+	if(!pGreatAdmiral->canRecruitFromTacticalAI())
 	{
-		return NO_GREAT_PEOPLE_DIRECTIVE_TYPE;
+		return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
 	}
-	//Should we consider using our heal?
-	if(pGreatAdmiral->GetGreatPeopleDirective() == GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND)
+	if(pGreatAdmiral->GetDeployFromOperationTurn() + GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS() < GC.getGame().getGameTurn())
 	{
-		int iInjured = 0;
+		return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
+	}
+	int iFriendlies = 0;
+	if(GetMilitaryAI()->IsUsingStrategy(eWar) && (pGreatAdmiral->plot()->getNumDefenders(GetID()) > 0))
+	{
 		for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
 		{
 			CvPlot *pLoopPlot = plotDirection(pGreatAdmiral->plot()->getX(), pGreatAdmiral->plot()->getY(), ((DirectionTypes)iI));
 			if (pLoopPlot != NULL && pLoopPlot->getNumUnits() > 0)
 			{
 				CvUnit* pUnit = pLoopPlot->getUnitByIndex(0);
-				if(pUnit != NULL && pUnit->getOwner() == pGreatAdmiral->getOwner() && (pUnit->GetCurrHitPoints() <= (pUnit->GetMaxHitPoints() / 2)))
+				if(pUnit != NULL && pUnit->getOwner() == pGreatAdmiral->getOwner() && pUnit->IsCombatUnit() && pUnit->getDomainType() == DOMAIN_SEA)
 				{
-					iInjured++;
-				}
-				//A lot of injured ships around us
-				if(iInjured >= 3)
-				{
-					return GREAT_PEOPLE_DIRECTIVE_USE_POWER;
+					iFriendlies++;
 				}
 			}
 		}
 	}
-	if(pGreatAdmiral->GetGreatPeopleDirective() == GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND && GetMilitaryAI()->IsUsingStrategy(eWar))
+	if(iFriendlies > 3)
 	{
 		return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
 	}
-	//if we have too few commanders, or we are prepping for war...
-	else if((iCommanderCount < iGreatAdmiralCount) && (GetMilitaryAI()->IsUsingStrategy(eWar) || GetMilitaryAI()->IsUsingStrategy(eMobilization)))
+	//No war? Let's settle down.
+	if(!GetMilitaryAI()->IsUsingStrategy(eWar) && !GetMilitaryAI()->IsUsingStrategy(eMobilization))
 	{
-		//accompany an army
-		return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
-	}
-	else
-	{
-		// he should keep doing what he's doing
 		return NO_GREAT_PEOPLE_DIRECTIVE_TYPE;
 	}
 
+	return NO_GREAT_PEOPLE_DIRECTIVE_TYPE;
 }
 
 #else

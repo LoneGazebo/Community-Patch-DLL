@@ -147,6 +147,10 @@ public:
 	int GetFeatureExtraYield(FeatureTypes eFeature, YieldTypes eYield) const;
 	void ChangeFeatureExtraYield(FeatureTypes eFeature, YieldTypes eYield, int iChange);
 
+#if defined(MOD_BALANCE_CORE)
+	int GetImprovementExtraYield(ImprovementTypes eImprovement, YieldTypes eYield) const;
+	void ChangeImprovementExtraYield(ImprovementTypes eImprovement, YieldTypes eYield, int iChange);
+#endif
 	int GetTerrainExtraYield(TerrainTypes eTerrain, YieldTypes eYield) const;
 	void ChangeTerrainExtraYield(TerrainTypes eTerrain, YieldTypes eYield, int iChange);
 
@@ -1369,6 +1373,9 @@ protected:
 	int** m_aaiBuildingSpecialistUpgradeProgresses;
 	int** m_ppaiResourceYieldChange;
 	int** m_ppaiFeatureYieldChange;
+#if defined(MOD_BALANCE_CORE)
+	int** m_ppaiImprovementYieldChange;
+#endif
 	int** m_ppaiTerrainYieldChange;
 #if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
 	int** m_ppaiPlotYieldChange;

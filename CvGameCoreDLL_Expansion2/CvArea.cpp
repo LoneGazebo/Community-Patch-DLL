@@ -82,6 +82,7 @@ void CvArea::reset(int iID, bool bWater, bool bConstructorCall)
 	m_iNumCities = 0;
 	m_iTotalPopulation = 0;
 	m_iNumStartingPlots = 0;
+
 	m_iNumNaturalWonders = 0;
 	m_iTotalFoundValue = 0;
 	m_Boundaries.m_iNorthEdge = 0;
@@ -298,7 +299,6 @@ int CvArea::getNumStartingPlots() const
 	return m_iNumStartingPlots;
 }
 
-
 //	--------------------------------------------------------------------------------
 void CvArea::changeNumStartingPlots(int iChange)
 {
@@ -306,6 +306,39 @@ void CvArea::changeNumStartingPlots(int iChange)
 	CvAssert(getNumStartingPlots() >= 0);
 }
 
+#if defined(MOD_BALANCE_CORE)
+//	--------------------------------------------------------------------------------
+int CvArea::GetNumBadPlots() const
+{
+	CvPlot* pLoopPlot;
+	int iCount;
+	int iI;
+
+	if(GetID() == NULL)
+	{
+		return 0;
+	}
+
+	iCount = 0;
+
+	CvMap& theMap = GC.getMap();
+	int iNumPlots = theMap.numPlots();
+	for(iI = 0; iI < iNumPlots; iI++)
+	{
+		pLoopPlot = theMap.plotByIndexUnchecked(iI);
+
+		if(pLoopPlot->getArea() == GetID())
+		{
+			if(pLoopPlot->getTerrainType() == TERRAIN_SNOW || pLoopPlot->getFeatureType() == FEATURE_ICE)
+			{
+				iCount++;
+			}
+		}
+	}
+
+	return iCount;
+}
+#endif
 
 //	--------------------------------------------------------------------------------
 /// How many Natural Wonders are there in the world?
@@ -721,6 +754,7 @@ void CvArea::read(FDataStream& kStream)
 	kStream >> m_iNumCities;
 	kStream >> m_iTotalPopulation;
 	kStream >> m_iNumStartingPlots;
+
 	kStream >> m_iNumNaturalWonders;
 	kStream >> m_iTotalFoundValue;
 
@@ -773,6 +807,7 @@ void CvArea::write(FDataStream& kStream) const
 	kStream << m_iNumCities;
 	kStream << m_iTotalPopulation;
 	kStream << m_iNumStartingPlots;
+
 	kStream << m_iNumNaturalWonders;
 	kStream << m_iTotalFoundValue;
 

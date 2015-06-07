@@ -349,6 +349,9 @@ ALTER TABLE Improvements ADD COLUMN 'Lakeside' BOOLEAN DEFAULT 0;
 -- Improvements can be made valid by being adjacent to a city
 ALTER TABLE Improvements ADD COLUMN 'Cityside' BOOLEAN DEFAULT 0;
 
+-- Improvements can generate vision for builder x tiles away (radially)
+ALTER TABLE Improvements ADD COLUMN 'GrantsVisionXTiles' INTEGER DEFAULT 0;
+
 -- New Goody Hut Additions
 ALTER TABLE GoodyHuts ADD COLUMN 'Production' INTEGER DEFAULT 0;
 ALTER TABLE GoodyHuts ADD COLUMN 'GoldenAge' INTEGER DEFAULT 0;

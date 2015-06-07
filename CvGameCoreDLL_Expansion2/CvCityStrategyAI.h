@@ -271,6 +271,8 @@ bool IsTestCityStrategy_NeedNavalTileImprovement(CvCity* pCity);
 bool IsTestCityStrategy_EnoughNavalTileImprovement(CvCity* pCity);
 #if defined(MOD_BALANCE_CORE)
 bool IsTestCityStrategy_EnoughSettlers(CvCity* pCity);
+bool IsTestCityStrategy_NewContinentFeeder(CvCity* pCity);
+bool IsTestCityStrategy_PocketCity(CvCity* pCity);
 #endif
 bool IsTestCityStrategy_NeedImprovement(CvCity* pCity, YieldTypes yield);
 bool IsTestCityStrategy_HaveTrainingFacility(CvCity* pCity);

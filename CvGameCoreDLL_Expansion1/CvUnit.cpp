@@ -2062,6 +2062,7 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, byte bMoveFlags) const
 	if(enterPlot.isMountain())
 	{
 		CvPlayer& kPlayer = GET_PLAYER(getOwner());
+
 		if(!kPlayer.GetPlayerTraits()->IsAbleToCrossMountains() && !IsHoveringUnit() && !canMoveAllTerrain())
 		{
 			return false;

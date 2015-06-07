@@ -421,6 +421,9 @@ bool IsTestStrategy_MinorCivGeneralDefense();
 bool IsTestStrategy_MinorCivThreatElevated(CvPlayer* pPlayer);
 bool IsTestStrategy_MinorCivThreatCritical(CvPlayer* pPlayer);
 bool IsTestStrategy_EradicateBarbarians(MilitaryAIStrategyTypes eStrategy, CvPlayer* pPlayer, int iBarbarianCampCount, int iVisibleBarbarianCount);
+#if defined(MOD_BALANCE_CORE)
+bool IsTestStrategy_EradicateBarbariansCritical(MilitaryAIStrategyTypes eStrategy, CvPlayer* pPlayer, int iBarbarianCampCount, int iVisibleBarbarianCount);
+#endif
 bool IsTestStrategy_WinningWars(CvPlayer* pPlayer);
 bool IsTestStrategy_LosingWars(CvPlayer* pPlayer);
 bool IsTestStrategy_EnoughRangedUnits(CvPlayer* pPlayer, int iNumRanged, int iNumMelee);

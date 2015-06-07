@@ -224,6 +224,10 @@ public:
 	int GetFirstArmyID();
 
 	virtual bool CheckOnTarget();
+#if defined(MOD_BALANCE_CORE)
+	virtual bool CheckTarget();
+#endif
+
 	virtual bool ArmyInPosition(CvArmyAI* pArmy);
 	virtual bool ArmyMoved(CvArmyAI* pArmy)
 	{

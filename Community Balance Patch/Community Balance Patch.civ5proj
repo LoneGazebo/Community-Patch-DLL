@@ -7,7 +7,7 @@
     <Guid>8411a7a8-dad3-4622-a18e-fcc18324c799</Guid>
     <ModVersion>13</ModVersion>
     <Stability>Beta</Stability>
-    <Teaser>The Complete Civ 5 Experience (6-2)</Teaser>
+    <Teaser>The Complete Civ 5 Experience (6-6)</Teaser>
     <Description>Community Balance Patch - Contains balance changes and gameplay improvements to make Civ V a more enjoyable and exciting game.</Description>
     <Authors>Civfanatics Community Balance Team</Authors>
     <SpecialThanks>
@@ -800,12 +800,6 @@
         <Name>GlobalCityBombardRange</Name>
         <Description>GlobalCityBombardRange</Description>
         <FileName>Modular Elements/GlobalCityBombardRange.lua</FileName>
-      </Content>
-      <Content>
-        <Type>MapScript</Type>
-        <Name>Communitas</Name>
-        <Description>Communitas</Description>
-        <FileName>LUA/Communitas.lua</FileName>
       </Content>
     </ModContent>
   </PropertyGroup>
@@ -1618,6 +1612,10 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
+    <Content Include="LUA\ChooseMayaBonus.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
     <Content Include="LUA\CityBannerManager.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
@@ -1645,10 +1643,6 @@
     <Content Include="LUA\CivilopediaScreen.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
-    <Content Include="LUA\Communitas.lua">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
     <Content Include="LUA\CultureOverview.lua">
       <SubType>Lua</SubType>

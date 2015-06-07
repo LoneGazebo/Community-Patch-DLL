@@ -1,0 +1,11 @@
+<Asset>
+  <Mesh file="hb_eki.gr2" source="Max" />
+  <Texture file="FX_Blk_Blk4x4.dds" source="Max" />
+  <Texture file="eki_hb_diff.dds" source="Max" />
+  <Texture file="eki_hb_grnd.dds" source="Max" />
+  <Texture file="eki_hb_grnd_h.dds" source="Max" />
+  <Texture file="eki_hb_sref.dds" source="Max" />
+  <Texture file="Unit_Environment_Dull.dds" source="Max" />
+  <Texture file="Unit_Environment_Sharp.dds" source="Max" />
+  <Texture file="Unit_Irradiance.dds" source="Max" />
+</Asset>

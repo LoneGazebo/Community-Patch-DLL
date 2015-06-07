@@ -295,6 +295,9 @@ CvCity::CvCity() :
 	, m_aaiBuildingSpecialistUpgradeProgresses(0)
 	, m_ppaiResourceYieldChange(0)
 	, m_ppaiFeatureYieldChange(0)
+#if defined(MOD_BALANCE_CORE)
+	, m_ppaiImprovementYieldChange(0)
+#endif
 	, m_ppaiTerrainYieldChange(0)
 #if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
 	, m_ppaiPlotYieldChange(0)
@@ -1126,6 +1129,17 @@ void CvCity::uninit()
 	}
 	SAFE_DELETE_ARRAY(m_ppaiFeatureYieldChange);
 
+#if defined(MOD_BALANCE_CORE)
+	if(m_ppaiImprovementYieldChange)
+	{
+		for(int i=0; i < GC.getNumImprovementInfos(); i++)
+		{
+			SAFE_DELETE_ARRAY(m_ppaiImprovementYieldChange[i]);
+		}
+	}
+	SAFE_DELETE_ARRAY(m_ppaiImprovementYieldChange);
+#endif
+
 	if(m_ppaiTerrainYieldChange)
 	{
 		for(int i=0; i < GC.getNumTerrainInfos(); i++)
@@ -1569,7 +1583,18 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 				m_ppaiFeatureYieldChange[iI][iJ] = 0;
 			}
 		}
-
+#if defined(MOD_BALANCE_CORE)
+		CvAssertMsg(m_ppaiImprovementYieldChange==NULL, "about to leak memory, CvCity::m_ppaiImprovementYieldChange");
+		m_ppaiImprovementYieldChange = FNEW(int*[iNumImprovementInfos], c_eCiv5GameplayDLL, 0);
+		for(iI = 0; iI < iNumImprovementInfos; iI++)
+		{
+			m_ppaiImprovementYieldChange[iI] = FNEW(int[NUM_YIELD_TYPES], c_eCiv5GameplayDLL, 0);
+			for(iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
+			{
+				m_ppaiImprovementYieldChange[iI][iJ] = 0;
+			}
+		}
+#endif
 		int iNumTerrainInfos = GC.getNumTerrainInfos();
 		CvAssertMsg(m_ppaiTerrainYieldChange==NULL, "about to leak memory, CvCity::m_ppaiTerrainYieldChange");
 		m_ppaiTerrainYieldChange = FNEW(int*[iNumTerrainInfos], c_eCiv5GameplayDLL, 0);
@@ -4005,7 +4030,33 @@ void CvCity::ChangeFeatureExtraYield(FeatureTypes eFeature, YieldTypes eYield, i
 		updateYield();
 	}
 }
+#if defined(MOD_BALANCE_CORE)
+//	--------------------------------------------------------------------------------
+/// Extra yield for a improvement this city is working?
+int CvCity::GetImprovementExtraYield(ImprovementTypes eImprovement, YieldTypes eYield) const
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eImprovement > -1 && eImprovement < GC.getNumImprovementInfos(), "Invalid Improvement index.");
+	CvAssertMsg(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
 
+	return m_ppaiImprovementYieldChange[eImprovement][eYield];
+}
+
+//	--------------------------------------------------------------------------------
+void CvCity::ChangeImprovementExtraYield(ImprovementTypes eImprovement, YieldTypes eYield, int iChange)
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eImprovement > -1 && eImprovement < GC.getNumImprovementInfos(), "Invalid Improvement index.");
+	CvAssertMsg(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
+
+	if(iChange != 0)
+	{
+		m_ppaiImprovementYieldChange[eImprovement][eYield] += iChange;
+
+		updateYield();
+	}
+}
+#endif
 //	--------------------------------------------------------------------------------
 /// Extra yield for a Terrain this city is working?
 int CvCity::GetTerrainExtraYield(TerrainTypes eTerrain, YieldTypes eYield) const
@@ -8380,6 +8431,13 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			{
 				ChangeFeatureExtraYield(((FeatureTypes)iJ), eYield, (GC.getBuildingInfo(eBuilding)->GetFeatureYieldChange(iJ, eYield) * iChange));
 			}
+
+#if defined(MOD_BALANCE_CORE)
+			for(int iJ = 0; iJ < GC.getNumImprovementInfos(); iJ++)
+			{
+				ChangeImprovementExtraYield(((ImprovementTypes)iJ), eYield, (GC.getBuildingInfo(eBuilding)->GetImprovementYieldChange(iJ, eYield) * iChange));
+			}
+#endif
 
 			for(int iJ = 0; iJ < GC.getNumTerrainInfos(); iJ++)
 			{
@@ -20250,6 +20308,10 @@ void CvCity::read(FDataStream& kStream)
 
 	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_ppaiFeatureYieldChange, NUM_YIELD_TYPES, GC.getNumFeatureInfos());
 
+#if defined(MOD_BALANCE_CORE)
+	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_ppaiImprovementYieldChange, NUM_YIELD_TYPES, GC.getNumImprovementInfos());
+#endif
+
 	CvInfosSerializationHelper::ReadHashedDataArray(kStream, m_ppaiTerrainYieldChange, NUM_YIELD_TYPES, GC.getNumTerrainInfos());
 
 #if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)
@@ -20588,6 +20650,9 @@ void CvCity::write(FDataStream& kStream) const
 
 	CvInfosSerializationHelper::WriteHashedDataArray<FeatureTypes>(kStream, m_ppaiFeatureYieldChange, NUM_YIELD_TYPES, GC.getNumFeatureInfos());
 
+#if defined(MOD_BALANCE_CORE)
+	CvInfosSerializationHelper::WriteHashedDataArray<ImprovementTypes>(kStream, m_ppaiImprovementYieldChange, NUM_YIELD_TYPES, GC.getNumImprovementInfos());
+#endif
 	CvInfosSerializationHelper::WriteHashedDataArray<TerrainTypes>(kStream, m_ppaiTerrainYieldChange, NUM_YIELD_TYPES, GC.getNumTerrainInfos());
 
 #if defined(MOD_API_UNIFIED_YIELDS) && defined(MOD_API_PLOT_YIELDS)

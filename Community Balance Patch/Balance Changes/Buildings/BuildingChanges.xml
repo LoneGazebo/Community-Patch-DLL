@@ -435,6 +435,21 @@
 			<BuildingClassType>BUILDINGCLASS_FORGE</BuildingClassType>
 		</Row>
 	</Building_ClassesNeededInCity>
+	<!-- Workshop/Longhouse-->
+	<Building_ImprovementYieldChanges>
+		<Row>
+			<BuildingType>BUILDING_WORKSHOP</BuildingType>
+			<ImprovementType>IMPROVEMENT_MINE</ImprovementType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_LONGHOUSE</BuildingType>
+			<ImprovementType>IMPROVEMENT_MINE</ImprovementType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>1</Yield>
+		</Row>
+	</Building_ImprovementYieldChanges>
 	<!-- Forge -->
 	<Building_YieldChanges>
 		<Row>
@@ -472,4 +487,54 @@
 			<Cost>1</Cost>
 		</Row>
 	</Building_ResourceQuantityRequirements>
+	<!-- Broadcast Tower now multi-slot-->
+	<Building_ThemingBonuses>
+		<Row>
+			<BuildingType>BUILDING_BROADCAST_TOWER</BuildingType>
+			<Description>TXT_KEY_THEMING_BONUS_BROADCAST_TOWER_NATIONAL</Description>
+			<Bonus>4</Bonus>
+			<SameEra>true</SameEra>
+			<RequiresOwner>true</RequiresOwner>
+			<AIPriority>2</AIPriority>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_BROADCAST_TOWER</BuildingType>
+			<Description>TXT_KEY_THEMING_BONUS_BROADCAST_TOWER_GLOBAL</Description>
+			<Bonus>4</Bonus>
+			<SameEra>true</SameEra>
+			<RequiresAnyButOwner>true</RequiresAnyButOwner>
+			<AIPriority>2</AIPriority>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_BROADCAST_TOWER</BuildingType>
+			<Description>TXT_KEY_THEMING_BONUS_BROADCAST_TOWER_CLASSICS</Description>
+			<Bonus>4</Bonus>
+			<UniqueEras>true</UniqueEras>
+			<RequiresUniquePlayers>true</RequiresUniquePlayers>
+			<AIPriority>2</AIPriority>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_BROADCAST_TOWER</BuildingType>
+			<Description>TXT_KEY_THEMING_BONUS_BROADCAST_TOWER_ALL</Description>
+			<Bonus>2</Bonus>
+			<AIPriority>1</AIPriority>
+		</Row>
+	</Building_ThemingBonuses>
+	<Language_en_US>
+		<Row Tag="TXT_KEY_THEMING_BONUS_BROADCAST_TOWER_NATIONAL">
+			<Text>KCIV 101.5 - #1 for Classic Hits</Text>
+		</Row>
+		<Row Tag="TXT_KEY_THEMING_BONUS_BROADCAST_TOWER_GLOBAL">
+			<Text>KFXS 99.3 - Your Source for World Music</Text>
+		</Row>
+		<Row Tag="TXT_KEY_THEMING_BONUS_BROADCAST_TOWER_CLASSICS">
+			<Text>KSID 107.7 - Today's Hits, Yesterday's Favorites</Text>
+		</Row>
+		<Row Tag="TXT_KEY_THEMING_BONUS_BROADCAST_TOWER_ALL">
+			<Text>KGAZ 89.5 - The Hottest Music in Town</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BROADCAST_TOWER_THEMING_BONUS_HELP">
+			<Text>To maximize your bonus, make sure both Great Works meet one of the following criteria: [NEWLINE]1.) Both from the same Era and the City's Civilization [NEWLINE]2.) Both from other Civilizations (aside from the City owner) and the same Era [NEWLINE]3.) Both from different Eras and Civilizations.</Text>
+		</Row>
+	</Language_en_US>
 </GameData>

@@ -81,6 +81,7 @@ CvDiplomacyAI::DiplomacyAIData::DiplomacyAIData() :
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
 	, m_abDoFBroken()
 	, m_aiNumDoFLifetime()
+	, m_abCantMatchDeal()
 #endif
 	, m_aiDoFCounter()
 	, m_abDenouncedPlayer()
@@ -233,6 +234,7 @@ CvDiplomacyAI::CvDiplomacyAI():
 	m_paePlayerVictoryDisputeLevel(NULL),
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
 	m_paePlayerVictoryBlockLevel(NULL),
+	m_pabCantMatchDeal(NULL),
 #endif
 	m_paePlayerWonderDisputeLevel(NULL),
 	m_paePlayerMinorCivDisputeLevel(NULL),
@@ -471,6 +473,7 @@ void CvDiplomacyAI::Init(CvPlayer* pPlayer)
 	m_paePlayerVictoryDisputeLevel = &m_pDiploData->m_aePlayerVictoryDisputeLevel[0];
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
 	m_paePlayerVictoryBlockLevel = &m_pDiploData->m_paePlayerVictoryBlockLevel[0];
+	m_pabCantMatchDeal = &m_pDiploData->m_abCantMatchDeal[0];
 #endif
 	m_paePlayerWonderDisputeLevel = &m_pDiploData->m_aePlayerWonderDisputeLevel[0];
 	m_paePlayerMinorCivDisputeLevel = &m_pDiploData->m_aePlayerMinorCivDisputeLevel[0];
@@ -754,6 +757,7 @@ void CvDiplomacyAI::Uninit()
 	m_paePlayerVictoryDisputeLevel = NULL;
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
 	m_paePlayerVictoryBlockLevel = NULL;
+	m_pabCantMatchDeal = NULL;
 #endif
 	m_paePlayerWonderDisputeLevel = NULL;
 	m_paePlayerMinorCivDisputeLevel = NULL;
@@ -1006,6 +1010,7 @@ void CvDiplomacyAI::Reset()
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
 		m_pabDoFBroken[iI] = false;
 		m_paiNumDoFLifetime[iI] = 0;
+		m_pabCantMatchDeal[iI] = false;
 #endif
 		m_paiDoFCounter[iI] = -1;
 
@@ -1338,6 +1343,9 @@ void CvDiplomacyAI::Read(FDataStream& kStream)
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
 	ArrayWrapper<char> wrapm_paePlayerVictoryBlockLevel(MAX_CIV_PLAYERS, m_paePlayerVictoryBlockLevel);
 	kStream >> wrapm_paePlayerVictoryBlockLevel;
+
+	ArrayWrapper<bool> wrapm_pabCantMatchDeal(MAX_CIV_PLAYERS, m_pabCantMatchDeal);
+	kStream >> wrapm_pabCantMatchDeal;
 #endif
 
 	ArrayWrapper<char> wrapm_paePlayerWonderDisputeLevel(MAX_CIV_PLAYERS, m_paePlayerWonderDisputeLevel);
@@ -1830,6 +1838,7 @@ void CvDiplomacyAI::Write(FDataStream& kStream) const
 	kStream << ArrayWrapper<char>(MAX_CIV_PLAYERS, m_paePlayerVictoryDisputeLevel);
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
 	kStream << ArrayWrapper<char>(MAX_CIV_PLAYERS, m_paePlayerVictoryBlockLevel);
+	kStream << ArrayWrapper<bool>(MAX_MAJOR_CIVS, m_pabCantMatchDeal);
 #endif
 	kStream << ArrayWrapper<char>(MAX_CIV_PLAYERS, m_paePlayerWonderDisputeLevel);
 	kStream << ArrayWrapper<char>(MAX_CIV_PLAYERS, m_paePlayerMinorCivDisputeLevel);
@@ -5560,7 +5569,7 @@ bool CvDiplomacyAI::IsWantsOpenBordersWithPlayer(PlayerTypes ePlayer)
 		}
 	}
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
-	if(!m_pPlayer->IsCramped() || GET_PLAYER(ePlayer).getNumCities() < m_pPlayer->getNumCities())
+	if(!m_pPlayer->IsCramped() || GET_PLAYER(ePlayer).getNumCities() < (m_pPlayer->getNumCities() * 2))
 #else
 	if(GetPlayer()->GetProximityToPlayer(ePlayer) != PLAYER_PROXIMITY_NEIGHBORS)
 #endif
@@ -5573,7 +5582,26 @@ bool CvDiplomacyAI::IsWantsOpenBordersWithPlayer(PlayerTypes ePlayer)
 	{
 		return false;
 	}
-
+#if defined(MOD_BALANCE_CORE)
+	EconomicAIStrategyTypes eNeedRecon = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_RECON");
+	EconomicAIStrategyTypes eNavalRecon = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_RECON_SEA");
+	if(eNeedRecon != NO_ECONOMICAISTRATEGY && m_pPlayer->GetEconomicAI()->IsUsingStrategy(eNeedRecon))
+	{
+		return true;
+	}
+	if(eNavalRecon != NO_ECONOMICAISTRATEGY && m_pPlayer->GetEconomicAI()->IsUsingStrategy(eNavalRecon))
+	{
+		CvCity* pLoopCity = NULL;
+		int iCityLoop;
+		for(pLoopCity = GET_PLAYER(ePlayer).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iCityLoop))
+		{
+			if(pLoopCity != NULL && pLoopCity->isCoastal())
+			{
+				return true;
+			}
+		}
+	}
+#endif
 	switch(GetPlayerMilitaryStrengthComparedToUs(ePlayer))
 	{
 	case STRENGTH_IMMENSE:
@@ -12149,6 +12177,63 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 			GC.getGame().GetGameDeals()->FinalizeDeal(GetPlayer()->GetID(), ePlayer, true);
 		}
 	}
+	// We'd like a 3rd party war
+	else if(eStatement == DIPLO_STATEMENT_THIRDPARTY_WAR_REQUEST)
+	{
+		// Active human
+		if(bShouldShowLeaderScene)
+		{
+			szText = GetDiploStringForMessage(DIPLO_MESSAGE_THIRDPARTY_WAR_OFFER);
+			CvDiplomacyRequests::SendDealRequest(GetPlayer()->GetID(), ePlayer, pDeal, DIPLO_UI_STATE_TRADE_AI_MAKES_OFFER, szText, LEADERHEAD_ANIM_REQUEST);
+		}
+		// Offer to an AI player
+		else if(!bHuman)
+		{
+			CvDeal kDeal = *pDeal;
+
+			// Don't need to call DoOffer because we check to see if the deal works for both sides BEFORE sending
+			GC.getGame().GetGameDeals()->AddProposedDeal(kDeal);
+			GC.getGame().GetGameDeals()->FinalizeDeal(GetPlayer()->GetID(), ePlayer, true);
+		}
+	}
+	// We'd like a defense pact
+	else if(eStatement == DIPLO_STATEMENT_THIRDPARTY_PEACE_REQUEST)
+	{
+		// Active human
+		if(bShouldShowLeaderScene)
+		{
+			szText = GetDiploStringForMessage(DIPLO_MESSAGE_THIRDPARTY_PEACE_OFFER);
+			CvDiplomacyRequests::SendDealRequest(GetPlayer()->GetID(), ePlayer, pDeal, DIPLO_UI_STATE_TRADE_AI_MAKES_OFFER, szText, LEADERHEAD_ANIM_REQUEST);
+		}
+		// Offer to an AI player
+		else if(!bHuman)
+		{
+			CvDeal kDeal = *pDeal;
+
+			// Don't need to call DoOffer because we check to see if the deal works for both sides BEFORE sending
+			GC.getGame().GetGameDeals()->AddProposedDeal(kDeal);
+			GC.getGame().GetGameDeals()->FinalizeDeal(GetPlayer()->GetID(), ePlayer, true);
+		}
+	}
+	// We'd like a defense pact
+	else if(eStatement == DIPLO_STATEMENT_TRADE_CITIES_REQUEST)
+	{
+		// Active human
+		if(bShouldShowLeaderScene)
+		{
+			szText = GetDiploStringForMessage(DIPLO_MESSAGE_TRADE_CITIES_OFFER);
+			CvDiplomacyRequests::SendDealRequest(GetPlayer()->GetID(), ePlayer, pDeal, DIPLO_UI_STATE_TRADE_AI_MAKES_OFFER, szText, LEADERHEAD_ANIM_REQUEST);
+		}
+		// Offer to an AI player
+		else if(!bHuman)
+		{
+			CvDeal kDeal = *pDeal;
+
+			// Don't need to call DoOffer because we check to see if the deal works for both sides BEFORE sending
+			GC.getGame().GetGameDeals()->AddProposedDeal(kDeal);
+			GC.getGame().GetGameDeals()->FinalizeDeal(GetPlayer()->GetID(), ePlayer, true);
+		}
+	}
 #endif
 	// We'd like to work with a player
 	else if(eStatement == DIPLO_STATEMENT_WORK_WITH_US)
@@ -12597,7 +12682,11 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 			int iDealValueToMe, iValueImOffering, iValueTheyreOffering, iAmountOverWeWillRequest, iAmountUnderWeWillOffer;
 			DiploMessageTypes eMessageType = NUM_DIPLO_MESSAGE_TYPES;
 			bool bCantMatchOffer;
+#if defined(MOD_BALANCE_CORE)
+			bool bDealAcceptable = m_pPlayer->GetDealAI()->IsDealWithHumanAcceptable(pDeal, ePlayer, iDealValueToMe, iValueImOffering, iValueTheyreOffering, iAmountOverWeWillRequest, iAmountUnderWeWillOffer, &bCantMatchOffer);
+#else
 			bool bDealAcceptable = m_pPlayer->GetDealAI()->IsDealWithHumanAcceptable(pDeal, ePlayer, iDealValueToMe, iValueImOffering, iValueTheyreOffering, iAmountOverWeWillRequest, iAmountUnderWeWillOffer, bCantMatchOffer);
+#endif
 
 			if(!bDealAcceptable)
 			{
@@ -13539,7 +13628,18 @@ void CvDiplomacyAI::DoContactPlayer(PlayerTypes ePlayer)
 	{
 		m_paDiploLogStatementTurnCountScratchPad[iLoop] = MAX_TURNS_SAFE_ESTIMATE;
 	}
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	if (MOD_DIPLOMACY_CIV4_FEATURES)
+	{
+		//End the gift exchange at the start of each round.
+		GetPlayer()->GetDiplomacyAI()->SetOfferingGift(ePlayer, false);
+	}
+#endif
 
+#if defined(MOD_BALANCE_CORE)
+	//Clear this data out before any deals are offered.
+	SetCantMatchDeal(ePlayer, false);
+#endif
 	// Make a scratch pad keeping track of the last time we sent each message.  This way we can know what we've said in the past already - this member array will be used in the function calls below
 	for(iDiploLogStatement = 0; iDiploLogStatement < MAX_DIPLO_LOG_STATEMENTS; iDiploLogStatement++)
 	{
@@ -15743,21 +15843,7 @@ void CvDiplomacyAI::DoOpenBordersExchange(PlayerTypes ePlayer, DiploStatementTyp
 					// 1 in 2 chance we don't actually send the message (don't want full predictability)
 					if(50 < GC.getGame().getJonRandNum(100, "Diplomacy AI: rand roll to see if we ask to exchange open borders"))
 						bSendStatement = false;
-#if defined(MOD_BALANCE_CORE_DIPLOMACY)
-					if(MOD_BALANCE_CORE_DIPLOMACY)
-					{
-						int iDealValueToMe, iValueImOffering, iValueTheyreOffering, iAmountOverWeWillRequest, iAmountUnderWeWillOffer;
-						bool bCantMatchOffer;
-						if(GetPlayer()->GetDealAI()->IsDealWithHumanAcceptable(pDeal, ePlayer, iDealValueToMe, iValueImOffering, iValueTheyreOffering, iAmountOverWeWillRequest, iAmountUnderWeWillOffer, bCantMatchOffer))
-						{
-							bSendStatement = true;
-						}
-						else
-						{
-							bSendStatement = false;
-						}
-					}
-#endif
+
 					if(bSendStatement)
 					{
 						// OB on each side
@@ -15852,9 +15938,6 @@ void CvDiplomacyAI::DoDefensivePactOffer(PlayerTypes ePlayer, DiploStatementType
 		}
 	}
 }
-	void DoCityTrade(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
-	void DoThirdPartyWarTrade(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
-	void DoThirdPartyPeaceTrade(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal);
 /// Possible Contact Statement - Peace Trade
 void CvDiplomacyAI::DoCityTrade(PlayerTypes ePlayer, DiploStatementTypes& eStatement, CvDeal* pDeal)
 {
@@ -15865,7 +15948,7 @@ void CvDiplomacyAI::DoCityTrade(PlayerTypes ePlayer, DiploStatementTypes& eState
 	{
 		if(GetPlayer()->GetDealAI()->IsMakeOfferForCity(ePlayer, /*pDeal can be modified in this function*/ pDeal))
 		{
-			DiploStatementTypes eTempStatement = DIPLO_STATEMENT_REQUEST;
+			DiploStatementTypes eTempStatement = DIPLO_STATEMENT_TRADE_CITIES_REQUEST;
 			int iTurnsBetweenStatements = 30;
 
 			if(GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
@@ -15884,11 +15967,11 @@ void CvDiplomacyAI::DoThirdPartyWarTrade(PlayerTypes ePlayer, DiploStatementType
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
-	if(eStatement == NO_DIPLO_STATEMENT_TYPE && !IsDoFAccepted(ePlayer))
+	if(eStatement == NO_DIPLO_STATEMENT_TYPE)
 	{
 		if(GetPlayer()->GetDealAI()->IsMakeOfferForThirdPartyWar(ePlayer, /*pDeal can be modified in this function*/ pDeal))
 		{
-			DiploStatementTypes eTempStatement = DIPLO_STATEMENT_REQUEST;
+			DiploStatementTypes eTempStatement = DIPLO_STATEMENT_THIRDPARTY_WAR_REQUEST;
 			int iTurnsBetweenStatements = 30;
 
 			if(GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
@@ -15911,7 +15994,7 @@ void CvDiplomacyAI::DoThirdPartyPeaceTrade(PlayerTypes ePlayer, DiploStatementTy
 	{
 		if(GetPlayer()->GetDealAI()->IsMakeOfferForThirdPartyPeace(ePlayer, /*pDeal can be modified in this function*/ pDeal))
 		{
-			DiploStatementTypes eTempStatement = DIPLO_STATEMENT_REQUEST;
+			DiploStatementTypes eTempStatement = DIPLO_STATEMENT_THIRDPARTY_PEACE_REQUEST;
 			int iTurnsBetweenStatements = 30;
 
 			if(GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
@@ -16037,39 +16120,14 @@ void CvDiplomacyAI::DoRenewExpiredDeal(PlayerTypes ePlayer, DiploStatementTypes&
 				break;
 			}
 		}
-#if defined(MOD_BALANCE_CORE_DEALS)
-		if (pTargetDeal && GET_PLAYER(ePlayer).isHuman())
-		{
-			*pDeal = *pTargetDeal;
-			pTargetDeal->m_bConsideringForRenewal = true;
-			pDeal->m_iFinalTurn = -1;
-			int iDealValueToMe, iValueImOffering, iValueTheyreOffering, iAmountOverWeWillRequest, iAmountUnderWeWillOffer;
-			bool bCantMatchOffer;
-			bool bDealAcceptable = m_pPlayer->GetDealAI()->IsDealWithHumanAcceptable(pDeal, ePlayer, iDealValueToMe, iValueImOffering, iValueTheyreOffering, iAmountOverWeWillRequest, iAmountUnderWeWillOffer, bCantMatchOffer);
-			if(bDealAcceptable)
-			{
-				eStatement = DIPLO_STATEMENT_RENEW_DEAL;
-			}
-			else
-			{
-				pDeal->ClearItems();
-				ClearDealToRenew();
-			}
-		}
-		else if(pTargetDeal && !GET_PLAYER(ePlayer).isHuman())
-#else
 		if (pTargetDeal)
-#endif
 		{
 			// copy the target deal into the new deal
 			*pDeal = *pTargetDeal;
 			pTargetDeal->m_bConsideringForRenewal = true;
 			pDeal->m_iFinalTurn = -1;
-#if defined(MOD_BALANCE_CORE_DEALS)
-#else
 			if(!GET_PLAYER(ePlayer).isHuman())
 			{
-#endif
 				bool bAbleToEqualize = m_pPlayer->GetDealAI()->DoEqualizeDealWithAI(pDeal, ePlayer);
 				if(!bAbleToEqualize)
 				{
@@ -16077,10 +16135,7 @@ void CvDiplomacyAI::DoRenewExpiredDeal(PlayerTypes ePlayer, DiploStatementTypes&
 					ClearDealToRenew();
 					return;
 				}
-#if defined(MOD_BALANCE_CORE_DEALS)
-#else
 			}
-#endif
 			eStatement = DIPLO_STATEMENT_RENEW_DEAL;
 
 		}
@@ -18013,7 +18068,7 @@ const char* CvDiplomacyAI::GetDiploStringForMessage(DiploMessageTypes eDiploMess
 		// AI would like to work with a player
 	case DIPLO_MESSAGE_WORK_WITH_US:
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
-		strText = GetDoFHumanMessage();
+		strText = GetDoFHumanMessage(eForPlayer);
 #else
 		strText = GetDiploTextFromTag("RESPONSE_WORK_WITH_US");
 #endif
@@ -18471,7 +18526,11 @@ const char* CvDiplomacyAI::GetDiploStringForMessage(DiploMessageTypes eDiploMess
 
 		// AI offers a counter-deal
 	case DIPLO_MESSAGE_TRADE_AI_MAKES_OFFER:
+#if defined(MOD_BALANCE_CORE)
+		strText = GetOfferText(eForPlayer);
+#else
 		strText = GetDiploTextFromTag("RESPONSE_TRADE_AI_MAKES_OFFER");
+#endif
 		break;
 
 		// AI doesn't see a way to make proposed deal work
@@ -18567,6 +18626,21 @@ const char* CvDiplomacyAI::GetDiploStringForMessage(DiploMessageTypes eDiploMess
 		// AI DP request
 	case DIPLO_MESSAGE_DEFENSE_PACT_OFFER:
 		strText = GetDiploTextFromTag("RESPONSE_DEFENSIVE_PACT_REQUEST");
+		break;
+
+		// AI DP request
+	case DIPLO_MESSAGE_TRADE_CITIES_OFFER:
+		strText = GetDiploTextFromTag("RESPONSE_TRADE_CITIES_REQUEST");
+		break;
+
+		// AI DP request
+	case DIPLO_MESSAGE_THIRDPARTY_PEACE_OFFER:
+		strText = GetDiploTextFromTag("RESPONSE_THIRD_PARTY_PEACE_REQUEST");
+		break;
+
+		// AI DP request
+	case DIPLO_MESSAGE_THIRDPARTY_WAR_OFFER:
+		strText = GetDiploTextFromTag("RESPONSE_THIRD_PARTY_WAR_REQUEST");
 		break;
 #endif
 
@@ -21322,156 +21396,354 @@ const char* CvDiplomacyAI::GetGreetHumanMessage(LeaderheadAnimationTypes& eAnima
 	return GetDiploStringForMessage(DIPLO_MESSAGE_GREETING_NEUTRAL_HELLO);
 }
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
-/// AI is DOF the human
-const char* CvDiplomacyAI::GetDoFHumanMessage()
+/// Does this AI want to make a Defensive Pact with ePlayer?
+bool CvDiplomacyAI::IsCantMatchDeal(PlayerTypes ePlayer)
 {
-	PlayerTypes ePlayer = GC.getGame().getActivePlayer();
-	int iFriendshipValue = GetNumDoFLifetime(ePlayer);
-	const char* strText;
-	if(iFriendshipValue < 0)
+	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	return m_pabCantMatchDeal[ePlayer];
+}
+/// Sets this AI want to want a Defensive Pact with ePlayer
+void CvDiplomacyAI::SetCantMatchDeal(PlayerTypes ePlayer, bool bValue)
+{
+	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
+	m_pabCantMatchDeal[ePlayer] = bValue;
+}
+/// AI cant match human deal.
+const char* CvDiplomacyAI::GetOfferText(PlayerTypes ePlayer)
+{
+	if(ePlayer == NO_PLAYER)
 	{
-		strText = GetDiploTextFromTag("RESPONSE_WORK_WITH_US_UNTRUSTWORTHY");
-	}
-	else if(iFriendshipValue == 0)
-	{
-		strText = GetDiploTextFromTag("RESPONSE_WORK_WITH_US");
-	}
-	else if(iFriendshipValue == 1)
-	{
-		strText = GetDiploTextFromTag("RESPONSE_WORK_WITH_US_FRIENDS");
-	}
-	else if(iFriendshipValue == 2)
-	{
-		strText = GetDiploTextFromTag("RESPONSE_WORK_WITH_US_OLD_FRIENDS");
-	}
-	else if(iFriendshipValue > 2)
-	{
-		strText = GetDiploTextFromTag("RESPONSE_WORK_WITH_US_BATTLE_BROTHERS");
+		ePlayer = GC.getGame().getActivePlayer();
+		if(IsCantMatchDeal(ePlayer))
+		{
+			SetCantMatchDeal(ePlayer, false);
+			return GetDiploTextFromTag("RESPONSE_TRADE_CANT_MATCH_OFFER");
+		}
+		else
+		{
+			return GetDiploTextFromTag("RESPONSE_TRADE_AI_MAKES_OFFER");
+		}
 	}
 	else
 	{
-		strText = GetDiploTextFromTag("RESPONSE_WORK_WITH_US");
+		if(IsCantMatchDeal(ePlayer))
+		{
+			SetCantMatchDeal(ePlayer, false);
+			return GetDiploTextFromTag("RESPONSE_TRADE_CANT_MATCH_OFFER");
+		}
+		else
+		{
+			return GetDiploTextFromTag("RESPONSE_TRADE_AI_MAKES_OFFER");
+		}
 	}
-	return strText;
+}
+/// AI is DOF the human
+const char* CvDiplomacyAI::GetDoFHumanMessage(PlayerTypes ePlayer)
+{
+	if(ePlayer == NO_PLAYER)
+	{
+		ePlayer = GC.getGame().getActivePlayer();
+
+		int iFriendshipValue = GetNumDoFLifetime(ePlayer);
+		const char* strText;
+		if(iFriendshipValue < 0)
+		{
+			strText = GetDiploTextFromTag("RESPONSE_WORK_WITH_US_UNTRUSTWORTHY");
+		}
+		else if(iFriendshipValue == 0)
+		{
+			strText = GetDiploTextFromTag("RESPONSE_WORK_WITH_US");
+		}
+		else if(iFriendshipValue == 1)
+		{
+			strText = GetDiploTextFromTag("RESPONSE_WORK_WITH_US_FRIENDS");
+		}
+		else if(iFriendshipValue == 2)
+		{
+			strText = GetDiploTextFromTag("RESPONSE_WORK_WITH_US_OLD_FRIENDS");
+		}
+		else if(iFriendshipValue > 2)
+		{
+			strText = GetDiploTextFromTag("RESPONSE_WORK_WITH_US_BATTLE_BROTHERS");
+		}
+		else
+		{
+			strText = GetDiploTextFromTag("RESPONSE_WORK_WITH_US");
+		}
+		return strText;
+	}
+	else
+	{
+		int iFriendshipValue = GetNumDoFLifetime(ePlayer);
+		const char* strText;
+		if(iFriendshipValue < 0)
+		{
+			strText = GetDiploTextFromTag("RESPONSE_WORK_WITH_US_UNTRUSTWORTHY");
+		}
+		else if(iFriendshipValue == 0)
+		{
+			strText = GetDiploTextFromTag("RESPONSE_WORK_WITH_US");
+		}
+		else if(iFriendshipValue == 1)
+		{
+			strText = GetDiploTextFromTag("RESPONSE_WORK_WITH_US_FRIENDS");
+		}
+		else if(iFriendshipValue == 2)
+		{
+			strText = GetDiploTextFromTag("RESPONSE_WORK_WITH_US_OLD_FRIENDS");
+		}
+		else if(iFriendshipValue > 2)
+		{
+			strText = GetDiploTextFromTag("RESPONSE_WORK_WITH_US_BATTLE_BROTHERS");
+		}
+		else
+		{
+			strText = GetDiploTextFromTag("RESPONSE_WORK_WITH_US");
+		}
+		return strText;
+	}
 }
 /// The AI is denouncing the human
 int CvDiplomacyAI::GetDenounceMessage(PlayerTypes ePlayer)
 {
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-	MajorCivOpinionTypes eOpinion = GetMajorCivOpinion(ePlayer);
 
 	int iMessage = 0;
+	if(ePlayer == NO_PLAYER)
+	{
+		ePlayer = GC.getGame().getActivePlayer();
+		MajorCivOpinionTypes eOpinion = GetMajorCivOpinion(ePlayer);
 
-	// Guy is a different ideology
-	if(GetDiploBalance() > 5 && (GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree() != GetPlayer()->GetPlayerPolicies()->GetLateGamePolicyTree()) && (GetPlayer()->GetPlayerPolicies()->GetLateGamePolicyTree() != NO_POLICY_BRANCH_TYPE) && (GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree() != NO_POLICY_BRANCH_TYPE) && GET_PLAYER(ePlayer).GetCulture()->GetPublicOpinionPreferredIdeology() == m_pPlayer->GetPlayerPolicies()->GetLateGamePolicyTree())
-	{
-		if(m_pPlayer->GetPlayerPolicies()->GetLateGamePolicyTree() == GC.getPOLICY_BRANCH_AUTOCRACY())
+		// Guy is a different ideology
+		if(GetDiploBalance() > 5 && (GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree() != GetPlayer()->GetPlayerPolicies()->GetLateGamePolicyTree()) && (GetPlayer()->GetPlayerPolicies()->GetLateGamePolicyTree() != NO_POLICY_BRANCH_TYPE) && (GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree() != NO_POLICY_BRANCH_TYPE) && GET_PLAYER(ePlayer).GetCulture()->GetPublicOpinionPreferredIdeology() == m_pPlayer->GetPlayerPolicies()->GetLateGamePolicyTree())
 		{
-			return 1;
+			if(m_pPlayer->GetPlayerPolicies()->GetLateGamePolicyTree() == GC.getPOLICY_BRANCH_AUTOCRACY())
+			{
+				return 1;
+			}
+			else if(m_pPlayer->GetPlayerPolicies()->GetLateGamePolicyTree() == GC.getPOLICY_BRANCH_ORDER())
+			{
+				return 2;
+			}
+			else if(m_pPlayer->GetPlayerPolicies()->GetLateGamePolicyTree() == GC.getPOLICY_BRANCH_FREEDOM())
+			{
+				return 3;
+			}
 		}
-		else if(m_pPlayer->GetPlayerPolicies()->GetLateGamePolicyTree() == GC.getPOLICY_BRANCH_ORDER())
+		else if(GetDiploBalance() > 5 && (GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree() != GetPlayer()->GetPlayerPolicies()->GetLateGamePolicyTree()) && (GetPlayer()->GetPlayerPolicies()->GetLateGamePolicyTree() != NO_POLICY_BRANCH_TYPE) && (GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree() != NO_POLICY_BRANCH_TYPE) && m_pPlayer->GetCulture()->GetPublicOpinionPreferredIdeology() == GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree())
 		{
-			return 2;
+			if(m_pPlayer->GetPlayerPolicies()->GetLateGamePolicyTree() == GC.getPOLICY_BRANCH_AUTOCRACY())
+			{
+				return 4;
+			}
+			else if(m_pPlayer->GetPlayerPolicies()->GetLateGamePolicyTree() == GC.getPOLICY_BRANCH_ORDER())
+			{
+				return 5;
+			}
+			else if(m_pPlayer->GetPlayerPolicies()->GetLateGamePolicyTree() == GC.getPOLICY_BRANCH_FREEDOM())
+			{
+				return 6;
+			}
 		}
-		else if(m_pPlayer->GetPlayerPolicies()->GetLateGamePolicyTree() == GC.getPOLICY_BRANCH_FREEDOM())
+		else if(GetDiploBalance() > 5 && (GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree() != GetPlayer()->GetPlayerPolicies()->GetLateGamePolicyTree()) && (GetPlayer()->GetPlayerPolicies()->GetLateGamePolicyTree() != NO_POLICY_BRANCH_TYPE) && (GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree() != NO_POLICY_BRANCH_TYPE))
 		{
-			return 3;
+			return 7;
 		}
-	}
-	else if(GetDiploBalance() > 5 && (GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree() != GetPlayer()->GetPlayerPolicies()->GetLateGamePolicyTree()) && (GetPlayer()->GetPlayerPolicies()->GetLateGamePolicyTree() != NO_POLICY_BRANCH_TYPE) && (GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree() != NO_POLICY_BRANCH_TYPE) && m_pPlayer->GetCulture()->GetPublicOpinionPreferredIdeology() == GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree())
-	{
-		if(m_pPlayer->GetPlayerPolicies()->GetLateGamePolicyTree() == GC.getPOLICY_BRANCH_AUTOCRACY())
+		// Guy is a warmonger
+		else if(GetWarmongerThreat(ePlayer) >= THREAT_MAJOR && GetDiploBalance() > 5)
 		{
-			return 4;
+			return 8;
 		}
-		else if(m_pPlayer->GetPlayerPolicies()->GetLateGamePolicyTree() == GC.getPOLICY_BRANCH_ORDER())
+		// Guy is getting too friendly with our minors
+		else if(GetMinorCivDisputeLevel(ePlayer) >= DISPUTE_LEVEL_STRONG && GetMinorCivCompetitiveness() > 5)
 		{
-			return 5;
+			return 9;
 		}
-		else if(m_pPlayer->GetPlayerPolicies()->GetLateGamePolicyTree() == GC.getPOLICY_BRANCH_FREEDOM())
+		// Guy is getting too friendly with our minors
+		else if(GetOtherPlayerNumProtectedMinorsBullied(ePlayer) > 0 && GetMinorCivCompetitiveness() > 5)
 		{
-			return 6;
+			return 10;
+		}
+		// Guy nuked us!
+		else if(IsNukedBy(ePlayer))
+		{
+			return 11;
+		}
+		// Guy is a thief!
+		else if(IsPlayerBrokenSpyPromise(ePlayer) && GetLoyalty() > 5)
+		{
+			return 12;
+		}
+		// Guy is setting near us and we don't like it
+		else if(GetLandDisputeLevel(ePlayer) >= DISPUTE_LEVEL_STRONG && eOpinion < MAJOR_CIV_OPINION_NEUTRAL)
+		{
+			return 13;
+		}
+		// Guy has bad friends!
+		else if(IsPlayerDoFwithAnyEnemy(ePlayer) && GetDenounceWillingness() > 5)
+		{
+			return 14;
+		}
+		// Is denounced already
+		else if(IsDenouncedPlayer(ePlayer) && GetDenounceWillingness() > 4)
+		{
+			return 15;
+		}
+		//Is untrustworthy
+		else if(GET_PLAYER(ePlayer).GetDiplomacyAI()->IsUntrustworthyFriend() || GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDenouncedPlayer(m_pPlayer->GetID()))
+		{
+			return 16;
+		}
+		//Previous wars
+		else if(eOpinion < MAJOR_CIV_OPINION_NEUTRAL && GetNumWarsFought(ePlayer) > 0 && GetForgiveness() <= 5)
+		{
+			return 17;
+		}
+		// Guy is a different faith
+		else if(GetMeanness() > 4 && (GET_PLAYER(ePlayer).GetReligions()->GetReligionInMostCities() != GetPlayer()->GetReligions()->GetReligionInMostCities()) && (GetPlayer()->GetReligions()->GetReligionInMostCities() != NO_RELIGION) && (GET_PLAYER(ePlayer).GetReligions()->GetReligionInMostCities() != NO_RELIGION))
+		{
+			return 18;
+		}
+		//Artifacts
+		else if(IsPlayerBrokenNoDiggingPromise(ePlayer) && GetForgiveness() <= 5)
+		{
+			return 19;
+		}
+		// Guy built wonders we wanted
+		else if(GetWonderDisputeLevel(ePlayer) >= DISPUTE_LEVEL_STRONG && GetWonderCompetitiveness() > 5)
+		{
+			return 20;
+		}
+		// Guy is pursuing victory too hard
+		else if(GetVictoryDisputeLevel(ePlayer) >= DISPUTE_LEVEL_STRONG && GetVictoryCompetitiveness() > 5)
+		{
+			return 21;
+		}
+		// Guy is pursuing victory too hard
+		else if(GetVictoryBlockLevel(ePlayer) >= BLOCK_LEVEL_STRONG && GetVictoryCompetitiveness() > 5)
+		{
+			return 22;
 		}
 	}
-	else if(GetDiploBalance() > 5 && (GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree() != GetPlayer()->GetPlayerPolicies()->GetLateGamePolicyTree()) && (GetPlayer()->GetPlayerPolicies()->GetLateGamePolicyTree() != NO_POLICY_BRANCH_TYPE) && (GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree() != NO_POLICY_BRANCH_TYPE))
+	else
 	{
-		return 7;
-	}
-	// Guy is a warmonger
-	else if(GetWarmongerThreat(ePlayer) >= THREAT_MAJOR && GetDiploBalance() > 5)
-	{
-		return 8;
-	}
-	// Guy is getting too friendly with our minors
-	else if(GetMinorCivDisputeLevel(ePlayer) >= DISPUTE_LEVEL_STRONG && GetMinorCivCompetitiveness() > 5)
-	{
-		return 9;
-	}
-	// Guy is getting too friendly with our minors
-	else if(GetOtherPlayerNumProtectedMinorsBullied(ePlayer) > 0 && GetMinorCivCompetitiveness() > 5)
-	{
-		return 10;
-	}
-	// Guy nuked us!
-	else if(IsNukedBy(ePlayer))
-	{
-		return 11;
-	}
-	// Guy is a thief!
-	else if(IsPlayerBrokenSpyPromise(ePlayer) && GetLoyalty() > 5)
-	{
-		return 12;
-	}
-	// Guy is setting near us and we don't like it
-	else if(GetLandDisputeLevel(ePlayer) >= DISPUTE_LEVEL_STRONG && eOpinion < MAJOR_CIV_OPINION_NEUTRAL)
-	{
-		return 13;
-	}
-	// Guy has bad friends!
-	else if(IsPlayerDoFwithAnyEnemy(ePlayer) && GetDenounceWillingness() > 5)
-	{
-		return 14;
-	}
-	// Is denounced already
-	else if(IsDenouncedPlayer(ePlayer) && GetDenounceWillingness() > 4)
-	{
-		return 15;
-	}
-	//Is untrustworthy
-	else if(GET_PLAYER(ePlayer).GetDiplomacyAI()->IsUntrustworthyFriend() || GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDenouncedPlayer(m_pPlayer->GetID()))
-	{
-		return 16;
-	}
-	//Previous wars
-	else if(eOpinion < MAJOR_CIV_OPINION_NEUTRAL && GetNumWarsFought(ePlayer) > 0 && GetForgiveness() <= 5)
-	{
-		return 17;
-	}
-	// Guy is a different faith
-	else if(GetMeanness() > 4 && (GET_PLAYER(ePlayer).GetReligions()->GetReligionInMostCities() != GetPlayer()->GetReligions()->GetReligionInMostCities()) && (GetPlayer()->GetReligions()->GetReligionInMostCities() != NO_RELIGION) && (GET_PLAYER(ePlayer).GetReligions()->GetReligionInMostCities() != NO_RELIGION))
-	{
-		return 18;
-	}
-	//Artifacts
-	else if(IsPlayerBrokenNoDiggingPromise(ePlayer) && GetForgiveness() <= 5)
-	{
-		return 19;
-	}
-	// Guy built wonders we wanted
-	else if(GetWonderDisputeLevel(ePlayer) >= DISPUTE_LEVEL_STRONG && GetWonderCompetitiveness() > 5)
-	{
-		return 20;
-	}
-	// Guy is pursuing victory too hard
-	else if(GetVictoryDisputeLevel(ePlayer) >= DISPUTE_LEVEL_STRONG && GetVictoryCompetitiveness() > 5)
-	{
-		return 21;
-	}
-	// Guy is pursuing victory too hard
-	else if(GetVictoryBlockLevel(ePlayer) >= BLOCK_LEVEL_STRONG && GetVictoryCompetitiveness() > 5)
-	{
-		return 22;
+		MajorCivOpinionTypes eOpinion = GetMajorCivOpinion(ePlayer);
+
+		iMessage = 0;
+
+		// Guy is a different ideology
+		if(GetDiploBalance() > 5 && (GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree() != GetPlayer()->GetPlayerPolicies()->GetLateGamePolicyTree()) && (GetPlayer()->GetPlayerPolicies()->GetLateGamePolicyTree() != NO_POLICY_BRANCH_TYPE) && (GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree() != NO_POLICY_BRANCH_TYPE) && GET_PLAYER(ePlayer).GetCulture()->GetPublicOpinionPreferredIdeology() == m_pPlayer->GetPlayerPolicies()->GetLateGamePolicyTree())
+		{
+			if(m_pPlayer->GetPlayerPolicies()->GetLateGamePolicyTree() == GC.getPOLICY_BRANCH_AUTOCRACY())
+			{
+				return 1;
+			}
+			else if(m_pPlayer->GetPlayerPolicies()->GetLateGamePolicyTree() == GC.getPOLICY_BRANCH_ORDER())
+			{
+				return 2;
+			}
+			else if(m_pPlayer->GetPlayerPolicies()->GetLateGamePolicyTree() == GC.getPOLICY_BRANCH_FREEDOM())
+			{
+				return 3;
+			}
+		}
+		else if(GetDiploBalance() > 5 && (GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree() != GetPlayer()->GetPlayerPolicies()->GetLateGamePolicyTree()) && (GetPlayer()->GetPlayerPolicies()->GetLateGamePolicyTree() != NO_POLICY_BRANCH_TYPE) && (GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree() != NO_POLICY_BRANCH_TYPE) && m_pPlayer->GetCulture()->GetPublicOpinionPreferredIdeology() == GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree())
+		{
+			if(m_pPlayer->GetPlayerPolicies()->GetLateGamePolicyTree() == GC.getPOLICY_BRANCH_AUTOCRACY())
+			{
+				return 4;
+			}
+			else if(m_pPlayer->GetPlayerPolicies()->GetLateGamePolicyTree() == GC.getPOLICY_BRANCH_ORDER())
+			{
+				return 5;
+			}
+			else if(m_pPlayer->GetPlayerPolicies()->GetLateGamePolicyTree() == GC.getPOLICY_BRANCH_FREEDOM())
+			{
+				return 6;
+			}
+		}
+		else if(GetDiploBalance() > 5 && (GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree() != GetPlayer()->GetPlayerPolicies()->GetLateGamePolicyTree()) && (GetPlayer()->GetPlayerPolicies()->GetLateGamePolicyTree() != NO_POLICY_BRANCH_TYPE) && (GET_PLAYER(ePlayer).GetPlayerPolicies()->GetLateGamePolicyTree() != NO_POLICY_BRANCH_TYPE))
+		{
+			return 7;
+		}
+		// Guy is a warmonger
+		else if(GetWarmongerThreat(ePlayer) >= THREAT_MAJOR && GetDiploBalance() > 5)
+		{
+			return 8;
+		}
+		// Guy is getting too friendly with our minors
+		else if(GetMinorCivDisputeLevel(ePlayer) >= DISPUTE_LEVEL_STRONG && GetMinorCivCompetitiveness() > 5)
+		{
+			return 9;
+		}
+		// Guy is getting too friendly with our minors
+		else if(GetOtherPlayerNumProtectedMinorsBullied(ePlayer) > 0 && GetMinorCivCompetitiveness() > 5)
+		{
+			return 10;
+		}
+		// Guy nuked us!
+		else if(IsNukedBy(ePlayer))
+		{
+			return 11;
+		}
+		// Guy is a thief!
+		else if(IsPlayerBrokenSpyPromise(ePlayer) && GetLoyalty() > 5)
+		{
+			return 12;
+		}
+		// Guy is setting near us and we don't like it
+		else if(GetLandDisputeLevel(ePlayer) >= DISPUTE_LEVEL_STRONG && eOpinion < MAJOR_CIV_OPINION_NEUTRAL)
+		{
+			return 13;
+		}
+		// Guy has bad friends!
+		else if(IsPlayerDoFwithAnyEnemy(ePlayer) && GetDenounceWillingness() > 5)
+		{
+			return 14;
+		}
+		// Is denounced already
+		else if(IsDenouncedPlayer(ePlayer) && GetDenounceWillingness() > 4)
+		{
+			return 15;
+		}
+		//Is untrustworthy
+		else if(GET_PLAYER(ePlayer).GetDiplomacyAI()->IsUntrustworthyFriend() || GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDenouncedPlayer(m_pPlayer->GetID()))
+		{
+			return 16;
+		}
+		//Previous wars
+		else if(eOpinion < MAJOR_CIV_OPINION_NEUTRAL && GetNumWarsFought(ePlayer) > 0 && GetForgiveness() <= 5)
+		{
+			return 17;
+		}
+		// Guy is a different faith
+		else if(GetMeanness() > 4 && (GET_PLAYER(ePlayer).GetReligions()->GetReligionInMostCities() != GetPlayer()->GetReligions()->GetReligionInMostCities()) && (GetPlayer()->GetReligions()->GetReligionInMostCities() != NO_RELIGION) && (GET_PLAYER(ePlayer).GetReligions()->GetReligionInMostCities() != NO_RELIGION))
+		{
+			return 18;
+		}
+		//Artifacts
+		else if(IsPlayerBrokenNoDiggingPromise(ePlayer) && GetForgiveness() <= 5)
+		{
+			return 19;
+		}
+		// Guy built wonders we wanted
+		else if(GetWonderDisputeLevel(ePlayer) >= DISPUTE_LEVEL_STRONG && GetWonderCompetitiveness() > 5)
+		{
+			return 20;
+		}
+		// Guy is pursuing victory too hard
+		else if(GetVictoryDisputeLevel(ePlayer) >= DISPUTE_LEVEL_STRONG && GetVictoryCompetitiveness() > 5)
+		{
+			return 21;
+		}
+		// Guy is pursuing victory too hard
+		else if(GetVictoryBlockLevel(ePlayer) >= BLOCK_LEVEL_STRONG && GetVictoryCompetitiveness() > 5)
+		{
+			return 22;
+		}
 	}
 
 	return iMessage;
@@ -28651,6 +28923,12 @@ void CvDiplomacyAI::LogStatus()
 						strOutBuf += ", DEN";
 					else
 						strOutBuf += ", ";
+#if defined(MOD_BALANCE_CORE)
+					if(IsAtWar(eLoopPlayer))
+						strOutBuf += ", AT WAR";
+					else
+						strOutBuf += ", ";
+#endif
 
 					//if (IsWorkingAgainstPlayer(eLoopPlayer))
 					//	strOutBuf += ", WA";
@@ -30614,6 +30892,18 @@ void CvDiplomacyAI::LogStatementToPlayer(PlayerTypes ePlayer, DiploStatementType
 #if defined(MOD_BALANCE_CORE)
 		case DIPLO_STATEMENT_DEFENSIVE_PACT_REQUEST:
 			strTemp.Format("Defensive Pact Offer");
+			break;
+
+		case DIPLO_STATEMENT_TRADE_CITIES_REQUEST:
+			strTemp.Format("Trade Cities Offer");
+			break;
+
+		case DIPLO_STATEMENT_THIRDPARTY_PEACE_REQUEST:
+			strTemp.Format("3rd Party PEACE Offer");
+			break;
+
+		case DIPLO_STATEMENT_THIRDPARTY_WAR_REQUEST:
+			strTemp.Format("3rd Party WAR Offer");
 			break;
 
 		case DIPLO_STATEMENT_EMBASSY_EXCHANGE:

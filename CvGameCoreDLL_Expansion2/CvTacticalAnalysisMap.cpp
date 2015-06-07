@@ -1406,18 +1406,21 @@ void CvTacticalAnalysisMap::Dump()
 	{
 		CvString fname = CvString::format( "TacticalCells_%s_%03d.txt", m_pPlayer->getCivilizationAdjective(), GC.getGame().getGameTurn() );
 		FILogFile* pLog=LOGFILEMGR.GetLog( fname.c_str(), FILogFile::kDontTimeStamp );
-		pLog->Msg( "#x,y,visible,terrain,enemy,defensemod,targettype,deployscore,deploysafe,underattack,intargetrange,flankbonus\n" );
-		for (int i=0; i<m_iNumPlots; i++)
+		if (pLog)
 		{
-			CvTacticalAnalysisCell* pCell = GetCell(i);
-			CvString dump = CvString::format( "%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\n", 
-				GC.getMap().plotByIndex(i)->getX(), GC.getMap().plotByIndex(i)->getY(),
-				pCell->IsVisible(), GC.getMap().plotByIndex(i)->getTerrainType(), pCell->IsEnemyTerritory(),
-				pCell->GetDefenseModifier(), pCell->GetTargetType(), pCell->GetDeploymentScore(), pCell->IsSafeForDeployment(), pCell->IsSubjectToAttack(), 
-				pCell->IsWithinRangeOfTarget(), pCell->IsHelpsProvidesFlankBonus() );
-			pLog->Msg( dump.c_str() );
+			pLog->Msg( "#x,y,visible,terrain,enemy,defensemod,targettype,deployscore,deploysafe,underattack,intargetrange,flankbonus\n" );
+			for (int i=0; i<m_iNumPlots; i++)
+			{
+				CvTacticalAnalysisCell* pCell = GetCell(i);
+				CvString dump = CvString::format( "%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\n", 
+					GC.getMap().plotByIndex(i)->getX(), GC.getMap().plotByIndex(i)->getY(),
+					pCell->IsVisible(), GC.getMap().plotByIndex(i)->getTerrainType(), pCell->IsEnemyTerritory(),
+					pCell->GetDefenseModifier(), pCell->GetTargetType(), pCell->GetDeploymentScore(), pCell->IsSafeForDeployment(), pCell->IsSubjectToAttack(), 
+					pCell->IsWithinRangeOfTarget(), pCell->IsHelpsProvidesFlankBonus() );
+				pLog->Msg( dump.c_str() );
+			}
+			pLog->Close();
 		}
-		pLog->Close();
 	}
 }
 #endif
