@@ -83,6 +83,7 @@
       <EnablePREfast>true</EnablePREfast>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
     </ClCompile>
     <Link>
       <AdditionalDependencies>CvWorldBuilderMapWin32.lib;CvGameCoreDLLUtilWin32.lib;CvLocalizationWin32.lib;CvGameDatabaseWin32.lib;FireWorksWin32.lib;FLuaWin32.lib;lua51_Win32.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -322,6 +323,7 @@
     <ClCompile Include="Lua\CvLuaUnit.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\CvGameCoreDLLUtil\include\CvEnums.h" />
     <ClInclude Include="banned.h" />
     <ClInclude Include="CustomMods.h" />
     <ClInclude Include="CvAchievementUnlocker.h" />
