@@ -150,6 +150,7 @@ public:
 	bool IsUnderImmediateThreat(const CvPlot& pPlot, PlayerTypes ePlayer);
 	bool CouldAttackHere(const CvPlot& pPlot, CvUnit* pAttacker);
 	bool CouldAttackHere(const CvPlot& pPlot, CvCity* pAttacker);
+	bool UpdateDangerSingleUnit(CvUnit* pUnit, bool bIgnoreVisibility);
 #else
 	void AddDanger(int iPlotX, int iPlotY, int iValue, bool bWithinOneMove);
 	int GetDanger(const CvPlot& pPlot) const;

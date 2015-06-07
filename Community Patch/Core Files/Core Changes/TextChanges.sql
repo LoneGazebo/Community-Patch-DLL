@@ -79,3 +79,10 @@ UPDATE Language_en_US
 SET Text = '[COLOR_NEGATIVE_TEXT]You insulted them.[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_DIPLO_REFUSED_REQUESTS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
 
+UPDATE Language_en_US
+SET Text = 'We cannot offer you enough to make this a fair trade. We can, however, offer you this deal.'
+WHERE Tag = 'TXT_KEY_GENERIC_TRADE_CANT_MATCH_OFFER_1' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
+
+UPDATE Language_en_US
+SET Text = 'The deal we suggest may be an unfair exchange for you. Please inspect it closely.'
+WHERE Tag = 'TXT_KEY_GENERIC_TRADE_CANT_MATCH_OFFER_2' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );

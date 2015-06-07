@@ -134,6 +134,7 @@ CvImprovementEntry::CvImprovementEntry(void):
 	m_iGetObsoleteTech(NO_TECH),
 	m_bAdjacentLake(false),
 	m_bAdjacentCity(false),
+	m_iGrantsVision(0),
 #endif
 	m_bNoTwoAdjacent(false),
 	m_bAdjacentLuxury(false),
@@ -292,6 +293,7 @@ bool CvImprovementEntry::CacheResults(Database::Results& kResults, CvDatabaseUti
 	m_iGetObsoleteTech = (CivilizationTypes)GC.getInfoTypeForString(szObsoleteTech, true);
 	m_bAdjacentLake = kResults.GetBool("Lakeside");
 	m_bAdjacentCity = kResults.GetBool("Cityside");
+	m_iGrantsVision = kResults.GetInt("GrantsVisionXTiles");
 #endif
 	m_bNoTwoAdjacent = kResults.GetBool("NoTwoAdjacent");
 	m_bAdjacentLuxury = kResults.GetBool("AdjacentLuxury");
@@ -905,6 +907,10 @@ bool CvImprovementEntry::IsAdjacentLake() const
 bool CvImprovementEntry::IsAdjacentCity() const
 {
 	return m_bAdjacentCity;
+}
+int CvImprovementEntry::GetGrantsVision() const
+{
+	return m_iGrantsVision;
 }
 #endif
 /// Can this improvement not be built adjacent to another one of the same type?

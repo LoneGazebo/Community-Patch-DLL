@@ -10839,6 +10839,12 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 						{
 							iOtherPlayerResourceFactor += -2;
 						}
+#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+						if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES && GET_PLAYER(e).HasMonopoly(eTargetLuxury))
+						{
+							iOtherPlayerResourceFactor += -2;
+						}
+#endif
 					}
 					else if (eOpinion >= MAJOR_CIV_OPINION_FAVORABLE)
 					{
@@ -10850,6 +10856,12 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 						{
 							iOtherPlayerResourceFactor += 2;
 						}
+#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+						if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES && GET_PLAYER(e).HasMonopoly(eTargetLuxury))
+						{
+							iOtherPlayerResourceFactor += 2;
+						}
+#endif
 					}
 				}
 			}

@@ -5,94 +5,94 @@
 		<!-- Liberty -->
 		<Row>
 			<PolicyType>POLICY_LIBERTY</PolicyType>
-			<FlavorType>FLAVOR_PRODUCTION</FlavorType>
+			<FlavorType>FLAVOR_GOLD</FlavorType>
 			<Flavor>4</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_COLLECTIVE_RULE</PolicyType>
-			<FlavorType>FLAVOR_PRODUCTION</FlavorType>
+			<FlavorType>FLAVOR_GOLD</FlavorType>
 			<Flavor>4</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_CITIZENSHIP</PolicyType>
-			<FlavorType>FLAVOR_PRODUCTION</FlavorType>
+			<FlavorType>FLAVOR_GOLD</FlavorType>
 			<Flavor>4</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_REPUBLIC</PolicyType>
-			<FlavorType>FLAVOR_PRODUCTION</FlavorType>
+			<FlavorType>FLAVOR_GOLD</FlavorType>
 			<Flavor>4</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_REPRESENTATION</PolicyType>
-			<FlavorType>FLAVOR_PRODUCTION</FlavorType>
+			<FlavorType>FLAVOR_GOLD</FlavorType>
 			<Flavor>4</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_MERITOCRACY</PolicyType>
-			<FlavorType>FLAVOR_PRODUCTION</FlavorType>
+			<FlavorType>FLAVOR_GOLD</FlavorType>
 			<Flavor>4</Flavor>
 		</Row>
 		<!-- Tradition -->
 		<Row>
 			<PolicyType>POLICY_TRADITION</PolicyType>
-			<FlavorType>FLAVOR_GREAT_PEOPLE</FlavorType>
+			<FlavorType>FLAVOR_ARCHAEOLOGY</FlavorType>
 			<Flavor>4</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_ARISTOCRACY</PolicyType>
-			<FlavorType>FLAVOR_GREAT_PEOPLE</FlavorType>
+			<FlavorType>FLAVOR_ARCHAEOLOGY</FlavorType>
 			<Flavor>4</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_OLIGARCHY</PolicyType>
-			<FlavorType>FLAVOR_GREAT_PEOPLE</FlavorType>
+			<FlavorType>FLAVOR_ARCHAEOLOGY</FlavorType>
 			<Flavor>4</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_LEGALISM</PolicyType>
-			<FlavorType>FLAVOR_GREAT_PEOPLE</FlavorType>
+			<FlavorType>FLAVOR_ARCHAEOLOGY</FlavorType>
 			<Flavor>4</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_LANDED_ELITE</PolicyType>
-			<FlavorType>FLAVOR_GREAT_PEOPLE</FlavorType>
+			<FlavorType>FLAVOR_ARCHAEOLOGY</FlavorType>
 			<Flavor>4</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_MONARCHY</PolicyType>
-			<FlavorType>FLAVOR_GREAT_PEOPLE</FlavorType>
+			<FlavorType>FLAVOR_ARCHAEOLOGY</FlavorType>
 			<Flavor>4</Flavor>
 		</Row>
 		<!-- Might -->
 		<Row>
 			<PolicyType>POLICY_HONOR</PolicyType>
-			<FlavorType>FLAVOR_EXPANSION</FlavorType>
+			<FlavorType>FLAVOR_MILITARY_TRAINING</FlavorType>
 			<Flavor>4</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_WARRIOR_CODE</PolicyType>
-			<FlavorType>FLAVOR_EXPANSION</FlavorType>
+			<FlavorType>FLAVOR_MILITARY_TRAINING</FlavorType>
 			<Flavor>4</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_DISCIPLINE</PolicyType>
-			<FlavorType>FLAVOR_EXPANSION</FlavorType>
+			<FlavorType>FLAVOR_MILITARY_TRAINING</FlavorType>
 			<Flavor>4</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_MILITARY_TRADITION</PolicyType>
-			<FlavorType>FLAVOR_EXPANSION</FlavorType>
+			<FlavorType>FLAVOR_MILITARY_TRAINING</FlavorType>
 			<Flavor>4</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_MILITARY_CASTE</PolicyType>
-			<FlavorType>FLAVOR_EXPANSION</FlavorType>
+			<FlavorType>FLAVOR_MILITARY_TRAINING</FlavorType>
 			<Flavor>4</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_PROFESSIONAL_ARMY</PolicyType>
-			<FlavorType>FLAVOR_EXPANSION</FlavorType>
+			<FlavorType>FLAVOR_MILITARY_TRAINING</FlavorType>
 			<Flavor>4</Flavor>
 		</Row>
 		<!-- Piety -->
@@ -280,17 +280,17 @@
 		<!-- Finishers -->
 		<Row>
 			<PolicyType>POLICY_TRADITION_FINISHER</PolicyType>
-			<FlavorType>FLAVOR_GREAT_PEOPLE</FlavorType>
+			<FlavorType>FLAVOR_ARCHAEOLOGY</FlavorType>
 			<Flavor>4</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_LIBERTY_FINISHER</PolicyType>
-			<FlavorType>FLAVOR_PRODUCTION</FlavorType>
+			<FlavorType>FLAVOR_GOLD</FlavorType>
 			<Flavor>4</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_HONOR_FINISHER</PolicyType>
-			<FlavorType>FLAVOR_EXPANSION</FlavorType>
+			<FlavorType>FLAVOR_MILITARY_TRAINING</FlavorType>
 			<Flavor>4</Flavor>
 		</Row>
 		<Row>
@@ -326,468 +326,448 @@
 		<!-- Freedom -->
 		<Row>
 			<PolicyType>POLICY_OPEN_SOCIETY</PolicyType>
-			<FlavorType>FLAVOR_GREAT_PEOPLE</FlavorType>
-			<Flavor>25</Flavor>
+			<FlavorType>FLAVOR_DIPLOMACY</FlavorType>
+			<Flavor>24</Flavor>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_OPEN_SOCIETY</PolicyType>
+			<FlavorType>FLAVOR_SPACESHIP</FlavorType>
+			<Flavor>24</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_CREATIVE_EXPRESSION</PolicyType>
-			<FlavorType>FLAVOR_CULTURE</FlavorType>
-			<Flavor>25</Flavor>
+			<FlavorType>FLAVOR_SPACESHIP</FlavorType>
+			<Flavor>24</Flavor>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_CREATIVE_EXPRESSION</PolicyType>
+			<FlavorType>FLAVOR_DIPLOMACY</FlavorType>
+			<Flavor>24</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_CIVIL_SOCIETY</PolicyType>
-			<FlavorType>FLAVOR_GREAT_PEOPLE</FlavorType>
-			<Flavor>25</Flavor>
+			<FlavorType>FLAVOR_SPACESHIP</FlavorType>
+			<Flavor>24</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_CIVIL_SOCIETY</PolicyType>
-			<FlavorType>FLAVOR_GROWTH</FlavorType>
-			<Flavor>30</Flavor>
+			<FlavorType>FLAVOR_DIPLOMACY</FlavorType>
+			<Flavor>24</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_VOLUNTEER_ARMY</PolicyType>
-			<FlavorType>FLAVOR_OFFENSE</FlavorType>
-			<Flavor>20</Flavor>
+			<FlavorType>FLAVOR_SPACESHIP</FlavorType>
+			<Flavor>24</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_VOLUNTEER_ARMY</PolicyType>
-			<FlavorType>FLAVOR_DEFENSE</FlavorType>
-			<Flavor>50</Flavor>
+			<FlavorType>FLAVOR_DIPLOMACY</FlavorType>
+			<Flavor>24</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_COVERT_ACTION</PolicyType>
-			<FlavorType>FLAVOR_ESPIONAGE</FlavorType>
-			<Flavor>30</Flavor>
+			<FlavorType>FLAVOR_SPACESHIP</FlavorType>
+			<Flavor>24</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_COVERT_ACTION</PolicyType>
 			<FlavorType>FLAVOR_DIPLOMACY</FlavorType>
-			<Flavor>15</Flavor>
+			<Flavor>24</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_URBANIZATION</PolicyType>
-			<FlavorType>FLAVOR_GROWTH</FlavorType>
-			<Flavor>30</Flavor>
+			<FlavorType>FLAVOR_SPACESHIP</FlavorType>
+			<Flavor>24</Flavor>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_URBANIZATION</PolicyType>
+			<FlavorType>FLAVOR_DIPLOMACY</FlavorType>
+			<Flavor>24</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_CAPITALISM</PolicyType>
-			<FlavorType>FLAVOR_HAPPINESS</FlavorType>
-			<Flavor>25</Flavor>
+			<FlavorType>FLAVOR_SPACESHIP</FlavorType>
+			<Flavor>24</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_CAPITALISM</PolicyType>
-			<FlavorType>FLAVOR_GREAT_PEOPLE</FlavorType>
-			<Flavor>25</Flavor>
+			<FlavorType>FLAVOR_DIPLOMACY</FlavorType>
+			<Flavor>24</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_ECONOMIC_UNION</PolicyType>
-			<FlavorType>FLAVOR_GOLD</FlavorType>
-			<Flavor>50</Flavor>
+			<FlavorType>FLAVOR_SPACESHIP</FlavorType>
+			<Flavor>24</Flavor>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_ECONOMIC_UNION</PolicyType>
+			<FlavorType>FLAVOR_DIPLOMACY</FlavorType>
+			<Flavor>24</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_THEIR_FINEST_HOUR</PolicyType>
-			<FlavorType>FLAVOR_CITY_DEFENSE</FlavorType>
-			<Flavor>40</Flavor>
+			<FlavorType>FLAVOR_DIPLOMACY</FlavorType>
+			<Flavor>24</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_THEIR_FINEST_HOUR</PolicyType>
-			<FlavorType>FLAVOR_GREAT_PEOPLE</FlavorType>
-			<Flavor>40</Flavor>
+			<FlavorType>FLAVOR_SPACESHIP</FlavorType>
+			<Flavor>24</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_UNIVERSAL_SUFFRAGE</PolicyType>
-			<FlavorType>FLAVOR_GREAT_PEOPLE</FlavorType>
-			<Flavor>15</Flavor>
+			<FlavorType>FLAVOR_SPACESHIP</FlavorType>
+			<Flavor>24</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_UNIVERSAL_SUFFRAGE</PolicyType>
-			<FlavorType>FLAVOR_HAPPINESS</FlavorType>
-			<Flavor>30</Flavor>
+			<FlavorType>FLAVOR_DIPLOMACY</FlavorType>
+			<Flavor>24</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_NEW_DEAL</PolicyType>
-			<FlavorType>FLAVOR_RELIGION</FlavorType>
-			<Flavor>8</Flavor>
+			<FlavorType>FLAVOR_DIPLOMACY</FlavorType>
+			<Flavor>24</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_NEW_DEAL</PolicyType>
-			<FlavorType>FLAVOR_PRODUCTION</FlavorType>
-			<Flavor>10</Flavor>
-		</Row>
-		<Row>
-			<PolicyType>POLICY_NEW_DEAL</PolicyType>
-			<FlavorType>FLAVOR_GOLD</FlavorType>
-			<Flavor>10</Flavor>
-		</Row>
-		<Row>
-			<PolicyType>POLICY_NEW_DEAL</PolicyType>
-			<FlavorType>FLAVOR_SCIENCE</FlavorType>
-			<Flavor>10</Flavor>
-		</Row>
-		<Row>
-			<PolicyType>POLICY_NEW_DEAL</PolicyType>
-			<FlavorType>FLAVOR_CULTURE</FlavorType>
-			<Flavor>10</Flavor>
-		</Row>
-		<Row>
-			<PolicyType>POLICY_NEW_DEAL</PolicyType>
-			<FlavorType>FLAVOR_TILE_IMPROVEMENT</FlavorType>
-			<Flavor>10</Flavor>
-		</Row>
-		<Row>
-			<PolicyType>POLICY_ARSENAL_DEMOCRACY</PolicyType>
-			<FlavorType>FLAVOR_OFFENSE</FlavorType>
-			<Flavor>10</Flavor>
-		</Row>
-		<Row>
-			<PolicyType>POLICY_ARSENAL_DEMOCRACY</PolicyType>
-			<FlavorType>FLAVOR_DEFENSE</FlavorType>
-			<Flavor>10</Flavor>
+			<FlavorType>FLAVOR_SPACESHIP</FlavorType>
+			<Flavor>24</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_ARSENAL_DEMOCRACY</PolicyType>
 			<FlavorType>FLAVOR_DIPLOMACY</FlavorType>
-			<Flavor>20</Flavor>
+			<Flavor>24</Flavor>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_ARSENAL_DEMOCRACY</PolicyType>
+			<FlavorType>FLAVOR_SPACESHIP</FlavorType>
+			<Flavor>24</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_MEDIA_CULTURE</PolicyType>
-			<FlavorType>FLAVOR_CULTURE</FlavorType>
-			<Flavor>50</Flavor>
+			<FlavorType>FLAVOR_DIPLOMACY</FlavorType>
+			<Flavor>24</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_MEDIA_CULTURE</PolicyType>
-			<FlavorType>FLAVOR_HAPPINESS</FlavorType>
-			<Flavor>20</Flavor>
+			<FlavorType>FLAVOR_SPACESHPI</FlavorType>
+			<Flavor>24</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_TREATY_ORGANIZATION</PolicyType>
 			<FlavorType>FLAVOR_DIPLOMACY</FlavorType>
-			<Flavor>35</Flavor>
+			<Flavor>24</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_TREATY_ORGANIZATION</PolicyType>
-			<FlavorType>FLAVOR_GOLD</FlavorType>
-			<Flavor>50</Flavor>
+			<FlavorType>FLAVOR_SPACESHIP</FlavorType>
+			<Flavor>24</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_SPACE_PROCUREMENTS</PolicyType>
 			<FlavorType>FLAVOR_SPACESHIP</FlavorType>
-			<Flavor>100</Flavor>
+			<Flavor>24</Flavor>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_SPACE_PROCUREMENTS</PolicyType>
+			<FlavorType>FLAVOR_DIPLOMACY</FlavorType>
+			<Flavor>24</Flavor>
 		</Row>
 		<!-- Order -->
 		<Row>
 			<PolicyType>POLICY_HERO_OF_THE_PEOPLE</PolicyType>
-			<FlavorType>FLAVOR_GREAT_PEOPLE</FlavorType>
-			<Flavor>50</Flavor>
+			<FlavorType>FLAVOR_MILITARY_TRAINING</FlavorType>
+			<Flavor>24</Flavor>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_HERO_OF_THE_PEOPLE</PolicyType>
+			<FlavorType>FLAVOR_SPACESHIP</FlavorType>
+			<Flavor>24</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_SOCIALIST_REALISM</PolicyType>
-			<FlavorType>FLAVOR_CULTURE</FlavorType>
-			<Flavor>25</Flavor>
+			<FlavorType>FLAVOR_MILITARY_TRAINING</FlavorType>
+			<Flavor>24</Flavor>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_SOCIALIST_REALISM</PolicyType>
+			<FlavorType>FLAVOR_SPACESHIP</FlavorType>
+			<Flavor>24</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_SKYSCRAPERS</PolicyType>
-			<FlavorType>FLAVOR_PRODUCTION</FlavorType>
-			<Flavor>25</Flavor>
+			<FlavorType>FLAVOR_MILITARY_TRAINING</FlavorType>
+			<Flavor>24</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_SKYSCRAPERS</PolicyType>
-			<FlavorType>FLAVOR_WONDER</FlavorType>
-			<Flavor>25</Flavor>
-		</Row>
-		<Row>
-			<PolicyType>POLICY_SKYSCRAPERS</PolicyType>
-			<FlavorType>FLAVOR_GOLD</FlavorType>
-			<Flavor>25</Flavor>
+			<FlavorType>FLAVOR_SPACESHIP</FlavorType>
+			<Flavor>24</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_PATRIOTIC_WAR</PolicyType>
-			<FlavorType>FLAVOR_DEFENSE</FlavorType>
-			<Flavor>50</Flavor>
+			<FlavorType>FLAVOR_MILITARY_TRAINING</FlavorType>
+			<Flavor>24</Flavor>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_PATRIOTIC_WAR</PolicyType>
+			<FlavorType>FLAVOR_SPACESHIP</FlavorType>
+			<Flavor>24</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_DOUBLE_AGENTS</PolicyType>
-			<FlavorType>FLAVOR_ESPIONAGE</FlavorType>
-			<Flavor>30</Flavor>
+			<FlavorType>FLAVOR_MILITARY_TRAINING</FlavorType>
+			<Flavor>24</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_DOUBLE_AGENTS</PolicyType>
-			<FlavorType>FLAVOR_SCIENCE</FlavorType>
-			<Flavor>20</Flavor>
+			<FlavorType>FLAVOR_SPACESHIP</FlavorType>
+			<Flavor>24</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_YOUNG_PIONEERS</PolicyType>
-			<FlavorType>FLAVOR_SCIENCE</FlavorType>
-			<Flavor>50</Flavor>
+			<FlavorType>FLAVOR_MILITARY_TRAINING</FlavorType>
+			<Flavor>24</Flavor>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_YOUNG_PIONEERS</PolicyType>
+			<FlavorType>FLAVOR_SPACESHIP</FlavorType>
+			<Flavor>24</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_ACADEMY_SCIENCES</PolicyType>
-			<FlavorType>FLAVOR_HAPPINESS</FlavorType>
-			<Flavor>20</Flavor>
+			<FlavorType>FLAVOR_MILITARY_TRAINING</FlavorType>
+			<Flavor>24</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_ACADEMY_SCIENCES</PolicyType>
-			<FlavorType>FLAVOR_SCIENCE</FlavorType>
-			<Flavor>40</Flavor>
+			<FlavorType>FLAVOR_SPACESHIP</FlavorType>
+			<Flavor>24</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_PARTY_LEADERSHIP</PolicyType>
-			<FlavorType>FLAVOR_GROWTH</FlavorType>
-			<Flavor>20</Flavor>
+			<FlavorType>FLAVOR_MILITARY_TRAINING</FlavorType>
+			<Flavor>24</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_PARTY_LEADERSHIP</PolicyType>
-			<FlavorType>FLAVOR_PRODUCTION</FlavorType>
-			<Flavor>20</Flavor>
-		</Row>
-		<Row>
-			<PolicyType>POLICY_PARTY_LEADERSHIP</PolicyType>
-			<FlavorType>FLAVOR_GOLD</FlavorType>
-			<Flavor>20</Flavor>
-		</Row>
-		<Row>
-			<PolicyType>POLICY_PARTY_LEADERSHIP</PolicyType>
-			<FlavorType>FLAVOR_SCIENCE</FlavorType>
-			<Flavor>20</Flavor>
-		</Row>
-		<Row>
-			<PolicyType>POLICY_PARTY_LEADERSHIP</PolicyType>
-			<FlavorType>FLAVOR_CULTURE</FlavorType>
-			<Flavor>20</Flavor>
+			<FlavorType>FLAVOR_SPACESHIP</FlavorType>
+			<Flavor>24</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_RESETTLEMENT</PolicyType>
-			<FlavorType>FLAVOR_EXPANSION</FlavorType>
-			<Flavor>50</Flavor>
+			<FlavorType>FLAVOR_MILITARY_TRAINING</FlavorType>
+			<Flavor>24</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_RESETTLEMENT</PolicyType>
-			<FlavorType>FLAVOR_GROWTH</FlavorType>
-			<Flavor>50</Flavor>
+			<FlavorType>FLAVOR_SPACESHIP</FlavorType>
+			<Flavor>24</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_CULTURAL_REVOLUTION</PolicyType>
-			<FlavorType>FLAVOR_CULTURE</FlavorType>
-			<Flavor>40</Flavor>
+			<FlavorType>FLAVOR_MILITARY_TRAINING</FlavorType>
+			<Flavor>24</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_CULTURAL_REVOLUTION</PolicyType>
-			<FlavorType>FLAVOR_ESPIONAGE</FlavorType>
-			<Flavor>20</Flavor>
-		</Row>
-		<Row>
-			<PolicyType>POLICY_CULTURAL_REVOLUTION</PolicyType>
-			<FlavorType>FLAVOR_SCIENCE</FlavorType>
-			<Flavor>20</Flavor>
+			<FlavorType>FLAVOR_SPACESHIP</FlavorType>
+			<Flavor>24</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_WORKERS_FACULTIES</PolicyType>
-			<FlavorType>FLAVOR_SCIENCE</FlavorType>
-			<Flavor>30</Flavor>
+			<FlavorType>FLAVOR_MILITARY_TRAINING</FlavorType>
+			<Flavor>24</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_WORKERS_FACULTIES</PolicyType>
-			<FlavorType>FLAVOR_PRODUCTION</FlavorType>
-			<Flavor>20</Flavor>
+			<FlavorType>FLAVOR_SPACESHIP</FlavorType>
+			<Flavor>24</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_FIVE_YEAR_PLAN</PolicyType>
-			<FlavorType>FLAVOR_PRODUCTION</FlavorType>
-			<Flavor>35</Flavor>
+			<FlavorType>FLAVOR_MILITARY_TRAINING</FlavorType>
+			<Flavor>24</Flavor>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_FIVE_YEAR_PLAN</PolicyType>
+			<FlavorType>FLAVOR_SPACESHIP</FlavorType>
+			<Flavor>24</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_DICTATORSHIP_PROLETARIAT</PolicyType>
-			<FlavorType>FLAVOR_CULTURE</FlavorType>
-			<Flavor>50</Flavor>
+			<FlavorType>FLAVOR_MILITARY_TRAINING</FlavorType>
+			<Flavor>24</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_DICTATORSHIP_PROLETARIAT</PolicyType>
-			<FlavorType>FLAVOR_HAPPINESS</FlavorType>
-			<Flavor>50</Flavor>
+			<FlavorType>FLAVOR_SPACESHIP</FlavorType>
+			<Flavor>24</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_IRON_CURTAIN</PolicyType>
-			<FlavorType>FLAVOR_OFFENSE</FlavorType>
-			<Flavor>50</Flavor>
+			<FlavorType>FLAVOR_MILITARY_TRAINING</FlavorType>
+			<Flavor>24</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_IRON_CURTAIN</PolicyType>
-			<FlavorType>FLAVOR_GOLD</FlavorType>
-			<Flavor>20</Flavor>
-		</Row>
-		<Row>
-			<PolicyType>POLICY_IRON_CURTAIN</PolicyType>
-			<FlavorType>FLAVOR_GROWTH</FlavorType>
-			<Flavor>20</Flavor>
-		</Row>
-		<Row>
-			<PolicyType>POLICY_IRON_CURTAIN</PolicyType>
-			<FlavorType>FLAVOR_PRODUCTION</FlavorType>
-			<Flavor>20</Flavor>
+			<FlavorType>FLAVOR_SPACESHIP</FlavorType>
+			<Flavor>24</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_SPACEFLIGHT_PIONEERS</PolicyType>
 			<FlavorType>FLAVOR_SPACESHIP</FlavorType>
-			<Flavor>100</Flavor>
+			<Flavor>24</Flavor>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_SPACEFLIGHT_PIONEERS</PolicyType>
+			<FlavorType>FLAVOR_MILITARY_TRAINING</FlavorType>
+			<Flavor>24</Flavor>
 		</Row>
 
 		<!-- Autocracy -->
 		<Row>
 			<PolicyType>POLICY_ELITE_FORCES</PolicyType>
-			<FlavorType>FLAVOR_OFFENSE</FlavorType>
-			<Flavor>25</Flavor>
+			<FlavorType>FLAVOR_MILITARY_TRAINING</FlavorType>
+			<Flavor>24</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_ELITE_FORCES</PolicyType>
-			<FlavorType>FLAVOR_DEFENSE</FlavorType>
-			<Flavor>25</Flavor>
+			<FlavorType>FLAVOR_DIPLOMACY</FlavorType>
+			<Flavor>24</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_MOBILIZATION</PolicyType>
-			<FlavorType>FLAVOR_GOLD</FlavorType>
-			<Flavor>20</Flavor>
+			<FlavorType>FLAVOR_MILITARY_TRAINING</FlavorType>
+			<Flavor>24</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_MOBILIZATION</PolicyType>
-			<FlavorType>FLAVOR_SCIENCE</FlavorType>
-			<Flavor>20</Flavor>
+			<FlavorType>FLAVOR_DIPLOMACY</FlavorType>
+			<Flavor>24</Flavor>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_UNITED_FRONT</PolicyType>
+			<FlavorType>FLAVOR_MILITARY_TRAINING</FlavorType>
+			<Flavor>24</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_UNITED_FRONT</PolicyType>
 			<FlavorType>FLAVOR_DIPLOMACY</FlavorType>
-			<Flavor>25</Flavor>
-		</Row>
-		<Row>
-			<PolicyType>POLICY_UNITED_FRONT</PolicyType>
-			<FlavorType>FLAVOR_OFFENSE</FlavorType>
-			<Flavor>8</Flavor>
-		</Row>
-		<Row>
-			<PolicyType>POLICY_UNITED_FRONT</PolicyType>
-			<FlavorType>FLAVOR_DEFENSE</FlavorType>
-			<Flavor>8</Flavor>
+			<Flavor>24</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_INDUSTRIAL_ESPIONAGE</PolicyType>
-			<FlavorType>FLAVOR_CULTURE</FlavorType>
-			<Flavor>25</Flavor>
+			<FlavorType>FLAVOR_MILITARY_TRAINING</FlavorType>
+			<Flavor>24</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_INDUSTRIAL_ESPIONAGE</PolicyType>
-			<FlavorType>FLAVOR_OFFENSE</FlavorType>
-			<Flavor>15</Flavor>
-		</Row>
-		<Row>
-			<PolicyType>POLICY_INDUSTRIAL_ESPIONAGE</PolicyType>
-			<FlavorType>FLAVOR_EXPANSION</FlavorType>
-			<Flavor>20</Flavor>
+			<FlavorType>FLAVOR_DIPLOMACY</FlavorType>
+			<Flavor>24</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_MILITARISM</PolicyType>
-			<FlavorType>FLAVOR_AIRLIFT</FlavorType>
-			<Flavor>35</Flavor>
+			<FlavorType>FLAVOR_MILITARY_TRAINING</FlavorType>
+			<Flavor>24</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_MILITARISM</PolicyType>
-			<FlavorType>FLAVOR_AIR</FlavorType>
-			<Flavor>30</Flavor>
+			<FlavorType>FLAVOR_DIPLOMACY</FlavorType>
+			<Flavor>24</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_FORTIFIED_BORDERS</PolicyType>
-			<FlavorType>FLAVOR_HAPPINESS</FlavorType>
-			<Flavor>25</Flavor>
+			<FlavorType>FLAVOR_MILITARY_TRAINING</FlavorType>
+			<Flavor>24</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_FORTIFIED_BORDERS</PolicyType>
-			<FlavorType>FLAVOR_CULTURE</FlavorType>
-			<Flavor>15</Flavor>
+			<FlavorType>FLAVOR_DIPLOMACY</FlavorType>
+			<Flavor>24</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_POLICE_STATE</PolicyType>
-			<FlavorType>FLAVOR_OFFENSE</FlavorType>
-			<Flavor>25</Flavor>
+			<FlavorType>FLAVOR_MILITARY_TRAINING</FlavorType>
+			<Flavor>24</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_POLICE_STATE</PolicyType>
-			<FlavorType>FLAVOR_HAPPINESS</FlavorType>
-			<Flavor>30</Flavor>
+			<FlavorType>FLAVOR_DIPLOMACY</FlavorType>
+			<Flavor>24</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_NATIONALISM</PolicyType>
-			<FlavorType>FLAVOR_GOLD</FlavorType>
-			<Flavor>45</Flavor>
+			<FlavorType>FLAVOR_MILITARY_TRAINING</FlavorType>
+			<Flavor>24</Flavor>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_NATIONALISM</PolicyType>
+			<FlavorType>FLAVOR_DIPLOMACY</FlavorType>
+			<Flavor>24</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_THIRD_ALTERNATIVE</PolicyType>
-			<FlavorType>FLAVOR_GOLD</FlavorType>
-			<Flavor>30</Flavor>
-		</Row>
-		<Row>
-			<PolicyType>POLICY_THIRD_ALTERNATIVE</PolicyType>
-			<FlavorType>FLAVOR_SCIENCE</FlavorType>
-			<Flavor>30</Flavor>
+			<FlavorType>FLAVOR_DIPLOMACY</FlavorType>
+			<Flavor>24</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_THIRD_ALTERNATIVE</PolicyType>
 			<FlavorType>FLAVOR_MILITARY_TRAINING</FlavorType>
-			<Flavor>20</Flavor>
-		</Row>
-		<Row>
-			<PolicyType>POLICY_TOTAL_WAR</PolicyType>
-			<FlavorType>FLAVOR_OFFENSE</FlavorType>
-			<Flavor>25</Flavor>
-		</Row>
-		<Row>
-			<PolicyType>POLICY_TOTAL_WAR</PolicyType>
-			<FlavorType>FLAVOR_TILE_IMPROVEMENT</FlavorType>
-			<Flavor>25</Flavor>
+			<Flavor>24</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_TOTAL_WAR</PolicyType>
 			<FlavorType>FLAVOR_MILITARY_TRAINING</FlavorType>
-			<Flavor>40</Flavor>
+			<Flavor>24</Flavor>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_TOTAL_WAR</PolicyType>
+			<FlavorType>FLAVOR_DIPLOMACY</FlavorType>
+			<Flavor>24</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_CULT_PERSONALITY</PolicyType>
-			<FlavorType>FLAVOR_CULTURE</FlavorType>
-			<Flavor>25</Flavor>
+			<FlavorType>FLAVOR_MILITARY_TRAINING</FlavorType>
+			<Flavor>24</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_CULT_PERSONALITY</PolicyType>
-			<FlavorType>FLAVOR_GREAT_PEOPLE</FlavorType>
-			<Flavor>50</Flavor>
+			<FlavorType>FLAVOR_DIPLOMACY</FlavorType>
+			<Flavor>24</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_GUNBOAT_DIPLOMACY</PolicyType>
 			<FlavorType>FLAVOR_DIPLOMACY</FlavorType>
-			<Flavor>75</Flavor>
+			<Flavor>24</Flavor>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_GUNBOAT_DIPLOMACY</PolicyType>
+			<FlavorType>FLAVOR_MILITARY_TRAINING</FlavorType>
+			<Flavor>24</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_NEW_ORDER</PolicyType>
-			<FlavorType>FLAVOR_OFFENSE</FlavorType>
-			<Flavor>20</Flavor>
+			<FlavorType>FLAVOR_MILITARY_TRAINING</FlavorType>
+			<Flavor>24</Flavor>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_NEW_ORDER</PolicyType>
+			<FlavorType>FLAVOR_DIPLOMACY</FlavorType>
+			<Flavor>24</Flavor>
 		</Row>
 
 		<!-- Healthcare -->
 		<Row>
 			<PolicyType>POLICY_UNIVERSAL_HEALTHCARE_F</PolicyType>
-			<FlavorType>FLAVOR_GROWTH</FlavorType>
-			<Flavor>50</Flavor>
+			<FlavorType>FLAVOR_DIPLOMACY</FlavorType>
+			<Flavor>24</Flavor>
 		</Row>
 		<Row>
-			<PolicyType>POLICY_UNIVERSAL_HEALTHCARE_O</PolicyType>
-			<FlavorType>FLAVOR_HAPPINESS</FlavorType>
-			<Flavor>40</Flavor>
-		</Row>
-		<Row>
-			<PolicyType>POLICY_UNIVERSAL_HEALTHCARE_A</PolicyType>
-			<FlavorType>FLAVOR_GOLD</FlavorType>
-			<Flavor>35</Flavor>
-		</Row>
-		<Row>
-			<PolicyType>POLICY_UNIVERSAL_HEALTHCARE_A</PolicyType>
-			<FlavorType>FLAVOR_PRODUCTION</FlavorType>
-			<Flavor>20</Flavor>
+			<PolicyType>POLICY_UNIVERSAL_HEALTHCARE_F</PolicyType>
+			<FlavorType>FLAVOR_SPACESHIP</FlavorType>
+			<Flavor>24</Flavor>
 		</Row>
 	</Policy_Flavors>
 </GameData>

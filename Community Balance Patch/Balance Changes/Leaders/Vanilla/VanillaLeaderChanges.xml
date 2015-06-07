@@ -186,13 +186,6 @@
 			<Yield>25</Yield>
 		</Row>
 	</Building_InstantYield>
-	<Trait_YieldChanges>
-		<Row>
-			<TraitType>TRAIT_WONDER_BUILDER</TraitType>
-			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Yield>1</Yield>
-		</Row>
-	</Trait_YieldChanges>
 	<Unit_FreePromotions>
 		<Row>
 			<UnitType>UNIT_EGYPTIAN_WARCHARIOT</UnitType>

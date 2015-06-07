@@ -17,6 +17,14 @@ UPDATE Buildings
 SET HurryCostModifier = '-5'
 WHERE NOT WonderSplashImage = 'NULL';
 
+UPDATE Language_en_US
+SET Text = 'You are [COLOR_POSITIVE_TEXT]Allies[ENDCOLOR] with {1_CityStateName:textkey}. Each turn, your [ICON_INFLUENCE] Influence with them will change by {2_Num}. If {1_CityStateName:textkey} is damaged by enemy units, this decay value will triple.'
+WHERE Tag = 'TXT_KEY_ALLIES_CSTATE_TT';
+
+UPDATE Language_en_US
+SET Text = 'Each turn, your [ICON_INFLUENCE] Influence with them will change by {1_InfluenceRate}.  It rests at {2_InfluenceAnchor}. If the City is damaged by enemy units, this decay value will triple.'
+WHERE Tag = 'TXT_KEY_CSTATE_INFLUENCE_RATE';
+
 -- Policy Changes
 
 UPDATE Language_en_US

@@ -7470,6 +7470,7 @@ bool CvTacticalAI::MoveToEmptySpaceNearTarget(UnitHandle pUnit, CvPlot *pTarget,
 		if (pLoopPlot != NULL && pLoopPlot->isWater() != bLand)
 		{
 			// Must be currently empty of friendly combat units
+
 			if (!pLoopPlot->getBestDefender(m_pPlayer->GetID()))
 			{
 				// Enemies too

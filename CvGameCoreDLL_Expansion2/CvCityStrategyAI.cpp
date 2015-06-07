@@ -845,11 +845,16 @@ void CvCityStrategyAI::ChooseProduction(bool bUseAsyncRandom, BuildingTypes eIgn
 	if(!bEnoughSettlers)
 	{
 		AICityStrategyTypes eStrategyEnoughSettlers2 = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_ENOUGH_SETTLERS");
-		bEnoughSettlers = m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eStrategyEnoughSettlers2);
+		if(eStrategyEnoughSettlers2 != NO_AICITYSTRATEGY)
+		{
+			bEnoughSettlers = m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eStrategyEnoughSettlers2);
+		}
 	}
 	bool bForceSettler = false;
 	EconomicAIStrategyTypes eStrategyExpandToOtherContinents = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_REALLY_EXPAND_TO_OTHER_CONTINENTS");
 	EconomicAIStrategyTypes eExpandLikeCrazy = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_EXPAND_LIKE_CRAZY");
+	AICityStrategyTypes eFeederCity = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_NEW_CONTINENT_FEEDER");
+
 	if (eStrategyExpandToOtherContinents != NO_ECONOMICAISTRATEGY)
 	{
 		if (kPlayer.GetEconomicAI()->IsUsingStrategy(eStrategyExpandToOtherContinents))
@@ -866,6 +871,15 @@ void CvCityStrategyAI::ChooseProduction(bool bUseAsyncRandom, BuildingTypes eIgn
 			bForceSettler = true;
 		}
 	}
+	if(eFeederCity != NO_AICITYSTRATEGY)
+	{
+		if(m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eFeederCity))
+		{
+			bEnoughSettlers = false;
+			bForceSettler = true;
+		}
+	}
+
 	if(kPlayer.isMinorCiv() || kPlayer.isBarbarian())
 	{
 		bEnoughSettlers = true;
@@ -1743,6 +1757,10 @@ void CvCityStrategyAI::DoTurn()
 #if defined(MOD_BALANCE_CORE)
 				else if(strStrategyName == "AICITYSTRATEGY_ENOUGH_SETTLERS")
 					bStrategyShouldBeActive = CityStrategyAIHelpers::IsTestCityStrategy_EnoughSettlers(GetCity());
+				else if(strStrategyName == "AICITYSTRATEGY_NEW_CONTINENT_FEEDER")
+					bStrategyShouldBeActive = CityStrategyAIHelpers::IsTestCityStrategy_NewContinentFeeder(GetCity());
+				else if(strStrategyName == "AICITYSTRATEGY_POCKET_CITY")
+					bStrategyShouldBeActive = CityStrategyAIHelpers::IsTestCityStrategy_PocketCity(GetCity());
 #endif
 				else if(strStrategyName == "AICITYSTRATEGY_NEED_IMPROVEMENT_FOOD")
 					bStrategyShouldBeActive = CityStrategyAIHelpers::IsTestCityStrategy_NeedImprovement(GetCity(), YIELD_FOOD);
@@ -2815,8 +2833,8 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_NeedTileImprovers(AICityStrategyT
 	{
 		return false;
 	}
-
 	int iNumWorkers = kPlayer.GetNumUnitsWithUnitAI(UNITAI_WORKER, true, false);
+
 	// If it's a minor with at least 1 worker per city, always return false
 	if(kPlayer.isMinorCiv())
 	{
@@ -2825,7 +2843,12 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_NeedTileImprovers(AICityStrategyT
 	}
 	else
 	{
+#if defined(MOD_BALANCE_CORE)
+		//Do we have more/equal workers than/to cities?
+		int iNumCities = max(1, iCurrentNumCities);
+#else
 		int iNumCities = max(1, (iCurrentNumCities * 3) / 4);
+#endif
 		if(iNumWorkers >= iNumCities)
 			return false;
 		// If we're losing at war, return false
@@ -2835,8 +2858,8 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_NeedTileImprovers(AICityStrategyT
 
 	// If we're under attack from Barbs and have 1 or fewer Cities and no credible defense then training more Workers will only hurt us
 #if defined(MOD_BALANCE_CORE)
-	//Updated to 3
-	if(iCurrentNumCities <= 3)
+	//Updated to 4
+	if(iCurrentNumCities <= 4)
 #else
 	if(iCurrentNumCities <= 1)
 #endif
@@ -2847,7 +2870,17 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_NeedTileImprovers(AICityStrategyT
 		{
 			if(pMilitaryAI->IsUsingStrategy(eStrategyKillBarbs))
 			{
+#if defined(MOD_BALANCE_CORE)
+				//Do we have enough military units to defend our land? No? Abort.
+				int iNumWorkers = kPlayer.GetNumUnitsWithUnitAI(UNITAI_WORKER, true, false);
+				int iNumMilitaryUnits = kPlayer.getNumMilitaryUnits();
+				if(iNumWorkers >= iNumMilitaryUnits * 2)
+				{
+#endif
 				return false;
+#if defined(MOD_BALANCE_CORE)
+				}
+#endif
 			}
 		}
 	}
@@ -2891,7 +2924,20 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_WantTileImprovers(AICityStrategyT
 	}
 
 	int iNumWorkers = kPlayer.GetNumUnitsWithUnitAI(UNITAI_WORKER, true, false);
+#if defined(MOD_BALANCE_CORE)
+	int iCurrentNumCities = kPlayer.getNumCities();
+	//Do we have fewer workers than cities?
+	int iNumCities = max(1, (iCurrentNumCities * 3) / 4);
+	if(iNumWorkers < iNumCities)
+			return true;
+#endif
+#if defined(MOD_BALANCE_CORE)
+	//Do we have more workers than cities?
+	iNumCities = max(1, iCurrentNumCities);
+	if(iNumWorkers >= iNumCities)
+#else
 	if(iNumWorkers >= ((kPlayer.getNumCities() *  3) / 2) + 1)
+#endif
 		return false;
 
 	// If we're under attack from Barbs and have 1 or fewer cities then training more Workers will only hurt us
@@ -3238,7 +3284,62 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_EnoughSettlers(CvCity* pCity)
 	}
 	return false;
 }
+// We a new city on a bigger continent? Let's spread our legs!
+bool CityStrategyAIHelpers::IsTestCityStrategy_NewContinentFeeder(CvCity* pCity)
+{
+	CvPlayer& kPlayer = GET_PLAYER(pCity->getOwner());
+	CvArea* pArea = GC.getMap().getArea(pCity->getArea());
+	if(pCity->getPopulation() <= 7)
+	{
+		return false;
+	}
+	if(pArea == NULL || pArea->getNumTiles() <= 10)
+	{
+		return false;
+	}
+	if(!kPlayer.isMinorCiv() && kPlayer.getCapitalCity() != NULL)
+	{
+		CvArea* pArea2 = GC.getMap().getArea(kPlayer.getCapitalCity()->getArea());
+		if(pArea != NULL && pArea->GetID() != pArea2->GetID())
+		{
+			//Is there more room here to grow?
+			if(pArea->getNumUnownedTiles() >= pArea2->getNumUnownedTiles())
+			{
+				if(kPlayer.HaveGoodSettlePlot(pArea->GetID()))
+				{
+					return true;
+				}
+			}
+		}	
+	}
+	return false;
+}
+// Is this an isolated city with no routes out? Don't build settlers here.
+bool CityStrategyAIHelpers::IsTestCityStrategy_PocketCity(CvCity* pCity)
+{
+	CvPlayer& kPlayer = GET_PLAYER(pCity->getOwner());
+	CvArea* pArea = GC.getMap().getArea(pCity->getArea());
+	if(kPlayer.getCapitalCity() == NULL)
+	{
+		return false;
+	}
+	if(pArea->GetID() != kPlayer.getCapitalCity()->getArea())
+	{
+		return false;
+	}
+	if(!pCity->isCoastal())
+	{
+		if(!pCity->IsConnectedToCapital())
+		{
+			if(!GC.getStepFinder().GeneratePath(pCity->getX(), pCity->getY(), kPlayer.getCapitalCity()->getX(), kPlayer.getCapitalCity()->getY(), pCity->getOwner(), false))
+			{
+				return true;
+			}
+		}
+	}
 
+	return false;
+}
 #endif
 /// "Need Improvement" City Strategy: if we need to get an improvement that increases a yield amount
 bool CityStrategyAIHelpers::IsTestCityStrategy_NeedImprovement(CvCity* pCity, YieldTypes yield)

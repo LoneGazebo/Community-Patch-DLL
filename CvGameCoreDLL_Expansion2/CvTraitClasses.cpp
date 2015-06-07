@@ -3854,6 +3854,13 @@ void CvPlayerTraits::ChooseMayaBoost()
 	UnitTypes ePossibleGreatPerson;
 
 	// Go for a prophet?
+#if defined(MOD_BALANCE_CORE_MAYA_CHANGE)
+	bool bHasReligion = false;
+	if(MOD_BALANCE_CORE_MAYA_CHANGE && m_pPlayer->GetReligions()->GetReligionCreatedByPlayer(false) != NO_RELIGION)
+	{
+		bHasReligion = true;
+	}
+#endif
 #if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
 	ePossibleGreatPerson = m_pPlayer->GetSpecificUnitType("UNITCLASS_PROPHET", true);
 #else
@@ -3882,6 +3889,12 @@ void CvPlayerTraits::ChooseMayaBoost()
 				eDesiredGreatPerson = ePossibleGreatPerson;
 			}
 		}
+#if defined(MOD_BALANCE_CORE_MAYA_CHANGE)
+		if(MOD_BALANCE_CORE_MAYA_CHANGE && (eDesiredGreatPerson == ePossibleGreatPerson) && !bHasReligion)
+		{
+			eDesiredGreatPerson = NO_UNIT;
+		}
+#endif
 	}
 
 	// Highly wonder competitive and still early in game?
@@ -3984,8 +3997,18 @@ void CvPlayerTraits::ChooseMayaBoost()
 		if(GetUnitBaktun(ePossibleGreatPerson) == 0)
 		{
 			eDesiredGreatPerson = ePossibleGreatPerson;
+#if defined(MOD_BALANCE_CORE_MAYA_CHANGE)
+			if(MOD_BALANCE_CORE_MAYA_CHANGE && (eDesiredGreatPerson == ePossibleGreatPerson) && !bHasReligion)
+			{
+				eDesiredGreatPerson = NO_UNIT;
+			}
+#endif
 		}
+#if defined(MOD_BALANCE_CORE_MAYA_CHANGE)
+		if(eDesiredGreatPerson == NO_UNIT)
+#else
 		else
+#endif
 		{
 #if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
 			ePossibleGreatPerson = m_pPlayer->GetSpecificUnitType("UNITCLASS_ENGINEER");
@@ -4133,7 +4156,19 @@ int CvPlayerTraits::GetUnitBaktun(UnitTypes eUnit) const
 	{
 		if(it->m_eUnitType == eUnit)
 		{
+#if defined(MOD_BALANCE_CORE_MAYA_CHANGE)
+			CvUnitEntry* pUnitEntry = GC.getUnitInfo(eUnit);
+			if(MOD_BALANCE_CORE_MAYA_CHANGE && pUnitEntry->IsFoundReligion() && !m_pPlayer->GetReligions()->HasCreatedReligion(true))
+			{
+				return 1;
+			}
+			else
+			{
+#endif
 			return it->m_iBaktunJustFinished;
+#if defined(MOD_BALANCE_CORE_MAYA_CHANGE)
+			}
+#endif
 		}
 	}
 
@@ -4171,7 +4206,18 @@ bool CvPlayerTraits::IsFreeMayaGreatPersonChoice() const
 				{
 					if (pUnitEntry->GetSpecialUnitType() == eSpecialUnitGreatPerson)
 					{
+#if defined(MOD_BALANCE_CORE_MAYA_CHANGE)
+						if(MOD_BALANCE_CORE_MAYA_CHANGE && pUnitEntry->IsFoundReligion() && m_pPlayer->GetReligions()->HasCreatedReligion(true))
+						{
+							iNumGreatPeopleTypes++;
+						}
+						else
+						{
+#endif
 						iNumGreatPeopleTypes++;
+#if defined(MOD_BALANCE_CORE_MAYA_CHANGE)
+						}
+#endif
 					}
 				}
 			}	

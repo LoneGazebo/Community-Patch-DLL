@@ -759,6 +759,28 @@ enum TacticalAIInfoTypes
 
 typedef FStaticVector<CvTacticalTarget, 256, false, c_eCiv5GameplayDLL > TacticalList;
 
+#if defined(MOD_BALANCE_CORE)
+//a simple wrapper around std::vector so we can log/break on certain units being added (in a central place)
+class CTacticalUnitArray
+{
+public:
+	std::vector<CvTacticalUnit>::iterator begin() { return m_vec.begin(); }
+	std::vector<CvTacticalUnit>::iterator end() { return m_vec.end(); }
+	std::vector<CvTacticalUnit>::size_type size() const { return m_vec.size(); }
+	std::vector<CvTacticalUnit>::reference operator[](std::vector<CvTacticalUnit>::size_type _Pos) { return m_vec[_Pos]; }
+	std::vector<CvTacticalUnit>::iterator erase(std::vector<CvTacticalUnit>::const_iterator _Where) { return m_vec.erase(_Where); }
+	void push_back(const CvTacticalUnit& unit);
+	void clear() { m_vec.clear(); }
+	void setPlayer(CvPlayer* pOwner) { m_owner=pOwner; }
+	void setCurrentTacticalMove(CvTacticalMove move) { m_currentTacticalMove=move; }
+private:
+	std::vector<CvTacticalUnit> m_vec;
+	CvPlayer* m_owner;
+	CvTacticalMove m_currentTacticalMove;
+};
+
+#endif
+
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  CLASS:      CvTacticalAI
 //!  \brief		A player's AI to control units as they fight out battles
@@ -997,8 +1019,13 @@ private:
 	std::vector<CvTacticalUnit> m_CurrentAirUnits;
 #endif
 
+#if defined(MOD_BALANCE_CORE)
+	CTacticalUnitArray m_CurrentMoveUnits;
+	CTacticalUnitArray m_CurrentMoveHighPriorityUnits;
+#else
 	std::vector<CvTacticalUnit> m_CurrentMoveUnits;
 	std::vector<CvTacticalUnit> m_CurrentMoveHighPriorityUnits;
+#endif
 	std::vector<CvTacticalCity> m_CurrentMoveCities;
 	FStaticVector<CvTacticalMove, 256, true, c_eCiv5GameplayDLL > m_MovePriorityList;
 	int m_MovePriorityTurn;

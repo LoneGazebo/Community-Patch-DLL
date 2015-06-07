@@ -61,7 +61,7 @@
 
     <!-- Give initial production boost for cities founded on forests, as if the forest had been chopped down by a worker (v19) -->
     <!-- See also: "Global - City Forest Bonus" -->
-    <Row Class="6" Name="GLOBAL_CITY_FOREST_BONUS" Value="1"/>
+    <Row Class="6" Name="GLOBAL_CITY_FOREST_BONUS" Value="0"/>
     <Row Class="0" Name="GLOBAL_CITY_FOREST_BONUS_PERCENT" Value="125"/> <!-- Percentage of "ring-1 chop" (v47) -->
     <!-- Also GLOBAL_CITY_FOREST_BONUS_TECH in CustomModPostDefines -->
 
@@ -837,6 +837,12 @@
 	<Row Class="6" Name="BALANCE_CORE_BUILDING_INVESTMENTS" Value="0"/>  
 	<!-- Great Engineers Produce their building on the same turn their expended -->
 	<Row Class="6" Name="BALANCE_CORE_ENGINEER_HURRY" Value="0"/>
+	<!-- Maya cannot buy a prophet without a religion -->
+	<Row Class="6" Name="BALANCE_CORE_MAYA_CHANGE" Value="0"/>
+	<!-- Portugal can only sell exotic goods to CSs -->
+	<Row Class="6" Name="MOD_BALANCE_CORE_PORTUGAL_CHANGE" Value="0"/>
+
+
 
 
 

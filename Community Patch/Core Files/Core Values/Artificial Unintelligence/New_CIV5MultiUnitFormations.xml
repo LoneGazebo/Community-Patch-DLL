@@ -747,18 +747,6 @@
 			<MultiUnitPositionType>MUPOSITION_FRONT_LINE</MultiUnitPositionType>
 			<RequiredSlot>true</RequiredSlot>
 		</Row>
-		<Row>
-			<MultiUnitFormationType>MUFORMATION_SETTLER_ESCORT</MultiUnitFormationType>
-			<PrimaryUnitType>UNITAI_FAST_ATTACK</PrimaryUnitType>
-			<SecondaryUnitType>UNITAI_COUNTER</SecondaryUnitType>
-			<MultiUnitPositionType>MUPOSITION_BOMBARD</MultiUnitPositionType>
-		</Row>
-		<Row>
-			<MultiUnitFormationType>MUFORMATION_SETTLER_ESCORT</MultiUnitFormationType>
-			<PrimaryUnitType>UNITAI_FAST_ATTACK</PrimaryUnitType>
-			<SecondaryUnitType>UNITAI_COUNTER</SecondaryUnitType>
-			<MultiUnitPositionType>MUPOSITION_BOMBARD</MultiUnitPositionType>
-		</Row>
 		<Delete MultiUnitFormationType="MUFORMATION_COLONIZATION_PARTY"/>
 		<Row>
 			<MultiUnitFormationType>MUFORMATION_COLONIZATION_PARTY</MultiUnitFormationType>
@@ -776,20 +764,26 @@
 		</Row>
 		<Row>
 			<MultiUnitFormationType>MUFORMATION_COLONIZATION_PARTY</MultiUnitFormationType>
-			<PrimaryUnitType>UNITAI_DEFENSE</PrimaryUnitType>
-			<SecondaryUnitType>UNITAI_ATTACK</SecondaryUnitType>
-			<MultiUnitPositionType>MUPOSITION_FRONT_LINE</MultiUnitPositionType>
+			<PrimaryUnitType>UNITAI_ATTACK</PrimaryUnitType>
+			<SecondaryUnitType>UNITAI_RANGED</SecondaryUnitType>
+			<MultiUnitPositionType>MUPOSITION_BOMBARD</MultiUnitPositionType>
 		</Row>
 		<Row>
 			<MultiUnitFormationType>MUFORMATION_COLONIZATION_PARTY</MultiUnitFormationType>
-			<PrimaryUnitType>UNITAI_ESCORT_SEA</PrimaryUnitType>
-			<SecondaryUnitType>UNITAI_ASSAULT_SEA</SecondaryUnitType>
+			<PrimaryUnitType>UNITAI_DEFENSE</PrimaryUnitType>
+			<SecondaryUnitType>UNITAI_RANGED</SecondaryUnitType>
+			<MultiUnitPositionType>MUPOSITION_BOMBARD</MultiUnitPositionType>
+		</Row>
+		<Row>
+			<MultiUnitFormationType>MUFORMATION_COLONIZATION_PARTY</MultiUnitFormationType>
+			<PrimaryUnitType>UNITAI_ATTACK_SEA</PrimaryUnitType>
+			<SecondaryUnitType>UNITAI_ESCORT_SEA</SecondaryUnitType>
 			<MultiUnitPositionType>MUPOSITION_NAVAL_ESCORT</MultiUnitPositionType>
 			<RequiredSlot>true</RequiredSlot>
 		</Row>
 		<Row>
 			<MultiUnitFormationType>MUFORMATION_COLONIZATION_PARTY</MultiUnitFormationType>
-			<PrimaryUnitType>UNITAI_ESCORT_SEA</PrimaryUnitType>
+			<PrimaryUnitType>UNITAI_ASSAULT_SEA</PrimaryUnitType>
 			<SecondaryUnitType>UNITAI_ATTACK_SEA</SecondaryUnitType>
 			<MultiUnitPositionType>MUPOSITION_NAVAL_ESCORT</MultiUnitPositionType>
 		</Row>

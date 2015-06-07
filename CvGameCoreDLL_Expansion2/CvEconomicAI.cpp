@@ -1040,11 +1040,12 @@ void CvEconomicAI::ClearUnitTargetGoodyStepPlot(CvUnit* pUnit)
 int CvEconomicAI::ScoreExplorePlot2(CvPlot* pPlot, CvPlayer* pPlayer, DomainTypes eDomainType, bool bEmbarked)
 {
 	int iResultValue = 0;
-	int iSmallScore = 1;
-	int iMediumScore = 50;
-	int iLargeScore = 100;
+	int iSmallScore = max(5, GC.getGame().getJonRandNum(10,"accept equal value explore target"));
+	int iMediumScore = max(30, GC.getGame().getJonRandNum(60,"accept equal value explore target"));
+	int iLargeScore = max(75, GC.getGame().getJonRandNum(150,"accept equal value explore target"));
 	int iJackpot = 1000;
 
+	
 	if(!pPlot->isRevealed(pPlayer->getTeam()))
 		return 0;
 
@@ -1063,7 +1064,10 @@ int CvEconomicAI::ScoreExplorePlot2(CvPlot* pPlot, CvPlayer* pPlayer, DomainType
 		{
 			//no value if revealed already
 			if(pLoopPlot->isRevealed(pPlayer->getTeam()))
+			{
 				continue;
+			}
+			iResultValue += (pLoopPlot->getNumAdjacentNonrevealed(pPlayer->getTeam()) * 2);
 
 			// "cheating" to look to see what the next tile is.
 			// a human should be able to do this by looking at the transition from the tile to the next
@@ -1085,8 +1089,8 @@ int CvEconomicAI::ScoreExplorePlot2(CvPlot* pPlot, CvPlayer* pPlayer, DomainType
 				if (!pLoopPlot->isWater() && !pLoopPlot->isImpassable() && !pLoopPlot->isMountain())
 					//we're here to find new land!
 					iResultValue += iLargeScore;
-				else if (pLoopPlot->getTerrainType()==TERRAIN_COAST)
-					//when there's coast, land is not far
+				else if (pLoopPlot->getNumAdjacentNonrevealed(pPlayer->getTeam()) > 3)
+					//punching into the unknown, I see?
 					iResultValue += iMediumScore;
 				else
 					iResultValue += iSmallScore;
@@ -2344,7 +2348,12 @@ void CvEconomicAI::DoReconState()
 	}
 
 	// Never desperate for explorers if we are at war
+#if defined(MOD_BALANCE_CORE_SETTLER)
+	// Set to 'losing' wars.
+	MilitaryAIStrategyTypes eStrategyAtWar = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_LOSING_WARS");
+#else
 	MilitaryAIStrategyTypes eStrategyAtWar = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_AT_WAR");
+#endif
 	if(eStrategyAtWar != NO_MILITARYAISTRATEGY)
 	{
 		if(GetPlayer()->GetMilitaryAI()->IsUsingStrategy(eStrategyAtWar))
@@ -2448,11 +2457,8 @@ void CvEconomicAI::DoReconState()
 		iWeightThreshold = 100;
 	}
 
-#if defined(MOD_BALANCE_CORE)
-	iStrategyWeight *= (iNumLandPlotsWithAdjacentFog * 2);
-#else
-	iStrategyWeight *= iNumLandPlotsWithAdjacentFog;
-#endif
+	iStrategyWeight *= (iNumCoastalTilesWithAdjacentFog * 2);
+
 	int iNumExplorerDivisor = iNumExploringUnits + /*1*/ GC.getAI_STRATEGY_EARLY_EXPLORATION_EXPLORERS_WEIGHT_DIVISOR();
 	iStrategyWeight /= (iNumExplorerDivisor * iNumExplorerDivisor);
 	iStrategyWeight /= (int)sqrt((double)iNumLandPlotsRevealed);
@@ -2487,7 +2493,11 @@ void CvEconomicAI::DoReconState()
 					}
 					else
 					{
+#if defined(MOD_BALANCE_CORE)
+						pLoopUnit->AI_setUnitAIType((UnitAITypes)pLoopUnit->getUnitInfo().GetDefaultUnitAIType());
+#else
 						pLoopUnit->AI_setUnitAIType(UNITAI_ATTACK);
+#endif
 						if(GC.getLogging() && GC.getAILogging())
 						{
 							CvString strLogString;
@@ -2533,12 +2543,9 @@ void CvEconomicAI::DoReconState()
 		{
 			iWeightThreshold = 100;
 		}
-	
-#if defined(MOD_BALANCE_CORE)
+
 		iStrategyWeight *= (iNumCoastalTilesWithAdjacentFog * 2);
-#else
-		iStrategyWeight *= iNumCoastalTilesWithAdjacentFog;
-#endif
+
 		iNumExplorerDivisor = iNumExploringUnits + /*1*/ GC.getAI_STRATEGY_EARLY_EXPLORATION_EXPLORERS_WEIGHT_DIVISOR();
 		iStrategyWeight /= (iNumExplorerDivisor * iNumExplorerDivisor);
 		iStrategyWeight /= (int)sqrt((double)iNumCoastalTilesRevealed);
@@ -2546,6 +2553,41 @@ void CvEconomicAI::DoReconState()
 		if(iStrategyWeight > iWeightThreshold/* || iNumExploringUnits == 0 && iNumCoastalTilesWithAdjacentFog > 50*/)
 		{
 			m_eNavalReconState = RECON_STATE_NEEDED;
+#if defined(MOD_BALANCE_CORE)
+				// Send one additional boat out as a scout every round until we don't need recon anymore.
+				for(pLoopUnit = m_pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iUnitLoop))
+				{
+					//Need naval recon
+					if(pLoopUnit->AI_getUnitAIType() == UNITAI_EXPLORE_SEA && pLoopUnit->getUnitInfo().GetUnitAIType(UNITAI_ATTACK_SEA))
+					{
+						if(!pLoopUnit->TurnProcessed() && pLoopUnit->getMoves() > 0 && pLoopUnit->getArmyID() == FFreeList::INVALID_INDEX && pLoopUnit->canRecruitFromTacticalAI())
+						{
+							pLoopUnit->AI_setUnitAIType(UNITAI_EXPLORE_SEA);
+							if(GC.getLogging() && GC.getAILogging())
+							{
+								CvString strLogString;
+								strLogString.Format("Assigning %s as a naval explorer, X: %d, Y: %d", pLoopUnit->getName().GetCString(), pLoopUnit->getX(), pLoopUnit->getY());
+								m_pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
+							}
+							break;
+						}
+					}
+					else if(pLoopUnit->AI_getUnitAIType() == UNITAI_EXPLORE_SEA && pLoopUnit->getUnitInfo().GetUnitAIType(UNITAI_ASSAULT_SEA))
+					{
+						if(!pLoopUnit->TurnProcessed() && pLoopUnit->getMoves() > 0 && pLoopUnit->getArmyID() == FFreeList::INVALID_INDEX && pLoopUnit->canRecruitFromTacticalAI())
+						{
+							pLoopUnit->AI_setUnitAIType(UNITAI_EXPLORE_SEA);
+							if(GC.getLogging() && GC.getAILogging())
+							{
+								CvString strLogString;
+								strLogString.Format("Assigning %s as a naval explorer, X: %d, Y: %d", pLoopUnit->getName().GetCString(), pLoopUnit->getX(), pLoopUnit->getY());
+								m_pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
+							}
+							break;
+						}
+					}
+				}
+#endif
 		}
 		else
 		{
@@ -2561,15 +2603,24 @@ void CvEconomicAI::DoReconState()
 				bool bSkipFirst = (m_eNavalReconState == RECON_STATE_NEUTRAL);
 				for(pLoopUnit = m_pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iUnitLoop))
 				{
+#if defined(MOD_BALANCE_CORE)
+					if(pLoopUnit->AI_getUnitAIType() == UNITAI_EXPLORE_SEA && pLoopUnit->getUnitInfo().GetDefaultUnitAIType() != UNITAI_EXPLORE_SEA)
+#else
 					if(pLoopUnit->AI_getUnitAIType() == UNITAI_EXPLORE_SEA && pLoopUnit->getUnitInfo().GetUnitAIType(UNITAI_ATTACK_SEA))
+#endif
 					{
 						if(bSkipFirst)
 						{
 							bSkipFirst = false;
 						}
+
 						else
 						{
+#if defined(MOD_BALANCE_CORE)
+							pLoopUnit->AI_setUnitAIType((UnitAITypes)pLoopUnit->getUnitInfo().GetDefaultUnitAIType());
+#else
 							pLoopUnit->AI_setUnitAIType(UNITAI_ATTACK_SEA);
+#endif
 							if(GC.getLogging() && GC.getAILogging())
 							{
 								CvString strLogString;
@@ -2613,6 +2664,25 @@ void CvEconomicAI::DisbandExtraWorkers()
 {
 	// Are we running at a deficit?
 	EconomicAIStrategyTypes eStrategyLosingMoney = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_LOSING_MONEY");
+#if defined(MOD_BALANCE_CORE)
+	//If we want workers in any city, don't disband.
+	AICityStrategyTypes eWantWorkers = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_WANT_TILE_IMPROVERS");
+	int iLoopCity = 0;
+	CvCity* pLoopCity = NULL;
+	for(pLoopCity = m_pPlayer->firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoopCity))
+	{
+		if(pLoopCity != NULL)
+		{
+			if(eWantWorkers != NO_ECONOMICAISTRATEGY)
+			{
+				if(pLoopCity->GetCityStrategyAI()->IsUsingCityStrategy(eWantWorkers))
+				{
+					return;
+				}
+			}
+		}
+	}
+#endif
 	bool bInDeficit = m_pPlayer->GetEconomicAI()->IsUsingStrategy(eStrategyLosingMoney);
 
 	int iGoldSpentOnUnits = m_pPlayer->GetTreasury()->GetExpensePerTurnUnitMaintenance();
@@ -2867,7 +2937,11 @@ void CvEconomicAI::UpdatePlots()
 		if(!pPlot->isRevealed(m_pPlayer->getTeam()))
 			continue;
 
-		DomainTypes eDomain = pPlot->isWater() ? DOMAIN_SEA : DOMAIN_LAND;
+		DomainTypes eDomain = DOMAIN_LAND;
+		if(pPlot->isWater())
+		{
+			eDomain = DOMAIN_SEA;
+		}
 		int iScore = ScoreExplorePlot2(pPlot, m_pPlayer, eDomain, false);
 
 		if(iScore <= 0)
@@ -3802,10 +3876,6 @@ bool EconomicAIHelpers::IsTestStrategy_EarlyExpansion(CvPlayer* pPlayer)
 	{
 		return false;
 	}
-	if(pPlayer->getNumCities() <= 3)
-	{
-		return true;
-	}
 	MilitaryAIStrategyTypes eBuildCriticalDefenses = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_LOSING_WARS");
 	// scale based on flavor and world size
 	if(eBuildCriticalDefenses != NO_MILITARYAISTRATEGY && pPlayer->GetMilitaryAI()->IsUsingStrategy(eBuildCriticalDefenses) && !pPlayer->IsCramped())
@@ -3836,11 +3906,13 @@ bool EconomicAIHelpers::IsTestStrategy_EarlyExpansion(CvPlayer* pPlayer)
 		int iNumTiles = max(1,pArea->getNumTiles());
 
 		int iOwnageRatio = iNumOwnedTiles * 100 / iNumTiles;
-		if(iOwnageRatio > GC.getAI_STRATEGY_AREA_IS_FULL_PERCENT())
+		if(iOwnageRatio >= GC.getAI_STRATEGY_AREA_IS_FULL_PERCENT())
 		{
 			return false;
 		}
-		if(pPlayer->HaveGoodSettlePlot( pPlayer->getCapitalCity()->getArea() ) )
+		int iBestArea, iSecondBestArea;
+		pPlayer->GetBestSettleAreas(pPlayer->GetEconomicAI()->GetMinimumSettleFertility(), iBestArea, iSecondBestArea);
+		if(iBestArea == pArea->GetID())
 		{
 			return true;
 		}
@@ -4156,7 +4228,9 @@ bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes /*eStra
 	int iUnitLoop;
 	CvUnit* pLoopUnit;
 	CvUnit* pFirstSettler = 0;
+#if !defined(MOD_BALANCE_CORE_SETTLER)
 	int iLooseSettler = 0;
+#endif
 	//int iStrategyWeight = 0;
 	int iFirstSettlerArea = -1;
 	int iBestArea;
@@ -4169,12 +4243,21 @@ bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes /*eStra
 	{
 		return false;
 	}
-	iNumAreas = 0;
+	iNumAreas = pPlayer->GetBestSettleAreas(pPlayer->GetEconomicAI()->GetMinimumSettleFertility(), iBestArea, iSecondBestArea);
+	if(iNumAreas == 0)
+	{
+		return false;
+	}
+	if(pPlayer->getNumCities() < 1)
+	{
+		return false;
+	}
 #else
 	if(GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && pPlayer->isHuman())
 	{
 		return false;
 	}
+
 #endif
 	// Never run this strategy for a human player
 	if(!pPlayer->isHuman())
@@ -4188,6 +4271,105 @@ bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes /*eStra
 				{
 					if(pLoopUnit->getArmyID() == FFreeList::INVALID_INDEX)
 					{
+#if defined(MOD_BALANCE_CORE)
+						iFirstSettlerArea = pLoopUnit->getArea();
+						pFirstSettler = pLoopUnit;
+						bool bCanEmbark = GET_TEAM(pPlayer->getTeam()).canEmbark() || pPlayer->GetPlayerTraits()->IsEmbarkedAllWater();
+						iArea = iBestArea;
+						if(iArea == -1)
+						{
+							iArea = iSecondBestArea;
+						}
+						if(iArea == -1)
+						{
+							iArea  = iFirstSettlerArea;
+						}
+						CvArea* pCapitalArea = NULL;
+						if(pPlayer->getCapitalCity() != NULL)
+						{
+							pCapitalArea = GC.getMap().getArea(pPlayer->getCapitalCity()->getArea());
+						}
+						else
+						{
+							pCapitalArea = GC.getMap().getArea(iFirstSettlerArea);
+						}
+						
+						// CASE 1: we can go offshore
+						if (bCanEmbark)
+						{				
+							//Going overseas? Good luck!
+							if(pCapitalArea != NULL && pCapitalArea->GetID() != iArea)
+							{
+								bool bWantEscort = false;
+								if(!IsAreaSafeForQuickColony(iArea, pPlayer))
+								{
+									bWantEscort = true;
+								}
+								bool bIsOccupied = false;
+								CvArea* pArea = GC.getMap().getArea(iBestArea);
+								if(pArea != NULL)
+								{
+									if(pArea->getCitiesPerPlayer(pPlayer->GetID()) > 0)
+									{
+										bIsOccupied = true;
+									}
+								}
+								CvPlot* bBestSettle = pPlayer->GetBestSettlePlot(pFirstSettler, bWantEscort /*m_bEscorted*/, iArea);
+								if(bBestSettle == NULL)
+								{
+									return false;
+								}
+								else if(!pFirstSettler->GeneratePath(bBestSettle))
+								{
+									return false;
+								}
+								if(!bIsOccupied)
+								{
+									if (!bWantEscort)
+									{
+										pPlayer->addAIOperation(AI_OPERATION_QUICK_COLONIZE, NO_PLAYER, iArea);
+										return true;
+									}
+									else
+									{
+										pPlayer->addAIOperation(AI_OPERATION_COLONIZE, NO_PLAYER, iArea);
+										return true;
+									}
+								}
+								else
+								{
+									pPlayer->addAIOperation(AI_OPERATION_FOUND_CITY, NO_PLAYER, iArea);
+									return true;
+								}
+							}
+							else
+							{
+								pPlayer->addAIOperation(AI_OPERATION_FOUND_CITY, NO_PLAYER, iArea);
+								return true;
+							}
+						}
+						else // we can't embark yet
+						{
+							CvPlot* bBestSettle = pPlayer->GetBestSettlePlot(pFirstSettler, true /*m_bEscorted*/, iArea);
+							if(bBestSettle == NULL)
+							{
+								return false;
+							}
+							else if(!pFirstSettler->GeneratePath(bBestSettle))
+							{
+								return false;
+							}
+							pPlayer->addAIOperation(AI_OPERATION_FOUND_CITY, NO_PLAYER, iArea);
+							return true;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return false;
+#else
 						iLooseSettler++;
 						iFirstSettlerArea = pLoopUnit->getArea();
 						pFirstSettler = pLoopUnit;
@@ -4196,17 +4378,7 @@ bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes /*eStra
 				}
 			}
 		}
-
 		// Don't run this strategy if have 0 cities, in that case we just want to drop down a city wherever we happen to be
-#if defined(MOD_BALANCE_CORE)
-		if (pFirstSettler != NULL && pPlayer->getNumCities() >= 1)
-		{
-			iNumAreas = pPlayer->GetBestSettleAreas(pPlayer->GetEconomicAI()->GetMinimumSettleFertility(), iBestArea, iSecondBestArea);
-			if(iNumAreas == 0)
-			{
-				return false;
-			}
-#else
 		if (iLooseSettler && pPlayer->getNumCities() >= 1)
 
 		{
@@ -4215,16 +4387,11 @@ bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes /*eStra
 			{
 				return false;
 			}
-#endif
 			bool bCanEmbark = GET_TEAM(pPlayer->getTeam()).canEmbark() || pPlayer->GetPlayerTraits()->IsEmbarkedAllWater();
-#if defined(MOD_BALANCE_CORE)
-#else
 			bool bWantEscort = false;
-#endif
 			// CASE 1: we can go offshore
 			if (bCanEmbark)
 			{
-#if !defined(MOD_BALANCE_CORE_SETTLER)
 
 				int iRandArea = GC.getGame().getJonRandNum(6, "Randomly choose an area to settle");
 
@@ -4249,62 +4416,6 @@ bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes /*eStra
 				}
 				iArea = iBestArea;
 				bWantEscort = IsAreaSafeForQuickColony(iArea, pPlayer);
-#else
-#endif
-#if defined(MOD_BALANCE_CORE)
-				EconomicAIStrategyTypes eStrategyExpandToOtherContinents = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_EXPAND_TO_OTHER_CONTINENTS");
-				iArea = iBestArea;
-				if(iArea == -1)
-				{
-					iArea = iSecondBestArea;
-				}
-				if(pPlayer->GetEconomicAI()->IsUsingStrategy(eStrategyExpandToOtherContinents))
-				{
-					bool bWantEscort = false;
-					if(!IsAreaSafeForQuickColony(iArea, pPlayer))
-					{
-						bWantEscort = true;
-					}
-					bool bIsOccupied = false;
-					CvArea* pArea = GC.getMap().getArea(iBestArea);
-					if(pArea != NULL)
-					{
-						if(pArea->getCitiesPerPlayer(pPlayer->GetID()) > 0)
-						{
-							bIsOccupied = true;
-						}
-					}
-					if(!bIsOccupied)
-					{
-						if (!bWantEscort)
-						{
-							pPlayer->addAIOperation(AI_OPERATION_QUICK_COLONIZE, NO_PLAYER, iArea);
-							return true;
-						}
-						else
-						{
-							pPlayer->addAIOperation(AI_OPERATION_COLONIZE, NO_PLAYER, iArea);
-							return true;
-						}
-					}
-					else
-					{
-						pPlayer->addAIOperation(AI_OPERATION_FOUND_CITY, NO_PLAYER, iArea);
-						return true;
-					}
-				}
-				else
-				{
-					pPlayer->addAIOperation(AI_OPERATION_FOUND_CITY, NO_PLAYER, iArea);
-					return true;
-				}
-			}
-			else // we can't embark yet
-			{
-				pPlayer->addAIOperation(AI_OPERATION_FOUND_CITY, NO_PLAYER, iArea);
-				return true;
-			}
-#else
 				if (bWantEscort)
 				{
 					pPlayer->addAIOperation(AI_OPERATION_FOUND_CITY, NO_PLAYER, iArea);
@@ -4321,11 +4432,11 @@ bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes /*eStra
 				pPlayer->addAIOperation(AI_OPERATION_FOUND_CITY, NO_PLAYER, iBestArea);
 				return true;
 			}
-#endif	
 		}
 	}
 
 	return false;
+#endif
 }
 
 

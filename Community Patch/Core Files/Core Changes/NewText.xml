@@ -142,7 +142,26 @@
 			<ResponseType>RESPONSE_DEFENSIVE_PACT_REQUEST</ResponseType>
 			<Response>TXT_KEY_DEFENSE_PACT_OFFER%</Response>
 		</Row>
-		
+
+		<!-- Trade Cities-->
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_TRADE_CITIES_REQUEST</ResponseType>
+			<Response>TXT_KEY_CITY_TRADE_OFFER%</Response>
+		</Row>
+
+		<!-- 3rd Party War-->
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_THIRD_PARTY_WAR_REQUEST</ResponseType>
+			<Response>TXT_KEY_THIRD_PARTY_WAR_OFFER%</Response>
+		</Row>
+
+		<!-- 3rd Party Peace-->
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_THIRD_PARTY_PEACE_REQUEST</ResponseType>
+			<Response>TXT_KEY_THIRD_PARTY_PEACE_OFFER%</Response>
+		</Row>
+
+
 		<!-- DOF Friend Levels -->
 		<Row LeaderType="GENERIC">
 			<ResponseType>RESPONSE_WORK_WITH_US_UNTRUSTWORTHY</ResponseType>
@@ -252,6 +271,20 @@
 		</Row>
 	</Diplomacy_Responses>
 	<Language_en_US>
+		<!-- LUA for CBP -->
+		<Row Tag="TXT_KEY_DIPLO_NO_WAR_DOF">
+			<Text>These Players have made a Declaration of Friendship.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_NO_WAR_DP">
+			<Text>These Players have a Defensive Pact.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_NO_WAR_ALLIES_US">
+			<Text>You are allied with them.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_NOT_BANK_TT_ONE_LINE">
+			<Text>Cannot have Gold Per Turn and Gold in same trade.</Text>
+		</Row>
+
 		<!-- No Supply -->
 		<Row Tag="TXT_KEY_NO_ACTION_NO_SUPPLY">
 			<Text>Cannot [ICON_PRODUCTION] Train this unit, as you are at your Supply cap!</Text>
@@ -282,6 +315,28 @@
 		<Row Tag="TXT_KEY_DEFENSE_PACT_OFFER_4">
 			<Text>The tyrants of the world would tremble at our feet, if only we were allied. Do you see the value in a Defensive Pact?</Text>
 		</Row>
+		<!-- Cities/3rd Party War and Peace Offers-->
+		<Row Tag="TXT_KEY_CITY_TRADE_OFFER_1">
+			<Text>An exchange of territory is in order. I think you will find this offer quite suitable.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_TRADE_OFFER_2">
+			<Text>It is better to resolve territorial disputes through trade instead of war. Tell me, what do you think of this offer?</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_THIRD_PARTY_WAR_OFFER_1">
+			<Text>I admire your military prowess, and I would like to see it directed against one of my enemies. What do you think of this deal?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_THIRD_PARTY_WAR_OFFER_2">
+			<Text>Your military is truly grand. I would like to offer you a chance to war against one of my enemies. Do you agree with this deal?</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_THIRD_PARTY_PEACE_OFFER_1">
+			<Text>On behalf of my friend, I urge you to consider this offer of peace.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_THIRD_PARTY_PEACE_OFFER_2">
+			<Text>The death and destruction caused by your current war has gone on long enough. Come, won't you consider this offer?</Text>
+		</Row>
+		
 		<!-- Embark String for LessNo City Cost-->
 		<Row Tag="TXT_KEY_ABLTY_CITY_LESS_EMBARK_COST_STRING">
 			<Text>Units embarking/disembarking in owned cities expend just 1 Movement.</Text>
@@ -1037,7 +1092,7 @@
 			<Text>{1_CivName} and I agree that you are a worthwhile friend to have in this world.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_HUMAN_DOFED_FRIEND_5">
-			<Text>THe mutual friendship you and I share with {1_CivName} makes our friendship all the stronger.</Text>
+			<Text>The mutual friendship you and I share with {1_CivName} makes our friendship all the stronger.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_HUMAN_DOFED_ENEMY_2">
 			<Text>{1_CivName} is nothing but trouble. If you seek an alliance with them, you will soon find yourself isolated on the world stage.</Text>
@@ -2188,16 +2243,16 @@
 			<Text>Why do you still fight? The war is over.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GENERIC_TRADE_CANT_MATCH_OFFER_3">
-			<Text>I have nothing to offer that will make this a fair deal.</Text>
+			<Text>I'll take it, but I'm not sure this is a fair deal for you.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GENERIC_TRADE_CANT_MATCH_OFFER_4">
-			<Text>I'm sorry, but there's just no chance of an agreement here.</Text>
+			<Text>I'm sorry, but I can't match your offer. I can, however, offer you this.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GENERIC_TRADE_CANT_MATCH_OFFER_5">
-			<Text>We have nothing of equal value to offer you in exchange.</Text>
+			<Text>This is all I can afford to offer you in exchange for your substantial offer.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GENERIC_TRADE_CANT_MATCH_OFFER_6">
-			<Text>Impossible. I will not be labeled a thief.</Text>
+			<Text>It saddens me that I cannot offer you more for your great bounty.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_GENERIC_WE_LIKE_HUMAN_PROPOSAL_3">

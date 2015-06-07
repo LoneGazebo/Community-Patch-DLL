@@ -4124,6 +4124,13 @@ bool CvUnit::canEnterTerritory(TeamTypes eTeam, bool bIgnoreRightOfPassage, bool
 				bool bHasOpenBorders = pMinorAI->IsPlayerHasOpenBorders(getOwner());
 				// If already intruding on this minor, okay to do it some more
 				bool bIntruding = pMinorAI->IsMajorIntruding(getOwner());
+#if defined(MOD_BALANCE_CORE)
+				//Let's let scouts in.
+				if(AI_getUnitAIType() == UNITAI_EXPLORE || AI_getUnitAIType() == UNITAI_EXPLORE_SEA)
+				{
+					return true;
+				}
+#endif
 
 				if(bAngerFreeUnit || bHasOpenBorders || bIntruding)
 				{
@@ -8850,7 +8857,20 @@ bool CvUnit::canSellExoticGoods(const CvPlot* pPlot, bool bOnlyTestVisibility) c
 				{
 					if (!GET_TEAM(getTeam()).isAtWar(GET_PLAYER(eLoopPlotOwner).getTeam()))
 					{
+#if defined(MOD_BALANCE_CORE_PORTUGAL_CHANGE)
+						if(MOD_BALANCE_CORE_PORTUGAL_CHANGE && GET_PLAYER(eLoopPlotOwner).isMinorCiv())
+						{
+#endif
 						iNumValidPlots++;
+						break;
+#if defined(MOD_BALANCE_CORE_PORTUGAL_CHANGE)
+						}
+						else
+						{
+							iNumValidPlots++;
+							break;
+						}
+#endif
 					}
 				}
 			}
@@ -8925,7 +8945,7 @@ bool CvUnit::sellExoticGoods()
 				if (pLoopPlotSearch != NULL)
 				{
 					PlayerTypes eLoopPlotOwner = pLoopPlotSearch->getOwner();
-					if (eLoopPlotOwner != getOwner() && eLoopPlotOwner != NO_PLAYER)
+					if (eLoopPlotOwner != NO_PLAYER)
 					{
 						if (!GET_TEAM(getTeam()).isAtWar(GET_PLAYER(eLoopPlotOwner).getTeam()))
 						{
@@ -8953,7 +8973,7 @@ bool CvUnit::sellExoticGoods()
 					{
 						
 						CvPlot* pLoopPlot = pCity->GetCityCitizens()->GetCityPlotFromIndex(iCityPlotLoop);
-						if(pLoopPlot != NULL && (pLoopPlot->getOwner() == ePlotOwner) && !pLoopPlot->isCity() && !pLoopPlot->isWater() && !pLoopPlot->isMountain() && !pLoopPlot->IsNaturalWonder() && pLoopPlot->isCoastalLand() && (pLoopPlot->getResourceType(NO_TEAM) == NO_RESOURCE))
+						if(pLoopPlot != NULL && (pLoopPlot->getOwner() == ePlotOwner) && !pLoopPlot->isCity() && !pLoopPlot->isWater() && !pLoopPlot->isImpassable() && !pLoopPlot->IsNaturalWonder() && pLoopPlot->isCoastalLand() && (pLoopPlot->getResourceType() == NO_RESOURCE))
 						{
 							if(pLoopPlot->getImprovementType() != NO_IMPROVEMENT)
 							{
@@ -8975,7 +8995,7 @@ bool CvUnit::sellExoticGoods()
 #endif
 						{
 							CvPlot* pLoopPlot = pCity->GetCityCitizens()->GetCityPlotFromIndex(iCityPlotLoop);
-							if(pLoopPlot != NULL && (pLoopPlot->getOwner() == ePlotOwner) && !pLoopPlot->isCity() && !pLoopPlot->isWater() && !pLoopPlot->isMountain() && !pLoopPlot->IsNaturalWonder() && pLoopPlot->isCoastalLand() && (pLoopPlot->getResourceType(NO_TEAM) == NO_RESOURCE))
+							if(pLoopPlot != NULL && (pLoopPlot->getOwner() == ePlotOwner) && !pLoopPlot->isCity() && !pLoopPlot->isWater() && !pLoopPlot->isImpassable() && !pLoopPlot->IsNaturalWonder() && pLoopPlot->isCoastalLand() && (pLoopPlot->getResourceType() == NO_RESOURCE))
 							{
 								//If we can build on an empty spot, do so.
 								if(pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
@@ -25896,6 +25916,12 @@ bool CvUnit::UnitAttack(int iX, int iY, int iFlags, int iSteps)
 			{
 				CvBarbarians::DoCampAttacked(pDestPlot);
 			}
+#if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
+			if(MOD_DIPLOMACY_CITYSTATES_QUESTS && pDestPlot->isCity() && pDestPlot->isBarbarian())
+			{
+				CvBarbarians::DoCityAttacked(pDestPlot);
+			}
+#endif
 		}
 	}
 

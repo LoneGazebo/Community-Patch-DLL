@@ -9,18 +9,13 @@
 			<Yield>2</Yield>
 		</Row>
 	</Trait_YieldChangesPerTradePartner>
-	<Improvement_YieldAdjacentSameType>
+	<Improvement_Yields>
 		<Row>
 			<ImprovementType>IMPROVEMENT_KASBAH</ImprovementType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>1</Yield>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>2</Yield>
 		</Row>
-		<Row>
-			<ImprovementType>IMPROVEMENT_KASBAH</ImprovementType>
-			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Yield>1</Yield>
-		</Row>
-	</Improvement_YieldAdjacentSameType>
+	</Improvement_Yields>
 	<Improvement_ValidTerrains>
 		<Row>
 			<ImprovementType>IMPROVEMENT_KASBAH</ImprovementType>
@@ -449,13 +444,23 @@
 		</Row>
 	</Trait_GoldenAgeGreatPersonRateModifier>
 	<!-- Portugal UA -->
-	<Trait_CoastalCityYieldChanges>
+	<Trait_YieldFromRouteMovement>
 		<Row>
 			<TraitType>TRAIT_EXTRA_TRADE</TraitType>
-			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>3</Yield>
+			<YieldType>YIELD_GREAT_ADMIRAL_POINTS</YieldType>
+			<Yield>2</Yield>
 		</Row>
-	</Trait_CoastalCityYieldChanges>
+		<Row>
+			<TraitType>TRAIT_EXTRA_TRADE</TraitType>
+			<YieldType>YIELD_GREAT_GENERAL_POINTS</YieldType>
+			<Yield>2</Yield>
+		</Row>
+		<Row>
+			<TraitType>TRAIT_EXTRA_TRADE</TraitType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Yield>2</Yield>
+		</Row>
+	</Trait_YieldFromRouteMovement>
 	<!-- Zulu -->
 	<UnitPromotions_UnitCombats>
 		<Row>
@@ -471,4 +476,5 @@
 			<UnitCombatType>UNITCOMBAT_GUN</UnitCombatType>
 		</Row>
 	</UnitPromotions_UnitCombats>
+
 </GameData>
