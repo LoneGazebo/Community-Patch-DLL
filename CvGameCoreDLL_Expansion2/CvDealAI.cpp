@@ -4016,8 +4016,8 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 					CvAssertMsg(false, "DEAL_AI: Player has no valid proximity for 3rd party deal.");
 					iItemValue *= 100;
 					break;
-				iItemValue /= 100;
 			}
+			iItemValue /= 100;
 		}
 #endif
 	}
@@ -4147,8 +4147,8 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 					CvAssertMsg(false, "DEAL_AI: Player has no valid proximity for 3rd party deal.");
 					iItemValue *= 100;
 					break;
-				iItemValue /= 100;
 			}
+			iItemValue /= 100;
 		}
 #else
 		// Minor

@@ -14526,6 +14526,132 @@ bool TacticalAIHelpers::CvBlockingUnitDistanceSort(CvBlockingUnit obj1, CvBlocki
 }
 
 #if defined(MOD_BALANCE_CORE)
+
+//	--------------------------------------------------------------------------------
+/// get all tiles a unit can reach in one turn (counting terrain but not ZOC or territory)
+int TacticalAIHelpers::GetAllTilesInReach(CvUnit* pUnit, CvPlot* pStartPlot, ReachablePlotSet& resultSet)
+{
+	if (!pUnit || !pStartPlot)
+		return false;
+
+	resultSet.clear();
+	std::map<CvPlot*,int> remainingMoves;
+	std::vector<CvPlot*> openPlots;
+
+	openPlots.push_back( pStartPlot );
+	//could probably adapt this for multiple turns also
+	remainingMoves[pStartPlot] = pUnit->getMoves();
+
+	while (!openPlots.empty())
+	{
+		CvPlot* pCurrentPlot = openPlots.back();
+		openPlots.pop_back();
+		int iCurrentMoves = remainingMoves[pCurrentPlot];
+
+		CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(pCurrentPlot);
+		for(int iCount=0; iCount<NUM_DIRECTION_TYPES; iCount++)
+		{
+			CvPlot* pAdjacentPlot = aPlotsToCheck[iCount];
+			if (!pAdjacentPlot)
+				continue;
+
+			//first time we see this plot?
+			std::map<CvPlot*,int>::iterator moveCache = remainingMoves.find(pAdjacentPlot);
+			if (moveCache == remainingMoves.end())
+			{
+				//can we go there?
+				if (!pUnit->canEnterTerrain(*pAdjacentPlot))
+					continue;
+
+				//we can always enter the plot as long as we have some movement points
+				//for now assume that the turn will end there
+				moveCache = remainingMoves.insert( remainingMoves.end(), std::make_pair(pAdjacentPlot,0) );
+			}
+
+			//now see how much movement is left over
+			int iRemainingMoves =  iCurrentMoves - pAdjacentPlot->MovementCostNoZOC(pUnit,pCurrentPlot);
+			if (iRemainingMoves > moveCache->second)
+			{
+				moveCache->second = iRemainingMoves;
+				openPlots.push_back(pAdjacentPlot);
+			}
+		}
+	}
+
+	//finally make a set
+	for (std::map<CvPlot*,int>::iterator it=remainingMoves.begin(); it!=remainingMoves.end(); ++it)
+	{
+		//is there a more efficient way?
+		resultSet.insert( std::make_pair(it->first,it->second) );
+
+		//OutputDebugString( CvString::format("%s %s %d can reach %d,%d with %d movement left\n", 
+		//	GET_PLAYER(pUnit->getOwner()).getCivilizationAdjective(), pUnit->getName().c_str(), pUnit->GetID(), it->first->getX(), it->first->getY(), it->second ).c_str() );
+	}
+
+	return (int)resultSet.size();
+}
+
+int TacticalAIHelpers::GetPlotsUnderRangedAttackFrom(CvUnit* pUnit, CvPlot* pBasePlot, std::set<CvPlot*>& resultSet)
+{
+	if (!pUnit || !pBasePlot)
+		return false;
+
+	resultSet.clear();
+	int iRange = pUnit->GetRange();
+
+	for(int iX = -iRange; iX <= iRange; iX++)
+	{
+		for(int iY = -iRange; iY <= iRange; iY++)
+		{
+			CvPlot* pLoopPlot = plotXYWithRangeCheck(pBasePlot->getX(), pBasePlot->getY(), iX, iY, iRange);
+			if (pLoopPlot && pUnit->canEverRangeStrikeAt(pLoopPlot->getX(), pLoopPlot->getY(), pBasePlot))
+				resultSet.insert(pLoopPlot);
+		}
+	}
+
+	return (int)resultSet.size();
+}
+
+int TacticalAIHelpers::GetPlotsUnderRangedAttackFrom(CvUnit* pUnit, ReachablePlotSet& basePlots, std::set<CvPlot*>& resultSet)
+{
+	if (!pUnit || !pUnit->IsCanAttackRanged())
+		return false;
+
+	resultSet.clear();
+	int iRange = pUnit->GetRange();
+
+	for (ReachablePlotSet::iterator base=basePlots.begin(); base!=basePlots.end(); ++base)
+	{
+		CvPlot* pBasePlot = base->first;
+		int iPlotMoves = base->second;
+
+		if (pUnit->isMustSetUpToRangedAttack())
+			iPlotMoves -= GC.getMOVE_DENOMINATOR();
+
+		if (iPlotMoves<=0)
+			continue;
+
+		//we have enough moves for an attack ...
+		for(int iX = -iRange; iX <= iRange; iX++)
+		{
+			for(int iY = -iRange; iY <= iRange; iY++)
+			{
+				CvPlot* pLoopPlot = plotXYWithRangeCheck(pBasePlot->getX(), pBasePlot->getY(), iX, iY, iRange);
+
+				//if the plot is already know to be attackable, don't check again
+				//the reverse is not true: from another base plot the attack might work!
+				if (!pLoopPlot || resultSet.find(pLoopPlot)!=resultSet.end())
+					continue;
+
+				if (pUnit->canEverRangeStrikeAt(pLoopPlot->getX(), pLoopPlot->getY(), pBasePlot))
+					resultSet.insert(pLoopPlot);
+			}
+		}
+	}
+
+	return (int)resultSet.size();
+}
+
 void CTacticalUnitArray::push_back(const CvTacticalUnit& unit)
 {
 	m_vec.push_back(unit);
