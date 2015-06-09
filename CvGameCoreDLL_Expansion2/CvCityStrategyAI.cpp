@@ -3331,12 +3331,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_PocketCity(CvCity* pCity)
 	{
 		if(!pCity->IsConnectedToCapital())
 		{
-			// Now loop through the units, using the pathfinder to do the final evaluation
-			if (!GC.getPathFinder().GeneratePath(kPlayer.getCapitalCity()->getX(), kPlayer.getCapitalCity()->getY(), pCity->getX(), pCity->getY()))
-			{
-				return true;
-			}
-			else if(plotDistance(kPlayer.getCapitalCity()->getX(), kPlayer.getCapitalCity()->getY(), pCity->getX(), pCity->getY() > 5))
+			if(!GC.getStepFinder().GeneratePath(pCity->getX(), pCity->getY(), kPlayer.getCapitalCity()->getX(), kPlayer.getCapitalCity()->getY(), pCity->getOwner(), false))
 			{
 				return true;
 			}
@@ -3389,11 +3384,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_CapitalNeedSettler(AICityStrategy
 				return true;
 			}
 #endif
-#if defined(MOD_BALANCE_CORE)
-			if((iCitiesPlusSettlers > 0) && (iCitiesPlusSettlers < 6))
-#else
 			if((iCitiesPlusSettlers) < 3)
-#endif
 			{
 
 				AICityStrategyTypes eUnderThreat = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_CAPITAL_UNDER_THREAT");
@@ -3419,12 +3410,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_CapitalNeedSettler(AICityStrategy
 				int iGameTurn = GC.getGame().getGameTurn();
 				if((iCitiesPlusSettlers == 1 && (iGameTurn * 4) > iWeightThreshold) ||
 					(iCitiesPlusSettlers == 2 && (iGameTurn * 2) > iWeightThreshold) || 
-					(iCitiesPlusSettlers == 3 && iGameTurn > iWeightThreshold) 
-#if defined(MOD_BALANCE_CORE)
-					|| (iCitiesPlusSettlers == 4 && (iGameTurn / 2) > iWeightThreshold) 
-					|| (iCitiesPlusSettlers == 5 && (iGameTurn / 4) > iWeightThreshold) 
-#endif
-					)
+					(iCitiesPlusSettlers == 3 && iGameTurn > iWeightThreshold) )
 				{
 					return true;
 				}

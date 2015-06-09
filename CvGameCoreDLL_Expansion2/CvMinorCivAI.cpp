@@ -11112,11 +11112,7 @@ void CvMinorCivAI::DoAcquire(PlayerTypes eMajor, int &iNumUnits, int& iCapitalX,
 int CvMinorCivAI::GetBullyGoldAmount(PlayerTypes /*eBullyPlayer*/)
 {
 	int iGold = GC.getMINOR_BULLY_GOLD();
-#if defined(MOD_BALANCE_CORE)
-	int iGoldGrowthFactor = 500; //antonjs: todo: XML
-#else
 	int iGoldGrowthFactor = 350; //antonjs: todo: XML
-#endif
 
 	// Add gold, more if later in game
 	float fGameProgressFactor = ((float) GC.getGame().getElapsedGameTurns() / (float) GC.getGame().getEstimateEndTurn());
@@ -11187,7 +11183,7 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 		{
 			float fRankRatio = (float)(veMilitaryRankings.size() - iRanking) / (float)(veMilitaryRankings.size());
 #if defined(MOD_BALANCE_CORE_MINORS)
-			iGlobalMilitaryScore = (int)(fRankRatio * 25); // A score between 25*(1 / num majors alive) and 25, with the highest rank major getting 25
+			iGlobalMilitaryScore = (int)(fRankRatio * 100); // A score between 100*(1 / num majors alive) and 100, with the highest rank major getting 100
 #else
 			iGlobalMilitaryScore = (int)(fRankRatio * 75); // A score between 75*(1 / num majors alive) and 75, with the highest rank major getting 75
 #endif
@@ -11268,7 +11264,7 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 	if(fLocalPowerRatio >= 3.0)
 	{
 #if defined(MOD_BALANCE_CORE_MINORS)
-		iLocalPowerScore += 250;
+		iLocalPowerScore += 150;
 #else
 		iLocalPowerScore += 125;
 #endif
@@ -11276,7 +11272,7 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 	else if(fLocalPowerRatio >= 2.0)
 	{
 #if defined(MOD_BALANCE_CORE_MINORS)
-		iLocalPowerScore += 225;
+		iLocalPowerScore += 90;
 #else
 		iLocalPowerScore += 100;
 #endif
@@ -11284,7 +11280,7 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 	else if(fLocalPowerRatio >= 1.5)
 	{
 #if defined(MOD_BALANCE_CORE_MINORS)
-		iLocalPowerScore += 175;
+		iLocalPowerScore += 80;
 #else
 		iLocalPowerScore += 75;
 #endif
@@ -11292,7 +11288,7 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 	else if(fLocalPowerRatio >= 1.0)
 	{
 #if defined(MOD_BALANCE_CORE_MINORS)
-		iLocalPowerScore += 125;
+		iLocalPowerScore += 40;
 #else
 		iLocalPowerScore += 50;
 #endif
@@ -11300,7 +11296,7 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 	else if(fLocalPowerRatio >= 0.5)
 	{
 #if defined(MOD_BALANCE_CORE_MINORS)
-		iLocalPowerScore += 75;
+		iLocalPowerScore += 20;
 #else
 		iLocalPowerScore += 25;
 #endif
@@ -11345,7 +11341,7 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 	// -110
 	// **************************
 #if defined(MOD_BALANCE_CORE_MINORS)
-	int iBaseReluctanceScore = -100;
+	int iBaseReluctanceScore = -125;
 #else
 	const int iBaseReluctanceScore = -110;
 #endif
@@ -11442,7 +11438,7 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 	if (bForUnit)
 	{
 #if defined(MOD_BALANCE_CORE_MINORS)
-		int iUnitScore = -50;
+		int iUnitScore = -40;
 #else
 		int iUnitScore = -30;
 #endif
@@ -11485,7 +11481,7 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 	if(GetAlly() != NO_PLAYER && GetAlly() != eBullyPlayer)
 	{
 #if defined(MOD_BALANCE_CORE_MINORS)
-		int iAllyScore = -30;
+		int iAllyScore = -50;
 #else
 		int iAllyScore = -10;
 #endif
@@ -11511,7 +11507,7 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 		if(eMajorLoop != eBullyPlayer && IsProtectedByMajor(eMajorLoop))
 		{
 #if defined(MOD_BALANCE_CORE_MINORS)
-			iProtectionScore += -30;
+			iProtectionScore += -25;
 #else
 			iProtectionScore += -20;
 #endif
@@ -11670,13 +11666,6 @@ CvString CvMinorCivAI::GetMajorBullyUnitDetails(PlayerTypes ePlayer)
 	}
 	sFear << iScore;
 	Localization::String sResult = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_UNIT_TT");
-#if defined(MOD_BALANCE_CORE_MINOR_VARIABLE_BULLYING)
-	// Minor must have Capital
-	if(MOD_BALANCE_CORE_MINOR_VARIABLE_BULLYING)
-	{
-		sResult = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_VARIABLE_CBP");
-	}
-#endif
 #if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
 	if(MOD_BALANCE_CORE_AFRAID_ANNEX)
 	{
@@ -11734,50 +11723,7 @@ void CvMinorCivAI::DoMajorBullyGold(PlayerTypes eBully, int iGold)
 
 	GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
 }
-#if defined(MOD_BALANCE_CORE)
-int CvMinorCivAI::GetYieldTheftAmount(PlayerTypes eBully, YieldTypes eYield)
-{
-	int iValue = 20;
-	iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-	iValue /= 100;
-	CvCity* pCapital = GetPlayer()->getCapitalCity();
-	if(pCapital == NULL)
-	{
-		CvAssertMsg(false, "Trying to spawn a Unit for a major civ but the minor has no capital. Please send Anton your save file and version.");
-		return iValue;
-	}
-	if(eBully == NO_PLAYER)
-	{
-		return iValue;
-	}
-	CvCity* pCapitalCity = GET_PLAYER(eBully).getCapitalCity();
-	if(pCapitalCity == NULL)
-	{
-		return iValue;
-	}	
-	switch(eYield)
-	{
-		case YIELD_CULTURE:
-			iValue += pCapitalCity->getBaseYieldRate(YIELD_CULTURE) / 2;
-			break;
-		case YIELD_FAITH:
-			iValue += pCapitalCity->getBaseYieldRate(YIELD_FAITH) / 2;
-			break;
-		case YIELD_SCIENCE:
-			iValue += pCapitalCity->getBaseYieldRate(YIELD_SCIENCE) / 2;
-			break;
-		case YIELD_PRODUCTION:
-			iValue += pCapitalCity->getBaseYieldRate(YIELD_PRODUCTION) / 2;
-			break;
-		case YIELD_FOOD:
-			iValue += pCapitalCity->getBaseYieldRate(YIELD_FOOD) / 2;
-			break;
-	}
-	iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-	iValue /= 100;
-	return iValue;
-}
-#endif
+
 void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 {
 	CvAssertMsg(eBully >= 0, "eBully is expected to be non-negative (invalid Index)");
@@ -11867,162 +11813,12 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 			}
 		}
 #endif
-#if defined(MOD_BALANCE_CORE_MINOR_VARIABLE_BULLYING)
-		// Minor must have Capital
-		if(MOD_BALANCE_CORE_MINOR_VARIABLE_BULLYING)
-		{
-			CvCity* pCapital = GetPlayer()->getCapitalCity();
-			if(pCapital == NULL)
-			{
-				CvAssertMsg(false, "Trying to spawn a Unit for a major civ but the minor has no capital. Please send Anton your save file and version.");
-				return;
-			}
-			CvCity* pCapitalCity = GET_PLAYER(eBully).getCapitalCity();
-			int iValue = 0;
-			float fDelay = 0.0f;
-			if(pCapitalCity != NULL && GetPlayer()->GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_MILITARISTIC)
-			{
-				iValue = GetYieldTheftAmount(eBully, YIELD_SCIENCE);
-				if(iValue > 0)
-				{
-					TechTypes eCurrentTech = GET_PLAYER(eBully).GetPlayerTechs()->GetCurrentResearch();
-					if(eCurrentTech == NO_TECH)
-					{
-						GET_PLAYER(eBully).changeOverflowResearch(iValue);
-					}
-					else
-					{
-						GET_TEAM(GET_PLAYER(eBully).getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iValue, eBully);
-					}
-					if(eBully == GC.getGame().getActivePlayer())
-					{
-						char text[256] = {0};
-						fDelay += 0.5f;
-						sprintf_s(text, "[COLOR_BLUE]+%d[ENDCOLOR][ICON_RESEARCH]", iValue);
-						DLLUI->AddPopupText(pCapitalCity->getX(),pCapitalCity->getY(), text, fDelay);
-					}
-					char text[256] = {0};
-					fDelay += 1.5f;
-					sprintf_s(text, "[COLOR_RED]BULLIED:[ENDCOLOR] [COLOR_BLUE]+%d[ENDCOLOR][ICON_RESEARCH]", -iValue);
-					DLLUI->AddPopupText(pCapital->getX(),pCapital->getY(), text, fDelay);
-				}			
-			}
-			else if(pCapitalCity != NULL && GetPlayer()->GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_CULTURED)
-			{
-				iValue = GetYieldTheftAmount(eBully, YIELD_CULTURE);
-				if(iValue > 0)
-				{
-					GET_PLAYER(eBully).changeJONSCulture(iValue);
-					pCapitalCity->ChangeJONSCultureStored(iValue);
-					if(eBully == GC.getGame().getActivePlayer())
-					{
-						char text[256] = {0};
-						fDelay += 0.5f;
-						sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", iValue);
-						DLLUI->AddPopupText(pCapitalCity->getX(),pCapitalCity->getY(), text, fDelay);
-					}
-					char text[256] = {0};
-					fDelay += 1.5f;
-					sprintf_s(text, "[COLOR_RED]BULLIED:[ENDCOLOR] [COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", -iValue);
-					DLLUI->AddPopupText(pCapital->getX(),pCapital->getY(), text, fDelay);
-				}			
-			}
-			else if(pCapitalCity != NULL && GetPlayer()->GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_MERCANTILE)
-			{
-				iValue = GetYieldTheftAmount(eBully, YIELD_PRODUCTION);
-				if(iValue > 0)
-				{
-					pCapitalCity->changeProduction(iValue);
-					if(eBully == GC.getGame().getActivePlayer())
-					{
-						char text[256] = {0};
-						fDelay += 0.5f;
-						sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_PRODUCTION]", iValue);
-						DLLUI->AddPopupText(pCapitalCity->getX(),pCapitalCity->getY(), text, fDelay);
-					}
-					char text[256] = {0};
-					fDelay += 1.5f;
-					sprintf_s(text, "[COLOR_RED]BULLIED:[ENDCOLOR] [COLOR_YELLOW]+%d[ENDCOLOR][ICON_PRODUCTION]", -iValue);
-					DLLUI->AddPopupText(pCapital->getX(),pCapital->getY(), text, fDelay);
-				}
-			}
-			else if(pCapitalCity != NULL && GetPlayer()->GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_RELIGIOUS)
-			{
-				iValue = GetYieldTheftAmount(eBully, YIELD_FAITH);
-				if(iValue > 0)
-				{
-					GET_PLAYER(eBully).ChangeFaith(iValue);
-					if(eBully == GC.getGame().getActivePlayer())
-					{
-						char text[256] = {0};
-						fDelay += 0.5f;
-						sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", iValue);
-						DLLUI->AddPopupText(pCapitalCity->getX(),pCapitalCity->getY(), text, fDelay);
-					}
-					char text[256] = {0};
-					fDelay += 1.5f;
-					sprintf_s(text, "[COLOR_RED]BULLIED:[ENDCOLOR] [COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", -iValue);
-					DLLUI->AddPopupText(pCapital->getX(),pCapital->getY(), text, fDelay);
-				}
-			}
-			else if(pCapitalCity != NULL && GetPlayer()->GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_MARITIME)
-			{
-				iValue = GetYieldTheftAmount(eBully, YIELD_FOOD);
-				if(iValue > 0)
-				{
-					pCapitalCity->changeFood(iValue);
-					if(eBully == GC.getGame().getActivePlayer())
-					{
-						char text[256] = {0};
-						fDelay += 0.5f;
-						sprintf_s(text, "[COLOR_GREEN]+%d[ENDCOLOR][ICON_FOOD]", iValue);
-						DLLUI->AddPopupText(pCapitalCity->getX(),pCapitalCity->getY(), text, fDelay);
-					}
-					char text[256] = {0};
-					fDelay += 1.5f;
-					sprintf_s(text, "[COLOR_RED]BULLIED:[ENDCOLOR] [COLOR_GREEN]+%d[ENDCOLOR][ICON_FOOD]", -iValue);
-					DLLUI->AddPopupText(pCapital->getX(),pCapital->getY(), text, fDelay);
-				}		
-			}
-			else
-			{
-				if(eUnitType == NO_UNIT)
-				{
-					CvAssertMsg(false, "eUnitType is not expected to be NO_UNIT. Please send Anton your save file and version.");
-					return;
-				}
-				// Minor must have Capital
-				CvCity* pCapital = GetPlayer()->getCapitalCity();
-				if(pCapital == NULL)
-				{
-					CvAssertMsg(false, "Trying to spawn a Unit for a major civ but the minor has no capital. Please send Anton your save file and version.");
-					return;
-				}
-				int iX = pCapital->getX();
-				int iY = pCapital->getY();
-
-				CvUnit* pNewUnit = GET_PLAYER(eBully).initUnit(eUnitType, iX, iY);
-				if (pNewUnit->jumpToNearestValidPlot())
-				{
-					pNewUnit->finishMoves(); // The given unit cannot move this turn
-
-					if(GetPlayer()->getCapitalCity())
-						GetPlayer()->getCapitalCity()->addProductionExperience(pNewUnit);
-
-					DoBulliedByMajorReaction(eBully, GC.getMINOR_FRIENDSHIP_DROP_BULLY_WORKER_SUCCESS());
-				}
-				else
-					pNewUnit->kill(false);	// Could not find a spot for the unit!
-			}
-		}
-		else
-		{
-#endif
 		if(eUnitType == NO_UNIT)
 		{
 			CvAssertMsg(false, "eUnitType is not expected to be NO_UNIT. Please send Anton your save file and version.");
 			return;
 		}
+
 		// Minor must have Capital
 		CvCity* pCapital = GetPlayer()->getCapitalCity();
 		if(pCapital == NULL)
@@ -12030,6 +11826,7 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 			CvAssertMsg(false, "Trying to spawn a Unit for a major civ but the minor has no capital. Please send Anton your save file and version.");
 			return;
 		}
+
 		int iX = pCapital->getX();
 		int iY = pCapital->getY();
 
@@ -12045,9 +11842,6 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 		}
 		else
 			pNewUnit->kill(false);	// Could not find a spot for the unit!
-#if defined(MOD_BALANCE_CORE)
-		}
-#endif
 	}
 
 	// Logging

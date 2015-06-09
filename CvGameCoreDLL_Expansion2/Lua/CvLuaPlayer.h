@@ -690,9 +690,6 @@ protected:
 	static int lGetTurnLastPledgedProtectionByMajor(lua_State* L);
 	static int lGetTurnLastPledgeBrokenByMajor(lua_State* L);
 	static int lGetMinorCivBullyGoldAmount(lua_State* L);
-#if defined(MOD_BALANCE_CORE)
-	static int lGetYieldTheftAmount(lua_State* L);
-#endif
 	static int lCanMajorBullyGold(lua_State* L);
 	static int lGetMajorBullyGoldDetails(lua_State* L);
 	static int lCanMajorBullyUnit(lua_State* L);

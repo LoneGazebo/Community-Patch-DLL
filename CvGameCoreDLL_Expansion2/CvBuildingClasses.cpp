@@ -177,7 +177,6 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_bIsNoWater(false),
 	m_bIsCapitalOnly(false),
 	m_bIsReformation(false),
-	m_bBuildAnywhere(false),
 	m_iTradeReligionModifier(-1),
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
@@ -409,7 +408,6 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_bIsNoWater = kResults.GetBool("IsNoWater");
 	m_bIsCapitalOnly = kResults.GetBool("CapitalOnly");
 	m_bIsReformation = kResults.GetBool("IsReformation");
-	m_bBuildAnywhere = kResults.GetBool("BuildAnywhere");
 	m_iTradeReligionModifier = kResults.GetInt("TradeReligionModifier");
 	}
 #endif
@@ -2657,11 +2655,6 @@ bool CvBuildingEntry::IsCapitalOnly() const
 bool CvBuildingEntry::IsReformation() const
 {
 	return m_bIsReformation;
-}
-/// Can this building ignore most restrictions?
-bool CvBuildingEntry::IsBuildAnywhere() const
-{
-	return m_bBuildAnywhere;
 }
 /// Does this building boost religious spread via trade?
 int CvBuildingEntry::GetTradeReligionModifier() const

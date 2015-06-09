@@ -2761,11 +2761,7 @@ int CvMilitaryAI::GetBarbarianThreatTotal()
 	ScanForBarbarians();
 
 	// Major threat for each camp seen
-#if defined(MOD_BALANCE_CORE)
-	iRtnValue += GC.getAI_MILITARY_THREAT_WEIGHT_SEVERE() * m_iBarbarianCampCount;
-#else
 	iRtnValue += GC.getAI_MILITARY_THREAT_WEIGHT_MAJOR() * m_iBarbarianCampCount;
-#endif
 
 	// One minor threat for every X barbarians
 	iRtnValue += m_iVisibleBarbarianCount / GC.getAI_MILITARY_BARBARIANS_FOR_MINOR_THREAT();
@@ -2798,16 +2794,10 @@ int CvMilitaryAI::GetThreatWeight(ThreatTypes eThreat)
 }
 
 /// How many civs are we fighting?
-#if defined(MOD_BALANCE_CORE)
-int CvMilitaryAI::GetNumberCivsAtWarWith(bool bMinor) const
-#else
 int CvMilitaryAI::GetNumberCivsAtWarWith() const
-#endif
 {
 	PlayerTypes eLoopPlayer;
-#if !defined(MOD_BALANCE_CORE)
 	WarStateTypes eWarState;
-#endif
 	int iRtnValue = 0;
 
 	// Let's figure out if we're at war
@@ -2820,22 +2810,11 @@ int CvMilitaryAI::GetNumberCivsAtWarWith() const
 		eLoopPlayer = (PlayerTypes) iPlayerLoop;
 
 		// Is this a player we have relations with?
-#if defined(MOD_BALANCE_CORE)
-		if(GET_PLAYER(eLoopPlayer).isMinorCiv() && !bMinor)
-		{
-			continue;
-		}
-		if(eLoopPlayer != m_pPlayer->GetID())
-		{
-			if(GET_TEAM(m_pPlayer->getTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam()))
-			{
-#else
 		if(eLoopPlayer != m_pPlayer->GetID() && m_pPlayer->GetDiplomacyAI()->IsPlayerValid(eLoopPlayer))
 		{
 			eWarState = m_pPlayer->GetDiplomacyAI()->GetWarState(eLoopPlayer);
 			if(eWarState != NO_WAR_STATE_TYPE)
 			{
-#endif
 				iRtnValue++;
 			}
 		}
@@ -3989,12 +3968,6 @@ void CvMilitaryAI::UpdateMilitaryStrategies()
 void CvMilitaryAI::UpdateOperations()
 {
 #if defined(MOD_BALANCE_CORE_MILITARY)
-#if defined(MOD_BALANCE_CORE)
-	if(m_pPlayer->isMinorCiv() || m_pPlayer->isBarbarian())
-	{
-		return;
-	}
-#endif
 	AI_PERF_FORMAT("Military-AI-perf.csv", ("UpdateOperations, Turn %03d, %s", GC.getGame().getElapsedGameTurns(), m_pPlayer->getCivilizationShortDescription()) );
 
 	int iOperationID;
@@ -4068,37 +4041,14 @@ void CvMilitaryAI::UpdateOperations()
 	EconomicAIStrategyTypes eStrategyExpandToOtherContinents = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_EXPAND_TO_OTHER_CONTINENTS");
 	if(m_pPlayer->GetEconomicAI()->IsUsingStrategy(eStrategyExpandToOtherContinents))
 	{
-		if((m_iTotalThreatWeight / 4) < GetBarbarianThreatTotal())
-		{
-			bWillingToAcceptRisk = true;
-		}
-	}
-	EconomicAIStrategyTypes eNeedRecon = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_RECON");
-	if(m_pPlayer->GetEconomicAI()->IsUsingStrategy(eNeedRecon))
-	{
-		if((m_iTotalThreatWeight / 4) < GetBarbarianThreatTotal())
-		{
-			bWillingToAcceptRisk = true;
-		}
-	}
-	EconomicAIStrategyTypes eEarlyExpansion = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_EARLY_EXPANSION");
-	if(m_pPlayer->GetEconomicAI()->IsUsingStrategy(eEarlyExpansion))
-	{
-		if((m_iTotalThreatWeight / 4) < GetBarbarianThreatTotal())
-		{
-			bWillingToAcceptRisk = true;
-		}
+		bWillingToAcceptRisk = true;
 	}
 #endif
 	//
 	// Operations vs. Barbarians
 	//
 	// If have aborted the eradicate barbarian strategy or if the threat level from civs is significantly higher than from barbs, we better abort all of them
-#if defined(MOD_BALANCE_CORE)
-	if(!IsUsingStrategy(eStrategyBarbs) || (IsUsingStrategy(eStrategyFightAWar) && !bWillingToAcceptRisk))
-#else
 	if(!IsUsingStrategy(eStrategyBarbs) || IsUsingStrategy(eStrategyFightAWar) || !bWillingToAcceptRisk)
-#endif
 	{
 		bool bFoundOneToDelete = true;
 		while(bFoundOneToDelete)
@@ -4304,24 +4254,18 @@ void CvMilitaryAI::UpdateOperations()
 					}
 					if(m_pPlayer->haveAIOperationOfType(AI_OPERATION_CITY_STATE_NAVAL_ATTACK, &iOperationID, eLoopPlayer))
 					{
-						if(GET_PLAYER(eLoopPlayer).isMinorCiv() && GET_PLAYER(eLoopPlayer).GetMinorCivAI()->GetAlly() != NO_PLAYER)
+						pOperation = m_pPlayer->getAIOperation(iOperationID);
+						if(pOperation)
 						{
-							pOperation = m_pPlayer->getAIOperation(iOperationID);
-							if(pOperation)
-							{
-								pOperation->Kill(AI_ABORT_WAR_STATE_CHANGE);
-							}
+							pOperation->Kill(AI_ABORT_WAR_STATE_CHANGE);
 						}
 					}
 					if(m_pPlayer->haveAIOperationOfType(AI_OPERATION_CITY_STATE_ATTACK, &iOperationID, eLoopPlayer))
 					{
-						if(GET_PLAYER(eLoopPlayer).isMinorCiv() && GET_PLAYER(eLoopPlayer).GetMinorCivAI()->GetAlly() != NO_PLAYER)
+						pOperation = m_pPlayer->getAIOperation(iOperationID);
+						if(pOperation)
 						{
-							pOperation = m_pPlayer->getAIOperation(iOperationID);
-							if(pOperation)
-							{
-								pOperation->Kill(AI_ABORT_WAR_STATE_CHANGE);
-							}
+							pOperation->Kill(AI_ABORT_WAR_STATE_CHANGE);
 						}
 					}
 					break;
@@ -4698,7 +4642,7 @@ void CvMilitaryAI::UpdateOperations()
 						}
 					}
 				}
-				else if(GET_PLAYER(eLoopPlayer).isMinorCiv() && eWarState >= WAR_STATE_DEFENSIVE)
+				else if(GET_PLAYER(eLoopPlayer).isMinorCiv() && eWarState > WAR_STATE_DEFENSIVE)
 				{
 					target = FindBestAttackTarget2(AI_OPERATION_CITY_STATE_NAVAL_ATTACK, eLoopPlayer, &iScore);
 					if(target.m_pTargetCity && target.m_bAttackBySea)
@@ -6809,17 +6753,9 @@ bool MilitaryAIHelpers::IsTestStrategy_WarMobilization(MilitaryAIStrategyTypes e
 }
 
 /// "At War" Player Strategy: If the player is at war, increase OFFENSE, DEFENSE and MILITARY_TRAINING.  Then look into which operation(s) to run
-#if defined(MOD_BALANCE_CORE)
-bool MilitaryAIHelpers::IsTestStrategy_AtWar(CvPlayer* pPlayer, bool bMinor)
-#else
 bool MilitaryAIHelpers::IsTestStrategy_AtWar(CvPlayer* pPlayer)
-#endif
 {
-#if defined(MOD_BALANCE_CORE)
-	return (pPlayer->GetMilitaryAI()->GetNumberCivsAtWarWith(bMinor) > 0);
-#else
 	return (pPlayer->GetMilitaryAI()->GetNumberCivsAtWarWith() > 0);
-#endif
 }
 
 /// "Minor Civ GeneralDefense" Player Strategy: Prioritize CITY_DEFENSE and DEFENSE

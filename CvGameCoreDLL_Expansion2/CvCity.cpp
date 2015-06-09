@@ -3604,11 +3604,7 @@ bool CvCity::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestVis
 	int iNumBuildingClassInfos = GC.getNumBuildingClassInfos();
 
 	// Can't construct a building to reduce occupied unhappiness if the city isn't occupied
-#if defined(MOD_BALANCE_CORE)
-	if(pkBuildingInfo->IsNoOccupiedUnhappiness() && !IsOccupied() && !pkBuildingInfo->IsBuildAnywhere())
-#else
 	if(pkBuildingInfo->IsNoOccupiedUnhappiness() && !IsOccupied())
-#endif
 		return false;
 
 	// Does this city have prereq buildings?
@@ -21309,6 +21305,10 @@ int CvCity::rangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bIncl
 		{
 			pInPlot = pCity->plot();
 		}
+	}
+	if(this == NULL)
+	{
+		return 0;
 	}
 #else
 int CvCity::rangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bIncludeRand) const

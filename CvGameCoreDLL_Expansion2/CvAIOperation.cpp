@@ -1189,23 +1189,6 @@ CvPlot* CvAIOperation::ComputeCenterOfMassForTurn(CvArmyAI* pArmy, CvPlot **ppCl
 			if (!pGoalPlot->isWater() && IsAllNavalOperation())
 			{
 				pGoalPlot = kPlayer.GetMilitaryAI()->GetCoastalPlotAdjacentToTarget(pGoalPlot, pArmy);
-#if defined(MOD_BALANCE_CORE)
-				if(pGoalPlot == NULL)
-				{
-					for(int iDX = -2; iDX <= 2; iDX++)
-					{
-						for(int iDY = -2; iDY <= 2; iDY++)
-						{
-							CvPlot* pLoopPlot = plotXYWithRangeCheck(pGoalPlot->getX(), pGoalPlot->getY(), iDX, iDY, 2);
-							if(pLoopPlot && pLoopPlot->isWater() && !pLoopPlot->isLake())
-							{
-								pGoalPlot = pLoopPlot;
-								break;
-							}
-						}
-					}
-				}
-#endif
 			}
 
 			pLastTurnArmyPlot = pArmy->Plot();
@@ -2397,22 +2380,15 @@ CvPlot* CvAIEnemyTerritoryOperation::SelectInitialMusterPoint(CvArmyAI* pThisArm
 	int iSpacesFromTarget = 0;
 	CvPlot* pDeployPlot = NULL;
 	int iDangerousPlots = 0;
-#if defined(MOD_BALANCE_CORE)
-	if(GetOperationType() == AI_OPERATION_DESTROY_BARBARIAN_CAMP)
-	{
-		if(GetMusterPlot() != NULL)
-		{
-			return GetMusterPlot();
-		}
-	}
-#endif
+
 	pStartCity = GetOperationStartCity();
-#if defined(MOD_BALANCE_CORE)			
+#if defined(MOD_BALANCE_CORE)
 	if(pStartCity == NULL && pThisArmy != NULL)
 	{
 		if(GET_PLAYER(pThisArmy->GetOwner()).getCapitalCity() != NULL)
 		{
 			pStartCity = GET_PLAYER(pThisArmy->GetOwner()).getCapitalCity();
+			SetMusterPlot(pStartCity->plot());
 		}
 	}
 #endif
@@ -2920,8 +2896,9 @@ bool CvAIOperationDestroyBarbarianCamp::ArmyInPosition(CvArmyAI* pArmy)
 		CvPlot* possibleBetterTarget;
 #endif
 #if defined(MOD_BALANCE_CORE)
-		CvPlot* possibleBetterTarget = GetTargetPlot();
-		if(possibleBetterTarget == NULL)
+		CvPlot* possibleBetterTarget = NULL;
+		possibleBetterTarget = GetTargetPlot();
+		if(GetTargetPlot() == NULL)
 		{
 #endif
 		possibleBetterTarget = FindBestTarget();
@@ -2933,7 +2910,11 @@ bool CvAIOperationDestroyBarbarianCamp::ArmyInPosition(CvArmyAI* pArmy)
 		}
 #endif
 		// If no target left, abort
+#if defined(MOD_BALANCE_CORE)
+		if(GetTargetPlot() == NULL)
+#else
 		if(possibleBetterTarget == NULL)
+#endif
 		{
 			m_eCurrentState = AI_OPERATION_STATE_ABORTED;
 			m_eAbortReason = AI_ABORT_LOST_TARGET;
@@ -2954,13 +2935,7 @@ bool CvAIOperationDestroyBarbarianCamp::ArmyInPosition(CvArmyAI* pArmy)
 				if(pDeployPt != NULL)
 				{
 					pArmy->SetGoalPlot(pDeployPt);
-					SetTargetPlot(GetTargetPlot());
 				}
-			}
-			else
-			{
-				pArmy->SetGoalPlot(GetTargetPlot());
-				SetTargetPlot(GetTargetPlot());
 			}
 		}
 #else
@@ -3030,8 +3005,9 @@ bool CvAIOperationDestroyBarbarianCamp::ShouldAbort()
 #endif
 		// See if our target camp is still there
 #if defined(MOD_BALANCE_CORE)
+		TeamTypes eTeam = GET_PLAYER(m_eOwner).getTeam();
 		ImprovementTypes eBarbCamp = (ImprovementTypes) GC.getBARBARIAN_CAMP_IMPROVEMENT();
-		if (!m_bCivilianRescue && GetTargetPlot()->getImprovementType() != eBarbCamp)
+		if (!m_bCivilianRescue && GetTargetPlot()->isRevealed(eTeam) && GetTargetPlot()->getRevealedImprovementType(eTeam) != eBarbCamp)
 #else
 		if (!m_bCivilianRescue && GetTargetPlot()->getImprovementType() != GC.getBARBARIAN_CAMP_IMPROVEMENT())
 #endif
@@ -3048,17 +3024,13 @@ bool CvAIOperationDestroyBarbarianCamp::ShouldAbort()
 			if((possibleBetterTarget != NULL) && (possibleBetterTarget != GetTargetPlot()))
 			{
 				SetTargetPlot(possibleBetterTarget);
-				// Success!  The camp is gone
-				if(GC.getLogging() && GC.getAILogging())
-				{
-					strMsg.Format("Barbarian camp at (x=%d y=%d) no longer exists. Moving on to a new target.", GetTargetPlot()->getX(), GetTargetPlot()->getY());
-					LogOperationSpecialMessage(strMsg);
-				}
-				return false;
 			}
 #endif
 			return true;
 		}
+#if defined(MOD_BALANCE_CORE)
+		}
+#endif
 		else if (m_bCivilianRescue)
 		{
 			// is the unit rescued?
@@ -3103,18 +3075,6 @@ bool CvAIOperationDestroyBarbarianCamp::ShouldAbort()
 				return true;
 			}
 		}
-#if defined(MOD_BALANCE_CORE)
-		}
-		else
-		{
-			if(GC.getLogging() && GC.getAILogging())
-			{
-				strMsg.Format("No Barbarian camp target for army. Aborting");
-				LogOperationSpecialMessage(strMsg);
-			}
-			return true;
-		}
-#endif
 	}
 
 	return rtnValue;
@@ -3132,7 +3092,6 @@ CvPlot* CvAIOperationDestroyBarbarianCamp::FindBestTarget()
 	m_bCivilianRescue = false;
 
 #if defined(MOD_BALANCE_CORE)
-	CvPlot* pBestMuster = NULL;
 	ImprovementTypes eBarbCamp = (ImprovementTypes) GC.getBARBARIAN_CAMP_IMPROVEMENT();
 #else
 	TeamTypes eTeam = GET_PLAYER(m_eOwner).getTeam();
@@ -3140,81 +3099,70 @@ CvPlot* CvAIOperationDestroyBarbarianCamp::FindBestTarget()
 	CvCity* pStartCity;
 #endif
 #if defined(MOD_BALANCE_CORE)
-	// look for good captured civilians of ours (settlers and workers, not missionaries) 
-	// these will be even more important than just a camp
-	// btw - the AI will cheat here - as a human I would use a combination of memory and intuition to find these, since our current AI has neither of these...
-	CvPlayerAI& BarbPlayer = GET_PLAYER(BARBARIAN_PLAYER);
-
-	CvUnit* pLoopUnit = NULL;
-	int iLoop;
-	for (pLoopUnit = BarbPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = BarbPlayer.nextUnit(&iLoop))
+	if(m_bInitializedRun)
 	{
-		if (pLoopUnit->GetOriginalOwner() == m_eOwner && (pLoopUnit->AI_getUnitAIType() == UNITAI_SETTLE || pLoopUnit->AI_getUnitAIType() == UNITAI_WORKER || pLoopUnit->AI_getUnitAIType() == UNITAI_ARCHAEOLOGIST))
+		CvCity* pStartCity = NULL;
+		pStartCity = GetOperationStartCity();
+		if(pStartCity != NULL)
 		{
-			CvCity* pLoopCity;
-			int iCityLoop;
-			// Loop through each of our cities
-			for(pLoopCity = GET_PLAYER(m_eOwner).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(m_eOwner).nextCity(&iCityLoop))
+			SetMusterPlot(pStartCity->plot());
+		}
+		else if(GET_PLAYER(m_eOwner).getCapitalCity() != NULL)
+		{
+			SetMusterPlot(GET_PLAYER(m_eOwner).getCapitalCity()->plot());
+		}
+	}
+#endif
+#if defined(MOD_BALANCE_CORE)
+	if(GetMusterPlot() != NULL)
+	{
+		// look for good captured civilians of ours (settlers and workers, not missionaries) 
+		// these will be even more important than just a camp
+		// btw - the AI will cheat here - as a human I would use a combination of memory and intuition to find these, since our current AI has neither of these...
+		CvPlayerAI& BarbPlayer = GET_PLAYER(BARBARIAN_PLAYER);
+
+		CvUnit* pLoopUnit = NULL;
+		int iLoop;
+		for (pLoopUnit = BarbPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = BarbPlayer.nextUnit(&iLoop))
+		{
+			if (pLoopUnit->GetOriginalOwner() == m_eOwner && (pLoopUnit->AI_getUnitAIType() == UNITAI_SETTLE || pLoopUnit->AI_getUnitAIType() == UNITAI_WORKER || pLoopUnit->AI_getUnitAIType() == UNITAI_ARCHAEOLOGIST))
 			{
-				if(pLoopCity != NULL)
+				iCurPlotDistance = GC.getStepFinder().GetStepDistanceBetweenPoints(m_eOwner, m_eEnemy, pLoopUnit->plot(), GetMusterPlot());
+				if(pLoopUnit->plot()->getArea() != GetMusterPlot()->getArea())
 				{
-					if(pLoopUnit->plot()->getArea() != pLoopCity->getArea() && !GET_TEAM(GET_PLAYER(m_eOwner).getTeam()).canEmbark())
+					iCurPlotDistance *= 2;
+				}
+				if (iCurPlotDistance < iBestPlotDistance)
+				{
+					pBestPlot = pLoopUnit->plot();
+					iBestPlotDistance = iCurPlotDistance;
+					m_bCivilianRescue = true;
+					m_iUnitToRescue = pLoopUnit->GetID();
+				}
+			}
+		}
+
+		if (pBestPlot == NULL)
+		{
+			// Look at map for Barbarian camps
+			for (iPlotLoop = 0; iPlotLoop < GC.getMap().numPlots(); iPlotLoop++)
+			{
+				pPlot = GC.getMap().plotByIndexUnchecked(iPlotLoop);
+				if (pPlot->getImprovementType() == eBarbCamp)
+				{
+					iCurPlotDistance = GC.getStepFinder().GetStepDistanceBetweenPoints(m_eOwner, m_eEnemy, pPlot, GetMusterPlot());
+					if(pPlot->getArea() != GetMusterPlot()->getArea())
 					{
-						continue;
+						iCurPlotDistance *= 2;
 					}
-					iCurPlotDistance = GC.getStepFinder().GetStepDistanceBetweenPoints(m_eOwner, m_eEnemy, pLoopUnit->plot(), pLoopCity->plot());
-					
 					if (iCurPlotDistance < iBestPlotDistance)
 					{
-						pBestPlot = pLoopUnit->plot();
-						pBestMuster = pLoopCity->plot();
+						pBestPlot = pPlot;
 						iBestPlotDistance = iCurPlotDistance;
-						m_bCivilianRescue = true;
-						m_iUnitToRescue = pLoopUnit->GetID();
 					}
 				}
 			}
 		}
-	}
-
-	if (pBestPlot == NULL)
-	{
-		// Look at map for Barbarian camps
-		for (iPlotLoop = 0; iPlotLoop < GC.getMap().numPlots(); iPlotLoop++)
-		{
-			pPlot = GC.getMap().plotByIndexUnchecked(iPlotLoop);
-			if (pPlot->getImprovementType() == eBarbCamp)
-			{
-				CvCity* pLoopCity;
-				int iCityLoop;
-				// Loop through each of our cities
-				for(pLoopCity = GET_PLAYER(m_eOwner).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(m_eOwner).nextCity(&iCityLoop))
-				{
-					if(pLoopCity != NULL)
-					{
-						if(pPlot->getArea() != pLoopCity->getArea() && !GET_TEAM(GET_PLAYER(m_eOwner).getTeam()).canEmbark())
-						{
-							continue;
-						}
-						iCurPlotDistance = GC.getStepFinder().GetStepDistanceBetweenPoints(m_eOwner, m_eEnemy, pPlot, pLoopCity->plot());
-						if(pPlot->getArea() != pLoopCity->getArea())
-						{
-							iCurPlotDistance *= 2;
-						}
-						if (iCurPlotDistance < iBestPlotDistance)
-						{
-							pBestPlot = pPlot;
-							pBestMuster = pLoopCity->plot();
-							iBestPlotDistance = iCurPlotDistance;
-						}
-					}
-				}
-			}
-		}
-	}
-	if(pBestMuster != NULL)
-	{
-		SetMusterPlot(pBestMuster);
 	}
 #else
 	pStartCity = GetOperationStartCity();
@@ -3468,21 +3416,19 @@ CvPlot* CvAIOperationPillageEnemy::FindBestTarget()
 #endif
 		}
 	}
-	if(pBestTargetCity == NULL)
-	{
 #if defined(MOD_BALANCE_CORE)
-		if(GET_PLAYER(m_eEnemy).getCapitalCity() != NULL)
-			return GET_PLAYER(m_eEnemy).getCapitalCity()->plot();
-		else
-			return NULL;
+	if(pBestTargetCity == NULL && GET_PLAYER(m_eEnemy).getCapitalCity() != NULL)
 #else
-		return GET_PLAYER(m_eEnemy).getCapitalCity()->plot();
+	if(pBestTargetCity == NULL)
 #endif
+	{
+		return GET_PLAYER(m_eEnemy).getCapitalCity()->plot();
 	}
 	else
 	{
 		return pBestTargetCity->plot();
 	}
+	return NULL;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -3654,10 +3600,6 @@ void CvAIEscortedOperation::Write(FDataStream& kStream) const
 void CvAIEscortedOperation::UnitWasRemoved(int /*iArmyID*/, int iSlotID)
 {
 	// Assumes civilian is in the first slot of the formation
-#if defined(MOD_BALANCE_CORE)
-	if(GetOperationType() == AI_OPERATION_COLONIZE || GetOperationType() == AI_OPERATION_QUICK_COLONIZE || GetOperationType() == AI_OPERATION_FOUND_CITY)
-	{
-#endif
 	if(iSlotID == 0)
 	{
 		m_eCurrentState = AI_OPERATION_STATE_ABORTED;
@@ -3667,9 +3609,6 @@ void CvAIEscortedOperation::UnitWasRemoved(int /*iArmyID*/, int iSlotID)
 	{
 		m_bEscorted = false;
 	}
-#if defined(MOD_BALANCE_CORE)
-	}
-#endif
 }
 
 /// Find the civilian we want to use
@@ -3710,11 +3649,10 @@ bool CvAIEscortedOperation::RetargetCivilian(CvUnit* pCivilian, CvArmyAI* pArmy)
 		m_eAbortReason = AI_ABORT_NO_TARGET;
 		return false;
 	}
-#if defined(AUI_OPERATION_FIX_RETARGET_CIVILIAN_ABORT_IF_UNREACHABLE_ESCORT)
 	// If this is a new target, switch to it
-	else if(pBetterTarget)
+	else if(pBetterTarget != GetTargetPlot())
 	{
-		//check if all units can reach it and dismiss those who can't
+#if defined(AUI_OPERATION_FIX_RETARGET_CIVILIAN_ABORT_IF_UNREACHABLE_ESCORT)
 		std::vector<int> aiUnitsToRemove;
 		for (UnitHandle pUnit = pArmy->GetFirstUnit(); pUnit.pointer(); pUnit = pArmy->GetNextUnit())
 		{
@@ -3730,11 +3668,7 @@ bool CvAIEscortedOperation::RetargetCivilian(CvUnit* pCivilian, CvArmyAI* pArmy)
 		if ((m_eCurrentState) == AI_OPERATION_STATE_ABORTED)
 		{
 			return false;
-		}
-#else
-	// If this is a new target, switch to it
-	else if(pBetterTarget != GetTargetPlot())
-	{
+			}
 #endif // AUI_OPERATION_FIX_RETARGET_CIVILIAN_ABORT_IF_UNREACHABLE_ESCORT
 		SetTargetPlot(pBetterTarget);
 		pArmy->SetGoalPlot(pBetterTarget);
@@ -6937,11 +6871,12 @@ bool CvAIOperationRapidResponse::ArmyInPosition(CvArmyAI* pArmy)
 #else
 		// For now never end, even at target
 		bStateChanged = false;
+#endif
 		// ... but we might want to move to a greater threat
 		RetargetDefensiveArmy(pArmy);
-#endif
 	}
 	break;
+
 	// In all other cases use base class version
 	case AI_OPERATION_STATE_GATHERING_FORCES:
 	case AI_OPERATION_STATE_ABORTED:
@@ -7024,7 +6959,6 @@ CvPlot* CvAIOperationRapidResponse::FindBestTarget()
 			continue;
 		}
 		pLoopPlot = GC.getMap().plotByIndex(aiPlots[uiPlotIndex]);
-
 		//check all our owned land plots
 		if(pLoopPlot != NULL && !pLoopPlot->isWater() && pLoopPlot->getOwner()==m_eOwner )
 		{
@@ -7054,14 +6988,6 @@ CvPlot* CvAIOperationRapidResponse::FindBestTarget()
 				iHighestDanger = iEnemyPower;
 				pBestPlot = pLoopPlot;
 			}
-		}
-	}
-	if(pBestPlot == NULL)
-	{
-		CvCity* pCity = GET_PLAYER(m_eOwner).GetMilitaryAI()->GetMostThreatenedCity();
-		if(pCity != NULL)
-		{
-			pBestPlot = pCity->plot();
 		}
 	}
 	return pBestPlot;	
@@ -7172,17 +7098,44 @@ void CvAINavalEscortedOperation::Init(int iID, PlayerTypes eOwner, PlayerTypes /
 #endif
 #if defined(MOD_BALANCE_CORE)
 				CvPlot* pFinalPlot = NULL;
-				for(int iDirectionLoop = 0; iDirectionLoop < NUM_DIRECTION_TYPES; ++iDirectionLoop)
+				int iBestDistance = MAX_INT;
+				CvArea* pArea = GC.getMap().getArea(pTargetSite->getArea());
+				if(pArea != NULL && pArea->getCitiesPerPlayer(m_eOwner) > 0)
 				{
-					CvPlot* pAdjacentPlot = plotDirection(pTargetSite->getX(), pTargetSite->getY(), ((DirectionTypes)iDirectionLoop));
-					if(pAdjacentPlot != NULL && pAdjacentPlot->isWater() && !pAdjacentPlot->isLake())
-					{					
-						int iBestDistance = MAX_INT;
-						CvArea* pArea = GC.getMap().getArea(pAdjacentPlot->getArea());
-						if(pArea != NULL)
+					CvPlot* pLoopPlot;
+					const CvPlotsVector& aiPlots = GET_PLAYER(m_eOwner).GetPlots();
+					for (uint uiPlotIndex = 0; uiPlotIndex < aiPlots.size(); uiPlotIndex++)
+					{
+						if(aiPlots[uiPlotIndex] == -1)
 						{
-							CvPlot* pLoopPlot;
-							const CvPlotsVector& aiPlots = GET_PLAYER(m_eOwner).GetPlots();
+							continue;
+						}
+						pLoopPlot = GC.getMap().plotByIndex(aiPlots[uiPlotIndex]);
+						if(!pOurCivilian->GeneratePath(pLoopPlot))
+						{
+							continue;
+						}
+						if(pLoopPlot->isCity() && pLoopPlot->getOwner() == m_eOwner && pLoopPlot->getArea() == pTargetSite->getArea())
+						{
+							int iDistance = plotDistance(pLoopPlot->getX(), pLoopPlot->getY(), pOurCivilian->getX(), pOurCivilian->getY());
+							if(iDistance < iBestDistance)
+							{
+								iBestDistance = iDistance;
+								pFinalPlot = pLoopPlot;
+							}
+						}
+					}
+				}
+				else
+				{
+					CvPlot* pLoopPlot;
+					int iBestDistance = MAX_INT;
+					const CvPlotsVector& aiPlots = GET_PLAYER(m_eOwner).GetPlots();
+					for(int iDirectionLoop = 0; iDirectionLoop < NUM_DIRECTION_TYPES; ++iDirectionLoop)
+					{
+						CvPlot* pAdjacentPlot = plotDirection(pTargetSite->getX(), pTargetSite->getY(), ((DirectionTypes)iDirectionLoop));
+						if(pAdjacentPlot != NULL && pAdjacentPlot->isWater())
+						{
 							for (uint uiPlotIndex = 0; uiPlotIndex < aiPlots.size(); uiPlotIndex++)
 							{
 								if(aiPlots[uiPlotIndex] == -1)
@@ -7190,26 +7143,20 @@ void CvAINavalEscortedOperation::Init(int iID, PlayerTypes eOwner, PlayerTypes /
 									continue;
 								}
 								pLoopPlot = GC.getMap().plotByIndex(aiPlots[uiPlotIndex]);
-								if(!pLoopPlot->isWater())
-								{
-									continue;
-								}
-								if(pLoopPlot->getArea() != pAdjacentPlot->getArea())
-								{
-									continue;
-								}
-						
 								if(!pOurCivilian->GeneratePath(pLoopPlot))
 								{
 									continue;
 								}
-								if(pLoopPlot->getOwner() == m_eOwner)
+								if(pLoopPlot->isWater())
 								{
-									int iDistance = plotDistance(pLoopPlot->getX(), pLoopPlot->getY(), pOurCivilian->getX(), pOurCivilian->getY());
-									if(iDistance < iBestDistance)
+									if(pAdjacentPlot->getArea() == pLoopPlot->getArea())
 									{
-										iBestDistance = iDistance;
-										pFinalPlot = pLoopPlot;
+										int iDistance = plotDistance(pLoopPlot->getX(), pLoopPlot->getY(), pOurCivilian->getX(), pOurCivilian->getY());
+										if(iDistance < iBestDistance)
+										{
+											iBestDistance = iDistance;
+											pFinalPlot = pLoopPlot;
+										}
 									}
 								}
 							}
@@ -7466,47 +7413,44 @@ bool CvAINavalEscortedOperation::ArmyInPosition(CvArmyAI* pArmy)
 	CvString strMsg;
 #if defined(MOD_BALANCE_CORE)
 	bool bCivilianEscort = false;
-	if(GetOperationType() == AI_OPERATION_COLONIZE || GetOperationType() == AI_OPERATION_QUICK_COLONIZE || GetOperationType() == AI_OPERATION_FOUND_CITY)
+	iUnitID = pArmy->GetFirstUnitID();
+	if(iUnitID != -1)
 	{
-		iUnitID = pArmy->GetFirstUnitID();
+		pSettler = GET_PLAYER(m_eOwner).getUnit(iUnitID);
+		if (pSettler && (pSettler->isFound()))
+		{
+			bCivilianEscort = true;
+		}
+		else
+		{
+			bCivilianEscort = false;
+		}
+		iUnitID = pArmy->GetNextUnitID();
 		if(iUnitID != -1)
 		{
-			pSettler = GET_PLAYER(m_eOwner).getUnit(iUnitID);
-			if (pSettler && (pSettler->isFound()))
+			pEscort = GET_PLAYER(m_eOwner).getUnit(iUnitID);
+		}
+		if(pEscort == NULL)
+		{
+			if(GrabUnitsFromTheReserves(GetMusterPlot(), GetTargetPlot()))
 			{
-				bCivilianEscort = true;
-			}
-			else
-			{
-				bCivilianEscort = false;
-			}
-			iUnitID = pArmy->GetNextUnitID();
-			if(iUnitID != -1)
-			{
-				pEscort = GET_PLAYER(m_eOwner).getUnit(iUnitID);
-			}
-			if(pEscort == NULL && bCivilianEscort)
-			{
-				if(GrabUnitsFromTheReserves(GetMusterPlot(), GetTargetPlot()))
+				iUnitID = pArmy->GetFirstUnitID();
+				if(iUnitID != -1)
 				{
-					iUnitID = pArmy->GetFirstUnitID();
+					pSettler = GET_PLAYER(m_eOwner).getUnit(iUnitID);
+					if (pSettler && (pSettler->isFound()))
+					{
+						bCivilianEscort = true;
+					}
+					else
+					{
+						m_eCurrentState = AI_OPERATION_STATE_ABORTED;
+						m_eAbortReason = AI_ABORT_LOST_CIVILIAN;
+					}
+					iUnitID = pArmy->GetNextUnitID();
 					if(iUnitID != -1)
 					{
-						pSettler = GET_PLAYER(m_eOwner).getUnit(iUnitID);
-						if (pSettler && (pSettler->isFound()))
-						{
-							bCivilianEscort = true;
-						}
-						else
-						{
-							m_eCurrentState = AI_OPERATION_STATE_ABORTED;
-							m_eAbortReason = AI_ABORT_LOST_CIVILIAN;
-						}
-						iUnitID = pArmy->GetNextUnitID();
-						if(iUnitID != -1)
-						{
-							pEscort = GET_PLAYER(m_eOwner).getUnit(iUnitID);
-						}
+						pEscort = GET_PLAYER(m_eOwner).getUnit(iUnitID);
 					}
 				}
 			}
@@ -7792,46 +7736,57 @@ bool CvAINavalEscortedOperation::RetargetCivilian(CvUnit* pCivilian, CvArmyAI* p
 		SetTargetPlot(pBetterTarget);
 		pArmy->SetGoalPlot(pBetterTarget);
 		CvPlot* pFinalPlot = NULL;
-		for(int iDirectionLoop = 0; iDirectionLoop < NUM_DIRECTION_TYPES; ++iDirectionLoop)
+		int iBestDistance = MAX_INT;
+		CvArea* pArea = GC.getMap().getArea(pBetterTarget->getArea());
+		if(pArea != NULL && pArea->getCitiesPerPlayer(m_eOwner) > 0)
 		{
-			CvPlot* pAdjacentPlot = plotDirection(pBetterTarget->getX(), pBetterTarget->getY(), ((DirectionTypes)iDirectionLoop));
-			if(pAdjacentPlot != NULL && pAdjacentPlot->isWater() && !pAdjacentPlot->isLake())
-			{					
-				int iBestDistance = MAX_INT;
-				CvArea* pArea = GC.getMap().getArea(pAdjacentPlot->getArea());
-				if(pArea != NULL)
+			CvPlot* pLoopPlot;
+			const CvPlotsVector& aiPlots = GET_PLAYER(m_eOwner).GetPlots();
+			for (uint uiPlotIndex = 0; uiPlotIndex < aiPlots.size(); uiPlotIndex++)
+			{
+				if(aiPlots[uiPlotIndex] == -1)
 				{
-					CvPlot* pLoopPlot;
-					const CvPlotsVector& aiPlots = GET_PLAYER(m_eOwner).GetPlots();
-					for (uint uiPlotIndex = 0; uiPlotIndex < aiPlots.size(); uiPlotIndex++)
+					continue;
+				}
+				pLoopPlot = GC.getMap().plotByIndex(aiPlots[uiPlotIndex]);
+				if(!pCivilian->GeneratePath(pLoopPlot))
+				{
+					continue;
+				}
+				if(pLoopPlot->isCity() && pLoopPlot->getOwner() == m_eOwner && pLoopPlot->getArea() == pBetterTarget->getArea())
+				{
+					int iDistance = plotDistance(pLoopPlot->getX(), pLoopPlot->getY(), pCivilian->getX(), pCivilian->getY());
+					if(iDistance < iBestDistance)
 					{
-						if(aiPlots[uiPlotIndex] == -1)
-						{
-							continue;
-						}
-						pLoopPlot = GC.getMap().plotByIndex(aiPlots[uiPlotIndex]);
-						if(!pLoopPlot->isWater())
-						{
-							continue;
-						}
-						if(pLoopPlot->getArea() != pAdjacentPlot->getArea())
-						{
-							continue;
-						}
-						
-						if(!pCivilian->GeneratePath(pLoopPlot))
-						{
-							continue;
-						}
-						if(pLoopPlot->getOwner() == m_eOwner)
-						{
-							int iDistance = plotDistance(pLoopPlot->getX(), pLoopPlot->getY(), pCivilian->getX(), pCivilian->getY());
-							if(iDistance < iBestDistance)
-							{
-								iBestDistance = iDistance;
-								pFinalPlot = pLoopPlot;
-							}
-						}
+						iBestDistance = iDistance;
+						pFinalPlot = pLoopPlot;
+					}
+				}
+			}
+		}
+		else
+		{
+			CvPlot* pLoopPlot;
+			int iBestDistance = MAX_INT;
+			const CvPlotsVector& aiPlots = GET_PLAYER(m_eOwner).GetPlots();			
+			for (uint uiPlotIndex = 0; uiPlotIndex < aiPlots.size(); uiPlotIndex++)
+			{
+				if(aiPlots[uiPlotIndex] == -1)
+				{
+					continue;
+				}
+				pLoopPlot = GC.getMap().plotByIndex(aiPlots[uiPlotIndex]);
+				if(!pCivilian->GeneratePath(pLoopPlot))
+				{
+					continue;
+				}
+				if(pLoopPlot->isCity() && pLoopPlot->getOwner() == m_eOwner)
+				{
+					int iDistance = plotDistance(pLoopPlot->getX(), pLoopPlot->getY(), pCivilian->getX(), pCivilian->getY());
+					if(iDistance < iBestDistance)
+					{
+						iBestDistance = iDistance;
+						pFinalPlot = pLoopPlot;
 					}
 				}
 			}
@@ -8794,7 +8749,7 @@ CvPlot* CvAIOperationNukeAttack::FindBestTarget()
 										iThisCityValue -= 1000;
 									}
 									//Is this city threatened? Let's target this.
-									if(enemyPlayer.GetMilitaryAI()->GetMostThreatenedCity() == pLoopCity)
+									if(enemyPlayer.GetMilitaryAI()->GetMostThreatenedCity(0) == pLoopCity)
 									{
 										iThisCityValue += 250;
 									}

@@ -3278,10 +3278,9 @@ int CvStepPathFinder::CountPlotsOwnedByXInPath(PlayerTypes ePlayer) const
 }
 #endif
 
-
-#ifdef AUI_ASTAR_TURN_LIMITER
 //	--------------------------------------------------------------------------------
 /// Check for existence of step path between two points
+#ifdef AUI_ASTAR_TURN_LIMITER
 bool CvIgnoreUnitsPathFinder::DoesPathExist(CvUnit& unit, CvPlot* pStartPlot, CvPlot* pEndPlot, int iTargetTurns)
 #else
 bool CvIgnoreUnitsPathFinder::DoesPathExist(CvUnit& unit, CvPlot* pStartPlot, CvPlot* pEndPlot)

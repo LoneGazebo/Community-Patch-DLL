@@ -4566,6 +4566,8 @@ void CvTacticalAI::PlotSingleHexOperationMoves(CvAIEscortedOperation* pOperation
 			if(!pCivilian->GeneratePath(pOperation->GetTargetPlot(), iFlags, false /*bReuse*/))
 			{
 				pOperation->RetargetCivilian(pCivilian.pointer(), pThisArmy);
+				//todo: improve this, we should generate a new path and strike out immediately
+				//but then we have to take care not to end up in an infinite loop, alternating between two unreachable targets
 #if defined(MOD_BALANCE_CORE)
 				if(pOperation->GetTargetPlot() != NULL)
 				{
@@ -4978,7 +4980,7 @@ void CvTacticalAI::PlotEnemyTerritoryOperationMoves(CvAIEnemyTerritoryOperation*
 		if(pThisTurnTarget == NULL)
 		{
 #if defined(MOD_BALANCE_CORE)
-			if(pOperation->GetOperationState() != AI_OPERATION_STATE_ABORTED && GC.getLogging() && GC.getAILogging())
+			if(pOperation->GetOperationState()!=AI_OPERATION_STATE_ABORTED && GC.getLogging() && GC.getAILogging())
 			{
 				CvString strMsg;
 				strMsg.Format("Pathing lost en route due to a bad COM computation!");
@@ -5071,13 +5073,12 @@ void CvTacticalAI::PlotNavalEscortOperationMoves(CvAINavalEscortedOperation* pOp
 			pCivilian = m_pPlayer->getUnit(iUnitID);
 		}
 
-		if(pOperation->IsCivilianRequired() && (!pCivilian || !pCivilian->isFound()))
+		if(!pCivilian || !pCivilian->isFound())
 		{
 			pOperation->SetToAbort(AI_ABORT_LOST_CIVILIAN);
 			return;
 		}
 		pEscort = m_pPlayer->getUnit(pThisArmy->GetNextUnitID());
-	}
 
 #else
 		if(iUnitID != -1)
@@ -5088,14 +5089,13 @@ void CvTacticalAI::PlotNavalEscortOperationMoves(CvAINavalEscortedOperation* pOp
 				pEscort = NULL;   // Second unit wasn't the escort
 			}
 		}
+#endif // AUI_TACTICAL_FIX_PLOT_NAVAL_ESCORT_OPERATION_MOVES_POSSIBLE_NULL_POINTER
 	}
 
 	if(!pCivilian && pOperation->IsCivilianRequired())
 	{
 		return;
 	}
-#endif // AUI_TACTICAL_FIX_PLOT_NAVAL_ESCORT_OPERATION_MOVES_POSSIBLE_NULL_POINTER
-
 #if defined(MOD_BALANCE_CORE)
 	m_OperationUnits.clear();
 	pThisArmy->UpdateCheckpointTurns();
@@ -5148,17 +5148,10 @@ void CvTacticalAI::PlotNavalEscortOperationMoves(CvAINavalEscortedOperation* pOp
 				{
 					// See if we are just able to get to target point in time.  If so, time for us to head over there
 					UnitHandle pUnit = m_pPlayer->getUnit(pSlot->GetUnitID());
-					if(pUnit && !pUnit->TurnProcessed() && pOperation->GetMusterPlot() != NULL)
+					if(pUnit && !pUnit->TurnProcessed() && pOperation->GetTargetPlot() != NULL)
 					{	
 						// Move escort over
-						if(pOperation->GetMusterPlot()->isWater())
-						{
-							MoveToEmptySpaceNearTarget(pUnit, pOperation->GetMusterPlot(), false);
-						}
-						else
-						{
-							MoveToEmptySpaceNearTarget(pUnit, pOperation->GetMusterPlot(), true);
-						}
+						MoveToEmptySpaceNearTarget(pUnit, pOperation->GetTargetPlot());
 						if(GC.getLogging() && GC.getAILogging())
 						{
 							CvString strTemp;
@@ -5188,17 +5181,8 @@ void CvTacticalAI::PlotNavalEscortOperationMoves(CvAINavalEscortedOperation* pOp
 						// Has to be somewhere we can move and be empty of other units
 						if(pEscort->canEnterTerrain(*pConsiderPlot) && pEscort->canEnterTerritory(pConsiderPlot->getTeam()))
 						{
-#if defined(MOD_BALANCE_CORE)
-#if defined(MOD_GLOBAL_BREAK_CIVILIAN_1UPT)
-							if(pConsiderPlot->GetNumCombatUnits() <= 0 && pConsiderPlot->isWater() && pConsiderPlot->getArea() == pOperation->GetMusterPlot()->getArea())
-#else
-							if(pConsiderPlot->getNumUnits() == 0 && pConsiderPlot->isWater() && pConsiderPlot->getArea() == pOperation->GetMusterPlot()->getArea())
-#endif
-#else
 							if(pConsiderPlot->getNumUnits() == 0)
-#endif
 							{
-
 								if(pEscort->GeneratePath(pConsiderPlot) && pCivilian->GeneratePath(pConsiderPlot))
 								{
 									ExecuteMoveToPlot(pEscort, pConsiderPlot);
@@ -5225,46 +5209,18 @@ void CvTacticalAI::PlotNavalEscortOperationMoves(CvAINavalEscortedOperation* pOp
 			// Didn't find an alternative, must abort operation
 			pOperation->RetargetCivilian(pCivilian, pThisArmy);
 #if defined(MOD_BALANCE_CORE)
-			if(pOperation->GetMusterPlot() != NULL)
+			if(pOperation->GetTargetPlot() != NULL && pCivilian->GeneratePath(pOperation->GetTargetPlot()))
 			{
-				if(pCivilian->GeneratePath(pOperation->GetMusterPlot()))
+				ExecuteMoveToPlot(pCivilian, pOperation->GetTargetPlot());
+				if(pEscort)
 				{
-					ExecuteMoveToPlot(pCivilian, pOperation->GetMusterPlot());
-					if(pEscort)
-					{
-						ExecuteMoveToPlot(pEscort, pOperation->GetMusterPlot());
-					}
-					if(GC.getLogging() && GC.getAILogging())
-					{
-						CvString strLogString;
-						strLogString.Format("Retargeting civilian escort operation (path lost to target) and moving them on, X: %d, Y: %d", pOperation->GetTargetPlot()->getX(), pOperation->GetTargetPlot()->getY());
-						LogTacticalMessage(strLogString);
-					}
+					ExecuteMoveToPlot(pEscort, pOperation->GetTargetPlot());
 				}
-				else
+				if(GC.getLogging() && GC.getAILogging())
 				{
-					if(pOperation->GetMusterPlot()->isWater())
-					{
-						MoveToEmptySpaceNearTarget(pCivilian, pOperation->GetMusterPlot(), false);
-						if(pEscort)
-						{
-							MoveToEmptySpaceNearTarget(pEscort, pOperation->GetMusterPlot(), false);
-						}
-					}
-					else
-					{
-						MoveToEmptySpaceNearTarget(pCivilian, pOperation->GetMusterPlot());
-						if(pEscort)
-						{
-							MoveToEmptySpaceNearTarget(pEscort, pOperation->GetMusterPlot());
-						}
-					}
-					if(GC.getLogging() && GC.getAILogging())
-					{
-						CvString strLogString;
-						strLogString.Format("Retargeting civilian escort operation (path lost to target) and moving them on, X: %d, Y: %d", pOperation->GetTargetPlot()->getX(), pOperation->GetTargetPlot()->getY());
-						LogTacticalMessage(strLogString);
-					}
+					CvString strLogString;
+					strLogString.Format("Retargeting civilian escort operation (path lost to target) and moving them on, X: %d, Y: %d", pOperation->GetTargetPlot()->getX(), pOperation->GetTargetPlot()->getY());
+					LogTacticalMessage(strLogString);
 				}
 			}
 			else
@@ -5358,7 +5314,7 @@ void CvTacticalAI::PlotNavalEscortOperationMoves(CvAINavalEscortedOperation* pOp
 		// Update army's current location
 		CvPlot* pThisTurnTarget;
 #if defined(MOD_BALANCE_CORE)
-		if(!pCivilian || !pCivilian->isFound())
+		if(!pCivilian)
 		{
 			pOperation->SetToAbort(AI_ABORT_LOST_CIVILIAN);
 			return;
@@ -14280,11 +14236,6 @@ void CvTacticalAI::UnitProcessed(int iID, bool bMarkTacticalMap)
 	m_CurrentTurnUnits.remove(iID);
 	pUnit = m_pPlayer->getUnit(iID);
 
-#if defined(MOD_BALANCE_CORE)
-	if (!pUnit)
-		return;
-#endif
-
 	CvAssert(pUnit);
 	pUnit->SetTurnProcessed(true);
 
@@ -14569,132 +14520,6 @@ bool TacticalAIHelpers::CvBlockingUnitDistanceSort(CvBlockingUnit obj1, CvBlocki
 }
 
 #if defined(MOD_BALANCE_CORE)
-
-//	--------------------------------------------------------------------------------
-/// get all tiles a unit can reach in one turn (counting terrain but not ZOC or territory)
-int TacticalAIHelpers::GetAllTilesInReach(CvUnit* pUnit, CvPlot* pStartPlot, ReachablePlotSet& resultSet)
-{
-	if (!pUnit || !pStartPlot)
-		return false;
-
-	resultSet.clear();
-	std::map<CvPlot*,int> remainingMoves;
-	std::vector<CvPlot*> openPlots;
-
-	openPlots.push_back( pStartPlot );
-	//could probably adapt this for multiple turns also
-	remainingMoves[pStartPlot] = pUnit->getMoves();
-
-	while (!openPlots.empty())
-	{
-		CvPlot* pCurrentPlot = openPlots.back();
-		openPlots.pop_back();
-		int iCurrentMoves = remainingMoves[pCurrentPlot];
-
-		CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(pCurrentPlot);
-		for(int iCount=0; iCount<NUM_DIRECTION_TYPES; iCount++)
-		{
-			CvPlot* pAdjacentPlot = aPlotsToCheck[iCount];
-			if (!pAdjacentPlot)
-				continue;
-
-			//first time we see this plot?
-			std::map<CvPlot*,int>::iterator moveCache = remainingMoves.find(pAdjacentPlot);
-			if (moveCache == remainingMoves.end())
-			{
-				//can we go there?
-				if (!pUnit->canEnterTerrain(*pAdjacentPlot))
-					continue;
-
-				//we can always enter the plot as long as we have some movement points
-				//for now assume that the turn will end there
-				moveCache = remainingMoves.insert( remainingMoves.end(), std::make_pair(pAdjacentPlot,0) );
-			}
-
-			//now see how much movement is left over
-			int iRemainingMoves =  iCurrentMoves - pAdjacentPlot->MovementCostNoZOC(pUnit,pCurrentPlot);
-			if (iRemainingMoves > moveCache->second)
-			{
-				moveCache->second = iRemainingMoves;
-				openPlots.push_back(pAdjacentPlot);
-			}
-		}
-	}
-
-	//finally make a set
-	for (std::map<CvPlot*,int>::iterator it=remainingMoves.begin(); it!=remainingMoves.end(); ++it)
-	{
-		//is there a more efficient way?
-		resultSet.insert( std::make_pair(it->first,it->second) );
-
-		//OutputDebugString( CvString::format("%s %s %d can reach %d,%d with %d movement left\n", 
-		//	GET_PLAYER(pUnit->getOwner()).getCivilizationAdjective(), pUnit->getName().c_str(), pUnit->GetID(), it->first->getX(), it->first->getY(), it->second ).c_str() );
-	}
-
-	return (int)resultSet.size();
-}
-
-int TacticalAIHelpers::GetPlotsUnderRangedAttackFrom(CvUnit* pUnit, CvPlot* pBasePlot, std::set<CvPlot*>& resultSet)
-{
-	if (!pUnit || !pBasePlot)
-		return false;
-
-	resultSet.clear();
-	int iRange = pUnit->GetRange();
-
-	for(int iX = -iRange; iX <= iRange; iX++)
-	{
-		for(int iY = -iRange; iY <= iRange; iY++)
-		{
-			CvPlot* pLoopPlot = plotXYWithRangeCheck(pBasePlot->getX(), pBasePlot->getY(), iX, iY, iRange);
-			if (pLoopPlot && pUnit->canEverRangeStrikeAt(pLoopPlot->getX(), pLoopPlot->getY(), pBasePlot))
-				resultSet.insert(pLoopPlot);
-		}
-	}
-
-	return (int)resultSet.size();
-}
-
-int TacticalAIHelpers::GetPlotsUnderRangedAttackFrom(CvUnit* pUnit, ReachablePlotSet& basePlots, std::set<CvPlot*>& resultSet)
-{
-	if (!pUnit || !pUnit->IsCanAttackRanged())
-		return false;
-
-	resultSet.clear();
-	int iRange = pUnit->GetRange();
-
-	for (ReachablePlotSet::iterator base=basePlots.begin(); base!=basePlots.end(); ++base)
-	{
-		CvPlot* pBasePlot = base->first;
-		int iPlotMoves = base->second;
-
-		if (pUnit->isMustSetUpToRangedAttack())
-			iPlotMoves -= GC.getMOVE_DENOMINATOR();
-
-		if (iPlotMoves<=0)
-			continue;
-
-		//we have enough moves for an attack ...
-		for(int iX = -iRange; iX <= iRange; iX++)
-		{
-			for(int iY = -iRange; iY <= iRange; iY++)
-			{
-				CvPlot* pLoopPlot = plotXYWithRangeCheck(pBasePlot->getX(), pBasePlot->getY(), iX, iY, iRange);
-
-				//if the plot is already know to be attackable, don't check again
-				//the reverse is not true: from another base plot the attack might work!
-				if (!pLoopPlot || resultSet.find(pLoopPlot)!=resultSet.end())
-					continue;
-
-				if (pUnit->canEverRangeStrikeAt(pLoopPlot->getX(), pLoopPlot->getY(), pBasePlot))
-					resultSet.insert(pLoopPlot);
-			}
-		}
-	}
-
-	return (int)resultSet.size();
-}
-
 void CTacticalUnitArray::push_back(const CvTacticalUnit& unit)
 {
 	m_vec.push_back(unit);

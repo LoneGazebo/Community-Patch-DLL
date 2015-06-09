@@ -82,7 +82,6 @@ CvDiplomacyAI::DiplomacyAIData::DiplomacyAIData() :
 	, m_abDoFBroken()
 	, m_aiNumDoFLifetime()
 	, m_abCantMatchDeal()
-	, m_aePlayerVictoryBlockLevel()
 #endif
 	, m_aiDoFCounter()
 	, m_abDenouncedPlayer()
@@ -473,7 +472,7 @@ void CvDiplomacyAI::Init(CvPlayer* pPlayer)
 	m_paePlayerLastTurnLandDisputeLevel = &m_pDiploData->m_aePlayerLastTurnLandDisputeLevel[0];
 	m_paePlayerVictoryDisputeLevel = &m_pDiploData->m_aePlayerVictoryDisputeLevel[0];
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
-	m_paePlayerVictoryBlockLevel = &m_pDiploData->m_aePlayerVictoryBlockLevel[0];
+	m_paePlayerVictoryBlockLevel = &m_pDiploData->m_paePlayerVictoryBlockLevel[0];
 	m_pabCantMatchDeal = &m_pDiploData->m_abCantMatchDeal[0];
 #endif
 	m_paePlayerWonderDisputeLevel = &m_pDiploData->m_aePlayerWonderDisputeLevel[0];
@@ -1146,7 +1145,6 @@ void CvDiplomacyAI::Reset()
 		m_paePlayerVictoryDisputeLevel[iI] = NO_DISPUTE_LEVEL;
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
 		m_paePlayerVictoryBlockLevel[iI] = NO_BLOCK_LEVEL;
-		m_pabCantMatchDeal[iI] = false;
 #endif
 		m_paePlayerWonderDisputeLevel[iI] = NO_DISPUTE_LEVEL;
 		m_paePlayerMinorCivDisputeLevel[iI] = NO_DISPUTE_LEVEL;
@@ -1840,7 +1838,7 @@ void CvDiplomacyAI::Write(FDataStream& kStream) const
 	kStream << ArrayWrapper<char>(MAX_CIV_PLAYERS, m_paePlayerVictoryDisputeLevel);
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
 	kStream << ArrayWrapper<char>(MAX_CIV_PLAYERS, m_paePlayerVictoryBlockLevel);
-	kStream << ArrayWrapper<bool>(MAX_CIV_PLAYERS, m_pabCantMatchDeal);
+	kStream << ArrayWrapper<bool>(MAX_MAJOR_CIVS, m_pabCantMatchDeal);
 #endif
 	kStream << ArrayWrapper<char>(MAX_CIV_PLAYERS, m_paePlayerWonderDisputeLevel);
 	kStream << ArrayWrapper<char>(MAX_CIV_PLAYERS, m_paePlayerMinorCivDisputeLevel);
@@ -5603,23 +5601,6 @@ bool CvDiplomacyAI::IsWantsOpenBordersWithPlayer(PlayerTypes ePlayer)
 			}
 		}
 	}
-	if(MusteringForNeighborAttack(ePlayer))
-	{
-		return true;
-	}
-	AICityStrategyTypes ePocketCity = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_POCKET_CITY");
-	if(ePocketCity != NO_AICITYSTRATEGY && GetPlayer()->GetProximityToPlayer(ePlayer) == PLAYER_PROXIMITY_NEIGHBORS)
-	{
-		CvCity* pLoopCity = NULL;
-		int iCityLoop;
-		for(pLoopCity = GET_PLAYER(ePlayer).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iCityLoop))
-		{
-			if(pLoopCity != NULL && pLoopCity->GetCityStrategyAI()->IsUsingCityStrategy(ePocketCity))
-			{
-				return true;
-			}
-		}
-	}
 #endif
 	switch(GetPlayerMilitaryStrengthComparedToUs(ePlayer))
 	{
@@ -5649,14 +5630,26 @@ bool CvDiplomacyAI::IsOpenBordersExchangeAcceptable(PlayerTypes ePlayer)
 	{
 		return true;
 	}
+	PlayerTypes eLoopPlayer;
 
-	if(GetNeighborOpinion(ePlayer) == MAJOR_CIV_OPINION_ENEMY)
+	for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 	{
-		return true;
-	}
-	if(MusteringForNeighborAttack(ePlayer))
-	{
-		return true;
+		eLoopPlayer = (PlayerTypes) iPlayerLoop;
+
+		if(eLoopPlayer != NO_PLAYER && IsPlayerValid(eLoopPlayer) && !GET_PLAYER(eLoopPlayer).isMinorCiv())
+		{
+			if(GET_PLAYER(eLoopPlayer).GetProximityToPlayer(ePlayer) == PLAYER_PROXIMITY_NEIGHBORS)
+			{
+				if(GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).isAtWar(GetTeam()))
+				{
+					return true;
+				}
+				if(GetMajorCivOpinion(eLoopPlayer) < MAJOR_CIV_OPINION_NEUTRAL)
+				{
+					return true;
+				}
+			}
+		}
 	}
 #endif
 
@@ -21423,18 +21416,10 @@ const char* CvDiplomacyAI::GetOfferText(PlayerTypes ePlayer)
 	if(ePlayer == NO_PLAYER)
 	{
 		ePlayer = GC.getGame().getActivePlayer();
-		MajorCivApproachTypes eApproach = GetMajorCivApproach(ePlayer, /*bHideTrueFeelings*/ true);
 		if(IsCantMatchDeal(ePlayer))
 		{
 			SetCantMatchDeal(ePlayer, false);
-			if(eApproach >= MAJOR_CIV_APPROACH_AFRAID)
-			{
-				return GetDiploTextFromTag("RESPONSE_TRADE_CANT_MATCH_OFFER");
-			}
-			else
-			{
-				return GetDiploTextFromTag("RESPONSE_TRADE_CANT_MATCH_OFFER_NEGATIVE");
-			}
+			return GetDiploTextFromTag("RESPONSE_TRADE_CANT_MATCH_OFFER");
 		}
 		else
 		{
@@ -21443,18 +21428,10 @@ const char* CvDiplomacyAI::GetOfferText(PlayerTypes ePlayer)
 	}
 	else
 	{
-		MajorCivApproachTypes eApproach = GetMajorCivApproach(ePlayer, /*bHideTrueFeelings*/ true);
 		if(IsCantMatchDeal(ePlayer))
 		{
 			SetCantMatchDeal(ePlayer, false);
-			if(eApproach >= MAJOR_CIV_APPROACH_AFRAID)
-			{
-				return GetDiploTextFromTag("RESPONSE_TRADE_CANT_MATCH_OFFER");
-			}
-			else
-			{
-				return GetDiploTextFromTag("RESPONSE_TRADE_CANT_MATCH_OFFER_NEGATIVE");
-			}
+			return GetDiploTextFromTag("RESPONSE_TRADE_CANT_MATCH_OFFER");
 		}
 		else
 		{
@@ -26264,113 +26241,6 @@ int CvDiplomacyAI::GetDPWithAnyEnemyScore(PlayerTypes ePlayer)
 		}
 	}
 	return iOpinionWeight;
-}
-//What are our opinions of this player's neigbors?
-MajorCivOpinionTypes CvDiplomacyAI::GetNeighborOpinion(PlayerTypes ePlayer) const
-{
-	if(ePlayer == NO_PLAYER)
-	{
-		return NO_MAJOR_CIV_OPINION_TYPE;
-	}
-	int iBad = 0;
-	int iNeutral = 0;
-	int iGood = 0;
-	PlayerTypes eLoopPlayer;
-
-	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-	{
-		eLoopPlayer = (PlayerTypes) iPlayerLoop;
-		if(eLoopPlayer == NO_PLAYER)
-		{
-			continue;
-		}
-		if(GET_PLAYER(eLoopPlayer).isMinorCiv())
-		{
-			continue;
-		}
-		if(GET_PLAYER(eLoopPlayer).GetID() == m_pPlayer->GetID())
-		{
-			continue;
-		}
-		if(GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).GetProximityToPlayer(ePlayer) == PLAYER_PROXIMITY_NEIGHBORS)
-		{
-			
-			if(GetMajorCivOpinion(eLoopPlayer) < MAJOR_CIV_OPINION_COMPETITOR)
-			{
-				iBad++;
-			}
-			else if(GetMajorCivOpinion(eLoopPlayer) > MAJOR_CIV_OPINION_COMPETITOR && GetMajorCivOpinion(eLoopPlayer) < MAJOR_CIV_OPINION_FRIEND)
-			{
-				iNeutral++;
-			}
-			else if(GetMajorCivOpinion(eLoopPlayer) > MAJOR_CIV_OPINION_FAVORABLE)
-			{
-				iGood++;
-			}
-		}
-	}
-	if(iGood > iNeutral && iGood > iBad)
-	{
-		return MAJOR_CIV_OPINION_FRIEND;
-	}
-	else if(iNeutral > iGood && iNeutral > iBad)
-	{
-		return MAJOR_CIV_OPINION_NEUTRAL;
-	}
-	else if(iBad > iGood && iBad > iNeutral)
-	{
-		return MAJOR_CIV_OPINION_ENEMY;
-	}
-	else
-	{
-		return NO_MAJOR_CIV_OPINION_TYPE;
-	}
-}
-bool CvDiplomacyAI::MusteringForNeighborAttack(PlayerTypes ePlayer) const
-{
-	if(ePlayer == NO_PLAYER)
-	{
-		return false;
-	}
-
-	PlayerTypes eLoopPlayer;
-
-	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-	{
-		eLoopPlayer = (PlayerTypes) iPlayerLoop;
-		if(eLoopPlayer == NO_PLAYER)
-		{
-			continue;
-		}
-		if(GET_PLAYER(eLoopPlayer).isMinorCiv())
-		{
-			continue;
-		}
-		if(GET_PLAYER(eLoopPlayer).GetID() == m_pPlayer->GetID())
-		{
-			continue;
-		}
-		if(GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).GetProximityToPlayer(ePlayer) == PLAYER_PROXIMITY_NEIGHBORS)
-		{
-			if(GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).isAtWar(m_pPlayer->getTeam()))
-			{
-				return true;
-			}
-			if(IsMusteringForAttack(eLoopPlayer))
-			{
-				return true;
-			}
-			if(m_pPlayer->GetMilitaryAI()->GetSneakAttackOperation(eLoopPlayer) != NULL)
-			{
-				return true;
-			}
-			if(GetWarGoal(eLoopPlayer) == WAR_GOAL_PREPARE)
-			{
-				return true;
-			}
-		}
-	}
-	return false;
 }
 #endif
 int CvDiplomacyAI::GetDOFAcceptedScore(PlayerTypes ePlayer)

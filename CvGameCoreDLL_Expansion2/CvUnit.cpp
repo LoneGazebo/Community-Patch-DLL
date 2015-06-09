@@ -24605,14 +24605,6 @@ bool CvUnit::canEverRangeStrikeAt(int iX, int iY) const
 			{
 				return false;
 			}
-			else if(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED && !pTargetPlot->isCoastalLand() && pTargetPlot->isCity())
-			{
-				return false;
-			}
-			else
-			{
-				return false;
-			}
 #endif
 		}
 	}

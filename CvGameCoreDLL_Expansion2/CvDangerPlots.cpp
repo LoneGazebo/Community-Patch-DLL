@@ -127,25 +127,34 @@ bool CvDangerPlots::UpdateDangerSingleUnit(CvUnit* pLoopUnit, bool bIgnoreVisibi
 	if(ShouldIgnoreUnit(pLoopUnit, bIgnoreVisibility))
 		return false;
 
-	TacticalAIHelpers::ReachablePlotSet reachableTiles;
-	TacticalAIHelpers::GetAllTilesInReach(pLoopUnit,pLoopUnit->plot(),reachableTiles);
+	int iRange = pLoopUnit->baseMoves();
+#ifdef AUI_ASTAR_ROAD_RANGE
+	IncreaseMoveRangeForRoads(pLoopUnit, iRange);
+#endif
 
-	if (pLoopUnit->IsCanAttackRanged())
+	if(pLoopUnit->canRangeStrike())
 	{
-		//for ranged every tile we can enter with movement left is a base for attack
-		std::set<CvPlot*> attackableTiles;
-		TacticalAIHelpers::GetPlotsUnderRangedAttackFrom(pLoopUnit,reachableTiles,attackableTiles);
+		iRange += pLoopUnit->GetRange() - 1;
+	}
 
-		for (std::set<CvPlot*>::iterator attackTile=attackableTiles.begin(); attackTile!=attackableTiles.end(); ++attackTile)
-			AssignUnitDangerValue(pLoopUnit, *attackTile);
-	}
-	else
+	CvPlot* pUnitPlot = pLoopUnit->plot();
+	//store the units which are being aggregated
+	m_knownUnits.insert( std::make_pair(pLoopUnit->getOwner(),pLoopUnit->GetID()) );
+
+	CvPlot* pLoopPlot = NULL;
+	for(int iDX = -(iRange); iDX <= iRange; iDX++)
 	{
-		//for melee every tile we can move into can be attacked
-		for (TacticalAIHelpers::ReachablePlotSet::iterator moveTile=reachableTiles.begin(); moveTile!=reachableTiles.end(); ++moveTile)
-			AssignUnitDangerValue(pLoopUnit, moveTile->first);
+		for(int iDY = -(iRange); iDY <= iRange; iDY++)
+		{
+			pLoopPlot = plotXYWithRangeCheck(pUnitPlot->getX(), pUnitPlot->getY(), iDX, iDY, iRange);
+			if(!pLoopPlot || pLoopPlot == pUnitPlot)
+				continue;
+
+			AssignUnitDangerValue(pLoopUnit, pLoopPlot);
+		}
 	}
-	return false;
+
+	return true;
 }
 #endif
 
@@ -207,8 +216,6 @@ void CvDangerPlots::UpdateDanger(bool bPretendWarWithAllCivs, bool bIgnoreVisibi
 		{
 #ifdef AUI_DANGER_PLOTS_REMADE
 			UpdateDangerSingleUnit(pLoopUnit, bIgnoreVisibility);
-			//store the units which are being aggregated
-			m_knownUnits.insert( std::make_pair(pLoopUnit->getOwner(),pLoopUnit->GetID()) );
 #else
 			if(ShouldIgnoreUnit(pLoopUnit, bIgnoreVisibility))
 			{
