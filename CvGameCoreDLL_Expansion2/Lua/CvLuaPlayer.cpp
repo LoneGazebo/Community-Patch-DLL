@@ -673,6 +673,9 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetTurnLastPledgedProtectionByMajor);
 	Method(GetTurnLastPledgeBrokenByMajor);
 	Method(GetMinorCivBullyGoldAmount);
+#if defined(MOD_BALANCE_CORE)
+	Method(GetYieldTheftAmount);
+#endif
 	Method(CanMajorBullyGold);
 	Method(GetMajorBullyGoldDetails);
 	Method(CanMajorBullyUnit);
@@ -7239,6 +7242,20 @@ int CvLuaPlayer::lGetMinorCivBullyGoldAmount(lua_State* L)
 	lua_pushinteger(L, iValue);
 	return 1;
 }
+#if defined(MOD_BALANCE_CORE)
+//------------------------------------------------------------------------------
+//int GetYieldTheftAmount(PlayerTypes eMajor, YieldTypes eYield);
+int CvLuaPlayer::lGetYieldTheftAmount(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	PlayerTypes eMajor = (PlayerTypes) lua_tointeger(L, 2);
+	const YieldTypes eYield = (YieldTypes) lua_tointeger(L, 3);
+
+	const int iValue = pkPlayer->GetMinorCivAI()->GetYieldTheftAmount(eMajor, eYield);
+	lua_pushinteger(L, iValue);
+	return 1;
+}
+#endif
 //------------------------------------------------------------------------------
 //bool CanMajorBullyGold(PlayerTypes eMajor);
 int CvLuaPlayer::lCanMajorBullyGold(lua_State* L)

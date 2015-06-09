@@ -1051,7 +1051,12 @@ void CvHomelandAI::AssignHomelandMoves()
 void CvHomelandAI::PlotExplorerMoves()
 {
 	ClearCurrentMoveUnits();
-
+#if defined(MOD_BALANCE_CORE)
+	if(m_pPlayer->isMinorCiv())
+	{
+		return;
+	}
+#endif
 	// Loop through all recruited units
 	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); ++it)
 	{
@@ -1079,6 +1084,12 @@ void CvHomelandAI::PlotExplorerMoves()
 /// Get units with explore AI and plan their moves
 void CvHomelandAI::PlotExplorerSeaMoves()
 {
+#if defined(MOD_BALANCE_CORE)
+	if(m_pPlayer->isMinorCiv())
+	{
+		return;
+	}
+#endif
 	ClearCurrentMoveUnits();
 
 	// Loop through all recruited units
@@ -2704,17 +2715,14 @@ void CvHomelandAI::ReviewUnassignedUnits()
 		if(pUnit)
 		{
 #if defined(MOD_BALANCE_CORE)
-			//Ignore explorers.
-			if(pUnit->AI_getUnitAIType() == UNITAI_EXPLORE || pUnit->AI_getUnitAIType() == UNITAI_EXPLORE_SEA)
-			{
-				continue;
-			}
-			if(pUnit->getDomainType() == DOMAIN_LAND && pUnit->canRecruitFromTacticalAI() && pUnit->getArmyID() == FFreeList::INVALID_INDEX && !pUnit->TurnProcessed() && pUnit->getMoves() > 0)
+			if(pUnit->getDomainType() == DOMAIN_LAND)
 			{
 				if(pUnit->IsGreatPerson())
 				{
 					if(pUnit->GetGreatPeopleDirective() != NO_GREAT_PEOPLE_DIRECTIVE_TYPE)
 					{
+						pUnit->SetTurnProcessed(true);
+						pUnit->finishMoves();
 						continue;
 					}
 					else
@@ -2761,11 +2769,19 @@ void CvHomelandAI::ReviewUnassignedUnits()
 							}
 						}
 						pUnit->SetGreatPeopleDirective(eDirective);
+						pUnit->SetTurnProcessed(true);
+						pUnit->finishMoves();
+						continue;
 					}
 					if(pUnit->GetGreatPeopleDirective() != NO_GREAT_PEOPLE_DIRECTIVE_TYPE)
 					{
+						pUnit->SetTurnProcessed(true);
+						pUnit->finishMoves();
 						continue;
 					}
+					pUnit->SetTurnProcessed(true);
+					pUnit->finishMoves();
+					continue;
 				}
 				if(pUnit->plot()->getOwner() == pUnit->getOwner())
 				{
@@ -2898,12 +2914,14 @@ void CvHomelandAI::ReviewUnassignedUnits()
 					}
 				}
 			}
-			else if(pUnit->getDomainType() == DOMAIN_SEA && pUnit->canRecruitFromTacticalAI() && pUnit->getArmyID() == FFreeList::INVALID_INDEX && !pUnit->TurnProcessed() && pUnit->getMoves() > 0)
+			else if(pUnit->getDomainType() == DOMAIN_SEA)
 			{
 				if(pUnit->IsGreatPerson())
 				{
 					if(pUnit->GetGreatPeopleDirective() != NO_GREAT_PEOPLE_DIRECTIVE_TYPE)
 					{
+						pUnit->SetTurnProcessed(true);
+						pUnit->finishMoves();
 						continue;
 					}
 					else
@@ -2950,11 +2968,19 @@ void CvHomelandAI::ReviewUnassignedUnits()
 							}
 						}
 						pUnit->SetGreatPeopleDirective(eDirective);
+						pUnit->SetTurnProcessed(true);
+						pUnit->finishMoves();
+						continue;
 					}
 					if(pUnit->GetGreatPeopleDirective() != NO_GREAT_PEOPLE_DIRECTIVE_TYPE)
 					{
+						pUnit->SetTurnProcessed(true);
+						pUnit->finishMoves();
 						continue;
 					}
+					pUnit->SetTurnProcessed(true);
+					pUnit->finishMoves();
+					continue;
 				}
 				if(pUnit->plot()->getOwner() == pUnit->getOwner())
 				{
@@ -3032,6 +3058,21 @@ void CvHomelandAI::ReviewUnassignedUnits()
 						}
 						continue;
 					}
+				}
+			}
+			else
+			{
+				pUnit->PushMission(CvTypes::getMISSION_SKIP());
+				pUnit->SetTurnProcessed(true);
+
+				CvString strTemp;
+				CvUnitEntry* pkUnitInfo = GC.getUnitInfo(pUnit->getUnitType());
+				if(pkUnitInfo)
+				{
+					strTemp = pkUnitInfo->GetDescription();
+					CvString strLogString;
+					strLogString.Format("Unassigned %s at, X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY());
+					LogHomelandMessage(strLogString);
 				}
 			}
 #else
@@ -3511,6 +3552,10 @@ void CvHomelandAI::ExecuteExplorerMoves()
 						strLogString.Format("UnitID: %d Sea explorer (AI) found no target, X: %d, Y: %d", pUnit->GetID(), pUnit->getX(), pUnit->getY());
 						LogHomelandMessage(strLogString);
 					}
+#if defined(MOD_BALANCE_CORE)
+					UnitProcessed(pUnit->GetID());
+					continue;
+#endif
 				}
 			}
 		}

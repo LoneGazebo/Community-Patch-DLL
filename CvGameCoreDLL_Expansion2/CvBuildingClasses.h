@@ -180,6 +180,7 @@ public:
 	bool IsNoWater() const;
 	bool IsCapitalOnly() const;
 	bool IsReformation() const;
+	bool IsBuildAnywhere() const;
 	int GetTradeReligionModifier() const;
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
@@ -593,6 +594,7 @@ private:
 	bool m_bIsNoWater;
 	bool m_bIsCapitalOnly;
 	bool m_bIsReformation;
+	bool m_bBuildAnywhere;
 	int m_iTradeReligionModifier;
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)

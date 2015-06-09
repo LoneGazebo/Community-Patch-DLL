@@ -10,10 +10,10 @@
       <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
     </Filter>
     <Filter Include="Dll Interface">
-      <UniqueIdentifier>{19b6e89a-b1fe-4a96-be64-c0933b19e201}</UniqueIdentifier>
+      <UniqueIdentifier>{b54399f3-6d07-4c5f-8c6c-b127ba88e6d0}</UniqueIdentifier>
     </Filter>
     <Filter Include="Lua">
-      <UniqueIdentifier>{42994bec-0f25-4200-ae4c-b7c751a5a152}</UniqueIdentifier>
+      <UniqueIdentifier>{de02d49d-b8e3-4419-aecc-1d92e2249a5f}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -23,10 +23,10 @@
     <ClCompile Include="CustomMods.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CvAchievementUnlocker.cpp">
+    <ClCompile Include="CvAchievementInfo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CvAchievementInfo.cpp">
+    <ClCompile Include="CvAchievementUnlocker.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CvAdvisorCounsel.cpp">
@@ -74,6 +74,9 @@
     <ClCompile Include="CvCityConnections.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="CvCityManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="CvCitySpecializationAI.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -99,6 +102,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CvDiplomacyRequests.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CvDistanceMap.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CvEconomicAI.cpp">
@@ -143,6 +149,9 @@
     <ClCompile Include="CvGrandStrategyAI.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="CvGreatPersonInfo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="CvHomelandAI.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -156,6 +165,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CvInternalGameCoreUtils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Lua\CvLuaPlayer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CvMap.cpp">
@@ -249,6 +261,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CvTacticalAnalysisMap.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CvTargeting.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CvTeam.cpp">
@@ -485,9 +500,6 @@
     <ClCompile Include="Lua\CvLuaMap.cpp">
       <Filter>Lua</Filter>
     </ClCompile>
-    <ClCompile Include="Lua\CvLuaPlayer.cpp">
-      <Filter>Lua</Filter>
-    </ClCompile>
     <ClCompile Include="Lua\CvLuaPlot.cpp">
       <Filter>Lua</Filter>
     </ClCompile>
@@ -503,18 +515,6 @@
     <ClCompile Include="Lua\CvLuaUnit.cpp">
       <Filter>Lua</Filter>
     </ClCompile>
-    <ClCompile Include="CvTargeting.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="CvCityManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="CvDistanceMap.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="CvGreatPersonInfo.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="banned.h">
@@ -523,10 +523,10 @@
     <ClInclude Include="CustomMods.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CvAchievementUnlocker.h">
+    <ClInclude Include="CvAchievementInfo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CvAchievementInfo.h">
+    <ClInclude Include="CvAchievementUnlocker.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CvAdvisorCounsel.h">
@@ -580,6 +580,9 @@
     <ClInclude Include="CvCityConnections.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="CvCityManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="CvCitySpecializationAI.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -611,6 +614,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CvDiplomacyRequests.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CvDistanceMap.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CvEconomicAI.h">
@@ -661,6 +667,9 @@
     <ClInclude Include="CvGrandStrategyAI.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="CvGreatPersonInfo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="CvHomelandAI.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -704,6 +713,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CvPlot.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CvPlotInfo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CvPlotManager.h">
@@ -767,6 +779,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CvTacticalAnalysisMap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CvTargeting.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CvTeam.h">
@@ -1035,24 +1050,6 @@
     </ClInclude>
     <ClInclude Include="Lua\CvLuaUnit.h">
       <Filter>Lua</Filter>
-    </ClInclude>
-    <ClInclude Include="CvTargeting.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CvCityManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CvPlotInfo.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CvDistanceMap.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CvGreatPersonInfo.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\CvGameCoreDLLUtil\include\CvEnums.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

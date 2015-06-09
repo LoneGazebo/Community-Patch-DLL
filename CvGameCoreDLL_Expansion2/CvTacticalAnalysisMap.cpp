@@ -328,13 +328,51 @@ void CvTacticalAnalysisMap::BuildEnemyUnitList()
 // Indicate the plots we might want to move to that the enemy can attack
 void CvTacticalAnalysisMap::MarkCellsNearEnemy()
 {
-	int iDistance;
+#if defined(MOD_BALANCE_CORE)
+	for(unsigned int iUnitIndex = 0;  iUnitIndex < m_EnemyUnits.size(); iUnitIndex++)
+	{
+		CvUnit* pUnit = m_EnemyUnits[iUnitIndex];
+		TacticalAIHelpers::ReachablePlotSet tiles;
+		TacticalAIHelpers::GetAllTilesInReach(pUnit,pUnit->plot(),tiles);
+
+		for (TacticalAIHelpers::ReachablePlotSet::iterator moveTile=tiles.begin(); moveTile!=tiles.end(); ++moveTile)
+		{
+			int iPlotIndex = GC.getMap().plotNum(moveTile->first->getX(),moveTile->first->getY());
+			int iPlotMoves = moveTile->second;
+
+			if (pUnit->IsCanAttackRanged())
+			{
+				if (pUnit->isMustSetUpToRangedAttack())
+					iPlotMoves -= GC.getMOVE_DENOMINATOR();
+
+				//for ranged every tile we can enter with movement left is a base for attack
+				if (iPlotMoves>0)
+				{
+					m_pPlots[iPlotIndex].SetEnemyCanMovePast(true);
+					std::set<CvPlot*> rangedPlots;
+					//this generates some overlap, but preventing that is about as bad as ignoring it
+					TacticalAIHelpers::GetPlotsUnderRangedAttackFrom(pUnit,moveTile->first,rangedPlots);
+					for (std::set<CvPlot*>::iterator attackTile=rangedPlots.begin(); attackTile!=rangedPlots.end(); ++attackTile)
+					{
+						int iPlotIndex2 = GC.getMap().plotNum((*attackTile)->getX(),(*attackTile)->getY());
+						m_pPlots[iPlotIndex2].SetSubjectToAttack(true);
+					}
+				}
+			}
+			else
+			{
+				//for melee every tile we can move into can be attacked
+				m_pPlots[iPlotIndex].SetSubjectToAttack(true);
+				if (iPlotMoves>0)
+					m_pPlots[iPlotIndex].SetEnemyCanMovePast(true);
+			}
+		}
+	}
+#endif
 
 	// Look at every cell on the map
 	for(int iI = 0; iI < GC.getMap().numPlots(); iI++)
 	{
-		bool bMarkedIt = false;   // Set true once we've found one that enemy can move past (worst case)
-
 		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(iI);
 		if(m_pPlots[iI].IsRevealed() && !m_pPlots[iI].IsImpassableTerrain() && !m_pPlots[iI].IsImpassableTerritory())
 		{
@@ -347,34 +385,28 @@ void CvTacticalAnalysisMap::MarkCellsNearEnemy()
 				}
 				else
 				{
+#if defined(MOD_BALANCE_CORE)
+#else
+					bool bMarkedIt = false;   // Set true once we've found one that enemy can move past (worst case)
 					for(unsigned int iUnitIndex = 0;  iUnitIndex < m_EnemyUnits.size() && !bMarkedIt; iUnitIndex++)
 					{
 						CvUnit* pUnit = m_EnemyUnits[iUnitIndex];
 						if(pUnit->getArea() == pPlot->getArea())
 						{
 							// Distance check before hitting pathfinder
-							iDistance = plotDistance(pUnit->getX(), pUnit->getY(), pPlot->getX(), pPlot->getY());
+							int iDistance = plotDistance(pUnit->getX(), pUnit->getY(), pPlot->getX(), pPlot->getY());
 							if(iDistance == 0)
 							{
 								m_pPlots[iI].SetSubjectToAttack(true);
 								m_pPlots[iI].SetEnemyCanMovePast(true);
 								bMarkedIt = true;
 							}
-
-#if defined(MOD_BALANCE_CORE)
-							else if(iDistance <= pUnit->GetRangeWithMovement() )
-#else
 							else if(iDistance <= pUnit->baseMoves())
-#endif
 							{
 								int iTurnsToReach;
 
 								// Its ok to reuse paths because when ignoring units, we don't use the tactical analysis map (which we are building)
-#ifdef AUI_ASTAR_TURN_LIMITER
-								iTurnsToReach = TurnsToReachTarget(pUnit, pPlot, true /*bReusePaths*/, true /*bIgnoreUnits*/, false /*bIgnoreUnitStacking*/, 2);
-#else
 								iTurnsToReach = TurnsToReachTarget(pUnit, pPlot, true /*bReusePaths*/, true /*bIgnoreUnits*/);
-#endif // AUI_ASTAR_TURN_LIMITER
 
 								if(iTurnsToReach <= 1)
 								{
@@ -387,19 +419,8 @@ void CvTacticalAnalysisMap::MarkCellsNearEnemy()
 								}
 							}
 						}
-#if defined(MOD_BALANCE_CORE_MILITARY)
-						else if (pUnit->IsCanAttackRanged())
-						{
-							iDistance = plotDistance(pUnit->getX(), pUnit->getY(), pPlot->getX(), pPlot->getY());
-							//assume the ranged unit does not move - that would complicate stuff ...
-							if (iDistance<=pUnit->GetRange())
-							{
-								m_pPlots[iI].SetSubjectToAttack(true);
-								bMarkedIt = true;
-							}
-						}
-#endif
 					}
+#endif
 
 					// Check adjacent plots for enemy citadels
 					if(!m_pPlots[iI].IsSubjectToAttack())

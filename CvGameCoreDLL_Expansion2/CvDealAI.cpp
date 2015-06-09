@@ -207,20 +207,6 @@ DealOfferResponseTypes CvDealAI::DoHumanOfferDealToThisAI(CvDeal* pDeal)
 		}
 	}
 #endif
-#if defined(MOD_BALANCE_CORE)
-	if(bCantMatchOffer)
-	{
-		eResponse = DEAL_RESPONSE_GENEROUS;
-		eUIState = DIPLO_UI_STATE_TRADE_AI_REJECTS_OFFER;
-
-		if(bFromIsActivePlayer)
-		{
-			szText = GetPlayer()->GetDiplomacyAI()->GetDiploStringForMessage(DIPLO_MESSAGE_TRADE_CANT_MATCH_OFFER);
-			eAnimation = LEADERHEAD_ANIM_NO;
-		}
-		bDealAcceptable = false;
-	}
-#endif
 	if(bDealAcceptable)
 	{
 		CvDeal kDeal = *pDeal;
@@ -801,12 +787,7 @@ bool CvDealAI::DoEqualizeDealWithHuman(CvDeal* pDeal, PlayerTypes eOtherPlayer, 
 		{
 			return false;
 		}
-#if defined(MOD_BALANCE_CORE)
-		if(bMakeOffer && (iTotalValueToMe > iAmountOverWeWillRequest))
-		{
-			bMakeOffer = false;
-		}
-#endif
+
 		if(bMakeOffer)
 		{
 			bDealGoodToBeginWith = true;
@@ -1925,7 +1906,7 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 			//We have it but we aren't using it.
 			else if(((GetPlayer()->getNumResourceAvailable(eResource, true) + iResourceQuantity) > 0) && (GetPlayer()->getNumResourceUsed(eResource) <= 0))
 			{
-				iItemValue += ((iResourceQuantity * iNumTurns * 75) / 100);
+				iItemValue += ((iResourceQuantity * iNumTurns * 85) / 100);
 			}
 			//We don't have any and we don't use any.
 			else if(((GetPlayer()->getNumResourceAvailable(eResource, true) + iResourceQuantity) <= 0) && (GetPlayer()->getNumResourceUsed(eResource) <= 0))
@@ -2985,45 +2966,30 @@ int CvDealAI::GetOpenBordersValue(bool bFromMe, PlayerTypes eOtherPlayer, bool b
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
 		if(GetPlayer()->IsCramped() && GET_PLAYER(eOtherPlayer).getNumCities() > GetPlayer()->getNumCities())
 		{
+			iItemValue *= 115;
+			iItemValue /= 100;
+		}
+		if(GetPlayer()->GetDiplomacyAI()->GetNeighborOpinion(eOtherPlayer) == MAJOR_CIV_OPINION_ENEMY)
+		{
 			iItemValue *= 125;
 			iItemValue /= 100;
 		}
-		PlayerTypes eLoopPlayer;
-
-		for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+		if(GetPlayer()->GetDiplomacyAI()->MusteringForNeighborAttack(eOtherPlayer))
 		{
-			eLoopPlayer = (PlayerTypes) iPlayerLoop;
-
-			if(eLoopPlayer != NO_PLAYER && GetPlayer()->GetDiplomacyAI()->IsPlayerValid(eLoopPlayer) && !GET_PLAYER(eLoopPlayer).isMinorCiv())
-			{
-				if(GET_PLAYER(eLoopPlayer).GetProximityToPlayer(eOtherPlayer) == PLAYER_PROXIMITY_NEIGHBORS)
-				{
-					if(GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).isAtWar(GetTeam()))
-					{
-						iItemValue *= 125;
-						iItemValue /= 100;
-						break;
-					}
-					else if(GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(eLoopPlayer) < MAJOR_CIV_OPINION_NEUTRAL)
-					{
-						iItemValue *= 125;
-						iItemValue /= 100;
-						break;
-					}
-				}
-			}
+			iItemValue *= 125;
+			iItemValue /= 100;
 		}
 		//We need to explore?
 		EconomicAIStrategyTypes eNeedRecon = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_RECON");
 		EconomicAIStrategyTypes eNavalRecon = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_NEED_RECON_SEA");
 		if(eNeedRecon != NO_ECONOMICAISTRATEGY && GetPlayer()->GetEconomicAI()->IsUsingStrategy(eNeedRecon))
 		{
-			iItemValue *= 125;
+			iItemValue *= 115;
 			iItemValue /= 100;
 		}
 		if(eNavalRecon != NO_ECONOMICAISTRATEGY && GetPlayer()->GetEconomicAI()->IsUsingStrategy(eNavalRecon))
 		{
-			iItemValue *= 125;
+			iItemValue *= 115;
 			iItemValue /= 100;
 		}
 #endif
