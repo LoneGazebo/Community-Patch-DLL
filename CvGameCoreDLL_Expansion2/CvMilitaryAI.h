@@ -262,7 +262,11 @@ public:
 	}
 	int GetBarbarianThreatTotal();
 	int GetThreatWeight(ThreatTypes eThreat);
+#if defined(MOD_BALANCE_CORE)
+	int GetNumberCivsAtWarWith(bool bMinor = true) const;
+#else
 	int GetNumberCivsAtWarWith() const;
+#endif
 	int GetRecommendedMilitarySize() const
 	{
 		return m_iRecommendedMilitarySize;
@@ -416,7 +420,11 @@ bool IsTestStrategy_EnoughNavalUnits(CvPlayer* pPlayer);
 bool IsTestStrategy_NeedNavalUnits(CvPlayer* pPlayer);
 bool IsTestStrategy_NeedNavalUnitsCritical(CvPlayer* pPlayer);
 bool IsTestStrategy_WarMobilization(MilitaryAIStrategyTypes eStrategy, CvPlayer* pPlayer);
+#if defined(MOD_BALANCE_CORE)
+bool IsTestStrategy_AtWar(CvPlayer* pPlayer, bool bMinor = true);
+#else
 bool IsTestStrategy_AtWar(CvPlayer* pPlayer);
+#endif
 bool IsTestStrategy_MinorCivGeneralDefense();
 bool IsTestStrategy_MinorCivThreatElevated(CvPlayer* pPlayer);
 bool IsTestStrategy_MinorCivThreatCritical(CvPlayer* pPlayer);

@@ -3566,11 +3566,11 @@ void CvPlayerCulture::AddTourismAllKnownCivs(int iTourism)
 int CvPlayerCulture::ComputeWarWeariness()
 {
 	MilitaryAIStrategyTypes eStrategyFightAWar = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_AT_WAR");
-	if(!m_pPlayer->GetMilitaryAI()->IsUsingStrategy(eStrategyFightAWar))
+	if(m_pPlayer->GetMilitaryAI()->GetNumberCivsAtWarWith(false) <= 0)
 	{
 		if(m_iWarWeariness > 0)
 		{
-			m_iWarWeariness -= GC.getGame().getJonRandNum(5, "Roll for war weariness reduction!");
+			m_iWarWeariness -= GC.getGame().getJonRandNum(6, "Roll for war weariness reduction!");
 		}
 		if(m_iWarWeariness <= 0)
 		{
@@ -3588,7 +3588,7 @@ int CvPlayerCulture::ComputeWarWeariness()
 			iWarTurns = m_pPlayer->GetMilitaryAI()->GetTurnStrategyAdopted(eStrategyFightAWar);
 		}
 		int iCurrentTurn = GC.getGame().getGameTurn();
-		int iChance = GC.getGame().getJonRandNum(iTotalPop, "Roll for war weariness increase!");
+		int iChance = GC.getGame().getJonRandNum((iTotalPop * 2), "Roll for war weariness increase!");
 			
 		iChance *= (m_pPlayer->GetWarWearinessModifier() + 100);
 		iChance /= 100;
@@ -3597,9 +3597,9 @@ int CvPlayerCulture::ComputeWarWeariness()
 		{
 			m_iWarWeariness += 1;
 		}
-		if(m_iWarWeariness > (iTotalPop / 4))
+		if(m_iWarWeariness > (iTotalPop / 5))
 		{
-			m_iWarWeariness = (iTotalPop / 4);
+			m_iWarWeariness = (iTotalPop / 5);
 		}
 	}
 	return m_iWarWeariness;

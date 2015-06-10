@@ -128,7 +128,7 @@
 			<RequiresFaithPurchaseEnabled>true</RequiresFaithPurchaseEnabled>
 			<Moves>3</Moves>
 			<PrereqTech>TECH_ASTRONOMY</PrereqTech>
-			<ObsoleteTech>TECH_COMBINED_ARMS</ObsoleteTech>
+			<ObsoleteTech>TECH_ATOMIC_THEORY</ObsoleteTech>
 			<CombatClass>UNITCOMBAT_RECON</CombatClass>
 			<Domain>DOMAIN_LAND</Domain>
 			<NoBadGoodies>true</NoBadGoodies>

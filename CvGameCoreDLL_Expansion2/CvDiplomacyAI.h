@@ -1170,6 +1170,8 @@ public:
 	int GetDPAcceptedScore(PlayerTypes ePlayer);
 	int GetDPWithAnyFriendScore(PlayerTypes ePlayer);
 	int GetDPWithAnyEnemyScore(PlayerTypes ePlayer);
+	MajorCivOpinionTypes GetNeighborOpinion(PlayerTypes ePlayer) const;
+	bool MusteringForNeighborAttack(PlayerTypes ePlayer) const;
 #endif
 	int GetFriendDenouncementScore(PlayerTypes ePlayer);
 	int GetWeDenouncedFriendScore(PlayerTypes ePlayer);
@@ -1382,7 +1384,7 @@ private:
 		char m_aePlayerLastTurnLandDisputeLevel[REALLY_MAX_PLAYERS];
 		char m_aePlayerVictoryDisputeLevel[REALLY_MAX_PLAYERS];
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
-		char m_paePlayerVictoryBlockLevel[REALLY_MAX_PLAYERS];
+		char m_aePlayerVictoryBlockLevel[REALLY_MAX_PLAYERS];
 		bool m_abCantMatchDeal[REALLY_MAX_PLAYERS];
 #endif
 		char m_aePlayerWonderDisputeLevel[REALLY_MAX_PLAYERS];

@@ -1016,13 +1016,31 @@ function PopulateTakeChoices()
 	Controls.GoldTributeLabel:SetText(buttonText);
 	Controls.GoldTributeButton:SetToolTipString(ttText);
 	SetButtonSize(Controls.GoldTributeLabel, Controls.GoldTributeButton, Controls.GoldTributeAnim, Controls.GoldTributeButtonHL);
-	
-	local sBullyUnit = GameInfo.Units["UNIT_WORKER"].Description; --antonjs: todo: XML or fn
 -- CBP
-	if(pPlayer:IsBullyAnnex()) then
+	local iTheftValue = 0;
+	local pMajor = Players[iActivePlayer];
+	local sBullyUnit = GameInfo.Units["UNIT_WORKER"].Description; --antonjs: todo: XML or fn
+	if(pMajor:IsBullyAnnex()) then
 		buttonText = Locale.Lookup("TXT_KEY_POPUP_MINOR_BULLY_UNIT_AMOUNT_ANNEX");
 	else
-		buttonText = Locale.Lookup("TXT_KEY_POPUP_MINOR_BULLY_UNIT_AMOUNT", sBullyUnit, iBullyUnitInfluenceLost);
+		if(pPlayer:GetMinorCivTrait() == MinorCivTraitTypes.MINOR_CIV_TRAIT_MARITIME) then
+			iTheftValue = pPlayer:GetYieldTheftAmount(iActivePlayer, YieldTypes.YIELD_FOOD);
+			buttonText = Locale.Lookup("TXT_KEY_POPUP_MINOR_BULLY_FOOD_AMOUNT", iTheftValue, iBullyUnitInfluenceLost);
+		elseif(pPlayer:GetMinorCivTrait() == MinorCivTraitTypes.MINOR_CIV_TRAIT_CULTURED) then
+			iTheftValue = pPlayer:GetYieldTheftAmount(iActivePlayer, YieldTypes.YIELD_CULTURE);
+			buttonText = Locale.Lookup("TXT_KEY_POPUP_MINOR_BULLY_CULTURE_AMOUNT", iTheftValue, iBullyUnitInfluenceLost);
+		elseif(pPlayer:GetMinorCivTrait() == MinorCivTraitTypes.MINOR_CIV_TRAIT_MILITARISTIC) then
+			iTheftValue = pPlayer:GetYieldTheftAmount(iActivePlayer, YieldTypes.YIELD_SCIENCE);
+			buttonText = Locale.Lookup("TXT_KEY_POPUP_MINOR_BULLY_SCIENCE_AMOUNT", iTheftValue, iBullyUnitInfluenceLost);
+		elseif(pPlayer:GetMinorCivTrait() == MinorCivTraitTypes.MINOR_CIV_TRAIT_MERCANTILE) then
+			iTheftValue = pPlayer:GetYieldTheftAmount(iActivePlayer, YieldTypes.YIELD_PRODUCTION);
+			buttonText = Locale.Lookup("TXT_KEY_POPUP_MINOR_BULLY_PRODUCTION_AMOUNT", iTheftValue, iBullyUnitInfluenceLost);
+		elseif(pPlayer:GetMinorCivTrait() == MinorCivTraitTypes.MINOR_CIV_TRAIT_RELIGIOUS) then
+			iTheftValue = pPlayer:GetYieldTheftAmount(iActivePlayer, YieldTypes.YIELD_FAITH);
+			buttonText = Locale.Lookup("TXT_KEY_POPUP_MINOR_BULLY_FAITH_AMOUNT", iTheftValue, iBullyUnitInfluenceLost);
+		else
+			buttonText = Locale.Lookup("TXT_KEY_POPUP_MINOR_BULLY_UNIT_AMOUNT", sBullyUnit, iBullyUnitInfluenceLost);
+		end	
 	end
 -- END
 	ttText = pPlayer:GetMajorBullyUnitDetails(iActivePlayer);

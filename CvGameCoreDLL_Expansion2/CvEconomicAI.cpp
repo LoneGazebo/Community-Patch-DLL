@@ -3872,7 +3872,7 @@ bool EconomicAIHelpers::IsTestStrategy_EarlyExpansion(CvPlayer* pPlayer)
 #endif
 #if defined(MOD_BALANCE_CORE_SETTLER)
 	// scale based on flavor and world size
-	if(pPlayer->IsEmpireVeryUnhappy())
+	if(pPlayer->IsEmpireUnhappy())
 	{
 		return false;
 	}
@@ -4012,7 +4012,7 @@ bool EconomicAIHelpers::IsTestStrategy_EnoughExpansion(EconomicAIStrategyTypes e
 			return false;
 		}
 	}
-	if(pPlayer->IsEmpireVeryUnhappy())
+	if(pPlayer->IsEmpireUnhappy())
 	{
 		return true;
 	}
@@ -4859,7 +4859,7 @@ bool EconomicAIHelpers::IsTestStrategy_ExpandToOtherContinents(CvPlayer* pPlayer
 	}
 
 #if defined(MOD_BALANCE_CORE)
-	if(pPlayer->IsEmpireVeryUnhappy())
+	if(pPlayer->IsEmpireUnhappy())
 	{
 		return false;
 	}

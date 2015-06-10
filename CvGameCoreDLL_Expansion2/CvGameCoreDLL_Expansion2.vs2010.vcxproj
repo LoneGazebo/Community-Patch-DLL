@@ -68,8 +68,6 @@
       <ExceptionHandling>
       </ExceptionHandling>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
-      <BufferSecurityCheck>false</BufferSecurityCheck>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
       <FloatingPointModel>Precise</FloatingPointModel>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>CvGameCoreDLLPCH.h</PrecompiledHeaderFile>
@@ -320,6 +318,7 @@
     <ClCompile Include="Lua\CvLuaUnit.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\CvGameCoreDLLUtil\include\CvEnums.h" />
     <ClInclude Include="banned.h" />
     <ClInclude Include="CustomMods.h" />
     <ClInclude Include="CvAchievementUnlocker.h" />

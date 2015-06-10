@@ -1348,6 +1348,12 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirectives(CvUnit* pUnit, CvPlot* pPlo
 		UpdateProjectedPlotYields(pPlot, eBuild);
 		int iScore = ScorePlot();
 #if defined(MOD_BALANCE_CORE)
+		//Let's push AI to make mines on hills.
+		if(pPlot->isHills() && pImprovement->IsHillsMakesValid())
+		{
+			iScore *= 5;
+		}
+
 		//Great improvements are great!
 		if(pImprovement->IsCreatedByGreatPerson())
 		{
@@ -1415,7 +1421,7 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirectives(CvUnit* pUnit, CvPlot* pPlo
 		{
 			if(pImprovement->IsImprovementResourceMakesValid(eResource))
 			{
-				iScore *= 10;
+				iScore *= 50;
 			}
 		}
 		//Do we have unimproved plots nearby? If so, let's not worry about replacing improvements right now.
@@ -1439,9 +1445,9 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirectives(CvUnit* pUnit, CvPlot* pPlo
 					}
 				}
 			}
-			if(iNumUnimprovedPlots > 1)
+			if(iNumUnimprovedPlots > 0)
 			{
-				iScore /= 20;
+				iScore /= (max((iNumUnimprovedPlots * 5), 1));
 			}
 		}
 #endif

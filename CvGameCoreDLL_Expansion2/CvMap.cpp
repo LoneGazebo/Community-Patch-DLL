@@ -1631,6 +1631,9 @@ void CvMap::calculateAreas()
 			boundaries.m_iNorthEdge = pLoopPlot->getY();
 			boundaries.m_iSouthEdge = pLoopPlot->getY();
 			pArea->setAreaBoundaries(boundaries);
+#if defined(MOD_BALANCE_CORE)
+			pArea->CalcNumBadPlots();
+#endif
 		}
 
 		// Update area boundaries if they've grown

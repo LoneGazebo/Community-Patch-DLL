@@ -85,6 +85,9 @@ void CvArea::reset(int iID, bool bWater, bool bConstructorCall)
 
 	m_iNumNaturalWonders = 0;
 	m_iTotalFoundValue = 0;
+#if defined(MOD_BALANCE_CORE)
+	m_iBadPlots = 0;
+#endif
 	m_Boundaries.m_iNorthEdge = 0;
 	m_Boundaries.m_iSouthEdge = 0;
 	m_Boundaries.m_iEastEdge = 0;
@@ -310,16 +313,19 @@ void CvArea::changeNumStartingPlots(int iChange)
 //	--------------------------------------------------------------------------------
 int CvArea::GetNumBadPlots() const
 {
+	return m_iBadPlots;
+}
+void CvArea::CalcNumBadPlots()
+{
 	CvPlot* pLoopPlot;
-	int iCount;
 	int iI;
 
-	if(GetID() == NULL)
+	if(isWater())
 	{
-		return 0;
+		return;
 	}
 
-	iCount = 0;
+	m_iBadPlots = 0;
 
 	CvMap& theMap = GC.getMap();
 	int iNumPlots = theMap.numPlots();
@@ -329,14 +335,12 @@ int CvArea::GetNumBadPlots() const
 
 		if(pLoopPlot->getArea() == GetID())
 		{
-			if(pLoopPlot->getTerrainType() == TERRAIN_SNOW || pLoopPlot->getFeatureType() == FEATURE_ICE)
+			if((pLoopPlot->getTerrainType() == TERRAIN_SNOW && pLoopPlot->getResourceType() == NO_RESOURCE && pLoopPlot->getFeatureType() == NO_FEATURE && !pLoopPlot->isHills()) || (pLoopPlot->getTerrainType() == TERRAIN_TUNDRA && pLoopPlot->getResourceType() == NO_RESOURCE && pLoopPlot->getFeatureType() == NO_FEATURE && !pLoopPlot->isHills()) || (pLoopPlot->getTerrainType() == TERRAIN_DESERT && pLoopPlot->getResourceType() == NO_RESOURCE && pLoopPlot->getFeatureType() == NO_FEATURE && !pLoopPlot->isHills()))
 			{
-				iCount++;
+				m_iBadPlots++;
 			}
 		}
 	}
-
-	return iCount;
 }
 #endif
 
@@ -757,6 +761,9 @@ void CvArea::read(FDataStream& kStream)
 
 	kStream >> m_iNumNaturalWonders;
 	kStream >> m_iTotalFoundValue;
+#if defined(MOD_BALANCE_CORE)
+	kStream >> m_iBadPlots;
+#endif
 
 	kStream >> m_Boundaries.m_iNorthEdge;
 	kStream >> m_Boundaries.m_iSouthEdge;
@@ -810,6 +817,9 @@ void CvArea::write(FDataStream& kStream) const
 
 	kStream << m_iNumNaturalWonders;
 	kStream << m_iTotalFoundValue;
+#if defined(MOD_BALANCE_CORE)
+	kStream << m_iBadPlots;
+#endif
 
 	kStream << m_Boundaries.m_iNorthEdge;
 	kStream << m_Boundaries.m_iSouthEdge;

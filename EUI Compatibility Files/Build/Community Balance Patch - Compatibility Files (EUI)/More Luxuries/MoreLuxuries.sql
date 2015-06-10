@@ -12,14 +12,6 @@ UPDATE Language_en_US
 SET Text = '+1 [ICON_CULTURE] Culture and +1 [ICON_PEACE] Faith from [ICON_RES_INCENSE] Incense, [ICON_RES_WINE] Wine and [ICON_RES_AMBER] Amber. Reduces [ICON_HAPPINESS_3] Religious Unrest. +1 [ICON_PEACE] Faith for every 2 [ICON_CITIZEN] Citizens.'
 WHERE Tag = 'TXT_KEY_BUILDING_BASILICA_HELP';
 
-UPDATE Language_en_US
-SET Text = '+1 [ICON_CULTURE] Culture and +1 [ICON_PRODUCTION] Production from [ICON_RES_INCENSE] Incense, [ICON_RES_WINE] Wine and [ICON_RES_AMBER] Amber. Reduces [ICON_HAPPINESS_3] Religious Unrest.'
-WHERE Tag = 'TXT_KEY_BUILDING_MUD_PYRAMID_MOSQUE_HELP';
-
-UPDATE Language_en_US
-SET Text = '+1 [ICON_CULTURE] Culture and +1 [ICON_GOLD] Gold from [ICON_RES_INCENSE] Incense, [ICON_RES_WINE] Wine and [ICON_RES_AMBER] Amber. Reduces [ICON_HAPPINESS_3] Religious Unrest. Receive 25 [ICON_PEACE] Faith upon construction, and 5 [ICON_GOLDEN_AGE] Golden Age points whenever you are victorious in battle. Bonuses scale with era. [NEWLINE][NEWLINE]Should this city be captured, the amount of [ICON_GOLD] Gold plundered by the enemy is doubled.'
-WHERE Tag = 'TXT_KEY_BUILDING_BURIAL_TOMB_HELP';
-
 INSERT INTO Building_ResourceYieldChanges (BuildingType, ResourceType, YieldType, Yield)
 SELECT 'BUILDING_TEMPLE', 'RESOURCE_AMBER' , 'YIELD_CULTURE' , '1'
 ;
@@ -29,27 +21,11 @@ SELECT 'BUILDING_BASILICA', 'RESOURCE_AMBER' , 'YIELD_CULTURE' , '1'
 ;
 
 INSERT INTO Building_ResourceYieldChanges (BuildingType, ResourceType, YieldType, Yield)
-SELECT 'BUILDING_MUD_PYRAMID_MOSQUE', 'RESOURCE_AMBER' , 'YIELD_CULTURE' , '1'
-;
-
-INSERT INTO Building_ResourceYieldChanges (BuildingType, ResourceType, YieldType, Yield)
-SELECT 'BUILDING_BURIAL_TOMB', 'RESOURCE_AMBER' , 'YIELD_CULTURE' , '1'
-;
-
-INSERT INTO Building_ResourceYieldChanges (BuildingType, ResourceType, YieldType, Yield)
 SELECT 'BUILDING_TEMPLE', 'RESOURCE_AMBER' , 'YIELD_GOLD' , '1'
 ;
 
 INSERT INTO Building_ResourceYieldChanges (BuildingType, ResourceType, YieldType, Yield)
 SELECT 'BUILDING_BASILICA', 'RESOURCE_AMBER' , 'YIELD_FAITH' , '1'
-;
-
-INSERT INTO Building_ResourceYieldChanges (BuildingType, ResourceType, YieldType, Yield)
-SELECT 'BUILDING_MUD_PYRAMID_MOSQUE', 'RESOURCE_AMBER' , 'YIELD_PRODUCTION' , '1'
-;
-
-INSERT INTO Building_ResourceYieldChanges (BuildingType, ResourceType, YieldType, Yield)
-SELECT 'BUILDING_BURIAL_TOMB', 'RESOURCE_AMBER' , 'YIELD_GOLD' , '1'
 ;
 
 -- Amphitheater -- Lapis Lazuli
@@ -82,11 +58,15 @@ INSERT INTO Building_ResourceYieldChanges (BuildingType, ResourceType, YieldType
 SELECT 'BUILDING_ODEON', 'RESOURCE_LAPIS' , 'YIELD_GOLD' , '1'
 ;
 
--- Coffee/Tea/Tobacco -- Windmill
+-- Coffee/Tea/Tobacco -- Grocer (and Coffee House)
 
 UPDATE Language_en_US
 SET Text = 'Carries over 25% of [ICON_FOOD] Food after City growth (effect stacks with Aqueduct). +1 [ICON_GOLD] Gold and +1 [ICON_PRODUCTION] Production from [ICON_RES_TOBACCO] Tobacco, [ICON_RES_COFFEE] Coffee and [ICON_RES_TEA] Tea. Reduces [ICON_HAPPINESS_3] Poverty.[NEWLINE][NEWLINE]Requires an Aqueduct in the City.'
 WHERE Tag = 'TXT_KEY_BUILDING_GROCER_HELP';
+
+UPDATE Language_en_US
+SET Text = '+1 [ICON_GOLD] Gold and +1 [ICON_PRODUCTION] Production from [ICON_RES_TOBACCO] Tobacco, [ICON_RES_COFFEE] Coffee and [ICON_RES_TEA] Tea. [NEWLINE][NEWLINE] +1 [ICON_FOOD] Food for every 2 [ICON_CITIZEN] Citizens in the City, and +1 [ICON_RESEARCH] for every 4 [ICON_CITIZEN] Citizens in the City. Carries over 33% of [ICON_FOOD] Food after City growth (effect stacks with Aqueduct). Reduces [ICON_HAPPINESS_3] Poverty.'
+WHERE Tag = 'TXT_KEY_BUILDING_PAPER_MAKER_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
 SET Text = '+25% [ICON_GREAT_PEOPLE] Great People generation in this City. +15% [ICON_PRODUCTION] Production when constructing Buildings. [NEWLINE][NEWLINE] +1 [ICON_GOLD] Gold and +1 [ICON_PRODUCTION] Production from [ICON_RES_TOBACCO] Tobacco, [ICON_RES_COFFEE] Coffee and [ICON_RES_TEA] Tea.'
@@ -114,6 +94,30 @@ SELECT 'BUILDING_GROCER', 'RESOURCE_COFFEE' , 'YIELD_PRODUCTION' , '1'
 
 INSERT INTO Building_ResourceYieldChanges (BuildingType, ResourceType, YieldType, Yield)
 SELECT 'BUILDING_GROCER', 'RESOURCE_TEA' , 'YIELD_PRODUCTION' , '1'
+;
+
+INSERT INTO Building_ResourceYieldChanges (BuildingType, ResourceType, YieldType, Yield)
+SELECT 'BUILDING_PAPER_MAKER', 'RESOURCE_TOBACCO' , 'YIELD_GOLD' , '1'
+;
+
+INSERT INTO Building_ResourceYieldChanges (BuildingType, ResourceType, YieldType, Yield)
+SELECT 'BUILDING_PAPER_MAKER', 'RESOURCE_COFFEE' , 'YIELD_GOLD' , '1'
+;
+
+INSERT INTO Building_ResourceYieldChanges (BuildingType, ResourceType, YieldType, Yield)
+SELECT 'BUILDING_PAPER_MAKER', 'RESOURCE_TEA' , 'YIELD_GOLD' , '1'
+;
+
+INSERT INTO Building_ResourceYieldChanges (BuildingType, ResourceType, YieldType, Yield)
+SELECT 'BUILDING_PAPER_MAKER', 'RESOURCE_TOBACCO' , 'YIELD_PRODUCTION' , '1'
+;
+
+INSERT INTO Building_ResourceYieldChanges (BuildingType, ResourceType, YieldType, Yield)
+SELECT 'BUILDING_PAPER_MAKER', 'RESOURCE_COFFEE' , 'YIELD_PRODUCTION' , '1'
+;
+
+INSERT INTO Building_ResourceYieldChanges (BuildingType, ResourceType, YieldType, Yield)
+SELECT 'BUILDING_PAPER_MAKER', 'RESOURCE_TEA' , 'YIELD_PRODUCTION' , '1'
 ;
 
 INSERT INTO Building_ResourceYieldChanges (BuildingType, ResourceType, YieldType, Yield)

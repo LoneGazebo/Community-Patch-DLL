@@ -2466,12 +2466,9 @@ CvPlot* CvPlayerAI::ChooseDiplomatTargetPlot(UnitHandle pUnit, int* piTurns)
 CvPlot* CvPlayerAI::ChooseMessengerTargetPlot(UnitHandle pUnit, int* piTurns)
 {
 	CvCity* pCity = FindBestMessengerTargetCity(pUnit);
-	int iBestNumTurns = MAX_INT;
-	int iTurns;
-	int iBestDistance = MAX_INT;
-	int iDistance;
 	CvPlot* pBestTarget = NULL;
-
+	int iTurns;
+	int iBestNumTurns = MAX_INT;
 	if(pCity == NULL)
 	{
 		return NULL;
@@ -2481,34 +2478,37 @@ CvPlot* CvPlayerAI::ChooseMessengerTargetPlot(UnitHandle pUnit, int* piTurns)
 	for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
 	{
 		pLoopPlot = plotDirection(pCity->getX(), pCity->getY(), ((DirectionTypes)iI));
-
-		if(pLoopPlot != NULL)
+		if(pLoopPlot == NULL)
 		{
-			CvUnit* pFirstUnit = pLoopPlot->getUnitByIndex(0);
-			if(pFirstUnit && pFirstUnit->getOwner() != GetID())
+			continue;
+		}
+		// Make sure this is still owned by target and is revealed to us
+		bool bRightOwner = (pLoopPlot->getOwner() == pCity->getOwner());
+		bool bIsRevealed = pLoopPlot->isRevealed(getTeam());
+		if(bRightOwner && bIsRevealed)
+		{
+			if(pLoopPlot->getNumUnits() <= 0)
 			{
-				continue;
+				pBestTarget = pLoopPlot;
+				break;
 			}
-
-#ifdef AUI_ASTAR_TURN_LIMITER
-			iTurns = TurnsToReachTarget(pUnit, pLoopPlot, false /* bReusePaths */, false, false, iBestNumTurns);
-#else
-			iTurns = TurnsToReachTarget(pUnit, pLoopPlot, false /* bReusePaths */);
-#endif // AUI_ASTAR_TURN_LIMITER
-
-			if(iTurns < MAX_INT)
+#if defined(MOD_GLOBAL_BREAK_CIVILIAN_1UPT)
+			else if(MOD_GLOBAL_BREAK_CIVILIAN_1UPT)
 			{
-				iDistance = plotDistance(pUnit->getX(), pUnit->getY(), pLoopPlot->getX(), pLoopPlot->getY());
-				if(iTurns < iBestNumTurns || (iTurns == iBestNumTurns && iDistance < iBestDistance))
-				{
-					iBestNumTurns = iTurns;
-					iBestDistance = iDistance;
-					pBestTarget = pLoopPlot;
-				}
+				pBestTarget = pLoopPlot;
+				break;
 			}
 		}
+#endif
 	}
-
+	if(pBestTarget != NULL)
+	{
+#ifdef AUI_ASTAR_TURN_LIMITER
+			iTurns = TurnsToReachTarget(pUnit, pBestTarget, false /* bReusePaths */, false, false, iBestNumTurns);
+#else
+			iTurns = TurnsToReachTarget(pUnit, pBestTarget, false /* bReusePaths */);
+#endif // AUI_ASTAR_TURN_LIMITER
+	}
 	if(piTurns)
 		*piTurns = iBestNumTurns;
 	return pBestTarget;

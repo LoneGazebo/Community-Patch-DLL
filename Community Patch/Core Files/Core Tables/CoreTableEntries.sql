@@ -408,6 +408,9 @@ ALTER TABLE Units ADD COLUMN 'PurchaseCooldown' INTEGER DEFAULT 0;
 
 ALTER TABLE Buildings ADD COLUMN 'PurchaseCooldown' INTEGER DEFAULT 0;
 
+-- Allows Courthouses to be built in any city
+ALTER TABLE Buildings ADD COLUMN 'BuildAnywhere' BOOLEAN DEFAULT 0;
+
 -- Adds Mounted trait to a unit that isn't in the unitcombat_mounted combat class
 ALTER TABLE Units ADD COLUMN 'IsMounted' BOOLEAN DEFAULT 0;
 
@@ -426,7 +429,7 @@ ALTER TABLE Buildings ADD COLUMN 'VassalLevyEra' BOOLEAN DEFAULT 0;
 -- Advanced Action Spy Stuff (for CBP)
 
 -- Spies cannot fail advanced actions -- they won't trigger unless they can do damage
-ALTER TABLE Buildings ADD COLUMN 'CannotFailSpies' BOOLEAN DEFAULT 0;
+ALTER TABLE Buildings ADD COLUMN 'CannotFailSpies' INTEGER DEFAULT 0;
 
 -- Each point in these columns increases the chances of the event happening by 1
 -- All possible events are pooled and then selected from at random - each point in these adds that value to the pool again
@@ -440,15 +443,15 @@ ALTER TABLE Buildings ADD COLUMN 'AdvancedActionUnit' INTEGER DEFAULT 0; -- star
 ALTER TABLE Buildings ADD COLUMN 'AdvancedActionWonder' INTEGER DEFAULT 0; -- starts at 1
 ALTER TABLE Buildings ADD COLUMN 'AdvancedActionBuilding' INTEGER DEFAULT 0; -- starts at 2
 
--- Blocks advanced actions entirely in a city
-ALTER TABLE Buildings ADD COLUMN 'BlockBuildingDestructionSpies' BOOLEAN DEFAULT 0;
-ALTER TABLE Buildings ADD COLUMN 'BlockWWDestructionSpies' BOOLEAN DEFAULT 0;
-ALTER TABLE Buildings ADD COLUMN 'BlockUDestructionSpies' BOOLEAN DEFAULT 0;
-ALTER TABLE Buildings ADD COLUMN 'BlockGPDestructionSpies' BOOLEAN DEFAULT 0;
-ALTER TABLE Buildings ADD COLUMN 'BlockRebellionSpies' BOOLEAN DEFAULT 0;
-ALTER TABLE Buildings ADD COLUMN 'BlockUnrestSpies' BOOLEAN DEFAULT 0;
-ALTER TABLE Buildings ADD COLUMN 'BlockScienceTheft' BOOLEAN DEFAULT 0;
-ALTER TABLE Buildings ADD COLUMN 'BlockGoldTheft' BOOLEAN DEFAULT 0;
+-- Blocks advanced actions entirely in a city -- 1 enables
+ALTER TABLE Buildings ADD COLUMN 'BlockBuildingDestructionSpies' INTEGER DEFAULT 0;
+ALTER TABLE Buildings ADD COLUMN 'BlockWWDestructionSpies' INTEGER DEFAULT 0;
+ALTER TABLE Buildings ADD COLUMN 'BlockUDestructionSpies' INTEGER DEFAULT 0;
+ALTER TABLE Buildings ADD COLUMN 'BlockGPDestructionSpies' INTEGER DEFAULT 0;
+ALTER TABLE Buildings ADD COLUMN 'BlockRebellionSpies' INTEGER DEFAULT 0;
+ALTER TABLE Buildings ADD COLUMN 'BlockUnrestSpies' INTEGER DEFAULT 0;
+ALTER TABLE Buildings ADD COLUMN 'BlockScienceTheft' INTEGER DEFAULT 0;
+ALTER TABLE Buildings ADD COLUMN 'BlockGoldTheft' INTEGER DEFAULT 0;
 
 
 

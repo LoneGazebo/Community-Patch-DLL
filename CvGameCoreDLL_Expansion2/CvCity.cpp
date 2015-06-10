@@ -244,14 +244,14 @@ CvCity::CvCity() :
 	, m_aiBaseYieldRateFromCSAlliance("CvCity::m_aiChangeGrowthExtraYield", m_syncArchive)
 #endif
 #if defined(MOD_BALANCE_CORE)
-	, m_bBlockBuildingDestruction(false)
-	, m_bBlockWWDestruction(false)
-	, m_bBlockUDestruction(false)
-	, m_bBlockGPDestruction(false)
-	, m_bBlockRebellion(false)
-	, m_bBlockUnrest(false)
-	, m_bBlockScience(false)
-	, m_bBlockGold(false)
+	, m_iBlockBuildingDestruction(0)
+	, m_iBlockWWDestruction(0)
+	, m_iBlockUDestruction(0)
+	, m_iBlockGPDestruction(0)
+	, m_iBlockRebellion(0)
+	, m_iBlockUnrest(0)
+	, m_iBlockScience(0)
+	, m_iBlockGold(0)
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
 	, m_iCityRank(0)
@@ -323,7 +323,7 @@ CvCity::CvCity() :
 	, m_abOwedChosenBuilding("CvCity::m_abOwedChosenBuilding", m_syncArchive)
 	, m_abBuildingInvestment("CvCity::m_abBuildingInvestment", m_syncArchive)
 	, m_abBuildingConstructed("CvCity::m_abBuildingConstructed", m_syncArchive)
-	, m_bIsNationalMissionaries(false)
+	, m_iNationalMissionaries(0)
 #endif
 
 	, m_bOwedCultureBuilding(false)
@@ -1327,21 +1327,21 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_aiChangeGrowthExtraYield.resize(NUM_YIELD_TYPES);
 #endif
 #if defined(MOD_BALANCE_CORE)
-	m_bIsNationalMissionaries = false;
+	m_iNationalMissionaries = 0;
 	m_iUnhappyCitizen = 0;
 	m_iPurchaseCooldown = 0;
 	m_iReligiousTradeModifier = 0;
 	m_aiChangeYieldFromVictory.resize(NUM_YIELD_TYPES);
 #endif
 #if defined(MOD_BALANCE_CORE)
-	m_bBlockBuildingDestruction = false;
-	m_bBlockWWDestruction = false;
-	m_bBlockUDestruction = false;
-	m_bBlockGPDestruction = false;
-	m_bBlockRebellion = false;
-	m_bBlockUnrest = false;
-	m_bBlockScience = false;
-	m_bBlockGold = false;
+	m_iBlockBuildingDestruction = 0;
+	m_iBlockWWDestruction = 0;
+	m_iBlockUDestruction = 0;
+	m_iBlockGPDestruction = 0;
+	m_iBlockRebellion = 0;
+	m_iBlockUnrest = 0;
+	m_iBlockScience = 0;
+	m_iBlockGold = 0;
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
 	m_iCityRank = 0;
@@ -3604,7 +3604,11 @@ bool CvCity::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestVis
 	int iNumBuildingClassInfos = GC.getNumBuildingClassInfos();
 
 	// Can't construct a building to reduce occupied unhappiness if the city isn't occupied
+#if defined(MOD_BALANCE_CORE)
+	if(pkBuildingInfo->IsNoOccupiedUnhappiness() && !IsOccupied() && !pkBuildingInfo->IsBuildAnywhere())
+#else
 	if(pkBuildingInfo->IsNoOccupiedUnhappiness() && !IsOccupied())
+#endif
 		return false;
 
 	// Does this city have prereq buildings?
@@ -8144,9 +8148,9 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 		}
 #endif
 #if defined(MOD_BALANCE_CORE)
-		if(MOD_BALANCE_CORE && (pBuildingInfo->IsNationalMissionaries()))
+		if(MOD_BALANCE_CORE && (pBuildingInfo->GetNationalMissionaries() > 0))
 		{
-			SetNationalMissionaries(true);
+			ChangeNationalMissionaries(pBuildingInfo->GetNationalMissionaries() * iChange);
 		}
 		if(MOD_BALANCE_CORE && (pBuildingInfo->GetTradeReligionModifier() > 0))
 		{
@@ -8156,37 +8160,37 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 #if defined(MOD_BALANCE_CORE_SPIES)
 		if(MOD_BALANCE_CORE_SPIES)
 		{
-			if(pBuildingInfo->IsBlockBuildingDestruction())
+			if(pBuildingInfo->GetBlockBuildingDestruction() > 0)
 			{
-				SetBlockBuildingDestruction(true);
+				ChangeBlockBuildingDestruction(pBuildingInfo->GetBlockBuildingDestruction() * iChange);
 			}
-			if(pBuildingInfo->IsBlockWWDestruction())
+			if(pBuildingInfo->GetBlockWWDestruction() > 0)
 			{
-				SetBlockWWDestruction(true);
+				ChangeBlockWWDestruction(pBuildingInfo->GetBlockWWDestruction() * iChange);
 			}
-			if(pBuildingInfo->IsBlockUDestruction())
+			if(pBuildingInfo->GetBlockUDestruction() > 0)
 			{
-				SetBlockUDestruction(true);
+				ChangeBlockUDestruction(pBuildingInfo->GetBlockUDestruction() * iChange);
 			}
-			if(pBuildingInfo->IsBlockGPDestruction())
+			if(pBuildingInfo->GetBlockGPDestruction() > 0)
 			{
-				SetBlockGPDestruction(true);
+				ChangeBlockGPDestruction(pBuildingInfo->GetBlockGPDestruction() * iChange);
 			}
-			if(pBuildingInfo->IsBlockRebellion())
+			if(pBuildingInfo->GetBlockRebellion() > 0)
 			{
-				SetBlockRebellion(true);
+				ChangeBlockRebellion(pBuildingInfo->GetBlockRebellion() * iChange);
 			}
-			if(pBuildingInfo->IsBlockUnrest())
+			if(pBuildingInfo->GetBlockUnrest() > 0)
 			{
-				SetBlockUnrest(true);
+				ChangeBlockUnrest(pBuildingInfo->GetBlockUnrest() * iChange);
 			}
-			if(pBuildingInfo->IsBlockScience())
+			if(pBuildingInfo->GetBlockScience() > 0)
 			{
-				SetBlockScience(true);
+				ChangeBlockScience(pBuildingInfo->GetBlockScience() * iChange);
 			}
-			if(pBuildingInfo->IsBlockGold())
+			if(pBuildingInfo->GetBlockGold() > 0)
 			{
-				SetBlockGold(true);
+				ChangeBlockGold(pBuildingInfo->GetBlockGold() * iChange);
 			}
 		}
 #endif
@@ -12852,6 +12856,25 @@ int CvCity::getUnhappinessFromConnection() const
 	{
 		return 0;
 	}
+	int iLoop = 0;
+	CvCity* pLoopCity;
+	for(pLoopCity = GET_PLAYER(getOwner()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iLoop))
+	{
+		if(pLoopCity != NULL && !pLoopCity->isCapital() && pLoopCity != this)
+		{
+			if(HasTradeRouteTo(pLoopCity) || HasTradeRouteFrom(pLoopCity))
+			{
+				if(pLoopCity->HasTradeRouteTo(GET_PLAYER(getOwner()).getCapitalCity()) || pLoopCity->HasTradeRouteFrom(GET_PLAYER(getOwner()).getCapitalCity()))
+				{
+					return 0;
+				}
+				else if (pLoopCity->IsConnectedToCapital())
+				{
+					return 0;
+				}
+			}
+		}
+	}
 
 	float fUnhappiness = 0.0f;
 	
@@ -13357,15 +13380,23 @@ void CvCity::SetOwedFoodBuilding(bool bNewValue)
 #endif
 #if defined(MOD_BALANCE_CORE)
 //	--------------------------------------------------------------------------------
-bool CvCity::IsNationalMissionaries() const
+int CvCity::GetNationalMissionaries() const
 {
-	return m_bIsNationalMissionaries;
+	VALIDATE_OBJECT
+	return m_iNationalMissionaries;
 }
 
 //	--------------------------------------------------------------------------------
-void CvCity::SetNationalMissionaries(bool bNewValue)
+void CvCity::ChangeNationalMissionaries(int iChange)
 {
-	m_bIsNationalMissionaries = bNewValue;
+	VALIDATE_OBJECT
+	SetNationalMissionaries(GetNationalMissionaries() + iChange);
+}
+//	--------------------------------------------------------------------------------
+void CvCity::SetNationalMissionaries(int iValue)
+{
+	VALIDATE_OBJECT
+	m_iNationalMissionaries = iValue;
 }
 #endif
 #if defined(MOD_BALANCE_CORE)
@@ -14727,10 +14758,12 @@ void CvCity::SetBaseYieldRateFromCSAlliance(YieldTypes eIndex, int iValue)
 /// Trade Route Religious Spread Boost
 int CvCity::GetReligiousTradeModifier() const
 {
+	VALIDATE_OBJECT
 	return m_iReligiousTradeModifier;
 }
 void CvCity::ChangeReligiousTradeModifier(int iChange)
 {
+	VALIDATE_OBJECT
 	if(iChange != 0)
 	{
 		SetReligiousTradeModifier(GetReligiousTradeModifier() + iChange);
@@ -14738,92 +14771,148 @@ void CvCity::ChangeReligiousTradeModifier(int iChange)
 }
 void CvCity::SetReligiousTradeModifier(int iValue)
 {
+	VALIDATE_OBJECT
 	m_iReligiousTradeModifier = iValue;
 }
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
 //	--------------------------------------------------------------------------------
 //	--------------------------------------------------------------------------------
-void CvCity::SetBlockBuildingDestruction(bool bNewValue)
+void CvCity::SetBlockBuildingDestruction(int iNewValue)
 {
-	m_bBlockBuildingDestruction = bNewValue;
-}
-bool CvCity::IsBlockBuildingDestruction() const
-{
-	return m_bBlockBuildingDestruction;
+	VALIDATE_OBJECT
+	m_iBlockBuildingDestruction = iNewValue;
 }
 //	--------------------------------------------------------------------------------
-void CvCity::SetBlockWWDestruction(bool bNewValue)
+void CvCity::ChangeBlockBuildingDestruction(int iNewValue)
 {
-	m_bBlockWWDestruction = bNewValue;
+	VALIDATE_OBJECT
+	SetBlockBuildingDestruction(GetBlockBuildingDestruction() + iNewValue);
+}
+int CvCity::GetBlockBuildingDestruction() const
+{
+	VALIDATE_OBJECT
+	return m_iBlockBuildingDestruction;
 }
 //	--------------------------------------------------------------------------------
-bool CvCity::IsBlockWWDestruction() const
+//	--------------------------------------------------------------------------------
+void CvCity::SetBlockWWDestruction(int iNewValue)
 {
-	return m_bBlockWWDestruction;
+	VALIDATE_OBJECT
+	m_iBlockWWDestruction = iNewValue;
 }
 //	--------------------------------------------------------------------------------
-void CvCity::SetBlockUDestruction(bool bNewValue)
+void CvCity::ChangeBlockWWDestruction(int iNewValue)
 {
-	m_bBlockUDestruction = bNewValue;
+	VALIDATE_OBJECT
+	SetBlockWWDestruction(GetBlockWWDestruction() + iNewValue);
+}
+int CvCity::GetBlockWWDestruction() const
+{
+	VALIDATE_OBJECT
+	return m_iBlockWWDestruction;
 }
 //	--------------------------------------------------------------------------------
-bool CvCity::IsBlockUDestruction() const
+void CvCity::SetBlockUDestruction(int iNewValue)
 {
-	return m_bBlockUDestruction;
+	VALIDATE_OBJECT
+	m_iBlockUDestruction = iNewValue;
 }
 //	--------------------------------------------------------------------------------
-void CvCity::SetBlockGPDestruction(bool bNewValue)
+void CvCity::ChangeBlockUDestruction(int iNewValue)
 {
-	m_bBlockGPDestruction = bNewValue;
+	VALIDATE_OBJECT
+	SetBlockUDestruction(GetBlockUDestruction() + iNewValue);
+}
+int CvCity::GetBlockUDestruction() const
+{
+	VALIDATE_OBJECT
+	return m_iBlockUDestruction;
 }
 //	--------------------------------------------------------------------------------
-bool CvCity::IsBlockGPDestruction() const
+void CvCity::SetBlockGPDestruction(int iNewValue)
 {
-	return m_bBlockGPDestruction;
+	VALIDATE_OBJECT
+	m_iBlockGPDestruction = iNewValue;
 }
 //	--------------------------------------------------------------------------------
-void CvCity::SetBlockRebellion(bool bNewValue)
+void CvCity::ChangeBlockGPDestruction(int iNewValue)
 {
-	m_bBlockRebellion = bNewValue;
+	VALIDATE_OBJECT
+	SetBlockGPDestruction(GetBlockGPDestruction() + iNewValue);
+}
+int CvCity::GetBlockGPDestruction() const
+{
+	VALIDATE_OBJECT
+	return m_iBlockGPDestruction;
 }
 //	--------------------------------------------------------------------------------
-bool CvCity::IsBlockRebellion() const
+void CvCity::SetBlockRebellion(int iNewValue)
 {
-	return m_bBlockRebellion;
-}
-
-//	--------------------------------------------------------------------------------
-void CvCity::SetBlockUnrest(bool bNewValue)
-{
-	m_bBlockUnrest = bNewValue;
+	VALIDATE_OBJECT
+	m_iBlockRebellion = iNewValue;
 }
 //	--------------------------------------------------------------------------------
-bool CvCity::IsBlockUnrest() const
+void CvCity::ChangeBlockRebellion(int iNewValue)
 {
-	return m_bBlockUnrest;
+	VALIDATE_OBJECT
+	SetBlockRebellion (GetBlockRebellion () + iNewValue);
 }
-
-//	--------------------------------------------------------------------------------
-void CvCity::SetBlockScience(bool bNewValue)
+int CvCity::GetBlockRebellion() const
 {
-	m_bBlockScience = bNewValue;
-}
-//	--------------------------------------------------------------------------------
-bool CvCity::IsBlockScience() const
-{
-	return m_bBlockScience;
-}
-
-//	--------------------------------------------------------------------------------
-void CvCity::SetBlockGold(bool bNewValue)
-{
-	m_bIsNationalMissionaries = bNewValue;
+	VALIDATE_OBJECT
+	return m_iBlockRebellion;
 }
 //	--------------------------------------------------------------------------------
-bool CvCity::IsBlockGold() const
+void CvCity::SetBlockUnrest(int iNewValue)
 {
-	return m_bIsNationalMissionaries;
+	VALIDATE_OBJECT
+	m_iBlockUnrest = iNewValue;
+}
+//	--------------------------------------------------------------------------------
+void CvCity::ChangeBlockUnrest(int iNewValue)
+{
+	VALIDATE_OBJECT
+	SetBlockUnrest(GetBlockUnrest() + iNewValue);
+}
+int CvCity::GetBlockUnrest() const
+{
+	VALIDATE_OBJECT
+	return m_iBlockUnrest;
+}
+//	--------------------------------------------------------------------------------
+void CvCity::SetBlockScience(int iNewValue)
+{
+	VALIDATE_OBJECT
+	m_iBlockScience = iNewValue;
+}
+//	--------------------------------------------------------------------------------
+void CvCity::ChangeBlockScience(int iNewValue)
+{
+	VALIDATE_OBJECT
+	SetBlockScience(GetBlockScience() + iNewValue);
+}
+int CvCity::GetBlockScience() const
+{
+	VALIDATE_OBJECT
+	return m_iBlockScience;
+}
+//	--------------------------------------------------------------------------------
+void CvCity::SetBlockGold(int iNewValue)
+{
+	VALIDATE_OBJECT
+	m_iBlockGold = iNewValue;
+}
+//	--------------------------------------------------------------------------------
+void CvCity::ChangeBlockGold(int iNewValue)
+{
+	VALIDATE_OBJECT
+	SetBlockGold(GetBlockGold() + iNewValue);
+}
+int CvCity::GetBlockGold() const
+{
+	VALIDATE_OBJECT
+	return m_iBlockGold;
 }
 #endif
 //	--------------------------------------------------------------------------------
@@ -20116,14 +20205,14 @@ void CvCity::read(FDataStream& kStream)
 	MOD_SERIALIZE_READ_AUTO(66, kStream, m_aiBaseYieldRateFromCSAlliance, NUM_YIELD_TYPES, 0);
 #endif
 #if defined(MOD_BALANCE_CORE)
-	MOD_SERIALIZE_READ(66, kStream, m_bBlockBuildingDestruction, false);
-	MOD_SERIALIZE_READ(66, kStream, m_bBlockWWDestruction, false);
-	MOD_SERIALIZE_READ(66, kStream, m_bBlockUDestruction, false);
-	MOD_SERIALIZE_READ(66, kStream, m_bBlockGPDestruction, false);
-	MOD_SERIALIZE_READ(66, kStream, m_bBlockRebellion, false);
-	MOD_SERIALIZE_READ(66, kStream, m_bBlockUnrest, false);
-	MOD_SERIALIZE_READ(66, kStream, m_bBlockScience, false);
-	MOD_SERIALIZE_READ(66, kStream, m_bBlockGold, false);
+	MOD_SERIALIZE_READ(66, kStream, m_iBlockBuildingDestruction, 0);
+	MOD_SERIALIZE_READ(66, kStream, m_iBlockWWDestruction, 0);
+	MOD_SERIALIZE_READ(66, kStream, m_iBlockUDestruction, 0);
+	MOD_SERIALIZE_READ(66, kStream, m_iBlockGPDestruction, 0);
+	MOD_SERIALIZE_READ(66, kStream, m_iBlockRebellion, 0);
+	MOD_SERIALIZE_READ(66, kStream, m_iBlockUnrest, 0);
+	MOD_SERIALIZE_READ(66, kStream, m_iBlockScience, 0);
+	MOD_SERIALIZE_READ(66, kStream, m_iBlockGold, 0);
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
 	MOD_SERIALIZE_READ(66, kStream, m_iCityRank, 0);
@@ -20348,7 +20437,7 @@ void CvCity::read(FDataStream& kStream)
 	kStream >> m_abOwedChosenBuilding;
 	kStream >> m_abBuildingInvestment;
 	kStream >> m_abBuildingConstructed;
-	kStream >> m_bIsNationalMissionaries;
+	kStream >> m_iNationalMissionaries;
 #endif
 	m_pCityStrategyAI->Read(kStream);
 	if(m_eOwner != NO_PLAYER)
@@ -20532,14 +20621,14 @@ void CvCity::write(FDataStream& kStream) const
 	MOD_SERIALIZE_WRITE_AUTO(kStream, m_aiBaseYieldRateFromCSAlliance);
 #endif
 #if defined(MOD_BALANCE_CORE)
-	MOD_SERIALIZE_WRITE(kStream, m_bBlockBuildingDestruction);
-	MOD_SERIALIZE_WRITE(kStream, m_bBlockWWDestruction);
-	MOD_SERIALIZE_WRITE(kStream, m_bBlockUDestruction);
-	MOD_SERIALIZE_WRITE(kStream, m_bBlockGPDestruction);
-	MOD_SERIALIZE_WRITE(kStream, m_bBlockRebellion);
-	MOD_SERIALIZE_WRITE(kStream, m_bBlockUnrest);
-	MOD_SERIALIZE_WRITE(kStream, m_bBlockScience);
-	MOD_SERIALIZE_WRITE(kStream, m_bBlockGold);
+	MOD_SERIALIZE_WRITE(kStream, m_iBlockBuildingDestruction);
+	MOD_SERIALIZE_WRITE(kStream, m_iBlockWWDestruction);
+	MOD_SERIALIZE_WRITE(kStream, m_iBlockUDestruction);
+	MOD_SERIALIZE_WRITE(kStream, m_iBlockGPDestruction);
+	MOD_SERIALIZE_WRITE(kStream, m_iBlockRebellion);
+	MOD_SERIALIZE_WRITE(kStream, m_iBlockUnrest);
+	MOD_SERIALIZE_WRITE(kStream, m_iBlockScience);
+	MOD_SERIALIZE_WRITE(kStream, m_iBlockGold);
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
 	MOD_SERIALIZE_WRITE(kStream, m_iCityRank);
@@ -20686,7 +20775,7 @@ void CvCity::write(FDataStream& kStream) const
 	kStream << m_abOwedChosenBuilding;
 	kStream << m_abBuildingInvestment;
 	kStream << m_abBuildingConstructed;
-	kStream << m_bIsNationalMissionaries;
+	kStream << m_iNationalMissionaries;
 #endif
 	m_pCityStrategyAI->Write(kStream);
 	m_pCityCitizens->Write(kStream);
@@ -21305,10 +21394,6 @@ int CvCity::rangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bIncl
 		{
 			pInPlot = pCity->plot();
 		}
-	}
-	if(this == NULL)
-	{
-		return 0;
 	}
 #else
 int CvCity::rangeCombatDamage(const CvUnit* pDefender, CvCity* pCity, bool bIncludeRand) const

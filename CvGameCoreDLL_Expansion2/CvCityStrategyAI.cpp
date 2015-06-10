@@ -1091,7 +1091,22 @@ void CvCityStrategyAI::ChooseProduction(bool bUseAsyncRandom, BuildingTypes eIgn
 				// it also avoids military training buildings - since it can't build units
 #if defined(MOD_BALANCE_CORE)
 				bool bIsVenice = kPlayer.GetPlayerTraits()->IsNoAnnexing();
-				if(pkBuildingInfo->GetDomainFreeExperience(DOMAIN_LAND) && !bIsVenice)
+#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
+				if(MOD_BALANCE_CORE_BUILDING_INVESTMENTS && bIsVenice)
+				{
+					const BuildingClassTypes eBuildingClass = (BuildingClassTypes)(pkBuildingInfo->GetBuildingClassType());
+					if(GetCity()->IsBuildingInvestment(eBuildingClass))
+					{
+						iTempWeight *= 10;
+					}
+				}
+#endif
+				if(pkBuildingInfo->GetDomainFreeExperience(DOMAIN_LAND) && bIsVenice)
+				{
+					iTempWeight *= 4;
+				}
+				else if(pkBuildingInfo->GetDomainFreeExperience(DOMAIN_LAND) && !bIsVenice)
+
 #else
 				if(pkBuildingInfo->GetDomainFreeExperience(DOMAIN_LAND))
 #endif
@@ -3331,7 +3346,8 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_PocketCity(CvCity* pCity)
 	{
 		if(!pCity->IsConnectedToCapital())
 		{
-			if(!GC.getStepFinder().GeneratePath(pCity->getX(), pCity->getY(), kPlayer.getCapitalCity()->getX(), kPlayer.getCapitalCity()->getY(), pCity->getOwner(), false))
+			// Now loop through the units, using the pathfinder to do the final evaluation
+			if (!GC.getPathFinder().GeneratePath(kPlayer.getCapitalCity()->getX(), kPlayer.getCapitalCity()->getY(), pCity->getX(), pCity->getY()))
 			{
 				return true;
 			}
@@ -3384,7 +3400,11 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_CapitalNeedSettler(AICityStrategy
 				return true;
 			}
 #endif
+#if defined(MOD_BALANCE_CORE)
+			if((iCitiesPlusSettlers > 0) && (iCitiesPlusSettlers < 6))
+#else
 			if((iCitiesPlusSettlers) < 3)
+#endif
 			{
 
 				AICityStrategyTypes eUnderThreat = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_CAPITAL_UNDER_THREAT");
@@ -3410,7 +3430,12 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_CapitalNeedSettler(AICityStrategy
 				int iGameTurn = GC.getGame().getGameTurn();
 				if((iCitiesPlusSettlers == 1 && (iGameTurn * 4) > iWeightThreshold) ||
 					(iCitiesPlusSettlers == 2 && (iGameTurn * 2) > iWeightThreshold) || 
-					(iCitiesPlusSettlers == 3 && iGameTurn > iWeightThreshold) )
+					(iCitiesPlusSettlers == 3 && iGameTurn > iWeightThreshold) 
+#if defined(MOD_BALANCE_CORE)
+					|| (iCitiesPlusSettlers == 4 && (iGameTurn / 2) > iWeightThreshold) 
+					|| (iCitiesPlusSettlers == 5 && (iGameTurn / 4) > iWeightThreshold) 
+#endif
+					)
 				{
 					return true;
 				}

@@ -97,24 +97,21 @@
 	<Buildings>
 		<Row>
 			<Type>BUILDING_JELLING_STONES</Type>
-			<BuildingClass>BUILDINGCLASS_NATIONAL_EPIC</BuildingClass>
+			<BuildingClass>BUILDINGCLASS_LIGHTHOUSE</BuildingClass>
 			<Cost>125</Cost>
-			<PrereqTech>TECH_DRAMA</PrereqTech>
+			<GoldMaintenance>1</GoldMaintenance>
+			<FreeStartEra>ERA_RENAISSANCE</FreeStartEra>
+			<PrereqTech>TECH_OPTICS</PrereqTech>
 			<Help>TXT_KEY_BUILDING_JELLING_STONES_HELP</Help>
 			<Description>TXT_KEY_BUILDING_JELLING_STONES</Description>
 			<Civilopedia>TXT_KEY_BUILDING_JELLING_STONES_PEDIA</Civilopedia>
 			<Strategy>TXT_KEY_BUILDING_JELLING_STONES_STRATEGY</Strategy>
 			<ArtDefineTag>ART_DEF_BUILDING_NATIONAL_EPIC</ArtDefineTag>
-			<GreatPeopleRateModifier>33</GreatPeopleRateModifier>
-			<NukeImmune>true</NukeImmune>
-			<NationalPopRequired>15</NationalPopRequired>
-			<NumCityCostMod>20</NumCityCostMod>
-			<GoldenAge>true</GoldenAge>
-			<HurryCostModifier>-1</HurryCostModifier>
+			<GreatPeopleRateModifier>15</GreatPeopleRateModifier>
+			<HurryCostModifier>25</HurryCostModifier>
 			<MinAreaSize>-1</MinAreaSize>
-			<TechEnhancedTourism>5</TechEnhancedTourism>
-			<EnhancedYieldTech>TECH_IRON_WORKING</EnhancedYieldTech>
-			<NeverCapture>true</NeverCapture>
+			<TechEnhancedTourism>2</TechEnhancedTourism>
+			<EnhancedYieldTech>TECH_DRAMA</EnhancedYieldTech>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
 			<PortraitIndex>25</PortraitIndex>
 		</Row>
@@ -123,25 +120,49 @@
 		<Row>
 			<BuildingType>BUILDING_JELLING_STONES</BuildingType>
 			<FlavorType>FLAVOR_CULTURE</FlavorType>
-			<Flavor>50</Flavor>
+			<Flavor>20</Flavor>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_JELLING_STONES</BuildingType>
 			<FlavorType>FLAVOR_GREAT_PEOPLE</FlavorType>
 			<Flavor>30</Flavor>
 		</Row>
+		<Row>
+			<BuildingType>BUILDING_LIGHTHOUSE</BuildingType>
+			<FlavorType>FLAVOR_NAVAL_GROWTH</FlavorType>
+			<Flavor>20</Flavor>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_LIGHTHOUSE</BuildingType>
+			<FlavorType>FLAVOR_GROWTH</FlavorType>
+			<Flavor>15</Flavor>
+		</Row>
 	</Building_Flavors>
+	<Building_SeaPlotYieldChanges>
+		<Row>
+			<BuildingType>BUILDING_JELLING_STONES</BuildingType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+	</Building_SeaPlotYieldChanges>
 	<Building_InstantYield>
 		<Row>
 			<BuildingType>BUILDING_JELLING_STONES</BuildingType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>250</Yield>
+			<Yield>25</Yield>
 		</Row>
 	</Building_InstantYield>
+	<Building_SeaResourceYieldChanges>
+		<Row>
+			<BuildingType>BUILDING_JELLING_STONES</BuildingType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>1</Yield>
+		</Row>
+	</Building_SeaResourceYieldChanges>
 	<Civilization_BuildingClassOverrides>
 		<Row>
 			<CivilizationType>CIVILIZATION_DENMARK</CivilizationType>
-			<BuildingClassType>BUILDINGCLASS_NATIONAL_EPIC</BuildingClassType>
+			<BuildingClassType>BUILDINGCLASS_LIGHTHOUSE</BuildingClassType>
 			<BuildingType>BUILDING_JELLING_STONES</BuildingType>
 		</Row>
 	</Civilization_BuildingClassOverrides>
@@ -149,9 +170,17 @@
 		<Row>
 			<BuildingType>BUILDING_JELLING_STONES</BuildingType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>5</Yield>
+			<Yield>2</Yield>
 		</Row>
 	</Building_YieldChanges>
+	<Building_ResourceYieldChanges>
+		<Row>
+			<BuildingType>BUILDING_JELLING_STONES</BuildingType>
+			<ResourceType>RESOURCE_FISH</ResourceType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+	</Building_ResourceYieldChanges>
 	<Language_en_US>
 		<Row Tag="TXT_KEY_BUILDING_JELLING_STONES">
 			<Text>Jelling Stones</Text>
@@ -162,10 +191,10 @@
 			</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_JELLING_STONES_HELP">
-			<Text>+33% [ICON_GREAT_PEOPLE] Great Person rate, +5 [ICON_TOURISM] and an instant boost of 250 [ICON_CULTURE] Culture. Begins a [ICON_GOLDEN_AGE] Golden Age.[NEWLINE][NEWLINE]Requires 15 National Population to be constructed.</Text>
+			<Text>+15% [ICON_GREAT_PEOPLE] Great Person rate, +2 [ICON_TOURISM] Tourism (once Drama is researched) and an instant boost of 25 [ICON_CULTURE] Culture. [NEWLINE][NEWLINE]+1 [ICON_FOOD] Food from Ocean Tiles.[NEWLINE][NEWLINE]Each source of [ICON_RES_FISH] Fish worked by this City produces +1 [ICON_FOOD] Food.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_JELLING_STONES_STRATEGY">
-			<Text>Unique Danish replacement for the National Epic. This National Wonder contains no Great Works of Literature slots, however it produces +5 [ICON_TOURISM] Tourism and [ICON_CULTURE] Culture and increases the Great Person rate for the city where it is built by 33%. Grants a large amount of [ICON_CULTURE] Culture and a [ICON_GOLDEN_AGE] Golden Age when completed.[NEWLINE][NEWLINE]Requires 15 National Population to be constructed.</Text>
+			<Text>Unique Danish replacement for the Lighthouse. In addition to the Lighthouse's bonuses, Jelling Stones produces +2 [ICON_TOURISM] Tourism (once Drama is researched), +2 [ICON_CULTURE] Culture, and increases the Great Person rate for the city where it is built by 15%. Grants 25 [ICON_CULTURE] Culture when completed. Unlike the Lighthouse, the City does not have to be built on the coast.</Text>
 		</Row>
 	</Language_en_US>
 	<!-- Korean Seowon-->
@@ -187,7 +216,6 @@
 			<GreatPeopleRateModifier>20</GreatPeopleRateModifier>
 			<SpecialistCount>2</SpecialistCount>
 			<MinAreaSize>-1</MinAreaSize>
-			<ConquestProb>66</ConquestProb>
 			<HurryCostModifier>15</HurryCostModifier>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
 			<PortraitIndex>50</PortraitIndex>
@@ -281,7 +309,6 @@
 			<Strategy>TXT_KEY_BUILDING_YURT_STRATEGY</Strategy>
 			<ArtDefineTag>ART_DEF_BUILDING_GRANARY</ArtDefineTag>
 			<MinAreaSize>-1</MinAreaSize>
-			<ConquestProb>66</ConquestProb>
 			<HurryCostModifier>25</HurryCostModifier>
 			<AllowsFoodTradeRoutes>true</AllowsFoodTradeRoutes>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>

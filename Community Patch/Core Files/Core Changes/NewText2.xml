@@ -94,7 +94,7 @@
 		</Row>
 		<Row LeaderType="LEADER_ALEXANDER">
 			<ResponseType>RESPONSE_TRADE_CANT_MATCH_OFFER</ResponseType>
-			<Response>TXT_KEY_LEADER_ALEXANDER_TRADE_NO_HAPPY%</Response>
+			<Response>TXT_KEY_LEADER_ALEXANDER_TRADE_CANT_MATCH%</Response>
 		</Row>
 
 		<!--
@@ -193,7 +193,7 @@
 		</Row>
 		<Row LeaderType="LEADER_ASKIA">
 			<ResponseType>RESPONSE_TRADE_CANT_MATCH_OFFER</ResponseType>
-			<Response>TXT_KEY_LEADER_ASKIA_TRADE_NO_HAPPY%</Response>
+			<Response>TXT_KEY_LEADER_ASKIA_TRADE_CANT_MATCH%</Response>
 		</Row>
 
 		<!--
@@ -292,7 +292,7 @@
 		</Row>
 		<Row LeaderType="LEADER_AUGUSTUS">
 			<ResponseType>RESPONSE_TRADE_CANT_MATCH_OFFER</ResponseType>
-			<Response>TXT_KEY_LEADER_AUGUSTUS_TRADE_NO_HAPPY%</Response>
+			<Response>TXT_KEY_LEADER_AUGUSTUS_TRADE_CANT_MATCH%</Response>
 		</Row>
 
 		<!--
@@ -391,7 +391,7 @@
 		</Row>
 		<Row LeaderType="LEADER_BISMARCK">
 			<ResponseType>RESPONSE_TRADE_CANT_MATCH_OFFER</ResponseType>
-			<Response>TXT_KEY_LEADER_BISMARCK_TRADE_NO_HAPPY%</Response>
+			<Response>TXT_KEY_LEADER_BISMARCK_TRADE_CANT_MATCH%</Response>
 		</Row>
 
 		<!--
@@ -490,7 +490,7 @@
 		</Row>
 		<Row LeaderType="LEADER_CATHERINE">
 			<ResponseType>RESPONSE_TRADE_CANT_MATCH_OFFER</ResponseType>
-			<Response>TXT_KEY_LEADER_CATHERINE_TRADE_NO_HAPPY%</Response>
+			<Response>TXT_KEY_LEADER_CATHERINE_TRADE_CANT_MATCH%</Response>
 		</Row>
 
 		<!--
@@ -589,7 +589,7 @@
 		</Row>
 		<Row LeaderType="LEADER_DARIUS">
 			<ResponseType>RESPONSE_TRADE_CANT_MATCH_OFFER</ResponseType>
-			<Response>TXT_KEY_LEADER_DARIUS_TRADE_NO_HAPPY%</Response>
+			<Response>TXT_KEY_LEADER_DARIUS_TRADE_CANT_MATCH%</Response>
 		</Row>
 
 		<!--
@@ -688,7 +688,7 @@
 		</Row>
 		<Row LeaderType="LEADER_ELIZABETH">
 			<ResponseType>RESPONSE_TRADE_CANT_MATCH_OFFER</ResponseType>
-			<Response>TXT_KEY_LEADER_ELIZABETH_TRADE_NO_HAPPY%</Response>
+			<Response>TXT_KEY_LEADER_ELIZABETH_TRADE_CANT_MATCH%</Response>
 		</Row>
 
 		<!--
@@ -787,7 +787,7 @@
 		</Row>
 		<Row LeaderType="LEADER_GANDHI">
 			<ResponseType>RESPONSE_TRADE_CANT_MATCH_OFFER</ResponseType>
-			<Response>TXT_KEY_LEADER_ALEXANDER_TRADE_NO_HAPPY%</Response>
+			<Response>TXT_KEY_LEADER_GANDHI_TRADE_CANT_MATCH%</Response>
 		</Row>
 
 		<!--
@@ -886,7 +886,7 @@
 		</Row>
 		<Row LeaderType="LEADER_HARUN_AL_RASHID">
 			<ResponseType>RESPONSE_TRADE_CANT_MATCH_OFFER</ResponseType>
-			<Response>TXT_KEY_LEADER_HARUN_TRADE_NO_HAPPY%</Response>
+			<Response>TXT_KEY_LEADER_HARUN_TRADE_CANT_MATCH%</Response>
 		</Row>
 
 		<!--
@@ -985,7 +985,7 @@
 		</Row>
 		<Row LeaderType="LEADER_HIAWATHA">
 			<ResponseType>RESPONSE_TRADE_CANT_MATCH_OFFER</ResponseType>
-			<Response>TXT_KEY_LEADER_HIAWATHA_TRADE_NO_HAPPY%</Response>
+			<Response>TXT_KEY_LEADER_HIAWATHA_TRADE_CANT_MATCH%</Response>
 		</Row>
 
 		<!--
@@ -1084,7 +1084,7 @@
 		</Row>
 		<Row LeaderType="LEADER_MONTEZUMA">
 			<ResponseType>RESPONSE_TRADE_CANT_MATCH_OFFER</ResponseType>
-			<Response>TXT_KEY_LEADER_MONTEZUMA_TRADE_NO_HAPPY%</Response>
+			<Response>TXT_KEY_LEADER_MONTEZUMA_TRADE_CANT_MATCH%</Response>
 		</Row>
 
 		<!--
@@ -1183,7 +1183,7 @@
 		</Row>
 		<Row LeaderType="LEADER_NAPOLEON">
 			<ResponseType>RESPONSE_TRADE_CANT_MATCH_OFFER</ResponseType>
-			<Response>TXT_KEY_LEADER_NAPOLEON_TRADE_NO_HAPPY%</Response>
+			<Response>TXT_KEY_LEADER_NAPOLEON_TRADE_CANT_MATCH%</Response>
 		</Row>
 
 		<!--
@@ -1282,7 +1282,7 @@
 		</Row>
 		<Row LeaderType="LEADER_ODA_NOBUNAGA">
 			<ResponseType>RESPONSE_TRADE_CANT_MATCH_OFFER</ResponseType>
-			<Response>TXT_KEY_LEADER_ODA_TRADE_NO_HAPPY%</Response>
+			<Response>TXT_KEY_LEADER_ODA_TRADE_CANT_MATCH%</Response>
 		</Row>
 
 		<!--
@@ -1381,7 +1381,7 @@
 		</Row>
 		<Row LeaderType="LEADER_RAMESSES">
 			<ResponseType>RESPONSE_TRADE_CANT_MATCH_OFFER</ResponseType>
-			<Response>TXT_KEY_LEADER_RAMESSES_TRADE_NO_HAPPY%</Response>
+			<Response>TXT_KEY_LEADER_RAMESSES_TRADE_CANT_MATCH%</Response>
 		</Row>
 
 		<!--
@@ -1480,7 +1480,7 @@
 		</Row>
 		<Row LeaderType="LEADER_RAMKHAMHAENG">
 			<ResponseType>RESPONSE_TRADE_CANT_MATCH_OFFER</ResponseType>
-			<Response>TXT_KEY_LEADER_RAMKHAMHAENG_TRADE_NO_HAPPY%</Response>
+			<Response>TXT_KEY_LEADER_RAMKHAMHAENG_TRADE_CANT_MATCH%</Response>
 		</Row>
 
 		<!--
@@ -1579,7 +1579,7 @@
 		</Row>
 		<Row LeaderType="LEADER_SULEIMAN">
 			<ResponseType>RESPONSE_TRADE_CANT_MATCH_OFFER</ResponseType>
-			<Response>TXT_KEY_LEADER_SULEIMAN_TRADE_NO_HAPPY%</Response>
+			<Response>TXT_KEY_LEADER_SULEIMAN_TRADE_CANT_MATCH%</Response>
 		</Row>
 
 		<!--
@@ -1678,7 +1678,7 @@
 		</Row>
 		<Row LeaderType="LEADER_WASHINGTON">
 			<ResponseType>RESPONSE_TRADE_CANT_MATCH_OFFER</ResponseType>
-			<Response>TXT_KEY_LEADER_WASHINGTON_TRADE_NO_HAPPY%</Response>
+			<Response>TXT_KEY_LEADER_WASHINGTON_TRADE_CANT_MATCH%</Response>
 		</Row>
 
 		<!--
@@ -1777,7 +1777,7 @@
 		</Row>
 		<Row LeaderType="LEADER_WU_ZETIAN">
 			<ResponseType>RESPONSE_TRADE_CANT_MATCH_OFFER</ResponseType>
-			<Response>TXT_KEY_LEADER_WUZETIAN_TRADE_NO_HAPPY%</Response>
+			<Response>TXT_KEY_LEADER_WUZETIAN_TRADE_CANT_MATCH%</Response>
 		</Row>
 
 		<!--
@@ -1876,7 +1876,7 @@
 		</Row>
 		<Row LeaderType="LEADER_GENGHIS_KHAN">
 			<ResponseType>RESPONSE_TRADE_CANT_MATCH_OFFER</ResponseType>
-			<Response>TXT_KEY_LEADER_GENGHIS_TRADE_NO_HAPPY%</Response>
+			<Response>TXT_KEY_LEADER_GENGHIS_TRADE_CANT_MATCH%</Response>
 		</Row>
 
 		<!--
@@ -1975,7 +1975,7 @@
 		</Row>
 		<Row LeaderType="LEADER_ISABELLA">
 			<ResponseType>RESPONSE_TRADE_CANT_MATCH_OFFER</ResponseType>
-			<Response>TXT_KEY_LEADER_ISABELLA_TRADE_NO_HAPPY%</Response>
+			<Response>TXT_KEY_LEADER_ISABELLA_TRADE_CANT_MATCH%</Response>
 		</Row>
 
 		<!--
@@ -2074,7 +2074,7 @@
 		</Row>
 		<Row LeaderType="LEADER_PACHACUTI">
 			<ResponseType>RESPONSE_TRADE_CANT_MATCH_OFFER</ResponseType>
-			<Response>TXT_KEY_LEADER_PACHACUTI_TRADE_NO_HAPPY%</Response>
+			<Response>TXT_KEY_LEADER_PACHACUTI_TRADE_CANT_MATCH%</Response>
 		</Row>
 
 		<!--
@@ -2173,7 +2173,7 @@
 		</Row>
 		<Row LeaderType="LEADER_KAMEHAMEHA">
 			<ResponseType>RESPONSE_TRADE_CANT_MATCH_OFFER</ResponseType>
-			<Response>TXT_KEY_LEADER_KAMEHAMEHA_TRADE_NO_HAPPY%</Response>
+			<Response>TXT_KEY_LEADER_KAMEHAMEHA_TRADE_CANT_MATCH%</Response>
 		</Row>
 
 		<!--
@@ -2272,7 +2272,7 @@
 		</Row>
 		<Row LeaderType="LEADER_HARALD">
 			<ResponseType>RESPONSE_TRADE_CANT_MATCH_OFFER</ResponseType>
-			<Response>TXT_KEY_LEADER_HARALD_TRADE_NO_HAPPY%</Response>
+			<Response>TXT_KEY_LEADER_HARALD_TRADE_CANT_MATCH%</Response>
 		</Row>
 
 		<!--
@@ -2371,7 +2371,7 @@
 		</Row>
 		<Row LeaderType="LEADER_SEJONG">
 			<ResponseType>RESPONSE_TRADE_CANT_MATCH_OFFER</ResponseType>
-			<Response>TXT_KEY_LEADER_SEJONG_TRADE_NO_HAPPY%</Response>
+			<Response>TXT_KEY_LEADER_SEJONG_TRADE_CANT_MATCH%</Response>
 		</Row>
 
 		<!--
@@ -2470,7 +2470,7 @@
 		</Row>
 		<Row LeaderType="LEADER_NEBUCHADNEZZAR">
 			<ResponseType>RESPONSE_TRADE_CANT_MATCH_OFFER</ResponseType>
-			<Response>TXT_KEY_LEADER_NEBUCHADNEZZAR_TRADE_NO_HAPPY%</Response>
+			<Response>TXT_KEY_LEADER_NEBUCHADNEZZAR_TRADE_CANT_MATCH%</Response>
 		</Row>
 
 		<!--
@@ -2569,7 +2569,7 @@
 		</Row>
 		<Row LeaderType="LEADER_ATTILA">
 			<ResponseType>RESPONSE_TRADE_CANT_MATCH_OFFER</ResponseType>
-			<Response>TXT_KEY_LEADER_ATTILA_TRADE_NO_HAPPY%</Response>
+			<Response>TXT_KEY_LEADER_ATTILA_TRADE_CANT_MATCH%</Response>
 		</Row>
 
 		<!--
@@ -2668,7 +2668,7 @@
 		</Row>
 		<Row LeaderType="LEADER_BOUDICCA">
 			<ResponseType>RESPONSE_TRADE_CANT_MATCH_OFFER</ResponseType>
-			<Response>TXT_KEY_LEADER_BOUDICCA_TRADE_NO_HAPPY%</Response>
+			<Response>TXT_KEY_LEADER_BOUDICCA_TRADE_CANT_MATCH%</Response>
 		</Row>
 
 		<!--
@@ -2767,7 +2767,7 @@
 		</Row>
 		<Row LeaderType="LEADER_DIDO">
 			<ResponseType>RESPONSE_TRADE_CANT_MATCH_OFFER</ResponseType>
-			<Response>TXT_KEY_LEADER_DIDO_TRADE_NO_HAPPY%</Response>
+			<Response>TXT_KEY_LEADER_DIDO_TRADE_CANT_MATCH%</Response>
 		</Row>
 
 		<!--
@@ -2866,7 +2866,7 @@
 		</Row>
 		<Row LeaderType="LEADER_GUSTAVUS_ADOLPHUS">
 			<ResponseType>RESPONSE_TRADE_CANT_MATCH_OFFER</ResponseType>
-			<Response>TXT_KEY_LEADER_GUSTAVUS_ADOLPHUS_TRADE_NO_HAPPY%</Response>
+			<Response>TXT_KEY_LEADER_GUSTAVUS_ADOLPHUS_TRADE_CANT_MATCH%</Response>
 		</Row>
 
 		<!--
@@ -2965,7 +2965,7 @@
 		</Row>
 		<Row LeaderType="LEADER_MARIA">
 			<ResponseType>RESPONSE_TRADE_CANT_MATCH_OFFER</ResponseType>
-			<Response>TXT_KEY_LEADER_MARIA_TRADE_NO_HAPPY%</Response>
+			<Response>TXT_KEY_LEADER_MARIA_TRADE_CANT_MATCH%</Response>
 		</Row>
 
 		<!--
@@ -3064,7 +3064,7 @@
 		</Row>
 		<Row LeaderType="LEADER_PACAL">
 			<ResponseType>RESPONSE_TRADE_CANT_MATCH_OFFER</ResponseType>
-			<Response>TXT_KEY_LEADER_PACAL_TRADE_NO_HAPPY%</Response>
+			<Response>TXT_KEY_LEADER_PACAL_TRADE_CANT_MATCH%</Response>
 		</Row>
 
 		<!--
@@ -3163,7 +3163,7 @@
 		</Row>
 		<Row LeaderType="LEADER_THEODORA">
 			<ResponseType>RESPONSE_TRADE_CANT_MATCH_OFFER</ResponseType>
-			<Response>TXT_KEY_LEADER_THEODORA_TRADE_NO_HAPPY%</Response>
+			<Response>TXT_KEY_LEADER_THEODORA_TRADE_CANT_MATCH%</Response>
 		</Row>
 
 		<!--
@@ -3262,7 +3262,7 @@
 		</Row>
 		<Row LeaderType="LEADER_SELASSIE">
 			<ResponseType>RESPONSE_TRADE_CANT_MATCH_OFFER</ResponseType>
-			<Response>TXT_KEY_LEADER_SELASSIE_TRADE_NO_HAPPY%</Response>
+			<Response>TXT_KEY_LEADER_SELASSIE_TRADE_CANT_MATCH%</Response>
 		</Row>
 
 		<!--
@@ -3361,7 +3361,7 @@
 		</Row>
 		<Row LeaderType="LEADER_WILLIAM">
 			<ResponseType>RESPONSE_TRADE_CANT_MATCH_OFFER</ResponseType>
-			<Response>TXT_KEY_LEADER_WILLIAM_TRADE_NO_HAPPY%</Response>
+			<Response>TXT_KEY_LEADER_WILLIAM_TRADE_CANT_MATCH%</Response>
 		</Row>
 
 		<!--
@@ -3460,7 +3460,7 @@
 		</Row>
 		<Row LeaderType="LEADER_AHMAD_ALMANSUR">
 			<ResponseType>RESPONSE_TRADE_CANT_MATCH_OFFER</ResponseType>
-			<Response>TXT_KEY_LEADER_AHMAD_ALMANSUR_TRADE_NO_HAPPY%</Response>
+			<Response>TXT_KEY_LEADER_AHMAD_ALMANSUR_TRADE_CANT_MATCH%</Response>
 		</Row>
 
 		<!--
@@ -3559,7 +3559,7 @@
 		</Row>
 		<Row LeaderType="LEADER_ASHURBANIPAL">
 			<ResponseType>RESPONSE_TRADE_CANT_MATCH_OFFER</ResponseType>
-			<Response>TXT_KEY_LEADER_ASHURBANIPAL_TRADE_NO_HAPPY%</Response>
+			<Response>TXT_KEY_LEADER_ASHURBANIPAL_TRADE_CANT_MATCH%</Response>
 		</Row>
 
 		<!--
@@ -3658,7 +3658,7 @@
 		</Row>
 		<Row LeaderType="LEADER_CASIMIR">
 			<ResponseType>RESPONSE_TRADE_CANT_MATCH_OFFER</ResponseType>
-			<Response>TXT_KEY_LEADER_CASIMIR_TRADE_NO_HAPPY%</Response>
+			<Response>TXT_KEY_LEADER_CASIMIR_TRADE_CANT_MATCH%</Response>
 		</Row>
 
 		<!--
@@ -3757,7 +3757,7 @@
 		</Row>
 		<Row LeaderType="LEADER_ENRICO_DANDOLO">
 			<ResponseType>RESPONSE_TRADE_CANT_MATCH_OFFER</ResponseType>
-			<Response>TXT_KEY_LEADER_ENRICO_DANDOLO_TRADE_NO_HAPPY%</Response>
+			<Response>TXT_KEY_LEADER_ENRICO_DANDOLO_TRADE_CANT_MATCH%</Response>
 		</Row>
 
 		<!--
@@ -3856,7 +3856,7 @@
 		</Row>
 		<Row LeaderType="LEADER_GAJAH_MADA">
 			<ResponseType>RESPONSE_TRADE_CANT_MATCH_OFFER</ResponseType>
-			<Response>TXT_KEY_LEADER_GAJAH_MADA_TRADE_NO_HAPPY%</Response>
+			<Response>TXT_KEY_LEADER_GAJAH_MADA_TRADE_CANT_MATCH%</Response>
 		</Row>
 
 		<!--
@@ -3955,7 +3955,7 @@
 		</Row>
 		<Row LeaderType="LEADER_MARIA_I">
 			<ResponseType>RESPONSE_TRADE_CANT_MATCH_OFFER</ResponseType>
-			<Response>TXT_KEY_LEADER_MARIA_I_TRADE_NO_HAPPY%</Response>
+			<Response>TXT_KEY_LEADER_MARIA_I_TRADE_CANT_MATCH%</Response>
 		</Row>
 
 		<!--
@@ -4054,7 +4054,7 @@
 		</Row>
 		<Row LeaderType="LEADER_PEDRO">
 			<ResponseType>RESPONSE_TRADE_CANT_MATCH_OFFER</ResponseType>
-			<Response>TXT_KEY_LEADER_PEDRO_TRADE_NO_HAPPY%</Response>
+			<Response>TXT_KEY_LEADER_PEDRO_TRADE_CANT_MATCH%</Response>
 		</Row>
 
 		<!--
@@ -4153,7 +4153,7 @@
 		</Row>
 		<Row LeaderType="LEADER_POCATELLO">
 			<ResponseType>RESPONSE_TRADE_CANT_MATCH_OFFER</ResponseType>
-			<Response>TXT_KEY_LEADER_POCATELLO_TRADE_NO_HAPPY%</Response>
+			<Response>TXT_KEY_LEADER_POCATELLO_TRADE_CANT_MATCH%</Response>
 		</Row>
 
 		<!--
@@ -4252,7 +4252,7 @@
 		</Row>
 		<Row LeaderType="LEADER_SHAKA">
 			<ResponseType>RESPONSE_TRADE_CANT_MATCH_OFFER</ResponseType>
-			<Response>TXT_KEY_LEADER_SHAKA_TRADE_NO_HAPPY%</Response>
+			<Response>TXT_KEY_LEADER_SHAKA_TRADE_CANT_MATCH%</Response>
 		</Row>
 	</Diplomacy_Responses>
 </GameData>
