@@ -89,10 +89,7 @@ void CvDistanceMap::Update()
 		for (iPlotIndex=0; iPlotIndex<nPlots; iPlotIndex++)
 		{
 			CvPlot* pPlot = map.plotByIndexUnchecked(iPlotIndex);
-			if ( (pPlot->getOwner() == NO_PLAYER) || (pPlot->getOwner() == thisPlayer.GetID())
-				&& pPlot->isRevealed( thisPlayer.getTeam() ) 
-				&& !pPlot->isWater() 
-				&& !pPlot->isImpassable() )
+			if (pPlot)
 				m_values[iPlotIndex] = min<int>( m_values[iPlotIndex], plotDistance( pCityPlot->getX(),pCityPlot->getY(),pPlot->getX(),pPlot->getY() ) );
 		}
 	}

@@ -4052,12 +4052,12 @@ int FindValidDestinationPathValid(CvAStarNode* parent, CvAStarNode* node, int da
 #ifdef AUI_ASTAR_ROAD_RANGE
 // If there is a valid road within the unit's base movement range, multiply range by movement modifier of best road type
 // Check is fairly fast and is good enough for most cases.
-void IncreaseMoveRangeForRoads(const CvUnit* pUnit, int& iRange)
+int GetIncreasedMoveRangeForRoads(const CvUnit* pUnit, int iRange)
 {
 	// Filtering out units that don't need road optimization
 	if (pUnit->getDomainType() != DOMAIN_LAND || pUnit->flatMovementCost())
 	{
-		return;
+		return iRange;
 	}
 
 	// Don't want to call this on each loop, so we'll call it once out of loop and be done with it
@@ -4082,18 +4082,15 @@ void IncreaseMoveRangeForRoads(const CvUnit* pUnit, int& iRange)
 				eFeature = pLoopPlot->getFeatureType();
 				if (bIsIroquois && pUnit->getOwner() == pLoopPlot->getOwner() && (eFeature == FEATURE_FOREST || eFeature == FEATURE_JUNGLE))
 				{
-					iRange *= GET_TEAM(pUnit->getTeam()).GetBestRoadMovementMultiplier(pUnit);
-					return;
+					return iRange * GET_TEAM(pUnit->getTeam()).GetBestRoadMovementMultiplier(pUnit);
 				}
 				else if (bIsSonghai && pUnit->getOwner() == pLoopPlot->getOwner() && pLoopPlot->isRiver())
 				{
-					iRange *= GET_TEAM(pUnit->getTeam()).GetBestRoadMovementMultiplier(pUnit);
-					return;
+					return iRange * GET_TEAM(pUnit->getTeam()).GetBestRoadMovementMultiplier(pUnit);
 				}
 				else if (bIsInca && pUnit->getOwner() == pLoopPlot->getOwner() && pLoopPlot->isHills())
 				{
-					iRange *= GET_TEAM(pUnit->getTeam()).GetBestRoadMovementMultiplier(pUnit);
-					return;
+					return iRange * GET_TEAM(pUnit->getTeam()).GetBestRoadMovementMultiplier(pUnit);
 				}
 
 				if (pLoopPlot->isValidRoute(pUnit))
@@ -4105,20 +4102,14 @@ void IncreaseMoveRangeForRoads(const CvUnit* pUnit, int& iRange)
 						pEvalPlot = plotDirection(pLoopPlot->getX(), pLoopPlot->getY(), (DirectionTypes)iI);
 						if (pEvalPlot && pEvalPlot->isValidRoute(pUnit))
 						{
-							iRange *= GET_TEAM(pUnit->getTeam()).GetBestRoadMovementMultiplier(pUnit);
-							return;
+							return iRange * GET_TEAM(pUnit->getTeam()).GetBestRoadMovementMultiplier(pUnit);
 						}
 					}
 				}
 			}
 		}
 	}
-}
 
-// AdjustDistanceFilterForRoads() call for when the distance isn't being stored
-int GetIncreasedMoveRangeForRoads(const CvUnit* pUnit, int iRange)
-{
-	IncreaseMoveRangeForRoads(pUnit, iRange);
 	return iRange;
 }
 #endif // AUI_ASTAR_ROAD_RANGE

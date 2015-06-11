@@ -8134,14 +8134,11 @@ void CvTacticalAI::ExecuteMovesToSafestPlot()
 #endif
 			CvPlot* pBestPlot = NULL;
 
-#ifdef AUI_TACTICAL_FIX_EXECUTE_MOVES_TO_SAFEST_PLOT_USE_GAME_MOVEMENT_RANGE
-			int iRange = pUnit->baseMoves();
+#ifdef MOD_BALANCE_CORE
+			TacticalAIHelpers::ReachablePlotSet eligiblePlots;
+			TacticalAIHelpers::GetAllTilesInReach(pUnit.pointer(), pUnit->plot(), eligiblePlots);
 #else
 			int iRange = pUnit->getUnitInfo().GetMoves();
-#endif
-
-#ifdef AUI_ASTAR_ROAD_RANGE
-			IncreaseMoveRangeForRoads(pUnit.pointer(), iRange);
 #endif
 
 #if !defined(PATH_PLAN_LAST)
@@ -8152,18 +8149,25 @@ void CvTacticalAI::ExecuteMovesToSafestPlot()
 			bool bResultInCover = false;
 #endif
 
-			CvMap& kMap = GC.getMap();
-			int iUnitX = pUnit->getX();
-			int iUnitY = pUnit->getY();
 			DomainTypes eUnitDomain = pUnit->getDomainType();
 			bool bIsSeaUnit = eUnitDomain == DOMAIN_SEA;
 
+#ifdef MOD_BALANCE_CORE
+			for (TacticalAIHelpers::ReachablePlotSet::iterator it=eligiblePlots.begin(); it!=eligiblePlots.end(); ++it)
+			{
+				{
+					CvPlot* pPlot = it->first;
+#else
+			CvMap& kMap = GC.getMap();
+			int iUnitX = pUnit->getX();
+			int iUnitY = pUnit->getY();
 			// For each plot within movement range of the fleeing unit
 			for(int iX = -iRange; iX <= iRange; iX++)
 			{
 				for(int iY = -iRange; iY <= iRange; iY++)
 				{
 					CvPlot* pPlot = kMap.plot(iUnitX + iX, iUnitY + iY);
+#endif
 					if(pPlot == NULL)
 					{
 						continue;
@@ -10902,20 +10906,20 @@ bool CvTacticalAI::FindUnitsForThisMove(TacticalAIMoveTypes eMove, CvPlot* pTarg
 			}
 			if(bSuitableUnit)
 			{
+#ifdef AUI_ASTAR_TURN_LIMITER
+				if(pLoopUnit->maxMoves() > 0)
+				{
+					{
+						int iMoves = TurnsToReachTarget(pLoopUnit, pTarget, false, false, false, (iNumTurnsAway == -1 ? MAX_INT : iNumTurnsAway));
+#else
 				// Is it even possible for the unit to reach in the number of requested turns (ignoring roads and RR)
 				int iDistance = plotDistance(pLoopUnit->getX(), pLoopUnit->getY(), pTarget->getX(), pTarget->getY());
 				if(pLoopUnit->maxMoves() > 0)
 				{
 					int iMovesPerTurn = pLoopUnit->maxMoves() / GC.getMOVE_DENOMINATOR();
-#ifdef AUI_ASTAR_ROAD_RANGE
-					IncreaseMoveRangeForRoads(pLoopUnit.pointer(), iMovesPerTurn);
-#endif
 					int iLeastTurns = (iDistance + iMovesPerTurn - 1) / iMovesPerTurn;
 					if(iNumTurnsAway == -1 || iLeastTurns <= iNumTurnsAway)
 					{
-#ifdef AUI_ASTAR_TURN_LIMITER
-						int iMoves = TurnsToReachTarget(pLoopUnit, pTarget, false, false, false, (iNumTurnsAway == -1 ? MAX_INT : iNumTurnsAway));
-#else
 						// If unit was suitable, and close enough, add it to the proper list
 						int iMoves = TurnsToReachTarget(pLoopUnit, pTarget);
 #endif // AUI_ASTAR_TURN_LIMITER
@@ -14528,8 +14532,8 @@ bool TacticalAIHelpers::CvBlockingUnitDistanceSort(CvBlockingUnit obj1, CvBlocki
 #if defined(MOD_BALANCE_CORE)
 
 //	--------------------------------------------------------------------------------
-/// get all tiles a unit can reach in one turn (counting terrain but not ZOC or territory)
-int TacticalAIHelpers::GetAllTilesInReach(CvUnit* pUnit, CvPlot* pStartPlot, ReachablePlotSet& resultSet)
+/// get all tiles a unit can reach in one turn
+int TacticalAIHelpers::GetAllTilesInReach(CvUnit* pUnit, CvPlot* pStartPlot, ReachablePlotSet& resultSet, bool bCheckTerritory, bool bCheckZOC)
 {
 	if (!pUnit || !pStartPlot)
 		return false;
@@ -14563,13 +14567,18 @@ int TacticalAIHelpers::GetAllTilesInReach(CvUnit* pUnit, CvPlot* pStartPlot, Rea
 				if (!pUnit->canEnterTerrain(*pAdjacentPlot))
 					continue;
 
+				//check territory on request
+				if (bCheckTerritory && pAdjacentPlot->getOwner()!=NO_PLAYER && !pUnit->canEnterTerritory( GET_PLAYER(pAdjacentPlot->getOwner()).getTeam() ))
+					continue;
+
 				//we can always enter the plot as long as we have some movement points
 				//for now assume that the turn will end there
 				moveCache = remainingMoves.insert( remainingMoves.end(), std::make_pair(pAdjacentPlot,0) );
 			}
 
 			//now see how much movement is left over
-			int iRemainingMoves =  iCurrentMoves - pAdjacentPlot->MovementCostNoZOC(pUnit,pCurrentPlot);
+			int iMovementCost = bCheckZOC ? pAdjacentPlot->movementCost(pUnit,pCurrentPlot) : pAdjacentPlot->MovementCostNoZOC(pUnit,pCurrentPlot);
+			int iRemainingMoves =  iCurrentMoves - iMovementCost;
 			if (iRemainingMoves > moveCache->second)
 			{
 				moveCache->second = iRemainingMoves;

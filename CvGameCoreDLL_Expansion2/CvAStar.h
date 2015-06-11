@@ -552,7 +552,6 @@ void TradePathInitialize(const void* pointer, CvAStar* finder);
 void TradePathUninitialize(const void* pointer, CvAStar* finder);
 
 #ifdef AUI_ASTAR_ROAD_RANGE
-void IncreaseMoveRangeForRoads(const CvUnit* pUnit, int& iRange);
 int GetIncreasedMoveRangeForRoads(const CvUnit* pUnit, int iRange);
 #endif // AUI_ASTAR_ROAD_RANGE
 

@@ -145,6 +145,8 @@ bool CvDangerPlots::UpdateDangerSingleUnit(CvUnit* pLoopUnit, bool bIgnoreVisibi
 		for (TacticalAIHelpers::ReachablePlotSet::iterator moveTile=reachableTiles.begin(); moveTile!=reachableTiles.end(); ++moveTile)
 			AssignUnitDangerValue(pLoopUnit, moveTile->first);
 	}
+
+	return true;
 }
 #endif
 
@@ -287,6 +289,7 @@ void CvDangerPlots::UpdateDanger(bool bPretendWarWithAllCivs, bool bIgnoreVisibi
 		}
 	}
 
+#ifdef AUI_DANGER_PLOTS_REMADE
 	// now compare the new known units with the previous known units
 	for (UnitSet::iterator it = previousKnownUnits.begin(); it != previousKnownUnits.end(); ++it)
 	{
@@ -301,34 +304,14 @@ void CvDangerPlots::UpdateDanger(bool bPretendWarWithAllCivs, bool bIgnoreVisibi
 			//it's still there, but moved out of sight - nevertheless count is, a human would do that as well
 			//do not add it to the known units though, so next turn we will have forgotten about it
 			if (pVanishedUnit)
-			{
-				int iRange = pVanishedUnit->baseMoves();
-#ifdef AUI_ASTAR_ROAD_RANGE
-				IncreaseMoveRangeForRoads(pVanishedUnit, iRange);
-#endif
-				if(pVanishedUnit->canRangeStrike())
-					iRange += pVanishedUnit->GetRange()-1;
-
-				CvPlot* pLoopPlot = NULL;
-				CvPlot* pUnitPlot = pVanishedUnit->plot();
-				for(int iDX = -iRange; iDX <= iRange; iDX++)
-				{
-					for(int iDY = -(iRange); iDY <= iRange; iDY++)
-					{
-						pLoopPlot = plotXYWithRangeCheck(pUnitPlot->getX(), pUnitPlot->getY(), iDX, iDY, iRange);
-						if(!pLoopPlot || pLoopPlot == pUnitPlot)
-							continue;
-						AssignUnitDangerValue(pVanishedUnit, pLoopPlot);
-					}
-				}
-			}
+				UpdateDangerSingleUnit(pVanishedUnit, bIgnoreVisibility);
 		}
 	}
+#else
 
 	// Citadels
-#ifndef AUI_DANGER_PLOTS_REMADE
 	int iCitadelValue = GetDangerValueOfCitadel();
-#endif // AUI_DANGER_PLOTS_REMAD
+#endif // AUI_DANGER_PLOTS_REMADE
 	int iPlotLoop;
 	CvPlot* pPlot, *pAdjacentPlot;
 	for(iPlotLoop = 0; iPlotLoop < GC.getMap().numPlots(); iPlotLoop++)

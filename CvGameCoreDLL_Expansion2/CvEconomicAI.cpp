@@ -1040,9 +1040,9 @@ void CvEconomicAI::ClearUnitTargetGoodyStepPlot(CvUnit* pUnit)
 int CvEconomicAI::ScoreExplorePlot2(CvPlot* pPlot, CvPlayer* pPlayer, DomainTypes eDomainType, bool bEmbarked)
 {
 	int iResultValue = 0;
-	int iSmallScore = max(5, GC.getGame().getJonRandNum(10,"accept equal value explore target"));
-	int iMediumScore = max(30, GC.getGame().getJonRandNum(60,"accept equal value explore target"));
-	int iLargeScore = max(75, GC.getGame().getJonRandNum(150,"accept equal value explore target"));
+	int iSmallScore = 5;
+	int iMediumScore = 30;
+	int iLargeScore = 80;
 	int iJackpot = 1000;
 
 	
@@ -2950,6 +2950,10 @@ void CvEconomicAI::UpdatePlots()
 		// add an entry for this plot
 		m_vPlotsToExplore.push_back( SPlotWithScore(pPlot, iScore) );
 	}
+
+	//keep only the best 50%
+	std::sort(m_vPlotsToExplore.begin(),m_vPlotsToExplore.end());
+	m_vPlotsToExplore.erase( m_vPlotsToExplore.begin()+m_vPlotsToExplore.size()/2, m_vPlotsToExplore.end() );
 
 #if defined(MOD_BALANCE_CORE_MILITARY_LOGGING)
 	bool bLogging = GC.getLogging() && GC.getAILogging() && m_pPlayer->isMajorCiv() && GC.getGame().getGameTurn()%4==0 && GC.getGame().getGameTurn()<200;
