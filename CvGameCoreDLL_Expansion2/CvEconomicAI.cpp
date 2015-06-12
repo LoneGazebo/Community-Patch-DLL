@@ -2951,9 +2951,9 @@ void CvEconomicAI::UpdatePlots()
 		m_vPlotsToExplore.push_back( SPlotWithScore(pPlot, iScore) );
 	}
 
-	//keep only the best 50%
+	//keep only the best 33%
 	std::sort(m_vPlotsToExplore.begin(),m_vPlotsToExplore.end());
-	m_vPlotsToExplore.erase( m_vPlotsToExplore.begin()+m_vPlotsToExplore.size()/2, m_vPlotsToExplore.end() );
+	m_vPlotsToExplore.erase( m_vPlotsToExplore.begin()+m_vPlotsToExplore.size()/3, m_vPlotsToExplore.end() );
 
 #if defined(MOD_BALANCE_CORE_MILITARY_LOGGING)
 	bool bLogging = GC.getLogging() && GC.getAILogging() && m_pPlayer->isMajorCiv() && GC.getGame().getGameTurn()%4==0 && GC.getGame().getGameTurn()<200;

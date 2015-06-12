@@ -169,7 +169,7 @@ void CvHomelandAI::Update()
 }
 
 #if defined(MOD_CORE_ALTERNATIVE_EXPLORE_SCORE)
-CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit) const
+CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit, int nCandidates) const
 {
 	CvEconomicAI* pEconomicAI = m_pPlayer->GetEconomicAI();
 	std::vector<SPlotWithScore> vExplorePlots = pEconomicAI->GetExplorationPlots();
@@ -186,9 +186,12 @@ CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit) const
 	std::vector< std::pair<int,SPlotWithScore> > vPlotsByDistance;
 	for(uint ui = 0; ui < vExplorePlots.size(); ui++)
 	{
-		if(pUnit->getDomainType() == DOMAIN_SEA && !vExplorePlots[ui].pPlot->isWater())
+		if(pUnit->getDomainType() == DOMAIN_SEA)
 		{
-			continue;
+			//sea units can typically not leave their area - catch this case, 
+			//else there will be a long and useless pathfinding operation
+			if (pUnit->plot()->getArea()!=vExplorePlots[ui].pPlot->getArea())
+				continue;
 		}
 
 		//make sure our unit can actually go there
@@ -204,8 +207,8 @@ CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit) const
 	//sorts by the first element of the iterator ... which is our distance. nice.
 	std::sort(vPlotsByDistance.begin(), vPlotsByDistance.end());
 
-	//look only at the eight closest candidates
-	size_t nTargetsToCheck = min(vPlotsByDistance.size(),8u);
+	//look only at the N closest candidates
+	size_t nTargetsToCheck = min(vPlotsByDistance.size(),(size_t)nCandidates);
 
 	for (size_t idx=0; idx<nTargetsToCheck; idx++)
 	{
@@ -213,19 +216,17 @@ CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit) const
 		int iRating = vPlotsByDistance[idx].second.score;
 
 		//discourage embarking
-		if (pUnit->getDomainType()==DOMAIN_LAND && !pEvalPlot->isWater())
-		{
-			iRating *= 2;
-		}
+		if (pUnit->getDomainType()==DOMAIN_LAND && pEvalPlot->isWater())
+			iRating /= 2;
+
 		//Let's try not to stay in one place, ok?
 		if(pUnit->plot() == pEvalPlot)
-		{
 			iRating /= 4;
-		}
 
 #ifdef AUI_ASTAR_TURN_LIMITER
 		//reverse the score calculation below to get an upper bound on the distance
-		int iMaxDistance = (1000*iRating) / max(1,iBestPlotScore);
+		//minus one because we want to do better
+		int iMaxDistance = (1000*iRating) / max(1,iBestPlotScore) - 1;
 
 		//is there a chance we can reach the plot within the required number of turns? (assuming no roads)
 		if( sqrt((float)vPlotsByDistance[idx].first) > (iMaxDistance*pUnit->baseMoves()) )
@@ -3392,7 +3393,8 @@ void CvHomelandAI::ExecuteExplorerMoves()
 
 		//if we didn't find a worthwhile plot among our adjacent plots, check the global targets
 		if(!pBestPlot && pUnit->movesLeft() > 0)
-			pBestPlot = GetBestExploreTarget(pUnit.pointer());
+			//check only the three closest candidates for speed
+			pBestPlot = GetBestExploreTarget(pUnit.pointer(),3);
 
 		//make sure we're not in an endless loop
 		if(pBestPlot)
