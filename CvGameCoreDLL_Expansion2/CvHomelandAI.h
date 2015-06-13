@@ -246,7 +246,7 @@ public:
 
 	// Public exploration routines
 #if defined(MOD_CORE_ALTERNATIVE_EXPLORE_SCORE)
-	CvPlot* GetBestExploreTarget(const CvUnit* pUnit, int nCandidatesToCheck) const;
+	CvPlot* GetBestExploreTarget(const CvUnit* pUnit, int nMinCandidatesToCheck) const;
 #else
 	bool IsAnyValidExploreMoves(const CvUnit* pUnit) const;
 #endif

@@ -169,14 +169,14 @@ void CvHomelandAI::Update()
 }
 
 #if defined(MOD_CORE_ALTERNATIVE_EXPLORE_SCORE)
-CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit, int nCandidates) const
+CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit, int nMinCandidates) const
 {
 	CvEconomicAI* pEconomicAI = m_pPlayer->GetEconomicAI();
 	std::vector<SPlotWithScore> vExplorePlots = pEconomicAI->GetExplorationPlots();
 	if (vExplorePlots.empty())
 		return NULL;
 
-	int iBestPlotScore = 0;
+	int iBestPlotScore = 1000;
 	CvPlot* pBestPlot = NULL;
 
 	//sort by distance to capital or to unit
@@ -207,11 +207,13 @@ CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit, int nCandidates)
 	//sorts by the first element of the iterator ... which is our distance. nice.
 	std::sort(vPlotsByDistance.begin(), vPlotsByDistance.end());
 
-	//look only at the N closest candidates
-	size_t nTargetsToCheck = min(vPlotsByDistance.size(),(size_t)nCandidates);
-
-	for (size_t idx=0; idx<nTargetsToCheck; idx++)
+	for (size_t idx=0; idx<vPlotsByDistance.size(); idx++)
 	{
+		//after looking at the N closest candidates
+		//if we found something, bail
+		if (pBestPlot && idx>nMinCandidates)
+			break;
+
 		CvPlot* pEvalPlot = vPlotsByDistance[idx].second.pPlot;
 		int iRating = vPlotsByDistance[idx].second.score;
 
@@ -223,7 +225,6 @@ CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit, int nCandidates)
 		if(pUnit->plot() == pEvalPlot)
 			iRating /= 4;
 
-#ifdef AUI_ASTAR_TURN_LIMITER
 		//reverse the score calculation below to get an upper bound on the distance
 		//minus one because we want to do better
 		int iMaxDistance = (1000*iRating) / max(1,iBestPlotScore) - 1;
@@ -234,12 +235,7 @@ CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit, int nCandidates)
 
 		bool bCanFindPath = GC.getPathFinder().GenerateUnitPath(pUnit, iRefX, iRefY, pEvalPlot->getX(), pEvalPlot->getY(), 
 							MOVE_TERRITORY_NO_ENEMY | MOVE_MAXIMIZE_EXPLORE /*iFlags*/, true/*bReuse*/, iMaxDistance);
-#else
-		if(!IsValidExplorerEndTurnPlot(pUnit, pEvalPlot))
-			continue;
 
-		bool bCanFindPath = GC.getPathFinder().GenerateUnitPath(pUnit.pointer(), iUnitX, iUnitY, pEvalPlot->getX(), pEvalPlot->getY(), MOVE_TERRITORY_NO_ENEMY | MOVE_MAXIMIZE_EXPLORE | MOVE_UNITS_IGNORE_DANGER /*iFlags*/, true/*bReuse*/);
-#endif
 		if(!bCanFindPath)
 			continue;
 
@@ -258,13 +254,6 @@ CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit, int nCandidates)
 			}
 			else if(IsValidExplorerEndTurnPlot(pUnit, pEndTurnPlot))
 			{
-				//Way better than a previous valid test? Let's go there - it is cheaper on loops this way.
-				if(iBestPlotScore > 0 && ((iPlotScore * 2) > (iBestPlotScore * 3)))
-				{
-					pBestPlot = pEndTurnPlot;
-					iBestPlotScore = iPlotScore;
-					return pBestPlot;
-				}
 				pBestPlot = pEndTurnPlot;
 				iBestPlotScore = iPlotScore;
 			}
