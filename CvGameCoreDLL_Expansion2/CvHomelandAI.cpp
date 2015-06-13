@@ -172,24 +172,13 @@ void CvHomelandAI::Update()
 CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit, int nMinCandidates) const
 {
 	CvEconomicAI* pEconomicAI = m_pPlayer->GetEconomicAI();
-	std::vector<SPlotWithScore> vExplorePlots = pEconomicAI->GetExplorationPlots();
+
+	std::vector<SPlotWithScore> vExplorePlots = pEconomicAI->GetExplorationPlots( pUnit ? pUnit->getDomainType() : DOMAIN_LAND );
 	if (vExplorePlots.empty())
 		return NULL;
 
 	int iBestPlotScore = 1000;
 	CvPlot* pBestPlot = NULL;
-
-	TechTypes eTechCompass = (TechTypes)GC.getInfoTypeForString("TECH_COMPASS", true);
-	bool bOceanShips = false;
-	if(eTechCompass != NO_TECH)
-	{
-		if(GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->HasTech(eTechCompass))
-		{
-			bOceanShips = true;
-		}
-	}
-	bool bEmbark = GET_TEAM(m_pPlayer->getTeam()).canEmbark();
-	bool bEmbarkAll = GET_TEAM(m_pPlayer->getTeam()).canEmbarkAllWaterPassage(); 
 
 	//sort by distance to capital or to unit
 	int iRefX = pUnit ? pUnit->getX() : m_pPlayer->getCapitalCity()->getX();
@@ -198,29 +187,22 @@ CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit, int nMinCandidat
 	std::vector< std::pair<int,SPlotWithScore> > vPlotsByDistance;
 	for(uint ui = 0; ui < vExplorePlots.size(); ui++)
 	{
-		if(pUnit->getDomainType() == DOMAIN_SEA)
+		if(pUnit)
 		{
-			//sea units can typically not leave their area - catch this case, 
-			//else there will be a long and useless pathfinding operation
-			if (pUnit->plot()->getArea()!=vExplorePlots[ui].pPlot->getArea())
+			if (pUnit->getDomainType() == DOMAIN_SEA)
+			{
+				//sea units can typically not leave their area - catch this case, 
+				//else there will be a long and useless pathfinding operation
+				if (pUnit->plot()->getArea()!=vExplorePlots[ui].pPlot->getArea())
+					continue;
+			}
+
+			if(vExplorePlots[ui].pPlot == pUnit->plot())
+			{
 				continue;
+			}
 		}
-		if(!bOceanShips && pUnit->getDomainType() == DOMAIN_SEA && vExplorePlots[ui].pPlot->isWater() && !vExplorePlots[ui].pPlot->isShallowWater() && !vExplorePlots[ui].pPlot->isLake())
-		{
-			continue;
-		}
-		if(!bEmbark && pUnit->getDomainType() == DOMAIN_LAND && vExplorePlots[ui].pPlot->isWater())
-		{
-			continue;
-		}
-		if(!bEmbarkAll && pUnit->getDomainType() == DOMAIN_LAND && vExplorePlots[ui].pPlot->isWater() && !vExplorePlots[ui].pPlot->isShallowWater() && !vExplorePlots[ui].pPlot->isLake())
-		{
-			continue;
-		}
-		if(vExplorePlots[ui].pPlot == pUnit->plot())
-		{
-			continue;
-		}
+
 		//make sure our unit can actually go there
 		if (!IsValidExplorerEndTurnPlot(pUnit, vExplorePlots[ui].pPlot))
 			continue;

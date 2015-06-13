@@ -4305,7 +4305,7 @@ void CvTacticalAI::ReviewUnassignedUnits()
 		{
 			CvString missionInfo = (pUnit->getTacticalMove()==NO_TACTICAL_MOVE) ? "no tactical move" : GC.getTacticalMoveInfo(pUnit->getTacticalMove())->GetType();
 
-			//OutputDebugString( CvString::format( "unassigned %s tactical unit %s at %d,%d (last move: %s)\n", m_pPlayer->getCivilizationAdjective(), pUnit->getName().c_str(), pUnit->getX(), pUnit->getY(), missionInfo.c_str() ).c_str() ); 
+			OutputDebugString( CvString::format( "unassigned %s tactical unit %s at %d,%d (last move: %s)\n", m_pPlayer->getCivilizationAdjective(), pUnit->getName().c_str(), pUnit->getX(), pUnit->getY(), missionInfo.c_str() ).c_str() ); 
 
 			// Barbarians and air units aren't handled by the operational or homeland AIs
 			if(pUnit->isBarbarian() || pUnit->getDomainType() == DOMAIN_AIR)
@@ -4338,8 +4338,6 @@ void CvTacticalAI::PlotSingleHexOperationMoves(CvAIEscortedOperation* pOperation
 	int iUnitID;
 	UnitHandle pCivilian;
 	UnitHandle pEscort;
-	CvPlot* pCivilianMove;
-	bool bSaveMoves = false;
 
 	// Simplification - assume only 1 army per operation now
 	if(pOperation->GetFirstArmyID() == -1)
@@ -4519,221 +4517,125 @@ void CvTacticalAI::PlotSingleHexOperationMoves(CvAIEscortedOperation* pOperation
 	// MOVING TO TARGET
 	else
 	{
+		CvString strLogString;
+		int iFlags = pEscort ? MOVE_UNITS_IGNORE_DANGER : 0;
+
 		if(!pEscort || pEscort->TurnProcessed())
 		{
 			// Escort died or was poached for other tactical action, operation will clean itself up when call CheckOnTarget()
 			pOperation->UnitWasRemoved(pThisArmy->GetID(),1);
 		}
+
+		// first check if we need to retarget
 		if(pOperation->GetTargetPlot() != NULL)
 		{
-			if(!pCivilian->canFound(pOperation->GetTargetPlot()))
+			if( !pCivilian->canFound(pOperation->GetTargetPlot()) || !pCivilian->GeneratePath(pOperation->GetTargetPlot(), iFlags) )
 			{
 				pOperation->RetargetCivilian(pCivilian.pointer(), pThisArmy);
-			}
-			if(pOperation->GetTargetPlot() == NULL)
-			{
-				pOperation->SetToAbort(AI_ABORT_TARGET_ALREADY_CAPTURED);
-				return;
 			}
 		}
-		// If we're not there yet, we have work to do (otherwise CheckOnTarget() will finish operation for us)
-		if(pCivilian->plot() != pOperation->GetTargetPlot())
+
+		// do we have a target now?
+		if(pOperation->GetTargetPlot() == NULL)
 		{
-			int iFlags = 0;
-			if (pEscort && pEscort->plot() == pCivilian->plot())
+			pOperation->SetToAbort(AI_ABORT_TARGET_ALREADY_CAPTURED);
+			return;
+		}
+
+		// if we're there already, we don't have work to do (CheckOnTarget() will finish operation for us)
+		if(pCivilian->plot() == pOperation->GetTargetPlot())
+			return;
+
+		// the civilian leads the way
+		bool bHavePathCivilian = pCivilian->GeneratePath(pOperation->GetTargetPlot(), iFlags);
+		
+		// if the civilian can reach the target, see where it can go without losing the escort
+		if (bHavePathCivilian)
+		{
+			if (pEscort)
 			{
-				iFlags = MOVE_UNITS_IGNORE_DANGER;
-			}
-			//Let's get them back together.
-			else if(pEscort)
-			{
-				ExecuteMoveToPlot(pCivilian, pEscort->plot(), true);
-			}
-			//Did that take all our moves? Okay.
-			if(pCivilian->getMoves() <= 0)
-			{
-				pCivilian->finishMoves();
-				UnitProcessed(pCivilian->GetID());
-				pEscort->finishMoves();
-				UnitProcessed(pEscort->GetID());
-				return;
-			}
-			// Handle case of no path found at all for civilian
-			if(!pCivilian->GeneratePath(pOperation->GetTargetPlot(), iFlags, false /*bReuse*/))
-			{
-				pOperation->RetargetCivilian(pCivilian.pointer(), pThisArmy);
-				if(pOperation->GetTargetPlot() != NULL)
+				int iTurns = INT_MAX;
+				bool bHavePathEscort = pEscort->GeneratePath(pCivilian->GetPathEndTurnPlot(), iFlags, false, &iTurns);
+				if (bHavePathEscort && iTurns<=1)
 				{
-					ExecuteMoveToPlot(pCivilian, pOperation->GetTargetPlot());
-					if(pEscort && pEscort->plot() != pCivilian->plot())
+					CvPlot* pCommonPlot = pCivilian->GetPathEndTurnPlot();
+					if (!pCommonPlot)
+						OutputDebugString("Error! No end turn plot\n");
+					else
 					{
-						if(pCivilian->plot()->GetNumCombatUnits() <= 0)
-						{
-							if(pCivilian->isEmbarked())
-							{
-								bool bMoveWasSafe;
-								MoveToUsingSafeEmbark(pEscort, pCivilian->plot(), bMoveWasSafe);
-								pEscort->finishMoves();
-								UnitProcessed(pEscort->GetID());
-							}
-							else
-							{
-								ExecuteMoveToPlot(pEscort, pCivilian->plot());
-							}
-						}
-						else
-						{
-							if(pCivilian->isEmbarked())
-							{
-								MoveToEmptySpaceNearTarget(pEscort, pCivilian->plot(), false);
-							}
-							else
-							{
-								MoveToEmptySpaceNearTarget(pEscort, pCivilian->plot());
-							}
-							pEscort->finishMoves();
-							UnitProcessed(pEscort->GetID());
-						}
-					}
-					else if(pEscort)
-					{
-						pEscort->finishMoves();
-						UnitProcessed(pEscort->GetID());
-					}
-					if(GC.getLogging() && GC.getAILogging())
-					{
-						CvString strLogString;
-						strLogString.Format("Retargeting civilian escort operation (path lost to target) and moving them on, X: %d, Y: %d", pOperation->GetTargetPlot()->getX(), pOperation->GetTargetPlot()->getY());
-						LogTacticalMessage(strLogString);
+						//nice, both can move to the same plot
+						ExecuteMoveToPlot(pEscort, pCommonPlot);
+						ExecuteMoveToPlot(pCivilian, pCommonPlot);
+						strLogString.Format("%s at (%d,%d). Moving towards (%d,%d) with escort %s. Civilian leading.", 
+							pCivilian->getName().c_str(), pCivilian->getX(), pCivilian->getY(), 
+							pOperation->GetTargetPlot()->getX(), pOperation->GetTargetPlot()->getY(), pEscort->getName().c_str() );
 					}
 				}
 				else
 				{
-					pCivilian->finishMoves();
-					UnitProcessed(pCivilian->GetID());
-					if(pEscort)
+					//try it the other way around
+					bHavePathEscort = pEscort->GeneratePath(pOperation->GetTargetPlot(), iFlags);
+					bHavePathCivilian = pCivilian->GeneratePath(pEscort->GetPathEndTurnPlot(), iFlags, false, &iTurns);
+
+					if (bHavePathEscort && bHavePathCivilian && iTurns<=1)
 					{
-						pEscort->finishMoves();
-						UnitProcessed(pEscort->GetID());
+						CvPlot* pCommonPlot = pEscort->GetPathEndTurnPlot();
+						if (!pCommonPlot)
+							OutputDebugString("Error! No end turn plot\n");
+						else
+						{
+							ExecuteMoveToPlot(pEscort, pCommonPlot);
+							ExecuteMoveToPlot(pCivilian, pCommonPlot);
+							strLogString.Format("%s at (%d,%d). Moving towards (%d,%d) with escort %s. Excort leading.", 
+								pCivilian->getName().c_str(), pCivilian->getX(), pCivilian->getY(), 
+								pOperation->GetTargetPlot()->getX(), pOperation->GetTargetPlot()->getY(), pEscort->getName().c_str() );
+						}
 					}
-					if(GC.getLogging() && GC.getAILogging())
+					else
 					{
-						CvString strLogString;
-						strLogString.Format("Retargeting civilian escort operation FAILED (path lost to target), X: %d, Y: %d", pCivilian->getX(), pCivilian->getY());
-						LogTacticalMessage(strLogString);
+						//we have a problem, apparently civilian and escort must split up
+						ExecuteMoveToPlot(pCivilian, pOperation->GetTargetPlot());
+						//try to stay close
+						if ( !MoveToEmptySpaceNearTarget(pEscort, pCivilian->plot(), !pCivilian->isEmbarked() ))
+						{
+							//if impossible, move independently
+							ExecuteMoveToPlot(pEscort, pOperation->GetTargetPlot());
+						}
+						strLogString.Format("%s at (%d,%d) separated from escort %s at (%d,%d)", 
+							pCivilian->getName().c_str(), pCivilian->getX(), pCivilian->getY(), 
+							pEscort->getName().c_str(), pEscort->getX(), pEscort->getY() );
 					}
 				}
 			}
 			else
 			{
-				pCivilianMove = pCivilian->GetPathEndTurnPlot();
-				if(pCivilianMove != NULL)
-				{
-					bSaveMoves = (pCivilianMove == pOperation->GetTargetPlot());
-					ExecuteMoveToPlot(pCivilian, pCivilianMove, bSaveMoves);
-					if(GC.getLogging() && GC.getAILogging())
-					{
-						CvString strLogString;
-						CvString strTemp;
-						strTemp = pCivilian->getUnitInfo().GetDescription();
-						strLogString.Format("Moving %s without or without escort to target, X: %d, Y: %d", strTemp.GetCString(), pCivilian->plot()->getX(), pCivilian->plot()->getY());
-						LogTacticalMessage(strLogString);
-					}
-				}
-				if(pEscort && pCivilianMove != NULL)
-				{
-					if(pEscort->plot() != pCivilian->plot())
-					{
-						if(pCivilianMove->GetNumCombatUnits() == 0)
-						{
-							if(pEscort->canEnterTerrain(*pCivilianMove) && pEscort->canEnterTerritory(pCivilianMove->getTeam()))
-							{
-								if(pCivilian->isEmbarked())
-								{
-									bool bMoveWasSafe;
-									MoveToUsingSafeEmbark(pEscort, pCivilianMove, bMoveWasSafe);
-									pEscort->finishMoves();
-									UnitProcessed(pEscort->GetID());
-								}
-								else
-								{
-									ExecuteMoveToPlot(pEscort, pCivilianMove);
-								}
-								if(GC.getLogging() && GC.getAILogging())
-								{
-									CvString strLogString;
-									CvString strTemp;
-									strTemp = pCivilian->getUnitInfo().GetDescription();
-									strLogString.Format("Moving %s to civilian's end target, X: %d, Y: %d", strTemp.GetCString(), pCivilian->getX(), pCivilian->getY());
-									LogTacticalMessage(strLogString);
-									strTemp = pEscort->getUnitInfo().GetDescription();
-									strLogString.Format("Moving escorting %s to civilian's target, X: %d, Y: %d", strTemp.GetCString(), pEscort->getX(), pEscort->getY());
-									LogTacticalMessage(strLogString);
-								}
-							}
-							else
-							{
-								if(pCivilian->isEmbarked())
-								{
-									MoveToEmptySpaceNearTarget(pEscort, pCivilian->plot(), false);
-								}
-								else
-								{
-									MoveToEmptySpaceNearTarget(pEscort, pCivilian->plot());
-								}
-								pEscort->finishMoves();
-								UnitProcessed(pEscort->GetID());
-							}
-						}
-						else
-						{
-							UnitHandle pBlockingUnit = pCivilianMove->getBestDefender(m_pPlayer->GetID());
-
-							// See if friendly blocking unit is ending the turn there, or if no blocking unit (which indicates this is somewhere civilian
-							// can move that escort can't -- like minor civ territory), then find a new path based on moving the escort
-							if(pBlockingUnit)
-							{
-								if(ExecuteMoveOfBlockingUnit(pBlockingUnit))
-								{
-									ExecuteMoveToPlot(pEscort, pCivilianMove);
-									ExecuteMoveToPlot(pCivilian, pCivilianMove, bSaveMoves);
-									if(GC.getLogging() && GC.getAILogging())
-									{
-										CvString strLogString;
-										CvString strTemp;
-										strTemp = pEscort->getUnitInfo().GetDescription();
-										strLogString.Format("Moving escorting %s to target (blocking unit problem solved), X: %d, Y: %d", strTemp.GetCString(), pEscort->getX(), pEscort->getY());
-										LogTacticalMessage(strLogString);
-										strTemp = pCivilian->getUnitInfo().GetDescription();
-										strLogString.Format("Moving %s to target (blocking unit problem solved), X: %d, Y: %d", strTemp.GetCString(), pCivilian->getX(), pCivilian->getY());
-										LogTacticalMessage(strLogString);
-									}
-								}
-								else
-								{
-
-									// Didn't find an alternative, try retargeting operation
-									pOperation->RetargetCivilian(pCivilian.pointer(), pThisArmy);
-									pCivilian->finishMoves();
-									pEscort->finishMoves();
-									if(GC.getLogging() && GC.getAILogging())
-									{
-										CvString strLogString;
-										strLogString.Format("Retargeting civilian escort operation. Could not move blocking unit.");
-										LogTacticalMessage(strLogString);
-									}
-								}
-							}
-						}
-					}
-					else
-					{
-						pEscort->finishMoves();
-						UnitProcessed(pEscort->GetID());
-					}
-				}
+				// no escort - civilian can move on it's own
+				ExecuteMoveToPlot(pCivilian, pCivilian->GetPathEndTurnPlot());
+				strLogString.Format("%s at (%d,%d). Moving towards (%d,%d) without excort.", 
+					pCivilian->getName().c_str(), pCivilian->getX(), pCivilian->getY(), 
+					pOperation->GetTargetPlot()->getX(), pOperation->GetTargetPlot()->getY() );
 			}
 		}
+		else
+		{
+			// no path to target for civilian
+			strLogString.Format("%s at (%d,%d). No path to target (%d,%d) after retargeting. Do nothing.", 
+				pCivilian->getName().c_str(), pCivilian->getX(), pCivilian->getY(), 
+				pOperation->GetTargetPlot()->getX(), pOperation->GetTargetPlot()->getY() );
+		}
+
+		// now we're done
+		pCivilian->finishMoves();
+		UnitProcessed(pCivilian->GetID());
+		if (pEscort)
+		{
+			pEscort->finishMoves();
+			UnitProcessed(pEscort->GetID());
+		}
+
+		// logging
+		if(GC.getLogging() && GC.getAILogging())
+			LogTacticalMessage(strLogString);
 	}
 }
 #else
