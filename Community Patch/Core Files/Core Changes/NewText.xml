@@ -3,6 +3,11 @@
 <GameData>
 	<!-- NEW DIPLOMACY TEXTS -->
 	<Diplomacy_Responses>
+		<!-- Cant match offer negative -->
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_TRADE_CANT_MATCH_OFFER_NEGATIVE</ResponseType>
+			<Response>TXT_KEY_GENERIC_TRADE_CANT_MATCH_NEGATIVE%</Response>
+		</Row>
 		<!-- Human over AI -->
 		<Row LeaderType="GENERIC">
 			<ResponseType>RESPONSE_INFLUENTIAL_ON_AI_CLASSICAL</ResponseType>
@@ -337,7 +342,7 @@
 			<Text>The death and destruction caused by your current war has gone on long enough. Come, won't you consider this offer?</Text>
 		</Row>
 		
-		<!-- Embark String for LessNo City Cost-->
+		<!-- Embark String for Less/No City Cost-->
 		<Row Tag="TXT_KEY_ABLTY_CITY_LESS_EMBARK_COST_STRING">
 			<Text>Units embarking/disembarking in owned cities expend just 1 Movement.</Text>
 		</Row>
@@ -353,7 +358,7 @@
 		</Row>
 		<!-- Diplo Modifier Texts-->
 		<Row Tag="TXT_KEY_DIPLO_DISCUSS_MESSAGE_END_DEC_FRIENDSHIP_TT">
-			<Text>This action cancels your current Declaration of Friendship, and may severe diplomatic repercussions.</Text>
+			<Text>This action cancels your current Declaration of Friendship and breaks your Defensive Pact (if you have one). This action will assuredly anger your friend, and may have severe global diplomatic repercussions.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_DOF_BROKEN">
 			<Text>{1_CivName:textkey} and {2_CivName:textkey} have made [COLOR_NEGATIVE_TEXT]broken[ENDCOLOR] their public Declaration of Friendship, citing diplomatic tension as the cause.</Text>
@@ -1356,6 +1361,12 @@
 		</Row>
 		<Row Tag="TXT_KEY_NOW_UNFORGIVABLE_2">
 			<Text>Your treachery will bring the wrath of fate itself upon you. Our vengeance will be absolute.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOW_UNFORGIVABLE_3">
+			<Text>Of all the people in the world to betray me...so long as I breathe, we shall never be friends again.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOW_UNFORGIVABLE_4">
+			<Text>You have gone too far this time. I thought we were friends, but now I see the truth.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOW_ENEMY_2">
 			<Text>Time and again, you have shown to be my enemy, not my friend. I suppose it is only logical that I consider you as such.</Text>
@@ -2889,6 +2900,160 @@
 		<Row Tag="TXT_KEY_NOTIFICATION_DENOUNCE_UNFORGIVEABLE">
 			<Text>{1_CivName:textkey} {@1_CivName: plural 1?has; other?have;} publicly denounced {2_CivName:textkey}, stating that they are unforgiveable!</Text>
 		</Row>
-		
+
+		<Row Tag="TXT_KEY_LEADER_ASKIA_TRADE_CANT_MATCH">
+			<Text>The Songhai people agree to your terms, though we must admit they are unfair to you.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_LEADER_AUGUSTUS_TRADE_CANT_MATCH">
+			<Text>Regrettably, the auspices are unfavorable to that course of action for you. Continue, if you must.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_LEADER_BISMARCK_TRADE_CANT_MATCH">
+			<Text>With all of the goodwill in the world, I must inform you that our offer cannot match yours.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_LEADER_CATHERINE_TRADE_CANT_MATCH">
+			<Text>I hope you do not think I seek to take advantage of our intimacy with our lesser offer.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_DARIUS_TRADE_CANT_MATCH">
+			<Text>I am most regretfully unable to match to your terms.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_ELIZABETH_TRADE_CANT_MATCH">
+			<Text>I have offered everything we possess, unto our very last farthing. It seems we cannot match your offer.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_ALEXANDER_TRADE_CANT_MATCH">
+			<Text>I am honor-bound by the gods to inform you that our offer is not as valuable as yours.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_GANDHI_TRADE_CANT_MATCH">
+			<Text>Honesty is a great virtue, thus I must admit that our offer is nowhere as good as yours.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_HARUN_TRADE_CANT_MATCH">
+			<Text>I have sent for our finest offerings, yet this is all I can muster. Do you like it?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_HIAWATHA_TRADE_CANT_MATCH">
+			<Text>Such a grand offer...it is a pity that this is all we can offer you.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_MONTEZUMA_TRADE_CANT_MATCH">
+			<Text>The sacrificial pits seem to be a bit empty today...is this offer good enough for you?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_NAPOLEON_TRADE_CANT_MATCH">
+			<Text>Great as I am, it seems I cannot match your offer. Is this at least suitable for you?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_ODA_TRADE_CANT_MATCH">
+			<Text>Unfortunately, your kind and generous offer cannot be matched by us. Is it acceptable anyways?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_RAMESSES_TRADE_CANT_MATCH">
+			<Text>A living God should want for nothing, yet it seems I cannot match your offer. Is this offer suitable?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_RAMKHAMHAENG_TRADE_CANT_MATCH">
+			<Text>I mean no disrespect with this offer, it is simply all that I can scrounge up at the moment.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_SULEIMAN_TRADE_CANT_MATCH">
+			<Text>This is all we can offer you. I would give you my turban as well, but I cannot live without it.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_WASHINGTON_TRADE_CANT_MATCH">
+			<Text>I do not wish to set a precendent for unfair deals with other nations, therefore I admit that our offer is less valuable than yours.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_WUZETIAN_TRADE_CANT_MATCH">
+			<Text>The Heavenly Throne is, shamefully, unable to match your glorious offer. We can, however, offer you this.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_GENGHIS_TRADE_CANT_MATCH">
+			<Text>This is as much as we are able to offer you at this time. Take it or leave it - I do not care either way.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_ISABELLA_TRADE_CANT_MATCH">
+			<Text>The bounties of trade and empire seem to be on your side. Despite this, do you like our offer?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_PACHACUTI_TRADE_CANT_MATCH">
+			<Text>You flatter me with your offer. Unfortunately, I am not sure that I can reciprocate such flattery.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_KAMEHAMEHA_TRADE_CANT_MATCH">
+			<Text>Like a great wave, your offer is bounteous yet disturbing. I cannot match it, but I can offer this.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_HARALD_TRADE_CANT_MATCH">
+			<Text>I seem to have left the rest of our trade goods in another longboat...is this deal acceptable in spite of this?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_SEJONG_TRADE_CANT_MATCH">
+			<Text>My advisors inform me that our offer is underwhelming. I disagree, but anyways, what do you think?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_NEBUCHADNEZZAR_TRADE_CANT_MATCH">
+			<Text>What? Who? I'm sorry, the voices in my head tell me that our offer is bad. Is it? I'm not sure.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_ATTILA_TRADE_CANT_MATCH">
+			<Text>I would offer more, but I've spent to much time talking and not enough time pillaging. Is this acceptable?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_BOUDICCA_TRADE_CANT_MATCH">
+			<Text>I wish I could offer more, but I cannot. Is this acceptable?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_DIDO_TRADE_CANT_MATCH">
+			<Text>Unlike Iarbas's hide, I cannot stretch this deal any further. Is our underwhelming offer acceptable in spite of this?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_GUSTAVUS_ADOLPHUS_TRADE_CANT_MATCH">
+			<Text>The Lion of the North has little more to offer than this. Do you accept?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_MARIA_TRADE_CANT_MATCH">
+			<Text>Your offer is so much better than ours that it has ruined my appetite. Do you like it anyways?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_PACAL_TRADE_CANT_MATCH">
+			<Text>You offer many great things, yet we do not. Do you like our offer anyways?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_THEODORA_TRADE_CANT_MATCH">
+			<Text>Oh darling, what a wonderful offer! It is a shame that we can only offer you such trinkets in exchange.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_SELASSIE_TRADE_CANT_MATCH">
+			<Text>My great wisdom demands that I tell you that your offer is better than ours. Do you like our offer in spite of this knowledge?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_WILLIAM_TRADE_CANT_MATCH">
+			<Text>I want what you offer, but I am not sure you will want what I offer. In spite of this, do you accept?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_AHMAD_ALMANSUR_TRADE_CANT_MATCH">
+			<Text>As a trader, I must inform you that our offer cannot match yours. This is the best we can do.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_ASHURBANIPAL_TRADE_CANT_MATCH">
+			<Text>I would add a few scrolls and books to our offer if it would sweeten the deal, but I doubt it. Do you accept our lesser offer?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_CASIMIR_TRADE_CANT_MATCH">
+			<Text>I knowingly make a poor offer to you, but I've now admitted it, so therefore it is your fault if you accept it.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_ENRICO_DANDOLO_TRADE_CANT_MATCH">
+			<Text>Even I can see that your offer is better than mine. I still wish to trade, though - do you?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_GAJAH_MADA_TRADE_CANT_MATCH">
+			<Text>What a grand gesture. I would reciprocate if I could, but this is the best we can do.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_MARIA_I_TRADE_CANT_MATCH">
+			<Text>I'm so sorry, but this is all we can offer. Do you like it?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_PEDRO_TRADE_CANT_MATCH">
+			<Text>Our offer is inferior to yours, but, if you accept it, I will invite you to Carnival next year. Agreed?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_POCATELLO_TRADE_CANT_MATCH">
+			<Text>I cannot lie to you - our offer is inferior. In spite of this, do you like it?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_LEADER_SHAKA_TRADE_CANT_MATCH">
+			<Text>A warrior's word is his honor. Because of this, I must admit that we cannot match your trade.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_GENERIC_TRADE_CANT_MATCH_NEGATIVE_1">
+			<Text>This is the most we can stomach to offer to you for your outrageous offer. Take it or leave it, fiend.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_TRADE_CANT_MATCH_NEGATIVE_2">
+			<Text>Bah! You are a fool to offer us so much. We will offer you far less, as you can see.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_TRADE_CANT_MATCH_NEGATIVE_3">
+			<Text>What makes you think we would match you offer, even if we could? This is what we will offer you.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_TRADE_CANT_MATCH_NEGATIVE_4">
+			<Text>An impossible offer that we cannot hope to match. You are simply embarassing yourself, especially if you accept this trade.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_TRADE_CANT_MATCH_NEGATIVE_5">
+			<Text>This is the best we can do. If you accept this, you will be a laughing stock at home and in our country.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_TRADE_CANT_MATCH_NEGATIVE_6">
+			<Text>Want more? Too bad, this is all we can offer you. Go somewhere else if you don't like it.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_TRADE_CANT_MATCH_NEGATIVE_7">
+			<Text>You need to improve your pathetic trading skils. There is no way we can match your offer.</Text>
+		</Row>
 	</Language_en_US>
 </GameData>

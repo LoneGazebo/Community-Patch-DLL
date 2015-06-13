@@ -64,7 +64,7 @@ function MapGlobals:New()
 	
 
 	--Percent of land tiles on the map.
-	mglobal.landPercent				= 0.55
+	mglobal.landPercent				= 0.57
 	
 	--Top and bottom map latitudes.
 	mglobal.topLatitude				= 70
@@ -80,38 +80,38 @@ function MapGlobals:New()
 	
 	--Adjusting these will generate larger or smaller landmasses and features.
 	mglobal.landMinScatter			= 0.03 	--Recommended range:[0.02 to 0.1]
-	mglobal.landMaxScatter			= 0.04	--Recommended range:[0.03 to 0.3]
+	mglobal.landMaxScatter			= 0.15	--Recommended range:[0.03 to 0.3]
 											--Higher values makes continental divisions and stringy features more likely,
 											--and very high values result in a lot of stringy continents and islands.
 											
-	mglobal.coastScatter			= 0.15 	--Recommended range:[0.01 to 0.3]
+	mglobal.coastScatter			= 0.18 	--Recommended range:[0.01 to 0.3]
 											--Higher values result in more islands and variance on landmasses and coastlines.
 											
-	mglobal.mountainScatter			= 250 * mapW --Recommended range:[130 to 1000]
+	mglobal.mountainScatter			= 800 * mapW --Recommended range:[130 to 1000]
 											--Lower values make large, long, mountain ranges. Higher values make sporadic mountainous features.
 	
 	
 	-- Terrain
-	mglobal.mountainWeight			= 0.8  --Weight of the mountain elevation map versus the coastline elevation map.
-	mglobal.belowMountainPercent	= 0.96 -- Percent of non-mountain land
+	mglobal.mountainWeight			= 0.7  --Weight of the mountain elevation map versus the coastline elevation map.
+	mglobal.belowMountainPercent	= 0.97 -- Percent of non-mountain land
 										   -- flatPercent to belowMountainPercent : hills
 	mglobal.flatPercent				= 0.78 -- Percent of flat land
-	mglobal.hillsBlendPercent		= 0.40 -- Chance for flat land to become hills per near mountain. Requires at least 2 near mountains.
-	mglobal.terrainBlendRange		= 2	   -- range to smooth terrain (desert surrounded by plains turns to plains, etc)
-	mglobal.terrainBlendRandom		= 0.5  -- random modifier for terrain smoothing
+	mglobal.hillsBlendPercent		= 0.45 -- Chance for flat land to become hills per near mountain. Requires at least 2 near mountains.
+	mglobal.terrainBlendRange		= 3	   -- range to smooth terrain (desert surrounded by plains turns to plains, etc)
+	mglobal.terrainBlendRandom		= 0.6  -- random modifier for terrain smoothing
 
 	
 	-- Features
-	mglobal.featurePercent			= 0.56 -- Percent of potential feature tiles that actually create a feature (marsh/jungle/forest)
-	mglobal.featureWetVariance		= 0.11 -- Percent chance increase if freshwater, decrease if dry (groups features near rivers)
+	mglobal.featurePercent			= 0.51 -- Percent of potential feature tiles that actually create a feature (marsh/jungle/forest)
+	mglobal.featureWetVariance		= 0.15 -- Percent chance increase if freshwater, decrease if dry (groups features near rivers)
 	mglobal.islePercent				= 0.07 -- Percent of coast tiles with an isle
 	mglobal.numNaturalWonders		= 2 + GameInfo.Worlds[Map.GetWorldSize()].NumNaturalWonders
 	
 	
 	-- Rain
-	mglobal.marshPercent			= 0.15 -- Percent chance increase for marsh from each nearby watery tile 
+	mglobal.marshPercent			= 0.10 -- Percent chance increase for marsh from each nearby watery tile 
 										   --    junglePercent to 1 : marsh
-	mglobal.junglePercent			= 0.75 --    junglePercent to 1 : jungle
+	mglobal.junglePercent			= 0.65 --    junglePercent to 1 : jungle
 	mglobal.zeroTreesPercent		= 0.30 -- zeroTreesPercent to 1 : forest
 										   -- 	 plainsPercent to 1 : grass
 	mglobal.plainsPercent			= 0.50 -- 	 desertPercent to plainsPercent : plains
@@ -132,15 +132,15 @@ function MapGlobals:New()
 	
 
 	-- Water
-	mglobal.riverPercent			= 0.12	-- Percent of river junctions that are large enough to become rivers.	
+	mglobal.riverPercent			= 0.15	-- Percent of river junctions that are large enough to become rivers.	
 	mglobal.riverRainCheatFactor	= 1.25	-- Values greater than one favor watershed size. Values less than one favor actual rain amount.
 	mglobal.minWaterTemp			= 0.10	-- Sets water temperature compression that creates the land/sea seasonal temperature differences that cause monsoon winds.
 	mglobal.maxWaterTemp			= 0.60	
 	mglobal.geostrophicFactor		= 3.0	-- Strength of latitude climate versus monsoon climate. 
 	mglobal.geostrophicLateralWindStrength = 0.6 
 	mglobal.lakeSize				= 10	-- read-only; cannot change lake sizes with a map script
-	mglobal.oceanMaxWander			= 4		-- number of tiles a rift can randomly wander from its intended path
-	mglobal.oceanElevationWeight	= 0.30	-- higher numbers make oceans avoid continents
+	mglobal.oceanMaxWander			= 5		-- number of tiles a rift can randomly wander from its intended path
+	mglobal.oceanElevationWeight	= 0.35	-- higher numbers make oceans avoid continents
 	mglobal.oceanRiftWidth			= math.max(1, Round(mapW/40)) -- minimum number of ocean tiles in a rift
 	
 											-- percent of map width:
@@ -159,14 +159,14 @@ function MapGlobals:New()
 	
 	
 	-- Resources
-	mglobal.fishTargetFertility		= 36	-- fish appear to create this average city fertility
+	mglobal.fishTargetFertility		= 40	-- fish appear to create this average city fertility
 	
 	
 	-- Quality vs Performance
 	-- Lowering these reduces map quality and creation time.
 	-- Try reducing these slightly if you experience crashes on huge maps
-	mglobal.tempBlendMaxRange		= 8 -- range to smooth temperature map
-	mglobal.elevationBlendRange		= 7 -- range to smooth elevation map
+	mglobal.tempBlendMaxRange		= 9 -- range to smooth temperature map
+	mglobal.elevationBlendRange		= 8 -- range to smooth elevation map
 	
 	
 	
@@ -7915,7 +7915,8 @@ function AssignStartingPlots:PlaceStrategicAndBonusResources()
 	
 	resources_to_place = {
 	{self.coal_ID, coal_amt, 80, 1, 2}, --70
-	{self.uranium_ID, uran_amt, 20, 1, 1} }; --30
+	{self.uranium_ID, uran_amt, 20, 1, 1},  --30
+	{self.iron_ID, iron_amt, 100, 0, 2} };
 	self:ProcessResourceList(30, 1, self.forest_flat_list, resources_to_place)
 	-- 39	
 	
@@ -7952,9 +7953,9 @@ function AssignStartingPlots:PlaceStrategicAndBonusResources()
 	self:ProcessResourceList(10, 1, self.hills_jungle_list, resources_to_place)
 	-- 99
 	
-	resources_to_place = {
-	{self.iron_ID, iron_amt, 100, 0, 2} };
-	self:ProcessResourceList(5, 1, self.marsh_list, resources_to_place)
+--	resources_to_place = {
+--	{self.iron_ID, iron_amt, 100, 0, 2} };
+--	self:ProcessResourceList(5, 1, self.marsh_list, resources_to_place)
 	-- 99
 
 	resources_to_place = {

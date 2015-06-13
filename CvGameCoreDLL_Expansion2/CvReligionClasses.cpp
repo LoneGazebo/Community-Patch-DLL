@@ -7640,6 +7640,10 @@ BuildingClassTypes eFaithBuildingClass = NO_BUILDINGCLASS;
 				iRtnValue += (pEntry->GetSpecialistYieldChange((SpecialistTypes)iJ, iI) * iFlavorGP);
 			}
 		}
+		if(pEntry->GetYieldPerXFollowers(iI) > 0)
+		{
+			iRtnValue += ((iFlavorGrowth + m_pPlayer->getTotalPopulation()) / pEntry->GetYieldPerXFollowers(iI));
+		}
 
 		ImprovementTypes eAcademy = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_ACADEMY");
 		ImprovementTypes eHolySite = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_HOLY_SITE");

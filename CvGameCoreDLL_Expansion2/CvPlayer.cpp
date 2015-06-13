@@ -1,5 +1,5 @@
-ï»¿/*	-------------------------------------------------------------------------------------------------------
-	ï¿½ 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+/*	-------------------------------------------------------------------------------------------------------
+	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -10815,15 +10815,42 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 #if defined(MOD_BALANCE_CORE_SPIES)
 	if(MOD_BALANCE_CORE_SPIES)
 	{
-		changeAdvancedActionGold(pBuildingInfo->GetAdvancedActionGold() * iChange);
-		changeAdvancedActionScience(pBuildingInfo->GetAdvancedActionScience() * iChange);
-		changeAdvancedActionUnrest(pBuildingInfo->GetAdvancedActionUnrest() * iChange);
-		changeAdvancedActionRebellion(pBuildingInfo->GetAdvancedActionRebellion() * iChange);
-		changeAdvancedActionGP(pBuildingInfo->GetAdvancedActionGP() * iChange);
-		changeAdvancedActionUnit(pBuildingInfo->GetAdvancedActionUnit() * iChange);
-		changeAdvancedActionWonder(pBuildingInfo->GetAdvancedActionWonder() * iChange);
-		changeAdvancedActionBuilding(pBuildingInfo->GetAdvancedActionBuilding() * iChange);
-		changeCannotFailSpies(pBuildingInfo->IsCannotFailSpies() * iChange);
+		if(pBuildingInfo->GetAdvancedActionGold() > 0)
+		{
+			changeAdvancedActionGold(pBuildingInfo->GetAdvancedActionGold() * iChange);
+		}
+		if(pBuildingInfo->GetAdvancedActionScience() > 0)
+		{
+			changeAdvancedActionScience(pBuildingInfo->GetAdvancedActionScience() * iChange);
+		}
+		if(pBuildingInfo->GetAdvancedActionUnrest() > 0)
+		{
+			changeAdvancedActionUnrest(pBuildingInfo->GetAdvancedActionUnrest() * iChange);
+		}
+		if(pBuildingInfo->GetAdvancedActionRebellion() > 0)
+		{
+			changeAdvancedActionRebellion(pBuildingInfo->GetAdvancedActionRebellion() * iChange);
+		}
+		if(pBuildingInfo->GetAdvancedActionGP() > 0)
+		{
+			changeAdvancedActionGP(pBuildingInfo->GetAdvancedActionGP() * iChange);
+		}
+		if(pBuildingInfo->GetAdvancedActionUnit() > 0)
+		{
+			changeAdvancedActionUnit(pBuildingInfo->GetAdvancedActionUnit() * iChange);
+		}
+		if(pBuildingInfo->GetAdvancedActionWonder() > 0)
+		{
+			changeAdvancedActionWonder(pBuildingInfo->GetAdvancedActionWonder() * iChange);
+		}
+		if(pBuildingInfo->GetAdvancedActionBuilding() > 0)
+		{
+			changeAdvancedActionBuilding(pBuildingInfo->GetAdvancedActionBuilding() * iChange);
+		}
+		if(pBuildingInfo->GetCannotFailSpies() > 0)
+		{
+			changeCannotFailSpies(pBuildingInfo->GetCannotFailSpies() * iChange);
+		}
 	}
 #endif
 	// Loop through Cities
@@ -13458,7 +13485,34 @@ int CvPlayer::GetYieldPerTurnFromReligion(YieldTypes eYield) const
 			}
 		}
 	}
+	else
+	{
+		eReligion = GetReligions()->GetReligionCreatedByPlayer(true);
+		const CvReligion* pReligion = pReligions->GetReligion(eReligion, GetID());
+		if (pReligion)
+		{
+			// This came from CvTreasury::GetGoldPerTurnFromReligion()
+			if (eYield == YIELD_GOLD)
+			{
+				int iGoldPerFollowingCity = pReligion->m_Beliefs.GetGoldPerFollowingCity();
+				iYieldPerTurn += (pReligions->GetNumCitiesFollowing(eReligion) * iGoldPerFollowingCity);
 
+				int iGoldPerXFollowers = pReligion->m_Beliefs.GetGoldPerXFollowers();
+				if(iGoldPerXFollowers > 0)
+				{
+					iYieldPerTurn += (pReligions->GetNumFollowers(eReligion) / iGoldPerXFollowers);
+				}
+			}
+			int iYieldPerFollowingCity = pReligion->m_Beliefs.GetYieldPerFollowingCity(eYield);
+			iYieldPerTurn += (pReligions->GetNumCitiesFollowing(eReligion) * iYieldPerFollowingCity);
+
+			int iYieldPerXFollowers = pReligion->m_Beliefs.GetYieldPerXFollowers(eYield);
+			if(iYieldPerXFollowers > 0)
+			{
+				iYieldPerTurn += (pReligions->GetNumFollowers(eReligion) / iYieldPerXFollowers);
+			}
+		}
+	}
 	return iYieldPerTurn;
 }
 
@@ -15175,7 +15229,7 @@ int CvPlayer::getPopNeededForLux() const
 	}
 	int iInflation = GC.getBALANCE_HAPPINESS_POPULATION_DIVISOR();
 		
-	iInflation *= (100 + getCurrentTotalPop() + (iTotalCities * 5));
+	iInflation *= (100 + getCurrentTotalPop() + (iTotalCities * 2));
 	iInflation /= 100;
 
 	int iBaseHappiness = 1;
@@ -15183,7 +15237,7 @@ int CvPlayer::getPopNeededForLux() const
 	//Happiness as a factor of population and number of cities. Divisor determines this.
 	if(GetBaseLuxuryHappiness() <= 0)
 	{
-		iBaseHappiness = iInflation;
+		iBaseHappiness = max(iInflation, 1);
 	}
 	else
 	{
@@ -21706,12 +21760,6 @@ int CvPlayer::calculateMilitaryMight() const
 		int iPower =  pLoopUnit->GetPower();
 		if (pLoopUnit->getDomainType() == DOMAIN_SEA)
 		{
-#if defined(MOD_BALANCE_CORE_MILITARY)
-			if(MOD_BALANCE_CORE_MILITARY)
-			{
-				iPower *= 3;
-			}
-#endif
 			iPower /= 2;
 		}
 		rtnValue += iPower;
@@ -21728,6 +21776,21 @@ int CvPlayer::calculateMilitaryMight() const
 	//500 gold will increase might by 22%, 2000 by 45%, 8000 gold by 90%
 	float fGoldMultiplier = 1.0f + (sqrt((float)GetTreasury()->GetGold()) / 100.0f);
 	if(fGoldMultiplier > 2.0f) fGoldMultiplier = 2.0f;
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	//If we can't sustain, we aren't that strong.
+	if(GetTreasury()->CalculateBaseNetGold() <= 10)
+	{
+		fGoldMultiplier /= 2;
+	}
+	if(GetTreasury()->GetGoldPerTurnFromTradeRoutes() <= GetTreasury()->GetExpensePerTurnUnitMaintenance())
+	{
+		fGoldMultiplier /= 2;
+	}
+	//Finally, divide our power by the number of cities we own - the more we have, the less we can defend.
+	{
+		rtnValue /= max(1, getNumCities());
+	}
+#endif
 
 	rtnValue = (int)(rtnValue * fGoldMultiplier);
 
@@ -21742,7 +21805,29 @@ int CvPlayer::calculateEconomicMight() const
 	int iEconomicMight = 5;
 
 	iEconomicMight += getTotalPopulation();
-
+#if defined(MOD_BALANCE_CORE)
+	iEconomicMight -= GetUnhappiness();
+	iEconomicMight += calculateTotalYield(YIELD_FOOD);
+	iEconomicMight += calculateTotalYield(YIELD_PRODUCTION);
+	iEconomicMight += calculateTotalYield(YIELD_SCIENCE);
+	iEconomicMight += calculateTotalYield(YIELD_GOLD);
+	if(IsEmpireUnhappy())
+	{
+		iEconomicMight -= GetUnhappiness();
+	}
+	else if(IsEmpireVeryUnhappy())
+	{
+		iEconomicMight -= (GetUnhappiness() * 2);
+	}
+	else if(IsEmpireSuperUnhappy())
+	{
+		iEconomicMight -= (GetUnhappiness() * 4);
+	}
+	//Finally, divide our power by the number of cities we own - the more we have, the less we can defend.
+	{
+		iEconomicMight /= max(1, getNumCities());
+	}
+#else
 	// todo: add weights to these in an xml
 	//iEconomicMight += calculateTotalYield(YIELD_FOOD);
 	iEconomicMight += calculateTotalYield(YIELD_PRODUCTION);
@@ -21756,7 +21841,7 @@ int CvPlayer::calculateEconomicMight() const
 #if defined(MOD_API_UNIFIED_YIELDS_GOLDEN_AGE)
 	//iEconomicMight += calculateTotalYield(YIELD_GOLDEN_AGE_POINTS);
 #endif
-
+#endif
 	return iEconomicMight;
 }
 
@@ -30337,7 +30422,6 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 			}
 		}
 	}
-
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	if(MOD_BALANCE_CORE_HAPPINESS)
 	{
@@ -30348,6 +30432,18 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	}
 #else
 	DoUpdateHappiness();
+#endif
+#if defined(MOD_BALANCE_CORE)
+	CvCity* pLoopCity2;
+	int iLoop2;
+	for(pLoopCity2 = firstCity(&iLoop2); pLoopCity2 != NULL; pLoopCity2 = nextCity(&iLoop2))
+	{
+		if(pLoopCity2 != NULL)
+		{
+			pLoopCity2->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
+			pLoopCity2->GetCityCulture()->CalculateBaseTourism();
+		}
+	}
 #endif
 	GetTrade()->UpdateTradeConnectionValues();
 	recomputeGreatPeopleModifiers();
@@ -33300,18 +33396,25 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, bool bEscorted, int iTa
 
 	int iBestArea, iSecondBestArea;
 	int iNumSettleAreas = GET_PLAYER(GetID()).GetBestSettleAreas(GetEconomicAI()->GetMinimumSettleFertility(), iBestArea, iSecondBestArea);
-	if(iNumSettleAreas == 0)
-		return NULL;
 
+	if(iNumSettleAreas == 0)
+	{
+		return NULL;
+	}
 	//start with a predefined base value
 	int iBestFoundValue = GC.getAI_STRATEGY_MINIMUM_SETTLE_FERTILITY();
+	int iSettlers = GET_PLAYER(GetID()).GetNumUnitsWithUnitAI(UNITAI_SETTLE, true, true);
+	if(iSettlers > 1)
+	{
+		iBestFoundValue -= (iSettlers * 1000);
+	}
 	CvPlot* pBestFoundPlot = NULL;
 
 	//prefer settling close in the beginning
-	int iTimeOffset = (30 * GC.getGame().getGameTurn()) / GC.getGame().getMaxTurns();
+	int iTimeOffset = (35 * GC.getGame().getGameTurn()) / max(500, GC.getGame().getMaxTurns());
 
 	//basic search area around existing cities. value at eval distance is scaled to zero.
-	int iEvalDistance = 12+iTimeOffset;
+	int iEvalDistance = 12 + iTimeOffset;
 	if(IsCramped())
 		iEvalDistance += iTimeOffset;
 

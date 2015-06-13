@@ -8,6 +8,7 @@
 !*.vcxproj
 !*.dds
 !*.fxsxml
+!*.ftsxml
 !*.gr2
 !*.filters
 !*.gitattributes
@@ -27,7 +28,7 @@
 !*.txt
 !*.dds
 !*.gr2
-!*.ftsxml
+
 BuildOutput/
 BuildTemp/
 Mod/

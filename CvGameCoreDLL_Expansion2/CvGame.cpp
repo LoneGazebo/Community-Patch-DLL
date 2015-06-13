@@ -8501,8 +8501,15 @@ void CvGame::updateMoves()
 
 	for(i = playersToProcess.begin(); i != playersToProcess.end(); ++i)
 	{
+#if defined(MOD_BALANCE_CORE)
+		if((PlayerTypes)*i == NO_PLAYER)
+		{
+			continue;
+		}
+#endif
 		GC.getPathFinder().ForceReset();
 		CvPlayer& player = GET_PLAYER((PlayerTypes)*i);
+
 		int iReadyUnitsBeforeMoves = player.GetCountReadyUnits();
 
 		if(player.isAlive())

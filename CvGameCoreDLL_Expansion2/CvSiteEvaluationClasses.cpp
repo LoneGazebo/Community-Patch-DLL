@@ -726,11 +726,23 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 		}
 		else
 		{
+			iValueModifier -= (iTotalPlotValue * 33) / 100;
+			vQualifiersPositive.push_back("(V) coast on small island");
+		}
+	}
+	else
+	{
+		if(iGoodTiles <= 6)
+		{
+			iValueModifier -= (iTotalPlotValue * 50) / 100;
+			vQualifiersPositive.push_back("(V) too much bad");
+		}
+		else if(iGoodTiles <= 12)
+		{
 			iValueModifier -= (iTotalPlotValue * 25) / 100;
 			vQualifiersPositive.push_back("(V) coast on small island");
 		}
 	}
-
 	//Is this a chokepoint?
 	if(pPlot->IsChokePoint())
 	{

@@ -126,6 +126,7 @@ public:
 
 #if defined(MOD_BALANCE_CORE)
 	int GetNumBadPlots() const;
+	void CalcNumBadPlots();
 #endif
 
 	// for serialization
@@ -143,6 +144,9 @@ protected:
 	int m_iTotalPopulation;
 	int m_iNumStartingPlots;
 	int m_iNumNaturalWonders;
+#if defined(MOD_BALANCE_CORE)
+	int m_iBadPlots;
+#endif
 	unsigned int m_iTotalFoundValue;
 	int m_aiUnitsPerPlayer[REALLY_MAX_PLAYERS];
 	int m_aiCitiesPerPlayer[REALLY_MAX_PLAYERS];

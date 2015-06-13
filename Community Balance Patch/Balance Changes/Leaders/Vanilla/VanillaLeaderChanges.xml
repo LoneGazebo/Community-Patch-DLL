@@ -114,6 +114,26 @@
 			<Yield>1</Yield>
 		</Row>
 	</Building_RiverPlotYieldChanges>
+	<!-- Askia -->
+	<Building_RiverPlotYieldChanges>
+		<Row>
+			<BuildingType>BUILDING_MUD_PYRAMID_MOSQUE</BuildingType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_MUD_PYRAMID_MOSQUE</BuildingType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>1</Yield>
+		</Row>
+	</Building_RiverPlotYieldChanges>
+	<Building_YieldChanges>
+		<Row>
+			<BuildingType>BUILDING_MUD_PYRAMID_MOSQUE</BuildingType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>3</Yield>
+		</Row>
+	</Building_YieldChanges>
 	<!-- Arabia -->
 	<Language_en_US>
 		<Row Tag="TXT_KEY_PROMOTION_DESERT_SHIPS">
@@ -172,20 +192,65 @@
 	</Trait_FreePromotionUnitCombats>
 
 	<!-- Egypt -->
+	<Building_YieldChanges>
+		<Row>
+			<BuildingType>BUILDING_BURIAL_TOMB</BuildingType>
+			<YieldType>YIELD_FAITH</YieldType>
+			<Yield>1</Yield>
+		</Row>
+	</Building_YieldChanges>
+	<Building_ResourceYieldChanges>
+		<Row>
+			<BuildingType>BUILDING_BURIAL_TOMB</BuildingType>
+			<ResourceType>RESOURCE_TRUFFLES</ResourceType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_BURIAL_TOMB</BuildingType>
+			<ResourceType>RESOURCE_TRUFFLES</ResourceType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_BURIAL_TOMB</BuildingType>
+			<ResourceType>RESOURCE_COTTON</ResourceType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_BURIAL_TOMB</BuildingType>
+			<ResourceType>RESOURCE_COTTON</ResourceType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_BURIAL_TOMB</BuildingType>
+			<ResourceType>RESOURCE_FUR</ResourceType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_BURIAL_TOMB</BuildingType>
+			<ResourceType>RESOURCE_FUR</ResourceType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>1</Yield>
+		</Row>
+	</Building_ResourceYieldChanges>
+	<Building_YieldChanges>
+		<Row>
+			<BuildingType>BUILDING_BURIAL_TOMB</BuildingType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>1</Yield>
+		</Row>
+	</Building_YieldChanges>
 	<Building_YieldFromVictory>
 		<Row>
 			<BuildingType>BUILDING_BURIAL_TOMB</BuildingType>
 			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Yield>5</Yield>
+			<Yield>10</Yield>
 		</Row>
 	</Building_YieldFromVictory>
-	<Building_InstantYield>
-		<Row>
-			<BuildingType>BUILDING_BURIAL_TOMB</BuildingType>
-			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>25</Yield>
-		</Row>
-	</Building_InstantYield>
 	<Unit_FreePromotions>
 		<Row>
 			<UnitType>UNIT_EGYPTIAN_WARCHARIOT</UnitType>
@@ -235,17 +300,17 @@
 		<Row>
 			<TraitType>TRAIT_CONVERTS_SEA_BARBARIANS</TraitType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Yield>40</Yield>
+			<Yield>60</Yield>
 		</Row>
 		<Row>
 			<TraitType>TRAIT_CONVERTS_SEA_BARBARIANS</TraitType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>40</Yield>
+			<Yield>60</Yield>
 		</Row>
 		<Row>
 			<TraitType>TRAIT_CONVERTS_SEA_BARBARIANS</TraitType>
 			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>40</Yield>
+			<Yield>60</Yield>
 		</Row>
 	</Trait_TradeRouteStartYield>
 	<!-- Germany -->
@@ -310,26 +375,35 @@
 		</Row>
 	</Trait_UnimprovedFeatureYieldChanges>
 	<!-- Siam -->
-	<Building_GrowthExtraYield>
-		<Row>
-			<BuildingType>BUILDING_WAT</BuildingType>
-			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>66</Yield>
-		</Row>
-	</Building_GrowthExtraYield>
 	<Building_YieldChanges>
 		<Row>
 			<BuildingType>BUILDING_WAT</BuildingType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>3</Yield>
+			<Yield>2</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_WAT</BuildingType>
+			<YieldType>YIELD_FAITH</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_WAT</BuildingType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>1</Yield>
 		</Row>
 	</Building_YieldChanges>
 	<Building_FeatureYieldChanges>
 		<Row>
 			<BuildingType>BUILDING_WAT</BuildingType>
 			<FeatureType>FEATURE_FOREST</FeatureType>
-			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>2</Yield>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_WAT</BuildingType>
+			<FeatureType>FEATURE_JUNGLE</FeatureType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>1</Yield>
 		</Row>
 	</Building_FeatureYieldChanges>
 	<!-- Askia -->
@@ -353,6 +427,13 @@
 			<Yield>50</Yield>
 		</Row>
 	</Building_YieldChangesPerPop>
+	<Building_YieldChanges>
+		<Row>
+			<BuildingType>BUILDING_PAPER_MAKER</BuildingType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>4</Yield>
+		</Row>
+	</Building_YieldChanges>
 	<Building_Flavors>
 		<Row>
 			<BuildingType>BUILDING_PAPER_MAKER</BuildingType>
@@ -360,6 +441,12 @@
 			<Flavor>50</Flavor>
 		</Row>
 	</Building_Flavors>
+	<Building_ClassesNeededInCity>
+		<Row>
+			<BuildingType>BUILDING_PAPER_MAKER</BuildingType>
+			<BuildingClassType>BUILDINGCLASS_AQUEDUCT</BuildingClassType>
+		</Row>
+	</Building_ClassesNeededInCity>
 	<Trait_GreatPersonBornYield>
 		<Row>
 			<TraitType>TRAIT_ART_OF_WAR</TraitType>
@@ -424,6 +511,32 @@
 			<Yield>20</Yield>
 		</Row>
 	</Trait_YieldFromTilePurchase>
+	<Building_ImprovementYieldChanges>
+		<Row>
+			<BuildingType>BUILDING_KREPOST</BuildingType>
+			<ImprovementType>IMPROVEMENT_LUMBERMILL</ImprovementType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_KREPOST</BuildingType>
+			<ImprovementType>IMPROVEMENT_LUMBERMILL_JUNGLE</ImprovementType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_KREPOST</BuildingType>
+			<ImprovementType>IMPROVEMENT_MINE</ImprovementType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_KREPOST</BuildingType>
+			<ImprovementType>IMPROVEMENT_CAMP</ImprovementType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>1</Yield>
+		</Row>
+	</Building_ImprovementYieldChanges>
 	<Trait_ResourceQuantityModifiers>
 		<Row>
 			<TraitType>TRAIT_STRATEGIC_RICHES</TraitType>

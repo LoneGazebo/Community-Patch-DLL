@@ -717,6 +717,12 @@ bool CvCityCitizens::IsAIWantSpecialistRightNow()
 						if(pSpecialistInfo && pSpecialistInfo->getCulturePerTurn() > 0)
 						{
 							iWeight *= 3;
+#if defined(MOD_BALANCE_CORE)
+							if(pSpecialistInfo && GetPlayer()->getSpecialistExtraYield(YIELD_CULTURE) > 0)
+							{
+								iWeight *= 2;
+							}
+#endif
 							break;
 						}
 					}
@@ -1221,7 +1227,14 @@ bool CvCityCitizens::IsBetterThanDefaultSpecialist(SpecialistTypes eSpecialist)
 	if(!pDefaultSpecialistInfo) return false;
 
 	//antonjs: consider: deficient yield
+#if defined(MOD_BALANCE_CORE)
+	int iDiff = m_pCity->foodDifferenceTimes100();
 
+	if(iDiff < 0)
+	{
+		return false;
+	}
+#endif
 	CityAIFocusTypes eFocus = GetFocusType();
 	YieldTypes eYield = NO_YIELD;
 	switch (eFocus)
@@ -1271,6 +1284,12 @@ bool CvCityCitizens::IsBetterThanDefaultSpecialist(SpecialistTypes eSpecialist)
 	{
 		iSpecialistYield *= 2;
 	}
+#if defined(MOD_BALANCE_CORE)
+	if(GET_PLAYER(GetOwner()).IsEmpireUnhappy())
+	{
+		iSpecialistYield /= 2;
+	}
+#endif	
 
 	return (iSpecialistYield >= iDefaultSpecialistYield); // Unless default Specialist has strictly more, this Specialist is better
 }
@@ -1336,7 +1355,21 @@ bool CvCityCitizens::DoAddBestCitizenFromUnassigned()
 	CvPlot* pBestPlot = GetBestCityPlotWithValue(iBestPlotValue, /*bBest*/ true, /*bWorked*/ false);
 
 	bool bSpecialistBetterThanPlot = (eBestSpecialistBuilding != NO_BUILDING && iSpecialistValue >= iBestPlotValue);
-	
+#if defined(MOD_BALANCE_CORE)
+	if(bSpecialistBetterThanPlot)
+	{
+		int iDiff = m_pCity->foodDifferenceTimes100();
+
+		if(iDiff < 0)
+		{
+			bSpecialistBetterThanPlot = false;
+		}
+		if(GET_PLAYER(GetOwner()).IsEmpireUnhappy())
+		{
+			bSpecialistBetterThanPlot = false;
+		}
+	}
+#endif	
 	// Is there a Specialist we can assign?
 	if (bSpecialistBetterThanPlot && bBetterThanSlacker)
 	{

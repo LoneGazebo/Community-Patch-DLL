@@ -49,7 +49,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_iGrantsRandomResourceTerritory(0),
 	m_bPuppetPurchaseOverride(false),
 	m_bAllowsPuppetPurchase(false),
-	m_bNationalMissionaries(false),
+	m_iNationalMissionaries(0),
 	m_iGetCooldown(0),
 #endif
 	m_iSpecialistType(NO_SPECIALIST),
@@ -177,10 +177,11 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_bIsNoWater(false),
 	m_bIsCapitalOnly(false),
 	m_bIsReformation(false),
+	m_bBuildAnywhere(false),
 	m_iTradeReligionModifier(-1),
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
-	 m_bCannotFailSpies(false),
+	 m_iCannotFailSpies(-1),
 	 m_iAdvancedActionGold(-1),
 	 m_iAdvancedActionScience(-1),
 	 m_iAdvancedActionUnrest(-1),
@@ -189,14 +190,14 @@ CvBuildingEntry::CvBuildingEntry(void):
 	 m_iAdvancedActionUnit(-1),
 	 m_iAdvancedActionWonder(-1),
 	 m_iAdvancedActionBuilding(-1),
-	 m_bBlockBuildingDestruction(false),
-	 m_bBlockWWDestruction(false),
-	 m_bBlockUDestruction(false),
-	 m_bBlockGPDestruction(false),
-	 m_bBlockRebellion(false),
-	 m_bBlockUnrest(false),
-	 m_bBlockScience(false),
-	 m_bBlockGold(false),
+	 m_iBlockBuildingDestruction(-1),
+	 m_iBlockWWDestruction(-1),
+	 m_iBlockUDestruction(-1),
+	 m_iBlockGPDestruction(-1),
+	 m_iBlockRebellion(-1),
+	 m_iBlockUnrest(-1),
+	 m_iBlockScience(-1),
+	 m_iBlockGold(-1),
 #endif
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
@@ -408,13 +409,14 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_bIsNoWater = kResults.GetBool("IsNoWater");
 	m_bIsCapitalOnly = kResults.GetBool("CapitalOnly");
 	m_bIsReformation = kResults.GetBool("IsReformation");
+	m_bBuildAnywhere = kResults.GetBool("BuildAnywhere");
 	m_iTradeReligionModifier = kResults.GetInt("TradeReligionModifier");
 	}
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
 	if(MOD_BALANCE_CORE_SPIES)
 	{
-		 m_bCannotFailSpies = kResults.GetBool("CannotFailSpies");
+		 m_iCannotFailSpies = kResults.GetInt("CannotFailSpies");
 		 m_iAdvancedActionGold= kResults.GetInt("AdvancedActionGold");
 		 m_iAdvancedActionScience= kResults.GetInt("AdvancedActionScience");
 		 m_iAdvancedActionUnrest= kResults.GetInt("AdvancedActionUnrest");
@@ -423,14 +425,14 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 		 m_iAdvancedActionUnit= kResults.GetInt("AdvancedActionUnit");
 		 m_iAdvancedActionWonder= kResults.GetInt("AdvancedActionWonder");
 		 m_iAdvancedActionBuilding= kResults.GetInt("AdvancedActionBuilding");
-		 m_bBlockBuildingDestruction = kResults.GetBool("BlockBuildingDestructionSpies");
-		 m_bBlockWWDestruction = kResults.GetBool("BlockWWDestructionSpies");
-		 m_bBlockUDestruction = kResults.GetBool("BlockUDestructionSpies");
-		 m_bBlockGPDestruction = kResults.GetBool("BlockGPDestructionSpies");
-		 m_bBlockRebellion = kResults.GetBool("BlockRebellionSpies");
-		 m_bBlockUnrest = kResults.GetBool("BlockUnrestSpies");
-		 m_bBlockScience = kResults.GetBool("BlockScienceTheft");
-		 m_bBlockGold = kResults.GetBool("BlockGoldTheft");
+		 m_iBlockBuildingDestruction = kResults.GetInt("BlockBuildingDestructionSpies");
+		 m_iBlockWWDestruction = kResults.GetInt("BlockWWDestructionSpies");
+		 m_iBlockUDestruction = kResults.GetInt("BlockUDestructionSpies");
+		 m_iBlockGPDestruction = kResults.GetInt("BlockGPDestructionSpies");
+		 m_iBlockRebellion = kResults.GetInt("BlockRebellionSpies");
+		 m_iBlockUnrest = kResults.GetInt("BlockUnrestSpies");
+		 m_iBlockScience = kResults.GetInt("BlockScienceTheft");
+		 m_iBlockGold = kResults.GetInt("BlockGoldTheft");
 	}
 #endif
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
@@ -673,7 +675,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_iGrantsRandomResourceTerritory = kResults.GetInt("GrantsRandomResourceTerritory");
 	m_bPuppetPurchaseOverride = kResults.GetBool("PuppetPurchaseOverride");
 	m_bAllowsPuppetPurchase = kResults.GetBool("AllowsPuppetPurchase");
-	m_bNationalMissionaries = kResults.GetBool("NationalMissionaries");
+	m_iNationalMissionaries = kResults.GetInt("NationalMissionaries");
 	m_iGetCooldown = kResults.GetInt("PurchaseCooldown");
 #endif
 
@@ -1153,9 +1155,9 @@ bool CvBuildingEntry::IsAllowsPuppetPurchase() const
 	return m_bAllowsPuppetPurchase;
 }
 /// Dpes this building grant national missionaries?
-bool CvBuildingEntry::IsNationalMissionaries() const
+int CvBuildingEntry::GetNationalMissionaries() const
 {
-	return m_bNationalMissionaries;
+	return m_iNationalMissionaries;
 }
 /// Does this building have a cooldown cost when purchased?
 int CvBuildingEntry::GetCooldown() const
@@ -2656,6 +2658,11 @@ bool CvBuildingEntry::IsReformation() const
 {
 	return m_bIsReformation;
 }
+/// Can this building ignore most restrictions?
+bool CvBuildingEntry::IsBuildAnywhere() const
+{
+	return m_bBuildAnywhere;
+}
 /// Does this building boost religious spread via trade?
 int CvBuildingEntry::GetTradeReligionModifier() const
 {
@@ -2664,9 +2671,9 @@ int CvBuildingEntry::GetTradeReligionModifier() const
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
 /// Does this building prevent spies from failing?
-bool CvBuildingEntry::IsCannotFailSpies() const
+int CvBuildingEntry::GetCannotFailSpies() const
 {
-	return m_bCannotFailSpies;
+	return m_iCannotFailSpies;
 }
 /// Does this building  boost spy chance to steal gold?
 int CvBuildingEntry::GetAdvancedActionGold() const
@@ -2708,37 +2715,37 @@ int CvBuildingEntry::GetAdvancedActionBuilding() const
 {
 	return m_iAdvancedActionBuilding;
 }
-bool CvBuildingEntry::IsBlockBuildingDestruction() const
+int CvBuildingEntry::GetBlockBuildingDestruction() const
 {
-	return m_bBlockBuildingDestruction;
+	return m_iBlockBuildingDestruction;
 }
-bool CvBuildingEntry::IsBlockWWDestruction() const
+int CvBuildingEntry::GetBlockWWDestruction() const
 {
-	return m_bBlockWWDestruction ;
+	return m_iBlockWWDestruction ;
 }
-bool CvBuildingEntry::IsBlockUDestruction() const
+int CvBuildingEntry::GetBlockUDestruction() const
 {
-	return m_bBlockUDestruction;
+	return m_iBlockUDestruction;
 }
-bool CvBuildingEntry::IsBlockGPDestruction() const
+int CvBuildingEntry::GetBlockGPDestruction() const
 {
-	return m_bBlockGPDestruction ;
+	return m_iBlockGPDestruction ;
 }
-bool CvBuildingEntry::IsBlockRebellion() const
+int CvBuildingEntry::GetBlockRebellion() const
 {
-	return m_bBlockRebellion;
+	return m_iBlockRebellion;
 }
-bool CvBuildingEntry::IsBlockUnrest() const
+int CvBuildingEntry::GetBlockUnrest() const
 {
-	return m_bBlockUnrest;
+	return m_iBlockUnrest;
 }
-bool CvBuildingEntry::IsBlockScience() const
+int CvBuildingEntry::GetBlockScience() const
 {
-	return m_bBlockScience;
+	return m_iBlockScience;
 }
-bool CvBuildingEntry::IsBlockGold() const
+int CvBuildingEntry::GetBlockGold() const
 {
-	return m_bBlockGold;
+	return m_iBlockGold;
 }
 #endif
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)

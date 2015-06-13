@@ -6,29 +6,29 @@
 			<Atlas>UNIT_ACTION_EKI</Atlas>
 			<IconSize>64</IconSize>
 			<Filename>EkiBuildIcon64.dds</Filename>
-			<IconsPerRow>2</IconsPerRow>
-			<IconsPerColumn>2</IconsPerColumn>
+			<IconsPerRow>1</IconsPerRow>
+			<IconsPerColumn>1</IconsPerColumn>
 		</Row>
 		<Row>
 			<Atlas>UNIT_ACTION_EKI</Atlas>
 			<IconSize>45</IconSize>
 			<Filename>EkiBuildIcon45.dds</Filename>
-			<IconsPerRow>2</IconsPerRow>
-			<IconsPerColumn>2</IconsPerColumn>
+			<IconsPerRow>1</IconsPerRow>
+			<IconsPerColumn>1</IconsPerColumn>
 		</Row>
 		<Row>
 			<Atlas>TERRAIN_IMPROVEMENT_EKI</Atlas>
 			<IconSize>256</IconSize>
 			<Filename>EkiAtlas256.dds</Filename>
-			<IconsPerRow>3</IconsPerRow>
-			<IconsPerColumn>2</IconsPerColumn>
+			<IconsPerRow>1</IconsPerRow>
+			<IconsPerColumn>1</IconsPerColumn>
 		</Row>
 		<Row>
 			<Atlas>TERRAIN_IMPROVEMENT_EKI</Atlas>
 			<IconSize>64</IconSize>
 			<Filename>EkiAtlas64.dds</Filename>
-			<IconsPerRow>3</IconsPerRow>
-			<IconsPerColumn>2</IconsPerColumn>
+			<IconsPerRow>1</IconsPerRow>
+			<IconsPerColumn>1</IconsPerColumn>
 		</Row>
 	</IconTextureAtlases>
 	<ArtDefine_StrategicView>

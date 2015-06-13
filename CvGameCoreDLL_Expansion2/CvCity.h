@@ -447,6 +447,12 @@ public:
 	int getBuildingClassCultureChange(BuildingClassTypes eIndex) const;
 	void changeBuildingClassCultureChange(BuildingClassTypes eIndex, int iChange);
 #endif
+#if defined(MOD_BALANCE_CORE)
+	void SetBaseTourism(int iChange);
+	int GetBaseTourism() const;
+	void SetBaseTourismBeforeModifiers(int iChange);
+	int GetBaseTourismBeforeModifiers() const;
+#endif
 	// END Culture
 
 #if defined(MOD_API_EXTENSIONS)
@@ -638,8 +644,9 @@ public:
 	void SetOwedFoodBuilding(bool bNewValue);
 #endif
 #if defined(MOD_BALANCE_CORE)
-	void SetNationalMissionaries(bool bNewValue);
-	bool IsNationalMissionaries() const;
+	void ChangeNationalMissionaries(int iNewValue);
+	int GetNationalMissionaries() const;
+	void SetNationalMissionaries(int iValue);
 #endif
 #if defined(MOD_BALANCE_CORE)
 	bool IsOwedChosenBuilding(BuildingClassTypes eBuildingClass) const;
@@ -813,29 +820,37 @@ public:
 	void SetReligiousTradeModifier(int iValue);
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
-	void SetBlockBuildingDestruction(bool bNewValue);
-	bool IsBlockBuildingDestruction() const;
+	void ChangeBlockBuildingDestruction(int iNewValue);
+	void SetBlockBuildingDestruction(int iNewValue);
+	int GetBlockBuildingDestruction() const;
 
-	void SetBlockWWDestruction(bool bNewValue);
-	bool IsBlockWWDestruction() const;
+	void ChangeBlockWWDestruction(int iNewValue);
+	void SetBlockWWDestruction(int iNewValue);
+	int GetBlockWWDestruction() const;
 
-	void SetBlockUDestruction(bool bNewValue);
-	bool IsBlockUDestruction() const;
+	void ChangeBlockUDestruction(int iNewValue);
+	void SetBlockUDestruction(int iNewValue);
+	int GetBlockUDestruction() const;
 
-	void SetBlockGPDestruction(bool bNewValue);
-	bool IsBlockGPDestruction() const;
+	void ChangeBlockGPDestruction(int iNewValue);
+	void SetBlockGPDestruction(int iNewValue);
+	int GetBlockGPDestruction() const;
 
-	void SetBlockRebellion(bool bNewValue);
-	bool IsBlockRebellion() const;
+	void ChangeBlockRebellion(int iNewValue);
+	void SetBlockRebellion(int iNewValue);
+	int GetBlockRebellion() const;
 
-	void SetBlockUnrest(bool bNewValue);
-	bool IsBlockUnrest() const;
+	void ChangeBlockUnrest(int iNewValue);
+	void SetBlockUnrest(int iNewValue);
+	int GetBlockUnrest() const;
 
-	void SetBlockScience(bool bNewValue);
-	bool IsBlockScience() const;
+	void ChangeBlockScience(int iNewValue);
+	void SetBlockScience(int iNewValue);
+	int GetBlockScience() const;
 
-	void SetBlockGold(bool bNewValue);
-	bool IsBlockGold() const;
+	void ChangeBlockGold(int iNewValue);
+	void SetBlockGold(int iNewValue);
+	int GetBlockGold() const;
 #endif
 	// END Base Yield
 
@@ -1289,17 +1304,19 @@ protected:
 	int m_iUnhappyCitizen;
 	int m_iPurchaseCooldown;
 	int m_iReligiousTradeModifier;
-	bool m_bIsNationalMissionaries;
+	int m_iBaseTourism;
+	int m_iBaseTourismBeforeModifiers;
+	int m_iNationalMissionaries;
 #endif
 #if defined(MOD_BALANCE_CORE)
-	bool m_bBlockBuildingDestruction;
-	bool m_bBlockWWDestruction;
-	bool m_bBlockUDestruction;
-	bool m_bBlockGPDestruction;
-	bool m_bBlockRebellion;
-	bool m_bBlockUnrest;
-	bool m_bBlockScience;
-	bool m_bBlockGold;
+	int m_iBlockBuildingDestruction;
+	int m_iBlockWWDestruction;
+	int m_iBlockUDestruction;
+	int m_iBlockGPDestruction;
+	int m_iBlockRebellion;
+	int m_iBlockUnrest;
+	int m_iBlockScience;
+	int m_iBlockGold;
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
 	int m_iCityRank;

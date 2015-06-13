@@ -555,6 +555,10 @@ public:
 
 	void DoMajorBullyGold(PlayerTypes eBully, int iGold);
 	void DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType);
+
+#if defined(MOD_BALANCE_CORE)
+	int GetYieldTheftAmount(PlayerTypes eBully, YieldTypes eYield);
+#endif
 	
 	void DoBulliedByMajorReaction(PlayerTypes eBully, int iInfluenceChangeTimes100);
 

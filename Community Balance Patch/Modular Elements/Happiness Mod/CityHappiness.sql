@@ -71,16 +71,16 @@
 	SET Value = '0'
 	WHERE Name = 'UNHAPPINESS_PER_CAPTURED_CITY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
--- 40 = 0.40 unhappiness per specialist. Unemployed citizens are worth 0.20 unhappiness per citizen.
+-- 50 = 0.50 unhappiness per specialist. Unemployed citizens are worth 0.25 unhappiness per citizen.
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_UNHAPPINESS_PER_SPECIALIST', '40'
+	SELECT 'BALANCE_UNHAPPINESS_PER_SPECIALIST', '50'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
--- Base reduction of unhappiness threshold for Puppet cities. -10% is default.
+-- Base reduction of unhappiness threshold for Puppet cities. -15% is default.
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_HAPPINESS_PUPPET_THRESHOLD_MOD', '-10'
+	SELECT 'BALANCE_HAPPINESS_PUPPET_THRESHOLD_MOD', '-15'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 -- Base Modifier for Capital Thresholds. Offsets boost from Palace, helps make Capital a source of Unhappiness early on. 25% is default.
@@ -89,10 +89,10 @@
 	SELECT 'BALANCE_HAPPINESS_CAPITAL_MODIFIER', '25'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
--- 	Base Value of Test - Modifier to tech % cost. 2.55 is default.
+-- 	Base Value of Test - Modifier to tech % cost. 2.50 is default.
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_HAPPINESS_TECH_BASE_MODIFIER', '2.55'
+	SELECT 'BALANCE_HAPPINESS_TECH_BASE_MODIFIER', '2.50'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 -- Base increase of threshold values based on # of techs (ignore 'City' part). Increases the Global Averages as you research techs. Higher values are more difficult. -10 is default. NOT USED.
@@ -141,13 +141,13 @@
 -- Unhappiness point per starving citizen.
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_UNHAPPINESS_FROM_STARVING_PER_POP', '0.34'
+	SELECT 'BALANCE_UNHAPPINESS_FROM_STARVING_PER_POP', '0.66'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 -- Unhappiness point per pillaged plot owned by city.
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_UNHAPPINESS_PER_PILLAGED', '0.34'
+	SELECT 'BALANCE_UNHAPPINESS_PER_PILLAGED', '0.66'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 -- Unhappiness point per pop if unconnected or blockaded.

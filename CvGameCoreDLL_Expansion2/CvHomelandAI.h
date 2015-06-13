@@ -1,5 +1,5 @@
-/*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+ï»¿/*	-------------------------------------------------------------------------------------------------------
+	ï¿½ 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -318,7 +318,11 @@ private:
 
 	// Routines to execute homeland moves
 	void ExecuteFirstTurnSettlerMoves();
+#if defined(MOD_BALANCE_CORE)
+	void ExecuteExplorerMoves(bool bSecondPass);
+#else
 	void ExecuteExplorerMoves();
+#endif
 
 #if defined(MOD_AI_SECONDARY_WORKERS)
 	void ExecuteWorkerMoves(bool bSecondary = false);

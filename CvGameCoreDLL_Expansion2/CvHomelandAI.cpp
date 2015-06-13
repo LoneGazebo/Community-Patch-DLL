@@ -179,6 +179,18 @@ CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit, int nMinCandidat
 	int iBestPlotScore = 1000;
 	CvPlot* pBestPlot = NULL;
 
+	TechTypes eTechCompass = (TechTypes)GC.getInfoTypeForString("TECH_COMPASS", true);
+	bool bOceanShips = false;
+	if(eTechCompass != NO_TECH)
+	{
+		if(GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->HasTech(eTechCompass))
+		{
+			bOceanShips = true;
+		}
+	}
+	bool bEmbark = GET_TEAM(m_pPlayer->getTeam()).canEmbark();
+	bool bEmbarkAll = GET_TEAM(m_pPlayer->getTeam()).canEmbarkAllWaterPassage(); 
+
 	//sort by distance to capital or to unit
 	int iRefX = pUnit ? pUnit->getX() : m_pPlayer->getCapitalCity()->getX();
 	int iRefY = pUnit ? pUnit->getY() : m_pPlayer->getCapitalCity()->getY();
@@ -193,7 +205,22 @@ CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit, int nMinCandidat
 			if (pUnit->plot()->getArea()!=vExplorePlots[ui].pPlot->getArea())
 				continue;
 		}
-
+		if(!bOceanShips && pUnit->getDomainType() == DOMAIN_SEA && vExplorePlots[ui].pPlot->isWater() && !vExplorePlots[ui].pPlot->isShallowWater() && !vExplorePlots[ui].pPlot->isLake())
+		{
+			continue;
+		}
+		if(!bEmbark && pUnit->getDomainType() == DOMAIN_LAND && vExplorePlots[ui].pPlot->isWater())
+		{
+			continue;
+		}
+		if(!bEmbarkAll && pUnit->getDomainType() == DOMAIN_LAND && vExplorePlots[ui].pPlot->isWater() && !vExplorePlots[ui].pPlot->isShallowWater() && !vExplorePlots[ui].pPlot->isLake())
+		{
+			continue;
+		}
+		if(vExplorePlots[ui].pPlot == pUnit->plot())
+		{
+			continue;
+		}
 		//make sure our unit can actually go there
 		if (!IsValidExplorerEndTurnPlot(pUnit, vExplorePlots[ui].pPlot))
 			continue;
@@ -211,7 +238,7 @@ CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit, int nMinCandidat
 	{
 		//after looking at the N closest candidates
 		//if we found something, bail
-		if (pBestPlot && idx>nMinCandidates)
+		if (pBestPlot && idx>(size_t)nMinCandidates)
 			break;
 
 		CvPlot* pEvalPlot = vPlotsByDistance[idx].second.pPlot;
@@ -1065,8 +1092,13 @@ void CvHomelandAI::PlotExplorerMoves()
 	if(m_CurrentMoveUnits.size() > 0)
 	{
 		// Execute twice so explorers who can reach the end of their sight can move again
+#if defined(MOD_BALANCE_CORE)
+		ExecuteExplorerMoves(false);
+		ExecuteExplorerMoves(true);
+#else
 		ExecuteExplorerMoves();
 		ExecuteExplorerMoves();
+#endif
 	}
 }
 
@@ -1094,8 +1126,13 @@ void CvHomelandAI::PlotExplorerSeaMoves()
 	if(m_CurrentMoveUnits.size() > 0)
 	{
 		// Execute twice so explorers who can reach the end of their sight can move again
+#if defined(MOD_BALANCE_CORE)
+		ExecuteExplorerMoves(false);
+		ExecuteExplorerMoves(true);
+#else
 		ExecuteExplorerMoves();
 		ExecuteExplorerMoves();
+#endif
 	}
 }
 
@@ -1742,6 +1779,11 @@ void CvHomelandAI::PlotWorkerSeaMoves()
 					strLogString.Format("Moving toward naval resource at, X: %d, Y: %d", m_TargetedNavalResources[iTargetIndex].GetTargetX(), m_TargetedNavalResources[iTargetIndex].GetTargetY());
 					LogHomelandMessage(strLogString);
 				}
+#if defined(MOD_BALANCE_CORE)
+				pUnit->finishMoves();
+				// Delete this unit from those we have to move
+				UnitProcessed(m_CurrentMoveUnits.begin()->GetID());
+#endif
 			}
 		}
 	}
@@ -2698,70 +2740,24 @@ void CvHomelandAI::ReviewUnassignedUnits()
 		if(pUnit)
 		{
 #if defined(MOD_BALANCE_CORE)
-			//OutputDebugString( CvString::format( "unassigned %s homeland unit %s at %d,%d\n", m_pPlayer->getCivilizationAdjective(), pUnit->getName().c_str(), pUnit->getX(), pUnit->getY() ).c_str() ); 
-
-			//Ignore explorers.
-			if(pUnit->AI_getUnitAIType() == UNITAI_EXPLORE || pUnit->AI_getUnitAIType() == UNITAI_EXPLORE_SEA)
-			{
-				continue;
-			}
-			if(pUnit->getDomainType() == DOMAIN_LAND && pUnit->canRecruitFromTacticalAI() && pUnit->getArmyID() == FFreeList::INVALID_INDEX && !pUnit->TurnProcessed() && pUnit->getMoves() > 0)
+			if(pUnit->getDomainType() == DOMAIN_LAND)
 			{
 				if(pUnit->IsGreatPerson())
 				{
-					if(pUnit->GetGreatPeopleDirective() != NO_GREAT_PEOPLE_DIRECTIVE_TYPE)
+					pUnit->PushMission(CvTypes::getMISSION_SKIP());
+					pUnit->SetTurnProcessed(true);
+					pUnit->finishMoves();
+
+					CvString strTemp;
+					CvUnitEntry* pkUnitInfo = GC.getUnitInfo(pUnit->getUnitType());
+					if(pkUnitInfo)
 					{
-						continue;
+						strTemp = pkUnitInfo->GetDescription();
+						CvString strLogString;
+						strLogString.Format("Unassigned GP %s at, X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY());
+						LogHomelandMessage(strLogString);
 					}
-					else
-					{
-						CvPlayerAI& kPlayer = GET_PLAYER(m_pPlayer->GetID());
-						GreatPeopleDirectiveTypes eDirective = NO_GREAT_PEOPLE_DIRECTIVE_TYPE;
-						CvUnit* pLoopUnit = m_pPlayer->getUnit(pUnit->GetID());
-						if(kPlayer.GetID() != NULL && pLoopUnit != NULL)
-						{
-							switch(pUnit->AI_getUnitAIType())
-							{
-								case UNITAI_WRITER:
-									eDirective = kPlayer.GetDirectiveWriter(pLoopUnit);
-									break;
-								case UNITAI_ARTIST:
-									eDirective = kPlayer.GetDirectiveArtist(pLoopUnit);
-									break;
-								case UNITAI_MUSICIAN:
-									eDirective = kPlayer.GetDirectiveMusician(pLoopUnit);
-									break;
-								case UNITAI_ENGINEER:
-									eDirective = kPlayer.GetDirectiveEngineer(pLoopUnit);
-									break;
-								case UNITAI_MERCHANT:
-									eDirective = kPlayer.GetDirectiveMerchant(pLoopUnit);
-									break;
-								case UNITAI_SCIENTIST:
-									eDirective = kPlayer.GetDirectiveScientist(pLoopUnit);
-									break;
-								case UNITAI_GENERAL:
-									eDirective = kPlayer.GetDirectiveGeneral(pLoopUnit);
-									break;
-								case UNITAI_PROPHET:
-									eDirective = kPlayer.GetDirectiveProphet(pLoopUnit);
-									break;
-								case UNITAI_ADMIRAL:
-									eDirective = kPlayer.GetDirectiveAdmiral(pLoopUnit);
-									break;
-#if defined(MOD_DIPLOMACY_CITYSTATES)
-								case UNITAI_DIPLOMAT:
-									eDirective = kPlayer.GetDirectiveDiplomat(pLoopUnit);
-									break;
-#endif
-							}
-						}
-						pUnit->SetGreatPeopleDirective(eDirective);
-					}
-					if(pUnit->GetGreatPeopleDirective() != NO_GREAT_PEOPLE_DIRECTIVE_TYPE)
-					{
-						continue;
-					}
+					continue;
 				}
 				if(pUnit->plot()->getOwner() == pUnit->getOwner())
 				{
@@ -2785,28 +2781,24 @@ void CvHomelandAI::ReviewUnassignedUnits()
 					else
 					{
 						//We really need to do something with this unit - let's bring it home if we can.
-						CvCity* pSaveCity = NULL;
+						CvCity* pBestCity = NULL;
+						CvCity* pSaveCity;
 						int iBestDistance = MAX_INT;
-						for(unsigned int iI = 0; iI < m_TargetedCities.size(); iI++)
+						int iLoop;
+						for(pSaveCity = m_pPlayer->firstCity(&iLoop); pSaveCity != NULL; pSaveCity = m_pPlayer->nextCity(&iLoop))
 						{
-							CvPlot* pTarget = GC.getMap().plot(m_TargetedCities[iI].GetTargetX(), m_TargetedCities[iI].GetTargetY());
-							CvCity* pCity = pTarget->getPlotCity();
-							if(!pCity)
-							{
-								continue;
-							}
-							int iDistance = plotDistance(pCity->getX(), pCity->getY(), pUnit->getX(), pUnit->getY());
+							int iDistance = plotDistance(pSaveCity->getX(), pSaveCity->getY(), pUnit->getX(), pUnit->getY());
 
 							if(iDistance < iBestDistance)
 							{
 								iBestDistance = iDistance;
-								pSaveCity = pCity;
+								pBestCity = pSaveCity;
 							}
 						}
 
-						if(pSaveCity)
+						if(pBestCity != NULL)
 						{
-							MoveToEmptySpaceNearTarget(pUnit.pointer(), pSaveCity->plot());
+							MoveToEmptySpaceNearTarget(pUnit.pointer(), pBestCity->plot());
 							pUnit->SetTurnProcessed(true);
 							pUnit->finishMoves();
 							CvString strTemp;
@@ -2841,28 +2833,24 @@ void CvHomelandAI::ReviewUnassignedUnits()
 				else
 				{
 					//We really need to do something with this unit - let's bring it home if we can.
-					CvCity* pSaveCity = NULL;
+					CvCity* pBestCity = NULL;
+					CvCity* pSaveCity;
 					int iBestDistance = MAX_INT;
-					for(unsigned int iI = 0; iI < m_TargetedCities.size(); iI++)
+					int iLoop;
+					for(pSaveCity = m_pPlayer->firstCity(&iLoop); pSaveCity != NULL; pSaveCity = m_pPlayer->nextCity(&iLoop))
 					{
-						CvPlot* pTarget = GC.getMap().plot(m_TargetedCities[iI].GetTargetX(), m_TargetedCities[iI].GetTargetY());
-						CvCity* pCity = pTarget->getPlotCity();
-						if(!pCity)
-						{
-							continue;
-						}
-						int iDistance = plotDistance(pCity->getX(), pCity->getY(), pUnit->getX(), pUnit->getY());
+						int iDistance = plotDistance(pSaveCity->getX(), pSaveCity->getY(), pUnit->getX(), pUnit->getY());
 
 						if(iDistance < iBestDistance)
 						{
 							iBestDistance = iDistance;
-							pSaveCity = pCity;
+							pBestCity = pSaveCity;
 						}
 					}
 
-					if(pSaveCity)
+					if(pBestCity != NULL)
 					{
-						MoveToEmptySpaceNearTarget(pUnit.pointer(), pSaveCity->plot());
+						MoveToEmptySpaceNearTarget(pUnit.pointer(), pBestCity->plot());
 						pUnit->SetTurnProcessed(true);
 						pUnit->finishMoves();
 						CvString strTemp;
@@ -2894,63 +2882,24 @@ void CvHomelandAI::ReviewUnassignedUnits()
 					}
 				}
 			}
-			else if(pUnit->getDomainType() == DOMAIN_SEA && pUnit->canRecruitFromTacticalAI() && pUnit->getArmyID() == FFreeList::INVALID_INDEX && !pUnit->TurnProcessed() && pUnit->getMoves() > 0)
+			else if(pUnit->getDomainType() == DOMAIN_SEA)
 			{
 				if(pUnit->IsGreatPerson())
 				{
-					if(pUnit->GetGreatPeopleDirective() != NO_GREAT_PEOPLE_DIRECTIVE_TYPE)
+					pUnit->PushMission(CvTypes::getMISSION_SKIP());
+					pUnit->SetTurnProcessed(true);
+					pUnit->finishMoves();
+
+					CvString strTemp;
+					CvUnitEntry* pkUnitInfo = GC.getUnitInfo(pUnit->getUnitType());
+					if(pkUnitInfo)
 					{
-						continue;
-					}
-					else
-					{
-						CvPlayerAI& kPlayer = GET_PLAYER(m_pPlayer->GetID());
-						GreatPeopleDirectiveTypes eDirective = NO_GREAT_PEOPLE_DIRECTIVE_TYPE;
-						CvUnit* pLoopUnit = m_pPlayer->getUnit(pUnit->GetID());
-						if(kPlayer.GetID() != NULL && pLoopUnit != NULL)
-						{
-							switch(pUnit->AI_getUnitAIType())
-							{
-								case UNITAI_WRITER:
-									eDirective = kPlayer.GetDirectiveWriter(pLoopUnit);
-									break;
-								case UNITAI_ARTIST:
-									eDirective = kPlayer.GetDirectiveArtist(pLoopUnit);
-									break;
-								case UNITAI_MUSICIAN:
-									eDirective = kPlayer.GetDirectiveMusician(pLoopUnit);
-									break;
-								case UNITAI_ENGINEER:
-									eDirective = kPlayer.GetDirectiveEngineer(pLoopUnit);
-									break;
-								case UNITAI_MERCHANT:
-									eDirective = kPlayer.GetDirectiveMerchant(pLoopUnit);
-									break;
-								case UNITAI_SCIENTIST:
-									eDirective = kPlayer.GetDirectiveScientist(pLoopUnit);
-									break;
-								case UNITAI_GENERAL:
-									eDirective = kPlayer.GetDirectiveGeneral(pLoopUnit);
-									break;
-								case UNITAI_PROPHET:
-									eDirective = kPlayer.GetDirectiveProphet(pLoopUnit);
-									break;
-								case UNITAI_ADMIRAL:
-									eDirective = kPlayer.GetDirectiveAdmiral(pLoopUnit);
-									break;
-#if defined(MOD_DIPLOMACY_CITYSTATES)
-								case UNITAI_DIPLOMAT:
-									eDirective = kPlayer.GetDirectiveDiplomat(pLoopUnit);
-									break;
-#endif
-							}
-						}
-						pUnit->SetGreatPeopleDirective(eDirective);
-					}
-					if(pUnit->GetGreatPeopleDirective() != NO_GREAT_PEOPLE_DIRECTIVE_TYPE)
-					{
-						continue;
-					}
+						strTemp = pkUnitInfo->GetDescription();
+						CvString strLogString;
+						strLogString.Format("Unassigned %s at, X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY());
+						LogHomelandMessage(strLogString);
+					}	
+					continue;
 				}
 				if(pUnit->plot()->getOwner() == pUnit->getOwner())
 				{
@@ -2972,33 +2921,29 @@ void CvHomelandAI::ReviewUnassignedUnits()
 				else
 				{
 					//We really need to do something with this unit - let's bring it home if we can.
-					CvCity* pSaveCity = NULL;
+					//We really need to do something with this unit - let's bring it home if we can.
+					CvCity* pBestCity = NULL;
+					CvCity* pSaveCity;
 					int iBestDistance = MAX_INT;
-					for(unsigned int iI = 0; iI < m_TargetedCities.size(); iI++)
+					int iLoop;
+					for(pSaveCity = m_pPlayer->firstCity(&iLoop); pSaveCity != NULL; pSaveCity = m_pPlayer->nextCity(&iLoop))
 					{
-						CvPlot* pTarget = GC.getMap().plot(m_TargetedCities[iI].GetTargetX(), m_TargetedCities[iI].GetTargetY());
-						CvCity* pCity = pTarget->getPlotCity();
-						if(!pCity)
+						if(!pSaveCity->isCoastal())
 						{
 							continue;
 						}
-						if(!pCity->isCoastal())
-						{
-							continue;
-						}
-
-						int iDistance = plotDistance(pCity->getX(), pCity->getY(), pUnit->getX(), pUnit->getY());
+						int iDistance = plotDistance(pSaveCity->getX(), pSaveCity->getY(), pUnit->getX(), pUnit->getY());
 
 						if(iDistance < iBestDistance)
 						{
 							iBestDistance = iDistance;
-							pSaveCity = pCity;
+							pBestCity = pSaveCity;
 						}
 					}
 
-					if(pSaveCity)
+					if(pBestCity != NULL)
 					{
-						MoveToEmptySpaceNearTarget(pUnit.pointer(), pSaveCity->plot(), false);
+						MoveToEmptySpaceNearTarget(pUnit.pointer(), pBestCity->plot(), false);
 						pUnit->SetTurnProcessed(true);
 						pUnit->finishMoves();
 						CvString strTemp;
@@ -3030,6 +2975,8 @@ void CvHomelandAI::ReviewUnassignedUnits()
 					}
 				}
 			}
+			pUnit->SetTurnProcessed(true);
+			pUnit->finishMoves();
 #else
 			pUnit->PushMission(CvTypes::getMISSION_SKIP());
 			pUnit->SetTurnProcessed(true);
@@ -3198,7 +3145,7 @@ typedef CvWeightedVector<CvPlot*, 100, true> WeightedPlotVector;
 
 #if defined(MOD_CORE_ALTERNATIVE_EXPLORE_SCORE)
 	/// Moves units to explore the map
-void CvHomelandAI::ExecuteExplorerMoves()
+void CvHomelandAI::ExecuteExplorerMoves(bool bSecondPass)
 {
 	bool bFoundNearbyExplorePlot = false;
 
@@ -3289,6 +3236,8 @@ void CvHomelandAI::ExecuteExplorerMoves()
 
 			if(!pEvalPlot || !IsValidExplorerEndTurnPlot(pUnit.pointer(), pEvalPlot))
 				continue;
+			if(pEvalPlot->isCity() && (pEvalPlot->getOwner() != pUnit->getOwner()))
+				continue;
 
 			//don't embark to reach a close-range target
 			if(pUnit->getDomainType()==DOMAIN_LAND && pEvalPlot->isWater())
@@ -3309,15 +3258,15 @@ void CvHomelandAI::ExecuteExplorerMoves()
 
 				//hill plots are good for defense and view - do not add this in ScoreExplorePlot2
 				if(pEvalPlot->isHills())
-					iScoreExtra += 50;
+					iScoreExtra += 25;
 
 				//resources on water are always near land
 				if(pUnit->getDomainType() == DOMAIN_SEA && pEvalPlot->isWater() && (pEvalPlot->getResourceType() != NO_RESOURCE || pEvalPlot->getFeatureType() != NO_FEATURE))
-					iScoreExtra += 50;
+					iScoreExtra += 25;
 
 				//We should always be moving.
 				if( pEvalPlot == pUnit->plot())
-					iScoreExtra -= 25;
+					iScoreExtra -= 50;
 
 				//If a known minor, let's not wander around if we don't have open borders.
 				if(pEvalPlot->getOwner() != NO_PLAYER)
@@ -3347,7 +3296,7 @@ void CvHomelandAI::ExecuteExplorerMoves()
 					}
 				}
 
-				int iRandom = GC.getGame().getJonRandNum(10,"equal value explore target tiebreak");
+				int iRandom = GC.getGame().getJonRandNumBinom(50,"explore target tiebreak");
 				int iTotalScore = iScoreBase+iScoreExtra+iScoreBonus+iRandom;
 
 #if defined(AUI_DANGER_PLOTS_REMADE)
@@ -3364,7 +3313,9 @@ void CvHomelandAI::ExecuteExplorerMoves()
 				{
 					//make sure we can actually reach it - shouldn't happen, but sometimes does because of blocks
 					if (!CanReachInXTurns(pUnit,pEvalPlot,1))
+					{
 						continue;
+					}
 
 					pBestPlot = pEvalPlot;
 					iBestPlotScore = iTotalScore;
@@ -3382,7 +3333,7 @@ void CvHomelandAI::ExecuteExplorerMoves()
 
 		//if we didn't find a worthwhile plot among our adjacent plots, check the global targets
 		if(!pBestPlot && pUnit->movesLeft() > 0)
-			//check only the three closest candidates for speed
+			//check at least the three closest candidates
 			pBestPlot = GetBestExploreTarget(pUnit.pointer(),3);
 
 		//make sure we're not in an endless loop
@@ -3412,6 +3363,7 @@ void CvHomelandAI::ExecuteExplorerMoves()
 			// Only mark as done if out of movement
 			if(pUnit->getMoves() <= 0)
 			{
+				pUnit->finishMoves();
 				UnitProcessed(pUnit->GetID());
 			}
 
@@ -3429,6 +3381,12 @@ void CvHomelandAI::ExecuteExplorerMoves()
 				}
 				LogHomelandMessage(strLogString);
 			}
+			if(bSecondPass)
+			{
+				pUnit->finishMoves();
+				UnitProcessed(pUnit->GetID());
+			}
+			continue;
 		}
 		else
 		{
@@ -3479,6 +3437,9 @@ void CvHomelandAI::ExecuteExplorerMoves()
 						pUnit->kill(true);
 						m_pPlayer->GetEconomicAI()->IncrementExplorersDisbanded();
 					}
+					pUnit->finishMoves();
+					UnitProcessed(pUnit->GetID());
+					continue;
 				}
 				else if(pUnit->AI_getUnitAIType() == UNITAI_EXPLORE_SEA)
 				{
@@ -3488,8 +3449,16 @@ void CvHomelandAI::ExecuteExplorerMoves()
 						strLogString.Format("UnitID: %d Sea explorer (AI) found no target, X: %d, Y: %d", pUnit->GetID(), pUnit->getX(), pUnit->getY());
 						LogHomelandMessage(strLogString);
 					}
+					pUnit->finishMoves();
+					UnitProcessed(pUnit->GetID());
+					continue;
 				}
 			}
+		}
+		if(bSecondPass)
+		{
+			pUnit->finishMoves();
+			UnitProcessed(pUnit->GetID());
 		}
 	}
 }
@@ -5873,6 +5842,10 @@ void CvHomelandAI::ExecuteGeneralMoves()
 				if(pLoopCity->GetGarrisonedUnit() != NULL)
 				{
 					iWeight *= 2;
+					if(pLoopCity->getUnhappinessFromDefense() > 0)
+					{
+						iWeight *= pLoopCity->getUnhappinessFromDefense();
+					}
 				}
 				if(iNumCommanders > 0)
 				{
@@ -7218,6 +7191,9 @@ void CvHomelandAI::ExecuteArchaeologistMoves()
 						strLogString.Format("Archaeologist creating dig at, X: %d, Y: %d", pTarget->getX(), pTarget->getY());
 						LogHomelandMessage(strLogString);
 					}
+#if defined(MOD_AI_SMART_ARCHAEOLOGISTS)
+					pUnit->finishMoves();
+#endif
 				}
 				else
 				{
@@ -7226,11 +7202,16 @@ void CvHomelandAI::ExecuteArchaeologistMoves()
 			}
 			// Delete this unit from those we have to move
 			UnitProcessed(pUnit->GetID());
+#if defined(MOD_AI_SMART_ARCHAEOLOGISTS)
+			pUnit->finishMoves();
+#endif
 		}
 #if defined(MOD_AI_SMART_ARCHAEOLOGISTS)
 		else
 		{
 			iUnassignedArchaeologists++;
+			pUnit->finishMoves();
+			UnitProcessed(pUnit->GetID());
 		}
 #endif
 	}

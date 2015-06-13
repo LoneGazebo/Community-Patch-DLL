@@ -120,7 +120,7 @@ public:
 	bool IsPuppetPurchaseOverride() const;
 	bool IsAllowsPuppetPurchase() const;
 	int GetCooldown() const;
-	bool IsNationalMissionaries() const;
+	int GetNationalMissionaries() const;
 #endif
 	int GetSpecialistType() const;
 	int GetSpecialistCount() const;
@@ -180,10 +180,11 @@ public:
 	bool IsNoWater() const;
 	bool IsCapitalOnly() const;
 	bool IsReformation() const;
+	bool IsBuildAnywhere() const;
 	int GetTradeReligionModifier() const;
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
-	bool IsCannotFailSpies() const;
+	int GetCannotFailSpies() const;
 	int GetAdvancedActionGold() const;
 	int GetAdvancedActionScience() const;
 	int GetAdvancedActionUnrest() const;
@@ -192,14 +193,14 @@ public:
 	int GetAdvancedActionUnit() const;
 	int GetAdvancedActionWonder() const;
 	int GetAdvancedActionBuilding() const;
-	bool IsBlockBuildingDestruction() const;
-	bool IsBlockWWDestruction() const;
-	bool IsBlockUDestruction() const;
-	bool IsBlockGPDestruction() const;
-	bool IsBlockRebellion() const;
-	bool IsBlockUnrest() const;
-	bool IsBlockScience() const;
-	bool IsBlockGold() const;
+	int GetBlockBuildingDestruction() const;
+	int GetBlockWWDestruction() const;
+	int GetBlockUDestruction() const;
+	int GetBlockGPDestruction() const;
+	int GetBlockRebellion() const;
+	int GetBlockUnrest() const;
+	int GetBlockScience() const;
+	int GetBlockGold() const;
 #endif
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	bool IsVassalLevyEra() const;
@@ -449,7 +450,7 @@ private:
 	int m_iGrantsRandomResourceTerritory;
 	bool m_bPuppetPurchaseOverride;
 	bool m_bAllowsPuppetPurchase;
-	bool m_bNationalMissionaries;
+	int m_iNationalMissionaries;
 	int m_iGetCooldown;
 #endif
 	int m_iSpecialistType;
@@ -593,10 +594,11 @@ private:
 	bool m_bIsNoWater;
 	bool m_bIsCapitalOnly;
 	bool m_bIsReformation;
+	bool m_bBuildAnywhere;
 	int m_iTradeReligionModifier;
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
-	bool m_bCannotFailSpies;
+	int m_iCannotFailSpies;
 	int m_iAdvancedActionGold;
 	int m_iAdvancedActionScience;
 	int m_iAdvancedActionUnrest;
@@ -605,14 +607,14 @@ private:
 	int m_iAdvancedActionUnit;
 	int m_iAdvancedActionWonder;
 	int m_iAdvancedActionBuilding;
-	bool m_bBlockBuildingDestruction;
-	bool m_bBlockWWDestruction;
-	bool m_bBlockUDestruction;
-	bool m_bBlockGPDestruction;
-	bool m_bBlockRebellion;
-	bool m_bBlockUnrest;
-	bool m_bBlockScience;
-	bool m_bBlockGold;
+	int m_iBlockBuildingDestruction;
+	int m_iBlockWWDestruction;
+	int m_iBlockUDestruction;
+	int m_iBlockGPDestruction;
+	int m_iBlockRebellion;
+	int m_iBlockUnrest;
+	int m_iBlockScience;
+	int m_iBlockGold;
 #endif
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	bool m_bVassalLevyEra;

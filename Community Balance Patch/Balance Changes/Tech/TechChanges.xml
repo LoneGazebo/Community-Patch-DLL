@@ -132,8 +132,12 @@
 			<Where Type="TECH_DRAMA" />
 		</Update>
 		<Update>
-			<Set GridY="5" />
+			<Set GridY="7" />
 			<Where Type="TECH_CURRENCY" />
+		</Update>
+		<Update>
+			<Set GridY="5" />
+			<Where Type="TECH_ENGINEERING" />
 		</Update>
 		<Update>
 			<Set GridY="7" />
@@ -340,15 +344,15 @@
 			<Where Type="TECH_ROBOTICS" />
 		</Update>
 		<Update>
-			<Set GridX="16" GridY="4" />
+			<Set GridX="16" GridY="6" />
 			<Where Type="TECH_LASERS" />
 		</Update>
 		<Update>
-			<Set GridY="6" />
+			<Set GridY="4" />
 			<Where Type="TECH_INTERNET" />
 		</Update>
 		<Update>
-			<Set GridX="17" GridY="8" />
+			<Set GridX="17" GridY="6" />
 			<Where Type="TECH_GLOBALIZATION" />
 		</Update>
 		<Update>
@@ -356,7 +360,7 @@
 			<Where Type="TECH_PARTICLE_PHYSICS" />
 		</Update>
 		<Update>
-			<Set GridX="17" GridY="6" />
+			<Set GridX="17" GridY="8" />
 			<Where Type="TECH_NUCLEAR_FUSION" />
 		</Update>
 		<Update>
@@ -396,30 +400,22 @@
 		</Row>
 		<Row>
 			<TechType>TECH_NANOTECHNOLOGY</TechType>
-			<PrereqTech>TECH_LASERS</PrereqTech>
-		</Row>
-		<Row>
-			<TechType>TECH_PARTICLE_PHYSICS</TechType>
-			<PrereqTech>TECH_LASERS</PrereqTech>
+			<PrereqTech>TECH_INTERNET</PrereqTech>
 		</Row>
 		<Row>
 			<TechType>TECH_PARTICLE_PHYSICS</TechType>
 			<PrereqTech>TECH_INTERNET</PrereqTech>
+		</Row>
+		<Row>
+			<TechType>TECH_PARTICLE_PHYSICS</TechType>
+			<PrereqTech>TECH_LASERS</PrereqTech>
 		</Row>
 		<Row>
 			<TechType>TECH_PARTICLE_PHYSICS</TechType>
 			<PrereqTech>TECH_ROBOTICS</PrereqTech>
 		</Row>
 		<Row>
-			<TechType>TECH_NUCLEAR_FUSION</TechType>
-			<PrereqTech>TECH_STEALTH</PrereqTech>
-		</Row>
-		<Row>
-			<TechType>TECH_NUCLEAR_FUSION</TechType>
-			<PrereqTech>TECH_INTERNET</PrereqTech>
-		</Row>
-		<Row>
-			<TechType>TECH_NUCLEAR_FUSION</TechType>
+			<TechType>TECH_GLOBALIZATION</TechType>
 			<PrereqTech>TECH_LASERS</PrereqTech>
 		</Row>
 		<Row>
@@ -429,6 +425,14 @@
 		<Row>
 			<TechType>TECH_GLOBALIZATION</TechType>
 			<PrereqTech>TECH_INTERNET</PrereqTech>
+		</Row>
+		<Row>
+			<TechType>TECH_NUCLEAR_FUSION</TechType>
+			<PrereqTech>TECH_STEALTH</PrereqTech>
+		</Row>
+		<Row>
+			<TechType>TECH_NUCLEAR_FUSION</TechType>
+			<PrereqTech>TECH_LASERS</PrereqTech>
 		</Row>
 		<Row>
 			<TechType>TECH_ROBOTICS</TechType>
@@ -440,7 +444,7 @@
 		</Row>
 		<Row>
 			<TechType>TECH_LASERS</TechType>
-			<PrereqTech>TECH_TELECOM</PrereqTech>
+			<PrereqTech>TECH_ADVANCED_BALLISTICS</PrereqTech>
 		</Row>
 		<Row>
 			<TechType>TECH_LASERS</TechType>
@@ -452,7 +456,7 @@
 		</Row>
 		<Row>
 			<TechType>TECH_INTERNET</TechType>
-			<PrereqTech>TECH_ADVANCED_BALLISTICS</PrereqTech>
+			<PrereqTech>TECH_TELECOM</PrereqTech>
 		</Row>
 		<Row>
 			<TechType>TECH_STEALTH</TechType>
@@ -832,12 +836,16 @@
 			<PrereqTech>TECH_DRAMA</PrereqTech>
 		</Row>
 		<Row>
-			<TechType>TECH_CHIVALRY</TechType>
+			<TechType>TECH_THEOLOGY</TechType>
 			<PrereqTech>TECH_ENGINEERING</PrereqTech>
 		</Row>
 		<Row>
 			<TechType>TECH_CHIVALRY</TechType>
 			<PrereqTech>TECH_CURRENCY</PrereqTech>
+		</Row>
+		<Row>
+			<TechType>TECH_CHIVALRY</TechType>
+			<PrereqTech>TECH_ENGINEERING</PrereqTech>
 		</Row>
 		<Row>
 			<TechType>TECH_CHIVALRY</TechType>
@@ -849,6 +857,10 @@
 		</Row>
 		<Row>
 			<TechType>TECH_PHYSICS</TechType>
+			<PrereqTech>TECH_CURRENCY</PrereqTech>
+		</Row>
+		<Row>
+			<TechType>TECH_PHYSICS</TechType>
 			<PrereqTech>TECH_METAL_CASTING</PrereqTech>
 		</Row>
 		<Row>
@@ -857,7 +869,7 @@
 		</Row>
 		<Row>
 			<TechType>TECH_STEEL</TechType>
-			<PrereqTech>TECH_ENGINEERING</PrereqTech>
+			<PrereqTech>TECH_CURRENCY</PrereqTech>
 		</Row>
 		<!-- Classical -->
 		<Row>
@@ -881,28 +893,28 @@
 			<PrereqTech>TECH_OPTICS</PrereqTech>
 		</Row>
 		<Row>
-			<TechType>TECH_CURRENCY</TechType>
+			<TechType>TECH_ENGINEERING</TechType>
 			<PrereqTech>TECH_MATHEMATICS</PrereqTech>
 		</Row>
 		<Row>
-			<TechType>TECH_CURRENCY</TechType>
+			<TechType>TECH_ENGINEERING</TechType>
+			<PrereqTech>TECH_CONSTRUCTION</PrereqTech>
+		</Row>
+		<Row>
+			<TechType>TECH_ENGINEERING</TechType>
 			<PrereqTech>TECH_WRITING</PrereqTech>
 		</Row>
 		<Row>
 			<TechType>TECH_CURRENCY</TechType>
-			<PrereqTech>TECH_CONSTRUCTION</PrereqTech>
-		</Row>
-		<Row>
-			<TechType>TECH_ENGINEERING</TechType>
 			<PrereqTech>TECH_MATHEMATICS</PrereqTech>
 		</Row>
 		<Row>
-			<TechType>TECH_ENGINEERING</TechType>
-			<PrereqTech>TECH_CONSTRUCTION</PrereqTech>
+			<TechType>TECH_CURRENCY</TechType>
+			<PrereqTech>TECH_IRON_WORKING</PrereqTech>
 		</Row>
 		<Row>
-			<TechType>TECH_ENGINEERING</TechType>
-			<PrereqTech>TECH_IRON_WORKING</PrereqTech>
+			<TechType>TECH_CURRENCY</TechType>
+			<PrereqTech>TECH_CONSTRUCTION</PrereqTech>
 		</Row>
 		<Row>
 			<TechType>TECH_METAL_CASTING</TechType>

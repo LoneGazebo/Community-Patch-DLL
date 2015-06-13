@@ -586,6 +586,15 @@ function AddSmallButtonsToTechButton( thisTechButtonInstance, tech, maxSmallButt
 		if tech.CityNoEmbarkCost then
 			addSmallActionButton( GameInfo.Missions.MISSION_EMBARK, "", "TXT_KEY_ABLTY_CITY_NO_EMBARK_COST_STRING" )
 		end
+
+		for row in GameInfo.Tech_SpecialistYieldChanges( thisTechType ) do
+			local yield = GameInfo.Yields[row.YieldType]
+			if yield and not addSmallActionButton( GameInfo.Specialists{ SpecialistType = row.SpecialistType }(), yield.IconString,
+					"TXT_KEY_SPECIALIST_YIELD_CHANGE", (GameInfo.Specialists[row.SpecialistType] or {}).Description or "???", yield.Description, row.Yield )
+			then
+				break
+			end
+		end
 -- END	
 
 	elseif civBE_mode then

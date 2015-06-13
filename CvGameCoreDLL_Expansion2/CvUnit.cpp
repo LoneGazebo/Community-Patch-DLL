@@ -2218,7 +2218,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 		if (pPlotCity)
 		{
 #if defined(MOD_BALANCE_CORE)
-			if(pPlotCity->IsNationalMissionaries())
+			if(pPlotCity->GetNationalMissionaries() > 0)
 			{
 				//Only fires once.
 				ReligionTypes eNationalReligion = GET_PLAYER(pPlotCity->getOwner()).GetReligions()->GetReligionCreatedByPlayer(false);
@@ -2235,10 +2235,10 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 				else
 				{
 					kill(true);
-					pPlotCity->SetNationalMissionaries(false);
+					pPlotCity->SetNationalMissionaries(0);
 					return;
 				}
-				pPlotCity->SetNationalMissionaries(false);
+				pPlotCity->SetNationalMissionaries(0);
 			}
 			else
 			{
@@ -24602,6 +24602,14 @@ bool CvUnit::canEverRangeStrikeAt(int iX, int iY) const
 #if defined(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
 			}
 			else if(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED && pTargetPlot->isCoastalLand() && !pTargetPlot->isCity())
+			{
+				return false;
+			}
+			else if(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED && !pTargetPlot->isCoastalLand() && pTargetPlot->isCity())
+			{
+				return false;
+			}
+			else
 			{
 				return false;
 			}

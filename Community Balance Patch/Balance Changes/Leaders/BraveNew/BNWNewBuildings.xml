@@ -17,6 +17,14 @@
 			<MinAreaSize>-1</MinAreaSize>
 			<Defense>800</Defense>
 			<TechEnhancedTourism>5</TechEnhancedTourism>
+			<BlockGoldTheft>1</BlockGoldTheft>
+			<BlockScienceTheft>1</BlockScienceTheft>
+			<BlockUnrestSpies>1</BlockUnrestSpies>
+			<BlockRebellionSpies>1</BlockRebellionSpies>
+			<BlockGPDestructionSpies></BlockGPDestructionSpies>
+			<BlockUDestructionSpies>1</BlockUDestructionSpies>
+			<BlockWWDestructionSpies>1</BlockWWDestructionSpies>
+			<BlockBuildingDestructionSpies>1</BlockBuildingDestructionSpies>
 			<EnhancedYieldTech>TECH_GUILDS</EnhancedYieldTech>
 			<ArtInfoCulturalVariation>true</ArtInfoCulturalVariation>
 			<DisplayPosition>32</DisplayPosition>
@@ -65,10 +73,10 @@
 			</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_DOGE_PALACE_STRATEGY">
-			<Text>Unique Venetian replacement for the Palace. This building has higher yields and defense than the standard Palace, and improves Great Person generation by 15% in your [ICON_CAPITAL] Capital. Produces +5 [ICON_TOURISM] when you research Guilds. It does not contain a slot for a Great Work.</Text>
+			<Text>Unique Venetian replacement for the Palace. This building has higher yields and defense than the standard Palace, and improves Great Person generation by 15% in your [ICON_CAPITAL] Capital. Produces +5 [ICON_TOURISM] when you research Guilds. It does not contain a slot for a Great Work. [NEWLINE][NEWLINE]Enemy Spies in this City cannot perform Advanced Spy Actions.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_DOGE_PALACE_HELP">
-			<Text>+15% Great Person rate and +5 [ICON_TOURISM] when you research Guilds.</Text>
+			<Text>+15% Great Person rate and +5 [ICON_TOURISM] when you research Guilds. Enemy [ICON_SPY] Spies cannot perform Advanced Spy Actions in this City.</Text>
 		</Row>
 	</Language_en_US>
 </GameData>

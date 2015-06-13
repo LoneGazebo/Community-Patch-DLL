@@ -8375,31 +8375,45 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, TeamTypes eTeam, bool bIgnor
 			bool bRequiresImprovement = pReligion->m_Beliefs.RequiresImprovement();
 			bool bRequiresNoImprovement = pReligion->m_Beliefs.RequiresNoImprovement();
 			bool bRequiresResource = pReligion->m_Beliefs.RequiresResource();
+			bool bRequiresNoImprovementFeature = pReligion->m_Beliefs.RequiresNoImprovementFeature();
 			if (MOD_BALANCE_CORE_BELIEFS_RESOURCE && (bRequiresImprovement || bRequiresResource || bRequiresNoImprovement))
 			{	
-				if(bRequiresImprovement && bRequiresResource && !bRequiresNoImprovement && (getResourceType() != NO_RESOURCE) && (getImprovementType() != NO_IMPROVEMENT))
+				if(bRequiresImprovement)
 				{
-					iReligionChange += pReligion->m_Beliefs.GetTerrainYieldChange(getTerrainType(), eYield);
+					if(getImprovementType() != NO_IMPROVEMENT)
+					{
+						iReligionChange += pReligion->m_Beliefs.GetTerrainYieldChange(getTerrainType(), eYield);
+						if(bRequiresResource && getResourceType() == NO_RESOURCE)
+						{
+							iReligionChange -= pReligion->m_Beliefs.GetTerrainYieldChange(getTerrainType(), eYield);
+						}
+					}
 				}
-				else if(bRequiresImprovement && !bRequiresResource && !bRequiresNoImprovement && (getImprovementType() != NO_IMPROVEMENT))
+				else if(bRequiresResource)
 				{
-					iReligionChange += pReligion->m_Beliefs.GetTerrainYieldChange(getTerrainType(), eYield);
+					if(getResourceType() != NO_RESOURCE)
+					{
+						iReligionChange += pReligion->m_Beliefs.GetTerrainYieldChange(getTerrainType(), eYield);
+						if(bRequiresImprovement && getImprovementType() == NO_IMPROVEMENT)
+						{
+							iReligionChange -= pReligion->m_Beliefs.GetTerrainYieldChange(getTerrainType(), eYield);
+						}
+					}
 				}
-				else if(bRequiresResource && !bRequiresImprovement && !bRequiresNoImprovement && (getResourceType() != NO_RESOURCE))
+				else if(bRequiresNoImprovement)
 				{
-					iReligionChange += pReligion->m_Beliefs.GetTerrainYieldChange(getTerrainType(), eYield);
+					if(getImprovementType() == NO_IMPROVEMENT)
+					{
+						iReligionChange += pReligion->m_Beliefs.GetTerrainYieldChange(getTerrainType(), eYield);
+						if(bRequiresNoImprovementFeature && getFeatureType() != NO_FEATURE)
+						{
+							iReligionChange -= pReligion->m_Beliefs.GetTerrainYieldChange(getTerrainType(), eYield);
+						}
+					}
 				}
-				else if(bRequiresResource && !bRequiresImprovement && bRequiresNoImprovement && (getResourceType() != NO_RESOURCE) && (getImprovementType() == NO_IMPROVEMENT))
+				if(iReligionChange > pReligion->m_Beliefs.GetTerrainYieldChange(getTerrainType(), eYield))
 				{
-					iReligionChange += pReligion->m_Beliefs.GetTerrainYieldChange(getTerrainType(), eYield);
-				}
-				else if(!bRequiresResource && !bRequiresImprovement && bRequiresNoImprovement && (getResourceType() == NO_RESOURCE) && (getImprovementType() == NO_IMPROVEMENT))
-				{
-					iReligionChange += pReligion->m_Beliefs.GetTerrainYieldChange(getTerrainType(), eYield);
-				}
-				else if(bRequiresNoImprovement && (getImprovementType() == NO_IMPROVEMENT))
-				{
-					iReligionChange += pReligion->m_Beliefs.GetTerrainYieldChange(getTerrainType(), eYield);
+					iReligionChange = pReligion->m_Beliefs.GetTerrainYieldChange(getTerrainType(), eYield);
 				}
 			}
 			else
@@ -8417,31 +8431,45 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, TeamTypes eTeam, bool bIgnor
 				bool bRequiresImprovement = GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->RequiresImprovement();
 				bool bRequiresResource = GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->RequiresResource();
 				bool bRequiresNoImprovement = GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->RequiresNoImprovement();
+				bool bRequiresNoImprovementFeature = GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->RequiresNoImprovementFeature();
 				if (MOD_BALANCE_CORE_BELIEFS_RESOURCE && (bRequiresImprovement || bRequiresResource || bRequiresNoImprovement))
 				{		
-					if(bRequiresImprovement && bRequiresResource && (getResourceType() != NO_RESOURCE) && (getImprovementType() != NO_IMPROVEMENT))
+					if(bRequiresImprovement)
 					{
-						iReligionChange += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetTerrainYieldChange(getTerrainType(), eYield);
+						if(getImprovementType() != NO_IMPROVEMENT)
+						{
+							iReligionChange += pReligion->m_Beliefs.GetTerrainYieldChange(getTerrainType(), eYield);
+							if(bRequiresResource && getResourceType() == NO_RESOURCE)
+							{
+								iReligionChange -= pReligion->m_Beliefs.GetTerrainYieldChange(getTerrainType(), eYield);
+							}
+						}
 					}
-					else if(bRequiresImprovement && !bRequiresResource && (getImprovementType() != NO_IMPROVEMENT))
+					else if(bRequiresResource)
 					{
-						iReligionChange += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetTerrainYieldChange(getTerrainType(), eYield);
+						if(getResourceType() != NO_RESOURCE)
+						{
+							iReligionChange += pReligion->m_Beliefs.GetTerrainYieldChange(getTerrainType(), eYield);
+							if(bRequiresImprovement && getImprovementType() == NO_IMPROVEMENT)
+							{
+								iReligionChange -= pReligion->m_Beliefs.GetTerrainYieldChange(getTerrainType(), eYield);
+							}
+						}
 					}
-					else if(bRequiresResource && !bRequiresImprovement && (getResourceType() != NO_RESOURCE))
+					else if(bRequiresNoImprovement)
 					{
-						iReligionChange += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetTerrainYieldChange(getTerrainType(), eYield);
+						if(getImprovementType() == NO_IMPROVEMENT)
+						{
+							iReligionChange += pReligion->m_Beliefs.GetTerrainYieldChange(getTerrainType(), eYield);
+							if(bRequiresNoImprovementFeature && getFeatureType() != NO_FEATURE)
+							{
+								iReligionChange -= pReligion->m_Beliefs.GetTerrainYieldChange(getTerrainType(), eYield);
+							}
+						}
 					}
-					else if(bRequiresResource && !bRequiresImprovement && bRequiresNoImprovement && (getResourceType() != NO_RESOURCE) && (getImprovementType() == NO_IMPROVEMENT))
+					if(iReligionChange > pReligion->m_Beliefs.GetTerrainYieldChange(getTerrainType(), eYield))
 					{
-						iReligionChange += pReligion->m_Beliefs.GetTerrainYieldChange(getTerrainType(), eYield);
-					}
-					else if(!bRequiresResource && !bRequiresImprovement && bRequiresNoImprovement && (getResourceType() == NO_RESOURCE) && (getImprovementType() == NO_IMPROVEMENT))
-					{
-						iReligionChange += pReligion->m_Beliefs.GetTerrainYieldChange(getTerrainType(), eYield);
-					}
-					else if(bRequiresNoImprovement && (getImprovementType() == NO_IMPROVEMENT))
-					{
-						iReligionChange += pReligion->m_Beliefs.GetTerrainYieldChange(getTerrainType(), eYield);
+						iReligionChange = pReligion->m_Beliefs.GetTerrainYieldChange(getTerrainType(), eYield);
 					}
 				}
 				else
@@ -9431,7 +9459,6 @@ void CvPlot::updateYield()
 
 				// JON: New City Citizens AI shoulud update here 08/17/09
 			}
-
 			bChange = true;
 		}
 	}
@@ -13438,13 +13465,13 @@ int CvPlot::GetDefenseBuildValue()
 		iScore += iNearbyOwned * 10;
 		
 		//Big Bonus if adjacent to territory.
-		iScore += (iAdjacentOwned * 30);
+		iScore += (iAdjacentOwned * 25);
 
 		//Big Bonus if adjacent to enemy territory.
-		iScore += (iBadAdjacent * 40);
+		iScore += (iBadAdjacent * 30);
 
 		//Big Bonus if adjacent to enemy territory.
-		iScore += (iBadNearby * 20);
+		iScore += (iBadNearby * 15);
 
 		//Big bonus if chokepoint
 		if(IsChokePoint())

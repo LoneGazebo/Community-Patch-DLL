@@ -10,7 +10,7 @@
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_AT_WAR</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_MOBILE</FlavorType>
-			<Flavor>10</Flavor>
+			<Flavor>15</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_AT_WAR</AIMilitaryStrategyType>
@@ -145,7 +145,7 @@
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_WINNING_WARS</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_RANGED</FlavorType>
-			<Flavor>25</Flavor>
+			<Flavor>15</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_WINNING_WARS</AIMilitaryStrategyType>
@@ -270,7 +270,7 @@
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_LOSING_WARS</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_RANGED</FlavorType>
-			<Flavor>15</Flavor>
+			<Flavor>10</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_LOSING_WARS</AIMilitaryStrategyType>
@@ -774,47 +774,47 @@
 		<Row>
 			<AIEconomicStrategyType>ECONOMICAISTRATEGY_TOO_MANY_UNITS</AIEconomicStrategyType>
 			<FlavorType>FLAVOR_ANTIAIR</FlavorType>
-			<Flavor>-50</Flavor>
+			<Flavor>-100</Flavor>
 		</Row>
 		<Row>
 			<AIEconomicStrategyType>ECONOMICAISTRATEGY_TOO_MANY_UNITS</AIEconomicStrategyType>
 			<FlavorType>FLAVOR_AIR</FlavorType>
-			<Flavor>-50</Flavor>
+			<Flavor>-100</Flavor>
 		</Row>
 		<Row>
 			<AIEconomicStrategyType>ECONOMICAISTRATEGY_LOSING_MONEY</AIEconomicStrategyType>
 			<FlavorType>FLAVOR_ANTIAIR</FlavorType>
-			<Flavor>-25</Flavor>
+			<Flavor>-100</Flavor>
 		</Row>
 		<Row>
 			<AIEconomicStrategyType>ECONOMICAISTRATEGY_LOSING_MONEY</AIEconomicStrategyType>
 			<FlavorType>FLAVOR_AIR</FlavorType>
-			<Flavor>-25</Flavor>
+			<Flavor>-100</Flavor>
 		</Row>
 		<Row>
 			<AIEconomicStrategyType>ECONOMICAISTRATEGY_LOSING_MONEY</AIEconomicStrategyType>
 			<FlavorType>FLAVOR_MOBILE</FlavorType>
-			<Flavor>-25</Flavor>
+			<Flavor>-100</Flavor>
 		</Row>
 		<Row>
 			<AIEconomicStrategyType>ECONOMICAISTRATEGY_LOSING_MONEY</AIEconomicStrategyType>
 			<FlavorType>FLAVOR_NAVAL</FlavorType>
-			<Flavor>-25</Flavor>
+			<Flavor>-100</Flavor>
 		</Row>
 		<Row>
 			<AIEconomicStrategyType>ECONOMICAISTRATEGY_LOSING_MONEY</AIEconomicStrategyType>
 			<FlavorType>FLAVOR_NAVAL_RECON</FlavorType>
-			<Flavor>-25</Flavor>
+			<Flavor>-100</Flavor>
 		</Row>
 		<Row>
 			<AIEconomicStrategyType>ECONOMICAISTRATEGY_LOSING_MONEY</AIEconomicStrategyType>
 			<FlavorType>FLAVOR_RANGED</FlavorType>
-			<Flavor>-25</Flavor>
+			<Flavor>-100</Flavor>
 		</Row>
 		<Row>
 			<AIEconomicStrategyType>ECONOMICAISTRATEGY_LOSING_MONEY</AIEconomicStrategyType>
 			<FlavorType>FLAVOR_RECON</FlavorType>
-			<Flavor>-25</Flavor>
+			<Flavor>-100</Flavor>
 		</Row>
 	</AIEconomicStrategy_City_Flavors>
 	<AICityStrategy_Flavors>
@@ -829,4 +829,29 @@
 			<Flavor>20</Flavor>
 		</Row>
 	</AICityStrategy_Flavors>
+	<!-- Resource Change for Iron-->
+	<Resource_FeatureBooleans>
+		<Row>
+			<ResourceType>RESOURCE_IRON</ResourceType>
+			<FeatureType>FEATURE_FOREST</FeatureType>
+		</Row>
+	</Resource_FeatureBooleans>
+	<Resource_FeatureTerrainBooleans>
+		<Row>
+			<ResourceType>RESOURCE_IRON</ResourceType>
+			<TerrainType>TERRAIN_GRASS</TerrainType>
+		</Row>
+		<Row>
+			<ResourceType>RESOURCE_IRON</ResourceType>
+			<TerrainType>TERRAIN_PLAINS</TerrainType>
+		</Row>
+		<Row>
+			<ResourceType>RESOURCE_IRON</ResourceType>
+			<TerrainType>TERRAIN_TUNDRA</TerrainType>
+		</Row>
+		<Row>
+			<ResourceType>RESOURCE_IRON</ResourceType>
+			<TerrainType>TERRAIN_DESERT</TerrainType>
+		</Row>
+	</Resource_FeatureTerrainBooleans>
 </GameData>

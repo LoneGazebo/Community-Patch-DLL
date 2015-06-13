@@ -6,29 +6,29 @@
 			<Atlas>UNIT_ACTION_ENCAMPMENT</Atlas>
 			<IconSize>64</IconSize>
 			<Filename>EncampmentBuildIcon64.dds</Filename>
-			<IconsPerRow>2</IconsPerRow>
-			<IconsPerColumn>2</IconsPerColumn>
+			<IconsPerRow>1</IconsPerRow>
+			<IconsPerColumn>1</IconsPerColumn>
 		</Row>
 		<Row>
 			<Atlas>UNIT_ACTION_ENCAMPMENT</Atlas>
 			<IconSize>45</IconSize>
 			<Filename>EncampmentBuildIcon45.dds</Filename>
-			<IconsPerRow>2</IconsPerRow>
-			<IconsPerColumn>2</IconsPerColumn>
+			<IconsPerRow>1</IconsPerRow>
+			<IconsPerColumn>1</IconsPerColumn>
 		</Row>
 		<Row>
 			<Atlas>TERRAIN_IMPROVEMENT_ENCAMPMENT</Atlas>
 			<IconSize>256</IconSize>
 			<Filename>EncampmentAtlas256.dds</Filename>
-			<IconsPerRow>3</IconsPerRow>
-			<IconsPerColumn>2</IconsPerColumn>
+			<IconsPerRow>1</IconsPerRow>
+			<IconsPerColumn>1</IconsPerColumn>
 		</Row>
 		<Row>
 			<Atlas>TERRAIN_IMPROVEMENT_ENCAMPMENT</Atlas>
 			<IconSize>64</IconSize>
 			<Filename>EncampmentAtlas64.dds</Filename>
-			<IconsPerRow>3</IconsPerRow>
-			<IconsPerColumn>2</IconsPerColumn>
+			<IconsPerRow>1</IconsPerRow>
+			<IconsPerColumn>1</IconsPerColumn>
 		</Row>
 	</IconTextureAtlases>
 	<ArtDefine_StrategicView>

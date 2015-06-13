@@ -37,7 +37,7 @@
 		<!-- Related to Policies-->
 		<Update>
 			<Where Name="POLICY_COST_EXPONENT"/>
-			<Set Value="1.86"/>
+			<Set Value="1.90"/>
 			<!-- 2.01 -->
 		</Update>
 		<Update>
@@ -60,7 +60,7 @@
 		<!--  Related to Settling -->
 		<Update>
 			<Where Name="SETTLER_PRODUCTION_MULTIPLIER"/>
-			<Set Value="6"/>
+			<Set Value="4"/>
 			<!-- 3 -->
 		</Update>
 		<!-- Related to cities and the economy -->
@@ -413,7 +413,12 @@
 -->
 		<Update>
 			<Where Name="RELIGION_MIN_FAITH_FIRST_PANTHEON" />
-			<Set Value="20" />
+			<Set Value="30" />
+			<!-- 10 -->
+		</Update>
+		<Update>
+			<Where Name="RELIGION_GAME_FAITH_DELTA_NEXT_PANTHEON" />
+			<Set Value="0" />
 			<!-- 10 -->
 		</Update>
 		<Update>

@@ -234,7 +234,7 @@ SET GrantsVisionXTiles = '3'
 WHERE Type = 'IMPROVEMENT_FEITORIA' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'A Feitoria can only be built in City-State land, on a coastal tile without a resource. Can be built by workers or created by a Nau when it sells Exotic Cargo. It provides to you one copy of each Luxury Resource type that City-State has connected, regardless of your status with that City-State, but that copy cannot be traded. In addition to thise bonus, the Feitoria provides vision of its tile and all tiles within a radius of 3. [NEWLINE][NEWLINE]It also provides the same +50% defense bonus as a Fort. Can only be built by the Portuguese.'
+SET Text = 'A Feitoria can only be built in City-State land, on a coastal tile without a resource. Can be built by workers or created by a Nau when it sells Exotic Cargo. It provides to you one copy of each Luxury Resource type that City-State has connected, regardless of your status with that City-State, but that copy cannot be traded. In addition to these bonus, the Feitoria provides vision of its tile and all tiles within a radius of 3. [NEWLINE][NEWLINE]It also provides the same +50% defense bonus as a Fort. Can only be built by the Portuguese.'
 WHERE Tag = 'TXT_KEY_CIV5_IMPROVEMENTS_FEITORIA_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 -- Shoshone
@@ -262,14 +262,26 @@ SET Text = 'A Barbarian Encampment is a temporary settlement by a group of rampa
 WHERE Tag = 'TXT_KEY_IMPROVEMENT_BARBARIAN_CAMP_PEDIA' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 -- Casimir III -- Ducal Stable +1 Production
-UPDATE Language_en_US
-SET Text = 'Unique Polish Stable replacement. +15% [ICON_PRODUCTION] Production and  +15 XP for Mounted Units.[NEWLINE][NEWLINE]Each Pasture worked by this City produces +2 [ICON_PRODUCTION] Production and +2 [ICON_GOLD] Gold, and the City itself produces +1 [ICON_PRODUCTION] Production.'
-WHERE Tag = 'TXT_KEY_BUILDING_DUCAL_STABLE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+UPDATE Buildings
+SET PrereqTech = 'TECH_CHIVALRY'
+WHERE Type = 'BUILDING_DUCAL_STABLE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
+
+UPDATE Building_YieldChanges
+SET Yield = '3'
+WHERE BuildingType = 'BUILDING_DUCAL_STABLE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Building_ResourceYieldChanges
-SET Yield = '2'
+SET Yield = '3'
 WHERE BuildingType = 'BUILDING_DUCAL_STABLE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
-	
+
+UPDATE Building_UnitCombatProductionModifiers
+SET Modifier = '25'
+WHERE BuildingType = 'BUILDING_DUCAL_STABLE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
+
+UPDATE Language_en_US
+SET Text = 'Unique Polish Stable replacement. +25% [ICON_PRODUCTION] Production and  +15 XP for Mounted Units.[NEWLINE][NEWLINE]Each Pasture worked by this City produces +2 [ICON_PRODUCTION] Production and +2 [ICON_GOLD] Gold, and the City itself produces +1 [ICON_PRODUCTION] Production.'
+WHERE Tag = 'TXT_KEY_BUILDING_DUCAL_STABLE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
+
 -- Pedro -- Improve Brazilwood Camp, increase all GP production during GA
 UPDATE Language_en_US
 SET Text = 'Tourism [ICON_TOURISM] output is +100% during their Golden Ages. Earn all Great People 50% faster during their Golden Ages.'

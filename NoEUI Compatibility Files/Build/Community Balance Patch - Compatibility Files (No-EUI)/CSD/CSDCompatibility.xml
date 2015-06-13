@@ -8,6 +8,26 @@
 			<Specialist>SPECIALIST_CIVIL_SERVANT</Specialist>
 		</Row>
 	</GreatPersons>
+	<Tech_SpecialistYieldChanges>
+		<Row>
+			<TechType>TECH_NAVIGATION</TechType>
+			<SpecialistType>SPECIALIST_CIVIL_SERVANT</SpecialistType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>2</Yield>
+		</Row>
+		<Row>
+			<TechType>TECH_REPLACEABLE_PARTS</TechType>
+			<SpecialistType>SPECIALIST_CIVIL_SERVANT</SpecialistType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Yield>2</Yield>
+		</Row>
+		<Row>
+			<TechType>TECH_INTERNET</TechType>
+			<SpecialistType>SPECIALIST_CIVIL_SERVANT</SpecialistType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>2</Yield>
+		</Row>
+	</Tech_SpecialistYieldChanges>
 	<!-- CSD -->
 	<Trait_FreePromotionUnitClass>
 		<Row>

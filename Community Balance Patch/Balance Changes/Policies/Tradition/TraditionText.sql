@@ -31,7 +31,7 @@ WHERE Tag = 'TXT_KEY_POLICY_OLIGARCHY_TEXT' AND EXISTS (SELECT * FROM COMMUNITY 
 
 -- Legalism
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Majesty[ENDCOLOR][NEWLINE][ICON_GOLDEN_AGE] Golden Ages last 25% longer. Throne Room constructed in [ICON_CAPITAL] Capital, granting a Writer Specialist slot, a [ICON_GREAT_WORK] Great Work of Writing slot, and a boost to [ICON_CULTURE] Culture.'
+SET Text = '[COLOR_POSITIVE_TEXT]Majesty[ENDCOLOR][NEWLINE][ICON_GOLDEN_AGE] Golden Ages last 20% longer. Throne Room constructed in [ICON_CAPITAL] Capital, granting a Writer Specialist slot, a [ICON_GREAT_WORK] Great Work of Writing slot, and a boost to [ICON_CULTURE] Culture.'
 WHERE Tag = 'TXT_KEY_POLICY_LEGALISM_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -57,7 +57,7 @@ WHERE Tag = 'TXT_KEY_POLICY_LANDED_ELIT_TEXT' AND EXISTS (SELECT * FROM COMMUNIT
 
 -- Monarchy
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Devotion[ENDCOLOR][NEWLINE] +25% [ICON_GREAT_PEOPLE] Great People Rate in all Cities. Court Chapel constructed in [ICON_CAPITAL] Capital, granting a Musician Specialist slot, a [ICON_GREAT_WORK] Great Work of Music slot, and [ICON_PEACE] Faith.'
+SET Text = '[COLOR_POSITIVE_TEXT]Devotion[ENDCOLOR][NEWLINE] +15% [ICON_GREAT_PEOPLE] Great People Rate in all Cities. Court Chapel constructed in [ICON_CAPITAL] Capital, granting a Musician Specialist slot, a [ICON_GREAT_WORK] Great Work of Music slot, and [ICON_PEACE] Faith.'
 WHERE Tag = 'TXT_KEY_POLICY_MONARCHY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US

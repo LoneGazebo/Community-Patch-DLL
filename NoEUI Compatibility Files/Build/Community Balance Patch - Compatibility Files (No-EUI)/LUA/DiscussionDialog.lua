@@ -1289,7 +1289,9 @@ function OnButton7()
 	local pPlayer = Players[Game.GetActivePlayer()];
 	local pAIPlayer = Players[g_iAIPlayer];
 	local pTeam = Teams[pPlayer:GetTeam()];
-	
+-- CBP
+	local iActivePlayer = Game.GetActivePlayer();
+-- END	
 	local iButtonID = 7;
 	if (g_DiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_DISCUSS_HUMAN_INVOKED) then
 		-- Discussion Root Mode

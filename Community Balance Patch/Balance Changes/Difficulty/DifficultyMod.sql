@@ -42,19 +42,19 @@ WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='BALANCE_GLOBAL_DIFFICULTY_LEVE
 DELETE FROM HandicapInfo_AIFreeTechs WHERE HandicapType IN ('HANDICAP_KING' , 'HANDICAP_EMPEROR' , 'HANDICAP_IMMORTAL', 'HANDICAP_DEITY');
 
 UPDATE HandicapInfos
-SET AIPerEraModifier='-4' , HappinessDefault='7', Gold='0' , AIStartingDefenseUnits = '1' , AIDeclareWarProb='100', NumCitiesUnhappinessMod='100' , PopulationUnhappinessMod='100' , ProductionFreeUnits='8' , AIStartingWorkerUnits='0', ProductionFreeUnitsPopulationPercent='50' , ProductionFreeUnitsPerCity='5' , RouteCostPercent='100' , UnitCostPercent='100' , BuildingCostPercent='100' , ResearchPercent='100' , PolicyPercent='100' , ImprovementCostPercent='100' , CityProductionNumOptionsConsidered='2' , TechNumOptionsConsidered='2' , PolicyNumOptionsConsidered='2' , AttitudeChange='-1' , NoTechTradeModifier='40' , BarbCampGold='50' , AIBarbarianBonus='50' , AIWorkRateModifier='0' ,  AIUnhappinessPercent='100' , AIGrowthPercent='100' , AITrainPercent='100' , AICreatePercent='100' , AIConstructPercent='100', AIBuildingCostPercent='100' , AIUnitCostPercent='100' , AIUnitSupplyPercent='75' , AIUnitUpgradePercent='75', AIAdvancedStartPercent='130', AIFreeXP='15' , AIFreeXPPercent='30'
+SET AIPerEraModifier='-4' , HappinessDefault='7', Gold='0' , AIStartingDefenseUnits = '1' , AIDeclareWarProb='125', NumCitiesUnhappinessMod='100' , PopulationUnhappinessMod='100' , ProductionFreeUnits='8' , AIStartingWorkerUnits='0', ProductionFreeUnitsPopulationPercent='50' , ProductionFreeUnitsPerCity='5' , RouteCostPercent='100' , UnitCostPercent='100' , BuildingCostPercent='100' , ResearchPercent='100' , PolicyPercent='100' , ImprovementCostPercent='100' , CityProductionNumOptionsConsidered='2' , TechNumOptionsConsidered='2' , PolicyNumOptionsConsidered='2' , AttitudeChange='-1' , NoTechTradeModifier='40' , BarbCampGold='50' , AIBarbarianBonus='50' , AIWorkRateModifier='0' ,  AIUnhappinessPercent='100' , AIGrowthPercent='100' , AITrainPercent='100' , AICreatePercent='100' , AIConstructPercent='100', AIBuildingCostPercent='100' , AIUnitCostPercent='100' , AIUnitSupplyPercent='75' , AIUnitUpgradePercent='75', AIAdvancedStartPercent='130', AIFreeXP='15' , AIFreeXPPercent='30'
 WHERE Type = 'HANDICAP_KING';
 
 UPDATE HandicapInfos
-SET AIPerEraModifier='-6' , HappinessDefault='6', Gold='0' , AIStartingDefenseUnits = '2' , AIDeclareWarProb='100', NumCitiesUnhappinessMod='100' , PopulationUnhappinessMod='100' , ProductionFreeUnits='7' , AIStartingWorkerUnits='0', ProductionFreeUnitsPopulationPercent='50' , ProductionFreeUnitsPerCity='5' , RouteCostPercent='100' , UnitCostPercent='100' , BuildingCostPercent='100' , ResearchPercent='100' , PolicyPercent='100' , ImprovementCostPercent='100' , CityProductionNumOptionsConsidered='2' , TechNumOptionsConsidered='2' , PolicyNumOptionsConsidered='2' , AttitudeChange='-1' , NoTechTradeModifier='40' , BarbCampGold='50' , AIBarbarianBonus='50' , AIWorkRateModifier='0' ,  AIUnhappinessPercent='100' , AIGrowthPercent='100' , AITrainPercent='100' , AICreatePercent='100' , AIConstructPercent='100', AIBuildingCostPercent='100' , AIUnitCostPercent='100' , AIUnitSupplyPercent='75' , AIUnitUpgradePercent='75', AIAdvancedStartPercent='130', AIFreeXP='15' , AIFreeXPPercent='30'
+SET AIPerEraModifier='-6' , HappinessDefault='6', Gold='0' , AIStartingDefenseUnits = '2' , AIDeclareWarProb='150', NumCitiesUnhappinessMod='100' , PopulationUnhappinessMod='100' , ProductionFreeUnits='7' , AIStartingWorkerUnits='0', ProductionFreeUnitsPopulationPercent='50' , ProductionFreeUnitsPerCity='5' , RouteCostPercent='100' , UnitCostPercent='100' , BuildingCostPercent='100' , ResearchPercent='100' , PolicyPercent='100' , ImprovementCostPercent='100' , CityProductionNumOptionsConsidered='2' , TechNumOptionsConsidered='2' , PolicyNumOptionsConsidered='2' , AttitudeChange='-1' , NoTechTradeModifier='40' , BarbCampGold='50' , AIBarbarianBonus='50' , AIWorkRateModifier='0' ,  AIUnhappinessPercent='100' , AIGrowthPercent='100' , AITrainPercent='100' , AICreatePercent='100' , AIConstructPercent='100', AIBuildingCostPercent='100' , AIUnitCostPercent='100' , AIUnitSupplyPercent='75' , AIUnitUpgradePercent='75', AIAdvancedStartPercent='130', AIFreeXP='15' , AIFreeXPPercent='30'
 WHERE Type = 'HANDICAP_EMPEROR';
 
 UPDATE HandicapInfos
-SET AIPerEraModifier='-8' , HappinessDefault='5', Gold='0' , AIStartingDefenseUnits = '3' , AIDeclareWarProb='110', NumCitiesUnhappinessMod='100' , PopulationUnhappinessMod='100' , ProductionFreeUnits='6' , AIStartingWorkerUnits='0', ProductionFreeUnitsPopulationPercent='50' , ProductionFreeUnitsPerCity='5' , RouteCostPercent='100' , UnitCostPercent='100' , BuildingCostPercent='100' , ResearchPercent='100' , PolicyPercent='100' , ImprovementCostPercent='100' , CityProductionNumOptionsConsidered='2' , TechNumOptionsConsidered='2' , PolicyNumOptionsConsidered='2' , AttitudeChange='-1' , NoTechTradeModifier='40' , BarbCampGold='50' , AIBarbarianBonus='50' , AIWorkRateModifier='0' ,  AIUnhappinessPercent='100' , AIGrowthPercent='100' , AITrainPercent='100' , AICreatePercent='100' , AIConstructPercent='100', AIBuildingCostPercent='100' , AIUnitCostPercent='100' , AIUnitSupplyPercent='75' , AIUnitUpgradePercent='75', AIAdvancedStartPercent='130', AIFreeXP='15' , AIFreeXPPercent='30'
+SET AIPerEraModifier='-8' , HappinessDefault='5', Gold='0' , AIStartingDefenseUnits = '3' , AIDeclareWarProb='175', NumCitiesUnhappinessMod='100' , PopulationUnhappinessMod='100' , ProductionFreeUnits='6' , AIStartingWorkerUnits='0', ProductionFreeUnitsPopulationPercent='50' , ProductionFreeUnitsPerCity='5' , RouteCostPercent='100' , UnitCostPercent='100' , BuildingCostPercent='100' , ResearchPercent='100' , PolicyPercent='100' , ImprovementCostPercent='100' , CityProductionNumOptionsConsidered='2' , TechNumOptionsConsidered='2' , PolicyNumOptionsConsidered='2' , AttitudeChange='-1' , NoTechTradeModifier='40' , BarbCampGold='50' , AIBarbarianBonus='50' , AIWorkRateModifier='0' ,  AIUnhappinessPercent='100' , AIGrowthPercent='100' , AITrainPercent='100' , AICreatePercent='100' , AIConstructPercent='100', AIBuildingCostPercent='100' , AIUnitCostPercent='100' , AIUnitSupplyPercent='75' , AIUnitUpgradePercent='75', AIAdvancedStartPercent='130', AIFreeXP='15' , AIFreeXPPercent='30'
 WHERE Type = 'HANDICAP_IMMORTAL';
 
 UPDATE HandicapInfos
-SET AIPerEraModifier='-10' , HappinessDefault='4', Gold='0' , AIStartingDefenseUnits = '3' , AIDeclareWarProb='120', NumCitiesUnhappinessMod='100' , PopulationUnhappinessMod='100' , AIStartingUnitMultiplier = '0' , ProductionFreeUnits='8' , AIStartingWorkerUnits='0', ProductionFreeUnitsPopulationPercent='50' , ProductionFreeUnitsPerCity='5' , RouteCostPercent='100' , UnitCostPercent='100' , BuildingCostPercent='100' , ResearchPercent='100' , PolicyPercent='100' , ImprovementCostPercent='100' , CityProductionNumOptionsConsidered='2' , TechNumOptionsConsidered='3' , PolicyNumOptionsConsidered='3' , AttitudeChange='-1' , NoTechTradeModifier='40' , BarbCampGold='100' , AIBarbarianBonus='50' , AIWorkRateModifier='0' ,  AIUnhappinessPercent='100' , AIGrowthPercent='100' , AITrainPercent='100' , AICreatePercent='100' , AIConstructPercent='100', AIBuildingCostPercent='100' , AIUnitCostPercent='100' , AIUnitSupplyPercent='75' , AIUnitUpgradePercent='75', AIAdvancedStartPercent='130', AIFreeXP='15' , AIFreeXPPercent='30'
+SET AIPerEraModifier='-10' , HappinessDefault='4', Gold='0' , AIStartingDefenseUnits = '3' , AIDeclareWarProb='200', NumCitiesUnhappinessMod='100' , PopulationUnhappinessMod='100' , AIStartingUnitMultiplier = '0' , ProductionFreeUnits='8' , AIStartingWorkerUnits='0', ProductionFreeUnitsPopulationPercent='50' , ProductionFreeUnitsPerCity='5' , RouteCostPercent='100' , UnitCostPercent='100' , BuildingCostPercent='100' , ResearchPercent='100' , PolicyPercent='100' , ImprovementCostPercent='100' , CityProductionNumOptionsConsidered='2' , TechNumOptionsConsidered='3' , PolicyNumOptionsConsidered='3' , AttitudeChange='-1' , NoTechTradeModifier='40' , BarbCampGold='100' , AIBarbarianBonus='50' , AIWorkRateModifier='0' ,  AIUnhappinessPercent='100' , AIGrowthPercent='100' , AITrainPercent='100' , AICreatePercent='100' , AIConstructPercent='100', AIBuildingCostPercent='100' , AIUnitCostPercent='100' , AIUnitSupplyPercent='75' , AIUnitUpgradePercent='75', AIAdvancedStartPercent='130', AIFreeXP='15' , AIFreeXPPercent='30'
 WHERE Type = 'HANDICAP_DEITY';
 
 UPDATE HandicapInfos
@@ -138,48 +138,48 @@ SET NumCitiesPolicyCostMod = '15'
 WHERE Type = 'WORLDSIZE_DUEL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
 
 UPDATE Worlds
-SET NumCitiesPolicyCostMod = '13'
+SET NumCitiesPolicyCostMod = '14'
 WHERE Type = 'WORLDSIZE_TINY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
 
 UPDATE Worlds
-SET NumCitiesPolicyCostMod = '11'
+SET NumCitiesPolicyCostMod = '12'
 WHERE Type = 'WORLDSIZE_SMALL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
 
 UPDATE Worlds
-SET NumCitiesPolicyCostMod = '10'
+SET NumCitiesPolicyCostMod = '11'
 WHERE Type = 'WORLDSIZE_STANDARD' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
 
 UPDATE Worlds
-SET NumCitiesPolicyCostMod = '9'
+SET NumCitiesPolicyCostMod = '10'
 WHERE Type = 'WORLDSIZE_LARGE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
 
 UPDATE Worlds
-SET NumCitiesPolicyCostMod = '8'
+SET NumCitiesPolicyCostMod = '9'
 WHERE Type = 'WORLDSIZE_HUGE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
 
 
 UPDATE Worlds
-SET NumCitiesTechCostMod = '13'
+SET NumCitiesTechCostMod = '14'
 WHERE Type = 'WORLDSIZE_DUEL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
 
 UPDATE Worlds
-SET NumCitiesTechCostMod = '11'
+SET NumCitiesTechCostMod = '12'
 WHERE Type = 'WORLDSIZE_TINY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
 
 UPDATE Worlds
-SET NumCitiesTechCostMod = '9'
+SET NumCitiesTechCostMod = '10'
 WHERE Type = 'WORLDSIZE_SMALL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
 
 UPDATE Worlds
-SET NumCitiesTechCostMod = '7'
+SET NumCitiesTechCostMod = '8'
 WHERE Type = 'WORLDSIZE_STANDARD' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
 
 UPDATE Worlds
-SET NumCitiesTechCostMod = '6'
+SET NumCitiesTechCostMod = '7'
 WHERE Type = 'WORLDSIZE_LARGE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
 
 UPDATE Worlds
-SET NumCitiesTechCostMod = '5'
+SET NumCitiesTechCostMod = '6'
 WHERE Type = 'WORLDSIZE_HUGE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
 
 -- Goody Hut Payout
