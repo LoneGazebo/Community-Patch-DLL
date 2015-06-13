@@ -21,12 +21,12 @@ INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SE
 INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_BABYLONIAN_BOWMAN','BUILDINGCLASS_BARRACKS'; 
 INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_CATAPULT','BUILDINGCLASS_BARRACKS'; 
 INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_COMPOSITE_BOWMAN','BUILDINGCLASS_BARRACKS'; 
-INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_HUN_HORSE_ARCHER','BUILDINGCLASS_STABLE'; 
+INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_HUN_HORSE_ARCHER','BUILDINGCLASS_BARRACKS'; 
 INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_KRIS_SWORDSMAN','BUILDINGCLASS_BARRACKS'; 
 INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_MAYAN_ATLATLIST','BUILDINGCLASS_BARRACKS'; 
 INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_ROMAN_LEGION','BUILDINGCLASS_BARRACKS'; 
 INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_IROQUOIAN_MOHAWKWARRIOR','BUILDINGCLASS_BARRACKS'; 
-INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_INDIAN_WARELEPHANT','BUILDINGCLASS_STABLE'; 
+INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_INDIAN_WARELEPHANT','BUILDINGCLASS_BARRACKS'; 
 INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_POLYNESIAN_MAORI_WARRIOR','BUILDINGCLASS_BARRACKS'; 
 INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_SWORDSMAN','BUILDINGCLASS_BARRACKS'; 
 -- Medieval

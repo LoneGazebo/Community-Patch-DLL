@@ -13485,7 +13485,34 @@ int CvPlayer::GetYieldPerTurnFromReligion(YieldTypes eYield) const
 			}
 		}
 	}
+	else
+	{
+		eReligion = GetReligions()->GetReligionCreatedByPlayer(true);
+		const CvReligion* pReligion = pReligions->GetReligion(eReligion, GetID());
+		if (pReligion)
+		{
+			// This came from CvTreasury::GetGoldPerTurnFromReligion()
+			if (eYield == YIELD_GOLD)
+			{
+				int iGoldPerFollowingCity = pReligion->m_Beliefs.GetGoldPerFollowingCity();
+				iYieldPerTurn += (pReligions->GetNumCitiesFollowing(eReligion) * iGoldPerFollowingCity);
 
+				int iGoldPerXFollowers = pReligion->m_Beliefs.GetGoldPerXFollowers();
+				if(iGoldPerXFollowers > 0)
+				{
+					iYieldPerTurn += (pReligions->GetNumFollowers(eReligion) / iGoldPerXFollowers);
+				}
+			}
+			int iYieldPerFollowingCity = pReligion->m_Beliefs.GetYieldPerFollowingCity(eYield);
+			iYieldPerTurn += (pReligions->GetNumCitiesFollowing(eReligion) * iYieldPerFollowingCity);
+
+			int iYieldPerXFollowers = pReligion->m_Beliefs.GetYieldPerXFollowers(eYield);
+			if(iYieldPerXFollowers > 0)
+			{
+				iYieldPerTurn += (pReligions->GetNumFollowers(eReligion) / iYieldPerXFollowers);
+			}
+		}
+	}
 	return iYieldPerTurn;
 }
 
@@ -21733,12 +21760,6 @@ int CvPlayer::calculateMilitaryMight() const
 		int iPower =  pLoopUnit->GetPower();
 		if (pLoopUnit->getDomainType() == DOMAIN_SEA)
 		{
-#if defined(MOD_BALANCE_CORE_MILITARY)
-			if(MOD_BALANCE_CORE_MILITARY)
-			{
-				iPower *= 3;
-			}
-#endif
 			iPower /= 2;
 		}
 		rtnValue += iPower;
@@ -21755,6 +21776,21 @@ int CvPlayer::calculateMilitaryMight() const
 	//500 gold will increase might by 22%, 2000 by 45%, 8000 gold by 90%
 	float fGoldMultiplier = 1.0f + (sqrt((float)GetTreasury()->GetGold()) / 100.0f);
 	if(fGoldMultiplier > 2.0f) fGoldMultiplier = 2.0f;
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	//If we can't sustain, we aren't that strong.
+	if(GetTreasury()->CalculateBaseNetGold() <= 10)
+	{
+		fGoldMultiplier /= 2;
+	}
+	if(GetTreasury()->GetGoldPerTurnFromTradeRoutes() <= GetTreasury()->GetExpensePerTurnUnitMaintenance())
+	{
+		fGoldMultiplier /= 2;
+	}
+	//Finally, divide our power by the number of cities we own - the more we have, the less we can defend.
+	{
+		rtnValue /= max(1, getNumCities());
+	}
+#endif
 
 	rtnValue = (int)(rtnValue * fGoldMultiplier);
 
@@ -21769,7 +21805,29 @@ int CvPlayer::calculateEconomicMight() const
 	int iEconomicMight = 5;
 
 	iEconomicMight += getTotalPopulation();
-
+#if defined(MOD_BALANCE_CORE)
+	iEconomicMight -= GetUnhappiness();
+	iEconomicMight += calculateTotalYield(YIELD_FOOD);
+	iEconomicMight += calculateTotalYield(YIELD_PRODUCTION);
+	iEconomicMight += calculateTotalYield(YIELD_SCIENCE);
+	iEconomicMight += calculateTotalYield(YIELD_GOLD);
+	if(IsEmpireUnhappy())
+	{
+		iEconomicMight -= GetUnhappiness();
+	}
+	else if(IsEmpireVeryUnhappy())
+	{
+		iEconomicMight -= (GetUnhappiness() * 2);
+	}
+	else if(IsEmpireSuperUnhappy())
+	{
+		iEconomicMight -= (GetUnhappiness() * 4);
+	}
+	//Finally, divide our power by the number of cities we own - the more we have, the less we can defend.
+	{
+		iEconomicMight /= max(1, getNumCities());
+	}
+#else
 	// todo: add weights to these in an xml
 	//iEconomicMight += calculateTotalYield(YIELD_FOOD);
 	iEconomicMight += calculateTotalYield(YIELD_PRODUCTION);
@@ -21783,7 +21841,7 @@ int CvPlayer::calculateEconomicMight() const
 #if defined(MOD_API_UNIFIED_YIELDS_GOLDEN_AGE)
 	//iEconomicMight += calculateTotalYield(YIELD_GOLDEN_AGE_POINTS);
 #endif
-
+#endif
 	return iEconomicMight;
 }
 
@@ -30364,7 +30422,6 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 			}
 		}
 	}
-
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	if(MOD_BALANCE_CORE_HAPPINESS)
 	{
@@ -30375,6 +30432,18 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	}
 #else
 	DoUpdateHappiness();
+#endif
+#if defined(MOD_BALANCE_CORE)
+	CvCity* pLoopCity2;
+	int iLoop2;
+	for(pLoopCity2 = firstCity(&iLoop2); pLoopCity2 != NULL; pLoopCity2 = nextCity(&iLoop2))
+	{
+		if(pLoopCity2 != NULL)
+		{
+			pLoopCity2->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
+			pLoopCity2->GetCityCulture()->CalculateBaseTourism();
+		}
+	}
 #endif
 	GetTrade()->UpdateTradeConnectionValues();
 	recomputeGreatPeopleModifiers();
@@ -33335,17 +33404,17 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, bool bEscorted, int iTa
 	//start with a predefined base value
 	int iBestFoundValue = GC.getAI_STRATEGY_MINIMUM_SETTLE_FERTILITY();
 	int iSettlers = GET_PLAYER(GetID()).GetNumUnitsWithUnitAI(UNITAI_SETTLE, true, true);
-	if(iSettlers > 0)
+	if(iSettlers > 1)
 	{
-		iBestFoundValue -= (iSettlers * 500);
+		iBestFoundValue -= (iSettlers * 1000);
 	}
 	CvPlot* pBestFoundPlot = NULL;
 
 	//prefer settling close in the beginning
-	int iTimeOffset = (30 * GC.getGame().getGameTurn()) / GC.getGame().getMaxTurns();
+	int iTimeOffset = (35 * GC.getGame().getGameTurn()) / max(500, GC.getGame().getMaxTurns());
 
 	//basic search area around existing cities. value at eval distance is scaled to zero.
-	int iEvalDistance = 12+iTimeOffset;
+	int iEvalDistance = 12 + iTimeOffset;
 	if(IsCramped())
 		iEvalDistance += iTimeOffset;
 

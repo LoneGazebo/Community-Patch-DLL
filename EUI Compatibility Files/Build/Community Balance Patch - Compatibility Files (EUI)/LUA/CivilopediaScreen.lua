@@ -2478,6 +2478,13 @@ CivilopediaCategory[CategoryTech].SelectArticle = function( techID, shouldAddToL
 			abilitiesString = abilitiesString ..  Locale.ConvertTextKey( "TXT_KEY_ABLTY_CITY_NO_EMBARK_COST_STRING" );
 			numAbilities = numAbilities + 1;
 		end
+		for row in GameInfo.Tech_SpecialistYieldChanges( condition ) do
+			if numAbilities > 0 then
+				 abilitiesString = abilitiesString .. "[NEWLINE]";
+			end
+			abilitiesString = abilitiesString .. Locale.ConvertTextKey("TXT_KEY_SPECIALIST_YIELD_CHANGE", GameInfo.Specialists[row.SpecialistType].Description , GameInfo.Yields[row.YieldType].Description, row.Yield);
+			numAbilities = numAbilities + 1;
+		end	
 -- END	
 -- Putmalk: If this tech grants Research Agreements, and Research Agreements are enabled, then display it on the tech info page
 		if (thisTech.ResearchAgreementTradingAllowed and g_bResearchAgreementTrading) then

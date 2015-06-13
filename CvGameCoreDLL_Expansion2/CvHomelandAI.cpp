@@ -169,7 +169,7 @@ void CvHomelandAI::Update()
 }
 
 #if defined(MOD_CORE_ALTERNATIVE_EXPLORE_SCORE)
-CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit) const
+CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit, int nCandidates) const
 {
 	CvEconomicAI* pEconomicAI = m_pPlayer->GetEconomicAI();
 	std::vector<SPlotWithScore> vExplorePlots = pEconomicAI->GetExplorationPlots();
@@ -179,6 +179,18 @@ CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit) const
 	int iBestPlotScore = 0;
 	CvPlot* pBestPlot = NULL;
 
+	TechTypes eTechCompass = (TechTypes)GC.getInfoTypeForString("TECH_COMPASS", true);
+	bool bOceanShips = false;
+	if(eTechCompass != NO_TECH)
+	{
+		if(GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->HasTech(eTechCompass))
+		{
+			bOceanShips = true;
+		}
+	}
+	bool bEmbark = GET_TEAM(m_pPlayer->getTeam()).canEmbark();
+	bool bEmbarkAll = GET_TEAM(m_pPlayer->getTeam()).canEmbarkAllWaterPassage(); 
+
 	//sort by distance to capital or to unit
 	int iRefX = pUnit ? pUnit->getX() : m_pPlayer->getCapitalCity()->getX();
 	int iRefY = pUnit ? pUnit->getY() : m_pPlayer->getCapitalCity()->getY();
@@ -187,6 +199,22 @@ CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit) const
 	for(uint ui = 0; ui < vExplorePlots.size(); ui++)
 	{
 		if(pUnit->getDomainType() == DOMAIN_SEA && !vExplorePlots[ui].pPlot->isWater())
+		{
+			continue;
+		}
+		if(!bOceanShips && pUnit->getDomainType() == DOMAIN_SEA && vExplorePlots[ui].pPlot->isWater() && !vExplorePlots[ui].pPlot->isShallowWater() && !vExplorePlots[ui].pPlot->isLake())
+		{
+			continue;
+		}
+		if(!bEmbark && pUnit->getDomainType() == DOMAIN_LAND && vExplorePlots[ui].pPlot->isWater())
+		{
+			continue;
+		}
+		if(!bEmbarkAll && pUnit->getDomainType() == DOMAIN_LAND && vExplorePlots[ui].pPlot->isWater() && !vExplorePlots[ui].pPlot->isShallowWater() && !vExplorePlots[ui].pPlot->isLake())
+		{
+			continue;
+		}
+		if(vExplorePlots[ui].pPlot == pUnit->plot())
 		{
 			continue;
 		}
@@ -203,28 +231,29 @@ CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit) const
 	//sorts by the first element of the iterator ... which is our distance. nice.
 	std::sort(vPlotsByDistance.begin(), vPlotsByDistance.end());
 
-	for (std::vector< std::pair<int,SPlotWithScore> >::const_iterator itr = vPlotsByDistance.begin(); itr != vPlotsByDistance.end(); ++itr)
+	//look only at the N closest candidates
+	size_t nTargetsToCheck = min(vPlotsByDistance.size(),(size_t)nCandidates);
+
+	for (size_t idx=0; idx<nTargetsToCheck; idx++)
 	{
-		CvPlot* pEvalPlot = itr->second.pPlot;
-		int iRating = itr->second.score;
+		CvPlot* pEvalPlot = vPlotsByDistance[idx].second.pPlot;
+		int iRating = vPlotsByDistance[idx].second.score;
 
 		//discourage embarking
-		if (pUnit->getDomainType()==DOMAIN_LAND && !pEvalPlot->isWater())
-		{
-			iRating *= 2;
-		}
+		if (pUnit->getDomainType()==DOMAIN_LAND && pEvalPlot->isWater())
+			iRating /= 2;
+
 		//Let's try not to stay in one place, ok?
 		if(pUnit->plot() == pEvalPlot)
-		{
 			iRating /= 4;
-		}
 
 #ifdef AUI_ASTAR_TURN_LIMITER
 		//reverse the score calculation below to get an upper bound on the distance
-		int iMaxDistance = (1000*iRating) / max(1,iBestPlotScore);
+		//minus one because we want to do better
+		int iMaxDistance = (1000*iRating) / max(1,iBestPlotScore) - 1;
 
 		//is there a chance we can reach the plot within the required number of turns? (assuming no roads)
-		if( sqrt((float)itr->first) > (iMaxDistance*pUnit->baseMoves()) )
+		if( sqrt((float)vPlotsByDistance[idx].first) > (iMaxDistance*pUnit->baseMoves()) )
 			continue;
 
 		bool bCanFindPath = GC.getPathFinder().GenerateUnitPath(pUnit, iRefX, iRefY, pEvalPlot->getX(), pEvalPlot->getY(), 
@@ -681,7 +710,11 @@ void CvHomelandAI::FindHomelandTargets()
 	{
 		pLoopPlot = theMap.plotByIndexUnchecked(iI);
 
+#if defined(MOD_BALANCE_CORE)
+		if(pLoopPlot->isVisible(m_pPlayer->getTeam()) && m_pPlayer->GetCityDistance(pLoopPlot)<10 )
+#else
 		if(pLoopPlot->isVisible(m_pPlayer->getTeam()))
+#endif
 		{
 			// Have a ...
 			// ... friendly city?
@@ -1067,20 +1100,19 @@ void CvHomelandAI::PlotExplorerMoves()
 	if(m_CurrentMoveUnits.size() > 0)
 	{
 		// Execute twice so explorers who can reach the end of their sight can move again
+#if defined(MOD_BALANCE_CORE)
+		ExecuteExplorerMoves(false);
+		ExecuteExplorerMoves(true);
+#else
 		ExecuteExplorerMoves();
 		ExecuteExplorerMoves();
+#endif
 	}
 }
 
 /// Get units with explore AI and plan their moves
 void CvHomelandAI::PlotExplorerSeaMoves()
 {
-#if defined(MOD_BALANCE_CORE)
-	if(m_pPlayer->isMinorCiv())
-	{
-		return;
-	}
-#endif
 	ClearCurrentMoveUnits();
 
 	// Loop through all recruited units
@@ -1102,8 +1134,13 @@ void CvHomelandAI::PlotExplorerSeaMoves()
 	if(m_CurrentMoveUnits.size() > 0)
 	{
 		// Execute twice so explorers who can reach the end of their sight can move again
+#if defined(MOD_BALANCE_CORE)
+		ExecuteExplorerMoves(false);
+		ExecuteExplorerMoves(true);
+#else
 		ExecuteExplorerMoves();
 		ExecuteExplorerMoves();
+#endif
 	}
 }
 
@@ -2725,9 +2762,10 @@ void CvHomelandAI::ReviewUnassignedUnits()
 					{
 						strTemp = pkUnitInfo->GetDescription();
 						CvString strLogString;
-						strLogString.Format("Unassigned %s at, X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY());
+						strLogString.Format("Unassigned GP %s at, X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY());
 						LogHomelandMessage(strLogString);
-					}	
+					}
+					continue;
 				}
 				if(pUnit->plot()->getOwner() == pUnit->getOwner())
 				{
@@ -2751,7 +2789,8 @@ void CvHomelandAI::ReviewUnassignedUnits()
 					else
 					{
 						//We really need to do something with this unit - let's bring it home if we can.
-						CvCity* pSaveCity = NULL;
+						CvCity* pBestCity = NULL;
+						CvCity* pSaveCity;
 						int iBestDistance = MAX_INT;
 						int iLoop;
 						for(pSaveCity = m_pPlayer->firstCity(&iLoop); pSaveCity != NULL; pSaveCity = m_pPlayer->nextCity(&iLoop))
@@ -2761,13 +2800,13 @@ void CvHomelandAI::ReviewUnassignedUnits()
 							if(iDistance < iBestDistance)
 							{
 								iBestDistance = iDistance;
-								pSaveCity = pSaveCity;
+								pBestCity = pSaveCity;
 							}
 						}
 
-						if(pSaveCity)
+						if(pBestCity != NULL)
 						{
-							MoveToEmptySpaceNearTarget(pUnit.pointer(), pSaveCity->plot());
+							MoveToEmptySpaceNearTarget(pUnit.pointer(), pBestCity->plot());
 							pUnit->SetTurnProcessed(true);
 							pUnit->finishMoves();
 							CvString strTemp;
@@ -2802,7 +2841,8 @@ void CvHomelandAI::ReviewUnassignedUnits()
 				else
 				{
 					//We really need to do something with this unit - let's bring it home if we can.
-					CvCity* pSaveCity = NULL;
+					CvCity* pBestCity = NULL;
+					CvCity* pSaveCity;
 					int iBestDistance = MAX_INT;
 					int iLoop;
 					for(pSaveCity = m_pPlayer->firstCity(&iLoop); pSaveCity != NULL; pSaveCity = m_pPlayer->nextCity(&iLoop))
@@ -2812,13 +2852,13 @@ void CvHomelandAI::ReviewUnassignedUnits()
 						if(iDistance < iBestDistance)
 						{
 							iBestDistance = iDistance;
-							pSaveCity = pSaveCity;
+							pBestCity = pSaveCity;
 						}
 					}
 
-					if(pSaveCity)
+					if(pBestCity != NULL)
 					{
-						MoveToEmptySpaceNearTarget(pUnit.pointer(), pSaveCity->plot());
+						MoveToEmptySpaceNearTarget(pUnit.pointer(), pBestCity->plot());
 						pUnit->SetTurnProcessed(true);
 						pUnit->finishMoves();
 						CvString strTemp;
@@ -2867,6 +2907,7 @@ void CvHomelandAI::ReviewUnassignedUnits()
 						strLogString.Format("Unassigned %s at, X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY());
 						LogHomelandMessage(strLogString);
 					}	
+					continue;
 				}
 				if(pUnit->plot()->getOwner() == pUnit->getOwner())
 				{
@@ -2888,33 +2929,29 @@ void CvHomelandAI::ReviewUnassignedUnits()
 				else
 				{
 					//We really need to do something with this unit - let's bring it home if we can.
-					CvCity* pSaveCity = NULL;
+					//We really need to do something with this unit - let's bring it home if we can.
+					CvCity* pBestCity = NULL;
+					CvCity* pSaveCity;
 					int iBestDistance = MAX_INT;
-					for(unsigned int iI = 0; iI < m_TargetedCities.size(); iI++)
+					int iLoop;
+					for(pSaveCity = m_pPlayer->firstCity(&iLoop); pSaveCity != NULL; pSaveCity = m_pPlayer->nextCity(&iLoop))
 					{
-						CvPlot* pTarget = GC.getMap().plot(m_TargetedCities[iI].GetTargetX(), m_TargetedCities[iI].GetTargetY());
-						CvCity* pCity = pTarget->getPlotCity();
-						if(!pCity)
+						if(!pSaveCity->isCoastal())
 						{
 							continue;
 						}
-						if(!pCity->isCoastal())
-						{
-							continue;
-						}
-
-						int iDistance = plotDistance(pCity->getX(), pCity->getY(), pUnit->getX(), pUnit->getY());
+						int iDistance = plotDistance(pSaveCity->getX(), pSaveCity->getY(), pUnit->getX(), pUnit->getY());
 
 						if(iDistance < iBestDistance)
 						{
 							iBestDistance = iDistance;
-							pSaveCity = pCity;
+							pBestCity = pSaveCity;
 						}
 					}
 
-					if(pSaveCity)
+					if(pBestCity != NULL)
 					{
-						MoveToEmptySpaceNearTarget(pUnit.pointer(), pSaveCity->plot(), false);
+						MoveToEmptySpaceNearTarget(pUnit.pointer(), pBestCity->plot(), false);
 						pUnit->SetTurnProcessed(true);
 						pUnit->finishMoves();
 						CvString strTemp;
@@ -2946,22 +2983,8 @@ void CvHomelandAI::ReviewUnassignedUnits()
 					}
 				}
 			}
-			else
-			{
-				pUnit->PushMission(CvTypes::getMISSION_SKIP());
-				pUnit->SetTurnProcessed(true);
-				pUnit->finishMoves();
-
-				CvString strTemp;
-				CvUnitEntry* pkUnitInfo = GC.getUnitInfo(pUnit->getUnitType());
-				if(pkUnitInfo)
-				{
-					strTemp = pkUnitInfo->GetDescription();
-					CvString strLogString;
-					strLogString.Format("Unassigned %s at, X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY());
-					LogHomelandMessage(strLogString);
-				}
-			}
+			pUnit->SetTurnProcessed(true);
+			pUnit->finishMoves();
 #else
 			pUnit->PushMission(CvTypes::getMISSION_SKIP());
 			pUnit->SetTurnProcessed(true);
@@ -3130,7 +3153,11 @@ typedef CvWeightedVector<CvPlot*, 100, true> WeightedPlotVector;
 
 #if defined(MOD_CORE_ALTERNATIVE_EXPLORE_SCORE)
 	/// Moves units to explore the map
+#if defined(MOD_BALANCE_CORE)
+void CvHomelandAI::ExecuteExplorerMoves(bool bSecondPass)
+#else
 void CvHomelandAI::ExecuteExplorerMoves()
+#endif
 {
 	bool bFoundNearbyExplorePlot = false;
 
@@ -3211,122 +3238,107 @@ void CvHomelandAI::ExecuteExplorerMoves()
 		const CvPlot* pCurPlot = GC.getMap().plot( iUnitX, iUnitY );
 		CvPlot* pBestPlot = NULL;
 		int iBestPlotScore = 0;
-		bool bFoundBestPlot = false;
-
-		int iRange = pUnit->baseMoves();
-		for(int iX = -iRange; iX <= iRange; iX++)
+		
+		//first check our immediate neighborhood (ie the tiles we can reach within one turn)
+		TacticalAIHelpers::ReachablePlotSet eligiblePlots;
+		TacticalAIHelpers::GetAllTilesInReach(pUnit.pointer(), pUnit->plot(), eligiblePlots, true /*checkTerritory*/);
+		for (TacticalAIHelpers::ReachablePlotSet::iterator tile=eligiblePlots.begin(); tile!=eligiblePlots.end(); ++tile)
 		{
-			for(int iY = -iRange; iY <= iRange; iY++)
+			CvPlot* pEvalPlot = tile->first;
+
+			if(!pEvalPlot || !IsValidExplorerEndTurnPlot(pUnit.pointer(), pEvalPlot))
+				continue;
+
+			if(pEvalPlot->isCity() && (pEvalPlot->getOwner() != pUnit->getOwner()))
+				continue;
+
+			//don't embark to reach a close-range target
+			if(pUnit->getDomainType()==DOMAIN_LAND && pEvalPlot->isWater())
+				continue;
+			//Ignore land for sea explorers
+			if(pUnit->getDomainType()==DOMAIN_SEA && !pEvalPlot->isWater())
+				continue;
+			//ignore occupied plots
+			if( pEvalPlot->getBestDefender(NO_PLAYER) != (UnitHandle)NULL)
+				continue;
+
+			//get contributions from yet-to-be revealed plots (and goodies)
+			int iScoreBase = CvEconomicAI::ScoreExplorePlot2(pEvalPlot, m_pPlayer, pUnit->getDomainType(), pUnit->isEmbarked());
+			if(iScoreBase > 0)
 			{
-				CvPlot* pEvalPlot = plotXYWithRangeCheck(iUnitX, iUnitY, iX, iY, iRange);
+				int iScoreBonus = pEvalPlot->GetExplorationBonus(m_pPlayer, pCurPlot);
+				int iScoreExtra = 0;
 
-				//Already found an awesome plot, so break!
-				if(bFoundBestPlot)
-					continue;
+				//hill plots are good for defense and view - do not add this in ScoreExplorePlot2
+				if(pEvalPlot->isHills())
+					iScoreExtra += 25;
 
-				if(!pEvalPlot || !IsValidExplorerEndTurnPlot(pUnit.pointer(), pEvalPlot))
-					continue;
+				//resources on water are always near land
+				if(pUnit->getDomainType() == DOMAIN_SEA && pEvalPlot->isWater() && (pEvalPlot->getResourceType() != NO_RESOURCE || pEvalPlot->getFeatureType() != NO_FEATURE))
+					iScoreExtra += 25;
 
-				//don't embark to reach a close-range target
-				if(pUnit->getDomainType()==DOMAIN_LAND && pEvalPlot->isWater())
-					continue;
-				//Ignore land for sea explorers
-				if(pUnit->getDomainType()==DOMAIN_SEA && !pEvalPlot->isWater())
-					continue;
-				//ignore occupied plots
-				if( pEvalPlot->getBestDefender(NO_PLAYER) != (UnitHandle)NULL)
-					continue;
+				//We should always be moving.
+				if( pEvalPlot == pUnit->plot())
+					iScoreExtra -= 50;
 
-
-				//get contributions from yet-to-be revealed plots (and goodies)
-				int iScoreBase = CvEconomicAI::ScoreExplorePlot2(pEvalPlot, m_pPlayer, pUnit->getDomainType(), pUnit->isEmbarked());
-				if(iScoreBase > 0)
+				//If a known minor, let's not wander around if we don't have open borders.
+				if(pEvalPlot->getOwner() != NO_PLAYER)
 				{
-					int iScoreBonus = pEvalPlot->GetExplorationBonus(m_pPlayer, pCurPlot);
-					int iScoreExtra = 0;
-
-					//hill plots are good for defense and view - do not add this in ScoreExplorePlot2
-					if(pEvalPlot->isHills())
-						iScoreExtra += 50;
-					//resources on water are always near land
-					if(pUnit->getDomainType() == DOMAIN_SEA && pEvalPlot->isWater() && (pEvalPlot->getResourceType() != NO_RESOURCE || pEvalPlot->getFeatureType() != NO_FEATURE))
-						iScoreExtra += 50;
-
-					//We should always be moving.
-					if( pEvalPlot == pUnit->plot())
-						iScoreExtra -= 25;
-
-					//If a known minor, let's not wander around if we don't have open borders.
-					if(pEvalPlot->getOwner() != NO_PLAYER)
+					if(GET_PLAYER(pEvalPlot->getOwner()).isMinorCiv() && GET_TEAM(m_pPlayer->getTeam()).isHasMet( GET_PLAYER(pEvalPlot->getOwner()).getTeam() ) )
 					{
-						if(GET_PLAYER(pEvalPlot->getOwner()).isMinorCiv() && GET_TEAM(m_pPlayer->getTeam()).isHasMet( GET_PLAYER(pEvalPlot->getOwner()).getTeam() ) )
+						if(!GET_PLAYER(pEvalPlot->getOwner()).GetMinorCivAI()->IsPlayerHasOpenBorders(m_pPlayer->GetID()))
 						{
-							if(!GET_PLAYER(pEvalPlot->getOwner()).GetMinorCivAI()->IsPlayerHasOpenBorders(m_pPlayer->GetID()))
+							if(pUnit->getDomainType() == DOMAIN_LAND)
 							{
-								if(pUnit->getDomainType() == DOMAIN_LAND)
-								{
-									iScoreExtra -= 25;
-								}
+								iScoreExtra -= 25;
 							}
 						}
 					}
+				}
 
-					if(pUnit->canSellExoticGoods(pEvalPlot))
+				if(pUnit->canSellExoticGoods(pEvalPlot))
+				{
+					float fRewardFactor = pUnit->calculateExoticGoodsDistanceFactor(pEvalPlot);
+					if (fRewardFactor >= 0.75f)
 					{
-						float fRewardFactor = pUnit->calculateExoticGoodsDistanceFactor(pEvalPlot);
-						if (fRewardFactor >= 0.75f)
-						{
-							iScoreExtra += 150;
-						}
-						else if (fRewardFactor >= 0.5f)
-						{
-							iScoreExtra += 75;
-						}
+						iScoreExtra += 150;
 					}
-					int iRandom = GC.getGame().getJonRandNum(20,"accept equal value explore target");
+					else if (fRewardFactor >= 0.5f)
+					{
+						iScoreExtra += 75;
+					}
+				}
 
-					iScoreBonus += iRandom;
-
-					int iTotalScore = iScoreBase+iScoreExtra+iScoreBonus;
+				int iRandom = GC.getGame().getJonRandNum(50,"explore target tiebreak");
+				int iTotalScore = iScoreBase+iScoreExtra+iScoreBonus+iRandom;
 
 #if defined(AUI_DANGER_PLOTS_REMADE)
-					//careful with plots that are too dangerous
-					int iAcceptableDanger = pUnit->GetCurrHitPoints()/2;
-					int iDanger = m_pPlayer->GetPlotDanger(*pEvalPlot,pUnit.pointer());
-					if(iDanger > iAcceptableDanger)
-						continue;
-					if(iDanger > iAcceptableDanger/2)
-						iTotalScore /= 2;
+				//careful with plots that are too dangerous
+				int iAcceptableDanger = pUnit->GetCurrHitPoints()/2;
+				int iDanger = m_pPlayer->GetPlotDanger(*pEvalPlot,pUnit.pointer());
+				if(iDanger > iAcceptableDanger)
+					continue;
+				if(iDanger > iAcceptableDanger/2)
+					iTotalScore /= 2;
 #endif
 
-					if(iTotalScore > iBestPlotScore || (iTotalScore==iBestPlotScore && GC.getGame().getJonRandNum(2,"accept equal value explore target")==1) )
+				if(iTotalScore > iBestPlotScore )
+				{
+					//make sure we can actually reach it - shouldn't happen, but sometimes does because of blocks
+					if (!CanReachInXTurns(pUnit,pEvalPlot,1))
 					{
-						//Plot pretty good? break.
-						if((iBestPlotScore > 0) && (iTotalScore > 200) && pEvalPlot != pUnit->plot())
-						{
-							pBestPlot = pEvalPlot;
-							iBestPlotScore = iTotalScore;
-							bFoundNearbyExplorePlot = true;
-							if(GC.getLogging() && GC.getAILogging())
-							{
-								CvString strTemp = pUnit->getUnitInfo().GetDescription();
-								CvString msg = CvString::format("Found very good plot for scouting unit %s is %d, %d with base %d, extra %d, bonus %d\n",
-									strTemp.GetCString(), pBestPlot->getX(), pBestPlot->getY(), iScoreBase, iScoreExtra, iScoreBonus);
-								LogHomelandMessage(msg);
-							}
-							bFoundBestPlot = true;
-						}
-						pBestPlot = pEvalPlot;
-						iBestPlotScore = iTotalScore;
-						bFoundNearbyExplorePlot = true;
-						if(GC.getLogging() && GC.getAILogging())
-						{
-							CvString strTemp = pUnit->getUnitInfo().GetDescription();
-							CvString msg = CvString::format("Checking plots for scouting unit %s is %d, %d with base %d, extra %d, bonus %d\n",
-								strTemp.GetCString(), pBestPlot->getX(), pBestPlot->getY(), iScoreBase, iScoreExtra, iScoreBonus);
-							LogHomelandMessage(msg);
-						}
-						
+						continue;
+					}
+
+					pBestPlot = pEvalPlot;
+					iBestPlotScore = iTotalScore;
+					bFoundNearbyExplorePlot = true;
+					if(GC.getLogging() && GC.getAILogging())
+					{
+						CvString strTemp = pUnit->getUnitInfo().GetDescription();
+						CvString msg = CvString::format("Checking plots for scouting unit %s is %d, %d with base %d, extra %d, bonus %d\n",
+							strTemp.GetCString(), pBestPlot->getX(), pBestPlot->getY(), iScoreBase, iScoreExtra, iScoreBonus);
+						LogHomelandMessage(msg);
 					}
 				}
 			}
@@ -3334,7 +3346,7 @@ void CvHomelandAI::ExecuteExplorerMoves()
 
 		//if we didn't find a worthwhile plot among our adjacent plots, check the global targets
 		if(!pBestPlot && pUnit->movesLeft() > 0)
-			pBestPlot = GetBestExploreTarget(pUnit.pointer());
+			pBestPlot = GetBestExploreTarget(pUnit.pointer(),8);
 
 		//make sure we're not in an endless loop
 		if(pBestPlot)
@@ -3363,6 +3375,7 @@ void CvHomelandAI::ExecuteExplorerMoves()
 			// Only mark as done if out of movement
 			if(pUnit->getMoves() <= 0)
 			{
+				pUnit->finishMoves();
 				UnitProcessed(pUnit->GetID());
 			}
 
@@ -3380,6 +3393,12 @@ void CvHomelandAI::ExecuteExplorerMoves()
 				}
 				LogHomelandMessage(strLogString);
 			}
+			if(bSecondPass)
+			{
+				pUnit->finishMoves();
+				UnitProcessed(pUnit->GetID());
+			}
+			continue;
 		}
 		else
 		{
@@ -3430,6 +3449,11 @@ void CvHomelandAI::ExecuteExplorerMoves()
 						pUnit->kill(true);
 						m_pPlayer->GetEconomicAI()->IncrementExplorersDisbanded();
 					}
+#if defined(MOD_BALANCE_CORE)
+					pUnit->finishMoves();
+					UnitProcessed(pUnit->GetID());
+					continue;
+#endif
 				}
 				else if(pUnit->AI_getUnitAIType() == UNITAI_EXPLORE_SEA)
 				{
@@ -3440,15 +3464,20 @@ void CvHomelandAI::ExecuteExplorerMoves()
 						LogHomelandMessage(strLogString);
 					}
 #if defined(MOD_BALANCE_CORE)
+					pUnit->finishMoves();
 					UnitProcessed(pUnit->GetID());
 					continue;
 #endif
 				}
 			}
 		}
+		if(bSecondPass)
+		{
+			pUnit->finishMoves();
+			UnitProcessed(pUnit->GetID());
+		}
 	}
 }
-
 
 #else
 
@@ -5829,6 +5858,10 @@ void CvHomelandAI::ExecuteGeneralMoves()
 				if(pLoopCity->GetGarrisonedUnit() != NULL)
 				{
 					iWeight *= 2;
+					if(pLoopCity->getUnhappinessFromDefense() > 0)
+					{
+						iWeight *= pLoopCity->getUnhappinessFromDefense();
+					}
 				}
 				if(iNumCommanders > 0)
 				{

@@ -470,7 +470,7 @@
 			<Type>BUILDING_STEAM_MILL</Type>
 			<BuildingClass>BUILDINGCLASS_FACTORY</BuildingClass>
 			<Cost>450</Cost>
-			<GoldMaintenance>3</GoldMaintenance>
+			<GoldMaintenance>2</GoldMaintenance>
 			<PrereqTech>TECH_STEAM_POWER</PrereqTech>
 			<Help>TXT_KEY_BUILDING_STEAM_MILL_HELP</Help>
 			<Description>TXT_KEY_BUILDING_STEAM_MILL</Description>
@@ -636,6 +636,12 @@
 			<YieldType>YIELD_PRODUCTION</YieldType>
 			<Yield>1</Yield>
 		</Row>
+		<Row>
+			<BuildingType>BUILDING_FORGE</BuildingType>
+			<FeatureType>FEATURE_JUNGLE</FeatureType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>1</Yield>
+		</Row>
 	</Building_FeatureYieldChanges>
 	<Civilization_BuildingClassOverrides>
 		<Row>
@@ -657,7 +663,7 @@
 			<Text>+50% [ICON_PRODUCTION] Production towards Siege units. All Siege units trained in this City receive the [COLOR_POSITIVE_TEXT]Volley[ENDCOLOR] Promotion for free. [NEWLINE][NEWLINE]Each source of [ICON_RES_IRON] Iron and [ICON_RES_COPPER] Copper worked by this City produces +2 [ICON_PRODUCTION] Production. Nearby Forests and Jungles gain +1 [ICON_PRODUCTION] Production.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_SIEGE_WORKSHOP_STRATEGY">
-			<Text>Unique Ottoman replacement for the Arsenal. Is available earlier than the Arsenal, and provides additional Production. Produces Siege units much more quickly than normal, and grants them the [COLOR_POSITIVE_TEXT]Volley[ENDCOLOR] Promotion for free. Use these attributes to build a massive force of artillery to take down an enemy's walls and conquer their lands! City must have a Castle.</Text>
+			<Text>Unique Ottoman replacement for the Forge. Produces Siege units much more quickly than normal, and grants them the [COLOR_POSITIVE_TEXT]Volley[ENDCOLOR] Promotion for free. Use these attributes to build a massive force of artillery to take down an enemy's walls and conquer their lands!</Text>
 		</Row>
 	</Language_en_US>
 	<!-- MOMA -->

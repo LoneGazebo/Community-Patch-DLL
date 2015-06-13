@@ -246,7 +246,7 @@ public:
 
 	// Public exploration routines
 #if defined(MOD_CORE_ALTERNATIVE_EXPLORE_SCORE)
-	CvPlot* GetBestExploreTarget(const CvUnit* pUnit) const;
+	CvPlot* GetBestExploreTarget(const CvUnit* pUnit, int nCandidatesToCheck) const;
 #else
 	bool IsAnyValidExploreMoves(const CvUnit* pUnit) const;
 #endif
@@ -318,7 +318,11 @@ private:
 
 	// Routines to execute homeland moves
 	void ExecuteFirstTurnSettlerMoves();
+#if defined(MOD_BALANCE_CORE)
+	void ExecuteExplorerMoves(bool bSecondPass);
+#else
 	void ExecuteExplorerMoves();
+#endif
 
 #if defined(MOD_AI_SECONDARY_WORKERS)
 	void ExecuteWorkerMoves(bool bSecondary = false);

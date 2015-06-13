@@ -1117,7 +1117,9 @@ function OnButton6()
 	local pPlayer = Players[Game.GetActivePlayer()];
 	local pTeam = Teams[pPlayer:GetTeam()];
 	local pAIPlayer = Players[g_iAIPlayer];
-
+-- CBP
+	local iActivePlayer = Game.GetActivePlayer();
+-- END
 	local iButtonID = 6;
 
 	-- Discussion mode brought up by the human

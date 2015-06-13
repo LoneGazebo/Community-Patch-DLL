@@ -164,6 +164,7 @@
 			<ResourceType>RESOURCE_BISON</ResourceType>
 		</Row>
 	</Improvement_ResourceTypes>
+	<!--
 	<Improvement_ResourceType_Yields>
 		<Row>
 			<ImprovementType>IMPROVEMENT_KASBAH</ImprovementType>
@@ -346,6 +347,7 @@
 			<Yield>1</Yield>
 		</Row>
 	</Improvement_ResourceType_Yields>
+	-->
 	<Unit_FreePromotions>
 		<Row>
 			<UnitType>UNIT_BERBER_CAVALRY</UnitType>

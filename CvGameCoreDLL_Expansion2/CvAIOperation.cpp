@@ -3449,20 +3449,29 @@ CvPlot* CvAIOperationPillageEnemy::FindBestTarget()
 #if defined(MOD_BALANCE_CORE)
 			else if(GET_TEAM(GET_PLAYER(m_eOwner).getTeam()).canEmbarkAllWaterPassage())
 			{
+				int iMaxDistance = MAX_INT;
 				// Initial value of target is the number of improved plots
 				iValue = pLoopCity->countNumImprovedPlots();
-
-				// Adjust value based on proximity to our start location
-				iDistance = GC.getStepFinder().GetStepDistanceBetweenPoints(m_eOwner, m_eEnemy, pLoopCity->plot(), pStartCity->plot());
-				if(iDistance > 0)
+				if(iValue > 0)
 				{
-					iValue = iValue * 100 / iDistance;
-				}
+					CvAStarNode* pPathfinderNode;
+					// Adjust value based on proximity to our start location
+					bool bPathfinderSuccess = GC.getStepFinder().GeneratePath(pStartCity->getX(), pStartCity->getY(), pLoopCity->getX(), pLoopCity->getY(), m_eOwner, false);
+					if(bPathfinderSuccess)
+					{
+						pPathfinderNode = GC.getStepFinder().GetLastNode();
 
-				if(iValue > iBestValue)
-				{
-					iBestValue = iValue;
-					pBestTargetCity = pLoopCity;
+						if(pPathfinderNode != NULL)
+						{
+							iDistance = (pPathfinderNode->m_iTotalCost / 100);
+	
+							if(iDistance < iMaxDistance)
+							{
+								iMaxDistance = iDistance;
+								pBestTargetCity = pLoopCity;
+							}
+						}
+					}
 				}
 			}
 #endif
@@ -3472,9 +3481,13 @@ CvPlot* CvAIOperationPillageEnemy::FindBestTarget()
 	{
 #if defined(MOD_BALANCE_CORE)
 		if(GET_PLAYER(m_eEnemy).getCapitalCity() != NULL)
+		{
 			return GET_PLAYER(m_eEnemy).getCapitalCity()->plot();
+		}
 		else
+		{
 			return NULL;
+		}
 #else
 		return GET_PLAYER(m_eEnemy).getCapitalCity()->plot();
 #endif
@@ -4165,6 +4178,12 @@ bool CvAIOperationFoundCity::ArmyInPosition(CvArmyAI* pArmy)
 					zone.SetTargetType(AI_TACTICAL_TARGET_CITY);
 					zone.SetLastTurn(GC.getGame().getGameTurn() + (GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS() * 2));
 					GET_PLAYER(m_eOwner).GetTacticalAI()->AddTemporaryZone(zone);
+					iUnitID = pArmy->GetNextUnitID();
+					if(iUnitID != -1)
+					{
+						pEscort = GET_PLAYER(m_eOwner).getUnit(iUnitID);
+						pEscort->finishMoves();
+					}
 #endif
 					m_eCurrentState = AI_OPERATION_STATE_SUCCESSFUL_FINISH;
 				}
@@ -5156,18 +5175,22 @@ void CvAINavalOperation::Init(int iID, PlayerTypes eOwner, PlayerTypes eEnemy, i
 
 				// Muster just off the coast
 				CvPlot *pCoastalMuster = kPlayer.GetMilitaryAI()->GetCoastalPlotAdjacentToTarget(pMuster->plot(), pArmyAI);
-				if (pCoastalMuster)
+				if (pCoastalMuster && pCoastalMuster->GetNumCombatUnits() > 0)
+				{
+					pCoastalMuster = kPlayer.GetMilitaryAI()->GetCoastalPlotAdjacentToTarget(pCoastalMuster, pArmyAI);
+				}
+				else if(pCoastalMuster)
 				{
 					SetDefaultArea(pCoastalMuster->getArea());
 					SetStartCityPlot(pCoastalMuster);
-					SetMusterPlot(GetStartCityPlot());
-					pArmyAI->SetXY(GetStartCityPlot()->getX(), GetStartCityPlot()->getY());
+					SetMusterPlot(pCoastalMuster);
+					pArmyAI->SetXY(pCoastalMuster->getX(), pCoastalMuster->getY());
 
 					// Find the list of units we need to build before starting this operation in earnest
 					BuildListOfUnitsWeStillNeedToBuild();
 
 					// try to get as many units as possible from existing units that are waiting around
-					if(GrabUnitsFromTheReserves(GetMusterPlot(), GetMusterPlot()))
+					if(GrabUnitsFromTheReserves(GetMusterPlot(), GetTargetPlot()))
 					{
 						pArmyAI->SetArmyAIState(ARMYAISTATE_WAITING_FOR_UNITS_TO_CATCH_UP);
 						m_eCurrentState = AI_OPERATION_STATE_GATHERING_FORCES;
@@ -5698,7 +5721,7 @@ CvPlot* CvAIOperationNavalBombardment::FindBestTarget()
 	}
 	CvPlot* pBestTarget = NULL;
 	int iBestPlotDistance = MAX_INT;
-	int iCurPlotDistance;
+	int iCurrentTurns;
 	CvUnit* pInitialUnit = NULL;
 	CvPlayer& owningPlayer = GET_PLAYER(m_eOwner);
 	CvPlayerAI& BarbPlayer = GET_PLAYER(BARBARIAN_PLAYER);
@@ -5724,6 +5747,10 @@ CvPlot* CvAIOperationNavalBombardment::FindBestTarget()
 		if(!GET_PLAYER(m_eEnemy).isBarbarian())
 		{
 			CvCity* pCapital = GET_PLAYER(m_eOwner).getCapitalCity();
+			if(!pCapital->isCoastal())
+			{
+				return NULL;
+			}
 			int iCityLoop = 0;
 			CvCity* pLoopCity;
 			for(pLoopCity = GET_PLAYER(m_eEnemy).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(m_eEnemy).nextCity(&iCityLoop))
@@ -5732,13 +5759,19 @@ CvPlot* CvAIOperationNavalBombardment::FindBestTarget()
 				{
 					CvPlot* pTestPlot = GET_PLAYER(m_eOwner).GetMilitaryAI()->GetCoastalPlotAdjacentToTarget(pLoopCity->plot(), NULL);
 					CvPlot* pTestPlot2 = GET_PLAYER(m_eOwner).GetMilitaryAI()->GetCoastalPlotAdjacentToTarget(pCapital->plot(), NULL);
+					if(pTestPlot == NULL || pTestPlot2 == NULL)
+					{
+						continue;
+					}
 					if(pTestPlot->getArea() == pTestPlot2->getArea())
 					{
-						iCurPlotDistance = GC.getStepFinder().GetStepDistanceBetweenPoints(m_eOwner, m_eEnemy, pTestPlot2, pInitialUnit->plot());
-						if (iCurPlotDistance < iBestPlotDistance)
+						if(pInitialUnit->GeneratePath(pTestPlot, 0, false, &iCurrentTurns))
 						{
-							pBestTarget = pLoopCity->plot();
-							iBestPlotDistance = iCurPlotDistance;
+							if(iCurrentTurns < iBestPlotDistance)
+							{
+								pBestTarget = pTestPlot;
+								iBestPlotDistance = iCurrentTurns;
+							}
 						}
 					}
 				}
@@ -5746,54 +5779,42 @@ CvPlot* CvAIOperationNavalBombardment::FindBestTarget()
 		}
 		else
 		{
+			int iCurrentTurns;
 			for (pLoopUnit = BarbPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = BarbPlayer.nextUnit(&iLoop))
 			{
 				if (pLoopUnit != NULL)
 				{
 					if(pLoopUnit->getDomainType() == DOMAIN_SEA && pLoopUnit->IsCombatUnit())
 					{
-						iCurPlotDistance = GC.getStepFinder().GetStepDistanceBetweenPoints(m_eOwner, m_eEnemy, pLoopUnit->plot(), pInitialUnit->plot());
-						if (iCurPlotDistance < iBestPlotDistance)
+						if(pInitialUnit->GeneratePath(pLoopUnit->plot(), 0, false, &iCurrentTurns))
 						{
-							pBestTarget = pLoopUnit->plot();
-							iBestPlotDistance = iCurPlotDistance;
-						}
-					}
-					else if(pLoopUnit->plot()->isCoastalLand() && pLoopUnit->IsCombatUnit())
-					{
-						iCurPlotDistance = GC.getStepFinder().GetStepDistanceBetweenPoints(m_eOwner, m_eEnemy, pLoopUnit->plot(), pInitialUnit->plot());
-						if (iCurPlotDistance < iBestPlotDistance)
-						{
-							pBestTarget = pLoopUnit->plot();
-							iBestPlotDistance = iCurPlotDistance;
+							if(iCurrentTurns < iBestPlotDistance)
+							{
+								pBestTarget = pLoopUnit->plot();
+								iBestPlotDistance = iCurrentTurns;
+							}
 						}
 					}
 				}
 			}
 		}
-	}
-	if(pBestTarget == NULL && GET_PLAYER(m_eEnemy).isBarbarian())
-	{
-		for (pLoopUnit = BarbPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = BarbPlayer.nextUnit(&iLoop))
+		if(pBestTarget == NULL && GET_PLAYER(m_eEnemy).isBarbarian())
 		{
-			if (pLoopUnit != NULL)
+			for (pLoopUnit = BarbPlayer.firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = BarbPlayer.nextUnit(&iLoop))
 			{
-				if(pLoopUnit->getDomainType() == DOMAIN_SEA && pLoopUnit->IsCombatUnit())
+				if (pLoopUnit != NULL)
 				{
-					iCurPlotDistance = GC.getStepFinder().GetStepDistanceBetweenPoints(m_eOwner, m_eEnemy, pLoopUnit->plot(), GET_PLAYER(m_eOwner).getCapitalCity()->plot());
-					if (iCurPlotDistance < iBestPlotDistance)
+					if(pLoopUnit->plot()->isCoastalLand() && pLoopUnit->IsCombatUnit() && pLoopUnit->plot()->getImprovementType() == GC.getBARBARIAN_CAMP_IMPROVEMENT())
 					{
-						pBestTarget = pLoopUnit->plot();
-						iBestPlotDistance = iCurPlotDistance;
-					}
-				}
-				else if(pLoopUnit->plot()->isCoastalLand() && pLoopUnit->IsCombatUnit())
-				{
-					iCurPlotDistance = GC.getStepFinder().GetStepDistanceBetweenPoints(m_eOwner, m_eEnemy, pLoopUnit->plot(), GET_PLAYER(m_eOwner).getCapitalCity()->plot());
-					if (iCurPlotDistance < iBestPlotDistance)
-					{
-						pBestTarget = pLoopUnit->plot();
-						iBestPlotDistance = iCurPlotDistance;
+						CvPlot* pTestPlot = GET_PLAYER(m_eOwner).GetMilitaryAI()->GetCoastalPlotAdjacentToTarget(pLoopUnit->plot(), NULL);
+						if(pTestPlot != NULL && pInitialUnit->GeneratePath(pTestPlot, 0, false, &iCurrentTurns))
+						{
+							if(iCurrentTurns < iBestPlotDistance)
+							{
+								pBestTarget = pTestPlot;
+								iBestPlotDistance = iCurrentTurns;
+							}
+						}
 					}
 				}
 			}
@@ -5801,11 +5822,7 @@ CvPlot* CvAIOperationNavalBombardment::FindBestTarget()
 	}
 	if(pBestTarget != NULL)
 	{
-		if(pBestTarget->isCoastalLand())
-		{
-			return GET_PLAYER(m_eOwner).GetMilitaryAI()->GetCoastalPlotAdjacentToTarget(pBestTarget, NULL);
-		}
-		else if(pBestTarget->isWater() && !pBestTarget->isLake())
+		if(pBestTarget->isWater())
 		{
 			return pBestTarget;
 		}
@@ -6394,25 +6411,24 @@ void CvAIOperationPureNavalCityAttack::Init(int iID, PlayerTypes eOwner, PlayerT
 				pMuster = pNearestCoastalCity;
 			}
 		}
-		if(pMuster != NULL && GET_PLAYER(m_eOwner).GetMilitaryAI()->GetCoastalPlotAdjacentToTarget(pMuster->plot(), pArmyAI) != NULL)
+		if(pMuster != NULL)
 		{
 			pMusterPlot = GET_PLAYER(m_eOwner).GetMilitaryAI()->GetCoastalPlotAdjacentToTarget(pMuster->plot(), pArmyAI);
 		}
-		SetDefaultArea(pMuster->getArea());
-
+		if(pMusterPlot != NULL && pMusterPlot->GetNumCombatUnits() > 0)
+		{
+			pMusterPlot = GET_PLAYER(m_eOwner).GetMilitaryAI()->GetCoastalPlotAdjacentToTarget(pMusterPlot, pArmyAI);
+		}
 		if(pMusterPlot != NULL)
 		{
+			SetDefaultArea(pMusterPlot->getArea());
 			SetStartCityPlot(pMusterPlot);
 
 			if(iID != -1)
 			{
 				if(pTarget)
 				{
-					CvPlot* pTargetPlot = NULL;
-					if(GET_PLAYER(m_eOwner).GetMilitaryAI()->GetCoastalPlotAdjacentToTarget(pTarget->plot(), pArmyAI) != NULL)
-					{
-						pTargetPlot = pTarget->plot();
-					}
+					CvPlot* pTargetPlot = pTargetPlot = GET_PLAYER(m_eOwner).GetMilitaryAI()->GetCoastalPlotAdjacentToTarget(pTarget->plot(), pArmyAI);
 					if(pTargetPlot != NULL)
 					{
 						SetTargetPlot(pTargetPlot);			
@@ -6423,7 +6439,7 @@ void CvAIOperationPureNavalCityAttack::Init(int iID, PlayerTypes eOwner, PlayerT
 
 						pArmyAI->SetGoalPlot(GetTargetPlot());
 						SetMusterPlot(pMusterPlot);
-						pArmyAI->SetXY(GetStartCityPlot()->getX(), GetStartCityPlot()->getY());
+						pArmyAI->SetXY(pMusterPlot->getX(), pMusterPlot->getY());
 
 						BuildListOfUnitsWeStillNeedToBuild();
 
@@ -8244,11 +8260,14 @@ void CvAIOperationNavalSneakAttack::Init(int iID, PlayerTypes eOwner, PlayerType
 				pMuster = pNearestCoastalCity;
 			}
 		}
-		if(pMuster != NULL && GET_PLAYER(m_eOwner).GetMilitaryAI()->GetCoastalPlotAdjacentToTarget(pMuster->plot(), pArmyAI) != NULL)
+		if(pMuster != NULL)
 		{
 			pMusterPlot = GET_PLAYER(m_eOwner).GetMilitaryAI()->GetCoastalPlotAdjacentToTarget(pMuster->plot(), pArmyAI);
+			if(pMusterPlot->GetNumCombatUnits() > 0)
+			{
+				pMusterPlot = GET_PLAYER(m_eOwner).GetMilitaryAI()->GetCoastalPlotAdjacentToTarget(pMusterPlot, pArmyAI);
+			}
 		}
-
 		if(pMusterPlot != NULL)
 		{
 			SetStartCityPlot(pMusterPlot);
@@ -8259,11 +8278,7 @@ void CvAIOperationNavalSneakAttack::Init(int iID, PlayerTypes eOwner, PlayerType
 			{
 				if(pTarget)
 				{
-					CvPlot* pTargetPlot = NULL;
-					if(GET_PLAYER(m_eOwner).GetMilitaryAI()->GetCoastalPlotAdjacentToTarget(pTarget->plot(), pArmyAI) != NULL)
-					{
-						pTargetPlot = pTarget->plot();
-					}
+					CvPlot* pTargetPlot = GET_PLAYER(m_eOwner).GetMilitaryAI()->GetCoastalPlotAdjacentToTarget(pTarget->plot(), pArmyAI);
 					if(pTargetPlot != NULL)
 					{
 						SetTargetPlot(pTargetPlot);			
@@ -8273,8 +8288,8 @@ void CvAIOperationNavalSneakAttack::Init(int iID, PlayerTypes eOwner, PlayerType
 						pArmyAI->SetFormationIndex(GetFormation());
 
 						pArmyAI->SetGoalPlot(GetTargetPlot());
-						SetMusterPlot(GetStartCityPlot());
-						pArmyAI->SetXY(GetStartCityPlot()->getX(), GetStartCityPlot()->getY());
+						SetMusterPlot(pMusterPlot);
+						pArmyAI->SetXY(pMusterPlot->getX(), pMusterPlot->getY());
 
 						BuildListOfUnitsWeStillNeedToBuild();
 

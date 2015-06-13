@@ -7268,7 +7268,26 @@ void CvTeam::processTech(TechTypes eTech, int iChange)
 			}
 		}
 	}
-
+#if defined(MOD_BALANCE_CORE)
+	for(iI = 0; iI < MAX_PLAYERS; iI++)
+	{
+		CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)iI);
+		if(kPlayer.getTeam() == GetID() && kPlayer.isEverAlive())
+		{
+			for(int iL = 0; iL < GC.getNumSpecialistInfos(); iL++)
+			{
+				CvSpecialistInfo* pSpecialistInfo = GC.getSpecialistInfo((SpecialistTypes)iL);
+				if(pSpecialistInfo)
+				{
+					for(iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
+					{
+						kPlayer.changeSpecialistExtraYield(((SpecialistTypes)iL), ((YieldTypes)iJ), (pTech->GetTechYieldChanges((SpecialistTypes)iL, (YieldTypes)iJ) * iChange));
+					}
+				}
+			}
+		}
+	}
+#endif
 	CvPlot* pNewUnitPlot;
 	for(iI = 0; iI < MAX_PLAYERS; iI++)
 	{
@@ -7435,6 +7454,18 @@ void CvTeam::processTech(TechTypes eTech, int iChange)
 					float fDelay = 0.0f;
 					sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", kPlayer.getYieldFromTech(YIELD_CULTURE));
 					DLLUI->AddPopupText(kPlayer.getCapitalCity()->getX(),kPlayer.getCapitalCity()->getY(), text, fDelay);
+				}
+			}
+#endif
+#if defined(MOD_BALANCE_CORE)
+			CvCity* pLoopCity2;
+			int iLoop2;
+			for(pLoopCity2 = kPlayer.firstCity(&iLoop2); pLoopCity2 != NULL; pLoopCity2 = kPlayer.nextCity(&iLoop2))
+			{
+				if(pLoopCity2 != NULL)
+				{
+					pLoopCity2->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
+					pLoopCity2->GetCityCulture()->CalculateBaseTourism();
 				}
 			}
 #endif

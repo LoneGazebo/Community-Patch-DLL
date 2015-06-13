@@ -108,7 +108,9 @@ public:
 	int GetFlavorValue(int i) const;
 	int GetPrereqOrTechs(int i) const;
 	int GetPrereqAndTechs(int i) const;
-
+#if defined(MOD_BALANCE_CORE)
+	int GetTechYieldChanges(int i, int j) const;
+#endif
 private:
 	int m_iAIWeight;
 	int m_iAITradeModifier;
@@ -174,6 +176,9 @@ private:
 	int* m_piPrereqOrTechs;
 	int* m_piPrereqAndTechs;
 	bool* m_pabFreePromotion;
+#if defined(MOD_BALANCE_CORE)
+	int** m_ppiTechYieldChanges;
+#endif
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	bool m_bVassalageTradingAllowed;

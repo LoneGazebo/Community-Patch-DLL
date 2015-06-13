@@ -358,7 +358,7 @@
 		</Row>
 		<!-- Diplo Modifier Texts-->
 		<Row Tag="TXT_KEY_DIPLO_DISCUSS_MESSAGE_END_DEC_FRIENDSHIP_TT">
-			<Text>This action cancels your current Declaration of Friendship, and may severe diplomatic repercussions.</Text>
+			<Text>This action cancels your current Declaration of Friendship and breaks your Defensive Pact (if you have one). This action will assuredly anger your friend, and may have severe global diplomatic repercussions.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_DOF_BROKEN">
 			<Text>{1_CivName:textkey} and {2_CivName:textkey} have made [COLOR_NEGATIVE_TEXT]broken[ENDCOLOR] their public Declaration of Friendship, citing diplomatic tension as the cause.</Text>
@@ -1361,6 +1361,12 @@
 		</Row>
 		<Row Tag="TXT_KEY_NOW_UNFORGIVABLE_2">
 			<Text>Your treachery will bring the wrath of fate itself upon you. Our vengeance will be absolute.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOW_UNFORGIVABLE_3">
+			<Text>Of all the people in the world to betray me...so long as I breathe, we shall never be friends again.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOW_UNFORGIVABLE_4">
+			<Text>You have gone too far this time. I thought we were friends, but now I see the truth.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOW_ENEMY_2">
 			<Text>Time and again, you have shown to be my enemy, not my friend. I suppose it is only logical that I consider you as such.</Text>
@@ -3029,22 +3035,25 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_GENERIC_TRADE_CANT_MATCH_NEGATIVE_1">
-			<Text>This is the most we can offer to you. Take it or leave it, fiend.</Text>
+			<Text>This is the most we can stomach to offer to you for your outrageous offer. Take it or leave it, fiend.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GENERIC_TRADE_CANT_MATCH_NEGATIVE_2">
-			<Text>Bah! You are a fool to offer us so much. We will offer you far less, as you can see?</Text>
+			<Text>Bah! You are a fool to offer us so much. We will offer you far less, as you can see.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GENERIC_TRADE_CANT_MATCH_NEGATIVE_3">
 			<Text>What makes you think we would match you offer, even if we could? This is what we will offer you.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GENERIC_TRADE_CANT_MATCH_NEGATIVE_4">
-			<Text>An impossible offer that we cannot hope to match. Are you trying to embarass us? Because you are simply embarassing yourself, especially if you accept this trade.</Text>
+			<Text>An impossible offer that we cannot hope to match. You are simply embarassing yourself, especially if you accept this trade.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GENERIC_TRADE_CANT_MATCH_NEGATIVE_5">
 			<Text>This is the best we can do. If you accept this, you will be a laughing stock at home and in our country.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GENERIC_TRADE_CANT_MATCH_NEGATIVE_6">
 			<Text>Want more? Too bad, this is all we can offer you. Go somewhere else if you don't like it.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_TRADE_CANT_MATCH_NEGATIVE_7">
+			<Text>You need to improve your pathetic trading skils. There is no way we can match your offer.</Text>
 		</Row>
 	</Language_en_US>
 </GameData>

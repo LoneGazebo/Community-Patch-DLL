@@ -806,6 +806,9 @@ void CvCityStrategyAI::ChooseProduction(bool bUseAsyncRandom, BuildingTypes eIgn
 #if !defined(MOD_BALANCE_CORE)
 	//int iSettlersOnMap = kPlayer.GetNumUnitsWithUnitAI(UNITAI_SETTLE, true);
 #endif
+#if defined(MOD_BALANCE_CORE)
+	iTempWeight = 0;
+#endif
 	// Use the asynchronous random number generate if "no random" is set
 	if(bUseAsyncRandom)
 	{
@@ -880,7 +883,16 @@ void CvCityStrategyAI::ChooseProduction(bool bUseAsyncRandom, BuildingTypes eIgn
 		}
 	}
 
-	if(kPlayer.isMinorCiv() || kPlayer.isBarbarian())
+	if(kPlayer.isMinorCiv() || kPlayer.isBarbarian() || kPlayer.GetPlayerTraits()->IsNoAnnexing() || GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE))
+	{
+		bEnoughSettlers = true;
+		bForceSettler = false;
+	}
+	int iBestArea;
+	int iSecondBestArea;
+	int iNumAreas;
+	iNumAreas = kPlayer.GetBestSettleAreas(kPlayer.GetEconomicAI()->GetMinimumSettleFertility(), iBestArea, iSecondBestArea);
+	if(iNumAreas == 0)
 	{
 		bEnoughSettlers = true;
 		bForceSettler = false;
@@ -897,7 +909,10 @@ void CvCityStrategyAI::ChooseProduction(bool bUseAsyncRandom, BuildingTypes eIgn
 		iTempWeight = GC.getAI_CITYSTRATEGY_OPERATION_UNIT_BASE_WEIGHT();
 		int iOffenseFlavor = kPlayer.GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_OFFENSE")) + kPlayer.GetMilitaryAI()->GetNumberOfTimesOpsBuildSkippedOver();
 		iTempWeight += (GC.getAI_CITYSTRATEGY_OPERATION_UNIT_FLAVOR_MULTIPLIER() * iOffenseFlavor);
-
+#if defined(MOD_BALANCE_CORE)
+		if(iTempWeight > 0)
+		{
+#endif
 		if(GetSpecialization() != NO_CITY_SPECIALIZATION && GC.getCitySpecializationInfo(GetSpecialization())->IsOperationUnitProvider())
 		{
 			iTempWeight *= 5;
@@ -943,7 +958,9 @@ void CvCityStrategyAI::ChooseProduction(bool bUseAsyncRandom, BuildingTypes eIgn
 			m_Buildables.push_back(buildable, iTempWeight);
 			kPlayer.GetMilitaryAI()->BumpNumberOfTimesOpsBuildSkippedOver();
 		}
-
+#if defined(MOD_BALANCE_CORE)
+		}
+#endif
 	}
 
 	// Next units for sneak attack armies
@@ -958,6 +975,8 @@ void CvCityStrategyAI::ChooseProduction(bool bUseAsyncRandom, BuildingTypes eIgn
 
 #if defined(AUI_CITYSTRATEGY_CHOOSE_PRODUCTION_NO_HIGH_DIFFICULTY_SKEW)
 		iTempWeight += (GC.getAI_CITYSTRATEGY_OPERATION_UNIT_FLAVOR_MULTIPLIER() * iOffenseFlavor);
+		if(iTempWeight > 0)
+		{
 #else
 		int iBonusMultiplier = max(1,GC.getGame().getHandicapInfo().GetID() - 5); // more at the higher difficulties
 		iTempWeight += (GC.getAI_CITYSTRATEGY_OPERATION_UNIT_FLAVOR_MULTIPLIER() * iOffenseFlavor * iBonusMultiplier);
@@ -981,6 +1000,9 @@ void CvCityStrategyAI::ChooseProduction(bool bUseAsyncRandom, BuildingTypes eIgn
 		{
 			m_Buildables.push_back(buildable, iTempWeight);
 		}
+#if defined(AUI_CITYSTRATEGY_CHOOSE_PRODUCTION_NO_HIGH_DIFFICULTY_SKEW)
+		}
+#endif
 	}
 
 	// Loop through adding the available buildings
@@ -1001,7 +1023,10 @@ void CvCityStrategyAI::ChooseProduction(bool bUseAsyncRandom, BuildingTypes eIgn
 			buildable.m_iTurnsToConstruct = GetCity()->getProductionTurnsLeft(eLoopBuilding, 0);
 
 			iTempWeight = m_pBuildingProductionAI->GetWeight(eLoopBuilding);
-
+#if defined(MOD_BALANCE_CORE)
+			if(iTempWeight > 0)
+			{
+#endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 			if(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 			{
@@ -1103,7 +1128,7 @@ void CvCityStrategyAI::ChooseProduction(bool bUseAsyncRandom, BuildingTypes eIgn
 #endif
 				if(pkBuildingInfo->GetDomainFreeExperience(DOMAIN_LAND) && bIsVenice)
 				{
-					iTempWeight *= 4;
+					iTempWeight *= 10;
 				}
 				else if(pkBuildingInfo->GetDomainFreeExperience(DOMAIN_LAND) && !bIsVenice)
 
@@ -1130,6 +1155,9 @@ void CvCityStrategyAI::ChooseProduction(bool bUseAsyncRandom, BuildingTypes eIgn
 			}
 			if(iTempWeight > 0)
 				m_Buildables.push_back(buildable, iTempWeight);
+#if defined(MOD_BALANCE_CORE)
+			}
+#endif
 		}
 	}
 
@@ -1149,7 +1177,10 @@ void CvCityStrategyAI::ChooseProduction(bool bUseAsyncRandom, BuildingTypes eIgn
 				buildable.m_iTurnsToConstruct = GetCity()->getProductionTurnsLeft((UnitTypes)iUnitLoop, 0);
 
 				iTempWeight = m_pUnitProductionAI->GetWeight((UnitTypes)iUnitLoop);
-
+#if defined(MOD_BALANCE_CORE)
+				if(iTempWeight > 0)
+				{
+#endif
 				CvUnitEntry* pkUnitEntry = GC.getUnitInfo((UnitTypes)iUnitLoop);
 				if(pkUnitEntry && pkUnitEntry->GetDefaultUnitAIType() == UNITAI_SETTLE)
 				{
@@ -1216,6 +1247,9 @@ void CvCityStrategyAI::ChooseProduction(bool bUseAsyncRandom, BuildingTypes eIgn
 				if(iTempWeight > 0)
 					m_Buildables.push_back(buildable, iTempWeight);
 #endif
+#if defined(MOD_BALANCE_CORE)
+				}
+#endif
 			}
 		}
 
@@ -1250,9 +1284,33 @@ void CvCityStrategyAI::ChooseProduction(bool bUseAsyncRandom, BuildingTypes eIgn
 				for (iProcessLoop = 0; iProcessLoop < GC.getNumProcessInfos(); iProcessLoop++)
 				{
 					ProcessTypes eProcess = (ProcessTypes)iProcessLoop;
-					if (m_pCity->canMaintain(eProcess))
+#if defined(MOD_BALANCE_CORE)
+					if(bIsVenice && GetCity()->IsPuppet())
 					{
+						CvProcessInfo* pProcess = GC.getProcessInfo((ProcessTypes)eProcess);
+						for(int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
+						{
+							YieldTypes eYield = (YieldTypes)iYield;
+							if(pProcess->getProductionToYieldModifier(eYield) > 0)
+							{
+								iTempWeight = m_pProcessProductionAI->GetWeight((ProcessTypes)iProcessLoop);
+								iTempWeight /= 10;
+							}
+						}
+					}
+					if (m_pCity->canMaintain(eProcess))
+#else
+					if (m_pCity->canMaintain(eProcess))
+#endif
+					{
+#if defined(MOD_BALANCE_CORE)
+						if(!GetCity()->IsPuppet())
+						{
+#endif
 						iTempWeight = m_pProcessProductionAI->GetWeight((ProcessTypes)iProcessLoop);
+#if defined(MOD_BALANCE_CORE)
+						}
+#endif
 						buildable.m_eBuildableType = CITY_BUILDABLE_PROCESS;
 						buildable.m_iIndex = iProcessLoop;
 						buildable.m_iTurnsToConstruct = 1;
@@ -1273,45 +1331,13 @@ void CvCityStrategyAI::ChooseProduction(bool bUseAsyncRandom, BuildingTypes eIgn
 	{
 		// Choose from the best options (currently 2)
 		int iNumChoices = GC.getGame().getHandicapInfo().GetCityProductionNumOptions();
-#if defined(MOD_BALANCE_CORE)
-		//Forced some changes to make the AI a little more direct in its behavior.
-		int iRushIfMoreThanXTurns = GC.getAI_ATTEMPT_RUSH_OVER_X_TURNS_TO_BUILD();
-		selection = m_Buildables.GetElement(0);
-		bool bForced = false;
-		if(selection.m_eBuildableType == CITY_BUILDABLE_UNIT_FOR_OPERATION)
-		{
-			bForced = true;
-		}
-		else if(selection.m_eBuildableType == CITY_BUILDABLE_UNIT_FOR_ARMY)
-		{
-			bForced = true;
-		}
-		else if(selection.m_eBuildableType == CITY_BUILDABLE_BUILDING)
-		{
-			BuildingTypes eBuildingType = (BuildingTypes) selection.m_iIndex;
-			CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuildingType);
-			const BuildingClassTypes eBuildingClass = (BuildingClassTypes)(pkBuildingInfo->GetBuildingClassType());
-			if(GetCity()->IsBuildingInvestment(eBuildingClass))
-			{
-				bForced = true;
-			}
-		}
-		if(!bForced)
-		{
-#endif
 		selection = m_Buildables.ChooseFromTopChoices(iNumChoices, &fcn, "Choosing city build from Top Choices");
-#if defined(MOD_BALANCE_CORE)
-#else
 		int iRushIfMoreThanXTurns = GC.getAI_ATTEMPT_RUSH_OVER_X_TURNS_TO_BUILD();
-#endif
 		if(GET_PLAYER(m_pCity->getOwner()).isMinorCiv())
 		{
 			iRushIfMoreThanXTurns *= GC.getMINOR_CIV_PRODUCTION_PERCENT();
 			iRushIfMoreThanXTurns /= 100;
 		}
-#if defined(MOD_BALANCE_CORE)
-		}
-#endif
 		bool bRush = selection.m_iTurnsToConstruct > iRushIfMoreThanXTurns;
 		LogCityProduction(selection, bRush);
 
@@ -3332,28 +3358,34 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_NewContinentFeeder(CvCity* pCity)
 // Is this an isolated city with no routes out? Don't build settlers here.
 bool CityStrategyAIHelpers::IsTestCityStrategy_PocketCity(CvCity* pCity)
 {
-	CvPlayer& kPlayer = GET_PLAYER(pCity->getOwner());
 	CvArea* pArea = GC.getMap().getArea(pCity->getArea());
-	if(kPlayer.getCapitalCity() == NULL)
+	CvCity* pCapitalCity = GET_PLAYER(pCity->getOwner()).getCapitalCity();
+	if(pCity == NULL)
 	{
 		return false;
 	}
-	if(pArea->GetID() != kPlayer.getCapitalCity()->getArea())
+	if(pCapitalCity == NULL)
 	{
 		return false;
 	}
-	if(!pCity->isCoastal())
+	if(pCity->isCapital())
 	{
-		if(!pCity->IsConnectedToCapital())
-		{
-			// Now loop through the units, using the pathfinder to do the final evaluation
-			if (!GC.getPathFinder().GeneratePath(kPlayer.getCapitalCity()->getX(), kPlayer.getCapitalCity()->getY(), pCity->getX(), pCity->getY()))
-			{
-				return true;
-			}
-		}
+		return false;
+	}
+	if(pArea->GetID() != pCapitalCity->getArea())
+	{
+		return false;
 	}
 
+	int iPathfinderFlags = MOVE_TERRITORY_NO_UNEXPLORED | MOVE_TERRITORY_NO_ENEMY;
+
+	GC.getRouteFinder().ForceReset();
+	bool bReturnValue = GC.getRouteFinder().GeneratePath(pCapitalCity->getX(), pCapitalCity->getY(), pCity->getX(), pCity->getY(), iPathfinderFlags, false);
+
+	if(bReturnValue)
+	{
+		return true;
+	}
 	return false;
 }
 #endif
@@ -4010,7 +4042,11 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_NeedTourismBuilding(CvCity *pCity
 #else
 	iTourismValue += pCity->GetCityCulture()->GetCultureFromImprovements();
 #endif
+#if defined(MOD_BALANCE_CORE)
+	iTourismValue += pCity->GetBaseTourism();
+#else
 	iTourismValue += pCity->GetCityCulture()->GetBaseTourism();
+#endif
 
 	if (iTourismValue > 10)
 	{

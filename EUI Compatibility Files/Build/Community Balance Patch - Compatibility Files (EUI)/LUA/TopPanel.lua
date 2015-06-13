@@ -1368,15 +1368,13 @@ if civ5_mode then
 				tips:insert( "[ICON_BULLET]" .. L( "TXT_KEY_TP_HAPPINESS_FROM_RESOURCES", resourcesHappiness ) )
 				tips:insert( "  " .. availableResources )
 			end
-
 			tips:insert( "[ENDCOLOR]" )
-
 -- COMMUNITY PATCH CHANGE
 			-- Happiness/Population calculation.
 			local iPopulation = g_activePlayer:GetCurrentTotalPop()
 			local iPopNeeded = g_activePlayer:GetPopNeededForLux()
 			local iThreshold = g_activePlayer:GetBaseLuxuryHappiness();
-			tips:insert( "          " .. L("TXT_KEY_TP_HAPPINESS_THRESHOLD_VALUE", iPopNeeded, iPopulation, iThreshold, (iThreshold + 1)))
+			tips:insert( L("TXT_KEY_TP_HAPPINESS_THRESHOLD_VALUE", iPopNeeded, iPopulation, iThreshold, (iThreshold + 1)))
 -- END
 			----------------------------
 			-- Local Resources in Cities

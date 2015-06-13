@@ -785,6 +785,7 @@ int CvSpecialistInfo::getFlavorValue(int i) const
 	CvAssertMsg(i > -1, "Index out of bounds");
 	return m_piFlavorValue ? m_piFlavorValue[i] : 0;
 }
+
 //------------------------------------------------------------------------------
 const char* CvSpecialistInfo::getTexture() const
 {

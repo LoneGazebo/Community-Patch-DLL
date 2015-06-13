@@ -240,6 +240,8 @@ CvCity::CvCity() :
 	, m_iUnhappyCitizen(0)
 	, m_iPurchaseCooldown(0)
 	, m_iReligiousTradeModifier(0)
+	, m_iBaseTourism(0)
+	, m_iBaseTourismBeforeModifiers(0)
 	, m_aiChangeYieldFromVictory("CvCity::m_aiChangeYieldFromVictory", m_syncArchive)
 	, m_aiBaseYieldRateFromCSAlliance("CvCity::m_aiChangeGrowthExtraYield", m_syncArchive)
 #endif
@@ -1331,6 +1333,8 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_iUnhappyCitizen = 0;
 	m_iPurchaseCooldown = 0;
 	m_iReligiousTradeModifier = 0;
+	m_iBaseTourism = 0;
+	m_iBaseTourismBeforeModifiers = 0;
 	m_aiChangeYieldFromVictory.resize(NUM_YIELD_TYPES);
 #endif
 #if defined(MOD_BALANCE_CORE)
@@ -2318,7 +2322,10 @@ void CvCity::doTurn()
 		updateStrengthValue();
 
 		DoNearbyEnemy();
-
+#if defined(MOD_BALANCE_CORE)
+		GetCityCulture()->CalculateBaseTourismBeforeModifiers();
+		GetCityCulture()->CalculateBaseTourism();
+#endif
 #if !defined(NO_ACHIEVEMENTS)
 		//Check for Achievements
 		if(isHuman() && !GC.getGame().isGameMultiPlayer() && GET_PLAYER(GC.getGame().getActivePlayer()).isLocalPlayer())
@@ -2477,6 +2484,10 @@ void CvCity::updateYield()
 			pLoopPlot->updateYield();
 		}
 	}
+#if defined(MOD_BALANCE_CORE)
+	GetCityCulture()->CalculateBaseTourismBeforeModifiers();
+	GetCityCulture()->CalculateBaseTourism();
+#endif
 }
 
 //	--------------------------------------------------------------------------------
@@ -7479,6 +7490,13 @@ void CvCity::processResource(ResourceTypes eResource, int iChange)
 	{
 		const YieldTypes eYield = static_cast<YieldTypes>(iI);
 		changeResourceYieldRateModifier(eYield, (getResourceYieldRateModifier(eYield, eResource) * iChange));
+#if defined(MOD_BALANCE_CORE)
+		if(eYield == YIELD_CULTURE || eYield == YIELD_TOURISM)
+		{
+			GetCityCulture()->CalculateBaseTourismBeforeModifiers();
+			GetCityCulture()->CalculateBaseTourism();
+		}
+#endif
 	}
 }
 
@@ -8558,6 +8576,10 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 	}
 
 	UpdateReligion(GetCityReligions()->GetReligiousMajority());
+#if defined(MOD_BALANCE_CORE)
+	GetCityCulture()->CalculateBaseTourismBeforeModifiers();
+	GetCityCulture()->CalculateBaseTourism();
+#endif
 
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	if(MOD_BALANCE_CORE_HAPPINESS)
@@ -8593,6 +8615,13 @@ void CvCity::processProcess(ProcessTypes eProcess, int iChange)
 		for(iI = 0; iI < NUM_YIELD_TYPES; iI++)
 		{
 			changeProductionToYieldModifier(((YieldTypes)iI), (pkProcessInfo->getProductionToYieldModifier(iI) * iChange));
+#if defined(MOD_BALANCE_CORE)
+			if((YieldTypes)iI == YIELD_CULTURE || (YieldTypes)iI == YIELD_TOURISM)
+			{
+				GetCityCulture()->CalculateBaseTourismBeforeModifiers();
+				GetCityCulture()->CalculateBaseTourism();
+			}
+#endif
 		}
 	}
 }
@@ -8616,10 +8645,16 @@ void CvCity::processSpecialist(SpecialistTypes eSpecialist, int iChange)
 	for(iI = 0; iI < NUM_YIELD_TYPES; iI++)
 	{
 		ChangeBaseYieldRateFromSpecialists(((YieldTypes)iI), (pkSpecialist->getYieldChange(iI) * iChange));
+#if defined(MOD_BALANCE_CORE)
+		if((YieldTypes)iI == YIELD_CULTURE || (YieldTypes)iI == YIELD_TOURISM)
+		{
+			GetCityCulture()->CalculateBaseTourismBeforeModifiers();
+			GetCityCulture()->CalculateBaseTourism();
+		}
+#endif
 	}
 
 	updateExtraSpecialistYield();
-
 	changeSpecialistFreeExperience(pkSpecialist->getExperience() * iChange);
 
 	// Culture
@@ -8862,7 +8897,10 @@ void CvCity::UpdateReligion(ReligionTypes eNewMajority)
 			}
 		}
 	}
-
+#if defined(MOD_BALANCE_CORE)
+	GetCityCulture()->CalculateBaseTourismBeforeModifiers();
+	GetCityCulture()->CalculateBaseTourism();
+#endif
 	GET_PLAYER(getOwner()).UpdateReligion();
 }
 
@@ -9095,12 +9133,36 @@ void CvCity::ChangePurchaseCooldown(int iValue)
 int CvCity::foodConsumption(bool /*bNoAngry*/, int iExtra) const
 {
 	VALIDATE_OBJECT
+#if defined(MOD_BALANCE_SPECIALIST_FOOD_SCALE_ERA)
+	if(MOD_BALANCE_SPECIALIST_FOOD_SCALE_ERA)
+	{
+		int iPopulation = (getPopulation() + iExtra) - GetCityCitizens()->GetTotalSpecialistCount();
+		int iSpecialists = GetCityCitizens()->GetTotalSpecialistCount();
+
+		int iFoodPerPop = /*2*/ GC.getFOOD_CONSUMPTION_PER_POPULATION();
+
+		int iNum = iPopulation * iFoodPerPop;
+
+		int iEra = (GET_PLAYER(getOwner()).GetCurrentEra() + 1);
+		iEra += /*2*/ GC.getFOOD_CONSUMPTION_PER_POPULATION();
+
+		iNum += (iEra * iSpecialists);
+		if(GET_PLAYER(getOwner()).isHalfSpecialistFood())
+		{
+			int iFoodReduction = iSpecialists * iFoodPerPop;
+			iFoodReduction /= 2;
+			iNum -= iFoodReduction;
+		}
+		return iNum;
+	}
+	else
+	{
+#endif
 	int iPopulation = getPopulation() + iExtra;
 
 	int iFoodPerPop = /*2*/ GC.getFOOD_CONSUMPTION_PER_POPULATION();
 
 	int iNum = iPopulation * iFoodPerPop;
-
 	// Specialists eat less food? (Policies, etc.)
 	if(GET_PLAYER(getOwner()).isHalfSpecialistFood())
 	{
@@ -9108,8 +9170,10 @@ int CvCity::foodConsumption(bool /*bNoAngry*/, int iExtra) const
 		iFoodReduction /= 2;
 		iNum -= iFoodReduction;
 	}
-
 	return iNum;
+#if defined(MOD_BALANCE_SPECIALIST_FOOD_SCALE_ERA)
+	}
+#endif
 }
 
 //	--------------------------------------------------------------------------------
@@ -11167,6 +11231,34 @@ void CvCity::changeBuildingClassCultureChange(BuildingClassTypes eIndex, int iCh
 	CvAssert(getBuildingClassCultureChange(eIndex) >= 0);
 }
 #endif
+#if defined(MOD_BALANCE_CORE)
+//	--------------------------------------------------------------------------------
+int CvCity::GetBaseTourism() const
+{
+	VALIDATE_OBJECT
+	return m_iBaseTourism;
+}
+
+//	--------------------------------------------------------------------------------
+void CvCity::SetBaseTourism(int iChange)
+{
+	VALIDATE_OBJECT
+	m_iBaseTourism = iChange;
+}
+//	--------------------------------------------------------------------------------
+int CvCity::GetBaseTourismBeforeModifiers() const
+{
+	VALIDATE_OBJECT
+	return m_iBaseTourismBeforeModifiers;
+}
+
+//	--------------------------------------------------------------------------------
+void CvCity::SetBaseTourismBeforeModifiers(int iChange)
+{
+	VALIDATE_OBJECT
+	m_iBaseTourismBeforeModifiers = iChange;
+}
+#endif
 #if defined(MOD_API_EXTENSIONS)
 //	--------------------------------------------------------------------------------
 int CvCity::getTourismRateModifier() const
@@ -13028,7 +13120,7 @@ int CvCity::getUnhappinessFromStarving() const
 		iDiff = (iDiff * -1);
 
 		int iRealCityPop = getPopulation();
-		fUnhappiness += (float) iRealCityPop * fExponent;
+		fUnhappiness += (float) iDiff * fExponent;
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 		if(IsPuppet())
 		{
@@ -18359,7 +18451,7 @@ bool CvCity::IsCanPurchase(bool bTestPurchaseCost, bool bTestTrainable, UnitType
 				{
 					return false;
 				}
-				if(eUnitType != NO_UNIT)
+				if(eUnitType != NO_UNIT && !bVenetianException)
 				{
 					CvUnitEntry* thisUnitInfo = GC.getUnitInfo(eUnitType);
 					// See if there are any BuildingClass requirements
@@ -20202,6 +20294,8 @@ void CvCity::read(FDataStream& kStream)
 	MOD_SERIALIZE_READ(66, kStream, m_iUnhappyCitizen, 0);
 	MOD_SERIALIZE_READ(66, kStream, m_iPurchaseCooldown, 0);
 	MOD_SERIALIZE_READ(66, kStream, m_iReligiousTradeModifier, 0);
+	MOD_SERIALIZE_READ(66, kStream, m_iBaseTourism, 0);
+	MOD_SERIALIZE_READ(66, kStream, m_iBaseTourismBeforeModifiers, 0);
 	MOD_SERIALIZE_READ_AUTO(66, kStream, m_aiBaseYieldRateFromCSAlliance, NUM_YIELD_TYPES, 0);
 #endif
 #if defined(MOD_BALANCE_CORE)
@@ -20618,6 +20712,8 @@ void CvCity::write(FDataStream& kStream) const
 	MOD_SERIALIZE_WRITE(kStream, m_iUnhappyCitizen);
 	MOD_SERIALIZE_WRITE(kStream, m_iPurchaseCooldown);
 	MOD_SERIALIZE_WRITE(kStream, m_iReligiousTradeModifier);
+	MOD_SERIALIZE_WRITE(kStream, m_iBaseTourism);
+	MOD_SERIALIZE_WRITE(kStream, m_iBaseTourismBeforeModifiers);
 	MOD_SERIALIZE_WRITE_AUTO(kStream, m_aiBaseYieldRateFromCSAlliance);
 #endif
 #if defined(MOD_BALANCE_CORE)

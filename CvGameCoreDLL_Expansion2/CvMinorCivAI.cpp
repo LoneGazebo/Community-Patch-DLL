@@ -6883,7 +6883,7 @@ void CvMinorCivAI::DoRebellion()
 {
 	// In hundreds
 	int iNumRebels = (GetPlayer()->getNumMilitaryUnits() * 100); //Based on number of military units of CS.
-	int iExtraRoll = 150; //1+ Rebels maximum
+	int iExtraRoll = 100; //1+ Rebels maximum
 	iExtraRoll += (GC.getGame().getCurrentEra() * 50); //Increase possible rebel spawns as game continues.
 	iNumRebels += GC.getGame().getJonRandNum(iExtraRoll, "Rebel count rand roll");
 	iNumRebels /= 100;
@@ -11191,7 +11191,7 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 		{
 			float fRankRatio = (float)(veMilitaryRankings.size() - iRanking) / (float)(veMilitaryRankings.size());
 #if defined(MOD_BALANCE_CORE_MINORS)
-			iGlobalMilitaryScore = (int)(fRankRatio * 25); // A score between 25*(1 / num majors alive) and 25, with the highest rank major getting 25
+			iGlobalMilitaryScore = (int)(fRankRatio * 50); // A score between 50*(1 / num majors alive) and 50, with the highest rank major getting 50
 #else
 			iGlobalMilitaryScore = (int)(fRankRatio * 75); // A score between 75*(1 / num majors alive) and 75, with the highest rank major getting 75
 #endif
@@ -11372,7 +11372,7 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 	// -110
 	// **************************
 #if defined(MOD_BALANCE_CORE_MINORS)
-	int iBaseReluctanceScore = -200;
+	int iBaseReluctanceScore = -175;
 #else
 	const int iBaseReluctanceScore = -110;
 #endif
@@ -11767,7 +11767,7 @@ void CvMinorCivAI::DoMajorBullyGold(PlayerTypes eBully, int iGold)
 #if defined(MOD_BALANCE_CORE)
 int CvMinorCivAI::GetYieldTheftAmount(PlayerTypes eBully, YieldTypes eYield)
 {
-	int iValue = 20;
+	int iValue = 30;
 	iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 	iValue /= 100;
 	CvCity* pCapital = GetPlayer()->getCapitalCity();

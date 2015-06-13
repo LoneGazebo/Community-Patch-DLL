@@ -208,7 +208,15 @@ UnitTypes CvUnitProductionAI::RecommendUnit(UnitAITypes eUnitAIType)
 					// Update weight based on turns to construct
 					iTurnsLeft = m_pCity->getProductionTurnsLeft(eUnit, 0);
 					iWeight = CityStrategyAIHelpers::ReweightByTurnsLeft(m_UnitAIWeights.GetWeight(eUnit), iTurnsLeft);
+#if defined(MOD_BALANCE_CORE)
+					iWeight += GetWeight(eUnit);
+					if(iWeight > 0)
+					{
+#endif
 					m_Buildables.push_back(iUnitLoop, iWeight);
+#if defined(MOD_BALANCE_CORE)
+					}
+#endif
 				}
 			}
 		}

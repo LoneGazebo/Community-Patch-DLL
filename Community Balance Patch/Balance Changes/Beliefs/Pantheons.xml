@@ -55,12 +55,6 @@
 			<YieldChange>2</YieldChange>
 		</Row>
 		<Row>
-			<BeliefType>BELIEF_OPEN_SKY</BeliefType>
-			<BuildingClassType>BUILDINGCLASS_STABLE</BuildingClassType>
-			<YieldType>YIELD_PRODUCTION</YieldType>
-			<YieldChange>2</YieldChange>
-		</Row>
-		<Row>
 			<BeliefType>BELIEF_GOD_WAR</BeliefType>
 			<BuildingClassType>BUILDINGCLASS_BARRACKS</BuildingClassType>
 			<YieldType>YIELD_SCIENCE</YieldType>
@@ -91,7 +85,7 @@
 			<YieldChange>2</YieldChange>
 		</Row>
 	</Belief_BuildingClassYieldChanges>
-	<!-- Yield Per Pop: Yield = number of citizens for +1 of a yield (so 5 citizens = 1 faith here)-->
+	<!-- Yield Per Pop: Yield = number of citizens for +1 of a yield (so 5 citizens = 1 culture here)-->
 	<Belief_YieldPerPop>
 		<Row>
 			<BeliefType>BELIEF_ANCESTOR_WORSHIP</BeliefType>
@@ -178,8 +172,8 @@
 		<Row>
 			<BeliefType>BELIEF_ANCESTOR_WORSHIP</BeliefType>
 			<BuildingClassType>BUILDINGCLASS_PALACE</BuildingClassType>
-			<YieldType>YIELD_PRODUCTION</YieldType>
-			<YieldChange>2</YieldChange>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<YieldChange>3</YieldChange>
 		</Row>
 	</Belief_BuildingClassYieldChanges>
 	<Belief_YieldPerBorderGrowth>
@@ -273,7 +267,7 @@
 			<BeliefType>BELIEF_OPEN_SKY</BeliefType>
 			<TerrainType>TERRAIN_PLAINS</TerrainType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>1</Yield>
+			<Yield>2</Yield>
 		</Row>
 	</Belief_TerrainYieldChanges>
 	<Belief_PlotYieldChanges>
@@ -290,5 +284,27 @@
 			<Yield>2</Yield>
 		</Row>
 	</Belief_PlotYieldChanges>
-
+	<!-- God King-->
+	<Belief_YieldPerXFollowers>
+		<Row>
+			<BeliefType>BELIEF_GOD_KING</BeliefType>
+			<YieldType>YIELD_FAITH</YieldType>
+			<PerXFollowers>10</PerXFollowers>
+		</Row>
+		<Row>
+			<BeliefType>BELIEF_GOD_KING</BeliefType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<PerXFollowers>10</PerXFollowers>
+		</Row>
+		<Row>
+			<BeliefType>BELIEF_GOD_KING</BeliefType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<PerXFollowers>10</PerXFollowers>
+		</Row>
+		<Row>
+			<BeliefType>BELIEF_GOD_KING</BeliefType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<PerXFollowers>10</PerXFollowers>
+		</Row>
+	</Belief_YieldPerXFollowers>
 </GameData>

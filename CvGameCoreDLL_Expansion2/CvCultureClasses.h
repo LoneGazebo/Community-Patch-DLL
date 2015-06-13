@@ -347,7 +347,10 @@ public:
 	int GetNumAvailableGreatWorkSlots(GreatWorkSlotType eSlotType) const;
 	void ClearGreatWorks();
 	GreatWorkSlotType GetSlotTypeFirstAvailableCultureBuilding() const;
-
+#if defined(MOD_BALANCE_CORE)
+	void CalculateBaseTourismBeforeModifiers();
+	void CalculateBaseTourism();
+#endif
 	int GetBaseTourismBeforeModifiers();
 	int GetBaseTourism();
 	int GetTourismMultiplier(PlayerTypes ePlayer, bool bIgnoreReligion, bool bIgnoreOpenBorders, bool bIgnoreTrade, bool bIgnorePolicies, bool bIgnoreIdeologies) const;

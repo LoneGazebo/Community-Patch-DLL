@@ -286,10 +286,10 @@ UPDATE Building_YieldChanges
 SET Yield = '3'
 WHERE BuildingType = 'BUILDING_STABLE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
-UPDATE Building_YieldChanges
-SET Yield = '3'
+UPDATE Building_ResourceYieldChanges
+SET Yield = '2'
 WHERE BuildingType = 'BUILDING_STABLE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
-
+	
 UPDATE Building_UnitCombatProductionModifiers
 SET Modifier = '20'
 WHERE BuildingType = 'BUILDING_STABLE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
@@ -390,7 +390,7 @@ WHERE BuildingType = 'BUILDING_SEAPORT' AND EXISTS (SELECT * FROM COMMUNITY WHER
 
 -- Seaport	
 UPDATE Language_en_US
-SET Text = 'Requires 1 [ICON_RES_COAL] Coal. +1 [ICON_FOOD] Food from all Ocean and Coastal tiles. +2 [ICON_PRODUCTION] Production and [ICON_GOLD] Gold from Sea Resources worked by this City.[NEWLINE][NEWLINE]City must be built on the coast.'
+SET Text = 'Requires 1 [ICON_RES_COAL] Coal. +1 [ICON_FOOD] Food and +1 [ICON_GOLD] GOld from all Ocean and Coastal tiles. +2 [ICON_PRODUCTION] Production and [ICON_GOLD] Gold from Sea Resources worked by this City.[NEWLINE][NEWLINE]City must be built on the coast.'
 WHERE Tag = 'TXT_KEY_BUILDING_SEAPORT_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Building_YieldChanges

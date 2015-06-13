@@ -234,6 +234,10 @@ private:
 	void DoReconState();
 	void DoAntiquitySites();
 	void DisbandExtraWorkers();
+#if defined(MOD_BALANCE_CORE)
+	void DisbandUselessSettlers();
+	CvUnit* FindSettlerToScrap();
+#endif
 	void DisbandExtraArchaeologists();
 #if defined(MOD_AI_SMART_DISBAND)
 	void DisbandLongObsoleteUnits();

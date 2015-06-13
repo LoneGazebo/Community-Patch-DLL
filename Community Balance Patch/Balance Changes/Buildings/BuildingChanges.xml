@@ -205,6 +205,11 @@
 			<YieldType>YIELD_FOOD</YieldType>
 			<Yield>1</Yield>
 		</Row>
+		<Row>
+			<BuildingType>BUILDING_SEAPORT</BuildingType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>1</Yield>
+		</Row>
 	</Building_SeaPlotYieldChanges>
 	<!-- Caravansary -->
 	<Building_YieldChanges>

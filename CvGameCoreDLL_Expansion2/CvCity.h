@@ -447,6 +447,12 @@ public:
 	int getBuildingClassCultureChange(BuildingClassTypes eIndex) const;
 	void changeBuildingClassCultureChange(BuildingClassTypes eIndex, int iChange);
 #endif
+#if defined(MOD_BALANCE_CORE)
+	void SetBaseTourism(int iChange);
+	int GetBaseTourism() const;
+	void SetBaseTourismBeforeModifiers(int iChange);
+	int GetBaseTourismBeforeModifiers() const;
+#endif
 	// END Culture
 
 #if defined(MOD_API_EXTENSIONS)
@@ -1298,6 +1304,8 @@ protected:
 	int m_iUnhappyCitizen;
 	int m_iPurchaseCooldown;
 	int m_iReligiousTradeModifier;
+	int m_iBaseTourism;
+	int m_iBaseTourismBeforeModifiers;
 	int m_iNationalMissionaries;
 #endif
 #if defined(MOD_BALANCE_CORE)

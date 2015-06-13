@@ -337,7 +337,13 @@
 		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
 		<Column name="YieldChange" type="integer" default="0"/>
 	</Table>
-	
+	<!-- Tech/Specialists -->
+	<Table name="Tech_SpecialistYieldChanges">
+		<Column name="TechType" type="text" reference="Technologies(Type)"/>
+		<Column name="SpecialistType" type="text" reference="Specialists(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer"/>
+	</Table>
 	<Yields>
 		<Row>
 			<ID>8</ID>

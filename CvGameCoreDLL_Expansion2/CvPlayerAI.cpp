@@ -1354,6 +1354,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveEngineer(CvUnit* pGreatEnginee
 #if defined(MOD_BALANCE_CORE)
 	ImprovementTypes eManufactory = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_MANUFACTORY");
 	int iFlavor =  GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_PRODUCTION"));
+	iFlavor += GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GROWTH"));
 	iFlavor -= (GetCurrentEra() + GetNumUnitsWithUnitAI(UNITAI_ENGINEER));
 	// Build manufactories up to your flavor.
 	if(eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE)
@@ -1364,6 +1365,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveEngineer(CvUnit* pGreatEnginee
 			eDirective = GREAT_PEOPLE_DIRECTIVE_CONSTRUCT_IMPROVEMENT;
 		}
 	}
+	if(eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE && (GC.getGame().getGameTurn() - pGreatEngineer->getGameTurnCreated()) >= (GC.getAI_HOMELAND_GREAT_PERSON_TURNS_TO_WAIT() - GetCurrentEra()))
 #else
 	if (eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE && GC.getGame().getGameTurn() <= ((GC.getGame().getEstimateEndTurn() * 3) / 4))
 	{
@@ -1372,8 +1374,8 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveEngineer(CvUnit* pGreatEnginee
 			eDirective = GREAT_PEOPLE_DIRECTIVE_CONSTRUCT_IMPROVEMENT;
 		}
 	}
-#endif
 	if(eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE && (GC.getGame().getGameTurn() - pGreatEngineer->getGameTurnCreated()) >= GC.getAI_HOMELAND_GREAT_PERSON_TURNS_TO_WAIT())
+#endif
 	{
 		eDirective = GREAT_PEOPLE_DIRECTIVE_CONSTRUCT_IMPROVEMENT;
 	}
@@ -1400,6 +1402,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveMerchant(CvUnit* pGreatMerchan
 #if defined(MOD_BALANCE_CORE)
 	ImprovementTypes eCustomHouse = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_CUSTOMS_HOUSE");
 	int iFlavor =  GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GOLD"));
+	iFlavor += GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GROWTH"));
 	iFlavor -= (GetCurrentEra() + GetNumUnitsWithUnitAI(UNITAI_MERCHANT));
 	// build custom houses up to your flavor.
 	bool bConstructImprovement = !bTheVeniceException;
@@ -1437,7 +1440,11 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveMerchant(CvUnit* pGreatMerchan
 		}
 	}
 
+#if defined(MOD_BALANCE_CORE)
+	if(eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE && ((GC.getGame().getGameTurn() - pGreatMerchant->getGameTurnCreated()) >= (GC.getAI_HOMELAND_GREAT_PERSON_TURNS_TO_WAIT() - GetCurrentEra())) && !bTheVeniceException)
+#else
 	if(eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE && (GC.getGame().getGameTurn() - pGreatMerchant->getGameTurnCreated()) >= GC.getAI_HOMELAND_GREAT_PERSON_TURNS_TO_WAIT() && !bTheVeniceException)
+#endif
 	{
 		eDirective = GREAT_PEOPLE_DIRECTIVE_CONSTRUCT_IMPROVEMENT;
 	}
@@ -1459,6 +1466,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveScientist(CvUnit* /*pGreatScie
 	{
 		ImprovementTypes eAcademy = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_ACADEMY");
 		int iFlavor =  GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SCIENCE"));
+		iFlavor += GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GROWTH"));
 		//This is to prevent a buildup of scientists if the AI is having a hard time planting them.
 		iFlavor -= (GetCurrentEra() + GetNumUnitsWithUnitAI(UNITAI_SCIENTIST));
 		// Even if not going spaceship right now, build academies up to your flavor.
@@ -1496,9 +1504,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveScientist(CvUnit* /*pGreatScie
 GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveGeneral(CvUnit* pGreatGeneral)
 {
 	int iValue = 0;
-	MilitaryAIStrategyTypes eMobilization = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_WAR_MOBILIZATION");
 	MilitaryAIStrategyTypes eWar = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_AT_WAR");
-	CvPlot* pTargetPlot = FindBestGreatGeneralTargetPlot(pGreatGeneral, iValue);
 
 	int iGreatGeneralCount = 0;
 
@@ -1514,11 +1520,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveGeneral(CvUnit* pGreatGeneral)
 	{
 		return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
 	}
-	if(!pGreatGeneral->canRecruitFromTacticalAI())
-	{
-		return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
-	}
-	if(pGreatGeneral->GetDeployFromOperationTurn() + GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS() + GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS() < GC.getGame().getGameTurn())
+	if(pGreatGeneral->GetDeployFromOperationTurn() + GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS() >= GC.getGame().getGameTurn())
 	{
 		return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
 	}
@@ -1542,15 +1544,16 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveGeneral(CvUnit* pGreatGeneral)
 	{
 		return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
 	}
-	//No war? Let's settle down.
-	if(!GetMilitaryAI()->IsUsingStrategy(eWar) && !GetMilitaryAI()->IsUsingStrategy(eMobilization))
-	{
-		return NO_GREAT_PEOPLE_DIRECTIVE_TYPE;
-	}
+	CvPlot* pTargetPlot = FindBestGreatGeneralTargetPlot(pGreatGeneral, iValue);
 	if(iGreatGeneralCount > 2 && pTargetPlot && (pGreatGeneral->getArmyID() == FFreeList::INVALID_INDEX) && !GetMilitaryAI()->IsUsingStrategy(eWar))
 	{
 		//build a citadel
 		return GREAT_PEOPLE_DIRECTIVE_USE_POWER;
+	}
+		//No war? Let's settle down.
+	if(!GetMilitaryAI()->IsUsingStrategy(eWar))
+	{
+		return NO_GREAT_PEOPLE_DIRECTIVE_TYPE;
 	}
 	return NO_GREAT_PEOPLE_DIRECTIVE_TYPE;
 }
@@ -1665,18 +1668,13 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveProphet(CvUnit*)
 #if defined(MOD_BALANCE_CORE_MILITARY)
 GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveAdmiral(CvUnit* pGreatAdmiral)
 {
-	MilitaryAIStrategyTypes eMobilization = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_WAR_MOBILIZATION");
 	MilitaryAIStrategyTypes eWar = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_AT_WAR");
 
 	if(pGreatAdmiral->getArmyID() != FFreeList::INVALID_INDEX)
 	{
 		return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
 	}
-	if(!pGreatAdmiral->canRecruitFromTacticalAI())
-	{
-		return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
-	}
-	if(pGreatAdmiral->GetDeployFromOperationTurn() + GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS() < GC.getGame().getGameTurn())
+	if(pGreatAdmiral->GetDeployFromOperationTurn() + GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS() >= GC.getGame().getGameTurn())
 	{
 		return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
 	}
@@ -1701,7 +1699,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveAdmiral(CvUnit* pGreatAdmiral)
 		return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
 	}
 	//No war? Let's settle down.
-	if(!GetMilitaryAI()->IsUsingStrategy(eWar) && !GetMilitaryAI()->IsUsingStrategy(eMobilization))
+	if(!GetMilitaryAI()->IsUsingStrategy(eWar))
 	{
 		return NO_GREAT_PEOPLE_DIRECTIVE_TYPE;
 	}

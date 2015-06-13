@@ -873,7 +873,9 @@ void CvEconomicAI::DoTurn()
 		if (MOD_AI_SMART_DISBAND)
 			DisbandLongObsoleteUnits();
 #endif
-
+#if defined(MOD_BALANCE_CORE)
+		DisbandUselessSettlers();
+#endif
 #if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
 		YieldTypes eFocusYield = NO_YIELD;
 		if (EconomicAIHelpers::IsTestStrategy_GS_Spaceship(m_pPlayer)) {
@@ -1040,13 +1042,25 @@ void CvEconomicAI::ClearUnitTargetGoodyStepPlot(CvUnit* pUnit)
 int CvEconomicAI::ScoreExplorePlot2(CvPlot* pPlot, CvPlayer* pPlayer, DomainTypes eDomainType, bool bEmbarked)
 {
 	int iResultValue = 0;
-	int iSmallScore = max(5, GC.getGame().getJonRandNum(10,"accept equal value explore target"));
-	int iMediumScore = max(30, GC.getGame().getJonRandNum(60,"accept equal value explore target"));
-	int iLargeScore = max(75, GC.getGame().getJonRandNum(150,"accept equal value explore target"));
+	int iSmallScore = 5;
+	int iMediumScore = 30;
+	int iLargeScore = 80;
 	int iJackpot = 1000;
 
-	
+	TechTypes eTechCompass = (TechTypes)GC.getInfoTypeForString("TECH_COMPASS", true);
+	bool bOceanShips = false;
+	if(eTechCompass != NO_TECH)
+	{
+		if(GET_TEAM(pPlayer->getTeam()).GetTeamTechs()->HasTech(eTechCompass))
+		{
+			bOceanShips = true;
+		}
+	}
+
 	if(!pPlot->isRevealed(pPlayer->getTeam()))
+		return 0;
+
+	if(!bOceanShips && pPlot->isWater() && !pPlot->isShallowWater() && !pPlot->isLake())
 		return 0;
 
 	//add goodies - they go away - do not add any permanent scores here - leads to loops
@@ -1067,7 +1081,7 @@ int CvEconomicAI::ScoreExplorePlot2(CvPlot* pPlot, CvPlayer* pPlayer, DomainType
 			{
 				continue;
 			}
-			iResultValue += (pLoopPlot->getNumAdjacentNonrevealed(pPlayer->getTeam()) * 2);
+			iResultValue += (pLoopPlot->getNumAdjacentNonrevealed(pPlayer->getTeam()) * 5);
 
 			// "cheating" to look to see what the next tile is.
 			// a human should be able to do this by looking at the transition from the tile to the next
@@ -2659,7 +2673,68 @@ void CvEconomicAI::DoAntiquitySites()
 
 	m_iVisibleAntiquitySites = iNumSites;
 }
+#if defined(MOD_BALANCE_CORE)
+void CvEconomicAI::DisbandUselessSettlers()
+{
+	//If we want settlers, don't disband.
+	EconomicAIStrategyTypes eNoMoreSettlers = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_ENOUGH_EXPANSION");
+	int iNumSettlers = m_pPlayer->GetNumUnitsWithUnitAI(UNITAI_SETTLE, true);
+	int iNumCities = m_pPlayer->GetNumCitiesFounded();
+	bool bNoMoreSettlers = m_pPlayer->GetEconomicAI()->IsUsingStrategy(eNoMoreSettlers);
+	if(!bNoMoreSettlers)
+	{
+		return;
+	}
+	CvCity* pCapital = m_pPlayer->getCapitalCity();
+	if(!pCapital)
+	{
+		return;
+	}
 
+	//Don't disband during the early game.
+	if(iNumCities <= 4)
+	{
+		return;
+	}
+
+	int iBestArea, iSecondBestArea;
+	int iNumSettleAreas;
+	iNumSettleAreas = m_pPlayer->GetBestSettleAreas(m_pPlayer->GetEconomicAI()->GetMinimumSettleFertility(), iBestArea, iSecondBestArea);
+	if(iNumSettleAreas != 0)
+	{
+		return;
+	}
+
+	CvUnit* pUnit = FindSettlerToScrap();
+	if(!pUnit)
+	{
+		return;
+	}
+
+	pUnit->scrap();
+	LogScrapUnit(pUnit, iNumSettlers, iNumCities, iNumSettleAreas, 0);
+}
+CvUnit* CvEconomicAI::FindSettlerToScrap()
+{
+	CvUnit* pLoopUnit = NULL;
+	int iUnitLoop = 0;
+
+	// Look at map for loose workers
+	for(pLoopUnit = m_pPlayer->firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iUnitLoop))
+	{
+		if(!pLoopUnit)
+		{
+			continue;
+		}
+		if(pLoopUnit->getDomainType() == DOMAIN_LAND && pLoopUnit->isFound() && !pLoopUnit->IsFoundAbroad() && !pLoopUnit->IsCombatUnit() && !pLoopUnit->IsGreatPerson())
+		{
+			return pLoopUnit;
+		}
+	}
+
+	return NULL;
+}
+#endif
 void CvEconomicAI::DisbandExtraWorkers()
 {
 	// Are we running at a deficit?
@@ -2681,6 +2756,11 @@ void CvEconomicAI::DisbandExtraWorkers()
 				}
 			}
 		}
+	}
+	//Don't disband during the early game.
+	if(m_pPlayer->GetNumCitiesFounded() < 4)
+	{
+		return;
 	}
 #endif
 	bool bInDeficit = m_pPlayer->GetEconomicAI()->IsUsingStrategy(eStrategyLosingMoney);
@@ -2927,6 +3007,15 @@ void CvEconomicAI::DisbandLongObsoleteUnits()
 void CvEconomicAI::UpdatePlots()
 {
 	m_vPlotsToExplore.clear();
+	TechTypes eTechCompass = (TechTypes)GC.getInfoTypeForString("TECH_COMPASS", true);
+	bool bOceanShips = false;
+	if(eTechCompass != NO_TECH)
+	{
+		if(GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->HasTech(eTechCompass))
+		{
+			bOceanShips = true;
+		}
+	}
 
 	for(int i = 0; i < GC.getMap().numPlots(); i++)
 	{
@@ -2935,6 +3024,9 @@ void CvEconomicAI::UpdatePlots()
 			continue;
 
 		if(!pPlot->isRevealed(m_pPlayer->getTeam()))
+			continue;
+
+		if(!bOceanShips && pPlot->isWater() && !pPlot->isShallowWater() && !pPlot->isLake())
 			continue;
 
 		DomainTypes eDomain = DOMAIN_LAND;
@@ -2950,6 +3042,10 @@ void CvEconomicAI::UpdatePlots()
 		// add an entry for this plot
 		m_vPlotsToExplore.push_back( SPlotWithScore(pPlot, iScore) );
 	}
+
+	//keep only the best 50%
+	std::sort(m_vPlotsToExplore.begin(),m_vPlotsToExplore.end());
+	m_vPlotsToExplore.erase( m_vPlotsToExplore.begin()+m_vPlotsToExplore.size()/2, m_vPlotsToExplore.end() );
 
 #if defined(MOD_BALANCE_CORE_MILITARY_LOGGING)
 	bool bLogging = GC.getLogging() && GC.getAILogging() && m_pPlayer->isMajorCiv() && GC.getGame().getGameTurn()%4==0 && GC.getGame().getGameTurn()<200;
@@ -2971,7 +3067,9 @@ void CvEconomicAI::UpdatePlots()
 			pLog->Close();
 		}
 	}
+}
 #endif
+#else
 
 	// build explorer list
 	CvUnit* pLoopUnit;
@@ -2997,8 +3095,6 @@ void CvEconomicAI::UpdatePlots()
 
 	m_bExplorationPlotsDirty = false;
 }
-
-#else
 
 /// Go through the plots for the exploration automation to evaluate
 void CvEconomicAI::UpdatePlots()
@@ -3455,7 +3551,11 @@ void CvEconomicAI::LogScrapUnit(UnitHandle pUnit, int iNumWorkers, int iNumCitie
 	}
 
 	CvString strLogString;
+#if defined(MOD_BALANCE_CORE)
+	strLogString.Format("Disbanding %s, X: %d, Y: %d, iNumWorkers: %d, iNumCities: %d, improved/valid plots: %d/%d", pUnit->getName().GetCString(), pUnit->getX(), pUnit->getY(), iNumWorkers, iNumCities, iNumImprovedPlots, iNumValidPlots);
+#else
 	strLogString.Format("Disbanding worker. %s, X: %d, Y: %d, iNumWorkers: %d, iNumCities: %d, improved/valid plots: %d/%d", pUnit->getName().GetCString(), pUnit->getX(), pUnit->getY(), iNumWorkers, iNumCities, iNumImprovedPlots, iNumValidPlots);
+#endif
 	m_pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
 }
 
@@ -3967,22 +4067,17 @@ bool EconomicAIHelpers::IsTestStrategy_EnoughExpansion(CvPlayer* pPlayer)
 bool EconomicAIHelpers::IsTestStrategy_EnoughExpansion(EconomicAIStrategyTypes eStrategy, CvPlayer* pPlayer)
 #endif
 {
-#if !defined(MOD_BALANCE_CORE)
 	int iBestArea;
 	int iSecondBestArea;
-#endif
 #if defined(MOD_BALANCE_CORE)
 	bool bCannotExpand = pPlayer->isBarbarian() || pPlayer->isMinorCiv() || pPlayer->GetPlayerTraits()->IsNoAnnexing();
 	if ((GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && pPlayer->isHuman()) || bCannotExpand)
 	{
 		return true;
 	}
-	else
+	if(pPlayer->GetNumCitiesFounded() <= (pPlayer->GetDiplomacyAI()->GetBoldness() / 2))
 	{
-		if(pPlayer->getNumCities() <= pPlayer->GetDiplomacyAI()->GetBoldness())
-		{
-			return false;
-		}
+		return false;
 	}
 	// If we are running "ECONOMICAISTRATEGY_EXPAND_TO_OTHER_CONTINENTS"
 	EconomicAIStrategyTypes eExpandOther = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_EXPAND_TO_OTHER_CONTINENTS");
@@ -4011,6 +4106,11 @@ bool EconomicAIHelpers::IsTestStrategy_EnoughExpansion(EconomicAIStrategyTypes e
 		{
 			return false;
 		}
+	}
+	int iNumSettleAreas = pPlayer->GetBestSettleAreas(pPlayer->GetEconomicAI()->GetMinimumSettleFertility(), iBestArea, iSecondBestArea);
+	if (iNumSettleAreas == 0)
+	{
+		return true;
 	}
 	if(pPlayer->IsEmpireUnhappy())
 	{
@@ -4317,10 +4417,22 @@ bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes /*eStra
 								CvPlot* bBestSettle = pPlayer->GetBestSettlePlot(pFirstSettler, bWantEscort /*m_bEscorted*/, iArea);
 								if(bBestSettle == NULL)
 								{
+									if(GC.getLogging() && GC.getAILogging())
+									{
+										CvString strLogString;
+										strLogString.Format("We have settlers, but no good areas to settle!");
+										pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
+									}
 									return false;
 								}
 								else if(!pFirstSettler->GeneratePath(bBestSettle))
 								{
+									if(GC.getLogging() && GC.getAILogging())
+									{
+										CvString strLogString;
+										strLogString.Format("We have settlers, but we can't get to our target!");
+										pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
+									}
 									return false;
 								}
 								if(!bIsOccupied)
@@ -4353,10 +4465,22 @@ bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes /*eStra
 							CvPlot* bBestSettle = pPlayer->GetBestSettlePlot(pFirstSettler, true /*m_bEscorted*/, iArea);
 							if(bBestSettle == NULL)
 							{
+								if(GC.getLogging() && GC.getAILogging())
+								{
+									CvString strLogString;
+									strLogString.Format("We have settlers, but no good areas to settle!");
+									pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
+								}
 								return false;
 							}
 							else if(!pFirstSettler->GeneratePath(bBestSettle))
 							{
+								if(GC.getLogging() && GC.getAILogging())
+								{
+									CvString strLogString;
+									strLogString.Format("We have settlers, but we can't get to our target!");
+									pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
+								}
 								return false;
 							}
 							pPlayer->addAIOperation(AI_OPERATION_FOUND_CITY, NO_PLAYER, iArea);
