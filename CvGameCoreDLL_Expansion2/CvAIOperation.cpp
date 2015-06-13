@@ -6609,7 +6609,7 @@ bool CvAIOperationPureNavalCityAttack::ArmyInPosition(CvArmyAI* pArmy)
 			{
 				UnitHandle pUnit;
 				pUnit = pArmy->GetFirstUnit();
-				while(pUnit)
+				while(pUnit && !bBeenHad)
 				{
 					for(int iDirectionLoop = 0; iDirectionLoop < NUM_DIRECTION_TYPES; ++iDirectionLoop)
 					{
@@ -8134,7 +8134,7 @@ bool CvAIOperationNavalAttack::ArmyInPosition(CvArmyAI* pArmy)
 		{
 			UnitHandle pUnit;
 			pUnit = pArmy->GetFirstUnit();
-			while(pUnit)
+			while(pUnit && !bBeenHad)
 			{
 				for(int iDirectionLoop = 0; iDirectionLoop < NUM_DIRECTION_TYPES; ++iDirectionLoop)
 				{

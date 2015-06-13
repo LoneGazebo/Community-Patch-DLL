@@ -3247,9 +3247,9 @@ void CvTacticalAI::PlotHealMoves()
 			{
 				CvPlot* unitPlot = pUnit->plot();
 				//do not heal in enemy lands or if we are in danger
-				if (!unitPlot->isCity() && ((unitPlot->getOwner() != pUnit->getOwner()) || m_pPlayer->GetPlotDanger(*unitPlot,pUnit.pointer()) > GC.getNEUTRAL_HEAL_RATE()/2))
+				if (!unitPlot->isCity() && (unitPlot->getOwner() != pUnit->getOwner()))
 				{
-					iHealingLimit = 0;
+					iHealingLimit /= 2;
 				}
 			}
 #endif
@@ -8281,8 +8281,6 @@ void CvTacticalAI::ExecuteAttack(CvTacticalTarget* pTarget, CvPlot* pTargetPlot,
 								{
 									// Move up if we can
 									MoveToEmptySpaceNearTarget(pUnit, pTargetPlot, (pUnit->getDomainType() == DOMAIN_LAND));
-									pUnit->finishMoves();
-									UnitProcessed(pUnit->GetID());
 								}
 							}
 						}
@@ -8434,13 +8432,6 @@ void CvTacticalAI::ExecuteAttack(CvTacticalTarget* pTarget, CvPlot* pTargetPlot,
 					}
 #endif
 				}
-#if defined(MOD_BALANCE_CORE)
-				if(pUnit->isBarbarian() && pUnit->IsCanAttackRanged())
-				{
-					pUnit->finishMoves();
-					UnitProcessed(pUnit->GetID());
-				}
-#endif
 			}
 		}
 		else
@@ -8609,13 +8600,6 @@ void CvTacticalAI::ExecuteAttack(CvTacticalTarget* pTarget, CvPlot* pTargetPlot,
 						LogTacticalMessage(strMsg);
 					}
 				}
-#if defined(MOD_BALANCE_CORE)
-				if(pUnit->isBarbarian() && !pUnit->IsCanAttackRanged())
-				{
-					pUnit->finishMoves();
-					UnitProcessed(pUnit->GetID());
-				}
-#endif
 			}
 		}
 		else
