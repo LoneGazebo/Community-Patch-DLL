@@ -1179,7 +1179,7 @@ protected:
 	FAutoVariable<int, CvCity> m_iID;
 
 #if defined(MOD_BALANCE_CORE_GLOBAL_CITY_IDS)
-	int m_iGlobalID;
+	FAutoVariable<int, CvCity> m_iGlobalID;
 #endif
 
 	FAutoVariable<int, CvCity> m_iRallyX;
@@ -1189,7 +1189,7 @@ protected:
 	FAutoVariable<int, CvCity> m_iGameTurnLastExpanded;
 	FAutoVariable<int, CvCity> m_iPopulation;
 	FAutoVariable<int, CvCity> m_iHighestPopulation;
-	int m_iExtraHitPoints;
+	FAutoVariable<int, CvCity> m_iExtraHitPoints;
 
 	FAutoVariable<int, CvCity> m_iNumGreatPeople;
 	FAutoVariable<int, CvCity> m_iBaseGreatPeopleRate;
@@ -1205,11 +1205,11 @@ protected:
 	FAutoVariable<int, CvCity> m_iJONSCulturePerTurnFromReligion;
 #endif
 #if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
-	int m_iFaithPerTurnFromBuildings;
+	FAutoVariable<int, CvCity> m_iFaithPerTurnFromBuildings;
 #endif
-	int m_iFaithPerTurnFromPolicies;
+	FAutoVariable<int, CvCity> m_iFaithPerTurnFromPolicies;
 #if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
-	int m_iFaithPerTurnFromReligion;
+	FAutoVariable<int, CvCity> m_iFaithPerTurnFromReligion;
 #endif
 	FAutoVariable<int, CvCity> m_iCultureRateModifier;
 	FAutoVariable<int, CvCity> m_iNumWorldWonders;
@@ -1218,9 +1218,9 @@ protected:
 	FAutoVariable<int, CvCity> m_iWonderProductionModifier;
 	FAutoVariable<int, CvCity> m_iCapturePlunderModifier;
 	FAutoVariable<int, CvCity> m_iPlotCultureCostModifier;
-	int m_iPlotBuyCostModifier;
+	FAutoVariable<int, CvCity> m_iPlotBuyCostModifier;
 #if defined(MOD_BUILDINGS_CITY_WORKING)
-	int m_iCityWorkingChange;
+	FAutoVariable<int, CvCity> m_iCityWorkingChange;
 #endif
 	FAutoVariable<int, CvCity> m_iMaintenance;
 	FAutoVariable<int, CvCity> m_iHealRate;
@@ -1237,8 +1237,8 @@ protected:
 	FAutoVariable<int, CvCity> m_iMaxAirUnits;
 	FAutoVariable<int, CvCity> m_iAirModifier; // unused
 	FAutoVariable<int, CvCity> m_iNukeModifier;
-	int m_iTradeRouteTargetBonus;
-	int m_iTradeRouteRecipientBonus;
+	FAutoVariable<int, CvCity> m_iTradeRouteTargetBonus;
+	FAutoVariable<int, CvCity> m_iTradeRouteRecipientBonus;
 	FAutoVariable<int, CvCity> m_iCultureUpdateTimer;
 	FAutoVariable<int, CvCity> m_iCitySizeBoost;
 	FAutoVariable<int, CvCity> m_iSpecialistFreeExperience;
@@ -1258,9 +1258,9 @@ protected:
 	FAutoVariable<int, CvCity> m_iRazingTurns;
 	FAutoVariable<int, CvCity> m_iCountExtraLuxuries;
 	FAutoVariable<int, CvCity> m_iCheapestPlotInfluence;
-	int m_iEspionageModifier;
+	FAutoVariable<int, CvCity> m_iEspionageModifier;
 #if defined(MOD_RELIGION_CONVERSION_MODIFIERS)
-	int m_iConversionModifier;
+	FAutoVariable<int, CvCity> m_iConversionModifier;
 #endif
 
 	OperationSlot m_unitBeingBuiltForOperation;
@@ -1273,7 +1273,7 @@ protected:
 	FAutoVariable<bool, CvCity> m_bMadeAttack;
 	FAutoVariable<bool, CvCity> m_bOccupied;
 	FAutoVariable<bool, CvCity> m_bPuppet;
-	bool m_bIgnoreCityForHappiness;
+	FAutoVariable<bool, CvCity> m_bIgnoreCityForHappiness;
 	FAutoVariable<bool, CvCity> m_bEverCapital;
 	FAutoVariable<bool, CvCity> m_bIndustrialRouteToCapital;
 	FAutoVariable<bool, CvCity> m_bFeatureSurrounded;
@@ -1292,55 +1292,55 @@ protected:
 	FAutoVariable<std::vector<int>, CvCity> m_aiBaseYieldRateFromMisc;
 #if defined(MOD_DIPLOMACY_CITYSTATES)
 	FAutoVariable<std::vector<int>, CvCity> m_aiBaseYieldRateFromLeague;
-	int m_iTotalScienceyAid;
-	int m_iTotalArtsyAid;
-	int m_iTotalGreatWorkAid;
+	FAutoVariable<int, CvCity> m_iTotalScienceyAid;
+	FAutoVariable<int, CvCity> m_iTotalArtsyAid;
+	FAutoVariable<int, CvCity> m_iTotalGreatWorkAid;
 #endif
 #if defined(MOD_DIPLOMACY_CITYSTATES) || defined(MOD_BALANCE_CORE)
 	FAutoVariable<std::vector<int>, CvCity> m_aiChangeGrowthExtraYield;
 #endif
 #if defined(MOD_BALANCE_CORE)
 	FAutoVariable<std::vector<int>, CvCity> m_aiChangeYieldFromVictory;
-	int m_iUnhappyCitizen;
-	int m_iPurchaseCooldown;
-	int m_iReligiousTradeModifier;
-	int m_iBaseTourism;
-	int m_iBaseTourismBeforeModifiers;
-	int m_iNationalMissionaries;
+	FAutoVariable<int, CvCity> m_iUnhappyCitizen;
+	FAutoVariable<int, CvCity> m_iPurchaseCooldown;
+	FAutoVariable<int, CvCity> m_iReligiousTradeModifier;
+	FAutoVariable<int, CvCity> m_iBaseTourism;
+	FAutoVariable<int, CvCity> m_iBaseTourismBeforeModifiers;
+	FAutoVariable<int, CvCity> m_iNationalMissionaries;
 #endif
 #if defined(MOD_BALANCE_CORE)
-	int m_iBlockBuildingDestruction;
-	int m_iBlockWWDestruction;
-	int m_iBlockUDestruction;
-	int m_iBlockGPDestruction;
-	int m_iBlockRebellion;
-	int m_iBlockUnrest;
-	int m_iBlockScience;
-	int m_iBlockGold;
+	FAutoVariable<int, CvCity> m_iBlockBuildingDestruction;
+	FAutoVariable<int, CvCity> m_iBlockWWDestruction;
+	FAutoVariable<int, CvCity> m_iBlockUDestruction;
+	FAutoVariable<int, CvCity> m_iBlockGPDestruction;
+	FAutoVariable<int, CvCity> m_iBlockRebellion;
+	FAutoVariable<int, CvCity> m_iBlockUnrest;
+	FAutoVariable<int, CvCity> m_iBlockScience;
+	FAutoVariable<int, CvCity> m_iBlockGold;
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
-	int m_iCityRank;
-	int m_iTurnsSinceRankAnnouncement;
+	FAutoVariable<int, CvCity> m_iCityRank;
+	FAutoVariable<int, CvCity> m_iTurnsSinceRankAnnouncement;
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
-	int m_iChangePovertyUnhappiness;
-	int m_iChangeDefenseUnhappiness;
-	int m_iChangeUnculturedUnhappiness;
-	int m_iChangeIlliteracyUnhappiness;
-	int m_iChangeMinorityUnhappiness;
-	int m_iChangePovertyUnhappinessGlobal;
-	int m_iChangeDefenseUnhappinessGlobal;
-	int m_iChangeUnculturedUnhappinessGlobal;
-	int m_iChangeIlliteracyUnhappinessGlobal;
-	int m_iChangeMinorityUnhappinessGlobal;
+	FAutoVariable<int, CvCity> m_iChangePovertyUnhappiness;
+	FAutoVariable<int, CvCity> m_iChangeDefenseUnhappiness;
+	FAutoVariable<int, CvCity> m_iChangeUnculturedUnhappiness;
+	FAutoVariable<int, CvCity> m_iChangeIlliteracyUnhappiness;
+	FAutoVariable<int, CvCity> m_iChangeMinorityUnhappiness;
+	FAutoVariable<int, CvCity> m_iChangePovertyUnhappinessGlobal;
+	FAutoVariable<int, CvCity> m_iChangeDefenseUnhappinessGlobal;
+	FAutoVariable<int, CvCity> m_iChangeUnculturedUnhappinessGlobal;
+	FAutoVariable<int, CvCity> m_iChangeIlliteracyUnhappinessGlobal;
+	FAutoVariable<int, CvCity> m_iChangeMinorityUnhappinessGlobal;
 #endif
-	std::vector<int> m_aiBaseYieldRateFromReligion;
+	FAutoVariable<std::vector<int>, CvCity> m_aiBaseYieldRateFromReligion;
 #if defined(MOD_BALANCE_CORE)
 	FAutoVariable<std::vector<int>, CvCity> m_aiBaseYieldRateFromCSAlliance;
 #endif
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldRateModifier;
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldPerPop;
-	std::vector<int> m_aiYieldPerReligion;
+	FAutoVariable<std::vector<int>, CvCity> m_aiYieldPerReligion;
 	FAutoVariable<std::vector<int>, CvCity> m_aiPowerYieldRateModifier;
 	FAutoVariable<std::vector<int>, CvCity> m_aiResourceYieldRateModifier;
 	FAutoVariable<std::vector<int>, CvCity> m_aiExtraSpecialistYield;
@@ -1372,8 +1372,8 @@ protected:
 	FAutoVariable<std::vector<int>, CvCity> m_paiBuildingClassCulture;
 #endif
 
-	int m_iBaseHappinessFromBuildings;
-	int m_iUnmoddedHappinessFromBuildings;
+	FAutoVariable<int, CvCity> m_iBaseHappinessFromBuildings;
+	FAutoVariable<int, CvCity> m_iUnmoddedHappinessFromBuildings;
 
 	bool m_bRouteToCapitalConnectedLastTurn;
 	bool m_bRouteToCapitalConnectedThisTurn;

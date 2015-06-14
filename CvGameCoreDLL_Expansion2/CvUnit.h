@@ -1561,7 +1561,7 @@ protected:
 
 	FAutoVariable<int, CvUnit> m_iHotKeyNumber;
 	FAutoVariable<int, CvUnit> m_iDeployFromOperationTurn;
-	int m_iLastMoveTurn;
+	FAutoVariable<int, CvUnit> m_iLastMoveTurn;
 	short m_iCycleOrder;
 	FAutoVariable<int, CvUnit> m_iReconX;
 	FAutoVariable<int, CvUnit> m_iReconY;
@@ -1588,10 +1588,10 @@ protected:
 	FAutoVariable<int, CvUnit> m_iRivalTerritoryCount;
 	FAutoVariable<int, CvUnit> m_iMustSetUpToRangedAttackCount;
 	FAutoVariable<int, CvUnit> m_iRangeAttackIgnoreLOSCount;
-	int m_iCityAttackOnlyCount;
-	int m_iCaptureDefeatedEnemyCount;
+	FAutoVariable<int, CvUnit> m_iCityAttackOnlyCount;
+	FAutoVariable<int, CvUnit> m_iCaptureDefeatedEnemyCount;
 #if defined(MOD_BALANCE_CORE)
-	int m_iCannotBeCapturedCount;
+	FAutoVariable<int, CvUnit> m_iCannotBeCapturedCount;
 	FAutoVariable<int, CvUnit> m_iForcedDamage;
 	FAutoVariable<int, CvUnit> m_iChangeDamage;
 #endif
@@ -1615,12 +1615,12 @@ protected:
 	FAutoVariable<int, CvUnit> m_iExtraEnemyHeal;
 	FAutoVariable<int, CvUnit> m_iExtraNeutralHeal;
 	FAutoVariable<int, CvUnit> m_iExtraFriendlyHeal;
-	int m_iEnemyDamageChance;
-	int m_iNeutralDamageChance;
-	int m_iEnemyDamage;
-	int m_iNeutralDamage;
-	int m_iNearbyEnemyCombatMod;
-	int m_iNearbyEnemyCombatRange;
+	FAutoVariable<int, CvUnit> m_iEnemyDamageChance;
+	FAutoVariable<int, CvUnit> m_iNeutralDamageChance;
+	FAutoVariable<int, CvUnit> m_iEnemyDamage;
+	FAutoVariable<int, CvUnit> m_iNeutralDamage;
+	FAutoVariable<int, CvUnit> m_iNearbyEnemyCombatMod;
+	FAutoVariable<int, CvUnit> m_iNearbyEnemyCombatRange;
 	FAutoVariable<int, CvUnit> m_iSameTileHeal;
 	FAutoVariable<int, CvUnit> m_iAdjacentTileHeal;
 	FAutoVariable<int, CvUnit> m_iAdjacentModifier;
@@ -1642,7 +1642,7 @@ protected:
 	FAutoVariable<int, CvUnit> m_iExtraRoughRangedAttackMod;
 	FAutoVariable<int, CvUnit> m_iExtraAttackFortifiedMod;
 	FAutoVariable<int, CvUnit> m_iExtraAttackWoundedMod;
-	int m_iFlankAttackModifier;
+	FAutoVariable<int, CvUnit> m_iFlankAttackModifier;
 	FAutoVariable<int, CvUnit> m_iExtraOpenDefensePercent;
 	FAutoVariable<int, CvUnit> m_iExtraRoughDefensePercent;
 	FAutoVariable<int, CvUnit> m_iPillageChange;
@@ -1654,7 +1654,7 @@ protected:
 	FAutoVariable<int, CvUnit> m_iKamikazePercent;
 	FAutoVariable<int, CvUnit> m_iBaseCombat;
 #if defined(MOD_API_EXTENSIONS)
-	int m_iBaseRangedCombat;
+	FAutoVariable<int, CvUnit> m_iBaseRangedCombat;
 #endif
 	FAutoVariable<DirectionTypes, CvUnit> m_eFacingDirection;
 	FAutoVariable<int, CvUnit> m_iArmyId;
@@ -1695,9 +1695,9 @@ protected:
 	FAutoVariable<int, CvUnit> m_iCanMoveAllTerrainCount;
 	FAutoVariable<int, CvUnit> m_iCanMoveAfterAttackingCount;
 	FAutoVariable<int, CvUnit> m_iFreePillageMoveCount;
-	int m_iHealOnPillageCount;
+	FAutoVariable<int, CvUnit> m_iHealOnPillageCount;
 	FAutoVariable<int, CvUnit> m_iHPHealedIfDefeatEnemy;
-	int m_iGoldenAgeValueFromKills;
+	FAutoVariable<int, CvUnit> m_iGoldenAgeValueFromKills;
 	FAutoVariable<int, CvUnit> m_iTacticalAIPlotX;
 	FAutoVariable<int, CvUnit> m_iTacticalAIPlotY;
 	FAutoVariable<int, CvUnit> m_iGarrisonCityID;   // unused
@@ -1705,22 +1705,22 @@ protected:
 	FAutoVariable<int, CvUnit> m_iNumAttacks;
 	FAutoVariable<int, CvUnit> m_iAttacksMade;
 	FAutoVariable<int, CvUnit> m_iGreatGeneralCount;
-	int m_iGreatAdmiralCount;
+	FAutoVariable<int, CvUnit> m_iGreatAdmiralCount;
 	FAutoVariable<int, CvUnit> m_iGreatGeneralModifier;
-	int m_iGreatGeneralReceivesMovementCount;
-	int m_iGreatGeneralCombatModifier;
-	int m_iIgnoreGreatGeneralBenefit;
-	int m_iIgnoreZOC;
+	FAutoVariable<int, CvUnit> m_iGreatGeneralReceivesMovementCount;
+	FAutoVariable<int, CvUnit> m_iGreatGeneralCombatModifier;
+	FAutoVariable<int, CvUnit> m_iIgnoreGreatGeneralBenefit;
+	FAutoVariable<int, CvUnit> m_iIgnoreZOC;
 	FAutoVariable<int, CvUnit> m_iFriendlyLandsModifier;
 	FAutoVariable<int, CvUnit> m_iFriendlyLandsAttackModifier;
 	FAutoVariable<int, CvUnit> m_iOutsideFriendlyLandsModifier;
 	FAutoVariable<int, CvUnit> m_iHealIfDefeatExcludeBarbariansCount;
 	FAutoVariable<int, CvUnit> m_iNumInterceptions;
 	FAutoVariable<int, CvUnit> m_iMadeInterceptionCount;
-	int m_iEverSelectedCount;
-	int m_iSapperCount;
-	int m_iCanHeavyCharge;
-	int m_iNumExoticGoods;
+	FAutoVariable<int, CvUnit> m_iEverSelectedCount;
+	FAutoVariable<int, CvUnit> m_iSapperCount;
+	FAutoVariable<int, CvUnit> m_iCanHeavyCharge;
+	FAutoVariable<int, CvUnit> m_iNumExoticGoods;
 #ifdef AUI_DANGER_PLOTS_REMADE
 	DangerPlotList vpDangerPlotList;
 	DangerPlotList vpDangerPlotMoveOnlyList;
@@ -1738,7 +1738,7 @@ protected:
 
 	FAutoVariable<TacticalAIMoveTypes, CvUnit> m_eTacticalMove;
 	FAutoVariable<PlayerTypes, CvUnit> m_eCapturingPlayer;
-	bool m_bCapturedAsIs;
+	FAutoVariable<bool, CvUnit> m_bCapturedAsIs;
 	FAutoVariable<UnitTypes, CvUnit> m_eLeaderUnitType;
 	FAutoVariable<InvisibleTypes, CvUnit> m_eInvisibleType;
 	FAutoVariable<InvisibleTypes, CvUnit> m_eSeeInvisibleType;
@@ -1755,7 +1755,7 @@ protected:
 
 	FAutoVariable<CvString, CvUnit> m_strNameIAmNotSupposedToBeUsedAnyMoreBecauseThisShouldNotBeCheckedAndWeNeedToPreserveSaveGameCompatibility;
 	FAutoVariable<CvString, CvUnit> m_strScriptData;
-	int m_iScenarioData;
+	FAutoVariable<int, CvUnit> m_iScenarioData;
 
 	CvUnitPromotions  m_Promotions;
 	CvUnitReligion* m_pReligion;
@@ -1778,7 +1778,7 @@ protected:
 #endif
 	FAutoVariable<std::vector<int>, CvUnit> m_extraUnitCombatModifier;
 	FAutoVariable<std::vector<int>, CvUnit> m_unitClassModifier;
-	int m_iMissionTimer;
+	FAutoVariable<int, CvUnit> m_iMissionTimer;
 	FAutoVariable<int, CvUnit> m_iMissionAIX;
 	FAutoVariable<int, CvUnit> m_iMissionAIY;
 	FAutoVariable<MissionAITypes, CvUnit> m_eMissionAIType;
@@ -1792,29 +1792,29 @@ protected:
 
 	UnitMovementQueue m_unitMoveLocs;
 
-	bool m_bIgnoreDangerWakeup; // slewis - make this an autovariable when saved games are broken
-	int m_iEmbarkedAllWaterCount;
+	FAutoVariable<bool, CvUnit> m_bIgnoreDangerWakeup; // slewis - make this an autovariable when saved games are broken
+	FAutoVariable<int, CvUnit> m_iEmbarkedAllWaterCount;
 #if defined(MOD_PROMOTIONS_DEEP_WATER_EMBARKATION)
-	int m_iEmbarkedDeepWaterCount;
+	FAutoVariable<int, CvUnit> m_iEmbarkedDeepWaterCount;
 #endif
-	int m_iEmbarkExtraVisibility;
-	int m_iEmbarkDefensiveModifier;
-	int m_iCapitalDefenseModifier;
-	int m_iCapitalDefenseFalloff;
-	int m_iCityAttackPlunderModifier;
-	int m_iReligiousStrengthLossRivalTerritory;
-	int m_iTradeMissionInfluenceModifier;
-	int m_iTradeMissionGoldModifier;
-	int m_iMapLayer;		// Which layer does the unit reside on for pathing/stacking/etc.
-	int m_iNumGoodyHutsPopped;
-	int m_iLastGameTurnAtFullHealth;
+	FAutoVariable<int, CvUnit> m_iEmbarkExtraVisibility;
+	FAutoVariable<int, CvUnit> m_iEmbarkDefensiveModifier;
+	FAutoVariable<int, CvUnit> m_iCapitalDefenseModifier;
+	FAutoVariable<int, CvUnit> m_iCapitalDefenseFalloff;
+	FAutoVariable<int, CvUnit> m_iCityAttackPlunderModifier;
+	FAutoVariable<int, CvUnit> m_iReligiousStrengthLossRivalTerritory;
+	FAutoVariable<int, CvUnit> m_iTradeMissionInfluenceModifier;
+	FAutoVariable<int, CvUnit> m_iTradeMissionGoldModifier;
+	FAutoVariable<int, CvUnit> m_iMapLayer;		// Which layer does the unit reside on for pathing/stacking/etc.
+	FAutoVariable<int, CvUnit> m_iNumGoodyHutsPopped;
+	FAutoVariable<int, CvUnit> m_iLastGameTurnAtFullHealth;
+	FAutoVariable<int, CvUnit> m_iTourismBlastStrength;
 		
 #if defined(MOD_PROMOTIONS_UNIT_NAMING)
 	CvString m_strUnitName;
 #endif
 	CvString m_strName;
 	GreatWorkType m_eGreatWork;
-	int m_iTourismBlastStrength;
 
 	mutable CvPathNodeArray m_kLastPath;
 	mutable uint m_uiLastPathCacheDest;
