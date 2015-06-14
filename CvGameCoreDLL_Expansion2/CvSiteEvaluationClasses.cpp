@@ -690,16 +690,12 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 		iValueModifier -= (iTotalPlotValue * 25) / 100;
 		vQualifiersNegative.push_back("(V) almost coast");
 	}
+
 	CvArea* pArea = pPlot->area();
-	int iGoodTiles = 0;
+	int iGoodTiles = 1;
 	if(pArea != NULL)
-	{
-		iGoodTiles = (pArea->getNumUnownedTiles() - pArea->GetNumBadPlots());
-		if(iGoodTiles <= 0)
-		{
-			iGoodTiles = 1;
-		}
-	}
+		iGoodTiles = max(1,(pArea->getNumUnownedTiles() - pArea->GetNumBadPlots()));
+
 	if (pPlot->isCoastalLand(GC.getMIN_WATER_SIZE_FOR_OCEAN()))
 	{
 		if(pArea != NULL && iGoodTiles > 7)
@@ -723,12 +719,12 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 		else if(pArea != NULL && iGoodTiles == 1)
 		{
 			iValueModifier -= (iTotalPlotValue * 50) / 100;
-			vQualifiersPositive.push_back("(V) coast on 1-tile island is not great");
+			vQualifiersNegative.push_back("(V) coast on 1-tile island is not great");
 		}
 		else
 		{
 			iValueModifier -= (iTotalPlotValue * 33) / 100;
-			vQualifiersPositive.push_back("(V) coast on small island");
+			vQualifiersNegative.push_back("(V) coast on small island");
 		}
 	}
 	else
@@ -736,14 +732,15 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 		if(iGoodTiles <= 6)
 		{
 			iValueModifier -= (iTotalPlotValue * 50) / 100;
-			vQualifiersPositive.push_back("(V) too much bad");
+			vQualifiersNegative.push_back("(V) not enough good plots");
 		}
 		else if(iGoodTiles <= 12)
 		{
 			iValueModifier -= (iTotalPlotValue * 25) / 100;
-			vQualifiersPositive.push_back("(V) coast on small island");
+			vQualifiersNegative.push_back("(V) few good plots");
 		}
 	}
+
 	//Is this a chokepoint?
 	if(pPlot->IsChokePoint())
 	{
@@ -879,17 +876,6 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 				iSweetMin = GC.getMIN_CITY_RANGE();
 			}
 
-
-			EconomicAIStrategyTypes eStrategyExpandToOtherContinents = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_EXPAND_TO_OTHER_CONTINENTS");
-			
-			if(eStrategyExpandToOtherContinents != NO_ECONOMICAISTRATEGY)
-			{
-				//unleash our settlers if we're looking overseas
-				if(pPlayer->GetEconomicAI()->IsUsingStrategy(eStrategyExpandToOtherContinents))
-				{
-					iSweetMax = max(60, GC.getMap().getGridWidth());
-				}
-			}
 			if ((iClosestCityOfMine >= iSweetMin) && (iClosestCityOfMine <= iSweetMax)) 
 			{
 				iValueModifier += (iTotalPlotValue*15)/100; //make this a small bonus, there is a separate distance check anyway
@@ -902,56 +888,13 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 				vQualifiersNegative.push_back("(S) too close to enemy");
 			}
 
-			if (iClosestCityOfMine >= iSweetMax && iCapitalArea == pPlot->getArea())
+			if (iCapitalArea == pPlot->getArea())
 			{
-				iValueModifier -= (iTotalPlotValue*50)/100;
-				vQualifiersNegative.push_back("(S) too far away");
-			}
-
-			// if we are offshore...
-			if(iGoodTiles > 7)
-			{
-				if (iCapitalArea != pArea->GetID())
+				// this check only applies on our home continent
+				if (iClosestCityOfMine > iSweetMax)
 				{
-					if (iClosestCityOfMine >= iSweetMax)
-					{
-						iValueModifier -= (iTotalPlotValue*15)/100;
-						vQualifiersNegative.push_back("(V) too far from home");
-					}
-					else
-					{
-						iValueModifier += (iTotalPlotValue*75)/100;
-						vQualifiersNegative.push_back("(V) good overseas pick");
-					}
-					if (iClosestEnemyCity <= iSweetMin)
-					{
-						iValueModifier -= (iTotalPlotValue*15)/100;
-						vQualifiersNegative.push_back("(V) too close to enemy city far from home");
-					}
-				}
-			}
-			else if(iGoodTiles <= 7)
-			{
-				if (iCapitalArea != pArea->GetID())
-				{
-					iValueModifier -= (iTotalPlotValue*25)/100;
-					vQualifiersNegative.push_back("(V) small islands aren't great");
-
-					if (iClosestCityOfMine >= iSweetMax)
-					{
-						iValueModifier -= (iTotalPlotValue*50)/100;
-						vQualifiersNegative.push_back("(V) too far from home");
-					}
-					else
-					{
-						iValueModifier += (iTotalPlotValue*25)/100;
-						vQualifiersNegative.push_back("(V) good overseas pick");
-					}
-					if (iClosestEnemyCity <= iSweetMin)
-					{
-						iValueModifier -= (iTotalPlotValue*66)/100;
-						vQualifiersNegative.push_back("(V) too close to enemy city far from home");
-					}
+					iValueModifier -= (iTotalPlotValue*15*(iClosestCityOfMine-iSweetMax))/100;
+					vQualifiersNegative.push_back("(S) too far away");
 				}
 			}
 		}

@@ -1065,20 +1065,7 @@ int CvEconomicAI::ScoreExplorePlot2(CvPlot* pPlot, CvPlayer* pPlayer, DomainType
 	int iLargeScore = 80;
 	int iJackpot = 1000;
 
-	TechTypes eTechCompass = (TechTypes)GC.getInfoTypeForString("TECH_COMPASS", true);
-	bool bOceanShips = false;
-	if(eTechCompass != NO_TECH)
-	{
-		if(GET_TEAM(pPlayer->getTeam()).GetTeamTechs()->HasTech(eTechCompass))
-		{
-			bOceanShips = true;
-		}
-	}
-
 	if(!pPlot->isRevealed(pPlayer->getTeam()))
-		return 0;
-
-	if(!bOceanShips && pPlot->isWater() && !pPlot->isShallowWater() && !pPlot->isLake())
 		return 0;
 
 	//add goodies - they go away - do not add any permanent scores here - leads to loops
@@ -1096,10 +1083,7 @@ int CvEconomicAI::ScoreExplorePlot2(CvPlot* pPlot, CvPlayer* pPlayer, DomainType
 		{
 			//no value if revealed already
 			if(pLoopPlot->isRevealed(pPlayer->getTeam()))
-			{
 				continue;
-			}
-			iResultValue += (pLoopPlot->getNumAdjacentNonrevealed(pPlayer->getTeam()) * 5);
 
 			// "cheating" to look to see what the next tile is.
 			// a human should be able to do this by looking at the transition from the tile to the next

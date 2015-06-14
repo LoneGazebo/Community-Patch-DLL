@@ -4625,8 +4625,10 @@ void CvTacticalAI::PlotSingleHexOperationMoves(CvAIEscortedOperation* pOperation
 		}
 
 		// now we're done
-		pCivilian->finishMoves();
+		if (pCivilian->plot() != pOperation->GetTargetPlot())
+			pCivilian->finishMoves();
 		UnitProcessed(pCivilian->GetID());
+
 		if (pEscort)
 		{
 			pEscort->finishMoves();
