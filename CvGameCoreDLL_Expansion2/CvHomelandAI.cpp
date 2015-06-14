@@ -1250,7 +1250,7 @@ void CvHomelandAI::PlotHealMoves()
 				CvPlot* unitPlot = pUnit->plot();
 				if (!unitPlot->isCity() && (unitPlot->getOwner() != pUnit->getOwner()) && m_pPlayer->GetPlotDanger(*unitPlot) > 0)
 				{
-					iHealingLimit = 0;
+					iHealingLimit /= 2;
 				}
 			}
 #endif

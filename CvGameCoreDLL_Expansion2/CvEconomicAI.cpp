@@ -4365,15 +4365,11 @@ bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes /*eStra
 	{
 		return false;
 	}
-	iNumAreas = pPlayer->GetBestSettleAreas(pPlayer->GetEconomicAI()->GetMinimumSettleFertility(), iBestArea, iSecondBestArea);
-	if(iNumAreas == 0)
-	{
-		return false;
-	}
 	if(pPlayer->getNumCities() < 1)
 	{
 		return false;
 	}
+	iNumAreas = pPlayer->GetBestSettleAreas(pPlayer->GetEconomicAI()->GetMinimumSettleFertility(), iBestArea, iSecondBestArea);
 #else
 	if(GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && pPlayer->isHuman())
 	{
@@ -4420,7 +4416,7 @@ bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes /*eStra
 						if (bCanEmbark)
 						{				
 							//Going overseas? Good luck!
-							if(pCapitalArea != NULL && pCapitalArea->GetID() != iArea)
+							if(iArea != -1 && pCapitalArea != NULL && pCapitalArea->GetID() != iArea)
 							{
 								bool bWantEscort = false;
 								if(!IsAreaSafeForQuickColony(iArea, pPlayer))
@@ -4443,16 +4439,6 @@ bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes /*eStra
 									{
 										CvString strLogString;
 										strLogString.Format("We have settlers, but no good areas to settle!");
-										pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
-									}
-									return false;
-								}
-								else if(!pFirstSettler->GeneratePath(bBestSettle))
-								{
-									if(GC.getLogging() && GC.getAILogging())
-									{
-										CvString strLogString;
-										strLogString.Format("We have settlers, but we can't get to our target!");
 										pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
 									}
 									return false;
@@ -4491,16 +4477,6 @@ bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes /*eStra
 								{
 									CvString strLogString;
 									strLogString.Format("We have settlers, but no good areas to settle!");
-									pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
-								}
-								return false;
-							}
-							else if(!pFirstSettler->GeneratePath(bBestSettle))
-							{
-								if(GC.getLogging() && GC.getAILogging())
-								{
-									CvString strLogString;
-									strLogString.Format("We have settlers, but we can't get to our target!");
 									pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
 								}
 								return false;

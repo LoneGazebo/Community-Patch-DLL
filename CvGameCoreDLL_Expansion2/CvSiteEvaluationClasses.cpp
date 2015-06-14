@@ -14,6 +14,7 @@
 #include "CvGrandStrategyAI.h"
 #if defined(MOD_BALANCE_CORE)
 #include "CvEconomicAI.h"
+#include "CvMilitaryAI.h"
 #endif
 
 // include this after all other headers!
@@ -839,6 +840,9 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 		// AI
 		else
 		{
+			MilitaryAIStrategyTypes eStrategyBarbs = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_ERADICATE_BARBARIANS");
+			MilitaryAIStrategyTypes eStrategyBarbsCritical = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_ERADICATE_BARBARIANS_CRITICAL");
+
 			int iSweetMin = (GC.getSETTLER_EVALUATION_DISTANCE() - GC.getSETTLER_DISTANCE_DROPOFF_MODIFIER()), iSweetMax = GC.getSETTLER_EVALUATION_DISTANCE();
 
 			int iGrowthFlavor = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)m_iGrowthIndex);
@@ -848,6 +852,15 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 
 			iSweetMax += ((max(iExpansionFlavor, 1) * GC.getMap().numPlots()) / (max(iGrowthFlavor, 1) * iDefaultNumTiles));		
 			
+			if(pPlayer->GetMilitaryAI()->IsUsingStrategy(eStrategyBarbs))
+			{
+				iSweetMin--;
+			}
+			if(pPlayer->GetMilitaryAI()->IsUsingStrategy(eStrategyBarbsCritical))
+			{
+				iSweetMin--;
+			}
+
 			if (iGrowthFlavor > 5) iSweetMin--;
 			if (iExpansionFlavor > 5) iSweetMin++;
 			if (iGrowthFlavor <= 5) iSweetMin++;
