@@ -1905,7 +1905,11 @@ void CvUnitXMLEntries::DeleteArray()
 /// Get a specific entry
 CvUnitEntry* CvUnitXMLEntries::GetEntry(int index)
 {
+#if defined(MOD_BALANCE_CORE)
+	return (index!=NO_UNIT) ? m_paUnitEntries[index] : NULL;
+#else
 	return m_paUnitEntries[index];
+#endif
 }
 
 /// Helper function to read in an integer array of data sized according to number of unit types

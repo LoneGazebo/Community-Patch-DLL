@@ -112,7 +112,11 @@ void CvAIGrandStrategyXMLEntries::DeleteArray()
 /// Get a specific entry
 CvAIGrandStrategyXMLEntry* CvAIGrandStrategyXMLEntries::GetEntry(int index)
 {
+#if defined(MOD_BALANCE_CORE)
+	return (index!=NO_AIGRANDSTRATEGY) ? m_paAIGrandStrategyEntries[index] : NULL;
+#else
 	return m_paAIGrandStrategyEntries[index];
+#endif
 }
 
 

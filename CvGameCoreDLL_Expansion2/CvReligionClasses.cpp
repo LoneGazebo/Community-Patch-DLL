@@ -108,7 +108,11 @@ void CvReligionXMLEntries::DeleteArray()
 /// Get a specific entry
 CvReligionEntry* CvReligionXMLEntries::GetEntry(int index)
 {
+#if defined(MOD_BALANCE_CORE)
+	return (index!=NO_RELIGION) ? m_paReligionEntries[index] : NULL;
+#else
 	return m_paReligionEntries[index];
+#endif
 }
 
 //=====================================

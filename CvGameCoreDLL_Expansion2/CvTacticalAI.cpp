@@ -105,7 +105,11 @@ int CvTacticalMoveXMLEntries::GetNumTacticalMoves()
 /// Get a specific entry
 CvTacticalMoveXMLEntry* CvTacticalMoveXMLEntries::GetEntry(int index)
 {
+#if defined(MOD_BALANCE_CORE)
+	return (index!=NO_TACTICAL_MOVE) ? m_paTacticalMoveEntries[index] : NULL;
+#else
 	return m_paTacticalMoveEntries[index];
+#endif
 }
 
 /// Clear entries

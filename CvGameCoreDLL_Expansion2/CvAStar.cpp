@@ -2543,6 +2543,32 @@ int RouteValid(CvAStarNode* parent, CvAStarNode* node, int data, const void* poi
 		return FALSE;
 	}
 
+#if defined(MOD_BALANCE_CORE)
+	RouteTypes eRouteType = pNewPlot->getRouteType();
+
+	if(pNewPlot->IsRoutePillaged())
+		eRouteType = NO_ROUTE;
+
+	//what else can count as road depends on the player type
+	if(kPlayer.GetPlayerTraits()->IsRiverTradeRoad())
+	{
+		if(eRouteType==NO_ROUTE && pNewPlot->isRiver())
+			eRouteType = ROUTE_ROAD;
+	}
+	if(kPlayer.GetPlayerTraits()->IsMountainPass())
+	{
+		if(pNewPlot->getOwner() == ePlayer && eRouteType==NO_ROUTE)
+			if(pNewPlot->isMountain())
+				eRouteType = ROUTE_ROAD;
+	}
+	if(kPlayer.GetPlayerTraits()->IsMoveFriendlyWoodsAsRoad())
+	{
+		if(pNewPlot->getOwner() == ePlayer && eRouteType==NO_ROUTE)
+			if(pNewPlot->getFeatureType() == FEATURE_FOREST || pNewPlot->getFeatureType() == FEATURE_JUNGLE)
+				eRouteType = ROUTE_ROAD;
+	}
+
+#else
 	if(kPlayer.GetPlayerTraits()->IsMoveFriendlyWoodsAsRoad())
 	{
 		if(pNewPlot->getOwner() == ePlayer)
@@ -2553,32 +2579,17 @@ int RouteValid(CvAStarNode* parent, CvAStarNode* node, int data, const void* poi
 			}
 		}
 	}
-#if defined(MOD_BALANCE_CORE)
-	if(kPlayer.GetPlayerTraits()->IsRiverTradeRoad())
-	{
-		if(pNewPlot->isRiver())
-		{
-			return TRUE;
-		}
-	}
-	if(kPlayer.GetPlayerTraits()->IsMountainPass())
-	{
-		if(pNewPlot->isMountain())
-		{
-			return TRUE;
-		}
-	}
-#endif
+
 	RouteTypes eRouteType = pNewPlot->getRouteType();
 	if(eRouteType == NO_ROUTE)
 	{
 		return FALSE;
 	}
-
 	if(pNewPlot->IsRoutePillaged())
 	{
 		return FALSE;
 	}
+#endif
 
 	if(!pNewPlot->IsFriendlyTerritory(ePlayer))
 	{

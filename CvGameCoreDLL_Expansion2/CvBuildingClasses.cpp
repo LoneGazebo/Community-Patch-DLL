@@ -2846,12 +2846,15 @@ void CvBuildingXMLEntries::DeleteArray()
 /// Get a specific entry
 #if defined(MOD_BALANCE_CORE)
 CvBuildingEntry* CvBuildingXMLEntries::GetEntry(int index) const
+{
+	return (index!=NO_BUILDING) ? m_paBuildingEntries[index] : NULL;
+}
 #else
 CvBuildingEntry* CvBuildingXMLEntries::GetEntry(int index)
-#endif
 {
 	return m_paBuildingEntries[index];
 }
+#endif
 
 //=====================================
 // CvCityBuildings

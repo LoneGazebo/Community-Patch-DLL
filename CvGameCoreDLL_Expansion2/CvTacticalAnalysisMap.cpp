@@ -972,7 +972,7 @@ void CvTacticalAnalysisMap::CalculateMilitaryStrengths()
 				}
 
 				// Repeat for all visible enemy units (or adjacent to visible)
-				for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+				for(int iPlayerLoop = 0; iPlayerLoop < MAX_PLAYERS; iPlayerLoop++)
 				{
 					CvPlayer& kPlayer = GET_PLAYER((PlayerTypes) iPlayerLoop);
 					if(GET_TEAM(eTeam).isAtWar(kPlayer.getTeam()))

@@ -33102,7 +33102,7 @@ void CvPlayer::UpdateAreaEffectUnits()
 	//cache the wars we have going
 	m_playersWeAreAtWarWith.clear();
 	//note: normal players are not at war with the barbarians, but the barbarians are at war with everyone
-	for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+	for(int iPlayerLoop = 0; iPlayerLoop < MAX_PLAYERS; iPlayerLoop++)
 	{
 		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
 		if(GET_TEAM(getTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam()))

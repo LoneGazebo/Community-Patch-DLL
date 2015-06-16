@@ -2520,10 +2520,15 @@ void CvCity::DoUpdateIndustrialRouteToCapital()
 	// Non-capital city
 	else
 	{
+#if defined(MOD_BALANCE_CORE)
+		bool bHaveIndustrialRoute = GET_PLAYER(getOwner()).IsCapitalConnectedToCity(this, GC.getGame().GetIndustrialRoute());
+		SetIndustrialRouteToCapital(bHaveIndustrialRoute);
+#else
 		if(GET_PLAYER(getOwner()).IsCapitalConnectedToCity(this, GC.getGame().GetIndustrialRoute()))
 		{
 			SetIndustrialRouteToCapital(true);
 		}
+#endif
 	}
 }
 

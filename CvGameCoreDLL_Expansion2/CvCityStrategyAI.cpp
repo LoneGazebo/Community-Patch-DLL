@@ -219,7 +219,11 @@ void CvAICityStrategies::DeleteArray()
 /// Get a specific entry
 CvAICityStrategyEntry* CvAICityStrategies::GetEntry(int index)
 {
+#if defined(MOD_BALANCE_CORE)
+	return (index!=NO_AICITYSTRATEGY) ? m_paAICityStrategyEntries[index] : NULL;
+#else
 	return m_paAICityStrategyEntries[index];
+#endif
 }
 
 //=====================================

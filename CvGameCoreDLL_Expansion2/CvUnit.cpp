@@ -19946,7 +19946,7 @@ bool CvUnit::IsUnderEnemyRangedAttack() const
 	PlayerTypes eLoopPlayer;
 	int iTotalDamage = 0;
 
-	for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+	for(int iPlayerLoop = 0; iPlayerLoop < MAX_PLAYERS; iPlayerLoop++)
 	{
 		eLoopPlayer = (PlayerTypes) iPlayerLoop;
 		CvPlayer &kPlayer = GET_PLAYER(eLoopPlayer);

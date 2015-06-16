@@ -657,7 +657,11 @@ void CvTechXMLEntries::DeleteArray()
 /// Get a specific entry
 CvTechEntry* CvTechXMLEntries::GetEntry(int index)
 {
+#if defined(MOD_BALANCE_CORE)
+	return (index!=NO_TECH) ? m_paTechEntries[index] : NULL;
+#else
 	return m_paTechEntries[index];
+#endif
 }
 
 

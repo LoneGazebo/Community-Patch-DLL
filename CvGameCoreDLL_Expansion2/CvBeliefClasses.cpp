@@ -1386,7 +1386,11 @@ void CvBeliefXMLEntries::DeleteArray()
 /// Get a specific entry
 CvBeliefEntry* CvBeliefXMLEntries::GetEntry(int index)
 {
+#if defined(MOD_BALANCE_CORE)
+	return (index!=NO_BELIEF) ? m_paBeliefEntries[index] : NULL;
+#else
 	return m_paBeliefEntries[index];
+#endif
 }
 
 //=====================================

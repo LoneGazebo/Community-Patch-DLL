@@ -232,7 +232,11 @@ void CvEconomicAIStrategyXMLEntries::DeleteArray()
 /// Get a specific entry
 CvEconomicAIStrategyXMLEntry* CvEconomicAIStrategyXMLEntries::GetEntry(int index)
 {
+#if defined(MOD_BALANCE_CORE)
+	return (index!=NO_ECONOMICAISTRATEGY) ? m_paAIStrategyEntries[index] : NULL;
+#else
 	return m_paAIStrategyEntries[index];
+#endif
 }
 
 //=====================================

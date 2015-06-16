@@ -1282,7 +1282,11 @@ int CvImprovementXMLEntries::GetNumImprovements()
 /// Get a specific entry
 CvImprovementEntry* CvImprovementXMLEntries::GetEntry(int index)
 {
+#if defined(MOD_BALANCE_CORE)
+	return (index!=NO_IMPROVEMENT) ? m_paImprovementEntries[index] : NULL;
+#else
 	return m_paImprovementEntries[index];
+#endif
 }
 
 /// Tell which improvement unlocks a resource

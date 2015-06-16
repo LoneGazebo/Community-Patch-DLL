@@ -240,7 +240,11 @@ void CvMilitaryAIStrategyXMLEntries::DeleteArray()
 /// Get a specific entry
 _Ret_maybenull_ CvMilitaryAIStrategyXMLEntry* CvMilitaryAIStrategyXMLEntries::GetEntry(int index)
 {
+#if defined(MOD_BALANCE_CORE)
+	return (index!=NO_MILITARYAISTRATEGY) ? m_paAIStrategyEntries[index] : NULL;
+#else
 	return m_paAIStrategyEntries[index];
+#endif
 }
 
 
