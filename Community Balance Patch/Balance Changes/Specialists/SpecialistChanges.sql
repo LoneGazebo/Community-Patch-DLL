@@ -1,31 +1,31 @@
 -- Balance Engineers
 
 UPDATE SpecialistYields
-SET Yield = '2'
+SET Yield = '3'
 WHERE SpecialistType = 'SPECIALIST_ENGINEER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 -- Balance Merchants
 
 UPDATE SpecialistYields
-SET Yield = '2'
+SET Yield = '3'
 WHERE SpecialistType = 'SPECIALIST_MERCHANT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 -- Balance Scientists
 
 UPDATE SpecialistYields
-SET Yield = '2'
+SET Yield = '3'
 WHERE SpecialistType = 'SPECIALIST_SCIENTIST' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 -- Balance Artists
 
 UPDATE Specialists
-SET CulturePerTurn = '2'
+SET CulturePerTurn = '3'
 WHERE Type = 'SPECIALIST_ARTIST' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 -- Balance Writers
 
 UPDATE Specialists
-SET CulturePerTurn = '2'
+SET CulturePerTurn = '3'
 WHERE Type = 'SPECIALIST_WRITER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 -- Balance Musicians

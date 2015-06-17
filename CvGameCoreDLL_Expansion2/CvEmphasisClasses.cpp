@@ -101,7 +101,11 @@ void CvEmphasisXMLEntries::DeleteArray()
 /// Get a specific entry
 CvEmphasisEntry* CvEmphasisXMLEntries::GetEntry(int index)
 {
+#if defined(MOD_BALANCE_CORE)
+	return (index!=NO_EMPHASIZE) ? m_paEmphasisEntries[index] : NULL;
+#else
 	return m_paEmphasisEntries[index];
+#endif
 }
 
 //=====================================

@@ -116,6 +116,9 @@ CvCity::CvCity() :
 	, m_iX("CvCity::m_iX", m_syncArchive)
 	, m_iY("CvCity::m_iY", m_syncArchive)
 	, m_iID("CvCity::m_iID", m_syncArchive)
+#if defined(MOD_BALANCE_CORE_GLOBAL_CITY_IDS)
+	, m_iGlobalID("CvCity::m_iGlobalID", m_syncArchive)
+#endif
 	, m_iRallyX("CvCity::m_iRallyX", m_syncArchive)
 	, m_iRallyY("CvCity::m_iRallyY", m_syncArchive)
 	, m_iGameTurnFounded("CvCity::m_iGameTurnFounded", m_syncArchive)
@@ -123,7 +126,7 @@ CvCity::CvCity() :
 	, m_iGameTurnLastExpanded("CvCity::m_iGameTurnLastExpanded", m_syncArchive)
 	, m_iPopulation("CvCity::m_iPopulation", m_syncArchive)
 	, m_iHighestPopulation("CvCity::m_iHighestPopulation", m_syncArchive)
-	, m_iExtraHitPoints(0)
+	, m_iExtraHitPoints("CvCity::m_iExtraHitPoints", m_syncArchive)
 	, m_iNumGreatPeople("CvCity::m_iNumGreatPeople", m_syncArchive)
 	, m_iBaseGreatPeopleRate("CvCity::m_iBaseGreatPeopleRate", m_syncArchive)
 	, m_iGreatPeopleRateModifier("CvCity::m_iGreatPeopleRateModifier", m_syncArchive)
@@ -138,11 +141,11 @@ CvCity::CvCity() :
 	, m_iJONSCulturePerTurnFromReligion("CvCity::m_iJONSCulturePerTurnFromReligion", m_syncArchive)
 #endif
 #if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
-	, m_iFaithPerTurnFromBuildings(0)
+	, m_iFaithPerTurnFromBuildings("CvCity::m_iFaithPerTurnFromBuildings", m_syncArchive)
 #endif
-	, m_iFaithPerTurnFromPolicies(0)
+	, m_iFaithPerTurnFromPolicies("CvCity::m_iFaithPerTurnFromPolicies", m_syncArchive)
 #if !defined(MOD_API_UNIFIED_YIELDS_CONSOLIDATION)
-	, m_iFaithPerTurnFromReligion(0)
+	, m_iFaithPerTurnFromReligion("CvCity::m_iFaithPerTurnFromReligion", m_syncArchive)
 #endif
 	, m_iCultureRateModifier("CvCity::m_iCultureRateModifier", m_syncArchive)
 	, m_iNumWorldWonders("CvCity::m_iNumWorldWonders", m_syncArchive)
@@ -151,9 +154,9 @@ CvCity::CvCity() :
 	, m_iWonderProductionModifier("CvCity::m_iWonderProductionModifier", m_syncArchive)
 	, m_iCapturePlunderModifier("CvCity::m_iCapturePlunderModifier", m_syncArchive)
 	, m_iPlotCultureCostModifier("CvCity::m_iPlotCultureCostModifier", m_syncArchive)
-	, m_iPlotBuyCostModifier(0)
+	, m_iPlotBuyCostModifier("CvCity::m_iPlotBuyCostModifier", m_syncArchive)
 #if defined(MOD_BUILDINGS_CITY_WORKING)
-	, m_iCityWorkingChange(0)
+	, m_iCityWorkingChange("CvCity::m_iCityWorkingChange", m_syncArchive)
 #endif
 	, m_iMaintenance("CvCity::m_iMaintenance", m_syncArchive)
 	, m_iHealRate("CvCity::m_iHealRate", m_syncArchive)
@@ -186,12 +189,12 @@ CvCity::CvCity() :
 	, m_iRazingTurns("CvCity::m_iRazingTurns", m_syncArchive)
 	, m_iCountExtraLuxuries("CvCity::m_iCountExtraLuxuries", m_syncArchive)
 	, m_iCheapestPlotInfluence("CvCity::m_iCheapestPlotInfluence", m_syncArchive)
-	, m_iEspionageModifier(0)
+	, m_iEspionageModifier("CvCity::m_iEspionageModifier", m_syncArchive)
 #if defined(MOD_RELIGION_CONVERSION_MODIFIERS)
-	, m_iConversionModifier(0)
+	, m_iConversionModifier("CvCity::m_iConversionModifier", m_syncArchive)
 #endif
-	, m_iTradeRouteRecipientBonus(0)
-	, m_iTradeRouteTargetBonus(0)
+	, m_iTradeRouteRecipientBonus("CvCity::m_iTradeRouteRecipientBonus", m_syncArchive)
+	, m_iTradeRouteTargetBonus("CvCity::m_iTradeRouteTargetBonus", m_syncArchive)
 	, m_unitBeingBuiltForOperation()
 	, m_bNeverLost("CvCity::m_bNeverLost", m_syncArchive)
 	, m_bDrafted("CvCity::m_bDrafted", m_syncArchive)
@@ -201,6 +204,7 @@ CvCity::CvCity() :
 	, m_bMadeAttack("CvCity::m_bMadeAttack", m_syncArchive)
 	, m_bOccupied("CvCity::m_bOccupied", m_syncArchive)
 	, m_bPuppet("CvCity::m_bPuppet", m_syncArchive)
+	, m_bIgnoreCityForHappiness("CvCity::m_bIgnoreCityForHappiness", m_syncArchive)
 	, m_bEverCapital("CvCity::m_bEverCapital", m_syncArchive)
 	, m_bIndustrialRouteToCapital("CvCity::m_bIndustrialRouteToCapital", m_syncArchive)
 	, m_bFeatureSurrounded("CvCity::m_bFeatureSurrounded", m_syncArchive)
@@ -217,50 +221,52 @@ CvCity::CvCity() :
 	, m_aiBaseYieldRateFromMisc("CvCity::m_aiBaseYieldRateFromMisc", m_syncArchive)
 #if defined(MOD_DIPLOMACY_CITYSTATES)
 	, m_aiBaseYieldRateFromLeague("CvCity::m_aiBaseYieldRateFromLeague", m_syncArchive)
-	, m_iTotalScienceyAid(0)
-	, m_iTotalArtsyAid(0)
-	, m_iTotalGreatWorkAid(0)
+	, m_iTotalScienceyAid("CvCity::m_iTotalScienceyAid", m_syncArchive)
+	, m_iTotalArtsyAid("CvCity::m_iTotalArtsyAid", m_syncArchive)
+	, m_iTotalGreatWorkAid("CvCity::m_iTotalGreatWorkAid", m_syncArchive)
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
-	, m_iChangePovertyUnhappiness(0)
-	, m_iChangeDefenseUnhappiness(0)
-	, m_iChangeUnculturedUnhappiness(0)
-	, m_iChangeIlliteracyUnhappiness(0)
-	, m_iChangeMinorityUnhappiness(0)
-	, m_iChangePovertyUnhappinessGlobal(0)
-	, m_iChangeDefenseUnhappinessGlobal(0)
-	, m_iChangeUnculturedUnhappinessGlobal(0)
-	, m_iChangeIlliteracyUnhappinessGlobal(0)
-	, m_iChangeMinorityUnhappinessGlobal(0)
+	, m_iChangePovertyUnhappiness("CvCity::m_iChangePovertyUnhappiness", m_syncArchive)
+	, m_iChangeDefenseUnhappiness("CvCity::m_iChangeDefenseUnhappiness", m_syncArchive)
+	, m_iChangeUnculturedUnhappiness("CvCity::m_iChangeUnculturedUnhappiness", m_syncArchive)
+	, m_iChangeIlliteracyUnhappiness("CvCity::m_iChangeIlliteracyUnhappiness", m_syncArchive)
+	, m_iChangeMinorityUnhappiness("CvCity::m_iChangeMinorityUnhappiness", m_syncArchive)
+	, m_iChangePovertyUnhappinessGlobal("CvCity::m_iChangePovertyUnhappinessGlobal", m_syncArchive)
+	, m_iChangeDefenseUnhappinessGlobal("CvCity::m_iChangeDefenseUnhappinessGlobal", m_syncArchive)
+	, m_iChangeUnculturedUnhappinessGlobal("CvCity::m_iChangeUnculturedUnhappinessGlobal", m_syncArchive)
+	, m_iChangeIlliteracyUnhappinessGlobal("CvCity::m_iChangeIlliteracyUnhappinessGlobal", m_syncArchive)
+	, m_iChangeMinorityUnhappinessGlobal("CvCity::m_iChangeMinorityUnhappinessGlobal", m_syncArchive)
 #endif
 #if defined(MOD_DIPLOMACY_CITYSTATES) || defined(MOD_BALANCE_CORE)
 	, m_aiChangeGrowthExtraYield("CvCity::m_aiChangeGrowthExtraYield", m_syncArchive)
 #endif
 #if defined(MOD_BALANCE_CORE)
-	, m_iUnhappyCitizen(0)
-	, m_iPurchaseCooldown(0)
-	, m_iReligiousTradeModifier(0)
-	, m_iBaseTourism(0)
-	, m_iBaseTourismBeforeModifiers(0)
+	, m_iUnhappyCitizen("CvCity::m_iUnhappyCitizen", m_syncArchive)
+	, m_iPurchaseCooldown("CvCity::m_iPurchaseCooldown", m_syncArchive)
+	, m_iReligiousTradeModifier("CvCity::m_iReligiousTradeModifier", m_syncArchive)
+	, m_iBaseTourism("CvCity::m_iBaseTourism", m_syncArchive)
+	, m_iBaseTourismBeforeModifiers("CvCity::m_iBaseTourismBeforeModifiers", m_syncArchive)
 	, m_aiChangeYieldFromVictory("CvCity::m_aiChangeYieldFromVictory", m_syncArchive)
-	, m_aiBaseYieldRateFromCSAlliance("CvCity::m_aiChangeGrowthExtraYield", m_syncArchive)
+	, m_aiBaseYieldRateFromCSAlliance("CvCity::m_aiBaseYieldRateFromCSAlliance", m_syncArchive)
 #endif
 #if defined(MOD_BALANCE_CORE)
-	, m_iBlockBuildingDestruction(0)
-	, m_iBlockWWDestruction(0)
-	, m_iBlockUDestruction(0)
-	, m_iBlockGPDestruction(0)
-	, m_iBlockRebellion(0)
-	, m_iBlockUnrest(0)
-	, m_iBlockScience(0)
-	, m_iBlockGold(0)
+	, m_iBlockBuildingDestruction("CvCity::m_iBlockBuildingDestruction", m_syncArchive)
+	, m_iBlockWWDestruction("CvCity::m_iBlockWWDestruction", m_syncArchive)
+	, m_iBlockUDestruction("CvCity::m_iBlockUDestruction", m_syncArchive)
+	, m_iBlockGPDestruction("CvCity::m_iBlockGPDestruction", m_syncArchive)
+	, m_iBlockRebellion("CvCity::m_iBlockRebellion", m_syncArchive)
+	, m_iBlockUnrest("CvCity::m_iBlockUnrest", m_syncArchive)
+	, m_iBlockScience("CvCity::m_iBlockScience", m_syncArchive)
+	, m_iBlockGold("CvCity::m_iBlockGold", m_syncArchive)
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
-	, m_iCityRank(0)
-	, m_iTurnsSinceRankAnnouncement(0)
+	, m_iCityRank("CvCity::m_iCityRank", m_syncArchive)
+	, m_iTurnsSinceRankAnnouncement("CvCity::m_iTurnsSinceRankAnnouncement", m_syncArchive)
 #endif
+	, m_aiBaseYieldRateFromReligion("CvCity::m_aiBaseYieldRateFromReligion", m_syncArchive)
 	, m_aiYieldRateModifier("CvCity::m_aiYieldRateModifier", m_syncArchive)
 	, m_aiYieldPerPop("CvCity::m_aiYieldPerPop", m_syncArchive)
+	, m_aiYieldPerReligion("CvCity::m_aiYieldPerReligion", m_syncArchive)
 	, m_aiPowerYieldRateModifier("CvCity::m_aiPowerYieldRateModifier", m_syncArchive)
 	, m_aiResourceYieldRateModifier("CvCity::m_aiResourceYieldRateModifier", m_syncArchive)
 	, m_aiExtraSpecialistYield("CvCity::m_aiExtraSpecialistYield", m_syncArchive)
@@ -288,8 +294,8 @@ CvCity::CvCity() :
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	, m_paiBuildingClassCulture("CvCity::m_paiBuildingClassCulture", m_syncArchive)
 #endif
-	, m_iBaseHappinessFromBuildings(0)
-	, m_iUnmoddedHappinessFromBuildings(0)
+	, m_iBaseHappinessFromBuildings("CvCity::m_iBaseHappinessFromBuildings", m_syncArchive)
+	, m_iUnmoddedHappinessFromBuildings("CvCity::m_iUnmoddedHappinessFromBuildings", m_syncArchive)
 	, m_bRouteToCapitalConnectedLastTurn(false)
 	, m_bRouteToCapitalConnectedThisTurn(false)
 	, m_strName("")
@@ -325,9 +331,8 @@ CvCity::CvCity() :
 	, m_abOwedChosenBuilding("CvCity::m_abOwedChosenBuilding", m_syncArchive)
 	, m_abBuildingInvestment("CvCity::m_abBuildingInvestment", m_syncArchive)
 	, m_abBuildingConstructed("CvCity::m_abBuildingConstructed", m_syncArchive)
-	, m_iNationalMissionaries(0)
+	, m_iNationalMissionaries("CvCity::m_iNationalMissionaries", m_syncArchive)
 #endif
-
 	, m_bOwedCultureBuilding(false)
 #if defined(MOD_BUGFIX_FREE_FOOD_BUILDING)
 	, m_bOwedFoodBuilding(false)
@@ -335,10 +340,6 @@ CvCity::CvCity() :
 {
 	OBJECT_ALLOCATED
 	FSerialization::citiesToCheck.insert(this);
-
-#if defined(MOD_BALANCE_CORE_GLOBAL_CITY_IDS)
-	m_iGlobalID = 0; //init with invalid value!
-#endif
 
 	reset(0, NO_PLAYER, 0, 0, true);
 }
@@ -1381,12 +1382,12 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 #if defined(MOD_BALANCE_CORE)
 		m_aiChangeYieldFromVictory.setAt(iI, 0);
 #endif
-		m_aiBaseYieldRateFromReligion[iI] = 0;
+		m_aiBaseYieldRateFromReligion.setAt(iI, 0);
 #if defined(MOD_BALANCE_CORE)
 		m_aiBaseYieldRateFromCSAlliance.setAt(iI, 0);
 #endif
 		m_aiYieldPerPop.setAt(iI, 0);
-		m_aiYieldPerReligion[iI] = 0;
+		m_aiYieldPerReligion.setAt(iI, 0);
 		m_aiYieldRateModifier.setAt(iI, 0);
 		m_aiPowerYieldRateModifier.setAt(iI, 0);
 		m_aiResourceYieldRateModifier.setAt(iI, 0);
@@ -2519,10 +2520,15 @@ void CvCity::DoUpdateIndustrialRouteToCapital()
 	// Non-capital city
 	else
 	{
+#if defined(MOD_BALANCE_CORE)
+		bool bHaveIndustrialRoute = GET_PLAYER(getOwner()).IsCapitalConnectedToCity(this, GC.getGame().GetIndustrialRoute());
+		SetIndustrialRouteToCapital(bHaveIndustrialRoute);
+#else
 		if(GET_PLAYER(getOwner()).IsCapitalConnectedToCity(this, GC.getGame().GetIndustrialRoute()))
 		{
 			SetIndustrialRouteToCapital(true);
 		}
+#endif
 	}
 }
 
@@ -7938,11 +7944,11 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			}
 			// END TERRA COTTA AWESOME
 #if defined(MOD_BALANCE_CORE)
-			if(MOD_BALANCE_CORE && pBuildingInfo->IsReformation() && (iChange > 0))
+			if(MOD_BALANCE_CORE && pBuildingInfo->IsReformation() && (iChange > 0) && bFirst)
 			{
 				GET_PLAYER(getOwner()).SetReformation(true);
 			}
-			if(MOD_BALANCE_CORE && (pBuildingInfo->GrantsRandomResourceTerritory() > 0) && (iChange > 0))
+			if(MOD_BALANCE_CORE && (pBuildingInfo->GrantsRandomResourceTerritory() > 0) && (iChange > 0) && bFirst)
 			{
 				GET_PLAYER(getOwner()).GetPlayerTraits()->AddUniqueLuxuriesAround(this, pBuildingInfo->GrantsRandomResourceTerritory());
 			}
@@ -8687,7 +8693,7 @@ void CvCity::UpdateReligion(ReligionTypes eNewMajority)
 	for(int iYield = 0; iYield <= YIELD_SCIENCE; iYield++)
 #endif
 	{
-		m_aiBaseYieldRateFromReligion[iYield] = 0;
+		m_aiBaseYieldRateFromReligion.setAt(iYield, 0);
 	}
 
 	for(int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
@@ -9136,15 +9142,19 @@ int CvCity::foodConsumption(bool /*bNoAngry*/, int iExtra) const
 #if defined(MOD_BALANCE_SPECIALIST_FOOD_SCALE_ERA)
 	if(MOD_BALANCE_SPECIALIST_FOOD_SCALE_ERA)
 	{
-		int iPopulation = (getPopulation() + iExtra) - GetCityCitizens()->GetTotalSpecialistCount();
 		int iSpecialists = GetCityCitizens()->GetTotalSpecialistCount();
+		iSpecialists += iExtra;
+		int iPopulation = (getPopulation() - iSpecialists);
 
 		int iFoodPerPop = /*2*/ GC.getFOOD_CONSUMPTION_PER_POPULATION();
 
 		int iNum = iPopulation * iFoodPerPop;
 
-		int iEra = (GET_PLAYER(getOwner()).GetCurrentEra() + 1);
-		iEra += /*2*/ GC.getFOOD_CONSUMPTION_PER_POPULATION();
+		int iEra = GET_PLAYER(getOwner()).GetCurrentEra();
+		if(iEra <= 0)
+		{
+			iEra = 1;
+		}
 
 		iNum += (iEra * iSpecialists);
 		if(GET_PLAYER(getOwner()).isHalfSpecialistFood())
@@ -11063,6 +11073,130 @@ void CvCity::ChangeFaithPerTurnFromPolicies(int iChange)
 
 //	--------------------------------------------------------------------------------
 #if defined(MOD_API_UNIFIED_YIELDS)
+int CvCity::GetYieldPerXTerrain(YieldTypes eYield) const
+{
+	VALIDATE_OBJECT
+	int iYield = 0;
+
+	int iValidTiles = 0;
+	int iBaseYield = 0;
+	ReligionTypes eReligionFounded = GET_PLAYER(getOwner()).GetReligions()->GetReligionCreatedByPlayer(true);
+	const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligionFounded, getOwner());
+	if(pReligion)
+	{
+
+		for (int iI = 0; iI < GC.getNumTerrainInfos(); iI++)
+		{
+			TerrainTypes eTerrain = (TerrainTypes) iI;
+
+			if(pReligion)
+			{
+				iBaseYield = pReligion->m_Beliefs.GetYieldPerXTerrain(eTerrain, eYield);
+				if(iBaseYield > 0)
+				{
+					iValidTiles = 0;
+#if defined(MOD_GLOBAL_CITY_WORKING)
+					for(int iJ = 0; iJ < GetNumWorkablePlots(); iJ++)
+#else
+					for(int iJ = 0; iJ < NUM_CITY_PLOTS; iJ++)
+#endif
+					{
+						CvPlot* pPlot = GetCityCitizens()->GetCityPlotFromIndex(iJ);
+
+						if(pPlot != NULL)
+						{
+							if(GetCityCitizens()->IsWorkingPlot(pPlot))
+							{
+								if(pPlot->getTerrainType() == eTerrain)
+								{
+									if(pReligion->m_Beliefs.RequiresNoImprovement() && pPlot->getImprovementType() == NO_IMPROVEMENT)
+									{
+										iValidTiles++;
+									}
+									else if(pReligion->m_Beliefs.RequiresNoImprovementFeature() && pPlot->getFeatureType() == NO_FEATURE && !pPlot->isHills())
+									{
+										iValidTiles++;
+									}
+									else
+									{
+										iValidTiles++;
+									}
+								}
+							}
+						}
+					}
+					if(iValidTiles > 0)
+					{
+						//Gain 1 yield per x valid tiles - so if 'x' is 3, and you have 3 tiles that match, you get 1 yield
+						iYield += (iValidTiles / iBaseYield);
+					}
+				}
+			}
+		}
+	}
+	
+	return iYield;
+}
+int CvCity::GetYieldPerXFeature(YieldTypes eYield) const
+{
+	VALIDATE_OBJECT
+	int iYield = 0;
+
+	int iValidTiles = 0;
+	int iBaseYield = 0;
+	ReligionTypes eReligionFounded = GET_PLAYER(getOwner()).GetReligions()->GetReligionCreatedByPlayer(true);
+	const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligionFounded, getOwner());
+	if(pReligion)
+	{
+
+		for (int iI = 0; iI < GC.getNumFeatureInfos(); iI++)
+		{
+			FeatureTypes eFeature = (FeatureTypes) iI;
+
+			if(pReligion)
+			{
+				iBaseYield = pReligion->m_Beliefs.GetYieldPerXFeature(eFeature, eYield);
+				if(iBaseYield > 0)
+				{
+					iValidTiles = 0;
+#if defined(MOD_GLOBAL_CITY_WORKING)
+					for(int iJ = 0; iJ < GetNumWorkablePlots(); iJ++)
+#else
+					for(int iJ = 0; iJ < NUM_CITY_PLOTS; iJ++)
+#endif
+					{
+						CvPlot* pPlot = GetCityCitizens()->GetCityPlotFromIndex(iJ);
+
+						if(pPlot != NULL)
+						{
+							if(GetCityCitizens()->IsWorkingPlot(pPlot))
+							{
+								if(pPlot->getFeatureType() == eFeature)
+								{
+									if(pReligion->m_Beliefs.RequiresNoImprovement() && pPlot->getImprovementType() == NO_IMPROVEMENT)
+									{
+										iValidTiles++;
+									}
+									else
+									{
+										iValidTiles++;
+									}
+								}
+							}
+						}
+					}
+					if(iValidTiles > 0)
+					{
+						//Gain 1 yield per x valid tiles - so if 'x' is 3, and you have 3 tiles that match, you get 1 yield
+						iYield += (iValidTiles / iBaseYield);
+					}
+				}
+			}
+		}
+	}
+	
+	return iYield;
+}
 int CvCity::GetYieldPerTurnFromUnimprovedFeatures(YieldTypes eYield) const
 {
 	VALIDATE_OBJECT
@@ -12448,7 +12582,7 @@ int CvCity::getUnhappinessFromCultureNeeded() const
 	//Buildings decrease this by a flat integer.
 	if(GetUnculturedUnhappiness() != 0)
 	{
-		iThreshold += ((GetUnculturedUnhappiness()  * iThreshold) / 100);
+		iThreshold += ((GetUnculturedUnhappiness()  * (max(1, getPopulation()) / 2)) / 100);
 	}
 	int iLoop = 0;
 	for(const CvCity* pLoopCity = GET_PLAYER(getOwner()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iLoop))
@@ -12458,7 +12592,7 @@ int CvCity::getUnhappinessFromCultureNeeded() const
 			//Mod from global unhappiness building modifier.
 			if(pLoopCity->GetUnculturedUnhappinessGlobal() != 0)
 			{
-				iThreshold += ((pLoopCity->GetUnculturedUnhappinessGlobal()  * iThreshold) / 100);
+				iThreshold += ((pLoopCity->GetUnculturedUnhappinessGlobal()  * (max(1, getPopulation()) / 2)) / 100);
 			}
 		}		
 	}
@@ -12467,6 +12601,11 @@ int CvCity::getUnhappinessFromCultureNeeded() const
 		iThreshold += ((GET_PLAYER(getOwner()).GetPuppetUnhappinessMod() * iThreshold) / 100);
 	}
 #endif
+
+	//Increase threshold based on # of cities. Is slight, but makes a difference.
+	int iNumCities = (GET_PLAYER(getOwner()).getNumCities() * GC.getBALANCE_HAPPINESS_BASE_CITY_COUNT_MULTIPLIER());
+	iThreshold *= (100 + iNumCities);
+	iThreshold /= 100;
 
 	//This is for LUA.
 	return iThreshold;
@@ -12570,7 +12709,7 @@ int CvCity::getUnhappinessFromScienceNeeded() const
 	//Buildings decrease this by a flat integer.
 	if(GetIlliteracyUnhappiness() != 0)
 	{
-		iThreshold += ((GetIlliteracyUnhappiness() * iThreshold) / 100);
+		iThreshold += ((GetIlliteracyUnhappiness() * (max(1, getPopulation()) / 2)) / 100);
 	}
 	int iLoop = 0;
 	for(const CvCity* pLoopCity = GET_PLAYER(getOwner()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iLoop))
@@ -12580,7 +12719,7 @@ int CvCity::getUnhappinessFromScienceNeeded() const
 			//Mod from global unhappiness building modifier.
 			if(pLoopCity->GetIlliteracyUnhappinessGlobal() != 0)
 			{
-				iThreshold += ((pLoopCity->GetIlliteracyUnhappinessGlobal() * iThreshold) / 100);
+				iThreshold += ((pLoopCity->GetIlliteracyUnhappinessGlobal() * (max(1, getPopulation()) / 2)) / 100);
 			}
 		}		
 	}
@@ -12589,6 +12728,11 @@ int CvCity::getUnhappinessFromScienceNeeded() const
 		iThreshold += ((GET_PLAYER(getOwner()).GetPuppetUnhappinessMod() * iThreshold) / 100);
 	}
 #endif
+
+	//Increase threshold based on # of cities. Is slight, but makes a difference.
+	int iNumCities = (GET_PLAYER(getOwner()).getNumCities() * GC.getBALANCE_HAPPINESS_BASE_CITY_COUNT_MULTIPLIER());
+	iThreshold *= (100 + iNumCities);
+	iThreshold /= 100;
 
 	//This is for LUA.
 	return iThreshold;
@@ -12724,7 +12868,7 @@ int CvCity::getUnhappinessFromDefenseNeeded() const
 	//Buildings decrease this by a flat integer.
 	if(GetDefenseUnhappiness() != 0)
 	{
-		iThreshold += ((GetDefenseUnhappiness() * iThreshold) / 100);
+		iThreshold += ((GetDefenseUnhappiness() * (max(1, getPopulation()) / 2)) / 100);
 	}
 	int iLoop = 0;
 	for(const CvCity* pLoopCity = GET_PLAYER(getOwner()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iLoop))
@@ -12734,7 +12878,7 @@ int CvCity::getUnhappinessFromDefenseNeeded() const
 			//Mod from global unhappiness building modifier.
 			if(pLoopCity->GetDefenseUnhappinessGlobal() != 0)
 			{
-				iThreshold += ((pLoopCity->GetDefenseUnhappinessGlobal() * iThreshold) / 100);
+				iThreshold += ((pLoopCity->GetDefenseUnhappinessGlobal() * (max(1, getPopulation()) / 2)) / 100);
 			}
 		}		
 	}
@@ -12743,6 +12887,11 @@ int CvCity::getUnhappinessFromDefenseNeeded() const
 		iThreshold += ((GET_PLAYER(getOwner()).GetPuppetUnhappinessMod() * iThreshold) / 100);
 	}
 #endif
+	//Increase threshold based on # of cities. Is slight, but makes a difference.
+	int iNumCities = (GET_PLAYER(getOwner()).getNumCities() * GC.getBALANCE_HAPPINESS_BASE_CITY_COUNT_MULTIPLIER());
+	iThreshold *= (100 + iNumCities);
+	iThreshold /= 100;
+
 	//This is for LUA.
 	return iThreshold;
 }
@@ -12846,7 +12995,7 @@ int CvCity::getUnhappinessFromGoldNeeded() const
 	//Buildings decrease this by a flat integer.
 	if(GetPovertyUnhappiness() != 0)
 	{
-		iThreshold += ((GetPovertyUnhappiness() * iThreshold) / 100);
+		iThreshold += ((GetPovertyUnhappiness() * (max(1, getPopulation()) / 2)) / 100);
 	}
 	int iLoop = 0;
 	for(const CvCity* pLoopCity = GET_PLAYER(getOwner()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iLoop))
@@ -12856,7 +13005,7 @@ int CvCity::getUnhappinessFromGoldNeeded() const
 			//Mod from global unhappiness building modifier.
 			if(pLoopCity->GetPovertyUnhappinessGlobal() != 0)
 			{
-				iThreshold += ((pLoopCity->GetPovertyUnhappinessGlobal() * iThreshold) / 100);
+				iThreshold += ((pLoopCity->GetPovertyUnhappinessGlobal() * (max(1, getPopulation()) / 2)) / 100);
 			}
 		}		
 	}
@@ -12865,6 +13014,10 @@ int CvCity::getUnhappinessFromGoldNeeded() const
 		iThreshold += ((GET_PLAYER(getOwner()).GetPuppetUnhappinessMod() * iThreshold) / 100);
 	}
 #endif
+	//Increase threshold based on # of cities. Is slight, but makes a difference.
+	int iNumCities = (GET_PLAYER(getOwner()).getNumCities() * GC.getBALANCE_HAPPINESS_BASE_CITY_COUNT_MULTIPLIER());
+	iThreshold *= (100 + iNumCities);
+	iThreshold /= 100;
 
 	return iThreshold;
 }
@@ -14785,7 +14938,8 @@ int CvCity::GetBaseYieldRateFromReligion(YieldTypes eIndex) const
 
 #if defined(MOD_API_UNIFIED_YIELDS)
 	int iBaseYield = m_aiBaseYieldRateFromReligion[eIndex];
-
+	iBaseYield += GetYieldPerXTerrain(eIndex);
+	iBaseYield += GetYieldPerXFeature(eIndex);
 	// This will only return a value for food and production
 	iBaseYield += GetYieldPerTurnFromReligion(GetCityReligions()->GetReligiousMajority(), eIndex);
 		
@@ -14804,7 +14958,7 @@ void CvCity::ChangeBaseYieldRateFromReligion(YieldTypes eIndex, int iChange)
 
 	if(iChange != 0)
 	{
-		m_aiBaseYieldRateFromReligion[eIndex] = m_aiBaseYieldRateFromReligion[eIndex] + iChange;
+		m_aiBaseYieldRateFromReligion.setAt(eIndex, m_aiBaseYieldRateFromReligion[eIndex] + iChange);
 
 		if(getTeam() == GC.getGame().getActiveTeam())
 		{
@@ -15051,7 +15205,7 @@ void CvCity::ChangeYieldPerReligionTimes100(YieldTypes eIndex, int iChange)
 
 	if(iChange != 0)
 	{
-		m_aiYieldPerReligion[eIndex] = m_aiYieldPerReligion[eIndex] + iChange;
+		m_aiYieldPerReligion.setAt(eIndex, m_aiYieldPerReligion[eIndex] + iChange);
 	}
 }
 
@@ -18821,9 +18975,9 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 			if(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 			{
-				CvBuildingEntry* pGameBuilding = GC.getBuildingInfo(eBuildingType);
-				const BuildingClassTypes eBuildingClass = (BuildingClassTypes)(pGameBuilding->GetBuildingClassType());
-				SetBuildingInvestment(eBuildingClass, true);
+			CvBuildingEntry* pGameBuilding = GC.getBuildingInfo(eBuildingType);
+			const BuildingClassTypes eBuildingClass = (BuildingClassTypes)(pGameBuilding->GetBuildingClassType());
+			SetBuildingInvestment(eBuildingClass, true);
 			}
 			else
 			{
@@ -20334,7 +20488,7 @@ void CvCity::read(FDataStream& kStream)
 	{
 		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 		{
-			m_aiYieldPerReligion[iI] = 0;
+			m_aiYieldPerReligion.setAt(iI, 0);
 		}
 	}
 	kStream >> m_aiYieldRateModifier;
@@ -21308,9 +21462,6 @@ bool CvCity::canRangeStrikeAt(int iX, int iY) const
 		}
 	}
 
-#if defined(MOD_BALANCE_CORE_MILITARY)
-	return (!pTargetPlot->isCity());
-#else
 	// If it's NOT a city, see if there are any units to aim for
 	if(!pTargetPlot->isCity())
 	{
@@ -21325,7 +21476,6 @@ bool CvCity::canRangeStrikeAt(int iX, int iY) const
 	}
 
 	return true;
-#endif
 }
 
 //	----------------------------------------------------------------------------

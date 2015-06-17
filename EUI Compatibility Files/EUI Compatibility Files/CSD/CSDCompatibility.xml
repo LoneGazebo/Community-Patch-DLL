@@ -8,6 +8,14 @@
 			<Specialist>SPECIALIST_CIVIL_SERVANT</Specialist>
 		</Row>
 	</GreatPersons>
+	<Belief_SpecialistYieldChanges>
+		<Row>
+			<BeliefType>BELIEF_RELIGIOUS_ART</BeliefType>
+			<SpecialistType>SPECIALIST_CIVIL_SERVANT</SpecialistType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+	</Belief_SpecialistYieldChanges>
 	<Tech_SpecialistYieldChanges>
 		<Row>
 			<TechType>TECH_NAVIGATION</TechType>

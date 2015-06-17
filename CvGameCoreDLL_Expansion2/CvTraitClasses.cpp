@@ -2131,7 +2131,11 @@ void CvTraitXMLEntries::DeleteArray()
 /// Get a specific entry
 CvTraitEntry* CvTraitXMLEntries::GetEntry(int index)
 {
+#if defined(MOD_BALANCE_CORE)
+	return (index!=NO_TRAIT) ? m_paTraitEntries[index] : NULL;
+#else
 	return m_paTraitEntries[index];
+#endif
 }
 
 //=====================================

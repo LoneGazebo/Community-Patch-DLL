@@ -22,7 +22,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_GOD_SEA' AND EXISTS (SELECT * FROM COMMUNITY WHERE T
 
 -- God of the Open Sky
 UPDATE Language_en_US
-SET Text = '+2 [ICON_PEACE] Faith from Pastures and +2 [ICON_CULTURE] Culture from unimproved Plains tiles'
+SET Text = '+2 [ICON_PEACE] Faith from Pastures and +1 [ICON_CULTURE] Culture for every 3 Plains tiles worked by the City'
 WHERE Tag = 'TXT_KEY_BELIEF_OPEN_SKY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Messenger of the Gods
@@ -83,7 +83,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_RELIGIOUS_SETTLEMENTS' AND EXISTS (SELECT * FROM COM
 
 -- God of Festivals
 UPDATE Language_en_US
-SET Text = '+2 [ICON_PEACE] Faith and +2 [ICON_CULTURE] Culture from every unique Luxury Resource you own'
+SET Text = '+2 [ICON_PEACE] Faith and +2 [ICON_CULTURE] Culture for every unique Luxury Resource you control'
 WHERE Tag = 'TXT_KEY_BELIEF_GOD_FESTIVALS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Oral Tradition
@@ -104,7 +104,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_DESERT_FOLKLORE' AND EXISTS (SELECT * FROM COMMUNITY
 
 -- Sacred Path
 UPDATE Language_en_US
-SET Text = '+1 [ICON_PEACE] Faith from unimproved Jungles, +1 [ICON_CULTURE] Culture from unimproved Forests'
+SET Text = '+1 [ICON_PEACE] Faith for every 2 Jungle tiles worked by the City, and +1 [ICON_CULTURE] Culture for every 2 Forest tiles worked by the City'
 WHERE Tag = 'TXT_KEY_BELIEF_SACRED_PATH' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Goddess of Protection
@@ -114,7 +114,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_GODDESS_STRATEGY' AND EXISTS (SELECT * FROM COMMUNIT
 
 -- Faith Healers
 UPDATE Language_en_US
-SET Text = '+10 HP healed per turn in friendly territory. Gain 2 [ICON_PEACE] Faith when healed this way. Bonus scales with Era'
+SET Text = '+15 HP healed per turn in friendly, non-attrition territory. Gain 2 [ICON_PEACE] Faith when healed this way. Bonus scales with Era'
 WHERE Tag = 'TXT_KEY_BELIEF_FAITH_HEALERS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Monuments to the Gods
@@ -143,7 +143,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_EARTH_MOTHER' AND EXISTS (SELECT * FROM COMMUNITY WH
 
 -- God-King
 UPDATE Language_en_US
-SET Text = '+1 [ICON_CULTURE] Culture, [ICON_PEACE] Faith, [ICON_GOLD] Gold, and [ICON_RESEARCH] Science for every 10 Followers'
+SET Text = '+1 [ICON_CULTURE] Culture, [ICON_PEACE] Faith, [ICON_GOLD] Gold, and [ICON_RESEARCH] Science for every 6 Followers'
 WHERE Tag = 'TXT_KEY_BELIEF_GOD_KING' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Sun God

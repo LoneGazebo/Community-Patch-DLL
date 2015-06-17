@@ -16,7 +16,7 @@
 			<Yield>2</Yield>
 		</Row>
 		<Row>
-			<TechType>TECH_CIVIL_SERVICE</TechType>
+			<TechType>TECH_INDUSTRIALIZATION</TechType>
 			<SpecialistType>SPECIALIST_CITIZEN</SpecialistType>
 			<YieldType>YIELD_GOLD</YieldType>
 			<Yield>1</Yield>
@@ -24,7 +24,7 @@
 		<Row>
 			<TechType>TECH_CIVIL_SERVICE</TechType>
 			<SpecialistType>SPECIALIST_CITIZEN</SpecialistType>
-			<YieldType>YIELD_FOOD</YieldType>
+			<YieldType>YIELD_GOLD</YieldType>
 			<Yield>1</Yield>
 		</Row>
 		<Row>

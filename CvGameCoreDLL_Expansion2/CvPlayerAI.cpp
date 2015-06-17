@@ -58,7 +58,7 @@ CvPlayerAI& CvPlayerAI::getPlayer(PlayerTypes ePlayer)
 #if defined(MOD_BALANCE_CORE)
 	if (ePlayer==NO_PLAYER)
 	{
-		//OutputDebugString("invalid player index!");
+		OutputDebugString("invalid player index!");
 		//ugly hack ...
 		return m_aPlayers[MAX_PLAYERS-1];
 	}

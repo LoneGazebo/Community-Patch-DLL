@@ -108,7 +108,11 @@ void CvReligionXMLEntries::DeleteArray()
 /// Get a specific entry
 CvReligionEntry* CvReligionXMLEntries::GetEntry(int index)
 {
+#if defined(MOD_BALANCE_CORE)
+	return (index!=NO_RELIGION) ? m_paReligionEntries[index] : NULL;
+#else
 	return m_paReligionEntries[index];
+#endif
 }
 
 //=====================================
@@ -7065,6 +7069,10 @@ int CvReligionAI::ScoreBeliefAtPlot(CvBeliefEntry* pEntry, CvPlot* pPlot)
 			if(ePlot != NO_PLOT)
 			{
 				iRtnValue += pEntry->GetPlotYieldChange(ePlot, iI);
+				if(pPlot->isMountain())
+				{
+					iRtnValue /= 3;
+				}
 			}
 		}
 #endif
@@ -7101,15 +7109,19 @@ int CvReligionAI::ScoreBeliefAtPlot(CvBeliefEntry* pEntry, CvPlot* pPlot)
 			{
 #if defined(MOD_BALANCE_CORE_BELIEFS)
 				CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo((ImprovementTypes)jJ);
-				if(pkImprovementInfo && !pkImprovementInfo->IsCreatedByGreatPerson())
-				{
+				if(pkImprovementInfo && !pkImprovementInfo->IsCreatedByGreatPerson() && pkImprovementInfo->IsImprovementResourceTrade(eResource))
+				{				
 #endif
 				if(pPlot->canHaveImprovement((ImprovementTypes)jJ, m_pPlayer->getTeam()))
 				{
+#if defined(MOD_BALANCE_CORE_BELIEFS)
+					iRtnValue += (pEntry->GetImprovementYieldChange((ImprovementTypes)jJ, (YieldTypes)iI));
+#else
 					iRtnValue += (pEntry->GetImprovementYieldChange((ImprovementTypes)jJ, (YieldTypes)iI) * 2);
+#endif
 #if defined(MOD_BALANCE_CORE_BELIEFS)
 				}
-				}
+			}
 #endif
 			}
 		}
@@ -7272,6 +7284,80 @@ int CvReligionAI::ScoreBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity)
 				}
 			}
 			iRtnValue += iTempValue;
+		}
+		for (int iJ = 0; iJ < GC.getNumTerrainInfos(); iJ++)
+		{
+			int iValidTiles = 0;
+			TerrainTypes eTerrain = (TerrainTypes) iJ;
+			if(eTerrain != NO_TERRAIN && pEntry->GetYieldPerXTerrain(iJ, iI) > 0)
+			{
+#if defined(MOD_GLOBAL_CITY_WORKING)
+				for(int iL = 0; iL < pCity->GetNumWorkablePlots(); iL++)
+#else
+				for(int iL = 0; iL < NUM_CITY_PLOTS; iL++)
+#endif
+				{
+					CvPlot* pPlot = pCity->GetCityCitizens()->GetCityPlotFromIndex(iL);
+
+					if(pPlot != NULL)
+					{
+						if(pCity->GetCityCitizens()->IsWorkingPlot(pPlot))
+						{
+							if(pPlot->getTerrainType() == eTerrain)
+							{
+								if(pEntry->RequiresNoImprovement() && pPlot->getImprovementType() == NO_IMPROVEMENT)
+								{
+									iValidTiles++;
+								}
+								else if(pEntry->RequiresNoImprovementFeature() && pPlot->getFeatureType() == NO_FEATURE && !pPlot->isHills())
+								{
+									iValidTiles++;
+								}
+								else
+								{
+									iValidTiles++;
+								}
+							}
+						}
+					}
+				}
+				iRtnValue += iValidTiles;
+			}
+		}
+		for (int iJ = 0; iJ < GC.getNumFeatureInfos(); iJ++)
+		{
+			int iValidTiles = 0;
+			FeatureTypes eFeature = (FeatureTypes) iJ;
+			if(eFeature != NO_FEATURE && pEntry->GetYieldPerXFeature(iJ, iI) > 0)
+			{
+#if defined(MOD_GLOBAL_CITY_WORKING)
+				for(int iL = 0; iL < pCity->GetNumWorkablePlots(); iL++)
+#else
+				for(int iL = 0; iL < NUM_CITY_PLOTS; iL++)
+#endif
+				{
+					CvPlot* pPlot = pCity->GetCityCitizens()->GetCityPlotFromIndex(iL);
+
+					if(pPlot != NULL)
+					{
+						if(pCity->GetCityCitizens()->IsWorkingPlot(pPlot))
+						{
+							if(pPlot->getFeatureType() == eFeature)
+							{
+								if(pEntry->RequiresNoImprovement() && pPlot->getImprovementType() == NO_IMPROVEMENT)
+								{
+									iValidTiles++;
+								}
+								else
+								{
+									iValidTiles++;
+								}
+							}
+						}
+					}
+				}
+				iRtnValue += iValidTiles;
+			}
 		}
 #endif
 

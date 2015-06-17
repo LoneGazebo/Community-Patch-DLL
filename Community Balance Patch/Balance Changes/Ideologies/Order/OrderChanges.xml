@@ -19,7 +19,7 @@
 		</Row>
 		<Row>
 			<PolicyType>POLICY_SOCIALIST_REALISM</PolicyType>
-			<BuildingClassType>BUILDINGCLASS_MUSEUM</BuildingClassType>
+			<BuildingClassType>BUILDINGCLASS_PUBLIC_SCHOOL</BuildingClassType>
 			<Count>100</Count>
 		</Row>
 	</Policy_FreeBuilding>

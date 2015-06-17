@@ -169,27 +169,16 @@ void CvHomelandAI::Update()
 }
 
 #if defined(MOD_CORE_ALTERNATIVE_EXPLORE_SCORE)
-CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit, int nCandidates) const
+CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit, int nMinCandidates) const
 {
 	CvEconomicAI* pEconomicAI = m_pPlayer->GetEconomicAI();
-	std::vector<SPlotWithScore> vExplorePlots = pEconomicAI->GetExplorationPlots();
+
+	std::vector<SPlotWithScore> vExplorePlots = pEconomicAI->GetExplorationPlots( pUnit ? pUnit->getDomainType() : DOMAIN_LAND );
 	if (vExplorePlots.empty())
 		return NULL;
 
-	int iBestPlotScore = 0;
+	int iBestPlotScore = 1000;
 	CvPlot* pBestPlot = NULL;
-
-	TechTypes eTechCompass = (TechTypes)GC.getInfoTypeForString("TECH_COMPASS", true);
-	bool bOceanShips = false;
-	if(eTechCompass != NO_TECH)
-	{
-		if(GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->HasTech(eTechCompass))
-		{
-			bOceanShips = true;
-		}
-	}
-	bool bEmbark = GET_TEAM(m_pPlayer->getTeam()).canEmbark();
-	bool bEmbarkAll = GET_TEAM(m_pPlayer->getTeam()).canEmbarkAllWaterPassage(); 
 
 	//sort by distance to capital or to unit
 	int iRefX = pUnit ? pUnit->getX() : m_pPlayer->getCapitalCity()->getX();
@@ -198,26 +187,22 @@ CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit, int nCandidates)
 	std::vector< std::pair<int,SPlotWithScore> > vPlotsByDistance;
 	for(uint ui = 0; ui < vExplorePlots.size(); ui++)
 	{
-		if(pUnit->getDomainType() == DOMAIN_SEA && !vExplorePlots[ui].pPlot->isWater())
+		if(pUnit)
 		{
-			continue;
+			if (pUnit->getDomainType() == DOMAIN_SEA)
+			{
+				//sea units can typically not leave their area - catch this case, 
+				//else there will be a long and useless pathfinding operation
+				if (pUnit->plot()->getArea()!=vExplorePlots[ui].pPlot->getArea())
+					continue;
+			}
+
+			if(vExplorePlots[ui].pPlot == pUnit->plot())
+			{
+				continue;
+			}
 		}
-		if(!bOceanShips && pUnit->getDomainType() == DOMAIN_SEA && vExplorePlots[ui].pPlot->isWater() && !vExplorePlots[ui].pPlot->isShallowWater() && !vExplorePlots[ui].pPlot->isLake())
-		{
-			continue;
-		}
-		if(!bEmbark && pUnit->getDomainType() == DOMAIN_LAND && vExplorePlots[ui].pPlot->isWater())
-		{
-			continue;
-		}
-		if(!bEmbarkAll && pUnit->getDomainType() == DOMAIN_LAND && vExplorePlots[ui].pPlot->isWater() && !vExplorePlots[ui].pPlot->isShallowWater() && !vExplorePlots[ui].pPlot->isLake())
-		{
-			continue;
-		}
-		if(vExplorePlots[ui].pPlot == pUnit->plot())
-		{
-			continue;
-		}
+
 		//make sure our unit can actually go there
 		if (!IsValidExplorerEndTurnPlot(pUnit, vExplorePlots[ui].pPlot))
 			continue;
@@ -231,11 +216,13 @@ CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit, int nCandidates)
 	//sorts by the first element of the iterator ... which is our distance. nice.
 	std::sort(vPlotsByDistance.begin(), vPlotsByDistance.end());
 
-	//look only at the N closest candidates
-	size_t nTargetsToCheck = min(vPlotsByDistance.size(),(size_t)nCandidates);
-
-	for (size_t idx=0; idx<nTargetsToCheck; idx++)
+	for (size_t idx=0; idx<vPlotsByDistance.size(); idx++)
 	{
+		//after looking at the N closest candidates
+		//if we found something, bail
+		if (pBestPlot && idx>(size_t)nMinCandidates)
+			break;
+
 		CvPlot* pEvalPlot = vPlotsByDistance[idx].second.pPlot;
 		int iRating = vPlotsByDistance[idx].second.score;
 
@@ -247,7 +234,6 @@ CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit, int nCandidates)
 		if(pUnit->plot() == pEvalPlot)
 			iRating /= 4;
 
-#ifdef AUI_ASTAR_TURN_LIMITER
 		//reverse the score calculation below to get an upper bound on the distance
 		//minus one because we want to do better
 		int iMaxDistance = (1000*iRating) / max(1,iBestPlotScore) - 1;
@@ -258,12 +244,7 @@ CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit, int nCandidates)
 
 		bool bCanFindPath = GC.getPathFinder().GenerateUnitPath(pUnit, iRefX, iRefY, pEvalPlot->getX(), pEvalPlot->getY(), 
 							MOVE_TERRITORY_NO_ENEMY | MOVE_MAXIMIZE_EXPLORE /*iFlags*/, true/*bReuse*/, iMaxDistance);
-#else
-		if(!IsValidExplorerEndTurnPlot(pUnit, pEvalPlot))
-			continue;
 
-		bool bCanFindPath = GC.getPathFinder().GenerateUnitPath(pUnit.pointer(), iUnitX, iUnitY, pEvalPlot->getX(), pEvalPlot->getY(), MOVE_TERRITORY_NO_ENEMY | MOVE_MAXIMIZE_EXPLORE | MOVE_UNITS_IGNORE_DANGER /*iFlags*/, true/*bReuse*/);
-#endif
 		if(!bCanFindPath)
 			continue;
 
@@ -282,13 +263,6 @@ CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit, int nCandidates)
 			}
 			else if(IsValidExplorerEndTurnPlot(pUnit, pEndTurnPlot))
 			{
-				//Way better than a previous valid test? Let's go there - it is cheaper on loops this way.
-				if(iBestPlotScore > 0 && ((iPlotScore * 2) > (iBestPlotScore * 3)))
-				{
-					pBestPlot = pEndTurnPlot;
-					iBestPlotScore = iPlotScore;
-					return pBestPlot;
-				}
 				pBestPlot = pEndTurnPlot;
 				iBestPlotScore = iPlotScore;
 			}
@@ -3153,11 +3127,7 @@ typedef CvWeightedVector<CvPlot*, 100, true> WeightedPlotVector;
 
 #if defined(MOD_CORE_ALTERNATIVE_EXPLORE_SCORE)
 	/// Moves units to explore the map
-#if defined(MOD_BALANCE_CORE)
 void CvHomelandAI::ExecuteExplorerMoves(bool bSecondPass)
-#else
-void CvHomelandAI::ExecuteExplorerMoves()
-#endif
 {
 	bool bFoundNearbyExplorePlot = false;
 
@@ -3248,7 +3218,6 @@ void CvHomelandAI::ExecuteExplorerMoves()
 
 			if(!pEvalPlot || !IsValidExplorerEndTurnPlot(pUnit.pointer(), pEvalPlot))
 				continue;
-
 			if(pEvalPlot->isCity() && (pEvalPlot->getOwner() != pUnit->getOwner()))
 				continue;
 
@@ -3309,7 +3278,7 @@ void CvHomelandAI::ExecuteExplorerMoves()
 					}
 				}
 
-				int iRandom = GC.getGame().getJonRandNum(50,"explore target tiebreak");
+				int iRandom = GC.getGame().getJonRandNumBinom(50,"explore target tiebreak");
 				int iTotalScore = iScoreBase+iScoreExtra+iScoreBonus+iRandom;
 
 #if defined(AUI_DANGER_PLOTS_REMADE)
@@ -3346,7 +3315,8 @@ void CvHomelandAI::ExecuteExplorerMoves()
 
 		//if we didn't find a worthwhile plot among our adjacent plots, check the global targets
 		if(!pBestPlot && pUnit->movesLeft() > 0)
-			pBestPlot = GetBestExploreTarget(pUnit.pointer(),8);
+			//check at least the three closest candidates
+			pBestPlot = GetBestExploreTarget(pUnit.pointer(),3);
 
 		//make sure we're not in an endless loop
 		if(pBestPlot)
@@ -3449,11 +3419,9 @@ void CvHomelandAI::ExecuteExplorerMoves()
 						pUnit->kill(true);
 						m_pPlayer->GetEconomicAI()->IncrementExplorersDisbanded();
 					}
-#if defined(MOD_BALANCE_CORE)
 					pUnit->finishMoves();
 					UnitProcessed(pUnit->GetID());
 					continue;
-#endif
 				}
 				else if(pUnit->AI_getUnitAIType() == UNITAI_EXPLORE_SEA)
 				{
@@ -3463,11 +3431,9 @@ void CvHomelandAI::ExecuteExplorerMoves()
 						strLogString.Format("UnitID: %d Sea explorer (AI) found no target, X: %d, Y: %d", pUnit->GetID(), pUnit->getX(), pUnit->getY());
 						LogHomelandMessage(strLogString);
 					}
-#if defined(MOD_BALANCE_CORE)
 					pUnit->finishMoves();
 					UnitProcessed(pUnit->GetID());
 					continue;
-#endif
 				}
 			}
 		}
@@ -7780,6 +7746,12 @@ bool CvHomelandAI::GetBestUnitToReachTarget(CvPlot* pTarget, int iMaxTurns)
 		pLoopUnit = m_pPlayer->getUnit(it->GetID());
 		if(pLoopUnit)
 		{
+#if defined(MOD_BALANCE_CORE)
+			if(pLoopUnit->GetCurrHitPoints() < (pLoopUnit->GetMaxHitPoints() / 2))
+			{
+				continue;
+			}
+#endif
 			// Make sure domain matches
 			if(pLoopUnit->getDomainType() == DOMAIN_SEA && !pTarget->isWater() ||
 				pLoopUnit->getDomainType() == DOMAIN_LAND && pTarget->isWater())
@@ -7806,6 +7778,12 @@ bool CvHomelandAI::GetBestUnitToReachTarget(CvPlot* pTarget, int iMaxTurns)
 		pLoopUnit = m_pPlayer->getUnit(it->GetID());
 		if(pLoopUnit)
 		{
+#if defined(MOD_BALANCE_CORE)
+			if(pLoopUnit->GetCurrHitPoints() < (pLoopUnit->GetMaxHitPoints() / 2))
+			{
+				continue;
+			}
+#endif
 			// Make sure domain matches
 			if(pLoopUnit->getDomainType() == DOMAIN_SEA && !pTarget->isWater() ||
 				pLoopUnit->getDomainType() == DOMAIN_LAND && pTarget->isWater())

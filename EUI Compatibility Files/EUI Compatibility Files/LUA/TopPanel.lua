@@ -1020,6 +1020,8 @@ g_toolTipHandler.GoldPerTurn = function( control )
 	local goldPerTurnFromReligion = gk_mode and g_activePlayer:GetGoldPerTurnFromReligion() * 100 or 0
 	local goldPerTurnFromCities = g_activePlayer:GetGoldFromCitiesTimes100()
 	local cityConnectionGold = g_activePlayer:GetCityConnectionGoldTimes100()
+-- C4DF
+	local vassalGold = g_activePlayer:GetYieldPerTurnFromVassals(YieldTypes.YIELD_GOLD) * 100
 	local playerTraitGold = 0
 	local tradeRouteGold = 0
 	local goldPerTurnFromPolicies = 0
@@ -1044,7 +1046,7 @@ g_toolTipHandler.GoldPerTurn = function( control )
 
 	-- Total gold
 	local totalIncome, totalWealth
-	local explicitIncome = goldPerTurnFromCities + goldPerTurnFromOtherPlayers + cityConnectionGold + goldPerTurnFromReligion + tradeRouteGold + playerTraitGold
+	local explicitIncome = goldPerTurnFromCities + goldPerTurnFromOtherPlayers + cityConnectionGold + goldPerTurnFromReligion + tradeRouteGold + playerTraitGold + vassalGold -- C4DF
 	if civ5_mode then
 		totalWealth = g_activePlayer:GetGold()
 		totalIncome = explicitIncome
@@ -1084,7 +1086,7 @@ g_toolTipHandler.GoldPerTurn = function( control )
 	end
 -- C4DF
 	-- Gold from Vassals / Compatibility with Putmalk's Civ IV Diplomacy Features Mod
-	tips:insertLocalizedBulletIfNonZero( S("TXT_KEY_TP_GOLD_VASSALS", g_currencyString), g_activePlayer:GetYieldPerTurnFromVassals(YieldTypes.YIELD_GOLD) / 100 )
+	tips:insertLocalizedBulletIfNonZero( S("TXT_KEY_TP_GOLD_VASSALS", g_currencyString), vassalGold)
 -- END
 	tips:insertLocalizedBulletIfNonZero( S("TXT_KEY_TP_%s_FROM_OTHERS", g_currencyString), goldPerTurnFromOtherPlayers / 100 )
 	tips:insertLocalizedBulletIfNonZero( S("TXT_KEY_TP_%s_FROM_RELIGION", g_currencyString), goldPerTurnFromReligion / 100 )
@@ -1353,16 +1355,18 @@ if civ5_mode then
 			-- Happiness from Monopolies
 			tips:insertLocalizedBulletIfNonZero("TXT_KEY_TP_HAPPINESS_RESOURCE_MONOPOLY", happinessFromMonopoly )
 			tips:insertLocalizedBulletIfNonZero("TXT_KEY_TP_HAPPINESS_RESOURCE_POP_BONUS", happinessfromLuxuryBonus )
-	
+-- END
 			-- Happiness from Luxury Variety
-			tips:insertLocalizedBulletIfNonZero( "          ", "TXT_KEY_TP_HAPPINESS_RESOURCE_VARIETY", happinessFromExtraResources )
+			tips:insertLocalizedBulletIfNonZero("TXT_KEY_TP_HAPPINESS_RESOURCE_VARIETY", happinessFromExtraResources )
 
 			-- Extra Happiness from each Luxury
-			tips:insertLocalizedBulletIfNonZero( "          ", "TXT_KEY_TP_HAPPINESS_EXTRA_PER_RESOURCE", extraLuxuryHappiness, numHappinessResources )
+			tips:insertLocalizedBulletIfNonZero("TXT_KEY_TP_HAPPINESS_EXTRA_PER_RESOURCE", extraLuxuryHappiness, numHappinessResources )
 
 			-- Misc Happiness from Resources
-			local miscHappiness = resourcesHappiness - baseHappinessFromResources - happinessFromExtraResources - (extraLuxuryHappiness * numHappinessResources)
-			tips:insertLocalizedBulletIfNonZero( "          ", "TXT_KEY_TP_HAPPINESS_OTHER_SOURCES", miscHappiness )
+			local miscHappiness = resourcesHappiness - baseHappinessFromResources - happinessFromExtraResources - happinessFromMonopoly -  happinessfromLuxuryBonus - (extraLuxuryHappiness * numHappinessResources)
+			if(miscHappiness > 0) then
+				tips:insertLocalizedBulletIfNonZero("TXT_KEY_TP_HAPPINESS_OTHER_SOURCES", miscHappiness )
+			end
 
 			if #availableResources > 0 then
 				tips:insert( "[ICON_BULLET]" .. L( "TXT_KEY_TP_HAPPINESS_FROM_RESOURCES", resourcesHappiness ) )

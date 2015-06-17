@@ -319,5 +319,9 @@ void CvProjectXMLEntries::DeleteArray()
 /// Get a specific entry
 CvProjectEntry* CvProjectXMLEntries::GetEntry(int index)
 {
+#if defined(MOD_BALANCE_CORE)
+	return (index!=NO_PROJECT) ? m_paProjectEntries[index] : NULL;
+#else
 	return m_paProjectEntries[index];
+#endif
 }

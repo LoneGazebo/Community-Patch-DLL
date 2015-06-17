@@ -13462,16 +13462,16 @@ int CvPlot::GetDefenseBuildValue()
 		iScore += defenseModifier(eTeam, true);
 
 		//Bonus for nearby owned tiles
-		iScore += iNearbyOwned * 10;
+		iScore += iNearbyOwned * 5;
 		
 		//Big Bonus if adjacent to territory.
-		iScore += (iAdjacentOwned * 25);
+		iScore += (iAdjacentOwned * 20);
 
 		//Big Bonus if adjacent to enemy territory.
-		iScore += (iBadAdjacent * 30);
+		iScore += (iBadAdjacent * 20);
 
 		//Big Bonus if adjacent to enemy territory.
-		iScore += (iBadNearby * 15);
+		iScore += (iBadNearby * 10);
 
 		//Big bonus if chokepoint
 		if(IsChokePoint())

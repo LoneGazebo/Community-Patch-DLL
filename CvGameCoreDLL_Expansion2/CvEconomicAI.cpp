@@ -232,7 +232,11 @@ void CvEconomicAIStrategyXMLEntries::DeleteArray()
 /// Get a specific entry
 CvEconomicAIStrategyXMLEntry* CvEconomicAIStrategyXMLEntries::GetEntry(int index)
 {
+#if defined(MOD_BALANCE_CORE)
+	return (index!=NO_ECONOMICAISTRATEGY) ? m_paAIStrategyEntries[index] : NULL;
+#else
 	return m_paAIStrategyEntries[index];
+#endif
 }
 
 //=====================================
@@ -304,7 +308,8 @@ void CvEconomicAI::Reset()
 	}
 
 #if defined(MOD_CORE_ALTERNATIVE_EXPLORE_SCORE)
-	m_vPlotsToExplore.clear();
+	m_vPlotsToExploreLand.clear();
+	m_vPlotsToExploreSea.clear();
 #else
 	for(uint ui = 0; ui < m_aiExplorationPlots.size(); ui++)
 	{
@@ -390,8 +395,19 @@ void CvEconomicAI::Read(FDataStream& kStream)
 		int idx,score;
 		kStream >> idx;
 		kStream >> score;
-		m_vPlotsToExplore.push_back( SPlotWithScore( GC.getMap().plotByIndex(idx),score ) );
+		m_vPlotsToExploreLand.push_back( SPlotWithScore( GC.getMap().plotByIndex(idx),score ) );
 	}
+
+	kStream >> iEntriesToRead;
+	iMaxEntriesToRead = MIN(MAX_PLOT_ARRAY_SIZE, iEntriesToRead);
+	for(int i = 0; i < iMaxEntriesToRead; i++)
+	{
+		int idx,score;
+		kStream >> idx;
+		kStream >> score;
+		m_vPlotsToExploreSea.push_back( SPlotWithScore( GC.getMap().plotByIndex(idx),score ) );
+	}
+
 #else
 	m_aiExplorationPlots.resize(iMaxEntriesToRead);
 	m_aiExplorationPlotRatings.resize(iMaxEntriesToRead);
@@ -469,11 +485,17 @@ void CvEconomicAI::Write(FDataStream& kStream)
 	kStream << m_bExplorationPlotsDirty;
 
 #if defined(MOD_CORE_ALTERNATIVE_EXPLORE_SCORE)
-	kStream << m_vPlotsToExplore.size();
-	for(uint ui = 0; ui < m_vPlotsToExplore.size(); ui++)
+	kStream << m_vPlotsToExploreLand.size();
+	for(uint ui = 0; ui < m_vPlotsToExploreLand.size(); ui++)
 	{
-		kStream << GC.getMap().plotNum( m_vPlotsToExplore[ui].pPlot->getX(), m_vPlotsToExplore[ui].pPlot->getY() );
-		kStream << m_vPlotsToExplore[ui].score;
+		kStream << GC.getMap().plotNum( m_vPlotsToExploreLand[ui].pPlot->getX(), m_vPlotsToExploreLand[ui].pPlot->getY() );
+		kStream << m_vPlotsToExploreLand[ui].score;
+	}
+	kStream << m_vPlotsToExploreSea.size();
+	for(uint ui = 0; ui < m_vPlotsToExploreSea.size(); ui++)
+	{
+		kStream << GC.getMap().plotNum( m_vPlotsToExploreSea[ui].pPlot->getX(), m_vPlotsToExploreSea[ui].pPlot->getY() );
+		kStream << m_vPlotsToExploreSea[ui].score;
 	}
 #else
 	kStream << m_aiExplorationPlots.size();
@@ -955,14 +977,14 @@ void AppendToLog(CvString& strHeader, CvString& strLog, CvString strHeaderValue,
 }
 
 #if defined(MOD_CORE_ALTERNATIVE_EXPLORE_SCORE)
-const std::vector<SPlotWithScore>& CvEconomicAI::GetExplorationPlots()
+const std::vector<SPlotWithScore>& CvEconomicAI::GetExplorationPlots(DomainTypes domain)
 {
 	if(m_bExplorationPlotsDirty)
 	{
 		UpdatePlots();
 	}
 
-	return m_vPlotsToExplore;
+	return (domain==DOMAIN_SEA) ? m_vPlotsToExploreSea : m_vPlotsToExploreLand;
 }
 #else
 FFastVector<int>& CvEconomicAI::GetExplorationPlots()
@@ -1047,20 +1069,7 @@ int CvEconomicAI::ScoreExplorePlot2(CvPlot* pPlot, CvPlayer* pPlayer, DomainType
 	int iLargeScore = 80;
 	int iJackpot = 1000;
 
-	TechTypes eTechCompass = (TechTypes)GC.getInfoTypeForString("TECH_COMPASS", true);
-	bool bOceanShips = false;
-	if(eTechCompass != NO_TECH)
-	{
-		if(GET_TEAM(pPlayer->getTeam()).GetTeamTechs()->HasTech(eTechCompass))
-		{
-			bOceanShips = true;
-		}
-	}
-
 	if(!pPlot->isRevealed(pPlayer->getTeam()))
-		return 0;
-
-	if(!bOceanShips && pPlot->isWater() && !pPlot->isShallowWater() && !pPlot->isLake())
 		return 0;
 
 	//add goodies - they go away - do not add any permanent scores here - leads to loops
@@ -1078,10 +1087,7 @@ int CvEconomicAI::ScoreExplorePlot2(CvPlot* pPlot, CvPlayer* pPlayer, DomainType
 		{
 			//no value if revealed already
 			if(pLoopPlot->isRevealed(pPlayer->getTeam()))
-			{
 				continue;
-			}
-			iResultValue += (pLoopPlot->getNumAdjacentNonrevealed(pPlayer->getTeam()) * 5);
 
 			// "cheating" to look to see what the next tile is.
 			// a human should be able to do this by looking at the transition from the tile to the next
@@ -2078,14 +2084,14 @@ void CvEconomicAI::DoHurry()
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 										if(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 										{
-											const BuildingClassTypes eBuildingClass = (BuildingClassTypes)(pkBuildingInfo->GetBuildingClassType());
-											pLoopCity->SetBuildingInvestment(eBuildingClass, true);
+										const BuildingClassTypes eBuildingClass = (BuildingClassTypes)(pkBuildingInfo->GetBuildingClassType());
+										pLoopCity->SetBuildingInvestment(eBuildingClass, true);
 										}
 										else
 										{
 #endif
 										pLoopCity->CreateBuilding(eBuildingType);
-										pLoopCity->SetPurchaseCooldown(pkBuildingEntry->GetCooldown());	
+										pLoopCity->SetPurchaseCooldown(pkBuildingEntry->GetCooldown());
 #if defined(MOD_EVENTS_CITY)
 										if (MOD_EVENTS_CITY) 
 										{
@@ -2748,7 +2754,7 @@ void CvEconomicAI::DisbandExtraWorkers()
 	{
 		if(pLoopCity != NULL)
 		{
-			if(eWantWorkers != NO_ECONOMICAISTRATEGY)
+			if(eWantWorkers != NO_AICITYSTRATEGY)
 			{
 				if(pLoopCity->GetCityStrategyAI()->IsUsingCityStrategy(eWantWorkers))
 				{
@@ -3006,16 +3012,8 @@ void CvEconomicAI::DisbandLongObsoleteUnits()
 /// Go through the plots for the exploration automation to evaluate
 void CvEconomicAI::UpdatePlots()
 {
-	m_vPlotsToExplore.clear();
-	TechTypes eTechCompass = (TechTypes)GC.getInfoTypeForString("TECH_COMPASS", true);
-	bool bOceanShips = false;
-	if(eTechCompass != NO_TECH)
-	{
-		if(GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->HasTech(eTechCompass))
-		{
-			bOceanShips = true;
-		}
-	}
+	m_vPlotsToExploreLand.clear();
+	m_vPlotsToExploreSea.clear();
 
 	for(int i = 0; i < GC.getMap().numPlots(); i++)
 	{
@@ -3026,26 +3024,30 @@ void CvEconomicAI::UpdatePlots()
 		if(!pPlot->isRevealed(m_pPlayer->getTeam()))
 			continue;
 
-		if(!bOceanShips && pPlot->isWater() && !pPlot->isShallowWater() && !pPlot->isLake())
-			continue;
-
-		DomainTypes eDomain = DOMAIN_LAND;
 		if(pPlot->isWater())
 		{
-			eDomain = DOMAIN_SEA;
+			int iScore = ScoreExplorePlot2(pPlot, m_pPlayer, DOMAIN_SEA, false);
+			if(iScore <= 0)
+				continue;
+			// add an entry for this plot
+			m_vPlotsToExploreSea.push_back( SPlotWithScore(pPlot, iScore) );
 		}
-		int iScore = ScoreExplorePlot2(pPlot, m_pPlayer, eDomain, false);
-
-		if(iScore <= 0)
-			continue;
-
-		// add an entry for this plot
-		m_vPlotsToExplore.push_back( SPlotWithScore(pPlot, iScore) );
+		else
+		{
+			int iScore = ScoreExplorePlot2(pPlot, m_pPlayer, DOMAIN_LAND, false);
+			if(iScore <= 0)
+				continue;
+			// add an entry for this plot
+			m_vPlotsToExploreLand.push_back( SPlotWithScore(pPlot, iScore) );
+		}
 	}
 
-	//keep only the best 50%
-	std::sort(m_vPlotsToExplore.begin(),m_vPlotsToExplore.end());
-	m_vPlotsToExplore.erase( m_vPlotsToExplore.begin()+m_vPlotsToExplore.size()/2, m_vPlotsToExplore.end() );
+	//keep only the best 33%
+	std::sort(m_vPlotsToExploreLand.begin(),m_vPlotsToExploreLand.end());
+	m_vPlotsToExploreLand.erase( m_vPlotsToExploreLand.begin()+m_vPlotsToExploreLand.size()/3, m_vPlotsToExploreLand.end() );
+
+	std::sort(m_vPlotsToExploreSea.begin(),m_vPlotsToExploreSea.end());
+	m_vPlotsToExploreSea.erase( m_vPlotsToExploreSea.begin()+m_vPlotsToExploreSea.size()/3, m_vPlotsToExploreSea.end() );
 
 #if defined(MOD_BALANCE_CORE_MILITARY_LOGGING)
 	bool bLogging = GC.getLogging() && GC.getAILogging() && m_pPlayer->isMajorCiv() && GC.getGame().getGameTurn()%4==0 && GC.getGame().getGameTurn()<200;
@@ -3056,12 +3058,20 @@ void CvEconomicAI::UpdatePlots()
 		if (pLog)
 		{
 			pLog->Msg( "#x,y,revealed,terrain,owner,score\n" );
-			for (size_t i=0; i<m_vPlotsToExplore.size(); i++)
+			for (size_t i=0; i<m_vPlotsToExploreLand.size(); i++)
 			{
 				CvString dump = CvString::format( "%d,%d,%d,%d,%d,%d\n", 
-					m_vPlotsToExplore[i].pPlot->getX(), m_vPlotsToExplore[i].pPlot->getY(),
-					m_vPlotsToExplore[i].pPlot->isRevealed(m_pPlayer->getTeam()), m_vPlotsToExplore[i].pPlot->getTerrainType(), m_vPlotsToExplore[i].pPlot->getOwner(),
-					m_vPlotsToExplore[i].score );
+					m_vPlotsToExploreLand[i].pPlot->getX(), m_vPlotsToExploreLand[i].pPlot->getY(),
+					m_vPlotsToExploreLand[i].pPlot->isRevealed(m_pPlayer->getTeam()), m_vPlotsToExploreLand[i].pPlot->getTerrainType(), m_vPlotsToExploreLand[i].pPlot->getOwner(),
+					m_vPlotsToExploreLand[i].score );
+				pLog->Msg( dump.c_str() );
+			}
+			for (size_t i=0; i<m_vPlotsToExploreLand.size(); i++)
+			{
+				CvString dump = CvString::format( "%d,%d,%d,%d,%d,%d\n", 
+					m_vPlotsToExploreSea[i].pPlot->getX(), m_vPlotsToExploreSea[i].pPlot->getY(),
+					m_vPlotsToExploreSea[i].pPlot->isRevealed(m_pPlayer->getTeam()), m_vPlotsToExploreSea[i].pPlot->getTerrainType(), m_vPlotsToExploreSea[i].pPlot->getOwner(),
+					m_vPlotsToExploreSea[i].score );
 				pLog->Msg( dump.c_str() );
 			}
 			pLog->Close();

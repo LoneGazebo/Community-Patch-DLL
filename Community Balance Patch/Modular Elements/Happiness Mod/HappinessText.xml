@@ -113,15 +113,15 @@
 			<Text>[COLOR_NEGATIVE_TEXT]({1_Num})[ENDCOLOR] [ICON_CITIZEN]: "Our lands are [ICON_RAZING] burning!"</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EO_CITY_STARVING">
-			<Text>[COLOR_NEGATIVE_TEXT]({1_Num})[ENDCOLOR] [ICON_CITIZEN]: "There is not enough [ICON_FOOD] Food!"</Text>
+			<Text>[COLOR_NEGATIVE_TEXT]({1_Num})[ENDCOLOR] [ICON_CITIZEN]: "There is not enough [ICON_FOOD] food!"</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EO_CITY_RELIGION">
-			<Text>[COLOR_NEGATIVE_TEXT]({1_Num})[ENDCOLOR] [ICON_CITIZEN]: "We want more {2_ReligionIcon} Followers!"</Text>
+			<Text>[COLOR_NEGATIVE_TEXT]({1_Num})[ENDCOLOR] [ICON_CITIZEN]: "We want more {2_ReligionIcon} followers!"</Text>
 		</Row>
 		
 		<!-- Luxury Tooltip -->
 		<Row Tag="TXT_KEY_TP_HAPPINESS_THRESHOLD_VALUE">
-			<Text>[NEWLINE]To increase your Luxury Resource Population Bonus Threshold from [COLOR_POSITIVE_TEXT]{3_Num}[ENDCOLOR] to [COLOR_POSITIVE_TEXT]{4_Num}[ENDCOLOR], your Empire's Population must reach [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR]. Your current Population is [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR].</Text>
+			<Text>To increase your Luxury Resource Population Bonus Multiplier from [COLOR_POSITIVE_TEXT]{3_Num}[ENDCOLOR] to [COLOR_POSITIVE_TEXT]{4_Num}[ENDCOLOR], your Empire's Population must reach [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR]. Your current Population is [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR].</Text>
 		</Row>
 		
 		<Row Tag="TXT_KEY_EO_CITY_CONNECTED">

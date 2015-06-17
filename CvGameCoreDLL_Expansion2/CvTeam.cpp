@@ -45,7 +45,7 @@ CvTeam& CvTeam::getTeam(TeamTypes eTeam)
 #if defined(MOD_BALANCE_CORE)
 	if (eTeam==NO_TEAM)
 	{
-		//OutputDebugString("invalid team index!");
+		OutputDebugString("invalid team index!");
 		//ugly hack ...
 		return m_aTeams[MAX_TEAMS-1];
 	}

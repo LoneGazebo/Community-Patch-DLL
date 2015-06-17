@@ -14,6 +14,9 @@
 #include "CvDllInterfaces.h"
 #include "CvInfosSerializationHelper.h"
 #include "cvStopWatch.h"
+#if defined(MOD_BALANCE_CORE)
+#include "cvMilitaryAI.h"
+#endif
 
 // must be included after all other headers
 #include "LintFree.h"
@@ -239,7 +242,13 @@ void CvCityCitizens::DoTurn()
 	DoVerifyWorkingPlots();
 
 	CvPlayerAI& thisPlayer = GET_PLAYER(GetOwner());
-
+#if defined(MOD_BALANCE_CORE)
+	const OrderData* pOrderNode = m_pCity->headOrderQueueNode();
+	CvUnitEntry* pkUnitInfo = NULL;
+	if(pOrderNode != NULL && pOrderNode->eOrderType == ORDER_TRAIN)
+	{
+		pkUnitInfo = GC.getUnitInfo((UnitTypes)pOrderNode->iData1);
+	}
 	if(m_pCity->IsPuppet())
 	{
 #if defined(MOD_UI_CITY_PRODUCTION)
@@ -249,13 +258,6 @@ void CvCityCitizens::DoTurn()
 			SetFocusType(CITY_AI_FOCUS_TYPE_GOLD);
 			SetNoAutoAssignSpecialists(false);
 			SetForcedAvoidGrowth(false);
-			int iExcessFoodTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - (m_pCity->foodConsumption() * 100);
-			if(iExcessFoodTimes100 < 0)
-			{
-				SetFocusType(NO_CITY_AI_FOCUS_TYPE);
-				//SetNoAutoAssignSpecialists(true);
-				SetForcedAvoidGrowth(false);
-			}
 #if defined(MOD_UI_CITY_PRODUCTION)
 		}
 #endif
@@ -264,14 +266,196 @@ void CvCityCitizens::DoTurn()
 	{
 		CitySpecializationTypes eWonderSpecializationType = thisPlayer.GetCitySpecializationAI()->GetWonderSpecialization();
 
+		if(m_pCity->GetCityStrategyAI()->GetSpecialization() == eWonderSpecializationType)
+		{
+			SetFocusType(CITY_AI_FOCUS_TYPE_PRODUCTION);
+			SetNoAutoAssignSpecialists(false);
+			SetForcedAvoidGrowth(false);
+			SetFocusType(CITY_AI_FOCUS_TYPE_PROD_GROWTH);
+		}
+		else if(pkUnitInfo != NULL && pkUnitInfo->IsFound()) // we want production for settlers
+		{
+			SetFocusType(CITY_AI_FOCUS_TYPE_PRODUCTION);
+			SetNoAutoAssignSpecialists(false);
+			SetForcedAvoidGrowth(false);
+		}
+		else if(m_pCity->getPopulation() < 8)  // we want a balanced growth
+		{
+			SetFocusType(NO_CITY_AI_FOCUS_TYPE);
+			SetNoAutoAssignSpecialists(true);
+		}
+		else
+		{
+			// Are we running at a deficit?
+			EconomicAIStrategyTypes eStrategyLosingMoney = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_LOSING_MONEY", true);
+			bool bInDeficit = false;
+			if (eStrategyLosingMoney != NO_ECONOMICAISTRATEGY)
+			{
+				bInDeficit = thisPlayer.GetEconomicAI()->IsUsingStrategy(eStrategyLosingMoney);
+			}
+
+			EconomicAIStrategyTypes eStrategyBuildingReligion = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_DEVELOPING_RELIGION", true);
+			bool bBuildingReligion = false;
+			if (eStrategyBuildingReligion != NO_ECONOMICAISTRATEGY)
+			{
+				bBuildingReligion = thisPlayer.GetEconomicAI()->IsUsingStrategy(eStrategyBuildingReligion);
+				if(thisPlayer.GetReligions()->GetReligionCreatedByPlayer(false) == NO_RELIGION)
+				{
+					bBuildingReligion = false;
+				}
+			}
+
+			MilitaryAIStrategyTypes eStrategyWarMob = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_WAR_MOBILIZATION");
+			bool bMobilizing = false;
+			if(eStrategyWarMob != NO_MILITARYAISTRATEGY)
+			{
+				bMobilizing = thisPlayer.GetMilitaryAI()->IsUsingStrategy(eStrategyWarMob);
+			}
+
+			MilitaryAIStrategyTypes eStrategyWar = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_AT_WAR");
+			bool bWar = false;
+			if(eStrategyWar != NO_MILITARYAISTRATEGY)
+			{
+				bWar = thisPlayer.GetMilitaryAI()->IsUsingStrategy(eStrategyWar);
+			}
+			
+			if(bInDeficit)
+			{
+				SetFocusType(CITY_AI_FOCUS_TYPE_GOLD);
+				SetNoAutoAssignSpecialists(false);
+				SetForcedAvoidGrowth(false);
+			}
+			else if(bMobilizing)
+			{
+				SetFocusType(CITY_AI_FOCUS_TYPE_PROD_GROWTH);
+				SetNoAutoAssignSpecialists(false);
+				SetForcedAvoidGrowth(false);
+			}
+			else if(bWar)
+			{
+				SetFocusType(CITY_AI_FOCUS_TYPE_PRODUCTION);
+				SetNoAutoAssignSpecialists(false);
+				SetForcedAvoidGrowth(false);
+			}
+			else
+			{
+				if(thisPlayer.GetGrandStrategyAI()->GetActiveGrandStrategy() == (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_CULTURE"))
+				{
+					SetFocusType(CITY_AI_FOCUS_TYPE_CULTURE);
+					SetNoAutoAssignSpecialists(false);
+					SetForcedAvoidGrowth(false);
+				}
+				else if(thisPlayer.GetGrandStrategyAI()->GetActiveGrandStrategy() == (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_SPACESHIP"))
+				{
+					SetFocusType(CITY_AI_FOCUS_TYPE_SCIENCE);
+					SetNoAutoAssignSpecialists(false);
+					SetForcedAvoidGrowth(false);
+				}
+				else if(!MOD_DIPLOMACY_CITYSTATES && thisPlayer.GetGrandStrategyAI()->GetActiveGrandStrategy() == (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_UNITED_NATIONS"))
+				{
+					SetFocusType(CITY_AI_FOCUS_TYPE_GOLD);
+					SetNoAutoAssignSpecialists(false);
+					SetForcedAvoidGrowth(false);
+				}
+				else if(MOD_DIPLOMACY_CITYSTATES && thisPlayer.GetGrandStrategyAI()->GetActiveGrandStrategy() == (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_UNITED_NATIONS"))
+				{
+					SetFocusType(CITY_AI_FOCUS_TYPE_PROD_GROWTH);
+					SetNoAutoAssignSpecialists(false);
+					SetForcedAvoidGrowth(false);
+				}
+				else if(thisPlayer.GetGrandStrategyAI()->GetActiveGrandStrategy() == (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_CONQUEST"))
+				{
+					SetFocusType(CITY_AI_FOCUS_TYPE_PRODUCTION);
+					SetNoAutoAssignSpecialists(false);
+					SetForcedAvoidGrowth(false);
+				}
+				else // no special cases? Alright, let's pick a function to follow...
+				{
+					bool bGPCity = false;
+					AICityStrategyTypes eGoodGP = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_GOOD_GP_CITY");
+					if(eGoodGP != NO_AICITYSTRATEGY)
+					{
+						bGPCity = m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eGoodGP);
+					}
+					SetNoAutoAssignSpecialists(false);
+					SetForcedAvoidGrowth(false);
+					CitySpecializationTypes eSpecialization = m_pCity->GetCityStrategyAI()->GetSpecialization();
+					if(eSpecialization != -1)
+					{
+						CvCitySpecializationXMLEntry* pCitySpecializationEntry =  GC.getCitySpecializationInfo(eSpecialization);
+						if(pCitySpecializationEntry)
+						{
+							YieldTypes eYield = pCitySpecializationEntry->GetYieldType();
+							if(eYield == YIELD_FOOD)
+							{
+								SetFocusType(CITY_AI_FOCUS_TYPE_FOOD);
+							}
+							else if(eYield == YIELD_PRODUCTION)
+							{
+								SetFocusType(CITY_AI_FOCUS_TYPE_PRODUCTION);
+							}
+							else if(eYield == YIELD_GOLD)
+							{
+								SetFocusType(CITY_AI_FOCUS_TYPE_GOLD);
+							}
+							else if(eYield == YIELD_SCIENCE)
+							{
+								SetFocusType(CITY_AI_FOCUS_TYPE_SCIENCE);
+							}
+							else if(eYield == YIELD_FAITH && bBuildingReligion)
+							{
+								SetFocusType(CITY_AI_FOCUS_TYPE_FAITH);
+							}
+							else if(eYield == YIELD_CULTURE)
+							{
+								SetFocusType(CITY_AI_FOCUS_TYPE_CULTURE);
+							}
+							else if(bGPCity)
+							{
+								SetFocusType(CITY_AI_FOCUS_TYPE_GREAT_PEOPLE);
+							}
+							else
+							{
+								SetFocusType(NO_CITY_AI_FOCUS_TYPE);
+							}
+						}
+						else
+						{
+							SetFocusType(NO_CITY_AI_FOCUS_TYPE);
+						}
+					}
+					else
+					{
+						SetFocusType(NO_CITY_AI_FOCUS_TYPE);
+					}
+				}
+			}
+		}
+	}
+	CvAssertMsg((GetNumCitizensWorkingPlots() + GetTotalSpecialistCount() + GetNumUnassignedCitizens()) <= GetCity()->getPopulation(), "Gameplay: More workers than population in the city.");
+
+	DoReallocateCitizens();
+
+	CvAssertMsg((GetNumCitizensWorkingPlots() + GetTotalSpecialistCount() + GetNumUnassignedCitizens()) <= GetCity()->getPopulation(), "Gameplay: More workers than population in the city.");
+
+	DoSpecialists();
+
+	CvAssertMsg((GetNumCitizensWorkingPlots() + GetTotalSpecialistCount() + GetNumUnassignedCitizens()) <= GetCity()->getPopulation(), "Gameplay: More workers than population in the city.");
+#else
+	if(m_pCity->IsPuppet())
+	{
+		SetFocusType(NO_CITY_AI_FOCUS_TYPE);
+		//SetNoAutoAssignSpecialists(true);
+		SetForcedAvoidGrowth(false);
+	}
+	else if(!thisPlayer.isHuman())
+	{
+		CitySpecializationTypes eWonderSpecializationType = thisPlayer.GetCitySpecializationAI()->GetWonderSpecialization();
+
 		if(GC.getGame().getGameTurn() % 8 == 0)
 		{
 			SetFocusType(CITY_AI_FOCUS_TYPE_GOLD_GROWTH);
-#if defined(MOD_BALANCE_CORE)
-			SetNoAutoAssignSpecialists(false);
-#else
 			SetNoAutoAssignSpecialists(true);
-#endif
 			SetForcedAvoidGrowth(false);
 			int iExcessFoodTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - (m_pCity->foodConsumption() * 100);
 			if(iExcessFoodTimes100 < 200)
@@ -317,23 +501,6 @@ void CvCityCitizens::DoTurn()
 				SetForcedAvoidGrowth(false);
 			}
 		}
-#if defined(MOD_BALANCE_CORE)
-		else if(MOD_BALANCE_CORE)  // we want production for settlers
-		{
-			const OrderData* pOrderNode = m_pCity->headOrderQueueNode();
-
-			if(pOrderNode != NULL && pOrderNode->eOrderType == ORDER_TRAIN)
-			{
-				CvUnitEntry* pkUnitInfo = GC.getUnitInfo((UnitTypes)pOrderNode->iData1);
-				if(pkUnitInfo && pkUnitInfo->IsFound())
-				{
-					SetFocusType(CITY_AI_FOCUS_TYPE_PRODUCTION);
-					SetNoAutoAssignSpecialists(false);
-					SetForcedAvoidGrowth(false);
-				}
-			}
-		}
-#endif
 		else if(m_pCity->getPopulation() < 5)  // we want a balanced growth
 		{
 			SetFocusType(NO_CITY_AI_FOCUS_TYPE);
@@ -365,11 +532,7 @@ void CvCityCitizens::DoTurn()
 			else if(GC.getGame().getGameTurn() % 3 == 0 && thisPlayer.GetGrandStrategyAI()->GetActiveGrandStrategy() == (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_CULTURE"))
 			{
 				SetFocusType(CITY_AI_FOCUS_TYPE_CULTURE);
-#if defined(MOD_BALANCE_CORE)
-				SetNoAutoAssignSpecialists(false);
-#else
 				SetNoAutoAssignSpecialists(true);
-#endif
 				SetForcedAvoidGrowth(false);
 				int iExcessFoodTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - (m_pCity->foodConsumption() * 100);
 				if(iExcessFoodTimes100 < 200)
@@ -422,13 +585,13 @@ void CvCityCitizens::DoTurn()
 			}
 		}
 	}
-
 	CvAssertMsg((GetNumCitizensWorkingPlots() + GetTotalSpecialistCount() + GetNumUnassignedCitizens()) <= GetCity()->getPopulation(), "Gameplay: More workers than population in the city.");
 	DoReallocateCitizens();
 	CvAssertMsg((GetNumCitizensWorkingPlots() + GetTotalSpecialistCount() + GetNumUnassignedCitizens()) <= GetCity()->getPopulation(), "Gameplay: More workers than population in the city.");
 	DoSpecialists();
 
 	CvAssertMsg((GetNumCitizensWorkingPlots() + GetTotalSpecialistCount() + GetNumUnassignedCitizens()) <= GetCity()->getPopulation(), "Gameplay: More workers than population in the city.");
+#endif
 }
 
 /// What is the overall value of the current Plot?
@@ -480,7 +643,17 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, bool bUseAllowGrowthFlag)
 	else if(eFocus == CITY_AI_FOCUS_TYPE_FAITH)
 	{
 		iFaithYieldValue *= 3;
+#if defined(MOD_BALANCE_CORE)
+		iCultureYieldValue *= 2;
+#endif
 	}
+#if defined(MOD_BALANCE_CORE)
+	else if(eFocus == CITY_AI_FOCUS_TYPE_GREAT_PEOPLE)
+	{
+		iCultureYieldValue *= 2;
+		iFoodYieldValue *= 2;
+	}
+#endif
 
 	// Food can be worth less if we don't want to grow
 	if(bUseAllowGrowthFlag && iExcessFoodTimes100 >= 0 && bAvoidGrowth)
@@ -662,7 +835,6 @@ bool CvCityCitizens::IsAIWantSpecialistRightNow()
 			iWeight /= 100;
 		}
 	}
-
 	// If we're deficient in Production then we're less likely to want Specialists
 	if(m_pCity->GetCityStrategyAI()->IsYieldDeficient(YIELD_PRODUCTION))
 	{
@@ -717,12 +889,6 @@ bool CvCityCitizens::IsAIWantSpecialistRightNow()
 						if(pSpecialistInfo && pSpecialistInfo->getCulturePerTurn() > 0)
 						{
 							iWeight *= 3;
-#if defined(MOD_BALANCE_CORE)
-							if(pSpecialistInfo && GetPlayer()->getSpecialistExtraYield(YIELD_CULTURE) > 0)
-							{
-								iWeight *= 2;
-							}
-#endif
 							break;
 						}
 					}
@@ -760,33 +926,6 @@ bool CvCityCitizens::IsAIWantSpecialistRightNow()
 					{
 						iWeight *= 3;
 					}
-					
-#if defined(MOD_API_UNIFIED_YIELDS)
-					if(GetPlayer()->getSpecialistYieldChange(eSpecialist, YIELD_SCIENCE) > 0)
-					{
-						iWeight *= 3;
-					}
-
-					ReligionTypes eMajority = m_pCity->GetCityReligions()->GetReligiousMajority();
-					if(eMajority >= RELIGION_PANTHEON)
-					{
-						const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, m_pCity->getOwner());
-						if(pReligion)
-						{
-							int iReligionChange = pReligion->m_Beliefs.GetSpecialistYieldChange(eSpecialist, YIELD_SCIENCE);
-							BeliefTypes eSecondaryPantheon = m_pCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
-							if (eSecondaryPantheon != NO_BELIEF)
-							{
-								iReligionChange += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetSpecialistYieldChange(eSpecialist, YIELD_SCIENCE);
-							}
-
-							if(iReligionChange > 0)
-							{
-								iWeight *= 3;
-							}
-						}
-					}
-#endif
 				}
 			}
 		}
@@ -823,33 +962,6 @@ bool CvCityCitizens::IsAIWantSpecialistRightNow()
 						{
 							iWeight *= 2;
 						}
-
-#if defined(MOD_API_UNIFIED_YIELDS)
-						if(GetPlayer()->getSpecialistYieldChange(eSpecialist, YIELD_PRODUCTION) > 0)
-						{
-							iWeight *= 2;
-						}
-
-						ReligionTypes eMajority = m_pCity->GetCityReligions()->GetReligiousMajority();
-						if(eMajority >= RELIGION_PANTHEON)
-						{
-							const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, m_pCity->getOwner());
-							if(pReligion)
-							{
-								int iReligionChange = pReligion->m_Beliefs.GetSpecialistYieldChange(eSpecialist, YIELD_PRODUCTION);
-								BeliefTypes eSecondaryPantheon = m_pCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
-								if (eSecondaryPantheon != NO_BELIEF)
-								{
-									iReligionChange += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetSpecialistYieldChange(eSpecialist, YIELD_PRODUCTION);
-								}
-
-								if(iReligionChange > 0)
-								{
-									iWeight *= 2;
-								}
-							}
-						}
-#endif
 					}
 				}
 			}
@@ -946,33 +1058,6 @@ bool CvCityCitizens::IsAIWantSpecialistRightNow()
 						{
 							iWeight *= 2;
 						}
-
-#if defined(MOD_API_UNIFIED_YIELDS)
-						if(GetPlayer()->getSpecialistYieldChange(eSpecialist, YIELD_GOLD) > 0)
-						{
-							iWeight *= 2;
-						}
-
-						ReligionTypes eMajority = m_pCity->GetCityReligions()->GetReligiousMajority();
-						if(eMajority >= RELIGION_PANTHEON)
-						{
-							const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, m_pCity->getOwner());
-							if(pReligion)
-							{
-								int iReligionChange = pReligion->m_Beliefs.GetSpecialistYieldChange(eSpecialist, YIELD_GOLD);
-								BeliefTypes eSecondaryPantheon = m_pCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
-								if (eSecondaryPantheon != NO_BELIEF)
-								{
-									iReligionChange += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetSpecialistYieldChange(eSpecialist, YIELD_GOLD);
-								}
-
-								if(iReligionChange > 0)
-								{
-									iWeight *= 2;
-								}
-							}
-						}
-#endif
 					}
 				}
 			}
@@ -1151,7 +1236,6 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist)
 	{
 		iGPPYieldValue *= 3;
 	}
-
 	// Food can be worth less if we don't want to grow
 	if(iExcessFoodTimes100 >= 0 && bAvoidGrowth)
 	{
@@ -1227,14 +1311,7 @@ bool CvCityCitizens::IsBetterThanDefaultSpecialist(SpecialistTypes eSpecialist)
 	if(!pDefaultSpecialistInfo) return false;
 
 	//antonjs: consider: deficient yield
-#if defined(MOD_BALANCE_CORE)
-	int iDiff = m_pCity->foodDifferenceTimes100();
 
-	if(iDiff < 0)
-	{
-		return false;
-	}
-#endif
 	CityAIFocusTypes eFocus = GetFocusType();
 	YieldTypes eYield = NO_YIELD;
 	switch (eFocus)
@@ -1275,21 +1352,10 @@ bool CvCityCitizens::IsBetterThanDefaultSpecialist(SpecialistTypes eSpecialist)
 	int iSpecialistYield = pSpecialistInfo->getYieldChange(eYield);
 	int iDefaultSpecialistYield = pDefaultSpecialistInfo->getYieldChange(eYield);
 
-#if defined(MOD_BALANCE_CORE)
-	//We want the AI to use better specialists, as the base yield is just not great in the long run.
-	iSpecialistYield += iDefaultSpecialistYield;
-#endif
-
 	if (m_pCity->GetPlayer()->isHalfSpecialistUnhappiness() || m_pCity->GetPlayer()->isHalfSpecialistFood())
 	{
 		iSpecialistYield *= 2;
 	}
-#if defined(MOD_BALANCE_CORE)
-	if(GET_PLAYER(GetOwner()).IsEmpireUnhappy())
-	{
-		iSpecialistYield /= 2;
-	}
-#endif	
 
 	return (iSpecialistYield >= iDefaultSpecialistYield); // Unless default Specialist has strictly more, this Specialist is better
 }
@@ -1327,7 +1393,64 @@ bool CvCityCitizens::DoAddBestCitizenFromUnassigned()
 	{
 		return false;
 	}
+#if defined(MOD_BALANCE_CORE)
+	//THREE STAGE SETUP:
+	
+	//FIRST WE FEED OURSELVES!
+	int iExcessFoodTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - (m_pCity->foodConsumption() * 100);
+	int iPotentialExcessTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - (m_pCity->foodConsumption(false, 1) * 100);
+	if(iExcessFoodTimes100 < 0)
+	{
+		int iBestPlotValue = 0;
+		CvPlot* pBestPlot = GetBestCityPlotWithValue(iBestPlotValue, /*bBest*/ true, /*bWorked*/ false);
+		if(pBestPlot != NULL)
+		{
+			// Now assign the guy to the best possible Plot
+			SetWorkingPlot(pBestPlot, true);
+			return true;
+		}
+	}
+	//NOW THAT WE ARE FED, WE CHECK SPECIALISTS!
+	else
+	{
+		int iSpecialistValue = 0;
+		BuildingTypes eBestSpecialistBuilding = NO_BUILDING;
+		if (!GET_PLAYER(GetOwner()).isHuman() || !IsNoAutoAssignSpecialists())
+		{
+			eBestSpecialistBuilding = GetAIBestSpecialistBuilding(iSpecialistValue);
+		}
 
+		int iBestPlotValue = 0;
+		//GOOD PLOT? BAD PLOT? NYEH!
+		CvPlot* pBestPlot = GetBestCityPlotWithValue(iBestPlotValue, /*bBest*/ true, /*bWorked*/ false);
+		if(pBestPlot != NULL)
+		{
+			bool bSpecialistBetterThanPlot = (eBestSpecialistBuilding != NO_BUILDING && iSpecialistValue >= iBestPlotValue && iPotentialExcessTimes100 >= 0);
+			if (bSpecialistBetterThanPlot)
+			{
+				DoAddSpecialistToBuilding(eBestSpecialistBuilding, /*bForced*/ false);
+				return true;
+			}
+			else
+			{
+				SetWorkingPlot(pBestPlot, true);
+				return true;
+			}
+		}
+		//IF WE HAVE NO MORE GOOD PLOTS, WE DUMP EVERYTHING ELSE INTO SPECIALISTS UNLESS IT WOULD WRECK US
+		else if(eBestSpecialistBuilding != NO_BUILDING && !GET_PLAYER(m_pCity->getOwner()).IsEmpireUnhappy() && iPotentialExcessTimes100 >= 0)
+		{
+			DoAddSpecialistToBuilding(eBestSpecialistBuilding, /*bForced*/ false);
+			return true;
+		}
+		//MANUAL LABOR FOREVER
+		else
+		{
+			// Default Specialist if we can't do anything else
+			ChangeNumDefaultSpecialists(1);
+		}
+	}
+#else
 	// First Specialist Pass
 	int iSpecialistValue = 0;
 	BuildingTypes eBestSpecialistBuilding = NO_BUILDING;
@@ -1355,21 +1478,7 @@ bool CvCityCitizens::DoAddBestCitizenFromUnassigned()
 	CvPlot* pBestPlot = GetBestCityPlotWithValue(iBestPlotValue, /*bBest*/ true, /*bWorked*/ false);
 
 	bool bSpecialistBetterThanPlot = (eBestSpecialistBuilding != NO_BUILDING && iSpecialistValue >= iBestPlotValue);
-#if defined(MOD_BALANCE_CORE)
-	if(bSpecialistBetterThanPlot)
-	{
-		int iDiff = m_pCity->foodDifferenceTimes100();
 
-		if(iDiff < 0)
-		{
-			bSpecialistBetterThanPlot = false;
-		}
-		if(GET_PLAYER(GetOwner()).IsEmpireUnhappy())
-		{
-			bSpecialistBetterThanPlot = false;
-		}
-	}
-#endif	
 	// Is there a Specialist we can assign?
 	if (bSpecialistBetterThanPlot && bBetterThanSlacker)
 	{
@@ -1416,7 +1525,7 @@ bool CvCityCitizens::DoAddBestCitizenFromUnassigned()
 		// Default Specialist if we can't do anything else
 		ChangeNumDefaultSpecialists(1);
 	}
-
+#endif
 	return false;
 }
 
@@ -2669,16 +2778,6 @@ int CvCityCitizens::GetTotalSpecialistCount() const
 		{
 			iNumSpecialists += GetSpecialistCount(eSpecialist);
 		}
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-		if(MOD_BALANCE_CORE_HAPPINESS)
-		{
-			//Unemployed citz cause unhappiness, but quartered, yo.
-			if (eSpecialist == (SpecialistTypes) GC.getDEFAULT_SPECIALIST())
-			{
-				iNumSpecialists += (GetSpecialistCount(eSpecialist) / 4);
-			}
-		}
-#endif
 	}
 
 	return iNumSpecialists;

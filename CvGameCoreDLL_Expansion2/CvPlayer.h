@@ -2195,18 +2195,18 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iCulturePerWonder;
 	FAutoVariable<int, CvPlayer> m_iCultureWonderMultiplier;
 	FAutoVariable<int, CvPlayer> m_iCulturePerTechResearched;
-	int m_iFaith;
-	int m_iFaithEverGenerated;
+	FAutoVariable<int, CvPlayer> m_iFaith;
+	FAutoVariable<int, CvPlayer> m_iFaithEverGenerated;
 	FAutoVariable<int, CvPlayer> m_iHappiness;
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	FAutoVariable<int, CvPlayer> m_iUnhappiness;
 	FAutoVariable<int, CvPlayer> m_iHappinessTotal;
 #endif
 #if defined(MOD_BALANCE_CORE)
-	bool m_bIsReformation;
+	FAutoVariable<bool, CvPlayer> m_bIsReformation;
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
-	int m_iSpyCooldown;
+	FAutoVariable<int, CvPlayer> m_iSpyCooldown;
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_LUXURY)
 	FAutoVariable<int, CvPlayer> m_iBaseLuxuryHappiness;
@@ -2222,12 +2222,12 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iCityRevoltCounter;
 	FAutoVariable<int, CvPlayer> m_iHappinessPerGarrisonedUnitCount;
 	FAutoVariable<int, CvPlayer> m_iHappinessPerTradeRouteCount;
-	int m_iHappinessPerXPopulation;
+	FAutoVariable<int, CvPlayer> m_iHappinessPerXPopulation;
 #if defined(MOD_BALANCE_CORE_POLICIES)
-	int m_iHappinessPerXPopulationGlobal;
-	int m_iIdeologyPoint;
+	FAutoVariable<int, CvPlayer> m_iHappinessPerXPopulationGlobal;
+	FAutoVariable<int, CvPlayer> m_iIdeologyPoint;
 #endif
-	int m_iHappinessFromLeagues;
+	FAutoVariable<int, CvPlayer> m_iHappinessFromLeagues;
 	FAutoVariable<int, CvPlayer> m_iSpecialPolicyBuildingHappiness;  //unused
 	FAutoVariable<int, CvPlayer> m_iWoundedUnitDamageMod;
 	FAutoVariable<int, CvPlayer> m_iUnitUpgradeCostMod;
@@ -2235,32 +2235,32 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iAlwaysSeeBarbCampsCount;
 	FAutoVariable<int, CvPlayer> m_iHappinessFromBuildings;
 	FAutoVariable<int, CvPlayer> m_iHappinessPerCity;
-	int m_iHappinessPerXPolicies;
-	int m_iEspionageModifier;
-	int m_iSpyStartingRank;
+	FAutoVariable<int, CvPlayer> m_iHappinessPerXPolicies;
+	FAutoVariable<int, CvPlayer> m_iEspionageModifier;
+	FAutoVariable<int, CvPlayer> m_iSpyStartingRank;
 #if defined(MOD_RELIGION_CONVERSION_MODIFIERS)
-	int m_iConversionModifier;
+	FAutoVariable<int, CvPlayer> m_iConversionModifier;
 #endif
-	int m_iExtraLeagueVotes;
+	FAutoVariable<int, CvPlayer> m_iExtraLeagueVotes;
 #if defined(MOD_DIPLOMACY_CITYSTATES)
-	int m_iImprovementLeagueVotes;
-	int m_iFaithToVotes;
-	int m_iCapitalsToVotes;
-	int m_iDoFToVotes;
-	int m_iRAToVotes;
-	int m_iDefensePactsToVotes;
-	int m_iGPExpendInfluence;
-	bool m_bIsLeagueAid;
-	bool m_bIsLeagueScholar;
-	bool m_bIsLeagueArt;
-	int m_iScienceRateFromLeague;
-	int m_iScienceRateFromLeagueAid;
+	FAutoVariable<int, CvPlayer> m_iImprovementLeagueVotes;
+	FAutoVariable<int, CvPlayer> m_iFaithToVotes;
+	FAutoVariable<int, CvPlayer> m_iCapitalsToVotes;
+	FAutoVariable<int, CvPlayer> m_iDoFToVotes;
+	FAutoVariable<int, CvPlayer> m_iRAToVotes;
+	FAutoVariable<int, CvPlayer> m_iDefensePactsToVotes;
+	FAutoVariable<int, CvPlayer> m_iGPExpendInfluence;
+	FAutoVariable<bool, CvPlayer> m_bIsLeagueAid;
+	FAutoVariable<bool, CvPlayer> m_bIsLeagueScholar;
+	FAutoVariable<bool, CvPlayer> m_bIsLeagueArt;
+	FAutoVariable<int, CvPlayer> m_iScienceRateFromLeague;
+	FAutoVariable<int, CvPlayer> m_iScienceRateFromLeagueAid;
 	FAutoVariable<int, CvPlayer> m_iLeagueCultureCityModifier;
 #endif
 	FAutoVariable<int, CvPlayer> m_iAdvancedStartPoints;
 	FAutoVariable<int, CvPlayer> m_iAttackBonusTurns;
-	int m_iCultureBonusTurns;
-	int m_iTourismBonusTurns;
+	FAutoVariable<int, CvPlayer> m_iCultureBonusTurns;
+	FAutoVariable<int, CvPlayer> m_iTourismBonusTurns;
 	FAutoVariable<int, CvPlayer> m_iGoldenAgeProgressMeter;
 	FAutoVariable<int, CvPlayer> m_iGoldenAgeMeterMod;
 	FAutoVariable<int, CvPlayer> m_iNumGoldenAges;
@@ -2269,48 +2269,48 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iStrikeTurns;
 	FAutoVariable<int, CvPlayer> m_iGoldenAgeModifier;
 #if defined(MOD_GLOBAL_TRULY_FREE_GP)
-	int m_iFreeGreatPeopleCreated;
-	int m_iFreeGreatGeneralsCreated;
-	int m_iFreeGreatAdmiralsCreated;
+	FAutoVariable<int, CvPlayer> m_iFreeGreatPeopleCreated;
+	FAutoVariable<int, CvPlayer> m_iFreeGreatGeneralsCreated;
+	FAutoVariable<int, CvPlayer> m_iFreeGreatAdmiralsCreated;
 #if defined(MOD_GLOBAL_SEPARATE_GP_COUNTERS)
-	int m_iFreeGreatMerchantsCreated;
-	int m_iFreeGreatScientistsCreated;
-	int m_iFreeGreatEngineersCreated;
+	FAutoVariable<int, CvPlayer> m_iFreeGreatMerchantsCreated;
+	FAutoVariable<int, CvPlayer> m_iFreeGreatScientistsCreated;
+	FAutoVariable<int, CvPlayer> m_iFreeGreatEngineersCreated;
 #endif
-	int m_iFreeGreatWritersCreated;
-	int m_iFreeGreatArtistsCreated;
-	int m_iFreeGreatMusiciansCreated;
+	FAutoVariable<int, CvPlayer> m_iFreeGreatWritersCreated;
+	FAutoVariable<int, CvPlayer> m_iFreeGreatArtistsCreated;
+	FAutoVariable<int, CvPlayer> m_iFreeGreatMusiciansCreated;
 #if defined(MOD_DIPLOMACY_CITYSTATES)
-	int m_iFreeGreatDiplomatsCreated;
+	FAutoVariable<int, CvPlayer> m_iFreeGreatDiplomatsCreated;
 #endif
 #endif
 	FAutoVariable<int, CvPlayer> m_iGreatPeopleCreated;
 	FAutoVariable<int, CvPlayer> m_iGreatGeneralsCreated;
-	int m_iGreatAdmiralsCreated;
+	FAutoVariable<int, CvPlayer> m_iGreatAdmiralsCreated;
 #if defined(MOD_GLOBAL_SEPARATE_GP_COUNTERS)
-	int m_iGreatMerchantsCreated;
-	int m_iGreatScientistsCreated;
-	int m_iGreatEngineersCreated;
+	FAutoVariable<int, CvPlayer> m_iGreatMerchantsCreated;
+	FAutoVariable<int, CvPlayer> m_iGreatScientistsCreated;
+	FAutoVariable<int, CvPlayer> m_iGreatEngineersCreated;
 #endif
-	int m_iGreatWritersCreated;
-	int m_iGreatArtistsCreated;
-	int m_iGreatMusiciansCreated;
+	FAutoVariable<int, CvPlayer> m_iGreatWritersCreated;
+	FAutoVariable<int, CvPlayer> m_iGreatArtistsCreated;
+	FAutoVariable<int, CvPlayer> m_iGreatMusiciansCreated;
 #if defined(MOD_DIPLOMACY_CITYSTATES)
-	int m_iGreatDiplomatsCreated;
-	int m_iDiplomatsFromFaith;
+	FAutoVariable<int, CvPlayer> m_iGreatDiplomatsCreated;
+	FAutoVariable<int, CvPlayer> m_iDiplomatsFromFaith;
 #endif
-	int m_iMerchantsFromFaith;
-	int m_iScientistsFromFaith;
-	int m_iWritersFromFaith;
-	int m_iArtistsFromFaith;
-	int m_iMusiciansFromFaith;
-	int m_iGeneralsFromFaith;
-	int m_iAdmiralsFromFaith;
-	int m_iEngineersFromFaith;
+	FAutoVariable<int, CvPlayer> m_iMerchantsFromFaith;
+	FAutoVariable<int, CvPlayer> m_iScientistsFromFaith;
+	FAutoVariable<int, CvPlayer> m_iWritersFromFaith;
+	FAutoVariable<int, CvPlayer> m_iArtistsFromFaith;
+	FAutoVariable<int, CvPlayer> m_iMusiciansFromFaith;
+	FAutoVariable<int, CvPlayer> m_iGeneralsFromFaith;
+	FAutoVariable<int, CvPlayer> m_iAdmiralsFromFaith;
+	FAutoVariable<int, CvPlayer> m_iEngineersFromFaith;
 	FAutoVariable<int, CvPlayer> m_iGreatPeopleThresholdModifier;
 	FAutoVariable<int, CvPlayer> m_iGreatGeneralsThresholdModifier;
-	int m_iGreatAdmiralsThresholdModifier;
-	int m_iGreatGeneralCombatBonus;
+	FAutoVariable<int, CvPlayer> m_iGreatAdmiralsThresholdModifier;
+	FAutoVariable<int, CvPlayer> m_iGreatGeneralCombatBonus;
 	FAutoVariable<int, CvPlayer> m_iAnarchyNumTurns;
 	FAutoVariable<int, CvPlayer> m_iPolicyCostModifier;
 	FAutoVariable<int, CvPlayer> m_iGreatPeopleRateModifier;
@@ -2319,65 +2319,65 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iGreatGeneralRateModFromBldgs;
 	FAutoVariable<int, CvPlayer> m_iDomesticGreatGeneralRateModifier;
 	FAutoVariable<int, CvPlayer> m_iDomesticGreatGeneralRateModFromBldgs;
-	int m_iGreatAdmiralRateModifier;
-	int m_iGreatWriterRateModifier;
-	int m_iGreatArtistRateModifier;
-	int m_iGreatMusicianRateModifier;
-	int m_iGreatMerchantRateModifier;
+	FAutoVariable<int, CvPlayer> m_iGreatAdmiralRateModifier;
+	FAutoVariable<int, CvPlayer> m_iGreatWriterRateModifier;
+	FAutoVariable<int, CvPlayer> m_iGreatArtistRateModifier;
+	FAutoVariable<int, CvPlayer> m_iGreatMusicianRateModifier;
+	FAutoVariable<int, CvPlayer> m_iGreatMerchantRateModifier;
 #if defined(MOD_DIPLOMACY_CITYSTATES)
-	int m_iGreatDiplomatRateModifier;
+	FAutoVariable<int, CvPlayer> m_iGreatDiplomatRateModifier;
 #endif
-	int m_iGreatScientistRateModifier;
-	int m_iGreatScientistBeakerModifier;
-	int m_iGreatEngineerRateModifier;
-	int m_iGreatPersonExpendGold;
+	FAutoVariable<int, CvPlayer> m_iGreatScientistRateModifier;
+	FAutoVariable<int, CvPlayer> m_iGreatScientistBeakerModifier;
+	FAutoVariable<int, CvPlayer> m_iGreatEngineerRateModifier;
+	FAutoVariable<int, CvPlayer> m_iGreatPersonExpendGold;
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
-	int m_iPovertyUnhappinessMod;
-	int m_iDefenseUnhappinessMod;
-	int m_iUnculturedUnhappinessMod;
-	int m_iIlliteracyUnhappinessMod;
-	int m_iMinorityUnhappinessMod;
-	int m_iPovertyUnhappinessModCapital;
-	int m_iDefenseUnhappinessModCapital;
-	int m_iUnculturedUnhappinessModCapital;
-	int m_iIlliteracyUnhappinessModCapital;
-	int m_iMinorityUnhappinessModCapital;
-	int m_iPuppetUnhappinessMod;
-	int m_iNoUnhappfromXSpecialists;
-	int m_iNoUnhappfromXSpecialistsCapital;
-	int m_iWarWearinessModifier;
+	FAutoVariable<int, CvPlayer> m_iPovertyUnhappinessMod;
+	FAutoVariable<int, CvPlayer> m_iDefenseUnhappinessMod;
+	FAutoVariable<int, CvPlayer> m_iUnculturedUnhappinessMod;
+	FAutoVariable<int, CvPlayer> m_iIlliteracyUnhappinessMod;
+	FAutoVariable<int, CvPlayer> m_iMinorityUnhappinessMod;
+	FAutoVariable<int, CvPlayer> m_iPovertyUnhappinessModCapital;
+	FAutoVariable<int, CvPlayer> m_iDefenseUnhappinessModCapital;
+	FAutoVariable<int, CvPlayer> m_iUnculturedUnhappinessModCapital;
+	FAutoVariable<int, CvPlayer> m_iIlliteracyUnhappinessModCapital;
+	FAutoVariable<int, CvPlayer> m_iMinorityUnhappinessModCapital;
+	FAutoVariable<int, CvPlayer> m_iPuppetUnhappinessMod;
+	FAutoVariable<int, CvPlayer> m_iNoUnhappfromXSpecialists;
+	FAutoVariable<int, CvPlayer> m_iNoUnhappfromXSpecialistsCapital;
+	FAutoVariable<int, CvPlayer> m_iWarWearinessModifier;
 #endif
 #if defined(MOD_BALANCE_CORE_POLICIES)
-	int m_iGarrisonsOccupiedUnhapppinessMod;
-	int m_iBestRangedUnitSpawnSettle;
-	int m_iExtraMoves;
-	int m_iNoUnhappinessExpansion;
-	int m_iNoUnhappyIsolation;
-	int m_iDoubleBorderGA;
-	int m_iIncreasedQuestInfluence;
-	int m_iCitadelBoost;
-	int m_iPuppetProdMod;
-	int m_iOccupiedProdMod;
-	int m_iGoldInternalTrade;
-	int m_iFreeWCVotes;
-	int m_iInfluenceGPExpend;
-	int m_iFreeTradeRoute;
-	int m_iFreeSpy;
-	int m_iTradeReligionModifier;
+	FAutoVariable<int, CvPlayer> m_iGarrisonsOccupiedUnhapppinessMod;
+	FAutoVariable<int, CvPlayer> m_iBestRangedUnitSpawnSettle;
+	FAutoVariable<int, CvPlayer> m_iExtraMoves;
+	FAutoVariable<int, CvPlayer> m_iNoUnhappinessExpansion;
+	FAutoVariable<int, CvPlayer> m_iNoUnhappyIsolation;
+	FAutoVariable<int, CvPlayer> m_iDoubleBorderGA;
+	FAutoVariable<int, CvPlayer> m_iIncreasedQuestInfluence;
+	FAutoVariable<int, CvPlayer> m_iCitadelBoost;
+	FAutoVariable<int, CvPlayer> m_iPuppetProdMod;
+	FAutoVariable<int, CvPlayer> m_iOccupiedProdMod;
+	FAutoVariable<int, CvPlayer> m_iGoldInternalTrade;
+	FAutoVariable<int, CvPlayer> m_iFreeWCVotes;
+	FAutoVariable<int, CvPlayer> m_iInfluenceGPExpend;
+	FAutoVariable<int, CvPlayer> m_iFreeTradeRoute;
+	FAutoVariable<int, CvPlayer> m_iFreeSpy;
+	FAutoVariable<int, CvPlayer> m_iTradeReligionModifier;
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
-	int m_iAdvancedActionGold;
-	int m_iAdvancedActionScience;
-	int m_iAdvancedActionUnrest;
-	int m_iAdvancedActionRebellion;
-	int m_iAdvancedActionGP;
-	int m_iAdvancedActionUnit;
-	int m_iAdvancedActionWonder;
-	int m_iAdvancedActionBuilding;
-	int m_iCannotFailSpies;
+	FAutoVariable<int, CvPlayer> m_iAdvancedActionGold;
+	FAutoVariable<int, CvPlayer> m_iAdvancedActionScience;
+	FAutoVariable<int, CvPlayer> m_iAdvancedActionUnrest;
+	FAutoVariable<int, CvPlayer> m_iAdvancedActionRebellion;
+	FAutoVariable<int, CvPlayer> m_iAdvancedActionGP;
+	FAutoVariable<int, CvPlayer> m_iAdvancedActionUnit;
+	FAutoVariable<int, CvPlayer> m_iAdvancedActionWonder;
+	FAutoVariable<int, CvPlayer> m_iAdvancedActionBuilding;
+	FAutoVariable<int, CvPlayer> m_iCannotFailSpies;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
-	int m_iInvestmentModifier;
+	FAutoVariable<int, CvPlayer> m_iInvestmentModifier;
 #endif
 	FAutoVariable<int, CvPlayer> m_iMaxGlobalBuildingProductionModifier;
 	FAutoVariable<int, CvPlayer> m_iMaxTeamBuildingProductionModifier;
@@ -2401,8 +2401,8 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iUnitProductionMaintenanceMod;
 	FAutoVariable<int, CvPlayer> m_iPolicyCostBuildingModifier;
 	FAutoVariable<int, CvPlayer> m_iPolicyCostMinorCivModifier;
-	int m_iInfluenceSpreadModifier;
-	int m_iExtraVotesPerDiplomat;
+	FAutoVariable<int, CvPlayer> m_iInfluenceSpreadModifier;
+	FAutoVariable<int, CvPlayer> m_iExtraVotesPerDiplomat;
 	FAutoVariable<int, CvPlayer> m_iNumNukeUnits;
 	FAutoVariable<int, CvPlayer> m_iNumOutsideUnits;
 	FAutoVariable<int, CvPlayer> m_iBaseFreeUnits;
@@ -2423,10 +2423,10 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iHalfSpecialistUnhappinessCount;
 	FAutoVariable<int, CvPlayer> m_iHalfSpecialistFoodCount;
 	FAutoVariable<int, CvPlayer> m_iMilitaryFoodProductionCount;
-	int m_iGoldenAgeCultureBonusDisabledCount;
-	int m_iSecondReligionPantheonCount;
-	int m_iEnablesSSPartHurryCount;
-	int m_iEnablesSSPartPurchaseCount;
+	FAutoVariable<int, CvPlayer> m_iGoldenAgeCultureBonusDisabledCount;
+	FAutoVariable<int, CvPlayer> m_iSecondReligionPantheonCount;
+	FAutoVariable<int, CvPlayer> m_iEnablesSSPartHurryCount;
+	FAutoVariable<int, CvPlayer> m_iEnablesSSPartPurchaseCount;
 	FAutoVariable<int, CvPlayer> m_iConscriptCount;
 	FAutoVariable<int, CvPlayer> m_iMaxConscript;
 	FAutoVariable<int, CvPlayer> m_iHighestUnitLevel;
@@ -2440,9 +2440,9 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iMinorFriendshipDecayMod;
 	FAutoVariable<int, CvPlayer> m_iMinorScienceAlliesCount;
 	FAutoVariable<int, CvPlayer> m_iMinorResourceBonusCount;
-	int m_iAbleToAnnexCityStatesCount;
+	FAutoVariable<int, CvPlayer> m_iAbleToAnnexCityStatesCount;
 #if defined(MOD_BALANCE_CORE)
-	int m_iAbleToMarryCityStatesCount;
+	FAutoVariable<int, CvPlayer> m_iAbleToMarryCityStatesCount;
 #endif
 	FAutoVariable<int, CvPlayer> m_iFreeSpecialist;
 	FAutoVariable<int, CvPlayer> m_iCultureBombTimer;
@@ -2460,9 +2460,9 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iScenarioScore4;
 	FAutoVariable<int, CvPlayer> m_iScoreFromFutureTech;
 	FAutoVariable<int, CvPlayer> m_iCombatExperience;
-	int m_iLifetimeCombatExperience;
-	int m_iNavalCombatExperience;
-	int m_iBorderObstacleCount;
+	FAutoVariable<int, CvPlayer> m_iLifetimeCombatExperience;
+	FAutoVariable<int, CvPlayer> m_iNavalCombatExperience;
+	FAutoVariable<int, CvPlayer> m_iBorderObstacleCount;
 	FAutoVariable<int, CvPlayer> m_iPopRushHurryCount;
 	FAutoVariable<int, CvPlayer> m_iTotalImprovementsBuilt;
 	FAutoVariable<int, CvPlayer> m_iNextOperationID;
@@ -2475,15 +2475,15 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iNumPlotsBought;
 	FAutoVariable<int, CvPlayer> m_iPlotGoldCostMod;
 #if defined(MOD_TRAITS_CITY_WORKING) || defined(MOD_BUILDINGS_CITY_WORKING) || defined(MOD_POLICIES_CITY_WORKING) || defined(MOD_TECHS_CITY_WORKING)
-	int m_iCityWorkingChange;
+	FAutoVariable<int, CvPlayer> m_iCityWorkingChange;
 #endif
 	FAutoVariable<int, CvPlayer> m_iPlotCultureCostModifier;
-	int m_iPlotCultureExponentModifier;
-	int m_iNumCitiesPolicyCostDiscount;
-	int m_iGarrisonedCityRangeStrikeModifier;
-	int m_iGarrisonFreeMaintenanceCount;
-	int m_iNumCitiesFreeCultureBuilding;
-	int m_iNumCitiesFreeFoodBuilding;
+	FAutoVariable<int, CvPlayer> m_iPlotCultureExponentModifier;
+	FAutoVariable<int, CvPlayer> m_iNumCitiesPolicyCostDiscount;
+	FAutoVariable<int, CvPlayer> m_iGarrisonedCityRangeStrikeModifier;
+	FAutoVariable<int, CvPlayer> m_iGarrisonFreeMaintenanceCount;
+	FAutoVariable<int, CvPlayer> m_iNumCitiesFreeCultureBuilding;
+	FAutoVariable<int, CvPlayer> m_iNumCitiesFreeFoodBuilding;
 	FAutoVariable<int, CvPlayer> m_iUnitPurchaseCostModifier;
 	FAutoVariable<int, CvPlayer> m_iAllFeatureProduction;
 	FAutoVariable<int, CvPlayer> m_iCityDistanceHighwaterMark; // this is used to determine camera zoom
@@ -2501,33 +2501,33 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iGreatPeopleSpawnCounter;
 
 	FAutoVariable<int, CvPlayer> m_iFreeTechCount;
-	int m_iMedianTechPercentage;
+	FAutoVariable<int, CvPlayer> m_iMedianTechPercentage;
 	FAutoVariable<int, CvPlayer> m_iNumFreePolicies;
 	FAutoVariable<int, CvPlayer> m_iNumFreePoliciesEver; 
-	int m_iNumFreeTenets;
-    int m_iMaxEffectiveCities;
+	FAutoVariable<int, CvPlayer> m_iNumFreeTenets;
+    FAutoVariable<int, CvPlayer> m_iMaxEffectiveCities;
 
-	int m_iLastSliceMoved;
+	FAutoVariable<int, CvPlayer> m_iLastSliceMoved;
 
 	FAutoVariable<uint, CvPlayer> m_uiStartTime;  // XXX save these?
 
 	FAutoVariable<bool, CvPlayer> m_bHasBetrayedMinorCiv;
 	FAutoVariable<bool, CvPlayer> m_bAlive;
 	FAutoVariable<bool, CvPlayer> m_bEverAlive;
-	bool m_bBeingResurrected;
+	FAutoVariable<bool, CvPlayer> m_bBeingResurrected;
 	FAutoVariable<bool, CvPlayer> m_bTurnActive;
 	FAutoVariable<bool, CvPlayer> m_bAutoMoves;					// Signal that we can process the auto moves when ready.
 	bool						  m_bProcessedAutoMoves;		// Signal that we have processed the auto moves
 	FAutoVariable<bool, CvPlayer> m_bEndTurn;					// Signal that the player has completed their turn.  The turn will still be active until the auto-moves have been processed.
-	bool						  m_bDynamicTurnsSimultMode;
+	FAutoVariable<bool, CvPlayer> m_bDynamicTurnsSimultMode;
 	FAutoVariable<bool, CvPlayer> m_bPbemNewTurn;
 	FAutoVariable<bool, CvPlayer> m_bExtendedGame;
 	FAutoVariable<bool, CvPlayer> m_bFoundedFirstCity;
-	int m_iNumCitiesFounded;
+	FAutoVariable<int, CvPlayer> m_iNumCitiesFounded;
 	FAutoVariable<bool, CvPlayer> m_bStrike;
 	FAutoVariable<bool, CvPlayer> m_bCramped;
 	FAutoVariable<bool, CvPlayer> m_bLostCapital;
-	PlayerTypes m_eConqueror;
+	FAutoVariable<PlayerTypes, CvPlayer> m_eConqueror;
 	FAutoVariable<bool, CvPlayer> m_bHasAdoptedStateReligion;
 	FAutoVariable<bool, CvPlayer> m_bAlliesGreatPersonBiasApplied;
 
@@ -2558,8 +2558,8 @@ protected:
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiIncomingUnitTypes;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiIncomingUnitCountdowns;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiMinorFriendshipAnchors; // DEPRECATED
-	std::vector<int> m_aiSiphonLuxuryCount;
-	std::vector<int> m_aiGreatWorkYieldChange;
+	FAutoVariable<std::vector<int>, CvPlayer> m_aiSiphonLuxuryCount;
+	FAutoVariable<std::vector<int>, CvPlayer> m_aiGreatWorkYieldChange;
 
 	typedef std::pair<uint, int> PlayerOptionEntry;
 	typedef std::vector< PlayerOptionEntry > PlayerOptionsVector;
@@ -2662,7 +2662,7 @@ protected:
 	std::vector< std::pair<UnitClassTypes, int> > m_aUnitExtraCosts;
 
 	std::vector<CvString> m_ReplayDataSets;
-	std::vector< TurnData > m_ReplayDataSetValues;
+	std::vector<TurnData> m_ReplayDataSetValues;
 
 	void doResearch();
 	void doWarnings();
@@ -2672,7 +2672,7 @@ protected:
 
 #if defined(MOD_BALANCE_CORE_SETTLER)
 	CvDistanceMap* m_pCityDistance;
-	int	m_iFoundValueOfCapital;
+	FAutoVariable<int, CvPlayer> m_iFoundValueOfCapital;
 #endif
 
 	// Policies
@@ -2750,13 +2750,13 @@ protected:
 
 	ConqueredByBoolField m_bfEverConqueredBy;
 
-	int m_iNumFreeGreatPeople;
-	int m_iNumMayaBoosts;
-	int m_iNumFaithGreatPeople;
-    int m_iNumArchaeologyChoices;
+	FAutoVariable<int, CvPlayer> m_iNumFreeGreatPeople;
+	FAutoVariable<int, CvPlayer> m_iNumMayaBoosts;
+	FAutoVariable<int, CvPlayer> m_iNumFaithGreatPeople;
+	FAutoVariable<int, CvPlayer> m_iNumArchaeologyChoices;
 
 	FaithPurchaseTypes m_eFaithPurchaseType;
-	int m_iFaithPurchaseIndex;
+	FAutoVariable<int, CvPlayer> m_iFaithPurchaseIndex;
 
 	void doUpdateCacheOnTurn();
 
@@ -2770,7 +2770,7 @@ protected:
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	//percent
-	int m_iFractionOriginalCapitalsUnderControl;
+	FAutoVariable<int, CvPlayer> m_iFractionOriginalCapitalsUnderControl;
 	std::vector<int> m_unitsAreaEffectPositive;
 	std::vector<int> m_unitsAreaEffectNegative;
 	std::vector<int> m_plotsAreaEffectPositiveFromTraits;

@@ -80,7 +80,7 @@ CvNotificationEntry* CvNotificationXMLEntries::GetEntry(int index)
 {
 	FAssert(index < static_cast<int>(m_paNotificationEntries.size()));
 
-	if(index < static_cast<int>(m_paNotificationEntries.size()))
+	if(index >= 0 && index < static_cast<int>(m_paNotificationEntries.size()))
 		return m_paNotificationEntries[index];
 	return NULL;
 }

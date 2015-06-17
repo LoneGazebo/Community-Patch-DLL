@@ -4175,7 +4175,7 @@ bool CvAIOperationFoundCity::ArmyInPosition(CvArmyAI* pArmy)
 					CvTemporaryZone zone;
 					zone.SetX(pCityPlot->getX());
 					zone.SetY(pCityPlot->getY());
-					zone.SetTargetType(AI_TACTICAL_TARGET_CITY);
+					zone.SetTargetType(AI_TACTICAL_TARGET_CITY_TO_DEFEND);
 					zone.SetLastTurn(GC.getGame().getGameTurn() + (GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS() * 2));
 					GET_PLAYER(m_eOwner).GetTacticalAI()->AddTemporaryZone(zone);
 					iUnitID = pArmy->GetNextUnitID();
@@ -6756,25 +6756,34 @@ void CvAIOperationCityCloseDefense::Init(int iID, PlayerTypes eOwner, PlayerType
 					SetTargetPlot(pTargetPlot);
 				}
 			}
-			pArmyAI->SetGoalPlot(GetTargetPlot());
-			pArmyAI->SetXY(GetMusterPlot()->getX(), GetMusterPlot()->getY());
-			SetDefaultArea(GetMusterPlot()->getArea());
-
-			// Find the list of units we need to build before starting this operation in earnest
-			BuildListOfUnitsWeStillNeedToBuild();
-
-			// Try to get as many units as possible from existing units that are waiting around
-			if(GrabUnitsFromTheReserves(GetMusterPlot(), NULL))
+			if(GetTargetPlot() != NULL && GetMusterPlot() != NULL)
 			{
-				pArmyAI->SetArmyAIState(ARMYAISTATE_WAITING_FOR_UNITS_TO_CATCH_UP);
-				m_eCurrentState = AI_OPERATION_STATE_GATHERING_FORCES;
+				pArmyAI->SetGoalPlot(GetTargetPlot());
+				pArmyAI->SetXY(GetMusterPlot()->getX(), GetMusterPlot()->getY());
+				SetDefaultArea(GetMusterPlot()->getArea());
+
+				// Find the list of units we need to build before starting this operation in earnest
+				BuildListOfUnitsWeStillNeedToBuild();
+
+				// Try to get as many units as possible from existing units that are waiting around
+				if(GrabUnitsFromTheReserves(GetMusterPlot(), GetTargetPlot()))
+				{
+					pArmyAI->SetArmyAIState(ARMYAISTATE_WAITING_FOR_UNITS_TO_CATCH_UP);
+					m_eCurrentState = AI_OPERATION_STATE_GATHERING_FORCES;
+				}
+				else
+				{
+					m_eCurrentState = AI_OPERATION_STATE_RECRUITING_UNITS;
+				}
+
+				LogOperationStart();
 			}
 			else
 			{
-				m_eCurrentState = AI_OPERATION_STATE_RECRUITING_UNITS;
+				// No muster point, abort
+				m_eCurrentState = AI_OPERATION_STATE_ABORTED;
+				m_eAbortReason = AI_ABORT_NO_MUSTER;
 			}
-
-			LogOperationStart();
 #else
 			CvPlot* pTargetPlot = FindBestTarget();
 			if(pTargetPlot != NULL)
@@ -7677,7 +7686,7 @@ bool CvAINavalEscortedOperation::ArmyInPosition(CvArmyAI* pArmy)
 				CvTemporaryZone zone;
 				zone.SetX(pSettlerPlot->getX());
 				zone.SetY(pSettlerPlot->getY());
-				zone.SetTargetType(AI_TACTICAL_TARGET_CITY);
+				zone.SetTargetType(AI_TACTICAL_TARGET_CITY_TO_DEFEND);
 				zone.SetLastTurn(GC.getGame().getGameTurn() + (GC.getAI_TACTICAL_MAP_TEMP_ZONE_TURNS() * 2));
 				GET_PLAYER(m_eOwner).GetTacticalAI()->AddTemporaryZone(zone);
 #endif

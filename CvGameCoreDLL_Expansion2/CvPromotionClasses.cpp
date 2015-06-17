@@ -2105,7 +2105,11 @@ int CvPromotionXMLEntries::GetNumPromotions()
 /// Get a specific entry
 CvPromotionEntry* CvPromotionXMLEntries::GetEntry(int index)
 {
+#if defined(MOD_BALANCE_CORE)
+	return (index!=NO_PROMOTION) ? m_paPromotionEntries[index] : NULL;
+#else
 	return m_paPromotionEntries[index];
+#endif
 }
 
 /// Clear promotion entries

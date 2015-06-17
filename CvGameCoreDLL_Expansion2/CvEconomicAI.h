@@ -167,7 +167,7 @@ public:
 
 #if defined(MOD_CORE_ALTERNATIVE_EXPLORE_SCORE)
 	static int ScoreExplorePlot2(CvPlot* pPlot, CvPlayer* pPlayer, DomainTypes eDomainType, bool bEmbarked);
-	const std::vector<SPlotWithScore>& GetExplorationPlots();
+	const std::vector<SPlotWithScore>& GetExplorationPlots(DomainTypes domain);
 #else
 	FFastVector<int>& GetExplorationPlots();
 	FFastVector<int>& GetExplorationPlotRatings();
@@ -283,7 +283,8 @@ private:
 	};
 
 #if defined(MOD_CORE_ALTERNATIVE_EXPLORE_SCORE)
-	std::vector<SPlotWithScore> m_vPlotsToExplore;
+	std::vector<SPlotWithScore> m_vPlotsToExploreLand;
+	std::vector<SPlotWithScore> m_vPlotsToExploreSea;
 #else
 	FFastVector<int> m_aiExplorationPlots;
 	FFastVector<int> m_aiExplorationPlotRatings;

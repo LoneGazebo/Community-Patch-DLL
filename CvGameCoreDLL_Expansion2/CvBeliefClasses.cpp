@@ -119,6 +119,8 @@ CvBeliefEntry::CvBeliefEntry() :
 	m_paiBuildingClassTourism(NULL),
 	m_ppaiFeatureYieldChange(NULL),
 #if defined(MOD_API_UNIFIED_YIELDS)
+	m_ppiYieldPerXTerrain(NULL),
+	m_ppiYieldPerXFeature(NULL),
 	m_ppiCityYieldFromUnimprovedFeature(NULL),
 	m_ppiUnimprovedFeatureYieldChanges(NULL),
 	m_paiLakePlotYieldChange(NULL),
@@ -158,6 +160,8 @@ CvBeliefEntry::~CvBeliefEntry()
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiBuildingClassYieldChanges);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppaiFeatureYieldChange);
 #if defined(MOD_API_UNIFIED_YIELDS)
+	CvDatabaseUtility::SafeDelete2DArray(m_ppiYieldPerXTerrain);
+	CvDatabaseUtility::SafeDelete2DArray(m_ppiYieldPerXFeature);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiCityYieldFromUnimprovedFeature);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiUnimprovedFeatureYieldChanges);
 #endif
@@ -753,6 +757,22 @@ int CvBeliefEntry::GetFeatureYieldChange(int i, int j) const
 }
 
 #if defined(MOD_API_UNIFIED_YIELDS)
+int CvBeliefEntry::GetYieldPerXTerrain(int i, int j) const
+{
+	CvAssertMsg(i < GC.getNumTerrainInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	CvAssertMsg(j < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(j > -1, "Index out of bounds");
+	return m_ppiYieldPerXTerrain ? m_ppiYieldPerXTerrain[i][j] : 0;
+}
+int CvBeliefEntry::GetYieldPerXFeature(int i, int j) const
+{
+	CvAssertMsg(i < GC.getNumFeatureInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	CvAssertMsg(j < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(j > -1, "Index out of bounds");
+	return m_ppiYieldPerXFeature ? m_ppiYieldPerXFeature[i][j] : 0;
+}
 int CvBeliefEntry::GetCityYieldFromUnimprovedFeature(int i, int j) const
 {
 	CvAssertMsg(i < GC.getNumFeatureInfos(), "Index out of bounds");
@@ -1145,6 +1165,50 @@ bool CvBeliefEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	}
 
 #if defined(MOD_API_UNIFIED_YIELDS)
+	//CityYieldPerXTerrain
+	if (MOD_API_UNIFIED_YIELDS) {
+		kUtility.Initialize2DArray(m_ppiYieldPerXTerrain, "Terrains", "Yields");
+
+		std::string strKey("Belief_CityYieldPerXTerrain");
+		Database::Results* pResults = kUtility.GetResults(strKey);
+		if(pResults == NULL)
+		{
+			pResults = kUtility.PrepareResults(strKey, "select Terrains.ID as TerrainID, Yields.ID as YieldID, Yield from Belief_CityYieldPerXTerrain inner join Terrains on Terrains.Type = TerrainType inner join Yields on Yields.Type = YieldType where BeliefType = ?");
+		}
+
+		pResults->Bind(1, szBeliefType);
+
+		while(pResults->Step())
+		{
+			const int TerrainID = pResults->GetInt(0);
+			const int YieldID = pResults->GetInt(1);
+			const int yield = pResults->GetInt(2);
+
+			m_ppiYieldPerXTerrain[TerrainID][YieldID] = yield;
+		}
+	}
+	//CityYieldPerXFeature
+	if (MOD_API_UNIFIED_YIELDS) {
+		kUtility.Initialize2DArray(m_ppiYieldPerXFeature, "Features", "Yields");
+
+		std::string strKey("Belief_CityYieldPerXFeature");
+		Database::Results* pResults = kUtility.GetResults(strKey);
+		if(pResults == NULL)
+		{
+			pResults = kUtility.PrepareResults(strKey, "select Features.ID as FeatureID, Yields.ID as YieldID, Yield from Belief_CityYieldPerXFeature inner join Features on Features.Type = FeatureType inner join Yields on Yields.Type = YieldType where BeliefType = ?");
+		}
+
+		pResults->Bind(1, szBeliefType);
+
+		while(pResults->Step())
+		{
+			const int FeatureID = pResults->GetInt(0);
+			const int YieldID = pResults->GetInt(1);
+			const int yield = pResults->GetInt(2);
+
+			m_ppiYieldPerXFeature[FeatureID][YieldID] = yield;
+		}
+	}
 	//CityYieldFromUnimprovedFeature
 	if (MOD_API_UNIFIED_YIELDS) {
 		kUtility.Initialize2DArray(m_ppiCityYieldFromUnimprovedFeature, "Features", "Yields");
@@ -1386,7 +1450,11 @@ void CvBeliefXMLEntries::DeleteArray()
 /// Get a specific entry
 CvBeliefEntry* CvBeliefXMLEntries::GetEntry(int index)
 {
+#if defined(MOD_BALANCE_CORE)
+	return (index!=NO_BELIEF) ? m_paBeliefEntries[index] : NULL;
+#else
 	return m_paBeliefEntries[index];
+#endif
 }
 
 //=====================================
@@ -2087,6 +2155,46 @@ int CvReligionBeliefs::GetFeatureYieldChange(FeatureTypes eFeature, YieldTypes e
 }
 
 #if defined(MOD_API_UNIFIED_YIELDS)
+int CvReligionBeliefs::GetYieldPerXTerrain(TerrainTypes eTerrain, YieldTypes eYieldType) const
+{
+	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
+	int rtnValue = 0;
+
+#if defined(MOD_BALANCE_CORE)
+	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
+		rtnValue += pBeliefs->GetEntry(*it)->GetYieldPerXTerrain(eTerrain, eYieldType);
+#else
+	for(int i = 0; i < pBeliefs->GetNumBeliefs(); i++)
+	{
+		if(HasBelief((BeliefTypes)i))
+		{
+			rtnValue += pBeliefs->GetEntry(i)->GetYieldPerXTerrain(eTerrain, eYieldType);
+		}
+	}
+#endif
+
+	return rtnValue;
+}
+int CvReligionBeliefs::GetYieldPerXFeature(FeatureTypes eFeature, YieldTypes eYieldType) const
+{
+	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
+	int rtnValue = 0;
+
+#if defined(MOD_BALANCE_CORE)
+	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
+		rtnValue += pBeliefs->GetEntry(*it)->GetYieldPerXFeature(eFeature, eYieldType);
+#else
+	for(int i = 0; i < pBeliefs->GetNumBeliefs(); i++)
+	{
+		if(HasBelief((BeliefTypes)i))
+		{
+			rtnValue += pBeliefs->GetEntry(i)->GetYieldPerXFeature(eFeature, eYieldType);
+		}
+	}
+#endif
+
+	return rtnValue;
+}
 int CvReligionBeliefs::GetCityYieldFromUnimprovedFeature(FeatureTypes eFeature, YieldTypes eYieldType) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();

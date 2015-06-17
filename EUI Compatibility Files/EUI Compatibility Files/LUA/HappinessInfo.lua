@@ -223,11 +223,14 @@ function UpdateScreen()
 	local iHappinessFromMonopoly = pPlayer:GetHappinessFromResourceMonopolies();
 	local iHappinessFromBonusResources = pPlayer:GetBonusHappinessFromLuxuries();
 	-- END
+	-- C4DF
+	local iHappinessFromVassal = pPlayer:GetHappinessFromVassals();
+	-- END
 	
 	-- EDIT
-	local iHandicapHappiness = pPlayer:GetHappiness() - iPoliciesHappiness - iHappinessFromMonopoly - iHappinessFromBonusResources - iResourcesHappiness - iBuildingHappiness - iCityHappiness - iTradeRouteHappiness - iReligionHappiness - iNaturalWonderHappiness - iMinorCivHappiness - iExtraHappinessPerCity - iLeagueHappiness;
+	local iHandicapHappiness = pPlayer:GetHappiness() - iPoliciesHappiness - iHappinessFromMonopoly - iHappinessFromBonusResources - iResourcesHappiness - iBuildingHappiness - iCityHappiness - iTradeRouteHappiness - iReligionHappiness - iNaturalWonderHappiness - iMinorCivHappiness - iExtraHappinessPerCity - iLeagueHappiness - iHappinessFromVassal;
 
-	local iTotalHappiness = iPoliciesHappiness + iResourcesHappiness + iBuildingHappiness + iMinorCivHappiness + iHandicapHappiness + iTradeRouteHappiness + iReligionHappiness + iNaturalWonderHappiness + iExtraHappinessPerCity + iLeagueHappiness + iHappinessFromBonusResources + iHappinessFromMonopoly;
+	local iTotalHappiness = iHappiness;
 	
 	-- Luxury Resource Details
 
@@ -431,6 +434,16 @@ function UpdateScreen()
 		Controls.ExtraLuxuryHappiness:SetHide(true);
 	end
 
+	-- END
+	-- C4DF
+	if (iHappinessFromVassal ~= 0) then
+		Controls.VassalHappinessValue:SetText(iHappinessFromVassal);
+		Controls.VassalHappiness:SetHide(false);
+	else
+		Controls.VassalHappiness:SetHide(true);
+	end
+	
+	-- END
 	-- iHandicapHappiness
 	Controls.HandicapHappinessValue:SetText(iHandicapHappiness);
 

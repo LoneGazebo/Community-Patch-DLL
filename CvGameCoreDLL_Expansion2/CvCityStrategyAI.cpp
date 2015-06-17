@@ -219,7 +219,11 @@ void CvAICityStrategies::DeleteArray()
 /// Get a specific entry
 CvAICityStrategyEntry* CvAICityStrategies::GetEntry(int index)
 {
+#if defined(MOD_BALANCE_CORE)
+	return (index!=NO_AICITYSTRATEGY) ? m_paAICityStrategyEntries[index] : NULL;
+#else
 	return m_paAICityStrategyEntries[index];
+#endif
 }
 
 //=====================================
@@ -2265,6 +2269,9 @@ void CvCityStrategyAI::UpdateBestYields()
 				break;
 			case CITY_AI_FOCUS_TYPE_SCIENCE:
 				strLookup = "CITYSPECIALIZATION_SCIENCE";
+				break;
+			case NO_CITY_AI_FOCUS_TYPE:
+				strLookup = "CITYSPECIALIZATION_GENERAL_ECONOMIC";
 				break;
 #endif
 			}
