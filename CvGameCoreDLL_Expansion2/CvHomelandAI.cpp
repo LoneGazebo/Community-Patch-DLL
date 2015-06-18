@@ -5797,7 +5797,12 @@ void CvHomelandAI::ExecuteGeneralMoves()
 				{
 					continue;
 				}
+#if defined(MOD_BALANCE_CORE)
+				//don't care if it's more than 10 turns away - in that case we'll move in stages
+				int iTurns = TurnsToReachTarget(pUnit, pLoopCity->plot(),true,true,false,10);
+#else
 				int iTurns = TurnsToReachTarget(pUnit, pLoopCity->plot());
+#endif
 
 				// Don't go here if I'm not in a city currently and this city is not reachable by normal movement
 				if (bNotAtFriendlyCity)
