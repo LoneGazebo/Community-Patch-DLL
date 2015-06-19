@@ -7573,7 +7573,7 @@ void CvUnit::doHeal()
 	{
 		changeDamage(-(healRate(plot())));
 #if defined(MOD_BALANCE_CORE_BELIEFS)
-		if(GET_PLAYER(getOwner()).getCapitalCity() != NULL && (plot()->getOwner() == getOwner()))
+		if(GET_PLAYER(getOwner()).getCapitalCity() != NULL && (plot()->getOwner() == getOwner()) && (plot()->getTurnDamage(false, false, true, true) == 0))
 		{
 			ReligionTypes eMajority = GET_PLAYER(getOwner()).getCapitalCity()->GetCityReligions()->GetReligiousMajority();
 			if(eMajority != NO_RELIGION)

@@ -360,7 +360,7 @@ function g_toolTipHandler.BannerButton( control )
 					iResistanceUnhappiness = (city:GetPopulation() / 2);
 				end
 				local iOccupationUnhappiness = 0;
-				if(city:IsOccupied() and not city:IsNoOccupiedUnhappiness()) then
+				if(city:IsOccupied() and not city:IsNoOccupiedUnhappiness() and not city:IsResistance()) then
 					iOccupationUnhappiness = (city:GetPopulation() * GameDefines.UNHAPPINESS_PER_OCCUPIED_POPULATION);
 				end
 			

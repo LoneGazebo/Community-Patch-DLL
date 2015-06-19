@@ -343,11 +343,12 @@ void CvCitySpecializationAI::DoTurn()
 	}
 
 	// No city specialization if we don't have enough cities
+#if !defined(MOD_BALANCE_CORE)
 	if(m_pPlayer->getNumCities() < 2)
 	{
 		return;
 	}
-
+#endif
 	// See if need to update assignments
 	if(m_bSpecializationsDirty || (m_iLastTurnEvaluated + GC.getAI_CITY_SPECIALIZATION_REEVALUATION_INTERVAL() > GC.getGame().getGameTurn()))
 	{
@@ -462,10 +463,12 @@ void CvCitySpecializationAI::WeightSpecializations()
 		iFoodYieldWeight += (iNumUnownedTiles * 100) / pArea->getNumTiles() * GC.getAI_CITY_SPECIALIZATION_FOOD_WEIGHT_PERCENT_CONTINENT_UNOWNED() /* 5 */;;
 		iFoodYieldWeight += iNumCities * GC.getAI_CITY_SPECIALIZATION_FOOD_WEIGHT_NUM_CITIES() /* -50 */;
 		iFoodYieldWeight += iNumSettlers * GC.getAI_CITY_SPECIALIZATION_FOOD_WEIGHT_NUM_SETTLERS() /* -40 */;
+#if !defined (MOD_BALANCE_CORE)
 		if((iNumCities + iNumSettlers) == 1)
 		{
 			iFoodYieldWeight *= 3;   // Really want to get up over 1 city
 		}
+#endif
 		if(iFoodYieldWeight < 0) iFoodYieldWeight = 0;
 
 		//   Production
@@ -494,6 +497,9 @@ void CvCitySpecializationAI::WeightSpecializations()
 					iFoodYieldWeight +=	grandStrategy->GetSpecializationBoost(YIELD_FOOD);
 					iGoldYieldWeight += grandStrategy->GetSpecializationBoost(YIELD_GOLD);
 					iScienceYieldWeight += grandStrategy->GetSpecializationBoost(YIELD_SCIENCE);
+#if defined(MOD_BALANCE_CORE)
+					iProductionYieldWeight += grandStrategy->GetSpecializationBoost(YIELD_PRODUCTION);
+#endif
 				}
 			}
 		}
@@ -1174,7 +1180,15 @@ void CvCitySpecializationAI::FindBestSites()
 	}
 
 	// Found value drops off based on distance, so safe to only look halfway out
+#if defined(MOD_BALANCE_CORE)
+	//prefer settling close in the beginning
+	int iTimeOffset = (30 * GC.getGame().getGameTurn()) / max(500, GC.getGame().getMaxTurns());
+
+	//basic search area around existing cities. value at eval distance is scaled to zero.
+	int iEvalDistance = 6 + iTimeOffset;
+#else
 	int iEvalDistance = GC.getSETTLER_EVALUATION_DISTANCE() / 2;
+#endif
 
 	CvSiteEvaluatorForSettler* pSiteEval = GC.getGame().GetSettlerSiteEvaluator();
 	for(iPlotLoop = 0; iPlotLoop < GC.getMap().numPlots(); iPlotLoop++)
@@ -1276,7 +1290,53 @@ int CvCitySpecializationAI::PlotValueForScience(CvPlot* pPlot)
 	int iFirstRingMultiplier = GC.getAI_CITY_SPECIALIZATION_YIELD_WEIGHT_FIRST_RING();
 	int iSecondRingMultiplier = GC.getAI_CITY_SPECIALIZATION_YIELD_WEIGHT_SECOND_RING();
 	int iThirdRingMultiplier = GC.getAI_CITY_SPECIALIZATION_YIELD_WEIGHT_THIRD_RING();
+#if defined(MOD_BALANCE_CORE)
+	// Evaluate potential from plots not currently being worked
+	for(int iI = 0; iI < GC.getAI_CITY_SPECIALIZATION_YIELD_NUM_TILES_CONSIDERED(); iI++)
+	{
+		if(iI != CITY_HOME_PLOT)
+		{
+			CvPlot* pLoopPlot = plotCity(pPlot->getX(), pPlot->getY(), iI);
+			if(pLoopPlot != NULL)
+			{
+				// If owned by someone else, not worth anything
+				if(pLoopPlot->isOwned() && pLoopPlot->getOwner() != m_pPlayer->GetID())
+				{
+					iPotentialYield = 0;
+					iTotalClearTileWeight = 0;
+				}
+				else if(pLoopPlot->getImprovementType() != NO_IMPROVEMENT)
+				{
+					iPotentialYield = pLoopPlot->getYield(YIELD_FOOD) + pLoopPlot->getYield(YIELD_SCIENCE);
+				}
 
+				else if(pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
+				{
+					iTotalClearTileWeight = pLoopPlot->getYield(YIELD_FOOD) + pLoopPlot->getYield(YIELD_SCIENCE);
+					iTotalClearTileWeight *= 2;
+				}
+				if(iPotentialYield > 0 || iTotalClearTileWeight > 0)
+				{
+					int iDistance = plotDistance(pLoopPlot->getX(), pLoopPlot->getY(), pPlot->getX(), pPlot->getY());
+					if(iDistance == 1)
+					{
+						iMultiplier = iFirstRingMultiplier;
+					}
+					else if(iDistance == 2)
+					{
+						iMultiplier = iSecondRingMultiplier;
+					}
+					else if(iDistance == 3)
+					{
+						iMultiplier = iThirdRingMultiplier;
+					}
+
+					iTotalFoodYield += iPotentialYield * iMultiplier;
+				}
+			}
+		}
+	}
+#else
 	// Evaluate potential from plots not currently being worked
 	for(int iI = 0; iI < GC.getAI_CITY_SPECIALIZATION_YIELD_NUM_TILES_CONSIDERED(); iI++)
 	{
@@ -1333,7 +1393,7 @@ int CvCitySpecializationAI::PlotValueForScience(CvPlot* pPlot)
 			}
 		}
 	}
-
+#endif
 	return iTotalFoodYield + iTotalClearTileWeight;
 }
 
@@ -1366,6 +1426,50 @@ int CvCitySpecializationAI::AdjustValueBasedOnBuildings(CvCity* pCity, YieldType
 		// +20% per point of yield change
 		iRtnValue = iRtnValue * (100 + (iYieldChanges * 20)) / 100;
 	}
+#if defined(MOD_BALANCE_CORE)
+	iYieldChanges = pCity->GetBaseYieldRateFromGreatWorks(eYield);
+	if(iYieldChanges > 0)
+	{
+		// +20% per point of yield change
+		iRtnValue = iRtnValue * (100 + (iYieldChanges * 20)) / 100;
+	}
+	iYieldChanges = pCity->GetGrowthExtraYield(eYield);
+	if(iYieldChanges > 0)
+	{
+		// +15% per point of yield change
+		iRtnValue = iRtnValue * (100 + (iYieldChanges * 15)) / 100;
+	}
+	iYieldChanges = pCity->GetYieldFromVictory(eYield);
+	if(iYieldChanges > 0)
+	{
+		// +15% per point of yield change
+		iRtnValue = iRtnValue * (100 + (iYieldChanges * 15)) / 100;
+	}
+	iYieldChanges = pCity->GetBaseYieldRateFromCSAlliance(eYield);
+	if(iYieldChanges > 0)
+	{
+		// +25% per point of yield change
+		iRtnValue = iRtnValue * (100 + (iYieldChanges * 25)) / 100;
+	}
+	iYieldChanges = pCity->GetBaseYieldRateFromSpecialists(eYield);
+	if(iYieldChanges > 0)
+	{
+		// +25% per point of yield change
+		iRtnValue = iRtnValue * (100 + (iYieldChanges * 25)) / 100;
+	}
+	iYieldChanges = pCity->GetBaseYieldRateFromMisc(eYield);
+	if(iYieldChanges > 0)
+	{
+		// +10% per point of yield change
+		iRtnValue = iRtnValue * (100 + (iYieldChanges * 10)) / 100;
+	}
+	iYieldChanges = pCity->GetBaseYieldRateFromMisc(eYield);
+	if(iYieldChanges > 0)
+	{
+		// +10% per point of yield change
+		iRtnValue = iRtnValue * (100 + (iYieldChanges * 10)) / 100;
+	}
+#endif
 
 	// Other modifiers (unique by yield type)
 	switch(eYield)
@@ -1383,10 +1487,25 @@ int CvCitySpecializationAI::AdjustValueBasedOnBuildings(CvCity* pCity, YieldType
 
 	case YIELD_PRODUCTION:
 		// Double production if any military training facilities present
+#if defined(MOD_BALANCE_CORE)
+		if(pCity->getDomainFreeExperience(DOMAIN_LAND) > 0)
+		{
+			iRtnValue += pCity->getDomainFreeExperience(DOMAIN_LAND);
+		}
+		if(pCity->getDomainFreeExperience(DOMAIN_AIR) > 0)
+		{
+			iRtnValue += pCity->getDomainFreeExperience(DOMAIN_AIR);
+		}
+		if(pCity->getDomainFreeExperience(DOMAIN_SEA) > 0)
+		{
+			iRtnValue += pCity->getDomainFreeExperience(DOMAIN_SEA);
+		}
+#else
 		if(pCity->getDomainFreeExperience(DOMAIN_LAND) > 0)
 		{
 			iRtnValue *= 2;
 		}
+#endif
 		break;
 
 	case YIELD_GOLD:
@@ -1497,7 +1616,11 @@ void CvCitySpecializationAI::LogSpecializationAssignment(CvCity* pCity, CitySpec
 		strBaseString += strPlayerName + ", ";
 
 		strCityName = pCity->getName();
+#if defined(MOD_BALANCE_CORE)
+		strSpecialization.Format("New Specialization Type: %s", GC.getCitySpecializationInfo(eType)->GetTextKey());
+#else
 		strSpecialization.Format("New Specialization Type: %d", (int)eType);
+#endif
 
 		strOutBuf = strBaseString + strCityName + ", " + strSpecialization;
 		if(bWonderCity)

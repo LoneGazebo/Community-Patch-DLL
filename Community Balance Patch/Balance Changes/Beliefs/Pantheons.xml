@@ -85,12 +85,12 @@
 			<YieldChange>2</YieldChange>
 		</Row>
 	</Belief_BuildingClassYieldChanges>
-	<!-- Yield Per Pop: Yield = number of citizens for +1 of a yield (so 5 citizens = 1 culture here)-->
+	<!-- Yield Per Pop: Yield = number of citizens for +1 of a yield (so 4 citizens = 1 culture here)-->
 	<Belief_YieldPerPop>
 		<Row>
 			<BeliefType>BELIEF_ANCESTOR_WORSHIP</BeliefType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>5</Yield>
+			<Yield>4</Yield>
 		</Row>
 	</Belief_YieldPerPop>
 	<Belief_YieldPerGPT>
@@ -192,20 +192,6 @@
 	</Belief_YieldPerHeal>
 	<Belief_FeatureYieldChanges>
 		<Row>
-			<BeliefType>BELIEF_SACRED_PATH</BeliefType>
-			<FeatureType>FEATURE_FOREST</FeatureType>
-			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>1</Yield>
-		</Row>
-		<Row>
-			<BeliefType>BELIEF_SACRED_PATH</BeliefType>
-			<FeatureType>FEATURE_JUNGLE</FeatureType>
-			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>1</Yield>
-		</Row>
-	</Belief_FeatureYieldChanges>
-	<Belief_FeatureYieldChanges>
-		<Row>
 			<BeliefType>BELIEF_SACRED_WATERS</BeliefType>
 			<FeatureType>FEATURE_OASIS</FeatureType>
 			<YieldType>YIELD_FAITH</YieldType>
@@ -263,12 +249,6 @@
 			<YieldType>YIELD_CULTURE</YieldType>
 			<Yield>1</Yield>
 		</Row>
-		<Row>
-			<BeliefType>BELIEF_OPEN_SKY</BeliefType>
-			<TerrainType>TERRAIN_PLAINS</TerrainType>
-			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>2</Yield>
-		</Row>
 	</Belief_TerrainYieldChanges>
 	<Belief_PlotYieldChanges>
 		<Row>
@@ -289,22 +269,45 @@
 		<Row>
 			<BeliefType>BELIEF_GOD_KING</BeliefType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<PerXFollowers>10</PerXFollowers>
+			<PerXFollowers>6</PerXFollowers>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_GOD_KING</BeliefType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<PerXFollowers>10</PerXFollowers>
+			<PerXFollowers>6</PerXFollowers>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_GOD_KING</BeliefType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<PerXFollowers>10</PerXFollowers>
+			<PerXFollowers>6</PerXFollowers>
 		</Row>
 		<Row>
 			<BeliefType>BELIEF_GOD_KING</BeliefType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<PerXFollowers>10</PerXFollowers>
+			<PerXFollowers>6</PerXFollowers>
 		</Row>
 	</Belief_YieldPerXFollowers>
+	<!-- Yields from X Terrain/Feature-->
+	<Belief_CityYieldPerXTerrain>
+		<Row>
+			<BeliefType>BELIEF_OPEN_SKY</BeliefType>
+			<TerrainType>TERRAIN_PLAINS</TerrainType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>3</Yield>
+		</Row>
+	</Belief_CityYieldPerXTerrain>
+	<Belief_CityYieldPerXFeature>
+		<Row>
+			<BeliefType>BELIEF_SACRED_PATH</BeliefType>
+			<FeatureType>FEATURE_FOREST</FeatureType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>2</Yield>
+		</Row>
+		<Row>
+			<BeliefType>BELIEF_SACRED_PATH</BeliefType>
+			<FeatureType>FEATURE_JUNGLE</FeatureType>
+			<YieldType>YIELD_FAITH</YieldType>
+			<Yield>2</Yield>
+		</Row>
+	</Belief_CityYieldPerXFeature>
 </GameData>

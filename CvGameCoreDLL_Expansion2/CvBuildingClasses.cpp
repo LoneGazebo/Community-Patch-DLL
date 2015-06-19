@@ -3106,6 +3106,14 @@ bool CvCityBuildings::IsBuildingSellable(const CvBuildingEntry& kBuilding) const
 	if(GetNumFreeBuilding((BuildingTypes)kBuilding.GetID()) > 0)
 		return false;
 
+#if defined(MOD_BALANCE_CORE)
+	//Spawns a permanent resource? Can't sell.
+	if(kBuilding.GrantsRandomResourceTerritory())
+	{
+		return false;
+	}
+#endif
+
 	// Science building in capital that has given us a tech boost?
 	if(m_pCity->isCapital() && kBuilding.IsScienceBuilding())
 	{

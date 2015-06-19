@@ -470,6 +470,8 @@ public:
 	void ChangeFaithPerTurnFromPolicies(int iChange);
 
 #if defined(MOD_API_UNIFIED_YIELDS)
+	int GetYieldPerXTerrain(YieldTypes eYield) const;
+	int GetYieldPerXFeature(YieldTypes eYield) const;
 	int GetYieldPerTurnFromUnimprovedFeatures(YieldTypes eYield) const;
 #else
 	int GetFaithPerTurnFromTraits() const;

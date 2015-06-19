@@ -72,6 +72,22 @@
 		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer" default="0"/>
 	</Table>
+	
+	<!-- PANTHEON: Allows you to define yields gained by working (not just owning!) x type of terrain/feature. Can be modified by 'NoImprovement' and 'NoImprovementFeature elementss
+		Works by taking the 'yield' value below and dividing it against the number of plots being worked. So '1' Yield = +1 yield per worked tile of that type. 2 = +1 per 2, etc.
+	-->
+	<Table name="Belief_CityYieldPerXTerrain">
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
+		<Column name="TerrainType" type="text" reference="Terrains(Type)"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+	</Table>
+	<Table name="Belief_CityYieldPerXFeature">
+		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
+		<Column name="FeatureType" type="text" reference="Features(Type)"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+	</Table>
 
 	<!-- FOUNDER: Allows you to define any belief to grant X yield from GP use, where X is the number below. (NATIONAL YIELDS EXCEPT FAITH)-->
 	<Table name="Belief_YieldFromGPUse">

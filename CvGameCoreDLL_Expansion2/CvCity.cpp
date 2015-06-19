@@ -7944,11 +7944,11 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			}
 			// END TERRA COTTA AWESOME
 #if defined(MOD_BALANCE_CORE)
-			if(MOD_BALANCE_CORE && pBuildingInfo->IsReformation() && (iChange > 0))
+			if(MOD_BALANCE_CORE && pBuildingInfo->IsReformation() && (iChange > 0) && bFirst)
 			{
 				GET_PLAYER(getOwner()).SetReformation(true);
 			}
-			if(MOD_BALANCE_CORE && (pBuildingInfo->GrantsRandomResourceTerritory() > 0) && (iChange > 0))
+			if(MOD_BALANCE_CORE && (pBuildingInfo->GrantsRandomResourceTerritory() > 0) && (iChange > 0) && bFirst)
 			{
 				GET_PLAYER(getOwner()).GetPlayerTraits()->AddUniqueLuxuriesAround(this, pBuildingInfo->GrantsRandomResourceTerritory());
 			}
@@ -9142,15 +9142,19 @@ int CvCity::foodConsumption(bool /*bNoAngry*/, int iExtra) const
 #if defined(MOD_BALANCE_SPECIALIST_FOOD_SCALE_ERA)
 	if(MOD_BALANCE_SPECIALIST_FOOD_SCALE_ERA)
 	{
-		int iPopulation = (getPopulation() + iExtra) - GetCityCitizens()->GetTotalSpecialistCount();
 		int iSpecialists = GetCityCitizens()->GetTotalSpecialistCount();
+		iSpecialists += iExtra;
+		int iPopulation = (getPopulation() - iSpecialists);
 
 		int iFoodPerPop = /*2*/ GC.getFOOD_CONSUMPTION_PER_POPULATION();
 
 		int iNum = iPopulation * iFoodPerPop;
 
-		int iEra = (GET_PLAYER(getOwner()).GetCurrentEra() + 1);
-		iEra += /*2*/ GC.getFOOD_CONSUMPTION_PER_POPULATION();
+		int iEra = GET_PLAYER(getOwner()).GetCurrentEra();
+		if(iEra <= 0)
+		{
+			iEra = 1;
+		}
 
 		iNum += (iEra * iSpecialists);
 		if(GET_PLAYER(getOwner()).isHalfSpecialistFood())
@@ -11069,6 +11073,130 @@ void CvCity::ChangeFaithPerTurnFromPolicies(int iChange)
 
 //	--------------------------------------------------------------------------------
 #if defined(MOD_API_UNIFIED_YIELDS)
+int CvCity::GetYieldPerXTerrain(YieldTypes eYield) const
+{
+	VALIDATE_OBJECT
+	int iYield = 0;
+
+	int iValidTiles = 0;
+	int iBaseYield = 0;
+	ReligionTypes eReligionFounded = GET_PLAYER(getOwner()).GetReligions()->GetReligionCreatedByPlayer(true);
+	const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligionFounded, getOwner());
+	if(pReligion)
+	{
+
+		for (int iI = 0; iI < GC.getNumTerrainInfos(); iI++)
+		{
+			TerrainTypes eTerrain = (TerrainTypes) iI;
+
+			if(pReligion)
+			{
+				iBaseYield = pReligion->m_Beliefs.GetYieldPerXTerrain(eTerrain, eYield);
+				if(iBaseYield > 0)
+				{
+					iValidTiles = 0;
+#if defined(MOD_GLOBAL_CITY_WORKING)
+					for(int iJ = 0; iJ < GetNumWorkablePlots(); iJ++)
+#else
+					for(int iJ = 0; iJ < NUM_CITY_PLOTS; iJ++)
+#endif
+					{
+						CvPlot* pPlot = GetCityCitizens()->GetCityPlotFromIndex(iJ);
+
+						if(pPlot != NULL)
+						{
+							if(GetCityCitizens()->IsWorkingPlot(pPlot))
+							{
+								if(pPlot->getTerrainType() == eTerrain)
+								{
+									if(pReligion->m_Beliefs.RequiresNoImprovement() && pPlot->getImprovementType() == NO_IMPROVEMENT)
+									{
+										iValidTiles++;
+									}
+									else if(pReligion->m_Beliefs.RequiresNoImprovementFeature() && pPlot->getFeatureType() == NO_FEATURE && !pPlot->isHills())
+									{
+										iValidTiles++;
+									}
+									else
+									{
+										iValidTiles++;
+									}
+								}
+							}
+						}
+					}
+					if(iValidTiles > 0)
+					{
+						//Gain 1 yield per x valid tiles - so if 'x' is 3, and you have 3 tiles that match, you get 1 yield
+						iYield += (iValidTiles / iBaseYield);
+					}
+				}
+			}
+		}
+	}
+	
+	return iYield;
+}
+int CvCity::GetYieldPerXFeature(YieldTypes eYield) const
+{
+	VALIDATE_OBJECT
+	int iYield = 0;
+
+	int iValidTiles = 0;
+	int iBaseYield = 0;
+	ReligionTypes eReligionFounded = GET_PLAYER(getOwner()).GetReligions()->GetReligionCreatedByPlayer(true);
+	const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligionFounded, getOwner());
+	if(pReligion)
+	{
+
+		for (int iI = 0; iI < GC.getNumFeatureInfos(); iI++)
+		{
+			FeatureTypes eFeature = (FeatureTypes) iI;
+
+			if(pReligion)
+			{
+				iBaseYield = pReligion->m_Beliefs.GetYieldPerXFeature(eFeature, eYield);
+				if(iBaseYield > 0)
+				{
+					iValidTiles = 0;
+#if defined(MOD_GLOBAL_CITY_WORKING)
+					for(int iJ = 0; iJ < GetNumWorkablePlots(); iJ++)
+#else
+					for(int iJ = 0; iJ < NUM_CITY_PLOTS; iJ++)
+#endif
+					{
+						CvPlot* pPlot = GetCityCitizens()->GetCityPlotFromIndex(iJ);
+
+						if(pPlot != NULL)
+						{
+							if(GetCityCitizens()->IsWorkingPlot(pPlot))
+							{
+								if(pPlot->getFeatureType() == eFeature)
+								{
+									if(pReligion->m_Beliefs.RequiresNoImprovement() && pPlot->getImprovementType() == NO_IMPROVEMENT)
+									{
+										iValidTiles++;
+									}
+									else
+									{
+										iValidTiles++;
+									}
+								}
+							}
+						}
+					}
+					if(iValidTiles > 0)
+					{
+						//Gain 1 yield per x valid tiles - so if 'x' is 3, and you have 3 tiles that match, you get 1 yield
+						iYield += (iValidTiles / iBaseYield);
+					}
+				}
+			}
+		}
+	}
+	
+	return iYield;
+}
 int CvCity::GetYieldPerTurnFromUnimprovedFeatures(YieldTypes eYield) const
 {
 	VALIDATE_OBJECT
@@ -12454,7 +12582,7 @@ int CvCity::getUnhappinessFromCultureNeeded() const
 	//Buildings decrease this by a flat integer.
 	if(GetUnculturedUnhappiness() != 0)
 	{
-		iThreshold += ((GetUnculturedUnhappiness()  * iThreshold) / 100);
+		iThreshold += ((GetUnculturedUnhappiness()  * (max(1, getPopulation()) / 2)) / 100);
 	}
 	int iLoop = 0;
 	for(const CvCity* pLoopCity = GET_PLAYER(getOwner()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iLoop))
@@ -12464,7 +12592,7 @@ int CvCity::getUnhappinessFromCultureNeeded() const
 			//Mod from global unhappiness building modifier.
 			if(pLoopCity->GetUnculturedUnhappinessGlobal() != 0)
 			{
-				iThreshold += ((pLoopCity->GetUnculturedUnhappinessGlobal()  * iThreshold) / 100);
+				iThreshold += ((pLoopCity->GetUnculturedUnhappinessGlobal()  * (max(1, getPopulation()) / 2)) / 100);
 			}
 		}		
 	}
@@ -12473,6 +12601,11 @@ int CvCity::getUnhappinessFromCultureNeeded() const
 		iThreshold += ((GET_PLAYER(getOwner()).GetPuppetUnhappinessMod() * iThreshold) / 100);
 	}
 #endif
+
+	//Increase threshold based on # of cities. Is slight, but makes a difference.
+	int iNumCities = (GET_PLAYER(getOwner()).getNumCities() * GC.getBALANCE_HAPPINESS_BASE_CITY_COUNT_MULTIPLIER());
+	iThreshold *= (100 + iNumCities);
+	iThreshold /= 100;
 
 	//This is for LUA.
 	return iThreshold;
@@ -12576,7 +12709,7 @@ int CvCity::getUnhappinessFromScienceNeeded() const
 	//Buildings decrease this by a flat integer.
 	if(GetIlliteracyUnhappiness() != 0)
 	{
-		iThreshold += ((GetIlliteracyUnhappiness() * iThreshold) / 100);
+		iThreshold += ((GetIlliteracyUnhappiness() * (max(1, getPopulation()) / 2)) / 100);
 	}
 	int iLoop = 0;
 	for(const CvCity* pLoopCity = GET_PLAYER(getOwner()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iLoop))
@@ -12586,7 +12719,7 @@ int CvCity::getUnhappinessFromScienceNeeded() const
 			//Mod from global unhappiness building modifier.
 			if(pLoopCity->GetIlliteracyUnhappinessGlobal() != 0)
 			{
-				iThreshold += ((pLoopCity->GetIlliteracyUnhappinessGlobal() * iThreshold) / 100);
+				iThreshold += ((pLoopCity->GetIlliteracyUnhappinessGlobal() * (max(1, getPopulation()) / 2)) / 100);
 			}
 		}		
 	}
@@ -12595,6 +12728,11 @@ int CvCity::getUnhappinessFromScienceNeeded() const
 		iThreshold += ((GET_PLAYER(getOwner()).GetPuppetUnhappinessMod() * iThreshold) / 100);
 	}
 #endif
+
+	//Increase threshold based on # of cities. Is slight, but makes a difference.
+	int iNumCities = (GET_PLAYER(getOwner()).getNumCities() * GC.getBALANCE_HAPPINESS_BASE_CITY_COUNT_MULTIPLIER());
+	iThreshold *= (100 + iNumCities);
+	iThreshold /= 100;
 
 	//This is for LUA.
 	return iThreshold;
@@ -12730,7 +12868,7 @@ int CvCity::getUnhappinessFromDefenseNeeded() const
 	//Buildings decrease this by a flat integer.
 	if(GetDefenseUnhappiness() != 0)
 	{
-		iThreshold += ((GetDefenseUnhappiness() * iThreshold) / 100);
+		iThreshold += ((GetDefenseUnhappiness() * (max(1, getPopulation()) / 2)) / 100);
 	}
 	int iLoop = 0;
 	for(const CvCity* pLoopCity = GET_PLAYER(getOwner()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iLoop))
@@ -12740,7 +12878,7 @@ int CvCity::getUnhappinessFromDefenseNeeded() const
 			//Mod from global unhappiness building modifier.
 			if(pLoopCity->GetDefenseUnhappinessGlobal() != 0)
 			{
-				iThreshold += ((pLoopCity->GetDefenseUnhappinessGlobal() * iThreshold) / 100);
+				iThreshold += ((pLoopCity->GetDefenseUnhappinessGlobal() * (max(1, getPopulation()) / 2)) / 100);
 			}
 		}		
 	}
@@ -12749,6 +12887,11 @@ int CvCity::getUnhappinessFromDefenseNeeded() const
 		iThreshold += ((GET_PLAYER(getOwner()).GetPuppetUnhappinessMod() * iThreshold) / 100);
 	}
 #endif
+	//Increase threshold based on # of cities. Is slight, but makes a difference.
+	int iNumCities = (GET_PLAYER(getOwner()).getNumCities() * GC.getBALANCE_HAPPINESS_BASE_CITY_COUNT_MULTIPLIER());
+	iThreshold *= (100 + iNumCities);
+	iThreshold /= 100;
+
 	//This is for LUA.
 	return iThreshold;
 }
@@ -12852,7 +12995,7 @@ int CvCity::getUnhappinessFromGoldNeeded() const
 	//Buildings decrease this by a flat integer.
 	if(GetPovertyUnhappiness() != 0)
 	{
-		iThreshold += ((GetPovertyUnhappiness() * iThreshold) / 100);
+		iThreshold += ((GetPovertyUnhappiness() * (max(1, getPopulation()) / 2)) / 100);
 	}
 	int iLoop = 0;
 	for(const CvCity* pLoopCity = GET_PLAYER(getOwner()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iLoop))
@@ -12862,7 +13005,7 @@ int CvCity::getUnhappinessFromGoldNeeded() const
 			//Mod from global unhappiness building modifier.
 			if(pLoopCity->GetPovertyUnhappinessGlobal() != 0)
 			{
-				iThreshold += ((pLoopCity->GetPovertyUnhappinessGlobal() * iThreshold) / 100);
+				iThreshold += ((pLoopCity->GetPovertyUnhappinessGlobal() * (max(1, getPopulation()) / 2)) / 100);
 			}
 		}		
 	}
@@ -12871,6 +13014,10 @@ int CvCity::getUnhappinessFromGoldNeeded() const
 		iThreshold += ((GET_PLAYER(getOwner()).GetPuppetUnhappinessMod() * iThreshold) / 100);
 	}
 #endif
+	//Increase threshold based on # of cities. Is slight, but makes a difference.
+	int iNumCities = (GET_PLAYER(getOwner()).getNumCities() * GC.getBALANCE_HAPPINESS_BASE_CITY_COUNT_MULTIPLIER());
+	iThreshold *= (100 + iNumCities);
+	iThreshold /= 100;
 
 	return iThreshold;
 }
@@ -14791,7 +14938,8 @@ int CvCity::GetBaseYieldRateFromReligion(YieldTypes eIndex) const
 
 #if defined(MOD_API_UNIFIED_YIELDS)
 	int iBaseYield = m_aiBaseYieldRateFromReligion[eIndex];
-
+	iBaseYield += GetYieldPerXTerrain(eIndex);
+	iBaseYield += GetYieldPerXFeature(eIndex);
 	// This will only return a value for food and production
 	iBaseYield += GetYieldPerTurnFromReligion(GetCityReligions()->GetReligiousMajority(), eIndex);
 		
@@ -21314,9 +21462,6 @@ bool CvCity::canRangeStrikeAt(int iX, int iY) const
 		}
 	}
 
-#if defined(MOD_BALANCE_CORE_MILITARY)
-	return (!pTargetPlot->isCity());
-#else
 	// If it's NOT a city, see if there are any units to aim for
 	if(!pTargetPlot->isCity())
 	{
@@ -21331,7 +21476,6 @@ bool CvCity::canRangeStrikeAt(int iX, int iY) const
 	}
 
 	return true;
-#endif
 }
 
 //	----------------------------------------------------------------------------

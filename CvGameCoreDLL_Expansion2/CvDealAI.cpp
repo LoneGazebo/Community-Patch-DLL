@@ -1901,22 +1901,22 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 				//We have a huge excess.
 				if((GetPlayer()->getNumResourceAvailable(eResource, true) + iResourceQuantity) >= (GetPlayer()->getNumResourceUsed(eResource) * 3))
 				{
-					iItemValue += (((iResourceQuantity + iNumTurns) * 20) / 100);	
+					iItemValue += (((iResourceQuantity + iNumTurns) * 10) / 100);	
 				}
 				//We have some excess.
 				else if((GetPlayer()->getNumResourceAvailable(eResource, true) + iResourceQuantity) >= (GetPlayer()->getNumResourceUsed(eResource) * 2))
 				{
-					iItemValue += (((iResourceQuantity + iNumTurns) * 40) / 100);	
+					iItemValue += (((iResourceQuantity + iNumTurns) * 25) / 100);	
 				}
 				//We have just a little extra
 				else if((GetPlayer()->getNumResourceAvailable(eResource, true) + iResourceQuantity) > (GetPlayer()->getNumResourceUsed(eResource)))
 				{
-					iItemValue += (((iResourceQuantity + iNumTurns) * 60) / 100);	
+					iItemValue += (((iResourceQuantity + iNumTurns) * 50) / 100);	
 				}
 				//We need some.
 				else if((GetPlayer()->getNumResourceAvailable(eResource, true) + iResourceQuantity) <= GetPlayer()->getNumResourceUsed(eResource))
 				{
-					iItemValue += (((iResourceQuantity + iNumTurns) * 80) / 100);	
+					iItemValue += (((iResourceQuantity + iNumTurns) * 75) / 100);	
 				}
 				//We really need some.
 				else if((GetPlayer()->getNumResourceAvailable(eResource, true) + iResourceQuantity) <= GetPlayer()->getNumResourceUsed(eResource) * 2)
@@ -1927,16 +1927,16 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 			//We have it but we aren't using it.
 			else if(((GetPlayer()->getNumResourceAvailable(eResource, true) + iResourceQuantity) > 0) && (GetPlayer()->getNumResourceUsed(eResource) <= 0))
 			{
-				iItemValue += (((iResourceQuantity + iNumTurns) * 25) / 100);	
+				iItemValue += (((iResourceQuantity + iNumTurns) * 15) / 100);	
 			}
 			//We don't have any and we don't use any.
 			else if(((GetPlayer()->getNumResourceAvailable(eResource, true) + iResourceQuantity) <= 0) && (GetPlayer()->getNumResourceUsed(eResource) <= 0))
 			{
-				iItemValue += (((iResourceQuantity + iNumTurns) * 50) / 100);	
+				iItemValue += (((iResourceQuantity + iNumTurns) * 25) / 100);	
 			}
 			else
 			{
-				iItemValue += (((iResourceQuantity + iNumTurns) * 50) / 100);
+				iItemValue += (((iResourceQuantity + iNumTurns) * 40) / 100);
 			}
 			// Opinion also matters
 			int iModifier = 0;
@@ -2052,27 +2052,27 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 				//We have a huge excess.
 				if((GetPlayer()->getNumResourceAvailable(eResource, true) + iResourceQuantity) >= (GetPlayer()->getNumResourceUsed(eResource) * 3))
 				{
-					iItemValue += (((iResourceQuantity + iNumTurns) * 25) / 100);
+					iItemValue += (((iResourceQuantity + iNumTurns) * 50) / 100);
 				}
 				//We have some excess.
 				else if((GetPlayer()->getNumResourceAvailable(eResource, true) + iResourceQuantity) >= (GetPlayer()->getNumResourceUsed(eResource) * 2))
 				{
-					iItemValue += (((iResourceQuantity + iNumTurns) * 50) / 100);
+					iItemValue += (((iResourceQuantity + iNumTurns) * 75) / 100);
 				}
 				//We have just a little extra
 				else if((GetPlayer()->getNumResourceAvailable(eResource, true) + iResourceQuantity) > (GetPlayer()->getNumResourceUsed(eResource)))
 				{
-					iItemValue += (((iResourceQuantity + iNumTurns) * 75) / 100);
+					iItemValue += (((iResourceQuantity + iNumTurns) * 125) / 100);
 				}
 				//We need some.
 				else if((GetPlayer()->getNumResourceAvailable(eResource, true) + iResourceQuantity) <= GetPlayer()->getNumResourceUsed(eResource))
 				{
-					iItemValue += (((iResourceQuantity + iNumTurns) * 125) / 100);
+					iItemValue += (((iResourceQuantity + iNumTurns) * 200) / 100);
 				}
 				//We really need some.
 				else if((GetPlayer()->getNumResourceAvailable(eResource, true) + iResourceQuantity) <= GetPlayer()->getNumResourceUsed(eResource) * 2)
 				{
-					iItemValue += (((iResourceQuantity + iNumTurns) * 150) / 100);	
+					iItemValue += (((iResourceQuantity + iNumTurns) * 300) / 100);	
 				}
 			}
 			//We have it but we aren't using it.
@@ -2082,12 +2082,12 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 			}
 			else
 			{
-				iItemValue += (((iResourceQuantity + iNumTurns) * 50) / 100);
+				iItemValue += (((iResourceQuantity + iNumTurns) * 125) / 100);
 			}
 		}
 		else
 		{
-			iItemValue += (((iResourceQuantity + iNumTurns) * 25) / 100);
+			iItemValue += (((iResourceQuantity + iNumTurns) * 50) / 100);
 		}
 		if(pkResourceInfo->getAITradeModifier() > 0)
 		{

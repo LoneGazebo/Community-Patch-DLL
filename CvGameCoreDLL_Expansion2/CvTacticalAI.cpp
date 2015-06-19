@@ -2278,7 +2278,7 @@ bool CvTacticalAI::PlotDamageCityMoves()
 				{
 					//If don't have units nearby to actually conquer, and bad dominance flag, get out.
 #if defined(MOD_BALANCE_CORE_MILITARY)
-					if(!FindUnitsWithinStrikingDistance2(pPlot, 30, true /*bNoRanged*/, false /*bNavalOnly*/, false /*bMustMoveThrough*/, true /*bIncludeBlocked*/))
+					if(!FindUnitsWithinStrikingDistance2(pPlot, 20, true /*bNoRanged*/, false /*bNavalOnly*/, false /*bMustMoveThrough*/, true /*bIncludeBlocked*/))
 #else
 					if(!FindUnitsWithinStrikingDistance(pPlot, 2, 0, true /*bNoRangedUnits*/, false /*bNavalOnly*/, false /*bMustMoveThrough*/, true /*bIncludeBlockedUnits*/))
 #endif
@@ -6994,15 +6994,21 @@ bool CvTacticalAI::ScoreDeploymentPlots(CvPlot* pTarget, CvArmyAI* pArmy, int iN
 	{
 		for(iDY = -(iRange); iDY <= iRange; iDY++)
 		{
+#if defined(MOD_BALANCE_CORE)
+			pPlot = plotXYWithRangeCheck(pTarget->getX(), pTarget->getY(), iDX, iDY, iRange);
+#else
 			pPlot = plotXY(pTarget->getX(), pTarget->getY(), iDX, iDY);
+#endif
 			if(pPlot != NULL)
 			{
 				bSafeForDeployment = true;
 				bForcedToUseWater = false;
-
+#if defined(MOD_BALANCE_CORE)
+#else
 				int iPlotDistance = plotDistance(pPlot->getX(), pPlot->getY(), pTarget->getX(), pTarget->getY());
 				if(iPlotDistance <= iRange)
 				{
+#endif
 					int iPlotIndex = GC.getMap().plotNum(pPlot->getX(), pPlot->getY());
 					pCell = m_pMap->GetCell(iPlotIndex);
 					CvAIOperation* pOperation = m_pPlayer->getAIOperation(pArmy->GetOperationID());
@@ -7052,7 +7058,12 @@ bool CvTacticalAI::ScoreDeploymentPlots(CvPlot* pTarget, CvArmyAI* pArmy, int iN
 							}
 						}
 						iNumDeployPlotsFound++;
+#if defined(MOD_BALANCE_CORE)
+						int iPlotDistance = plotDistance(pPlot->getX(), pPlot->getY(), pTarget->getX(), pTarget->getY());
+						iScore = 1000 - (iPlotDistance * 100);
+#else
 						iScore = 600 - (iPlotDistance * 100);
+#endif
 						if(pCell->IsSubjectToAttack())
 						{
 							iScore -= 100;
@@ -7110,17 +7121,33 @@ bool CvTacticalAI::ScoreDeploymentPlots(CvPlot* pTarget, CvArmyAI* pArmy, int iN
 						pCell->SetTargetType( target.GetTargetType() );
 #endif
 					}
+#if defined(MOD_BALANCE_CORE)
+#else
 				}
+#endif
 			}
 		}
 	}
 
 	// Make sure we found enough
+#if defined(MOD_BALANCE_CORE)
+	if(iNumRangedUnits > 0)
+	{
+		if(iNumSafePlotsFound < iNumRangedUnits && iNumDeployPlotsFound < (iNumMeleeUnits + iNumRangedUnits))
+		{
+			return false;
+		}
+	}
+	else if(iNumDeployPlotsFound < iNumMeleeUnits)
+	{
+		return false;
+	}
+#else
 	if(iNumSafePlotsFound < iNumRangedUnits || iNumDeployPlotsFound < (iNumMeleeUnits + iNumRangedUnits))
 	{
 		return false;
 	}
-
+#endif
 	return true;
 }
 
@@ -7363,12 +7390,11 @@ void CvTacticalAI::ExecuteNavalFormationMoves(CvArmyAI* pArmy, CvPlot* pTurnTarg
 		{
 			if(pOperation && pOperation->IsMixedLandNavalOperation())
 			{
-				iRange *= 2;
+				iRange += 1;
 			}
 			else if(pOperation && pOperation->IsAllNavalOperation())
 			{
-				iRange *= 3;
-				iRange /= 2;
+				iRange += 2;
 			}
 		}
 	}
@@ -7376,7 +7402,7 @@ void CvTacticalAI::ExecuteNavalFormationMoves(CvArmyAI* pArmy, CvPlot* pTurnTarg
 
 	// See if we have enough places to put everyone
 #if defined(MOD_BALANCE_CORE_MILITARY)
-	if(!ScoreDeploymentPlots(pTurnTarget, pArmy, iNavalUnits, iEscortedUnits, iRange) && !ScoreDeploymentPlots(pTurnTarget, pArmy, iNavalUnits, iEscortedUnits, 3))
+	if(!ScoreDeploymentPlots(pTurnTarget, pArmy, iNavalUnits, iEscortedUnits, iRange) && !ScoreDeploymentPlots(pTurnTarget, pArmy, iNavalUnits, iEscortedUnits, 5))
 #else
 	if(!ScoreDeploymentPlots(pTurnTarget, pArmy, iMostUnits, 0, iRange) &&
 	        !ScoreDeploymentPlots(pTurnTarget, pArmy, iMostUnits, 0, 3))
@@ -13998,7 +14024,7 @@ void CvTacticalAI::MoveGreatGeneral(CvArmyAI* pArmyAI)
 
 							if(iTotalPower > iHighestDanger)
 							{
-								if((iHighestDanger > 0) && ((iTotalPower *2) > (iHighestDanger * 3)))
+								if((iHighestDanger > 0) && ((iTotalPower * 2) > (iHighestDanger * 3)))
 								{
 									iHighestDanger = iTotalPower;
 									pBestPlot = pLoopPlot;
@@ -14037,23 +14063,65 @@ void CvTacticalAI::MoveGreatGeneral(CvArmyAI* pArmyAI)
 			}
 			if(pBestPlot != NULL)
 			{
-				ExecuteMoveToPlot(pGeneral, pBestPlot);
-				UnitProcessed(pGeneral->GetID());
-				pGeneral->finishMoves();
-				if(pArmyAI != NULL)
+				pGeneral->GeneratePath(pBestPlot);
+				CvPlot *pMovePlot = pGeneral->GetPathEndTurnPlot();
+				bool bSafe = false;
+				if(pMovePlot != NULL)
 				{
-					int iDistanceRemaining = plotDistance(pGeneral->getX(), pGeneral->getY(), pBestPlot->getX(), pBestPlot->getY());
+					if(pMovePlot->getNumDefenders(m_pPlayer->GetID()) > 0)
+					{
+						ExecuteMoveToPlot(pGeneral, pBestPlot);
+					}
+					else
+					{
+						for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+						{
+							CvPlot *pLoopPlot = plotDirection(pMovePlot->getX(), pMovePlot->getY(), ((DirectionTypes)iI));
+							if (pLoopPlot != NULL)
+							{
+								if(pLoopPlot->getNumDefenders(m_pPlayer->GetID()) > 0)
+								{
+									if(CanReachInXTurns(pGeneral, pMovePlot, 1))
+									{
+										ExecuteMoveToPlot(pGeneral, pBestPlot);
+										bSafe = true;
+										break;
+									}
+								}
+							}
+						}
+					}
+				}
+				if(bSafe)
+				{
+					UnitProcessed(pGeneral->GetID());
+					pGeneral->finishMoves();
+					if(pArmyAI != NULL)
+					{
+						int iDistanceRemaining = plotDistance(pGeneral->getX(), pGeneral->getY(), pBestPlot->getX(), pBestPlot->getY());
 
+						if(GC.getLogging() && GC.getAILogging())
+						{
+							CvString strMsg;
+							strMsg.Format("Deploying %s to assist troops, To X: %d, To Y: %d, At X: %d, At Y: %d, Dist from Target: %d",
+											pGeneral->getName().GetCString(), pBestPlot->getX(), pBestPlot->getY(),
+											pGeneral->getX(), pGeneral->getY(), iDistanceRemaining);
+							LogTacticalMessage(strMsg);
+						}
+					}
+					continue;
+				}
+				else
+				{
 					if(GC.getLogging() && GC.getAILogging())
 					{
 						CvString strMsg;
-						strMsg.Format("Deploying %s to assist troops, To X: %d, To Y: %d, At X: %d, At Y: %d, Dist from Target: %d",
+						strMsg.Format("Deploying %s to assist troops, but couldn't find a safe plot. Going to flee. To X: %d, To Y: %d, At X: %d, At Y: %d",
 										pGeneral->getName().GetCString(), pBestPlot->getX(), pBestPlot->getY(),
-										pGeneral->getX(), pGeneral->getY(), iDistanceRemaining);
+										pGeneral->getX(), pGeneral->getY());
 						LogTacticalMessage(strMsg);
 					}
 				}
-				continue;
 			}
 		}
 	}

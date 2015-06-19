@@ -9,26 +9,80 @@
 	</Table>
 	<AIGrandStrategy_Flavors>
 		<Update>
-			<Where GrandStrategyType ="AIGRANDSTRATEGY_CONQUEST"/>
-			<Set FlavorType="FLAVOR_MILITARY_TRAINING"
-			Flavor="9"/>
+			<Where AIGrandStrategyType ="AIGRANDSTRATEGY_CONQUEST"/>
+			<Set FlavorType="FLAVOR_OFFENSE"
+			Flavor="15"/>
 		</Update>
 		<Update>
-			<Where GrandStrategyType ="AIGRANDSTRATEGY_CULTURE"/>
-			<Set FlavorType="FLAVOR_ARCHAEOLOGY"
-			Flavor="9"/>
+			<Where AIGrandStrategyType ="AIGRANDSTRATEGY_CULTURE"/>
+			<Set FlavorType="FLAVOR_CULTURE"
+			Flavor="15"/>
 		</Update>
 		<Update>
-			<Where GrandStrategyType ="AIGRANDSTRATEGY_UNITED_NATIONS"/>
+			<Where AIGrandStrategyType ="AIGRANDSTRATEGY_UNITED_NATIONS"/>
 			<Set FlavorType="FLAVOR_DIPLOMACY"
-			Flavor="9"/>
+			Flavor="15"/>
 		</Update>
 		<Update>
-			<Where GrandStrategyType ="AIGRANDSTRATEGY_SPACESHIP"/>
+			<Where AIGrandStrategyType ="AIGRANDSTRATEGY_SPACESHIP"/>
 			<Set FlavorType="FLAVOR_SPACESHIP"
-			Flavor="9"/>
+			Flavor="15"/>
 		</Update>
 	</AIGrandStrategy_Flavors>
+	<AIGrandStrategy_Yields>
+		<Update>
+			<Where AIGrandStrategyType ="AIGRANDSTRATEGY_CONQUEST"/>
+			<Set YieldType="YIELD_PRODUCTION"
+			Yield="250"/>
+		</Update>
+		<Update>
+			<Where AIGrandStrategyType ="AIGRANDSTRATEGY_CULTURE"/>
+			<Set YieldType="YIELD_GOLD"
+			Yield="100"/>
+		</Update>
+		<Update>
+			<Where AIGrandStrategyType ="AIGRANDSTRATEGY_CULTURE"/>
+			<Set YieldType="YIELD_SCIENCE"
+			Yield="100"/>
+		</Update>
+		<Update>
+			<Where AIGrandStrategyType ="AIGRANDSTRATEGY_UNITED_NATIONS"/>
+			<Set YieldType="YIELD_GOLD"
+			Yield="150"/>
+		</Update>
+		<Update>
+			<Where AIGrandStrategyType ="AIGRANDSTRATEGY_SPACESHIP"/>
+			<Set YieldType="YIELD_SCIENCE"
+			Yield="200"/>
+		</Update>
+		<Update>
+			<Where AIGrandStrategyType ="AIGRANDSTRATEGY_SPACESHIP"/>
+			<Set YieldType="YIELD_PRODUCTION"
+			Yield="200"/>
+		</Update>
+	</AIGrandStrategy_Yields>
+	<AIGrandStrategy_Yields>
+		<Row>
+			<AIGrandStrategyType>AIGRANDSTRATEGY_CONQUEST</AIGrandStrategyType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>150</Yield>
+		</Row>
+		<Row>
+			<AIGrandStrategyType>AIGRANDSTRATEGY_UNITED_NATIONS</AIGrandStrategyType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Yield>150</Yield>
+		</Row>
+		<Row>
+			<AIGrandStrategyType>AIGRANDSTRATEGY_CULTURE</AIGrandStrategyType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>200</Yield>
+		</Row>
+		<Row>
+			<AIGrandStrategyType>AIGRANDSTRATEGY_SPACESHIP</AIGrandStrategyType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Yield>200</Yield>
+		</Row>
+	</AIGrandStrategy_Yields>
 	<Defines>
 		<Update>
 			<Where Name="FLAVOR_RANDOMIZATION_RANGE"/>

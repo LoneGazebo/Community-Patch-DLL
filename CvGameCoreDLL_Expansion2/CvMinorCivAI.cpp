@@ -11803,7 +11803,8 @@ int CvMinorCivAI::GetYieldTheftAmount(PlayerTypes eBully, YieldTypes eYield)
 			iValue += pCapitalCity->getBaseYieldRate(YIELD_FOOD) / 2;
 			break;
 	}
-	iValue *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+	int iNumTurns = min(1,GC.getGame().getMaxTurns() - GC.getGame().getGameTurn());
+	iValue *= ((iNumTurns / 2) + 100);
 	iValue /= 100;
 	return iValue;
 }

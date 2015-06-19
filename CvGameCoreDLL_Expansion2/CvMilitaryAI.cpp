@@ -3518,7 +3518,7 @@ void CvMilitaryAI::UpdateBaseData()
 
 	m_iRecommendedMilitarySize = m_iMandatoryReserveSize + iNumUnitsWanted;
 #if defined(MOD_BALANCE_CORE_MILITARY)
-	if((m_iRecommendedMilitarySize + iHighestParity + iNumOwnedArmyUnits) <= GetPlayer()->GetNumUnitsSupplied())
+	if((m_iRecommendedMilitarySize + iHighestParity) <= GetPlayer()->GetNumUnitsSupplied())
 	{
 		m_iRecommendedMilitarySize += iHighestParity;
 	}
@@ -6784,7 +6784,7 @@ bool MilitaryAIHelpers::IsTestStrategy_WarMobilization(MilitaryAIStrategyTypes e
 #if defined(MOD_BALANCE_CORE)
 	if(pPlayer->IsCramped())
 	{
-		iCurrentWeight += 10;
+		iCurrentWeight += 5;
 	}
 	for(int iFlavorLoop = 0; iFlavorLoop < GC.getNumFlavorTypes(); iFlavorLoop++)
 	{
@@ -6806,11 +6806,11 @@ bool MilitaryAIHelpers::IsTestStrategy_WarMobilization(MilitaryAIStrategyTypes e
 #if defined(MOD_BALANCE_CORE)
 		if(pkDiplomacyAI->GetVictoryBlockLevel(eOtherPlayer) > BLOCK_LEVEL_WEAK)
 		{
-			iCurrentWeight += 10;
+			iCurrentWeight += 5;
 		}
 		if(pkDiplomacyAI->GetVictoryDisputeLevel(eOtherPlayer) > DISPUTE_LEVEL_WEAK)
 		{
-			iCurrentWeight += 10;
+			iCurrentWeight += 5;
 		}
 #endif
 
@@ -7327,7 +7327,7 @@ int MilitaryAIHelpers::ComputeRecommendedNavySize(CvPlayer* pPlayer)
 						}
 					}
 					//Let's try to achieve military parity with 1/3 the largest number of enemy units.
-					iNumParity = ((iNumTheirNavalUnits - iNumOwnedNavalUnits) / 3);
+					iNumParity = (iNumTheirNavalUnits - iNumOwnedNavalUnits);
 					if(iNumParity > iHighestParity)
 					{
 						iHighestParity = iNumParity;
@@ -7338,15 +7338,11 @@ int MilitaryAIHelpers::ComputeRecommendedNavySize(CvPlayer* pPlayer)
 	}
 	if(iHighestParity > 0)
 	{
-		if((iNumUnitsWanted + iNumOwnedNavalUnits + iHighestParity) <= pPlayer->GetNumUnitsSupplied())
+		if(iHighestParity > iNumUnitsWanted)
 		{
-			return (iHighestParity + iNumUnitsWanted);
+			return iHighestParity;
 		}
-		//We don't want to go over this, but we need every troop we can muster.
-		else
-		{
-			return pPlayer->GetNumUnitsSupplied();
-		}
+		return iNumUnitsWanted;
 	}
 #endif
 

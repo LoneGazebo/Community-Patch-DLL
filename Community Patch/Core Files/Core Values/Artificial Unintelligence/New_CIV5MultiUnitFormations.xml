@@ -728,6 +728,18 @@
 		</Row>
 		<Row>
 			<MultiUnitFormationType>MUFORMATION_CLOSE_CITY_DEFENSE</MultiUnitFormationType>
+			<PrimaryUnitType>UNITAI_ASSAULT_SEA</PrimaryUnitType>
+			<SecondaryUnitType>UNITAI_ATTACK_SEA</SecondaryUnitType>
+			<MultiUnitPositionType>MUPOSITION_BOMBARD</MultiUnitPositionType>
+		</Row>
+		<Row>
+			<MultiUnitFormationType>MUFORMATION_CLOSE_CITY_DEFENSE</MultiUnitFormationType>
+			<PrimaryUnitType>UNITAI_ATTACK_SEA</PrimaryUnitType>
+			<SecondaryUnitType>UNITAI_ASSAULT_SEA</SecondaryUnitType>
+			<MultiUnitPositionType>MUPOSITION_BOMBARD</MultiUnitPositionType>
+		</Row>
+		<Row>
+			<MultiUnitFormationType>MUFORMATION_CLOSE_CITY_DEFENSE</MultiUnitFormationType>
 			<PrimaryUnitType>UNITAI_GENERAL</PrimaryUnitType>
 			<SecondaryUnitType>UNITAI_GENERAL</SecondaryUnitType>
 			<MultiUnitPositionType>MUPOSITION_CIVILIAN_SUPPORT</MultiUnitPositionType>

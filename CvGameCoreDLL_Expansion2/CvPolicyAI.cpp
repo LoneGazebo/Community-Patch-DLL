@@ -10,6 +10,9 @@
 #include "CvPolicyAI.h"
 #include "CvGrandStrategyAI.h"
 #include "CvInfosSerializationHelper.h"
+#if defined(MOD_BALANCE_CORE)
+#include "CvEconomicAI.h"
+#endif
 
 // Include this after all other headers.
 #include "LintFree.h"
@@ -164,6 +167,47 @@ int CvPolicyAI::ChooseNextPolicy(CvPlayer* pPlayer)
 			int iWeight = 0;
 
 			iWeight += m_PolicyAIWeights.GetWeight(iPolicyLoop);
+#if defined(MOD_BALANCE_CORE)
+			//If we're already in this branch, let's get a bonus based on how many we have in it (this will push the AI to finish branches quickly.
+			if((m_pCurrentPolicies->GetPolicies()->GetPolicyEntry(iPolicyLoop)->GetLevel() <= 0)&& m_pCurrentPolicies->GetNumPoliciesOwnedInBranch((PolicyBranchTypes)m_pCurrentPolicies->GetPolicies()->GetPolicyEntry(iPolicyLoop)->GetPolicyBranchType()) > 0)
+			{
+				iWeight *= (m_pCurrentPolicies->GetNumPoliciesOwnedInBranch((PolicyBranchTypes)m_pCurrentPolicies->GetPolicies()->GetPolicyEntry(iPolicyLoop)->GetPolicyBranchType()) + 1);
+			}
+			//If this is an ideology policy, let's snap those up.
+			else if(m_pCurrentPolicies->GetPolicies()->GetPolicyEntry(iPolicyLoop)->GetLevel() > 0)
+			{
+				iWeight *= (m_pCurrentPolicies->GetPolicies()->GetPolicyEntry(iPolicyLoop)->GetLevel() + 1);
+			}
+			//Older branches should be slowly phased out.
+			PolicyBranchTypes ePolicyBranch = (PolicyBranchTypes)m_pCurrentPolicies->GetPolicies()->GetPolicyEntry(iPolicyLoop)->GetPolicyBranchType();
+			if(ePolicyBranch != NO_POLICY_BRANCH_TYPE)
+			{
+				CvPolicyBranchEntry* pkPolicyBranchInfo = GC.getPolicyBranchInfo(ePolicyBranch);
+				if(pkPolicyBranchInfo)
+				{
+					int iPolicyEra = pkPolicyBranchInfo->GetEraPrereq();
+					int iPlayerEra = pPlayer->GetCurrentEra();
+					if(iPolicyEra < iPlayerEra)
+					{
+						iWeight /= max(1, (iPlayerEra - iPolicyEra));
+					}
+				}
+				if(ePolicyBranch == (PolicyBranchTypes)GC.getInfoTypeForString("POLICY_BRANCH_PIETY", true))
+				{
+					EconomicAIStrategyTypes eStrategyBuildingReligion = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_DEVELOPING_RELIGION", true);
+					bool bBuildingReligion = false;
+					if (eStrategyBuildingReligion != NO_ECONOMICAISTRATEGY)
+					{
+						bBuildingReligion = pPlayer->GetEconomicAI()->IsUsingStrategy(eStrategyBuildingReligion);
+					}
+					if(!bBuildingReligion)
+					{
+						iWeight = 0;
+					}
+				}
+			}
+			
+#endif
 
 			// Does this policy finish a branch for us?
 			if(m_pCurrentPolicies->WillFinishBranchIfAdopted((PolicyTypes) iPolicyLoop))
@@ -253,7 +297,8 @@ int CvPolicyAI::ChooseNextPolicy(CvPlayer* pPlayer)
 
 	m_AdoptablePolicies.SortItems();
 	LogPossiblePolicies();
-
+#if defined(MOD_BALANCE_CORE)
+#else
 	// If there were any Level 3 tenets found, consider going for the one that matches our victory strategy
 	if (aLevel3Tenets.size() > 0)
 	{
@@ -297,10 +342,11 @@ int CvPolicyAI::ChooseNextPolicy(CvPlayer* pPlayer)
 						return (*it) + GC.getNumPolicyBranchInfos();
 					}
 				}
+
 			}
 		}
 	}
-
+#endif
 	CvAssertMsg(m_AdoptablePolicies.GetTotalWeight() >= 0, "Total weights of considered policies should not be negative! Please send Anton your save file and version.");
 
 	// If total weight is above 0, choose one above a threshold
@@ -679,7 +725,17 @@ void CvPolicyAI::DoConsiderIdeologySwitch(CvPlayer* pPlayer)
 		{
 			bDontSwitchAutocracy = true;
 		}
-
+#if defined(MOD_BALANCE_CORE)
+		//Sanity check - would a change to this branch simply make us unhappy in another way? If so, don't do it.
+		if(ePreferredIdeology != NO_POLICY_BRANCH_TYPE)
+		{
+			int iUnhappiness = pPlayer->GetCulture()->ComputeHypotheticalPublicOpinionUnhappiness(ePreferredIdeology);
+			if(iUnhappiness >= iPublicOpinionUnhappiness)
+			{
+				return;
+			}
+		}
+#endif
 		int iTotalHappinessImprovement = iPublicOpinionUnhappiness + iHappinessPreferredIdeology - iHappinessCurrentIdeology;
 		if (iTotalHappinessImprovement >= 10)
 		{
@@ -695,6 +751,13 @@ void CvPolicyAI::DoConsiderIdeologySwitch(CvPlayer* pPlayer)
 			{
 				return;
 			}
+#if defined(MOD_BALANCE_CORE)
+			//Final sanity check - are we flip-flopping?
+			if(GC.getGame().getGameTurn() - pPlayer->GetCulture()->GetTurnIdeologySwitch() <= 30)
+			{
+				return;
+			}
+#endif
 
 			// Cleared all obstacles -- REVOLUTION!
 			pPlayer->SetAnarchyNumTurns(GC.getSWITCH_POLICY_BRANCHES_ANARCHY_TURNS());

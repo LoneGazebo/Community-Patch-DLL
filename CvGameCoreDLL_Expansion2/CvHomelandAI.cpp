@@ -7751,6 +7751,12 @@ bool CvHomelandAI::GetBestUnitToReachTarget(CvPlot* pTarget, int iMaxTurns)
 		pLoopUnit = m_pPlayer->getUnit(it->GetID());
 		if(pLoopUnit)
 		{
+#if defined(MOD_BALANCE_CORE)
+			if(pLoopUnit->GetCurrHitPoints() < (pLoopUnit->GetMaxHitPoints() / 2))
+			{
+				continue;
+			}
+#endif
 			// Make sure domain matches
 			if(pLoopUnit->getDomainType() == DOMAIN_SEA && !pTarget->isWater() ||
 				pLoopUnit->getDomainType() == DOMAIN_LAND && pTarget->isWater())
@@ -7777,6 +7783,12 @@ bool CvHomelandAI::GetBestUnitToReachTarget(CvPlot* pTarget, int iMaxTurns)
 		pLoopUnit = m_pPlayer->getUnit(it->GetID());
 		if(pLoopUnit)
 		{
+#if defined(MOD_BALANCE_CORE)
+			if(pLoopUnit->GetCurrHitPoints() < (pLoopUnit->GetMaxHitPoints() / 2))
+			{
+				continue;
+			}
+#endif
 			// Make sure domain matches
 			if(pLoopUnit->getDomainType() == DOMAIN_SEA && !pTarget->isWater() ||
 				pLoopUnit->getDomainType() == DOMAIN_LAND && pTarget->isWater())

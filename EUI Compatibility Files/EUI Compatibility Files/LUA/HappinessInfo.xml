@@ -116,6 +116,11 @@
 								<Label Offset="10,0" Font="TwCenMT18" Anchor="R,C" ID="ExtraLuxuryHappinessValue"/>
 							</Box>
 							<!-- END -->
+							<Box Size="270,24" Anchor="c,c" Color="0.0.0.0" ID="VassalHappiness">
+								<Label Offset="10,0" Font="TwCenMT18" Anchor="L,C" String="TXT_KEY_HAPPINESS_FROM_VASSALS"/>
+								<Label Offset="10,0" Font="TwCenMT18" Anchor="R,C" ID="VassalHappinessValue"/>
+							</Box>
+							<!-- C4DF -->
 							<!-- HandicapHappiness -->
 							<Box Size="270,24" Anchor="c,c" Color="0.0.0.0" ID="HandicapHappiness">
 								<Label Offset="10,0" Font="TwCenMT18" Anchor="L,C" String="TXT_KEY_AD_SETUP_HANDICAP"/>

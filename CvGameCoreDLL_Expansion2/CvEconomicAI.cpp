@@ -2754,7 +2754,7 @@ void CvEconomicAI::DisbandExtraWorkers()
 	{
 		if(pLoopCity != NULL)
 		{
-			if(eWantWorkers != NO_ECONOMICAISTRATEGY)
+			if(eWantWorkers != NO_AICITYSTRATEGY)
 			{
 				if(pLoopCity->GetCityStrategyAI()->IsUsingCityStrategy(eWantWorkers))
 				{

@@ -12244,7 +12244,6 @@ int CvPlayer::GetCulturePerTurnFromReligion() const
 				}
 			}
 #endif
-
 			bool bAtPeace = GET_TEAM(getTeam()).getAtWarCount(false) == 0;
 			int iMod = pReligion->m_Beliefs.GetPlayerCultureModifier(bAtPeace);
 
@@ -12252,60 +12251,27 @@ int CvPlayer::GetCulturePerTurnFromReligion() const
 			{
 				iReligionCulturePerTurn += ((iReligionCulturePerTurn + iOtherCulturePerTurn) * iMod) / 100;
 			}
-#if defined(MOD_BALANCE_CORE_BELIEFS)
-			if(MOD_BALANCE_CORE_BELIEFS && pReligion->m_Beliefs.GetYieldPerLux(YIELD_CULTURE) > 0)
-			{
-				int iLuxCulture = pReligion->m_Beliefs.GetYieldPerLux(YIELD_CULTURE);
-				int iNumHappinessResources = 0;
-				ResourceTypes eResource;
-				for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
-				{
-					eResource = (ResourceTypes) iResourceLoop;
-
-					if(GetHappinessFromLuxury(eResource) > 0)
-					{
-						iNumHappinessResources++;
-					}
-				}
-				if(iNumHappinessResources > 0)
-				{
-					iLuxCulture *= iNumHappinessResources;
-					iReligionCulturePerTurn += iLuxCulture;
-				}
-			}
-#endif
 			return iReligionCulturePerTurn;
 		}
 	}
-#if defined(MOD_BALANCE_CORE_BELIEFS)
+#if defined(MOD_BALANCE_CORE)
 	else
 	{
-		ReligionTypes eMajority = GetReligions()->GetReligionCreatedByPlayer(true);
-		if(MOD_BALANCE_CORE_BELIEFS && eMajority != NO_RELIGION)
+		eFoundedReligion = GetReligions()->GetReligionCreatedByPlayer(true);
+		if(eFoundedReligion != NO_RELIGION && eFoundedReligion == RELIGION_PANTHEON)
 		{
-			const CvReligion* pReligion = pReligions->GetReligion(eMajority, GetID());
+			const CvReligion* pReligion = pReligions->GetReligion(eFoundedReligion, GetID());
 			if(pReligion)
 			{
-				if(pReligion->m_Beliefs.GetYieldPerLux(YIELD_CULTURE) > 0)
-				{
-					int iLuxCulture = pReligion->m_Beliefs.GetYieldPerLux(YIELD_CULTURE);
-					int iNumHappinessResources = 0;
-					ResourceTypes eResource;
-					for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
-					{
-						eResource = (ResourceTypes) iResourceLoop;
+				iReligionCulturePerTurn += GetYieldPerTurnFromReligion(YIELD_CULTURE);
+				bool bAtPeace = GET_TEAM(getTeam()).getAtWarCount(false) == 0;
+				int iMod = pReligion->m_Beliefs.GetPlayerCultureModifier(bAtPeace);
 
-						if(GetHappinessFromLuxury(eResource) > 0)
-						{
-							iNumHappinessResources++;
-						}
-					}
-					if(iNumHappinessResources > 0)
-					{
-						iLuxCulture *= iNumHappinessResources;
-						return iLuxCulture;
-					}
+				if (iMod != 0)
+				{
+					iReligionCulturePerTurn += ((iReligionCulturePerTurn + iOtherCulturePerTurn) * iMod) / 100;
 				}
+				return iReligionCulturePerTurn;
 			}
 		}
 	}
@@ -13495,33 +13461,89 @@ int CvPlayer::GetYieldPerTurnFromReligion(YieldTypes eYield) const
 			{
 				iYieldPerTurn += (pReligions->GetNumFollowers(eReligion) / iYieldPerXFollowers);
 			}
+			if(pReligion->m_Beliefs.GetYieldPerLux(YIELD_CULTURE) > 0)
+			{
+				int iLuxCulture = pReligion->m_Beliefs.GetYieldPerLux(YIELD_CULTURE);
+				int iNumHappinessResources = 0;
+				ResourceTypes eResource;
+				for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+				{
+					eResource = (ResourceTypes) iResourceLoop;
+
+					if(GetHappinessFromLuxury(eResource) > 0)
+					{
+						iNumHappinessResources++;
+					}
+				}
+				if(iNumHappinessResources > 0)
+				{
+					iLuxCulture *= iNumHappinessResources;
+					iYieldPerTurn += iLuxCulture;
+				}
+			}
 		}
 	}
+	//Pantheon
 	else
 	{
 		eReligion = GetReligions()->GetReligionCreatedByPlayer(true);
 		const CvReligion* pReligion = pReligions->GetReligion(eReligion, GetID());
-		if (pReligion)
+		if (pReligion && eReligion == RELIGION_PANTHEON)
 		{
+			int iLoop;
+			const CvCity* pLoopCity;
+			int iFollowers = 0;
+			int iCities = 0;
+			for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+			{
+				if(pLoopCity != NULL)
+				{
+					if(pLoopCity->GetCityReligions()->GetNumFollowers(eReligion) > 0)
+					{
+						iFollowers += pLoopCity->GetCityReligions()->GetNumFollowers(eReligion);
+						iCities++;
+					}
+				}
+			}
 			// This came from CvTreasury::GetGoldPerTurnFromReligion()
 			if (eYield == YIELD_GOLD)
 			{
 				int iGoldPerFollowingCity = pReligion->m_Beliefs.GetGoldPerFollowingCity();
-				iYieldPerTurn += (pReligions->GetNumCitiesFollowing(eReligion) * iGoldPerFollowingCity);
+				iYieldPerTurn += (iCities * iGoldPerFollowingCity);
 
 				int iGoldPerXFollowers = pReligion->m_Beliefs.GetGoldPerXFollowers();
 				if(iGoldPerXFollowers > 0)
 				{
-					iYieldPerTurn += (pReligions->GetNumFollowers(eReligion) / iGoldPerXFollowers);
+					iYieldPerTurn += (iFollowers / iGoldPerXFollowers);
 				}
 			}
 			int iYieldPerFollowingCity = pReligion->m_Beliefs.GetYieldPerFollowingCity(eYield);
-			iYieldPerTurn += (pReligions->GetNumCitiesFollowing(eReligion) * iYieldPerFollowingCity);
+			iYieldPerTurn += (iCities * iYieldPerFollowingCity);
 
 			int iYieldPerXFollowers = pReligion->m_Beliefs.GetYieldPerXFollowers(eYield);
 			if(iYieldPerXFollowers > 0)
+			{		
+				iYieldPerTurn += (iFollowers / iYieldPerXFollowers);
+			}
+			if(pReligion->m_Beliefs.GetYieldPerLux(eYield) > 0)
 			{
-				iYieldPerTurn += (pReligions->GetNumFollowers(eReligion) / iYieldPerXFollowers);
+				int iLuxCulture = pReligion->m_Beliefs.GetYieldPerLux(eYield);
+				int iNumHappinessResources = 0;
+				ResourceTypes eResource;
+				for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+				{
+					eResource = (ResourceTypes) iResourceLoop;
+
+					if(GetHappinessFromLuxury(eResource) > 0)
+					{
+						iNumHappinessResources++;
+					}
+				}
+				if(iNumHappinessResources > 0)
+				{
+					iLuxCulture *= iNumHappinessResources;
+					iYieldPerTurn += iLuxCulture;
+				}
 			}
 		}
 	}
@@ -13665,7 +13687,9 @@ int CvPlayer::GetFaithPerTurnFromMinor(PlayerTypes eMinor) const
 int CvPlayer::GetFaithPerTurnFromReligion() const
 {
 	int iFaithPerTurn = 0;
-
+#if defined(MOD_API_UNIFIED_YIELDS)
+	iFaithPerTurn += GetYieldPerTurnFromReligion(YIELD_FAITH);
+#else
 	// Founder beliefs
 	CvGameReligions* pReligions = GC.getGame().GetGameReligions();
 	ReligionTypes eFoundedReligion = pReligions->GetFounderBenefitsReligion(GetID());
@@ -13674,9 +13698,6 @@ int CvPlayer::GetFaithPerTurnFromReligion() const
 		const CvReligion* pReligion = pReligions->GetReligion(eFoundedReligion, NO_PLAYER);
 		if(pReligion)
 		{
-#if defined(MOD_API_UNIFIED_YIELDS)
-			iFaithPerTurn += GetYieldPerTurnFromReligion(YIELD_FAITH);
-#else
 			iFaithPerTurn += pReligion->m_Beliefs.GetHolyCityYieldChange(YIELD_FAITH);
 
 			int iTemp = pReligion->m_Beliefs.GetYieldChangePerForeignCity(YIELD_FAITH);
@@ -13691,145 +13712,12 @@ int CvPlayer::GetFaithPerTurnFromReligion() const
 				int iFollowers = GetReligions()->GetNumForeignFollowers(false /*bAtPeace*/);
 				if (iFollowers > 0)
 				{
-#if defined(MOD_BUGFIX_MINOR)
-					iFaithPerTurn += (iFollowers / iTemp);
-#else
 					iFaithPerTurn += (iTemp / iFollowers);
-#endif
-				}
-			}
-#endif
-		}
-	}
-#if defined(MOD_BALANCE_CORE_BELIEFS)
-	ReligionTypes eReligionFounded = GetReligions()->GetReligionCreatedByPlayer(true);
-	const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligionFounded, GetID());
-	if(MOD_BALANCE_CORE_BELIEFS && pReligion)
-	{
-		const CvCity* pCity = getCapitalCity();
-		if(pCity && pCity->GetCityReligions()->GetNumFollowers(eReligionFounded) > 0)
-		{
-			if(pReligion->m_Beliefs.GetYieldPerGPT(YIELD_FAITH) > 0)
-			{
-				int iGoldtoFaith = (GetTreasury()->CalculateBaseNetGold() / pReligion->m_Beliefs.GetYieldPerGPT(YIELD_FAITH));
-				if(iGoldtoFaith > 0)
-				{
-					iFaithPerTurn += iGoldtoFaith;
-				}
-			}
-			if(pReligion->m_Beliefs.GetYieldPerScience(YIELD_FAITH) > 0)
-			{
-				int iSciencetoFaith = (GetScience() / pReligion->m_Beliefs.GetYieldPerScience(YIELD_FAITH));
-				if(iSciencetoFaith > 0)
-				{
-					iFaithPerTurn += iSciencetoFaith;
-				}
-			}
-			if(pReligion->m_Beliefs.GetYieldPerLux(YIELD_FAITH) > 0)
-			{
-				int iLuxFaith = pReligion->m_Beliefs.GetYieldPerLux(YIELD_FAITH);
-				int iNumHappinessResources = 0;
-				ResourceTypes eResource;
-				for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
-				{
-					eResource = (ResourceTypes) iResourceLoop;
-
-					if(GetHappinessFromLuxury(eResource) > 0)
-					{
-						iNumHappinessResources++;
-					}
-				}
-				if(iNumHappinessResources > 0)
-				{
-					iLuxFaith *= iNumHappinessResources;
-					iFaithPerTurn += iLuxFaith;
-				}
-			}
-		}
-		int iNumCitiesGold = 0;
-		int iNumCitiesScience = 0;
-		int iNumCitiesLux = 0;
-		int iValueGold = 0;
-		int iValueScience = 0;
-		int iValueLux = 0;
-		int iLoop;
-		const CvCity* pLoopCity;
-		for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
-		{
-			if(pLoopCity != NULL)
-			{
-				BeliefTypes eSecondaryPantheon = pLoopCity->GetCityReligions()->GetSecondaryReligionPantheonBelief();
-				if(eSecondaryPantheon != NO_BELIEF && pLoopCity->getPopulation() >= GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetMinPopulation())
-				{
-					if(GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetYieldPerGPT(YIELD_FAITH) > 0)
-					{
-						iNumCitiesGold++;
-						iValueGold = GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetYieldPerGPT(YIELD_FAITH);
-					}
-					if(GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetYieldPerScience(YIELD_FAITH) > 0)
-					{
-						iNumCitiesScience++;
-						iValueScience = GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetYieldPerScience(YIELD_FAITH);
-					}
-					if(GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetYieldPerLux(YIELD_FAITH) > 0)
-					{
-						iNumCitiesLux++;
-						iValueLux = GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetYieldPerLux(YIELD_FAITH);
-					}
-				}
-			}
-		}
-		int iCalcCities = 0;
-		if(iNumCitiesGold > 0 && iValueGold > 0)
-		{
-			int iGoldtoFaith = (GetTreasury()->CalculateBaseNetGold() / iValueGold);
-			if(iGoldtoFaith > 0)
-			{
-				iCalcCities = (getNumCities() - iNumCitiesGold);
-				if(iCalcCities > 0)
-				{
-					iFaithPerTurn += (iGoldtoFaith / iCalcCities);
-				}
-			}
-		}
-		if(iNumCitiesScience > 0 && iValueScience > 0)
-		{
-			int iSciencetoFaith = (GetScience() / iValueScience);
-			if(iSciencetoFaith > 0)
-			{
-				iCalcCities = (getNumCities() - iNumCitiesGold);
-				if(iCalcCities > 0)
-				{
-					iFaithPerTurn += (iSciencetoFaith / iCalcCities);
-				}
-			}
-		}
-		if(iNumCitiesLux > 0 && iValueLux > 0)
-		{
-			int iNumHappinessResources = 0;
-			ResourceTypes eResource;
-			for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
-			{
-				eResource = (ResourceTypes) iResourceLoop;
-
-				if(GetHappinessFromLuxury(eResource) > 0)
-				{
-					iNumHappinessResources++;
-				}
-			}
-			if(iNumHappinessResources > 0)
-			{
-				iCalcCities = (getNumCities() - iNumCitiesGold);
-				if(iCalcCities > 0)
-				{
-					iValueLux *= iNumHappinessResources;
-					iFaithPerTurn += (iValueLux / iCalcCities);
 				}
 			}
 		}
 	}
 #endif
-
 	return iFaithPerTurn;
 }
 
@@ -33493,6 +33381,26 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, bool bEscorted, int iTa
 			dump << pPlot << ",1," << iDanger << "," << iFertility << ",-1" << ",-2" << std::endl;
 			//--------------
 			continue;
+		}
+
+		PlayerTypes ePlayer;
+		for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+		{
+			ePlayer = (PlayerTypes) iPlayerLoop;
+			if(ePlayer != NO_PLAYER && !GET_PLAYER(ePlayer).isMinorCiv() && !GET_PLAYER(ePlayer).isBarbarian())
+			{
+				if(GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isAtWar(getTeam()))
+				{
+					if(pPlot->IsHomeFrontForPlayer(ePlayer))
+					{
+						//--------------
+						if (bLogging) 
+						dump << pPlot << ",1," << iDanger << "," << iFertility << ",-1" << ",-2" << std::endl;
+						//--------------
+						continue;
+					}
+				}
+			}
 		}
 
 		if((pUnit && !pUnit->canFound(pPlot)) || pPlot->isImpassable())

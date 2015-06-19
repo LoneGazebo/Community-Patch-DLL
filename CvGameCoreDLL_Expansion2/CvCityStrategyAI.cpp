@@ -2270,6 +2270,9 @@ void CvCityStrategyAI::UpdateBestYields()
 			case CITY_AI_FOCUS_TYPE_SCIENCE:
 				strLookup = "CITYSPECIALIZATION_SCIENCE";
 				break;
+			case NO_CITY_AI_FOCUS_TYPE:
+				strLookup = "CITYSPECIALIZATION_GENERAL_ECONOMIC";
+				break;
 #endif
 			}
 
