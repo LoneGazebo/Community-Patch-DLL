@@ -6833,6 +6833,9 @@ bool CvPlayer::IsCapitalConnectedToPlayer(PlayerTypes ePlayer, RouteTypes eRestr
 //	---------------------------------------------------------------------------
 bool CvPlayer::IsCapitalConnectedToCity(CvCity* pCity, RouteTypes eRestrictRoute)
 {
+#if defined(MOD_BALANCE_CORE)
+	return (eRestrictRoute==ROUTE_RAILROAD) ? pCity->IsIndustrialRouteToCapital() : pCity->IsRouteToCapitalConnected();
+#else
 	CvCity* pPlayerCapital = getCapitalCity();
 	if(pPlayerCapital == NULL)
 	{
@@ -6840,6 +6843,7 @@ bool CvPlayer::IsCapitalConnectedToCity(CvCity* pCity, RouteTypes eRestrictRoute
 	}
 
 	return IsPlotConnectedToPlot(pPlayerCapital->plot(), pCity->plot(), eRestrictRoute);
+#endif
 }
 //	---------------------------------------------------------------------------
 bool CvPlayer::IsPlotConnectedToPlot(CvPlot* pFromPlot, CvPlot* pToPlot, RouteTypes eRestrictRoute, bool bIgnoreHarbors)

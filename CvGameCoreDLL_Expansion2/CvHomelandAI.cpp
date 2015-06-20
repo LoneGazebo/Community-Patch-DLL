@@ -1477,7 +1477,11 @@ void CvHomelandAI::PlotSentryMoves()
 
 			if(m_CurrentMoveHighPriorityUnits.size() + m_CurrentMoveUnits.size() > 0)
 			{
+#if defined(MOD_BALANCE_CORE)
+				if(GetBestUnitToReachTarget(pTarget, 5))
+#else
 				if(GetBestUnitToReachTarget(pTarget, MAX_INT))
+#endif
 				{
 					ExecuteMoveToTarget(pTarget);
 
