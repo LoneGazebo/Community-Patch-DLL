@@ -1715,9 +1715,15 @@ void CvTacticalAI::ProcessDominanceZones()
 		{
 			CvTacticalMove move = *it;
 
+#if defined(MOD_BALANCE_CORE)
 			//Debugging: Check order of tactical moves ...
 			if (GC.getGame().getGameTurn() == 1 && m_pPlayer->GetID() < MAX_CIV_PLAYERS )
 				OutputDebugString( CvString::format("Player %d - Move %s - Prio %d\n", m_pPlayer->GetID(), GC.getTacticalMoveInfo(move.m_eMoveType)->GetType(), move.m_iPriority).c_str() );
+			else
+				//if all units have moved we can stop
+				if (m_CurrentTurnUnits.empty())
+					break;
+#endif
 
 			if(move.m_iPriority >= 0)
 			{
@@ -2056,6 +2062,14 @@ void CvTacticalAI::AssignBarbarianMoves()
 		CvTacticalMove move = *it;
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
+		//Debugging: Check order of tactical moves ...
+		if (GC.getGame().getGameTurn() == 1 && m_pPlayer->GetID() == BARBARIAN_PLAYER )
+			OutputDebugString( CvString::format("Barbarians %d - Move %s - Prio %d\n", m_pPlayer->GetID(), GC.getTacticalMoveInfo(move.m_eMoveType)->GetType(), move.m_iPriority).c_str() );
+		else
+			//if all units have moved we can stop
+			if (m_CurrentTurnUnits.empty())
+				break;
+
 		//debugging
 		m_CurrentMoveUnits.setCurrentTacticalMove(move);
 #endif
@@ -4411,8 +4425,12 @@ void CvTacticalAI::PlotSingleHexOperationMoves(CvAIEscortedOperation* pOperation
 				}
 				else if(!bNeedNewPlot && pCivilian->isEmbarked())
 				{
+#if defined(MOD_BALANCE_CORE)
+					MoveToUsingSafeEmbark(pEscort, pCivilian->plot(), false);
+#else
 					bool bMoveWasSafe;
 					MoveToUsingSafeEmbark(pEscort, pCivilian->plot(), bMoveWasSafe);
+#endif
 					pEscort->finishMoves();
 					UnitProcessed(pEscort->GetID());
 				}
@@ -5248,8 +5266,12 @@ void CvTacticalAI::PlotNavalEscortOperationMoves(CvAINavalEscortedOperation* pOp
 					}
 					else
 					{
+#if defined(MOD_BALANCE_CORE)
+						MoveToUsingSafeEmbark(pEscort, pCivilian->plot(), false);
+#else
 						bool bMoveWasSafe;
 						MoveToUsingSafeEmbark(pEscort, pCivilian->plot(), bMoveWasSafe);
+#endif
 						pEscort->finishMoves();
 						UnitProcessed(pEscort->GetID());
 					}
@@ -5325,6 +5347,12 @@ void CvTacticalAI::PlotNavalEscortOperationMoves(CvAINavalEscortedOperation* pOp
 						strLogString.Format("Retargeting civilian escort operation (path lost to target) and moving them on, X: %d, Y: %d", pOperation->GetTargetPlot()->getX(), pOperation->GetTargetPlot()->getY());
 						LogTacticalMessage(strLogString);
 					}
+#if defined(MOD_BALANCE_CORE)
+					if(pCivilian->plot()->GetNumCombatUnits() == 0 && pCivilian->isEmbarked())
+					{
+						ExecuteMoveToPlot(pEscort, pCivilian->plot());
+					}
+#else
 					if(pCivilian->plot()->GetNumCombatUnits() <= 0)
 					{
 						if(!pCivilian->isEmbarked())
@@ -5339,6 +5367,7 @@ void CvTacticalAI::PlotNavalEscortOperationMoves(CvAINavalEscortedOperation* pOp
 							UnitProcessed(pEscort->GetID());
 						}
 					}
+#endif
 					else
 					{
 						if(pCivilian->isEmbarked())
@@ -5572,6 +5601,12 @@ void CvTacticalAI::PlotNavalEscortOperationMoves(CvAINavalEscortedOperation* pOp
 					}
 					if(pEscort)
 					{
+#if defined(MOD_BALANCE_CORE)
+						if(pCivilian->plot()->GetNumCombatUnits() == 0 && pCivilian->isEmbarked())
+						{
+							ExecuteMoveToPlot(pEscort, pCivilian->plot(), false);
+						}
+#else
 						if(pCivilian->plot()->GetNumCombatUnits() <= 0)
 						{
 							if(pCivilian->isEmbarked())
@@ -5586,6 +5621,7 @@ void CvTacticalAI::PlotNavalEscortOperationMoves(CvAINavalEscortedOperation* pOp
 								ExecuteMoveToPlot(pEscort, pCivilian->plot(), false);
 							}
 						}
+#endif
 						else
 						{
 							if(pCivilian->isEmbarked())
@@ -6813,8 +6849,12 @@ void CvTacticalAI::ExecuteFormationMoves(CvArmyAI* pArmy, CvPlot *pClosestCurren
 				if(FindClosestOperationUnit(pLoopPlot, false /*bSafeForRanged*/, false /*bMustBeRangedUnit*/))
 				{
 					UnitHandle pInnerUnit = m_pPlayer->getUnit(m_CurrentMoveUnits[0].GetID());
+#if defined(MOD_BALANCE_CORE)
+					MoveToUsingSafeEmbark(pInnerUnit, pLoopPlot, false);
+#else
 					bool bMoveWasSafe;
 					MoveToUsingSafeEmbark(pInnerUnit, pLoopPlot, bMoveWasSafe);
+#endif
 					pInnerUnit->finishMoves();
 					if(GC.getLogging() && GC.getAILogging())
 					{
@@ -6858,8 +6898,12 @@ void CvTacticalAI::ExecuteFormationMoves(CvArmyAI* pArmy, CvPlot *pClosestCurren
 					if(FindClosestOperationUnit(pLoopPlot, true /*bSafeForRanged*/, true /*bMustBeRangedUnit*/))
 					{
 						UnitHandle pInnerUnit = m_pPlayer->getUnit(m_CurrentMoveUnits[0].GetID());
+#if defined(MOD_BALANCE_CORE)
+						MoveToUsingSafeEmbark(pInnerUnit, pLoopPlot, false);
+#else
 						bool bMoveWasSafe;
 						MoveToUsingSafeEmbark(pInnerUnit, pLoopPlot, bMoveWasSafe);
+#endif
 						pInnerUnit->finishMoves();
 						if(GC.getLogging() && GC.getAILogging())
 						{
@@ -6890,8 +6934,12 @@ void CvTacticalAI::ExecuteFormationMoves(CvArmyAI* pArmy, CvPlot *pClosestCurren
 				if(FindClosestOperationUnit(pLoopPlot, true /*bSafeForRanged*/, true /*bMustBeRangedUnit*/))
 				{
 					UnitHandle pInnerUnit = m_pPlayer->getUnit(m_CurrentMoveUnits[0].GetID());
+#if defined(MOD_BALANCE_CORE)
+					MoveToUsingSafeEmbark(pInnerUnit, pLoopPlot, false);
+#else
 					bool bMoveWasSafe;
 					MoveToUsingSafeEmbark(pInnerUnit, pLoopPlot, bMoveWasSafe);
+#endif
 					pInnerUnit->finishMoves();
 					if(GC.getLogging() && GC.getAILogging())
 					{
@@ -12574,9 +12622,7 @@ bool CvTacticalAI::MoveToEmptySpaceNearTarget(UnitHandle pUnit, CvPlot* pTarget,
 #if defined(MOD_BALANCE_CORE)
 	if (pBestPlot)
 	{
-		bool bMoveWasSafe;
-		MoveToUsingSafeEmbark(pUnit, pBestPlot, bMoveWasSafe);
-		return true;
+		return MoveToUsingSafeEmbark(pUnit, pBestPlot, false);
 	}
 #endif
 
@@ -12611,9 +12657,13 @@ bool CvTacticalAI::MoveToEmptySpaceTwoFromTarget(UnitHandle pUnit, CvPlot* pTarg
 						if(pUnit->GeneratePath(pLoopPlot))
 						{
 							// Go ahead with mission
+#if defined(MOD_BALANCE_CORE)
+							return MoveToUsingSafeEmbark(pUnit, pLoopPlot, false);
+#else
 							bool bMoveWasSafe;
 							MoveToUsingSafeEmbark(pUnit, pLoopPlot, bMoveWasSafe);
 							return true;
+#endif
 						}
 					}
 				}
@@ -12624,9 +12674,14 @@ bool CvTacticalAI::MoveToEmptySpaceTwoFromTarget(UnitHandle pUnit, CvPlot* pTarg
 }
 
 /// Low-level wrapper on CvUnit::PushMission() for move to missions that avoids embarking if dangerous. Returns true if any move made
+#if defined(MOD_BALANCE_CORE_MILITARY)
+bool CvTacticalAI::MoveToUsingSafeEmbark(UnitHandle pUnit, CvPlot* pTargetPlot, bool bMustBeSafeOnLandToo)
+{
+#else
 bool CvTacticalAI::MoveToUsingSafeEmbark(UnitHandle pUnit, CvPlot* pTargetPlot, bool &bMoveWasSafe)
 {
 	bMoveWasSafe = true;
+#endif
 
 	// Move right away if not a land unit
 	if (pUnit->getDomainType() != DOMAIN_LAND)
@@ -12640,7 +12695,16 @@ bool CvTacticalAI::MoveToUsingSafeEmbark(UnitHandle pUnit, CvPlot* pTargetPlot, 
 		pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTargetPlot->getX(), pTargetPlot->getY());
 		return true;
 	}
-#endif
+
+	// If a land unit, get path to target
+	int iMoveFlags = bMustBeSafeOnLandToo ? 0 : MOVE_UNITS_IGNORE_DANGER;
+	if(!pUnit->GeneratePath(pTargetPlot,iMoveFlags))
+	{
+		// No path this may happen if a unit has moved up and blocked our path to our target plot
+		// If calling routine is moving a bunch of units like this it should retry these units
+		return false;
+	}
+#else
 
 	// If a land unit, get path to target
 	if(!pUnit->GeneratePath(pTargetPlot))
@@ -12650,7 +12714,7 @@ bool CvTacticalAI::MoveToUsingSafeEmbark(UnitHandle pUnit, CvPlot* pTargetPlot, 
 		bMoveWasSafe = false;
 		return false;
 	}
-
+#endif
 	else
 	{
 		CvPlot *pMovePlot = pUnit->GetPathEndTurnPlot();
@@ -12718,13 +12782,14 @@ bool CvTacticalAI::MoveToUsingSafeEmbark(UnitHandle pUnit, CvPlot* pTargetPlot, 
 							pUnit->PushMission(CvTypes::getMISSION_FORTIFY());
 						}
 					}
+					return true;	
 #else
 					// No land path so just risk move to sea
 					pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTargetPlot->getX(), pTargetPlot->getY());
-#endif
 					// Hopefully the calling routine might be able to pull escort over to stack with this unit
 					bMoveWasSafe = false;
 					return true;	
+#endif
 				}
 				else
 				{
@@ -13499,8 +13564,12 @@ void CvTacticalAI::PerformChosenMoves(int iFallbackMoveRange)
 		{
 			if(pUnit->plot() != m_ChosenBlocks[iI].GetPlot() && IsInChosenMoves(pUnit->plot()) && m_ChosenBlocks[iI].GetPlot()->getNumFriendlyUnitsOfType(pUnit) == 0)
 			{
+#if defined(MOD_BALANCE_CORE)
+				MoveToUsingSafeEmbark(pUnit, m_ChosenBlocks[iI].GetPlot(), false);
+#else
 				bool bMoveWasSafe;
 				MoveToUsingSafeEmbark(pUnit, m_ChosenBlocks[iI].GetPlot(), bMoveWasSafe);
+#endif
 
 				if(GC.getLogging() && GC.getAILogging())
 				{
@@ -13533,13 +13602,13 @@ void CvTacticalAI::PerformChosenMoves(int iFallbackMoveRange)
 				if(m_ChosenBlocks[iI].GetNumChoices() != -1)
 				{
 					CvPlot* pPlotBeforeMove = pUnit->plot();
-					bool bMoveWasSafe;
 #if defined(MOD_BALANCE_CORE)
-					if(!MoveToUsingSafeEmbark(pUnit, m_ChosenBlocks[iI].GetPlot(), bMoveWasSafe))
+					if(!MoveToUsingSafeEmbark(pUnit, m_ChosenBlocks[iI].GetPlot(), false))
 					{
 						MoveToEmptySpaceNearTarget(pUnit, m_ChosenBlocks[iI].GetPlot(), false);
 					}
 #else
+					bool bMoveWasSafe;
 					MoveToUsingSafeEmbark(pUnit, m_ChosenBlocks[iI].GetPlot(), bMoveWasSafe);
 #endif
 
