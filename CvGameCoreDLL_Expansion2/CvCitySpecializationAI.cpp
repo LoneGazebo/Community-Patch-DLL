@@ -422,6 +422,10 @@ void CvCitySpecializationAI::WeightSpecializations()
 	int iGoldYieldWeight = 0;
 	int iScienceYieldWeight = 0;
 	int iGeneralEconomicWeight = 0;
+#if defined(MOD_BALANCE_CORE)
+	int iCultureYieldWeight = 0;
+	int iFaithYieldWeight = 0;
+#endif
 
 	// Clear old weights
 	m_YieldWeights.clear();
@@ -499,6 +503,8 @@ void CvCitySpecializationAI::WeightSpecializations()
 					iScienceYieldWeight += grandStrategy->GetSpecializationBoost(YIELD_SCIENCE);
 #if defined(MOD_BALANCE_CORE)
 					iProductionYieldWeight += grandStrategy->GetSpecializationBoost(YIELD_PRODUCTION);
+					iCultureYieldWeight += grandStrategy->GetSpecializationBoost(YIELD_CULTURE);
+					iFaithYieldWeight += grandStrategy->GetSpecializationBoost(YIELD_FAITH);
 #endif
 				}
 			}
@@ -510,6 +516,10 @@ void CvCitySpecializationAI::WeightSpecializations()
 		m_YieldWeights.push_back(YIELD_GOLD, iGoldYieldWeight);
 		m_YieldWeights.push_back(YIELD_SCIENCE, iScienceYieldWeight);
 		m_YieldWeights.push_back(NO_YIELD, iGeneralEconomicWeight);
+#if defined(MOD_BALANCE_CORE)
+		m_YieldWeights.push_back(YIELD_CULTURE, iCultureYieldWeight);
+		m_YieldWeights.push_back(YIELD_FAITH, iFaithYieldWeight);
+#endif
 
 		// Log results
 		LogSpecializationWeights();
@@ -713,7 +723,11 @@ void CvCitySpecializationAI::AssignSpecializations()
 			else
 			{
 				cityData.m_eID = pLoopCity->GetID();
+#if defined(MOD_BALANCE_CORE)
+				for(iI = 0; iI <= YIELD_FAITH; iI++)
+#else
 				for(iI = 0; iI <= YIELD_SCIENCE; iI++)
+#endif
 				{
 					if(iI == YIELD_SCIENCE)
 					{
@@ -777,8 +791,13 @@ void CvCitySpecializationAI::AssignSpecializations()
 
 		// Compute the yield which we can improve the most with a new city
 		int iCurrentDelta;
+#if defined(MOD_BALANCE_CORE)
+		int iBestDelta[YIELD_FAITH + 1];
+		for(iI = 0; iI <= YIELD_FAITH; iI++)
+#else
 		int iBestDelta[YIELD_SCIENCE + 1];
 		for(iI = 0; iI <= YIELD_SCIENCE; iI++)
+#endif
 		{
 			iBestDelta[iI] = MIN_INT;
 		}
@@ -787,7 +806,11 @@ void CvCitySpecializationAI::AssignSpecializations()
 		for(; cityIter != cityIterEnd; ++cityIter)
 		{
 			cityData = *cityIter;
+#if defined(MOD_BALANCE_CORE)
+			for(iI = 0; iI <= YIELD_FAITH; iI++)
+#else
 			for(iI = 0; iI <= YIELD_SCIENCE; iI++)
+#endif
 			{
 				iCurrentDelta = cityData.m_iWeight[iI] - m_iBestValue[iI];
 				if(iCurrentDelta > iBestDelta[iI])
@@ -798,8 +821,13 @@ void CvCitySpecializationAI::AssignSpecializations()
 		}
 
 		// Save yield improvements in a vector we can sort
+#if defined(MOD_BALANCE_CORE)
+		CvWeightedVector<int, YIELD_FAITH+1, true> yieldImprovements;
+		for(iI = 0; iI <= YIELD_FAITH; iI++)
+#else
 		CvWeightedVector<int, YIELD_SCIENCE+1, true> yieldImprovements;
 		for(iI = 0; iI <= YIELD_SCIENCE; iI++)
+#endif
 		{
 			int iImprovementWithNewCity;
 			if(iBestDelta[iI] > 0)
@@ -826,6 +854,11 @@ void CvCitySpecializationAI::AssignSpecializations()
 			for(; it != iterEnd; ++it)
 			{
 				CitySpecializationTypes eType = *it;
+#if defined(MOD_BALANCE_CORE)
+				CvCitySpecializationXMLEntry* pkCitySpecializationEntry = GC.getCitySpecializationInfo(eType);
+				if(pkCitySpecializationEntry == NULL)
+					continue;
+#endif
 				YieldTypes eYield = GC.getCitySpecializationInfo(eType)->GetYieldType();
 				if(eYield == eMostImprovedYield)
 				{
@@ -876,7 +909,11 @@ void CvCitySpecializationAI::AssignSpecializations()
 			{
 				// General economic is all yields added together
 				int iCityValue = 0;
+#if defined(MOD_BALANCE_CORE)
+				for(iI = 0; iI <= YIELD_FAITH; iI++)
+#else
 				for(iI = 0; iI <= YIELD_SCIENCE; iI++)
+#endif
 				{
 					iCityValue += cityData.m_iWeight[iI];
 				}
@@ -1174,7 +1211,11 @@ void CvCitySpecializationAI::FindBestSites()
 	CvCity* pNearestCity;
 
 	// Clear output
+#if defined(MOD_BALANCE_CORE)
+	for(int iI = 0; iI <= YIELD_FAITH; iI++)
+#else
 	for(int iI = 0; iI <= YIELD_SCIENCE; iI++)
+#endif
 	{
 		m_iBestValue[iI] = 0;
 	}
@@ -1203,7 +1244,11 @@ void CvCitySpecializationAI::FindBestSites()
 			{
 				if(plotDistance(pPlot->getX(), pPlot->getY(), pNearestCity->getX(), pNearestCity->getY()) <= iEvalDistance)
 				{
+#if defined(MOD_BALANCE_CORE)
+					for(int iI = 0; iI <= YIELD_FAITH; iI++)
+#else
 					for(int iI = 0; iI <= YIELD_SCIENCE; iI++)
+#endif
 					{
 						if(iI != YIELD_SCIENCE)
 						{
@@ -1513,6 +1558,13 @@ int CvCitySpecializationAI::AdjustValueBasedOnBuildings(CvCity* pCity, YieldType
 
 	case YIELD_SCIENCE:
 		break;
+#if defined(MOD_BALANCE_CORE)
+	case YIELD_CULTURE:
+		break;
+
+	case YIELD_FAITH:
+		break;
+#endif
 	}
 
 	return iRtnValue;
@@ -1568,7 +1620,11 @@ void CvCitySpecializationAI::LogSpecializationWeights()
 
 		for(int iI = 0; iI < NUM_SPECIALIZATION_YIELDS; iI++)
 		{
+#if defined(MOD_BALANCE_CORE)
+			if(iI > YIELD_FAITH)
+#else
 			if(iI > YIELD_SCIENCE)
+#endif
 			{
 				strYieldString = "General Economy";
 			}
@@ -1738,7 +1794,11 @@ void CvCitySpecializationAI::LogBestSites()
 		strBaseString += strPlayerName + ", ";
 
 		// Loop through each yield type
+#if defined(MOD_BALANCE_CORE)
+		for(int iI = 0; iI <= YIELD_FAITH; iI++)
+#else
 		for(int iI = 0; iI <= YIELD_SCIENCE; iI++)
+#endif
 		{
 			CvYieldInfo* pYieldInfo = GC.getYieldInfo((YieldTypes)iI);
 			if(pYieldInfo != NULL)
@@ -1775,7 +1835,11 @@ void CvCitySpecializationAI::LogCity(CvCity* pCity, CitySpecializationData data)
 		strBaseString += strPlayerName + ", " + strCityName + ", ";
 
 		// Loop through each yield type
+#if defined(MOD_BALANCE_CORE)
+		for(int iI = 0; iI <= YIELD_FAITH; iI++)
+#else
 		for(int iI = 0; iI <= YIELD_SCIENCE; iI++)
+#endif
 		{
 			CvYieldInfo* pYieldInfo = GC.getYieldInfo((YieldTypes)iI);
 			if(pYieldInfo != NULL)

@@ -926,6 +926,10 @@ void CvCityStrategyAI::ChooseProduction(bool bUseAsyncRandom, BuildingTypes eIgn
 		{
 			iTempWeight += GetCity()->getFreeExperience() * 5;
 		}
+		if(kPlayer.GetMilitaryAI()->GetNumberOfTimesOpsBuildSkippedOver() > 0)
+		{
+			iTempWeight *= kPlayer.GetMilitaryAI()->GetNumberOfTimesOpsBuildSkippedOver();
+		}
 #endif
 		// add in the weight of this unit as if I were deciding to build it without having a reason
 		iTempWeight += m_pUnitProductionAI->GetWeight(eUnitForOperation);
@@ -1334,15 +1338,49 @@ void CvCityStrategyAI::ChooseProduction(bool bUseAsyncRandom, BuildingTypes eIgn
 	if(m_Buildables.GetTotalWeight() > 0)
 	{
 		// Choose from the best options (currently 2)
+#if defined(MOD_BALANCE_CORE)
+		//Forced some changes to make the AI a little more direct in its behavior.
+		int iRushIfMoreThanXTurns = GC.getAI_ATTEMPT_RUSH_OVER_X_TURNS_TO_BUILD();
+		selection = m_Buildables.GetElement(0);
+		bool bForced = false;
+		if(selection.m_eBuildableType == CITY_BUILDABLE_UNIT_FOR_OPERATION)
+		{
+			bForced = true;
+		}
+		else if(selection.m_eBuildableType == CITY_BUILDABLE_BUILDING)
+		{
+			BuildingTypes eBuildingType = (BuildingTypes) selection.m_iIndex;
+			CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuildingType);
+			const BuildingClassTypes eBuildingClass = (BuildingClassTypes)(pkBuildingInfo->GetBuildingClassType());
+			if(GetCity()->IsBuildingInvestment(eBuildingClass))
+			{
+				bForced = true;
+			}
+		}
+		if(!bForced)
+		{
+#endif
 		int iNumChoices = GC.getGame().getHandicapInfo().GetCityProductionNumOptions();
 		selection = m_Buildables.ChooseFromTopChoices(iNumChoices, &fcn, "Choosing city build from Top Choices");
+#if defined(MOD_BALANCE_CORE)
+#else
 		int iRushIfMoreThanXTurns = GC.getAI_ATTEMPT_RUSH_OVER_X_TURNS_TO_BUILD();
+#endif
 		if(GET_PLAYER(m_pCity->getOwner()).isMinorCiv())
 		{
 			iRushIfMoreThanXTurns *= GC.getMINOR_CIV_PRODUCTION_PERCENT();
 			iRushIfMoreThanXTurns /= 100;
 		}
+#if defined(MOD_BALANCE_CORE)
+		}
+#endif
 		bool bRush = selection.m_iTurnsToConstruct > iRushIfMoreThanXTurns;
+#if defined(MOD_BALANCE_CORE)
+		if(bForced)
+		{
+			bRush = true;
+		}
+#endif
 		LogCityProduction(selection, bRush);
 
 		switch(selection.m_eBuildableType)
@@ -1384,6 +1422,13 @@ void CvCityStrategyAI::ChooseProduction(bool bUseAsyncRandom, BuildingTypes eIgn
 		{
 			GetCity()->CommitToBuildingUnitForOperation();
 			kPlayer.GetMilitaryAI()->ResetNumberOfTimesOpsBuildSkippedOver();
+#if defined(MOD_BALANCE_CORE)
+			CitySpecializationTypes eSpecialization = (CitySpecializationTypes) GC.getInfoTypeForString("CITYSPECIALIZATION_MILITARY_TRAINING");
+			if(eSpecialization != NO_CITY_SPECIALIZATION)
+			{
+				GetCity()->GetCityStrategyAI()->SetSpecialization(eSpecialization);
+			}
+#endif
 		}
 		break;
 		}
@@ -1667,7 +1712,14 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry()
 
 	if(m_Buildables.GetTotalWeight() > 0)
 	{
-
+#if defined(MOD_BALANCE_CORE)
+		//Forced some changes to make the AI a little more direct in its behavior.
+		selection = m_Buildables.GetElement(0);
+		if(selection.m_eBuildableType == CITY_BUILDABLE_UNIT_FOR_OPERATION)
+		{
+			return selection;
+		}
+#endif
 		// Choose from the best options (currently 2)
 		int iNumChoices = GC.getGame().getHandicapInfo().GetCityProductionNumOptions();
 		selection = m_Buildables.ChooseFromTopChoices(iNumChoices, &fcn, "Choosing city hurry from Top Choices");
@@ -2240,6 +2292,68 @@ void CvCityStrategyAI::UpdateBestYields()
 			}
 			iYieldSum += iCityYieldSum * 100;
 		}
+		// add in additional science from the city plot and the city buildings that provide food
+		if(iYield == YIELD_CULTURE)
+		{
+			int iCityYieldSum = 0;
+			iCityYieldSum = m_pCity->plot()->getYield(YIELD_CULTURE);
+			CvYieldInfo* pYield = GC.getYieldInfo(YIELD_CULTURE);
+			if(pYield)
+			{
+				iCityYieldSum -= pYield->getMinCity();
+			}
+
+			CvCityBuildings* pCityBuildings = m_pCity->GetCityBuildings();
+			BuildingTypes eBuilding;
+			for(int iI = 0; iI < GC.getNumBuildingInfos(); iI++)
+			{
+				eBuilding = (BuildingTypes) iI;
+				CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+				if(pkBuildingInfo)
+				{
+					if(pCityBuildings->GetNumBuilding(eBuilding) > 0)
+					{
+#if defined(MOD_BUGFIX_MINOR)
+						iCityYieldSum += pkBuildingInfo->GetYieldChange(iYield) * pCityBuildings->GetNumBuilding(eBuilding);
+#else
+						iCityYieldSum += pkBuildingInfo->GetYieldChange(iYield);
+#endif
+					}
+				}
+			}
+			iYieldSum += iCityYieldSum * 100;
+		}
+		// add in additional science from the city plot and the city buildings that provide food
+		if(iYield == YIELD_FAITH)
+		{
+			int iCityYieldSum = 0;
+			iCityYieldSum = m_pCity->plot()->getYield(YIELD_FAITH);
+			CvYieldInfo* pYield = GC.getYieldInfo(YIELD_FAITH);
+			if(pYield)
+			{
+				iCityYieldSum -= pYield->getMinCity();
+			}
+
+			CvCityBuildings* pCityBuildings = m_pCity->GetCityBuildings();
+			BuildingTypes eBuilding;
+			for(int iI = 0; iI < GC.getNumBuildingInfos(); iI++)
+			{
+				eBuilding = (BuildingTypes) iI;
+				CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+				if(pkBuildingInfo)
+				{
+					if(pCityBuildings->GetNumBuilding(eBuilding) > 0)
+					{
+#if defined(MOD_BUGFIX_MINOR)
+						iCityYieldSum += pkBuildingInfo->GetYieldChange(iYield) * pCityBuildings->GetNumBuilding(eBuilding);
+#else
+						iCityYieldSum += pkBuildingInfo->GetYieldChange(iYield);
+#endif
+					}
+				}
+			}
+			iYieldSum += iCityYieldSum * 100;
+		}
 #endif
 		m_asBestYieldAverageTimes100[iYield] = iYieldSum / iSlotsToEvaluate;
 
@@ -2269,6 +2383,15 @@ void CvCityStrategyAI::UpdateBestYields()
 				break;
 			case CITY_AI_FOCUS_TYPE_SCIENCE:
 				strLookup = "CITYSPECIALIZATION_SCIENCE";
+				break;
+			case CITY_AI_FOCUS_TYPE_CULTURE:
+				strLookup = "CITYSPECIALIZATION_CULTURE";
+				break;
+			case CITY_AI_FOCUS_TYPE_FAITH:
+				strLookup = "CITYSPECIALIZATION_FAITH";
+				break;
+			case CITY_AI_FOCUS_TYPE_GREAT_PEOPLE:
+				strLookup = "CITYSPECIALIZATION_GP";
 				break;
 			case NO_CITY_AI_FOCUS_TYPE:
 				strLookup = "CITYSPECIALIZATION_GENERAL_ECONOMIC";

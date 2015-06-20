@@ -89,10 +89,10 @@
 	SELECT 'BALANCE_HAPPINESS_CAPITAL_MODIFIER', '25'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
--- 	Base Value of Test - Modifier to tech % cost. 2.65 is default.
+-- 	Base Value of Test - Modifier to tech % cost. 2.50 is default.
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_HAPPINESS_TECH_BASE_MODIFIER', '2.65'
+	SELECT 'BALANCE_HAPPINESS_TECH_BASE_MODIFIER', '2.50'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 -- Base increase of threshold values based on # of cities you own. Multiplier increases thresholds by 3% per City owned.
@@ -111,25 +111,25 @@
 -- Value by which yield/threshold difference for boredom is divded.
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_UNHAPPY_CITY_BASE_VALUE_BOREDOM', '20'
+	SELECT 'BALANCE_UNHAPPY_CITY_BASE_VALUE_BOREDOM', '25'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 -- Value by which yield/threshold difference is divded.
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_UNHAPPY_CITY_BASE_VALUE_ILLITERACY', '25'
+	SELECT 'BALANCE_UNHAPPY_CITY_BASE_VALUE_ILLITERACY', '35'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 -- Value by which yield/threshold difference is divded.
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_UNHAPPY_CITY_BASE_VALUE_DISORDER', '35'
+	SELECT 'BALANCE_UNHAPPY_CITY_BASE_VALUE_DISORDER', '55'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 -- Value by which yield/threshold difference is divded.
 	INSERT INTO Defines (
 	Name, Value)
-	SELECT 'BALANCE_UNHAPPY_CITY_BASE_VALUE_POVERTY', '30'
+	SELECT 'BALANCE_UNHAPPY_CITY_BASE_VALUE_POVERTY', '45'
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 -- Unhappiness point per religious minority pop. A high faith to population ratio will reduce this penalty. Also note that this is the ONLY unhappiness calculation that goes down as the game progresses (religion makes slightly less unhappiness as you move into new eras)
@@ -157,3 +157,16 @@
 	WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 
+-- Tutorial Text
+
+	UPDATE Language_en_US
+	SET Text = 'The happiness system in the Community Balance Patch is completely revised, favoring neither tall nor wide playstyles. Happiness is now based on a cause-and-effect mechanism that makes your empire feel far more alive, and dynamic, than ever before. [NEWLINE][NEWLINE]Your happiness is displayed on the status line of the Main Screen (in the upper left-hand corner of the game). Watch it carefully. If it reaches zero, your population is getting restless. If it starts to dip into negative numbers, you are in trouble. (Incidentally, you can get an excellent snapshot of your happiness by hovering your cursor over this number.)[NEWLINE][NEWLINE]One important note to remember - happiness generated from city buildings and city-based policies can never exceed its population.'
+	WHERE Tag = 'TXT_KEY_HAPPINESS_HEADING1_BODY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
+
+	UPDATE Language_en_US
+	SET Text = 'The following increase your happiness:[NEWLINE][NEWLINE]Luxury Resources: Improve resources within your territory or trade for them with other civs. Each kind of resource improves your happiness. Luxuries grant happiness as a factor of total empire population. The higher your pop, the more happiness your luxuries provide. This makes luxuries less vital early on, as +1 Happiness is not as big of a deal, yet it does not punish tall or wide strategies because the focus is on overall population, not the number of cities. In short, Luxuries "level up" as your empire grows in population.[NEWLINE][NEWLINE]Buildings: Certain buildings increase your happiness. These include the Colosseum, the Circus, the Zoo, and others. Each building constructed anywhere in your civ increases your overall happiness (so two Colosseums produce twice as much happiness as one, unlike Luxuries).[NEWLINE][NEWLINE]Wonders: Certain wonders like Notre Dame and the Hanging Gardens can give you a big boost in happiness.[NEWLINE][NEWLINE]Social Policies: Policies provide a lot of happiness, but in different ways.[NEWLINE][NEWLINE]Technologies: Technologies in themselves do not provide happiness, but they do unlock the buildings, wonders, resources and social policies which do.'
+	WHERE Tag = 'TXT_KEY_HAPPINESS_CAUSES_HEADING2_BODY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
+
+	UPDATE Language_en_US
+	SET Text = 'City happiness is no longer directly affected by the number of citizens in a city. Instead, happiness is based on a set of functions that look at economic variables. Overall, population is still key, however per-city unhappiness is a bit easier to manage (and tailor to certain play-styles). This makes Tall and Wide gameplay equally feasible, so long as your empire is well-managed. Furthermore, Citizens can only be "unhappy" for one value at a time, based on a scale of want. If a citizen is unhappy from Poverty, for example, that same citizen cannot be unhappy from anything else until the Poverty issue is resolved (thus the unhappiness generated by any one city is capped at the population of the city).[NEWLINE][NEWLINE]How this works: The yield-based functions combine the yields of your city, dividing this value by its population. This value is then compared to the rate value per citizen as a global average of all city yields per pop. If the global rate value per citizen is higher than the rate value of your city, (i.e. you are not producing as much as the rate value expects), the difference between the two is factored by the per-citizen unhappiness value and the unhappiness is generated. In other words, if your cities are behind the global average in yields per pop, the difference will be converted into unhappiness.[NEWLINE][NEWLINE] Sources of Unhappiness: [NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Starvation[ENDCOLOR]: This one can be fatal, so be careful. If a city is starving, this function looks at the value of that starvation (i.e. the negative value of food being consumed) and compares that to the rate value of the function.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Pillaged tiles[ENDCOLOR]: Similar to city connections, this function will generate unhappiness based on a rate per citizen value which looks at the number of pillaged tiles. The more pillaged tiles there are, the higher this unhappiness.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Poverty[ENDCOLOR]: This looks at gold yields. If these yields do not exceed the rate criteria, your city has some element of poverty. This is largely inevitable in all but the wealthiest cities.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Isolation[ENDCOLOR]: Blockades or a lack of a city connection will generate unhappiness based on a rate per citizen value. Should only be a problem if you are besieged from the sea, your routes are pillaged and/or you have not connected your cities together. If you connect cities to your capital via an internal trade route (daisy chain or individually), this unhappiness penalty is negated (so blockades or long-distance cities can be "connected" to your capital via trade).[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Disorder[ENDCOLOR]: This function looks at the defensive capabilities of your city and its garrison. This test takes defense as a "yield" (i.e. the defense produced by defensive structures and garrisons) and subtracts city damage, if any. If these yields do not exceed the rate criteria, your city has some element of disorder. This is inevitable in large cities or cities under siege, especially if you do not have a garrison. Cities that are damaged or surrounded by enemies have increased disorder.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Religious Tension[ENDCOLOR]: This looks at the majority religion of the city, and compares it to the number of citizens that are not part of that religion. If that value exceeds the rate value of the function, you will have some religious strife. This is largely inevitable in most large cities, but should never be a major source of unhappiness. You can reduce this value further by building more faith-producing buildings in the city (high faith production has the ability to subtract from your minority population), or simply converting people to your one, true faith.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Illiteracy[ENDCOLOR]: This looks at the science yield of the city. If this yield does not exceed the rate criteria, your city has some element of illiteracy. This is largely inevitable in all but the smartest cities. [NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Boredom[ENDCOLOR]: This looks at the culture yields of the city. If these yields do not exceed the rate criteria, your city has some element of boredom (i.e. your citizenry is not entertained). This is can be circumvented by building Colosseums and other such buildings, or through Great Works. [NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Specialists[ENDCOLOR]: Specialists generate unhappiness at a flat rate based on the number of specialists in your empire. [NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]War Weariness[ENDCOLOR]: Once you have an ideology, you have the potential to gain empire-wide War Weariness (this is in addition to ideological unrest).'
+	WHERE Tag = 'TXT_KEY_HAPPINESS_CAUSESUNHAPPINESS_HEADING2_BODY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );

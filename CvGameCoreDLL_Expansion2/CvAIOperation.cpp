@@ -896,6 +896,12 @@ int CvAIOperation::PercentFromMusterPointToTarget()
 		{
 			CvArmyAI* pArmy = GET_PLAYER(m_eOwner).getArmyAI(m_viArmyIDs[uiI]);
 
+#if defined(MOD_BALANCE_CORE)
+			//this is strange, check did not work, goal plot was not null but invalid
+			if (pArmy==NULL || pArmy->GetGoalX()==-1 || pArmy->GetGoalY()==-1)
+				return 0;
+#endif
+
 			if (pArmy->GetGoalPlot())
 			{
 				int iDistanceMusterToTarget;
@@ -2655,7 +2661,11 @@ void CvAIOperationBasicCityAttack::Write(FDataStream& kStream) const
 
 MultiunitFormationTypes CvAIOperationBasicCityAttack::GetFormation() const
 {
+#if defined(MOD_BALANCE_CORE)
+	return (MultiunitFormationTypes)MilitaryAIHelpers::GetBestFormationType();
+#else
 	return (GC.getGame().getHandicapInfo().GetID() > 4 && !(GC.getMap().GetAIMapHint() & 1)) ? MUFORMATION_BIGGER_CITY_ATTACK_FORCE : MUFORMATION_BASIC_CITY_ATTACK_FORCE;
+#endif
 }
 
 /// Same as default version except if just gathered forces, check to see if a better target has presented itself
@@ -2800,7 +2810,11 @@ CvAIOperationSneakCityAttack::CvAIOperationSneakCityAttack()
 }
 MultiunitFormationTypes CvAIOperationSneakCityAttack::GetFormation() const
 {
+#if defined(MOD_BALANCE_CORE)
+	return (MultiunitFormationTypes)MilitaryAIHelpers::GetBestFormationType();
+#else
 	return (GC.getGame().getHandicapInfo().GetID() > 4 && !(GC.getMap().GetAIMapHint() & 1)) ? MUFORMATION_BIGGER_CITY_ATTACK_FORCE : MUFORMATION_BASIC_CITY_ATTACK_FORCE;
+#endif
 }
 
 CvAIOperationQuickSneakCityAttack::CvAIOperationQuickSneakCityAttack()
@@ -2815,7 +2829,12 @@ CvAIOperationQuickSneakCityAttack::CvAIOperationQuickSneakCityAttack()
 CvAIOperationSmallCityAttack::CvAIOperationSmallCityAttack()
 {
 }
-
+#if defined(MOD_BALANCE_CORE)
+MultiunitFormationTypes CvAIOperationSmallCityAttack::GetFormation() const
+{
+	return MUFORMATION_SMALL_CITY_ATTACK_FORCE;
+}
+#endif
 ////////////////////////////////////////////////////////////////////////////////
 // CvAIOperationCityStateAttack
 ////////////////////////////////////////////////////////////////////////////////
@@ -2826,7 +2845,11 @@ CvAIOperationCityStateAttack::CvAIOperationCityStateAttack()
 }
 MultiunitFormationTypes CvAIOperationCityStateAttack::GetFormation() const
 {
+#if defined(MOD_BALANCE_CORE)
+	return MUFORMATION_CITY_STATE_ATTACK_FORCE;
+#else
 	return (GC.getGame().getHandicapInfo().GetID() > 4 && !(GC.getMap().GetAIMapHint() & 1)) ? MUFORMATION_BIGGER_CITY_ATTACK_FORCE : MUFORMATION_CITY_STATE_ATTACK_FORCE;
+#endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -3751,72 +3774,34 @@ bool CvAIEscortedOperation::RetargetCivilian(CvUnit* pCivilian, CvArmyAI* pArmy)
 #endif // AUI_OPERATION_FIX_RETARGET_CIVILIAN_ABORT_IF_UNREACHABLE_ESCORT
 		SetTargetPlot(pBetterTarget);
 		pArmy->SetGoalPlot(pBetterTarget);
+
 #if defined(MOD_BALANCE_CORE)
-		CvPlot* pFinalPlot = NULL;
-		int iBestDistance = MAX_INT;
-		CvArea* pArea = GC.getMap().getArea(pBetterTarget->getArea());
-		if(pArea != NULL && pArea->getCitiesPerPlayer(m_eOwner) > 0)
+		//loop through all our cities and find the best plot for mustering
+		CvPlot* pBestMusterPlot = NULL;
+		int iBestTurns = MAX_INT;
+
+		int iLoopCity = 0;
+		CvPlayer& kPlayer = GET_PLAYER(m_eOwner);
+		for(CvCity* pLoopCity = kPlayer.firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoopCity))
 		{
-			CvPlot* pLoopPlot;
-			const CvPlotsVector& aiPlots = GET_PLAYER(m_eOwner).GetPlots();
-			for (uint uiPlotIndex = 0; uiPlotIndex < aiPlots.size(); uiPlotIndex++)
+			//todo: check if the city is in danger first?
+			bool bCanFindPath = GC.getPathFinder().GenerateUnitPath(pCivilian, pLoopCity->getX(), pLoopCity->getY(), pBetterTarget->getX(), pBetterTarget->getY(), iBestTurns);
+
+			int iTurns = bCanFindPath ? GC.getPathFinder().GetLastNode()->m_iData2 : INT_MAX;
+			if(iTurns < iBestTurns)
 			{
-				if(aiPlots[uiPlotIndex] == -1)
-				{
-					continue;
-				}
-				pLoopPlot = GC.getMap().plotByIndex(aiPlots[uiPlotIndex]);
-				if(!pCivilian->GeneratePath(pLoopPlot))
-				{
-					continue;
-				}
-				if(pLoopPlot->isCity() && pLoopPlot->getOwner() == m_eOwner && pLoopPlot->getArea() == pBetterTarget->getArea())
-				{
-					int iDistance = plotDistance(pLoopPlot->getX(), pLoopPlot->getY(), pCivilian->getX(), pCivilian->getY());
-					if(iDistance < iBestDistance)
-					{
-						iBestDistance = iDistance;
-						pFinalPlot = pLoopPlot;
-					}
-				}
+				iBestTurns = iTurns;
+				pBestMusterPlot = pLoopCity->plot();
 			}
 		}
-		else
+
+		if(pBestMusterPlot != NULL)
 		{
-			CvPlot* pLoopPlot;
-			int iBestDistance = MAX_INT;
-			const CvPlotsVector& aiPlots = GET_PLAYER(m_eOwner).GetPlots();			
-			for (uint uiPlotIndex = 0; uiPlotIndex < aiPlots.size(); uiPlotIndex++)
-			{
-				if(aiPlots[uiPlotIndex] == -1)
-				{
-					continue;
-				}
-				pLoopPlot = GC.getMap().plotByIndex(aiPlots[uiPlotIndex]);
-				if(!pCivilian->GeneratePath(pLoopPlot))
-				{
-					continue;
-				}
-				if(pLoopPlot->isCity() && pLoopPlot->getOwner() == m_eOwner)
-				{
-					int iDistance = plotDistance(pLoopPlot->getX(), pLoopPlot->getY(), pCivilian->getX(), pCivilian->getY());
-					if(iDistance < iBestDistance)
-					{
-						iBestDistance = iDistance;
-						pFinalPlot = pLoopPlot;
-					}
-				}
-			}
+			SetMusterPlot(pBestMusterPlot);
+			pArmy->SetXY(pBestMusterPlot->getX(), pBestMusterPlot->getY());
+			SetDefaultArea(pBestMusterPlot->getArea());
 		}
-		if(pFinalPlot != NULL)
-		{
-			SetMusterPlot(pFinalPlot);
-			pArmy->SetXY(pFinalPlot->getX(), pFinalPlot->getY());
-			SetDefaultArea(pFinalPlot->getArea());
-		}
-#endif
 	}
-#if defined(MOD_BALANCE_CORE)
 	else if(GetTargetPlot() == NULL)
 	{
 		m_eCurrentState = AI_OPERATION_STATE_ABORTED;
@@ -3824,6 +3809,7 @@ bool CvAIEscortedOperation::RetargetCivilian(CvUnit* pCivilian, CvArmyAI* pArmy)
 		return false;
 	}
 #else
+	}
 	else
 	{
 		SetToAbort(AI_ABORT_REPEAT_TARGET);
@@ -3889,71 +3875,32 @@ void CvAIOperationFoundCity::Init(int iID, PlayerTypes eOwner, PlayerTypes /*eEn
 				// Figure out the initial rally point - for this operation it is wherever our civilian is standing
 				pArmyAI->SetGoalPlot(pTargetSite);
 				CvPlot* pMusterPt = pOurCivilian->plot();
-				SetMusterPlot(pMusterPt);
+
 #if defined(MOD_BALANCE_CORE)
-				CvPlot* pFinalPlot = NULL;
-				int iBestDistance = MAX_INT;
-				CvArea* pArea = GC.getMap().getArea(pTargetSite->getArea());
-				if(pArea != NULL && pArea->getCitiesPerPlayer(m_eOwner) > 0)
+				//loop through all our cities and find the best plot for mustering
+				CvPlot* pBestMusterPlot = NULL;
+				int iBestTurns = MAX_INT;
+
+				int iLoopCity = 0;
+				CvPlayer& kPlayer = GET_PLAYER(m_eOwner);
+				for(CvCity* pLoopCity = kPlayer.firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoopCity))
 				{
-					CvPlot* pLoopPlot;
-					const CvPlotsVector& aiPlots = GET_PLAYER(m_eOwner).GetPlots();
-					for (uint uiPlotIndex = 0; uiPlotIndex < aiPlots.size(); uiPlotIndex++)
+					//todo: check if the city is in danger first?
+					bool bCanFindPath = GC.getPathFinder().GenerateUnitPath(pOurCivilian, pLoopCity->getX(), pLoopCity->getY(), pTargetSite->getX(), pTargetSite->getY(), iBestTurns);
+
+					int iTurns = bCanFindPath ? GC.getPathFinder().GetLastNode()->m_iData2 : INT_MAX;
+					if(iTurns < iBestTurns)
 					{
-						if(aiPlots[uiPlotIndex] == -1)
-						{
-							continue;
-						}
-						pLoopPlot = GC.getMap().plotByIndex(aiPlots[uiPlotIndex]);
-						if(!pOurCivilian->GeneratePath(pLoopPlot))
-						{
-							continue;
-						}
-						if(pLoopPlot->isCity() && pLoopPlot->getOwner() == m_eOwner && pLoopPlot->getArea() == pTargetSite->getArea())
-						{
-							int iDistance = plotDistance(pLoopPlot->getX(), pLoopPlot->getY(), pOurCivilian->getX(), pOurCivilian->getY());
-							if(iDistance < iBestDistance)
-							{
-								iBestDistance = iDistance;
-								pFinalPlot = pLoopPlot;
-							}
-						}
+						iBestTurns = iTurns;
+						pBestMusterPlot = pLoopCity->plot();
 					}
 				}
-				else
-				{
-					CvPlot* pLoopPlot;
-					int iBestDistance = MAX_INT;
-					const CvPlotsVector& aiPlots = GET_PLAYER(m_eOwner).GetPlots();			
-					for (uint uiPlotIndex = 0; uiPlotIndex < aiPlots.size(); uiPlotIndex++)
-					{
-						if(aiPlots[uiPlotIndex] == -1)
-						{
-							continue;
-						}
-						pLoopPlot = GC.getMap().plotByIndex(aiPlots[uiPlotIndex]);
-						if(!pOurCivilian->GeneratePath(pLoopPlot))
-						{
-							continue;
-						}
-						if(pLoopPlot->isCity() && pLoopPlot->getOwner() == m_eOwner)
-						{
-							int iDistance = plotDistance(pLoopPlot->getX(), pLoopPlot->getY(), pOurCivilian->getX(), pOurCivilian->getY());
-							if(iDistance < iBestDistance)
-							{
-								iBestDistance = iDistance;
-								pFinalPlot = pLoopPlot;
-							}
-						}
-					}
-				}
-				if(pFinalPlot != NULL)
-				{
-					pMusterPt = pFinalPlot;
-					SetMusterPlot(pFinalPlot);
-				}
+
+				if(pBestMusterPlot != NULL)
+					pMusterPt = pBestMusterPlot;
 #endif
-				
+			
+				SetMusterPlot(pMusterPt);
 				pArmyAI->SetXY(pMusterPt->getX(), pMusterPt->getY());
 				SetDefaultArea(pMusterPt->getArea());
 

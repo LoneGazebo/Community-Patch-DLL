@@ -21,7 +21,11 @@ enum ProductionSpecializationSubtypes
 };
 
 // Thru science (YIELD_SCIENCE+1) plus one more for general economics
+#if defined(MOD_BALANCE_CORE)
+#define NUM_SPECIALIZATION_YIELDS (YIELD_FAITH+1)
+#else
 #define NUM_SPECIALIZATION_YIELDS (YIELD_SCIENCE+2)
+#endif
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  CLASS:      CvCitySpecializationXMLEntry
@@ -180,7 +184,11 @@ private:
 	bool m_bSpecializationsDirty;
 	CitySpecializationTypes m_eNextSpecializationDesired;
 	list<CitySpecializationTypes> m_SpecializationsNeeded;
+#if defined(MOD_BALANCE_CORE)
+	int m_iBestValue[YIELD_FAITH+1];
+#else
 	int m_iBestValue[YIELD_SCIENCE+1];
+#endif
 	CvWeightedVector<YieldTypes, NUM_SPECIALIZATION_YIELDS, true> m_YieldWeights;
 	int m_iNumSpecializationsForThisYield[NUM_SPECIALIZATION_YIELDS];  // Array is offset by 1 so NO_YIELD = 0, YIELD_FOOD = 1
 	CvWeightedVector<ProductionSpecializationSubtypes, 4, true> m_ProductionSubtypeWeights;

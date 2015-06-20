@@ -490,6 +490,12 @@ function AddBuildingButton( pCity, building )
 			-- Culture
 			local iCultureFromSpecialist = pCity:GetCultureFromSpecialist(iSpecialistID);
 			if (iCultureFromSpecialist > 0) then
+				--CBP
+				local extraYield = pCity:GetSpecialistYieldChange( iSpecialistID, YieldTypes.YIELD_CULTURE)
+				if(iCultureFromSpecialist > 0) then
+					iCultureFromSpecialist = (iCultureFromSpecialist + extraYield)
+				end
+				-- END
 				ToolTipString = ToolTipString .. " +" .. iCultureFromSpecialist .. "[ICON_CULTURE]";
 			end
 			-- Yield

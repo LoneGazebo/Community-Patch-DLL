@@ -434,6 +434,12 @@ local function GetSpecialistYields( city, specialist )
 	if city then
 		-- Culture
 		local cultureFromSpecialist = city:GetCultureFromSpecialist( specialistID )
+		--CBP
+		local extraYield = city:GetSpecialistYieldChange( specialistID, YieldTypes.YIELD_CULTURE)
+		if(cultureFromSpecialist > 0) then
+			cultureFromSpecialist = (cultureFromSpecialist + extraYield)
+		end
+		--END
 		-- Yield
 		for yieldID = 0, YieldTypes.NUM_YIELD_TYPES-1 do
 			local specialistYield = city:GetSpecialistYield( specialistID, yieldID )

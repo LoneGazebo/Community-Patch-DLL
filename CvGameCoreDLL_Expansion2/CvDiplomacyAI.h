@@ -800,7 +800,13 @@ public:
 	void SetDoFAccepted(PlayerTypes ePlayer, bool bValue);
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
 	void SetNumDoFLifetime(PlayerTypes ePlayer, int iValue);
-	short GetNumDoFLifetime(PlayerTypes ePlayer) const;
+	void ChangeNumDoFLifetime(PlayerTypes ePlayer, int iValue);
+	int GetNumDoFLifetime(PlayerTypes ePlayer) const;
+
+	void SetNumTimesCoopWarDenied(PlayerTypes ePlayer, int iValue);
+	void ChangeNumTimesCoopWarDenied(PlayerTypes ePlayer, int iValue);
+	int GetNumTimesCoopWarDenied(PlayerTypes ePlayer) const;
+
 	bool IsDoFBroken(PlayerTypes ePlayer) const;
 	void SetDoFBroken(PlayerTypes ePlayer, bool bValue);
 #endif
@@ -866,6 +872,9 @@ public:
 
 	bool IsOfferingGift(PlayerTypes ePlayer) const;	// We're offering a gift!
 	void SetOfferingGift(PlayerTypes ePlayer, bool bValue);
+
+	bool IsOfferedGift(PlayerTypes ePlayer) const;	// We offered a gift!
+	void SetOfferedGift(PlayerTypes ePlayer, bool bValue);
 
 	// Requests
 	bool IsTechRequest(PlayerTypes ePlayer, CvDeal* pDeal, int& iWeightBias);
@@ -1415,7 +1424,8 @@ private:
 		bool m_abDoFAccepted[MAX_MAJOR_CIVS];
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
 		bool m_abDoFBroken[MAX_MAJOR_CIVS];
-		short m_aiNumDoFLifetime[MAX_MAJOR_CIVS];
+		short m_aiNumDoFLifetime[REALLY_MAX_PLAYERS];
+		short m_aiNumTimesCoopWarDenied[REALLY_MAX_PLAYERS];
 #endif
 		short m_aiDoFCounter[MAX_MAJOR_CIVS];
 
@@ -1423,6 +1433,7 @@ private:
 		bool m_abFriendDenouncedUs[MAX_MAJOR_CIVS];
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 		bool m_abOfferingGift[MAX_MAJOR_CIVS];
+		bool m_abOfferedGift[MAX_MAJOR_CIVS];
 #endif
 		bool m_abFriendDeclaredWarOnUs[MAX_MAJOR_CIVS];
 		short m_aiDenouncedPlayerCounter[MAX_MAJOR_CIVS];
@@ -1698,6 +1709,7 @@ private:
 #if defined(MOD_BALANCE_CORE_DIPLOMACY)
 	bool* m_pabDoFBroken;
 	short* m_paiNumDoFLifetime;
+	short* m_paiNumTimesCoopWarDenied;
 #endif
 	short* m_paiDoFCounter;
 
@@ -1707,6 +1719,7 @@ private:
 	short* m_paiDenouncedPlayerCounter;
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	bool* m_pabOfferingGift;
+	bool* m_pabOfferedGift;
 #endif
 	short* m_paiNumRequestsRefused;
 

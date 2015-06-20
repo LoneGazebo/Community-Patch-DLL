@@ -6833,6 +6833,9 @@ bool CvPlayer::IsCapitalConnectedToPlayer(PlayerTypes ePlayer, RouteTypes eRestr
 //	---------------------------------------------------------------------------
 bool CvPlayer::IsCapitalConnectedToCity(CvCity* pCity, RouteTypes eRestrictRoute)
 {
+#if defined(MOD_BALANCE_CORE)
+	return (eRestrictRoute==ROUTE_RAILROAD) ? pCity->IsIndustrialRouteToCapital() : pCity->IsRouteToCapitalConnected();
+#else
 	CvCity* pPlayerCapital = getCapitalCity();
 	if(pPlayerCapital == NULL)
 	{
@@ -6840,6 +6843,7 @@ bool CvPlayer::IsCapitalConnectedToCity(CvCity* pCity, RouteTypes eRestrictRoute
 	}
 
 	return IsPlotConnectedToPlot(pPlayerCapital->plot(), pCity->plot(), eRestrictRoute);
+#endif
 }
 //	---------------------------------------------------------------------------
 bool CvPlayer::IsPlotConnectedToPlot(CvPlot* pFromPlot, CvPlot* pToPlot, RouteTypes eRestrictRoute, bool bIgnoreHarbors)
@@ -7306,6 +7310,75 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit) 
 			return false;
 		}
 	}
+#if defined(MOD_BALANCE_CORE)
+	//Golden Age
+	if(kGoodyInfo.getGoldenAge() > 0)
+	{
+		if(GetNumGoldenAges() <= 0)
+		{
+			return false;
+		}
+	}
+	//Free Tiles
+	if(kGoodyInfo.getFreeTiles() > 0 && pPlot != NULL)
+	{
+		int iDistance;
+		int iBestCityDistance = -1;
+		CvCity* pBestCity = NULL;
+
+		CvCity* pLoopCity;
+		int iLoop;
+		// Find the closest City to us to add a Pop point to
+		for(pLoopCity = GET_PLAYER(GetID()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(GetID()).nextCity(&iLoop))
+		{
+			iDistance = plotDistance(pPlot->getX(), pPlot->getY(), pLoopCity->getX(), pLoopCity->getY());
+
+			if(iBestCityDistance == -1 || iDistance < iBestCityDistance)
+			{
+				iBestCityDistance = iDistance;
+				pBestCity = pLoopCity;
+			}
+		}
+
+		if(pBestCity == NULL)
+		{
+			return false;
+		}
+	}
+	if(pPlot == NULL && kGoodyInfo.getMapRange() > 0 && kGoodyInfo.getMapOffset() > 0)
+	{
+		return false;
+	}
+	if(pPlot != NULL && kGoodyInfo.getMapRange() > 0 && kGoodyInfo.getMapOffset() > 0)
+	{
+		bool bGood = false;
+		int iOffset = kGoodyInfo.getMapOffset();
+		int iDX, iDY;
+		for(iDX = -(iOffset); iDX <= iOffset; iDX++)
+		{
+			for(iDY = -(iOffset); iDY <= iOffset; iDY++)
+			{
+				CvPlot* pLoopPlot = plotXYWithRangeCheck(pPlot->getX(), pPlot->getY(), iDX, iDY, iOffset);
+
+				if(pLoopPlot != NULL)
+				{
+					if(!(pLoopPlot->isRevealed(getTeam())))
+					{
+						if(pLoopPlot->isCity() && pLoopPlot->getOwner() != GetID() && pLoopPlot->getOwner() != NO_PLAYER)
+						{
+							bGood = true;
+							break;
+						}
+					}
+				}
+			}
+		}
+		if(!bGood)
+		{
+			return false;
+		}
+	}
+#endif
 
 	// Reveal Nearby Barbs
 	if(kGoodyInfo.getRevealNearbyBarbariansRange() > 0)
@@ -7971,18 +8044,55 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 	}
 	// Golden Age Points
 	int iGoldenAge = kGoodyInfo.getGoldenAge();
-	if(iGoldenAge > 0)
+	if(iGoldenAge > 0 && GetNumGoldenAges() > 0)
 	{
 		// Game Speed Mod
 		iGoldenAge *= GC.getGame().getGameSpeedInfo().getCulturePercent();
 		iGoldenAge /= 100;
 
-		if(GetNumGoldenAges() > 0)
+		ChangeGoldenAgeProgressMeter(iGoldenAge);
+	}
+	//Free Tiles
+	int iFreeTiles = kGoodyInfo.getFreeTiles();
+	if(iFreeTiles > 0)
+	{
+		int iDistance;
+		int iBestCityDistance = -1;
+		CvCity* pBestCity = NULL;
+
+		CvCity* pLoopCity;
+		int iLoop;
+		// Find the closest City to us to add a Pop point to
+		for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 		{
-			iGoldenAge *= GetNumGoldenAges();
+			iDistance = plotDistance(pPlot->getX(), pPlot->getY(), pLoopCity->getX(), pLoopCity->getY());
+
+			if(iBestCityDistance == -1 || iDistance < iBestCityDistance)
+			{
+				iBestCityDistance = iDistance;
+				pBestCity = pLoopCity;
+			}
 		}
 
-		ChangeGoldenAgeProgressMeter(iGoldenAge);
+		if(pBestCity != NULL)
+		{
+			// Game Speed Mod
+			iFreeTiles *= GC.getGame().getGameSpeedInfo().getCulturePercent();
+			iFreeTiles /= 100;
+
+			if(iFreeTiles > 0)
+			{
+				for (int i = 0; i < iFreeTiles; i++)
+				{
+					CvPlot* pPlotToAcquire = pBestCity->GetNextBuyablePlot(false);
+					// maybe the player owns ALL of the plots or there are none available?
+					if(pPlotToAcquire)
+					{
+						pBestCity->DoAcquirePlot(pPlotToAcquire->getX(), pPlotToAcquire->getY());
+					}
+				}
+			}
+		}
 	}
 #endif
 	// Culture
@@ -8102,11 +8212,26 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 						if(!(pLoopPlot->isRevealed(getTeam())))
 						{
 							// Avoid water plots!
+#if defined(MOD_BALANCE_CORE)
+							//Let's reveal cities instead.
+							if(pLoopPlot->isCity() && pLoopPlot->getOwner() != GetID() && pLoopPlot->getOwner() != NO_PLAYER)
+							{
+								iRandLimit = 0;
+								if(GET_PLAYER(pLoopPlot->getOwner()).isMajorCiv())
+								{
+									iRandLimit += 10000;
+								}
+								else if(GET_PLAYER(pLoopPlot->getOwner()).isMinorCiv())
+								{
+									iRandLimit += 1000;
+								}
+
+#else
 							if(pPlot->isWater())
 								iRandLimit = 10;
 							else
 								iRandLimit = 10000;
-
+#endif
 							iValue = (1 + GC.getGame().getJonRandNum(iRandLimit, "Goody Map"));
 
 							iValue *= plotDistance(pPlot->getX(), pPlot->getY(), pLoopPlot->getX(), pLoopPlot->getY());
@@ -8116,6 +8241,9 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 								iBestValue = iValue;
 								pBestPlot = pLoopPlot;
 							}
+#if defined(MOD_BALANCE_CORE)
+							}
+#endif
 						}
 					}
 				}
@@ -13481,6 +13609,16 @@ int CvPlayer::GetYieldPerTurnFromReligion(YieldTypes eYield) const
 					iYieldPerTurn += iLuxCulture;
 				}
 			}
+			int iYieldPerGPT = pReligion->m_Beliefs.GetYieldPerGPT(eYield);
+			if(iYieldPerGPT > 0)
+			{
+				iYieldPerTurn += (GetTreasury()->CalculateBaseNetGold() / iYieldPerGPT);
+			}
+			int iYieldPerScience = pReligion->m_Beliefs.GetYieldPerScience(eYield);
+			if(iYieldPerScience > 0)
+			{
+				iYieldPerTurn += (GetScience() / iYieldPerScience);
+			}
 		}
 	}
 	//Pantheon
@@ -13544,6 +13682,16 @@ int CvPlayer::GetYieldPerTurnFromReligion(YieldTypes eYield) const
 					iLuxCulture *= iNumHappinessResources;
 					iYieldPerTurn += iLuxCulture;
 				}
+			}
+			int iYieldPerGPT = pReligion->m_Beliefs.GetYieldPerGPT(eYield);
+			if(iYieldPerGPT > 0)
+			{
+				iYieldPerTurn += (GetTreasury()->CalculateBaseNetGold() / iYieldPerGPT);
+			}
+			int iYieldPerScience = pReligion->m_Beliefs.GetYieldPerScience(eYield);
+			if(iYieldPerScience > 0)
+			{
+				iYieldPerTurn += (GetScience() / iYieldPerScience);
 			}
 		}
 	}
@@ -17163,6 +17311,17 @@ void CvPlayer::doAdoptPolicy(PolicyTypes ePolicy)
 		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligionFounded, GetID());
 		if(pReligion)
 		{
+			int iLoop;
+			CvCity* pHolyCity = NULL;
+			for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop)) 
+			{
+				if (pLoopCity->GetCityReligions()->IsHolyCityForReligion(eReligionFounded)) 
+				{
+					pHolyCity = pLoopCity;
+					break;
+				}
+			}
+			float fDelay = 3.0;
 			int iEra = GetCurrentEra();
 			if(iEra < 1)
 			{
@@ -17171,10 +17330,24 @@ void CvPlayer::doAdoptPolicy(PolicyTypes ePolicy)
 			if(pReligion->m_Beliefs.GetYieldFromPolicyUnlock(YIELD_FAITH) > 0)
 			{
 				ChangeFaith(pReligion->m_Beliefs.GetYieldFromPolicyUnlock(YIELD_FAITH) * iEra);
+				if(GetID() == GC.getGame().getActivePlayer() && pHolyCity != NULL)
+				{
+					char text[256] = {0};
+					fDelay += 0.5f;
+					sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", pReligion->m_Beliefs.GetYieldFromPolicyUnlock(YIELD_FAITH) * iEra);
+					DLLUI->AddPopupText(pHolyCity->getX(),pHolyCity->getY(), text, fDelay);
+				}
 			}
 			if(pReligion->m_Beliefs.GetYieldFromPolicyUnlock(YIELD_GOLD) > 0)
 			{
 				GetTreasury()->ChangeGold(pReligion->m_Beliefs.GetYieldFromPolicyUnlock(YIELD_GOLD) * iEra);
+				if(GetID() == GC.getGame().getActivePlayer() && pHolyCity != NULL)
+				{
+					char text[256] = {0};
+					fDelay += 0.5f;
+					sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]", pReligion->m_Beliefs.GetYieldFromPolicyUnlock(YIELD_GOLD) * iEra);
+					DLLUI->AddPopupText(pHolyCity->getX(),pHolyCity->getY(), text, fDelay);
+				}
 			}
 			if(pReligion->m_Beliefs.GetYieldFromPolicyUnlock(YIELD_SCIENCE) > 0)
 			{
@@ -17187,14 +17360,35 @@ void CvPlayer::doAdoptPolicy(PolicyTypes ePolicy)
 				{
 					GET_TEAM(GET_PLAYER(GetID()).getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, pReligion->m_Beliefs.GetYieldFromPolicyUnlock(YIELD_SCIENCE) * iEra, GetID());
 				}
+				if(GetID() == GC.getGame().getActivePlayer() && pHolyCity != NULL)
+				{
+					char text[256] = {0};
+					fDelay += 0.5f;
+					sprintf_s(text, "[COLOR_BLUE]+%d[ENDCOLOR][ICON_RESEARCH]", pReligion->m_Beliefs.GetYieldFromPolicyUnlock(YIELD_SCIENCE) * iEra);
+					DLLUI->AddPopupText(pHolyCity->getX(),pHolyCity->getY(), text, fDelay);
+				}
 			}
 			if(pReligion->m_Beliefs.GetYieldFromPolicyUnlock(YIELD_CULTURE) > 0)
 			{
 				changeJONSCulture(pReligion->m_Beliefs.GetYieldFromPolicyUnlock(YIELD_CULTURE) * iEra);
+				if(GetID() == GC.getGame().getActivePlayer() && pHolyCity != NULL)
+				{
+					char text[256] = {0};
+					fDelay += 0.5f;
+					sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", pReligion->m_Beliefs.GetYieldFromPolicyUnlock(YIELD_CULTURE) * iEra);
+					DLLUI->AddPopupText(pHolyCity->getX(),pHolyCity->getY(), text, fDelay);
+				}
 			}
 			if(pReligion->m_Beliefs.GetYieldFromPolicyUnlock(YIELD_GOLDEN_AGE_POINTS) > 0)
 			{
 				ChangeGoldenAgeProgressMeter(pReligion->m_Beliefs.GetYieldFromPolicyUnlock(YIELD_GOLDEN_AGE_POINTS) * iEra);
+				if(GetID() == GC.getGame().getActivePlayer() && pHolyCity != NULL)
+				{
+					char text[256] = {0};
+					fDelay += 0.5f;
+					sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLDEN_AGE]", pReligion->m_Beliefs.GetYieldFromPolicyUnlock(YIELD_GOLDEN_AGE_POINTS) * iEra);
+					DLLUI->AddPopupText(pHolyCity->getX(),pHolyCity->getY(), text, fDelay);
+				}
 			}
 		}
 	}
@@ -32989,8 +33183,7 @@ void CvPlayer::UpdateAreaEffectUnits()
 
 	//cache the wars we have going
 	m_playersWeAreAtWarWith.clear();
-	//note: normal players are not at war with the barbarians, but the barbarians are at war with everyone
-	for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+	for(int iPlayerLoop = 0; iPlayerLoop < MAX_PLAYERS; iPlayerLoop++)
 	{
 		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
 		if(GET_TEAM(getTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam()))

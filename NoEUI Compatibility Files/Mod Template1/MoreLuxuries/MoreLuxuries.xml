@@ -5,27 +5,27 @@
 		<Row>
 			<ResourceType>RESOURCE_TEA</ResourceType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Yield>2</Yield>
+			<Yield>3</Yield>
 		</Row>
 		<Row>
 			<ResourceType>RESOURCE_CORAL</ResourceType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>2</Yield>
+			<Yield>3</Yield>
 		</Row>
 		<Row>
 			<ResourceType>RESOURCE_AMBER</ResourceType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>2</Yield>
+			<Yield>3</Yield>
 		</Row>
 		<Row>
 			<ResourceType>RESOURCE_JADE</ResourceType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>2</Yield>
+			<Yield>3</Yield>
 		</Row>
 		<Row>
 			<ResourceType>RESOURCE_OLIVE</ResourceType>
 			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>2</Yield>
+			<Yield>3</Yield>
 		</Row>
 	</Resource_YieldChangeFromMonopoly>
 	<Improvement_ResourceTypes>

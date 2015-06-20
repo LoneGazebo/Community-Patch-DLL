@@ -976,7 +976,11 @@ private:
 #endif
 	bool MoveToEmptySpaceNearTarget(UnitHandle pUnit, CvPlot* pTargetPlot, bool bLand=true);
 	bool MoveToEmptySpaceTwoFromTarget(UnitHandle pUnit, CvPlot* pTargetPlot, bool bLand=true);
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	bool MoveToUsingSafeEmbark(UnitHandle pUnit, CvPlot* pTargetPlot, bool bMustBeSafeOnLandToo);
+#else
 	bool MoveToUsingSafeEmbark(UnitHandle pUnit, CvPlot* pTargetPlot, bool &bMoveWasSafe);
+#endif
 	CvPlot* FindBestBarbarianLandMove(UnitHandle pUnit);
 	CvPlot* FindPassiveBarbarianLandMove(UnitHandle pUnit);
 	CvPlot* FindBestBarbarianSeaMove(UnitHandle pUnit);

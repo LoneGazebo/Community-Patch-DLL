@@ -42,6 +42,16 @@ UPDATE Language_en_US
 SET Text = '[COLOR_POSITIVE_TEXT]We are trade partners.[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_DIPLO_TRADE_PARTNER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
 
+-- Changed Diplo Text for Assistance
+
+UPDATE Language_en_US
+SET Text = '[COLOR_POSITIVE_TEXT]Your recent diplomatic actions please them.[ENDCOLOR]'
+WHERE Tag = 'TXT_KEY_DIPLO_ASSISTANCE_TO_THEM' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
+
+UPDATE Language_en_US
+SET Text = '[COLOR_NEGATIVE_TEXT]Your recent diplomatic actions disappoint them.[ENDCOLOR]'
+WHERE Tag = 'TXT_KEY_DIPLO_REFUSED_REQUESTS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
+
 -- Diplo Text for DoF changed
 UPDATE Language_en_US
 SET Text = 'Our Declaration of Friendship must end.'
@@ -76,13 +86,13 @@ SET Text = 'I am sorry, but it is time for our Declaration of Friendship to end.
 WHERE Tag = 'TXT_KEY_END_WORK_WITH_US_DEFAULT_2' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '[COLOR_NEGATIVE_TEXT]You insulted them.[ENDCOLOR]'
-WHERE Tag = 'TXT_KEY_DIPLO_REFUSED_REQUESTS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
-
-UPDATE Language_en_US
 SET Text = 'We cannot offer you enough to make this a fair trade. We can, however, offer you this deal.'
 WHERE Tag = 'TXT_KEY_GENERIC_TRADE_CANT_MATCH_OFFER_1' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
 
 UPDATE Language_en_US
 SET Text = 'The deal we suggest may be an unfair exchange for you. Please inspect it closely.'
 WHERE Tag = 'TXT_KEY_GENERIC_TRADE_CANT_MATCH_OFFER_2' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
+
+UPDATE Language_en_US
+SET Text = 'Impossible. You go too far.'
+WHERE Tag = 'TXT_KEY_DIPLO_DISCUSS_HOW_DARE_YOU' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );

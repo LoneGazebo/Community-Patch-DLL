@@ -623,7 +623,9 @@ function GetCultureTooltip(pCity)
 		-- Culture from Specialists
 		local iCultureFromSpecialists = pCity:GetJONSCulturePerTurnFromSpecialists();
 		if (iCultureFromSpecialists ~= 0) then
-			
+			--CBP
+			iCultureFromSpecialists = (iCultureFromSpecialists + pCity:GetBaseYieldRateFromSpecialists(YieldTypes.YIELD_CULTURE));
+			--END
 			-- Spacing
 			if (bFirst) then
 				bFirst = false;

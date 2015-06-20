@@ -78,7 +78,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_CHORAL_MUSIC_SHORT' AND EXISTS (SELECT * FROM COMMUN
 
 -- Religious Art (Now Mastery)
 UPDATE Language_en_US
-SET Text = 'Specialists produce +1 of their primary yield ([ICON_RESEARCH] Science, [ICON_GOLD] Gold, [ICON_PRODUCTION] Production, or [ICON_CULTURE) Culture)'
+SET Text = 'Specialists produce +1 of their primary yield ([ICON_RESEARCH] Science, [ICON_GOLD] Gold, [ICON_PRODUCTION] Production, or [ICON_CULTURE] Culture)'
 WHERE Tag = 'TXT_KEY_BELIEF_RELIGIOUS_ART' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US

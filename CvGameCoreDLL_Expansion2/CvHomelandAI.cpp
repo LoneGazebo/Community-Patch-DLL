@@ -685,7 +685,8 @@ void CvHomelandAI::FindHomelandTargets()
 		pLoopPlot = theMap.plotByIndexUnchecked(iI);
 
 #if defined(MOD_BALANCE_CORE)
-		if(pLoopPlot->isVisible(m_pPlayer->getTeam()) && m_pPlayer->GetCityDistance(pLoopPlot)<10 )
+		//Makes AI a little psychic, but that's okay.
+		if((pLoopPlot->isVisible(m_pPlayer->getTeam()) && m_pPlayer->GetCityDistance(pLoopPlot) <= 10) || (pLoopPlot->isRevealed(m_pPlayer->getTeam()) && m_pPlayer->GetCityDistance(pLoopPlot) <= 5))
 #else
 		if(pLoopPlot->isVisible(m_pPlayer->getTeam()))
 #endif
@@ -813,6 +814,32 @@ void CvHomelandAI::FindHomelandTargets()
 						newTarget.SetAuxIntData(iWeight);
 						m_TargetedSentryPoints.push_back(newTarget);
 					}
+				}
+			}
+			// ... enemy civilian (or embarked) unit?
+			else if(pLoopPlot->isVisibleOtherUnit(m_pPlayer->GetID()))
+			{
+				CvUnit* pTargetUnit = pLoopPlot->getUnitByIndex(0);
+				if(!pTargetUnit->isDelayedDeath() && atWar(eTeam, pTargetUnit->getTeam()) && !pTargetUnit->IsCanDefend())
+				{
+					newTarget.SetTargetType(AI_HOMELAND_TARGET_ANCIENT_RUIN);
+					newTarget.SetTargetX(pLoopPlot->getX());
+					newTarget.SetTargetY(pLoopPlot->getY());
+					newTarget.SetAuxData(pLoopPlot);
+					m_TargetedAncientRuins.push_back(newTarget);
+				}
+			}
+			// ... empty barb camp?
+			else if(BARBARIAN_PLAYER != NULL && pLoopPlot->getImprovementType() == GC.getBARBARIAN_CAMP_IMPROVEMENT() && pLoopPlot->getNumDefenders(BARBARIAN_PLAYER) <= 0)
+			{
+				CvUnit* pTargetUnit = pLoopPlot->getUnitByIndex(0);
+				if(!pTargetUnit->isDelayedDeath() && atWar(eTeam, pTargetUnit->getTeam()) && !pTargetUnit->IsCanDefend())
+				{
+					newTarget.SetTargetType(AI_HOMELAND_TARGET_ANCIENT_RUIN);
+					newTarget.SetTargetX(pLoopPlot->getX());
+					newTarget.SetTargetY(pLoopPlot->getY());
+					newTarget.SetAuxData(pLoopPlot);
+					m_TargetedAncientRuins.push_back(newTarget);
 				}
 			}
 #else
@@ -1477,7 +1504,11 @@ void CvHomelandAI::PlotSentryMoves()
 
 			if(m_CurrentMoveHighPriorityUnits.size() + m_CurrentMoveUnits.size() > 0)
 			{
+#if defined(MOD_BALANCE_CORE)
+				if(GetBestUnitToReachTarget(pTarget, 5))
+#else
 				if(GetBestUnitToReachTarget(pTarget, MAX_INT))
+#endif
 				{
 					ExecuteMoveToTarget(pTarget);
 
@@ -5797,7 +5828,12 @@ void CvHomelandAI::ExecuteGeneralMoves()
 				{
 					continue;
 				}
+#if defined(MOD_BALANCE_CORE)
+				//don't care if it's more than 10 turns away - in that case we'll move in stages
+				int iTurns = TurnsToReachTarget(pUnit, pLoopCity->plot(),true,true,false,10);
+#else
 				int iTurns = TurnsToReachTarget(pUnit, pLoopCity->plot());
+#endif
 
 				// Don't go here if I'm not in a city currently and this city is not reachable by normal movement
 				if (bNotAtFriendlyCity)
