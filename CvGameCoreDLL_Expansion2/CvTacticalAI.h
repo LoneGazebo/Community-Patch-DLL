@@ -941,7 +941,7 @@ private:
 
 	// Internal low-level utility routines
 #if defined(MOD_AI_SMART_RANGED_UNITS)
-	CvPlot* GetBestRepositionPlot(UnitHandle unitH, CvPlot* plotTarget);
+	CvPlot* GetBestRepositionPlot(UnitHandle unitH, CvPlot* plotTarget, int iAcceptableDanger);
 #endif
 	void TurnOffMove(TacticalAIMoveTypes eType);
 	bool FindUnitsForThisMove(TacticalAIMoveTypes eMove, CvPlot* pTargetPlot, int iNumTurnsAway=0, bool bRangedOnly=false);
@@ -1095,6 +1095,7 @@ typedef std::set<std::pair<CvPlot*,int>> ReachablePlotSet;
 int GetAllTilesInReach(CvUnit* pUnit, CvPlot* pStartPlot, ReachablePlotSet& resultSet, bool bCheckTerritory=false, bool bCheckZOC=false);
 int GetPlotsUnderRangedAttackFrom(CvUnit* pUnit, CvPlot* pBasePlot, std::set<CvPlot*>& resultSet);
 int GetPlotsUnderRangedAttackFrom(CvUnit* pUnit, ReachablePlotSet& basePlots, std::set<CvPlot*>& resultSet);
+bool PerformRangedOpportunityAttack(CvUnit* pUnit);
 #endif
 }
 

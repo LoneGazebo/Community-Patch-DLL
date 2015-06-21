@@ -11312,28 +11312,6 @@ void CvPlot::showPopupText(PlayerTypes ePlayer, const char* szMessage)
 }
 #endif
 
-#ifdef AUI_DANGER_PLOTS_REMADE
-int CvPlot::getNumTimesInList(const DangerPlotList& aPlotList, bool bTerminateAfterFirst) const
-{
-	if (aPlotList.size() == 0)
-		return 0;
-
-	int rtnValue = 0;
-
-	for (DangerPlotList::const_iterator it = aPlotList.begin(); it != aPlotList.end(); ++it)
-	{
-		if (it->first == this)
-		{
-			if (bTerminateAfterFirst)
-				return 1;
-			++rtnValue;
-		}
-	}
-
-	return rtnValue;
-}
-#endif
-
 // Protected Functions...
 
 //	--------------------------------------------------------------------------------

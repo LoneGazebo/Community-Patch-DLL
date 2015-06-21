@@ -8215,14 +8215,14 @@ void CvTacticalAI::ExecuteAttack(CvTacticalTarget* pTarget, CvPlot* pTargetPlot,
 							bool bQueueTryRangedAttack = false;
 
 							// Are we in range and do we have LOS to the target?
-							if((plotDistance(pUnit->getX(), pUnit->getY(), pTargetPlot->getX(), pTargetPlot->getY()) <= pUnit->GetRange()) && (pUnit->canEverRangeStrikeAt(pTargetPlot->getX(), pTargetPlot->getY())))
+							if(pUnit->canEverRangeStrikeAt(pTargetPlot->getX(), pTargetPlot->getY()))
 							{
 								bQueueTryRangedAttack = true;
 							}
 							else
 							{
 								// Not in range/ not LOS: then lets try to reposition unit.
-								CvPlot* repositionPlot = GetBestRepositionPlot(pUnit, pTargetPlot);
+								CvPlot* repositionPlot = GetBestRepositionPlot(pUnit, pTargetPlot, pUnit->GetCurrHitPoints()/2);
 
 								if (repositionPlot != NULL)
 								{
@@ -9178,7 +9178,7 @@ void CvTacticalAI::ExecuteBarbarianMoves(bool bAggressive)
 							m_pPlayer->GetPlotDanger(*pUnit->plot()) > 0 && pUnit->getMoves() > 0)
 						{
 							pUnit->SetTacticalAIPlot(NULL);
-							CvPlot* pRepositionPlot = GetBestRepositionPlot(pUnit, pBestPlot);
+							CvPlot* pRepositionPlot = GetBestRepositionPlot(pUnit, pBestPlot, pUnit->GetCurrHitPoints());
 							if (pRepositionPlot)
 							{
 								pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pRepositionPlot->getX(), pRepositionPlot->getY());
@@ -9204,7 +9204,7 @@ void CvTacticalAI::ExecuteBarbarianMoves(bool bAggressive)
 #ifdef AUI_TACTICAL_EXECUTE_BARBARIAN_MOVES_PATROL_IF_ON_TARGET
 						if (m_pPlayer->GetPlotDanger(*pUnit->plot()) > 0 && pUnit->getMoves() > 0)
 						{
-							CvPlot* pRepositionPlot = GetBestRepositionPlot(pUnit, pUnit->plot());
+							CvPlot* pRepositionPlot = GetBestRepositionPlot(pUnit, pUnit->plot(), pUnit->GetCurrHitPoints());
 							if (pRepositionPlot)
 							{
 								pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pRepositionPlot->getX(), pRepositionPlot->getY());
@@ -10889,52 +10889,14 @@ void CvTacticalAI::ExecuteEscortEmbarkedMoves()
 #endif
 #if defined(MOD_BALANCE_CORE)
 				//If we can shoot while doing this, do it!
-				if(pUnit && pUnit->IsCanAttackRanged() && !pUnit->isOutOfAttacks())
+				if (TacticalAIHelpers::PerformRangedOpportunityAttack(pUnit.pointer()))
 				{
-					int iRange = pUnit->GetRange();
-					if(iRange > 0)
+					if(GC.getLogging() && GC.getAILogging())
 					{
-						for(int iX = -iRange; iX <= iRange; iX++)
-						{
-							for(int iY = -iRange; iY <= iRange; iY++)
-							{
-								CvPlot* pConsiderPlot = plotXYWithRangeCheck(pUnit->getX(), pUnit->getY(), iX, iY, iRange);
-								if(pConsiderPlot != NULL)
-								{
-									if(pConsiderPlot->isCity() && GET_TEAM(GET_PLAYER(pConsiderPlot->getOwner()).getTeam()).isAtWar(GET_PLAYER(pUnit->getOwner()).getTeam()) && pUnit->canEverRangeStrikeAt(pConsiderPlot->getX(), pConsiderPlot->getY()))
-									{
-										pUnit->PushMission(CvTypes::getMISSION_RANGE_ATTACK(), pConsiderPlot->getX(), pConsiderPlot->getY());
-										if(GC.getLogging() && GC.getAILogging())
-										{
-											CvString strLogString;
-											strLogString.Format("%s escort bombarded city at, Current X: %d, Current Y: %d", pUnit->getName().GetCString(), pUnit->getX(), pUnit->getY());
-											LogTacticalMessage(strLogString, false);
-										}
-									}
-									if(!pUnit->isOutOfAttacks() && pConsiderPlot->getNumUnits() > 0 && !pConsiderPlot->isWater() && (GET_TEAM(GET_PLAYER(pConsiderPlot->getUnitByIndex(0)->getOwner()).getTeam()).isAtWar(GET_PLAYER(pUnit->getOwner()).getTeam())) && (pUnit->canEverRangeStrikeAt(pConsiderPlot->getX(), pConsiderPlot->getY())))
-									{
-										pUnit->PushMission(CvTypes::getMISSION_RANGE_ATTACK(), pConsiderPlot->getX(), pConsiderPlot->getY());
-										if(GC.getLogging() && GC.getAILogging())
-										{
-											CvString strLogString;
-											strLogString.Format("%s escort bombarded land unit at, Current X: %d, Current Y: %d", pUnit->getName().GetCString(), pUnit->getX(), pUnit->getY());
-											LogTacticalMessage(strLogString, false);
-										}
-									}
-									if(!pUnit->isOutOfAttacks() && pConsiderPlot->getNumUnits() > 0 && pConsiderPlot->isWater() && (GET_TEAM(GET_PLAYER(pConsiderPlot->getUnitByIndex(0)->getOwner()).getTeam()).isAtWar(GET_PLAYER(pUnit->getOwner()).getTeam())) && (pUnit->canEverRangeStrikeAt(pConsiderPlot->getX(), pConsiderPlot->getY())))
-									{
-										pUnit->PushMission(CvTypes::getMISSION_RANGE_ATTACK(), pConsiderPlot->getX(), pConsiderPlot->getY());
-										if(GC.getLogging() && GC.getAILogging())
-										{
-											CvString strLogString;
-											strLogString.Format("%s escort bombarded water unit at, Current X: %d, Current Y: %d", pUnit->getName().GetCString(), pUnit->getX(), pUnit->getY());
-											LogTacticalMessage(strLogString, false);
-										}
-									}
-								}
-							}
-						}
-					}		
+						CvString strLogString;
+						strLogString.Format("%s escort opportunity range attack, Current X: %d, Current Y: %d", pUnit->getName().GetCString(), pUnit->getX(), pUnit->getY());
+						LogTacticalMessage(strLogString, false);
+					}
 				}
 				pUnit->finishMoves();
 #endif
@@ -10951,70 +10913,65 @@ void CvTacticalAI::ExecuteEscortEmbarkedMoves()
 	}
 }
 
-#if defined(MOD_AI_SMART_RANGED_UNITS)
+#if defined(MOD_AI_SMART_RANGED_UNITS) && defined(AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS) && defined(AUI_DANGER_PLOTS_REMADE)
 
 // Get best plot of the array of possible plots, based on plot danger.
-CvPlot* CvTacticalAI::GetBestRepositionPlot(UnitHandle pUnit, CvPlot* plotTarget)
+CvPlot* CvTacticalAI::GetBestRepositionPlot(UnitHandle pUnit, CvPlot* plotTarget, int iAcceptableDanger)
 {
+	//safety: barbarians don't leave camp
 	if (pUnit->isBarbarian() && pUnit->plot()->getImprovementType() == GC.getBARBARIAN_CAMP_IMPROVEMENT())
 		return NULL;
-	CvPlot* pBestRepositionPlot = NULL;
-	vector<CvPlot*> movePlotList;
 
-	if (pUnit->GetMovablePlotListOpt(movePlotList, plotTarget, false))
+	TacticalAIHelpers::ReachablePlotSet reachableTiles;
+	TacticalAIHelpers::GetAllTilesInReach(pUnit.pointer(),pUnit->plot(),reachableTiles);
+
+	if (reachableTiles.empty())
+		return NULL;
+
+	CvCity* pTargetCity = plotTarget->getPlotCity();
+	CvUnit* pTargetUnit = NULL;
+	if (!pTargetCity)
+		pTargetUnit = plotTarget->getBestDefender(NO_PLAYER, m_pPlayer->GetID()).pointer();
+
+	//done with the preparation, now start for real
+	std::vector<SPlotWithTwoScores> vStats;
+	int iHighestAttack = 0;
+	int iLowestDanger = INT_MAX;
+	bool bIsRanged = pUnit->canRangeStrike();
+	for (TacticalAIHelpers::ReachablePlotSet::iterator moveTile=reachableTiles.begin(); moveTile!=reachableTiles.end(); ++moveTile)
 	{
-#ifdef AUI_DANGER_PLOTS_REMADE
-		int iMinDanger = m_pPlayer->GetPlotDanger(*pUnit->plot(), pUnit.pointer());;
-#else
-		int iMinDanger = m_pPlayer->GetPlotDanger(*pUnit->plot());;
-#endif
-		int iMaxAttack = 0;
-		int iCurrentDanger;
+		if (moveTile->first == pUnit->plot())
+			continue;
+
 		int iCurrentAttack = 0;
-		bool bIsRanged = pUnit->canRangeStrike();
-		CvCity* pTargetCity = plotTarget->getPlotCity();
-		CvUnit* pTargetUnit = NULL;
-		if (!pTargetCity)
-			pTargetUnit = plotTarget->getBestDefender(NO_PLAYER, m_pPlayer->GetID()).pointer();
-
 		if (bIsRanged)
-#ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
-			iMaxAttack = pUnit->GetMaxRangedCombatStrength(pTargetUnit, pTargetCity, true, true);
-#else
-			iCurrentAttack = iMaxAttack;
-#endif // #ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
+			iCurrentAttack = pUnit->GetMaxRangedCombatStrength(pTargetUnit, pTargetCity, true, true, plotTarget, moveTile->first);
 		else
-			iMaxAttack = pUnit->GetMaxAttackStrength(NULL, plotTarget, pTargetUnit);
-		
-		for (vector<CvPlot*>::iterator it = movePlotList.begin(); it != movePlotList.end(); it++)
-		{
-			if ((*it) == pUnit->plot())
-				continue;
+			iCurrentAttack = pUnit->GetMaxAttackStrength(moveTile->first, plotTarget, pTargetUnit);
 
-#ifdef AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
-			if (bIsRanged)
-				iCurrentAttack = pUnit->GetMaxRangedCombatStrength(pTargetUnit, pTargetCity, true, true, plotTarget, (*it));
-			else
-				iCurrentAttack = pUnit->GetMaxAttackStrength((*it), plotTarget, pTargetUnit);
-#else
-			if (!bIsRanged)
-				iCurrentAttack = pUnit->GetMaxAttackStrength((*it), plotTarget, pTargetUnit);
-#endif // AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
-			
-			if (iCurrentAttack >= iMaxAttack)
-			{
-#ifdef AUI_DANGER_PLOTS_REMADE
-				iCurrentDanger = m_pPlayer->GetPlotDanger(*(*it), pUnit.pointer());
-#else
-				iCurrentDanger = m_pPlayer->GetPlotDanger(*(*it));
-#endif // AUI_DANGER_PLOTS_REMADE
-				if (iCurrentDanger < iMinDanger || iCurrentAttack > iMaxAttack)
-				{
-					pBestRepositionPlot = (*it);
-					iMinDanger = iCurrentDanger;
-					iMaxAttack = iCurrentAttack;
-				}
-			}
+		int iCurrentDanger = m_pPlayer->GetPlotDanger(*(moveTile->first), pUnit.pointer());
+
+		if (iCurrentDanger<=iAcceptableDanger)
+		{
+			vStats.push_back( SPlotWithTwoScores(moveTile->first,iCurrentAttack,iCurrentDanger) );
+
+			iHighestAttack = max( iHighestAttack, iCurrentAttack );
+			iLowestDanger = min( iLowestDanger, iCurrentDanger );
+		}
+	}
+
+	//we want to find the best combination of attack potential and danger
+	float fBestScore = 0;
+	CvPlot* pBestRepositionPlot = NULL;
+	for (std::vector<SPlotWithTwoScores>::iterator it=vStats.begin(); it!=vStats.end(); ++it)
+	{
+		//be conservative: danger counts twice as much as attack strength
+		float fScore = it->score1 / float(iHighestAttack) + 2 * float(iLowestDanger) / it->score2;
+
+		if (fScore > fBestScore)
+		{
+			pBestRepositionPlot = it->pPlot;
+			fBestScore = fScore;
 		}
 	}
 
@@ -15242,6 +15199,50 @@ int TacticalAIHelpers::GetPlotsUnderRangedAttackFrom(CvUnit* pUnit, ReachablePlo
 	}
 
 	return (int)resultSet.size();
+}
+
+//see if we can hit anything from our current plot
+bool TacticalAIHelpers::PerformRangedOpportunityAttack(CvUnit* pUnit)
+{
+	if (!pUnit || !pUnit->IsCanAttackRanged())
+		return false;
+
+	int iRange = pUnit->GetRange();
+	CvPlot* pBasePlot = pUnit->plot();
+
+	int iMaxDamage = 0;
+	CvPlot* pBestTarget = NULL;
+
+	for(int iX = -iRange; iX <= iRange; iX++)
+	{
+		for(int iY = -iRange; iY <= iRange; iY++)
+		{
+			CvPlot* pLoopPlot = plotXYWithRangeCheck(pBasePlot->getX(), pBasePlot->getY(), iX, iY, iRange);
+			if (!pLoopPlot)
+				continue;
+
+			UnitHandle pOtherUnit = pLoopPlot->getBestDefender(NO_PLAYER,pUnit->getOwner(), pUnit, true/*testWar*/);
+
+			//don't blindly attack the first one we find, check how much damage we can do
+			if (pOtherUnit && !pOtherUnit->isDelayedDeath() && pUnit->canEverRangeStrikeAt(pLoopPlot->getX(), pLoopPlot->getY(), pBasePlot))
+			{
+				int iDamage = pUnit->GetRangeCombatDamage(pOtherUnit.pointer(),NULL,false);
+				if (iDamage>iMaxDamage)
+				{
+					pBestTarget = pLoopPlot;
+					iMaxDamage = iDamage;
+				}
+			}
+		}
+	}
+
+	if (pBestTarget)
+	{
+		pUnit->PushMission(CvTypes::getMISSION_RANGE_ATTACK(), pBestTarget->getX(), pBestTarget->getY());
+		return true;
+	}
+
+	return false;
 }
 
 void CTacticalUnitArray::push_back(const CvTacticalUnit& unit)

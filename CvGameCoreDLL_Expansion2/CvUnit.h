@@ -1304,9 +1304,7 @@ public:
 
 	bool canRangeStrike() const;
 #if defined(MOD_AI_SMART_RANGED_UNITS)
-	bool canMoveAndRangedStrike(const CvPlot* pTargetPlot) const;
 	bool canEverRangeStrikeAt(int iX, int iY, const CvPlot* pSourcePlot=NULL) const;
-	bool GetMovablePlotListOpt(vector<CvPlot*>& plotData, const CvPlot* plotTarget, bool exitOnFound) const;
 #else
 	bool canEverRangeStrikeAt(int iX, int iY) const;
 #endif
@@ -1475,11 +1473,6 @@ public:
 #ifdef AUI_UNIT_DO_AITYPE_FLIP
 	bool DoSingleUnitAITypeFlip(UnitAITypes eUnitAIType, bool bRevert = false, bool bForceOff = false);
 #endif // AUI_UNIT_DO_AITYPE_FLIP
-#ifdef AUI_DANGER_PLOTS_REMADE
-	DangerPlotList& GetDangerPlotList(bool bMoveOnly = false);
-#endif
-
-
 
 #if defined(MOD_AI_SECONDARY_WORKERS)
 	bool PlotValid(CvPlot* pPlot, byte bMoveFlags = 0) const;
@@ -1721,11 +1714,6 @@ protected:
 	FAutoVariable<int, CvUnit> m_iSapperCount;
 	FAutoVariable<int, CvUnit> m_iCanHeavyCharge;
 	FAutoVariable<int, CvUnit> m_iNumExoticGoods;
-#ifdef AUI_DANGER_PLOTS_REMADE
-	DangerPlotList vpDangerPlotList;
-	DangerPlotList vpDangerPlotMoveOnlyList;
-#endif
-
 	FAutoVariable<bool, CvUnit> m_bPromotionReady;
 	FAutoVariable<bool, CvUnit> m_bDeathDelay;
 	FAutoVariable<bool, CvUnit> m_bCombatFocus;

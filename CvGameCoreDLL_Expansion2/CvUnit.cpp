@@ -2409,11 +2409,6 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 		}
 	}
 
-#ifdef AUI_DANGER_PLOTS_REMADE
-	vpDangerPlotList.reserve(NUM_DIRECTION_TYPES * baseMoves());
-	vpDangerPlotMoveOnlyList.reserve(NUM_DIRECTION_TYPES * baseMoves());
-#endif
-
 	if(bSetupGraphical)
 		setupGraphical();
 		
@@ -3660,10 +3655,6 @@ void CvUnit::doTurn()
 		}
 	}
 
-#ifdef AUI_DANGER_PLOTS_REMADE
-	vpDangerPlotList.clear();
-	vpDangerPlotMoveOnlyList.clear();
-#endif
 	doDelayedDeath();
 }
 
@@ -24818,128 +24809,6 @@ bool CvUnit::DoSingleUnitAITypeFlip(UnitAITypes eUnitAIType, bool bRevert, bool 
 	return false;
 }
 #endif // AUI_UNIT_DO_AITYPE_FLIP
-
-#ifdef AUI_DANGER_PLOTS_REMADE
-DangerPlotList& CvUnit::GetDangerPlotList(bool bMoveOnly)
-{
-	if (bMoveOnly)
-		return vpDangerPlotMoveOnlyList;
-	else
-		return vpDangerPlotList;
-}
-#endif
-
-#if defined(MOD_AI_SMART_RANGED_UNITS)
-
-bool CvUnit::canMoveAndRangedStrike(const CvPlot* pTargetPlot) const
-{
-	VALIDATE_OBJECT
-	if (pTargetPlot == NULL)
-	{
-		return false;
-	}
-
-	// If unit can already strike without moving is always true
-	if (canEverRangeStrikeAt(pTargetPlot->getX(),pTargetPlot->getY()))
-	{
-		return true;
-	}
-
-	// We only compute if distance is reasonable
-	if (GetRangeWithMovement() < plotDistance(getX(), getY(), pTargetPlot->getX(), pTargetPlot->getY()))
-	{
-		return false;
-	}
-
-	vector<CvPlot*> movePlotTest;
-	return GetMovablePlotListOpt(movePlotTest, pTargetPlot, true);
-}
-
-// Optimized function to evaluate free plots for move and fire.
-bool CvUnit::GetMovablePlotListOpt(vector<CvPlot*>& plotData, const CvPlot* pTargetPlot, bool bExitOnFound) const
-{
-	VALIDATE_OBJECT
-	int xVariance = max(abs((getX() - pTargetPlot->getX()) / 2), baseMoves()-1);
-	int yVariance = max(abs((getY() - pTargetPlot->getY()) / 2), baseMoves()-1);
-
-	int xMin, xMax, yMin, yMax;
-	if (isRanged())
-	{
-		xMin = min(getX(), pTargetPlot->getX()) - xVariance;
-		xMax = max(getX(), pTargetPlot->getX()) + xVariance;
-		yMin = min(getY(), pTargetPlot->getY()) - yVariance;
-		yMax = max(getY(), pTargetPlot->getY()) + yVariance;
-	}
-	else
-	{
-		xMin = xMax = pTargetPlot->getX();
-		yMin = yMax = pTargetPlot->getY();
-	}
-
-	const CvPlot* pFromPlot = plot();
-	CvAStar& kPathfinder = GC.GetTacticalAnalysisMapFinder();
-
-#ifdef AUI_ASTAR_TURN_LIMITER
-	kPathfinder.SetData(this, 1);
-#else
-	kPathfinder.SetData(this);
-#endif
-
-	for(int iDX = xMin; iDX <= xMax; iDX++)
-	{
-		for(int iDY = yMin; iDY <= yMax; iDY++)
-		{
-			CvPlot* pLoopPlot = GC.getMap().plot(iDX, iDY);
-
-			if(pLoopPlot)
-			{
-				// Melee units get different rules
-				if (!isRanged())
-				{
-					// Run pathfinder to see if we can get to plot with movement left
-					if (kPathfinder.GeneratePath(pFromPlot->getX(), pFromPlot->getY(), pLoopPlot->getX(), pLoopPlot->getY(), MOVE_UNITS_IGNORE_DANGER | MOVE_UNITS_THROUGH_ENEMY | MOVE_IGNORE_STACKING, bExitOnFound /*bReuse*/))
-					{
-						CvAStarNode* pNode = kPathfinder.GetLastNode();
-						if (pNode)
-						{
-							if (pNode->m_iData2 == 1)
-							{
-								plotData.push_back(pLoopPlot);
-								if (bExitOnFound)
-								{
-									return true;
-								}
-							}
-						}
-					}
-				}
-				// Can we attack the target from the plot?
-				else if (canEverRangeStrikeAt(pTargetPlot->getX(),pTargetPlot->getY(), pLoopPlot))
-				{
-					// Run pathfinder to see if we can get to plot with movement left
-					if (kPathfinder.GeneratePath(pFromPlot->getX(), pFromPlot->getY(), pLoopPlot->getX(), pLoopPlot->getY(), MOVE_UNITS_IGNORE_DANGER, bExitOnFound /*bReuse*/))
-					{
-						CvAStarNode* pNode = kPathfinder.GetLastNode();
-						if (pNode)
-						{
-							if (pNode->m_iData2 == 1 && pNode->m_iData1 > getMustSetUpToRangedAttackCount())
-							{
-								plotData.push_back(pLoopPlot);
-								if (bExitOnFound)
-								{
-									return true;
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-
-	return !plotData.empty();
-}
-#endif
 
 //	--------------------------------------------------------------------------------
 /// Can this Unit air sweep to eliminate interceptors?

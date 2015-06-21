@@ -838,43 +838,16 @@ void CvBarbarians::DoUnits()
 #if defined(MOD_BALANCE_CORE)
 			if(MOD_BALANCE_CORE_MILITARY)
 			{
-				if(pLoopPlot->getNumUnits() > 0)
+				UnitHandle pUnit = pLoopPlot->getBestDefender(BARBARIAN_PLAYER);
+
+				if (TacticalAIHelpers::PerformRangedOpportunityAttack(pUnit.pointer()))
 				{
-					CvUnit* pUnit = pLoopPlot->getUnitByIndex(0);
-					if(pUnit->IsCanAttackRanged())
+					pUnit->finishMoves();
+					if(GC.getLogging() && GC.getAILogging())
 					{
-						int iRange = pUnit->GetRange();
-						if(iRange > 0)
-						{
-							for(int iX = -iRange; iX <= iRange; iX++)
-							{
-								for(int iY = -iRange; iY <= iRange; iY++)
-								{
-									CvPlot* pConsiderPlot = plotXYWithRangeCheck(pUnit->getX(), pUnit->getY(), iX, iY, iRange);
-									if(pConsiderPlot != NULL)
-									{
-										if(pConsiderPlot->getNumUnits() > 0)
-										{
-											if(pConsiderPlot->getUnitByIndex(0)->getOwner() != pUnit->getOwner())
-											{
-												if(pUnit->canEverRangeStrikeAt(pConsiderPlot->getX(), pConsiderPlot->getY()))
-												{
-													pUnit->PushMission(CvTypes::getMISSION_RANGE_ATTACK(), pConsiderPlot->getX(), pConsiderPlot->getY());
-													pUnit->finishMoves();
-													if(GC.getLogging() && GC.getAILogging())
-													{
-														CvString strLogString;
-														strLogString.Format("Ranged unit attacking nearby enemy to protect camp, X: %d, Y: %d", pUnit->plot()->getX(), pUnit->plot()->getY());
-														GET_PLAYER(BARBARIAN_PLAYER).GetTacticalAI()->LogTacticalMessage(strLogString);
-													}
-													break;
-												}
-											}
-										}
-									}
-								}
-							}
-						}
+						CvString strLogString;
+						strLogString.Format("Ranged unit attacking nearby enemy to protect camp, X: %d, Y: %d", pUnit->plot()->getX(), pUnit->plot()->getY());
+						GET_PLAYER(BARBARIAN_PLAYER).GetTacticalAI()->LogTacticalMessage(strLogString);
 					}
 				}
 			}
@@ -907,43 +880,16 @@ void CvBarbarians::DoUnits()
 			}
 			if(MOD_BALANCE_CORE_MILITARY)
 			{
-				if(pLoopPlot->getNumUnits() > 0)
+				UnitHandle pUnit = pLoopPlot->getBestDefender(BARBARIAN_PLAYER);
+
+				if (TacticalAIHelpers::PerformRangedOpportunityAttack(pUnit.pointer()))
 				{
-					CvUnit* pUnit = pLoopPlot->getUnitByIndex(0);
-					if(pUnit->IsCanAttackRanged())
+					pUnit->finishMoves();
+					if(GC.getLogging() && GC.getAILogging())
 					{
-						int iRange = pUnit->GetRange();
-						if(iRange > 0)
-						{
-							for(int iX = -iRange; iX <= iRange; iX++)
-							{
-								for(int iY = -iRange; iY <= iRange; iY++)
-								{
-									CvPlot* pConsiderPlot = plotXYWithRangeCheck(pUnit->getX(), pUnit->getY(), iX, iY, iRange);
-									if(pConsiderPlot != NULL)
-									{
-										if(pConsiderPlot->getNumUnits() > 0)
-										{
-											if(pConsiderPlot->getUnitByIndex(0)->getOwner() != pUnit->getOwner())
-											{
-												if(pUnit->canEverRangeStrikeAt(pConsiderPlot->getX(), pConsiderPlot->getY()))
-												{
-													pUnit->PushMission(CvTypes::getMISSION_RANGE_ATTACK(), pConsiderPlot->getX(), pConsiderPlot->getY());
-													pUnit->finishMoves();
-													if(GC.getLogging() && GC.getAILogging())
-													{
-														CvString strLogString;
-														strLogString.Format("Ranged unit attacking nearby enemy to protect conquered city, X: %d, Y: %d", pUnit->plot()->getX(), pUnit->plot()->getY());
-														GET_PLAYER(BARBARIAN_PLAYER).GetTacticalAI()->LogTacticalMessage(strLogString);
-													}
-													break;
-												}
-											}
-										}
-									}
-								}
-							}
-						}
+						CvString strLogString;
+						strLogString.Format("Ranged unit attacking nearby enemy to protect conquered city, X: %d, Y: %d", pUnit->plot()->getX(), pUnit->plot()->getY());
+						GET_PLAYER(BARBARIAN_PLAYER).GetTacticalAI()->LogTacticalMessage(strLogString);
 					}
 				}
 			}
