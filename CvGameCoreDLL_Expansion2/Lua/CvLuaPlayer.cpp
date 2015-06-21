@@ -10954,7 +10954,7 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 		}
 #endif
 	}
-#if defined(MOD_BALANCE_CORE_DEALS)
+#if defined(MOD_BALANCE_CORE)
 	if(MOD_BALANCE_CORE_DEALS)
 	{
 		iValue = pDiploAI->GetDPAcceptedScore(eWithPlayer);

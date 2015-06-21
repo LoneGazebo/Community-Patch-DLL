@@ -1,207 +1,207 @@
 -- Poverty
 UPDATE Buildings
-SET PovertyHappinessChange = '-100'
+SET PovertyHappinessChange = '-150'
 WHERE Type = 'BUILDING_AQUEDUCT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Buildings
-SET PovertyHappinessChange = '-100'
+SET PovertyHappinessChange = '-150'
 WHERE Type = 'BUILDING_INDUS_CANAL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Buildings
-SET PovertyHappinessChange = '-200'
+SET PovertyHappinessChange = '-250'
 WHERE Type = 'BUILDING_CATHEDRAL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Buildings
-SET PovertyHappinessChange = '-200'
+SET PovertyHappinessChange = '-250'
 WHERE Type = 'BUILDING_MANDIR' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Buildings
-SET PovertyHappinessChange = '-200'
+SET PovertyHappinessChange = '-250'
 WHERE Type = 'BUILDING_GROCER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Buildings
-SET PovertyHappinessChange = '-200'
+SET PovertyHappinessChange = '-250'
 WHERE Type = 'BUILDING_PAPER_MAKER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Buildings
-SET PovertyHappinessChange = '-200'
+SET PovertyHappinessChange = '-250'
 WHERE Type = 'BUILDING_NATIONAL_TREASURY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 	
 UPDATE Buildings
-SET PovertyHappinessChange = '-300'
+SET PovertyHappinessChange = '-350'
 WHERE Type = 'BUILDING_HOSPITAL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Buildings
-SET PovertyHappinessChange = '-400'
+SET PovertyHappinessChange = '-500'
 WHERE Type = 'BUILDING_MEDICAL_LAB' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Buildings
-SET PovertyHappinessChange = '200'
+SET PovertyHappinessChange = '250'
 WHERE Type = 'BUILDING_COAL_PLANT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 -- Poverty Global
 UPDATE Buildings
-SET PovertyHappinessChangeGlobal = '-100'
+SET PovertyHappinessChangeGlobal = '-150'
 WHERE Type = 'BUILDING_FORBIDDEN_PALACE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Buildings
-SET PovertyHappinessChangeGlobal = '-200'
+SET PovertyHappinessChangeGlobal = '-250'
 WHERE Type = 'BUILDING_BIG_BEN' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 -- Illiteracy
 UPDATE Buildings
-SET IlliteracyHappinessChange = '-100'
+SET IlliteracyHappinessChange = '-150'
 WHERE Type = 'BUILDING_LIBRARY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Buildings
-SET IlliteracyHappinessChange = '-100'
+SET IlliteracyHappinessChange = '-150'
 WHERE Type = 'BUILDING_ROYAL_LIBRARY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 UPDATE Buildings
-SET IlliteracyHappinessChange = '-200'
+SET IlliteracyHappinessChange = '-250'
 WHERE Type = 'BUILDING_MOSQUE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Buildings
-SET IlliteracyHappinessChange = '-200'
+SET IlliteracyHappinessChange = '-250'
 WHERE Type = 'BUILDING_STUPA' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Buildings
-SET IlliteracyHappinessChange = '-200'
+SET IlliteracyHappinessChange = '-250'
 WHERE Type = 'BUILDING_UNIVERSITY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Buildings
-SET IlliteracyHappinessChange = '-200'
+SET IlliteracyHappinessChange = '-250'
 WHERE Type = 'BUILDING_SEOWON' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Buildings
-SET IlliteracyHappinessChange = '-200'
+SET IlliteracyHappinessChange = '-250'
 WHERE Type = 'BUILDING_OXFORD_UNIVERSITY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 UPDATE Buildings
-SET IlliteracyHappinessChange = '-300'
+SET IlliteracyHappinessChange = '-350'
 WHERE Type = 'BUILDING_PUBLIC_SCHOOL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Buildings
-SET IlliteracyHappinessChange = '-300'
+SET IlliteracyHappinessChange = '-350'
 WHERE Type = 'BUILDING_SKOLA' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Buildings
-SET IlliteracyHappinessChange = '-400'
+SET IlliteracyHappinessChange = '-500'
 WHERE Type = 'BUILDING_LABORATORY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 -- Illiteracy Global
 UPDATE Buildings
-SET IlliteracyHappinessChangeGlobal = '-100'
+SET IlliteracyHappinessChangeGlobal = '-150'
 WHERE Type = 'BUILDING_ORACLE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Buildings
-SET IlliteracyHappinessChangeGlobal = '-200'
+SET IlliteracyHappinessChangeGlobal = '-250'
 WHERE Type = 'BUILDING_PORCELAIN_TOWER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 -- Defense
 UPDATE Buildings
-SET DefenseHappinessChange = '-100'
+SET DefenseHappinessChange = '-150'
 WHERE Type = 'BUILDING_BARRACKS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Buildings
-SET DefenseHappinessChange = '-200'
+SET DefenseHappinessChange = '-250'
 WHERE Type = 'BUILDING_SYNAGOGUE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Buildings
-SET DefenseHappinessChange = '-200'
+SET DefenseHappinessChange = '-250'
 WHERE Type = 'BUILDING_ORDER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Buildings
-SET DefenseHappinessChange = '-200'
+SET DefenseHappinessChange = '-250'
 WHERE Type = 'BUILDING_ARMORY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Buildings
-SET DefenseHappinessChange = '-200'
+SET DefenseHappinessChange = '-250'
 WHERE Type = 'BUILDING_KREPOST' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Buildings
-SET DefenseHappinessChange = '-200'
+SET DefenseHappinessChange = '-250'
 WHERE Type = 'BUILDING_DOJO' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Buildings
-SET DefenseHappinessChange = '-300'
+SET DefenseHappinessChange = '-350'
 WHERE Type = 'BUILDING_CONSTABLE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Buildings
-SET DefenseHappinessChange = '-300'
+SET DefenseHappinessChange = '-350'
 WHERE Type = 'BUILDING_WAT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Buildings
-SET DefenseHappinessChange = '-400'
+SET DefenseHappinessChange = '-500'
 WHERE Type = 'BUILDING_POLICE_STATION' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Buildings
-SET DefenseHappinessChange = '-400'
+SET DefenseHappinessChange = '-500'
 WHERE Type = 'BUILDING_INTELLIGENCE_AGENCY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 -- Defense Global
 
 UPDATE Buildings
-SET DefenseHappinessChangeGlobal = '-100'
+SET DefenseHappinessChangeGlobal = '-150'
 WHERE Type = 'BUILDING_TERRACOTTA_ARMY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Buildings
-SET DefenseHappinessChangeGlobal = '-300'
+SET DefenseHappinessChangeGlobal = '-350'
 WHERE Type = 'BUILDING_BRANDENBURG_GATE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Buildings
-SET DefenseHappinessChangeGlobal = '-300'
+SET DefenseHappinessChangeGlobal = '-350'
 WHERE Type = 'BUILDING_MOTHERLAND_STATUE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Buildings
-SET DefenseHappinessChangeGlobal = '-200'
+SET DefenseHappinessChangeGlobal = '-250'
 WHERE Type = 'BUILDING_STATUE_ZEUS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 -- Culture
 UPDATE Buildings
-SET UnculturedHappinessChange = '-100'
+SET UnculturedHappinessChange = '-150'
 WHERE Type = 'BUILDING_COLOSSEUM' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Buildings
-SET UnculturedHappinessChange = '-100'
+SET UnculturedHappinessChange = '-150'
 WHERE Type = 'BUILDING_FLAVIAN_COLOSSEUM' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Buildings
-SET UnculturedHappinessChange = '-200'
+SET UnculturedHappinessChange = '-250'
 WHERE Type = 'BUILDING_CHURCH' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Buildings
-SET UnculturedHappinessChange = '-200'
+SET UnculturedHappinessChange = '-250'
 WHERE Type = 'BUILDING_PAGODA' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Buildings
-SET UnculturedHappinessChange = '-200'
+SET UnculturedHappinessChange = '-250'
 WHERE Type = 'BUILDING_CIRCUS_MAXIMUS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 UPDATE Buildings
-SET UnculturedHappinessChange = '-200'
+SET UnculturedHappinessChange = '-250'
 WHERE Type = 'BUILDING_CEILIDH_HALL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Buildings
-SET UnculturedHappinessChange = '-200'
+SET UnculturedHappinessChange = '-250'
 WHERE Type = 'BUILDING_CIRCUS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Buildings
-SET UnculturedHappinessChange = '-300'
+SET UnculturedHappinessChange = '-350'
 WHERE Type = 'BUILDING_THEATRE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Buildings
-SET UnculturedHappinessChange = '-400'
+SET UnculturedHappinessChange = '-450'
 WHERE Type = 'BUILDING_STADIUM' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 -- Culture Global
 
 UPDATE Buildings
-SET UnculturedHappinessChangeGlobal = '-100'
+SET UnculturedHappinessChangeGlobal = '-150'
 WHERE Type = 'BUILDING_PARTHENON' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Buildings
-SET UnculturedHappinessChangeGlobal = '-300'
+SET UnculturedHappinessChangeGlobal = '-350'
 WHERE Type = 'BUILDING_EIFFEL_TOWER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 -- Religion

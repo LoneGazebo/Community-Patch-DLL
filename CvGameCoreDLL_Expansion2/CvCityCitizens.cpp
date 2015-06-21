@@ -283,6 +283,7 @@ void CvCityCitizens::DoTurn()
 		{
 			SetFocusType(NO_CITY_AI_FOCUS_TYPE);
 			SetNoAutoAssignSpecialists(true);
+			SetForcedAvoidGrowth(false);
 		}
 		else
 		{
@@ -319,9 +320,9 @@ void CvCityCitizens::DoTurn()
 				bWar = thisPlayer.GetMilitaryAI()->IsUsingStrategy(eStrategyWar);
 			}
 			
-			if(bInDeficit)
+			if(bInDeficit && !bMobilizing && !bWar)
 			{
-				SetFocusType(CITY_AI_FOCUS_TYPE_GOLD);
+				SetFocusType(CITY_AI_FOCUS_TYPE_GOLD_GROWTH);
 				SetNoAutoAssignSpecialists(false);
 				SetForcedAvoidGrowth(false);
 			}
@@ -337,87 +338,50 @@ void CvCityCitizens::DoTurn()
 				SetNoAutoAssignSpecialists(false);
 				SetForcedAvoidGrowth(false);
 			}
-			else
+			else // no special cases? Alright, let's pick a function to follow...
 			{
-				if(thisPlayer.GetGrandStrategyAI()->GetActiveGrandStrategy() == (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_CULTURE"))
+				bool bGPCity = false;
+				AICityStrategyTypes eGoodGP = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_GOOD_GP_CITY");
+				if(eGoodGP != NO_AICITYSTRATEGY)
 				{
-					SetFocusType(CITY_AI_FOCUS_TYPE_CULTURE);
-					SetNoAutoAssignSpecialists(false);
-					SetForcedAvoidGrowth(false);
+					bGPCity = m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eGoodGP);
 				}
-				else if(thisPlayer.GetGrandStrategyAI()->GetActiveGrandStrategy() == (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_SPACESHIP"))
+				SetNoAutoAssignSpecialists(false);
+				SetForcedAvoidGrowth(false);
+				CitySpecializationTypes eSpecialization = m_pCity->GetCityStrategyAI()->GetSpecialization();
+				if(eSpecialization != -1)
 				{
-					SetFocusType(CITY_AI_FOCUS_TYPE_SCIENCE);
-					SetNoAutoAssignSpecialists(false);
-					SetForcedAvoidGrowth(false);
-				}
-				else if(!MOD_DIPLOMACY_CITYSTATES && thisPlayer.GetGrandStrategyAI()->GetActiveGrandStrategy() == (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_UNITED_NATIONS"))
-				{
-					SetFocusType(CITY_AI_FOCUS_TYPE_GOLD);
-					SetNoAutoAssignSpecialists(false);
-					SetForcedAvoidGrowth(false);
-				}
-				else if(MOD_DIPLOMACY_CITYSTATES && thisPlayer.GetGrandStrategyAI()->GetActiveGrandStrategy() == (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_UNITED_NATIONS"))
-				{
-					SetFocusType(CITY_AI_FOCUS_TYPE_PROD_GROWTH);
-					SetNoAutoAssignSpecialists(false);
-					SetForcedAvoidGrowth(false);
-				}
-				else if(thisPlayer.GetGrandStrategyAI()->GetActiveGrandStrategy() == (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_CONQUEST"))
-				{
-					SetFocusType(CITY_AI_FOCUS_TYPE_PRODUCTION);
-					SetNoAutoAssignSpecialists(false);
-					SetForcedAvoidGrowth(false);
-				}
-				else // no special cases? Alright, let's pick a function to follow...
-				{
-					bool bGPCity = false;
-					AICityStrategyTypes eGoodGP = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_GOOD_GP_CITY");
-					if(eGoodGP != NO_AICITYSTRATEGY)
+					CvCitySpecializationXMLEntry* pCitySpecializationEntry =  GC.getCitySpecializationInfo(eSpecialization);
+					if(pCitySpecializationEntry)
 					{
-						bGPCity = m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eGoodGP);
-					}
-					SetNoAutoAssignSpecialists(false);
-					SetForcedAvoidGrowth(false);
-					CitySpecializationTypes eSpecialization = m_pCity->GetCityStrategyAI()->GetSpecialization();
-					if(eSpecialization != -1)
-					{
-						CvCitySpecializationXMLEntry* pCitySpecializationEntry =  GC.getCitySpecializationInfo(eSpecialization);
-						if(pCitySpecializationEntry)
+						YieldTypes eYield = pCitySpecializationEntry->GetYieldType();
+						if(eYield == YIELD_FOOD)
 						{
-							YieldTypes eYield = pCitySpecializationEntry->GetYieldType();
-							if(eYield == YIELD_FOOD)
-							{
-								SetFocusType(CITY_AI_FOCUS_TYPE_FOOD);
-							}
-							else if(eYield == YIELD_PRODUCTION)
-							{
-								SetFocusType(CITY_AI_FOCUS_TYPE_PRODUCTION);
-							}
-							else if(eYield == YIELD_GOLD)
-							{
-								SetFocusType(CITY_AI_FOCUS_TYPE_GOLD);
-							}
-							else if(eYield == YIELD_SCIENCE)
-							{
-								SetFocusType(CITY_AI_FOCUS_TYPE_SCIENCE);
-							}
-							else if(eYield == YIELD_FAITH && bBuildingReligion)
-							{
-								SetFocusType(CITY_AI_FOCUS_TYPE_FAITH);
-							}
-							else if(eYield == YIELD_CULTURE)
-							{
-								SetFocusType(CITY_AI_FOCUS_TYPE_CULTURE);
-							}
-							else if(bGPCity)
-							{
-								SetFocusType(CITY_AI_FOCUS_TYPE_GREAT_PEOPLE);
-							}
-							else
-							{
-								SetFocusType(NO_CITY_AI_FOCUS_TYPE);
-							}
+							SetFocusType(CITY_AI_FOCUS_TYPE_FOOD);
+						}
+						else if(eYield == YIELD_PRODUCTION)
+						{
+							SetFocusType(CITY_AI_FOCUS_TYPE_PRODUCTION);
+						}
+						else if(eYield == YIELD_GOLD)
+						{
+							SetFocusType(CITY_AI_FOCUS_TYPE_GOLD);
+						}
+						else if(eYield == YIELD_SCIENCE)
+						{
+							SetFocusType(CITY_AI_FOCUS_TYPE_SCIENCE);
+						}
+						else if(eYield == YIELD_FAITH && bBuildingReligion)
+						{
+							SetFocusType(CITY_AI_FOCUS_TYPE_FAITH);
+						}
+						else if(eYield == YIELD_CULTURE)
+						{
+							SetFocusType(CITY_AI_FOCUS_TYPE_CULTURE);
+						}
+						else if(bGPCity)
+						{
+							SetFocusType(CITY_AI_FOCUS_TYPE_GREAT_PEOPLE);
 						}
 						else
 						{
@@ -429,8 +393,16 @@ void CvCityCitizens::DoTurn()
 						SetFocusType(NO_CITY_AI_FOCUS_TYPE);
 					}
 				}
+				else
+				{
+					SetFocusType(NO_CITY_AI_FOCUS_TYPE);
+				}
 			}
 		}
+	}
+	if(!thisPlayer.isHuman() && thisPlayer.IsEmpireVeryUnhappy() && GetCity()->getPopulation() >= 20)
+	{
+		SetForcedAvoidGrowth(true);
 	}
 	CvAssertMsg((GetNumCitizensWorkingPlots() + GetTotalSpecialistCount() + GetNumUnassignedCitizens()) <= GetCity()->getPopulation(), "Gameplay: More workers than population in the city.");
 
@@ -621,7 +593,7 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, bool bUseAllowGrowthFlag)
 	// City Focus
 	CityAIFocusTypes eFocus = GetFocusType();
 	if(eFocus == CITY_AI_FOCUS_TYPE_FOOD)
-		iFoodYieldValue *= 3;
+		iFoodYieldValue *= 4;
 	else if(eFocus == CITY_AI_FOCUS_TYPE_PRODUCTION)
 		iProductionYieldValue *= 3;
 	else if(eFocus == CITY_AI_FOCUS_TYPE_GOLD)
@@ -643,15 +615,12 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, bool bUseAllowGrowthFlag)
 	else if(eFocus == CITY_AI_FOCUS_TYPE_FAITH)
 	{
 		iFaithYieldValue *= 3;
-#if defined(MOD_BALANCE_CORE)
-		iCultureYieldValue *= 2;
-#endif
 	}
 #if defined(MOD_BALANCE_CORE)
 	else if(eFocus == CITY_AI_FOCUS_TYPE_GREAT_PEOPLE)
 	{
+		iFaithYieldValue *= 2;
 		iCultureYieldValue *= 2;
-		iFoodYieldValue *= 2;
 	}
 #endif
 
@@ -698,7 +667,16 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, bool bUseAllowGrowthFlag)
 	{
 		iFoodYieldValue *= 4;
 	}
-
+#if defined(MOD_BALANCE_CORE)
+	else if((eFocus == NO_CITY_AI_FOCUS_TYPE || eFocus == CITY_AI_FOCUS_TYPE_PROD_GROWTH || eFocus == CITY_AI_FOCUS_TYPE_GOLD_GROWTH) && !bAvoidGrowth && m_pCity->getPopulation() < 15)
+	{
+		iFoodYieldValue *= 3;
+	}
+	else if((eFocus == NO_CITY_AI_FOCUS_TYPE || eFocus == CITY_AI_FOCUS_TYPE_PROD_GROWTH || eFocus == CITY_AI_FOCUS_TYPE_GOLD_GROWTH) && !bAvoidGrowth && m_pCity->getPopulation() < 25)
+	{
+		iFoodYieldValue *= 2;
+	}
+#endif
 	iValue += iFoodYieldValue;
 	iValue += iProductionYieldValue;
 	iValue += iGoldYieldValue;
@@ -1279,7 +1257,16 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist)
 	{
 		iFoodYieldValue *= 4;
 	}
-
+#if defined(MOD_BALANCE_CORE)
+	else if((eFocus == NO_CITY_AI_FOCUS_TYPE || eFocus == CITY_AI_FOCUS_TYPE_PROD_GROWTH || eFocus == CITY_AI_FOCUS_TYPE_GOLD_GROWTH) && !bAvoidGrowth && m_pCity->getPopulation() < 15)
+	{
+		iFoodYieldValue *= 3;
+	}
+	else if((eFocus == NO_CITY_AI_FOCUS_TYPE || eFocus == CITY_AI_FOCUS_TYPE_PROD_GROWTH || eFocus == CITY_AI_FOCUS_TYPE_GOLD_GROWTH) && !bAvoidGrowth && m_pCity->getPopulation() < 25)
+	{
+		iFoodYieldValue *= 2;
+	}
+#endif
 	iValue += iFoodYieldValue;
 	iValue += iProductionYieldValue;
 	iValue += iGoldYieldValue;
@@ -1397,9 +1384,8 @@ bool CvCityCitizens::DoAddBestCitizenFromUnassigned()
 	//THREE STAGE SETUP:
 	
 	//FIRST WE FEED OURSELVES!
-	int iExcessFoodTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - (m_pCity->foodConsumption() * 100);
 	int iPotentialExcessTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - (m_pCity->foodConsumption(false, 1) * 100);
-	if(iExcessFoodTimes100 < 0)
+	if(iPotentialExcessTimes100 <= 0 || (IsAvoidGrowth() && iPotentialExcessTimes100 < 0))
 	{
 		int iBestPlotValue = 0;
 		CvPlot* pBestPlot = GetBestCityPlotWithValue(iBestPlotValue, /*bBest*/ true, /*bWorked*/ false);
@@ -1425,7 +1411,7 @@ bool CvCityCitizens::DoAddBestCitizenFromUnassigned()
 		CvPlot* pBestPlot = GetBestCityPlotWithValue(iBestPlotValue, /*bBest*/ true, /*bWorked*/ false);
 		if(pBestPlot != NULL)
 		{
-			bool bSpecialistBetterThanPlot = (eBestSpecialistBuilding != NO_BUILDING && iSpecialistValue >= iBestPlotValue && iPotentialExcessTimes100 >= 0);
+			bool bSpecialistBetterThanPlot = (eBestSpecialistBuilding != NO_BUILDING && iSpecialistValue >= iBestPlotValue && ((iPotentialExcessTimes100 > 0) || (IsAvoidGrowth() && iPotentialExcessTimes100 >= 0)));
 			if (bSpecialistBetterThanPlot)
 			{
 				DoAddSpecialistToBuilding(eBestSpecialistBuilding, /*bForced*/ false);

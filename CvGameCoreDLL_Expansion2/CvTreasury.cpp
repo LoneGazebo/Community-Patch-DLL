@@ -513,7 +513,7 @@ int CvTreasury::CalculateGrossGoldTimes100()
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
 	if (MOD_DIPLOMACY_CIV4_FEATURES) {
-		// We're a vassal of someone, we get x% of his faith
+		// We're a master of someone, we get x% of their gold
 		iNetGold += (m_pPlayer->GetYieldPerTurnFromVassals(YIELD_GOLD) * 100);
 	}
 #endif

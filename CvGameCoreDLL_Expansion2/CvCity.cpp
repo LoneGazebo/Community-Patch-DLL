@@ -9151,9 +9151,13 @@ int CvCity::foodConsumption(bool /*bNoAngry*/, int iExtra) const
 		int iNum = iPopulation * iFoodPerPop;
 
 		int iEra = GET_PLAYER(getOwner()).GetCurrentEra();
-		if(iEra <= 0)
+		if(iEra <= 2)
 		{
-			iEra = 1;
+			iEra = 2;
+		}
+		if(iEra > 6)
+		{
+			iEra = 6;
 		}
 
 		iNum += (iEra * iSpecialists);
@@ -22476,6 +22480,7 @@ bool CvCity::CommitToBuildingUnitForOperation()
 								{
 									pUnit->setMoves(0);
 								}
+								pThisArmy->AddUnit(pUnit->GetID(), thisOperationSlot.m_iSlotID);
 								CleanUpQueue();
 								kPlayer.CityFinishedBuildingUnitForOperationSlot(thisOperationSlot, pUnit);
 							}
@@ -22488,6 +22493,13 @@ bool CvCity::CommitToBuildingUnitForOperation()
 					pushOrder(ORDER_TRAIN, eBestUnit, eUnitAI, false, false, false, true /*bRush*/);
 					OperationSlot thisOperationSlot2 = kPlayer.CityCommitToBuildUnitForOperationSlot(getArea(), getProductionTurnsLeft(), this);
 					m_unitBeingBuiltForOperation = thisOperationSlot2;
+#if defined(MOD_BALANCE_CORE)
+					CitySpecializationTypes eSpecialization = (CitySpecializationTypes) GC.getInfoTypeForString("CITYSPECIALIZATION_MILITARY_TRAINING");
+					if(eSpecialization != NO_CITY_SPECIALIZATION)
+					{
+						GetCityStrategyAI()->SetSpecialization(eSpecialization);
+					}
+#endif
 					return true;
 #if defined(MOD_BALANCE_CORE_MILITARY)
 					}

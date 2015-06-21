@@ -19,7 +19,7 @@
 		<Row>
 			<Atlas>TERRAIN_IMPROVEMENT_EKI</Atlas>
 			<IconSize>256</IconSize>
-			<Filename>EkiAtlas256.dds</Filename>
+			<Filename>SV_Eki.dds</Filename>
 			<IconsPerRow>1</IconsPerRow>
 			<IconsPerColumn>1</IconsPerColumn>
 		</Row>

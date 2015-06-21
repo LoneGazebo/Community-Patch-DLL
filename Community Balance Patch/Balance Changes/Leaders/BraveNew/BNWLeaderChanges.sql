@@ -284,7 +284,7 @@ WHERE Tag = 'TXT_KEY_BUILDING_DUCAL_STABLE_HELP' AND EXISTS (SELECT * FROM COMMU
 
 -- Pedro -- Improve Brazilwood Camp, increase all GP production during GA
 UPDATE Language_en_US
-SET Text = 'Tourism [ICON_TOURISM] output is +100% during their Golden Ages. Earn all Great People 50% faster during their Golden Ages.'
+SET Text = 'During a [ICON_GOLDEN_AGE] Golden Age, [ICON_TOURISM] Tourism output increases by +100% and all [ICON_GREAT_PEOPLE] Great People are earned 50% more quickly.'
 WHERE Tag = 'TXT_KEY_TRAIT_CARNIVAL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US

@@ -19,7 +19,7 @@
 		<Row>
 			<Atlas>TERRAIN_IMPROVEMENT_ENCAMPMENT</Atlas>
 			<IconSize>256</IconSize>
-			<Filename>EncampmentAtlas256.dds</Filename>
+			<Filename>SV_Encampment.dds</Filename>
 			<IconsPerRow>1</IconsPerRow>
 			<IconsPerColumn>1</IconsPerColumn>
 		</Row>

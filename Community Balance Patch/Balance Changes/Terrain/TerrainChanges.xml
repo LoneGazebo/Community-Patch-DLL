@@ -227,6 +227,11 @@
 			<YieldType>YIELD_SCIENCE</YieldType>
 			<Yield>1</Yield>
 		</Row>
+		<Row>
+			<ImprovementType>IMPROVEMENT_PLANTATION</ImprovementType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>1</Yield>
+		</Row>
 	</Improvement_Yields>
 	<Improvement_TechYieldChanges>
 		<Delete ImprovementType="IMPROVEMENT_LUMBERMILL"/>

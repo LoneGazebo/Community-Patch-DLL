@@ -2661,7 +2661,11 @@ void CvAIOperationBasicCityAttack::Write(FDataStream& kStream) const
 
 MultiunitFormationTypes CvAIOperationBasicCityAttack::GetFormation() const
 {
+#if defined(MOD_BALANCE_CORE)
+	return (MultiunitFormationTypes)MilitaryAIHelpers::GetBestFormationType();
+#else
 	return (GC.getGame().getHandicapInfo().GetID() > 4 && !(GC.getMap().GetAIMapHint() & 1)) ? MUFORMATION_BIGGER_CITY_ATTACK_FORCE : MUFORMATION_BASIC_CITY_ATTACK_FORCE;
+#endif
 }
 
 /// Same as default version except if just gathered forces, check to see if a better target has presented itself
@@ -2806,7 +2810,11 @@ CvAIOperationSneakCityAttack::CvAIOperationSneakCityAttack()
 }
 MultiunitFormationTypes CvAIOperationSneakCityAttack::GetFormation() const
 {
+#if defined(MOD_BALANCE_CORE)
+	return (MultiunitFormationTypes)MilitaryAIHelpers::GetBestFormationType();
+#else
 	return (GC.getGame().getHandicapInfo().GetID() > 4 && !(GC.getMap().GetAIMapHint() & 1)) ? MUFORMATION_BIGGER_CITY_ATTACK_FORCE : MUFORMATION_BASIC_CITY_ATTACK_FORCE;
+#endif
 }
 
 CvAIOperationQuickSneakCityAttack::CvAIOperationQuickSneakCityAttack()
@@ -2821,7 +2829,12 @@ CvAIOperationQuickSneakCityAttack::CvAIOperationQuickSneakCityAttack()
 CvAIOperationSmallCityAttack::CvAIOperationSmallCityAttack()
 {
 }
-
+#if defined(MOD_BALANCE_CORE)
+MultiunitFormationTypes CvAIOperationSmallCityAttack::GetFormation() const
+{
+	return MUFORMATION_SMALL_CITY_ATTACK_FORCE;
+}
+#endif
 ////////////////////////////////////////////////////////////////////////////////
 // CvAIOperationCityStateAttack
 ////////////////////////////////////////////////////////////////////////////////
@@ -2832,7 +2845,11 @@ CvAIOperationCityStateAttack::CvAIOperationCityStateAttack()
 }
 MultiunitFormationTypes CvAIOperationCityStateAttack::GetFormation() const
 {
+#if defined(MOD_BALANCE_CORE)
+	return MUFORMATION_CITY_STATE_ATTACK_FORCE;
+#else
 	return (GC.getGame().getHandicapInfo().GetID() > 4 && !(GC.getMap().GetAIMapHint() & 1)) ? MUFORMATION_BIGGER_CITY_ATTACK_FORCE : MUFORMATION_CITY_STATE_ATTACK_FORCE;
+#endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -279,6 +279,9 @@ function LeaderMessageHandler( iPlayer, iDiploUIState, szLeaderMessage, iAnimati
 				end
 		 		
 				strButton8Text = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_MESSAGE_DECLARE_WAR" );
+-- CBP
+				strButton8Tooltip = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_MESSAGE_DECLARE_WAR_TT" );
+-- END
 		 		Controls.Button8:SetDisabled(true);
 				
 				-- Discussion buttons valid?
@@ -393,6 +396,12 @@ function LeaderMessageHandler( iPlayer, iDiploUIState, szLeaderMessage, iAnimati
 			strButton1Text = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_SORRY_NO_INTEREST" );
 			strButton2Text = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_HOW_DARE_YOU" );
 			strButton3Text = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_DO_WHAT_WE_CAN" );
+-- CBP
+			local pMajor = Players[iData1];
+			if (pMajor ~= nil) then
+				strButton2Tooltip = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_HOW_DARE_YOU_TT", pAIPlayer:GetCivilizationShortDescriptionKey(), pMajor:GetCivilizationShortDescriptionKey());
+			end
+-- END
 			bHideBackButton = true;
 		-- AI asking player to declare war against someone
 		elseif (g_DiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_DISCUSS_COOP_WAR) then

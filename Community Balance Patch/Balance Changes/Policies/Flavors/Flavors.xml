@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-12"?>
+<?xml version="1.0" encoding="utf-8"?>
 <!-- Created by ModBuddy on 11/112/2014 4:26:54 PM -->
 <GameData>
 	<Policy_Flavors>
@@ -50,7 +50,7 @@
 		</Row>
 		<Row>
 			<PolicyType>POLICY_CITIZENSHIP</PolicyType>
-			<FlavorType>FLAVOR_FLAVOR_INFRASTRUCTURE</FlavorType>
+			<FlavorType>FLAVOR_INFRASTRUCTURE</FlavorType>
 			<Flavor>4</Flavor>
 		</Row>
 		<Row>
@@ -562,7 +562,7 @@
 		</Row>
 		<Row>
 			<PolicyType>POLICY_MERCHANT_NAVY</PolicyType>
-			<FlavorType>FLAVOR_FOOD</FlavorType>
+			<FlavorType>FLAVOR_GROWTH</FlavorType>
 			<Flavor>24</Flavor>
 		</Row>
 		<Row>

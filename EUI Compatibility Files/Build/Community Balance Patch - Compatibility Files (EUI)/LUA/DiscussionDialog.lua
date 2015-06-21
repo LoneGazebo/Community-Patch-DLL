@@ -378,6 +378,9 @@ function LeaderMessageHandler( iPlayer, iDiploUIState, szLeaderMessage, iAnimati
 				--  DECLARE WAR (THIRD PARTY) --
 				--------------------------------
 				strButton10Text = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_MESSAGE_DECLARE_WAR" );
+-- CBP
+				strButton10Tooltip = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_MESSAGE_DECLARE_WAR_TT" );
+-- END
 				Controls.Button10:SetDisabled(true);
 
 				--------------------
@@ -510,6 +513,12 @@ function LeaderMessageHandler( iPlayer, iDiploUIState, szLeaderMessage, iAnimati
 			strButton2Text = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_HOW_DARE_YOU" );
 			strButton3Text = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_COOP_WAR_SOON" );
 			strButton4Text = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_COOP_WAR_YES" );
+-- CBP
+			local pMajor = Players[iData1];
+			if (pMajor ~= nil) then
+				strButton2Tooltip = Locale.ConvertTextKey( "TXT_KEY_DIPLO_DISCUSS_HOW_DARE_YOU_TT", pAIPlayer:GetCivilizationShortDescriptionKey(), pMajor:GetCivilizationShortDescriptionKey());
+			end
+-- END
 			bHideBackButton = true;
 		-- AI shows up saying it's time to declare war against someone
 		elseif (g_DiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_DISCUSS_COOP_WAR_TIME) then

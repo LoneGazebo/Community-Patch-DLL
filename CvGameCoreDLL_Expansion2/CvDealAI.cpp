@@ -349,9 +349,14 @@ void CvDealAI::DoAcceptedDeal(PlayerTypes eFromPlayer, const CvDeal& kDeal, int 
 		{
 			//End the gift exchange after this.
 			GetPlayer()->GetDiplomacyAI()->SetOfferingGift(eFromPlayer, false);
+			GetPlayer()->GetDiplomacyAI()->SetOfferedGift(eFromPlayer, true);
+			szText = GetPlayer()->GetDiplomacyAI()->GetDiploStringForMessage(DIPLO_MESSAGE_PLEASED);
+			eAnimation = LEADERHEAD_ANIM_POSITIVE;
 		}
-#endif
+		else
+#else
 		// Good deal for us
+#endif
 		if(iDealValueToMe >= 100 ||
 		        iValueTheyreOffering > (iValueImOffering * 5))	// A deal can be generous if we're getting a lot overall, OR a lot more than we're giving up
 		{
@@ -1658,7 +1663,7 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 			{
 				if(GET_PLAYER(eOtherPlayer).getNumResourceAvailable(eResource) == 1)
 				{
-					iItemValue *= 2;
+					iItemValue *= 3;
 					if(GET_PLAYER(eOtherPlayer).GetPlayerTraits()->GetLuxuryHappinessRetention() > 0)
 					{
 						iItemValue /= 2;
@@ -1687,15 +1692,6 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 			}
 			else
 			{
-				if(GetPlayer()->getNumResourceAvailable(eResource) == 1)
-				{
-					iItemValue *= 3;
-					if(GetPlayer()->GetPlayerTraits()->GetLuxuryHappinessRetention() > 0)
-					{
-						iItemValue /= 2;
-					}
-				}
-
 				CvCity* pLoopCity;
 				int iCityLoop;
 				for(pLoopCity = GET_PLAYER(eOtherPlayer).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eOtherPlayer).nextCity(&iCityLoop))
@@ -1763,11 +1759,11 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 					switch(GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(eOtherPlayer))
 					{
 						case MAJOR_CIV_OPINION_ALLY:
-							iItemValue *= 95;
+							iItemValue *= 90;
 							iItemValue /= 100;
 							break;
 						case MAJOR_CIV_OPINION_FRIEND:
-							iItemValue *= 100;
+							iItemValue *= 95;
 							iItemValue /= 100;
 							break;
 						case MAJOR_CIV_OPINION_FAVORABLE:
@@ -1775,7 +1771,7 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 							iItemValue /= 100;
 							break;
 						case MAJOR_CIV_OPINION_NEUTRAL:
-							iItemValue *= 105;
+							iItemValue *= 100;
 							iItemValue /= 100;
 							break;
 						case MAJOR_CIV_OPINION_COMPETITOR:
@@ -1818,15 +1814,15 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 							iItemValue /= 100;
 							break;
 						case MAJOR_CIV_OPINION_COMPETITOR:
-							iItemValue *= 90;
+							iItemValue *= 85;
 							iItemValue /= 100;
 							break;
 						case MAJOR_CIV_OPINION_ENEMY:
-							iItemValue *= 75;
+							iItemValue *= 65;
 							iItemValue /= 100;
 							break;
 						case MAJOR_CIV_OPINION_UNFORGIVABLE:
-							iItemValue *= 65;
+							iItemValue *= 50;
 							iItemValue /= 100;
 							break;
 					}
@@ -1845,7 +1841,7 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 							iItemValue /= 100;
 							break;
 						case MAJOR_CIV_OPINION_FAVORABLE:
-							iItemValue *= 98;
+							iItemValue *= 100;
 							iItemValue /= 100;
 							break;
 						case MAJOR_CIV_OPINION_NEUTRAL:
@@ -1895,48 +1891,59 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 		if(!GET_TEAM(GetPlayer()->getTeam()).IsResourceObsolete(eResource))
 		{
 #if defined(MOD_BALANCE_CORE_DEALS)
-			//We have it and we use it.
-			if(((GetPlayer()->getNumResourceAvailable(eResource, true) + iResourceQuantity) > 0) && (GetPlayer()->getNumResourceUsed(eResource) > 0))
+			//We already have it and we use it.
+			if(((GetPlayer()->getNumResourceAvailable(eResource, true) > 0) && (GetPlayer()->getNumResourceUsed(eResource) > 0)))
 			{
-				//We have a huge excess.
+				//This would give us a huge excess.
 				if((GetPlayer()->getNumResourceAvailable(eResource, true) + iResourceQuantity) >= (GetPlayer()->getNumResourceUsed(eResource) * 3))
 				{
 					iItemValue += (((iResourceQuantity + iNumTurns) * 10) / 100);	
 				}
-				//We have some excess.
+				//This would give us a mild excess.
 				else if((GetPlayer()->getNumResourceAvailable(eResource, true) + iResourceQuantity) >= (GetPlayer()->getNumResourceUsed(eResource) * 2))
 				{
-					iItemValue += (((iResourceQuantity + iNumTurns) * 25) / 100);	
+					iItemValue += (((iResourceQuantity + iNumTurns) * 20) / 100);	
 				}
-				//We have just a little extra
+				//This would give us a little extra
 				else if((GetPlayer()->getNumResourceAvailable(eResource, true) + iResourceQuantity) > (GetPlayer()->getNumResourceUsed(eResource)))
+				{
+					iItemValue += (((iResourceQuantity + iNumTurns) * 30) / 100);	
+				}
+				//This would give us enough to meet our needs.
+				else if((GetPlayer()->getNumResourceAvailable(eResource, true) + iResourceQuantity) <= GetPlayer()->getNumResourceUsed(eResource))
+				{
+					iItemValue += (((iResourceQuantity + iNumTurns) * 40) / 100);	
+				}
+				//This would give us almost enough to meet our needs.
+				else if((GetPlayer()->getNumResourceAvailable(eResource, true) + iResourceQuantity) <= GetPlayer()->getNumResourceUsed(eResource) * 2)
 				{
 					iItemValue += (((iResourceQuantity + iNumTurns) * 50) / 100);	
 				}
-				//We need some.
-				else if((GetPlayer()->getNumResourceAvailable(eResource, true) + iResourceQuantity) <= GetPlayer()->getNumResourceUsed(eResource))
-				{
-					iItemValue += (((iResourceQuantity + iNumTurns) * 75) / 100);	
-				}
-				//We really need some.
-				else if((GetPlayer()->getNumResourceAvailable(eResource, true) + iResourceQuantity) <= GetPlayer()->getNumResourceUsed(eResource) * 2)
-				{
-					iItemValue += (((iResourceQuantity + iNumTurns) * 100) / 100);	
-				}
 			}
-			//We have it but we aren't using it.
-			else if(((GetPlayer()->getNumResourceAvailable(eResource, true) + iResourceQuantity) > 0) && (GetPlayer()->getNumResourceUsed(eResource) <= 0))
+			//We have it via trade but we aren't using it.
+			else if(((GetPlayer()->getNumResourceAvailable(eResource, true) > 0) && (GetPlayer()->getNumResourceUsed(eResource) <= 0)))
 			{
-				iItemValue += (((iResourceQuantity + iNumTurns) * 15) / 100);	
+				iItemValue += (((iResourceQuantity + iNumTurns) * 5) / 100);	
 			}
-			//We don't have any and we don't use any.
-			else if(((GetPlayer()->getNumResourceAvailable(eResource, true) + iResourceQuantity) <= 0) && (GetPlayer()->getNumResourceUsed(eResource) <= 0))
+			//We have it at home but we aren't using it.
+			else if(((GetPlayer()->getNumResourceAvailable(eResource, false) > 0) && (GetPlayer()->getNumResourceUsed(eResource) <= 0)))
 			{
-				iItemValue += (((iResourceQuantity + iNumTurns) * 25) / 100);	
+				iItemValue += (((iResourceQuantity + iNumTurns) * 10) / 100);	
 			}
+			//We don't have any, trade or not, and we don't use any.
+			else if(((GetPlayer()->getNumResourceAvailable(eResource, true) <= 0) && (GetPlayer()->getNumResourceUsed(eResource) <= 0)))
+			{
+				iItemValue += (((iResourceQuantity + iNumTurns) * 20) / 100);	
+			}
+			//We don't have any at home and we don't use any.
+			else if(((GetPlayer()->getNumResourceAvailable(eResource, false) <= 0) && (GetPlayer()->getNumResourceUsed(eResource) <= 0)))
+			{
+				iItemValue += (((iResourceQuantity + iNumTurns) * 30) / 100);	
+			}
+			//Unaccounted for situation?
 			else
 			{
-				iItemValue += (((iResourceQuantity + iNumTurns) * 40) / 100);
+				iItemValue += (((iResourceQuantity + iNumTurns) * 30) / 100);
 			}
 			// Opinion also matters
 			int iModifier = 0;
@@ -2046,43 +2053,49 @@ int CvDealAI::GetResourceValue(ResourceTypes eResource, int iResourceQuantity, i
 #if defined(MOD_BALANCE_CORE_DEALS)
 		if(!GET_TEAM(GetPlayer()->getTeam()).IsResourceObsolete(eResource))
 		{
-			//We have it and we use it.
-			if(((GetPlayer()->getNumResourceAvailable(eResource, true) + iResourceQuantity) > 0) && (GetPlayer()->getNumResourceUsed(eResource) > 0))
+			//We have it (domestic and/or trade) and we use it.
+			if(((GetPlayer()->getNumResourceAvailable(eResource, true)) > 0) && (GetPlayer()->getNumResourceUsed(eResource) > 0))
 			{
-				//We have a huge excess.
-				if((GetPlayer()->getNumResourceAvailable(eResource, true) + iResourceQuantity) >= (GetPlayer()->getNumResourceUsed(eResource) * 3))
+				//We would still have a huge domestic excess after losing this.
+				if((GetPlayer()->getNumResourceAvailable(eResource, false) - iResourceQuantity) >= (GetPlayer()->getNumResourceUsed(eResource) * 3))
 				{
-					iItemValue += (((iResourceQuantity + iNumTurns) * 50) / 100);
+					iItemValue += (((iResourceQuantity + iNumTurns) * 20) / 100);
 				}
-				//We have some excess.
-				else if((GetPlayer()->getNumResourceAvailable(eResource, true) + iResourceQuantity) >= (GetPlayer()->getNumResourceUsed(eResource) * 2))
+				//We would only have a mild domestic reserve after losing this
+				else if((GetPlayer()->getNumResourceAvailable(eResource, false) - iResourceQuantity) >= (GetPlayer()->getNumResourceUsed(eResource) * 2))
 				{
-					iItemValue += (((iResourceQuantity + iNumTurns) * 75) / 100);
+					iItemValue += (((iResourceQuantity + iNumTurns) * 40) / 100);
 				}
-				//We have just a little extra
-				else if((GetPlayer()->getNumResourceAvailable(eResource, true) + iResourceQuantity) > (GetPlayer()->getNumResourceUsed(eResource)))
+				//We would only have a little domestic reserve after losing this.
+				else if((GetPlayer()->getNumResourceAvailable(eResource, false) - iResourceQuantity) > (GetPlayer()->getNumResourceUsed(eResource)))
 				{
-					iItemValue += (((iResourceQuantity + iNumTurns) * 125) / 100);
+					iItemValue += (((iResourceQuantity + iNumTurns) * 60) / 100);
 				}
-				//We need some.
-				else if((GetPlayer()->getNumResourceAvailable(eResource, true) + iResourceQuantity) <= GetPlayer()->getNumResourceUsed(eResource))
+				//We would be under our need that we can provide for ourselves, which is really bad.
+				else if((GetPlayer()->getNumResourceAvailable(eResource, false) - iResourceQuantity) <= GetPlayer()->getNumResourceUsed(eResource))
 				{
-					iItemValue += (((iResourceQuantity + iNumTurns) * 200) / 100);
+					iItemValue += (((iResourceQuantity + iNumTurns) * 80) / 100);
 				}
-				//We really need some.
-				else if((GetPlayer()->getNumResourceAvailable(eResource, true) + iResourceQuantity) <= GetPlayer()->getNumResourceUsed(eResource) * 2)
+				//We would be way under our need that we can provide for ourselves, which is terrible
+				else if((GetPlayer()->getNumResourceAvailable(eResource, false) - iResourceQuantity) <= GetPlayer()->getNumResourceUsed(eResource) * 2)
 				{
-					iItemValue += (((iResourceQuantity + iNumTurns) * 300) / 100);	
+					iItemValue += (((iResourceQuantity + iNumTurns) * 100) / 100);	
 				}
 			}
-			//We have it but we aren't using it.
-			else if(((GetPlayer()->getNumResourceAvailable(eResource, true) + iResourceQuantity) > 0) && (GetPlayer()->getNumResourceUsed(eResource) <= 0))
+			//We have it, via trade or domestic, but we aren't using it (be careful about trading this, as we don't want to wind up with nothing).
+			else if(((GetPlayer()->getNumResourceAvailable(eResource, true)) > 0) && (GetPlayer()->getNumResourceUsed(eResource) <= 0))
 			{
-				iItemValue += (((iResourceQuantity + iNumTurns) * 75) / 100);
+				iItemValue += (((iResourceQuantity + iNumTurns) * 40) / 100);
 			}
+			//We have it domestically, but we aren't using it.
+			else if(((GetPlayer()->getNumResourceAvailable(eResource, false)) > 0) && (GetPlayer()->getNumResourceUsed(eResource) <= 0))
+			{
+				iItemValue += (((iResourceQuantity + iNumTurns) * 20) / 100);
+			}
+			//Unaccounted for situation? Flat value.
 			else
 			{
-				iItemValue += (((iResourceQuantity + iNumTurns) * 125) / 100);
+				iItemValue += (((iResourceQuantity + iNumTurns) * 40) / 100);
 			}
 		}
 		else

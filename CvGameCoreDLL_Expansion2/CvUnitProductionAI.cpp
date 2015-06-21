@@ -181,6 +181,7 @@ UnitTypes CvUnitProductionAI::RecommendUnit(UnitAITypes eUnitAIType)
 		if(pkUnitInfo)
 		{
 #if defined(MOD_BALANCE_CORE)
+			bool bBad = false;
 			if(!bUsesStrategicResource)
 			{
 				ResourceTypes eResource;
@@ -190,9 +191,14 @@ UnitTypes CvUnitProductionAI::RecommendUnit(UnitAITypes eUnitAIType)
 					int iNumResource = pkUnitInfo->GetResourceQuantityRequirement(eResource);
 					if (iNumResource > 0)
 					{
-						continue;
+						bBad = true;
+						break;
 					}
 				}
+			}
+			if(bBad)
+			{
+				continue;
 			}
 			if(!CheckUnitBuildSanity(eUnit, bForOperation))
 			{

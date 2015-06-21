@@ -587,7 +587,11 @@ bool CvMilitaryAI::RequestSneakAttack(PlayerTypes eEnemy)
 		}
 		else
 		{
+#if defined(MOD_BALANCE_CORE)
+			if(IsAttackReady((MultiunitFormationTypes)MilitaryAIHelpers::GetBestFormationType(), AI_OPERATION_SNEAK_CITY_ATTACK))
+#else
 			if(IsAttackReady((GC.getGame().getHandicapInfo().GetID() > 4 && !(GC.getMap().GetAIMapHint() & 1)) ? MUFORMATION_BIGGER_CITY_ATTACK_FORCE : MUFORMATION_BASIC_CITY_ATTACK_FORCE, AI_OPERATION_SNEAK_CITY_ATTACK))
+#endif
 			{
 				pOperation = m_pPlayer->addAIOperation(AI_OPERATION_SNEAK_CITY_ATTACK, eEnemy, target.m_pTargetCity->getArea(), target.m_pTargetCity, target.m_pMusterCity);
 				if(pOperation != NULL && !pOperation->ShouldAbort())
@@ -873,7 +877,11 @@ bool CvMilitaryAI::RequestSpecificAttack(CvMilitaryTarget kTarget, int iNumUnits
 		{
 			if(!GET_PLAYER(kTarget.m_pTargetCity->getOwner()).isMinorCiv())
 			{
+#if defined(MOD_BALANCE_CORE)
+				iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(m_pPlayer,(MultiunitFormationTypes)MilitaryAIHelpers::GetBestFormationType(), false, &iNumRequiredSlots, &iLandReservesUsed);
+#else
 				iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(m_pPlayer,(GC.getGame().getHandicapInfo().GetID() > 4 && !(GC.getMap().GetAIMapHint() & 1)) ? MUFORMATION_BIGGER_CITY_ATTACK_FORCE : MUFORMATION_BASIC_CITY_ATTACK_FORCE, false, &iNumRequiredSlots, &iLandReservesUsed);
+#endif
 				if((iNumRequiredSlots - iFilledSlots) <= iNumUnitsWillingToBuild && iLandReservesUsed <= GetLandReservesAvailable())
 				{
 					pOperation = m_pPlayer->addAIOperation(AI_OPERATION_BASIC_CITY_ATTACK, kTarget.m_pTargetCity->getOwner(), kTarget.m_pTargetCity->getArea(), kTarget.m_pTargetCity, kTarget.m_pMusterCity);
@@ -4521,7 +4529,11 @@ void CvMilitaryAI::UpdateOperations()
 						{	
 							if(GET_PLAYER(eLoopPlayer).getCapitalCity()->getArea() == m_pPlayer->getCapitalCity()->getArea())
 							{
+#if defined(MOD_BALANCE_CORE)
+								iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(m_pPlayer, (MultiunitFormationTypes)MilitaryAIHelpers::GetBestFormationType(), false, &iNumRequiredSlots);
+#else
 								iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(m_pPlayer, MUFORMATION_BASIC_CITY_ATTACK_FORCE, false, &iNumRequiredSlots);
+#endif
 								// Not willing to build units to get this off the ground
 								if (iFilledSlots >= iNumRequiredSlots)
 								{
@@ -4713,7 +4725,11 @@ void CvMilitaryAI::UpdateOperations()
 					}
 					else if(target.m_pTargetCity && !target.m_bAttackBySea)
 					{
+#if defined(MOD_BALANCE_CORE)
+						iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(m_pPlayer, (MultiunitFormationTypes)MilitaryAIHelpers::GetBestFormationType(), false, &iNumRequiredSlots);
+#else
 						iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(m_pPlayer, MUFORMATION_BASIC_CITY_ATTACK_FORCE, false, &iNumRequiredSlots);
+#endif
 						// Not willing to build units to get this off the ground
 						if (iFilledSlots >= iNumRequiredSlots)
 						{
@@ -5505,7 +5521,22 @@ bool CvMilitaryAI::IsAttackReady(MultiunitFormationTypes eFormation, AIOperation
 		bRequiresNavalMoves = true;
 	}
 
-
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	if(eOperationType == AI_OPERATION_SNEAK_CITY_ATTACK || eOperationType == AI_OPERATION_NAVAL_SNEAK_ATTACK)
+	{
+		iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(m_pPlayer, eFormation, bRequiresNavalMoves, &iNumRequiredSlots, &iLandReservesUsed);
+		if(iFilledSlots > 1)
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+	else
+	{
+#endif
 	iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(m_pPlayer, eFormation, bRequiresNavalMoves, &iNumRequiredSlots, &iLandReservesUsed);
 	if(iFilledSlots >= iNumRequiredSlots)
 	{
@@ -5515,6 +5546,9 @@ bool CvMilitaryAI::IsAttackReady(MultiunitFormationTypes eFormation, AIOperation
 	{
 		return false;
 	}
+#if defined(MOD_BALANCE_CORE)
+	}
+#endif
 }
 
 /// Score the strength of the units for a domain; best candidate to scrap (with lowest score) is returned. Only supports land and naval units
@@ -5766,7 +5800,11 @@ UnitTypes CvMilitaryAI::GetUnitForArmy(CvCity* pCity) const
 	}
 	else
 	{
+#if defined(MOD_BALANCE_CORE)
+		eFormation = (MultiunitFormationTypes)MilitaryAIHelpers::GetBestFormationType();
+#else
 		eFormation = (GC.getGame().getHandicapInfo().GetID() > 4 && !(GC.getMap().GetAIMapHint() & 1)) ? MUFORMATION_BIGGER_CITY_ATTACK_FORCE : MUFORMATION_BASIC_CITY_ATTACK_FORCE;
+#endif
 	}
 	UnitAITypes eUnitAIType = MilitaryAIHelpers::FirstSlotCityCanFill(m_pPlayer, eFormation, (m_eArmyTypeBeingBuilt == ARMY_TYPE_NAVAL_INVASION), pCity->isCoastal(), false /*bSecondaryUnit*/);
 #if defined(MOD_BALANCE_CORE)
@@ -7348,7 +7386,33 @@ int MilitaryAIHelpers::ComputeRecommendedNavySize(CvPlayer* pPlayer)
 
 	return iNumUnitsWanted;
 }
+#if defined(MOD_BALANCE_CORE)
+int MilitaryAIHelpers::GetBestFormationType()
+{
+	int iTurnMin = 100;
+	iTurnMin *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+	iTurnMin /= 100;
 
+	//Granular, for later variation (if needed)
+	if(GC.getGame().getGameTurn() <= iTurnMin)
+	{
+		return (int)MUFORMATION_EARLY_RUSH;
+	}
+	else if(GC.getGame().getGameTurn() <= iTurnMin * 2)
+	{
+		return (int)MUFORMATION_SMALL_CITY_ATTACK_FORCE;
+	}
+	else if(GC.getGame().getGameTurn() <= (iTurnMin * 3))
+	{
+		return (int)MUFORMATION_BASIC_CITY_ATTACK_FORCE;
+	}
+	else if(GC.getGame().getGameTurn() > (iTurnMin * 3))
+	{
+		return (int)MUFORMATION_BIGGER_CITY_ATTACK_FORCE;
+	}
+	return (int)MUFORMATION_BASIC_CITY_ATTACK_FORCE;
+}
+#endif
 /// How many slots in this army can we fill right now with available units?
 int MilitaryAIHelpers::NumberOfFillableSlots(CvPlayer* pPlayer, MultiunitFormationTypes formation, bool bRequiresNavalMoves, int* piNumberSlotsRequired, int* piNumberLandReservesUsed)
 {
@@ -7413,37 +7477,6 @@ int MilitaryAIHelpers::NumberOfFillableSlots(CvPlayer* pPlayer, MultiunitFormati
 			}
 		}
 	}
-#if defined(MOD_BALANCE_CORE)
-	CvCity* pLoopCity;
-	int iLoop2;
-	for(pLoopCity = pPlayer->firstCity(&iLoop2); pLoopCity != NULL; pLoopCity = pPlayer->nextCity(&iLoop2))
-	{
-		if(pLoopCity != NULL)
-		{
-			if(pLoopCity->isProductionUnit())
-			{
-				UnitTypes eUnit = pLoopCity->getProductionUnit();
-				if(eUnit != NO_UNIT)
-				{
-					CvUnitEntry* pkUnitEntry = GC.getUnitInfo(eUnit);
-					if(pkUnitEntry && pLoopCity->getProductionTurnsLeft(eUnit, 0) <= 5)
-					{
-						for(it = slotsToFill.begin(); it != slotsToFill.end(); it++)
-						{
-							CvFormationSlotEntry slotEntry = *it;
-							if(pkUnitEntry->GetUnitAIType((UnitAITypes)slotEntry.m_primaryUnitType) || pkUnitEntry->GetUnitAIType((UnitAITypes)slotEntry.m_secondaryUnitType))
-							{
-								slotsToFill.erase(it);
-								iWillBeFilled++;
-								break;
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-#endif
 
 	// Now go back through remaining slots and see how many were required, we'll need that many more units
 	if(piNumberSlotsRequired != NULL)

@@ -7723,7 +7723,7 @@ BuildingClassTypes eFaithBuildingClass = NO_BUILDINGCLASS;
 		{
 			if (pEntry->GetSpecialistYieldChange((SpecialistTypes)iJ, iI) > 0)
 			{
-				iRtnValue += (pEntry->GetSpecialistYieldChange((SpecialistTypes)iJ, iI) * iFlavorGP);
+				iRtnValue += (pEntry->GetSpecialistYieldChange((SpecialistTypes)iJ, iI) * (iFlavorGP * 2));
 			}
 		}
 		if(pEntry->GetYieldPerXFollowers(iI) > 0)

@@ -77,7 +77,7 @@ SET Text = '+1 [ICON_FOOD] Food for every 5 [ICON_CITIZEN] Citizens in the City.
 WHERE Tag = 'TXT_KEY_BUILDING_FLOATING_GARDENS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Gains [ICON_CULTURE] Culture for the empire from each enemy unit killed. When you complete a favorable Peace Treaty, a Golden Age begins.'
+SET Text = 'Gains [ICON_CULTURE] Culture for the empire from each enemy unit killed. When you complete a favorable Peace Treaty, a [ICON_GOLDEN_AGE] Golden Age begins.'
 WHERE Tag = 'TXT_KEY_TRAIT_CULTURE_FROM_KILLS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Buildings
@@ -493,7 +493,7 @@ SET FreeGreatWorkOnConquest = 'true'
 WHERE Type = 'TRAIT_ENHANCED_CULTURE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Theming bonuses doubled in [ICON_CAPITAL] Capital. Plunder [ICON_GREAT_WORK] Great Works of Art when you conquer a City. Receive a temporary [ICON_CULTURE] Culture boost if you cannot plunder.'
+SET Text = 'Theming bonuses doubled in [ICON_CAPITAL] Capital. Plunder additional [ICON_GREAT_WORK] Great Works of Art when you conquer a City. Receive a temporary [ICON_CULTURE] Culture boost if you cannot plunder.'
 WHERE Tag = 'TXT_KEY_TRAIT_ENHANCED_CULTURE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US

@@ -866,4 +866,36 @@
 			<TerrainType>TERRAIN_DESERT</TerrainType>
 		</Row>
 	</Resource_FeatureTerrainBooleans>
+	<CitySpecializations>
+		<Row>
+			<Type>CITYSPECIALIZATION_CULTURE</Type>
+			<YieldType>YIELD_CULTURE</YieldType>
+		</Row>
+		<Row>
+			<Type>CITYSPECIALIZATION_FAITH</Type>
+			<YieldType>YIELD_FAITH</YieldType>
+		</Row>
+	</CitySpecializations>
+	<CitySpecialization_Flavors>
+		<Row>
+			<CitySpecializationType>CITYSPECIALIZATION_CULTURE</CitySpecializationType>
+			<FlavorType>FLAVOR_GREAT_PEOPLE</FlavorType>
+			<Flavor>15</Flavor>
+		</Row>
+		<Row>
+			<CitySpecializationType>CITYSPECIALIZATION_CULTURE</CitySpecializationType>
+			<FlavorType>FLAVOR_CULTURE</FlavorType>
+			<Flavor>30</Flavor>
+		</Row>
+		<Row>
+			<CitySpecializationType>CITYSPECIALIZATION_FAITH</CitySpecializationType>
+			<FlavorType>FLAVOR_RELIGION</FlavorType>
+			<Flavor>30</Flavor>
+		</Row>
+		<Row>
+			<CitySpecializationType>CITYSPECIALIZATION_FAITH</CitySpecializationType>
+			<FlavorType>FLAVOR_CULTURE</FlavorType>
+			<Flavor>15</Flavor>
+		</Row>
+	</CitySpecialization_Flavors>
 </GameData>

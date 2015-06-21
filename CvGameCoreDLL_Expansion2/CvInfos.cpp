@@ -4110,6 +4110,7 @@ CvGoodyInfo::CvGoodyInfo() : CvBaseInfo()
 #if defined(MOD_BALANCE_CORE)
 	, m_iProduction(0)
 	, m_iGoldenAge(0)
+	, m_iFreeTiles(0)
 #endif
 	, m_iCulture(0)
 	, m_iFaith(0)
@@ -4205,6 +4206,10 @@ int CvGoodyInfo::getGoldenAge() const
 {
 	return m_iGoldenAge;
 }
+int CvGoodyInfo::getFreeTiles() const
+{
+	return m_iFreeTiles;
+}
 #endif
 int CvGoodyInfo::getBarbarianUnitProb() const
 {
@@ -4299,6 +4304,7 @@ bool CvGoodyInfo::CacheResults(Database::Results& results, CvDatabaseUtility& kU
 #if defined(MOD_BALANCE_CORE)
 	m_iProduction = results.GetInt("Production");
 	m_iGoldenAge = results.GetInt("GoldenAge");
+	m_iFreeTiles = results.GetInt("FreeTiles");
 #endif
 	m_iCulture = results.GetInt("Culture");
 	m_iFaith = results.GetInt("Faith");

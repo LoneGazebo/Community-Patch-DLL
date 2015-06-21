@@ -423,10 +423,14 @@ public:
 	{
 		return CvString("AI_OPERATION_SMALL_CITY_ATTACK");
 	}
+#if defined(MOD_BALANCE_CORE)
+	virtual MultiunitFormationTypes GetFormation() const;
+#else
 	virtual MultiunitFormationTypes GetFormation() const
 	{
 		return (GC.getGame().getHandicapInfo().GetID() > 4) ? MUFORMATION_BASIC_CITY_ATTACK_FORCE : MUFORMATION_SMALL_CITY_ATTACK_FORCE;
 	}
+#endif
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

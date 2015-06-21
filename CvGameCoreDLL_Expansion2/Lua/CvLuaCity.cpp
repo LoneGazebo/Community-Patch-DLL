@@ -4595,8 +4595,7 @@ int CvLuaCity::lGetSpecialistYieldChange(lua_State* L)
 	const PlayerTypes ePlayer = pkCity->getOwner();
 	ReligionTypes eReligion = pkCity->GetCityReligions()->GetReligiousMajority();
 	const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eReligion, pkCity->getOwner());
-	ReligionTypes ePlayerReligion = GET_PLAYER(ePlayer).GetReligions()->GetReligionInMostCities();
-	if(ePlayerReligion != NO_RELIGION && eReligion == ePlayerReligion)
+	if(eReligion != NO_RELIGION)
 	{
 		 iRtnValue = pReligion->m_Beliefs.GetSpecialistYieldChange(eSpecialist, eYield);
 	}

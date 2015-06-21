@@ -7,7 +7,7 @@
     <Guid>8411a7a8-dad3-4622-a18e-fcc18324c799</Guid>
     <ModVersion>13</ModVersion>
     <Stability>Beta</Stability>
-    <Teaser>The Complete Civ 5 Experience (6-17)</Teaser>
+    <Teaser>The Complete Civ 5 Experience (6-19)</Teaser>
     <Description>Community Balance Patch - Contains balance changes and gameplay improvements to make Civ V a more enjoyable and exciting game.</Description>
     <Authors>Civfanatics Community Balance Team</Authors>
     <SpecialThanks>
@@ -59,6 +59,11 @@
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
+        <FileName>Art/Improvements/GlobalSpiceIslandsArt.xml</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
         <FileName>Balance Changes/Units/PromotionNuke.sql</FileName>
       </Action>
       <Action>
@@ -85,6 +90,11 @@
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
         <FileName>Modular Elements/Happiness Mod/HappinessText.xml</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>Modular Elements/Happiness Mod/StartingHappiness.sql</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
@@ -129,17 +139,17 @@
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <FileName>Modular Elements/Happiness Mod/StartingHappiness.sql</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
         <FileName>Modular Elements/WonderConsolation/WonderConsolation.sql</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
         <FileName>Balance Changes/CoreDefines.xml</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>Balance Changes/CoreDefines.sql</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
@@ -459,6 +469,16 @@
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
+        <FileName>Balance Changes/Terrain/ResourceChanges.xml</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>Balance Changes/Terrain/ResourceChanges.sql</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
         <FileName>Balance Changes/Leaders/Vanilla/UBBuildings.xml</FileName>
       </Action>
       <Action>
@@ -534,12 +554,17 @@
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <FileName>Balance Changes/AI/Flavors/BuildingFlavors.sql</FileName>
+        <FileName>Balance Changes/AI/Diplomacy/AIChanges.sql</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
         <FileName>Balance Changes/AI/Diplomacy/LeaderPersonalities.sql</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>Balance Changes/AI/Flavors/BuildingFlavors.sql</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
@@ -634,12 +659,12 @@
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <FileName>Balance Changes/Terrain/ResourceChanges.xml</FileName>
+        <FileName>Balance Changes/Tech/GlobalCityBombardRange.sql</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <FileName>Balance Changes/Terrain/ResourceChanges.sql</FileName>
+        <FileName>Balance Changes/Tech/Processes.xml</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
@@ -694,11 +719,6 @@
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <FileName>Balance Changes/Tech/Processes.xml</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
         <FileName>Balance Changes/Policies/Flavors/FlavorNuke.sql</FileName>
       </Action>
       <Action>
@@ -710,11 +730,6 @@
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
         <FileName>Modular Elements/SpiceIslands/GlobalSpiceIslands.xml</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>Art/Improvements/GlobalSpiceIslandsArt.xml</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
@@ -734,22 +749,12 @@
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <FileName>Balance Changes/Tech/GlobalCityBombardRange.sql</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
         <FileName>Balance Changes/Text/TextChanges.sql</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
         <FileName>Balance Changes/Text/TextChanges.xml</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>Balance Changes/AI/Diplomacy/AIChanges.sql</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
@@ -892,10 +897,6 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
-    <Content Include="Art\Improvements\Eki\EkiAtlas256.dds">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
     <Content Include="Art\Improvements\Eki\EkiAtlas64.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
@@ -920,10 +921,6 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="Art\Improvements\Eki\eki_hb_diff.dds">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
     <Content Include="Art\Improvements\Eki\eki_PL.fxsxml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
@@ -945,10 +942,6 @@
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
     <Content Include="Art\Improvements\Eki\SV_Eki.dds">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
-    <Content Include="Art\Improvements\Encampment\EncampmentAtlas256.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
@@ -1233,6 +1226,10 @@
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
     <Content Include="Balance Changes\Buildings\NewBuildings.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="Balance Changes\CoreDefines.sql">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
@@ -1589,10 +1586,6 @@
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
     <Content Include="Balance Changes\Units\PromotionChanges.sql">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="Balance Changes\Wonders\CoreDefines.sql">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
