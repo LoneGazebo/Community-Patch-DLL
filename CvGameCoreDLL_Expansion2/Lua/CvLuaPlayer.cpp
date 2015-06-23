@@ -1666,7 +1666,7 @@ int CvLuaPlayer::lIsPlotConnectedToPlot(lua_State* L)
 	CvPlot* pkFromPlot = CvLuaPlot::GetInstance(L, 2);
 	CvPlot* pkToPlot = CvLuaPlot::GetInstance(L, 3);
 
-	const bool bResult = pkPlayer->IsPlotConnectedToPlot(pkFromPlot, pkToPlot);
+	const bool bResult = IsPlotConnectedToPlot(pkPlayer->GetID(), pkFromPlot, pkToPlot);
 	lua_pushboolean(L, bResult);
 	return 1;
 }

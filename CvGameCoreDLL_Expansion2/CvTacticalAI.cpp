@@ -159,6 +159,32 @@ bool CvTacticalTarget::IsTargetStillAlive(PlayerTypes m_eAttackingPlayer)
 	return bRtnValue;
 }
 
+#if defined(MOD_BALANCE_CORE)
+	const char* barbarianMoveNames[] =
+	{
+	"AI_TACTICAL_BARBARIAN_CAPTURE_CITY",
+	"AI_TACTICAL_BARBARIAN_DAMAGE_CITY",
+	"AI_TACTICAL_BARBARIAN_DESTROY_HIGH_PRIORITY_UNIT",
+	"AI_TACTICAL_BARBARIAN_DESTROY_MEDIUM_PRIORITY_UNIT",
+	"AI_TACTICAL_BARBARIAN_DESTROY_LOW_PRIORITY_UNIT",
+	"AI_TACTICAL_BARBARIAN_MOVE_TO_SAFETY",
+	"AI_TACTICAL_BARBARIAN_ATTRIT_HIGH_PRIORITY_UNIT",
+	"AI_TACTICAL_BARBARIAN_ATTRIT_MEDIUM_PRIORITY_UNIT",
+	"AI_TACTICAL_BARBARIAN_ATTRIT_LOW_PRIORITY_UNIT",
+	"AI_TACTICAL_BARBARIAN_PILLAGE",
+	"AI_TACTICAL_BARBARIAN_PRIORITY_BLOCKADE_RESOURCE",
+	"AI_TACTICAL_BARBARIAN_CIVILIAN_ATTACK",
+	"AI_TACTICAL_BARBARIAN_AGGRESSIVE_MOVE",
+	"AI_TACTICAL_BARBARIAN_PASSIVE_MOVE",
+	"AI_TACTICAL_BARBARIAN_CAMP_DEFENSE",
+	"AI_TACTICAL_BARBARIAN_DESPERATE_ATTACK",
+	"AI_TACTICAL_BARBARIAN_ESCORT_CIVILIAN",
+	"AI_TACTICAL_BARBARIAN_PLUNDER_TRADE_UNIT",
+	"AI_TACTICAL_BARBARIAN_PILLAGE_CITADEL",
+	"AI_TACTICAL_BARBARIAN_PILLAGE_NEXT_TURN",
+	};
+#endif
+
 /// This target make sense for this domain of unit/zone?
 bool CvTacticalTarget::IsTargetValidInThisDomain(DomainTypes eDomain)
 {
@@ -2066,7 +2092,7 @@ void CvTacticalAI::AssignBarbarianMoves()
 #if defined(MOD_BALANCE_CORE_MILITARY)
 		//Debugging: Check order of tactical moves ...
 		if (GC.getGame().getGameTurn() == 1 && m_pPlayer->GetID() == BARBARIAN_PLAYER )
-			OutputDebugString( CvString::format("Barbarians %d - Move %s - Prio %d\n", m_pPlayer->GetID(), GC.getTacticalMoveInfo(move.m_eMoveType)->GetType(), move.m_iPriority).c_str() );
+			OutputDebugString( CvString::format("Barbarians %d - Move %s - Prio %d\n", m_pPlayer->GetID(), barbarianMoveNames[move.m_eMoveType], move.m_iPriority).c_str() );
 		else
 			//if all units have moved we can stop
 			if (m_CurrentTurnUnits.empty())

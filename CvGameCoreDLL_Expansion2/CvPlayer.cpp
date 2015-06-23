@@ -6776,7 +6776,7 @@ int CvPlayer::countCitiesFeatureSurrounded() const
 bool CvPlayer::IsCityConnectedToCity(CvCity* pCity1, CvCity* pCity2, RouteTypes eRestrictRoute, bool bIgnoreHarbors)
 {
 #if defined(MOD_API_EXTENSIONS)
-	return IsPlotConnectedToPlot(pCity1->plot(), pCity2->plot(), eRestrictRoute, bIgnoreHarbors);
+	return IsPlotConnectedToPlot(m_eID, pCity1->plot(), pCity2->plot(), eRestrictRoute, bIgnoreHarbors);
 #else
 	int iPathfinderFlags = GetID() | MOVE_ROUTE_ALLOW_UNEXPLORED;	// Since we just want to know if we are connected or not, allow the check to search unexplored terrain.
 	if(eRestrictRoute == NO_ROUTE)
@@ -6845,41 +6845,7 @@ bool CvPlayer::IsCapitalConnectedToCity(CvCity* pCity, RouteTypes eRestrictRoute
 	return IsPlotConnectedToPlot(pPlayerCapital->plot(), pCity->plot(), eRestrictRoute);
 #endif
 }
-//	---------------------------------------------------------------------------
-bool CvPlayer::IsPlotConnectedToPlot(CvPlot* pFromPlot, CvPlot* pToPlot, RouteTypes eRestrictRoute, bool bIgnoreHarbors)
-{
-	// IMPORTANT NOTE: This is the IsCityConnectedToCity() code from above
-	
-	int iPathfinderFlags = GetID() | MOVE_ROUTE_ALLOW_UNEXPLORED;	// Since we just want to know if we are connected or not, allow the check to search unexplored terrain.
-	if(eRestrictRoute == NO_ROUTE)
-	{
-		iPathfinderFlags |= MOVE_ANY_ROUTE;
-	}
-	else
-	{
-		// assuming that there are fewer than 256 players
-		int iRouteValue = eRestrictRoute + 1;
-		iPathfinderFlags |= (iRouteValue << 8);
-	}
 
-	if (bIgnoreHarbors)
-	{
-		GC.getRouteFinder().SetNumExtraChildrenFunc(NULL);
-		GC.getRouteFinder().SetExtraChildGetterFunc(NULL);
-	}
-
-	GC.getRouteFinder().ForceReset();
-	bool bReturnValue = GC.getRouteFinder().GeneratePath(pFromPlot->getX(), pFromPlot->getY(), pToPlot->getX(), pToPlot->getY(), iPathfinderFlags, false);
-
-	if (bIgnoreHarbors)
-	{
-		// reconnect the land route pathfinder water methods
-		GC.getRouteFinder().SetNumExtraChildrenFunc(RouteGetNumExtraChildren);
-		GC.getRouteFinder().SetExtraChildGetterFunc(RouteGetExtraChild);
-	}
-
-	return bReturnValue;
-}
 #else
 //	---------------------------------------------------------------------------
 bool CvPlayer::IsCapitalConnectedToCity(CvCity* pCity, RouteTypes eRestrictRoute)

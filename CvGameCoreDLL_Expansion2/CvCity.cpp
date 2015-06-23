@@ -2521,8 +2521,15 @@ void CvCity::DoUpdateIndustrialRouteToCapital()
 	else
 	{
 #if defined(MOD_BALANCE_CORE)
-		bool bHaveIndustrialRoute = GET_PLAYER(getOwner()).IsCapitalConnectedToCity(this, GC.getGame().GetIndustrialRoute());
-		SetIndustrialRouteToCapital(bHaveIndustrialRoute);
+		CvCity* pPlayerCapital = GET_PLAYER(getOwner()).getCapitalCity();
+		if(pPlayerCapital != NULL)
+		{
+			bool bHaveIndustrialRoute = IsPlotConnectedToPlot(getOwner(), pPlayerCapital->plot(), this->plot(), GC.getGame().GetIndustrialRoute());
+			SetIndustrialRouteToCapital(bHaveIndustrialRoute);
+		}
+		else
+			SetIndustrialRouteToCapital(false);
+
 #else
 		if(GET_PLAYER(getOwner()).IsCapitalConnectedToCity(this, GC.getGame().GetIndustrialRoute()))
 		{

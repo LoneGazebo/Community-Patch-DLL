@@ -25502,7 +25502,7 @@ RouteTypes CvUnit::GetBestBuildRoute(CvPlot* pPlot, BuildTypes* peBestBuild) con
 	if (bOnlyRoad) {
 		// If there is no road to the mission end plot, bOnlyRoad is true
 		CvUnit* me = kPlayer.getUnit(m_iID); // God I truely hate "const" - we're in a const method, but LastMissionPlot() isn't so we can't call it!!!
-		bOnlyRoad = !kPlayer.IsPlotConnectedToPlot(pPlot, me->LastMissionPlot(), ROUTE_ROAD);;
+		bOnlyRoad = !IsPlotConnectedToPlot(getOwner(), pPlot, me->LastMissionPlot(), ROUTE_ROAD);
 	}
 #endif
 
