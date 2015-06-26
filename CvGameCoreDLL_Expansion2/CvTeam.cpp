@@ -42,15 +42,6 @@ CvTeam& CvTeam::getTeam(TeamTypes eTeam)
 	CvAssertMsg(eTeam != NO_TEAM, "eTeam is not assigned a valid value");
 	CvAssertMsg(eTeam < MAX_TEAMS, "eTeam is not assigned a valid value");
 
-#if defined(MOD_BALANCE_CORE)
-	if (eTeam==NO_TEAM)
-	{
-		OutputDebugString("invalid team index!");
-		//ugly hack ...
-		return m_aTeams[MAX_TEAMS-1];
-	}
-#endif
-
 	return m_aTeams[eTeam];
 }
 
@@ -8114,34 +8105,30 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 				CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
 				if(!kPlayer.isHuman() && !kPlayer.isMinorCiv() && !kPlayer.isBarbarian() && kPlayer.isAlive() && kPlayer.getTeam() == GetID())
 				{
-					if(kPlayer.getCapitalCity() != NULL)
-					{
-						kPlayer.getCapitalCity()->ChangeUnmoddedHappinessFromBuildings(GC.getBALANCE_GAME_DIFFICULTY_MULTIPLIER() + 1);
-						kPlayer.GetTreasury()->ChangeGold((GC.getBALANCE_GAME_DIFFICULTY_MULTIPLIER() + kPlayer.GetCurrentEra()) * 150);
-						kPlayer.ChangeGoldenAgeProgressMeter((GC.getBALANCE_GAME_DIFFICULTY_MULTIPLIER() + kPlayer.GetCurrentEra()) * 150);
-						kPlayer.changeJONSCulture((GC.getBALANCE_GAME_DIFFICULTY_MULTIPLIER() + kPlayer.GetCurrentEra()) * 75);
+					kPlayer.GetTreasury()->ChangeGold((GC.getBALANCE_GAME_DIFFICULTY_MULTIPLIER() + kPlayer.GetCurrentEra()) * 150);
+					kPlayer.ChangeGoldenAgeProgressMeter((GC.getBALANCE_GAME_DIFFICULTY_MULTIPLIER() + kPlayer.GetCurrentEra()) * 150);
+					kPlayer.changeJONSCulture((GC.getBALANCE_GAME_DIFFICULTY_MULTIPLIER() + kPlayer.GetCurrentEra()) * 75);
 
-						int iBeakersBonus = kPlayer.GetScienceYieldFromPreviousTurns(GC.getGame().getGameTurn(), (GC.getBALANCE_GAME_DIFFICULTY_MULTIPLIER() + kPlayer.GetCurrentEra() + 5));
+					int iBeakersBonus = kPlayer.GetScienceYieldFromPreviousTurns(GC.getGame().getGameTurn(), (GC.getBALANCE_GAME_DIFFICULTY_MULTIPLIER() + kPlayer.GetCurrentEra() + 10));
 						
-						if(iBeakersBonus > 0)
+					if(iBeakersBonus > 0)
+					{
+						TechTypes eCurrentTech = kPlayer.GetPlayerTechs()->GetCurrentResearch();
+						if(eCurrentTech == NO_TECH)
 						{
-							TechTypes eCurrentTech = kPlayer.GetPlayerTechs()->GetCurrentResearch();
-							if(eCurrentTech == NO_TECH)
-							{
-								kPlayer.changeOverflowResearch(iBeakersBonus);
-							}
-							else
-							{
-								GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iBeakersBonus, ePlayer);
-							}
+							kPlayer.changeOverflowResearch(iBeakersBonus);
+						}
+						else
+						{
+							GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iBeakersBonus, ePlayer);
 						}
 					}
 					for(pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
 					{
 						if(pLoopCity != NULL)
 						{
-							pLoopCity->changeProduction((GC.getBALANCE_GAME_DIFFICULTY_MULTIPLIER() + kPlayer.GetCurrentEra()) * 40);
-							pLoopCity->changeFood((GC.getBALANCE_GAME_DIFFICULTY_MULTIPLIER() + kPlayer.GetCurrentEra()) * 20);
+							pLoopCity->changeProduction((GC.getBALANCE_GAME_DIFFICULTY_MULTIPLIER() + kPlayer.GetCurrentEra()) * 50);
+							pLoopCity->changeFood((GC.getBALANCE_GAME_DIFFICULTY_MULTIPLIER() + kPlayer.GetCurrentEra()) * 25);
 						}
 					}
 				}

@@ -443,7 +443,10 @@ public:
 	bool IsPlayerHasOpenBordersAutomatically(PlayerTypes ePlayer);
 
 	void DoLiberationByMajor(PlayerTypes eLiberator, TeamTypes eConquerorTeam);
-
+#if defined(MOD_BALANCE_CORE)
+	void SetTurnLiberated(int iValue);
+	int GetTurnLiberated();
+#endif
 	// Protection
 	void DoChangeProtectionFromMajor(PlayerTypes eMajor, bool bProtect, bool bPledgeNowBroken = false);
 	bool CanMajorProtect(PlayerTypes eMajor);
@@ -663,6 +666,9 @@ private:
 	bool m_bIsRebellionActive;
 	bool m_bIsHordeActive;
 	int m_iCooldownSpawn;
+#endif
+#if defined(MOD_BALANCE_CORE)
+	int m_iTurnLiberated;
 #endif
 
 #if defined(MOD_BALANCE_CORE_MINORS)  || defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)

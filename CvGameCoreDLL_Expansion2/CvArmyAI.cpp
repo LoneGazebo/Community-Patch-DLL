@@ -710,13 +710,17 @@ bool CvArmyAI::RemoveUnit(int iUnitToRemoveID)
 /// Is this part of an operation that allows units to be poached by tactical AI?
 bool CvArmyAI::CanTacticalAIInterruptUnit(int /* iUnitId */) const
 {
+	// If the operation is still recruiting, by all means interrupt it
+	if(m_eAIState == ARMYAISTATE_WAITING_FOR_UNITS_TO_REINFORCE)
+	{
+		return true;
+	}
 	// If the operation is still assembling, by all means interrupt it
 	if(m_eAIState == ARMYAISTATE_WAITING_FOR_UNITS_TO_REINFORCE ||
 	        m_eAIState == ARMYAISTATE_WAITING_FOR_UNITS_TO_CATCH_UP)
 	{
 		return true;
 	}
-
 	if(m_eOwner >=0 && m_eOwner < MAX_PLAYERS)
 	{
 		CvAIOperation* op = GET_PLAYER(m_eOwner).getAIOperation(m_iOperationID);

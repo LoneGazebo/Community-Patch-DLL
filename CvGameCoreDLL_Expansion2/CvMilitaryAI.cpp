@@ -342,6 +342,9 @@ void CvMilitaryAI::Reset()
 	m_eLandDefenseState = NO_DEFENSE_STATE;
 	m_eNavalDefenseState = NO_DEFENSE_STATE;
 	m_iNumberOfTimesOpsBuildSkippedOver = 0;
+#if defined(MOD_BALANCE_CORE)
+	m_iCurrentWarFocus = 0;
+#endif
 
 	for(iI = 0; iI < m_pAIStrategies->GetNumMilitaryAIStrategies(); iI++)
 	{
@@ -528,6 +531,9 @@ void CvMilitaryAI::DoTurn()
 	UpdateBaseData();
 	UpdateDefenseState();
 	UpdateMilitaryStrategies();
+#if defined(MOD_BALANCE_CORE)
+	UpdateWarType();
+#endif
 
 	if(!m_pPlayer->isHuman())
 	{
@@ -1057,7 +1063,7 @@ CvUnit* CvMilitaryAI::BuyEmergencyUnit(UnitAITypes eUnitType, CvCity* pCity)
 
 	// Get best unit with this AI type
 #if defined(MOD_BALANCE_CORE)
-	UnitTypes eType = pCity->GetCityStrategyAI()->GetUnitProductionAI()->RecommendUnit(eUnitType, true, false);
+	UnitTypes eType = pCity->GetCityStrategyAI()->GetUnitProductionAI()->RecommendUnit(eUnitType, true, false, NULL);
 #else
 	UnitTypes eType = pCity->GetCityStrategyAI()->GetUnitProductionAI()->RecommendUnit(eUnitType);
 #endif
@@ -4452,12 +4458,16 @@ void CvMilitaryAI::UpdateOperations()
 						bool bHasOperationUnderway = m_pPlayer->haveAIOperationOfType(AI_OPERATION_RAPID_RESPONSE, &iOperationID, eLoopPlayer);
 						if (!bHasOperationUnderway)
 						{
-							iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(m_pPlayer, MUFORMATION_RAPID_RESPONSE_FORCE, false, &iNumRequiredSlots);
-
-							// Not willing to build units to get this off the ground
-							if (iFilledSlots >= iNumRequiredSlots)
+							bHasOperationUnderway = m_pPlayer->haveAIOperationOfType(AI_OPERATION_BASIC_CITY_ATTACK, &iOperationID, eLoopPlayer);
+							if (!bHasOperationUnderway)
 							{
-								m_pPlayer->addAIOperation(AI_OPERATION_RAPID_RESPONSE, eLoopPlayer);
+								iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(m_pPlayer, MUFORMATION_RAPID_RESPONSE_FORCE, false, &iNumRequiredSlots);
+
+								// Not willing to build units to get this off the ground
+								if (iFilledSlots >= iNumRequiredSlots)
+								{
+									m_pPlayer->addAIOperation(AI_OPERATION_RAPID_RESPONSE, eLoopPlayer);
+								}
 							}
 						}
 					}
@@ -4529,22 +4539,22 @@ void CvMilitaryAI::UpdateOperations()
 										{
 											m_pPlayer->addAIOperation(AI_OPERATION_BASIC_CITY_ATTACK, eLoopPlayer, target.m_pTargetCity->getArea(), target.m_pTargetCity, target.m_pMusterCity);
 										}
-										else if(target.m_pTargetCity && target.m_bAttackBySea)
-										{
-												m_pPlayer->addAIOperation(AI_OPERATION_NAVAL_ATTACK, eLoopPlayer, target.m_pTargetCity->getArea(), target.m_pTargetCity, target.m_pMusterCity);
-										}
 									}
 								}
 
 								bool bHasOperationUnderway = m_pPlayer->haveAIOperationOfType(AI_OPERATION_PILLAGE_ENEMY, &iOperationID);
 								if (!bHasOperationUnderway)
 								{
-									iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(m_pPlayer, MUFORMATION_FAST_PILLAGERS, false, &iNumRequiredSlots);
-
-									// Not willing to build units to get this off the ground
-									if (iFilledSlots >= iNumRequiredSlots)
+									bHasOperationUnderway = m_pPlayer->haveAIOperationOfType(AI_OPERATION_BASIC_CITY_ATTACK, &iOperationID, eLoopPlayer);
+									if (!bHasOperationUnderway)
 									{
-										m_pPlayer->addAIOperation(AI_OPERATION_PILLAGE_ENEMY, eLoopPlayer);
+										iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(m_pPlayer, MUFORMATION_FAST_PILLAGERS, false, &iNumRequiredSlots);
+
+										// Not willing to build units to get this off the ground
+										if (iFilledSlots >= iNumRequiredSlots)
+										{
+											m_pPlayer->addAIOperation(AI_OPERATION_PILLAGE_ENEMY, eLoopPlayer);
+										}
 									}
 								}
 							}
@@ -4560,15 +4570,11 @@ void CvMilitaryAI::UpdateOperations()
 										{
 											m_pPlayer->addAIOperation(AI_OPERATION_NAVAL_ATTACK, eLoopPlayer, target.m_pTargetCity->getArea(), target.m_pTargetCity, target.m_pMusterCity);
 										}
-										else if(target.m_pTargetCity && !target.m_bAttackBySea)
-										{
-											m_pPlayer->addAIOperation(AI_OPERATION_BASIC_CITY_ATTACK, eLoopPlayer, target.m_pTargetCity->getArea(), target.m_pTargetCity, target.m_pMusterCity);
-										}
 									}
 								}
 							}
 							int iFlavorNaval = m_pPlayer->GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_NAVAL"));
-							RequestPureNavalAttack(eLoopPlayer, (iFlavorNaval / 2));
+							RequestPureNavalAttack(eLoopPlayer, (iFlavorNaval / 3));
 						}
 					}
 
@@ -5794,7 +5800,7 @@ UnitTypes CvMilitaryAI::GetUnitForArmy(CvCity* pCity) const
 	}
 	UnitAITypes eUnitAIType = MilitaryAIHelpers::FirstSlotCityCanFill(m_pPlayer, eFormation, (m_eArmyTypeBeingBuilt == ARMY_TYPE_NAVAL_INVASION), pCity->isCoastal(), false /*bSecondaryUnit*/);
 #if defined(MOD_BALANCE_CORE)
-	UnitTypes eType = pCity->GetCityStrategyAI()->GetUnitProductionAI()->RecommendUnit(eUnitAIType, true, true);
+	UnitTypes eType = pCity->GetCityStrategyAI()->GetUnitProductionAI()->RecommendUnit(eUnitAIType, true, true, NULL);
 #else	
 	UnitTypes eType = pCity->GetCityStrategyAI()->GetUnitProductionAI()->RecommendUnit(eUnitAIType);
 #endif
@@ -5802,7 +5808,7 @@ UnitTypes CvMilitaryAI::GetUnitForArmy(CvCity* pCity) const
 	{
 		eUnitAIType = MilitaryAIHelpers::FirstSlotCityCanFill(m_pPlayer, eFormation, (m_eArmyTypeBeingBuilt == ARMY_TYPE_NAVAL_INVASION), pCity->isCoastal(), true /*bSecondaryUnit*/);
 #if defined(MOD_BALANCE_CORE)
-		eType = pCity->GetCityStrategyAI()->GetUnitProductionAI()->RecommendUnit(eUnitAIType, true, true);
+		eType = pCity->GetCityStrategyAI()->GetUnitProductionAI()->RecommendUnit(eUnitAIType, true, true, NULL);
 #else			
 		eType = pCity->GetCityStrategyAI()->GetUnitProductionAI()->RecommendUnit(eUnitAIType);
 #endif
@@ -6662,6 +6668,59 @@ void CvMilitaryAI::MinorAttackTest()
 				}
 			}
 		}
+	}
+}
+//Gets the type of war the player is, overall, facing (used to decide production). 1 is land, 2 is sea (thanks, Paul Revere).
+int CvMilitaryAI::GetWarType()
+{
+	return m_iCurrentWarFocus;
+}
+void CvMilitaryAI::UpdateWarType()
+{
+	int iEnemyWater = 0;
+	int iEnemyLand = 0;
+	m_iCurrentWarFocus = 0;
+	int iLoop;
+	//the muster city for a given target can belong to any player, no only to ourselves
+	for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+	{	
+		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+		if(eLoopPlayer != NO_PLAYER && GET_PLAYER(eLoopPlayer).isAlive() && eLoopPlayer != m_pPlayer->GetID() && !GET_PLAYER(eLoopPlayer).isMinorCiv())
+		{
+			if(GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).isAtWar(m_pPlayer->getTeam()))
+			{
+				for(CvUnit* pLoopUnit = GET_PLAYER(eLoopPlayer).firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = GET_PLAYER(eLoopPlayer).nextUnit(&iLoop))
+				{
+					if (pLoopUnit != NULL && pLoopUnit->IsCombatUnit())
+					{
+						if(pLoopUnit->getDomainType() == DOMAIN_SEA)
+						{
+							iEnemyWater++;
+							if(pLoopUnit->plot()->isVisible(m_pPlayer->getTeam()))
+							{
+								iEnemyWater++;
+							}
+						}
+						else if (pLoopUnit->getDomainType() == DOMAIN_LAND)
+						{
+							iEnemyLand++;
+							if(pLoopUnit->plot()->isVisible(m_pPlayer->getTeam()))
+							{
+								iEnemyLand++;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	if(iEnemyWater > iEnemyLand)
+	{
+		m_iCurrentWarFocus = 2;
+	}
+	else
+	{
+		m_iCurrentWarFocus = 1;
 	}
 }
 #endif

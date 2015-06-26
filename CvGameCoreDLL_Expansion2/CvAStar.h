@@ -555,6 +555,10 @@ void TradePathUninitialize(const void* pointer, CvAStar* finder);
 int GetIncreasedMoveRangeForRoads(const CvUnit* pUnit, int iRange);
 #endif // AUI_ASTAR_ROAD_RANGE
 
+#if defined(MOD_BALANCE_CORE)
+bool IsPlotConnectedToPlot(PlayerTypes ePlayer, CvPlot* pFromPlot, CvPlot* pToPlot, RouteTypes eRestrictRoute = NO_ROUTE, bool bIgnoreHarbors = false);
+#endif
+
 // Derived classes (for more convenient access to pathfinding)
 class CvTwoLayerPathFinder: public CvAStar
 {

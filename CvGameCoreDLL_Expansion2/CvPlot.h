@@ -201,11 +201,6 @@ public:
 	CvUnit* plotCheck(ConstPlotUnitFunc funcA, int iData1A = -1, int iData2A = -1, PlayerTypes eOwner = NO_PLAYER, TeamTypes eTeam = NO_TEAM, ConstPlotUnitFunc funcB = NULL, int iData1B = -1, int iData2B = -1);
 	const CvUnit* plotCheck(ConstPlotUnitFunc funcA, int iData1A = -1, int iData2A = -1, PlayerTypes eOwner = NO_PLAYER, TeamTypes eTeam = NO_TEAM, ConstPlotUnitFunc funcB = NULL, int iData1B = -1, int iData2B = -1) const;
 
-// How many times does a vector contain this plot?
-#ifdef AUI_DANGER_PLOTS_REMADE
-	int getNumTimesInList(const DangerPlotList& aPlotList, bool bTerminateAfterFirst) const;
-#endif
-
 	bool isOwned() const;
 	bool isBarbarian() const;
 	bool isRevealedBarbarian() const;
@@ -1114,6 +1109,18 @@ struct SPlotWithScore
 
 	CvPlot* pPlot;
 	int score;
+};
+struct SPlotWithTwoScores
+{
+	SPlotWithTwoScores(CvPlot* pPlot_, int score1_, int score2_) : pPlot(pPlot_), score1(score1_), score2(score2_) {}
+
+	bool operator<(const SPlotWithTwoScores& other) const
+    {
+        return score1*score1+score2*score2 < other.score1*other.score1+other.score2*other.score2;
+    }
+
+	CvPlot* pPlot;
+	int score1,score2;
 };
 #endif
 

@@ -554,4 +554,11 @@
 			<ResourceQuantityModifier>100</ResourceQuantityModifier>
 		</Row>
 	</Trait_ResourceQuantityModifiers>
+	<!-- England -->
+	<Unit_FreePromotions>
+		<Row>
+			<UnitType>UNIT_ENGLISH_SHIPOFTHELINE</UnitType>
+			<PromotionType>PROMOTION_SECOND_ATTACK</PromotionType>
+		</Row>
+	</Unit_FreePromotions>
 </GameData>

@@ -651,6 +651,11 @@ public:
 	void SetNationalMissionaries(int iValue);
 #endif
 #if defined(MOD_BALANCE_CORE)
+	void ChangeBorderObstacleCity(int iNewValue);
+	int GetBorderObstacleCity() const;
+	void SetBorderObstacleCity(int iValue);
+#endif
+#if defined(MOD_BALANCE_CORE)
 	bool IsOwedChosenBuilding(BuildingClassTypes eBuildingClass) const;
 	void SetOwedChosenBuilding(BuildingClassTypes eBuildingClass, bool bNewValue);
 #endif
@@ -820,6 +825,32 @@ public:
 	int GetReligiousTradeModifier() const;
 	void ChangeReligiousTradeModifier(int iChange);
 	void SetReligiousTradeModifier(int iValue);
+
+	int GetFreeBuildingTradeTargetCity() const;
+	void ChangeFreeBuildingTradeTargetCity(int iChange);
+	void SetFreeBuildingTradeTargetCity(int iValue);
+
+	int GetCorporationYieldChange(YieldTypes eIndex) const;
+	void ChangeCorporationYieldChange(YieldTypes eIndex, int iChange);
+	void SetCorporationYieldChange(YieldTypes eIndex, int iValue);
+
+	int GetCorporationYieldModChange(YieldTypes eIndex) const;
+	void ChangeCorporationYieldModChange(YieldTypes eIndex, int iChange);
+	void SetCorporationYieldModChange(YieldTypes eIndex, int iValue);
+
+	int GetCorporationGPChange() const;
+	void ChangeCorporationGPChange(int iChange);
+	void SetCorporationGPChange(int iValue);
+
+	bool IsFranchised(PlayerTypes ePlayer);
+	void SetFranchised(PlayerTypes ePlayer, bool bValue);
+
+	bool HasOffice();
+	void SetHasOffice(bool bValue);
+
+	int GetCorporationResourceQuantity(ResourceTypes eResource) const;
+	void ChangeCorporationResourceQuantity(ResourceTypes eResource, int iChange);
+	void SetCorporationResourceQuantity(ResourceTypes eResource, int iValue);
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
 	void ChangeBlockBuildingDestruction(int iNewValue);
@@ -1306,9 +1337,11 @@ protected:
 	FAutoVariable<int, CvCity> m_iUnhappyCitizen;
 	FAutoVariable<int, CvCity> m_iPurchaseCooldown;
 	FAutoVariable<int, CvCity> m_iReligiousTradeModifier;
+	FAutoVariable<int, CvCity> m_iFreeBuildingTradeTargetCity;
 	FAutoVariable<int, CvCity> m_iBaseTourism;
 	FAutoVariable<int, CvCity> m_iBaseTourismBeforeModifiers;
 	FAutoVariable<int, CvCity> m_iNationalMissionaries;
+	FAutoVariable<int, CvCity> m_iBorderObstacleCity;
 #endif
 #if defined(MOD_BALANCE_CORE)
 	FAutoVariable<int, CvCity> m_iBlockBuildingDestruction;
@@ -1339,6 +1372,10 @@ protected:
 	FAutoVariable<std::vector<int>, CvCity> m_aiBaseYieldRateFromReligion;
 #if defined(MOD_BALANCE_CORE)
 	FAutoVariable<std::vector<int>, CvCity> m_aiBaseYieldRateFromCSAlliance;
+	FAutoVariable<std::vector<int>, CvCity> m_aiCorporationYieldChange;
+	FAutoVariable<std::vector<int>, CvCity> m_aiCorporationYieldModChange;
+	FAutoVariable<int, CvCity> m_iCorporationGPChange;
+	FAutoVariable<std::vector<int>, CvCity> m_aiCorporationResourceQuantity;
 #endif
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldRateModifier;
 	FAutoVariable<std::vector<int>, CvCity> m_aiYieldPerPop;
@@ -1351,6 +1388,10 @@ protected:
 	FAutoVariable<std::vector<int>, CvCity> m_aiDomainProductionModifier;
 
 	FAutoVariable<std::vector<bool>, CvCity> m_abEverOwned;
+#if defined(MOD_BALANCE_CORE)
+	FAutoVariable<std::vector<bool>, CvCity> m_abFranchised;
+	FAutoVariable<bool, CvCity> m_bHasOffice;
+#endif
 	FAutoVariable<std::vector<bool>, CvCity> m_abRevealed;
 
 	FAutoVariable<CvString, CvCity> m_strScriptData;

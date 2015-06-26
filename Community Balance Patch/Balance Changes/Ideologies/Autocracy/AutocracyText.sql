@@ -19,7 +19,7 @@ WHERE Tag = 'TXT_KEY_POLICY_ELITE_FORCES_HELP' AND EXISTS (SELECT * FROM COMMUNI
 -- Fortified Borders
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]New World Order[ENDCOLOR][NEWLINE]Reduces [ICON_HAPPINESS_3] Disorder in all Cities by 20%. Police Stations and Constabularies provide +3 [ICON_CULTURE] Culture and +5 [ICON_PRODUCTION] Production.'
+SET Text = '[COLOR_POSITIVE_TEXT]New World Order[ENDCOLOR][NEWLINE]Reduces [ICON_HAPPINESS_3] Crime in all Cities by 20%. Police Stations and Constabularies provide +3 [ICON_CULTURE] Culture and +5 [ICON_PRODUCTION] Production.'
 WHERE Tag = 'TXT_KEY_POLICY_FORTIFIED_BORDERS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US

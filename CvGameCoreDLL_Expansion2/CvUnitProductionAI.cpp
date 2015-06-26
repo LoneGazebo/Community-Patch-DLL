@@ -10,6 +10,9 @@
 #include "CvUnitProductionAI.h"
 #include "CvGameCoreUtils.h"
 #include "CvInfosSerializationHelper.h"
+#if defined(MOD_BALANCE_CORE)
+#include "CvMilitaryAI.h"
+#endif
 // include this after all other headers
 #include "LintFree.h"
 
@@ -156,7 +159,7 @@ int CvUnitProductionAI::GetWeight(UnitTypes eUnit)
 
 /// Recommend highest-weighted unit
 #if defined(MOD_BALANCE_CORE)
-UnitTypes CvUnitProductionAI::RecommendUnit(UnitAITypes eUnitAIType, bool bUsesStrategicResource, bool bForOperation)
+UnitTypes CvUnitProductionAI::RecommendUnit(UnitAITypes eUnitAIType, bool bUsesStrategicResource, bool bForOperation, CvArmyAI* pArmy)
 #else
 UnitTypes CvUnitProductionAI::RecommendUnit(UnitAITypes eUnitAIType)
 #endif
@@ -200,7 +203,7 @@ UnitTypes CvUnitProductionAI::RecommendUnit(UnitAITypes eUnitAIType)
 			{
 				continue;
 			}
-			if(!CheckUnitBuildSanity(eUnit, bForOperation))
+			if(!CheckUnitBuildSanity(eUnit, bForOperation, pArmy))
 			{
 				continue;
 			}
@@ -216,6 +219,14 @@ UnitTypes CvUnitProductionAI::RecommendUnit(UnitAITypes eUnitAIType)
 					iWeight = CityStrategyAIHelpers::ReweightByTurnsLeft(m_UnitAIWeights.GetWeight(eUnit), iTurnsLeft);
 #if defined(MOD_BALANCE_CORE)
 					iWeight += GetWeight(eUnit);
+					if(GET_PLAYER(m_pCity->getOwner()).GetMilitaryAI()->GetWarType() == 1 && pkUnitInfo && pkUnitInfo->GetDomainType() == DOMAIN_LAND)
+					{
+						iWeight *= 2;
+					}
+					if(GET_PLAYER(m_pCity->getOwner()).GetMilitaryAI()->GetWarType() == 2 && pkUnitInfo && pkUnitInfo->GetDomainType() == DOMAIN_SEA)
+					{
+						iWeight *= 2;
+					}
 					if(iWeight > 0)
 					{
 #endif
@@ -245,7 +256,7 @@ UnitTypes CvUnitProductionAI::RecommendUnit(UnitAITypes eUnitAIType)
 }
 
 #if defined(MOD_BALANCE_CORE)
-bool CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation)
+bool CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation, CvArmyAI* pArmy)
 {
 	bool bOperationalOverride = false;
 	CvUnitEntry* pkUnitEntry = GC.getUnitInfo(eUnit);
@@ -283,7 +294,22 @@ bool CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperatio
 		else // this should never happen, but...
 			return false;
 	}
-
+	//Sanity check for city-attack only units
+	if(pkUnitEntry->IsCityAttackOnly())
+	{
+		if(pArmy != NULL && pArmy->GetGoalPlot() != NULL)
+		{
+			if(!pArmy->GetGoalPlot()->isCity() || ((pArmy->GetGoalPlot()->getOwner() != m_pCity->getOwner()) && (pArmy->GetGoalPlot()->getOwner() != NO_PLAYER)))
+			{
+				return false;
+			}
+		}
+		//Should only build city attack units if we're actually building an army to use them.
+		else if(pArmy == NULL)
+		{
+			return false;
+		}
+	}
 	// todo: add other sanity checks
 
 	return true;

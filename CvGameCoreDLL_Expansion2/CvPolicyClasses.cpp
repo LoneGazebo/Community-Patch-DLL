@@ -4293,6 +4293,11 @@ void CvPlayerPolicies::DoSwitchToPolicyBranch(PolicyBranchTypes eBranchType)
 		// Anarchy time!
 		int iNumTurnsAnarchy = /*1*/ GC.getSWITCH_POLICY_BRANCHES_ANARCHY_TURNS();
 		GetPlayer()->ChangeAnarchyNumTurns(iNumTurnsAnarchy);
+#if defined(MOD_BALANCE_CORE)
+		Localization::String strSummary = Localization::Lookup("TXT_KEY_ANARCHY_BEGINS_SUMMARY");
+		Localization::String strMessage = Localization::Lookup("TXT_KEY_ANARCHY_BEGINS");
+		GetPlayer()->GetNotifications()->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), GetPlayer()->GetID(), GC.getSWITCH_POLICY_BRANCHES_ANARCHY_TURNS(), -1);
+#endif
 
 		// Turn off blocking
 		SetPolicyBranchBlocked(eBranchType, false);

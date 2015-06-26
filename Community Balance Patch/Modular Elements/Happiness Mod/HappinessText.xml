@@ -11,7 +11,7 @@
 			<Text>{1_Num} from [ICON_CULTURE] Boredom.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TP_UNHAPPINESS_DEFENSE">
-			<Text>{1_Num} from [ICON_STRENGTH] Disorder.</Text>
+			<Text>{1_Num} from [ICON_STRENGTH] Crime.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TP_UNHAPPINESS_GOLD">
 			<Text>{1_Num} from [ICON_GOLD] Poverty.</Text>
@@ -50,7 +50,7 @@
 			<Text>[ICON_BULLET] [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] from Boredom ([ICON_CULTURE]). [NEWLINE]          Produces: [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR] [ICON_CULTURE] per [ICON_CITIZEN][NEWLINE]          Needs: [COLOR_POSITIVE_TEXT]{3_Num}[ENDCOLOR] [ICON_CULTURE]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DEFENSE_UNHAPPINESS">
-			<Text>[ICON_BULLET] [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] from Disorder ([ICON_STRENGTH]). [NEWLINE]          Produces: [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR] [ICON_STRENGTH] per [ICON_CITIZEN][NEWLINE]          Needs: [COLOR_POSITIVE_TEXT]{3_Num}[ENDCOLOR] [ICON_STRENGTH]</Text>
+			<Text>[ICON_BULLET] [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] from Crime ([ICON_STRENGTH]). [NEWLINE]          Produces: [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR] [ICON_STRENGTH] per [ICON_CITIZEN][NEWLINE]          Needs: [COLOR_POSITIVE_TEXT]{3_Num}[ENDCOLOR] [ICON_STRENGTH]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GOLD_UNHAPPINESS">
 			<Text>[ICON_BULLET] [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] from Poverty ([ICON_GOLD]). [NEWLINE]          Produces: [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR] [ICON_GOLD] per [ICON_CITIZEN][NEWLINE]          Needs: [COLOR_POSITIVE_TEXT]{3_Num}[ENDCOLOR] [ICON_GOLD]</Text>
@@ -98,7 +98,7 @@
 			<Text>[COLOR_NEGATIVE_TEXT]({1_Num})[ENDCOLOR] [ICON_CITIZEN]: "We are [ICON_RESEARCH] illiterate!"</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EO_CITY_UNDEFENDED">
-			<Text>[COLOR_NEGATIVE_TEXT]({1_Num})[ENDCOLOR] [ICON_CITIZEN]: "This city is [ICON_STRENGTH] unsafe!"</Text>
+			<Text>[COLOR_NEGATIVE_TEXT]({1_Num})[ENDCOLOR] [ICON_CITIZEN]: "This city is [ICON_STRENGTH] dangerous!"</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EO_CITY_POOR">
 			<Text>[COLOR_NEGATIVE_TEXT]({1_Num})[ENDCOLOR] [ICON_CITIZEN]: "We are [ICON_GOLD] impoverished!"</Text>

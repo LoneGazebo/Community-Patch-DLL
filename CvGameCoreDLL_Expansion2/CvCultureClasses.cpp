@@ -1166,8 +1166,11 @@ void CvPlayerCulture::DoSwapGreatWorks()
 				}
 			}
 		}
+#if defined(MOD_BALANCE_CORE)
+		pLoopCity->GetCityCulture()->CalculateBaseTourismBeforeModifiers();
+		pLoopCity->GetCityCulture()->CalculateBaseTourism();
+#endif
 	}
-
 #if defined(MOD_GLOBAL_GREATWORK_YIELDTYPES)
 	MoveWorks (CvTypes::getGREAT_WORK_SLOT_LITERATURE(), aGreatWorkBuildingsWriting, aGreatWorksWriting, aNull, eFocusYield);
 	MoveWorks (CvTypes::getGREAT_WORK_SLOT_ART_ARTIFACT(), aGreatWorkBuildingsArt, aGreatWorksArt, aGreatWorksArtifacts, eFocusYield);
@@ -3572,44 +3575,63 @@ void CvPlayerCulture::AddTourismAllKnownCivs(int iTourism)
 /// What is our war weariness value?
 int CvPlayerCulture::ComputeWarWeariness()
 {
-	MilitaryAIStrategyTypes eStrategyFightAWar = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_AT_WAR");
-	if(m_pPlayer->GetMilitaryAI()->GetNumberCivsAtWarWith(false) <= 0)
+	int iWarTurns = 0;
+	int iMostWarTurns = 0;
+	// Look at each civ and get longest war.
+	for (int iLoopPlayer = 0; iLoopPlayer < MAX_MAJOR_CIVS; iLoopPlayer++)
+	{
+		CvPlayer &kPlayer = GET_PLAYER((PlayerTypes)iLoopPlayer);
+		if (iLoopPlayer != m_pPlayer->GetID() && kPlayer.isAlive() && !kPlayer.isMinorCiv() && !kPlayer.isBarbarian())
+		{
+			if(GET_TEAM(kPlayer.getTeam()).isAtWar(m_pPlayer->getTeam()))
+			{
+				if(m_pPlayer->GetDiplomacyAI()->GetPlayerNumTurnsAtWar(kPlayer.GetID()) > 0)
+				{
+					iWarTurns = m_pPlayer->GetDiplomacyAI()->GetPlayerNumTurnsAtWar(kPlayer.GetID());
+					if(iWarTurns > iMostWarTurns)
+					{
+						iMostWarTurns = iWarTurns;
+					}
+				}
+			}
+		}
+	}
+	if(iMostWarTurns > 0)
+	{
+		int iTotalPop = m_pPlayer->getTotalPopulation();
+	
+		int iChance = GC.getGame().getJonRandNum((iTotalPop * 4), "Roll for war weariness increase!");
+			
+		iChance *= (m_pPlayer->GetWarWearinessModifier() + 100);
+		iChance /= 100;
+
+		if(iChance <= iMostWarTurns)
+		{
+			m_iWarWeariness += 1;
+		}
+		if(m_iWarWeariness >= (iTotalPop / 4))
+		{
+			m_iWarWeariness = (iTotalPop / 4);
+		}
+		return m_iWarWeariness;
+	}
+	else
 	{
 		if(m_iWarWeariness > 0)
 		{
-			m_iWarWeariness -= GC.getGame().getJonRandNum(6, "Roll for war weariness reduction!");
+			m_iWarWeariness -= GC.getGame().getJonRandNum(10, "Roll for war weariness reduction!");
 		}
-		if(m_iWarWeariness <= 0)
+		else if(m_iWarWeariness <= 0)
+		{
+			m_iWarWeariness = 0;
+		}
+		else
 		{
 			m_iWarWeariness = 0;
 		}
 
 		return m_iWarWeariness;
 	}
-	else
-	{
-		int iWarTurns = 0;
-		int iTotalPop = m_pPlayer->getTotalPopulation();
-		if(m_pPlayer->GetMilitaryAI()->IsUsingStrategy(eStrategyFightAWar))
-		{
-			iWarTurns = m_pPlayer->GetMilitaryAI()->GetTurnStrategyAdopted(eStrategyFightAWar);
-		}
-		int iCurrentTurn = GC.getGame().getGameTurn();
-		int iChance = GC.getGame().getJonRandNum((iTotalPop * 2), "Roll for war weariness increase!");
-			
-		iChance *= (m_pPlayer->GetWarWearinessModifier() + 100);
-		iChance /= 100;
-
-		if(iChance < (iCurrentTurn - iWarTurns))
-		{
-			m_iWarWeariness += 1;
-		}
-		if(m_iWarWeariness > (iTotalPop / 5))
-		{
-			m_iWarWeariness = (iTotalPop / 5);
-		}
-	}
-	return m_iWarWeariness;
 }
 #endif
 /// Once per turn calculation of public opinion data

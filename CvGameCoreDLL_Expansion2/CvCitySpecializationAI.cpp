@@ -733,11 +733,24 @@ void CvCitySpecializationAI::AssignSpecializations()
 					{
 						cityData.m_iWeight[iI] = PlotValueForScience(pLoopCity->plot()); // -- BKW, looks like PlotValueForScience is making some assumptions that are no longer true
 					}
+#if defined(MOD_BALANCE_CORE)
+					else if (iI == YIELD_CULTURE)
+					{
+						cityData.m_iWeight[iI] = PlotValueForCulture(pLoopCity->plot()); 
+					}
+					else if (iI == YIELD_FAITH)
+					{
+						cityData.m_iWeight[iI] = PlotValueForFaith(pLoopCity->plot());
+					}
+#endif
 					else
 					{
 						cityData.m_iWeight[iI] = PlotValueForSpecificYield(pLoopCity->plot(), (YieldTypes)iI);
 					}
 					cityData.m_iWeight[iI] = AdjustValueBasedOnBuildings(pLoopCity, (YieldTypes)iI, cityData.m_iWeight[iI]);
+#if defined(MOD_BALANCE_CORE)
+					cityData.m_iWeight[iI] += AdjustValueBasedOnHappiness(pLoopCity, (YieldTypes)iI, cityData.m_iWeight[iI]);
+#endif
 					if(cityData.m_iWeight[iI] < 0)
 					{
 						cityData.m_iWeight[iI] = 0;
@@ -1226,7 +1239,7 @@ void CvCitySpecializationAI::FindBestSites()
 	int iTimeOffset = (30 * GC.getGame().getGameTurn()) / max(500, GC.getGame().getMaxTurns());
 
 	//basic search area around existing cities. value at eval distance is scaled to zero.
-	int iEvalDistance = 6 + iTimeOffset;
+	int iEvalDistance = (GC.getSETTLER_EVALUATION_DISTANCE() / 2) + iTimeOffset;
 #else
 	int iEvalDistance = GC.getSETTLER_EVALUATION_DISTANCE() / 2;
 #endif
@@ -1246,9 +1259,32 @@ void CvCitySpecializationAI::FindBestSites()
 				{
 #if defined(MOD_BALANCE_CORE)
 					for(int iI = 0; iI <= YIELD_FAITH; iI++)
+					{
+						if(iI == YIELD_SCIENCE)
+						{
+							iPlotValue = PlotValueForScience(pPlot);
+						}
+						else if(iI == YIELD_CULTURE)
+						{
+							iPlotValue = PlotValueForCulture(pPlot);
+						}
+						else if(iI == YIELD_FAITH)
+						{
+							iPlotValue = PlotValueForFaith(pPlot);
+						}
+						else
+						{
+							iPlotValue = PlotValueForSpecificYield(pPlot, (YieldTypes)iI);
+						}
+
+						if(iPlotValue > m_iBestValue[iI])
+						{
+							m_iBestValue[iI] = iPlotValue;
+						}
+					}
 #else
 					for(int iI = 0; iI <= YIELD_SCIENCE; iI++)
-#endif
+
 					{
 						if(iI != YIELD_SCIENCE)
 						{
@@ -1264,6 +1300,7 @@ void CvCitySpecializationAI::FindBestSites()
 							m_iBestValue[iI] = iPlotValue;
 						}
 					}
+#endif
 				}
 			}
 		}
@@ -1441,7 +1478,180 @@ int CvCitySpecializationAI::PlotValueForScience(CvPlot* pPlot)
 #endif
 	return iTotalFoodYield + iTotalClearTileWeight;
 }
+#if defined(MOD_BALANCE_CORE)
+/// Evaluate strength of a city plot for providing culture
+int CvCitySpecializationAI::PlotValueForCulture(CvPlot* pPlot)
+{
+	// Roughly half of weight comes from food yield
+	// The other half will be are there open tiles we can easily build schools on
+	int iTotalFoodYield = 0;
+	int iTotalClearTileWeight = 0;
+	int iMultiplier = 0;
+	int iPotentialYield = 0;
+	int iFirstRingMultiplier = GC.getAI_CITY_SPECIALIZATION_YIELD_WEIGHT_FIRST_RING();
+	int iSecondRingMultiplier = GC.getAI_CITY_SPECIALIZATION_YIELD_WEIGHT_SECOND_RING();
+	int iThirdRingMultiplier = GC.getAI_CITY_SPECIALIZATION_YIELD_WEIGHT_THIRD_RING();
+	// Evaluate potential from plots not currently being worked
+	for(int iI = 0; iI < GC.getAI_CITY_SPECIALIZATION_YIELD_NUM_TILES_CONSIDERED(); iI++)
+	{
+		if(iI != CITY_HOME_PLOT)
+		{
+			CvPlot* pLoopPlot = plotCity(pPlot->getX(), pPlot->getY(), iI);
+			if(pLoopPlot != NULL)
+			{
+				// If owned by someone else, not worth anything
+				if(pLoopPlot->isOwned() && pLoopPlot->getOwner() != m_pPlayer->GetID())
+				{
+					iPotentialYield = 0;
+					iTotalClearTileWeight = 0;
+				}
+				else if(pLoopPlot->getImprovementType() != NO_IMPROVEMENT)
+				{
+					iPotentialYield = pLoopPlot->getYield(YIELD_CULTURE) + pLoopPlot->getYield(YIELD_FOOD);
+				}
 
+				else if(pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
+				{
+					iTotalClearTileWeight = pLoopPlot->getYield(YIELD_CULTURE) + pLoopPlot->getYield(YIELD_FOOD);
+					iTotalClearTileWeight *= 2;
+				}
+				if(iPotentialYield > 0 || iTotalClearTileWeight > 0)
+				{
+					int iDistance = plotDistance(pLoopPlot->getX(), pLoopPlot->getY(), pPlot->getX(), pPlot->getY());
+					if(iDistance == 1)
+					{
+						iMultiplier = iFirstRingMultiplier;
+					}
+					else if(iDistance == 2)
+					{
+						iMultiplier = iSecondRingMultiplier;
+					}
+					else if(iDistance == 3)
+					{
+						iMultiplier = iThirdRingMultiplier;
+					}
+
+					iTotalFoodYield += iPotentialYield * iMultiplier;
+				}
+			}
+		}
+	}
+	return iTotalFoodYield + iTotalClearTileWeight; 
+}
+/// Evaluate strength of a city plot for providing faith
+int CvCitySpecializationAI::PlotValueForFaith(CvPlot* pPlot)
+{
+	// Roughly half of weight comes from food yield
+	// The other half will be are there open tiles we can easily build schools on
+	int iTotalFoodYield = 0;
+	int iTotalClearTileWeight = 0;
+	int iMultiplier = 0;
+	int iPotentialYield = 0;
+	int iFirstRingMultiplier = GC.getAI_CITY_SPECIALIZATION_YIELD_WEIGHT_FIRST_RING();
+	int iSecondRingMultiplier = GC.getAI_CITY_SPECIALIZATION_YIELD_WEIGHT_SECOND_RING();
+	int iThirdRingMultiplier = GC.getAI_CITY_SPECIALIZATION_YIELD_WEIGHT_THIRD_RING();
+	// Evaluate potential from plots not currently being worked
+	for(int iI = 0; iI < GC.getAI_CITY_SPECIALIZATION_YIELD_NUM_TILES_CONSIDERED(); iI++)
+	{
+		if(iI != CITY_HOME_PLOT)
+		{
+			CvPlot* pLoopPlot = plotCity(pPlot->getX(), pPlot->getY(), iI);
+			if(pLoopPlot != NULL)
+			{
+				// If owned by someone else, not worth anything
+				if(pLoopPlot->isOwned() && pLoopPlot->getOwner() != m_pPlayer->GetID())
+				{
+					iPotentialYield = 0;
+					iTotalClearTileWeight = 0;
+				}
+				else if(pLoopPlot->getImprovementType() != NO_IMPROVEMENT)
+				{
+					iPotentialYield = pLoopPlot->getYield(YIELD_FAITH) + pLoopPlot->getYield(YIELD_FOOD);
+				}
+
+				else if(pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
+				{
+					iTotalClearTileWeight = pLoopPlot->getYield(YIELD_FAITH) + pLoopPlot->getYield(YIELD_FOOD);
+					iTotalClearTileWeight *= 2;
+				}
+				if(iPotentialYield > 0 || iTotalClearTileWeight > 0)
+				{
+					int iDistance = plotDistance(pLoopPlot->getX(), pLoopPlot->getY(), pPlot->getX(), pPlot->getY());
+					if(iDistance == 1)
+					{
+						iMultiplier = iFirstRingMultiplier;
+					}
+					else if(iDistance == 2)
+					{
+						iMultiplier = iSecondRingMultiplier;
+					}
+					else if(iDistance == 3)
+					{
+						iMultiplier = iThirdRingMultiplier;
+					}
+
+					iTotalFoodYield += iPotentialYield * iMultiplier;
+				}
+			}
+		}
+	}
+	return iTotalFoodYield + iTotalClearTileWeight;
+}
+#endif
+#if defined(MOD_BALANCE_CORE)
+int CvCitySpecializationAI::AdjustValueBasedOnHappiness(CvCity* pCity, YieldTypes eYield, int iInitialValue)
+{
+	int iRtnValue = 0;
+	if(eYield == YIELD_GOLD)
+	{
+		int iValue = (pCity->getUnhappinessFromGold() * 10);
+		if(iValue > 0)
+		{
+			iRtnValue = ((iInitialValue * (100 + iValue)) / 100);
+		}
+		iValue = (GET_PLAYER(pCity->getOwner()).GetTreasury()->CalculateBaseNetGoldTimes100());
+		iValue /= 100;
+		if(iValue < 0)
+		{
+			iRtnValue = iInitialValue * (100 + (iValue * -1)) / 100;
+		}
+
+	}
+	else if(eYield == YIELD_FOOD)
+	{
+		int iValue = (pCity->getUnhappinessFromStarving() * 10);
+		if(iValue > 0)
+		{
+			iRtnValue = iInitialValue * (100 + iValue) / 100;
+		}
+	}
+	else if(eYield == YIELD_CULTURE)
+	{
+		int iValue = (pCity->getUnhappinessFromCulture() * 10);
+		if(iValue > 0)
+		{
+			iRtnValue = iInitialValue * (100 + iValue) / 100;
+		}
+	}
+	else if(eYield == YIELD_SCIENCE)
+	{
+		int iValue = (pCity->getUnhappinessFromScience() * 10);
+		if(iValue > 0)
+		{
+			iRtnValue = iInitialValue * (100 + iValue) / 100;
+		}
+	}
+	else if(eYield == YIELD_FAITH)
+	{
+		int iValue = (pCity->getUnhappinessFromMinority() * 10);
+		if(iValue > 0)
+		{
+			iRtnValue = iInitialValue * (100 + iValue) / 100;
+		}
+	}
+	return iRtnValue;
+}
+#endif
 /// Multiply city value for a yield based on buildings present
 int CvCitySpecializationAI::AdjustValueBasedOnBuildings(CvCity* pCity, YieldTypes eYield, int iInitialValue)
 {
@@ -1475,8 +1685,8 @@ int CvCitySpecializationAI::AdjustValueBasedOnBuildings(CvCity* pCity, YieldType
 	iYieldChanges = pCity->GetBaseYieldRateFromGreatWorks(eYield);
 	if(iYieldChanges > 0)
 	{
-		// +20% per point of yield change
-		iRtnValue = iRtnValue * (100 + (iYieldChanges * 20)) / 100;
+		// +10% per point of yield change
+		iRtnValue = iRtnValue * (100 + (iYieldChanges * 10)) / 100;
 	}
 	iYieldChanges = pCity->GetGrowthExtraYield(eYield);
 	if(iYieldChanges > 0)
@@ -1493,26 +1703,26 @@ int CvCitySpecializationAI::AdjustValueBasedOnBuildings(CvCity* pCity, YieldType
 	iYieldChanges = pCity->GetBaseYieldRateFromCSAlliance(eYield);
 	if(iYieldChanges > 0)
 	{
-		// +25% per point of yield change
-		iRtnValue = iRtnValue * (100 + (iYieldChanges * 25)) / 100;
+		// +15% per point of yield change
+		iRtnValue = iRtnValue * (100 + (iYieldChanges * 15)) / 100;
 	}
 	iYieldChanges = pCity->GetBaseYieldRateFromSpecialists(eYield);
 	if(iYieldChanges > 0)
 	{
+		// +15% per point of yield change
+		iRtnValue = iRtnValue * (100 + (iYieldChanges * 15)) / 100;
+	}
+	iYieldChanges = pCity->GetBaseYieldRateFromMisc(eYield);
+	if(iYieldChanges > 0)
+	{
+		// +10% per point of yield change
+		iRtnValue = iRtnValue * (100 + (iYieldChanges * 10)) / 100;
+	}
+	iYieldChanges = pCity->GetCorporationYieldChange(eYield);
+	if(iYieldChanges > 0)
+	{
 		// +25% per point of yield change
 		iRtnValue = iRtnValue * (100 + (iYieldChanges * 25)) / 100;
-	}
-	iYieldChanges = pCity->GetBaseYieldRateFromMisc(eYield);
-	if(iYieldChanges > 0)
-	{
-		// +10% per point of yield change
-		iRtnValue = iRtnValue * (100 + (iYieldChanges * 10)) / 100;
-	}
-	iYieldChanges = pCity->GetBaseYieldRateFromMisc(eYield);
-	if(iYieldChanges > 0)
-	{
-		// +10% per point of yield change
-		iRtnValue = iRtnValue * (100 + (iYieldChanges * 10)) / 100;
 	}
 #endif
 
@@ -1535,15 +1745,15 @@ int CvCitySpecializationAI::AdjustValueBasedOnBuildings(CvCity* pCity, YieldType
 #if defined(MOD_BALANCE_CORE)
 		if(pCity->getDomainFreeExperience(DOMAIN_LAND) > 0)
 		{
-			iRtnValue += pCity->getDomainFreeExperience(DOMAIN_LAND);
+			iRtnValue = iRtnValue * (100 + (pCity->getDomainFreeExperience(DOMAIN_LAND) * 10)) / 100;
 		}
 		if(pCity->getDomainFreeExperience(DOMAIN_AIR) > 0)
 		{
-			iRtnValue += pCity->getDomainFreeExperience(DOMAIN_AIR);
+			iRtnValue = iRtnValue * (100 + (pCity->getDomainFreeExperience(DOMAIN_AIR) * 10)) / 100;
 		}
 		if(pCity->getDomainFreeExperience(DOMAIN_SEA) > 0)
 		{
-			iRtnValue += pCity->getDomainFreeExperience(DOMAIN_SEA);
+			iRtnValue = iRtnValue * (100 + (pCity->getDomainFreeExperience(DOMAIN_SEA) * 10)) / 100;
 		}
 #else
 		if(pCity->getDomainFreeExperience(DOMAIN_LAND) > 0)
@@ -1560,9 +1770,21 @@ int CvCitySpecializationAI::AdjustValueBasedOnBuildings(CvCity* pCity, YieldType
 		break;
 #if defined(MOD_BALANCE_CORE)
 	case YIELD_CULTURE:
+		iYieldChanges = pCity->getCultureRateModifier();
+		if(iYieldChanges > 0)
+		{
+			// +15% per point of yield change
+			iRtnValue = iRtnValue * (100 + (iYieldChanges * 15)) / 100;
+		}
 		break;
 
 	case YIELD_FAITH:
+		iYieldChanges = pCity->GetFaithPerTurnFromBuildings();
+		if(iYieldChanges > 0)
+		{
+			// +15% per point of yield change
+			iRtnValue = iRtnValue * (100 + (iYieldChanges * 15)) / 100;
+		}
 		break;
 #endif
 	}

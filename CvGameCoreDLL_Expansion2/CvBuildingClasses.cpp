@@ -51,6 +51,12 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_bAllowsPuppetPurchase(false),
 	m_iNationalMissionaries(0),
 	m_iGetCooldown(0),
+	m_iFreeBuildingTradeTargetCity(NO_BUILDINGCLASS),
+	m_iCorporationID(0),
+	m_iCorporationHQID(0),
+	m_bTradeRouteInvulnerable(false),
+	m_iTRSpeedBoost(0),
+	m_iTRVisionBoost(0),
 #endif
 	m_iSpecialistType(NO_SPECIALIST),
 	m_iSpecialistCount(0),
@@ -217,6 +223,9 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_bFoundsReligion(false),
 	m_bIsReligious(false),
 	m_bBorderObstacle(false),
+#if defined(MOD_BALANCE_CORE)
+	m_iBorderObstacleCity(-1),
+#endif
 	m_bPlayerBorderObstacle(false),
 	m_bCapital(false),
 	m_bGoldenAge(false),
@@ -275,11 +284,17 @@ CvBuildingEntry::CvBuildingEntry(void):
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	m_piResourceMonopolyAnds(NULL),
 	m_piResourceMonopolyOrs(NULL),
+	m_piCorporationYield(NULL),
+	m_piCorporationYieldModTrade(NULL),
+	m_piCorporationTradeRouteMod(NULL),
+	m_iCorporationGPChange(0),
+	m_piCorporationResourceQuantity(NULL),
 #endif
 	m_paiHurryModifier(NULL),
 	m_pbBuildingClassNeededInCity(NULL),
 #if defined(MOD_BALANCE_CORE)
 	m_pbBuildingClassNeededAnywhere(NULL),
+	m_pbBuildingClassNeededNowhere(NULL),
 #endif
 	m_piNumFreeUnits(NULL),
 	m_bArtInfoEraVariation(false),
@@ -352,11 +367,16 @@ CvBuildingEntry::~CvBuildingEntry(void)
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	SAFE_DELETE_ARRAY(m_piResourceMonopolyAnds);
 	SAFE_DELETE_ARRAY(m_piResourceMonopolyOrs);
+	SAFE_DELETE_ARRAY(m_piCorporationYield);
+	SAFE_DELETE_ARRAY(m_piCorporationYieldModTrade);
+	SAFE_DELETE_ARRAY(m_piCorporationTradeRouteMod);
+	SAFE_DELETE_ARRAY(m_piCorporationResourceQuantity);
 #endif
 	SAFE_DELETE_ARRAY(m_paiHurryModifier);
 	SAFE_DELETE_ARRAY(m_pbBuildingClassNeededInCity);
 #if defined(MOD_BALANCE_CORE)
 	SAFE_DELETE_ARRAY(m_pbBuildingClassNeededAnywhere);
+	SAFE_DELETE_ARRAY(m_pbBuildingClassNeededNowhere);
 #endif
 	SAFE_DELETE_ARRAY(m_piNumFreeUnits);
 	SAFE_DELETE_ARRAY(m_paiBuildingClassHappiness);
@@ -461,6 +481,9 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_bFoundsReligion = kResults.GetBool("FoundsReligion");
 	m_bIsReligious = kResults.GetBool("IsReligious");
 	m_bBorderObstacle = kResults.GetBool("BorderObstacle");
+#if defined(MOD_BALANCE_CORE)
+	m_iBorderObstacleCity = kResults.GetInt("BorderObstacleCity");
+#endif
 	m_bPlayerBorderObstacle = kResults.GetBool("PlayerBorderObstacle");
 	m_bCapital = kResults.GetBool("Capital");
 	m_bGoldenAge = kResults.GetBool("GoldenAge");
@@ -645,6 +668,15 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	szTextVal = kResults.GetText("FreeBuildingThisCity");
 	m_iFreeBuildingThisCity = GC.getInfoTypeForString(szTextVal, true);
 
+#if defined(MOD_BALANCE_CORE)
+	szTextVal = kResults.GetText("FreeBuildingTradeTargetCity");
+	m_iFreeBuildingTradeTargetCity = GC.getInfoTypeForString(szTextVal, true);
+	m_iCorporationID = kResults.GetInt("CorporationID");
+	m_iCorporationHQID = kResults.GetInt("CorporationHQID");
+	m_bTradeRouteInvulnerable = kResults.GetBool("TradeRouteInvulnerable");
+	m_iTRSpeedBoost = kResults.GetInt("TRSpeedBoost");
+	m_iTRVisionBoost = kResults.GetInt("TRVisionBoost");
+#endif
 	szTextVal = kResults.GetText("FreePromotion");
 	m_iFreePromotion = GC.getInfoTypeForString(szTextVal, true);
 
@@ -752,6 +784,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	kUtility.PopulateArrayByExistence(m_pbBuildingClassNeededInCity, "BuildingClasses", "Building_ClassesNeededInCity", "BuildingClassType", "BuildingType", szBuildingType);
 #if defined(MOD_BALANCE_CORE)
 	kUtility.PopulateArrayByExistence(m_pbBuildingClassNeededAnywhere, "BuildingClasses", "Building_ClassNeededAnywhere", "BuildingClassType", "BuildingType", szBuildingType);
+	kUtility.PopulateArrayByExistence(m_pbBuildingClassNeededNowhere, "BuildingClasses", "Building_ClassNeededNowhere", "BuildingClassType", "BuildingType", szBuildingType);
 	kUtility.PopulateArrayByValue(m_paiBuildingClassLocalHappiness, "BuildingClasses", "Building_BuildingClassLocalHappiness", "BuildingClassType", "BuildingType", szBuildingType, "Happiness");
 #endif
 	//kUtility.PopulateArrayByExistence(m_piNumFreeUnits, "Units", "Building_FreeUnits", "UnitType", "BuildingType", szBuildingType);
@@ -766,6 +799,14 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	kUtility.PopulateArrayByExistence(m_piResourceMonopolyOrs, "Resources", "Building_ResourceMonopolyOrs", "ResourceType", "BuildingType", szBuildingType);
 	kUtility.PopulateArrayByExistence(m_piResourceMonopolyAnds, "Resources", "Building_ResourceMonopolyAnds", "ResourceType", "BuildingType", szBuildingType);
+
+	kUtility.PopulateArrayByValue(m_piCorporationResourceQuantity, "Resources", "Building_CorporationResourceQuantity", "ResourceType", "BuildingType", szBuildingType, "Quantity");
+	kUtility.SetYields(m_piCorporationYield, "Building_CorporationYield", "BuildingType", szBuildingType);
+	kUtility.SetYields(m_piCorporationYieldModTrade, "Building_CorporationYieldModTrade", "BuildingType", szBuildingType);
+	kUtility.SetYields(m_piCorporationTradeRouteMod, "Building_CorporationTradeRouteMod", "BuildingType", szBuildingType);
+	m_iCorporationGPChange = kResults.GetInt("CorporationGPChange");
+	
+
 #endif
 	//ResourceYieldChanges
 	{
@@ -1226,6 +1267,38 @@ int CvBuildingEntry::GetFreeBuildingThisCity() const
 {
 	return m_iFreeBuildingThisCity;
 }
+#if defined(MOD_BALANCE_CORE)
+/// Free building in the target city for a trade route
+int CvBuildingEntry::GetFreeBuildingTradeTargetCity() const
+{
+	return m_iFreeBuildingTradeTargetCity;
+}
+/// Corporation ID (for global calcs)
+int CvBuildingEntry::GetCorporationID() const
+{
+	return m_iCorporationID;
+}
+/// Corporation ID (for global calcs)
+int CvBuildingEntry::GetCorporationHQID() const
+{
+	return m_iCorporationHQID;
+}
+/// TRs are invulnerable!
+bool CvBuildingEntry::IsTradeRouteInvulnerable() const
+{
+	return m_bTradeRouteInvulnerable;
+}
+/// TRs have speed!
+int CvBuildingEntry::GetTRSpeedBoost() const
+{
+	return m_iTRSpeedBoost;
+}
+/// TRs have vision!
+int CvBuildingEntry::GetTRVisionBoost() const
+{
+	return m_iTRVisionBoost;
+}
+#endif
 
 /// Does this building give all units a promotion for free instantly?
 int CvBuildingEntry::GetFreePromotion() const
@@ -1906,7 +1979,14 @@ bool CvBuildingEntry::IsBorderObstacle() const
 {
 	return m_bBorderObstacle;
 }
+#if defined(MOD_BALANCE_CORE)
+/// Is this an obstacle for just the tiles around your city?
+int CvBuildingEntry::GetBorderObstacleCity() const
+{
+	return m_iBorderObstacleCity;
+}
 
+#endif
 /// Is this an obstacle at the edge of your empire (e.g. Great Wall) -- for just the owning player
 bool CvBuildingEntry::IsPlayerBorderObstacle() const
 {
@@ -2440,6 +2520,53 @@ int CvBuildingEntry::GetResourceMonopolyOr(int i) const
 	CvAssertMsg(i > -1, "Index out of bounds");
 	return m_piResourceMonopolyOrs ? m_piResourceMonopolyOrs[i] : -1;
 }
+/// Corporate building yield.
+int CvBuildingEntry::GetCorporationYieldChange(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piCorporationYield ? m_piCorporationYield[i] : -1;
+}
+/// Corporate building yield.
+int* CvBuildingEntry::GetCorporationYieldChangeArray() const
+{
+	return m_piCorporationYield;
+}
+/// Corporate building yield.
+int CvBuildingEntry::GetCorporationYieldModTrade(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piCorporationYieldModTrade ? m_piCorporationYieldModTrade[i] : -1;
+}
+/// Corporate building yield.
+int* CvBuildingEntry::GetCorporationYieldModTradeArray() const
+{
+	return m_piCorporationYieldModTrade;
+}
+/// Corporate building yield.
+int CvBuildingEntry::GetCorporationTradeRouteMod(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piCorporationTradeRouteMod ? m_piCorporationTradeRouteMod[i] : -1;
+}
+/// Corporate building yield.
+int* CvBuildingEntry::GetCorporationTradeRouteModArray() const
+{
+	return m_piCorporationTradeRouteMod;
+}
+int CvBuildingEntry::GetCorporationGPChange() const
+{
+	return m_iCorporationGPChange;
+}
+/// Resources provided once constructed
+int CvBuildingEntry::GetCorporationResourceQuantity(int i) const
+{
+	CvAssertMsg(i < GC.getNumResourceInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piCorporationResourceQuantity ? m_piCorporationResourceQuantity[i] : -1;
+}
 #endif
 /// Modifier to Hurry cost
 int CvBuildingEntry::GetHurryModifier(int i) const
@@ -2463,6 +2590,13 @@ bool CvBuildingEntry::IsBuildingClassNeededAnywhere(int i) const
 	CvAssertMsg(i < GC.getNumBuildingClassInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 	return m_pbBuildingClassNeededAnywhere ? m_pbBuildingClassNeededAnywhere[i] : false;
+}
+/// Can it only built if there is NOT a building of this class in any owned city?
+bool CvBuildingEntry::IsBuildingClassNeededNowhere(int i) const
+{
+	CvAssertMsg(i < GC.getNumBuildingClassInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_pbBuildingClassNeededNowhere ? m_pbBuildingClassNeededNowhere[i] : false;
 }
 #endif
 /// Free units which appear near the capital
@@ -3109,6 +3243,11 @@ bool CvCityBuildings::IsBuildingSellable(const CvBuildingEntry& kBuilding) const
 #if defined(MOD_BALANCE_CORE)
 	//Spawns a permanent resource? Can't sell.
 	if(kBuilding.GrantsRandomResourceTerritory())
+	{
+		return false;
+	}
+	//Spawns a permanent resource? Can't sell.
+	if(kBuilding.GetCorporationID() > 0)
 	{
 		return false;
 	}

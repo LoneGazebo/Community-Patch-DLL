@@ -64,7 +64,7 @@ function MapGlobals:New()
 	
 
 	--Percent of land tiles on the map.
-	mglobal.landPercent				= 0.57
+	mglobal.landPercent				= 0.56
 	
 	--Top and bottom map latitudes.
 	mglobal.topLatitude				= 70
@@ -79,15 +79,15 @@ function MapGlobals:New()
 
 	
 	--Adjusting these will generate larger or smaller landmasses and features.
-	mglobal.landMinScatter			= 0.03 	--Recommended range:[0.02 to 0.1]
-	mglobal.landMaxScatter			= 0.15	--Recommended range:[0.03 to 0.3]
+	mglobal.landMinScatter			= 0.05 	--Recommended range:[0.02 to 0.1]
+	mglobal.landMaxScatter			= 0.20	--Recommended range:[0.03 to 0.3]
 											--Higher values makes continental divisions and stringy features more likely,
 											--and very high values result in a lot of stringy continents and islands.
 											
 	mglobal.coastScatter			= 0.18 	--Recommended range:[0.01 to 0.3]
 											--Higher values result in more islands and variance on landmasses and coastlines.
 											
-	mglobal.mountainScatter			= 800 * mapW --Recommended range:[130 to 1000]
+	mglobal.mountainScatter			= 700 * mapW --Recommended range:[130 to 1000]
 											--Lower values make large, long, mountain ranges. Higher values make sporadic mountainous features.
 	
 	
@@ -104,7 +104,7 @@ function MapGlobals:New()
 	-- Features
 	mglobal.featurePercent			= 0.51 -- Percent of potential feature tiles that actually create a feature (marsh/jungle/forest)
 	mglobal.featureWetVariance		= 0.15 -- Percent chance increase if freshwater, decrease if dry (groups features near rivers)
-	mglobal.islePercent				= 0.07 -- Percent of coast tiles with an isle
+	mglobal.islePercent				= 0.06 -- Percent of coast tiles with an isle
 	mglobal.numNaturalWonders		= 2 + GameInfo.Worlds[Map.GetWorldSize()].NumNaturalWonders
 	
 	
@@ -119,28 +119,28 @@ function MapGlobals:New()
 	
 	
 	-- Temperature
-	mglobal.jungleMinTemperature	= 0.70 -- jungle:  jungleMinTemperature	to 1
-	mglobal.desertMinTemperature	= 0.40 -- desert:  desertMinTemperature	to 1
+	mglobal.jungleMinTemperature	= 0.72 -- jungle:  jungleMinTemperature	to 1
+	mglobal.desertMinTemperature	= 0.42 -- desert:  desertMinTemperature	to 1
 										   -- grass:      tundraTemperature to 1
 										   -- plains:     tundraTemperature to 1
-	mglobal.tundraTemperature		= 0.35 -- tundra: 		snowTemperature to tundraTemperature
-	mglobal.snowTemperature			= 0.20 -- snow:   					  0 to snowTemperature
-	mglobal.treesMinTemperature		= 0.20 -- trees:	treesMinTemperature to 1
-	mglobal.forestRandomPercent		= 0.05 -- Percent of barren flatland which randomly gets a forest
-	mglobal.forestTundraPercent		= 0.25 -- Percent of barren tundra   which randomly gets a forest
+	mglobal.tundraTemperature		= 0.30 -- tundra: 		snowTemperature to tundraTemperature
+	mglobal.snowTemperature			= 0.18 -- snow:   					  0 to snowTemperature
+	mglobal.treesMinTemperature		= 0.18 -- trees:	treesMinTemperature to 1
+	mglobal.forestRandomPercent		= 0.07 -- Percent of barren flatland which randomly gets a forest
+	mglobal.forestTundraPercent		= 0.30 -- Percent of barren tundra   which randomly gets a forest
 	
 	
 
 	-- Water
-	mglobal.riverPercent			= 0.15	-- Percent of river junctions that are large enough to become rivers.	
+	mglobal.riverPercent			= 0.16	-- Percent of river junctions that are large enough to become rivers.	
 	mglobal.riverRainCheatFactor	= 1.25	-- Values greater than one favor watershed size. Values less than one favor actual rain amount.
 	mglobal.minWaterTemp			= 0.10	-- Sets water temperature compression that creates the land/sea seasonal temperature differences that cause monsoon winds.
 	mglobal.maxWaterTemp			= 0.60	
 	mglobal.geostrophicFactor		= 3.0	-- Strength of latitude climate versus monsoon climate. 
 	mglobal.geostrophicLateralWindStrength = 0.6 
 	mglobal.lakeSize				= 10	-- read-only; cannot change lake sizes with a map script
-	mglobal.oceanMaxWander			= 5		-- number of tiles a rift can randomly wander from its intended path
-	mglobal.oceanElevationWeight	= 0.35	-- higher numbers make oceans avoid continents
+	mglobal.oceanMaxWander			= 1		-- number of tiles a rift can randomly wander from its intended path
+	mglobal.oceanElevationWeight	= 0.31	-- higher numbers make oceans avoid continents
 	mglobal.oceanRiftWidth			= math.max(1, Round(mapW/40)) -- minimum number of ocean tiles in a rift
 	
 											-- percent of map width:
@@ -165,8 +165,8 @@ function MapGlobals:New()
 	-- Quality vs Performance
 	-- Lowering these reduces map quality and creation time.
 	-- Try reducing these slightly if you experience crashes on huge maps
-	mglobal.tempBlendMaxRange		= 9 -- range to smooth temperature map
-	mglobal.elevationBlendRange		= 8 -- range to smooth elevation map
+	mglobal.tempBlendMaxRange		= 10 -- range to smooth temperature map
+	mglobal.elevationBlendRange		= 9 -- range to smooth elevation map
 	
 	
 	
@@ -635,7 +635,7 @@ function DetermineContinents()
 			if plot:IsWater() then
 				plot:SetContinentArtType(contArt.OCEAN)
 			elseif jungleMatch(x,y) then
-				plot:SetContinentArtType(contArt.EUROPE)
+				plot:SetContinentArtType(contArt.ASIA)
 			else
 				plot:SetContinentArtType(contArt.AFRICA)
 			end
@@ -668,9 +668,9 @@ function DetermineContinents()
 			if desertMap.data[i] == largestDesertID then
 				plot:SetContinentArtType(contArt.AFRICA)
 			elseif desertMap.data[i] == secondLargestDesertID then
-				plot:SetContinentArtType(contArt.AFRICA)
-			elseif plot:GetTerrainType() == TerrainTypes.TERRAIN_DESERT then
 				plot:SetContinentArtType(contArt.AMERICA)
+			elseif plot:GetTerrainType() == TerrainTypes.TERRAIN_DESERT then
+				plot:SetContinentArtType(contArt.ASIA)
 			end
 		end
 	end
@@ -724,13 +724,13 @@ function DetermineContinents()
 					end
 				end
 				
-				if coldness >= 7 then
+				if coldness >= 6 then
 					--plot:SetTerrainType(TerrainTypes.TERRAIN_SNOW, false, true)
 					plot:SetContinentArtType(contArt.EUROPE)
-				elseif coldness >= 1 then
+				elseif coldness >= 4 then
 					--plot:SetTerrainType(TerrainTypes.TERRAIN_TUNDRA, false, true)
 					plot:SetContinentArtType(contArt.AMERICA)
-				elseif coldness >= 0 then
+				elseif coldness >= 2 then
 					--plot:SetTerrainType(TerrainTypes.TERRAIN_PLAINS, false, true)
 					plot:SetContinentArtType(contArt.ASIA)
 				else
@@ -757,7 +757,7 @@ function DetermineContinents()
 						coldness = coldness - 1
 					end
 				end
-				if coldness >= 5 then
+				if coldness >= 6 then
 					if plot:GetFeatureType() == FeatureTypes.FEATURE_FOREST then
 						plot:SetContinentArtType(contArt.ASIA)
 					else

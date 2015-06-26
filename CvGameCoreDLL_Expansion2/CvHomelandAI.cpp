@@ -2776,9 +2776,18 @@ void CvHomelandAI::ReviewUnassignedUnits()
 				{
 					if(!pUnit->isEmbarked())
 					{
-						pUnit->PushMission(CvTypes::getMISSION_SKIP());
-						pUnit->SetTurnProcessed(true);
-						pUnit->finishMoves();
+						if(pUnit->canFortify(pUnit->plot()))
+						{
+							pUnit->PushMission(CvTypes::getMISSION_FORTIFY());
+							pUnit->SetTurnProcessed(true);
+							pUnit->finishMoves();
+						}
+						else
+						{
+							pUnit->PushMission(CvTypes::getMISSION_SKIP());
+							pUnit->SetTurnProcessed(true);
+							pUnit->finishMoves();
+						}
 
 						CvString strTemp;
 						CvUnitEntry* pkUnitInfo = GC.getUnitInfo(pUnit->getUnitType());
@@ -2827,16 +2836,25 @@ void CvHomelandAI::ReviewUnassignedUnits()
 						}
 						else
 						{
-							pUnit->PushMission(CvTypes::getMISSION_SKIP());
-							pUnit->SetTurnProcessed(true);
-							pUnit->finishMoves();
+							if(pUnit->canFortify(pUnit->plot()))
+							{
+								pUnit->PushMission(CvTypes::getMISSION_FORTIFY());
+								pUnit->SetTurnProcessed(true);
+								pUnit->finishMoves();
+							}
+							else
+							{
+								pUnit->PushMission(CvTypes::getMISSION_SKIP());
+								pUnit->SetTurnProcessed(true);
+								pUnit->finishMoves();
+							}
 							CvString strTemp;
 							CvUnitEntry* pkUnitInfo = GC.getUnitInfo(pUnit->getUnitType());
 							if(pkUnitInfo)
 							{
 								strTemp = pkUnitInfo->GetDescription();
 								CvString strLogString;
-								strLogString.Format("Unassigned %s stuck, but in home territory, at X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY());
+								strLogString.Format("Unassigned %s stuck away from home, at X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY());
 								LogHomelandMessage(strLogString);
 							}
 							continue;

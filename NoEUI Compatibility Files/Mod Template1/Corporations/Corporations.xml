@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created by ModBuddy on 6/23/2015 5:58:37 PM -->
+<GameData>
+	<!-- Civlized Jewelers -->
+	<Building_ResourceMonopolyOrs>
+		<Row>
+			<BuildingType>BUILDING_CIVILIZED_JEWELERS_HQ</BuildingType>
+			<ResourceType>RESOURCE_AMBER</ResourceType>
+		</Row>
+	</Building_ResourceMonopolyOrs>
+	<Building_ResourceYieldChanges>
+		<!-- Franchise -->
+		<Row>
+			<BuildingType>BUILDING_CIVILIZED_JEWELERS_FRANCHISE</BuildingType>
+			<ResourceType>RESOURCE_AMBER</ResourceType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+	</Building_ResourceYieldChanges>
+	
+	<!-- Firaxite Materials -->
+	<Building_ResourceMonopolyOrs>
+		<Row>
+			<BuildingType>BUILDING_FIRAXITE_MATERIALS_HQ</BuildingType>
+			<ResourceType>RESOURCE_JADE</ResourceType>
+		</Row>
+	</Building_ResourceMonopolyOrs>
+	<Building_ResourceYieldChanges>
+		<!-- HQ -->
+		<Row>
+			<BuildingType>BUILDING_FIRAXITE_MATERIALS_HQ</BuildingType>
+			<ResourceType>RESOURCE_JADE</ResourceType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Yield>3</Yield>
+		</Row>
+		<!-- Franchise -->
+		<Row>
+			<BuildingType>BUILDING_CIVILIZED_JEWELERS_FRANCHISE</BuildingType>
+			<ResourceType>RESOURCE_JADE</ResourceType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+	</Building_ResourceYieldChanges>
+	
+	<!-- Giorgio Armeier -->
+	<Building_ResourceMonopolyOrs>
+		<Row>
+			<BuildingType>BUILDING_GIORIO_ARMEIER_HQ</BuildingType>
+			<ResourceType>RESOURCE_LAPIS</ResourceType>
+		</Row>
+	</Building_ResourceMonopolyOrs>
+	<Building_SpecialistYieldChanges>
+		<Row>
+			<BuildingType>BUILDING_GIORIO_ARMEIER_HQ</BuildingType>
+			<SpecialistType>SPECIALIST_CIVIL_SERVANT</SpecialistType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>1</Yield>
+		</Row>
+	</Building_SpecialistYieldChanges>
+	<Building_ResourceYieldChanges>
+		<!-- HQ -->
+		<Row>
+			<BuildingType>BUILDING_GIORIO_ARMEIER_HQ</BuildingType>
+			<ResourceType>RESOURCE_LAPIS</ResourceType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<!-- Office -->
+		<Row>
+			<BuildingType>BUILDING_GIORIO_ARMEIER</BuildingType>
+			<ResourceType>RESOURCE_LAPIS</ResourceType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>2</Yield>
+		</Row>
+		<!-- Franchise -->
+		<Row>
+			<BuildingType>BUILDING_GIORIO_ARMEIER_FRANCHISE</BuildingType>
+			<ResourceType>RESOURCE_LAPIS</ResourceType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+	</Building_ResourceYieldChanges>
+
+	<!-- Hexxon Refineries -->
+	<Building_ResourceMonopolyOrs>
+		<Row>
+			<BuildingType>BUILDING_HEXXON_REFINERY_HQ</BuildingType>
+			<ResourceType>RESOURCE_PERFUME</ResourceType>
+		</Row>
+	</Building_ResourceMonopolyOrs>
+	<Building_ResourceYieldChanges>
+		<!-- Franchise -->
+		<Row>
+			<BuildingType>BUILDING_HEXXON_REFINERY_FRANCHISE</BuildingType>
+			<ResourceType>RESOURCE_PERFUME</ResourceType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+	</Building_ResourceYieldChanges>
+
+	<!-- LandSea Extractors -->
+	<Building_ResourceMonopolyOrs>
+		<Row>
+			<BuildingType>BUILDING_LANDSEA_EXTRACTORS_HQ</BuildingType>
+			<ResourceType>RESOURCE_CORAL</ResourceType>
+		</Row>
+	</Building_ResourceMonopolyOrs>
+	<Building_ResourceYieldChanges>
+		<!-- HQ -->
+		<Row>
+			<BuildingType>BUILDING_LANDSEA_EXTRACTORS_HQ</BuildingType>
+			<ResourceType>RESOURCE_CORAL</ResourceType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>2</Yield>
+		</Row>
+		<!-- Office -->
+		<Row>
+			<BuildingType>BUILDING_LANDSEA_EXTRACTORS</BuildingType>
+			<ResourceType>RESOURCE_CORAL</ResourceType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>2</Yield>
+		</Row>
+		<!-- Franchise -->
+		<Row>
+			<BuildingType>BUILDING_LANDSEA_EXTRACTORS_FRANCHISE</BuildingType>
+			<ResourceType>RESOURCE_CORAL</ResourceType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+	</Building_ResourceYieldChanges>
+
+	<!-- Trader Sid's -->
+	<Building_ResourceMonopolyOrs>
+		<Row>
+			<BuildingType>BUILDING_TRADER_SIDS_HQ</BuildingType>
+			<ResourceType>RESOURCE_TOBACCO</ResourceType>
+		</Row>
+	</Building_ResourceMonopolyOrs>
+	<Building_ResourceYieldChanges>
+		<!-- HQ -->
+		<Row>
+			<BuildingType>BUILDING_TRADER_SIDS_HQ</BuildingType>
+			<ResourceType>RESOURCE_TOBACCO</ResourceType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>2</Yield>
+		</Row>
+		<!-- Office -->
+		<Row>
+			<BuildingType>BUILDING_TRADER_SIDS</BuildingType>
+			<ResourceType>RESOURCE_TOBACCO</ResourceType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>2</Yield>
+		</Row>
+		<!-- Franchise -->
+		<Row>
+			<BuildingType>BUILDING_TRADER_SIDS_FRANCHISE</BuildingType>
+			<ResourceType>RESOURCE_TOBACCO</ResourceType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+	</Building_ResourceYieldChanges>
+
+	<!-- TwoKay Foods -->
+	<Building_ResourceMonopolyOrs>
+		<Row>
+			<BuildingType>BUILDING_TWOKAY_FOODS_HQ</BuildingType>
+			<ResourceType>RESOURCE_OLIVE</ResourceType>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_TWOKAY_FOODS_HQ</BuildingType>
+			<ResourceType>RESOURCE_COFFEE</ResourceType>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_TWOKAY_FOODS_HQ</BuildingType>
+			<ResourceType>RESOURCE_TEA</ResourceType>
+		</Row>
+	</Building_ResourceMonopolyOrs>
+	<Building_ResourceYieldChanges>
+		<!-- HQ -->
+		<Row>
+			<BuildingType>BUILDING_TWOKAY_FOODS_HQ</BuildingType>
+			<ResourceType>RESOURCE_OLIVE</ResourceType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>3</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_TWOKAY_FOODS_HQ</BuildingType>
+			<ResourceType>RESOURCE_COFFEE</ResourceType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>3</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_TWOKAY_FOODS_HQ</BuildingType>
+			<ResourceType>RESOURCE_TEA</ResourceType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>3</Yield>
+		</Row>
+		<!-- Franchise -->
+		<Row>
+			<BuildingType>BUILDING_TWOKAY_FOODS_FRANCHISE</BuildingType>
+			<ResourceType>RESOURCE_OLIVE</ResourceType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_TWOKAY_FOODS_FRANCHISE</BuildingType>
+			<ResourceType>RESOURCE_COFFEE</ResourceType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_TWOKAY_FOODS_FRANCHISE</BuildingType>
+			<ResourceType>RESOURCE_TEA</ResourceType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+	</Building_ResourceYieldChanges>
+</GameData>

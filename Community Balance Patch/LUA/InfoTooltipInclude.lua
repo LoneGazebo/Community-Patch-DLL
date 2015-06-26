@@ -186,6 +186,14 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 -- CBP
 		iCulture = iCulture + pCity:GetBuildingClassCultureChange(buildingClassID);
 		iCulture = iCulture + pCity:GetReligionBuildingYieldRateModifier(buildingClassID, YieldTypes.YIELD_CULTURE);
+
+		local corporatechange = Game.GetBuildingCorporateYieldChange( buildingID, YieldTypes.YIELD_CULTURE )
+		if (corporatechange > 0) then
+			corporatechange = city:GetCorporationYieldChange(YieldTypes.YIELD_CULTURE)
+			if(corporatechange > 0) then
+				iCulture = iCulture + corporatechange;
+			end
+		end
 -- END
 	end
 	if (iCulture ~= nil and iCulture ~= 0) then
@@ -199,6 +207,13 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 		iFaith = iFaith + pCity:GetLeagueBuildingClassYieldChange(buildingClassID, YieldTypes.YIELD_FAITH);
 -- CBP
 		iFaith = iFaith + pCity:GetReligionBuildingYieldRateModifier(buildingClassID, YieldTypes.YIELD_FAITH);
+		local corporatechange = Game.GetBuildingCorporateYieldChange( buildingID, YieldTypes.YIELD_FAITH )
+		if (corporatechange > 0) then
+			corporatechange = city:GetCorporationYieldChange(YieldTypes.YIELD_FAITH)
+			if(corporatechange > 0) then
+				iFaith = iFaith + corporatechange;
+			end
+		end
 -- END
 	end
 	if (iFaith ~= nil and iFaith ~= 0) then
@@ -224,6 +239,13 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 		iFood = iFood + pCity:GetLeagueBuildingClassYieldChange(buildingClassID, YieldTypes.YIELD_FOOD);
 -- CBP
 		iFood = iFood + pCity:GetReligionBuildingYieldRateModifier(buildingClassID, YieldTypes.YIELD_FOOD);
+		local corporatechange = Game.GetBuildingCorporateYieldChange( buildingID, YieldTypes.YIELD_FOOD )
+		if (corporatechange > 0) then
+			corporatechange = city:GetCorporationYieldChange(YieldTypes.YIELD_FOOD)
+			if(corporatechange > 0) then
+				iFood = iFood + corporatechange;
+			end
+		end
 -- END
 	end
 	if (iFood ~= nil and iFood ~= 0) then
@@ -244,6 +266,13 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 		iGold = iGold + pCity:GetLeagueBuildingClassYieldChange(buildingClassID, YieldTypes.YIELD_GOLD);
 -- CBP	
 		iGold = iGold + pCity:GetReligionBuildingYieldRateModifier(buildingClassID, YieldTypes.YIELD_GOLD);
+		local corporatechange = Game.GetBuildingCorporateYieldChange( buildingID, YieldTypes.YIELD_GOLD )
+		if (corporatechange > 0) then
+			corporatechange = city:GetCorporationYieldChange(YieldTypes.YIELD_GOLD)
+			if(corporatechange > 0) then
+				iGold = iGold + corporatechange;
+			end
+		end
 -- END	
 	end
 	if (iGold ~= nil and iGold ~= 0) then
@@ -256,6 +285,13 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 -- CBP
 	if (pCity ~= nil) then
 		iScience = iScience + pCity:GetReligionBuildingYieldRateModifier(buildingClassID, YieldTypes.YIELD_SCIENCE);
+		local corporatechange = Game.GetBuildingCorporateYieldChange( buildingID, YieldTypes.YIELD_SCIENCE )
+		if (corporatechange > 0) then
+			corporatechange = city:GetCorporationYieldChange(YieldTypes.YIELD_SCIENCE)
+			if(corporatechange > 0) then
+				iScience = iScience + corporatechange;
+			end
+		end
 	end
 -- END	
 	if (iScience ~= nil and iScience ~= 0) then
@@ -278,6 +314,13 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 -- CBP
 	if (pCity ~= nil) then
 		iProduction = iProduction + pCity:GetReligionBuildingYieldRateModifier(buildingClassID, YieldTypes.YIELD_PRODUCTION);
+		local corporatechange = Game.GetBuildingCorporateYieldChange( buildingID, YieldTypes.YIELD_PRODUCTION )
+		if (corporatechange > 0) then
+			corporatechange = city:GetCorporationYieldChange(YieldTypes.YIELD_PRODUCTION)
+			if(corporatechange > 0) then
+				iProduction = iProduction + corporatechange;
+			end
+		end
 	end
 -- END	
 	if (iProduction ~= nil and iProduction ~= 0) then
@@ -309,7 +352,14 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 			table.insert(lines, "[ICON_GREAT_PEOPLE] " .. Locale.ConvertTextKey(specialistSlotsKey) .. " " .. pBuildingInfo.SpecialistCount);
 		end
 	end
-	
+-- CBP
+	if(pCity ~= nil) then
+		local iCorpGPChange = pCity:GetCorporationGPChange();
+		if iCorpGPChange ~=0 then
+			table.insert(lines, "TXT_KEY_PEDIA_CORP_GP_CHANGE " .. iCorpGPChange); 
+		end
+	end
+-- END
 	local iNumGreatWorks = pBuildingInfo.GreatWorkCount;
 	if(iNumGreatWorks > 0) then
 		local greatWorksSlotType = GameInfo.GreatWorkSlots[pBuildingInfo.GreatWorkSlotType];
@@ -323,7 +373,7 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 			local localizedText = Locale.ConvertTextKey("TXT_KEY_PRODUCTION_BUILDING_TOURISM", iTourism);
 			table.insert(lines, localizedText);
 		end
-	-- CBP FIX
+-- CBP FIX
 		if(iTourism > 0 and pBuildingInfo.FaithCost > 0 and pBuildingInfo.PolicyType ~= nil and pBuildingInfo.Cost == -1) then
 			local localizedText = Locale.ConvertTextKey("TXT_KEY_PRODUCTION_BUILDING_TOURISM", iTourism);
 			table.insert(lines, localizedText);
@@ -784,6 +834,16 @@ function GetCultureTooltip(pCity)
 				strCultureToolTip = strCultureToolTip .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_CULTURE_FROM_RESOURCE_MONOPOLY", iAmount);
 			end
 		end
+
+		if (pCity:GetCorporationYieldModChange(YieldTypes.YIELD_CULTURE) > 0) then
+			iAmount = pCity:GetCorporationYieldModChange(YieldTypes.YIELD_CULTURE);
+			
+			if (iAmount ~= 0) then
+				strCultureToolTip = strCultureToolTip .. "[NEWLINE][NEWLINE]";
+				strCultureToolTip = strCultureToolTip .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_CULTURE_FROM_CORPORATION", iAmount);
+			end
+		end
+
 		-- END
 
 		-- CBP
@@ -1029,6 +1089,13 @@ function GetYieldTooltip(pCity, iYieldType, iBase, iTotal, strIconString, strMod
 	local iYieldFromCSAlliance = pCity:GetBaseYieldRateFromCSAlliance(iYieldType);
 	if (iYieldFromCSAlliance ~= 0) then
 		strYieldBreakdown = strYieldBreakdown .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_YIELD_FROM_CS_ALLIANCE", iYieldFromCSAlliance, strIconString);
+		strYieldBreakdown = strYieldBreakdown .. "[NEWLINE]";
+	end
+
+	-- CBP -- Yield Increase from Corporations
+	local iYieldFromCorps = pCity:GetCorporationYieldChange(iYieldType);
+	if (iYieldFromCorps ~= 0) then
+		strYieldBreakdown = strYieldBreakdown .. "[ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_YIELD_FROM_CORPORATIONS", iYieldFromCorps, strIconString);
 		strYieldBreakdown = strYieldBreakdown .. "[NEWLINE]";
 	end
 

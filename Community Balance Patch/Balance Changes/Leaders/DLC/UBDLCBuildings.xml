@@ -6,7 +6,7 @@
 		<Row>
 			<Type>BUILDING_MISSION</Type>
 			<BuildingClass>BUILDINGCLASS_CASTLE</BuildingClass>
-			<Cost>175</Cost>
+			<Cost>225</Cost>
 			<PrereqTech>TECH_CHIVALRY</PrereqTech>
 			<FreeStartEra>ERA_INDUSTRIAL</FreeStartEra>
 			<Help>TXT_KEY_BUILDING_MISSION_HELP</Help>
@@ -152,13 +152,6 @@
 			<Yield>25</Yield>
 		</Row>
 	</Building_InstantYield>
-	<Building_SeaResourceYieldChanges>
-		<Row>
-			<BuildingType>BUILDING_JELLING_STONES</BuildingType>
-			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Yield>1</Yield>
-		</Row>
-	</Building_SeaResourceYieldChanges>
 	<Civilization_BuildingClassOverrides>
 		<Row>
 			<CivilizationType>CIVILIZATION_DENMARK</CivilizationType>
@@ -173,14 +166,14 @@
 			<Yield>2</Yield>
 		</Row>
 	</Building_YieldChanges>
-	<Building_ResourceYieldChanges>
+	<Building_ImprovementYieldChanges>
 		<Row>
 			<BuildingType>BUILDING_JELLING_STONES</BuildingType>
-			<ResourceType>RESOURCE_FISH</ResourceType>
-			<YieldType>YIELD_FOOD</YieldType>
+			<ImprovementType>IMPROVEMENT_FISHING_BOATS</ImprovementType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
 			<Yield>1</Yield>
 		</Row>
-	</Building_ResourceYieldChanges>
+	</Building_ImprovementYieldChanges>
 	<Language_en_US>
 		<Row Tag="TXT_KEY_BUILDING_JELLING_STONES">
 			<Text>Jelling Stones</Text>
@@ -191,7 +184,7 @@
 			</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_JELLING_STONES_HELP">
-			<Text>+15% [ICON_GREAT_PEOPLE] Great Person rate, +2 [ICON_TOURISM] Tourism (once Drama is researched) and an instant boost of 25 [ICON_CULTURE] Culture. [NEWLINE][NEWLINE]+1 [ICON_FOOD] Food from Coast and Ocean Tiles. +1 [ICON_PRODUCTION] Production from Sea Resources worked by this City.[NEWLINE][NEWLINE]Each source of [ICON_RES_FISH] Fish worked by this City produces +1 [ICON_FOOD] Food.</Text>
+			<Text>+15% [ICON_GREAT_PEOPLE] Great Person rate, +2 [ICON_TOURISM] Tourism (once Drama is researched) and an instant boost of 25 [ICON_CULTURE] Culture. [NEWLINE][NEWLINE]+1 [ICON_FOOD] Food from Coast and Ocean Tiles, and +1 [ICON_PRODUCTION] Production from Sea Resources worked by this City.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_JELLING_STONES_STRATEGY">
 			<Text>Unique Danish replacement for the Lighthouse. In addition to the Lighthouse's bonuses, Jelling Stones produces +2 [ICON_TOURISM] Tourism (once Drama is researched), +2 [ICON_CULTURE] Culture, and increases the Great Person rate for the city where it is built by 15%. Grants 25 [ICON_CULTURE] Culture when completed. Unlike the Lighthouse, the City does not have to be built on the coast.</Text>
@@ -202,7 +195,7 @@
 		<Row>
 			<Type>BUILDING_SEOWON</Type>
 			<BuildingClass>BUILDINGCLASS_UNIVERSITY</BuildingClass>
-			<Cost>225</Cost>
+			<Cost>250</Cost>
 			<GoldMaintenance>2</GoldMaintenance>
 			<PrereqTech>TECH_EDUCATION</PrereqTech>
 			<Help>TXT_KEY_BUILDING_SEOWON_HELP</Help>
@@ -300,11 +293,13 @@
 		<Row>
 			<Type>BUILDING_YURT</Type>
 			<BuildingClass>BUILDINGCLASS_GRANARY</BuildingClass>
-			<Cost>55</Cost>
+			<Cost>60</Cost>
 			<FreeStartEra>ERA_RENAISSANCE</FreeStartEra>
 			<PrereqTech>TECH_POTTERY</PrereqTech>
 			<Help>TXT_KEY_BUILDING_YURT_HELP</Help>
 			<Description>TXT_KEY_BUILDING_YURT</Description>
+			<PlotCultureCostModifier>-25</PlotCultureCostModifier>
+			<PlotBuyCostModifier>-25</PlotBuyCostModifier>
 			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_YURT_TEXT</Civilopedia>
 			<Strategy>TXT_KEY_BUILDING_YURT_STRATEGY</Strategy>
 			<ArtDefineTag>ART_DEF_BUILDING_GRANARY</ArtDefineTag>
@@ -396,7 +391,7 @@
 			</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_YURT_HELP">
-			<Text>Each source of [ICON_RES_COW] Cows [ICON_RES_SHEEP] Sheep and [ICON_RES_HORSE] Horses worked by this City produce +3 [ICON_FOOD] Food.[NEWLINE][NEWLINE]Allows [ICON_FOOD] Food to be moved from this city along trade routes inside your civilization.</Text>
+			<Text>Each source of [ICON_RES_COW] Cows [ICON_RES_SHEEP] Sheep and [ICON_RES_HORSE] Horses worked by this City produce +3 [ICON_FOOD] Food. [ICON_GOLD] Gold and [ICON_CULTURE] Cost of acquiring new tiles reduced by 25% in this city. [NEWLINE][NEWLINE]Allows [ICON_FOOD] Food to be moved from this city along trade routes inside your civilization.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_YURT_STRATEGY">
 			<Text>Unique Mongolian replacement for the Granary. Unlike the Granary, the Ger provides Food from livestock instead of crops. It also provides a small amount of Faith, and has no maintenance. Build Gers in your cities to maximize their growth, and to get an early Pantheon.</Text>

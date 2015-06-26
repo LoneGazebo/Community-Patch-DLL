@@ -326,6 +326,8 @@ public:
 
 #if defined(MOD_BALANCE_CORE)
 	void MinorAttackTest();
+	int GetWarType();
+	void UpdateWarType();
 #endif
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	int GetNumNavalAttacksRequested() const
@@ -404,6 +406,9 @@ private:
 	int m_iMandatoryReserveSize;
 	int m_iNumLandAttacksRequested;
 	int m_iNumNavalAttacksRequested;
+#if defined(MOD_BALANCE_CORE)
+	int m_iCurrentWarFocus;
+#endif
 	DefenseState m_eLandDefenseState;
 	DefenseState m_eNavalDefenseState;
 };

@@ -84,19 +84,24 @@ INSERT INTO BuildFeatures (BuildType, FeatureType, PrereqTech, Time, Remove)
 VALUES ('BUILD_CAMP', 'FEATURE_MARSH', 'TECH_BRONZE_WORKING', '600', 1);
 
 UPDATE BuildFeatures
-SET Remove = '0'
-WHERE BuildType = 'BUILD_PLANTATION';
+SET Remove = '1'
+WHERE BuildType = 'BUILD_TRADING_POST';
+
+UPDATE BuildFeatures
+SET Remove = '1'
+WHERE BuildType = 'BUILD_FORT';
 
 -- Polder specific code lacking in the BuildFeatures table
 INSERT INTO BuildFeatures (BuildType, FeatureType, PrereqTech, Time, Production, Remove)
-VALUES ('BUILD_POLDER', 'FEATURE_JUNGLE', 'TECH_THE_WHEEL', '600', '',1);
+VALUES ('BUILD_POLDER', 'FEATURE_JUNGLE', 'TECH_THE_WHEEL', '500', '',1);
 INSERT INTO BuildFeatures (BuildType, FeatureType, PrereqTech, Time, Production, Remove)
-VALUES ('BUILD_POLDER', 'FEATURE_FOREST', 'TECH_ANIMAL_HUSBANDRY', '400', '40', 1);
+VALUES ('BUILD_POLDER', 'FEATURE_FOREST', 'TECH_ANIMAL_HUSBANDRY', '300', '40', 1);
 
 UPDATE BuildFeatures SET Remove = 1 WHERE  FeatureType = 'FEATURE_MARSH'  AND BuildType NOT IN ('BUILD_POLDER');
-UPDATE BuildFeatures SET Time = 400 WHERE (FeatureType = 'FEATURE_JUNGLE' AND Time <> 0 AND Remove = 0);
-UPDATE BuildFeatures SET Time = 600 WHERE (FeatureType = 'FEATURE_JUNGLE' AND Time <> 0 AND Remove = 1);
-UPDATE BuildFeatures SET Time = 200 WHERE  BuildType   = 'BUILD_REMOVE_JUNGLE';
+UPDATE BuildFeatures SET Time = 300 WHERE (FeatureType = 'FEATURE_JUNGLE' AND Time <> 0 AND Remove = 0);
+UPDATE BuildFeatures SET Time = 500 WHERE (FeatureType = 'FEATURE_JUNGLE' AND Time <> 0 AND Remove = 1);
+UPDATE BuildFeatures SET Time = 400 WHERE  BuildType   = 'BUILD_REMOVE_JUNGLE';
+UPDATE BuildFeatures SET Time = 300 WHERE  BuildType   = 'BUILD_REMOVE_FOREST';
 UPDATE BuildFeatures SET Production = 30 WHERE FeatureType = 'FEATURE_FOREST' AND Remove = 1;
 UPDATE BuildFeatures SET Production = 20 WHERE FeatureType = 'FEATURE_JUNGLE' AND Remove = 1;
 

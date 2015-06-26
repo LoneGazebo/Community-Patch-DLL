@@ -154,51 +154,51 @@ WHERE Tag = 'TXT_KEY_CIV5_IMPROVEMENTS_FORT_TEXT';
 
 -- Shrink Trading Post
 UPDATE ArtDefine_Landmarks
-SET Scale= '0.70'
+SET Scale= '0.65'
 WHERE ImprovementType = 'ART_DEF_IMPROVEMENT_TRADING_POST1';
 
 -- Shrink Trading Post
 UPDATE ArtDefine_Landmarks
-SET Scale= '0.70'
+SET Scale= '0.65'
 WHERE ImprovementType = 'ART_DEF_IMPROVEMENT_TRADING_POST2';
 
 -- Shrink Trading Post
 UPDATE ArtDefine_Landmarks
-SET Scale= '0.70'
+SET Scale= '0.65'
 WHERE ImprovementType = 'ART_DEF_IMPROVEMENT_TRADING_POST3';
 
 -- Shrink Trading Post
 UPDATE ArtDefine_Landmarks
-SET Scale= '0.70'
+SET Scale= '0.65'
 WHERE ImprovementType = 'ART_DEF_IMPROVEMENT_TRADING_POST4';
 
 -- Shrink Academy
 UPDATE ArtDefine_Landmarks
-SET Scale= '0.80'
+SET Scale= '0.75'
 WHERE ImprovementType = 'ART_DEF_IMPROVEMENT_ACADEMY';
 
 -- Shrink Manufactory
 UPDATE ArtDefine_Landmarks
-SET Scale= '0.80'
+SET Scale= '0.75'
 WHERE ImprovementType = 'ART_DEF_IMPROVEMENT_MANUFACTORY';
 
 -- Shrink Holy Site
 UPDATE ArtDefine_Landmarks
-SET Scale= '0.80'
+SET Scale= '0.75'
 WHERE ImprovementType = 'ART_DEF_IMPROVEMENT_HOLY_SITE';
 
 -- Shrink Kasbah
 UPDATE ArtDefine_Landmarks
-SET Scale= '0.90'
+SET Scale= '0.80'
 WHERE ImprovementType = 'ART_DEF_IMPROVEMENT_KASBAH';
 
 -- Shrink Chateau
 UPDATE ArtDefine_Landmarks
-SET Scale= '0.80'
+SET Scale= '0.70'
 WHERE ImprovementType = 'ART_DEF_IMPROVEMENT_CHATEAU';
 
 -- Shrink Customs House
 UPDATE ArtDefine_Landmarks
-SET Scale= '0.80'
+SET Scale= '0.70'
 WHERE ImprovementType = 'ART_DEF_IMPROVEMENT_CUSTOMS_HOUSE';
 

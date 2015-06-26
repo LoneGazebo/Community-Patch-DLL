@@ -2563,6 +2563,9 @@ void CvMinorCivAI::Reset()
 	m_bIsHordeActive = 0;
 	m_iCooldownSpawn = 0;
 #endif
+#if defined(MOD_BALANCE_CORE)
+	m_iTurnLiberated = 0;
+#endif
 	for(iI = 0; iI < MAX_MAJOR_CIVS; iI++)
 	{
 		m_abWarQuestAgainstMajor[iI] = false;
@@ -2709,6 +2712,9 @@ void CvMinorCivAI::Read(FDataStream& kStream)
 	kStream >> m_aiJerk;
 	kStream >> m_abIsMarried;
 #endif
+#if defined(MOD_BALANCE_CORE)
+	kStream >> m_iTurnLiberated;
+#endif
 
 	// List of quests given
 	ResetQuestList();
@@ -2793,6 +2799,9 @@ void CvMinorCivAI::Write(FDataStream& kStream) const
 	kStream << m_abIsJerk;
 	kStream << m_aiJerk;
 	kStream << m_abIsMarried;
+#endif
+#if defined(MOD_BALANCE_CORE)
+	kStream << m_iTurnLiberated;
 #endif
 
 	// List of quests given
@@ -9415,6 +9424,9 @@ void CvMinorCivAI::DoLiberationByMajor(PlayerTypes eLiberator, TeamTypes eConque
 	}
 #endif
 	SetFriendshipWithMajor(eLiberator, iNewInfluence);
+#if defined(MOD_BALANCE_CORE)
+	SetTurnLiberated(GC.getGame().getGameTurn());
+#endif
 
 	// Notification for liberator
 	strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_LIBERATION_YOU");
@@ -9423,7 +9435,19 @@ void CvMinorCivAI::DoLiberationByMajor(PlayerTypes eLiberator, TeamTypes eConque
 	strSummary << GetPlayer()->getNameKey();
 	AddNotification(strMessage.toUTF8(), strSummary.toUTF8(), eLiberator);
 }
-
+#if defined(MOD_BALANCE_CORE)
+void CvMinorCivAI::SetTurnLiberated(int iValue)
+{
+	if(iValue != GetTurnLiberated())
+	{
+		m_iTurnLiberated = iValue;
+	}
+}
+int CvMinorCivAI::GetTurnLiberated()
+{
+	return m_iTurnLiberated;
+}
+#endif
 void CvMinorCivAI::DoChangeProtectionFromMajor(PlayerTypes eMajor, bool bProtect, bool bPledgeNowBroken)
 {
 	CvAssertMsg(eMajor >= 0, "eMajor is expected to be non-negative (invalid Index)");
@@ -11384,7 +11408,16 @@ int CvMinorCivAI::CalculateBullyMetric(PlayerTypes eBullyPlayer, bool bForUnit, 
 		strNegativeFactor << "TXT_KEY_POP_CSTATE_BULLY_FACTOR_BASE_RELUCTANCE";
 		sFactors += strNegativeFactor.toUTF8();
 	}
-
+#if defined(MOD_BALANCE_CORE)
+	int iDuration = (GC.getGame().getGameTurn() - GetTurnLiberated());
+	int iLimit = 30;
+	iLimit *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+	iLimit /= 100;
+	if(iDuration <= iLimit)
+	{
+		iBaseReluctanceScore *= 3;
+	}
+#endif
 	iScore += iBaseReluctanceScore;
 
 	// **************************
@@ -11736,8 +11769,12 @@ void CvMinorCivAI::DoMajorBullyGold(PlayerTypes eBully, int iGold)
 	{
 		if(GET_PLAYER(eBully).GetPlayerTraits()->IsBullyAnnex() && !GET_PLAYER(eBully).isHuman())
 		{
-			DoMajorBullyUnit(eBully, NO_UNIT);
-			return;
+			int iBullyMetric2 = CalculateBullyMetric(eBully, /*bForUnit*/true);
+			if(CanMajorBullyUnit(eBully, iBullyMetric2))
+			{
+				DoMajorBullyUnit(eBully, NO_UNIT);
+				return;
+			}
 		}
 	}
 #endif

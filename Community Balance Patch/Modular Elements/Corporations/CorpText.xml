@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created by ModBuddy on 6/23/2015 12:21:44 AM -->
+<GameData>
+	<Concepts>
+		<Row>
+			<Type>CONCEPT_CORPORATION_INTRODUCTION</Type>
+			<Topic>TXT_KEY_TOPIC_CORPORATION</Topic>
+			<Description>TXT_KEY_CORPORATION_TITLE</Description>
+			<Summary>TXT_KEY_CORPORATION_BODY</Summary>
+			<AdvisorQuestion>TXT_KEY_CORPORATION_QUESTION</AdvisorQuestion>
+			<Advisor>ECONOMIC</Advisor>
+			<CivilopediaHeaderType>HEADER_CORPORATIONS</CivilopediaHeaderType>
+		</Row>
+		<Row>
+			<Type>CONCEPT_MONOPOLY_INTRODUCTION</Type>
+			<Topic>TXT_KEY_TOPIC_MONOPOLY</Topic>
+			<Description>TXT_KEY_MONOPOLY_TITLE</Description>
+			<Summary>TXT_KEY_MONOPOLY_BODY</Summary>
+			<AdvisorQuestion>TXT_KEY_MONOPOLY_QUESTION</AdvisorQuestion>
+			<Advisor>ECONOMIC</Advisor>
+			<CivilopediaHeaderType>HEADER_CORPORATIONS</CivilopediaHeaderType>
+		</Row>
+		<Row>
+			<Type>CONCEPT_CORPORATION_SPREADING</Type>
+			<Topic>TXT_KEY_TOPIC_CORPORATION_SPREADING</Topic>
+			<Description>TXT_KEY_CORPORATION_SPREADING_TITLE</Description>
+			<Summary>TXT_KEY_HAPPINESS_CORPORATION_SPREADING_BODY</Summary>
+			<AdvisorQuestion>TXT_KEY_CORPORATION_SPREADING_QUESTION</AdvisorQuestion>
+			<Advisor>ECONOMIC</Advisor>
+			<CivilopediaHeaderType>HEADER_CORPORATIONS</CivilopediaHeaderType>
+		</Row>
+	</Concepts>
+	<Language_en_US>
+		<!-- Civilopedia-->
+		<Row Tag="TXT_KEY_GAME_CONCEPT_SECTION_27">
+			<Text>Corporations and Monopolies</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_TOPIC_MONOPOLY">
+			<Text>Monopolies</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MONOPOLY_TITLE">
+			<Text>{TXT_KEY_TOPIC_MONOPOLY}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MONOPOLY_BODY">
+			<Text>[COLOR_POSITIVE_TEXT]Monopolies[ENDCOLOR] are one of the new gameplay elements added by the Community Balance Patch.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Luxury Global Monopolies[ENDCOLOR]: the essence of the Monopoly system is expansion: as your empire expands throughout the game (either through combat or settlement), be on the lookout for Luxury resources that you already have copies of. AS you collect more and more copies of the same Luxury Resources, the percentage of global resources you control goes up. If this value goes over 50% (i.e. you control more than 50% of the world's supply of any resource), you gain a Global Monopoly over that Resource. Each Global Monopoly has a unique bonus - some grant additional yields to your tiles, whereas others boost City yields by a set percentage (see the Resource section of the Civilopedia for details).[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Strategic Global Monoplies[ENDCOLOR]: Strategic Resources operate the same way as Luxury Resources with regards to Monpolies, with one major exception. Due to the vast abundance of these resources, a true 50% Monopoly can be quite difficult. As a result, Strateigc Resources have two tiers: 'Strategic' Monpolies and 'True' Monopolies. Strategic Monopolies occur at 25%, and generate special combat bonuses (such as increased health regeneration or increase defense). True Monopolies occur at 50% and, like Luxury Monopolies, they generate bonuses to City and/or tile yields.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MONOPOLY_QUESTION">
+			<Text>What are Resource Monopolies?</Text>
+		</Row>
+		
+		<Row Tag="TXT_KEY_TOPIC_CORPORATION">
+			<Text>Corporations</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORPORATION_TITLE">
+			<Text>{TXT_KEY_TOPIC_CORPORATION}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORPORATION_BODY">
+			<Text>[COLOR_POSITIVE_TEXT]Corporations[ENDCOLOR] are one of the new gameplay elements added by the Community Balance Patch. They can have a great impact on your empire's economic development, especially in the later part of a game.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Founding Corporations[ENDCOLOR]: There are seven distinct Corporations in the game, each of which becomes available once you have researched the Corporations Technology during the Modern Age. Each Corporation has a specific set of Resource Monopolies that it relies upon - if you do not have at least one of these Resource Monopolies, you will not be able to found the Corporation. Once these two requirements are met, you need to construct the 'Headquarters' of the Corporation in one of your Cities. These buildings are World Wonders, so only one player in the world may found each Corporation! Furthermore, once you have founded a Corporation, you cannot found another one, so make sure you like the one you pick![NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Building Corporate Offices[ENDCOLOR]: Once you have founded your Corporation, you can begin establishing Corporate Offices in each of your Cities. These buildings come with special bounses similar to your Corporation's Headquarters, and are thus worthwhile to construct on their own. Most bonuses from Corporations scale with the number of Cities you own, so larger empires benefit greatly from founding a Corporation and building as many Offices as possible!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORPORATION_QUESTION">
+			<Text>What is a Corporation?</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_TOPIC_CORPORATION_SPREADING">
+			<Text>Spreading Corporations</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORPORATION_SPREADING_TITLE">
+			<Text>{TXT_KEY_TOPIC_CORPORATION_SPREADING}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_HAPPINESS_CORPORATION_SPREADING_BODY">
+			<Text>[COLOR_POSITIVE_TEXT]Spreading your Corporation[ENDCOLOR]: to foreign cities is an essential element of reaping the most benefit from your Corporation. Corporations spread their influence via Trade Routes, but only if the Origin City (i.e. your City) has a Corporate Office in it. If your City has a Corporate Office, and you send a Trade Route from that City to a foreign City, a Corporate 'Franchise' will be built in that foreign City when the Trade Route completes. You can only spread your Corporation to each foreign City once.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Benefits of Spreading Your Corporation[ENDCOLOR]: As listed in the details of each Corporation, the spread of your Corporation to foreign cities has a direct impact on the productivity of your Corporate Offices. For every 'Franchise' of your Corporation in a foreign City, your Corporate Offices gain unique bonuses, be it additional City yields, free resources, or improved Trade Route yields. Furthermore, many Corporations gain additional bonuses if you send Trade Routes to foreign Cities that already have your Corporation in them. Make sure to study the details of your Corporation once you have founded it so that you can maximize your benefit![NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Managing your Corporation[ENDCOLOR]: As your Corporation grows, it can be hard to keep up with where you have Franchises, and where you have Offices. Never fear! In the Economic Overview panel, you can find detailed information on your Corporation in the bottom-left corner. There, you can see the total number of Offices and Corporations you currently control, as well as drop-down lists of the locations of all Corporate Offices and Franchises, as well as the size of foreign Corporations. In addition to these elements, you can also find information about your Corporation while choosing a destination for your Trade Routes. Each City with a Franchise in it is clearly indicated.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORPORATION_SPREADING_QUESTION">
+			<Text>How do I spread my Corporation?</Text>
+		</Row>
+
+		<!-- Notifications-->
+		<Row Tag="TXT_KEY_CORPORATION_FOUNDED">
+			<Text>You have founded [COLOR_POSITIVE_TEXT]{@1_BldgName}[ENDCOLOR]! To spread your new Corporation far and wide, build Corporate Offices in owned Cities and send [ICON_INTERNATIONAL_TRADE] Trade Routes from these Cities to the Cities of other Major Civilizations!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORPORATION_FOUNDED_SUMMARY">
+			<Text>Corporation Founded!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_TRADE_UNIT_CORPORATION_BUILDING_SUMMARY">
+			<Text>{@1_BldgName} spreads to {@2_City}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_TRADE_UNIT_CORPORATION_BUILDING">
+			<Text>{@2_BldgName} has spread to the City of {@1_City} as a result of your Trade Route from {@3_City}. This will increase the value of all of your Corporate Offices!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_TRADE_UNIT_CORPORATION_BUILDING_FOREIGN_SUMMARY">
+			<Text>{@1_BldgName} spreads to {@2_City}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_TRADE_UNIT_CORPORATION_BUILDING_FOREIGN">
+			<Text>{@2_BldgName}, a foreign Corporation, has spread to the City of {@1_City} as a result of a Trade Route from {@3_City}. This will increase the value of their Corporation!</Text>
+		</Row>
+
+		<!-- LUA -->
+		<Row Tag="TXT_KEY_NO_ACTION_BUILDING_ONE_CORP_ONLY">
+			<Text>[NEWLINE]{1_BuildingName:textkey} cannot be constructed while you are constructing {2_BuildingName:textkey} elsewhere in your Empire.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PEDIA_CORP_GP_CHANGE">
+			<Text>Additional +{1_Num}% [ICON_GREAT_PEOPLE] Great People Rate from Corporation</Text>
+		</Row>
+		
+		<Row Tag="TXT_KEY_PRODMOD_CORPORATION">
+			<Text>[NEWLINE][ICON_BULLET]City Modifier from your Corporation: {1_Num}%</Text>
+		</Row>
+		
+		<Row Tag="TXT_KEY_YIELD_FROM_CORPORATIONS">
+			<Text>{1_Num} {2_IconString} from your Corporation</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_FOODMOD_CORPORATION">
+			<Text>[NEWLINE][ICON_BULLET]Corporation Modifier: {1_Num}%</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CULTURE_FROM_CORPORATION">
+			<Text>+{1_Num}% [ICON_CULTURE] for Corporation: {1_Num}%</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_CORPORATION_MODIFIER_SCIENCE">
+			<Text>Corporation [ICON_RESEARCH] Bonus: +{1_Num}%</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_CORPORATION_MODIFIER_GOLD">
+			<Text>Corporation [ICON_GOLD] Bonus: +{1_Num}%</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CORP_NO_CORP">
+			<Text>(No Corporation Founded)</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CORP_EX_NAME">
+			<Text>The name of your Corporation (if you have founded one).</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NUM_FRANCHISES_TT">
+			<Text>Total number of foreign Cities with Franchises (i.e. Cities your Corporation has spread to).</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NUM_OFFICES_TT">
+			<Text>Total number of owned Cities with Offices in them.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_EO_FRANCHISE_DETAILS_COLLAPSE">
+			<Text>[ICON_MINUS] Franchises</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_EO_FRANCHISE_DETAILS">
+			<Text>[ICON_PLUS] Franchises</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_EO_OFFICE_DETAILS_COLLAPSE">
+			<Text>[ICON_MINUS] Offices</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_EO_OFFICE_DETAILS">
+			<Text>[ICON_PLUS] Offices</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_EO_CORPORATION">
+			<Text>Corporations</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_EO_FRANCHISES">
+			<Text>Total Franchises</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_EO_OFFICES">
+			<Text>Total Offices</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_EO_FRANCHISE_STACK">
+			<Text>Franchises</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_EO_EX_FRANCHISE_STACK">
+			<Text>List of Cities your Corporation has spread to.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_EO_OFFICE_STACK">
+			<Text>Offices</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_EO_EX_OFFICE_STACK">
+			<Text>List of Offices in owned Cities.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CORP_HERE">
+			<Text> Franchise present.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_EO_FOREIGN_CORPS_DETAILS_COLLAPSE">
+			<Text>[ICON_MINUS] Foreign Corporations</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_EO_FOREIGN_CORPS_DETAILS">
+			<Text>[ICON_PLUS] Foreign Corporations</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_EO_EX_FOREIGN_CORPS_STACK">
+			<Text>List of Foreign Corporations and their total worldwide Franchises.</Text>
+		</Row>
+		<!-- Tech -->
+
+		<Row Tag="TXT_KEY_TECH_CORPORATIONS_TITLE">
+			<Text>Corporations</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TECH_CORPORATIONS_DESC">
+			<Text>The word "corporation" derives from corpus, the Latin word for body, or a body of people. By the time of Justinian (reigned 527–565), Roman Law recognized a range of corporate entities under the names universitas, corpus or collegium. These included the state itself (the populus Romanus), municipalities, and such private associations as sponsors of a religious cult, burial clubs, political groups, and guilds of craftsmen or traders. Such bodies commonly had the right to own property and make contracts, to receive gifts and legacies, to sue and be sued, and, in general, to perform legal acts through representatives. Private associations were granted designated privileges and liberties by the emperor.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TECH_CORPORATIONS_HELP">
+			<Text>Allows you to found [COLOR_POSITIVE_TEXT]Corporations[ENDCOLOR], which are powerful late-game institutions that greatly enhance your Trade Routes and global power if you invest in their expansion.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TECH_CORPORATIONS_QUOTE">
+			<Text>[NEWLINE][TAB][TAB]"The point is ladies and gentlemen that greed, for lack of a better word, is good."[NEWLINE][TAB][TAB]  - Gordon Gekko[NEWLINE][TAB]</Text>
+		</Row>
+
+		<!-- Wonder Splash Quote -->
+		<Row Tag="TXT_KEY_WONDER_CORPORATION_QUOTE">
+			<Text>[NEWLINE][TAB][TAB]"I don’t build in order to have clients. I have clients in order to build."[NEWLINE][TAB][TAB]  - Howard Roark[NEWLINE][TAB]</Text>
+		</Row>
+
+	</Language_en_US>
+</GameData>

@@ -165,11 +165,7 @@ public:
 	bool ShouldIgnoreCity(CvCity* pCity, bool bIgnoreVisibility = false);
 	bool ShouldIgnoreCitadel(CvPlot* pCitadelPlot, bool bIgnoreVisibility = false);
 
-#ifdef AUI_DANGER_PLOTS_REMADE
-	void AssignUnitDangerValue(CvUnit* pUnit, CvPlot* pPlot, bool bReuse = true);
-#else
 	void AssignUnitDangerValue(CvUnit* pUnit, CvPlot* pPlot);
-#endif // AUI_DANGER_PLOTS_REMADE
 	void AssignCityDangerValue(CvCity* pCity, CvPlot* pPlot);
 
 	void SetDirty();

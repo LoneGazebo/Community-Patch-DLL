@@ -2368,12 +2368,7 @@ void CvEconomicAI::DoReconState()
 	}
 
 	// Never desperate for explorers if we are at war
-#if defined(MOD_BALANCE_CORE_SETTLER)
-	// Set to 'losing' wars.
-	MilitaryAIStrategyTypes eStrategyAtWar = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_LOSING_WARS");
-#else
 	MilitaryAIStrategyTypes eStrategyAtWar = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_AT_WAR");
-#endif
 	if(eStrategyAtWar != NO_MILITARYAISTRATEGY)
 	{
 		if(GetPlayer()->GetMilitaryAI()->IsUsingStrategy(eStrategyAtWar))
@@ -2477,8 +2472,7 @@ void CvEconomicAI::DoReconState()
 		iWeightThreshold = 100;
 	}
 
-	iStrategyWeight *= (iNumCoastalTilesWithAdjacentFog * 2);
-
+	iStrategyWeight *= iNumCoastalTilesWithAdjacentFog;
 	int iNumExplorerDivisor = iNumExploringUnits + /*1*/ GC.getAI_STRATEGY_EARLY_EXPLORATION_EXPLORERS_WEIGHT_DIVISOR();
 	iStrategyWeight /= (iNumExplorerDivisor * iNumExplorerDivisor);
 	iStrategyWeight /= (int)sqrt((double)iNumLandPlotsRevealed);
@@ -2524,6 +2518,9 @@ void CvEconomicAI::DoReconState()
 							strLogString.Format("Assigning exploring %s back to attack AI, X: %d, Y: %d", pLoopUnit->getName().GetCString(), pLoopUnit->getX(), pLoopUnit->getY());
 							m_pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
 						}
+#if defined(MOD_BALANCE_CORE)
+						break;
+#endif
 					}
 				}
 			}
@@ -2564,8 +2561,7 @@ void CvEconomicAI::DoReconState()
 			iWeightThreshold = 100;
 		}
 
-		iStrategyWeight *= (iNumCoastalTilesWithAdjacentFog * 2);
-
+		iStrategyWeight *= iNumCoastalTilesWithAdjacentFog;
 		iNumExplorerDivisor = iNumExploringUnits + /*1*/ GC.getAI_STRATEGY_EARLY_EXPLORATION_EXPLORERS_WEIGHT_DIVISOR();
 		iStrategyWeight /= (iNumExplorerDivisor * iNumExplorerDivisor);
 		iStrategyWeight /= (int)sqrt((double)iNumCoastalTilesRevealed);
@@ -2647,6 +2643,9 @@ void CvEconomicAI::DoReconState()
 								strLogString.Format("Assigning naval explorer back to attack sea AI to %s, X: %d, Y: %d", pLoopUnit->getName().GetCString(), pLoopUnit->getX(), pLoopUnit->getY());
 								m_pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
 							}
+#if defined(MOD_BALANCE_CORE)
+							break;
+#endif
 						}
 					}
 				}
@@ -3832,6 +3831,17 @@ bool EconomicAIHelpers::IsTestStrategy_NeedReconSea(CvPlayer* pPlayer)
 /// "Enough Recon Sea" Player Strategy: chosen by the DoRecon() function
 bool EconomicAIHelpers::IsTestStrategy_EnoughReconSea(CvPlayer* pPlayer)
 {
+#if defined(MOD_BALANCE_CORE)
+	// Never desperate for explorers if we are at war
+	MilitaryAIStrategyTypes eStrategyAtWar = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_LOSING_WARS");
+	if(eStrategyAtWar != NO_MILITARYAISTRATEGY)
+	{
+		if(pPlayer->GetMilitaryAI()->IsUsingStrategy(eStrategyAtWar))
+		{
+			return true;
+		}
+	}
+#endif
 	return (pPlayer->GetEconomicAI()->GetNavalReconState() == RECON_STATE_ENOUGH);
 }
 

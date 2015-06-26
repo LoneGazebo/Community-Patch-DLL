@@ -39,6 +39,9 @@ SET GreatWorkCount = '1'
 WHERE Type = 'BUILDING_NATIONAL_COLLEGE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 -- East India Co.
+UPDATE Buildings
+SET ExtraLuxuries = 'true'
+WHERE Type = 'BUILDING_NATIONAL_TREASURY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_CITY_HAPPINESS' AND Value= 1 );
 
 -- Circus Maximus
 
@@ -250,7 +253,7 @@ SET Text = 'This National Wonder provides +1 [ICON_CULTURE] Culture and reduces 
 WHERE Tag = 'TXT_KEY_BUILDING_CIRCUS_MAXIMUS_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'The East India Company increases the amount of [ICON_GOLD] Gold a city generates and reduces [ICON_HAPPINESS_3] Poverty. Trade routes other players make to a city with an East India Company will generate an extra 4 [ICON_GOLD] Gold for the city owner and the trade route owner gains an additional 2 [ICON_GOLD] Gold for the trade route. Requires a national population of at least 45 before it can be constructed.'
+SET Text = 'The East India Company increases the amount of [ICON_GOLD] Gold a city generates and reduces [ICON_HAPPINESS_3] Poverty. You also receive a free copy of all Luxury Resources around the City. Trade routes other players make to a city with an East India Company will generate an extra 4 [ICON_GOLD] Gold for the city owner and the trade route owner gains an additional 2 [ICON_GOLD] Gold for the trade route. Requires a national population of at least 45 before it can be constructed.'
 WHERE Tag = 'TXT_KEY_BUILDING_NATIONAL_TREASURY_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -270,7 +273,7 @@ SET Text = 'This National Wonder produces +1 [ICON_CULTURE] Culture for every 4 
 WHERE Tag = 'TXT_KEY_BUILDING_HERMITAGE_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'An important defensive National Wonder for a technology-driven civilization. Reduces [ICON_HAPPINESS_3] Disorder by 2. The National Intelligence Agency also provides an additional spy, levels up all your existing spies, and provides a 15% reduction in enemy spy effectiveness. A city must have a Police Station before it can construct the National Intelligence Agency. Requires a national population of at least 75 before it can be constructed.'
+SET Text = 'An important defensive National Wonder for a technology-driven civilization. Reduces [ICON_HAPPINESS_3] Crime by 2. The National Intelligence Agency also provides an additional spy, levels up all your existing spies, and provides a 15% reduction in enemy spy effectiveness. A city must have a Police Station before it can construct the National Intelligence Agency. Requires a national population of at least 75 before it can be constructed.'
 WHERE Tag = 'TXT_KEY_BUILDING_INTELLIGENCE_AGENCY_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -284,7 +287,7 @@ WHERE Tag = 'TXT_KEY_BUILDING_TOURIST_CENTER_STRATEGY' AND EXISTS (SELECT * FROM
 -- Help Text
 
 UPDATE Language_en_US
-SET Text = 'All newly-trained non-air Units in this City receive the [COLOR_POSITIVE_TEXT]Morale[ENDCOLOR] Promotion, improving [ICON_STRENGTH] combat strength by 10%. Contains 1 slot for a Great Work of Writing.[NEWLINE][NEWLINE]Must have built a Barracks in the city. The cost goes up the more cities there are in the empire. Requires a national population of at least 25 before it can be constructed.'
+SET Text = 'All newly-trained non-air Units in this City receive the [COLOR_POSITIVE_TEXT]Morale[ENDCOLOR] Promotion, improving [ICON_STRENGTH] combat strength by 10%. Contains 1 slot for a Great Work of Writing.[NEWLINE][NEWLINE]Must have built a Barracks in the city.[NEWLINE][NEWLINE]Requires a national population of at least 25 before it can be constructed.'
 WHERE Tag = 'TXT_KEY_BUILDING_HEROIC_EPIC_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -292,37 +295,37 @@ SET Text = '+25% [ICON_GREAT_PEOPLE] Great People generation in this City. Conta
 WHERE Tag = 'TXT_KEY_BUILDING_NATIONAL_EPIC_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Reduces [ICON_HAPPINESS_3] Boredom. Must have built a Colosseum in the city. The cost goes up the more cities there are in the empire. Requires a national population of at least 30 before it can be constructed.'
+SET Text = 'Reduces [ICON_HAPPINESS_3] Boredom. Must have built a Colosseum in the city.[NEWLINE][NEWLINE] Requires a national population of at least 30 before it can be constructed.'
 WHERE Tag = 'TXT_KEY_BUILDING_CIRCUS_MAXIMUS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Reduces [ICON_HAPPINESS_3] Poverty. Must have built a Market in the city. The cost goes up the more cities there are in the empire. Trade routes other players make to a city with an East India Company will generate an extra 4 [ICON_GOLD] Gold for the city owner and the trade route owner gains an additional 2 [ICON_GOLD] Gold for the trade route. Requires a national population of at least 45 before it can be constructed.'
+SET Text = 'Reduces [ICON_HAPPINESS_3] Poverty. Must have built a Market in the city.[NEWLINE][NEWLINE]Receive an additional copy of all Luxury Resources around this City.[NEWLINE][NEWLINE] Trade routes other players make to a city with an East India Company will generate an extra 4 [ICON_GOLD] Gold for the city owner and the trade route owner gains an additional 2 [ICON_GOLD] Gold for the trade route. Requires a national population of at least 45 before it can be constructed.'
 WHERE Tag = 'TXT_KEY_BUILDING_NATIONAL_TREASURY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Must have built a Library in the city. The cost goes up the more cities there are in the empire. +1 [ICON_RESEARCH] Science for every 4 [ICON_CITIZEN] Citizens in the City. Contains 1 slot for a Great Work of Writing. Requires a national population of at least 35 before it can be constructed.'
+SET Text = 'Must have built a Library in the city.[NEWLINE][NEWLINE]+1 [ICON_RESEARCH] Science for every 4 [ICON_CITIZEN] Citizens in the City. Contains 1 slot for a Great Work of Writing. Requires a national population of at least 35 before it can be constructed.'
 WHERE Tag = 'TXT_KEY_BUILDING_NATIONAL_COLLEGE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Must have built a Workshop in the city. The cost goes up the more cities there are in the empire. Requires a national population of at least 45 before it can be constructed.'
+SET Text = 'Must have built a Workshop in the city.[NEWLINE][NEWLINE]Requires a national population of at least 45 before it can be constructed.'
 WHERE Tag = 'TXT_KEY_BUILDING_IRONWORKS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Reduces [ICON_HAPPINESS_3] Illiteracy. Contains 2 slots for Great Works of Writing.[NEWLINE][NEWLINE]Must have built a University in the city. The cost goes up the more cities there are in the empire. Requires a national population of at least 55 before it can be constructed.'
+SET Text = 'Reduces [ICON_HAPPINESS_3] Illiteracy. Contains 2 slots for Great Works of Writing.[NEWLINE][NEWLINE]Must have built a University in the city. Requires a national population of at least 55 before it can be constructed.'
 WHERE Tag = 'TXT_KEY_BUILDING_OXFORD_UNIVERSITY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '+1 [ICON_CULTURE] Culture for every 4 [ICON_CITIZEN] Citizens in the City. Contains 3 slots for Great Works of Art.[NEWLINE][NEWLINE]Must have built an Opera House in the city. The cost goes up the more cities there are in the empire. Requires a national population of at least 65 before it can be constructed.'
+SET Text = '+1 [ICON_CULTURE] Culture for every 4 [ICON_CITIZEN] Citizens in the City. Contains 3 slots for Great Works of Art.[NEWLINE][NEWLINE]Must have built an Opera House in the city. Requires a national population of at least 65 before it can be constructed.'
 WHERE Tag = 'TXT_KEY_BUILDING_HERMITAGE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Reduces [ICON_HAPPINESS_3] Disorder. Provides an additional spy and levels up all your existing spies. Also provides a 15% reduction in enemy spy effectiveness. Must have a Police Station in the city. Requires a national population of at least 75 before it can be constructed.'
+SET Text = 'Reduces [ICON_HAPPINESS_3] Crime. Provides an additional spy and levels up all your existing spies. Also provides a 15% reduction in enemy spy effectiveness. Must have a Police Station in the city. Requires a national population of at least 75 before it can be constructed.'
 WHERE Tag = 'TXT_KEY_BUILDING_INTELLIGENCE_AGENCY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Reduces [ICON_HAPPINESS_3] Religious Unrest. Must have built a Temple in the city. The cost goes up the more cities there are in the empire. Requires a national population of at least 30 before it can be constructed.'
+SET Text = 'Reduces [ICON_HAPPINESS_3] Religious Unrest. Must have built a Temple in the city.[NEWLINE][NEWLINE]Requires a national population of at least 30 before it can be constructed.'
 WHERE Tag = 'TXT_KEY_BUILDING_GRAND_TEMPLE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Must have built a Hotel in the city. The cost goes up the more cities there are in the empire. 100% of the [ICON_CULTURE] Culture from World Wonders, Natural Wonders, and Improvements (Landmarks, Moai, Chateau) is added to the [ICON_TOURISM] Tourism output of the city. [ICON_TOURISM] Tourism output from Great Works +100%. Requires a national population of at least 85 before it can be constructed.'
+SET Text = 'Must have built a Hotel in the city.[NEWLINE][NEWLINE]100% of the [ICON_CULTURE] Culture from World Wonders, Natural Wonders, and Improvements (Landmarks, Moai, Chateau) is added to the [ICON_TOURISM] Tourism output of the city. [ICON_TOURISM] Tourism output from Great Works +100%. Requires a national population of at least 85 before it can be constructed.'
 WHERE Tag = 'TXT_KEY_BUILDING_TOURIST_CENTER_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_NATIONAL_WONDERS' AND Value= 1 );

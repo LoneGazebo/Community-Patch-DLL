@@ -7906,7 +7906,7 @@ int CvDealAI::GetTechValue(TechTypes eTech, bool bFromMe, PlayerTypes eOtherPlay
 
 				if(pUnitEntry->GetNukeDamageLevel() > 0)
 				{
-					iTechMod *= 3;
+					iTechMod *= 2;
 				}
 			}
 		}
@@ -7919,7 +7919,7 @@ int CvDealAI::GetTechValue(TechTypes eTech, bool bFromMe, PlayerTypes eOtherPlay
 		{
 			if(pBuildingEntry->GetPrereqAndTech() == eTech)
 			{
-				iTechMod += 4;
+				iTechMod += 2;
 			}
 		}
 	}
@@ -7931,7 +7931,7 @@ int CvDealAI::GetTechValue(TechTypes eTech, bool bFromMe, PlayerTypes eOtherPlay
 		{
 			if(pProjectEntry->GetTechPrereq() == eTech)
 			{
-				iTechMod += 3;
+				iTechMod += 2;
 			}
 		}
 	}
@@ -7943,7 +7943,7 @@ int CvDealAI::GetTechValue(TechTypes eTech, bool bFromMe, PlayerTypes eOtherPlay
 		{
 			if(pBuildInfo->getTechPrereq() == eTech)
 			{
-				iTechMod += 3;
+				iTechMod += 2;
 			}
 		}
 	}
@@ -7955,7 +7955,7 @@ int CvDealAI::GetTechValue(TechTypes eTech, bool bFromMe, PlayerTypes eOtherPlay
 		{
 			if(pResourceInfo->getTechReveal() == eTech)
 			{
-				iTechMod += 3;
+				iTechMod += 2;
 			}
 		}
 	}
@@ -7964,7 +7964,7 @@ int CvDealAI::GetTechValue(TechTypes eTech, bool bFromMe, PlayerTypes eOtherPlay
 	{
 		if(!GC.getGame().isOption(GAMEOPTION_NO_TECH_TRADING) && !GC.getGame().isOption(GAMEOPTION_NO_SCIENCE))
 		{
-			iTechMod += 3;
+			iTechMod += 2;
 		}
 	}
 
@@ -7972,7 +7972,7 @@ int CvDealAI::GetTechValue(TechTypes eTech, bool bFromMe, PlayerTypes eOtherPlay
 	{
 		if(GC.getGame().isOption(GAMEOPTION_RESEARCH_AGREEMENTS) && !GC.getGame().isOption(GAMEOPTION_NO_SCIENCE))
 		{
-			iTechMod += 3;
+			iTechMod += 2;
 		}
 	}
 
@@ -7980,7 +7980,7 @@ int CvDealAI::GetTechValue(TechTypes eTech, bool bFromMe, PlayerTypes eOtherPlay
 	{
 		if(GC.getGame().isOption(GAMEOPTION_RESEARCH_AGREEMENTS) && !GC.getGame().isOption(GAMEOPTION_NO_SCIENCE))
 		{
-			iTechMod += 3;
+			iTechMod += 2;
 		}
 	}
 

@@ -541,6 +541,12 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 #endif
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE)
 	Method(GetBaseYieldRateFromCSAlliance);
+	Method(GetCorporationYieldChange);
+	Method(GetCorporationYieldModChange);
+	Method(GetCorporationResourceQuantity);
+	Method(GetCorporationGPChange);
+	Method(IsFranchised);
+	Method(HasOffice);
 	Method(GetYieldChangeTradeRoute);
 	Method(GetSpecialistYieldChange);
 	Method(GetModFromWLTKD);
@@ -4570,6 +4576,61 @@ int CvLuaCity::lGetBaseYieldRateFromCSAlliance(lua_State* L)
 	const int iResult = pkCity->GetBaseYieldRateFromCSAlliance(eIndex);
 
 	lua_pushinteger(L, iResult);
+	return 1;
+}
+int CvLuaCity::lGetCorporationYieldChange(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const YieldTypes eIndex = (YieldTypes)lua_tointeger(L, 2);
+	int iFranchises = GET_PLAYER(pkCity->getOwner()).GetCorporateFranchisesWorldwide();
+	const int iResult = (pkCity->GetCorporationYieldChange(eIndex) * iFranchises);
+
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+int CvLuaCity::lGetCorporationYieldModChange(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const YieldTypes eIndex = (YieldTypes)lua_tointeger(L, 2);
+	const int iResult = (pkCity->GetCorporationYieldModChange(eIndex));
+
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+int CvLuaCity::lGetCorporationResourceQuantity(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const int iResource = lua_tointeger(L, 2);
+	int iFranchises = GET_PLAYER(pkCity->getOwner()).GetCorporateFranchisesWorldwide();
+	const int iResult = (pkCity->GetCorporationResourceQuantity((ResourceTypes)iResource) * iFranchises);
+
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+int CvLuaCity::lGetCorporationGPChange(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	int iFranchises = GET_PLAYER(pkCity->getOwner()).GetCorporateFranchisesWorldwide();
+	const int iResult = (pkCity->GetCorporationGPChange() * iFranchises);
+
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+int CvLuaCity::lIsFranchised(lua_State* L)
+{
+	bool bResult = false;
+	CvCity* pkCity = GetInstance(L);
+	const PlayerTypes ePlayer = (PlayerTypes)lua_tointeger(L, 2);
+	bResult = pkCity->IsFranchised(ePlayer);
+	lua_pushboolean(L, bResult);
+	return 1;
+}
+int CvLuaCity::lHasOffice(lua_State* L)
+{
+	bool bResult = false;
+	CvCity* pkCity = GetInstance(L);
+	bResult = pkCity->HasOffice();
+	lua_pushboolean(L, bResult);
 	return 1;
 }
 int CvLuaCity::lGetYieldChangeTradeRoute(lua_State* L)

@@ -552,7 +552,9 @@ public:
 	virtual CvPlot* FindBestTarget(CvUnit* pUnit, bool bOnlySafePaths) = 0;
 
 	bool RetargetCivilian(CvUnit* pCivilian, CvArmyAI* pArmy);
-
+#if defined(MOD_BALANCE_CORE)
+	virtual bool IsEscorted();
+#endif
 protected:
 	bool m_bEscorted;
 	UnitAITypes m_eCivilianType;
@@ -857,7 +859,11 @@ public:
 	}
 	virtual bool CanTacticalAIInterruptOperation() const
 	{
+#if defined(MOD_BALANCE_CORE)
+		return false;
+#else
 		return true;
+#endif
 	}
 
 	virtual bool ArmyInPosition(CvArmyAI* pArmy);
@@ -900,7 +906,11 @@ public:
 	}
 	virtual bool CanTacticalAIInterruptOperation() const
 	{
+#if defined(MOD_BALANCE_CORE)
+		return false;
+#else
 		return true;
+#endif
 	}
 	virtual int GetDeployRange() const;
 

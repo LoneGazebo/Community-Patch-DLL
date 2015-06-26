@@ -14,12 +14,12 @@
 	<Policy_FreeBuilding>
 		<Row>
 			<PolicyType>POLICY_ACADEMY_SCIENCES</PolicyType>
-			<BuildingClassType>BUILDINGCLASS_UNIVERSITY</BuildingClassType>
+			<BuildingClassType>BUILDINGCLASS_PUBLIC_SCHOOL</BuildingClassType>
 			<Count>100</Count>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_SOCIALIST_REALISM</PolicyType>
-			<BuildingClassType>BUILDINGCLASS_PUBLIC_SCHOOL</BuildingClassType>
+			<BuildingClassType>BUILDINGCLASS_MUSEUM</BuildingClassType>
 			<Count>100</Count>
 		</Row>
 	</Policy_FreeBuilding>

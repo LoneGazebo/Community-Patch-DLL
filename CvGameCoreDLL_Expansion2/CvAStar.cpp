@@ -4664,3 +4664,42 @@ const CvPathNode* CvPathNodeArray::GetTurnDest(int iTurn)
 
 	return NULL;
 }
+
+#if defined(MOD_BALANCE_CORE)
+//	---------------------------------------------------------------------------
+bool IsPlotConnectedToPlot(PlayerTypes ePlayer, CvPlot* pFromPlot, CvPlot* pToPlot, RouteTypes eRestrictRoute, bool bIgnoreHarbors)
+{
+	if (ePlayer==NO_PLAYER)
+		return false;
+	
+	int iPathfinderFlags = ePlayer | MOVE_ROUTE_ALLOW_UNEXPLORED;	// Since we just want to know if we are connected or not, allow the check to search unexplored terrain.
+	if(eRestrictRoute == NO_ROUTE)
+	{
+		iPathfinderFlags |= MOVE_ANY_ROUTE;
+	}
+	else
+	{
+		// assuming that there are fewer than 256 players
+		int iRouteValue = eRestrictRoute + 1;
+		iPathfinderFlags |= (iRouteValue << 8);
+	}
+
+	if (bIgnoreHarbors)
+	{
+		GC.getRouteFinder().SetNumExtraChildrenFunc(NULL);
+		GC.getRouteFinder().SetExtraChildGetterFunc(NULL);
+	}
+
+	GC.getRouteFinder().ForceReset();
+	bool bReturnValue = GC.getRouteFinder().GeneratePath(pFromPlot->getX(), pFromPlot->getY(), pToPlot->getX(), pToPlot->getY(), iPathfinderFlags, false);
+
+	if (bIgnoreHarbors)
+	{
+		// reconnect the land route pathfinder water methods
+		GC.getRouteFinder().SetNumExtraChildrenFunc(RouteGetNumExtraChildren);
+		GC.getRouteFinder().SetExtraChildGetterFunc(RouteGetExtraChild);
+	}
+
+	return bReturnValue;
+}
+#endif

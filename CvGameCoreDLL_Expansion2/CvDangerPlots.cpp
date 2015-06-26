@@ -866,7 +866,7 @@ bool CvDangerPlots::ShouldIgnoreCitadel(CvPlot* pCitadelPlot, bool bIgnoreVisibi
 //	-----------------------------------------------------------------------------------------------
 /// Contains the calculations to do the danger value for the plot according to the unit
 #ifdef AUI_DANGER_PLOTS_REMADE
-void CvDangerPlots::AssignUnitDangerValue(CvUnit* pUnit, CvPlot* pPlot, bool bReuse)
+void CvDangerPlots::AssignUnitDangerValue(CvUnit* pUnit, CvPlot* pPlot)
 {
 	if (IsDangerByRelationshipZero(pUnit->getOwner(), pPlot))
 		return;
@@ -875,91 +875,9 @@ void CvDangerPlots::AssignUnitDangerValue(CvUnit* pUnit, CvPlot* pPlot, bool bRe
 	const int iPlotY = pPlot->getY();
 	const int idx = GC.getMap().plotNum(iPlotX, iPlotY);
 	
-	// Check to see if we're already in this plot
-	if (pUnit->plot() == pPlot)
-	{
-		m_DangerPlots[idx].m_apUnits.push_back( std::make_pair(pUnit->getOwner(),pUnit->GetID()) );
-		m_DangerPlots[idx].m_apMoveOnlyUnits.push_back( std::make_pair(pUnit->getOwner(),pUnit->GetID()) );
-		return;
-	}
-
-	// Check to see if another player has already done the pathfinding for us
-	DangerPlotList& vpUnitDangerPlotList = pUnit->GetDangerPlotList(false);
-	DangerPlotList& vpUnitDangerPlotMoveOnlyList = pUnit->GetDangerPlotList(true);
-	bool bInList = pPlot->getNumTimesInList(vpUnitDangerPlotList, true) > 0;
-	bool bInMoveOnlyList = pPlot->getNumTimesInList(vpUnitDangerPlotMoveOnlyList, true) > 0;
-
-	if (bInList)
-		m_DangerPlots[idx].m_apUnits.push_back( std::make_pair(pUnit->getOwner(),pUnit->GetID()) );
-
-	if (bInMoveOnlyList)
-		m_DangerPlots[idx].m_apMoveOnlyUnits.push_back( std::make_pair(pUnit->getOwner(),pUnit->GetID()) );
-
-	if (bInList || bInMoveOnlyList)
-		return;
-
-	CvIgnoreUnitsPathFinder& kPathFinder = GC.getIgnoreUnitsPathFinder();
-#ifdef AUI_ASTAR_TURN_LIMITER
-	kPathFinder.SetData(pUnit, 1);
-#else
-	kPathFinder.SetData(pUnit);
-#endif // AUI_ASTAR_TURN_LIMITER
-
-	CvAStarNode* pNode = NULL;
-	int iTurnsAway = MAX_INT;
-
-	if (pUnit->IsCanAttackRanged())
-	{
-		if (kPathFinder.GeneratePath(pUnit->getX(), pUnit->getY(), iPlotX, iPlotY, MOVE_UNITS_IGNORE_DANGER | MOVE_IGNORE_STACKING, bReuse /*bReuse*/))
-		{
-			pNode = kPathFinder.GetLastNode();
-			if (pNode)
-			{
-				iTurnsAway = pNode->m_iData2;
-			}
-		}
-		if (iTurnsAway <= 1)
-		{
-			m_DangerPlots[idx].m_apMoveOnlyUnits.push_back( std::make_pair(pUnit->getOwner(),pUnit->GetID()) );
-			vpUnitDangerPlotMoveOnlyList.push_back(std::make_pair(pPlot, true));
-		}
-		else
-		{
-			vpUnitDangerPlotMoveOnlyList.push_back(std::make_pair(pPlot, false));
-		}
-		if (pUnit->canMoveAndRangedStrike(pPlot))
-		{
-			m_DangerPlots[idx].m_apUnits.push_back( std::make_pair(pUnit->getOwner(),pUnit->GetID()) );
-			vpUnitDangerPlotList.push_back(std::make_pair(pPlot, true));
-		}
-		else
-		{
-			vpUnitDangerPlotList.push_back(std::make_pair(pPlot, false));
-		}
-	}
-	else
-	{
-		if (kPathFinder.GeneratePath(pUnit->getX(), pUnit->getY(), iPlotX, iPlotY, MOVE_UNITS_IGNORE_DANGER | MOVE_IGNORE_STACKING, bReuse /*bReuse*/))
-		{
-			pNode = kPathFinder.GetLastNode();
-			if (pNode)
-			{
-				iTurnsAway = pNode->m_iData2;
-			}
-		}
-		if (iTurnsAway <= 1)
-		{
-			m_DangerPlots[idx].m_apUnits.push_back( std::make_pair(pUnit->getOwner(),pUnit->GetID()) );
-			m_DangerPlots[idx].m_apMoveOnlyUnits.push_back( std::make_pair(pUnit->getOwner(),pUnit->GetID()) );
-			vpUnitDangerPlotList.push_back(std::make_pair(pPlot, true));
-			vpUnitDangerPlotMoveOnlyList.push_back(std::make_pair(pPlot, true));
-		}
-		else
-		{
-			vpUnitDangerPlotList.push_back(std::make_pair(pPlot, false));
-			vpUnitDangerPlotMoveOnlyList.push_back(std::make_pair(pPlot, false));
-		}
-	}
+	m_DangerPlots[idx].m_apUnits.push_back( std::make_pair(pUnit->getOwner(),pUnit->GetID()) );
+	m_DangerPlots[idx].m_apMoveOnlyUnits.push_back( std::make_pair(pUnit->getOwner(),pUnit->GetID()) );
+}
 #else
 void CvDangerPlots::AssignUnitDangerValue(CvUnit* pUnit, CvPlot* pPlot)
 {
@@ -1061,8 +979,8 @@ void CvDangerPlots::AssignUnitDangerValue(CvUnit* pUnit, CvPlot* pPlot)
 			AddDanger(iPlotX, iPlotY, iUnitCombatValue, iTurnsAway <= 1);
 		}
 	}
-#endif // AUI_DANGER_PLOTS_REMADE
 }
+#endif // AUI_DANGER_PLOTS_REMADE
 
 //	-----------------------------------------------------------------------------------------------
 /// Contains the calculations to do the danger value for the plot according to the city

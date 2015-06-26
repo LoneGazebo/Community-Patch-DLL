@@ -8766,13 +8766,6 @@ int CvPlot::calculateImprovementYieldChange(ImprovementTypes eImprovement, Yield
 	if (!pImprovement)
 		return 0;
 
-#if defined(MOD_BALANCE_CORE)
-	if((YieldTypes)eYield > YIELD_FAITH)
-	{
-		return 0;
-	}
-#endif
-
 	iYield = pImprovement->GetYieldChange(eYield);
 
 	int iYieldChangePerEra = pImprovement->GetYieldChangePerEra(eYield);
@@ -8972,6 +8965,29 @@ int CvPlot::calculateImprovementYieldChange(ImprovementTypes eImprovement, Yield
 	CvCity* pWorkingCity = getWorkingCity();
 	if(pWorkingCity)
 	{
+#if defined(MOD_BALANCE_CORE)
+		//Encourage yields we need in the city.
+		if(eYield == YIELD_GOLD && pWorkingCity->getUnhappinessFromGold() > 0)
+		{
+			iYield += (pWorkingCity->getUnhappinessFromGold() / 2);
+		}
+		else if(eYield == YIELD_CULTURE && pWorkingCity->getUnhappinessFromCulture() > 0)
+		{
+			iYield += (pWorkingCity->getUnhappinessFromCulture() / 2);
+		}
+		else if(eYield == YIELD_FAITH && pWorkingCity->getUnhappinessFromMinority() > 0)
+		{
+			iYield += (pWorkingCity->getUnhappinessFromCulture() / 2);
+		}
+		else if(eYield == YIELD_SCIENCE && pWorkingCity->getUnhappinessFromScience() > 0)
+		{
+			iYield += (pWorkingCity->getUnhappinessFromCulture() / 2);
+		}
+		else if(eYield == YIELD_FOOD && pWorkingCity->getUnhappinessFromStarving() > 0)
+		{
+			iYield += (pWorkingCity->getUnhappinessFromCulture() / 2);
+		}
+#endif
 		ReligionTypes eMajority = pWorkingCity->GetCityReligions()->GetReligiousMajority();
 		if(eMajority != NO_RELIGION)
 		{
@@ -11309,28 +11325,6 @@ void CvPlot::showPopupText(PlayerTypes ePlayer, const char* szMessage)
 		DLLUI->AddPopupText(getX(), getY(), szMessage, m_fPopupDelay);
 		m_fPopupDelay += 0.5;
 	}
-}
-#endif
-
-#ifdef AUI_DANGER_PLOTS_REMADE
-int CvPlot::getNumTimesInList(const DangerPlotList& aPlotList, bool bTerminateAfterFirst) const
-{
-	if (aPlotList.size() == 0)
-		return 0;
-
-	int rtnValue = 0;
-
-	for (DangerPlotList::const_iterator it = aPlotList.begin(); it != aPlotList.end(); ++it)
-	{
-		if (it->first == this)
-		{
-			if (bTerminateAfterFirst)
-				return 1;
-			++rtnValue;
-		}
-	}
-
-	return rtnValue;
 }
 #endif
 

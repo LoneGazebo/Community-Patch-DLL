@@ -279,7 +279,7 @@ void CvCityCitizens::DoTurn()
 			SetNoAutoAssignSpecialists(false);
 			SetForcedAvoidGrowth(false);
 		}
-		else if(m_pCity->getPopulation() < 8)  // we want a balanced growth
+		else if(m_pCity->getPopulation() <= 10)  // we want a balanced growth
 		{
 			SetFocusType(NO_CITY_AI_FOCUS_TYPE);
 			SetNoAutoAssignSpecialists(true);
@@ -306,37 +306,55 @@ void CvCityCitizens::DoTurn()
 				}
 			}
 
-			MilitaryAIStrategyTypes eStrategyWarMob = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_WAR_MOBILIZATION");
-			bool bMobilizing = false;
-			if(eStrategyWarMob != NO_MILITARYAISTRATEGY)
-			{
-				bMobilizing = thisPlayer.GetMilitaryAI()->IsUsingStrategy(eStrategyWarMob);
-			}
-
-			MilitaryAIStrategyTypes eStrategyWar = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_AT_WAR");
-			bool bWar = false;
-			if(eStrategyWar != NO_MILITARYAISTRATEGY)
-			{
-				bWar = thisPlayer.GetMilitaryAI()->IsUsingStrategy(eStrategyWar);
-			}
+			ProcessTypes eProcess = m_pCity->getProductionProcess();
 			
-			if(bInDeficit && !bMobilizing && !bWar)
+			if(bInDeficit)
 			{
-				SetFocusType(CITY_AI_FOCUS_TYPE_GOLD_GROWTH);
+				SetFocusType(CITY_AI_FOCUS_TYPE_GOLD);
 				SetNoAutoAssignSpecialists(false);
 				SetForcedAvoidGrowth(false);
 			}
-			else if(bMobilizing)
+			else if(eProcess != NO_PROCESS)
 			{
-				SetFocusType(CITY_AI_FOCUS_TYPE_PROD_GROWTH);
-				SetNoAutoAssignSpecialists(false);
-				SetForcedAvoidGrowth(false);
-			}
-			else if(bWar)
-			{
-				SetFocusType(CITY_AI_FOCUS_TYPE_PRODUCTION);
-				SetNoAutoAssignSpecialists(false);
-				SetForcedAvoidGrowth(false);
+				bool bFound = false;
+				// Contribute production to a League project
+				for(int iI = 0; iI < GC.getNumLeagueProjectInfos(); iI++)
+				{
+					LeagueProjectTypes eLeagueProject = (LeagueProjectTypes) iI;
+					CvLeagueProjectEntry* pInfo = GC.getLeagueProjectInfo(eLeagueProject);
+					if (pInfo)
+					{
+						if (pInfo->GetProcess() == eProcess)
+						{
+							SetFocusType(CITY_AI_FOCUS_TYPE_PRODUCTION);
+							bFound = true;
+							break;
+						}
+					}
+				}
+				if(!bFound)
+				{
+					CvProcessInfo* pInfo = GC.getProcessInfo(eProcess);
+					if (pInfo)
+					{
+						if(pInfo->getProductionToYieldModifier(YIELD_CULTURE) > 0)
+						{
+							SetFocusType(CITY_AI_FOCUS_TYPE_CULTURE);
+						}
+						else if(pInfo->getProductionToYieldModifier(YIELD_FOOD) > 0)
+						{
+							SetFocusType(CITY_AI_FOCUS_TYPE_FOOD);
+						}
+						else if(pInfo->getProductionToYieldModifier(YIELD_GOLD) > 0)
+						{
+							SetFocusType(CITY_AI_FOCUS_TYPE_GOLD);
+						}
+						else if(pInfo->getProductionToYieldModifier(YIELD_SCIENCE) > 0)
+						{
+							SetFocusType(CITY_AI_FOCUS_TYPE_SCIENCE);
+						}
+					}
+				}
 			}
 			else // no special cases? Alright, let's pick a function to follow...
 			{
@@ -345,6 +363,7 @@ void CvCityCitizens::DoTurn()
 				if(eGoodGP != NO_AICITYSTRATEGY)
 				{
 					bGPCity = m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eGoodGP);
+					bGPCity = GET_PLAYER(m_pCity->getOwner()).GetDiplomacyAI()->IsGoingForCultureVictory();
 				}
 				SetNoAutoAssignSpecialists(false);
 				SetForcedAvoidGrowth(false);
@@ -400,9 +419,14 @@ void CvCityCitizens::DoTurn()
 			}
 		}
 	}
-	if(!thisPlayer.isHuman() && thisPlayer.IsEmpireVeryUnhappy() && GetCity()->getPopulation() >= 20)
+	if(!thisPlayer.isHuman() && thisPlayer.IsEmpireVeryUnhappy() && (GetCity()->getPopulation() > 20))
 	{
-		SetForcedAvoidGrowth(true);
+		thisPlayer.CalculateHappiness();
+		//This city contributing a lot of unhappiness?
+		if(GetCity()->getUnhappyCitizenCount() > (GetCity()->getPopulation() / 2))
+		{
+			SetForcedAvoidGrowth(true);
+		}
 	}
 	CvAssertMsg((GetNumCitizensWorkingPlots() + GetTotalSpecialistCount() + GetNumUnassignedCitizens()) <= GetCity()->getPopulation(), "Gameplay: More workers than population in the city.");
 
@@ -615,6 +639,9 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, bool bUseAllowGrowthFlag)
 	else if(eFocus == CITY_AI_FOCUS_TYPE_FAITH)
 	{
 		iFaithYieldValue *= 3;
+#if defined(MOD_BALANCE_CORE)
+		iCultureYieldValue *= 2;
+#endif
 	}
 #if defined(MOD_BALANCE_CORE)
 	else if(eFocus == CITY_AI_FOCUS_TYPE_GREAT_PEOPLE)
@@ -630,6 +657,16 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, bool bUseAllowGrowthFlag)
 		// If we at least have enough Food to feed everyone, zero out the value of additional food
 		iFoodYieldValue = 0;
 	}
+#if defined(MOD_BALANCE_CORE)
+	else
+	{
+		int iExcessFood = (m_pCity->foodDifference() * 3);
+		int iFoodNeeded = m_pCity->growthThreshold();
+		int iRemainder = 0;
+		iRemainder = (max(iFoodNeeded, 1) / max(iExcessFood, 1));
+		iFoodYieldValue *= iRemainder;
+	}
+#else
 	// We want to grow here
 	else
 	{
@@ -662,19 +699,9 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, bool bUseAllowGrowthFlag)
 			}
 		}
 	}
-
 	if((eFocus == NO_CITY_AI_FOCUS_TYPE || eFocus == CITY_AI_FOCUS_TYPE_PROD_GROWTH || eFocus == CITY_AI_FOCUS_TYPE_GOLD_GROWTH) && !bAvoidGrowth && m_pCity->getPopulation() < 5)
 	{
 		iFoodYieldValue *= 4;
-	}
-#if defined(MOD_BALANCE_CORE)
-	else if((eFocus == NO_CITY_AI_FOCUS_TYPE || eFocus == CITY_AI_FOCUS_TYPE_PROD_GROWTH || eFocus == CITY_AI_FOCUS_TYPE_GOLD_GROWTH) && !bAvoidGrowth && m_pCity->getPopulation() < 15)
-	{
-		iFoodYieldValue *= 3;
-	}
-	else if((eFocus == NO_CITY_AI_FOCUS_TYPE || eFocus == CITY_AI_FOCUS_TYPE_PROD_GROWTH || eFocus == CITY_AI_FOCUS_TYPE_GOLD_GROWTH) && !bAvoidGrowth && m_pCity->getPopulation() < 25)
-	{
-		iFoodYieldValue *= 2;
 	}
 #endif
 	iValue += iFoodYieldValue;
@@ -1169,9 +1196,36 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist)
 	int iGoldenAgeYieldValue = (GC.getAI_CITIZEN_VALUE_CULTURE() * pPlayer->specialistYield(eSpecialist, YIELD_GOLDEN_AGE_POINTS));
 #endif
 	int iGPPYieldValue = pSpecialistInfo->getGreatPeopleRateChange() * 3; // TODO: un-hardcode this
+
 	int iHappinessYieldValue = (m_pCity->GetPlayer()->isHalfSpecialistUnhappiness()) ? 5 : 0; // TODO: un-hardcode this
 	iHappinessYieldValue = m_pCity->GetPlayer()->IsEmpireUnhappy() ? iHappinessYieldValue * 2 : iHappinessYieldValue; // TODO: un-hardcode this
+#if defined(MOD_BALANCE_CORE)
+	bool bGPCity = false;
+	AICityStrategyTypes eGoodGP = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_GOOD_GP_CITY");
+	if(eGoodGP != NO_AICITYSTRATEGY)
+	{
+		bGPCity = m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eGoodGP);
+	}
+	if(bGPCity)
+	{
+		iGPPYieldValue *= 2;
+	}
+	if(GET_PLAYER(m_pCity->getOwner()).IsEmpireUnhappy())
+	{
+		CvCity* pAssumeCityAnnexed = NULL;
+		CvCity* pAssumeCityPuppeted = NULL;
+		if(m_pCity->IsPuppet())
+		{
+			pAssumeCityPuppeted = m_pCity;
+		}
+		if(m_pCity->IsOccupied() && !m_pCity->IsNoOccupiedUnhappiness())
+		{
+			pAssumeCityAnnexed = m_pCity;
+		}
 
+		iHappinessYieldValue *= max(1, (GET_PLAYER(m_pCity->getOwner()).GetUnhappinessFromCitySpecialists(pAssumeCityAnnexed, pAssumeCityPuppeted) / 4));
+	}
+#endif
 	// How much surplus food are we making?
 	int iExcessFoodTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - (m_pCity->foodConsumption() * 100);
 
@@ -1221,6 +1275,16 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist)
 		iFoodYieldValue = 0;
 	}
 	// We want to grow here
+#if defined(MOD_BALANCE_CORE)
+	else
+	{
+		int iExcessFood = (m_pCity->foodDifference() * 3);
+		int iFoodNeeded = m_pCity->growthThreshold();
+		int iRemainder = 0;
+		iRemainder = (max(iFoodNeeded, 1) / max(iExcessFood, 1));
+		iFoodYieldValue *= iRemainder;
+	}
+#else
 	else
 	{
 		// If we have a non-default and non-food focus, only worry about getting to 0 food
@@ -1257,15 +1321,6 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist)
 	{
 		iFoodYieldValue *= 4;
 	}
-#if defined(MOD_BALANCE_CORE)
-	else if((eFocus == NO_CITY_AI_FOCUS_TYPE || eFocus == CITY_AI_FOCUS_TYPE_PROD_GROWTH || eFocus == CITY_AI_FOCUS_TYPE_GOLD_GROWTH) && !bAvoidGrowth && m_pCity->getPopulation() < 15)
-	{
-		iFoodYieldValue *= 3;
-	}
-	else if((eFocus == NO_CITY_AI_FOCUS_TYPE || eFocus == CITY_AI_FOCUS_TYPE_PROD_GROWTH || eFocus == CITY_AI_FOCUS_TYPE_GOLD_GROWTH) && !bAvoidGrowth && m_pCity->getPopulation() < 25)
-	{
-		iFoodYieldValue *= 2;
-	}
 #endif
 	iValue += iFoodYieldValue;
 	iValue += iProductionYieldValue;
@@ -1281,7 +1336,43 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist)
 #endif
 	iValue += iGPPYieldValue;
 	iValue += iHappinessYieldValue;
-
+#if defined(MOD_BALANCE_CORE)
+	pSpecialistInfo = GC.getSpecialistInfo(eSpecialist);
+	if(pSpecialistInfo)
+	{
+		int iFlavorGold = GET_PLAYER(m_pCity->getOwner()).GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GOLD"));
+		int iFlavorScience = GET_PLAYER(m_pCity->getOwner()).GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SCIENCE"));
+		int iFlavorCulture = GET_PLAYER(m_pCity->getOwner()).GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_CULTURE"));
+		int iFlavorProduction = GET_PLAYER(m_pCity->getOwner()).GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_PRODUCTION"));
+		int iFlavorDiplomacy = GET_PLAYER(m_pCity->getOwner()).GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DIPLOMACY"));
+		UnitClassTypes eUnitClass = (UnitClassTypes)pSpecialistInfo->getGreatPeopleUnitClass();
+		if(eUnitClass != NO_UNITCLASS)
+		{
+			if(eUnitClass == GC.getInfoTypeForString("UNITCLASS_ARTIST") || eUnitClass == GC.getInfoTypeForString("UNITCLASS_WRITER") || eUnitClass == GC.getInfoTypeForString("UNITCLASS_MUSICIAN"))
+			{
+				iValue += iFlavorCulture;
+			}
+			else if(eUnitClass == GC.getInfoTypeForString("UNITCLASS_ENGINEER"))
+			{
+				iValue += iFlavorProduction;
+			}
+			else if(eUnitClass == GC.getInfoTypeForString("UNITCLASS_MERCHANT"))
+			{
+				iValue += iFlavorGold;
+			}
+			else if(eUnitClass == GC.getInfoTypeForString("UNITCLASS_SCIENTIST"))
+			{
+				iValue += iFlavorScience;
+			}
+#if defined(MOD_DIPLOMACY_CITYSTATES)
+			else if(MOD_DIPLOMACY_CITYSTATES && eUnitClass == GC.getInfoTypeForString("UNITCLASS_GREAT_DIPLOMAT"))
+			{
+				iValue += iFlavorDiplomacy;
+			}
+#endif
+		}
+	}
+#endif
 	return iValue;
 }
 

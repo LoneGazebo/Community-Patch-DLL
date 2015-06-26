@@ -2409,11 +2409,6 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 		}
 	}
 
-#ifdef AUI_DANGER_PLOTS_REMADE
-	vpDangerPlotList.reserve(NUM_DIRECTION_TYPES * baseMoves());
-	vpDangerPlotMoveOnlyList.reserve(NUM_DIRECTION_TYPES * baseMoves());
-#endif
-
 	if(bSetupGraphical)
 		setupGraphical();
 		
@@ -3596,6 +3591,13 @@ void CvUnit::doTurn()
 	{
 		SetActivityType(ACTIVITY_AWAKE);
 	}
+#if defined(MOD_BALANCE_CORE)
+	bool bAirRange = (getDomainType() == DOMAIN_AIR && (eActivityType != ACTIVITY_HEAL) &&  isHuman() && !IsHurt() && SentryAlert());
+	if(bAirRange)
+	{
+		SetActivityType(ACTIVITY_AWAKE);
+	}
+#endif
 
 	testPromotionReady();
 
@@ -3660,10 +3662,6 @@ void CvUnit::doTurn()
 		}
 	}
 
-#ifdef AUI_DANGER_PLOTS_REMADE
-	vpDangerPlotList.clear();
-	vpDangerPlotMoveOnlyList.clear();
-#endif
 	doDelayedDeath();
 }
 
@@ -4469,39 +4467,38 @@ TeamTypes CvUnit::GetDeclareWarMove(const CvPlot& plot) const
 		{
 			int iPeaceUnits = 0;
 			pUnit = NULL;
-			bool bGotOne = false;
-			if(plot.isCity())
+			bool bWarCity = false;
+			if(plot.isCity() && GET_TEAM(GET_PLAYER(plot.getOwner()).getTeam()).isAtWar(getTeam()))
 			{
-				if(!GET_TEAM(getTeam()).isAtWar(GET_PLAYER(plot.getOwner()).getTeam()))
-				{
-					bGotOne = true;
-				}
+				bWarCity = true;
 			}
 			for(int iUnitLoop = 0; iUnitLoop < plot.getNumUnits(); iUnitLoop++)
 			{
 				CvUnit* loopUnit = plot.getUnitByIndex(iUnitLoop);
 
 				//If we're at war with a civ, and they've got a unit here, let's return that unit instead of the civilian unit on this space.
-				if(!bGotOne && loopUnit && GET_TEAM(getTeam()).isAtWar(plot.getUnitByIndex(iUnitLoop)->getTeam()))
+				if(loopUnit != NULL)
 				{
-					//There can be only one military unit on a tile, so one check is good enough.
-					if(!plot.getUnitByIndex(iUnitLoop)->IsCivilianUnit())
+					if(loopUnit->IsCombatUnit())
 					{
-						pUnit = plot.getUnitByIndex(iUnitLoop);
-						bGotOne = true;
+						if(GET_TEAM(getTeam()).isAtWar(loopUnit->getTeam()))
+						{
+							//There can be only one military unit on a tile, so one check is good enough.
+							pUnit = plot.getUnitByIndex(iUnitLoop);
+						}
 					}
-				}
-				else if(loopUnit && !GET_TEAM(getTeam()).isAtWar(plot.getUnitByIndex(iUnitLoop)->getTeam()))
-				{
-					//Only need one to trigger.
-					if(plot.getUnitByIndex(iUnitLoop)->IsCivilianUnit())
+					else if(loopUnit->IsCivilianUnit())
 					{
-						iPeaceUnits++;
+						//Only need one to trigger.
+						if(!GET_TEAM(getTeam()).isAtWar(loopUnit->getTeam()))
+						{
+							iPeaceUnits++;
+						}
 					}
 				}
 			}
-			//If there's a civilian here, but we're at peace with that civilian, return NO_TEAM.
-			if((iPeaceUnits > 0) && ((pUnit != NULL) || bGotOne))
+			//If there is a civlian and an enemy unit here (or this is an enemy city), but we're at peace with that civilian, return NO_TEAM.
+			if((iPeaceUnits > 0) && (bWarCity || (pUnit != NULL)))
 			{
 				return NO_TEAM;
 			}
@@ -8627,6 +8624,12 @@ bool CvUnit::canPlunderTradeRoute(const CvPlot* pPlot, bool bOnlyTestVisibility)
 			{
 				return false;
 			}
+#if defined(MOD_BALANCE_CORE)
+			if(GET_PLAYER(m_eOwner).AreTradeRoutesInvulnerable())
+			{
+				return false;
+			}
+#endif
 		}
 
 		return true;
@@ -24819,128 +24822,6 @@ bool CvUnit::DoSingleUnitAITypeFlip(UnitAITypes eUnitAIType, bool bRevert, bool 
 }
 #endif // AUI_UNIT_DO_AITYPE_FLIP
 
-#ifdef AUI_DANGER_PLOTS_REMADE
-DangerPlotList& CvUnit::GetDangerPlotList(bool bMoveOnly)
-{
-	if (bMoveOnly)
-		return vpDangerPlotMoveOnlyList;
-	else
-		return vpDangerPlotList;
-}
-#endif
-
-#if defined(MOD_AI_SMART_RANGED_UNITS)
-
-bool CvUnit::canMoveAndRangedStrike(const CvPlot* pTargetPlot) const
-{
-	VALIDATE_OBJECT
-	if (pTargetPlot == NULL)
-	{
-		return false;
-	}
-
-	// If unit can already strike without moving is always true
-	if (canEverRangeStrikeAt(pTargetPlot->getX(),pTargetPlot->getY()))
-	{
-		return true;
-	}
-
-	// We only compute if distance is reasonable
-	if (GetRangeWithMovement() < plotDistance(getX(), getY(), pTargetPlot->getX(), pTargetPlot->getY()))
-	{
-		return false;
-	}
-
-	vector<CvPlot*> movePlotTest;
-	return GetMovablePlotListOpt(movePlotTest, pTargetPlot, true);
-}
-
-// Optimized function to evaluate free plots for move and fire.
-bool CvUnit::GetMovablePlotListOpt(vector<CvPlot*>& plotData, const CvPlot* pTargetPlot, bool bExitOnFound) const
-{
-	VALIDATE_OBJECT
-	int xVariance = max(abs((getX() - pTargetPlot->getX()) / 2), baseMoves()-1);
-	int yVariance = max(abs((getY() - pTargetPlot->getY()) / 2), baseMoves()-1);
-
-	int xMin, xMax, yMin, yMax;
-	if (isRanged())
-	{
-		xMin = min(getX(), pTargetPlot->getX()) - xVariance;
-		xMax = max(getX(), pTargetPlot->getX()) + xVariance;
-		yMin = min(getY(), pTargetPlot->getY()) - yVariance;
-		yMax = max(getY(), pTargetPlot->getY()) + yVariance;
-	}
-	else
-	{
-		xMin = xMax = pTargetPlot->getX();
-		yMin = yMax = pTargetPlot->getY();
-	}
-
-	const CvPlot* pFromPlot = plot();
-	CvAStar& kPathfinder = GC.GetTacticalAnalysisMapFinder();
-
-#ifdef AUI_ASTAR_TURN_LIMITER
-	kPathfinder.SetData(this, 1);
-#else
-	kPathfinder.SetData(this);
-#endif
-
-	for(int iDX = xMin; iDX <= xMax; iDX++)
-	{
-		for(int iDY = yMin; iDY <= yMax; iDY++)
-		{
-			CvPlot* pLoopPlot = GC.getMap().plot(iDX, iDY);
-
-			if(pLoopPlot)
-			{
-				// Melee units get different rules
-				if (!isRanged())
-				{
-					// Run pathfinder to see if we can get to plot with movement left
-					if (kPathfinder.GeneratePath(pFromPlot->getX(), pFromPlot->getY(), pLoopPlot->getX(), pLoopPlot->getY(), MOVE_UNITS_IGNORE_DANGER | MOVE_UNITS_THROUGH_ENEMY | MOVE_IGNORE_STACKING, bExitOnFound /*bReuse*/))
-					{
-						CvAStarNode* pNode = kPathfinder.GetLastNode();
-						if (pNode)
-						{
-							if (pNode->m_iData2 == 1)
-							{
-								plotData.push_back(pLoopPlot);
-								if (bExitOnFound)
-								{
-									return true;
-								}
-							}
-						}
-					}
-				}
-				// Can we attack the target from the plot?
-				else if (canEverRangeStrikeAt(pTargetPlot->getX(),pTargetPlot->getY(), pLoopPlot))
-				{
-					// Run pathfinder to see if we can get to plot with movement left
-					if (kPathfinder.GeneratePath(pFromPlot->getX(), pFromPlot->getY(), pLoopPlot->getX(), pLoopPlot->getY(), MOVE_UNITS_IGNORE_DANGER, bExitOnFound /*bReuse*/))
-					{
-						CvAStarNode* pNode = kPathfinder.GetLastNode();
-						if (pNode)
-						{
-							if (pNode->m_iData2 == 1 && pNode->m_iData1 > getMustSetUpToRangedAttackCount())
-							{
-								plotData.push_back(pLoopPlot);
-								if (bExitOnFound)
-								{
-									return true;
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-
-	return !plotData.empty();
-}
-#endif
-
 //	--------------------------------------------------------------------------------
 /// Can this Unit air sweep to eliminate interceptors?
 bool CvUnit::IsAirSweepCapable() const
@@ -25462,6 +25343,12 @@ bool CvUnit::SentryAlert() const
 {
 	VALIDATE_OBJECT
 	int iRange = visibilityRange();
+#if defined(MOD_BALANCE_CORE)
+	if(getDomainType() == DOMAIN_AIR)
+	{
+		iRange = GetRange();
+	}
+#endif
 
 	if(iRange > 0)
 	{
@@ -25633,7 +25520,7 @@ RouteTypes CvUnit::GetBestBuildRoute(CvPlot* pPlot, BuildTypes* peBestBuild) con
 	if (bOnlyRoad) {
 		// If there is no road to the mission end plot, bOnlyRoad is true
 		CvUnit* me = kPlayer.getUnit(m_iID); // God I truely hate "const" - we're in a const method, but LastMissionPlot() isn't so we can't call it!!!
-		bOnlyRoad = !kPlayer.IsPlotConnectedToPlot(pPlot, me->LastMissionPlot(), ROUTE_ROAD);;
+		bOnlyRoad = !IsPlotConnectedToPlot(getOwner(), pPlot, me->LastMissionPlot(), ROUTE_ROAD);
 	}
 #endif
 

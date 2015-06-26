@@ -6116,7 +6116,7 @@ bool CvDiplomacyAI::IsWillingToMakePeaceWithHuman(PlayerTypes ePlayer)
 		{
 			bHasOperationUnderway = m_pPlayer->haveAIOperationOfType(AI_OPERATION_PURE_NAVAL_CITY_ATTACK, &iOperationID, ePlayer);
 		}
-		bWillMakePeace = ((GetPlayerNumTurnsSinceCityCapture(ePlayer) >= 5) || (GetPlayerNumTurnsSinceCityCapture(ePlayer) > 1 && !bHasOperationUnderway));
+		bWillMakePeace = (GetPlayerNumTurnsSinceCityCapture(ePlayer) >= 3 && !bHasOperationUnderway);
 #endif
 
 		// If either of us are locked in, then we're not willing to make peace (this prevents weird greetings and stuff) - we use > 1 because it'll get decremented after it appears the human make peace again
@@ -14736,11 +14736,11 @@ void CvDiplomacyAI::DoContactMinorCivs()
 #if defined(MOD_BALANCE_CORE_MINOR_VARIABLE_BULLYING)
 						if(MOD_BALANCE_CORE_MINOR_VARIABLE_BULLYING)
 						{
-							int iGrowthFlavor = GetPlayer()->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes) GC.getInfoTypeForString("FLAVOR_GROWTH"));
-							int iScienceFlavor = GetPlayer()->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes) GC.getInfoTypeForString("FLAVOR_SCIENCE"));
-							int iCultureFlavor = GetPlayer()->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes) GC.getInfoTypeForString("FLAVOR_CULTURE"));
-							int iFaithFlavor = GetPlayer()->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes) GC.getInfoTypeForString("FLAVOR_RELIGION"));
-							int iProductionFlavor = GetPlayer()->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes) GC.getInfoTypeForString("FLAVOR_PRODUCTION"));
+							int iGrowthFlavor = GetPlayer()->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes) GC.getInfoTypeForString("FLAVOR_GROWTH")) / 2;
+							int iScienceFlavor = GetPlayer()->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes) GC.getInfoTypeForString("FLAVOR_SCIENCE")) / 2;
+							int iCultureFlavor = GetPlayer()->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes) GC.getInfoTypeForString("FLAVOR_CULTURE")) / 2;
+							int iFaithFlavor = GetPlayer()->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes) GC.getInfoTypeForString("FLAVOR_RELIGION")) / 2;
+							int iProductionFlavor = GetPlayer()->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes) GC.getInfoTypeForString("FLAVOR_PRODUCTION")) / 2;
 
 							if(GET_PLAYER(eMinor).GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_MILITARISTIC)
 							{
@@ -14762,26 +14762,7 @@ void CvDiplomacyAI::DoContactMinorCivs()
 							{
 								iValue += (GET_PLAYER(eMinor).GetMinorCivAI()->GetYieldTheftAmount(GetPlayer()->GetID(), YIELD_FOOD) * iGrowthFlavor);
 							}
-							else
-							{
-								// The closer we are the better, because the unit travels less distance to get home
-								if(GetPlayer()->GetProximityToPlayer(eMinor) == PLAYER_PROXIMITY_NEIGHBORS)
-								{
-									iValue += 50;
-								}
-								else if(GetPlayer()->GetProximityToPlayer(eMinor) == PLAYER_PROXIMITY_CLOSE)
-								{
-									iValue += 30;
-								}
-								else if(GetPlayer()->GetProximityToPlayer(eMinor) == PLAYER_PROXIMITY_FAR)
-								{
-									iValue += -30;
-								}
-								else if(GetPlayer()->GetProximityToPlayer(eMinor) == PLAYER_PROXIMITY_DISTANT)
-								{
-									iValue += -50;
-								}
-							}
+							iValue += GC.getGame().getJonRandNum((GetBoldness() * 10), "Diplomacy AI: rand roll");
 						}
 						else
 						{
@@ -14831,14 +14812,11 @@ void CvDiplomacyAI::DoContactMinorCivs()
 #endif
 						//antonjs: consider: allies or friends with another major
 						//antonjs: consider: distance to other majors
-#if defined(MOD_BALANCE_CORE_DIPLOMACY)
-#else
 						// If we are getting a bonus, don't mess that up!
 						if(pMinor->GetMinorCivAI()->IsAllies(eID) || pMinor->GetMinorCivAI()->IsFriends(eID))
 						{
 							iValue = 0;
 						}
-#endif
 						// Do we want it enough?
 						if(iValue > 100)  //antonjs: todo: XML for threshold
 						{
@@ -17135,7 +17113,7 @@ void CvDiplomacyAI::DoPeaceOffer(PlayerTypes ePlayer, DiploStatementTypes& eStat
 		{
 			bHasOperationUnderway = m_pPlayer->haveAIOperationOfType(AI_OPERATION_PURE_NAVAL_CITY_ATTACK, &iOperationID, ePlayer);
 		}
-		if((GetPlayerNumTurnsAtWar(ePlayer) > 5) && ((GetPlayerNumTurnsSinceCityCapture(ePlayer) >= 5) || (GetPlayerNumTurnsSinceCityCapture(ePlayer) > 1 && !bHasOperationUnderway)))
+		if(GetPlayerNumTurnsAtWar(ePlayer) > 5 && GetPlayerNumTurnsSinceCityCapture(ePlayer) >= 3 && !bHasOperationUnderway)
 #else
 		if(GetPlayerNumTurnsAtWar(ePlayer) > 5)
 #endif
@@ -22050,7 +22028,7 @@ int CvDiplomacyAI::GetDenounceMessage(PlayerTypes ePlayer)
 			return 17;
 		}
 		// Guy is a different faith
-		else if(GetMeanness() > 4 && (GET_PLAYER(ePlayer).GetReligions()->GetReligionInMostCities() != GetPlayer()->GetReligions()->GetReligionInMostCities()) && (GetPlayer()->GetReligions()->GetReligionInMostCities() != NO_RELIGION) && (GET_PLAYER(ePlayer).GetReligions()->GetReligionInMostCities() != NO_RELIGION))
+		else if(GetMeanness() > 4 && m_pPlayer->GetReligions()->HasCreatedReligion(true) && GET_PLAYER(ePlayer).GetReligions()->HasCreatedReligion(true) && (GET_PLAYER(ePlayer).GetReligions()->GetReligionInMostCities() != GetPlayer()->GetReligions()->GetReligionInMostCities()) && (GetPlayer()->GetReligions()->GetReligionInMostCities() != NO_RELIGION) && (GET_PLAYER(ePlayer).GetReligions()->GetReligionInMostCities() != NO_RELIGION))
 		{
 			return 18;
 		}
@@ -26243,9 +26221,24 @@ int CvDiplomacyAI::GetWarmongerThreatScore(PlayerTypes ePlayer)
 
 int CvDiplomacyAI::GetCiviliansReturnedToMeScore(PlayerTypes ePlayer)
 {
+#if defined(MOD_BALANCE_CORE)
+	int iOpinionWeight = 0;
+	int iNumCivs = GetNumCiviliansReturnedToMe(ePlayer);
+	if (iNumCivs > 0)
+	{
+		// Full credit for first one
+		iOpinionWeight += /*-20*/ GC.getOPINION_WEIGHT_RETURNED_CIVILIAN();
+		// Partial credit for any after first
+		if (iNumCivs > 1)
+		{
+			iOpinionWeight += ((GC.getOPINION_WEIGHT_RETURNED_CIVILIAN() / 3) * (iNumCivs - 1));
+		}
+	}
+#else
 	int iOpinionWeight = 0;
 	if(GetNumCiviliansReturnedToMe(ePlayer) > 0)
 		iOpinionWeight += (/*-20*/ GC.getOPINION_WEIGHT_RETURNED_CIVILIAN() * GetNumCiviliansReturnedToMe(ePlayer));
+#endif
 	return iOpinionWeight;
 }
 
@@ -26417,9 +26410,24 @@ int CvDiplomacyAI::GetTimesRobbedScore(PlayerTypes ePlayer)
 
 int CvDiplomacyAI::GetTimesIntrigueSharedScore(PlayerTypes ePlayer)
 {
+#if defined(MOD_BALANCE_CORE)
+	int iOpinionWeight = 0;
+	int iNumCivs = GetNumTimesIntrigueSharedBy(ePlayer);
+	if (iNumCivs > 0)
+	{
+		// Full credit for first one
+		iOpinionWeight += /*-20*/ GC.getOPINION_WEIGHT_INTRIGUE_SHARED_BY();
+		// Partial credit for any after first
+		if (iNumCivs > 1)
+		{
+			iOpinionWeight += ((GC.getOPINION_WEIGHT_INTRIGUE_SHARED_BY() / 3) * (iNumCivs - 1));
+		}
+	}
+#else
 	int iOpinionWeight = 0;
 	if(GetNumTimesIntrigueSharedBy(ePlayer) > 0)
 		iOpinionWeight += (GetNumTimesIntrigueSharedBy(ePlayer) * /*-20*/ GC.getOPINION_WEIGHT_INTRIGUE_SHARED_BY());
+#endif
 	return iOpinionWeight;
 }
 

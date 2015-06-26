@@ -1580,7 +1580,6 @@ bool CvPromotionEntry::IsNoCapture() const
 {
 	return m_bNoCapture;
 }
-
 /// Accessor: Unable to attack enemy units
 bool CvPromotionEntry::IsOnlyDefensive() const
 {

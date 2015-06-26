@@ -270,6 +270,10 @@ CivilopediaCategory[CategoryGameConcepts].PopulateList = function()
 		HEADER_RELIGION = 23,
 		HEADER_TRADE = 24,
 		HEADER_WORLDCONGRESS = 25,
+-- CBP
+		HEADER_VASSALAGE = 26,
+		HEADER_CORPORATIONS = 27
+-- END
 	}
 	
 	-- Create table.
@@ -4716,7 +4720,9 @@ CivilopediaCategory[CategoryResources].SelectArticle = function( resourceID, sho
 			-- generic text
 			if (thisResource.Civilopedia) then
 				UpdateTextBlock( Locale.ConvertTextKey( thisResource.Civilopedia ), Controls.HistoryLabel, Controls.HistoryInnerFrame, Controls.HistoryFrame );
-			end		
+			end
+
+			
 			
 			-- update the related images
 			Controls.RelatedImagesFrame:SetHide( true );

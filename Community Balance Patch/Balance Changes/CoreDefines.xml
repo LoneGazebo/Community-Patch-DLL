@@ -33,22 +33,22 @@
 		<Update>
 			<Where AIGrandStrategyType ="AIGRANDSTRATEGY_CONQUEST"/>
 			<Set YieldType="YIELD_PRODUCTION"
-			Yield="250"/>
+			Yield="200"/>
 		</Update>
 		<Update>
 			<Where AIGrandStrategyType ="AIGRANDSTRATEGY_CULTURE"/>
 			<Set YieldType="YIELD_GOLD"
-			Yield="100"/>
+			Yield="150"/>
 		</Update>
 		<Update>
 			<Where AIGrandStrategyType ="AIGRANDSTRATEGY_CULTURE"/>
 			<Set YieldType="YIELD_SCIENCE"
-			Yield="100"/>
+			Yield="150"/>
 		</Update>
 		<Update>
 			<Where AIGrandStrategyType ="AIGRANDSTRATEGY_UNITED_NATIONS"/>
 			<Set YieldType="YIELD_GOLD"
-			Yield="150"/>
+			Yield="200"/>
 		</Update>
 		<Update>
 			<Where AIGrandStrategyType ="AIGRANDSTRATEGY_SPACESHIP"/>
@@ -91,7 +91,7 @@
 		<!-- Related to Policies-->
 		<Update>
 			<Where Name="POLICY_COST_EXPONENT"/>
-			<Set Value="1.90"/>
+			<Set Value="1.88"/>
 			<!-- 2.01 -->
 		</Update>
 		<Update>
@@ -130,8 +130,8 @@
 		</Update>
 		<Update>
 			<Where Name="TRADE_ROUTE_BASE_GOLD"/>
-			<Set Value="0"/>
-			<!-- -100 -->
+			<Set Value="50"/>
+			<!-- 100 -->
 		</Update>
 		<Update>
 			<Where Name="TRADE_ROUTE_CAPITAL_POP_GOLD_MULTIPLIER"/>
@@ -140,7 +140,7 @@
 		</Update>
 		<Update>
 			<Where Name="TRADE_ROUTE_CITY_POP_GOLD_MULTIPLIER"/>
-			<Set Value="75"/>
+			<Set Value="80"/>
 			<!-- 110 -->
 		</Update>
 		<Update>

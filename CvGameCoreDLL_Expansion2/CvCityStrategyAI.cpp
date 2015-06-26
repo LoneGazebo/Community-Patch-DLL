@@ -902,11 +902,19 @@ void CvCityStrategyAI::ChooseProduction(bool bUseAsyncRandom, BuildingTypes eIgn
 		bForceSettler = false;
 	}
 #endif
-
+#if defined(MOD_BALANCE_CORE)
+	if(!GetCity()->IsPuppet())
+	{
+#endif
 	// Check units for operations first
 	eUnitForOperation = m_pCity->GetUnitForOperation();
 	if(eUnitForOperation != NO_UNIT)
 	{
+#if defined(MOD_BALANCE_CORE)
+		// Make sure this unit can be built now
+		if(m_pCity->canTrain(eUnitForOperation))
+		{
+#endif
 		buildable.m_eBuildableType = CITY_BUILDABLE_UNIT_FOR_OPERATION;
 		buildable.m_iIndex = (int)eUnitForOperation;
 		buildable.m_iTurnsToConstruct = GetCity()->getProductionTurnsLeft(eUnitForOperation, 0);
@@ -968,13 +976,18 @@ void CvCityStrategyAI::ChooseProduction(bool bUseAsyncRandom, BuildingTypes eIgn
 		}
 #if defined(MOD_BALANCE_CORE)
 		}
+		}
 #endif
 	}
-
 	// Next units for sneak attack armies
 	eUnitForArmy = kPlayer.GetMilitaryAI()->GetUnitForArmy(GetCity());
 	if(eUnitForArmy != NO_UNIT)
 	{
+#if defined(MOD_BALANCE_CORE)
+		// Make sure this unit can be built now
+		if(m_pCity->canTrain(eUnitForArmy))
+		{
+#endif
 		buildable.m_eBuildableType = CITY_BUILDABLE_UNIT_FOR_ARMY;
 		buildable.m_iIndex = (int)eUnitForArmy;
 		buildable.m_iTurnsToConstruct = GetCity()->getProductionTurnsLeft(eUnitForArmy, 0);
@@ -1012,7 +1025,10 @@ void CvCityStrategyAI::ChooseProduction(bool bUseAsyncRandom, BuildingTypes eIgn
 		}
 #endif
 	}
-
+#if defined(MOD_BALANCE_CORE)
+	}
+	}
+#endif
 	// Loop through adding the available buildings
 	for(iBldgLoop = 0; iBldgLoop < GC.GetGameBuildings()->GetNumBuildings(); iBldgLoop++)
 	{
@@ -1215,11 +1231,19 @@ void CvCityStrategyAI::ChooseProduction(bool bUseAsyncRandom, BuildingTypes eIgn
 				{
 					iTempWeight = 0;
 				}
+				if(GET_PLAYER(GetCity()->getOwner()).GetMilitaryAI()->GetWarType() == 1 && pkUnitEntry && pkUnitEntry->GetDomainType() == DOMAIN_LAND)
+				{
+					iTempWeight *= 2;
+				}
+				if(GET_PLAYER(GetCity()->getOwner()).GetMilitaryAI()->GetWarType() == 2 && pkUnitEntry && pkUnitEntry->GetDomainType() == DOMAIN_SEA)
+				{
+					iTempWeight *= 2;
+				}
 				if(iTempWeight > 0)
 				{
 #endif
 #if defined(MOD_BALANCE_CORE)
-				if ( GetUnitProductionAI()->CheckUnitBuildSanity((UnitTypes)iUnitLoop, false) )
+				if ( GetUnitProductionAI()->CheckUnitBuildSanity((UnitTypes)iUnitLoop, false, NULL) )
 					m_Buildables.push_back(buildable, iTempWeight);
 				}
 #else
@@ -1317,6 +1341,10 @@ void CvCityStrategyAI::ChooseProduction(bool bUseAsyncRandom, BuildingTypes eIgn
 #endif
 						iTempWeight = m_pProcessProductionAI->GetWeight((ProcessTypes)iProcessLoop);
 #if defined(MOD_BALANCE_CORE)
+							if(GET_PLAYER(m_pCity->getOwner()).IsAtWarAnyMajor())
+							{
+								iTempWeight /= 10;
+							}
 						}
 #endif
 						buildable.m_eBuildableType = CITY_BUILDABLE_PROCESS;
@@ -3396,6 +3424,15 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_NeedNavalTileImprovement(CvCity* 
 						if(pLoopPlot->getResourceType() != NO_RESOURCE && pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
 						{
 							iNumUnimprovedWaterResources++;
+#if defined(MOD_BALANCE_CORE)
+							ResourceTypes eResource = pLoopPlot->getResourceType();
+							CvResourceInfo* pInfo = GC.getResourceInfo(eResource);
+							if(pInfo && pInfo->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
+							{
+								iNumUnimprovedWaterResources++;
+							}
+#endif
+
 						}
 					}
 				}
@@ -3507,12 +3544,9 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_PocketCity(CvCity* pCity)
 		return false;
 	}
 
-	int iPathfinderFlags = MOVE_TERRITORY_NO_UNEXPLORED | MOVE_TERRITORY_NO_ENEMY;
+	bool bReturnValue = GC.getRouteFinder().GeneratePath(pCapitalCity->getX(), pCapitalCity->getY(), pCity->getX(), pCity->getY(), MOVE_ANY_ROUTE, false);
 
-	GC.getRouteFinder().ForceReset();
-	bool bReturnValue = GC.getRouteFinder().GeneratePath(pCapitalCity->getX(), pCapitalCity->getY(), pCity->getX(), pCity->getY(), iPathfinderFlags, false);
-
-	if(bReturnValue)
+	if(!bReturnValue)
 	{
 		return true;
 	}
