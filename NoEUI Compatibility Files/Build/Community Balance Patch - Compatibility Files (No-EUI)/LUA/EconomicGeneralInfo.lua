@@ -52,6 +52,9 @@ end
 -------------------------------------------------------------------------------
 function UpdateDisplay()
     UpdateGPT();
+-- CBP
+	UpdateCorporations();
+-- END
     
     local pPlayer = Players[ Game.GetActivePlayer() ];
     if( pPlayer == nil ) then
@@ -72,7 +75,7 @@ function UpdateDisplay()
 		m_SortTable[ tostring( instance.Root ) ] = sortEntry;
 
 -- COMMUNITY PATCH
-
+	
 		local iStarvingUnhappiness = pCity:GetUnhappinessFromStarving();
 		local iPillagedUnhappiness = pCity:GetUnhappinessFromPillaged();
 		local iGoldUnhappiness = pCity:GetUnhappinessFromGold();
@@ -505,8 +508,121 @@ function UpdateGPT()
     
     Controls.GoldScroll:CalculateInternalSize();
 end
+--CBP
+-------------------------------------------------
+-------------------------------------------------
+function UpdateCorporations()
 
+    local pPlayer = Players[ Game.GetActivePlayer() ];
+	local strCorpName = Locale.ConvertTextKey(pPlayer:GetCorporationName());
+	if (strCorpName == nil) then
+		strCorpName = "TXT_KEY_CORP_NO_CORP";
+	end
+	Controls.CorporationName:SetToolTipString(strCorpName);
+	-- Franchises
+	local strFranchisesTT = Locale.ConvertTextKey("TXT_KEY_NUM_FRANCHISES_TT");
+    local iFranchises = pPlayer:GetNumberofGlobalFranchises();
+    if( iFranchises > 0 ) then
+        Controls.NumFranchises:SetText( Locale.ToNumber(iFranchises) );
+    else
+        Controls.NumFranchises:SetText( 0 );
+    end
+	Controls.NumFranchises:SetToolTipString(strFranchisesTT);
+	-- Offices
+	local strOfficesTT = Locale.ConvertTextKey("TXT_KEY_NUM_OFFICES_TT");
+    local iOffices = pPlayer:GetNumberofOffices();
+    if( iOffices > 0 ) then
+        Controls.NumOffices:SetText( Locale.ToNumber(iOffices) );
+    else
+        Controls.NumOffices:SetText( 0 );
+    end
+	Controls.NumOffices:SetToolTipString(strOfficesTT);
+	-- FRANCHISE LIST
+	for iOtherPlayer = 0, GameDefines.MAX_MAJOR_CIVS - 1 do		
+		local pOtherPlayer = Players[ iOtherPlayer ];
+		local iOtherTeam = pOtherPlayer:GetTeam();
+		local pOtherTeam = Teams[ iOtherTeam ];
+		
+		-- Valid player? - Can't be us, and has to be alive
+		local bFoundCity = false;
+		Controls.FranchiseStack:DestroyAllChildren();
+		if (iOtherPlayer ~= Game.GetActivePlayer() and pOtherPlayer:IsAlive()) then
+			for pCity in pPlayer:Cities() do
+				if(pCity:IsFranchised(pOtherPlayer)) then
+					bFoundCity = true;
+					local instance = {};
+					ContextPtr:BuildInstanceForControl( "FranchiseEntry", instance, Controls.FranchiseStack );
+					instance.CityName:SetText( pCity:GetName() );
+				end
+			end
+		end
+		if( bFoundCity ) then
+			Controls.FranchiseToggle:SetDisabled( false );
+			Controls.FranchiseToggle:SetAlpha( 1.0 );
+		else
+			Controls.FranchiseToggle:SetDisabled( true );
+			Controls.FranchiseToggle:SetAlpha( 0.5 );
+		end
+		Controls.FranchiseStack:CalculateSize();
+		Controls.FranchiseStack:ReprocessAnchoring();
+	end
+	-- OFFICE LIST
+	bFoundCity = false;
+    Controls.OfficeStack:DestroyAllChildren();
+    for pCity in pPlayer:Cities() do
+		if(pCity:HasOffice()) then
+			bFoundCity = true;
+			local instance = {};
+			ContextPtr:BuildInstanceForControl( "OfficeEntry", instance, Controls.OfficeStack );
+			instance.CityName:SetText( pCity:GetName() );
+		end
+	end
+	if( bFoundCity ) then
+		Controls.OfficeToggle:SetDisabled( false );
+		Controls.OfficeToggle:SetAlpha( 1.0 );
+	else
+		Controls.OfficeToggle:SetDisabled( true );
+		Controls.OfficeToggle:SetAlpha( 0.5 );
+	end
+	Controls.OfficeStack:CalculateSize();
+	Controls.OfficeStack:ReprocessAnchoring();
 
+	Controls.GoldScroll:CalculateInternalSize();
+end
+-------------------------------------------------
+-------------------------------------------------
+function OnFranchiseToggle()
+    local bWasHidden = Controls.FranchiseStack:IsHidden();
+    Controls.FranchiseStack:SetHide( not bWasHidden );
+    if( bWasHidden ) then
+        Controls.FranchiseToggle:LocalizeAndSetText("TXT_KEY_EO_FRANCHISE_DETAILS_COLLAPSE");
+    else
+        Controls.FranchiseToggle:LocalizeAndSetText("TXT_KEY_EO_FRANCHISE_DETAILS");
+    end
+    Controls.GoldStack:CalculateSize();
+    Controls.GoldStack:ReprocessAnchoring();
+    Controls.GoldScroll:CalculateInternalSize();
+end
+Controls.FranchiseToggle:RegisterCallback( Mouse.eLClick, OnFranchiseToggle );
+-------------------------------------------------
+-------------------------------------------------
+function OnOfficeToggle()
+    local bWasHidden = Controls.OfficeStack:IsHidden();
+    Controls.OfficeStack:SetHide( not bWasHidden );
+    if( bWasHidden ) then
+        Controls.OfficeToggle:LocalizeAndSetText("TXT_KEY_EO_OFFICE_DETAILS_COLLAPSE");
+    else
+        Controls.OfficeToggle:LocalizeAndSetText("TXT_KEY_EO_OFFICE_DETAILS");
+    end
+    Controls.GoldStack:CalculateSize();
+    Controls.GoldStack:ReprocessAnchoring();
+    Controls.GoldScroll:CalculateInternalSize();
+end
+Controls.FranchiseToggle:RegisterCallback( Mouse.eLClick, OnFranchiseToggle );
+
+Controls.FranchiseStack:SetHide( true );
+Controls.OfficeStack:SetHide( true );
+-- END
 -- Start hidden
 Controls.CityStack:SetHide( true );
 Controls.TradeStack:SetHide( true );

@@ -42,8 +42,8 @@ public:
 
 	// Recommend highest-weighted unit
 #if defined(MOD_BALANCE_CORE)
-	bool CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation);
-	UnitTypes RecommendUnit(UnitAITypes eUnitAIType, bool bUsesStrategicResource, bool bForOperation);
+	bool CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation, CvArmyAI* pArmy);
+	UnitTypes RecommendUnit(UnitAITypes eUnitAIType, bool bUsesStrategicResource, bool bForOperation, CvArmyAI* pArmy);
 #else
 	UnitTypes RecommendUnit(UnitAITypes eUnitAIType = NO_UNITAI);
 #endif

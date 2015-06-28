@@ -852,6 +852,14 @@ void CvUnitCombat::ResolveRangedUnitVsCombat(const CvCombatInfo& kCombatInfo, ui
 							pkDLLInterface->AddMessage(uiParentEventID, pkAttacker->getOwner(), true, GC.getEVENT_MESSAGE_TIME(), strBuffer/*, "AS2D_COMBAT", MESSAGE_TYPE_INFO, pkDefender->getUnitInfo().GetButton(), (ColorTypes)GC.getInfoTypeForString("COLOR_GREEN"), pkTargetPlot->getX(), pkTargetPlot->getY()*/);
 						}
 						strBuffer = GetLocalizedText("TXT_KEY_MISC_YOU_ARE_ATTACKED_BY_AIR", pkDefender->getNameKey(), pkAttacker->getNameKey(), iDamage);
+#if defined(MOD_BALANCE_CORE)
+						if(pkDefender->IsFortifiedThisTurn() || (pkDefender->GetActivityType() == ACTIVITY_HEAL))
+						{
+							pkDefender->SetAutomateType(NO_AUTOMATE);
+							pkDefender->ClearMissionQueue();
+							pkDefender->SetActivityType(ACTIVITY_AWAKE);
+						}
+#endif
 					}
 
 					//red icon over attacking unit

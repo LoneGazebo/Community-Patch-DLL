@@ -1114,6 +1114,13 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetInternationalTradeRoutePolicyBonus);
 	Method(GetInternationalTradeRouteOtherTraitBonus);
 	Method(GetInternationalTradeRouteRiverModifier);
+#if defined(MOD_BALANCE_CORE)
+	Method(GetInternationalTradeRouteCorporationModifier);
+	Method(GetInternationalTradeRouteCorporationModifierScience);
+	Method(GetNumberofGlobalFranchises);
+	Method(GetNumberofOffices);
+	Method(GetCorporationName);
+#endif
 	Method(GetInternationalTradeRouteDomainModifier);
 	Method(GetInternationalTradeRouteTotal);
 	Method(GetInternationalTradeRouteScience);
@@ -4041,7 +4048,104 @@ int CvLuaPlayer::lGetInternationalTradeRouteRiverModifier(lua_State* L)
 	lua_pushinteger(L, iResult);
 	return 1;	
 }
+#if defined(MOD_BALANCE_CORE)
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lGetInternationalTradeRouteCorporationModifier(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	CvPlayerTrade* pPlayerTrade = pkPlayer->GetTrade();
+	CvCity* pOriginCity = CvLuaCity::GetInstance(L, 2, true);
+	CvCity* pDestCity = CvLuaCity::GetInstance(L, 3, true);
+	DomainTypes eDomain = (DomainTypes)lua_tointeger(L, 4);
+	bool bOrigin = lua_toboolean(L, 5);
 
+	TradeConnection kTradeConnection;
+	kTradeConnection.m_iOriginX = pOriginCity->getX();
+	kTradeConnection.m_iOriginY = pOriginCity->getY();
+	kTradeConnection.m_iDestX = pDestCity->getX();
+	kTradeConnection.m_iDestY = pDestCity->getY();
+	kTradeConnection.m_eOriginOwner = pOriginCity->getOwner();
+	kTradeConnection.m_eDestOwner = pDestCity->getOwner();
+	kTradeConnection.m_eDomain = eDomain;
+
+	int iResult = pPlayerTrade->GetTradeConnectionCorporationModifierTimes100(kTradeConnection, YIELD_GOLD, bOrigin);
+	lua_pushinteger(L, iResult);
+	return 1;	
+}
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lGetInternationalTradeRouteCorporationModifierScience(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	CvPlayerTrade* pPlayerTrade = pkPlayer->GetTrade();
+	CvCity* pOriginCity = CvLuaCity::GetInstance(L, 2, true);
+	CvCity* pDestCity = CvLuaCity::GetInstance(L, 3, true);
+	DomainTypes eDomain = (DomainTypes)lua_tointeger(L, 4);
+	bool bOrigin = lua_toboolean(L, 5);
+
+	TradeConnection kTradeConnection;
+	kTradeConnection.m_iOriginX = pOriginCity->getX();
+	kTradeConnection.m_iOriginY = pOriginCity->getY();
+	kTradeConnection.m_iDestX = pDestCity->getX();
+	kTradeConnection.m_iDestY = pDestCity->getY();
+	kTradeConnection.m_eOriginOwner = pOriginCity->getOwner();
+	kTradeConnection.m_eDestOwner = pDestCity->getOwner();
+	kTradeConnection.m_eDomain = eDomain;
+
+	int iResult = pPlayerTrade->GetTradeConnectionCorporationModifierTimes100(kTradeConnection, YIELD_SCIENCE, bOrigin);
+	lua_pushinteger(L, iResult);
+	return 1;	
+}
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lGetNumberofGlobalFranchises(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	int iResult = pkPlayer->GetCorporateFranchisesWorldwide();
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lGetNumberofOffices(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	int iResult = 0;
+	int iCityLoop;
+	CvCity* pLoopCity = NULL;
+	for(pLoopCity = pkPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = pkPlayer->nextCity(&iCityLoop))
+	{
+		if(pLoopCity != NULL && pLoopCity->HasOffice())
+		{
+			iResult++;
+		}
+	}
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lGetCorporationName(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	int iBuildingLoop;
+	BuildingTypes eBuilding;
+	if(pkPlayer->GetCorporateFounderID() > 0)
+	{
+		// Loop through all buildings, see if they're a world wonder
+		for(iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
+		{
+			eBuilding = (BuildingTypes) iBuildingLoop;
+			CvBuildingEntry* pkBuildingEntry = GC.getBuildingInfo(eBuilding);
+			if(pkBuildingEntry)
+			{
+				if(pkPlayer->GetCorporateFounderID() == pkBuildingEntry->GetCorporationHQID())
+				{
+					lua_pushstring(L, pkBuildingEntry->GetDescription());
+					return 1;	
+				}
+			}
+		}
+	}
+	return 0;	
+}
+#endif
 //------------------------------------------------------------------------------
 int CvLuaPlayer::lGetInternationalTradeRouteDomainModifier(lua_State* L)
 {

@@ -168,7 +168,14 @@ private:
 	void FindBestSites();
 	int PlotValueForSpecificYield(CvPlot* pPlot, YieldTypes eYield);
 	int PlotValueForScience(CvPlot* pPlot);
+#if defined(MOD_BALANCE_CORE)
+	int PlotValueForCulture(CvPlot* pPlot); 
+	int PlotValueForFaith(CvPlot* pPlot);
+#endif
 	int AdjustValueBasedOnBuildings(CvCity* pCity, YieldTypes eYield, int iInitialValue);
+#if defined(MOD_BALANCE_CORE)
+	int AdjustValueBasedOnHappiness(CvCity* pCity, YieldTypes eYield, int iInitialValue);
+#endif
 	bool CanBuildSpaceshipParts();
 
 	// Logging functions

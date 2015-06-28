@@ -96,22 +96,22 @@ INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SE
 INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_TRIPLANE','BUILDINGCLASS_MILITARY_ACADEMY'; 
 -- Atomic
 INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_BATTLESHIP','BUILDINGCLASS_SEAPORT'; 
-INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_BAZOOKA','BUILDINGCLASS_MILITARY_BASE';
+INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_BAZOOKA','BUILDINGCLASS_MILITARY_ACADEMY';
 INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_CARRIER','BUILDINGCLASS_SEAPORT'; 
 INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_FIGHTER','BUILDINGCLASS_AIRPORT'; 
-INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_FIGHTER','BUILDINGCLASS_MILITARY_BASE'; 
+INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_FIGHTER','BUILDINGCLASS_MILITARY_ACADEMY'; 
 INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_GUIDED_MISSILE','BUILDINGCLASS_AIRPORT'; 
-INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_GUIDED_MISSILE','BUILDINGCLASS_MILITARY_BASE';
+INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_GUIDED_MISSILE','BUILDINGCLASS_MILITARY_ACADEMY';
 INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_BOMBER','BUILDINGCLASS_AIRPORT'; 
-INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_BOMBER','BUILDINGCLASS_MILITARY_BASE';
-INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_INFANTRY','BUILDINGCLASS_MILITARY_BASE';
-INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_MARINE','BUILDINGCLASS_MILITARY_BASE';
-INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_MOBILE_SAM','BUILDINGCLASS_MILITARY_BASE';
-INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_GERMAN_PANZER','BUILDINGCLASS_MILITARY_BASE';
+INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_BOMBER','BUILDINGCLASS_MILITARY_ACADEMY';
+INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_INFANTRY','BUILDINGCLASS_MILITARY_ACADEMY';
+INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_MARINE','BUILDINGCLASS_MILITARY_ACADEMY';
+INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_MOBILE_SAM','BUILDINGCLASS_MILITARY_ACADEMY';
+INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_GERMAN_PANZER','BUILDINGCLASS_MILITARY_ACADEMY';
 INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_PARATROOPER','BUILDINGCLASS_AIRPORT'; 
-INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_ROCKET_ARTILLERY','BUILDINGCLASS_MILITARY_BASE';
+INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_ROCKET_ARTILLERY','BUILDINGCLASS_MILITARY_ACADEMY';
 INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_SUBMARINE','BUILDINGCLASS_SEAPORT'; 
-INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_TANK','BUILDINGCLASS_MILITARY_BASE';
+INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_TANK','BUILDINGCLASS_MILITARY_ACADEMY';
 -- Information
 INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_MECH','BUILDINGCLASS_MILITARY_BASE'; 
 INSERT INTO Unit_BuildingClassPurchaseRequireds (UnitType, BuildingClassType) SELECT 'UNIT_HELICOPTER_GUNSHIP','BUILDINGCLASS_AIRPORT'; 

@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created by ModBuddy on 6/23/2015 10:54:21 AM -->
+<GameData>
+	<Technologies>
+		<Row>
+			<Type>TECH_CORPORATIONS</Type>
+			<Cost>3550</Cost>
+			<Description>TXT_KEY_TECH_CORPORATIONS_TITLE</Description>
+			<Civilopedia>TXT_KEY_TECH_CORPORATIONS_DESC</Civilopedia>
+			<Help>TXT_KEY_TECH_CORPORATIONS_HELP</Help>
+			<Era>ERA_MODERN</Era>
+			<Trade>true</Trade>
+			<GridX>11</GridX>
+			<GridY>5</GridY>
+			<Quote>TXT_KEY_TECH_CORPORATIONS_QUOTE</Quote>
+			<PortraitIndex>0</PortraitIndex>
+			<IconAtlas>CORP_ATLAS</IconAtlas>
+		</Row>
+		<Update>
+			<Set Era="ERA_MODERN" GridX="11" GridY="1" />
+			<Where Type="TECH_BIOLOGY" />
+		</Update>
+		<Update>
+			<Set Era="ERA_MODERN" GridX="11" GridY="3" />
+			<Where Type="TECH_ELECTRICITY" />
+		</Update>
+		<Update>
+			<Set GridY="7" />
+			<Where Type="TECH_REPLACEABLE_PARTS" />
+		</Update>
+		<Update>
+			<Set GridX="11" GridY="9" />
+			<Where Type="TECH_COMBUSTION" />
+		</Update>
+	</Technologies>
+	<Technology_PrereqTechs>
+		<Row>
+			<PrereqTech>TECH_ARCHAEOLOGY</PrereqTech>
+			<TechType>TECH_ELECTRICITY</TechType>
+		</Row>
+		<Row>
+			<PrereqTech>TECH_FERTILIZER</PrereqTech>
+			<TechType>TECH_CORPORATIONS</TechType>
+		</Row>
+		<Row>
+			<PrereqTech>TECH_INDUSTRIALIZATION</PrereqTech>
+			<TechType>TECH_CORPORATIONS</TechType>
+		</Row>
+		<Row>
+			<PrereqTech>TECH_DYNAMITE</PrereqTech>
+			<TechType>TECH_CORPORATIONS</TechType>
+		</Row>
+		<Row>
+			<PrereqTech>TECH_CORPORATIONS</PrereqTech>
+			<TechType>TECH_FLIGHT</TechType>
+		</Row>
+		<Row>
+			<PrereqTech>TECH_CORPORATIONS</PrereqTech>
+			<TechType>TECH_RADIO</TechType>
+		</Row>
+		<Row>
+			<PrereqTech>TECH_MILITARY_SCIENCE</PrereqTech>
+			<TechType>TECH_REPLACEABLE_PARTS</TechType>
+		</Row>
+	</Technology_PrereqTechs>
+	<Technology_Flavors>
+		<Row>
+			<TechType>TECH_CORPORATIONS</TechType>
+			<FlavorType>FLAVOR_GOLD</FlavorType>
+			<Flavor>30</Flavor>
+		</Row>
+		<Row>
+			<TechType>TECH_CORPORATIONS</TechType>
+			<FlavorType>FLAVOR_GROWTH</FlavorType>
+			<Flavor>30</Flavor>
+		</Row>
+		<Row>
+			<TechType>TECH_CORPORATIONS</TechType>
+			<FlavorType>FLAVOR_PRODUCTION</FlavorType>
+			<Flavor>30</Flavor>
+		</Row>
+		<Row>
+			<TechType>TECH_CORPORATIONS</TechType>
+			<FlavorType>FLAVOR_SCIENCE</FlavorType>
+			<Flavor>30</Flavor>
+		</Row>
+		<Row>
+			<TechType>TECH_CORPORATIONS</TechType>
+			<FlavorType>FLAVOR_CULTURE</FlavorType>
+			<Flavor>30</Flavor>
+		</Row>
+	</Technology_Flavors>
+</GameData>

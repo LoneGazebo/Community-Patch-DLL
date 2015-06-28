@@ -163,6 +163,28 @@ void CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlo
 				}
 			}
 		}
+#if defined(MOD_BALANCE_CORE)
+		//Globals before city-wide tests - we don't want to double up here. Ouch.
+		if(!pPlotTeam->isBorderObstacle() && !pPlotPlayer->isBorderObstacle())
+		{
+			//Plots worked by city with movement debuff reduce movement speed.
+			CvCity* pCity = pToPlot->getWorkingCity();
+			if(pCity != NULL)
+			{
+				if(pCity->GetBorderObstacleCity() > 0)
+				{
+					if(!pToPlot->isWater() && pUnit->getDomainType() == DOMAIN_LAND)
+					{
+						// Don't apply penalty to OUR team or teams we've given open borders to
+						if(eUnitTeam != eTeam && !pPlotTeam->IsAllowsOpenBordersToTeam(eUnitTeam))
+						{
+							iRegularCost += iMoveDenominator;
+						}
+					}
+				}
+			}
+		}
+#endif
 	}
 }
 

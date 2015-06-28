@@ -1,0 +1,302 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created by ModBuddy on 6/21/2015 11:53:46 PM -->
+<GameData>
+	<!-- Base Corp HQs-->
+	<BuildingClasses>
+		<Row>
+			<Type>BUILDINGCLASS_GIORIO_ARMEIER_HQ</Type>
+			<DefaultBuilding>BUILDING_GIORIO_ARMEIER_HQ</DefaultBuilding>
+			<Description>TXT_KEY_BUILDING_GIORIO_ARMEIER_HQ</Description>
+			<MaxGlobalInstances>1</MaxGlobalInstances>
+		</Row>
+		<!-- Corp Offices -->
+		<Row>
+			<Type>BUILDINGCLASS_GIORIO_ARMEIER</Type>
+			<DefaultBuilding>BUILDING_GIORIO_ARMEIER</DefaultBuilding>
+			<Description>TXT_KEY_BUILDING_GIORIO_ARMEIER</Description>
+		</Row>
+		<!--Corp Franchises -->
+		<Row>
+			<Type>BUILDINGCLASS_GIORIO_ARMEIER_FRANCHISE</Type>
+			<DefaultBuilding>BUILDING_GIORIO_ARMEIER_FRANCHISE</DefaultBuilding>
+			<Description>TXT_KEY_BUILDING_GIORIO_ARMEIER_FRANCHISE</Description>
+		</Row>
+	</BuildingClasses>
+	<Buildings>
+		<!-- HQs -->
+		<Row>
+			<Type>BUILDING_GIORIO_ARMEIER_HQ</Type>
+			<BuildingClass>BUILDINGCLASS_GIORIO_ARMEIER_HQ</BuildingClass>
+			<Cost>1000</Cost>
+			<GoldMaintenance>3</GoldMaintenance>
+			<PrereqTech>TECH_CORPORATIONS</PrereqTech>
+			<Description>TXT_KEY_BUILDING_GIORIO_ARMEIER_HQ</Description>
+			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_GIORIO_ARMEIER_HQ_TEXT</Civilopedia>
+			<Strategy>TXT_KEY_BUILDING_GIORIO_ARMEIER_HQ_STRATEGY</Strategy>
+			<Help>TXT_KEY_BUILDING_GIORIO_ARMEIER_HQ_HELP</Help>
+			<ArtDefineTag>ART_DEF_BUILDING_GARDEN</ArtDefineTag>
+			<FreeBuildingThisCity>BUILDINGCLASS_GIORIO_ARMEIER</FreeBuildingThisCity>
+			<MinAreaSize>-1</MinAreaSize>
+			<CorporationHQID>5</CorporationHQID>
+			<CorporationID>5</CorporationID>
+			<NumTradeRouteBonus>2</NumTradeRouteBonus>
+			<NeverCapture>true</NeverCapture>
+			<HurryCostModifier>25</HurryCostModifier>
+			<IconAtlas>CORP_ATLAS</IconAtlas>
+			<WonderSplashImage>CorporationSplash.dds</WonderSplashImage>
+			<Quote>TXT_KEY_WONDER_CORPORATION_QUOTE</Quote>
+			<PortraitIndex>16</PortraitIndex>
+		</Row>
+		<!-- Base Corps-->
+		<Row>
+			<Type>BUILDING_GIORIO_ARMEIER</Type>
+			<BuildingClass>BUILDINGCLASS_GIORIO_ARMEIER</BuildingClass>
+			<Cost>800</Cost>
+			<GoldMaintenance>3</GoldMaintenance>
+			<PrereqTech>TECH_CORPORATIONS</PrereqTech>
+			<Description>TXT_KEY_BUILDING_GIORIO_ARMEIER</Description>
+			<Civilopedia>TXT_KEY_CIV5_BUILDING_GIORIO_ARMEIER_TEXT</Civilopedia>
+			<Strategy>TXT_KEY_BUILDING_GIORIO_ARMEIER_STRATEGY</Strategy>
+			<Help>TXT_KEY_BUILDING_GIORIO_ARMEIER_HELP</Help>
+			<ArtDefineTag>ART_DEF_BUILDING_GARDEN</ArtDefineTag>
+			<MinAreaSize>-1</MinAreaSize>
+			<FreeBuildingTradeTargetCity>BUILDINGCLASS_GIORIO_ARMEIER_FRANCHISE</FreeBuildingTradeTargetCity>
+			<CorporationID>5</CorporationID>
+			<NeverCapture>true</NeverCapture>
+			<HurryCostModifier>25</HurryCostModifier>
+			<IconAtlas>CORP_ATLAS</IconAtlas>
+			<PortraitIndex>17</PortraitIndex>
+		</Row>
+		<!-- Franchise-->
+		<Row>
+			<Type>BUILDING_GIORIO_ARMEIER_FRANCHISE</Type>
+			<BuildingClass>BUILDINGCLASS_GIORIO_ARMEIER_FRANCHISE</BuildingClass>
+			<Cost>-1</Cost>
+			<GoldMaintenance>1</GoldMaintenance>
+			<PrereqTech>TECH_CORPORATIONS</PrereqTech>
+			<Description>TXT_KEY_BUILDING_GIORIO_ARMEIER_FRANCHISE</Description>
+			<Civilopedia>TXT_KEY_CIV5_BUILDING_GIORIO_ARMEIER_FRANCHISE_TEXT</Civilopedia>
+			<Strategy>TXT_KEY_BUILDING_GIORIO_ARMEIER_FRANCHISE_STRATEGY</Strategy>
+			<Help>TXT_KEY_BUILDING_GIORIO_ARMEIER_FRANCHISE_HELP</Help>
+			<ArtDefineTag>ART_DEF_BUILDING_GARDEN</ArtDefineTag>
+			<MinAreaSize>-1</MinAreaSize>
+			<CorporationID>5</CorporationID>
+			<NeverCapture>true</NeverCapture>
+			<HurryCostModifier>25</HurryCostModifier>
+			<IconAtlas>CORP_ATLAS</IconAtlas>
+			<PortraitIndex>18</PortraitIndex>
+		</Row>
+	</Buildings>
+	<Building_ClassNeededAnywhere>
+		<Row>
+			<BuildingType>BUILDING_GIORIO_ARMEIER</BuildingType>
+			<BuildingClassType>BUILDINGCLASS_GIORIO_ARMEIER_HQ</BuildingClassType>
+		</Row>
+	</Building_ClassNeededAnywhere>
+	<Building_ResourceMonopolyOrs>
+		<Row>
+			<BuildingType>BUILDING_GIORIO_ARMEIER_HQ</BuildingType>
+			<ResourceType>RESOURCE_SILK</ResourceType>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_GIORIO_ARMEIER_HQ</BuildingType>
+			<ResourceType>RESOURCE_COTTON</ResourceType>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_GIORIO_ARMEIER_HQ</BuildingType>
+			<ResourceType>RESOURCE_DYE</ResourceType>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_GIORIO_ARMEIER_HQ</BuildingType>
+			<ResourceType>RESOURCE_FUR</ResourceType>
+		</Row>
+	</Building_ResourceMonopolyOrs>
+	<Building_ResourceYieldChanges>
+		<!-- HQ -->
+		<Row>
+			<BuildingType>BUILDING_GIORIO_ARMEIER_HQ</BuildingType>
+			<ResourceType>RESOURCE_SILK</ResourceType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_GIORIO_ARMEIER_HQ</BuildingType>
+			<ResourceType>RESOURCE_COTTON</ResourceType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_GIORIO_ARMEIER_HQ</BuildingType>
+			<ResourceType>RESOURCE_DYE</ResourceType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_GIORIO_ARMEIER_HQ</BuildingType>
+			<ResourceType>RESOURCE_FUR</ResourceType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<!-- Office -->
+		<Row>
+			<BuildingType>BUILDING_GIORIO_ARMEIER</BuildingType>
+			<ResourceType>RESOURCE_SILK</ResourceType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>2</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_GIORIO_ARMEIER</BuildingType>
+			<ResourceType>RESOURCE_COTTON</ResourceType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>2</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_GIORIO_ARMEIER</BuildingType>
+			<ResourceType>RESOURCE_DYE</ResourceType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>2</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_GIORIO_ARMEIER</BuildingType>
+			<ResourceType>RESOURCE_FUR</ResourceType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>2</Yield>
+		</Row>
+		<!-- Franchise -->
+		<Row>
+			<BuildingType>BUILDING_GIORIO_ARMEIER_FRANCHISE</BuildingType>
+			<ResourceType>RESOURCE_SILK</ResourceType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_GIORIO_ARMEIER_FRANCHISE</BuildingType>
+			<ResourceType>RESOURCE_COTTON</ResourceType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_GIORIO_ARMEIER_FRANCHISE</BuildingType>
+			<ResourceType>RESOURCE_DYE</ResourceType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_GIORIO_ARMEIER_FRANCHISE</BuildingType>
+			<ResourceType>RESOURCE_FUR</ResourceType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+	</Building_ResourceYieldChanges>
+	<Building_SpecialistYieldChanges>
+		<Row>
+			<BuildingType>BUILDING_GIORIO_ARMEIER_HQ</BuildingType>
+			<SpecialistType>SPECIALIST_CITIZEN</SpecialistType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_GIORIO_ARMEIER_HQ</BuildingType>
+			<SpecialistType>SPECIALIST_ARTIST</SpecialistType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_GIORIO_ARMEIER_HQ</BuildingType>
+			<SpecialistType>SPECIALIST_SCIENTIST</SpecialistType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_GIORIO_ARMEIER_HQ</BuildingType>
+			<SpecialistType>SPECIALIST_MERCHANT</SpecialistType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_GIORIO_ARMEIER_HQ</BuildingType>
+			<SpecialistType>SPECIALIST_ENGINEER</SpecialistType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_GIORIO_ARMEIER_HQ</BuildingType>
+			<SpecialistType>SPECIALIST_WRITER</SpecialistType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_GIORIO_ARMEIER_HQ</BuildingType>
+			<SpecialistType>SPECIALIST_MUSICIAN</SpecialistType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>1</Yield>
+		</Row>
+	</Building_SpecialistYieldChanges>
+	<Building_CorporationYield>
+		<Row>
+			<BuildingType>BUILDING_GIORIO_ARMEIER</BuildingType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>1</Yield>
+		</Row>
+	</Building_CorporationYield>
+	<Building_CorporationYieldModTrade>
+		<Row>
+			<BuildingType>BUILDING_GIORIO_ARMEIER</BuildingType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>5</Yield>
+		</Row>
+	</Building_CorporationYieldModTrade>
+	<Building_Flavors>
+		<Row>
+			<BuildingType>BUILDING_GIORIO_ARMEIER_HQ</BuildingType>
+			<FlavorType>FLAVOR_CULTURE</FlavorType>
+			<Flavor>100</Flavor>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_GIORIO_ARMEIER</BuildingType>
+			<FlavorType>FLAVOR_CULTURE</FlavorType>
+			<Flavor>50</Flavor>
+		</Row>
+	</Building_Flavors>
+	<!-- Giorgio Armeier  -->
+	<Language_en_US>
+		<Row Tag="TXT_KEY_BUILDING_GIORIO_ARMEIER_HQ">
+			<Text>Giorgio Armeier, Inc.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_BUILDINGS_GIORIO_ARMEIER_HQ_TEXT">
+			<Text>A corporation is a company or group of people authorized to act as a single entity (legally a person) and recognized as such in law. Early incorporated entities were established by charter (i.e. by an ad hoc act granted by a monarch or passed by a parliament or legislature). Most jurisdictions now allow the creation of new corporations through registration. Corporations come in many different types but are usually divided by the law of the jurisdiction where they are chartered into two kinds: by whether or not they can issue stock, or by whether or not they are for profit.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_GIORIO_ARMEIER_HQ_STRATEGY">
+			<Text>Receive two [ICON_INTERNATIONAL_TRADE] Trade Routes. +1 [ICON_CULTURE] Culture on all Monopoly Resources associated with Giorgio Armeier. +1 [ICON_CULTURE] Culture from all Specialists. [NEWLINE][NEWLINE]Remember that each Civilization may only found [COLOR_POSITIVE_TEXT]one[ENDCOLOR] Corporation, so make sure the benefits are applicable to your Victory Strategy!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_GIORIO_ARMEIER_HQ_HELP">
+			<Text>Requires a Global Monopoly on [ICON_RES_SILK] Silk, [ICON_RES_COTTON] Cotton, [ICON_RES_DYE] Dye, or [ICON_RES_FUR] Furs.[NEWLINE][NEWLINE]Receive a free Giorgio Armeier Office in this City, and unlocks construction of Giorgio Armeier Offices in owned Cities.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_GIORIO_ARMEIER_FRANCHISE">
+			<Text>Giorgio Armeier</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_BUILDING_GIORIO_ARMEIER_FRANCHISE_TEXT">
+			<Text>A corporation is a company or group of people authorized to act as a single entity (legally a person) and recognized as such in law. Early incorporated entities were established by charter (i.e. by an ad hoc act granted by a monarch or passed by a parliament or legislature). Most jurisdictions now allow the creation of new corporations through registration. Corporations come in many different types but are usually divided by the law of the jurisdiction where they are chartered into two kinds: by whether or not they can issue stock, or by whether or not they are for profit.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_GIORIO_ARMEIER_FRANCHISE_STRATEGY">
+			<Text>This building can only be constructed in Foreign Cities if you were the founder of Giorgio Armeier . To construct this building in a foreign City, send a Trade Route from an owned City with a Giorgio Armeier Office in it to a foreign City. When the Trade Route is complete, the building will automatically be constructed.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_GIORIO_ARMEIER_FRANCHISE_HELP">
+			<Text>+1 [ICON_GOLD] Gold to all Monopoly Resources worked by this City that are associated with Giorgio Armeier. Generates revenue for Giorgio Armeier Offices in the founding Civilization's Cities.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_GIORIO_ARMEIER">
+			<Text>Giorgio Armeier Office</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_BUILDING_GIORIO_ARMEIER_TEXT">
+			<Text>A corporation is a company or group of people authorized to act as a single entity (legally a person) and recognized as such in law. Early incorporated entities were established by charter (i.e. by an ad hoc act granted by a monarch or passed by a parliament or legislature). Most jurisdictions now allow the creation of new corporations through registration. Corporations come in many different types but are usually divided by the law of the jurisdiction where they are chartered into two kinds: by whether or not they can issue stock, or by whether or not they are for profit.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_GIORIO_ARMEIER_STRATEGY">
+			<Text>When a [ICON_INTERNATIONAL_TRADE] Trade Route to a foreign City from this City is completed, a Giorgio Armeier Franchise is constructed in the foreign City.[NEWLINE][NEWLINE]Giorgio Armeier cannot be sold or destroyed by the player, and increases the [ICON_CULTURE] Culture output of all Giorgio Armeier Offices by +1.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_GIORIO_ARMEIER_HELP">
+			<Text>+2 [ICON_CULTURE] Culture on all Monopoly Resources associated with Giorgio Armeier. +1 [ICON_CULTURE] Culture for every Giorgio Armeier Franchise.[NEWLINE][NEWLINE]Every Trade Route from this City to a foreign City with a Giorgio Armeier increases this City's [ICON_CULTURE] Culture rate by +5%.</Text>
+		</Row>
+	</Language_en_US>
+</GameData>

@@ -1,0 +1,69 @@
+-- Civilized Jewelers
+
+UPDATE Language_en_US
+SET Text = '[NEWLINE][NEWLINE]Receive one [ICON_INTERNATIONAL_TRADE] Trade Route. [ICON_GOLD] Gold from incoming Trade Routes increased by 3, and [ICON_GOLD] Gold from outgoing Trade Routes increased by 5. [NEWLINE][NEWLINE]+3 [ICON_GOLD] Gold to all Monopoly Resources worked by this City that are associated with Civilized Jewelers. All Caravansaries produce +2 [ICON_GOLD] Gold and +2 [ICON_CULTURE] Culture. Remember that each Civilization may only found [COLOR_POSITIVE_TEXT]one[ENDCOLOR] Corporation, so make sure the benefits are applicable to your Victory Strategy!'
+WHERE Tag = 'TXT_KEY_BUILDING_CIVILIZED_JEWELERS_HQ_STRATEGY';
+
+UPDATE Language_en_US
+SET Text = 'Requires a Global Monopoly on [ICON_RES_GOLD] Gold, [ICON_RES_SILVER] Silver, [ICON_RES_GEMS] Gems, [ICON_RES_PEARLS] Pearls, or [ICON_RES_AMBER] Amber.[NEWLINE][NEWLINE]Receive a free Civilized Jewelers Office in this City, and unlocks construction of Civlized Jewelers Offices in owned Cities.'
+WHERE Tag = 'TXT_KEY_BUILDING_CIVILIZED_JEWELERS_HQ_HELP';
+
+-- Firaxite Materials
+
+UPDATE Language_en_US
+SET Text = 'Receive one [ICON_INTERNATIONAL_TRADE] Trade Route. Owned Trade Routes cannot be pillaged, except as a result of a Declaration of War. +3 [ICON_RESEARCH] Science on all Monopoly Resources associated with Firaxite Materials. All Factories produce +2 [ICON_PRODUCTION] Production and +2 [ICON_RESEARCH] Science. [NEWLINE][NEWLINE]Remember that each Civilization may only found [COLOR_POSITIVE_TEXT]one[ENDCOLOR] Corporation, so make sure the benefits are applicable to your Victory Strategy!'
+WHERE Tag = 'TXT_KEY_BUILDING_FIRAXITE_MATERIALS_HQ_STRATEGY';
+
+UPDATE Language_en_US
+SET Text = 'Requires a Global Monopoly on [ICON_RES_IRON] Iron, [ICON_RES_ALUMINUM] Aluminum, [ICON_RES_MARBLE] Marble, [ICON_RES_COPPER] Copper, or [ICON_RES_JADE] Jade.[NEWLINE][NEWLINE]Receive a free Firaxite Materials Office in this City, and unlocks construction of Firaxite Materials Offices in owned Cities.'
+WHERE Tag = 'TXT_KEY_BUILDING_FIRAXITE_MATERIALS_HQ_HELP';
+
+-- Giorgio Armeier
+
+UPDATE Language_en_US
+SET Text = 'Receive two [ICON_INTERNATIONAL_TRADE] Trade Routes. +1 [ICON_CULTURE] Culture on all Monopoly Resources associated with Giorgio Armeier. +1 [ICON_CULTURE] Culture from all Specialists. Remember that each Civilization may only found [COLOR_POSITIVE_TEXT]one[ENDCOLOR] Corporation, so make sure the benefits are applicable to your Victory Strategy!'
+WHERE Tag = 'TXT_KEY_BUILDING_GIORIO_ARMEIER_HQ_STRATEGY';
+
+UPDATE Language_en_US
+SET Text = 'Requires a Global Monopoly on [ICON_RES_SILK] Silk, [ICON_RES_COTTON] Cotton, [ICON_RES_DYE] Dye, [ICON_RES_FUR] Furs, or [ICON_RES_LAPIS] Lapis Lazuli.[NEWLINE][NEWLINE]Receive a free Giorgio Armeier Office in this City, and unlocks construction of Giorgio Armeier Offices in owned Cities.'
+WHERE Tag = 'TXT_KEY_BUILDING_GIORIO_ARMEIER_HQ_HELP';
+
+-- Hexxon Refineries
+
+UPDATE Language_en_US
+SET Text = 'Receive one [ICON_INTERNATIONAL_TRADE] Trade Route. Owned Trade Routes have double [ICON_MOVES] Movement speed. Receive +3 [ICON_RES_COAL] Coal, [ICON_RES_OIL] Oil, and [ICON_RES_URANIUM] Uranium in this City.[NEWLINE][NEWLINE]Remember that each Civilization may only found [COLOR_POSITIVE_TEXT]one[ENDCOLOR] Corporation, so make sure the benefits are applicable to your Victory Strategy!'
+WHERE Tag = 'TXT_KEY_BUILDING_HEXXON_REFINERY_HQ_STRATEGY';
+
+UPDATE Language_en_US
+SET Text = 'Requires a Global Monopoly on [ICON_RES_COAL] Coal, [ICON_RES_OIL] Oil, [ICON_RES_INCENSE] Incense, [ICON_RES_URANIUM] Uranium, or [ICON_RES_PERFUME] Perfume.[NEWLINE][NEWLINE]Receive a free Hexxon Refineries Office in this City, and unlocks construction of Hexxon Refineries Offices in owned Cities.'
+WHERE Tag = 'TXT_KEY_BUILDING_HEXXON_REFINERY_HQ_HELP';
+
+-- LandSea Extractors
+
+UPDATE Language_en_US
+SET Text = 'Receive two [ICON_INTERNATIONAL_TRADE] Trade Routes. +2 [ICON_PRODUCTION] Production on all Monopoly Resources associated with LandSea Extractors. All Harbors and Seaports produce +2 [ICON_FOOD] Food and +2 [ICON_RESEARCH] Science. [NEWLINE][NEWLINE]Remember that each Civilization may only found [COLOR_POSITIVE_TEXT]one[ENDCOLOR] Corporation, so make sure the benefits are applicable to your Victory Strategy!'
+WHERE Tag = 'TXT_KEY_BUILDING_LANDSEA_EXTRACTORS_HQ_STRATEGY';
+
+UPDATE Language_en_US
+SET Text = 'Requires a Global Monopoly on [ICON_RES_HORSE] Horse, [ICON_RES_WHALE] Whales, [ICON_RES_CRAB] Crab, [ICON_RES_IVORY] Ivory, or [ICON_RES_CORAL] Coral.[NEWLINE][NEWLINE]Receive a free LandSea Extractors Office in this City, and unlocks construction of LandSea Extractors Offices in owned Cities.'
+WHERE Tag = 'TXT_KEY_BUILDING_LANDSEA_EXTRACTORS_HQ_HELP';
+
+-- Trader Sid's
+
+UPDATE Language_en_US
+SET Text = 'Receive two [ICON_INTERNATIONAL_TRADE] Trade Routes, and Land Trade Routes have 100% increased range.[NEWLINE][NEWLINE]+2 [ICON_GOLD] Gold to all Monopoly Resources worked by this City that are associated with Trader Sid''s. All Caravansaries produce +2 [ICON_GOLD] Gold and +2 [ICON_CULTURE] Culture.[NEWLINE][NEWLINE]Remember that each Civilization may only found [COLOR_POSITIVE_TEXT]one[ENDCOLOR] Corporation, so make sure the benefits are applicable to your Victory Strategy!'
+WHERE Tag = 'TXT_KEY_BUILDING_TRADER_SIDS_HQ_STRATEGY';
+
+UPDATE Language_en_US
+SET Text = 'Requires a Global Monopoly on [ICON_RES_SPICES] Spices, [ICON_RES_SUGAR] Sugar, [ICON_RES_SALT] Salt, [ICON_RES_NUTMEG] Nutmeg, [ICON_RES_CLOVES] Cloves, [ICON_RES_PEPPER] Pepper, [ICON_RES_COCOA] Cocoa, or [ICON_RES_TOBACCO] Tobacco.[NEWLINE][NEWLINE]Receive a free Trader Sid''s Office in this City, and unlocks construction of Trader Sid''s Offices in owned Cities.'
+WHERE Tag = 'TXT_KEY_BUILDING_TRADER_SIDS_HQ_HELP';
+
+-- TwoKay Foods
+
+UPDATE Language_en_US
+SET Text = 'Receive one [ICON_INTERNATIONAL_TRADE] Trade Route. All Trade Routes have +1 Sight and reveal the Fog of War. +3 [ICON_FOOD] Food on all Monopoly Resources associated with TwoKay Foods. All Grocers produce +2 [ICON_FOOD] Food and +2 [ICON_GOLD] Gold. [NEWLINE][NEWLINE]Remember that each Civilization may only found [COLOR_POSITIVE_TEXT]one[ENDCOLOR] Corporation, so make sure the benefits are applicable to your Victory Strategy!'
+WHERE Tag = 'TXT_KEY_BUILDING_TWOKAY_FOODS_HQ_STRATEGY';
+
+UPDATE Language_en_US
+SET Text = 'Requires a Global Monopoly on [ICON_RES_WINE] Wine, [ICON_RES_TRUFFLES] Truffles, [ICON_RES_CITRUS] Citrus, [ICON_RES_OLIVE] Olives, [ICON_RES_COFFEE] Coffee, or [ICON_RES_TEA] Tea.[NEWLINE][NEWLINE]Receive a free TwoKay Foods Office in this City, and unlocks construction of TwoKay Foods Offices in owned Cities.'
+WHERE Tag = 'TXT_KEY_BUILDING_TWOKAY_FOODS_HQ_HELP';

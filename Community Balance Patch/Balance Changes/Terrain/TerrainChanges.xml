@@ -194,15 +194,15 @@
 		
 		<Update>
 			<Where ImprovementType="IMPROVEMENT_ACADEMY" YieldType="YIELD_SCIENCE" />
-			<Set Yield="4" />
+			<Set Yield="5" />
 		</Update>
 		<Update>
 			<Where ImprovementType="IMPROVEMENT_CUSTOMS_HOUSE" YieldType="YIELD_GOLD" />
-			<Set Yield="3" />
+			<Set Yield="4" />
 		</Update>
 		<Update>
 			<Where ImprovementType="IMPROVEMENT_MANUFACTORY" YieldType="YIELD_PRODUCTION" />
-			<Set Yield="3" />
+			<Set Yield="4" />
 		</Update>
 		<Update>
 			<Where ImprovementType="IMPROVEMENT_LANDMARK" YieldType="YIELD_CULTURE" />
@@ -210,7 +210,7 @@
 		</Update>
 		<Update>
 			<Where ImprovementType="IMPROVEMENT_HOLY_SITE" YieldType="YIELD_FAITH" />
-			<Set Yield="2" />
+			<Set Yield="3" />
 		</Update>
 		<Row>
 			<ImprovementType>IMPROVEMENT_HOLY_SITE</ImprovementType>
@@ -231,6 +231,36 @@
 			<ImprovementType>IMPROVEMENT_PLANTATION</ImprovementType>
 			<YieldType>YIELD_GOLD</YieldType>
 			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<ImprovementType>IMPROVEMENT_CAMP</ImprovementType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<ImprovementType>IMPROVEMENT_PASTURE</ImprovementType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<ImprovementType>IMPROVEMENT_QUARRY</ImprovementType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<ImprovementType>IMPROVEMENT_FISHING_BOATS</ImprovementType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<ImprovementType>IMPROVEMENT_WELL</ImprovementType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>3</Yield>
+		</Row>
+		<Row>
+			<ImprovementType>IMPROVEMENT_OFFSHORE_PLATFORM</ImprovementType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>4</Yield>
 		</Row>
 	</Improvement_Yields>
 	<Improvement_TechYieldChanges>

@@ -111,11 +111,17 @@ ALTER TABLE Units ADD COLUMN 'FoundMid' BOOLEAN DEFAULT 0;
 -- Adds ability for settlers to get free buildings when a city is founded.
 ALTER TABLE Units ADD COLUMN 'FoundLate' BOOLEAN DEFAULT 0;
 
+-- Adds marker for city attack only units (for AI)
+ALTER TABLE Units ADD COLUMN 'CityAttackOnly' BOOLEAN DEFAULT 0;
+
 -- Adds minimum national population requirement for a building.
 ALTER TABLE Buildings ADD COLUMN 'NationalPopRequired' INTEGER DEFAULT 0;
 
 -- Adds minimum local population requirement for a building.
 ALTER TABLE Buildings ADD COLUMN 'LocalPopRequired' INTEGER DEFAULT 0;
+
+-- Movement speed penalty (like Great Wall) for plots worked by a City.
+ALTER TABLE Buildings ADD COLUMN 'BorderObstacleCity' INTEGER DEFAULT 0;
 
 -- Reduces specialist unhappiness in cities by a set amount, either in capital or in all cities.
 ALTER TABLE Policies ADD COLUMN 'NoUnhappfromXSpecialists' INTEGER DEFAULT 0;
@@ -459,4 +465,13 @@ ALTER TABLE Buildings ADD COLUMN 'BlockScienceTheft' INTEGER DEFAULT 0;
 ALTER TABLE Buildings ADD COLUMN 'BlockGoldTheft' INTEGER DEFAULT 0;
 
 
+
+-- CORPORATIONS
+ALTER TABLE Buildings ADD COLUMN 'FreeBuildingTradeTargetCity' TEXT DEFAULT NULL;
+ALTER TABLE Buildings ADD COLUMN 'CorporationID' INTEGER DEFAULT 0;
+ALTER TABLE Buildings ADD COLUMN 'CorporationHQID' INTEGER DEFAULT 0;
+ALTER TABLE Buildings ADD COLUMN 'CorporationGPChange' INTEGER DEFAULT 0;
+ALTER TABLE Buildings ADD COLUMN 'TradeRouteInvulnerable' BOOLEAN DEFAULT 0;
+ALTER TABLE Buildings ADD COLUMN 'TRSpeedBoost' INTEGER DEFAULT 0;
+ALTER TABLE Buildings ADD COLUMN 'TRVisionBoost' INTEGER DEFAULT 0;
 

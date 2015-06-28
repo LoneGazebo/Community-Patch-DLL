@@ -161,6 +161,27 @@ bool CvCitySiteEvaluator::CanFound(CvPlot* pPlot, const CvPlayer* pPlayer, bool 
 	}
 
 #if defined(MOD_BALANCE_CORE)
+	if(pPlayer)
+	{
+		TeamTypes eTeamLoop;
+		for(int iTeamLoop = 0; iTeamLoop < MAX_TEAMS; iTeamLoop++)
+		{
+			eTeamLoop = (TeamTypes) iTeamLoop;
+
+			if(eTeamLoop == NO_TEAM)
+				continue;
+			if(eTeamLoop == pPlayer->getTeam())
+				continue;
+
+			if(pPlot->IsAdjacentOwnedByOtherTeam(eTeamLoop))
+			{
+				return false;
+			}
+		}
+	}
+#endif
+
+#if defined(MOD_BALANCE_CORE)
 
 	if(!bTestVisible)
 	{
@@ -718,12 +739,12 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 		}
 		else if(pArea != NULL && iGoodTiles == 1)
 		{
-			iValueModifier -= (iTotalPlotValue * 50) / 100;
+			iValueModifier -= (iTotalPlotValue * 40) / 100;
 			vQualifiersNegative.push_back("(V) coast on 1-tile island is not great");
 		}
 		else
 		{
-			iValueModifier -= (iTotalPlotValue * 33) / 100;
+			iValueModifier -= (iTotalPlotValue * 25) / 100;
 			vQualifiersNegative.push_back("(V) coast on small island");
 		}
 	}
@@ -731,7 +752,7 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 	{
 		if(iGoodTiles <= 6)
 		{
-			iValueModifier -= (iTotalPlotValue * 50) / 100;
+			iValueModifier -= (iTotalPlotValue * 40) / 100;
 			vQualifiersNegative.push_back("(V) not enough good plots");
 		}
 		else if(iGoodTiles <= 12)
@@ -884,7 +905,7 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, 
 
 			if (iClosestEnemyCity <= iSweetMin)
 			{
-				iValueModifier -= (iTotalPlotValue*33)/100;
+				iValueModifier -= (iTotalPlotValue*40)/100;
 				vQualifiersNegative.push_back("(S) too close to enemy");
 			}
 

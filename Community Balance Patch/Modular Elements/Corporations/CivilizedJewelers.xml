@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created by ModBuddy on 6/21/2015 11:53:46 PM -->
+<GameData>
+	<!-- Base Corp HQs-->
+	<BuildingClasses>
+		<Row>
+			<Type>BUILDINGCLASS_CIVILIZED_JEWELERS_HQ</Type>
+			<DefaultBuilding>BUILDING_CIVILIZED_JEWELERS_HQ</DefaultBuilding>
+			<Description>TXT_KEY_BUILDING_CIVILIZED_JEWELERS_HQ</Description>
+			<MaxGlobalInstances>1</MaxGlobalInstances>
+		</Row>
+		<!-- Corp Offices -->
+		<Row>
+			<Type>BUILDINGCLASS_CIVILIZED_JEWELERS</Type>
+			<DefaultBuilding>BUILDING_CIVILIZED_JEWELERS</DefaultBuilding>
+			<Description>TXT_KEY_BUILDING_CIVILIZED_JEWELERS</Description>
+		</Row>
+		<!--Corp Franchises -->
+		<Row>
+			<Type>BUILDINGCLASS_CIVILIZED_JEWELERS_FRANCHISE</Type>
+			<DefaultBuilding>BUILDING_CIVILIZED_JEWELERS_FRANCHISE</DefaultBuilding>
+			<Description>TXT_KEY_BUILDING_CIVILIZED_JEWELERS_FRANCHISE</Description>
+		</Row>
+	</BuildingClasses>
+	<Buildings>
+		<!-- HQs -->
+		<Row>
+			<Type>BUILDING_CIVILIZED_JEWELERS_HQ</Type>
+			<BuildingClass>BUILDINGCLASS_CIVILIZED_JEWELERS_HQ</BuildingClass>
+			<Cost>1000</Cost>
+			<GoldMaintenance>5</GoldMaintenance>
+			<PrereqTech>TECH_CORPORATIONS</PrereqTech>
+			<Description>TXT_KEY_BUILDING_CIVILIZED_JEWELERS_HQ</Description>
+			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_CIVILIZED_JEWELERS_HQ_TEXT</Civilopedia>
+			<Strategy>TXT_KEY_BUILDING_CIVILIZED_JEWELERS_HQ_STRATEGY</Strategy>
+			<Help>TXT_KEY_BUILDING_CIVILIZED_JEWELERS_HQ_HELP</Help>
+			<ArtDefineTag>ART_DEF_BUILDING_GARDEN</ArtDefineTag>
+			<MinAreaSize>-1</MinAreaSize>
+			<CorporationHQID>6</CorporationHQID>
+			<Happiness>3</Happiness>
+			<CorporationID>6</CorporationID>
+			<FreeBuildingThisCity>BUILDINGCLASS_CIVILIZED_JEWELERS</FreeBuildingThisCity>
+			<TradeRouteRecipientBonus>5</TradeRouteRecipientBonus>
+			<TradeRouteTargetBonus>3</TradeRouteTargetBonus>
+			<NumTradeRouteBonus>1</NumTradeRouteBonus>
+			<NeverCapture>true</NeverCapture>
+			<HurryCostModifier>25</HurryCostModifier>
+			<IconAtlas>CORP_ATLAS</IconAtlas>
+			<WonderSplashImage>CorporationSplash.dds</WonderSplashImage>
+			<Quote>TXT_KEY_WONDER_CORPORATION_QUOTE</Quote>
+			<PortraitIndex>4</PortraitIndex>
+		</Row>
+		<!-- Base Corps-->
+		<Row>
+			<Type>BUILDING_CIVILIZED_JEWELERS</Type>
+			<BuildingClass>BUILDINGCLASS_CIVILIZED_JEWELERS</BuildingClass>
+			<Cost>800</Cost>
+			<GoldMaintenance>3</GoldMaintenance>
+			<PrereqTech>TECH_CORPORATIONS</PrereqTech>
+			<Description>TXT_KEY_BUILDING_CIVILIZED_JEWELERS</Description>
+			<Civilopedia>TXT_KEY_CIV5_BUILDING_CIVILIZED_JEWELERS_TEXT</Civilopedia>
+			<Strategy>TXT_KEY_BUILDING_CIVILIZED_JEWELERS_STRATEGY</Strategy>
+			<Help>TXT_KEY_BUILDING_CIVILIZED_JEWELERS_HELP</Help>
+			<ArtDefineTag>ART_DEF_BUILDING_GARDEN</ArtDefineTag>
+			<MinAreaSize>-1</MinAreaSize>
+			<FreeBuildingTradeTargetCity>BUILDINGCLASS_CIVILIZED_JEWELERS_FRANCHISE</FreeBuildingTradeTargetCity>
+			<CorporationID>6</CorporationID>
+			<GreatPeopleRateModifier>5</GreatPeopleRateModifier>
+			<CorporationGPChange>5</CorporationGPChange>
+			<NeverCapture>true</NeverCapture>
+			<HurryCostModifier>25</HurryCostModifier>
+			<IconAtlas>CORP_ATLAS</IconAtlas>
+			<PortraitIndex>5</PortraitIndex>
+		</Row>
+		<!-- Franchise-->
+		<Row>
+			<Type>BUILDING_CIVILIZED_JEWELERS_FRANCHISE</Type>
+			<BuildingClass>BUILDINGCLASS_CIVILIZED_JEWELERS_FRANCHISE</BuildingClass>
+			<Cost>-1</Cost>
+			<GoldMaintenance>1</GoldMaintenance>
+			<PrereqTech>TECH_CORPORATIONS</PrereqTech>
+			<Description>TXT_KEY_BUILDING_CIVILIZED_JEWELERS_FRANCHISE</Description>
+			<Civilopedia>TXT_KEY_CIV5_BUILDING_CIVILIZED_JEWELERS_FRANCHISE_TEXT</Civilopedia>
+			<Strategy>TXT_KEY_BUILDING_CIVILIZED_JEWELERS_FRANCHISE_STRATEGY</Strategy>
+			<Help>TXT_KEY_BUILDING_CIVILIZED_JEWELERS_FRANCHISE_HELP</Help>
+			<ArtDefineTag>ART_DEF_BUILDING_GARDEN</ArtDefineTag>
+			<MinAreaSize>-1</MinAreaSize>
+			<CorporationID>6</CorporationID>
+			<NeverCapture>true</NeverCapture>
+			<HurryCostModifier>25</HurryCostModifier>
+			<IconAtlas>CORP_ATLAS</IconAtlas>
+			<PortraitIndex>6</PortraitIndex>
+		</Row>
+	</Buildings>
+	<Building_ClassNeededAnywhere>
+		<Row>
+			<BuildingType>BUILDING_CIVILIZED_JEWELERS</BuildingType>
+			<BuildingClassType>BUILDINGCLASS_CIVILIZED_JEWELERS_HQ</BuildingClassType>
+		</Row>
+	</Building_ClassNeededAnywhere>
+	<Building_ResourceMonopolyOrs>
+		<Row>
+			<BuildingType>BUILDING_CIVILIZED_JEWELERS_HQ</BuildingType>
+			<ResourceType>RESOURCE_GOLD</ResourceType>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_CIVILIZED_JEWELERS_HQ</BuildingType>
+			<ResourceType>RESOURCE_SILVER</ResourceType>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_CIVILIZED_JEWELERS_HQ</BuildingType>
+			<ResourceType>RESOURCE_GEMS</ResourceType>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_CIVILIZED_JEWELERS_HQ</BuildingType>
+			<ResourceType>RESOURCE_PEARLS</ResourceType>
+		</Row>
+	</Building_ResourceMonopolyOrs>
+	<Building_ResourceYieldChanges>
+		<!-- Franchise -->
+		<Row>
+			<BuildingType>BUILDING_CIVILIZED_JEWELERS_FRANCHISE</BuildingType>
+			<ResourceType>RESOURCE_GOLD</ResourceType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_CIVILIZED_JEWELERS_FRANCHISE</BuildingType>
+			<ResourceType>RESOURCE_SILVER</ResourceType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_CIVILIZED_JEWELERS_FRANCHISE</BuildingType>
+			<ResourceType>RESOURCE_GEMS</ResourceType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_CIVILIZED_JEWELERS_FRANCHISE</BuildingType>
+			<ResourceType>RESOURCE_PEARLS</ResourceType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+	</Building_ResourceYieldChanges>
+	<Building_BuildingClassYieldChanges>
+		<Row>
+			<BuildingType>BUILDING_CIVILIZED_JEWELERS_HQ</BuildingType>
+			<BuildingClassType>BUILDINGCLASS_MARKET</BuildingClassType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<YieldChange>1</YieldChange>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_CIVILIZED_JEWELERS_HQ</BuildingType>
+			<BuildingClassType>BUILDINGCLASS_BANK</BuildingClassType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<YieldChange>1</YieldChange>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_CIVILIZED_JEWELERS_HQ</BuildingType>
+			<BuildingClassType>BUILDINGCLASS_MINT</BuildingClassType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<YieldChange>1</YieldChange>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_CIVILIZED_JEWELERS_HQ</BuildingType>
+			<BuildingClassType>BUILDINGCLASS_STOCK_EXCHANGE</BuildingClassType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<YieldChange>1</YieldChange>
+		</Row>
+	</Building_BuildingClassYieldChanges>
+	<Building_CorporationYieldModTrade>
+		<Row>
+			<BuildingType>BUILDING_CIVILIZED_JEWELERS</BuildingType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>5</Yield>
+		</Row>
+	</Building_CorporationYieldModTrade>
+	<Building_Flavors>
+		<Row>
+			<BuildingType>BUILDING_CIVILIZED_JEWELERS_HQ</BuildingType>
+			<FlavorType>FLAVOR_GOLD</FlavorType>
+			<Flavor>50</Flavor>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_CIVILIZED_JEWELERS_HQ</BuildingType>
+			<FlavorType>FLAVOR_GREAT_PEOPLE</FlavorType>
+			<Flavor>50</Flavor>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_CIVILIZED_JEWELERS</BuildingType>
+			<FlavorType>FLAVOR_GOLD</FlavorType>
+			<Flavor>40</Flavor>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_CIVILIZED_JEWELERS</BuildingType>
+			<FlavorType>FLAVOR_GREAT_PEOPLE</FlavorType>
+			<Flavor>40</Flavor>
+		</Row>
+	</Building_Flavors>
+	<!-- Civilized Jewelers -->
+	<Language_en_US>
+		<Row Tag="TXT_KEY_BUILDING_CIVILIZED_JEWELERS_HQ">
+			<Text>Civilized Jewelers, Inc.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_BUILDINGS_CIVILIZED_JEWELERS_HQ_TEXT">
+			<Text>A corporation is a company or group of people authorized to act as a single entity (legally a person) and recognized as such in law. Early incorporated entities were established by charter (i.e. by an ad hoc act granted by a monarch or passed by a parliament or legislature). Most jurisdictions now allow the creation of new corporations through registration. Corporations come in many different types but are usually divided by the law of the jurisdiction where they are chartered into two kinds: by whether or not they can issue stock, or by whether or not they are for profit.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_CIVILIZED_JEWELERS_HQ_STRATEGY">
+			<Text>[NEWLINE][NEWLINE]Receive one [ICON_INTERNATIONAL_TRADE] Trade Route. [ICON_GOLD] Gold from incoming Trade Routes increased by 3, and [ICON_GOLD] Gold from outgoing Trade Routes increased by 5. [NEWLINE][NEWLINE]+3 [ICON_GOLD] Gold to all Monopoly Resources worked by this City that are associated with Civilized Jewelers. All Caravansaries produce +2 [ICON_GOLD] Gold and +2 [ICON_CULTURE] Culture.[NEWLINE][NEWLINE]Remember that each Civilization may only found [COLOR_POSITIVE_TEXT]one[ENDCOLOR] Corporation, so make sure the benefits are applicable to your Victory Strategy!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_CIVILIZED_JEWELERS_HQ_HELP">
+			<Text>Requires a Global Monopoly on [ICON_RES_GOLD] Gold, [ICON_RES_SILVER] Silver, [ICON_RES_GEMS] Gems, or [ICON_RES_PEARLS] Pearls.[NEWLINE][NEWLINE]Receive a free Civlized Jewelers Office in this City, and unlocks construction of Civlized Jewelers Offices in owned Cities.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_CIVILIZED_JEWELERS_FRANCHISE">
+			<Text>Civilized Jewelers</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_BUILDING_CIVILIZED_JEWELERS_FRANCHISE_TEXT">
+			<Text>A corporation is a company or group of people authorized to act as a single entity (legally a person) and recognized as such in law. Early incorporated entities were established by charter (i.e. by an ad hoc act granted by a monarch or passed by a parliament or legislature). Most jurisdictions now allow the creation of new corporations through registration. Corporations come in many different types but are usually divided by the law of the jurisdiction where they are chartered into two kinds: by whether or not they can issue stock, or by whether or not they are for profit.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_CIVILIZED_JEWELERS_FRANCHISE_STRATEGY">
+			<Text>This building can only be constructed in Foreign Cities if you were the founder of Civilized Jewelers. To construct this building in a foreign City, send a Trade Route from an owned City with a Civilized Jewelers Office in it to a foreign City. When the Trade Route is complete, the building will automatically be constructed.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_CIVILIZED_JEWELERS_FRANCHISE_HELP">
+			<Text>+1 [ICON_GOLD] Gold to all Monopoly Resources worked by this City that are associated with Civilized Jewelers. Generates revenue for Civilized Jewelers Offices in the founding Civilization's Cities.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_CIVILIZED_JEWELERS">
+			<Text>Civilized Jewelers's Office</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_BUILDING_CIVILIZED_JEWELERS_TEXT">
+			<Text>A corporation is a company or group of people authorized to act as a single entity (legally a person) and recognized as such in law. Early incorporated entities were established by charter (i.e. by an ad hoc act granted by a monarch or passed by a parliament or legislature). Most jurisdictions now allow the creation of new corporations through registration. Corporations come in many different types but are usually divided by the law of the jurisdiction where they are chartered into two kinds: by whether or not they can issue stock, or by whether or not they are for profit.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_CIVILIZED_JEWELERS_STRATEGY">
+			<Text>When a [ICON_INTERNATIONAL_TRADE] Trade Route to a foreign City from this City is completed, a Civilized Jewelers Franchise is constructed in the foreign City.[NEWLINE][NEWLINE]Civilized Jewelers cannot be sold or destroyed by the player, and increases the [ICON_GREAT_PEOPLE] Great Person rate of all Civilized Jewelers's Offices by +5%.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_CIVILIZED_JEWELERS_HELP">
+			<Text>+5% [ICON_GREAT_PEOPLE] Great Person rate in this City. Additional +5% for every Civilized Jeweler's Franchise.[NEWLINE][NEWLINE]Every Trade Route from this City to a foreign City with a Civilized Jewelers increases this City's [ICON_GOLD] Gold rate by +5%.</Text>
+		</Row>
+	</Language_en_US>
+</GameData>

@@ -314,16 +314,18 @@ void CvCityConnections::UpdateRouteInfo(void)
 		return;
 	}
 #if defined(MOD_BALANCE_CORE)
+	// pass 2 = double check on land routes (harbor to road to harbor connections)
 	// pass 1 = can cities connect via water routes
 	// pass 0 = can cities connect via land and water routes
+	for(int iPass = 0; iPass <= 2; iPass++)
 #else
 	// pass 0 = can cities connect via water routes
 	// pass 1 = can cities connect via land and water routes
-#endif
 	for(int iPass = 0; iPass < 2; iPass++)
+#endif
 	{
 #if defined(MOD_EVENTS_CITY_CONNECTIONS)
-		if(iPass == 1 && !bAllowIndirectRoutes)  // if in the first pass and we can't create indirect routes, skip
+		if(iPass == 1 && !bAllowIndirectRoutes)  // if in the second pass and we can't create indirect routes, skip
 #else
 		if(iPass == 0 && !bAllowWaterRoutes)  // if in the first pass, we can't embark, skip
 #endif
@@ -331,7 +333,7 @@ void CvCityConnections::UpdateRouteInfo(void)
 			continue;
 		}
 #if defined(MOD_EVENTS_CITY_CONNECTIONS)
-		else if(iPass == 0 && !(bAllowDirectRoutes || bAllowIndirectRoutes))  // if in the second pass and we can't create any routes (this allows for harbour to harbour connections without The Wheel), skip
+		else if((iPass == 0 || iPass == 2) && !(bAllowDirectRoutes || bAllowIndirectRoutes))  // if in the first pass and we can't create any routes (this allows for harbour to harbour connections without The Wheel), skip
 #else
 #if defined(MOD_BUGFIX_MINOR)
 		else if(iPass == 1 && !(eBestRouteType != NO_ROUTE || bAllowWaterRoutes))  // if in the second pass, we can't build a road or a water connection, skip
@@ -389,7 +391,11 @@ void CvCityConnections::UpdateRouteInfo(void)
 				//}
 #endif
 				pRouteInfo->m_cPassEval = iPass + 1;
+#if defined(MOD_BALANCE_CORE)
+				if((iPass == 0) || (iPass == 2))  // check land route
+#else
 				if(iPass == 0)  // check water route
+#endif
 				{
 #if defined(MOD_BALANCE_CORE)
 					//Actually check land route.
@@ -506,7 +512,11 @@ void CvCityConnections::UpdateRouteInfo(void)
 #endif
 #endif
 				}
+#if defined(MOD_BALANCE_CORE)
+				else if(iPass == 1)  // check water route
+#else
 				else if(iPass == 1)  // check land route
+#endif
 				{
 #if defined(MOD_BALANCE_CORE)
 					//Actually check water route.

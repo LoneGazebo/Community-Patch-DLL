@@ -157,7 +157,7 @@ CvPlayer::CvPlayer() :
 	, m_iHappinessTotal("CvPlayer::m_iHappinessTotal", m_syncArchive)
 #endif
 #if defined(MOD_BALANCE_CORE)
-	, m_bIsReformation("CvPlayer::m_bIsReformation", m_syncArchive, false, false)
+	, m_bIsReformation("CvPlayer::m_bIsReformation", m_syncArchive)
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
 	, m_iSpyCooldown("CvPlayer::m_iSpyCooldown", m_syncArchive)
@@ -196,9 +196,9 @@ CvPlayer::CvPlayer() :
 	, m_iRAToVotes("CvPlayer::m_iRAToVotes", m_syncArchive)
 	, m_iDefensePactsToVotes("CvPlayer::m_iDefensePactsToVotes", m_syncArchive)
 	, m_iGPExpendInfluence("CvPlayer::m_iGPExpendInfluence", m_syncArchive)
-	, m_bIsLeagueAid("CvPlayer::m_bIsLeagueAid", m_syncArchive, false, false)
-	, m_bIsLeagueScholar("CvPlayer::m_bIsLeagueScholar", m_syncArchive, false, false)
-	, m_bIsLeagueArt("CvPlayer::m_bIsLeagueArt", m_syncArchive, false, false)
+	, m_bIsLeagueAid("CvPlayer::m_bIsLeagueAid", m_syncArchive)
+	, m_bIsLeagueScholar("CvPlayer::m_bIsLeagueScholar", m_syncArchive)
+	, m_bIsLeagueArt("CvPlayer::m_bIsLeagueArt", m_syncArchive)
 	, m_iScienceRateFromLeague("CvPlayer::m_iScienceRateFromLeague", m_syncArchive)
 	, m_iScienceRateFromLeagueAid("CvPlayer::m_iScienceRateFromLeagueAid", m_syncArchive)
 	, m_iLeagueCultureCityModifier("CvPlayer::m_iLeagueCultureCityModifier", m_syncArchive)
@@ -347,6 +347,11 @@ CvPlayer::CvPlayer() :
 	, m_iAbleToAnnexCityStatesCount("CvPlayer::m_iAbleToAnnexCityStatesCount", m_syncArchive)
 #if defined(MOD_BALANCE_CORE)
 	, m_iAbleToMarryCityStatesCount("CvPlayer::m_iAbleToMarryCityStatesCount", m_syncArchive)
+	, m_iCorporateFounderID("CvPlayer::m_iCorporateFounderID", m_syncArchive)
+	, m_iCorporateFranchises("CvPlayer::m_iCorporateFranchises", m_syncArchive)
+	, m_bTradeRoutesInvulnerable("CvPlayer::m_bTradeRoutesInvulnerable", m_syncArchive)
+	, m_iTRSpeedBoost("CvPlayer::m_iTRSpeedBoost", m_syncArchive)
+	, m_iTRVisionBoost("CvPlayer::m_iTRVisionBoost", m_syncArchive)
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	, m_iPovertyUnhappinessMod("CvPlayer::m_iPovertyUnhappinessMod", m_syncArchive)
@@ -468,14 +473,14 @@ CvPlayer::CvPlayer() :
 	, m_iTradeReligionModifier("CvPlayer::m_iTradeReligionModifier", m_syncArchive)
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
-	, m_iAdvancedActionGold("CvPlayer::m_iAdvancedActionGold", m_syncArchive, 3)
-	, m_iAdvancedActionScience("CvPlayer::m_iAdvancedActionScience", m_syncArchive, 3)
-	, m_iAdvancedActionUnrest("CvPlayer::m_iAdvancedActionUnrest", m_syncArchive, 1)
-	, m_iAdvancedActionRebellion("CvPlayer::m_iAdvancedActionRebellion", m_syncArchive, 1)
-	, m_iAdvancedActionGP("CvPlayer::m_iAdvancedActionGP", m_syncArchive, 1)
-	, m_iAdvancedActionUnit("CvPlayer::m_iAdvancedActionUnit", m_syncArchive, 2)
-	, m_iAdvancedActionWonder("CvPlayer::m_iAdvancedActionWonder", m_syncArchive, 1)
-	, m_iAdvancedActionBuilding("CvPlayer::m_iAdvancedActionBuilding", m_syncArchive, 2)
+	, m_iAdvancedActionGold("CvPlayer::m_iAdvancedActionGold", m_syncArchive)
+	, m_iAdvancedActionScience("CvPlayer::m_iAdvancedActionScience", m_syncArchive)
+	, m_iAdvancedActionUnrest("CvPlayer::m_iAdvancedActionUnrest", m_syncArchive)
+	, m_iAdvancedActionRebellion("CvPlayer::m_iAdvancedActionRebellion", m_syncArchive)
+	, m_iAdvancedActionGP("CvPlayer::m_iAdvancedActionGP", m_syncArchive)
+	, m_iAdvancedActionUnit("CvPlayer::m_iAdvancedActionUnit", m_syncArchive)
+	, m_iAdvancedActionWonder("CvPlayer::m_iAdvancedActionWonder", m_syncArchive)
+	, m_iAdvancedActionBuilding("CvPlayer::m_iAdvancedActionBuilding", m_syncArchive)
 	, m_iCannotFailSpies("CvPlayer::m_iCannotFailSpies", m_syncArchive)
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
@@ -793,6 +798,36 @@ void CvPlayer::init(PlayerTypes eID)
 #if defined(MOD_BALANCE_CORE_SETTLER_ADVANCED)
 		int iBuildingMid = 0;
 		int iBuildingLate = 0;
+#endif
+#if defined(MOD_BALANCE_CORE)
+		if(GetAdvancedActionGold() < 4)
+		{
+			changeAdvancedActionGold(4);
+		}
+		if(GetAdvancedActionScience() < 4)
+		{
+			changeAdvancedActionScience(4);
+		}
+		if(GetAdvancedActionUnrest() < 2)
+		{
+			changeAdvancedActionUnrest(2);
+		}
+		if(GetAdvancedActionRebellion() < 2)
+		{
+			changeAdvancedActionRebellion(2);
+		}
+		if(GetAdvancedActionGP() < 2)
+		{
+			changeAdvancedActionGP(2);
+		}
+		if(GetAdvancedActionWonder() < 2)
+		{
+			changeAdvancedActionWonder(2);
+		}
+		if(GetAdvancedActionBuilding() < 2)
+		{
+			changeAdvancedActionBuilding(2);
+		}
 #endif
 		CvCivilizationInfo& playerCivilizationInfo = getCivilizationInfo();
 		for(iI = 0; iI < GC.getNumUnitClassInfos(); ++iI)
@@ -1237,6 +1272,11 @@ void CvPlayer::uninit()
 	m_iAbleToAnnexCityStatesCount = 0;
 #if defined(MOD_BALANCE_CORE)
 	m_iAbleToMarryCityStatesCount = 0;
+	m_iCorporateFounderID = 0;
+	m_iCorporateFranchises = 0;
+	m_bTradeRoutesInvulnerable = false;
+	m_iTRSpeedBoost = 0;
+	m_iTRVisionBoost = 0;
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	m_iPovertyUnhappinessMod = 0;
@@ -2368,7 +2408,10 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 	if(bConquest)
 	{
 #if defined(MOD_BALANCE_CORE)
-		GetDiplomacyAI()->SetPlayerNumTurnsSinceCityCapture(pOldCity->getOwner(), 0);
+		if(!isHuman())
+		{
+			GetDiplomacyAI()->SetPlayerNumTurnsSinceCityCapture(pOldCity->getOwner(), 0);
+		}
 		GET_PLAYER(pOldCity->getOwner()).GetDiplomacyAI()->SetPlayerNumTurnsSinceCityCapture(GetID(), 0);
 #endif
 		CvNotifications* pNotifications = GET_PLAYER(pOldCity->getOwner()).GetNotifications();
@@ -2424,6 +2467,13 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 				{
 					GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeOtherPlayerWarValueLost(pOldCity->getOwner(), GetID(), iValue);
 				}
+#if defined(MOD_BALANCE_CORE)
+				if(ePlayer != NO_PLAYER)
+				{
+					pOldCity->SetFranchised(ePlayer, false);
+					pOldCity->SetHasOffice(false);
+				}
+#endif
 			}
 
 #if defined(MOD_DIPLOMACY_CIV4_FEATURES)
@@ -3243,6 +3293,13 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 	for(iI = 0; iI < MAX_PLAYERS; iI++)
 	{
 		pNewCity->setEverOwned(((PlayerTypes)iI), abEverOwned[iI]);
+#if defined(MOD_BALANCE_CORE)
+		if((PlayerTypes)iI != NO_PLAYER)
+		{
+			pNewCity->SetFranchised((PlayerTypes)iI, false);
+			pNewCity->SetHasOffice(false);
+		}
+#endif
 	}
 
 	pNewCity->SetJONSCultureLevel(iOldCultureLevel);
@@ -3436,7 +3493,10 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 		}
 	}
 #endif
-
+#if defined(MOD_BALANCE_CORE)
+	if(bConquest && !bGift)
+	{
+#endif
 	std::vector<BuildingTypes> freeConquestBuildings = m_pPlayerPolicies->GetFreeBuildingsOnConquest();
 	for(iI = 0; iI < (int)freeConquestBuildings.size(); iI++)
 	{
@@ -3450,6 +3510,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 				{
 #if defined(MOD_BUGFIX_BUILDINGCLASS_NOT_BUILDING)
 					BuildingTypes eFreeBuilding = (BuildingTypes)getCivilizationInfo().getCivilizationBuildings(pkLoopBuildingInfo->GetBuildingClassType());
+					pNewCity->GetCityBuildings()->SetNumRealBuilding(eFreeBuilding, 0);
 					pNewCity->GetCityBuildings()->SetNumFreeBuilding(eFreeBuilding, 1);
 #else
 					pNewCity->GetCityBuildings()->SetNumFreeBuilding(eLoopBuilding, 1);
@@ -3502,7 +3563,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 									iNum += paiNumRealBuilding[iI];
 								}
 #if defined(MOD_BALANCE_CORE)
-								else if(GetPlayerTraits()->IsKeepConqueredBuildings())
+								else if(GetPlayerTraits()->IsKeepConqueredBuildings() && pkLoopBuildingInfo->GetCorporationID() <= 0)
 								{
 									iNum += paiNumRealBuilding[iI];
 								}
@@ -3512,7 +3573,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 #if defined(MOD_BALANCE_CORE)
 						else if(GetPlayerTraits()->IsKeepConqueredBuildings())
 						{
-							if(!isProductionMaxedBuildingClass(((BuildingClassTypes)(pkBuildingInfo->GetBuildingClassType())), true))
+							if(pkLoopBuildingInfo->GetCorporationID() <= 0 && !isProductionMaxedBuildingClass(((BuildingClassTypes)(pkBuildingInfo->GetBuildingClassType())), true))
 							{
 								iNum += paiNumRealBuilding[iI];
 							}
@@ -3564,6 +3625,9 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 			}
 		}
 	}
+#if defined(MOD_BALANCE_CORE)
+	}
+#endif
 	for(std::vector<BuildingYieldChange>::iterator it = aBuildingYieldChange.begin(); it != aBuildingYieldChange.end(); ++it)
 	{
 		pNewCity->GetCityBuildings()->SetBuildingYieldChange((*it).eBuildingClass, (*it).eYield, (*it).iChange);
@@ -3678,6 +3742,12 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 	// If the old owner is "killed," then notify everyone's Grand Strategy AI
 	if(GET_PLAYER(eOldOwner).getNumCities() == 0 && !GET_PLAYER(eOldOwner).GetPlayerTraits()->IsStaysAliveZeroCities() && !bIsMinorCivBuyout)
 	{
+#if defined(MOD_BALANCE_CORE)
+		if(eOldOwner != NO_PLAYER)
+		{
+			GET_PLAYER(eOldOwner).SetCorporateFounderID(0);
+		}
+#endif
 		if(!isMinorCiv() && !isBarbarian())
 		{
 			for(int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
@@ -3707,7 +3777,8 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 	{
 		for(int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
 		{
-			if(!GET_PLAYER((PlayerTypes) iMajorLoop).isMinorCiv())
+			PlayerTypes ePlayer = (PlayerTypes)iMajorLoop;
+			if(ePlayer != NO_PLAYER && !GET_PLAYER(ePlayer).isMinorCiv())
 			{
 				GET_PLAYER(eOldOwner).GetMinorCivAI()->SetIsJerk(GET_PLAYER((PlayerTypes) iMajorLoop).getTeam(), false);
 				GET_PLAYER(eOldOwner).GetMinorCivAI()->SetJerk(GET_PLAYER((PlayerTypes) iMajorLoop).getTeam(), 0);
@@ -4292,9 +4363,15 @@ void CvPlayer::DoRevolutionPlayer(PlayerTypes ePlayer, int iOldCityID)
 	//Let's give the Embassies of the defeated player back to the liberated player
 	if(MOD_DIPLOMACY_CITYSTATES && GET_PLAYER(ePlayer).GetImprovementLeagueVotes() > 0)
 	{
-		CvPlayer* eConqueringPlayer = &GET_PLAYER(GET_TEAM(eConquerorTeam).getLeaderID());
-		int iEmbassyVotes = GET_PLAYER(ePlayer).GetImprovementLeagueVotes();
-		eConqueringPlayer->ChangeImprovementLeagueVotes(-iEmbassyVotes);
+		for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+		{
+			ePlayer = (PlayerTypes) iPlayerLoop;
+			if(ePlayer != NO_PLAYER && GET_PLAYER(ePlayer).getTeam() == eConquerorTeam)
+			{
+				int iEmbassyVotes = GET_PLAYER(ePlayer).GetImprovementLeagueVotes();
+				GET_PLAYER(ePlayer).ChangeImprovementLeagueVotes(-iEmbassyVotes);
+			}
+		}
 	}
 #endif
 }
@@ -4545,9 +4622,15 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID)
 	//Let's give the Embassies of the defeated player back to the liberated player
 	if(MOD_DIPLOMACY_CITYSTATES && GET_PLAYER(ePlayer).GetImprovementLeagueVotes() > 0)
 	{
-		CvPlayer* eConqueringPlayer = &GET_PLAYER(GET_TEAM(eConquerorTeam).getLeaderID());
-		int iEmbassyVotes = GET_PLAYER(ePlayer).GetImprovementLeagueVotes();
-		eConqueringPlayer->ChangeImprovementLeagueVotes(-iEmbassyVotes);
+		for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+		{
+			ePlayer = (PlayerTypes) iPlayerLoop;
+			if(ePlayer != NO_PLAYER && GET_PLAYER(ePlayer).getTeam() == eConquerorTeam)
+			{
+				int iEmbassyVotes = GET_PLAYER(ePlayer).GetImprovementLeagueVotes();
+				GET_PLAYER(ePlayer).ChangeImprovementLeagueVotes(-iEmbassyVotes);
+			}
+		}
 	}
 #endif
 }
@@ -5582,6 +5665,12 @@ void CvPlayer::doTurn()
 			pLog->Msg(strBaseString);
 		}
 
+	}
+#endif
+#if defined(MOD_BALANCE_CORE)
+	if(GetCorporateFounderID() > 0)
+	{
+		CalculateCorporateFranchisesWorldwide();
 	}
 #endif
 #if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
@@ -10813,6 +10902,38 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 			}
 		}
 	}
+#if defined(MOD_BALANCE_CORE)
+	if(pBuildingInfo->GetCorporationHQID() > 0 && GetCorporateFounderID() <= 0)
+	{
+		SetCorporateFounderID(pBuildingInfo->GetCorporationHQID());
+		if(GetID() == GC.getGame().getActivePlayer())
+		{
+			Localization::String strMessage;
+			Localization::String strSummary;
+			strMessage = Localization::Lookup("TXT_KEY_CORPORATION_FOUNDED");
+			strMessage << (pBuildingInfo->GetTextKey());
+			strSummary = Localization::Lookup("TXT_KEY_CORPORATION_FOUNDED_SUMMARY");
+
+			CvNotifications* pNotification = GetNotifications();
+			if(pNotification)
+			{
+				pNotification->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), -1, -1, -1, GetID());
+			}
+		}
+	}
+	if(pBuildingInfo->IsTradeRouteInvulnerable())
+	{
+		SetTradeRoutesInvulnerable(true);
+	}
+	if(pBuildingInfo->GetTRSpeedBoost() > 0)
+	{
+		ChangeTRSpeedBoost(pBuildingInfo->GetTRSpeedBoost() * iChange);
+	}
+	if(pBuildingInfo->GetTRVisionBoost() > 0)
+	{
+		ChangeTRVisionBoost(pBuildingInfo->GetTRVisionBoost() * iChange);
+	}
+#endif
 
 	if(pBuildingInfo->GetFreeBuildingClass() != NO_BUILDINGCLASS)
 	{
@@ -20777,6 +20898,93 @@ void CvPlayer::ChangeAbleToMarryCityStatesCount(int iChange)
 {
 	m_iAbleToMarryCityStatesCount += iChange;
 }
+//CORPORATIONS
+//	--------------------------------------------------------------------------------
+int CvPlayer::GetCorporateFounderID() const
+{
+	return m_iCorporateFounderID;
+}
+//	--------------------------------------------------------------------------------
+void CvPlayer::SetCorporateFounderID(int iChange)
+{
+	m_iCorporateFounderID = iChange;
+}
+//	--------------------------------------------------------------------------------
+void CvPlayer::CalculateCorporateFranchisesWorldwide()
+{
+	int iFranchises = 0;
+	for (int iLoopPlayer = 0; iLoopPlayer < MAX_CIV_PLAYERS; iLoopPlayer++)
+	{
+		PlayerTypes ePlayer = (PlayerTypes)iLoopPlayer;
+		if(ePlayer != NO_PLAYER && GET_PLAYER(ePlayer).isAlive() && !GET_PLAYER(ePlayer).isBarbarian() && GET_PLAYER(ePlayer).GetID() != GetID())
+		{
+			CvCity* pLoopCity;
+			int iLoop;
+			for(pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoop))
+			{
+				if(pLoopCity != NULL)
+				{
+					if(pLoopCity->IsFranchised(GetID()))
+					{
+						iFranchises++;
+					}
+				}
+			}
+		}
+	}
+	SetCorporateFranchisesWorldwide(iFranchises);
+}
+//	--------------------------------------------------------------------------------
+int CvPlayer::GetCorporateFranchisesWorldwide() const
+{
+	return m_iCorporateFranchises;
+}
+//	--------------------------------------------------------------------------------
+void CvPlayer::SetCorporateFranchisesWorldwide(int iChange)
+{
+	m_iCorporateFranchises = iChange;
+}
+//	--------------------------------------------------------------------------------
+bool CvPlayer::AreTradeRoutesInvulnerable() const
+{
+	return m_bTradeRoutesInvulnerable;
+}
+//	--------------------------------------------------------------------------------
+void CvPlayer::SetTradeRoutesInvulnerable(bool bValue)
+{
+	m_bTradeRoutesInvulnerable = bValue;
+}
+//	--------------------------------------------------------------------------------
+void CvPlayer::ChangeTRSpeedBoost(int iChange)
+{
+	m_iTRSpeedBoost += iChange;
+}
+//	--------------------------------------------------------------------------------
+void CvPlayer::SetTRSpeedBoost(int iChange)
+{
+	m_iTRSpeedBoost = iChange;
+}
+//	--------------------------------------------------------------------------------
+int CvPlayer::GetTRSpeedBoost() const
+{
+	return m_iTRSpeedBoost;
+}
+
+//	--------------------------------------------------------------------------------
+void CvPlayer::ChangeTRVisionBoost(int iChange)
+{
+	m_iTRVisionBoost += iChange;
+}
+//	--------------------------------------------------------------------------------
+void CvPlayer::SetTRVisionBoost(int iChange)
+{
+	m_iTRVisionBoost = iChange;
+}
+//	--------------------------------------------------------------------------------
+int CvPlayer::GetTRVisionBoost() const
+{
+	return m_iTRVisionBoost;
+}
 #endif
 //	--------------------------------------------------------------------------------
 int CvPlayer::GetAbleToAnnexCityStatesCount() const
@@ -25288,6 +25496,24 @@ int CvPlayer::getNumResourceTotal(ResourceTypes eIndex, bool bIncludeImport) con
 
 	if(pkResource->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
 	{
+#if defined(MOD_BALANCE_CORE)
+		const CvCity* pLoopCity;
+		int iLoop;
+		for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+		{
+			if(pLoopCity != NULL)
+			{
+				if(pLoopCity->GetCorporationResourceQuantity(eIndex) > 0)
+				{
+					int iFranchises = GetCorporateFranchisesWorldwide();
+					if(iFranchises > 0)
+					{
+						iTotalNumResource += (iFranchises * pLoopCity->GetCorporationResourceQuantity(eIndex));
+					}
+				}
+			}
+		}
+#endif
 		if(GetStrategicResourceMod() != 0)
 		{
 			iTotalNumResource *= GetStrategicResourceMod();
@@ -28972,6 +29198,24 @@ int CvPlayer::getAdvancedStartBuildingCost(BuildingTypes eBuilding, bool bAdd, C
 										}
 									}
 								}
+								// Does this city have prereq buildings?
+								if(MOD_BALANCE_CORE && pkBuildingLoopInfo->IsBuildingClassNeededNowhere(iBuildingClassPrereqLoop))
+								{
+									BuildingTypes ePrereqBuilding = ((BuildingTypes)(getCivilizationInfo().getCivilizationBuildings(iBuildingClassPrereqLoop)));
+
+									if(ePrereqBuilding != NO_BUILDING)
+									{
+										CvCity* pLoopCity;
+										int iLoop;
+										for(pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+										{
+											if(pLoopCity->GetCityBuildings()->GetNumBuilding(ePrereqBuilding) > 0)
+											{
+												return -1;
+											}
+										}
+									}
+								}
 #endif
 							}
 						}
@@ -29592,16 +29836,34 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 			}
 		}
 		changeExtraMoves(pPolicy->GetExtraMoves() * iChange);
-		if(GetBestRangedUnitSpawnSettle() <= 0)
-		{
-			changeBestRangedUnitSpawnSettle(pPolicy->GetBestRangedUnitSpawnSettle() * iChange);
 
-			if(GetBestRangedUnitSpawnSettle() > 0)
+		changeBestRangedUnitSpawnSettle(pPolicy->GetBestRangedUnitSpawnSettle() * iChange);
+
+		if(GetBestRangedUnitSpawnSettle() > 0)
+		{
+			UnitTypes eType = GET_PLAYER(GetID()).getCapitalCity()->GetCityStrategyAI()->GetUnitProductionAI()->RecommendUnit(UNITAI_RANGED, false, true, NULL);
+			if(eType != NO_UNIT)
 			{
-				UnitTypes eType = GET_PLAYER(GetID()).getCapitalCity()->GetCityStrategyAI()->GetUnitProductionAI()->RecommendUnit(UNITAI_RANGED, false, false);
+				int iResult = GET_PLAYER(GetID()).getCapitalCity()->CreateUnit(eType, UNITAI_RANGED, false /*bUseToSatisfyOperation*/);
+
+				CvAssertMsg(iResult != FFreeList::INVALID_INDEX, "Unable to create unit");
+
+				if (iResult != FFreeList::INVALID_INDEX)
+				{
+					CvUnit* pUnit = GET_PLAYER(GetID()).getUnit(iResult);
+					if (!pUnit->jumpToNearestValidPlot())
+					{
+						pUnit->kill(false);	// Could not find a valid spot!
+					}
+					pUnit->setMoves(1);	
+				}
+			}
+			else
+			{
+				UnitTypes eType = GET_PLAYER(GetID()).getCapitalCity()->GetCityStrategyAI()->GetUnitProductionAI()->RecommendUnit(UNITAI_DEFENSE, false, true, NULL);
 				if(eType != NO_UNIT)
 				{
-					int iResult = GET_PLAYER(GetID()).getCapitalCity()->CreateUnit(eType, NO_UNITAI, false /*bUseToSatisfyOperation*/);
+					int iResult = GET_PLAYER(GetID()).getCapitalCity()->CreateUnit(eType, UNITAI_DEFENSE, false /*bUseToSatisfyOperation*/);
 
 					CvAssertMsg(iResult != FFreeList::INVALID_INDEX, "Unable to create unit");
 
@@ -29615,28 +29877,8 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 						pUnit->setMoves(1);	
 					}
 				}
-				else
-				{
-					UnitTypes eType = GET_PLAYER(GetID()).getCapitalCity()->GetCityStrategyAI()->GetUnitProductionAI()->RecommendUnit(UNITAI_DEFENSE, false, false);
-					if(eType != NO_UNIT)
-					{
-						int iResult = GET_PLAYER(GetID()).getCapitalCity()->CreateUnit(eType, NO_UNITAI, false /*bUseToSatisfyOperation*/);
-
-						CvAssertMsg(iResult != FFreeList::INVALID_INDEX, "Unable to create unit");
-
-						if (iResult != FFreeList::INVALID_INDEX)
-						{
-							CvUnit* pUnit = GET_PLAYER(GetID()).getUnit(iResult);
-							if (!pUnit->jumpToNearestValidPlot())
-							{
-								pUnit->kill(false);	// Could not find a valid spot!
-							}
-							pUnit->setMoves(1);	
-						}
-					}
-				}
-
 			}
+
 		}
 	}
 #endif
@@ -31037,6 +31279,11 @@ void CvPlayer::Read(FDataStream& kStream)
 	}
 #if defined(MOD_BALANCE_CORE)
 	kStream >> m_iAbleToMarryCityStatesCount;
+	kStream >> m_iCorporateFounderID;
+	kStream >> m_iCorporateFranchises;
+	kStream >> m_bTradeRoutesInvulnerable;
+	kStream >> m_iTRSpeedBoost;
+	kStream >> m_iTRVisionBoost;
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	MOD_SERIALIZE_READ(53, kStream, m_iPovertyUnhappinessMod, 0);
@@ -31725,6 +31972,11 @@ void CvPlayer::Write(FDataStream& kStream) const
 	kStream << m_iAbleToAnnexCityStatesCount;
 #if defined(MOD_BALANCE_CORE)
 	kStream << m_iAbleToMarryCityStatesCount;
+	kStream << m_iCorporateFounderID;
+	kStream << m_iCorporateFranchises;
+	kStream << m_bTradeRoutesInvulnerable;
+	kStream << m_iTRSpeedBoost;
+	kStream << m_iTRVisionBoost;
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
 	MOD_SERIALIZE_WRITE(kStream, m_iPovertyUnhappinessMod);

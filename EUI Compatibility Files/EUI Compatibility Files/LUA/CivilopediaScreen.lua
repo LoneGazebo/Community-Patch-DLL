@@ -1,3 +1,4 @@
+print("This is the modded CivilopediaScreen.lua from 'CBP'")
 -------------------------------------------------
 -- Civilopedia screen
 -------------------------------------------------
@@ -269,6 +270,10 @@ CivilopediaCategory[CategoryGameConcepts].PopulateList = function()
 		HEADER_RELIGION = 23,
 		HEADER_TRADE = 24,
 		HEADER_WORLDCONGRESS = 25,
+-- CBP
+		HEADER_VASSALAGE = 26,
+		HEADER_CORPORATIONS = 27
+-- END
 	}
 	
 	-- Create table.

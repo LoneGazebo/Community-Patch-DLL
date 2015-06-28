@@ -332,7 +332,15 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 	{
 		iGoldForRoute = m_pPlayer->GetTreasury()->GetCityConnectionRouteGoldTimes100(pTargetCity) / 100;
 	}
+#if defined(MOD_BALANCE_CORE)
 
+	iGoldForRoute *= 5;
+
+	if(pTargetCity->getUnhappinessFromConnection() > 0)
+	{
+		iGoldForRoute += (pTargetCity->getUnhappinessFromConnection() * 10);
+	}
+#endif
 	CvRouteInfo* pRouteInfo = GC.getRouteInfo(eRoute);
 	if(!pRouteInfo)
 	{
@@ -426,7 +434,11 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 	else // normal route
 	{
 		// is this route worth building?
+#if defined(MOD_BALANCE_CORE)
+		if((iProfit < 0) && (pTargetCity->getUnhappinessFromConnection() <= 0))
+#else
 		if(iProfit < 0)
+#endif
 		{
 			return;
 		}

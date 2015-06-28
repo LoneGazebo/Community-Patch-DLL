@@ -121,6 +121,12 @@ public:
 	bool IsAllowsPuppetPurchase() const;
 	int GetCooldown() const;
 	int GetNationalMissionaries() const;
+	int GetFreeBuildingTradeTargetCity() const;
+	int GetCorporationID() const;
+	int GetCorporationHQID() const;
+	bool IsTradeRouteInvulnerable() const;
+	int GetTRSpeedBoost() const;
+	int GetTRVisionBoost() const;
 #endif
 	int GetSpecialistType() const;
 	int GetSpecialistCount() const;
@@ -298,6 +304,9 @@ public:
 	bool IsFoundsReligion() const;
 	bool IsReligious() const;
 	bool IsBorderObstacle() const;
+#if defined(MOD_BALANCE_CORE)
+	int GetBorderObstacleCity() const;
+#endif
 	bool IsPlayerBorderObstacle() const;
 	bool IsCityWall() const;
 	bool IsCapital() const;
@@ -385,11 +394,22 @@ public:
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	int GetResourceMonopolyAnd(int i) const;
 	int GetResourceMonopolyOr(int i) const;
+	int GetCorporationYieldChange(int i) const;
+	int* GetCorporationYieldChangeArray() const;
+	int GetCorporationGPChange() const;
+	int GetCorporationResourceQuantity(int i) const;
+
+	int GetCorporationYieldModTrade(int i) const;
+	int* GetCorporationYieldModTradeArray() const;
+
+	int GetCorporationTradeRouteMod(int i) const;
+	int* GetCorporationTradeRouteModArray() const;
 #endif
 	int GetHurryModifier(int i) const;
 	bool IsBuildingClassNeededInCity(int i) const;
 #if defined(MOD_BALANCE_CORE)
 	bool IsBuildingClassNeededAnywhere(int i) const;
+	bool IsBuildingClassNeededNowhere(int i) const;
 #endif
 	int GetNumFreeUnits(int i) const;
 #if defined(MOD_BALANCE_CORE_BUILDING_INSTANT_YIELD)
@@ -452,6 +472,12 @@ private:
 	bool m_bAllowsPuppetPurchase;
 	int m_iNationalMissionaries;
 	int m_iGetCooldown;
+	int m_iFreeBuildingTradeTargetCity;
+	int m_iCorporationID;
+	int m_iCorporationHQID;
+	bool m_bTradeRouteInvulnerable;
+	int m_iTRSpeedBoost;
+	int m_iTRVisionBoost;
 #endif
 	int m_iSpecialistType;
 	int m_iSpecialistCount;
@@ -633,6 +659,9 @@ private:
 	bool m_bFoundsReligion;
 	bool m_bIsReligious;
 	bool m_bBorderObstacle;
+#if defined(MOD_BALANCE_CORE)
+	int m_iBorderObstacleCity;
+#endif
 	bool m_bPlayerBorderObstacle;
 	bool m_bCapital;
 	bool m_bGoldenAge;
@@ -702,12 +731,18 @@ private:
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	int* m_piResourceMonopolyAnds;
 	int* m_piResourceMonopolyOrs;
+	int* m_piCorporationYield;
+	int* m_piCorporationYieldModTrade;
+	int* m_piCorporationTradeRouteMod;
+	int m_iCorporationGPChange;
+	int* m_piCorporationResourceQuantity;
 #endif
 	int* m_paiHurryModifier;
 
 	bool* m_pbBuildingClassNeededInCity;
 #if defined(MOD_BALANCE_CORE)
 	bool* m_pbBuildingClassNeededAnywhere;
+	bool* m_pbBuildingClassNeededNowhere;
 #endif
 	int* m_piNumFreeUnits;
 

@@ -147,7 +147,7 @@
 			<Text>The Motherland Calls</Text>
 		</Row>
 		<Row Tag="TXT_KEY_WONDER_MOTHERLAND_STATUE_HELP">
-			<Text>Requires Order. 1 Free Social Policy. Greatly reduces [ICON_HAPPINESS_3] Disorder in all cities. Receive a free Police Station in the city where it is built. Negates the [ICON_TOURISM] Tourism bonus from other players technologies.</Text>
+			<Text>Requires Order. 1 Free Social Policy. Greatly reduces [ICON_HAPPINESS_3] Crime in all cities. Receive a free Police Station in the city where it is built. Negates the [ICON_TOURISM] Tourism bonus from other players technologies.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CIV5_BUILDINGS_MOTHERLAND_STATUE_TEXT">
 			<Text>
@@ -446,6 +446,28 @@
 		</Row>
 		<Row>
 			<CivilizationType>CIVILIZATION_MINOR</CivilizationType>
+			<BuildingClassType>BUILDINGCLASS_MOTHERLAND_STATUE</BuildingClassType>
+			<BuildingType/>
+		</Row>
+	</Civilization_BuildingClassOverrides>
+	<Civilization_BuildingClassOverrides>
+		<Row>
+			<CivilizationType>CIVILIZATION_BARBARIAN</CivilizationType>
+			<BuildingClassType>BUILDINGCLASS_CERN</BuildingClassType>
+			<BuildingType/>
+		</Row>
+		<Row>
+			<CivilizationType>CIVILIZATION_BARBARIAN</CivilizationType>
+			<BuildingClassType>BUILDINGCLASS_EMPIRE_STATE_BUILDING</BuildingClassType>
+			<BuildingType/>
+		</Row>
+		<Row>
+			<CivilizationType>CIVILIZATION_BARBARIAN</CivilizationType>
+			<BuildingClassType>BUILDINGCLASS_SLATER_MILL</BuildingClassType>
+			<BuildingType/>
+		</Row>
+		<Row>
+			<CivilizationType>CIVILIZATION_BARBARIAN</CivilizationType>
 			<BuildingClassType>BUILDINGCLASS_MOTHERLAND_STATUE</BuildingClassType>
 			<BuildingType/>
 		</Row>

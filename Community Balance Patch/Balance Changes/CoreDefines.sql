@@ -25,6 +25,11 @@
 	SET DealDuration = '30'
 	WHERE Type = 'GAMESPEED_QUICK';
 
+-- Trade Route Stuff
+	UPDATE Defines
+	SET Value = '50'
+	WHERE Name = 'TRADE_ROUTE_RIVER_CITY_MODIFIER';
+
 -- City Growth Defines
 
 	-- 15
@@ -85,8 +90,9 @@
 	SET Value = '150'
 	WHERE Name = 'GREAT_PERSON_THRESHOLD_INCREASE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
+	-- Is a subtraction in the DLL, so keep this positive!
 	UPDATE Defines
-	SET Value = '-50'
+	SET Value = '50'
 	WHERE Name = 'GWAM_THRESHOLD_DECREASE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 	
 	-- Espionage Rates Increased

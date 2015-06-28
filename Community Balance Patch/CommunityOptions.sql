@@ -116,15 +116,15 @@ VALUES ('BALANCE_GLOBAL_DIFFICULTY_OPTION', 1);
 /*
 COMMUNITY Global Difficulty Level
 0 = Global Difficulty - Prince 
-1 = Global Difficulty - King (Default)
-2 = Global Difficulty - Emperor
+1 = Global Difficulty - King 
+2 = Global Difficulty - Emperor (Default)
 3 = Global Difficulty - Immortal
 4 = Global Difficulty - Deity
 5 = Global Difficulty - Super Deity
 */
 
 INSERT INTO COMMUNITY (Type, Value)
-VALUES ('BALANCE_GLOBAL_DIFFICULTY_LEVEL', 1);
+VALUES ('BALANCE_GLOBAL_DIFFICULTY_LEVEL', 2);
 
 /*
 Changes to Settlers

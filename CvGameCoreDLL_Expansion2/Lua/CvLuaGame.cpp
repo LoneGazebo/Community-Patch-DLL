@@ -307,6 +307,10 @@ void CvLuaGame::RegisterMembers(lua_State* L)
 
 	Method(GetBuildingYieldChange);
 	Method(GetBuildingYieldModifier);
+#if defined(MOD_BALANCE_CORE)
+	Method(GetBuildingCorporateYieldChange);
+	Method(GetBuildingCorporateGPChange);
+#endif
 
 	Method(GetWorldNumCitiesUnhappinessPercent);
 
@@ -2119,6 +2123,42 @@ int CvLuaGame::lGetBuildingYieldModifier(lua_State* L)
 	lua_pushinteger(L, iYieldModifier);
 	return 1;
 }
+#if defined(MOD_BALANCE_CORE)
+//------------------------------------------------------------------------------
+int CvLuaGame::lGetBuildingCorporateYieldChange(lua_State* L)
+{
+	const BuildingTypes eBuilding = (BuildingTypes) luaL_checkint(L, 1);
+	const YieldTypes eYield = (YieldTypes) luaL_checkint(L, 2);
+
+	CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+	CvYieldInfo* pkYieldInfo = GC.getYieldInfo(eYield);
+
+	int iYieldChange = 0;
+	if(pkBuildingInfo && pkYieldInfo)
+	{
+		iYieldChange = pkBuildingInfo->GetCorporationYieldChange(eYield);
+	}
+
+	lua_pushinteger(L, iYieldChange);
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaGame::lGetBuildingCorporateGPChange(lua_State* L)
+{
+	const BuildingTypes eBuilding = (BuildingTypes) luaL_checkint(L, 1);
+
+	CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+
+	int iYieldChange = 0;
+	if(pkBuildingInfo)
+	{
+		iYieldChange = pkBuildingInfo->GetCorporationGPChange();
+	}
+
+	lua_pushinteger(L, iYieldChange);
+	return 1;
+}
+#endif
 //------------------------------------------------------------------------------
 int CvLuaGame::lGetWorldNumCitiesUnhappinessPercent(lua_State* L)
 {

@@ -1146,6 +1146,24 @@ public:
 	bool IsDiplomaticMarriage() const;
 	int GetAbleToMarryCityStatesCount() const;
 	void ChangeAbleToMarryCityStatesCount(int iChange);
+
+	void SetCorporateFounderID(int iValue);
+	int GetCorporateFounderID() const;
+
+	void CalculateCorporateFranchisesWorldwide();
+	int GetCorporateFranchisesWorldwide() const;
+	void SetCorporateFranchisesWorldwide(int iValue);
+
+	bool AreTradeRoutesInvulnerable() const;
+	void SetTradeRoutesInvulnerable(bool bValue);
+
+	void ChangeTRSpeedBoost(int iValue);
+	int GetTRSpeedBoost() const;
+	void SetTRSpeedBoost(int iValue);
+
+	void ChangeTRVisionBoost(int iValue);
+	int GetTRVisionBoost() const;
+	void SetTRVisionBoost(int iValue);
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 	int GetPovertyUnhappinessMod() const;
@@ -2440,6 +2458,11 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iAbleToAnnexCityStatesCount;
 #if defined(MOD_BALANCE_CORE)
 	FAutoVariable<int, CvPlayer> m_iAbleToMarryCityStatesCount;
+	FAutoVariable<int, CvPlayer> m_iCorporateFounderID;
+	FAutoVariable<int, CvPlayer> m_iCorporateFranchises;
+	FAutoVariable<bool, CvPlayer> m_bTradeRoutesInvulnerable;
+	FAutoVariable<int, CvPlayer> m_iTRSpeedBoost;
+	FAutoVariable<int, CvPlayer> m_iTRVisionBoost;
 #endif
 	FAutoVariable<int, CvPlayer> m_iFreeSpecialist;
 	FAutoVariable<int, CvPlayer> m_iCultureBombTimer;

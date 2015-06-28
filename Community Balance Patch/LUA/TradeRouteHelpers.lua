@@ -89,6 +89,13 @@ function BuildTradeRouteGoldToolTipString (pOriginCity, pTargetCity, eDomain)
 	if (iRiverModifier ~= 0) then
 		strRiverModifier = Locale.ConvertTextKey("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_RIVER_MODIFIER", iRiverModifier);
 	end
+-- CBP
+	local strCorporateModifier = "";
+	local iCorporateModifier = pPlayer:GetInternationalTradeRouteCorporationModifier(pOriginCity, pTargetCity, eDomain, true);
+	if (iCorporateModifier ~= 0) then
+		strCorporateModifier = Locale.ConvertTextKey("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_CORPORATION_MODIFIER_GOLD", iCorporateModifier);
+	end
+-- END
 
 -- COMMUNITY PATCH
 	local strInfluenceValue = "";
@@ -216,6 +223,12 @@ function BuildTradeRouteGoldToolTipString (pOriginCity, pTargetCity, eDomain)
 		strResult = strResult .. "[NEWLINE]";
 	end
 --END
+-- CBP
+	if (strCorporateModifier ~= "") then
+		strResult = strResult .. strCorporateModifier;
+		strResult = strResult .. "[NEWLINE]";
+	end
+-- END
 	
 	if (strDomainModifier ~= "") then
 		strResult = strResult .. strDomainModifier;
@@ -299,6 +312,14 @@ function BuildTradeRouteScienceToolTipString (pOriginCity, pTargetCity, eDomain)
 		end
 
 	end
+-- CBP
+	local strCorporateModifier = "";
+	local iCorporateModifier = pOriginPlayer:GetInternationalTradeRouteCorporationModifierScience(pOriginCity, pTargetCity, eDomain, true);
+	if (iCorporateModifier ~= 0) then
+		strResult = strResult .. "[NEWLINE]";
+		strResult = strResult .. Locale.ConvertTextKey("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_CORPORATION_MODIFIER_SCIENCE", iCorporateModifier);		
+	end
+-- END
 
 	return strResult;
 end

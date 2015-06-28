@@ -3591,6 +3591,13 @@ void CvUnit::doTurn()
 	{
 		SetActivityType(ACTIVITY_AWAKE);
 	}
+#if defined(MOD_BALANCE_CORE)
+	bool bAirRange = (getDomainType() == DOMAIN_AIR && (eActivityType != ACTIVITY_HEAL) &&  isHuman() && !IsHurt() && SentryAlert());
+	if(bAirRange)
+	{
+		SetActivityType(ACTIVITY_AWAKE);
+	}
+#endif
 
 	testPromotionReady();
 
@@ -4460,39 +4467,38 @@ TeamTypes CvUnit::GetDeclareWarMove(const CvPlot& plot) const
 		{
 			int iPeaceUnits = 0;
 			pUnit = NULL;
-			bool bGotOne = false;
-			if(plot.isCity())
+			bool bWarCity = false;
+			if(plot.isCity() && GET_TEAM(GET_PLAYER(plot.getOwner()).getTeam()).isAtWar(getTeam()))
 			{
-				if(!GET_TEAM(getTeam()).isAtWar(GET_PLAYER(plot.getOwner()).getTeam()))
-				{
-					bGotOne = true;
-				}
+				bWarCity = true;
 			}
 			for(int iUnitLoop = 0; iUnitLoop < plot.getNumUnits(); iUnitLoop++)
 			{
 				CvUnit* loopUnit = plot.getUnitByIndex(iUnitLoop);
 
 				//If we're at war with a civ, and they've got a unit here, let's return that unit instead of the civilian unit on this space.
-				if(!bGotOne && loopUnit && GET_TEAM(getTeam()).isAtWar(plot.getUnitByIndex(iUnitLoop)->getTeam()))
+				if(loopUnit != NULL)
 				{
-					//There can be only one military unit on a tile, so one check is good enough.
-					if(!plot.getUnitByIndex(iUnitLoop)->IsCivilianUnit())
+					if(loopUnit->IsCombatUnit())
 					{
-						pUnit = plot.getUnitByIndex(iUnitLoop);
-						bGotOne = true;
+						if(GET_TEAM(getTeam()).isAtWar(loopUnit->getTeam()))
+						{
+							//There can be only one military unit on a tile, so one check is good enough.
+							pUnit = plot.getUnitByIndex(iUnitLoop);
+						}
 					}
-				}
-				else if(loopUnit && !GET_TEAM(getTeam()).isAtWar(plot.getUnitByIndex(iUnitLoop)->getTeam()))
-				{
-					//Only need one to trigger.
-					if(plot.getUnitByIndex(iUnitLoop)->IsCivilianUnit())
+					else if(loopUnit->IsCivilianUnit())
 					{
-						iPeaceUnits++;
+						//Only need one to trigger.
+						if(!GET_TEAM(getTeam()).isAtWar(loopUnit->getTeam()))
+						{
+							iPeaceUnits++;
+						}
 					}
 				}
 			}
-			//If there's a civilian here, but we're at peace with that civilian, return NO_TEAM.
-			if((iPeaceUnits > 0) && ((pUnit != NULL) || bGotOne))
+			//If there is a civlian and an enemy unit here (or this is an enemy city), but we're at peace with that civilian, return NO_TEAM.
+			if((iPeaceUnits > 0) && (bWarCity || (pUnit != NULL)))
 			{
 				return NO_TEAM;
 			}
@@ -8618,6 +8624,12 @@ bool CvUnit::canPlunderTradeRoute(const CvPlot* pPlot, bool bOnlyTestVisibility)
 			{
 				return false;
 			}
+#if defined(MOD_BALANCE_CORE)
+			if(GET_PLAYER(m_eOwner).AreTradeRoutesInvulnerable())
+			{
+				return false;
+			}
+#endif
 		}
 
 		return true;
@@ -25331,6 +25343,12 @@ bool CvUnit::SentryAlert() const
 {
 	VALIDATE_OBJECT
 	int iRange = visibilityRange();
+#if defined(MOD_BALANCE_CORE)
+	if(getDomainType() == DOMAIN_AIR)
+	{
+		iRange = GetRange();
+	}
+#endif
 
 	if(iRange > 0)
 	{

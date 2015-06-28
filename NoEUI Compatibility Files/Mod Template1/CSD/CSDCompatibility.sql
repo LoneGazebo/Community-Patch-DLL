@@ -17,13 +17,12 @@ UPDATE Buildings
 SET HurryCostModifier = '-5'
 WHERE NOT WonderSplashImage = 'NULL';
 
--- Text edits.
 UPDATE Language_en_US
-SET Text = 'You are [COLOR_POSITIVE_TEXT]Allies[ENDCOLOR] with {1_CityStateName:textkey}. Each turn, your [ICON_INFLUENCE] Influence with them will change by {2_Num}. If {1_CityStateName:textkey} is damaged by enemy units, this decay value will increase greatly.'
+SET Text = 'You are [COLOR_POSITIVE_TEXT]Allies[ENDCOLOR] with {1_CityStateName:textkey}. Each turn, your [ICON_INFLUENCE] Influence with them will change by {2_Num}. If {1_CityStateName:textkey} is damaged by enemy units, this decay value will triple.'
 WHERE Tag = 'TXT_KEY_ALLIES_CSTATE_TT';
 
 UPDATE Language_en_US
-SET Text = 'Each turn, your [ICON_INFLUENCE] Influence with them will change by {1_InfluenceRate}.  It rests at {2_InfluenceAnchor}. If you are Allied and this City-State is damaged by enemy units, the decay rate will increase greatly.'
+SET Text = 'Each turn, your [ICON_INFLUENCE] Influence with them will change by {1_InfluenceRate}.  It rests at {2_InfluenceAnchor}. If the City is damaged by enemy units, this decay value will triple.'
 WHERE Tag = 'TXT_KEY_CSTATE_INFLUENCE_RATE';
 
 -- Policy Changes
@@ -56,7 +55,7 @@ SET Cost = '150'
 WHERE Type = 'BUILDING_COURT_SCRIBE';
 
 UPDATE Buildings
-SET Cost = '200'
+SET Cost = '250'
 WHERE Type = 'BUILDING_CHANCERY';
 
 UPDATE Buildings
@@ -64,7 +63,7 @@ SET GoldMaintenance = '2'
 WHERE Type = 'BUILDING_CHANCERY';
 
 UPDATE Buildings
-SET Cost = '600'
+SET Cost = '700'
 WHERE Type = 'BUILDING_WIRE_SERVICE';
 
 UPDATE Buildings
@@ -244,7 +243,7 @@ WHERE Tag = 'TXT_KEY_BUILDING_FOREIGN_OFFICE_HELP';
 -- Grand Temple Help Text
 
 UPDATE Language_en_US
-SET Text = 'Doubles religious pressure emanating from this City. [NEWLINE][NEWLINE]Requires a National Population of at least 35. The cost goes up the more cities there are in the empire.'
+SET Text = 'Doubles religious pressure emanating from this City. [NEWLINE][NEWLINE]Requires a National Population of at least 35.'
 WHERE Tag = 'TXT_KEY_BUILDING_GRAND_TEMPLE_HELP';
 
 -- Religious Authority (CSD)
@@ -332,19 +331,3 @@ WHERE Tag = 'TXT_KEY_BUILDING_APOSTOLIC_PALACE_HELP';
 UPDATE Language_en_US
 SET Text = 'May only be constructed in a Holy City, and only if at least 20% of the global population follows your Religion. Reduces [ICON_HAPPINESS_3] Religious Division, and allows you to select a Reformation Belief. [NEWLINE][NEWLINE]Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 25%, and increases city resistance to conversion by 20%. [NEWLINE][NEWLINE]Receive 1 additional Delegate in the World Congress for every 6 cities following your Religion.'
 WHERE Tag = 'TXT_KEY_BUILDING_GRAND_OSSUARY_HELP';
-
--- Sweden Trait 
-
---INSERT INTO Trait_FreePromotionUnitCombats 
---(TraitType, UnitCombatType, PromotionType)
---SELECT 'TRAIT_DIPLOMACY_GREAT_PEOPLE', 'UNITCOMBAT_DIPLOMACY', 'PROMOTION_NOBEL_LAUREATE';
-
---Sweden Trait (Bonus Text)
---UPDATE Language_en_US
---SET Text = 'All Diplomatic Units start with the Nobel Laureate promotion, which grants +25% [ICON_INFLUENCE] Influence from Diplomatic Missions. When declaring friendship, Sweden and friend gain +10% Great Person generation.'
---WHERE Tag = 'TXT_KEY_TRAIT_DIPLOMACY_GREAT_PEOPLE';
-
---Sweden Trait Change
---UPDATE Traits
---SET GreatPersonGiftInfluence = '0'
---WHERE Type = 'TRAIT_DIPLOMACY_GREAT_PEOPLE';

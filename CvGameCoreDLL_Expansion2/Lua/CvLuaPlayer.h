@@ -1119,6 +1119,13 @@ protected:
 	static int lGetInternationalTradeRoutePolicyBonus(lua_State* L);
 	static int lGetInternationalTradeRouteOtherTraitBonus(lua_State* L);
 	static int lGetInternationalTradeRouteRiverModifier(lua_State* L);
+#if defined(MOD_BALANCE_CORE)
+	static int lGetInternationalTradeRouteCorporationModifier(lua_State* L);
+	static int lGetInternationalTradeRouteCorporationModifierScience(lua_State* L);
+	static int lGetNumberofGlobalFranchises(lua_State* L);
+	static int lGetNumberofOffices(lua_State* L);
+	static int lGetCorporationName(lua_State* L);
+#endif
 	static int lGetInternationalTradeRouteDomainModifier(lua_State* L);
 	static int lGetInternationalTradeRouteTotal(lua_State* L);
 	static int lGetInternationalTradeRouteScience(lua_State* L);

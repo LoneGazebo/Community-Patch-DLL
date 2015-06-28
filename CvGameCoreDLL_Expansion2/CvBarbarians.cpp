@@ -936,10 +936,10 @@ void CvBarbarians::DoUnits()
 				if(pCity && pCity->getOwner() != NO_PLAYER && !GET_PLAYER(pCity->getOwner()).isMinorCiv() && !GET_PLAYER(pCity->getOwner()).isBarbarian())
 				{
 					iCityStrength = pCity->getStrengthValue(false);
-					iCityStrength += GC.getGame().getJonRandNum(pCity->getStrengthValue(false), "Barbarian Random Strength Bump");
+					iCityStrength += GC.getGame().getJonRandNum(iCityStrength, "Barbarian Random Strength Bump");
 					iCityStrength /= 100;
-					iBarbStrength = (pUnit->GetBaseCombatStrength(true) * 2);
-					iBarbStrength += GC.getGame().getJonRandNum(pUnit->GetBaseCombatStrength(), "Barbarian Random Strength Bump");
+					iBarbStrength = (pUnit->GetBaseCombatStrength(true) * 4);
+					iBarbStrength += GC.getGame().getJonRandNum(iBarbStrength, "Barbarian Random Strength Bump");
 					if(iBarbStrength > iCityStrength)
 					{
 						int iTheft = (iBarbStrength - iCityStrength);
@@ -947,11 +947,11 @@ void CvBarbarians::DoUnits()
 						if(iTheft > 0)
 						{
 							pCity->changeDamage((iTheft / 2));
-							pUnit->changeDamage((iTheft / 4));
+							pUnit->changeDamage((iTheft / 2));
 							int iYield = GC.getGame().getJonRandNum(10, "Barbarian Theft Value");
 							if(iYield <= 2)
 							{
-								int iGold = ((GET_PLAYER(pCity->getOwner()).GetTreasury()->GetGold() * iTheft) / 100);
+								int iGold = ((pCity->getBaseYieldRate(YIELD_GOLD) * iTheft) / 100);
 								if(iGold > 0)
 								{
 									GET_PLAYER(pCity->getOwner()).GetTreasury()->ChangeGold(-iGold);
@@ -971,7 +971,7 @@ void CvBarbarians::DoUnits()
 							}
 							else if(iYield <= 4)
 							{
-								int iCulture = ((GET_PLAYER(pCity->getOwner()).getJONSCulture() * iTheft) / 100);
+								int iCulture = ((pCity->getJONSCulturePerTurn() * iTheft) / 100);
 								if(iCulture > 0)
 								{
 									GET_PLAYER(pCity->getOwner()).changeJONSCulture(-iCulture);
@@ -995,7 +995,7 @@ void CvBarbarians::DoUnits()
 								int iScience = 0;
 								if(eCurrentTech != NO_TECH)
 								{
-									iScience = ((GET_PLAYER(pCity->getOwner()).GetPlayerTechs()->GetResearchProgress(eCurrentTech) * iTheft) / 100);
+									iScience = ((pCity->getBaseYieldRate(YIELD_SCIENCE) * iTheft) / 100);
 									if(iScience > 0)
 									{
 										GET_TEAM(GET_PLAYER(pCity->getOwner()).getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, -iScience, pCity->getOwner());
@@ -1016,7 +1016,7 @@ void CvBarbarians::DoUnits()
 							}
 							else if(iYield <= 8)
 							{
-								int iFood = ((pCity->getFood() * iTheft) / 100);
+								int iFood = ((pCity->getBaseYieldRate(YIELD_FOOD) * iTheft) / 100);
 								if(iFood > 0)
 								{
 									pCity->changeFood(-iFood);
@@ -1034,11 +1034,11 @@ void CvBarbarians::DoUnits()
 									}
 								}
 							}
-							else if(iYield <= 10)
+							else
 							{
 								if((pCity->getProduction() > 0) && (pCity->getProductionTurnsLeft() >= 2) && (pCity->getProductionTurnsLeft() != INT_MAX))
 								{
-									int iProduction = ((pCity->getProduction() * iTheft) / 100);
+									int iProduction = ((pCity->getBaseYieldRate(YIELD_PRODUCTION) * iTheft) / 100);
 									if(iProduction > 0)
 									{
 										pCity->changeProduction(-iProduction);

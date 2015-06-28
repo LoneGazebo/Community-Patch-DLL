@@ -3689,7 +3689,6 @@ void CvAIEscortedOperation::Write(FDataStream& kStream) const
 /// Always abort if settler is removed
 void CvAIEscortedOperation::UnitWasRemoved(int /*iArmyID*/, int iSlotID)
 {
-	// Assumes civilian is in the first slot of the formation
 #if defined(MOD_BALANCE_CORE)
 	if(GetOperationType() == AI_OPERATION_COLONIZE || GetOperationType() == AI_OPERATION_QUICK_COLONIZE || GetOperationType() == AI_OPERATION_FOUND_CITY)
 	{
@@ -3737,7 +3736,11 @@ bool CvAIEscortedOperation::RetargetCivilian(CvUnit* pCivilian, CvArmyAI* pArmy)
 	CvPlot* pBetterTarget;
 
 	// Find best city site (taking into account whether or not we are escorted)
+#if defined(AUI_OPERATION_FIX_RETARGET_CIVILIAN_ABORT_IF_UNREACHABLE_ESCORT)
+	pBetterTarget = FindBestTarget(pCivilian, m_bEscorted);
+#else
 	pBetterTarget = FindBestTarget(pCivilian, !m_bEscorted);
+#endif
 
 	// No targets at all!  Abort
 	if(pBetterTarget == NULL)
@@ -3748,25 +3751,29 @@ bool CvAIEscortedOperation::RetargetCivilian(CvUnit* pCivilian, CvArmyAI* pArmy)
 	}
 #if defined(AUI_OPERATION_FIX_RETARGET_CIVILIAN_ABORT_IF_UNREACHABLE_ESCORT)
 	// If this is a new target, switch to it
-	else if(pBetterTarget)
+	else if(pBetterTarget && pBetterTarget != GetTargetPlot())
 	{
-		//check if all units can reach it and dismiss those who can't
-		std::vector<int> aiUnitsToRemove;
-		for (UnitHandle pUnit = pArmy->GetFirstUnit(); pUnit.pointer(); pUnit = pArmy->GetNextUnit())
+		int iUnitID = pArmy->GetFirstUnitID();
+		if(iUnitID != -1)
 		{
-			if (TurnsToReachTarget(pUnit, pBetterTarget) == MAX_INT)
-			{
-				aiUnitsToRemove.push_back(pUnit->GetID());
-			}
+			pCivilian = GET_PLAYER(m_eOwner).getUnit(iUnitID);
 		}
-		for (std::vector<int>::iterator it = aiUnitsToRemove.begin(); it != aiUnitsToRemove.end(); ++it)
-		{
-			pArmy->RemoveUnit((*it));
-		}
-		if ((m_eCurrentState) == AI_OPERATION_STATE_ABORTED)
+
+		if(!pCivilian)
 		{
 			return false;
 		}
+
+		//may be null!
+		CvUnit* pEscort = GET_PLAYER(m_eOwner).getUnit(pArmy->GetNextUnitID());
+		if(pEscort && !pEscort->GeneratePath(pBetterTarget, MOVE_UNITS_IGNORE_DANGER, false))
+		{
+			m_eCurrentState = AI_OPERATION_STATE_ABORTED;
+			m_eAbortReason = AI_ABORT_NO_TARGET;
+			return false;
+		}
+		else
+		{
 #else
 	// If this is a new target, switch to it
 	else if(pBetterTarget != GetTargetPlot())
@@ -3774,33 +3781,11 @@ bool CvAIEscortedOperation::RetargetCivilian(CvUnit* pCivilian, CvArmyAI* pArmy)
 #endif // AUI_OPERATION_FIX_RETARGET_CIVILIAN_ABORT_IF_UNREACHABLE_ESCORT
 		SetTargetPlot(pBetterTarget);
 		pArmy->SetGoalPlot(pBetterTarget);
+#if defined(AUI_OPERATION_FIX_RETARGET_CIVILIAN_ABORT_IF_UNREACHABLE_ESCORT)
+		}
+#endif
 
 #if defined(MOD_BALANCE_CORE)
-		//loop through all our cities and find the best plot for mustering
-		CvPlot* pBestMusterPlot = NULL;
-		int iBestTurns = MAX_INT;
-
-		int iLoopCity = 0;
-		CvPlayer& kPlayer = GET_PLAYER(m_eOwner);
-		for(CvCity* pLoopCity = kPlayer.firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoopCity))
-		{
-			//todo: check if the city is in danger first?
-			bool bCanFindPath = GC.getPathFinder().GenerateUnitPath(pCivilian, pLoopCity->getX(), pLoopCity->getY(), pBetterTarget->getX(), pBetterTarget->getY(), iBestTurns);
-
-			int iTurns = bCanFindPath ? GC.getPathFinder().GetLastNode()->m_iData2 : INT_MAX;
-			if(iTurns < iBestTurns)
-			{
-				iBestTurns = iTurns;
-				pBestMusterPlot = pLoopCity->plot();
-			}
-		}
-
-		if(pBestMusterPlot != NULL)
-		{
-			SetMusterPlot(pBestMusterPlot);
-			pArmy->SetXY(pBestMusterPlot->getX(), pBestMusterPlot->getY());
-			SetDefaultArea(pBestMusterPlot->getArea());
-		}
 	}
 	else if(GetTargetPlot() == NULL)
 	{
@@ -3885,6 +3870,11 @@ void CvAIOperationFoundCity::Init(int iID, PlayerTypes eOwner, PlayerTypes /*eEn
 				CvPlayer& kPlayer = GET_PLAYER(m_eOwner);
 				for(CvCity* pLoopCity = kPlayer.firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoopCity))
 				{
+					if(kPlayer.getNumCities() > 1 && kPlayer.GetMilitaryAI()->GetMostThreatenedCity(0) == pLoopCity)
+					{
+						continue;
+					}
+
 					//todo: check if the city is in danger first?
 					bool bCanFindPath = GC.getPathFinder().GenerateUnitPath(pOurCivilian, pLoopCity->getX(), pLoopCity->getY(), pTargetSite->getX(), pTargetSite->getY(), iBestTurns);
 
@@ -3897,7 +3887,19 @@ void CvAIOperationFoundCity::Init(int iID, PlayerTypes eOwner, PlayerTypes /*eEn
 				}
 
 				if(pBestMusterPlot != NULL)
+				{
 					pMusterPt = pBestMusterPlot;
+					//If we can, let's muster next to the city - less chance of getting blocked in that way (during the escort op).
+					for(int iDirectionLoop = 0; iDirectionLoop < NUM_DIRECTION_TYPES; ++iDirectionLoop)
+					{
+						CvPlot* pAdjacentPlot = plotDirection(pMusterPt->getX(), pMusterPt->getY(), ((DirectionTypes)iDirectionLoop));
+						if(pAdjacentPlot != NULL && !pAdjacentPlot->isWater() && pAdjacentPlot->getOwner() == m_eOwner)
+						{
+							pMusterPt = pAdjacentPlot;
+							break;
+						}
+					}
+				}
 #endif
 			
 				SetMusterPlot(pMusterPt);
@@ -3926,7 +3928,7 @@ void CvAIOperationFoundCity::Init(int iID, PlayerTypes eOwner, PlayerTypes /*eEn
 				{
 					// There was no escort immediately available.  Let's look for a "safe" city site instead
 #if defined(MOD_BALANCE_CORE_SETTLER)
-					if (eOwner == -1 || GET_PLAYER(eOwner).getNumCities() > 2 || GET_PLAYER(eOwner).GetDiplomacyAI()->GetBoldness() > 7) // unless we'd rather play it safe
+					if (eOwner == -1 || GET_PLAYER(eOwner).getNumCities() > 2 || GET_PLAYER(eOwner).GetDiplomacyAI()->GetBoldness() > 8) // unless we'd rather play it safe
 					{
 						pNewTarget = FindBestTarget(pOurCivilian, true);
 					}
@@ -4230,7 +4232,14 @@ bool CvAIOperationFoundCity::ArmyInPosition(CvArmyAI* pArmy)
 
 /// Find the plot where we want to settle
 #if defined(MOD_BALANCE_CORE_SETTLER)
-
+bool CvAIEscortedOperation::IsEscorted()
+{
+	if(!m_bEscorted)
+	{
+		return false;
+	}
+	return true;
+}
 CvPlot* CvAIOperationFoundCity::FindBestTargetIncludingCurrent(CvUnit* pUnit, bool bOnlySafePaths)
 {
 	//todo: better options
@@ -4274,7 +4283,7 @@ bool CvAIOperationFoundCity::ShouldAbort()
 			CvArmyFormationSlot* pSlot = pThisArmy->GetFormationSlot(0);
 
 #if defined(MOD_BALANCE_CORE_SETTLER)
-			if (GetMusterPlot()->getOwner() != m_eOwner || GC.getGame().getGameTurn() - pSlot->GetTurnAtCheckpoint() > (15 - GET_PLAYER(m_eOwner).getNumCities())) // wait 15 turns minus number of cities max.
+			if (GetMusterPlot()->getOwner() != m_eOwner || GC.getGame().getGameTurn() - pSlot->GetTurnAtCheckpoint() > (10 - GET_PLAYER(m_eOwner).getNumCities())) // wait 15 turns minus number of cities max.
 #else
 			if (GetMusterPlot()->getOwner() != m_eOwner || GC.getGame().getGameTurn() - pSlot->GetTurnAtCheckpoint() > 15) // fifteen turns and still no escort even being built?
 #endif

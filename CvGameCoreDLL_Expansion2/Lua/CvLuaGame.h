@@ -302,6 +302,10 @@ protected:
 
 	static int lGetBuildingYieldChange(lua_State* L);
 	static int lGetBuildingYieldModifier(lua_State* L);
+#if defined(MOD_BALANCE_CORE)
+	static int lGetBuildingCorporateYieldChange(lua_State* L);
+	static int lGetBuildingCorporateGPChange(lua_State* L);
+#endif
 
 	static int lGetWorldNumCitiesUnhappinessPercent(lua_State* L);
 
