@@ -835,23 +835,6 @@ void CvBarbarians::DoUnits()
 					}
 				}
 			}
-#if defined(MOD_BALANCE_CORE)
-			if(MOD_BALANCE_CORE_MILITARY)
-			{
-				UnitHandle pUnit = pLoopPlot->getBestDefender(BARBARIAN_PLAYER);
-
-				if (TacticalAIHelpers::PerformRangedOpportunityAttack(pUnit.pointer()))
-				{
-					pUnit->finishMoves();
-					if(GC.getLogging() && GC.getAILogging())
-					{
-						CvString strLogString;
-						strLogString.Format("Ranged unit attacking nearby enemy to protect camp, X: %d, Y: %d", pUnit->plot()->getX(), pUnit->plot()->getY());
-						GET_PLAYER(BARBARIAN_PLAYER).GetTacticalAI()->LogTacticalMessage(strLogString);
-					}
-				}
-			}
-#endif
 		}
 #if defined(MOD_DIPLOMACY_CITYSTATES_QUESTS)
 		// Found a city to spawn near
@@ -874,21 +857,6 @@ void CvBarbarians::DoUnits()
 					strLogString.Format("Unit spawned in barbarian city of %d. City grows by 2. X: %d, Y: %d", pCity->getName().c_str(), pLoopPlot->getX(), pLoopPlot->getY());
 					if(GET_PLAYER(BARBARIAN_PLAYER).GetID() != NO_PLAYER)
 					{
-						GET_PLAYER(BARBARIAN_PLAYER).GetTacticalAI()->LogTacticalMessage(strLogString);
-					}
-				}
-			}
-			if(MOD_BALANCE_CORE_MILITARY)
-			{
-				UnitHandle pUnit = pLoopPlot->getBestDefender(BARBARIAN_PLAYER);
-
-				if (TacticalAIHelpers::PerformRangedOpportunityAttack(pUnit.pointer()))
-				{
-					pUnit->finishMoves();
-					if(GC.getLogging() && GC.getAILogging())
-					{
-						CvString strLogString;
-						strLogString.Format("Ranged unit attacking nearby enemy to protect conquered city, X: %d, Y: %d", pUnit->plot()->getX(), pUnit->plot()->getY());
 						GET_PLAYER(BARBARIAN_PLAYER).GetTacticalAI()->LogTacticalMessage(strLogString);
 					}
 				}

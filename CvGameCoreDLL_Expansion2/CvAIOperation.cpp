@@ -7052,6 +7052,8 @@ CvPlot* CvAIOperationRapidResponse::FindBestTarget()
 			for(int iCount=0; iCount<NUM_DIRECTION_TYPES; iCount++)
 			{
 				const CvPlot* pNeighborPlot = aPlotsToCheck[iCount];
+				if (!pNeighborPlot)
+					continue;
 				pEnemy = pNeighborPlot->getBestDefender(NO_PLAYER,m_eOwner,NULL,true);
 				if (pEnemy && pEnemy->getDomainType() == DOMAIN_LAND && pEnemy->IsCombatUnit())
 					iEnemyPower += pEnemy->GetPower();
