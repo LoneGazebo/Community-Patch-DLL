@@ -567,14 +567,54 @@ void CvHomelandAI::EstablishHomelandPriorities()
 			{
 				// Defensive moves
 			case AI_HOMELAND_MOVE_GARRISON:
+#if defined(MOD_BALANCE_CORE)
+				if(m_pPlayer->IsAtWarAnyMajor())
+				{
+					iPriority *= iFlavorDefense;
+				}
+				break;
+#endif
 			case AI_HOMELAND_MOVE_HEAL:
+#if defined(MOD_BALANCE_CORE)
+				iPriority += iFlavorDefense;
+				break;
+#endif
 			case AI_HOMELAND_MOVE_TO_SAFETY:
+#if defined(MOD_BALANCE_CORE)
+				if(m_pPlayer->IsAtWarAnyMajor())
+				{
+					iPriority *= iFlavorImprove;
+				}
+				break;
+#endif
 			case AI_HOMELAND_MOVE_MOBILE_RESERVE:
+#if defined(MOD_BALANCE_CORE)
+				iPriority += iFlavorDefense;
+				break;
+#endif
 			case AI_HOMELAND_MOVE_SENTRY:
+#if defined(MOD_BALANCE_CORE)
+				if(m_pPlayer->IsAtWarAnyMajor())
+				{
+					iPriority /= max (2, iFlavorDefense);
+				}
+				break;
+#endif
 			case AI_HOMELAND_MOVE_GARRISON_CITY_STATE:
 			case AI_HOMELAND_MOVE_GENERAL_GARRISON:
 			case AI_HOMELAND_MOVE_ADMIRAL_GARRISON:
+#if defined(MOD_BALANCE_CORE)
+				iPriority += iFlavorDefense;
+				break;
+#endif
 			case AI_HOMELAND_MOVE_AIRCRAFT_TO_THE_FRONT:
+#if defined(MOD_BALANCE_CORE)
+				if(m_pPlayer->IsAtWarAnyMajor())
+				{
+					iPriority *= iFlavorOffense;
+				}
+				break;
+#endif
 			case AI_HOMELAND_MOVE_TREASURE:
 
 				// Here so they remain same priority relative to AI_HOMELAND_MOVE_TO_SAFETY

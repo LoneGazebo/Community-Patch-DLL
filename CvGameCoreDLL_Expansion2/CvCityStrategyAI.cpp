@@ -855,9 +855,13 @@ void CvCityStrategyAI::ChooseProduction(bool bUseAsyncRandom, BuildingTypes eIgn
 		{
 			if(pDiploAI->IsWantsSneakAttack(eLoopPlayer))
 			{
-				iSneakies++;
+				iSneakies += 5;
 			}
 		}
+	}
+	if(GET_PLAYER(m_pCity->getOwner()).GetMilitaryAI()->GetNumberCivsAtWarWith(false) > 0)
+	{
+		iSneakies += GET_PLAYER(m_pCity->getOwner()).GetMilitaryAI()->GetNumberCivsAtWarWith(false);
 	}
 #endif
 	EconomicAIStrategyTypes eStrategyEnoughSettlers = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_ENOUGH_EXPANSION");

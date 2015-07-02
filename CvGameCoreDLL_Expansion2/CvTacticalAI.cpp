@@ -3650,8 +3650,14 @@ void CvTacticalAI::PlotEmergencyPurchases()
 				return;   // Abandon hope for this city; save our money to use elsewhere
 			}
 		}
-
+#if defined(MOD_BALANCE_CORE)
+		if(!MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
+		{
+#endif
 		m_pPlayer->GetMilitaryAI()->BuyEmergencyBuilding(pCity);
+#if defined(MOD_BALANCE_CORE)
+		}
+#endif
 
 		// If two defenders, assume already have land and sea and skip this city
 		if (pCity->plot()->getNumDefenders(m_pPlayer->GetID()) < 2)

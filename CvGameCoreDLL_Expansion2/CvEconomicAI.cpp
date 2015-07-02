@@ -2475,7 +2475,11 @@ void CvEconomicAI::DoReconState()
 		iWeightThreshold = 100;
 	}
 
+#if defined(MOD_BALANCE_CORE)
+	iStrategyWeight *= (iNumCoastalTilesWithAdjacentFog * 2);
+#else
 	iStrategyWeight *= iNumCoastalTilesWithAdjacentFog;
+#endif
 	int iNumExplorerDivisor = iNumExploringUnits + /*1*/ GC.getAI_STRATEGY_EARLY_EXPLORATION_EXPLORERS_WEIGHT_DIVISOR();
 	iStrategyWeight /= (iNumExplorerDivisor * iNumExplorerDivisor);
 	iStrategyWeight /= (int)sqrt((double)iNumLandPlotsRevealed);
@@ -2563,8 +2567,11 @@ void CvEconomicAI::DoReconState()
 		{
 			iWeightThreshold = 100;
 		}
-
+#if defined(MOD_BALANCE_CORE)
+		iStrategyWeight *= (iNumCoastalTilesWithAdjacentFog * 2);
+#else
 		iStrategyWeight *= iNumCoastalTilesWithAdjacentFog;
+#endif
 		iNumExplorerDivisor = iNumExploringUnits + /*1*/ GC.getAI_STRATEGY_EARLY_EXPLORATION_EXPLORERS_WEIGHT_DIVISOR();
 		iStrategyWeight /= (iNumExplorerDivisor * iNumExplorerDivisor);
 		iStrategyWeight /= (int)sqrt((double)iNumCoastalTilesRevealed);
