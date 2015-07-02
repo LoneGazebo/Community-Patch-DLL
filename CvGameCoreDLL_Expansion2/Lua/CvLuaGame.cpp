@@ -310,6 +310,16 @@ void CvLuaGame::RegisterMembers(lua_State* L)
 #if defined(MOD_BALANCE_CORE)
 	Method(GetBuildingCorporateYieldChange);
 	Method(GetBuildingCorporateGPChange);
+	Method(GetPovertyHappinessChangeBuilding);
+	Method(GetDefenseHappinessChangeBuilding);
+	Method(GetUnculturedHappinessChangeBuilding);
+	Method(GetIlliteracyHappinessChangeBuilding);
+	Method(GetMinorityHappinessChangeBuilding);
+	Method(GetPovertyHappinessChangeBuildingGlobal);
+	Method(GetDefenseHappinessChangeBuildingGlobal);
+	Method(GetUnculturedHappinessChangeBuildingGlobal);
+	Method(GetIlliteracyHappinessChangeBuildingGlobal);
+	Method(GetMinorityHappinessChangeBuildingGlobal);
 #endif
 
 	Method(GetWorldNumCitiesUnhappinessPercent);
@@ -2124,6 +2134,150 @@ int CvLuaGame::lGetBuildingYieldModifier(lua_State* L)
 	return 1;
 }
 #if defined(MOD_BALANCE_CORE)
+//------------------------------------------------------------------------------
+int CvLuaGame::lGetPovertyHappinessChangeBuilding(lua_State* L)
+{
+	const BuildingTypes eBuilding = (BuildingTypes) luaL_checkint(L, 1);
+
+	CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+
+	if(pkBuildingInfo)
+	{
+		lua_pushinteger(L, pkBuildingInfo->GetPovertyHappinessChangeBuilding());
+	}
+
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaGame::lGetDefenseHappinessChangeBuilding(lua_State* L)
+{
+	const BuildingTypes eBuilding = (BuildingTypes) luaL_checkint(L, 1);
+
+	CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+
+	if(pkBuildingInfo)
+	{
+		lua_pushinteger(L, pkBuildingInfo->GetDefenseHappinessChangeBuilding());
+	}
+
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaGame::lGetUnculturedHappinessChangeBuilding(lua_State* L)
+{
+	const BuildingTypes eBuilding = (BuildingTypes) luaL_checkint(L, 1);
+
+	CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+
+	if(pkBuildingInfo)
+	{
+		lua_pushinteger(L, pkBuildingInfo->GetUnculturedHappinessChangeBuilding());
+	}
+
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaGame::lGetIlliteracyHappinessChangeBuilding(lua_State* L)
+{
+	const BuildingTypes eBuilding = (BuildingTypes) luaL_checkint(L, 1);
+
+	CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+
+	if(pkBuildingInfo)
+	{
+		lua_pushinteger(L, pkBuildingInfo->GetIlliteracyHappinessChangeBuilding());
+	}
+
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaGame::lGetMinorityHappinessChangeBuilding(lua_State* L)
+{
+	const BuildingTypes eBuilding = (BuildingTypes) luaL_checkint(L, 1);
+
+	CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+
+	if(pkBuildingInfo)
+	{
+		lua_pushinteger(L, pkBuildingInfo->GetMinorityHappinessChangeBuilding());
+	}
+
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaGame::lGetPovertyHappinessChangeBuildingGlobal(lua_State* L)
+{
+	const BuildingTypes eBuilding = (BuildingTypes) luaL_checkint(L, 1);
+
+	CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+
+	if(pkBuildingInfo)
+	{
+		lua_pushinteger(L, pkBuildingInfo->GetPovertyHappinessChangeBuildingGlobal());
+	}
+
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaGame::lGetDefenseHappinessChangeBuildingGlobal(lua_State* L)
+{
+	const BuildingTypes eBuilding = (BuildingTypes) luaL_checkint(L, 1);
+
+	CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+
+	if(pkBuildingInfo)
+	{
+		lua_pushinteger(L, pkBuildingInfo->GetDefenseHappinessChangeBuildingGlobal());
+	}
+
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaGame::lGetUnculturedHappinessChangeBuildingGlobal(lua_State* L)
+{
+	const BuildingTypes eBuilding = (BuildingTypes) luaL_checkint(L, 1);
+
+	CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+
+	if(pkBuildingInfo)
+	{
+		lua_pushinteger(L, pkBuildingInfo->GetUnculturedHappinessChangeBuildingGlobal());
+	}
+
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaGame::lGetIlliteracyHappinessChangeBuildingGlobal(lua_State* L)
+{
+	const BuildingTypes eBuilding = (BuildingTypes) luaL_checkint(L, 1);
+
+	CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+
+	if(pkBuildingInfo)
+	{
+		lua_pushinteger(L, pkBuildingInfo->GetIlliteracyHappinessChangeBuildingGlobal());
+	}
+
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaGame::lGetMinorityHappinessChangeBuildingGlobal(lua_State* L)
+{
+	const BuildingTypes eBuilding = (BuildingTypes) luaL_checkint(L, 1);
+
+	CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+
+	if(pkBuildingInfo)
+	{
+		lua_pushinteger(L, pkBuildingInfo->GetMinorityHappinessChangeBuildingGlobal());
+	}
+
+	return 1;
+}
+
+//////
+/// CORPORATIONS
+//////
 //------------------------------------------------------------------------------
 int CvLuaGame::lGetBuildingCorporateYieldChange(lua_State* L)
 {

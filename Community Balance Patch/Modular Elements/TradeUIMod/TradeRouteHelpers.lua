@@ -91,9 +91,15 @@ function BuildTradeRouteGoldToolTipString (pOriginCity, pTargetCity, eDomain)
 	end
 -- CBP
 	local strCorporateModifier = "";
-	local iCorporateModifier = pPlayer:GetInternationalTradeRouteCorporationModifier(pOriginCity, pTargetCity, eDomain, true);
+	local iCorporateModifier = pPlayer:GetInternationalTradeRouteCorporationModifier(pOriginCity, pTargetCity, true);
 	if (iCorporateModifier ~= 0) then
 		strCorporateModifier = Locale.ConvertTextKey("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_CORPORATION_MODIFIER_GOLD", iCorporateModifier);
+	end
+
+	local strOpenBordersModifier = "";
+	local iOpenBordersModifier = pPlayer:GetTradeConnectionOpenBordersModifierTimes100(pOriginCity, pTargetCity, true);
+	if (iOpenBordersModifier ~= 0) then
+		strOpenBordersModifier = Locale.ConvertTextKey("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_OPEN_BORDERS_MOD", iOpenBordersModifier);
 	end
 -- END
 
@@ -165,6 +171,12 @@ function BuildTradeRouteGoldToolTipString (pOriginCity, pTargetCity, eDomain)
 				strOtherTotal = strOtherTotal .. "[NEWLINE]";
 			end
 		end
+		local strOpenBordersModifier = "";
+		local iOpenBordersModifier = pOtherPlayer:GetTradeConnectionOpenBordersModifierTimes100(pOriginCity, pTargetCity, false);
+		if (iOpenBordersModifier ~= 0) then
+			strOtherTotal = strOtherTotal .. Locale.ConvertTextKey("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_OPEN_BORDERS_MOD", iOpenBordersModifier);
+			strOtherTotal = strOtherTotal .. "[NEWLINE]";
+		end
 -- END
 		
 		strOtherTotal = strOtherTotal .. Locale.ConvertTextKey("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_TRADEE_TOTAL", strOtherLeaderName, iTradeeAmount / 100);
@@ -226,6 +238,11 @@ function BuildTradeRouteGoldToolTipString (pOriginCity, pTargetCity, eDomain)
 -- CBP
 	if (strCorporateModifier ~= "") then
 		strResult = strResult .. strCorporateModifier;
+		strResult = strResult .. "[NEWLINE]";
+	end
+
+	if (strOpenBordersModifier ~= "") then
+		strResult = strResult .. strOpenBordersModifier;
 		strResult = strResult .. "[NEWLINE]";
 	end
 -- END

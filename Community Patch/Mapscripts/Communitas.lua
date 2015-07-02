@@ -147,7 +147,7 @@ function MapGlobals:New()
 	mglobal.atlanticSize			= 0.05	-- size near poles
 	mglobal.atlanticBulge			= 0		-- size increase at equator
 	mglobal.atlanticCurve			= 0.04	-- S-curve distance
-	mglobal.pacificSize				= 0		-- size near poles
+	mglobal.pacificSize				= 0.05		-- size near poles
 	mglobal.pacificBulge			= 0.20	-- size increase at equator
 	mglobal.pacificCurve			= 0		-- S-curve distance
 	

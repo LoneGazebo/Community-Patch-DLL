@@ -19,7 +19,7 @@ WHERE Tag = 'TXT_KEY_POLICY_DICTATORSHIP_PROLETARIAT_HELP' AND EXISTS (SELECT * 
 -- Double Agents
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Double Agents[ENDCOLOR][NEWLINE]Receive an additional [ICON_SPY] Spy. Spies twice as likely to capture enemy spies attempting to steal a technology.'
+SET Text = '[COLOR_POSITIVE_TEXT]Double Agents[ENDCOLOR][NEWLINE]Receive an additional [ICON_SPY] Spy. Spies twice as likely to capture enemy spies in owned Cities.'
 WHERE Tag = 'TXT_KEY_POLICY_DOUBLE_AGENTS_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 -- Hero of the People
@@ -74,7 +74,7 @@ WHERE Tag = 'TXT_KEY_POLICY_SKYSCRAPERS_TEXT' AND EXISTS (SELECT * FROM COMMUNIT
 
 -- Socialist Realism
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Socialist Realism[ENDCOLOR][NEWLINE]Receive a free Museum in every City.'
+SET Text = '[COLOR_POSITIVE_TEXT]Socialist Realism[ENDCOLOR][NEWLINE]Receive a free Museum in every City. Museums produce +2 [ICON_CULTURE] Culture.'
 WHERE Tag = 'TXT_KEY_POLICY_SOCIALIST_REALISM_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 -- Worker's Faculties

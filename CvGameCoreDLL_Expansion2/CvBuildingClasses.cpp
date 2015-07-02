@@ -639,6 +639,11 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	szTextVal = kResults.GetText("ThemingBonusHelp");
 	m_strThemingBonusHelp = szTextVal;
 
+#if defined(MOD_BALANCE_CORE)
+	szTextVal = kResults.GetText("CorporationHelper");
+	m_strCorporationHelper = szTextVal;
+#endif
+
 	szTextVal = kResults.GetText("NearbyTerrainRequired");
 	m_iNearbyTerrainRequired = GC.getInfoTypeForString(szTextVal, true);
 
@@ -2170,7 +2175,12 @@ CvString CvBuildingEntry::GetThemingBonusHelp() const
 {
 	return m_strThemingBonusHelp;
 }
-
+#if defined(MOD_BALANCE_CORE)
+CvString CvBuildingEntry::GetCorporationHelper() const
+{
+	return m_strCorporationHelper;
+}
+#endif
 // ARRAYS
 
 #if defined(MOD_DIPLOMACY_CITYSTATES) || defined(MOD_BALANCE_CORE)

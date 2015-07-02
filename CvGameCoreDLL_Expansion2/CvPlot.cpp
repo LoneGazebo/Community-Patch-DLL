@@ -4727,10 +4727,21 @@ bool CvPlot::isValidDomainForLocation(const CvUnit& unit) const
 //	--------------------------------------------------------------------------------
 bool CvPlot::isValidDomainForAction(const CvUnit& unit) const
 {
+#if defined(MOD_GLOBAL_PASSABLE_FORTS)
+	bool bCanEnter = false;
+#endif
 	switch(unit.getDomainType())
 	{
 	case DOMAIN_SEA:
+#if defined(MOD_GLOBAL_PASSABLE_FORTS)
+		bCanEnter = (isWater() || unit.canMoveAllTerrain() || (isFriendlyCityOrPassableImprovement(unit, true) && MOD_GLOBAL_PASSABLE_FORTS));
+		if(bCanEnter)
+		{
+			return true;
+		}
+#else
 		return (isWater() || unit.canMoveAllTerrain());
+#endif
 		break;
 
 	case DOMAIN_AIR:
@@ -9711,7 +9722,17 @@ PlotVisibilityChangeResult CvPlot::changeVisibilityCount(TeamTypes eTeam, int iC
 					//if it is an enemy unit, update the danger plots! 
 					const std::vector<PlayerTypes>& aePlayers = GET_TEAM(eTeam).getPlayers();
 					for(size_t iI = 0; iI < aePlayers.size(); iI++)
-						GET_PLAYER(aePlayers[iI]).UpdateDangerSingleUnit(loopUnit);
+					{
+						PlayerTypes ePlayer = (PlayerTypes)aePlayers[iI];
+						if(ePlayer == NO_PLAYER)
+						{
+							continue;
+						}
+						else
+						{
+							GET_PLAYER(ePlayer).UpdateDangerSingleUnit(loopUnit);
+						}
+					}
 #endif
 				}
 

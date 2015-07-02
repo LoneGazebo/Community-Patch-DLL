@@ -302,7 +302,7 @@ WHERE Tag = 'TXT_KEY_UNIT_HELP_BRAZILIAN_PRACINHA' AND EXISTS (SELECT * FROM COM
 -- Zulu -- Ikanda gives promotions to all melee infantry
 
 UPDATE Language_en_US
-SET Text = 'Unique Zulu Barracks replacement. Grants unique promotions to all melee units.'
+SET Text = 'Unique Zulu Barracks replacement. Grants unique promotions to all melee units, and reduces [ICON_STRENGTH] Crime slightly.'
 WHERE Tag = 'TXT_KEY_BUILDING_IKANDA_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US

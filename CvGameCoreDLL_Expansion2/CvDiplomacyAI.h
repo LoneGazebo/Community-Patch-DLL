@@ -355,6 +355,9 @@ public:
 	bool IsCanMakeResearchAgreementRightNow(PlayerTypes ePlayer);
 
 #if defined(MOD_BALANCE_CORE_DEALS)
+	bool IsWantsSneakAttack(PlayerTypes ePlayer) const;
+	void SetWantsSneakAttack(PlayerTypes ePlayer, bool bValue);
+
 	bool IsWantsDefensivePactWithPlayer(PlayerTypes ePlayer) const;
 	void SetWantsDefensivePactWithPlayer(PlayerTypes ePlayer, bool bValue);
 
@@ -1179,6 +1182,7 @@ public:
 	int GetDPAcceptedScore(PlayerTypes ePlayer);
 	int GetDPWithAnyFriendScore(PlayerTypes ePlayer);
 	int GetDPWithAnyEnemyScore(PlayerTypes ePlayer);
+	int GetOpenBordersScore(PlayerTypes ePlayer);
 	MajorCivOpinionTypes GetNeighborOpinion(PlayerTypes ePlayer) const;
 	bool MusteringForNeighborAttack(PlayerTypes ePlayer) const;
 #endif
@@ -1374,6 +1378,7 @@ private:
 		bool m_abWantsResearchAgreementWithPlayer[MAX_MAJOR_CIVS];
 #if defined(MOD_BALANCE_CORE_DEALS)
 		bool m_abWantsDefensivePactWithPlayer[MAX_MAJOR_CIVS];
+		bool m_abWantsSneakAttack[MAX_MAJOR_CIVS];
 #endif
 		bool m_abWantToRouteToMinor[REALLY_MAX_PLAYERS-MAX_MAJOR_CIVS];
 		char m_aeWarFace[REALLY_MAX_PLAYERS];
@@ -1647,6 +1652,7 @@ private:
 	bool* m_pabWantsResearchAgreementWithPlayer;
 #if defined(MOD_BALANCE_CORE_DEALS)
 	bool* m_pabWantsDefensivePactWithPlayer;
+	bool* m_pabWantsSneakAttack;
 #endif
 	bool* m_pabWantToRouteToMinor;
 

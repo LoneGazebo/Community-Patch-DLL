@@ -343,13 +343,17 @@ void CvCitySpecializationAI::DoTurn()
 	}
 
 	// No city specialization if we don't have enough cities
-#if !defined(MOD_BALANCE_CORE)
 	if(m_pPlayer->getNumCities() < 2)
 	{
 		return;
 	}
-#endif
 	// See if need to update assignments
+#if defined(MOD_BALANCE_CORE)
+	if(GC.getGame().getGameTurn() < GC.getAI_CITY_SPECIALIZATION_REEVALUATION_INTERVAL())
+	{
+		return;
+	}
+#endif
 	if(m_bSpecializationsDirty || (m_iLastTurnEvaluated + GC.getAI_CITY_SPECIALIZATION_REEVALUATION_INTERVAL() > GC.getGame().getGameTurn()))
 	{
 		m_eNextWonderDesired = m_pPlayer->GetWonderProductionAI()->ChooseWonder(false /*bUseAsyncRandom*/, true /*bAdjustForOtherPlayers*/, m_iNextWonderWeight);
@@ -515,11 +519,11 @@ void CvCitySpecializationAI::WeightSpecializations()
 		m_YieldWeights.push_back(YIELD_PRODUCTION, iProductionYieldWeight);
 		m_YieldWeights.push_back(YIELD_GOLD, iGoldYieldWeight);
 		m_YieldWeights.push_back(YIELD_SCIENCE, iScienceYieldWeight);
-		m_YieldWeights.push_back(NO_YIELD, iGeneralEconomicWeight);
 #if defined(MOD_BALANCE_CORE)
 		m_YieldWeights.push_back(YIELD_CULTURE, iCultureYieldWeight);
 		m_YieldWeights.push_back(YIELD_FAITH, iFaithYieldWeight);
 #endif
+		m_YieldWeights.push_back(NO_YIELD, iGeneralEconomicWeight);
 
 		// Log results
 		LogSpecializationWeights();
@@ -835,7 +839,7 @@ void CvCitySpecializationAI::AssignSpecializations()
 
 		// Save yield improvements in a vector we can sort
 #if defined(MOD_BALANCE_CORE)
-		CvWeightedVector<int, YIELD_FAITH+1, true> yieldImprovements;
+		CvWeightedVector<int, YIELD_FAITH, true> yieldImprovements;
 		for(iI = 0; iI <= YIELD_FAITH; iI++)
 #else
 		CvWeightedVector<int, YIELD_SCIENCE+1, true> yieldImprovements;
@@ -1023,6 +1027,7 @@ void CvCitySpecializationAI::SelectSpecializations()
 
 		// Mark that we need one city of this type
 		YieldTypes eYield = m_YieldWeights.GetElement(0);
+
 		if(GC.GetGameCitySpecializations()->GetNumSpecializationsForYield(eYield) > 1)
 		{
 			if(eYield == YIELD_PRODUCTION)
@@ -1046,6 +1051,7 @@ void CvCitySpecializationAI::SelectSpecializations()
 			// Reduce weight for this specialization based on dividing original weight by <num of this type + 1>
 			iOldWeight = m_YieldWeights.GetWeight(0);
 			m_iNumSpecializationsForThisYield[1 + (int)eYield]++;
+
 			iNewWeight = iOldWeight * m_iNumSpecializationsForThisYield[1 + (int)eYield] / (m_iNumSpecializationsForThisYield[1 + (int)eYield] + 1);
 			m_YieldWeights.SetWeight(0, iNewWeight);
 		}
@@ -1894,11 +1900,7 @@ void CvCitySpecializationAI::LogSpecializationAssignment(CvCity* pCity, CitySpec
 		strBaseString += strPlayerName + ", ";
 
 		strCityName = pCity->getName();
-#if defined(MOD_BALANCE_CORE)
-		strSpecialization.Format("New Specialization Type: %s", GC.getCitySpecializationInfo(eType)->GetTextKey());
-#else
 		strSpecialization.Format("New Specialization Type: %d", (int)eType);
-#endif
 
 		strOutBuf = strBaseString + strCityName + ", " + strSpecialization;
 		if(bWonderCity)

@@ -126,4 +126,12 @@
 			<Text>Universal Healthcare</Text>
 		</Row>
 	</Language_en_US>
+	<!-- Space Procurements -->
+	<Policy_BuildingClassProductionModifiers>
+		<Row>
+			<PolicyType>POLICY_SPACE_PROCUREMENTS</PolicyType>
+			<BuildingClassType>BUILDINGCLASS_SPACESHIP_FACTORY</BuildingClassType>
+			<ProductionModifier>100</ProductionModifier>
+		</Row>
+	</Policy_BuildingClassProductionModifiers>
 </GameData>

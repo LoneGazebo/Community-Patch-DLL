@@ -31,14 +31,14 @@
 		<Row>
 			<PolicyType>POLICY_COLLECTIVE_RULE</PolicyType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>40</Yield>
+			<Yield>30</Yield>
 		</Row>
 	</Policy_YieldFromBirth>
 	<Policy_YieldFromBirthCapital>
 		<Row>
 			<PolicyType>POLICY_COLLECTIVE_RULE</PolicyType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>50</Yield>
+			<Yield>40</Yield>
 		</Row>
 	</Policy_YieldFromBirthCapital>
 	<Policy_PrereqPolicies>

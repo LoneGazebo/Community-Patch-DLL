@@ -92,7 +92,7 @@ function UpdateDisplay()
 			iResistanceUnhappiness = (pCity:GetPopulation() / 2);
 		end
 		local iOccupationUnhappiness = 0;
-		if(pCity:IsOccupied() and not pCity:IsNoOccupiedUnhappiness()) then
+		if(pCity:IsOccupied() and not pCity:IsNoOccupiedUnhappiness() and not pCity:IsResistance() and not pCity:IsRazing()) then
 			iOccupationUnhappiness = (pCity:GetPopulation() * GameDefines.UNHAPPINESS_PER_OCCUPIED_POPULATION);
 		end
 		local iTotalUnhappiness = iScienceUnhappiness + iCultureUnhappiness + iDefenseUnhappiness	+ iGoldUnhappiness + iConnectionUnhappiness + iPillagedUnhappiness + iStarvingUnhappiness + iMinorityUnhappiness + iOccupationUnhappiness + iResistanceUnhappiness;
@@ -514,60 +514,68 @@ end
 function UpdateCorporations()
 
     local pPlayer = Players[ Game.GetActivePlayer() ];
-	local strCorpName = Locale.ConvertTextKey(pPlayer:GetCorporationName());
-	if (strCorpName == nil) then
-		strCorpName = "TXT_KEY_CORP_NO_CORP";
+	local g_iUs = Game.GetActivePlayer();
+	local strCorpName = pPlayer:GetCorporationName();
+	local strCorpNameTT = Locale.ConvertTextKey("TXT_KEY_CORP_EX_NAME");
+	if(strCorpName ~= nil) then
+		strCorpNameTT = pPlayer:GetCorporationHelper();
+		Controls.CorporationName:SetText("[COLOR_POSITIVE_TEXT]" .. strCorpName .. "[ENDCOLOR]");
+		Controls.CorporationName:SetToolTipString(Locale.ConvertTextKey(strCorpNameTT));
+	else
+		strCorpName = Locale.ConvertTextKey("TXT_KEY_CORP_NO_CORP");
+		Controls.CorporationName:SetText(strCorpName);	
+		Controls.CorporationName:SetToolTipString(strCorpNameTT);
 	end
-	Controls.CorporationName:SetToolTipString(strCorpName);
+
 	-- Franchises
-	local strFranchisesTT = Locale.ConvertTextKey("TXT_KEY_NUM_FRANCHISES_TT");
     local iFranchises = pPlayer:GetNumberofGlobalFranchises();
     if( iFranchises > 0 ) then
-        Controls.NumFranchises:SetText( Locale.ToNumber(iFranchises) );
+        Controls.NumFranchises:SetText( Locale.ToNumber(iFranchises, "#") );
     else
         Controls.NumFranchises:SetText( 0 );
     end
-	Controls.NumFranchises:SetToolTipString(strFranchisesTT);
+
 	-- Offices
-	local strOfficesTT = Locale.ConvertTextKey("TXT_KEY_NUM_OFFICES_TT");
     local iOffices = pPlayer:GetNumberofOffices();
     if( iOffices > 0 ) then
-        Controls.NumOffices:SetText( Locale.ToNumber(iOffices) );
+        Controls.NumOffices:SetText( Locale.ToNumber(iOffices, "#") );
     else
         Controls.NumOffices:SetText( 0 );
     end
-	Controls.NumOffices:SetToolTipString(strOfficesTT);
+
 	-- FRANCHISE LIST
-	for iOtherPlayer = 0, GameDefines.MAX_MAJOR_CIVS - 1 do		
-		local pOtherPlayer = Players[ iOtherPlayer ];
-		local iOtherTeam = pOtherPlayer:GetTeam();
-		local pOtherTeam = Teams[ iOtherTeam ];
-		
+	local bFoundForeignCity = false;
+	Controls.FranchiseStack:DestroyAllChildren();
+	for iOtherPlayer = 0, GameDefines.MAX_CIV_PLAYERS - 1 do		
+		local pOtherPlayer = Players[ iOtherPlayer ];		
 		-- Valid player? - Can't be us, and has to be alive
-		local bFoundCity = false;
-		Controls.FranchiseStack:DestroyAllChildren();
-		if (iOtherPlayer ~= Game.GetActivePlayer() and pOtherPlayer:IsAlive()) then
-			for pCity in pPlayer:Cities() do
-				if(pCity:IsFranchised(pOtherPlayer)) then
-					bFoundCity = true;
+		if (iOtherPlayer ~= g_iUs and pOtherPlayer:IsAlive()) then
+			for pOtherCity in pOtherPlayer:Cities() do
+				if(pOtherCity:IsFranchised(g_iUs)) then
+					bFoundForeignCity = true;
 					local instance = {};
 					ContextPtr:BuildInstanceForControl( "FranchiseEntry", instance, Controls.FranchiseStack );
-					instance.CityName:SetText( pCity:GetName() );
+					instance.CityName:SetText( pOtherCity:GetName() );
+					local strCivName = pOtherPlayer:GetCivilizationShortDescription()
+					instance.CityName:SetToolTipString(strCivName);
+					instance.FranchisePresent:SetText("[ICON_INVEST]");
 				end
 			end
 		end
-		if( bFoundCity ) then
-			Controls.FranchiseToggle:SetDisabled( false );
-			Controls.FranchiseToggle:SetAlpha( 1.0 );
-		else
-			Controls.FranchiseToggle:SetDisabled( true );
-			Controls.FranchiseToggle:SetAlpha( 0.5 );
-		end
-		Controls.FranchiseStack:CalculateSize();
-		Controls.FranchiseStack:ReprocessAnchoring();
 	end
+	if( bFoundForeignCity ) then
+		Controls.FranchiseToggle:SetDisabled( false );
+		Controls.FranchiseToggle:SetAlpha( 1.0 );
+	else
+		Controls.FranchiseToggle:SetDisabled( true );
+		Controls.FranchiseToggle:SetAlpha( 0.5 );
+	end
+
+	Controls.FranchiseStack:CalculateSize();
+	Controls.FranchiseStack:ReprocessAnchoring();
+
 	-- OFFICE LIST
-	bFoundCity = false;
+	local bFoundCity = false;
     Controls.OfficeStack:DestroyAllChildren();
     for pCity in pPlayer:Cities() do
 		if(pCity:HasOffice()) then
@@ -575,6 +583,7 @@ function UpdateCorporations()
 			local instance = {};
 			ContextPtr:BuildInstanceForControl( "OfficeEntry", instance, Controls.OfficeStack );
 			instance.CityName:SetText( pCity:GetName() );
+			instance.OfficePresent:SetText("[ICON_CHECKBOX]");
 		end
 	end
 	if( bFoundCity ) then
@@ -584,11 +593,59 @@ function UpdateCorporations()
 		Controls.OfficeToggle:SetDisabled( true );
 		Controls.OfficeToggle:SetAlpha( 0.5 );
 	end
+
 	Controls.OfficeStack:CalculateSize();
 	Controls.OfficeStack:ReprocessAnchoring();
 
+	-- FOREIGN CORPS
+	local bFoundForeignCorps = false;
+	Controls.ForeignCorpsStack:DestroyAllChildren();
+	for iOtherPlayer = 0, GameDefines.MAX_MAJOR_CIVS - 1 do		
+		local pOtherPlayer = Players[ iOtherPlayer ];
+		
+		-- Valid player? - Can't be us, and has to be alive
+		if (iOtherPlayer ~= g_iUs and pOtherPlayer:IsAlive()) then
+			local strCorpName = pOtherPlayer:GetCorporationName();
+			if(strCorpName ~= nil) then
+				bFoundForeignCorps = true;	
+				local iFranchises = pOtherPlayer:GetNumberofGlobalFranchises();		
+				local instance = {};
+				ContextPtr:BuildInstanceForControl( "ForeignCorpsEntry", instance, Controls.ForeignCorpsStack );
+				instance.CorpName:SetText( strCorpName );
+				local strCivName = pOtherPlayer:GetCivilizationShortDescription();
+				local strCorpNameTT = pOtherPlayer:GetCorporationHelper();
+				instance.CorpName:SetToolTipString("[COLOR_POSITIVE_TEXT]" .. strCivName .. "[ENDCOLOR]" .. "[NEWLINE][NEWLINE]" .. Locale.ConvertTextKey(strCorpNameTT));
+				if( iFranchises > 0 ) then
+					instance.ForeignCorpsSize:SetText( Locale.ToNumber(iFranchises, "#") );
+				else
+					instance.ForeignCorpsSize:SetText( 0 );
+				end
+			end
+		end
+	end
+	if( bFoundForeignCorps ) then
+		Controls.ForeignCorpsToggle:SetDisabled( false );
+		Controls.ForeignCorpsToggle:SetAlpha( 1.0 );
+	else
+		Controls.ForeignCorpsToggle:SetDisabled( true );
+		Controls.ForeignCorpsToggle:SetAlpha( 0.5 );
+	end
+
+	Controls.ForeignCorpsStack:CalculateSize();
+	Controls.ForeignCorpsStack:ReprocessAnchoring();
+
 	Controls.GoldScroll:CalculateInternalSize();
 end
+
+Controls.FranchiseStack:SetHide( true );
+Controls.OfficeStack:SetHide( true );
+-- END
+-- Start hidden
+Controls.CityStack:SetHide( true );
+Controls.TradeStack:SetHide( true );
+Controls.BuildingsStack:SetHide( true );
+
+-- CBP
 -------------------------------------------------
 -------------------------------------------------
 function OnFranchiseToggle()
@@ -618,16 +675,24 @@ function OnOfficeToggle()
     Controls.GoldStack:ReprocessAnchoring();
     Controls.GoldScroll:CalculateInternalSize();
 end
-Controls.FranchiseToggle:RegisterCallback( Mouse.eLClick, OnFranchiseToggle );
+Controls.OfficeToggle:RegisterCallback( Mouse.eLClick, OnOfficeToggle );
+-------------------------------------------------
+-------------------------------------------------
+function OnForeignCorpsToggle()
+    local bWasHidden = Controls.ForeignCorpsStack:IsHidden();
+    Controls.ForeignCorpsStack:SetHide( not bWasHidden );
+    if( bWasHidden ) then
+        Controls.ForeignCorpsToggle:LocalizeAndSetText("TXT_KEY_EO_FOREIGN_CORPS_DETAILS_COLLAPSE");
+    else
+        Controls.ForeignCorpsToggle:LocalizeAndSetText("TXT_KEY_EO_FOREIGN_CORPS_DETAILS");
+    end
+    Controls.GoldStack:CalculateSize();
+    Controls.GoldStack:ReprocessAnchoring();
+    Controls.GoldScroll:CalculateInternalSize();
+end
+Controls.ForeignCorpsToggle:RegisterCallback( Mouse.eLClick, OnForeignCorpsToggle );
 
-Controls.FranchiseStack:SetHide( true );
-Controls.OfficeStack:SetHide( true );
 -- END
--- Start hidden
-Controls.CityStack:SetHide( true );
-Controls.TradeStack:SetHide( true );
-Controls.BuildingsStack:SetHide( true );
-
 -------------------------------------------------
 -------------------------------------------------
 function OnCityToggle()

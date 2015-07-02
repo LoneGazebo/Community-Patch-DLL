@@ -43,6 +43,7 @@
 #define AUI_UNIT_EXTRA_IN_OTHER_PLOT_HELPERS
 #define AUI_UNIT_FIX_BAD_BONUS_STACKS
 
+//#define MOD_GLOBAL_MAX_MAJOR_CIVS 43
 //disable this as it would make caching the danger calculation result much more complex - also not well tested, unclear benefit
 //#define AUI_UNIT_GET_NTH_BEST_INTERCEPTOR
 
@@ -358,6 +359,9 @@
 #define MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS        (MOD_DIPLOMACY_CITYSTATES && gCustomMods.isDIPLOMACY_CITYSTATES_RESOLUTIONS())
 #define MOD_DIPLOMACY_CITYSTATES_HURRY              (MOD_DIPLOMACY_CITYSTATES && gCustomMods.isDIPLOMACY_CITYSTATES_HURRY())
 #endif
+
+//Flips open borders to apply in opposite ways- you have to give open borders to gain the tourism bonus
+#define MOD_BALANCE_FLIPPED_TOURISM_MODIFIER_OPEN_BORDERS
 
 //Community Patch Info
 #define MOD_COMMUNITY_PATCH							gCustomMods.isCOMMUNITY_PATCH()

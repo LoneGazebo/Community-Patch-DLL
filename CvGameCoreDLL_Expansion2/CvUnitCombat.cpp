@@ -855,9 +855,7 @@ void CvUnitCombat::ResolveRangedUnitVsCombat(const CvCombatInfo& kCombatInfo, ui
 #if defined(MOD_BALANCE_CORE)
 						if(pkDefender->IsFortifiedThisTurn() || (pkDefender->GetActivityType() == ACTIVITY_HEAL))
 						{
-							pkDefender->SetAutomateType(NO_AUTOMATE);
-							pkDefender->ClearMissionQueue();
-							pkDefender->SetActivityType(ACTIVITY_AWAKE);
+							pkDefender->SetActivityType(ACTIVITY_AWAKE, false);
 						}
 #endif
 					}

@@ -406,7 +406,10 @@ bool CvGameTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Domai
 	iTargetTurns = iTargetTurns * GC.getGame().getGameSpeedInfo().getTradeRouteSpeedMod() / 100;
 	//TRs turn over more quickly the long the game goes on.
 	int iCurrentEra = GET_PLAYER(pOriginCity->getOwner()).GetCurrentEra();
-	iTargetTurns -= (iCurrentEra * 2);
+	if(iCurrentEra > 0)
+	{
+		iTargetTurns -= (iCurrentEra * 2);
+	}
 #else
 	int iTargetTurns = 30; // how many turns do we want the cycle to consume
 #endif
@@ -2399,6 +2402,60 @@ void CvPlayerTrade::MoveUnits (void)
 								}
 							}
 						}
+						else if(GET_PLAYER(pDestCity->getOwner()).GetCorporateFounderID() > 0)
+						{
+							BuildingClassTypes eBuildingClassDestCity = (BuildingClassTypes)pDestCity->GetFreeBuildingTradeTargetCity();
+							if(eBuildingClassDestCity != NO_BUILDINGCLASS)
+							{
+								CvCivilizationInfo& thisCiv = GET_PLAYER(pDestCity->getOwner()).getCivilizationInfo();
+								BuildingTypes eBuildingDestCity = (BuildingTypes)(thisCiv.getCivilizationBuildings(eBuildingClassDestCity));
+
+								if (eBuildingDestCity != NO_BUILDING && pCity->GetCityBuildings()->GetNumBuilding(eBuildingDestCity) <= 0)
+								{
+									CvBuildingEntry* pBuildingInfo = GC.getBuildingInfo(eBuildingDestCity);
+									if(pBuildingInfo)
+									{
+										pCity->GetCityBuildings()->SetNumRealBuilding(eBuildingDestCity, 1);
+										pCity->SetFranchised(pDestCity->getOwner(), true);
+										// send notification to owner player and target player
+										CvNotifications* pNotifications = GET_PLAYER(pCity->getOwner()).GetNotifications();
+										if(pNotifications && pDestCity->getOwner() == GC.getGame().getActivePlayer())
+										{
+											Localization::String strSummary;
+											Localization::String strMessage;
+
+											strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_TRADE_UNIT_CORPORATION_BUILDING_SUMMARY");
+											strSummary << pBuildingInfo->GetTextKey();
+											strSummary << pCity->getNameKey();
+											strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_TRADE_UNIT_CORPORATION_BUILDING");
+											strMessage << pCity->getNameKey();
+											strMessage << pBuildingInfo->GetTextKey();
+											strMessage << pDestCity->getNameKey();
+											pNotifications->Add(NOTIFICATION_WONDER_COMPLETED, strMessage.toUTF8(), strSummary.toUTF8(), pCity->getX(), pCity->getY(), eBuildingDestCity, pCity->getOwner());
+										}
+										else
+										{
+											CvNotifications* pNotifications2 = GET_PLAYER(pDestCity->getOwner()).GetNotifications();
+											if(pNotifications2 && pCity->getOwner() == GC.getGame().getActivePlayer())
+											{
+												Localization::String strSummary;
+												Localization::String strMessage;
+
+												strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_TRADE_UNIT_CORPORATION_BUILDING_FOREIGN_SUMMARY");
+												strSummary << pBuildingInfo->GetTextKey();
+												strSummary << pDestCity->getNameKey();
+												strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_TRADE_UNIT_CORPORATION_BUILDING_FOREIGN");
+												strMessage << pDestCity->getNameKey();
+												strMessage << pBuildingInfo->GetTextKey();
+												strMessage << pCity->getNameKey();
+												pNotifications2->Add(NOTIFICATION_WONDER_COMPLETED, strMessage.toUTF8(), strSummary.toUTF8(), pCity->getX(), pCity->getY(), eBuildingDestCity, pDestCity->getOwner());
+											}
+										}
+										GET_PLAYER(pDestCity->getOwner()).CalculateCorporateFranchisesWorldwide();
+									}
+								}
+							}
+						}
 					}
 				}	
 #endif
@@ -2966,6 +3023,54 @@ int CvPlayerTrade::GetTradeConnectionRiverValueModifierTimes100(const TradeConne
 }
 #if defined(MOD_BALANCE_CORE)
 //	--------------------------------------------------------------------------------
+int CvPlayerTrade::GetTradeConnectionOpenBordersModifierTimes100(const TradeConnection& kTradeConnection, YieldTypes eYield, bool bAsOriginPlayer)
+{
+	// unnecessary code to make it compile for now
+	if (eYield != NO_YIELD)
+	{
+		eYield = eYield;
+	}
+
+	int iModifier = 0;
+	CvCity* pDestCity = CvGameTrade::GetDestCity(kTradeConnection);
+	if(pDestCity == NULL)
+	{
+		return 0;
+	}
+	CvCity* pOriginCity = CvGameTrade::GetOriginCity(kTradeConnection);
+	if(pOriginCity == NULL)
+	{
+		return 0;
+	}
+	PlayerTypes eOriginPlayer = pOriginCity->getOwner();
+	PlayerTypes eDestPlayer = pOriginCity->getOwner();
+
+	if(bAsOriginPlayer && eOriginPlayer != NO_PLAYER && eDestPlayer != NO_PLAYER && eYield == YIELD_GOLD)
+	{
+		if(GET_TEAM(GET_PLAYER(eOriginPlayer).getTeam()).IsAllowsOpenBordersToTeam(GET_PLAYER(eDestPlayer).getTeam()) && GET_TEAM(GET_PLAYER(eDestPlayer).getTeam()).IsAllowsOpenBordersToTeam(GET_PLAYER(eOriginPlayer).getTeam()))
+		{
+			iModifier = /*20*/ GC.getOPEN_BORDERS_MODIFIER_TRADE_GOLD();
+		}
+		else if(GET_TEAM(GET_PLAYER(eOriginPlayer).getTeam()).IsAllowsOpenBordersToTeam(GET_PLAYER(eDestPlayer).getTeam()) || GET_TEAM(GET_PLAYER(eDestPlayer).getTeam()).IsAllowsOpenBordersToTeam(GET_PLAYER(eOriginPlayer).getTeam()))
+		{
+			iModifier = /*20*/ (GC.getOPEN_BORDERS_MODIFIER_TRADE_GOLD() / 2);
+		}
+	}
+	else if(!bAsOriginPlayer && eOriginPlayer != NO_PLAYER && eDestPlayer != NO_PLAYER && eYield == YIELD_GOLD)
+	{
+		if(GET_TEAM(GET_PLAYER(eOriginPlayer).getTeam()).IsAllowsOpenBordersToTeam(GET_PLAYER(eDestPlayer).getTeam()) && GET_TEAM(GET_PLAYER(eDestPlayer).getTeam()).IsAllowsOpenBordersToTeam(GET_PLAYER(eOriginPlayer).getTeam()))
+		{
+			iModifier = /*20*/ (GC.getOPEN_BORDERS_MODIFIER_TRADE_GOLD() / 2);
+		}
+		else if(GET_TEAM(GET_PLAYER(eOriginPlayer).getTeam()).IsAllowsOpenBordersToTeam(GET_PLAYER(eDestPlayer).getTeam()) || GET_TEAM(GET_PLAYER(eDestPlayer).getTeam()).IsAllowsOpenBordersToTeam(GET_PLAYER(eOriginPlayer).getTeam()))
+		{
+			iModifier = /*20*/ (GC.getOPEN_BORDERS_MODIFIER_TRADE_GOLD() / 4);
+		}
+	}
+
+	return iModifier;
+}
+//	--------------------------------------------------------------------------------
 int CvPlayerTrade::GetTradeConnectionCorporationModifierTimes100(const TradeConnection& kTradeConnection, YieldTypes eYield, bool bAsOriginPlayer)
 {
 	// unnecessary code to make it compile for now
@@ -3044,6 +3149,7 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTrad
 					int iOriginRiverModifier = GetTradeConnectionRiverValueModifierTimes100(kTradeConnection, eYield, bAsOriginPlayer);
 #if defined(MOD_BALANCE_CORE)
 					int iCorporationModifier = GetTradeConnectionCorporationModifierTimes100(kTradeConnection, eYield, bAsOriginPlayer);
+					int iOpenBordersModifier = GetTradeConnectionOpenBordersModifierTimes100(kTradeConnection, eYield, bAsOriginPlayer);
 #endif
 
 					iValue = iBaseValue;
@@ -3063,6 +3169,7 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTrad
 					iModifier += iOriginRiverModifier;
 #if defined(MOD_BALANCE_CORE)
 					iModifier += iCorporationModifier;
+					iModifier += iOpenBordersModifier;
 #endif
 
 					iValue *= iModifier;
@@ -5058,10 +5165,19 @@ int CvTradeAI::ScoreInternationalTR (const TradeConnection& kTradeConnection)
 			{
 				iDangerValue += 1;
 			}
+#if defined(MOD_BALANCE_CORE)
+			if(!pPlot->isRevealed(m_pPlayer->getTeam()))
+			{
+				iDangerValue += 1;
+			}
+#endif
 
 			if (pPlot->getTeam() != NO_TEAM && GET_TEAM(m_pPlayer->getTeam()).isAtWar(pPlot->getTeam()))
 			{
 				iDangerValue += 1000;
+#if defined(MOD_BALANCE_CORE)
+				iDangerValue += 10000;
+#endif
 			}
 		}
 		iDangerSum += iDangerValue;
@@ -5361,6 +5477,22 @@ int CvTradeAI::ScoreInternationalTR (const TradeConnection& kTradeConnection)
 								}
 							}
 						}
+						//Foreign city have an office? Let's reduce the score just a little to keep from feeding their corporation.
+						if(pDestCity->HasOffice())
+						{
+							int iFranchises = GET_PLAYER(pDestCity->getOwner()).GetCorporateFranchisesWorldwide();
+							//Care less if we like this guy.
+							if(m_pPlayer->GetDiplomacyAI()->GetMajorCivApproach(kTradeConnection.m_eDestOwner, false) == MAJOR_CIV_APPROACH_FRIENDLY)
+							{
+								iFranchises /= 2;
+							}
+							else if(m_pPlayer->GetDiplomacyAI()->GetMajorCivOpinion(kTradeConnection.m_eDestOwner) >= MAJOR_CIV_OPINION_FAVORABLE)
+							{
+								iFranchises /= 2;
+							}
+
+							iScore /= max(1, iFranchises);
+						}
 					}
 				}
 			}
@@ -5389,46 +5521,65 @@ int CvTradeAI::ScoreFoodTR (const TradeConnection& kTradeConnection, CvCity* pSm
 	{
 		return 0;
 	}
-
+#if !defined(MOD_BALANCE_CORE)
 	int iMaxDistance = 60;
+#endif
 	int iDistance = kTradeConnection.m_aPlotList.size();
 #if defined(MOD_BALANCE_CORE)
-	int iDistanceScore = MAX(0, iMaxDistance - iDistance);
 #else
 	int iDistanceScore = iMaxDistance - iDistance;
-#endif
 	if (kTradeConnection.m_eDomain == DOMAIN_SEA)
 	{
 		iDistanceScore = iDistanceScore * 2;
 	}
+#endif
 #if defined(MOD_BALANCE_CORE)
+	int iX = kTradeConnection.m_iDestX;
+	int iY = kTradeConnection.m_iDestY;
+	int iDX = kTradeConnection.m_iOriginX;
+	int iDY = kTradeConnection.m_iOriginY;
 	int iScore = 0;
-	if(m_pPlayer->getCapitalCity() != NULL && pSmallestCity != NULL)
+	if(iX != -1 && iY != -1 && iDX != -1 && iDY != -1)
 	{
-		iScore = (m_pPlayer->getCapitalCity()->getPopulation() - pSmallestCity->getPopulation());
-		if(pSmallestCity->getUnhappinessFromConnection() > 0 || pSmallestCity->getUnhappinessFromStarving() > 0)
+		CvPlot* pPlot = GC.getMap().plot(iX, iY);
+		CvPlot* pPlot2 = GC.getMap().plot(iDX, iDY);
+		if(pPlot != NULL && pPlot2 != NULL)
 		{
-			iScore *= 2;
+			CvCity* pDestCity = pPlot->getPlotCity();
+			CvCity* pOriginCity = pPlot2->getPlotCity();
+			if(pDestCity != NULL && pOriginCity != NULL)
+			{
+				iScore = ((pOriginCity->foodDifference() + pOriginCity->getPopulation()) - (pDestCity->foodDifference() + pDestCity->getPopulation()));
+				if(pDestCity->getUnhappinessFromConnection() > 0 && pOriginCity->isCapital())
+				{
+					iScore *= 2;
+				}
+				if(pOriginCity->getUnhappinessFromConnection() > 0 && pDestCity->isCapital())
+				{
+					iScore *= 2;
+				}
+				if(pDestCity->GetCityCitizens()->GetFocusType() == CITY_AI_FOCUS_TYPE_FOOD)
+				{
+					iScore *= 10;
+				}
+
+				for (int iYieldLoop = 0; iYieldLoop < NUM_YIELD_TYPES; iYieldLoop++)
+				{
+					if(m_pPlayer->GetPlayerTraits()->GetTradeRouteStartYield((YieldTypes)iYieldLoop) > 0)
+					{
+						iScore -= (m_pPlayer->GetPlayerTraits()->GetTradeRouteStartYield((YieldTypes)iYieldLoop) / 2);
+					}
+					if(m_pPlayer->GetPlayerTraits()->GetYieldChangePerTradePartner((YieldTypes)iYieldLoop) > 0)
+					{
+						iScore -= (m_pPlayer->GetPlayerTraits()->GetYieldChangePerTradePartner((YieldTypes)iYieldLoop) / 2);
+					}
+					if(m_pPlayer->GetGoldInternalTrade() > 0)
+					{
+						iScore += m_pPlayer->GetGoldInternalTrade() / 2;
+					}
+				}
+			}
 		}
-		for (int iYieldLoop = 0; iYieldLoop < NUM_YIELD_TYPES; iYieldLoop++)
-		{
-			if(m_pPlayer->GetPlayerTraits()->GetTradeRouteStartYield((YieldTypes)iYieldLoop) > 0)
-			{
-				iScore -= (m_pPlayer->GetPlayerTraits()->GetTradeRouteStartYield((YieldTypes)iYieldLoop) / 2);
-			}
-			if(m_pPlayer->GetPlayerTraits()->GetYieldChangePerTradePartner((YieldTypes)iYieldLoop) > 0)
-			{
-				iScore -= (m_pPlayer->GetPlayerTraits()->GetTradeRouteStartYield((YieldTypes)iYieldLoop) / 2);
-			}
-			if(m_pPlayer->GetGoldInternalTrade() > 0)
-			{
-				iScore += m_pPlayer->GetGoldInternalTrade() / 2;
-			}
-		}
-	}
-	else
-	{
-		iScore = 0;
 	}
 #endif
 	//CvPlayerTrade* pPlayerTrade = m_pPlayer->GetTrade();
@@ -5452,6 +5603,12 @@ int CvTradeAI::ScoreFoodTR (const TradeConnection& kTradeConnection, CvCity* pSm
 			{
 				iDangerValue += 1;
 			}
+#if defined(MOD_BALANCE_CORE)
+			if(!pPlot->isRevealed(m_pPlayer->getTeam()))
+			{
+				iDangerValue += 1;
+			}
+#endif
 
 			if (pPlot->getTeam() != NO_TEAM && GET_TEAM(m_pPlayer->getTeam()).isAtWar(pPlot->getTeam()))
 			{
@@ -5488,7 +5645,7 @@ int CvTradeAI::ScoreFoodTR (const TradeConnection& kTradeConnection, CvCity* pSm
 		}
 	}
 	
-	return (iScore - (iDistanceScore + iDangerSum));
+	return (iScore - (iDistance + iDangerSum));
 #else
 	return iDistanceScore - iDangerSum;
 #endif
@@ -5524,46 +5681,74 @@ int CvTradeAI::ScoreProductionTR (const TradeConnection& kTradeConnection, std::
 	{
 		return 0;
 	}
-
+#if !defined(MOD_BALANCE_CORE)
 	int iMaxDistance = 60;
+#endif
 	int iDistance = kTradeConnection.m_aPlotList.size();
 #if defined(MOD_BALANCE_CORE)
-	int iDistanceScore = MAX(0, iMaxDistance - iDistance);
 #else
 	int iDistanceScore = iMaxDistance - iDistance;
-#endif
 	if (kTradeConnection.m_eDomain == DOMAIN_SEA)
 	{
 		iDistanceScore = iDistanceScore * 2;
 	}
+#endif
 #if defined(MOD_BALANCE_CORE)
 	int iX = kTradeConnection.m_iDestX;
 	int iY = kTradeConnection.m_iDestY;
+	int iDX = kTradeConnection.m_iOriginX;
+	int iDY = kTradeConnection.m_iOriginY;
 	int iScore = 0;
-	CvPlot* pPlot = GC.getMap().plot(iX, iY);
-	if(pPlot != NULL)
+	if(iX != -1 && iY != -1 && iDX != -1 && iDY != -1)
 	{
-		CvCity* pDestCity = pPlot->getPlotCity();
-		if(pDestCity != NULL && m_pPlayer->getCapitalCity() != NULL)
+		CvPlot* pPlot = GC.getMap().plot(iX, iY);
+		CvPlot* pPlot2 = GC.getMap().plot(iDX, iDY);
+		if(pPlot != NULL && pPlot2 != NULL)
 		{
-			iScore = (m_pPlayer->getCapitalCity()->getBaseYieldRate(YIELD_PRODUCTION) - pDestCity->getBaseYieldRate(YIELD_PRODUCTION));
-			if(pDestCity->getUnhappinessFromConnection() > 0)
+			CvCity* pDestCity = pPlot->getPlotCity();
+			CvCity* pOriginCity = pPlot2->getPlotCity();
+			if(pDestCity != NULL && pOriginCity != NULL)
 			{
-				iScore *= 2;
-			}
-			for (int iYieldLoop = 0; iYieldLoop < NUM_YIELD_TYPES; iYieldLoop++)
-			{
-				if(m_pPlayer->GetPlayerTraits()->GetTradeRouteStartYield((YieldTypes)iYieldLoop) > 0)
+				iScore = (pOriginCity->foodDifference() - pDestCity->foodDifference());
+				if(pDestCity->getUnhappinessFromConnection() > 0 && pOriginCity->isCapital())
 				{
-					iScore -= (m_pPlayer->GetPlayerTraits()->GetTradeRouteStartYield((YieldTypes)iYieldLoop) / 2);
+					iScore *= 2;
 				}
-				if(m_pPlayer->GetPlayerTraits()->GetYieldChangePerTradePartner((YieldTypes)iYieldLoop) > 0)
+				if(pOriginCity->getUnhappinessFromConnection() > 0 && pDestCity->isCapital())
 				{
-					iScore -= (m_pPlayer->GetPlayerTraits()->GetYieldChangePerTradePartner((YieldTypes)iYieldLoop) / 2);
+					iScore *= 2;
 				}
-				if(m_pPlayer->GetGoldInternalTrade() > 0)
+				if(pDestCity->GetCityCitizens()->GetFocusType() == CITY_AI_FOCUS_TYPE_PRODUCTION)
 				{
-					iScore += m_pPlayer->GetGoldInternalTrade() / 2;
+					iScore *= 5;
+				}
+				BuildingTypes eBuilding = pDestCity->getProductionBuilding();
+				if(eBuilding != NO_BUILDING)
+				{
+					CvBuildingEntry* pBuildingInfo = GC.getBuildingInfo(eBuilding);
+					if(pBuildingInfo)
+					{
+						CvBuildingClassInfo* pInfo = GC.getBuildingClassInfo((BuildingClassTypes)pBuildingInfo->GetBuildingClassType());
+						if (pInfo && pInfo->getMaxGlobalInstances() == 1)
+						{
+							iScore *= 5;
+						}
+					}
+				}
+				for (int iYieldLoop = 0; iYieldLoop < NUM_YIELD_TYPES; iYieldLoop++)
+				{
+					if(m_pPlayer->GetPlayerTraits()->GetTradeRouteStartYield((YieldTypes)iYieldLoop) > 0)
+					{
+						iScore -= (m_pPlayer->GetPlayerTraits()->GetTradeRouteStartYield((YieldTypes)iYieldLoop) / 2);
+					}
+					if(m_pPlayer->GetPlayerTraits()->GetYieldChangePerTradePartner((YieldTypes)iYieldLoop) > 0)
+					{
+						iScore -= (m_pPlayer->GetPlayerTraits()->GetYieldChangePerTradePartner((YieldTypes)iYieldLoop) / 2);
+					}
+					if(m_pPlayer->GetGoldInternalTrade() > 0)
+					{
+						iScore += m_pPlayer->GetGoldInternalTrade() / 2;
+					}
 				}
 			}
 		}
@@ -5590,7 +5775,12 @@ int CvTradeAI::ScoreProductionTR (const TradeConnection& kTradeConnection, std::
 			{
 				iDangerValue += 1;
 			}
-
+#if defined(MOD_BALANCE_CORE)
+			if(!pPlot->isRevealed(m_pPlayer->getTeam()))
+			{
+				iDangerValue += 1;
+			}
+#endif
 			if (pPlot->getTeam() != NO_TEAM && GET_TEAM(m_pPlayer->getTeam()).isAtWar(pPlot->getTeam()))
 			{
 				iDangerValue += 1000;
@@ -5625,7 +5815,7 @@ int CvTradeAI::ScoreProductionTR (const TradeConnection& kTradeConnection, std::
 			}
 		}
 	}
-	return (iScore - (iDistanceScore + iDangerSum));
+	return (iScore - (iDistance + iDangerSum));
 #else
 	return iDistanceScore - iDangerSum;
 #endif
@@ -5664,45 +5854,72 @@ int CvTradeAI::ScoreWonderTR (const TradeConnection& kTradeConnection, std::vect
 		return 0;
 	}
 
-	int iMaxDistance = 60;
 	int iDistance = kTradeConnection.m_aPlotList.size();
 #if defined(MOD_BALANCE_CORE)
-	int iDistanceScore = MAX(0, iMaxDistance - iDistance);
 #else
 	int iDistanceScore = iMaxDistance - iDistance;
-#endif
+
 	if (kTradeConnection.m_eDomain == DOMAIN_SEA)
 	{
 		iDistanceScore = iDistanceScore * 2;
 	}
+#endif
 #if defined(MOD_BALANCE_CORE)
 	int iX = kTradeConnection.m_iDestX;
 	int iY = kTradeConnection.m_iDestY;
+	int iDX = kTradeConnection.m_iOriginX;
+	int iDY = kTradeConnection.m_iOriginY;
 	int iScore = 0;
-	CvPlot* pPlot = GC.getMap().plot(iX, iY);
-	if(pPlot != NULL)
+	if(iX != -1 && iY != -1 && iDX != -1 && iDY != -1)
 	{
-		CvCity* pDestCity = pPlot->getPlotCity();
-		if(pDestCity != NULL && m_pPlayer->getCapitalCity() != NULL)
+		CvPlot* pPlot = GC.getMap().plot(iX, iY);
+		CvPlot* pPlot2 = GC.getMap().plot(iDX, iDY);
+		if(pPlot != NULL && pPlot2 != NULL)
 		{
-			iScore = (m_pPlayer->getCapitalCity()->getBaseYieldRate(YIELD_PRODUCTION) - pDestCity->getBaseYieldRate(YIELD_PRODUCTION));
-			if(pDestCity->getUnhappinessFromConnection() > 0)
+			CvCity* pDestCity = pPlot->getPlotCity();
+			CvCity* pOriginCity = pPlot2->getPlotCity();
+			if(pDestCity != NULL && pOriginCity != NULL)
 			{
-				iScore *= 2;
-			}
-			for (int iYieldLoop = 0; iYieldLoop < NUM_YIELD_TYPES; iYieldLoop++)
-			{
-				if(m_pPlayer->GetPlayerTraits()->GetTradeRouteStartYield((YieldTypes)iYieldLoop) > 0)
+				iScore = (pOriginCity->getBaseYieldRate(YIELD_PRODUCTION) - pDestCity->getBaseYieldRate(YIELD_PRODUCTION));
+				if(pDestCity->getUnhappinessFromConnection() > 0 && pOriginCity->isCapital())
 				{
-					iScore -= (m_pPlayer->GetPlayerTraits()->GetTradeRouteStartYield((YieldTypes)iYieldLoop) / 2);
+					iScore *= 2;
 				}
-				if(m_pPlayer->GetPlayerTraits()->GetYieldChangePerTradePartner((YieldTypes)iYieldLoop) > 0)
+				if(pOriginCity->getUnhappinessFromConnection() > 0 && pDestCity->isCapital())
 				{
-					iScore -= (m_pPlayer->GetPlayerTraits()->GetYieldChangePerTradePartner((YieldTypes)iYieldLoop) / 2);
+					iScore *= 2;
 				}
-				if(m_pPlayer->GetGoldInternalTrade() > 0)
+				if(pDestCity->GetCityCitizens()->GetFocusType() == CITY_AI_FOCUS_TYPE_PRODUCTION)
 				{
-					iScore += m_pPlayer->GetGoldInternalTrade() / 2;
+					iScore *= 5;
+				}
+				BuildingTypes eBuilding = pDestCity->getProductionBuilding();
+				if(eBuilding != NO_BUILDING)
+				{
+					CvBuildingEntry* pBuildingInfo = GC.getBuildingInfo(eBuilding);
+					if(pBuildingInfo)
+					{
+						CvBuildingClassInfo* pInfo = GC.getBuildingClassInfo((BuildingClassTypes)pBuildingInfo->GetBuildingClassType());
+						if (pInfo && pInfo->getMaxGlobalInstances() == 1)
+						{
+							iScore *= 5;
+						}
+					}
+				}
+				for (int iYieldLoop = 0; iYieldLoop < NUM_YIELD_TYPES; iYieldLoop++)
+				{
+					if(m_pPlayer->GetPlayerTraits()->GetTradeRouteStartYield((YieldTypes)iYieldLoop) > 0)
+					{
+						iScore -= (m_pPlayer->GetPlayerTraits()->GetTradeRouteStartYield((YieldTypes)iYieldLoop) / 2);
+					}
+					if(m_pPlayer->GetPlayerTraits()->GetYieldChangePerTradePartner((YieldTypes)iYieldLoop) > 0)
+					{
+						iScore -= (m_pPlayer->GetPlayerTraits()->GetYieldChangePerTradePartner((YieldTypes)iYieldLoop) / 2);
+					}
+					if(m_pPlayer->GetGoldInternalTrade() > 0)
+					{
+						iScore += m_pPlayer->GetGoldInternalTrade() / 2;
+					}
 				}
 			}
 		}
@@ -5729,7 +5946,12 @@ int CvTradeAI::ScoreWonderTR (const TradeConnection& kTradeConnection, std::vect
 			{
 				iDangerValue += 1;
 			}
-
+#if defined(MOD_BALANCE_CORE)
+			if(!pPlot->isRevealed(m_pPlayer->getTeam()))
+			{
+				iDangerValue += 1;
+			}
+#endif
 			if (pPlot->getTeam() != NO_TEAM && GET_TEAM(m_pPlayer->getTeam()).isAtWar(pPlot->getTeam()))
 			{
 				iDangerValue += 1000;
@@ -5764,7 +5986,7 @@ int CvTradeAI::ScoreWonderTR (const TradeConnection& kTradeConnection, std::vect
 			}
 		}
 	}
-	return (iScore - (iDistanceScore + iDangerSum));
+	return (iScore - (iDistance + iDangerSum));
 #else
 	return iDistanceScore - iDangerSum;
 #endif

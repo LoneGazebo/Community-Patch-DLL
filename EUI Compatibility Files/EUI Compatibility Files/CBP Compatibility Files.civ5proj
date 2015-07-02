@@ -7,7 +7,7 @@
     <Guid>24923240-e4fb-4bf6-8f0e-6e5b6cf4d3c2</Guid>
     <ModVersion>1</ModVersion>
     <Stability>Beta</Stability>
-    <Teaser>CBP Compatibility and LUA (EUI Version) (6/21)</Teaser>
+    <Teaser>CBP Compatibility and LUA (EUI Version) (7-1)</Teaser>
     <Description>Contains compatibility files for CBP, CSD, C4DF and EUI - required if you intend to use any mod aside from the CP and CBP by themselves.
 
 NOTE: Make sure to delete the LUA folder in the CBP if you are using this!</Description>
@@ -191,6 +191,14 @@ NOTE: Make sure to delete the LUA folder in the CBP if you are using this!</Desc
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
+    <Content Include="LUA\CityView.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="LUA\CityView_small.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
     <Content Include="LUA\CivilopediaScreen.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
@@ -324,10 +332,6 @@ NOTE: Make sure to delete the LUA folder in the CBP if you are using this!</Desc
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
     <Content Include="LUA\TradeLogic.lua">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
-    <Content Include="LUA\TradeRouteHelpers.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>

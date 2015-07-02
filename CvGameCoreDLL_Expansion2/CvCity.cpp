@@ -667,6 +667,15 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 		if(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS && owningPlayer.GetNumCitiesFounded() <= 1)
 		{
 			GET_PLAYER(getOwner()).ChangePuppetUnhappinessMod(GC.getBALANCE_HAPPINESS_PUPPET_THRESHOLD_MOD());
+
+			int iCapitalMod = GC.getBALANCE_HAPPINESS_CAPITAL_MODIFIER();
+
+			if(GET_PLAYER(getOwner()).GetPlayerTraits()->IsNoAnnexing() || GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE))
+			{
+				iCapitalMod = (GC.getBALANCE_HAPPINESS_CAPITAL_MODIFIER() * 2);
+			}
+
+			GET_PLAYER(getOwner()).ChangeCapitalUnhappinessModCBP(iCapitalMod);
 		}
 #endif
 		// Free resources under city?
@@ -2548,19 +2557,38 @@ void CvCity::DoUpdateIndustrialRouteToCapital()
 	// Capital - what do we want to do about this?
 	if(isCapital())
 	{
+#if defined(MOD_BALANCE_CORE)
+		RouteTypes eRoute = (RouteTypes)ROUTE_RAILROAD;
+
+		if(eRoute != NO_ROUTE)
+		{
+			for(int iBuildLoop = 0; iBuildLoop < GC.getNumBuildInfos(); iBuildLoop++)
+			{
+				CvBuildInfo* pkBuildInfo = GC.getBuildInfo((BuildTypes) iBuildLoop);
+				if(!pkBuildInfo)
+				{
+					continue;
+				}
+
+				if(pkBuildInfo->getRoute() == eRoute)
+				{
+					if(GET_TEAM(GET_PLAYER(getOwner()).getTeam()).GetTeamTechs()->HasTech((TechTypes)pkBuildInfo->getTechPrereq()))
+					{
+						SetIndustrialRouteToCapital(true);
+						break;
+					}
+				}
+			}
+		}
+#endif
 	}
 	// Non-capital city
 	else
 	{
-#if defined(MOD_BALANCE_CORE)
-		bool bHaveIndustrialRoute = GET_PLAYER(getOwner()).IsCapitalConnectedToCity(this, GC.getGame().GetIndustrialRoute());
-		SetIndustrialRouteToCapital(bHaveIndustrialRoute);
-#else
 		if(GET_PLAYER(getOwner()).IsCapitalConnectedToCity(this, GC.getGame().GetIndustrialRoute()))
 		{
 			SetIndustrialRouteToCapital(true);
 		}
-#endif
 	}
 }
 
@@ -6738,38 +6766,37 @@ int CvCity::getGeneralProductionModifiers(CvString* toolTipSink) const
 
 	// Railroad to capital?
 #if defined(MOD_BALANCE_CORE)
-	if(MOD_BALANCE_CORE && isCapital())
+	RouteTypes eRoute = (RouteTypes)ROUTE_RAILROAD;
+	bool bValid = false;
+	if(eRoute != NO_ROUTE)
 	{
-		CvCity* pLoopCity;
-		int iLoop;
-		for(pLoopCity = GET_PLAYER(getOwner()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iLoop))
+		for(int iBuildLoop = 0; iBuildLoop < GC.getNumBuildInfos(); iBuildLoop++)
 		{
-			//If any city has an industrial route to capital, the capital should also get that bonus.
-			if(pLoopCity->IsIndustrialRouteToCapital())
+			CvBuildInfo* pkBuildInfo = GC.getBuildInfo((BuildTypes) iBuildLoop);
+			if(!pkBuildInfo)
 			{
-				if(GET_PLAYER(getOwner()).GetCurrentEra() >= GC.getInfoTypeForString("ERA_INDUSTRIAL", true /*bHideAssert*/))
+				continue;
+			}
+
+			if(pkBuildInfo->getRoute() == eRoute)
+			{
+				if(GET_TEAM(GET_PLAYER(getOwner()).getTeam()).GetTeamTechs()->HasTech((TechTypes)pkBuildInfo->getTechPrereq()))
 				{
-					const int iTempMod = GC.getINDUSTRIAL_ROUTE_PRODUCTION_MOD();
-					iMultiplier += iTempMod;
-					if(toolTipSink && iTempMod)
-					{
-						GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_RAILROAD_CONNECTION", iTempMod);
-					}
+					bValid = true;
+					break;
 				}
-				break;
 			}
 		}
-		//OCC
-		if(GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE))
+	}
+	if(MOD_BALANCE_CORE && isCapital() && bValid && GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE))
+	{
+		if(GET_PLAYER(getOwner()).GetCurrentEra() >= GC.getInfoTypeForString("ERA_INDUSTRIAL", true /*bHideAssert*/))
 		{
-			if(GET_PLAYER(getOwner()).GetCurrentEra() >= GC.getInfoTypeForString("ERA_INDUSTRIAL", true /*bHideAssert*/))
+			const int iTempMod = GC.getINDUSTRIAL_ROUTE_PRODUCTION_MOD();
+			iMultiplier += iTempMod;
+			if(toolTipSink && iTempMod)
 			{
-				const int iTempMod = GC.getINDUSTRIAL_ROUTE_PRODUCTION_MOD();
-				iMultiplier += iTempMod;
-				if(toolTipSink && iTempMod)
-				{
-					GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_RAILROAD_CONNECTION", iTempMod);
-				}
+				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_RAILROAD_CONNECTION", iTempMod);
 			}
 		}
 	}
@@ -9420,15 +9447,12 @@ int CvCity::foodDifferenceTimes100(bool bBottom, CvString* toolTipSink) const
 			}
 		}
 #endif
-		// Cities stop growing when empire is very unhappy
-		if(GET_PLAYER(getOwner()).IsEmpireVeryUnhappy())
-		{
-			int iMod = /*-100*/ GC.getVERY_UNHAPPY_GROWTH_PENALTY();
 #if defined(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
 		if(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
 		{
 			//Mechanic to allow for growth malus from happiness/unhappiness.
 			int iHappiness = 0;
+			int iTempMod = 0;
 			iHappiness += (GET_PLAYER(getOwner()).GetHappiness() - GET_PLAYER(getOwner()).GetSetUnhappiness());
 
 			//If Happiness is greater than or over threshold, calculate city bonus mod.
@@ -9446,8 +9470,27 @@ int CvCity::foodDifferenceTimes100(bool bBottom, CvString* toolTipSink) const
 				}
 				
 			}
+			if(iHappiness != 0)
+			{
+				iTempMod = (/*2*/ GC.getBALANCE_HAPPINESS_FOOD_MODIFIER() * iHappiness);
+			}
+			iTotalMod += iTempMod;
+			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_HAPPY", iTempMod);
+		}
+#endif
+		// Cities stop growing when empire is very unhappy
+		if(GET_PLAYER(getOwner()).IsEmpireVeryUnhappy())
+		{
+			int iMod = /*-100*/ GC.getVERY_UNHAPPY_GROWTH_PENALTY();
+#if defined(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
+		if(MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
+		{
+			//Mechanic to allow for growth malus from happiness/unhappiness.
+			int iHappiness = 0;
+			iHappiness += (GET_PLAYER(getOwner()).GetHappiness() - GET_PLAYER(getOwner()).GetSetUnhappiness());
+
 			//If happiness is less than the main threshold, calculate city penalty mod.
-			else if(iHappiness < GC.getBALANCE_HAPPINESS_THRESHOLD_MAIN())
+			if(iHappiness < GC.getBALANCE_HAPPINESS_THRESHOLD_MAIN())
 			{
 				//Are there minimums/maximums for the penalty? Restrict this value.
 				if(iHappiness > GC.getBALANCE_HAPPINESS_PENALTY_MINIMUM())
@@ -9479,24 +9522,8 @@ int CvCity::foodDifferenceTimes100(bool bBottom, CvString* toolTipSink) const
 				int iHappiness = 0;
 				iHappiness += (GET_PLAYER(getOwner()).GetHappiness() - GET_PLAYER(getOwner()).GetSetUnhappiness());
 
-				//If Happiness is greater than or over threshold, calculate city bonus mod.
-				if(iHappiness >= GC.getBALANCE_HAPPINESS_THRESHOLD())
-				{
-					iHappiness = (iHappiness - GC.getBALANCE_HAPPINESS_THRESHOLD());
-
-					//Are there minimums/maximums for the bonus? Restrict this value.
-					if(iHappiness > GC.getBALANCE_HAPPINESS_BONUS_MAXIMUM())
-					{
-						iHappiness = GC.getBALANCE_HAPPINESS_BONUS_MAXIMUM();
-					}
-					else if(iHappiness < GC.getBALANCE_HAPPINESS_BONUS_MINIMUM())
-					{
-						iHappiness = GC.getBALANCE_HAPPINESS_BONUS_MINIMUM();
-					}
-					
-				}
 				//If happiness is less than the main threshold, calculate city penalty mod.
-				else if(iHappiness < GC.getBALANCE_HAPPINESS_THRESHOLD_MAIN())
+				if(iHappiness < GC.getBALANCE_HAPPINESS_THRESHOLD_MAIN())
 				{
 					//Are there minimums/maximums for the penalty? Restrict this value.
 					if(iHappiness > GC.getBALANCE_HAPPINESS_PENALTY_MINIMUM())
@@ -12647,6 +12674,249 @@ int CvCity::GetLocalHappiness() const
 	}
 }
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
+int CvCity::getHappinessDelta() const
+{
+	GET_PLAYER(getOwner()).CalculateHappiness();
+
+	int iPositiveHappiness = GetLocalHappiness();
+
+	int iNegativeHappiness = 0;
+
+	iNegativeHappiness += getUnhappinessFromStarving();
+	iNegativeHappiness += getUnhappinessFromPillaged();
+	iNegativeHappiness += getUnhappinessFromGold();
+	iNegativeHappiness += getUnhappinessFromDefense();
+	iNegativeHappiness += getUnhappinessFromConnection();
+	iNegativeHappiness += getUnhappinessFromMinority();
+	iNegativeHappiness += getUnhappinessFromScience();
+	iNegativeHappiness += getUnhappinessFromCulture();
+	
+	if(IsRazing() || IsResistance())
+	{
+		iNegativeHappiness += (getPopulation() / 2);
+	}
+	if(IsOccupied() && !IsNoOccupiedUnhappiness())
+	{
+		iNegativeHappiness += int(getPopulation() * GC.getUNHAPPINESS_PER_OCCUPIED_POPULATION());
+	}
+
+	iPositiveHappiness -= iNegativeHappiness;
+
+	return iPositiveHappiness;
+}
+
+//	--------------------------------------------------------------------------------
+int CvCity::getThresholdAdditions() const
+{
+	int iModifier = 0;
+
+	//Let's modify this based on the number of player techs - more techs means the threshold goes higher.
+	int iTech = (GET_TEAM(getTeam()).GetTeamTechs()->GetNumTechsKnown() * 100);
+	//Dividing it by the num of techs to get a % - num of techs artificially increased to slow rate of growth
+	iTech /= max(1, ((int)(GC.getNumTechInfos() * /*1.5*/ GC.getBALANCE_HAPPINESS_TECH_BASE_MODIFIER())));
+	
+	iModifier += iTech;
+
+	//Increase threshold based on # of cities. Is slight, but makes a difference.
+	iModifier += (GET_PLAYER(getOwner()).getNumCities() * max(1, GC.getBALANCE_HAPPINESS_BASE_CITY_COUNT_MULTIPLIER()));
+
+	//Increase threshold based on # of 'normal' citizens. Is slight, but makes larger non-specialist cities more and more difficult to maintain.
+	iModifier += ((getPopulation() - GetCityCitizens()->GetTotalSpecialistCount()) / max(1, GC.getBALANCE_HAPPINESS_BASE_CITY_COUNT_MULTIPLIER()));
+
+	if(isCapital())
+	{
+		iModifier += GET_PLAYER(getOwner()).GetCapitalUnhappinessModCBP();
+	}
+	
+	return iModifier;
+}
+//	--------------------------------------------------------------------------------
+int CvCity::getThresholdSubtractions(YieldTypes eYield) const
+{
+	int iModifier = 0;
+	if(IsPuppet())
+	{
+		iModifier += GET_PLAYER(getOwner()).GetPuppetUnhappinessMod();
+	}
+	if(eYield == YIELD_CULTURE)
+	{
+		//Trait is % reduction to this value (bigger negative trait = lower threshold).
+		if(GET_PLAYER(getOwner()).GetPlayerTraits()->GetUnculturedHappinessChange() != 0)
+		{
+			iModifier += GET_PLAYER(getOwner()).GetPlayerTraits()->GetUnculturedHappinessChange();
+		}
+		//Policy cuts threshold for this value (bigger negative number = lower threshold).
+		if(GET_PLAYER(getOwner()).GetUnculturedUnhappinessMod() != 0)
+		{
+			iModifier += GET_PLAYER(getOwner()).GetUnculturedUnhappinessMod();
+		}
+		//Capital only -  Policy cuts threshold for this value (bigger negative number = lower threshold).
+		if(GET_PLAYER(getOwner()).GetUnculturedUnhappinessModCapital() != 0)
+		{
+			if(isCapital())
+			{
+				iModifier += GET_PLAYER(getOwner()).GetUnculturedUnhappinessModCapital();
+			}
+		}
+		//Buildings decrease this by a flat integer.
+		if(GetUnculturedUnhappiness() != 0)
+		{
+			iModifier += GetUnculturedUnhappiness();
+		}
+		int iLoop = 0;
+		for(const CvCity* pLoopCity = GET_PLAYER(getOwner()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iLoop))
+		{
+			if(pLoopCity != NULL)
+			{
+				//Mod from global unhappiness building modifier.
+				if(pLoopCity->GetUnculturedUnhappinessGlobal() != 0)
+				{
+					iModifier += pLoopCity->GetUnculturedUnhappinessGlobal();
+				}
+			}		
+		}
+	}
+	else if(eYield == YIELD_GOLD)
+	{
+		//Trait is % reduction of this value (higher trait = lower threshold).
+		if(GET_PLAYER(getOwner()).GetPlayerTraits()->GetPovertyHappinessChange() != 0)
+		{
+			iModifier += GET_PLAYER(getOwner()).GetPlayerTraits()->GetPovertyHappinessChange();
+		}
+		//Policy cuts threshold for this value (bigger negative number = lower threshold).
+		if(GET_PLAYER(getOwner()).GetPovertyUnhappinessMod() != 0)
+		{
+			iModifier += GET_PLAYER(getOwner()).GetPovertyUnhappinessMod();
+		}
+		//Capital only -  Policy cuts threshold for this value (bigger negative number = lower threshold).
+		if(GET_PLAYER(getOwner()).GetPovertyUnhappinessModCapital() != 0)
+		{
+			if(isCapital())
+			{
+				iModifier += GET_PLAYER(getOwner()).GetPovertyUnhappinessModCapital();
+			}
+		}
+		//Buildings decrease this by a flat integer.
+		if(GetPovertyUnhappiness() != 0)
+		{
+			iModifier += GetPovertyUnhappiness();
+		}
+		int iLoop = 0;
+		for(const CvCity* pLoopCity = GET_PLAYER(getOwner()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iLoop))
+		{
+			if(pLoopCity != NULL)
+			{
+				//Mod from global unhappiness building modifier.
+				if(pLoopCity->GetPovertyUnhappinessGlobal() != 0)
+				{
+					iModifier += pLoopCity->GetPovertyUnhappinessGlobal();
+				}
+			}		
+		}
+	}
+	else if(eYield == YIELD_SCIENCE)
+	{
+		//Trait is % reduction to this value (higher trait = lower threshold).
+		if(GET_PLAYER(getOwner()).GetPlayerTraits()->GetIlliteracyHappinessChange() != 0)
+		{
+			iModifier += GET_PLAYER(getOwner()).GetPlayerTraits()->GetIlliteracyHappinessChange();
+		}
+		//Policy cuts threshold for this value (bigger negative number = lower threshold).
+		if(GET_PLAYER(getOwner()).GetIlliteracyUnhappinessMod() != 0)
+		{
+			iModifier += GET_PLAYER(getOwner()).GetIlliteracyUnhappinessMod();
+		}
+		//Capital only -  Policy cuts threshold for this value (bigger negative number = lower threshold).
+		if(GET_PLAYER(getOwner()).GetIlliteracyUnhappinessModCapital() != 0)
+		{
+			if(isCapital())
+			{
+				iModifier += GET_PLAYER(getOwner()).GetIlliteracyUnhappinessModCapital();
+			}
+		}
+		//Buildings decrease this by a flat integer.
+		if(GetIlliteracyUnhappiness() != 0)
+		{
+			iModifier += GetIlliteracyUnhappiness();
+		}
+		int iLoop = 0;
+		for(const CvCity* pLoopCity = GET_PLAYER(getOwner()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iLoop))
+		{
+			if(pLoopCity != NULL)
+			{
+				//Mod from global unhappiness building modifier.
+				if(pLoopCity->GetIlliteracyUnhappinessGlobal() != 0)
+				{
+					iModifier += pLoopCity->GetIlliteracyUnhappinessGlobal();
+				}
+			}		
+		}
+	}
+	else if(eYield == YIELD_PRODUCTION)
+	{
+		//Trait is % reduction of this value (higher trait = lower threshold).
+		if(GET_PLAYER(getOwner()).GetPlayerTraits()->GetDefenseHappinessChange() != 0)
+		{
+			iModifier += GET_PLAYER(getOwner()).GetPlayerTraits()->GetDefenseHappinessChange();
+		}
+		//Policy cuts threshold for this value (bigger negative number = lower threshold).
+		if(GET_PLAYER(getOwner()).GetDefenseUnhappinessMod() != 0)
+		{
+			iModifier += GET_PLAYER(getOwner()).GetDefenseUnhappinessMod();
+		}
+		//Capital only -  Policy cuts threshold for this value (bigger negative number = lower threshold).
+		if(GET_PLAYER(getOwner()).GetDefenseUnhappinessModCapital() != 0)
+		{
+			if(isCapital())
+			{
+				iModifier += GET_PLAYER(getOwner()).GetDefenseUnhappinessModCapital();
+			}
+		}
+		//Buildings decrease this by a flat integer.
+		if(GetDefenseUnhappiness() != 0)
+		{
+			iModifier += GetDefenseUnhappiness();
+		}
+		int iLoop = 0;
+		for(const CvCity* pLoopCity = GET_PLAYER(getOwner()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iLoop))
+		{
+			if(pLoopCity != NULL)
+			{
+				//Mod from global unhappiness building modifier.
+				if(pLoopCity->GetDefenseUnhappinessGlobal() != 0)
+				{
+					iModifier += pLoopCity->GetDefenseUnhappinessGlobal();
+				}
+			}		
+		}
+		int iDamage = getDamage() / 10;
+		iModifier += iDamage;
+		CvPlot* pLoopPlot;
+		int iEnemyUnits = 0;
+#if defined(MOD_GLOBAL_CITY_WORKING)
+		for(int iI = 0; iI < GetNumWorkablePlots(); iI++)
+#else
+		for(int iI = 0; iI < NUM_CITY_PLOTS; iI++)
+#endif
+		{
+			pLoopPlot = plotCity(getX(), getY(), iI);
+
+			if(pLoopPlot != NULL)
+			{
+				if(pLoopPlot->getOwner() == getOwner())
+				{
+					CvUnit* pUnit = pLoopPlot->getUnitByIndex(0);
+					if(pUnit != NULL && pUnit->IsCombatUnit() && GET_TEAM(GET_PLAYER(pUnit->getOwner()).getTeam()).isAtWar(GET_PLAYER(getOwner()).getTeam()))
+					{
+						iEnemyUnits++;
+					}
+				}
+			}
+		}
+		iModifier += iEnemyUnits;	
+	}
+	return iModifier;
+}
 //	--------------------------------------------------------------------------------
 int CvCity::getUnhappyCitizenCount() const
 {
@@ -12689,62 +12959,10 @@ int CvCity::getUnhappinessFromCultureNeeded() const
 {
 	int iThreshold = GET_PLAYER(getOwner()).getGlobalAverage(YIELD_CULTURE);
 
-	if(isCapital())
-	{
-		if(GET_PLAYER(getOwner()).GetPlayerTraits()->IsNoAnnexing() || GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE))
-		{
-			iThreshold += ((iThreshold * (GC.getBALANCE_HAPPINESS_CAPITAL_MODIFIER() * 2))  / 100);
-		}
-		else
-		{
-			iThreshold += ((iThreshold * GC.getBALANCE_HAPPINESS_CAPITAL_MODIFIER()) / 100);
-		}
-	}
-#if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
-	//Trait is % reduction to this value (higher trait = lower threshold).
-	if(GET_PLAYER(getOwner()).GetPlayerTraits()->GetUnculturedHappinessChange() != 0)
-	{
-		iThreshold -= ((GET_PLAYER(getOwner()).GetPlayerTraits()->GetUnculturedHappinessChange() * iThreshold) / 100);
-	}
-	//Policy cuts threshold for this value (bigger negative number = lower threshold).
-	if(GET_PLAYER(getOwner()).GetUnculturedUnhappinessMod() != 0)
-	{
-		iThreshold += ((GET_PLAYER(getOwner()).GetUnculturedUnhappinessMod() * iThreshold) / 100);
-	}
-	//Capital only -  Policy cuts threshold for this value (bigger negative number = lower threshold).
-	if(GET_PLAYER(getOwner()).GetUnculturedUnhappinessModCapital() != 0)
-	{
-		if(isCapital())
-		{
-			iThreshold += ((GET_PLAYER(getOwner()).GetUnculturedUnhappinessModCapital() * iThreshold) / 100);
-		}
-	}
-	//Buildings decrease this by a flat integer.
-	if(GetUnculturedUnhappiness() != 0)
-	{
-		iThreshold += ((GetUnculturedUnhappiness()  * (max(1, getPopulation()) / 2)) / 100);
-	}
-	int iLoop = 0;
-	for(const CvCity* pLoopCity = GET_PLAYER(getOwner()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iLoop))
-	{
-		if(pLoopCity != NULL)
-		{
-			//Mod from global unhappiness building modifier.
-			if(pLoopCity->GetUnculturedUnhappinessGlobal() != 0)
-			{
-				iThreshold += ((pLoopCity->GetUnculturedUnhappinessGlobal()  * (max(1, getPopulation()) / 2)) / 100);
-			}
-		}		
-	}
-	if(IsPuppet())
-	{
-		iThreshold += ((GET_PLAYER(getOwner()).GetPuppetUnhappinessMod() * iThreshold) / 100);
-	}
-#endif
+	int iModifier = getThresholdAdditions();
+	iModifier += getThresholdSubtractions(YIELD_CULTURE);
 
-	//Increase threshold based on # of cities. Is slight, but makes a difference.
-	int iNumCities = (GET_PLAYER(getOwner()).getNumCities() * GC.getBALANCE_HAPPINESS_BASE_CITY_COUNT_MULTIPLIER());
-	iThreshold *= (100 + iNumCities);
+	iThreshold *= (iModifier + 100);
 	iThreshold /= 100;
 
 	//This is for LUA.
@@ -12816,62 +13034,10 @@ int CvCity::getUnhappinessFromScienceNeeded() const
 {
 	int iThreshold = GET_PLAYER(getOwner()).getGlobalAverage(YIELD_SCIENCE);
 
-	if(isCapital())
-	{
-		if(GET_PLAYER(getOwner()).GetPlayerTraits()->IsNoAnnexing() || GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE))
-		{
-			iThreshold += ((iThreshold * (GC.getBALANCE_HAPPINESS_CAPITAL_MODIFIER() * 2))  / 100);
-		}
-		else
-		{
-			iThreshold += ((iThreshold * GC.getBALANCE_HAPPINESS_CAPITAL_MODIFIER()) / 100);
-		}
-	}
-#if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
-	//Trait is % reduction to this value (higher trait = lower threshold).
-	if(GET_PLAYER(getOwner()).GetPlayerTraits()->GetIlliteracyHappinessChange() != 0)
-	{
-		iThreshold -= ((GET_PLAYER(getOwner()).GetPlayerTraits()->GetIlliteracyHappinessChange() * iThreshold) / 100);
-	}
-	//Policy cuts threshold for this value (bigger negative number = lower threshold).
-	if(GET_PLAYER(getOwner()).GetIlliteracyUnhappinessMod() != 0)
-	{
-		iThreshold += ((GET_PLAYER(getOwner()).GetIlliteracyUnhappinessMod() * iThreshold) / 100);
-	}
-	//Capital only -  Policy cuts threshold for this value (bigger negative number = lower threshold).
-	if(GET_PLAYER(getOwner()).GetIlliteracyUnhappinessModCapital() != 0)
-	{
-		if(isCapital())
-		{
-			iThreshold += ((GET_PLAYER(getOwner()).GetIlliteracyUnhappinessModCapital() * iThreshold) / 100);
-		}
-	}
-	//Buildings decrease this by a flat integer.
-	if(GetIlliteracyUnhappiness() != 0)
-	{
-		iThreshold += ((GetIlliteracyUnhappiness() * (max(1, getPopulation()) / 2)) / 100);
-	}
-	int iLoop = 0;
-	for(const CvCity* pLoopCity = GET_PLAYER(getOwner()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iLoop))
-	{
-		if(pLoopCity != NULL)
-		{
-			//Mod from global unhappiness building modifier.
-			if(pLoopCity->GetIlliteracyUnhappinessGlobal() != 0)
-			{
-				iThreshold += ((pLoopCity->GetIlliteracyUnhappinessGlobal() * (max(1, getPopulation()) / 2)) / 100);
-			}
-		}		
-	}
-	if(IsPuppet())
-	{
-		iThreshold += ((GET_PLAYER(getOwner()).GetPuppetUnhappinessMod() * iThreshold) / 100);
-	}
-#endif
+	int iModifier = getThresholdAdditions();
+	iModifier += getThresholdSubtractions(YIELD_SCIENCE);
 
-	//Increase threshold based on # of cities. Is slight, but makes a difference.
-	int iNumCities = (GET_PLAYER(getOwner()).getNumCities() * GC.getBALANCE_HAPPINESS_BASE_CITY_COUNT_MULTIPLIER());
-	iThreshold *= (100 + iNumCities);
+	iThreshold *= (iModifier + 100);
 	iThreshold /= 100;
 
 	//This is for LUA.
@@ -12929,39 +13095,6 @@ int CvCity::getUnhappinessFromDefenseYield() const
 {
 	int iDefenseYield = getStrengthValue(false);
 
-	int iDamage = getDamage() * 10;
-
-	CvPlot* pLoopPlot;
-	int iEnemyUnits = 0;
-#if defined(MOD_GLOBAL_CITY_WORKING)
-	for(int iI = 0; iI < GetNumWorkablePlots(); iI++)
-#else
-	for(int iI = 0; iI < NUM_CITY_PLOTS; iI++)
-#endif
-	{
-		pLoopPlot = plotCity(getX(), getY(), iI);
-
-		if(pLoopPlot != NULL)
-		{
-			if(pLoopPlot->getOwner() == getOwner())
-			{
-				CvUnit* pUnit = pLoopPlot->getUnitByIndex(0);
-				if(pUnit != NULL && pUnit->IsCombatUnit() && GET_TEAM(GET_PLAYER(pUnit->getOwner()).getTeam()).isAtWar(GET_PLAYER(getOwner()).getTeam()))
-				{
-					iEnemyUnits++;
-				}
-			}
-		}
-	}
-	if(iEnemyUnits > 0)
-	{
-		iDefenseYield -= iEnemyUnits * 25;
-	}
-	if(iDamage > 0)
-	{
-		iDefenseYield -= iDamage;
-	}
-
 	//Per Pop Yield
 	if(getPopulation() != 0)
 	{
@@ -12975,61 +13108,10 @@ int CvCity::getUnhappinessFromDefenseNeeded() const
 {
 	int iThreshold = GET_PLAYER(getOwner()).getGlobalAverage(YIELD_PRODUCTION);
 
-	if(isCapital())
-	{
-		if(GET_PLAYER(getOwner()).GetPlayerTraits()->IsNoAnnexing() || GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE))
-		{
-			iThreshold += ((iThreshold * (GC.getBALANCE_HAPPINESS_CAPITAL_MODIFIER() * 2))  / 100);
-		}
-		else
-		{
-			iThreshold += ((iThreshold * GC.getBALANCE_HAPPINESS_CAPITAL_MODIFIER()) / 100);
-		}
-	}
-#if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
-	//Trait is % reduction of this value (higher trait = lower threshold).
-	if(GET_PLAYER(getOwner()).GetPlayerTraits()->GetDefenseHappinessChange() != 0)
-	{
-		iThreshold -= ((GET_PLAYER(getOwner()).GetPlayerTraits()->GetDefenseHappinessChange() * iThreshold) / 100);
-	}
-	//Policy cuts threshold for this value (bigger negative number = lower threshold).
-	if(GET_PLAYER(getOwner()).GetDefenseUnhappinessMod() != 0)
-	{
-		iThreshold += ((GET_PLAYER(getOwner()).GetDefenseUnhappinessMod() * iThreshold) / 100);
-	}
-	//Capital only -  Policy cuts threshold for this value (bigger negative number = lower threshold).
-	if(GET_PLAYER(getOwner()).GetDefenseUnhappinessModCapital() != 0)
-	{
-		if(isCapital())
-		{
-			iThreshold += ((GET_PLAYER(getOwner()).GetDefenseUnhappinessModCapital() * iThreshold) / 100);
-		}
-	}
-	//Buildings decrease this by a flat integer.
-	if(GetDefenseUnhappiness() != 0)
-	{
-		iThreshold += ((GetDefenseUnhappiness() * (max(1, getPopulation()) / 2)) / 100);
-	}
-	int iLoop = 0;
-	for(const CvCity* pLoopCity = GET_PLAYER(getOwner()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iLoop))
-	{
-		if(pLoopCity != NULL)
-		{
-			//Mod from global unhappiness building modifier.
-			if(pLoopCity->GetDefenseUnhappinessGlobal() != 0)
-			{
-				iThreshold += ((pLoopCity->GetDefenseUnhappinessGlobal() * (max(1, getPopulation()) / 2)) / 100);
-			}
-		}		
-	}
-	if(IsPuppet())
-	{
-		iThreshold += ((GET_PLAYER(getOwner()).GetPuppetUnhappinessMod() * iThreshold) / 100);
-	}
-#endif
-	//Increase threshold based on # of cities. Is slight, but makes a difference.
-	int iNumCities = (GET_PLAYER(getOwner()).getNumCities() * GC.getBALANCE_HAPPINESS_BASE_CITY_COUNT_MULTIPLIER());
-	iThreshold *= (100 + iNumCities);
+	int iModifier = getThresholdAdditions();
+	iModifier += getThresholdSubtractions(YIELD_PRODUCTION);
+
+	iThreshold *= (iModifier + 100);
 	iThreshold /= 100;
 
 	//This is for LUA.
@@ -13102,61 +13184,10 @@ int CvCity::getUnhappinessFromGoldNeeded() const
 {
 	int iThreshold = GET_PLAYER(getOwner()).getGlobalAverage(YIELD_GOLD);
 
-	if(isCapital())
-	{
-		if(GET_PLAYER(getOwner()).GetPlayerTraits()->IsNoAnnexing() || GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE))
-		{
-			iThreshold += ((iThreshold * (GC.getBALANCE_HAPPINESS_CAPITAL_MODIFIER() * 2))  / 100);
-		}
-		else
-		{
-			iThreshold += ((iThreshold * GC.getBALANCE_HAPPINESS_CAPITAL_MODIFIER()) / 100);
-		}
-	}
-#if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
-	//Trait is % reduction of this value (higher trait = lower threshold).
-	if(GET_PLAYER(getOwner()).GetPlayerTraits()->GetPovertyHappinessChange() != 0)
-	{
-		iThreshold -= ((GET_PLAYER(getOwner()).GetPlayerTraits()->GetPovertyHappinessChange() * iThreshold) / 100);
-	}
-	//Policy cuts threshold for this value (bigger negative number = lower threshold).
-	if(GET_PLAYER(getOwner()).GetPovertyUnhappinessMod() != 0)
-	{
-		iThreshold += ((GET_PLAYER(getOwner()).GetPovertyUnhappinessMod() * iThreshold) / 100);
-	}
-	//Capital only -  Policy cuts threshold for this value (bigger negative number = lower threshold).
-	if(GET_PLAYER(getOwner()).GetPovertyUnhappinessModCapital() != 0)
-	{
-		if(isCapital())
-		{
-			iThreshold += ((GET_PLAYER(getOwner()).GetPovertyUnhappinessModCapital() * iThreshold) / 100);
-		}
-	}
-	//Buildings decrease this by a flat integer.
-	if(GetPovertyUnhappiness() != 0)
-	{
-		iThreshold += ((GetPovertyUnhappiness() * (max(1, getPopulation()) / 2)) / 100);
-	}
-	int iLoop = 0;
-	for(const CvCity* pLoopCity = GET_PLAYER(getOwner()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwner()).nextCity(&iLoop))
-	{
-		if(pLoopCity != NULL)
-		{
-			//Mod from global unhappiness building modifier.
-			if(pLoopCity->GetPovertyUnhappinessGlobal() != 0)
-			{
-				iThreshold += ((pLoopCity->GetPovertyUnhappinessGlobal() * (max(1, getPopulation()) / 2)) / 100);
-			}
-		}		
-	}
-	if(IsPuppet())
-	{
-		iThreshold += ((GET_PLAYER(getOwner()).GetPuppetUnhappinessMod() * iThreshold) / 100);
-	}
-#endif
-	//Increase threshold based on # of cities. Is slight, but makes a difference.
-	int iNumCities = (GET_PLAYER(getOwner()).getNumCities() * GC.getBALANCE_HAPPINESS_BASE_CITY_COUNT_MULTIPLIER());
-	iThreshold *= (100 + iNumCities);
+	int iModifier = getThresholdAdditions();
+	iModifier += getThresholdSubtractions(YIELD_GOLD);
+
+	iThreshold *= (iModifier + 100);
 	iThreshold /= 100;
 
 	return iThreshold;
@@ -13220,6 +13251,10 @@ int CvCity::getUnhappinessFromConnection() const
 		return 0;
 	}
 	if(IsResistance())
+	{
+		return 0;
+	}
+	if(isCapital() && !IsBlockaded())
 	{
 		return 0;
 	}
@@ -13525,6 +13560,11 @@ int CvCity::getUnhappinessFromMinority() const
 				fUnhappiness += (float) ((GET_PLAYER(getOwner()).GetPuppetUnhappinessMod() * fUnhappiness) / 100);
 			}
 #endif
+			int iEra = GET_PLAYER(getOwner()).GetCurrentEra() * 25;
+			if(iEra > 0)
+			{
+				fUnhappiness -= (float)((iMinority + (100 + iEra)) / 100);
+			}
 			if(fUnhappiness < 0)
 			{
 				return 0;
@@ -18067,65 +18107,80 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
 				{
 					if(owningPlayer.getYieldFromConstruction(YIELD_CULTURE) > 0)
 					{
-						owningPlayer.changeJONSCulture(owningPlayer.getYieldFromConstruction(YIELD_CULTURE));
-						ChangeJONSCultureStored(owningPlayer.getYieldFromConstruction(YIELD_CULTURE));
+						int iYield = owningPlayer.getYieldFromConstruction(YIELD_CULTURE);
+						iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+						iYield /= 100;
+						owningPlayer.changeJONSCulture(iYield);
+						ChangeJONSCultureStored(iYield);
 						if(getOwner() == GC.getGame().getActivePlayer())
 						{
 							char text[256] = {0};
 							fDelay += 0.5f;
-							sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", owningPlayer.getYieldFromConstruction(YIELD_CULTURE));
+							sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", iYield);
 							DLLUI->AddPopupText(getX(),getY(), text, fDelay);
 						}
 					}
 					if(owningPlayer.getYieldFromConstruction(YIELD_GOLD) > 0)
 					{
-						owningPlayer.GetTreasury()->ChangeGold(owningPlayer.getYieldFromConstruction(YIELD_GOLD));
+						int iYield = owningPlayer.getYieldFromConstruction(YIELD_GOLD);
+						iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+						iYield /= 100;
+						owningPlayer.GetTreasury()->ChangeGold(iYield);
 						if(getOwner() == GC.getGame().getActivePlayer())
 						{
 							char text[256] = {0};
 							fDelay += 0.5f;
-							sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]", owningPlayer.getYieldFromConstruction(YIELD_GOLD));
+							sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]", iYield);
 							DLLUI->AddPopupText(getX(),getY(), text, fDelay);
 						}
 					}
 					if(owningPlayer.getYieldFromConstruction(YIELD_FAITH) > 0)
 					{
-						owningPlayer.ChangeFaith(owningPlayer.getYieldFromConstruction(YIELD_FAITH));
+						int iYield = owningPlayer.getYieldFromConstruction(YIELD_FAITH);
+						iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+						iYield /= 100;
+						owningPlayer.ChangeFaith(iYield);
 						if(getOwner() == GC.getGame().getActivePlayer())
 						{
 							char text[256] = {0};
 							fDelay += 0.5f;
-							sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", owningPlayer.getYieldFromConstruction(YIELD_FAITH));
+							sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", iYield);
 							DLLUI->AddPopupText(getX(),getY(), text, fDelay);
 						}
 					}
 					if(owningPlayer.getYieldFromConstruction(YIELD_FOOD) > 0)
 					{
-						changeFood(owningPlayer.getYieldFromConstruction(YIELD_FOOD));
+						int iYield = owningPlayer.getYieldFromConstruction(YIELD_FOOD);
+						iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+						iYield /= 100;
+						changeFood(iYield);
 						if(getOwner() == GC.getGame().getActivePlayer())
 						{
 							char text[256] = {0};
 							fDelay += 0.5f;
-							sprintf_s(text, "[COLOR_GREEN]+%d[ENDCOLOR][ICON_FOOD]", owningPlayer.getYieldFromConstruction(YIELD_FOOD));
+							sprintf_s(text, "[COLOR_GREEN]+%d[ENDCOLOR][ICON_FOOD]", iYield);
 							DLLUI->AddPopupText(getX(),getY(), text, fDelay);
 						}
 					}
 					if(owningPlayer.getYieldFromConstruction(YIELD_SCIENCE) > 0)
 					{
+						int iYield = owningPlayer.getYieldFromConstruction(YIELD_SCIENCE);
+						iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+						iYield /= 100;
 						TechTypes eCurrentTech = GET_PLAYER(getOwner()).GetPlayerTechs()->GetCurrentResearch();
 						if(eCurrentTech == NO_TECH)
 						{
-							GET_PLAYER(getOwner()).changeOverflowResearch(owningPlayer.getYieldFromConstruction(YIELD_SCIENCE));
+							GET_PLAYER(getOwner()).changeOverflowResearch(iYield);
 						}
 						else
 						{
-							GET_TEAM(GET_PLAYER(getOwner()).getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, owningPlayer.getYieldFromConstruction(YIELD_SCIENCE), getOwner());
+							GET_TEAM(GET_PLAYER(getOwner()).getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iYield, getOwner());
 						}
 						if(getOwner() == GC.getGame().getActivePlayer())
 						{
 							char text[256] = {0};
 							fDelay += 0.5f;
-							sprintf_s(text, "[COLOR_BLUE]+%d[ENDCOLOR][ICON_RESEARCH]", owningPlayer.getYieldFromConstruction(YIELD_SCIENCE));
+							sprintf_s(text, "[COLOR_BLUE]+%d[ENDCOLOR][ICON_RESEARCH]", iYield);
 							DLLUI->AddPopupText(getX(),getY(), text, fDelay);
 						}
 					}
@@ -22885,13 +22940,6 @@ bool CvCity::CommitToBuildingUnitForOperation()
 					pushOrder(ORDER_TRAIN, eBestUnit, eUnitAI, false, false, false, true /*bRush*/);
 					OperationSlot thisOperationSlot2 = kPlayer.CityCommitToBuildUnitForOperationSlot(getArea(), getProductionTurnsLeft(), this);
 					m_unitBeingBuiltForOperation = thisOperationSlot2;
-#if defined(MOD_BALANCE_CORE)
-					CitySpecializationTypes eSpecialization = (CitySpecializationTypes) GC.getInfoTypeForString("CITYSPECIALIZATION_MILITARY_TRAINING");
-					if(eSpecialization != NO_CITY_SPECIALIZATION)
-					{
-						GetCityStrategyAI()->SetSpecialization(eSpecialization);
-					}
-#endif
 					return true;
 #if defined(MOD_BALANCE_CORE_MILITARY)
 					}

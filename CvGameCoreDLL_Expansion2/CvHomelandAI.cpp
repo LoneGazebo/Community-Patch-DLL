@@ -207,6 +207,10 @@ CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit, int nMinCandidat
 		if (!IsValidExplorerEndTurnPlot(pUnit, vExplorePlots[ui].pPlot))
 			continue;
 
+		//Ignore plots with units in them
+		if(vExplorePlots[ui].pPlot->getNumUnits() > 0)
+			continue;
+
 		int iDistX = abs( vExplorePlots[ui].pPlot->getX() - iRefX );
 		int iDistY = abs( vExplorePlots[ui].pPlot->getY() - iRefY );
 
@@ -3276,8 +3280,8 @@ void CvHomelandAI::ExecuteExplorerMoves(bool bSecondPass)
 			//Ignore land for sea explorers
 			if(pUnit->getDomainType()==DOMAIN_SEA && !pEvalPlot->isWater())
 				continue;
-			//ignore occupied plots
-			if( pEvalPlot->getBestDefender(NO_PLAYER) != (UnitHandle)NULL)
+			//Ignore plots with units in them
+			if(pEvalPlot->getNumUnits() > 0)
 				continue;
 
 			//get contributions from yet-to-be revealed plots (and goodies)

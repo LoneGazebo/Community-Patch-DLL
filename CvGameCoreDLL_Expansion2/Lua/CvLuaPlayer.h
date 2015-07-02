@@ -641,6 +641,7 @@ protected:
 #endif
 #if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 	LUAAPIEXTN(GetPuppetUnhappinessMod, int);
+	LUAAPIEXTN(GetCapitalUnhappinessModCBP, int);
 #endif
 	static int lGetMinorCivFriendshipLevelWithMajor(lua_State* L);
 	static int lGetActiveQuestForPlayer(lua_State* L); // DEPRECATED
@@ -1120,11 +1121,13 @@ protected:
 	static int lGetInternationalTradeRouteOtherTraitBonus(lua_State* L);
 	static int lGetInternationalTradeRouteRiverModifier(lua_State* L);
 #if defined(MOD_BALANCE_CORE)
+	static int lGetTradeConnectionOpenBordersModifierTimes100(lua_State* L);
 	static int lGetInternationalTradeRouteCorporationModifier(lua_State* L);
 	static int lGetInternationalTradeRouteCorporationModifierScience(lua_State* L);
 	static int lGetNumberofGlobalFranchises(lua_State* L);
 	static int lGetNumberofOffices(lua_State* L);
 	static int lGetCorporationName(lua_State* L);
+	static int lGetCorporationHelper(lua_State* L);
 #endif
 	static int lGetInternationalTradeRouteDomainModifier(lua_State* L);
 	static int lGetInternationalTradeRouteTotal(lua_State* L);

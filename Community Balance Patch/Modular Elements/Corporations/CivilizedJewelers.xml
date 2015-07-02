@@ -39,6 +39,7 @@
 			<CorporationHQID>6</CorporationHQID>
 			<Happiness>3</Happiness>
 			<CorporationID>6</CorporationID>
+			<CorporationHelper>TXT_KEY_CORP_HELPER_CIVILIZED_JEWELERS</CorporationHelper>
 			<FreeBuildingThisCity>BUILDINGCLASS_CIVILIZED_JEWELERS</FreeBuildingThisCity>
 			<TradeRouteRecipientBonus>5</TradeRouteRecipientBonus>
 			<TradeRouteTargetBonus>3</TradeRouteTargetBonus>
@@ -207,10 +208,13 @@
 			<Text>A corporation is a company or group of people authorized to act as a single entity (legally a person) and recognized as such in law. Early incorporated entities were established by charter (i.e. by an ad hoc act granted by a monarch or passed by a parliament or legislature). Most jurisdictions now allow the creation of new corporations through registration. Corporations come in many different types but are usually divided by the law of the jurisdiction where they are chartered into two kinds: by whether or not they can issue stock, or by whether or not they are for profit.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_CIVILIZED_JEWELERS_HQ_STRATEGY">
-			<Text>[NEWLINE][NEWLINE]Receive one [ICON_INTERNATIONAL_TRADE] Trade Route. [ICON_GOLD] Gold from incoming Trade Routes increased by 3, and [ICON_GOLD] Gold from outgoing Trade Routes increased by 5. [NEWLINE][NEWLINE]+3 [ICON_GOLD] Gold to all Monopoly Resources worked by this City that are associated with Civilized Jewelers. All Caravansaries produce +2 [ICON_GOLD] Gold and +2 [ICON_CULTURE] Culture.[NEWLINE][NEWLINE]Remember that each Civilization may only found [COLOR_POSITIVE_TEXT]one[ENDCOLOR] Corporation, so make sure the benefits are applicable to your Victory Strategy!</Text>
+			<Text>Receive one [ICON_INTERNATIONAL_TRADE] Trade Route. [ICON_GOLD] Gold from incoming Trade Routes increased by 3, and [ICON_GOLD] Gold from outgoing Trade Routes increased by 5. [NEWLINE][NEWLINE]+3 [ICON_GOLD] Gold to all Monopoly Resources worked by this City that are associated with Civilized Jewelers. All Caravansaries produce +2 [ICON_GOLD] Gold and +2 [ICON_CULTURE] Culture.[NEWLINE][NEWLINE]Remember that each Civilization may only found [COLOR_POSITIVE_TEXT]one[ENDCOLOR] Corporation, so make sure the benefits are applicable to your Victory Strategy!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_CIVILIZED_JEWELERS_HQ_HELP">
 			<Text>Requires a Global Monopoly on [ICON_RES_GOLD] Gold, [ICON_RES_SILVER] Silver, [ICON_RES_GEMS] Gems, or [ICON_RES_PEARLS] Pearls.[NEWLINE][NEWLINE]Receive a free Civlized Jewelers Office in this City, and unlocks construction of Civlized Jewelers Offices in owned Cities.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORP_HELPER_CIVILIZED_JEWELERS">
+			<Text>Resource Bonus: [ICON_RES_GOLD] Gold, [ICON_RES_SILVER] Silver, [ICON_RES_GEMS] Gems, and [ICON_RES_PEARLS] Pearls gain additional [ICON_GOLD] Gold.[NEWLINE][NEWLINE]Office Bonus: +5% [ICON_GREAT_PEOPLE] Great Person Rate for every Global Franchise.[NEWLINE][NEWLINE]Trade Route Bonus: Trade Routes to a foreign City with a Civilized Jewelers Franchise increases the origin City's [ICON_GOLD] Gold rate by +5%.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_CIVILIZED_JEWELERS_FRANCHISE">
@@ -233,10 +237,10 @@
 			<Text>A corporation is a company or group of people authorized to act as a single entity (legally a person) and recognized as such in law. Early incorporated entities were established by charter (i.e. by an ad hoc act granted by a monarch or passed by a parliament or legislature). Most jurisdictions now allow the creation of new corporations through registration. Corporations come in many different types but are usually divided by the law of the jurisdiction where they are chartered into two kinds: by whether or not they can issue stock, or by whether or not they are for profit.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_CIVILIZED_JEWELERS_STRATEGY">
-			<Text>When a [ICON_INTERNATIONAL_TRADE] Trade Route to a foreign City from this City is completed, a Civilized Jewelers Franchise is constructed in the foreign City.[NEWLINE][NEWLINE]Civilized Jewelers cannot be sold or destroyed by the player, and increases the [ICON_GREAT_PEOPLE] Great Person rate of all Civilized Jewelers's Offices by +5%.</Text>
+			<Text>When a [ICON_INTERNATIONAL_TRADE] Trade Route between a foreign City and this City completes, a Civilized Jewelers Franchise is constructed in the foreign City.[NEWLINE][NEWLINE]Civilized Jewelers cannot be sold or destroyed by the player, and increases the [ICON_GREAT_PEOPLE] Great Person rate of all Civilized Jewelers's Offices by +5%.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_CIVILIZED_JEWELERS_HELP">
-			<Text>+5% [ICON_GREAT_PEOPLE] Great Person rate in this City. Additional +5% for every Civilized Jeweler's Franchise.[NEWLINE][NEWLINE]Every Trade Route from this City to a foreign City with a Civilized Jewelers increases this City's [ICON_GOLD] Gold rate by +5%.</Text>
+			<Text>+5% [ICON_GREAT_PEOPLE] Great Person rate in City, and an additional +5% [ICON_GREAT_PEOPLE] Great Person rate for every Civilized Jeweler's Franchise.[NEWLINE][NEWLINE]Every Trade Route from this City to a foreign City with a Civilized Jewelers Franchise increases this City's [ICON_GOLD] Gold rate by +5%.</Text>
 		</Row>
 	</Language_en_US>
 </GameData>

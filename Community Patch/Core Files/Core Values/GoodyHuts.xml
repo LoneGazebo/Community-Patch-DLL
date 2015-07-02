@@ -186,13 +186,13 @@
 			<Text>You find a nomadic tribe that wishes to join your Civilization, granting you additional land around the nearest City!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GOODY_CHOOSE_PRODUCTION">
-			<Text>Supplies that boost [ICON_PRODUCTION] Production in your nearest City.</Text>
+			<Text>Supplies for [ICON_PRODUCTION] Production in your nearest City.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GOODY_CHOOSE_GOLDEN_AGE">
-			<Text>Relics that grant points towards a [ICON_GOLDEN_AGE] Golden Age.</Text>
+			<Text>Relics for [ICON_GOLDEN_AGE] Golden Age points.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GOODY_CHOOSE_FREE_TILES">
-			<Text>A nomadic tribe that grants you additional land around your nearest City.</Text>
+			<Text>A tribe that gives you land around your nearest City.</Text>
 		</Row>
 	</Language_en_US>
 </GameData>

@@ -115,25 +115,6 @@
 			<Where Name="AI_CITYSTRATEGY_YIELD_DEFICIENT_GOLD" />
 		</Update>
 		
-		<!-- Citizen Management Stuff -->
-		<!-- These 3 make sure that science is not undervalued and culture is not overvalued. Production was a bit overvalued before -->
-		<Update>
-			<Set Value="12" />
-			<Where Name="AI_CITIZEN_VALUE_CULTURE" />
-		</Update>
-		<Update>
-			<Set Value="10" />
-			<Where Name="AI_CITIZEN_VALUE_SCIENCE" />
-		</Update>
-		<Update>
-			<Set Value="11" />
-			<Where Name="AI_CITIZEN_VALUE_PRODUCTION" />
-		</Update>
-		<Update>
-			<Set Value="9" />
-			<Where Name="AI_CITIZEN_VALUE_GOLD" />
-		</Update>
-		
 		<!-- Religion -->
 		<Update>
 			<!-- Unowned but in range more valuable than before to make sure AI knows it's in a good position -->

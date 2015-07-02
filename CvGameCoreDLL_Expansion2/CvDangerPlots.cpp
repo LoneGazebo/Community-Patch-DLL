@@ -871,6 +871,9 @@ void CvDangerPlots::AssignUnitDangerValue(CvUnit* pUnit, CvPlot* pPlot)
 	if (IsDangerByRelationshipZero(pUnit->getOwner(), pPlot))
 		return;
 
+	if(GC.getGame().getGameTurn() <= 1)
+		return;
+
 	const int iPlotX = pPlot->getX();
 	const int iPlotY = pPlot->getY();
 	const int idx = GC.getMap().plotNum(iPlotX, iPlotY);

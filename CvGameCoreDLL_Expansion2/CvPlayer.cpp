@@ -365,6 +365,7 @@ CvPlayer::CvPlayer() :
 	, m_iIlliteracyUnhappinessModCapital("CvPlayer::m_iIlliteracyUnhappinessModCapital", m_syncArchive)
 	, m_iMinorityUnhappinessModCapital("CvPlayer::m_iMinorityUnhappinessModCapital", m_syncArchive)
 	, m_iPuppetUnhappinessMod("CvPlayer::m_iPuppetUnhappinessMod", m_syncArchive)
+	, m_iCapitalUnhappinessModCBP("CvPlayer::m_iCapitalUnhappinessModCBP", m_syncArchive)
 	, m_iNoUnhappfromXSpecialists("CvPlayer::m_iNoUnhappfromXSpecialists", m_syncArchive)
 	, m_iNoUnhappfromXSpecialistsCapital("CvPlayer::m_iNoUnhappfromXSpecialistsCapital", m_syncArchive)
 	, m_iWarWearinessModifier("CvPlayer::m_iWarWearinessModifier", m_syncArchive)
@@ -1290,6 +1291,7 @@ void CvPlayer::uninit()
 	m_iIlliteracyUnhappinessModCapital = 0;
 	m_iMinorityUnhappinessModCapital = 0;
 	m_iPuppetUnhappinessMod = 0;
+	m_iCapitalUnhappinessModCBP = 0;
 	m_iNoUnhappfromXSpecialists = 0;
 	m_iNoUnhappfromXSpecialistsCapital = 0;
 	m_iWarWearinessModifier = 0;
@@ -1936,7 +1938,9 @@ void CvPlayer::initFreeUnits(CvGameInitialItemsOverrides& /*kOverrides*/)
 	CvHandicapInfo& gameHandicap = GC.getGame().getHandicapInfo();
 	CvHandicapInfo& playerHandicap = getHandicapInfo();
 	CvCivilizationInfo& playerCivilization = getCivilizationInfo();
-
+#if defined(MOD_BALANCE_CORE)
+	int iFree = 0;
+#endif
 	for(iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
 	{
 		const UnitClassTypes eUnitClass = static_cast<UnitClassTypes>(iI);
@@ -1949,7 +1953,30 @@ void CvPlayer::initFreeUnits(CvGameInitialItemsOverrides& /*kOverrides*/)
 			{
 				iFreeCount = playerCivilization.getCivilizationFreeUnitsClass(iI);
 				iDefaultAI = playerCivilization.getCivilizationFreeUnitsDefaultUnitAI(iI);
-
+#if defined(MOD_BALANCE_CORE)
+				if(!canTrain(eLoopUnit) && iDefaultAI != UNITAI_SETTLE) 
+				{
+					// Loop through adding the available units
+					for(int iUnitLoop = 0; iUnitLoop < GC.GetGameUnits()->GetNumUnits(); iUnitLoop++)
+					{
+						const UnitTypes eUnit = static_cast<UnitTypes>(iUnitLoop);
+						CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
+						if(pkUnitInfo)
+						{
+							// Make sure this unit can be built now
+							if(canTrain(eUnit))
+							{
+								// Make sure it matches the requested unit AI type
+								if(pkUnitInfo->GetDefaultUnitAIType() == iDefaultAI)
+								{
+									eLoopUnit = eUnit;
+									break;
+								}
+							}
+						}
+					}
+				}
+#endif
 				iFreeCount *= (gameStartEra.getStartingUnitMultiplier() + ((!isHuman()) ? gameHandicap.getAIStartingUnitMultiplier() : 0));
 
 				// City states only get 1 of something
@@ -1959,6 +1986,12 @@ void CvPlayer::initFreeUnits(CvGameInitialItemsOverrides& /*kOverrides*/)
 				for(iJ = 0; iJ < iFreeCount; iJ++)
 				{
 					addFreeUnit(eLoopUnit,(UnitAITypes)iDefaultAI);
+#if defined(MOD_BALANCE_CORE)
+					if(iDefaultAI != UNITAI_SETTLE)
+					{
+						iFree++;
+					}
+#endif
 				}
 			}
 		}
@@ -1979,10 +2012,11 @@ void CvPlayer::initFreeUnits(CvGameInitialItemsOverrides& /*kOverrides*/)
 	// Defensive units
 	iFreeCount = gameStartEra.getStartingDefenseUnits();
 	iFreeCount += playerHandicap.getStartingDefenseUnits();
-
 	if(!isHuman())
 		iFreeCount += gameHandicap.getAIStartingDefenseUnits();
-
+#if defined(MOD_BALANCE_CORE)
+	iFreeCount -= iFree;
+#endif
 	if(iFreeCount > 0 && !isMinorCiv())
 		addFreeUnitAI(UNITAI_DEFENSE, iFreeCount);
 
@@ -6923,14 +6957,19 @@ bool CvPlayer::IsCapitalConnectedToPlayer(PlayerTypes ePlayer, RouteTypes eRestr
 bool CvPlayer::IsCapitalConnectedToCity(CvCity* pCity, RouteTypes eRestrictRoute)
 {
 #if defined(MOD_BALANCE_CORE)
-	return (eRestrictRoute==ROUTE_RAILROAD) ? pCity->IsIndustrialRouteToCapital() : pCity->IsRouteToCapitalConnected();
-#else
+	if(pCity->isCapital())
+	{
+		return true;
+	}
+#endif
 	CvCity* pPlayerCapital = getCapitalCity();
 	if(pPlayerCapital == NULL)
 	{
 		return false;
 	}
-
+#if defined(MOD_BALANCE_CORE)
+	return IsPlotConnectedToPlot(GetID(), pPlayerCapital->plot(), pCity->plot(), eRestrictRoute);
+#else
 	return IsPlotConnectedToPlot(pPlayerCapital->plot(), pCity->plot(), eRestrictRoute);
 #endif
 }
@@ -15310,30 +15349,21 @@ int CvPlayer::getGlobalAverage(YieldTypes eYield) const
 {	
 	int iYield = 0;
 
-	//Let's modify this based on the number of player techs - more techs means the threshold goes higher.
-	int iTech = (GET_TEAM(getTeam()).GetTeamTechs()->GetNumTechsKnown() * 100);
-	//Dividing it by the num of techs to get a % - num of techs artificially increased to slow rate of growth
-	iTech /= (1 + ((int)(GC.getNumTechInfos() * /*1.5*/ GC.getBALANCE_HAPPINESS_TECH_BASE_MODIFIER())));
-
 	if(eYield == YIELD_CULTURE)
 	{
 		iYield = GC.getGame().GetCultureAverage();
-		iYield += ((iYield * iTech) / 100);
 	}
 	else if(eYield == YIELD_SCIENCE)
 	{
 		iYield = GC.getGame().GetScienceAverage();
-		iYield += ((iYield * iTech) / 100);
 	}
 	else if(eYield == YIELD_PRODUCTION)
 	{
 		iYield = GC.getGame().GetDefenseAverage();
-		iYield += ((iYield * iTech) / 100);
 	}
 	else if(eYield == YIELD_GOLD)
 	{
 		iYield = GC.getGame().GetGoldAverage();
-		iYield += ((iYield * iTech) / 100);
 	}
 
 	return iYield;
@@ -21109,11 +21139,20 @@ void CvPlayer::ChangeMinorityUnhappinessModCapital(int iChange)
 	m_iMinorityUnhappinessModCapital += iChange;
 }
 //	--------------------------------------------------------------------------------
+int CvPlayer::GetCapitalUnhappinessModCBP() const
+{
+	return m_iCapitalUnhappinessModCBP;
+}
+//	--------------------------------------------------------------------------------
+void CvPlayer::ChangeCapitalUnhappinessModCBP(int iChange)
+{
+	m_iCapitalUnhappinessModCBP += iChange;
+}
+//	--------------------------------------------------------------------------------
 int CvPlayer::GetPuppetUnhappinessMod() const
 {
 	return m_iPuppetUnhappinessMod;
 }
-
 //	--------------------------------------------------------------------------------
 void CvPlayer::ChangePuppetUnhappinessMod(int iChange)
 {
@@ -29837,39 +29876,22 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 		}
 		changeExtraMoves(pPolicy->GetExtraMoves() * iChange);
 
-		changeBestRangedUnitSpawnSettle(pPolicy->GetBestRangedUnitSpawnSettle() * iChange);
-
-		if(GetBestRangedUnitSpawnSettle() > 0)
+		if(pPolicy->GetBestRangedUnitSpawnSettle() > 0)
 		{
-			UnitTypes eType = GET_PLAYER(GetID()).getCapitalCity()->GetCityStrategyAI()->GetUnitProductionAI()->RecommendUnit(UNITAI_RANGED, false, true, NULL);
-			if(eType != NO_UNIT)
-			{
-				int iResult = GET_PLAYER(GetID()).getCapitalCity()->CreateUnit(eType, UNITAI_RANGED, false /*bUseToSatisfyOperation*/);
+			changeBestRangedUnitSpawnSettle(pPolicy->GetBestRangedUnitSpawnSettle() * iChange);
 
-				CvAssertMsg(iResult != FFreeList::INVALID_INDEX, "Unable to create unit");
-
-				if (iResult != FFreeList::INVALID_INDEX)
-				{
-					CvUnit* pUnit = GET_PLAYER(GetID()).getUnit(iResult);
-					if (!pUnit->jumpToNearestValidPlot())
-					{
-						pUnit->kill(false);	// Could not find a valid spot!
-					}
-					pUnit->setMoves(1);	
-				}
-			}
-			else
+			if(getCapitalCity() != NULL)
 			{
-				UnitTypes eType = GET_PLAYER(GetID()).getCapitalCity()->GetCityStrategyAI()->GetUnitProductionAI()->RecommendUnit(UNITAI_DEFENSE, false, true, NULL);
+				UnitTypes eType = getCapitalCity()->GetCityStrategyAI()->GetUnitProductionAI()->RecommendUnit(UNITAI_RANGED, false /*Uses strategic resource*/, true, NULL);
 				if(eType != NO_UNIT)
 				{
-					int iResult = GET_PLAYER(GetID()).getCapitalCity()->CreateUnit(eType, UNITAI_DEFENSE, false /*bUseToSatisfyOperation*/);
+					int iResult = getCapitalCity()->CreateUnit(eType, UNITAI_RANGED, false /*bUseToSatisfyOperation*/);
 
 					CvAssertMsg(iResult != FFreeList::INVALID_INDEX, "Unable to create unit");
 
 					if (iResult != FFreeList::INVALID_INDEX)
 					{
-						CvUnit* pUnit = GET_PLAYER(GetID()).getUnit(iResult);
+						CvUnit* pUnit = getUnit(iResult);
 						if (!pUnit->jumpToNearestValidPlot())
 						{
 							pUnit->kill(false);	// Could not find a valid spot!
@@ -29877,8 +29899,27 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 						pUnit->setMoves(1);	
 					}
 				}
-			}
+				else
+				{
+					UnitTypes eType = getCapitalCity()->GetCityStrategyAI()->GetUnitProductionAI()->RecommendUnit(UNITAI_DEFENSE, false, true, NULL);
+					if(eType != NO_UNIT)
+					{
+						int iResult = getCapitalCity()->CreateUnit(eType, UNITAI_DEFENSE, false /*bUseToSatisfyOperation*/);
 
+						CvAssertMsg(iResult != FFreeList::INVALID_INDEX, "Unable to create unit");
+
+						if (iResult != FFreeList::INVALID_INDEX)
+						{
+							CvUnit* pUnit = getUnit(iResult);
+							if (!pUnit->jumpToNearestValidPlot())
+							{
+								pUnit->kill(false);	// Could not find a valid spot!
+							}
+							pUnit->setMoves(1);	
+						}
+					}
+				}
+			}
 		}
 	}
 #endif
@@ -31297,6 +31338,7 @@ void CvPlayer::Read(FDataStream& kStream)
 	MOD_SERIALIZE_READ(53, kStream, m_iIlliteracyUnhappinessModCapital, 0);
 	MOD_SERIALIZE_READ(53, kStream, m_iMinorityUnhappinessModCapital, 0);
 	MOD_SERIALIZE_READ(53, kStream, m_iPuppetUnhappinessMod, 0);
+	MOD_SERIALIZE_READ(66, kStream, m_iCapitalUnhappinessModCBP, 0);
 	MOD_SERIALIZE_READ(54, kStream, m_iNoUnhappfromXSpecialists, 0);
 	MOD_SERIALIZE_READ(54, kStream, m_iNoUnhappfromXSpecialistsCapital, 0);
 	MOD_SERIALIZE_READ(66, kStream, m_iWarWearinessModifier, 0);
@@ -31990,6 +32032,7 @@ void CvPlayer::Write(FDataStream& kStream) const
 	MOD_SERIALIZE_WRITE(kStream, m_iIlliteracyUnhappinessModCapital);
 	MOD_SERIALIZE_WRITE(kStream, m_iMinorityUnhappinessModCapital);
 	MOD_SERIALIZE_WRITE(kStream, m_iPuppetUnhappinessMod);
+	MOD_SERIALIZE_WRITE(kStream, m_iCapitalUnhappinessModCBP);
 	MOD_SERIALIZE_WRITE(kStream, m_iNoUnhappfromXSpecialists);
 	MOD_SERIALIZE_WRITE(kStream, m_iNoUnhappfromXSpecialistsCapital);
 	MOD_SERIALIZE_WRITE(kStream, m_iWarWearinessModifier);
@@ -33834,6 +33877,15 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, bool bEscorted, int iTa
 		}
 
 		if(!bEscorted && pPlot->isVisibleEnemyUnit(eOwner))
+		{
+			//--------------
+			if (bLogging) 
+			dump << pPlot << ",1," << iDanger << "," << iFertility << ",-1" << ",-4" << std::endl;
+			//--------------
+			continue;
+		}
+
+		if(pUnit && pPlot->getArea() != pUnit->getArea() && !GET_TEAM(GET_PLAYER(GetID()).getTeam()).canEmbark())
 		{
 			//--------------
 			if (bLogging) 

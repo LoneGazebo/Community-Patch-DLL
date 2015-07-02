@@ -1,3 +1,8 @@
+-- Reversed Tourism for Open Borders
+UPDATE Language_en_US
+SET Text = '+{1_Num}% Bonus for Open Borders from:[NEWLINE]   '
+WHERE Tag = 'TXT_KEY_CO_CITY_TOURISM_OPEN_BORDERS_BONUS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
+
 -- Fixed diacritics for spy names.
 
 UPDATE Language_en_US
@@ -41,6 +46,10 @@ WHERE Tag = 'TXT_KEY_DIPLO_CAUGHT_STEALING';
 UPDATE Language_en_US
 SET Text = '[COLOR_POSITIVE_TEXT]We are trade partners.[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_DIPLO_TRADE_PARTNER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
+
+UPDATE Language_en_US
+SET Text = '[COLOR_POSITIVE_TEXT]You have shared intrigue with them.[ENDCOLOR]'
+WHERE Tag = 'TXT_KEY_DIPLO_SHARED_INTRIGUE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
 
 -- Changed Diplo Text for Assistance
 

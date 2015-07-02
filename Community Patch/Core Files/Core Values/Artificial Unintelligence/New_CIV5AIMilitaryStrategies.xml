@@ -18,7 +18,7 @@
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_ERADICATE_BARBARIANS_CRITICAL</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_OFFENSE</FlavorType>
-			<Flavor>15</Flavor>
+			<Flavor>25</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_ERADICATE_BARBARIANS_CRITICAL</AIMilitaryStrategyType>
@@ -49,7 +49,7 @@
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_AT_WAR</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_NUKE</FlavorType>
-			<Flavor>20</Flavor>
+			<Flavor>25</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_EMPIRE_DEFENSE</AIMilitaryStrategyType>

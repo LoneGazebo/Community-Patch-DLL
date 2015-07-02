@@ -9,6 +9,12 @@
 			<YieldType>YIELD_SCIENCE</YieldType>
 			<YieldChange>2</YieldChange>
 		</Row>
+		<Row>
+			<PolicyType>POLICY_SOCIALIST_REALISM</PolicyType>
+			<BuildingClassType>BUILDINGCLASS_MUSEUM</BuildingClassType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<YieldChange>2</YieldChange>
+		</Row>
 	</Policy_BuildingClassYieldChanges>
 	<!-- Academy of Sciences -->
 	<Policy_FreeBuilding>
@@ -42,7 +48,7 @@
 	<!-- Patriotic War -->
 	<Language_en_US>
 		<Row Tag="TXT_KEY_POLICY_UNIVERSAL_HEALTHCARE_O_HELP">
-			<Text>[COLOR_POSITIVE_TEXT]Peace, Land, Bread[ENDCOLOR][NEWLINE]Reduces [ICON_HAPPINESS_3] Poverty by 20% in all cities.</Text>
+			<Text>[COLOR_POSITIVE_TEXT]Peace, Land, Bread[ENDCOLOR][NEWLINE][ICON_HAPPINESS_3] Poverty reduced by 20% and [ICON_FOOD] Growth increased by 20% in all cities.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_POLICY_UNIVERSAL_HEALTHCARE_O">
 			<Text>Peace, Land, Bread</Text>

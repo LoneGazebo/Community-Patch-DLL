@@ -262,6 +262,11 @@ void CvCityCitizens::DoTurn()
 		}
 #endif
 	}
+	else if(m_pCity->IsRazing() || m_pCity->IsResistance())
+	{
+		SetNoAutoAssignSpecialists(true);
+		SetForcedAvoidGrowth(true);
+	}
 	else if(!thisPlayer.isHuman())
 	{
 		CitySpecializationTypes eWonderSpecializationType = thisPlayer.GetCitySpecializationAI()->GetWonderSpecialization();
@@ -419,14 +424,9 @@ void CvCityCitizens::DoTurn()
 			}
 		}
 	}
-	if(!thisPlayer.isHuman() && thisPlayer.IsEmpireVeryUnhappy() && (GetCity()->getPopulation() > 20))
+	if(!thisPlayer.isHuman() && thisPlayer.IsEmpireVeryUnhappy() && (GetCity()->getPopulation() > 25))
 	{
-		thisPlayer.CalculateHappiness();
-		//This city contributing a lot of unhappiness?
-		if(GetCity()->getUnhappyCitizenCount() > (GetCity()->getPopulation() / 2))
-		{
-			SetForcedAvoidGrowth(true);
-		}
+		SetForcedAvoidGrowth(true);
 	}
 	CvAssertMsg((GetNumCitizensWorkingPlots() + GetTotalSpecialistCount() + GetNumUnassignedCitizens()) <= GetCity()->getPopulation(), "Gameplay: More workers than population in the city.");
 
@@ -613,7 +613,12 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, bool bUseAllowGrowthFlag)
 	int iExcessFoodTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - (m_pCity->foodConsumption() * 100);
 #endif
 	bool bAvoidGrowth = IsAvoidGrowth();
-
+#if defined(MOD_BALANCE_CORE)
+	int iFoodNeeded = (m_pCity->growthThreshold() * 100);
+	int iRemainder = 0;
+	iRemainder = (max(iFoodNeeded, 1) / max((iExcessFoodTimes100 * 6), 1));
+	iFoodYieldValue *= iRemainder;
+#endif
 	// City Focus
 	CityAIFocusTypes eFocus = GetFocusType();
 	if(eFocus == CITY_AI_FOCUS_TYPE_FOOD)
@@ -641,13 +646,33 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, bool bUseAllowGrowthFlag)
 		iFaithYieldValue *= 3;
 #if defined(MOD_BALANCE_CORE)
 		iCultureYieldValue *= 2;
+		ReligionTypes eMajority = GetCity()->GetCityReligions()->GetReligiousMajority();
+		if(eMajority != NO_RELIGION)
+		{
+			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, GetCity()->getOwner());
+			if(pReligion)
+			{
+				if(pReligion->m_Beliefs.GetYieldPerGPT(YIELD_FAITH) > 0)
+				{
+					iGoldYieldValue *= 2;
+				}
+				else if(pReligion->m_Beliefs.GetYieldPerScience(YIELD_FAITH) > 0)
+				{
+					iScienceYieldValue *= 2;
+				}
+				else if(pReligion->m_Beliefs.GetYieldPerBirth(YIELD_FAITH) > 0)
+				{
+					iFoodYieldValue *= 2;
+				}
+			}
+		}
 #endif
 	}
 #if defined(MOD_BALANCE_CORE)
 	else if(eFocus == CITY_AI_FOCUS_TYPE_GREAT_PEOPLE)
 	{
 		iFaithYieldValue *= 2;
-		iCultureYieldValue *= 2;
+		iCultureYieldValue *= 3;
 	}
 #endif
 
@@ -658,13 +683,10 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, bool bUseAllowGrowthFlag)
 		iFoodYieldValue = 0;
 	}
 #if defined(MOD_BALANCE_CORE)
-	else
+	if (eFocus != CITY_AI_FOCUS_TYPE_FOOD)
 	{
-		int iExcessFood = (m_pCity->foodDifference() * 3);
-		int iFoodNeeded = m_pCity->growthThreshold();
-		int iRemainder = 0;
-		iRemainder = (max(iFoodNeeded, 1) / max(iExcessFood, 1));
-		iFoodYieldValue *= iRemainder;
+		iFoodYieldValue *= 2;
+		iFoodYieldValue /= 3;
 	}
 #else
 	// We want to grow here
@@ -840,6 +862,7 @@ bool CvCityCitizens::IsAIWantSpecialistRightNow()
 			iWeight /= 100;
 		}
 	}
+
 	// If we're deficient in Production then we're less likely to want Specialists
 	if(m_pCity->GetCityStrategyAI()->IsYieldDeficient(YIELD_PRODUCTION))
 	{
@@ -852,7 +875,6 @@ bool CvCityCitizens::IsAIWantSpecialistRightNow()
 		iWeight *= 150;
 		iWeight /= 100;
 	}
-
 	// Someone told this AI it should be focused on something that is usually gotten from specialists
 	if(eFocusType == CITY_AI_FOCUS_TYPE_GREAT_PEOPLE)
 	{
@@ -1141,7 +1163,11 @@ BuildingTypes CvCityCitizens::GetAIBestSpecialistBuilding(int& iSpecialistValue)
 					iValue = GetSpecialistValue(eSpecialist);
 
 					// Add a bit more weight to a Building if it has more slots (10% per).  This will bias the AI to fill a single building over spreading Specialists out
+#if defined(MOD_BALANCE_CORE)
+					int iTemp = ((GetNumSpecialistsAllowedByBuilding(*pkBuildingInfo) - 1) * iValue * 15);
+#else
 					int iTemp = ((GetNumSpecialistsAllowedByBuilding(*pkBuildingInfo) - 1) * iValue * 10);
+#endif
 					iTemp /= 100;
 					iValue += iTemp;
 
@@ -1208,7 +1234,7 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist)
 	}
 	if(bGPCity)
 	{
-		iGPPYieldValue *= 2;
+		iGPPYieldValue *= 3;
 	}
 	if(GET_PLAYER(m_pCity->getOwner()).IsEmpireUnhappy())
 	{
@@ -1223,12 +1249,17 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist)
 			pAssumeCityAnnexed = m_pCity;
 		}
 
-		iHappinessYieldValue *= max(1, (GET_PLAYER(m_pCity->getOwner()).GetUnhappinessFromCitySpecialists(pAssumeCityAnnexed, pAssumeCityPuppeted) / 4));
+		iHappinessYieldValue *= max(1, (GET_PLAYER(m_pCity->getOwner()).GetUnhappinessFromCitySpecialists(pAssumeCityAnnexed, pAssumeCityPuppeted) / 5));
 	}
 #endif
 	// How much surplus food are we making?
 	int iExcessFoodTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - (m_pCity->foodConsumption() * 100);
-
+#if defined(MOD_BALANCE_CORE)
+	int iFoodNeeded = (m_pCity->growthThreshold() * 100);
+	int iRemainder = 0;
+	iRemainder = (max(iFoodNeeded, 1) / max((iExcessFoodTimes100 * 6), 1));
+	iFoodYieldValue *= iRemainder;
+#endif
 	bool bAvoidGrowth = IsAvoidGrowth();
 
 	// City Focus
@@ -1244,7 +1275,7 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist)
 	else if(eFocus == CITY_AI_FOCUS_TYPE_CULTURE)
 #if defined(MOD_API_UNIFIED_YIELDS_TOURISM)
 	{
-		iCultureYieldValue *= 3;
+		iCultureYieldValue *= 4;
 		iTourismYieldValue *= 2;
 	}
 #else
@@ -1263,10 +1294,37 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist)
 	else if(eFocus == CITY_AI_FOCUS_TYPE_FAITH)
 	{
 		iFaithYieldValue *= 3;
+#if defined(MOD_BALANCE_CORE)
+		iCultureYieldValue *= 2;
+		ReligionTypes eMajority = GetCity()->GetCityReligions()->GetReligiousMajority();
+		if(eMajority != NO_RELIGION)
+		{
+			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, GetCity()->getOwner());
+			if(pReligion)
+			{
+				if(pReligion->m_Beliefs.GetYieldPerGPT(YIELD_FAITH) > 0)
+				{
+					iGoldYieldValue *= 2;
+				}
+				else if(pReligion->m_Beliefs.GetYieldPerScience(YIELD_FAITH) > 0)
+				{
+					iScienceYieldValue *= 2;
+				}
+				else if(pReligion->m_Beliefs.GetYieldPerBirth(YIELD_FAITH) > 0)
+				{
+					iFoodYieldValue *= 2;
+				}
+			}
+		}
+#endif
 	}
 	else if(eFocus == CITY_AI_FOCUS_TYPE_GREAT_PEOPLE)
 	{
 		iGPPYieldValue *= 3;
+#if defined(MOD_BALANCE_CORE)
+		iCultureYieldValue *= 3;
+		iScienceYieldValue *= 3;
+#endif
 	}
 	// Food can be worth less if we don't want to grow
 	if(iExcessFoodTimes100 >= 0 && bAvoidGrowth)
@@ -1276,13 +1334,10 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist)
 	}
 	// We want to grow here
 #if defined(MOD_BALANCE_CORE)
-	else
+	if (eFocus != CITY_AI_FOCUS_TYPE_FOOD)
 	{
-		int iExcessFood = (m_pCity->foodDifference() * 3);
-		int iFoodNeeded = m_pCity->growthThreshold();
-		int iRemainder = 0;
-		iRemainder = (max(iFoodNeeded, 1) / max(iExcessFood, 1));
-		iFoodYieldValue *= iRemainder;
+		iFoodYieldValue *= 2;
+		iFoodYieldValue /= 3;
 	}
 #else
 	else
@@ -1372,6 +1427,11 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist)
 #endif
 		}
 	}
+	//Every 4 citizens should increase our desire for more specialists slightly.
+	int iPop = m_pCity->getPopulation();
+	iPop /= 4;
+
+	iValue += iPop;
 #endif
 	return iValue;
 }
@@ -1523,8 +1583,17 @@ bool CvCityCitizens::DoAddBestCitizenFromUnassigned()
 		//MANUAL LABOR FOREVER
 		else
 		{
-			// Default Specialist if we can't do anything else
-			ChangeNumDefaultSpecialists(1);
+			CvPlot* pBestPlot = GetBestCityPlotWithValue(iBestPlotValue, /*bBest*/ true, /*bWorked*/ false);
+			if(pBestPlot != NULL)
+			{
+				SetWorkingPlot(pBestPlot, true);
+				return true;
+			}
+			else
+			{
+				// Default Specialist if we can't do anything else
+				ChangeNumDefaultSpecialists(1);
+			}
 		}
 	}
 #else
@@ -1999,12 +2068,24 @@ void CvCityCitizens::DoAlterWorkingPlot(int iIndex)
 					else
 					{
 						// Working Plot
+#if defined(MOD_BALANCE_CORE)
+						if(DoRemoveWorstCitizen(false))
+#else
 						if(DoRemoveWorstCitizen(true))
+#endif
 						{
 							SetWorkingPlot(pPlot, true);
 							SetForcedWorkingPlot(pPlot, true);
 							//ChangeNumUnassignedCitizens(-1);
 						}
+#if defined(MOD_BALANCE_CORE)
+						else if(DoRemoveWorstCitizen(true))
+						{
+							SetWorkingPlot(pPlot, true);
+							SetForcedWorkingPlot(pPlot, true);
+							//ChangeNumUnassignedCitizens(-1);
+						}
+#endif
 						// Good Specialist
 						else
 						{

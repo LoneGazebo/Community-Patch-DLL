@@ -38,6 +38,7 @@
 			<MinAreaSize>-1</MinAreaSize>
 			<CorporationHQID>7</CorporationHQID>
 			<CorporationID>7</CorporationID>
+			<CorporationHelper>TXT_KEY_CORP_HELPER_LANDSEA_EXTRACTORS</CorporationHelper>
 			<FreeBuildingThisCity>BUILDINGCLASS_LANDSEA_EXTRACTORS</FreeBuildingThisCity>
 			<TradeRouteSeaDistanceModifier>100</TradeRouteSeaDistanceModifier>
 			<NumTradeRouteBonus>2</NumTradeRouteBonus>
@@ -265,6 +266,9 @@
 		<Row Tag="TXT_KEY_BUILDING_LANDSEA_EXTRACTORS_HQ_HELP">
 			<Text>Requires a Global Monopoly on [ICON_RES_HORSE] Horse, [ICON_RES_WHALE] Whales, [ICON_RES_CRAB] Crab, or [ICON_RES_IVORY] Ivory.[NEWLINE][NEWLINE] Grants a free LandSea Extractors Office in this City, and unlocks construction of LandSea Extractors Offices in owned Cities.</Text>
 		</Row>
+		<Row Tag="TXT_KEY_CORP_HELPER_LANDSEA_EXTRACTORS">
+			<Text>Resource Bonus: [ICON_RES_HORSE] Horse, [ICON_RES_WHALE] Whales, [ICON_RES_CRAB] Crab, and [ICON_RES_IVORY] Ivory gain additional [ICON_PRODUCTION] Production.[NEWLINE][NEWLINE]Office Bonus: +1 [ICON_PRODUCTION] Production for every Global Franchise.[NEWLINE][NEWLINE]Trade Route Bonus: Trade Routes to a foreign City with a LandSea Extractors Franchise increases the origin City's [ICON_RESEARCH] Science rate by +5%.</Text>
+		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_LANDSEA_EXTRACTORS_FRANCHISE">
 			<Text>LandSea Extractors</Text>
@@ -286,10 +290,10 @@
 			<Text>A corporation is a company or group of people authorized to act as a single entity (legally a person) and recognized as such in law. Early incorporated entities were established by charter (i.e. by an ad hoc act granted by a monarch or passed by a parliament or legislature). Most jurisdictions now allow the creation of new corporations through registration. Corporations come in many different types but are usually divided by the law of the jurisdiction where they are chartered into two kinds: by whether or not they can issue stock, or by whether or not they are for profit.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_LANDSEA_EXTRACTORS_STRATEGY">
-			<Text>When a [ICON_INTERNATIONAL_TRADE] Trade Route to a foreign City from this City is completed, a LandSea Extractors Franchise is constructed in the foreign City.[NEWLINE][NEWLINE]LandSea Extractors cannot be sold or destroyed by the player, and increases the [ICON_PRODUCTION] Production output of all LandSea Extractors Offices by +1.</Text>
+			<Text>When a [ICON_INTERNATIONAL_TRADE] Trade Route between a foreign City and this City completes, a LandSea Extractors Franchise is constructed in the foreign City.[NEWLINE][NEWLINE]LandSea Extractors cannot be sold or destroyed by the player, and increases the [ICON_PRODUCTION] Production output of all LandSea Extractors Offices by +1.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_LANDSEA_EXTRACTORS_HELP">
-			<Text>+2 [ICON_PRODUCTION] Production on all Monopoly Resources associated with LandSea Extractors. +1 [ICON_PRODUCTION] Production for every Hexxon Refineries Franchise.[NEWLINE][NEWLINE]Every Trade Route from this City to a foreign City with a LandSea Extractors increases this City's [ICON_RESEARCH] Science rate by +5%.</Text>
+			<Text>+2 [ICON_PRODUCTION] Production on all Monopoly Resources associated with LandSea Extractors. +1 [ICON_PRODUCTION] Production for every Hexxon Refineries Franchise.[NEWLINE][NEWLINE]Every Trade Route from this City to a foreign City with a LandSea Extractors Franchise increases this City's [ICON_RESEARCH] Science rate by +5%.</Text>
 		</Row>
 	</Language_en_US>
 </GameData>

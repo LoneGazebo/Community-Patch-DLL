@@ -754,7 +754,7 @@ function HappinessTipHandler( control )
 		local iPopulation = pPlayer:GetCurrentTotalPop();
 		local iPopNeeded = pPlayer:GetPopNeededForLux();
 		local iThreshold = pPlayer:GetBaseLuxuryHappiness(); 
-		strText = strText .. "          " .. Locale.ConvertTextKey("TXT_KEY_TP_HAPPINESS_THRESHOLD_VALUE", iPopNeeded, iPopulation, iThreshold, (iThreshold + 1));
+		strText = strText .. "[NEWLINE][NEWLINE][ENDCOLOR]" .. Locale.ConvertTextKey("TXT_KEY_TP_HAPPINESS_THRESHOLD_VALUE", iPopNeeded, iPopulation, iThreshold, (iThreshold + 1));
 -- END
 	
 		-- Happiness from Luxury Variety

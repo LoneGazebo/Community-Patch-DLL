@@ -1073,6 +1073,10 @@ void CvPlayerEspionage::DoAdvancedAction(uint uiSpyIndex)
 			iCityRank = pCity->GetRank();
 			iCityValue = (CalcPerTurn(SPY_STATE_GATHERING_INTEL, pCity, -1) / 1000);
 			iRank += m_pPlayer->GetCulture()->GetInfluenceMajorCivSpyRankBonus(eCityOwner);
+			if(GET_TEAM(GET_PLAYER(pCity->getOwner()).getTeam()).IsAllowsOpenBordersToTeam(m_pPlayer->getTeam()))
+			{
+				iRank += 1;
+			}
 		}
 	}
 	if(eCityOwner != NO_PLAYER)
@@ -3328,27 +3332,39 @@ int CvPlayerEspionage::CalcRequired(int iSpyState, CvCity* pCity, int iSpyIndex)
 	case SPY_STATE_TRAVELLING:
 	{
 #if defined(MOD_BALANCE_CORE_SPIES_ADVANCED)
+		int iTravel = iSpyTurnsToTravel;
 		if(MOD_BALANCE_CORE_SPIES_ADVANCED && pCity != NULL && (pCity->getOwner() != m_pPlayer->GetID()))
-		{
+		{		
 			if(m_pPlayer->GetProximityToPlayer(pCity->getOwner()) == PLAYER_PROXIMITY_NEIGHBORS)
 			{
-				return iSpyTurnsToTravel + 1;
+				iTravel += 1;
 			}
 			else if(m_pPlayer->GetProximityToPlayer(pCity->getOwner()) == PLAYER_PROXIMITY_CLOSE)
 			{
-				return iSpyTurnsToTravel + 2;
+				iTravel += 2;
 			}
 			else if(m_pPlayer->GetProximityToPlayer(pCity->getOwner()) == PLAYER_PROXIMITY_FAR)
 			{
-				return iSpyTurnsToTravel + 3;
+				iTravel += 3;
 			}
 			else if(m_pPlayer->GetProximityToPlayer(pCity->getOwner()) == PLAYER_PROXIMITY_DISTANT)
 			{
-				return iSpyTurnsToTravel + 4;
+				iTravel += 4;
 			}
 		}
-#endif
+		if(GET_TEAM(GET_PLAYER(pCity->getOwner()).getTeam()).IsAllowsOpenBordersToTeam(m_pPlayer->getTeam()))
+		{
+			iTravel /= 2;
+			if(iTravel < 1)
+			{
+				iTravel = 1;
+			}
+		}
+		return iTravel;
+#else
+		}
 		return iSpyTurnsToTravel;
+#endif
 	}
 	break;
 	case SPY_STATE_SURVEILLANCE:
@@ -3377,6 +3393,13 @@ int CvPlayerEspionage::CalcRequired(int iSpyState, CvCity* pCity, int iSpyIndex)
 			uint uiMaxTechCostAdjusted = m_aiMaxTechCost[ePlayer];			
 			uiMaxTechCostAdjusted *= GC.getESPIONAGE_GATHERING_INTEL_COST_PERCENT();
 			uiMaxTechCostAdjusted /= 100;
+#if defined(MOD_BALANCE_CORE)
+			if(GET_TEAM(GET_PLAYER(pCity->getOwner()).getTeam()).IsAllowsOpenBordersToTeam(m_pPlayer->getTeam()))
+			{
+				uiMaxTechCostAdjusted *= (100 - GC.getOPEN_BORDERS_MODIFIER_TRADE_GOLD());
+				uiMaxTechCostAdjusted /= 100;
+			}
+#endif
 			int iMaxTechCostAdjusted = uiMaxTechCostAdjusted;
 			CvAssertMsg(m_aiMaxTechCost[ePlayer] >= 0, "iMaxTechCostAdjusted is below zero. Overflow!");
 			return iMaxTechCostAdjusted;
@@ -4377,7 +4400,7 @@ void CvPlayerEspionage::ProcessSpyMessages()
 		int iDamage = 0;
 		bool bGreatPerson = false;
 		bool bAdvanced = false;
-		if(MOD_BALANCE_CORE_SPIES && GC.getBALANCE_SPY_SABOTAGE_RATE() > 0)
+		if(!pTechEntry && MOD_BALANCE_CORE_SPIES && GC.getBALANCE_SPY_SABOTAGE_RATE() > 0)
 		{
 			if(m_aSpyNotificationMessages[ui].m_eDamagedBuilding != NO_BUILDING)
 			{
@@ -5106,7 +5129,7 @@ void CvPlayerEspionage::ProcessSpyMessages()
 		}
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
-		if(bMultiplayer || !bAdvanced)
+		if(bMultiplayer || (!bAdvanced && !pTechEntry))
 #else
 		if(bMultiplayer || !pTechEntry)
 #endif

@@ -1,6 +1,20 @@
 -- Delete Prereqs
 DELETE FROM Technology_PrereqTechs;
 
+-- Art flip metallurgy/steel
+UPDATE Technologies
+SET PortraitIndex = '14'
+WHERE Type = 'TECH_METALLURGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+-- Art flip metallurgy/steel
+UPDATE Technologies
+SET PortraitIndex = '33'
+WHERE Type = 'TECH_STEEL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
+UPDATE Technologies
+SET PortraitIndex = '28'
+WHERE Type = 'TECH_METAL_CASTING' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
+
 -- AI obsoletion logic
 UPDATE Resources
 SET AIStopTradingEra = 'ERA_FUTURE'

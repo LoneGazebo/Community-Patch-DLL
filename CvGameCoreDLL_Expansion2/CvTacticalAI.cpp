@@ -1751,14 +1751,6 @@ void CvTacticalAI::ProcessDominanceZones()
 			{
 				OutputDebugString( CvString::format("Player %d - Move %s - Prio %d\n", m_pPlayer->GetID(), GC.getTacticalMoveInfo(move.m_eMoveType)->GetType(), move.m_iPriority).c_str() );
 			}
-			else
-			{
-				//if all units have moved we can stop
-				if (m_CurrentTurnUnits.empty())
-				{
-					break;
-				}
-			}
 #endif
 
 			if(move.m_iPriority >= 0)
@@ -4293,14 +4285,23 @@ void CvTacticalAI::ReviewUnassignedUnits()
 
 			OutputDebugString( CvString::format( "unassigned %s tactical unit %s at %d,%d (last move: %s)\n", m_pPlayer->getCivilizationAdjective(), pUnit->getName().c_str(), pUnit->getX(), pUnit->getY(), missionInfo.c_str() ).c_str() ); 
 
+#if defined(MOD_BALANCE_CORE)
+			if (TacticalAIHelpers::PerformRangedOpportunityAttack(pUnit.pointer()))
+			{
+				pUnit->finishMoves();
+				if(GC.getLogging() && GC.getAILogging())
+				{
+					CvString strLogString;
+					strLogString.Format("Ranged unit performing opportunity attack, X: %d, Y: %d", pUnit->plot()->getX(), pUnit->plot()->getY());
+					GET_PLAYER(BARBARIAN_PLAYER).GetTacticalAI()->LogTacticalMessage(strLogString);
+				}
+			}
+#else
 			// Barbarians and air units aren't handled by the operational or homeland AIs
 			if(pUnit->isBarbarian() || pUnit->getDomainType() == DOMAIN_AIR)
 			{
 				pUnit->PushMission(CvTypes::getMISSION_SKIP());
 				pUnit->SetTurnProcessed(true);
-#if defined(MOD_BALANCE_CORE)
-				pUnit->finishMoves();
-#endif
 
 				if(GC.getLogging() && GC.getAILogging())
 				{
@@ -4311,6 +4312,7 @@ void CvTacticalAI::ReviewUnassignedUnits()
 					LogTacticalMessage(strLogString);
 				}
 			}
+#endif
 		}
 	}
 }
@@ -15281,7 +15283,7 @@ int TacticalAIHelpers::GetPlotsUnderRangedAttackFrom(CvUnit* pUnit, ReachablePlo
 //see if we can hit anything from our current plot
 bool TacticalAIHelpers::PerformRangedOpportunityAttack(CvUnit* pUnit)
 {
-	if (!pUnit || !pUnit->IsCanAttackRanged())
+	if (!pUnit || !pUnit->IsCanAttackRanged() || pUnit->getMoves()==0 )
 		return false;
 
 	int iRange = pUnit->GetRange();
