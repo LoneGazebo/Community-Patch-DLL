@@ -11219,7 +11219,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 				{
 #if defined(MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS)
 					if (MOD_DIPLOMACY_CITYSTATES_RESOLUTIONS) 
-						iScore += 300;
+						iScore -= 300;
 					else
 #endif
 					iScore += -25;

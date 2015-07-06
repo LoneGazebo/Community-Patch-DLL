@@ -85,13 +85,6 @@
 			<Yield>2</Yield>
 		</Row>
 	</Building_YieldChanges>
-	<Policy_FreeBuilding>
-		<Row>
-			<PolicyType>POLICY_REFORMATION</PolicyType>
-			<BuildingClassType>BUILDINGCLASS_MONASTERY</BuildingClassType>
-			<Count>1</Count>
-		</Row>
-	</Policy_FreeBuilding>
 	<Policy_ImprovementYieldChanges>
 		<Row>
 			<PolicyType>POLICY_PIETY_FINISHER</PolicyType>
@@ -111,48 +104,53 @@
 	<Policy_BuildingClassHappiness>
 		<Row>
 			<PolicyType>POLICY_PIETY_FINISHER</PolicyType>
-			<BuildingClassType>BUILDINGCLASS_STUPA</BuildingClassType>
-			<Happiness>1</Happiness>
+			<BuildingClassType>BUILDINGCLASS_GRAND_TEMPLE</BuildingClassType>
+			<Happiness>4</Happiness>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_PIETY_FINISHER</PolicyType>
-			<BuildingClassType>BUILDINGCLASS_CHURCH</BuildingClassType>
-			<Happiness>1</Happiness>
+			<BuildingClassType>BUILDINGCLASS_GRAND_OSSUARY</BuildingClassType>
+			<Happiness>4</Happiness>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_PIETY_FINISHER</PolicyType>
-			<BuildingClassType>BUILDINGCLASS_MANDIR</BuildingClassType>
-			<Happiness>1</Happiness>
+			<BuildingClassType>BUILDINGCLASS_APOSTOLIC_PALACE</BuildingClassType>
+			<Happiness>4</Happiness>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_PIETY_FINISHER</PolicyType>
-			<BuildingClassType>BUILDINGCLASS_SYNAGOGUE</BuildingClassType>
-			<Happiness>1</Happiness>
+			<BuildingClassType>BUILDINGCLASS_HOLY_COUNCIL</BuildingClassType>
+			<Happiness>4</Happiness>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_PIETY_FINISHER</PolicyType>
-			<BuildingClassType>BUILDINGCLASS_ORDER</BuildingClassType>
-			<Happiness>1</Happiness>
+			<BuildingClassType>BUILDINGCLASS_SACRED_GARDEN</BuildingClassType>
+			<Happiness>4</Happiness>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_PIETY_FINISHER</PolicyType>
-			<BuildingClassType>BUILDINGCLASS_MOSQUE</BuildingClassType>
-			<Happiness>1</Happiness>
+			<BuildingClassType>BUILDINGCLASS_DIVINE_COURT</BuildingClassType>
+			<Happiness>4</Happiness>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_PIETY_FINISHER</PolicyType>
-			<BuildingClassType>BUILDINGCLASS_CATHEDRAL</BuildingClassType>
-			<Happiness>1</Happiness>
+			<BuildingClassType>BUILDINGCLASS_RELIQUARY</BuildingClassType>
+			<Happiness>4</Happiness>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_PIETY_FINISHER</PolicyType>
-			<BuildingClassType>BUILDINGCLASS_PAGODA</BuildingClassType>
-			<Happiness>1</Happiness>
+			<BuildingClassType>BUILDINGCLASS_GREAT_ALTAR</BuildingClassType>
+			<Happiness>4</Happiness>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_PIETY_FINISHER</PolicyType>
-			<BuildingClassType>BUILDINGCLASS_MONASTERY</BuildingClassType>
-			<Happiness>1</Happiness>
+			<BuildingClassType>BUILDINGCLASS_HEAVENLY_THRONE</BuildingClassType>
+			<Happiness>4</Happiness>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_PIETY_FINISHER</PolicyType>
+			<BuildingClassType>BUILDINGCLASS_MAUSOLEUM</BuildingClassType>
+			<Happiness>4</Happiness>
 		</Row>
 	</Policy_BuildingClassHappiness>
 	<Language_en_US>

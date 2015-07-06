@@ -159,7 +159,7 @@ function RefreshData()
 		elseif(iTargetOwner < GameDefines.MAX_MAJOR_CIVS) then
 			tradeRoute.Category = 2;
 -- CBP
-			if (pTargetCity:IsFranchised(iActivePlayer)) then
+			if (pTargetCity ~= nil and pTargetCity:IsFranchised(iActivePlayer)) then
 				tradeRoute.CityIcons = " [ICON_INVEST]"
 			end
 -- END
@@ -169,6 +169,11 @@ function RefreshData()
 			if (pTargetPlayer:IsMinorCivActiveQuestForPlayer(iActivePlayer, MinorCivQuestTypes.MINOR_CIV_QUEST_TRADE_ROUTE)) then
 				tradeRoute.CityIcons = " [ICON_INTERNATIONAL_TRADE]"
 			end
+-- CBP
+			if (pTargetCity ~= nil and pTargetCity:IsFranchised(iActivePlayer)) then
+				tradeRoute.CityIcons = " [ICON_INVEST]"
+			end
+-- END
 		end
 		
 		local myBonuses = "";
@@ -340,9 +345,8 @@ function DisplayData()
 		if(tradeRoute.CityIcons == " [ICON_INVEST]") then
 			local pPlayer = Players[Game.GetActivePlayer()];
 			if(pPlayer ~= nil) then
-				local strCorpName =  pPlayer:GetCorporationName();
-				local strCorpInfo = LocalizeAndSetText("TXT_KEY_CORP_HERE");
-				itemInstance.CityName:SetText(tradeRoute.CityName .. "  [COLOR_POSITVE_TEXT]" .. strCorpName .. strCorpInfo .. "[ENDCOLOR]" );
+				local strCorpInfo = Locale.Lookup("TXT_KEY_CORP_HERE");
+				itemInstance.CityName:SetText(tradeRoute.CityName .. strCorpInfo);
 			else
 				itemInstance.CityName:SetText(tradeRoute.CityName .. tradeRoute.CityIcons);		
 			end

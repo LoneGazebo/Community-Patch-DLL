@@ -644,26 +644,30 @@ bool CvMilitaryAI::RequestShowOfForce(PlayerTypes eEnemy)
 				return true;
 			}
 #if defined(MOD_BALANCE_CORE_MILITARY)
-		}
+			}
 #endif
 		}
 		else
 		{
 #if defined(MOD_BALANCE_CORE_MILITARY)
 			int iOperationID;
-			bool bHasOperationUnderway = m_pPlayer->haveAIOperationOfType(AI_OPERATION_SMALL_CITY_ATTACK, &iOperationID, eEnemy);
+			bool bHasOperationUnderway = m_pPlayer->haveAIOperationOfType(AI_OPERATION_SNEAK_CITY_ATTACK, &iOperationID, eEnemy);
 			if (!bHasOperationUnderway)
 			{
-#endif
+				CvAIOperation* pOperation = m_pPlayer->addAIOperation(AI_OPERATION_SNEAK_CITY_ATTACK, eEnemy, target.m_pTargetCity->getArea(), target.m_pTargetCity, target.m_pMusterCity);
+				if(pOperation != NULL && !pOperation->ShouldAbort())
+				{
+					return true;
+				}
+			}
+#else
 			CvAIOperation* pOperation = m_pPlayer->addAIOperation(AI_OPERATION_SMALL_CITY_ATTACK, eEnemy, target.m_pTargetCity->getArea(), target.m_pTargetCity, target.m_pMusterCity);
 			if(pOperation != NULL && !pOperation->ShouldAbort())
 			{
 				return true;
 			}
-#if defined(MOD_BALANCE_CORE_MILITARY)
-		}
 #endif
-	}
+		}
 	}
 
 	return false;
@@ -980,7 +984,11 @@ CvAIOperation* CvMilitaryAI::GetSneakAttackOperation(PlayerTypes eEnemy)
 CvAIOperation* CvMilitaryAI::GetShowOfForceOperation(PlayerTypes eEnemy)
 {
 	int iOperationID;
+#if defined(MOD_BALANCE_CORE)
+	bool bHasOperationUnderway = m_pPlayer->haveAIOperationOfType(AI_OPERATION_SNEAK_CITY_ATTACK, &iOperationID, eEnemy);
+#else
 	bool bHasOperationUnderway = m_pPlayer->haveAIOperationOfType(AI_OPERATION_SMALL_CITY_ATTACK, &iOperationID, eEnemy);
+#endif
 
 	if(bHasOperationUnderway)
 	{
@@ -5527,22 +5535,6 @@ bool CvMilitaryAI::IsAttackReady(MultiunitFormationTypes eFormation, AIOperation
 		bRequiresNavalMoves = true;
 	}
 
-#if defined(MOD_BALANCE_CORE_MILITARY)
-	if(eOperationType == AI_OPERATION_SNEAK_CITY_ATTACK || eOperationType == AI_OPERATION_NAVAL_SNEAK_ATTACK)
-	{
-		iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(m_pPlayer, eFormation, bRequiresNavalMoves, &iNumRequiredSlots, &iLandReservesUsed);
-		if(iFilledSlots > 1)
-		{
-			return true;
-		}
-		else
-		{
-			return false;
-		}
-	}
-	else
-	{
-#endif
 	iFilledSlots = MilitaryAIHelpers::NumberOfFillableSlots(m_pPlayer, eFormation, bRequiresNavalMoves, &iNumRequiredSlots, &iLandReservesUsed);
 	if(iFilledSlots >= iNumRequiredSlots)
 	{
@@ -5552,9 +5544,7 @@ bool CvMilitaryAI::IsAttackReady(MultiunitFormationTypes eFormation, AIOperation
 	{
 		return false;
 	}
-#if defined(MOD_BALANCE_CORE)
-	}
-#endif
+
 }
 
 /// Score the strength of the units for a domain; best candidate to scrap (with lowest score) is returned. Only supports land and naval units
@@ -6882,17 +6872,6 @@ bool MilitaryAIHelpers::IsTestStrategy_WarMobilization(MilitaryAIStrategyTypes e
 	if(pPlayer->IsCramped())
 	{
 		iCurrentWeight += 5;
-	}
-	for(int iFlavorLoop = 0; iFlavorLoop < GC.getNumFlavorTypes(); iFlavorLoop++)
-	{
-		if(GC.getFlavorTypes((FlavorTypes) iFlavorLoop) == "FLAVOR_EXPANSION")
-		{
-			iCurrentWeight += pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes) iFlavorLoop);
-		}
-		if(GC.getFlavorTypes((FlavorTypes) iFlavorLoop) == "FLAVOR_OFFENSE")
-		{
-			iCurrentWeight += pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes) iFlavorLoop);
-		}
 	}
 #endif
 

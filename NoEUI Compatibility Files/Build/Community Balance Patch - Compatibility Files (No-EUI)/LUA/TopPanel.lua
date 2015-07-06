@@ -646,7 +646,7 @@ function GoldTipHandler( control )
 	end
 --  END
 -- COMMUNITY PATCH CHANGE
-		-- Gold gained from unhappiness
+		-- Gold gained from happiness
 		local iGoldChange = pPlayer:CalculateUnhappinessTooltip(YieldTypes.YIELD_GOLD) / 100;
 		if (iGoldChange > 0) then
 			strText = strText .. "[NEWLINE]  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_GOLD_GAINED_FROM_HAPPINESS", iGoldChange);
@@ -811,7 +811,7 @@ function HappinessTipHandler( control )
 		local iPopulation = pPlayer:GetCurrentTotalPop();
 		local iPopNeeded = pPlayer:GetPopNeededForLux();
 		local iThreshold = pPlayer:GetBaseLuxuryHappiness(); 
-		strText = strText .. "          " .. Locale.ConvertTextKey("TXT_KEY_TP_HAPPINESS_THRESHOLD_VALUE", iPopNeeded, iPopulation, iThreshold, (iThreshold + 1));
+		strText = strText .. "[NEWLINE][NEWLINE][ENDCOLOR]" .. Locale.ConvertTextKey("TXT_KEY_TP_HAPPINESS_THRESHOLD_VALUE", iPopNeeded, iPopulation, iThreshold, (iThreshold + 1));
 -- END
 -- C4DF
 		if (happinessFromVassals > 0) then

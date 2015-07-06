@@ -5,7 +5,7 @@
 		<Row>
 			<Type>BUILDING_MOSQUE_OF_DJENNE</Type>
 			<BuildingClass>BUILDINGCLASS_MOSQUE_OF_DJENNE</BuildingClass>
-			<Cost>300</Cost>
+			<Cost>350</Cost>
 			<PrereqTech>TECH_EDUCATION</PrereqTech>
 			<Help>TXT_KEY_WONDER_MOSQUE_OF_DJENNE_HELP</Help>
 			<Description>TXT_KEY_BUILDING_MOSQUE_OF_DJENNE</Description>
@@ -55,7 +55,7 @@
 		<Row>
 			<Type>BUILDING_KREMLIN</Type>
 			<BuildingClass>BUILDINGCLASS_KREMLIN</BuildingClass>
-			<Cost>300</Cost>
+			<Cost>350</Cost>
 			<PrereqTech>TECH_THEOLOGY</PrereqTech>
 			<Help>TXT_KEY_WONDER_KREMLIN_HELP</Help>
 			<Description>TXT_KEY_BUILDING_KREMLIN</Description>
@@ -78,7 +78,7 @@
 		<Row>
 			<Type>BUILDING_LOUVRE</Type>
 			<BuildingClass>BUILDINGCLASS_LOUVRE</BuildingClass>
-			<Cost>875</Cost>
+			<Cost>1000</Cost>
 			<PrereqTech>TECH_ARCHAEOLOGY</PrereqTech>
 			<Help>TXT_KEY_WONDER_LOUVRE_HELP</Help>
 			<ThemingBonusHelp>TXT_KEY_LOUVRE_THEMING_BONUS_HELP</ThemingBonusHelp>

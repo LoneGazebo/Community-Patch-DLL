@@ -335,6 +335,9 @@ public:
 
 	const char* GetWonderSplashAudio() const;
 	CvString GetThemingBonusHelp() const;
+#if defined(MOD_BALANCE_CORE)
+	CvString GetCorporationHelper() const;
+#endif
 
 	// Accessor Functions (Arrays)
 
@@ -688,6 +691,9 @@ private:
 	CvString m_strArtDefineTag;
 	CvString m_strWonderSplashAudio;
 	CvString m_strThemingBonusHelp;
+#if defined(MOD_BALANCE_CORE)
+	CvString m_strCorporationHelper;
+#endif
 
 	// Arrays
 

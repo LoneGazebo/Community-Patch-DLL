@@ -41,6 +41,7 @@
 			<TRVisionBoost>1</TRVisionBoost>
 			<FreeBuildingThisCity>BUILDINGCLASS_TWOKAY_FOODS</FreeBuildingThisCity>
 			<NumTradeRouteBonus>1</NumTradeRouteBonus>
+			<CorporationHelper>TXT_KEY_CORP_HELPER_TWOKAY_FOODS</CorporationHelper>
 			<NeverCapture>true</NeverCapture>
 			<HurryCostModifier>25</HurryCostModifier>
 			<IconAtlas>CORP_ATLAS</IconAtlas>
@@ -181,6 +182,13 @@
 			<YieldChange>2</YieldChange>
 		</Row>
 	</Building_BuildingClassYieldChanges>
+	<Building_CorporationYield>
+		<Row>
+			<BuildingType>BUILDING_TWOKAY_FOODS</BuildingType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+	</Building_CorporationYield>
 	<Building_CorporationYieldModTrade>
 		<Row>
 			<BuildingType>BUILDING_TWOKAY_FOODS</BuildingType>
@@ -214,6 +222,9 @@
 		<Row Tag="TXT_KEY_BUILDING_TWOKAY_FOODS_HQ_HELP">
 			<Text>Requires a Global Monopoly on [ICON_RES_WINE] Wine, [ICON_RES_TRUFFLES] Truffles, or [ICON_RES_CITRUS] Citrus.[NEWLINE][NEWLINE]Grants a free TwoKay Foods Office in this City, and unlocks construction of TwoKay Foods Offices in owned Cities.</Text>
 		</Row>
+		<Row Tag="TXT_KEY_CORP_HELPER_TWOKAY_FOODS">
+			<Text>Resource Bonus: [ICON_RES_WINE] Wine, [ICON_RES_TRUFFLES] Truffles, and [ICON_RES_CITRUS] Citrus gain additional [ICON_FOOD] Food.[NEWLINE][NEWLINE]Office Bonus: +1 [ICON_FOOD] Food for every Global Franchise.[NEWLINE][NEWLINE]Trade Route Bonus: Trade Routes to a foreign City with a TwoKay Foods Franchise increases the origin City's [ICON_FOOD] Growth rate by +5%.</Text>
+		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_TWOKAY_FOODS_FRANCHISE">
 			<Text>TwoKay Foods</Text>
@@ -235,10 +246,10 @@
 			<Text>A corporation is a company or group of people authorized to act as a single entity (legally a person) and recognized as such in law. Early incorporated entities were established by charter (i.e. by an ad hoc act granted by a monarch or passed by a parliament or legislature). Most jurisdictions now allow the creation of new corporations through registration. Corporations come in many different types but are usually divided by the law of the jurisdiction where they are chartered into two kinds: by whether or not they can issue stock, or by whether or not they are for profit.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_TWOKAY_FOODS_STRATEGY">
-			<Text>When a [ICON_INTERNATIONAL_TRADE] Trade Route to a foreign City from this City is completed, a TwoKay Foods Franchise is constructed in the foreign City.[NEWLINE][NEWLINE]TwoKay Foods cannot be sold or destroyed by the player, and increases the [ICON_FOOD] Food output of all TwoKay Foods Offices by +1.</Text>
+			<Text>When a [ICON_INTERNATIONAL_TRADE] Trade Route between a foreign City and this City completes, a TwoKay Foods Franchise is constructed in the foreign City.[NEWLINE][NEWLINE]TwoKay Foods cannot be sold or destroyed by the player, and increases the [ICON_FOOD] Food output of all TwoKay Foods Offices by +1.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_TWOKAY_FOODS_HELP">
-			<Text>+3 [ICON_FOOD] Food on all Monopoly Resources associated with TwoKay Foods. +1 [ICON_FOOD] Food for every TwoKay Foods Franchise.[NEWLINE][NEWLINE]Every Trade Route from this City to a foreign City with a Two Kay Foods increases this City's [ICON_FOOD] Growth rate by +5%.</Text>
+			<Text>+3 [ICON_FOOD] Food on all Monopoly Resources associated with TwoKay Foods. +1 [ICON_FOOD] Food for every TwoKay Foods Franchise.[NEWLINE][NEWLINE]Every Trade Route from this City to a foreign City with a TwoKay Foods Franchise increases this City's [ICON_FOOD] Growth rate by +5%.</Text>
 		</Row>
 	</Language_en_US>
 </GameData>

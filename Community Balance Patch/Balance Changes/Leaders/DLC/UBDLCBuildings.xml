@@ -145,6 +145,13 @@
 			<Yield>1</Yield>
 		</Row>
 	</Building_SeaPlotYieldChanges>
+	<Building_SeaResourceYieldChanges>
+		<Row>
+			<BuildingType>BUILDING_JELLING_STONES</BuildingType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>1</Yield>
+		</Row>
+	</Building_SeaResourceYieldChanges>
 	<Building_InstantYield>
 		<Row>
 			<BuildingType>BUILDING_JELLING_STONES</BuildingType>

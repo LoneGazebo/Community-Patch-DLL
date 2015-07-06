@@ -207,6 +207,10 @@ CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit, int nMinCandidat
 		if (!IsValidExplorerEndTurnPlot(pUnit, vExplorePlots[ui].pPlot))
 			continue;
 
+		//Ignore plots with units in them
+		if(vExplorePlots[ui].pPlot->getNumUnits() > 0)
+			continue;
+
 		int iDistX = abs( vExplorePlots[ui].pPlot->getX() - iRefX );
 		int iDistY = abs( vExplorePlots[ui].pPlot->getY() - iRefY );
 
@@ -563,14 +567,54 @@ void CvHomelandAI::EstablishHomelandPriorities()
 			{
 				// Defensive moves
 			case AI_HOMELAND_MOVE_GARRISON:
+#if defined(MOD_BALANCE_CORE)
+				if(m_pPlayer->IsAtWarAnyMajor())
+				{
+					iPriority *= iFlavorDefense;
+				}
+				break;
+#endif
 			case AI_HOMELAND_MOVE_HEAL:
+#if defined(MOD_BALANCE_CORE)
+				iPriority += iFlavorDefense;
+				break;
+#endif
 			case AI_HOMELAND_MOVE_TO_SAFETY:
+#if defined(MOD_BALANCE_CORE)
+				if(m_pPlayer->IsAtWarAnyMajor())
+				{
+					iPriority *= iFlavorImprove;
+				}
+				break;
+#endif
 			case AI_HOMELAND_MOVE_MOBILE_RESERVE:
+#if defined(MOD_BALANCE_CORE)
+				iPriority += iFlavorDefense;
+				break;
+#endif
 			case AI_HOMELAND_MOVE_SENTRY:
+#if defined(MOD_BALANCE_CORE)
+				if(m_pPlayer->IsAtWarAnyMajor())
+				{
+					iPriority /= max (2, iFlavorDefense);
+				}
+				break;
+#endif
 			case AI_HOMELAND_MOVE_GARRISON_CITY_STATE:
 			case AI_HOMELAND_MOVE_GENERAL_GARRISON:
 			case AI_HOMELAND_MOVE_ADMIRAL_GARRISON:
+#if defined(MOD_BALANCE_CORE)
+				iPriority += iFlavorDefense;
+				break;
+#endif
 			case AI_HOMELAND_MOVE_AIRCRAFT_TO_THE_FRONT:
+#if defined(MOD_BALANCE_CORE)
+				if(m_pPlayer->IsAtWarAnyMajor())
+				{
+					iPriority *= iFlavorOffense;
+				}
+				break;
+#endif
 			case AI_HOMELAND_MOVE_TREASURE:
 
 				// Here so they remain same priority relative to AI_HOMELAND_MOVE_TO_SAFETY
@@ -3276,8 +3320,8 @@ void CvHomelandAI::ExecuteExplorerMoves(bool bSecondPass)
 			//Ignore land for sea explorers
 			if(pUnit->getDomainType()==DOMAIN_SEA && !pEvalPlot->isWater())
 				continue;
-			//ignore occupied plots
-			if( pEvalPlot->getBestDefender(NO_PLAYER) != (UnitHandle)NULL)
+			//Ignore plots with units in them
+			if(pEvalPlot->getNumUnits() > 0)
 				continue;
 
 			//get contributions from yet-to-be revealed plots (and goodies)

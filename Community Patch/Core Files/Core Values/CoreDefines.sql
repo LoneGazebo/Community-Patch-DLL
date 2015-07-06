@@ -206,6 +206,24 @@ INSERT INTO Defines (
 Name, Value)
 SELECT 'OPINION_WEIGHT_DP', '-10';
 
+-- Open Borders Values
+INSERT INTO Defines (
+Name, Value)
+SELECT 'OPINION_WEIGHT_OPEN_BORDERS_MUTUAL', '-12';
+
+INSERT INTO Defines (
+Name, Value)
+SELECT 'OPINION_WEIGHT_OPEN_BORDERS_US', '-8';
+
+INSERT INTO Defines (
+Name, Value)
+SELECT 'OPINION_WEIGHT_OPEN_BORDERS_THEM', '-4';
+
+-- Open Borders Trade Gold Value (halved if not mutual)
+INSERT INTO Defines (
+Name, Value)
+SELECT 'OPEN_BORDERS_MODIFIER_TRADE_GOLD', '20';
+
 -- Great People Rate Mod
 INSERT INTO Defines (
 Name, Value)

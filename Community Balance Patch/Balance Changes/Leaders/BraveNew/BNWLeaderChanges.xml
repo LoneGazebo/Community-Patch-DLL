@@ -478,5 +478,13 @@
 			<UnitCombatType>UNITCOMBAT_GUN</UnitCombatType>
 		</Row>
 	</UnitPromotions_UnitCombats>
-
+	<!-- Shoshone -->
+	<Civilization_FreeUnits>
+		<Row>
+			<CivilizationType>CIVILIZATION_SHOSHONE</CivilizationType>
+			<UnitClassType>UNITCLASS_SCOUT</UnitClassType>
+			<Count>1</Count>
+			<UnitAIType>UNITAI_EXPLORE</UnitAIType>
+		</Row>
+	</Civilization_FreeUnits>
 </GameData>

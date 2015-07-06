@@ -1,6 +1,71 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Created by ModBuddy on 8/9/2014 4:50:31 PM -->
 <GameData>
+	<BuildingClasses>
+		<!--Mausoleum-->
+		<Row>
+			<Type>BUILDINGCLASS_MAUSOLEUM</Type>
+			<DefaultBuilding>BUILDING_MAUSOLEUM</DefaultBuilding>
+			<Description>TXT_KEY_BUILDING_MAUSOLEUM</Description>
+			<MaxPlayerInstances>1</MaxPlayerInstances>
+		</Row>
+		<!--Celestial Throne-->
+		<Row>
+			<Type>BUILDINGCLASS_HEAVENLY_THRONE</Type>
+			<DefaultBuilding>BUILDING_HEAVENLY_THRONE</DefaultBuilding>
+			<Description>TXT_KEY_BUILDING_HEAVENLY_THRONE</Description>
+			<MaxPlayerInstances>1</MaxPlayerInstances>
+		</Row>
+		<!--Great Altar-->
+		<Row>
+			<Type>BUILDINGCLASS_GREAT_ALTAR</Type>
+			<DefaultBuilding>BUILDING_GREAT_ALTAR</DefaultBuilding>
+			<Description>TXT_KEY_BUILDING_GREAT_ALTAR</Description>
+			<MaxPlayerInstances>1</MaxPlayerInstances>
+		</Row>
+		<!--Reliquary-->
+		<Row>
+			<Type>BUILDINGCLASS_RELIQUARY</Type>
+			<DefaultBuilding>BUILDING_RELIQUARY</DefaultBuilding>
+			<Description>TXT_KEY_BUILDING_RELIQUARY</Description>
+			<MaxPlayerInstances>1</MaxPlayerInstances>
+		</Row>
+		<!--Divine Court-->
+		<Row>
+			<Type>BUILDINGCLASS_DIVINE_COURT</Type>
+			<DefaultBuilding>BUILDING_DIVINE_COURT</DefaultBuilding>
+			<Description>TXT_KEY_BUILDING_DIVINE_COURT</Description>
+			<MaxPlayerInstances>1</MaxPlayerInstances>
+		</Row>
+		<!--Sacred Garden-->
+		<Row>
+			<Type>BUILDINGCLASS_SACRED_GARDEN</Type>
+			<DefaultBuilding>BUILDING_SACRED_GARDEN</DefaultBuilding>
+			<Description>TXT_KEY_BUILDING_SACRED_GARDEN</Description>
+			<MaxPlayerInstances>1</MaxPlayerInstances>
+		</Row>
+		<!--Holy Council-->
+		<Row>
+			<Type>BUILDINGCLASS_HOLY_COUNCIL</Type>
+			<DefaultBuilding>BUILDING_HOLY_COUNCIL</DefaultBuilding>
+			<Description>TXT_KEY_BUILDING_HOLY_COUNCIL</Description>
+			<MaxPlayerInstances>1</MaxPlayerInstances>
+		</Row>
+		<!--Apostolic Palace-->
+		<Row>
+			<Type>BUILDINGCLASS_APOSTOLIC_PALACE</Type>
+			<DefaultBuilding>BUILDING_APOSTOLIC_PALACE</DefaultBuilding>
+			<Description>TXT_KEY_BUILDING_APOSTOLIC_PALACE</Description>
+			<MaxPlayerInstances>1</MaxPlayerInstances>
+		</Row>
+		<!--Grand Ossuary-->
+		<Row>
+			<Type>BUILDINGCLASS_GRAND_OSSUARY</Type>
+			<DefaultBuilding>BUILDING_GRAND_OSSUARY</DefaultBuilding>
+			<Description>TXT_KEY_BUILDING_GRAND_OSSUARY</Description>
+			<MaxPlayerInstances>1</MaxPlayerInstances>
+		</Row>
+	</BuildingClasses>
 	<Buildings>
 		<!--Mausoleum-->
 		<Row>
@@ -223,71 +288,6 @@
 			<FaithCost>-1</FaithCost>
 		</Row>
 	</Buildings>
-	<BuildingClasses>
-		<!--Mausoleum-->
-		<Row>
-			<Type>BUILDINGCLASS_MAUSOLEUM</Type>
-			<DefaultBuilding>BUILDING_MAUSOLEUM</DefaultBuilding>
-			<Description>TXT_KEY_BUILDING_MAUSOLEUM</Description>
-			<MaxPlayerInstances>1</MaxPlayerInstances>
-		</Row>
-		<!--Celestial Throne-->
-		<Row>
-			<Type>BUILDINGCLASS_HEAVENLY_THRONE</Type>
-			<DefaultBuilding>BUILDING_HEAVENLY_THRONE</DefaultBuilding>
-			<Description>TXT_KEY_BUILDING_HEAVENLY_THRONE</Description>
-			<MaxPlayerInstances>1</MaxPlayerInstances>
-		</Row>
-		<!--Great Altar-->
-		<Row>
-			<Type>BUILDINGCLASS_GREAT_ALTAR</Type>
-			<DefaultBuilding>BUILDING_GREAT_ALTAR</DefaultBuilding>
-			<Description>TXT_KEY_BUILDING_GREAT_ALTAR</Description>
-			<MaxPlayerInstances>1</MaxPlayerInstances>
-		</Row>
-		<!--Reliquary-->
-		<Row>
-			<Type>BUILDINGCLASS_RELIQUARY</Type>
-			<DefaultBuilding>BUILDING_RELIQUARY</DefaultBuilding>
-			<Description>TXT_KEY_BUILDING_RELIQUARY</Description>
-			<MaxPlayerInstances>1</MaxPlayerInstances>
-		</Row>
-		<!--Divine Court-->
-		<Row>
-			<Type>BUILDINGCLASS_DIVINE_COURT</Type>
-			<DefaultBuilding>BUILDING_DIVINE_COURT</DefaultBuilding>
-			<Description>TXT_KEY_BUILDING_DIVINE_COURT</Description>
-			<MaxPlayerInstances>1</MaxPlayerInstances>
-		</Row>
-		<!--Sacred Garden-->
-		<Row>
-			<Type>BUILDINGCLASS_SACRED_GARDEN</Type>
-			<DefaultBuilding>BUILDING_SACRED_GARDEN</DefaultBuilding>
-			<Description>TXT_KEY_BUILDING_SACRED_GARDEN</Description>
-			<MaxPlayerInstances>1</MaxPlayerInstances>
-		</Row>
-		<!--Holy Council-->
-		<Row>
-			<Type>BUILDINGCLASS_HOLY_COUNCIL</Type>
-			<DefaultBuilding>BUILDING_HOLY_COUNCIL</DefaultBuilding>
-			<Description>TXT_KEY_BUILDING_HOLY_COUNCIL</Description>
-			<MaxPlayerInstances>1</MaxPlayerInstances>
-		</Row>
-		<!--Apostolic Palace-->
-		<Row>
-			<Type>BUILDINGCLASS_APOSTOLIC_PALACE</Type>
-			<DefaultBuilding>BUILDING_APOSTOLIC_PALACE</DefaultBuilding>
-			<Description>TXT_KEY_BUILDING_APOSTOLIC_PALACE</Description>
-			<MaxPlayerInstances>1</MaxPlayerInstances>
-		</Row>
-		<!--Grand Ossuary-->
-		<Row>
-			<Type>BUILDINGCLASS_GRAND_OSSUARY</Type>
-			<DefaultBuilding>BUILDING_GRAND_OSSUARY</DefaultBuilding>
-			<Description>TXT_KEY_BUILDING_GRAND_OSSUARY</Description>
-			<MaxPlayerInstances>1</MaxPlayerInstances>
-		</Row>
-	</BuildingClasses>
 	<Building_YieldChanges>
 		<Row>
 			<BuildingType>BUILDING_MAUSOLEUM</BuildingType>

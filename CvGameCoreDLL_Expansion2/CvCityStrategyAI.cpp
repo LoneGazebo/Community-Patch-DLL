@@ -845,6 +845,24 @@ void CvCityStrategyAI::ChooseProduction(bool bUseAsyncRandom, BuildingTypes eIgn
 			}
 		}
 	}
+	PlayerTypes eLoopPlayer;
+	int iSneakies = 0;
+	for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+	{
+		eLoopPlayer = (PlayerTypes) iPlayerLoop;
+
+		if(eLoopPlayer != NO_PLAYER && GET_PLAYER(eLoopPlayer).isAlive() && !GET_PLAYER(eLoopPlayer).isMinorCiv())
+		{
+			if(pDiploAI->IsWantsSneakAttack(eLoopPlayer))
+			{
+				iSneakies += 5;
+			}
+		}
+	}
+	if(GET_PLAYER(m_pCity->getOwner()).GetMilitaryAI()->GetNumberCivsAtWarWith(false) > 0)
+	{
+		iSneakies += GET_PLAYER(m_pCity->getOwner()).GetMilitaryAI()->GetNumberCivsAtWarWith(false);
+	}
 #endif
 	EconomicAIStrategyTypes eStrategyEnoughSettlers = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_ENOUGH_EXPANSION");
 	bool bEnoughSettlers = kPlayer.GetEconomicAI()->IsUsingStrategy(eStrategyEnoughSettlers);
@@ -1011,6 +1029,7 @@ void CvCityStrategyAI::ChooseProduction(bool bUseAsyncRandom, BuildingTypes eIgn
 		// add in the weight of this unit as if I were deciding to build it without having a reason
 		iTempWeight += m_pUnitProductionAI->GetWeight(eUnitForArmy);
 #if defined(MOD_BALANCE_CORE)
+		iTempWeight *= max(1, (iSneakies * 10));
 		CvUnitEntry* pkUnitEntry = GC.getUnitInfo(eUnitForArmy);
 		if(bNoBoats && pkUnitEntry && pkUnitEntry->GetDomainType() == DOMAIN_SEA)
 		{
@@ -1375,6 +1394,10 @@ void CvCityStrategyAI::ChooseProduction(bool bUseAsyncRandom, BuildingTypes eIgn
 		{
 			bForced = true;
 		}
+		if((iSneakies > 0) && selection.m_eBuildableType == CITY_BUILDABLE_UNIT_FOR_ARMY)
+		{
+			bForced = true;
+		}
 		else if(selection.m_eBuildableType == CITY_BUILDABLE_BUILDING)
 		{
 			BuildingTypes eBuildingType = (BuildingTypes) selection.m_iIndex;
@@ -1407,6 +1430,64 @@ void CvCityStrategyAI::ChooseProduction(bool bUseAsyncRandom, BuildingTypes eIgn
 		if(bForced)
 		{
 			bRush = true;
+			if(GC.getLogging() && GC.getAILogging())
+			{
+				CvString strOutBuf;
+				CvString strBaseString;
+				CvString strTemp;
+				CvString playerName;
+				CvString cityName;
+				CvString strDesc;
+
+				// Find the name of this civ and city
+				playerName = GET_PLAYER(m_pCity->getOwner()).getCivilizationShortDescription();
+				cityName = m_pCity->getName();
+
+				// Open the log file
+				FILogFile* pLog;
+				pLog = LOGFILEMGR.GetLog(GetLogFileName(playerName, cityName), FILogFile::kDontTimeStamp);
+
+				// Get the leading info for this line
+				strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+				strBaseString += playerName + ", " + cityName + ", ";
+				CvCityBuildable buildable = m_Buildables.GetElement(0);
+
+				switch(buildable.m_eBuildableType)
+				{
+				case CITY_BUILDABLE_BUILDING:
+				{
+					CvBuildingEntry* pEntry = GC.GetGameBuildings()->GetEntry(buildable.m_iIndex);
+					if(pEntry != NULL)
+					{
+						strDesc = pEntry->GetDescription();
+						strTemp.Format("FORCED BECAUSE INVESTMENT Building, %s, %d, %d", strDesc.GetCString(), m_Buildables.GetWeight(0), buildable.m_iTurnsToConstruct);
+					}
+				}
+				break;
+				case CITY_BUILDABLE_UNIT_FOR_OPERATION:
+				{
+					CvUnitEntry* pEntry = GC.GetGameUnits()->GetEntry(buildable.m_iIndex);
+					if(pEntry != NULL)
+					{
+						strDesc = pEntry->GetDescription();
+						strTemp.Format("FORCED Operation unit, %s, %d, %d", strDesc.GetCString(), m_Buildables.GetWeight(0), buildable.m_iTurnsToConstruct);
+					}
+				}
+				break;
+				case CITY_BUILDABLE_UNIT_FOR_ARMY:
+				{
+					CvUnitEntry* pEntry = GC.GetGameUnits()->GetEntry(buildable.m_iIndex);
+					if(pEntry != NULL)
+					{
+						strDesc = pEntry->GetDescription();
+						strTemp.Format("FORCED Army unit, %s, %d, %d", strDesc.GetCString(), m_Buildables.GetWeight(0), buildable.m_iTurnsToConstruct);
+					}
+				}
+				break;
+				}
+				strOutBuf = strBaseString + strTemp;
+				pLog->Msg(strOutBuf);
+			}
 		}
 #endif
 		LogCityProduction(selection, bRush);
@@ -1450,13 +1531,6 @@ void CvCityStrategyAI::ChooseProduction(bool bUseAsyncRandom, BuildingTypes eIgn
 		{
 			GetCity()->CommitToBuildingUnitForOperation();
 			kPlayer.GetMilitaryAI()->ResetNumberOfTimesOpsBuildSkippedOver();
-#if defined(MOD_BALANCE_CORE)
-			CitySpecializationTypes eSpecialization = (CitySpecializationTypes) GC.getInfoTypeForString("CITYSPECIALIZATION_MILITARY_TRAINING");
-			if(eSpecialization != NO_CITY_SPECIALIZATION)
-			{
-				GetCity()->GetCityStrategyAI()->SetSpecialization(eSpecialization);
-			}
-#endif
 		}
 		break;
 		}
@@ -2417,9 +2491,6 @@ void CvCityStrategyAI::UpdateBestYields()
 				break;
 			case CITY_AI_FOCUS_TYPE_FAITH:
 				strLookup = "CITYSPECIALIZATION_FAITH";
-				break;
-			case CITY_AI_FOCUS_TYPE_GREAT_PEOPLE:
-				strLookup = "CITYSPECIALIZATION_GP";
 				break;
 			case NO_CITY_AI_FOCUS_TYPE:
 				strLookup = "CITYSPECIALIZATION_GENERAL_ECONOMIC";

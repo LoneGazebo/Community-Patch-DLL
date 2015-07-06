@@ -1088,6 +1088,9 @@ int CvEconomicAI::ScoreExplorePlot2(CvPlot* pPlot, CvPlayer* pPlayer, DomainType
 			//no value if revealed already
 			if(pLoopPlot->isRevealed(pPlayer->getTeam()))
 				continue;
+			//No value if there's a unit here.
+			if(pLoopPlot->getNumUnits() > 0)
+				continue;
 
 			// "cheating" to look to see what the next tile is.
 			// a human should be able to do this by looking at the transition from the tile to the next
@@ -2472,7 +2475,11 @@ void CvEconomicAI::DoReconState()
 		iWeightThreshold = 100;
 	}
 
+#if defined(MOD_BALANCE_CORE)
+	iStrategyWeight *= (iNumCoastalTilesWithAdjacentFog * 2);
+#else
 	iStrategyWeight *= iNumCoastalTilesWithAdjacentFog;
+#endif
 	int iNumExplorerDivisor = iNumExploringUnits + /*1*/ GC.getAI_STRATEGY_EARLY_EXPLORATION_EXPLORERS_WEIGHT_DIVISOR();
 	iStrategyWeight /= (iNumExplorerDivisor * iNumExplorerDivisor);
 	iStrategyWeight /= (int)sqrt((double)iNumLandPlotsRevealed);
@@ -2560,8 +2567,11 @@ void CvEconomicAI::DoReconState()
 		{
 			iWeightThreshold = 100;
 		}
-
+#if defined(MOD_BALANCE_CORE)
+		iStrategyWeight *= (iNumCoastalTilesWithAdjacentFog * 2);
+#else
 		iStrategyWeight *= iNumCoastalTilesWithAdjacentFog;
+#endif
 		iNumExplorerDivisor = iNumExploringUnits + /*1*/ GC.getAI_STRATEGY_EARLY_EXPLORATION_EXPLORERS_WEIGHT_DIVISOR();
 		iStrategyWeight /= (iNumExplorerDivisor * iNumExplorerDivisor);
 		iStrategyWeight /= (int)sqrt((double)iNumCoastalTilesRevealed);

@@ -38,7 +38,10 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_PUPPET_UNHAPPINESS_MOD">
-			<Text>[ICON_BULLET] [ICON_PUPPET] Puppet Needs Modifier: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR]%.</Text>
+			<Text>[ICON_BULLET] [ICON_PUPPET] Puppet Needs: {1_Num}%[NEWLINE]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CAPITAL_UNHAPPINESS_MOD">
+			<Text>[ICON_BULLET] [ICON_CAPITAL] Capital Needs: +{1_Num}%[NEWLINE]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITYCOUNT_UNHAPPINESS">
 			<Text>[ICON_BULLET] [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] from Number of Cities.</Text>
@@ -65,7 +68,7 @@
 			<Text>[ICON_BULLET] [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] from Famine (Needs [ICON_FOOD]).</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MINORITY_UNHAPPINESS">
-			<Text>[ICON_BULLET] [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] from Religious Divisions (Needs Followers of [ICON_RELIGION] Majority Religion).</Text>
+			<Text>[ICON_BULLET] [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] from Religious Divisions (Needs Majority Religion [ICON_RELIGION] Followers).</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESISTANCE_UNHAPPINESS">
 			<Text>[ICON_BULLET] [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] from [ICON_RESISTANCE] Resistance.</Text>
@@ -127,5 +130,96 @@
 		<Row Tag="TXT_KEY_EO_CITY_CONNECTED">
 			<Text>[COLOR_POSITIVE_TEXT]Connected[ENDCOLOR]</Text>
 		</Row>
+		
+		<!-- LUA for Buildings -->
+		<Row Tag="TXT_KEY_BUILDING_POVERTY_AVERAGE_MODIFIER">
+			<Text>[ICON_GOLD] Poverty Modifier: {1_num}%</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_DEFENSE_AVERAGE_MODIFIER">
+			<Text>[ICON_STRENGTH] Crime Modifier: {1_num}%</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_CULTURE_AVERAGE_MODIFIER">
+			<Text>[ICON_CULTURE] Boredom Modifier: {1_num}%</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_SCIENCE_AVERAGE_MODIFIER">
+			<Text>[ICON_RESEARCH] Illiteracy Modifier: {1_num}%</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_MINORITY_AVERAGE_MODIFIER">
+			<Text>[ICON_RELIGION] Minority Population reduction: {1_num}%</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_POVERTY_GLOBAL_AVERAGE_MODIFIER">
+			<Text>[ICON_GOLD] Poverty Modifier in all Cities: {1_num}%</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_DEFENSE_GLOBAL_AVERAGE_MODIFIER">
+			<Text>[ICON_STRENGTH] Crime Modifier in all Cities: {1_num}%</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_CULTURE_GLOBAL_AVERAGE_MODIFIER">
+			<Text>[ICON_CULTURE] Boredom Modifier in all Cities: {1_num}%</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_SCIENCE_GLOBAL_AVERAGE_MODIFIER">
+			<Text>[ICON_RESEARCH] Illiteracy Modifier in all Cities: {1_num}%</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_MINORITY_GLOBAL_AVERAGE_MODIFIER">
+			<Text>[ICON_RELIGION] Minority Population reduction in all Cities: {1_num}%</Text>
+		</Row>
+		
+		<!-- More LUA! -->
+		<Row Tag="TXT_KEY_NET_HAPPINESS_TEXT">
+			<Text>[COLOR_CYAN]{1_num}[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITYVIEW_HAPPINESS_TEXT">
+			<Text>[COLOR_CYAN]Happiness[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EO_CITY_LOCAL_HAPPINESS_EXPLANATION">
+			<Text>[NEWLINE](Only includes local [ICON_HAPPINESS_1] Happiness provided by buildings, policies and beliefs specific to this City.)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EO_CITY_LOCAL_UNHAPPINESS_EXPLANATION">
+			<Text>[NEWLINE](These 'Needs' are global averages of yields based on the number of [ICON_CITIZEN] Citizen in the City, as well as temporary situations, such as starvation or a blockades.)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EO_CITY_LOCAL_HAPPINESS">
+			<Text>Local [ICON_HAPPINESS_1] Happiness: [COLOR_POSITIVE_TEXT]{1_NUM}[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EO_CITY_GLOBAL_AVERAGE_MODS">
+			<Text>[COLOR_POSITIVE_TEXT]Global Average (Need) Modifiers:[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GLOBAL_AVERAGE_MOD_GOLD">
+			<Text>[ICON_BULLET] [ICON_GOLD] Poverty Need: {1_Num}%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GLOBAL_AVERAGE_MOD_SCIENCE">
+			<Text>[ICON_BULLET] [ICON_RESEARCH] Illiteracy Need: {1_Num}%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GLOBAL_AVERAGE_MOD_DEFENSE">
+			<Text>[ICON_BULLET] [ICON_STRENGTH] Crime Need: {1_Num}%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GLOBAL_AVERAGE_MOD_CULTURE">
+			<Text>[ICON_BULLET] [ICON_CULTURE] Boredom Need: {1_Num}%</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_GLOBAL_AVERAGE_MOD_GOLD_POSITIVE">
+			<Text>[ICON_BULLET] [ICON_GOLD] Poverty Need: +{1_Num}%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GLOBAL_AVERAGE_MOD_SCIENCE_POSITIVE">
+			<Text>[ICON_BULLET] [ICON_RESEARCH] Illiteracy Need: +{1_Num}%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GLOBAL_AVERAGE_MOD_DEFENSE_POSITIVE">
+			<Text>[ICON_BULLET] [ICON_STRENGTH] Crime Need: +{1_Num}%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GLOBAL_AVERAGE_MOD_CULTURE_POSITIVE">
+			<Text>[ICON_BULLET] [ICON_CULTURE] Boredom Need: +{1_Num}%</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_EO_CITY_GLOBAL_AVERAGE_MODS_EXPLANATION">
+			<Text>[NEWLINE](These modifiers are based on a number of factors, such as the number of cities owned, technologies researched, policies chosen, buildings constructed or civilization traits. Special traits, such as being the [ICON_CAPITAL] Capital or a [ICON_PUPPET] Puppet, are highlighted.)</Text>
+		</Row>
+
 	</Language_en_US>
 </GameData>

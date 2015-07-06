@@ -33,7 +33,7 @@ local g_yieldCurrency = civ5_mode and YieldTypes.YIELD_GOLD or YieldTypes.YIELD_
 local g_focusCurrency = CityAIFocusTypes.CITY_AI_FOCUS_TYPE_GOLD or CityAIFocusTypes.CITY_AI_FOCUS_TYPE_ENERGY
 
 include( "EUI_utilities" )
-include( "EUI_tooltips" ); local GetHelpTextForUnit = GetHelpTextForUnit; local GetHelpTextForBuilding = GetHelpTextForBuilding; local GetHelpTextForProject = GetHelpTextForProject; local GetHelpTextForProcess = GetHelpTextForProcess; local GetFoodTooltip = GetFoodTooltip; local GetGoldTooltip = civ5_mode and GetGoldTooltip or GetEnergyTooltip; local GetScienceTooltip = GetScienceTooltip; local GetProductionTooltip = GetProductionTooltip; local GetCultureTooltip = GetCultureTooltip; local GetFaithTooltip = GetFaithTooltip; local GetTourismTooltip = GetTourismTooltip
+include( "EUI_tooltips" ); local GetHelpTextForUnit = GetHelpTextForUnit; local GetHelpTextForBuilding = GetHelpTextForBuilding; local GetHelpTextForProject = GetHelpTextForProject; local GetHelpTextForProcess = GetHelpTextForProcess; local GetFoodTooltip = GetFoodTooltip; local GetGoldTooltip = civ5_mode and GetGoldTooltip or GetEnergyTooltip; local GetScienceTooltip = GetScienceTooltip; local GetProductionTooltip = GetProductionTooltip; local GetCultureTooltip = GetCultureTooltip; local GetFaithTooltip = GetFaithTooltip; local GetTourismTooltip = GetTourismTooltip; local GetCityHappinessTooltip = GetCityHappinessTooltip
 include( "SupportFunctions" ); local TruncateString = TruncateString
 if not civ5_mode then
 	include( "IntrigueHelper" )
@@ -1534,6 +1534,10 @@ local function UpdateCityViewNow()
 			Controls.NoAutoSpecialistCheckbox:SetDisabled( g_isViewingMode )
 			if bnw_mode then
 				Controls.TourismPerTurnLabel:LocalizeAndSetText( "TXT_KEY_CITYVIEW_PERTURN_TEXT", city:GetBaseTourism() )
+				-- CBP
+				local iHappinessPerTurn = city:getHappinessDelta();
+				Controls.HappinessPerTurnLabel:LocalizeAndSetText( "TXT_KEY_NET_HAPPINESS_TEXT", iHappinessPerTurn)
+				-- END
 				Controls.NoAutoSpecialistCheckbox2:SetCheck( isNoAutoAssignSpecialists )
 				Controls.NoAutoSpecialistCheckbox2:SetDisabled( g_isViewingMode )
 			end
@@ -1624,7 +1628,7 @@ local function UpdateCityViewNow()
 			iResistanceUnhappiness = (city:GetPopulation() / 2);
 		end
 		local iOccupationUnhappiness = 0;
-		if(city:IsOccupied() and not city:IsNoOccupiedUnhappiness()) then
+		if(city:IsOccupied() and not city:IsNoOccupiedUnhappiness() and not city:IsResistance() and not city:IsRazing()) then
 			iOccupationUnhappiness = (city:GetPopulation() * GameDefines.UNHAPPINESS_PER_OCCUPIED_POPULATION);
 		end
 
@@ -2306,6 +2310,11 @@ local g_toolTips = {
 	TourismBox = function( control )
 		return SetToolTipString( control, GetTourismTooltip )
 	end,
+-- CBP
+	HappinessBox = function( control )
+		return SetToolTipString( control, GetCityHappinessTooltip )
+	end,
+-- END
 	ProductionPortraitButton = ProductionToolTip
 }
 g_toolTips.PopulationBox = g_toolTips.FoodBox
@@ -2443,7 +2452,9 @@ Controls.GPFocusButton:SetHide( civBE_mode )
 Controls.FaithBox:SetHide( civBE_mode or not gk_mode )
 Controls.FaithFocusButton:SetHide( civBE_mode or not gk_mode )
 Controls.TourismBox:SetHide( not civ5bnw_mode )
-
+-- CBP
+Controls.HappinessBox:SetHide(not civ5bnw_mode);
+-- END
 SetupCallbacks( Controls, g_toolTips, "EUI_CityViewLeftTooltip", g_callBacks )
 
 Controls.BuyPlotCheckBox:RegisterCheckHandler( function( isChecked ) -- Void1, Void2, control )

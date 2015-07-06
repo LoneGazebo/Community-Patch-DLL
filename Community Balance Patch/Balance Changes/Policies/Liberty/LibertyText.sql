@@ -9,7 +9,7 @@ SET Text = 'City Planning'
 WHERE Tag = 'TXT_KEY_POLICY_COLLECTIVE_RULE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]City Planning[ENDCOLOR][NEWLINE] Receive 40 [ICON_GOLD] Gold when a [ICON_CITIZEN] Citizen is born in any city, and 50 [ICON_RESEARCH] Science when a [ICON_CITIZEN] Citizen is born in your Capital. Bonuses scale with Era.'
+SET Text = '[COLOR_POSITIVE_TEXT]City Planning[ENDCOLOR][NEWLINE] Receive 30 [ICON_GOLD] Gold when a [ICON_CITIZEN] Citizen is born in any city, and 40 [ICON_RESEARCH] Science when a [ICON_CITIZEN] Citizen is born in your Capital. Bonuses scale with Era.'
 WHERE Tag = 'TXT_KEY_POLICY_COLLECTIVE_RULE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US

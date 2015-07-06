@@ -721,6 +721,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 #endif
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 	Method(GetPuppetUnhappinessMod);
+	Method(GetCapitalUnhappinessModCBP);
 #endif
 
 	Method(IsAlive);
@@ -1115,11 +1116,13 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetInternationalTradeRouteOtherTraitBonus);
 	Method(GetInternationalTradeRouteRiverModifier);
 #if defined(MOD_BALANCE_CORE)
+	Method(GetTradeConnectionOpenBordersModifierTimes100);
 	Method(GetInternationalTradeRouteCorporationModifier);
 	Method(GetInternationalTradeRouteCorporationModifierScience);
 	Method(GetNumberofGlobalFranchises);
 	Method(GetNumberofOffices);
 	Method(GetCorporationName);
+	Method(GetCorporationHelper);
 #endif
 	Method(GetInternationalTradeRouteDomainModifier);
 	Method(GetInternationalTradeRouteTotal);
@@ -4050,14 +4053,13 @@ int CvLuaPlayer::lGetInternationalTradeRouteRiverModifier(lua_State* L)
 }
 #if defined(MOD_BALANCE_CORE)
 //------------------------------------------------------------------------------
-int CvLuaPlayer::lGetInternationalTradeRouteCorporationModifier(lua_State* L)
+int CvLuaPlayer::lGetTradeConnectionOpenBordersModifierTimes100(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	CvPlayerTrade* pPlayerTrade = pkPlayer->GetTrade();
 	CvCity* pOriginCity = CvLuaCity::GetInstance(L, 2, true);
 	CvCity* pDestCity = CvLuaCity::GetInstance(L, 3, true);
-	DomainTypes eDomain = (DomainTypes)lua_tointeger(L, 4);
-	bool bOrigin = lua_toboolean(L, 5);
+	bool bOrigin = lua_toboolean(L, 4);
 
 	TradeConnection kTradeConnection;
 	kTradeConnection.m_iOriginX = pOriginCity->getX();
@@ -4066,7 +4068,27 @@ int CvLuaPlayer::lGetInternationalTradeRouteCorporationModifier(lua_State* L)
 	kTradeConnection.m_iDestY = pDestCity->getY();
 	kTradeConnection.m_eOriginOwner = pOriginCity->getOwner();
 	kTradeConnection.m_eDestOwner = pDestCity->getOwner();
-	kTradeConnection.m_eDomain = eDomain;
+
+	int iResult = pPlayerTrade->GetTradeConnectionOpenBordersModifierTimes100(kTradeConnection, YIELD_GOLD, bOrigin);
+	lua_pushinteger(L, iResult);
+	return 1;	
+}
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lGetInternationalTradeRouteCorporationModifier(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	CvPlayerTrade* pPlayerTrade = pkPlayer->GetTrade();
+	CvCity* pOriginCity = CvLuaCity::GetInstance(L, 2, true);
+	CvCity* pDestCity = CvLuaCity::GetInstance(L, 3, true);
+	bool bOrigin = lua_toboolean(L, 4);
+
+	TradeConnection kTradeConnection;
+	kTradeConnection.m_iOriginX = pOriginCity->getX();
+	kTradeConnection.m_iOriginY = pOriginCity->getY();
+	kTradeConnection.m_iDestX = pDestCity->getX();
+	kTradeConnection.m_iDestY = pDestCity->getY();
+	kTradeConnection.m_eOriginOwner = pOriginCity->getOwner();
+	kTradeConnection.m_eDestOwner = pDestCity->getOwner();
 
 	int iResult = pPlayerTrade->GetTradeConnectionCorporationModifierTimes100(kTradeConnection, YIELD_GOLD, bOrigin);
 	lua_pushinteger(L, iResult);
@@ -4079,8 +4101,7 @@ int CvLuaPlayer::lGetInternationalTradeRouteCorporationModifierScience(lua_State
 	CvPlayerTrade* pPlayerTrade = pkPlayer->GetTrade();
 	CvCity* pOriginCity = CvLuaCity::GetInstance(L, 2, true);
 	CvCity* pDestCity = CvLuaCity::GetInstance(L, 3, true);
-	DomainTypes eDomain = (DomainTypes)lua_tointeger(L, 4);
-	bool bOrigin = lua_toboolean(L, 5);
+	bool bOrigin = lua_toboolean(L, 4);
 
 	TradeConnection kTradeConnection;
 	kTradeConnection.m_iOriginX = pOriginCity->getX();
@@ -4089,7 +4110,6 @@ int CvLuaPlayer::lGetInternationalTradeRouteCorporationModifierScience(lua_State
 	kTradeConnection.m_iDestY = pDestCity->getY();
 	kTradeConnection.m_eOriginOwner = pOriginCity->getOwner();
 	kTradeConnection.m_eDestOwner = pDestCity->getOwner();
-	kTradeConnection.m_eDomain = eDomain;
 
 	int iResult = pPlayerTrade->GetTradeConnectionCorporationModifierTimes100(kTradeConnection, YIELD_SCIENCE, bOrigin);
 	lua_pushinteger(L, iResult);
@@ -4138,6 +4158,33 @@ int CvLuaPlayer::lGetCorporationName(lua_State* L)
 				if(pkPlayer->GetCorporateFounderID() == pkBuildingEntry->GetCorporationHQID())
 				{
 					lua_pushstring(L, pkBuildingEntry->GetDescription());
+					return 1;	
+				}
+			}
+		}
+	}
+	return 0;	
+}
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lGetCorporationHelper(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	int iBuildingLoop;
+	BuildingTypes eBuilding;
+	CvString toolTip;
+	if(pkPlayer->GetCorporateFounderID() > 0)
+	{
+		// Loop through all buildings, see if they're a world wonder
+		for(iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
+		{
+			eBuilding = (BuildingTypes) iBuildingLoop;
+			CvBuildingEntry* pkBuildingEntry = GC.getBuildingInfo(eBuilding);
+			if(pkBuildingEntry)
+			{
+				if(pkPlayer->GetCorporateFounderID() == pkBuildingEntry->GetCorporationHQID())
+				{
+					toolTip = pkBuildingEntry->GetCorporationHelper();
+					lua_pushstring(L, toolTip.c_str());
 					return 1;	
 				}
 			}
@@ -7729,6 +7776,16 @@ int CvLuaPlayer::lGetPuppetUnhappinessMod(lua_State* L)
 	lua_pushinteger(L, iResult);
 	return 1;
 }
+//------------------------------------------------------------------------------
+//int GetCapitalUnhappinessModCBP();
+int CvLuaPlayer::lGetCapitalUnhappinessModCBP(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+
+	const int iResult = pkPlayer->GetCapitalUnhappinessModCBP();
+	lua_pushinteger(L, iResult);
+	return 1;
+}
 #endif
 //------------------------------------------------------------------------------
 //bool isAlive();
@@ -11084,6 +11141,31 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			kOpinion.m_iValue = iValue;
 			kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_DP_WITH_ENEMY");
 			aOpinions.push_back(kOpinion);
+		}
+		iValue = pDiploAI->GetOpenBordersScore(eWithPlayer);
+		if (iValue != 0)
+		{
+			if(GET_TEAM(GET_PLAYER(eWithPlayer).getTeam()).IsAllowsOpenBordersToTeam(pkPlayer->getTeam()) && GET_TEAM(pkPlayer->getTeam()).IsAllowsOpenBordersToTeam(GET_PLAYER(eWithPlayer).getTeam()))
+			{
+				Opinion kOpinion;
+				kOpinion.m_iValue = iValue;
+				kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_OPEN_BORDERS_MUTUAL");
+				aOpinions.push_back(kOpinion);
+			}
+			else if(GET_TEAM(GET_PLAYER(eWithPlayer).getTeam()).IsAllowsOpenBordersToTeam(pkPlayer->getTeam()))
+			{
+				Opinion kOpinion;
+				kOpinion.m_iValue = iValue;
+				kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_OPEN_BORDERS_US");
+				aOpinions.push_back(kOpinion);
+			}
+			else if(GET_TEAM(pkPlayer->getTeam()).IsAllowsOpenBordersToTeam(GET_PLAYER(eWithPlayer).getTeam()))
+			{
+				Opinion kOpinion;
+				kOpinion.m_iValue = iValue;
+				kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_OPEN_BORDERS_THEM");
+				aOpinions.push_back(kOpinion);
+			}
 		}
 	}
 #endif

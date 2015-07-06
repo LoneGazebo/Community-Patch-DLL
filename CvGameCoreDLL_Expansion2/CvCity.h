@@ -596,6 +596,9 @@ public:
 
 	int GetLocalHappiness() const;
 #if defined(MOD_BALANCE_CORE_HAPPINESS)
+	int getHappinessDelta() const;
+	int getThresholdSubtractions(YieldTypes eYield) const;
+	int getThresholdAdditions() const;
 	int getUnhappyCitizenCount() const;
 	void setUnhappyCitizenCount(int iNewValue);
 	void changeUnhappyCitizenCount(int iChange) const;

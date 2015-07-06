@@ -893,7 +893,7 @@ function OnCityViewUpdate()
 			iResistanceUnhappiness = (pCity:GetPopulation() / 2);
 		end
 		local iOccupationUnhappiness = 0;
-		if(pCity:IsOccupied() and not pCity:IsNoOccupiedUnhappiness()) then
+		if(pCity:IsOccupied() and not pCity:IsNoOccupiedUnhappiness() and not pCity:IsResistance() and not pCity:IsRazing()) then
 			iOccupationUnhappiness = (pCity:GetPopulation() * GameDefines.UNHAPPINESS_PER_OCCUPIED_POPULATION);
 		end
 			
@@ -1827,6 +1827,10 @@ function OnCityViewUpdate()
 		local iTourismPerTurn = pCity:GetBaseTourism();
 		Controls.TourismPerTurnLabel:SetText( Locale.ConvertTextKey("TXT_KEY_CITYVIEW_PERTURN_TEXT", iTourismPerTurn) );
 	
+		-- CBP
+		local iHappinessPerTurn = pCity:getHappinessDelta();
+		Controls.HappinessPerTurnLabel:SetText( Locale.ConvertTextKey("TXT_KEY_NET_HAPPINESS_TEXT", iHappinessPerTurn) );
+		-- END
 
 		local cityGrowth = pCity:GetFoodTurnsLeft();			
 		if (pCity:IsFoodProduction() or pCity:FoodDifferenceTimes100() == 0) then
@@ -2120,6 +2124,11 @@ function DoUpdateUpperLeftTooltips()
 	
 	local strTourismToolTip = GetTourismTooltip(pCity);
 	Controls.TourismBox:SetToolTipString(strTourismToolTip);
+
+-- CBP
+	local strCityHappinessTooltip = GetCityHappinessTooltip(pCity);
+	Controls.HappinessBox:SetToolTipString(strCityHappinessTooltip);
+-- END
 end
 
 -------------------------------------------------

@@ -7319,6 +7319,12 @@ BuildingTypes CvMinorCivAI::GetBestNationalWonderForQuest(PlayerTypes ePlayer)
 			continue;
 		}
 #endif
+#if defined(MOD_BALANCE_CORE)
+		if(pkBuildingInfo->GetCorporationHQID() > 0)
+		{
+			continue;
+		}
+#endif
 
 		// Must be able to build it
 		if(!GET_PLAYER(ePlayer).canConstruct(eBuilding))

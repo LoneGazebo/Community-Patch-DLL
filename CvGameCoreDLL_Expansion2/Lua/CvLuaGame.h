@@ -303,6 +303,16 @@ protected:
 	static int lGetBuildingYieldChange(lua_State* L);
 	static int lGetBuildingYieldModifier(lua_State* L);
 #if defined(MOD_BALANCE_CORE)
+	static int lGetPovertyHappinessChangeBuilding(lua_State* L);
+	static int lGetDefenseHappinessChangeBuilding(lua_State* L);
+	static int lGetUnculturedHappinessChangeBuilding(lua_State* L);
+	static int lGetIlliteracyHappinessChangeBuilding(lua_State* L);
+	static int lGetMinorityHappinessChangeBuilding(lua_State* L);
+	static int lGetPovertyHappinessChangeBuildingGlobal(lua_State* L);
+	static int lGetDefenseHappinessChangeBuildingGlobal(lua_State* L);
+	static int lGetUnculturedHappinessChangeBuildingGlobal(lua_State* L);
+	static int lGetIlliteracyHappinessChangeBuildingGlobal(lua_State* L);
+	static int lGetMinorityHappinessChangeBuildingGlobal(lua_State* L);
 	static int lGetBuildingCorporateYieldChange(lua_State* L);
 	static int lGetBuildingCorporateGPChange(lua_State* L);
 #endif

@@ -326,6 +326,9 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(ChangeCityWorkingChange);
 #endif
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE_HAPPINESS)
+	Method(getHappinessDelta);
+	Method(getThresholdSubtractions);
+	Method(getThresholdAdditions);
 	Method(GetUnhappinessFromCultureYield);
 	Method(GetUnhappinessFromCultureNeeded);
 	Method(GetUnhappinessFromCulture);
@@ -3037,6 +3040,30 @@ int CvLuaCity::lChangeCityWorkingChange(lua_State* L)
 #endif
 
 #if defined(MOD_API_LUA_EXTENSIONS) && defined(MOD_BALANCE_CORE_HAPPINESS)
+//int getHappinessDelta();
+int CvLuaCity::lgetHappinessDelta(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	lua_pushinteger(L, pkCity->getHappinessDelta());
+	return 1;
+}
+//int getThresholdSubtractions();
+int CvLuaCity::lgetThresholdSubtractions(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const YieldTypes eYield = (YieldTypes) lua_tointeger(L, 2);
+	const int iResult = pkCity->getThresholdSubtractions(eYield);
+
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+//int getThresholdAdditions();
+int CvLuaCity::lgetThresholdAdditions(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	lua_pushinteger(L, pkCity->getThresholdAdditions());
+	return 1;
+}
 //int getUnhappinessFromCultureYield();
 int CvLuaCity::lGetUnhappinessFromCultureYield(lua_State* L)
 {
@@ -4523,7 +4550,6 @@ int CvLuaCity::lGetBuildingClassCultureChange(lua_State* L)
 	const BuildingClassTypes eBuildingClassType = (BuildingClassTypes)lua_tointeger(L, 2);
 
 	CvCity* pkCity = GetInstance(L);
-	const int eYield = lua_tointeger(L, 2);
 	const int iResult = pkCity->getBuildingClassCultureChange((BuildingClassTypes)eBuildingClassType);
 
 	lua_pushinteger(L, iResult);
@@ -4532,18 +4558,20 @@ int CvLuaCity::lGetBuildingClassCultureChange(lua_State* L)
 //int getReligionYieldRateModifier(YieldTypes eYield);
 int CvLuaCity::lGetReligionYieldRateModifier(lua_State* L)
 {
-	int iRtnValue = 0;
 	CvCity* pkCity = GetInstance(L);
-	const int eYield = lua_tointeger(L, 2);
+	const YieldTypes eYield = (YieldTypes) lua_tointeger(L, 2);
 	const PlayerTypes ePlayer = pkCity->getOwner();
 	ReligionTypes eMajority = pkCity->GetCityReligions()->GetReligiousMajority();
 	ReligionTypes ePlayerReligion = GET_PLAYER(ePlayer).GetReligions()->GetReligionInMostCities();
 	if(ePlayerReligion != NO_RELIGION && eMajority == ePlayerReligion)
 	{
-		iRtnValue = GET_PLAYER(ePlayer).getReligionYieldRateModifier((YieldTypes)eYield);
+		const int iRtnValue = GET_PLAYER(ePlayer).getReligionYieldRateModifier(eYield);
+		lua_pushinteger(L, iRtnValue);
 	}
-
-	lua_pushinteger(L, iRtnValue);
+	else
+	{
+		lua_pushinteger(L, 0);
+	}
 
 	return 1;
 }

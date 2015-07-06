@@ -423,6 +423,22 @@ OperationSlot CvAIOperation::PeekAtNextUnitToBuild(int iAreaID)
 	{
 		thisSlot = m_viListOfUnitsWeStillNeedToBuild.back();
 	}
+#if defined(MOD_BALANCE_CORE)
+	else
+	{
+		if(iAreaID != -1)
+		{
+			CvArea* pArea = GC.getMap().getArea(iAreaID);
+			if(pArea != NULL)
+			{
+				if(pArea->isWater() && !m_viListOfUnitsWeStillNeedToBuild.empty())
+				{
+					thisSlot = m_viListOfUnitsWeStillNeedToBuild.back();
+				}
+			}
+		}
+	}
+#endif
 	return thisSlot;
 }
 
@@ -3893,7 +3909,7 @@ void CvAIOperationFoundCity::Init(int iID, PlayerTypes eOwner, PlayerTypes /*eEn
 					for(int iDirectionLoop = 0; iDirectionLoop < NUM_DIRECTION_TYPES; ++iDirectionLoop)
 					{
 						CvPlot* pAdjacentPlot = plotDirection(pMusterPt->getX(), pMusterPt->getY(), ((DirectionTypes)iDirectionLoop));
-						if(pAdjacentPlot != NULL && !pAdjacentPlot->isWater() && pAdjacentPlot->getOwner() == m_eOwner)
+						if(pAdjacentPlot != NULL && !pAdjacentPlot->isWater() && pAdjacentPlot->getOwner() == m_eOwner && pAdjacentPlot->getNumUnits() <= 0)
 						{
 							pMusterPt = pAdjacentPlot;
 							break;

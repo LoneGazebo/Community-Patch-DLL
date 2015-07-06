@@ -691,6 +691,8 @@ void CvGame::InitPlayers()
 			{
 #if defined(MOD_GLOBAL_MAX_MAJOR_CIVS)
 				CvMinorCivInfo* pMinorCivInfo = GC.getMinorCivInfo(CvPreGame::minorCivType((PlayerTypes) (eMinorPlayer + (MAX_PREGAME_MAJOR_CIVS - MAX_MAJOR_CIVS))));
+				if(pMinorCivInfo)
+				{
 #else
 				CvMinorCivInfo* pMinorCivInfo = GC.getMinorCivInfo(CvPreGame::minorCivType(eMinorPlayer));
 #endif
@@ -702,6 +704,9 @@ void CvGame::InitPlayers()
 				CvPreGame::setLeaderHead(eMinorPlayer, (LeaderHeadTypes)GC.getBARBARIAN_LEADER());
 				CvPreGame::setPlayerColor(eMinorPlayer, (PlayerColorTypes)pMinorCivInfo->getDefaultPlayerColor());
 				CvPreGame::setMinorCiv(eMinorPlayer, true);
+#if defined(MOD_GLOBAL_MAX_MAJOR_CIVS)
+				}
+#endif
 			}
 		}
 	}

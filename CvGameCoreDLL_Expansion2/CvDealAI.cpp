@@ -873,12 +873,13 @@ bool CvDealAI::DoEqualizeDealWithHuman(CvDeal* pDeal, PlayerTypes eOtherPlayer, 
 
 			DoAddCitiesToUs(pDeal, eOtherPlayer, bDontChangeMyExistingItems, iTotalValueToMe, iValueImOffering, iValueTheyreOffering, iAmountUnderWeWillOffer, bUseEvenValue);
 #if defined(MOD_BALANCE_CORE)
-			DoAddCitiesToThem(pDeal, eOtherPlayer, bDontChangeMyExistingItems, iTotalValueToMe, iValueImOffering, iValueTheyreOffering, iAmountOverWeWillRequest, bUseEvenValue);
+			DoAddCitiesToThem(pDeal, eOtherPlayer, bDontChangeTheirExistingItems, iTotalValueToMe, iValueImOffering, iValueTheyreOffering, iAmountOverWeWillRequest, bUseEvenValue);
+			DoAddCitiesToUs(pDeal, eOtherPlayer, bDontChangeMyExistingItems, iTotalValueToMe, iValueImOffering, iValueTheyreOffering, iAmountOverWeWillRequest, bUseEvenValue);
 
-			DoAddThirdPartyWarToThem(pDeal, eOtherPlayer, bDontChangeMyExistingItems, iTotalValueToMe, iValueImOffering, iValueTheyreOffering, iAmountOverWeWillRequest, bUseEvenValue);
+			DoAddThirdPartyWarToThem(pDeal, eOtherPlayer, bDontChangeTheirExistingItems, iTotalValueToMe, iValueImOffering, iValueTheyreOffering, iAmountOverWeWillRequest, bUseEvenValue);
 			DoAddThirdPartyWarToUs(pDeal, eOtherPlayer, bDontChangeMyExistingItems, iTotalValueToMe, iValueImOffering, iValueTheyreOffering, iAmountOverWeWillRequest, bUseEvenValue);
 
-			DoAddThirdPartyPeaceToThem(pDeal, eOtherPlayer, bDontChangeMyExistingItems, iTotalValueToMe, iValueImOffering, iValueTheyreOffering, iAmountOverWeWillRequest, bUseEvenValue);
+			DoAddThirdPartyPeaceToThem(pDeal, eOtherPlayer, bDontChangeTheirExistingItems, iTotalValueToMe, iValueImOffering, iValueTheyreOffering, iAmountOverWeWillRequest, bUseEvenValue);
 			DoAddThirdPartyPeaceToUs(pDeal, eOtherPlayer, bDontChangeMyExistingItems, iTotalValueToMe, iValueImOffering, iValueTheyreOffering, iAmountOverWeWillRequest, bUseEvenValue);
 #endif
 			// Make sure we haven't removed everything from the deal!
@@ -2436,27 +2437,44 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 			}
 			//Is this city objectively worse than all our non-capital current cities? We don't want it (unless we founded it)
 			bool bGoodValue = false;
-			if(pCity->getOriginalOwner() != GetPlayer()->GetID())
+			int iTestValue = pCity->getEconomicValue( GetPlayer()->GetID() );
+			// slewis - Due to rule changes, value of major capitals should go up quite a bit because someone can win the game by owning them
+			if (pCity->IsOriginalMajorCapital())
 			{
-				int iTestValue = pCity->getEconomicValue( GetPlayer()->GetID() );
-				CvCity* pLoopCity = NULL;
-				int iCityLoop;
-				for(pLoopCity = m_pPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iCityLoop))
+				iTestValue *= 4;
+			}
+			//Did we build this city? We like it.
+			if(pCity->getOriginalOwner() == GetPlayer()->GetID())
+			{
+				iTestValue *= 2;
+			}
+			//Did we build this city? We like it.
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+			if(MOD_DIPLOMACY_CIV4_FEATURES)
+			{
+				if(GET_TEAM(GetPlayer()->getTeam()).IsVassal(GET_PLAYER(eOtherPlayer).getTeam()))
 				{
-					if(pLoopCity != NULL)
+					iTestValue *= 2;
+				}
+			}
+#endif
+			CvCity* pLoopCity = NULL;
+			int iCityLoop;
+			for(pLoopCity = m_pPlayer->firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iCityLoop))
+			{
+				if(pLoopCity != NULL)
+				{
+					int iValue = pLoopCity->getEconomicValue(GetPlayer()->GetID() );
+					//Only compare cities of roughly the same size.
+					if(pLoopCity->getPopulation() < pCity->getPopulation())
 					{
-						int iValue = pLoopCity->getEconomicValue(GetPlayer()->GetID() );
-						//Only compare cities of roughly the same size.
-						if(pLoopCity->getPopulation() < pCity->getPopulation())
-						{
-							continue;
-						}
-						//Is the new city much better than one of our own cities? If so, we'll take it!
-						if(iTestValue > iValue)
-						{
-							bGoodValue = true;
-							break;
-						}
+						continue;
+					}
+					//Is the new city much better than one of our own cities? If so, we'll take it!
+					if(iTestValue > iValue)
+					{
+						bGoodValue = true;
+						break;
 					}
 				}
 			}
@@ -2488,7 +2506,7 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 			// check the city's yields and resources
 			iItemValue += pCity->getEconomicValue( GetPlayer()->GetID() );
 			//Divide pop to sanitize the value a bit - bigger cities also have more maintenance and unhappiness, so they may not always be 'better.'
-			iItemValue /= max(1, (pCity->getPopulation() / 6));
+			iItemValue /= max(1, (pCity->getPopulation() / 4));
 
 			// Adjust for how well a war against this player would go (or is going)
 			switch(GetPlayer()->GetDiplomacyAI()->GetWarProjection(eOtherPlayer))
@@ -2536,16 +2554,6 @@ int CvDealAI::GetCityValue(int iX, int iY, bool bFromMe, PlayerTypes eOtherPlaye
 			}
 			iItemValue /= max(1, (iDistance / 3));
 
-			// slewis - Due to rule changes, value of major capitals should go up quite a bit because someone can win the game by owning them
-			if (pCity->IsOriginalMajorCapital())
-			{
-				iItemValue *= 5;
-			}
-			//Did we build this city? We like it.
-			if(pCity->getOriginalOwner() == GetPlayer()->GetID())
-			{
-				iItemValue *= 4;
-			}
 			// Opinion also matters
 			switch(GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(eOtherPlayer))
 			{
@@ -2849,8 +2857,9 @@ int CvDealAI::GetOpenBordersValue(bool bFromMe, PlayerTypes eOtherPlayer, bool b
 #if !defined(MOD_BALANCE_CORE)
 	if(eApproach == MAJOR_CIV_APPROACH_FRIENDLY)
 		return 50;
+#else
+	int iItemValue = 10;
 #endif
-	int iItemValue = 0;
 
 	// Me giving Open Borders to the other guy
 	if(bFromMe)
@@ -2931,7 +2940,39 @@ int CvDealAI::GetOpenBordersValue(bool bFromMe, PlayerTypes eOtherPlayer, bool b
 			iItemValue *= 25;
 			iItemValue /= 100;
 		}
+#if defined(MOD_BALANCE_FLIPPED_TOURISM_MODIFIER_OPEN_BORDERS)
+		AIGrandStrategyTypes eCultureStrategy = (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_CULTURE");
+		if (eCultureStrategy != NO_AIGRANDSTRATEGY && GetPlayer()->GetGrandStrategyAI()->GetActiveGrandStrategy() == eCultureStrategy && GetPlayer()->GetCulture()->GetTourism() > 0 )
+		{
+			// The civ we need influence on the most should ALWAYS be included
+			if (GetPlayer()->GetCulture()->GetCivLowestInfluence(false /*bCheckOpenBorders*/) == eOtherPlayer)
+			{
+				iItemValue *= 1000;
+				iItemValue /= 100;
+			}
 
+			// If have influence over half the civs, want OB with the other half
+			else if (GetPlayer()->GetCulture()->GetNumCivsToBeInfluentialOn() <= GetPlayer()->GetCulture()->GetNumCivsInfluentialOn())
+			{
+				if (GetPlayer()->GetCulture()->GetInfluenceLevel(eOtherPlayer) < INFLUENCE_LEVEL_INFLUENTIAL)
+				{
+					iItemValue *= 500;
+					iItemValue /= 100;
+				}
+			}
+
+			else if (GetPlayer()->GetProximityToPlayer(eOtherPlayer) == PLAYER_PROXIMITY_NEIGHBORS)
+			{
+				// If we're cramped then we want OB more with our neighbors
+				if(GetPlayer()->IsCramped())
+				{
+					iItemValue *= 300;
+					iItemValue /= 100;
+				}
+			}
+		}
+#endif
+#if !defined(MOD_BALANCE_FLIPPED_TOURISM_MODIFIER_OPEN_BORDERS)
 		// Do we think he's going for culture victory?
 		AIGrandStrategyTypes eCultureStrategy = (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_CULTURE");
 		if (eCultureStrategy != NO_AIGRANDSTRATEGY && GetPlayer()->GetGrandStrategyAI()->GetGuessOtherPlayerActiveGrandStrategy(eOtherPlayer) == eCultureStrategy)
@@ -2960,6 +3001,7 @@ int CvDealAI::GetOpenBordersValue(bool bFromMe, PlayerTypes eOtherPlayer, bool b
 				}
 			}
 		}
+#endif
 #endif
 	}
 	// Other guy giving me Open Borders
@@ -3069,6 +3111,7 @@ int CvDealAI::GetOpenBordersValue(bool bFromMe, PlayerTypes eOtherPlayer, bool b
 #endif
 		// Boost value greatly if we are going for a culture win
 		// If going for culture win always want open borders against civs we need influence on
+#if !defined(MOD_BALANCE_FLIPPED_TOURISM_MODIFIER_OPEN_BORDERS)
 		AIGrandStrategyTypes eCultureStrategy = (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_CULTURE");
 		if (eCultureStrategy != NO_AIGRANDSTRATEGY && GetPlayer()->GetGrandStrategyAI()->GetActiveGrandStrategy() == eCultureStrategy && GetPlayer()->GetCulture()->GetTourism() > 0 )
 		{
@@ -3099,6 +3142,35 @@ int CvDealAI::GetOpenBordersValue(bool bFromMe, PlayerTypes eOtherPlayer, bool b
 				}
 			}
 		}
+#endif
+#if defined(MOD_BALANCE_FLIPPED_TOURISM_MODIFIER_OPEN_BORDERS)
+		// Do we think he's going for culture victory?
+		AIGrandStrategyTypes eCultureStrategy = (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_CULTURE");
+		if (eCultureStrategy != NO_AIGRANDSTRATEGY && GetPlayer()->GetGrandStrategyAI()->GetGuessOtherPlayerActiveGrandStrategy(eOtherPlayer) == eCultureStrategy)
+		{
+			CvPlayer &kOtherPlayer = GET_PLAYER(eOtherPlayer);
+
+			// If he has tourism and he's not influential on us yet, resist!
+			if (kOtherPlayer.GetCulture()->GetTourism() > 0 && kOtherPlayer.GetCulture()->GetInfluenceOn(GetPlayer()->GetID()) < INFLUENCE_LEVEL_INFLUENTIAL)
+			{
+				iItemValue *= 500;
+				iItemValue /= 100;
+			}
+		}
+		{
+			CvPlayer &kOtherPlayer = GET_PLAYER(eOtherPlayer);
+			if (kOtherPlayer.GetCulture()->GetTourism() > 0 && (kOtherPlayer.GetCulture()->GetInfluenceOn(GetPlayer()->GetID()) > INFLUENCE_LEVEL_FAMILIAR) && (kOtherPlayer.GetCulture()->GetInfluenceOn(GetPlayer()->GetID()) < INFLUENCE_LEVEL_INFLUENTIAL))
+			{
+				if(GetPlayer()->GetDiplomacyAI()->GetMajorCivOpinion(eOtherPlayer) <= MAJOR_CIV_OPINION_NEUTRAL)
+				{
+					if(GetPlayer()->GetDiplomacyAI()->GetVictoryBlockLevel(eOtherPlayer) >= BLOCK_LEVEL_STRONG || GetPlayer()->GetDiplomacyAI()->GetVictoryDisputeLevel(eOtherPlayer) >= DISPUTE_LEVEL_STRONG)
+					{
+						iItemValue = 100000;
+					}
+				}
+			}
+		}
+#endif
 	}
 
 	// Are we trying to find the middle point between what we think this item is worth and what another player thinks it's worth?
@@ -3468,8 +3540,11 @@ int CvDealAI::GetPeaceTreatyValue(PlayerTypes eOtherPlayer)
 	DEBUG_VARIABLE(eOtherPlayer);
 
 	CvAssertMsg(GetPlayer()->GetID() != eOtherPlayer, "DEAL_AI: Trying to check value of a Peace Treaty with oneself.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-
+#if defined(MOD_BALANCE_CORE)
+	return (10 * GetPlayer()->GetMilitaryAI()->GetNumberCivsAtWarWith(false));
+#else
 	return 0;
+#endif
 
 	// DEPRECATED
 
@@ -6274,8 +6349,8 @@ void CvDealAI::DoAddItemsToDealForPeaceTreaty(PlayerTypes eOtherPlayer, CvDeal* 
 
 	case PEACE_TREATY_ARMISTICE:
 #if defined(MOD_BALANCE_CORE_DEALS)
-		iPercentGoldToGive = 33;
-		iPercentGPTToGive = 33;
+		iPercentGoldToGive = 20;
+		iPercentGPTToGive = 20;
 #else
 		iPercentGoldToGive = 50;
 		iPercentGPTToGive = 50;
@@ -6284,9 +6359,8 @@ void CvDealAI::DoAddItemsToDealForPeaceTreaty(PlayerTypes eOtherPlayer, CvDeal* 
 
 	case PEACE_TREATY_SETTLEMENT:
 #if defined(MOD_BALANCE_CORE_DEALS)
-		iPercentGoldToGive = 50;
-		iPercentGPTToGive = 50;
-		bGiveUpLuxuryResources = true;
+		iPercentGoldToGive = 33;
+		iPercentGPTToGive = 33;
 #else
 		iPercentGoldToGive = 100;
 		iPercentGPTToGive = 100;
@@ -6295,8 +6369,9 @@ void CvDealAI::DoAddItemsToDealForPeaceTreaty(PlayerTypes eOtherPlayer, CvDeal* 
 
 	case PEACE_TREATY_BACKDOWN:
 #if defined(MOD_BALANCE_CORE_DEALS)
-		iPercentGoldToGive = 66;
-		iPercentGPTToGive = 66;
+		iPercentGoldToGive = 50;
+		iPercentGPTToGive = 50;
+		bGiveUpLuxuryResources = true;
 #else
 		iPercentGoldToGive = 100;
 		iPercentGPTToGive = 100;
@@ -6307,8 +6382,8 @@ void CvDealAI::DoAddItemsToDealForPeaceTreaty(PlayerTypes eOtherPlayer, CvDeal* 
 
 	case PEACE_TREATY_SUBMISSION:
 #if defined(MOD_BALANCE_CORE_DEALS)
-		iPercentGoldToGive = 75;
-		iPercentGPTToGive = 75;
+		iPercentGoldToGive = 50;
+		iPercentGPTToGive = 50;
 #else
 		iPercentGoldToGive = 100;
 		iPercentGPTToGive = 100;
@@ -6753,7 +6828,64 @@ bool CvDealAI::IsMakeDemand(PlayerTypes eOtherPlayer, CvDeal* pDeal)
 
 	// Set that this CvDeal is a demand
 	pDeal->SetDemandingPlayer(GetPlayer()->GetID());
-
+#if defined(MOD_BALANCE_CORE)
+	int iIdealValue = 20 * (GetPlayer()->GetDiplomacyAI()->GetMeanness() + GetPlayer()->GetCurrentEra());
+	if(GetPlayer()->GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(eOtherPlayer) < STRENGTH_AVERAGE)
+	{
+		iIdealValue *= 3;
+	}
+	bool bDontChangeTheirExistingItems = false;
+	int iDealDuration = GC.getGame().GetDealDuration();
+	bool bUseEvenValue = false;
+	int iTotalValueToMe, iValueImOffering, iValueTheyreOffering;
+	int iAmountOverWeWillRequest = 0;
+	iTotalValueToMe = (iIdealValue * -1);
+	DoAddResourceToThem(pDeal, eOtherPlayer, bDontChangeTheirExistingItems, iTotalValueToMe, iValueImOffering, iValueTheyreOffering, iAmountOverWeWillRequest, iDealDuration, bUseEvenValue);
+	if(iValueTheyreOffering >= iIdealValue)
+	{
+		return true;
+	}
+	DoAddGPTToThem(pDeal, eOtherPlayer, bDontChangeTheirExistingItems, iTotalValueToMe, iValueImOffering, iValueTheyreOffering, iDealDuration, bUseEvenValue);
+	if(iValueTheyreOffering >= iIdealValue)
+	{
+		return true;
+	}
+	DoAddGoldToThem(pDeal, eOtherPlayer, bDontChangeTheirExistingItems, iTotalValueToMe, iValueImOffering, iValueTheyreOffering, bUseEvenValue);
+	if(iValueTheyreOffering >= iIdealValue)
+	{
+		return true;
+	}
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	if (MOD_DIPLOMACY_CIV4_FEATURES) {
+		// AI would rather offer human resources/open borders than techs/maps
+		DoAddTechToThem(pDeal, eOtherPlayer, bDontChangeTheirExistingItems, iTotalValueToMe, iValueImOffering, iValueTheyreOffering, iAmountOverWeWillRequest, bUseEvenValue);
+		if(iValueTheyreOffering >= iIdealValue)
+		{
+			return true;
+		}
+		DoAddMapsToThem(pDeal, eOtherPlayer, bDontChangeTheirExistingItems, iTotalValueToMe, iValueImOffering, iValueTheyreOffering, iAmountOverWeWillRequest, bUseEvenValue);
+		if(iValueTheyreOffering >= iIdealValue)
+		{
+			return true;
+		}
+	}
+#endif
+	DoAddCitiesToThem(pDeal, eOtherPlayer, bDontChangeTheirExistingItems, iTotalValueToMe, iValueImOffering, iValueTheyreOffering, iAmountOverWeWillRequest, bUseEvenValue);
+	if(iValueTheyreOffering >= iIdealValue)
+	{
+		return true;
+	}
+	DoAddThirdPartyWarToThem(pDeal, eOtherPlayer, bDontChangeTheirExistingItems, iTotalValueToMe, iValueImOffering, iValueTheyreOffering, iAmountOverWeWillRequest, bUseEvenValue);
+	if(iValueTheyreOffering >= iIdealValue)
+	{
+		return true;
+	}
+	// Make sure we haven't removed everything from the deal!
+	if(pDeal->m_TradedItems.size() > 0)
+	{
+		return true;
+	}
+#else
 	int iGold = pDeal->GetGoldAvailable(eOtherPlayer, TRADE_ITEM_GOLD);
 
 	// Don't ask for too much
@@ -6766,7 +6898,7 @@ bool CvDealAI::IsMakeDemand(PlayerTypes eOtherPlayer, CvDeal* pDeal)
 
 		return true;
 	}
-
+#endif
 	return false;
 }
 

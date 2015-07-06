@@ -22,7 +22,7 @@ enum ProductionSpecializationSubtypes
 
 // Thru science (YIELD_SCIENCE+1) plus one more for general economics
 #if defined(MOD_BALANCE_CORE)
-#define NUM_SPECIALIZATION_YIELDS (YIELD_FAITH+1)
+#define NUM_SPECIALIZATION_YIELDS (YIELD_FAITH+2)
 #else
 #define NUM_SPECIALIZATION_YIELDS (YIELD_SCIENCE+2)
 #endif

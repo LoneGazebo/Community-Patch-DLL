@@ -1187,6 +1187,8 @@ public:
 	void ChangeIlliteracyUnhappinessModCapital(int iChange);
 	int GetMinorityUnhappinessModCapital() const;
 	void ChangeMinorityUnhappinessModCapital(int iChange);
+	int GetCapitalUnhappinessModCBP() const;
+	void ChangeCapitalUnhappinessModCBP(int iChange);
 	int GetPuppetUnhappinessMod() const;
 	void ChangePuppetUnhappinessMod(int iChange);
 	int GetNoUnhappfromXSpecialists() const;
@@ -2358,6 +2360,7 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iIlliteracyUnhappinessModCapital;
 	FAutoVariable<int, CvPlayer> m_iMinorityUnhappinessModCapital;
 	FAutoVariable<int, CvPlayer> m_iPuppetUnhappinessMod;
+	FAutoVariable<int, CvPlayer> m_iCapitalUnhappinessModCBP;
 	FAutoVariable<int, CvPlayer> m_iNoUnhappfromXSpecialists;
 	FAutoVariable<int, CvPlayer> m_iNoUnhappfromXSpecialistsCapital;
 	FAutoVariable<int, CvPlayer> m_iWarWearinessModifier;

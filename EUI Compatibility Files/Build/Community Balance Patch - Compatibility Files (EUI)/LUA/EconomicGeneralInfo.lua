@@ -92,7 +92,7 @@ function UpdateDisplay()
 			iResistanceUnhappiness = (pCity:GetPopulation() / 2);
 		end
 		local iOccupationUnhappiness = 0;
-		if(pCity:IsOccupied() and not pCity:IsNoOccupiedUnhappiness()) then
+		if(pCity:IsOccupied() and not pCity:IsNoOccupiedUnhappiness() and not pCity:IsResistance() and not pCity:IsRazing()) then
 			iOccupationUnhappiness = (pCity:GetPopulation() * GameDefines.UNHAPPINESS_PER_OCCUPIED_POPULATION);
 		end
 		local iTotalUnhappiness = iScienceUnhappiness + iCultureUnhappiness + iDefenseUnhappiness	+ iGoldUnhappiness + iConnectionUnhappiness + iPillagedUnhappiness + iStarvingUnhappiness + iMinorityUnhappiness + iOccupationUnhappiness + iResistanceUnhappiness;
@@ -516,12 +516,14 @@ function UpdateCorporations()
     local pPlayer = Players[ Game.GetActivePlayer() ];
 	local g_iUs = Game.GetActivePlayer();
 	local strCorpName = pPlayer:GetCorporationName();
+	local strCorpNameTT = Locale.ConvertTextKey("TXT_KEY_CORP_EX_NAME");
 	if(strCorpName ~= nil) then
+		strCorpNameTT = pPlayer:GetCorporationHelper();
 		Controls.CorporationName:SetText("[COLOR_POSITIVE_TEXT]" .. strCorpName .. "[ENDCOLOR]");
+		Controls.CorporationName:SetToolTipString(Locale.ConvertTextKey(strCorpNameTT));
 	else
 		strCorpName = Locale.ConvertTextKey("TXT_KEY_CORP_NO_CORP");
 		Controls.CorporationName:SetText(strCorpName);	
-		local strCorpNameTT = Locale.ConvertTextKey("TXT_KEY_CORP_EX_NAME");
 		Controls.CorporationName:SetToolTipString(strCorpNameTT);
 	end
 
@@ -610,8 +612,9 @@ function UpdateCorporations()
 				local instance = {};
 				ContextPtr:BuildInstanceForControl( "ForeignCorpsEntry", instance, Controls.ForeignCorpsStack );
 				instance.CorpName:SetText( strCorpName );
-				local strCivName = pOtherPlayer:GetCivilizationShortDescription()
-				instance.CorpName:SetToolTipString(strCivName);
+				local strCivName = pOtherPlayer:GetCivilizationShortDescription();
+				local strCorpNameTT = pOtherPlayer:GetCorporationHelper();
+				instance.CorpName:SetToolTipString("[COLOR_POSITIVE_TEXT]" .. strCivName .. "[ENDCOLOR]" .. "[NEWLINE][NEWLINE]" .. Locale.ConvertTextKey(strCorpNameTT));
 				if( iFranchises > 0 ) then
 					instance.ForeignCorpsSize:SetText( Locale.ToNumber(iFranchises, "#") );
 				else

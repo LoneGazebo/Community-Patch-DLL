@@ -227,7 +227,7 @@ function UpdateScreen()
 	-- EDIT
 	local iHandicapHappiness = pPlayer:GetHappiness() - iPoliciesHappiness - iHappinessFromMonopoly - iHappinessFromBonusResources - iResourcesHappiness - iBuildingHappiness - iCityHappiness - iTradeRouteHappiness - iReligionHappiness - iNaturalWonderHappiness - iMinorCivHappiness - iExtraHappinessPerCity - iLeagueHappiness;
 
-	local iTotalHappiness = iPoliciesHappiness + iResourcesHappiness + iBuildingHappiness + iMinorCivHappiness + iHandicapHappiness + iTradeRouteHappiness + iReligionHappiness + iNaturalWonderHappiness + iExtraHappinessPerCity + iLeagueHappiness + iHappinessFromBonusResources + iHappinessFromMonopoly;
+	local iTotalHappiness = iHappiness;
 	
 	-- Luxury Resource Details
 

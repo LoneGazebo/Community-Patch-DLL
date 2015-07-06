@@ -944,7 +944,10 @@ OperationSlot CvPlayerAI::PeekAtNextUnitToBuildForOperationSlot(int iAreaID)
 OperationSlot CvPlayerAI::CityCommitToBuildUnitForOperationSlot(int iAreaID, int iTurns, CvCity* pCity)
 {
 	OperationSlot thisSlot;
-
+#if defined(MOD_BALANCE_CORE)
+	CvAIOperation* pBestOperation = NULL;
+	int iBestScore = -1;
+#endif
 	// search through our operations till we find one that needs a unit
 	std::map<int, CvAIOperation*>::iterator iter;
 	for(iter = m_AIOperations.begin(); iter != m_AIOperations.end(); ++iter)
@@ -952,11 +955,37 @@ OperationSlot CvPlayerAI::CityCommitToBuildUnitForOperationSlot(int iAreaID, int
 		CvAIOperation* pThisOperation = iter->second;
 		if(pThisOperation)
 		{
+#if defined(MOD_BALANCE_CORE)
+			int iScore = 0;
+			if(pThisOperation->GetOperationType() == AI_OPERATION_SNEAK_CITY_ATTACK || pThisOperation->GetOperationType() == AI_OPERATION_NAVAL_SNEAK_ATTACK)
+			{
+				iScore = 100;
+			}
+
+			iScore += pThisOperation->GetNumUnitsNeededToBeBuilt();
+
+			if(iScore > iBestScore)
+			{
+				pBestOperation = pThisOperation;
+				iBestScore = iScore;
+			}
+		}
+	}
+	if(pBestOperation != NULL)
+	{
+		{
+			thisSlot = pBestOperation->CommitToBuildNextUnit(iAreaID, iTurns, pCity);
+			if(thisSlot.IsValid())
+			{
+				return thisSlot;
+			}
+#else
 			thisSlot = pThisOperation->CommitToBuildNextUnit(iAreaID, iTurns, pCity);
 			if(thisSlot.IsValid())
 			{
 				break;
 			}
+#endif
 		}
 	}
 

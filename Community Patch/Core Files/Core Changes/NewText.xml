@@ -276,6 +276,10 @@
 		</Row>
 	</Diplomacy_Responses>
 	<Language_en_US>
+		<!-- Lua for Trade Routes -->
+		<Row Tag="TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_OPEN_BORDERS_MOD">
+			<Text>Open Borders [ICON_GOLD] Gold Bonus: +{1_Num}%</Text>
+		</Row>
 		<!-- LUA for CBP -->
 		<Row Tag="TXT_KEY_DIPLO_NO_WAR_DOF">
 			<Text>These Players have made a Declaration of Friendship.</Text>
@@ -307,6 +311,18 @@
 		<Row Tag="TXT_KEY_DIPLO_DP_WITH_ENEMY">
 			<Text>[COLOR_NEGATIVE_TEXT]You have made a Defensive Pact with one of their enemies![ENDCOLOR]</Text>
 		</Row>
+		<!-- Open Borders Diplo Mod-->
+		<Row Tag="TXT_KEY_DIPLO_OPEN_BORDERS_MUTUAL">
+			<Text>[COLOR_POSITIVE_TEXT]We have opened our borders to each other.[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_OPEN_BORDERS_US">
+			<Text>[COLOR_POSITIVE_TEXT]We have opened our borders to them.[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_OPEN_BORDERS_THEM">
+			<Text>[COLOR_POSITIVE_TEXT]They have opened their borders to us.[ENDCOLOR]</Text>
+		</Row>
+
+		
 		<!-- Defense Pact Offer -->
 		<Row Tag="TXT_KEY_DEFENSE_PACT_OFFER_1">
 			<Text>I admire your military prowess. Shall we make a Defensive Pact?</Text>
@@ -606,7 +622,7 @@
 			<Text>It is good that you captured and killed that rogue spy who claimed to be working for me. Wait, you don't believe me that he was rogue? Well, that's just foolish of you.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GENERIC_CONFRONT_YOU_KILLED_MY_SPY_2">
-			<Text>Greetings! Let's not discuss petty things like spying, or the fact that you killed one of my spies...please?</Text>
+			<Text>Greetings! Let's not discuss petty things like spying, or the fact that you caught one of my spies...please?</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GENERIC_SUSPECT_YOU_OF_SPYING_3">
 			<Text>My brightest minds have convinced me that you are likely responsible for our recent 'security incident' involving a foreign spy. If this is true, let's stop this now before things get ugly.</Text>
@@ -1378,7 +1394,7 @@
 			<Text>Your power and majesty are unparalleled. I hope to one day become a powerful ruler like you.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GENERIC_BOOT_KISSING_4">
-			<Text>I must admit that both admire and fear your great power. You are an example to us all.</Text>
+			<Text>I must admit that I both admire and fear your great power. You are an example to us all.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GENERIC_WARMONGER_5">
 			<Text>Your conquests have lessened my opinion of you. Greatly.</Text>
@@ -2728,7 +2744,7 @@
 			<Text>Your choices have made it clear that only one nation has the strength to lead this world to prosperity: mine. Join me or suffer the consequences. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_HUMAN_BELIEVES_FREEDOM_1">
-			<Text>The greed and ambition of your people will only destroy them in the end. Allow your people to throw off the yoke of Freedom before it is too late. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR]</Text>
+			<Text>The greed and ambition of your people will only destroy them in the end. Allow your people to throw off the yoke of Freedom, and stop spreading your lies before it is too late. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESPONSE_DENOUNCE_HUMAN_BELIEVES_FREEDOM_2">
 			<Text>Your imperialist aggression has grown tiresome. Cease trying to convince my people to follow the path of Freedom before I am forced to take drastic action. [NEWLINE][NEWLINE]([COLOR_WARNING_TEXT]They have publicly denounced us! NOTE: You are not at war.[ENDCOLOR]</Text>

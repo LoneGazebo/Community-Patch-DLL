@@ -1,6 +1,9 @@
 -- Delete All the things!
 	DELETE FROM UnitPromotions;
 	
+	DELETE FROM UnitPromotions 
+	WHERE ID <= 204;
+
 -- THIS NEEDS TO BE FIRST, SILLY.
 
 -- Delete Anti-Tank Gun, combine stats with Bazooka and Missile Pod (help AI)
