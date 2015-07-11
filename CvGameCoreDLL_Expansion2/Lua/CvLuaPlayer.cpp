@@ -1387,7 +1387,7 @@ int CvLuaPlayer::lGetResourceMonopolyPlayer(lua_State* L)
 			PlayerTypes ePlayerLoop = (PlayerTypes) iPlayerLoop;
 			if(GET_TEAM(GET_PLAYER(ePlayerLoop).getTeam()).isHasMet(pkPlayer->getTeam()) && (GET_PLAYER(ePlayerLoop).GetID() != pkPlayer->GetID()))
 			{
-				if(GET_PLAYER(ePlayerLoop).HasMonopoly(eResource))
+				if(GET_PLAYER(ePlayerLoop).HasLuxuryMonopoly(eResource))
 				{
 					ePlayer = ePlayerLoop;
 					break;

@@ -7499,19 +7499,14 @@ int CvUnit::healRate(const CvPlot* pPlot) const
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	{
-		for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+		const std::vector<ResourceTypes>& vStrategicMonopolies = GET_PLAYER(getOwner()).GetStrategicMonopolies();
+		for (size_t iResourceLoop = 0; iResourceLoop < vStrategicMonopolies.size(); iResourceLoop++)
 		{
-			ResourceTypes eResourceLoop = (ResourceTypes) iResourceLoop;
-			if(eResourceLoop != NO_RESOURCE)
+			ResourceTypes eResourceLoop = vStrategicMonopolies[iResourceLoop];
+			CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
+			if (pInfo && pInfo->getMonopolyHealBonus() > 0)
 			{
-				CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
-				if (pInfo && pInfo->isMonopoly())
-				{
-					if(GET_PLAYER(getOwner()).HasStrategicMonopoly(eResourceLoop) && pInfo->getMonopolyHealBonus() > 0)
-					{
-						iExtraHeal += pInfo->getMonopolyHealBonus();
-					}
-				}
+				iExtraHeal += pInfo->getMonopolyHealBonus();
 			}
 		}
 	}
@@ -13383,19 +13378,14 @@ int CvUnit::baseMoves(DomainTypes eIntoDomain /* = NO_DOMAIN */) const
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 		if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 		{
-			for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+			const std::vector<ResourceTypes>& vStrategicMonopolies = GET_PLAYER(getOwner()).GetStrategicMonopolies();
+			for (size_t iResourceLoop = 0; iResourceLoop < vStrategicMonopolies.size(); iResourceLoop++)
 			{
-				ResourceTypes eResourceLoop = (ResourceTypes) iResourceLoop;
-				if(eResourceLoop != NO_RESOURCE)
+				ResourceTypes eResourceLoop = vStrategicMonopolies[iResourceLoop];
+				CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
+				if (pInfo && pInfo->getMonopolyMovementBonus() > 0)
 				{
-					CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
-					if (pInfo && pInfo->isMonopoly())
-					{
-						if(GET_PLAYER(getOwner()).HasStrategicMonopoly(eResourceLoop) && pInfo->getMonopolyMovementBonus() > 0)
-						{
-							m_iExtraNavalMoves += pInfo->getMonopolyMovementBonus();
-						}
-					}
+					m_iExtraNavalMoves += pInfo->getMonopolyMovementBonus();
 				}
 			}
 		}
@@ -14363,19 +14353,14 @@ int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot,
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	{
-		for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+		const std::vector<ResourceTypes>& vStrategicMonopolies = GET_PLAYER(getOwner()).GetStrategicMonopolies();
+		for (size_t iResourceLoop = 0; iResourceLoop < vStrategicMonopolies.size(); iResourceLoop++)
 		{
-			ResourceTypes eResourceLoop = (ResourceTypes) iResourceLoop;
-			if(eResourceLoop != NO_RESOURCE)
+			ResourceTypes eResourceLoop = vStrategicMonopolies[iResourceLoop];
+			CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
+			if (pInfo && pInfo->getMonopolyAttackBonus() > 0)
 			{
-				CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
-				if (pInfo && pInfo->isMonopoly())
-				{
-					if(GET_PLAYER(getOwner()).HasStrategicMonopoly(eResourceLoop) && pInfo->getMonopolyAttackBonus() > 0)
-					{
-						iModifier += pInfo->getMonopolyAttackBonus();
-					}
-				}
+				iModifier += pInfo->getMonopolyAttackBonus();
 			}
 		}
 	}
@@ -14571,19 +14556,14 @@ int CvUnit::GetMaxDefenseStrength(const CvPlot* pInPlot, const CvUnit* pAttacker
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	{
-		for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+		const std::vector<ResourceTypes>& vStrategicMonopolies = GET_PLAYER(getOwner()).GetStrategicMonopolies();
+		for (size_t iResourceLoop = 0; iResourceLoop < vStrategicMonopolies.size(); iResourceLoop++)
 		{
-			ResourceTypes eResourceLoop = (ResourceTypes) iResourceLoop;
-			if(eResourceLoop != NO_RESOURCE)
+			ResourceTypes eResourceLoop = vStrategicMonopolies[iResourceLoop];
+			CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
+			if (pInfo && pInfo->getMonopolyDefenseBonus() > 0)
 			{
-				CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
-				if (pInfo && pInfo->isMonopoly())
-				{
-					if(GET_PLAYER(getOwner()).HasStrategicMonopoly(eResourceLoop) && pInfo->getMonopolyDefenseBonus() > 0)
-					{
-						iModifier += pInfo->getMonopolyDefenseBonus();
-					}
-				}
+				iModifier += pInfo->getMonopolyDefenseBonus();
 			}
 		}
 	}
@@ -14925,19 +14905,14 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	{
-		for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+		const std::vector<ResourceTypes>& vStrategicMonopolies = GET_PLAYER(getOwner()).GetStrategicMonopolies();
+		for (size_t iResourceLoop = 0; iResourceLoop < vStrategicMonopolies.size(); iResourceLoop++)
 		{
-			ResourceTypes eResourceLoop = (ResourceTypes) iResourceLoop;
-			if(eResourceLoop != NO_RESOURCE)
+			ResourceTypes eResourceLoop = vStrategicMonopolies[iResourceLoop];
+			CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
+			if (pInfo && pInfo->getMonopolyAttackBonus() > 0)
 			{
-				CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
-				if (pInfo && pInfo->isMonopoly())
-				{
-					if(GET_PLAYER(getOwner()).HasStrategicMonopoly(eResourceLoop) && pInfo->getMonopolyAttackBonus() > 0)
-					{
-						iModifier += pInfo->getMonopolyAttackBonus();
-					}
-				}
+				iModifier += pInfo->getMonopolyAttackBonus();
 			}
 		}
 	}
@@ -20138,19 +20113,14 @@ void CvUnit::changeExperience(int iChange, int iMax, bool bFromCombat, bool bInB
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 		if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 		{
-			for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+			const std::vector<ResourceTypes>& vStrategicMonopolies = GET_PLAYER(getOwner()).GetStrategicMonopolies();
+			for (size_t iResourceLoop = 0; iResourceLoop < vStrategicMonopolies.size(); iResourceLoop++)
 			{
-				ResourceTypes eResourceLoop = (ResourceTypes) iResourceLoop;
-				if(eResourceLoop != NO_RESOURCE)
+				ResourceTypes eResourceLoop = vStrategicMonopolies[iResourceLoop];
+				CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
+				if (pInfo && pInfo->getMonopolyXPBonus() > 0)
 				{
-					CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
-					if (pInfo && pInfo->isMonopoly())
-					{
-						if(GET_PLAYER(getOwner()).HasStrategicMonopoly(eResourceLoop) && pInfo->getMonopolyXPBonus() > 0)
-						{
-							iUnitExperience += pInfo->getMonopolyXPBonus();
-						}
-					}
+					iUnitExperience += pInfo->getMonopolyXPBonus();
 				}
 			}
 		}
@@ -26298,7 +26268,9 @@ bool CvUnit::CanDoInterfaceMode(InterfaceModeTypes eInterfaceMode, bool bTestVis
 
 const char* CvUnit::GetMissionInfo()
 {
-	m_strMissionInfoString = (m_eTacticalMove==NO_TACTICAL_MOVE) ? "no tactical move" : GC.getTacticalMoveInfo(m_eTacticalMove)->GetType();
+	m_strMissionInfoString = (m_eTacticalMove==NO_TACTICAL_MOVE) ? 
+		"no tactical move" : 
+		(isBarbarian() ? barbarianMoveNames[m_eTacticalMove]: GC.getTacticalMoveInfo(m_eTacticalMove)->GetType());
 
 	if (m_iMissionAIX!=INVALID_PLOT_COORD && m_iMissionAIY!=INVALID_PLOT_COORD)
 	{

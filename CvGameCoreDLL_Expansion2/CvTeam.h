@@ -266,7 +266,11 @@ public:
 	void ChangeNumNaturalWondersDiscovered(int iChange);
 
 	bool isHasMet(TeamTypes eIndex) const;
+#ifdef AUI_GAME_OBSERVER_MEET_ALL_TEAMS
+	void makeHasMet(TeamTypes eIndex, bool bSuppressMessages, bool bForObserver = false);
+#else
 	void makeHasMet(TeamTypes eIndex, bool bSuppressMessages);
+#endif
 
 	int GetTurnsSinceMeetingTeam(TeamTypes eTeam) const;
 	int GetTurnTeamMet(TeamTypes eTeam) const;

@@ -3868,7 +3868,11 @@ bool CvTeam::isHasMet(TeamTypes eIndex)	const
 
 
 //	--------------------------------------------------------------------------------
+#ifdef AUI_GAME_OBSERVER_MEET_ALL_TEAMS
+void CvTeam::makeHasMet(TeamTypes eIndex, bool bSuppressMessages, bool bForObserver)
+#else
 void CvTeam::makeHasMet(TeamTypes eIndex, bool bSuppressMessages)
+#endif
 {
 	int iI;
 
@@ -3882,6 +3886,19 @@ void CvTeam::makeHasMet(TeamTypes eIndex, bool bSuppressMessages)
 		SetTurnTeamMet(eIndex, GC.getGame().getGameTurn());
 
 		updateTechShare();
+
+#ifdef AUI_GAME_OBSERVER_MEET_ALL_TEAMS
+		if (bForObserver)
+		{
+			if ((GetID() == GC.getGame().getActiveTeam()) || (eIndex == GC.getGame().getActiveTeam()))
+			{
+				DLLUI->setDirty(Score_DIRTY_BIT, true);
+			}
+			// Report event
+			gDLL->GameplayMetTeam(GetID(), eIndex);
+			return;
+		}
+#endif
 
 		if(GC.getGame().isOption(GAMEOPTION_ALWAYS_WAR))
 		{

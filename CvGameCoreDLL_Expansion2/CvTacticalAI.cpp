@@ -159,32 +159,6 @@ bool CvTacticalTarget::IsTargetStillAlive(PlayerTypes m_eAttackingPlayer)
 	return bRtnValue;
 }
 
-#if defined(MOD_BALANCE_CORE)
-	const char* barbarianMoveNames[] =
-	{
-	"AI_TACTICAL_BARBARIAN_CAPTURE_CITY",
-	"AI_TACTICAL_BARBARIAN_DAMAGE_CITY",
-	"AI_TACTICAL_BARBARIAN_DESTROY_HIGH_PRIORITY_UNIT",
-	"AI_TACTICAL_BARBARIAN_DESTROY_MEDIUM_PRIORITY_UNIT",
-	"AI_TACTICAL_BARBARIAN_DESTROY_LOW_PRIORITY_UNIT",
-	"AI_TACTICAL_BARBARIAN_MOVE_TO_SAFETY",
-	"AI_TACTICAL_BARBARIAN_ATTRIT_HIGH_PRIORITY_UNIT",
-	"AI_TACTICAL_BARBARIAN_ATTRIT_MEDIUM_PRIORITY_UNIT",
-	"AI_TACTICAL_BARBARIAN_ATTRIT_LOW_PRIORITY_UNIT",
-	"AI_TACTICAL_BARBARIAN_PILLAGE",
-	"AI_TACTICAL_BARBARIAN_PRIORITY_BLOCKADE_RESOURCE",
-	"AI_TACTICAL_BARBARIAN_CIVILIAN_ATTACK",
-	"AI_TACTICAL_BARBARIAN_AGGRESSIVE_MOVE",
-	"AI_TACTICAL_BARBARIAN_PASSIVE_MOVE",
-	"AI_TACTICAL_BARBARIAN_CAMP_DEFENSE",
-	"AI_TACTICAL_BARBARIAN_DESPERATE_ATTACK",
-	"AI_TACTICAL_BARBARIAN_ESCORT_CIVILIAN",
-	"AI_TACTICAL_BARBARIAN_PLUNDER_TRADE_UNIT",
-	"AI_TACTICAL_BARBARIAN_PILLAGE_CITADEL",
-	"AI_TACTICAL_BARBARIAN_PILLAGE_NEXT_TURN",
-	};
-#endif
-
 /// This target make sense for this domain of unit/zone?
 bool CvTacticalTarget::IsTargetValidInThisDomain(DomainTypes eDomain)
 {
@@ -1860,11 +1834,6 @@ void CvTacticalAI::ProcessDominanceZones()
 				}
 			}
 		}
-
-#if defined(MOD_BALANCE_CORE_MILITARY)
-		m_pMap->Dump();
-#endif
-
 	}
 }
 
@@ -4307,7 +4276,7 @@ void CvTacticalAI::ReviewUnassignedUnits()
 				{
 					CvString strLogString;
 					strLogString.Format("Ranged unit performing opportunity attack, X: %d, Y: %d", pUnit->plot()->getX(), pUnit->plot()->getY());
-					GET_PLAYER(BARBARIAN_PLAYER).GetTacticalAI()->LogTacticalMessage(strLogString);
+					LogTacticalMessage(strLogString);
 				}
 			}
 #else
@@ -11749,7 +11718,7 @@ bool CvTacticalAI::FindUnitsWithinStrikingDistance2(CvPlot* pTarget, int iMinHit
 	bool rtnValue = false;
 	m_CurrentMoveUnits.clear();
 
-	bool bIsCityTarget = pTarget->getPlotCity() != NULL;
+	bool bIsCityTarget = (pTarget->getPlotCity() != NULL);
 	bool bAirUnitsAdded = false;
 	CvUnit* pDefender = pTarget->getBestDefender(NO_PLAYER, m_pPlayer->GetID()).pointer();
 
@@ -11779,7 +11748,7 @@ bool CvTacticalAI::FindUnitsWithinStrikingDistance2(CvPlot* pTarget, int iMinHit
 			if (!bIsCityTarget && pLoopUnit->IsCityAttackOnly())
 				continue;	
 
-			//Don't pull melee units out of camps to attack.
+			// Don't pull melee units out of camps to attack.
 			if(pLoopUnit->isBarbarian() && !pLoopUnit->isRanged() && (pLoopUnit->plot()->getImprovementType() == GC.getBARBARIAN_CAMP_IMPROVEMENT()))
 				continue;
 
@@ -11787,7 +11756,35 @@ bool CvTacticalAI::FindUnitsWithinStrikingDistance2(CvPlot* pTarget, int iMinHit
 			if (pLoopUnit->isNoCapture() && bIsCityTarget && bNoRangedUnits)
 				continue;
 
-			int iTurnsToReach = TurnsToReachTarget(pLoopUnit, pTarget, false /*bReusePaths*/, false /*bIgnoreUnits*/, false /*bIgnoreStacking*/, 2);
+			// there is a problem with pathfinding: if the target has a defender, a ranged unit cannot move there, so the pathfinding will fail
+			int iTurnsToReach = INT_MAX;
+			if ( (pDefender || bIsCityTarget) && pLoopUnit->IsCanAttackRanged())
+			{
+				//pretend we want to move one tile in front of the target
+				int iClosestDistance = INT_MAX;
+				const CvPlot* pSubstituteTarget = NULL;
+				CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(pTarget);
+				for(int iCount=0; iCount<NUM_DIRECTION_TYPES; iCount++)
+				{
+					const CvPlot* pNeighborPlot = aPlotsToCheck[iCount];
+					if (pNeighborPlot && pNeighborPlot->getBestDefender(NO_PLAYER,m_pPlayer->GetID()))
+					{
+						int iDistance = plotDistance( pNeighborPlot->getX(), pNeighborPlot->getY(), pLoopUnit->getX(), pLoopUnit->getY() );
+						if (iDistance < iClosestDistance)
+						{
+							iDistance = iClosestDistance;
+							pSubstituteTarget = pNeighborPlot;
+						}
+					}
+				}
+				//see if we found something. if not, the ranged unit will still be considered if it can attack without moving
+				if (pSubstituteTarget)
+					iTurnsToReach = TurnsToReachTarget(pLoopUnit, pSubstituteTarget, false /*bReusePaths*/, false /*bIgnoreUnits*/, false /*bIgnoreStacking*/, 2);
+			}
+			else
+				//normal handling
+				iTurnsToReach = TurnsToReachTarget(pLoopUnit, pTarget, false /*bReusePaths*/, false /*bIgnoreUnits*/, false /*bIgnoreStacking*/, 2);
+
 			if(pLoopUnit->IsCanAttackRanged())
 			{
 				// Don't use air units for air strikes if at or below half health
@@ -15354,9 +15351,34 @@ void CTacticalUnitArray::push_back(const CvTacticalUnit& unit)
 			CvPlayer& owner = GET_PLAYER(pUnit->getOwner());
 			OutputDebugString( CvString::format("turn %03d: using %s %s %d for move %s. hitpoints %d, pos (%d,%d), danger %d\n", 
 				GC.getGame().getGameTurn(), owner.getCivilizationAdjective(), pUnit->getName().c_str(), g_currentUnitToTrack,
-				GC.getTacticalMoveInfo(m_currentTacticalMove.m_eMoveType)->GetType(), 
+				pUnit->isBarbarian() ? barbarianMoveNames[m_currentTacticalMove.m_eMoveType] : GC.getTacticalMoveInfo(m_currentTacticalMove.m_eMoveType)->GetType(), 
 				pUnit->GetCurrHitPoints(), pUnit->getX(), pUnit->getY(), owner.GetPlotDanger(*(pUnit->plot()),pUnit) ) );
 		}
 	}
 }
+
+const char* barbarianMoveNames[] =
+{
+	"AI_TACTICAL_BARBARIAN_CAPTURE_CITY",
+	"AI_TACTICAL_BARBARIAN_DAMAGE_CITY",
+	"AI_TACTICAL_BARBARIAN_DESTROY_HIGH_PRIORITY_UNIT",
+	"AI_TACTICAL_BARBARIAN_DESTROY_MEDIUM_PRIORITY_UNIT",
+	"AI_TACTICAL_BARBARIAN_DESTROY_LOW_PRIORITY_UNIT",
+	"AI_TACTICAL_BARBARIAN_MOVE_TO_SAFETY",
+	"AI_TACTICAL_BARBARIAN_ATTRIT_HIGH_PRIORITY_UNIT",
+	"AI_TACTICAL_BARBARIAN_ATTRIT_MEDIUM_PRIORITY_UNIT",
+	"AI_TACTICAL_BARBARIAN_ATTRIT_LOW_PRIORITY_UNIT",
+	"AI_TACTICAL_BARBARIAN_PILLAGE",
+	"AI_TACTICAL_BARBARIAN_PRIORITY_BLOCKADE_RESOURCE",
+	"AI_TACTICAL_BARBARIAN_CIVILIAN_ATTACK",
+	"AI_TACTICAL_BARBARIAN_AGGRESSIVE_MOVE",
+	"AI_TACTICAL_BARBARIAN_PASSIVE_MOVE",
+	"AI_TACTICAL_BARBARIAN_CAMP_DEFENSE",
+	"AI_TACTICAL_BARBARIAN_DESPERATE_ATTACK",
+	"AI_TACTICAL_BARBARIAN_ESCORT_CIVILIAN",
+	"AI_TACTICAL_BARBARIAN_PLUNDER_TRADE_UNIT",
+	"AI_TACTICAL_BARBARIAN_PILLAGE_CITADEL",
+	"AI_TACTICAL_BARBARIAN_PILLAGE_NEXT_TURN",
+};
+
 #endif

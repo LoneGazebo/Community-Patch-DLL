@@ -523,7 +523,7 @@ CvPlayer::CvPlayer() :
 	, m_paiNumCitiesFreeChosenBuilding("CvPlayer::m_paiNumCitiesFreeChosenBuilding", m_syncArchive)
 #endif
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
-	, m_pabHasMonopoly("CvPlayer::m_pabHasMonopoly", m_syncArchive)
+	, m_pabHasLuxuryMonopoly("CvPlayer::m_pabHasLuxuryMonopoly", m_syncArchive)
 	, m_pabHasStrategicMonopoly("CvPlayer::m_pabHasStrategicMonopoly", m_syncArchive)
 #endif
 	, m_pabLoyalMember("CvPlayer::m_pabLoyalMember", m_syncArchive)
@@ -966,8 +966,10 @@ void CvPlayer::uninit()
 	m_paiNumCitiesFreeChosenBuilding.clear();
 #endif
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
-	m_pabHasMonopoly.clear();
+	m_pabHasLuxuryMonopoly.clear();
 	m_pabHasStrategicMonopoly.clear();
+	m_vMonopolizedLuxuryResources.clear();
+	m_vMonopolizedStrategicResources.clear();
 #endif
 	m_pabLoyalMember.clear();
 	m_pabGetsScienceFromPlayer.clear();
@@ -1599,10 +1601,12 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 		m_paiNumCitiesFreeChosenBuilding.resize(GC.getNumBuildingClassInfos(), 0);
 #endif
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
-		m_pabHasMonopoly.clear();
-		m_pabHasMonopoly.resize(GC.getNumResourceInfos(), false);
+		m_pabHasLuxuryMonopoly.clear();
+		m_pabHasLuxuryMonopoly.resize(GC.getNumResourceInfos(), false);
 		m_pabHasStrategicMonopoly.clear();
 		m_pabHasStrategicMonopoly.resize(GC.getNumResourceInfos(), false);
+		m_vMonopolizedLuxuryResources.clear();
+		m_vMonopolizedStrategicResources.clear();
 #endif
 		m_pabLoyalMember.clear();
 		m_pabLoyalMember.resize(GC.getNumVoteSourceInfos(), true);
@@ -15116,7 +15120,7 @@ int CvPlayer::GetHappinessFromResourceMonopolies() const
 		CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
 		if (pInfo && pInfo->isMonopoly())
 		{
-			if(HasMonopoly(eResourceLoop) && pInfo->getMonopolyHappiness() > 0)
+			if(HasLuxuryMonopoly(eResourceLoop) && pInfo->getMonopolyHappiness() > 0)
 			{
 				iTotalHappiness += pInfo->getMonopolyHappiness();
 			}
@@ -18137,7 +18141,7 @@ int CvPlayer::getGoldenAgeLength() const
 				CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
 				if (pInfo && pInfo->isMonopoly())
 				{
-					if(HasMonopoly(eResourceLoop) && pInfo->getMonopolyGALength() > 0)
+					if(HasLuxuryMonopoly(eResourceLoop) && pInfo->getMonopolyGALength() > 0)
 					{
 						iLengthModifier += pInfo->getMonopolyGALength();
 					}
@@ -25585,7 +25589,7 @@ void CvPlayer::changeNumResourceTotal(ResourceTypes eIndex, int iChange, bool bI
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 		if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 		{
-			TestHasMonopoly(eIndex);
+			CheckForMonopoly(eIndex);
 		}
 #endif
 
@@ -25663,17 +25667,23 @@ void CvPlayer::changeNumResourceTotal(ResourceTypes eIndex, int iChange, bool bI
 }
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 //	--------------------------------------------------------------------------------
-bool CvPlayer::HasMonopoly(ResourceTypes eResource) const
+bool CvPlayer::HasLuxuryMonopoly(ResourceTypes eResource) const
 {
-	return m_pabHasMonopoly[eResource];
+	return m_pabHasLuxuryMonopoly[eResource];
 }
 //	--------------------------------------------------------------------------------
-void CvPlayer::SetHasMonopoly(ResourceTypes eResource, bool bNewValue)
+void CvPlayer::SetHasLuxuryMonopoly(ResourceTypes eResource, bool bNewValue)
 {
-	if(bNewValue != m_pabHasMonopoly[eResource])
+	if(bNewValue != m_pabHasLuxuryMonopoly[eResource])
 	{
-		m_pabHasMonopoly.setAt(eResource, bNewValue);
+		m_pabHasLuxuryMonopoly.setAt(eResource, bNewValue);
 	}
+
+	std::vector<ResourceTypes>::iterator it = std::find(m_vMonopolizedLuxuryResources.begin(),m_vMonopolizedLuxuryResources.end(),eResource);
+	if (bNewValue && it==m_vMonopolizedLuxuryResources.end())
+		m_vMonopolizedLuxuryResources.push_back(eResource);
+	else if (!bNewValue && it!=m_vMonopolizedLuxuryResources.end())
+		m_vMonopolizedLuxuryResources.erase(it);
 }
 //	--------------------------------------------------------------------------------
 bool CvPlayer::HasStrategicMonopoly(ResourceTypes eResource) const
@@ -25687,10 +25697,16 @@ void CvPlayer::SetHasStrategicMonopoly(ResourceTypes eResource, bool bNewValue)
 	{
 		m_pabHasStrategicMonopoly.setAt(eResource, bNewValue);
 	}
+
+	std::vector<ResourceTypes>::iterator it = std::find(m_vMonopolizedStrategicResources.begin(),m_vMonopolizedStrategicResources.end(),eResource);
+	if (bNewValue && it==m_vMonopolizedStrategicResources.end())
+		m_vMonopolizedStrategicResources.push_back(eResource);
+	else if (!bNewValue && it!=m_vMonopolizedStrategicResources.end())
+		m_vMonopolizedStrategicResources.erase(it);
 }
 
 //	--------------------------------------------------------------------------------
-void CvPlayer::TestHasMonopoly(ResourceTypes eResource)
+void CvPlayer::CheckForMonopoly(ResourceTypes eResource)
 {
 	const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
 	if(pkResourceInfo != NULL)
@@ -25710,19 +25726,19 @@ void CvPlayer::TestHasMonopoly(ResourceTypes eResource)
 					//Do we have +50% of this resource under our control?
 					if(((iOwnedNumResource * 100) / iTotalNumResource) > 50)
 					{
-						if(m_pabHasMonopoly[eResource] == false)
+						if(m_pabHasLuxuryMonopoly[eResource] == false)
 						{
 							bGainingBonus = true;
 						}
-						SetHasMonopoly(eResource, true);
+						SetHasLuxuryMonopoly(eResource, true);
 					}
 					else
 					{
-						if(m_pabHasMonopoly[eResource] == true)
+						if(m_pabHasLuxuryMonopoly[eResource] == true)
 						{
 							bLosingBonus = true;
 						}
-						SetHasMonopoly(eResource, false);
+						SetHasLuxuryMonopoly(eResource, false);
 					}
 				}
 				else if(pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
@@ -25747,19 +25763,19 @@ void CvPlayer::TestHasMonopoly(ResourceTypes eResource)
 					//Do we also have 50% of this resource under our control?
 					if(((iOwnedNumResource * 100) / iTotalNumResource) > 50)
 					{
-						if(m_pabHasMonopoly[eResource] == false)
+						if(m_pabHasLuxuryMonopoly[eResource] == false)
 						{
 							bGainingBonus = true;
 						}
-						SetHasMonopoly(eResource, true);
+						SetHasLuxuryMonopoly(eResource, true);
 					}
 					else
 					{
-						if(m_pabHasMonopoly[eResource] == true)
+						if(m_pabHasLuxuryMonopoly[eResource] == true)
 						{
 							bLosingBonus = true;
 						}
-						SetHasMonopoly(eResource, false);
+						SetHasLuxuryMonopoly(eResource, false);
 					}
 				}
 				CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
@@ -25767,11 +25783,11 @@ void CvPlayer::TestHasMonopoly(ResourceTypes eResource)
 				{
 					if (GC.getGame().GetGameLeagues()->IsLuxuryHappinessBanned(GetID(), eResource))
 					{
-						if(m_pabHasMonopoly[eResource] == true)
+						if(m_pabHasLuxuryMonopoly[eResource] == true)
 						{
 							bLosingBonus = true;
 						}
-						SetHasMonopoly(eResource, false);
+						SetHasLuxuryMonopoly(eResource, false);
 					}
 				}
 			}
@@ -27842,7 +27858,13 @@ const CvUnit* CvPlayer::getUnit(int iID) const
 //	--------------------------------------------------------------------------------
 CvUnit* CvPlayer::getUnit(int iID)
 {
+#if defined(MOD_BALANCE_CORE)
+	//spread it out a little for an easy breakpoint
+	CvUnit* pUnit = m_units.GetAt(iID);
+	return pUnit;
+#else
 	return (m_units.GetAt(iID));
+#endif
 }
 
 //	--------------------------------------------------------------------------------
@@ -31579,8 +31601,17 @@ void CvPlayer::Read(FDataStream& kStream)
 	kStream >> m_pabLoyalMember;
 
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
-	kStream >> m_pabHasMonopoly;
+	kStream >> m_pabHasLuxuryMonopoly;
 	kStream >> m_pabHasStrategicMonopoly;
+
+	for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+	{
+		if (m_pabHasLuxuryMonopoly[iResourceLoop])
+			SetHasLuxuryMonopoly((ResourceTypes)iResourceLoop,true);
+		if (m_pabHasStrategicMonopoly[iResourceLoop])
+			SetHasStrategicMonopoly((ResourceTypes)iResourceLoop,true);
+	}
+
 #endif
 
 	kStream >> m_pabGetsScienceFromPlayer;
@@ -32222,7 +32253,7 @@ void CvPlayer::Write(FDataStream& kStream) const
 	kStream << m_pabLoyalMember;
 
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
-	kStream << m_pabHasMonopoly;
+	kStream << m_pabHasLuxuryMonopoly;
 	kStream << m_pabHasStrategicMonopoly;
 #endif
 

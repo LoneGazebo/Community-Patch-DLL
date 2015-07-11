@@ -1096,7 +1096,9 @@ int GetAllTilesInReach(CvUnit* pUnit, CvPlot* pStartPlot, ReachablePlotSet& resu
 int GetPlotsUnderRangedAttackFrom(CvUnit* pUnit, CvPlot* pBasePlot, std::set<CvPlot*>& resultSet);
 int GetPlotsUnderRangedAttackFrom(CvUnit* pUnit, ReachablePlotSet& basePlots, std::set<CvPlot*>& resultSet);
 bool PerformRangedOpportunityAttack(CvUnit* pUnit);
-#endif
 }
+
+extern const char* barbarianMoveNames[];
+#endif
 
 #endif //CIV5_TACTICAL_AI_H

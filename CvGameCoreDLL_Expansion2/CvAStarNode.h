@@ -53,6 +53,9 @@ enum CvAStarListType
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 struct CvPathNodeCacheData
 {
+#ifdef AUI_ASTAR_FIX_NO_DUPLICATE_CALLS
+	bool bIsCalculated:1;
+#endif
 	bool bPlotVisibleToTeam:1;
 	bool bIsMountain:1;
 	bool bIsWater:1;
@@ -66,12 +69,19 @@ struct CvPathNodeCacheData
 	bool bContainsVisibleEnemy:1;
 	bool bContainsVisibleEnemyDefender:1;
 	int	iNumFriendlyUnitsOfType;
+
 #if defined(MOD_GLOBAL_STACKING_RULES)
 	int	iUnitPlotLimit;
 #endif
 #ifdef AUI_DANGER_PLOTS_REMADE
 	int iPlotDanger;
-#endif // AUI_DANGER_PLOTS_REMADE
+#endif
+
+#ifdef AUI_ASTAR_FIX_NO_DUPLICATE_CALLS
+	//housekeeping
+	CvPathNodeCacheData() { clear(); }
+	void clear() { memset(this,0,sizeof(CvPathNodeCacheData)); }
+#endif
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -124,6 +134,10 @@ public:
 		m_pStack = NULL;
 
 		m_apChildren.clear();
+
+#ifdef AUI_ASTAR_FIX_NO_DUPLICATE_CALLS
+		m_kCostCacheData.clear();
+#endif
 	}
 
 	int m_iTotalCost;	  // Fitness (f)
