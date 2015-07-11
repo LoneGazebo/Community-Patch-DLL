@@ -111,6 +111,10 @@ CvAStar::CvAStar()
 
 	m_ppaaNodes = NULL;
 
+#ifdef AUI_ASTAR_FIX_NO_DUPLICATE_CALLS
+	m_iCurrentGenerationID = 0;
+#endif
+
 	m_bIsMPCacheSafe = false;
 	m_bDataChangeInvalidatesCache = false;
 }
@@ -210,6 +214,13 @@ bool CvAStar::GeneratePath(int iXstart, int iYstart, int iXdest, int iYdest, int
 
 	if(m_bForceReset || (m_iXstart != iXstart) || (m_iYstart != iYstart) || (m_iInfo != iInfo) || discardCacheForMPGame)
 		bReuse = false;
+
+#ifdef AUI_ASTAR_FIX_NO_DUPLICATE_CALLS
+	//this is the version number for the node cache
+	m_iCurrentGenerationID++;
+	if (m_iCurrentGenerationID==0xFFFF)
+		m_iCurrentGenerationID = 1;
+#endif
 
 	m_iXdest = iXdest;
 	m_iYdest = iYdest;
@@ -913,9 +924,9 @@ void UnitPathUninitialize(const void* pointer, CvAStar* finder)
 }
 
 #if defined(AUI_ASTAR_FIX_NO_DUPLICATE_CALLS)
-void UpdateNodeCacheData(CvPathNodeCacheData& kToNodeCacheData, CvPlot* pPlot, CvUnit* pUnit, bool bDoDanger)
+void UpdateNodeCacheData(CvPathNodeCacheData& kToNodeCacheData, CvPlot* pPlot, CvUnit* pUnit, bool bDoDanger, unsigned short iGenerationID)
 {
-	if (kToNodeCacheData.bIsCalculated || !pPlot || !pUnit)
+	if (kToNodeCacheData.iGenerationID==iGenerationID || !pPlot || !pUnit)
 		return;
 
 	TeamTypes eUnitTeam = pUnit->getTeam();
@@ -961,7 +972,7 @@ void UpdateNodeCacheData(CvPathNodeCacheData& kToNodeCacheData, CvPlot* pPlot, C
 #endif
 
 	//done!
-	kToNodeCacheData.bIsCalculated = true;
+	kToNodeCacheData.iGenerationID = iGenerationID;
 }
 #endif
 
@@ -1393,10 +1404,10 @@ int PathValid(CvAStarNode* parent, CvAStarNode* node, int data, const void* poin
 #ifdef AUI_ASTAR_FIX_NO_DUPLICATE_CALLS
 	// Cache values for this node that we will use in the loop
 	CvPathNodeCacheData& kToNodeCacheData = node->m_kCostCacheData;
-	UpdateNodeCacheData(kToNodeCacheData,pToPlot,pUnit,pCacheData->DoDanger());
+	UpdateNodeCacheData(kToNodeCacheData,pToPlot,pUnit,pCacheData->DoDanger(),finder->GetCurrentGenerationID());
 
 	CvPathNodeCacheData& kFromNodeCacheData = parent->m_kCostCacheData;
-	UpdateNodeCacheData(kFromNodeCacheData,pFromPlot,pUnit,pCacheData->DoDanger());
+	UpdateNodeCacheData(kFromNodeCacheData,pFromPlot,pUnit,pCacheData->DoDanger(),finder->GetCurrentGenerationID());
 #else //AUI_ASTAR_FIX_NO_DUPLICATE_CALLS
 	// Cache values for this node that we will use in the loop
 	CvPathNodeCacheData& kFromNodeCacheData = parent->m_kCostCacheData;
@@ -2108,10 +2119,10 @@ int IgnoreUnitsValid(CvAStarNode* parent, CvAStarNode* node, int data, const voi
 
 #ifdef AUI_ASTAR_FIX_NO_DUPLICATE_CALLS
 	CvPathNodeCacheData& kToNodeCacheData = node->m_kCostCacheData;
-	UpdateNodeCacheData(kToNodeCacheData,pToPlot,pUnit,pCacheData->DoDanger());
+	UpdateNodeCacheData(kToNodeCacheData,pToPlot,pUnit,pCacheData->DoDanger(),finder->GetCurrentGenerationID());
 
 	CvPathNodeCacheData& kFromNodeCacheData = parent->m_kCostCacheData;
-	UpdateNodeCacheData(kFromNodeCacheData,pFromPlot,pUnit,pCacheData->DoDanger());
+	UpdateNodeCacheData(kFromNodeCacheData,pFromPlot,pUnit,pCacheData->DoDanger(),finder->GetCurrentGenerationID());
 #endif //AUI_ASTAR_FIX_NO_DUPLICATE_CALLS
 
 	// slewis - moved this up so units can't move directly into the water. Not 100% sure this is the right solution.
@@ -3766,9 +3777,9 @@ int TacticalAnalysisMapPathValid(CvAStarNode* parent, CvAStarNode* node, int dat
 	// Cache the data for the node
 	CvPathNodeCacheData& kToNodeCacheData = node->m_kCostCacheData;
 #ifdef AUI_ASTAR_FIX_NO_DUPLICATE_CALLS
-	if (!kToNodeCacheData.bIsCalculated)
+	if (kToNodeCacheData.iGenerationID != finder->GetCurrentGenerationID())
 	{
-		kToNodeCacheData.bIsCalculated = true;
+		kToNodeCacheData.iGenerationID = finder->GetCurrentGenerationID();
 #endif
 	kToNodeCacheData.bPlotVisibleToTeam = pToPlotCell->IsVisible();
 	kToNodeCacheData.iNumFriendlyUnitsOfType = pToPlot->getNumFriendlyUnitsOfType(pUnit);
@@ -4312,6 +4323,14 @@ int TurnsToReachTarget(UnitHandle pUnit, CvPlot* pTarget, bool bReusePaths, bool
 	{
 		return 0;
 	}
+#if defined(MOD_BALANCE_CORE)
+	//directly adjacent? no pathfinding necessary
+	if (plotDistance( pUnit->getX(),pUnit->getY(),pTarget->getX(),pTarget->getY() )==1)
+	{
+		int iMovementCost = bIgnoreUnits ? pTarget->MovementCostNoZOC(pUnit.pointer(),pUnit->plot()) : pTarget->movementCost(pUnit.pointer(),pUnit->plot());
+		return (pUnit->movesLeft()-iMovementCost)>0 ? 0 : 1;
+	}
+#endif
 
 	if(pUnit)
 	{

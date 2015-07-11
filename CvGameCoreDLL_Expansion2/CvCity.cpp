@@ -14771,18 +14771,17 @@ int CvCity::GetBaseYieldRateFromBuildings(YieldTypes eIndex) const
 #endif
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
-	CvCivilizationInfo& thisCivInfo = getCivilizationInfo();
 	if(MOD_BALANCE_CORE_POLICIES && eMajority != NO_RELIGION && eMajority > RELIGION_PANTHEON)
 	{
 		if(GET_PLAYER(getOwner()).GetReligions()->GetReligionInMostCities() == eMajority)
 		{
-			for (int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
+			const std::vector<BuildingTypes>& vBuildings = GetCityBuildings()->GetAllBuildings();
+			for(std::vector<BuildingTypes>::const_iterator iI=vBuildings.begin(); iI!=vBuildings.end(); ++iI)
 			{
-				BuildingClassTypes eBuildingClass = (BuildingClassTypes)iI;
-				BuildingTypes eBuilding = (BuildingTypes)(thisCivInfo.getCivilizationBuildings(eBuildingClass));
-				if (eBuilding != NO_BUILDING && GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
+				CvBuildingEntry *pkInfo = GC.getBuildingInfo(*iI);
+				if (pkInfo)
 				{
-					iMod += getReligionBuildingYieldRateModifier(eBuildingClass, eIndex);
+					iMod += getReligionBuildingYieldRateModifier( (BuildingClassTypes)pkInfo->GetBuildingClassType(), eIndex );
 				}
 			}
 		}

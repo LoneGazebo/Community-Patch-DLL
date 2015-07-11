@@ -209,6 +209,13 @@ public:
 	}
 #endif // AUI_ASTAR_TURN_LIMITER
 
+#ifdef AUI_ASTAR_FIX_NO_DUPLICATE_CALLS
+	inline unsigned short GetCurrentGenerationID()
+	{
+		return m_iCurrentGenerationID;
+	}
+#endif
+
 	inline bool IsMPCacheSafe() const
 	{
 		return m_bIsMPCacheSafe;
@@ -389,6 +396,11 @@ protected:
 #ifdef AUI_ASTAR_TURN_LIMITER
 	int m_iMaxTurns;				// Pathfinder never lets a path's turn cost become higher than this number
 #endif // AUI_ASTAR_TURN_LIMITER
+
+#ifdef AUI_ASTAR_FIX_NO_DUPLICATE_CALLS
+	// the cache in each node is tagged with a generation ID which is incremented for each call
+	unsigned short m_iCurrentGenerationID;
+#endif
 
 	int m_iColumns;					// Used to calculate node->number
 	int m_iRows;					// Used to calculate node->number

@@ -925,6 +925,10 @@ public:
 	bool CheckForAllWondersBuilt();
 	bool CheckForSevenAncientWondersBuilt();
 
+#if defined(MOD_BALANCE_CORE)
+	const std::vector<BuildingTypes>& GetAllBuildings() const { return m_buildingsThatExistAtLeastOnce; }
+#endif
+
 private:
 	void NotifyNewBuildingStarted(BuildingTypes eIndex);
 

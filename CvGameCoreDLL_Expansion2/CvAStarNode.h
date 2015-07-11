@@ -53,9 +53,6 @@ enum CvAStarListType
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 struct CvPathNodeCacheData
 {
-#ifdef AUI_ASTAR_FIX_NO_DUPLICATE_CALLS
-	bool bIsCalculated:1;
-#endif
 	bool bPlotVisibleToTeam:1;
 	bool bIsMountain:1;
 	bool bIsWater:1;
@@ -68,13 +65,17 @@ struct CvPathNodeCacheData
 	bool bContainsEnemyCity:1;
 	bool bContainsVisibleEnemy:1;
 	bool bContainsVisibleEnemyDefender:1;
-	int	iNumFriendlyUnitsOfType;
+	int iNumFriendlyUnitsOfType;
 
 #if defined(MOD_GLOBAL_STACKING_RULES)
-	int	iUnitPlotLimit;
+	int iUnitPlotLimit;
 #endif
 #ifdef AUI_DANGER_PLOTS_REMADE
 	int iPlotDanger;
+#endif
+#ifdef AUI_ASTAR_FIX_NO_DUPLICATE_CALLS
+	//tells when to update the cache ...
+	unsigned short iGenerationID;
 #endif
 
 #ifdef AUI_ASTAR_FIX_NO_DUPLICATE_CALLS
