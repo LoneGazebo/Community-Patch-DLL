@@ -11799,8 +11799,11 @@ bool CvTacticalAI::FindUnitsWithinStrikingDistance2(CvPlot* pTarget, int iMinHit
 				CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(pTarget);
 				for(int iCount=0; iCount<NUM_DIRECTION_TYPES; iCount++)
 				{
+					//need a land tile for a land unit or a water tile for a water unit. and there mustn't be another unit in it
 					const CvPlot* pNeighborPlot = aPlotsToCheck[iCount];
-					if (pNeighborPlot && pNeighborPlot->getBestDefender(NO_PLAYER,m_pPlayer->GetID()))
+					if (pNeighborPlot && 
+						((!pNeighborPlot->isWater() && pLoopUnit->getDomainType()==DOMAIN_LAND) || (pNeighborPlot->isWater() && pLoopUnit->getDomainType()==DOMAIN_SEA)) &&
+						!pNeighborPlot->getBestDefender(NO_PLAYER,m_pPlayer->GetID()) )
 					{
 						int iDistance = plotDistance( pNeighborPlot->getX(), pNeighborPlot->getY(), pLoopUnit->getX(), pLoopUnit->getY() );
 						if (iDistance < iClosestDistance)
