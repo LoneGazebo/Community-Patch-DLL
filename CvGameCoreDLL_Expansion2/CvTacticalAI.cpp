@@ -6794,6 +6794,15 @@ void CvTacticalAI::ExecuteFormationMoves(CvArmyAI* pArmy, CvPlot *pClosestCurren
 		}
 	}
 
+#if defined(MOD_BALANCE_CORE)
+	int iDirX = pTarget->getX() - pClosestCurrentCOMonPath->getX();
+	int iDirY = pTarget->getY() - pClosestCurrentCOMonPath->getY();
+	float fDist = sqrt((float)iDirX*iDirX+iDirY*iDirY);
+	//this is an approximate unit vector of the direction we should be moving in
+	int iDX = int(iDirX/fDist+0.5f);
+	int iDY = int(iDirY/fDist+0.5f);
+#endif
+
 	// See if we have enough places to put everyone
 	if(!ScoreFormationPlots(pArmy, pTarget, pClosestCurrentCOMonPath, iMeleeUnits + iRangedUnits))
 	{
@@ -6824,10 +6833,12 @@ void CvTacticalAI::ExecuteFormationMoves(CvArmyAI* pArmy, CvPlot *pClosestCurren
 			if (!pLoopPlot->getBestDefender(NO_PLAYER))
 			{
 #if defined(MOD_BALANCE_CORE)
-				if(FindClosestOperationUnit(pLoopPlot, false /*bSafeForRanged*/, false /*bMustBeRangedUnit*/, 5, 10, true))
+				//find a unit that's a little bit further back, and then try to move it to this good plot
+				if(FindClosestOperationUnit( GC.getMap().plot(pLoopPlot->getX()-iDX,pLoopPlot->getY()-iDY), false /*bSafeForRanged*/, false /*bMustBeRangedUnit*/, 2, 10, true))
 				{
 					UnitHandle pInnerUnit = m_pPlayer->getUnit(m_CurrentMoveUnits[0].GetID());
 					MoveToUsingSafeEmbark(pInnerUnit, pLoopPlot, false);
+					TacticalAIHelpers::PerformRangedOpportunityAttack(pInnerUnit.pointer());
 #else
 				if(FindClosestOperationUnit(pLoopPlot, false /*bSafeForRanged*/, false /*bMustBeRangedUnit*/))
 				{
@@ -6876,10 +6887,12 @@ void CvTacticalAI::ExecuteFormationMoves(CvArmyAI* pArmy, CvPlot *pClosestCurren
 				if (!pLoopPlot->getBestDefender(NO_PLAYER))
 				{
 #if defined(MOD_BALANCE_CORE)
-					if(FindClosestOperationUnit(pLoopPlot, true /*bSafeForRanged*/, true /*bMustBeRangedUnit*/, 5, 10, true))
+					//find a unit that's a little bit further back, and then try to move it to this good plot
+					if(FindClosestOperationUnit( GC.getMap().plot(pLoopPlot->getX()-iDX,pLoopPlot->getY()-iDY), true /*bSafeForRanged*/, true /*bMustBeRangedUnit*/, 2, 10, true))
 					{
 						UnitHandle pInnerUnit = m_pPlayer->getUnit(m_CurrentMoveUnits[0].GetID());
 						MoveToUsingSafeEmbark(pInnerUnit, pLoopPlot, false);
+						TacticalAIHelpers::PerformRangedOpportunityAttack(pInnerUnit.pointer());
 #else
 					if(FindClosestOperationUnit(pLoopPlot, true /*bSafeForRanged*/, true /*bMustBeRangedUnit*/))
 					{
@@ -6915,10 +6928,12 @@ void CvTacticalAI::ExecuteFormationMoves(CvArmyAI* pArmy, CvPlot *pClosestCurren
 			if (!pLoopPlot->getBestDefender(NO_PLAYER))
 			{
 #if defined(MOD_BALANCE_CORE)
-				if(FindClosestOperationUnit(pLoopPlot, true /*bSafeForRanged*/, true /*bMustBeRangedUnit*/, 5, 10, true))
+				//find a unit that's a little bit further back, and then try to move it to this good plot
+				if(FindClosestOperationUnit( GC.getMap().plot(pLoopPlot->getX()-iDX,pLoopPlot->getY()-iDY), true /*bSafeForRanged*/, true /*bMustBeRangedUnit*/, 2, 10, true))
 				{
 					UnitHandle pInnerUnit = m_pPlayer->getUnit(m_CurrentMoveUnits[0].GetID());
 					MoveToUsingSafeEmbark(pInnerUnit, pLoopPlot, false);
+					TacticalAIHelpers::PerformRangedOpportunityAttack(pInnerUnit.pointer());
 #else
 				if(FindClosestOperationUnit(pLoopPlot, true /*bSafeForRanged*/, true /*bMustBeRangedUnit*/))
 				{
@@ -7209,7 +7224,7 @@ bool CvTacticalAI::ScoreFormationPlots(CvArmyAI* pArmy, CvPlot* pForwardTarget, 
 		}
 		else if(pOperation && pOperation->IsAllNavalOperation())
 		{
-			iRange *= 3;
+			iRange *= 2;
 		}
 	}
 #else
@@ -15373,7 +15388,7 @@ int TacticalAIHelpers::GetPlotsUnderRangedAttackFrom(CvUnit* pUnit, ReachablePlo
 //see if we can hit anything from our current plot
 bool TacticalAIHelpers::PerformRangedOpportunityAttack(CvUnit* pUnit)
 {
-	if (!pUnit || !pUnit->IsCanAttackRanged() || pUnit->getMoves()==0 )
+	if (!pUnit || !pUnit->IsCanAttackRanged() || pUnit->isMustSetUpToRangedAttack() || pUnit->getMoves()==0 )
 		return false;
 
 	int iRange = pUnit->GetRange();
