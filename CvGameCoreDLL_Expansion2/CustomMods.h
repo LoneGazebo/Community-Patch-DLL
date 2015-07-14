@@ -72,8 +72,6 @@
 
 /// Performance: Don't generate long paths when we know we don't want them
 #define AUI_ASTAR_TURN_LIMITER
-/// Increase pathfinding movement range for units if necessary
-#define AUI_ASTAR_ROAD_RANGE
 /// Enables the Binomial Random Number Generator
 #define AUI_BINOM_RNG
 /// Reorders some checks to make sure ones that process faster get executed first (if they fail, then the function skips checking the slower ones)

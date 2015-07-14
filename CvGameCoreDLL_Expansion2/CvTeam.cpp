@@ -304,7 +304,7 @@ void CvTeam::reset(TeamTypes eID, bool bConstructorCall)
 		int numTechInfos = GC.getNumTechInfos();
 #endif
 
-#if defined(AUI_ASTAR_ROAD_RANGE)
+#if defined(MOD_BALANCE_CORE)
 		m_iBestRouteFlatCostMultiplier = 1;
 		m_iBestRouteNormalCostMultiplier = 1;
 		m_iUseFlatCostIfBelowThis = -1;
@@ -4801,22 +4801,19 @@ void CvTeam::DoUpdateBestRoute()
 		}
 	}
 
-#ifdef AUI_ASTAR_ROAD_RANGE
+#if defined(MOD_BALANCE_CORE)
 	if(eBestRoute > NO_ROUTE)
 	{
 		SetBestPossibleRoute(eBestRoute);
 		CvRouteInfo* pRouteInfo = GC.getRouteInfo(eBestRoute);
 		if (pRouteInfo)
 		{
-#if defined(MOD_BALANCE_CORE)
 			if((pRouteInfo->getMovementCost() + getRouteChange(eBestRoute) != 0) && (pRouteInfo->getFlatMovementCost() != 0))
 			{
-#endif
-			m_iBestRouteNormalCostMultiplier = GC.getMOVE_DENOMINATOR() / (pRouteInfo->getMovementCost() + getRouteChange(eBestRoute));
-			m_iBestRouteFlatCostMultiplier = GC.getMOVE_DENOMINATOR() / pRouteInfo->getFlatMovementCost();
-			// Extra pRouteInfo->getFlatMovementCost() - 1 is to make sure value is always rounded up
-			m_iUseFlatCostIfBelowThis = (pRouteInfo->getMovementCost() + getRouteChange(eBestRoute) + pRouteInfo->getFlatMovementCost() - 1) / pRouteInfo->getFlatMovementCost();
-#if defined(MOD_BALANCE_CORE)
+				m_iBestRouteNormalCostMultiplier = GC.getMOVE_DENOMINATOR() / (pRouteInfo->getMovementCost() + getRouteChange(eBestRoute));
+				m_iBestRouteFlatCostMultiplier = GC.getMOVE_DENOMINATOR() / pRouteInfo->getFlatMovementCost();
+				// Extra pRouteInfo->getFlatMovementCost() - 1 is to make sure value is always rounded up
+				m_iUseFlatCostIfBelowThis = (pRouteInfo->getMovementCost() + getRouteChange(eBestRoute) + pRouteInfo->getFlatMovementCost() - 1) / pRouteInfo->getFlatMovementCost();
 			}
 			else
 			{
@@ -4824,7 +4821,6 @@ void CvTeam::DoUpdateBestRoute()
 				m_iBestRouteFlatCostMultiplier = 0;
 				m_iUseFlatCostIfBelowThis = -1;
 			}
-#endif
 		}
 		else
 		{
@@ -4841,8 +4837,8 @@ void CvTeam::DoUpdateBestRoute()
 #endif
 }
 
-#ifdef AUI_ASTAR_ROAD_RANGE
-int CvTeam::GetBestRoadMovementMultiplier(const CvUnit* pUnit) const
+#if defined(MOD_BALANCE_CORE)
+int CvTeam::GetCurrentBestMovementMultiplier(const CvUnit* pUnit) const
 {
 	int iRtnValue = m_iBestRouteNormalCostMultiplier;
 	if (pUnit)
@@ -8504,7 +8500,7 @@ void CvTeam::Read(FDataStream& kStream)
 #endif
 	}
 
-#if defined(AUI_ASTAR_ROAD_RANGE)
+#if defined(MOD_BALANCE_CORE)
 	DoUpdateBestRoute();
 #endif
 

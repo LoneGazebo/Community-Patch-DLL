@@ -1289,6 +1289,15 @@ void CvTacticalAI::EstablishTacticalPriorities()
 
 	// Now sort the moves in priority order
 	std::stable_sort(m_MovePriorityList.begin(), m_MovePriorityList.end());
+
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	//Debugging: Check order of tactical moves ... this is independent of the player
+	if (GC.getAILogging() && m_pPlayer->GetID()==1)
+		for (size_t i=0; i<m_MovePriorityList.size(); i++)
+			OutputDebugString( CvString::format("Turn %03d - Player %d - Move %s - Prio %d\n", 
+				GC.getGame().getGameTurn(), m_pPlayer->GetID(), GC.getTacticalMoveInfo(m_MovePriorityList[i].m_eMoveType)->GetType(), m_MovePriorityList[i].m_iPriority).c_str() );
+#endif
+
 }
 
 
@@ -1390,6 +1399,14 @@ void CvTacticalAI::EstablishBarbarianPriorities()
 
 	// Now sort the moves in priority order
 	std::stable_sort(m_MovePriorityList.begin(), m_MovePriorityList.end());
+
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	//Debugging: Check order of tactical moves ...
+	if (GC.getAILogging())
+		for (size_t i=0; i<m_MovePriorityList.size(); i++)
+			OutputDebugString( CvString::format("Turn %03d - Barbarian Move %s - Prio %d\n", 
+				GC.getGame().getGameTurn(), barbarianMoveNames[m_MovePriorityList[i].m_eMoveType], m_MovePriorityList[i].m_iPriority).c_str() );
+#endif
 }
 
 
@@ -1720,19 +1737,9 @@ void CvTacticalAI::ProcessDominanceZones()
 			CvTacticalMove move = *it;
 
 #if defined(MOD_BALANCE_CORE)
-			//Debugging: Check order of tactical moves ...
-			if (GC.getGame().getGameTurn() == 1 && m_pPlayer->GetID() < MAX_CIV_PLAYERS )
-			{
-				OutputDebugString( CvString::format("Player %d - Move %s - Prio %d\n", m_pPlayer->GetID(), GC.getTacticalMoveInfo(move.m_eMoveType)->GetType(), move.m_iPriority).c_str() );
-			}
-			else
-			{
-				//if all units have moved we could break directly, but we need to make sure tactical operations are always pushed along
-				if (m_CurrentTurnUnits.empty() && move.m_eMoveType != (TacticalAIMoveTypes)m_CachedInfoTypes[eTACTICAL_MOVE_OPERATIONS])
-				{
-					continue;
-				}
-			}
+			//if all units have moved we could break directly, but we need to make sure tactical operations are always pushed along
+			if (m_CurrentTurnUnits.empty() && move.m_eMoveType != (TacticalAIMoveTypes)m_CachedInfoTypes[eTACTICAL_MOVE_OPERATIONS])
+				continue;
 #endif
 
 			if(move.m_iPriority >= 0)
@@ -2073,13 +2080,9 @@ void CvTacticalAI::AssignBarbarianMoves()
 		CvTacticalMove move = *it;
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
-		//Debugging: Check order of tactical moves ...
-		if (GC.getGame().getGameTurn() == 1 && m_pPlayer->GetID() == BARBARIAN_PLAYER )
-			OutputDebugString( CvString::format("Barbarians %d - Move %s - Prio %d\n", m_pPlayer->GetID(), barbarianMoveNames[move.m_eMoveType], move.m_iPriority).c_str() );
-		else
-			//if all units have moved we can stop
-			if (m_CurrentTurnUnits.empty())
-				break;
+		//if all units have moved we can stop - this is ok here because barbarians don't have operations
+		if (m_CurrentTurnUnits.empty())
+			break;
 
 		//debugging
 		m_CurrentMoveUnits.setCurrentTacticalMove(move);
@@ -2090,11 +2093,12 @@ void CvTacticalAI::AssignBarbarianMoves()
 		switch(move.m_eMoveType)
 		{
 #if defined(MOD_BALANCE_CORE_MILITARY)
+		//capture moves require that the city can be taken within 2 turns, barbarians almost never qualify for that, so they do nothing instead
+		//therefore combine the two
 		case AI_TACTICAL_BARBARIAN_CAPTURE_CITY:
-			//capture moves require that the city can be taken within 2 turns, barbarians almost never qualify for that, so they do nothing instead
-			//therefore fall-through
 		case AI_TACTICAL_BARBARIAN_DAMAGE_CITY:
 			PlotDamageCityMoves();
+			PlotCaptureCityMoves();
 			break;
 #else
 		case AI_TACTICAL_BARBARIAN_CAPTURE_CITY:
@@ -6523,7 +6527,7 @@ void CvTacticalAI::ClearEnemiesNearArmy(CvArmyAI* pArmy)
 {
 	bool bEnemyNear = false;
 	CvPlot* pPlot;
-	int iRange = 1;
+	int iRange = 2;
 	bool bAttackUnderway;
 	bool bAttackMade = false;
 	UnitHandle pUnit;
@@ -6819,12 +6823,15 @@ void CvTacticalAI::ExecuteFormationMoves(CvArmyAI* pArmy, CvPlot *pClosestCurren
 			// Don't use if there's already someone here
 			if (!pLoopPlot->getBestDefender(NO_PLAYER))
 			{
+#if defined(MOD_BALANCE_CORE)
+				if(FindClosestOperationUnit(pLoopPlot, false /*bSafeForRanged*/, false /*bMustBeRangedUnit*/, 5, 10, true))
+				{
+					UnitHandle pInnerUnit = m_pPlayer->getUnit(m_CurrentMoveUnits[0].GetID());
+					MoveToUsingSafeEmbark(pInnerUnit, pLoopPlot, false);
+#else
 				if(FindClosestOperationUnit(pLoopPlot, false /*bSafeForRanged*/, false /*bMustBeRangedUnit*/))
 				{
 					UnitHandle pInnerUnit = m_pPlayer->getUnit(m_CurrentMoveUnits[0].GetID());
-#if defined(MOD_BALANCE_CORE)
-					MoveToUsingSafeEmbark(pInnerUnit, pLoopPlot, false);
-#else
 					bool bMoveWasSafe;
 					MoveToUsingSafeEmbark(pInnerUnit, pLoopPlot, bMoveWasSafe);
 #endif
@@ -6868,12 +6875,15 @@ void CvTacticalAI::ExecuteFormationMoves(CvArmyAI* pArmy, CvPlot *pClosestCurren
 				// Don't use if there's already someone here
 				if (!pLoopPlot->getBestDefender(NO_PLAYER))
 				{
+#if defined(MOD_BALANCE_CORE)
+					if(FindClosestOperationUnit(pLoopPlot, true /*bSafeForRanged*/, true /*bMustBeRangedUnit*/, 5, 10, true))
+					{
+						UnitHandle pInnerUnit = m_pPlayer->getUnit(m_CurrentMoveUnits[0].GetID());
+						MoveToUsingSafeEmbark(pInnerUnit, pLoopPlot, false);
+#else
 					if(FindClosestOperationUnit(pLoopPlot, true /*bSafeForRanged*/, true /*bMustBeRangedUnit*/))
 					{
 						UnitHandle pInnerUnit = m_pPlayer->getUnit(m_CurrentMoveUnits[0].GetID());
-#if defined(MOD_BALANCE_CORE)
-						MoveToUsingSafeEmbark(pInnerUnit, pLoopPlot, false);
-#else
 						bool bMoveWasSafe;
 						MoveToUsingSafeEmbark(pInnerUnit, pLoopPlot, bMoveWasSafe);
 #endif
@@ -6904,12 +6914,15 @@ void CvTacticalAI::ExecuteFormationMoves(CvArmyAI* pArmy, CvPlot *pClosestCurren
 			// Don't use if there's already someone here
 			if (!pLoopPlot->getBestDefender(NO_PLAYER))
 			{
+#if defined(MOD_BALANCE_CORE)
+				if(FindClosestOperationUnit(pLoopPlot, true /*bSafeForRanged*/, true /*bMustBeRangedUnit*/, 5, 10, true))
+				{
+					UnitHandle pInnerUnit = m_pPlayer->getUnit(m_CurrentMoveUnits[0].GetID());
+					MoveToUsingSafeEmbark(pInnerUnit, pLoopPlot, false);
+#else
 				if(FindClosestOperationUnit(pLoopPlot, true /*bSafeForRanged*/, true /*bMustBeRangedUnit*/))
 				{
 					UnitHandle pInnerUnit = m_pPlayer->getUnit(m_CurrentMoveUnits[0].GetID());
-#if defined(MOD_BALANCE_CORE)
-					MoveToUsingSafeEmbark(pInnerUnit, pLoopPlot, false);
-#else
 					bool bMoveWasSafe;
 					MoveToUsingSafeEmbark(pInnerUnit, pLoopPlot, bMoveWasSafe);
 #endif
@@ -11614,18 +11627,18 @@ bool CvTacticalAI::FindUnitsWithinStrikingDistance(CvPlot* pTarget, int iNumTurn
 							// Are we in range or could be in range with movement?
 							int getDistance = plotDistance(pLoopUnit->getX(), pLoopUnit->getY(), pTarget->getX(), pTarget->getY());
 
-							if ((getDistance < pLoopUnit-> GetRangeWithMovement()) && (getDistance > pLoopUnit-> GetRange()))
+							if(getDistance < pLoopUnit->GetRangeWithMovement())
 							{
-								if(GC.getLogging() && GC.getAILogging())
+								if (getDistance > pLoopUnit->GetRange())
 								{
-									CvString strMsg;
-									strMsg.Format("Unit %s going to be considered, out of pure range (%d) but in move+range (%d)", pLoopUnit->getName().GetCString(), pLoopUnit->GetRange(), pLoopUnit->GetRangeWithMovement());
-									LogTacticalMessage(strMsg);
+									if(GC.getLogging() && GC.getAILogging())
+									{
+										CvString strMsg;
+										strMsg.Format("Unit %s going to be considered, out of pure range (%d) but in move+range (%d)", pLoopUnit->getName().GetCString(), pLoopUnit->GetRange(), pLoopUnit->GetRangeWithMovement());
+										LogTacticalMessage(strMsg);
+									}
 								}
-							}
 
-							if(getDistance < pLoopUnit-> GetRangeWithMovement())
-							{
 								// Will we do any damage
 								if(IsExpectedToDamageWithRangedAttack(pLoopUnit, pTarget))
 								{
@@ -12136,7 +12149,7 @@ bool CvTacticalAI::FindClosestUnit(CvPlot* pTarget, int iNumTurnsAway, bool bMus
 
 /// Fills m_CurrentMoveUnits with all units in operation that can get to target (returns TRUE if 1 or more found)
 #if defined(MOD_BALANCE_CORE_MILITARY)
-bool CvTacticalAI::FindClosestOperationUnit(CvPlot* pTarget, bool bIncludeRanged, bool bRangedOnly, int iMaxTurns, int iMinHitpoints)
+bool CvTacticalAI::FindClosestOperationUnit(CvPlot* pTarget, bool bIncludeRanged, bool bRangedOnly, int iMaxTurns, int iMinHitpoints, bool bNeedOnlyOne)
 #else
 bool CvTacticalAI::FindClosestOperationUnit(CvPlot* pTarget, bool bSafeForRanged, bool bMustBeRangedUnit)
 #endif
@@ -12146,6 +12159,10 @@ bool CvTacticalAI::FindClosestOperationUnit(CvPlot* pTarget, bool bSafeForRanged
 
 	bool rtnValue = false;
 	m_CurrentMoveUnits.clear();
+
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	std::vector< std::pair<int,CvUnit*> > vUnitsByDistance;
+#endif
 
 	// Loop through all units available to operation
 	for(it = m_OperationUnits.begin(); it != m_OperationUnits.end(); it++)
@@ -12173,6 +12190,24 @@ bool CvTacticalAI::FindClosestOperationUnit(CvPlot* pTarget, bool bSafeForRanged
 			{
 				bValidUnit = false;
 			}
+
+			if (bValidUnit)
+			{
+				int iDistance = plotDistance( pTarget->getX(), pTarget->getY(), pLoopUnit->getX(), pLoopUnit->getY() );
+				vUnitsByDistance.push_back( std::make_pair(iDistance,pLoopUnit.pointer()) );
+			}
+		}
+	}
+
+	//default sort is by ascending first member of the pair
+	std::sort( vUnitsByDistance.begin(), vUnitsByDistance.end() );
+
+	for (std::vector< std::pair<int,CvUnit*> >::iterator it = vUnitsByDistance.begin(); it != vUnitsByDistance.end(); ++it)
+	{
+		{
+			{
+				CvUnit* pLoopUnit = it->second;
+
 #else
 			else if(!bSafeForRanged && pLoopUnit->IsCanAttackRanged())
 			{
@@ -12182,10 +12217,10 @@ bool CvTacticalAI::FindClosestOperationUnit(CvPlot* pTarget, bool bSafeForRanged
 			{
 				bValidUnit = false;
 			}
-#endif
-
 			if(bValidUnit)
 			{
+#endif
+
 #if defined(AUI_ASTAR_TURN_LIMITER)
 				int iTurns = TurnsToReachTarget(pLoopUnit, pTarget, false /*bReusePaths*/, false /*bIgnoreUnits*/, false /*bIgnoreStacking*/, iMaxTurns);
 #else
@@ -12200,10 +12235,14 @@ bool CvTacticalAI::FindClosestOperationUnit(CvPlot* pTarget, bool bSafeForRanged
 					unit.SetHealthPercent(10,10);
 #if defined(MOD_BALANCE_CORE)
 					unit.SetMovesToTarget(iTurns);
+					m_CurrentMoveUnits.push_back(unit);
+
+					if (iTurns==0 && bNeedOnlyOne)
+						return true;
 #else
 					unit.SetMovesToTarget(plotDistance(pLoopUnit->getX(), pLoopUnit->getY(), pTarget->getX(), pTarget->getY()));
-#endif
 					m_CurrentMoveUnits.push_back(unit);
+#endif
 					rtnValue = true;
 				}
 			}

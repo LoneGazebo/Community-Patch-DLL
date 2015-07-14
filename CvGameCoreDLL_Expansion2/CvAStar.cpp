@@ -4186,70 +4186,34 @@ int FindValidDestinationPathValid(CvAStarNode* parent, CvAStarNode* node, int da
 }
 
 
-#ifdef AUI_ASTAR_ROAD_RANGE
+#if defined(MOD_BALANCE_CORE)
 // If there is a valid road within the unit's base movement range, multiply range by movement modifier of best road type
-// Check is fairly fast and is good enough for most cases.
-int GetIncreasedMoveRangeForRoads(const CvUnit* pUnit, int iRange)
+int GetBestCaseMoveRange(const CvUnit* pUnit)
 {
+	int iRange = pUnit->baseMoves();
+
 	// Filtering out units that don't need road optimization
 	if (pUnit->getDomainType() != DOMAIN_LAND || pUnit->flatMovementCost())
-	{
 		return iRange;
-	}
 
 	// Don't want to call this on each loop, so we'll call it once out of loop and be done with it
 	const bool bIsIroquois = GET_PLAYER(pUnit->getOwner()).GetPlayerTraits()->IsMoveFriendlyWoodsAsRoad();
 	const bool bIsSonghai = GET_PLAYER(pUnit->getOwner()).GetPlayerTraits()->IsFasterAlongRiver();
 	const bool bIsInca = GET_PLAYER(pUnit->getOwner()).GetPlayerTraits()->IsFasterInHills();
 
-	CvPlot* pLoopPlot;
-	FeatureTypes eFeature;
-
-	//a road is only useful if we can enter it with movement points left
-	int iSearchRange = max(0,iRange-2);
-
-	for (int iDY = -iSearchRange; iDY <= iSearchRange; iDY++)
+	CvPlot* pLoopPlot = pUnit->plot();
+	FeatureTypes eFeature = pLoopPlot->getFeatureType();
+	if ( pLoopPlot->isValidRoute(pUnit) ||
+		(bIsIroquois && pUnit->getOwner() == pLoopPlot->getOwner() && (eFeature == FEATURE_FOREST || eFeature == FEATURE_JUNGLE)) ||
+		(bIsSonghai && pUnit->getOwner() == pLoopPlot->getOwner() && pLoopPlot->isRiver()) ||
+		(bIsInca && pUnit->getOwner() == pLoopPlot->getOwner() && pLoopPlot->isHills()) )
 	{
-		int iMaxDX = iSearchRange - MAX(0, iDY);
-		for (int iDX = -iSearchRange - MIN(0, iDY); iDX <= iMaxDX; iDX++)
-		{
-			pLoopPlot = plotXY(pUnit->getX(), pUnit->getY(), iDX, iDY);
-			if (pLoopPlot)
-			{
-				eFeature = pLoopPlot->getFeatureType();
-				if (bIsIroquois && pUnit->getOwner() == pLoopPlot->getOwner() && (eFeature == FEATURE_FOREST || eFeature == FEATURE_JUNGLE))
-				{
-					return iRange * GET_TEAM(pUnit->getTeam()).GetBestRoadMovementMultiplier(pUnit);
-				}
-				else if (bIsSonghai && pUnit->getOwner() == pLoopPlot->getOwner() && pLoopPlot->isRiver())
-				{
-					return iRange * GET_TEAM(pUnit->getTeam()).GetBestRoadMovementMultiplier(pUnit);
-				}
-				else if (bIsInca && pUnit->getOwner() == pLoopPlot->getOwner() && pLoopPlot->isHills())
-				{
-					return iRange * GET_TEAM(pUnit->getTeam()).GetBestRoadMovementMultiplier(pUnit);
-				}
-
-				if (pLoopPlot->isValidRoute(pUnit))
-				{
-					CvPlot* pEvalPlot;
-					// Check for neighboring roads that would make this road usable
-					for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
-					{
-						pEvalPlot = plotDirection(pLoopPlot->getX(), pLoopPlot->getY(), (DirectionTypes)iI);
-						if (pEvalPlot && pEvalPlot->isValidRoute(pUnit))
-						{
-							return iRange * GET_TEAM(pUnit->getTeam()).GetBestRoadMovementMultiplier(pUnit);
-						}
-					}
-				}
-			}
-		}
+		return iRange * GET_TEAM(pUnit->getTeam()).GetCurrentBestMovementMultiplier(pUnit);
 	}
 
 	return iRange;
 }
-#endif // AUI_ASTAR_ROAD_RANGE
+#endif
 
 
 //	--------------------------------------------------------------------------------
@@ -4271,25 +4235,24 @@ bool CanReachInXTurns(UnitHandle pUnit, CvPlot* pTarget, int iTurns, bool bIgnor
 	// KWG: If the unit is a land unit that can embark, baseMoves() is only going to give correct value if the starting and ending locations
 	//		are in the same domain (LAND vs. SEA) and no transition occurs.
 
-#ifdef AUI_ASTAR_ROAD_RANGE
-	int iBaseMoves = GetIncreasedMoveRangeForRoads(pUnit.pointer(), pUnit->baseMoves());
-	if (iTurns == 0 && iDistance >= iBaseMoves)
+#if defined(MOD_BALANCE_CORE)
+
+	int iMaxMoves = GetBestCaseMoveRange(pUnit.pointer());
+	if (iDistance > iMaxMoves*(iTurns+1))
 	{
 		return false;
 	}
 
-	else if(iTurns > 0 && iDistance > (iBaseMoves * iTurns))
 #else
 	if(iTurns == 0 && iDistance >= pUnit->baseMoves())
 	{
 		return false;
 	}
-
 	else if(iTurns > 0 && iDistance > (pUnit->baseMoves() * iTurns))
-#endif
 	{
 		return false;
 	}
+#endif
 
 	// Distance not too far, now use pathfinder
 	else

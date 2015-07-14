@@ -563,11 +563,8 @@ void UnitPathUninitialize(const void* pointer, CvAStar* finder);
 void TradePathInitialize(const void* pointer, CvAStar* finder);
 void TradePathUninitialize(const void* pointer, CvAStar* finder);
 
-#ifdef AUI_ASTAR_ROAD_RANGE
-int GetIncreasedMoveRangeForRoads(const CvUnit* pUnit, int iRange);
-#endif // AUI_ASTAR_ROAD_RANGE
-
 #if defined(MOD_BALANCE_CORE)
+int GetBestCaseMoveRange(const CvUnit* pUnit);
 bool IsPlotConnectedToPlot(PlayerTypes ePlayer, CvPlot* pFromPlot, CvPlot* pToPlot, RouteTypes eRestrictRoute = NO_ROUTE, bool bIgnoreHarbors = false);
 #endif
 

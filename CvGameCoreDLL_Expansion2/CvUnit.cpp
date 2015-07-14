@@ -13483,8 +13483,8 @@ int CvUnit::GetRange() const
 // Special property to get unit range+ move possibility.
 int CvUnit::GetRangeWithMovement() const
 {
-#ifdef AUI_ASTAR_ROAD_RANGE
-	return ((getDomainType() == DOMAIN_AIR) ? GetRange() : (GetRange() + GetIncreasedMoveRangeForRoads(this, baseMoves()) - (isMustSetUpToRangedAttack() ? 1 : 0)));
+#if defined(MOD_BALANCE_CORE)
+	return ((getDomainType() == DOMAIN_AIR) ? GetRange() : (GetRange() + GetBestCaseMoveRange(this) - (isMustSetUpToRangedAttack() ? 1 : 0)));
 #else
 	VALIDATE_OBJECT
 	return ((getDomainType() == DOMAIN_AIR) ? GetRange() : (GetRange() + baseMoves() - (isMustSetUpToRangedAttack() ? 1 : 0)));
@@ -26945,7 +26945,7 @@ CvPlot* CvUnit::GetPathEndTurnPlot() const
 }
 
 //	--------------------------------------------------------------------------------
-#if !defined(AUI_ASTAR_ROAD_RANGE)
+#if !defined(MOD_BALANCE_CORE)
 // deprecated, don't use this
 int CvUnit::SearchRange(int iRange) const
 {

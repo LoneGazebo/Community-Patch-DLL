@@ -6880,12 +6880,18 @@ bool CvHomelandAI::MoveCivilianToSafety(CvUnit* pUnit, bool bIgnoreUnits, bool b
 bool CvHomelandAI::MoveCivilianToSafety(CvUnit* pUnit, bool bIgnoreUnits)
 #endif
 {
-#if defined(AUI_ASTAR_ROAD_RANGE)
-	//we want to be able to go there in one turn ...
-	int iSearchRange = GetIncreasedMoveRangeForRoads(pUnit,pUnit->baseMoves());
+#if defined(MOD_BALANCE_CORE)
+	WeightedPlotVector aBestPlotList;
+	TacticalAIHelpers::ReachablePlotSet reachableTiles;
+	TacticalAIHelpers::GetAllTilesInReach(pUnit,pUnit->plot(),reachableTiles,true,true);
+	for (TacticalAIHelpers::ReachablePlotSet::iterator it=reachableTiles.begin(); it!=reachableTiles.end(); ++it)
+	{
+		{
+			CvPlot* pLoopPlot = it->first;
+
+
 #else
 	int iSearchRange = pUnit->SearchRange(1);
-#endif
 
 	// Collecting all the possibilities first.
 	WeightedPlotVector aBestPlotList;
@@ -6900,6 +6906,7 @@ bool CvHomelandAI::MoveCivilianToSafety(CvUnit* pUnit, bool bIgnoreUnits)
 			{
 				continue;
 			}
+#endif
 
 #if defined(MOD_AI_SECONDARY_WORKERS)
 			if(!pUnit->PlotValid(pLoopPlot, CvUnit::MOVEFLAG_PRETEND_CORRECT_EMBARK_STATE))
@@ -7044,16 +7051,14 @@ bool CvHomelandAI::MoveCivilianToSafety(CvUnit* pUnit, bool bIgnoreUnits)
 			else
 			{
 #if defined(MOD_BALANCE_CORE)
-				
-				for(int iDX = -(iSearchRange); iDX <= iSearchRange; iDX++)
+				//check for an alternative plot again with more relaxed conditions
+				WeightedPlotVector aBestPlotList;
+				TacticalAIHelpers::ReachablePlotSet reachableTiles;
+				TacticalAIHelpers::GetAllTilesInReach(pUnit,pUnit->plot(),reachableTiles,true,true);
+				for (TacticalAIHelpers::ReachablePlotSet::iterator it=reachableTiles.begin(); it!=reachableTiles.end(); ++it)
 				{
-					for(int iDY = -(iSearchRange); iDY <= iSearchRange; iDY++)
 					{
-						CvPlot* pLoopPlot = plotXYWithRangeCheck(pUnit->getX(), pUnit->getY(), iDX, iDY, iSearchRange);
-						if(!pLoopPlot)
-						{
-							continue;
-						}
+						CvPlot* pLoopPlot = it->first;
 
 #if defined(MOD_AI_SECONDARY_WORKERS)
 						if(!pUnit->PlotValid(pLoopPlot, CvUnit::MOVEFLAG_PRETEND_CORRECT_EMBARK_STATE))
@@ -7068,16 +7073,6 @@ bool CvHomelandAI::MoveCivilianToSafety(CvUnit* pUnit, bool bIgnoreUnits)
 							continue;
 						}
 						if(!pUnit->IsCivilianUnit() && pLoopPlot->getNumDefenders(pUnit->getOwner()) > 0)
-						{
-							continue;
-						}
-						int iPathTurns;
-						if(!pUnit->GeneratePath(pLoopPlot, MOVE_UNITS_IGNORE_DANGER, true, &iPathTurns))
-						{
-							continue;
-						}
-						// if we can't get there this turn, forget it
-						if(iPathTurns > 1)
 						{
 							continue;
 						}

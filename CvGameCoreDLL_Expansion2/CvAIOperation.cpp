@@ -566,7 +566,7 @@ bool CvAIOperation::CheckTarget()
 	for(unsigned int uiI = 0; uiI < m_viArmyIDs.size(); uiI++)
 	{
 		CvArmyAI* pThisArmy = GET_PLAYER(m_eOwner).getArmyAI(m_viArmyIDs[uiI]);
-		//name is misleading, this checks if the target is still where we think it is
+		//name is misleading, this is basically hook to check if the target is still where we think it is and make adjustments if required. return value is irrelevant
 		retval &= ArmyMoved(pThisArmy);
 	}
 	return retval;
@@ -2409,6 +2409,18 @@ int CvAIEnemyTerritoryOperation::GetDeployRange() const
 	return GC.getAI_OPERATIONAL_CITY_ATTACK_DEPLOY_RANGE();
 }
 
+#if defined(MOD_BALANCE_CORE)
+CvPlot* CvAIOperationDestroyBarbarianCamp::SelectInitialMusterPoint(CvArmyAI* pThisArmy)
+{
+	if(GetMusterPlot() != NULL)
+	{
+		return GetMusterPlot();
+	}
+
+	return CvAIEnemyTerritoryOperation::SelectInitialMusterPoint(pThisArmy);
+}
+#endif
+
 /// Figure out the initial rally point
 CvPlot* CvAIEnemyTerritoryOperation::SelectInitialMusterPoint(CvArmyAI* pThisArmy)
 {
@@ -2419,15 +2431,7 @@ CvPlot* CvAIEnemyTerritoryOperation::SelectInitialMusterPoint(CvArmyAI* pThisArm
 	int iSpacesFromTarget = 0;
 	CvPlot* pDeployPlot = NULL;
 	int iDangerousPlots = 0;
-#if defined(MOD_BALANCE_CORE)
-	if(GetOperationType() == AI_OPERATION_DESTROY_BARBARIAN_CAMP)
-	{
-		if(GetMusterPlot() != NULL)
-		{
-			return GetMusterPlot();
-		}
-	}
-#endif
+
 	pStartCity = GetOperationStartCity();
 #if defined(MOD_BALANCE_CORE)			
 	if(pStartCity == NULL && pThisArmy != NULL)
@@ -3218,7 +3222,7 @@ CvPlot* CvAIOperationDestroyBarbarianCamp::FindBestTarget()
 
 	if (pBestPlot == NULL)
 	{
-		// Look at map for Barbarian camps
+		// Look at map for Barbarian camps - don't check if they are revealed ... that's the cheating part
 		for (iPlotLoop = 0; iPlotLoop < GC.getMap().numPlots(); iPlotLoop++)
 		{
 			pPlot = GC.getMap().plotByIndexUnchecked(iPlotLoop);

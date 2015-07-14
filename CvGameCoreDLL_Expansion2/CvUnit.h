@@ -1464,7 +1464,7 @@ public:
 	int GetNumGoodyHutsPopped() const;
 	void ChangeNumGoodyHutsPopped(int iValue);
 
-#if !defined(AUI_ASTAR_ROAD_RANGE)
+#if !defined(MOD_BALANCE_CORE)
 	// deprecated, don't use this
 	// Ported in from old CvUnitAI class
 	int SearchRange(int iRange) const;
