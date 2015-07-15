@@ -65,13 +65,24 @@ struct CvPathNodeCacheData
 	bool bContainsEnemyCity:1;
 	bool bContainsVisibleEnemy:1;
 	bool bContainsVisibleEnemyDefender:1;
-	int	iNumFriendlyUnitsOfType;
+	int iNumFriendlyUnitsOfType;
+
 #if defined(MOD_GLOBAL_STACKING_RULES)
-	int	iUnitPlotLimit;
+	int iUnitPlotLimit;
 #endif
 #ifdef AUI_DANGER_PLOTS_REMADE
 	int iPlotDanger;
-#endif // AUI_DANGER_PLOTS_REMADE
+#endif
+#ifdef AUI_ASTAR_FIX_NO_DUPLICATE_CALLS
+	//tells when to update the cache ...
+	unsigned short iGenerationID;
+#endif
+
+#ifdef AUI_ASTAR_FIX_NO_DUPLICATE_CALLS
+	//housekeeping
+	CvPathNodeCacheData() { clear(); }
+	void clear() { memset(this,0,sizeof(CvPathNodeCacheData)); }
+#endif
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -124,6 +135,10 @@ public:
 		m_pStack = NULL;
 
 		m_apChildren.clear();
+
+#ifdef AUI_ASTAR_FIX_NO_DUPLICATE_CALLS
+		m_kCostCacheData.clear();
+#endif
 	}
 
 	int m_iTotalCost;	  // Fitness (f)

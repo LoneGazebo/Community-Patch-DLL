@@ -234,7 +234,7 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 
 		local corporatechange = Game.GetBuildingCorporateYieldChange( iBuildingID, YieldTypes.YIELD_CULTURE )
 		if (corporatechange > 0) then
-			corporatechange = city:GetCorporationYieldChange(YieldTypes.YIELD_CULTURE)
+			corporatechange = pCity:GetCorporationYieldChange(YieldTypes.YIELD_CULTURE)
 			if(corporatechange > 0) then
 				iCulture = iCulture + corporatechange;
 			end

@@ -39,12 +39,12 @@
 
 	-- 1.5
 	UPDATE Defines
-	SET Value = '1.7'
+	SET Value = '1.9'
 	WHERE Name = 'CITY_GROWTH_EXPONENT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	-- 8
 	UPDATE Defines
-	SET Value = '9'
+	SET Value = '10'
 	WHERE Name = 'CITY_GROWTH_MULTIPLIER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 -- More cost for first and second Great Prophets - push founding/enhancing dates back slightly
@@ -53,7 +53,7 @@
 	WHERE Name = 'RELIGION_MIN_FAITH_FIRST_PROPHET' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 	UPDATE Defines
-	SET Value = '400'
+	SET Value = '300'
 	WHERE Name = 'RELIGION_FAITH_DELTA_NEXT_PROPHET' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_UNITS' AND Value= 1 );
 
 -- Great People more expensive - delta will increase faster as well.

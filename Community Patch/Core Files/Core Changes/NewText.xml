@@ -321,8 +321,15 @@
 		<Row Tag="TXT_KEY_DIPLO_OPEN_BORDERS_THEM">
 			<Text>[COLOR_POSITIVE_TEXT]They have opened their borders to us.[ENDCOLOR]</Text>
 		</Row>
-
 		
+		<!-- Aggressive Posture -->
+		<Row Tag="TXT_KEY_DIPLO_AGGRESSIVE_POSTURE_MEDIUM">
+			<Text>[COLOR_NEGATIVE_TEXT]Your military deployment is threatening.[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DIPLO_AGGRESSIVE_POSTURE_HIGH">
+			<Text>[COLOR_NEGATIVE_TEXT]Your military deployment is extremely threatening.[ENDCOLOR]</Text>
+		</Row>
+
 		<!-- Defense Pact Offer -->
 		<Row Tag="TXT_KEY_DEFENSE_PACT_OFFER_1">
 			<Text>I admire your military prowess. Shall we make a Defensive Pact?</Text>
@@ -2691,6 +2698,22 @@
 			<Text>Your {@2_UnitName} bombarded the enemy City of {@1_CityName} ({3_Num} damage)!</Text>
 		</Row>
 
+		<Row Tag="TXT_KEY_MISC_YOU_ATTACK_BY_AIR_ACTUALLY">
+			<Text>Your {@1_UnitName} bombarded the enemy City of {@2_CityName}, and was not intercepted ({3_Num} damage)!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_MISC_YOU_ATTACK_BY_AIR_INTERCEPTED">
+			<Text>While attacking {@4_CityName), an enemy {@1_UnitName} intercepted your {@2_DefUnitName} ({3_Num} damage)!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_MISC_YOU_ARE_ATTACKED_BY_AIR_CITY">
+			<Text>The City of {@1_CityName} ({3_Num} damage) was bombarded by an enemy {@2_EnUName}!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_MISC_ENEMY_AIR_UNIT_INTERCEPTED_CITY">
+			<Text>Thanks to your intercepting {@1_UnitName}, we damaged the {@2_owner_adjective} {@3_EnUName} ({4_Num} damage) attacking your City of {@5_CityName}.</Text>
+		</Row>
+
 		<Row Tag="TXT_KEY_DECLARE_WAR_DPS_CP">
 			<Text>DEFENSIVE PACTS</Text>
 		</Row>
@@ -3106,6 +3129,21 @@
 		</Row>
 		<Row Tag="TXT_KEY_ANARCHY_BEGINS">
 			<Text>Your empire has entered a state of anarchy! This will last for {1_num} turns.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_FOODMOD_YIELD_GOLDEN_AGE_POLICIES">
+			<Text>[NEWLINE][ICON_BULLET][ICON_GOLDEN_AGE] Golden Age Modifier (Policies): {1_Num}%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_FOODMOD_YIELD_GOLDEN_AGE_BUILDINGS">
+			<Text>[NEWLINE][ICON_BULLET][ICON_GOLDEN_AGE] Golden Age Modifier (Buildings): {1_Num}%</Text>
+		</Row>
+
+
+		<Row Tag="TXT_KEY_PRODMOD_YIELD_GOLDEN_AGE_BUILDINGS">
+			<Text>[NEWLINE][ICON_BULLET][ICON_GOLDEN_AGE] Golden Age Modifier (Buildings): {1_Num}%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODMOD_YIELD_GOLDEN_AGE_POLICIES">
+			<Text>[NEWLINE][ICON_BULLET][ICON_GOLDEN_AGE] Golden Age Modifier (Policies): {1_Num}%</Text>
 		</Row>
 	</Language_en_US>
 </GameData>

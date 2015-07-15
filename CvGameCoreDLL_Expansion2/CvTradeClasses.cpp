@@ -1130,7 +1130,48 @@ void CvGameTrade::ClearAllCityStateTradeRoutes (void)
 		}		
 	}
 }
+#if defined(MOD_BALANCE_CORE)
+//  Reset all Civ to City-State trade routes for all players.
+void CvGameTrade::ClearAllCityStateTradeRoutesSpecial (void)
+{
+	for (uint ui = 0; ui < m_aTradeConnections.size(); ui++)
+	{
+		if (IsTradeRouteIndexEmpty(ui))
+		{
+			continue;
+		}
 
+		bool bMatchesDest = (GET_PLAYER(m_aTradeConnections[ui].m_eDestOwner).isMinorCiv());
+		if(bMatchesDest)
+		{
+			if(GET_PLAYER(m_aTradeConnections[ui].m_eDestOwner).GetMinorCivAI()->GetAlly() == m_aTradeConnections[ui].m_eOriginOwner)
+			{
+				bMatchesDest = false;
+			}
+		}
+		if (bMatchesDest)
+		{
+			// if the destination was wiped, the origin gets a trade unit back
+			if (GET_PLAYER(m_aTradeConnections[ui].m_eOriginOwner).isAlive())
+			{
+#if defined(MOD_BUGFIX_UNITCLASS_NOT_UNIT)
+				CvPlayer& kPlayer = GET_PLAYER(m_aTradeConnections[ui].m_eOriginOwner);
+				UnitTypes eUnitType = kPlayer.GetTrade()->GetTradeUnit(m_aTradeConnections[ui].m_eDomain, &kPlayer);
+#else
+				UnitTypes eUnitType = GET_PLAYER(m_aTradeConnections[ui].m_eOriginOwner).GetTrade()->GetTradeUnit(m_aTradeConnections[ui].m_eDomain);
+#endif
+				CvAssertMsg(eUnitType != NO_UNIT, "No trade unit found");
+				if (eUnitType != NO_UNIT)
+				{
+					GET_PLAYER(m_aTradeConnections[ui].m_eOriginOwner).initUnit(eUnitType, m_aTradeConnections[ui].m_iOriginX, m_aTradeConnections[ui].m_iOriginY, UNITAI_TRADE_UNIT);
+				}
+			}
+
+			EmptyTradeRoute(ui);
+		}		
+	}
+}
+#endif
 //	--------------------------------------------------------------------------------
 /// Called when war is declared between teams
 void CvGameTrade::CancelTradeBetweenTeams (TeamTypes eTeam1, TeamTypes eTeam2)
@@ -2659,7 +2700,7 @@ int CvPlayerTrade::GetTradeConnectionResourceValueTimes100(const TradeConnection
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 								if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 								{
-									if(GET_PLAYER(pOriginCity->getOwner()).HasMonopoly(eResource) || GET_PLAYER(pDestCity->getOwner()).HasMonopoly(eResource))
+									if(GET_PLAYER(pOriginCity->getOwner()).HasLuxuryMonopoly(eResource) || GET_PLAYER(pDestCity->getOwner()).HasLuxuryMonopoly(eResource))
 									{
 										iValue += GD_INT_GET(TRADE_ROUTE_DIFFERENT_RESOURCE_VALUE);
 									}
@@ -3043,7 +3084,7 @@ int CvPlayerTrade::GetTradeConnectionOpenBordersModifierTimes100(const TradeConn
 		return 0;
 	}
 	PlayerTypes eOriginPlayer = pOriginCity->getOwner();
-	PlayerTypes eDestPlayer = pOriginCity->getOwner();
+	PlayerTypes eDestPlayer = pDestCity->getOwner();
 
 	if(bAsOriginPlayer && eOriginPlayer != NO_PLAYER && eDestPlayer != NO_PLAYER && eYield == YIELD_GOLD)
 	{

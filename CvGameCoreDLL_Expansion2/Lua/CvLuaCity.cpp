@@ -2567,7 +2567,7 @@ int CvLuaCity::lGetCityYieldModFromMonopoly(lua_State* L)
 		CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
 		if (pInfo && pInfo->isMonopoly())
 		{
-			if(GET_PLAYER(pkCity->getOwner()).HasMonopoly(eResourceLoop) && pInfo->getCityYieldModFromMonopoly(eYieldType) > 0)
+			if(GET_PLAYER(pkCity->getOwner()).HasLuxuryMonopoly(eResourceLoop) && pInfo->getCityYieldModFromMonopoly(eYieldType) > 0)
 			{
 				iModifier += pInfo->getCityYieldModFromMonopoly(eYieldType);
 			}

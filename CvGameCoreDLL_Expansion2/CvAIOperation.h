@@ -484,6 +484,10 @@ public:
 	virtual bool ShouldAbort();
 	virtual bool ArmyInPosition(CvArmyAI* pArmy);
 
+#if defined(MOD_BALANCE_CORE)
+	virtual CvPlot* SelectInitialMusterPoint(CvArmyAI* pThisArmy);
+#endif
+
 protected:
 	virtual CvPlot* FindBestTarget();
 	bool m_bCivilianRescue;

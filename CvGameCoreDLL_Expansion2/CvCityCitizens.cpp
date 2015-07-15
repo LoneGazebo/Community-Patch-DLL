@@ -276,7 +276,9 @@ void CvCityCitizens::DoTurn()
 			SetFocusType(CITY_AI_FOCUS_TYPE_PRODUCTION);
 			SetNoAutoAssignSpecialists(false);
 			SetForcedAvoidGrowth(false);
+#if !defined(MOD_BALANCE_CORE)
 			SetFocusType(CITY_AI_FOCUS_TYPE_PROD_GROWTH);
+#endif
 		}
 		else if(pkUnitInfo != NULL && pkUnitInfo->IsFound()) // we want production for settlers
 		{
@@ -618,6 +620,12 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, bool bUseAllowGrowthFlag)
 	int iRemainder = 0;
 	iRemainder = (max(iFoodNeeded, 1) / max((iExcessFoodTimes100 * 6), 1));
 	iFoodYieldValue *= iRemainder;
+
+	if(IsForcedWorkingPlot(pPlot))
+	{
+		return 1000000;
+	}
+		
 #endif
 	// City Focus
 	CityAIFocusTypes eFocus = GetFocusType();
@@ -633,12 +641,12 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, bool bUseAllowGrowthFlag)
 		iCultureYieldValue *= 3;
 	else if(eFocus == CITY_AI_FOCUS_TYPE_GOLD_GROWTH)
 	{
-		iFoodYieldValue *= 2;
+		iFoodYieldValue *= 3;
 		iGoldYieldValue *= 2;
 	}
 	else if(eFocus == CITY_AI_FOCUS_TYPE_PROD_GROWTH)
 	{
-		iFoodYieldValue *= 2;
+		iFoodYieldValue *= 3;
 		iProductionYieldValue *= 2;
 	}
 	else if(eFocus == CITY_AI_FOCUS_TYPE_FAITH)
@@ -1533,7 +1541,6 @@ bool CvCityCitizens::DoAddBestCitizenFromUnassigned()
 	}
 #if defined(MOD_BALANCE_CORE)
 	//THREE STAGE SETUP:
-	
 	//FIRST WE FEED OURSELVES!
 	int iPotentialExcessTimes100 = m_pCity->getYieldRateTimes100(YIELD_FOOD, false) - (m_pCity->foodConsumption(false, 1) * 100);
 	if(iPotentialExcessTimes100 <= 0 || (IsAvoidGrowth() && iPotentialExcessTimes100 < 0))
@@ -1787,12 +1794,20 @@ CvPlot* CvCityCitizens::GetBestCityPlotWithValue(int& iValue, bool bWantBest, bo
 								// Looking for best, unworked Plot: Forced plots are FIRST to be picked
 								if(bWantBest && !bWantWorked)
 								{
+#if defined(MOD_BALANCE_CORE)
+									iValue += 100000;
+#else
 									iValue += 10000;
+#endif
 								}
 								// Looking for worst, worked Plot: Forced plots are LAST to be picked, so make it's value incredibly high
 								if(!bWantBest && bWantWorked)
 								{
+#if defined(MOD_BALANCE_CORE)
+									iValue += 100000;
+#else
 									iValue += 10000;
+#endif
 								}
 							}
 

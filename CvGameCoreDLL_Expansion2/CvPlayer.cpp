@@ -455,6 +455,7 @@ CvPlayer::CvPlayer() :
 	, m_aiYieldGPExpend("CvPlayer::m_aiYieldGPExpend", m_syncArchive)
 	, m_aiConquerorYield("CvPlayer::m_aiConquerorYield", m_syncArchive)
 	, m_aiReligionYieldRateModifier("CvCity::m_aiReligionYieldRateModifier", m_syncArchive)
+	, m_aiGoldenAgeYieldMod("CvCity::m_aiGoldenAgeYieldMod", m_syncArchive)
 	, m_paiBuildingClassCulture("CvCity::m_paiBuildingClassCulture", m_syncArchive)
 	, m_iGarrisonsOccupiedUnhapppinessMod("CvPlayer::m_iGarrisonsOccupiedUnhapppinessMod", m_syncArchive)
 	, m_iBestRangedUnitSpawnSettle("CvPlayer::m_iBestRangedUnitSpawnSettle", m_syncArchive)
@@ -471,6 +472,8 @@ CvPlayer::CvPlayer() :
 	, m_iInfluenceGPExpend("CvPlayer::m_iInfluenceGPExpend", m_syncArchive)
 	, m_iFreeTradeRoute("CvPlayer::m_iFreeTradeRoute", m_syncArchive)
 	, m_iFreeSpy("CvPlayer::m_iFreeSpy", m_syncArchive)
+	, m_iReligionDistance("CvPlayer::m_iReligionDistance", m_syncArchive)
+	, m_iPressureMod("CvPlayer::m_iPressureMod", m_syncArchive)
 	, m_iTradeReligionModifier("CvPlayer::m_iTradeReligionModifier", m_syncArchive)
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
@@ -523,7 +526,7 @@ CvPlayer::CvPlayer() :
 	, m_paiNumCitiesFreeChosenBuilding("CvPlayer::m_paiNumCitiesFreeChosenBuilding", m_syncArchive)
 #endif
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
-	, m_pabHasMonopoly("CvPlayer::m_pabHasMonopoly", m_syncArchive)
+	, m_pabHasLuxuryMonopoly("CvPlayer::m_pabHasLuxuryMonopoly", m_syncArchive)
 	, m_pabHasStrategicMonopoly("CvPlayer::m_pabHasStrategicMonopoly", m_syncArchive)
 #endif
 	, m_pabLoyalMember("CvPlayer::m_pabLoyalMember", m_syncArchive)
@@ -966,8 +969,10 @@ void CvPlayer::uninit()
 	m_paiNumCitiesFreeChosenBuilding.clear();
 #endif
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
-	m_pabHasMonopoly.clear();
+	m_pabHasLuxuryMonopoly.clear();
 	m_pabHasStrategicMonopoly.clear();
+	m_vMonopolizedLuxuryResources.clear();
+	m_vMonopolizedStrategicResources.clear();
 #endif
 	m_pabLoyalMember.clear();
 	m_pabGetsScienceFromPlayer.clear();
@@ -1312,6 +1317,8 @@ void CvPlayer::uninit()
 	m_iInfluenceGPExpend = 0;
 	m_iFreeTradeRoute = 0;
 	m_iFreeSpy = 0;
+	m_iReligionDistance = 0;
+	m_iPressureMod = 0;
 	m_iTradeReligionModifier = 0;
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
@@ -1494,6 +1501,9 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 	m_aiReligionYieldRateModifier.clear();
 	m_aiReligionYieldRateModifier.resize(NUM_YIELD_TYPES, 0);
 
+	m_aiGoldenAgeYieldMod.clear();
+	m_aiGoldenAgeYieldMod.resize(NUM_YIELD_TYPES, 0);
+
 	m_paiBuildingClassCulture.clear();
 	m_paiBuildingClassCulture.resize(NUM_YIELD_TYPES, 0);
 #endif
@@ -1599,10 +1609,12 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 		m_paiNumCitiesFreeChosenBuilding.resize(GC.getNumBuildingClassInfos(), 0);
 #endif
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
-		m_pabHasMonopoly.clear();
-		m_pabHasMonopoly.resize(GC.getNumResourceInfos(), false);
+		m_pabHasLuxuryMonopoly.clear();
+		m_pabHasLuxuryMonopoly.resize(GC.getNumResourceInfos(), false);
 		m_pabHasStrategicMonopoly.clear();
 		m_pabHasStrategicMonopoly.resize(GC.getNumResourceInfos(), false);
+		m_vMonopolizedLuxuryResources.clear();
+		m_vMonopolizedStrategicResources.clear();
 #endif
 		m_pabLoyalMember.clear();
 		m_pabLoyalMember.resize(GC.getNumVoteSourceInfos(), true);
@@ -3553,7 +3565,46 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bGift)
 			}
 		}
 	}
+#if defined(MOD_BALANCE_CORE)
+	// Free Buildings from Policies
+	if(MOD_BALANCE_CORE)
+	{
+		for(iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
+		{
+			const BuildingClassTypes eBuildingClass = static_cast<BuildingClassTypes>(iI);
+			CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
+			if(pkBuildingClassInfo)
+			{
+				int iNumFreeBuildings = GetNumCitiesFreeChosenBuilding(eBuildingClass);
+				if(iNumFreeBuildings > 0)
+				{
+					const BuildingTypes eBuilding = ((BuildingTypes)(getCivilizationInfo().getCivilizationBuildings(pkBuildingClassInfo->GetID())));
+					if(NO_BUILDING != eBuilding)
+					{
+						CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+						if(pkBuildingInfo)
+						{
+							if(pNewCity->isValidBuildingLocation(eBuilding))
+							{
+								if(pNewCity->GetCityBuildings()->GetNumRealBuilding(eBuilding) > 0)
+								{
+									pNewCity->GetCityBuildings()->SetNumRealBuilding(eBuilding, 0);
+								}
 
+								pNewCity->GetCityBuildings()->SetNumFreeBuilding(eBuilding, 1);
+
+								if(pNewCity->GetCityBuildings()->GetNumFreeBuilding(eBuilding) > 0)
+								{
+									ChangeNumCitiesFreeChosenBuilding(eBuildingClass, -1);
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+#endif
 	BuildingTypes eTraitFreeBuilding = GetPlayerTraits()->GetFreeBuildingOnConquest();
 	for(iI = 0; iI < GC.getNumBuildingInfos(); iI++)
 	{
@@ -13715,9 +13766,9 @@ int CvPlayer::GetYieldPerTurnFromReligion(YieldTypes eYield) const
 			{
 				iYieldPerTurn += (pReligions->GetNumFollowers(eReligion) / iYieldPerXFollowers);
 			}
-			if(pReligion->m_Beliefs.GetYieldPerLux(YIELD_CULTURE) > 0)
+			if(pReligion->m_Beliefs.GetYieldPerLux(eYield) > 0)
 			{
-				int iLuxCulture = pReligion->m_Beliefs.GetYieldPerLux(YIELD_CULTURE);
+				int iLuxCulture = pReligion->m_Beliefs.GetYieldPerLux(eYield);
 				int iNumHappinessResources = 0;
 				ResourceTypes eResource;
 				for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
@@ -15116,7 +15167,7 @@ int CvPlayer::GetHappinessFromResourceMonopolies() const
 		CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
 		if (pInfo && pInfo->isMonopoly())
 		{
-			if(HasMonopoly(eResourceLoop) && pInfo->getMonopolyHappiness() > 0)
+			if(HasLuxuryMonopoly(eResourceLoop) && pInfo->getMonopolyHappiness() > 0)
 			{
 				iTotalHappiness += pInfo->getMonopolyHappiness();
 			}
@@ -18137,7 +18188,7 @@ int CvPlayer::getGoldenAgeLength() const
 				CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
 				if (pInfo && pInfo->isMonopoly())
 				{
-					if(HasMonopoly(eResourceLoop) && pInfo->getMonopolyGALength() > 0)
+					if(HasLuxuryMonopoly(eResourceLoop) && pInfo->getMonopolyGALength() > 0)
 					{
 						iLengthModifier += pInfo->getMonopolyGALength();
 					}
@@ -23890,6 +23941,33 @@ void CvPlayer::changeConquerorYield(YieldTypes eIndex, int iChange)
 }
 
 //	--------------------------------------------------------------------------------
+int CvPlayer::getGoldenAgeYieldMod(YieldTypes eIndex)	const
+{
+	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	return m_aiGoldenAgeYieldMod[eIndex];
+}
+
+
+//	--------------------------------------------------------------------------------
+void CvPlayer::changeGoldenAgeYieldMod(YieldTypes eIndex, int iChange)
+{
+	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+
+	if(iChange != 0)
+	{
+		m_aiGoldenAgeYieldMod.setAt(eIndex, m_aiGoldenAgeYieldMod[eIndex] + iChange);
+
+		invalidateYieldRankCache(eIndex);
+
+		if(getTeam() == GC.getGame().getActiveTeam())
+		{
+			GC.GetEngineUserInterface()->setDirty(CityInfo_DIRTY_BIT, true);
+		}
+	}
+}
+//	--------------------------------------------------------------------------------
 int CvPlayer::getReligionYieldRateModifier(YieldTypes eIndex)	const
 {
 	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
@@ -24155,6 +24233,28 @@ void CvPlayer::changeFreeSpy(int iChange)
 {
 	m_iFreeSpy += iChange;
 }
+
+//	--------------------------------------------------------------------------------
+int CvPlayer::GetReligionDistance() const
+{
+	return m_iReligionDistance;
+}
+//	--------------------------------------------------------------------------------
+void CvPlayer::changeReligionDistance(int iChange)
+{
+	m_iReligionDistance += iChange;
+}
+//	--------------------------------------------------------------------------------
+int CvPlayer::GetPressureMod() const
+{
+	return m_iPressureMod;
+}
+//	--------------------------------------------------------------------------------
+void CvPlayer::changePressureMod(int iChange)
+{
+	m_iPressureMod += iChange;
+}
+
 //	--------------------------------------------------------------------------------
 int CvPlayer::getBuildingClassCultureChange(BuildingClassTypes eIndex) const
 {
@@ -25585,7 +25685,7 @@ void CvPlayer::changeNumResourceTotal(ResourceTypes eIndex, int iChange, bool bI
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 		if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 		{
-			TestHasMonopoly(eIndex);
+			CheckForMonopoly(eIndex);
 		}
 #endif
 
@@ -25663,17 +25763,23 @@ void CvPlayer::changeNumResourceTotal(ResourceTypes eIndex, int iChange, bool bI
 }
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 //	--------------------------------------------------------------------------------
-bool CvPlayer::HasMonopoly(ResourceTypes eResource) const
+bool CvPlayer::HasLuxuryMonopoly(ResourceTypes eResource) const
 {
-	return m_pabHasMonopoly[eResource];
+	return m_pabHasLuxuryMonopoly[eResource];
 }
 //	--------------------------------------------------------------------------------
-void CvPlayer::SetHasMonopoly(ResourceTypes eResource, bool bNewValue)
+void CvPlayer::SetHasLuxuryMonopoly(ResourceTypes eResource, bool bNewValue)
 {
-	if(bNewValue != m_pabHasMonopoly[eResource])
+	if(bNewValue != m_pabHasLuxuryMonopoly[eResource])
 	{
-		m_pabHasMonopoly.setAt(eResource, bNewValue);
+		m_pabHasLuxuryMonopoly.setAt(eResource, bNewValue);
 	}
+
+	std::vector<ResourceTypes>::iterator it = std::find(m_vMonopolizedLuxuryResources.begin(),m_vMonopolizedLuxuryResources.end(),eResource);
+	if (bNewValue && it==m_vMonopolizedLuxuryResources.end())
+		m_vMonopolizedLuxuryResources.push_back(eResource);
+	else if (!bNewValue && it!=m_vMonopolizedLuxuryResources.end())
+		m_vMonopolizedLuxuryResources.erase(it);
 }
 //	--------------------------------------------------------------------------------
 bool CvPlayer::HasStrategicMonopoly(ResourceTypes eResource) const
@@ -25687,10 +25793,16 @@ void CvPlayer::SetHasStrategicMonopoly(ResourceTypes eResource, bool bNewValue)
 	{
 		m_pabHasStrategicMonopoly.setAt(eResource, bNewValue);
 	}
+
+	std::vector<ResourceTypes>::iterator it = std::find(m_vMonopolizedStrategicResources.begin(),m_vMonopolizedStrategicResources.end(),eResource);
+	if (bNewValue && it==m_vMonopolizedStrategicResources.end())
+		m_vMonopolizedStrategicResources.push_back(eResource);
+	else if (!bNewValue && it!=m_vMonopolizedStrategicResources.end())
+		m_vMonopolizedStrategicResources.erase(it);
 }
 
 //	--------------------------------------------------------------------------------
-void CvPlayer::TestHasMonopoly(ResourceTypes eResource)
+void CvPlayer::CheckForMonopoly(ResourceTypes eResource)
 {
 	const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
 	if(pkResourceInfo != NULL)
@@ -25710,19 +25822,19 @@ void CvPlayer::TestHasMonopoly(ResourceTypes eResource)
 					//Do we have +50% of this resource under our control?
 					if(((iOwnedNumResource * 100) / iTotalNumResource) > 50)
 					{
-						if(m_pabHasMonopoly[eResource] == false)
+						if(m_pabHasLuxuryMonopoly[eResource] == false)
 						{
 							bGainingBonus = true;
 						}
-						SetHasMonopoly(eResource, true);
+						SetHasLuxuryMonopoly(eResource, true);
 					}
 					else
 					{
-						if(m_pabHasMonopoly[eResource] == true)
+						if(m_pabHasLuxuryMonopoly[eResource] == true)
 						{
 							bLosingBonus = true;
 						}
-						SetHasMonopoly(eResource, false);
+						SetHasLuxuryMonopoly(eResource, false);
 					}
 				}
 				else if(pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
@@ -25747,19 +25859,19 @@ void CvPlayer::TestHasMonopoly(ResourceTypes eResource)
 					//Do we also have 50% of this resource under our control?
 					if(((iOwnedNumResource * 100) / iTotalNumResource) > 50)
 					{
-						if(m_pabHasMonopoly[eResource] == false)
+						if(m_pabHasLuxuryMonopoly[eResource] == false)
 						{
 							bGainingBonus = true;
 						}
-						SetHasMonopoly(eResource, true);
+						SetHasLuxuryMonopoly(eResource, true);
 					}
 					else
 					{
-						if(m_pabHasMonopoly[eResource] == true)
+						if(m_pabHasLuxuryMonopoly[eResource] == true)
 						{
 							bLosingBonus = true;
 						}
-						SetHasMonopoly(eResource, false);
+						SetHasLuxuryMonopoly(eResource, false);
 					}
 				}
 				CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
@@ -25767,11 +25879,11 @@ void CvPlayer::TestHasMonopoly(ResourceTypes eResource)
 				{
 					if (GC.getGame().GetGameLeagues()->IsLuxuryHappinessBanned(GetID(), eResource))
 					{
-						if(m_pabHasMonopoly[eResource] == true)
+						if(m_pabHasLuxuryMonopoly[eResource] == true)
 						{
 							bLosingBonus = true;
 						}
-						SetHasMonopoly(eResource, false);
+						SetHasLuxuryMonopoly(eResource, false);
 					}
 				}
 			}
@@ -27842,7 +27954,13 @@ const CvUnit* CvPlayer::getUnit(int iID) const
 //	--------------------------------------------------------------------------------
 CvUnit* CvPlayer::getUnit(int iID)
 {
+#if defined(MOD_BALANCE_CORE)
+	//spread it out a little for an easy breakpoint
+	CvUnit* pUnit = m_units.GetAt(iID);
+	return pUnit;
+#else
 	return (m_units.GetAt(iID));
+#endif
 }
 
 //	--------------------------------------------------------------------------------
@@ -29840,6 +29958,9 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 		changeFreeTradeRoute(pPolicy->GetFreeTradeRoute() * iChange);
 		changeFreeSpy(pPolicy->GetFreeSpy() * iChange);
 
+		changeReligionDistance(pPolicy->GetReligionDistance() * iChange);
+		changePressureMod(pPolicy->GetPressureMod() * iChange);
+
 		if(GetFreeSpy() > 0)
 		{
 			CvPlayerEspionage* pEspionage = GetEspionage();
@@ -29879,47 +30000,6 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 		if(pPolicy->GetBestRangedUnitSpawnSettle() > 0)
 		{
 			changeBestRangedUnitSpawnSettle(pPolicy->GetBestRangedUnitSpawnSettle() * iChange);
-
-			if(getCapitalCity() != NULL)
-			{
-				UnitTypes eType = getCapitalCity()->GetCityStrategyAI()->GetUnitProductionAI()->RecommendUnit(UNITAI_RANGED, false /*Uses strategic resource*/, true, NULL);
-				if(eType != NO_UNIT)
-				{
-					int iResult = getCapitalCity()->CreateUnit(eType, UNITAI_RANGED, false /*bUseToSatisfyOperation*/);
-
-					CvAssertMsg(iResult != FFreeList::INVALID_INDEX, "Unable to create unit");
-
-					if (iResult != FFreeList::INVALID_INDEX)
-					{
-						CvUnit* pUnit = getUnit(iResult);
-						if (!pUnit->jumpToNearestValidPlot())
-						{
-							pUnit->kill(false);	// Could not find a valid spot!
-						}
-						pUnit->setMoves(1);	
-					}
-				}
-				else
-				{
-					UnitTypes eType = getCapitalCity()->GetCityStrategyAI()->GetUnitProductionAI()->RecommendUnit(UNITAI_DEFENSE, false, true, NULL);
-					if(eType != NO_UNIT)
-					{
-						int iResult = getCapitalCity()->CreateUnit(eType, UNITAI_DEFENSE, false /*bUseToSatisfyOperation*/);
-
-						CvAssertMsg(iResult != FFreeList::INVALID_INDEX, "Unable to create unit");
-
-						if (iResult != FFreeList::INVALID_INDEX)
-						{
-							CvUnit* pUnit = getUnit(iResult);
-							if (!pUnit->jumpToNearestValidPlot())
-							{
-								pUnit->kill(false);	// Could not find a valid spot!
-							}
-							pUnit->setMoves(1);	
-						}
-					}
-				}
-			}
 		}
 	}
 #endif
@@ -29960,6 +30040,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 			changeYieldGPExpend(eYield, (pPolicy->GetYieldGPExpend(iI) * iChange));
 			changeConquerorYield(eYield, (pPolicy->GetConquerorYield(iI) * iChange));
 			changeReligionYieldRateModifier(eYield, (pPolicy->GetReligionYieldMod(iI) * iChange));
+			changeGoldenAgeYieldMod(eYield, (pPolicy->GetGoldenAgeYieldMod(iI) * iChange));
 		}
 #endif
 
@@ -30391,59 +30472,50 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	}
 #if defined(MOD_BALANCE_CORE)
 	// Free Buildings from Policies
-	BuildingClassTypes eFreeBuildingClass = NO_BUILDINGCLASS;
-	BuildingTypes eFreeBuilding = NO_BUILDING;
-	CvCivilizationInfo& thisCiv = getCivilizationInfo();
 	if(MOD_BALANCE_CORE)
 	{
 		for(iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
 		{
-			CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo((BuildingClassTypes)iI);
-			if(!pkBuildingClassInfo)
+			const BuildingClassTypes eBuildingClass = static_cast<BuildingClassTypes>(iI);
+			CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
+			if(pkBuildingClassInfo)
 			{
-				continue;
-			}
-
-			if(pPolicy->GetFreeChosenBuilding(iI) > 0)
-			{
-				eBuilding = ((BuildingTypes)(thisCiv.getCivilizationBuildings(iI)));
-
-				if(eBuilding != NO_BUILDING)
+				int iNumFreeBuildings = pPolicy->GetFreeChosenBuilding(eBuildingClass);
+				if(iNumFreeBuildings > 0)
 				{
-					eFreeBuildingClass = (BuildingClassTypes)iI;
-					eFreeBuilding = eBuilding;
-					ChangeNumCitiesFreeChosenBuilding(eFreeBuildingClass, pPolicy->GetFreeChosenBuilding(iI));
-				}
-			}
-		}
-		if(eFreeBuildingClass != NO_BUILDINGCLASS)
-		{
-			CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eFreeBuilding);
-			if(pkBuildingInfo)
-			{
-				int iLoopTwo;
-				for(pLoopCity = firstCity(&iLoopTwo); pLoopCity != NULL; pLoopCity = nextCity(&iLoopTwo))
-				{
-					if(pLoopCity->isValidBuildingLocation(eFreeBuilding))
+					const BuildingTypes eBuilding = ((BuildingTypes)(getCivilizationInfo().getCivilizationBuildings(pkBuildingClassInfo->GetID())));
+					if(NO_BUILDING != eBuilding)
 					{
-						if(GetNumCitiesFreeChosenBuilding(eFreeBuildingClass) > 0)
+						CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+						if(pkBuildingInfo)
 						{
-							if(pLoopCity->GetCityBuildings()->GetNumRealBuilding(eFreeBuilding) > 0)
+							ChangeNumCitiesFreeChosenBuilding(eBuildingClass, iNumFreeBuildings);
+							int iLoopTwo;
+							for(pLoopCity = firstCity(&iLoopTwo); pLoopCity != NULL; pLoopCity = nextCity(&iLoopTwo))
 							{
-								pLoopCity->GetCityBuildings()->SetNumRealBuilding(eFreeBuilding, 0);
-							}
+								if(pLoopCity->isValidBuildingLocation(eBuilding))
+								{
+									if(GetNumCitiesFreeChosenBuilding(eBuildingClass) > 0)
+									{
+										if(pLoopCity->GetCityBuildings()->GetNumRealBuilding(eBuilding) > 0)
+										{
+											pLoopCity->GetCityBuildings()->SetNumRealBuilding(eBuilding, 0);
+										}
 
-							pLoopCity->GetCityBuildings()->SetNumFreeBuilding(eFreeBuilding, 1);
+										pLoopCity->GetCityBuildings()->SetNumFreeBuilding(eBuilding, 1);
 
-							if(pLoopCity->GetCityBuildings()->GetNumFreeBuilding(eFreeBuilding) > 0)
-							{
-								ChangeNumCitiesFreeChosenBuilding(eFreeBuildingClass, -1);
-							}
-							if(pLoopCity->getFirstBuildingOrder(eFreeBuilding) == 0)
-							{
-								pLoopCity->clearOrderQueue();
-								pLoopCity->chooseProduction();
-								// Send a notification to the user that what they were building was given to them, and they need to produce something else.
+										if(pLoopCity->GetCityBuildings()->GetNumFreeBuilding(eBuilding) > 0)
+										{
+											ChangeNumCitiesFreeChosenBuilding(eBuildingClass, -1);
+										}
+										if(pLoopCity->getFirstBuildingOrder(eBuilding) == 0)
+										{
+											pLoopCity->clearOrderQueue();
+											pLoopCity->chooseProduction();
+											// Send a notification to the user that what they were building was given to them, and they need to produce something else.
+										}
+									}
+								}
 							}
 						}
 					}
@@ -31462,6 +31534,7 @@ void CvPlayer::Read(FDataStream& kStream)
 	MOD_SERIALIZE_READ_AUTO(60, kStream, m_aiYieldGPExpend, NUM_YIELD_TYPES, 0);
 	MOD_SERIALIZE_READ_AUTO(60, kStream, m_aiConquerorYield, NUM_YIELD_TYPES, 0);
 	MOD_SERIALIZE_READ_AUTO(60, kStream, m_aiReligionYieldRateModifier, NUM_YIELD_TYPES, 0);
+	MOD_SERIALIZE_READ_AUTO(60, kStream, m_aiGoldenAgeYieldMod, NUM_YIELD_TYPES, 0);
 	MOD_SERIALIZE_READ_AUTO(66, kStream, m_paiBuildingClassCulture, NUM_YIELD_TYPES, 0);
 	MOD_SERIALIZE_READ(60, kStream, m_iGarrisonsOccupiedUnhapppinessMod, 0);
 	MOD_SERIALIZE_READ(60, kStream, m_iBestRangedUnitSpawnSettle, 0);
@@ -31478,6 +31551,8 @@ void CvPlayer::Read(FDataStream& kStream)
 	MOD_SERIALIZE_READ(66, kStream, m_iInfluenceGPExpend, 0);
 	MOD_SERIALIZE_READ(66, kStream, m_iFreeTradeRoute, 0);
 	MOD_SERIALIZE_READ(66, kStream, m_iFreeSpy, 0);
+	MOD_SERIALIZE_READ(66, kStream, m_iReligionDistance, 0);
+	MOD_SERIALIZE_READ(66, kStream, m_iPressureMod, 0);
 	MOD_SERIALIZE_READ(60, kStream, m_iTradeReligionModifier, 0);
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
@@ -31579,8 +31654,17 @@ void CvPlayer::Read(FDataStream& kStream)
 	kStream >> m_pabLoyalMember;
 
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
-	kStream >> m_pabHasMonopoly;
+	kStream >> m_pabHasLuxuryMonopoly;
 	kStream >> m_pabHasStrategicMonopoly;
+
+	for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+	{
+		if (m_pabHasLuxuryMonopoly[iResourceLoop])
+			SetHasLuxuryMonopoly((ResourceTypes)iResourceLoop,true);
+		if (m_pabHasStrategicMonopoly[iResourceLoop])
+			SetHasStrategicMonopoly((ResourceTypes)iResourceLoop,true);
+	}
+
 #endif
 
 	kStream >> m_pabGetsScienceFromPlayer;
@@ -32140,6 +32224,7 @@ void CvPlayer::Write(FDataStream& kStream) const
 	MOD_SERIALIZE_WRITE_AUTO(kStream, m_aiYieldGPExpend);
 	MOD_SERIALIZE_WRITE_AUTO(kStream, m_aiConquerorYield);
 	MOD_SERIALIZE_WRITE_AUTO(kStream, m_aiReligionYieldRateModifier);
+	MOD_SERIALIZE_WRITE_AUTO(kStream, m_aiGoldenAgeYieldMod);
 	MOD_SERIALIZE_WRITE_AUTO(kStream, m_paiBuildingClassCulture);
 	MOD_SERIALIZE_WRITE(kStream, m_iGarrisonsOccupiedUnhapppinessMod);
 	MOD_SERIALIZE_WRITE(kStream, m_iBestRangedUnitSpawnSettle);
@@ -32156,6 +32241,8 @@ void CvPlayer::Write(FDataStream& kStream) const
 	MOD_SERIALIZE_WRITE(kStream, m_iInfluenceGPExpend);
 	MOD_SERIALIZE_WRITE(kStream, m_iFreeTradeRoute);
 	MOD_SERIALIZE_WRITE(kStream, m_iFreeSpy);
+	MOD_SERIALIZE_WRITE(kStream, m_iReligionDistance);
+	MOD_SERIALIZE_WRITE(kStream, m_iPressureMod);
 	MOD_SERIALIZE_WRITE(kStream, m_iTradeReligionModifier);
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
@@ -32222,7 +32309,7 @@ void CvPlayer::Write(FDataStream& kStream) const
 	kStream << m_pabLoyalMember;
 
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
-	kStream << m_pabHasMonopoly;
+	kStream << m_pabHasLuxuryMonopoly;
 	kStream << m_pabHasStrategicMonopoly;
 #endif
 

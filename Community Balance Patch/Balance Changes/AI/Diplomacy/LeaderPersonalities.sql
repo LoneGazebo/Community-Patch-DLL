@@ -379,12 +379,13 @@ UPDATE Leader_MinorCivApproachBiases SET Personality='PERSONALITY_CONQUEROR'	WHE
 UPDATE Leader_MinorCivApproachBiases SET Personality='PERSONALITY_CONQUEROR'	WHERE  LeaderType = 'LEADER_AUGUSTUS';
 UPDATE Leader_MinorCivApproachBiases SET Personality='PERSONALITY_CONQUEROR'	WHERE  LeaderType = 'LEADER_ASKIA';
 UPDATE Leader_MinorCivApproachBiases SET Personality='PERSONALITY_CONQUEROR'	WHERE  LeaderType = 'LEADER_SHAKA';
+-- Maria is a conqueror here because of UI
+UPDATE Leader_MinorCivApproachBiases SET Personality='PERSONALITY_CONQUEROR'    WHERE  LeaderType = 'LEADER_MARIA_I';
 
 UPDATE Leader_MinorCivApproachBiases SET Personality='PERSONALITY_COALITION'    WHERE  LeaderType = 'LEADER_PACAL';
 UPDATE Leader_MinorCivApproachBiases SET Personality='PERSONALITY_COALITION'    WHERE  LeaderType = 'LEADER_SEJONG';
 UPDATE Leader_MinorCivApproachBiases SET Personality='PERSONALITY_COALITION'    WHERE  LeaderType = 'LEADER_PACHACUTI';
 UPDATE Leader_MinorCivApproachBiases SET Personality='PERSONALITY_COALITION'    WHERE  LeaderType = 'LEADER_ELIZABETH';
-UPDATE Leader_MinorCivApproachBiases SET Personality='PERSONALITY_COALITION'    WHERE  LeaderType = 'LEADER_MARIA_I';
 UPDATE Leader_MinorCivApproachBiases SET Personality='PERSONALITY_COALITION'    WHERE  LeaderType = 'LEADER_CASIMIR';
 UPDATE Leader_MinorCivApproachBiases SET Personality='PERSONALITY_COALITION'    WHERE  LeaderType = 'LEADER_ENRICO_DANDOLO';
 UPDATE Leader_MinorCivApproachBiases SET Personality='PERSONALITY_COALITION'    WHERE  LeaderType = 'LEADER_KAMEHAMEHA';

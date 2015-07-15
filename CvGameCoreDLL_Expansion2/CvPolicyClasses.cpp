@@ -83,6 +83,7 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iHappinessPerXPopulationGlobal(0),
 	m_ePolicyEraUnlock(NO_ERA),
 	m_iIdeologyPoint(0),
+	m_piGoldenAgeYieldMod(NULL),
 #endif
 	m_iExtraHappinessPerLuxury(0),
 	m_iUnhappinessFromUnitsMod(0),
@@ -233,6 +234,8 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iInfluenceGPExpend(0),
 	m_iFreeTradeRoute(0),
 	m_iFreeSpy(0),
+	m_iReligionDistance(0),
+	m_iPressureMod(0),
 	m_piYieldFromBorderGrowth(NULL),
 	m_piYieldGPExpend(NULL),
 	m_iGarrisonsOccupiedUnhapppinessMod(0),
@@ -313,6 +316,7 @@ CvPolicyEntry::~CvPolicyEntry(void)
 	SAFE_DELETE_ARRAY(m_piYieldGPExpend);
 	SAFE_DELETE_ARRAY(m_piConquerorYield);
 	SAFE_DELETE_ARRAY(m_piReligionYieldMod);
+	SAFE_DELETE_ARRAY(m_piGoldenAgeYieldMod);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiReligionBuildingYieldMod);
 #endif
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiImprovementYieldChanges);
@@ -539,6 +543,8 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iInfluenceGPExpend = kResults.GetInt("InfluenceGPExpend");
 	m_iFreeTradeRoute = kResults.GetInt("FreeTradeRoute");
 	m_iFreeSpy = kResults.GetInt("FreeSpy");
+	m_iReligionDistance = kResults.GetInt("ReligionDistance");
+	m_iPressureMod = kResults.GetInt("PressureMod");
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	m_iInvestmentModifier = kResults.GetInt("InvestmentModifier");
@@ -580,6 +586,7 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	kUtility.SetYields(m_piYieldGPExpend, "Policy_YieldGPExpend", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piConquerorYield, "Policy_ConquerorYield", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piReligionYieldMod, "Policy_ReligionYieldMod", "PolicyType", szPolicyType);
+	kUtility.SetYields(m_piGoldenAgeYieldMod, "Policy_GoldenAgeYieldMod", "PolicyType", szPolicyType);
 #endif
 	kUtility.SetFlavors(m_piFlavorValue, "Policy_Flavors", "PolicyType", szPolicyType);
 
@@ -2287,13 +2294,6 @@ int CvPolicyEntry::GetFreeChosenBuilding(int i) const
 	CvAssertMsg(i > -1, "Index out of bounds");
 	return m_paiFreeChosenBuilding ? m_paiFreeChosenBuilding[i] : -1;
 }
-void CvPolicyEntry::ChangeFreeChosenBuilding(int i, int iChange)
-{
-	if(iChange != 0)
-	{
-		m_paiFreeChosenBuilding[i] += iChange;
-	}
-}
 #endif
 #if defined(MOD_BALANCE_CORE_POLICIES)
 /// Does this Policy grant yields from citizen birth?
@@ -2384,6 +2384,16 @@ int CvPolicyEntry::GetFreeSpy() const
 {
 	return m_iFreeSpy;
 }
+
+int CvPolicyEntry::GetReligionDistance() const
+{
+	return m_iReligionDistance;
+}
+int CvPolicyEntry::GetPressureMod() const
+{
+	return m_iPressureMod;
+}
+
 /// Does this Policy grant yields from border growth?
 int CvPolicyEntry::GetYieldFromBorderGrowth(int i) const
 {
@@ -2446,6 +2456,14 @@ int CvPolicyEntry::GetReligionBuildingYieldMod(int i, int j) const
 	CvAssertMsg(j > -1, "Index out of bounds");
 	return m_ppiReligionBuildingYieldMod[i][j];
 }
+/// Does this Policy boost yields from golden ages?
+int CvPolicyEntry::GetGoldenAgeYieldMod(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piGoldenAgeYieldMod[i];
+}
+
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 int CvPolicyEntry::GetInvestmentModifier () const

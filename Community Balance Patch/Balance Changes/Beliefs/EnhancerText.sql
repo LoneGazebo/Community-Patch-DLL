@@ -18,7 +18,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_RELIQUARY_SHORT' AND EXISTS (SELECT * FROM COMMUNITY
 
 -- Just War (Now Martyrdom)
 UPDATE Language_en_US
-SET Text = 'Your spies exert religious pressure on the cities they occupy. Gain 100 [ICON_PEACE] Faith each time a Great Person is expended.'
+SET Text = 'Your spies exert religious pressure on the Cities they occupy. Gain 100 [ICON_PEACE] Faith each time a Great Person is expended.'
 WHERE Tag = 'TXT_KEY_BELIEF_JUST_WAR' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -54,7 +54,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_MESSIAH_SHORT' AND EXISTS (SELECT * FROM COMMUNITY W
 
 -- Missionary Zeal (Now Scholar-Priests)
 UPDATE Language_en_US
-SET Text = 'Missionary conversion strength +25%, Gain [ICON_RESEARCH] Science when a Missionary spreads this religion to cities of other religions.'
+SET Text = 'Missionary conversion strength +25%, Gain [ICON_RESEARCH] Science when a Missionary spreads this religion to Cities of other religions.'
 WHERE Tag = 'TXT_KEY_BELIEF_MISSIONARY_ZEAL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -63,7 +63,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_MISSIONARY_ZEAL_SHORT' AND EXISTS (SELECT * FROM COM
 
 -- Holy Order
 UPDATE Language_en_US
-SET Text = 'Missionaries and Inquisitors cost 30% less [ICON_PEACE] Faith, Religion spreads to cities 30% further away.'
+SET Text = 'Missionaries and Inquisitors cost 30% less [ICON_PEACE] Faith, Religion spreads to Cities 30% further away.'
 WHERE Tag = 'TXT_KEY_BELIEF_HOLY_ORDER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -72,7 +72,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_HOLY_ORDER_SHORT' AND EXISTS (SELECT * FROM COMMUNIT
 
 -- Religious Unity
 UPDATE Language_en_US
-SET Text = 'Religion spreads to friendly City-States at double rate, +1 [ICON_HAPPINESS_1] Happiness for every 6 followers of this religion in non-enemy foreign cities.'
+SET Text = 'Religion spreads to friendly City-States at double rate, +1 [ICON_HAPPINESS_1] Happiness for every 6 followers of this religion in non-enemy foreign Cities.'
 WHERE Tag = 'TXT_KEY_BELIEF_RELIGIOUS_UNITY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US

@@ -266,7 +266,11 @@ public:
 	void ChangeNumNaturalWondersDiscovered(int iChange);
 
 	bool isHasMet(TeamTypes eIndex) const;
+#ifdef AUI_GAME_OBSERVER_MEET_ALL_TEAMS
+	void makeHasMet(TeamTypes eIndex, bool bSuppressMessages, bool bForObserver = false);
+#else
 	void makeHasMet(TeamTypes eIndex, bool bSuppressMessages);
+#endif
 
 	int GetTurnsSinceMeetingTeam(TeamTypes eTeam) const;
 	int GetTurnTeamMet(TeamTypes eTeam) const;
@@ -342,8 +346,8 @@ public:
 	void SetBestPossibleRoute(RouteTypes eRoute);
 	void DoUpdateBestRoute();
 
-#ifdef AUI_ASTAR_ROAD_RANGE
-	int GetBestRoadMovementMultiplier(const CvUnit* pUnit) const;
+#if defined(MOD_BALANCE_CORE)
+	int GetCurrentBestMovementMultiplier(const CvUnit* pUnit) const;
 #endif
 
 	int getProjectCount(ProjectTypes eIndex) const;
@@ -550,7 +554,7 @@ protected:
 	int m_iBestPossibleRoute;
 	int m_iNumMinorCivsAttacked;
 
-#ifdef AUI_ASTAR_ROAD_RANGE
+#if defined(MOD_BALANCE_CORE)
 	int m_iBestRouteNormalCostMultiplier;
 	int m_iBestRouteFlatCostMultiplier;
 	int m_iUseFlatCostIfBelowThis;

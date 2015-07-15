@@ -105,28 +105,6 @@ INSERT INTO COMMUNITY (Type, Value)
 VALUES ('COMMUNITY_CORE_BALANCE_NMCJT', 1);
 
 /*
-COMMUNITY Global Difficulty Option
-1 = Global Difficulty Enabled (Default)
-2 = Global Difficulty Disabled
-*/
-
-INSERT INTO COMMUNITY (Type, Value)
-VALUES ('BALANCE_GLOBAL_DIFFICULTY_OPTION', 1);
-
-/*
-COMMUNITY Global Difficulty Level
-0 = Global Difficulty - Prince 
-1 = Global Difficulty - King 
-2 = Global Difficulty - Emperor 
-3 = Global Difficulty - Immortal (Default)
-4 = Global Difficulty - Deity
-5 = Global Difficulty - Super Deity
-*/
-
-INSERT INTO COMMUNITY (Type, Value)
-VALUES ('BALANCE_GLOBAL_DIFFICULTY_LEVEL', 3);
-
-/*
 Changes to Settlers
 0 = Boring Ol' Vanilla (Careful)
 1 = Pioneers and Colonists! (Default)

@@ -1349,15 +1349,9 @@ void CvPlayerEspionage::DoAdvancedAction(uint uiSpyIndex)
 			{
 				//Result improved by duration of stay.
 				int iTurnsActive = (GC.getGame().getGameTurn() - pSpy->GetSpyActiveTurn());
-				if(iTurnsActive > (iRank * 10))
+				if(iTurnsActive > (iRank * 25))
 				{
-					iTurnsActive = (iRank * 10);
-				}
-
-				iTurnsActive /= 2;
-				if(iTurnsActive <= 0)
-				{
-					iTurnsActive = 1;
+					iTurnsActive = (iRank * 25);
 				}
 
 				pSpy->ChangeAdvancedActions(1);
@@ -1368,14 +1362,18 @@ void CvPlayerEspionage::DoAdvancedAction(uint uiSpyIndex)
 				//Rebellion
 				if (iSpyResult == 5)
 				{
-					int iDamage = (GC.getBALANCE_SPY_SABOTAGE_RATE() * iRank);
+					int iDamage = ((pCity->GetMaxHitPoints() * (GC.getBALANCE_SPY_SABOTAGE_RATE() + iTurnsActive)) / 100);
+					if(iDamage > pCity->GetMaxHitPoints())
+					{
+						iDamage = pCity->GetMaxHitPoints();
+					}
 					pCity->setDamage(iDamage);
-					m_pPlayer->ChangeSpyCooldown(iDamage * 2);
+					m_pPlayer->ChangeSpyCooldown(iDamage / 5);
 
 					//Rebels!
 					// In hundreds
-					int iNumRebels = (iRank * 100); //Based on rank of spy.
-					int iExtraRoll = iRank * 100; //1+ Rebels maximum
+					int iNumRebels = (iRank * (100 + iTurnsActive)); //Based on rank of spy.
+					int iExtraRoll = (iRank * (100 + iTurnsActive)); //1+ Rebels maximum
 					iNumRebels += GC.getGame().getJonRandNum(iExtraRoll + iTurnsActive, "Rebel count rand roll");
 					iNumRebels /= 100;
 					int iNumRebelTotal = iNumRebels;
@@ -1573,9 +1571,13 @@ void CvPlayerEspionage::DoAdvancedAction(uint uiSpyIndex)
 				//Riots!
 				else if (iSpyResult == 6)
 				{
-					m_pPlayer->ChangeSpyCooldown(pCity->getFood() * 2);
-					int iFood = pCity->getFood();
-					pCity->setFood(0);
+					int iFood = ((pCity->getFood() * (GC.getBALANCE_SPY_SABOTAGE_RATE() + iTurnsActive)) / 100);
+					if(iFood > pCity->getFood())
+					{
+						iFood = pCity->getFood();
+					}
+					m_pPlayer->ChangeSpyCooldown(iFood / 2);
+					pCity->setFood((pCity->getFood() - iFood));
 					pCity->ChangeResistanceTurns(max(1, iTurnsActive / 10));
 
 					CvAssertMsg(pDefendingPlayerEspionage, "Defending player espionage is null");
@@ -1647,7 +1649,11 @@ void CvPlayerEspionage::DoAdvancedAction(uint uiSpyIndex)
 				//WONDER
 				else if(iSpyResult == 2)
 				{
-					int iSetback = (pCity->getProduction() * (iTurnsActive * GC.getBALANCE_SPY_SABOTAGE_RATE())) / 100;
+					int iSetback = ((pCity->getProduction() * (iTurnsActive + GC.getBALANCE_SPY_SABOTAGE_RATE()))  / 100);
+					if(iSetback > pCity->getProduction())
+					{
+						iSetback = pCity->getProduction();
+					}
 					if(iSetback > 0)
 					{
 						pCity->setProduction(pCity->getProduction() - iSetback);
@@ -1725,7 +1731,11 @@ void CvPlayerEspionage::DoAdvancedAction(uint uiSpyIndex)
 				//GREAT PERSON
 				else if(iSpyResult == 4)
 				{
-					int iPercentage = (pCity->GetCityCitizens()->GetSpecialistGreatPersonProgressTimes100(eBestSpecialist) * (iTurnsActive * GC.getBALANCE_SPY_SABOTAGE_RATE())) / 100;
+					int iPercentage = (pCity->GetCityCitizens()->GetSpecialistGreatPersonProgressTimes100(eBestSpecialist) * (iTurnsActive + GC.getBALANCE_SPY_SABOTAGE_RATE())) / 100;
+					if(iPercentage > pCity->GetCityCitizens()->GetSpecialistGreatPersonProgressTimes100(eBestSpecialist))
+					{
+						iPercentage = pCity->GetCityCitizens()->GetSpecialistGreatPersonProgressTimes100(eBestSpecialist);
+					}
 					if(iPercentage > 0)
 					{
 						pCity->GetCityCitizens()->ChangeSpecialistGreatPersonProgressTimes100(eBestSpecialist, (iPercentage * -1));
@@ -1808,7 +1818,11 @@ void CvPlayerEspionage::DoAdvancedAction(uint uiSpyIndex)
 				//BUILDING
 				else if(iSpyResult == 1)
 				{
-					int iSetback = (pCity->getProduction() * (GC.getBALANCE_SPY_SABOTAGE_RATE() * iTurnsActive)) / 100;
+					int iSetback = (pCity->getProduction() * (GC.getBALANCE_SPY_SABOTAGE_RATE() + iTurnsActive)) / 100;
+					if(iSetback > pCity->getProduction())
+					{
+						iSetback = pCity->getProduction();
+					}
 					if(iSetback > 0)
 					{
 						pCity->setProduction(pCity->getProduction() - iSetback);
@@ -1887,6 +1901,10 @@ void CvPlayerEspionage::DoAdvancedAction(uint uiSpyIndex)
 				else if(iSpyResult == 3)
 				{
 					int iSetback = (pCity->getProduction() * (iTurnsActive * GC.getBALANCE_SPY_SABOTAGE_RATE())) / 100;
+					if(iSetback > pCity->getProduction())
+					{
+						iSetback = pCity->getProduction();
+					}
 					if(iSetback > 0)
 					{
 						pCity->setProduction(pCity->getProduction() - iSetback);
@@ -1964,8 +1982,11 @@ void CvPlayerEspionage::DoAdvancedAction(uint uiSpyIndex)
 				// Science
 				else if(iSpyResult == 7)
 				{
-					int iPercentage = (GC.getBALANCE_SPY_SABOTAGE_RATE() * iTurnsActive) / 2;
-					int iSetback = (GET_PLAYER(pCity->getOwner()).GetScience() * iPercentage) / 100;
+					int iSetback = ((GET_PLAYER(pCity->getOwner()).GetScience() * (GC.getBALANCE_SPY_SABOTAGE_RATE() + iTurnsActive)) / 100);
+					if(iSetback > GET_PLAYER(pCity->getOwner()).GetScience())
+					{
+						iSetback = GET_PLAYER(pCity->getOwner()).GetScience();
+					}
 					if(iSetback > 0)
 					{
 						TechTypes eCurrentTech = m_pPlayer->GetPlayerTechs()->GetCurrentResearch();
@@ -1976,6 +1997,16 @@ void CvPlayerEspionage::DoAdvancedAction(uint uiSpyIndex)
 						else
 						{
 							GET_TEAM(GET_PLAYER(m_pPlayer->GetID()).getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iSetback, m_pPlayer->GetID());
+						}
+
+						TechTypes eCurrentTech2 = GET_PLAYER(pCity->getOwner()).GetPlayerTechs()->GetCurrentResearch();
+						if(eCurrentTech2 == NO_TECH)
+						{
+							GET_PLAYER(pCity->getOwner()).changeOverflowResearch(-iSetback);
+						}
+						else
+						{
+							GET_TEAM(GET_PLAYER(pCity->getOwner()).getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech2, -iSetback, pCity->getOwner());
 						}
 
 						pCityEspionage->m_aiNumTimesCityRobbed[eCityOwner]++;
@@ -2052,8 +2083,11 @@ void CvPlayerEspionage::DoAdvancedAction(uint uiSpyIndex)
 				//Gold Theft
 				else if(iSpyResult == 8)
 				{
-					int iPercentage = (GC.getBALANCE_SPY_SABOTAGE_RATE() * iTurnsActive) / 3;
-					int iTheft = (GET_PLAYER(pCity->getOwner()).GetTreasury()->GetGold() * iPercentage) / 100;
+					int iTheft = ((GET_PLAYER(pCity->getOwner()).GetTreasury()->GetGold() * (GC.getBALANCE_SPY_SABOTAGE_RATE() + iTurnsActive)) / 100);
+					if(iTheft > GET_PLAYER(pCity->getOwner()).GetTreasury()->GetGold())
+					{
+						iTheft = GET_PLAYER(pCity->getOwner()).GetTreasury()->GetGold();
+					}
 
 					GET_PLAYER(pCity->getOwner()).GetTreasury()->ChangeGold((iTheft * -1));
 					m_pPlayer->GetTreasury()->ChangeGold(iTheft);
@@ -2474,7 +2508,7 @@ void CvPlayerEspionage::UncoverIntrigue(uint uiSpyIndex)
 }
 #if defined(MOD_BALANCE_CORE)
 /// UncoverIntrigue - Determine if the spy uncovers any secret information and pass it along to the player
-void CvPlayerEspionage::GetRandomIntrigue(CvCity* pCity)
+void CvPlayerEspionage::GetRandomIntrigue(CvCity* pCity, uint uiSpyIndex)
 {
 	if(pCity == NULL)
 	{
@@ -2546,12 +2580,12 @@ void CvPlayerEspionage::GetRandomIntrigue(CvCity* pCity)
 		{
 		case AI_OPERATION_SNEAK_CITY_ATTACK:
 		{
-			AddIntrigueMessage(m_pPlayer->GetID(), eOtherPlayer, eRevealedTargetPlayer, NO_BUILDING, NO_PROJECT, INTRIGUE_TYPE_ARMY_SNEAK_ATTACK, -1, pTargetCity, true);
+			AddIntrigueMessage(m_pPlayer->GetID(), eOtherPlayer, eRevealedTargetPlayer, NO_BUILDING, NO_PROJECT, INTRIGUE_TYPE_ARMY_SNEAK_ATTACK, uiSpyIndex, pTargetCity, true);
 		}
 		break;
 		case AI_OPERATION_NAVAL_SNEAK_ATTACK:
 		{
-			AddIntrigueMessage(m_pPlayer->GetID(), eOtherPlayer, eRevealedTargetPlayer, NO_BUILDING, NO_PROJECT, INTRIGUE_TYPE_AMPHIBIOUS_SNEAK_ATTACK, -1, pTargetCity, true);
+			AddIntrigueMessage(m_pPlayer->GetID(), eOtherPlayer, eRevealedTargetPlayer, NO_BUILDING, NO_PROJECT, INTRIGUE_TYPE_AMPHIBIOUS_SNEAK_ATTACK, uiSpyIndex, pTargetCity, true);
 		}
 		break;
 		}
@@ -2569,10 +2603,10 @@ void CvPlayerEspionage::GetRandomIntrigue(CvCity* pCity)
 			switch(eArmyType)
 			{
 			case ARMY_TYPE_LAND:
-				AddIntrigueMessage(m_pPlayer->GetID(), eOtherPlayer, NO_PLAYER, NO_BUILDING, NO_PROJECT, INTRIGUE_TYPE_BUILDING_ARMY, -1, pCity, true);
+				AddIntrigueMessage(m_pPlayer->GetID(), eOtherPlayer, NO_PLAYER, NO_BUILDING, NO_PROJECT, INTRIGUE_TYPE_BUILDING_ARMY, uiSpyIndex, pCity, true);
 				break;
 			case ARMY_TYPE_NAVAL_INVASION:
-				AddIntrigueMessage(m_pPlayer->GetID(), eOtherPlayer, NO_PLAYER, NO_BUILDING, NO_PROJECT, INTRIGUE_TYPE_BUILDING_AMPHIBIOUS_ARMY, -1, pCity, true);
+				AddIntrigueMessage(m_pPlayer->GetID(), eOtherPlayer, NO_PLAYER, NO_BUILDING, NO_PROJECT, INTRIGUE_TYPE_BUILDING_AMPHIBIOUS_ARMY, uiSpyIndex, pCity, true);
 				break;
 			}
 		}
@@ -2618,11 +2652,11 @@ void CvPlayerEspionage::GetRandomIntrigue(CvCity* pCity)
 
 				if(GET_TEAM(m_pPlayer->getTeam()).isHasMet(GET_PLAYER(eOtherOtherPlayer).getTeam()))
 				{
-					AddIntrigueMessage(m_pPlayer->GetID(), eOtherPlayer, eOtherOtherPlayer, NO_BUILDING, NO_PROJECT, INTRIGUE_TYPE_DECEPTION, -1, pCity, true);
+					AddIntrigueMessage(m_pPlayer->GetID(), eOtherPlayer, eOtherOtherPlayer, NO_BUILDING, NO_PROJECT, INTRIGUE_TYPE_DECEPTION, uiSpyIndex, pCity, true);
 				}
 				else
 				{
-					AddIntrigueMessage(m_pPlayer->GetID(), eOtherPlayer, NO_PLAYER, NO_BUILDING, NO_PROJECT, INTRIGUE_TYPE_DECEPTION, -1, pCity, true);
+					AddIntrigueMessage(m_pPlayer->GetID(), eOtherPlayer, NO_PLAYER, NO_BUILDING, NO_PROJECT, INTRIGUE_TYPE_DECEPTION, uiSpyIndex, pCity, true);
 				}
 				break; // we reported intrigue, now bail out
 			}
@@ -2651,7 +2685,7 @@ void CvPlayerEspionage::GetRandomIntrigue(CvCity* pCity)
 
 	if (bNotifyAboutConstruction)
 	{
-		AddIntrigueMessage(m_pPlayer->GetID(), eOtherPlayer, NO_PLAYER, eBuilding, eProject, INTRIGUE_TYPE_CONSTRUCTING_WONDER, -1, pCity, true);
+		AddIntrigueMessage(m_pPlayer->GetID(), eOtherPlayer, NO_PLAYER, eBuilding, eProject, INTRIGUE_TYPE_CONSTRUCTING_WONDER, uiSpyIndex, pCity, true);
 	}
 }
 #endif
@@ -5282,7 +5316,6 @@ void CvPlayerEspionage::ProcessSpyMessages()
 
 	m_aSpyNotificationMessages.clear();
 }
-
 /// AddIntrigueMessage - This is called when a piece of intrigue is found out by a spy. The reason it is kept in a list is to prevent repeat messages warning about the
 ///                      same event by the same spy
 void CvPlayerEspionage::AddIntrigueMessage(PlayerTypes eDiscoveringPlayer, PlayerTypes eSourcePlayer, PlayerTypes eTargetPlayer, BuildingTypes eBuilding, ProjectTypes eProject, CvIntrigueType eIntrigueType, uint uiSpyIndex, CvCity* pCity, bool bShowNotification)

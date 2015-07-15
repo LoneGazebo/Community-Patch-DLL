@@ -1584,7 +1584,7 @@ void CvActiveResolution::DoEffects(PlayerTypes ePlayer)
 				ResourceTypes eResourceLoop = (ResourceTypes) iResourceLoop;
 				if(GC.getGame().GetGameLeagues()->IsLuxuryHappinessBanned(pPlayer->GetID(), eResourceLoop))
 				{
-					pPlayer->TestHasMonopoly(eResourceLoop);
+					pPlayer->CheckForMonopoly(eResourceLoop);
 				}
 			}
 		}
@@ -1758,14 +1758,8 @@ void CvActiveResolution::DoEffects(PlayerTypes ePlayer)
 						GC.getGame().GetGameTrade()->ClearAllCivTradeRoutes(eLoopPlayer);
 					}
 				}
-				if (GET_PLAYER(eLoopPlayer).isAlive() && !GET_PLAYER(eLoopPlayer).isMinorCiv())
-				{
-					if(!GET_PLAYER(eLoopPlayer).GetMinorCivAI()->IsAllies(ePlayer))
-					{
-						GC.getGame().GetGameTrade()->ClearAllCityStateTradeRoutes();
-					}
-				}
 			}
+			GC.getGame().GetGameTrade()->ClearAllCityStateTradeRoutesSpecial();
 		}
 	}
 	GET_PLAYER(ePlayer).ProcessLeagueResolutions();
@@ -1859,7 +1853,7 @@ void CvActiveResolution::RemoveEffects(PlayerTypes ePlayer)
 				ResourceTypes eResourceLoop = (ResourceTypes) iResourceLoop;
 				if(!GC.getGame().GetGameLeagues()->IsLuxuryHappinessBanned(pPlayer->GetID(), eResourceLoop))
 				{
-					pPlayer->TestHasMonopoly(eResourceLoop);
+					pPlayer->CheckForMonopoly(eResourceLoop);
 				}
 			}
 		}
@@ -10840,7 +10834,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 							iOtherPlayerResourceFactor += -2;
 						}
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
-						if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES && GET_PLAYER(e).HasMonopoly(eTargetLuxury))
+						if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES && GET_PLAYER(e).HasLuxuryMonopoly(eTargetLuxury))
 						{
 							iOtherPlayerResourceFactor += -2;
 						}
@@ -10857,7 +10851,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 							iOtherPlayerResourceFactor += 2;
 						}
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
-						if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES && GET_PLAYER(e).HasMonopoly(eTargetLuxury))
+						if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES && GET_PLAYER(e).HasLuxuryMonopoly(eTargetLuxury))
 						{
 							iOtherPlayerResourceFactor += 2;
 						}

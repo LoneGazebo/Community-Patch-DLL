@@ -954,7 +954,7 @@ private:
 	bool FindCitiesWithinStrikingDistance(CvPlot* pTargetPlot);
 	bool FindClosestUnit(CvPlot* pTargetPlot, int iNumTurnsAway, bool bMustHaveHalfHP, bool bMustBeRangedUnit=false, int iRangeRequired=2, bool bNeedsIgnoreLOS=false, bool bMustBeMeleeUnit=false, bool bIgnoreUnits=false, CvPlot* pRangedAttackTarget=NULL);
 #if defined(MOD_BALANCE_CORE_MILITARY)
-	bool FindClosestOperationUnit(CvPlot* pTargetPlot, bool bNoRanged, bool bRanged, int iMaxTurns=5);
+	bool FindClosestOperationUnit(CvPlot* pTargetPlot, bool bNoRanged, bool bRanged, int iMaxTurns=5, int iMinHitpoints=10, bool bNeedOnlyOne=false);
 #else
 	bool FindClosestOperationUnit(CvPlot* pTargetPlot, bool bSafeForRanged, bool bMustBeRangedUnit);
 #endif
@@ -1096,7 +1096,9 @@ int GetAllTilesInReach(CvUnit* pUnit, CvPlot* pStartPlot, ReachablePlotSet& resu
 int GetPlotsUnderRangedAttackFrom(CvUnit* pUnit, CvPlot* pBasePlot, std::set<CvPlot*>& resultSet);
 int GetPlotsUnderRangedAttackFrom(CvUnit* pUnit, ReachablePlotSet& basePlots, std::set<CvPlot*>& resultSet);
 bool PerformRangedOpportunityAttack(CvUnit* pUnit);
-#endif
 }
+
+extern const char* barbarianMoveNames[];
+#endif
 
 #endif //CIV5_TACTICAL_AI_H

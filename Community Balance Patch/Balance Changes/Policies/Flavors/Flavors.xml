@@ -26,7 +26,7 @@
 		<Row>
 			<PolicyType>POLICY_LIBERTY</PolicyType>
 			<FlavorType>FLAVOR_TILE_IMPROVEMENT</FlavorType>
-			<Flavor>4</Flavor>
+			<Flavor>6</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_COLLECTIVE_RULE</PolicyType>
@@ -85,7 +85,7 @@
 		</Row>
 		<Row>
 			<PolicyType>POLICY_MERITOCRACY</PolicyType>
-			<FlavorType>FLAVOR_FLAVOR_INFRASTRUCTURE</FlavorType>
+			<FlavorType>FLAVOR_INFRASTRUCTURE</FlavorType>
 			<Flavor>4</Flavor>
 		</Row>
 		<Row>
@@ -102,7 +102,7 @@
 		<Row>
 			<PolicyType>POLICY_TRADITION</PolicyType>
 			<FlavorType>FLAVOR_CULTURE</FlavorType>
-			<Flavor>4</Flavor>
+			<Flavor>6</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_TRADITION</PolicyType>
@@ -193,7 +193,7 @@
 		<Row>
 			<PolicyType>POLICY_HONOR</PolicyType>
 			<FlavorType>FLAVOR_EXPANSION</FlavorType>
-			<Flavor>4</Flavor>
+			<Flavor>6</Flavor>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_HONOR</PolicyType>

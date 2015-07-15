@@ -24,7 +24,7 @@
 			<Yield>25</Yield>
 		</Row>
 	</Building_YieldChangesPerPop>
-	<!-- Market -->
+	<!-- Bazaar -->
 	<Building_ResourceYieldChanges>
 		<Row>
 			<BuildingType>BUILDING_BAZAAR</BuildingType>
@@ -123,12 +123,12 @@
 		<Row>
 			<BuildingType>BUILDING_INDUS_CANAL</BuildingType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Yield>2</Yield>
+			<Yield>1</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_INDUS_CANAL</BuildingType>
 			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>1</Yield>
+			<Yield>3</Yield>
 		</Row>
 	</Building_YieldChanges>
 	<Civilization_BuildingClassOverrides>
@@ -163,7 +163,7 @@
 			</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_INDUS_CANAL_HELP">
-			<Text>Unique Indian replacement for the Aqueduct. Carries over 30% of [ICON_FOOD] Food after City growth. Grants +1 [ICON_FOOD] Food on Oases, Lakes, and Flood Plains. Receive +2 [ICON_PRODUCTION] Production and +2 [ICON_FOOD] Food in the City where it is built. Reduces [ICON_HAPPINESS_3] Poverty slightly.</Text>
+			<Text>Unique Indian replacement for the Aqueduct. Carries over 30% of [ICON_FOOD] Food after City growth. Grants +1 [ICON_FOOD] Food on Oases, Lakes, and Flood Plains. Reduces [ICON_HAPPINESS_3] Poverty slightly.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_INDUS_CANAL_STRATEGY">
 			<Text>Build these unique Aqueducts to rapidly increase your city's population size, and to boost the City's productivity.</Text>
@@ -295,6 +295,8 @@
 			<Strategy>TXT_KEY_BUILDING_ODEON_STRATEGY</Strategy>
 			<Help>TXT_KEY_BUILDING_ODEON_HELP</Help>
 			<ArtDefineTag>COLESSEUM</ArtDefineTag>
+			<GreatWorkSlotType>GREAT_WORK_SLOT_LITERATURE</GreatWorkSlotType>
+			<GreatWorkCount>1</GreatWorkCount>
 			<TechEnhancedTourism>2</TechEnhancedTourism>
 			<EnhancedYieldTech>TECH_PHILOSOPHY</EnhancedYieldTech>
 			<ConquestProb>100</ConquestProb>
@@ -377,7 +379,7 @@
 			<Text>Whenever you destroy an enemy unit, gain +5 [ICON_CULTURE] Culture in the City.[NEWLINE][NEWLINE]+1 [ICON_CULTURE] Culture, and +1 [ICON_CULTURE] Culture for every 5 [ICON_CITIZEN] Citizens in the city. +1 [ICON_CULTURE] Culture and +1 [ICON_GOLD] Gold on nearby [ICON_RES_DYE] Dye resources. [NEWLINE][NEWLINE]+2 [ICON_TOURISM] Tourism once you research Philosophy.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_ODEON_STRATEGY">
-			<Text>Unique Greek replacement for the Amphitheater. Build these unique Amphitheaters to boost your city's Culture and Tourism. Contains no slot for a Great Work, however it produces +2 [ICON_TOURISM] Tourism once you research Philosophy.</Text>
+			<Text>Unique Greek replacement for the Amphitheater. Build these unique Amphitheaters to boost your city's Culture and Tourism, especially while at war. Produces +2 [ICON_TOURISM] Tourism once you research Philosophy.</Text>
 		</Row>
 	</Language_en_US>
 	<!-- Triumphal Arch -->

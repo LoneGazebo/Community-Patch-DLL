@@ -255,7 +255,7 @@
 			<Text>When a [ICON_INTERNATIONAL_TRADE] Trade Route between a foreign City and this City completes, a Hexxon Refineries Franchise is constructed in the foreign City.[NEWLINE][NEWLINE]Hexxon Refineries cannot be sold or destroyed by the player, and grants +1 [ICON_RES_OIL] Oil to all Hexxon Refineries Offices.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_HEXXON_REFINERY_HELP">
-			<Text>+15% [ICON_PRODUCTION] Production when training Land, Air, or Naval Units in this City. +1 [ICON_RES_OIL] for every Hexxon Refineries Franchise.[NEWLINE][NEWLINE]Every Trade Route from this City to a foreign City with a Hexxon Refineries Franchise increases this City's [ICON_PRODUCTION] Production rate by 5%.</Text>
+			<Text>+15% [ICON_PRODUCTION] Production when training Land, Air, or Naval Units in this City. +1 [ICON_RES_OIL] Oil for every Hexxon Refineries Franchise.[NEWLINE][NEWLINE]Every Trade Route from this City to a foreign City with a Hexxon Refineries Franchise increases this City's [ICON_PRODUCTION] Production rate by 5%.</Text>
 		</Row>
 	</Language_en_US>
 </GameData>

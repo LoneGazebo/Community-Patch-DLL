@@ -2767,17 +2767,17 @@ int CvMilitaryAI::GetBarbarianThreatTotal()
 {
 	int iRtnValue = 0;
 
-	ScanForBarbarians();
-
 	// Major threat for each camp seen
 #if defined(MOD_BALANCE_CORE)
 	iRtnValue += GC.getAI_MILITARY_THREAT_WEIGHT_SEVERE() * m_iBarbarianCampCount;
-#else
-	iRtnValue += GC.getAI_MILITARY_THREAT_WEIGHT_MAJOR() * m_iBarbarianCampCount;
-#endif
-
 	// One minor threat for every X barbarians
 	iRtnValue += m_iVisibleBarbarianCount / GC.getAI_MILITARY_BARBARIANS_FOR_MINOR_THREAT();
+#else
+	ScanForBarbarians();
+	iRtnValue += GC.getAI_MILITARY_THREAT_WEIGHT_MAJOR() * m_iBarbarianCampCount;
+	// One minor threat for every X barbarians
+	iRtnValue += m_iVisibleBarbarianCount / GC.getAI_MILITARY_BARBARIANS_FOR_MINOR_THREAT();
+#endif
 
 	return iRtnValue;
 }
@@ -3595,6 +3595,10 @@ void CvMilitaryAI::ScanForBarbarians()
 	int iPlotLoop;
 	CvPlot* pPlot;
 
+#if defined(MOD_BALANCE_CORE)
+	int iLastTurnBarbarianCount = m_iVisibleBarbarianCount;
+#endif
+
 	m_iBarbarianCampCount = 0;
 	m_iVisibleBarbarianCount = 0;
 
@@ -3653,6 +3657,15 @@ void CvMilitaryAI::ScanForBarbarians()
 			}
 		}
 	}
+
+#if defined(MOD_BALANCE_CORE)
+	//try to smooth the count a bit
+	if (iLastTurnBarbarianCount >= m_iVisibleBarbarianCount)
+		m_iVisibleBarbarianCount = iLastTurnBarbarianCount;
+	else
+		m_iVisibleBarbarianCount = iLastTurnBarbarianCount-1;
+#endif
+
 }
 
 /// See if the threats we are facing have changed
@@ -4236,7 +4249,7 @@ void CvMilitaryAI::UpdateOperations()
 				eWarState = m_pPlayer->GetDiplomacyAI()->GetWarState(eLoopPlayer);
 				switch(eWarState)
 				{
-				// If we are dominant, shouldn't be running a defensive strategy
+					// If we are dominant, shouldn't be running a defensive strategy
 				case WAR_STATE_NEARLY_WON:
 				case WAR_STATE_OFFENSIVE:
 					if(m_pPlayer->haveAIOperationOfType(AI_OPERATION_RAPID_RESPONSE, &iOperationID, eLoopPlayer))
@@ -6997,7 +7010,7 @@ bool MilitaryAIHelpers::IsTestStrategy_EradicateBarbarians(MilitaryAIStrategyTyp
 	CvAssert(pStrategy != NULL);
 	if(pStrategy)
 	{
-		iStrategyWeight = iBarbarianCampCount * 50 + iVisibleBarbarianCount * 25;   // Two visible camps or 3 roving Barbarians will trigger this
+		iStrategyWeight = iBarbarianCampCount * 75 + iVisibleBarbarianCount * 25;   // Two visible camps or 3 roving Barbarians will trigger this
 		int iWeightThresholdModifier = GetWeightThresholdModifier(eStrategy, pPlayer);
 		int iWeightThreshold = pStrategy->GetWeightThreshold() + iWeightThresholdModifier;
 
@@ -7052,7 +7065,7 @@ bool MilitaryAIHelpers::IsTestStrategy_EradicateBarbariansCritical(MilitaryAIStr
 	CvAssert(pStrategy != NULL);
 	if(pStrategy)
 	{
-		iStrategyWeight = iBarbarianCampCount * 50 + iVisibleBarbarianCount * 25;
+		iStrategyWeight = iBarbarianCampCount * 75 + iVisibleBarbarianCount * 25;
 		int iWeightThresholdModifier = GetWeightThresholdModifier(eStrategy, pPlayer);
 		int iWeightThreshold = pStrategy->GetWeightThreshold() + iWeightThresholdModifier;
 

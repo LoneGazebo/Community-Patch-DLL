@@ -231,7 +231,6 @@ public:
 	bool IsSpecialistValid(int i) const;
 #if defined(MOD_BALANCE_CORE)
 	int GetFreeChosenBuilding(int i) const;
-	void ChangeFreeChosenBuilding(int i, int iChange);
 #endif
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	int GetYieldFromBirth(int i) const;
@@ -250,6 +249,8 @@ public:
 	int GetInfluenceGPExpend() const;
 	int GetFreeTradeRoute() const;
 	int GetFreeSpy() const;
+	int GetReligionDistance() const;
+	int GetPressureMod() const;
 	int GetYieldFromBorderGrowth(int i) const;
 	int GetYieldGPExpend(int i) const;
 	int GetGarrisonsOccupiedUnhapppinessMod() const;
@@ -258,6 +259,7 @@ public:
 	int GetConquerorYield(int i) const;
 	int GetReligionBuildingYieldMod(int i, int j) const;
 	int GetReligionYieldMod(int i) const;
+	int GetGoldenAgeYieldMod(int i) const;
 	int GetFreePopulation() const;
 	int GetExtraMoves() const;
 #endif
@@ -543,6 +545,8 @@ private:
 	int m_iInfluenceGPExpend;
 	int m_iFreeTradeRoute;
 	int m_iFreeSpy;
+	int m_iReligionDistance;
+	int m_iPressureMod;
 	int* m_piYieldFromBorderGrowth;
 	int* m_piYieldGPExpend;
 	int m_iGarrisonsOccupiedUnhapppinessMod;
@@ -552,6 +556,7 @@ private:
 	int m_iExtraMoves;
 	int* m_piConquerorYield;
 	int* m_piReligionYieldMod;
+	int* m_piGoldenAgeYieldMod;
 	int** m_ppiReligionBuildingYieldMod;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)

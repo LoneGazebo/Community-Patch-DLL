@@ -728,12 +728,7 @@ void CvHomelandAI::FindHomelandTargets()
 	{
 		pLoopPlot = theMap.plotByIndexUnchecked(iI);
 
-#if defined(MOD_BALANCE_CORE)
-		//Makes AI a little psychic, but that's okay.
-		if((pLoopPlot->isVisible(m_pPlayer->getTeam()) && m_pPlayer->GetCityDistance(pLoopPlot) <= 10) || (pLoopPlot->isRevealed(m_pPlayer->getTeam()) && m_pPlayer->GetCityDistance(pLoopPlot) <= 5))
-#else
 		if(pLoopPlot->isVisible(m_pPlayer->getTeam()))
-#endif
 		{
 			// Have a ...
 			// ... friendly city?
@@ -759,12 +754,21 @@ void CvHomelandAI::FindHomelandTargets()
 			else if(pLoopPlot->isWater() &&
 			        pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
 			{
+#if defined(MOD_BALANCE_CORE)
+				ResourceTypes eNonObsoleteResource = pLoopPlot->getResourceType(eTeam);
+				if(eNonObsoleteResource != NO_RESOURCE)
+				{
+					if(pLoopPlot->getOwner() == m_pPlayer->GetID())
+					{
+#else
 				ResourceTypes eNonObsoleteResource = pLoopPlot->getNonObsoleteResourceType(eTeam);
+
 				if(eNonObsoleteResource != NO_RESOURCE)
 				{
 					CvCity* pWorkingCity = pLoopPlot->getWorkingCity();
 					if(NULL != pWorkingCity && pWorkingCity->getOwner() == m_pPlayer->GetID())
 					{
+#endif
 						// Find proper improvement
 						BuildTypes eBuild;
 						for(int iJ = 0; iJ < GC.getNumBuildInfos(); iJ++)
@@ -6880,12 +6884,18 @@ bool CvHomelandAI::MoveCivilianToSafety(CvUnit* pUnit, bool bIgnoreUnits, bool b
 bool CvHomelandAI::MoveCivilianToSafety(CvUnit* pUnit, bool bIgnoreUnits)
 #endif
 {
-#if defined(AUI_ASTAR_ROAD_RANGE)
-	//we want to be able to go there in one turn ...
-	int iSearchRange = GetIncreasedMoveRangeForRoads(pUnit,pUnit->baseMoves());
+#if defined(MOD_BALANCE_CORE)
+	WeightedPlotVector aBestPlotList;
+	TacticalAIHelpers::ReachablePlotSet reachableTiles;
+	TacticalAIHelpers::GetAllTilesInReach(pUnit,pUnit->plot(),reachableTiles,true,true);
+	for (TacticalAIHelpers::ReachablePlotSet::iterator it=reachableTiles.begin(); it!=reachableTiles.end(); ++it)
+	{
+		{
+			CvPlot* pLoopPlot = it->first;
+
+
 #else
 	int iSearchRange = pUnit->SearchRange(1);
-#endif
 
 	// Collecting all the possibilities first.
 	WeightedPlotVector aBestPlotList;
@@ -6900,6 +6910,7 @@ bool CvHomelandAI::MoveCivilianToSafety(CvUnit* pUnit, bool bIgnoreUnits)
 			{
 				continue;
 			}
+#endif
 
 #if defined(MOD_AI_SECONDARY_WORKERS)
 			if(!pUnit->PlotValid(pLoopPlot, CvUnit::MOVEFLAG_PRETEND_CORRECT_EMBARK_STATE))
@@ -7044,16 +7055,14 @@ bool CvHomelandAI::MoveCivilianToSafety(CvUnit* pUnit, bool bIgnoreUnits)
 			else
 			{
 #if defined(MOD_BALANCE_CORE)
-				
-				for(int iDX = -(iSearchRange); iDX <= iSearchRange; iDX++)
+				//check for an alternative plot again with more relaxed conditions
+				WeightedPlotVector aBestPlotList;
+				TacticalAIHelpers::ReachablePlotSet reachableTiles;
+				TacticalAIHelpers::GetAllTilesInReach(pUnit,pUnit->plot(),reachableTiles,true,true);
+				for (TacticalAIHelpers::ReachablePlotSet::iterator it=reachableTiles.begin(); it!=reachableTiles.end(); ++it)
 				{
-					for(int iDY = -(iSearchRange); iDY <= iSearchRange; iDY++)
 					{
-						CvPlot* pLoopPlot = plotXYWithRangeCheck(pUnit->getX(), pUnit->getY(), iDX, iDY, iSearchRange);
-						if(!pLoopPlot)
-						{
-							continue;
-						}
+						CvPlot* pLoopPlot = it->first;
 
 #if defined(MOD_AI_SECONDARY_WORKERS)
 						if(!pUnit->PlotValid(pLoopPlot, CvUnit::MOVEFLAG_PRETEND_CORRECT_EMBARK_STATE))
@@ -7068,16 +7077,6 @@ bool CvHomelandAI::MoveCivilianToSafety(CvUnit* pUnit, bool bIgnoreUnits)
 							continue;
 						}
 						if(!pUnit->IsCivilianUnit() && pLoopPlot->getNumDefenders(pUnit->getOwner()) > 0)
-						{
-							continue;
-						}
-						int iPathTurns;
-						if(!pUnit->GeneratePath(pLoopPlot, MOVE_UNITS_IGNORE_DANGER, true, &iPathTurns))
-						{
-							continue;
-						}
-						// if we can't get there this turn, forget it
-						if(iPathTurns > 1)
 						{
 							continue;
 						}

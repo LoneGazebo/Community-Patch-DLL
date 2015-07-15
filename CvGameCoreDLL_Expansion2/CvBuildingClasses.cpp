@@ -264,6 +264,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 #if defined(MOD_BALANCE_CORE)
 	m_piYieldFromVictory(NULL),
 	m_iNeedBuildingThisCity(NO_BUILDING),
+	m_piGoldenAgeYieldMod(NULL),
 #endif
 	m_piYieldChange(NULL),
 	m_piYieldChangePerPop(NULL),
@@ -347,6 +348,7 @@ CvBuildingEntry::~CvBuildingEntry(void)
 #endif
 #if defined(MOD_BALANCE_CORE)
 	SAFE_DELETE_ARRAY(m_piYieldFromVictory);
+	SAFE_DELETE_ARRAY(m_piGoldenAgeYieldMod);
 #endif
 	SAFE_DELETE_ARRAY(m_piYieldChange);
 	SAFE_DELETE_ARRAY(m_piYieldChangePerPop);
@@ -757,6 +759,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	if(MOD_BALANCE_CORE)
 	{
 		kUtility.SetYields(m_piYieldFromVictory, "Building_YieldFromVictory", "BuildingType", szBuildingType);
+		kUtility.SetYields(m_piGoldenAgeYieldMod, "Building_GoldenAgeYieldMod", "BuildingType", szBuildingType);
 	}
 #endif
 	kUtility.SetYields(m_piYieldChange, "Building_YieldChanges", "BuildingType", szBuildingType);
@@ -2231,6 +2234,19 @@ int CvBuildingEntry::GetYieldFromVictory(int i) const
 int* CvBuildingEntry::GetYieldFromVictoryArray() const
 {
 	return m_piYieldFromVictory;
+}
+
+/// Change to yield during golden ages
+int CvBuildingEntry::GetGoldenAgeYieldMod(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piGoldenAgeYieldMod ? m_piGoldenAgeYieldMod[i] : -1;
+}
+/// Array of yield changes
+int* CvBuildingEntry::GetGoldenAgeYieldModArray() const
+{
+	return m_piGoldenAgeYieldMod;
 }
 #endif
 /// Change to yield by type

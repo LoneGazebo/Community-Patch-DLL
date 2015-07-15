@@ -248,6 +248,7 @@ CvCity::CvCity() :
 	, m_iBaseTourism("CvCity::m_iBaseTourism", m_syncArchive)
 	, m_iBaseTourismBeforeModifiers("CvCity::m_iBaseTourismBeforeModifiers", m_syncArchive)
 	, m_aiChangeYieldFromVictory("CvCity::m_aiChangeYieldFromVictory", m_syncArchive)
+	, m_aiGoldenAgeYieldMod("CvCity::m_aiGoldenAgeYieldMod", m_syncArchive)
 	, m_aiBaseYieldRateFromCSAlliance("CvCity::m_aiBaseYieldRateFromCSAlliance", m_syncArchive)
 	, m_aiCorporationYieldChange("CvCity::m_aiCorporationYieldChange", m_syncArchive)
 	, m_aiCorporationYieldModChange("CvCity::m_aiCorporationYieldModChange", m_syncArchive)
@@ -530,7 +531,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	for(int iBuildingClassLoop = 0; iBuildingClassLoop < GC.getNumBuildingClassInfos(); iBuildingClassLoop++)
 	{
 		const BuildingClassTypes eBuildingClass = static_cast<BuildingClassTypes>(iBuildingClassLoop);
-		CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo((BuildingClassTypes)iI);
+		CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
 		if(!pkBuildingClassInfo)
 		{
 			continue;
@@ -547,19 +548,22 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 				{
 					if(isValidBuildingLocation(eBuilding))
 					{
-						if(GetCityBuildings()->GetNumFreeBuilding(eBuilding) <= 0)
+						if(GetCityBuildings()->GetNumRealBuilding(eBuilding) > 0)
 						{
-							GetCityBuildings()->SetNumFreeBuilding(eBuilding, 1);
-							if(GetCityBuildings()->GetNumFreeBuilding(eBuilding) > 0)
-							{
-								GET_PLAYER(getOwner()).ChangeNumCitiesFreeChosenBuilding(eBuildingClass, -1);
-							}
-							if(getFirstBuildingOrder(eBuilding) == 0)
-							{
-								clearOrderQueue();
-								chooseProduction();
-								// Send a notification to the user that what they were building was given to them, and they need to produce something else.
-							}
+							GetCityBuildings()->SetNumRealBuilding(eBuilding, 0);
+						}
+
+						GetCityBuildings()->SetNumFreeBuilding(eBuilding, 1);
+
+						if(GetCityBuildings()->GetNumFreeBuilding(eBuilding) > 0)
+						{
+							GET_PLAYER(getOwner()).ChangeNumCitiesFreeChosenBuilding(eBuildingClass, -1);
+						}
+						if(getFirstBuildingOrder(eBuilding) == 0)
+						{
+							clearOrderQueue();
+							chooseProduction();
+							// Send a notification to the user that what they were building was given to them, and they need to produce something else.
 						}
 					}
 				}
@@ -613,13 +617,43 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 		owningPlayer.ChangeNumCitiesFounded(1);
 
 #if defined(MOD_BALANCE_CORE_DIFFICULTY)
-		if(MOD_BALANCE_CORE_DIFFICULTY && !owningPlayer.isMinorCiv() && (GC.getBALANCE_GAME_DIFFICULTY_MULTIPLIER() > 0) && (owningPlayer.GetNumCitiesFounded() <= 1)  && !owningPlayer.isHuman())
+		if(MOD_BALANCE_CORE_DIFFICULTY && !owningPlayer.isMinorCiv() && (owningPlayer.GetNumCitiesFounded() <= 1) && !owningPlayer.isHuman())
 		{
-			CvString strHandicapType = GC.getGame().getHandicapInfo().GetType();
-			if(strHandicapType == "HANDICAP_DEITY" || strHandicapType == "HANDICAP_IMMORTAL" || strHandicapType == "HANDICAP_EMPEROR" || strHandicapType == "HANDICAP_KING")
+			int iHandicap = 1;
+			CvHandicapInfo* pHandicapInfo = GC.getHandicapInfo(GC.getGame().getHandicapType());
+			if(pHandicapInfo)
 			{
-				changePopulation(GC.getBALANCE_GAME_DIFFICULTY_MULTIPLIER());
+				iHandicap = pHandicapInfo->getAIPerEraModifier();
+				if(iHandicap < 0)
+				{
+					iHandicap *= -1;
+				}
+				if(iHandicap == 0)
+				{
+					iHandicap = 1;
+				}
 			}
+
+			owningPlayer.GetTreasury()->ChangeGold((iHandicap + owningPlayer.GetCurrentEra()) * 20);
+			owningPlayer.ChangeGoldenAgeProgressMeter((iHandicap + owningPlayer.GetCurrentEra()) * 20);
+			owningPlayer.changeJONSCulture((iHandicap + owningPlayer.GetCurrentEra()) * 10);
+
+			int iBeakersBonus = owningPlayer.GetScienceYieldFromPreviousTurns(GC.getGame().getGameTurn(), (iHandicap + owningPlayer.GetCurrentEra()));
+						
+			if(iBeakersBonus > 0)
+			{
+				TechTypes eCurrentTech = owningPlayer.GetPlayerTechs()->GetCurrentResearch();
+				if(eCurrentTech == NO_TECH)
+				{
+					owningPlayer.changeOverflowResearch(iBeakersBonus);
+				}
+				else
+				{
+					GET_TEAM(owningPlayer.getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iBeakersBonus, owningPlayer.GetID());
+				}
+			}
+			changeProduction((iHandicap + owningPlayer.GetCurrentEra()) * 10);
+			changeFood((iHandicap + owningPlayer.GetCurrentEra()) * 5);
 		}
 #endif
 #if defined(MOD_BALANCE_CORE)
@@ -1071,49 +1105,6 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 #endif
 	AI_init();
 
-#if defined(MOD_BALANCE_CORE_POLICIES)
-	if(MOD_BALANCE_CORE_POLICIES && bInitialFounding && owningPlayer.GetBestRangedUnitSpawnSettle() > 0)
-	{
-		UnitTypes eType = GetCityStrategyAI()->GetUnitProductionAI()->RecommendUnit(UNITAI_RANGED, false /*Uses strategic resource*/, true, NULL);
-		if(eType != NO_UNIT)
-		{
-			int iResult = CreateUnit(eType, UNITAI_RANGED, false /*bUseToSatisfyOperation*/);
-
-			CvAssertMsg(iResult != FFreeList::INVALID_INDEX, "Unable to create unit");
-
-			if (iResult != FFreeList::INVALID_INDEX)
-			{
-				CvUnit* pUnit = owningPlayer.getUnit(iResult);
-				if (!pUnit->jumpToNearestValidPlot())
-				{
-					pUnit->kill(false);	// Could not find a valid spot!
-				}
-				pUnit->setMoves(1);	
-			}
-		}
-		else
-		{
-			UnitTypes eType = GetCityStrategyAI()->GetUnitProductionAI()->RecommendUnit(UNITAI_DEFENSE, false, true, NULL);
-			if(eType != NO_UNIT)
-			{
-				int iResult = CreateUnit(eType, UNITAI_DEFENSE, false /*bUseToSatisfyOperation*/);
-
-				CvAssertMsg(iResult != FFreeList::INVALID_INDEX, "Unable to create unit");
-
-				if (iResult != FFreeList::INVALID_INDEX)
-				{
-					CvUnit* pUnit = owningPlayer.getUnit(iResult);
-					if (!pUnit->jumpToNearestValidPlot())
-					{
-						pUnit->kill(false);	// Could not find a valid spot!
-					}
-					pUnit->setMoves(1);	
-				}
-			}
-		}
-	}
-#endif
-
 	if (GC.getGame().getGameTurn() == 0)
 	{
 		chooseProduction();
@@ -1359,6 +1350,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_iBaseTourism = 0;
 	m_iBaseTourismBeforeModifiers = 0;
 	m_aiChangeYieldFromVictory.resize(NUM_YIELD_TYPES);
+	m_aiGoldenAgeYieldMod.resize(NUM_YIELD_TYPES);
 #endif
 #if defined(MOD_BALANCE_CORE)
 	m_iBlockBuildingDestruction = 0;
@@ -1407,6 +1399,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 #endif
 #if defined(MOD_BALANCE_CORE)
 		m_aiChangeYieldFromVictory.setAt(iI, 0);
+		m_aiGoldenAgeYieldMod.setAt(iI, 0);
 #endif
 		m_aiBaseYieldRateFromReligion.setAt(iI, 0);
 #if defined(MOD_BALANCE_CORE)
@@ -2336,7 +2329,7 @@ void CvCity::doTurn()
 			ChangeJONSCultureStored(getJONSCulturePerTurn());
 #if defined(MOD_BALANCE_CORE_POLICIES)
 			//Doubles during Golden Age
-			if(GET_PLAYER(getOwner()).IsDoubleBorderGA() && GET_PLAYER(getOwner()).isGoldenAge())
+			if(GET_PLAYER(getOwner()).IsDoubleBorderGA() && (GET_PLAYER(getOwner()).isGoldenAge() || (GetWeLoveTheKingDayCounter() > 0)))
 			{
 				ChangeJONSCultureStored(getJONSCulturePerTurn());
 			}
@@ -2419,7 +2412,9 @@ void CvCity::doTurn()
 					}
 				}
 			}
-
+#if defined(MOD_BALANCE_CORE)
+			updateYield();
+#endif
 			m_bRouteToCapitalConnectedLastTurn = m_bRouteToCapitalConnectedThisTurn;
 		}
 
@@ -4532,7 +4527,7 @@ bool CvCity::IsBuildingResourceMonopolyValid(BuildingTypes eBuilding, CvString* 
 			continue;
 
 		// City doesn't have resource locally - return false immediately
-		if(!GET_PLAYER(getOwner()).HasMonopoly(eResource))
+		if(!GET_PLAYER(getOwner()).HasLuxuryMonopoly(eResource))
 		{
 			int iOwnedNumResource = GET_PLAYER(getOwner()).getNumResourceTotal(eResource, false) + GET_PLAYER(getOwner()).getResourceExport(eResource);
 			if(iOwnedNumResource > 0)
@@ -4561,7 +4556,7 @@ bool CvCity::IsBuildingResourceMonopolyValid(BuildingTypes eBuilding, CvString* 
 			continue;
 
 		// City has resource locally - return true immediately
-		if(GET_PLAYER(getOwner()).HasMonopoly(eResource))
+		if(GET_PLAYER(getOwner()).HasLuxuryMonopoly(eResource))
 			return true;
 
 		// If we get here it means we passed the AND tests but not one of the OR tests
@@ -8505,6 +8500,11 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			{
 				ChangeYieldFromVictory(eYield, pBuildingInfo->GetYieldFromVictory(iI) * iChange);
 			}
+
+			if(MOD_BALANCE_CORE && (pBuildingInfo->GetGoldenAgeYieldMod(iI) > 0))
+			{
+				ChangeGoldenAgeYieldMod(eYield, pBuildingInfo->GetGoldenAgeYieldMod(iI) * iChange);
+			}
 #endif
 #if defined(MOD_BALANCE_CORE)
 			if(MOD_BALANCE_CORE && (pBuildingInfo->GetCorporationYieldChange(iI) > 0))
@@ -9394,6 +9394,22 @@ int CvCity::foodDifferenceTimes100(bool bBottom, CvString* toolTipSink) const
 				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_CORPORATION", iCorpMod);
 		}
 #endif
+#if defined(MOD_BALANCE_CORE)
+		if(GET_PLAYER(getOwner()).isGoldenAge() && (GetGoldenAgeYieldMod(YIELD_FOOD) > 0))
+		{
+			int iBuildingMod = GetGoldenAgeYieldMod(YIELD_FOOD);
+			iTotalMod += iBuildingMod;
+			if(toolTipSink)
+				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_YIELD_GOLDEN_AGE_BUILDINGS", iBuildingMod);
+		}
+		if(GET_PLAYER(getOwner()).isGoldenAge() && GET_PLAYER(getOwner()).getGoldenAgeYieldMod(YIELD_FOOD) > 0)
+		{
+			int iPolicyMod = GET_PLAYER(getOwner()).getGoldenAgeYieldMod(YIELD_FOOD);
+			iTotalMod += iPolicyMod;
+			if(toolTipSink)
+				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_YIELD_GOLDEN_AGE_POLICIES", iPolicyMod);
+		}
+#endif
 
 		// Religion growth mod
 		int iReligionGrowthMod = 0;
@@ -9426,7 +9442,7 @@ int CvCity::foodDifferenceTimes100(bool bBottom, CvString* toolTipSink) const
 				CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
 				if (pInfo && pInfo->isMonopoly())
 				{
-					if(GET_PLAYER(getOwner()).HasMonopoly(eResourceLoop) && pInfo->getCityYieldModFromMonopoly(YIELD_FOOD) > 0)
+					if(GET_PLAYER(getOwner()).HasLuxuryMonopoly(eResourceLoop) && pInfo->getCityYieldModFromMonopoly(YIELD_FOOD) > 0)
 					{
 						iTempMod = pInfo->getCityYieldModFromMonopoly(YIELD_FOOD);
 						iTotalMod += iTempMod;
@@ -11408,8 +11424,9 @@ int CvCity::GetYieldPerTurnFromUnimprovedFeatures(YieldTypes eYield) const
 						iAdjacentFeatures++;
 					}
 				}
+#if defined(MOD_BALANCE_CORE_BOUDICCA_BUFF)
 				//Buff Boudica
-				if(kPlayer.GetPlayerTraits()->IsFaithFromUnimprovedForest())
+				if(MOD_BALANCE_CORE_BOUDICCA_BUFF && kPlayer.GetPlayerTraits()->IsFaithFromUnimprovedForest())
 				{
 					if (iAdjacentFeatures > 2)
 					{
@@ -11422,6 +11439,7 @@ int CvCity::GetYieldPerTurnFromUnimprovedFeatures(YieldTypes eYield) const
 				}
 				else
 				{
+#endif
 					if (iAdjacentFeatures > 2)
 					{
 						iYield += iBaseYield * 2;
@@ -11430,7 +11448,9 @@ int CvCity::GetYieldPerTurnFromUnimprovedFeatures(YieldTypes eYield) const
 					{
 						iYield += iBaseYield;
 					}
-				}
+#if defined(MOD_BALANCE_CORE_BOUDICCA_BUFF)
+				}		
+#endif
 			}
 		}
 	}
@@ -14305,8 +14325,8 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 #endif
 
 	// Golden Age Yield Modifier
-	if(GET_PLAYER(getOwner()).isGoldenAge())
-	{
+	if(GET_PLAYER(getOwner()).isGoldenAge() && eIndex != YIELD_FOOD)
+	{ 
 		CvYieldInfo* pYield = GC.getYieldInfo(eIndex);
 		if(pYield)
 		{
@@ -14315,6 +14335,23 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 			if(toolTipSink)
 				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_YIELD_GOLDEN_AGE", iTempMod);
 		}
+#if defined(MOD_BALANCE_CORE)
+		if(GetGoldenAgeYieldMod(eIndex) > 0)
+		{
+			iTempMod = GetGoldenAgeYieldMod(eIndex);
+			iModifier += iTempMod;
+			if(toolTipSink)
+				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_YIELD_GOLDEN_AGE_BUILDINGS", iTempMod);
+		}
+
+		if(GET_PLAYER(getOwner()).getGoldenAgeYieldMod(eIndex) > 0)
+		{
+			iTempMod = GET_PLAYER(getOwner()).getGoldenAgeYieldMod(eIndex);
+			iModifier += iTempMod;
+			if(toolTipSink)
+				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_YIELD_GOLDEN_AGE_POLICIES", iTempMod);
+		}
+#endif
 	}
 
 	// Religion Yield Rate Modifier
@@ -14358,7 +14395,7 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 			CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
 			if (pInfo && pInfo->isMonopoly())
 			{
-				if(GET_PLAYER(getOwner()).HasMonopoly(eResourceLoop) && pInfo->getCityYieldModFromMonopoly(eIndex) > 0)
+				if(GET_PLAYER(getOwner()).HasLuxuryMonopoly(eResourceLoop) && pInfo->getCityYieldModFromMonopoly(eIndex) > 0)
 				{
 					iTempMod = pInfo->getCityYieldModFromMonopoly(eIndex);
 					iModifier += iTempMod;
@@ -14771,18 +14808,17 @@ int CvCity::GetBaseYieldRateFromBuildings(YieldTypes eIndex) const
 #endif
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
-	CvCivilizationInfo& thisCivInfo = getCivilizationInfo();
 	if(MOD_BALANCE_CORE_POLICIES && eMajority != NO_RELIGION && eMajority > RELIGION_PANTHEON)
 	{
 		if(GET_PLAYER(getOwner()).GetReligions()->GetReligionInMostCities() == eMajority)
 		{
-			for (int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
+			const std::vector<BuildingTypes>& vBuildings = GetCityBuildings()->GetAllBuildings();
+			for(std::vector<BuildingTypes>::const_iterator iI=vBuildings.begin(); iI!=vBuildings.end(); ++iI)
 			{
-				BuildingClassTypes eBuildingClass = (BuildingClassTypes)iI;
-				BuildingTypes eBuilding = (BuildingTypes)(thisCivInfo.getCivilizationBuildings(eBuildingClass));
-				if (eBuilding != NO_BUILDING && GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
+				CvBuildingEntry *pkInfo = GC.getBuildingInfo(*iI);
+				if (pkInfo)
 				{
-					iMod += getReligionBuildingYieldRateModifier(eBuildingClass, eIndex);
+					iMod += getReligionBuildingYieldRateModifier( (BuildingClassTypes)pkInfo->GetBuildingClassType(), eIndex );
 				}
 			}
 		}
@@ -15016,6 +15052,32 @@ void CvCity::ChangeYieldFromVictory(YieldTypes eIndex, int iChange)
 	{
 		m_aiChangeYieldFromVictory.setAt(eIndex, m_aiChangeYieldFromVictory[eIndex] + iChange);
 		CvAssert(GetYieldFromVictory(eIndex) >= 0);
+	}
+}
+
+
+//	--------------------------------------------------------------------------------
+/// Extra yield from building
+int CvCity::GetGoldenAgeYieldMod(YieldTypes eIndex) const
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	return m_aiGoldenAgeYieldMod[eIndex];
+}
+
+//	--------------------------------------------------------------------------------
+/// Extra yield from building
+void CvCity::ChangeGoldenAgeYieldMod(YieldTypes eIndex, int iChange)
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+
+	if(iChange != 0)
+	{
+		m_aiGoldenAgeYieldMod.setAt(eIndex, m_aiGoldenAgeYieldMod[eIndex] + iChange);
+		CvAssert(GetGoldenAgeYieldMod(eIndex) >= 0);
 	}
 }
 #endif
@@ -18103,11 +18165,16 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
 #if defined(MOD_BALANCE_CORE_POLICIES)
 				float fDelay = 0.0f;
 				CvPlayer& owningPlayer = GET_PLAYER(getOwner());
+				int iEra = GET_PLAYER(getOwner()).GetCurrentEra();
+				if(iEra < 1)
+				{
+					iEra = 1;
+				}
 				if(MOD_BALANCE_CORE_POLICIES)
 				{
 					if(owningPlayer.getYieldFromConstruction(YIELD_CULTURE) > 0)
 					{
-						int iYield = owningPlayer.getYieldFromConstruction(YIELD_CULTURE);
+						int iYield = owningPlayer.getYieldFromConstruction(YIELD_CULTURE) * iEra;
 						iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 						iYield /= 100;
 						owningPlayer.changeJONSCulture(iYield);
@@ -18122,7 +18189,7 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
 					}
 					if(owningPlayer.getYieldFromConstruction(YIELD_GOLD) > 0)
 					{
-						int iYield = owningPlayer.getYieldFromConstruction(YIELD_GOLD);
+						int iYield = owningPlayer.getYieldFromConstruction(YIELD_GOLD) * iEra;
 						iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 						iYield /= 100;
 						owningPlayer.GetTreasury()->ChangeGold(iYield);
@@ -18136,7 +18203,7 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
 					}
 					if(owningPlayer.getYieldFromConstruction(YIELD_FAITH) > 0)
 					{
-						int iYield = owningPlayer.getYieldFromConstruction(YIELD_FAITH);
+						int iYield = owningPlayer.getYieldFromConstruction(YIELD_FAITH) * iEra;
 						iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 						iYield /= 100;
 						owningPlayer.ChangeFaith(iYield);
@@ -18150,7 +18217,7 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
 					}
 					if(owningPlayer.getYieldFromConstruction(YIELD_FOOD) > 0)
 					{
-						int iYield = owningPlayer.getYieldFromConstruction(YIELD_FOOD);
+						int iYield = owningPlayer.getYieldFromConstruction(YIELD_FOOD) * iEra;
 						iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 						iYield /= 100;
 						changeFood(iYield);
@@ -18164,7 +18231,7 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
 					}
 					if(owningPlayer.getYieldFromConstruction(YIELD_SCIENCE) > 0)
 					{
-						int iYield = owningPlayer.getYieldFromConstruction(YIELD_SCIENCE);
+						int iYield = owningPlayer.getYieldFromConstruction(YIELD_SCIENCE) * iEra;
 						iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 						iYield /= 100;
 						TechTypes eCurrentTech = GET_PLAYER(getOwner()).GetPlayerTechs()->GetCurrentResearch();
@@ -19735,8 +19802,6 @@ void CvCity::doGrowth()
 		}
 		else
 		{
-			changeFood(-(std::max(0, (growthThreshold() - getFoodKept()))));
-			changePopulation(1);
 #if defined(MOD_BALANCE_CORE)
 			float fDelay = 0.0f;
 			int iEra = GET_PLAYER(getOwner()).GetCurrentEra();
@@ -19749,7 +19814,7 @@ void CvCity::doGrowth()
 			
 			const ReligionTypes iReligion = GetCityReligions()->GetReligiousMajority();
 			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(iReligion, getOwner());
-			if(pReligion && (getPopulation() >= getHighestPopulation()))
+			if(pReligion && (getPopulation() == getHighestPopulation()))
 			{
 				if(pReligion->m_Beliefs.GetYieldPerBirth(YIELD_FOOD) > 0)
 				{
@@ -19930,7 +19995,7 @@ void CvCity::doGrowth()
 			}
 #endif
 #if defined(MOD_BALANCE_CORE_POLICIES)
-			if((getPopulation() >= getHighestPopulation()))
+			if((getPopulation() == getHighestPopulation()))
 			{
 				if(GET_PLAYER(getOwner()).getYieldFromBirth(YIELD_FOOD) > 0)
 				{
@@ -20110,6 +20175,73 @@ void CvCity::doGrowth()
 			}
 
 #endif
+#if defined(MOD_BALANCE_CORE_POLICIES)
+			if(getPopulation() == getHighestPopulation() && MOD_BALANCE_CORE_POLICIES && GET_PLAYER(getOwner()).GetBestRangedUnitSpawnSettle() > 0)
+			{
+				int iRemainder = ((getPopulation() + 1) % GET_PLAYER(getOwner()).GetBestRangedUnitSpawnSettle());
+				if(iRemainder == 0)
+				{
+					UnitTypes eType = GetCityStrategyAI()->GetUnitProductionAI()->RecommendUnit(UNITAI_RANGED, false /*Uses strategic resource*/, true, NULL);
+					if(eType != NO_UNIT)
+					{
+						int iResult = CreateUnit(eType, UNITAI_RANGED, false /*bUseToSatisfyOperation*/);
+
+						CvAssertMsg(iResult != FFreeList::INVALID_INDEX, "Unable to create unit");
+
+						if (iResult != FFreeList::INVALID_INDEX)
+						{
+							CvUnit* pUnit = GET_PLAYER(getOwner()).getUnit(iResult);
+							if (!pUnit->jumpToNearestValidPlot())
+							{
+								pUnit->kill(false);	// Could not find a valid spot!
+							}
+							pUnit->setMoves(1);	
+							CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
+							if(pUnit && pNotifications)
+							{
+								Localization::String localizedText = Localization::Lookup("TXT_KEY_NOTIFICATION_CONSCRIPTION_SPAWN");
+								localizedText << getNameKey() << getPopulation() << pUnit->getNameKey();
+								Localization::String localizedSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CONSCRIPTION_SPAWN_SUMMARY");
+								localizedSummary << getNameKey() << pUnit->getNameKey();
+								pNotifications->Add(NOTIFICATION_GREAT_PERSON_ACTIVE_PLAYER, localizedText.toUTF8(), localizedSummary.toUTF8(), pUnit->getX(), pUnit->getY(), eType);
+							}
+						}
+					}
+					else
+					{
+						UnitTypes eType = GetCityStrategyAI()->GetUnitProductionAI()->RecommendUnit(UNITAI_DEFENSE, false, true, NULL);
+						if(eType != NO_UNIT)
+						{
+							int iResult = CreateUnit(eType, UNITAI_DEFENSE, false /*bUseToSatisfyOperation*/);
+
+							CvAssertMsg(iResult != FFreeList::INVALID_INDEX, "Unable to create unit");
+
+							if (iResult != FFreeList::INVALID_INDEX)
+							{
+								CvUnit* pUnit = GET_PLAYER(getOwner()).getUnit(iResult);
+								if (!pUnit->jumpToNearestValidPlot())
+								{
+									pUnit->kill(false);	// Could not find a valid spot!
+								}
+								pUnit->setMoves(1);
+								CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
+								if(pUnit && pNotifications)
+								{
+									Localization::String localizedText = Localization::Lookup("TXT_KEY_NOTIFICATION_CONSCRIPTION_SPAWN");
+									localizedText << getNameKey() << getPopulation() << pUnit->getNameKey();
+									Localization::String localizedSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CONSCRIPTION_SPAWN_SUMMARY");
+									localizedSummary << getNameKey() << pUnit->getNameKey();
+									pNotifications->Add(NOTIFICATION_GREAT_PERSON_ACTIVE_PLAYER, localizedText.toUTF8(), localizedSummary.toUTF8(), pUnit->getX(), pUnit->getY(), eType);
+								}
+							}
+						}
+					}
+				}
+			}
+#endif
+			changeFood(-(std::max(0, (growthThreshold() - getFoodKept()))));
+			changePopulation(1);
+
 			// Only show notification if the city is small
 			if(getPopulation() <= 5)
 			{
@@ -20875,6 +21007,7 @@ void CvCity::read(FDataStream& kStream)
 #endif
 #if defined(MOD_BALANCE_CORE)
 	MOD_SERIALIZE_READ_AUTO(65, kStream, m_aiChangeYieldFromVictory, NUM_YIELD_TYPES, 0);
+	MOD_SERIALIZE_READ_AUTO(65, kStream, m_aiGoldenAgeYieldMod, NUM_YIELD_TYPES, 0);
 	MOD_SERIALIZE_READ(66, kStream, m_iUnhappyCitizen, 0);
 	MOD_SERIALIZE_READ(66, kStream, m_iPurchaseCooldown, 0);
 	MOD_SERIALIZE_READ(66, kStream, m_iReligiousTradeModifier, 0);
@@ -21304,6 +21437,7 @@ void CvCity::write(FDataStream& kStream) const
 #endif
 #if defined(MOD_BALANCE_CORE)
 	MOD_SERIALIZE_WRITE_AUTO(kStream, m_aiChangeYieldFromVictory);
+	MOD_SERIALIZE_WRITE_AUTO(kStream, m_aiGoldenAgeYieldMod);
 	MOD_SERIALIZE_WRITE(kStream, m_iUnhappyCitizen);
 	MOD_SERIALIZE_WRITE(kStream, m_iPurchaseCooldown);
 	MOD_SERIALIZE_WRITE(kStream, m_iReligiousTradeModifier);

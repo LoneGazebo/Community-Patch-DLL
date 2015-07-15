@@ -212,6 +212,30 @@
 			<Where ImprovementType="IMPROVEMENT_HOLY_SITE" YieldType="YIELD_FAITH" />
 			<Set Yield="3" />
 		</Update>
+		<Update>
+			<Where ImprovementType="IMPROVEMENT_CHATEAU" YieldType="YIELD_GOLD" />
+			<Set Yield="2" />
+		</Update>
+		<Row>
+			<ImprovementType>IMPROVEMENT_CHATEAU</ImprovementType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<ImprovementType>IMPROVEMENT_FEITORIA</ImprovementType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>3</Yield>
+		</Row>
+		<Row>
+			<ImprovementType>IMPROVEMENT_FEITORIA</ImprovementType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>3</Yield>
+		</Row>
+		<Row>
+			<ImprovementType>IMPROVEMENT_FEITORIA</ImprovementType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>3</Yield>
+		</Row>
 		<Row>
 			<ImprovementType>IMPROVEMENT_HOLY_SITE</ImprovementType>
 			<YieldType>YIELD_GOLD</YieldType>
@@ -288,7 +312,13 @@
 			<ImprovementType>IMPROVEMENT_MOAI</ImprovementType>
 			<TechType>TECH_ARCHITECTURE</TechType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>2</Yield>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<ImprovementType>IMPROVEMENT_MOAI</ImprovementType>
+			<TechType>TECH_ASTRONOMY</TechType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>1</Yield>
 		</Row>
 		<Row>
 			<ImprovementType>IMPROVEMENT_POLDER</ImprovementType>
@@ -301,6 +331,24 @@
 			<TechType>TECH_PRINTING_PRESS</TechType>
 			<YieldType>YIELD_CULTURE</YieldType>
 			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<ImprovementType>IMPROVEMENT_FEITORIA</ImprovementType>
+			<TechType>TECH_ASTRONOMY</TechType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>2</Yield>
+		</Row>
+		<Row>
+			<ImprovementType>IMPROVEMENT_FEITORIA</ImprovementType>
+			<TechType>TECH_PRINTING_PRESS</TechType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>2</Yield>
+		</Row>
+		<Row>
+			<ImprovementType>IMPROVEMENT_FEITORIA</ImprovementType>
+			<TechType>TECH_INDUSTRIALIZATION</TechType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>2</Yield>
 		</Row>
 		<Row>
 			<ImprovementType>IMPROVEMENT_CHATEAU</ImprovementType>

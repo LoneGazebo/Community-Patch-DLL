@@ -345,10 +345,6 @@ UPDATE Language_en_US
 SET Text = '+1 [ICON_PRODUCTION] Production from all Mines worked by this City. Allows [ICON_PRODUCTION] Production to be moved from this city along trade routes inside your civilization.'
 WHERE Tag = 'TXT_KEY_BUILDING_WORKSHOP_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
-UPDATE Language_en_US
-SET Text = '+1 [ICON_PRODUCTION] Production from all Mines and Forests worked by this City. Allows [ICON_PRODUCTION] Production to be moved from this city along trade routes inside your civilization.'
-WHERE Tag = 'TXT_KEY_BUILDING_LONGHOUSE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
-
 UPDATE Buildings
 SET PrereqTech = 'TECH_CIVIL_SERVICE'
 WHERE Type = 'BUILDING_WORKSHOP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
@@ -397,7 +393,7 @@ WHERE BuildingType = 'BUILDING_SEAPORT' AND EXISTS (SELECT * FROM COMMUNITY WHER
 
 -- Seaport	
 UPDATE Language_en_US
-SET Text = 'Requires 1 [ICON_RES_COAL] Coal. +1 [ICON_FOOD] Food and +1 [ICON_GOLD] GOld from all Ocean and Coastal tiles. +2 [ICON_PRODUCTION] Production and [ICON_GOLD] Gold from Sea Resources worked by this City.[NEWLINE][NEWLINE]City must be built on the coast.'
+SET Text = 'Requires 1 [ICON_RES_COAL] Coal. +1 [ICON_FOOD] Food and +1 [ICON_GOLD] Gold from all Ocean and Coastal tiles. +2 [ICON_PRODUCTION] Production and [ICON_GOLD] Gold from Sea Resources worked by this City.[NEWLINE][NEWLINE]City must be built on the coast.'
 WHERE Tag = 'TXT_KEY_BUILDING_SEAPORT_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Building_YieldChanges

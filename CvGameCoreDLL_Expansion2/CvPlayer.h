@@ -1401,6 +1401,8 @@ public:
 	int getReligionYieldRateModifier(YieldTypes eIndex)	const;
 	void changeReligionYieldRateModifier(YieldTypes eIndex, int iChange);
 
+	int getGoldenAgeYieldMod(YieldTypes eIndex)	const;
+	void changeGoldenAgeYieldMod(YieldTypes eIndex, int iChange);
 
 	int GetGarrisonsOccupiedUnhapppinessMod() const;
 	void changeGarrisonsOccupiedUnhapppinessMod(int iChange);
@@ -1454,6 +1456,12 @@ public:
 
 	int GetFreeSpy() const;
 	void changeFreeSpy(int iChange);
+
+	int GetReligionDistance() const;
+	void changeReligionDistance(int iChange);
+
+	int GetPressureMod() const;
+	void changePressureMod(int iChange);
 
 	int getBuildingClassCultureChange(BuildingClassTypes eIndex) const;
 	void changeBuildingClassCultureChange(BuildingClassTypes eIndex, int iChange);
@@ -1551,11 +1559,13 @@ public:
 	int getNumResourceTotal(ResourceTypes eIndex, bool bIncludeImport = true) const;
 	void changeNumResourceTotal(ResourceTypes eIndex, int iChange, bool bIgnoreResourceWarning = false);
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
-	bool HasMonopoly(ResourceTypes eResource) const;
-	void SetHasMonopoly(ResourceTypes eResource, bool bNewValue);
+	bool HasLuxuryMonopoly(ResourceTypes eResource) const;
+	void SetHasLuxuryMonopoly(ResourceTypes eResource, bool bNewValue);
 	bool HasStrategicMonopoly(ResourceTypes eResource) const;
 	void SetHasStrategicMonopoly(ResourceTypes eResource, bool bNewValue);
-	void TestHasMonopoly(ResourceTypes eResource);
+	void CheckForMonopoly(ResourceTypes eResource);
+	const std::vector<ResourceTypes>& GetStrategicMonopolies() const { return m_vMonopolizedStrategicResources; }
+	const std::vector<ResourceTypes>& GetLuxuryMonopolies() const { return m_vMonopolizedLuxuryResources; }
 #endif
 
 	int getSiphonLuxuryCount(PlayerTypes eFromPlayer) const;
@@ -2381,6 +2391,8 @@ protected:
 	FAutoVariable<int, CvPlayer> m_iInfluenceGPExpend;
 	FAutoVariable<int, CvPlayer> m_iFreeTradeRoute;
 	FAutoVariable<int, CvPlayer> m_iFreeSpy;
+	FAutoVariable<int, CvPlayer> m_iReligionDistance;
+	FAutoVariable<int, CvPlayer> m_iPressureMod;
 	FAutoVariable<int, CvPlayer> m_iTradeReligionModifier;
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
@@ -2570,6 +2582,7 @@ protected:
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiYieldGPExpend;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiConquerorYield;
 	FAutoVariable<std::vector<int>, CvPlayer> m_aiReligionYieldRateModifier;
+	FAutoVariable<std::vector<int>, CvPlayer> m_aiGoldenAgeYieldMod;
 	FAutoVariable<std::vector<int>, CvPlayer> m_paiBuildingClassCulture;
 #endif
 
@@ -2623,8 +2636,10 @@ protected:
 	FAutoVariable<std::vector<bool>, CvPlayer> m_pabLoyalMember;
 
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
-	FAutoVariable<std::vector<bool>, CvPlayer> m_pabHasMonopoly;
+	FAutoVariable<std::vector<bool>, CvPlayer> m_pabHasLuxuryMonopoly;
 	FAutoVariable<std::vector<bool>, CvPlayer> m_pabHasStrategicMonopoly;
+	std::vector<ResourceTypes> m_vMonopolizedLuxuryResources;
+	std::vector<ResourceTypes> m_vMonopolizedStrategicResources;
 #endif
 
 	FAutoVariable<std::vector<bool>, CvPlayer> m_pabGetsScienceFromPlayer;

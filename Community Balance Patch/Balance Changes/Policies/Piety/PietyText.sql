@@ -1,24 +1,24 @@
 -- Piety Opener
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Piety[ENDCOLOR] capitalizes on your investment in religion and trade.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting Piety grants:[ENDCOLOR] [NEWLINE] [ICON_BULLET] +5 [ICON_PEACE] Faith in your [ICON_CAPITAL] Capital. [NEWLINE] [ICON_BULLET] -5% [ICON_PEACE] Faith needed for purchases. [NEWLINE] [ICON_BULLET] Unlocks building the [COLOR_CYAN]University of Sankore[ENDCOLOR].[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Each Piety policy unlocked grants:[ENDCOLOR] [NEWLINE] [ICON_BULLET] -4% [ICON_PEACE] Faith needed for purchases.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting all Policies in Piety grants:[ENDCOLOR] [NEWLINE] [ICON_BULLET] Holy Sites produce +2 [ICON_GOLD] Gold and +2 [ICON_CULTURE] Culture. [NEWLINE] [ICON_BULLET] Religious National Wonders grant +4 [ICON_HAPPINESS_1] Happiness. [NEWLINE] [ICON_BULLET] Grants access to Renaissance Era Policy Branches, ignoring Era requirement.[NEWLINE] [ICON_BULLET] Provides [COLOR_CYAN]1[ENDCOLOR] point (of [COLOR_CYAN]4[ENDCOLOR] required in total) towards unlocking access to Ideologies.[NEWLINE] [ICON_BULLET] Allows for the purchase of [ICON_GREAT_ARTIST] Great Artists with [ICON_PEACE] Faith starting in the Industrial Era.'
+SET Text = '[COLOR_POSITIVE_TEXT]Piety[ENDCOLOR] capitalizes on your investment in religion and trade.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting Piety grants:[ENDCOLOR] [NEWLINE] [ICON_BULLET] +3 [ICON_PEACE] Faith in [ICON_CAPITAL] Capital.[NEWLINE] [ICON_BULLET] +15% Religious Pressure in nearby Cities not following your [ICON_RELIGION] Majority Religion. [NEWLINE] [ICON_BULLET] Unlocks building the [COLOR_CYAN]University of Sankore[ENDCOLOR].[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Each Piety policy unlocked grants:[ENDCOLOR] [NEWLINE] [ICON_BULLET] +5% to Religious Pressure modifier.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting all Policies in Piety grants:[ENDCOLOR] [NEWLINE] [ICON_BULLET] Holy Sites produce +4 [ICON_GOLD] Gold and +4 [ICON_FOOD] Food. [NEWLINE] [ICON_BULLET] Cities that follow your [ICON_RELIGION] Majority Religion generate +1 of every Yield.[NEWLINE] [ICON_BULLET] Grants access to Renaissance Era Policy Branches, ignoring Era requirement.[NEWLINE] [ICON_BULLET] Provides [COLOR_CYAN]1[ENDCOLOR] point (of [COLOR_CYAN]4[ENDCOLOR] required in total) towards unlocking access to Ideologies.[NEWLINE] [ICON_BULLET] Allows for the purchase of [ICON_GREAT_ARTIST] Great Artists with [ICON_PEACE] Faith starting in the Industrial Era.'
 WHERE Tag = 'TXT_KEY_POLICY_BRANCH_PIETY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 -- Organized Religion
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Organized Religion[ENDCOLOR][NEWLINE] Temples and Shrines grant +1 [ICON_PEACE] Faith and +1 [ICON_CULTURE] Culture to the City where they are built. Temples and Shrines are constructed 50% more quickly.'
+SET Text = '[COLOR_POSITIVE_TEXT]Organized Religion[ENDCOLOR][NEWLINE] -25% [ICON_PEACE] Faith purchase costs. Religions spread to owned Cities without a Majority Religion from 25% further away (applies only to your own Religion if you have one).'
 WHERE Tag = 'TXT_KEY_POLICY_ORGANIZED_RELIGION_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
--- Mandate of Heaven (Now Trade Fairs)
+-- Mandate of Heaven (Now Syncretism)
 UPDATE Language_en_US
-SET Text = 'Trade Fairs'
+SET Text = 'Syncretism'
 WHERE Tag = 'TXT_KEY_POLICY_MANDATE_OF_HEAVEN' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Trade Fairs[ENDCOLOR][NEWLINE]+2 [ICON_GOLD] Gold from Temples and +2 [ICON_GOLD] Gold from Markets in Cities that follow your majority [ICON_RELIGION] Religion. Your majority Religion spreads 50% more quickly over [ICON_INTERNATIONAL_TRADE] Trade Routes.'
+SET Text = '[COLOR_POSITIVE_TEXT]Syncretism[ENDCOLOR][NEWLINE] +2 [ICON_RESEARCH] Science and +2 [ICON_GOLD] Gold from Markets, Caravansaries, and Harbors in Cities that follow your Religion. Your Religion spreads 50% more quickly over [ICON_INTERNATIONAL_TRADE] Trade Routes.'
 WHERE Tag = 'TXT_KEY_POLICY_MANDATE_OF_HEAVEN_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Market town or market right is a legal term, originating in the medieval period, for a European settlement that has the right to host markets, or trade faires, thus distinguishing it from a village and city. A town may be correctly described as a "market town" or as having "market rights", even if it no longer holds a market, provided the legal right to do so still exists.'
+SET Text = 'Syncretism is the combining of different, often contradictory beliefs, while blending practices of various schools of thought. Syncretism involves the merger and analogizing of several originally discrete traditions, especially in the theology and mythology of religion, thus asserting an underlying unity and allowing for an inclusive approach to other faiths.'
 WHERE Tag = 'TXT_KEY_POLICY_MANDATEOFHEAVEN_TEXT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 -- Theocracy (Now Divine Right)
@@ -27,7 +27,7 @@ SET Text = 'Divine Right'
 WHERE Tag = 'TXT_KEY_POLICY_THEOCRACY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Divine Right[ENDCOLOR][NEWLINE] Cities that follow your majority [ICON_RELIGION] Religion generate +2 [ICON_PRODUCTION] Production and +2 [ICON_PEACE] Faith. Border growth is doubled during [ICON_GOLDEN_AGE] Golden Ages.'
+SET Text = '[COLOR_POSITIVE_TEXT]Divine Right[ENDCOLOR][NEWLINE]Border growth is doubled in Cities during [ICON_GOLDEN_AGE] Golden Ages and ''We Love the King'' Day. Religious National Wonders grant +4 [ICON_HAPPINESS_1] Happiness.'
 WHERE Tag = 'TXT_KEY_POLICY_THEOCRACY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US

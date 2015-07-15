@@ -353,6 +353,9 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	int GetYieldFromVictory(int i) const;
 	int* GetYieldFromVictoryArray() const;
+
+	int GetGoldenAgeYieldMod(int i) const;
+	int* GetGoldenAgeYieldModArray() const;
 #endif
 	int GetYieldChange(int i) const;
 	int* GetYieldChangeArray() const;
@@ -717,6 +720,7 @@ private:
 #endif
 #if defined(MOD_BALANCE_CORE)
 	int* m_piYieldFromVictory;
+	int* m_piGoldenAgeYieldMod;
 #endif
 	int* m_piYieldChange;
 	int* m_piYieldChangePerPop;
@@ -924,6 +928,10 @@ public:
 	void IncrementWonderStats(BuildingClassTypes eIndex);
 	bool CheckForAllWondersBuilt();
 	bool CheckForSevenAncientWondersBuilt();
+
+#if defined(MOD_BALANCE_CORE)
+	const std::vector<BuildingTypes>& GetAllBuildings() const { return m_buildingsThatExistAtLeastOnce; }
+#endif
 
 private:
 	void NotifyNewBuildingStarted(BuildingTypes eIndex);

@@ -1387,7 +1387,7 @@ int CvLuaPlayer::lGetResourceMonopolyPlayer(lua_State* L)
 			PlayerTypes ePlayerLoop = (PlayerTypes) iPlayerLoop;
 			if(GET_TEAM(GET_PLAYER(ePlayerLoop).getTeam()).isHasMet(pkPlayer->getTeam()) && (GET_PLAYER(ePlayerLoop).GetID() != pkPlayer->GetID()))
 			{
-				if(GET_PLAYER(ePlayerLoop).HasMonopoly(eResource))
+				if(GET_PLAYER(ePlayerLoop).HasLuxuryMonopoly(eResource))
 				{
 					ePlayer = ePlayerLoop;
 					break;
@@ -11055,6 +11055,27 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 
 			aOpinions.push_back(kOpinion);
 		}
+		// Aggressive Posture
+		iValue = pDiploAI->GetMilitaryAggressivePosture(eWithPlayer) * 3;
+		if (iValue > 0)
+		{
+			Opinion kOpinion;
+			kOpinion.m_iValue = iValue;
+			CvString str;
+			
+			if (pDiploAI->GetMilitaryAggressivePosture(eWithPlayer) <= AGGRESSIVE_POSTURE_MEDIUM)
+			{
+				str = Localization::Lookup("TXT_KEY_DIPLO_AGGRESSIVE_POSTURE_MEDIUM").toUTF8();
+			}
+			else if (pDiploAI->GetMilitaryAggressivePosture(eWithPlayer) >= AGGRESSIVE_POSTURE_HIGH)
+			{
+				str = Localization::Lookup("TXT_KEY_DIPLO_AGGRESSIVE_POSTURE_HIGH").toUTF8();
+			}
+
+			kOpinion.m_str = str;
+
+			aOpinions.push_back(kOpinion);
+		}
 #endif
 		// warmonger dispute
 		iValue = pDiploAI->GetWarmongerThreatScore(eWithPlayer);
@@ -12023,8 +12044,9 @@ int CvLuaPlayer::lGetRandomIntrigue(lua_State* L)
 	CvPlayerAI* pkThisPlayer = GetInstance(L);
 	CvPlayerEspionage* pkPlayerEspionage = pkThisPlayer->GetEspionage();
 	CvCity* pkCity = CvLuaCity::GetInstance(L, 2);
+	int iSpyIndex = lua_tointeger(L, 3);
 	
-	pkPlayerEspionage->GetRandomIntrigue(pkCity);
+	pkPlayerEspionage->GetRandomIntrigue(pkCity, iSpyIndex);
 	return 0;
 }
 #endif
@@ -12795,5 +12817,20 @@ LUAAPIIMPL(Player, HasAnyHolyCity)
 LUAAPIIMPL(Player, HasHolyCity)
 LUAAPIIMPL(Player, HasCapturedHolyCity)
 LUAAPIIMPL(Player, HasEmbassyWith)
-LUAAPIIMPL(Player, DoForceDefPact)
+
+//------------------------------------------------------------------------------
+//void DoForceDefPact(int iOtherPlayer);
+int CvLuaPlayer::lDoForceDefPact(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	PlayerTypes eOtherPlayer = (PlayerTypes) lua_tointeger(L, 2);
+	if(eOtherPlayer != NO_PLAYER)
+	{
+		CvTeam& pOtherTeam = GET_TEAM(GET_PLAYER(eOtherPlayer).getTeam());
+
+		GET_TEAM(pkPlayer->getTeam()).SetHasDefensivePact(pOtherTeam.GetID(), true);
+		pOtherTeam.SetHasDefensivePact(pkPlayer->getTeam(), true);
+	}
+	return 1;
+}
 #endif

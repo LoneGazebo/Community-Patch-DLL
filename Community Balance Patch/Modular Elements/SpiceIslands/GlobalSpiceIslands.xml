@@ -3,15 +3,15 @@
 	<Resources>
 		<Update>
 			<Where Type="RESOURCE_NUTMEG"/>
-			<Set Flatlands="true" MaxLatitude="90" ArtDefineTag="ART_DEF_RESOURCE_NUTMEG"/>
+			<Set Flatlands="true" MaxLatitude="90" ArtDefineTag="ART_DEF_RESOURCE_NUTMEG" TechCityTrade="TECH_CALENDAR"/>
 		</Update>
 		<Update>
 			<Where Type="RESOURCE_CLOVES"/>
-			<Set Flatlands="true" MaxLatitude="90" ArtDefineTag="ART_DEF_RESOURCE_CLOVES"/>
+			<Set Flatlands="true" MaxLatitude="90" ArtDefineTag="ART_DEF_RESOURCE_CLOVES" TechCityTrade="TECH_CALENDAR"/>
 		</Update>
 		<Update>
 			<Where Type="RESOURCE_PEPPER"/>
-			<Set Flatlands="true" MaxLatitude="90" ArtDefineTag="ART_DEF_RESOURCE_PEPPER"/>
+			<Set Flatlands="true" MaxLatitude="90" ArtDefineTag="ART_DEF_RESOURCE_PEPPER" TechCityTrade="TECH_CALENDAR"/>
 		</Update>
 	</Resources>
 

@@ -96,6 +96,9 @@ public:
 	void ClearAllCityTradeRoutes (CvPlot* pPlot); // called when a city is captured or traded
 	void ClearAllCivTradeRoutes (PlayerTypes ePlayer); // called from world congress code
 	void ClearAllCityStateTradeRoutes (void); // called from world congress code
+#if defined(MOD_BALANCE_CORE)
+	void ClearAllCityStateTradeRoutesSpecial(void); // called from world congress code
+#endif
 	void CancelTradeBetweenTeams (TeamTypes eTeam1, TeamTypes eTeam2);
 
 	void DoAutoWarPlundering(TeamTypes eTeam1, TeamTypes eTeam2); // when war is declared, both sides plunder each others trade routes for cash!

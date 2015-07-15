@@ -392,6 +392,34 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 	{
 		return;
 	}
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	if(MOD_DIPLOMACY_CIV4_FEATURES)
+	{
+		if(GET_TEAM(pPlayer->getTeam()).IsVassalOfSomeone())
+		{
+			TeamTypes eMasterTeam = GET_TEAM(pPlayer->getTeam()).GetMaster();
+			if(eMasterTeam != NO_TEAM)
+			{
+				// Loop through all players to see if they're on our team
+				for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+				{
+					PlayerTypes eMaster = (PlayerTypes) iPlayerLoop;
+
+					// Assumes one player per team for master
+					if(GET_PLAYER(eMaster).getTeam() == GET_TEAM(eMasterTeam).GetID())
+					{
+						if(GET_PLAYER(eMaster).GetPlayerPolicies()->GetLateGamePolicyTree() != NO_POLICY_BRANCH_TYPE)
+						{
+							pPlayer->GetPlayerPolicies()->SetPolicyBranchUnlocked(GET_PLAYER(eMaster).GetPlayerPolicies()->GetLateGamePolicyTree(), true, false);
+							LogBranchChoice(GET_PLAYER(eMaster).GetPlayerPolicies()->GetLateGamePolicyTree());
+							return;
+						}
+					}
+				}
+			}
+		}
+	}
+#endif
 
 	// First consideration is our victory type
 	int iConquestPriority = max(0, pPlayer->GetGrandStrategyAI()->GetConquestPriority());
@@ -690,7 +718,38 @@ void CvPolicyAI::DoConsiderIdeologySwitch(CvPlayer* pPlayer)
 #if !defined(NO_ACHIEVEMENTS)
 	PlayerTypes eMostPressure = pPlayer->GetCulture()->GetPublicOpinionBiggestInfluence();
 #endif
-	
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	if(MOD_DIPLOMACY_CIV4_FEATURES)
+	{
+		if(GET_TEAM(pPlayer->getTeam()).IsVassalOfSomeone() && pPlayer->GetPlayerPolicies()->GetLateGamePolicyTree() != NO_POLICY_BRANCH_TYPE)
+		{
+			TeamTypes eMasterTeam = GET_TEAM(pPlayer->getTeam()).GetMaster();
+			if(eMasterTeam != NO_TEAM)
+			{
+				// Loop through all players to see if they're on our team
+				for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+				{
+					PlayerTypes eMaster = (PlayerTypes) iPlayerLoop;
+
+					// Assumes one player per team for master
+					if(GET_PLAYER(eMaster).getTeam() == GET_TEAM(eMasterTeam).GetID())
+					{
+						if(GET_PLAYER(eMaster).GetPlayerPolicies()->GetLateGamePolicyTree() != NO_POLICY_BRANCH_TYPE && GET_PLAYER(eMaster).GetPlayerPolicies()->GetLateGamePolicyTree() != pPlayer->GetPlayerPolicies()->GetLateGamePolicyTree())
+						{
+							// Cleared all obstacles -- REVOLUTION!
+							pPlayer->SetAnarchyNumTurns(GC.getSWITCH_POLICY_BRANCHES_ANARCHY_TURNS());
+							pPlayer->GetPlayerPolicies()->DoSwitchIdeologies(GET_PLAYER(eMaster).GetPlayerPolicies()->GetLateGamePolicyTree());	
+							Localization::String strSummary = Localization::Lookup("TXT_KEY_ANARCHY_BEGINS_SUMMARY");
+							Localization::String strMessage = Localization::Lookup("TXT_KEY_ANARCHY_BEGINS");
+							pPlayer->GetNotifications()->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), pPlayer->GetID(), GC.getSWITCH_POLICY_BRANCHES_ANARCHY_TURNS(), -1);
+							return;
+						}
+					}
+				}
+			}
+		}
+	}
+#endif	
 	// Possible enough that we need to look at this in detail?
 	if (iCurrentHappiness <= GC.getSUPER_UNHAPPY_THRESHOLD() && iPublicOpinionUnhappiness >= 10)
 	{

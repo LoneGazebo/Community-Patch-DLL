@@ -1228,6 +1228,10 @@ void CvTacticalAnalysisMap::PrioritizeZones()
 /// Log dominance zone data
 void CvTacticalAnalysisMap::LogZones()
 {
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	Dump();
+#endif
+
 	if(GC.getLogging() && GC.getAILogging())
 	{
 		CvString szLogMsg;

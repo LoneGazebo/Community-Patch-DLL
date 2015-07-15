@@ -221,7 +221,7 @@ ALTER TABLE Traits ADD COLUMN 'ExtraConqueredCityTerritoryClaimRange' INTEGER DE
 -- New Traits - Extra Terrain When Conquering a City
 ALTER TABLE Traits ADD COLUMN 'KeepConqueredBuildings' BOOLEAN DEFAULT 0;
 
--- New Traits - Extra Terrain Yields IF you have a trade route or city connection crossing tile
+-- New Traits - Extra Terrain Yields IF you have a trade route or city connection crossing tile - this scales with era (making this false causes terrain yields not to be scaled)
 ALTER TABLE Traits ADD COLUMN 'TradeRouteOnly' BOOLEAN DEFAULT 0;
 
 -- New Traits - Extra Terrain when you gain a tile naturally - must be the ID # of the TERRAIN_TYPE (i.e. TERRAIN_DESERT is 2)
@@ -282,6 +282,12 @@ ALTER TABLE Policies ADD COLUMN 'UnlocksPolicyBranchEra' TEXT DEFAULT NULL;
 
 -- Points towards ideologies
 ALTER TABLE Policies ADD COLUMN 'IdeologyPoint' INTEGER DEFAULT 0;
+
+-- Religious Distance Modifier (affects spread to owned cities based on distance)
+ALTER TABLE Policies ADD COLUMN 'ReligionDistance' INTEGER DEFAULT 0;
+
+-- Religious Pressure Modifier (affects cities without a majority religion)
+ALTER TABLE Policies ADD COLUMN 'PressureMod' INTEGER DEFAULT 0;
 
 -- New Beliefs
 
@@ -376,6 +382,8 @@ ALTER TABLE Technologies ADD COLUMN 'CityNoEmbarkCost' BOOLEAN;
 ALTER TABLE UnitPromotions ADD 'ReconChange' INTEGER DEFAULT 0;
 
 ALTER TABLE UnitPromotions ADD 'GainsXPFromScouting' BOOLEAN DEFAULT 0;
+
+ALTER TABLE UnitPromotions ADD 'PromotionDuration' INTEGER DEFAULT 0;
 
 -- Promotion restricted to tile. Lost if unit leaves it. Only used in conjuction with free promotions from features and terrains (see above)
 

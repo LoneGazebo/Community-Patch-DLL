@@ -304,7 +304,7 @@ void CvTeam::reset(TeamTypes eID, bool bConstructorCall)
 		int numTechInfos = GC.getNumTechInfos();
 #endif
 
-#if defined(AUI_ASTAR_ROAD_RANGE)
+#if defined(MOD_BALANCE_CORE)
 		m_iBestRouteFlatCostMultiplier = 1;
 		m_iBestRouteNormalCostMultiplier = 1;
 		m_iUseFlatCostIfBelowThis = -1;
@@ -1133,6 +1133,10 @@ bool CvTeam::canDeclareWar(TeamTypes eTeam) const
 	else if (MOD_EVENTS_WAR_AND_PEACE & (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_IsAbleToDeclareWar, eOriginatingPlayer, eTeam) == GAMEEVENTRETURN_FALSE))
 		bResult = false;
 	else if (MOD_EVENTS_WAR_AND_PEACE & (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_PlayerCanDeclareWar, eOriginatingPlayer, eTeam) == GAMEEVENTRETURN_FALSE))
+		bResult = false;
+#endif
+#if defined(MOD_DIPLOMACY_CIV4_FEATURES)
+	else if (MOD_DIPLOMACY_CIV4_FEATURES && (IsVassalOfSomeone() || GET_TEAM(eTeam).IsVassalOfSomeone()))
 		bResult = false;
 #endif
 	else
@@ -3868,7 +3872,11 @@ bool CvTeam::isHasMet(TeamTypes eIndex)	const
 
 
 //	--------------------------------------------------------------------------------
+#ifdef AUI_GAME_OBSERVER_MEET_ALL_TEAMS
+void CvTeam::makeHasMet(TeamTypes eIndex, bool bSuppressMessages, bool bForObserver)
+#else
 void CvTeam::makeHasMet(TeamTypes eIndex, bool bSuppressMessages)
+#endif
 {
 	int iI;
 
@@ -3882,6 +3890,19 @@ void CvTeam::makeHasMet(TeamTypes eIndex, bool bSuppressMessages)
 		SetTurnTeamMet(eIndex, GC.getGame().getGameTurn());
 
 		updateTechShare();
+
+#ifdef AUI_GAME_OBSERVER_MEET_ALL_TEAMS
+		if (bForObserver)
+		{
+			if ((GetID() == GC.getGame().getActiveTeam()) || (eIndex == GC.getGame().getActiveTeam()))
+			{
+				DLLUI->setDirty(Score_DIRTY_BIT, true);
+			}
+			// Report event
+			gDLL->GameplayMetTeam(GetID(), eIndex);
+			return;
+		}
+#endif
 
 		if(GC.getGame().isOption(GAMEOPTION_ALWAYS_WAR))
 		{
@@ -4784,22 +4805,19 @@ void CvTeam::DoUpdateBestRoute()
 		}
 	}
 
-#ifdef AUI_ASTAR_ROAD_RANGE
+#if defined(MOD_BALANCE_CORE)
 	if(eBestRoute > NO_ROUTE)
 	{
 		SetBestPossibleRoute(eBestRoute);
 		CvRouteInfo* pRouteInfo = GC.getRouteInfo(eBestRoute);
 		if (pRouteInfo)
 		{
-#if defined(MOD_BALANCE_CORE)
 			if((pRouteInfo->getMovementCost() + getRouteChange(eBestRoute) != 0) && (pRouteInfo->getFlatMovementCost() != 0))
 			{
-#endif
-			m_iBestRouteNormalCostMultiplier = GC.getMOVE_DENOMINATOR() / (pRouteInfo->getMovementCost() + getRouteChange(eBestRoute));
-			m_iBestRouteFlatCostMultiplier = GC.getMOVE_DENOMINATOR() / pRouteInfo->getFlatMovementCost();
-			// Extra pRouteInfo->getFlatMovementCost() - 1 is to make sure value is always rounded up
-			m_iUseFlatCostIfBelowThis = (pRouteInfo->getMovementCost() + getRouteChange(eBestRoute) + pRouteInfo->getFlatMovementCost() - 1) / pRouteInfo->getFlatMovementCost();
-#if defined(MOD_BALANCE_CORE)
+				m_iBestRouteNormalCostMultiplier = GC.getMOVE_DENOMINATOR() / (pRouteInfo->getMovementCost() + getRouteChange(eBestRoute));
+				m_iBestRouteFlatCostMultiplier = GC.getMOVE_DENOMINATOR() / pRouteInfo->getFlatMovementCost();
+				// Extra pRouteInfo->getFlatMovementCost() - 1 is to make sure value is always rounded up
+				m_iUseFlatCostIfBelowThis = (pRouteInfo->getMovementCost() + getRouteChange(eBestRoute) + pRouteInfo->getFlatMovementCost() - 1) / pRouteInfo->getFlatMovementCost();
 			}
 			else
 			{
@@ -4807,7 +4825,6 @@ void CvTeam::DoUpdateBestRoute()
 				m_iBestRouteFlatCostMultiplier = 0;
 				m_iUseFlatCostIfBelowThis = -1;
 			}
-#endif
 		}
 		else
 		{
@@ -4824,8 +4841,8 @@ void CvTeam::DoUpdateBestRoute()
 #endif
 }
 
-#ifdef AUI_ASTAR_ROAD_RANGE
-int CvTeam::GetBestRoadMovementMultiplier(const CvUnit* pUnit) const
+#if defined(MOD_BALANCE_CORE)
+int CvTeam::GetCurrentBestMovementMultiplier(const CvUnit* pUnit) const
 {
 	int iRtnValue = m_iBestRouteNormalCostMultiplier;
 	if (pUnit)
@@ -7482,18 +7499,77 @@ void CvTeam::processTech(TechTypes eTech, int iChange)
 			}
 #endif
 #if defined(MOD_BALANCE_CORE_POLICIES)
+			int iEra = kPlayer.GetCurrentEra();
+			float fDelay = 0.0f;
+			if(iEra < 1)
+			{
+				iEra = 1;
+			}
 			if(kPlayer.getYieldFromTech(YIELD_CULTURE) > 0)
 			{
-				kPlayer.changeJONSCulture(kPlayer.getYieldFromTech(YIELD_CULTURE));
+				int iYield = kPlayer.getYieldFromTech(YIELD_CULTURE) * iEra;
+				iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+				iYield /= 100;
+				kPlayer.changeJONSCulture(iYield);
 				if(kPlayer.getCapitalCity() != NULL)
 				{
-					kPlayer.getCapitalCity()->ChangeJONSCultureStored(kPlayer.getYieldFromTech(YIELD_CULTURE));
+					kPlayer.getCapitalCity()->ChangeJONSCultureStored(iYield);
 				}
 				if(kPlayer.GetID() == GC.getGame().getActivePlayer())
 				{
 					char text[256] = {0};
-					float fDelay = 0.0f;
-					sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", kPlayer.getYieldFromTech(YIELD_CULTURE));
+					fDelay += 0.5f;
+					sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", iYield);
+					DLLUI->AddPopupText(kPlayer.getCapitalCity()->getX(),kPlayer.getCapitalCity()->getY(), text, fDelay);
+				}
+			}
+			if(kPlayer.getYieldFromTech(YIELD_GOLD) > 0)
+			{
+				int iYield = kPlayer.getYieldFromTech(YIELD_GOLD) * iEra;
+				iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+				iYield /= 100;
+				kPlayer.GetTreasury()->ChangeGold(iYield);
+				if(kPlayer.GetID() == GC.getGame().getActivePlayer())
+				{
+					char text[256] = {0};
+					fDelay += 0.5f;
+					sprintf_s(text, "[COLOR_YELLOW]+%d[ENDCOLOR][ICON_GOLD]", iYield);
+					DLLUI->AddPopupText(kPlayer.getCapitalCity()->getX(),kPlayer.getCapitalCity()->getY(), text, fDelay);
+				}
+			}
+			if(kPlayer.getYieldFromTech(YIELD_FAITH) > 0)
+			{
+				int iYield = kPlayer.getYieldFromTech(YIELD_FAITH) * iEra;
+				iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+				iYield /= 100;
+				kPlayer.ChangeFaith(iYield);
+				if(kPlayer.GetID() == GC.getGame().getActivePlayer())
+				{
+					char text[256] = {0};
+					fDelay += 0.5f;
+					sprintf_s(text, "[COLOR_WHITE]+%d[ENDCOLOR][ICON_PEACE]", iYield);
+					DLLUI->AddPopupText(kPlayer.getCapitalCity()->getX(),kPlayer.getCapitalCity()->getY(), text, fDelay);
+				}
+			}
+			if(kPlayer.getYieldFromTech(YIELD_SCIENCE) > 0)
+			{
+				int iYield = kPlayer.getYieldFromTech(YIELD_SCIENCE) * iEra;
+				iYield *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+				iYield /= 100;
+				TechTypes eCurrentTech = kPlayer.GetPlayerTechs()->GetCurrentResearch();
+				if(eCurrentTech == NO_TECH)
+				{
+					kPlayer.changeOverflowResearch(iYield);
+				}
+				else
+				{
+					GET_TEAM(kPlayer.getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iYield, kPlayer.GetID());
+				}
+				if(kPlayer.GetID() == GC.getGame().getActivePlayer())
+				{
+					char text[256] = {0};
+					fDelay += 0.5f;
+					sprintf_s(text, "[COLOR_BLUE]+%d[ENDCOLOR][ICON_RESEARCH]", iYield);
 					DLLUI->AddPopupText(kPlayer.getCapitalCity()->getX(),kPlayer.getCapitalCity()->getY(), text, fDelay);
 				}
 			}
@@ -8096,23 +8172,37 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 		}
 		
 #if defined(MOD_BALANCE_CORE_DIFFICULTY)
-		if(MOD_BALANCE_CORE_DIFFICULTY && !isMinorCiv() && (GC.getBALANCE_GAME_DIFFICULTY_MULTIPLIER() > 0))
+		if(MOD_BALANCE_CORE_DIFFICULTY && !isMinorCiv())
 		{
 			CvCity* pLoopCity;
 			int iLoop;
+			int iHandicap = 1;
+			CvHandicapInfo* pHandicapInfo = GC.getHandicapInfo(GC.getGame().getHandicapType());
+			if(pHandicapInfo)
+			{
+				iHandicap = pHandicapInfo->getAIPerEraModifier();
+				if(iHandicap < 0)
+				{
+					iHandicap *= -1;
+				}
+				if(iHandicap == 0)
+				{
+					iHandicap = 1;
+				}
+			}
 
 			PlayerTypes ePlayer;
 			for(int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 			{
 				ePlayer = (PlayerTypes) iPlayerLoop;
 				CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
-				if(!kPlayer.isHuman() && !kPlayer.isMinorCiv() && !kPlayer.isBarbarian() && kPlayer.isAlive() && kPlayer.getTeam() == GetID())
+				if(ePlayer != NO_PLAYER && !kPlayer.isHuman() && !kPlayer.isMinorCiv() && !kPlayer.isBarbarian() && kPlayer.isAlive() && kPlayer.getTeam() == GetID())
 				{
-					kPlayer.GetTreasury()->ChangeGold((GC.getBALANCE_GAME_DIFFICULTY_MULTIPLIER() + kPlayer.GetCurrentEra()) * 150);
-					kPlayer.ChangeGoldenAgeProgressMeter((GC.getBALANCE_GAME_DIFFICULTY_MULTIPLIER() + kPlayer.GetCurrentEra()) * 150);
-					kPlayer.changeJONSCulture((GC.getBALANCE_GAME_DIFFICULTY_MULTIPLIER() + kPlayer.GetCurrentEra()) * 75);
+					kPlayer.GetTreasury()->ChangeGold((iHandicap + kPlayer.GetCurrentEra()) * 20);
+					kPlayer.ChangeGoldenAgeProgressMeter((iHandicap + kPlayer.GetCurrentEra()) * 20);
+					kPlayer.changeJONSCulture((iHandicap + kPlayer.GetCurrentEra()) * 10);
 
-					int iBeakersBonus = kPlayer.GetScienceYieldFromPreviousTurns(GC.getGame().getGameTurn(), (GC.getBALANCE_GAME_DIFFICULTY_MULTIPLIER() + kPlayer.GetCurrentEra() + 10));
+					int iBeakersBonus = kPlayer.GetScienceYieldFromPreviousTurns(GC.getGame().getGameTurn(), (iHandicap + kPlayer.GetCurrentEra()));
 						
 					if(iBeakersBonus > 0)
 					{
@@ -8130,8 +8220,8 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 					{
 						if(pLoopCity != NULL)
 						{
-							pLoopCity->changeProduction((GC.getBALANCE_GAME_DIFFICULTY_MULTIPLIER() + kPlayer.GetCurrentEra()) * 50);
-							pLoopCity->changeFood((GC.getBALANCE_GAME_DIFFICULTY_MULTIPLIER() + kPlayer.GetCurrentEra()) * 25);
+							pLoopCity->changeProduction((iHandicap + kPlayer.GetCurrentEra()) * 10);
+							pLoopCity->changeFood((iHandicap + kPlayer.GetCurrentEra()) * 5);
 						}
 					}
 				}
@@ -8487,7 +8577,7 @@ void CvTeam::Read(FDataStream& kStream)
 #endif
 	}
 
-#if defined(AUI_ASTAR_ROAD_RANGE)
+#if defined(MOD_BALANCE_CORE)
 	DoUpdateBestRoute();
 #endif
 

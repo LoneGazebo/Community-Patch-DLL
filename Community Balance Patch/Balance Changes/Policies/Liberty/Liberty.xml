@@ -14,6 +14,11 @@
 			<YieldType>YIELD_CULTURE</YieldType>
 			<Yield>10</Yield>
 		</Row>
+		<Row>
+			<PolicyType>POLICY_COLLECTIVE_RULE</PolicyType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>10</Yield>
+		</Row>
 	</Policy_YieldFromConstruction>
 	<Policy_YieldGPExpend>
 		<Row>
@@ -29,7 +34,7 @@
 	</Policy_YieldGPExpend>
 	<Policy_YieldFromBirth>
 		<Row>
-			<PolicyType>POLICY_COLLECTIVE_RULE</PolicyType>
+			<PolicyType>POLICY_LIBERTY_FINISHER</PolicyType>
 			<YieldType>YIELD_GOLD</YieldType>
 			<Yield>30</Yield>
 		</Row>
@@ -38,7 +43,7 @@
 		<Row>
 			<PolicyType>POLICY_COLLECTIVE_RULE</PolicyType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>40</Yield>
+			<Yield>25</Yield>
 		</Row>
 	</Policy_YieldFromBirthCapital>
 	<Policy_PrereqPolicies>

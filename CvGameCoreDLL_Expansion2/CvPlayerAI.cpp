@@ -469,6 +469,22 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner)
 			return;
 		}
 	}
+	if(canRaze(pCity))
+	{
+		if(GET_TEAM(getTeam()).isAtWar(GET_PLAYER(eOldOwner).getTeam()))
+		{
+			if(GetDiplomacyAI()->GetWarGoal(eOldOwner) == WAR_GOAL_DAMAGE)
+			{
+				MajorCivOpinionTypes eOpinion = GetDiplomacyAI()->GetMajorCivOpinion(pCity->getOriginalOwner());
+				if(eOpinion <= MAJOR_CIV_OPINION_COMPETITOR)
+				{
+					pCity->doTask(TASK_RAZE);
+					return;
+				}
+			}
+		}
+	}
+
 #endif
 
 	// Puppet the city
@@ -1524,7 +1540,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveScientist(CvUnit* /*pGreatScie
 GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveGeneral(CvUnit* pGreatGeneral)
 {
 	int iValue = 0;
-	MilitaryAIStrategyTypes eWar = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_AT_WAR");
+	bool bWar = GetMilitaryAI()->GetNumberCivsAtWarWith(false);
 
 	int iGreatGeneralCount = 0;
 
@@ -1545,7 +1561,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveGeneral(CvUnit* pGreatGeneral)
 		return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
 	}
 	int iFriendlies = 0;
-	if(GetMilitaryAI()->IsUsingStrategy(eWar) && (pGreatGeneral->plot()->getNumDefenders(GetID()) > 0))
+	if(bWar && (pGreatGeneral->plot()->getNumDefenders(GetID()) > 0))
 	{
 		for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
 		{
@@ -1565,16 +1581,12 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveGeneral(CvUnit* pGreatGeneral)
 		return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
 	}
 	CvPlot* pTargetPlot = FindBestGreatGeneralTargetPlot(pGreatGeneral, iValue);
-	if(iGreatGeneralCount > 2 && pTargetPlot && (pGreatGeneral->getArmyID() == FFreeList::INVALID_INDEX) && !GetMilitaryAI()->IsUsingStrategy(eWar))
+	if(iGreatGeneralCount > 1 && pTargetPlot && (pGreatGeneral->getArmyID() == FFreeList::INVALID_INDEX) && !bWar)
 	{
 		//build a citadel
 		return GREAT_PEOPLE_DIRECTIVE_USE_POWER;
 	}
-		//No war? Let's settle down.
-	if(!GetMilitaryAI()->IsUsingStrategy(eWar))
-	{
-		return NO_GREAT_PEOPLE_DIRECTIVE_TYPE;
-	}
+	
 	return NO_GREAT_PEOPLE_DIRECTIVE_TYPE;
 }
 
@@ -1688,7 +1700,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveProphet(CvUnit*)
 #if defined(MOD_BALANCE_CORE_MILITARY)
 GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveAdmiral(CvUnit* pGreatAdmiral)
 {
-	MilitaryAIStrategyTypes eWar = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_AT_WAR");
+	bool bWar = GetMilitaryAI()->GetNumberCivsAtWarWith(false);
 
 	if(pGreatAdmiral->getArmyID() != FFreeList::INVALID_INDEX)
 	{
@@ -1699,7 +1711,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveAdmiral(CvUnit* pGreatAdmiral)
 		return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
 	}
 	int iFriendlies = 0;
-	if(GetMilitaryAI()->IsUsingStrategy(eWar) && (pGreatAdmiral->plot()->getNumDefenders(GetID()) > 0))
+	if(bWar && (pGreatAdmiral->plot()->getNumDefenders(GetID()) > 0))
 	{
 		for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
 		{
@@ -1719,10 +1731,6 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveAdmiral(CvUnit* pGreatAdmiral)
 		return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
 	}
 	//No war? Let's settle down.
-	if(!GetMilitaryAI()->IsUsingStrategy(eWar))
-	{
-		return NO_GREAT_PEOPLE_DIRECTIVE_TYPE;
-	}
 
 	return NO_GREAT_PEOPLE_DIRECTIVE_TYPE;
 }
@@ -2702,8 +2710,8 @@ CvPlot* CvPlayerAI::FindBestGreatGeneralTargetPlot(CvUnit* pGeneral, int& iResul
 					MajorCivApproachTypes eMajorApproach = GetDiplomacyAI()->GetMajorCivApproach(eOwner, true);
 					DisputeLevelTypes eLandDisputeLevel = GetDiplomacyAI()->GetLandDisputeLevel(eOwner);
 
-					bool bTicked = (eMajorApproach == MAJOR_CIV_APPROACH_HOSTILE) || (eMajorApproach == MAJOR_CIV_APPROACH_WAR);
-					bool bTickedAboutLand = (eMajorApproach == MAJOR_CIV_APPROACH_NEUTRAL) && (eLandDisputeLevel == DISPUTE_LEVEL_STRONG || eLandDisputeLevel == DISPUTE_LEVEL_FIERCE);
+					bool bTicked = (eMajorApproach <= MAJOR_CIV_APPROACH_GUARDED);
+					bool bTickedAboutLand = (eLandDisputeLevel == DISPUTE_LEVEL_STRONG || eLandDisputeLevel == DISPUTE_LEVEL_FIERCE);
 
 					// only bomb if we're hostile
 					if(!bTicked && !bTickedAboutLand)
@@ -2766,9 +2774,8 @@ CvPlot* CvPlayerAI::FindBestGreatGeneralTargetPlot(CvUnit* pGeneral, int& iResul
 					MajorCivApproachTypes eMajorApproach = GetDiplomacyAI()->GetMajorCivApproach(eOtherPlayer, true);
 					DisputeLevelTypes eLandDisputeLevel = GetDiplomacyAI()->GetLandDisputeLevel(eOtherPlayer);
 
-					bool bTicked = (eMajorApproach == MAJOR_CIV_APPROACH_HOSTILE) || (eMajorApproach == MAJOR_CIV_APPROACH_WAR);
-					bool bTickedAboutLand = (eMajorApproach == MAJOR_CIV_APPROACH_NEUTRAL || eMajorApproach == MAJOR_CIV_APPROACH_DECEPTIVE) 
-												&& (eLandDisputeLevel == DISPUTE_LEVEL_STRONG || eLandDisputeLevel == DISPUTE_LEVEL_FIERCE);
+					bool bTicked = (eMajorApproach <= MAJOR_CIV_APPROACH_GUARDED);
+					bool bTickedAboutLand = (eLandDisputeLevel == DISPUTE_LEVEL_STRONG || eLandDisputeLevel == DISPUTE_LEVEL_FIERCE);
 
 					// don't count the tile if we're not hostile (but accept it as collateral damage)
 					if(!bTicked && !bTickedAboutLand)
@@ -2787,10 +2794,13 @@ CvPlot* CvPlayerAI::FindBestGreatGeneralTargetPlot(CvUnit* pGeneral, int& iResul
 			// score yield
 			for(int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
 				iScore += pAdjacentPlot->getYield((YieldTypes)iYield) * iWeightFactor;
+
+			//defense yield
+			iScore += (pAdjacentPlot->GetDefenseBuildValue());
 		}
 
 		//require a certain minimum score ...
-		if(iScore > 23)
+		if(iScore > 50)
 		{
 			//we don't need an escort as the target is right on our border, but check for enemies nevertheless
 			bool bSafe = true;
