@@ -6797,7 +6797,7 @@ void CvTacticalAI::ExecuteFormationMoves(CvArmyAI* pArmy, CvPlot *pClosestCurren
 #if defined(MOD_BALANCE_CORE)
 	int iDirX = pTarget->getX() - pClosestCurrentCOMonPath->getX();
 	int iDirY = pTarget->getY() - pClosestCurrentCOMonPath->getY();
-	float fDist = sqrt((float)iDirX*iDirX+iDirY*iDirY);
+	float fDist = max(1.f,sqrt((float)iDirX*iDirX+iDirY*iDirY));
 	//this is an approximate unit vector of the direction we should be moving in
 	int iDX = int(iDirX/fDist+0.5f);
 	int iDY = int(iDirY/fDist+0.5f);

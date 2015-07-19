@@ -3024,6 +3024,12 @@ void CvEconomicAI::UpdatePlots()
 	m_vPlotsToExploreLand.clear();
 	m_vPlotsToExploreSea.clear();
 
+#if defined(MOD_BALANCE_CORE_MILITARY_LOGGING)
+	bool bLogging = GC.getLogging() && GC.getAILogging() && m_pPlayer->isMajorCiv();
+	CvString fname = CvString::format( "ExplorePlots_%s_%03d.txt", m_pPlayer->getCivilizationAdjective(), GC.getGame().getGameTurn() );
+	FILogFile* pLog= bLogging ? LOGFILEMGR.GetLog( fname.c_str(), FILogFile::kDontTimeStamp ) : NULL;
+#endif
+
 	for(int i = 0; i < GC.getMap().numPlots(); i++)
 	{
 		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(i);
@@ -3036,6 +3042,16 @@ void CvEconomicAI::UpdatePlots()
 		if(pPlot->isWater())
 		{
 			int iScore = ScoreExplorePlot2(pPlot, m_pPlayer, DOMAIN_SEA, false);
+
+#if defined(MOD_BALANCE_CORE_MILITARY_LOGGING)
+			if (bLogging && pLog) 
+			{
+				CvString dump = CvString::format( "%d,%d,%d,%d,%d,%d\n", 
+					pPlot->getX(), pPlot->getY(), pPlot->isRevealed(m_pPlayer->getTeam()), pPlot->getTerrainType(), pPlot->getOwner(), iScore );
+				pLog->Msg( dump.c_str() );
+			}
+#endif
+
 			if(iScore <= 0)
 				continue;
 			// add an entry for this plot
@@ -3044,12 +3060,27 @@ void CvEconomicAI::UpdatePlots()
 		else
 		{
 			int iScore = ScoreExplorePlot2(pPlot, m_pPlayer, DOMAIN_LAND, false);
+
+#if defined(MOD_BALANCE_CORE_MILITARY_LOGGING)
+			if (bLogging && pLog) 
+			{
+				CvString dump = CvString::format( "%d,%d,%d,%d,%d,%d\n", 
+					pPlot->getX(), pPlot->getY(), pPlot->isRevealed(m_pPlayer->getTeam()), pPlot->getTerrainType(), pPlot->getOwner(), iScore );
+				pLog->Msg( dump.c_str() );
+			}
+#endif
+
 			if(iScore <= 0)
 				continue;
 			// add an entry for this plot
 			m_vPlotsToExploreLand.push_back( SPlotWithScore(pPlot, iScore) );
 		}
 	}
+
+#if defined(MOD_BALANCE_CORE_MILITARY_LOGGING)
+	if (pLog)
+		pLog->Close();
+#endif
 
 	//keep only the best 33%
 	std::sort(m_vPlotsToExploreLand.begin(),m_vPlotsToExploreLand.end());
@@ -3058,36 +3089,9 @@ void CvEconomicAI::UpdatePlots()
 	std::sort(m_vPlotsToExploreSea.begin(),m_vPlotsToExploreSea.end());
 	m_vPlotsToExploreSea.erase( m_vPlotsToExploreSea.begin()+m_vPlotsToExploreSea.size()/3, m_vPlotsToExploreSea.end() );
 
-#if defined(MOD_BALANCE_CORE_MILITARY_LOGGING)
-	bool bLogging = GC.getLogging() && GC.getAILogging() && m_pPlayer->isMajorCiv() && GC.getGame().getGameTurn()%4==0 && GC.getGame().getGameTurn()<200;
-	if (bLogging && MOD_BALANCE_CORE_MILITARY_LOGGING) 
-	{
-		CvString fname = CvString::format( "ExplorePlots_%s_%03d.txt", m_pPlayer->getCivilizationAdjective(), GC.getGame().getGameTurn() );
-		FILogFile* pLog=LOGFILEMGR.GetLog( fname.c_str(), FILogFile::kDontTimeStamp );
-		if (pLog)
-		{
-			pLog->Msg( "#x,y,revealed,terrain,owner,score\n" );
-			for (size_t i=0; i<m_vPlotsToExploreLand.size(); i++)
-			{
-				CvString dump = CvString::format( "%d,%d,%d,%d,%d,%d\n", 
-					m_vPlotsToExploreLand[i].pPlot->getX(), m_vPlotsToExploreLand[i].pPlot->getY(),
-					m_vPlotsToExploreLand[i].pPlot->isRevealed(m_pPlayer->getTeam()), m_vPlotsToExploreLand[i].pPlot->getTerrainType(), m_vPlotsToExploreLand[i].pPlot->getOwner(),
-					m_vPlotsToExploreLand[i].score );
-				pLog->Msg( dump.c_str() );
-			}
-			for (size_t i=0; i<m_vPlotsToExploreLand.size(); i++)
-			{
-				CvString dump = CvString::format( "%d,%d,%d,%d,%d,%d\n", 
-					m_vPlotsToExploreSea[i].pPlot->getX(), m_vPlotsToExploreSea[i].pPlot->getY(),
-					m_vPlotsToExploreSea[i].pPlot->isRevealed(m_pPlayer->getTeam()), m_vPlotsToExploreSea[i].pPlot->getTerrainType(), m_vPlotsToExploreSea[i].pPlot->getOwner(),
-					m_vPlotsToExploreSea[i].score );
-				pLog->Msg( dump.c_str() );
-			}
-			pLog->Close();
-		}
-	}
+	m_bExplorationPlotsDirty = false;
 }
-#endif
+
 #else
 
 	// build explorer list
