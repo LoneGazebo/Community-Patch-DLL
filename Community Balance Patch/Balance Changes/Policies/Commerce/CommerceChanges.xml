@@ -140,22 +140,17 @@
 		<Row>
 			<PolicyType>POLICY_MERCANTILISM</PolicyType>
 			<BuildingClassType>BUILDINGCLASS_MINT</BuildingClassType>
-			<CultureChange>1</CultureChange>
-		</Row>
-		<Row>
-			<PolicyType>POLICY_MERCANTILISM</PolicyType>
-			<BuildingClassType>BUILDINGCLASS_MARKET</BuildingClassType>
-			<CultureChange>1</CultureChange>
+			<CultureChange>2</CultureChange>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_MERCANTILISM</PolicyType>
 			<BuildingClassType>BUILDINGCLASS_BANK</BuildingClassType>
-			<CultureChange>1</CultureChange>
+			<CultureChange>2</CultureChange>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_MERCANTILISM</PolicyType>
 			<BuildingClassType>BUILDINGCLASS_STOCK_EXCHANGE</BuildingClassType>
-			<CultureChange>1</CultureChange>
+			<CultureChange>2</CultureChange>
 		</Row>
 	</Policy_BuildingClassCultureChanges>
 </GameData>

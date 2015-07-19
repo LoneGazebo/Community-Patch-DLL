@@ -9,7 +9,7 @@ UPDATE Beliefs
 SET GoldPerFirstCityConversion = '200'
 WHERE Type = 'BELIEF_RELIQUARY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
--- Just War (Now Underground Sect)
+-- Just War (Now Martyrdom)
 UPDATE Beliefs
 SET CombatModifierEnemyCities = '0'
 WHERE Type = 'BELIEF_JUST_WAR' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );

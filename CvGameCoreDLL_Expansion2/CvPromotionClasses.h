@@ -133,6 +133,7 @@ public:
 	bool IsLostOnMove() const;
 	int ForcedDamageValue() const;
 	int ChangeDamageValue() const;
+	int PromotionDuration() const;
 	bool IsCityStateOnly() const;
 	bool IsBarbarianOnly() const;
 #endif
@@ -334,6 +335,7 @@ protected:
 	int m_iNegatesPromotion;
 	int m_iForcedDamageValue;
 	int m_iChangeDamageValue;
+	int m_iPromotionDuration;
 	bool m_bIsLostOnMove;
 	bool m_bCityStateOnly;
 	bool m_bBarbarianOnly;

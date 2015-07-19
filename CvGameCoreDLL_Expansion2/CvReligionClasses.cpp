@@ -2429,6 +2429,24 @@ int CvGameReligions::GetAdjacentCityReligiousPressure (ReligionTypes eReligion, 
 
 	// Boost to distance due to belief?
 	int iDistanceMod = pReligion->m_Beliefs.GetSpreadDistanceModifier();
+#if defined(MOD_BALANCE_CORE)
+	//Boost from policy of other player?
+	if(GET_PLAYER(pToCity->getOwner()).GetReligionDistance() != 0)
+	{
+		if(pToCity->GetCityReligions()->GetReligiousMajority() <= RELIGION_PANTHEON)
+		{
+			ReligionTypes ePlayerReligion = GetReligionCreatedByPlayer(pToCity->getOwner());
+			if(ePlayerReligion <= RELIGION_PANTHEON)
+			{
+				iDistanceMod += GET_PLAYER(pToCity->getOwner()).GetReligionDistance();
+			}
+			else if((pReligion->m_eFounder == pToCity->getOwner()) || (eReligion == GET_PLAYER(pToCity->getOwner()).GetReligions()->GetReligionInMostCities()))
+			{
+				iDistanceMod += GET_PLAYER(pToCity->getOwner()).GetReligionDistance();
+			}
+		}
+	}
+#endif
 	if(iDistanceMod > 0)
 	{
 		iDistance *= (100 + iDistanceMod);
@@ -2506,6 +2524,20 @@ int CvGameReligions::GetAdjacentCityReligiousPressure (ReligionTypes eReligion, 
 			iPressure *= (100 + iStrengthMod);
 			iPressure /= 100;
 		}
+#if defined(MOD_BALANCE_CORE)
+		int iPolicyMod = GET_PLAYER(pFromCity->getOwner()).GetPressureMod();
+		if(iPolicyMod != 0)
+		{
+			if((GET_PLAYER(pFromCity->getOwner()).GetReligions()->GetReligionCreatedByPlayer() == eReligion) || (eReligion == (GET_PLAYER(pFromCity->getOwner()).GetReligions()->GetReligionInMostCities())))
+			{
+				if(pToCity->GetCityReligions()->GetReligiousMajority() != eReligion)
+				{
+					iPressure *= (100 + iPolicyMod);
+					iPressure /= 100;
+				}
+			}
+		}
+#endif
 
 		// Strengthened spread from World Congress? (World Religion)
 		int iLeaguesMod = GC.getGame().GetGameLeagues()->GetReligionSpreadStrengthModifier(pFromCity->getOwner(), eReligion);

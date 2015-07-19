@@ -8,36 +8,12 @@
 			<PrereqPolicy>POLICY_ORGANIZED_RELIGION</PrereqPolicy>
 		</Row>
 	</Policy_PrereqPolicies>
-	<Policy_BuildingClassProductionModifiers>
-		<Row>
-			<PolicyType>POLICY_ORGANIZED_RELIGION</PolicyType>
-			<BuildingClassType>BUILDINGCLASS_SHRINE</BuildingClassType>
-			<ProductionModifier>100</ProductionModifier>
-		</Row>
-		<Row>
-			<PolicyType>POLICY_ORGANIZED_RELIGION</PolicyType>
-			<BuildingClassType>BUILDINGCLASS_TEMPLE</BuildingClassType>
-			<ProductionModifier>100</ProductionModifier>
-		</Row>
-	</Policy_BuildingClassProductionModifiers\>
-	<Policy_BuildingClassCultureChanges>
-		<Row>
-			<PolicyType>POLICY_ORGANIZED_RELIGION</PolicyType>
-			<BuildingClassType>BUILDINGCLASS_SHRINE</BuildingClassType>
-			<CultureChange>1</CultureChange>
-		</Row>
-		<Row>
-			<PolicyType>POLICY_ORGANIZED_RELIGION</PolicyType>
-			<BuildingClassType>BUILDINGCLASS_TEMPLE</BuildingClassType>
-			<CultureChange>1</CultureChange>
-		</Row>
-	</Policy_BuildingClassCultureChanges>
 	<Policy_BuildingClassYieldChanges>
 		<Row>
 			<PolicyType>POLICY_PIETY</PolicyType>
 			<BuildingClassType>BUILDINGCLASS_PALACE</BuildingClassType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<YieldChange>5</YieldChange>
+			<YieldChange>3</YieldChange>
 		</Row>
 	</Policy_BuildingClassYieldChanges>
 	<Policy_ReligionBuildingYieldMod>
@@ -49,23 +25,87 @@
 		</Row>
 		<Row>
 			<PolicyType>POLICY_MANDATE_OF_HEAVEN</PolicyType>
-			<BuildingClassType>BUILDINGCLASS_TEMPLE</BuildingClassType>
+			<BuildingClassType>BUILDINGCLASS_HARBOR</BuildingClassType>
 			<YieldType>YIELD_GOLD</YieldType>
 			<YieldMod>2</YieldMod>
 		</Row>
+		<Row>
+			<PolicyType>POLICY_MANDATE_OF_HEAVEN</PolicyType>
+			<BuildingClassType>BUILDINGCLASS_CARAVANSARY</BuildingClassType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<YieldMod>2</YieldMod>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_MANDATE_OF_HEAVEN</PolicyType>
+			<BuildingClassType>BUILDINGCLASS_MARKET</BuildingClassType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<YieldMod>2</YieldMod>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_MANDATE_OF_HEAVEN</PolicyType>
+			<BuildingClassType>BUILDINGCLASS_HARBOR</BuildingClassType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<YieldMod>2</YieldMod>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_MANDATE_OF_HEAVEN</PolicyType>
+			<BuildingClassType>BUILDINGCLASS_CARAVANSARY</BuildingClassType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<YieldMod>2</YieldMod>
+		</Row>
 	</Policy_ReligionBuildingYieldMod>
-	<Policy_ReligionYieldMod>
+	<Policy_BuildingClassHappiness>
 		<Row>
 			<PolicyType>POLICY_THEOCRACY</PolicyType>
-			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>2</Yield>
+			<BuildingClassType>BUILDINGCLASS_GRAND_TEMPLE</BuildingClassType>
+			<Happiness>4</Happiness>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_THEOCRACY</PolicyType>
-			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Yield>2</Yield>
+			<BuildingClassType>BUILDINGCLASS_GRAND_OSSUARY</BuildingClassType>
+			<Happiness>4</Happiness>
 		</Row>
-	</Policy_ReligionYieldMod>
+		<Row>
+			<PolicyType>POLICY_THEOCRACY</PolicyType>
+			<BuildingClassType>BUILDINGCLASS_APOSTOLIC_PALACE</BuildingClassType>
+			<Happiness>4</Happiness>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_THEOCRACY</PolicyType>
+			<BuildingClassType>BUILDINGCLASS_HOLY_COUNCIL</BuildingClassType>
+			<Happiness>4</Happiness>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_THEOCRACY</PolicyType>
+			<BuildingClassType>BUILDINGCLASS_SACRED_GARDEN</BuildingClassType>
+			<Happiness>4</Happiness>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_THEOCRACY</PolicyType>
+			<BuildingClassType>BUILDINGCLASS_DIVINE_COURT</BuildingClassType>
+			<Happiness>4</Happiness>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_THEOCRACY</PolicyType>
+			<BuildingClassType>BUILDINGCLASS_RELIQUARY</BuildingClassType>
+			<Happiness>4</Happiness>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_THEOCRACY</PolicyType>
+			<BuildingClassType>BUILDINGCLASS_GREAT_ALTAR</BuildingClassType>
+			<Happiness>4</Happiness>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_THEOCRACY</PolicyType>
+			<BuildingClassType>BUILDINGCLASS_HEAVENLY_THRONE</BuildingClassType>
+			<Happiness>4</Happiness>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_THEOCRACY</PolicyType>
+			<BuildingClassType>BUILDINGCLASS_MAUSOLEUM</BuildingClassType>
+			<Happiness>4</Happiness>
+		</Row>
+	</Policy_BuildingClassHappiness>
 	<Policy_SpecialistExtraYields>
 		<Row>
 			<PolicyType>POLICY_FREE_RELIGION</PolicyType>
@@ -85,14 +125,6 @@
 			<Yield>2</Yield>
 		</Row>
 	</Building_YieldChanges>
-	<Policy_ImprovementYieldChanges>
-		<Row>
-			<PolicyType>POLICY_PIETY_FINISHER</PolicyType>
-			<ImprovementType>IMPROVEMENT_HOLY_SITE</ImprovementType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>2</Yield>
-		</Row>
-	</Policy_ImprovementYieldChanges>
 	<Policy_FreeUnitClasses>
 		<Row>
 			<PolicyType>POLICY_FREE_RELIGION</PolicyType>
@@ -101,58 +133,55 @@
 		</Row>
 	</Policy_FreeUnitClasses>
 	<!-- Finisher -->
-	<Policy_BuildingClassHappiness>
+	<Policy_ImprovementYieldChanges>
 		<Row>
 			<PolicyType>POLICY_PIETY_FINISHER</PolicyType>
-			<BuildingClassType>BUILDINGCLASS_GRAND_TEMPLE</BuildingClassType>
-			<Happiness>4</Happiness>
+			<ImprovementType>IMPROVEMENT_HOLY_SITE</ImprovementType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>4</Yield>
+		</Row>
+	</Policy_ImprovementYieldChanges>
+	<Policy_ImprovementYieldChanges>
+		<Row>
+			<PolicyType>POLICY_PIETY_FINISHER</PolicyType>
+			<ImprovementType>IMPROVEMENT_HOLY_SITE</ImprovementType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>4</Yield>
+		</Row>
+	</Policy_ImprovementYieldChanges>
+	<Policy_ReligionYieldMod>
+		<Row>
+			<PolicyType>POLICY_PIETY_FINISHER</PolicyType>
+			<YieldType>YIELD_FAITH</YieldType>
+			<Yield>1</Yield>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_PIETY_FINISHER</PolicyType>
-			<BuildingClassType>BUILDINGCLASS_GRAND_OSSUARY</BuildingClassType>
-			<Happiness>4</Happiness>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>1</Yield>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_PIETY_FINISHER</PolicyType>
-			<BuildingClassType>BUILDINGCLASS_APOSTOLIC_PALACE</BuildingClassType>
-			<Happiness>4</Happiness>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>1</Yield>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_PIETY_FINISHER</PolicyType>
-			<BuildingClassType>BUILDINGCLASS_HOLY_COUNCIL</BuildingClassType>
-			<Happiness>4</Happiness>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>1</Yield>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_PIETY_FINISHER</PolicyType>
-			<BuildingClassType>BUILDINGCLASS_SACRED_GARDEN</BuildingClassType>
-			<Happiness>4</Happiness>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Yield>1</Yield>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_PIETY_FINISHER</PolicyType>
-			<BuildingClassType>BUILDINGCLASS_DIVINE_COURT</BuildingClassType>
-			<Happiness>4</Happiness>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>1</Yield>
 		</Row>
-		<Row>
-			<PolicyType>POLICY_PIETY_FINISHER</PolicyType>
-			<BuildingClassType>BUILDINGCLASS_RELIQUARY</BuildingClassType>
-			<Happiness>4</Happiness>
-		</Row>
-		<Row>
-			<PolicyType>POLICY_PIETY_FINISHER</PolicyType>
-			<BuildingClassType>BUILDINGCLASS_GREAT_ALTAR</BuildingClassType>
-			<Happiness>4</Happiness>
-		</Row>
-		<Row>
-			<PolicyType>POLICY_PIETY_FINISHER</PolicyType>
-			<BuildingClassType>BUILDINGCLASS_HEAVENLY_THRONE</BuildingClassType>
-			<Happiness>4</Happiness>
-		</Row>
-		<Row>
-			<PolicyType>POLICY_PIETY_FINISHER</PolicyType>
-			<BuildingClassType>BUILDINGCLASS_MAUSOLEUM</BuildingClassType>
-			<Happiness>4</Happiness>
-		</Row>
-	</Policy_BuildingClassHappiness>
+	</Policy_ReligionYieldMod>
+	
 	<Language_en_US>
 		<Row Tag="TXT_KEY_PRODMOD_YIELD_RELIGION_POLICIES">
 			<Text>[NEWLINE][ICON_BULLET]Piety Modifer: {1_Num}%</Text>

@@ -107,6 +107,7 @@ CvPromotionEntry::CvPromotionEntry():
 	m_iNegatesPromotion(NO_PROMOTION),
 	m_iForcedDamageValue(0),
 	m_iChangeDamageValue(0),
+	m_iPromotionDuration(0),
 #endif
 	m_bCannotBeChosen(false),
 	m_bLostWithUpgrade(false),
@@ -260,6 +261,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_iNegatesPromotion = GC.getInfoTypeForString(szNegatesPromotion, true);
 	m_iForcedDamageValue = kResults.GetInt("ForcedDamageValue");
 	m_iChangeDamageValue = kResults.GetInt("ChangeDamageValue");
+	m_iPromotionDuration = kResults.GetInt("PromotionDuration");
 #endif
 	m_bCannotBeChosen = kResults.GetBool("CannotBeChosen");
 	m_bLostWithUpgrade = kResults.GetBool("LostWithUpgrade");
@@ -1387,6 +1389,10 @@ int CvPromotionEntry::ForcedDamageValue() const
 int CvPromotionEntry::ChangeDamageValue() const
 {
 	return m_iChangeDamageValue;
+}
+int CvPromotionEntry::PromotionDuration() const
+{
+	return m_iPromotionDuration;
 }
 #endif
 /// Accessor: Can this Promotion be earned through normal leveling?

@@ -1,95 +1,19 @@
 
--- Difficulty Mod Value Indicators
--- 0 = Prince (Default)
--- 1 = King
--- 2 = Emperor
--- 3 = Immortal
--- 4 = Deity
--- 5 = Super Deity
-
--- Era bonus multiplier
-INSERT INTO Defines (
-Name, Value)
-SELECT 'BALANCE_GAME_DIFFICULTY_MULTIPLIER', '0'
-WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='BALANCE_GLOBAL_DIFFICULTY_LEVEL' AND Value= 0 );
-
-INSERT INTO Defines (
-Name, Value)
-SELECT 'BALANCE_GAME_DIFFICULTY_MULTIPLIER', '1'
-WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='BALANCE_GLOBAL_DIFFICULTY_LEVEL' AND Value= 1 );
-
-INSERT INTO Defines (
-Name, Value)
-SELECT 'BALANCE_GAME_DIFFICULTY_MULTIPLIER', '2'
-WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='BALANCE_GLOBAL_DIFFICULTY_LEVEL' AND Value= 2 );
-
-INSERT INTO Defines (
-Name, Value)
-SELECT 'BALANCE_GAME_DIFFICULTY_MULTIPLIER', '3'
-WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='BALANCE_GLOBAL_DIFFICULTY_LEVEL' AND Value= 3 );
-
-INSERT INTO Defines (
-Name, Value)
-SELECT 'BALANCE_GAME_DIFFICULTY_MULTIPLIER', '5'
-WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='BALANCE_GLOBAL_DIFFICULTY_LEVEL' AND Value= 4 );
-
-INSERT INTO Defines (
-Name, Value)
-SELECT 'BALANCE_GAME_DIFFICULTY_MULTIPLIER', '7'
-WHERE EXISTS (SELECT * FROM COMMUNITY WHERE Type='BALANCE_GLOBAL_DIFFICULTY_LEVEL' AND Value= 5 );
 
 --Difficulties
-DELETE FROM HandicapInfo_AIFreeTechs WHERE HandicapType IN ('HANDICAP_KING' , 'HANDICAP_EMPEROR' , 'HANDICAP_IMMORTAL', 'HANDICAP_DEITY');
+DELETE FROM HandicapInfos;
+DELETE FROM HandicapInfo_AIFreeTechs;
 
-UPDATE HandicapInfos
-SET AIPerEraModifier='-4' , HappinessDefault='7', Gold='0' , AIStartingDefenseUnits = '1' , AIDeclareWarProb='125', NumCitiesUnhappinessMod='100' , PopulationUnhappinessMod='100' , ProductionFreeUnits='8' , AIStartingWorkerUnits='0', ProductionFreeUnitsPopulationPercent='50' , ProductionFreeUnitsPerCity='5' , RouteCostPercent='100' , UnitCostPercent='100' , BuildingCostPercent='100' , ResearchPercent='100' , PolicyPercent='100' , ImprovementCostPercent='100' , CityProductionNumOptionsConsidered='2' , TechNumOptionsConsidered='2' , PolicyNumOptionsConsidered='2' , AttitudeChange='-1' , NoTechTradeModifier='40' , BarbCampGold='50' , AIBarbarianBonus='50' , AIWorkRateModifier='0' ,  AIUnhappinessPercent='100' , AIGrowthPercent='100' , AITrainPercent='100' , AICreatePercent='100' , AIConstructPercent='100', AIBuildingCostPercent='100' , AIUnitCostPercent='100' , AIUnitSupplyPercent='75' , AIUnitUpgradePercent='75', AIAdvancedStartPercent='130', AIFreeXP='15' , AIFreeXPPercent='30'
-WHERE Type = 'HANDICAP_KING';
+CREATE TABLE IDRemapper ( id INTEGER PRIMARY KEY AUTOINCREMENT, Type TEXT );
+INSERT INTO IDRemapper (Type) SELECT Type FROM HandicapInfos ORDER BY ID;
+UPDATE HandicapInfos SET ID = ( SELECT IDRemapper.id-1 FROM IDRemapper WHERE HandicapInfos.Type = IDRemapper.Type);
+DROP TABLE IDRemapper;
 
-UPDATE HandicapInfos
-SET AIPerEraModifier='-6' , HappinessDefault='6', Gold='0' , AIStartingDefenseUnits = '2' , AIDeclareWarProb='150', NumCitiesUnhappinessMod='100' , PopulationUnhappinessMod='100' , ProductionFreeUnits='7' , AIStartingWorkerUnits='0', ProductionFreeUnitsPopulationPercent='50' , ProductionFreeUnitsPerCity='5' , RouteCostPercent='100' , UnitCostPercent='100' , BuildingCostPercent='100' , ResearchPercent='100' , PolicyPercent='100' , ImprovementCostPercent='100' , CityProductionNumOptionsConsidered='2' , TechNumOptionsConsidered='2' , PolicyNumOptionsConsidered='2' , AttitudeChange='-1' , NoTechTradeModifier='40' , BarbCampGold='50' , AIBarbarianBonus='50' , AIWorkRateModifier='0' ,  AIUnhappinessPercent='100' , AIGrowthPercent='100' , AITrainPercent='100' , AICreatePercent='100' , AIConstructPercent='100', AIBuildingCostPercent='100' , AIUnitCostPercent='100' , AIUnitSupplyPercent='75' , AIUnitUpgradePercent='75', AIAdvancedStartPercent='130', AIFreeXP='20' , AIFreeXPPercent='30'
-WHERE Type = 'HANDICAP_EMPEROR';
-
-UPDATE HandicapInfos
-SET AIPerEraModifier='-8' , HappinessDefault='5', Gold='0' , AIStartingDefenseUnits = '3' , AIDeclareWarProb='175', NumCitiesUnhappinessMod='100' , PopulationUnhappinessMod='100' , ProductionFreeUnits='6' , AIStartingWorkerUnits='0', ProductionFreeUnitsPopulationPercent='50' , ProductionFreeUnitsPerCity='5' , RouteCostPercent='100' , UnitCostPercent='100' , BuildingCostPercent='100' , ResearchPercent='100' , PolicyPercent='100' , ImprovementCostPercent='100' , CityProductionNumOptionsConsidered='2' , TechNumOptionsConsidered='2' , PolicyNumOptionsConsidered='2' , AttitudeChange='-1' , NoTechTradeModifier='40' , BarbCampGold='50' , AIBarbarianBonus='50' , AIWorkRateModifier='0' ,  AIUnhappinessPercent='100' , AIGrowthPercent='100' , AITrainPercent='100' , AICreatePercent='100' , AIConstructPercent='100', AIBuildingCostPercent='100' , AIUnitCostPercent='100' , AIUnitSupplyPercent='75' , AIUnitUpgradePercent='75', AIAdvancedStartPercent='130', AIFreeXP='25' , AIFreeXPPercent='30'
-WHERE Type = 'HANDICAP_IMMORTAL';
-
-UPDATE HandicapInfos
-SET AIPerEraModifier='-10' , HappinessDefault='4', Gold='0' , AIStartingDefenseUnits = '4' , AIDeclareWarProb='200', NumCitiesUnhappinessMod='100' , PopulationUnhappinessMod='100' , AIStartingUnitMultiplier = '0' , ProductionFreeUnits='8' , AIStartingWorkerUnits='0', ProductionFreeUnitsPopulationPercent='50' , ProductionFreeUnitsPerCity='5' , RouteCostPercent='100' , UnitCostPercent='100' , BuildingCostPercent='100' , ResearchPercent='100' , PolicyPercent='100' , ImprovementCostPercent='100' , CityProductionNumOptionsConsidered='2' , TechNumOptionsConsidered='3' , PolicyNumOptionsConsidered='3' , AttitudeChange='-1' , NoTechTradeModifier='40' , BarbCampGold='100' , AIBarbarianBonus='50' , AIWorkRateModifier='0' ,  AIUnhappinessPercent='100' , AIGrowthPercent='100' , AITrainPercent='100' , AICreatePercent='100' , AIConstructPercent='100', AIBuildingCostPercent='100' , AIUnitCostPercent='100' , AIUnitSupplyPercent='75' , AIUnitUpgradePercent='75', AIAdvancedStartPercent='130', AIFreeXP='30' , AIFreeXPPercent='30'
-WHERE Type = 'HANDICAP_DEITY';
-
-UPDATE HandicapInfos
-SET AIPerEraModifier='0' , HappinessDefault='6', Gold='0' , AIStartingDefenseUnits = '1' , AIDeclareWarProb='100', NumCitiesUnhappinessMod='100' , PopulationUnhappinessMod='100' , AIStartingUnitMultiplier = '0', ProductionFreeUnits='8' , AIStartingWorkerUnits='0', ProductionFreeUnitsPopulationPercent='50' , ProductionFreeUnitsPerCity='5' , RouteCostPercent='100' , UnitCostPercent='100' , BuildingCostPercent='100' , ResearchPercent='100' , PolicyPercent='100' , ImprovementCostPercent='100' , CityProductionNumOptionsConsidered='12' , TechNumOptionsConsidered='1' , PolicyNumOptionsConsidered='1' , AttitudeChange='-1' , NoTechTradeModifier='40' , BarbCampGold='100' , AIBarbarianBonus='50' , AIWorkRateModifier='0' ,  AIUnhappinessPercent='100' , AIGrowthPercent='100' , AITrainPercent='100' , AICreatePercent='100' , AIConstructPercent='100', AIBuildingCostPercent='100' , AIUnitCostPercent='100' , AIUnitSupplyPercent='100' , AIUnitUpgradePercent='100', AIAdvancedStartPercent='100', AIFreeXP='0' , AIFreeXPPercent='0'
-WHERE Type = 'HANDICAP_AI_DEFAULT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='BALANCE_GLOBAL_DIFFICULTY_LEVEL' AND Value= 0 );
-
-UPDATE HandicapInfos
-SET AIPerEraModifier='-4' , HappinessDefault='7', Gold='100' , AIStartingDefenseUnits = '2' , AIDeclareWarProb='125', NumCitiesUnhappinessMod='100' , PopulationUnhappinessMod='100' , AIStartingUnitMultiplier = '0', ProductionFreeUnits='7' , AIStartingWorkerUnits='0', ProductionFreeUnitsPopulationPercent='50' , ProductionFreeUnitsPerCity='5' , RouteCostPercent='100' , UnitCostPercent='100' , BuildingCostPercent='100' , ResearchPercent='100' , PolicyPercent='100' , ImprovementCostPercent='100' , CityProductionNumOptionsConsidered='2' , TechNumOptionsConsidered='2' , PolicyNumOptionsConsidered='2' , AttitudeChange='-1' , NoTechTradeModifier='40' , BarbCampGold='100' , AIBarbarianBonus='50' , AIWorkRateModifier='0' ,  AIUnhappinessPercent='100' , AIGrowthPercent='100' , AITrainPercent='100' , AICreatePercent='100' , AIConstructPercent='100', AIBuildingCostPercent='100' , AIUnitCostPercent='100' , AIUnitSupplyPercent='90' , AIUnitUpgradePercent='90', AIAdvancedStartPercent='110', AIFreeXP='5' , AIFreeXPPercent='10'
-WHERE Type = 'HANDICAP_AI_DEFAULT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='BALANCE_GLOBAL_DIFFICULTY_LEVEL' AND Value= 1 );
-
-UPDATE HandicapInfos
-SET AIPerEraModifier='-6' , HappinessDefault='8', Gold='200' , AIStartingDefenseUnits = '2' , AIDeclareWarProb='150', NumCitiesUnhappinessMod='100' , PopulationUnhappinessMod='100' , AIStartingUnitMultiplier = '0', ProductionFreeUnits='6' , AIStartingWorkerUnits='0', ProductionFreeUnitsPopulationPercent='50' , ProductionFreeUnitsPerCity='5' , RouteCostPercent='100' , UnitCostPercent='100' , BuildingCostPercent='100' , ResearchPercent='100' , PolicyPercent='100' , ImprovementCostPercent='100' , CityProductionNumOptionsConsidered='3' , TechNumOptionsConsidered='3' , PolicyNumOptionsConsidered='3' , AttitudeChange='-1' , NoTechTradeModifier='40' , BarbCampGold='100' , AIBarbarianBonus='50' , AIWorkRateModifier='0' ,  AIUnhappinessPercent='100' , AIGrowthPercent='100' , AITrainPercent='100' , AICreatePercent='100' , AIConstructPercent='100', AIBuildingCostPercent='100' , AIUnitCostPercent='100' , AIUnitSupplyPercent='85' , AIUnitUpgradePercent='85', AIAdvancedStartPercent='120', AIFreeXP='10' , AIFreeXPPercent='20'
-WHERE Type = 'HANDICAP_AI_DEFAULT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='BALANCE_GLOBAL_DIFFICULTY_LEVEL' AND Value= 2 );
-
-UPDATE HandicapInfos
-SET AIPerEraModifier='-8' , HappinessDefault='9', Gold='300' , AIStartingDefenseUnits = '3' , AIDeclareWarProb='175', NumCitiesUnhappinessMod='100' , PopulationUnhappinessMod='100' , AIStartingUnitMultiplier = '0', ProductionFreeUnits='6' , AIStartingWorkerUnits='0', ProductionFreeUnitsPopulationPercent='50' , ProductionFreeUnitsPerCity='4' , RouteCostPercent='100' , UnitCostPercent='100' , BuildingCostPercent='100' , ResearchPercent='100' , PolicyPercent='100' , ImprovementCostPercent='100' , CityProductionNumOptionsConsidered='3' , TechNumOptionsConsidered='3' , PolicyNumOptionsConsidered='3' , AttitudeChange='-1' , NoTechTradeModifier='40' , BarbCampGold='150' , AIBarbarianBonus='50' , AIWorkRateModifier='0' ,  AIUnhappinessPercent='100' , AIGrowthPercent='100' , AITrainPercent='100' , AICreatePercent='100' , AIConstructPercent='100', AIBuildingCostPercent='100' , AIUnitCostPercent='100' , AIUnitSupplyPercent='80' , AIUnitUpgradePercent='80', AIAdvancedStartPercent='130', AIFreeXP='15' , AIFreeXPPercent='30'
-WHERE Type = 'HANDICAP_AI_DEFAULT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='BALANCE_GLOBAL_DIFFICULTY_LEVEL' AND Value= 3 );
-
-UPDATE HandicapInfos
-SET AIPerEraModifier='-10' , HappinessDefault='10', Gold='400' , AIStartingDefenseUnits = '3' , AIDeclareWarProb='200', NumCitiesUnhappinessMod='100' , PopulationUnhappinessMod='100' , AIStartingUnitMultiplier = '0', ProductionFreeUnits='5' , AIStartingWorkerUnits='0', ProductionFreeUnitsPopulationPercent='50' , ProductionFreeUnitsPerCity='4' , RouteCostPercent='100' , UnitCostPercent='100' , BuildingCostPercent='100' , ResearchPercent='90' , PolicyPercent='90' , ImprovementCostPercent='100' , CityProductionNumOptionsConsidered='3' , TechNumOptionsConsidered='3' , PolicyNumOptionsConsidered='3' , AttitudeChange='-1' , NoTechTradeModifier='40' , BarbCampGold='150' , AIBarbarianBonus='50' , AIWorkRateModifier='10' ,  AIUnhappinessPercent='100' , AIGrowthPercent='100' , AITrainPercent='100' , AICreatePercent='100' , AIConstructPercent='100', AIBuildingCostPercent='100' , AIUnitCostPercent='100' , AIUnitSupplyPercent='75' , AIUnitUpgradePercent='75', AIAdvancedStartPercent='140', AIFreeXP='20' , AIFreeXPPercent='40'
-WHERE Type = 'HANDICAP_AI_DEFAULT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='BALANCE_GLOBAL_DIFFICULTY_LEVEL' AND Value= 4 );
-
-UPDATE HandicapInfos
-SET AIPerEraModifier='-12' , HappinessDefault='12', Gold='500' , AIStartingDefenseUnits = '3' , AIDeclareWarProb='300', NumCitiesUnhappinessMod='100' , PopulationUnhappinessMod='100' , AIStartingUnitMultiplier = '0', ProductionFreeUnits='5' , AIStartingWorkerUnits='0', ProductionFreeUnitsPopulationPercent='50' , ProductionFreeUnitsPerCity='4' , RouteCostPercent='100' , UnitCostPercent='100' , BuildingCostPercent='100' , ResearchPercent='80' , PolicyPercent='80' , ImprovementCostPercent='100' , CityProductionNumOptionsConsidered='3' , TechNumOptionsConsidered='3' , PolicyNumOptionsConsidered='3' , AttitudeChange='-1' , NoTechTradeModifier='40' , BarbCampGold='200' , AIBarbarianBonus='50' , AIWorkRateModifier='10' ,  AIUnhappinessPercent='100' , AIGrowthPercent='100' , AITrainPercent='100' , AICreatePercent='100' , AIConstructPercent='100', AIBuildingCostPercent='100' , AIUnitCostPercent='100' , AIUnitSupplyPercent='75' , AIUnitUpgradePercent='75', AIAdvancedStartPercent='150', AIFreeXP='25' , AIFreeXPPercent='50'
-WHERE Type = 'HANDICAP_AI_DEFAULT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='BALANCE_GLOBAL_DIFFICULTY_LEVEL' AND Value= 5 );
+UPDATE sqlite_sequence
+SET seq = (SELECT COUNT(ID) FROM HandicapInfos)-1
+WHERE name = 'HandicapInfos';
 
 -- Minor Civ Free Units
-
-UPDATE Eras
-SET StartingMinorDefenseUnits = '0'
-WHERE Type = 'ERA_ANCIENT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
-
-UPDATE Eras
-SET StartingMinorDefenseUnits = '0'
-WHERE Type = 'ERA_CLASSICAL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
 
 UPDATE Eras
 SET StartingMinorDefenseUnits = '1'
@@ -117,14 +41,26 @@ WHERE Type = 'ERA_FUTURE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUN
 
 UPDATE HandicapInfos
 SET StartingMinorDefenseUnits = '1'
-WHERE Type = 'HANDICAP_KING' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
+WHERE Type = 'HANDICAP_CHIEFTAIN' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
 
 UPDATE HandicapInfos
 SET StartingMinorDefenseUnits = '1'
-WHERE Type = 'HANDICAP_EMPEROR' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
+WHERE Type = 'HANDICAP_WARLORD' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
+
+UPDATE HandicapInfos
+SET StartingMinorDefenseUnits = '1'
+WHERE Type = 'HANDICAP_PRINCE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
 
 UPDATE HandicapInfos
 SET StartingMinorDefenseUnits = '2'
+WHERE Type = 'HANDICAP_KING' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
+
+UPDATE HandicapInfos
+SET StartingMinorDefenseUnits = '2'
+WHERE Type = 'HANDICAP_EMPEROR' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
+
+UPDATE HandicapInfos
+SET StartingMinorDefenseUnits = '3'
 WHERE Type = 'HANDICAP_IMMORTAL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
 
 UPDATE HandicapInfos
@@ -221,3 +157,37 @@ UPDATE Worlds
 SET MaxActiveReligions = '6'
 WHERE Type = 'WORLDSIZE_HUGE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
 
+
+-- Names
+
+UPDATE Language_en_US
+SET Text = 'A standard challenge. The AI receives no bonuses. (King equivalent)'
+WHERE Tag = 'TXT_KEY_HANDICAP_SETTLER_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
+
+UPDATE Language_en_US
+SET Text = 'A little challenging. The AI receives small bonuses. (Prince equivalent)'
+WHERE Tag = 'TXT_KEY_HANDICAP_CHIEFTAIN_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
+
+UPDATE Language_en_US
+SET Text = 'A mild challenge. The AI receives noticeable bonuses. (Emperor equivalent)'
+WHERE Tag = 'TXT_KEY_HANDICAP_WARLORD_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
+
+UPDATE Language_en_US
+SET Text = 'A good challenge. The AI has many advantages. (Immortal equivalent)'
+WHERE Tag = 'TXT_KEY_HANDICAP_PRINCE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
+
+UPDATE Language_en_US
+SET Text = 'Quite challenging. AI players are given major bonuses. (Deity equivalent)'
+WHERE Tag = 'TXT_KEY_HANDICAP_KING_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
+
+UPDATE Language_en_US
+SET Text = 'Very challenging. AI players receive substantial bonuses. (Super Deity)'
+WHERE Tag = 'TXT_KEY_HANDICAP_EMPEROR_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
+
+UPDATE Language_en_US
+SET Text = 'Extremely challenging. The AI has a very large advantage. (Super Duper Deity)'
+WHERE Tag = 'TXT_KEY_HANDICAP_IMMORTAL_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
+
+UPDATE Language_en_US
+SET Text = 'The AI has massive bonuses at all stages of the game. Good luck! (Ultra Deity)'
+WHERE Tag = 'TXT_KEY_HANDICAP_DEITY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );

@@ -81,7 +81,7 @@ SET CulturePerGarrisonedUnit = '0'
 WHERE Type = 'POLICY_MILITARY_CASTE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Policies
-SET BestRangedUnitSpawnSettle = '1'
+SET BestRangedUnitSpawnSettle = '6'
 WHERE Type = 'POLICY_MILITARY_CASTE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 -- Professional Army (Now Martial Law)
 UPDATE Policies

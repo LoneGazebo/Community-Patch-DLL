@@ -845,8 +845,8 @@
 	<Row Class="6" Name="BALANCE_CORE_MINOR_VARIABLE_BULLYING" Value="0"/>
 	<!-- Specialist food costs scale with era -->
 	<Row Class="6" Name="BALANCE_SPECIALIST_FOOD_SCALE_ERA" Value="0"/>
-
-
+	<!-- Doubled Boudica Buff -->
+	<Row Class="6" Name="BALANCE_CORE_BOUDICCA_BUFF" Value="0"/>
 
   </CustomModOptions>
 

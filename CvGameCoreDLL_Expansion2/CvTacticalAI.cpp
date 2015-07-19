@@ -5239,39 +5239,65 @@ void CvTacticalAI::PlotNavalEscortOperationMoves(CvAINavalEscortedOperation* pOp
 					// Move escort over
 					if(!pCivilian->isEmbarked())
 					{
-						ExecuteMoveToPlot(pEscort, pCivilian->plot());
+						if(pEscort->getDomainType() != pCivilian->getDomainType())
+						{
+							MoveToEmptySpaceNearTarget(pEscort, pCivilian->plot());
+						}
+						else
+						{
+							ExecuteMoveToPlot(pEscort, pCivilian->plot());
+						}
+						pEscort->finishMoves();
+						UnitProcessed(pEscort->GetID());
+						if(GC.getLogging() && GC.getAILogging())
+						{
+							CvString strTemp;
+							CvString strLogString;
+							strTemp = GC.getUnitInfo(pEscort->getUnitType())->GetDescription();
+							strLogString.Format("Moving escorting %s to nonembarked civilian for operation, Civilian X: %d, Civilian Y: %d, X: %d, Y: %d", strTemp.GetCString(), pCivilian->plot()->getX(), pCivilian->plot()->getY(), pEscort->getX(), pEscort->getY());
+							LogTacticalMessage(strLogString);
+						}
 					}
 					else
 					{
-#if defined(MOD_BALANCE_CORE)
-						MoveToUsingSafeEmbark(pEscort, pCivilian->plot(), false);
-#else
-						bool bMoveWasSafe;
-						MoveToUsingSafeEmbark(pEscort, pCivilian->plot(), bMoveWasSafe);
-#endif
+						if(pEscort->getDomainType() != pCivilian->getDomainType())
+						{
+							MoveToEmptySpaceNearTarget(pEscort, pCivilian->plot(), false);
+						}
+						else
+						{
+							MoveToUsingSafeEmbark(pEscort, pCivilian->plot(), false);
+						}			
 						pEscort->finishMoves();
 						UnitProcessed(pEscort->GetID());
+						if(GC.getLogging() && GC.getAILogging())
+						{
+							CvString strTemp;
+							CvString strLogString;
+							strTemp = GC.getUnitInfo(pEscort->getUnitType())->GetDescription();
+							strLogString.Format("Moving escorting %s to embarked civilian for operation, Civilian X: %d, Civilian Y: %d, X: %d, Y: %d", strTemp.GetCString(), pCivilian->plot()->getX(), pCivilian->plot()->getY(), pEscort->getX(), pEscort->getY());
+							LogTacticalMessage(strLogString);
+						}
+					}
+					
+				}
+				else
+				{
+					if(!pCivilian->isEmbarked())
+					{
+						MoveToEmptySpaceNearTarget(pEscort, pCivilian->plot());
+					}
+					else
+					{
+						MoveToEmptySpaceNearTarget(pEscort, pCivilian->plot(), false);
 					}
 					if(GC.getLogging() && GC.getAILogging())
 					{
 						CvString strTemp;
 						CvString strLogString;
 						strTemp = GC.getUnitInfo(pEscort->getUnitType())->GetDescription();
-						strLogString.Format("Moving escorting %s to civilian for operation, Civilian X: %d, Civilian Y: %d, X: %d, Y: %d", strTemp.GetCString(), pCivilian->plot()->getX(), pCivilian->plot()->getY(), pEscort->getX(), pEscort->getY());
+						strLogString.Format("Moving escorting %s near civilian for operation, Civilian X: %d, Civilian Y: %d, X: %d, Y: %d", strTemp.GetCString(), pCivilian->plot()->getX(), pCivilian->plot()->getY(), pEscort->getX(), pEscort->getY());
 						LogTacticalMessage(strLogString);
-					}
-				}
-				else
-				{
-					if(!pCivilian->isEmbarked())
-					{
-						MoveToEmptySpaceNearTarget(pEscort, pOperation->GetMusterPlot());
-						pOperation->SetMusterPlot(pEscort->plot());
-					}
-					else
-					{
-						MoveToEmptySpaceNearTarget(pEscort, pOperation->GetMusterPlot(), false);
-						pOperation->SetMusterPlot(pEscort->plot());
 					}
 				}
 			}
@@ -5288,7 +5314,7 @@ void CvTacticalAI::PlotNavalEscortOperationMoves(CvAINavalEscortedOperation* pOp
 						if(pUnit && !pUnit->TurnProcessed())
 						{	
 							// Move escort over
-							if(pOperation->GetMusterPlot()->isWater())
+							if(pCivilian->isEmbarked())
 							{
 								MoveToEmptySpaceNearTarget(pUnit, pOperation->GetMusterPlot(), false);
 							}
@@ -5300,113 +5326,13 @@ void CvTacticalAI::PlotNavalEscortOperationMoves(CvAINavalEscortedOperation* pOp
 							{
 								CvString strTemp;
 								CvString strLogString;
-								strTemp = GC.getUnitInfo(pEscort->getUnitType())->GetDescription();
+								strTemp = GC.getUnitInfo(pUnit->getUnitType())->GetDescription();
 								strLogString.Format("Moving additional escorting %s to civilian for operation, Civilian X: %d, Civilian Y: %d, X: %d, Y: %d", strTemp.GetCString(), pCivilian->plot()->getX(), pCivilian->plot()->getY(), pUnit->getX(), pUnit->getY());
 								LogTacticalMessage(strLogString);
 							}
 							pUnit->finishMoves();
 							UnitProcessed(pUnit->GetID());
 						}
-					}
-				}
-			}
-			//Civilian still has moves? Uh oh.
-			if(pCivilian->getMoves() > 0)
-			{
-				// Didn't find an alternative, must abort operation
-				pOperation->RetargetCivilian(pCivilian, pThisArmy);
-				if(pOperation->GetMusterPlot() != NULL)
-				{
-					ExecuteMoveToPlot(pCivilian, pOperation->GetMusterPlot());
-					if(GC.getLogging() && GC.getAILogging())
-					{
-						CvString strLogString;
-						strLogString.Format("Retargeting civilian escort operation (path lost to target) and moving them on, X: %d, Y: %d", pOperation->GetTargetPlot()->getX(), pOperation->GetTargetPlot()->getY());
-						LogTacticalMessage(strLogString);
-					}
-#if defined(MOD_BALANCE_CORE)
-					if(pCivilian->plot()->GetNumCombatUnits() == 0 && pCivilian->isEmbarked())
-					{
-						ExecuteMoveToPlot(pEscort, pCivilian->plot());
-					}
-#else
-					if(pCivilian->plot()->GetNumCombatUnits() <= 0)
-					{
-						if(!pCivilian->isEmbarked())
-						{
-							ExecuteMoveToPlot(pEscort, pCivilian->plot());
-						}
-						else
-						{
-							bool bMoveWasSafe;
-							MoveToUsingSafeEmbark(pEscort, pCivilian->plot(), bMoveWasSafe);
-							pEscort->finishMoves();
-							UnitProcessed(pEscort->GetID());
-						}
-					}
-#endif
-					else
-					{
-						if(pCivilian->isEmbarked())
-						{
-							MoveToEmptySpaceNearTarget(pEscort, pOperation->GetMusterPlot(), false);
-						}
-						else
-						{
-							MoveToEmptySpaceNearTarget(pEscort, pOperation->GetMusterPlot());
-						}
-						if(GC.getLogging() && GC.getAILogging())
-						{
-							CvString strLogString;
-							strLogString.Format("Retargeting civilian escort operation (path lost to target) and moving them on, X: %d, Y: %d", pOperation->GetTargetPlot()->getX(), pOperation->GetTargetPlot()->getY());
-							LogTacticalMessage(strLogString);
-						}
-					}
-					if(pThisArmy->GetNumSlotsFilled() > 2)
-					{
-						for(int iI = 0; iI < pThisArmy->GetNumFormationEntries(); iI++)
-						{
-							CvArmyFormationSlot* pSlot = pThisArmy->GetFormationSlot(iI);
-							if(pSlot->GetUnitID() != NO_UNIT)
-							{
-								// See if we are just able to get to target point in time.  If so, time for us to head over there
-								UnitHandle pUnit = m_pPlayer->getUnit(pSlot->GetUnitID());
-								if(pUnit && !pUnit->TurnProcessed())
-								{	
-									// Move escort over
-									if(pCivilian->isEmbarked())
-									{
-										MoveToEmptySpaceNearTarget(pUnit, pOperation->GetMusterPlot(), false);
-									}
-									else
-									{
-										MoveToEmptySpaceNearTarget(pUnit, pOperation->GetMusterPlot());
-									}
-									if(GC.getLogging() && GC.getAILogging())
-									{
-										CvString strTemp;
-										CvString strLogString;
-										strTemp = GC.getUnitInfo(pEscort->getUnitType())->GetDescription();
-										strLogString.Format("Moving additional escorting %s to civilian for operation, Civilian X: %d, Civilian Y: %d, X: %d, Y: %d", strTemp.GetCString(), pCivilian->plot()->getX(), pCivilian->plot()->getY(), pUnit->getX(), pUnit->getY());
-										LogTacticalMessage(strLogString);
-									}
-									pUnit->finishMoves();
-									UnitProcessed(pUnit->GetID());
-								}
-							}
-						}
-					}
-				}
-				else
-				{
-					pCivilian->finishMoves();
-					pEscort->finishMoves();
-					if(GC.getLogging() && GC.getAILogging())
-					{
-						CvString strTemp;
-						CvString strLogString;
-						strLogString.Format("Retargeting civilian escort operation. No operational tile to target.");
-						LogTacticalMessage(strLogString);
 					}
 				}
 			}
@@ -5421,11 +5347,16 @@ void CvTacticalAI::PlotNavalEscortOperationMoves(CvAINavalEscortedOperation* pOp
 				pOperation->SetToAbort(AI_ABORT_LOST_CIVILIAN);
 				return;
 			}
-			if(!pCivilian->isFound())
+			if(pOperation->GetTargetPlot() == NULL)
 			{
-				pOperation->SetToAbort(AI_ABORT_LOST_CIVILIAN);
-				return;
+				pOperation->RetargetCivilian(pCivilian, pThisArmy);
+				if(pOperation->GetMusterPlot() == NULL)
+				{
+					pOperation->SetToAbort(AI_ABORT_NO_MUSTER);
+					return;
+				}
 			}
+
 			if(pOperation->GetTargetPlot() != NULL)
 			{
 				if(!pCivilian->canFound(pOperation->GetTargetPlot()))
@@ -5440,6 +5371,7 @@ void CvTacticalAI::PlotNavalEscortOperationMoves(CvAINavalEscortedOperation* pOp
 			}
 
 			pThisTurnTarget = pThisArmy->GetCenterOfMass(DOMAIN_SEA);
+
 			if(pThisTurnTarget == NULL)
 			{
 				pThisTurnTarget = pThisArmy->GetCenterOfMass(DOMAIN_LAND);
@@ -5452,104 +5384,29 @@ void CvTacticalAI::PlotNavalEscortOperationMoves(CvAINavalEscortedOperation* pOp
 			{
 				pThisArmy->SetXY(pThisTurnTarget->getX(), pThisTurnTarget->getY());
 			}
-			if(pOperation->GetTargetPlot() == NULL)
+			
+			// Settler at the target?
+			if(!pCivilian->plot()->isWater() && pCivilian->plot() == pThisArmy->GetGoalPlot())
 			{
-				pOperation->RetargetCivilian(pCivilian, pThisArmy);
-				if(pOperation->GetTargetPlot() != NULL)
+				if(pCivilian->canFound(pCivilian->plot()))
 				{
+					pCivilian->PushMission(CvTypes::getMISSION_FOUND());
 					if(GC.getLogging() && GC.getAILogging())
 					{
 						CvString strMsg;
-						strMsg.Format("Lost naval escort target (civilian), but rebounding. At X=%d, At Y=%d", pCivilian->plot()->getX(), pCivilian->plot()->getY());
+						strMsg.Format("City founded, At X=%d, At Y=%d", pCivilian->plot()->getX(), pCivilian->plot()->getY());
 						pOperation->LogOperationSpecialMessage(strMsg);
 					}
-					ExecuteMoveToPlot(pCivilian, pOperation->GetTargetPlot());
-					if(pThisArmy->GetNumSlotsFilled() > 1)
-					{
-						// Move naval escorts in close
-						for(int iI = 0; iI < pThisArmy->GetNumFormationEntries(); iI++)
-						{
-							CvArmyFormationSlot* pSlot = pThisArmy->GetFormationSlot(iI);
-							if(pSlot->GetUnitID() != NO_UNIT)
-							{
-								UnitHandle pUnit = m_pPlayer->getUnit(pSlot->GetUnitID());
-								if(pUnit && !pUnit->TurnProcessed() && pUnit->getMoves() > 0)
-								{
-									if(pUnit->isEmbarked() || pUnit->getDomainType() == DOMAIN_SEA)
-									{
-										if(MoveToEmptySpaceNearTarget(pUnit, pCivilian->plot(), false))
-										{
-											if(pUnit->getMoves() > 0)
-											{
-												MoveToEmptySpaceNearTarget(pUnit, pCivilian->plot(), false);
-											}
-											pUnit->finishMoves();
-											UnitProcessed(pUnit->GetID());
-										}
-										if(GC.getLogging() && GC.getAILogging())
-										{
-											CvString strTemp;
-											CvString strLogString;
-											strTemp = GC.getUnitInfo(pUnit->getUnitType())->GetDescription();
-											strLogString.Format("Moving %s near target at sea, Now at X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY());
-											LogTacticalMessage(strLogString);
-										}
-									}
-									else if(!pUnit->isEmbarked() && pUnit->getDomainType() == DOMAIN_LAND)
-									{
-										if(MoveToEmptySpaceNearTarget(pUnit, pCivilian->plot(), true))
-										{
-											if(pUnit->getMoves() > 0)
-											{
-												MoveToEmptySpaceNearTarget(pUnit, pCivilian->plot(), true);
-											}
-											pUnit->finishMoves();
-											UnitProcessed(pUnit->GetID());
-										}
-										if(GC.getLogging() && GC.getAILogging())
-										{
-											CvString strTemp;
-											CvString strLogString;
-											strTemp = GC.getUnitInfo(pUnit->getUnitType())->GetDescription();
-											strLogString.Format("Moving %s near target on land, Now at X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY());
-											LogTacticalMessage(strLogString);
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-				else
-				{
-					// Move naval escorts in close
-					for(int iI = 0; iI < pThisArmy->GetNumFormationEntries(); iI++)
-					{
-						CvArmyFormationSlot* pSlot = pThisArmy->GetFormationSlot(iI);
-						if(pSlot->GetUnitID() != NO_UNIT)
-						{
-							UnitHandle pUnit = m_pPlayer->getUnit(pSlot->GetUnitID());
-							if(pUnit && !pUnit->TurnProcessed())
-							{
-								if(GC.getLogging() && GC.getAILogging())
-								{
-									CvString strTemp;
-									CvString strLogString;
-									strTemp = GC.getUnitInfo(pUnit->getUnitType())->GetDescription();
-									strLogString.Format("No % target so WAITING, Now at X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY());
-									LogTacticalMessage(strLogString);
-								}
-								pUnit->PushMission(CvTypes::getMISSION_SKIP());
-								UnitProcessed(pUnit->GetID());
-							}
-						}
-					}
+					pOperation->SetToAbort(AI_ABORT_SUCCESS);
 				}
 			}
-			else
+
+			// Is our settler and his escort both one move from the destination?  If so, targeted moves to finish up
+			else if(TurnsToReachTarget(pCivilian, pOperation->GetTargetPlot()) <= 1)
 			{
-				// Settler at the target?
-				if(!pCivilian->plot()->isWater() && pCivilian->plot() == pThisArmy->GetGoalPlot())
+				ExecuteMoveToPlot(pCivilian, pOperation->GetTargetPlot(), true);
+				// if we're there already, we don't have work to do (CheckOnTarget() will finish operation for us)
+				if(pCivilian->plot() == pOperation->GetTargetPlot() && pCivilian->getMoves() > 0)
 				{
 					if(pCivilian->canFound(pCivilian->plot()))
 					{
@@ -5561,131 +5418,115 @@ void CvTacticalAI::PlotNavalEscortOperationMoves(CvAINavalEscortedOperation* pOp
 							pOperation->LogOperationSpecialMessage(strMsg);
 						}
 						pOperation->SetToAbort(AI_ABORT_SUCCESS);
+						return;
 					}
 				}
 
-				// Is our settler and his escort both one move from the destination?  If so, targeted moves to finish up
-				else if(TurnsToReachTarget(pCivilian, pOperation->GetTargetPlot()) <= 1)
+				if(GC.getLogging() && GC.getAILogging())
 				{
-					ExecuteMoveToPlot(pCivilian, pOperation->GetTargetPlot(), true);
-					if(GC.getLogging() && GC.getAILogging())
+					CvString strTemp;
+					CvString strLogString;
+					strTemp = GC.getUnitInfo(pCivilian->getUnitType())->GetDescription();
+					strLogString.Format("Moving %s to target, X: %d, Y: %d", strTemp.GetCString(), pCivilian->getX(), pCivilian->getY());
+					LogTacticalMessage(strLogString);
+				}
+				if(pEscort)
+				{
+					if(pEscort->getDomainType() == pCivilian->getDomainType())
 					{
-						CvString strTemp;
-						CvString strLogString;
-						strTemp = GC.getUnitInfo(pCivilian->getUnitType())->GetDescription();
-						strLogString.Format("Moving %s to target, X: %d, Y: %d", strTemp.GetCString(), pCivilian->getX(), pCivilian->getY());
-						LogTacticalMessage(strLogString);
-					}
-					if(pEscort)
-					{
-#if defined(MOD_BALANCE_CORE)
-						if(pCivilian->plot()->GetNumCombatUnits() == 0 && pCivilian->isEmbarked())
+						if(pCivilian->isEmbarked())
 						{
-							ExecuteMoveToPlot(pEscort, pCivilian->plot(), false);
-						}
-#else
-						if(pCivilian->plot()->GetNumCombatUnits() <= 0)
-						{
-							if(pCivilian->isEmbarked())
-							{
-								bool bMoveWasSafe;
-								MoveToUsingSafeEmbark(pEscort, pCivilian->plot(), bMoveWasSafe);
-								pEscort->finishMoves();
-								UnitProcessed(pEscort->GetID());
-							}
-							else
+							if(pCivilian->plot()->GetNumCombatUnits() == 0)
 							{
 								ExecuteMoveToPlot(pEscort, pCivilian->plot(), false);
 							}
-						}
-#endif
-						else
-						{
-							if(pCivilian->isEmbarked())
+							else
 							{
 								MoveToEmptySpaceNearTarget(pEscort, pCivilian->plot(), false);
+							}
+						}
+						else
+						{
+							if(pCivilian->plot()->GetNumCombatUnits() == 0)
+							{
+								ExecuteMoveToPlot(pEscort, pCivilian->plot());
 							}
 							else
 							{
 								MoveToEmptySpaceNearTarget(pEscort, pCivilian->plot());
 							}
 						}
-						if(GC.getLogging() && GC.getAILogging())
-						{
-							CvString strTemp;
-							CvString strLogString;
-							strTemp = GC.getUnitInfo(pEscort->getUnitType())->GetDescription();
-							strLogString.Format("Moving escort %s to target, X: %d, Y: %d", strTemp.GetCString(), pEscort->getX(), pEscort->getY());
-							LogTacticalMessage(strLogString);
-						}
 					}
-					if(pThisArmy->GetNumSlotsFilled() > 1)
+					else
 					{
-						// Move naval escorts in close
-						for(int iI = 0; iI < pThisArmy->GetNumFormationEntries(); iI++)
+						MoveToEmptySpaceNearTarget(pEscort, pCivilian->plot(), false);
+					}
+					if(GC.getLogging() && GC.getAILogging())
+					{
+						CvString strTemp;
+						CvString strLogString;
+						strTemp = GC.getUnitInfo(pEscort->getUnitType())->GetDescription();
+						strLogString.Format("Moving escort %s to target, X: %d, Y: %d", strTemp.GetCString(), pEscort->getX(), pEscort->getY());
+						LogTacticalMessage(strLogString);
+					}
+				}
+				if(pThisArmy->GetNumSlotsFilled() > 2)
+				{
+					// Move naval escorts in close
+					for(int iI = 0; iI < pThisArmy->GetNumFormationEntries(); iI++)
+					{
+						CvArmyFormationSlot* pSlot = pThisArmy->GetFormationSlot(iI);
+						if(pSlot->GetUnitID() != NO_UNIT)
 						{
-							CvArmyFormationSlot* pSlot = pThisArmy->GetFormationSlot(iI);
-							if(pSlot->GetUnitID() != NO_UNIT)
+							UnitHandle pUnit = m_pPlayer->getUnit(pSlot->GetUnitID());
+							if(pUnit && !pUnit->TurnProcessed() && pUnit->getMoves() > 0)
 							{
-								UnitHandle pUnit = m_pPlayer->getUnit(pSlot->GetUnitID());
-								if(pUnit && !pUnit->TurnProcessed() && pUnit->getMoves() > 0)
+								if(pUnit->isEmbarked() || pUnit->getDomainType() == DOMAIN_SEA)
 								{
-									if(pUnit->isEmbarked() || pUnit->getDomainType() == DOMAIN_SEA)
+									MoveToEmptySpaceNearTarget(pUnit, pCivilian->plot(), false);
+									pUnit->finishMoves();
+									UnitProcessed(pUnit->GetID());
+									if(GC.getLogging() && GC.getAILogging())
 									{
-										if(MoveToEmptySpaceNearTarget(pUnit, pCivilian->plot(), false))
-										{
-											if(pUnit->getMoves() > 0)
-											{
-												MoveToEmptySpaceNearTarget(pUnit, pCivilian->plot(), false);
-											}
-											pUnit->finishMoves();
-											UnitProcessed(pUnit->GetID());
-										}
-										if(GC.getLogging() && GC.getAILogging())
-										{
-											CvString strTemp;
-											CvString strLogString;
-											strTemp = GC.getUnitInfo(pUnit->getUnitType())->GetDescription();
-											strLogString.Format("Moving %s near target at sea, Now at X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY());
-											LogTacticalMessage(strLogString);
-										}
+										CvString strTemp;
+										CvString strLogString;
+										strTemp = GC.getUnitInfo(pUnit->getUnitType())->GetDescription();
+										strLogString.Format("Moving %s near target at sea, Now at X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY());
+										LogTacticalMessage(strLogString);
 									}
-									else if(!pUnit->isEmbarked() && pUnit->getDomainType() == DOMAIN_LAND)
+								}
+								else if(!pUnit->isEmbarked() && pUnit->getDomainType() == DOMAIN_LAND)
+								{
+									MoveToEmptySpaceNearTarget(pUnit, pCivilian->plot(), true);
+									pUnit->finishMoves();
+									UnitProcessed(pUnit->GetID());
+									if(GC.getLogging() && GC.getAILogging())
 									{
-										if(MoveToEmptySpaceNearTarget(pUnit, pCivilian->plot(), true))
-										{
-											if(pUnit->getMoves() > 0)
-											{
-												MoveToEmptySpaceNearTarget(pUnit, pCivilian->plot(), true);
-											}
-											pUnit->finishMoves();
-											UnitProcessed(pUnit->GetID());
-										}
-										if(GC.getLogging() && GC.getAILogging())
-										{
-											CvString strTemp;
-											CvString strLogString;
-											strTemp = GC.getUnitInfo(pUnit->getUnitType())->GetDescription();
-											strLogString.Format("Moving %s near target on land, Now at X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY());
-											LogTacticalMessage(strLogString);
-										}
+										CvString strTemp;
+										CvString strLogString;
+										strTemp = GC.getUnitInfo(pUnit->getUnitType())->GetDescription();
+										strLogString.Format("Moving %s near target on land, Now at X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY());
+										LogTacticalMessage(strLogString);
 									}
 								}
 							}
 						}
 					}
 				}
-				// Still further away, move as formation
-				else
+			}
+			// Still further away, move as formation
+			else
+			{
+				if(pOperation->GetTargetPlot() != NULL)
 				{
-					if(pOperation->GetTargetPlot() != NULL)
+					ExecuteMoveToPlot(pCivilian, pOperation->GetTargetPlot());
+					if(pEscort && pCivilian->plot()->GetNumCombatUnits() == 0 && pEscort->plot() != pCivilian->plot())
 					{
-						ExecuteMoveToPlot(pCivilian, pOperation->GetTargetPlot());
-						if(pEscort && pCivilian->plot()->GetNumCombatUnits() == 0 && pEscort->plot() != pCivilian->plot())
-						{
-							ExecuteMoveToPlot(pEscort, pCivilian->plot());
-						}
-						else if(pEscort)
+						ExecuteMoveToPlot(pEscort, pCivilian->plot());
+					}
+					else if(pEscort)
+					{
+						if(pEscort->getDomainType() == pCivilian->getDomainType())
 						{
 							if(pCivilian->isEmbarked())
 							{
@@ -5695,63 +5536,28 @@ void CvTacticalAI::PlotNavalEscortOperationMoves(CvAINavalEscortedOperation* pOp
 							{
 								MoveToEmptySpaceNearTarget(pEscort, pCivilian->plot(), true);					
 							}
-							pEscort->finishMoves();
-							UnitProcessed(pEscort->GetID());
 						}
-						// Request moves for all units
-						for(int iI = 0; iI < pThisArmy->GetNumFormationEntries(); iI++)
+						else
 						{
-							CvArmyFormationSlot* pSlot = pThisArmy->GetFormationSlot(iI);
-							if(pSlot->GetUnitID() != NO_UNIT)
+							MoveToEmptySpaceNearTarget(pEscort, pCivilian->plot(), false);					
+						}
+						pEscort->finishMoves();
+						UnitProcessed(pEscort->GetID());
+					}
+					// Request moves for all units
+					for(int iI = 0; iI < pThisArmy->GetNumFormationEntries(); iI++)
+					{
+						CvArmyFormationSlot* pSlot = pThisArmy->GetFormationSlot(iI);
+						if(pSlot->GetUnitID() != NO_UNIT)
+						{
+							UnitHandle pUnit = m_pPlayer->getUnit(pSlot->GetUnitID());
+							if(pUnit && !pUnit->TurnProcessed() && pUnit->getMoves() > 0)
 							{
-								UnitHandle pUnit = m_pPlayer->getUnit(pSlot->GetUnitID());
-								if(pUnit && !pUnit->TurnProcessed() && pUnit->getMoves() > 0)
+								if(pOperation->GetTargetPlot() != NULL)
 								{
-									if(pOperation->GetTargetPlot() != NULL)
+									if(pUnit->getDomainType() == DOMAIN_LAND)
 									{
-										if(pUnit->getDomainType() == DOMAIN_LAND)
-										{
-											if(pUnit->isEmbarked())
-											{
-												if(MoveToEmptySpaceNearTarget(pUnit, pCivilian->plot(), false))
-												{
-													pUnit->finishMoves();
-													UnitProcessed(pUnit->GetID());
-												}
-												else
-												{
-													MoveToEmptySpaceTwoFromTarget(pUnit, pCivilian->plot(), false);
-													pUnit->finishMoves();
-													UnitProcessed(pUnit->GetID());
-												}
-											}
-											else
-											{
-												if(MoveToEmptySpaceNearTarget(pUnit, pCivilian->plot(), true))
-												{
-													pUnit->finishMoves();
-													UnitProcessed(pUnit->GetID());
-												}
-												else
-												{
-													MoveToEmptySpaceTwoFromTarget(pUnit, pCivilian->plot(), true);
-													pUnit->finishMoves();
-													UnitProcessed(pUnit->GetID());
-												}
-											}
-											if(GC.getLogging() && GC.getAILogging())
-											{
-												CvString strTemp;
-												CvString strMsg;
-												strTemp = GC.getUnitInfo(pUnit->getUnitType())->GetDescription();
-												strMsg.Format("Moving %s with formation for escort mission, x: %d, y: %d (PlotNavalEscortOperationMoves)", strTemp.GetCString(), pUnit->getX(), pUnit->getY());
-												LogTacticalMessage(strMsg);
-											}
-											pUnit->finishMoves();
-											UnitProcessed(pUnit->GetID());
-										}
-										//May need to make more advanced later - we'll see.
-										else if(pUnit->getDomainType() == DOMAIN_SEA)
+										if(pUnit->isEmbarked())
 										{
 											if(MoveToEmptySpaceNearTarget(pUnit, pCivilian->plot(), false))
 											{
@@ -5764,6 +5570,53 @@ void CvTacticalAI::PlotNavalEscortOperationMoves(CvAINavalEscortedOperation* pOp
 												pUnit->finishMoves();
 												UnitProcessed(pUnit->GetID());
 											}
+										}
+										else
+										{
+											if(MoveToEmptySpaceNearTarget(pUnit, pCivilian->plot(), true))
+											{
+												pUnit->finishMoves();
+												UnitProcessed(pUnit->GetID());
+											}
+											else
+											{
+												MoveToEmptySpaceTwoFromTarget(pUnit, pCivilian->plot(), true);
+												pUnit->finishMoves();
+												UnitProcessed(pUnit->GetID());
+											}
+										}
+										if(GC.getLogging() && GC.getAILogging())
+										{
+											CvString strTemp;
+											CvString strMsg;
+											strTemp = GC.getUnitInfo(pUnit->getUnitType())->GetDescription();
+											strMsg.Format("Moving embarked %s with formation for naval escort mission, x: %d, y: %d (PlotNavalEscortOperationMoves)", strTemp.GetCString(), pUnit->getX(), pUnit->getY());
+											LogTacticalMessage(strMsg);
+										}
+										pUnit->finishMoves();
+										UnitProcessed(pUnit->GetID());
+									}
+									//May need to make more advanced later - we'll see.
+									else if(pUnit->getDomainType() == DOMAIN_SEA)
+									{
+										if(MoveToEmptySpaceNearTarget(pUnit, pCivilian->plot(), false))
+										{
+											pUnit->finishMoves();
+											UnitProcessed(pUnit->GetID());
+										}
+										else
+										{
+											MoveToEmptySpaceTwoFromTarget(pUnit, pCivilian->plot(), false);
+											pUnit->finishMoves();
+											UnitProcessed(pUnit->GetID());
+										}
+										if(GC.getLogging() && GC.getAILogging())
+										{
+											CvString strTemp;
+											CvString strMsg;
+											strTemp = GC.getUnitInfo(pUnit->getUnitType())->GetDescription();
+											strMsg.Format("Moving boat %s with formation for naval escort mission, x: %d, y: %d (PlotNavalEscortOperationMoves)", strTemp.GetCString(), pUnit->getX(), pUnit->getY());
+											LogTacticalMessage(strMsg);
 										}
 									}
 								}
@@ -12176,6 +12029,10 @@ bool CvTacticalAI::FindClosestOperationUnit(CvPlot* pTarget, bool bSafeForRanged
 	m_CurrentMoveUnits.clear();
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
+	if(pTarget == NULL)
+	{
+		return false;
+	}
 	std::vector< std::pair<int,CvUnit*> > vUnitsByDistance;
 #endif
 

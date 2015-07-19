@@ -268,6 +268,12 @@ public:
 
 	int getChangeDamageValue();
 	void ChangeChangeDamageValue(int iChange);
+
+	int getPromotionDuration(PromotionTypes ePromotion);
+	void ChangePromotionDuration(PromotionTypes ePromotion, int iChange);
+
+	int getTurnPromotionGained(PromotionTypes ePromotion);
+	void SetTurnPromotionGained(PromotionTypes ePromotion, int iChange);
 #endif
 
 	bool canEmbark(const CvPlot* pPlot) const;
@@ -1587,6 +1593,8 @@ protected:
 	FAutoVariable<int, CvUnit> m_iCannotBeCapturedCount;
 	FAutoVariable<int, CvUnit> m_iForcedDamage;
 	FAutoVariable<int, CvUnit> m_iChangeDamage;
+	FAutoVariable<std::vector<int>, CvUnit> m_PromotionDuration;
+	FAutoVariable<std::vector<int>, CvUnit> m_TurnPromotionGained;
 #endif
 	FAutoVariable<int, CvUnit> m_iRangedSupportFireCount;
 	FAutoVariable<int, CvUnit> m_iAlwaysHealCount;

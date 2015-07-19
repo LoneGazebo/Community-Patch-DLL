@@ -2748,6 +2748,7 @@ int CvDiplomacyAI::GetMajorCivOpinionWeight(PlayerTypes ePlayer)
 	{
 		iOpinionWeight += GetVictoryDisputeLevelScore(ePlayer);
 		iOpinionWeight += GetVictoryBlockLevelScore(ePlayer);
+		iOpinionWeight += (GetMilitaryAggressivePosture(ePlayer)  * 3);
 	}
 #endif
 

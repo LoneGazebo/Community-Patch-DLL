@@ -218,7 +218,7 @@
 		</Row>
 		<Row>
 			<CivilizationType>CIVILIZATION_BARBARIAN</CivilizationType>
-			<BuildingClassType>BUILDING_CIVILIZED_JEWELERS_HQ</BuildingClassType>
+			<BuildingClassType>BUILDINGCLASS_CIVILIZED_JEWELERS_HQ</BuildingClassType>
 			<BuildingType/>
 		</Row>
 		
@@ -254,7 +254,7 @@
 		</Row>
 		<Row>
 			<CivilizationType>CIVILIZATION_MINOR</CivilizationType>
-			<BuildingClassType>BUILDING_CIVILIZED_JEWELERS_HQ</BuildingClassType>
+			<BuildingClassType>BUILDINGCLASS_CIVILIZED_JEWELERS_HQ</BuildingClassType>
 			<BuildingType/>
 		</Row>
 	</Civilization_BuildingClassOverrides>

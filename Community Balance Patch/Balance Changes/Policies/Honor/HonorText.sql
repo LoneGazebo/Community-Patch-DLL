@@ -56,7 +56,7 @@ SET Text = 'Conscription'
 WHERE Tag = 'TXT_KEY_POLICY_MILITARY_CASTE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Conscription[ENDCOLOR][NEWLINE]Units gain +10% [ICON_STRENGTH] Strength. A ranged unit spawns in your [ICON_CAPITAL] Capital, and in every city settled after taking this Policy.'
+SET Text = '[COLOR_POSITIVE_TEXT]Conscription[ENDCOLOR][NEWLINE]Units gain +10% [ICON_STRENGTH] Strength. When a City reaches a multiple of 6 [ICON_CITIZEN] Citizens, a unit is created near that City.'
 WHERE Tag = 'TXT_KEY_POLICY_MILITARY_CASTE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_POLICIES' AND Value= 1 );
 
 UPDATE Language_en_US

@@ -3500,7 +3500,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_NeedNavalTileImprovement(CvCity* 
 							CvResourceInfo* pInfo = GC.getResourceInfo(eResource);
 							if(pInfo && pInfo->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
 							{
-								iNumUnimprovedWaterResources++;
+								iNumUnimprovedWaterResources *= 5;
 							}
 #endif
 

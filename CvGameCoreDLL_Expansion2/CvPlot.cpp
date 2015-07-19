@@ -9143,36 +9143,49 @@ int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay)
 		iYield += kPlayer.getPlotYieldChange(getPlotType(), eYield);
 #endif
 #if defined(MOD_BALANCE_CORE)
-		if(kPlayer.GetPlayerTraits()->IsTradeRouteOnly())
+		if(kPlayer.GetPlayerTraits()->IsTradeRouteOnly() && getFeatureType() == NO_FEATURE)
 		{
-			bool bTrade = false;
-			if(IsTradeRoute())
+			int iBonus = kPlayer.GetPlayerTraits()->GetTerrainYieldChange(getTerrainType(), eYield);
+			if(iBonus > 0)
 			{
-				bTrade = true;
-			}
-			if(!bTrade)
-			{
-				CvGameTrade* pTrade = GC.getGame().GetGameTrade();
-				for (uint uiConnection = 0; uiConnection < pTrade->m_aTradeConnections.size(); uiConnection++)
+				bool bTrade = false;
+				if(IsTradeRoute())
 				{
-					TradeConnection* pConnection = &(pTrade->m_aTradeConnections[uiConnection]);
-					if (pTrade->IsTradeRouteIndexEmpty(uiConnection))
+					bTrade = true;
+				}
+				if(!bTrade)
+				{
+					CvGameTrade* pTrade = GC.getGame().GetGameTrade();
+					for (uint uiConnection = 0; uiConnection < pTrade->m_aTradeConnections.size(); uiConnection++)
 					{
-						continue;
-					}
-					for (uint ui = 0; ui < pConnection->m_aPlotList.size(); ui++)
-					{
-						if (pConnection->m_aPlotList[ui].m_iX == getX() && pConnection->m_aPlotList[ui].m_iY == getY())
+						TradeConnection* pConnection = &(pTrade->m_aTradeConnections[uiConnection]);
+						if (pTrade->IsTradeRouteIndexEmpty(uiConnection))
 						{
-							bTrade = true;
-							break;
+							continue;
+						}
+						for (uint ui = 0; ui < pConnection->m_aPlotList.size(); ui++)
+						{
+							if (pConnection->m_aPlotList[ui].m_iX == getX() && pConnection->m_aPlotList[ui].m_iY == getY())
+							{
+								bTrade = true;
+								break;
+							}
 						}
 					}
 				}
-			}
-			if(bTrade)
-			{
-				iYield += kPlayer.GetPlayerTraits()->GetTerrainYieldChange(getTerrainType(), eYield);
+				if(bTrade)
+				{
+					int iScale = 0;
+					int iEra = (GC.getGame().getCurrentEra() + 1);
+
+					iScale = ((iBonus * iEra) / 4);
+
+					if(iScale <= 0)
+					{
+						iScale = 1;
+					}
+					iYield += iScale;
+				}
 			}
 		}
 		else

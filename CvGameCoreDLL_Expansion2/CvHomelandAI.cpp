@@ -728,12 +728,7 @@ void CvHomelandAI::FindHomelandTargets()
 	{
 		pLoopPlot = theMap.plotByIndexUnchecked(iI);
 
-#if defined(MOD_BALANCE_CORE)
-		//Makes AI a little psychic, but that's okay.
-		if((pLoopPlot->isVisible(m_pPlayer->getTeam()) && m_pPlayer->GetCityDistance(pLoopPlot) <= 10) || (pLoopPlot->isRevealed(m_pPlayer->getTeam()) && m_pPlayer->GetCityDistance(pLoopPlot) <= 5))
-#else
 		if(pLoopPlot->isVisible(m_pPlayer->getTeam()))
-#endif
 		{
 			// Have a ...
 			// ... friendly city?
@@ -759,12 +754,21 @@ void CvHomelandAI::FindHomelandTargets()
 			else if(pLoopPlot->isWater() &&
 			        pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
 			{
+#if defined(MOD_BALANCE_CORE)
+				ResourceTypes eNonObsoleteResource = pLoopPlot->getResourceType(eTeam);
+				if(eNonObsoleteResource != NO_RESOURCE)
+				{
+					if(pLoopPlot->getOwner() == m_pPlayer->GetID())
+					{
+#else
 				ResourceTypes eNonObsoleteResource = pLoopPlot->getNonObsoleteResourceType(eTeam);
+
 				if(eNonObsoleteResource != NO_RESOURCE)
 				{
 					CvCity* pWorkingCity = pLoopPlot->getWorkingCity();
 					if(NULL != pWorkingCity && pWorkingCity->getOwner() == m_pPlayer->GetID())
 					{
+#endif
 						// Find proper improvement
 						BuildTypes eBuild;
 						for(int iJ = 0; iJ < GC.getNumBuildInfos(); iJ++)

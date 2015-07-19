@@ -467,16 +467,34 @@ void CvCitySpecializationAI::WeightSpecializations()
 		{
 			iFoodYieldWeight += GC.getAI_CITY_SPECIALIZATION_FOOD_WEIGHT_EARLY_EXPANSION() /* 500 */;
 		}
+#if defined(MOD_BALANCE_CORE)
+		EconomicAIStrategyTypes eStrategy2 = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_EXPAND_TO_OTHER_CONTINENTS");
+		if(eStrategy2 != NO_ECONOMICAISTRATEGY && m_pPlayer->GetEconomicAI()->IsUsingStrategy(eStrategy2))
+		{
+			iFoodYieldWeight += (GC.getAI_CITY_SPECIALIZATION_FOOD_WEIGHT_EARLY_EXPANSION() / 2) /* 250 */;
+		}
+		EconomicAIStrategyTypes eStrategy3 = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_GROW_LIKE_CRAZY");
+		if(eStrategy3 != NO_ECONOMICAISTRATEGY && m_pPlayer->GetEconomicAI()->IsUsingStrategy(eStrategy3))
+		{
+			iFoodYieldWeight += (GC.getAI_CITY_SPECIALIZATION_FOOD_WEIGHT_EARLY_EXPANSION() * 2) /* 1000 */;
+		}
+
+		EconomicAIStrategyTypes eStrategy4 = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_TECH_LEADER");
+		if(eStrategy4 != NO_ECONOMICAISTRATEGY && m_pPlayer->GetEconomicAI()->IsUsingStrategy(eStrategy4))
+		{
+			iFoodYieldWeight += (GC.getAI_CITY_SPECIALIZATION_FOOD_WEIGHT_EARLY_EXPANSION() / 2) /* 250 */;
+		}
+#endif
 		iFoodYieldWeight += iFlavorExpansion * GC.getAI_CITY_SPECIALIZATION_FOOD_WEIGHT_FLAVOR_EXPANSION() /* 5 */;
 		iFoodYieldWeight += (iNumUnownedTiles * 100) / pArea->getNumTiles() * GC.getAI_CITY_SPECIALIZATION_FOOD_WEIGHT_PERCENT_CONTINENT_UNOWNED() /* 5 */;;
 		iFoodYieldWeight += iNumCities * GC.getAI_CITY_SPECIALIZATION_FOOD_WEIGHT_NUM_CITIES() /* -50 */;
 		iFoodYieldWeight += iNumSettlers * GC.getAI_CITY_SPECIALIZATION_FOOD_WEIGHT_NUM_SETTLERS() /* -40 */;
-#if !defined (MOD_BALANCE_CORE)
+
 		if((iNumCities + iNumSettlers) == 1)
 		{
 			iFoodYieldWeight *= 3;   // Really want to get up over 1 city
 		}
-#endif
+
 		if(iFoodYieldWeight < 0) iFoodYieldWeight = 0;
 
 		//   Production

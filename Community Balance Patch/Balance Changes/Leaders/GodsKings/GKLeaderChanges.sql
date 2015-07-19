@@ -330,7 +330,7 @@ DELETE FROM Civilization_UnitClassOverrides
 WHERE UnitType = 'UNIT_BYZANTINE_DROMON' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Choose one more Belief than normal when you found a Religion. A free Great Prophet appears near your [ICON_CAPITAL] Capital when you research Theology.'
+SET Text = 'Choose one more Belief than normal when you found a Religion. A free Great Prophet appears near your [ICON_CAPITAL] Capital when you research Philosophy.'
 WHERE Tag = 'TXT_KEY_TRAIT_EXTRA_BELIEF' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Traits
@@ -338,7 +338,7 @@ SET FreeUnit = 'UNITCLASS_PROPHET'
 WHERE Type = 'TRAIT_EXTRA_BELIEF' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 UPDATE Traits
-SET FreeUnitPrereqTech = 'TECH_THEOLOGY'
+SET FreeUnitPrereqTech = 'TECH_PHILOSOPHY'
 WHERE Type = 'TRAIT_EXTRA_BELIEF' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 -- Cataphract Lasts Longer
@@ -389,12 +389,16 @@ UPDATE Buildings
 SET BuildingProductionModifier = '15'
 WHERE Type = 'BUILDING_COFFEE_HOUSE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
+UPDATE Buildings
+SET GreatPeopleRateModifier = '33'
+WHERE Type = 'BUILDING_COFFEE_HOUSE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
+
 UPDATE Building_YieldChanges
 SET Yield = '3'
 WHERE BuildingType = 'BUILDING_COFFEE_HOUSE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_BUILDINGS' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '+25% [ICON_GREAT_PEOPLE] Great People generation in this City. +15% [ICON_PRODUCTION] Production when constructing Buildings.'
+SET Text = '+33% [ICON_GREAT_PEOPLE] Great People generation in this City. +15% [ICON_PRODUCTION] Production when constructing Buildings.'
 WHERE Tag = 'TXT_KEY_BUILDING_COFFEE_HOUSE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_LEADERS' AND Value= 1 );
 
 -- Maya -- Move Pyramid to Agriculture, Bring GP back to Calendar (makes so much more sense!)

@@ -384,14 +384,54 @@
 			<Yield>1</Yield>
 		</Row>
 	</Policy_PlotYieldChanges>
+	<UnitPromotions>
+		<Row>
+			<Type>PROMOTION_NAVAL_DEFENSE_BOOST</Type>
+			<Description>TXT_KEY_PROMOTION_NAVAL_DEFENSE_BOOST</Description>
+			<Help>TXT_KEY_PROMOTION_NAVAL_DEFENSE_BOOST_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<PortraitIndex>12</PortraitIndex>
+			<IconAtlas>EXPANSION2_PROMOTION_ATLAS</IconAtlas>
+			<CannotBeChosen>true</CannotBeChosen>
+			<DefenseMod>20</DefenseMod>
+			<PediaType>PEDIA_NAVAL</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_HONOR_BONUS</PediaEntry>
+		</Row>
+	</UnitPromotions>
+	<Language_en_US>
+		<Row Tag="TXT_KEY_PROMOTION_NAVAL_DEFENSE_BOOST">
+			<Text>Ironsides</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_NAVAL_DEFENSE_BOOST_HELP">
+			<Text>+20% Combat Bonus when defending.</Text>
+		</Row>
+	</Language_en_US>
+	<UnitPromotions_UnitCombats>
+		<Row>
+			<PromotionType>PROMOTION_NAVAL_DEFENSE_BOOST</PromotionType>
+			<UnitCombatType>UNITCOMBAT_NAVALMELEE</UnitCombatType>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_NAVAL_DEFENSE_BOOST</PromotionType>
+			<UnitCombatType>UNITCOMBAT_NAVALRANGED</UnitCombatType>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_NAVAL_DEFENSE_BOOST</PromotionType>
+			<UnitCombatType>UNITCOMBAT_CARRIER</UnitCombatType>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_NAVAL_DEFENSE_BOOST</PromotionType>
+			<UnitCombatType>UNITCOMBAT_SUBMARINE</UnitCombatType>
+		</Row>
+	</UnitPromotions_UnitCombats>
 	<Policy_FreePromotions>
 		<Row>
 			<PolicyType>POLICY_EXPLORATION_FINISHER</PolicyType>
-			<PromotionType>PROMOTION_SORTIE</PromotionType>
+			<PromotionType>PROMOTION_AIR_RANGE</PromotionType>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_EXPLORATION_FINISHER</PolicyType>
-			<PromotionType>PROMOTION_AIR_SIEGE_1</PromotionType>
+			<PromotionType>PROMOTION_NAVAL_DEFENSE_BOOST</PromotionType>
 		</Row>
 		<Row>
 			<PolicyType>POLICY_NAVIGATION_SCHOOL</PolicyType>

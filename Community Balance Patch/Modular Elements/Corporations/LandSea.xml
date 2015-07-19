@@ -293,7 +293,7 @@
 			<Text>When a [ICON_INTERNATIONAL_TRADE] Trade Route between a foreign City and this City completes, a LandSea Extractors Franchise is constructed in the foreign City.[NEWLINE][NEWLINE]LandSea Extractors cannot be sold or destroyed by the player, and increases the [ICON_PRODUCTION] Production output of all LandSea Extractors Offices by +1.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_LANDSEA_EXTRACTORS_HELP">
-			<Text>+2 [ICON_PRODUCTION] Production on all Monopoly Resources associated with LandSea Extractors. +1 [ICON_PRODUCTION] Production for every Hexxon Refineries Franchise.[NEWLINE][NEWLINE]Every Trade Route from this City to a foreign City with a LandSea Extractors Franchise increases this City's [ICON_RESEARCH] Science rate by +5%.</Text>
+			<Text>+2 [ICON_PRODUCTION] Production on all Monopoly Resources associated with LandSea Extractors. +1 [ICON_PRODUCTION] Production for every LandSea Extractors Franchise.[NEWLINE][NEWLINE]Every Trade Route from this City to a foreign City with a LandSea Extractors Franchise increases this City's [ICON_RESEARCH] Science rate by +5%.</Text>
 		</Row>
 	</Language_en_US>
 </GameData>

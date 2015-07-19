@@ -1,13 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Created by ModBuddy on 4/30/2015 12:34:58 PM -->
 <GameData>
-	<AIGrandStrategy_Yields>
-		<Row>
-			<AIGrandStrategyType>AIGRANDSTRATEGY_SPACESHIP</AIGrandStrategyType>
-			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>200</Yield>
-		</Row>
-	</AIGrandStrategy_Yields>
 	<AIMilitaryStrategy_City_Flavors>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_AT_WAR</AIMilitaryStrategyType>
@@ -881,4 +874,72 @@
 			<TerrainType>TERRAIN_DESERT</TerrainType>
 		</Row>
 	</Resource_FeatureTerrainBooleans>
+
+	
+	<AIGrandStrategy_Yields>
+		<Delete AIGrandStrategyType="AIGRANDSTRATEGY_CONQUEST"/>
+		<Delete AIGrandStrategyType="AIGRANDSTRATEGY_CULTURE"/>
+		<Delete AIGrandStrategyType="AIGRANDSTRATEGY_UNITED_NATIONS"/>
+		<Delete AIGrandStrategyType="AIGRANDSTRATEGY_SPACESHIP"/>
+		<Row>
+			<AIGrandStrategyType>AIGRANDSTRATEGY_CONQUEST</AIGrandStrategyType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>400</Yield>
+		</Row>
+		<Row>
+			<AIGrandStrategyType>AIGRANDSTRATEGY_CONQUEST</AIGrandStrategyType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>300</Yield>
+		</Row>
+		<Row>
+			<AIGrandStrategyType>AIGRANDSTRATEGY_CONQUEST</AIGrandStrategyType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>200</Yield>
+		</Row>
+		<Row>
+			<AIGrandStrategyType>AIGRANDSTRATEGY_CULTURE</AIGrandStrategyType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>400</Yield>
+		</Row>
+		<Row>
+			<AIGrandStrategyType>AIGRANDSTRATEGY_CULTURE</AIGrandStrategyType>
+			<YieldType>YIELD_FAITH</YieldType>
+			<Yield>300</Yield>
+		</Row>
+		<Row>
+			<AIGrandStrategyType>AIGRANDSTRATEGY_CULTURE</AIGrandStrategyType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>200</Yield>
+		</Row>
+		<Row>
+			<AIGrandStrategyType>AIGRANDSTRATEGY_UNITED_NATIONS</AIGrandStrategyType>
+			<YieldType>YIELD_GOLD</YieldType>
+			<Yield>400</Yield>
+		</Row>
+		<Row>
+			<AIGrandStrategyType>AIGRANDSTRATEGY_UNITED_NATIONS</AIGrandStrategyType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Yield>300</Yield>
+		</Row>
+		<Row>
+			<AIGrandStrategyType>AIGRANDSTRATEGY_UNITED_NATIONS</AIGrandStrategyType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>200</Yield>
+		</Row>
+		<Row>
+			<AIGrandStrategyType>AIGRANDSTRATEGY_SPACESHIP</AIGrandStrategyType>
+			<YieldType>YIELD_SCIENCE</YieldType>
+			<Yield>400</Yield>
+		</Row>
+		<Row>
+			<AIGrandStrategyType>AIGRANDSTRATEGY_SPACESHIP</AIGrandStrategyType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>300</Yield>
+		</Row>
+		<Row>
+			<AIGrandStrategyType>AIGRANDSTRATEGY_SPACESHIP</AIGrandStrategyType>
+			<YieldType>YIELD_PRODUCTION</YieldType>
+			<Yield>200</Yield>
+		</Row>
+	</AIGrandStrategy_Yields>
 </GameData>

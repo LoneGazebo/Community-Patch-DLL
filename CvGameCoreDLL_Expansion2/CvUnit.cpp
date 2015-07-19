@@ -159,6 +159,8 @@ CvUnit::CvUnit() :
 	, m_iCannotBeCapturedCount("CvUnit::m_iCannotBeCapturedCount", m_syncArchive)
 	, m_iForcedDamage("CvUnit::m_iForcedDamage", m_syncArchive)
 	, m_iChangeDamage("CvUnit::m_iForcedDamage", m_syncArchive)
+	, m_PromotionDuration("CvUnit::m_PromotionDuration", m_syncArchive)
+	, m_TurnPromotionGained("CvUnit::m_TurnPromotionGained", m_syncArchive)
 #endif
 
 	, m_iRangedSupportFireCount("CvUnit::m_iRangedSupportFireCount", m_syncArchive)
@@ -2692,6 +2694,10 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 #if defined(MOD_PROMOTIONS_HALF_MOVE)
 		m_terrainHalfMoveCount.clear();
 #endif
+#if defined(MOD_BALANCE_CORE)
+		m_PromotionDuration.clear();
+		m_TurnPromotionGained.clear();
+#endif
 		m_terrainImpassableCount.clear();
 		m_extraTerrainAttackPercent.clear();
 		m_extraTerrainDefensePercent.clear();
@@ -2699,6 +2705,10 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 		m_terrainDoubleMoveCount.resize(GC.getNumTerrainInfos());
 #if defined(MOD_PROMOTIONS_HALF_MOVE)
 		m_terrainHalfMoveCount.resize(GC.getNumTerrainInfos());
+#endif
+#if defined(MOD_BALANCE_CORE)
+		m_PromotionDuration.resize(GC.getNumPromotionInfos());
+		m_TurnPromotionGained.resize(GC.getNumPromotionInfos());
 #endif
 		m_terrainImpassableCount.resize(GC.getNumTerrainInfos());
 		m_extraTerrainAttackPercent.resize(GC.getNumTerrainInfos());
@@ -2714,6 +2724,13 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 			m_extraTerrainAttackPercent.setAt(i,0);
 			m_extraTerrainDefensePercent.setAt(i,0);
 		}
+#if defined(MOD_BALANCE_CORE)
+		for(int i = 0; i < GC.getNumPromotionInfos(); i++)
+		{
+			m_PromotionDuration.setAt(i,0);
+			m_TurnPromotionGained.setAt(i,0);
+		}
+#endif
 
 		CvAssertMsg((0 < GC.getNumFeatureInfos()), "GC.getNumFeatureInfos() is not greater than zero but a float array is being allocated in CvUnit::reset");
 		m_featureDoubleMoveCount.clear();
@@ -2860,6 +2877,10 @@ void CvUnit::uninitInfos()
 	m_featureHalfMoveCount.clear();
 #else
 	m_featureDoubleMoveCount.clear();
+#endif
+#if defined(MOD_BALANCE_CORE)
+	m_PromotionDuration.clear();
+	m_TurnPromotionGained.clear();
 #endif
 	m_terrainImpassableCount.clear();
 	m_featureImpassableCount.clear();
@@ -3592,8 +3613,7 @@ void CvUnit::doTurn()
 		SetActivityType(ACTIVITY_AWAKE);
 	}
 #if defined(MOD_BALANCE_CORE)
-	bool bAirRange = (getDomainType() == DOMAIN_AIR && (eActivityType != ACTIVITY_HEAL) &&  isHuman() && !IsHurt() && SentryAlert());
-	if(bAirRange)
+	if((getDomainType() == DOMAIN_AIR) && (eActivityType != ACTIVITY_HEAL) && isHuman() && !IsHurt() && SentryAlert())
 	{
 		SetActivityType(ACTIVITY_AWAKE);
 	}
@@ -3661,6 +3681,25 @@ void CvUnit::doTurn()
 			SetFortifiedThisTurn(true);
 		}
 	}
+
+#if defined(MOD_BALANCE_CORE)
+	for(int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
+	{
+		const PromotionTypes ePromotion = static_cast<PromotionTypes>(iI);
+		CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(ePromotion);
+		if(pkPromotionInfo)
+		{
+			if(isHasPromotion(ePromotion) && pkPromotionInfo->PromotionDuration() > 0)
+			{
+				int iTurnsLeft = (GC.getGame().getGameTurn() - getTurnPromotionGained(ePromotion));
+				if(iTurnsLeft > getPromotionDuration(ePromotion))
+				{
+					setHasPromotion(ePromotion, false);
+				}
+			}
+		}
+	}				
+#endif
 
 	doDelayedDeath();
 }
@@ -6377,6 +6416,42 @@ int CvUnit::getChangeDamageValue()
 {
 	VALIDATE_OBJECT
 	return m_iChangeDamage;
+}
+
+//	--------------------------------------------------------------------------------
+void CvUnit::ChangePromotionDuration(PromotionTypes ePromotion, int iChange)
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex < GC.getNumPromotionInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	m_PromotionDuration.setAt(ePromotion, m_PromotionDuration[ePromotion] + iChange);
+	CvAssert(getPromotionDuration(ePromotion) >= 0);
+}
+//	--------------------------------------------------------------------------------
+int CvUnit::getPromotionDuration(PromotionTypes ePromotion)
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex < GC.getNumPromotionInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	return m_PromotionDuration[ePromotion];
+}
+
+//	--------------------------------------------------------------------------------
+void CvUnit::SetTurnPromotionGained(PromotionTypes ePromotion, int iChange)
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex < GC.getNumPromotionInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	m_TurnPromotionGained.setAt(ePromotion, m_TurnPromotionGained[ePromotion] + iChange);
+	CvAssert(getPromotionDuration(ePromotion) >= 0);
+}
+//	--------------------------------------------------------------------------------
+int CvUnit::getTurnPromotionGained(PromotionTypes ePromotion)
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex < GC.getNumPromotionInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	return m_TurnPromotionGained[ePromotion];
 }
 #endif
 //	--------------------------------------------------------------------------------
@@ -23835,6 +23910,13 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		ChangeCannotBeCapturedCount((thisPromotion.CannotBeCaptured()) ? iChange: 0);
 		ChangeForcedDamageValue((thisPromotion.ForcedDamageValue()) * iChange);
 		ChangeChangeDamageValue((thisPromotion.ChangeDamageValue()) * iChange);
+
+
+		ChangePromotionDuration(eIndex, (thisPromotion.PromotionDuration()) * iChange);
+		if(getPromotionDuration(eIndex) > 0)
+		{
+			SetTurnPromotionGained(eIndex, GC.getGame().getGameTurn());
+		}
 #endif
 		ChangeCanHeavyChargeCount((thisPromotion.IsCanHeavyCharge()) ? iChange : 0);
 
@@ -24642,7 +24724,7 @@ bool CvUnit::canRangeStrikeAt(int iX, int iY, bool bNeedWar, bool bNoncombatAllo
 
 #if defined(MOD_GLOBAL_SUBS_UNDER_ICE_IMMUNITY)
 				// if the defender is a sub
-				if (pDefender->getInvisibleType() == 0) {
+				if (MOD_GLOBAL_SUBS_UNDER_ICE_IMMUNITY && pDefender->getInvisibleType() == 0) {
 					// if the plot is ice, unless the attacker is also a sub, return false
 					if (pTargetPlot->getFeatureType() == FEATURE_ICE && this->getInvisibleType() != 0) {
 						return false;
@@ -24671,7 +24753,7 @@ bool CvUnit::canRangeStrikeAt(int iX, int iY, bool bNeedWar, bool bNoncombatAllo
 
 #if defined(MOD_GLOBAL_SUBS_UNDER_ICE_IMMUNITY)
 				// if the defender is a sub
-				if (pLoopUnit->getInvisibleType() == 0) {
+				if (MOD_GLOBAL_SUBS_UNDER_ICE_IMMUNITY && pLoopUnit->getInvisibleType() == 0) {
 					// if the plot is ice, unless the attacker is also a sub, ignore them
 					if (pTargetPlot->getFeatureType() == FEATURE_ICE && this->getInvisibleType() != 0) {
 						continue;
@@ -25317,7 +25399,28 @@ bool CvUnit::SentryAlert() const
 	if(getDomainType() == DOMAIN_AIR)
 	{
 		iRange = GetRange();
+		if(iRange > 0)
+		{
+			for(int iX = -iRange; iX <= iRange; ++iX)
+			{
+				for(int iY = -iRange; iY <= iRange; ++iY)
+				{
+					CvPlot* pPlot = ::plotXYWithRangeCheck(getX(), getY(), iX, iY, iRange);
+					if(NULL != pPlot)
+					{
+						if(pPlot->isRevealed(getTeam()))
+						{
+							if(canRangeStrikeAt(pPlot->getX(), pPlot->getY(), true, false))
+							{
+								return true;
+							}
+						}
+					}
+				}
+			}
+		}
 	}
+	else
 #endif
 
 	if(iRange > 0)

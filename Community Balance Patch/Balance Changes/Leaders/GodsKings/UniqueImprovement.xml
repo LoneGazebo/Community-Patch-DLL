@@ -21,7 +21,7 @@
 		<Row>
 			<BuildType>BUILD_EKI</BuildType>
 			<FeatureType>FEATURE_JUNGLE</FeatureType>
-			<PrereqTech>TECH_BRONZE_WORKING</PrereqTech>
+			<PrereqTech>TECH_METAL_CASTING</PrereqTech>
 			<Time>700</Time>
 			<Production>15</Production>
 			<Remove>true</Remove>
@@ -29,9 +29,16 @@
 		<Row>
 			<BuildType>BUILD_EKI</BuildType>
 			<FeatureType>FEATURE_FOREST</FeatureType>
-			<PrereqTech>TECH_MINING</PrereqTech>
+			<PrereqTech>TECH_BRONZE_WORKING</PrereqTech>
 			<Time>400</Time>
 			<Production>20</Production>
+			<Remove>true</Remove>
+		</Row>
+		<Row>
+			<BuildType>BUILD_EKI</BuildType>
+			<FeatureType>FEATURE_MARSH</FeatureType>
+			<PrereqTech>TECH_MACHINERY</PrereqTech>
+			<Time>400</Time>
 			<Remove>true</Remove>
 		</Row>
 	</BuildFeatures>

@@ -13,9 +13,9 @@
 			<ArtDefineTag>TEMPLE</ArtDefineTag>
 			<MinAreaSize>-1</MinAreaSize>
 			<Help>TXT_KEY_BUILDING_STUPA_HELP</Help>
-			<TechEnhancedTourism>2</TechEnhancedTourism>
+			<TechEnhancedTourism>3</TechEnhancedTourism>
 			<EnhancedYieldTech>TECH_ARCHITECTURE</EnhancedYieldTech>
-			<ReligiousPressureModifier>15</ReligiousPressureModifier>
+			<ReligiousPressureModifier>25</ReligiousPressureModifier>
 			<ConversionModifier>-20</ConversionModifier>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
 			<PortraitIndex>11</PortraitIndex>
@@ -37,7 +37,7 @@
 			<ArtDefineTag>TEMPLE</ArtDefineTag>
 			<ConversionModifier>-20</ConversionModifier>
 			<MinAreaSize>-1</MinAreaSize>
-			<ReligiousPressureModifier>15</ReligiousPressureModifier>
+			<ReligiousPressureModifier>25</ReligiousPressureModifier>
 			<Cost>-1</Cost>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
 			<PortraitIndex>3</PortraitIndex>
@@ -57,7 +57,7 @@
 			<ConquestProb>100</ConquestProb>
 			<ConversionModifier>-20</ConversionModifier>
 			<Cost>-1</Cost>
-			<ReligiousPressureModifier>15</ReligiousPressureModifier>
+			<ReligiousPressureModifier>25</ReligiousPressureModifier>
 			<ArtDefineTag>TEMPLE</ArtDefineTag>
 			<MinAreaSize>-1</MinAreaSize>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
@@ -77,7 +77,7 @@
 			<Help>TXT_KEY_BUILDING_SYNAGOGUE_HELP</Help>
 			<ConquestProb>100</ConquestProb>
 			<Cost>-1</Cost>
-			<ReligiousPressureModifier>15</ReligiousPressureModifier>
+			<ReligiousPressureModifier>25</ReligiousPressureModifier>
 			<ConversionModifier>-20</ConversionModifier>
 			<ArtDefineTag>TEMPLE</ArtDefineTag>
 			<MinAreaSize>-1</MinAreaSize>
@@ -101,7 +101,7 @@
 			<Cost>-1</Cost>
 			<Defense>300</Defense>
 			<ExtraCityHitPoints>25</ExtraCityHitPoints>
-			<ReligiousPressureModifier>15</ReligiousPressureModifier>
+			<ReligiousPressureModifier>25</ReligiousPressureModifier>
 			<MinAreaSize>-1</MinAreaSize>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
 			<PortraitIndex>5</PortraitIndex>
@@ -160,7 +160,7 @@
 		<Row>
 			<BuildingType>BUILDING_MANDIR</BuildingType>
 			<YieldType>YIELD_FOOD</YieldType>
-			<Yield>2</Yield>
+			<Yield>3</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_SYNAGOGUE</BuildingType>
@@ -170,27 +170,27 @@
 		<Row>
 			<BuildingType>BUILDING_SYNAGOGUE</BuildingType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
-			<Yield>2</Yield>
+			<Yield>3</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_MOSQUE</BuildingType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>2</Yield>
+			<Yield>3</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_CATHEDRAL</BuildingType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>2</Yield>
+			<Yield>3</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_PAGODA</BuildingType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>2</Yield>
+			<Yield>3</Yield>
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_ORDER</BuildingType>
 			<YieldType>YIELD_FAITH</YieldType>
-			<Yield>3</Yield>
+			<Yield>2</Yield>
 		</Row>
 	</Building_YieldChanges>
 	<Building_Flavors>

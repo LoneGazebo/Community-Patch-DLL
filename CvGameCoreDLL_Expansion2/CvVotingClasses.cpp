@@ -1758,14 +1758,8 @@ void CvActiveResolution::DoEffects(PlayerTypes ePlayer)
 						GC.getGame().GetGameTrade()->ClearAllCivTradeRoutes(eLoopPlayer);
 					}
 				}
-				if (GET_PLAYER(eLoopPlayer).isAlive() && !GET_PLAYER(eLoopPlayer).isMinorCiv())
-				{
-					if(!GET_PLAYER(eLoopPlayer).GetMinorCivAI()->IsAllies(ePlayer))
-					{
-						GC.getGame().GetGameTrade()->ClearAllCityStateTradeRoutes();
-					}
-				}
 			}
+			GC.getGame().GetGameTrade()->ClearAllCityStateTradeRoutesSpecial();
 		}
 	}
 	GET_PLAYER(ePlayer).ProcessLeagueResolutions();

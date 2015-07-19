@@ -15,7 +15,7 @@ SET Yield = '0'
 WHERE BuildingType = 'BUILDING_MOSQUE' AND YieldType = 'YIELD_CULTURE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Building_YieldChanges
-SET Yield = '2'
+SET Yield = '3'
 WHERE BuildingType = 'BUILDING_MOSQUE' AND YieldType = 'YIELD_FAITH' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Buildings
@@ -27,7 +27,7 @@ SET GreatWorkCount = '1'
 WHERE Type = 'BUILDING_MOSQUE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Buildings
-SET ReligiousPressureModifier = '15'
+SET ReligiousPressureModifier = '25'
 WHERE Type = 'BUILDING_MOSQUE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Buildings
@@ -39,7 +39,7 @@ SET ConversionModifier = '-20'
 WHERE Type = 'BUILDING_MOSQUE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Can only be built in cities following a religion with the Mosques belief. Construct this building by purchasing it with [ICON_PEACE] Faith. Reduces [ICON_HAPPINESS_3] Religious Division.'
+SET Text = 'Can only be built in cities following a religion with the Mosques belief. Construct this building by purchasing it with [ICON_PEACE] Faith. Reduces [ICON_HAPPINESS_3] Illiteracy.'
 WHERE Tag = 'TXT_KEY_BUILDING_MOSQUE_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Buildings 
@@ -53,7 +53,7 @@ SET Yield = '0'
 WHERE BuildingType = 'BUILDING_CATHEDRAL' AND YieldType = 'YIELD_CULTURE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Building_YieldChanges
-SET Yield = '2'
+SET Yield = '3'
 WHERE BuildingType = 'BUILDING_CATHEDRAL' AND YieldType = 'YIELD_FAITH' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Buildings
@@ -61,7 +61,7 @@ SET Happiness = '0'
 WHERE Type = 'BUILDING_CATHEDRAL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Buildings
-SET ReligiousPressureModifier = '15'
+SET ReligiousPressureModifier = '25'
 WHERE Type = 'BUILDING_CATHEDRAL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Buildings
@@ -69,7 +69,7 @@ SET ConversionModifier = '-20'
 WHERE Type = 'BUILDING_CATHEDRAL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Can only be built in cities following a religion with the Cathedrals belief. Construct this building by purchasing it with [ICON_PEACE] Faith. Reduces [ICON_HAPPINESS_3] Religious Division.'
+SET Text = 'Can only be built in cities following a religion with the Cathedrals belief. Construct this building by purchasing it with [ICON_PEACE] Faith. Reduces [ICON_HAPPINESS_3] Poverty.'
 WHERE Tag = 'TXT_KEY_BUILDING_CATHEDRAL_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Buildings 
@@ -91,7 +91,7 @@ SET Happiness = '0'
 WHERE Type = 'BUILDING_PAGODA' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Buildings
-SET ReligiousPressureModifier = '15'
+SET ReligiousPressureModifier = '25'
 WHERE Type = 'BUILDING_PAGODA' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Buildings
@@ -99,7 +99,7 @@ SET ConversionModifier = '-20'
 WHERE Type = 'BUILDING_PAGODA' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Can only be built in cities following a religion with the Pagodas belief. Construct this building by purchasing it with [ICON_PEACE] Faith. Reduces [ICON_HAPPINESS_3] Religious Division.'
+SET Text = 'Can only be built in cities following a religion with the Pagodas belief. Construct this building by purchasing it with [ICON_PEACE] Faith. Reduces [ICON_HAPPINESS_3] Boredom.'
 WHERE Tag = 'TXT_KEY_BUILDING_PAGODA_STRATEGY' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Buildings 
