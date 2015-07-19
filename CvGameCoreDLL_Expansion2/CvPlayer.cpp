@@ -33655,7 +33655,7 @@ int CvPlayer::GetFoundValueOfCapital() const
 bool CvPlayer::HaveGoodSettlePlot(int iAreaID) const
 {
 	// Check if there are good plots to settle nearby
-	CvPlot* pBestSettlePlot = GetBestSettlePlot(NULL,true,iAreaID,NULL);
+	CvPlot* pBestSettlePlot = GetBestSettlePlot(NULL,false,iAreaID,NULL);
 	int iBestFoundValue = pBestSettlePlot ? pBestSettlePlot->getFoundValue( GetID() ) : 0;
 	int iRefFoundValue = GetFoundValueOfCapital();
 	return (iBestFoundValue >= ((iRefFoundValue * GC.getAI_STRATEGY_EARLY_EXPANSION_RELATIVE_TILE_QUALITY()) / 100) );
@@ -33824,7 +33824,7 @@ ostream& operator<<(ostream& os, const CvPlot* pPlot)
     return os;
 }
 
-CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, bool bEscorted, int iTargetArea, CvAIOperation* pOpToIgnore, bool bForceLogging) const
+CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, bool bOnlySafePaths, int iTargetArea, CvAIOperation* pOpToIgnore, bool bForceLogging) const
 {
 	//--------
 	bool bLogging = GC.getLogging() && GC.getAILogging() && ( (GC.getGame().getGameTurn()%10==0) || bForceLogging ); 
@@ -33963,7 +33963,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, bool bEscorted, int iTa
 			continue;
 		}
 
-		if(!bEscorted && pPlot->isVisibleEnemyUnit(eOwner))
+		if(bOnlySafePaths && pPlot->isVisibleEnemyUnit(eOwner))
 		{
 			//--------------
 			if (bLogging) 

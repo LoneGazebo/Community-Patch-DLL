@@ -2264,7 +2264,6 @@ bool CvAIOperation::FindBestFitReserveUnit(OperationSlot thisOperationSlot, CvPl
 										pMusterPlot = ownerPlayer.GetMilitaryAI()->GetCoastalPlotAdjacentToTarget(pLoopCity->plot(), pThisArmy);
 										if(pMusterPlot != NULL)
 										{
-											CvAStarNode* pPathfinderNode;
 											// Adjust value based on proximity to our start location
 											bool bPathfinderSuccess = GC.getStepFinder().GeneratePath(pkLoopUnitPlot->getX(), pkLoopUnitPlot->getY(), pMusterPlot->getX(), pMusterPlot->getY(), m_eOwner, false);
 											if(bPathfinderSuccess)
@@ -2396,7 +2395,6 @@ bool CvAIOperation::FindBestFitReserveUnit(OperationSlot thisOperationSlot, CvPl
 										pMusterPlot = ownerPlayer.GetMilitaryAI()->GetCoastalPlotAdjacentToTarget(pLoopCity->plot(), pThisArmy);
 										if(pMusterPlot != NULL)
 										{
-											CvAStarNode* pPathfinderNode;
 											// Adjust value based on proximity to our start location
 											bool bPathfinderSuccess = GC.getStepFinder().GeneratePath(pkLoopUnitPlot->getX(), pkLoopUnitPlot->getY(), pMusterPlot->getX(), pMusterPlot->getY(), m_eOwner, false);
 											if(bPathfinderSuccess)
@@ -2575,7 +2573,6 @@ bool CvAIOperation::FindBestFitReserveUnit(OperationSlot thisOperationSlot, CvPl
 										pMusterPlot = ownerPlayer.GetMilitaryAI()->GetCoastalPlotAdjacentToTarget(pLoopCity->plot(), pThisArmy);
 										if(pMusterPlot != NULL)
 										{
-											CvAStarNode* pPathfinderNode;
 											// Adjust value based on proximity to our start location
 											bool bPathfinderSuccess = GC.getStepFinder().GeneratePath(pkLoopUnitPlot->getX(), pkLoopUnitPlot->getY(), pMusterPlot->getX(), pMusterPlot->getY(), m_eOwner, false);
 											if(bPathfinderSuccess)
@@ -2707,7 +2704,6 @@ bool CvAIOperation::FindBestFitReserveUnit(OperationSlot thisOperationSlot, CvPl
 										pMusterPlot = ownerPlayer.GetMilitaryAI()->GetCoastalPlotAdjacentToTarget(pLoopCity->plot(), pThisArmy);
 										if(pMusterPlot != NULL)
 										{
-											CvAStarNode* pPathfinderNode;
 											// Adjust value based on proximity to our start location
 											bool bPathfinderSuccess = GC.getStepFinder().GeneratePath(pkLoopUnitPlot->getX(), pkLoopUnitPlot->getY(), pMusterPlot->getX(), pMusterPlot->getY(), m_eOwner, false);
 											if(bPathfinderSuccess)
@@ -4533,11 +4529,7 @@ bool CvAIEscortedOperation::RetargetCivilian(CvUnit* pCivilian, CvArmyAI* pArmy)
 	CvPlot* pBetterTarget;
 
 	// Find best city site (taking into account whether or not we are escorted)
-#if defined(AUI_OPERATION_FIX_RETARGET_CIVILIAN_ABORT_IF_UNREACHABLE_ESCORT)
-	pBetterTarget = FindBestTarget(pCivilian, m_bEscorted);
-#else
 	pBetterTarget = FindBestTarget(pCivilian, !m_bEscorted);
-#endif
 
 	// No targets at all!  Abort
 	if(pBetterTarget == NULL)
@@ -4725,9 +4717,12 @@ void CvAIOperationFoundCity::Init(int iID, PlayerTypes eOwner, PlayerTypes /*eEn
 				{
 					// There was no escort immediately available.  Let's look for a "safe" city site instead
 #if defined(MOD_BALANCE_CORE_SETTLER)
-					if (eOwner == -1 || GET_PLAYER(eOwner).getNumCities() > 2 || GET_PLAYER(eOwner).GetDiplomacyAI()->GetBoldness() > 8) // unless we'd rather play it safe
+					if (eOwner != -1)
 					{
-						pNewTarget = FindBestTarget(pOurCivilian, true);
+						pNewTarget = FindBestTargetIncludingCurrent(pOurCivilian, true);
+
+						if (GET_PLAYER(eOwner).GetCityDistance(pNewTarget) > GET_PLAYER(eOwner).GetDiplomacyAI()->GetBoldness())
+							pNewTarget = NULL;
 					}
 #else
 					if (eOwner == -1 || GET_PLAYER(eOwner).getNumCities() > 1 || GET_PLAYER(eOwner).GetDiplomacyAI()->GetBoldness() > 5) // unless we'd rather play it safe
@@ -4893,7 +4888,7 @@ bool CvAIOperationFoundCity::ArmyInPosition(CvArmyAI* pArmy)
 
 				//now that the neighboring tiles are guaranteed to be revealed, recheck if we are at the best plot
 				//minor twist: the nearby plots are already targeted for a city. so we need to ignore this very operation when checking the plots
-				CvPlot* pAltPlot = GET_PLAYER(m_eOwner).GetBestSettlePlot(pSettler, m_bEscorted, m_iTargetArea, this, true);
+				CvPlot* pAltPlot = GET_PLAYER(m_eOwner).GetBestSettlePlot(pSettler, !m_bEscorted, m_iTargetArea, this, true);
 				int iAltValue = pAltPlot ? pAltPlot->getFoundValue(m_eOwner) : 0;
 				int iDelta = pAltPlot ? ::plotDistance(pCityPlot->getX(),pCityPlot->getY(),pAltPlot->getX(),pAltPlot->getY()) : 0;
 				//Must be much better to be worth it.
@@ -5044,11 +5039,11 @@ CvPlot* CvAIOperationFoundCity::FindBestTargetIncludingCurrent(CvUnit* pUnit, bo
 	//b) if the best target is unreachable, move in the general direction and hope the block will clear up
 
 	//ignore the current operation target when searching. default would be to suppress currently targeted plots
-	CvPlot* pResult = GET_PLAYER(m_eOwner).GetBestSettlePlot(pUnit, bOnlySafePaths /*m_bEscorted*/, m_iTargetArea, this);
+	CvPlot* pResult = GET_PLAYER(m_eOwner).GetBestSettlePlot(pUnit, bOnlySafePaths, m_iTargetArea, this);
 	if (pResult == NULL)
 	{
 		m_iTargetArea = -1;
-		pResult = GET_PLAYER(m_eOwner).GetBestSettlePlot(pUnit, bOnlySafePaths /*m_bEscorted*/, -1, this);
+		pResult = GET_PLAYER(m_eOwner).GetBestSettlePlot(pUnit, bOnlySafePaths, -1, this);
 	}
 	return pResult;
 }
@@ -8543,21 +8538,21 @@ CvPlot* CvAINavalEscortedOperation::FindBestTargetIncludingCurrent(CvUnit* pUnit
 	//b) if the best target is unreachable, move in the general direction and hope the block will clear up
 
 	//ignore the current operation target when searching. default would be to suppress currently targeted plots
-	CvPlot* pResult = GET_PLAYER(m_eOwner).GetBestSettlePlot(pUnit, bOnlySafePaths /*m_bEscorted*/, m_iTargetArea, this);
+	CvPlot* pResult = GET_PLAYER(m_eOwner).GetBestSettlePlot(pUnit, bOnlySafePaths, m_iTargetArea, this);
 	if (pResult == NULL)
 	{
 		m_iTargetArea = -1;
-		pResult = GET_PLAYER(m_eOwner).GetBestSettlePlot(pUnit, bOnlySafePaths /*m_bEscorted*/, -1, this);
+		pResult = GET_PLAYER(m_eOwner).GetBestSettlePlot(pUnit, bOnlySafePaths, -1, this);
 	}
 	return pResult;
 }
 CvPlot* CvAINavalEscortedOperation::FindBestTarget(CvUnit* pUnit, bool bOnlySafePaths)
 {
-	CvPlot* pResult = GET_PLAYER(m_eOwner).GetBestSettlePlot(pUnit, bOnlySafePaths /*m_bEscorted*/, m_iTargetArea);
+	CvPlot* pResult = GET_PLAYER(m_eOwner).GetBestSettlePlot(pUnit, bOnlySafePaths, m_iTargetArea);
 	if (pResult == NULL)
 	{
 		m_iTargetArea = -1;
-		pResult = GET_PLAYER(m_eOwner).GetBestSettlePlot(pUnit, bOnlySafePaths /*m_bEscorted*/, -1);
+		pResult = GET_PLAYER(m_eOwner).GetBestSettlePlot(pUnit, bOnlySafePaths, -1);
 	}
 	return pResult;
 }
@@ -8567,14 +8562,13 @@ CvPlot* CvAINavalEscortedOperation::FindBestTarget(CvUnit* pUnit)
 	return GET_PLAYER(m_eOwner).GetBestSettlePlot(pUnit, true, -1);
 }
 #endif
+
 /// Start the civilian off to a new target plot
 bool CvAINavalEscortedOperation::RetargetCivilian(CvUnit* pCivilian, CvArmyAI* pArmy)
 {
 #if defined(MOD_BALANCE_CORE)
-	CvPlot* pBetterTarget;
-
-	// Find best city site (taking into account whether or not we are escorted)
-	pBetterTarget = FindBestTarget(pCivilian, false);
+	// Find best city site (assuming we are escorted)
+	CvPlot* pBetterTarget = FindBestTarget(pCivilian, false);
 
 	// No targets at all!  Abort
 	if(pBetterTarget == NULL)

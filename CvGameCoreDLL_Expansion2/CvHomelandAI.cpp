@@ -234,9 +234,9 @@ CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit, int nMinCandidat
 		if (pUnit->getDomainType()==DOMAIN_LAND && pEvalPlot->isWater())
 			iRating /= 2;
 
-		//Let's try not to stay in one place, ok?
-		if(pUnit->plot() == pEvalPlot)
-			iRating /= 4;
+		//try to explore close to our cities first to find potential settle spots
+		int iCityDistance = m_pPlayer->GetCityDistance(pEvalPlot);
+		iRating = max(1, iRating-iCityDistance); 
 
 		//reverse the score calculation below to get an upper bound on the distance
 		//minus one because we want to do better
