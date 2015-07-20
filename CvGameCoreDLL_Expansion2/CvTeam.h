@@ -129,6 +129,7 @@ public:
 	void addPlayer(PlayerTypes eID);
 	void removePlayer(PlayerTypes eID);
 	const std::vector<PlayerTypes>& getPlayers();
+	bool isMember(PlayerTypes eID) const;
 	void updateMinorCiv();
 	void ClearWarDeclarationCache();
 #endif

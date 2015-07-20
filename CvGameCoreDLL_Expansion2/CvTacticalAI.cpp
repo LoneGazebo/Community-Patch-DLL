@@ -6512,14 +6512,15 @@ void CvTacticalAI::ExecuteGatherMoves(CvArmyAI* pArmy)
 	// Range around target based on number of units we need to place
 	int iRange = OperationalAIHelpers::GetGatherRangeForXUnits(iUnits);
 #if defined(MOD_BALANCE_CORE_MILITARY)
+	// increase range for some kinds of operation but be careful, it has quadratic runtime impact
 	CvAIOperation* pOperation = m_pPlayer->getAIOperation(pArmy->GetOperationID());
 	if(pOperation && pOperation->IsMixedLandNavalOperation())
 	{
-		iRange *= 2;
+		iRange += 1;
 	}
 	else if(pOperation && pOperation->IsAllNavalOperation())
 	{
-		iRange *= 3;
+		iRange += 2;
 	}
 #endif
 
@@ -7070,14 +7071,15 @@ bool CvTacticalAI::ScoreFormationPlots(CvArmyAI* pArmy, CvPlot* pForwardTarget, 
 	int iRange = 4;
 	if(pArmy)
 	{
+		// increase range for some kinds of operation but be careful, it has quadratic runtime impact
 		CvAIOperation* pOperation = m_pPlayer->getAIOperation(pArmy->GetOperationID());
 		if(pOperation && pOperation->IsMixedLandNavalOperation())
 		{
-			iRange *= 2;
+			iRange += 1;
 		}
 		else if(pOperation && pOperation->IsAllNavalOperation())
 		{
-			iRange *= 2;
+			iRange += 2;
 		}
 	}
 #else
@@ -7287,6 +7289,7 @@ void CvTacticalAI::ExecuteNavalFormationMoves(CvArmyAI* pArmy, CvPlot* pTurnTarg
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	if(pArmy)
 	{
+		// increase range for some kinds of operation but be careful, it has quadratic runtime impact
 		CvAIOperation* pOperation = m_pPlayer->getAIOperation(pArmy->GetOperationID());
 		if(pOperation && (pOperation->GetOperationType() != AI_OPERATION_COLONIZE))
 		{
