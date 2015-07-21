@@ -1,16 +1,16 @@
 -- Cathedral
 UPDATE Language_en_US
-SET Text = 'Use [ICON_PEACE] Faith to purchase Cathedrals (+2 [ICON_PEACE] Faith, +2 [ICON_GOLD] Gold, 1 [ICON_GREAT_WORK] Great Work of Art slot)'
+SET Text = 'Use [ICON_PEACE] Faith to purchase Cathedrals (+3 [ICON_PEACE] Faith, +3 [ICON_GOLD] Gold, 1 [ICON_GREAT_WORK] Great Work of Art slot)'
 WHERE Tag = 'TXT_KEY_BELIEF_CATHEDRALS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Pagoda
 UPDATE Language_en_US
-SET Text = 'Use [ICON_PEACE] Faith to purchase Pagodas (+2 [ICON_PEACE] Faith, +2 [ICON_CULTURE] Culture, 1 [ICON_GREAT_WORK] Great Work of Art slot)'
+SET Text = 'Use [ICON_PEACE] Faith to purchase Pagodas (+2 [ICON_PEACE] Faith, +3 [ICON_CULTURE] Culture, 1 [ICON_GREAT_WORK] Great Work of Art slot)'
 WHERE Tag = 'TXT_KEY_BELIEF_PAGODAS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Mosque
 UPDATE Language_en_US
-SET Text = 'Use [ICON_PEACE] Faith to purchase Mosques (+2 [ICON_PEACE] Faith, +2 [ICON_RESEARCH] Science, 1 [ICON_GREAT_WORK] Great Work of Writing Slot)'
+SET Text = 'Use [ICON_PEACE] Faith to purchase Mosques (+3 [ICON_PEACE] Faith, +3 [ICON_RESEARCH] Science, 1 [ICON_GREAT_WORK] Great Work of Writing Slot)'
 WHERE Tag = 'TXT_KEY_BELIEF_MOSQUES' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Sword into Plowshare (Now Church)
@@ -28,12 +28,12 @@ SET Text = 'Mandirs'
 WHERE Tag = 'TXT_KEY_BELIEF_GURUSHIP_SHORT' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Use [ICON_PEACE] Faith to purchase Mandirs (+2 [ICON_PEACE] Faith, + 2 [ICON_FOOD] Food, 1 [ICON_GREAT_WORK] Great Work of Music Slot)'
+SET Text = 'Use [ICON_PEACE] Faith to purchase Mandirs (+2 [ICON_PEACE] Faith, +3 [ICON_FOOD] Food, 1 [ICON_GREAT_WORK] Great Work of Music Slot)'
 WHERE Tag = 'TXT_KEY_BELIEF_GURUSHIP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 -- Holy Warriors (Now Synagogue)
 UPDATE Language_en_US
-SET Text = 'Use [ICON_PEACE] Faith to purchase Synagogues (+2 [ICON_PEACE] Faith, + 2 [ICON_PRODUCTION] Production, 1 [ICON_GREAT_WORK] Great Work of Writing Slot)'
+SET Text = 'Use [ICON_PEACE] Faith to purchase Synagogues (+2 [ICON_PEACE] Faith, +3 [ICON_PRODUCTION] Production, 1 [ICON_GREAT_WORK] Great Work of Writing Slot)'
 WHERE Tag = 'TXT_KEY_BELIEF_HOLY_WARRIORS' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -101,7 +101,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_ASCETISM' AND EXISTS (SELECT * FROM COMMUNITY WHERE 
 
 -- Religious Center (Now Order)
 UPDATE Language_en_US
-SET Text = 'Use [ICON_PEACE] Faith to purchase Orders (+3 [ICON_PEACE] Faith. +3 [ICON_STRENGTH] Strength, +25 Hit Points for the City. +10 XP and the Morale promotion for Land Units built in the city.)'
+SET Text = 'Use [ICON_PEACE] Faith to purchase Orders (+2 [ICON_PEACE] Faith. +3 [ICON_STRENGTH] Strength, +25 Hit Points for the City. +10 XP and the Morale promotion for Land Units built in the city.)'
 WHERE Tag = 'TXT_KEY_BELIEF_RELIGIOUS_CENTER' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
 
 UPDATE Language_en_US

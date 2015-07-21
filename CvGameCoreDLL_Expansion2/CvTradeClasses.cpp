@@ -2418,7 +2418,7 @@ void CvPlayerTrade::MoveUnits (void)
 											strMessage << pDestCity->getNameKey();
 											strMessage << pBuildingInfo->GetTextKey();
 											strMessage << pCity->getNameKey();
-											pNotifications->Add(NOTIFICATION_WONDER_COMPLETED, strMessage.toUTF8(), strSummary.toUTF8(), pDestCity->getX(), pDestCity->getY(), eBuildingDestCity, pDestCity->getOwner());
+											pNotifications->Add(NOTIFICATION_WONDER_COMPLETED_ACTIVE_PLAYER, strMessage.toUTF8(), strSummary.toUTF8(), pDestCity->getX(), pDestCity->getY(), eBuildingDestCity, pDestCity->getOwner());
 										}
 										else
 										{
@@ -2435,7 +2435,7 @@ void CvPlayerTrade::MoveUnits (void)
 												strMessage << pCity->getNameKey();
 												strMessage << pBuildingInfo->GetTextKey();
 												strMessage << pDestCity->getNameKey();
-												pNotifications2->Add(NOTIFICATION_WONDER_COMPLETED, strMessage.toUTF8(), strSummary.toUTF8(), pDestCity->getX(), pDestCity->getY(), eBuildingDestCity, pCity->getOwner());
+												pNotifications2->Add(NOTIFICATION_WONDER_COMPLETED_ACTIVE_PLAYER, strMessage.toUTF8(), strSummary.toUTF8(), pDestCity->getX(), pDestCity->getY(), eBuildingDestCity, pCity->getOwner());
 											}
 										}
 										GET_PLAYER(pCity->getOwner()).CalculateCorporateFranchisesWorldwide();
@@ -2472,7 +2472,7 @@ void CvPlayerTrade::MoveUnits (void)
 											strMessage << pCity->getNameKey();
 											strMessage << pBuildingInfo->GetTextKey();
 											strMessage << pDestCity->getNameKey();
-											pNotifications->Add(NOTIFICATION_WONDER_COMPLETED, strMessage.toUTF8(), strSummary.toUTF8(), pCity->getX(), pCity->getY(), eBuildingDestCity, pCity->getOwner());
+											pNotifications->Add(NOTIFICATION_WONDER_COMPLETED_ACTIVE_PLAYER, strMessage.toUTF8(), strSummary.toUTF8(), pCity->getX(), pCity->getY(), eBuildingDestCity, pCity->getOwner());
 										}
 										else
 										{
@@ -2489,7 +2489,7 @@ void CvPlayerTrade::MoveUnits (void)
 												strMessage << pDestCity->getNameKey();
 												strMessage << pBuildingInfo->GetTextKey();
 												strMessage << pCity->getNameKey();
-												pNotifications2->Add(NOTIFICATION_WONDER_COMPLETED, strMessage.toUTF8(), strSummary.toUTF8(), pCity->getX(), pCity->getY(), eBuildingDestCity, pDestCity->getOwner());
+												pNotifications2->Add(NOTIFICATION_WONDER_COMPLETED_ACTIVE_PLAYER, strMessage.toUTF8(), strSummary.toUTF8(), pCity->getX(), pCity->getY(), eBuildingDestCity, pDestCity->getOwner());
 											}
 										}
 										GET_PLAYER(pDestCity->getOwner()).CalculateCorporateFranchisesWorldwide();
@@ -3132,6 +3132,29 @@ int CvPlayerTrade::GetTradeConnectionCorporationModifierTimes100(const TradeConn
 		return 0;
 	}
 	if (bAsOriginPlayer && pDestCity->IsFranchised(pOriginCity->getOwner()))
+	{	
+		if (pOriginCity && GET_PLAYER(pOriginCity->getOwner()).GetCorporateFounderID() > 0)
+		{
+			for(int iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
+			{
+				const BuildingTypes eBuilding = static_cast<BuildingTypes>(iBuildingLoop);
+				CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+
+				if(pkBuildingInfo && pkBuildingInfo->GetCorporationID() == GET_PLAYER(pOriginCity->getOwner()).GetCorporateFounderID())
+				{
+					if(pkBuildingInfo->GetCorporationTradeRouteMod((int)eYield) > 0)
+					{
+						// Has this Building
+						if(pOriginCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
+						{
+							iModifier += pkBuildingInfo->GetCorporationTradeRouteMod((int)eYield);
+						}
+					}
+				}
+			}
+		}
+	}
+	else if (pOriginCity != NULL && pDestCity != NULL && bAsOriginPlayer && pDestCity->HasOffice() && GET_PLAYER(pOriginCity->getOwner()).IsOrderCorp() && pOriginCity->getOwner() == pDestCity->getOwner())
 	{	
 		if (pOriginCity && GET_PLAYER(pOriginCity->getOwner()).GetCorporateFounderID() > 0)
 		{
@@ -5469,12 +5492,12 @@ int CvTradeAI::ScoreInternationalTR (const TradeConnection& kTradeConnection)
 						if(pOriginCity->HasOffice())
 						{
 							//Not franchised? Let's see what we get if we franchise it.
-							if(!pDestCity->IsFranchised(m_pPlayer->GetID()))
+							if(!m_pPlayer->IsOrderCorp() && !pDestCity->IsFranchised(m_pPlayer->GetID()))
 							{
-								int iYieldFromCorp = pOriginCity->GetCorporationGPChange();
-								if (iYieldFromCorp > 0)
+								int iGPYieldFromCorp = pOriginCity->GetCorporationGPChange();
+								if (iGPYieldFromCorp > 0)
 								{
-									iScore *= (iYieldFromCorp * 10);
+									iScore *= (iGPYieldFromCorp * 10);
 								}
 								for(int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
 								{
@@ -5483,6 +5506,10 @@ int CvTradeAI::ScoreInternationalTR (const TradeConnection& kTradeConnection)
 									{
 										iScore *= (iYieldFromCorp * 10);
 									}
+								}
+								if(m_pPlayer->GetCulture()->GetInfluenceLevel(pDestCity->getOwner()) >= INFLUENCE_LEVEL_POPULAR && m_pPlayer->IsAutocracyCorp())
+								{
+									iScore *= 5;
 								}
 							}
 							//Franchised? Do we get a bonus for sending TRs here again?

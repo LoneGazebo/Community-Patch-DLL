@@ -2254,7 +2254,11 @@ int CvDiplomacyAI::GetRandomPersonalityWeight(int iOriginalValue) const
 
 	while (iRerolls != 0)
 	{
+#if defined(AUI_BINOM_RNG)
 		iAdjust = GC.getGame().getJonRandNumBinom(2 * iRerolls + 1, "Adjusting Personality Flavor") - iRerolls;
+#else
+		iAdjust = GC.getGame().getJonRandNum(2 * iRerolls + 1, "Adjusting Personality Flavor") - iRerolls;
+#endif
 		iRtnValue += iAdjust;
 
 		iRerolls = 0;
@@ -5319,8 +5323,15 @@ void CvDiplomacyAI::DoStartDemandProcess(PlayerTypes ePlayer)
 			if(GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(ePlayer).getTeam()))
 #endif
 			{
+#if defined(MOD_BALANCE_CORE)
+				if(GetPlayer()->GetMilitaryAI()->GetSneakAttackOperation(ePlayer) == NULL)
+				{
+#endif
 				GetPlayer()->GetMilitaryAI()->RequestShowOfForce(ePlayer);
 				SetWarGoal(ePlayer, WAR_GOAL_DEMAND);
+#if defined(MOD_BALANCE_CORE)
+				}
+#endif
 			}
 		}
 	}
@@ -5372,7 +5383,7 @@ void CvDiplomacyAI::DoTestDemandReady()
 				{
 					// If we're at least 85% of the way to our objective, let loose the dogs of war!
 #if defined(MOD_BALANCE_CORE)
-					if(IsMusteringForAttack(eDemandTarget) || (pOperation != NULL && pOperation->PercentFromMusterPointToTarget() >= 50))	// If we're "mustering" it means we have a Sneak Attack Operation that's in position to attack
+					if(IsMusteringForAttack(eDemandTarget) || (pOperation != NULL && pOperation->PercentFromMusterPointToTarget() >= 75))	// If we're "mustering" it means we have a Sneak Attack Operation that's in position to attack
 #else
 					if(IsMusteringForAttack(eDemandTarget) || (pOperation != NULL && pOperation->PercentFromMusterPointToTarget() >= 85))	// If we're "mustering" it means we have a Sneak Attack Operation that's in position to attack
 #endif
@@ -6377,6 +6388,17 @@ void CvDiplomacyAI::DoMakeWarOnPlayer(PlayerTypes eTargetPlayer)
 		{
 			bWantToAttack = true;
 		}
+		else if(pOperation != NULL)
+		{
+			if(pOperation->GetFirstArmyID() != -1)
+			{
+				CvArmyAI* pThisArmy = m_pPlayer->getArmyAI(pOperation->GetFirstArmyID());
+				if(pThisArmy && pThisArmy->GetNumSlotsFilled() > 1)
+				{
+					bWantToAttack = true;
+				}
+			}
+		}
 #endif
 		// Our Approach with this player calls for war
 		if(bWantToAttack)
@@ -6502,7 +6524,6 @@ void CvDiplomacyAI::MakeWar()
 									DeclareWar(eThirdPlayer);
 #if defined(MOD_BALANCE_CORE)
 									GetPlayer()->GetMilitaryAI()->RequestBasicAttack(eThirdPlayer, 2);
-									GetPlayer()->GetMilitaryAI()->RequestPillageAttack(eThirdPlayer);
 #else
 									GetPlayer()->GetMilitaryAI()->RequestShowOfForce(eThirdPlayer);
 #endif
@@ -12585,7 +12606,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 #if defined(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
 			if(MOD_BALANCE_CORE_DIPLOMACY_ADVANCED)
 			{
-				GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeRecentAssistValue(GetPlayer()->GetID(), 80);
+				GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeRecentAssistValue(GetPlayer()->GetID(), 100);
 				GET_PLAYER(ePlayer).GetDiplomacyAI()->SetDoFBroken(GetPlayer()->GetID(), true);	
 				GET_PLAYER(ePlayer).GetDiplomacyAI()->SetNumDoFLifetime(GetPlayer()->GetID(), -1);	
 				LogBrokenDoF(ePlayer);
@@ -12755,14 +12776,14 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 					{
 						if(GetLoyalty() >= 5 && GetMajorCivOpinion(eAgainstPlayer) > MAJOR_CIV_OPINION_FAVORABLE)
 						{
-							GET_PLAYER(eAgainstPlayer).GetDiplomacyAI()->ChangeRecentAssistValue(ePlayer, -10);
+							GET_PLAYER(eAgainstPlayer).GetDiplomacyAI()->ChangeRecentAssistValue(ePlayer, -100);
 							GET_PLAYER(eAgainstPlayer).GetDiplomacyAI()->ChangeNumTimesIntrigueSharedBy(ePlayer, 1);
 							GET_PLAYER(eAgainstPlayer).GetDiplomacyAI()->SetApproachTowardsUsGuess(GetPlayer()->GetID(), MAJOR_CIV_APPROACH_WAR);
 							GET_PLAYER(eAgainstPlayer).GetDiplomacyAI()->SetApproachTowardsUsGuessCounter(GetPlayer()->GetID(), 0);
 						}
 						else if(GetDiploBalance() > 5 && GetMajorCivOpinion(eAgainstPlayer) > MAJOR_CIV_OPINION_NEUTRAL)
 						{
-							GET_PLAYER(eAgainstPlayer).GetDiplomacyAI()->ChangeRecentAssistValue(ePlayer, -10);
+							GET_PLAYER(eAgainstPlayer).GetDiplomacyAI()->ChangeRecentAssistValue(ePlayer, -100);
 							GET_PLAYER(eAgainstPlayer).GetDiplomacyAI()->ChangeNumTimesIntrigueSharedBy(ePlayer, 1);
 							GET_PLAYER(eAgainstPlayer).GetDiplomacyAI()->SetApproachTowardsUsGuess(GetPlayer()->GetID(), MAJOR_CIV_APPROACH_WAR);
 							GET_PLAYER(eAgainstPlayer).GetDiplomacyAI()->SetApproachTowardsUsGuessCounter(GetPlayer()->GetID(), 0);
@@ -14318,7 +14339,7 @@ void CvDiplomacyAI::DoContactMinorCivs()
 				{
 					iValue = (GET_PLAYER(eMinor).GetMinorCivAI()->GetYieldTheftAmount(GetPlayer()->GetID(), YIELD_SCIENCE));
 					int iThreshold = iValue;
-					int iRandRoll = GC.getGame().getJonRandNum((100 - (iScienceFlavor * 2)), "Diplomacy AI: good turn to bully a minor?");
+					int iRandRoll = GC.getGame().getJonRandNum((175 - iScienceFlavor), "Diplomacy AI: good turn to bully a minor?");
 
 					if(iRandRoll < iThreshold)
 						bWantsToBullyUnit = true;
@@ -14328,7 +14349,7 @@ void CvDiplomacyAI::DoContactMinorCivs()
 				{
 					iValue = (GET_PLAYER(eMinor).GetMinorCivAI()->GetYieldTheftAmount(GetPlayer()->GetID(), YIELD_PRODUCTION));
 					int iThreshold = iValue;
-					int iRandRoll = GC.getGame().getJonRandNum((100 - (iProductionFlavor * 2)), "Diplomacy AI: good turn to bully a minor?");
+					int iRandRoll = GC.getGame().getJonRandNum((175 - iProductionFlavor), "Diplomacy AI: good turn to bully a minor?");
 
 					if(iRandRoll < iThreshold)
 						bWantsToBullyUnit = true;
@@ -14338,7 +14359,7 @@ void CvDiplomacyAI::DoContactMinorCivs()
 				{
 					iValue = (GET_PLAYER(eMinor).GetMinorCivAI()->GetYieldTheftAmount(GetPlayer()->GetID(), YIELD_CULTURE));
 					int iThreshold = iValue;
-					int iRandRoll = GC.getGame().getJonRandNum((100 - (iCultureFlavor * 2)), "Diplomacy AI: good turn to bully a minor?");
+					int iRandRoll = GC.getGame().getJonRandNum((175 - iCultureFlavor), "Diplomacy AI: good turn to bully a minor?");
 
 					if(iRandRoll < iThreshold)
 						bWantsToBullyUnit = true;
@@ -14348,7 +14369,7 @@ void CvDiplomacyAI::DoContactMinorCivs()
 				{
 					iValue = (GET_PLAYER(eMinor).GetMinorCivAI()->GetYieldTheftAmount(GetPlayer()->GetID(), YIELD_FAITH));
 					int iThreshold = iValue;
-					int iRandRoll = GC.getGame().getJonRandNum((100 - (iFaithFlavor * 2)), "Diplomacy AI: good turn to bully a minor?");
+					int iRandRoll = GC.getGame().getJonRandNum((175 - iFaithFlavor), "Diplomacy AI: good turn to bully a minor?");
 
 					if(iRandRoll < iThreshold)
 						bWantsToBullyUnit = true;
@@ -14358,7 +14379,7 @@ void CvDiplomacyAI::DoContactMinorCivs()
 				{
 					iValue = (GET_PLAYER(eMinor).GetMinorCivAI()->GetYieldTheftAmount(GetPlayer()->GetID(), YIELD_FOOD));
 					int iThreshold = iValue;
-					int iRandRoll = GC.getGame().getJonRandNum((100 - (iGrowthFlavor * 2)), "Diplomacy AI: good turn to bully a minor?");
+					int iRandRoll = GC.getGame().getJonRandNum((175 - iGrowthFlavor), "Diplomacy AI: good turn to bully a minor?");
 
 					if(iRandRoll < iThreshold)
 						bWantsToBullyUnit = true;
@@ -15693,6 +15714,7 @@ void CvDiplomacyAI::DoWeBulliedYourMinorStatement(PlayerTypes ePlayer, DiploStat
 					if(GET_PLAYER(eMinor).GetMinorCivAI()->IsProtectedByMajor(ePlayer))
 					{
 						DiploStatementTypes eTempStatement = DIPLO_STATEMENT_WE_BULLIED_YOUR_MINOR;
+
 						int iTurnsBetweenStatements = 1;
 
 						if(GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
@@ -20200,7 +20222,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 		//If player is offended, AI should take note as penalty to assistance.
 		CvFlavorManager* pFlavorManager = GetPlayer()->GetFlavorManager();
 		int iFlavorOffense = pFlavorManager->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_OFFENSE"));
-		GetPlayer()->GetDiplomacyAI()->ChangeRecentAssistValue(eFromPlayer, (iFlavorOffense * 30));
+		GetPlayer()->GetDiplomacyAI()->ChangeRecentAssistValue(eFromPlayer, (iFlavorOffense * 25));
 #else
 		GetPlayer()->GetDiplomacyAI()->ChangeRecentAssistValue(eFromPlayer, iArg1);
 #endif
@@ -20608,7 +20630,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 			SetDoFAccepted(eFromPlayer, false);
 			GET_PLAYER(eFromPlayer).GetDiplomacyAI()->SetDoFAccepted(eMyPlayer, false);
 
-			ChangeRecentAssistValue(eFromPlayer, 80);
+			ChangeRecentAssistValue(eFromPlayer, 100);
 
 			SetNumDoFLifetime(eFromPlayer, -1);
 			GET_PLAYER(eFromPlayer).GetDiplomacyAI()->SetNumDoFLifetime(eMyPlayer, -1);
@@ -20691,7 +20713,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 				//If player is offended, AI should take note as penalty to assistance.
 				CvFlavorManager* pFlavorManager = GetPlayer()->GetFlavorManager();
 				int iFlavorOffense = pFlavorManager->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_OFFENSE"));
-				GetPlayer()->GetDiplomacyAI()->ChangeRecentAssistValue(eFromPlayer, (iFlavorOffense * 10));
+				GetPlayer()->GetDiplomacyAI()->ChangeRecentAssistValue(eFromPlayer, (iFlavorOffense * 25));
 			}
 			if(bActivePlayer)
 			{
@@ -20703,14 +20725,14 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 				else
 				{
 					strText = GetDiploStringForMessage(DIPLO_MESSAGE_SO_BE_IT);
-					gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_BLANK_DISCUSSION, strText, LEADERHEAD_ANIM_NEGATIVE);
+					gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_BLANK_DISCUSSION_MEAN_HUMAN, strText, LEADERHEAD_ANIM_HATE_NEGATIVE);
 				}
 			}
 		}
 		else
 		{
 			strText = GetDiploStringForMessage(DIPLO_MESSAGE_DOT_DOT_DOT);
-			gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_BLANK_DISCUSSION, strText, LEADERHEAD_ANIM_HATE_NEGATIVE);
+			gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_BLANK_DISCUSSION_MEAN_HUMAN, strText, LEADERHEAD_ANIM_HATE_NEGATIVE);
 		}
 
 		break;
@@ -20846,7 +20868,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 #if defined(MOD_BALANCE_CORE)
 				if(eAgainstPlayer != NO_PLAYER && eFromPlayer != NO_PLAYER)
 				{
-					GET_PLAYER(eAgainstPlayer).GetDiplomacyAI()->ChangeRecentAssistValue(GetPlayer()->GetID(), -10);
+					GET_PLAYER(eAgainstPlayer).GetDiplomacyAI()->ChangeRecentAssistValue(GetPlayer()->GetID(), -100);
 					GET_PLAYER(eAgainstPlayer).GetDiplomacyAI()->ChangeNumTimesIntrigueSharedBy(GetPlayer()->GetID(), 1);
 					GET_PLAYER(eAgainstPlayer).GetDiplomacyAI()->SetApproachTowardsUsGuess(eFromPlayer, MAJOR_CIV_APPROACH_WAR);
 					GET_PLAYER(eAgainstPlayer).GetDiplomacyAI()->SetApproachTowardsUsGuessCounter(eFromPlayer, 0);
@@ -20887,11 +20909,11 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 			//If player is offended, AI should take note as penalty to assistance.
 			if(iArg1 == 2)
 			{
-				ChangeRecentAssistValue(eFromPlayer, 20);
+				ChangeRecentAssistValue(eFromPlayer, 200);
 				ChangeNumTimesCoopWarDenied(eFromPlayer, 1);
 				if(eAgainstPlayer != NO_PLAYER && eFromPlayer != NO_PLAYER)
 				{
-					GET_PLAYER(eAgainstPlayer).GetDiplomacyAI()->ChangeRecentAssistValue(eFromPlayer, -10);
+					GET_PLAYER(eAgainstPlayer).GetDiplomacyAI()->ChangeRecentAssistValue(eFromPlayer, -100);
 					GET_PLAYER(eAgainstPlayer).GetDiplomacyAI()->ChangeNumTimesIntrigueSharedBy(eFromPlayer, 1);
 					GET_PLAYER(eAgainstPlayer).GetDiplomacyAI()->SetApproachTowardsUsGuess(GetPlayer()->GetID(), MAJOR_CIV_APPROACH_WAR);
 					GET_PLAYER(eAgainstPlayer).GetDiplomacyAI()->SetApproachTowardsUsGuessCounter(GetPlayer()->GetID(), 0);
@@ -20899,7 +20921,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 			}
 			if(iArg1 == 1)
 			{
-				ChangeRecentAssistValue(eFromPlayer, 10);
+				ChangeRecentAssistValue(eFromPlayer, 100);
 				ChangeNumTimesCoopWarDenied(eFromPlayer, 1);
 			}
 #endif

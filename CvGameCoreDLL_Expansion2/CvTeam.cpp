@@ -36,7 +36,7 @@
 
 // statics
 CvTeam* CvTeam::m_aTeams = NULL;
-
+#if defined(MOD_BALANCE_CORE)
 CvTeam& CvTeam::getTeam(TeamTypes eTeam)
 {
 	CvAssertMsg(eTeam != NO_TEAM, "eTeam is not assigned a valid value");
@@ -44,7 +44,7 @@ CvTeam& CvTeam::getTeam(TeamTypes eTeam)
 
 	return m_aTeams[eTeam];
 }
-
+#endif
 //	--------------------------------------------------------------------------------
 void CvTeam::initStatics()
 {
@@ -2649,13 +2649,56 @@ void CvTeam::updateMinorCiv()
 	for(std::vector<PlayerTypes>::const_iterator iI = m_members.begin(); iI != m_members.end(); ++iI)
 	{
 		CvPlayer& kPlayer = GET_PLAYER(*iI);
+		//the first alive player determines the result
 		if(kPlayer.isAlive())
 		{
-			if(kPlayer.isMinorCiv())
+			m_bIsMinorCiv = kPlayer.isMinorCiv();
+			break;
+		}
+	}
+
+	//compare with old algorithm
+	bool bOldResult = false;
+	for(int iI = MAX_MAJOR_CIVS; iI < MAX_PLAYERS; iI++)
+	{
+		CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)iI);
+		if(kPlayer.isAlive())
+		{
+			if(kPlayer.getTeam() == GetID())
 			{
-				m_bIsMinorCiv = true;
-				break;
+				if(kPlayer.isMinorCiv())
+				{
+					bOldResult = true;
+					break;
+				}
+				else
+				{
+					bOldResult = false;
+					break;
+				}
 			}
+		}
+	}
+
+	if (bOldResult!=m_bIsMinorCiv)
+	{
+		OutputDebugString("inconsistent state for minor team in CvTeam()\n");
+	}
+
+	//make sure team membership is correct
+	for(int iI = MAX_MAJOR_CIVS; iI < MAX_PLAYERS; iI++)
+	{
+		CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)iI);
+
+		if (kPlayer.getTeam() == GetID())
+		{
+			if (!isMember(kPlayer.GetID()))
+				OutputDebugString("inconsistent state for membership in CvTeam()\n");
+		}
+		else
+		{
+			if (isMember(kPlayer.GetID()))
+				OutputDebugString("inconsistent state for non-membership in CvTeam()\n");
 		}
 	}
 }
@@ -3011,6 +3054,12 @@ void CvTeam::removePlayer(PlayerTypes eID)
 const std::vector<PlayerTypes>& CvTeam::getPlayers()
 {
 	return m_members;
+}
+
+bool CvTeam::isMember(PlayerTypes eID) const
+{
+	std::vector<PlayerTypes>::const_iterator pos = std::find( m_members.begin(), m_members.end(), eID );
+	return ( pos != m_members.end() );
 }
 
 #endif
@@ -8172,7 +8221,7 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 		}
 		
 #if defined(MOD_BALANCE_CORE_DIFFICULTY)
-		if(MOD_BALANCE_CORE_DIFFICULTY && !isMinorCiv())
+		if(MOD_BALANCE_CORE_DIFFICULTY && !isMinorCiv() && (eNewValue != GC.getGame().getStartEra()))
 		{
 			CvCity* pLoopCity;
 			int iLoop;

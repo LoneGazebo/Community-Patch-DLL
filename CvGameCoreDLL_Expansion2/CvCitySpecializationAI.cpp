@@ -348,12 +348,6 @@ void CvCitySpecializationAI::DoTurn()
 		return;
 	}
 	// See if need to update assignments
-#if defined(MOD_BALANCE_CORE)
-	if(GC.getGame().getGameTurn() < GC.getAI_CITY_SPECIALIZATION_REEVALUATION_INTERVAL())
-	{
-		return;
-	}
-#endif
 	if(m_bSpecializationsDirty || (m_iLastTurnEvaluated + GC.getAI_CITY_SPECIALIZATION_REEVALUATION_INTERVAL() > GC.getGame().getGameTurn()))
 	{
 		m_eNextWonderDesired = m_pPlayer->GetWonderProductionAI()->ChooseWonder(false /*bUseAsyncRandom*/, true /*bAdjustForOtherPlayers*/, m_iNextWonderWeight);
@@ -454,6 +448,13 @@ void CvCitySpecializationAI::WeightSpecializations()
 		if(iFlavorScience < 0) iFlavorScience = 0;
 		iFlavorSpaceship = m_pPlayer->GetFlavorManager()->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SPACESHIP"));
 		if(iFlavorSpaceship < 0) iFlavorSpaceship = 0;
+#if defined(MOD_BALANCE_CORE)
+		int iFlavorGrowth = m_pPlayer->GetFlavorManager()->GetIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GROWTH"));
+		if(iFlavorGrowth < 0)
+		{ 
+			iFlavorGrowth = 0;
+		}
+#endif
 
 		// COMPUTE NEW WEIGHTS
 
@@ -468,6 +469,7 @@ void CvCitySpecializationAI::WeightSpecializations()
 			iFoodYieldWeight += GC.getAI_CITY_SPECIALIZATION_FOOD_WEIGHT_EARLY_EXPANSION() /* 500 */;
 		}
 #if defined(MOD_BALANCE_CORE)
+		iFoodYieldWeight *= max(1, iFlavorGrowth);
 		EconomicAIStrategyTypes eStrategy2 = (EconomicAIStrategyTypes) GC.getInfoTypeForString("ECONOMICAISTRATEGY_EXPAND_TO_OTHER_CONTINENTS");
 		if(eStrategy2 != NO_ECONOMICAISTRATEGY && m_pPlayer->GetEconomicAI()->IsUsingStrategy(eStrategy2))
 		{

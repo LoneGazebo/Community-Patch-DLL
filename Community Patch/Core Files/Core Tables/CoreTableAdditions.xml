@@ -414,17 +414,17 @@
 			<ID>8</ID>
 			<Type>YIELD_GREAT_GENERAL_POINTS</Type>
 			<Description>TXT_KEY_YIELD_GREAT_GENERAL_POINTS</Description>
-			<IconString>[ICON_GOLDEN_AGE]</IconString>
+			<IconString>[ICON_GREAT_GENERAL]</IconString>
 			<MinCity>0</MinCity>
-			<AIWeightPercent>50</AIWeightPercent>
+			<AIWeightPercent>80</AIWeightPercent>
 		</Row>
 		<Row>
 			<ID>9</ID>
 			<Type>YIELD_GREAT_ADMIRAL_POINTS</Type>
 			<Description>TXT_KEY_YIELD_GREAT_ADMIRAL_POINTS</Description>
-			<IconString>[ICON_GOLDEN_AGE]</IconString>
+			<IconString>[ICON_GREAT_ADMIRAL]</IconString>
 			<MinCity>0</MinCity>
-			<AIWeightPercent>50</AIWeightPercent>
+			<AIWeightPercent>80</AIWeightPercent>
 		</Row>
 		<Row>
 			<ID>10</ID>
@@ -432,7 +432,7 @@
 			<Description>TXT_KEY_YIELD_POPULATION</Description>
 			<IconString>[ICON_CITIZEN]</IconString>
 			<MinCity>0</MinCity>
-			<AIWeightPercent>50</AIWeightPercent>
+			<AIWeightPercent>80</AIWeightPercent>
 		</Row>
 		<Row>
 			<ID>11</ID>
@@ -440,7 +440,7 @@
 			<Description>TXT_KEY_YIELD_CULTURE_LOCAL</Description>
 			<IconString>[ICON_CULTURE]</IconString>
 			<MinCity>0</MinCity>
-			<AIWeightPercent>50</AIWeightPercent>
+			<AIWeightPercent>80</AIWeightPercent>
 		</Row>
 	</Yields>
 </GameData>

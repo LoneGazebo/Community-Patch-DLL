@@ -397,7 +397,10 @@ void CvUnit::init(int iID, UnitTypes eUnit, UnitAITypes eUnitAI, PlayerTypes eOw
 {
 	initWithNameOffset(iID, eUnit, -1, eUnitAI, eOwner, iX, iY, eFacingDirection, bNoMove, bSetupGraphical, iMapLayer, iNumGoodyHutsPopped);
 #if defined(MOD_BALANCE_CORE)
-	GET_PLAYER(getOwner()).UpdateAreaEffectUnits();
+	if(GC.getGame().getGameTurn() > 0)
+	{
+		GET_PLAYER(getOwner()).UpdateAreaEffectUnits();
+	}
 #endif
 }
 
@@ -9358,6 +9361,12 @@ bool CvUnit::canPillage(const CvPlot* pPlot) const
 	{
 		return false;
 	}
+#if defined(MOD_BALANCE_CORE)
+	if(pPlot->getOwner() == getOwner())
+	{
+		return false;
+	}
+#endif
 	else
 	{
 		TechTypes ePillagePrereq = (TechTypes) getUnitInfo().GetPrereqPillageTech();
@@ -24636,15 +24645,26 @@ bool CvUnit::canEverRangeStrikeAt(int iX, int iY) const
 		{
 #if defined(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
 			//Subs should be able to attack cities (they're on the coast, they've got ports, etc.). This will help the AI.
-			if(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED && !pTargetPlot->isCity() && !pTargetPlot->isCoastalLand())
+			if(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
+			{
+				CvCity* pCity = pTargetPlot->getPlotCity();
+				if(!pTargetPlot->isCoastalLand())
+				{
+					return false;
+				}
+				else
+				{
+					if(pCity == NULL)
+					{
+						return false;
+					}
+				}
+			}
+			else
 			{
 #endif
-				return false;
-#if defined(MOD_BALANCE_CORE_MILITARY)
-			}
-			else if(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED && pTargetPlot->isCoastalLand() && !pTargetPlot->isCity())
-			{
-				return false;
+			return false;
+#if defined(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
 			}
 #endif
 		}
@@ -24654,23 +24674,26 @@ bool CvUnit::canEverRangeStrikeAt(int iX, int iY) const
 		{
 #if defined(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
 			//Subs should be able to attack cities (they're on the coast, they've got ports, etc.). This will help the AI.
-			if(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED && !pTargetPlot->isCity() && !pTargetPlot->isCoastalLand())
+			if(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
+			{
+				CvCity* pCity = pTargetPlot->getPlotCity();
+				if(!pTargetPlot->isCoastalLand())
+				{
+					return false;
+				}
+				else
+				{
+					if(pCity == NULL)
+					{
+						return false;
+					}
+				}
+			}
+			else
 			{
 #endif
 			return false;
 #if defined(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
-			}
-			else if(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED && pTargetPlot->isCoastalLand() && !pTargetPlot->isCity())
-			{
-				return false;
-			}
-			else if(MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED && !pTargetPlot->isCoastalLand() && pTargetPlot->isCity())
-			{
-				return false;
-			}
-			else
-			{
-				return false;
 			}
 #endif
 		}

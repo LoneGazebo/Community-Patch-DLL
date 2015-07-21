@@ -912,7 +912,7 @@ public:
 	bool IsWithinDistanceOfTerrain(TerrainTypes iTerrainType, int iDistance) const;
 #endif
 #if defined(MOD_BALANCE_CORE)
-	int GetDefenseBuildValue();
+	int GetDefenseBuildValue(PlayerTypes eOwner);
 #endif
 protected:
 	class PlotBoolField

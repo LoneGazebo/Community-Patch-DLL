@@ -59,6 +59,20 @@ std::string toString(const YieldTypes& v)
 		return std::string("YIELD_GOLDEN_AGE_POINTS");
 		break;
 #endif
+#if defined(MOD_BALANCE_CORE_YIELDS)
+	case YIELD_GREAT_GENERAL_POINTS:
+		return std::string("YIELD_GREAT_GENERAL_POINTS");
+		break;
+	case YIELD_GREAT_ADMIRAL_POINTS:
+		return std::string("YIELD_GREAT_ADMIRAL_POINTS");
+		break;
+	case YIELD_POPULATION:
+		return std::string("YIELD_POPULATION");
+		break;
+	case YIELD_CULTURE_LOCAL:
+		return std::string("YIELD_CULTURE_LOCAL");
+		break;
+#endif
 	default:
 		return std::string("INVALID ENUM VALUE");
 		break;

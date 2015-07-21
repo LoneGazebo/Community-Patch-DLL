@@ -320,10 +320,10 @@ public:
 	bool isAddsFreshWater() const;
 #endif
 #if defined(MOD_BALANCE_CORE)
-	bool IsNoWater() const;
 	int GetPurchaseCooldown() const;
 	void SetPurchaseCooldown(int iValue);
 	void ChangePurchaseCooldown(int iValue);
+	void CheckForOperationUnits();
 #endif
 	int foodConsumption(bool bNoAngry = false, int iExtra = 0) const;
 	int foodDifference(bool bBottom = true) const;

@@ -24,8 +24,17 @@
 			<Type>CONCEPT_CORPORATION_SPREADING</Type>
 			<Topic>TXT_KEY_TOPIC_CORPORATION_SPREADING</Topic>
 			<Description>TXT_KEY_CORPORATION_SPREADING_TITLE</Description>
-			<Summary>TXT_KEY_HAPPINESS_CORPORATION_SPREADING_BODY</Summary>
+			<Summary>TXT_KEY_CORPORATION_SPREADING_BODY</Summary>
 			<AdvisorQuestion>TXT_KEY_CORPORATION_SPREADING_QUESTION</AdvisorQuestion>
+			<Advisor>ECONOMIC</Advisor>
+			<CivilopediaHeaderType>HEADER_CORPORATIONS</CivilopediaHeaderType>
+		</Row>
+		<Row>
+			<Type>CONCEPT_CORPORATION_TYPES</Type>
+			<Topic>TXT_KEY_TOPIC_CORPORATION_TYPES</Topic>
+			<Description>TXT_KEY_CORPORATION_TYPES_TITLE</Description>
+			<Summary>TXT_KEY_HAPPINESS_CORPORATION_TYPES_BODY</Summary>
+			<AdvisorQuestion>TXT_KEY_CORPORATION_TYPES_QUESTION</AdvisorQuestion>
 			<Advisor>ECONOMIC</Advisor>
 			<CivilopediaHeaderType>HEADER_CORPORATIONS</CivilopediaHeaderType>
 		</Row>
@@ -68,10 +77,23 @@
 		<Row Tag="TXT_KEY_CORPORATION_SPREADING_TITLE">
 			<Text>{TXT_KEY_TOPIC_CORPORATION_SPREADING}</Text>
 		</Row>
-		<Row Tag="TXT_KEY_HAPPINESS_CORPORATION_SPREADING_BODY">
+		<Row Tag="TXT_KEY_CORPORATION_SPREADING_BODY">
 			<Text>[COLOR_POSITIVE_TEXT]Spreading your Corporation[ENDCOLOR]: to foreign cities is an essential element of reaping the most benefit from your Corporation.[NEWLINE][NEWLINE]Active Spread: Corporations actively spread their influence via owned Trade Routes, but only if the origin City (your City) has a Corporate Office in it. If your City has a Corporate Office, and you send a Trade Route from that City to a foreign City, a Corporate 'Franchise' will be built in that foreign City when the Trade Route completes. You can only spread your Corporation to each foreign City once.[NEWLINE][NEWLINE]Passive Spread: Corporations passively spread their influence via foreign Trade Routes, but only if the destination City (your City) has a Corporate Office in it. If your City has a Corporate Office, and another player sends a Trade Route to that City from one of their Cities, a Corporate 'Franchise' will be built in the foreign City when their Trade Route completes. Your Corporation can only spread to each foreign City once.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Benefits of Spreading Your Corporation[ENDCOLOR]: As listed in the details of each Corporation, the spread of your Corporation to foreign cities has a direct impact on the productivity of your Corporate Offices. For every 'Franchise' of your Corporation in a foreign City, your Corporate Offices gain unique bonuses, be it additional City yields, free resources, or improved Trade Route yields. Furthermore, many Corporations gain additional bonuses if you send Trade Routes to foreign Cities that already have your Corporation in them. Make sure to study the details of your Corporation once you have founded it so that you can maximize your benefit![NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Managing your Corporation[ENDCOLOR]: As your Corporation grows, it can be hard to keep up with where you have Franchises, and where you have Offices. Never fear! In the Economic Overview panel, you can find detailed information on your Corporation in the bottom-left corner. There, you can see the total number of Offices and Corporations you currently control, as well as drop-down lists of the locations of all Corporate Offices and Franchises, as well as the size of foreign Corporations. In addition to these elements, you can also find information about your Corporation while choosing a destination for your Trade Routes. Each City with a Franchise in it is clearly indicated.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CORPORATION_SPREADING_QUESTION">
+			<Text>How do I spread my Corporation?</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_TOPIC_CORPORATION_TYPES">
+			<Text>Corporation Types</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORPORATION_TYPES_TITLE">
+			<Text>{TXT_KEY_TOPIC_CORPORATION_TYPES}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_HAPPINESS_CORPORATION_TYPES_BODY">
+			<Text>[COLOR_POSITIVE_TEXT]Corporation Types[ENDCOLOR]: there are seven Corporations avaialable in the Community Balance Patch. Each of these can only be constructed once, so choose wisely![NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Civilized Jewelers:[ENDCOLOR] {TXT_KEY_CORP_HELPER_CIVILIZED_JEWELERS} [NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Firaxite Materials:[ENDCOLOR] {TXT_KEY_CORP_HELPER_FIRAXITE_MATERIALS} [NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Giorgio Armeier:[ENDCOLOR] {TXT_KEY_CORP_HELPER_GIORIO_ARMEIER} [NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Hexxon Refinery:[ENDCOLOR] {TXT_KEY_CORP_HELPER_HEXXON_REFINERY} [NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]LandSea Extractors:[ENDCOLOR] {TXT_KEY_CORP_HELPER_LANDSEA_EXTRACTORS} [NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Trader Sid's:[ENDCOLOR] {TXT_KEY_CORP_HELPER_TRADER_SIDS} [NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]TwoKay Foods:[ENDCOLOR] {TXT_KEY_CORP_HELPER_TWOKAY_FOODS}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORPORATION_TYPES_QUESTION">
 			<Text>How do I spread my Corporation?</Text>
 		</Row>
 
@@ -95,6 +117,20 @@
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_TRADE_UNIT_CORPORATION_BUILDING_FOREIGN">
 			<Text>{@2_BldgName}, a foreign Corporation, has spread to the City of {@1_City} as a result of a Trade Route with {@3_City}. This will increase the value of their Corporation!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_TRADE_UNIT_CORPORATION_BUILDING_FREEDOM_SUMMARY">
+			<Text>{@1_BldgName} spreads to {@2_City}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_TRADE_UNIT_CORPORATION_BUILDING_FREEDOM">
+			<Text>{@2_BldgName} has spread to the City of {@1_City} as a result of the [COLOR_POSITIVE_TEXT]Transnationalism[ENDCOLOR] Policy. This will increase the value of all of your Corporate Offices!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_TRADE_UNIT_CORPORATION_BUILDING_FOREIGN_FREEDOM_SUMMARY">
+			<Text>{@1_BldgName} spreads to {@2_City}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_TRADE_UNIT_CORPORATION_BUILDING_FOREIGN_FREEDOM">
+			<Text>{@2_BldgName}, a foreign Corporation, has spread to the City of {@1_City} as a result of {@1_CivName}'s [COLOR_POSITIVE_TEXT]Transnationalism[ENDCOLOR] Policy. This will increase the value of their Corporation!</Text>
 		</Row>
 
 		<!-- LUA -->

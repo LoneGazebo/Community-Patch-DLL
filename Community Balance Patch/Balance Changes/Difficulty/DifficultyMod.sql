@@ -52,7 +52,7 @@ SET StartingMinorDefenseUnits = '1'
 WHERE Type = 'HANDICAP_PRINCE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
 
 UPDATE HandicapInfos
-SET StartingMinorDefenseUnits = '2'
+SET StartingMinorDefenseUnits = '1'
 WHERE Type = 'HANDICAP_KING' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
 
 UPDATE HandicapInfos
@@ -60,7 +60,7 @@ SET StartingMinorDefenseUnits = '2'
 WHERE Type = 'HANDICAP_EMPEROR' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
 
 UPDATE HandicapInfos
-SET StartingMinorDefenseUnits = '3'
+SET StartingMinorDefenseUnits = '2'
 WHERE Type = 'HANDICAP_IMMORTAL' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE' AND Value= 1 );
 
 UPDATE HandicapInfos
@@ -161,33 +161,33 @@ WHERE Type = 'WORLDSIZE_HUGE' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='CO
 -- Names
 
 UPDATE Language_en_US
-SET Text = 'A standard challenge. The AI receives no bonuses. (King equivalent)'
-WHERE Tag = 'TXT_KEY_HANDICAP_SETTLER_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
+SET Text = 'A standard challenge. The AI receives no bonuses.'
+WHERE Tag = 'TXT_KEY_HANDICAP_SETTLER_HELP';
 
 UPDATE Language_en_US
-SET Text = 'A little challenging. The AI receives small bonuses. (Prince equivalent)'
-WHERE Tag = 'TXT_KEY_HANDICAP_CHIEFTAIN_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
+SET Text = 'A little challenging. The AI receives small bonuses.'
+WHERE Tag = 'TXT_KEY_HANDICAP_CHIEFTAIN_HELP';
 
 UPDATE Language_en_US
-SET Text = 'A mild challenge. The AI receives noticeable bonuses. (Emperor equivalent)'
-WHERE Tag = 'TXT_KEY_HANDICAP_WARLORD_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
+SET Text = 'A mild challenge. The AI receives noticeable bonuses.'
+WHERE Tag = 'TXT_KEY_HANDICAP_WARLORD_HELP';
 
 UPDATE Language_en_US
-SET Text = 'A good challenge. The AI has many advantages. (Immortal equivalent)'
-WHERE Tag = 'TXT_KEY_HANDICAP_PRINCE_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
+SET Text = 'A good challenge. The AI has many advantages.'
+WHERE Tag = 'TXT_KEY_HANDICAP_PRINCE_HELP';
 
 UPDATE Language_en_US
-SET Text = 'Quite challenging. AI players are given major bonuses. (Deity equivalent)'
-WHERE Tag = 'TXT_KEY_HANDICAP_KING_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
+SET Text = 'Quite challenging. AI players are given major bonuses.'
+WHERE Tag = 'TXT_KEY_HANDICAP_KING_HELP';
 
 UPDATE Language_en_US
-SET Text = 'Very challenging. AI players receive substantial bonuses. (Super Deity)'
-WHERE Tag = 'TXT_KEY_HANDICAP_EMPEROR_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
+SET Text = 'Very challenging. AI players receive substantial bonuses.'
+WHERE Tag = 'TXT_KEY_HANDICAP_EMPEROR_HELP';
 
 UPDATE Language_en_US
-SET Text = 'Extremely challenging. The AI has a very large advantage. (Super Duper Deity)'
-WHERE Tag = 'TXT_KEY_HANDICAP_IMMORTAL_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
+SET Text = 'Extremely challenging. The AI has a very large advantage.'
+WHERE Tag = 'TXT_KEY_HANDICAP_IMMORTAL_HELP';
 
 UPDATE Language_en_US
-SET Text = 'The AI has massive bonuses at all stages of the game. Good luck! (Ultra Deity)'
-WHERE Tag = 'TXT_KEY_HANDICAP_DEITY_HELP' AND EXISTS (SELECT * FROM COMMUNITY WHERE Type='COMMUNITY_CORE_BALANCE_RELIGION' AND Value= 1 );
+SET Text = 'The AI has massive bonuses at all stages of the game. Good luck!'
+WHERE Tag = 'TXT_KEY_HANDICAP_DEITY_HELP';

@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created by ModBuddy on 7/16/2015 1:54:46 PM -->
+<GameData>
+	<Policies>
+		<Row>
+			<Type>POLICY_NATIONALIZATION</Type>
+			<Description>TXT_KEY_POLICY_NATIONALIZATION</Description>
+			<Civilopedia>TXT_KEY_POLICY_NATIONALIZATION_TEXT</Civilopedia>
+			<Help>TXT_POLICY_NATIONALIZATION_HELP</Help>
+			<PolicyBranchType>POLICY_BRANCH_ORDER</PolicyBranchType>
+			<CultureCost>10</CultureCost>
+			<OrderCorporation>true</OrderCorporation>
+			<Level>2</Level>
+			<PortraitIndex>11</PortraitIndex>
+			<IconAtlas>POLICY_ATLAS_EXP2</IconAtlas>
+			<IconAtlasAchieved>POLICY_A_ATLAS_EXP2</IconAtlasAchieved>
+		</Row>
+		<Row>
+			<Type>POLICY_GLOBALIZATION</Type>
+			<Description>TXT_KEY_POLICY_GLOBALIZATION</Description>
+			<Civilopedia>TXT_KEY_POLICY_GLOBALIZATION_TEXT</Civilopedia>
+			<Help>TXT_POLICY_GLOBALIZATION_HELP</Help>
+			<PolicyBranchType>POLICY_BRANCH_FREEDOM</PolicyBranchType>
+			<CultureCost>10</CultureCost>
+			<FreedomCorporation>true</FreedomCorporation>
+			<Level>2</Level>
+			<PortraitIndex>25</PortraitIndex>
+			<IconAtlas>POLICY_ATLAS</IconAtlas>
+			<IconAtlasAchieved>POLICY_A_ATLAS</IconAtlasAchieved>
+		</Row>
+		<Row>
+			<Type>POLICY_INFILTRATION</Type>
+			<Description>TXT_KEY_POLICY_INFILTRATION</Description>
+			<Civilopedia>TXT_KEY_POLICY_INFILTRATION_TEXT</Civilopedia>
+			<Help>TXT_POLICY_INFILTRATION_HELP</Help>
+			<PolicyBranchType>POLICY_BRANCH_AUTOCRACY</PolicyBranchType>
+			<CultureCost>10</CultureCost>
+			<AutocracyCorporation>true</AutocracyCorporation>
+			<Level>2</Level>
+			<PortraitIndex>10</PortraitIndex>
+			<IconAtlas>POLICY_ATLAS_EXP2</IconAtlas>
+			<IconAtlasAchieved>POLICY_A_ATLAS_EXP2</IconAtlasAchieved>
+		</Row>
+	</Policies>
+	<Policy_Flavors>
+		<Row>
+			<PolicyType>POLICY_NATIONALIZATION</PolicyType>
+			<FlavorType>FLAVOR_EXPANSION</FlavorType>
+			<Flavor>60</Flavor>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_GLOBALIZATION</PolicyType>
+			<FlavorType>FLAVOR_GOLD</FlavorType>
+			<Flavor>60</Flavor>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_INFILTRATION</PolicyType>
+			<FlavorType>FLAVOR_CULTURE</FlavorType>
+			<Flavor>60</Flavor>
+		</Row>
+	</Policy_Flavors>
+	<Language_en_US>
+		<Row Tag="TXT_POLICY_NATIONALIZATION_HELP">
+			<Text>[COLOR_POSITIVE_TEXT]Nationalization[ENDCOLOR][NEWLINE]Corporate Offices function as Franchises. Franchises in foreign Cities no longer benefit your Corporation.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_POLICY_NATIONALIZATION">
+			<Text>Nationalization</Text>
+		</Row>
+		<Row Tag="TXT_KEY_POLICY_NATIONALIZATION_TEXT">
+			<Text>Nationalization is the process of taking a private industry or private assets into public ownership by a national government or state. Nationalization usually refers to private assets, but may also mean assets owned by lower levels of government, such as municipalities, being transferred to be the state. The opposite of nationalization is usually privatization or de-nationalization, but may also be municipalization. Industries that are usually subject to nationalization include transport, communications, energy, banking and natural resources.</Text>
+		</Row>
+
+		<Row Tag="TXT_POLICY_GLOBALIZATION_HELP">
+			<Text>[COLOR_POSITIVE_TEXT]Transnationalism[ENDCOLOR][NEWLINE]Each turn, there is a chance (based on number of owned Trade Units) that a Corporate Franchise will appear in a foreign City.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_POLICY_GLOBALIZATION">
+			<Text>Transnationalism</Text>
+		</Row>
+		<Row Tag="TXT_KEY_POLICY_GLOBALIZATION_TEXT">
+			<Text>Transnationalism as an economic process involves the global reorganization of the production process, in which various stages of the production of any product can occur in various countries, typically with the aim of minimizing costs. Economic transnationalism, commonly known as Globalization, was spurred in the latter half of the 20th century by the development of the internet and wireless communication, as well as the reduction in global transportation costs caused by containerization. Multinational corporations could be seen as a form of transnationalism, in that they seek to minimize costs, and hence maximize profits, by organizing their operations in the most efficient means possible irrespective of political boundaries.</Text>
+		</Row>
+
+		<Row Tag="TXT_POLICY_INFILTRATION_HELP">
+			<Text>[COLOR_POSITIVE_TEXT]Syndicalism[ENDCOLOR][NEWLINE]Corporate Franchises count double in the Cities of Civilizations you are at least [COLOR_MAGENTA]Popular[ENDCOLOR] with.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_POLICY_INFILTRATION">
+			<Text>Syndicalism</Text>
+		</Row>
+		<Row Tag="TXT_KEY_POLICY_INFILTRATION_TEXT">
+			<Text>National syndicalism is an adaptation of syndicalism to suit the social agenda of integral nationalism. National syndicalism suggests that the people must defend themselves through the development of Syndicalist sections into massive economic worker movements. These should take immediate action to expropriate the capitalists. These should also take direct action to let the workers lead the production and to form peoples communes. National syndicalism seeks out principled reasons for direct economic action and denounces parliamentary action by representatives. The goal is not to make capitalism bearable, but the realisation of a free Nationalist and Socialist nation. National syndicalism aims to move the attention from the political terrain to the economic terrain. It wants the socialisation from the basis: a system of distribution from local units, in consultation with the National federation, on the fundament of a production and consumption statistic. As well as the organisation of the production by national industrial federations.</Text>
+		</Row>
+	</Language_en_US>
+</GameData>

@@ -7,7 +7,7 @@
     <Guid>8411a7a8-dad3-4622-a18e-fcc18324c799</Guid>
     <ModVersion>13</ModVersion>
     <Stability>Beta</Stability>
-    <Teaser>The Complete Civ 5 Experience (7-15)</Teaser>
+    <Teaser>The Complete Civ 5 Experience (7-21)</Teaser>
     <Description>Community Balance Patch - Contains balance changes and gameplay improvements to make Civ V a more enjoyable and exciting game.</Description>
     <Authors>Civfanatics Community Balance Team</Authors>
     <SpecialThanks>
@@ -829,17 +829,22 @@
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <FileName>Modular Elements/Corporations/Corporations.sql</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
         <FileName>Modular Elements/Corporations/CorpText.xml</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
         <FileName>Modular Elements/Corporations/CorpTech.xml</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>Modular Elements/Corporations/Corporations.sql</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>Modular Elements/Corporations/NewCorpPolicies.xml</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
@@ -855,6 +860,16 @@
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
         <FileName>Balance Changes/AI/Diplomacy/LeaderCompatibility.sql</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>Modular Elements/ArchaeologistUIMods/MiniMapPanelText.xml</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>Modular Elements/ArchaeologistUIMods/UIAntiquities.xml</FileName>
       </Action>
     </ModActions>
     <Homepage>
@@ -880,6 +895,24 @@
         <Name>GlobalCityBombardRange</Name>
         <Description>GlobalCityBombardRange</Description>
         <FileName>Modular Elements/GlobalCityBombardRange.lua</FileName>
+      </Content>
+      <Content>
+        <Type>InGameUIAddin</Type>
+        <Name>GlobalArchaeologistDigSites</Name>
+        <Description>GlobalArchaeologistDigSites</Description>
+        <FileName>Modular Elements/ArchaeologistUIMods/GlobalArchaeologistDigSites.lua</FileName>
+      </Content>
+      <Content>
+        <Type>InGameUIAddin</Type>
+        <Name>OverlayAntiquities</Name>
+        <Description>OverlayAntiquities</Description>
+        <FileName>Modular Elements/ArchaeologistUIMods/OverlayAntiquities.xml</FileName>
+      </Content>
+      <Content>
+        <Type>MiniMapOverlayAddin</Type>
+        <Name>OverlayAntiquitiesUI</Name>
+        <Description>OverlayAntiquities_MiniMapOverlayHook</Description>
+        <FileName>Modular Elements/ArchaeologistUIMods/OverlayAntiquities_MiniMapOverlayHook.lua</FileName>
       </Content>
     </ModContent>
   </PropertyGroup>
@@ -944,6 +977,7 @@
     <Folder Include="Modular Elements\Corporations\Art" />
     <Folder Include="Modular Elements\Happiness Mod" />
     <Folder Include="Modular Elements\Corporations" />
+    <Folder Include="Modular Elements\ArchaeologistUIMods" />
     <Folder Include="Modular Elements\TradeUIMod" />
     <Folder Include="Modular Elements\SpiceIslands" />
     <Folder Include="Modular Elements\WonderConsolation" />
@@ -1847,6 +1881,38 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
+    <Content Include="Modular Elements\ArchaeologistUIMods\GlobalArchaeologistDigSites.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="Modular Elements\ArchaeologistUIMods\MiniMapPanel.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modular Elements\ArchaeologistUIMods\MiniMapPanel.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modular Elements\ArchaeologistUIMods\MiniMapPanelText.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="Modular Elements\ArchaeologistUIMods\OverlayAntiquities.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="Modular Elements\ArchaeologistUIMods\OverlayAntiquities.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="Modular Elements\ArchaeologistUIMods\OverlayAntiquities_MiniMapOverlayHook.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modular Elements\ArchaeologistUIMods\UIAntiquities.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
     <Content Include="Modular Elements\Corporations\Art\CorpAtlas128.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
@@ -1874,6 +1940,10 @@
     <Content Include="Modular Elements\Corporations\Art\CorporationSplash.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Modular Elements\Corporations\NewCorpPolicies.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
     <Content Include="Modular Elements\Corporations\RestrictionCorps.xml">
       <SubType>Lua</SubType>

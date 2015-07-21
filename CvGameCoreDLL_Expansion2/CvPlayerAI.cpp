@@ -469,18 +469,14 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes eOldOwner)
 			return;
 		}
 	}
-	if(canRaze(pCity))
+	if(canRaze(pCity) && IsEmpireUnhappy())
 	{
 		if(GET_TEAM(getTeam()).isAtWar(GET_PLAYER(eOldOwner).getTeam()))
 		{
 			if(GetDiplomacyAI()->GetWarGoal(eOldOwner) == WAR_GOAL_DAMAGE)
 			{
-				MajorCivOpinionTypes eOpinion = GetDiplomacyAI()->GetMajorCivOpinion(pCity->getOriginalOwner());
-				if(eOpinion <= MAJOR_CIV_OPINION_COMPETITOR)
-				{
-					pCity->doTask(TASK_RAZE);
-					return;
-				}
+				pCity->doTask(TASK_RAZE);
+				return;
 			}
 		}
 	}
@@ -1576,12 +1572,12 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveGeneral(CvUnit* pGreatGeneral)
 			}
 		}
 	}
-	if(iFriendlies > 3)
+	if(bWar && iFriendlies > 3)
 	{
 		return GREAT_PEOPLE_DIRECTIVE_FIELD_COMMAND;
 	}
 	CvPlot* pTargetPlot = FindBestGreatGeneralTargetPlot(pGreatGeneral, iValue);
-	if(iGreatGeneralCount > 1 && pTargetPlot && (pGreatGeneral->getArmyID() == FFreeList::INVALID_INDEX) && !bWar)
+	if(iGreatGeneralCount > 1 && pTargetPlot && (pGreatGeneral->getArmyID() == FFreeList::INVALID_INDEX))
 	{
 		//build a citadel
 		return GREAT_PEOPLE_DIRECTIVE_USE_POWER;
@@ -1887,6 +1883,12 @@ CvPlot* CvPlayerAI::FindBestMerchantTargetPlot(CvUnit* pGreatMerchant, bool bOnl
 				CvPlot* pAdjacentPlot = plotDirection(pCSPlot->getX(), pCSPlot->getY(), ((DirectionTypes)jJ));
 				if(pAdjacentPlot != NULL)
 				{
+#if defined(MOD_BALANCE_CORE)
+					if(pAdjacentPlot->isImpassable())
+					{
+						continue;
+					}
+#endif
 					// Make sure this is still owned by the city state and is revealed to us and isn't a water tile
 					//if(pAdjacentPlot->getOwner() == (PlayerTypes)iI && pAdjacentPlot->isRevealed(getTeam()) && !pAdjacentPlot->isWater())
 					bool bRightOwner = (pAdjacentPlot->getOwner() == (PlayerTypes)iI);
@@ -2450,6 +2452,10 @@ CvPlot* CvPlayerAI::ChooseDiplomatTargetPlot(UnitHandle pUnit, int* piTurns)
 			{
 				continue;
 			}
+			if(pLoopPlot->isImpassable())
+			{
+				continue;
+			}
 			if(pLoopPlot->getResourceType() != NO_RESOURCE)
 			{
 				continue;
@@ -2505,6 +2511,10 @@ CvPlot* CvPlayerAI::ChooseMessengerTargetPlot(UnitHandle pUnit, int* piTurns)
 	{
 		pLoopPlot = plotDirection(pCity->getX(), pCity->getY(), ((DirectionTypes)iI));
 		if(pLoopPlot == NULL)
+		{
+			continue;
+		}
+		if(pLoopPlot->isImpassable())
 		{
 			continue;
 		}
@@ -2633,6 +2643,13 @@ CvPlot* CvPlayerAI::FindBestGreatGeneralTargetPlot(CvUnit* pGeneral, int& iResul
 
 	// we may build in one of our border tiles or in enemy tiles adjacent to them
 	std::set<CvPlot*> setCandidates;
+	
+	BuildTypes eCitadel = (BuildTypes)GC.getInfoTypeForString("BUILD_CITADEL");
+	CvBuildInfo* pkBuildInfoCitadel = GC.getBuildInfo(eCitadel);
+	if(!pkBuildInfoCitadel)
+	{
+		return NULL;
+	}
 
 	// loop through plots and wipe out ones that are invalid
 	CvPlotsVector& m_aiPlots = GetPlots();
@@ -2647,6 +2664,13 @@ CvPlot* CvPlayerAI::FindBestGreatGeneralTargetPlot(CvUnit* pGeneral, int& iResul
 		if(!pPlot->IsAdjacentOwnedByOtherTeam(getTeam()))
 			continue;
 
+		if(!pPlot->canBuild(eCitadel, GetID()))
+			continue;
+
+		//defense yield
+		if(pPlot->GetDefenseBuildValue(GetID()) <= 0)
+			continue;
+
 		bool bGoodCandidate = true;
 		std::vector<CvPlot*> vPossibleCitadelTiles;
 
@@ -2659,7 +2683,10 @@ CvPlot* CvPlayerAI::FindBestGreatGeneralTargetPlot(CvUnit* pGeneral, int& iResul
 				continue;
 
 			// can't build on some plots
-			if(pAdjacentPlot->getPlotCity() || pAdjacentPlot->isWater() || pAdjacentPlot->isImpassable() )
+			if(pAdjacentPlot->isCity() || pAdjacentPlot->isWater() || pAdjacentPlot->isImpassable() )
+				continue;
+
+			if(!pAdjacentPlot->IsAdjacentOwnedByOtherTeam(getTeam()))
 				continue;
 
 			// don't build right next door to an existing citadel
@@ -2667,22 +2694,8 @@ CvPlot* CvPlayerAI::FindBestGreatGeneralTargetPlot(CvUnit* pGeneral, int& iResul
 			if (eImprovement != NO_IMPROVEMENT)
 			{
 				CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
-				if(pkImprovementInfo && pkImprovementInfo->GetCultureBombRadius() > 0)
-				{
-					bGoodCandidate = false;
-					break;
-				}
 				//don't remove existing great people improvements
 				if(pkImprovementInfo && pkImprovementInfo->IsCreatedByGreatPerson())
-					continue;
-			}
-
-			// don't build over luxury resources
-			ResourceTypes eResource = pPlot->getResourceType();
-			if(eResource != NO_RESOURCE)
-			{
-				CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
-				if(pkResource != NULL && pkResource->getResourceUsage() == RESOURCEUSAGE_LUXURY)
 					continue;
 			}
 
@@ -2699,7 +2712,7 @@ CvPlot* CvPlayerAI::FindBestGreatGeneralTargetPlot(CvUnit* pGeneral, int& iResul
 				{
 					MinorCivApproachTypes eMinorApproach = GetDiplomacyAI()->GetMinorCivApproach(eOwner);
 					// if we're friendly or protective, don't be a jerk
-					if(eMinorApproach != MINOR_CIV_APPROACH_CONQUEST && eMinorApproach != MINOR_CIV_APPROACH_IGNORE)
+					if(eMinorApproach == MINOR_CIV_APPROACH_FRIENDLY || eMinorApproach == MINOR_CIV_APPROACH_PROTECTIVE)
 					{
 						bGoodCandidate = false;
 						break;
@@ -2707,11 +2720,11 @@ CvPlot* CvPlayerAI::FindBestGreatGeneralTargetPlot(CvUnit* pGeneral, int& iResul
 				}
 				else
 				{
-					MajorCivApproachTypes eMajorApproach = GetDiplomacyAI()->GetMajorCivApproach(eOwner, true);
+					MajorCivApproachTypes eMajorApproach = GetDiplomacyAI()->GetMajorCivApproach(eOwner, false);
 					DisputeLevelTypes eLandDisputeLevel = GetDiplomacyAI()->GetLandDisputeLevel(eOwner);
 
 					bool bTicked = (eMajorApproach <= MAJOR_CIV_APPROACH_GUARDED);
-					bool bTickedAboutLand = (eLandDisputeLevel == DISPUTE_LEVEL_STRONG || eLandDisputeLevel == DISPUTE_LEVEL_FIERCE);
+					bool bTickedAboutLand = (eLandDisputeLevel >= DISPUTE_LEVEL_STRONG);
 
 					// only bomb if we're hostile
 					if(!bTicked && !bTickedAboutLand)
@@ -2743,18 +2756,26 @@ CvPlot* CvPlayerAI::FindBestGreatGeneralTargetPlot(CvUnit* pGeneral, int& iResul
 		{
 			CvPlot* pAdjacentPlot = plotDirection(pPlot->getX(), pPlot->getY(), ((DirectionTypes)iI));
 
-			// if the plot is ours already, ignore it
-			if(pAdjacentPlot == NULL || pAdjacentPlot->getTeam() == getTeam())
+			if(pAdjacentPlot == NULL)
 				continue;
 
 			// don't evaluate city plots since we don't get ownership of them with the bomb
-			if(pAdjacentPlot->getPlotCity())
+			if(pAdjacentPlot->isCity())
+				continue;
+
+			int iDefenseScore = pAdjacentPlot->GetDefenseBuildValue(GetID());
+			if(iDefenseScore <= 0)
+				continue;
+
+			if(!pAdjacentPlot->IsAdjacentOwnedByOtherTeam(getTeam()))
 				continue;
 
 			int iWeightFactor = 1;
 			// choke points are good, even if only adjacent to the citadel
 			if(pAdjacentPlot->IsChokePoint())
-				iWeightFactor = 2;
+			{
+				iWeightFactor += 3;
+			}
 
 			const PlayerTypes eOtherPlayer = pAdjacentPlot->getOwner();
 			if (eOtherPlayer != NO_PLAYER)
@@ -2764,43 +2785,72 @@ CvPlot* CvPlayerAI::FindBestGreatGeneralTargetPlot(CvUnit* pGeneral, int& iResul
 					MinorCivApproachTypes eMinorApproach = GetDiplomacyAI()->GetMinorCivApproach(eOtherPlayer);
 					// if we're friendly or protective, don't count the tile (but accept it as collateral damage)
 					if(eMinorApproach == MINOR_CIV_APPROACH_FRIENDLY || eMinorApproach == MINOR_CIV_APPROACH_PROTECTIVE)
+					{
 						continue;
+					}
 					else
+					{
 						// grabbing tiles away from minors is nice
-						iWeightFactor = 3;
+						iWeightFactor += 3;
+					}
+					//Do we get a bonus for citadels? Do it!
+					if(IsCitadelBoost())
+					{
+						iWeightFactor += 3;
+					}
 				}
 				else
 				{
-					MajorCivApproachTypes eMajorApproach = GetDiplomacyAI()->GetMajorCivApproach(eOtherPlayer, true);
+					MajorCivApproachTypes eMajorApproach = GetDiplomacyAI()->GetMajorCivApproach(eOtherPlayer, false);
 					DisputeLevelTypes eLandDisputeLevel = GetDiplomacyAI()->GetLandDisputeLevel(eOtherPlayer);
 
 					bool bTicked = (eMajorApproach <= MAJOR_CIV_APPROACH_GUARDED);
-					bool bTickedAboutLand = (eLandDisputeLevel == DISPUTE_LEVEL_STRONG || eLandDisputeLevel == DISPUTE_LEVEL_FIERCE);
+					bool bTickedAboutLand = (eLandDisputeLevel >= DISPUTE_LEVEL_STRONG);
 
 					// don't count the tile if we're not hostile (but accept it as collateral damage)
 					if(!bTicked && !bTickedAboutLand)
+					{
 						continue;
+					}
 					else
+					{
 						// grabbing tiles away from majors is really nice
-						iWeightFactor = 6;
+						iWeightFactor += 4;
+					}
+					//Do we get a bonus for citadels? Do it!
+					if(IsCitadelBoost())
+					{
+						iWeightFactor += 3;
+					}
 				}
 			}
 	
 			// score resource
 			ResourceTypes eResource = pAdjacentPlot->getResourceType();
 			if(eResource != NO_RESOURCE)
-				iScore += GetBuilderTaskingAI()->GetResourceWeight(eResource, NO_IMPROVEMENT, pAdjacentPlot->getNumResource());
+			{
+				iScore += (GetBuilderTaskingAI()->GetResourceWeight(eResource, NO_IMPROVEMENT, pAdjacentPlot->getNumResource()) * iWeightFactor);
+			}
 
 			// score yield
 			for(int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
-				iScore += pAdjacentPlot->getYield((YieldTypes)iYield) * iWeightFactor;
+			{
+				iScore += (pAdjacentPlot->getYield((YieldTypes)iYield) * iWeightFactor);
+			}
 
-			//defense yield
-			iScore += (pAdjacentPlot->GetDefenseBuildValue());
+			//Defense build yield.
+			iScore += iDefenseScore * 2;
+
+			if(GC.getLogging() && GC.getAILogging())
+			{
+				CvString strLogString;
+				strLogString.Format("Great General considering a Citadel, Location: X: %d, Y: %d. SCORE: %d", pAdjacentPlot->getX(), pAdjacentPlot->getY(), iScore);
+				GetHomelandAI()->LogHomelandMessage(strLogString);
+			}
 		}
 
 		//require a certain minimum score ...
-		if(iScore > 50)
+		if(iScore > 0)
 		{
 			//we don't need an escort as the target is right on our border, but check for enemies nevertheless
 			bool bSafe = true;
@@ -2811,27 +2861,41 @@ CvPlot* CvPlayerAI::FindBestGreatGeneralTargetPlot(CvUnit* pGeneral, int& iResul
 				{
 					CvPlot* pEvalPlot = NULL;
 					pEvalPlot = plotXYWithRangeCheck(pGeneral->getX(), pGeneral->getY(), iX, iY, iRange);
-					if(pEvalPlot && pEvalPlot->isVisibleEnemyUnit( m_eID ))
+					if(pEvalPlot && pEvalPlot->isVisibleEnemyUnit( GetID() ))
+					{
 						bSafe = false;
+					}
 				}
 			}
 
 			if (bSafe)
 			{
 				if (goodPlots.empty())
+				{
 					goodPlots.push( SPlotWithScore(pPlot,iScore) );
+				}
 				else if (iScore > goodPlots.top().score * 0.8f )
+				{
 					//don't even keep it if it's much worse than the current best
 					goodPlots.push( SPlotWithScore(pPlot,iScore) );
+				}
 			}
 		}
 	}
 
-	if ( goodPlots.size()==0 )
+	if ( goodPlots.size() == 0 )
+	{
 		return NULL;
-	else if ( goodPlots.size()==1 )
+	}
+	else if ( goodPlots.size() == 1 )
 	{
 		iResultScore = goodPlots.top().score;
+		if(GC.getLogging() && GC.getAILogging())
+		{
+			CvString strLogString;
+			strLogString.Format("Great General found a single Citadel location, Location: X: %d, Y: %d. SCORE: %d", goodPlots.top().pPlot->getX(), goodPlots.top().pPlot->getY(), goodPlots.top().score);
+			GetHomelandAI()->LogHomelandMessage(strLogString);
+		}
 		return goodPlots.top().pPlot;
 	}
 	else
@@ -2842,6 +2906,12 @@ CvPlot* CvPlayerAI::FindBestGreatGeneralTargetPlot(CvUnit* pGeneral, int& iResul
 		if (nr2.score < nr1.score * 0.8f)
 		{
 			iResultScore = nr1.score;
+			if(GC.getLogging() && GC.getAILogging())
+			{
+				CvString strLogString;
+				strLogString.Format("Great General found the top two Citadel locations, and chose first. Location: X: %d, Y: %d. SCORE: %d", goodPlots.top().pPlot->getX(), goodPlots.top().pPlot->getY(), goodPlots.top().score);
+				GetHomelandAI()->LogHomelandMessage(strLogString);
+			}
 			return nr1.pPlot;
 		}
 		else
@@ -2851,11 +2921,23 @@ CvPlot* CvPlayerAI::FindBestGreatGeneralTargetPlot(CvUnit* pGeneral, int& iResul
 			if (iTurns2*nr1.score < iTurns1*nr2.score )
 			{
 				iResultScore = nr2.score;
+				if(GC.getLogging() && GC.getAILogging())
+				{
+					CvString strLogString;
+					strLogString.Format("Great General found the top two Citadel locations, and chose second because distance. Location: X: %d, Y: %d. SCORE: %d", nr2.pPlot->getX(), nr2.pPlot->getY(), iResultScore);
+					GetHomelandAI()->LogHomelandMessage(strLogString);
+				}
 				return nr2.pPlot;
 			}
 			else
 			{
 				iResultScore = nr1.score;
+				if(GC.getLogging() && GC.getAILogging())
+				{
+					CvString strLogString;
+					strLogString.Format("Great General found the top two Citadel locations, and chose first because distance. Location: X: %d, Y: %d. SCORE: %d", nr1.pPlot->getX(), nr1.pPlot->getY(), iResultScore);
+					GetHomelandAI()->LogHomelandMessage(strLogString);
+				}
 				return nr1.pPlot;
 			}
 		}

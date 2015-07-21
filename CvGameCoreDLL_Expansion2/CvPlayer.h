@@ -629,6 +629,14 @@ public:
 	int GetIdeologyPoint() const;
 	void SetIdeologyPoint(int iValue);
 	void ChangeIdeologyPoint(int iChange);
+
+	void SetOrderCorp(bool bValue);
+	void SetAutocracyCorp(bool bValue);
+	void SetFreedomCorp(bool bValue);
+
+	bool IsOrderCorp();
+	bool IsAutocracyCorp();
+	bool IsFreedomCorp();
 #endif
 
 	int GetHappinessFromMinorCivs() const;
@@ -2253,6 +2261,9 @@ protected:
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	FAutoVariable<int, CvPlayer> m_iHappinessPerXPopulationGlobal;
 	FAutoVariable<int, CvPlayer> m_iIdeologyPoint;
+	FAutoVariable<bool, CvPlayer> m_bOrderCorp;
+	FAutoVariable<bool, CvPlayer> m_bAutocracyCorp;
+	FAutoVariable<bool, CvPlayer> m_bFreedomCorp;
 #endif
 	FAutoVariable<int, CvPlayer> m_iHappinessFromLeagues;
 	FAutoVariable<int, CvPlayer> m_iSpecialPolicyBuildingHappiness;  //unused

@@ -52,6 +52,11 @@
 	<Policy_BuildingClassHappiness>
 		<Row>
 			<PolicyType>POLICY_TRADITION_FINISHER</PolicyType>
+			<BuildingClassType>BUILDINGCLASS_PALACE</BuildingClassType>
+			<Happiness>3</Happiness>
+		</Row>
+		<Row>
+			<PolicyType>POLICY_TRADITION_FINISHER</PolicyType>
 			<BuildingClassType>BUILDINGCLASS_NATIONAL_COLLEGE</BuildingClassType>
 			<Happiness>1</Happiness>
 		</Row>

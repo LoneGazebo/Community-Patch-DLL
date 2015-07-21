@@ -94,6 +94,9 @@ public:
 	int GetHappinessPerXPopulationGlobal() const;
 	EraTypes GetPolicyEraUnlock() const;
 	int GetIdeologyPoint() const;
+	bool IsOrderCorp() const;
+	bool IsAutocracyCorp() const;
+	bool IsFreedomCorp() const;
 #endif
 	int GetExtraHappinessPerLuxury() const;
 	int GetUnhappinessFromUnitsMod() const;
@@ -554,6 +557,9 @@ private:
 	int m_iBestRangedUnitSpawnSettle;
 	int m_iFreePopulation;
 	int m_iExtraMoves;
+	bool m_bOrderCorporation;
+	bool m_bAutocracyCorporation;
+	bool m_bFreedomCorporation;
 	int* m_piConquerorYield;
 	int* m_piReligionYieldMod;
 	int* m_piGoldenAgeYieldMod;

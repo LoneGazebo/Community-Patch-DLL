@@ -2435,11 +2435,25 @@ int CvGameReligions::GetAdjacentCityReligiousPressure (ReligionTypes eReligion, 
 	{
 		if(pToCity->GetCityReligions()->GetReligiousMajority() <= RELIGION_PANTHEON)
 		{
+			//Do we have a religion?
 			ReligionTypes ePlayerReligion = GetReligionCreatedByPlayer(pToCity->getOwner());
+			
 			if(ePlayerReligion <= RELIGION_PANTHEON)
 			{
-				iDistanceMod += GET_PLAYER(pToCity->getOwner()).GetReligionDistance();
+				//No..but did we adopt one?
+				ePlayerReligion = GET_PLAYER(pToCity->getOwner()).GetReligions()->GetReligionInMostCities();
+				//Nope, so full power.
+				if(ePlayerReligion <= RELIGION_PANTHEON)
+				{
+					iDistanceMod += GET_PLAYER(pToCity->getOwner()).GetReligionDistance();
+				}
+				//Yes, so only apply distance bonus to adopted faith.
+				else if(eReligion == ePlayerReligion)
+				{
+					iDistanceMod += GET_PLAYER(pToCity->getOwner()).GetReligionDistance();
+				}
 			}
+			//We did! Only apply bonuses if we founded this faith or it is the religion we have in most of our cities.
 			else if((pReligion->m_eFounder == pToCity->getOwner()) || (eReligion == GET_PLAYER(pToCity->getOwner()).GetReligions()->GetReligionInMostCities()))
 			{
 				iDistanceMod += GET_PLAYER(pToCity->getOwner()).GetReligionDistance();
@@ -2528,9 +2542,11 @@ int CvGameReligions::GetAdjacentCityReligiousPressure (ReligionTypes eReligion, 
 		int iPolicyMod = GET_PLAYER(pFromCity->getOwner()).GetPressureMod();
 		if(iPolicyMod != 0)
 		{
+			//If the faith being spread is our founded faith, or our adopted faith...
 			if((GET_PLAYER(pFromCity->getOwner()).GetReligions()->GetReligionCreatedByPlayer() == eReligion) || (eReligion == (GET_PLAYER(pFromCity->getOwner()).GetReligions()->GetReligionInMostCities())))
 			{
-				if(pToCity->GetCityReligions()->GetReligiousMajority() != eReligion)
+				//...and the target city doesn't have a majority religion, we get the bonus.
+				if(pToCity->GetCityReligions()->GetReligiousMajority() <= RELIGION_PANTHEON)
 				{
 					iPressure *= (100 + iPolicyMod);
 					iPressure /= 100;
@@ -6248,6 +6264,12 @@ void CvReligionAI::DoFaithPurchases()
 	UnitTypes eProphetType = m_pPlayer->GetSpecificUnitType("UNITCLASS_PROPHET", true);
 	UnitTypes eMissionary = kPlayer.GetSpecificUnitType("UNITCLASS_MISSIONARY");
 	
+	UnitClassTypes eUnitClassMissionary = (UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_MISSIONARY");
+	if(eUnitClassMissionary != NO_UNITCLASS && m_pPlayer->GetPlayerTraits()->NoTrain(eUnitClassMissionary))
+	{
+		bTooManyMissionaries = true;
+	}
+
 	//Do we have any useful beliefs to consider?
 	CvBeliefXMLEntries* pkBeliefs = GC.GetGameBeliefs();
 	int iBonusValue = 0;
@@ -8359,7 +8381,13 @@ bool CvReligionAI::HaveNearbyConversionTarget(ReligionTypes eReligion, bool bCan
 bool CvReligionAI::HaveEnoughInquisitors(ReligionTypes eReligion) const
 {
 	int iLoop;
-
+#if defined(MOD_BALANCE_CORE)
+	UnitClassTypes eUnitClassInquisitor = (UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_INQUISITOR");
+	if(eUnitClassInquisitor != NO_UNITCLASS && m_pPlayer->GetPlayerTraits()->NoTrain(eUnitClassInquisitor))
+	{
+		return true;
+	}
+#endif
 	// Need one for every city in our realm that is of another religion, plus one for defense
 	int iNumNeeded = 1;
 	for(CvCity* pCity = m_pPlayer->firstCity(&iLoop); pCity != NULL; pCity = m_pPlayer->nextCity(&iLoop))

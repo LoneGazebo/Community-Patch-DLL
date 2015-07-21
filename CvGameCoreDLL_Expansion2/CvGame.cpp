@@ -705,14 +705,7 @@ void CvGame::InitPlayers()
 
 			if(iI < MAX_MAJOR_CIVS + iNumMinors)
 			{
-#if defined(MOD_GLOBAL_MAX_MAJOR_CIVS)
-				CvMinorCivInfo* pMinorCivInfo = GC.getMinorCivInfo(CvPreGame::minorCivType((PlayerTypes) (eMinorPlayer + (MAX_PREGAME_MAJOR_CIVS - MAX_MAJOR_CIVS))));
-				if(pMinorCivInfo)
-				{
-#else
 				CvMinorCivInfo* pMinorCivInfo = GC.getMinorCivInfo(CvPreGame::minorCivType(eMinorPlayer));
-#endif
-
 				CvPreGame::setSlotStatus(eMinorPlayer, SS_COMPUTER);
 				CvPreGame::setNetID(eMinorPlayer, -1);
 				CvPreGame::setHandicap(eMinorPlayer, (HandicapTypes)GC.getMINOR_CIV_HANDICAP());
@@ -720,9 +713,6 @@ void CvGame::InitPlayers()
 				CvPreGame::setLeaderHead(eMinorPlayer, (LeaderHeadTypes)GC.getBARBARIAN_LEADER());
 				CvPreGame::setPlayerColor(eMinorPlayer, (PlayerColorTypes)pMinorCivInfo->getDefaultPlayerColor());
 				CvPreGame::setMinorCiv(eMinorPlayer, true);
-#if defined(MOD_GLOBAL_MAX_MAJOR_CIVS)
-				}
-#endif
 			}
 		}
 	}
@@ -8528,12 +8518,6 @@ void CvGame::updateMoves()
 
 	for(i = playersToProcess.begin(); i != playersToProcess.end(); ++i)
 	{
-#if defined(MOD_BALANCE_CORE)
-		if((PlayerTypes)*i == NO_PLAYER)
-		{
-			continue;
-		}
-#endif
 		GC.getPathFinder().ForceReset();
 		CvPlayer& player = GET_PLAYER((PlayerTypes)*i);
 
@@ -9830,25 +9814,29 @@ void CvGame::SetHighestPotential()
 {
 	m_iLargestBasePotential = 0;
 	int iPotential = 0;	
-
+	PlayerTypes eLoopPlayer;
 	// first pass to get the largest base potential available
-	for(int iPlayer = 0; iPlayer < MAX_PLAYERS; ++iPlayer)
+	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
-		CvPlayer& kLoopPlayer = GET_PLAYER((PlayerTypes)iPlayer);
-
-		if(!kLoopPlayer.isAlive() || kLoopPlayer.isBarbarian() || kLoopPlayer.isMinorCiv() || (kLoopPlayer.GetEspionageAI()->m_iTurnEspionageStarted == -1))
+		eLoopPlayer = (PlayerTypes) iPlayerLoop;
+		if(eLoopPlayer != NO_PLAYER && GET_PLAYER(eLoopPlayer).isAlive())
 		{
-			continue;
-		}
+			CvPlayer& kLoopPlayer = GET_PLAYER(eLoopPlayer);
 
-		int iLoop = 0;
-		for(CvCity* pLoopCity = kLoopPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kLoopPlayer.nextCity(&iLoop))
-		{				
-			iPotential = kLoopPlayer.GetEspionage()->CalcPerTurn(SPY_STATE_GATHERING_INTEL, pLoopCity, -1);;
-
-			if (iPotential > m_iLargestBasePotential)
+			if(kLoopPlayer.isBarbarian() || kLoopPlayer.isMinorCiv() || (kLoopPlayer.GetEspionageAI()->m_iTurnEspionageStarted == -1))
 			{
-				m_iLargestBasePotential = iPotential;
+				continue;
+			}
+
+			int iLoop = 0;
+			for(CvCity* pLoopCity = kLoopPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kLoopPlayer.nextCity(&iLoop))
+			{				
+				iPotential = kLoopPlayer.GetEspionage()->CalcPerTurn(SPY_STATE_GATHERING_INTEL, pLoopCity, -1);;
+
+				if (iPotential > m_iLargestBasePotential)
+				{
+					m_iLargestBasePotential = iPotential;
+				}
 			}
 		}
 	}
@@ -9916,9 +9904,8 @@ void CvGame::Read(FDataStream& kStream)
 	kStream >> m_iMaxPopulation;
 #if defined(MOD_BALANCE_CORE_GLOBAL_CITY_IDS)
 	kStream >> m_iGlobalCityCounter;
-#else
-	kStream >> m_iUnused1;
 #endif
+	kStream >> m_iUnused1;
 	kStream >> m_iUnused2;
 	kStream >> m_iUnused3;
 	kStream >> m_iInitPopulation;
@@ -10177,9 +10164,8 @@ void CvGame::Write(FDataStream& kStream) const
 	kStream << m_iMaxPopulation;
 #if defined(MOD_BALANCE_CORE_GLOBAL_CITY_IDS)
 	kStream << m_iGlobalCityCounter;
-#else
-	kStream << m_iUnused1;
 #endif
+	kStream << m_iUnused1;
 	kStream << m_iUnused2;
 	kStream << m_iUnused3;
 	kStream << m_iInitPopulation;
