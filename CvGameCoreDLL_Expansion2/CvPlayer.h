@@ -1567,13 +1567,15 @@ public:
 	int getNumResourceTotal(ResourceTypes eIndex, bool bIncludeImport = true) const;
 	void changeNumResourceTotal(ResourceTypes eIndex, int iChange, bool bIgnoreResourceWarning = false);
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
-	bool HasLuxuryMonopoly(ResourceTypes eResource) const;
-	void SetHasLuxuryMonopoly(ResourceTypes eResource, bool bNewValue);
+	//global monopolies kick in at 50%
+	bool HasGlobalMonopoly(ResourceTypes eResource) const;
+	void SetHasGlobalMonopoly(ResourceTypes eResource, bool bNewValue);
+	//strategic monopolies kick in at 25%
 	bool HasStrategicMonopoly(ResourceTypes eResource) const;
 	void SetHasStrategicMonopoly(ResourceTypes eResource, bool bNewValue);
 	void CheckForMonopoly(ResourceTypes eResource);
-	const std::vector<ResourceTypes>& GetStrategicMonopolies() const { return m_vMonopolizedStrategicResources; }
-	const std::vector<ResourceTypes>& GetLuxuryMonopolies() const { return m_vMonopolizedLuxuryResources; }
+	const std::vector<ResourceTypes>& GetStrategicMonopolies() const { return m_vResourcesWStrategicMonopoly; }
+	const std::vector<ResourceTypes>& GetGlobalMonopolies() const { return m_vResourcesWGlobalMonopoly; }
 #endif
 
 	int getSiphonLuxuryCount(PlayerTypes eFromPlayer) const;
@@ -2647,10 +2649,10 @@ protected:
 	FAutoVariable<std::vector<bool>, CvPlayer> m_pabLoyalMember;
 
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
-	FAutoVariable<std::vector<bool>, CvPlayer> m_pabHasLuxuryMonopoly;
+	FAutoVariable<std::vector<bool>, CvPlayer> m_pabHasGlobalMonopoly;
 	FAutoVariable<std::vector<bool>, CvPlayer> m_pabHasStrategicMonopoly;
-	std::vector<ResourceTypes> m_vMonopolizedLuxuryResources;
-	std::vector<ResourceTypes> m_vMonopolizedStrategicResources;
+	std::vector<ResourceTypes> m_vResourcesWGlobalMonopoly;
+	std::vector<ResourceTypes> m_vResourcesWStrategicMonopoly;
 #endif
 
 	FAutoVariable<std::vector<bool>, CvPlayer> m_pabGetsScienceFromPlayer;

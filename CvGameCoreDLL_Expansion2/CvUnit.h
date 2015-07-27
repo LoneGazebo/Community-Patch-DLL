@@ -1833,6 +1833,7 @@ private:
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	// for debugging
 	CvString m_strMissionInfoString;
+	int m_iTactMoveSetTurn;
 #endif
 };
 

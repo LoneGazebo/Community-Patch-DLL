@@ -2700,7 +2700,7 @@ int CvPlayerTrade::GetTradeConnectionResourceValueTimes100(const TradeConnection
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 								if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 								{
-									if(GET_PLAYER(pOriginCity->getOwner()).HasLuxuryMonopoly(eResource) || GET_PLAYER(pDestCity->getOwner()).HasLuxuryMonopoly(eResource))
+									if(GET_PLAYER(pOriginCity->getOwner()).HasGlobalMonopoly(eResource) || GET_PLAYER(pDestCity->getOwner()).HasGlobalMonopoly(eResource))
 									{
 										iValue += GD_INT_GET(TRADE_ROUTE_DIFFERENT_RESOURCE_VALUE);
 									}

@@ -1360,7 +1360,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveEngineer(CvUnit* pGreatEnginee
 	if(eDirective == NO_GREAT_PEOPLE_DIRECTIVE_TYPE)
 	{
 		int iNextWonderWeight;
-		BuildingTypes eNextWonderDesired = GetWonderProductionAI()->ChooseWonder(false /*bUseAsyncRandom*/, false /*bAdjustForOtherPlayers*/, iNextWonderWeight);
+		BuildingTypes eNextWonderDesired = GetWonderProductionAI()->ChooseWonder(false /*bAdjustForOtherPlayers*/, iNextWonderWeight);
 		if(eNextWonderDesired != NO_BUILDING)
 		{
 #if defined(MOD_BALANCE_CORE)

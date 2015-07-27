@@ -350,7 +350,7 @@ void CvCitySpecializationAI::DoTurn()
 	// See if need to update assignments
 	if(m_bSpecializationsDirty || (m_iLastTurnEvaluated + GC.getAI_CITY_SPECIALIZATION_REEVALUATION_INTERVAL() > GC.getGame().getGameTurn()))
 	{
-		m_eNextWonderDesired = m_pPlayer->GetWonderProductionAI()->ChooseWonder(false /*bUseAsyncRandom*/, true /*bAdjustForOtherPlayers*/, m_iNextWonderWeight);
+		m_eNextWonderDesired = m_pPlayer->GetWonderProductionAI()->ChooseWonder(true /*bAdjustForOtherPlayers*/, m_iNextWonderWeight);
 		WeightSpecializations();
 		AssignSpecializations();
 		m_bSpecializationsDirty = false;

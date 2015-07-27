@@ -529,7 +529,7 @@ CvPlayer::CvPlayer() :
 	, m_paiNumCitiesFreeChosenBuilding("CvPlayer::m_paiNumCitiesFreeChosenBuilding", m_syncArchive)
 #endif
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
-	, m_pabHasLuxuryMonopoly("CvPlayer::m_pabHasLuxuryMonopoly", m_syncArchive)
+	, m_pabHasGlobalMonopoly("CvPlayer::m_pabHasGlobalMonopoly", m_syncArchive)
 	, m_pabHasStrategicMonopoly("CvPlayer::m_pabHasStrategicMonopoly", m_syncArchive)
 #endif
 	, m_pabLoyalMember("CvPlayer::m_pabLoyalMember", m_syncArchive)
@@ -972,10 +972,10 @@ void CvPlayer::uninit()
 	m_paiNumCitiesFreeChosenBuilding.clear();
 #endif
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
-	m_pabHasLuxuryMonopoly.clear();
+	m_pabHasGlobalMonopoly.clear();
 	m_pabHasStrategicMonopoly.clear();
-	m_vMonopolizedLuxuryResources.clear();
-	m_vMonopolizedStrategicResources.clear();
+	m_vResourcesWGlobalMonopoly.clear();
+	m_vResourcesWStrategicMonopoly.clear();
 #endif
 	m_pabLoyalMember.clear();
 	m_pabGetsScienceFromPlayer.clear();
@@ -1615,12 +1615,12 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 		m_paiNumCitiesFreeChosenBuilding.resize(GC.getNumBuildingClassInfos(), 0);
 #endif
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
-		m_pabHasLuxuryMonopoly.clear();
-		m_pabHasLuxuryMonopoly.resize(GC.getNumResourceInfos(), false);
+		m_pabHasGlobalMonopoly.clear();
+		m_pabHasGlobalMonopoly.resize(GC.getNumResourceInfos(), false);
 		m_pabHasStrategicMonopoly.clear();
 		m_pabHasStrategicMonopoly.resize(GC.getNumResourceInfos(), false);
-		m_vMonopolizedLuxuryResources.clear();
-		m_vMonopolizedStrategicResources.clear();
+		m_vResourcesWGlobalMonopoly.clear();
+		m_vResourcesWStrategicMonopoly.clear();
 #endif
 		m_pabLoyalMember.clear();
 		m_pabLoyalMember.resize(GC.getNumVoteSourceInfos(), true);
@@ -5727,7 +5727,7 @@ void CvPlayer::doTurn()
 
 	setConscriptCount(0);
 #if defined(MOD_BALANCE_CORE)
-	GET_TEAM(getTeam()).updateMinorCiv();
+	GET_TEAM(getTeam()).updateTeamStatus();
 
 	if(MOD_BALANCE_CORE && !isMinorCiv() && !isBarbarian())
 	{
@@ -15173,7 +15173,7 @@ int CvPlayer::GetHappinessFromResourceMonopolies() const
 		CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
 		if (pInfo && pInfo->isMonopoly())
 		{
-			if(HasLuxuryMonopoly(eResourceLoop) && pInfo->getMonopolyHappiness() > 0)
+			if(HasGlobalMonopoly(eResourceLoop) && pInfo->getMonopolyHappiness() > 0)
 			{
 				iTotalHappiness += pInfo->getMonopolyHappiness();
 			}
@@ -18228,7 +18228,7 @@ int CvPlayer::getGoldenAgeLength() const
 				CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
 				if (pInfo && pInfo->isMonopoly())
 				{
-					if(HasLuxuryMonopoly(eResourceLoop) && pInfo->getMonopolyGALength() > 0)
+					if(HasGlobalMonopoly(eResourceLoop) && pInfo->getMonopolyGALength() > 0)
 					{
 						iLengthModifier += pInfo->getMonopolyGALength();
 					}
@@ -25987,23 +25987,23 @@ void CvPlayer::changeNumResourceTotal(ResourceTypes eIndex, int iChange, bool bI
 }
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 //	--------------------------------------------------------------------------------
-bool CvPlayer::HasLuxuryMonopoly(ResourceTypes eResource) const
+bool CvPlayer::HasGlobalMonopoly(ResourceTypes eResource) const
 {
-	return m_pabHasLuxuryMonopoly[eResource];
+	return m_pabHasGlobalMonopoly[eResource];
 }
 //	--------------------------------------------------------------------------------
-void CvPlayer::SetHasLuxuryMonopoly(ResourceTypes eResource, bool bNewValue)
+void CvPlayer::SetHasGlobalMonopoly(ResourceTypes eResource, bool bNewValue)
 {
-	if(bNewValue != m_pabHasLuxuryMonopoly[eResource])
+	if(bNewValue != m_pabHasGlobalMonopoly[eResource])
 	{
-		m_pabHasLuxuryMonopoly.setAt(eResource, bNewValue);
+		m_pabHasGlobalMonopoly.setAt(eResource, bNewValue);
 	}
 
-	std::vector<ResourceTypes>::iterator it = std::find(m_vMonopolizedLuxuryResources.begin(),m_vMonopolizedLuxuryResources.end(),eResource);
-	if (bNewValue && it==m_vMonopolizedLuxuryResources.end())
-		m_vMonopolizedLuxuryResources.push_back(eResource);
-	else if (!bNewValue && it!=m_vMonopolizedLuxuryResources.end())
-		m_vMonopolizedLuxuryResources.erase(it);
+	std::vector<ResourceTypes>::iterator it = std::find(m_vResourcesWGlobalMonopoly.begin(),m_vResourcesWGlobalMonopoly.end(),eResource);
+	if (bNewValue && it==m_vResourcesWGlobalMonopoly.end())
+		m_vResourcesWGlobalMonopoly.push_back(eResource);
+	else if (!bNewValue && it!=m_vResourcesWGlobalMonopoly.end())
+		m_vResourcesWGlobalMonopoly.erase(it);
 }
 //	--------------------------------------------------------------------------------
 bool CvPlayer::HasStrategicMonopoly(ResourceTypes eResource) const
@@ -26018,11 +26018,11 @@ void CvPlayer::SetHasStrategicMonopoly(ResourceTypes eResource, bool bNewValue)
 		m_pabHasStrategicMonopoly.setAt(eResource, bNewValue);
 	}
 
-	std::vector<ResourceTypes>::iterator it = std::find(m_vMonopolizedStrategicResources.begin(),m_vMonopolizedStrategicResources.end(),eResource);
-	if (bNewValue && it==m_vMonopolizedStrategicResources.end())
-		m_vMonopolizedStrategicResources.push_back(eResource);
-	else if (!bNewValue && it!=m_vMonopolizedStrategicResources.end())
-		m_vMonopolizedStrategicResources.erase(it);
+	std::vector<ResourceTypes>::iterator it = std::find(m_vResourcesWStrategicMonopoly.begin(),m_vResourcesWStrategicMonopoly.end(),eResource);
+	if (bNewValue && it==m_vResourcesWStrategicMonopoly.end())
+		m_vResourcesWStrategicMonopoly.push_back(eResource);
+	else if (!bNewValue && it!=m_vResourcesWStrategicMonopoly.end())
+		m_vResourcesWStrategicMonopoly.erase(it);
 }
 
 //	--------------------------------------------------------------------------------
@@ -26046,19 +26046,19 @@ void CvPlayer::CheckForMonopoly(ResourceTypes eResource)
 					//Do we have +50% of this resource under our control?
 					if(((iOwnedNumResource * 100) / iTotalNumResource) > 50)
 					{
-						if(m_pabHasLuxuryMonopoly[eResource] == false)
+						if(m_pabHasGlobalMonopoly[eResource] == false)
 						{
 							bGainingBonus = true;
 						}
-						SetHasLuxuryMonopoly(eResource, true);
+						SetHasGlobalMonopoly(eResource, true);
 					}
 					else
 					{
-						if(m_pabHasLuxuryMonopoly[eResource] == true)
+						if(m_pabHasGlobalMonopoly[eResource] == true)
 						{
 							bLosingBonus = true;
 						}
-						SetHasLuxuryMonopoly(eResource, false);
+						SetHasGlobalMonopoly(eResource, false);
 					}
 				}
 				else if(pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
@@ -26083,19 +26083,19 @@ void CvPlayer::CheckForMonopoly(ResourceTypes eResource)
 					//Do we also have 50% of this resource under our control?
 					if(((iOwnedNumResource * 100) / iTotalNumResource) > 50)
 					{
-						if(m_pabHasLuxuryMonopoly[eResource] == false)
+						if(m_pabHasGlobalMonopoly[eResource] == false)
 						{
 							bGainingBonus = true;
 						}
-						SetHasLuxuryMonopoly(eResource, true);
+						SetHasGlobalMonopoly(eResource, true);
 					}
 					else
 					{
-						if(m_pabHasLuxuryMonopoly[eResource] == true)
+						if(m_pabHasGlobalMonopoly[eResource] == true)
 						{
 							bLosingBonus = true;
 						}
-						SetHasLuxuryMonopoly(eResource, false);
+						SetHasGlobalMonopoly(eResource, false);
 					}
 				}
 				CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
@@ -26103,11 +26103,11 @@ void CvPlayer::CheckForMonopoly(ResourceTypes eResource)
 				{
 					if (GC.getGame().GetGameLeagues()->IsLuxuryHappinessBanned(GetID(), eResource))
 					{
-						if(m_pabHasLuxuryMonopoly[eResource] == true)
+						if(m_pabHasGlobalMonopoly[eResource] == true)
 						{
 							bLosingBonus = true;
 						}
-						SetHasLuxuryMonopoly(eResource, false);
+						SetHasGlobalMonopoly(eResource, false);
 					}
 				}
 			}
@@ -31897,13 +31897,13 @@ void CvPlayer::Read(FDataStream& kStream)
 	kStream >> m_pabLoyalMember;
 
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
-	kStream >> m_pabHasLuxuryMonopoly;
+	kStream >> m_pabHasGlobalMonopoly;
 	kStream >> m_pabHasStrategicMonopoly;
 
 	for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 	{
-		if (m_pabHasLuxuryMonopoly[iResourceLoop])
-			SetHasLuxuryMonopoly((ResourceTypes)iResourceLoop,true);
+		if (m_pabHasGlobalMonopoly[iResourceLoop])
+			SetHasGlobalMonopoly((ResourceTypes)iResourceLoop,true);
 		if (m_pabHasStrategicMonopoly[iResourceLoop])
 			SetHasStrategicMonopoly((ResourceTypes)iResourceLoop,true);
 	}
@@ -32113,7 +32113,7 @@ void CvPlayer::Read(FDataStream& kStream)
 
 #if defined(MOD_BALANCE_CORE)
 	UpdateAreaEffectUnits();
-	GET_TEAM(getTeam()).updateMinorCiv();
+	GET_TEAM(getTeam()).updateTeamStatus();
 #endif
 }
 
@@ -32555,7 +32555,7 @@ void CvPlayer::Write(FDataStream& kStream) const
 	kStream << m_pabLoyalMember;
 
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
-	kStream << m_pabHasLuxuryMonopoly;
+	kStream << m_pabHasGlobalMonopoly;
 	kStream << m_pabHasStrategicMonopoly;
 #endif
 
@@ -34073,7 +34073,7 @@ ostream& operator<<(ostream& os, const CvPlot* pPlot)
 CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, bool bOnlySafePaths, int iTargetArea, CvAIOperation* pOpToIgnore, bool bForceLogging) const
 {
 	//--------
-	bool bLogging = GC.getLogging() && GC.getAILogging() && ( (GC.getGame().getGameTurn()%10==0) || bForceLogging ); 
+	bool bLogging = (GC.getLogging() && GC.getAILogging()) || bForceLogging; 
 	std::stringstream dump;
 	int iDanger=0, iFertility=0;
 	//--------
@@ -34090,6 +34090,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, bool bOnlySafePaths, in
 	}
 	//start with a predefined base value
 	int iBestFoundValue = GC.getAI_STRATEGY_MINIMUM_SETTLE_FERTILITY();
+
 	int iSettlers = GET_PLAYER(GetID()).GetNumUnitsWithUnitAI(UNITAI_SETTLE, true, true);
 	if(iSettlers > 1)
 	{
@@ -34100,7 +34101,6 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, bool bOnlySafePaths, in
 	{
 		iTurnsWaiting = (GC.getGame().getGameTurn() - pUnit->getGameTurnCreated());
 	}
-
 	iBestFoundValue -= (iTurnsWaiting * 100);
 
 	CvPlot* pBestFoundPlot = NULL;
@@ -34171,22 +34171,17 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, bool bOnlySafePaths, in
 			continue;
 		}
 
-		PlayerTypes ePlayer;
-		for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+		for (std::vector<PlayerTypes>::const_iterator it = m_playersWeAreAtWarWith.begin(); it != m_playersWeAreAtWarWith.end(); ++it)
 		{
-			ePlayer = (PlayerTypes) iPlayerLoop;
-			if(ePlayer != NO_PLAYER && !GET_PLAYER(ePlayer).isMinorCiv() && !GET_PLAYER(ePlayer).isBarbarian())
+			if(!GET_PLAYER(*it).isBarbarian())
 			{
-				if(GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isAtWar(getTeam()))
+				if(pPlot->IsHomeFrontForPlayer(*it))
 				{
-					if(pPlot->IsHomeFrontForPlayer(ePlayer))
-					{
-						//--------------
-						if (bLogging) 
-						dump << pPlot << ",1," << iDanger << "," << iFertility << ",-1" << ",-2" << std::endl;
-						//--------------
-						continue;
-					}
+					//--------------
+					if (bLogging) 
+					dump << pPlot << ",1," << iDanger << "," << iFertility << ",-1" << ",-2" << std::endl;
+					//--------------
+					continue;
 				}
 			}
 		}
@@ -34209,13 +34204,32 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, bool bOnlySafePaths, in
 			continue;
 		}
 
-		if(bOnlySafePaths && pPlot->isVisibleEnemyUnit(eOwner))
+		if(bOnlySafePaths)
 		{
-			//--------------
-			if (bLogging) 
-			dump << pPlot << ",1," << iDanger << "," << iFertility << ",-1" << ",-4" << std::endl;
-			//--------------
-			continue;
+			CvTwoLayerPathFinder& kPathfinder = GC.getPathFinder();
+			//find our closest city, which should become our muster plot
+			CvPlot* pMusterPlot = pUnit->plot();
+			int iMinDistance = INT_MAX;
+			const CvCity* pLoopCity;
+			int iLoopCity = 0;
+			for(pLoopCity = firstCity(&iLoopCity); pLoopCity != NULL; pLoopCity = nextCity(&iLoopCity))
+			{
+				int iDistance = plotDistance( pLoopCity->getX(), pLoopCity->getY(), pPlot->getX(), pPlot->getY());
+				if (iDistance<iMinDistance)
+				{
+					iMinDistance = iDistance;
+					pMusterPlot = pLoopCity->plot();
+				}
+			}
+			//if the target plot is more than 5 turns away it's unsafe by definition
+			if (! kPathfinder.GenerateUnitPath(pUnit, pMusterPlot->getX(), pMusterPlot->getY(), pPlot->getX(), pPlot->getY(), 0, false, 5) )
+			{
+				//--------------
+				if (bLogging) 
+				dump << pPlot << ",1," << iDanger << "," << iFertility << ",-1" << ",-4" << std::endl;
+				//--------------
+				continue;
+			}
 		}
 
 		if(pUnit && pPlot->getArea() != pUnit->getArea() && !GET_TEAM(GET_PLAYER(GetID()).getTeam()).canEmbark())

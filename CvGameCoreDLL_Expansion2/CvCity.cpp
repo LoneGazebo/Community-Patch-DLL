@@ -1070,11 +1070,11 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 			changeFeatureProduction(iProduction);
 			if(bClearedForest)
 			{
-				CUSTOMLOG("Founding of %s on a forest created %d initial production", getName().GetCString(), iProduction);
+				//CUSTOMLOG("Founding of %s on a forest created %d initial production", getName().GetCString(), iProduction);
 			}
 			else if(bClearedJungle)
 			{
-				CUSTOMLOG("Founding of %s on a jungle created %d initial production", getName().GetCString(), iProduction);
+				//CUSTOMLOG("Founding of %s on a jungle created %d initial production", getName().GetCString(), iProduction);
 			}
 
 			if (getOwner() == GC.getGame().getActivePlayer())
@@ -4528,7 +4528,7 @@ bool CvCity::IsBuildingResourceMonopolyValid(BuildingTypes eBuilding, CvString* 
 			continue;
 
 		// City doesn't have resource locally - return false immediately
-		if(!GET_PLAYER(getOwner()).HasLuxuryMonopoly(eResource))
+		if(!GET_PLAYER(getOwner()).HasGlobalMonopoly(eResource))
 		{
 			int iOwnedNumResource = GET_PLAYER(getOwner()).getNumResourceTotal(eResource, false) + GET_PLAYER(getOwner()).getResourceExport(eResource);
 			if(iOwnedNumResource > 0)
@@ -4557,7 +4557,7 @@ bool CvCity::IsBuildingResourceMonopolyValid(BuildingTypes eBuilding, CvString* 
 			continue;
 
 		// City has resource locally - return true immediately
-		if(GET_PLAYER(getOwner()).HasLuxuryMonopoly(eResource))
+		if(GET_PLAYER(getOwner()).HasGlobalMonopoly(eResource))
 			return true;
 
 		// If we get here it means we passed the AND tests but not one of the OR tests
@@ -9657,7 +9657,7 @@ int CvCity::foodDifferenceTimes100(bool bBottom, CvString* toolTipSink) const
 				CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
 				if (pInfo && pInfo->isMonopoly())
 				{
-					if(GET_PLAYER(getOwner()).HasLuxuryMonopoly(eResourceLoop) && pInfo->getCityYieldModFromMonopoly(YIELD_FOOD) > 0)
+					if(GET_PLAYER(getOwner()).HasGlobalMonopoly(eResourceLoop) && pInfo->getCityYieldModFromMonopoly(YIELD_FOOD) > 0)
 					{
 						iTempMod = pInfo->getCityYieldModFromMonopoly(YIELD_FOOD);
 						iTotalMod += iTempMod;
@@ -14610,7 +14610,7 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 			CvResourceInfo* pInfo = GC.getResourceInfo(eResourceLoop);
 			if (pInfo && pInfo->isMonopoly())
 			{
-				if(GET_PLAYER(getOwner()).HasLuxuryMonopoly(eResourceLoop) && pInfo->getCityYieldModFromMonopoly(eIndex) > 0)
+				if(GET_PLAYER(getOwner()).HasGlobalMonopoly(eResourceLoop) && pInfo->getCityYieldModFromMonopoly(eIndex) > 0)
 				{
 					iTempMod = pInfo->getCityYieldModFromMonopoly(eIndex);
 					iModifier += iTempMod;

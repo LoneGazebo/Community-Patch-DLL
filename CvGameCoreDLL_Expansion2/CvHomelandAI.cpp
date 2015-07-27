@@ -173,7 +173,7 @@ CvPlot* CvHomelandAI::GetBestExploreTarget(const CvUnit* pUnit, int nMinCandidat
 {
 	CvEconomicAI* pEconomicAI = m_pPlayer->GetEconomicAI();
 
-	std::vector<SPlotWithScore> vExplorePlots = pEconomicAI->GetExplorationPlots( pUnit ? pUnit->getDomainType() : DOMAIN_LAND );
+	const std::vector<SPlotWithScore>& vExplorePlots = pEconomicAI->GetExplorationPlots( pUnit ? pUnit->getDomainType() : DOMAIN_LAND );
 	if (vExplorePlots.empty())
 		return NULL;
 
@@ -999,7 +999,7 @@ void CvHomelandAI::AssignHomelandMoves()
 		UnitHandle pUnit = m_pPlayer->getUnit(*it);
 		if(pUnit && pUnit->IsCombatUnit())
 		{
-			CvString missionInfo = (pUnit->getTacticalMove()==NO_TACTICAL_MOVE) ? "no tactical move" : GC.getTacticalMoveInfo(pUnit->getTacticalMove())->GetType();
+			//CvString missionInfo = (pUnit->getTacticalMove()==NO_TACTICAL_MOVE) ? "no tactical move" : GC.getTacticalMoveInfo(pUnit->getTacticalMove())->GetType();
 			//OutputDebugString( CvString::format( "%s combat unit %s used for homeland ai (last move %s)\n", m_pPlayer->getCivilizationAdjective(), pUnit->getName().c_str(), missionInfo.c_str() ).c_str() ); 
 		}
 	}
@@ -1553,7 +1553,7 @@ void CvHomelandAI::PlotSentryMoves()
 			if(m_CurrentMoveHighPriorityUnits.size() + m_CurrentMoveUnits.size() > 0)
 			{
 #if defined(MOD_BALANCE_CORE)
-				if(GetBestUnitToReachTarget(pTarget, 5))
+				if(GetBestUnitToReachTarget(pTarget, 4))
 #else
 				if(GetBestUnitToReachTarget(pTarget, MAX_INT))
 #endif
@@ -3488,54 +3488,45 @@ void CvHomelandAI::ExecuteExplorerMoves(bool bSecondPass)
 			}
 			else
 			{
-				// If this is a land explorer and there is no ignore unit path to a friendly city, then disband him
-				if(pUnit->AI_getUnitAIType() == UNITAI_EXPLORE)
+				// go home or disband
+				if(GC.getLogging() && GC.getAILogging())
 				{
-					if(GC.getLogging() && GC.getAILogging())
-					{
-						CvString strLogString;
-						CvString strTemp = pUnit->getUnitInfo().GetDescription();
-						strLogString.Format("UnitID: %s Explorer (AI) found no target, X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY());
-						LogHomelandMessage(strLogString);
-					}
-
-					CvCity* pLoopCity;
-					int iLoop;
-					bool bFoundPath = false;
-					for(pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
-					{
-						if(GC.getIgnoreUnitsPathFinder().DoesPathExist(*(pUnit), pUnit->plot(), pLoopCity->plot()))
-						{
-							bFoundPath = true;
-							break;
-						}
-					}
-					if(!bFoundPath)
-					{
-						CvString strLogString;
-						strLogString.Format("UnitID: %d Disbanding explorer, X: %d, Y: %d", pUnit->GetID(), pUnit->getX(), pUnit->getY());
-						LogHomelandMessage(strLogString);
-
-						UnitProcessed(pUnit->GetID());
-						pUnit->kill(true);
-						m_pPlayer->GetEconomicAI()->IncrementExplorersDisbanded();
-					}
-					pUnit->finishMoves();
-					UnitProcessed(pUnit->GetID());
-					continue;
+					CvString strLogString;
+					CvString strTemp = pUnit->getUnitInfo().GetDescription();
+					strLogString.Format("UnitID: %s Explorer found no target, X: %d, Y: %d", strTemp.GetCString(), pUnit->getX(), pUnit->getY());
+					LogHomelandMessage(strLogString);
 				}
-				else if(pUnit->AI_getUnitAIType() == UNITAI_EXPLORE_SEA)
+
+				CvCity* pLoopCity;
+				int iLoop;
+				bool bFoundWayHome = false;
+				for(pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 				{
-					if(GC.getLogging() && GC.getAILogging())
+					if(GC.getIgnoreUnitsPathFinder().DoesPathExist(*(pUnit), pUnit->plot(), pLoopCity->plot()))
 					{
-						CvString strLogString;
-						strLogString.Format("UnitID: %d Sea explorer (AI) found no target, X: %d, Y: %d", pUnit->GetID(), pUnit->getX(), pUnit->getY());
-						LogHomelandMessage(strLogString);
+						bFoundWayHome = true;
+						break;
 					}
-					pUnit->finishMoves();
-					UnitProcessed(pUnit->GetID());
-					continue;
 				}
+
+				if(bFoundWayHome)
+				{
+					pUnit->AI_setUnitAIType((UnitAITypes)pUnit->getUnitInfo().GetDefaultUnitAIType());
+					pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pLoopCity->getX(), pLoopCity->getY());
+				}
+				else
+				{
+					CvString strLogString;
+					strLogString.Format("UnitID: %d Disbanding explorer, X: %d, Y: %d", pUnit->GetID(), pUnit->getX(), pUnit->getY());
+					LogHomelandMessage(strLogString);
+
+					UnitProcessed(pUnit->GetID());
+					pUnit->kill(true);
+					m_pPlayer->GetEconomicAI()->IncrementExplorersDisbanded();
+				}
+
+				pUnit->finishMoves();
+				UnitProcessed(pUnit->GetID());
 			}
 		}
 		if(bSecondPass)
@@ -5120,7 +5111,7 @@ void CvHomelandAI::ExecuteEngineerMoves()
 			// Do we want to build any wonder?
 			int iNextWonderWeight;
 			CvCity* pCityToBuildAt = 0;
-			BuildingTypes eNextWonderDesired = m_pPlayer->GetWonderProductionAI()->ChooseWonderForGreatEngineer(false, iNextWonderWeight, pCityToBuildAt);
+			BuildingTypes eNextWonderDesired = m_pPlayer->GetWonderProductionAI()->ChooseWonderForGreatEngineer(iNextWonderWeight, pCityToBuildAt);
 
 			// No?  Just move to safety...
 			if(eNextWonderDesired == NO_BUILDING)
@@ -7762,7 +7753,11 @@ CvPlot* CvHomelandAI::FindPatrolTarget(CvUnit* pUnit)
 bool CvHomelandAI::GetClosestUnitByTurnsToTarget(CvHomelandAI::MoveUnitsArray &kMoveUnits, CvPlot* pTarget, int iMaxTurns, CvUnit** ppClosestUnit, int* piClosestTurns)
 {
 	CvUnit* pBestUnit = NULL;
+#ifdef AUI_ASTAR_TURN_LIMITER
+	int iMinTurns = iMaxTurns;
+#else
 	int iMinTurns = MAX_INT;
+#endif
 	MoveUnitsArray::iterator it;
 
 	int iFailedPaths = 0;

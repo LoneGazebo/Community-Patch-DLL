@@ -293,7 +293,7 @@ void CvUnitCombat::GenerateMeleeCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender
 			CvPlot* attackPlot = kAttacker.plot();
 
 			if (attackPlot->isCity() || attackPlot->getImprovementType() == eImprovementFort || attackPlot->getImprovementType() == eImprovementCitadel) {
-				CUSTOMLOG("Attacker %s is in a city/fort/citadel at (%i, %i) - they will not follow up", kAttacker.getName().GetCString(), attackPlot->getX(), attackPlot->getY());
+				//CUSTOMLOG("Attacker %s is in a city/fort/citadel at (%i, %i) - they will not follow up", kAttacker.getName().GetCString(), attackPlot->getX(), attackPlot->getY());
 				bAdvance = false;
 			}
 		}

@@ -741,7 +741,7 @@ bool CvAIOperation::CheckOnTarget()
 					{
 						int iGatherTolerance = GetGatherTolerance(pThisArmy, GetMusterPlot());
 						pCenterOfMass = pThisArmy->GetCenterOfMass(IsAllNavalOperation() || IsMixedLandNavalOperation() ? DOMAIN_SEA : DOMAIN_LAND);
-						if(pCenterOfMass &&
+						if(pCenterOfMass && GetMusterPlot() &&
 							plotDistance(pCenterOfMass->getX(), pCenterOfMass->getY(), GetMusterPlot()->getX(), GetMusterPlot()->getY()) <= iGatherTolerance &&
 							pThisArmy->GetFurthestUnitDistance(GetMusterPlot()) <= (iGatherTolerance * 3 / 2))
 						{
@@ -839,7 +839,7 @@ bool CvAIOperation::CheckOnTarget()
 #endif
 						int iGatherTolerance = GetGatherTolerance(pThisArmy, GetMusterPlot());
 						pCenterOfMass = pThisArmy->GetCenterOfMass(DOMAIN_SEA);
-						if(pCenterOfMass &&
+						if(pCenterOfMass && GetMusterPlot() &&
 							plotDistance(pCenterOfMass->getX(), pCenterOfMass->getY(), GetMusterPlot()->getX(), GetMusterPlot()->getY()) <= iGatherTolerance &&
 							pThisArmy->GetFurthestUnitDistance(GetMusterPlot()) <= (iGatherTolerance * 3))
 						{

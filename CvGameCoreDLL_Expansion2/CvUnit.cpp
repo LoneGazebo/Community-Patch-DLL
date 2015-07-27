@@ -2688,6 +2688,11 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iNumGoodyHutsPopped = 0;
 	m_iLastGameTurnAtFullHealth = -1;
 
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	m_strMissionInfoString = "";
+	m_iTactMoveSetTurn = 0;
+#endif
+
 	if(!bConstructorCall)
 	{
 		m_Promotions.Reset();
@@ -7104,6 +7109,10 @@ void CvUnit::setTacticalMove(TacticalAIMoveTypes eMove)
 {
 	VALIDATE_OBJECT
 	m_eTacticalMove = eMove;
+
+#if defined(MOD_BALANCE_CORE_MILITARY)
+	m_iTactMoveSetTurn = GC.getGame().getGameTurn();
+#endif
 }
 
 //	--------------------------------------------------------------------------------
@@ -26398,6 +26407,9 @@ const char* CvUnit::GetMissionInfo()
 		"no tactical move" : 
 		(isBarbarian() ? barbarianMoveNames[m_eTacticalMove]: GC.getTacticalMoveInfo(m_eTacticalMove)->GetType());
 
+	CvString strTemp0 = CvString::format(" (since %d)", GC.getGame().getGameTurn() - m_iTactMoveSetTurn);
+	m_strMissionInfoString += strTemp0;
+
 	if (m_iMissionAIX!=INVALID_PLOT_COORD && m_iMissionAIY!=INVALID_PLOT_COORD)
 	{
 		CvString strTemp1;
@@ -26462,8 +26474,8 @@ void CvUnit::PushMission(MissionTypes eMission, int iData1, int iData2, int iFla
 		CvPlot* pTarget = (eMission==CvTypes::getMISSION_MOVE_TO()) ? GC.getMap().plot(iData1,iData2) : NULL;
 		if (pPlot)
 		{
-			CvString info = CvString::format( "%03d;0x%08X;%s;id;0x%08X;owner;%02d;army;0x%08X;%s;arg1;%d;arg2;%d;flags;0x%08X;at;%d;%d;danger;%d\n", 
-				GC.getGame().getGameTurn(),this,this->getNameKey(),this->GetID(),this->getOwner(),this->getArmyID(),CvTypes::GetMissionName(eMission).c_str(),iData1,iData2,iFlags, 
+			CvString info = CvString::format( "%03d;%s;id;0x%08X;owner;%02d;army;0x%08X;%s;arg1;%d;arg2;%d;flags;0x%08X;at;%d;%d;danger;%d\n", 
+				GC.getGame().getGameTurn(),this->getNameKey(),this->GetID(),this->getOwner(),this->getArmyID(),CvTypes::GetMissionName(eMission).c_str(),iData1,iData2,iFlags, 
 				pPlot->getX(), pPlot->getY(), kPlayer.GetPlotDanger(*pPlot,this), pTarget ? kPlayer.GetPlotDanger(*pTarget,this) : -1 );
 			FILogFile* pLog=LOGFILEMGR.GetLog( "unit-missions.csv", FILogFile::kDontTimeStamp | FILogFile::kDontFlushOnWrite );
 			pLog->Msg( info.c_str() );

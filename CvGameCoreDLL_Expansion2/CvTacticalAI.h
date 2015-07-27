@@ -824,9 +824,7 @@ public:
 	bool IsInQueuedAttack(const CvUnit* pAttacker);
 	bool IsCityInQueuedAttack(const CvCity* pAttackCity);
 	int NearXQueuedAttacks(const CvPlot* pPlot, const int iRange);
-#if defined(MOD_BALANCE_CORE_MILITARY)
-	bool ScoreDeploymentPlotsHelper(CvPlot* pTarget, int iNumUnits, int iDeployRange);
-#endif
+
 	// Public logging
 	void LogTacticalMessage(CvString& strMsg, bool bSkipLogDominanceZone = true);
 
@@ -1086,19 +1084,24 @@ private:
 	int m_CachedInfoTypes[eNUM_TACTICAL_INFOTYPES];
 };
 
+#if defined(MOD_BALANCE_CORE)
 namespace TacticalAIHelpers
 {
-bool CvBlockingUnitDistanceSort(CvBlockingUnit obj1, CvBlockingUnit obj2);
-
-#if defined(MOD_BALANCE_CORE)
-typedef std::set<std::pair<CvPlot*,int>> ReachablePlotSet;
-int GetAllTilesInReach(CvUnit* pUnit, CvPlot* pStartPlot, ReachablePlotSet& resultSet, bool bCheckTerritory=false, bool bCheckZOC=false);
-int GetPlotsUnderRangedAttackFrom(CvUnit* pUnit, CvPlot* pBasePlot, std::set<CvPlot*>& resultSet);
-int GetPlotsUnderRangedAttackFrom(CvUnit* pUnit, ReachablePlotSet& basePlots, std::set<CvPlot*>& resultSet);
-bool PerformRangedOpportunityAttack(CvUnit* pUnit);
+	bool CvBlockingUnitDistanceSort(CvBlockingUnit obj1, CvBlockingUnit obj2);
+	typedef std::set<std::pair<CvPlot*,int>> ReachablePlotSet;
+	int GetAllTilesInReach(CvUnit* pUnit, CvPlot* pStartPlot, ReachablePlotSet& resultSet, bool bCheckTerritory=false, bool bCheckZOC=false);
+	int GetPlotsUnderRangedAttackFrom(CvUnit* pUnit, CvPlot* pBasePlot, std::set<CvPlot*>& resultSet);
+	int GetPlotsUnderRangedAttackFrom(CvUnit* pUnit, ReachablePlotSet& basePlots, std::set<CvPlot*>& resultSet);
+	bool PerformRangedOpportunityAttack(CvUnit* pUnit);
+	bool CountDeploymentPlots(TeamTypes eTeam, CvPlot* pTarget, int iNumUnits, int iDeployRange);
 }
 
 extern const char* barbarianMoveNames[];
+#else
+namespace TacticalAIHelpers
+{
+bool CvBlockingUnitDistanceSort(CvBlockingUnit obj1, CvBlockingUnit obj2);
+}
 #endif
 
 #endif //CIV5_TACTICAL_AI_H

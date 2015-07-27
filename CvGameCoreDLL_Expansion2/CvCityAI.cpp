@@ -150,7 +150,7 @@ void CvCityAI::AI_chooseProduction(bool bInterruptWonders)
 
 	else
 	{
-		m_pCityStrategyAI->ChooseProduction(false);
+		m_pCityStrategyAI->ChooseProduction();
 		AI_setChooseProductionDirty(false);
 	}
 

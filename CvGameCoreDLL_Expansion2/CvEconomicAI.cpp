@@ -3136,7 +3136,7 @@ void CvEconomicAI::UpdatePlots()
 	m_vPlotsToExploreSea.clear();
 
 #if defined(MOD_BALANCE_CORE_MILITARY_LOGGING)
-	bool bLogging = MOD_BALANCE_CORE_MILITARY_LOGGING && GC.getLogging() && GC.getAILogging() && m_pPlayer->isMajorCiv();
+	bool bLogging = GC.getLogging() && GC.getAILogging() && m_pPlayer->isMajorCiv(); // && MOD_BALANCE_CORE_MILITARY_LOGGING;
 	CvString fname = CvString::format( "ExplorePlots_%s_%03d.txt", m_pPlayer->getCivilizationAdjective(), GC.getGame().getGameTurn() );
 	FILogFile* pLog= bLogging ? LOGFILEMGR.GetLog( fname.c_str(), FILogFile::kDontTimeStamp ) : NULL;
 #endif
@@ -3159,7 +3159,7 @@ void CvEconomicAI::UpdatePlots()
 				int iScore = ScoreExplorePlot2(pPlot, m_pPlayer, DOMAIN_SEA, false);
 
 #if defined(MOD_BALANCE_CORE_MILITARY_LOGGING)
-				if (MOD_BALANCE_CORE_MILITARY_LOGGING && bLogging && pLog) 
+				if (bLogging && pLog) 
 				{
 					CvString dump = CvString::format( "%d,%d,%d,%d,%d,%d\n", 
 						pPlot->getX(), pPlot->getY(), pPlot->isRevealed(m_pPlayer->getTeam()), pPlot->getTerrainType(), pPlot->getOwner(), iScore );
@@ -3178,7 +3178,7 @@ void CvEconomicAI::UpdatePlots()
 			int iScore = ScoreExplorePlot2(pPlot, m_pPlayer, DOMAIN_LAND, false);
 
 #if defined(MOD_BALANCE_CORE_MILITARY_LOGGING)
-			if (MOD_BALANCE_CORE_MILITARY_LOGGING && bLogging && pLog) 
+			if (bLogging && pLog) 
 			{
 				CvString dump = CvString::format( "%d,%d,%d,%d,%d,%d\n", 
 					pPlot->getX(), pPlot->getY(), pPlot->isRevealed(m_pPlayer->getTeam()), pPlot->getTerrainType(), pPlot->getOwner(), iScore );
@@ -3194,9 +3194,11 @@ void CvEconomicAI::UpdatePlots()
 	}
 
 #if defined(MOD_BALANCE_CORE_MILITARY_LOGGING)
-	if (MOD_BALANCE_CORE_MILITARY_LOGGING && pLog)
+	if (pLog)
 		pLog->Close();
 #endif
+
+
 
 	//keep all of them - GetBestExplorePlot will only look at the n best candidates anyway
 	std::sort(m_vPlotsToExploreLand.begin(),m_vPlotsToExploreLand.end());
@@ -4477,13 +4479,13 @@ bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes /*eStra
 	CvUnit* pFirstSettler = 0;
 #if !defined(MOD_BALANCE_CORE_SETTLER)
 	int iLooseSettler = 0;
-#endif
 	//int iStrategyWeight = 0;
 	int iFirstSettlerArea = -1;
+	int iArea = -1;
+#endif
 	int iBestArea;
 	int iSecondBestArea;
 	int iNumAreas;
-	int iArea = -1;
 #if defined(MOD_BALANCE_CORE_SETTLER)
 	// Never run this strategy for OCC, barbarians or minor civs
 	if (GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) || pPlayer->isBarbarian() || pPlayer->isMinorCiv())
@@ -4515,17 +4517,22 @@ bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes /*eStra
 					if(pLoopUnit->getArmyID() == FFreeList::INVALID_INDEX)
 					{
 #if defined(MOD_BALANCE_CORE)
-						iFirstSettlerArea = pLoopUnit->getArea();
+						int iInitialSettlerArea = pLoopUnit->getArea();
 						pFirstSettler = pLoopUnit;
 						bool bCanEmbark = GET_TEAM(pPlayer->getTeam()).canEmbark() || pPlayer->GetPlayerTraits()->IsEmbarkedAllWater();
-						iArea = iBestArea;
-						if(iArea == -1)
+						
+						int iFirstAreaToCheck = iBestArea;
+						int iSecondAreaToCheck = iSecondBestArea;
+
+						if(iFirstAreaToCheck == -1)
 						{
-							iArea = iSecondBestArea;
+							iFirstAreaToCheck = iSecondBestArea;
+							iSecondAreaToCheck = iInitialSettlerArea;
 						}
-						if(iArea == -1)
+						if(iFirstAreaToCheck == -1)
 						{
-							iArea  = iFirstSettlerArea;
+							iFirstAreaToCheck  = iInitialSettlerArea;
+							iSecondAreaToCheck = -1;
 						}
 						CvArea* pCapitalArea = NULL;
 						if(pPlayer->getCapitalCity() != NULL)
@@ -4534,22 +4541,41 @@ bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes /*eStra
 						}
 						else
 						{
-							pCapitalArea = GC.getMap().getArea(iFirstSettlerArea);
+							pCapitalArea = GC.getMap().getArea(iInitialSettlerArea);
 						}
 						
 						// CASE 1: we can go offshore
 						if (bCanEmbark)
 						{				
 							//Going overseas? Good luck!
-							if(iArea != -1 && pCapitalArea != NULL && pCapitalArea->GetID() != iArea)
+							if(iFirstAreaToCheck != -1 && pCapitalArea != NULL && pCapitalArea->GetID() != iFirstAreaToCheck)
 							{
-								bool bWantEscort = false;
-								if(!IsAreaSafeForQuickColony(iArea, pPlayer))
+								int iFinalArea = iFirstAreaToCheck;
+
+								bool bWantEscort = !IsAreaSafeForQuickColony(iFirstAreaToCheck, pPlayer);
+								CvPlot* bBestSettle = pPlayer->GetBestSettlePlot(pFirstSettler, !bWantEscort, iFirstAreaToCheck);
+
+								if(bBestSettle == NULL)
 								{
-									bWantEscort = true;
+									//second chance
+									bWantEscort = !IsAreaSafeForQuickColony(iSecondAreaToCheck, pPlayer);
+									bBestSettle = pPlayer->GetBestSettlePlot(pFirstSettler, !bWantEscort, iSecondAreaToCheck);
+									iFinalArea = iSecondAreaToCheck;
+
+									if(bBestSettle == NULL)
+									{
+										if(GC.getLogging() && GC.getAILogging())
+										{
+											CvString strLogString;
+											strLogString.Format("We have settlers, but no good areas to settle!");
+											pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
+										}
+										return false;
+									}
 								}
+
 								bool bIsOccupied = false;
-								CvArea* pArea = GC.getMap().getArea(iBestArea);
+								CvArea* pArea = (iFinalArea!=-1) ? GC.getMap().getArea(iFinalArea) : NULL;
 								if(pArea != NULL)
 								{
 									if(pArea->getCitiesPerPlayer(pPlayer->GetID()) > 0)
@@ -4557,45 +4583,35 @@ bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes /*eStra
 										bIsOccupied = true;
 									}
 								}
-								CvPlot* bBestSettle = pPlayer->GetBestSettlePlot(pFirstSettler, !bWantEscort, iArea);
-								if(bBestSettle == NULL)
-								{
-									if(GC.getLogging() && GC.getAILogging())
-									{
-										CvString strLogString;
-										strLogString.Format("We have settlers, but no good areas to settle!");
-										pPlayer->GetHomelandAI()->LogHomelandMessage(strLogString);
-									}
-									return false;
-								}
+
 								if(!bIsOccupied)
 								{
 									if (!bWantEscort)
 									{
-										pPlayer->addAIOperation(AI_OPERATION_QUICK_COLONIZE, NO_PLAYER, iArea);
+										pPlayer->addAIOperation(AI_OPERATION_QUICK_COLONIZE, NO_PLAYER, iFinalArea);
 										return true;
 									}
 									else
 									{
-										pPlayer->addAIOperation(AI_OPERATION_COLONIZE, NO_PLAYER, iArea);
+										pPlayer->addAIOperation(AI_OPERATION_COLONIZE, NO_PLAYER, iFinalArea);
 										return true;
 									}
 								}
 								else
 								{
-									pPlayer->addAIOperation(AI_OPERATION_FOUND_CITY, NO_PLAYER, iArea);
+									pPlayer->addAIOperation(AI_OPERATION_FOUND_CITY, NO_PLAYER, iFinalArea);
 									return true;
 								}
 							}
 							else
 							{
-								pPlayer->addAIOperation(AI_OPERATION_FOUND_CITY, NO_PLAYER, iArea);
+								pPlayer->addAIOperation(AI_OPERATION_FOUND_CITY, NO_PLAYER, iFirstAreaToCheck);
 								return true;
 							}
 						}
 						else // we can't embark yet
 						{
-							CvPlot* bBestSettle = pPlayer->GetBestSettlePlot(pFirstSettler, false, iArea);
+							CvPlot* bBestSettle = pPlayer->GetBestSettlePlot(pFirstSettler, false, iInitialSettlerArea);
 							if(bBestSettle == NULL)
 							{
 								if(GC.getLogging() && GC.getAILogging())
@@ -4606,7 +4622,7 @@ bool EconomicAIHelpers::IsTestStrategy_FoundCity(EconomicAIStrategyTypes /*eStra
 								}
 								return false;
 							}
-							pPlayer->addAIOperation(AI_OPERATION_FOUND_CITY, NO_PLAYER, iArea);
+							pPlayer->addAIOperation(AI_OPERATION_FOUND_CITY, NO_PLAYER, iInitialSettlerArea);
 							return true;
 						}
 					}
